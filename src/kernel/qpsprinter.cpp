@@ -2229,6 +2229,15 @@ static void makeFixedStrings()
     *fixed_ps_header = wordwrap( *fixed_ps_header );
 }
 
+static float pointSize( const QFont &f, float scale )
+{
+    float psize;
+    if ( f.pointSize() != -1 )
+	psize = f.pointSize()/scale;
+    else
+	psize = f.pixelSize();
+    return psize;
+}
 
 
 // ========================== FONT CLASSES  ===============
@@ -2323,13 +2332,13 @@ QString QPSPrinterFontPrivate::defineFont( QTextStream &stream, QString ps, cons
     if ( d->buffer ) {
         ++d->headerFontNumber;
         d->fontStream << "/F" << d->headerFontNumber << " "
-                      << f.pointSize()/d->scale << fontName << " DF\n";
+                      << pointSize( f, d->scale ) << fontName << " DF\n";
         fontName.sprintf( "F%d", d->headerFontNumber );
         d->headerFontNames.insert( key, new QString( fontName ) );
     } else {
         ++d->pageFontNumber;
         stream << "/F" << d->pageFontNumber << " "
-               << f.pointSize()/d->scale << fontName << " DF\n";
+               << pointSize( f, d->scale ) << fontName << " DF\n";
         fontName.sprintf( "F%d", d->pageFontNumber );
         d->pageFontNames.insert( key, new QString( fontName ) );
     }
@@ -4646,9 +4655,9 @@ QString QPSPrinterFontAsian::emitDef( QTextStream &stream, const QString &ps, co
         }
         ++d->headerFontNumber;
         d->fontStream << "/F" << d->headerFontNumber << " "
-                      << f.pointSize()/d->scale << lfontName << " DF\n";
+                      << pointSize( f, d->scale ) << lfontName << " DF\n";
         d->fontStream << "/F" << d->headerFontNumber << "as "
-                      << f.pointSize()/d->scale << fontName << " DF\n";
+                      << pointSize( f, d->scale ) << fontName << " DF\n";
         fontName.sprintf( "F%d", d->headerFontNumber );
         d->headerFontNames.insert( key, new QString( fontName ) );
     } else {
@@ -4666,9 +4675,9 @@ QString QPSPrinterFontAsian::emitDef( QTextStream &stream, const QString &ps, co
         }
         ++d->pageFontNumber;
         stream << "/F" << d->pageFontNumber << " "
-               << f.pointSize()/d->scale << lfontName << " DF\n";
+               << pointSize( f, d->scale ) << lfontName << " DF\n";
         stream << "/F" << d->pageFontNumber << "as "
-               << f.pointSize()/d->scale << fontName << " DF\n";
+               << pointSize( f, d->scale ) << fontName << " DF\n";
         fontName.sprintf( "F%d", d->pageFontNumber );
         d->pageFontNames.insert( key, new QString( fontName ) );
     }
@@ -5273,7 +5282,10 @@ void QPSPrinterPrivate::setFont( const QFont & fnt, int script )
 
     QString key;
 
-    key.sprintf( "%s %d", ff.xfontname.ascii(), f.pointSize() );
+    if ( f.pointSize() != -1 )
+	key.sprintf( "%s %d", ff.xfontname.ascii(), f.pointSize() );
+    else 
+	key.sprintf( "%s px%d", ff.xfontname.ascii(), f.pixelSize() );
     QString * tmp;
     if ( !buffer )
         tmp = pageFontNames.find( key );

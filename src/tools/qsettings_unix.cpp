@@ -807,11 +807,12 @@ int QSettings::readNumEntry(const QString &key, int def, bool *ok )
 */
 QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
 {
+    if ( ok ) // no, everything is not ok
+	*ok = FALSE;
+
 #ifdef QT_CHECK_STATE
     if (key.isNull() || key.isEmpty()) {
 	qWarning("QSettings::readEntry: invalid null/empty key.");
-	if ( ok )
-	    *ok = FALSE;
 	return def;
     }
 #endif // QT_CHECK_STATE
@@ -853,8 +854,7 @@ QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
     QString retval = grp[realkey];
     if ( retval.isNull() )
 	retval = def;
-
-    if ( ok )
+    else if ( ok ) // everything is ok
 	*ok = TRUE;
     return retval;
 }

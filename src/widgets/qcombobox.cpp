@@ -943,7 +943,7 @@ void QComboBox::setCurrentItem( int index )
 	d->listBox()->setCurrentItem( index );
     } else {
 	internalHighlight( index );
-	//internalActivate( index ); ### this leads to weired behavior, as in 3.0.1
+	// internalActivate( index ); ### this leads to weird behavior, as in 3.0.1
     }
 
     currentChanged();
