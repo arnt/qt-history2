@@ -453,13 +453,15 @@ bool QAccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
 	if (mainStatusBar && (PartialMatch == currentState || intermediate.count())) {
 	    if (currentState == Qt::PartialMatch) {
 		mainStatusBar->message((QString)partial + ", ...", 0);
-	    } else {
+	    } else if (!identicalDisabled) {
 		QString message = QAccel::tr("%1, %2 not defined").
 		    arg((QString)intermediate).
 		    arg(QKeySequence::encodeString(e->key() | translateModifiers(e->state())));
 		mainStatusBar->message(message, 2000);
 		// Since we're a NoMatch, reset the clash count
 		clash = -1;
+	    } else {
+	    	mainStatusBar->clear();
 	    }
 	}
 #endif
