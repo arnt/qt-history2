@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignal.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qsignal.cpp#12 $
 **
 ** Implementation of QSignal class
 **
@@ -14,26 +14,77 @@
 #include "qmetaobj.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qsignal.cpp#11 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qsignal.cpp#12 $")
 
-/*! \class QSignal qsignal.h
+/*----------------------------------------------------------------------------
+  \class QSignal qsignal.h
+  \brief The QSignal class can be used to send signals without parameters.
 
-  \brief The QSignal class is an internal class, used in the
-  signal/slot mechanism.
+  QSignal is a simple extension of QObject that can send plain signals
+  without parameters.  If you want to send signals from a class that does
+  not inherit QObject, you can create an internal QSignal object to emit
+  the signal. You must also provide a function that connects the signal to
+  an outside object slot.  This is how we have implemented signals in the
+  QMenuData class, which is not a QObject.
 
-  It is generally a very bad idea to use this class directly in
-  application programs.
+  In general, we recommend inheriting QObject instead.  QObject provides
+  much more functionality.
 
-  \internal
+  Note that QObject is a \e private base class of QSignal, i.e. you cannot
+  call any QObject member functions from a QSignal object.
 
-  This class is not yet documented.  Our <a
-  href=http://www.troll.no/>home page</a> contains a pointer to the
-  current version of Qt. */
+  Example:
+  \code
+    #include <qsignal.h>
+
+    class MyClass
+    {
+    public:
+        MyClass();
+       ~MyClass();
+
+        void doSomething();
+
+	void connect( QObject *receiver, const char *member );
+
+    private:
+        QSignal *sig;
+    };
+
+    MyClass::MyClass()
+    {
+        sig = new QSignal;
+    }
+
+    MyClass::~MyClass()
+    {
+        delete sig;
+    }
+
+    void MyClass::doSomething()
+    {
+        // ... does something
+	sig->activate();	// activates the signal
+    }
+
+    void MyClass::connect( QObject *receiver, const char *member )
+    {
+        sig->connect( receiver, member );
+    }
+  \endcode
+ ----------------------------------------------------------------------------*/
+
 
 QMetaObject *QSignal::metaObj = 0;
 
 
-QSignal::QSignal( QObject *parent, const char *name ) : QObject( parent, name )
+/*----------------------------------------------------------------------------
+  Constructs a signal object with the parent object \e parent and a \e name.
+  These arguments are passed directly to QObject.
+ ----------------------------------------------------------------------------*/
+
+QSignal::QSignal( QObject *parent, const char *name )
+    : QObject( parent, name )
 {
     if ( !metaObj )				// will create object dict
 	initMetaObject();
@@ -41,18 +92,48 @@ QSignal::QSignal( QObject *parent, const char *name ) : QObject( parent, name )
 }
 
 
-const char *QSignal::className() const		// get class name
+/*----------------------------------------------------------------------------
+  \fn const char *QSignal::name() const  
+  Returns the name of this signal object.
+
+  Since QObject is a private base class, we have added this function, which
+  calls QObject::name().
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn void QSignal::setName( const char *name )
+  Sets the name of this signal object to \e name.
+
+  Since QObject is a private base class, we have added this function, which
+  calls QObject::setName().
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  Returns the class name, which is "QSignal" for all instances of this
+  class.
+ ----------------------------------------------------------------------------*/
+
+const char *QSignal::className() const
 {
     return "QSignal";
 }
 
 
+/*----------------------------------------------------------------------------
+  Connects the signal to \e member in object \e receiver.
+  \sa disconnect(), QObject::connect()
+ ----------------------------------------------------------------------------*/
+
 bool QSignal::connect( const QObject *receiver, const char *member )
-{						// connect signal to method
+{
     return QObject::connect( (QObject *)this, SIGNAL(x()),
 			     receiver, member );
 }
 
+/*----------------------------------------------------------------------------
+  Disonnects the signal from \e member in object \e receiver.
+  \sa connect(), QObject::disconnect()
+ ----------------------------------------------------------------------------*/
 
 bool QSignal::disconnect( const QObject *receiver, const char *member )
 {
@@ -61,10 +142,36 @@ bool QSignal::disconnect( const QObject *receiver, const char *member )
 }
 
 
+/*----------------------------------------------------------------------------
+  \fn bool QSignal::isBlocked() const
+  Returns TRUE if the signal is blocked, or FALSE if it is not blocked.
+
+  The signal is not blocked by default.
+
+  \sa block(), QObject::signalsBlocked()
+ ----------------------------------------------------------------------------*/
+    
+/*----------------------------------------------------------------------------
+  \fn void QSignal::block( bool b )
+  Blocks the signal if \e b is TRUE, or unblocks the signal if \e b is FALSE.
+
+  An activated signal disappears into hyperspace if it is blocked.
+
+  \sa isBlocked(), activate(), QObject::blockSignals()
+ ----------------------------------------------------------------------------*/
+
+
+/*----------------------------------------------------------------------------
+  \fn void QSignal::activate()
+  Emits the signal.
+  \sa isBlock()
+ ----------------------------------------------------------------------------*/
+
+
 void QSignal::dummy()				// just for the meta object
 {						//   should never be called
 #if defined(CHECK_STATE)
-    debug( "QSignal: Internal error" );
+    warning( "QSignal: Internal error" );
 #endif
 }
 
@@ -78,7 +185,7 @@ void QSignal::initMetaObject()			// initialize meta object
     typedef void (QSignal::*m2_t0)();
     m2_t0 v2_0 = &QSignal::dummy;
     QMetaData *signal_tbl = new QMetaData[1];
-    signal_tbl[0].name = (char *)"x()";			// fake signal x in meta object
+    signal_tbl[0].name = (char *)"x()";		// fake signal x in meta object
     signal_tbl[0].ptr = *((QMember*)&v2_0);
     metaObj = new QMetaObject( "QSignal", "QObject",
 	0, 0,
