@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#62 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#63 $
 **
 ** Definition of QFileDialog class
 **
@@ -117,7 +117,7 @@ private:
     QListBoxItem *currDropItem;
     QTimer changeDirTimer;
     bool firstMousePressEvent;
-    
+
 };
 
 
@@ -167,7 +167,7 @@ private:
     QListViewItem *currDropItem;
     QTimer changeDirTimer;
     bool firstMousePressEvent;
-    
+
 };
 
 
@@ -195,6 +195,17 @@ public:
                                          QWidget *parent = 0,
                                          const char* name = 0 );
     static QStringList getOpenFileNames( const QString &filter= QString::null,
+                                         const QString &dir = QString::null,
+                                         QWidget *parent = 0,
+                                         const char* name = 0);
+
+    static QString getOpenFileName( const QStringList &filters,
+                                    const QString &initially = QString::null,
+                                    QWidget *parent = 0, const char* name = 0);
+    static QString getSaveFileName( const QStringList &filters, 
+                                    const QString &initially = QString::null,
+                                    QWidget *parent = 0, const char* name = 0);
+    static QStringList getOpenFileNames( const QStringList &filters,
                                          const QString &dir = QString::null,
                                          QWidget *parent = 0,
                                          const char* name = 0);

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#232 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#233 $
 **
 ** Implementation of QFileDialog class
 **
@@ -592,14 +592,14 @@ void QFileListBox::viewportMousePressEvent( QMouseEvent *e )
         firstMousePressEvent = FALSE;
         return;
     }
-    
-    if ( !firstMousePressEvent && !didRename && i == currentItem() && currentItem() != -1 && 
+
+    if ( !firstMousePressEvent && !didRename && i == currentItem() && currentItem() != -1 &&
          filedialog->mode() != QFileDialog::ExistingFiles &&
          QFileInfo( filedialog->dirPath() ).isWritable() && item( currentItem() )->text() != ".." ) {
         renameTimer->start( QApplication::doubleClickInterval(), TRUE );
         renameItem = item( i );
     }
-    
+
     firstMousePressEvent = FALSE;
 }
 
@@ -948,14 +948,14 @@ void QFileListView::viewportMousePressEvent( QMouseEvent *e )
         firstMousePressEvent = FALSE;
         return;
     }
-    
-    if ( !firstMousePressEvent && !didRename && i == currentItem() && currentItem() && 
+
+    if ( !firstMousePressEvent && !didRename && i == currentItem() && currentItem() &&
          filedialog->mode() != QFileDialog::ExistingFiles &&
          QFileInfo( filedialog->dirPath() ).isWritable() && currentItem()->text( 0 ) != ".." ) {
         renameTimer->start( QApplication::doubleClickInterval(), TRUE );
         renameItem = currentItem();
     }
-    
+
     firstMousePressEvent = FALSE;
 }
 
@@ -2036,6 +2036,57 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
                                       const QString& filter,
                                       QWidget *parent, const char* name )
 {
+    QStringList lst;
+    if ( !filter.isEmpty() )
+        lst.append( filter );
+        
+    return QFileDialog::getOpenFileName( lst, startWith, parent, name );
+}
+
+/*!
+  Opens a modal file dialog and returns the name of the file to be
+  opened.
+
+  If \a startWith is the name of a directory, the dialog starts off in
+  that directory.  If \a startWith is the name of an existing file,
+  the dialogs starts in that directory, and with \a startWith
+  selected.
+
+  Only files matching a filter of the list \a filters are selectable.
+
+  If \a widget and/or \a name is provided, the dialog will be centered
+  over \a widget and \link QObject::name() named \endlink \a name.
+
+  getOpenFileName() returns a \link QString::isNull() null string
+  \endlink if the user cancelled the dialog.
+
+  This static function is less capable than the full QFileDialog object,
+  but is convenient and easy to use.
+
+  Example:
+  \code
+    // start at the current working directory and list all C++ and header files
+    QStringList lst;
+    lst.append( "C++ Files ("*.cpp;*.cc;*.C,*.c++,*.cxx") ");
+    lst.append( "Header Files ("*.h;*.hxx;*.h++") ");
+    QString f = QFileDialog::getOpenFileName( lst, QString::null, this );
+    if ( !f.isEmpty() ) {
+        // the user selected a valid existing file
+    } else {
+        // the user cancelled the dialog
+    }
+  \endcode
+
+  getSaveFileName() is another convenience function, equal to this one
+  except that it allows the user to specify the name of a nonexistent file
+  name.
+
+  \sa getSaveFileName()
+*/
+
+QString QFileDialog::getOpenFileName( const QStringList &filters, const QString &startWith, 
+                                      QWidget *parent, const char* name )
+{
     makeVariables();
     QString initialSelection;
     //### Problem with the logic here: If a startWith is given, and a file
@@ -2056,12 +2107,13 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 
 #if defined(_WS_WIN_)
     if ( qApp->style() == WindowsStyle )
-        return winGetOpenFileName( initialSelection, filter, workingDirectory,
+        return winGetOpenFileName( initialSelection, filter.count() > 0 ? filter.first() : QString::null, workingDirectory,
                                    parent, name );
 #endif
 
-    QFileDialog *dlg = new QFileDialog( *workingDirectory, filter,
+    QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null,
                                         parent, name, TRUE );
+    dlg->setFilters( filters );
     CHECK_PTR( dlg );
     dlg->setCaption( QFileDialog::tr( "Open" ) );
     if ( !initialSelection.isEmpty() )
@@ -2119,6 +2171,59 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
                                       const QString& filter,
                                       QWidget *parent, const char* name )
 {
+    QStringList lst;
+    if ( !filter.isEmpty() )
+        lst.append( filter );
+        
+    return QFileDialog::getSaveFileName( lst, startWith, parent, name );
+}
+
+/*!
+  Opens a modal file dialog and returns the name of the file to be
+  saved.
+
+  If \a startWith is the name of a directory, the dialog starts off in
+  that directory.  If \a startWith is the name of an existing file,
+  the dialogs starts in that directory, and with \a startWith
+  selected.
+
+  Only files matching a filter of the list \a filters are selectable.
+
+  If \a widget and/or \a name is provided, the dialog will be centered
+  over \a widget and \link QObject::name() named \endlink \a name.
+
+  Returns a \link QString::isNull() null string\endlink if the user
+  cancelled the dialog.
+
+  This static function is less capable than the full QFileDialog object,
+  but is convenient and easy to use.
+
+  Example:
+  \code
+    // start at the current working directory and list all C++ and header files
+    QString f = QFileDialog::getSaveFileName( QString::null, "*.cpp", this );
+    QStringList lst;
+    lst.append( "C++ Files ("*.cpp;*.cc;*.C,*.c++,*.cxx") ");
+    lst.append( "Header Files ("*.h;*.hxx;*.h++") ");
+    QString f = QFileDialog::getSaveFileName( lst, QString::null, this );
+    if ( !f.isEmpty() ) {
+        // the user gave a file name
+    } else {
+        // the user cancelled the dialog
+    }
+  \endcode
+
+  getOpenFileName() is another convenience function, equal to this one
+  except that it does not allow the user to specify the name of a
+  nonexistent file name.
+
+  \sa getOpenFileName()
+*/
+
+QString QFileDialog::getSaveFileName( const QStringList &filters, 
+                                      const QString & startWith,
+                                      QWidget *parent, const char* name )
+{
     makeVariables();
     QString initialSelection;
     if ( !startWith.isEmpty() ) {
@@ -2136,12 +2241,13 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 
 #if defined(_WS_WIN_)
     if ( qApp->style() == WindowsStyle )
-        return winGetSaveFileName( initialSelection, filter, workingDirectory,
+        return winGetSaveFileName( initialSelection, filter.count() > 0 ? filter.first() : QString::null, workingDirectory,
                                    parent, name );
 #endif
 
-    QFileDialog *dlg = new QFileDialog( *workingDirectory, filter, parent, name, TRUE );
+    QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null, parent, name, TRUE );
     CHECK_PTR( dlg );
+    dlg->setFilters( filters );
     dlg->setCaption( QFileDialog::tr( "Save as" ) );
     QString result;
     if ( !initialSelection.isEmpty() )
@@ -2169,10 +2275,19 @@ void QFileDialog::okClicked()
     // accept it and be done.
     if ( mode() == ExistingFiles ) {
         QListViewItem * i = files->firstChild();
-        while( i && !i->isSelected() )
+        while( i ) {
+            if ( i->isSelected() ) {
+                accept();
+                return;
+            }
             i = i->nextSibling();
-        if ( i )
-            accept();
+        }
+        for ( unsigned j = 0; j < d->moreFiles->count(); ++j ) {
+            if ( d->moreFiles->isSelected( j ) ) {
+                accept();
+                return;
+            }
+        }
     }
 
     // If selection is valid, return it, else try
@@ -3192,7 +3307,9 @@ void QFileDialog::modeButtonsDestroyed()
   "c:\\quake\\quake").
 
   \a filter is the default glob pattern (which the user can change).
-  The default is all files.  \a dir is the starting directory.  If \a
+  The default is all files.  
+  
+  \a dir is the starting directory.  If \a
   dir is not supplied, QFileDialog picks something presumably useful
   (such as the directory where the user selected something last, or
   the current working directory).
@@ -3213,31 +3330,58 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
                                            QWidget *parent,
                                            const char* name )
 {
+    QStringList lst;
+    if ( !filter.isEmpty() )
+        lst.append( filter );
+        
+    return QFileDialog::getOpenFileNames( lst, dir, parent, name );
+}
+
+/*!  Lets the user select N files from a single directory, and returns
+  a list of the selected files.  The list may be empty, and the file
+  names are fully qualified (i.e. "/usr/games/quake" or
+  "c:\\quake\\quake").
+
+  All files matching a filter of the list \a filters are listed.
+  
+  \a dir is the starting directory.  If \a
+  dir is not supplied, QFileDialog picks something presumably useful
+  (such as the directory where the user selected something last, or
+  the current working directory).
+
+  \a parent is a widget over which the dialog should be positioned and
+  \a name is the object name of the temporary QFileDialog object.
+
+  Example:
+
+  \code
+    QStringList s( QFileDialog::getOpenFileNames() );
+    // do something with the files in s.
+  \endcode
+*/
+
+QStringList QFileDialog::getOpenFileNames( const QStringList &filters,
+                                           const QString& dir,
+                                           QWidget *parent,
+                                           const char* name )
+{
     makeVariables();
 
     if ( workingDirectory->isNull() )
         *workingDirectory = QDir::currentDirPath();
-
-//     QFileInfo tmp( QDir::root(), dir );
-//     if ( !tmp.isDir() ) {
-//         tmp.setFile( QDir::root(), *workingDirectory );
-//         while( !tmp.isDir() )
-//             tmp.setFile( tmp.dirPath( TRUE ) );
-//     }
-
-//     *workingDirectory = tmp.absFilePath();
 
     if ( !dir.isEmpty() )
         *workingDirectory = dir;
 
 #if defined(_WS_WIN_)
     if ( qApp->style() == WindowsStyle )
-        return winGetOpenFileNames( filter, workingDirectory, parent, name );
+        return winGetOpenFileNames( filters.count() > 0 ? filters.first() : QString::null, workingDirectory, parent, name );
 #endif
 
-    QFileDialog *dlg = new QFileDialog( *workingDirectory, filter,
+    QFileDialog *dlg = new QFileDialog( *workingDirectory, QString::null,
                                         parent, name, TRUE );
     CHECK_PTR( dlg );
+    dlg->setFilters( filters );
     dlg->setCaption( QFileDialog::tr("Open") );
     dlg->setMode( QFileDialog::ExistingFiles );
     QString result;
