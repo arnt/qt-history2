@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.h#26 $
+** $Id: //depot/qt/main/src/tools/qgdict.h#27 $
 **
 ** Definition of QGDict and QGDictIterator classes
 **
@@ -29,12 +29,26 @@
 #endif // QT_H
 
 class QGDictIterator;
-
-class QBucket;					// internal classes
 class QGDItList;
 
 
-class Q_EXPORT QGDict : public QCollection		// generic dictionary class
+class QBucket					// internal dict node
+{
+public:
+    char   *getKey()		{ return key; }
+    char   *setKey( char *k )	{ return key = k; }
+    GCI	    getData()		{ return data; }
+    GCI	    setData( GCI d )	{ return data = d; }
+    QBucket *getNext()		{ return next; }
+    void    setNext( QBucket *n){ next = n; }
+private:
+    char   *key;
+    GCI	    data;
+    QBucket *next;
+};
+
+
+class Q_EXPORT QGDict : public QCollection	// generic dictionary class
 {
 friend class QGDictIterator;
 public:
@@ -77,7 +91,7 @@ private:
 };
 
 
-class Q_EXPORT QGDictIterator				// generic dictionary iterator
+class Q_EXPORT QGDictIterator			// generic dictionary iterator
 {
 friend class QGDict;
 public:
@@ -88,8 +102,8 @@ public:
 
     GCI		toFirst();
 
-    GCI		get()	 const;
-    const char *getKey() const;
+    GCI		get()	 const { return curNode ? curNode->getData() : 0; }
+    const char *getKey() const { return curNode ? curNode->getKey() : 0; }
 
     GCI		operator()();
     GCI		operator++();

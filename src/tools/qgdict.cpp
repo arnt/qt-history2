@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#61 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#62 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -129,26 +129,6 @@ QDataStream& QGDict::write( QDataStream &s, GCI ) const
 {
     return s;
 }
-
-
-/*****************************************************************************
-  QBucket class (internal hash node)
- *****************************************************************************/
-
-class QBucket
-{
-public:
-    char   *getKey()		{ return key; }
-    char   *setKey( char *k )	{ return key = k; }
-    GCI	    getData()		{ return data; }
-    GCI	    setData( GCI d )	{ return data = d; }
-    QBucket *getNext()		{ return next; }
-    void    setNext( QBucket *n){ next = n; }
-private:
-    char   *key;
-    GCI	    data;
-    QBucket *next;
-};
 
 
 /*****************************************************************************
@@ -688,27 +668,6 @@ GCI QGDictIterator::toFirst()
     curNode = dict->vec[i];
     curIndex = i;
     return curNode->getData();
-}
-
-
-/*!
-  \internal
-  Returns the current item.
-*/
-
-GCI QGDictIterator::get() const
-{
-    return curNode ? curNode->getData() : 0;
-}
-
-/*!
-  \internal
-  Returns the key of the current item.
-*/
-
-const char *QGDictIterator::getKey() const
-{
-    return curNode ? curNode->getKey() : 0;
 }
 
 
