@@ -147,9 +147,7 @@ QString WorkspaceItem::text( int column ) const
 	if ( project->isDummy() ) {
 	    return Project::tr("<No Project>" );
 	} else if ( MainWindow::self->singleProjectMode() ) {
-	    QString s = project->makeRelative( project->fileName() );
-	    s = s.left( s.findRev( '.' ) );
-	    return s;
+	    return QFileInfo( project->fileName() ).baseName();
 	}
 	return project->makeRelative( project->fileName() );
     case FormFileType:
