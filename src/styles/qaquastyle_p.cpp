@@ -62,7 +62,14 @@ QAquaFocusWidget::QAquaFocusWidget(bool noerase)
     if(noerase)
 	setBackgroundMode(NoBackground);
 }
+#if 0
+/* It's a real bummer I cannot use this, but you'll notice that sometimes
+   the widget will scroll "offscreen" and the focus widget will remain visible
+   (which looks quite bad). --Sam */
 #define FOCUS_WIDGET_PARENT(x) x->topLevelWidget()
+#else
+#define FOCUS_WIDGET_PARENT(x) x->parentWidget(TRUE)
+#endif
 void QAquaFocusWidget::setFocusWidget(QWidget * widget)
 {
     hide();
