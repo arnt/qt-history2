@@ -10,6 +10,8 @@
 #include "qgfxmach64_qws.cpp"
 */
 
+extern QString qws_topdir();
+
 class QGfxRec {
 
 public:
@@ -554,6 +556,7 @@ public:
     virtual void setMode(int,int,int) {}
     virtual int initCursor(void *,bool=FALSE);
     virtual void setDirty(const QRect &);
+    virtual int sharedRamSize(void *);
     QImage * readScreen(int,int,int,int,QRegion &);
     QRegion getRequiredUpdate(int,int,int,int,int,int);
 
@@ -564,6 +567,19 @@ private:
     QPtrList<QScreenRec> screens;
 
 };
+
+int QRepeaterScreen::sharedRamSize(void * end)
+{
+    int count=0;
+    void * tmp=end;
+    QScreenRec * it;
+    for(it=screens.first();it;it=screens.next()) {
+        int ret=it->screen->sharedRamSize(tmp);
+	((char *)tmp)-=ret;
+	count+=ret;
+    }
+    return count;
+}
 
 void QRepeaterScreen::setDirty(const QRect & r)
 {
@@ -629,12 +645,46 @@ extern char * qt_qws_hardcoded_slot;
 QRepeaterScreen::QRepeaterScreen(int)
     : QScreen(0)
 {
-    screens.append(new QScreenRec(new QVFbScreen(0),
-				  "/proc/bus/pci/01/00.0",":0",true));
-    screens.append(new QScreenRec(new QVFbScreen(1),
-    				  "/proc/bus/pci/00/0a.0",":1",true));
     data=(uchar *)0xdeadbeef;
-    sw_cursor_exists=true;
+    sw_cursor_exists=false;
+
+    // Use config file - not sure if this is the right place to put it
+    QString fn = qws_topdir() + "/lib/fonts/screens";
+    FILE * screendef=fopen(fn.local8Bit(),"r");
+    if(!screendef) {
+        qDebug("Can't find %s",fn.local8Bit());
+	sw_cursor_exists=false;
+        screens.append(new QScreenRec(new QLinuxFbScreen(0),
+				      "/proc/bus/pci/01/00.0",":0",true));   
+	return;
+    }
+
+    char buf[200]="";
+    char name[200]="";
+    char spec[200]="";
+    char pci[200]="";
+
+    fgets(buf,200,screendef);
+    while(!feof(screendef)) {
+      if(buf[0]!='#') {
+	int num;
+	int swcursor;
+	sscanf(buf,"%s %d %s %d %s",name,&num,spec,&swcursor,pci);
+	QScreen * tmp=qt_get_screen(num,name);
+	if(!tmp) {
+	  qDebug("Failure to find screen %s",buf);
+	} else {
+	  qDebug("Found %s %s %s %d",name,pci,spec,swcursor);
+	  screens.append(new QScreenRec(tmp,pci,spec,swcursor==0));
+	  if(swcursor!=0) {
+	    sw_cursor_exists=true;
+	  }
+	}
+      }
+      fgets(buf,200,screendef);
+    }
+    fclose(screendef);
+    qt_screen=this;
 }
 
 int QRepeaterScreen::initCursor(void * v,bool b)

@@ -824,7 +824,6 @@ void QLinuxFbScreen::restore()
 // of our shared structure, we return the amount of memory we reserved
 int QLinuxFbScreen::sharedRamSize(void * end)
 {
-    qDebug("Shared ram size called for %lx",end);
     shared=(QLinuxFb_Shared *)end;
     shared--;
     return sizeof(QLinuxFb_Shared);

@@ -607,7 +607,6 @@ void QWSDisplay::Data::init()
 
     sharedRamSize -= qt_screen->sharedRamSize(sharedRam+sharedRamSize);
 
-
     if(!csocket)
 	qt_screen->initDevice();
     
