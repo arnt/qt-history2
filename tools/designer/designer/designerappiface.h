@@ -33,6 +33,11 @@ public:
     DesignerFormWindowInterfaceImpl( FormWindow *fw, QUnknownInterface *parent, const char *name = 0 );
 
     bool initialize( QApplicationInterface * );
+
+    void save() const;
+    void close() const;
+    void undo() const;
+    void redo() const;
 };
 
 class DesignerActiveFormWindowInterfaceImpl : public DesignerFormWindowInterfaceImpl
@@ -44,8 +49,6 @@ public:
 
     bool initialize( QApplicationInterface * );
 
-    QVariant requestProperty( const QCString& p );
-    bool requestSetProperty( const QCString& p, const QVariant& v );
     bool requestConnect( const char* signal, QObject* target, const char* slot );
     bool requestConnect( QObject *sender, const char* signal, const char* slot );
     bool requestEvents( QObject* o );
@@ -98,6 +101,11 @@ public:
     DesignerFormWindowInterface* next();
     DesignerFormWindowInterface* prev();
 
+    bool newForm();
+    bool loadForm();
+    bool saveAll() const;
+    void closeAll() const;
+
 private:
     QListViewItemIterator *listIterator;
 };
@@ -116,6 +124,11 @@ public:
     DesignerWidgetInterface* current();
     DesignerWidgetInterface* next();
 
+    void selectAll() const;
+    void removeAll() const;
+
+    FormWindow *formWindow() const;
+
 private:
     QPtrDictIterator<QWidget> *dictIterator;
 };
@@ -124,6 +137,11 @@ class DesignerWidgetInterfaceImpl : public DesignerWidgetInterface
 {
 public:
     DesignerWidgetInterfaceImpl( QWidget *w, QUnknownInterface *parent );
+
+    void setSelected( bool );
+    bool selected() const;
+
+    void remove();
 };
 
 class DesignerActiveWidgetInterfaceImpl : public DesignerWidgetInterfaceImpl

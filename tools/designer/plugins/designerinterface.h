@@ -44,6 +44,11 @@ public:
 	: QApplicationComponentInterface( w, parent, name ) {}
 
     QString interfaceID() const { return createID( QApplicationComponentInterface::interfaceID(), "DesignerWidgetInterface" ); }
+
+    virtual void setSelected( bool ) = 0;
+    virtual bool selected() const = 0;
+
+    virtual void remove() = 0;
 };
 
 class DesignerWidgetListInterface : public QApplicationComponentInterface
@@ -58,6 +63,9 @@ public:
     virtual DesignerWidgetInterface *toFirst() = 0;
     virtual DesignerWidgetInterface *current() = 0;
     virtual DesignerWidgetInterface *next() = 0;
+
+    virtual void selectAll() const = 0;
+    virtual void removeAll() const = 0;
 };
 
 /*
@@ -71,6 +79,11 @@ public:
 	: QApplicationComponentInterface( fw, parent, name ) {}
 
     QString interfaceID() const { return createID( QApplicationComponentInterface::interfaceID(), "DesignerFormWindowInterface" ); }
+
+    virtual void save() const = 0;
+    virtual void close() const = 0;
+    virtual void undo() const = 0;
+    virtual void redo() const = 0;
 };
 
 class DesignerFormListInterface : public QApplicationComponentInterface
@@ -89,6 +102,11 @@ public:
     virtual DesignerFormWindowInterface *current() = 0;
     virtual DesignerFormWindowInterface *next() = 0;
     virtual DesignerFormWindowInterface *prev() = 0;
+
+    virtual bool newForm() = 0;
+    virtual bool loadForm() = 0;
+    virtual bool saveAll() const = 0;
+    virtual void closeAll() const = 0;
 };
 
 /*

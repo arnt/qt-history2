@@ -172,6 +172,50 @@ DesignerFormWindowInterface *DesignerFormListInterfaceImpl::prev()
     return current();
 }
 
+bool DesignerFormListInterfaceImpl::newForm()
+{
+    MainWindow *mw = (MainWindow*)qApp->mainWidget();
+    if ( !mw )
+	return FALSE;
+
+    qDebug( "Not yet implemented" );
+
+    return TRUE;
+}
+
+bool DesignerFormListInterfaceImpl::loadForm()
+{
+    MainWindow *mw = (MainWindow*)qApp->mainWidget();
+    if ( !mw )
+	return FALSE;
+
+    qDebug( "Not yet implemented" );
+
+    return TRUE;
+}
+
+bool DesignerFormListInterfaceImpl::saveAll() const
+{
+    QListViewItemIterator it( (FormList*)component() );
+    while ( it.current() ) {
+	FormWindow* fw = ((FormListItem*)it.current())->formWindow();
+	++it;
+	fw->save( "Dudeldi" );
+    }
+
+    return TRUE;
+}
+
+void DesignerFormListInterfaceImpl::closeAll() const
+{
+    QListViewItemIterator it( (FormList*)component() );
+    while ( it.current() ) {
+	FormWindow* fw = ((FormListItem*)it.current())->formWindow();
+	++it;
+	fw->close( TRUE );
+    }
+}
+
 /*
  * DesignerFormWindowInterface
 */
@@ -192,6 +236,42 @@ bool DesignerFormWindowInterfaceImpl::initialize(  QApplicationInterface * app )
 	return DesignerFormWindowInterface::initialize( app );
 
     return FALSE;
+}
+
+void DesignerFormWindowInterfaceImpl::save() const
+{
+    FormWindow *fw = (FormWindow*)component();
+    if ( !fw )
+	return;
+
+    fw->save( "Dudeldi" );
+}
+
+void DesignerFormWindowInterfaceImpl::close() const
+{
+    FormWindow *fw = (FormWindow*)component();
+    if ( !fw )
+	return;
+
+    fw->close( TRUE );
+}
+
+void DesignerFormWindowInterfaceImpl::undo() const
+{
+    FormWindow *fw = (FormWindow*)component();
+    if ( !fw )
+	return;
+
+    fw->undo();
+}
+
+void DesignerFormWindowInterfaceImpl::redo() const
+{
+    FormWindow *fw = (FormWindow*)component();
+    if ( !fw )
+	return;
+
+    fw->redo();
 }
 
 /*
@@ -248,16 +328,6 @@ void DesignerActiveFormWindowInterfaceImpl::reconnect()
     iface->setComponent( newForm );
 }
 
-QVariant DesignerActiveFormWindowInterfaceImpl::requestProperty( const QCString& p )
-{
-    return DesignerFormWindowInterfaceImpl::requestProperty( p );
-}
-
-bool DesignerActiveFormWindowInterfaceImpl::requestSetProperty( const QCString& p, const QVariant& v )
-{
-    return DesignerFormWindowInterfaceImpl::requestSetProperty( p, v );
-}
-
 bool DesignerActiveFormWindowInterfaceImpl::requestConnect( const char* signal, QObject* target, const char* slot )
 {
     ConnectSignal c;
@@ -303,8 +373,7 @@ bool DesignerWidgetListInterfaceImpl::initialize( QApplicationInterface *app )
 	return FALSE;
 
     delete dictIterator;
-    if ( fw )
-	dictIterator = new QPtrDictIterator<QWidget>( *fw->widgets() );
+    dictIterator = new QPtrDictIterator<QWidget>( *fw->widgets() );
 
     return DesignerWidgetListInterface::initialize( app );
 }
@@ -315,6 +384,11 @@ bool DesignerWidgetListInterfaceImpl::cleanUp( QApplicationInterface *app )
     dictIterator = 0;
 
     return DesignerWidgetListInterface::cleanUp( app );
+}
+
+FormWindow *DesignerWidgetListInterfaceImpl::formWindow() const
+{
+    return (FormWindow*)component();
 }
 
 uint DesignerWidgetListInterfaceImpl::count() const
@@ -332,7 +406,7 @@ DesignerWidgetInterface* DesignerWidgetListInterfaceImpl::toFirst()
 DesignerWidgetInterface* DesignerWidgetListInterfaceImpl::current()
 {
     QWidget *w = dictIterator->current();
-    return w ? new DesignerWidgetInterface( w, this ) : 0;
+    return w ? new DesignerWidgetInterfaceImpl( w, this ) : 0;
 }
 
 DesignerWidgetInterface* DesignerWidgetListInterfaceImpl::next()
@@ -342,12 +416,75 @@ DesignerWidgetInterface* DesignerWidgetListInterfaceImpl::next()
     return current();
 }
 
+void DesignerWidgetListInterfaceImpl::selectAll() const
+{
+    FormWindow *fw = (FormWindow*)component();
+    if ( !fw )
+	return;
+
+    fw->selectAll();
+}
+
+void DesignerWidgetListInterfaceImpl::removeAll() const
+{
+    FormWindow *fw = (FormWindow*)component();
+    if ( !fw )
+	return;
+
+    fw->selectAll();
+    fw->deleteWidgets();
+}
+
 /*
  * DesignerWidgetInterface implementation
  */
 DesignerWidgetInterfaceImpl::DesignerWidgetInterfaceImpl( QWidget *w, QUnknownInterface *parent )
 : DesignerWidgetInterface( w, parent )
 {
+}
+
+void DesignerWidgetInterfaceImpl::setSelected( bool sel )
+{
+    DesignerWidgetListInterfaceImpl* wlIface = (DesignerWidgetListInterfaceImpl*)parent();
+    FormWindow* fw = wlIface->formWindow();
+    if ( !fw->isA( "FormWindow" ) )
+	return;
+
+    fw->selectWidget( (QWidget*)component(), sel );
+}
+
+bool DesignerWidgetInterfaceImpl::selected() const
+{
+    DesignerWidgetListInterfaceImpl* wlIface = (DesignerWidgetListInterfaceImpl*)parent();
+    FormWindow* fw = wlIface->formWindow();
+    if ( !fw->isA( "FormWindow" ) )
+	return FALSE;
+
+    return fw->isWidgetSelected( (QWidget*)component() );
+}
+
+void DesignerWidgetInterfaceImpl::remove()
+{
+    DesignerWidgetListInterfaceImpl* wlIface = (DesignerWidgetListInterfaceImpl*)parent();
+    FormWindow* fw = wlIface->formWindow();
+    if ( !fw->isA( "FormWindow" ) )
+	return;
+
+    QWidget *w = (QWidget*)component();
+    QWidgetList sw = fw->selectedWidgets();
+    QPtrDictIterator<QWidget> it( *fw->widgets() );
+    while ( it.current() ) {
+	fw->selectWidget( it.current(), FALSE );
+	++it;
+    }
+    fw->selectWidget( w );
+    fw->deleteWidgets();
+    sw.removeRef( w );
+    QListIterator<QWidget> sit( sw );
+    while ( sit.current() ) {
+	fw->selectWidget( sit.current(), TRUE );
+	++sit;
+    }
 }
 
 /*
