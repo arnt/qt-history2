@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#36 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#37 $
 **
 ** Implementation of QFile class
 **
@@ -13,7 +13,7 @@
 #include "qfile.h"
 #include "qfiledef.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#36 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#37 $");
 
 
 /*!
@@ -231,8 +231,7 @@ bool QFile::open( int m )
 	    else
 		oflags |= (OPEN_APPEND | OPEN_CREAT);
 	    setFlags( flags() | IO_WriteOnly ); // append implies write
-	}
-	else if ( isWritable() )		// create/trunc if writable
+	} else if ( isWritable() )		// create/trunc if writable
 	    oflags |= (OPEN_CREAT | OPEN_TRUNC);//   but not append
 	if ( isWritable() )
 	    oflags |= isReadable() ? OPEN_WRONLY : OPEN_RDWR;
@@ -252,16 +251,14 @@ bool QFile::open( int m )
 	}
 	else
 	    ok = FALSE;
-    }
-    else {					// buffered file I/O
+    } else {					// buffered file I/O
 	const char *perm = 0;
 	char perm2[4];
 	bool try_create = FALSE;
 	if ( flags() & IO_Append ) {		// append to end of file?
 	    setFlags( flags() | IO_WriteOnly ); // append implies write
 	    perm = isReadable() ? "a+" : "a";
-	}
-	else {
+	} else {
 	    if ( isReadWrite() ) {
 		if ( flags() & IO_Truncate )
 		    perm = "w+";
@@ -269,8 +266,7 @@ bool QFile::open( int m )
 		    perm = "r+";
 		    try_create = TRUE;		// try to create if not exists
 		}
-	    }
-	    else if ( isReadable() )
+	    } else if ( isReadable() )
 		perm = "r";
 	    else if ( isWritable() )
 		perm = "w";
@@ -291,15 +287,13 @@ bool QFile::open( int m )
 	    if ( flags() & IO_Append ) {	// index is at end of file
 		length = ftell( fh );
 		index = length;
-	    }
-	    else {				// calc size of file
+	    } else {				// calc size of file
 		fseek( fh, 0, SEEK_END );
 		length = ftell( fh );
 		fseek( fh, 0, SEEK_SET );
 		index = 0;
 	    }
-	}
-	else
+	} else
 	    ok = FALSE;
     }
     if ( ok )
@@ -392,8 +386,7 @@ bool QFile::open( int m, int f )
     ext_f = TRUE;
     if ( fd == 0 || fd == 1 || fd == 2 ) {
 	length = INT_MAX;
-    }
-    else {
+    } else {
 	index = LSEEK( fd, 0, SEEK_CUR );
 	length = LSEEK( fd, 0, SEEK_END );
 	LSEEK( fd, index, SEEK_SET );
@@ -420,8 +413,7 @@ void QFile::close()
 	    fflush( fh );			// cannot close
 	else
 	    fclose( fh );
-    }
-    else {					// raw file
+    } else {					// raw file
 	if ( ext_f )
 	    ;					// cannot close
 	else
@@ -458,9 +450,9 @@ uint QFile::size() const
 	if ( f.open(IO_ReadOnly) ) {
 	    s = f.size();
 	    f.close();
-	}
-	else
+	} else {
 	    s = 0;
+	}
 	return s;
     }
 }
@@ -605,8 +597,7 @@ int QFile::writeBlock( const char *p, uint len )
 	    index = LSEEK( fd, 0, SEEK_CUR );
 	else
 	    index = fseek( fh, 0, SEEK_CUR );
-    }
-    else
+    } else
 	index += nwritten;
     if ( index > length )			// update file length
 	length = index;
@@ -641,9 +632,9 @@ int QFile::readLine( char *p, uint maxlen )
     }
 #endif
     int nread;					// number of bytes read
-    if ( isRaw() )				// raw file
+    if ( isRaw() ) {				// raw file
 	nread = QIODevice::readLine( p, maxlen );
-    else {					// buffered file
+    } else {					// buffered file
 	p = fgets( p, maxlen, fh );
 	nread = p ? strlen( p ) : 0;
     }
@@ -677,8 +668,7 @@ int QFile::getch()
     if ( isRaw() ) {				// raw file (inefficient)
 	char buf[1];
 	ch = readBlock( buf, 1 ) == 1 ? buf[0] : EOF;
-    }
-    else {					// buffered file
+    } else {					// buffered file
 	if ( (ch = getc( fh )) != EOF )
 	    index++;
     }
@@ -709,8 +699,7 @@ int QFile::putch( int ch )
 	char buf[1];
 	buf[0] = ch;
 	ch = writeBlock( buf, 1 ) == 1 ? ch : EOF;
-    }
-    else {					// buffered file
+    } else {					// buffered file
 	if ( (ch = putc( ch, fh )) != EOF ) {
 	    index++;
 	    if ( index > length )		// update file length
@@ -753,10 +742,30 @@ int QFile::ungetch( int ch )
 	    at ( index-1 );
 	else
 	    ch = EOF;
-    }
-    else {					// buffered file
+    } else {					// buffered file
 	if ( (ch = ungetc(ch, fh)) != EOF )
 	    index--;
     }
     return ch;
+}
+
+
+/*!
+  Returns the file handle of the file.  This is a small positive
+  integer, suitable for use with C library functions such as fdopen()
+  and fcntl(), as well as with QSocketNotifier.
+
+  If the file isn't open or there is an error, handle() returns -1.
+
+  \sa QSocketNotifier
+*/
+
+int QFile::handle()
+{
+    if ( !isOpen() )
+	return -1;
+    else if ( fh )
+	return fileno( fh );
+    else
+	return fd;
 }
