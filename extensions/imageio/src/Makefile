@@ -3,7 +3,7 @@
 #######    linux-gcc-shared on Fri Feb 28 17:08:52 MET 1997
 
 INCDIR = $(QTDIR)/include
-CFLAGS = -O2 -fno-strength-reduce -Wall -W
+CFLAGS = -g -fno-strength-reduce -Wall -W
 LIBCFLAGS = -fPIC
 YACCCFLAGS = -Wno-unused -Wno-parentheses
 LFLAGS = -L$(QTDIR)/lib -lqt

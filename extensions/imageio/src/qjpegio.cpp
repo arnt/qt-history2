@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/imageio/src/qjpegio.cpp#7 $
+** $Id: //depot/qt/main/extensions/imageio/src/qjpegio.cpp#8 $
 **
 ** Implementation of JPEG QImage IOHandler
 **
@@ -318,19 +318,17 @@ void write_jpeg_image(QImageIO* iio)
 		    uchar* data = image.scanLine(cinfo.next_scanline);
 		    if ( image.bitOrder() == QImage::LittleEndian ) {
 			for (int i=0; i<w; i++) {
-			    bool bit = !!*(data + (i >> 3)) & (1 << (i & 7));
-			    *row = qRed(cmap[bit]);
-			    *row = qGreen(cmap[bit]);
-			    *row = qBlue(cmap[bit]);
-			    ++row;
+			    bool bit = !!(*(data + (i >> 3)) & (1 << (i & 7)));
+			    *row++ = qRed(cmap[bit]);
+			    *row++ = qGreen(cmap[bit]);
+			    *row++ = qBlue(cmap[bit]);
 			}
 		    } else {
 			for (int i=0; i<w; i++) {
-			    bool bit = !!*(data + (i >> 3)) & (1 << (7 -(i & 7)));
-			    *row = qRed(cmap[bit]);
-			    *row = qGreen(cmap[bit]);
-			    *row = qBlue(cmap[bit]);
-			    ++row;
+			    bool bit = !!(*(data + (i >> 3)) & (1 << (7 -(i & 7))));
+			    *row++ = qRed(cmap[bit]);
+			    *row++ = qGreen(cmap[bit]);
+			    *row++ = qBlue(cmap[bit]);
 			}
 		    }
 		}

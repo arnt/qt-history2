@@ -1,5 +1,5 @@
 TEMPLATE    =	lib
-CONFIG      =   qt release
+CONFIG      =   qt debug
 HEADERS     =	qimageio.h qjpegio.h qpngio.h
 SOURCES     =	qimageio.cpp qjpegio.cpp qpngio.cpp
 TARGET      =	qimgio
