@@ -875,7 +875,9 @@ QPainterPath QPainterPathStroker::createStroke() const
     QPainterPath stroke;
 
     QList<QPolygon> flatCurves = d->path->toSubpathPolygons();
+#ifdef QPP_STROKE_DEBUG
     printf(" -> subpaths: %d, totalElements: %d\n", flatCurves.size(), d->path->elementCount());
+#endif
 
     for (int spi=0; spi<flatCurves.size(); ++spi) {
         QPolygon poly = flatCurves.at(spi);
