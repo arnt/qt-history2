@@ -31,7 +31,6 @@ int main(int argc, char *argv[])
             QTextCursor helper = cursor;
 
             helper.setPosition(fragment.position());
-            // select the leading unicode paragraph separator character
             helper.setPosition(fragment.position() + fragment.length(),
                                 QTextCursor::KeepAnchor);
             helper.setCharFormat(newImageFormat);
