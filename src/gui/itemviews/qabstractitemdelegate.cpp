@@ -15,10 +15,6 @@
 #include <qfontmetrics.h>
 #include <qstring.h>
 
-#include <private/qabstractitemdelegate_p.h>
-#define d d_func()
-#define q q_func()
-
 /*!
     \class QAbstractItemDelegate qabstractitemdelegate.h
 
@@ -83,20 +79,10 @@
     Creates a new abstract item delegate for the given \a model and
     with the parent \a parent.
 */
-QAbstractItemDelegate::QAbstractItemDelegate(QAbstractItemModel *model, QObject *parent)
-    : QObject(*(new QAbstractItemDelegatePrivate), parent)
+QAbstractItemDelegate::QAbstractItemDelegate(QObject *parent)
+    : QObject(parent)
 {
-    d->model = model;
-}
 
-/*!
-    \internal
-*/
-QAbstractItemDelegate::QAbstractItemDelegate(QAbstractItemDelegatePrivate &dd,
-                                             QAbstractItemModel *model, QObject *parent)
-    : QObject(dd, parent)
-{
-    d->model = model;
 }
 
 /*!
@@ -128,32 +114,25 @@ QAbstractItemDelegate::~QAbstractItemDelegate()
 */
 
 /*!
-    Returns the model that this abstract item delegate is associated
-    with.
-*/
-QAbstractItemModel *QAbstractItemDelegate::model() const
-{
-    return d->model;
-}
-
-/*!
     Returns the \c EditorType for the item at \a index.
 
     If you provide an editor(), you will want to reimplement this
     function to return the \c EditorType appropriate to your editor().
 */
-QAbstractItemDelegate::EditorType QAbstractItemDelegate::editorType(const QModelIndex &) const
+QAbstractItemDelegate::EditorType QAbstractItemDelegate::editorType(const QAbstractItemModel *,
+                                                                    const QModelIndex &) const
 {
     return QAbstractItemDelegate::Events;
 }
 
 /*!
     Returns the editor to be used for editing the data item at index
-    \a index. The action that caused the edit is given by \a action;
-    see \c BeginEditAction. The editor's parent widget is given by \a
-    parent, and the item options by \a option. Ownership is kept by
-    the delegate. Subsequent calls to this function with the same
-    arguments are not guaranteed to return the same editor object.
+    \a index in the model \a model. The action that caused the edit is
+    given by \a action; see \c BeginEditAction. The editor's parent
+    widget is given by \a parent, and the item options by \a option.
+    Ownership is kept by the delegate. Subsequent calls to this
+    function with the same arguments are not guaranteed to return
+    the same editor object.
 
     Note: When the editor is no longer in use, call releaseEditor().
 
@@ -162,59 +141,65 @@ QAbstractItemDelegate::EditorType QAbstractItemDelegate::editorType(const QModel
 
     \sa editorType() setModelData() setEditorData() releaseEditor()
 */
-QWidget *QAbstractItemDelegate::editor(BeginEditAction, QWidget *,
-        const QStyleOptionViewItem&, const QModelIndex &)
+QWidget *QAbstractItemDelegate::editor(BeginEditAction, QWidget *, const QStyleOptionViewItem &,
+                                       const QAbstractItemModel *, const QModelIndex &)
 {
     return 0;
 }
 
 /*!
     Notifies the delegate that the given \a editor is no longer in use
-    for the item at the given \a index. The way the edit was completed
-    is given by \a action; see \c EndEditAction. Typically the
-    delegate should destroy the editor at this point.
+    for the item at the given \a index in the model \a model.
+    The way the edit was completed is given by \a action;
+    see \c EndEditAction. Typically the delegate should destroy the
+    editor at this point.
 
     The base implementation does nothing. If you want custom editing
     you will probably need to reimplement this function.
 
     \sa editorType() editor() setEditorData() setModelData()
 */
-void QAbstractItemDelegate::releaseEditor(EndEditAction, QWidget *, const QModelIndex &)
+void QAbstractItemDelegate::releaseEditor(EndEditAction, QWidget *,
+                                          QAbstractItemModel *, const QModelIndex &)
 {
     // do nothing
 }
 
 /*!
     Sets the contents of the given \a editor to the data for the item
-    at the given \a index.
+    at the given \a index, in the model \a model.
 
     The base implementation does nothing. If you want custom editing
     you will need to reimplement this function.
 
     \sa editorType() editor() setModelData() releaseEditor()
 */
-void QAbstractItemDelegate::setEditorData(QWidget *, const QModelIndex &) const
+void QAbstractItemDelegate::setEditorData(QWidget *,
+                                          const QAbstractItemModel *,
+                                          const QModelIndex &) const
 {
     // do nothing
 }
 
 /*!
-    Sets the data for the item at the given \a index to the contents
-    of the given \a editor.
+    Sets the data for the item at the given \a index in model \a model
+    to the contents of the given \a editor.
 
     The base implementation does nothing. If you want custom editing
     you will need to reimplement this function.
 
     \sa editorType() editor() setEditorData() releaseEditor()
 */
-void QAbstractItemDelegate::setModelData(QWidget *, const QModelIndex &) const
+void QAbstractItemDelegate::setModelData(QWidget *,
+                                         QAbstractItemModel *,
+                                         const QModelIndex &) const
 {
     // do nothing
 }
 
 /*!
   Updates the editor geometry of the ginen \a editor for the item at the
-  given \a index according to the rectangle specified in the \a option.
+  given \a index in the \a model, according to the rectangle specified in the \a option.
   If the item has an internal layout, the editor will be layed out accordingly.
 
   The base implementation dowes nothing. If you want custom editing
@@ -222,7 +207,9 @@ void QAbstractItemDelegate::setModelData(QWidget *, const QModelIndex &) const
   
   \sa editorType() editor() releaseEditor()
  */
-void QAbstractItemDelegate::updateEditorGeometry(QWidget *, const QStyleOptionViewItem &,
+void QAbstractItemDelegate::updateEditorGeometry(QWidget *,
+                                                 const QStyleOptionViewItem &,
+                                                 const QAbstractItemModel *,
                                                  const QModelIndex &) const
 {
     // do nothing
@@ -230,13 +217,13 @@ void QAbstractItemDelegate::updateEditorGeometry(QWidget *, const QStyleOptionVi
 
 /*!
     Whenever an event occurs this function is called with the \a e
-    and the model \a index.
+    and the model \a index in the \a model.
 
     The base implementation returns false (indicating that it has not
     handled the event). If you reimplement this you should reimplement
     editorType() to return \c NoWidget.
 */
-bool QAbstractItemDelegate::event(QEvent *, const QModelIndex &)
+bool QAbstractItemDelegate::event(QEvent *, QAbstractItemModel *, const QModelIndex &)
 {
     // do nothing
     return false;

@@ -100,24 +100,25 @@ private:
 class MenuDelegate : public QItemDelegate
 {
 public:
-    MenuDelegate(QAbstractItemModel *model, QObject *parent) : QItemDelegate(model, parent) {}
+    MenuDelegate(QObject *parent) : QItemDelegate(parent) {}
 
 protected:
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
-               const QModelIndex &index) const {
-        QStyleOptionMenuItem opt = getStyleOption(option, index);
+               QAbstractItemModel *model, const QModelIndex &index) const {
+        QStyleOptionMenuItem opt = getStyleOption(option, model, index);
         painter->eraseRect(option.rect);
         QApplication::style().drawControl(QStyle::CE_MenuItem, &opt, painter, 0);
     }
     QSize sizeHint(const QFontMetrics &fontMetrics, const QStyleOptionViewItem &option,
-                   const QModelIndex &index) const {
-        QStyleOptionMenuItem opt = getStyleOption(option, index);
+                   QAbstractItemModel *model, const QModelIndex &index) const {
+        QStyleOptionMenuItem opt = getStyleOption(option, model, index);
         return QApplication::style().sizeFromContents(
             QStyle::CT_MenuItem, &opt, option.rect.size(), fontMetrics, 0);
     }
 
 private:
     QStyleOptionMenuItem getStyleOption(const QStyleOptionViewItem &option,
+                                        QAbstractItemModel *model,
                                         const QModelIndex &index) const {
         QStyleOptionMenuItem opt(0);
         opt.palette = option.palette;
@@ -134,8 +135,8 @@ private:
             opt.checkState = QStyleOptionMenuItem::Unchecked;
         }
         opt.menuItemType = QStyleOptionMenuItem::Normal;
-        opt.icon = model()->data(index, QAbstractItemModel::Role_Decoration).toIconSet();
-        opt.text = model()->data(index, QAbstractItemModel::Role_Display).toString();
+        opt.icon = model->data(index, QAbstractItemModel::Role_Decoration).toIconSet();
+        opt.text = model->data(index, QAbstractItemModel::Role_Display).toString();
         opt.tabWidth = 0;
         opt.maxIconWidth = 0;
         if (!opt.icon.isNull())

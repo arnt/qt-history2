@@ -285,18 +285,18 @@ void QGenericTableView::paintEvent(QPaintEvent *e)
                 continue;
             int colp = columnViewportPosition(c);
             int colw = columnWidth(c) - gridSize;
-            QModelIndex item = model()->index(r, c, root());
-            if (item.isValid()) {
+            QModelIndex index = model()->index(r, c, root());
+            if (index.isValid()) {
                 option.rect = QRect(colp, rowp, colw, rowh);
                 option.state = state;
-                option.state |= (sels->isSelected(item)
+                option.state |= (sels->isSelected(index)
                                  ? QStyle::Style_Selected : QStyle::Style_Default);
-                option.state |= (focus && item == current
+                option.state |= (focus && index == current
                                  ? QStyle::Style_HasFocus : QStyle::Style_Default);
                 painter.fillRect(colp, rowp, colw, rowh,
                                  (option.state & QStyle::Style_Selected
                                   ? option.palette.highlight() : base));
-                itemDelegate()->paint(&painter, option, item);
+                itemDelegate()->paint(&painter, option, model(), index);
             }
             if (r == rowfirst && showGrid) {
                 QPen old = painter.pen();
@@ -511,7 +511,7 @@ void QGenericTableView::updateGeometries()
     int row = d->model->rowCount();
     if (h <= 0 || row <= 0) // if we have no viewport or no rows, there is nothing to do
         return;
-    QSize def = itemDelegate()->sizeHint(fontMetrics(), option, d->model->index(0, 0));
+    QSize def = itemDelegate()->sizeHint(fontMetrics(), option, d->model, d->model->index(0, 0));
     verticalScrollBar()->setPageStep(h / def.height() * verticalFactor());
     while (h > 0 && row > 0)
         h -= d->leftHeader->sectionSize(--row);
@@ -550,8 +550,8 @@ int QGenericTableView::rowSizeHint(int row) const
     int hint = 0;
     QModelIndex index;
     for (int column = columnfirst; column < columnlast; ++column) {
-        index = model()->index(row, column, root());
-        hint = qMax(hint, itemDelegate()->sizeHint(fontMetrics(), option, index).height());
+        index = d->model->index(row, column, root());
+        hint = qMax(hint, itemDelegate()->sizeHint(fontMetrics(), option, d->model, index).height());
     }
     return hint + 1; // add space for the grid
 }
@@ -573,8 +573,8 @@ int QGenericTableView::columnSizeHint(int column) const
     int hint = 0;
     QModelIndex index;
     for (int row = rowfirst; row <= rowlast; ++row) {
-        index = model()->index(row, column, root());
-        hint = qMax(hint, itemDelegate()->sizeHint(fontMetrics(), option, index).width());
+        index = d->model->index(row, column, root());
+        hint = qMax(hint, itemDelegate()->sizeHint(fontMetrics(), option, d->model, index).width());
     }
     return hint + 1; // add space for the grid
 }

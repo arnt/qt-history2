@@ -190,7 +190,7 @@ QSize QGenericHeader::sizeHint() const
     QModelIndex index = model()->index(row, col, QModelIndex(), type);
     if (!index.isValid())
         return QSize();
-    QSize hint = itemDelegate()->sizeHint(fontMetrics(), option, index);
+    QSize hint = itemDelegate()->sizeHint(fontMetrics(), option, model(), index);
     if (orientation() == Qt::Vertical)
         return QSize(hint.width() + border, size());
     return QSize(size(), hint.height() + border);
@@ -211,12 +211,12 @@ int QGenericHeader::sectionSizeHint(int section) const
                              QModelIndex::VerticalHeader;
     QModelIndex header = model()->index(row, col, QModelIndex(), type);
     if (orientation() == Qt::Vertical) {
-        QSize size = delegate->sizeHint(fontMetrics(), option, header);
+        QSize size = delegate->sizeHint(fontMetrics(), option, model(), header);
         hint = size.height();
         if (sortIndicatorSection() == section)
             hint += size.width();
     } else {
-        QSize size = delegate->sizeHint(fontMetrics(), option, header);
+        QSize size = delegate->sizeHint(fontMetrics(), option, model(), header);
         hint = size.width();
         if (sortIndicatorSection() == section)
             hint += size.height();
@@ -317,7 +317,7 @@ void QGenericHeader::paintSection(QPainter *painter, const QStyleOptionViewItem 
     else
         opt.state |= QStyle::Style_Raised;
     style().drawPrimitive(QStyle::PE_HeaderSection, &opt, painter, this);
-    itemDelegate()->paint(painter, option, index);
+    itemDelegate()->paint(painter, option, model(), index);
 
     int section = orientation() == Qt::Horizontal ? index.column() : index.row();
     if (sortIndicatorSection() == section) {

@@ -53,8 +53,8 @@ static const char * const checked_xpm[] = {
 "                ",
 "                ",};
 
-QItemDelegate::QItemDelegate(QAbstractItemModel *model, QObject *parent)
-    : QAbstractItemDelegate(model, parent)
+QItemDelegate::QItemDelegate(QObject *parent)
+    : QAbstractItemDelegate(parent)
 {
 
 }
@@ -64,13 +64,13 @@ QItemDelegate::~QItemDelegate()
 }
 
 void QItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
-                          const QModelIndex &index) const
+                          const QAbstractItemModel *model, const QModelIndex &index) const
 {
     static QPoint pt(0, 0);
     static QSize sz(border * 2, border * 2);
-    QVariant variant = model()->data(index, QAbstractItemModel::Role_Decoration);
+    QVariant variant = model->data(index, QAbstractItemModel::Role_Decoration);
     QPixmap pixmap = decoration(option, variant);
-    QString text = model()->data(index, QAbstractItemModel::Role_Display).toString();
+    QString text = model->data(index, QAbstractItemModel::Role_Display).toString();
     
     QRect pixmapRect = pixmap.rect();
     QRect textRect(pt, painter->fontMetrics().size(0, text) + sz);
@@ -82,14 +82,14 @@ void QItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
 }
 
 QSize QItemDelegate::sizeHint(const QFontMetrics &fontMetrics, const QStyleOptionViewItem &option,
-                              const QModelIndex &index) const
+                              const QAbstractItemModel *model, const QModelIndex &index) const
 {
     static QPoint pt(0, 0);
     static QSize sz(border * 2, border * 2);
 
-    QVariant variant = model()->data(index, QAbstractItemModel::Role_Decoration);
+    QVariant variant = model->data(index, QAbstractItemModel::Role_Decoration);
     QPixmap pixmap = decoration(option, variant);
-    QString text = model()->data(index, QAbstractItemModel::Role_Display).toString();
+    QString text = model->data(index, QAbstractItemModel::Role_Display).toString();
 
     QRect pixmapRect = pixmap.rect();
     QRect textRect(pt, fontMetrics.size(0, text) + sz);
@@ -98,54 +98,61 @@ QSize QItemDelegate::sizeHint(const QFontMetrics &fontMetrics, const QStyleOptio
     return pixmapRect.unite(textRect).size();
 }
 
-QItemDelegate::EditorType QItemDelegate::editorType(const QModelIndex &) const
+QItemDelegate::EditorType QItemDelegate::editorType(const QAbstractItemModel *,
+                                                    const QModelIndex &) const
 {
     return Widget;
 }
 
 QWidget *QItemDelegate::editor(BeginEditAction action, QWidget *parent,
-                               const QStyleOptionViewItem &option, const QModelIndex &index)
+                               const QStyleOptionViewItem &option,
+                               const QAbstractItemModel *model, const QModelIndex &index)
 {
     if (index.type() != QModelIndex::View)
         return 0;
     if (action & (EditKeyPressed | AnyKeyPressed | DoubleClicked | AlwaysEdit)
-        || (option.state & QStyle::Style_HasFocus && editorType(index) == Widget)) {
+        || (option.state & QStyle::Style_HasFocus && editorType(model, index) == Widget)) {
         QLineEdit *lineEdit = new QLineEdit(parent);
         lineEdit->setFrame(false);
-        lineEdit->setText(model()->data(index, QAbstractItemModel::Role_Edit).toString());
+        lineEdit->setText(model->data(index, QAbstractItemModel::Role_Edit).toString());
         lineEdit->selectAll();
-        updateEditorGeometry(lineEdit, option, index);
+        updateEditorGeometry(lineEdit, option, model, index);
         return lineEdit;
     }
     return 0;
 }
 
-void QItemDelegate::releaseEditor(EndEditAction, QWidget *editor, const QModelIndex &)
+void QItemDelegate::releaseEditor(EndEditAction, QWidget *editor,
+                                  QAbstractItemModel *, const QModelIndex &)
 {
     delete editor;
 }
 
-void QItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
+void QItemDelegate::setEditorData(QWidget *editor,
+                                  const QAbstractItemModel *model, const QModelIndex &index) const
 {
     QLineEdit *lineEdit = ::qt_cast<QLineEdit*>(editor);
     if (lineEdit)
-        lineEdit->setText(model()->data(index, QAbstractItemModel::Role_Edit).toString());
+        lineEdit->setText(model->data(index, QAbstractItemModel::Role_Edit).toString());
 }
 
-void QItemDelegate::setModelData(QWidget *editor, const QModelIndex &index) const
+void QItemDelegate::setModelData(QWidget *editor,
+                                 QAbstractItemModel *model, const QModelIndex &index) const
 {
     QLineEdit *lineEdit = ::qt_cast<QLineEdit*>(editor);
     if (lineEdit)
-        model()->setData(index, QAbstractItemModel::Role_Edit, lineEdit->text());
+        model->setData(index, QAbstractItemModel::Role_Edit, lineEdit->text());
 }
 
-void QItemDelegate::updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
+void QItemDelegate::updateEditorGeometry(QWidget *editor,
+                                         const QStyleOptionViewItem &option,
+                                         const QAbstractItemModel *model,
                                          const QModelIndex &index) const
 {
     static QPoint pt(0, 0);
     if (editor) {
-        QPixmap pixmap = decoration(option, model()->data(index, QAbstractItemModel::Role_Decoration));
-        QString text = model()->data(index, QAbstractItemModel::Role_Edit).toString();
+        QPixmap pixmap = decoration(option, model->data(index, QAbstractItemModel::Role_Decoration));
+        QString text = model->data(index, QAbstractItemModel::Role_Edit).toString();
         QRect pixmapRect = pixmap.rect();
         QRect textRect(pt, editor->fontMetrics().size(0, text));
         doLayout(option, &pixmapRect, &textRect, false);

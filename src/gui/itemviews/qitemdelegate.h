@@ -10,25 +10,31 @@ class Q_GUI_EXPORT QItemDelegate : public QAbstractItemDelegate
 {
     Q_OBJECT
 public:
-    QItemDelegate(QAbstractItemModel *model, QObject *parent = 0);
+    QItemDelegate(QObject *parent = 0);
     ~QItemDelegate();
 
     // painting
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+               const QAbstractItemModel *model, const QModelIndex &index) const;
     QSize sizeHint(const QFontMetrics &fontMetrics, const QStyleOptionViewItem &option,
-                   const QModelIndex &index) const;
+                   const QAbstractItemModel *model, const QModelIndex &index) const;
 
     // editing
-    QAbstractItemDelegate::EditorType editorType(const QModelIndex &index) const;
+    QAbstractItemDelegate::EditorType editorType(const QAbstractItemModel *model,
+                                                 const QModelIndex &index) const;
     QWidget *editor(QAbstractItemDelegate::BeginEditAction action, QWidget *parent,
-                    const QStyleOptionViewItem &option, const QModelIndex &index);
-    void releaseEditor(EndEditAction action, QWidget *editor, const QModelIndex &index);
+                    const QStyleOptionViewItem &option,
+                    const QAbstractItemModel *model, const QModelIndex &index);
+    void releaseEditor(EndEditAction action, QWidget *editor,
+                       QAbstractItemModel *model, const QModelIndex &index);
 
-    void setEditorData(QWidget *editor, const QModelIndex &index) const;
-    void setModelData(QWidget *editor, const QModelIndex &index) const;
+    void setEditorData(QWidget *editor,
+                       const QAbstractItemModel *model,
+                       const QModelIndex &index) const;
+    void setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const;
 
     void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
-                              const QModelIndex &index) const;
+                              const QAbstractItemModel *model, const QModelIndex &index) const;
 
 protected:
     void drawDisplay(QPainter *painter, const QStyleOptionViewItem &option, const QRect &rect,

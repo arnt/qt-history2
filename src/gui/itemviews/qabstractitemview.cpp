@@ -38,7 +38,7 @@ public:
 
     int rowCount(const QModelIndex&) const  { return 0; }
     int columnCount(const QModelIndex&) const { return 0; }
-    QVariant data(const QModelIndex &, int /*role*/) const { return QVariant(); }
+    QVariant data(const QModelIndex &, int) const { return QVariant(); }
 };
 
 QAbstractItemViewPrivate::QAbstractItemViewPrivate()
@@ -467,11 +467,7 @@ QItemSelectionModel* QAbstractItemView::selectionModel() const
 */
 void QAbstractItemView::setItemDelegate(QAbstractItemDelegate *delegate)
 {
-    if (delegate->model() != model()) {
-         qWarning("QAbstractItemView::setDelegate() failed: Trying to set a delegate, "
-                  "which works on a different model than the view.");
-         return;
-    }
+    Q_ASSERT(delegate);
     if (d->delegate && d->delegate->parent() == this)
         delete d->delegate;
     d->delegate = delegate;
@@ -486,7 +482,7 @@ void QAbstractItemView::setItemDelegate(QAbstractItemDelegate *delegate)
 QAbstractItemDelegate *QAbstractItemView::itemDelegate() const
 {
     if (!d->delegate)
-        d->delegate = new QItemDelegate(d->model, const_cast<QAbstractItemView*>(this));
+        d->delegate = new QItemDelegate(const_cast<QAbstractItemView*>(this));
     return d->delegate;
 }
 
@@ -1053,7 +1049,7 @@ bool QAbstractItemView::beginEdit(const QModelIndex &index,
             edit = buddy;
     }
     if (edit.isValid()) {
-        itemDelegate()->event(event, edit);
+        itemDelegate()->event(event, d->model, edit);
         if (d->requestEditor(action, event, edit)) {
             d->state = Editing;
         }
@@ -1076,7 +1072,7 @@ void QAbstractItemView::endEdit(const QModelIndex &index, bool accept)
 
     setState(NoState);
 
-    if (itemDelegate()->editorType(index) == QAbstractItemDelegate::Events) {
+    if (itemDelegate()->editorType(d->model, index) == QAbstractItemDelegate::Events) {
         setFocus();
         return;
     }
@@ -1084,14 +1080,14 @@ void QAbstractItemView::endEdit(const QModelIndex &index, bool accept)
     QWidget *persistent = d->persistentEditor(index);
     if (persistent) {
         if (accept)
-            itemDelegate()->setModelData(persistent, index);
+            itemDelegate()->setModelData(persistent, d->model, index);
     } else if (accept) {
-        itemDelegate()->setModelData(d->currentEditor.second, index);
+        itemDelegate()->setModelData(d->currentEditor.second, d->model, index);
         itemDelegate()->releaseEditor(QAbstractItemDelegate::Accepted,
-                                      d->currentEditor.second, index);
+                                      d->currentEditor.second, d->model, index);
     } else {
         itemDelegate()->releaseEditor(QAbstractItemDelegate::Cancelled,
-                                      d->currentEditor.second, index);
+                                      d->currentEditor.second, d->model, index);
     }
     QPersistentModelIndex idx;
     d->currentEditor = QPair<QPersistentModelIndex, QPointer<QWidget> >(idx, 0);
@@ -1118,13 +1114,13 @@ void QAbstractItemView::updateEditors()
     if (d->state == Editing) {
         option.rect = itemViewportRect(d->currentEditor.first);
         itemDelegate()->updateEditorGeometry(d->currentEditor.second, option,
-                                             d->currentEditor.first);
+                                             d->model, d->currentEditor.first);
     }
 
     QMap<QPersistentModelIndex, QPointer<QWidget> >::iterator it = d->editors.begin();
     for (; it != d->editors.end(); ++it) {
         option.rect = itemViewportRect(it.key());
-        itemDelegate()->updateEditorGeometry(it.value(), option, it.key());
+        itemDelegate()->updateEditorGeometry(it.value(), option, d->model, it.key());
     }
 }
 
@@ -1283,7 +1279,7 @@ void QAbstractItemView::keyboardSearch(const QString &search)
 */
 QSize QAbstractItemView::itemSizeHint(const QModelIndex &index) const
 {
-    return itemDelegate()->sizeHint(fontMetrics(), viewOptions(), index);
+    return itemDelegate()->sizeHint(fontMetrics(), viewOptions(), model(), index);
 }
 
 /*!
@@ -1298,7 +1294,7 @@ int QAbstractItemView::rowSizeHint(int row) const
     QModelIndex idx;
     for (int c = 0; c < colCount; ++c) {
         idx = d->model->index(row, c, root());
-        height = qMax(height, delegate->sizeHint(fontMetrics(), option, idx).height());
+        height = qMax(height, delegate->sizeHint(fontMetrics(), option, d->model, idx).height());
     }
     return height;
 }
@@ -1315,7 +1311,7 @@ int QAbstractItemView::columnSizeHint(int column) const
     QModelIndex idx;
     for (int r = 0; r < rowCount; ++r) {
         idx = d->model->index(r, column, root());
-        width = qMax(width, delegate->sizeHint(fontMetrics(), option, idx).width());
+        width = qMax(width, delegate->sizeHint(fontMetrics(), option, d->model, idx).width());
     }
     return width;
 }
@@ -1333,7 +1329,7 @@ void QAbstractItemView::setPersistentEditor(const QModelIndex &index, QWidget *e
         option.rect = itemViewportRect(index);
         option.state = (index == currentItem() ? QStyle::Style_HasFocus|option.state : option.state);
         editor = itemDelegate()->editor(QAbstractItemDelegate::AlwaysEdit,
-                                        d->viewport, option, index);
+                                        d->viewport, option, d->model, index);
     }
     d->setPersistentEditor(editor, index);
     edit(index);
@@ -1365,7 +1361,7 @@ void QAbstractItemView::dataChanged(const QModelIndex &topLeft, const QModelInde
     // Single item changed
     if (topLeft == bottomRight && topLeft.isValid()) {
         if (d->currentEditor.second && topLeft == currentItem())
-            itemDelegate()->setEditorData(d->currentEditor.second, topLeft);
+            itemDelegate()->setEditorData(d->currentEditor.second, d->model, topLeft);
         else
             d->viewport->update(itemViewportRect(topLeft));
         return;
@@ -1695,7 +1691,7 @@ bool QAbstractItemViewPrivate::shouldEdit(QAbstractItemDelegate::BeginEditAction
         return true;
     if (action & beginEditActions)
         return true;
-    if (delegate && delegate->editorType(index) == QAbstractItemDelegate::Events)
+    if (delegate && delegate->editorType(model, index) == QAbstractItemDelegate::Events)
         return true;
     return persistentEditor(index) != 0;
 }
@@ -1714,7 +1710,7 @@ bool QAbstractItemViewPrivate::shouldAutoScroll(const QPoint &pos)
 QWidget *QAbstractItemViewPrivate::requestEditor(QAbstractItemDelegate::BeginEditAction action,
                                                  QEvent *event, const QModelIndex &index)
 {
-    if (delegate->editorType(index) == QAbstractItemDelegate::Events)
+    if (delegate->editorType(model, index) == QAbstractItemDelegate::Events)
         return 0;
     QWidget *editor = persistentEditor(index);
 
@@ -1722,7 +1718,7 @@ QWidget *QAbstractItemViewPrivate::requestEditor(QAbstractItemDelegate::BeginEdi
         QStyleOptionViewItem option = q->viewOptions();
         option.rect = q->itemViewportRect(index);
         option.state |= (index == q->currentItem() ? QStyle::Style_HasFocus : QStyle::Style_Default);
-        editor = delegate->editor(action, viewport, option, index);
+        editor = delegate->editor(action, viewport, option, model, index);
     }
     if (editor) {
         editor->show();
@@ -1731,7 +1727,7 @@ QWidget *QAbstractItemViewPrivate::requestEditor(QAbstractItemDelegate::BeginEdi
                       || event->type() == QEvent::MouseButtonPress))
             QApplication::sendEvent(editor, event);
         editor->installEventFilter(q);
-        QPersistentModelIndex idx = QPersistentModelIndex(index, d->model);
+        QPersistentModelIndex idx = QPersistentModelIndex(index, model);
         currentEditor = QPair<QPersistentModelIndex, QPointer<QWidget> >(idx, editor);
     }
     return editor;

@@ -21,20 +21,16 @@
 class QPainter;
 class QModelIndex;
 class QAbstractItemModel;
-class QAbstractItemDelegatePrivate;
 
 class Q_GUI_EXPORT QAbstractItemDelegate : public QObject
 {
     Q_OBJECT
-    Q_DECLARE_PRIVATE(QAbstractItemDelegate)
     Q_ENUMS(EditorType EndEditFlags)
     Q_FLAGS(StartEditFlags)
 
 public:
-    QAbstractItemDelegate(QAbstractItemModel *model, QObject *parent = 0);
+    QAbstractItemDelegate(QObject *parent = 0);
     virtual ~QAbstractItemDelegate();
-
-    QAbstractItemModel *model() const;
 
     enum EditorType {
         Events,
@@ -60,28 +56,35 @@ public:
 
     // painting
     virtual void paint(QPainter *painter, const QStyleOptionViewItem &option,
-                       const QModelIndex &index) const = 0;
+                       const QAbstractItemModel *model, const QModelIndex &index) const = 0;
     virtual QSize sizeHint(const QFontMetrics &fontMetrics, const QStyleOptionViewItem &option,
-                           const QModelIndex &index) const = 0;
+                           const QAbstractItemModel *model, const QModelIndex &index) const = 0;
 
     // editing
-    virtual EditorType editorType(const QModelIndex &index) const;
+    virtual EditorType editorType(const QAbstractItemModel *model, const QModelIndex &index) const;
     virtual QWidget *editor(BeginEditAction action, QWidget *parent,
-                            const QStyleOptionViewItem &option, const QModelIndex &index);
-    virtual void releaseEditor(EndEditAction action, QWidget *editor, const QModelIndex &index);
+                            const QStyleOptionViewItem &option,
+                            const QAbstractItemModel *model,
+                            const QModelIndex &index);
+    virtual void releaseEditor(EndEditAction action, QWidget *editor,
+                               QAbstractItemModel *model, const QModelIndex &index);
 
-    virtual void setEditorData(QWidget *editor, const QModelIndex &index) const;
-    virtual void setModelData(QWidget *editor, const QModelIndex &index) const;
+    virtual void setEditorData(QWidget *editor,
+                               const QAbstractItemModel *model,
+                               const QModelIndex &index) const;
+    virtual void setModelData(QWidget *editor,
+                              QAbstractItemModel *model,
+                              const QModelIndex &index) const;
 
-    virtual void updateEditorGeometry(QWidget *editor, const QStyleOptionViewItem &option,
+    virtual void updateEditorGeometry(QWidget *editor,
+                                      const QStyleOptionViewItem &option,
+                                      const QAbstractItemModel* model,
                                       const QModelIndex &index) const;
 
     // events for non-widget editors
-    virtual bool event(QEvent *e, const QModelIndex &index);
+    virtual bool event(QEvent *e, QAbstractItemModel* model, const QModelIndex &index);
 
 protected:
-    QAbstractItemDelegate(QAbstractItemDelegatePrivate &, QAbstractItemModel* model,
-                          QObject *parent = 0);
     QString ellipsisText(const QFontMetrics &fontMetrics, int width, int align,
                          const QString &org) const;
 };

@@ -244,9 +244,9 @@ void QComboBoxPrivate::init()
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     q->setCurrentItem(0);
     if (q->style().styleHint(QStyle::SH_ComboBox_Popup))
-        delegate = new MenuDelegate(model, q);
+        delegate = new MenuDelegate(q);
     else
-        delegate = new QItemDelegate(model, q);
+        delegate = new QItemDelegate(q);
     l->setItemDelegate(delegate);
     QObject::connect(container, SIGNAL(itemSelected(const QModelIndex &)),
                      q, SLOT(itemSelected(const QModelIndex &)));
@@ -541,11 +541,11 @@ QAbstractItemDelegate *QComboBox::itemDelegate() const
 void QComboBox::setItemDelegate(QAbstractItemDelegate *delegate)
 {
     Q_ASSERT(delegate);
-    if (delegate->model() != model()) {
-         qWarning("QComboBox::setItemDelegate() failed: Trying to set a delegate, "
-                  "which works on a different model than the view.");
-         return;
-    }
+//     if (delegate->model() != model()) {
+//          qWarning("QComboBox::setItemDelegate() failed: Trying to set a delegate, "
+//                   "which works on a different model than the view.");
+//          return;
+//     }
 
     if (d->delegate && d->delegate->parent() == this)
         delete d->delegate;
@@ -746,7 +746,8 @@ QSize QComboBox::sizeHint() const
                      ? QStyle::Style_HasFocus|QStyle::Style_Selected : QStyle::Style_Default);
     QSize itemSize;
     for (int i = 0; i < model()->rowCount(root()); i++) {
-        itemSize = d->delegate->sizeHint(fontMetrics(), option, model()->index(i, 0, root()));
+        itemSize = d->delegate->sizeHint(fontMetrics(), option,
+                                         model(), model()->index(i, 0, root()));
         if (itemSize.width() > d->sizeHint.width())
             d->sizeHint.setWidth(itemSize.width());
         if (itemSize.height() > d->sizeHint.height())
@@ -903,7 +904,7 @@ void QComboBox::paintEvent(QPaintEvent *)
         itemOpt.state |= (q->hasFocus()
                         ? QStyle::Style_HasFocus|QStyle::Style_Selected : QStyle::Style_Default);
         itemOpt.rect = delegateRect;
-        d->delegate->paint(&painter, itemOpt, current);
+        d->delegate->paint(&painter, itemOpt, model(), current);
     }
 }
 

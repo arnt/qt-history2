@@ -331,7 +331,7 @@ QRect QGenericTreeView::itemViewportRect(const QModelIndex &index) const
     }
     int y = d->coordinate(vi);
     QStyleOptionViewItem option = viewOptions();
-    int h = itemDelegate()->sizeHint(fontMetrics(), option, d->modelIndex(vi)).height();
+    int h = itemDelegate()->sizeHint(fontMetrics(), option, d->model, d->modelIndex(vi)).height();
     return QRect(x, y, w, h);
 }
 
@@ -367,8 +367,8 @@ void QGenericTreeView::ensureItemVisible(const QModelIndex &index)
         }
         int y = area.height();
         while (y > 0 && i > 0)
-            y -= delegate->sizeHint(fontMetrics, option, d->items.at(i--).index).height();
-        int a = (-y * verticalFactor()) / delegate->sizeHint(fontMetrics, option,
+            y -= delegate->sizeHint(fontMetrics, option, d->model, d->items.at(i--).index).height();
+        int a = (-y * verticalFactor()) / delegate->sizeHint(fontMetrics, option, d->model,
                                                              d->items.at(i).index).height();
         verticalScrollBar()->setValue(++i * verticalFactor() + a);
     }
@@ -429,12 +429,14 @@ void QGenericTreeView::paintEvent(QPaintEvent *e)
     int v = verticalScrollBar()->value();
     int c = d->items.count();
     int i = d->itemAt(v);
-    int y = d->coordinateAt(v, delegate->sizeHint(fontMetrics, option, items[i].index).height());
+    int s = delegate->sizeHint(fontMetrics, option, model(), items[i].index).height();
+    int y = d->coordinateAt(v, s);
     
     while (y < h && i < c) {
         index = items[i].index;
+        s = delegate->sizeHint(fontMetrics, option, d->model, index).height();
+        option.rect.setRect(0, y, 0, s);
         option.state = state|(d->items[i].open ? QStyle::Style_Open : QStyle::Style_Default);
-        option.rect.setRect(0, y, 0, delegate->sizeHint(fontMetrics, option, index).height());
         d->current = i;
         drawRow(&painter, option, index);
         y += option.rect.height();
@@ -487,7 +489,7 @@ void QGenericTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &op
             continue;
         position = columnViewportPosition(headerSection);
         width = header->sectionSize(headerSection);
-        modelIndex = model()->index(index.row(), headerSection, parent);
+        modelIndex = d->model->index(index.row(), headerSection, parent);
         opt.state = state;
         opt.state |= (focus && current == modelIndex
                      ? QStyle::Style_HasFocus : QStyle::Style_Default);
@@ -503,7 +505,7 @@ void QGenericTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &op
             opt.rect.setRect(position, y, width, height);
             painter->fillRect(position, y, width, height, base);
         }
-        itemDelegate()->paint(painter, opt, modelIndex);
+        itemDelegate()->paint(painter, opt, d->model, modelIndex);
     }
 }
 
@@ -517,9 +519,9 @@ void QGenericTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &op
 void QGenericTreeView::drawBranches(QPainter *painter, const QRect &rect,
                                     const QModelIndex &index) const
 {
-    QModelIndex parent = model()->parent(index);
+    QModelIndex parent = d->model->parent(index);
     QModelIndex current = parent;
-    QModelIndex ancestor = model()->parent(current);
+    QModelIndex ancestor = d->model->parent(current);
     bool reverse = QApplication::reverseLayout();
     int indent = d->indent;
     int level = d->items.at(d->current).level;
@@ -543,11 +545,11 @@ void QGenericTreeView::drawBranches(QPainter *painter, const QRect &rect,
     for (--level; level >= outer; --level) { // we have already drawn the innermost branch
         primitive.moveLeft(reverse ? primitive.left() + indent : primitive.left() - indent);
         opt.rect = primitive;
-        opt.state = model()->rowCount(ancestor) - 1 > current.row() ? QStyle::Style_Sibling
-                                                                    : QStyle::Style_Default;
+        opt.state = (d->model->rowCount(ancestor) - 1 > current.row())
+                    ? QStyle::Style_Sibling : QStyle::Style_Default;
         style().drawPrimitive(QStyle::PE_TreeBranch, &opt, painter, this);
         current = ancestor;
-        ancestor = model()->parent(current);
+        ancestor = d->model->parent(current);
     }
 }
 
@@ -621,7 +623,7 @@ void QGenericTreeView::doItemsLayout()
 {
     QStyleOptionViewItem option = viewOptions();
     QModelIndex index = model()->index(0, 0, root());
-    d->itemHeight = itemDelegate()->sizeHint(fontMetrics(), option, index).height();
+    d->itemHeight = itemDelegate()->sizeHint(fontMetrics(), option, model(), index).height();
     d->layout(-1);
     updateGeometries();
     d->viewport->update();
@@ -644,7 +646,8 @@ int QGenericTreeView::verticalOffset() const
 {
     // gives an estimate
     QStyleOptionViewItem option = viewOptions();
-    int iheight = itemDelegate()->sizeHint(fontMetrics(), option, model()->index(0, 0)).height();
+    QModelIndex index = model()->index(0, 0);
+    int iheight = itemDelegate()->sizeHint(fontMetrics(), option, model(), index).height();
     int item = verticalScrollBar()->value() / d->verticalFactor;
     return item * iheight;
 }
@@ -771,7 +774,7 @@ QRect QGenericTreeView::selectionViewportRect(const QItemSelection &selection) c
     }
 
     QStyleOptionViewItem option = viewOptions();
-    int bottomHeight = itemDelegate()->sizeHint(fontMetrics(), option, bottomIndex).height();
+    int bottomHeight = itemDelegate()->sizeHint(fontMetrics(), option, model(), bottomIndex).height();
     int bottomPos = d->coordinate(bottom) + bottomHeight;
     int topPos = d->coordinate(top);
 
@@ -789,8 +792,7 @@ void QGenericTreeView::scrollContentsBy(int dx, int dy)
     int max_dy = verticalFactor() * items;
 
     // no need to do a lot of work if we are going to redraw the whole thing anyway
-    if (QABS(dx) > max_dx || QABS(dy) > max_dy) {
-        horizontalScrollBar()->repaint();
+    if (QABS(dy) > max_dy) {
         verticalScrollBar()->repaint();
         d->viewport->update();
         return;
@@ -824,18 +826,18 @@ void QGenericTreeView::scrollContentsBy(int dx, int dy)
         QModelIndex current_index = items[current_item].index;
         QModelIndex previous_index = items[previous_item].index;
 
-        int current_height = delegate->sizeHint(fontMetrics, option, current_index).height();
-        int previous_height = delegate->sizeHint(fontMetrics, option, previous_index).height();
+        int current_height = delegate->sizeHint(fontMetrics, option, d->model, current_index).height();
+        int previous_height = delegate->sizeHint(fontMetrics, option, d->model, previous_index).height();
         int current_y = d->coordinateAt(current_value, current_height);
         int previous_y = d->coordinateAt(previous_value, previous_height);
 
         dy = current_y - previous_y;
         if (current_item > previous_item)
             for (int i = previous_item; i < current_item; ++i)
-                dy -= delegate->sizeHint(fontMetrics, option, items[i].index).height();
+                dy -= delegate->sizeHint(fontMetrics, option, d->model, items[i].index).height();
         else if (current_item < previous_item)
             for (int i = previous_item; i > current_item; --i)
-                dy += delegate->sizeHint(fontMetrics, option, items[i].index).height();
+                dy += delegate->sizeHint(fontMetrics, option, d->model, items[i].index).height();
 
         verticalScrollBar()->repaint();
     }
@@ -938,25 +940,27 @@ void QGenericTreeView::updateGeometries()
 
     // update sliders
     QStyleOptionViewItem option = viewOptions();
+    QAbstractItemDelegate *delegate = itemDelegate();
+    QAbstractItemModel *model = d->model;
 
     // vertical
     int h = d->viewport->height();
     int item = d->items.count();
     if (h <= 0 || item <= 0) // if we have no viewport or no rows, there is nothing to do
         return;
-    QModelIndex index = d->model->index(0, 0);
-    QSize def = itemDelegate()->sizeHint(fontMetrics(), option, d->model->index(0, 0));
+    QModelIndex index = model->index(0, 0);
+    QSize def = delegate->sizeHint(fontMetrics(), option, model, index);
     verticalScrollBar()->setPageStep(h / def.height() * verticalFactor());
     while (h > 0 && item > 0)
-        h -= itemDelegate()->sizeHint(fontMetrics(), option, d->modelIndex(--item)).height();
+        h -= delegate->sizeHint(fontMetrics(), option, model, d->modelIndex(--item)).height();
     int max = item * verticalFactor();
     if (h < 0)
          max += 1 + (verticalFactor() * -h /
-                     itemDelegate()->sizeHint(fontMetrics(), option, d->modelIndex(item)).height());
+                     delegate->sizeHint(fontMetrics(), option, model, d->modelIndex(item)).height());
     verticalScrollBar()->setRange(0, max);
 
-    int w = viewport()->width();
-    int col = model()->columnCount();
+    int w = d->viewport->width();
+    int col = model->columnCount();
     if (w <= 0 || col <= 0 || def.isEmpty()) // if we have no viewport or no columns, there is nothing to do
         return;
     horizontalScrollBar()->setPageStep(w / def.width() * horizontalFactor());
@@ -978,11 +982,13 @@ void QGenericTreeView::updateGeometries()
 void QGenericTreeView::verticalScrollbarAction(int action)
 {
     QStyleOptionViewItem option = viewOptions();
+    QAbstractItemDelegate *delegate = itemDelegate();
+    QAbstractItemModel *model = d->model;
 
     int factor = d->verticalFactor;
     int value = verticalScrollBar()->value();
     int item = value / factor;
-    int iheight = itemDelegate()->sizeHint(fontMetrics(), option, d->modelIndex(item)).height();
+    int iheight = delegate->sizeHint(fontMetrics(), option, model, d->modelIndex(item)).height();
     int above = (value % factor) * iheight;
     int y = -(above / factor); // above the page
 
@@ -991,11 +997,11 @@ void QGenericTreeView::verticalScrollbarAction(int action)
         // go down to the bottom of the page
         int h = d->viewport->height();
         while (y < h && item < d->items.count())
-            y += itemDelegate()->sizeHint(fontMetrics(), option, d->modelIndex(item++)).height();
+            y += delegate->sizeHint(fontMetrics(), option, model, d->modelIndex(item++)).height();
         value = item * factor; // i is now the last item on the page
         if (y > h && item)
-            value -= factor * (y - h) / itemDelegate()->sizeHint(fontMetrics(), option,
-                                                                 d->modelIndex(item - 1)).height();
+            value -= factor * (y - h) / delegate->sizeHint(fontMetrics(), option, model,
+                                                           d->modelIndex(item - 1)).height();
         verticalScrollBar()->setSliderPosition(value);
 
     } else if (action == QScrollBar::SliderPageStepSub) {
@@ -1004,13 +1010,12 @@ void QGenericTreeView::verticalScrollbarAction(int action)
 
         // go up to the top of the page
         while (y > 0 && item > 0)
-            y -= itemDelegate()->sizeHint(fontMetrics(), option,
-                                          d->modelIndex(--item)).height();
+            y -= delegate->sizeHint(fontMetrics(), option, model, d->modelIndex(--item)).height();
         value = item * factor; // i is now the first item in the page
 
         if (y < 0)
-            value += factor * -y / itemDelegate()->sizeHint(fontMetrics(),
-                                                            option, d->modelIndex(item)).height();
+            value += factor * -y / delegate->sizeHint(fontMetrics(), option, model,
+                                                      d->modelIndex(item)).height();
         verticalScrollBar()->setSliderPosition(value);
     }
 }
@@ -1077,14 +1082,15 @@ int QGenericTreeView::columnSizeHint(int column) const
     int h = d->viewport->height();
     int c = d->items.count();
     int i = d->itemAt(v);
-    int y = d->coordinateAt(v, delegate->sizeHint(fontMetrics, option, items[i].index).height());
+    int s = delegate->sizeHint(fontMetrics, option, d->model, items[i].index).height();
+    int y = d->coordinateAt(v, s);
     int w = 0;
     QSize size;
 
     while (y < h && i < c) {
         index = items[i].index;
-        index = model()->sibling(index.row(), column, index);
-        size = delegate->sizeHint(fontMetrics, option, index);
+        index = d->model->sibling(index.row(), column, index);
+        size = delegate->sizeHint(fontMetrics, option, d->model, index);
         w = qMax(w, size.width() + (column == 0 ? d->indentation(i) : 0));
         y += size.height();
         ++i;
@@ -1231,17 +1237,16 @@ int QGenericTreeViewPrivate::coordinate(int item) const
 {
     QStyleOptionViewItem option = q->viewOptions();
     QFontMetrics fontMetrics(q->fontMetrics());
-    QAbstractItemDelegate *delegate = q->itemDelegate();
     int v = q->verticalScrollBar()->value();
     int i = itemAt(v); // first item (may start above the page)
-    int ih = delegate->sizeHint(fontMetrics, option, items.at(i).index).height();
+    int ih = delegate->sizeHint(fontMetrics, option, model, items.at(i).index).height();
     int y = coordinateAt(v, ih); // the part of the item above the page
     int h = q->viewport()->height();
     if (i <= item) {
         while (y < h && i < items.count()) {
             if (i == item)
                 return y; // item is visible - actual y in viewport
-            y += delegate->sizeHint(fontMetrics, option, items.at(i).index).height();
+            y += delegate->sizeHint(fontMetrics, option, model, items.at(i).index).height();
             ++i;
         }
         // item is below the viewport - estimated y
@@ -1255,19 +1260,19 @@ int QGenericTreeViewPrivate::item(int coordinate) const
 {
     QStyleOptionViewItem option = q->viewOptions();
     QFontMetrics fontMetrics(q->fontMetrics());
-    QAbstractItemDelegate *delegate = q->itemDelegate();
 
     int v = q->verticalScrollBar()->value();
     int i = itemAt(v);
     if (i >= items.count())
         return -1;
 
-    int y = coordinateAt(v, delegate->sizeHint(fontMetrics, option, items.at(i).index).height());
+    int s = delegate->sizeHint(fontMetrics, option, model, items.at(i).index).height();
+    int y = coordinateAt(v, s);
     int h = q->viewport()->height();
     if (coordinate >= y) {
         // search for item in viewport
         while (y < h && i < items.count()) {
-            y += delegate->sizeHint(fontMetrics, option, items.at(i).index).height();
+            y += delegate->sizeHint(fontMetrics, option, model, items.at(i).index).height();
             if (coordinate < y)
                 return i;
             ++i;
