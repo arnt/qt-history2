@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#37 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#38 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -41,10 +41,11 @@
 
 #include "qxml.h"
 #include "qmap.h"
+#include "qlist.h"
+#include "qdict.h"
 #include "qtextstream.h"
 #include "qtextcodec.h"
 #include "qiodevice.h"
-#include "qdict.h"
 #include "qregexp.h"
 
 // NOT REVISED
@@ -93,6 +94,11 @@ static void qt_split_namespace( QString& prefix, QString& name, const QString& q
 	name = qName.mid( i + 1 );
     }
 }
+
+/*
+  Counter for the QDomNodeListPrivate timestamps.
+*/
+static long qt_nodeListTime = 0;
 
 /**************************************************************
  *
@@ -179,11 +185,14 @@ public:
     virtual bool operator== ( const QDomNodeListPrivate& ) const;
     virtual bool operator!= ( const QDomNodeListPrivate& ) const;
 
+    void createList();
     virtual QDomNodePrivate* item( int index );
     virtual uint length() const;
 
     QDomNodePrivate* node_impl;
     QString tagname;
+    QList<QDomNodePrivate> list;
+    long timestamp;
 };
 
 class QDomNamedNodeMapPrivate : public QShared
@@ -738,6 +747,7 @@ QDomNodeListPrivate::QDomNodeListPrivate( QDomNodePrivate* n_impl )
     node_impl = n_impl;
     if ( node_impl )
 	node_impl->ref();
+    createList();
 }
 
 QDomNodeListPrivate::QDomNodeListPrivate( QDomNodePrivate* n_impl, const QString& name )
@@ -746,6 +756,7 @@ QDomNodeListPrivate::QDomNodeListPrivate( QDomNodePrivate* n_impl, const QString
     if ( node_impl )
 	node_impl->ref();
     tagname = name;
+    createList();
 }
 
 QDomNodeListPrivate::~QDomNodeListPrivate()
@@ -764,22 +775,21 @@ bool QDomNodeListPrivate::operator!= ( const QDomNodeListPrivate& other ) const
     return ( node_impl != other.node_impl ) || ( tagname != other.tagname ) ;
 }
 
-QDomNodePrivate* QDomNodeListPrivate::item( int index )
+void QDomNodeListPrivate::createList()
 {
-    // ### optimize this
+    timestamp = qt_nodeListTime;
     QDomNodePrivate* p = node_impl->first;
-    int i = 0;
+
+    list.clear();
     if ( tagname.isNull() ) {
-	while ( i < index && p ) {
+	while ( p ) {
+	    list.append( p );
 	    p = p->next;
-	    ++i;
 	}
     } else {
 	while ( p && p != node_impl ) {
 	    if ( p->isElement() && p->nodeName() == tagname ) {
-		if ( i == index )
-		    break;
-		++i;
+		list.append( p );
 	    }
 	    if ( p->first )
 		p = p->first;
@@ -794,39 +804,22 @@ QDomNodePrivate* QDomNodeListPrivate::item( int index )
 	    }
 	}
     }
+}
 
-    return p;
+QDomNodePrivate* QDomNodeListPrivate::item( int index )
+{
+    if ( timestamp < qt_nodeListTime )
+	createList();
+    return list.at( index );
 }
 
 uint QDomNodeListPrivate::length() const
 {
-    // ### optimize this
-    uint i = 0;
-    QDomNodePrivate* p = node_impl->first;
-    if ( tagname.isNull() ) {
-	while ( p ) {
-	    p = p->next;
-	    ++i;
-	}
-    } else {
-	while ( p && p != node_impl ) {
-	    if ( p->isElement() && p->nodeName() == tagname )
-		++i;
-
-	    if ( p->first )
-		p = p->first;
-	    else if ( p->next )
-		p = p->next;
-	    else {
-		p = p->parent;
-		while ( p && p != node_impl && !p->next )
-		    p = p->parent;
-		if ( p && p != node_impl )
-		    p = p->next;
-	    }
-	}
+    if ( timestamp < qt_nodeListTime ) {
+	QDomNodeListPrivate *that = (QDomNodeListPrivate*)this;
+	that->createList();
     }
-    return i;
+    return list.count();
 }
 
 /**************************************************************
@@ -1058,6 +1051,9 @@ QDomNodePrivate* QDomNodePrivate::insertBefore( QDomNodePrivate* newChild, QDomN
     // Error check
     if ( refChild && refChild->parent != this )
 	return 0;
+    
+    // "mark lists as dirty"
+    qt_nodeListTime++;
 
     // Special handling for inserting a fragment. We just insert
     // all elements of the fragment instead of the fragment itself.
@@ -1148,6 +1144,9 @@ QDomNodePrivate* QDomNodePrivate::insertAfter( QDomNodePrivate* newChild, QDomNo
     // Error check
     if ( refChild && refChild->parent != this )
 	return 0;
+
+    // "mark lists as dirty"
+    qt_nodeListTime++;
 
     // Special handling for inserting a fragment. We just insert
     // all elements of the fragment instead of the fragment itself.
@@ -1240,6 +1239,9 @@ QDomNodePrivate* QDomNodePrivate::replaceChild( QDomNodePrivate* newChild, QDomN
     if ( newChild == oldChild )
 	return 0;
 
+    // "mark lists as dirty"
+    qt_nodeListTime++;
+
     // Special handling for inserting a fragment. We just insert
     // all elements of the fragment instead of the fragment itself.
     if ( newChild->isDocumentFragment() ) {
@@ -1323,6 +1325,9 @@ QDomNodePrivate* QDomNodePrivate::removeChild( QDomNodePrivate* oldChild )
     // Error check
     if ( oldChild->parent != this )
 	return 0;
+
+    // "mark lists as dirty"
+    qt_nodeListTime++;
 
     // Perhaps oldChild was just created with "createElement" or that. In this case
     // its parent is QDomDocument but it is not part of the documents child list.
