@@ -16,6 +16,7 @@
 #include <qregexp.h>
 #include <qstring.h>
 #include <qtranslator.h>
+#include <stdio.h>
 
 typedef QList<QTranslatorMessage> TML;
 
