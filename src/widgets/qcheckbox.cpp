@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#96 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#97 $
 **
 ** Implementation of QCheckBox class
 **
@@ -96,7 +96,7 @@ QCheckBox::QCheckBox( const QString &text, QWidget *parent, const char *name )
 void QCheckBox::setNoChange()
 {
     setTristate(TRUE);
-
+    setState( NoChange );
 }
 
 /*!
