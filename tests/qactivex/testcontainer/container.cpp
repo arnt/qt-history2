@@ -231,6 +231,12 @@ public:
 		 )
 		continue;
 */
+#if QT_VERSION < 0x030200
+	    if ( prop->type() == QVariant::Invalid ) {
+		qDebug( "\nSkipping test of %s. Type not supported in this Qt version.", prop->name() );
+		continue;
+	    }
+#endif
 	    qDebug( "\nTesting property %s of type %s", prop->name(), prop->type() );
 
 	    // Get container's value
