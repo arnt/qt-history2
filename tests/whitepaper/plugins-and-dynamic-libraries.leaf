@@ -1,10 +1,5 @@
 \chapter Plugins and Dynamic Libraries
 
-  \index codecs
-  \index database drivers
-  \index image formats
-  \index styles
-
 \quote
 Qt can access functions from dynamic libraries platform-independently.
 Qt also supports plugins, which allow developers to create and
@@ -12,13 +7,19 @@ distribute Qt codecs, database drivers, image format converters,
 styles and custom widgets as independent components. 
 \endquote
 
+  \index Codec
+  \index Database driver
+  \index Image format
+  \index Plugin
+  \index Style
+
 \section1 Dynamic Libraries
 
   \index DLL
-  \index dynamic libraries
-  \index libraries
-  \index linking
-  \index shared libraries
+  \index Dynamic library
+  \index Library
+  \index Linking
+  \index Shared library
 
 The \Class QLibrary class provides cross-platform dynamic library
 loading, a more powerful mechanism than the more restrictive
@@ -81,6 +82,8 @@ automatically.
 
 Companies already provide Qt components in source form, as
 precompiled dynamic libraries or as plugins.
+
+  \index Calendar
 
   \img klaralvdalen.png Calendar widget
   \caption One of \KALLE's many commercial components

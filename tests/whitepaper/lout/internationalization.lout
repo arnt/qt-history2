@@ -19,11 +19,9 @@ translation. When the translation is complete, Qt Linguist
 outputs a translation file for use by application programs. Qt
 Linguist's documentation provides the relevant information for
 release managers, translators and programmers.
-i18n @Index { i18n }
-internationalization @Index { Internationalization }
-l10n @Index { l10n }
-localization @Index { Localization }
-multi-language @Index { Multi-language }
+  internationalization @Index { Internationalization }
+  language @Index { Language }
+  localization @Index { Localization }
 @BeginSubSections
 @SubSection
     @Title { Unicode }
@@ -37,13 +35,14 @@ char. Constructors and operators are provided to automatically convert
 to and from 8-bit strings. Programmers can copy @Class {QString}s by
 value, since they are implicitly shared (copy on write)
 @Xref{collection.classes}, which makes them fast and memory efficient.
-qchar @Index { QChar }
-qregexp @Index { QRegExp }
-qstring @Index { QString }
-unicode @Index { Unicode }
-char @Index { Char }
-implicitsharing @Index { Implicit sharing }
-strings @Index { Strings }
+  char @Index { Char }
+  implicitsharing @Index { Implicit sharing }
+  qchar @Index { QChar }
+  qregexp @Index { QRegExp }
+  qstring @Index { QString }
+  sharing @Index { Sharing }
+  string @Index { String }
+  unicode @Index { Unicode }
 @PP
 @Class QString is more than a 16-bit character string. Functions such
 as @Func QChar::lower() and @Func QChar::isPunct() replace @Func
@@ -51,7 +50,7 @@ tolower() and @Func ispunct() and work over the whole Unicode range.
 Qt's regular expression engine, provided by the @Class QRegExp class,
 uses Unicode strings both for the regular expression pattern and the
 target string.
-regularexpressions @Index { Regular expressions }
+  regularexpression @Index { Regular expression }
 @PP
 #Items in widget classes such as @Class QListBox and @Class QTable can
 #be sorted in the locale's dictionary order (only on Windows so far).
@@ -60,10 +59,10 @@ Conversion to and from different encodings and charsets is handled by
 @Class QTextCodec subclasses. Qt uses @Class QTextCodec for fonts,
 input methods and "I/O"; programmers can use it for their own purposes
 as well.
-qtextcodec @Index { QTextCodec }
-charsets @Index { Charsets }
-codecs @Index { Codecs }
-encodings @Index { Encodings }
+  charset @Index { Charset }
+  codec @Index { Codec }
+  encoding @Index { Encoding }
+  qtextcodec @Index { QTextCodec }
 @PP
 Qt 3.0 supports 37 different encodings, including Big5 and GBK for
 Chinese, EUC-JP, JIS and Shift-JIS for Japanese, KOI8-R for Russian
@@ -71,14 +70,14 @@ and the ISO 8859 series; see
 @Href{"http://doc.trolltech.com/qtextcodec.html"} for the complete list.
 Programmers can add their own encodings by providing a charmap or by
 subclassing @Class QTextCodec.
-big5 @Index { Big5 }
-eucjp @Index { EUC-JP }
-gbk @Index { GBK }
-iso8859 @Index { ISO 8859 }
-jis @Index { JIS }
-koi8r @Index { KOI8-R }
-shiftjis @Index { Shift-JIS }
-charmap @Index { Charmap }
+  big5 @Index { Big5 }
+  charmap @Index { Charmap }
+  eucjp @Index { EUC-JP }
+  gbk @Index { GBK }
+  iso8859 @Index { ISO 8859 }
+  jis @Index { JIS }
+  koi8r @Index { KOI8-R }
+  shiftjis @Index { Shift-JIS }
 @End @SubSection
 @SubSection
     @Title { Text Rendering }
@@ -93,24 +92,24 @@ diacritical marks. It renders most of the world's writing systems,
 including Arabic, Chinese, Cyrillic, English, Greek, Hebrew,
 Japanese, Korean, Latin, Thai and Vietnamese. Qt will automatically
 combine the installed fonts to render multi-language text.
-arabic @Index { Arabic }
-chinese @Index { Chinese }
-cyrillic @Index { Cyrillic }
-english @Index { English }
-greek @Index { Greek }
-hebrew @Index { Hebrew }
-japanese @Index { Japanese }
-korean @Index { Korean }
-latin @Index { Latin }
-thai @Index { Thai }
-vietnamese @Index { Vietnamese }
-bidirectionalwriting @Index { Bidirectional writing }
-diacriticalmarks @Index { Diacritical marks }
-fonts @Index { Fonts }
-linebreaking @Index { Line breaking }
-righttoleft languages @Index { Right-to-left languages }
-textrendering @Index { Text rendering }
-writingsystems @Index { Writing systems }
+  arabic @Index { Arabic }
+  bidirectionalwriting @Index { Bidirectional writing }
+  chinese @Index { Chinese }
+  cyrillic @Index { Cyrillic }
+  diacriticalmark @Index { Diacritical mark }
+  english @Index { English }
+  font @Index { Font }
+  greek @Index { Greek }
+  hebrew @Index { Hebrew }
+  japanese @Index { Japanese }
+  korean @Index { Korean }
+  latin @Index { Latin }
+  linebreaking @Index { Line breaking }
+  righttoleftlanguages @Index { Right-to-left languages }
+  textrendering @Index { Text rendering }
+  thai @Index { Thai }
+  vietnamese @Index { Vietnamese }
+  writingsystem @Index { Writing system }
 @End @SubSection
 @SubSection
     @Title { Input Methods }
@@ -122,8 +121,8 @@ available on a keyboard. The conversion from a sequence of key
 presses to actual characters is performed at the window-system level
 by software called `input methods'. Qt automatically supports the
 installed input methods.
-inputmethods @Index { Input methods }
-keyboard @Index { Keyboard }
+  inputmethod @Index { Input method }
+  keyboard @Index { Keyboard }
 @End @SubSection
 @SubSection
     @Title { Dates and Times }
@@ -133,12 +132,12 @@ keyboard @Index { Keyboard }
 The editor classes for dates and times (@Class QDateEdit, @Class
 QTimeEdit and @Class QDateTimeEdit) respect the user's locale for
 separators and ordering.
-qdateedit @Index { QDateEdit }
-qdatetimeedit @Index { QDateTimeEdit }
-qtimeedit @Index { QTimeEdit }
-dates @Index { Dates }
-locales @Index { Locales }
-times @Index { Times }
+  date @Index { Date }
+  locale @Index { Locale }
+  qdateedit @Index { QDateEdit }
+  qdatetimeedit @Index { QDateTimeEdit }
+  qtimeedit @Index { QTimeEdit }
+  time @Index { Time }
 @End @SubSection
 @SubSection
     @Title { Translating Applications }
@@ -147,12 +146,12 @@ times @Index { Times }
 @PP
 Qt provides tools and functions to help developers provide
 applications in their customers' native languages.
-texttranslation @Index { Text translation }
-translation @Index { Translation }
+  texttranslation @Index { Text translation }
+  translation @Index { Translation }
 @PP
 To make a string translatable, simply wrap it in a call to @Func tr()
 (read 'translate'):
-tr @Index { tr() }
+  tr @Index { tr() }
 @IndentedDisplay @CP @Begin
 saveButton->setText( tr("Save") );
 @End @CP
@@ -163,10 +162,10 @@ translated language, or vice versa. The argument to @Func tr() is
 converted to Unicode from the application's default encoding.
 @PP
 @Func tr()'s general syntax is
-qobject @Index { QObject }
-commentsfortranslation) @Index { Comments (for translation) } 
-contextsfortranslation) @Index { Contexts (for translation) }
-sourcetexts @Index { Source texts }
+  comment @Index { Comment }
+  context @Index { Context }
+  qobject @Index { QObject }
+  sourcetext @Index { Source text }
 @IndentedDisplay @CP @Begin
 Context::tr("source text", "comment")
 @End @CP
@@ -181,23 +180,23 @@ disk-based @File .qm files (Qt Message files). Each @File .qm file contains
 the translations for a particular language. The language can be
 chosen at run-time, in accordance with the locale or user
 preferences.
-.qm @Index { .qm }
-qtranslator @Index { QTranslator }
-locales @Index { Locales }
+  .qm @Index { .qm }
+  locale @Index { Locale }
+  qtranslator @Index { QTranslator }
 @PP
 Qt provides three tools for preparing @File .qm files: @Cmd lupdate, 
 Qt Linguist and @Cmd lrelease.
-linguist @Index { Linguist }
-qtlinguist @Index { Qt Linguist }
-lrelease @Index { lrelease }
-lupdate @Index { lupdate }
+  linguist @Index { Linguist }
+  qtlinguist @Index { Qt Linguist }
+  lrelease @Index { lrelease }
+  lupdate @Index { lupdate }
 @PP
 @NumberedList
-designer @Index { Designer }
-qtdesigner @Index { Qt Designer }
-.ts @Index { .ts }
-.ui @Index { .ui }
-xml @Index { XML }
+  designer @Index { Designer }
+  qtdesigner @Index { Qt Designer }
+  .ts @Index { .ts }
+  .ui @Index { .ui }
+  xml @Index { XML }
 @ListItem { @Cmd lupdate extracts all the (context, source text,
 comment) triples from the source code, including @QDR
 @File .ui files, and generates a @File .ts file (Translation Source
@@ -217,8 +216,8 @@ so that a translator can easily check them.
 @PP
 Qt itself contains about 400 user-visible strings, for which
 Trolltech provides French and German translations.
-french @Index { French }
-german @Index { German }
+  french @Index { French }
+  german @Index { German }
 @End @SubSection
 @SubSection
     @Title { Qt Linguist }
@@ -250,7 +249,7 @@ good starting point that helps translators translate similar texts
 consistently. Qt Linguist can optionally validate translations
 to ensure that accelerators and ending punctuation are translated
 correctly.
-accelerators @Index { Accelerators }
+  accelerator @Index { Accelerator }
 @DP
 @OLREF @LP
 @Href{"http://www.trolltech.com/3.0/i18n .html"}@LLP

@@ -7,16 +7,16 @@ perform size and position calculations, and provide automatic scaling
 to suit users screens.
 \endquote
 
-  \index automatic layouts
-  \index child widget
-  \index default widget size
-  \index font changes
-  \index layouts
-  \index parent widget
-  \index positioning of widgets
-  \index repositioning of widgets
-  \index resizing widgets
-  \index size of widgets
+  \index Automatic layout
+  \index Child widget
+  \index Default widget size
+  \index Font
+  \index Layout
+  \index Parent widget
+  \index Positioning
+  \index Repositioning
+  \index Resizing
+  \index Size
 
 Qt provides layout managers for organizing child widgets within the
 parent widget's area. They feature automatic positioning of child
@@ -29,7 +29,6 @@ widgets using layout managers.
 
   \index QGridLayout
   \index QHBoxLayout
-  \index QPackerLayout
   \index QVBoxLayout
 
 Qt's built-in layout managers are \Class QHBoxLayout, \Class
@@ -44,11 +43,8 @@ QVBoxLayout and \Class QGridLayout.
   \img qgrid.png
   \caption \Class QGridLayout with five child widgets
 
-  \index grid layout
-  \index hbox
-  \index horizontal box layout
-  \index vbox
-  \index vertical box layout
+  \index Box layout
+  \index Grid layout
 
 \Class QHBoxLayout organizes the managed widgets in a single
 horizontal row from left to right. \Class QVBoxLayout organizes the
@@ -63,35 +59,35 @@ mechanisms:
 
 \list 1
 
-  \index fixed size
-  \index maximum size
-  \index minimum size
+  \index Fixed size
+  \index Maximum size
+  \index Minimum size
 
 \i \e {Setting a minimum size, a maximum size or a fixed size for
    some child widgets.}
 
-  \index stretches
-  \index spacer items
+  \index Stretch
+  \index Spacer item
 
 \i \e {Adding stretch items or spacer items.} Stretch or spacer
    items fill empty space in a layout.
 
-  \index size policy
+  \index Size policy
 
 \i \e {Changing the size policies of the child widgets.} By calling
    \Func QWidget::setSizePolicy(), programmers can fine tune the
    resize behavior of a child widget. Child widgets can be set to
    expand, contract, keep the same size, etc.
 
-  \index preferred size
+  \index Preferred size
 
 \i \e {Changing the child widgets' size hints.} \Func
    QWidget::sizeHint() and \Func QWidget::minimumSizeHint() return a
    widget's preferred size and preferred minimum size based on the
    contents. Built-in widgets provide appropriate reimplementations.
 
-  \index relative growth
-  \index stretch factors
+  \index Relative growth
+  \index Stretch factor
 
 \i \e {Setting stretch factors.} Stretch factors allow relative
    growth of child widgets, e.g. two thirds of any extra space made
@@ -105,9 +101,9 @@ mechanisms:
 \endlist
 
   \index Designer
+  \index Margin
   \index Qt Designer
-  \index margin (in layouts)
-  \index spacing (in layouts)
+  \index Spacing
 
 The 'spacing' between managed widgets and the 'margin' around the
 whole layout can also be set by the programmer. By default, \l {Qt
@@ -115,7 +111,7 @@ Designer} sets industry-standard values based on the context.
 
   \index Arabic
   \index Hebrew
-  \index right-to-left languages
+  \index Right-to-left languages
 
 Layouts can also run right-to-left and bottom-to-top. Right-to-left
 layouts are convenient for internationalized applications supporting
@@ -146,8 +142,8 @@ The dialog's widgets and layouts are created with the following code:
   \printto endquote
 
   \index Designer
+  \index Fixed positioning
   \index Qt Designer
-  \index fixed positioning
 
 Qt makes layouts so easy that programmers rarely use fixed
 positioning.
@@ -163,10 +159,9 @@ above.
 
   \index BorderLayout
   \index CardLayout
+  \index Flow layout
   \index QLayout
   \index SimpleFlow
-  \index custom layouts
-  \index flow layouts
 
 Developers can define custom layout managers by subclassing \Class
 QLayout. The \c customlayout example provided with Qt presents three
@@ -174,13 +169,13 @@ custom layout managers, \c BorderLayout, \c CardLayout and \c
 SimpleFlow, which programmers can use and modify.
 
   \index QSplitter
-  \index splitters
+  \index Splitter
 
 Qt also includes \Class QSplitter, a splitter bar that end users can
 manipulate. In some design situations, \Class QSplitter may be
 preferable to a layout manager.
 
-  \index manual layouts
+  \index Manual layout
 
 For complete control, it is also possible to perform layout manually
 in a widget by reimplementing \Func QWidget::resizeEvent() and by

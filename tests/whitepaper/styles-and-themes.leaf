@@ -1,10 +1,5 @@
 \chapter Styles and Themes
 
-  \index look and feel
-  \index styles
-  \index themes
-  \index widget style
-
 \quote
 Qt automatically uses the native style for look and feel. Qt
 applications respect user preferences for colors, fonts, sounds, etc.
@@ -13,20 +8,20 @@ override any preferences. Programmers can modify existing styles or
 implement their own styles using Qt's powerful style engine.
 \endquote
 
-  \index colors
-  \index fonts
-  \index look and feel
-  \index preferences
-  \index settings
-  \index sounds
-  \index styles
-  \index system sounds
-  \index themes
-  \index user preferences
-
-  \index drawing
-  \index emulation
-  \index interface emulation
+  \index Color
+  \index Drawing
+  \index Emulation
+  \index Font
+  \index Interface emulation
+  \index Look and feel
+  \index Preferences
+  \index Settings
+  \index Sound
+  \index Style
+  \index System sound
+  \index Theme
+  \index User settings
+  \index Widget style
 
 A style implements the 'look and feel' of the user interface on a
 particular platform. A style is a \Class QStyle subclass that
@@ -54,12 +49,12 @@ the \c -style command-line option on Unix.
   \img combobox.png
   \caption Comboboxes in the different built-in styles
 
-  \index fade effect
-  \index menus
-  \index palette
-  \index scroll effect
-  \index tooltips
-  \index transition effects
+  \index Fade effect
+  \index Menu
+  \index Palette
+  \index Scroll effect
+  \index Tooltip
+  \index Transition effect
 
 A style is complemented by a theme, which encapsulates the user's
 preferences for colors, fonts, sounds, etc. Qt automatically adapts
@@ -77,6 +72,8 @@ raw rectangles directly.
 
 \section1 Custom Styles
 
+  \index QCommonStyle
+
 Custom styles are used to provide a distinct look to an application
 or family of applications. Custom styles can be defined by
 subclassing \Class QStyle, \Class QCommonStyle or any other
@@ -93,8 +90,8 @@ An application's style can be set like this:
 \endcode
 
   \index Designer
+  \index Plugin
   \index Qt Designer
-  \index plugins
 
 A style can also be compiled as a plugin. Plugins make it possible
 to preview a form in a custom style in \l {Qt Designer} without

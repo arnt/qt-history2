@@ -21,10 +21,15 @@ QTextCodec. The @Class QDataStream class is used to serialize the
 basic C++ types and many Qt types in a platform-independent binary
 format. For example, the following code writes a Unicode string, a
 font and a color to the file @File splash.dat:
-unicode @Index { Unicode }
-binaryserialization @Index { Binary serialization }
-inputoutput @Index { "Input/Output" }
-serialization @Index { Serialization }
+  binaryserialization @Index { Binary serialization }
+  input/output @Index { "Input/output" }
+  qdatastream @Index { QDataStream }
+  qtextcodec @Index { QTextCodec }
+  qtextstream @Index { QTextStream }
+  serialization @Index { Serialization }
+  stream @Index { Stream }
+  unicode @Index { Unicode }
+  iostream @Index { iostream }
 @IndentedDisplay @CP @Begin
 QFile file( "splash.dat" );
 if ( file.open(IO_WriteOnly) ) {
@@ -87,10 +92,10 @@ Transparent access to remote files is provided by @Class
 QUrlOperator. In addition to local file system access, Qt supports
 the the FTP and HTTP protocols and can be extended to support other
 protocols. For example, files can be downloaded using FTP like this:
-ftp @Index { FTP }
-http @Index { HTTP }
-url @Index { URL }
-networking @Index { Networking }
+  ftp @Index { FTP }
+  http @Index { HTTP }
+  networking @Index { Networking }
+  url @Index { URL }
 @IndentedDisplay @CP @Begin
 QUrlOperator op;
 op.copy( QString("ftp://ftp.trolltech.com/qt/INSTALL"),
@@ -115,11 +120,11 @@ XML) implementation follows the design of the SAX2 Java
 implementation, with adapted naming conventions. The DOM (Document
 Object Model) Level 2 implementation follows the W3C recommendation
 and includes namespace support.
-dom @Index { DOM }
-java @Index { Java }
-sax @Index { SAX }
-w3c @Index { W3C }
-xml @Index { XML }
+  dom @Index { DOM }
+  java @Index { Java }
+  sax @Index { SAX }
+  w3c @Index { W3C }
+  xml @Index { XML }
 @PP
 Many Qt applications use XML format to store their persistent data.
 The SAX parser is used for reading data incrementally and is
@@ -137,9 +142,9 @@ communicate with them from a Qt application in a platform-independent
 way. Communication is achieved by writing to the external program's
 standard input and potentially by reading its standard output and
 standard error.
-ipc @Index { IPC }
-asynchronousio @Index { Asynchronous "I/O" }
-processes @Index { Processes }
+  ipc @Index { IPC }
+  asynchronousio @Index { Asynchronous "I/O" }
+  process @Index { Process }
 @PP
 @Class QProcess works asynchronously, reporting the availability of
 data by emitting signals. Qt applications can connect to the signals
@@ -153,7 +158,7 @@ data back to the external program.
 @PP
 Qt provides a cross-platform interface for writing "TCP/IP" clients
 and servers.
-networking @Index { Networking }
+  networking @Index { Networking }
 @PP
 The @Class QSocket class provides an asynchronous buffered TCP
 connection. @Class QSocket is a @Class QIODevice, making it easy to

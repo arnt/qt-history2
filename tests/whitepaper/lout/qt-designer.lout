@@ -21,8 +21,8 @@ out side-by-side by choosing the 'lay out horizontally' option. This
 approach makes design very fast, and the finished forms will scale
 properly to fit whatever window size the end-user prefers. See 
 Layouts @Xref{layouts} for information about Qt's automatic layouts.
-designer @Index { Designer }
-qtdesigner @Index { Qt Designer }
+  designer @Index { Designer }
+  qtdesigner @Index { Qt Designer }
 @PP
 @QDR eliminates the time consuming compile, link and run cycle, and
 makes it easy to correct or change designs. @QDR's preview options let
@@ -58,7 +58,7 @@ converted into C++ header and source files by the @Cmd uic (User
 Interface Compiler). The @Cmd qmake build tool automatically
 includes build rules for @Cmd uic in the Makefiles it generates, so
 developers do not need to invoke @Cmd uic themselves.
-xml @Index { XML }
+  xml @Index { XML }
 @PP
 Usually forms are compiled into the executable, but in some
 situations customers need to modify the appearance of an application
@@ -84,6 +84,8 @@ Assistant displays Qt's entire documentation set, and works in a
 similar way to a web browser. Unlike web browsers, Qt Assistant
 applies an intelligent indexing algorithm to provide fast searching
 for words and phrases that occur in the documentation.
+  assistant @Index { Assistant }
+  qtassistant @Index { Qt Assistant }
 @Figure
     @Caption { @I{Qt Assistant} }
 @Scale @IncludeGraphic { "../images/assistant-wp.eps" }
@@ -92,7 +94,9 @@ Qt's reference documentation consists of around 1,500 HTML pages (over
 2,500 US letter sized pages), which document Qt's classes and tools,
 and which include overviews and introductions to various aspects of Qt
 programming.
-htmlviewer @Index { HTML viewer }
+  htmlviewer @Index { HTML viewer }
+  qstylesheet @Index { QStyleSheet }
+  qtextedit @Index { QTextEdit }
 @PP
 Qt Assistant is a Qt application that renders Qt's HTML reference
 documentation using @Class QTextEdit. The @Class QTextEdit class

@@ -15,19 +15,19 @@ programming.
 \section2 Images
 
   \index BMP
+  \index Bitmap
   \index GIF
+  \index Graphics
+  \index Icon
+  \index Image
   \index JPEG
   \index MNG
   \index PNG
   \index PNM
+  \index Picture
   \index Unisys
   \index XBM
   \index XPM
-  \index bitmaps
-  \index graphics
-  \index icons
-  \index images
-  \index pictures
 
 The \Class QImage class supports the input, output and manipulation
 of images in several formats, including BMP, GIF*, JPEG, MNG, PNG,
@@ -44,10 +44,10 @@ push button:
   \img icon.png
   \caption An icon on a button
 
-  \index alpha channel
-  \index palette
-  \index transformations
-  \index transparency
+  \index Alpha channel
+  \index Palette
+  \index Transformation
+  \index Transparency
 
 \Class QImage supports images with color depths of 1, 8 and 32 bits.
 Programmers can manipulate the pixel and palette data, apply
@@ -56,14 +56,16 @@ depth with dithering if desired. Applications can store an 'alpha
 channel' in a \Class QImage along with the color data for their own
 purposes (e.g. transparency and alpha-blending).
 
-  \index animations
-  \index movies
+  \index Animation
+  \index Movie
+  \index QMovie
 
 The \Class QMovie class can be used to display animated images.
 
 \section2 Painting
 
-  \index painting
+  \index Painting
+  \index QPainter
 
 The \Class QPainter provides a platform-independent API for painting
 widgets. It provides primitives as well as advanced functionality
@@ -71,7 +73,7 @@ such as transformations and clipping. All Qt's built-in widgets paint
 themselves using \Class QPainter. Programmers invariably use \Class
 QPainter when implementing their own custom widgets.
 
-  \index Bezier curves
+  \index Bezier curve
 
 \Class QPainter provides standard functions to draw points, lines,
 polygons, ellipses, arcs, Bezier curves, etc. The following command
@@ -82,16 +84,16 @@ a 2-pixel wide dashed red outline:
     painter.drawRect( 25, 15, 120, 60 );
 \endcode
 
-  \index clipping
-  \index coordinates
-  \index model
-  \index rotations
-  \index scales
-  \index shears
-  \index transformations
-  \index viewport
-  \index window
-  \index world matrix
+  \index Clipping
+  \index Coordinate
+  \index Model
+  \index Rotation
+  \index Scale
+  \index Shear
+  \index Transformation
+  \index Viewport
+  \index Window
+  \index World matrix
 
 By default, the top-left corner of a widget is located at coordinates
 (0, 0), and the bottom-right corner is located at (\Func width() - 1,
@@ -103,7 +105,7 @@ the widget using a 'viewport'.
   \img xform.png
   \caption Qt's \c xform example showing rotated text
 
-  \index events
+  \index Event
 
 The code below draws a bar-graph custom widget. It uses a \Class
 QPainter in the reimplementation of \Func paintEvent(), with the
@@ -113,8 +115,8 @@ default coordinate system.
   \skipuntil quote
   \printto endquote
 
-  \index clipping
-  \index flicker
+  \index Clipping
+  \index Flicker
 
 The widget is drawn correctly at different sizes because the code
 uses the \Func width(), \Func height() and \Func rect() functions.
@@ -128,10 +130,11 @@ rectangles, polygons, ellipses and bitmaps. Complex regions may be
 created by uniting, intersecting, subtracting and XOR'ing simple
 regions. Clipping can be used to reduce flicker when repainting.
 
+  \index Colors
   \index HSV
+  \index Palette
+  \index QColor
   \index RGB
-  \index colors
-  \index palette
 
 The \Class QColor class stores a color specified by a RGB or HSV
 triple, or by a name (e.g. 'skyblue'). Qt programmers can specify any
@@ -146,11 +149,12 @@ predefined in Qt.
 required to paint on any supported device is the same, regardless of
 the device. Qt supports the following paint devices:
 
-  \index bitmaps
-  \index double buffering
-  \index flicker
-  \index images
-  \index pixmaps
+  \index Bitmap
+  \index Double buffering
+  \index Flicker
+  \index Image
+  \index Pixmap
+  \index QPixmap
 
 \list
 \i A \Class QPixmap is essentially an 'off-screen widget'. Graphics
@@ -158,25 +162,30 @@ can be painted on a \Class QPixmap first, and then bit-blitted to a
 \Class QWidget to reduce flicker. This technique is called 'double
 buffering'.
 
+  \index Meta-file
+  \index Picture
+  \index QPicture
+  \index Rotation
   \index SVG
+  \index Scale
+  \index Shear
   \index XML
-  \index meta-files
-  \index pictures
-  \index rotations
-  \index scales
-  \index shears
 
-\i A \Class {QPicture} is a vector image that can be scaled, rotated
+\i A \Class QPicture is a vector image that can be scaled, rotated
 and sheared gracefully. The \Class QPicture class stores an image as
 a list of paint commands rather than as pixel data. It supports the
 SVG (W3C's Scalable Vector Graphics) XML format for input and output.
 
-  \index printers
+  \index Printer
+  \index QPrinter
 
 \i A \Class QPrinter represents a physical printer. On Windows, the
 paint commands are sent to the Windows print engine, which uses the
 installed printer drivers. On Unix, PostScript is output and sent to
 the appropriate print daemon.
+
+  \index QWidget
+  \index Widget
 
 \i A \Class QWidget is also a paint device, as shown in the earlier
 bar-graph example.
@@ -184,16 +193,18 @@ bar-graph example.
 
 \section2 Canvas
 
-  \index canvas
-  \index animations
-  \index sprites
+  \index Animation
+  \index Canvas
+  \index QCanvas
+  \index Sprite
 
 The \Class QCanvas class provides a high-level interface to 2D
 graphics. It can handle a very large number of 'canvas items' that
 represent lines, rectangles, ellipses, texts, pixmaps, animated
 sprites, etc.
 
-  \index collision testing
+  \index Collision testing
+  \index QCanvasItem
 
 Canvas items are instances of \Class QCanvasItem subclasses. They are
 more lightweight than widgets, and they can be quickly moved, hidden,
@@ -202,19 +213,20 @@ detection, and can list all the canvas items in a given area. \Class
 QCanvasItem can be subclassed to provide custom item types and to
 extend the functionality of existing types.
 
-  \index rotations
-  \index scales
-  \index shears
-  \index transformations
+  \index QCanvasView
+  \index Rotation
+  \index Scale
+  \index Shear
+  \index Transformation
 
 \Class QCanvas objects are rendered by the \Class QCanvasView class.
 Many \Class QCanvasView objects can show the same \Class QCanvas, but
 with different translations, scales, rotations and shears.
 
-  \index data visualisation
-  \index games
-  \index graphs
-  \index visualisation
+  \index Data visualisation
+  \index Game
+  \index Graph
+  \index Visualisation
 
 \Class QCanvas is ideal for data visualisation. It has been used by
 customers for drawing road maps and for presenting graphs. It is also
@@ -224,6 +236,7 @@ suitable for 2D games.
 
   \index GL
   \index OpenGL
+  \index QGLWidget
 
 OpenGL is a standard API for rendering 3D graphics. Qt developers can
 use OpenGL to draw 3D graphics in their GUI applications. This is
@@ -239,15 +252,17 @@ uses the system's OpenGL library (including Mesa).
   \img brain-innovation.png
   \caption Brain Innovation's BrainVoyager Qt application
 
-  \index alpha channel
-  \index colormap
-  \index double buffering
-  \index overlays
+  \index Alpha channel
+  \index Colormap
+  \index Double buffering
+  \index Overlay
 
 Qt developers can set the display format of an OpenGL rendering
 context: single or double buffering, depth buffer, RGBA or color
 index mode, alpha channel, overlays, etc. They can also set the
 colormap manually in color index mode.
+
+  \index QColor
 
 When using Qt, developers write in pure OpenGL. Qt also provides two
 convenience functions, \Func qglClearColor() and \Func qglColor(),

@@ -5,8 +5,12 @@ Qt's functionality is built on the low-level APIs of the platforms it
 supports. This makes Qt flexible and efficient.
 \endquote
 
-  \index emulating toolkits
-  \index look and feel
+  \index Emulation
+  \index Interface emulation
+  \index Look and feel
+  \index Style
+  \index Theme
+  \index Widget style
 
 Qt is an 'emulating' cross-platform toolkit. All widgets are drawn by
 Qt, and programmers can extend or customize them by reimplementing
@@ -20,7 +24,7 @@ styles to provide a distinct look for their applications.
 
   \index MFC
   \index Motif
-  \index layered toolkits
+  \index Layered toolkits
 
 Qt uses the low-level APIs of the different platforms it supports.
 This differs from traditional 'layered' cross-platform toolkits that
@@ -33,10 +37,12 @@ slightly differently on the different platforms they support, leading
 to obscure bugs in applications.
 
   \index Embedded Linux
-  \index Mac OS X
+  \index Linux
+  \index Macintosh
+  \index Platforms
+  \index Unix
   \index Windows
   \index X Window System
-  \index platforms
 
 Qt is professionally supported, and takes advantage of the available
 platforms: Windows, X11, Mac OS X and Embedded Linux. Using a single
@@ -49,10 +55,10 @@ preferring Qt's fully object-oriented approach.
 
 \section1 Windows
 
+  \index Common controls
+  \index File dialog
   \index GDI
-  \index common controls
-  \index file dialog
-  \index print dialog
+  \index Print dialog
 
 Qt/Windows uses the Win32 API and GDI for events and drawing
 primitives. Qt does not use MFC or any other toolkit. In particular,
@@ -60,7 +66,8 @@ Qt does not use the inflexible 'common controls', but rather provides
 its own more powerful, customizable widgets. (For non-specialized
 uses, Qt uses the native Windows file and print dialogs.)
 
-  \index transformations
+  \index Rotation
+  \index Transformation
 
 With Qt, the same executable works on Windows 95/98/NT4/ME/2000. Qt
 performs a run-time check for the Windows version, and uses the most
@@ -70,36 +77,37 @@ Windows versions, and uses the native support where available. As
 this example demonstrates, Qt developers are insulated from changes
 in the Windows API.
 
-  \index accessibility
+  \index Accessibility
 
 Qt supports the Microsoft accessibility interfaces. Unlike Windows's
 common controls, Qt widgets can be extended without losing the
 accessibility information of the base widget. Custom widgets can also
 provide accessibility.
 
-  \index multiple screens
+  \index Multiple screens
 
 Qt also supports multiple screens on Windows.
 
 \section1 X11
 
   \index Athena
+  \index Motif
   \index Xlib
   \index Xt
 
 Qt/X11 uses Xlib to communicate with the X server directly. Qt does
 not use Xt (X Toolkit), Motif, Athena or any other toolkit.
 
-  \index look and feel
+  \index Look and feel
 
 Qt applications automatically adapt to the user's window manager or
 desktop environment, and have a native look and feel under Motif,
 SGI, CDE, GNOME and KDE. This contrasts with other Unix toolkits,
 which lock users into their own look and feel.
 
+  \index Codec
+  \index Font
   \index Unicode
-  \index codecs
-  \index fonts
 
 Qt provides full \l Unicode support. Qt applications automatically
 support both Unicode and non-Unicode fonts. Qt combines multiple X
@@ -107,13 +115,13 @@ fonts to render multi-lingual text. Qt's font handling is intelligent
 enough to search all the installed fonts for characters unavailable
 in the current font.
 
+  \index Alpha-blending
+  \index Anti-aliased font
+  \index Multiple screens
   \index RENDER
   \index X extensions
   \index XIM
   \index Xinerama
-  \index alpha-blending
-  \index anti-aliased fonts
-  \index multiple screens
 
 Qt takes advantage of X extensions where they are available. Qt
 supports the RENDER extension for anti-aliased fonts and
@@ -142,18 +150,19 @@ and powerful visual design with \l {Qt Designer}.
 
 \section1 Embedded Linux
 
-  \index frame buffer
+  \index Embedded Linux
+  \index Frame buffer
 
 Qt/Embedded provides its own windowing environment and writes
 directly to the Linux frame buffer. Qt/Embedded eliminates the need
 for an X server, and runs faster and with a lower memory footprint
 than X11-based embedded Linux devices.
 
-  \index alpha-blending
-  \index anti-aliased fonts
-  \index fonts
-  \index input methods
-  \index memory
+  \index Alpha-blending
+  \index Anti-aliased font
+  \index Font
+  \index Input method
+  \index Memory constraints
 
 Qt/Embedded uses alpha-blending for image painting and anti-aliased
 scalable TrueType and Type1 fonts. Qt/Embedded has flexible input
@@ -166,8 +175,7 @@ See the Qt/Embedded whitepaper for a complete technical overview.
 
 \section1 Qt's Development World
 
-  \index RAD
-  \index rapid application development
+  \index Rapid application development
 
 Companies and developers from around the world are joining the Qt
 development community every day. They have recognized that Qt's
@@ -177,22 +185,22 @@ benefiting from Qt's consistent and straightforward API, and from
 Qt's powerful supporting tools such as \Cmd qmake and \e {Qt
 Designer}.
 
-  \index mailing list
+  \index Mailing list
 
 Qt has an active and helpful user community who communicate using the
 \c qt-interest mailing list. See \l http://qt-interest.trolltech.com
 to subscribe or browse the archive.
 
-  \index documentation
-  \index guide
-  \index manual
-  \index reference documentation
+  \index Documentation
+  \index Guide
+  \index Manual
+  \index Reference documentation
 
 Qt's extensive documentation is available on-line
 at \l http://doc.trolltech.com.
 
-  \index evaluation
-  \index support
+  \index Evaluation
+  \index Support
 
 Developers can evaluate Qt, with support, for 30 days on their
 preferred platform. See \l http://www.trolltech.com for details.

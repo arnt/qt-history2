@@ -18,8 +18,8 @@ and slots is a powerful inter-object communication mechanism that can
 be used to completely replace the crude callbacks and message maps
 used by legacy toolkits. Signals and slots are type safe, flexible,
 fully object oriented and implemented in C++.
-signal @Index { Signal }
-slot @Index { Slot }
+  signal @Index { Signal }
+  slot @Index { Slot }
 @PP
 To associate some code with a button using the old callback
 mechanism, it is necessary to pass a pointer to a function to the
@@ -39,18 +39,15 @@ slot. Qt's signals and slots mechanism does not require classes to
 have knowledge of each other, which makes it much easier to develop
 highly reusable classes. Signals and slots are type safe, with type
 errors being reported by the compiler rather than by crashes.
-mfc @Index { MFC }
-motif @Index { Motif }
-qobject @Index { QObject }
-callbacks @Index { Callbacks }
-communication @Index { Communication }
-messagemaps @Index { Message maps }
-objects @Index { Objects }
-signals @Index { Signals }
-slots @Index { Slots }
-events @Index { Events }
-stateofwidgets @Index { State of widgets }
-connect @Index { connect() }
+  callback @Index { Callback }
+  communication @Index { Communication }
+  event @Index { Event }
+  messagemap @Index { Message map }
+  mfc @Index { MFC }
+  motif @Index { Motif }
+  object @Index { Object }
+  qobject @Index { QObject }
+  connect @Index { connect() }
 @PP
 For example, if a @Button Quit button's @Func clicked() signal is
 connected to the application's @Func quit() slot, a user's click on
@@ -61,16 +58,15 @@ connect( button, SIGNAL(clicked()), qApp, SLOT(quit()) );
 @End @CP
 Connections can be added or removed at any time during the execution
 of a Qt application.
-oop @Index { OOP }
-objectorientedprogramming @Index { Object oriented programming }
-typesafety @Index { Type safety }
+  objectorientedprogramming @Index { Object-oriented programming }
+  typesafety @Index { Type safety }
 @PP
 The signals and slots implementation smoothly extends C++'s syntax
 and takes full advantage of C++'s object-orientated features. Signals
 and slots are type safe, can be overloaded or reimplemented and may
 appear in the public, protected or private sections of a class.
-components @Index { Components }
-reusability @Index { Reusability }
+  components @Index { Component }
+  reusability @Index { Reusability }
 @BeginSubSections
 @SubSection
     @Title { A Signals and Slots Example }
@@ -82,9 +78,9 @@ QObject or one of its subclasses and include the @F Q_OBJECT macro in
 the class's definition. Signals are declared in the @F signals
 section of the class, while slots are declared in the @F public @F
 slots, @F protected @F slots or @F private @F slots sections.
-qobject @Index { QObject }
-inheritinginqt @Index { Inheriting in Qt }
-subclassinginqt @Index { Subclassing in Qt }
+  qobject @Index { QObject }
+  inheritinginqt @Index { Inheriting in Qt }
+  subclassinginqt @Index { Subclassing in Qt }
 @PP
 Here's an example @Class QObject subclass:
 @IndentedDisplay @CP @Begin
@@ -118,8 +114,8 @@ The set function is declared in the @F public @F slots section, so it
 is a slot. Slots are standard member functions with an implementation
 that can be called like any other function, and which can also be
 connected to signals.
-emittingasignal @Index { emitting a signal }
-preprocessorcpp @Index { preprocessor (C++) }
+  emittingasignal @Index { Emitting a signal }
+  preprocessorcpp @Index { Preprocessor }
 @PP
 Here's the implementation of the slot @Func setBalance():
 @IndentedDisplay @CP @Begin
@@ -164,22 +160,22 @@ their arguments are compatible.
 The signals and slots mechanism is implemented in pure standard C++.
 The implementation uses the C++ preprocessor and the Meta Object
 Compiler (@Cmd{moc}) included with the Qt toolkit.
-metaobjectcompiler @Index { Meta Object Compiler }
-compilerfeatures @Index { Compiler features }
-headerfiles @Index { Header files }
-moc @Index { moc }
-qmake @Index { qmake }
+  compilerfeatures @Index { Compiler features }
+  headerfiles @Index { Header file }
+  metaobjectcompiler @Index { Meta Object Compiler }
+  moc @Index { moc }
+  qmake @Index { qmake }
 @PP
 The @Cmd moc reads the application's header files and generates the
 necessary code to support the signals and slots mechanism. Developers
 never have to edit or even look at the generated code. The @Cmd qmake
 build tool generates the correct Makefiles for the target platform.
-introspection @Index { Introspection }
-magic @Index { Magic }
-properties @Index { Properties }
-rtti @Index { rtti }
-runtimetypeinformation @Index { Run-time type information }
-translations @Index { Translations }
+  introspection @Index { Introspection }
+  magic @Index { Magic }
+  property @Index { Property }
+  rtti @Index { rtti }
+  runtimetypeinformation @Index { Run-time type information }
+  translation @Index { Translation }
 @PP
 In addition to handling signals and slots, @Cmd moc supports Qt's
 translation mechanism, its property system and extended run-time type

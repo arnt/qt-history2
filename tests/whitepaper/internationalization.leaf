@@ -8,11 +8,9 @@ applications. Qt also includes tools to support application
 translation to help companies reach international markets.
 \endquote
 
-  \index i18n
-  \index internationalization
-  \index l10n
-  \index localization
-  \index multi-language
+  \index Internationalization
+  \index Language
+  \index Localization
 
 Qt includes tools to facilitate the translation process. Programmers
 can easily mark user-visible text that needs translation, and a tool
@@ -26,13 +24,14 @@ release managers, translators and programmers.
 
 \section1 Unicode
 
+  \index Implicit sharing
   \index QChar
   \index QRegExp
   \index QString
+  \index Sharing
+  \index String
   \index Unicode
   \index char
-  \index implicit sharing
-  \index strings
 
 Qt uses the \Class QString class to store Unicode strings, and
 uses it throughout the API and internally. \Class QString replaces the
@@ -42,7 +41,7 @@ to and from 8-bit strings. Programmers can copy \Class {QString}s by
 value, since they are \link {Collection Classes} implicitly shared
 (copy on write) \endlink, which makes them fast and memory efficient.
 
-  \index regular expressions
+  \index Regular expression
 
 \Class QString is more than a 16-bit character string. Functions such
 as \Func QChar::lower() and \Func QChar::isPunct() replace \Func
@@ -56,10 +55,10 @@ Items in widget classes such as \Class QListBox and \Class QTable can
 be sorted in the locale's dictionary order (only on Windows so far).
 \endomit
 
+  \index Charset
+  \index Codec
+  \index Encoding
   \index QTextCodec
-  \index charsets
-  \index codecs
-  \index encodings
 
 Conversion to and from different encodings and charsets is handled by
 \Class QTextCodec subclasses. Qt uses \Class QTextCodec for fonts,
@@ -67,13 +66,13 @@ input methods and I/O; programmers can use it for their own purposes
 as well.
 
   \index Big5
+  \index Charmap
   \index EUC-JP
   \index GBK
   \index ISO 8859
   \index JIS
   \index KOI8-R
   \index Shift-JIS
-  \index charmap
 
 Qt 3.0 supports 37 different encodings, including Big5 and GBK for
 Chinese, EUC-JP, JIS and Shift-JIS for Japanese, KOI8-R for Russian
@@ -85,23 +84,23 @@ subclassing \Class QTextCodec.
 \section1 Text Rendering
 
   \index Arabic
+  \index Bidirectional writing
   \index Chinese
   \index Cyrillic
+  \index Diacritical mark
   \index English
+  \index Font
   \index Greek
   \index Hebrew
   \index Japanese
   \index Korean
   \index Latin
+  \index Line breaking
+  \index Right-to-left languages
+  \index Text rendering
   \index Thai
   \index Vietnamese
-  \index bidirectional writing
-  \index diacritical marks
-  \index fonts
-  \index line breaking
-  \index right-to-left languages
-  \index text rendering
-  \index writing systems
+  \index Writing system
 
 Qt provides a powerful text-rendering engine for all text that is
 displayed on screen, from the simplest label to the most
@@ -114,8 +113,8 @@ combine the installed fonts to render multi-language text.
 
 \section1 Input Methods
 
-  \index input methods
-  \index keyboard
+  \index Input method
+  \index Keyboard
 
 Far-Eastern writing systems require many more characters than are
 available on a keyboard. The conversion from a sequence of key
@@ -125,12 +124,12 @@ installed input methods.
 
 \section1 Dates and Times
 
+  \index Date
+  \index Locale
   \index QDateEdit
   \index QDateTimeEdit
   \index QTimeEdit
-  \index dates
-  \index locales
-  \index times
+  \index Time
 
 The editor classes for dates and times (\Class QDateEdit, \Class
 QTimeEdit and \Class QDateTimeEdit) respect the user's locale for
@@ -138,8 +137,8 @@ separators and ordering.
 
 \section1 Translating Applications
 
-  \index text translation
-  \index translation
+  \index Text translation
+  \index Translation
 
 Qt provides tools and functions to help developers provide
 applications in their customers' native languages.
@@ -157,10 +156,10 @@ text. English can be used as the source language and Chinese as the
 translated language, or vice versa. The argument to \Func tr() is
 converted to Unicode from the application's default encoding.
 
+  \index Comment
+  \index Context
   \index QObject
-  \index comments (for translation)
-  \index contexts (for translation)
-  \index source texts
+  \index Source text
 
 \Func tr()'s general syntax is
 \code
@@ -173,8 +172,8 @@ translate. The 'comment' is optional; along with the context, it
 provides additional information to human translators.
 
   \index .qm
+  \index Locale
   \index QTranslator
-  \index locales
 
 Translations are stored in \Class QTranslator objects, which use
 disk-based \c .qm files (Qt Message files). Each \c .qm file contains
@@ -244,7 +243,7 @@ provided for all the common navigation options: \Menu {Done & Next},
 \Menu {Next Unfinished}, etc. The user interface's dockable windows
 can be reorganized to suit the translators' preferences.
 
-  \index accelerators
+  \index Accelerator
 
 Applications often use the same phrases many times in different
 source texts. \e {Qt Linguist} automatically displays intelligent

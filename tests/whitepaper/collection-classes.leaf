@@ -1,15 +1,15 @@
 \chapter Collection Classes
 
-  \index STL
-  \index collection classes
-  \index containers
-
 \quote
 Collection classes are used to store groups of items in memory. Qt
 provides a set of classes that are compatible with the Standard
 Template Library (STL), and that work regardless of whether the
 compiler supports STL or not.
 \endquote
+
+  \index Collection class
+  \index Container
+  \index STL
 
 Applications often need to manage items in memory, for example,
 groups of images, widgets or custom objects. Many C++ compilers
@@ -18,8 +18,8 @@ items. Qt provides lists, stacks, queues and dictionaries with
 STL-syntax. Qt's collection classes work with both STL and non-STL
 compilers.
 
-  \index iterators
-  \index templates
+  \index Iterator
+  \index Template
 
 Qt's rich set of portable collection classes ('containers')
 and associated iterators are heavily used internally, and are
@@ -29,9 +29,9 @@ classes' and 'implicit sharing'. Programmers can also use STL
 containers on the platforms that support them, at the cost of losing
 Qt's optimizations.
 
-  \index bloat problem
-  \index code bloat problem
-  \index private classes
+  \index Bloat problem
+  \index Code bloat problem
+  \index Private class
 
 Template classes usually increase the size of executables
 dramatically, because the compiler generates essentially the same
@@ -41,13 +41,13 @@ private classes.
 
 \section1 Value-based Collections
 
+  \index Algorithm
+  \index List
+  \index Map
   \index QTL
-  \index algorithms
-  \index lists
-  \index maps
-  \index stacks
-  \index value-based collections
-  \index vectors
+  \index Stack
+  \index Value-based collection
+  \index Vectors
 
 Qt provides five value-based collection classes: \Class
 QMap\<Key,T\>, \Class QValueList\<T\>, \Class QValueStack\<T\>,
@@ -58,10 +58,10 @@ with the STL algorithms. Qt provides some STL-equivalent algorithms:
 with STL support, Qt provides automatic conversion operators between
 STL and Qt containers.
 
-  \index copy on write
-  \index implicit sharing
-  \index reference counting
-  \index sharing
+  \index Copy on write
+  \index Implicit sharing
+  \index Reference counting
+  \index Sharing
 
 Qt's value-based collection classes are implicitly shared, also
 called 'copy on write'. Copies of instances of these classes share
@@ -72,7 +72,7 @@ are left unchanged. When an object is copied, only a pointer is
 passed and a reference count incremented, which is much faster than
 actually copying the data and also saves memory.
 
-  \index strings
+  \index String
 
 Implicit sharing is used wherever it makes sense: in Qt's value-based
 collection classes, and in \Class QBitmap, \Class QBrush, \Class
@@ -83,10 +83,9 @@ objects of these classes by value, avoiding the risks related to
 using pointers and hand optimization. In particular, the implicitly
 shared \Class QString class makes string processing easy and fast.
 
-  \index POD
-  \index arrays
-  \index memory arrays
-  \index plain old data
+  \index Array
+  \index Memory array
+  \index Plain old data
 
 Qt also provides the low-level \Class QMemArray\<T\> class with its
 subclasses \Class QBitArray, \Class QByteArray and \Class
@@ -95,16 +94,16 @@ QPointArray. These classes are very efficient for handling basic
 
 \section1 Pointer-based Collections
 
-  \index auto-deletion
-  \index caches
-  \index delete
-  \index dictionaries
-  \index lists
-  \index ownership
-  \index pointer-based collections
-  \index queues
-  \index stacks
-  \index vectors
+  \index Auto-deletion
+  \index Cache
+  \index Delete
+  \index Dictionary
+  \index List
+  \index Ownership
+  \index Pointer-based collection
+  \index Queue
+  \index Stack
+  \index Vector
 
 Qt provides many low-level, generic, pointer-based collection
 classes: \Class QDict\<Key,T\>, \Class QPtrList\<T\>, \Class

@@ -1,0 +1,106 @@
+<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<class>Login2</class>
+<widget class="QWidget">
+    <property name="name">
+        <cstring>Login2</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>218</width>
+            <height>107</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>French (Fixed)</string>
+    </property>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>TextLabel1</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>12</x>
+                <y>12</y>
+                <width>62</width>
+                <height>21</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Nom d'utilisateur:</string>
+        </property>
+    </widget>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>TextLabel2</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>12</x>
+                <y>39</y>
+                <width>62</width>
+                <height>21</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Mot de passe:</string>
+        </property>
+    </widget>
+    <widget class="QLineEdit">
+        <property name="name">
+            <cstring>LineEdit1</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>80</x>
+                <y>12</y>
+                <width>130</width>
+                <height>21</height>
+            </rect>
+        </property>
+        <property name="focusPolicy">
+            <enum>NoFocus</enum>
+        </property>
+    </widget>
+    <widget class="QLineEdit">
+        <property name="name">
+            <cstring>LineEdit2</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>80</x>
+                <y>39</y>
+                <width>130</width>
+                <height>21</height>
+            </rect>
+        </property>
+        <property name="focusPolicy">
+            <enum>NoFocus</enum>
+        </property>
+    </widget>
+    <widget class="QPushButton">
+        <property name="name">
+            <cstring>PushButton1</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>151</x>
+                <y>70</y>
+                <width>57</width>
+                <height>25</height>
+            </rect>
+        </property>
+        <property name="focusPolicy">
+            <enum>NoFocus</enum>
+        </property>
+        <property name="text">
+            <string>Connecter</string>
+        </property>
+        <property name="default">
+            <bool>true</bool>
+        </property>
+    </widget>
+</widget>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

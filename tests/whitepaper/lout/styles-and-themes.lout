@@ -15,22 +15,20 @@ particular platform. A style is a @Class QStyle subclass that
 implements basic drawing functions such as `draw a frame', `draw a
 button', etc. Qt performs all the widget drawing itself for maximum
 speed and flexibility.
-lookandfeel @Index { Look and feel }
-styles @Index { Styles }
-themes @Index { Themes }
-widgetstyle @Index { Widget style }
-colors @Index { Colors }
-fonts @Index { Fonts }
-preferences @Index { Preferences }
-settings @Index { Settings }
-sounds @Index { Sounds }
-styles @Index { Styles }
-systemsounds @Index { System sounds }
-themes @Index { Themes }
-userpreferences @Index { User preferences }
-drawing @Index { Drawing }
-emulation @Index { Emulation }
-interfaceemulation @Index { Interface emulation }
+  color @Index { Color }
+  drawing @Index { Drawing }
+  emulation @Index { Emulation }
+  font @Index { Font }
+  interface emulation @Index { Interface emulation }
+  look and feel @Index { Look and feel }
+  preferences @Index { Preferences }
+  settings @Index { Settings }
+  sound @Index { Sound }
+  style @Index { Style }
+  system sound @Index { System sound }
+  theme @Index { Theme }
+  user settings @Index { User settings }
+  widget style @Index { Widget style }
 @BeginSubSections
 @SubSection
     @Title { Built-in Styles }
@@ -42,14 +40,14 @@ CDE, Platinum, SGI and Aqua (on the Macintosh). By default, Qt uses
 the appropriate style for the user's platform and desktop
 environment. The style can also be chosen programmatically, or with
 the @F -style command-line option on Unix.
-aqua @Index { Aqua }
-cde @Index { CDE }
-macintosh @Index { Macintosh }
-motif @Index { Motif }
-motifplus @Index { MotifPlus }
-platinum @Index { Platinum }
-sgi @Index { SGI }
-windows @Index { Windows }
+  aqua @Index { Aqua }
+  cde @Index { CDE }
+  macintosh @Index { Macintosh }
+  motif @Index { Motif }
+  motifplus @Index { MotifPlus }
+  platinum @Index { Platinum }
+  sgi @Index { SGI }
+  windows @Index { Windows }
 @Figure
     @Caption { Comboboxes in the different built-in styles }
 @IncludeGraphic { "../images/combobox.eps" }
@@ -58,12 +56,12 @@ A style is complemented by a theme, which encapsulates the user's
 preferences for colors, fonts, sounds, etc. Qt automatically adapts
 to the computer's active theme. For example, Qt supports scroll and
 fade transition effects for menus and tooltips on Windows.
-fadeeffect @Index { Fade effect }
-menus @Index { Menus }
-palette @Index { Palette }
-scroll effect @Index { Scroll effect }
-tooltips @Index { Tooltips }
-transition effects @Index { Transition effects }
+  fadeeffect @Index { Fade effect }
+  menus @Index { Menu }
+  palette @Index { Palette }
+  scroll effect @Index { Scroll effect }
+  tooltips @Index { Tooltip }
+  transition effects @Index { Transition effect }
 @End @SubSection
 @SubSection
     @Title { Styles-aware Widgets }
@@ -88,6 +86,7 @@ subclassing @Class QStyle, @Class QCommonStyle or any other
 descendent of @Class QCommonStyle. It is easy to make small
 modifications to existing styles by reimplementing one or two virtual
 functions from the appropriate base class.
+  qcommonstyle @Index { QCommonStyle }
 @Figure
     @Caption { The full @Class QStyle class hierarchy }
 @Scale @Diag 
@@ -123,13 +122,12 @@ A style can also be compiled as a plugin. Plugins make it possible to
 preview a form in a custom style in @QDR without recompiling Qt or
 @QDR. The style of an existing Qt application can be changed using a
 style plugin without recompiling the application.
-designer @Index { Designer }
-qtdesigner @Index { Qt Designer }
-plugins @Index { Plugins }
+  designer @Index { Designer }
+  plugin @Index { Plugin }
+  qtdesigner @Index { Qt Designer }
 @DP
 @OLREF @LP
 @Href{"http://www.trolltech.com/3.0/customstyle.html"}@LLP
 @End @SubSection
 @EndSubSections
 @End @Section
-

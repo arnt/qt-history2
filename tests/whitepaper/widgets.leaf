@@ -15,8 +15,9 @@ containers. Custom widgets can easily be created by subclassing
 existing Qt widgets, or created from scratch on the rare occasions
 when this is necessary.
 
-  \index controls
-  \index widgets
+  \index Controls
+  \index QWidget
+  \index Widgets
 
 Widgets are instances of \Class QWidget or one of its subclasses, and
 custom widgets are created by subclassing.
@@ -24,8 +25,8 @@ custom widgets are created by subclassing.
   \img qwidget-diag.png
   \caption An extract from the \Class QWidget class hierarchy
 
-  \index child widgets
-  \index parent widgets
+  \index Child widget
+  \index Parent widget
 
 A widget may contain any number of child widgets. Child widgets are
 shown within the parent widget's area. A widget with no visible
@@ -39,7 +40,7 @@ parent widget is disabled, hidden or deleted, the same action is
 applied to all its child widgets recursively.
 
   \index HTML
-  \index rich text
+  \index Rich text
 
 Labels, message boxes, tooltips, etc., are not confined to using a
 single color, font and language. Qt's text-rendering widgets can
@@ -63,66 +64,103 @@ follows:
 The screenshots below present the main Qt widgets. They are shown
 using the Windows style.
 
-  \index buttons
-  \index hbox
-  \index horizontal box layout
-  \index labels
-  \index push buttons
+  \index Box layout
+  \index Button
+  \index Label
+  \index Push button
+  \index QHBoxLayout
+  \index QLabel
+  \index QPushButton
 
   \img qlabel-etc.png
   \caption A \Class QLabel and a \Class QPushButton laid out with a
 	   \Class QHBox
 
-  \index checkboxes
-  \index radio buttons
+  \index Checkbox
+  \index QButtonGroup
+  \index QCheckBox
+  \index QRadioButton
+  \index Radio button
 
   \img qradiobutton-etc.png
   \caption Two \Class {QRadioButton}s and two \Class {QCheckBox}es
 	   laid out with a \Class QButtonGroup
 
-  \index comboboxes
-  \index date
-  \index line editors
-  \index multi-line editors
-  \index text editors
-  \index time
+  \index Combobox
+  \index Date
+  \index Editor
+  \index Line editor
+  \index Multi-line editor
+  \index QComboBox
+  \index QDateTimeEdit
+  \index QGroupBox
+  \index QLineEdit
+  \index QTextEdit
+  \index Text editor
+  \index Time
 
   \img qdatetimeedit-etc.png
   \caption A \Class QDateTimeEdit, a \Class QLineEdit, a \Class
 	   QTextEdit and a \Class QComboBox laid out with a
 	   \Class QGroupBox
 
-  \index dials
+  \index Dial
   \index LCD
-  \index progress bar
-  \index scroll bar
-  \index scroll view
-  \index sliders
-  \index spin boxes
+  \index Progress bar
+  \index QDial
+  \index QGridLayout
+  \index QLCDNumber
+  \index QProgressBar
+  \index QScrollBar
+  \index QSlider
+  \index QSpinBox
+  \index Scroll bar
+  \index Scroll view
+  \index Slider
+  \index Spin box
 
   \img qdial-etc.png
   \caption A \Class QDial, a \Class QProgressBar, a \Class QSpinBox,
 	   a \Class QScrollBar, a \Class QLCDNumber and a \Class
 	   QSlider laid out with a \Class QGrid
 
-  \index hierarchical tree view
-  \index icon view
-  \index input validation
-  \index list box
-  \index list view
-  \index spreadsheet
-  \index table
-  \index tree view
-  \index user-input validation
-  \index validation
+  \index Hierarchical tree view
+  \index Icon view
+  \index List box
+  \index List view
+  \index QGridLayout
+  \index QIconView
+  \index QListBox
+  \index QListView
+  \index QTable
+  \index Spreadsheet
+  \index Table
+  \index Tree view
 
   \img qiconview-etc.png
   \caption A \Class QIconView, a \Class QListView, a \Class QListBox
 	   and a \Class QTable laid out with a \Class QGrid
 
+  \index Input validation
+  \index QComboBox
+  \index QLineEdit
+  \index QRegExp
+  \index QSpinBox
+  \index QValidator
+  \index Regular expression
+  \index User input
+  \index Validation
+
 \Class QComboBox, \Class QLineEdit and \Class QSpinBox's input can be
 constrained or validated using a \Class QValidator subclass. Qt
 regular expressions can be used for validation.
+
+  \index QListView
+  \index QScrollView
+  \index QTable
+  \index QTextEdit
+  \index Scroll bar
+  \index Scroll view
 
 Widgets that are used to display large amounts of data (e.g. \Class
 QTable, \Class QListView and \Class QTextEdit) inherit \Class
@@ -134,6 +172,11 @@ widgets are presented in \l {GUI Applications}. \Class QMessageBox,
 dialogs are presented in \l Dialogs. \Class QSplitter is covered in
 \l Layouts. \Class QCanvas and \Class QGLWidget are presented in \l
 {3D Graphics}.
+
+  \index Checkbox
+  \index QCheckBox
+  \index QRadioButton
+  \index Radio button
 
 The screenshot that shows the \Class {QRadioButton}s and \Class
 {QCheckBox}es was produced with the following code:
@@ -153,6 +196,7 @@ the complete code for a digital clock widget is presented.
 
   \index Clock
   \index LCD
+  \index QLCDNumber
 
 The \Class Clock widget is a LCD that displays the current time and
 updates itself automatically. A colon separator blinks to indicate
@@ -164,9 +208,9 @@ In \File clock.h, \Class Clock is defined like this:
   \skipto #include
   \printuntil };
 
-  \index name (of widget)
-  \index parent widgets
-  \index timers
+  \index Name of widget
+  \index Parent widget
+  \index Timer
 
 \Class Clock inherits its LCD functionality from the \Class
 QLCDNumber widget. It has a constructor typical of widget classes,

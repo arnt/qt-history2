@@ -1,13 +1,12 @@
 \chapter Databases
 
-  \index databases
-
 \quote
 The Qt SQL module simplifies the creation of cross-platform GUI
 database applications. Programmers can easily execute SQL statements,
 use database-specific widgets, and make any widget data aware.
 \endquote
 
+  \index Database
   \index Microsoft SQL Server
   \index MySQL
   \index OCI
@@ -28,8 +27,8 @@ Programmers can easily execute any arbitrary SQL statements. Qt also
 provides a high-level C++ interface that programmers can use to
 generate the appropriate SQL statements automatically.
 
-  \index keys
-  \index primary keys
+  \index Key
+  \index Primary key
 
 Any Qt widget, including custom widgets, can be made data aware. Qt
 also includes some database-specific convenience widgets, to simplify
@@ -56,8 +55,9 @@ lookups, present master-detail relationships, and support drill-down.
 
   \index DDL
   \index DML
+  \index QSqlQuery
+  \index Query
   \index SELECT
-  \index queries
 
 The \Class QSqlQuery class is used to directly execute SQL DDL and
 DML statements. It is also used to navigate the result sets produced
@@ -90,7 +90,8 @@ UPDATE example:
     }
 \endcode
 
-  \index views
+  \index QSqlCursor
+  \index View
 
 For programmers who are not comfortable writing raw SQL, the \Class
 QSqlCursor class provides a high-level interface for browsing and
@@ -110,8 +111,9 @@ statements. For example:
 achieved using the \c ORDER \c BY and \c WHERE clauses in SQL
 statements.
 
-  \index calculated fields
-  \index foreign keys
+  \index Calculated field
+  \index Foreign key
+  \index QSqlField
 
 Calculated fields are useful both for real calculations (e.g.
 calculating totals) and for performing foreign key lookups, (e.g. to
@@ -120,9 +122,11 @@ subclassing \Class QSqlCursor, adding additional \Class {QSqlField}s
 with their calculated property set to TRUE, and by reimplementing
 \Func QSqlCursor::calculateField().
 
-  \index commit
-  \index rollback
-  \index transactions
+  \index Commit
+  \index QVariant
+  \index Rollback
+  \index Transaction
+  \index Variant type
 
 Database drivers usually supply data as strings, regardless of the
 actual datatype. Qt handles such data seamlessly using the \Class
@@ -133,14 +137,15 @@ used if the database supports transactions.
 
 \section1 Data-aware Widgets
 
-  \index data table
-  \index table
+  \index Data table
+  \index QDataTable
+  \index Table
 
 \Class QDataTable is a \Class QTable that displays records from a
 result set using a \Class QSqlCursor. \Class QDataTable, like \Class
 QTable, supports in-place editing. Programmers can force users to
 confirm all or selected changes (e.g. deletions) by setting \Class
-{QDataTable}'s confirmation properties. The editor widget chosen for
+QDataTable's confirmation properties. The editor widget chosen for
 each type of data depends on the data type. For example, a \Class
 QLineEdit is used for \c CHAR fields, whereas a \Class QSpinBox is
 used for \c INTEGER fields. The programmer can override the defaults
@@ -161,6 +166,9 @@ large result sets fast, while keeping the user interface responsive.
 For databases that are capable of reporting query sizes, the scroll
 bar slider is displayed proportionally immediately.
 
+  \index QDataBrowser
+  \index QDataView
+
 Qt also includes \Class QDataBrowser and \Class QDataView
 to display records as forms, typically with one or perhaps just a
 few records shown at a time. These classes provide buttons with
@@ -168,8 +176,8 @@ ready-made connections for navigating through the records. \Class
 QDataView is used for read-only data. \Class QDataBrowser is used for
 editing, and can provide ready-made insert, update and delete buttons.
 
-  \index context menu
-  \index popup menu
+  \index Context menu
+  \index Popup menu
 
 \Class QDataTable and \Class QDataBrowser have both a popup context
 menu and keyboard shortcuts for editing records.
@@ -177,7 +185,7 @@ menu and keyboard shortcuts for editing records.
     \img editbooks.png
     \caption A \Class QDataBrowser
 
-  \index foreign keys
+  \index Foreign key
 
 Programmers can manipulate data retrieved from the database before it
 is displayed by implementing a slot and connecting it to the \Func
@@ -187,7 +195,8 @@ the database, for example, converting a foreign key's display text
 into its ID by implementing a slot connected to \Func beforeInsert(),
 \Func beforeUpdate() and \Func beforeDelete().
 
-  \index forms
+  \index Form
+  \index QSqlForm
 
 Developers can create their own forms for displaying database records.
 Unlike older toolkits that duplicate their widgets with data-aware
@@ -196,8 +205,8 @@ data aware. All that is necessary is to include the widget in a \Class
 QSqlForm and set up a property map to relate the relevant database
 field to the widget that will present and edit the field's data.
 
-  \index drill-down
-  \index master-detail
+  \index Drill-down
+  \index Master-detail
 
 Master-detail relationships are easily set up by filtering the detail
 form or table's cursor by the master form or table's current record.
@@ -207,7 +216,7 @@ current record's key as a parameter.
 
   \index Designer
   \index Qt Designer
-  \index wizards
+  \index Wizard
 
 Qt's SQL module is fully integrated with \l {Qt Designer}. \l {Qt
 Designer} can preview database forms and tables using live data if

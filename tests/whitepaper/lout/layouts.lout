@@ -15,16 +15,16 @@ widgets, automatic resizing, sensible minimum and default sizes for
 top-level widgets and automatic repositioning when the contents or
 the font changes. @QDR is optimized for laying out
 widgets using layout managers.
-automaticlayouts @Index { Automatic layouts }
-childwidget @Index { Child widget }
-defaultwidget size @Index { Default widget size }
-fontchanges @Index { Font changes }
-layouts @Index { Layouts }
-parentwidget @Index { Parent widget }
-positioningofwidgets @Index { Positioning of widgets }
-repositioningofwidgets @Index { Repositioning of widgets }
-resizingwidgets @Index { Resizing widgets }
-sizeofwidgets @Index { Size of widgets }
+  automatic layout @Index { Automatic layout }
+  child widget @Index { Child widget }
+  default widget size @Index { Default widget size }
+  font @Index { Font }
+  layout @Index { Layout }
+  parent widget @Index { Parent widget }
+  positioning @Index { Positioning }
+  repositioning @Index { Repositioning }
+  resizing @Index { Resizing }
+  size @Index { Size }
 @BeginSubSections
 @SubSection
     @Title { Built-in Layout Managers }
@@ -33,10 +33,9 @@ sizeofwidgets @Index { Size of widgets }
 @PP
 Qt's built-in layout managers are @Class QHBoxLayout, @Class
 QVBoxLayout and @Class QGridLayout.
-qgridlayout @Index { QGridLayout }
-qhboxlayout @Index { QHBoxLayout }
-qpackerlayout @Index { QPackerLayout }
-qvboxlayout @Index { QVBoxLayout }
+  qgridlayout @Index { QGridLayout }
+  qhboxlayout @Index { QHBoxLayout }
+  qvboxlayout @Index { QVBoxLayout }
 @Figure
     @Caption { @Class QHBoxLayout with five child widgets }
 @IncludeGraphic { "../images/qhbox.eps" }
@@ -54,11 +53,8 @@ horizontal row from left to right. @Class QVBoxLayout organizes the
 managed widgets in a single vertical column, from top to bottom.
 @Class QGridLayout organizes the managed widgets in a grid of cells;
 widgets may span multiple cells.
+boxlayout @Index { Box layout }
 gridlayout @Index { Grid layout }
-hbox @Index { Hbox }
-horizontalboxlayout @Index { Horizontal box layout }
-vbox @Index { Vbox }
-verticalboxlayout @Index { Vertical box layout }
 @PP
 In most cases, Qt's layout managers pick optimal sizes for managed
 widgets so that windows resize smoothly. If the defaults are
@@ -68,49 +64,54 @@ mechanisms:
 @ListItem {
 @I{Setting a minimum size, a maximum size or a fixed size for
    some child widgets.} 
-fixedsize @Index { Fixed size }
-maximumsize @Index { Maximum size }
-minimumsize @Index { Minimum size } }
+  fixedsize @Index { Fixed size }
+  maximumsize @Index { Maximum size }
+  minimumsize @Index { Minimum size }
+}
 @ListItem {
 @I{Adding stretch items or spacer items.} Stretch or spacer items fill
 empty space in a layout. 
-stretches @Index { Stretches }
-spaceritems @Index { Spacer items } }
+  stretch @Index { Stretch }
+  spaceritem @Index { Spacer item }
+}
 @ListItem {
 @I {Changing the size policies of the child widgets.} By calling @Func
 QWidget::setSizePolicy(), programmers can fine tune the resize
 behavior of a child widget. Child widgets can be set to expand,
 contract, keep the same size, etc.
-sizepolicy @Index { Size policy } }
+  sizepolicy @Index { Size policy }
+}
 @ListItem {
 @I{Changing the child widgets' size hints.} @Func QWidget::sizeHint()
 and @Func QWidget::&-min&-imumSizeHint() return a widget's preferred size
 and preferred minimum size based on the contents. Built-in widgets
 provide appropriate reimplementations. 
-preferredsize @Index { Preferred size } }
+  preferredsize @Index { Preferred size }
+}
 @ListItem {
 @I{Setting stretch factors.} Stretch factors allow relative growth of
 child widgets, e.g. two thirds of any extra space made available
 should be allocated to widget A and one third to widget B. 
-relativegrowth @Index { Relative growth }
-stretchfactors @Index { Stretch factors } }
+  relativegrowth @Index { Relative growth }
+  stretchfactor @Index { Stretch factor }
+}
 #@ListItem @I{Setting alignments.}
 @EndList
 @PP
 The `spacing' between managed widgets and the 'margin' around the
 whole layout can also be set by the programmer. By default, @QDR sets
 industry-standard values based on the context.
-designer @Index { Designer }
-qtdesigner @Index { Qt Designer }
-margininlayouts @Index { Margin (in layouts) }
-spacinginlayouts @Index { spacing (in layouts) }
+  designer @Index { Designer }
+  margin @Index { Margin }
+  qtdesigner @Index { Qt Designer }
+  spacing @Index { Spacing }
 @PP
 Layouts can also run right-to-left and bottom-to-top. Right-to-left
 layouts are convenient for internationalized applications supporting
 right-to-left languages (e.g. Arabic and Hebrew).
-arabic @Index { Arabic }
-hebrew @Index { Hebrew }
-righttoleftlanguages @Index { Right-to-left languages }
+  arabic @Index { Arabic }
+  hebrew @Index { Hebrew }
+  righttoleftlanguages @Index { Right-to-left languages }
 @End @SubSection
 @SubSection
     @Title { Nested Layouts }
@@ -159,9 +160,9 @@ topLevelBox->addLayout( middleBox );
 @PP
 Qt makes layouts so easy that programmers rarely use fixed
 positioning.
-designer @Index { Designer }
-qtdesigner @Index { Qt Designer }
-fixedpositioning @Index { Fixed positioning }
+  designer @Index { Designer }
+  fixedpositioning @Index { Fixed positioning }
+  qtdesigner @Index { Qt Designer }
 @PP
 @Figure
     @Caption { Laying out a form in @QDR }
@@ -179,23 +180,22 @@ Developers can define custom layout managers by subclassing @Class
 QLayout. The @F customlayout example provided with Qt presents three
 custom layout managers, @F BorderLayout, @F CardLayout and @F
 SimpleFlow, which programmers can use and modify.
-borderlayout @Index { BorderLayout }
-cardlayout @Index { CardLayout }
-qlayout @Index { QLayout }
-simpleflow @Index { SimpleFlow }
-customlayouts @Index { Custom layouts }
-flowlayouts @Index { Flow layouts }
+  borderlayout @Index { BorderLayout }
+  cardlayout @Index { CardLayout }
+  flowlayout @Index { Flow layout }
+  qlayout @Index { QLayout }
+  simpleflow @Index { SimpleFlow }
 @PP
 Qt also includes @Class QSplitter, a splitter bar that end users can
 manipulate. In some design situations, @Class QSplitter may be
 preferable to a layout manager.
-qsplitter @Index { QSplitter }
-splitters @Index { Splitters }
+  qsplitter @Index { QSplitter }
+  splitter @Index { Splitter }
 @PP
 For complete control, it is also possible to perform layout manually
 in a widget by reimplementing @Func QWidget::resizeEvent() and by
 calling @Func QWidget::setGeometry() on each child widget.
-manuallayouts @Index { Manual layouts }
+  manuallayout @Index { Manual layout }
 @DP
 @OLREF @LP
 @Href{"http://www.trolltech.com/3.0/layout.html"}@LLP

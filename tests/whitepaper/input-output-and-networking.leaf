@@ -9,10 +9,15 @@ TCP and UDP networking are also fully supported.
 
 \section1 Input/Output
 
+  \index Binary serialization
+  \index Input/output
+  \index QDataStream
+  \index QTextCodec
+  \index QTextStream
+  \index Serialization
+  \index Stream
   \index Unicode
-  \index binary serialization
-  \index input/output
-  \index serialization
+  \index iostream
 
 Qt provides classes to perform advanced I/O on multiple platforms.
 The \Class QTextStream class has a similar interface to the standard
@@ -80,8 +85,8 @@ directory along with their size, in decreasing size order:
 
   \index FTP
   \index HTTP
+  \index Networking
   \index URL
-  \index networking
 
 Transparent access to remote files is provided by \Class
 QUrlOperator. In addition to local file system access, Qt supports
@@ -122,8 +127,8 @@ structure in memory that can be traversed at will.
 \section1 Inter-Process Communication
 
   \index IPC
-  \index asynchronous I/O
-  \index processes
+  \index Asynchronous I/O
+  \index Process
 
 The \Class QProcess class is used to start external programs and to
 communicate with them from a Qt application in a platform-independent
@@ -138,7 +143,7 @@ data back to the external program.
 
 \section1 Networking
 
-  \index networking
+  \index Networking
 
 Qt provides a cross-platform interface for writing TCP/IP clients and
 servers.

@@ -76,6 +76,9 @@ trivial:
 
 \section1 Qt Assistant
 
+  \index Assistant
+  \index Qt Assistant
+
 \QD's on-line help is provided by the \e {Qt Assistant} application.
 \e {Qt Assistant} displays Qt's entire documentation set, and works
 in a similar way to a web browser. Unlike web browsers, \e {Qt
@@ -91,6 +94,8 @@ and which include overviews and introductions to various aspects of Qt
 programming.
 
   \index HTML viewer
+  \index QStyleSheet
+  \index QTextEdit
 
 \e {Qt Assistant} is a Qt application that renders Qt's HTML
 reference documentation using \Class QTextEdit. The \Class QTextEdit

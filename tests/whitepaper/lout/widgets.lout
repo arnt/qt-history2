@@ -16,8 +16,9 @@ and `containers'; all widgets can be used both as controls and as
 containers. Custom widgets can easily be created by subclassing
 existing Qt widgets, or created from scratch on the rare occasions
 when this is necessary.
-controls @Index { Controls }
-widgets @Index { Widgets }
+  control @Index { Control }
+  qwidget @Index { QWidget }
+  widget @Index { Widget }
 @PP
 Widgets are instances of @Class QWidget or one of its subclasses, and
 custom widgets are created by subclassing.
@@ -53,15 +54,15 @@ widgets within the parent's area can be set automatically using
 layout managers @Xref{layouts}, or manually if preferred. When
 a parent widget is disabled, hidden or deleted, the same action is
 applied to all its child widgets recursively.
-childwidgets @Index { Child Widgets }
-parentwidgets @Index { Parent Widgets }
-html @Index { HTML }
-richtext @Index { Rich Text }
+  childwidget @Index { Child widget }
+  parentwidget @Index { Parent widget }
 @PP
 Labels, message boxes, tooltips, etc., are not confined to using a
 single color, font and language. Qt's text-rendering widgets can
 display multi-language rich text using a subset of HTML. See Text
 Rendering @Xref{text.rendering}.
+  html @Index { HTML }
+  richtext @Index { Rich text }
 @BeginSubSections
 @SubSection
     @Title { A `Hello' Example }
@@ -96,54 +97,74 @@ int main( int argc, char **argv )
 @PP
 The screenshots below present the main Qt widgets. They are shown
 using the Windows style.
-buttons @Index { Buttons }
-hbox @Index { Hbox }
-horizontalboxlayout @Index { Horizontal box layout }
-labels @Index { Labels }
-pushbuttons @Index { Push Buttons }
+  boxlayout @Index { Box layout }
+  button @Index { Button }
+  label @Index { Label }
+  pushbutton @Index { Push button }
+  qhboxlayout @Index { QHBoxLayout }
+  qlabel @Index { QLabel }
+  qpushbutton @Index { QPushButton }
 @Figure
     @Caption { A @Class QLabel and a @Class QPushButton laid out with
 	       a @Class QHBox }
 @IncludeGraphic { "../images/qlabel-etc.eps" }
-checkboxes @Index { Checkboxes }
-radiobuttons @Index { Radio buttons }
+  checkbox @Index { Checkbox }
+  qbuttongroup @Index { QButtonGroup }
+  qcheckbox @Index { QCheckBox }
+  qradiobutton @Index { QRadioButton }
+  radiobutton @Index { Radio button }
 @Figure
     @Caption { Two @Class{QRadioButton}s and two @Class{QCheckBox}es
 	       laid out with a @Class QButtonGroup }
 @IncludeGraphic { "../images/qradiobutton-etc.eps" }
-comboboxes @Index { Comboboxes }
-date @Index { Date }
-lineeditors @Index { Line editors }
-multilineeditors @Index { Multi-line editors}
-texteditors @Index { Text editors }
-time @Index { Time }
+  comboboxes @Index { Combobox }
+  date @Index { Date }
+  editor @Index { Editor }
+  lineeditors @Index { Line editor }
+  multilineeditors @Index { Multi-line editor }
+  qcombobox @Index { QComboBox }
+  qdatetimeedit @Index { QDateTimeEdit }
+  qgroupbox @Index { QGroupBox }
+  qlineedit @Index { QLineEdit }
+  qtextedit @Index { QTextEdit }
+  texteditors @Index { Text editor }
+  time @Index { Time }
 @Figure
     @Caption { A @Class QDateTimeEdit, a @Class QLineEdit, a @Class
 	       QTextEdit and a @Class QComboBox laid out with a
 	       @Class QGroupBox }
 @IncludeGraphic { "../images/qdatetimeedit-etc.eps" }
-dials @Index { Dials }
-lcd @Index { LCD }
-progressbar @Index { Progress bar }
-scrollbar @Index { Scroll bar }
-scrollview @Index { Scroll view }
-sliders @Index { Sliders }
-spinboxes @Index { Spin boxes }
+  dials @Index { Dials }
+  lcd @Index { LCD }
+  progressbar @Index { Progress bar }
+  qdial @Index { QDial }
+  qgridlayout @Index { QGridLayout }
+  qlcdnumber @Index { QLCDNumber }
+  qprogressbar @Index { QProgressBar }
+  qscrollbar @Index { QScrollBar }
+  qslider @Index { QSlider }
+  qspinbox @Index { QSpinBox }
+  scrollbar @Index { Scroll bar }
+  scrollview @Index { Scroll view }
+  sliders @Index { Sliders }
+  spinboxes @Index { Spin boxes }
 @Figure
     @Caption { A @Class QDial, a @Class QProgressBar, a @Class QSpinBox,
 	       a @Class QScrollBar, a @Class QLCDNumber and a @Class
 	       QSlider laid out with a @Class QGrid }
 @IncludeGraphic { "../images/qdial-etc.eps" }
-hierarchicaltreeview @Index { Hierarchical tree view }
-iconview @Index { Icon view }
-inputvalidation @Index { Input validation }
-listbox @Index { List box }
-listview @Index { List view }
-spreadsheet @Index { Spreadsheet }
-table @Index { Table }
-treeview @Index { Tree view }
-userinputvalidation @Index { User input }
-validation @Index { Validation }
+  hierarchicaltreeview @Index { Hierarchical tree view }
+  iconview @Index { Icon view }
+  listbox @Index { List box }
+  listview @Index { List view }
+  qgridlayout @Index { QGridLayout }
+  qiconview @Index { QIconView }
+  qlistbox @Index { QListBox }
+  qlistview @Index { QListView }
+  qtable @Index { QTable }
+  spreadsheet @Index { Spreadsheet }
+  table @Index { Table }
+  treeview @Index { Tree view }
 @Figure
     @Caption { A @Class QIconView, a @Class QListView, a @Class QListBox
 	       and a @Class QTable laid out with a @Class QGrid }
@@ -152,10 +173,25 @@ validation @Index { Validation }
 @Class QComboBox, @Class QLineEdit and @Class QSpinBox's input can be
 constrained or validated using a @Class QValidator subclass. Qt
 regular expressions can be used for validation.
+  inputvalidation @Index { Input validation }
+  qcombobox @Index { QComboBox }
+  qlineedit @Index { QLineEdit }
+  qvalidator @Index { QRegExp }
+  qspinbox @Index { QSpinBox }
+  qvalidator @Index { QValidator }
+  regularexpression @Index { Regular expression }
+  userinputvalidation @Index { User input }
+  validation @Index { Validation }
 @PP
 Widgets that are used to display large amounts of data (e.g. @Class
 QTable, @Class QListView and @Class QTextEdit) inherit @Class
 QScrollView and can display scroll bars automatically.
+  qlistview @Index { QListView }
+  qscrollview @Index { QScrollView }
+  qtable @Index { QTable }
+  qtextedit @Index { QTextEdit }
+  scrollbar @Index { scroll bar }
+  scrollview @Index { scroll view }
 @PP
 @Class QMenuBar, @Class QStatusBar, @Class QToolBar and related
 widgets are presented in GUI Applications @Xref{gui.applications}.
@@ -166,6 +202,10 @@ and @Class QGLWidget are presented in 3D Graphics @Xref{3d.graphics}.
 @PP
 The screenshot that shows the @Class{QRadioButton}s and
 @Class{QCheckBox}es was produced with the following code:
+  checkbox @Index { checkbox }
+  qcheckbox @Index { QCheckBox }
+  qradiobutton @Index { QRadioButton }
+  radio button @Index { radio button }
 @IndentedDisplay @CP @Begin
 parent = new QButtonGroup( 2, Qt::Vertical, "QButtonGroup" );
 radio1 = new QRadioButton( "&Radio 1", parent );
@@ -191,8 +231,9 @@ the complete code for a digital clock widget is presented.
 The @Class Clock widget is a LCD that displays the current time and
 updates itself automatically. A colon separator blinks to indicate
 the passing seconds.
-clock @Index { Clock }
-lcd @Index { LCD }
+  clock @Index { Clock }
+  lcd @Index { LCD }
+  qlcdnumber @Index { QLCDNumber }
 @PP
 In @File clock.h, @Class Clock is defined like this:
 @IndentedDisplay @CP @Begin
@@ -212,9 +253,9 @@ private:
     bool showingColon;
 };
 @End @CP
-nameofwidget @Index { name (of widget) }
-parentwidgets @Index { parent }
-timers @Index { timers }
+  nameofwidget @Index { Name of widget }
+  parentwidget @Index { Parent widget }
+  timer @Index { Timer }
 @PP
 @Class Clock inherits its LCD functionality from the @Class
 QLCDNumber widget. It has a constructor typical of widget classes,
@@ -282,8 +323,8 @@ int main( int argc, char **argv )
 This example program contains a single widget (the @Class Clock) and
 no child widgets. Complex widgets are built by combining widgets in
 layouts.
-designer @Index { Designer }
-qtdesigner @Index { Qt Designer }
+  designer @Index { Designer }
+  qtdesigner @Index { Qt Designer }
 @PP
 Developers can also write custom widgets from scratch. For example,
 to create an analog clock, it would be necessary to draw the clock's

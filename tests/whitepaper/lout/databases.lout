@@ -13,16 +13,16 @@ SQL databases. Qt includes native drivers for Oracle, Microsoft SQL
 Server, Sybase Adaptive Server, PostgreSQL, MySQL and ODBC. The
 drivers work on all platforms supported by Qt, and programs can
 access multiple databases using multiple drivers simultaneously.
-databases @Index { databases }
-microsoftsqlserver @Index { Microsoft SQL Server }
-mysql @Index { MySQL }
-oci @Index { OCI }
-odbc @Index { ODBC }
-oracle @Index { Oracle }
-postgresql @Index { PostgreSQL }
-sql @Index { SQL }
-sybase @Index { Sybase }
-tds @Index { TDS }
+  database @Index { database }
+  microsoftsqlserver @Index { Microsoft SQL Server }
+  mysql @Index { MySQL }
+  oci @Index { OCI }
+  odbc @Index { ODBC }
+  oracle @Index { Oracle }
+  postgresql @Index { PostgreSQL }
+  sql @Index { SQL }
+  sybase @Index { Sybase }
+  tds @Index { TDS }
 @PP
 Programmers can easily execute any arbitrary SQL statements. Qt also
 provides a high-level C++ interface that programmers can use to
@@ -36,15 +36,15 @@ updating and deleting records. Most database designs require that new
 records have a unique key that cannot be guessed by Qt, so insertion
 usually needs a small amount of code to be written. The programmer
 can easily force the user to confirm actions, e.g. deletions.
-keys @Index { Keys }
-primarykeys @Index { Primary keys }
+  key @Index { Key }
+  primarykey @Index { Primary key }
 @PP
 Qt's SQL module is fully integrated into @QDR, which
 provides templates and wizards to make the creation of database forms
 as quick and easy as possible. The wizards can create forms with
 navigation buttons, and with update, insert and delete buttons.
-designer @Index { Designer }
-qtdesigner @Index { Qt Designer }
+  designer @Index { Designer }
+  qtdesigner @Index { Qt Designer }
 @PP
 Using the facilities that the Qt SQL module provides, it is
 straightforward to create database applications that use foreign key
@@ -58,10 +58,11 @@ lookups, present master-detail relationships, and support drill-down.
 The @Class QSqlQuery class is used to directly execute SQL DDL and
 DML statements. It is also used to navigate the result sets produced
 by @F SELECT statements.
-ddl @Index { DDL }
-dml @Index { DML }
-select @Index { SELECT }
-queries @Index { Queries }
+  ddl @Index { DDL }
+  dml @Index { DML }
+  qsqlquery @Index { QSqlQuery }
+  query @Index { Query }
+  select @Index { SELECT }
 @PP
 In the example below, a query is executed, and the result set
 navigated using @Func QSqlQuery::next():
@@ -94,7 +95,8 @@ For programmers who are not comfortable writing raw SQL, the @Class
 QSqlCursor class provides a high-level interface for browsing and
 editing records in SQL tables or views without the need to write SQL
 statements. For example:
-views @Index { Views }
+  qsqlcursor @Index { QSqlCursor }
+  view @Index { View }
 @IndentedDisplay @CP @Begin
 QSqlCursor cur( "staff" );
 while ( cur.next() ) {
@@ -115,8 +117,9 @@ display names rather than codes). Calculated fields can be created by
 subclassing @Class QSqlCursor, adding additional @Class {QSqlField}s
 with their calculated property set to TRUE, and by reimplementing
 @Func QSqlCursor::calculateField().
-calculatedfields @Index { Calculated fields }
-foreignkeys @Index { Foreign keys }
+  calculatedfield @Index { Calculated field }
+  foreignkey @Index { Foreign key }
+  qsqlfield @Index { QSqlField }
 @PP
 Database drivers usually supply data as strings, regardless of the
 actual datatype. Qt handles such data seamlessly using the @Class
@@ -124,9 +127,11 @@ QVariant class. Database drivers can be asked about the features they
 support, including query-size reporting and transactions. The @Func
 transaction(), @Func commit() and @Func rollback() functions can be
 used if the database supports transactions.
-commit @Index { Commit }
-rollback @Index { Rollback }
-transactions @Index { Transactions }
+  commit @Index { Commit }
+  qvariant @Index { QVariant }
+  rollback @Index { Rollback }
+  transaction @Index { Transaction }
+  variant type @Index { Variant type }
 @End @SubSection
 @SubSection
     @Title { Data-aware Widgets }
@@ -143,8 +148,9 @@ QLineEdit is used for @F CHAR fields, whereas a @Class QSpinBox is
 used for @F INTEGER fields. The programmer can override the defaults
 by creating a property map for the table, which matches fields
 (columns) to the editor widget type the programmer prefers.
-datatable @Index { Data table }
-table @Index { Table }
+  datatable @Index { Data table }
+  qdatatable @Index { QDataTable }
+  table @Index { Table }
 @PP
 @Figure
     @Caption { A @Class QDataTable }
@@ -167,11 +173,13 @@ few records shown at a time. These classes provide buttons with
 ready-made connections for navigating through the records. @Class
 QDataView is used for read-only data. @Class QDataBrowser is used for
 editing, and can provide ready-made insert, update and delete buttons.
+  qdatabrowser @Index { QDataBrowser }
+  qdataview @Index { QDataView }
 @PP
 @Class QDataTable and @Class QDataBrowser have both a popup context
 menu and keyboard shortcuts for editing records.
-contextmenu @Index { Context menu }
-popupmenu @Index { Popup menu }
+  contextmenu @Index { Context menu }
+  popupmenu @Index { Popup menu }
 @Figure
     @Caption { A @Class QDataBrowser }
 @IncludeGraphic { "../images/editbooks.eps" }
@@ -183,7 +191,7 @@ manipulated or actions logged just before changes are written back to
 the database, for example, converting a foreign key's display text
 into its ID by implementing a slot connected to @Func beforeInsert(),
 @Func beforeUpdate() and @Func beforeDelete().
-foreignkeys @Index { Foreign keys }
+  foreignkey @Index { Foreign key }
 @PP
 Developers can create their own forms for displaying database records.
 Unlike older toolkits that duplicate their widgets with data-aware
@@ -191,23 +199,24 @@ versions, any Qt widget (including custom widgets) can be made
 data aware. All that is necessary is to include the widget in a @Class
 QSqlForm and set up a property map to relate the relevant database
 field to the widget that will present and edit the field's data.
-forms @Index { Forms }
+  form @Index { Form }
+  qsqlform @Index { QSqlForm }
 @PP
 Master-detail relationships are easily set up by filtering the detail
 form or table's cursor by the master form or table's current record.
 Drill-down is also easy to achieve by associating a button, menu item
 or keyboard shortcut with a drill-down form that is invoked with the
 current record's key as a parameter.
-drilldown @Index { Drill-down }
-masterdetail @Index { Master-detail }
+  drilldown @Index { Drill-down }
+  masterdetail @Index { Master-detail }
 @PP
 Qt's SQL module is fully integrated with @QDR. @QDR can preview
 database forms and tables using live data if desired, allowing
 developers to browse, delete and update records. @QDR has templates
 and wizards to make creating database forms fast and simple.
-designer @Index { Designer }
-qtdesigner @Index { Qt Designer }
-wizards @Index { Wizards }
+  designer @Index { Designer }
+  qtdesigner @Index { Qt Designer }
+  wizard @Index { Wizard }
 @DP
 @OLREF @LP
 @Href{"http://www.trolltech.com/3.0/sql.html"}@LLP

@@ -12,10 +12,10 @@ In Qt, an event is an object that inherits @Class QEvent. Events are
 delivered to @Class QObject objects so that they can respond to them.
 Programmers can monitor and filter events at the application level
 and at the object level.
-events @Index { Events }
-messaging @Index { Messaging }
-qevent @Index { QEvent }
-qobject @Index { QObject }
+  event @Index { Event }
+  messaging @Index { Messaging }
+  qevent @Index { QEvent }
+  qobject @Index { QObject }
 @BeginSubSections
 @SubSection
     @Title { Event Creation }
@@ -31,11 +31,10 @@ MouseButtonPress, @F MouseButtonRelease, @F MouseButtonDblClick, @F
 Wheel, @F KeyPress, @F KeyRelease, @F Paint, @F Resize and @F Close.
 Developers can add their own event types that behave like the
 built-in types.
-windowsystem @Index { Window system }
-keypresses @Index { Key presses }
-mouseclicks @Index { Mouse clicks }
-resizingwidgets @Index { Resizing widgets }
-wheelmouse @Index { Wheel mouse }
+  keypress @Index { Key press }
+  mouseclick @Index { Mouse click }
+  resizing @Index { Resizing }
+  wheelmouse @Index { Wheel mouse }
 @PP
 It is usually insufficient merely to know that a key was pressed or
 that a mouse button was released. The receiver also needs to know,
@@ -44,6 +43,11 @@ where the mouse was located. This additional information is available
 from @Class QEvent subclasses, such as @Class QMouseEvent, @Class
 QKeyEvent, @Class QPaintEvent, @Class QResizeEvent and @Class
 QCloseEvent.
+  qcloseevent @Index { QCloseEvent }
+  qkeyevent @Index { QKeyEvent }
+  qmouseevent @Index { QMouseEvent }
+  qpaintevent @Index { QPaintEvent }
+  qresizeevent @Index { QResizeEvent }
 @End @SubSection
 @SubSection
     @Title { Event Delivery }
@@ -62,8 +66,8 @@ be dispatched when control returns to the Qt kernel. Qt uses queueing
 to optimize certain types of events. For example, multiple paint
 events are compressed into a single event to minimize flicker and
 maximize speed.
-flicker @Index { Flicker }
-painting @Index { Painting }
+  flicker @Index { Flicker }
+  painting @Index { Painting }
 @PP
 Often an object needs to look at another object's events, e.g. to
 respond to them or to block them. This is achieved by having a
@@ -78,7 +82,7 @@ installing a filter on @F qApp, the unique @Class QApplication
 instance. Such filters are called before any widget-specific filters.
 It is even possible to reimplement @Func QApplication::notify(), the
 event dispatcher, for complete control.
-qapplication @Index { QApplication }
+  qapplication @Index { QApplication }
 @DP
 @OLREF @LP
 @Href{"http://www.trolltech.com/3.0/eventsandfilters.html"}@LLP
