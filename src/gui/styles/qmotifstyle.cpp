@@ -808,7 +808,7 @@ void QMotifStyle::drawControl(ControlElement element,
     case CE_TabBarTab:
         {
 #ifndef QT_NO_TABBAR
-            if (!widget || !widget->parentWidget() || !opt.tab())
+            if (!widget || !opt.tab())
                 break;
 
             const QTabBar * tb = (const QTabBar *) widget;

@@ -735,7 +735,7 @@ void QWindowsStyle::drawControl(ControlElement element,
 #ifndef QT_NO_TABBAR
     case CE_TabBarTab:
         {
-            if (!widget || !widget->parentWidget() || !opt.tab())
+            if (!widget || !opt.tab())
                 break;
 
             const QTabBar * tb = (const QTabBar *) widget;
