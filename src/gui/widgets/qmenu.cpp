@@ -680,7 +680,7 @@ QMenu::QMenu(QWidget *parent)
     : QWidget(*new QMenuPrivate, parent, Qt::WType_TopLevel|Qt::WType_Popup)
 {
     setFocusPolicy(Qt::StrongFocus);
-    setMouseTracking(style().styleHint(QStyle::SH_Menu_MouseTracking));
+    setMouseTracking(style().styleHint(QStyle::SH_Menu_MouseTracking, 0, this));
     if(style().styleHint(QStyle::SH_Menu_Scrollable, 0, this)) {
         d->scroll = new QMenuPrivate::QMenuScroller;
         d->scroll->scrollFlags = QMenuPrivate::QMenuScroller::ScrollNone;
@@ -1089,7 +1089,7 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
                 }
                 pos.setY(newY);
 
-                if(!style().styleHint(QStyle::SH_Menu_FillScreenWithScroll)) {
+                if(!style().styleHint(QStyle::SH_Menu_FillScreenWithScroll, 0, this)) {
                     int below_height = above_height + d->scroll->scrollOffset;
                     for(int i2 = i; i2 < (int)d->actionList.count(); i2++)
                         below_height += d->actionRects.value(d->actionList.at(i2)).height();
@@ -1439,7 +1439,7 @@ void QMenu::changeEvent(QEvent *e)
 {
     if(e->type() == QEvent::StyleChange) {
         d->itemsDirty = 1;
-        setMouseTracking(style().styleHint(QStyle::SH_Menu_MouseTracking));
+        setMouseTracking(style().styleHint(QStyle::SH_Menu_MouseTracking, 0, this));
         if(isVisible())
             resize(sizeHint() + contentsMarginSize());
         if(!style().styleHint(QStyle::SH_Menu_Scrollable, 0, this)) {

@@ -23,6 +23,7 @@
 #include "qapplication.h"
 #include "qtextdocument.h"
 #include "qstyle.h"
+#include "qstyleoption.h"
 #include "qframe_p.h"
 #include <limits.h>
 #include "../text/qtextdocumentlayout_p.h"
@@ -780,7 +781,9 @@ void QLabel::paintEvent(QPaintEvent *)
             yo = cr.height()-rh;
         QAbstractTextDocumentLayout::PaintContext context;
         context.textColorFromPalette = true;
-        if (!isEnabled() && style().styleHint(QStyle::SH_EtchDisabledText)) {
+        QStyleOption opt(0);
+        opt.init(this);
+        if (!isEnabled() && style().styleHint(QStyle::SH_EtchDisabledText, &opt, this)) {
             context.palette = palette();
             context.palette.setColor(QPalette::Text, context.palette.light());
             QRect r = cr;
@@ -850,8 +853,10 @@ void QLabel::paintEvent(QPaintEvent *)
         }
 #endif
         int alignment = d->align;
+        QStyleOption opt(0);
+        opt.init(this);
         if ((alignment & Qt::TextShowMnemonic)
-                && !style().styleHint(QStyle::SH_UnderlineShortcut))
+                && !style().styleHint(QStyle::SH_UnderlineShortcut, &opt, this))
             alignment |= Qt::TextHideMnemonic;
         // ordinary text or pixmap label
         style().drawItem(&paint, cr, alignment, palette(), isEnabled(), pix, d->ltext);

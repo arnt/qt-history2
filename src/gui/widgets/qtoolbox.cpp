@@ -184,7 +184,7 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
         tr = QRect(ir.right(), cr.top(), cr.width() - ir.right() - 4, cr.height());
     }
 
-    if (selected && style().styleHint(QStyle::SH_ToolBox_SelectedPageTitleBold)) {
+    if (selected && style().styleHint(QStyle::SH_ToolBox_SelectedPageTitleBold, &opt, this)) {
         QFont f(p->font());
         f.setBold(true);
         p->setFont(f);
@@ -210,7 +210,7 @@ void QToolBoxButton::paintEvent(QPaintEvent *)
 
     const QColor* fill = 0;
     if (selected &&
-         style().styleHint(QStyle::SH_ToolBox_SelectedPageTitleBold) &&
+         style().styleHint(QStyle::SH_ToolBox_SelectedPageTitleBold, &opt, this) &&
          !tb->testAttribute(Qt::WA_NoSystemBackground))
         fill = &pal.color(foregroundRole());
 

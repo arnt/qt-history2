@@ -85,7 +85,7 @@ QTipLabel::QTipLabel(const QString& text, QWidget* parent)
     adjustSize();
     qApp->installEventFilter(this);
     hideTimer.start(10000, this);
-    setWindowOpacity(style().styleHint(QStyle::SH_TipLabel_Opacity) / 255.0);
+    setWindowOpacity(style().styleHint(QStyle::SH_TipLabel_Opacity, 0, this) / 255.0);
 }
 
 QTipLabel::~QTipLabel()

@@ -15,6 +15,7 @@
 #include "qscrollbar.h"
 #include "qapplication.h"
 #include "qstyle.h"
+#include "qstyleoption.h"
 #include "qevent.h"
 
 #include "qviewport_p.h"
@@ -148,7 +149,9 @@ void QViewportPrivate::layoutChildren()
     bool reverse = QApplication::reverseLayout();
     reverse = true;
     QRect vr = q->rect();
-    if (q->style().styleHint(QStyle::SH_ScrollView_FrameOnlyAroundContents)) {
+    QStyleOption opt(0);
+    opt.init(q);
+    if (q->style().styleHint(QStyle::SH_ScrollView_FrameOnlyAroundContents, &opt, q)) {
         QRect fr = vr;
         if (needh) {
             fr.setBottom(fr.bottom() - hsbExt);

@@ -56,6 +56,16 @@ extern void qt_mac_secure_keyboard(bool); //qapplication_mac.cpp
 #define d d_func()
 #define q q_func()
 
+QStyleOptionFrame QLineEditPrivate::getStyleOption() const
+{
+    QStyleOptionFrame opt(0);
+    opt.rect = q->rect();
+    opt.palette = q->palette();
+    opt.lineWidth = q->style().pixelMetric(QStyle::PM_DefaultFrameWidth);
+    opt.midLineWidth = 0;
+    opt.state = QStyle::Style_Default | QStyle::Style_Sunken;
+    return opt;
+}
 
 /*!
     \class QLineEdit
@@ -323,8 +333,10 @@ QString QLineEdit::displayText() const
     if (d->echoMode == NoEcho)
         return QString::fromLatin1("");
     QString res = d->text;
-    if (d->echoMode == Password)
-        res.fill(style().styleHint(QStyle::SH_LineEdit_PasswordCharacter));
+    if (d->echoMode == Password) {
+        QStyleOptionFrame opt = d->getStyleOption();
+        res.fill(style().styleHint(QStyle::SH_LineEdit_PasswordCharacter, &opt, this));
+    }
     return (res.isNull() ? QString::fromLatin1("") : res);
 }
 
@@ -1198,7 +1210,9 @@ bool QLineEdit::event(QEvent * e)
         // should be timerEvent, is here for binary compatibility
         int timerId = ((QTimerEvent*)e)->timerId();
         if (timerId == d->cursorTimer) {
-            if(!hasSelectedText() || style().styleHint(QStyle::SH_BlinkCursorWhenTextSelected))
+            QStyleOptionFrame opt = d->getStyleOption();
+            if(!hasSelectedText()
+               || style().styleHint(QStyle::SH_BlinkCursorWhenTextSelected, &opt, this))
                 d->setCursorVisible(!d->cursorVisible);
 #ifndef QT_NO_DRAGANDDROP
         } else if (timerId == d->dndTimer.timerId()) {
@@ -1638,7 +1652,8 @@ void QLineEdit::focusInEvent(QFocusEvent*)
         int cft = QApplication::cursorFlashTime();
         d->cursorTimer = cft ? startTimer(cft/2) : -1;
     }
-    if(!hasSelectedText() || style().styleHint(QStyle::SH_BlinkCursorWhenTextSelected))
+    QStyleOptionFrame opt = d->getStyleOption();
+    if(!hasSelectedText() || style().styleHint(QStyle::SH_BlinkCursorWhenTextSelected, &opt, this))
         d->setCursorVisible(true);
     d->updateMicroFocusHint();
 #ifdef Q_WS_MAC
@@ -2055,7 +2070,8 @@ void QLineEditPrivate::moveCursor(int pos, bool mark)
         setCursorVisible(true);
     }
     updateMicroFocusHint();
-    if (mark && !q->style().styleHint(QStyle::SH_BlinkCursorWhenTextSelected))
+    QStyleOptionFrame opt = getStyleOption();
+    if (mark && !q->style().styleHint(QStyle::SH_BlinkCursorWhenTextSelected, &opt, q))
         setCursorVisible(false);
     if (mark || selDirty) {
         selDirty = false;

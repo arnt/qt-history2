@@ -66,7 +66,9 @@ QDialogButtons::init(Q_UINT32 buttons, Qt::Orientation orient)
     d = new QDialogButtonsPrivate;
     d->questionMode = false;
     d->orient = orient;
-    d->def = (Button)style().styleHint(QStyle::SH_DialogButtons_DefaultButton);
+    QStyleOption opt(0);
+    opt.init(this);
+    d->def = (Button)style().styleHint(QStyle::SH_DialogButtons_DefaultButton, &opt, this);
     d->enabled = d->visible = buttons;
 }
 

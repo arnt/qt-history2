@@ -18,6 +18,7 @@
 
 #include <qtextlayout.h>
 #include <qbasictimer.h>
+#include <qstyleoption.h>
 
 class QLineEditPrivate : public QWidgetPrivate
 {
@@ -38,6 +39,7 @@ public:
         delete [] maskData;
     }
     void init(const QString&);
+    QStyleOptionFrame getStyleOption() const;
 
     QString text;
     int cursor;

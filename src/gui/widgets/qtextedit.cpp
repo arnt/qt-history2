@@ -1164,7 +1164,8 @@ void QTextEdit::timerEvent(QTimerEvent *ev)
         d->cursorOn = !d->cursorOn;
 
         if (d->cursor.hasSelection())
-            d->cursorOn &= (style().styleHint(QStyle::SH_BlinkCursorWhenTextSelected) != 0);
+            d->cursorOn &= (style().styleHint(QStyle::SH_BlinkCursorWhenTextSelected, 0, this)
+                            != 0);
 
         QRect r = d->cursor.block().layout()->rect();
         r.moveBy(-d->hbar->value(), -d->vbar->value());

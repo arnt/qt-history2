@@ -1823,7 +1823,7 @@ void QWorkspaceChild::resizeEvent(QResizeEvent *)
     if (titlebar) {
         int th = titlebar->sizeHint().height();
         QRect tbrect(0, 0, width(), th);
-        if (!style().styleHint(QStyle::SH_TitleBar_NoBorder))
+        if (!style().styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar))
             tbrect = QRect(r.x(), r.y(), r.width(), th);
         titlebar->setGeometry(tbrect);
 
@@ -2096,7 +2096,7 @@ void QWorkspaceChild::changeEvent(QEvent *ev)
         if (iconw) {
             QVBoxWidget *vbox = qt_cast<QVBoxWidget*>(iconw->parentWidget());
             Q_ASSERT(vbox);
-            if (!style().styleHint(QStyle::SH_TitleBar_NoBorder)) {
+            if (!style().styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar)) {
                 vbox->setFrameStyle(QFrame::WinPanel | QFrame::Raised);
                 vbox->resize(196+2*vbox->frameWidth(), 20 + 2*vbox->frameWidth());
             } else {
@@ -2184,7 +2184,7 @@ QWidget* QWorkspaceChild::iconWidget() const
         tb->setObjectName("_workspacechild_icon_");
         int th = style().pixelMetric(QStyle::PM_TitleBarHeight, tb);
         int iconSize = style().pixelMetric(QStyle::PM_MDIMinimizedWidth, this);
-        if (!style().styleHint(QStyle::SH_TitleBar_NoBorder)) {
+        if (!style().styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar)) {
             vbox->setFrameStyle(QFrame::WinPanel | QFrame::Raised);
             vbox->resize(iconSize+2*vbox->frameWidth(), th+2*vbox->frameWidth());
         } else {
@@ -2264,7 +2264,7 @@ void QWorkspaceChild::showShaded()
         fake->setWState(Qt::WState_Minimized);
         setWState(Qt::WState_Minimized);
 
-        if (style().styleHint(QStyle::SH_TitleBar_NoBorder))
+        if (style().styleHint(QStyle::SH_TitleBar_NoBorder, 0, titlebar))
             resize(width(), titlebar->height());
         else
             resize(width(), titlebar->height() + 2*lineWidth() + 1);

@@ -187,7 +187,7 @@ void QMenuBarPrivate::calcActionRects(int max_width, int start, QMap<QAction*, Q
 
         //calc what I think the size is..
         if(action->isSeparator()) {
-            if (q->style().styleHint(QStyle::SH_DrawMenuBarSeparator))
+            if (q->style().styleHint(QStyle::SH_DrawMenuBarSeparator, 0, q))
                 separator = actionRects.count();
             continue; //we don't really position these!
         } else {
@@ -405,7 +405,7 @@ void QMenuBarPrivate::init()
         if(!parent->isTopLevel())
             parent->installEventFilter(q); //handle resizes
     }
-    q->setMouseTracking(q->style().styleHint(QStyle::SH_MenuBar_MouseTracking));
+    q->setMouseTracking(q->style().styleHint(QStyle::SH_MenuBar_MouseTracking, 0, q));
 }
 
 /*!
@@ -867,7 +867,7 @@ void QMenuBar::changeEvent(QEvent *e)
 {
     if(e->type() == QEvent::StyleChange) {
         d->itemsDirty = 1;
-        setMouseTracking(style().styleHint(QStyle::SH_MenuBar_MouseTracking));
+        setMouseTracking(style().styleHint(QStyle::SH_MenuBar_MouseTracking, 0, this));
         if(parentWidget())
             resize(parentWidget()->width(), heightForWidth(parentWidget()->width()));
     }
