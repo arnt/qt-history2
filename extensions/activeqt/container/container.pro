@@ -6,6 +6,8 @@ DESTDIR  = $$QT_BUILD_TREE/lib
 
 INCLUDEPATH     += $$QT_SOURCE_TREE/tools/designer/interfaces
 
+LIBS    += -lole32 -loleaut32 -luser32 -lgdi32
+
 contains( QT_PRODUCT, qt-internal) {
 	ACTIVEQT_H  = .
         ACTIVEQT_AGGH  = ../control
