@@ -103,7 +103,7 @@ ConnectionEditor::ConnectionEditor( QWidget *parent, QObject* sndr, QObject* rcv
 	for ( QValueList<QCString>::Iterator it = w->lstSignals.begin(); it != w->lstSignals.end(); ++it )
 	    signalBox->insertItem( QString( *it ) );
     }
-    
+
     if ( sender == fw->mainContainer() ) {
 	QStringList extra = MetaDataBase::signalList( fw );
 	if ( !extra.isEmpty() )
@@ -120,6 +120,7 @@ ConnectionEditor::ConnectionEditor( QWidget *parent, QObject* sndr, QObject* rcv
 	if ( iface && !iface->supports( LanguageInterface::ConnectionsToCustomSlots ) )
 	    includeMainContainer = FALSE;
     }
+
     while ( it.current() ) {
 	if ( lst.find( it.current()->name() ) != lst.end() ) {
 	    ++it;
@@ -130,8 +131,11 @@ ConnectionEditor::ConnectionEditor( QWidget *parent, QObject* sndr, QObject* rcv
 	     !it.current()->inherits( "QLayoutWidget" ) &&
 	     !it.current()->inherits( "Spacer" ) &&
 	    qstrcmp( it.current()->name(), "central widget" ) != 0 &&
-	     ( includeMainContainer || !formWindow->isMainContainer( it.current() ) ) )
+	     ( includeMainContainer || !formWindow->isMainContainer( it.current() ) ) ) {
+	    if ( !includeMainContainer && formWindow->isMainContainer( receiver ) )
+		receiver = it.current();
 	    comboReceiver->insertItem( it.current()->name() );
+	}
 	++it;
     }
     comboReceiver->listBox()->sort();
@@ -142,7 +146,6 @@ ConnectionEditor::ConnectionEditor( QWidget *parent, QObject* sndr, QObject* rcv
 	}
     }
 	
-
     signalBox->setCurrentItem( signalBox->firstItem() );
 
     fillConnectionsList();
@@ -357,8 +360,10 @@ void ConnectionEditor::receiverChanged( const QString &s )
 {
     QPtrDictIterator<QWidget> it( *formWindow->widgets() );
     while ( it.current() ) {
-	if ( QString( it.current()->name() ) == s )
+	if ( QString( it.current()->name() ) == s ) {
 	    receiver = it.current();
+	    break;
+	}
 	++it;
     }
     signalChanged();
