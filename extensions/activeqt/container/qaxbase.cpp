@@ -201,7 +201,7 @@ public:
 	// verify input
 	if ( riid != IID_NULL )
 	    return DISP_E_UNKNOWNINTERFACE;
-	if ( wFlags != DISPATCH_METHOD )
+	if ( !(wFlags & DISPATCH_METHOD) )
 	    return DISP_E_MEMBERNOTFOUND;
 	if ( !combase )
 	    return E_UNEXPECTED;
