@@ -55,7 +55,7 @@ SYSCONF_LINK_LIB_SHARED	= #${
 			     ? Project('TMAKE_LFLAGS_SONAME') . '$(SYSCONF_LINK_TARGET_SHARED)'
 			     : '' )
 		       . ' $(LFLAGS) -o $(SYSCONF_LINK_TARGET_SHARED) $(OBJECTS) '
-		       . ' $(OBJMOC) $(LIBS);'
+		       . ' $(OBJMOC) $(LIBS) &&'
 		 . ' mv $(SYSCONF_LINK_TARGET_SHARED) $(DESTDIR);';
     } else {
 	if ( Project('TMAKE_LINK_SHLIB_CMD') ) {
@@ -67,10 +67,10 @@ SYSCONF_LINK_LIB_SHARED	= #${
 			     ? Project('TMAKE_LFLAGS_SONAME') . 'lib$(TARGET).so.$(VER_MAJ)'
 			     : '' ) . " \\\n\t\t\t\t"
 			. '     $(LFLAGS) -o $(SYSCONF_LINK_TARGET_SHARED)' . " \\\n\t\t\t\t"
-			. '     $(OBJECTS) $(OBJMOC) $(LIBS);';
+			. '     $(OBJECTS) $(OBJMOC) $(LIBS) &&';
 	    $text .= " \\\n\t\t\t\t";
 	    $text .= ' mv $(SYSCONF_LINK_TARGET_SHARED) $(DESTDIR);' . " \\\n\t\t\t\t"
-		    . ' cd $(DESTDIR);' . " \\\n\t\t\t\t"
+		    . ' cd $(DESTDIR) &&' . " \\\n\t\t\t\t"
 		    . ' rm -f lib$(TARGET).so'
 			. ' lib$(TARGET).so.$(VER_MAJ);' . " \\\n\t\t\t\t"
 		    . ' ln -s $(SYSCONF_LINK_TARGET_SHARED) lib$(TARGET).so;' . " \\\n\t\t\t\t"
