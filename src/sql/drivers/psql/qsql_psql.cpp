@@ -570,15 +570,15 @@ bool QPSQLDriver::open( const QString & db,
 	close();
     QString connectString;
     if ( host.length() )
-	connectString += QString("host=%1 ").arg( host );
+	connectString.append( "host=" ).append( host );
     if ( db.length() )
-	connectString += QString("dbname=%1 ").arg( db );
+	connectString.append( " dbname=" ).append( db );
     if ( user.length() )
-	connectString += QString("user=%1 ").arg( user );
+	connectString.append( " user=" ).append( user );
     if ( password.length() )
-	connectString += QString("password=%1 ").arg( password );
+	connectString.append( " password=" ).append( password );
     if ( port > -1 )
-	connectString += QString("port=%1 ").arg( port );
+	connectString.append( " port=" ).append( QString::number( port ) );
     d->connection = PQconnectdb( connectString.local8Bit().data() );
     if ( PQstatus( d->connection ) == CONNECTION_BAD ) {
 	setLastError( qMakeError("Unable to connect", QSqlError::Connection, d ) );
@@ -852,8 +852,8 @@ QSqlRecordInfo QPSQLDriver::recordInfo( const QString& tablename ) const
 	// Postgres < 7.1 cannot handle outer joins
 	while ( query.next() ) {
 	    QString defVal;
-	    QString stmt2 = ( "select pg_attrdef.adsrc from pg_attrdef where "
-				"pg_attrdef.adrelid = %1 and pg_attrdef.adnum = %2 " );
+	    QString stmt2 = "select pg_attrdef.adsrc from pg_attrdef where "
+			    "pg_attrdef.adrelid = %1 and pg_attrdef.adnum = %2 ";
 	    QSqlQuery query2 = createQuery();
 	    query2.exec( stmt2.arg( query.value( 5 ).toInt() ).arg( query.value( 6 ).toInt() ) );
 	    if ( query2.isActive() && query2.next() )
