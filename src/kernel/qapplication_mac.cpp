@@ -938,13 +938,15 @@ void qt_init(QApplicationPrivate *priv, QApplication::Type)
 		     "In order to dispatch events correctly Mac OS X may "
 		     "require applications to be run with the *full* path to the "
 		     "executable.", argv[0]);
-
 	//special hack to change working directory to a resource fork when running from finder
-	if(p && !QDir::isRelativePath(p) && QDir::currentDirPath() == "/") {
+	if (p && !QDir::isRelativePath(p) && QDir::currentDirPath() == "/") {
 	    QString path = argv[0];
-	    int rfork = path.lastIndexOf(QString("/") + appName + ".app/");
-	    if(rfork != -1)
-		QDir::setCurrent(path.left(rfork+1));
+            QString tmpStr = QString("/Contents/MacOS/") + appName;
+            if (path.endsWith(tmpStr)) {
+                int rfork = path.findRev('/', path.length() - tmpStr.length() - 1);
+                if (rfork != -1)
+                    QDir::setCurrent(path.left(rfork + 1));
+            }
 	}
     }
 
