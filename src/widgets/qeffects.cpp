@@ -186,6 +186,7 @@ bool QAlphaWidget::eventFilter( QObject* o, QEvent* e )
 	if ( o->inherits( "QScrollView" ) )
 	    break;
     case QEvent::MouseButtonDblClick:
+	setEnabled(TRUE);
 	showWidget = FALSE;
 	render();
 	break;
@@ -418,6 +419,7 @@ bool QRollEffect::eventFilter( QObject* o, QEvent* e )
     case QEvent::Close:
 	if ( o != widget || done )
 	    break;
+	setEnabled(TRUE);
 	showWidget = FALSE;
 	done = TRUE;
 	scroll();
@@ -428,6 +430,7 @@ bool QRollEffect::eventFilter( QObject* o, QEvent* e )
     case QEvent::MouseButtonDblClick:
 	if ( done )
 	    break;
+	setEnabled(TRUE);
 	showWidget = FALSE;
 	done = TRUE;
 	scroll();
