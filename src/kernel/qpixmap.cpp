@@ -376,22 +376,29 @@ QPixmap QPixmap::copy( bool ignoreMask ) const
 {
 #if defined(Q_WS_X11)
     int old = x11SetDefaultScreen( x11Screen() );
-#endif
+#endif // Q_WS_X11
     QPixmap pm( data->w, data->h, data->d, data->bitmap, data->optim );
 #if defined(Q_WS_X11)
     x11SetDefaultScreen( old );
-#endif
+#endif // Q_WS_X11
     if ( !pm.isNull() ) {			// copy the bitmap
 #if defined(Q_WS_X11)
 	pm.cloneX11Data( this );
-#endif
+#if !defined(QT_NO_XRENDER)
+	QPixmap* save_alpha = data->alphapm;
+	data->alphapm = 0;
+#endif // !QT_NO_XRENDER
+#endif // Q_WS_X11
 	bitBlt( &pm, 0,0, this, 0,0, data->w, data->h, CopyROP, TRUE );
+#if defined(Q_WS_X11) && ! QT_NO_XRENDER
+	data->alphapm = save_alpha;
+#endif // Q_WS_X11 && !QT_NO_XRENDER
 	if ( !ignoreMask ) {
 #if defined(Q_WS_X11) && !defined(QT_NO_XRENDER)
 	    if ( data->alphapm )
 		qt_x11_copy_alpha_pixmap(&pm, this);
 	    else
-#endif
+#endif // Q_WS_X11 && !QT_NO_XRENDER
 		if ( data->mask )		// copy the mask
 		    pm.setMask( data->selfmask ? *((QBitmap*)&pm) : *data->mask );
 	}

@@ -942,8 +942,8 @@ void QMovie::restart()
 	d->source->rewind();
 	int s = d->stepping;
 	d->init(TRUE);
-	if ( !s ) s = 1; // Don't pause or we'll not get to the FIRST frame
-	if (s>0) step(s);
+	if ( s>0 )
+	    step(s);
     }
 }
 

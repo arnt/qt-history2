@@ -4848,10 +4848,10 @@ static void read_pbm_image( QImageIO *iio )	// read PBM image data
     w = read_pbm_int( d );			// get image width
     h = read_pbm_int( d );			// get image height
     if ( nbits == 1 )
-	mcc = 0;				// ignore max color component
+	mcc = 1;				// ignore max color component
     else
 	mcc = read_pbm_int( d );		// get max color component
-    if ( w <= 0 || w > 32767 || h <= 0 || h > 32767 || mcc < 0 || mcc > 32767 )
+    if ( w <= 0 || w > 32767 || h <= 0 || h > 32767 || mcc <= 0 )
 	return;					// weird P.M image
 
     int maxc = mcc;
