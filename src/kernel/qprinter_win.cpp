@@ -407,8 +407,6 @@ void QPrinter::readPdlg( void* pdv )
     // Note: Remember to reflect any changes here in readPdlgA below!
 
     PRINTDLG* pd = (PRINTDLG*)pdv;
-    if ( d->printerMode = HighResolution )
-	res = metric( QPaintDeviceMetrics::PdmPhysicalDpiY );
     output_file = (pd->Flags & PD_PRINTTOFILE) != 0;
     from_pg = pd->nFromPage;
     to_pg = pd->nToPage;
@@ -458,6 +456,9 @@ void QPrinter::readPdlg( void* pdv )
         GlobalUnlock( pd->hDevNames );
     }
 
+    if ( d->printerMode == HighResolution )
+	res = metric( QPaintDeviceMetrics::PdmPhysicalDpiY );
+
     if ( pd->hDevMode ) {
         if ( hdevmode )
             GlobalFree( hdevmode );
@@ -477,8 +478,6 @@ void QPrinter::readPdlgA( void* pdv )
 {
     // Note: Remember to reflect any changes here in readPdlg above!
     PRINTDLGA* pd = (PRINTDLGA*)pdv;
-    if ( d->printerMode = HighResolution )
-	res = metric( QPaintDeviceMetrics::PdmPhysicalDpiY );
     output_file = (pd->Flags & PD_PRINTTOFILE) != 0;
     from_pg = pd->nFromPage;
     to_pg = pd->nToPage;
@@ -528,6 +527,9 @@ void QPrinter::readPdlgA( void* pdv )
         }
         GlobalUnlock( pd->hDevNames );
     }
+
+    if ( d->printerMode == HighResolution )
+	res = metric( QPaintDeviceMetrics::PdmPhysicalDpiY );
 
     if ( pd->hDevMode ) {
         if ( hdevmode )
