@@ -275,7 +275,7 @@ QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString,
 {
     if(func == "system") {
 	if(args.count() != 1) {
-	    fprintf(stderr, "%d: runTest(exec) requires one argument.\n", line_count);
+	    fprintf(stderr, "%d: system(exec) requires one argument.\n", line_count);
 	    return FALSE;
 	}
 	return system(args.first().latin1()) == 0;
@@ -285,8 +285,12 @@ QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString,
 	    return FALSE;
 	}
 	return vars[args[0]].findIndex(args[1]) != -1;
-
     } else if(func == "include") {
+	if(args.count() != 1) {
+	    fprintf(stderr, "%d: include(file) requires one argument.\n", line_count);
+	    return FALSE;
+	}
+
 	QString file = args.first();
 	file.replace(QRegExp("\""), "");
 	if(Option::debug_level)
@@ -295,12 +299,16 @@ QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString,
 	bool r = read(file.latin1(), place);
 	line_count = l;
 	return r;
-    } else if(func == "error") {
-	printf("Project Error: %s\n", args.first().latin1());
+    } else if(func == "error" || func == "message") {
+	if(args.count() != 1) {
+	    fprintf(stderr, "%d: %s(message) requires one argument.\n", func.latin1(), line_count);
+	    return FALSE;
+	}
+
+	printf("Project %s: %s\n", func.upper().latin1(), args.first().latin1());
+	if(func == "message")
+	    return TRUE;
 	exit(2);
-    } else if(func == "message") {
-	printf("Project Message: %s\n", args.first().latin1());
-	return TRUE;
     } else {
 	fprintf(stderr, "Unknown test function: %s\n", func.latin1());
     }
