@@ -21,8 +21,14 @@ The \l QDataStream allows you to serialize some of the Qt data types.
 The table below lists the data types that QDataStream can serialize
 and how they are represented.
 
-It is best to always cast integers to a Qt integer type when writing,
+It is always best to cast integers to a Qt integer type when writing,
 and to read back into the same Qt integer type when reading.
+\footnote
+Using Qt's integer types ensures that you always know exactly what
+size integers you are reading and writing, no matter what the
+underlying platform and architecture (e.g. 32-bit or 64-bit) the
+application happens to be running on.
+\endfootnote
 
 \table
 \row \i Q_INT8

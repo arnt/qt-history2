@@ -97,6 +97,9 @@
     setPrintableData(). The data is then written slower, in a bloated
     but human readable format.
 
+    \target versioning
+    \section1 Versioning
+
     If you are producing a new binary data format, such as a file
     format for documents created by your application, you could use a
     QDataStream to write the data in a portable format. Typically, you
@@ -158,7 +161,7 @@
     You may wish to read/write your own raw binary data to/from the
     data stream directly. Data may be read from the stream into a
     preallocated char* using readRawBytes(). Similarly data can be
-    written to the stream using writeRawBytes(). Notice that any
+    written to the stream using writeRawBytes(). Note that any
     encoding/decoding of the data must be done by you.
 
     A similar pair of functions is readBytes() and writeBytes(). These
@@ -166,7 +169,7 @@
     reads a Q_UINT32 which is taken to be the length of the data to be
     read, then that number of bytes is read into the preallocated
     char*; writeBytes() writes a Q_UINT32 containing the length of the
-    data, followed by the data. Notice that any encoding/decoding of
+    data, followed by the data. Note that any encoding/decoding of
     the data (apart from the length Q_UINT32) must be done by you.
 
     \sa QTextStream QVariant
@@ -300,8 +303,9 @@ QDataStream::QDataStream(const QByteArray &a, int mode)
     Destroys the data stream.
 
     The destructor will not affect the current IO device, unless it is
-    an internal IO device processing a QByteArray passed in the \e
-    constructor, in which case the internal IO device is destroyed.
+    an internal IO device (e.g. a QBuffer) processing a QByteArray
+    passed in the \e constructor, in which case the internal IO device
+    is destroyed.
 */
 
 QDataStream::~QDataStream()
@@ -353,8 +357,7 @@ void QDataStream::unsetDevice()
 
     Returns true if the IO device has reached the end position (end of
     the stream or file) or if there is no IO device set; otherwise
-    returns false, i.e. if the current position of the IO device is
-    before the end position.
+    returns false.
 
     \sa QIODevice::atEnd()
 */
@@ -441,8 +444,10 @@ void QDataStream::setByteOrder(ByteOrder bo)
 
     Sets the version number of the data serialization format to \a v.
 
-    You don't need to set a version if you are using the current
-    version of Qt.
+    You don't \e have to set a version if you are using the current
+    version of Qt, but for your own custom binary formats we recommend
+    that you do; see \link #versioning Versioning\endlink in the
+    Detailed Description.
 
     In order to accommodate new functionality, the datastream
     serialization format of some Qt classes has changed in some
@@ -778,7 +783,7 @@ QDataStream &QDataStream::operator>>(char *&s)
     delete[] operator. If the length is zero or \a s cannot be
     allocated, \a s is set to 0.
 
-    The \a l parameter will be set to the length of the buffer.
+    The \a l parameter is set to the length of the buffer.
 
     The serialization format is a Q_UINT32 length specifier first,
     then \a l bytes of data. Note that the data is \e not encoded.

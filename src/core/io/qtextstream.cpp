@@ -36,10 +36,10 @@
 
 /*!
     \class QTextStream
-    \reentrant
-    \brief The QTextStream class provides basic functions for reading
-    and writing text using a QIODevice.
+    \brief The QTextStream class provides functions for reading and
+    writing text using a QIODevice.
 
+    \reentrant
     \ingroup io
     \ingroup text
     \mainclass
@@ -81,8 +81,8 @@
     standard Unicode "byte order marked" text files; otherwise the
     local 8-bit encoding is used.
 
-    The QIODevice is set in the constructor, or later using
-    setDevice(). If the end of the input is reached atEnd() returns
+    The underlying QIODevice is set in the constructor, or later using
+    setDevice(). If the end of the input is reached, atEnd() returns
     true. Data can be read into variables of the appropriate type
     using the operator>>() overloads, or read in its entirety into a
     single string using read(), or read a line at a time using
@@ -317,6 +317,8 @@ void QTextStream::init()
 
 /*!
     Constructs a data stream that has no IO device.
+
+    \sa setDevice()
 */
 
 QTextStream::QTextStream()
@@ -575,9 +577,13 @@ QTextStream::QTextStream(QString *str, int mode)
 }
 
 /*!
-    Constructs a text stream that operates on the byte array, \a a,
-    through an internal QBuffer device. The \a mode argument is passed
-    to the device's open() function; see \l{QIODevice::mode()}.
+    Constructs a text stream that operates on a byte array, \a a. The
+    \a mode is a QIODevice::mode(), usually either \c IO_ReadOnly or
+    \c IO_WriteOnly. Use QTextStream(const QByteArray&, int) if you
+    just want to read from a byte array.
+
+    Since QByteArray is not a QIODevice subclass, internally a QBuffer
+    is created to wrap the byte array.
 
     Example:
     \code
@@ -588,8 +594,8 @@ QTextStream::QTextStream(QString *str, int mode)
     \endcode
 
     Writing data to the text stream will modify the contents of the
-    array. The array will be expanded when data is written beyond the
-    end of the string.
+    byte array. The byte array will be expanded when data is written
+    beyond the end of the string.
 
     Same example, using a QBuffer:
     \code
@@ -614,6 +620,16 @@ QTextStream::QTextStream(QByteArray *a, int mode)
     d->sourceType = QTextStreamPrivate::ByteArray;
 }
 
+/*!
+    Constructs a text stream that operates on byte array \a a. Since
+    the byte array is passed as a const it can only be read from; use
+    QTextStream(QByteArray*, int) if you want to write to a byte
+    array. The \a mode is a QIODevice::mode() and should normally be
+    \c IO_ReadOnly.
+
+    Since QByteArray is not a QIODevice subclass, internally a QBuffer
+    is created to wrap the byte array.
+*/
 QTextStream::QTextStream(const QByteArray &a, int mode)
 {
     init();
@@ -633,10 +649,10 @@ QTextStream::QTextStream(const QByteArray &a, int mode)
 
 /*!
     Constructs a text stream that operates on an existing file handle
-    \a fh through an internal QFile device. The \a mode argument is
+    \a fh, through an internal QFile device. The \a mode argument is
     passed to the device's open() function; see \l{QIODevice::mode()}.
 
-    Note that if you create a QTextStream \c cout or another name that
+    \warning If you create a QTextStream \c cout or another name that
     is also used for another variable of a different type, some
     linkers may confuse the two variables, which will often cause
     crashes.
@@ -674,8 +690,8 @@ void QTextStream::skipWhiteSpace()
     while(!ts_getbuf(NULL, getstr_tmp_size, TS_MOD_NOT|TS_SPACE));
 }
 
-/*!
-  Returns true if the conditions in flags are met
+/*
+    Returns true if the conditions in flags are met
 */
 inline static int ts_end(const QChar *c, uint len, uchar flags)
 {
@@ -716,7 +732,7 @@ inline static int ts_end(const QChar *c, uint len, uchar flags)
     return end;
 }
 
-/*!
+/*
     Tries to read \a len characters from the stream and stores them in \a
     buf. Placing the number of characters really read into \a l. This will
     return true if the \a end_flags are met (or end of file), false if the
@@ -948,7 +964,7 @@ bool QTextStream::ts_getbuf(QChar* buf, uint len, uchar end_flags, uint *l)
     return ret == END_FOUND;
 }
 
-/*!
+/*
     Puts one character into the stream.
 */
 void QTextStream::ts_putc(QChar c)
@@ -987,7 +1003,7 @@ void QTextStream::ts_putc(QChar c)
     }
 }
 
-/*!
+/*
     Puts one character into the stream.
 */
 void QTextStream::ts_putc(int ch)
@@ -2098,7 +2114,7 @@ QTextStream &QTextStream::operator<<(const void *ptr)
 
     \table
     \header \i Flag \i Meaning
-    \row \i \c skipws \i Not currently used; whitespace always skipped
+    \row \i \c skipws \i Not currently used; whitespace is always skipped
     \row \i \c left \i Numeric fields are left-aligned
     \row \i \c right
          \i Not currently used (by default, numerics are right-aligned)
@@ -2267,9 +2283,9 @@ QTextStream &reset(QTextStream &s)
 
 /*!
     \class QTextIStream
-    \reentrant
     \brief The QTextIStream class is a convenience class for input streams.
 
+    \reentrant
     \ingroup io
     \ingroup text
 
@@ -2277,7 +2293,7 @@ QTextStream &reset(QTextStream &s)
     \l{QTextStream}s without having to pass a \e mode argument to the
     constructor.
 
-    This class makes it easy, for example, to write things like this:
+    This class makes it easy to write things like this:
     \code
     QString data = "123 456";
     int a, b;
@@ -2293,22 +2309,22 @@ QTextStream &reset(QTextStream &s)
     Constructs a stream to read from the string \a s.
 */
 /*!
-    \fn QTextIStream::QTextIStream(QByteArray ba)
+    \fn QTextIStream::QTextIStream(QByteArray *ba)
 
-    Constructs a stream to read from the array \a ba.
+    Constructs a stream to read from the byte array \a ba.
 */
 /*!
     \fn QTextIStream::QTextIStream(FILE *f)
 
-    Constructs a stream to read from the file \a f.
+    Constructs a stream to read from the file handle \a f.
 */
 
 
 /*!
     \class QTextOStream
-    \reentrant
     \brief The QTextOStream class is a convenience class for output streams.
 
+    \reentrant
     \ingroup io
     \ingroup text
 
@@ -2316,7 +2332,7 @@ QTextStream &reset(QTextStream &s)
     \l{QTextStream}s without having to pass a \e mode argument to the
     constructor.
 
-    This makes it easy for example, to write things like this:
+    This makes it easy to write things like this:
     \code
     QString result;
     QTextOStream(&result) << "pi = " << 3.14;
@@ -2329,32 +2345,32 @@ QTextStream &reset(QTextStream &s)
     Constructs a stream to write to string \a s.
 */
 /*!
-    \fn QTextOStream::QTextOStream(QByteArray ba)
+    \fn QTextOStream::QTextOStream(QByteArray *ba)
 
-    Constructs a stream to write to the array \a ba.
+    Constructs a stream to write to the byte array \a ba.
 */
 /*!
     \fn QTextOStream::QTextOStream(FILE *f)
 
-    Constructs a stream to write to the file \a f.
+    Constructs a stream to write to the file handle \a f.
 */
 
 
 
 /*!
-  Sets the encoding of this stream to \a e, where \a e is one of the
-  following values:
+    Sets the encoding of this stream to \a e, where \a e is one of the
+    following values:
   \table
   \header \i Encoding \i Meaning
   \row \i Locale
-       \i Uses local file format (Latin1 if locale is not set), but
-       autodetecting Unicode(utf16) on input.
+       \i Uses the local file format (Latin1 if locale is not set),
+       but autodetecting Unicode(utf16) on input.
   \row \i Unicode
        \i Uses Unicode(utf16) for input and output. Output will be
        written in the order most efficient for the current platform
        (i.e. the order used internally in QString).
   \row \i UnicodeUTF8
-       \i Using Unicode(utf8) for input and output. If you use it for
+       \i Uses Unicode(utf8) for input and output. If you use it for
        input it will autodetect utf16 and use it instead of utf8.
   \row \i Latin1
        \i ISO-8859-1. Will not autodetect utf16.
@@ -2369,19 +2385,19 @@ QTextStream &reset(QTextStream &s)
        read by buggy Windows applications.
   \row \i RawUnicode
        \i Like Unicode, but does not write the byte order marker nor
-       does it auto-detect the byte order. Useful only when writing to
+       does it auto-detect the byte order. Only useful when writing to
        non-persistent storage used by a single process.
   \endtable
 
-  \c Locale and all Unicode encodings, except \c RawUnicode, will look
-  at the first two bytes in an input stream to determine the byte
-  order. The initial byte order marker will be stripped off before
-  data is read.
+    \c Locale and all Unicode encodings, except \c RawUnicode, will
+    look at the first two bytes in an input stream to determine the
+    byte order. The initial byte order marker will be stripped off
+    before data is read.
 
-  Note that this function should be called before any data is read to
-  or written from the stream.
+    Note that this function should be called before any data is read
+    to or written from the stream.
 
-  \sa setCodec()
+    \sa setCodec()
 */
 
 void QTextStream::setEncoding(Encoding e)
@@ -2478,12 +2494,12 @@ void QTextStream::setCodec(QTextCodec *codec)
 }
 
 /*!
-  Returns the codec actually used for this stream.
+    Returns the codec actually used for this stream.
 
-  If Unicode is automatically detected in input, a codec with \link
-  QTextCodec::name() name() \endlink "ISO-10646-UCS-2" is returned.
+    If Unicode is automatically detected on input, a codec with \link
+    QTextCodec::name() name() \endlink "ISO-10646-UCS-2" is returned.
 
-  \sa setCodec()
+    \sa setCodec()
 */
 
 QTextCodec *QTextStream::codec()
