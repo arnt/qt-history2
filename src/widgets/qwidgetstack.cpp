@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#28 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#29 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -163,16 +163,6 @@ void QWidgetStack::raiseWidget( QWidget * w )
     setBackgroundMode( NoBackground );
 
     topWidget = w;
-    if ( isVisible() ) {
-	
-	emit aboutToShow( w );
-	if ( receivers( SIGNAL(aboutToShow(int)) ) ) {
-	    // ### O(n)
-	    int i = id( w );
-	    if ( i )
-		emit aboutToShow( i );
-	}
-    }
 
     // try to move focus onto the incoming widget if focus
     // was somewhere on the outgoing widget.
@@ -245,6 +235,17 @@ void QWidgetStack::raiseWidget( QWidget * w )
     }
     if ( f )
 	f->setFocus();
+
+    if ( isVisible() ) {
+	
+	emit aboutToShow( w );
+	if ( receivers( SIGNAL(aboutToShow(int)) ) ) {
+	    // ### O(n)
+	    int i = id( w );
+	    if ( i )
+		emit aboutToShow( i );
+	}
+    }
 
     w->show();
 
