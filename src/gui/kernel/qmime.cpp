@@ -16,7 +16,8 @@
 #include "qurl.h"
 #include "qlist.h"
 #include "qstring.h"
-//#include "qmap.h"
+#include "qimageio.h"
+#include "qbuffer.h"
 
 #include "private/qobject_p.h"
 
@@ -217,11 +218,23 @@ bool QMimeData::hasHtml() const
 */
 QPixmap QMimeData::pixmap() const
 {
-    QVariant data = retrieveData("image/ppm", QVariant::Pixmap);
+    // prefered format
+    QVariant data = retrieveData("image/png", QVariant::Pixmap);
     if (data.type() == QVariant::Pixmap)
         return data.toPixmap();
-    // ### try to decode
-    return QPixmap();
+    else if (data.type() == QVariant::Image)
+        return data.toImage();
+    // try any other image formats
+    QStringList available = formats();
+    for (int i=0; i<available.size(); i++) {
+        if (available.at(i).startsWith("image/")) {
+            data = retrieveData(available.at(i), QVariant::Pixmap);
+            if (data.type() == QVariant::Pixmap)
+                return data.toPixmap();
+            else if (data.type() == QVariant::Image)
+                return data.toImage();
+        }
+    }return QPixmap();
 }
 
 /*!
@@ -230,7 +243,9 @@ QPixmap QMimeData::pixmap() const
 void QMimeData::setPixmap(const QPixmap &pixmap)
 {
     Q_D(QMimeData);
-    d->setData("image/ppm", pixmap);
+    QList<QByteArray> imageFormats = QImageIO::outputFormats();
+    for (int i=0; i<imageFormats.size(); i++)
+        d->setData("image/" + imageFormats.at(i).toLower(), pixmap);
 }
 
 /*!
@@ -238,7 +253,7 @@ void QMimeData::setPixmap(const QPixmap &pixmap)
 */
 bool QMimeData::hasPixmap() const
 {
-    return hasFormat("image/ppm");
+    return hasImage();
 }
 
 /*!
@@ -247,20 +262,35 @@ bool QMimeData::hasPixmap() const
 */
 QImage QMimeData::image() const
 {
-   // QVariant data = retrieveData("image/ppm", QVariant::Pixmap);
-    //if (data.type() == QVariant::Pixmap)
-     //   return data.toPixmap();
-    // ### try to decode
+    // prefered format
+    QVariant data = retrieveData("image/png", QVariant::Image);
+    if (data.type() == QVariant::Image)
+        return data.toImage();
+    else if (data.type() == QVariant::Pixmap)
+        return data.toPixmap();
+    // try any other image formats
+    QStringList available = formats();
+    for (int i=0; i<available.size(); i++) {
+        if (available.at(i).startsWith("image/")) {
+            data = retrieveData(available.at(i), QVariant::Image);
+            if (data.type() == QVariant::Image)
+                return data.toImage();
+            else if (data.type() == QVariant::Pixmap)
+                return data.toPixmap();
+        }
+    }
     return QImage();
 }
 
 /*!
     Sets the data in the object to the given \a image.
 */
-void QMimeData::setImage(const QImage &)
+void QMimeData::setImage(const QImage &image)
 {
-    //Q_D(QMimeData);
-    //d->setData("image/ppm", image);
+    Q_D(QMimeData);
+    QList<QByteArray> imageFormats = QImageIO::outputFormats();
+    for (int i=0; i<imageFormats.size(); i++)
+        d->setData("image/" + imageFormats.at(i).toLower(), image);
 }
 
 /*!
@@ -268,7 +298,12 @@ void QMimeData::setImage(const QImage &)
 */
 bool QMimeData::hasImage() const
 {
-    return false; //hasFormat("image/ppm");
+    QStringList available = formats();
+    for (int i=0; i<available.size(); i++) {
+        if (available.at(i).startsWith("image/"))
+            return true;
+    }
+    return false;
 }
 
 /*!
@@ -373,7 +408,12 @@ QVariant QMimeData::retrieveData(const QString &mimetype, QVariant::Type type) c
         case QVariant::String:
             return QString::fromUtf8(ba);
         case QVariant::Pixmap:
-            // #######
+        case QVariant::Image:
+            {
+                QImage image;
+                if (image.loadFromData(data.toByteArray()))
+                    return image;
+            }
             break;
         case QVariant::Color:
             return QColor(ba.data());
@@ -401,13 +441,28 @@ QVariant QMimeData::retrieveData(const QString &mimetype, QVariant::Type type) c
         result = data.toString().toUtf8();
         break;
     case QVariant::Pixmap:
-        // ######
+    case QVariant::Image: {
+        QImage image;
+        if (QVariant::Pixmap)
+            image = data.toPixmap();
+        else
+            image = data.toImage();
+        QString format;
+        if (mimetype.startsWith("image/"))
+            format = mimetype.mid(6);
+        else
+            format = "png";
+        QBuffer buf(&result);
+        buf.open(QBuffer::WriteOnly);
+        image.save(&buf, format);
         break;
+    }
     case QVariant::Color:
         result = data.toColor().name().toLatin1();
         break;
     case QVariant::Url:
         result = data.toUrl().toEncoded();
+        break;
     case QVariant::List: {
         // has to be list of URLs
         QList<QCoreVariant> list = data.toList();
@@ -417,6 +472,7 @@ QVariant QMimeData::retrieveData(const QString &mimetype, QVariant::Type type) c
                 result += "\r\n";
             }
         }
+        break;
     }
     default:
         break;
