@@ -181,7 +181,7 @@ bool FormFile::save( bool withMsgBox, bool ignoreModified )
 	return TRUE;
     if ( ed )
 	ed->save();
-    else
+    else if ( !ignoreModified )
 	loadCode();
 
     if ( isModified( WFormWindow ) ) {
@@ -294,7 +294,7 @@ bool FormFile::saveAs( bool ignoreModified )
     if ( ed && formWindow() )
 	ed->setCaption( tr( "Edit %1" ).arg( formWindow()->name() ) );
     setModified( TRUE );
-    return save( ignoreModified );
+    return save( TRUE, ignoreModified );
 }
 
 bool FormFile::close()
@@ -486,7 +486,7 @@ void FormFile::createFormCode()
 void FormFile::load()
 {
     showFormWindow();
-    loadCode();
+    code();
 }
 
 bool FormFile::loadCode()
