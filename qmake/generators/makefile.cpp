@@ -109,7 +109,7 @@ MakefileGenerator::generateMocList(QString fn_target)
 			if(*(big_buffer + x) == 't' || *(big_buffer + x) == 'q') { //ignore
 			    if(total_size_read >= (x + 20)) {
 				if(!strncmp(big_buffer + x + 1, "make ignore Q_OBJECT", 20)) {
-				    debug_msg(2, "Mocgen: %s:%d Found \"qmake ignore Q_OBJECT\"", 
+				    debug_msg(2, "Mocgen: %s:%d Found \"qmake ignore Q_OBJECT\"",
 					      fn_target.latin1(), line_count);
 				    x += 20;
 				    ignore_qobject = !ignore_qobject;
@@ -128,7 +128,7 @@ MakefileGenerator::generateMocList(QString fn_target)
 	    }
 	}
 #define SYMBOL_CHAR(x) ((x >= 'a' && x <= 'z') || (x >= 'A' && x <= 'Z') || \
-			(x <= '0' && x >= '9') || x == '_') 
+			(x <= '0' && x >= '9') || x == '_')
 	bool interesting = *(big_buffer+x) == 'Q' && (!strncmp(big_buffer+x, "Q_OBJECT", OBJ_LEN) ||
 						      !strncmp(big_buffer+x, "Q_DISPATCH", DIS_LEN));
 	if(interesting) {
@@ -166,7 +166,7 @@ MakefileGenerator::generateMocList(QString fn_target)
 		    mocFile += Option::moc_mod + fn_target.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::cpp_ext;
 		    project->variables()["_HDRMOC"].append(mocFile);
 		}
-		
+
 		if(!mocFile.isEmpty()) {
 		    mocFile = Option::fixPathToTargetOS(mocFile);
 		    mocablesToMOC[cleanFilePath(fn_target)] = mocFile;
@@ -177,7 +177,7 @@ MakefileGenerator::generateMocList(QString fn_target)
 	}
 	    while(x < total_size_read && SYMBOL_CHAR(*(big_buffer+x)))
 		x++;
-	if(*(big_buffer+x) == '\n') 
+	if(*(big_buffer+x) == '\n')
 	    line_count++;
     }
 #undef OBJ_LEN
@@ -991,7 +991,7 @@ QString MakefileGenerator::build_args()
 	if(!Option::mkfile::do_cache)
 	    ret += " -nocache";
 	if(!Option::mkfile::do_deps)
-	    ret += " -nodeps";
+	    ret += " -nodepend";
 	if(!Option::mkfile::do_dep_heuristics)
 	    ret += " -nodependheuristics";
 
