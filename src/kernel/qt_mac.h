@@ -1,11 +1,18 @@
 #ifndef QT_MACH_H
 
-// FIXME: These mac includes can be replaced by a single Carbon.h include
-#include <Fonts.h>
-#include <MacTypes.h>
-#include <ToolUtils.h>
-#include <MacWindows.h>
-#include <Timer.h>
+#if defined(DEBUG)
+#    define QTDEBUG
+#    undef DEBUG
+#    define DEBUG 0
+#endif
+
+#include "/System/Library/Frameworks/Carbon.framework/Headers/Carbon.h"
+#include "/System/Library/Frameworks/QuickTime.framework/Headers/Movies.h"
+
+#if defined (QTDEBUG)
+#    undef DEBUG
+#    define DEBUG
+#endif
 
 #endif
 
