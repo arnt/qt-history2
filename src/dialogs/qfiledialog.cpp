@@ -4378,13 +4378,20 @@ void QFileDialog::done( int i )
 
   \brief the file dialog's view mode
 
+  If you set the view mode to be \e Detail, then you will see
+  the file's details, such as the size of the file and the date
+  the file was last modified alongside the file.
+
+  If you set the view mode to be \e List, then you will just
+  see a list of the files and folders.
+
   See \l QFileDialog::ViewMode
 */
-// ### more documentation would be nice, I guess
+
 
 QFileDialog::ViewMode QFileDialog::viewMode() const
 {
-    if ( d->moreFiles->isVisible() )
+    if ( detailViewMode )
 	return Detail;
     else
 	return List;
@@ -4393,10 +4400,12 @@ QFileDialog::ViewMode QFileDialog::viewMode() const
 void QFileDialog::setViewMode( ViewMode m )
 {
     if ( m == Detail ) {
+	detailViewMode = TRUE;
 	d->stack->raiseWidget( files );
 	d->detailView->setOn( TRUE );
 	d->mcView->setOn( FALSE );
     } else if ( m == List ) {
+	detailViewMode = FALSE;
 	d->stack->raiseWidget( d->moreFiles );
 	d->detailView->setOn( FALSE );
 	d->mcView->setOn( TRUE );
