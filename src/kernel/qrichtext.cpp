@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#37 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -1233,10 +1233,10 @@ void QTextBox::setWidth( QPainter* p, int newWidth, bool forceResize )
 	QTextRow* old = oldRows.first();
 	height = 0;
 	h /= ncols;
-	for (int col = 0; col < ncols; col++) {
+	for (int colnum = 0; colnum < ncols; colnum++) {
 	    int colheight = margintop;
 	    for (; row && colheight < h; row = rows.next()) {
-		row->x = col  * colwidth + marginleft + label_offset;
+		row->x = colnum  * colwidth + marginleft + label_offset;
 		row->y = colheight;
 		
 		colheight += row->height;
