@@ -15,6 +15,8 @@ unix:KERNEL_H	= kernel
 unix:TOOLS_H	= tools
 unix:WIDGETS_H	= widgets
 
+DEPENDPATH	= $(QTDIR)/src/$$DIALOGS_H:$(QTDIR)/src/$$KERNEL_H:$(QTDIR)/src/$$TOOLS_H:$(QTDIR)/src/$$WIDGETS_H
+
 HEADERS		= $$DIALOGS_H/qfiledlg.h \
 		  $$DIALOGS_H/qmsgbox.h \
 		  $$DIALOGS_H/qprogdlg.h \
