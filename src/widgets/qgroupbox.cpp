@@ -296,7 +296,7 @@ void QGroupBox::paintEvent( QPaintEvent *event )
     if ( lenvisible ) {					// draw title
 	QFontMetrics fm = paint.fontMetrics();
 	int h = fm.height();
-	int tw = fm.width( str, lenvisible ) + 2*fm.width(QChar(' '));
+	int tw = fm.width( str, lenvisible ) + fm.width(QChar(' '));
 	int x;
 	int marg = bFlat ? 0 : 8;
 	if ( align & AlignHCenter )		// center alignment
@@ -623,7 +623,7 @@ void QGroupBox::calculateFrame()
     if ( lenvisible ) { // do we have a label?
 	QFontMetrics fm = fontMetrics();
 	while ( lenvisible ) {
-	    int tw = fm.width( str, lenvisible ) + 2*fm.width(QChar(' '));
+	    int tw = fm.width( str, lenvisible ) + 4*fm.width(QChar(' '));
 	    if ( tw < width() )
 		break;
 	    lenvisible--;
