@@ -964,6 +964,43 @@ fi
 #unix
 unixtests=$relpath/config.tests/unix
 
+# Auto-detect SQL-modules support
+if echo $MODULES | grep sql >/dev/null
+then
+    SQL_AVAIL=`find $QTDIR/plugins/src/sqldrivers/ -type d -maxdepth 1 -not -name ".*" -printf "%f " 2>/dev/null`
+    MYSQL_REQ="-llibmysqlclient.* mysql.h"
+    OCI_REQ="-llibclntsh.* -llibwtc8.* oci.h"
+    PSQL_REQ="-llibpq.* postgres.h libpq/libpq-fs.h catalog/pg_type.h libpq-fe.h"
+    ODBC_REQ="-llibodbc.* sql.h sqlext.h"
+    TDS_REQ="-llibsybdb.* sybfront.h sybdb.h"
+    for _SQLDR in $SQL_AVAIL
+    do
+	case $_SQLDR in
+	mysql)
+	    $unixtests/checkavail "MySQL" $VERBOSE $MYSQL_REQ $L_FLAGS $I_FLAGS && SQL_AUTODETECTED="$SQL_AUTODETECTED mysql"
+	;;
+	psql)
+	    $unixtests/checkavail "PostgreSQL" $VERBOSE $PSQL_REQ $L_FLAGS $I_FLAGS && SQL_AUTODETECTED="$SQL_AUTODETECTED psql"
+	    ;;
+	odbc)
+	    $unixtests/checkavail "ODBC" $VERBOSE $ODBC_REQ $L_FLAGS $I_FLAGS && SQL_AUTODETECTED="$SQL_AUTODETECTED odbc"
+	    ;;
+	oci)
+	    $unixtests/checkavail "OCI" $VERBOSE $OCI_REQ $L_FLAGS $I_FLAGS && SQL_AUTODETECTED="$SQL_AUTODETECTED oci"
+	    ;;
+	tds)
+	    $unixtests/checkavail "TDS" $VERBOSE $TDS_REQ $L_FLAGS $I_FLAGS && SQL_AUTODETECTED="$SQL_AUTODETECTED tds"
+	    ;;
+	*)
+	    if [ "x$VERBOSE" = "xyes" ]
+	    then
+		echo "unknown SQL driver: $_SQLDR"
+	    fi
+	    ;;
+	esac
+    done
+fi
+
 #x11
 if [ "$X11_PLATFORM" = "yes" ]
 then
@@ -1011,42 +1048,6 @@ then
     then
 	XINERAMA=yes
 	$x11tests/xinerama.test $XQMAKESPEC $VERBOSE && XINERAMA=no
-    fi
-    # Auto-detect SQL-modules support
-    if echo $MODULES | grep sql >/dev/null
-    then
-	SQL_AVAIL=`find $QTDIR/plugins/src/sqldrivers/ -type d -maxdepth 1 -not -name ".*" -printf "%f " 2>/dev/null`
-	MYSQL_REQ="-llibmysqlclient.* mysql.h"
-	OCI_REQ="-llibclntsh.* -llibwtc8.* oci.h"
-	PSQL_REQ="-llibpq.* postgres.h libpq/libpq-fs.h catalog/pg_type.h libpq-fe.h"
-	ODBC_REQ="-llibodbc.* sql.h sqlext.h"
-	TDS_REQ="-llibsybdb.* sybfront.h sybdb.h"
-	for _SQLDR in $SQL_AVAIL
-	do
-	    case $_SQLDR in
-	    mysql)
-		$unixtests/checkavail "MySQL" $VERBOSE $MYSQL_REQ $L_FLAGS $I_FLAGS && SQL_AUTODETECTED="$SQL_AUTODETECTED mysql"
-		;;
-	    psql)
-		$unixtests/checkavail "PostgreSQL" $VERBOSE $PSQL_REQ $L_FLAGS $I_FLAGS && SQL_AUTODETECTED="$SQL_AUTODETECTED psql"
-		;;
-	    odbc)
-		$unixtests/checkavail "ODBC" $VERBOSE $ODBC_REQ $L_FLAGS $I_FLAGS && SQL_AUTODETECTED="$SQL_AUTODETECTED odbc"
-		;;
-	    oci)
-		$unixtests/checkavail "OCI" $VERBOSE $OCI_REQ $L_FLAGS $I_FLAGS && SQL_AUTODETECTED="$SQL_AUTODETECTED oci"
-		;;
-	    tds)
-		$unixtests/checkavail "TDS" $VERBOSE $TDS_REQ $L_FLAGS $I_FLAGS && SQL_AUTODETECTED="$SQL_AUTODETECTED tds"
-		;;
-	    *)
-		if [ "x$VERBOSE" = "xyes" ]
-		then
-		    echo "unknown SQL driver: $_SQLDR"
-		fi
-		;;
-	    esac
-	done
     fi
     # Auto-detect Tablet support (currenlty only in IRIX)
     case $PLATFORM in
