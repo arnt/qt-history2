@@ -711,7 +711,6 @@ bool QSvgDevice::play( const QDomNode &node )
 	int x1, y1, x2, y2, rx, ry, w, h;
 	ElementType t = (*qSvgTypeMap)[ node.nodeName() ];
 	switch ( t ) {
-	case AnchorElement:
 	case CommentElement:
 	    // ignore
 	    break;
@@ -784,6 +783,7 @@ bool QSvgDevice::play( const QDomNode &node )
 	    break;
 	case SvgElement:
 	case GroupElement:
+	case AnchorElement:
 	    {
 		QDomNode child = node.firstChild();
 		while ( !child.isNull() ) {
@@ -960,9 +960,9 @@ double QSvgDevice::parseLen( const QString &str, bool *ok, bool horiz ) const
     if ( !u.isEmpty() && u != "px" ) {
 	QPaintDeviceMetrics m( pt->device() );
 	if ( u == "em" )
-	    d *= pt->font().pointSizeFloat(); // ### pixel size
+	    d *= pt->font().pixelSize();
 	else if ( u == "ex" )
-	    d *= 0.5 * pt->font().pointSizeFloat(); // ### not precise
+	    d *= 0.5 * pt->font().pixelSize();
 	else if ( u == "%" )
 	    d *= (horiz ? pt->window().width() : pt->window().height())/100.0;
 	else if ( u == "cm" )
@@ -1036,8 +1036,7 @@ void QSvgDevice::setStyleProperty( const QString &prop, const QString &val,
 	else
 	    pt->setBrush( parseColor( val ) );
     } else if ( prop == "font-size" ) {
-	// ### pixel size seems more logical but produces bad results
-	font->setPointSizeFloat( float(parseLen( val )) );
+	font->setPixelSizeFloat( float(parseLen( val )) );
     } else if ( prop == "font-family" ) {
 	font->setFamily( val );
     } else if ( prop == "text-anchor" ) {
