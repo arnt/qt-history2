@@ -357,8 +357,6 @@ public:
     QComboBoxPrivate(): ed( 0 ), usingLBox( FALSE ), pop( 0 ), lBox( 0 )
     {
 	duplicatesEnabled = TRUE;
-	// ####
-	//q->setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
     }
 
     inline bool usingListBox() const { return usingLBox; }
@@ -466,6 +464,8 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
     : QWidget(*new QComboBoxPrivate, parent, 0)
 {
     setObjectName(name);
+    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
+
     if ( style().styleHint(QStyle::SH_ComboBox_Popup, this) ||
 	 style().styleHint(QStyle::SH_GUIStyle) == Qt::MotifStyle ) {
 	d->setPopupMenu( new QComboBoxPopup( this, "in-combo" ) );
@@ -514,6 +514,7 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
 {
     setObjectName(name);
     d->setUpListBox();
+    setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
 
     if(d->popup() && style().styleHint(QStyle::SH_ComboBox_Popup, this))
 	d->popup()->setItemChecked(d->current, FALSE);
