@@ -11,7 +11,7 @@ class Q_GUI_EXPORT QItemDelegate : public QAbstractItemDelegate
     Q_OBJECT
 public:
     QItemDelegate(QAbstractItemModel *model, QObject *parent = 0);
-    virtual ~QItemDelegate();
+    ~QItemDelegate();
 
     // painting
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
@@ -36,7 +36,8 @@ protected:
     void drawDecoration(QPainter *painter, const QStyleOptionViewItem &option, const QRect &rect,
                         const QPixmap &pixmap) const;
     void drawFocus(QPainter *painter, const QStyleOptionViewItem &option, const QRect &rect) const;
-    void doLayout(const QStyleOptionViewItem &option, QRect *iconRect, QRect *textRect, bool hint) const;
+    void doLayout(const QStyleOptionViewItem &option, QRect *iconRect, QRect *textRect,
+                  bool hint) const;
     void doAlignment(const QRect &boundingRect, int alignment, QRect *rect) const;
     QPixmap decoration(const QStyleOptionViewItem &option, const QVariant &variant) const;
 };

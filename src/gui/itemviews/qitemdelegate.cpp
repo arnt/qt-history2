@@ -1,5 +1,5 @@
 #include "qitemdelegate.h"
-#include <qabstractitemview.h>
+#include <qabstractitemmodel.h>
 #include <qapplication.h>
 #include <qlineedit.h>
 #include <qpainter.h>
@@ -66,22 +66,12 @@ QItemDelegate::~QItemDelegate()
 void QItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
                           const QModelIndex &index) const
 {
-#if 0
-    static unsigned char r = 0;
-    static unsigned char g = 0;
-    static unsigned char b = 0;
-    painter->fillRect(option.rect, QColor(r, g, b));
-    r -= 10;
-    g += 20;
-    b += 10;
-    painter->drawRect(options.rect);
-#endif
     static QPoint pt(0, 0);
     static QSize sz(border * 2, border * 2);
     QVariant variant = model()->data(index, QAbstractItemModel::Role_Decoration);
     QPixmap pixmap = decoration(option, variant);
     QString text = model()->data(index, QAbstractItemModel::Role_Display).toString();
-#if 1
+    
     QRect pixmapRect = pixmap.rect();
     QRect textRect(pt, painter->fontMetrics().size(0, text) + sz);
     doLayout(option, &pixmapRect, &textRect, false);
@@ -89,7 +79,6 @@ void QItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
     drawDecoration(painter, option, pixmapRect, pixmap);
     drawDisplay(painter, option, textRect, text);
     drawFocus(painter, option, textRect);
-#endif
 }
 
 QSize QItemDelegate::sizeHint(const QFontMetrics &fontMetrics, const QStyleOptionViewItem &option,
