@@ -1220,7 +1220,7 @@ QString QHttpRequestHeader::toString() const
 
     The readyRead() signal tells you that there is data ready to be
     read. The amount of data can then be queried with the
-    bytesAvailable() function and it can be read with the readBlock()
+    bytesAvailable() function and it can be read with the read()
     or readAll() functions.
 
     If an error occurs during the execution of one of the commands in
@@ -1394,14 +1394,14 @@ QHttp::~QHttp()
 
     The response header is passed in \a resp.
 
-    You can read the data with the readAll() or readBlock() functions
+    You can read the data with the readAll() or read() functions
 
     This signal is useful if you want to process the data in chunks as
     soon as it becomes available. If you are only interested in the
     complete data, just connect to the requestFinished() signal and
     read the data then instead.
 
-    \sa get() post() request() readAll() readBlock() bytesAvailable()
+    \sa get() post() request() readAll() read() bytesAvailable()
 */
 
 /*!
@@ -1500,7 +1500,7 @@ void QHttp::abort()
     Returns the number of bytes that can be read from the response
     content at the moment.
 
-    \sa get() post() request() readyRead() readBlock() readAll()
+    \sa get() post() request() readyRead() read() readAll()
 */
 Q_ULONG QHttp::bytesAvailable() const
 {
@@ -1516,10 +1516,10 @@ Q_ULONG QHttp::bytesAvailable() const
 
     \sa get() post() request() readyRead() bytesAvailable() readAll()
 */
-Q_LONG QHttp::readBlock(char *data, Q_ULONG maxlen)
+Q_LLONG QHttp::read(char *data, Q_ULONG maxlen)
 {
     if (data == 0 && maxlen != 0) {
-        qWarning("QHttp::readBlock: Null pointer error");
+        qWarning("QHttp::read: Null pointer error");
         return -1;
     }
     if (maxlen >= d->rba.size())
@@ -1528,7 +1528,7 @@ Q_LONG QHttp::readBlock(char *data, Q_ULONG maxlen)
 
     d->bytesDone += maxlen;
 #if defined(QHTTP_DEBUG)
-    qDebug("QHttp::readBlock(): read %d bytes (%d bytes done)", (int)maxlen, d->bytesDone);
+    qDebug("QHttp::read(): read %d bytes (%d bytes done)", (int)maxlen, d->bytesDone);
 #endif
     return maxlen;
 }
@@ -1536,15 +1536,15 @@ Q_LONG QHttp::readBlock(char *data, Q_ULONG maxlen)
 /*!
     Reads all the bytes from the response content and returns them.
 
-    \sa get() post() request() readyRead() bytesAvailable() readBlock()
+    \sa get() post() request() readyRead() bytesAvailable() read()
 */
 QByteArray QHttp::readAll()
 {
     Q_ULONG avail = bytesAvailable();
     QByteArray tmp;
     tmp.resize(avail);
-    Q_LONG read = readBlock(tmp.data(), avail);
-    tmp.resize(read);
+    Q_LONG got = read(tmp.data(), avail);
+    tmp.resize(got);
     return tmp;
 }
 
@@ -2041,7 +2041,7 @@ void QHttp::slotConnected()
 
     QString str = d->header.toString();
     d->bytesTotal = str.length();
-    d->socket->writeBlock(str.latin1(), d->bytesTotal);
+    d->socket->write(str.latin1(), d->bytesTotal);
 #if defined(QHTTP_DEBUG)
     qDebug("QHttp: write request header:\n---{\n%s}---", str.latin1());
 #endif
@@ -2050,7 +2050,7 @@ void QHttp::slotConnected()
         d->bytesTotal += d->postDevice->size();
     } else {
         d->bytesTotal += d->buffer.size();
-        d->socket->writeBlock(d->buffer, d->buffer.size());
+        d->socket->write(d->buffer, d->buffer.size());
         d->buffer = QByteArray(); // save memory
     }
 }
@@ -2089,7 +2089,7 @@ void QHttp::slotBytesWritten(int written)
         QByteArray arr;
         arr.resize(max);
 
-        int n = d->postDevice->readBlock(arr.data(), max);
+        int n = d->postDevice->read(arr.data(), max);
         if (n != max) {
             qWarning("Could not read enough bytes from the device");
             closeConn();
@@ -2099,7 +2099,7 @@ void QHttp::slotBytesWritten(int written)
             d->postDevice = 0;
         }
 
-        d->socket->writeBlock(arr, max);
+        d->socket->write(arr, max);
     }
 }
 
@@ -2214,7 +2214,7 @@ void QHttp::slotReadyRead()
                         arr = new QByteArray;
                     uint oldArrSize = arr->size();
                     arr->resize(oldArrSize + toRead);
-                    Q_LONG read = d->socket->readBlock(arr->data()+oldArrSize, toRead);
+                    Q_LONG read = d->socket->read(arr->data()+oldArrSize, toRead);
                     arr->resize(oldArrSize + read);
 
                     d->chunkedSize -= read;
@@ -2222,7 +2222,7 @@ void QHttp::slotReadyRead()
                     if (d->chunkedSize == 0 && n - read >= 2) {
                         // read terminating CRLF
                         char tmp[2];
-                        d->socket->readBlock(tmp, 2);
+                        d->socket->read(tmp, 2);
                         if (tmp[0] != '\r' || tmp[1] != '\n') {
                             finishedWithError(tr("Invalid HTTP chunked body"), WrongContentLength);
                             closeConn();
@@ -2235,7 +2235,7 @@ void QHttp::slotReadyRead()
                 if (n > 0) {
                     arr = new QByteArray;
                     arr->resize(n);
-                    Q_LONG read = d->socket->readBlock(arr->data(), n);
+                    Q_LONG read = d->socket->read(arr->data(), n);
                     arr->resize(read);
                 }
                 if (d->bytesDone + bytesAvailable() + n == d->response.contentLength())
@@ -2249,7 +2249,7 @@ void QHttp::slotReadyRead()
             if (arr) {
                 n = arr->size();
                 if (d->toDevice) {
-                    d->toDevice->writeBlock(*arr, n);
+                    d->toDevice->write(*arr, n);
                     delete arr;
                     d->bytesDone += n;
 #if defined(QHTTP_DEBUG)

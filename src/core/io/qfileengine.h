@@ -14,22 +14,53 @@
 #ifndef QFILEENGINE_H
 #define QFILEENGINE_H
 
-#include "qioengine.h"
 #include "qdir.h"
 
 class QFileEnginePrivate;
-class Q_CORE_EXPORT QFileEngine : public QIOEngine
+class Q_CORE_EXPORT QFileEngine
 {
+protected:
+    QFileEnginePrivate *d_ptr;
+private:
     Q_DECLARE_PRIVATE(QFileEngine)
 public:
+
     virtual ~QFileEngine();
 
     static QFileEngine *createFileEngine(const QString &file);
     virtual void setFileName(const QString &file) = 0;
 
+    virtual bool open(int flags) = 0;
+    virtual bool close() = 0;
+    virtual void flush() = 0;
+
+    virtual QIODevice::Offset size() const = 0;
+    virtual QIODevice::Offset at() const = 0;
+    virtual bool seek(QIODevice::Offset off) = 0;
+
+    virtual bool isSequential() const = 0;
+
+    virtual uchar *map(Q_LLONG off, Q_LLONG len);
+    virtual void unmap(uchar *data);
+
+    virtual Q_LLONG read(char *data, Q_LLONG maxlen) = 0;
+    virtual Q_LLONG write(const char *data, Q_LLONG len) = 0;
+
+    virtual QIODevice::Status errorStatus() const;
+    virtual QString errorString() const;
+
     virtual bool remove() = 0;
     virtual bool rename(const QString &newName) = 0;
     virtual bool link(const QString &newName) = 0;
+
+    enum Type {
+        File,
+        Resource,
+
+        User = 50,                                // first user type id
+        MaxUser = 100                                // last user type id
+    };
+    virtual Type type() const = 0;
 
     virtual bool mkdir(const QString &dirName, QDir::Recursion recurse) const = 0;
     virtual bool rmdir(const QString &dirName, QDir::Recursion recurse) const = 0;
@@ -113,20 +144,20 @@ public:
     virtual void flush();
     virtual QIODevice::Offset size() const;
     virtual QIODevice::Offset at() const;
-    virtual bool atEnd() const;
     virtual bool seek(QIODevice::Offset);
-    virtual int ungetch(int);
-    virtual Q_LONG readBlock(char *data, Q_LONG maxlen);
-    virtual Q_LONG writeBlock(const char *data, Q_LONG len);
+    virtual Q_LLONG read(char *data, Q_LLONG maxlen);
+    virtual Q_LLONG write(const char *data, Q_LLONG len);
     virtual QString errorString() const;
     virtual QIODevice::Status errorStatus() const;
-    virtual Type type() const;
-
+    
     virtual bool remove();
     virtual bool rename(const QString &newName);
     virtual bool link(const QString &newName);
 
     virtual bool isSequential() const;
+
+    virtual uchar *map(Q_LLONG off, Q_LLONG len);
+    virtual void unmap(uchar *data);
 
     virtual bool mkdir(const QString &dirName, QDir::Recursion recurse) const;
     virtual bool rmdir(const QString &dirName, QDir::Recursion recurse) const;
@@ -149,6 +180,8 @@ public:
     virtual QString owner(FileOwner) const;
 
     virtual QDateTime fileTime(FileTime time) const;
+
+    virtual Type type() const;
 
     //FS only!!
     bool open(int flags, int fd);

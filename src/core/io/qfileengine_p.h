@@ -16,13 +16,14 @@
 
 #include <qplatformdefs.h>
 #include <qiodevice.h>
-#include <qioengine.h>
-#include <private/qioengine_p.h>
+
+extern QString qt_errorstr(int errorCode); //qglobal.cpp
 
 class QFileEngine;
-class QFileEnginePrivate : public QIOEnginePrivate
+class QFileEnginePrivate
 {
 protected:
+    QFileEngine *q_ptr;
     Q_DECLARE_PUBLIC(QFileEngine)
 private:
     //just in case I need this later --Sam

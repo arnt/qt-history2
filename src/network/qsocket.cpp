@@ -18,7 +18,6 @@
 #include "qsocketdevice.h"
 #include "private/qsocketdevice_p.h"
 #include "private/qinternal_p.h"
-#include "private/qioengine_p.h"
 #include "qsignal.h"
 #include "qhostaddress.h"
 
@@ -66,13 +65,13 @@ static void hexDump(const char * data, int len)
     The above class could be used in the following way(s):
 
         buffer.open(IO_WriteOnly | IO_Append);
-        buffer.writeBlock(a); // a = QByteArray
+        buffer.write(a); // a = QByteArray
         buffer.close();
 
         QByteArray b;
         b.resize(buffer.size());
         buffer.open(IO_ReadOnly);
-        buffer.readBlock(b.data(), b.size());
+        buffer.read(b.data(), b.size());
         buffer.close();
 
     But would also be useable with QDataStream (via QIODevice) with:
@@ -105,9 +104,6 @@ static void hexDump(const char * data, int len)
     operation with QDataStream. Based on the implementation of QBuffer, it
     does not appear well suited for this kind of operation.
 */
-
-// Private class for QSocket
-class QSocketEngine;
 
 class QSocketPrivate : public QIODevicePrivate
 {
@@ -143,43 +139,16 @@ public:
     QIODevice::Offset wsize;                        // write total buf size
     QIODevice::Offset windex;                       // write index
     bool sn_read_alreadyCalled;                     // needed to avoid recursion
-    mutable QSocketEngine *socketEngine;
 };
 
-class QSocketEngine : public QIOEngine
+Q_LLONG QSocket::read(char *data, Q_LLONG maxlen)
 {
-public:
-    QSocketEngine(QSocket *s) : socket(s) { }
-    virtual bool open(int mode);
-    virtual bool close();
-    virtual void flush();
-    virtual QIODevice::Offset size() const;
-    virtual QIODevice::Offset at() const;
-    virtual bool seek(QIODevice::Offset);
-    virtual bool atEnd() const;
-    virtual bool isSequential() const;
-
-    virtual Q_LONG readBlock(char *data, Q_LONG maxlen);
-    virtual Q_LONG writeBlock(const char *data, Q_LONG len);
-
-    virtual int getch();
-    virtual int putch(int);
-    virtual int ungetch(int);
-
-    virtual Type type() const;
-
-protected:
-    mutable QSocket *socket;
-};
-
-Q_LONG QSocketEngine::readBlock(char *data, Q_LONG maxlen)
-{
-    if (maxlen >= socket->d->rba.size())
-        maxlen = socket->d->rba.size();
+    if (maxlen >= d->rba.size())
+        maxlen = d->rba.size();
 #if defined(QSOCKET_DEBUG)
-    qDebug("QSocket: readBlock %d bytes", (int)maxlen);
+    qDebug("QSocket: read %d bytes", (int)maxlen);
 #endif
-    socket->d->rba.consumeBytes(maxlen, data);
+    d->rba.consumeBytes(maxlen, data);
 #if defined(QSOCKET_EXTRA_DEBUG)
     fprintf(stderr, "     ");
     hexDump(data, maxlen);
@@ -191,26 +160,26 @@ Q_LONG QSocketEngine::readBlock(char *data, Q_LONG maxlen)
     // readyRead() signal since this might cause a bad recursive behavior.
     // We can test for this condition by looking at the
     // sn_read_alreadyCalled flag.
-    if (socket->d->rsn && !socket->d->sn_read_alreadyCalled)
-        socket->d->rsn->setEnabled(true);
+    if (d->rsn && !d->sn_read_alreadyCalled)
+        d->rsn->setEnabled(true);
     return maxlen;
 }
 
-Q_LONG QSocketEngine::writeBlock(const char *data, Q_LONG len)
+Q_LLONG QSocket::write(const char *data, Q_LLONG len)
 {
-    if (socket->d->state == QSocket::Closing) {
-        qWarning("QSocket::writeBlock: Cannot write, socket is closing");
+    if (d->state == QSocket::Closing) {
+        qWarning("QSocket::write: Cannot write, socket is closing");
     }
-    if (len == 0 || socket->d->state == QSocket::Closing || socket->d->state == QSocket::Idle)
+    if (len == 0 || d->state == QSocket::Closing || d->state == QSocket::Idle)
         return 0;
-    QByteArray *a = socket->d->wba.isEmpty() ? 0 : socket->d->wba.last();
+    QByteArray *a = d->wba.isEmpty() ? 0 : d->wba.last();
 
     // next bit is sensitive.  if we're writing really small chunks,
     // try to buffer up since system calls are expensive, and nagle's
     // algorithm is even more expensive.  but if anything even
     // remotely large is being written, try to issue a write at once.
 
-    bool writeNow = (socket->d->wsize + len >= 1400 || len > 512);
+    bool writeNow = (d->wsize + len >= 1400 || len > 512);
 
     if (a && a->size() + len < 128) {
         // small buffer, resize
@@ -222,102 +191,55 @@ Q_LONG QSocketEngine::writeBlock(const char *data, Q_LONG len)
         a = new QByteArray;
         a->resize(len);
         memcpy(a->data(), data, len);
-        socket->d->wba.append(a);
+        d->wba.append(a);
     }
-    socket->d->wsize += len;
+    d->wsize += len;
     if (writeNow)
         flush();
-    else if (socket->d->wsn)
-        socket->d->wsn->setEnabled(true);
+    else if (d->wsn)
+        d->wsn->setEnabled(true);
 #if defined(QSOCKET_DEBUG)
-    qDebug("QSocket(): writeBlock %d bytes", (int)len);
+    qDebug("QSocket(): write %d bytes", (int)len);
 #endif
     return len;
 }
 
-int QSocketEngine::getch()
+void QSocket::close()
 {
-    if (socket->d->rba.size() > 0) {
-        uchar c;
-        socket->d->rba.consumeBytes(1, (char*)&c);
-        // After we read data from our internal buffer, if we use the
-        // setReadBufferSize() to limit our buffer, we might now be able to
-        // read more data in our buffer. So enable the read socket notifier,
-        // but do this only if we are not in a slot connected to the
-        // readyRead() signal since this might cause a bad recursive behavior.
-        // We can test for this condition by looking at the
-        // sn_read_alreadyCalled flag.
-        if (socket->d->rsn && !socket->d->sn_read_alreadyCalled)
-            socket->d->rsn->setEnabled(true);
-        return c;
-    }
-    return -1;
-}
-
-QIOEngine::Type QSocketEngine::type() const
-{
-    return QIOEngine::Socket;
-}
-
-bool QSocketEngine::isSequential() const
-{
-    return true;
-}
-
-int QSocketEngine::putch(int ch)
-{
-    char buf[2];
-    buf[0] = ch;
-    return writeBlock(buf, 1) == 1 ? ch : -1;
-}
-
-int QSocketEngine::ungetch(int ch)
-{
-    return socket->d->rba.ungetch(ch);
-}
-
-bool QSocketEngine::open(int)
-{
-    return true;
-}
-
-bool QSocketEngine::close()
-{
-    if (socket->d->state == QSocket::Idle)        // already closed
-        return false;
-    if (socket->d->state == QSocket::Closing)
-        return false;
-    if (!socket->d->rsn || !socket->d->wsn)
-        return false;
+    if (d->state == QSocket::Idle)        // already closed
+        return;
+    if (d->state == QSocket::Closing)
+        return;
+    if (!d->rsn || !d->wsn)
+        return;
 #if defined(QSOCKET_DEBUG)
     qDebug("QSocket (%s): close socket", socket->objectName().latin1());
 #endif
-    if (socket->d->socket && socket->d->wsize) {                // there's data to be written
-        socket->d->state = QSocket::Closing;
-        if (socket->d->rsn)
-            socket->d->rsn->setEnabled(false);
-        if (socket->d->wsn)
-            socket->d->wsn->setEnabled(true);
-        socket->d->rba.clear();                                // clear incoming data
-        return false;
+    if (d->socket && d->wsize) {                // there's data to be written
+        d->state = QSocket::Closing;
+        if (d->rsn)
+            d->rsn->setEnabled(false);
+        if (d->wsn)
+            d->wsn->setEnabled(true);
+        d->rba.clear();                                // clear incoming data
+        return;
     }
-    socket->d->close();
-    socket->d->state = QSocket::Idle;
-    return true;
+    d->close();
+    d->state = QSocket::Idle;
 }
 
-void QSocketEngine::flush()
+void QSocket::flush()
 {
     bool osBufferFull = false;
     int consumed = 0;
-    while (!osBufferFull && socket->d->state >= QSocket::Connecting && socket->d->wsize > 0) {
+    while (!osBufferFull && d->state >= QSocket::Connecting && d->wsize > 0) {
 #if defined(QSOCKET_DEBUG)
         qDebug("QSocket(): flush: Write data to the socket");
 #endif
-        QByteArray *a = socket->d->wba.first();
+        QByteArray *a = d->wba.first();
         int nwritten;
         int i = 0;
-        if ((int)a->size() - socket->d->windex < 1460) {
+        if ((int)a->size() - d->windex < 1460) {
             // Concatenate many smaller blocks.  the first may be
             // partial, but each subsequent block is copied entirely
             // or not at all.  the sizes here are picked so that we
@@ -329,10 +251,10 @@ void QSocketEngine::flush()
             // should apply only when really appropriate.
             QByteArray out;
             out.resize(65536);
-            int j = socket->d->windex;
+            int j = d->windex;
             int s = a->size() - j;
             int n = 0;
-            while (n < socket->d->wba.count() && i+s < (int)out.size()) {
+            while (n < d->wba.count() && i+s < (int)out.size()) {
 #ifdef QSOCKET_EXTRA_DEBUG
                 fprintf(stderr, "small block #%d: ", n);
                 hexDump(a->constData()+j, s);
@@ -341,28 +263,28 @@ void QSocketEngine::flush()
                 j = 0;
                 i += s;
                 ++n;
-                a = n >= socket->d->wba.count() ? 0 : socket->d->wba.at(n);
+                a = n >= d->wba.count() ? 0 : d->wba.at(n);
                 s = a ? a->size() : 0;
             }
-            nwritten = socket->d->socket->writeBlock(out, i);
+            nwritten = d->socket->write(out, i);
 #ifdef QSOCKET_EXTRA_DEBUG
             fprintf(stderr, "writing concatenated block ");
             hexDump(out.data(), nwritten);
 #endif
-            if (socket->d->wsn)
-                socket->d->wsn->setEnabled(false); // the QSocketNotifier documentation says so
+            if (d->wsn)
+                d->wsn->setEnabled(false); // the QSocketNotifier documentation says so
         } else {
             // Big block, write it immediately
-            i = a->size() - socket->d->windex;
-            nwritten = socket->d->socket->writeBlock(a->constData() + socket->d->windex, i);
+            i = a->size() - d->windex;
+            nwritten = d->socket->write(a->constData() + d->windex, i);
 #ifdef QSOCKET_EXTRA_DEBUG
             fprintf(stderr, "writing big block ");
-            hexDump(a->constData() + socket->d->windex, nwritten);
+            hexDump(a->constData() + d->windex, nwritten);
 #endif
-            if (socket->d->wsn)
-                socket->d->wsn->setEnabled(false); // the QSocketNotifier documentation says so
+            if (d->wsn)
+                d->wsn->setEnabled(false); // the QSocketNotifier documentation says so
         }
-        if (nwritten > 0 && socket->d->consumeWriteBuf(nwritten))
+        if (nwritten > 0 && d->consumeWriteBuf(nwritten))
             consumed += nwritten;
         if (nwritten < i)
             osBufferFull = true;
@@ -370,46 +292,46 @@ void QSocketEngine::flush()
     if (consumed > 0) {
 #if defined(QSOCKET_DEBUG)
         qDebug("QSocket(): flush: wrote %d bytes, %d left",
-               consumed, (int)socket->d->wsize);
+               consumed, (int)d->wsize);
 #endif
-        emit socket->bytesWritten(consumed);
+        emit bytesWritten(consumed);
     }
-    if (socket->d->state == QSocket::Closing && socket->d->wsize == 0) {
+    if (d->state == QSocket::Closing && d->wsize == 0) {
 #if defined(QSOCKET_DEBUG)
         qDebug("QSocket(): flush: Delayed close done. Terminating.");
 #endif
-        socket->setFlags(IO_Sequential);
-        socket->resetStatus();
-        socket->setState(0);
-        socket->d->close();
-        socket->d->state = QSocket::Idle;
-        emit socket->delayedCloseFinished();
+        setFlags(IO_Sequential);
+        resetStatus();
+        setState(0);
+        d->close();
+        d->state = QSocket::Idle;
+        emit delayedCloseFinished();
         return;
     }
-    if (!socket->d->socket->isOpen()) {
-        socket->d->internalConnectionClosed();
+    if (!d->socket->isOpen()) {
+        d->internalConnectionClosed();
         return;
     }
-    if (socket->d->wsn)
-        socket->d->wsn->setEnabled(socket->d->wsize > 0); // write if there's data
+    if (d->wsn)
+        d->wsn->setEnabled(d->wsize > 0); // write if there's data
 }
 
-QIODevice::Offset QSocketEngine::size() const
+Q_LLONG QSocket::size() const
 {
-    return (QIODevice::Offset)socket->bytesAvailable();
+    return (Q_LLONG)bytesAvailable();
 }
 
 
-QIODevice::Offset QSocketEngine::at() const
+Q_LLONG QSocket::at() const
 {
     return 0;
 }
 
-bool QSocketEngine::seek(QIODevice::Offset index)
+bool QSocket::seek(Q_LLONG index)
 {
-    if (index < 0 || index > (QIODevice::Offset)socket->d->rba.size())
+    if (index < 0 || index > (QIODevice::Offset)d->rba.size())
         return false;
-    socket->d->rba.consumeBytes((Q_ULONG)index, 0);                        // throw away data 0..index-1
+    d->rba.consumeBytes((Q_ULONG)index, 0);                        // throw away data 0..index-1
     // After we read data from our internal buffer, if we use the
     // setReadBufferSize() to limit our buffer, we might now be able to
     // read more data in our buffer. So enable the read socket notifier,
@@ -417,29 +339,27 @@ bool QSocketEngine::seek(QIODevice::Offset index)
     // readyRead() signal since this might cause a bad recursive behavior.
     // We can test for this condition by looking at the
     // sn_read_alreadyCalled flag.
-    if (socket->d->rsn && !socket->d->sn_read_alreadyCalled)
-        socket->d->rsn->setEnabled(true);
+    if (d->rsn && !d->sn_read_alreadyCalled)
+        d->rsn->setEnabled(true);
     return true;
 }
 
-bool QSocketEngine::atEnd() const
+bool QSocket::atEnd() const
 {
-    if (socket->d->socket == 0)
+    if (d->socket == 0)
         return true;
-    if (socket->d->socket->bytesAvailable())        // a little slow, perhaps...
-        socket->sn_read();
-    return socket->d->rba.size() == 0;
+    if (d->socket->bytesAvailable())        // a little slow, perhaps...
+        const_cast<QSocket*>(this)->sn_read();
+    return d->rba.size() == 0;
 }
 
-QSocketPrivate::QSocketPrivate() : socketEngine(0)
+QSocketPrivate::QSocketPrivate()
 {
     init();
 }
 
 QSocketPrivate::~QSocketPrivate()
 {
-    delete socketEngine;
-    terminate();
 }
 
 void QSocketPrivate::init()
@@ -754,7 +674,7 @@ void QSocketPrivate::connectToNextAddress()
     machine, and an asynchronous peer-to-peer network connection isn't
     quite like that. For example, there is nothing that matches
     QIODevice::size() exactly. The documentation for open(), close(),
-    flush(), size(), at(), atEnd(), readBlock(), writeBlock(),
+    flush(), size(), at(), atEnd(), read(), write(),
     getch(), putch(), ungetch(), and readLine() describe the
     differences in detail.
 
@@ -986,7 +906,7 @@ void QSocket::connectToHost(const QString &host, Q_UINT16 port)
     read all data in the slot connected to this signal, unless you are sure that
     you need to receive more data to be able to process it.
 
-    \sa readBlock(), readLine(), bytesAvailable()
+    \sa read(), readLine(), bytesAvailable()
 */
 
 
@@ -999,7 +919,7 @@ void QSocket::connectToHost(const QString &host, Q_UINT16 port)
     The bytesToWrite() function is often used in the same context; it
     indicates how many buffered bytes there are left to write.
 
-    \sa writeBlock(), bytesToWrite()
+    \sa write(), bytesToWrite()
 */
 
 
@@ -1108,17 +1028,29 @@ bool QSocket::canReadLine() const
     \sa canReadLine()
 */
 
-QString QSocket::readLine()
+QByteArray QSocket::readLine()
 {
     QByteArray a;
     a.resize(256);
     bool nl = d->rba.scanNewline(&a);
-    QString s;
-    if (nl) {
+    if (nl) 
         seek(a.size());                                // skips the data read
-        s = QString(a);
+    return a;
+}
+
+Q_LLONG QSocket::readLine(char *data, Q_LLONG len)
+{
+    int ret = 0;
+    QByteArray a;
+    a.resize(256);
+    bool nl = d->rba.scanNewline(&a);
+    if (nl) {
+        ret = qMin(len-1, a.size());
+        seek(ret);                                // skips the data read
+        memcpy(data, a.data(), ret);
+        *(data+ret) = '\0';
     }
-    return s;
+    return ret;
 }
 
 /*!
@@ -1175,7 +1107,7 @@ void QSocket::sn_read(bool force)
         // event is processed. A new read operation would then block.
         // This code is also useful when QSocket is used without an
         // event loop.
-        nread = d->socket->readBlock(buf, maxToRead ? qMin((Q_LONG)sizeof(buf),maxToRead) : sizeof(buf));
+        nread = d->socket->read(buf, maxToRead ? qMin((Q_LONG)sizeof(buf),maxToRead) : sizeof(buf));
         if (nread == 0) {                        // really closed
 #if defined(QSOCKET_DEBUG)
             qDebug("QSocket (%s): sn_read: Connection closed", objectName().latin1());
@@ -1208,10 +1140,10 @@ void QSocket::sn_read(bool force)
         if (nbytes > (int)sizeof(buf)) {
             a = new QByteArray;
             a->resize(nbytes);
-            nread = d->socket->readBlock(a->data(), maxToRead ? qMin(nbytes,maxToRead) : nbytes);
+            nread = d->socket->read(a->data(), maxToRead ? qMin(nbytes,maxToRead) : nbytes);
         } else {
             a = 0;
-            nread = d->socket->readBlock(buf, maxToRead ? qMin((Q_LONG)sizeof(buf),maxToRead) : sizeof(buf));
+            nread = d->socket->read(buf, maxToRead ? qMin((Q_LONG)sizeof(buf),maxToRead) : sizeof(buf));
             if (nread > 0) {
                 a = new QByteArray;
                 a->resize(nread);
@@ -1397,13 +1329,20 @@ Q_ULONG QSocket::readBufferSize() const
 }
 
 /*!
-  \reimp
+    This implementation of the virtual function QIODevice::ungetch()
+    prepends the character \a ch to the read buffer so that the next
+    read returns this character as the first character of the output.
 */
-QIOEngine *QSocket::ioEngine() const
+
+int QSocket::ungetch( int ch )
 {
-    if(!d->socketEngine)
-        d->socketEngine = new QSocketEngine(const_cast<QSocket*>(this));
-    return d->socketEngine;
+#if defined(QT_CHECK_STATE)
+    if ( !isOpen() ) {
+	qWarning( "QSocket::ungetch: Socket not open" );
+	return -1;
+    }
+#endif
+    return d->rba.ungetch( ch );
 }
 
 #include "moc_qsocket.cpp"

@@ -339,7 +339,7 @@ bool QPicture::save(QIODevice *dev, const char *format)
         return result;
     }
 
-    dev->writeBlock(d->pictb.buffer(), d->pictb.buffer().size());
+    dev->write(d->pictb.buffer(), d->pictb.buffer().size());
     return true;
 }
 
@@ -1508,7 +1508,7 @@ QByteArray QPictureIO::pictureFormat(QIODevice *d)
     qt_init_picture_handlers();
     qt_init_picture_plugins();
     int pos = d->at();                        // save position
-    int rdlen = d->readBlock(buf, buflen);        // read a few bytes
+    int rdlen = d->read(buf, buflen);        // read a few bytes
 
     QByteArray format;
     if (rdlen != buflen)

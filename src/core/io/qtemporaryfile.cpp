@@ -14,7 +14,7 @@
 #include "qtemporaryfile.h"
 #include <qfileengine.h>
 
-#include <private/qiodevice_p.h>
+#include <private/qfile_p.h>
 #include <private/qfileengine_p.h>
 
 #include <qplatformdefs.h>
@@ -35,13 +35,16 @@ class QTemporaryFileEngine : public QFSFileEngine
 public:
     QTemporaryFileEngine(const QString &file) : QFSFileEngine(file) { }
 
-    virtual bool open(int flags);
+    bool open(int flags);
 };
 
 bool
 QTemporaryFileEngine::open(int flags)
 {
-    Q_ASSERT((flags & QIODevice::ReadWrite) == QIODevice::ReadWrite);
+    if((flags & QIODevice::ReadWrite) != QIODevice::ReadWrite) {
+        qWarning("QTemporaryFileEngine::open: Temporary file must be ReadWrite");
+        return false;
+    }
 
     QString qfilename = d->file;
     if(!qfilename.endsWith(QLatin1String("XXXXXX")))
@@ -65,20 +68,19 @@ QTemporaryFileEngine::open(int flags)
     return false;
 }
 
+
 //************* QTemporaryFilePrivate
-class QTemporaryFilePrivate : public QIODevicePrivate
+class QTemporaryFilePrivate : public QFilePrivate
 {
     Q_DECLARE_PUBLIC(QTemporaryFile)
 
 protected:
-    inline QFileEngine *getFileEngine() const { return static_cast<QFileEngine*>(q->ioEngine()); }
-
     QTemporaryFilePrivate();
     ~QTemporaryFilePrivate();
 
     bool autoRemove;
     QString templateName;
-    mutable QFileEngine *fileEngine;
+    mutable QTemporaryFileEngine *fileEngine;
 };
 
 QTemporaryFilePrivate::QTemporaryFilePrivate() : autoRemove(true), fileEngine(0)
@@ -120,7 +122,7 @@ QTemporaryFilePrivate::~QTemporaryFilePrivate()
 /*!
     Constructs a QTemporaryFile with no name.
 */
-QTemporaryFile::QTemporaryFile() : QIODevice(*new QTemporaryFilePrivate)
+QTemporaryFile::QTemporaryFile() : QFile(*new QTemporaryFilePrivate)
 {
     d->templateName = QDir::tempPath() + QLatin1String("qt_temp.XXXXXX");
 }
@@ -134,7 +136,7 @@ QTemporaryFile::QTemporaryFile() : QIODevice(*new QTemporaryFilePrivate)
 
     \sa QTemporaryFile::open(), QTemporaryFile::setTemplateName()
 */
-QTemporaryFile::QTemporaryFile(const QString &templateName) : QIODevice(*new QTemporaryFilePrivate)
+QTemporaryFile::QTemporaryFile(const QString &templateName) : QFile(*new QTemporaryFilePrivate)
 {
     d->templateName = templateName;
 }
@@ -192,28 +194,6 @@ QTemporaryFile::setAutoRemove(bool b)
 }
 
 /*!
-  Remove the unique filename from disk. This is normally done
-  automatically using auto-remove mode. However this can be done
-  explicitly if the file needs to be removed earlier (or the
-  QTemporaryFile needs to be reused).
-
-  \sa QTemporaryFile::setAutoRemove()
-*/
-bool
-QTemporaryFile::remove()
-{
-    close();
-    if(status() == QIODevice::Ok) {
-        if(d->getFileEngine()->remove()) {
-            resetStatus();
-            return true;
-        }
-        setStatus(QIODevice::RemoveError, errno);
-    }
-    return false;
-}
-
-/*!
    Returns the complete unique filename backing the QTemporaryFile
    object. This string is null before the QTemporaryFile is opened,
    afterwards it will contain the QTemporaryFile::fileTemplate() plus
@@ -227,7 +207,7 @@ QTemporaryFile::fileName() const
 {
     if(!isOpen())
         return QString::null;
-    return d->getFileEngine()->fileName();
+    return fileEngine()->fileName(QFileEngine::DefaultName);
 }
 
 /*!
@@ -254,42 +234,9 @@ void
 QTemporaryFile::setFileTemplate(const QString &name)
 {
     Q_ASSERT(!isOpen());
-    d->getFileEngine()->setFileName(name);
+    fileEngine()->setFileName(name);
     d->templateName = name;
 }
-
-/*!
-  Returns the file handle of the file.
-
-  This is a small positive integer, suitable for use with C library
-  functions such as fdopen() and fcntl(). On systems that use file
-  descriptors for sockets (i.e. Unix systems, but not Windows) the handle
-  can be used with QSocketNotifier as well.
-
-  If the file is not open, or there is an error, handle() returns -1.
-
-  \sa QSocketNotifier
-*/
-int
-QTemporaryFile::handle() const
-{
-    if (!isOpen())
-        return -1;
-    return static_cast<QTemporaryFileEngine*>(d->getFileEngine())->handle();
-}
-
-/*!
-   \reimp
-*/
-QIOEngine
-*QTemporaryFile::ioEngine() const
-{
-    if(!d->fileEngine)
-        d->fileEngine = new QTemporaryFileEngine(d->templateName);
-    return d->fileEngine;
-}
-
-
 
 /*!
     \fn QTemporaryFile *QTemporaryFile::createLocalFile(const QString &fileName)
@@ -306,7 +253,7 @@ QIOEngine
 QTemporaryFile
 *QTemporaryFile::createLocalFile(QFile &file)
 {
-    if(QFileEngine *engine = static_cast<QFileEngine*>(file.ioEngine())) {
+    if(QFileEngine *engine = file.fileEngine()) {
         if(engine->fileFlags(QFileEngine::FlagsMask) & QFileEngine::LocalDiskFlag)
             return 0; //local already
         //cache
@@ -322,10 +269,10 @@ QTemporaryFile
         file.seek(0);
         char buffer[1024];
         while(true) {
-            Q_LONG len = file.readBlock(buffer, 1024);
+            Q_LONG len = file.read(buffer, 1024);
             if(len < 1)
                 break;
-            ret->writeBlock(buffer, len);
+            ret->write(buffer, len);
         }
         ret->seek(0);
         //restore
@@ -337,4 +284,16 @@ QTemporaryFile
         return ret;
     }
     return 0;
+}
+
+/*!
+   \reimp
+*/
+
+QFileEngine
+*QTemporaryFile::fileEngine() const
+{
+    if(!d->fileEngine)
+        d->fileEngine = new QTemporaryFileEngine(d->templateName);
+    return d->fileEngine;
 }

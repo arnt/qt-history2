@@ -42,8 +42,7 @@ SOURCES += \
            #io
            ../../core/io/qfile.cpp ../../core/io/qdir.cpp ../../core/io/qfileinfo.cpp \
            ../../core/io/qfileengine.cpp ../../core/io/qdatastream.cpp ../../core/io/qbuffer.cpp \
-           ../../core/io/qiodevice.cpp ../../core/io/qtextstream.cpp ../../core/io/qioengine.cpp \
-           ../../core/io/qtemporaryfile.cpp \
+           ../../core/io/qiodevice.cpp ../../core/io/qtextstream.cpp ../../core/io/qtemporaryfile.cpp \
            #global
            ../../core/global/qglobal.cpp
 #platform specific

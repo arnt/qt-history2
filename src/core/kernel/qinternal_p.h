@@ -76,7 +76,80 @@ inline bool QMembuf::canReadLine() const
 inline QIODevice::Offset QMembuf::size() const
 { return _size; }
 
+class QCircularBuffer {
+    QByteArray buf[2];
+    uint curr_used, start_off, start_buff, curr_buff, buff_growth;
+public:
+    inline QCircularBuffer(uint growth) : curr_used(0), start_off(0), start_buff(0),
+                                          curr_buff(0), buff_growth(growth) { }
 
+    char *alloc(uint buflen);
+    char *take(uint maxsize, uint *realsize=0);
+    void free(uint buflen);
+    inline void truncate(uint len) { curr_used -= len; }
+
+    inline int growth() const { return buff_growth; }
+    inline int numBuffers() const { return 2; }
+    inline bool isEmpty() const { return !used(); }
+    inline uint used() const { return curr_used; }
+    inline void clear() { if(!isEmpty()) free(used()); }
+};
+
+inline char *QCircularBuffer::alloc(uint size)
+{
+    if(buf[curr_buff].size() <
+       (int)(curr_used+size+(curr_buff == start_buff ? start_off : 0))) {
+        if(curr_buff == start_buff && buf[curr_buff].size()) {
+            buf[curr_buff].resize(start_off + curr_used);
+            curr_buff = !curr_buff;
+            if(!buf[curr_buff].size())
+                buf[curr_buff].resize(buff_growth*2);
+        } else {
+            int sz = buf[curr_buff].size();
+            buf[curr_buff].resize(qMax((uint)sz + (sz / 2), (buff_growth*2)));
+        }
+    }
+    int off = curr_used;
+    curr_used += size;
+    if(curr_buff != start_buff)
+        off -= buf[start_buff].size() - start_off;
+    else
+        off += start_off;
+    return buf[curr_buff].data()+off;
+}
+inline char *QCircularBuffer::take(uint size, uint *real_size)
+{
+    if(size > curr_used) {
+        qWarning("Warning: asked to take too much %d [%d]", size, curr_used);
+        size = curr_used;
+    }
+    if(real_size)
+        *real_size = qMin(size, buf[start_buff].size() - start_off);
+    return buf[start_buff].data()+start_off;
+}
+
+inline void QCircularBuffer::free(uint size)
+{
+    if(size > curr_used) {
+        qWarning("Warning: asked to free too much %d [%d]", size, curr_used);
+        size = curr_used;
+    }
+    curr_used -= size;
+    if(curr_used == 0) {
+        curr_buff = start_buff = start_off = 0;
+        return;
+    }
+
+    uint start_size = buf[start_buff].size() - start_off;
+    if(start_size > size) {
+        start_off += size;
+    } else if(start_buff != curr_buff) {
+        start_buff = curr_buff;
+        start_off = start_size - size;
+    } else {
+        start_off = 0;
+    }
+}
 
 class QVirtualDestructor {
 public:

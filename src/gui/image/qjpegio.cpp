@@ -93,7 +93,7 @@ boolean qt_fill_input_buffer(j_decompress_ptr cinfo)
     my_jpeg_source_mgr* src = (my_jpeg_source_mgr*)cinfo->src;
     QIODevice* dev = src->iio->ioDevice();
     src->next_input_byte = src->buffer;
-    num_read = dev->readBlock((char*)src->buffer, max_buf);
+    num_read = dev->read((char*)src->buffer, max_buf);
     if (num_read <= 0) {
         // Insert a fake EOI marker - as per jpeglib recommendation
         src->buffer[0] = (JOCTET) 0xFF;
@@ -371,7 +371,7 @@ boolean qt_empty_output_buffer(j_compress_ptr cinfo)
     my_jpeg_destination_mgr* dest = (my_jpeg_destination_mgr*)cinfo->dest;
     QIODevice* dev = dest->iio->ioDevice();
 
-    if (dev->writeBlock((char*)dest->buffer, max_buf) != max_buf)
+    if (dev->write((char*)dest->buffer, max_buf) != max_buf)
         qt_exit_on_error(cinfo, dev);
 
     dest->next_output_byte = dest->buffer;
@@ -391,7 +391,7 @@ void qt_term_destination(j_compress_ptr cinfo)
     QIODevice* dev = dest->iio->ioDevice();
     Q_LONG n = max_buf - dest->free_in_buffer;
 
-    if (dev->writeBlock((char*)dest->buffer, n) != n)
+    if (dev->write((char*)dest->buffer, n) != n)
         qt_exit_on_error(cinfo, dev);
 
     dev->flush();

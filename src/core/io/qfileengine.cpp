@@ -149,9 +149,9 @@ QFileEngineHandler::~QFileEngineHandler()
 
    \sa setFileName()
  */
-QFileEngine::QFileEngine() : QIOEngine(*new QFileEnginePrivate)
+QFileEngine::QFileEngine() : d_ptr(new QFileEnginePrivate)
 {
-
+    d_ptr->q_ptr = this;
 }
 
 /*!
@@ -159,8 +159,9 @@ QFileEngine::QFileEngine() : QIOEngine(*new QFileEnginePrivate)
 
    Constructs a QFileEngine.
  */
-QFileEngine::QFileEngine(QFileEnginePrivate &dd)  : QIOEngine(dd)
+QFileEngine::QFileEngine(QFileEnginePrivate &dd) : d_ptr(&dd)
 {
+    d_ptr->q_ptr = this;
 }
 
 /*!
@@ -168,6 +169,8 @@ QFileEngine::QFileEngine(QFileEnginePrivate &dd)  : QIOEngine(dd)
  */
 QFileEngine::~QFileEngine()
 {
+    delete d_ptr;
+    d_ptr = 0;
 }
 
 /*!
@@ -198,6 +201,63 @@ QFileEngine *QFileEngine::createFileEngine(const QString &file)
 
     \sa rename()
  */
+
+
+/*!
+  Returns the QIODevice::Status that resulted from the last failed
+  operation. If QIOevice::UnspecifiedError is returned, QIODevice will
+  use its own idea of the error status.
+
+  \sa QIODeivce::Status, errorString
+ */
+QIODevice::Status QFileEngine::errorStatus() const
+{
+    return QIODevice::UnspecifiedError;
+}
+
+/*!
+  Returns the human-readable message appropriate to the current error
+  reported by errorStatus(). If no suitable string is available, a null
+  string is returned.
+
+  \sa errorStatus(), QString::isNull()
+ */
+QString QFileEngine::errorString() const
+{
+    return QString::null;
+}
+
+/*!
+  \fn uchar *QIOEngine::map(Q_LLONG offset, Q_LLONG len)
+
+  Maps the file contents from \a offset for the given \a number of
+  bytes, returning a pointer (uchar *) to the contents. If this fails,
+  0 is returned.
+
+  The default implementation falls back to block reading/writing if
+  this function returns 0.
+
+  \sa QFileEngine::unmap()
+ */
+
+uchar 
+*QFileEngine::map(Q_LLONG, Q_LLONG) 
+{ 
+    return 0; 
+}
+
+/*!
+   \fn void QIOEngine::unmap(uchar *data)
+
+   Unmap previously mapped file \a data from memory.
+
+   \sa QFileEngine::map()
+ */
+
+void 
+QFileEngine::unmap(uchar */*data*/) 
+{ 
+}
 
 /*!
     \fn bool QFileEngine::remove()
@@ -565,7 +625,7 @@ QFSFileEngine::open(int flags)
             struct stat st;
             ::fstat(d->fd, &st);
             char char_read;
-            if(!st.st_size && readBlock(&char_read, 1) == 1) {
+            if(!st.st_size && read(&char_read, 1) == 1) {
                 d->ungetchBuffer += char_read;
                 d->sequential = 1;
             }
@@ -590,7 +650,7 @@ QFSFileEngine::open(int, int fd)
 #ifdef Q_OS_UNIX
 	else {
             char char_read;
-            if(!st.st_size && readBlock(&char_read, 1) == 1) {
+            if(!st.st_size && read(&char_read, 1) == 1) {
                 d->ungetchBuffer += char_read;
                 d->sequential = 1;
             }
@@ -624,8 +684,8 @@ QFSFileEngine::flush()
     d->ungetchBuffer.clear();
 }
 
-Q_LONG
-QFSFileEngine::readBlock(char *data, Q_LONG len)
+Q_LLONG
+QFSFileEngine::read(char *data, Q_LLONG len)
 {
     Q_LONG ret = 0;
     if (!d->ungetchBuffer.isEmpty()) {
@@ -652,15 +712,8 @@ QFSFileEngine::readBlock(char *data, Q_LONG len)
     return ret;
 }
 
-int
-QFSFileEngine::ungetch(int ch)
-{
-    d->ungetchBuffer += ch;
-    return ch;
-}
-
-Q_LONG
-QFSFileEngine::writeBlock(const char *data, Q_LONG len)
+Q_LLONG
+QFSFileEngine::write(const char *data, Q_LLONG len)
 {
     d->resetErrors();
     Q_LONG ret = QT_WRITE(d->fd, data, len);
@@ -669,18 +722,10 @@ QFSFileEngine::writeBlock(const char *data, Q_LONG len)
     return ret;
 }
 
-QFile::Offset
+Q_LLONG
 QFSFileEngine::at() const
 {
     return QT_LSEEK(d->fd, 0, SEEK_CUR);
-}
-
-bool
-QFSFileEngine::atEnd() const
-{
-    if(!d->ungetchBuffer.isEmpty())
-        return false;
-    return (at() == size());
 }
 
 int
@@ -734,9 +779,19 @@ QFSFileEngine::errorString() const
     return d->errorString;
 }
 
-QIOEngine::Type
+QFileEngine::Type
 QFSFileEngine::type() const
 {
-    return QIOEngine::File;
+    return QFileEngine::File;
 }
 
+uchar 
+*QFSFileEngine::map(Q_LLONG /*off*/, Q_LLONG /*len*/) 
+{ 
+    return 0; 
+}
+
+void 
+QFSFileEngine::unmap(uchar */*data*/) 
+{
+}

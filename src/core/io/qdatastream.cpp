@@ -528,7 +528,7 @@ QDataStream &QDataStream::operator>>(Q_INT8 &i)
         i = (Q_INT8)dev->getch();
         if (i == '\\') {                        // read octal code
             char buf[4];
-            dev->readBlock(buf, 3);
+            dev->read(buf, 3);
             i = (buf[2] & 0x07)+((buf[1] & 0x07) << 3)+((buf[0] & 0x07) << 6);
         }
     } else {                                        // data or text
@@ -559,11 +559,11 @@ QDataStream &QDataStream::operator>>(Q_INT16 &i)
     if (printable) {                                // printable data
         i = (Q_INT16)read_int_ascii(this);
     } else if (noswap) {                        // no conversion needed
-        dev->readBlock((char *)&i, sizeof(Q_INT16));
+        dev->read((char *)&i, sizeof(Q_INT16));
     } else {                                        // swap bytes
         register uchar *p = (uchar *)(&i);
         char b[2];
-        dev->readBlock(b, 2);
+        dev->read(b, 2);
         *p++ = b[1];
         *p   = b[0];
     }
@@ -592,11 +592,11 @@ QDataStream &QDataStream::operator>>(Q_INT32 &i)
     if (printable) {                                // printable data
         i = (Q_INT32)read_int_ascii(this);
     } else if (noswap) {                        // no conversion needed
-        dev->readBlock((char *)&i, sizeof(Q_INT32));
+        dev->read((char *)&i, sizeof(Q_INT32));
     } else {                                        // swap bytes
         uchar *p = (uchar *)(&i);
         char b[4];
-        dev->readBlock(b, 4);
+        dev->read(b, 4);
         *p++ = b[3];
         *p++ = b[2];
         *p++ = b[1];
@@ -630,11 +630,11 @@ QDataStream &QDataStream::operator>>(Q_INT64 &i)
         *this >> i2 >> i1;
         i = ((Q_UINT64)i1 << 32) + i2;
     } else if (noswap) {                        // no conversion needed
-        dev->readBlock((char *)&i, sizeof(Q_INT64));
+        dev->read((char *)&i, sizeof(Q_INT64));
     } else {                                        // swap bytes
         uchar *p = (uchar *)(&i);
         char b[8];
-        dev->readBlock(b, 8);
+        dev->read(b, 8);
         *p++ = b[7];
         *p++ = b[6];
         *p++ = b[5];
@@ -671,11 +671,11 @@ QDataStream &QDataStream::operator>>(Q_LONG &i)
     if (printable) {                                // printable data
         i = (Q_LONG)read_int_ascii(this);
     } else if (noswap) {                        // no conversion needed
-        dev->readBlock((char *)&i, sizeof(Q_LONG));
+        dev->read((char *)&i, sizeof(Q_LONG));
     } else {                                        // swap bytes
         register uchar *p = (uchar *)(&i);
         char b[sizeof(Q_LONG)];
-        dev->readBlock(b, sizeof(Q_LONG));
+        dev->read(b, sizeof(Q_LONG));
         for (int j = sizeof(Q_LONG); j; )
             *p++ = b[--j];
     }
@@ -712,11 +712,11 @@ QDataStream &QDataStream::operator>>(float &f)
     if (printable) {                                // printable data
         f = (float)read_double_ascii(this);
     } else if (noswap) {                        // no conversion needed
-        dev->readBlock((char *)&f, sizeof(float));
+        dev->read((char *)&f, sizeof(float));
     } else {                                        // swap bytes
         uchar *p = (uchar *)(&f);
         char b[4];
-        dev->readBlock(b, 4);
+        dev->read(b, 4);
         *p++ = b[3];
         *p++ = b[2];
         *p++ = b[1];
@@ -740,11 +740,11 @@ QDataStream &QDataStream::operator>>(double &f)
     if (printable) {                                // printable data
         f = read_double_ascii(this);
     } else if (noswap) {                        // no conversion needed
-        dev->readBlock((char *)&f, sizeof(double));
+        dev->read((char *)&f, sizeof(double));
     } else {                                        // swap bytes
         register uchar *p = (uchar *)(&f);
         char b[8];
-        dev->readBlock(b, 8);
+        dev->read(b, 8);
         *p++ = b[7];
         *p++ = b[6];
         *p++ = b[5];
@@ -815,7 +815,7 @@ QDataStream &QDataStream::readBytes(char *&s, uint &l)
 
     The buffer \a s must be preallocated. The data is \e not encoded.
 
-    \sa readBytes(), QIODevice::readBlock(), writeRawBytes()
+    \sa readBytes(), QIODevice::read(), writeRawBytes()
 */
 
 QDataStream &QDataStream::readRawBytes(char *s, uint len)
@@ -834,7 +834,7 @@ QDataStream &QDataStream::readRawBytes(char *s, uint len)
                 *this >> *p++;
         }
     } else {                                        // read data char array
-        dev->readBlock(s, len);
+        dev->read(s, len);
     }
     return *this;
 }
@@ -868,7 +868,7 @@ QDataStream &QDataStream::operator<<(Q_INT8 i)
         buf[2] = '0' + ((i >> 3) & 0x07);
         buf[3] = '0' + (i & 0x07);
         buf[4] = '\0';
-        dev->writeBlock(buf, 4);
+        dev->write(buf, 4);
     } else {
         dev->putch(i);
     }
@@ -897,15 +897,15 @@ QDataStream &QDataStream::operator<<(Q_INT16 i)
     if (printable) {                                // printable data
         char buf[16];
         sprintf(buf, "%d\n", i);
-        dev->writeBlock(buf, strlen(buf));
+        dev->write(buf, strlen(buf));
     } else if (noswap) {                        // no conversion needed
-        dev->writeBlock((char *)&i, sizeof(Q_INT16));
+        dev->write((char *)&i, sizeof(Q_INT16));
     } else {                                        // swap bytes
         register uchar *p = (uchar *)(&i);
         char b[2];
         b[1] = *p++;
         b[0] = *p;
-        dev->writeBlock(b, 2);
+        dev->write(b, 2);
     }
     return *this;
 }
@@ -923,9 +923,9 @@ QDataStream &QDataStream::operator<<(Q_INT32 i)
     if (printable) {                                // printable data
         char buf[16];
         sprintf(buf, "%d\n", i);
-        dev->writeBlock(buf, strlen(buf));
+        dev->write(buf, strlen(buf));
     } else if (noswap) {                        // no conversion needed
-        dev->writeBlock((char *)&i, sizeof(Q_INT32));
+        dev->write((char *)&i, sizeof(Q_INT32));
     } else {                                        // swap bytes
         register uchar *p = (uchar *)(&i);
         char b[4];
@@ -933,7 +933,7 @@ QDataStream &QDataStream::operator<<(Q_INT32 i)
         b[2] = *p++;
         b[1] = *p++;
         b[0] = *p;
-        dev->writeBlock(b, 4);
+        dev->write(b, 4);
     }
     return *this;
 }
@@ -963,13 +963,13 @@ QDataStream &QDataStream::operator<<(Q_INT64 i)
 #else
         sprintf(buf, "%lld\n", i);
 #endif
-        dev->writeBlock(buf, strlen(buf));
+        dev->write(buf, strlen(buf));
     } else if (version() < 6) {
         Q_UINT32 i1, i2;
         *this >> i2 >> i1;
         i = ((Q_UINT64)i1 << 32) + i2;
     } else if (noswap) {                        // no conversion needed
-        dev->writeBlock((char *)&i, sizeof(Q_INT64));
+        dev->write((char *)&i, sizeof(Q_INT64));
     } else {                                        // swap bytes
         register uchar *p = (uchar *)(&i);
         char b[8];
@@ -981,7 +981,7 @@ QDataStream &QDataStream::operator<<(Q_INT64 i)
         b[2] = *p++;
         b[1] = *p++;
         b[0] = *p;
-        dev->writeBlock(b, 8);
+        dev->write(b, 8);
     }
     return *this;
 }
@@ -1008,15 +1008,15 @@ QDataStream &QDataStream::operator<<(Q_LONG i)
     if (printable) {                                // printable data
         char buf[20];
         sprintf(buf, "%ld\n", i);
-        dev->writeBlock(buf, strlen(buf));
+        dev->write(buf, strlen(buf));
     } else if (noswap) {                        // no conversion needed
-        dev->writeBlock((char *)&i, sizeof(Q_LONG));
+        dev->write((char *)&i, sizeof(Q_LONG));
     } else {                                        // swap bytes
         register uchar *p = (uchar *)(&i);
         char b[sizeof(Q_LONG)];
         for (int j = sizeof(Q_LONG); j; )
             b[--j] = *p++;
-        dev->writeBlock(b, sizeof(Q_LONG));
+        dev->write(b, sizeof(Q_LONG));
     }
     return *this;
 }
@@ -1043,12 +1043,12 @@ QDataStream &QDataStream::operator<<(float f)
     CHECK_STREAM_PRECOND
     if (printable) {                                // printable data
         QString num = QString::number((double)f);
-        dev->writeBlock(num.latin1(), num.length());
+        dev->write(num.latin1(), num.length());
 	dev->putch('\n');
     } else {
         float g = f;                                // fixes float-on-stack problem
         if (noswap) {                                // no conversion needed
-            dev->writeBlock((char *)&g, sizeof(float));
+            dev->write((char *)&g, sizeof(float));
         } else {                                // swap bytes
             register uchar *p = (uchar *)(&g);
             char b[4];
@@ -1056,7 +1056,7 @@ QDataStream &QDataStream::operator<<(float f)
             b[2] = *p++;
             b[1] = *p++;
             b[0] = *p;
-            dev->writeBlock(b, 4);
+            dev->write(b, 4);
         }
     }
     return *this;
@@ -1075,10 +1075,10 @@ QDataStream &QDataStream::operator<<(double f)
     CHECK_STREAM_PRECOND
     if (printable) {                                // printable data
         QString num = QString::number((double)f);
-        dev->writeBlock(num.latin1(), num.length());
+        dev->write(num.latin1(), num.length());
         dev->putch('\n');
     } else if (noswap) {                        // no conversion needed
-        dev->writeBlock((char *)&f, sizeof(double));
+        dev->write((char *)&f, sizeof(double));
     } else {                                        // swap bytes
         register uchar *p = (uchar *)(&f);
         char b[8];
@@ -1090,7 +1090,7 @@ QDataStream &QDataStream::operator<<(double f)
         b[2] = *p++;
         b[1] = *p++;
         b[0] = *p;
-        dev->writeBlock(b, 8);
+        dev->write(b, 8);
     }
     return *this;
 }
@@ -1141,7 +1141,7 @@ QDataStream &QDataStream::writeBytes(const char *s, uint len)
     Writes \a len bytes from \a s to the stream and returns a
     reference to the stream. The data is \e not encoded.
 
-    \sa writeBytes(), QIODevice::writeBlock(), readRawBytes()
+    \sa writeBytes(), QIODevice::write(), readRawBytes()
 */
 
 QDataStream &QDataStream::writeRawBytes(const char *s, uint len)
@@ -1158,7 +1158,7 @@ QDataStream &QDataStream::writeRawBytes(const char *s, uint len)
                 *this << *p++;
         }
     } else {                                        // write data char array
-        dev->writeBlock(s, len);
+        dev->write(s, len);
     }
     return *this;
 }

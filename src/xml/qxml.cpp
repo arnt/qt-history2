@@ -1096,7 +1096,7 @@ void QXmlInputSource::fetchData()
             const int bufsize = 512;
             while (!inputStream->device()->atEnd()) {
                 rawData.resize(nread + bufsize);
-                nread += inputStream->device()->readBlock(rawData.data()+nread, bufsize);
+                nread += inputStream->device()->read(rawData.data()+nread, bufsize);
             }
             rawData.resize(nread);
         }

@@ -17,7 +17,6 @@
 #ifndef QT_H
 #include "qobject.h"
 #include "qiodevice.h"
-#include "qioengine.h"
 #include "qdns.h"
 #include "qhostaddress.h" // int->QHostAddress conversion
 #endif // QT_H
@@ -69,20 +68,14 @@ public:
 
     QString peerName() const;
 
-    virtual QIOEngine *ioEngine() const;
-
     Q_ULONG bytesAvailable() const; // ### QIODevice::Offset instead?
     Q_ULONG waitForMore(int msecs, bool *timeout = 0) const;
     Q_ULONG bytesToWrite() const;
     void clearPendingData();
 
-#ifdef Q_NO_USING_KEYWORD
-    inline Q_LONG readLine(char *data, Q_LONG maxlen) { return QIODevice::readLine(data, maxlen); }
-#else
-    using QIODevice::readLine;
-#endif
+    virtual Q_LLONG readLine(char *data, Q_LLONG maxlen);
     bool canReadLine() const;
-    virtual QString readLine();
+    virtual QByteArray readLine();
 
     Q_UINT16 port() const;
     Q_UINT16 peerPort() const;
@@ -91,6 +84,16 @@ public:
 
     void setReadBufferSize(Q_ULONG);
     Q_ULONG readBufferSize() const;
+
+    virtual bool atEnd() const;
+    virtual void flush();
+    virtual void close();
+    virtual Q_LLONG size() const;
+    virtual Q_LLONG at() const;
+    virtual bool seek(Q_LLONG off);
+    virtual Q_LLONG read(char *data, Q_LLONG maxlen);
+    virtual Q_LLONG write(const char *data, Q_LLONG len);
+    virtual int ungetch(int);
 
 signals:
     void hostFound();
@@ -112,7 +115,6 @@ private:
     Q_PRIVATE_SLOT(d, void connectToNextAddress())
 
     QIODevicePrivate *d_ptr;
-    friend class QSocketEngine;
 };
 
 #endif

@@ -35,7 +35,24 @@ public:
     void setData(const QByteArray &data);
     inline void setData(const char *data, int len) { setData(QByteArray(data, len)); }
 
-    virtual QIOEngine *ioEngine() const;
+#ifdef QT_COMPAT
+#if !defined(Q_NO_USING_KEYWORD)
+    using QIODevice::at;
+#else
+    inline QT_COMPAT bool at(Q_LLONG off) { QIODevice::at(off); }
+#endif
+#endif
+
+    virtual bool open(int mode);
+    virtual void close();
+    virtual Q_LLONG size() const;
+    virtual Q_LLONG at() const;
+    virtual bool seek(Q_LLONG off);
+    virtual Q_LLONG read(char *data, Q_LLONG maxlen);
+    virtual Q_LLONG write(const char *data, Q_LLONG len);
+    virtual int getch();
+    virtual int putch(int character);
+    virtual int ungetch(int character);
 
 private:
     Q_DISABLE_COPY(QBuffer)

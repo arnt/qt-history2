@@ -16,7 +16,6 @@
 
 #ifndef QT_H
 #include "qiodevice.h"
-#include "qioengine.h"
 #include "qhostaddress.h" // for int-to-QHostAddress conversion
 #endif // QT_H
 
@@ -64,13 +63,21 @@ public:
     virtual bool listen(int backlog);
     virtual int accept();
 
+#ifdef QT_COMPAT
 #ifdef Q_NO_USING_KEYWORD
-    inline Q_LONG writeBlock(const char *data, Q_LONG len) { return QIODevice::writeBlock(data, len); }
-    inline Q_LONG writeBlock(const QByteArray &data) { return QIODevice::writeBlock(data); }
+    inline QT_COMPAT Q_LONG writeBlock(const char *data, Q_LONG len) 
+    { return QIODevice::writeBlock(data, len); }
+    inline QT_COMPAT Q_LONG writeBlock(const QByteArray &data) 
+    { return QIODevice::writeBlock(data); }
 #else
     using QIODevice::writeBlock;
 #endif
-    virtual Q_LONG writeBlock(const char *data, Q_LONG len, const QHostAddress & host, Q_UINT16 port);
+    inline QT_COMPAT Q_LONG writeBlock(const char *data, Q_LONG len, 
+                                        const QHostAddress & host, Q_UINT16 port)
+    { return write(data, len, host, port); }
+#endif
+    virtual Q_LLONG write(const char *data, Q_LLONG len);
+    virtual Q_LLONG write(const char *data, Q_LLONG len, const QHostAddress & host, Q_UINT16 port);
 
     Q_LONG bytesAvailable() const;
     Q_LONG waitForMore(int msecs, bool *timeout=0) const;
@@ -79,7 +86,12 @@ public:
     QHostAddress address() const;
     QHostAddress peerAddress() const;
 
-    QIOEngine *ioEngine() const;
+    virtual int ungetch(int) { return -1; }
+    virtual void close();
+    virtual Q_LLONG size() const;
+    virtual Q_LLONG at() const;
+    virtual bool seek(Q_LLONG off);
+    virtual Q_LLONG read(char *data, Q_LLONG maxlen);
 
     enum Error {
         NoError,
@@ -98,7 +110,6 @@ public:
     };
     Error error() const;
 
-protected:
     void setError(Error err);
 
 private:
@@ -108,32 +119,5 @@ private:
 };
 
 class QSocketDeviceEnginePrivate;
-
-class QM_EXPORT_NETWORK QSocketDeviceEngine : public QIOEngine
-{
-private:
-    Q_DECLARE_PRIVATE(QSocketDeviceEngine)
-public:
-    QSocketDeviceEngine(QSocketDevice *);
-
-    virtual bool open(int mode);
-    virtual bool close();
-    virtual void flush();
-
-    virtual QIODevice::Offset size() const;
-    virtual QIODevice::Offset at() const;
-    virtual bool seek(QIODevice::Offset);
-    virtual bool atEnd() const;
-    virtual bool isSequential() const;
-
-    virtual Q_LONG readBlock(char *data, Q_LONG maxlen);
-    virtual Q_LONG writeBlock(const char *data, Q_LONG len);
-
-    virtual int getch();
-    virtual int putch(int);
-    virtual int ungetch(int);
-
-    virtual Type type() const;
-};
 
 #endif

@@ -21,7 +21,6 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <stdlib.h>
-#include <qioengine.h>
 #ifndef Q_OS_TEMP
 #include <locale.h>
 #endif
@@ -32,6 +31,8 @@
 #if defined(Q_OS_WIN32)
 #include "qt_windows.h"
 #endif
+
+#include <private/qinternal_p.h>
 
 #define d d_func()
 #define q q_func()
@@ -192,9 +193,8 @@
 #define I_BASE_MASK        (QTS::bin | QTS::oct | QTS::dec | QTS::hex)
 
 #define I_SIGNED        0x0100
-#define I_UNSIGNED        0x0200
-#define I_SIGN_MASK        0x0f00
-
+#define I_UNSIGNED      0x0200
+#define I_SIGN_MASK     0x0f00
 
 static const unsigned short QEOF = 0xffff; //guaranteed not to be a character.
 static const uint getstr_tmp_size  = 64; //these are the temp buffers created on the stack,
@@ -208,85 +208,14 @@ const int QTextStream::adjustfield = (QTextStream::left |
 const int QTextStream::floatfield  = (QTextStream::scientific |
                                        QTextStream::fixed);
 
-class QCircularBuffer {
-    QByteArray buf[2];
-    uint used, start_off, start_buff, curr_buff;
-public:
-    QCircularBuffer() : used(0), start_off(0), start_buff(0),
-                        curr_buff(0) { }
-
-    char *alloc(uint);
-    char *take(uint, uint* =NULL);
-    void free(uint);
-
-    inline int numBuffers() { return 2; }
-    inline bool isEmpty() { return !size(); }
-    inline uint size() { return used; }
-    inline void truncate(uint i) { used -= i; }
-};
-inline char *QCircularBuffer::alloc(uint size)
-{
-    if(buf[curr_buff].size() <
-       (int)(used+size+(curr_buff == start_buff ? start_off : 0))) {
-        if(curr_buff == start_buff && buf[curr_buff].size()) {
-            buf[curr_buff].resize(start_off + used);
-            curr_buff = !curr_buff;
-            if(!buf[curr_buff].size())
-                buf[curr_buff].resize(getbuf_cache_size*2);
-        } else {
-            int sz = buf[curr_buff].size();
-            buf[curr_buff].resize(qMax((uint)sz + (sz / 2), (getbuf_cache_size*2)));
-        }
-    }
-    int off = used;
-    used += size;
-    if(curr_buff != start_buff)
-        off -= buf[start_buff].size() - start_off;
-    else
-        off += start_off;
-    return buf[curr_buff].data()+off;
-}
-inline char *QCircularBuffer::take(uint size, uint *real_size)
-{
-    if(size > used) {
-        qWarning("Warning: asked to take too much %d [%d]", size, used);
-        size = used;
-    }
-    if(real_size)
-        *real_size = qMin(size, buf[start_buff].size() - start_off);
-    return buf[start_buff].data()+start_off;
-}
-
-inline void QCircularBuffer::free(uint size)
-{
-    if(size > used) {
-        qWarning("Warning: asked to free too much %d [%d]", size, used);
-        size = used;
-    }
-    used -= size;
-    if(used == 0) {
-        curr_buff = start_buff = start_off = 0;
-        return;
-    }
-
-    uint start_size = buf[start_buff].size() - start_off;
-    if(start_size > size) {
-        start_off += size;
-    } else if(start_buff != curr_buff) {
-        start_buff = curr_buff;
-        start_off = start_size - size;
-    } else {
-        start_off = 0;
-    }
-}
-
 class QTextStreamPrivate {
     QTextStream *q_ptr;
     Q_DECLARE_PUBLIC(QTextStream)
 
 protected:
 #ifndef QT_NO_TEXTCODEC
-    QTextStreamPrivate() : decoder(0), encoder(0), sourceType(NotSet)  {  init();  }
+    QTextStreamPrivate() : decoder(0), encoder(0), 
+                           cacheReadBuf(getbuf_cache_size), sourceType(NotSet)  { init(); }
     ~QTextStreamPrivate() {
         delete decoder;
         delete encoder;
@@ -294,7 +223,7 @@ protected:
     QTextDecoder *decoder;
     QTextEncoder *encoder;
 #else
-    QTextStreamPrivate() : sourceType(NotSet) { init(); }
+    QTextStreamPrivate() : cacheReadBuf(getbuf_cache_size), sourceType(NotSet) { init(); }
     ~QTextStreamPrivate() { }
 #endif
 
@@ -325,8 +254,8 @@ protected:
     ulong input_dec();
     ulong input_hex();
     double input_double();
-    QTextStream &writeBlock(const char* p, uint len);
-    QTextStream &writeBlock(const QChar* p, uint len);
+    QTextStream &write(const char* p, uint len);
+    QTextStream &write(const QChar* p, uint len);
 
     QTextCodec         *mapper;
     bool internalOrder, networkOrder;
@@ -659,12 +588,12 @@ bool QTextStreamPrivate::ts_getbuf(QChar* buf, uint len, uchar end_flags, uint *
             return true;
         }
         int c2 = d->dev->getch();
-        if (c1 == 0xfe && c2 == 0xff) {
+        if (c1 == (int)0xfe && c2 == (int)0xff) {
             d->mapper = 0;
             d->latin1 = false;
             d->internalOrder = (QSysInfo::ByteOrder == QSysInfo::BigEndian);
             d->networkOrder = true;
-        } else if (c1 == 0xff && c2 == 0xfe) {
+        } else if (c1 == (int)0xff && c2 == (int)0xfe) {
             d->mapper = 0;
             d->latin1 = false;
             d->internalOrder = (QSysInfo::ByteOrder != QSysInfo::BigEndian);
@@ -697,13 +626,13 @@ bool QTextStreamPrivate::ts_getbuf(QChar* buf, uint len, uchar end_flags, uint *
                 break;
             }
         } else {
-            const uint buf_size = d->cacheReadBuf.size();
+            const uint buf_size = d->cacheReadBuf.used();
             uint need_num = ((len - rnum) * iter);
             if(need_num > buf_size) {
                 if(need_num < getbuf_cache_size)
                     need_num = getbuf_cache_size;
                 char *buff = d->cacheReadBuf.alloc(need_num);
-                uint r = d->dev->readBlock(buff, need_num);
+                uint r = d->dev->read(buff, need_num);
                 if(r < need_num)
                     d->cacheReadBuf.truncate(need_num - r);
                 if(!r && iter > 1) {
@@ -713,7 +642,7 @@ bool QTextStreamPrivate::ts_getbuf(QChar* buf, uint len, uchar end_flags, uint *
             }
         }
 
-        uint buffer_len = d->cacheReadBuf.size();
+        uint buffer_len = d->cacheReadBuf.used();
         char *buffer_data = d->cacheReadBuf.take(buffer_len, &buffer_len);
         if(!buffer_len)
             break;
@@ -854,7 +783,7 @@ void QTextStreamPrivate::ts_putc(QChar c)
         int len = 1;
         QString s(c);
         QByteArray block = d->encoder->fromUnicode(s, len);
-        d->dev->writeBlock(block, len);
+        d->dev->write(block, len);
     } else
 #endif
     if (d->latin1) {
@@ -870,7 +799,7 @@ void QTextStreamPrivate::ts_putc(QChar c)
         }
         if (d->internalOrder) {
             // this case is needed by QStringBuffer
-            d->dev->writeBlock((char*)&c, sizeof(QChar));
+            d->dev->write((char*)&c, sizeof(QChar));
         } else if (d->networkOrder) {
             d->dev->putch(c.row());
             d->dev->putch(c.cell());
@@ -916,7 +845,7 @@ void QTextStreamPrivate::ts_ungetc(QChar c)
     \warning The behavior of this function is undefined unless the
     stream's encoding is set to Unicode or Latin1.
 
-    \sa QIODevice::readBlock()
+    \sa QIODevice::read()
 */
 
 QTextStream &QTextStream::readRawBytes(char *s, uint len)
@@ -929,7 +858,7 @@ QTextStream &QTextStream::readRawBytes(char *s, uint len)
         return *this;
     }
     //from device
-    d->dev->readBlock(s, len);
+    d->dev->read(s, len);
     return *this;
 }
 
@@ -939,7 +868,7 @@ QTextStream &QTextStream::readRawBytes(char *s, uint len)
 
     Note that no encoding is done by this function.
 
-    \sa QIODevice::writeBlock()
+    \sa QIODevice::write()
 */
 
 QTextStream &QTextStream::writeRawBytes(const char* s, uint len)
@@ -950,12 +879,12 @@ QTextStream &QTextStream::writeRawBytes(const char* s, uint len)
         return *this;
     }
     //from device
-    d->dev->writeBlock(s, len);
+    d->dev->write(s, len);
     return *this;
 }
 
 
-QTextStream &QTextStreamPrivate::writeBlock(const char* p, uint len)
+QTextStream &QTextStreamPrivate::write(const char* p, uint len)
 {
     //just append directly onto the string (optimization)
     if (d->sourceType == QTextStreamPrivate::String) {
@@ -971,12 +900,12 @@ QTextStream &QTextStreamPrivate::writeBlock(const char* p, uint len)
     }
     // QByteArray and const char * are treated as Latin1
     if (!d->mapper && d->latin1) {
-        d->dev->writeBlock(p, len);
+        d->dev->write(p, len);
     } else if (!d->mapper && d->internalOrder) {
         QChar *u = new QChar[len];
         for (uint i = 0; i < len; i++)
             u[i] = QLatin1Char(p[i]);
-        d->dev->writeBlock((char*)u, len * sizeof(QChar));
+        d->dev->write((char*)u, len * sizeof(QChar));
         delete [] u;
     }
 #ifndef QT_NO_TEXTCODEC
@@ -986,7 +915,7 @@ QTextStream &QTextStreamPrivate::writeBlock(const char* p, uint len)
         QString s = QString::fromLatin1(p, len);
         int l = len;
         QByteArray block = d->encoder->fromUnicode(s, l);
-        d->dev->writeBlock(block, l);
+        d->dev->write(block, l);
     }
 #endif
     else {
@@ -996,7 +925,7 @@ QTextStream &QTextStreamPrivate::writeBlock(const char* p, uint len)
     return *q;
 }
 
-QTextStream &QTextStreamPrivate::writeBlock(const QChar* p, uint len)
+QTextStream &QTextStreamPrivate::write(const QChar* p, uint len)
 {
     //just append directly onto the string (optimization)
     if (d->sourceType == QTextStreamPrivate::String) {
@@ -1012,19 +941,19 @@ QTextStream &QTextStreamPrivate::writeBlock(const QChar* p, uint len)
         QString s(p, len);
         int l = len;
         QByteArray block = d->encoder->fromUnicode(s, l);
-        d->dev->writeBlock(block, l);
+        d->dev->write(block, l);
     } else
 #endif
     if (d->latin1) {
         QString cstr = QString::fromRawData(p, len);
-        d->dev->writeBlock(cstr.latin1(), len);
+        d->dev->write(cstr.latin1(), len);
     } else if (d->internalOrder) {
         if (d->doUnicodeHeader) {
             d->doUnicodeHeader = false;
             if (!d->dev->isSequentialAccess() && d->dev->at() == 0)
                 d->ts_putc(QChar::ByteOrderMark);
         }
-        d->dev->writeBlock((char*)p, sizeof(QChar)*len);
+        d->dev->write((char*)p, sizeof(QChar)*len);
     } else {
         for (uint i=0; i<len; i++)
             d->ts_putc(p[i]);
@@ -1782,10 +1711,10 @@ QTextStream &QTextStreamPrivate::output_int(int format, ulong n, bool neg)
             len = qstrlen(p);
             int padlen = d->fwidth - len;
             if (padlen <= 0) {                // no padding required
-                writeBlock(p, len);
+                write(p, len);
             } else if (padlen < (int)(p-buf)) { // speeds up padding
                 memset(p-padlen, d->fillchar, padlen);
-                writeBlock(p-padlen, padlen+len);
+                write(p-padlen, padlen+len);
             }
             else                                // standard padding
                 *q << (const char*)p;
@@ -1795,7 +1724,7 @@ QTextStream &QTextStreamPrivate::output_int(int format, ulong n, bool neg)
         d->fwidth = 0;                                // reset field width
     }
     else
-        writeBlock(p, qstrlen(p));
+        write(p, qstrlen(p));
     return *q;
 }
 
@@ -1928,7 +1857,7 @@ QTextStream &QTextStream::operator<<(double f)
     if (d->fwidth)                                // padding
         *this << num.latin1();
     else                                        // just write it
-        d->writeBlock(num.latin1(), num.length());
+        d->write(num.latin1(), num.length());
     return *this;
 }
 
@@ -1960,18 +1889,18 @@ QTextStream &QTextStream::operator<<(const char* s)
             }
             memset(ppad, d->fillchar, padlen);        // fill with d->fillchar
             if (!(flags() & left)) {
-                d->writeBlock(ppad, padlen);
+                d->write(ppad, padlen);
                 padlen = 0;
             }
-            d->writeBlock(s, len);
+            d->write(s, len);
             if (padlen)
-                d->writeBlock(ppad, padlen);
+                d->write(ppad, padlen);
             if (ppad != padbuf)                // delete extra big fill buf
                 delete[] ppad;
             return *this;
         }
     }
-    d->writeBlock(s, len);
+    d->write(s, len);
     return *this;
 }
 
@@ -2008,7 +1937,7 @@ QTextStream &QTextStream::operator<<(const QString& s)
             s1 = s.rightJustified(d->fwidth, QChar(d->fillchar));
         d->fwidth = 0;                                // reset width
     }
-    d->writeBlock(s1.unicode(), s1.length());
+    d->write(s1.unicode(), s1.length());
     return *this;
 }
 

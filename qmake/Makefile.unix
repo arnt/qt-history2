@@ -8,7 +8,7 @@ OBJS=project.o property.o main.o makefile.o unixmake2.o unixmake.o msvc_nmake.o 
 QOBJS=qchar.o qstring.o qstringmatcher.o qtextstream.o qiodevice.o qglobal.o \
       qbytearray.o qbytearraymatcher.o qdatastream.o qbuffer.o qlist.o qfile.o \
       qfileengine_unix.o qregexp.o qvector.o qbitarray.o qdir.o quuid.o qhash.o \
-      qfileinfo.o qdatetime.o qstringlist.o qfileengine.o qioengine.o qtemporaryfile.o \
+      qfileinfo.o qdatetime.o qstringlist.o qfileengine.o qtemporaryfile.o \
       qmap.o qconfig.o qunicodetables.o qcoresettings.o qcorevariant.o qmetatype.o \
       qlocale.o qlinkedlist.o @QMAKE_QTOBJS@
 
@@ -32,7 +32,7 @@ DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp qtmd5.cpp generators/makef
 	   @SOURCE_PATH@/src/core/io/qurl.cpp @SOURCE_PATH@/src/core/io/qcoresettings_mac.cpp \
 	   @SOURCE_PATH@/src/core/tools/qlocale.cpp @SOURCE_PATH@/src/core/tools/qlinkedlist.cpp \
 	   @SOURCE_PATH@/src/core/tools/qhash.cpp @SOURCE_PATH@/src/core/kernel/qcore_mac.cpp \
-	   @SOURCE_PATH@/src/core/io/qioengine.cpp @SOURCE_PATH@/src/core/io/qtemporaryfile.cpp \
+	   @SOURCE_PATH@/src/core/io/qtemporaryfile.cpp \
            @SOURCE_PATH@/src/core/kernel/qcorevariant.cpp @SOURCE_PATH@/src/core/kernel/qmetatype.cpp
 
 CXXFLAGS= @QMAKE_CFLAGS@ \
@@ -135,9 +135,6 @@ qfileengine.o: @SOURCE_PATH@/src/core/io/qfileengine.cpp
 
 qtemporaryfile.o: @SOURCE_PATH@/src/core/io/qtemporaryfile.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/io/qtemporaryfile.cpp
-
-qioengine.o: @SOURCE_PATH@/src/core/io/qioengine.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/io/qioengine.cpp
 
 qregexp.o: @SOURCE_PATH@/src/core/tools/qregexp.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/core/tools/qregexp.cpp

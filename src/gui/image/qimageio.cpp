@@ -679,7 +679,7 @@ QByteArray QImageIO::imageFormat(QIODevice *d)
     qt_init_image_handlers();
     qt_init_image_plugins();
     int pos = d->at();                        // save position
-    int rdlen = d->readBlock(buf, buflen);        // read a few bytes
+    int rdlen = d->read(buf, buflen);        // read a few bytes
 
     QByteArray format;
     if (rdlen != buflen)
@@ -1104,18 +1104,18 @@ bool read_dib(QDataStream& s, int offset, int startpos, QImage& image)
         uchar rgb[4];
         int   rgb_len = t == BMP_OLD ? 3 : 4;
         for (int i=0; i<ncols; i++) {
-            if (d->readBlock((char *)rgb, rgb_len) != rgb_len)
+            if (d->read((char *)rgb, rgb_len) != rgb_len)
                 return false;
             image.setColor(i, qRgb(rgb[2],rgb[1],rgb[0]));
             if (d->atEnd())                        // truncated file
                 return false;
         }
     } else if (comp == BMP_BITFIELDS && (nbits == 16 || nbits == 32)) {
-        if ((Q_ULONG)d->readBlock((char *)&red_mask, sizeof(red_mask)) != sizeof(red_mask))
+        if ((Q_ULONG)d->read((char *)&red_mask, sizeof(red_mask)) != sizeof(red_mask))
             return false;
-        if ((Q_ULONG)d->readBlock((char *)&green_mask, sizeof(green_mask)) != sizeof(green_mask))
+        if ((Q_ULONG)d->read((char *)&green_mask, sizeof(green_mask)) != sizeof(green_mask))
             return false;
-        if ((Q_ULONG)d->readBlock((char *)&blue_mask, sizeof(blue_mask)) != sizeof(blue_mask))
+        if ((Q_ULONG)d->read((char *)&blue_mask, sizeof(blue_mask)) != sizeof(blue_mask))
             return false;
         red_shift = calc_shift(red_mask);
         red_scale = 256 / ((red_mask >> red_shift) + 1);
@@ -1153,7 +1153,7 @@ bool read_dib(QDataStream& s, int offset, int startpos, QImage& image)
 
     if (nbits == 1) {                                // 1 bit BMP image
         while (--h >= 0) {
-            if (d->readBlock((char*)line[h],bpl) != bpl)
+            if (d->read((char*)line[h],bpl) != bpl)
                 break;
 #ifdef Q_WS_QWS
             if (pad > 0)
@@ -1232,7 +1232,7 @@ bool read_dib(QDataStream& s, int offset, int startpos, QImage& image)
             }
         } else if (comp == BMP_RGB) {                // no compression
             while (--h >= 0) {
-                if (d->readBlock((char*)buf,buflen) != buflen)
+                if (d->read((char*)buf,buflen) != buflen)
                     break;
                 register uchar *p = line[h];
                 uchar *b = buf;
@@ -1282,7 +1282,7 @@ bool read_dib(QDataStream& s, int offset, int startpos, QImage& image)
                             if (p + b > endp)
                                 b = endp-p;
 
-                            if (d->readBlock((char *)p, b) != b)
+                            if (d->read((char *)p, b) != b)
                                 return false;
                             if ((b & 1) == 1)
                                 d->getch();        // align on word boundary
@@ -1301,7 +1301,7 @@ bool read_dib(QDataStream& s, int offset, int startpos, QImage& image)
             }
         } else if (comp == BMP_RGB) {                // uncompressed
             while (--h >= 0) {
-                if (d->readBlock((char *)line[h],bpl) != bpl)
+                if (d->read((char *)line[h],bpl) != bpl)
                     break;
 #ifdef Q_WS_QWS
                 if (pad > 0)
@@ -1322,7 +1322,7 @@ bool read_dib(QDataStream& s, int offset, int startpos, QImage& image)
         while (--h >= 0) {
             p = (QRgb *)line[h];
             end = p + w;
-            if (d->readBlock((char *)buf24,bpl24) != bpl24)
+            if (d->read((char *)buf24,bpl24) != bpl24)
                 break;
             b = buf24;
             while (p < end) {
@@ -1417,7 +1417,7 @@ bool qt_write_dib(QDataStream& s, QImage image)
             *rgb++ = qRed  (c[i]);
             *rgb++ = 0;
         }
-        d->writeBlock((char *)color_table, 4*image.numColors());
+        d->write((char *)color_table, 4*image.numColors());
         delete [] color_table;
     }
 
@@ -1433,9 +1433,9 @@ bool qt_write_dib(QDataStream& s, QImage image)
         char padding[4];
 #endif
         for (y=image.height()-1; y>=0; y--) {
-            d->writeBlock((char*)image.scanLine(y), bpl);
+            d->write((char*)image.scanLine(y), bpl);
 #ifdef Q_WS_QWS
-            d->writeBlock(padding, pad);
+            d->write(padding, pad);
 #endif
         }
         return true;
@@ -1468,7 +1468,7 @@ bool qt_write_dib(QDataStream& s, QImage image)
                 p++;
             }
         }
-        if (bpl_bmp != d->writeBlock((char*)buf, bpl_bmp)) {
+        if (bpl_bmp != d->write((char*)buf, bpl_bmp)) {
             delete[] buf;
             return false;
         }
@@ -1561,7 +1561,7 @@ static void read_pbm_image(QImageIO *iio)        // read PBM image data
     bool        raw;
     QImage        image;
 
-    if (d->readBlock(buf, 3) != 3)                        // read P[1-6]<white-space>
+    if (d->read(buf, 3) != 3)                        // read P[1-6]<white-space>
         return;
     if (!(buf[0] == 'P' && isdigit((uchar) buf[1]) && isspace((uchar) buf[2])))
         return;
@@ -1608,7 +1608,7 @@ static void read_pbm_image(QImageIO *iio)        // read PBM image data
             QRgb  *p;
             QRgb  *end;
             for (y=0; y<h; y++) {
-                if (d->readBlock((char *)buf24, pbm_bpl) != pbm_bpl) {
+                if (d->read((char *)buf24, pbm_bpl) != pbm_bpl) {
                     delete[] buf24;
                     return;
                 }
@@ -1623,7 +1623,7 @@ static void read_pbm_image(QImageIO *iio)        // read PBM image data
             delete[] buf24;
         } else {                                // type 4,5
             for (y=0; y<h; y++) {
-                if (d->readBlock((char *)image.scanLine(y), pbm_bpl)
+                if (d->read((char *)image.scanLine(y), pbm_bpl)
                         != pbm_bpl)
                     return;
             }
@@ -1737,14 +1737,14 @@ static void write_pbm_image(QImageIO *iio)
     switch (image.depth()) {
         case 1: {
             str.insert(1, '4');
-            if (out->writeBlock(str, str.length()) != str.length()) {
+            if (out->write(str, str.length()) != str.length()) {
                 iio->setStatus(1);
                 return;
             }
             w = (w+7)/8;
             for (uint y=0; y<h; y++) {
                 uchar* line = image.scanLine(y);
-                if (w != (uint)out->writeBlock((char*)line, w)) {
+                if (w != (uint)out->write((char*)line, w)) {
                     iio->setStatus(1);
                     return;
                 }
@@ -1755,7 +1755,7 @@ static void write_pbm_image(QImageIO *iio)
         case 8: {
             str.insert(1, gray ? '5' : '6');
             str.append("255\n");
-            if (out->writeBlock(str, str.length()) != str.length()) {
+            if (out->write(str, str.length()) != str.length()) {
                 iio->setStatus(1);
                 return;
             }
@@ -1779,7 +1779,7 @@ static void write_pbm_image(QImageIO *iio)
                         *p++ = qBlue(rgb);
                     }
                 }
-                if (bpl != (uint)out->writeBlock((char*)buf, bpl)) {
+                if (bpl != (uint)out->write((char*)buf, bpl)) {
                     iio->setStatus(1);
                     return;
                 }
@@ -1791,7 +1791,7 @@ static void write_pbm_image(QImageIO *iio)
         case 32: {
             str.insert(1, gray ? '5' : '6');
             str.append("255\n");
-            if (out->writeBlock(str, str.length()) != str.length()) {
+            if (out->write(str, str.length()) != str.length()) {
                 iio->setStatus(1);
                 return;
             }
@@ -1814,7 +1814,7 @@ static void write_pbm_image(QImageIO *iio)
                         *p++ = qBlue(rgb);
                     }
                 }
-                if (bpl != (uint)out->writeBlock((char*)buf, bpl)) {
+                if (bpl != (uint)out->write((char*)buf, bpl)) {
                     iio->setStatus(1);
                     return;
                 }
@@ -1858,7 +1858,7 @@ static void read_async_image(QImageIO *iio)
     int totLen = 0;
 
     for (;;) {
-        int length = d->readBlock((char*)buffer, buf_len);
+        int length = d->read((char*)buffer, buf_len);
         if (length <= 0) {
             iio->setStatus(length);
             break;
@@ -1987,11 +1987,11 @@ static void write_xbm_image(QImageIO *iio)
     char       buf[100];
 
     sprintf(buf, "#define %s_width %d\n", s.ascii(), w);
-    d->writeBlock(buf, qstrlen(buf));
+    d->write(buf, qstrlen(buf));
     sprintf(buf, "#define %s_height %d\n", s.ascii(), h);
-    d->writeBlock(buf, qstrlen(buf));
+    d->write(buf, qstrlen(buf));
     sprintf(buf, "static char %s_bits[] = {\n ", s.ascii());
-    d->writeBlock(buf, qstrlen(buf));
+    d->write(buf, qstrlen(buf));
 
     iio->setStatus(0);
 
@@ -2034,7 +2034,7 @@ static void write_xbm_image(QImageIO *iio)
                 *p++ = '\n';
                 *p++ = ' ';
                 *p   = '\0';
-                if ((int)qstrlen(buf) != d->writeBlock(buf, qstrlen(buf))) {
+                if ((int)qstrlen(buf) != d->write(buf, qstrlen(buf))) {
                     iio->setStatus(1);
                     return;
                 }
@@ -2044,7 +2044,7 @@ static void write_xbm_image(QImageIO *iio)
         }
     }
     strcpy(p, " };\n");
-    if ((int)qstrlen(buf) != d->writeBlock(buf, qstrlen(buf)))
+    if ((int)qstrlen(buf) != d->write(buf, qstrlen(buf)))
         iio->setStatus(1);
 }
 

@@ -49,7 +49,7 @@ void CALLBACK_CALL_TYPE iod_read_fn(png_structp png_ptr, png_bytep data, png_siz
     QIODevice* in = iio->ioDevice();
 
     while (length) {
-        int nr = in->readBlock((char*)data, length);
+        int nr = in->read((char*)data, length);
         if (nr <= 0) {
             png_error(png_ptr, "Read Error");
             return;
@@ -65,7 +65,7 @@ void CALLBACK_CALL_TYPE qpiw_write_fn(png_structp png_ptr, png_bytep data, png_s
     QPNGImageWriter* qpiw = (QPNGImageWriter*)png_get_io_ptr(png_ptr);
     QIODevice* out = qpiw->device();
 
-    uint nr = out->writeBlock((char*)data, length);
+    uint nr = out->write((char*)data, length);
     if (nr != length) {
         png_error(png_ptr, "Write Error");
         return;

@@ -30,7 +30,6 @@
 #include "qglobal.h"
 #include "qstring.h"
 #include "qobjectdefs.h"
-#include "qioengine.h"
 #endif // QT_H
 
 class Q_CORE_EXPORT QIODevicePrivate

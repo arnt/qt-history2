@@ -20,7 +20,6 @@
 #include "qobjectdefs.h"
 #endif // QT_H
 
-class QIOEngine;
 class QByteArray;
 class QIODevicePrivate;
 
@@ -102,38 +101,48 @@ public:
     void resetStatus();
     QString errorString() const;
 
-    bool open(int mode);
-    void close();
-    void flush();
+    virtual bool open(int) { return false; }
+    virtual void close() = 0;
+    virtual void flush() { }
 
-    Offset size() const;
-    Offset at() const;
-    bool seek(Offset off);
-#ifdef QT_COMPAT
-    inline QT_COMPAT bool at(Offset off) { return seek(off); }
-#endif
-    bool atEnd() const;
+    virtual Q_LLONG size() const = 0;
+    virtual Q_LLONG at() const = 0;
+    virtual bool seek(Q_LLONG off) = 0;
+    virtual bool atEnd() const { return at() == size(); }
     inline bool reset() { return seek(0); }
 
-    Q_LONG readBlock(char *data, Q_LONG maxlen);
-    Q_LONG writeBlock(const char *data, Q_LONG len);
-    Q_LONG readLine(char *data, Q_LONG maxlen);
-    QByteArray readAll();
-    inline Q_LONG writeBlock(const QByteArray &data) { return writeBlock(data.constData(), data.size()); }
+    virtual Q_LLONG read(char *data, Q_LLONG maxlen) = 0;
+    inline QByteArray read(Q_LLONG maxlen) 
+    { QByteArray ret; ret.resize(maxlen); read(ret.data(), maxlen); return ret; }
+    virtual Q_LLONG write(const char *data, Q_LLONG len) = 0;
+    inline Q_LLONG write(const QByteArray &data) { return write(data.constData(), data.size()); }
+    virtual Q_LLONG readLine(char *data, Q_LLONG maxlen);
+    virtual QByteArray readLine();
+    virtual QByteArray readAll();
 
-    int getch();
-    int putch(int);
-    int ungetch(int);
+#ifdef QT_COMPAT
+    inline QT_COMPAT bool at(Q_LLONG off) { return seek(off); }
+    inline QT_COMPAT Q_LONG readBlock(char *data, Q_LONG maxlen)
+    { return read(data, maxlen); }
+    inline QT_COMPAT Q_LONG writeBlock(const char *data, Q_LONG maxlen)
+    { return write(data, maxlen); }
+    inline QT_COMPAT Q_LONG writeBlock(const QByteArray &data)
+    { return write(data); }
+#endif
 
-    virtual QIOEngine *ioEngine() const = 0;
+    virtual int getch();
+    virtual int putch(int character);
+    virtual int ungetch(int character) = 0;
 
 protected:
     QIODevice(QIODevicePrivate &d);
 
-    void setFlags(int f);
+    void setFlags(int);
     void setType(int);
     void setMode(int);
     void setState(int);
+    void setBufferSize(int);
+
     void setStatus(int);
     void setStatus(int, const QString &errorString);
     void setStatus(int, int);

@@ -18,6 +18,8 @@
 #include <qfileengine.h>
 #include <qfileinfo.h>
 #include <qtemporaryfile.h>
+#include <private/qfile_p.h>
+
 #include <qlist.h>
 
 #include <errno.h>
@@ -25,34 +27,13 @@
 #define d d_func()
 #define q q_func()
 
+static const int read_cache_size = 4096;
+
 //************* QFilePrivate
-class QFilePrivate : public QIODevicePrivate
-{
-    Q_DECLARE_PUBLIC(QFile)
-
-protected:
-    QFilePrivate();
-    ~QFilePrivate();
-
-    bool openExternalFile(int flags, int fd);
-    inline QFileEngine *getFileEngine() const { return static_cast<QFileEngine*>(q->ioEngine()); }
-
-private:
-    inline static QByteArray locale_encode(const QString &f)
-           { return f.toLocal8Bit(); }
-    static QFile::EncoderFn encoder;
-    inline static QString locale_decode(const QByteArray &f)
-           { return QString::fromLocal8Bit(f); }
-    static QFile::DecoderFn decoder;
-
-    QString fileName;
-    mutable QFileEngine *fileEngine;
-};
-
 QFile::EncoderFn QFilePrivate::encoder = QFilePrivate::locale_encode;
 QFile::DecoderFn QFilePrivate::decoder = QFilePrivate::locale_decode;
 
-QFilePrivate::QFilePrivate() : fileEngine(0)
+QFilePrivate::QFilePrivate() : buffer(read_cache_size), fileEngine(0)
 {
 }
 
@@ -92,8 +73,8 @@ QFilePrivate::openExternalFile(int flags, int fd)
 
     The file is opened with open(), closed with close(), and flushed
     with flush(). Data is usually read and written using QDataStream
-    or QTextStream, but you can read with readBlock() and readLine(),
-    and write with writeBlock(). QFile also supports getch(), ungetch(),
+    or QTextStream, but you can read with read() and readLine(),
+    and write with write(). QFile also supports getch(), ungetch(),
     and putch().
 
     The size of the file is returned by size(). You can get the
@@ -204,6 +185,15 @@ QFile::QFile() : QIODevice(*new QFilePrivate)
 QFile::QFile(const QString &name) : QIODevice(*new QFilePrivate)
 {
     d->fileName = name;
+    setFlags(QIODevice::Direct);
+    resetStatus();
+}
+
+/*!
+   \internal
+*/
+QFile::QFile(QFilePrivate &dd) : QIODevice(dd)
+{
     setFlags(QIODevice::Direct);
     resetStatus();
 }
@@ -356,7 +346,7 @@ QFile::setDecodingFunction(DecoderFn f)
 bool
 QFile::exists() const
 {
-    return (d->getFileEngine()->fileFlags(QFileEngine::FlagsMask) & QFileEngine::ExistsFlag);
+    return (fileEngine()->fileFlags(QFileEngine::FlagsMask) & QFileEngine::ExistsFlag);
 }
 
 /*!
@@ -388,7 +378,7 @@ QFile::remove()
     }
     close();
     if(status() == QIODevice::Ok) {
-        if(d->getFileEngine()->remove()) {
+        if(fileEngine()->remove()) {
             resetStatus();
             return true;
         }
@@ -431,7 +421,7 @@ QFile::rename(const QString &newName)
     }
     close();
     if(status() == QIODevice::Ok) {
-        if(d->getFileEngine()->rename(newName)) {
+        if(fileEngine()->rename(newName)) {
             resetStatus();
             return true;
         }
@@ -471,7 +461,7 @@ QFile::link(const QString &newName)
         qWarning("QFile::link: Empty or null file name");
         return false;
     }
-    if(d->getFileEngine()->link(newName)) {
+    if(fileEngine()->link(newName)) {
         resetStatus();
         return true;
     }
@@ -529,10 +519,10 @@ QFile::copy(const QString &newName)
             } else {
                 char block[1024];
                 while(!atEnd()) {
-                    Q_LONG in = readBlock(block, 1024);
+                    Q_LONG in = read(block, 1024);
                     if(in == -1)
                         break;
-                    if(in != out.writeBlock(block, in)) {
+                    if(in != out.write(block, in)) {
                         setStatus(QIODevice::CopyError,
                                   QLatin1String("Failure to write block"));
                         error = true;
@@ -584,7 +574,7 @@ QFile::copy(const QString &fileName, const QString &newName)
         {
             QFile file;
             file.open(QIODevice::WriteOnly, stderr);
-            file.writeBlock(msg, qstrlen(msg));        // write to stderr
+            file.write(msg, qstrlen(msg));        // write to stderr
             file.close();
         }
     \endcode
@@ -603,6 +593,40 @@ bool
 QFile::open(int mode, FILE *fh)
 {
     return open(mode, QT_FILENO(fh));
+}
+
+/*!
+
+    \sa close()
+*/
+
+bool
+QFile::open(int mode)
+{
+    if (isOpen()) {
+        qWarning("QFile::open: File already open");
+        return false;
+    }
+    if(mode & Append) //append implies write
+        mode |= WriteOnly;
+    setFlags(QIODevice::Direct);
+    resetStatus();
+    setMode(mode);
+    if (!(isReadable() || isWritable())) {
+        qWarning("QIODevice::open: File access not specified");
+        return false;
+    }
+    if(fileEngine()->open(flags())) {
+        setState(QIODevice::Open);
+        if(fileEngine()->isSequential())
+            setType(Sequential);
+        return true;
+    }
+    QIODevice::Status error = fileEngine()->errorStatus();
+    if(error == QIODevice::UnspecifiedError)
+        error = QIODevice::OpenError;
+    setStatus(error, fileEngine()->errorString());
+    return false;
 }
 
 /*!
@@ -645,13 +669,107 @@ QFile::open(int mode, int fd)
     if(d->openExternalFile(flags(), fd)) {
         setState(QIODevice::Open);
         setMode(mode | QIODevice::Raw);
-        if(d->getFileEngine()->isSequential())
+        if(fileEngine()->isSequential())
             setType(QIODevice::Sequential);
         return true;
     }
     return false;
 }
 
+/*!
+    \reimp
+*/
+
+int
+QFile::ungetch(int character)
+{
+    if (!isOpen()) {                                // file not open
+        qWarning("QFile::ungetch: File not open");
+        return EOF;
+    }
+    if (!isReadable()) {                        // reading not permitted
+        qWarning("QFile::ungetch: Read operation not permitted");
+        return EOF;
+    }
+    if (character == EOF)                        // cannot unget EOF
+        return character;
+    char *ch = d->buffer.isEmpty() ? d->buffer.alloc(1) : d->buffer.take(1);
+    *ch = (char)character;
+    return character;
+}
+
+/*!
+    \reimp
+*/
+
+Q_LLONG 
+QFile::readLine(char *data, Q_LLONG maxlen)
+{
+    if (maxlen <= 0) // nothing to do
+        return 0;
+    Q_CHECK_PTR(data);
+    if (!isOpen()) {
+        qWarning("QFile::readLine: File not open");
+        return -1;
+    }
+    if (!isReadable()) {
+        qWarning("QFile::readLine: Read operation not permitted");
+        return -1;
+    }
+    
+    Q_LLONG ret = 0;
+    //from buffer
+    while(!d->buffer.isEmpty()) {
+        uint buffered = qMin(maxlen, (Q_LLONG)d->buffer.used()), len = 0;
+        char *buffer = d->buffer.take(buffered, &buffered);
+        for( ; len < buffered; len++) {
+            if(*(buffer+len) == '\n') 
+                break;
+        }
+
+        uint need = qMin(maxlen-ret-1, (Q_LLONG)len);
+        memcpy(data+ret, buffer, need);
+        ret += need;
+        d->buffer.free(need+1);
+        if(len != buffered || ret == maxlen) { //found end
+            if(ret != maxlen) {
+                *(data + need) = '\0';
+                ret++;
+            }
+            return ret;
+        }
+    }
+    //from the device
+    while(1) {
+        char *buffer = d->buffer.alloc(read_cache_size);
+        Q_LLONG got = fileEngine()->read(buffer, read_cache_size);
+        if(got == -1) {
+            if(ret == 0)
+                ret = -1;
+            break;
+        }
+        if(got < read_cache_size) 
+            d->buffer.truncate(read_cache_size - got);
+        uint len = 0;
+        for( ; len < got; len++) {
+            if(*(buffer+len) == '\n') 
+                break;
+        }
+
+        uint need = qMin(maxlen-ret-1, (Q_LLONG)len);
+        memcpy(data+ret, buffer, need);
+        ret += need;
+        d->buffer.free(need+1);
+        if(len != got || ret == maxlen) {//found end
+            if(ret != maxlen) {
+                *(data + ret) = '\0';
+                ret++;
+            }
+            break;
+        }
+    }
+    return ret;
+}
 
 /*!
     \fn Q_LONG QFile::readLine(QString &string, Q_LONG maximum)
@@ -669,15 +787,15 @@ QFile::open(int mode, int fd)
 
     Note that the string is read as plain Latin1 bytes, not Unicode.
 
-    \sa readBlock(), QTextStream::readLine()
+    \sa read(), QTextStream::readLine()
 */
 
-Q_LONG
-QFile::readLine(QString &s, Q_LONG maxlen)
+Q_LLONG
+QFile::readLine(QString &s, Q_LLONG maxlen)
 {
     QByteArray ba;
     ba.resize(maxlen);
-    Q_LONG l = readLine(ba.data(), maxlen);
+    Q_LLONG l = readLine(ba.data(), maxlen);
     if (l >= 0)
         s = QString::fromLatin1(ba);
     return l;
@@ -701,21 +819,10 @@ QFile::handle() const
 {
     if (!isOpen())
         return -1;
-    QFileEngine *engine = d->getFileEngine();
+    QFileEngine *engine = fileEngine();
     if(engine->type() == QFileEngine::File)
         return static_cast<QFSFileEngine*>(engine)->handle();
     return -1;
-}
-
-/*!
-  \reimp
-*/
-QIOEngine
-*QFile::ioEngine() const
-{
-    if(!d->fileEngine)
-        d->fileEngine = QFileEngine::createFileEngine(d->fileName);
-    return d->fileEngine;
 }
 
 /*!
@@ -742,7 +849,7 @@ QIOEngine
 bool
 QFile::resize(QIODevice::Offset sz)
 {
-    if(d->getFileEngine()->setSize(sz)) {
+    if(fileEngine()->setSize(sz)) {
         resetStatus();
         return true;
     }
@@ -777,7 +884,7 @@ QFile::resize(const QString &fileName, QIODevice::Offset sz)
 uint
 QFile::permissions() const
 {
-    return (d->getFileEngine()->fileFlags(QFileEngine::PermsMask) & QFileEngine::PermsMask);
+    return (fileEngine()->fileFlags(QFileEngine::PermsMask) & QFileEngine::PermsMask);
 }
 
 /*!
@@ -806,7 +913,7 @@ QFile::permissions(const QString &fileName)
 bool
 QFile::setPermissions(uint permissionSpec)
 {
-    if(d->getFileEngine()->chmod(permissionSpec)) {
+    if(fileEngine()->chmod(permissionSpec)) {
         resetStatus();
         return true;
     }
@@ -829,4 +936,181 @@ QFile::setPermissions(const QString &fileName, uint permissionSpec)
 {
     return QFile(fileName).setPermissions(permissionSpec);
 }
+
+/*!
+  \reimp
+*/
+
+void 
+QFile::flush() 
+{ 
+    fileEngine()->flush();
+}
+
+/*!
+  \reimp
+*/
+
+void
+QFile::close()
+{
+    if(!isOpen())
+        return;
+
+    resetStatus();
+    d->buffer.clear();
+    if(!fileEngine()->close()) {
+        QIODevice::Status error = fileEngine()->errorStatus();
+        setStatus(error, fileEngine()->errorString());
+    } else {
+        setFlags(QIODevice::Direct);
+    }
+}
+
+/*!
+  \reimp
+*/
+
+Q_LLONG QFile::size() const
+{
+    return fileEngine()->size();
+}
+
+/*!
+  \reimp
+*/
+
+Q_LLONG QFile::at() const
+{
+    if (!isOpen())
+        return 0;
+    return fileEngine()->at() - d->buffer.used();
+}
+
+/*!
+  \reimp
+*/
+
+bool QFile::seek(Q_LLONG off)
+{
+    if (!isOpen()) {
+        qWarning("QFile::seek: IODevice is not open");
+        return false;
+    }
+    if(!fileEngine()->seek(off)) {
+        QIODevice::Status error = fileEngine()->errorStatus();
+        if(error == QIODevice::UnspecifiedError)
+            error = QIODevice::PositionError;
+        setStatus(error, fileEngine()->errorString());
+        return false;
+    }
+    d->buffer.clear();
+    resetStatus();
+    return true;
+}
+
+/*!
+  \reimp
+*/
+
+Q_LLONG QFile::read(char *data, Q_LLONG len)
+{
+    if (len <= 0) // nothing to do
+        return 0;
+    Q_CHECK_PTR(data);
+    if (!isOpen()) {
+        qWarning("QFile::read: File not open");
+        return -1;
+    }
+    if (!isReadable()) {
+        qWarning("QFile::read: Read operation not permitted");
+        return -1;
+    }
+    resetStatus();
+
+    Q_LLONG ret = 0;
+    //from buffer
+    while(ret != len && !d->buffer.isEmpty()) {
+        uint buffered = qMin(len, (Q_LLONG)d->buffer.used());
+        char *buffer = d->buffer.take(buffered, &buffered);
+        memcpy(data+ret, buffer, buffered);
+        d->buffer.free(buffered);
+        ret += buffered;
+    }
+    //from the device
+    if(ret < len) {
+        if(len > read_cache_size) {
+            Q_LLONG read = fileEngine()->read(data, len);
+            if(read != -1)
+                ret += read;
+        } else {
+            char *buffer = d->buffer.alloc(read_cache_size);
+            Q_LLONG got = fileEngine()->read(buffer, read_cache_size);
+            if(got != -1) {
+                if(got < read_cache_size) 
+                    d->buffer.truncate(read_cache_size - got);
+
+                const Q_LLONG need = qMin(len-ret, got);
+                memcpy(data+ret, buffer, need);
+                d->buffer.free(need);
+                ret += need;
+            } else {
+                if(!ret)
+                    ret = -1;
+                d->buffer.truncate(read_cache_size);
+            }
+        }
+    }
+    if(ret < 0) {
+        QIODevice::Status error = fileEngine()->errorStatus();
+        if(error == QIODevice::UnspecifiedError)
+            error = QIODevice::ReadError;
+        setStatus(error, fileEngine()->errorString());
+    }
+    return ret;
+}
+
+/*!
+  \reimp
+*/
+
+Q_LLONG QFile::write(const char *data, Q_LLONG len)
+{
+    if (len <= 0) // nothing to do
+        return 0;
+    Q_CHECK_PTR(data);
+    if (!isOpen()) {                                // file not open
+        qWarning("QFile::write: File not open");
+        return -1;
+    }
+    if (!isWritable()) {                        // writing not permitted
+        qWarning("QFile::write: Write operation not permitted");
+        return -1;
+    }
+    resetStatus();
+
+    if(!d->buffer.isEmpty()) 
+        seek(at());
+    Q_LLONG ret = fileEngine()->write(data, len);
+    if(ret < 0) {
+        QIODevice::Status error = fileEngine()->errorStatus();
+        if(error == QIODevice::UnspecifiedError)
+            error = QIODevice::WriteError;
+        setStatus(error, fileEngine()->errorString());
+    }
+    return ret;
+}
+
+/*!
+  Returns the QIOEngine for this QFile object. 
+*/
+
+QFileEngine
+*QFile::fileEngine() const
+{
+    if(!d->fileEngine)
+        d->fileEngine = QFileEngine::createFileEngine(d->fileName);
+    return d->fileEngine;
+}
+
 

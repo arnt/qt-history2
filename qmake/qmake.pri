@@ -43,7 +43,6 @@ bootstrap { #Qt code
         qglobal.cpp \
         qhash.cpp \
         qiodevice.cpp \
-        qioengine.cpp \
         qlist.cpp \
         qlocale.cpp \
         qmap.cpp \
@@ -75,7 +74,6 @@ bootstrap { #Qt code
         qglobal.h \
         qhash.h \
         qiodevice.h \
-        qioengine.h \
         qlist.h \
         qlocale.h \
         qmap.h \

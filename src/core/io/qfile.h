@@ -20,6 +20,7 @@
 #include <stdio.h>
 #endif // QT_H
 
+class QFileEngine;
 class QFilePrivate;
 class Q_CORE_EXPORT QFile : public QIODevice
 {
@@ -68,20 +69,32 @@ public:
     bool copy(const QString &newName);
     static bool copy(const QString &fileName, const QString &newName);
 
-#ifdef Q_NO_USING_KEYWORD
-    inline bool open(int mode) { return QIODevice::open(mode); }
-#else
-    using QIODevice::open;
-#endif
+    virtual bool open(int mode);
     bool open(int, FILE *);
     bool open(int, int);
+    virtual void close();
 
-#ifdef Q_NO_USING_KEYWORD
-    inline Q_LONG readLine(char *data, Q_LONG maxlen) { return QIODevice::readLine(data, maxlen); }
+#ifdef QT_COMPAT
+#if !defined(Q_NO_USING_KEYWORD)
+    using QIODevice::at;
 #else
-    using QIODevice::readLine;
+    inline QT_COMPAT bool at(Q_LLONG off) { QIODevice::at(off); }
 #endif
-    Q_LONG readLine(QString &string, Q_LONG maxlen);
+#endif
+
+    virtual Q_LLONG size() const;
+    virtual Q_LLONG at() const;
+    virtual bool seek(Q_LLONG off);
+
+    virtual Q_LLONG read(char *data, Q_LLONG maxlen);
+    virtual Q_LLONG write(const char *data, Q_LLONG len);
+
+    virtual void flush();
+
+    virtual int ungetch(int character);
+
+    virtual Q_LLONG readLine(char *data, Q_LLONG maxlen);
+    Q_LLONG readLine(QString &string, Q_LLONG maxlen);
 
     bool resize(QIODevice::Offset sz);
     static bool resize(const QString &filename, QIODevice::Offset sz);
@@ -93,7 +106,10 @@ public:
 
     int handle() const;
 
-    virtual QIOEngine *ioEngine() const;
+    virtual QFileEngine *fileEngine() const;
+
+protected:
+    QFile(QFilePrivate &d);
 
 private:
     Q_DISABLE_COPY(QFile)

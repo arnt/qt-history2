@@ -175,16 +175,16 @@ int QSocketDevicePrivate::createNewSocket()
 
     \sa open()
 */
-bool QSocketDeviceEngine::close()
+void QSocketDevice::close()
 {
-    if (d->device->d->fd == -1)                // already closed
+    if (d->fd == -1)                // already closed
         return false;
-    ::close(d->device->d->fd);
+    ::close(d->fd);
 #if defined(QSOCKETDEVICE_DEBUG)
     qDebug("QSocketDevice::close: Closed socket %x", d->device->d->fd);
 #endif
-    d->device->d->fd = -1;
-    d->device->d->fetchConnectionParameters();
+    d->fd = -1;
+    d->fetchConnectionParameters();
     return true;
 }
 
@@ -704,16 +704,16 @@ Q_LONG QSocketDevice::waitForMore(int msecs, bool *timeout) const
     Reads \a maxlen bytes from the socket into \a data and returns the
     number of bytes read. Returns -1 if an error occurred.
 */
-Q_LONG QSocketDeviceEngine::readBlock(char *data, Q_LONG maxlen)
+Q_LLONG QSocketDevice::read(char *data, Q_LLONG maxlen)
 {
-    if (!d->device->isValid()) {
+    if (!isValid()) {
         qWarning("QSocketDevice::readBlock: Invalid socket");
         return -1;
     }
     bool done = false;
     int r = 0;
     while (done == false) {
-        if (d->device->d->t == QSocketDevice::Datagram) {
+        if (d->t == QSocketDevice::Datagram) {
 #if !defined(QT_NO_IPV6)
             struct sockaddr_storage aa;
 #else
@@ -722,19 +722,19 @@ Q_LONG QSocketDeviceEngine::readBlock(char *data, Q_LONG maxlen)
             memset(&aa, 0, sizeof(aa));
             QT_SOCKLEN_T sz;
             sz = sizeof(aa);
-            r = ::recvfrom(d->device->d->fd, data, maxlen, 0, (struct sockaddr *)&aa, &sz);
+            r = ::recvfrom(d->fd, data, maxlen, 0, (struct sockaddr *)&aa, &sz);
 
-            qt_socket_getportaddr((struct sockaddr *)&aa, &d->device->d->pp, &d->device->d->pa);
+            qt_socket_getportaddr((struct sockaddr *)&aa, &d->pp, &d->pa);
 
         } else {
-            r = ::read(d->device->d->fd, data, maxlen);
+            r = ::read(d->fd, data, maxlen);
         }
         done = true;
         if (r >= 0 || errno == EAGAIN || errno == EWOULDBLOCK) {
             // nothing
         } else if (errno == EINTR) {
             done = false;
-        } else if (d->device->d->e == QSocketDevice::NoError) {
+        } else if (d->e == QSocketDevice::NoError) {
             switch(errno) {
             case EIO:
             case EISDIR:
@@ -743,7 +743,7 @@ Q_LONG QSocketDeviceEngine::readBlock(char *data, Q_LONG maxlen)
             case EFAULT:
             case ENOTCONN:
             case ENOTSOCK:
-                d->device->d->e = QSocketDevice::Impossible;
+                d->e = QSocketDevice::Impossible;
                 break;
 #if defined(ENONET)
             case ENONET:
@@ -752,7 +752,7 @@ Q_LONG QSocketDeviceEngine::readBlock(char *data, Q_LONG maxlen)
             case ENETDOWN:
             case ENETUNREACH:
             case ETIMEDOUT:
-                d->device->d->e = QSocketDevice::NetworkFailure;
+                d->e = QSocketDevice::NetworkFailure;
                 break;
             case EPIPE:
             case ECONNRESET:
@@ -761,7 +761,7 @@ Q_LONG QSocketDeviceEngine::readBlock(char *data, Q_LONG maxlen)
                 r = 0;
                 break;
             default:
-                d->device->d->e = QSocketDevice::UnknownError;
+                d->e = QSocketDevice::UnknownError;
                 break;
             }
         }
@@ -776,9 +776,9 @@ Q_LONG QSocketDeviceEngine::readBlock(char *data, Q_LONG maxlen)
 
     This is used for \c QSocketDevice::Stream sockets.
 */
-Q_LONG QSocketDeviceEngine::writeBlock(const char *data, Q_LONG len)
+Q_LLONG QSocketDevice::write(const char *data, Q_LLONG len)
 {
-    if (!d->device->isValid()) {
+    if (!isValid()) {
         qWarning("QSocketDevice::writeBlock: Invalid socket");
         return -1;
     }
@@ -786,9 +786,9 @@ Q_LONG QSocketDeviceEngine::writeBlock(const char *data, Q_LONG len)
     int r = 0;
     bool timeout;
     while (!done) {
-        r = ::write(d->device->d->fd, data, len);
+        r = ::write(d->fd, data, len);
         done = true;
-        if (r < 0 && d->device->d->e == QSocketDevice::NoError &&
+        if (r < 0 && d->e == QSocketDevice::NoError &&
              errno != EAGAIN && errno != EWOULDBLOCK) {
             switch(errno) {
             case EINTR: // signal - call read() or whatever again
@@ -807,7 +807,7 @@ Q_LONG QSocketDeviceEngine::writeBlock(const char *data, Q_LONG len)
             case EFAULT:
             case ENOTCONN:
             case ENOTSOCK:
-                d->device->d->e = QSocketDevice::Impossible;
+                d->e = QSocketDevice::Impossible;
                 break;
 #if defined(ENONET)
             case ENONET:
@@ -816,13 +816,13 @@ Q_LONG QSocketDeviceEngine::writeBlock(const char *data, Q_LONG len)
             case ENETDOWN:
             case ENETUNREACH:
             case ETIMEDOUT:
-                d->device->d->e = QSocketDevice::NetworkFailure;
+                d->e = QSocketDevice::NetworkFailure;
                 break;
             default:
-                d->device->d->e = QSocketDevice::UnknownError;
+                d->e = QSocketDevice::UnknownError;
                 break;
             }
-        } else if (d->device->waitForMore(0, &timeout) == 0) {
+        } else if (waitForMore(0, &timeout) == 0) {
             if (!timeout) {
                 // connection closed
                 close();
@@ -842,8 +842,8 @@ Q_LONG QSocketDeviceEngine::writeBlock(const char *data, Q_LONG len)
     This is used for \c QSocketDevice::Datagram sockets. You must
     specify the \a host and \a port of the destination of the data.
 */
-Q_LONG QSocketDevice::writeBlock(const char * data, Q_LONG len,
-                                 const QHostAddress & host, Q_UINT16 port)
+Q_LLONG QSocketDevice::write(const char * data, Q_LLONG len, 
+                             const QHostAddress & host, Q_UINT16 port)
 {
     if (d->t != Datagram) {
         qWarning("QSocketDevice::sendBlock: Not datagram");

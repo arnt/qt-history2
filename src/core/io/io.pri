@@ -9,8 +9,6 @@ HEADERS +=  \
 	io/qfileinfo.h \
         io/qfileengine.h \
         io/qfileengine_p.h \
-        io/qioengine.h \
-        io/qioengine_p.h \
 	io/qiodevice.h \
 	io/qiodevice_p.h \
 	io/qtextstream.h \
@@ -31,7 +29,6 @@ SOURCES += \
 	io/qfileinfo.cpp \
         io/qfileengine.cpp \
 	io/qiodevice.cpp \
-	io/qioengine.cpp \
 	io/qtextstream.cpp \
 	io/qtemporaryfile.cpp \
         io/qresource.cpp \

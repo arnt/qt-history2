@@ -23,8 +23,6 @@
 
 QSocketDevicePrivate::~QSocketDevicePrivate()
 {
-    delete socketEngine;
-    socketEngine = 0;
 }
 
 /*!
@@ -297,53 +295,12 @@ void QSocketDevice::setSocket(int socket, Type type)
 }
 
 
-QSocketDeviceEngine::QSocketDeviceEngine(QSocketDevice *device) : QIOEngine(*new QSocketDeviceEnginePrivate)
-{
-    d->device = device;
-}
-
-/*!
-    \reimp
-
-    Opens the socket using the specified QIODevice file \a mode. This
-    function is called from the QSocketDevice constructors and from
-    the setSocket() function. You should not call it yourself.
-
-    \sa close().
-*/
-bool QSocketDeviceEngine::open(int flags)
-{
-#if defined(QSOCKETDEVICE_DEBUG)
-    qDebug("QSocketDevice::open: mode %x", flags);
-#else
-    Q_UNUSED(flags);
-#endif
-    return true;
-}
-
-
-/*!
-    \reimp
-
-    The current QSocketDevice implementation does not buffer at all,
-    so this is a no-op.
-*/
-void QSocketDeviceEngine::flush()
-{
-}
-
-
-bool QSocketDeviceEngine::isSequential() const
-{
-    return true;
-}
-
 /*!
     \reimp
 
     The size is meaningless for a socket, therefore this function returns 0.
 */
-QIODevice::Offset QSocketDeviceEngine::size() const
+Q_LLONG QSocketDevice::size() const
 {
     return 0;
 }
@@ -355,7 +312,7 @@ QIODevice::Offset QSocketDeviceEngine::size() const
     The read/write index is meaningless for a socket, therefore this
     function returns 0.
 */
-QIODevice::Offset QSocketDeviceEngine::at() const
+Q_LLONG QSocketDevice::at() const
 {
     return 0;
 }
@@ -367,68 +324,9 @@ QIODevice::Offset QSocketDeviceEngine::at() const
     The read/write index is meaningless for a socket, therefore this
     function does nothing and returns true.
 */
-bool QSocketDeviceEngine::seek(QIODevice::Offset)
+bool QSocketDevice::seek(Q_LLONG)
 {
     return true;
-}
-
-
-/*!
-    \reimp
-
-    Returns true if no data is currently available at the socket;
-    otherwise returns false.
-*/
-bool QSocketDeviceEngine::atEnd() const
-{
-    return d->device->bytesAvailable() <= 0;
-}
-
-
-/*!
-    \reimp
-
-    \warning getch() is implemented as a one-byte readBlock(), so it
-    may be very slow if you call it more than a few times.
-
-    \sa putch() readBlock()
-*/
-int QSocketDeviceEngine::getch()
-{
-    char buf[2];
-    return  readBlock(buf,1) == 1 ? buf[0] : -1;
-}
-
-QIOEngine::Type QSocketDeviceEngine::type() const
-{
-    return QIOEngine::Socket;
-}
-
-/*!
-    \reimp
-
-    \warning putch() is implemented as a one-byte writeBlock(), so it
-    may be very slow if you call it more than a few times.
-
-    \sa getch()
-*/
-int QSocketDeviceEngine::putch(int ch)
-{
-    char buf[2];
-    buf[0] = ch;
-    return writeBlock(buf, 1) == 1 ? ch : -1;
-}
-
-
-/*!
-    \reimp
-
-    This implementation of ungetch returns -1 (error). A socket is a
-    sequential device and does not allow any ungetch operation.
-*/
-int QSocketDeviceEngine::ungetch(int)
-{
-    return -1;
 }
 
 
@@ -564,12 +462,3 @@ void QSocketDevice::setError(Error err)
     d->e = err;
 }
 
-/*!
-  \reimp
-*/
-QIOEngine *QSocketDevice::ioEngine() const
-{
-    if(!d->socketEngine)
-        d->socketEngine = new QSocketDeviceEngine(const_cast<QSocketDevice*>(this));
-    return d->socketEngine;
-}

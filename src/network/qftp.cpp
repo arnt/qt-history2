@@ -92,7 +92,7 @@ public:
 
     QSocket::State socketState() const;
     Q_ULONG bytesAvailable() const;
-    Q_LONG readBlock(char *data, Q_ULONG maxlen);
+    Q_LONG read(char *data, Q_ULONG maxlen);
     QByteArray readAll();
 
     void abortConnection();
@@ -339,9 +339,9 @@ Q_ULONG QFtpDTP::bytesAvailable() const
     return socket ? socket->bytesAvailable() : 0;
 }
 
-Q_LONG QFtpDTP::readBlock(char *data, Q_ULONG maxlen)
+Q_LONG QFtpDTP::read(char *data, Q_ULONG maxlen)
 {
-    Q_LONG read = socket ? socket->readBlock(data, maxlen) : 0;
+    Q_LONG read = socket ? socket->read(data, maxlen) : 0;
     bytesDone += read;
     return read;
 }
@@ -368,7 +368,7 @@ void QFtpDTP::writeData()
         if (data.ba->size() == 0)
             emit dataTransferProgress(0, bytesTotal);
         else
-            socket->writeBlock(data.ba->data(), data.ba->size());
+            socket->write(data.ba->data(), data.ba->size());
 
         if (socket && socket->state() != QSocket::Closing) {
             socket->close();
@@ -382,11 +382,11 @@ void QFtpDTP::writeData()
         const int blockSize = 16*1024;
         char buf[blockSize];
         while (!data.dev->atEnd() && socket->bytesToWrite()==0) {
-            Q_LONG read = data.dev->readBlock(buf, blockSize);
+            Q_LONG read = data.dev->read(buf, blockSize);
 #if defined(QFTPDTP_DEBUG)
-            qDebug("QFtpDTP::writeData: writeBlock() of size %d bytes", (int)read);
+            qDebug("QFtpDTP::writeData: write() of size %d bytes", (int)read);
 #endif
-            socket->writeBlock(buf, read);
+            socket->write(buf, read);
             if (!data.dev)
                 return; // this can happen when a command is aborted
         }
@@ -570,7 +570,7 @@ void QFtpDTP::socketConnected()
 {
 #if !defined (Q_WS_QWS)
     // Use a large send buffer to reduce the number
-    // of writeBlocks when download and uploading files.
+    // of writes when download and uploading files.
     // The actual size used here (128k) is default on most
     // Unixes.
     socket->socketDevice()->setSendBufferSize(128 * 1024);
@@ -623,9 +623,9 @@ void QFtpDTP::socketReadyRead()
         if (!is_ba && data.dev) {
             QByteArray ba;
             ba.resize(socket->bytesAvailable());
-            Q_LONG bytesRead = socket->readBlock(ba.data(), ba.size());
+            Q_LONG bytesRead = socket->read(ba.data(), ba.size());
             if (bytesRead < 0) {
-                // a readBlock following a readyRead() singal will
+                // a read following a readyRead() singal will
                 // never fail.
                 return;
             }
@@ -635,7 +635,7 @@ void QFtpDTP::socketReadyRead()
             qDebug("QFtpDTP read: %d bytes (total %d bytes)", (int)bytesRead, bytesDone);
 #endif
             emit dataTransferProgress(bytesDone, bytesTotal);
-            data.dev->writeBlock(ba);
+            data.dev->write(ba);
         } else {
 #if defined(QFTPDTP_DEBUG)
             qDebug("QFtpDTP readyRead: %d bytes available (total %d bytes read)", (int)bytesAvailable(), bytesDone);
@@ -787,7 +787,7 @@ void QFtpPI::abort()
 #if defined(QFTPPI_DEBUG)
     qDebug("QFtpPI send: ABOR");
 #endif
-    commandSocket.writeBlock("ABOR\r\n", 6);
+    commandSocket.write("ABOR\r\n", 6);
 
     if (currentCmd.startsWith("STOR "))
         dtp.abortConnection();
@@ -1111,7 +1111,7 @@ bool QFtpPI::startNextCmd()
     qDebug("QFtpPI send: %s", currentCmd.left(currentCmd.length()-2).latin1());
 #endif
     state = Waiting;
-    commandSocket.writeBlock(currentCmd.latin1(), currentCmd.length());
+    commandSocket.write(currentCmd.latin1(), currentCmd.length());
     return true;
 }
 
@@ -1304,7 +1304,7 @@ int QFtpPrivate::addCommand(QFtpCommand *cmd)
     inform the user about the progress of the download. The
     readyRead() signal tells you that there is data ready to be read.
     The amount of data can be queried then with the bytesAvailable()
-    function and it can be read with the readBlock() or readAll()
+    function and it can be read with the read() or readAll()
     function.
 
     If the login fails for the above example, the signals would look
@@ -1541,14 +1541,14 @@ QFtp::QFtp(QObject *parent, const char *name)
     command, this signal is \e not emitted; instead the data is
     written directly to the device.
 
-    You can read the data with the readAll() or readBlock() functions.
+    You can read the data with the readAll() or read() functions.
 
     This signal is useful if you want to process the data in chunks as
     soon as it becomes available. If you are only interested in the
     complete data, just connect to the commandFinished() signal and
     read the data then instead.
 
-    \sa get() readBlock() readAll() bytesAvailable()
+    \sa get() read() readAll() bytesAvailable()
 */
 
 /*!
@@ -1736,7 +1736,7 @@ int QFtp::cd(const QString &dir)
 
     If \a dev is 0, then the readyRead() signal is emitted when there
     is data available to read. You can then read the data with the
-    readBlock() or readAll() functions.
+    read() or readAll() functions.
 
     If \a dev is not 0, the data is written directly to the device \a
     dev. Make sure that the \a dev pointer is valid for the duration
@@ -1935,7 +1935,7 @@ int QFtp::rawCommand(const QString &command)
     Returns the number of bytes that can be read from the data socket
     at the moment.
 
-    \sa get() readyRead() readBlock() readAll()
+    \sa get() readyRead() read() readAll()
 */
 Q_ULONG QFtp::bytesAvailable() const
 {
@@ -1948,16 +1948,16 @@ Q_ULONG QFtp::bytesAvailable() const
 
     \sa get() readyRead() bytesAvailable() readAll()
 */
-Q_LONG QFtp::readBlock(char *data, Q_ULONG maxlen)
+Q_LLONG QFtp::read(char *data, Q_ULONG maxlen)
 {
-    return d->pi.dtp.readBlock(data, maxlen);
+    return d->pi.dtp.read(data, maxlen);
 }
 
 /*!
     Reads all the bytes available from the data socket and returns
     them.
 
-    \sa get() readyRead() bytesAvailable() readBlock()
+    \sa get() readyRead() bytesAvailable() read()
 */
 QByteArray QFtp::readAll()
 {

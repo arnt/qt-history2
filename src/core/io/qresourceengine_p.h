@@ -34,8 +34,8 @@ public:
     virtual bool atEnd() const;
     virtual bool seek(QIODevice::Offset);
     virtual int ungetch(int);
-    virtual Q_LONG readBlock(char *data, Q_LONG maxlen);
-    virtual Q_LONG writeBlock(const char *data, Q_LONG len);
+    virtual Q_LLONG read(char *data, Q_LLONG maxlen);
+    virtual Q_LLONG write(const char *data, Q_LLONG len);
 
     virtual bool remove();
     virtual bool rename(const QString &newName);

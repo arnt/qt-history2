@@ -18,7 +18,7 @@
 #include <qfile.h>
 
 class QTemporaryFilePrivate;
-class Q_CORE_EXPORT QTemporaryFile : public QIODevice
+class Q_CORE_EXPORT QTemporaryFile : public QFile
 {
     Q_DECLARE_PRIVATE(QTemporaryFile)
 
@@ -29,21 +29,18 @@ public:
 
     bool autoRemove() const;
     void setAutoRemove(bool b);
-    bool remove();
 
-    int handle() const;
-
-    inline bool open() { return QIODevice::open(IO_ReadWrite); }
+    bool open() { return QFile::open(QIODevice::ReadWrite); }
 
     QString fileName() const;
     QString fileTemplate() const;
     void setFileTemplate(const QString &name);
 
-    virtual QIOEngine *ioEngine() const;
-
     inline static QTemporaryFile *createLocalFile(const QString &fileName)
         { QFile file(fileName); return createLocalFile(file); }
     static QTemporaryFile *createLocalFile(QFile &file);
+
+    virtual QFileEngine *fileEngine() const;
 
 private:
     Q_DISABLE_COPY(QTemporaryFile)

@@ -1221,7 +1221,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
             realSection.prepend('\n');
         realSection += '\n';
 
-        device.writeBlock(realSection);
+        device.write(realSection);
 
         const QCoreVariantMap &ents = i.value();
         for (QCoreVariantMap::const_iterator j = ents.constBegin(); j != ents.constEnd(); ++j) {
@@ -1236,7 +1236,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
                 QCoreSettings::iniEscapedString(variantToString(value), block);
             }
             block += '\n';
-            device.writeBlock(block);
+            device.write(block);
         }
     }
     return device.status() == QIODevice::Ok;

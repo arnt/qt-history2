@@ -153,8 +153,8 @@ QResourceFileEngine::flush()
 
 }
 
-Q_LONG
-QResourceFileEngine::readBlock(char *data, Q_LONG len)
+Q_LLONG
+QResourceFileEngine::read(char *data, Q_LLONG len)
 {
     if(len > d->resource->size()-d->offset) {
         len = d->resource->size()-d->offset;
@@ -166,8 +166,8 @@ QResourceFileEngine::readBlock(char *data, Q_LONG len)
     return len;
 }
 
-Q_LONG
-QResourceFileEngine::writeBlock(const char *, Q_LONG)
+Q_LLONG
+QResourceFileEngine::write(const char *, Q_LLONG)
 {
     return -1;
 }
@@ -322,10 +322,10 @@ QResourceFileEngine::fileTime(FileTime) const
     return QDateTime();
 }
 
-QIOEngine::Type
+QFileEngine::Type
 QResourceFileEngine::type() const
 {
-    return QIOEngine::Resource;
+    return QFileEngine::Resource;
 }
 
 //Initialization and cleanup
