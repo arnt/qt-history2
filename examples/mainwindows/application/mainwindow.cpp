@@ -18,6 +18,8 @@ MainWindow::MainWindow()
             this, SLOT(documentWasModified()));
 
     setWindowTitle(tr("Application"));
+
+    printer = 0;
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -142,6 +144,12 @@ void MainWindow::createActions()
     aboutQtAct = new QAction(tr("About &Qt"), this);
     aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));
     connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+
+    printSetupAct = new QAction(tr("Print"), this);
+    connect(printSetupAct, SIGNAL(triggered()), this, SLOT(printSetup()));
+
+    pageSetupAct = new QAction(tr("Page Setup"), this);
+    connect(pageSetupAct, SIGNAL(triggered()), this, SLOT(pageSetup()));
 }
 
 void MainWindow::createMenus()
@@ -152,7 +160,11 @@ void MainWindow::createMenus()
     fileMenu->addAction(saveAct);
     fileMenu->addAction(saveAsAct);
     fileMenu->addSeparator();
+    fileMenu->addAction(printSetupAct);
+    fileMenu->addAction(pageSetupAct);
+    fileMenu->addSeparator();
     fileMenu->addAction(exitAct);
+
 
     editMenu = menuBar()->addMenu(tr("&Edit"));
     editMenu->addAction(cutAct);
@@ -282,4 +294,18 @@ void MainWindow::setCurrentFile(const QString &fileName)
 QString MainWindow::strippedName(const QString &fullFileName)
 {
     return QFileInfo(fullFileName).fileName();
+}
+
+void MainWindow::printSetup()
+{
+    if (!printer)
+        printer = new QPrinter;
+    printer->printSetup();
+}
+
+void MainWindow::pageSetup()
+{
+    if (!printer)
+        printer = new QPrinter;
+    printer->pageSetup();
 }
