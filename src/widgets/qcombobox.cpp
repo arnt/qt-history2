@@ -462,7 +462,7 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
     : QWidget( parent, name, WResizeNoErase )
 {
     d = new QComboBoxData( this );
-    if ( style().styleHint(QStyle::SH_ComboBox_Popup) ||
+    if ( style().styleHint(QStyle::SH_ComboBox_Popup, this) ||
 	 style().styleHint(QStyle::SH_GUIStyle) == Qt::MotifStyle ) {
 	d->setPopupMenu( new QComboBoxPopup( this, "in-combo" ) );
 	d->popup()->setFont( font() );
@@ -511,7 +511,7 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
     d = new QComboBoxData( this );
     setUpListBox();
 
-    if(d->popup() && style().styleHint(QStyle::SH_ComboBox_Popup))
+    if(d->popup() && style().styleHint(QStyle::SH_ComboBox_Popup, this))
 	d->popup()->setItemChecked(d->current, FALSE);
     d->current = 0;
     d->maxCount = INT_MAX;
@@ -794,7 +794,7 @@ void QComboBox::removeItem( int index )
     if ( !checkIndex( "removeItem", name(), cnt, index ) )
 	return;
     if ( d->usingListBox() ) {
-	if ( style().styleHint(QStyle::SH_ComboBox_Popup) && d->popup() )
+	if ( style().styleHint(QStyle::SH_ComboBox_Popup, this) && d->popup() )
 	    d->popup()->removeItemAt( index );
 	d->listBox()->removeItem( index );
     } else {
@@ -840,7 +840,7 @@ void QComboBox::removeItem( int index )
 void QComboBox::clear()
 {
     if ( d->usingListBox() ) {
-	if ( style().styleHint(QStyle::SH_ComboBox_Popup) && d->popup() )
+	if ( style().styleHint(QStyle::SH_ComboBox_Popup, this) && d->popup() )
 	    d->popup()->clear();
 	d->listBox()->resize( 0, 0 );
 	d->listBox()->clear();
@@ -848,7 +848,7 @@ void QComboBox::clear()
 	d->popup()->clear();
     }
 
-    if(d->popup() && style().styleHint(QStyle::SH_ComboBox_Popup))
+    if(d->popup() && style().styleHint(QStyle::SH_ComboBox_Popup, this))
 	d->popup()->setItemChecked(d->current, FALSE);
     d->current = 0;
     if ( d->ed ) {
@@ -997,7 +997,7 @@ void QComboBox::setCurrentItem( int index )
     if ( d->usingListBox() && !( listBox()->item(index) && listBox()->item(index)->isSelectable() ) )
 	return;
 
-    if(d->popup() && style().styleHint(QStyle::SH_ComboBox_Popup))
+    if(d->popup() && style().styleHint(QStyle::SH_ComboBox_Popup, this))
 	d->popup()->setItemChecked(d->current, FALSE);
     d->current = index;
     d->completeAt = 0;
@@ -1080,7 +1080,7 @@ void QComboBox::internalActivate( int index )
 {
     if ( d->current != index ) {
 	if ( !d->usingListBox() || listBox()->item( index )->isSelectable() ) {
-	    if(d->popup() && style().styleHint(QStyle::SH_ComboBox_Popup))
+	    if(d->popup() && style().styleHint(QStyle::SH_ComboBox_Popup, this))
 		d->popup()->setItemChecked(d->current, FALSE);
 	    d->current = index;
 	    currentChanged();
@@ -1486,7 +1486,7 @@ void QComboBox::popup()
     if ( !count() )
 	return;
 
-    if( !d->usingListBox() || style().styleHint(QStyle::SH_ComboBox_Popup) ) {
+    if( !d->usingListBox() || style().styleHint(QStyle::SH_ComboBox_Popup, this) ) {
 	if(d->usingListBox()) {
 	    if(!d->popup()) {
 		QComboBoxPopup *p = new QComboBoxPopup( this, "in-combo" );
@@ -1501,9 +1501,10 @@ void QComboBox::popup()
 		d->popup()->insertItem(new QComboBoxPopupItem(d->listBox()->item(i)), i, i);
 	}
 	d->popup()->installEventFilter( this );
-	if(d->popup() && style().styleHint(QStyle::SH_ComboBox_Popup))
+	if(d->popup() && style().styleHint(QStyle::SH_ComboBox_Popup, this))
 	    d->popup()->setItemChecked(this->d->current, TRUE);
 	d->popup()->popup( mapToGlobal( QPoint(0,0) ), this->d->current );
+	update();
     } else {
 	// Send all listbox events to eventFilter():
 	QListBox* lb = d->listBox();
@@ -1776,7 +1777,7 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	default:
 	    break;
 	}
-    } else if ( (!d->usingListBox() || style().styleHint(QStyle::SH_ComboBox_Popup)) &&
+    } else if ( (!d->usingListBox() || style().styleHint(QStyle::SH_ComboBox_Popup, this)) &&
 		object == d->popup() ) {
 	QMouseEvent *e = (QMouseEvent*)event;
 	switch ( event->type() ) {

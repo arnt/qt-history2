@@ -485,9 +485,9 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
     } else if(ct == QStyle::CT_ComboBox) {
 #ifdef Q_WS_MAC
 	if(sz == QAquaSizeLarge)
-	    ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricPopupButtonHeight));
+	    ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricPopupButtonHeight)+1);
 	else 
-	    ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricSmallPopupButtonHeight));
+	    ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricSmallPopupButtonHeight)+1);
 #else
 	if(sz == QAquaSizeLarge)
 	    ret = QSize(-1, 20);

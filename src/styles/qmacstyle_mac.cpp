@@ -310,9 +310,12 @@ void QMacStyle::polish(QWidget* w)
 #endif
 
     if(w->inherits("QLineEdit")) {
+	QLineEdit *lined = (QLineEdit*)w;
+	if(w->parentWidget() && w->parentWidget()->inherits("QComboBox"))
+	    lined->setFrameStyle(QFrame::LineEditPanel | QFrame::Sunken);
 	SInt32 frame_size;
 	GetThemeMetric(kThemeMetricEditTextFrameOutset, &frame_size);
-	((QLineEdit *)w)->setLineWidth(frame_size);
+	lined->setLineWidth(frame_size);
     } else if(w->inherits("QToolButton")) {
         QToolButton * btn = (QToolButton *) w;
         btn->setAutoRaise(FALSE);
@@ -1295,12 +1298,25 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	    DrawThemeTrackTickMarks(&ttdi, sldr->maxValue() / sldr->pageStep(), NULL, 0);
 	break; }
     case CC_ComboBox: {
-	p->fillRect(r, cg.brush(QColorGroup::Button)); //make sure it is filled
-
+	if(!widget)
+	    break;
+	QComboBox *cbox = (QComboBox *)widget;
 	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
-	((QMacPainter *)p)->setport();
-	DrawThemeButton(qt_glb_mac_rect(r, p, TRUE, QRect(1, 0, 0, 0)), kThemePopupButton,
-			&info, NULL, NULL, NULL, 0);
+	if(subActive & QStyle::SC_ComboBoxArrow)
+	    info.state = kThemeStatePressed;
+	p->fillRect(r, cg.brush(QColorGroup::Button)); //make sure it is filled
+	if(cbox->editable()) {
+	    info.adornment |= kThemeAdornmentArrowDownArrow;
+	    QRect buttonR = querySubControlMetrics(CC_ComboBox, widget, SC_ComboBoxArrow, opt);
+	    ((QMacPainter *)p)->setport();
+	    DrawThemeButton(qt_glb_mac_rect(buttonR, p, TRUE, QRect(1, 0, 0, 0)), 
+			    kThemeArrowButton, &info, NULL, NULL, NULL, 0);
+	} else {
+	    info.adornment = kThemeAdornmentArrowLeftArrow;
+	    ((QMacPainter *)p)->setport();
+	    DrawThemeButton(qt_glb_mac_rect(r, p, TRUE, QRect(1, 0, 0, 0)), kThemePopupButton,
+			    &info, NULL, NULL, NULL, 0);
+	}
 	break; }
     default:
 	QWindowsStyle::drawComplexControl(ctrl, p, widget, r, cg, flags, sub, subActive, opt);
@@ -1479,8 +1495,14 @@ QRect QMacStyle::querySubControlMetrics(ComplexControl control,
 	}
 	break; }
     case CC_ComboBox: {
-	if(sc == SC_ComboBoxEditField) 
-	    return QRect(3, 3, w->width() - 22, w->height() - 5);
+	if(!w)
+	    return QRect();
+	if(((QComboBox*)w)->editable()) {
+	    if(sc == SC_ComboBoxEditField)
+		return QRect(0, 0, w->width() - 20, w->height());
+	    else if(sc == SC_ComboBoxArrow)
+		return QRect(w->width() - 24, 0, 24, w->height());
+	}
 	break; }
     case CC_ScrollBar: {
 	if(!w)
@@ -1698,7 +1720,7 @@ int QMacStyle::styleHint(StyleHint sh, const QWidget *w,
         ret = QEvent::MouseButtonRelease;
         break;
     case SH_ComboBox_Popup:
-        ret = TRUE;
+	ret = (!w || !((QComboBox*)w)->editable());
         break;
     case SH_Workspace_FillSpaceOnMaximize:
         ret = TRUE;
