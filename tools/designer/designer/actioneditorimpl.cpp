@@ -107,6 +107,7 @@ void ActionEditor::chooseIcon()
 void ActionEditor::enableAll( bool enable )
 {
     editAccel->setEnabled( enable );
+    editStatusTip->setEnabled( enable );
     editText->setEnabled( enable );
     editName->setEnabled( enable );
     labelIcon->setEnabled( enable );
