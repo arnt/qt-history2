@@ -18,18 +18,14 @@
 #define QAXOBJECT_H
 
 #include "qaxbase.h"
-#include <qobject.h>
 
 class QAxObject : public QObject, public QAxBase
 {
     friend class QAxEventSink;
 public:
-    QMetaObject *metaObject() const;
-    const char *className() const;
-    void* qt_cast( const char* );
-    bool qt_invoke( int, QUObject* );
-    bool qt_emit( int, QUObject* );
-    bool qt_property( int, int, QVariant* );
+    const QMetaObject *metaObject() const;
+    void* qt_metacast( const char* ) const;
+    int qt_metacall(QMetaObject::Call, int, void **);
     QObject* qObject() { return (QObject*)this; }
 
     QAxObject( QObject *parent = 0, const char *name = 0 );
@@ -38,7 +34,7 @@ public:
     ~QAxObject();
 
 private:
-    QMetaObject *parentMetaObject() const;
+    const QMetaObject *parentMetaObject() const;
 };
 
 #endif //QAXOBJECT_H

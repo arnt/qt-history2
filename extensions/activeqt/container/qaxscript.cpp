@@ -34,8 +34,8 @@
 #endif
 
 #include <qapplication.h>
-#include <qdict.h>
 #include <qfile.h>
+#include <qhash.h>
 #include <qmetaobject.h>
 #include <qvaluelist.h>
 #include <qwidget.h>
@@ -49,13 +49,13 @@
 #include "..\shared\types.h"
 
 struct QAxEngineDescriptor { QString name, extension, code; };
-static QValueList<QAxEngineDescriptor> engines;
+static QList<QAxEngineDescriptor> engines;
 
 class QAxScriptManagerPrivate
 {
 public:
-    QDict<QAxScript> scriptDict;
-    QDict<QAxBase> objectDict;
+    QHash<QString, QAxScript*> scriptDict;
+    QHash<QString, QAxBase*> objectDict;
 };
 
 /*
@@ -680,10 +680,10 @@ bool QAxScript::load(const QString &code, const QString &language)
     script_code = code;
     QString lang = language;
     if (lang.isEmpty()) {
-	if (code.contains("End Sub", FALSE))
+	if (code.contains("End Sub", QString::CaseInsensitive))
 	    lang = "VBScript";
 
-	QValueList<QAxEngineDescriptor>::ConstIterator it;
+	QList<QAxEngineDescriptor>::ConstIterator it;
 	for (it = engines.begin(); it != engines.end(); ++it) {
 	    QAxEngineDescriptor engine = *it;
 	    if (engine.code.isEmpty())
@@ -718,21 +718,21 @@ QStringList QAxScript::functions(FunctionFlags flags) const
     QStringList functions;
 
     const QMetaObject *mo = script_engine->metaObject();
-    for (int i = 0; i < mo->numSlots(TRUE); ++i) {
+    for (int i = 0; i < mo->slotCount(); ++i) {
 	if (i < mo->slotOffset())
 	    continue;
 
-	const QMetaData *slot = mo->slot(i, TRUE);
-	if (!slot || slot->access != QMetaData::Public)
+	const QMetaMember slot = mo->slot(i);
+	if (slot.access() != QMetaMember::Public)
 	    continue;
-	QString slotname = QString::fromLatin1(slot->name);
+	QString slotname = QString::fromLatin1(slot.signature());
 	if (slotname.contains('_'))
 	    continue;
 
 	if (flags == FunctionSignatures)
 	    functions << slotname;
 	else
-	    functions << slot->method->name;
+	    functions << slotname.left(slotname.indexOf('('));
     }
 
     return functions;
@@ -773,7 +773,7 @@ QVariant QAxScript::call(const QString &function, const QVariant &var1,
     See QAxScriptManager::call() for more information about how to call
     script functions.
 */
-QVariant QAxScript::call(const QString &function, QValueList<QVariant> &arguments)
+QVariant QAxScript::call(const QString &function, QList<QVariant> &arguments)
 {
     if (!script_engine)
 	return QVariant();
@@ -800,7 +800,7 @@ QAxBase *QAxScript::findObject(const QString &name)
     if (!script_manager)
 	return 0;
 
-    return script_manager->d->objectDict.find(name);
+    return script_manager->d->objectDict[name];
 }
 
 /*! \fn QString QAxScript::scriptName() const
@@ -916,11 +916,9 @@ QStringList QAxScriptManager::functions(QAxScript::FunctionFlags flags) const
 {
     QStringList functions;
 
-    QDictIterator<QAxScript> scriptIt(d->scriptDict);
-    while (scriptIt.current()) {
-	QAxScript *script = scriptIt.current();
-	++scriptIt;
-
+    QHash<QString, QAxScript*>::ConstIterator scriptIt;
+    for (scriptIt = d->scriptDict.begin(); scriptIt != d->scriptDict.end(); ++scriptIt) {
+	QAxScript *script = scriptIt.value();
 	functions += script->functions(flags);
     }
 
@@ -934,10 +932,9 @@ QStringList QAxScriptManager::scriptNames() const
 {
     QStringList scripts;
 
-    QDictIterator<QAxScript> scriptIt(d->scriptDict);
-    while (scriptIt.current()) {
-	scripts << scriptIt.getKeyString();
-	++scriptIt;
+    QHash<QString, QAxScript*>::ConstIterator scriptIt;
+    for (scriptIt = d->scriptDict.begin(); scriptIt != d->scriptDict.end(); ++scriptIt) {
+	scripts << scriptIt.key();
     }
 
     return scripts;
@@ -952,7 +949,7 @@ QStringList QAxScriptManager::scriptNames() const
 */
 QAxScript *QAxScriptManager::script(const QString &name) const
 {
-    return d->scriptDict.find(name);
+    return d->scriptDict[name];
 }
 
 /*!
@@ -965,8 +962,8 @@ QAxScript *QAxScriptManager::script(const QString &name) const
 void QAxScriptManager::addObject(QAxBase *object)
 {
     QObject *obj = object->qObject();
-    QString name = QString::fromLatin1(obj->name());
-    if (d->objectDict.find(name))
+    QString name = QString::fromLatin1(obj->objectName());
+    if (d->objectDict[name])
 	return;
 
     d->objectDict.insert(name, object);
@@ -1045,7 +1042,7 @@ QAxScript *QAxScriptManager::load(const QString &file, const QString &name)
     if (file.endsWith(".js")) {
 	language = "JScript";
     } else {
-	QValueList<QAxEngineDescriptor>::ConstIterator it;
+	QList<QAxEngineDescriptor>::ConstIterator it;
 	for (it = engines.begin(); it != engines.end(); ++it) {
 	    QAxEngineDescriptor engine = *it;
 	    if (engine.extension.isEmpty())
@@ -1132,7 +1129,7 @@ QVariant QAxScriptManager::call(const QString &function, const QVariant &var1,
     Calls \a function passing \a arguments as parameters, and returns
     the result. Returns when the script's execution has finished.
 */
-QVariant QAxScriptManager::call(const QString &function, QValueList<QVariant> &arguments)
+QVariant QAxScriptManager::call(const QString &function, QList<QVariant> &arguments)
 {
     QAxScript *s = script(function);
     if (!s) {
@@ -1143,7 +1140,7 @@ QVariant QAxScriptManager::call(const QString &function, QValueList<QVariant> &a
 	return QVariant();
     }
 
-    QValueList<QVariant> args(arguments);
+    QList<QVariant> args(arguments);
     return s->call(function, args);
 }
 
@@ -1184,7 +1181,7 @@ QString QAxScriptManager::scriptFileFilter()
     QString specialFiles = ";;VBScript Files (*.vbs *.dsm)"
 			   ";;JavaScript Files (*.js)";
 
-    QValueList<QAxEngineDescriptor>::ConstIterator it;
+    QList<QAxEngineDescriptor>::ConstIterator it;
     for (it = engines.begin(); it != engines.end(); ++it) {
 	QAxEngineDescriptor engine = *it;
 	if (engine.extension.isEmpty())
@@ -1219,10 +1216,9 @@ QAxScript *QAxScriptManager::scriptForFunction(const QString &function) const
 {
     // check full prototypes if included
     if (function.contains('(')) {
-	QDictIterator<QAxScript> scriptIt(d->scriptDict);
-	while (scriptIt.current()) {
-	    QAxScript *script = scriptIt.current();
-	    ++scriptIt;
+	QHash<QString, QAxScript*>::ConstIterator scriptIt;
+	for (scriptIt = d->scriptDict.begin(); scriptIt != d->scriptDict.end(); ++scriptIt) {
+	    QAxScript *script = scriptIt.value();
 
 	    if (script->functions(QAxScript::FunctionSignatures).contains(function))
 		return script;
@@ -1230,12 +1226,11 @@ QAxScript *QAxScriptManager::scriptForFunction(const QString &function) const
     }
 
     QString funcName = function;
-    funcName = funcName.left(funcName.find('('));
+    funcName = funcName.left(funcName.indexOf('('));
     // second try, checking only names, not prototypes
-    QDictIterator<QAxScript> scriptIt(d->scriptDict);
-    while (scriptIt.current()) {
-	QAxScript *script = scriptIt.current();
-	++scriptIt;
+    QHash<QString, QAxScript*>::ConstIterator scriptIt;
+    for (scriptIt = d->scriptDict.begin(); scriptIt != d->scriptDict.end(); ++scriptIt) {
+	QAxScript *script = scriptIt.value();
 
 	if (script->functions(QAxScript::FunctionNames).contains(funcName))
 	    return script;
@@ -1249,10 +1244,9 @@ QAxScript *QAxScriptManager::scriptForFunction(const QString &function) const
 */
 void QAxScriptManager::updateScript(QAxScript *script)
 {
-    QDictIterator<QAxBase> objectIt(d->objectDict);
-    while (objectIt.current()) {
-	QString name = objectIt.getKeyString();
-	++objectIt;
+    QHash<QString, QAxBase*>::ConstIterator objectIt;
+    for (objectIt = d->objectDict.constBegin(); objectIt != d->objectDict.constEnd(); ++objectIt) {
+	QString name = objectIt.key();
 
 	QAxScriptEngine *engine = script->scriptEngine();
 	if (engine)
@@ -1265,7 +1259,7 @@ void QAxScriptManager::updateScript(QAxScript *script)
 */
 void QAxScriptManager::objectDestroyed(QObject *o)
 {
-    QString name = QString::fromLatin1(o->name());
+    QString name = QString::fromLatin1(o->objectName());
     d->objectDict.take(name);
 }
 

@@ -290,7 +290,8 @@ QObject *QAxFactory::createObject( const QString &key, QObject *parent, const ch
 */
 QMetaObject *QAxFactory::metaObject(const QString &key) const
 {
-    return QMetaObject::metaObject(key.latin1());
+    // XXX return QMetaObject::metaObject(key.latin1());
+    return 0;
 }
 
 /*!
@@ -318,7 +319,7 @@ QUuid QAxFactory::classID( const QString &key ) const
     QMetaObject *mo = metaObject(key);
     if (!mo)
 	return QUuid();
-    QString id = QString::fromLatin1(mo->classInfo("ClassID", TRUE));
+    QString id = QString::fromLatin1(mo->classInfo(mo->indexOfClassInfo("ClassID")).value());
 
     return QUuid(id);
 }
@@ -336,7 +337,7 @@ QUuid QAxFactory::interfaceID( const QString &key ) const
     QMetaObject *mo = metaObject(key);
     if (!mo)
 	return QUuid();
-    QString id = QString::fromLatin1(mo->classInfo("InterfaceID", TRUE));
+    QString id = QString::fromLatin1(mo->classInfo(mo->indexOfClassInfo("InterfaceID")).value());
 
     return QUuid(id);
 }
@@ -355,7 +356,7 @@ QUuid QAxFactory::eventsID( const QString &key ) const
     QMetaObject *mo = metaObject(key);
     if (!mo)
 	return QUuid();
-    QString id = QString::fromLatin1(mo->classInfo("EventsID", TRUE));
+    QString id = QString::fromLatin1(mo->classInfo(mo->indexOfClassInfo("EventsID")).value());
 
     return QUuid(id);
 }
@@ -413,15 +414,15 @@ bool QAxFactory::validateLicenseKey( const QString &key, const QString &licenseK
     QMetaObject *mo = metaObject(key);
     if (!mo)
 	return TRUE;
-    const char *classKey8Bit = mo->classInfo("LicenseKey", TRUE);
-    if (!classKey8Bit)
+
+    QString classKey = QString::fromLatin1(mo->classInfo(mo->indexOfClassInfo("LicenseKey")).value());
+    if (classKey.isEmpty())
 	return TRUE;
 
-    QString classKey(QString::fromLatin1(classKey8Bit));
-    if (classKey.isEmpty() || licenseKey.isEmpty()) {
+    if (licenseKey.isEmpty()) {
 	extern char qAxModuleFilename[MAX_PATH];
 	QString licFile(QFile::decodeName(qAxModuleFilename));
-	int lastDot = licFile.findRev('.');
+	int lastDot = licFile.lastIndexOf('.');
 	licFile = licFile.left(lastDot) + ".lic";
 	if (QFile::exists(licFile))
 	    return TRUE;
@@ -449,7 +450,8 @@ QString QAxFactory::exposeToSuperClass( const QString &key ) const
     QMetaObject *mo = metaObject(key);
     if (!mo)
 	return QString::null;
-    QString str(mo->classInfo("ToSuperClass", TRUE));
+    QString str = QString::fromLatin1(mo->classInfo(mo->indexOfClassInfo("ToSuperClass")).value());
+
     return str;
 }
 
@@ -484,7 +486,9 @@ bool QAxFactory::stayTopLevel( const QString &key ) const
 bool QAxFactory::hasStockEvents( const QString &key ) const
 {
     QMetaObject *mo = metaObject(key);
-    return mo && !qstricmp(mo->classInfo("StockEvents", TRUE), "yes");
+    if (!mo)
+	return false;
+    return QString::fromLatin1(mo->classInfo(mo->indexOfClassInfo("StockEvents")).value()) == "yes";
 }
 
 

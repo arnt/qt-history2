@@ -24,7 +24,7 @@
 #endif
 
 class QWidget;
-class QMetaObject;
+struct QMetaObject;
 class QSettings;
 struct IDispatch;
 

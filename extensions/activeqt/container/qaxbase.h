@@ -17,14 +17,17 @@
 #ifndef QAXBASE_H
 #define QAXBASE_H
 
-#include <qvariant.h>
+#include <qdatastream.h>
+#include <qmap.h>
 #include <qobject.h>
+#include <qvariant.h>
 
 struct IUnknown;
 struct QUuid;
 class QAxEventSink;
 class QAxObject;
 class QAxBasePrivate;
+struct QUObject;
 
 class QAxBase
 {
@@ -34,7 +37,7 @@ class QAxBase
 #endif
 public:
 #ifndef Q_QDOC
-    typedef QMap<QCString, QVariant> PropertyBag;
+    typedef QMap<QString, QVariant> PropertyBag;
 #endif
 
     QAxBase( IUnknown *iface = 0 );
@@ -44,7 +47,7 @@ public:
 
     long queryInterface( const QUuid &, void** ) const;
 
-    QVariant dynamicCall( const QCString&, const QVariant &v1 = QVariant(), 
+    QVariant dynamicCall( const QString&, const QVariant &v1 = QVariant(), 
 					   const QVariant &v2 = QVariant(),
 					   const QVariant &v3 = QVariant(),
 					   const QVariant &v4 = QVariant(),
@@ -52,8 +55,8 @@ public:
 					   const QVariant &v6 = QVariant(),
 					   const QVariant &v7 = QVariant(),
 					   const QVariant &v8 = QVariant() );
-    QVariant dynamicCall( const QCString&, QValueList<QVariant> &vars );
-    QAxObject *querySubObject( const QCString &name, const QVariant &v1 = QVariant(),
+    QVariant dynamicCall( const QString&, QList<QVariant> &vars );
+    QAxObject *querySubObject( const QString &name, const QVariant &v1 = QVariant(),
 					    const QVariant &v2 = QVariant(),
 					    const QVariant &v3 = QVariant(),
 					    const QVariant &v4 = QVariant(),
@@ -62,11 +65,12 @@ public:
 					    const QVariant &v7 = QVariant(),
 					    const QVariant &v8 = QVariant() );
 
-    virtual QMetaObject *metaObject() const;
-    virtual bool qt_invoke( int, QUObject* );
+    virtual const QMetaObject *metaObject() const;
+    virtual int qt_metacall(QMetaObject::Call, int, void **);
+/*
     virtual bool qt_property( int, int, QVariant* );
     virtual bool qt_emit( int, QUObject* ) = 0;
-    virtual const char *className() const = 0;
+*/
     virtual QObject *qObject() = 0;
 
     PropertyBag propertyBag() const;
@@ -108,9 +112,9 @@ private:
     bool initializeLicensedHelper(void *factory, const QString &key, IUnknown **ptr);
     QAxBasePrivate *d;
 
-    static QMetaObject *staticMetaObject() { return 0; }
-    virtual QMetaObject *parentMetaObject() const = 0;
-    bool internalInvoke( const QCString &name, void *out, QVariant var[], QCString &type );
+    static const QMetaObject staticMetaObject;
+    virtual const QMetaObject *parentMetaObject() const = 0;
+    bool internalInvoke( const QString &name, void *out, QVariant var[], QString &type );
 
     QString ctrl;
 };

@@ -13,6 +13,7 @@
 ****************************************************************************/
 
 #include <qstringlist.h>
+#include <qvector.h>
 
 #include "qaxfactory.h"
 
@@ -41,7 +42,7 @@ extern void qAxCleanup();
 extern HRESULT UpdateRegistry(BOOL bRegister);
 typedef int (*QWinEventFilter) (MSG*);
 extern int QAxEventFilter( MSG *pMsg );
-extern Q_EXPORT QWinEventFilter qt_set_win_event_filter (QWinEventFilter filter);
+extern Q_GUI_EXPORT QWinEventFilter qt_set_win_event_filter (QWinEventFilter filter);
 extern HRESULT GetClassObject( const GUID &clsid, const GUID &iid, void **ppUnk );
 extern ulong qAxLockCount();
 
@@ -156,10 +157,10 @@ extern void qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QMemArray<pchar> &
 int qMain( int, char ** );
 #else
 #if defined( Q_OS_TEMP )
-extern void __cdecl qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QMemArray<pchar> &);
+extern void __cdecl qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QVector<pchar> &);
 EXTERN_C int __cdecl main( int, char ** );
 #else
-extern void qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QMemArray<pchar> &);
+extern void qWinMain(HINSTANCE, HINSTANCE, LPSTR, int, int &, QVector<pchar> &);
 EXTERN_C int main( int, char ** );
 #endif
 #endif
@@ -178,7 +179,7 @@ EXTERN_C int WINAPI WinMain(HINSTANCE hInstance,
     bool run = TRUE;
     bool runServer = FALSE;
     for ( QStringList::Iterator it = cmds.begin(); it != cmds.end(); ++it ) {
-	QString cmd = (*it).lower();
+	QString cmd = (*it).toLower();
 	if ( cmd == "-activex" || cmd == "/activex" ) {
 	    runServer = TRUE;
 	} else if ( cmd == "-unregserver" || cmd == "/unregserver" ) {
@@ -251,7 +252,7 @@ EXTERN_C int WINAPI WinMain(HINSTANCE hInstance,
 
 	HRESULT hRes = CoInitialize(0);
 
-	QMemArray<pchar> argv( 8 );
+	QVector<pchar> argv( 8 );
 	qWinMain( hInstance, hPrevInstance, cmdp, nShowCmd, argc, argv );
 	qAxInit();
 	if (runServer)

@@ -27,10 +27,11 @@
 
 #include <qapplication.h>
 #include <qdir.h>
+#include <qmap.h>
+#include <qmenubar.h>
 #include <qmetaobject.h>
 #include <qsettings.h>
 #include <qvariant.h>
-#include <private/qucomextra_p.h>
 
 #include "qaxbindable.h"
 #include "qaxfactory.h"
@@ -88,9 +89,9 @@ void qAxInit()
     InitializeCriticalSection( &qAxModuleSection );
 
     QString libFile( qAxModuleFilename );
-    libFile = libFile.lower();
+    libFile = libFile.toLower();
     if ( LoadTypeLibEx( (TCHAR*)libFile.ucs2(), REGKIND_NONE, &qAxTypeLibrary ) != S_OK ) {
-	int lastDot = libFile.findRev( '.' );
+	int lastDot = libFile.lastIndexOf( '.' );
 	libFile = libFile.left( lastDot ) + ".tlb";
 	LoadTypeLibEx( (TCHAR*)libFile.ucs2(), REGKIND_NONE, &qAxTypeLibrary );
     }
@@ -152,12 +153,12 @@ extern bool qax_disable_inplaceframe;
 HRESULT UpdateRegistry(BOOL bRegister)
 {
     QString file = QString::fromLocal8Bit( qAxModuleFilename );
-    QString path = file.left( file.findRev( "\\" )+1 );
+    QString path = file.left( file.lastIndexOf( "\\" )+1 );
     QString module = file.right( file.length() - path.length() );
-    module = module.left( module.findRev( "." ) );
+    module = module.left( module.lastIndexOf( "." ) );
 
-    const QString appId = qAxFactory()->appID().toString().upper();
-    const QString libId = qAxFactory()->typeLibID().toString().upper();
+    const QString appId = qAxFactory()->appID().toString().toUpper();
+    const QString libId = qAxFactory()->typeLibID().toString().toUpper();
 
     qAxInit();
     QString typeLibVersion;
@@ -182,7 +183,7 @@ HRESULT UpdateRegistry(BOOL bRegister)
     QApplication app( argc, 0 );
 
     if ( bRegister ) {
-	if ( file.right( 3 ).lower() == "exe" ) {
+	if ( file.right( 3 ).toLower() == "exe" ) {
 	    settings.writeEntry( "/AppID/" + appId + "/.", module );
 	    settings.writeEntry( "/AppID/" + module + ".EXE/AppID", appId );
 	}
@@ -198,17 +199,17 @@ HRESULT UpdateRegistry(BOOL bRegister)
 	    QObject *object = qAxFactory()->createObject( className );
 	    const QMetaObject *mo = object ? object->metaObject() : 0;
 
-	    const QString classId = qAxFactory()->classID(className).toString().upper();
-	    const QString eventId = qAxFactory()->eventsID(className).toString().upper();
-	    const QString ifaceId = qAxFactory()->interfaceID(className).toString().upper();
+	    const QString classId = qAxFactory()->classID(className).toString().toUpper();
+	    const QString eventId = qAxFactory()->eventsID(className).toString().toUpper();
+	    const QString ifaceId = qAxFactory()->interfaceID(className).toString().toUpper();
 
 	    if ( object ) { // don't register subobject classes
-		QString classVersion = mo ? QString(mo->classInfo( "Version", TRUE )) : QString::null;
+		QString classVersion = mo ? QString(mo->classInfo(mo->indexOfClassInfo("Version")).value()) : QString::null;
 		if ( classVersion.isNull() )
 		    classVersion = "1.0";
-		bool insertable = mo && !qstricmp(mo->classInfo("Insertable", TRUE), "yes");
+		bool insertable = mo && QString(mo->classInfo(mo->indexOfClassInfo("Insertable")).value()) == "yes";
 		bool control = object->isWidgetType();
-		const QString classMajorVersion = classVersion.left( classVersion.find(".") );
+		const QString classMajorVersion = classVersion.left( classVersion.indexOf(".") );
 		uint olemisc = OLEMISC_SETCLIENTSITEFIRST
 			      |OLEMISC_ACTIVATEWHENVISIBLE
 			      |OLEMISC_INSIDEOUT
@@ -216,7 +217,7 @@ HRESULT UpdateRegistry(BOOL bRegister)
 			      |OLEMISC_RECOMPOSEONRESIZE;
 		if (!control)
 		    olemisc |= OLEMISC_INVISIBLEATRUNTIME;
-		else if (object->child(0, "QMenuBar") && !qax_disable_inplaceframe)
+		else if (object->findChild(0, (QMenuBar*)0) && !qax_disable_inplaceframe)
 		    olemisc |= OLEMISC_WANTSTOMENUMERGE;
 
 		settings.writeEntry( "/" + module + "." + className + "." + classMajorVersion + "/.", className + " Class" );
@@ -229,13 +230,13 @@ HRESULT UpdateRegistry(BOOL bRegister)
 		settings.writeEntry( "/" + module + "." + className + "/CurVer/.", module + "." + className + "." + classMajorVersion );
 
 		settings.writeEntry( "/CLSID/" + classId + "/.", className + " Class" );
-		if ( file.right( 3 ).lower() == "exe" )
+		if ( file.right( 3 ).toLower() == "exe" )
 		    settings.writeEntry( "/CLSID/" + classId + "/AppID", appId );
 		if (control)
 		    settings.writeEntry( "/CLSID/" + classId + "/Control/.", QString::null );
 		if (insertable)
 		    settings.writeEntry( "/CLSID/" + classId + "/Insertable/.", QString::null );
-		if ( file.right( 3 ).lower() == "dll" )
+		if ( file.right( 3 ).toLower() == "dll" )
 		    settings.writeEntry( "/CLSID/" + classId + "/InProcServer32/.", file );
 		else
 		    settings.writeEntry( "/CLSID/" + classId + "/LocalServer32/.", file + " -activex" );
@@ -269,13 +270,14 @@ HRESULT UpdateRegistry(BOOL bRegister)
 	    const QString className = *key;
 	    const QMetaObject *mo = qAxFactory()->metaObject(className);
 
-	    const QString classId = qAxFactory()->classID(className).toString().upper();
-	    const QString eventId = qAxFactory()->eventsID(className).toString().upper();
-	    const QString ifaceId = qAxFactory()->interfaceID(className).toString().upper();
-	    QString classVersion = mo ? QString(mo->classInfo( "Version", TRUE )) : QString::null;
+	    const QString classId = qAxFactory()->classID(className).toString().toUpper();
+	    const QString eventId = qAxFactory()->eventsID(className).toString().toUpper();
+	    const QString ifaceId = qAxFactory()->interfaceID(className).toString().toUpper();
+
+	    QString classVersion = mo ? QString(mo->classInfo(mo->indexOfClassInfo("Version")).value()) : QString::null;
 	    if ( classVersion.isNull() )
 		classVersion = "1.0";
-	    const QString classMajorVersion = classVersion.left( classVersion.find(".") );
+	    const QString classMajorVersion = classVersion.left( classVersion.indexOf(".") );
 
 	    qAxFactory()->unregisterClass( className, &settings );
 
@@ -332,8 +334,8 @@ HRESULT UpdateRegistry(BOOL bRegister)
 // IDL generator
 /////////////////////////////////////////////////////////////////////////////
 
-static QStrList *enums = 0;
-static QStrList *subtypes = 0;
+static QStringList *enums = 0;
+static QStringList *subtypes = 0;
 
 static const char* const type_map[][2] =
 {
@@ -550,7 +552,7 @@ bool ignoreProps( const char *test )
 
 #define STRIPCB(x) x = x.mid( 1, x.length()-2 )
 
-static HRESULT classIDL( QObject *o, QMetaObject *mo, const QString &className, bool isBindable, QTextStream &out )
+static HRESULT classIDL( QObject *o, const QMetaObject *mo, const QString &className, bool isBindable, QTextStream &out )
 {
     int id = 1;
     int i = 0;
@@ -562,7 +564,7 @@ static HRESULT classIDL( QObject *o, QMetaObject *mo, const QString &className, 
 	topclass = "QWidget";
     bool hasStockEvents = qAxFactory()->hasStockEvents( className );
 
-    QMetaObject *pmo = mo;
+    const QMetaObject *pmo = mo;
     do {
 	pmo = pmo->superClass();
     } while ( pmo && topclass != pmo->className() );
@@ -575,29 +577,29 @@ static HRESULT classIDL( QObject *o, QMetaObject *mo, const QString &className, 
     int qtSlots = 0;
 
     if (o && o->isWidgetType()) {
-	qtProps = QWidget::staticMetaObject()->numProperties(TRUE);
-	qtSlots = QWidget::staticMetaObject()->numProperties(TRUE);
+	qtProps = QWidget::staticMetaObject.propertyCount();
+	qtSlots = QWidget::staticMetaObject.propertyCount();
     }
 
-    QString classID = qAxFactory()->classID( className ).toString().upper();
+    QString classID = qAxFactory()->classID( className ).toString().toUpper();
     if (QUuid(classID).isNull())
 	return 4;
     STRIPCB(classID);
-    QString interfaceID = qAxFactory()->interfaceID( className ).toString().upper();
+    QString interfaceID = qAxFactory()->interfaceID( className ).toString().toUpper();
     if (QUuid(interfaceID).isNull())
 	return 5;
     STRIPCB(interfaceID);
-    QString eventsID = qAxFactory()->eventsID( className ).toString().upper();
+    QString eventsID = qAxFactory()->eventsID( className ).toString().toUpper();
     bool hasEvents = !QUuid(eventsID).isNull();
     STRIPCB(eventsID);
 
-    QString defProp(mo->classInfo("DefaultProperty", TRUE));
-    QString defSignal(mo->classInfo("DefaultSignal", TRUE));
-
-    QStrList enumerators = mo->enumeratorNames( TRUE );
+    QString defProp(mo->classInfo(mo->indexOfClassInfo("DefaultProperty")).value());
+    QString defSignal(mo->classInfo(mo->indexOfClassInfo("DefaultSignal")).value());
+/*
+    QStringList enumerators = mo->enumeratorNames( TRUE );
     for ( i = 0; i < enumerators.count(); ++i ) {
 	if ( !enums )
-	    enums = new QStrList;
+	    enums = new QStringList;
 
 	const char *enumerator = enumerators.at(i);
 	if ( !enumerator )
@@ -627,7 +629,7 @@ static HRESULT classIDL( QObject *o, QMetaObject *mo, const QString &className, 
 	}
 	out << "\t};" << endl << endl;
     }
-
+*/
     out << endl;
     out << "\t[" << endl;
     out << "\t\tuuid(" << interfaceID << ")," << endl;
@@ -637,7 +639,8 @@ static HRESULT classIDL( QObject *o, QMetaObject *mo, const QString &className, 
     out << "\t{" << endl;
 
     out << "\tproperties:" << endl;
-    for ( i = propoff; i < mo->numProperties( TRUE ); ++i ) {
+    for ( i = propoff; i < mo->propertyCount(); ++i ) {
+#if 0
 	const QMetaProperty *property = mo->property( i, TRUE );
 	if ( !property || property->testFlags( QMetaProperty::Override ) )
 	    continue;
@@ -674,11 +677,13 @@ static HRESULT classIDL( QObject *o, QMetaObject *mo, const QString &className, 
 
 	if ( !ok )
 	    out << "\t******/" << endl;
+#endif
 	++id;
     }
     out << endl;
     out << "\tmethods:" << endl;
-    for ( i = slotoff; i < mo->numSlots( TRUE ); ++i ) {
+    for ( i = slotoff; i < mo->slotCount(); ++i ) {
+#if 0
 	const QMetaData *slotdata = mo->slot( i, TRUE );
 	if ( !slotdata || slotdata->access != QMetaData::Public )
 	    continue;
@@ -762,6 +767,7 @@ static HRESULT classIDL( QObject *o, QMetaObject *mo, const QString &className, 
 	if ( !ok )
 	    out << "\t******/" << endl;
 	++id;
+#endif
     }
     out << "\t};" << endl << endl;
 
@@ -791,7 +797,8 @@ static HRESULT classIDL( QObject *o, QMetaObject *mo, const QString &className, 
 	    out << "\t\t[id(DISPID_MOUSEUP)] void MouseUp(short Button, short Shift, OLE_XPOS_PIXELS x, OLE_YPOS_PIXELS y);" << endl << endl;
 	}
 
-	for ( i = signaloff; i < mo->numSignals( TRUE ); ++i ) {
+	for ( i = signaloff; i < mo->signalCount(); ++i ) {
+#if 0
 	    const QMetaData *signaldata = mo->signal( i, TRUE );
 	    if ( !signaldata )
 		continue;
@@ -871,23 +878,24 @@ static HRESULT classIDL( QObject *o, QMetaObject *mo, const QString &className, 
 	    if ( !ok )
 		out << "\t******/" << endl;
 	    ++id;
+#endif
 	}
 	out << "\t};" << endl << endl;
     }
 
     out << "\t[" << endl;
 
-    if (qstricmp(mo->classInfo("Aggregatable", TRUE), "no"))
+    if (qstricmp(mo->classInfo(mo->indexOfClassInfo("Aggregatable")).value(), "no"))
 	out << "\t\taggregatable," << endl;
-    if (mo->classInfo("LicenseKey", TRUE))
+    if (mo->classInfo(mo->indexOfClassInfo("LicenseKey")).value())
 	out << "\t\tlicensed," << endl;
-    const char *helpString = mo->classInfo("Description", TRUE);
+    const char *helpString = mo->classInfo(mo->indexOfClassInfo("Description")).value();
     if (helpString)
 	out << "\t\thelpstring(\"" << helpString << "\")," << endl;
     else
 	out << "\t\thelpstring(\"" << className << " Class\")," << endl;
-    const char *classVersion = mo->classInfo( "Version", TRUE );
-    if ( classVersion )
+    const char *classVersion = mo->classInfo(mo->indexOfClassInfo("Version")).value();
+    if (classVersion)
 	out << "\t\tversion(" << classVersion << ")," << endl;
     out << "\t\tuuid(" << classID << ")" << endl;
     out << "\t]" << endl;
@@ -910,7 +918,7 @@ extern "C" HRESULT __stdcall DumpIDL( const QString &outfile, const QString &ver
     qAxIsServer = FALSE;
     QTextStream out;
     if (outfile.contains("\\")) {
-	QString outpath = outfile.left( outfile.findRev( "\\" ) );
+	QString outpath = outfile.left( outfile.lastIndexOf( "\\" ) );
 	QDir dir;
 	dir.mkdir( outpath, FALSE );
     }
@@ -918,17 +926,17 @@ extern "C" HRESULT __stdcall DumpIDL( const QString &outfile, const QString &ver
     file.remove();
 
     QString filebase = qAxModuleFilename;
-    filebase = filebase.left( filebase.findRev( "." ) );
+    filebase = filebase.left( filebase.lastIndexOf( "." ) );
 
-    QString appID = qAxFactory()->appID().toString().upper();
+    QString appID = qAxFactory()->appID().toString().toUpper();
     if (QUuid(appID).isNull())
 	return 1;
     STRIPCB(appID);
-    QString typeLibID = qAxFactory()->typeLibID().toString().upper();
+    QString typeLibID = qAxFactory()->typeLibID().toString().toUpper();
     if (QUuid(typeLibID).isNull())
 	return 2;
     STRIPCB(typeLibID);
-    QString typelib = filebase.right( filebase.length() - filebase.findRev( "\\" )-1 );
+    QString typelib = filebase.right( filebase.length() - filebase.lastIndexOf( "\\" )-1 );
 
     if ( !file.open( IO_WriteOnly ) )
 	return -1;
@@ -937,7 +945,7 @@ extern "C" HRESULT __stdcall DumpIDL( const QString &outfile, const QString &ver
 
     QString version( ver.unicode(), ver.length() );
     while ( version.contains( '.' ) > 1 ) {
-	int lastdot = version.findRev( '.' );
+	int lastdot = version.lastIndexOf( '.' );
 	version = version.left( lastdot ) + version.right( version.length() - lastdot - 1 );
     }
     if (version.isEmpty())
@@ -1038,7 +1046,7 @@ extern "C" HRESULT __stdcall DumpIDL( const QString &outfile, const QString &ver
 	    // It's not a control class, so it is actually a subtype. Define it.
 	    if ( !o ) {
 		if ( !subtypes )
-		    subtypes = new QStrList;
+		    subtypes = new QStringList;
 		subtypes->append( className );
 		subtypes->append( className + "*" );
 		res = classIDL( 0, mo, className, FALSE, out );
@@ -1057,14 +1065,14 @@ extern "C" HRESULT __stdcall DumpIDL( const QString &outfile, const QString &ver
 	QObject *o = qAxFactory()->createObject( className );
 	if ( !o )
 	    continue;
-	QAxBindable *bind = (QAxBindable*)o->qt_cast( "QAxBindable" );
+	QAxBindable *bind = (QAxBindable*)o->qt_metacast( "QAxBindable" );
 	bool isBindable =  bind != 0;
 
 	delete mapping;
 	mapping = 0;
 
 	if ( !subtypes )
-	    subtypes = new QStrList;
+	    subtypes = new QStringList;
 	subtypes->append( className );
 	subtypes->append( className + "*" );
 	res = classIDL( o, o->metaObject(), className, isBindable, out );

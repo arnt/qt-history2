@@ -235,7 +235,6 @@ bool QVariantToVARIANT( const QVariant &var, VARIANT &arg, const char *type )
 
     switch ( (int)qvar.type() ) {
     case QVariant::String:
-    case QVariant::CString:
 	arg.vt = VT_BSTR;
 	arg.bstrVal = QStringToBSTR( qvar.toString() );
 	break;
@@ -279,11 +278,11 @@ bool QVariantToVARIANT( const QVariant &var, VARIANT &arg, const char *type )
     case QVariant::List:
 	{
 	    arg.vt = VT_ARRAY|VT_VARIANT;
-	    const QValueList<QVariant> list = qvar.toList();
+	    const QList<QCoreVariant> list = qvar.toList();
 	    const int count = list.count();
 
 	    arg.parray = SafeArrayCreateVector( VT_VARIANT, 0, count );
-	    QValueList<QVariant>::ConstIterator it = list.begin();
+	    QList<QCoreVariant>::ConstIterator it = list.begin();
 	    LONG index = 0;
 	    while ( it != list.end() ) {
 		QVariant varelem = *it;
@@ -324,7 +323,7 @@ bool QVariantToVARIANT( const QVariant &var, VARIANT &arg, const char *type )
 	    arg.parray = SafeArrayCreateVector( VT_UI1, 0, size );
 
 	    if ( size ) {
-		char *data = array.data();
+		const char *data = array.data();
 		char *dest;
 		SafeArrayAccessData( arg.parray, (void **)&dest );
 		memcpy( dest, data, size );
@@ -480,7 +479,7 @@ static inline void makeReference( VARIANT &arg )
     }
     arg.vt |= VT_BYREF;
 }
-
+/*
 static inline bool enumValue( const QString &string, const QUEnum *uEnum, int &value )
 {
     bool isInt = FALSE;
@@ -495,6 +494,7 @@ static inline bool enumValue( const QString &string, const QUEnum *uEnum, int &v
     }
     return FALSE;
 }
+*/
 
 /*
     Converts \a var to \a res, and tries to coerce \a res to the type of \a param.
@@ -506,8 +506,8 @@ static inline bool enumValue( const QString &string, const QUEnum *uEnum, int &v
 bool QVariantToVARIANT( const QVariant &var, VARIANT &res, const QUParameter *param )
 {
     QVariant variant = var;
-
     const char *vartypename = 0;
+/*
     if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra ) {
 	vartypename = QVariant::typeToName( (QVariant::Type)*(char*)param->typeExtra );
     } else if ( QUType::isEqual( param->type, &static_QUType_ptr ) ) {
@@ -527,8 +527,9 @@ bool QVariantToVARIANT( const QVariant &var, VARIANT &res, const QUParameter *pa
 	QVariant::Type exp = QVariant::nameToType(vartypename);
 	variant.cast(exp);
     }
-
+*/
     bool ok = QVariantToVARIANT( variant, res, vartypename );
+/*
     // short* and char* are common in OLE controls, and cannot be coerced from int*
     if (variant.type() == QVariant::Int) {
 	if (param->typeExtra == (void*)2)
@@ -550,6 +551,7 @@ bool QVariantToVARIANT( const QVariant &var, VARIANT &res, const QUParameter *pa
 	    makeReference( res );
 	}
     }
+*/
     return ok;
 }
 
@@ -568,7 +570,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
     // three dummy variables to avoid code duplication for VT_I2/4 etc.
     int intvalue = 0;
     uint uintvalue = 0;
-
+/*
     switch ( arg.vt ) {
     case VT_BSTR:
 	{
@@ -917,8 +919,8 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 		array = *arg.pparray;
 	    else
 		array = arg.parray;
-	    QValueList<QVariant> list;
-	    QValueList<QVariant> *reference = (QValueList<QVariant>*)static_QUType_varptr.get( obj );
+	    QList<QVariant> list;
+	    QList<QVariant> *reference = (QList<QVariant>*)static_QUType_varptr.get( obj );
 
 	    if ( array && array->cDims == 1 ) {
 		long lBound, uBound;
@@ -938,7 +940,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	    if ( reference )
 		*reference = list;
 	    else
-		reference = new QValueList<QVariant>( list );
+		reference = new QList<QVariant>( list );
 	    static_QUType_varptr.set( obj, reference );
 	}
 	break;
@@ -1066,6 +1068,7 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	    param->type->convertFrom( obj, obj->type );
 	}
     }
+*/
     return TRUE;
 }
 
@@ -1094,10 +1097,10 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
 	var = BSTRToQString( *arg.pbstrVal );
 	break;
     case VT_BOOL:
-	var = QVariant( arg.boolVal, 42 );
+	var = QVariant( (bool)arg.boolVal );
 	break;
     case VT_BOOL|VT_BYREF:
-	var = QVariant( *arg.pboolVal, 42 );
+	var = QVariant( (bool)*arg.pboolVal );
 	break;
     case VT_I1:
 	var = arg.cVal;
@@ -1243,7 +1246,7 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
 	    else
 		array = arg.parray;
 
-	    QValueList<QVariant> list;
+	    QList<QVariant> list;
 	    if ( !array || array->cDims != 1 ) {
 		var = list;
 		break;
@@ -1365,8 +1368,8 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
 	} else if (proptype == QVariant::StringList && var.type() == QVariant::List) {
 	    bool allStrings = TRUE;
 	    QStringList strings;
-	    const QValueList<QVariant> list(var.toList());
-	    for (QValueList<QVariant>::ConstIterator it(list.begin()); it != list.end(); ++it) {
+	    const QList<QCoreVariant> list(var.toList());
+	    for (QList<QCoreVariant>::ConstIterator it(list.begin()); it != list.end(); ++it) {
 		QVariant variant = *it;
 		if (variant.canCast(QVariant::String))
 		    strings << variant.toString();
@@ -1391,6 +1394,7 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
 */
 bool QVariantToQUObject( const QVariant &var, QUObject &obj, const QUParameter *param )
 {
+/*
     if ( QUType::isEqual( param->type, &static_QUType_QVariant ) ) {
 	static_QUType_QVariant.set( &obj, var );
     } else switch ( var.type() ) {
@@ -1431,7 +1435,7 @@ bool QVariantToQUObject( const QVariant &var, QUObject &obj, const QUParameter *
 	static_QUType_varptr.set( &obj, new QDateTime( var.toDateTime() ) );
 	break;
     case QVariant::List:
-	static_QUType_varptr.set( &obj, new QValueList<QVariant>( var.toList() ) );
+	static_QUType_varptr.set( &obj, new QList<QVariant>( var.toList() ) );
 	break;
     case QVariant::LongLong:
 	static_QUType_varptr.set( &obj, new Q_LLONG(var.toLongLong() ) );
@@ -1467,7 +1471,7 @@ bool QVariantToQUObject( const QVariant &var, QUObject &obj, const QUParameter *
 	    return FALSE;
 	}
     }
-
+*/
     return TRUE;
 }
 
@@ -1556,6 +1560,7 @@ static inline void updateReference( VARIANT &dest, VARIANT &src, bool byref )
 */
 bool QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 {
+/*
     bool byref = param && ( param->inOut & QUParameter::Out ) && ( param->inOut != QUParameter::Out );
     if ( param && !QUType::isEqual( param->type, obj->type ) && param->type->canConvertFrom( obj, obj->type ) )
 	param->type->convertFrom( obj, obj->type );
@@ -1674,7 +1679,7 @@ bool QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 		value = *(QFont*)ptrvalue;
 		break;
 	    case QVariant::List:
-		value = *(QValueList<QVariant>*)ptrvalue;
+		value = *(QList<QVariant>*)ptrvalue;
 		break;
 	    case QVariant::ByteArray:
 		value = *(QByteArray*)ptrvalue;
@@ -1732,12 +1737,13 @@ bool QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
     }
     if ( byref && !(arg.vt & VT_BYREF) )
 	makeReference( arg );
-
+*/
     return TRUE;
 }
 
 void clearQUObject( QUObject *obj, const QUParameter *param )
 {
+/*
     if ( !param || !QUType::isEqual( param->type, &static_QUType_varptr ) || !QUType::isEqual( param->type, obj->type ) ) {
 	obj->type->clear( obj );
     } else if ( param->typeExtra ) {
@@ -1787,7 +1793,7 @@ void clearQUObject( QUObject *obj, const QUParameter *param )
 	    delete (QFont*)ptrvalue;
 	    break;
 	case QVariant::List:
-	    delete (QValueList<QVariant>*)ptrvalue;
+	    delete (QList<QVariant>*)ptrvalue;
 	    break;
 	case QVariant::ByteArray:
 	    delete (QByteArray*)ptrvalue;
@@ -1809,6 +1815,7 @@ void clearQUObject( QUObject *obj, const QUParameter *param )
 	}
 	obj->payload.ptr = 0;
     }
+*/
 }
 
 void clearVARIANT( VARIANT *var )

@@ -64,7 +64,7 @@ static QString toType( const QString &t )
 
     if ( type.startsWith("Q") )
 	type = type.mid(1);
-    type[0] = type[0].upper();
+    type[0] = type[0].toUpper();
     if ( type == "ValueList<QVariant>" )
 	type = "List";
     else if ( type == "Map<QVariant,QVariant>" )
@@ -90,7 +90,7 @@ QString qax_generateDocumentation(QAxBase *that, QAxBasePrivate *d)
     QTextStream stream( &docu, IO_WriteOnly );
 
     const QMetaObject *mo = that->metaObject();
-    QString coClass  = mo->classInfo( "CoClass" );
+    QString coClass  = mo->classInfo(mo->indexOfClassInfo("CoClass")).value();
 
     stream << "<h1 align=center>" << coClass << " Reference</h1>" << endl;
     stream << "<p>The " << coClass << " COM object is a " << that->qObject()->className();
@@ -100,7 +100,7 @@ QString qax_generateDocumentation(QAxBase *that, QAxBasePrivate *d)
     stream << "<ul>" << endl;
     const char *inter = 0;
     int interCount = 1;  
-    while ( (inter = mo->classInfo(QString("Interface %1").arg(interCount))) ) {
+    while ((inter = mo->classInfo(mo->indexOfClassInfo(QString("Interface %1").arg(interCount))).value())) {
 	stream << "<li>" << inter << endl;
 	interCount++;
     }
@@ -109,7 +109,7 @@ QString qax_generateDocumentation(QAxBase *that, QAxBasePrivate *d)
     stream << "<h3>Event Interfaces</h3>" << endl;
     stream << "<ul>" << endl;
     interCount = 1;  
-    while ( (inter = mo->classInfo(QString("Event Interface %1").arg(interCount))) ) {
+    while ((inter = mo->classInfo(mo->indexOfClassInfo(QString("Event Interface %1").arg(interCount))).value())) {
 	stream << "<li>" << inter << endl;
 	interCount++;
     }
@@ -117,14 +117,15 @@ QString qax_generateDocumentation(QAxBase *that, QAxBasePrivate *d)
 
     QStringList methodDetails, propDetails;
 
-    const int slotCount = mo->numSlots();
+    const int slotCount = mo->slotCount();
+/*
     if ( slotCount ) {
 	stream << "<h2>Public Slots:</h2>" << endl;
 	stream << "<ul>" << endl;
 
 	QMap<QString,QString> slotMap;
 	for ( int islot = 0; islot < slotCount; ++islot ) {
-	    const QMetaData *slot = mo->slot( islot );
+	    const QMetaMember slot = mo->slot( islot );
 	    const QUMethod *method = slot->method;
 
 	    QString returntype;
@@ -352,7 +353,7 @@ QString qax_generateDocumentation(QAxBase *that, QAxBasePrivate *d)
 	    stream << (*it) << endl;
 	}
     }
-
+*/
     if ( typeInfo ) typeInfo->Release();
     return docu;
 }

@@ -13,7 +13,7 @@
 ****************************************************************************/
 
 #include <qapplication.h>
-#include <qwidgetlist.h>
+#include <qwidget.h>
 
 #include <qt_windows.h>
 #include "../shared/types.h"
@@ -34,7 +34,7 @@ extern HRESULT UpdateRegistry(int bRegister);
 extern HRESULT GetClassObject( const GUID &clsid, const GUID &iid, void **ppUnk );
 
 // in qeventloop_win.cpp
-extern Q_EXPORT bool qt_win_use_simple_timers;
+extern Q_CORE_EXPORT bool qt_win_use_simple_timers;
 
 STDAPI DllRegisterServer()
 {
@@ -62,20 +62,13 @@ STDAPI DllCanUnloadNow()
 	return S_OK;
 
     // check if qApp still runs widgets (in other DLLs)
-    QWidgetList *widgets = qApp->allWidgets();
-    int count = 0;
-    if ( widgets ) {
-	count = widgets->count();
-
+    QWidgetList widgets = qApp->allWidgets();
+    int count = widgets.count();
+    for (int w = 0; w < widgets.count(); ++w) {
 	// remove all Qt generated widgets
-	QWidgetListIt it( *widgets );
-	while ( it.current() ) {
-	    QWidget *w = it.current();
-	    if ( w->testWFlags( Qt::WType_Desktop ) )
-		count--;
-	    ++it;
-	}
-	delete widgets;
+	QWidget *widget = widgets.at(w);
+	if ( widget->testWFlags( Qt::WType_Desktop ) )
+	    count--;
     }
     if ( count )
 	return S_FALSE;
@@ -85,7 +78,6 @@ STDAPI DllCanUnloadNow()
 	UnhookWindowsHookEx( qax_hhook );
 
     delete qApp;
-    qApp = 0;
     qax_ownQApp = FALSE;
 
     // never allow unloading - safety net for Internet Explorer

@@ -93,15 +93,7 @@ QAxObject::~QAxObject()
 /*!
     \reimp
 */
-const char *QAxObject::className() const
-{
-    return "QAxObject";
-}
-
-/*!
-    \reimp
-*/
-QMetaObject *QAxObject::metaObject() const
+const QMetaObject *QAxObject::metaObject() const
 {
     return QAxBase::metaObject();
 }
@@ -109,35 +101,35 @@ QMetaObject *QAxObject::metaObject() const
 /*!
     \reimp
 */
-QMetaObject *QAxObject::parentMetaObject() const
+const QMetaObject *QAxObject::parentMetaObject() const
 {
-    return QObject::staticMetaObject();
+    return &QObject::staticMetaObject;
 }
 
 /*!
     \reimp
 */
-void *QAxObject::qt_cast( const char *cname )
+void *QAxObject::qt_metacast( const char *cname ) const
 {
-    if ( !qstrcmp( cname, "QAxObject" ) ) return this;
+    if ( !qstrcmp( cname, "QAxObject" ) ) return (void*)this;
     if ( !qstrcmp( cname, "QAxBase" ) ) return (QAxBase*)this;
-    return QObject::qt_cast( cname );
+    return QObject::qt_metacast( cname );
 }
 
 
 /*!
     \reimp
 */
-bool QAxObject::qt_invoke( int _id, QUObject *_o )
+int QAxObject::qt_metacall(QMetaObject::Call call, int id, void **o)
 {
-    if ( QAxBase::qt_invoke( _id, _o ) )
+    if ( QAxBase::qt_metacall(call, id, o ) )
 	return TRUE;
-    return QObject::qt_invoke( _id, _o );
+    return QObject::qt_metacall(call, id, o );
 }
 
 /*!
     \reimp
-*/
+*
 bool QAxObject::qt_emit( int _id, QUObject* _o )
 {
     const int index = _id - metaObject()->signalOffset();
@@ -150,16 +142,6 @@ bool QAxObject::qt_emit( int _id, QUObject* _o )
 	return TRUE;
     }
     return QObject::qt_emit( _id, _o );
-}
-
-/*!
-  \reimp
-*/
-bool QAxObject::qt_property( int _id, int _f, QVariant *_v )
-{
-    if ( QAxBase::qt_property( _id, _f, _v ) )
-	return TRUE;
-    return QObject::qt_property( _id, _f, _v );
 }
 
 /*!

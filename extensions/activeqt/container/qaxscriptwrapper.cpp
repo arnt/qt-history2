@@ -36,7 +36,7 @@ QAxBase *qax_create_object_wrapper(QObject *object)
     QAxBase *wrapper = 0;
     qAxFactory()->createObjectWrapper(object, &dispatch);
     if (dispatch) {
-	wrapper = new QAxObject(dispatch, object, object->name());
+	wrapper = new QAxObject(dispatch, object, object->objectName());
 	dispatch->Release();
     }
     return wrapper;

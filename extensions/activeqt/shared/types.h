@@ -18,7 +18,9 @@
 #include <qdatetime.h>
 #include <qvariant.h>
 #include <private/qcom_p.h>
-#include <private/qucomextra_p.h>
+//#include <private/qucomextra_p.h>
+
+struct QUParameter;
 
 extern GUID IID_IAxServerBase;
 struct IAxServerBase : public IUnknown

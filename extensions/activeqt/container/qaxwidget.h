@@ -21,12 +21,9 @@ class QAxHostWindow;
 class QAxWidget : public QWidget, public QAxBase
 {
 public:
-    QMetaObject *metaObject() const;
-    const char *className() const;
-    void* qt_cast( const char* );
-    bool qt_invoke( int, QUObject* );
-    bool qt_emit( int, QUObject* );
-    bool qt_property( int, int, QVariant* );
+    const QMetaObject *metaObject() const;
+    void* qt_metacast( const char* ) const;
+    int qt_metacall(QMetaObject::Call, int, void **);
     QObject* qObject() { return (QObject*)this; }
 
     QAxWidget( QWidget* parent = 0, const char* name = 0, WFlags f = 0 );
@@ -53,7 +50,7 @@ protected:
 private:
     friend class QAxHostWindow;
 
-    QMetaObject *parentMetaObject() const;
+    const QMetaObject *parentMetaObject() const;
 
     QAxHostWindow *container;
 };

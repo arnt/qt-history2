@@ -104,7 +104,7 @@ public:
 					   const QVariant &v6 = QVariant(),
 					   const QVariant &v7 = QVariant(),
 					   const QVariant &v8 = QVariant());
-    QVariant call(const QString &function, QValueList<QVariant> &arguments);
+    QVariant call(const QString &function, QList<QVariant> &arguments);
 
 signals:
     void entered();
@@ -154,7 +154,7 @@ public:
 					   const QVariant &v6 = QVariant(),
 					   const QVariant &v7 = QVariant(),
 					   const QVariant &v8 = QVariant());
-    QVariant call(const QString &function, QValueList<QVariant> &arguments);
+    QVariant call(const QString &function, QList<QVariant> &arguments);
 
     static bool registerEngine(const QString &name, const QString &extension, const QString &code = QString());
     static QString scriptFileFilter();

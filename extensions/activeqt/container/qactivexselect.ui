@@ -12,7 +12,7 @@
             <height>326</height>
         </rect>
     </property>
-    <property name="caption">
+    <property name="windowTitle">
         <string>Select ActiveX Control</string>
     </property>
     <property name="sizeGripEnabled">
@@ -45,9 +45,6 @@
                 <widget class="QPushButton">
                     <property name="name">
                         <cstring>buttonOk</cstring>
-                    </property>
-                    <property name="caption">
-                        <string></string>
                     </property>
                     <property name="text">
                         <string>OK</string>

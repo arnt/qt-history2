@@ -15,9 +15,9 @@
 #include "qaxwidget.h"
 
 #include <qapplication.h>
-#include <qfocusdata.h>
-#include <qobjectlist.h>
-#include <qstatusbar.h>
+#include <qevent.h>
+//#include <qfocusdata.h>
+//#include <qobjectlist.h>
 #include <qguardedptr.h>
 #include <qlayout.h>
 #include <qmenubar.h>
@@ -25,6 +25,7 @@
 #include <qpainter.h>
 #include <qpaintdevicemetrics.h>
 #include <qregexp.h>
+#include <qstatusbar.h>
 #include <qwhatsthis.h>
 
 #include <ocidl.h>
@@ -119,9 +120,8 @@ private:
 };
 
 QAxHostWidget::QAxHostWidget( QWidget *parent, QAxHostWindow *ax )
-    : QWidget( parent, "QAxHostWidget", WResizeNoErase|WRepaintNoErase ), axhost( ax )
+    : QWidget( parent, "QAxHostWidget" ), axhost( ax )
 {
-    setBackgroundMode( NoBackground );
     setFocusTimer = 0;
 }
 
@@ -313,12 +313,12 @@ LRESULT CALLBACK axc_FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 	    while ( !ax && hwnd ) {
 		widget = QWidget::find( hwnd );
 		if ( widget )
-		    ax = (QAxWidget*)widget->qt_cast( "QAxWidget" );
+		    ax = (QAxWidget*)widget->qt_metacast( "QAxWidget" );
 		hwnd = ::GetParent( hwnd );
 	    }
 	    if (ax && msg->hwnd != ax->winId()) {
 		if ( message >= WM_KEYFIRST && message <= WM_KEYLAST ) {
-		    QAxHostWidget *host = (QAxHostWidget*)ax->child( "QAxHostWidget", "QWidget" );
+		    QAxHostWidget *host = ax->findChild(0, (QAxHostWidget*)0);
 		    QAxHostWindow *site = host ? host->clientSite() : 0;
 		    if (site && site->inPlaceObject() && site->translateKeyEvent(msg->message, msg->wParam))
 			site->inPlaceObject()->TranslateAccelerator(msg);
@@ -438,7 +438,7 @@ QAxHostWindow::QAxHostWindow( QAxWidget *c, bool bInited )
 
 	BSTR userType;
 	m_spOleObject->GetUserType( USERCLASSTYPE_SHORT, &userType );
-	widget->setCaption( BSTRToQString( userType ) );
+	widget->setWindowTitle( BSTRToQString( userType ) );
 	CoTaskMemFree( userType );
     }
     IObjectWithSite *spSite;
@@ -568,7 +568,7 @@ HRESULT WINAPI QAxHostWindow::Invoke(DISPID dispIdMember,
 
     case DISPID_AMBIENT_DISPLAYNAME:
 	pVarResult->vt = VT_BSTR;
-	pVarResult->bstrVal = QStringToBSTR( widget->caption() );
+	pVarResult->bstrVal = QStringToBSTR( widget->windowTitle() );
 	return S_OK;
 
     case DISPID_AMBIENT_FONT:
@@ -578,12 +578,12 @@ HRESULT WINAPI QAxHostWindow::Invoke(DISPID dispIdMember,
 
     case DISPID_AMBIENT_BACKCOLOR:
 	pVarResult->vt = VT_UI4;
-	pVarResult->lVal = QColorToOLEColor( widget->paletteBackgroundColor() );
+	pVarResult->lVal = QColorToOLEColor(widget->palette().color(widget->backgroundRole()));
 	return S_OK;
 
     case DISPID_AMBIENT_FORECOLOR:
 	pVarResult->vt = VT_UI4;
-	pVarResult->lVal = QColorToOLEColor( widget->paletteForegroundColor() );
+	pVarResult->lVal = QColorToOLEColor(widget->palette().color(widget->foregroundRole()));
 	return S_OK;
 
     case DISPID_AMBIENT_UIDEAD:
@@ -797,8 +797,8 @@ HRESULT WINAPI QAxHostWindow::InsertMenus( HMENU /*hmenuShared*/, LPOLEMENUGROUP
     QMenuBar *mb = menuBar;
     QWidget *p = widget;
     while ( !mb && p ) {
-	mb = (QMenuBar*)p->child( 0, "QMenuBar" );
-	p = p->parentWidget( TRUE );
+	mb = p->findChild(0, (QMenuBar*)0);
+	p = p->parentWidget(/* TRUE XXX*/);
     }
     if ( !mb )
 	return E_NOTIMPL;
@@ -893,7 +893,7 @@ QPopupMenu *QAxHostWindow::generatePopup( HMENU subMenu, QWidget *parent )
 	    popupMenu = item.hSubMenu ? generatePopup( item.hSubMenu, popup ) : 0;
 	    int res = menuItemEntry( subMenu, i, item, text, icon );
 
-	    int lastSep = text.findRev( QRegExp("[\\s]") );
+	    int lastSep = text.lastIndexOf( QRegExp("[\\s]") );
 	    if ( lastSep != -1 ) {
 		QString keyString = text.right( text.length() - lastSep );
 		accel = keyString;
@@ -935,8 +935,8 @@ HRESULT WINAPI QAxHostWindow::SetMenu( HMENU hmenuShared, HOLEMENU /*holemenu*/,
 	QMenuBar *mb = menuBar;
 	QWidget *p = widget;
 	while ( !mb && p ) {
-	    mb = (QMenuBar*)p->child( 0, "QMenuBar" );
-	    p = p->parentWidget( TRUE );
+	    mb = p->findChild(0, (QMenuBar*)0 );
+	    p = p->parentWidget(/*TRUE XXX*/);
 	}
 	if ( !mb )
 	    return E_NOTIMPL;
@@ -984,10 +984,10 @@ HRESULT WINAPI QAxHostWindow::SetMenu( HMENU hmenuShared, HOLEMENU /*holemenu*/,
 	}
 	if ( count ) {
 	    const QMetaObject *mbmo = menuBar->metaObject();
-	    int index = mbmo->findSignal( "activated(int)" );
+	    int index = mbmo->indexOfSignal( "activated(int)" );
 	    Q_ASSERT( index != -1 );
 	    menuBar->disconnect( SIGNAL(activated(int)), host );
-	    host->connectInternal( menuBar, index, host, 2, 0 );
+	    // XXX host->connectInternal( menuBar, index, host, 2, 0 );
 	}
     } else if ( menuBar ) {
 	m_menuOwner = 0;
@@ -1014,11 +1014,12 @@ bool QAxHostWindow::qt_emit( int isignal, QUObject *obj )
 
     switch ( isignal ) {
     case 0: // activated(int)
-	{
+	{ /* XXX
 	    int qtid = static_QUType_int.get( obj+1 );
 	    OleMenuItem oleItem = menuItemMap[qtid];
 	    if ( oleItem.hMenu )
 		::PostMessageA( m_menuOwner, WM_COMMAND, oleItem.id, 0 );
+	*/
 	}
 	break;
 
@@ -1039,8 +1040,8 @@ HRESULT WINAPI QAxHostWindow::SetStatusText( LPCOLESTR pszStatusText )
     QStatusBar *sb = statusBar;
     QWidget *p = widget;
     while ( !sb && p ) {
-	sb = (QStatusBar*)p->child( 0, "QStatusBar" );
-	p = p->parentWidget( TRUE );
+	sb = p->findChild(0, (QStatusBar*)0);
+	p = p->parentWidget(/*TRUE XXX*/ );
     }
     if ( !sb )
 	return E_NOTIMPL;
@@ -1050,8 +1051,8 @@ HRESULT WINAPI QAxHostWindow::SetStatusText( LPCOLESTR pszStatusText )
     return S_OK;
 }
 
-extern Q_EXPORT void qt_enter_modal(QWidget*);
-extern Q_EXPORT void qt_leave_modal(QWidget*);
+extern Q_GUI_EXPORT void qt_enter_modal(QWidget*);
+extern Q_GUI_EXPORT void qt_leave_modal(QWidget*);
 
 HRESULT WINAPI QAxHostWindow::EnableModeless( BOOL fEnable )
 {
@@ -1098,7 +1099,7 @@ HRESULT WINAPI QAxHostWindow::SetBorderSpace( LPCBORDERWIDTHS pborderwidths )
 HRESULT WINAPI QAxHostWindow::SetActiveObject( IOleInPlaceActiveObject *pActiveObject, LPCOLESTR pszObjName )
 {
     if ( pszObjName )
-	widget->setCaption( BSTRToQString( (BSTR)pszObjName ) );
+	widget->setWindowTitle( BSTRToQString( (BSTR)pszObjName ) );
 
     if ( m_spInPlaceActiveObject )
 	m_spInPlaceActiveObject->Release();
@@ -1170,7 +1171,7 @@ void QAxHostWidget::show()
 {
     if ( axhost && !axhost->invisibleAtRuntime() ) {
 	QWidget::show();
-	QApplication::sendPostedEvents( 0, QEvent::LayoutHint );
+	QApplication::sendPostedEvents( 0, QEvent::LayoutRequest );
 	int w = width();
 	int h = height();
 	resize( w-1, h-1 );
@@ -1284,8 +1285,7 @@ void QAxHostWidget::windowActivationChange( bool oldActive )
 
 void QAxHostWidget::paintEvent( QPaintEvent* )
 {
-    QPaintDevice *grabber = QPainter::redirect( this );
-    if ( !grabber )
+    if (!QPainter::redirected(this))
 	return;
     
     IViewObject *view = 0;
@@ -1435,7 +1435,7 @@ bool QAxWidget::createHostWindow( bool initialized )
 	setFocusPolicy( container->hostWidget()->focusPolicy() );
     }
     if ( parentWidget() )
-	QApplication::postEvent( parentWidget(), new QEvent( QEvent::LayoutHint ) );
+	QApplication::postEvent( parentWidget(), new QEvent( QEvent::LayoutRequest ) );
 
     return TRUE;
 }
@@ -1479,15 +1479,7 @@ void QAxWidget::clear()
 /*!
     \reimp
 */
-const char *QAxWidget::className() const
-{
-    return "QAxWidget";
-}
-
-/*!
-    \reimp
-*/
-QMetaObject *QAxWidget::metaObject() const
+const QMetaObject *QAxWidget::metaObject() const
 {
     return QAxBase::metaObject();
 }
@@ -1495,35 +1487,35 @@ QMetaObject *QAxWidget::metaObject() const
 /*!
     \reimp
 */
-QMetaObject *QAxWidget::parentMetaObject() const
+const QMetaObject *QAxWidget::parentMetaObject() const
 {
-    return QWidget::staticMetaObject();
+    return &QWidget::staticMetaObject;
 }
 
 /*!
     \reimp
 */
-void *QAxWidget::qt_cast( const char *cname )
+void *QAxWidget::qt_metacast( const char *cname ) const
 {
-    if ( !qstrcmp( cname, "QAxWidget" ) ) return this;
+    if ( !qstrcmp( cname, "QAxWidget" ) ) return (void*)this;
     if ( !qstrcmp( cname, "QAxBase" ) ) return (QAxBase*)this;
-    return QWidget::qt_cast( cname );
+    return QWidget::qt_metacast( cname );
 }
 
 
 /*!
     \reimp
 */
-bool QAxWidget::qt_invoke( int _id, QUObject *_o )
+int QAxWidget::qt_metacall(QMetaObject::Call call, int id, void **o)
 {
-    if ( QAxBase::qt_invoke( _id, _o ) )
+    if ( QAxBase::qt_metacall(call, id, o ) )
 	return TRUE;
-    return QWidget::qt_invoke( _id, _o );
+    return QWidget::qt_metacall(call, id, o );
 }
 
 /*!
     \reimp
-*/
+*
 bool QAxWidget::qt_emit( int _id, QUObject* _o )
 {
     const int index = _id - metaObject()->signalOffset();
@@ -1540,7 +1532,7 @@ bool QAxWidget::qt_emit( int _id, QUObject* _o )
 
 /*!
     \reimp
-*/
+*
 bool QAxWidget::qt_property( int _id, int _f, QVariant *_v )
 {
     if ( QAxBase::qt_property( _id, _f, _v ) )
