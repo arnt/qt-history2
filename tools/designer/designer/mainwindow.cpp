@@ -45,6 +45,7 @@
 #include "createtemplate.h"
 #include "actionplugin.h"
 #include "filterplugin.h"
+#include "designerappiface.h"
 #include <qinputdialog.h>
 #if defined(HAVE_KDE)
 #include <ktoolbar.h>
@@ -3365,7 +3366,7 @@ void MainWindow::setupActionManager()
 {
     QString dir = getenv( "QTDIR" );
     dir += "/plugins";
-    actionPluginManager = new ActionPlugInManager( dir );
+    actionPluginManager = new ActionPlugInManager( dir, "*.dll; *.so", new DesignerApplicationInterface );
 
     QStringList lst = actionPluginManager->featureList();
     for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
