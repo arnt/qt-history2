@@ -4,6 +4,7 @@ sub prepare {
     local ($_) = @_;
 
     s/\\/\\\\/gs;
+    s/ / /gs;
     $_;
 }
 
@@ -203,6 +204,7 @@ mkdir "../man/man1", oct 777 unless ( -d "../man/man1" );
 
 open( A, "< annotated.html" ) || die "can't open annotated.html";
 $_ = <A>;
+s/ / /gs;
 close A;
 
 while ( m@<li><strong><a href=\"(.*?\.html)\">(.*?)</a></strong> \((.*?)\)\n@gs ) {
