@@ -1378,6 +1378,7 @@ void SetupWizardImpl::showPageProgress()
 		}
 	    }
 #  endif
+#  if !defined(Q_OS_MACX)
 	    // copy lib/*.dll bin/
 	    QStringList dlls = lib.entryList( "*.dll" );
 	    for ( it=dlls.begin(); it!=dlls.end(); ++it ) {
@@ -1406,6 +1407,7 @@ void SetupWizardImpl::showPageProgress()
 	    if ( tdsPluginInstall && !tdsPluginInstall->isOn() ) {
 		plugins.remove( "qsqltds.dll" );
 	    }
+#  endif
 #endif
 	    logFiles( tr("All files have been installed.\n"
 			 "This log has been saved to the installation directory.\n"
