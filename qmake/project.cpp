@@ -286,11 +286,20 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
 		debug_msg(1, "Project Parser: %s:%d : Entering block %d (%d).", parser.file.latin1(),
 			  parser.line_no, scope_block, !scope_failed);
 	    }
+	} else if(!parens && *d == '}') {
+	    if(!scope_block) {
+		warn_msg(WarnParser, "Possible braces mismatch %s:%d", parser.file.latin1(), parser.line_no);
+	    } else {
+		debug_msg(1, "Project Parser: %s:%d : Leaving block %d", parser.file.latin1(),
+			  parser.line_no, scope_block);
+		--scope_block;
+	    }
 	} else {
 	    var += *d;
 	}
 	d++;
     }
+    var = var.stripWhiteSpace();
     if(!scope_count || (scope_count == 1 && else_line))
 	test_status = TestNone;
     else if(!else_line || test_status != TestFound)
@@ -298,7 +307,7 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
     if(scope_failed)
 	return TRUE; /* oh well */
     if(!*d) {
-	if(!var.isEmpty())
+	if(!var.stripWhiteSpace().isEmpty())
 	    qmake_error_msg("Parse Error ('" + s + "')");
 	return var.isEmpty(); /* allow just a scope */
     }
@@ -323,16 +332,15 @@ QMakeProject::parse(const QString &t, QMap<QString, QStringList> &place)
     }
     doVariableReplace(vals, place);
 
-    var = var.stripWhiteSpace();
 #undef SKIP_WS
 
     if(!var.isEmpty() && Option::mkfile::do_preprocess) {
 	static QString last_file("*none*");
 	if(parser.file != last_file) {
-	    fprintf(stderr, "#file %s:%d\n", parser.file.latin1(), parser.line_no);
+	    fprintf(stdout, "#file %s:%d\n", parser.file.latin1(), parser.line_no);
 	    last_file = parser.file;
 	}
-	fprintf(stderr, "%s %s %s\n", var.latin1(), op.latin1(), vals.latin1());
+	fprintf(stdout, "%s %s %s\n", var.latin1(), op.latin1(), vals.latin1());
     }
     var = varMap(var); //backwards compatability
 
