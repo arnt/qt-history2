@@ -16,12 +16,10 @@
 //#define VERBOSE_DEBUG_XBASE
 
 #ifdef DEBUG_XBASE
-#include <iostream>
-using namespace std;
 #define ERROR_RETURN(err) do { \
 			   setLastError( err ); \
 			   close(); \
-			   cout << endl; \
+			   env->output() << endl; \
 			   return FALSE; \
 			  } while(0)
 #else
@@ -49,8 +47,8 @@ public:
     QVector<xbNdx> indexes;
 };
 
-FileDriver::FileDriver( const QString& name = QString::null )
-    : nm( name )
+FileDriver::FileDriver( Interpreter::Environment* environment, const QString& name = QString::null )
+    : nm( name ), env( environment )
 {
     d = new Private();
     setIsOpen( FALSE );
@@ -62,7 +60,7 @@ FileDriver::~FileDriver()
 }
 
 FileDriver::FileDriver( const FileDriver& other )
-    : Interpreter::FileDriver(), nm( other.nm )
+    : Interpreter::FileDriver(), nm( other.nm ), env( other.env )
 {
     *d = *other.d;
     setIsOpen( FALSE );
@@ -70,6 +68,7 @@ FileDriver::FileDriver( const FileDriver& other )
 
 FileDriver& FileDriver::operator=( const FileDriver& other )
 {
+    env = other.env;
     nm = other.nm;
     *d = *other.d;
     setIsOpen( FALSE );
@@ -99,7 +98,7 @@ static char variantToXbaseType( QVariant::Type type )
 bool FileDriver::create( const QSqlRecord* record )
 {
 #ifdef DEBUG_XBASE
-    cout << "FileDriver::create..." << flush;
+    env->output() << "FileDriver::create..." << flush;
 #endif
     if ( !name() ) {
 	ERROR_RETURN( "FileDriver::create: no file name" );
@@ -128,7 +127,7 @@ bool FileDriver::create( const QSqlRecord* record )
     }
     d->file.CloseDatabase();   /* Close database and associated indexes */
 #ifdef DEBUG_XBASE
-    cout << "success" << endl;
+    env->output() << "success" << endl;
 #endif
     return TRUE;
 }
@@ -136,7 +135,7 @@ bool FileDriver::create( const QSqlRecord* record )
 bool FileDriver::open()
 {
 #ifdef DEBUG_XBASE
-    cout << "FileDriver::open..." << flush;
+    env->output() << "FileDriver::open..." << flush;
 #endif
     if ( !name() ) {
 	ERROR_RETURN( "FileDriver::open: no file name" );
@@ -145,7 +144,7 @@ bool FileDriver::open()
 	ERROR_RETURN( "FileDriver::open: unable to open " + name() );
     }
 #ifdef DEBUG_XBASE
-    cout << name().latin1() << " opened..." << flush;
+    env->output() << name().latin1() << " opened..." << flush;
 #endif
     setIsOpen( TRUE );
     /* open all associated indexes */
@@ -161,12 +160,12 @@ bool FileDriver::open()
 	    ERROR_RETURN( "FileDriver::open: unable to open index " + indexList[i] );
 	}
 #ifdef DEBUG_XBASE
-	cout << indexList[i].latin1() << " index opened..." << flush;
+	env->output() << indexList[i].latin1() << " index opened..." << flush;
 #endif
 	d->indexes.insert( i, idx );
     }
 #ifdef DEBUG_XBASE
-    cout << "success" << endl;
+    env->output() << "success" << endl;
 #endif
     return TRUE;
 }
@@ -174,7 +173,7 @@ bool FileDriver::open()
 bool FileDriver::close()
 {
 #ifdef DEBUG_XBASE
-    cout << "FileDriver::close..." << flush;
+    env->output() << "FileDriver::close..." << flush;
 #endif
     if ( !isOpen() )
 	return TRUE;
@@ -183,7 +182,7 @@ bool FileDriver::close()
     d->file.CloseDatabase();   /* Close database and associated indexes */
     setIsOpen( FALSE );
 #ifdef DEBUG_XBASE
-    cout << "success" << endl;
+    env->output() << "success" << endl;
 #endif
     return TRUE;
 }
@@ -216,7 +215,7 @@ bool FileDriver::insert( const QSqlRecord* record )
 bool FileDriver::next()
 {
 #ifdef VERBOSE_DEBUG_XBASE
-    cout << "FileDriver::next..." << flush;
+    env->output() << "FileDriver::next..." << flush;
 #endif
     if ( !isOpen() ) {
 	ERROR_RETURN( "FileDriver::next: file not open" );
@@ -230,7 +229,7 @@ bool FileDriver::next()
     if ( rc != XB_NO_ERROR )
 	return FALSE;
 #ifdef VERBOSE_DEBUG_XBASE
-    cout << "success" << endl;
+    env->output() << "success" << endl;
 #endif
     return TRUE;
 }
@@ -240,7 +239,7 @@ bool FileDriver::mark()
     if ( !isOpen() )
 	return FALSE;
 #ifdef VERBOSE_DEBUG_XBASE
-    cout << "FileDriver::mark: marking record " << d->file.GetCurRecNo() << endl;
+    env->output() << "FileDriver::mark: marking record " << d->file.GetCurRecNo() << endl;
 #endif
     d->marked.append( d->file.GetCurRecNo() );
     return TRUE;
@@ -249,7 +248,7 @@ bool FileDriver::mark()
 bool FileDriver::deleteMarked()
 {
 #ifdef DEBUG_XBASE
-    cout << "FileDriver::deleteMarked..." << flush;
+    env->output() << "FileDriver::deleteMarked..." << flush;
 #endif
     if ( !isOpen() )
 	return FALSE;
@@ -264,7 +263,7 @@ bool FileDriver::deleteMarked()
 	}
     }
 #ifdef DEBUG_XBASE
-    cout << "success" << endl;
+    env->output() << "success" << endl;
 #endif
     return TRUE;
 }
@@ -272,14 +271,14 @@ bool FileDriver::deleteMarked()
 bool FileDriver::commit()
 {
 #ifdef VERBOSE_DEBUG_XBASE
-    cout << "FileDriver::commit..." << flush;
+    env->output() << "FileDriver::commit..." << flush;
 #endif
     if ( !isOpen() ) {
 	ERROR_RETURN( "FileDriver::commit: file not open" );
     }
     d->file.PackDatabase( F_SETLKW );
 #ifdef VERBOSE_DEBUG_XBASE
-    cout << "success" << endl;
+    env->output() << "success" << endl;
 #endif
     return TRUE;
 }
@@ -356,7 +355,7 @@ bool FileDriver::fieldDescription( const QString& name, QVariant& v )
 bool FileDriver::updateMarked( const QSqlRecord* record )
 {
 #ifdef DEBUG_XBASE
-    cout << "FileDriver::updateMarked..." << flush;
+    env->output() << "FileDriver::updateMarked..." << flush;
 #endif
     if ( !isOpen() ) {
 	ERROR_RETURN( "FileDriver::updateMarked: file not open" );
@@ -389,7 +388,7 @@ bool FileDriver::updateMarked( const QSqlRecord* record )
 	}
     }
 #ifdef DEBUG_XBASE
-    cout << "success" << endl;
+    env->output() << "success" << endl;
 #endif
     return TRUE;
 }
@@ -403,7 +402,7 @@ bool FileDriver::rewindMarked()
 bool FileDriver::nextMarked()
 {
 #ifdef VERBOSE_DEBUG_XBASE
-    cout << "FileDriver::nextMarked..." << flush;
+    env->output() << "FileDriver::nextMarked..." << flush;
 #endif
     if ( !isOpen() ) {
 	ERROR_RETURN( "FileDriver::nextMarked: file not open" );
@@ -415,7 +414,7 @@ bool FileDriver::nextMarked()
 	return FALSE;
     setMarkedAt( next );
 #ifdef VERBOSE_DEBUG_XBASE
-    cout << "success" << endl;
+    env->output() << "success" << endl;
 #endif
     return TRUE;
 }
@@ -423,7 +422,7 @@ bool FileDriver::nextMarked()
 bool FileDriver::update( const QSqlRecord* record )
 {
 #ifdef DEBUG_XBASE
-    cout << "FileDriver::update..." << flush;
+    env->output() << "FileDriver::update..." << flush;
 #endif
     if ( !isOpen() ) {
 	ERROR_RETURN( "FileDriver::update: file not open" );
@@ -449,7 +448,7 @@ bool FileDriver::update( const QSqlRecord* record )
 	ERROR_RETURN( "FileDriver::update: unable to put record" );
     }
 #ifdef DEBUG_XBASE
-    cout << "success" << endl;
+    env->output() << "success" << endl;
 #endif
     return TRUE;
 }
@@ -457,7 +456,7 @@ bool FileDriver::update( const QSqlRecord* record )
 bool FileDriver::rangeScan( const QSqlRecord* index )
 {
 #ifdef DEBUG_XBASE
-    cout << "FileDriver::rangeScan..." << flush;
+    env->output() << "FileDriver::rangeScan..." << flush;
 #endif
     if ( !isOpen() ) {
 	ERROR_RETURN( "FileDriver::rangeScan: file not open" );
@@ -495,7 +494,7 @@ bool FileDriver::rangeScan( const QSqlRecord* index )
 	    d->indexes[i]->GetExpression( buf,XB_MAX_NDX_NODE_SIZE  );
 	    if ( QString(buf) == indexDesc ) {
 #ifdef DEBUG_XBASE
-		cout << "using index scan..." << flush;
+		env->output() << "using index scan..." << flush;
 #endif
 		forceScan = FALSE;
 		/* create search value */
@@ -508,7 +507,7 @@ bool FileDriver::rangeScan( const QSqlRecord* index )
 			numeric = FALSE;
 		}
 #ifdef DEBUG_XBASE
-		cout << "search value:'" << searchValue.latin1() << "'..." << flush;
+		env->output() << "search value:'" << searchValue.latin1() << "'..." << flush;
 #endif
 		if ( numeric )
 		    rc = d->indexes[i]->FindKey( searchValue.toDouble() );
@@ -561,7 +560,7 @@ bool FileDriver::rangeScan( const QSqlRecord* index )
 	}
     }
 #ifdef DEBUG_XBASE
-     cout << "success" << endl;
+     env->output() << "success" << endl;
 #endif
     return TRUE;
 }
@@ -569,7 +568,7 @@ bool FileDriver::rangeScan( const QSqlRecord* index )
 bool FileDriver::createIndex( const QSqlRecord* index, bool unique )
 {
 #ifdef DEBUG_XBASE
-    cout << "FileDriver::createIndex..." << flush;
+    env->output() << "FileDriver::createIndex..." << flush;
 #endif
     if ( !isOpen() ) {
 	ERROR_RETURN( "FileDriver::createIndex: file not open" );
@@ -598,7 +597,7 @@ bool FileDriver::createIndex( const QSqlRecord* index, bool unique )
 	    if ( QString(buf) == indexDesc ) {
 		forceCreate = FALSE;
 #ifdef DEBUG_XBASE
-		cout << "index already exists..." << flush;
+		env->output() << "index already exists..." << flush;
 #endif
 		//## make this an error instead?
 		break;
@@ -609,7 +608,7 @@ bool FileDriver::createIndex( const QSqlRecord* index, bool unique )
     if ( forceCreate ) {
 	/* create the index on disk */
 #ifdef DEBUG_XBASE
-	cout << "creating index..." << flush;
+	env->output() << "creating index..." << flush;
 #endif
 	xbNdx* idx = new xbNdx( &d->file );
 	d->indexes.resize( d->indexes.size()+1 );
@@ -637,7 +636,7 @@ bool FileDriver::createIndex( const QSqlRecord* index, bool unique )
 
     }
 #ifdef DEBUG_XBASE
-     cout << "success" << endl;
+     env->output() << "success" << endl;
 #endif
     return TRUE;
 }
@@ -645,7 +644,7 @@ bool FileDriver::createIndex( const QSqlRecord* index, bool unique )
 bool FileDriver::drop()
 {
 #ifdef DEBUG_XBASE
-    cout << "FileDriver::drop..." << flush;
+    env->output() << "FileDriver::drop..." << flush;
 #endif
     if ( !name() ) {
 	ERROR_RETURN( "FileDriver::drop: no file name" );
@@ -659,7 +658,7 @@ bool FileDriver::drop()
     for ( uint i = 0; i < indexList.count(); ++i )
 	QFile::remove( indexList[i] );
 #ifdef DEBUG_XBASE
-     cout << "success" << endl;
+     env->output() << "success" << endl;
 #endif
     return TRUE;
 }

@@ -108,14 +108,15 @@ int main( int argc, char** argv )
 	die( "no commands specified" );
 
     /* execute commands */
-    if ( verbose )
-	qWarning( "executing..." );
     //## todo
     //## use outfile
     //## use echo
     Environment env;
-    if ( env.parse( commands ) )
-	return env.execute();
+    if ( env.parse( commands, verbose ) ) {
+	if ( !env.execute( verbose ) )
+	    die( env.lastError() );
+    } else
+	die( env.lastError() );
 
     return 0;
 }

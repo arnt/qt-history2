@@ -82,14 +82,14 @@ namespace Interpreter {
 	virtual void resetCounter() = 0;
 	virtual int counter() = 0;
 	virtual Op* next() = 0;
-	virtual void setLastError( const QString& error ) = 0;
-	virtual QString lastError() const = 0;
     };
 
     struct Environment
     {
-	virtual bool parse( const QString& commands ) = 0;
-	virtual int execute() = 0;
+	virtual void setOutput( QTextStream& stream ) = 0;
+	virtual QTextStream& output() = 0;
+	virtual bool parse( const QString& commands, bool verbose = FALSE ) = 0;
+	virtual int execute( bool verbose = FALSE ) = 0;
 	virtual void reset() = 0;
 	virtual QValueStack<QVariant>& stack() = 0;
 	virtual Program& program() = 0;
@@ -101,6 +101,9 @@ namespace Interpreter {
 	virtual bool save( const QString& filename ) = 0;
 	virtual bool saveListing( QTextStream& stream ) = 0;
 	virtual bool saveListing( const QString& filename ) = 0;
+	virtual void setLastError( const QString& error ) = 0;
+	virtual QString lastError() const = 0;
+
     };
 
 };

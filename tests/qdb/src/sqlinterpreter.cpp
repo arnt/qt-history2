@@ -86,7 +86,7 @@ void Program::setCounter( int i )
 
 void Program::setCounter( const QString& /*label*/ )
 {
-
+    //## todo
     qWarning("Program::setCounter( const QString& label ): not yet implemented!");
 }
 
@@ -133,7 +133,9 @@ Interpreter::Op* Program::next()
 */
 
 Environment::Environment()
+    : stdOut( stdout, IO_WriteOnly )
 {
+    out = &stdOut;
 }
 
 
@@ -148,7 +150,7 @@ Environment::~Environment()
 
 void Environment::addDriver( int id, const QString& fileName )
 {
-    drivers[id] = FileDriver( fileName );
+    drivers[id] = FileDriver( this, fileName );
 }
 
 void Environment::addResult( int id )
@@ -189,9 +191,12 @@ Program& Environment::program()
 }
 
 
-bool Environment::parse( const QString& /*commands*/ )
+bool Environment::parse( const QString& /*commands*/, bool verbose )
 {
     //## todo
+    if ( verbose )
+	output() << "parsing..." << endl;;
+    setLastError( "Environment::parse: not implemented" );
     return FALSE;
 }
 
@@ -199,19 +204,16 @@ bool Environment::parse( const QString& /*commands*/ )
 
 */
 
-int Environment::execute()
+int Environment::execute( bool verbose )
 {
+    if ( verbose )
+	output() << "executing..." << endl;
     Interpreter::Op* op = 0;
     pgm.resetCounter();
-#ifdef DEBUG_SQLINTERP
-    qDebug("Program listing...");
-    QTextStream cout( stdout, IO_WriteOnly );
-    saveListing( cout );
-    qDebug("\nExecuting...");
-#endif
     while( (op = pgm.next() ) ) {
 	if ( !op->exec( this ) ) {
-	    qWarning("[Line " + QString::number(pgm.counter()) + "] " + pgm.lastError() );
+	    if ( verbose )
+		output() << "[Line " + QString::number(pgm.counter()) + "] " + lastError() << endl;
 	    break;
 	}
     }
@@ -391,16 +393,16 @@ bool ResultSet::append( QValueList<QVariant>& buf )
 	return FALSE;
     }
     if ( !head.count() ) {
-	env->program().setLastError( "ResultSet: no header" );
+	env->setLastError( "ResultSet: no header" );
 	return FALSE;
     }
     if ( head.count() != buf.count() ) {
-	env->program().setLastError( "ResultSet: incorrect number of buffer fields" );
+	env->setLastError( "ResultSet: incorrect number of buffer fields" );
 	return FALSE;
     }
     for ( uint j = 0; j < buf.count(); ++j ) {
 	if ( buf[j].type() != head.field(j)->type() ) {
-	    env->program().setLastError( "ResultSet: incorrect buffer field type" );
+	    env->setLastError( "ResultSet: incorrect buffer field type" );
 	    return FALSE;
 	}
     }
@@ -496,7 +498,7 @@ bool ResultSet::prev()
 Record& ResultSet::currentRecord()
 {
     if ( !data.count() ) {
-	qWarning("ResultSet::currentRecord: no data available!");
+	env->output() << "ResultSet::currentRecord: no data available!";
 	return data[0];
     }
     if ( sortKey.count() ) {
@@ -539,11 +541,11 @@ static void reverse( ColumnKey& colkey, uint elements )
 bool ResultSet::sort( const QSqlIndex* index )
 {
     if ( !env ) {
-	env->program().setLastError( "ResultSet: no environment" );
+	env->setLastError( "ResultSet: no environment" );
 	return FALSE;
     }
     if ( !head.count() ) {
-	env->program().setLastError( "ResultSet: no header" );
+	env->setLastError( "ResultSet: no header" );
 	return FALSE;
     }
     if ( !data.count() || !index->count() ) /* nothing to do */
@@ -562,14 +564,14 @@ bool ResultSet::sort( const QSqlIndex* index )
 	case QVariant::DateTime:
 	    continue;
 	default:
-	    env->program().setLastError( "ResultSet: invalid sort field type" );
+	    env->setLastError( "ResultSet: invalid sort field type" );
 	    return FALSE;
 	}
     }
     for ( i = 0; i < index->count(); ++i ) {
 	int sortField = head.position( index->field( index->count()-1 )->name() );
 	if ( sortField == -1 ) {
-	    env->program().setLastError( "ResultSet: sort field not found:" +
+	    env->setLastError( "ResultSet: sort field not found:" +
 					 index->field( index->count()-1 )->name() );
 	    return FALSE;
 	}
@@ -649,7 +651,7 @@ bool ResultSet::sort( const QSqlIndex* index )
 	}
     }
 
-#ifdef DEBUG_SQLINTERP
+#if 0
     qDebug("number of fields in result set:" + QString::number(head.count()) );
     qDebug("number of result records:" + QString::number( data.count() ) );
 
@@ -664,7 +666,7 @@ bool ResultSet::sort( const QSqlIndex* index )
 	} while ( next() );
     }
 
-#endif // DEBUG_SQLINTERP
+#endif
 
     return TRUE;
 }
