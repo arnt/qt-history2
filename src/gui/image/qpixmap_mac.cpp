@@ -107,7 +107,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
                        (flags & Qt::ColorMode_Mask)==Qt::MonoOnly);
     if(force_mono) {                         // must be monochrome
         if(d != 1) {
-            image = image.convertDepth(1, flags);  // dither
+            image = image.convertToFormat(QImage::Format_MonoLSB, flags);  // dither
             d = 1;
         }
     } else {                                    // can be both
@@ -134,7 +134,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
             }
         }
         if(conv8) {
-            image = image.convertDepth(8, flags);
+            image = image.convertToFormat(QImage::Format_Indexed8, flags);
             d = 8;
         }
     }
@@ -157,7 +157,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
     int sdpt = image.depth();
     const unsigned short sbpr = image.bytesPerLine();
     uchar *sptr = image.bits(), *srow;
-    QImage::Endian sord = image.bitOrder();
+    QImage::Format sformat = image.format();
 
     for(int yy=0;yy<h;yy++) {
         drow = (uint*)((char *)dptr + (yy * dbpr));
@@ -167,7 +167,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
         {
             for(int xx=0;xx<w;xx++) {
                 char one_bit = *(srow + (xx / 8));
-                if(sord==QImage::BigEndian)
+                if(sformat == QImage::Format_Mono)
                     one_bit = one_bit >> (7 - (xx % 8));
                 else
                     one_bit = one_bit >> (xx % 8);
@@ -201,7 +201,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
             break;
         }
     }
-    if(image.hasAlphaBuffer()) { //setup the alpha
+    if(image.format() != QImage::Format_RGB32) { //setup the alpha
         bool alphamap = img.depth() == 32;
         if (img.depth() == 8) {
             const QVector<QRgb> rgb = img.colorTable();
@@ -247,7 +247,8 @@ QImage QPixmap::toImage() const
     }
 
     QImage image(w, h, d, ncols, QImage::BigEndian);
-    image.setAlphaBuffer(data->has_alpha);
+    if(d == 32)
+        image.convertToFormat(data->has_alpha ? QImage::Format_ARGB32 : QImage::Format_RGB32);
     if(d == 1) {
         image.setNumColors(2);
         image.setColor(0, qRgba(255, 255, 255, 0));
@@ -693,18 +694,19 @@ IconRef qt_mac_create_iconref(const QPixmap &px)
         struct {
             OSType mac_type;
             int width, height, depth;
+            QImage::Format format;
             bool mask;
         } images[] = {
-            { kThumbnail32BitData, 128, 128, 32, false },
+            { kThumbnail32BitData, 128, 128, 32, QImage::Format_RGB32, false },
 //            { kHuge32BitData,       48,  48, 32, false },
 //            { kLarge32BitData,      32,  32, 32, false },
 //            { kSmall32BitData,      16,  16, 32, false },
             //masks
-            { kThumbnail8BitMask, 128, 128, 8, true },
+            { kThumbnail8BitMask, 128, 128, 8, QImage::Format_Indexed8, true },
 //            { kHuge1BitMask,       48,  48, 1, true },
 //            { kLarge1BitMask,      32,  32, 1, true },
 //            { kSmall1BitMask,      16, 16,  1, true },
-            { 0, 0, 0, 0, false } };
+            { 0, 0, 0, 0, QImage::Format_Mono, false } };
         for(int i = 0; images[i].mac_type; i++) {
             const QPixmap *in_pix = 0;
             if(!px.isNull())
@@ -717,8 +719,7 @@ IconRef qt_mac_create_iconref(const QPixmap &px)
                 QImage im;
                 im = in_pix->toImage();
                 im = im.scaled(images[i].width, images[i].height,
-                               Qt::IgnoreAspectRatio, Qt::SmoothTransformation)
-                     .convertDepth(images[i].depth);
+                               Qt::IgnoreAspectRatio, Qt::SmoothTransformation).convertToFormat(images[i].format);
                 //set handle bits
                 if(images[i].mask) {
                     if(images[i].mac_type == kThumbnail8BitMask) {
