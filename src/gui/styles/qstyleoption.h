@@ -28,7 +28,8 @@ struct Q_GUI_EXPORT Q4StyleOption {
     QRect rect;             // Rect has overloaded meanings.
     QPalette palette;
     enum { Default, FocusRect, Button, Tab, MenuItem, Complex, Slider, Frame, ProgressBar,
-           ListView, ListViewItem, Header, DockWindow, SpinBox, ToolButton, ComboBox, ToolBox };
+           ListView, ListViewItem, Header, DockWindow, SpinBox, ToolButton, ComboBox, ToolBox,
+           TitleBar };
     enum { Type = Default };
     Q4StyleOption(int optionversion, int optiontype = Default);
     void init(const QWidget *w);
@@ -205,6 +206,13 @@ struct Q4StyleOptionToolBox : public Q4StyleOption
     Q4StyleOptionToolBox(int version) : Q4StyleOption(version, ToolBox) {};
 };
 
+struct Q4StyleOptionTitleBar : public Q4StyleOptionComplex
+{
+    enum { Type = TitleBar };
+    QString text;
+    QIconSet icon;
+    Q4StyleOptionTitleBar(int version) : Q4StyleOptionComplex(version, TitleBar) {};
+};
 
 template <typename T>
 T qt_cast(const Q4StyleOption *opt)
