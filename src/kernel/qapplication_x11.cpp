@@ -806,17 +806,17 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	if ( !resBG.isEmpty() )
 	    bg = QColor(QString(resBG));
 	else
-	    bg = qt_std_pal->normal().background();
+	    bg = qt_std_pal->active().background();
 	if ( !resFG.isEmpty() )
 	    fg = QColor(QString(resFG));
 	else
-	    fg = qt_std_pal->normal().foreground();
+	    fg = qt_std_pal->active().foreground();
 	if ( button )
 	    btn = QColor( button );
 	else if ( !resBG.isEmpty() )
 	    btn = bg;
 	else
-	    btn = qt_std_pal->normal().button();
+	    btn = qt_std_pal->active().button();
 
 	int h,s,v;
 	fg.hsv(&h,&s,&v);
