@@ -124,8 +124,16 @@ ProjectGenerator::init()
 			    }
 			    QString src((*dep_it).left((*dep_it).length() - Option::h_ext.length()) + Option::cpp_ext);
 			    if(QFile::exists(src)) {
-				if(!v["SOURCES"].contains(src))
-				    v["SOURCES"].append(src);
+				bool exists = FALSE;
+				QStringList &srcl = v["SOURCES"];
+				for(QStringList::Iterator src_it = srcl.begin()=; src_it != srcl.end(); ++src_it) {
+				    if((*src_it).lower() == src.lower()) {
+					exists = TRUE;
+					break;
+				    }
+				}
+				if(!exists)
+				    srcl.append(src);
 			    }
 			} else if((*dep_it).right(2) == Option::lex_ext &&
 				  file_no_path.left(Option::lex_mod.length()) == Option::lex_mod) {
