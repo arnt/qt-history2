@@ -1149,6 +1149,7 @@ bool QImage::create( int width, int height, int depth, int numColors,
     int ptbl   = height*sizeof(uchar*);		// pointer table size
     int size   = nbytes + ptbl;			// total size of data block
     uchar **p  = (uchar **)malloc( size );	// alloc image bits
+    Q_CHECK_PTR(p);
     if ( !p ) {					// no memory
 	setNumColors( 0 );
 	return FALSE;
