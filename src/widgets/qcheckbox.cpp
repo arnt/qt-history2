@@ -295,6 +295,35 @@ void QCheckBox::resizeEvent( QResizeEvent *e )
 
     update(wsz.width(), isz.width(), 0, wsz.height());
 
+    if (autoMask())
+	updateMask();
 }
 
+/*!
+  \reimp
+*/
+void QCheckBox::updateMask()
+{
+    QRect irect =
+	QStyle::visualRect( style().subRect(QStyle::SR_CheckBoxIndicator, this), this );
+
+    QBitmap bm(width(), height());
+    bm.fill(color0);
+
+    QPainter p( &bm, this );
+    style().drawControlMask(QStyle::CE_CheckBox, &p, this, irect);
+    if ( ! text().isNull() || ( pixmap() && ! pixmap()->isNull() ) ) {
+	QRect crect =
+	    QStyle::visualRect( style().subRect( QStyle::SR_CheckBoxContents,
+						 this ), this );
+	QRect frect =
+	    QStyle::visualRect( style().subRect( QStyle::SR_CheckBoxFocusRect,
+						 this ), this );
+	QRect label(crect.unite(frect));
+	p.fillRect(label, color1);
+    }
+    p.end();
+
+    setMask(bm);
+}
 #endif

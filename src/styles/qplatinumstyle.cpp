@@ -102,12 +102,12 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 	    // so we need to make the mid and button color the same
 	    QColorGroup myCG = cg;
 	    QBrush fill;
-	    
+
 	    // quick trick to make sure toolbuttons drawn sunken
 	    // when they are activated...
 	    if ( flags & Style_On )
 		flags |= Style_Sunken;
-	    
+
 	    fill = myCG.brush( QColorGroup::Button );
 	    myCG.setBrush( QColorGroup::Mid, fill );
 	    drawPrimitive( PE_ButtonBevel, p, r, myCG, flags, data );
@@ -384,7 +384,7 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 
 	    } else {
 		p->fillRect( x + 2, y + 2, w - 4, h - 4,
-			    cg.brush(QColorGroup::Dark) );
+			     cg.brush(QColorGroup::Dark) );
 
 		// the dark side
 		p->setPen( cg.shadow() );
@@ -584,6 +584,21 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 	    }
 	    break;
 	}
+
+    case PE_ExclusiveIndicatorMask:
+	{
+	    static const QCOORD pts1[] = {		// normal circle
+		5,0, 8,0, 9,1, 10,1, 11,2, 12,3, 12,4, 13,5,
+		13,8, 12,9, 12,10, 11,11, 10,12, 9,12, 8,13,
+		5,13, 4,12, 3,12, 2,11, 1,10, 1,9, 0,8, 0,5,
+		1,4, 1,3, 2,2, 3,1, 4,1 };
+	    QPointArray a(QCOORDARRLEN(pts1), pts1);
+	    a.translate(r.x(), r.y());
+	    p->setPen(color1);
+	    p->setBrush(color1);
+	    p->drawPolygon(a);
+	    break;
+	}
     case PE_ScrollBarAddLine:
 	{
 	    drawPrimitive( PE_ButtonBevel, p, r, cg,
@@ -616,8 +631,8 @@ void QPlatinumStyle::drawPrimitive( PrimitiveElement pe,
 			   cg, flags );
 	    break;
 	}
-	case PE_ScrollBarAddPage:
-	case PE_ScrollBarSubPage:
+    case PE_ScrollBarAddPage:
+    case PE_ScrollBarSubPage:
 	{
  	    QPen oldPen = p->pen();
 	    if ( r.width() < 3 || r.height() < 3 ) {

@@ -178,37 +178,53 @@ void QCDEStyle::drawPrimitive( PrimitiveElement pe,
 	}
 #endif
     }
-    break;
-    case PE_ExclusiveIndicator: {
+	break;
+    case PE_ExclusiveIndicator:
+	{
 #define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
-	static const QCOORD pts1[] = {              // up left  lines
-	    1,9, 1,8, 0,7, 0,4, 1,3, 1,2, 2,1, 3,1, 4,0, 7,0, 8,1, 9,1 };
-	static const QCOORD pts4[] = {              // bottom right  lines
-	    2,10, 3,10, 4,11, 7,11, 8,10, 9,10, 10,9, 10,8, 11,7,
-	    11,4, 10,3, 10,2 };
-	static const QCOORD pts5[] = {              // inner fill
-	    4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
-	bool down = flags & Style_Down;
-	bool on = flags & Style_On;
+	    static const QCOORD pts1[] = {              // up left  lines
+		1,9, 1,8, 0,7, 0,4, 1,3, 1,2, 2,1, 3,1, 4,0, 7,0, 8,1, 9,1 };
+	    static const QCOORD pts4[] = {              // bottom right  lines
+		2,10, 3,10, 4,11, 7,11, 8,10, 9,10, 10,9, 10,8, 11,7,
+		11,4, 10,3, 10,2 };
+	    static const QCOORD pts5[] = {              // inner fill
+		4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
+	    bool down = flags & Style_Down;
+	    bool on = flags & Style_On;
+	    p->eraseRect( r );
+	    QPointArray a( QCOORDARRLEN(pts1), pts1 );
+	    a.translate( r.x(), r.y() );
+	    p->setPen( ( down || on ) ? cg.dark() : cg.light() );
+	    p->drawPolyline( a );
+	    a.setPoints( QCOORDARRLEN(pts4), pts4 );
+	    a.translate( r.x(), r.y() );
+	    p->setPen( ( down || on ) ? cg.light() : cg.dark() );
+	    p->drawPolyline( a );
+	    a.setPoints( QCOORDARRLEN(pts5), pts5 );
+	    a.translate( r.x(), r.y() );
+	    QColor fillColor = on ? cg.dark() : cg.background();
+	    p->setPen( fillColor );
+	    p->setBrush( on ? cg.brush( QColorGroup::Dark ) :
+			 cg.brush( QColorGroup::Background ) );
+	    p->drawPolygon( a );
+	    break;
+	}
 
-	p->eraseRect( r );
-	QPointArray a( QCOORDARRLEN(pts1), pts1 );
-	a.translate( r.x(), r.y() );
-	p->setPen( ( down || on ) ? cg.dark() : cg.light() );
-	p->drawPolyline( a );
-	a.setPoints( QCOORDARRLEN(pts4), pts4 );
-	a.translate( r.x(), r.y() );
-	p->setPen( ( down || on ) ? cg.light() : cg.dark() );
-	p->drawPolyline( a );
-	a.setPoints( QCOORDARRLEN(pts5), pts5 );
-	a.translate( r.x(), r.y() );
-	QColor fillColor = on ? cg.dark() : cg.background();
-	p->setPen( fillColor );
-	p->setBrush( on ? cg.brush( QColorGroup::Dark ) :
-			  cg.brush( QColorGroup::Background ) );
-	p->drawPolygon( a );
-    }
-    break;
+    case PE_ExclusiveIndicatorMask:
+	{
+	    static const QCOORD pts1[] = {
+		// up left  lines
+		1,9, 1,8, 0,7, 0,4, 1,3, 1,2, 2,1, 3,1, 4,0, 7,0, 8,1, 9,1,
+		// bottom right  lines
+		10,2, 10,3, 11,4, 11,7, 10,8, 10,9, 9,10, 8,10, 7,11, 4,11, 3,10, 2,10
+	    };
+	    QPointArray a(QCOORDARRLEN(pts1), pts1);
+	    a.translate(r.x(), r.y());
+	    p->setPen(color1);
+	    p->setBrush(color1);
+	    p->drawPolygon(a);
+	    break;
+	}
     case PE_ArrowUp:
     case PE_ArrowDown:
     case PE_ArrowRight:
@@ -340,7 +356,7 @@ void QCDEStyle::drawPrimitive( PrimitiveElement pe,
 #undef CBOT
 
     }
-    break;
+	break;
     default:
 	QMotifStyle::drawPrimitive( pe, p, r, cg, flags, data );
     }

@@ -290,7 +290,35 @@ void QRadioButton::resizeEvent( QResizeEvent* e )
 
     update(wsz.width(), isz.width(), 0, wsz.height());
 
+    if (autoMask())
+	updateMask();
 }
 
+/*! \reimp */
+void QRadioButton::updateMask()
+{
+    QRect irect =
+	QStyle::visualRect( style().subRect( QStyle::SR_RadioButtonIndicator,
+					     this ), this );
+
+    QBitmap bm(width(), height());
+    bm.fill(color0);
+
+    QPainter p( &bm, this );
+    style().drawControlMask(QStyle::CE_RadioButton, &p, this, irect);
+    if ( ! text().isNull() || ( pixmap() && ! pixmap()->isNull() ) ) {
+	QRect crect =
+	    QStyle::visualRect( style().subRect( QStyle::SR_RadioButtonContents,
+						 this ), this );
+	QRect frect =
+	    QStyle::visualRect( style().subRect( QStyle::SR_RadioButtonFocusRect,
+						 this ), this );
+	QRect label(crect.unite(frect));
+	p.fillRect(label, color1);
+    }
+    p.end();
+
+    setMask(bm);
+}
 
 #endif

@@ -288,6 +288,22 @@ void QMotifStyle::drawPrimitive( PrimitiveElement pe,
 	    break;
 	}
 
+    case PE_ExclusiveIndicatorMask:
+	{
+	    static QCOORD inner_pts[] = { // used for filling diamond
+		0,r.height()/2,
+		r.width()/2,0,
+		r.width()-1,r.height()/2,
+		r.width()/2,r.height()-1
+	    };
+	    QPointArray a(QCOORDARRLEN(inner_pts), inner_pts);
+	    p->setPen(color1);
+	    p->setBrush(color1);
+	    a.translate(r.x(), r.y());
+	    p->drawPolygon(a);
+	    break;
+	}
+
     case PE_ArrowUp:
     case PE_ArrowDown:
     case PE_ArrowRight:

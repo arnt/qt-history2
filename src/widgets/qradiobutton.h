@@ -65,6 +65,7 @@ protected:
     bool    hitButton( const QPoint & ) const;
     void    drawButton( QPainter * );
     void    drawButtonLabel( QPainter * );
+    void    updateMask();
 
     void    resizeEvent( QResizeEvent* );
 

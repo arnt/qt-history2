@@ -540,6 +540,8 @@ void QMotifPlusStyle::drawPrimitive( PrimitiveElement pe,
 	    break;
 	}
 
+
+
     case PE_ArrowDown:
     case PE_ArrowLeft:
     case PE_ArrowRight:
@@ -1643,21 +1645,23 @@ bool QMotifPlusStyle::eventFilter(QObject *object, QEvent *event)
 	    if (object->inherits("QScrollBar") ||
 		object->inherits("QSlider")) {
 		singleton->hoverWidget->repaint(FALSE);
-	    } else if (object->inherits("QPushButton")) {
+	    } else {
 		QPalette pal = singleton->hoverWidget->palette();
 
 		if (singleton->hoverWidget->ownPalette())
 		    singleton->hoverPalette = new QPalette(pal);
 
-		pal.setColor(QPalette::Active, QColorGroup::Button,
-			     singleton->prelight_palette.color(QPalette::Active,
-							       QColorGroup::Button));
-		pal.setColor(QPalette::Inactive, QColorGroup::Button,
-			     singleton->prelight_palette.color(QPalette::Inactive,
-							       QColorGroup::Button));
-		singleton->hoverWidget->setPalette(pal);
-	    } else
-		singleton->hoverWidget->setPalette(singleton->prelight_palette);
+		if (object->inherits("QPushButton")) {
+		    pal.setColor(QPalette::Active, QColorGroup::Button,
+				 singleton->prelight_palette.color(QPalette::Active,
+								   QColorGroup::Button));
+		    pal.setColor(QPalette::Inactive, QColorGroup::Button,
+				 singleton->prelight_palette.color(QPalette::Inactive,
+								   QColorGroup::Button));
+		    singleton->hoverWidget->setPalette(pal);
+		} else
+		    singleton->hoverWidget->setPalette(singleton->prelight_palette);
+	    }
 
 	    break;
 	}

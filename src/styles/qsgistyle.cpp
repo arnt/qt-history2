@@ -162,7 +162,7 @@ QSGIStyle::unPolish( QApplication* /* app */ )
 {
     QFont f = QApplication::font();
     QApplication::setFont( f, TRUE ); // get rid of the special fonts for special widget classes
-    
+
 //     QApplication::setFont( f, TRUE, "QPopupMenu" );
 //     QApplication::setFont( f, TRUE, "QMenuBar" );
 //     QApplication::setFont( f, TRUE, "QComboBox" );
@@ -291,12 +291,12 @@ bool QSGIStyle::eventFilter( QObject* o, QEvent* e )
 	    if ( widget->inherits( "QScrollBar" ) ) {
 		QRect oldRect = d->lastScrollbarRect;
 		d->lastScrollbarRect = QRect( 0, -1, 0, -1 );
-		widget->repaint( oldRect, FALSE );		
+		widget->repaint( oldRect, FALSE );
 	    } else if ( widget->inherits("QSlider") ) {
 		QRect oldRect = d->lastSliderRect;
 		d->lastSliderRect = QRect( 0, -1, 0, -1 );
 		widget->repaint( oldRect, FALSE );
-		
+
             }
         }
         break;
@@ -624,7 +624,10 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
 	    p->setPen( Qt::color1 );
 	    p->setBrush( Qt::color1 );
 	    p->fillRect( x, y, w, h, QBrush( Qt::color0 ) );
-	    p->fillRect( x+2, y+3, w-7, h-7, QBrush( Qt::color1 ) );
+	    QRect er = r;
+	    er.addCoords( 1, 1, -1, -1 );
+	    p->fillRect(er, QBrush(Qt::color1));
+	    // p->fillRect( x+2, y+3, w-7, h-7, QBrush( Qt::color1 ) );
 
 	    if ( !(flags & QStyle::Style_Off) ) {
 		static QCOORD check_mark[] = {
@@ -795,7 +798,7 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
 		}
 		if ( r.width() > 10 )
 		    drawSeparator( &bp, sliderM-1, 2, sliderM-1, r.height()-3, cg );
-		    
+
 	    } else {
 		const int sliderM =  r.height() / 2;
 		if ( r.height() > 20 ) {
@@ -1272,7 +1275,7 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 		    } else {
 			p->setClipping( FALSE );
 		    }
-		    qDrawShadePanel( p, d->lastScrollbarRect, cg, TRUE, 1, &cg.brush( QColorGroup::Dark ) );		
+		    qDrawShadePanel( p, d->lastScrollbarRect, cg, TRUE, 1, &cg.brush( QColorGroup::Dark ) );
 		}
 		p->setClipping( FALSE );
 	    }
