@@ -222,7 +222,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 	// All versions can draw rotated text natively. Scaling can be done with window/viewport transformations
 	// the hard part is only shearing
 
-	if ( p->m11() != p->m22() && p->m12() != -p->m21() ) {
+	if ( p->m11() != p->m22() || p->m12() != -p->m21() ) {
 	    // shearing transformation, have to do the work by hand
             QRect bbox( 0, 0, si->width, si->ascent + si->descent + 1 );
             int w=bbox.width(), h=bbox.height();
@@ -323,7 +323,7 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 	}
 
 	// rotation + scale + translation
-	scale = sqrt( fabs( p->m11()*p->m22() - p->m12()*p->m21() ) );
+	scale = sqrt( p->m11()*p->m22() - p->m12()*p->m21() );
 	angle = 1800*acos( p->m11()/scale )/M_PI;
 	if ( p->m12() < 0 )
 	    angle = 3600 - angle;
