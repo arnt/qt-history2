@@ -107,7 +107,7 @@ by Gamma, Helm, Johnson, and Vlissides, ISBN 0-201-63361-2, provides
 more information on the MVC paradigm, explaining MVC and its
 sub-patterns in detail.
 
-See also the \l{model-view.htm}{list of model/view classes}.
+See also the \l{model-view.html}{list of model/view classes}.
 
 */
 
@@ -123,10 +123,11 @@ See also the \l{model-view.htm}{list of model/view classes}.
 In the model/view architecture, the model's purpose is to manage data,
 and to provide a standard representation of that data to the other
 components in the framework. In Qt, the standard interface to item models
-is defined by the \l QAbstractItemModel class. This class presents the
-model to other components in the form of a table, regardless of how the
-data is actually stored. It also notifies any attached views of changes
-to the model through the signals and slots mechanism.
+is defined by the \l QAbstractItemModel class. This class exposes a
+table-like interface to other components, regardless of how the data
+is actually stored in the model, or presented to the user. It also
+notifies any attached views of changes to the model through the signals
+and slots mechanism.
 
 This section describes some basic concepts that
 are central to the way models are accessed by other components. More
@@ -151,7 +152,7 @@ Temporary model indices are provided by the \l QModelIndex class, and
 persistent model indices are provided by the \l QPersistentModelIndex
 class.
 
-To obtain a model index for a given item in a model, four properties must
+To obtain a model index for an item in a model, four properties must
 be specified: a row number, a column number, the index of a parent item,
 and an item type. The following subsections describe and explain these
 properties in detail.
@@ -162,13 +163,24 @@ In its most basic form, an item model can be accessed as a simple table
 in which items are located by their row and column numbers. 
 We can retrieve information about any given item by specifying its row
 and column numbers to the model, and we will receive an index that
-represents the item. We can ask the model for the item's data by passing
-it the model index corresponding to the item.
+represents the item:
+
+\code
+QModelIndex index = model->index(row, column, ...);
+\endcode
+
+We can ask the model for the item's data by passing it the model index
+corresponding to the item:
+
+\code
+QVariant value = model->data(index, ...);
+\endcode
+
+The following diagram shows a representation of a basic model in which
+each item is located by a pair of row and column numbers. 
 
 \img modelindex-no-parent.png
 
-The diagram above shows a representation of a basic model in which each
-item is located by a pair of row and column numbers. 
 The highlighted item is represented by a model index that was obtained by
 specifying the relevant row and column numbers to the model. 
 
@@ -184,19 +196,33 @@ items.
 When requesting an index for a model item, we must provide some
 information about the item's parent. Outside the model, the only way to
 refer to an item is through a model index, so a parent model index must
-be given. However, in the diagram shown above, the highlighted item did
-not have a parent model index to refer to. This is also the case for
-top-level items in any model. To ensure the model knows that we are
-referring to a top-level item, we specify a default (and invalid)
-model index; this is a convention used by the model/view classes.
+be given:
+
+\code
+QModelIndex index = model->index(row, column, parent, ...);
+\endcode
+
+The following diagram shows the row numbers, column numbers, and parent
+indices for two items in the model: a top-level item, and one of its
+children.
 
 \img modelindex-parent.png
 
-The diagram above shows the row numbers, column numbers, and parent
-indices for two items in the model: a top-level model item (marked with
-an 'I'), and one of its children. The parent of the highlighted child
-item is represented by the 'X' symbol because it is referred to by its
-model index ('X').
+The model index of the highlighted top-level item is represented by the
+'X' symbol, and this is given as the parent of the highlighted child
+item.
+Top-level items in a model do not have a parent model index
+to refer to, so we ensure that the model knows that we are referring to
+a top-level item by specifying a default (and invalid) model index.
+This is a convention used by the model/view classes.
+We can obtain the model indices for both items shown in the diagram:
+
+\code
+QModelIndex topLevelIndex = model->index(2, 1, QModelIndex(), ...); // 'X'
+QModelIndex childIndex = model->index(3, 4, topLevelIndex, ...);
+\endcode
+
+Note that we used \c QModelIndex() to construct an invalid model index.
 
 \section2 Item types and roles
 
@@ -216,7 +242,18 @@ index corresponding to a horizontal or vertical header.
 
 When we obtain a model index, we specify to the model the type of item
 we are interested in. The above diagram shows how different types of
-model indices correspond to items in the model.
+model indices correspond to items in the model. The model indices
+corresponding to the highlighted item and headers in the above diagram
+can be obtained by specifying the appropriate index types:
+
+\code
+QModelIndex itemIndex = model->index(1, 2, parent, QModelIndex::View);
+QModelIndex horHeaderIndex = 
+    model->index(1, 2, parent, QModelIndex::HorizontalHeader);
+QModelIndex verHeaderIndex =
+    model->index(1, 2, parent, QModelIndex::VerticalHeader);
+\endcode
+
 Note that, for most models, the horizontal header will be the
 same for all items in a column, and the vertical header will be the same
 for all items in a row. The model/view architecture is flexible
@@ -233,22 +270,11 @@ indicates to the model which kind of data is being referred to.
 We will examine roles in more detail when we
 \l{model-view-subclassing-model.html}{create an example model}.
 
-\omit
-For example, a model designed for a simple spreadsheet might
-return an index that refers to the column header, regardless of the
-vertical position (the row) of the item within the model.
-
-Each item of data stored in the model can
-be accessed by providing the model with the corresponding model index.
-
- * Describe the above structure better.
- * Talk about types and roles.
-\endomit
-
 \section2 Summary of concepts
 
 Model indices contain information about the location of items within a
-model; they are constructed by models at the request of other components.
+model; they are constructed by models at the request of other components,
+such as views and delegates.
 Each model index refers to an item at a given row and column, and
 is assigned a particular type indicating what the item's data is used
 for. If a valid parent index is specified when an index is constructed,
@@ -1049,8 +1075,9 @@ indices.
     \printuntil }
 
     An item can have several roles, giving out different data depending on the
-    role specified. The items in our model only have one role, \c DisplayRole,
-    so we will return the data for items irrespective of the role specified.
+    role specified. The items in our model only have one role,
+    \l{QAbstractItemModel::Role}{DisplayRole}, so we will return the data
+    for items irrespective of the role specified.
     However, we could reuse the data we provide for the \c DisplayRole in
     other roles, such as the \c ToolTipRole that views can use to display
     information about items in a tooltip.
@@ -1089,8 +1116,11 @@ indices.
     index specified is replaced by the data provided by the delegate.
     However, before we actally set the data in the model, we make sure that
     the index is valid, the item is of the correct type, and that the role is
-    supported. We insist that the role must be the \c EditRole since this
-    indicates to us that the item is being modified by an editing operation.
+    supported. We insist that the role must be the
+    \l{QAbstractItemModel::Role}{EditRole} since this indicates to us that
+    the item is being modified by an editing operation. The underlying data
+    in this model is the same for all roles, so this detail just makes it
+    easier to integrate the model with other standard components.
 
     When the data has been set, the model has to let the views know that the
     data in the model has changed. This is done by emitting the
