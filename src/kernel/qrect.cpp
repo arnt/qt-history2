@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#28 $
 **
 ** Implementation of QRect class
 **
@@ -14,7 +14,7 @@
 #include "qrect.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qrect.cpp#27 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qrect.cpp#28 $")
 
 
 /*----------------------------------------------------------------------------
@@ -128,7 +128,7 @@ bool QRect::isNull() const
 /*----------------------------------------------------------------------------
   Returns TRUE if the rectangle is empty, otherwise FALSE.
 
-  An empty rectangle has a left() > right() or top() > bottom().
+  An empty rectangle has a left() \> right() or top() \> bottom().
 
   An empty rectangle is not valid.
 
@@ -143,7 +143,7 @@ bool QRect::isEmpty() const
 /*----------------------------------------------------------------------------
   Returns TRUE if the rectangle is valid, or FALSE if it is invalid.
 
-  A valid rectangle has a left() <= right() and top() <= bottom().
+  A valid rectangle has a left() \<= right() and top() \<= bottom().
 
   \sa isNull(), isEmpty(), normalize()
  ----------------------------------------------------------------------------*/
@@ -157,8 +157,8 @@ bool QRect::isValid() const
   Returns a normalized rectangle, i.e. one that has a non-negative width
   and height.
 
-  It swaps left and right if left() > right(), and swaps top and bottom if
-  top() > bottom().
+  It swaps left and right if left() \> right(), and swaps top and bottom if
+  top() \> bottom().
 
   \sa isValid()
  ----------------------------------------------------------------------------*/
