@@ -23,6 +23,7 @@
 #include <qsizepolicy.h>
 #include <qpalette.h>
 #include <qcursor.h>
+#include <qdatetime.h>
 
 /*!
   \class DomTool domtool.h
@@ -203,6 +204,51 @@ QVariant DomTool::elementToVariant( const QDomElement& e, const QVariant& defVal
 	for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() )
 	    lst << n.firstChild().toText().data();
 	v = QVariant( lst );
+    } else if ( e.tagName() == "date" ) {
+	QDomElement n3 = e.firstChild().toElement();
+	int y, m, d;
+	while ( !n3.isNull() ) {
+	    if ( n3.tagName() == "year" )
+		y = n3.firstChild().toText().data().toInt();
+	    else if ( n3.tagName() == "month" )
+		m = n3.firstChild().toText().data().toInt();
+	    else if ( n3.tagName() == "day" )
+		d = n3.firstChild().toText().data().toInt();
+	    n3 = n3.nextSibling().toElement();
+	}
+	v = QVariant( QDate( y, m, d ) );
+    } else if ( e.tagName() == "time" ) {
+	QDomElement n3 = e.firstChild().toElement();
+	int h, m, s;
+	while ( !n3.isNull() ) {
+	    if ( n3.tagName() == "hour" )
+		h = n3.firstChild().toText().data().toInt();
+	    else if ( n3.tagName() == "minute" )
+		m = n3.firstChild().toText().data().toInt();
+	    else if ( n3.tagName() == "second" )
+		s = n3.firstChild().toText().data().toInt();
+	    n3 = n3.nextSibling().toElement();
+	}
+	v = QVariant( QTime( h, m, s ) );
+    } else if ( e.tagName() == "datetime" ) {
+	QDomElement n3 = e.firstChild().toElement();
+	int h, mi, s, y, mo, d ;
+	while ( !n3.isNull() ) {
+	    if ( n3.tagName() == "hour" )
+		h = n3.firstChild().toText().data().toInt();
+	    else if ( n3.tagName() == "minute" )
+		mi = n3.firstChild().toText().data().toInt();
+	    else if ( n3.tagName() == "second" )
+		s = n3.firstChild().toText().data().toInt();
+	    else if ( n3.tagName() == "year" )
+		y = n3.firstChild().toText().data().toInt();
+	    else if ( n3.tagName() == "month" )
+		mo = n3.firstChild().toText().data().toInt();
+	    else if ( n3.tagName() == "day" )
+		d = n3.firstChild().toText().data().toInt();
+	    n3 = n3.nextSibling().toElement();
+	}
+	v = QVariant( QDateTime( QDate( y, mo, d ), QTime( h, mi, s ) ) );
     }
     return v;
 }
@@ -286,9 +332,9 @@ void DomTool::fixDocument( QDomDocument& doc )
 	return;
     if ( e.hasAttribute("version") && e.attribute("version").toDouble() >= 3.0 )
 	return;
-    
+
     e.setAttribute( "version", 3.0 );
-    
+
     e.setAttribute("stdsetdef", 1 );
     nl = doc.elementsByTagName( "property" );
     for ( i = 0; i <  (int) nl.length(); i++ ) {

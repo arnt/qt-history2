@@ -58,6 +58,7 @@
 #include <qtextcodec.h>
 #include <qregexp.h>
 #include <zlib.h>
+#include <qdatetime.h>
 
 static QString makeIndent( int indent )
 {
@@ -945,6 +946,42 @@ void Resource::saveProperty( QObject *w, const QString &name, const QVariant &va
 	indent--;
 	ts << makeIndent( indent ) << "</stringlist>" << endl;
     } break;
+    case QVariant::Date: {
+	QDate d = value.toDate();
+	ts << makeIndent( indent ) << "<date>" << endl;
+	indent++;
+	ts << makeIndent( indent ) << "<year>" << d.year() << "</year>"  << endl;
+	ts << makeIndent( indent ) << "<month>" << d.month() << "</month>"  << endl;
+	ts << makeIndent( indent ) << "<day>" << d.day() << "</day>"  << endl;
+	indent--;
+	ts << makeIndent( indent ) << "</date>" << endl;
+	break;
+    }
+    case QVariant::Time: {
+	QTime t = value.toTime();
+	ts << makeIndent( indent ) << "<time>" << endl;
+	indent++;
+	ts << makeIndent( indent ) << "<hour>" << t.hour() << "</hour>"  << endl;
+	ts << makeIndent( indent ) << "<minute>" << t.minute() << "</minute>"  << endl;
+	ts << makeIndent( indent ) << "<second>" << t.second() << "</second>"  << endl;
+	indent--;
+	ts << makeIndent( indent ) << "</time>" << endl;
+	break;
+    }
+    case QVariant::DateTime: {
+	QDateTime dt = value.toDateTime();
+	ts << makeIndent( indent ) << "<datetime>" << endl;
+	indent++;
+	ts << makeIndent( indent ) << "<year>" << dt.date().year() << "</year>"  << endl;
+	ts << makeIndent( indent ) << "<month>" << dt.date().month() << "</month>"  << endl;
+	ts << makeIndent( indent ) << "<day>" << dt.date().day() << "</day>"  << endl;
+	ts << makeIndent( indent ) << "<hour>" << dt.time().hour() << "</hour>"  << endl;
+	ts << makeIndent( indent ) << "<minute>" << dt.time().minute() << "</minute>"  << endl;
+	ts << makeIndent( indent ) << "<second>" << dt.time().second() << "</second>"  << endl;
+	indent--;
+	ts << makeIndent( indent ) << "</datetime>" << endl;
+	break;
+    }
     default:
 	qWarning( "saving the property %s of type %d not supported yet", name.latin1(), (int)t );
     }
