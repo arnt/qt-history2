@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#537 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#538 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -478,7 +478,7 @@ static void qt_x11_process_intern_atoms()
     }
 }
 
-// read the QT_DESKTOP_PROPERTIES property and apply the settings to
+// read the _QT_DESKTOP_PROPERTIES property and apply the settings to
 // the application
 static bool qt_set_desktop_properties()
 {
