@@ -40,6 +40,7 @@
 #include <QtGui/QToolBar>
 #include <QtGui/QActionGroup>
 #include <QtGui/QMessageBox>
+#include <QtGui/QHeaderView>
 #include <QtCore/QVariant>
 
 #include <QtCore/QPluginLoader>
@@ -327,6 +328,9 @@ void QDesignerWorkbench::switchToTopLevelMode()
         tw->setParent(magicalParent(), Qt::Window);
         if (m_geometries.isEmpty()) {
             settings.setGeometryFor(tw, tw->geometryHint());
+            QList<QHeaderView *> headers = qFindChildren<QHeaderView *>(tw);
+            Q_ASSERT(headers.size() == 1);
+            settings.setHeaderSizesFor(headers.at(0));
         } else {
             QRect g = m_geometries.value(tw, tw->geometryHint());
             tw->resize(g.size());
@@ -472,8 +476,12 @@ void QDesignerWorkbench::readInSettings()
 void QDesignerWorkbench::saveSettings() const
 {
     QDesignerSettings settings;
-    foreach (QDesignerToolWindow *tw, m_toolWindows)
+    foreach (QDesignerToolWindow *tw, m_toolWindows) {
         settings.saveGeometryFor(tw);
+        QList<QHeaderView *> list = qFindChildren<QHeaderView *>(tw);
+        Q_ASSERT(list.size() == 1);
+        settings.saveHeaderSizesFor(list.at(0));
+    }
 }
 
 bool QDesignerWorkbench::readInForm(const QString &fileName) const

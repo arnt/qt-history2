@@ -17,7 +17,7 @@
 #include <QtCore/QRect>
 #include <QtCore/QSettings>
 
-class QDesignerToolWindow;
+class QHeaderView;
 class QDesignerSettings : public QSettings
 {
 public:
@@ -30,12 +30,18 @@ public:
     void setGeometryFor(QWidget *w, const QRect &fallBack = QRect()) const;
     void saveGeometryFor(const QWidget *w);
 
+    void setHeaderSizesFor(QHeaderView *hv) const;
+    void saveHeaderSizesFor(QHeaderView *hv);
+
 private:
     QStringList defaultFormTemplatePaths() const;
 
     void setGeometryHelper(QWidget *w, const QString &key, const QRect &fallBack) const;
     void saveGeometryHelper(const QWidget *w, const QString &key);
-
+    
+    void setHeaderSizesForHelper(QHeaderView *hv, const QString &key,
+                           const QList<QVariant> &hints) const;
+    void saveHeaderSizesForHelper(QHeaderView *hv, const QString &key);
 private:
     QString m_designerPath;
 };

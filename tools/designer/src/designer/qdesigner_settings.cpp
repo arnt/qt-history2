@@ -21,6 +21,7 @@
 #include <QtCore/QDir>
 
 #include <QtGui/QDesktopWidget>
+#include <QtGui/QHeaderView>
 
 QDesignerSettings::QDesignerSettings()
     : QSettings()
@@ -34,12 +35,13 @@ QDesignerSettings::~QDesignerSettings()
 
 QStringList QDesignerSettings::formTemplatePaths() const
 {
-    return value("FormTemplatePaths", defaultFormTemplatePaths()).toStringList();
+    return value(QLatin1String("FormTemplatePaths"),
+                 defaultFormTemplatePaths()).toStringList();
 }
 
 void QDesignerSettings::setFormTemplatePaths(const QStringList &paths)
 {
-    setValue("FormTemplatePaths", paths);
+    setValue(QLatin1String("FormTemplatePaths"), paths);
 }
 
 QStringList QDesignerSettings::defaultFormTemplatePaths() const
@@ -56,18 +58,17 @@ QStringList QDesignerSettings::defaultFormTemplatePaths() const
 
 void QDesignerSettings::saveGeometryFor(const QWidget *w)
 {
-    Q_ASSERT(w && !w->objectName().isNull());
+    Q_ASSERT(w && !w->objectName().isEmpty());
     const QWidget *widgetToPass = w;
-    if (w->parentWidget()) {
+    if (w->parentWidget())
         widgetToPass = w->parentWidget();
-    }
 
     saveGeometryHelper(widgetToPass, w->objectName());
 }
 
 void QDesignerSettings::setGeometryFor(QWidget *w, const QRect &fallBack) const
 {
-    Q_ASSERT(w && !w->objectName().isNull());
+    Q_ASSERT(w && !w->objectName().isEmpty());
     QWidget *widgetToPass = w;
     if (w->parentWidget())
         widgetToPass = w->parentWidget();
@@ -79,9 +80,9 @@ void QDesignerSettings::setGeometryFor(QWidget *w, const QRect &fallBack) const
 void QDesignerSettings::saveGeometryHelper(const QWidget *w, const QString &key)
 {
     beginGroup(key);
-    setValue("screen", QApplication::desktop()->screenNumber(w));
-    setValue("geometry", QRect(w->pos(), w->size()));
-    setValue("visible", w->isVisible());
+    setValue(QLatin1String("screen"), QApplication::desktop()->screenNumber(w));
+    setValue(QLatin1String("geometry"), QRect(w->pos(), w->size()));
+    setValue(QLatin1String("visible"), w->isVisible());
     endGroup();
 
 }
@@ -90,12 +91,51 @@ void QDesignerSettings::setGeometryHelper(QWidget *w, const QString &key,
                                           const QRect &fallBack) const
 {
 //    beginGroup();
-    QRect g = value(key + "/geometry", fallBack).toRect();
+    QRect g = value(key + QLatin1String("/geometry"), fallBack).toRect();
     if (g.intersect(QApplication::desktop()->availableGeometry()).isEmpty())
         g = fallBack;
     w->resize(g.size());
     w->move(g.topLeft());
-    if (value(key + "/visible", true).toBool())
+    if (value(key + QLatin1String("/visible"), true).toBool())
         w->show();
 //    endGroup();
+}
+
+void QDesignerSettings::setHeaderSizesFor(QHeaderView *hv) const
+{
+    Q_ASSERT(hv && hv->window() && !hv->window()->objectName().isEmpty());
+    QList<QVariant> sizeHints;
+    for (int i = 0; i < hv->count(); ++i)
+        sizeHints.append(hv->sectionSizeHint(i));
+    setHeaderSizesForHelper(hv, hv->window()->objectName(), sizeHints);
+}
+
+void QDesignerSettings::saveHeaderSizesFor(QHeaderView *hv)
+{
+    Q_ASSERT(hv && hv->window() && !hv->window()->objectName().isEmpty());
+    saveHeaderSizesForHelper(hv, hv->window()->objectName());
+}
+
+void QDesignerSettings::setHeaderSizesForHelper(QHeaderView *hv, const QString &key,
+                                               const QList<QVariant> &hints) const
+{
+    QList<QVariant> sizes = value(key + QLatin1String("/columnSizes"), hints).toList();
+    int i;
+    // Make sure the list of the sizes is correct.
+    if (sizes.size() < hints.size()) {
+        for (i = sizes.size(); i < hints.size(); ++i)
+            sizes.append(hints.at(i));
+    }
+
+    for (i = 0; i < sizes.size(); ++i)
+        hv->resizeSection(i, sizes.at(i).toInt());
+}
+
+void QDesignerSettings::saveHeaderSizesForHelper(QHeaderView *hv, const QString &key)
+{
+    QList<QVariant> sizes;
+    for (int i = 0; i < hv->count(); ++i)
+        sizes.append(hv->sectionSize(i));
+    QDesignerSettings settings;
+    settings.setValue(key + QLatin1String("/columnSizes"), sizes);
 }
