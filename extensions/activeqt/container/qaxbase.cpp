@@ -38,24 +38,15 @@
 
 #include <qt_windows.h>
 #include <ocidl.h>
-#include <atlbase.h>
-
-#ifdef __ATLBASE_H__
-CComModule _Module;
-#endif
 
 static int moduleLockCount = 0;
-void moduleLock()
+static void moduleLock()
 {
-    if ( !moduleLockCount ) {
+    if ( !moduleLockCount )
 	CoInitialize(0);
-#ifdef __ATLBASE_H__
-	_Module.Init( 0, GetModuleHandle(0) );
-#endif
-    }
     ++moduleLockCount;
 }
-void moduleUnlock()
+static void moduleUnlock()
 {
     if ( !moduleLockCount ) {
 #ifndef QT_NO_DEBUG
@@ -63,12 +54,8 @@ void moduleUnlock()
 #endif
 	return;
     }
-    if ( !--moduleLockCount ) {
-#ifdef __ATLBASE_H__
-	_Module.Term();
-#endif
+    if ( !--moduleLockCount )
 	CoUninitialize();
-    }
 }
 
 static QMetaObject *tempMetaObj = 0;
@@ -743,7 +730,9 @@ bool QAxBase::setControl( const QString &c )
     }
     if ( ctrl.isEmpty() )
 	ctrl = c;
-    initialize( &d->ptr );
+    moduleLock();
+    if ( !initialize( &d->ptr ) )
+	moduleUnlock();
     if ( isNull() ) {
 #ifndef QT_NO_DEBUG
 	qWarning( "QAxBase::setControl: requested control %s could not be instantiated.", c.latin1() );

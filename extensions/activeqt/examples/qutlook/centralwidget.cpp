@@ -246,9 +246,9 @@ void ABCentralWidget::setupOutlook()
 
     // Get all items
     contactItems = defFolder->querySubObject( "Items" );
-    connect( contactItems, SIGNAL(ItemAdd(IDispatch*)), this, SLOT(updateOutloo()) );
-    connect( contactItems, SIGNAL(ItemChange(IDispatch*)), this, SLOT(updateOutloo()) );
-    connect( contactItems, SIGNAL(ItemRemove()), this, SLOT(updateOutloo()) );    
+    connect( contactItems, SIGNAL(ItemAdd(IDispatch*)), this, SLOT(updateOutlook()) );
+    connect( contactItems, SIGNAL(ItemChange(IDispatch*)), this, SLOT(updateOutlook()) );
+    connect( contactItems, SIGNAL(ItemRemove()), this, SLOT(updateOutlook()) );    
 
     updateOutlook();
 }

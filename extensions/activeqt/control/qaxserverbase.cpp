@@ -61,7 +61,32 @@ extern unsigned long qAxUnlock();
 extern void* qAxInstance;
 
 
-class QAxServerBase :
+static QPtrDict<QAxServerBase> *ax_ServerMapper = 0;
+static QPtrDict<QAxServerBase> *axServerMapper()
+{
+    if ( !ax_ServerMapper ) {
+	ax_ServerMapper = new QPtrDict<QAxServerBase>;
+    }
+    return ax_ServerMapper;
+}
+static void axTakeServer( HWND hWnd )
+{
+    if ( !ax_ServerMapper )
+	return;
+
+    axServerMapper()->take( hWnd );
+    if ( !axServerMapper()->count() ) {
+	delete ax_ServerMapper;
+	ax_ServerMapper = 0;
+    }
+}
+
+
+/*!
+    \class QAxServerBase qaxserverbase.cpp
+    \internal
+*/
+class QAxServerBase : 
     public QObject,
     public IAxServerBase,
     public IDispatch,
@@ -709,8 +734,12 @@ QAxServerBase::~QAxServerBase()
     for ( QAxServerBase::ConnectionPointsIterator it = points.begin(); it != points.end(); ++it )
 	(*it)->Release();
     if ( activeqt ) {
+	axTakeServer( m_hWnd );
+	axTakeServer( activeqt->winId() );
 	activeqt->disconnect( this );
-	delete activeqt;
+	QWidget *aqt = activeqt;
+	activeqt = 0;
+	delete aqt;
     }
 
     if ( m_spAdviseSink ) m_spAdviseSink->Release();
@@ -856,17 +885,8 @@ bool QAxServerBase::internalCreate()
     return TRUE;
 }
 
-static QPtrDict<QAxServerBase> *ax_ServerMapper = 0;
-static QPtrDict<QAxServerBase> *axServerMapper()
-{
-    if ( !ax_ServerMapper ) {
-	ax_ServerMapper = new QPtrDict<QAxServerBase>;
-    }
-    return ax_ServerMapper;
-}
-
-/*
-    Message handler. \a hWnd is always the ActiveX widget hosting the Qt widget.
+/*!
+    Message handler. \a hWnd is always the ActiveX widget hosting the Qt widget. 
     \a uMsg is handled as follows
     \list
     \i WM_CREATE The ActiveX control is created
@@ -900,11 +920,7 @@ LRESULT CALLBACK QAxServerBase::StartWindowProc(HWND hWnd, UINT uMsg, WPARAM wPa
     {
     case WM_NCDESTROY:
 	that->m_hWnd = 0;
-	axServerMapper()->take( hWnd );
-	if ( !axServerMapper()->count() ) {
-	    delete ax_ServerMapper;
-	    ax_ServerMapper = 0;
-	}
+	axTakeServer( hWnd );
 	break;
 
     case WM_DESTROY:
@@ -1177,7 +1193,9 @@ void QAxServerBase::update()
 */
 void QAxServerBase::updateGeometry()
 {
-    QSize sizeHint = activeqt->sizeHint();
+    QSize sizeHint;
+    if ( activeqt )
+	sizeHint = activeqt->sizeHint();
     if ( sizeHint.isValid() ) {
 	QPaintDeviceMetrics pmetric( activeqt );
 
@@ -2606,7 +2624,10 @@ HRESULT QAxServerBase::SetExtent( DWORD dwDrawAspect, SIZEL* psizel )
     if ( !psizel )
 	return E_POINTER;
 
-    QSize minSizeHint = activeqt->minimumSizeHint();
+    QSize minSizeHint;
+    if ( activeqt ) 
+	minSizeHint = activeqt->minimumSizeHint();
+
     if ( minSizeHint.isValid() ) {
 	QPaintDeviceMetrics pmetric( activeqt );
 

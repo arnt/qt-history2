@@ -27,25 +27,20 @@
 
 #include "qaxwidget.h"
 
-#include <atlbase.h>
-extern CComModule _Module;
-#include <atlcom.h>
-#include <atlhost.h>
-
-extern void moduleLock();
-extern void moduleUnlock();
-
 #include <qapplication.h>
 #include <qobjectlist.h>
 #include <qstatusbar.h>
 #include <qlayout.h>
 #include <qmetaobject.h>
 #include <qpaintdevicemetrics.h>
+#include <qwhatsthis.h>
+#include <olectl.h>
 
 #include "../shared/types.h"
 
 static HHOOK hhook = 0;
 static int hhookref = 0;
+#define HIMETRIC_PER_INCH   2540
 
 static ushort mouseTbl[] = {
     WM_MOUSEMOVE,	QEvent::MouseMove,		0,
@@ -123,7 +118,7 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 	    if ( ax && msg->hwnd != ax->winId() ) {
 		if ( key ) {
 		    HRESULT hres = E_NOTIMPL;
-		    CComPtr<IOleControl> control;
+		    IOleControl *control = 0;
 		    ax->queryInterface( IID_IOleControl, (void**)&control );
 		    if ( control ) {
 			CONTROLINFO ci;
@@ -134,6 +129,7 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
 			    if ( res )
 				hres = control->OnMnemonic( msg );
 			}
+			control->Release();
 		    }
 		    if ( hres != S_OK )
 			::SendMessage( ax->winId(), message, msg->wParam, msg->lParam );
@@ -160,8 +156,532 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
     return CallNextHookEx( hhook, nCode, wParam, lParam );
 }
 
+
+/*! \class QAxHostWindow qaxwidget.cpp
+    \brief The QAxHostWindow class implements the client site interfaces.
+    \internal
+*/
+class QAxHostWindow : public QWidget, 
+		      public IDispatch,
+		      public IOleClientSite,
+		      public IOleControlSite,
+		      public IOleInPlaceSite,
+		      public IAdviseSink
+{
+public:
+    QAxHostWindow( QAxWidget *c, IUnknown **ppUnk );
+    ~QAxHostWindow();
+    void releaseAll();
+
+// IUnknown
+    unsigned long WINAPI AddRef();
+    unsigned long WINAPI Release();
+    STDMETHOD(QueryInterface)(REFIID iid, void **iface );
+
+// IDispatch
+    HRESULT __stdcall GetTypeInfoCount( unsigned int *count ) { return E_NOTIMPL; }
+    HRESULT __stdcall GetTypeInfo( UINT, LCID, ITypeInfo **info ) { return E_NOTIMPL; }
+    HRESULT __stdcall GetIDsOfNames( const _GUID &, wchar_t **, unsigned int, unsigned long, long * ) { return E_NOTIMPL; }
+    HRESULT __stdcall Invoke( DISPID dispIdMember, 
+			      REFIID riid, 
+			      LCID lcid, 
+			      WORD wFlags, 
+			      DISPPARAMS *pDispParams, 
+			      VARIANT *pVarResult, 
+			      EXCEPINFO *pExcepInfo, 
+			      UINT *puArgErr );
+
+// IOleClientSite
+    STDMETHOD(SaveObject)();
+    STDMETHOD(GetMoniker)(DWORD dwAssign, DWORD dwWhichMoniker, IMoniker **ppmk );
+    STDMETHOD(GetContainer)(LPOLECONTAINER FAR* ppContainer);
+    STDMETHOD(ShowObject)();
+    STDMETHOD(OnShowWindow)(BOOL fShow);
+    STDMETHOD(RequestNewObjectLayout)();
+
+// IOleControlSite
+    STDMETHOD(OnControlInfoChanged)();
+    STDMETHOD(LockInPlaceActive)(BOOL fLock);
+    STDMETHOD(GetExtendedControl)(IDispatch** ppDisp);
+    STDMETHOD(TransformCoords)(POINTL* pPtlHimetric, POINTF* pPtfContainer, DWORD dwFlags);
+    STDMETHOD(TranslateAccelerator)(LPMSG lpMsg, DWORD grfModifiers);
+    STDMETHOD(OnFocus)(BOOL fGotFocus );
+    STDMETHOD(ShowPropertyFrame)();
+
+// IOleWindow
+    STDMETHOD(GetWindow)(HWND *phwnd);
+    STDMETHOD(ContextSensitiveHelp)(BOOL fEnterMode);
+
+// IOleInPlaceSite
+    STDMETHOD(CanInPlaceActivate)();
+    STDMETHOD(OnInPlaceActivate)();
+    STDMETHOD(OnUIActivate)();
+    STDMETHOD(GetWindowContext)(IOleInPlaceFrame **ppFrame, IOleInPlaceUIWindow **ppDoc, LPRECT lprcPosRect, LPRECT lprcClipRect, LPOLEINPLACEFRAMEINFO lpFrameInfo );
+    STDMETHOD(Scroll)(SIZE scrollExtant);
+    STDMETHOD(OnUIDeactivate)(BOOL fUndoable);
+    STDMETHOD(OnInPlaceDeactivate)();
+    STDMETHOD(DiscardUndoState)();
+    STDMETHOD(DeactivateAndUndo)();
+    STDMETHOD(OnPosRectChange)(LPCRECT lprcPosRect);
+
+// IAdviseSink
+    STDMETHOD_(void, OnDataChange)(FORMATETC* /*pFormatetc*/, STGMEDIUM* /*pStgmed*/)
+    {
+    }
+    STDMETHOD_(void, OnViewChange)(DWORD /*dwAspect*/, LONG /*lindex*/)
+    {
+    }
+    STDMETHOD_(void, OnRename)(IMoniker* /*pmk*/)
+    {
+    }
+    STDMETHOD_(void, OnSave)()
+    {
+    }
+    STDMETHOD_(void, OnClose)()
+    {
+    }
+
+    void emitAmbientPropertyChange( DISPID dispid );
+    QSize sizeHint() const;
+
+protected:
+    void resizeEvent( QResizeEvent *e );
+
+private:
+    IOleObject *m_spOleObject;
+    IOleControl *m_spOleControl;
+    IViewObjectEx *m_spViewObject;
+    IOleInPlaceObjectWindowless *m_spInPlaceObjectWindowless;
+
+    DWORD m_dwMiscStatus;
+    DWORD m_dwViewObjectType;
+    DWORD m_dwOleObject;
+
+    bool m_bWindowless	    :1;
+    bool m_bUIActive	    :1;
+    bool m_bInPlaceActive   :1;
+
+    SIZEL m_hmSize;
+    SIZEL m_pxSize;
+    RECT m_rcPos;
+
+    unsigned long ref;
+    QAxWidget *widget;
+};
+
+QAxHostWindow::QAxHostWindow( QAxWidget *c, IUnknown **ppUnk )
+: QWidget( c, "QAxHostWindow", WResizeNoErase|WRepaintNoErase ), ref(1), widget( c )
+{
+    m_spOleObject = 0;
+    m_spOleControl = 0;
+    m_spViewObject = 0;
+    m_spInPlaceObjectWindowless = 0;
+
+    m_dwMiscStatus = 0;
+    m_dwViewObjectType = 0;
+    m_dwOleObject = 0;
+
+    m_bWindowless = FALSE;
+    m_bUIActive = FALSE;
+    m_bInPlaceActive = FALSE;
+
+    m_hmSize.cx = m_hmSize.cy = 0;
+    m_pxSize.cx = m_pxSize.cy = 250;
+    m_rcPos.left = m_rcPos.right = m_rcPos.top = m_rcPos.bottom = 0;
+    
+    setBackgroundMode( NoBackground );
+    HRESULT hr;
+    
+    hr = CoCreateInstance( QUuid(widget->control()), 0, CLSCTX_SERVER, IID_IUnknown, (void**)ppUnk );
+    bool bInited = hr == S_FALSE;
+    
+    if ( !SUCCEEDED(hr) || !*ppUnk )
+	return;
+
+    hr = S_OK;
+
+    m_spOleObject = 0;
+    widget->queryInterface( IID_IOleObject, (void**)&m_spOleObject );
+    if (m_spOleObject) {
+	m_spOleObject->GetMiscStatus( DVASPECT_CONTENT, &m_dwMiscStatus );
+	if(m_dwMiscStatus & OLEMISC_SETCLIENTSITEFIRST)
+	    m_spOleObject->SetClientSite( this );
+
+	if ( !bInited ) {
+	    IPersistStreamInit *spPSI = 0;
+	    m_spOleObject->QueryInterface( IID_IPersistStreamInit, (void**)&spPSI );
+	    if ( spPSI ) {
+		spPSI->InitNew();
+		spPSI->Release();
+	    }
+	}
+
+	if( !(m_dwMiscStatus & OLEMISC_SETCLIENTSITEFIRST) )
+	    m_spOleObject->SetClientSite( this );
+	
+	m_dwViewObjectType = 0;
+	HRESULT hr;
+	hr = m_spOleObject->QueryInterface(IID_IViewObjectEx, (void**) &m_spViewObject);
+	if ( FAILED(hr) ) {
+	    hr = m_spOleObject->QueryInterface(IID_IViewObject2, (void**) &m_spViewObject);
+	    m_dwViewObjectType = 3;
+	} else {
+	    m_dwViewObjectType = 7;
+	}
+	if ( FAILED(hr) ) {
+	    hr = m_spOleObject->QueryInterface(IID_IViewObject, (void**) &m_spViewObject);
+	    m_dwViewObjectType = 1;
+	}
+	
+	m_spOleObject->Advise( this, &m_dwOleObject );
+	IAdviseSink *spAdviseSink = 0;
+	QueryInterface( IID_IAdviseSink, (void**)&spAdviseSink );	
+	if ( spAdviseSink ) {
+	    if ( m_dwViewObjectType )
+		m_spViewObject->SetAdvise( DVASPECT_CONTENT, 0, spAdviseSink );
+	    spAdviseSink->Release();
+	}
+
+	m_spOleObject->SetHostNames( OLESTR("AXWIN"), 0 );
+	QPaintDeviceMetrics pdm( widget );
+
+#define MAP_PIX_TO_LOGHIM(x,ppli)   ( (HIMETRIC_PER_INCH*(x) + ((ppli)>>1)) / (ppli) )
+
+	m_hmSize.cx = MAP_PIX_TO_LOGHIM( m_pxSize.cx, pdm.logicalDpiX() );
+	m_hmSize.cy = MAP_PIX_TO_LOGHIM( m_pxSize.cy, pdm.logicalDpiY() );
+
+	m_spOleObject->SetExtent( DVASPECT_CONTENT, &m_hmSize );
+	m_spOleObject->GetExtent( DVASPECT_CONTENT, &m_hmSize );
+
+#define MAP_LOGHIM_TO_PIX(x,ppli)   ( ((ppli)*(x) + HIMETRIC_PER_INCH/2) / HIMETRIC_PER_INCH )
+	m_pxSize.cx = MAP_LOGHIM_TO_PIX( m_hmSize.cx, pdm.logicalDpiX() );
+	m_pxSize.cy = MAP_LOGHIM_TO_PIX( m_hmSize.cy, pdm.logicalDpiY() );
+	m_rcPos.right = m_rcPos.left + m_pxSize.cx;
+	m_rcPos.bottom = m_rcPos.top + m_pxSize.cy;
+
+	hr = m_spOleObject->DoVerb( OLEIVERB_INPLACEACTIVATE, 0, (IOleClientSite*)this, 0, winId(), &m_rcPos );
+
+	m_spOleObject->QueryInterface( IID_IOleControl, (void**)&m_spOleControl );
+	if ( m_spOleControl ) {
+	    m_spOleControl->OnAmbientPropertyChange( DISPID_AMBIENT_BACKCOLOR );
+	    m_spOleControl->OnAmbientPropertyChange( DISPID_AMBIENT_FORECOLOR );
+	    m_spOleControl->OnAmbientPropertyChange( DISPID_AMBIENT_FONT );
+	}
+
+	BSTR userType;
+	m_spOleObject->GetUserType( USERCLASSTYPE_SHORT, &userType );
+	widget->setCaption( BSTRToQString( userType ) );
+	CoTaskMemFree( userType );
+    }
+    IObjectWithSite *spSite;
+    widget->queryInterface(IID_IObjectWithSite, (void**)&spSite);
+    if ( spSite ) {
+	spSite->SetSite( (IUnknown*)(IDispatch*)this );
+	spSite->Release();
+    }
+}
+
+QAxHostWindow::~QAxHostWindow()
+{
+}
+
+void QAxHostWindow::releaseAll()
+{
+    if ( m_spOleObject ) m_spOleObject->Release();
+    m_spOleObject = 0;
+    if ( m_spOleControl ) m_spOleControl->Release();
+    m_spOleControl = 0;
+    if ( m_spViewObject ) m_spViewObject->Release();
+    m_spViewObject = 0;
+    if ( m_spInPlaceObjectWindowless ) m_spInPlaceObjectWindowless->Release();
+    m_spInPlaceObjectWindowless = 0;
+}
+
+//**** IUnknown
+unsigned long WINAPI QAxHostWindow::AddRef()
+{
+    return ++ref;
+}
+
+unsigned long WINAPI QAxHostWindow::Release()
+{
+    if ( !--ref ) {
+	delete this;
+	return 0;
+    }
+    return ref;
+}
+
+HRESULT QAxHostWindow::QueryInterface( REFIID iid, void **iface )
+{
+    *iface = 0;
+    
+    if ( iid == IID_IUnknown )
+	*iface = (IUnknown*)(IDispatch*)this;
+    else if ( iid == IID_IDispatch )
+	*iface = (IDispatch*)this;
+    else if ( iid == IID_IOleClientSite )
+	*iface = (IOleClientSite*)this;
+    else if ( iid == IID_IOleControlSite )
+	*iface = (IOleControlSite*)this;
+    else if ( iid == IID_IOleWindow )
+	*iface = (IOleWindow*)this;
+    else if ( iid == IID_IOleInPlaceSite )
+	*iface = (IOleInPlaceSite*)this;
+    else
+	return E_NOINTERFACE;
+
+    AddRef();
+    return S_OK;
+}
+
+//**** IDispatch
+HRESULT QAxHostWindow::Invoke(DISPID dispIdMember, 
+			      REFIID riid, 
+			      LCID lcid, 
+			      WORD wFlags, 
+			      DISPPARAMS *pDispParams, 
+			      VARIANT *pVarResult, 
+			      EXCEPINFO *pExcepInfo, 
+			      UINT *puArgErr )
+{
+    switch( dispIdMember ) {
+    case DISPID_AMBIENT_FONT:
+	pVarResult->vt = VT_DISPATCH;
+	pVarResult->pdispVal = QFontToIFont( widget->font() );
+	break;
+    case DISPID_AMBIENT_BACKCOLOR:
+	break;
+    case DISPID_AMBIENT_FORECOLOR:
+	break;
+    case DISPID_AMBIENT_UIDEAD:
+	break;
+    default:
+	break;
+    }
+
+    return DISP_E_MEMBERNOTFOUND;
+}
+
+//**** IOleClientSite
+HRESULT QAxHostWindow::SaveObject()
+{
+    return E_NOTIMPL;
+}
+
+HRESULT QAxHostWindow::GetMoniker( DWORD, DWORD, IMoniker **ppmk )
+{
+    if ( !ppmk )
+	return E_POINTER;
+
+    *ppmk = 0;
+    return E_NOTIMPL;
+}
+
+HRESULT QAxHostWindow::GetContainer( LPOLECONTAINER *ppContainer )
+{
+    return E_NOINTERFACE;
+}
+
+HRESULT QAxHostWindow::ShowObject()
+{
+    return S_OK;
+}
+
+HRESULT QAxHostWindow::OnShowWindow( BOOL fShow )
+{
+    return S_OK;
+}
+
+HRESULT QAxHostWindow::RequestNewObjectLayout()
+{
+    return E_NOTIMPL;
+}
+
+//**** IOleControlSite
+HRESULT QAxHostWindow::OnControlInfoChanged()
+{
+    return S_OK;
+}
+
+HRESULT QAxHostWindow::LockInPlaceActive(BOOL /*fLock*/)
+{
+    return S_OK;
+}
+
+HRESULT QAxHostWindow::GetExtendedControl(IDispatch** ppDisp)
+{
+    if (ppDisp == NULL)
+	return E_POINTER;
+    return m_spOleObject ? m_spOleObject->QueryInterface( IID_IDispatch, (void**)ppDisp ) : E_NOINTERFACE;
+}
+
+HRESULT QAxHostWindow::TransformCoords(POINTL* /*pPtlHimetric*/, POINTF* /*pPtfContainer*/, DWORD /*dwFlags*/)
+{
+    return S_OK;
+}
+
+HRESULT QAxHostWindow::TranslateAccelerator(LPMSG /*lpMsg*/, DWORD /*grfModifiers*/)
+{
+    return S_FALSE;
+}
+
+HRESULT QAxHostWindow::OnFocus( BOOL bGotFocus )
+{
+    if ( bGotFocus ) {
+	QFocusEvent e( QEvent::FocusIn );
+	QApplication::sendEvent( widget, &e );
+    } else {
+	QFocusEvent e( QEvent::FocusOut );
+	QApplication::sendEvent( widget, &e );
+    }
+    return S_OK;
+}
+
+HRESULT QAxHostWindow::ShowPropertyFrame()
+{
+    return E_NOTIMPL;
+}
+
+//**** IOleWindow
+HRESULT QAxHostWindow::GetWindow( HWND *phwnd )
+{
+    if ( !phwnd )
+	return E_POINTER;
+
+    *phwnd = winId();
+    return S_OK;
+}
+
+HRESULT QAxHostWindow::ContextSensitiveHelp( BOOL fEnterMode )
+{
+    if ( fEnterMode )
+	QWhatsThis::enterWhatsThisMode();
+    else
+	QWhatsThis::leaveWhatsThisMode();
+
+    return S_OK;
+}
+
+//**** IOleInPlaceSite
+HRESULT QAxHostWindow::CanInPlaceActivate()
+{
+    return S_OK;
+}
+
+HRESULT QAxHostWindow::OnInPlaceActivate()
+{
+    m_bInPlaceActive = TRUE;
+    OleLockRunning(m_spOleObject, TRUE, FALSE);
+    m_bWindowless = FALSE;
+    m_spOleObject->QueryInterface(IID_IOleInPlaceObject, (void**) &m_spInPlaceObjectWindowless);
+    if ( m_spInPlaceObjectWindowless )
+	m_spInPlaceObjectWindowless->SetObjectRects( &m_rcPos, &m_rcPos );
+    return S_OK;
+}
+
+HRESULT QAxHostWindow::OnUIActivate()
+{
+    m_bUIActive = TRUE;
+    return S_OK;
+}
+
+HRESULT QAxHostWindow::GetWindowContext( IOleInPlaceFrame **ppFrame, IOleInPlaceUIWindow **ppDoc, LPRECT lprcPosRect, LPRECT lprcClipRect, LPOLEINPLACEFRAMEINFO lpFrameInfo )
+{
+    if ( !ppFrame || !ppDoc || !lprcPosRect || !lprcClipRect || !lpFrameInfo )
+	return E_POINTER;
+
+    QueryInterface(IID_IOleInPlaceFrame, (void**) &ppFrame);
+    QueryInterface(IID_IOleInPlaceUIWindow, (void**) &ppDoc);
+
+    ::GetClientRect( winId(), lprcPosRect );
+    ::GetClientRect( winId(), lprcClipRect );
+
+    lpFrameInfo->cb = sizeof(OLEINPLACEFRAMEINFO);
+    lpFrameInfo->fMDIApp = FALSE;
+    ACCEL ac = { 0,0,0 };
+    lpFrameInfo->haccel = CreateAcceleratorTable(&ac, 1);;
+    lpFrameInfo->cAccelEntries = 1;
+    lpFrameInfo->hwndFrame = widget->winId();
+
+    return S_OK;
+}
+
+HRESULT QAxHostWindow::Scroll( SIZE scrollExtant )
+{
+    return S_FALSE;
+}
+
+HRESULT QAxHostWindow::OnUIDeactivate( BOOL )
+{
+    m_bUIActive = FALSE;
+    return S_OK;
+}
+
+HRESULT QAxHostWindow::OnInPlaceDeactivate()
+{
+    m_bInPlaceActive = FALSE;
+    if ( m_spInPlaceObjectWindowless )
+	m_spInPlaceObjectWindowless->Release();
+    m_spInPlaceObjectWindowless = 0;
+    return S_OK;
+}
+
+HRESULT QAxHostWindow::DiscardUndoState()
+{
+    return S_OK;
+}
+
+HRESULT QAxHostWindow::DeactivateAndUndo()
+{
+    IOleInPlaceObject *inPlace = 0;
+    widget->queryInterface( IID_IOleInPlaceObject, (void**)&inPlace );
+    if ( inPlace ) {
+	inPlace->UIDeactivate();
+	inPlace->Release();
+    }
+
+    return S_OK;
+}
+
+HRESULT QAxHostWindow::OnPosRectChange( LPCRECT lprcPosRect )
+{
+    return S_OK;
+}
+
+void QAxHostWindow::emitAmbientPropertyChange( DISPID dispid )
+{
+    if ( m_spOleControl )
+	m_spOleControl->OnAmbientPropertyChange( dispid );
+}
+
+void QAxHostWindow::resizeEvent( QResizeEvent *e )
+{
+    QPaintDeviceMetrics pdm( this );
+
+    m_rcPos.right = m_rcPos.left + width();
+    m_rcPos.bottom = m_rcPos.top + height();
+    m_pxSize.cx = width();
+    m_pxSize.cy = height();
+    m_hmSize.cx = MAP_PIX_TO_LOGHIM( m_pxSize.cx, pdm.logicalDpiX() );
+    m_hmSize.cy = MAP_PIX_TO_LOGHIM( m_pxSize.cy, pdm.logicalDpiY() );
+
+    if (m_spOleObject)
+	m_spOleObject->SetExtent( DVASPECT_CONTENT, &m_hmSize );
+    if (m_spInPlaceObjectWindowless)
+	m_spInPlaceObjectWindowless->SetObjectRects( &m_rcPos, &m_rcPos );
+    if (m_bWindowless)
+	repaint( TRUE );
+}
+
+QSize QAxHostWindow::sizeHint() const
+{
+    return QSize( m_pxSize.cx, m_pxSize.cy );
+}
+
+
 /*!
-    \class QAxWidget qactivex.h
+    \class QAxWidget qaxwidget.h
     \brief The QAxWidget class is a QWidget that wraps an ActiveX control.
 
     \extension ActiveQt
@@ -191,9 +711,8 @@ LRESULT CALLBACK FilterProc( int nCode, WPARAM wParam, LPARAM lParam )
     call \link QAxBase::setControl() setControl \endlink.
 */
 QAxWidget::QAxWidget( QWidget *parent, const char *name, WFlags f )
-: QWidget( parent, name, f ), clientsite( 0 ), host( 0 )
+: QWidget( parent, name, f ), container( 0 )
 {
-    initContainer();
 }
 
 /*!
@@ -201,10 +720,8 @@ QAxWidget::QAxWidget( QWidget *parent, const char *name, WFlags f )
     \a parent, \a name and \a f are propagated to the QWidget contructor.
 */
 QAxWidget::QAxWidget( const QString &c, QWidget *parent, const char *name, WFlags f )
-: QWidget( parent, name ? name : c.latin1(), f ), clientsite( 0 ), host( 0 )
+: QWidget( parent, name ? name : c.latin1(), f ), container( 0 )
 {
-    initContainer();
-
     setControl( c );
 }
 
@@ -213,18 +730,8 @@ QAxWidget::QAxWidget( const QString &c, QWidget *parent, const char *name, WFlag
     \a parent, \a name and \a f are propagated to the QWidget contructor.
 */
 QAxWidget::QAxWidget( IUnknown *iface, QWidget *parent, const char *name, WFlags f )
-: QWidget( parent, name, f ), QAxBase( iface )
+: QWidget( parent, name, f ), QAxBase( iface ), container( 0 )
 {
-}
-
-/*!
-    \internal
-*/
-void QAxWidget::initContainer()
-{
-    container = new QWidget( this );
-    container->resize( size() );
-    container->show();
 }
 
 /*!
@@ -238,36 +745,6 @@ QAxWidget::~QAxWidget()
     clear();
 }
 
-static QAxWidget *current = 0;
-
-class QAxHostWindow : public CAxHostWindow
-{
-public:
-    QAxHostWindow()
-	: CAxHostWindow(), activex( current )
-    {
-    }
-
-    ~QAxHostWindow()
-    {
-    }
-
-    STDMETHOD(OnFocus)(BOOL bGotFocus )
-    {
-	if ( bGotFocus ) {
-	    QFocusEvent e( QEvent::FocusIn );
-	    QApplication::sendEvent( activex, &e );
-	} else {
-	    QFocusEvent e( QEvent::FocusOut );
-	    QApplication::sendEvent( activex, &e );
-	}
-	return S_OK;
-    }
-
-private:
-    QAxWidget *activex;
-};
-
 /*!
     \reimp
 */
@@ -275,91 +752,25 @@ bool QAxWidget::initialize( IUnknown **ptr )
 {
     if ( *ptr || control().isEmpty() )
 	return FALSE;
-    moduleLock();
 
     *ptr = 0;
 
-#if defined(__ATLHOST_H__)
-    AtlAxWinInit();
-    HRESULT hr;
-    CComPtr<IUnknown> spUnkContainer;
-    CComPtr<IUnknown> spUnkControl;
-    IStream *pStream = 0;
-    IID iidSink = IID_NULL;
-    IUnknown *punkSink = 0;
-
-    current = this;
-    CComPolyObject<QAxHostWindow> *axhost = new CComPolyObject<QAxHostWindow>( 0 );
-    current = 0;
-    axhost->SetVoid( 0 );
-    axhost->InternalFinalConstructAddRef();
-    hr = axhost->FinalConstruct();
-    axhost->InternalFinalConstructRelease();
-
-    if ( hr == S_OK )
-	hr = axhost->QueryInterface(IID_IUnknown, (void**)&spUnkContainer);
-    if ( hr != S_OK )
-	delete axhost;
-
-    if (SUCCEEDED(hr)) {
-	CComPtr<IAxWinHostWindow> pAxWindow;
-	spUnkContainer->QueryInterface(IID_IAxWinHostWindow, (void**)&pAxWindow);
-	CComBSTR bstrName( (TCHAR*)qt_winTchar(control(), TRUE) );
-	hr = pAxWindow->CreateControlEx(bstrName, container->winId(), pStream, &spUnkControl, iidSink, punkSink);
-    }
-    if (SUCCEEDED(hr)) {
-	host = spUnkContainer.p;
-	spUnkContainer.p = NULL;
-    } else {
-	host = NULL;
-    }
-    if (SUCCEEDED(hr)) {
-	*ptr = spUnkControl.p;
-	spUnkControl.p = NULL;
-    } else {
-	*ptr = NULL;
-    }
+    container = new QAxHostWindow( this, ptr );
 
     if ( !*ptr ) {
-	moduleUnlock();
+	container->Release();
 	return FALSE;
     }
-#endif
 
     if ( !hhook )
 	hhook = SetWindowsHookEx( WH_GETMESSAGE, FilterProc, 0, GetCurrentThreadId() );
     ++hhookref;
+    container->resize( size() );
+    container->show();    
 
     setFocusPolicy( StrongFocus );
     if ( parentWidget() )
 	QApplication::postEvent( parentWidget(), new QEvent( QEvent::LayoutHint ) );
-
-    CComPtr<IOleObject> ole;
-    queryInterface( IID_IOleObject, (void**)&ole );
-    if ( !ole )
-	return TRUE;
-
-    BSTR userType;
-    ole->GetUserType( USERCLASSTYPE_SHORT, &userType );
-    setCaption( BSTRToQString( userType ) );
-    CoTaskMemFree( userType );
-
-    ole->GetClientSite( &clientsite );
-
-    if ( isVisible() ) {
-	RECT r = { x(), y(), x()+width(), y()+height() };
-	ole->DoVerb( OLEIVERB_SHOW, NULL, clientsite, 0, container->winId(), &r );
-    }
-
-    if ( clientsite ) {
-	CComPtr<IAxWinAmbientDispatch> adispatch;
-	clientsite->QueryInterface( IID_IAxWinAmbientDispatch, (void**)&adispatch );
-	if ( adispatch ) {
-	    adispatch->put_BackColor( QColorToOLEColor( palette().color( QPalette::Active, QColorGroup::Background ) ) );
-	    adispatch->put_ForeColor( QColorToOLEColor( palette().color( QPalette::Active, QColorGroup::Foreground ) ) );
-	    adispatch->put_Font( QFontToIFont( font() ) );
-	}
-    }
 
     return TRUE;
 }
@@ -382,21 +793,15 @@ void QAxWidget::clear()
 	}
     }
 
-    delete container;
-    container = 0;
-    initContainer();
-
     QAxBase::clear();
     setFocusPolicy( NoFocus );
 
-    if ( clientsite ) {
-	clientsite->Release();
-	clientsite = 0;
+    if ( container ) {
+	container->releaseAll();
+	removeChild( container );
+	container->Release();
     }
-    if ( host ) {
-	host->Release();
-	host = 0;
-    }
+    container = 0;
 }
 
 /*!
@@ -486,13 +891,7 @@ void QAxWidget::enabledChange( bool old )
     if ( old == isEnabled() || isNull() )
 	return;
 
-    CAxWindow ax = container->winId();
-    ax.EnableWindow( isEnabled() );
-    CComPtr<IOleControl> ole;
-    queryInterface( IID_IOleControl, (void**)&ole );
-    if ( ole ) {
-	ole->OnAmbientPropertyChange( DISPID_AMBIENT_UIDEAD );
-    }
+    container->emitAmbientPropertyChange( DISPID_AMBIENT_UIDEAD );
 }
 
 /*!
@@ -503,40 +902,11 @@ QSize QAxWidget::sizeHint() const
     if ( isNull() )
 	return QWidget::sizeHint();
 
-    if ( !extent.isValid() ) {
-	CComPtr<IOleObject> ole;
-	queryInterface( IID_IOleObject, (void**)&ole );
-	if ( !ole )
-	    return QWidget::sizeHint();
-
-	QAxWidget *that = (QAxWidget*)this;
-	HRESULT res = E_FAIL;
-	SIZE sizeProposed = { 5000, 5000 };
-	SIZEL oleExtent;
-
-	CComPtr<IViewObjectEx> viewEx;
-	queryInterface( IID_IViewObjectEx, (void**)&viewEx );
-	if ( viewEx ) {
-	    DVEXTENTINFO extInfo;
-	    extInfo.cb = sizeof(DVEXTENTINFO);
-	    extInfo.dwExtentMode = DVEXTENT_CONTENT;
-	    extInfo.sizelProposed = sizeProposed;
-	    res = viewEx->GetNaturalExtent( DVASPECT_CONTENT, -1, 0, 0, &extInfo, &oleExtent );
-	}
-	if ( res != S_OK )
-	    res = ole->GetExtent( DVASPECT_CONTENT, &oleExtent );
-	if ( res == S_OK && oleExtent.cx && oleExtent.cy )
-	    sizeProposed = oleExtent;
-	res = ole->SetExtent( DVASPECT_CONTENT, &sizeProposed );
-	if ( res == S_OK ) {
-	    QPaintDeviceMetrics pmetric( this );
-	    that->extent.setWidth( (pmetric.logicalDpiX()*sizeProposed.cx + 1270) / 2540 );
-	    that->extent.setHeight( (pmetric.logicalDpiY()*sizeProposed.cy + 1270) / 2540 );
-	}
+    if ( container ) {
+	QSize sh = container->sizeHint();
+	if ( sh.isValid() )
+	    return sh;
     }
-
-    if ( extent.isValid() )
-	return extent;
 
     return QWidget::sizeHint();
 }
@@ -549,17 +919,19 @@ QSize QAxWidget::minimumSizeHint() const
     if ( isNull() )
 	return QWidget::minimumSizeHint();
 
-    CComPtr<IOleObject> ole;
+    IOleObject *ole = 0;
     queryInterface( IID_IOleObject, (void**)&ole );
     if ( ole ) {
 	SIZE sz = { -1, -1 };
 	ole->SetExtent( DVASPECT_CONTENT, &sz );
 	HRESULT res = ole->GetExtent( DVASPECT_CONTENT, &sz );
 	if ( SUCCEEDED(res) ) {
-	    SIZE psz;
-	    AtlHiMetricToPixel( &sz, &psz );
-	    return QSize( psz.cx, psz.cy );
+	    ole->Release();
+	    QPaintDeviceMetrics pmetric( this );
+	    return QSize( MAP_LOGHIM_TO_PIX( sz.cx, pmetric.logicalDpiX() ),
+			  MAP_LOGHIM_TO_PIX( sz.cy, pmetric.logicalDpiY() ) );
 	}
+	ole->Release();
     }
 
     return QWidget::minimumSizeHint();
@@ -574,15 +946,7 @@ void QAxWidget::fontChange( const QFont &old )
     if ( isNull() )
 	return;
 
-    CAxWindow ax = container->winId();
-    ax.SetFont( font().handle(), TRUE );
-
-    if ( clientsite ) {
-	CComPtr<IAxWinAmbientDispatch> adispatch;
-	clientsite->QueryInterface( IID_IAxWinAmbientDispatch, (void**)&adispatch );
-	if ( adispatch )
-	    adispatch->put_Font( QFontToIFont( font() ) );
-    }
+    container->emitAmbientPropertyChange( DISPID_AMBIENT_FONT );
 }
 
 /*!
@@ -594,27 +958,8 @@ void QAxWidget::paletteChange( const QPalette &old )
     if ( isNull() )
 	return;
 
-    if ( clientsite ) {
-	CComPtr<IAxWinAmbientDispatch> adispatch;
-	clientsite->QueryInterface( IID_IAxWinAmbientDispatch, (void**)&adispatch );
-	if ( adispatch ) {
-	    adispatch->put_BackColor( QColorToOLEColor( palette().color( QPalette::Active, QColorGroup::Background ) ) );
-	    adispatch->put_ForeColor( QColorToOLEColor( palette().color( QPalette::Active, QColorGroup::Foreground ) ) );
-	}
-    }
-}
-
-/*!
-    \reimp
-*/
-void QAxWidget::setUpdatesEnabled( bool on )
-{
-    if ( !isNull() ) {
-	CAxWindow ax = container->winId();
-	ax.SetRedraw( on );
-    }
-
-    QWidget::setUpdatesEnabled( on );
+    container->emitAmbientPropertyChange( DISPID_AMBIENT_BACKCOLOR );
+    container->emitAmbientPropertyChange( DISPID_AMBIENT_FORECOLOR );
 }
 
 /*!
@@ -626,10 +971,12 @@ void QAxWidget::windowActivationChange( bool old )
     if ( isNull() )
 	return;
 
-    CComPtr<IOleInPlaceActiveObject> inplace;
+    IOleInPlaceActiveObject *inplace = 0;
     queryInterface( IID_IOleInPlaceActiveObject, (void**)&inplace );
-    if ( inplace )
+    if ( inplace ) {
 	inplace->OnFrameWindowActivate( isActiveWindow() );
+	inplace->Release();
+    }
 }
 
 /*!

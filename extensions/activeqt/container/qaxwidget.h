@@ -31,11 +31,10 @@
 #include "qaxbase.h"
 #include <qwidget.h>
 
-struct IOleClientSite;
+class QAxHostWindow;
 
 class QAX_EXPORT QAxWidget : public QWidget, public QAxBase
 {
-    friend class QClientSite;
 public:
     QMetaObject *metaObject() const;
     const char *className() const;
@@ -58,7 +57,6 @@ public:
     void reparent( QWidget *parent, WFlags f, const QPoint &, bool showIt = FALSE );
     //void setAcceptDrops( bool on );
     //bool customWhatsThis() const;
-    void setUpdatesEnabled( bool );
     bool event( QEvent * );
 
 protected:
@@ -72,12 +70,11 @@ protected:
     void resizeEvent( QResizeEvent * );
 
 private:
+    friend class QAxHostWindow;
+
     QMetaObject *parentMetaObject() const;
-    void initContainer();
-    QWidget *container;
-    IOleClientSite *clientsite;
-    IUnknown *host;
-    QSize extent;
+
+    QAxHostWindow *container;
 };
 
 #endif // QAXWIDGET_H

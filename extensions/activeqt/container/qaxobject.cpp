@@ -28,9 +28,6 @@
 #include "qaxobject.h"
 #include <ole2.h>
 
-extern void moduleLock();
-extern void moduleUnlock();
-
 #include <quuid.h>
 #include <qmetaobject.h>
 
@@ -110,16 +107,11 @@ bool QAxObject::initialize( IUnknown **ptr )
     QUuid uuid( control() );
     if ( *ptr || uuid.isNull() )
 	return FALSE;
-    moduleLock();
 
     *ptr = 0;
     CoCreateInstance( uuid, 0, CLSCTX_SERVER, IID_IUnknown, (void**)ptr );
 
-    if ( !ptr ) {
-	moduleUnlock();
-	return FALSE;
-    }
-    return TRUE;
+    return ptr != 0;
 }
 
 /*!
