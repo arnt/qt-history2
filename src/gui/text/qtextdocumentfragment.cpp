@@ -477,6 +477,9 @@ void QTextHTMLImporter::import()
                 listFmt.setIndent(indent);
 
             listReferences.append(d->formatCollection.createObjectIndex(listFmt));
+
+            if (node->text.isEmpty())
+                continue;
         } else if (node->id == Html_table) {
             Table t;
             if (scanTable(i, &t)) {
@@ -529,7 +532,7 @@ void QTextHTMLImporter::import()
                 } else {
                     qWarning("QTextDocumentFragment(html import): list item outside list found. bad html?");
                 }
-            } else if (indent && block.objectIndex() == listReferences.last()) {
+            } else if (indent && block.objectIndex() != listReferences.last()) {
                 block.setIndent(indent);
             }
 
