@@ -235,7 +235,7 @@ void QMakeSourceFileInfo::addSourceFiles(const QStringList &l, uchar seek, bool 
         SourceFile *file = files->lookupFile(fn);
         if(!file) {
             file = new SourceFile;
-            file->file = fn;
+            file->file = fixPathForFile(fn);
         } else {
             if(file->uifile != uifile)
                 warn_msg(WarnLogic, "%s is marked as UI, then not!", (*it).latin1());
@@ -282,7 +282,7 @@ QMakeLocalFileName QMakeSourceFileInfo::findFileForDep(const QMakeLocalFileName 
     for(QList<QMakeLocalFileName>::Iterator it = depdirs.begin(); it != depdirs.end(); ++it) {
         QMakeLocalFileName f((*it).real() + Option::dir_sep + file.real());
         if(!stat(f.local(), &fst) && !S_ISDIR(fst.st_mode)) 
-            return f;
+            return fixPathForFile(f);
     }
     return QMakeLocalFileName();
 }
