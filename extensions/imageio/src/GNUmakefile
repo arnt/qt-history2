@@ -1,7 +1,7 @@
 #############################################################################
-# $Id: //depot/qt/main/extensions/imageio/src/Makefile#10 $
+# $Id: //depot/qt/main/extensions/imageio/src/GNUmakefile#1 $
 #
-# Win32 Makefile, requires Microsoft nmake.
+# Unix Makefile, requires GNU make (gmake).
 #
 # Copyright (C) 1998 by Troll Tech AS.  All rights reserved.
 #
@@ -9,4 +9,4 @@
 
 PROJECT = imageio
 
-!INCLUDE $(QTDIR)\Makefile.inc
+include $(QTDIR)/GNUmakefile.inc
