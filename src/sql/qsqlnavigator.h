@@ -61,7 +61,7 @@ public:
     virtual void setFilter( const QString& filter );
     QString filter() const;
 
-    virtual QSqlCursor* defaultCursor();
+    virtual QSqlCursor* defaultCursor() = 0;
 
     virtual void refresh();
     virtual bool findBuffer( const QSqlIndex& idx, int atHint = 0 );
