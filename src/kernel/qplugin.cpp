@@ -259,15 +259,12 @@ QString QPlugIn::library() const
 /*!
   Forwards the query to the QPlugInInterface and returns the result.
 */
-QUnknownInterface* QPlugIn::queryInterface( const QString &request )
+QUnknownInterface* QPlugIn::queryInterface( const QString &request, bool rec )
 {
     if ( !use() )
 	return 0;
 
-    QUnknownInterface *iface = info->queryInterface( request );
-   
-    if ( !iface )
-	return 0;
+    QUnknownInterface *iface = info->queryInterface( request, rec );
 
     return iface;
 }

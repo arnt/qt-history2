@@ -71,7 +71,7 @@ public:
 
     QString library() const;
 
-    QUnknownInterface *queryInterface( const QString& = QString::null );
+    QUnknownInterface *queryInterface( const QString& = QString::null, bool rec = TRUE );
 
 private:
     bool use();
