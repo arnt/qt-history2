@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#31 $
 **
 ** Implementation of Windows startup routines and event handling
 **
@@ -18,12 +18,12 @@
 #include <ctype.h>
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#30 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#31 $")
 
 
-// --------------------------------------------------------------------------
-// Internal variables and functions
-//
+/*****************************************************************************
+  Internal variables and functions
+ *****************************************************************************/
 
 static char	appName[120];			// application name
 static HANDLE	appInst;			// handle to app instance
@@ -41,11 +41,11 @@ static bool	appNoGrab	= FALSE;	// mouse/keyboard grabbing
 #endif
 
 static bool	app_do_modal	= FALSE;	// modal mode
-static int	app_loop_level	= 1;		// event loop level
 static bool	app_exit_loop	= FALSE;	// flag to exit local loop
 
-QWidgetList    *popupWidgets	= 0;		// list of popup widgets
-bool		popupCloseDownMode = FALSE;
+static QWidgetList *modal_stack = 0;		// stack of modal widgets
+QWidgetList    	   *popupWidgets= 0;		// list of popup widgets
+bool		    popupCloseDownMode = FALSE;
 
 typedef void  (*VFPTR)();
 typedef declare(QListM,void) QVFuncList;
@@ -86,9 +86,9 @@ public:
 typedef declare(QArrayM,pchar) ArgV;
 
 
-// --------------------------------------------------------------------------
-// WinMain() - initializes Windows and calls user's startup function main()
-//
+/*****************************************************************************
+  WinMain() - initializes Windows and calls user's startup function main()
+ *****************************************************************************/
 
 extern "C" int main( int, char ** );
 
@@ -179,9 +179,9 @@ int APIENTRY WinMain( HANDLE instance, HANDLE prevInstance,
 }
 
 
-// --------------------------------------------------------------------------
-// qt_init() - initializes Qt for Windows
-//
+/*****************************************************************************
+  qt_init() - initializes Qt for Windows
+ *****************************************************************************/
 
 void qt_init( int *argcptr, char **argv )
 {
@@ -208,7 +208,6 @@ void qt_init( int *argcptr, char **argv )
 
   // Misc. initialization
 
-    app_loop_level = 0;
     QColor::initialize();
     QFont::initialize();
     QCursor::initialize();
@@ -220,9 +219,9 @@ void qt_init( int *argcptr, char **argv )
 }
 
 
-// --------------------------------------------------------------------------
-// qt_cleanup() - cleans up when the application is finished
-//
+/*****************************************************************************
+  qt_cleanup() - cleans up when the application is finished
+ *****************************************************************************/
 
 void qt_cleanup()
 {
@@ -250,9 +249,9 @@ void qt_cleanup()
 }
 
 
-// --------------------------------------------------------------------------
-// Platform specific global and internal functions
-//
+/*****************************************************************************
+  Platform specific global and internal functions
+ *****************************************************************************/
 
 static void msgHandler( QtMsgType, const char *str )
 {
@@ -348,9 +347,9 @@ const char *qt_reg_winclass( int type )		// register window class
 }
 
 
-// --------------------------------------------------------------------------
-// Platform specific QApplication members
-//
+/*****************************************************************************
+  Platform specific QApplication members
+ *****************************************************************************/
 
 void QApplication::setMainWidget( QWidget *mainWidget )
 {
@@ -426,9 +425,9 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 }
 
 
-// --------------------------------------------------------------------------
-// QApplication management of posted events
-//
+/*****************************************************************************
+  QApplication management of posted events
+ *****************************************************************************/
 
 class QPEObject : public QObject		// trick to set/clear pendEvent
 {
@@ -522,10 +521,10 @@ static void cleanupPostedEvents()		// cleanup list
 }
 
 
-// --------------------------------------------------------------------------
-// Safe configuration (move,resize,setGeometry) mechanism to avoid
-// recursion when processing messages.
-//
+/*****************************************************************************
+  Safe configuration (move,resize,setGeometry) mechanism to avoid
+  recursion when processing messages.
+ *****************************************************************************/
 
 #include "qqueue.h"
 
@@ -580,22 +579,23 @@ static void qWinProcessConfigRequests()		// perform requests in queue
 }
 
 
-// --------------------------------------------------------------------------
-// Main event loop
-//
+/*****************************************************************************
+  Main event loop
+ *****************************************************************************/
 
-int QApplication::exec()			// entern main event loop
+int QApplication::exec()
 {
     enter_loop();
     return quit_code;
 }
 
 
-int QApplication::enter_loop()			// local event loop
+int QApplication::enter_loop()
 {
-    app_loop_level++;				// increment loop level count
+    loop_level++;
 
-    while ( quit_now == FALSE && !app_exit_loop ) {
+    while ( !quit_now && !app_exit_loop ) {
+
 	MSG msg;
 
 	if ( numZeroTimers ) {			// activate full-speed timers
@@ -644,10 +644,11 @@ int QApplication::enter_loop()			// local event loop
 	DispatchMessage( &msg );		// send to WndProc
 	if ( configRequests )			// any pending configs?
 	    qWinProcessConfigRequests();
-	if ( quit_now )				// request to quit application
-	    break;
     }
+
     app_exit_loop = FALSE;
+    loop_level--;
+
     return 0;
 }
 
@@ -666,9 +667,9 @@ bool QApplication::winEventFilter( MSG * )	// Windows event filter
 void QApplication::winFocus( QWidget *w, bool gotFocus )
 {
     if ( gotFocus ) {
-	while ( w->parentWidget() )	// go to top level
+	while ( w->parentWidget() )		// go to top level
 	    w = w->parentWidget();
-	while ( w->focusChild )		// go down focus chain
+	while ( w->focusChild )			// go down focus chain
 	    w = w->focusChild;
 	if ( w != focus_widget && w->acceptFocus() ) {
 	    focus_widget = w;
@@ -856,25 +857,22 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam 
 }
 
 
-// --------------------------------------------------------------------------
-// Modal widgets; We have implemented our own modal widget mechanism
-// to get total control.
-// A modal widget without a parent becomes application-modal.
-// A modal widget with a parent becomes modal to its parent and grandparents..
-//
-// qt_enter_modal()
-//	Enters modal state and returns when the widget is hidden/closed
-//	Arguments:
-//	    QWidget *widget	A modal widget
-//
-// qt_leave_modal()
-//	Leaves modal state for a widget
-//	Arguments:
-//	    QWidget *widget	A modal widget
-//
+/*****************************************************************************
+  Modal widgets; We have implemented our own modal widget mechanism
+  to get total control.
+  A modal widget without a parent becomes application-modal.
+  A modal widget with a parent becomes modal to its parent and grandparents..
 
-static QWidgetList *modal_stack = 0;		// stack of modal widgets
+  qt_enter_modal()
+	Enters modal state and returns when the widget is hidden/closed
+	Arguments:
+	    QWidget *widget	A modal widget
 
+  qt_leave_modal()
+	Leaves modal state for a widget
+	Arguments:
+	    QWidget *widget	A modal widget
+ *****************************************************************************/
 
 bool qt_modal_state()				// application in modal state?
 {
@@ -957,19 +955,19 @@ static bool qt_try_modal( QWidget *widget, void * )
 }
 
 
-// --------------------------------------------------------------------------
-// Popup widget mechanism
-//
-// qt_open_popup()
-//	Adds a widget to the list of popup widgets
-//	Arguments:
-//	    QWidget *widget	The popup widget to be added
-//
-// qt_close_popup()
-//	Removes a widget from the list of popup widgets
-//	Arguments:
-//	    QWidget *widget	The popup widget to be removed
-//
+/*****************************************************************************
+  Popup widget mechanism
+
+  qt_open_popup()
+	Adds a widget to the list of popup widgets
+	Arguments:
+	    QWidget *widget	The popup widget to be added
+
+  qt_close_popup()
+	Removes a widget from the list of popup widgets
+	Arguments:
+	    QWidget *widget	The popup widget to be removed
+ *****************************************************************************/
 
 void qt_open_popup( QWidget *popup )		// add popup widget
 {
@@ -1455,7 +1453,7 @@ bool QETWidget::translatePaintEvent( const MSG &msg )
     GetUpdateRect( id(), &rect, FALSE );
     QRect r( QPoint(rect.left,rect.top), QPoint(rect.right,rect.bottom) );
     QPaintEvent e( r );
-    setWFlags( WState_Paint );
+    setWFlags( WState_PaintEvent );
     hdc = BeginPaint( id(), &ps );
 #if defined(STUPID_WINDOWS_NT)
     HBRUSH hbr;
@@ -1467,7 +1465,7 @@ bool QETWidget::translatePaintEvent( const MSG &msg )
     QApplication::sendEvent( this, &e );
     EndPaint( id(), &ps );
     hdc = 0;
-    clearWFlags( WState_Paint );
+    clearWFlags( WState_PaintEvent );
     return TRUE;
 }
 
@@ -1516,15 +1514,15 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 // Close window event translation
 //
 
-bool QETWidget::translateCloseEvent( const MSG &msg )
+bool QETWidget::translateCloseEvent( const MSG & )
 {
     QCloseEvent e;
-    if ( QApplication::sendEvent(this, &e) ) {	// accepts close
+    if ( QApplication::sendEvent(this,&e) ) {	// accepts close
 	hide();
 	if ( qApp->mainWidget() == this )
 	    qApp->quit();
-	else
-	    return TRUE;			// delete this widget
+	else					// delete if flag set
+	    return testWFlags(WDestructiveClose);
     }
     return FALSE;
 }

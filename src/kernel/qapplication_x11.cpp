@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#139 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#140 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -39,7 +39,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#139 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#140 $")
 
 
 /*****************************************************************************
@@ -65,7 +65,6 @@ static Window	appRootWin;			// X11 root window
 static bool	app_save_rootinfo = FALSE;	// save root info
 
 static bool	app_do_modal	= FALSE;	// modal mode
-static int	app_loop_level	= 1;		// event loop level
 static bool	app_exit_loop	= FALSE;	// flag to exit local loop
 static int	app_Xfd;			// X network socket
 static fd_set   app_readfds;			// fd set for reading
@@ -85,6 +84,10 @@ static int	mouseButtonState     = 0;	// mouse button state
 static Time	mouseButtonPressTime = 0;	// when was a button pressed
 static short	mouseXPos, mouseYPos;		// mouse position in act window
 
+static QWidgetList *modal_stack = 0;		// stack of modal widgets
+static QWidgetList *popupWidgets = 0;		// list of popup widgets
+static bool 	    popupCloseDownMode = FALSE;
+
 typedef void  (*VFPTR)();
 typedef declare(QListM,void) QVFuncList;
 static QVFuncList *postRList = 0;		// list of post routines
@@ -99,10 +102,6 @@ static void	cleanupTimers();
 static timeval *waitTimer();
 static bool	activateTimer();
 static timeval	watchtime;			// watch if time is turned back
-
-static QWidgetList *modal_stack = 0;		// stack of modal widgets
-static QWidgetList *popupWidgets = 0;		// list of popup widgets
-static bool 	    popupCloseDownMode = FALSE;
 
 static void	qt_save_rootinfo();
 static bool	qt_try_modal( QWidget *, XEvent * );
@@ -134,9 +133,9 @@ typedef void (*SIG_HANDLER)(...);
 #endif
 
 
-//
-// qt_init() - initializes Qt for X-Windows
-//
+/*****************************************************************************
+  qt_init() - initializes Qt for X-Windows
+ *****************************************************************************/
 
 void qt_init( int *argcptr, char **argv )
 {
@@ -263,7 +262,6 @@ void qt_init( int *argcptr, char **argv )
 
   // Misc. initialization
 
-    app_loop_level = 0;
     QColor::initialize();
     QFont::initialize();
     QCursor::initialize();
@@ -297,9 +295,9 @@ void qt_init( int *argcptr, char **argv )
 }
 
 
-//
-// qt_cleanup() - cleans up when the application is finished
-//
+/*****************************************************************************
+  qt_cleanup() - cleans up when the application is finished
+ *****************************************************************************/
 
 void qt_cleanup()
 {
@@ -1130,9 +1128,9 @@ int QApplication::exec()
 
 int QApplication::enter_loop()
 {
-    app_loop_level++;				// increment loop level count
+    loop_level++;
 
-    while ( quit_now == FALSE && !app_exit_loop ) {
+    while ( !quit_now && !app_exit_loop ) {
 
 	if ( postedEvents && postedEvents->count() )
 	    sendPostedEvents();
@@ -1255,8 +1253,7 @@ int QApplication::enter_loop()
 		    if ( (event.xclient.format == 32) ) {
 			long *l = event.xclient.data.l;
 			if ( *l == (long)q_wm_delete_window ) {
-			    if ( widget->translateCloseEvent( &event )
-				 && app_loop_level < 2 )
+			    if ( widget->translateCloseEvent(&event) )
 				delete widget;
 			}
 		    }
@@ -1346,7 +1343,10 @@ int QApplication::enter_loop()
 	qt_reset_color_avail();			// color approx. optimization
 
     }
+
     app_exit_loop = FALSE;
+    loop_level--;
+
     return 0;
 }
 
@@ -1401,7 +1401,6 @@ bool qt_modal_state()				// application in modal state?
 {
     return app_do_modal;
 }
-
 
 void qt_enter_modal( QWidget *widget )		// enter modal state
 {
@@ -1657,8 +1656,7 @@ static void insertTimer( const TimerInfo *ti )	// insert timer info into list
 static inline void getTime( timeval &t )	// get time of day
 {
     gettimeofday( &t, 0 );
-#if defined(_OS_SUN_)
-    while ( t.tv_usec >= 1000000 ) {		// correct if NTP daemon bug
+    while ( t.tv_usec >= 1000000 ) {		// NTP-related fix
 	t.tv_usec -= 1000000;
 	t.tv_sec++;
     }
@@ -1672,7 +1670,6 @@ static inline void getTime( timeval &t )	// get time of day
 	    break;
 	}
     }
-#endif
 }
 
 static void repairTimer( const timeval &time )	// repair broken timer
@@ -2160,9 +2157,9 @@ bool QETWidget::translatePaintEvent( const XEvent *event )
     }
 
     QPaintEvent e( paintRect );
-    setWFlags( WState_Paint );
+    setWFlags( WState_PaintEvent );
     QApplication::sendEvent( this, &e );
-    clearWFlags( WState_Paint );
+    clearWFlags( WState_PaintEvent );
     return TRUE;
 }
 
@@ -2213,12 +2210,12 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 bool QETWidget::translateCloseEvent( const XEvent * )
 {
     QCloseEvent e;
-    if ( QApplication::sendEvent(this, &e) ) {	// accepts close
+    if ( QApplication::sendEvent(this,&e) ) {	// accepts close
 	hide();
 	if ( qApp->mainWidget() == this )
 	    qApp->quit();
-	else
-	    return TRUE;			// delete this widget
+	else					// delete if flag set
+	    return testWFlags(WDestructiveClose);
     }
     return FALSE;
 }
