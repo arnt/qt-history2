@@ -302,7 +302,8 @@ QStringList qt_mac_get_open_file_names(const QString &filter, QString *pwd,
 
     NavDialogRun(dlg);
     if(options.modality == kWindowModalityWindowModal) { //simulate modality
-        QWidget modal_widg(parent, Qt::WType_TopLevel | Qt::WStyle_Customize | Qt::WStyle_DialogBorder);
+        QWidget modal_widg(parent, Qt::WType_TopLevel | Qt::WStyle_Customize | 
+                           Qt::WStyle_DialogBorder | Qt::WMacSheet);
         qt_enter_modal(&modal_widg);
         while(g_nav_blocking)
             qApp->processEvents();
