@@ -24,7 +24,7 @@
 #include <qstyle.h>
 
 StyledButton::StyledButton(QWidget* parent, const char* name)
-    : QAbstractButton( parent, name ), pix( 0 ), spix( 0 ), edit( ColorEditor ), s( 0 ), mousePressed( FALSE )
+    : QButton( parent, name ), pix( 0 ), spix( 0 ), edit( ColorEditor ), s( 0 ), mousePressed( FALSE )
 {
     setMinimumSize( minimumSizeHint() );
     setAcceptDrops( TRUE );
@@ -33,7 +33,7 @@ StyledButton::StyledButton(QWidget* parent, const char* name)
 }
 
 StyledButton::StyledButton( const QBrush& b, QWidget* parent, const char* name, WFlags f )
-    : QAbstractButton( parent, name, f ), spix( 0 ), s( 0 )
+    : QButton( parent, name, f ), spix( 0 ), s( 0 )
 {
     col = b.color();
     pix = b.pixmap();
@@ -137,7 +137,7 @@ void StyledButton::scalePixmap()
 void StyledButton::resizeEvent( QResizeEvent* e )
 {
     scalePixmap();
-    QAbstractButton::resizeEvent( e );
+    QButton::resizeEvent( e );
 }
 
 void StyledButton::drawButton( QPainter *paint )
@@ -201,14 +201,14 @@ void StyledButton::onEditor()
 
 void StyledButton::mousePressEvent(QMouseEvent* e)
 {
-    QAbstractButton::mousePressEvent(e);
+    QButton::mousePressEvent(e);
     mousePressed = TRUE;
     pressPos = e->pos();
 }
 
 void StyledButton::mouseMoveEvent(QMouseEvent* e)
 {
-    QAbstractButton::mouseMoveEvent( e );
+    QButton::mouseMoveEvent( e );
 #ifndef QT_NO_DRAGANDDROP
     if ( !mousePressed )
 	return;

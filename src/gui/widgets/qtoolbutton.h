@@ -105,14 +105,14 @@ public:
     QT_COMPAT void setOnIconSet(const QIconSet&);
     QT_COMPAT void setOffIconSet(const QIconSet&);
     QT_COMPAT void setIconSet(const QIconSet &, bool on = true);
-    inline QT_COMPAT void setTextLabel(const QString &text, bool tooltip = true) { setText(text); if (tooltip) setToolTip(text); }
+    inline QT_COMPAT void setTextLabel(const QString &text, bool tooltip = true) { setText(text); if (tooltip)setToolTip(text);}
     inline QT_COMPAT QString textLabel() const { return text(); }
     QT_COMPAT QIconSet onIconSet() const;
     QT_COMPAT QIconSet offIconSet() const;
     QT_COMPAT QIconSet iconSet(bool on) const;
     inline QT_COMPAT QIconSet iconSet() const { return icon(); }
-    inline QT_COMPAT void openPopup() { showMenu(); }
-    inline QT_COMPAT void setPopup(QMenu* popup) { setMenu(popup); }
+    inline QT_COMPAT void openPopup()  { showMenu(); }
+    inline QT_COMPAT void setPopup(QMenu* popup) {setMenu(popup); }
     inline QT_COMPAT QMenu* popup() const { return menu(); }
 #endif
 
