@@ -1262,10 +1262,8 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
     if(index == handleIdx) {
 	if(state == Pressed || state == Moving)
 	    flags = QStyle::PStyle_Down;
-#if defined(Q_WS_MACX) || defined(Q_WS_MAC9)
 	else
 	    flags = QStyle::PStyle_Sunken;
-#endif
     }
     p->setBrushOrigin( fr.topLeft() );
     if ( d->clicks[section] ) {
@@ -1367,29 +1365,9 @@ void QHeader::paintSectionLabel( QPainter *p, int index, const QRect& fr )
     if ( d->sortColumn == section && pw + tw + arrowWidth + 2 < fr.width() ) {
 	if( reverse() )
 	    tw = fr.width() - tw - arrowWidth;
-	p->save();
-	if ( d->sortDirection ) {
-	    QPointArray pa( 3 );
-	    int x = fr.x() + pw + tw;
-	    p->setPen( colorGroup().light() );
-	    p->drawLine( x + arrowWidth, 4, x + arrowWidth / 2, arrowHeight );
-	    p->setPen( colorGroup().dark() );
-	    pa.setPoint( 0, x + arrowWidth / 2, arrowHeight );
-	    pa.setPoint( 1, x, 4 );
-	    pa.setPoint( 2, x + arrowWidth, 4 );
-	    p->drawPolyline( pa );
-	} else {
-	    QPointArray pa( 3 );
-	    int x = fr.x() + pw + tw;
-	    p->setPen( colorGroup().light() );
-	    pa.setPoint( 0, x, arrowHeight );
-	    pa.setPoint( 1, x + arrowWidth, arrowHeight );
-	    pa.setPoint( 2, x + arrowWidth / 2, 4 );
-	    p->drawPolyline( pa );
-	    p->setPen( colorGroup().dark() );
-	    p->drawLine( x, arrowHeight, x + arrowWidth / 2, 4 );
-	}
-	p->restore();
+	style().drawPrimitive( d->sortDirection ? QStyle::PO_ArrowDown : QStyle::PO_ArrowUp,
+			       p, QRect(fr.x() + pw + tw, 4, arrowWidth, arrowHeight),
+			       colorGroup());
     }
 }
 

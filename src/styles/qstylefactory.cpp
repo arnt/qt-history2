@@ -43,13 +43,11 @@
 #include "qpluginmanager.h"
 #include "qwindowsstyle.h"
 #include "qmotifstyle.h"
-/* ### for beta2 ...
-#include "qcdestyle.h"
-#include "qmotifplusstyle.h"
-#include "qplatinumstyle.h"
-#include "qsgistyle.h"
-#include "qcompactstyle.h"
-*/
+// #include "qcdestyle.h"
+// #include "qmotifplusstyle.h"
+// #include "qplatinumstyle.h"
+// #include "qsgistyle.h"
+// #include "qcompactstyle.h"
 #ifndef QT_NO_STYLE_AQUA
 #include "qaquastyle.h"
 #endif
@@ -116,11 +114,13 @@ QStyle *QStyleFactory::create( const QString& s )
         return new QWindowsStyle;
     else
 #endif
+
 #ifndef QT_NO_STYLE_MOTIF
     if ( style == "motif" )
         return new QMotifStyle;
     else
 #endif
+#if 0
 #ifndef QT_NO_STYLE_CDE
     if ( style == "cde" )
         return new QCDEStyle;
@@ -146,16 +146,17 @@ QStyle *QStyleFactory::create( const QString& s )
         return new QCompactStyle;
     else
 #endif
+#endif
+#ifndef QT_NO_STYLE_AQUA
+    if ( style == "aqua" )
+        return new QAquaStyle;
+#endif
 #if 0
 #ifdef Q_WS_MAC
     if( style == "macintosh" )
 	return new QMacStyle;
 #endif
-#endif
 
-#ifndef QT_NO_STYLE_AQUA
-	if ( style == "aqua" )
-	    return new QAquaStyle;
 #endif
 
 #ifndef QT_NO_COMPONENT

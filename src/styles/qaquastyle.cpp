@@ -65,6 +65,10 @@
 #include <limits.h>
 #include "../widgets/qtitlebar_p.h"
 #include "qpopupmenu.h"
+#ifdef Q_WS_MAC
+#  include <string.h>
+#  include <qt_mac.h>
+#endif
 
 static const int aquaSepHeight         = 10;    // separator height
 static const int aquaItemFrame         = 2;    // menu item frame width
@@ -379,19 +383,38 @@ void QAquaStyle::drawPrimitive( PrimitiveOperation op,
 				   void **data ) const
 {
     switch( op ) {
-    case PO_HeaderSection: {
-	QString nstr = QString::number(r.height());
-	QPixmap px;
-	if(flags & PStyle_Down)
-	    qAquaPixmap( "hdr_down_" + nstr, px );
-	else if(flags & PStyle_Sunken)
-	    qAquaPixmap( "hdr_act_" + nstr, px );
-	else
-	    qAquaPixmap( "hdr_" + nstr, px );
-	p->drawTiledPixmap( r, px );
+    case PO_ArrowUp:
+    case PO_ArrowDown:
+    case PO_ArrowRight:
+    case PO_ArrowLeft: {
 	p->save();
+	p->setPen( cg.text() );
+	QPointArray a;
+	if ( op == PO_ArrowDown )
+	    a.setPoints( 3, r.x(), r.y(), r.right(), r.y(), r.x() + (r.width() / 2) , r.bottom());
+	else if( op == PO_ArrowRight )
+	    a.setPoints( 3, r.x(), r.y(), r.right(), r.y() + (r.height() / 2), r.x(), r.bottom()); 
+	else if( op == PO_ArrowUp ) 
+	    a.setPoints( 3, r.x() + (r.width() / 2), r.y(), r.right(), r.bottom(), r.x(), r.bottom()); 
+	else
+	    a.setPoints( 3, r.x(), r.y() + (r.height() / 2), r.right(), r.y(), r.right(), r.bottom());
+	p->setBrush( cg.text() );
+	p->drawPolygon( a );
+	p->setBrush( NoBrush );
+	p->restore();
+	break; }
+    case PO_HeaderSection: {
+	QPixmap px;
+	QString nstr = QString::number(r.height()), mod;
+	if(flags & PStyle_Down )
+	    mod = "down_";
+	else if(flags & PStyle_Sunken && qAquaActive( cg ))
+	    mod = "act_";
+	qAquaPixmap( "hdr_" + mod + nstr, px );
+	p->drawTiledPixmap( r, px );
 
 	//separator
+	p->save();
 	p->setPen( gray );
 	p->drawLine( r.right(), r.top(), r.right(), r.bottom() );
 	p->restore();
@@ -512,7 +535,7 @@ void QAquaStyle::drawPrimitive( PrimitiveOperation op,
 	p->drawPixmap( r.x(), r.y(), px );
 	break; }
     case PO_IndicatorMask: {
-	p->fillRect(r.x(), r.y()+1, 15, 18, color1);
+	p->fillRect(r.x(), r.y()+2, r.width(), r.height(), color1);
 	break; }
     case PO_ExclusiveIndicator: {
 	QPixmap px;
@@ -554,14 +577,16 @@ void QAquaStyle::drawPrimitive( PrimitiveOperation op,
 		mod += "right_";
 	    else 
 		mod += "left_";
+	    mod += QString::number(r.height());
 	} else {
 	    prefix = "v";
 	    if(op == PO_ScrollBarAddLine) 
 		mod += "down_";
 	    else 
 		mod += "up_";
+	    mod += QString::number(r.width());
 	}
-	qAquaPixmap( prefix + "sbr_arw_" + mod + QString::number(r.width()), arrow );
+	qAquaPixmap( prefix + "sbr_arw_" + mod, arrow );
 	p->drawPixmap( r.x(), r.y(), arrow );
 	break; }
 
@@ -1005,10 +1030,10 @@ int QAquaStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	ret = 0;
 	break;
     case PM_IndicatorHeight:
-	ret = 15;
+	ret = 18;
 	break;
     case PM_IndicatorWidth: 
-	ret = 18;
+	ret = 15;
 	break;
     case PM_ExclusiveIndicatorWidth:
 	ret = 14;
@@ -1081,6 +1106,10 @@ QSize QAquaStyle::sizeFromContents( ContentsType contents,
 	sz = QSize(w, h);
 #endif
 	break; }
+    case CT_PushButton: 
+	sz = QWindowsStyle::sizeFromContents(contents, widget, contentsSize, data);
+	sz.setWidth(sz.width() + 16);
+	break; 
     default:
 	sz = QWindowsStyle::sizeFromContents(contents, widget, contentsSize, data);
 	break;
@@ -1183,10 +1212,17 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	if ((sub & SC_ScrollBarSlider) && slider.isValid()) {
 	    //cleanup
 	    QRect eraserect(slider);
-	    if(eraserect.y() < subline.height())
-		eraserect.setY(subline.height());
-	    if(eraserect.bottom() > addline.y())
-		eraserect.setBottom(addline.y());
+	    if(scrollbar->orientation() == Qt::Vertical) {
+		if(eraserect.y() < subline.height())
+		    eraserect.setY(subline.height());
+		if(eraserect.bottom() > addline.y())
+		    eraserect.setBottom(addline.y());
+	    } else {
+		if(eraserect.x() < subline.width())
+		    eraserect.setX(subline.width());
+		if(eraserect.right() > addline.x())
+		    eraserect.setRight(addline.x());
+	    }
 	    if(eraserect.isValid())
 		drawPrimitive(PO_ScrollBarAddPage, p, eraserect, cg,
 			      ((maxedOut) ? PStyle_Default : PStyle_Enabled) |
@@ -1235,32 +1271,17 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	}
 	break; }
     case CC_ListView: {
-	QListViewItem *item = (QListViewItem *)data[0],
-		     *child = item->firstChild();
-	int x, y, w, h;
-	r.rect(&x, &y, &w, &h);
-	while ( child && y + child->height() <= 0 ) {
-	    y += child->totalHeight();
-	    child = child->nextSibling();
-	}
-	int bx = w / 2, linebot;
-
-	// paint stuff in the magical area
-	while ( child && y < h ) {
-	    linebot = y + child->height()/2;
-	    if ( child->isExpandable() || child->childCount() ) {
-		p->setPen( cg.text() );
-		QPointArray a;
-		if ( child->isOpen() )
-		    a.setPoints( 3, bx-4, linebot-4, bx+4, linebot-4, bx, linebot+4); //DownArrow
-		else
-		    a.setPoints( 3, bx-4, linebot-4, bx+4, linebot, bx-4, linebot+4); //RightArrow
-		p->setBrush( cg.text() );
-		p->drawPolygon( a );
-		p->setBrush( NoBrush );
+	QListViewItem *item = (QListViewItem *)data[0];
+	int y=r.y(), h=r.height(), bx = r.width() / 2;
+	for(QListViewItem *child = item->firstChild(); child && y < h; 
+	    y += child->totalHeight(), child = child->nextSibling()) {
+	    if(y + child->height() > 0) {
+		if ( child->isExpandable() || child->childCount() ) {
+		    int linebot = child->height()/2;
+		    drawPrimitive( child->isOpen() ? PO_ArrowDown : PO_ArrowRight,
+				   p, QRect(bx-3, y+linebot-3, bx+3,linebot+3), cg );
+		}
 	    }
-	    y += child->totalHeight();
-	    child = child->nextSibling();
 	}
 	break; }
     case CC_SpinWidget: {
@@ -1443,7 +1464,7 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 			    qAquaPixmap( "toolbtn_on_left_" + w + "_" + h, px );
 			else
 			    qAquaPixmap( "toolbtn_off_left_" + w + "_" + h, px );
-		    } else if( it.toLast() == toolbutton ){
+		    } else if( it.toLast() == toolbutton && !toolbutton->popup() ){
 			if ( on || down )
 			    qAquaPixmap( "toolbtn_on_right_" + w + "_" + h, px );
 			else
@@ -1526,9 +1547,37 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	}
 
 	if (sub & SC_ToolButtonMenu) {
-	    if (mflags & (PStyle_Down | PStyle_On | PStyle_Raised))
-		drawPrimitive(PO_ButtonDropDown, p, menuarea, cg, mflags, data);
-	    drawPrimitive(PO_ArrowDown, p, menuarea, cg, mflags, data);
+	    QPixmap px;
+	    QString w = QString::number( menuarea.width() );
+	    QString h = QString::number( menuarea.height() );
+	    QWidget *btn_prnt = toolbutton->parentWidget();
+	    if ( btn_prnt && btn_prnt->inherits("QToolBar") ) {
+		QToolBar * bar  = (QToolBar *) btn_prnt;
+		QObjectList * l = bar->queryList( "QToolButton", 0, FALSE, FALSE );
+		QObjectListIt it( *l );
+		if( it.toLast() == toolbutton ){
+		    if ( (flags & PStyle_On) || (flags & PStyle_Down) )
+			qAquaPixmap( "toolbtn_on_right_" + w + "_" + h, px );
+		    else
+			qAquaPixmap( "toolbtn_off_right_" + w + "_" + h, px );
+		} else {
+		    if ( (flags & PStyle_On) || (flags & PStyle_Down) )
+			qAquaPixmap( "toolbtn_on_mid_" + w + "_" + h, px );
+		    else
+			qAquaPixmap( "toolbtn_off_mid_"+ w + "_" + h, px );
+		}
+		delete l;
+	    } else {
+		if ( (flags & PStyle_On) || (flags & PStyle_Down) )
+		    qAquaPixmap( "toolbtn_on_mid_" + w + "_" + h, px );
+		else
+		    qAquaPixmap( "toolbtn_off_mid_" + w + "_" + h, px );
+	    }
+	    p->drawPixmap( menuarea.x(), menuarea.y(), px );
+	    drawPrimitive(PO_ArrowDown, p, QRect(menuarea.x()+2, 
+						 menuarea.y()+(menuarea.height()-menuarea.width()-4),
+						 menuarea.width() - 4, menuarea.width()-2), 
+						 cg, mflags, data);
 	}
 
 	if (toolbutton->hasFocus() && !toolbutton->focusProxy()) {
@@ -1536,17 +1585,7 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    fr.addCoords(3, 3, -3, -3);
 	    drawPrimitive(PO_FocusRect, p, fr, cg);
 	}
-
-	break;
-    }
-
-#if 0
-    case CC_ToolButton: {
-	QToolButton * btn = (QToolButton *) widget;
-	if ( !btn )
-	    return;
 	break; }
-#endif
     default:
 	QWindowsStyle::drawComplexControl(ctrl, p, widget, r, cg, flags, sub, subActive, data);
     }
@@ -1615,6 +1654,28 @@ int QAquaStyle::styleHint(StyleHint sh, const QWidget *w, void ***d) const
     }
     return ret;
 }
+
+void QAquaStyle::appearanceChanged()
+{
+#ifdef Q_WS_MAC
+    Collection c=NewCollection();
+    GetTheme(c);
+    Str255 str;
+    long int s = 256;
+    if(!GetCollectionItem(c, kThemeVariantNameTag, 0, &s, &str)) {
+	if(!strncmp((char *)str+1, "Blue", str[0]))
+	    aquaMode = AquaModeAqua;
+	else if(!strncmp((char *)str+1, "Graphite", str[0]))
+	    aquaMode = AquaModeGraphite;
+	else
+	    aquaMode = AquaModeUnknown;
+    }
+    DisposeCollection(c);
+#else
+    aquaMode = AquaModeAqua;
+#endif
+}
+
 
 #if 0
 /*! \reimp */

@@ -39,6 +39,12 @@
 
 #ifndef QT_NO_STYLE_AQUA
 
+enum {
+    AquaModeUnknown,
+    AquaModeGraphite,
+    AquaModeAqua
+} aquaMode                             = AquaModeUnknown;
+
 /* Mask for Aqua buttons - left */
 #define aqua_btn_mask_left_xbm_width 13
 #define aqua_btn_mask_left_xbm_height 23
@@ -11014,15 +11020,12 @@ static const char * const aqua_spinbtn_up_off_xpm[] = {
 "iBCDAEFGFEADCB"};
 
 
-static int qAquaGetNum( const QString & s )
+static int qAquaGetNum( const QString & s)
 {
     int num = 0;
-    int i = s.findRev( '_' );
-
-    if( i != -1 ){
+    int i = s.findRev( '_');
+    if( i != -1 )
         num = s.right( (s.length() - 1) - i ).toInt();
-    }
-
     return num;
 }
 
@@ -11050,16 +11053,19 @@ static bool qAquaActive( const QColorGroup & g )
 
 static void qAquaPixmap( const QString & s, QPixmap & p )
 {
-    int i, f, size = 0;
+    if(aquaMode == AquaModeUnknown)
+	QAquaStyle::appearanceChanged();
+    int i, size = 0;
 
-    QString str = "$qt_aqua_" + s;
-
+    QString mode = "aqua";
+    if(aquaMode == AquaModeGraphite)
+	mode = "graphite";
+    QString str = "$qt_" + mode + "_" + s;
     if( QPixmapCache::find( str, p ) )
         return;
 
     // The pixmap was not found in the cache - create/scale/insert it into
     // the cache
-
     if( s.contains("gen_back") ) {
 	// Double the size of the background pixmap to decrease the
 	// number of blits necessary to fill large areas.
@@ -11075,109 +11081,89 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
                               QPixmap( (const char **) aqua_sel_back_xpm ) );
     QPixmap px;
     QImage  im;
-    QBitmap left_mask( aqua_btn_mask_left_xbm_width, aqua_btn_mask_left_xbm_height,
-                       (const uchar *) aqua_btn_mask_left_xbm_bits, TRUE );
-    QBitmap right_mask( aqua_btn_mask_right_xbm_width, aqua_btn_mask_right_xbm_height,
-                        (const uchar *) aqua_btn_mask_right_xbm_bits, TRUE );
 
-    // Pixmaps for the pulsing default buttons
-    if( s.contains("btn_def_" ) ){
-        const char ** bytes = 0;
+    // Create pixmaps for toggle buttons - a mirrored version of the default btn.
+    if(s.contains("btn_def_mir")) {
         size = qAquaGetNum( s );
-        for(f = 0; f < 10; f++ ){
-            switch( f ){
-                case 0: bytes = (const char **) aqua_btn_def_left_xpm; break;
-                case 1: bytes = (const char **) aqua_btn_def_left1_xpm; break;
-                case 2: bytes = (const char **) aqua_btn_def_left2_xpm; break;
-                case 3: bytes = (const char **) aqua_btn_def_left3_xpm; break;
-                case 4: bytes = (const char **) aqua_btn_def_left4_xpm; break;
-                case 5: bytes = (const char **) aqua_btn_def_left5_xpm; break;
-                case 6: bytes = (const char **) aqua_btn_def_left6_xpm; break;
-                case 7: bytes = (const char **) aqua_btn_def_left7_xpm; break;
-                case 8: bytes = (const char **) aqua_btn_def_left8_xpm; break;
-                case 9: bytes = (const char **) aqua_btn_def_left9_xpm; break;
-            }
-            QPixmap p( bytes );
-            p.setMask( left_mask );
-            im = p;
-            px = im.smoothScale( im.width(), size );
-            QPixmapCache::insert( "$qt_aqua_btn_def_left" +
-                                  ((f > 0) ? QString::number( f ) :
-                                   QString("")) + QString("_") +
-                                   QString::number( size ), px );
-        }
+        QString sizestr = QString::number( size );
 
-        for(f = 0; f < 10; f++ ){
-            switch( f ){
-                case 0: bytes = (const char **) aqua_btn_def_mid_xpm; break;
-                case 1: bytes = (const char **) aqua_btn_def_mid1_xpm; break;
-                case 2: bytes = (const char **) aqua_btn_def_mid2_xpm; break;
-                case 3: bytes = (const char **) aqua_btn_def_mid3_xpm; break;
-                case 4: bytes = (const char **) aqua_btn_def_mid4_xpm; break;
-                case 5: bytes = (const char **) aqua_btn_def_mid5_xpm; break;
-                case 6: bytes = (const char **) aqua_btn_def_mid6_xpm; break;
-                case 7: bytes = (const char **) aqua_btn_def_mid7_xpm; break;
-                case 8: bytes = (const char **) aqua_btn_def_mid8_xpm; break;
-                case 9: bytes = (const char **) aqua_btn_def_mid9_xpm; break;
-            }
-            im = QImage( bytes );
-            px = im.smoothScale( im.width(), size );
-            QPixmapCache::insert( "$qt_aqua_btn_def_mid" +
-                                  ((f > 0) ? QString::number( f ) :
-                                   QString("")) + QString("_") +
-                                   QString::number( size ), px );
-        }
-
-        for(f = 0; f < 10; f++ ){
-            switch( f ){
-                case 0: bytes = (const char **) aqua_btn_def_right_xpm; break;
-                case 1: bytes = (const char **) aqua_btn_def_right1_xpm; break;
-                case 2: bytes = (const char **) aqua_btn_def_right2_xpm; break;
-                case 3: bytes = (const char **) aqua_btn_def_right3_xpm; break;
-                case 4: bytes = (const char **) aqua_btn_def_right4_xpm; break;
-                case 5: bytes = (const char **) aqua_btn_def_right5_xpm; break;
-                case 6: bytes = (const char **) aqua_btn_def_right6_xpm; break;
-                case 7: bytes = (const char **) aqua_btn_def_right7_xpm; break;
-                case 8: bytes = (const char **) aqua_btn_def_right8_xpm; break;
-                case 9: bytes = (const char **) aqua_btn_def_right9_xpm; break;
-            }
-            QPixmap p( bytes );
-            p.setMask( right_mask );
-            im = p;
-            px = im.smoothScale( im.width(), size );
-            QPixmapCache::insert( "$qt_aqua_btn_def_right" +
-                                  ((f > 0) ? QString::number( f ) :
-                                   QString("")) + QString("_") +
-                                   QString::number( size ), px );
-        }
-
-	// Create pixmaps for toggle buttons - a mirrored version of the default btn.
-        QPixmap mirl;
-	QPixmapCache::find( "$qt_aqua_btn_def_left_" +
-			    QString::number(size), mirl );
-        QPixmap mirm;
-	QPixmapCache::find( "$qt_aqua_btn_def_mid_" +
-			    QString::number(size), mirm );
-        QPixmap mirr;
-	QPixmapCache::find( "$qt_aqua_btn_def_right_" +
-			    QString::number(size), mirr );
+	QPixmap mirl, mirm, mirr;
+	qAquaPixmap("btn_def_left_" + sizestr, mirl);
+	qAquaPixmap("btn_def_mid_" + sizestr, mirm);
+	qAquaPixmap("btn_def_right_" + sizestr, mirr);
 	im = mirl;	
-        px = im.mirror( FALSE, TRUE );
-        QPixmapCache::insert( "$qt_aqua_btn_def_mir_left_" + QString::number( size ),
-			      px );
+	px = im.mirror( FALSE, TRUE );
+	QPixmapCache::insert( "$qt_aqua_btn_def_mir_left_" + sizestr, px );
 	im = mirm;	
-        px = im.mirror( FALSE, TRUE );
-        QPixmapCache::insert( "$qt_aqua_btn_def_mir_mid_" + QString::number( size ),
-			      px );
+	px = im.mirror( FALSE, TRUE );
+	QPixmapCache::insert( "$qt_aqua_btn_def_mir_mid_" + sizestr, px );
 	im = mirr;	
-        px = im.mirror( FALSE, TRUE );
-        QPixmapCache::insert( "$qt_aqua_btn_def_mir_right_" + QString::number( size ),
-			      px );
+	px = im.mirror( FALSE, TRUE );
+	QPixmapCache::insert( "$qt_aqua_btn_def_mir_right_" + sizestr, px );
+    } else if( s.contains("btn_def_" ) ){     // Pixmaps for the pulsing default buttons
+	QBitmap left_mask( aqua_btn_mask_left_xbm_width, aqua_btn_mask_left_xbm_height,
+			   (const uchar *) aqua_btn_mask_left_xbm_bits, TRUE );
+	QBitmap right_mask( aqua_btn_mask_right_xbm_width, aqua_btn_mask_right_xbm_height,
+			    (const uchar *) aqua_btn_mask_right_xbm_bits, TRUE );
+
+        i = s.findRev( '_' ); 	//size
+        if( i != -1 )
+            size = s.right( (s.length() - 1) - i ).toInt();
+        int frame = s.mid(i-1, 1).toInt(); 	//frame
+	QPixmap left, mid, right; 	//get pixmap
+	switch( frame ){
+	case 0: 
+	    left  = QPixmap((const char **) aqua_btn_def_left_xpm);
+	    mid   = QPixmap((const char **) aqua_btn_def_mid_xpm);
+	    right = QPixmap((const char **) aqua_btn_def_right_xpm);
+	    break;
+#define GET_PIXMAPS(x) case x: left=QPixmap((const char **) aqua_btn_def_left ## x ## _xpm); \
+                               mid = QPixmap((const char **) aqua_btn_def_mid ## x ## _xpm); \
+                               right = QPixmap((const char **) aqua_btn_def_right ## x ## _xpm); break
+	    GET_PIXMAPS(1);
+	    GET_PIXMAPS(2);
+	    GET_PIXMAPS(3);
+	    GET_PIXMAPS(4);
+	    GET_PIXMAPS(5);
+	    GET_PIXMAPS(6);
+	    GET_PIXMAPS(7);
+	    GET_PIXMAPS(8);
+	    GET_PIXMAPS(9);
+#undef GET_PIXMAPS
+	}
+
+	left.setMask( left_mask );
+	im = left;
+	px = im.smoothScale( im.width(), size );
+	QPixmapCache::insert( "$qt_aqua_btn_def_left" +
+			      ((frame > 0) ? QString::number( frame ) :
+			       QString("")) + QString("_") +
+			      QString::number( size ), px );
+
+	right.setMask( right_mask );
+	im = right;
+	px = im.smoothScale( im.width(), size );
+	QPixmapCache::insert( "$qt_aqua_btn_def_right" +
+			      ((frame > 0) ? QString::number( frame ) :
+			       QString("")) + QString("_") +
+			      QString::number( size ), px );
+
+	im = mid;
+	px = im.smoothScale( im.width(), size );
+	QPixmapCache::insert( "$qt_aqua_btn_def_mid" +
+			      ((frame > 0) ? QString::number( frame ) :
+			       QString("")) + QString("_") +
+			      QString::number( size ), px );
     }
+
     // Pixmaps for normal buttons
     if( s.contains("btn_nrm_" ) ){
         size = qAquaGetNum( s );
         QString sizestr = QString::number( size );
+	QBitmap left_mask( aqua_btn_mask_left_xbm_width, aqua_btn_mask_left_xbm_height,
+			   (const uchar *) aqua_btn_mask_left_xbm_bits, TRUE );
+	QBitmap right_mask( aqua_btn_mask_right_xbm_width, aqua_btn_mask_right_xbm_height,
+			    (const uchar *) aqua_btn_mask_right_xbm_bits, TRUE );
 
         QPixmap left( (const char **) aqua_btn_nrm_left_xpm );
         left.setMask( left_mask );
@@ -11200,6 +11186,10 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
     if( s.contains("btn_dis_" ) ){
         size = qAquaGetNum( s );
         QString sizestr = QString::number( size );
+	QBitmap left_mask( aqua_btn_mask_left_xbm_width, aqua_btn_mask_left_xbm_height,
+			   (const uchar *) aqua_btn_mask_left_xbm_bits, TRUE );
+	QBitmap right_mask( aqua_btn_mask_right_xbm_width, aqua_btn_mask_right_xbm_height,
+			    (const uchar *) aqua_btn_mask_right_xbm_bits, TRUE );
 
         QPixmap left( (const char **) aqua_btn_dis_left_xpm );
         left.setMask( left_mask );
@@ -11317,11 +11307,11 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
     if( s.contains("hsbr_") ){
         QBitmap left_mask( aqua_hsbr_tip_left_mask_width,
                            aqua_hsbr_tip_left_mask_height,
-                         (const uchar *) aqua_hsbr_tip_left_mask_bits, TRUE );
+			   (const uchar *) aqua_hsbr_tip_left_mask_bits, TRUE );
 
         QBitmap right_mask( aqua_hsbr_tip_right_mask_width,
                             aqua_hsbr_tip_right_mask_height,
-                         (const uchar *) aqua_hsbr_tip_right_mask_bits, TRUE );
+			    (const uchar *) aqua_hsbr_tip_right_mask_bits, TRUE );
 
         QPixmap a_psh_right( (const char **) aqua_hsbr_arw_psh_right_xpm );
         QPixmap a_left( (const char **) aqua_hsbr_arw_left_xpm );
@@ -11389,7 +11379,7 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
 
         QBitmap down_mask( aqua_vsbr_tip_down_mask_width,
                            aqua_vsbr_tip_down_mask_height,
-                          (const uchar *) aqua_vsbr_tip_down_mask_bits, TRUE );
+			   (const uchar *) aqua_vsbr_tip_down_mask_bits, TRUE );
 
 
         QPixmap a_up( (const char **) aqua_vsbr_arw_up_xpm );
@@ -11795,7 +11785,23 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
 			      px );
     }
 
-    QPixmapCache::find( str, p );
+    if(aquaMode == AquaModeGraphite) { //take that!!
+	QPixmapCache::find( "$qt_aqua_" + s, p );
+	im = p;
+	if( !s.contains("gen_back") ) {
+	    im = im.convertDepth(32);
+	    for(int x = 0; x < im.width(); x++) {
+		for(int y = 0; y < im.height(); y++) {
+		    QRgb p = im.pixel(x, y);
+		    p = (qRed(p) + qGreen(p) + qBlue(p)) / 3;
+		    im.setPixel(x, y, qRgb(p, p, p));
+		}
+	    }
+	}
+	QPixmapCache::insert(str, QPixmap(im));
+    } else {
+	QPixmapCache::find( str, p );
+    }
 }
 
 #endif /* QT_NO_STYLE_AQUA */

@@ -197,7 +197,7 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
     case PO_ButtonBevel:
     case PO_ButtonTool:
     case PO_HeaderSection:
-	qDrawShadePanel( p, r, cg, bool(flags & (PStyle_Down | PStyle_On)),
+	qDrawShadePanel( p, r, cg, bool(flags & (PStyle_Down | PStyle_On | PStyle_Sunken)),
 			 pixelMetric(PM_DefaultFrameWidth),
 			 &cg.brush(QColorGroup::Button) );
 	break;

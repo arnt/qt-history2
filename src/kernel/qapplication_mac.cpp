@@ -54,6 +54,9 @@
 #include "qclipboard.h"
 #include "qpaintdevicemetrics.h"
 #include "qcursor.h"
+#ifndef QT_NO_STYLE_AQUA
+#include "qaquastyle.h"
+#endif
 
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 #include "qmenubar.h"
@@ -351,7 +354,8 @@ static EventTypeSpec events[] = {
     { kEventClassTextInput, kEventTextInputOffsetToPos },
     { kEventClassTextInput, kEventTextInputShowHideBottomWindow },
 
-    { kEventClassCommand, kEventCommandProcess }
+    { kEventClassCommand, kEventCommandProcess },
+    { kAppearanceEventClass, kAEAppearanceChanged }
 };
 
 /* platform specific implementations */
@@ -410,7 +414,6 @@ void qt_init( int* argcptr, char **argv, QApplication::Type )
 	    qt_mac_safe_pdev = tlw;
 	}
     }
-
 
     if(!app_proc_handler) {
 	app_proc_handlerUPP = NewEventHandlerUPP(QApplication::globalEventProcessor);
@@ -2023,6 +2026,12 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    GetEventParameter(event, kEventParamMenuItemIndex, typeMenuItemIndex, NULL, sizeof(idx), NULL, &idx);
 	    QMenuBar::activate(mr, idx, TRUE);
 	}
+#endif
+	break;
+    case kAppearanceEventClass:
+#ifndef QT_NO_STYLE_AQUA
+	if(ekind == kAEAppearanceChanged) 
+	    QAquaStyle::appearanceChanged();
 #endif
 	break;
     case kEventClassCommand:

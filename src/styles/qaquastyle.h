@@ -116,6 +116,7 @@ public:
 			   const QPixmap *pixmap, const QString &text,
 			   int len = -1, const QColor *penColor = 0 ) const;
 
+    static void appearanceChanged();
 protected:
     bool eventFilter( QObject *, QEvent * );
     void timerEvent( QTimerEvent * );

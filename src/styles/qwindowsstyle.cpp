@@ -130,7 +130,7 @@ void QWindowsStyle::drawPrimitive( PrimitiveOperation op,
 	    else
 		fill = cg.brush(QColorGroup::Button);
 
-	    if (flags & (PStyle_Raised | PStyle_Down | PStyle_On))
+	    if (flags & (PStyle_Raised | PStyle_Down | PStyle_On | PStyle_Sunken))
 		qDrawWinButton(p, r, cg, flags & (PStyle_Down | PStyle_On), &fill);
 	    else
 		p->fillRect(r, fill);
