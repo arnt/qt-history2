@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.cpp#71 $
+** $Id: //depot/qt/main/src/kernel/qiconset.cpp#72 $
 **
 ** Implementation of QIconSet class
 **
@@ -999,6 +999,9 @@ QCleanupHandler<QSize> qt_iconset_sizes_cleanup;
 
 /*!
   Set the preferred size for the large/small generated icons.
+  Note that this will not cause cached icon sets to be regenerated, so 
+  you should probably set the preferred icon sizes before creating any 
+  QIconSets.
   
   \sa iconSize()
 */
