@@ -4,28 +4,32 @@ CONFIG		= qt warn_on release
 # Comment out the next line if you don't want use png/zlib in 3rdparty
 CONFIG		+= png zlib
 
+# Uncomment the next line for builder development
+# Also define QT_BUILDER in qglobal.h
+#CONFIG		+= builder
+
 # Uncomment the next line if you want to use the standard png/zlib libs
 # unix:LIBS	+= -lpng -lz
 
-#DEFINES += QT_NO_ASCII_CAST
-#DEFINES += QT_NO_CAST_ASCII
+#DEFINES	+= QT_NO_ASCII_CAST
+#DEFINES	+= QT_NO_CAST_ASCII
 
-unix:CONFIG	+= x11inc
-unix:TMAKE_CXXFLAGS   += -DQT_FATAL_ASSERT
+unix:CONFIG	       += x11inc
+unix:TMAKE_CXXFLAGS    += -DQT_FATAL_ASSERT
 
 win32:TMAKE_CFLAGS     += -DUNICODE
 win32:TMAKE_CXXFLAGS   += -DUNICODE
-#win32:TMAKE_CFLAGS     += -MD
-#win32:TMAKE_CXXFLAGS   += -MD
+#win32:TMAKE_CFLAGS    += -MT
+#win32:TMAKE_CXXFLAGS  += -MT
 
 PNG_INCLUDEPATH		= 3rdparty/libpng
 ZLIB_INCLUDEPATH	= 3rdparty/zlib
-png:INCLUDEPATH	       += $$PNG_INCLUDEPATH
+png:INCLUDEPATH        += $$PNG_INCLUDEPATH
 zlib:INCLUDEPATH       += $$ZLIB_INCLUDEPATH
 win32:INCLUDEPATH      += tmp
 win32-borland:INCLUDEPATH += kernel
 
-win32:MOC_DIR	= tmp
+win32:MOC_DIR	  = tmp
 win32:OBJECTS_DIR = tmp
 
 win32:DIALOGS_H	= ../include
@@ -80,6 +84,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qmime.h \
 		  $$KERNEL_H/qmovie.h \
 		  $$KERNEL_H/qnamespace.h \
+		  $$KERNEL_H/qnetworkprotocol.h \
 		  $$KERNEL_H/qobject.h \
 		  $$KERNEL_H/qobjectdefs.h \
 		  $$KERNEL_H/qobjectdict.h \
@@ -112,17 +117,13 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qstyle.h \
 		  $$KERNEL_H/qstylesheet.h \
 		  $$KERNEL_H/qtimer.h \
+		  $$KERNEL_H/qurl.h \
+		  $$KERNEL_H/qurlinfo.h \
 		  $$KERNEL_H/qwidget.h \
 		  $$KERNEL_H/qwidgetintdict.h \
 		  $$KERNEL_H/qwidgetlist.h \
 		  $$KERNEL_H/qwindowdefs.h \
 		  $$KERNEL_H/qwmatrix.h \
-		  $$KERNEL_H/qvariant.h \
-		  $$KERNEL_H/qdom.h \
-		  $$KERNEL_H/qxml.h \
-		  $$KERNEL_H/qurlinfo.h \
-		  $$KERNEL_H/qurl.h \
-		  $$KERNEL_H/qnetworkprotocol.h \
 		  $$TOOLS_H/qarray.h \
 		  $$TOOLS_H/qasciicache.h \
 		  $$TOOLS_H/qasciidict.h \
@@ -178,6 +179,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$WIDGETS_H/qcdestyle.h \
 		  $$WIDGETS_H/qcombobox.h \
 		  $$WIDGETS_H/qcommonstyle.h \
+        	  $$WIDGETS_H/qdial.h \
 		  $$WIDGETS_H/qframe.h \
 		  $$WIDGETS_H/qgrid.h \
 		  $$WIDGETS_H/qgroupbox.h \
@@ -185,6 +187,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$WIDGETS_H/qheader.h \
 		  $$WIDGETS_H/qhgroupbox.h \
 		  $$WIDGETS_H/qhbox.h \
+	          $$WIDGETS_H/qiconview.h \
 		  $$WIDGETS_H/qlabel.h \
 		  $$WIDGETS_H/qlcdnumber.h \
 		  $$WIDGETS_H/qlineedit.h \
@@ -224,9 +227,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$WIDGETS_H/qwidgetstack.h \
 		  $$WIDGETS_H/qwindowsstyle.h \
 		  $$WIDGETS_H/qworkspace.h \
-		  $$WIDGETS_H/qworkspacechild.h \
-	          $$WIDGETS_H/qiconview.h \
-        	  $$WIDGETS_H/qdial.h
+		  $$WIDGETS_H/qworkspacechild.h
 
 # DO NOT sort directories - dependency order = tools,kernel,widgets,dialogs
 
@@ -295,7 +296,6 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  tools/qtextcodec.cpp \
 		  tools/qtextstream.cpp \
 		  tools/qutfcodec.cpp \
-		  kernel/qvariant.cpp \
 		  kernel/qabstractlayout.cpp \
 		  kernel/qaccel.cpp \
 		  kernel/qapplication.cpp \
@@ -322,6 +322,7 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  kernel/qmetaobject.cpp \
 		  kernel/qmime.cpp \
 		  kernel/qmovie.cpp \
+		  kernel/qnetworkprotocol.cpp \
 		  kernel/qobject.cpp \
 		  kernel/qpainter.cpp \
 		  kernel/qpalette.cpp \
@@ -346,20 +347,17 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  kernel/qsocketnotifier.cpp \
 		  kernel/qstylesheet.cpp \
 		  kernel/qtimer.cpp \
-		  kernel/qwidget.cpp \
-		  kernel/qwmatrix.cpp \
-		  kernel/qdom.cpp \
-		  kernel/qdomext.cpp \
-		  kernel/qxml.cpp \
 		  kernel/qurl.cpp \
 		  kernel/qurlinfo.cpp \
-		  kernel/qnetworkprotocol.cpp \
+		  kernel/qwidget.cpp \
+		  kernel/qwmatrix.cpp \
 		  widgets/qbuttongroup.cpp \
 		  widgets/qbutton.cpp \
 		  widgets/qcdestyle.cpp \
 		  widgets/qcheckbox.cpp \
 		  widgets/qcombobox.cpp \
 		  widgets/qcommonstyle.cpp \
+        	  widgets/qdial.cpp \
 		  widgets/qframe.cpp \
 		  widgets/qgrid.cpp \
 		  widgets/qgroupbox.cpp \
@@ -367,6 +365,7 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  widgets/qheader.cpp \
 		  widgets/qhgroupbox.cpp \
 		  widgets/qhbox.cpp \
+	          widgets/qiconview.cpp \
 		  widgets/qlabel.cpp \
 		  widgets/qlcdnumber.cpp \
 		  widgets/qlineedit.cpp \
@@ -407,8 +406,6 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  widgets/qwindowsstyle.cpp \
 		  widgets/qworkspace.cpp \
 		  widgets/qworkspacechild.cpp \
-	          widgets/qiconview.cpp \
-        	  widgets/qdial.cpp \
 		  dialogs/qcolordialog.cpp \
 		  dialogs/qfiledialog.cpp \
 		  dialogs/qfontdialog.cpp \
@@ -454,6 +451,15 @@ ZLIB_SOURCES	= 3rdparty/zlib/adler32.c \
 
 png:SOURCES    += $$PNG_SOURCES
 zlib:SOURCES   += $$ZLIB_SOURCES
+
+builder:HEADERS+= $$KERNEL_H/qdom.h \
+		  $$KERNEL_H/qvariant.h \
+		  $$KERNEL_H/qxml.h
+
+builder:SOURCES+= kernel/qdom.cpp \
+		  kernel/qdomext.cpp \
+		  kernel/qvariant.cpp \
+		  kernel/qxml.cpp
 
 TARGET		= qt
 VERSION		= 2.1.0
