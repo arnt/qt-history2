@@ -756,6 +756,7 @@ void QWidget::update(const QRegion &rgn)
             InvalidateRgn(winId(), rgn.handle(), false);
             setAttribute(Qt::WA_PendingUpdate);
         }
+    }
 }
 
 void QWidget::update(const QRect &r)
