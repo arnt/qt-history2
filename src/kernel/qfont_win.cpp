@@ -936,8 +936,8 @@ int QFontMetrics::rightBearing(QChar ch) const
 	    uint ch16 = ch.unicode();
 	    ABCFLOAT abc;
 	    GetCharABCWidthsFloat(hdc(),ch16,ch16,&abc);
-	    return int(abc.abcfA);
-	} else 
+	    return int(abc.abcfC);
+	} else
 #  endif
 	{
 	    return -TMX->tmOverhang;
@@ -1177,7 +1177,7 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 	if ( newr > r ) r = newr;
     }
     TEXTMETRICA *tm = TMX;
-    return QRect(l, -tm->tmAscent, cx+r-l, tm->tmAscent+tm->tmDescent);
+    return QRect(l, -tm->tmAscent, cx+r, tm->tmAscent+tm->tmDescent);
 }
 
 
