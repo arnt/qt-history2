@@ -1,15 +1,16 @@
 /****************************************************************************
 ** Definition of GameBoard class, Qt tutorial 13
-**
-** Copyright (C) 1995 by Troll Tech AS.  All rights reserved.
-**
 *****************************************************************************/
 
 #ifndef GAMEBRD_H
 #define GAMEBRD_H
 
-#include <qpushbt.h>
-#include <qfont.h>
+#include <qwidget.h>
+
+class QPushButton;
+class LCDRange;
+class QLCDNumber;
+class CannonField;
 
 #include "lcdrange.h"
 #include "cannon.h"
@@ -21,7 +22,7 @@ class GameBoard : public QWidget
 public:
     GameBoard( QWidget *parent=0, const char *name=0 );
 protected slots:
-    void shootClicked();
+    void fire();
     void hit();
     void missed();
     void newGame();
