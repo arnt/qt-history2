@@ -715,7 +715,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	    } else if(testWFlags(WStyle_NormalBorder) || testWFlags(WStyle_DialogBorder)) {
 		if(wclass == kToolbarWindowClass)
 		    wclass = kFloatingWindowClass;
-		if(wclass == kDocumentWindowClass || wclass == kFloatingWindowClass)
+		if(wclass == kDocumentWindowClass)
 		    wattr |= kWindowStandardDocumentAttributes;
 	    } else {
 		grp = GetWindowGroupOfClass(wclass);
