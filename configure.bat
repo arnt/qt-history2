@@ -117,5 +117,5 @@ popd
 
 echo =============================================
 echo Qt is now ready for building.
-echo Just type %MAKE% -f Makefile.win32
+echo Just type %MAKE% clean and then %MAKE%
 :end
