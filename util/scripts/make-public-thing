@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#60 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#61 $
 
 $snapshotversion=200;
 $base = "/tmp/striptree-$$";
@@ -136,6 +136,9 @@ cd qt
 cp gif/*.gif doc/html
 cd include
 ln -s ../src/*/q*.h .
+ln -s ../extensions/opengl/src/q*.h .
+ln -s ../extensions/imageio/src/q*.h .
+ln -s ../extensions/nsplugin/src/q*.h .
 cd ../src/moc
 yacc -d moc.y
 mv y.tab.c mocgen.cpp
