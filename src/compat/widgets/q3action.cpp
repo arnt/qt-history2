@@ -324,10 +324,18 @@ void Q3ActionPrivate::update(uint upd)
         ComboItem *ci = *it3;
         if (!ci->combo)
             return;
-        if (icon)
-            ci->combo->changeItem(icon->pixmap(), text, ci->id);
-        else
-            ci->combo->changeItem(text, ci->id);
+        if (ci->id == -1) {
+            ci->id = ci->combo->count();
+            if (icon)
+                ci->combo->insertItem(icon->pixmap(), text);
+            else
+                ci->combo->insertItem(text);
+        } else {
+            if (icon)
+                ci->combo->changeItem(icon->pixmap(), text, ci->id);
+            else
+                ci->combo->changeItem(text, ci->id);
+        }
     }
 }
 
@@ -2056,6 +2064,9 @@ void Q3ActionGroup::childEvent(QChildEvent *e)
 */
 void Q3ActionGroup::internalComboBoxActivated(int index)
 {
+    if (index == -1)
+        return;
+
     Q3Action *a = 0;
     for (int i = 0; i <= index && i < (int)d->actions.count(); ++i) {
         a = d->actions.at(i);
