@@ -884,18 +884,13 @@ const QCharAttributes *QTextEngine::attributes()
     if ( !items.d )
 	itemize();
 
-#ifdef Q_WS_WIN
-    if ( !hasUsp10 )
-#endif
-    {
-	for ( int i = 0; i < items.size(); i++ ) {
-	    QScriptItem &si = items[i];
-	    int from = si.position;
-	    int len = length( i );
-	    int script = si.analysis.script;
-	    Q_ASSERT( script < QFont::NScripts );
-	    scriptEngines[si.analysis.script].charAttributes( script, string, from, len, charAttributes );
-	}
+    for ( int i = 0; i < items.size(); i++ ) {
+	QScriptItem &si = items[i];
+	int from = si.position;
+	int len = length( i );
+	int script = si.analysis.script;
+	Q_ASSERT( script < QFont::NScripts );
+	scriptEngines[si.analysis.script].charAttributes( script, string, from, len, charAttributes );
     }
 
     calcLineBreaks(string, charAttributes);
