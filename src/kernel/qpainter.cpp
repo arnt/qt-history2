@@ -2096,6 +2096,22 @@ void QPainter::drawPixmap( const QRect &r, const QPixmap &pm )
     float scaleY = (float)rh/(float)ih;
     bool smooth = ( scaleX < 1.5 || scaleY < 1.5 );
 
+    if ( testf(ExtDev) ) {
+	QPDevCmdParam param[2];
+	param[0].rect = &r;
+	param[1].pixmap = &pm;
+#if defined(Q_WS_WIN)
+	if ( !pdev->cmd( QPaintDevice::PdcDrawPixmap, this, param ) || !hdc )
+	    return;
+#elif defined(Q_WS_QWS)
+	pdev->cmd( QPaintDevice::PdcDrawPixmap, this, param );
+	return;
+#else
+	if ( !pdev->cmd( QPaintDevice::PdcDrawPixmap, this, param ) || !hd )
+	    return;
+#endif
+    }
+
     QPixmap pixmap = pm;
     
     if ( scale ) {
