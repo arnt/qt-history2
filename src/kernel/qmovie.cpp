@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#17 $
 **
 ** Implementation of movie classes
 **
@@ -282,9 +282,8 @@ public: // for QMovie
 
     int readyToReceive()
     {
-	if (waitingForFrameTick || stepping == 0 || buf_usage || error)
-	    return 0;
-	return buf_size;
+	return (waitingForFrameTick || !stepping || buf_usage || error)
+	    ? 0 : buf_size;
     }
 
     void receive(const uchar* b, int count)
@@ -765,7 +764,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char* member)
 ** QMoviePrivate meta object code from reading C++ file 'qmovie.cpp'
 **
 ** Created: Thu Jun 26 16:21:01 1997
-**      by: The Qt Meta Object Compiler ($Revision: 1.16 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.17 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
