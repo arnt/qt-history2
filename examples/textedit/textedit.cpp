@@ -283,7 +283,7 @@ void TextEdit::filePrint()
     if ( !currentEditor() )
 	return;
 #ifndef QT_NO_PRINTER
-    QPrinter printer( QPrinter::HighResolution );
+    QPrinter printer;
     printer.setFullPage(TRUE);
     if ( printer.setup( this ) ) {
 	QPainter p( &printer );
