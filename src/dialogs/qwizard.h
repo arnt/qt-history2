@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.h#9 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.h#10 $
 **
 ** Definition of the QWizard wizard framework
 **
@@ -47,10 +47,6 @@ public:
 
     virtual bool appropriate( QWidget * ) const;
     virtual void setAppropriate( QWidget *, bool );
-
-    //bool backEnabled( QWidget * ) const;
-    //bool nextEnabled( QWidget * ) const;
-    //bool helpEnabled( QWidget * ) const;
 
     QPushButton * backButton() const;
     QPushButton * nextButton() const;

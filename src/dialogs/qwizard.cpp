@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#29 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#30 $
 **
 ** Implementation of something useful.
 **
@@ -181,9 +181,7 @@ void QWizard::setFont( const QFont & font )
 }
 
 
-/*!  Adds \a page to the end of the wizard, titled \a title.  If \a
-controller is 0 (the default) there will be no wizard controller for
-\a page, otherwise \a controller is the controller for \a page.
+/*!  Adds \a page to the end of the wizard, titled \a title.
 */
 
 void QWizard::addPage( QWidget * page, const QString & title )
