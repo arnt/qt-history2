@@ -261,10 +261,25 @@ QFontEngine::Error QFontEngineXLFD::stringToCMap( const QChar *str,  int len, gl
     }
 
     if ( _codec ) {
-	_codec->fromUnicodeInternal( str, glyphs, len );
+	bool haveNbsp = false;
+	for ( int i = 0; i < len; i++ )
+	    if ( str[i].unicode() == 0xa0 ) {
+		haveNbsp = TRUE;
+		break;
+	    }
+
+	QChar *chars = (QChar *)str;
+	if ( haveNbsp ) {
+	    chars = (QChar *)malloc( len*sizeof(QChar) );
+	    for ( int i = 0; i < len; i++ )
+		chars[i] = ( str[i].unicode() == 0xa0 ? 0x20 : str[i].unicode() );
+	}
+	_codec->fromUnicodeInternal( chars, glyphs, len );
+	if ( haveNbsp )
+	    free( chars );
     } else {
 	for ( int i = 0; i < len; i++ )
-	    glyphs[i] = str[i].unicode();
+	    glyphs[i] = str[i].unicode() == 0xa0 ? 0x20 : str[i].unicode();
     }
     *nglyphs = len;
 
