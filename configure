@@ -645,6 +645,9 @@ do
    -remote)
         REMOTE=yes
 	;;
+   -no-remote)
+	REMOTE=no
+	;;
    -enable-*)
 	MODULE=`echo $1 | sed "s/-enable-//"`
 	if [ -n $MODULE -a -d "$relpath/src/$MODULE" ]
@@ -1226,6 +1229,9 @@ Installation options:
 
  $SHN  -no-stl ............ Do not compile in support for STL.
  $SHY  -stl ............... Compile with support for STL.
+
+    -remote ............ Enable remote control support.
+ *  -no-remote ......... Disable remote control support.
 
 EOF
 
@@ -1866,7 +1872,7 @@ fi
 [ "x$CONCURRENT" != "x0" ] && echo "Concurrent........... $CONCURRENT"
 [ "x$DO_INCREMENT" = "xyes" ] && [ ! -z "$INCREMENTAL" ] && echo "Incremental.......... $INCREMENTAL"
 echo "Configuration........ $QMAKE_CONFIG"
-[ "x$REMOTE" = "xyes" ] && echo "Remote support....... $REMOTE"
+echo "Remote support....... $REMOTE"
 echo "STL support.......... $STL"
 echo "Thread support....... $THREAD"
 echo "GIF support.......... $GIF"
