@@ -19,8 +19,10 @@ static const char *kwords[] = {
     "char", "class", "const", "double", "enum", "friend", "int", "long", "namespace", "operator",
     "private", "protected", "public", "short", "signals", "signed", "slots", "static", "struct",
     "template", "typedef", "union", "unsigned", "virtual", "void", "volatile", "Q_OBJECT",
-    "Q_OVERRIDE", "Q_PROPERTY", "Q_DECLARE_ITERATOR", "Q_DECLARE_ASSOCIATIVE_ITERATOR",
-    "Q_DECLARE_FLAGS", "QT_COMPAT", "QT_COMPAT_CONSTRUCTOR", "QT_MOC_COMPAT", "QDOC_PROPERTY"
+    "Q_OVERRIDE", "Q_PROPERTY", "Q_DECLARE_SEQUENTIAL_ITERATOR",
+    "Q_DECLARE_MUTABLE_SEQUENTIAL_ITERATOR", "Q_DECLARE_ASSOCIATIVE_ITERATOR",
+    "Q_DECLARE_MUTABLE_ASSOCIATIVE_ITERATOR", "Q_DECLARE_FLAGS", "QT_COMPAT",
+    "QT_COMPAT_CONSTRUCTOR", "QT_MOC_COMPAT", "QDOC_PROPERTY"
 };
 
 static const int KwordHashTableSize = 2048;

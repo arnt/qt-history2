@@ -1,3 +1,9 @@
+From Jasmin:
+
+  * Don't use "..." in enums for just one value
+
+--
+
 From Matthias:
 
   * Q_OVERRIDE() fix

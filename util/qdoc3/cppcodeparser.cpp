@@ -131,20 +131,34 @@ void CppCodeParser::doneParsingHeaderFiles( Tree *tree )
     tree->resolveInheritance();
     tree->resolveProperties();
 
-    QMapIterator<QString, QString> i(linearIteratorClasses);
+    QMapIterator<QString, QString> i(sequentialIteratorClasses);
     while (i.hasNext()) {
 	i.next();
-	instantiateIteratorMacro(i.key(), i.value(), linearIteratorDefinition, tree);
+	instantiateIteratorMacro(i.key(), i.value(), sequentialIteratorDefinition, tree);
+    }
+    i = mutableSequentialIteratorClasses;
+    while (i.hasNext()) {
+	i.next();
+	instantiateIteratorMacro(i.key(), i.value(), mutableSequentialIteratorDefinition, tree);
     }
     i = associativeIteratorClasses;
     while (i.hasNext()) {
 	i.next();
 	instantiateIteratorMacro(i.key(), i.value(), associativeIteratorDefinition, tree);
     }
-    linearIteratorDefinition.clear();
+    i = mutableAssociativeIteratorClasses;
+    while (i.hasNext()) {
+	i.next();
+	instantiateIteratorMacro(i.key(), i.value(), mutableAssociativeIteratorDefinition, tree);
+    }
+    sequentialIteratorDefinition.clear();
+    mutableSequentialIteratorDefinition.clear();
     associativeIteratorDefinition.clear();
-    linearIteratorClasses.clear();
+    mutableAssociativeIteratorDefinition.clear();
+    sequentialIteratorClasses.clear();
+    mutableSequentialIteratorClasses.clear();
     associativeIteratorClasses.clear();
+    mutableAssociativeIteratorClasses.clear();
 }
 
 void CppCodeParser::doneParsingSourceFiles( Tree *tree )
@@ -989,16 +1003,28 @@ bool CppCodeParser::matchDeclList( InnerNode *parent )
         case Tok_QDOC_PROPERTY:
 	    matchProperty( parent );
 	    break;
-	case Tok_Q_DECLARE_ITERATOR:
+	case Tok_Q_DECLARE_SEQUENTIAL_ITERATOR:
 	    readToken();
             if (match(Tok_LeftParen) && match(Tok_Ident))
-		linearIteratorClasses.insert(previousLexeme(), location().fileName());
+		sequentialIteratorClasses.insert(previousLexeme(), location().fileName());
+            match(Tok_RightParen);
+	    break;
+	case Tok_Q_DECLARE_MUTABLE_SEQUENTIAL_ITERATOR:
+	    readToken();
+            if (match(Tok_LeftParen) && match(Tok_Ident))
+		mutableSequentialIteratorClasses.insert(previousLexeme(), location().fileName());
             match(Tok_RightParen);
 	    break;
         case Tok_Q_DECLARE_ASSOCIATIVE_ITERATOR:
 	    readToken();
             if (match(Tok_LeftParen) && match(Tok_Ident))
 		associativeIteratorClasses.insert(previousLexeme(), location().fileName());
+            match(Tok_RightParen);
+	    break;
+        case Tok_Q_DECLARE_MUTABLE_ASSOCIATIVE_ITERATOR:
+	    readToken();
+            if (match(Tok_LeftParen) && match(Tok_Ident))
+		mutableAssociativeIteratorClasses.insert(previousLexeme(), location().fileName());
             match(Tok_RightParen);
 	    break;
         case Tok_Q_DECLARE_FLAGS:
@@ -1161,9 +1187,11 @@ void CppCodeParser::parseQiteratorDotH(const Location &location, const QString &
     lines = lines.filter("Q_DECLARE");
     lines.replaceInStrings(QRegExp("#define Q[A-Z_]*\\(C\\)"), "");
 
-    if (lines.size() == 2) {
-        linearIteratorDefinition = lines[0];
-        associativeIteratorDefinition = lines[1];
+    if (lines.size() == 4) {
+        sequentialIteratorDefinition = lines[0];
+        mutableSequentialIteratorDefinition = lines[1];
+        associativeIteratorDefinition = lines[2];
+        mutableAssociativeIteratorDefinition = lines[3];
     } else {
 	location.warning(tr("The qiterator.h hack failed"));
     }

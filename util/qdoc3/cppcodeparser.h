@@ -86,10 +86,15 @@ private:
     QStringList lastPath;
     QRegExp varComment;
     QRegExp sep;
-    QString linearIteratorDefinition;
+
+    QString sequentialIteratorDefinition;
+    QString mutableSequentialIteratorDefinition;
     QString associativeIteratorDefinition;
-    QMap<QString, QString> linearIteratorClasses;
+    QString mutableAssociativeIteratorDefinition;
+    QMap<QString, QString> sequentialIteratorClasses;
+    QMap<QString, QString> mutableSequentialIteratorClasses;
     QMap<QString, QString> associativeIteratorClasses;
+    QMap<QString, QString> mutableAssociativeIteratorClasses;
 
     static QStringList exampleFiles;
     static QStringList exampleDirs;
