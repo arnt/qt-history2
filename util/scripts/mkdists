@@ -604,7 +604,7 @@ for plat in mac win x11 qws; do
 
 	status "*** Packing $edition... *****" "1"
 	PLATNAME=qt-${plat}-${edition}-${REL_VERSION}${TYPE}
-#	[ "$TYPE" = "-snapshot" ] && PLATNAME=`date "+${PLATNAME}-%Y%m%d"`
+	[ "$TYPE" = "-snapshot" ] && PLATNAME=`date "+${PLATNAME}-%Y%m%d"`
 	PLATDIR=$DISTDIR/$PLATNAME
 
 	#copy the tree
