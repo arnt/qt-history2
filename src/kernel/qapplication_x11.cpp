@@ -208,6 +208,7 @@ static Atom     qt_settings_cache_stamp = 0;    // Qt >3 settings cache timestam
 static Atom	qt_desktop_properties	= 0;	// Qt desktop properties
 static Atom	qt_input_encoding	= 0;	// Qt desktop properties
 static Atom	qt_resource_manager	= 0;	// X11 Resource manager
+static Atom	qt_4dwm_desks_manager	= 0;	// 4Dwm detection
 Atom		qt_sizegrip		= 0;	// sizegrip
 Atom		qt_wm_client_leader	= 0;
 Atom		qt_window_role		= 0;
@@ -217,6 +218,8 @@ Atom		qt_kwin_running	= 0;
 Atom		qt_kwm_running	= 0;
 Atom		qt_gbackground_properties	= 0;
 Atom		qt_x_incr		= 0;
+bool		qt_detected_4dwm	= FALSE;
+
 // NET WM support
 Atom		qt_net_supported	= 0;
 Atom		qt_net_virtual_roots	= 0;
@@ -1123,6 +1126,25 @@ bool QApplication::x11_apply_settings()
 }
 
 
+static void qt_x11_detect_4dwm()
+{
+    Atom type;
+    int format;
+    ulong  nitems, after;
+    uchar *data;
+
+    if (XGetWindowProperty(appDpy, appRootWin, qt_4dwm_desks_manager, 0, 1,
+			   FALSE, AnyPropertyType, &type, &format,
+			   &nitems, &after, &data) == Success && nitems) {
+	// detected SGI's 4dwm
+	qt_detected_4dwm = TRUE;
+
+	if (data)
+	    XFree(data);
+    }
+}
+
+
 static bool seems_like_KDE_is_running = FALSE;
 
 
@@ -1785,6 +1807,7 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	qt_x11_intern_atom( "KWIN_RUNNING", &qt_kwin_running );
 	qt_x11_intern_atom( "KWM_RUNNING", &qt_kwm_running );
 	qt_x11_intern_atom( "GNOME_BACKGROUND_PROPERTIES", &qt_gbackground_properties );
+	qt_x11_intern_atom( "_SGI_DESKS_MANAGER", &qt_4dwm_desks_manager );
 
 	QCString qt_settings_cache_name;
 	qt_settings_cache_name.sprintf("_QT_SETTINGS_CACHE_%d", QT_VERSION / 100);
@@ -1817,6 +1840,9 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 
 	// Finally create all atoms
 	qt_x11_process_intern_atoms();
+
+	// try to detect 4Dwm to work around a bug...
+	qt_x11_detect_4dwm();
 
 	// initialize NET lists
 	qt_get_net_supported();

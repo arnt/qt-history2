@@ -102,6 +102,7 @@ extern Atom qt_net_wm_window_type_toolbar;
 extern Atom qt_net_wm_window_type_override;
 extern Atom qt_enlightenment_desktop;
 extern Atom qt_net_virtual_roots;
+extern bool qt_detected_4dwm;
 
 // defined in qapplication_x11.cpp
 extern bool qt_net_supports(Atom);
@@ -1784,10 +1785,14 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	do_size_hints( this, extra );
     }
 
-    if ( isMove )
-	// pos() is right according to ICCCM 4.1.5
-	XMoveResizeWindow( dpy, winid, pos().x(), pos().y(), w, h );
-    else if ( isResize )
+    if ( isMove ) {
+	if (! qt_detected_4dwm)
+	    // pos() is right according to ICCCM 4.1.5
+	    XMoveResizeWindow( dpy, winid, pos().x(), pos().y(), w, h );
+	else
+	    // work around 4Dwm's incompliance with ICCCM 4.1.5
+	    XMoveResizeWindow( dpy, winid, x, y, w, h );
+    } else if ( isResize )
 	XResizeWindow( dpy, winid, w, h );
 
     if ( isVisible() ) {
