@@ -3202,7 +3202,6 @@ QT_SOURCE_TREE = $relpath
 QT_BUILD_TREE = $outpath
 QMAKE_ABSOLUTE_SOURCE_ROOT = \$\$QT_SOURCE_TREE
 ARCH = $ARCH
-INCLUDEPATH += \$\$QT_SOURCE_TREE/src/core/arch/\$\$ARCH
 EOF
 # cmdline args
 quoted=no
