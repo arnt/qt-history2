@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#279 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#280 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -10687,14 +10687,13 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
   \class QString qstring.h
 
   \brief The QString class provides an abstraction of Unicode text and
-	  the classic C zero-terminated char array (<var>char*</var>).
+	  the classic C null-terminated char array (<var>char*</var>).
 
   \ingroup tools
   \ingroup shared
 
-  QString uses implicit
-  \link shclass.html sharing\endlink, and so it is very efficient
-  and easy to use.
+  QString uses \link shclass.html implicit sharing\endlink, and so it
+  is very efficient and easy to use.
 
   In all QString methods that take <var>const char*</var> parameters,
   the <var>const char*</var> is interpreted as a classic C-style
@@ -10874,6 +10873,13 @@ QString::QString( const char *str )
 }
 
 
+/*! \fn QString::~QString()
+
+Destroys the string and frees the "real" string, if this was the last
+copy of that string.
+*/
+
+
 /*!
   Deallocates any space reserved solely by this QString.
 */
@@ -11006,12 +11012,13 @@ void QString::truncate( uint newLen )
 	setLength( newLen );
 }
 
-/*!
-  Ensures that at least \a newLen characters are allocated, and sets the
-  length to \a newLen. Will detach. New space is \e not defined.
+/*!  Ensures that at least \a newLen characters are allocated, and
+  sets the length to \a newLen.  This function always detaches the
+  string from other references to the same data.  Any new space
+  allocated is \e not defined.
 
-  If \a newLen is 0, this string becomes empty, unless this string is null,
-  in which case it remains null.
+  If \a newLen is 0, this string becomes empty, unless this string is
+  null, in which case it remains null.
 
   \sa truncate(), isNull(), isEmpty()
 */
@@ -11037,25 +11044,27 @@ void QString::setLength( uint newLen )
     }
 }
 
-/*!
-  Returns a string equal to this one, but with the first
-  occurrence of <tt>%<em>digit</em></tt> replaced by the
-  text \a a.  This is particularly useful for translations,
-  as it allows the order of the replacements to be controlled by the
-  translator.  For example:
+/*!  Returns a string equal to this one, but with the lowest-numbered
+  occurence of \c %i (for a positive integer i) replaced by \a a.
 
   \code
-    label.setText( tr("I have %1 to your %2").arg(mine).arg(yours) );
+    label.setText( tr("Rename %1 to %2?").arg(oldName).arg(newName) );
   \endcode
 
-  If there is no <tt>%<em>digit</em></tt> pattern, a warning message
-  (qWarning()) is printed and the text as appended with a space at the
-  end of the string.  This is error-recovery and should not be occur
-  in correct code.
+  \a fieldwidth is the minimum amount of space \a a is padded to.  A
+  positive value produces right-aligned text, while a negative value
+  produces left aligned text.
 
-  \a fieldwidth is the minimum amount of space the text will be padded
-  to.  A positive value produces right-aligned text, while a negative
-  value produces left aligned text.
+  \warning Using arg() for constructing "real" sentences
+  programmatically is likely to lead to translation problems.
+  Inserting objects like numbers or file names is fairly safe.
+
+  \warning Relying on spaces to create alignment is prone to lead to
+  translation problems.
+
+  If there is no \c %i pattern, a warning message (qWarning()) is
+  printed and the text as appended at the end of the string.  This is
+  error recovery and should not occur in correct code.
 
   \sa QObject::tr()
 */
@@ -11064,133 +11073,116 @@ QString QString::arg(const QString& a, int fieldwidth) const
     int pos, len;
     QString r = *this;
 
-    if ( !findArg(pos,len) ) {
-	qWarning("Argument missing");
+    if ( !findArg( pos, len ) ) {
+	qWarning( "QString::arg(): Argument missing: %s, %s",
+		  (const char *)this, (const char *)a );
 	// Make sure the text at least appears SOMEWHERE
 	r += ' ';
 	pos = r.length();
 	len = 0;
     }
 
-    r.replace(pos,len,a);
+    r.replace( pos, len, a );
     if ( fieldwidth < 0 ) {
 	QString s;
 	while ( (uint)-fieldwidth > a.length() ) {
 	    s += ' ';
 	    fieldwidth++;
 	}
-	r.insert(pos+a.length(),s);
+	r.insert( pos + a.length(), s );
     } else if ( fieldwidth ) {
 	QString s;
 	while ( (uint)fieldwidth > a.length() ) {
 	    s += ' ';
 	    fieldwidth--;
 	}
-	r.insert(pos,s);
-
+	r.insert( pos, s );
     }
+
     return r;
 }
 
-/*!
-  Returns a string equal to this one, but with the first
-  occurrence of <tt>%<em>digit</em></tt> replaced by the
-  integer value \a in base \a base (defaults to decimal).
 
-  The value is converted to \a base notation (default is decimal).
-  The base must be a value from 2 to 36.
+/*! \overload
 
-  See arg(const QString&,int) for more details.
+  \a a is expressed in to \a base notation, which is decimal by
+  default and must be in the range 2-36 inclusive.
 */
 QString QString::arg(long a, int fieldwidth, int base) const
 {
-    QString n;
-    n.setNum(a,base);
-    return arg(n,fieldwidth);
+    return arg( QString::number( a, base ), fieldwidth );
 }
 
-/*!
-  Returns a string equal to this one, but with the first
-  occurrence of <tt>%<em>digit</em></tt> replaced by the
-  unsigned integer value \a in base \a base (defaults to decimal).
+/*! \overload
 
-  The value is converted to \a base notation (default is decimal).
-  The base must be a value from 2 to 36.
-
-  See arg(const QString&,int) for more details.
+  \a a is expressed in to \a base notation, which is decimal by
+  default and must be in the range 2-36 inclusive.
 */
 QString QString::arg(ulong a, int fieldwidth, int base) const
 {
-    QString n;
-    n.setNum(a,base);
-    return arg(n,fieldwidth);
+    return arg( QString::number( a, base ), fieldwidth );
 }
 
 /*!
-  \fn QString QString::arg(int a, int fieldwidth, int base) const
+  \overload QString QString::arg(int a, int fieldwidth, int base) const
 
-  See QString::arg(long a, int fieldwidth, int base).
+  \a a is expressed in to \a base notation, which is decimal by
+  default and must be in the range 2-36 inclusive.
+
 */
 
 /*!
-  \fn QString QString::arg(uint a, int fieldwidth, int base) const
+  \overload QString QString::arg(uint a, int fieldwidth, int base) const
 
-  See QString::arg(ulong a, int fieldwidth, int base).
+  \a a is expressed in to \a base notation, which is decimal by
+  default and must be in the range 2-36 inclusive.
 */
 
 /*!
-  \fn QString QString::arg(short a, int fieldwidth, int base) const
+  \overload QString QString::arg(short a, int fieldwidth, int base) const
 
-  See QString::arg(long a, int fieldwidth, int base).
+  \a a is expressed in to \a base notation, which is decimal by
+  default and must be in the range 2-36 inclusive.
 */
 
 /*!
-  \fn QString QString::arg(ushort a, int fieldwidth, int base) const
+  \overload QString QString::arg(ushort a, int fieldwidth, int base) const
 
-  See QString::arg(ulong a, int fieldwidth, int base).
+  \a a is expressed in to \a base notation, which is decimal by
+  default and must be in the range 2-36 inclusive.
 */
 
 
-/*!
-  Returns a string equal to this one, but with the first
-  occurrence of <tt>%<em>digit</em></tt> replaced by the
-  character \a a.
+/*! \overload
 
-  See arg(const QString&,int) for more details.
+  \a a is assumed to be in the Latin1 character set.
 */
 QString QString::arg(char a, int fieldwidth) const
 {
     QString c;
     c += a;
-    return arg(c,fieldwidth);
+    return arg( c, fieldwidth );
 }
 
-/*!
-  Returns a string equal to this one, but with the first
-  occurrence of <tt>%<em>digit</em></tt> replaced by the
-  character \a a.
-
-  See arg(const QString&,int) for more details.
+/*! \overload
 */
 QString QString::arg(QChar a, int fieldwidth) const
 {
     QString c;
     c += a;
-    return arg(c,fieldwidth);
+    return arg( c, fieldwidth );
 }
 
-/*!
-  Returns a string equal to this one, but with the first
-  occurrence of <tt>%<em>digit</em></tt> replaced by the
-  value \a a.
+/*! \overload
 
-  See arg(const QString&,int) for more details.
+  \a is formatted according to the \a fmt format specified, which is
+  'g' by default and can be any of 'f', 'F', 'e', 'E', 'g' or 'G', all
+  of which have the same meaning as for sprintf().  \a prec determines
+  the precision, just as for number() and sprintf().
 */
 QString QString::arg(double a, int fieldwidth, char fmt, int prec) const
 {
-    QString dec;
-    dec.setNum(a,fmt,prec);
-    return arg(dec,fieldwidth);
+    return arg( QString::number( a, fmt, prec ), fieldwidth );
 }
 
 
@@ -11220,10 +11212,9 @@ bool QString::findArg(int& pos, int& len) const
   arbitrary list of arguments.  The format string supports all
   the escape sequences of printf() in the standard C library.
 
-  The %s escape sequence expects a
-  \link utf8() UTF-8\endlink encoded string.
-  For typesafe string building,
-  with full Unicode support, you can use QTextOStream like this:
+  The %s escape sequence expects a utf8() encoded string. For typesafe
+  string building, with full Unicode support, you can use QTextOStream
+  like this:
 
   \code
     QString str;
@@ -11238,7 +11229,7 @@ bool QString::findArg(int& pos, int& len) const
   replacements to be controlled by the translator, and has Unicode
   support.
 
-  \sa arg(const QString&,int)
+  \sa arg()
 */
 
 QString &QString::sprintf( const char* cformat, ... )
@@ -11639,7 +11630,7 @@ int QString::contains( const QString &str, bool cs ) const
   Example:
   \code
     QString s = "Pineapple";
-    QString t = s.left( 4 );			// t == "Pine"
+    QString t = s.left( 4 );	// t == "Pine"
   \endcode
 
   \sa right(), mid(), isEmpty()
@@ -11671,7 +11662,7 @@ QString QString::left( uint len ) const
   Example:
   \code
     QString s = "Pineapple";
-    QString t = s.right( 5 );			// t == "apple"
+    QString t = s.right( 5 );	// t == "apple"
   \endcode
 
   \sa left(), mid(), isEmpty()
@@ -11811,7 +11802,7 @@ QString QString::rightJustify( uint width, QChar fill, bool truncate ) const
   Example:
   \code
     QString s("TeX");
-    QString t = s.lower();			// t == "tex"
+    QString t = s.lower();	// t == "tex"
   \endcode
 
   \sa upper()
@@ -11955,9 +11946,9 @@ QString QString::simplifyWhiteSpace() const
 
   \code
     QString s = "I like fish";
-    s.insert( 2, "don't ");			// s == "I don't like fish"
+    s.insert( 2, "don't ");	// s == "I don't like fish"
     s = "x";
-    s.insert( 3, "yz" );			// s == "x  yz"
+    s.insert( 3, "yz" );	// s == "x  yz"
   \endcode
 */
 
@@ -12015,8 +12006,8 @@ QString &QString::insert( uint index, const QChar* s, uint len )
   Example:
   \code
     QString s = "Ys";
-    s.insert( 1, 'e' );				// s == "Yes"
-    s.insert( 3, '!');				// s == "Yes!"
+    s.insert( 1, 'e' );		// s == "Yes"
+    s.insert( 3, '!');		// s == "Yes!"
   \endcode
 
   \sa remove(), replace()
@@ -12558,14 +12549,12 @@ QString &QString::setNum( ulong n, int base )
   reference to the string.
 */
 
-/*!
-  Sets the string to the printed value of \a n.
+/*!  Sets the string to the printed value of \a n, formatted in the \f
+  format with \a prec precision, and returns a reference to the
+  string.
 
-  \arg \a f is the format specifier: 'f', 'F', 'e', 'E', 'g', 'G' (same
-  as sprintf()).
-  \arg \a prec is the precision.
-
-  Returns a reference to the string.
+  \a f can be 'f', 'F', 'e', 'E', 'g' or 'G', all of which have the
+  same meaning as for sprintf().
 */
 
 QString &QString::setNum( double n, char f, int prec )
@@ -12599,14 +12588,7 @@ QString &QString::setNum( double n, char f, int prec )
 }
 
 /*!
-  \fn QString &QString::setNum( float n, char f, int prec )
-  Sets the string to the printed value of \a n.
-
-  \arg \a f is the format specifier: 'f', 'F', 'e', 'E', 'g', 'G' (same
-  as sprintf()).
-  \arg \a prec is the precision.
-
-  Returns a reference to the string.
+  \overload QString &QString::setNum( float n, char f, int prec )
 */
 
 
@@ -12663,12 +12645,11 @@ QString QString::number( uint n, int base )
 }
 
 /*!
-  A convenience factory function that returns a string representation
-  of the number \a n.
+  This static function returns the printed value of \a n, formatted in the \f
+  format with \a prec precision.
 
-  \arg \a f is the format specifier: 'f', 'F', 'e', 'E', 'g', 'G' (same
-  as sprintf()).
-  \arg \a prec is the precision.
+  \a f can be 'f', 'F', 'e', 'E', 'g' or 'G', all of which have the
+  same meaning as for sprintf().
 
   \sa setNum()
  */
@@ -12685,8 +12666,8 @@ QString QString::number( double n, char f, int prec )
   Sets the character at position \a index to \a c and expands the
   string if necessary, filling with spaces.
 
-  This method is redundant in Qt 2.x, because operator[] will
-  expand the string as necessary, if you are assigning a value.
+  This method is redundant in Qt 2.x, because operator[] will expand
+  the string as necessary.
 */
 
 void QString::setExpand( uint index, QChar c )

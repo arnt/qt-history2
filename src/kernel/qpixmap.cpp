@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#117 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#118 $
 **
 ** Implementation of QPixmap class
 **
@@ -64,8 +64,8 @@
   QImage.
 
   You can display a QPixmap on the screen easily using
-  e.g. QLabel::setPixmap(), and all the \link QButton button classes
-  \endlink support pixmap use.
+  e.g. QLabel::setPixmap(), and all the QButton subclasses support
+  pixmap use.
 
   There are also convenience functions to get and set single pixels
   and to load and save the entire pixmap; these work by converting the
@@ -75,14 +75,72 @@
   sharing\endlink, so it is very efficient to pass QPixmap objects as
   arguments.
 
-  <strong>Note about Windows 95 and 98:</strong> Because of internal
-  limitations in the operating system, Windows 9x easily crashes if you
-  create around 1000 pixmaps or more.  Qt will work around this problem
-  if you set the \link setOptimization() pixmap optimization\endlink
-  to \c QPixmap::MemoryOptim.  Read more about this in the
-  setOptimization() documentation.
+  Note about Windows 95 and 98: On Windows 9x, the system crashes if
+  you create more than approximately 1000 pixmaps, independent of the
+  size of the pixmaps or installed RAM.  Windows NT does not have this
+  limitation.
+
+  Qt tries to work around the resource limitation.  If you set the
+  pixmap optimization to \c QPixmap::MemoryOptim and the width of your
+  pixmap is less than or equal to 128 pixels, Qt stores the pixmap in
+  a way which is very memory-efficient when there are many pixmaps.
+
+  If your application uses dozens or hundreds of pixmaps, e.g. on tool
+  bar buttons, in popup menus, and you plan to run it on Windows 95 or
+  Windows 98, then we recommend using code like this:
+
+  \code
+    QPixmap::setDefaultOptimization( QPixmap::MemoryOptim );
+    while ( ... ) {
+      // load tool bar pixmaps etc.
+      QPixmap *pixmap = new QPixmap(fileName);
+    }
+    QPixmap::setDefaultOptimization( QPixmap::NormalOptim );
+  \endcode
 
   \sa QBitmap, QImage, QImageIO, \link shclass.html Shared Classes\endlink
+*/
+
+/*! \enum QPixmap::ColorMode
+
+  This enum type defines the color modes that exist for converting
+  QImage objects to QPixmap.  The current values are: <ul>
+
+  <li> \c Auto - select \c Color or \c Mono on a case-by-case basis.
+  <li> \c Color - always create colored pixmaps.
+  <li> \c Mono - always create bitmaps.
+  </ul>
+*/
+
+/*! \enum QPixmap::Optimization
+
+  QPixmap has the choice of optimizing for speed or memory in a few
+  places, and the best choice varies from pixmap to pixmap, but can
+  generally be derived heuristically.  This enum type defines a number
+  of optimization modes you can set for any pixmap, to tweak the
+  speed/memory tradeoffs:
+
+  <ul>
+
+  <li> \c DefaultOptim - whatever QPixmap::defaultOptimization()
+  returns.  A pixmap with this optimization mode set always has the
+  default optimization type, even if the default is changed with
+  setDefaultOptimization().
+
+  <li> \c NoOptim - no optimization (currently the same as \c MemoryOptim).
+
+  <li> \c MemoryOptim - optimize for minimal memory use.
+
+  <li> \c NormalOptim - optimize for typical usage.  Often uses more
+  memory than \c MemoryOptim, and often faster.
+
+  <li> \c BestOptim - optimize for pixmaps that are drawn very often
+  and where performance is critical.  Generally uses more memory than
+  \c NormalOptim and may provide a little better speed.
+
+  </ul>
+
+  We recommend sticking with \c DefaultOptim
 */
 
 
@@ -773,7 +831,7 @@ void QPixmap::setDefaultOptimization( Optimization optimization )
 }
 
 
-// helper for next function
+// helper for next function.
 static QPixmap grabChildWidgets( QWidget * w )
 {
     QPixmap res( w->width(), w->height() );
@@ -782,7 +840,6 @@ static QPixmap grabChildWidgets( QWidget * w )
     QPaintEvent e( w->rect(), FALSE );
     QApplication::sendEvent( w, &e );
     QPainter::redirect( w, 0 );
-    debug( "arnt was here %s/%s", w->className(), w->name() );
 
     const QObjectList * children = w->children();
     if ( children ) {
@@ -791,7 +848,8 @@ static QPixmap grabChildWidgets( QWidget * w )
 	QObject * child;
 	while( (child=it.current()) != 0 ) {
 	    ++it;
-	    if ( child->isWidgetType() && !((QWidget *)child)->testWState( Qt::WState_ForceHide ) &&
+	    if ( child->isWidgetType() &&
+		 !((QWidget *)child)->testWState( Qt::WState_ForceHide ) &&
 		 ((QWidget *)child)->geometry().intersects( w->rect() ) ) {
 		// those conditions aren't quite right, it's possible
 		// to have a grandchild completely outside its
@@ -825,10 +883,12 @@ static QPixmap grabChildWidgets( QWidget * w )
   modified \a w and the modified \a h does not overlap the \a
   widget->rect(), this function returns a null QPixmap.
 
-  This function actually asks \a widget to paint itself (or
-  themselves).  QPixmap::grabWindow() grabs pixels off the screen,
-  which is a bit faster.  This function works by calling paintEvent()
-  with painter redirection turned on.
+  This function actually asks \a widget to paint itself (and its
+  children to paint themselves).  QPixmap::grabWindow() grabs pixels
+  off the screen, which is a bit faster and picks up \e exactly what's
+  on-screen.  This function works by calling paintEvent() with painter
+  redirection turned on, which gets the result of paintEvent(),
+  without e.g. overlying windows.
 
   If there is overlap, it returns a pixmap of the size you want,
   containing a rendering of \a widget.  If the rectangle you ask for

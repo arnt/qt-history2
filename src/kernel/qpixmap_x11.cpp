@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#163 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#164 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -416,52 +416,8 @@ int QPixmap::defaultDepth()
   The cost is more memory consumption, up to twice as much as an
   unoptimized pixmap.
 
-  The \a optimization parameter can be:
-  <ul>
-  <li> \c QPixmap::DefaultOptim, sets the default optimization, i.e.
-  QPixmap::defaultOptimization().
-  <li> \c QPixmap::NoOptim, equivalent with MemoryOptim.
-  <li> \c QPixmap::MemoryOptim, use as little memory/resource as possible,
-  with little or no caching.  The tradeoff may be unnoticably slower pixmap
-  operations.  Read the important note about Windows 95/98 below.
-  <li> \c QPixmap::NormalOptim, normal optimization to make pixmap drawing
-  faster. This option is the default and is suitable for most purposes.
-  <li> \c QPixmap::BestOptim, heavily optimized pixmap drawing, but may
-  consume more memory. Use this option for pixmap drawn extremely
-  frequently, e.g. masked pixmaps/sprites.
-  </ul>
-
   Use the setDefaultOptimization() to change the default optimization
   for all new pixmaps.
-
-  <strong>Note about Windows 95 and 98:</strong> On Windows 9x, the system
-  crashes if you create around 1000 pixmaps or more, independent of the
-  size of the pixmaps or installed RAM.  The reason is that Windows 9x has
-  a serious resource limitation that comes from the old, 64k segmented
-  memory model. Windows NT does not have this limitation.
-
-  Qt tries to work around the resource limitation.  If you set the pixmap
-  optimization to \c QPixmap::MemoryOptim and the width of your pixmap is
-  less than or equal to 128 pixels, Qt will create a logical pixmap which
-  refers an internal pixmap.  This internal pixmap is shared by hundreds
-  of other pixmaps which have the optimization set to \c
-  QPixmap::MemoryOptim.  The result is that your application may use
-  thousands of pixmaps on Windows 9x and spend only a few percent of the
-  system resources.
-
-  When should you set the memory optimization?  If your application uses
-  hundreds of pixmaps, e.g. on tool bar buttons, in popup menus, and you
-  plan to run it on Windows 95 or Windows 98.
-
-  Here is an example:
-  \code
-    QPixmap::setDefaultOptimization( QPixmap::MemoryOptim );
-    while ( ... ) {
-      // load tool bar pixmaps etc.
-      QPixmap *pixmap = new QPixmap(fileName);
-    }
-    QPixmap::setDefaultOptimization( QPixmap::NormalOptim );
-  \endcode
 
   \sa optimization(), setDefaultOptimization(), defaultOptimization()
 */
