@@ -302,10 +302,11 @@ QFontEngine::Error QFontEngineXLFD::stringToCMap( const QChar *str, int len, gly
 	if ( haveNbsp || mirrored ) {
 	    chars = (QChar *)malloc( len*sizeof(QChar) );
 	    for ( int i = 0; i < len; i++ )
-		chars[i] = ( str[i].unicode() == 0xa0 ? 0x20 : ::mirroredChar(str[i]).unicode() );
+		chars[i] = (str[i].unicode() == 0xa0 ? 0x20 :
+			    (mirrored ? ::mirroredChar(str[i]).unicode() : str[i].unicode()));
 	}
 	_codec->fromUnicodeInternal( chars, glyphs, len );
-	if ( haveNbsp )
+	if (chars != str)
 	    free( chars );
     } else {
 	glyph_t *g = glyphs + len;
