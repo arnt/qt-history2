@@ -2283,7 +2283,7 @@ void MainWindow::readConfig()
 	w->includePolicy = (MetaDataBase::CustomWidget::IncludePolicy)l[ 2 ].toInt();
 	w->sizeHint.setWidth( l[ 3 ].toInt() );
 	w->sizeHint.setHeight( l[ 4 ].toInt() );
-	uint c = 5;
+	int c = 5;
 	if ( l.count() > c ) {
 	    int numSignals = l[ c ].toInt();
 	    c++;

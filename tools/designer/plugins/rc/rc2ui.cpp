@@ -300,7 +300,7 @@ bool RC2UI::makeDialog()
 	int count;
 	QCString className;
 	uint x, y, w, h;
-	uint endDesc;
+	int endDesc;
 	bool space = FALSE;
 	for ( endDesc = 0; endDesc < line.length() ; endDesc++ ) {
 	    char c = (QChar)line.at(endDesc);
@@ -314,7 +314,7 @@ bool RC2UI::makeDialog()
 
 	className = parseNext( desc, ' ' );
 
- 	count = sscanf( line, "%u, %u, %u, %u", &x, &y, &w, &h );
+	count = sscanf( line, "%u, %u, %u, %u", &x, &y, &w, &h );
 
 	if ( !count && count == EOF )
 	    return FALSE;
@@ -491,7 +491,7 @@ bool RC2UI::makeDialog()
 
 	    do {
 		extendedStyles = splitStyles(parseNext( arguments ));
-		for ( uint i = 0; i < extendedStyles.count(); i++ )
+		for ( int i = 0; i < extendedStyles.count(); i++ )
 		    styles << (extendedStyles.at(i));
 	    } while ( arguments.find(',') > -1 );
 

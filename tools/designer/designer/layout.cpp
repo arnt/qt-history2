@@ -825,14 +825,14 @@ void GridLayout::buildGrid()
     for ( w = widgets.first(); w; w = widgets.next() ) {
 	QRect c(0,0,0,0), widgetPos = w->geometry();
 	// From left til right (not including)
-	for (uint cw=0; cw<x.size(); cw++) {
+	for (int cw=0; cw<x.size(); cw++) {
 	    if ( x[cw] == widgetPos.left() )
 		c.setLeft(cw);
 	    if ( x[cw] <  widgetPos.right())
 		c.setRight(cw);
 	}
 	// From top til bottom (not including)
-	for (uint ch=0; ch<y.size(); ch++) {
+	for (int ch=0; ch<y.size(); ch++) {
 	    if ( y[ch] == widgetPos.top()    )
 		c.setTop(ch);
 	    if ( y[ch] <  widgetPos.bottom() )

@@ -1483,7 +1483,7 @@ void Resource::saveProperty( QObject *w, const QString &name, const QVariant &va
 	break;
     case QVariant::StringList: {
 	QStringList lst = value.toStringList();
-	uint i = 0;
+	int i = 0;
 	ts << makeIndent( indent ) << "<stringlist>" << endl;
 	indent++;
 	if ( !lst.isEmpty() ) {
