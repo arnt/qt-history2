@@ -110,7 +110,7 @@
     <p><b>Note: this currently also requires <tt>QT_JPEG_SUPPORT</tt> to
 	be defined when building Qt.</b>
 */
-//#define QT_NO_IMAGEIO_JPEG
+#define QT_NO_IMAGEIO_JPEG
 
 /*!
     Asynchronous I/O
