@@ -290,7 +290,7 @@
 #    if defined(__COMO__)
 #      define Q_CC_COMEAU
 #      define Q_C_CALLBACKS
-#    elif defined( __KCC )
+#    elif defined(__KCC)
 #      define Q_CC_KAI
 #    elif defined(__INTEL_COMPILER)
 #      define Q_CC_INTEL
@@ -304,7 +304,7 @@
    such as template specialization nevertheless */
 #    elif defined(sgi) || defined(__sgi)
 #      define Q_CC_MIPS
-#      if defined(_MIPS_SIM) && ( _MIPS_SIM == _MIPS_SIM_ABI32 ) /* o32 ABI */
+#      if defined(_MIPS_SIM) && _MIPS_SIM == _MIPS_SIM_ABI32 /* o32 ABI */
 #        define Q_BROKEN_TEMPLATE_SPECIALIZATION
 #      endif
 #    endif

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QRemoteControlInterface class
 **
@@ -140,4 +140,4 @@ public:
 
 #endif // QT_NO_COMPONENT
 
-#endif // QREMOTECONTROLINTERFACE_H
+#endif
