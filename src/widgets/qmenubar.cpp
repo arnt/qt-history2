@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#170 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#171 $
 **
 ** Implementation of QMenuBar class
 **
@@ -994,7 +994,7 @@ void QMenuBar::setActItem( int , bool )
 
 void QMenuBar::setActiveItem( int i, bool show, bool activate_first_item )
 {
-    if ( i == actItem && show == popupvisible )
+    if ( i == (int)actItem && show == popupvisible )
 	return;
 
     QMenuItem* mi = 0;
