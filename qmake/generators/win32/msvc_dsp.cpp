@@ -266,7 +266,7 @@ DspMakefileGenerator::init()
 		    for(QStringList::Iterator libit = libs.begin(); libit != libs.end(); ++libit)
 			(*libit).replace(QRegExp("qt\\.lib"), ver);
 		}
-		 if ( project->isActiveConfig("dll") ) {
+		 if ( !project->isActiveConfig("dll") ) {
 		    project->variables()["TMAKE_LIBS"] +=project->variables()["TMAKE_LIBS_QT_DLL"];
 		}
 	    }
