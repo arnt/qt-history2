@@ -281,107 +281,16 @@ void QFontEngineWin::draw( QPaintEngine *p, int x, int y, const QTextItem &si, i
     HDC old_hdc = hdc;
     hdc = p->handle();
     QPainterState *state = p->painterState();
-    bool nat_xf = (qWinVersion() & Qt::WV_NT_based) && state->txop >= QPainter::TxScale;
-    nat_xf = false; // ### remove later
-
-    bool force_bitmap = state->rasterOp != QPainter::CopyROP;
-    force_bitmap |= state->txop >= QPainter::TxScale
-		    && !(QT_WA_INLINE( tm.w.tmPitchAndFamily, tm.a.tmPitchAndFamily ) & (TMPF_VECTOR|TMPF_TRUETYPE));
 
     double scale = 1.;
     int angle = 0;
     bool transform = FALSE;
 
-    if ( force_bitmap || (state->txop >= QPainter::TxScale && !nat_xf) ) {
+    if (state->txop >= QPainter::TxScale && !(qWinVersion() & Qt::WV_NT_based)) {
 	// Draw rotated and sheared text on Windows 95, 98
 
-	// All versions can draw rotated text natively. Scaling can be done with window/viewport transformations
-	// the hard part is only shearing
-	if ( force_bitmap || state->matrix.m11() != state->matrix.m22()
-	     || state->matrix.m12() != -state->matrix.m21() ) {
-	    // shearing transformation, have to do the work by hand
-            QRect bbox( 0, 0, si.width, si.ascent + si.descent + 1 );
-            int w=bbox.width(), h=bbox.height();
-            int aw = w, ah = h;
-            int tx=-bbox.x(),  ty=-bbox.y();    // text position
-            QWMatrix mat1 = state->matrix;
-	    if ( aw == 0 || ah == 0 )
-		return;
-	    double rx = (double)w / (double)aw;
-	    double ry = (double)h / (double)ah;
-            QWMatrix mat2 = QPixmap::trueMatrix( QWMatrix( rx, 0, 0, ry, 0, 0 )*mat1, aw, ah );
-
-	    QBitmap bm( aw, ah, TRUE );
-	    QPainter paint;
-	    paint.begin( &bm );             // draw text in bitmap
-	    HDC oldDC = hdc;
-	    hdc = paint.handle();
-	    SelectObject( hdc, hfont );
-	    draw( bm.engine(), 0, si.ascent, si, textFlags );
-	    hdc = oldDC;
-	    paint.end();
-	    QBitmap wx_bm = bm.xForm(mat2); // transform bitmap
-	    if (wx_bm.isNull())
-		return;
-
-            double fx=x, fy = y - si.ascent, nfx, nfy;
-            mat1.map( fx,fy, &nfx,&nfy );
-            double tfx=tx, tfy=ty, dx, dy;
-            mat2.map( tfx, tfy, &dx, &dy );     // compute position of bitmap
-            x = qRound(nfx-dx);
-            y = qRound(nfy-dy);
-#if 0
-	    if ( p->testf(QPainter::ExtDev) ) {		// to printer
-		QRegion reg( *wx_bm );
-		reg.translate( x, y );
-		HBRUSH brush = CreateSolidBrush( COLOR_VALUE(p->cpen.data->color) );
-		FillRgn( hdc, reg.handle(), brush );
-		DeleteObject( brush );
-	    } else
-#endif
-	    {				// to screen/pixmap
-		// this code is also used in bitBlt() in qpaintdevice_win.cpp
-		// (for the case that you have a selfmask)
-		const DWORD ropCodes[] = {
-		    0x00b8074a, // PSDPxax,  CopyROP,
-		    0x00ba0b09, // DPSnao,   OrROP,
-		    0x009a0709, // DPSnax,   XorROP,
-		    0x008a0e06, // DSPnoa,   EraseROP=NotAndROP,
-		    0x008b0666, // DSPDxoxn, NotCopyROP,
-		    0x00ab0889, // DPSono,   NotOrROP,
-		    0x00a90189, // DPSoxn,   NotXorROP,
-		    0x00a803a9, // DPSoa,    NotEraseROP=AndROP,
-		    0x00990066, // DSxn,     NotROP,
-		    0x008800c6, // DSa,      ClearROP,
-		    0x00bb0226, // DSno,     SetROP,
-		    0x00aa0029, // D,        NopROP,
-		    0x00981888, // SDPSonoxn,AndNotROP,
-		    0x00b906e6, // DSPDaoxn, OrNotROP,
-		    0x009b07a8, // SDPSoaxn, NandROP,
-		    0x00891b08  // SDPSnaoxn,NorROP,
-		};
-		HBRUSH b = CreateSolidBrush( COLOR_VALUE(state->pen.color()) );
-		COLORREF tc, bc;
-		b = (HBRUSH)SelectObject( hdc, b );
-		tc = SetTextColor( hdc, COLOR_VALUE(QColor(Qt::black)) );
-		bc = SetBkColor( hdc, COLOR_VALUE(QColor(Qt::white)) );
-		HDC wx_dc;
-		int wx_sy;
-		if ( wx_bm.isMultiCellPixmap() ) {
-		    wx_dc = wx_bm.multiCellHandle();
-		    wx_sy = wx_bm.multiCellOffset();
-		} else {
-		    wx_dc = wx_bm.handle();
-		    wx_sy = 0;
-		}
-		BitBlt( hdc, x, y, wx_bm.width(), wx_bm.height(),
-			wx_dc, 0, wx_sy, ropCodes[state->rasterOp] );
-		SetBkColor( hdc, bc );
-		SetTextColor( hdc, tc );
-		DeleteObject( SelectObject(hdc, b) );
-	    }
-            return;
-	}
+	// All versions can draw rotated text natively. Scaling can be done with window/viewport transformations.
+	// Shearing transformations are done by QPainter.
 
 	// rotation + scale + translation
 	scale = sqrt( state->matrix.m11()*state->matrix.m22()
@@ -391,15 +300,7 @@ void QFontEngineWin::draw( QPaintEngine *p, int x, int y, const QTextItem &si, i
 	    angle = 3600 - angle;
 
 	transform = TRUE;
-#if 0
-    } else if ( nat_xf ) {
-	if( !p->nativeXForm( TRUE ) ) {
- 	    p->nativeXForm( FALSE );
-	    return;
-	}
-#endif
-    } else if ( !p->hasCapability(QPaintEngine::CoordTransform)
-		&& state->txop == QPainter::TxTranslate ) {
+    } else if (!p->hasCapability(QPaintEngine::CoordTransform) && state->txop == QPainter::TxTranslate) {
 	state->painter->map( x, y, &x, &y );
     }
 
@@ -422,6 +323,7 @@ void QFontEngineWin::draw( QPaintEngine *p, int x, int y, const QTextItem &si, i
     unsigned int options =  ttf ? ETO_GLYPH_INDEX : 0;
 
     QGlyphLayout *glyphs = si.glyphs;
+
 #if 0
     // ###### should be moved to the printer GC
     if(p->pdev->devType() == QInternal::Printer) {
@@ -443,6 +345,7 @@ void QFontEngineWin::draw( QPaintEngine *p, int x, int y, const QTextItem &si, i
 	}
     }
 #endif
+
     int xo = x;
 
     if ( !(si.right_to_left) ) {
