@@ -56,7 +56,7 @@
 
     One nice feature supported by the read-write models is the
     possibility to perform changes to the item model without
-    affecting the database until QSqlTableModel::submitChanges() is
+    affecting the database until QSqlTableModel::submitAll() is
     called. Changes can be dropped using QSqlTableModel::revertAll().
 
     The new classes perform advantageously compared to the SQL
