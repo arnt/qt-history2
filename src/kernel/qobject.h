@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#71 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#72 $
 **
 ** Definition of QObject class
 **
@@ -152,7 +152,7 @@ private:
 
     QMetaObject *queryMetaObject() const;
     static QMetaObject *metaObj;
-    char	*objname;
+    const char	*objname;
     QObject	*parentObj;
     QObjectList *childObjects;
     QSignalDict *connections;
