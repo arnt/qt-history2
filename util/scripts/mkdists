@@ -300,12 +300,12 @@ qglobal="$DISTDIR/qt/src/tools/qglobal.h"
 sed -e "s,\(\#define\s*QT_VERSION\s*\)[0-9]*,\1$BRANCH_DIGITS,g" \
     -e "s,\(\#define\s*QT_VERSION_STR\s+\"\)\([0-9.]*\),/1$BRANCH,g" $qglobal >/tmp/tmpf
 mv /tmp/tmpf $qglobal
-type=`grep QT_VERSION_STR ~/troll/qt3.x/src/tools/qglobal.h | awk '{ print $3 }' | sed 's,["0-9.]*\(-.*\)",\1,'`
+type=`grep QT_VERSION_STR $DISTDIR/qt/src/tools/qglobal.h | awk '{ print $3 }' | sed 's,["0-9.]*\(-.*\)",\1,'`
 if [ "$type" != "-snapshot" ] && ! myexpr "$type" : "^-beta[0-9]*$"; then
     die "The qt version is $BRANCH$type, which confuses me terribly";
 fi
 
-#fix $Id: //depot/qt/main/util/scripts/mkdists#53 $
+#fix $Id: //depot/qt/main/util/scripts/mkdists#54 $
 echo "Marking \$ID\$..."
 for a in `find $DISTDIR/qt`; do
     if [ -f $a ] && [ ! -L $a ] && grep $a '\$Id.*\$' >/dev/null 2>&1; then
@@ -313,7 +313,7 @@ for a in `find $DISTDIR/qt`; do
 	[ -x $a ] && execut="yes"
 
 	tag_ID="`echo $a | sed "s,^.*/,qt/,"`   ${version}${type}   edit FIXME"
-	sed "s,\$Id: //depot/qt/main/util/scripts/mkdists#53 $]*\$,$Id: //depot/qt/main/util/scripts/mkdists#53 ${tag_ID} $,g" $a >/tmp/tmpf
+	sed "s,\$Id: //depot/qt/main/util/scripts/mkdists#54 $]*\$,$Id: //depot/qt/main/util/scripts/mkdists#54 ${tag_ID} $,g" $a >/tmp/tmpf
 	rm -f $a
 	mv /tmp/tmpf $a
 	if [ "$execut" = "yes" ]; then
@@ -514,15 +514,15 @@ for plat in mac win x11 qws; do
     [ -d "$PLATDIR/src/sql" ] && rm -rf "$PLATDIR/src/sql"
 
     if [ "x$free" = "xyes" ]; then
-        echo "**** Doing free.. ****"
+	echo "**** Doing free.. ****"
 
 	cd "$DISTDIR"
 	OLDPLATDIR=$PLATDIR
 	PLATNAME=`echo $PLATNAME | sed "s,commercial,free,"`
 	PLATDIR=$DISTDIR/$PLATNAME
 	mv "$OLDPLATDIR" "$PLATDIR"
-	
-        #remove commercial licenses
+
+	#remove commercial licenses
 	for a in `find $DISTDIR/qt/dist/commercial`; do
 	    FILE=`echo $a | sed "s,$DISTDIR/qt/dist/commercial,,"`
 	    [ -z $FILE ] && continue
@@ -553,10 +553,10 @@ for plat in mac win x11 qws; do
 	    else
 		[ -f $PLATDIR/$a_file ] && rm -f $a_file
 		cp -ar $DISTDIR/qt/dist/free/$a_file $PLATDIR/$a_file
-            fi
-        done
-	
-        #tar free editions
+	    fi
+	done
+
+	#tar free editions
 	echo "Packing..."
 	cd "$DISTDIR"
 	tar cf $OUT_TREE/${PLATNAME}.tar ${PLATNAME}
