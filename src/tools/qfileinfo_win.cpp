@@ -401,12 +401,11 @@ uint QFileInfo::groupId() const
     return nobodyID;
 }
 
-
 bool QFileInfo::permission( int p ) const
 {
 #if !defined(Q_OS_TEMP)
     if ( qt_ntfs_permission_lookup && ( qWinVersion() == Qt::WV_2000 || qWinVersion() == Qt::WV_XP ) ) {
-	PSID pOwner = 0, pGroup = 0;
+	PSID pGroup = 0;
 	PACL pDacl;
 	PSECURITY_DESCRIPTOR pSD;
 	ACCESS_MASK access_mask;
@@ -417,7 +416,8 @@ bool QFileInfo::permission( int p ) const
 	if ( ptrGetNamedSecurityInfoW && ptrAllocateAndInitializeSid && ptrBuildTrusteeWithSidW && ptrGetEffectiveRightsFromAclW && ptrFreeSid ) {
 	    DWORD res = ptrGetNamedSecurityInfoW( (TCHAR*)qt_winTchar( fn, TRUE ), SE_FILE_OBJECT, 
 		OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION,
-		&pOwner, &pGroup, &pDacl, NULL, &pSD );
+		0, &pGroup, &pDacl, 0, &pSD );
+	    
 	    if ( res == ERROR_SUCCESS ) {
 		TRUSTEE_W trustee;
 		if ( p & ( ReadUser | WriteUser | ExeUser) ) {
@@ -425,8 +425,10 @@ bool QFileInfo::permission( int p ) const
 			access_mask = 0;
 		    if ( ( p & ReadUser ) && !( access_mask & ReadMask )   ||
 			( p & WriteUser ) && !( access_mask & WriteMask ) ||
-			( p & ExeUser ) && !( access_mask & ExecMask )      )
+			( p & ExeUser ) && !( access_mask & ExecMask )      ) {
+			LocalFree( pSD );
 			return FALSE;
+		    }
 		}
 		if ( p & ( ReadGroup | WriteGroup | ExeGroup) ) {
 		    ptrBuildTrusteeWithSidW( &trustee, pGroup );
@@ -434,8 +436,10 @@ bool QFileInfo::permission( int p ) const
 			access_mask = 0;
 		    if ( ( p & ReadGroup ) && !( access_mask & ReadMask )   ||
 			( p & WriteGroup ) && !( access_mask & WriteMask ) ||
-			( p & ExeGroup ) && !( access_mask & ExecMask )      )
+			( p & ExeGroup ) && !( access_mask & ExecMask )      ) {
+			LocalFree( pSD );
 			return FALSE;
+		    }
 		}
 		if ( p & ( ReadOther | WriteOther | ExeOther) ) {
 		    // Create SID for Everyone (World)
@@ -447,8 +451,10 @@ bool QFileInfo::permission( int p ) const
 			    access_mask = 0;
 			if ( ( p & ReadOther ) && !( access_mask & ReadMask )   ||
 			    ( p & WriteOther ) && !( access_mask & WriteMask ) ||
-			    ( p & ExeOther ) && !( access_mask & ExecMask )      )
+			    ( p & ExeOther ) && !( access_mask & ExecMask )      ) {
+			    LocalFree( pSD );
 			    return FALSE;
+			}
 		    }
 		    ptrFreeSid( pWorld );
 		}
@@ -459,7 +465,8 @@ bool QFileInfo::permission( int p ) const
 	if ( ptrGetNamedSecurityInfoA && ptrAllocateAndInitializeSid && ptrBuildTrusteeWithSidA && ptrGetEffectiveRightsFromAclA && ptrFreeSid ) {
 	    DWORD res = ptrGetNamedSecurityInfoA( (LPSTR)(const char*)fn.local8Bit(), SE_FILE_OBJECT,
 		OWNER_SECURITY_INFORMATION | GROUP_SECURITY_INFORMATION | DACL_SECURITY_INFORMATION,
-		&pOwner, &pGroup, &pDacl, NULL, &pSD );
+		0, &pGroup, &pDacl, NULL, &pSD );
+
 	    if ( res == ERROR_SUCCESS ) {
 		TRUSTEE_A trustee;
 		if ( p & ( ReadUser | WriteUser | ExeUser) ) {
@@ -467,8 +474,10 @@ bool QFileInfo::permission( int p ) const
 			access_mask = 0;
 		    if ( ( p & ReadUser ) && !( access_mask & ReadMask )   ||
 			( p & WriteUser ) && !(access_mask & WriteMask ) ||
-			( p & ExeUser ) && !( access_mask & ExecMask )      )
+			( p & ExeUser ) && !( access_mask & ExecMask )      ) {
+			LocalFree( pSD );
 			return FALSE;
+		    }
 		}
 		if ( p & ( ReadGroup | WriteGroup | ExeGroup) ) {
 		    ptrBuildTrusteeWithSidA( &trustee, pGroup );
@@ -476,8 +485,10 @@ bool QFileInfo::permission( int p ) const
 			access_mask = 0;
 		    if ( ( p & ReadGroup ) && !( access_mask & ReadMask )   ||
 			( p & WriteGroup ) && !( access_mask & WriteMask ) ||
-			( p & ExeGroup ) && !( access_mask & ExecMask )      )
+			( p & ExeGroup ) && !( access_mask & ExecMask )      ) {
+			LocalFree( pSD );
 			return FALSE;
+		    }
 		}
 		if ( p & ( ReadOther | WriteOther | ExeOther) ) {
 		    // Create SID for Everyone (World)
@@ -489,8 +500,10 @@ bool QFileInfo::permission( int p ) const
 			    access_mask = 0;
 			if ( ( p & ReadOther ) && !( access_mask & ReadMask )   ||
 			    ( p & WriteOther ) && !( access_mask & WriteMask ) ||
-			    ( p & ExeOther ) && !( access_mask & ExecMask )      )
+			    ( p & ExeOther ) && !( access_mask & ExecMask )      ) {
+			    LocalFree( pSD );
 			    return FALSE;
+			}
 		    }
 		    ptrFreeSid( pWorld );
 		}
