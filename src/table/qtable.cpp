@@ -4074,7 +4074,7 @@ void QTable::keyPressEvent( QKeyEvent* e )
 		justCreated = TRUE;
 		currentSel = new QTableSelection();
 		selections.append( currentSel );
-		if ( !isRowSelected( selectionMode() ) )
+		if ( !isRowSelection( selectionMode() ) )
 		    currentSel->init( oldRow, oldCol );
 		else
 		    currentSel->init( oldRow, 0 );
