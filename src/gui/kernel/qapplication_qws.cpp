@@ -1889,13 +1889,15 @@ void QApplication::restoreOverrideCursor()
         w = topLevelAt(*qt_last_x, *qt_last_y);
     if (!w)
         w = desktop();
-    int cursor_handle;
+
+    int cursor_handle = Qt::ArrowCursor;
     if (qApp->d->cursor_list.isEmpty()) {
         qws_overrideCursor = false;
-        cursor_handle = (w->testAttribute(Qt::WA_SetCursor))
-                        ? (int)w->cursor().handle() : Qt::ArrowCursor;
+        QWidget *upw = widgetAt_sys(*qt_last_x, *qt_last_y);
+        if (upw)
+            cursor_handle = int(upw->cursor().handle());
     } else {
-        cursor_handle = (int)qApp->d->cursor_list.first().handle();
+        cursor_handle = int(qApp->d->cursor_list.first().handle());
     }
     QPaintDevice::qwsDisplay()->selectCursor(w, cursor_handle);
 }
@@ -1958,6 +1960,8 @@ QWidget *QApplication::widgetAt_sys(int x, int y)
 {
     // XXX not a fast function...
     QWidget *tlw = topLevelAt(x, y);
+    if (!tlw)
+        return 0;
     QPoint pos(x,y);
     QWidget *c = findChildWidget(tlw, tlw->mapFromParent(pos));
     return c ? c : tlw;
