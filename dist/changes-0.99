@@ -25,28 +25,29 @@ none
 
 none
 
-***************** All other changes from 0.96 to 0.98 **********************
+***************** All other changes from 0.98 to 0.99 **********************
 
 QApplication:
 -------------
 Added beep() to make a sound.
 
+
 QFileInfo
 ---------
-
 Added readLink() to return the name of the file a symlink points to,
 fixed bug in isSymlink().
 
+
 QPrinter:
 ---------
-
 The X11 version now supports landscape printing and different paper sizes.
+
 
 QTableView:
 -----------
-
 The functions horizontalScrollBar and verticalScrollBar gives access
 to the internal scroll bars so you can connect to their signals.
+
 
 QWidget:
 --------
