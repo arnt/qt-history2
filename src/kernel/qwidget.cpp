@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#386 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#387 $
 **
 ** Implementation of QWidget class
 **
@@ -3062,7 +3062,7 @@ void QWidget::adjustSize()
   The default implementation returns an invalid size if there is no layout
   for this widget, the layout's preferred size otherwise.
 
-  \sa QSize::isValid(), resize(), setMinimumSize(), sizePolicy()
+  \sa QSize::isValid(), minimumSizeHint(), sizePolicy(), setMinimumSize()
 */
 
 QSize QWidget::sizeHint() const
@@ -3071,6 +3071,27 @@ QSize QWidget::sizeHint() const
 	return layout()->sizeHint();
     return QSize( -1, -1 );
 }
+
+
+
+/*!
+  Returns a recommended minimum size for the widget, or an invalid
+  size if no minimum size is recommended. 
+
+  The default implementation returns an invalid size if there is no layout
+  for this widget, the layout's preferred size otherwise.
+
+  \sa QSize::isValid(), resize(), setMinimumSize(), sizePolicy()
+
+*/
+
+QSize QWidget::minimumSizeHint() const
+{
+    if ( layout() )
+	return layout()->minimumSize();
+    return QSize( -1, -1 );
+}
+
 
 /*!
   \fn QWidget *QWidget::parentWidget() const
@@ -4018,7 +4039,6 @@ QSizePolicy QWidget::sizePolicy() const
     return QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
 }
 
-
 /*!
   Returns the preferred height for this widget, given the width \a w.
   The default implementation returns 0, indicating that the preferred
@@ -4058,8 +4078,8 @@ bool QWidget::customWhatsThis() const
 
 /*!
   Notifies the layout system that this widget has changed and may need
-  to change geometry. 
-  
+  to change geometry.
+
   Call this function if the sizeHint() or sizePolicy() have changed.
 */
 
@@ -4069,3 +4089,4 @@ void QWidget::updateGeometry()
 	QApplication::postEvent( parentWidget(),
 				 new QEvent( QEvent::LayoutHint ) );
 }
+

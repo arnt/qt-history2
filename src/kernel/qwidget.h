@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#219 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#220 $
 **
 ** Definition of QWidget class
 **
@@ -250,6 +250,7 @@ public:
     bool		isVisibleToTLW() const;
 
     virtual QSize	sizeHint() const;
+    virtual QSize	minimumSizeHint() const;
     virtual QSizePolicy sizePolicy() const;
     virtual int heightForWidth(int) const;
 

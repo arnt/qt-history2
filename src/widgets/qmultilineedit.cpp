@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#25 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -2496,6 +2496,29 @@ QSize QMultiLineEdit::sizeHint() const
     return QSize( w, h );
 }
 
+
+/*!
+  Returns a size sufficient for one character, and scroll bars.
+*/
+
+QSize QMultiLineEdit::minimumSizeHint() const
+{
+    const int sbDim = 16; //###
+
+     QFontMetrics fm( font() );
+    int h = fm.lineSpacing() + frameWidth()*2;
+    int w = fm.width( "M" );
+    h += frameWidth();
+    w += frameWidth();
+    if ( testTableFlags(Tbl_hScrollBar|Tbl_autoHScrollBar) )
+	w += sbDim;
+    if ( testTableFlags(Tbl_vScrollBar|Tbl_autoVScrollBar) )
+	h += sbDim;
+    return QSize(w,h);
+}
+
+
+
 /*!
   Reimplemented for internal purposes
 */
@@ -2574,13 +2597,13 @@ void QMultiLineEdit::cursorRight( bool mark, long steps )
 /*!  Sets the edited flag of this line edit to \a on.  The edited flag
 is never read by QMultiLineEdit, but is changed to TRUE whenever the user
 changes its contents.
- 
+
 This is useful e.g. for things that need to provide a default value,
 but cannot find the default at once.  Just open the line edit without
 the best default and when the default is known, check the edited()
 return value and set the line edit's contents if the user has not
 started editing the line edit.
- 
+
 \sa edited()
 */
 void QMultiLineEdit::setEdited( bool e )
@@ -2593,7 +2616,7 @@ the contents has not been changed since the construction
 of the QMultiLineEdit (or the last call to setEdited( FALSE ), if any).  If
 it returns true, the contents have been edited, or setEdited( TRUE )
 has been called.
- 
+
 \sa setEdited()
 */
 bool QMultiLineEdit::edited() const
@@ -2768,3 +2791,4 @@ void QMultiLineEdit::setSelection( int row_from, int col_from, int row_to, int c
     fatal("Not implemented: setSelection");
     row_from = col_from = row_to = col_to;
 }
+

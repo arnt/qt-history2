@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.h#71 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.h#72 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -61,6 +61,7 @@ public:
     const QValidator * validator() const;
 
     QSize	sizeHint() const;
+    QSize	minimumSizeHint() const;
     QSizePolicy sizePolicy() const;
 
     virtual void setEnabled( bool );

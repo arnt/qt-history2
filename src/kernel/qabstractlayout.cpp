@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#36 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -249,9 +249,13 @@ static QSize smartMinSize( QWidget *w )
 	//###this is hacky
 	s = w->layout()->minimumSize();
     } else {
-	if ( !w->sizePolicy().mayShrinkHorizontally() )
+	if ( w->sizePolicy().mayShrinkHorizontally() )
+	    s.setWidth( w->minimumSizeHint().width() );
+	else
 	    s.setWidth( w->sizeHint().width() );
-	if ( !w->sizePolicy().mayShrinkVertically() )
+	if ( w->sizePolicy().mayShrinkVertically() )
+	    s.setHeight( w->minimumSizeHint().height() ); 
+	else
 	    s.setHeight( w->sizeHint().height() );
     }
     QSize min = w->minimumSize();
@@ -532,6 +536,9 @@ QLayout::QLayout( QWidget *parent, int border, int autoBorder, const char *name 
 {
     menubar = 0;
     topLevel = FALSE;
+    frozen = FALSE;
+    autoMinimum = FALSE;
+    activated = FALSE;
     if ( parent ) {
 	if ( parent->layout() ) {
 	    warning( "QLayout \"%s\" added to %s \"%s\","
@@ -539,6 +546,8 @@ QLayout::QLayout( QWidget *parent, int border, int autoBorder, const char *name 
 		     parent->className(), parent->name() );
 	} else {
 	    topLevel = TRUE;
+	    if ( parent->isTopLevel() )
+		autoMinimum = TRUE;
 	    parent->installEventFilter( this );
 	    setWidgetLayout( parent, this );
 	}
@@ -733,9 +742,12 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 	int mbh = 0;
 	if ( menubar )
 	    mbh = menubar->heightForWidth( r->size().width() );
-	setGeometry( QRect( outsideBorder, mbh + outsideBorder,
+	if ( activated )
+	    setGeometry( QRect( outsideBorder, mbh + outsideBorder,
 			 r->size().width() - 2*outsideBorder,
 			 r->size().height() - mbh - 2*outsideBorder ) );
+	else
+	    activate();
 	break;
     }
     case QEvent::ChildRemoved: {
@@ -750,7 +762,7 @@ bool QLayout::eventFilter( QObject *o, QEvent *e )
 	break;
     }
     case QEvent::LayoutHint:
-	activate(); //######## ######@#!#@!$ should be optimized somehow...
+	activate(); //######## Check that LayoutHint events are collapsed
 	break;
     default:
 	break;
@@ -798,7 +810,6 @@ QLayout::~QLayout()
   This function is called from addLayout functions in subclasses,
   to add \a l layout as a sublayout.
 */
-//############## do we like this API???
 void QLayout::addChildLayout( QLayout *l )
 {
     if ( l->topLevel ) {
@@ -832,21 +843,23 @@ void QLayout::addChildLayout( QLayout *l )
 
 
 /*!
+  \obsolete
   Fixes the size of the main widget and distributes the available
   space to the child widgets. For widgets which should not be
   resizable, but where a QLayout subclass is used to set up the initial
   geometry.
 
-  A frozen layout cannot be unfrozen, the only sensible thing to do
-  is to delete it.
-
-  The size is adjusted to a valid value. Thus freeze(0,0) fixes the
-  widget to its minimum size.
+  As a special case, freeze(0,0) is equivalent to setResizeMode( \c Fixed )
 */
 
 void QLayout::freeze( int w, int h )
 {
-    warning( "QLayout::freeze( %d, %d ) not implemented", w, h );
+    if ( w <= 0 || h <= 0 ) {
+	setResizeMode( Fixed );
+    } else {
+	setResizeMode( FreeResize ); // layout will not change min/max size
+	setFixedSize( w, h );
+    }
 }
 
 
@@ -943,14 +956,17 @@ bool QLayout::activate()
     // Paul: If adding stuff to a QLayout for a widget causes
     // postEvent(thatWidget, QEvent::LayoutHint), activate() becomes
     // unnecessary in that case too.
-
+    activated = TRUE;
     invalidateRecursive( this );
     QSize s = mainWidget()->size();
     int mbh = menubar ? menubar->heightForWidth( s.width() ) : 0;
     setGeometry( QRect( outsideBorder, mbh + outsideBorder,
 			s.width() - 2*outsideBorder,
 			s.height() - mbh - 2*outsideBorder ) );
-
+    if ( frozen )
+	mainWidget()->setFixedSize( sizeHint() ); //### will trigger resize
+    else if ( autoMinimum )
+	mainWidget()->setMinimumSize( minimumSize() );
 
     //###if ( sizeHint or sizePolicy has changed )
     mainWidget()->updateGeometry();
@@ -1208,3 +1224,50 @@ Sets the hasHeightForWidth() flag to \a b.
   other iterator over the same layout may become invalid.
 */
 
+
+/*!
+  \define QLayout::ResizeMode
+  Sets the resize mode to \a mode.
+
+    The possible values are are:
+<ul>
+    <li> \c Fixed - the main widget's size is set to sizeHint(), it
+    cannot be resized at all.
+    <li> \c Minimum - The main widget's minimum size is set to
+    minimumSize(), it cannot be smaller.
+    <li> \c FreeResize - the widget is not constrained.
+</ul>
+    The default value is \c Minimum for top level widgets, and \c FreeResize
+    for all others.
+
+*/
+
+void QLayout::setResizeMode( ResizeMode mode )
+{
+    if ( mode == resizeMode() )
+	return;
+    switch (mode) {
+    case Fixed:
+	frozen = TRUE;
+	break;
+    case FreeResize:
+	frozen = FALSE;
+	autoMinimum = FALSE;
+	break;
+    case Minimum:
+	frozen = FALSE;
+	autoMinimum = TRUE;
+	break;
+    }
+    activate();
+}
+
+
+/*!
+  Returns the resize mode.
+*/
+
+QLayout::ResizeMode QLayout::resizeMode() const
+{
+    return frozen ? Fixed : (autoMinimum ? Minimum : FreeResize );
+}

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#7 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#8 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -47,6 +47,7 @@ public:
     int numLines() const;
 
     QSize sizeHint() const;
+    QSize minimumSizeHint() const;
     QSizePolicy sizePolicy() const;
 
     virtual void	setFont( const QFont &font );

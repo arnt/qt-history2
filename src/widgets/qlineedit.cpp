@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#197 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#198 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -1274,6 +1274,33 @@ QSize QLineEdit::sizeHint() const
     }
 
 }
+
+
+
+/*!
+  Returns a minimum size for the line edit.
+
+  The width returned tends to be enough for one characters.
+*/
+
+QSize QLineEdit::minimumSizeHint() const
+{
+    QFontMetrics fm( font() );
+    int h = fm.height();
+    int w = fm.width( "M" );
+    if ( frame() ) {
+	h += 8;
+	if ( style() == WindowsStyle && h < 26 )
+	    h = 22;
+	return QSize( w + 8, h );
+    } else {
+	return QSize( w + 4, h + 4 );
+	
+    }
+
+}
+
+
 
 /*!
   Specifies that this widget can use more, but is able to survive on

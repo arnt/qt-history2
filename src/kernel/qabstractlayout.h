@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#13 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#14 $
 **
 ** Definition of the abstract layout base class
 **
@@ -154,19 +154,21 @@ public:
     int margin() const { return outsideBorder; }
 
     enum { unlimited = QCOORD_MAX };
-
+    enum ResizeMode { FreeResize, Minimum, Fixed };
+#if 1 //OBSOLETE
     void freeze( int w, int h );
-    void freeze() { freeze( 0, 0 ); }
-
+    void freeze() { setResizeMode( Fixed ); }
+#endif
+    void setResizeMode( ResizeMode );
+    ResizeMode resizeMode() const;
     virtual void  setMenuBar( QMenuBar *w );
 
     QWidget *mainWidget();
     QMenuBar *menuBar() const { return menubar; }
     bool isTopLevel() const { return topLevel; }
+    
     QRect geometry() const;
-#if 1	//OBSOLETE
     bool activate();
-#endif
 
     void add( QWidget *w ) { addItem( new QWidgetItem( w ) ); }
     virtual void addItem ( QLayoutItem * ) = 0;
@@ -186,7 +188,10 @@ private:
     void setWidgetLayout( QWidget *, QLayout * );
     int insideSpacing;
     int outsideBorder;
-    bool    topLevel;
+    uint topLevel : 1;
+    uint autoMinimum : 1;
+    uint frozen : 1;
+    uint activated : 1;
     QRect rect;
     QLayoutData *extraData;
     QMenuBar *menubar;
