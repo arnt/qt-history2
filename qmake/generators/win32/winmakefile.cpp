@@ -857,7 +857,6 @@ QString Win32MakefileGenerator::writeObjCompParts(QTextStream &t)
 
     if(!project->isEmpty("QMAKE_EXTRA_COMPILERS")) {
         t << "OBJCOMP = " << varList("OBJCOMP") << endl;
-        extraCompilerDeps += " $(OBJCOMP) ";
 
         QStringList &comps = project->variables()["QMAKE_EXTRA_COMPILERS"];
         for(QStringList::Iterator compit = comps.begin(); compit != comps.end(); ++compit) {
