@@ -93,10 +93,6 @@ QTextCodecFactoryPrivate::~QTextCodecFactoryPrivate()
 
 QTextCodec *QTextCodecFactory::createForName(const QString &name)
 {
-    if (name == "none") {
-	int *foo = 0; *foo = 0;
-    }
-
     QTextCodec *codec = 0;
 
 #ifndef QT_NO_COMPONENT
