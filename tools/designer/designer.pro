@@ -3,9 +3,19 @@ SUBDIRS		=  uic \
 		   uilib \
 		   designer \
 		   editor
-dll:SUBDIRS	+=  plugins/wizards \
-		  plugins/cppeditor \
-		  plugins/dlg \
-		  plugins/rc
-CONFIG += ordered
+win32 {
+    contains(DEFINES,QT_DLL):SUBDIRS += \
+		plugins/wizards \
+		plugins/cppeditor \
+		plugins/dlg \
+		plugins/rc
+}
+unix {
+    dll:SUBDIRS	+= \
+		plugins/wizards \
+		plugins/cppeditor \
+		plugins/dlg \
+		plugins/rc
+}
 
+CONFIG += ordered
