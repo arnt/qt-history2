@@ -658,7 +658,7 @@ QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l)
                 }
             }
             if(out)
-                memcpy(out + rnum, s.unicode(), used_len*sizeof(out[0]));
+                memcpy(out, s.unicode(), used_len*sizeof(out[0]));
             rnum += used_len;
             if(ret == TS_END_FOUND)
                 rnum -= 1;
