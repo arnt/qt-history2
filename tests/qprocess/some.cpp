@@ -168,7 +168,7 @@ void Some::kill()
 
 void Some::hup()
 {
-    proc->hangUp();
+    proc->tryTerminate();
     showInfo();
 }
 

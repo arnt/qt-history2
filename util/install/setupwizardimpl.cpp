@@ -116,11 +116,11 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 void SetupWizardImpl::stopProcesses()
 {
     if( configure.isRunning() )
-	configure.hangUp();
+	configure.tryTerminate();
     if( make.isRunning() )
-	make.hangUp();
+	make.tryTerminate();
     if( integrator.isRunning() )
-	integrator.hangUp();
+	integrator.tryTerminate();
 }
 
 void SetupWizardImpl::clickedPath()
