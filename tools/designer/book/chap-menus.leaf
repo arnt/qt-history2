@@ -1,4 +1,4 @@
-\chapter Menu Options and Functions
+\chapter Menu Options 
 
 \section1 Introduction
 
@@ -110,7 +110,8 @@ used. Click 'Select' to highlight the widgets with the same
 accelerator, or click 'Cancel' to exit the message box without any
 action. 
 
-\i \Menu Edit|Slots Click this menu option to edit or create slots.This option invokes the \l{Edit Slots Dialog}.
+\i \Menu Edit|Slots Click this menu option to edit or create
+slots.This option invokes the \l{Edit Slots Dialog}.
 
 \i \Menu Edit|Connections Click this menu option to invoke the \l{View
 Connections Dialog}. 
@@ -336,28 +337,32 @@ is sometimes easiest to select widgets and layouts by clicking them in
 the Widgets tab of the \l{Object Explorer} window.
 
 \i \Menu {Layout|Lay Out in a Grid} Click this menu option (or press
-\Key Ctrl+G) 
+\Key Ctrl+G) to lay out selected widgets in a grid. If only one widget
+is selected, it's child-widgets will be laid out in a grid.
 
 \i \Menu {Layout|Lay Out Horizontally (in Splitter)} Click this menu
-option to lay out the selected widgets or layouts side by
-side with a splitter between each widget. Use \Key Shift+Click to
-select each widget or layout, and then choose this menu option to group
-them horizontally. Note that for complex widgets it is sometimes
-easiest to select widgets and layouts by clicking them in the Widgets
-tab of the \l{Object Explorer} window.
+option to lay out the selected widgets or layouts side by side with a
+splitter between each widget. Use \Key Shift+Click to select each
+widget or layout, and then choose this menu option to group them
+horizontally. Note that for complex widgets it is sometimes easiest to
+select widgets and layouts by clicking them in the Widgets tab of the
+\l{Object Explorer} window.
 
 \i \Menu {Layout|Lay Out Vertically (in Splitter)} Click this menu
 option to lay out the selected widgets or layouts one above the other
-with a splitter between each widget or layout. Use \Key{Shift+Click} to
-select each widget or layout, and then choose this menu option to
+with a splitter between each widget or layout. Use \Key{Shift+Click}
+to select each widget or layout, and then choose this menu option to
 group them vertically. Note that for complex widgets it is sometimes
 easiest to select widgets and layouts by clicking them in the Widgets
 tab of the \l{Object Explorer} window.
 
-\i \Menu {Layout|Break Layout} Click this menu option (or press \Key Ctrl+B) to break apart layouts that have been created. Click on the layout and select this option; the layouts are then seperated. 
+\i \Menu {Layout|Break Layout} Click this menu option (or press \Key
+Ctrl+B) to break apart layouts that have been created. Click on the
+layout and select this option; the layouts are then seperated. 
 
-\i \Menu {Layout|Add Spacer} Click this menu option to add a spacer
-to widgets that take up too much space on the form. The spacer consumes extra space in the layout.
+\i \Menu {Layout|Add Spacer} Click this menu option to add a vertical
+or horizontal spacer to widgets that take up too much space on the
+form. The spacer consumes extra space in the layout.
 
 \endlist
 
@@ -366,8 +371,7 @@ See also the \l{The Layout Toolbar buttons}.
 \section1 The Preview Menu \Key Alt+P
 
 This menu is invoked with \Key Alt+P, and provides the following
-options:
-\list 
+options: \list 
 
 \i \Menu{Preview|Preview Form} Click this menu option (or press
 Ctrl+T) to preview the form within designer.
@@ -522,8 +526,8 @@ options:
 the \l{Qt Assistant by Trolltech Dialog} which provides online help.
 
 \i \Menu{Help|Manual} Click this menu option (or press Ctrl+M) to
-invoke the \l{Qt Assistant by Trolltech Dialog} which provides online
-help.
+invoke the \l{Qt Assistant by Trolltech Dialog} which opens \QD online
+manual.
 
 \i \Menu{Help|About...} Click this menu option to invoke the Qt Designer
 dialog, which provides information about \QD.

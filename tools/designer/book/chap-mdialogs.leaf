@@ -1,0 +1,478 @@
+\chapter Dialogs
+
+\section1 Introduction
+
+In the Chapter \l{Menu Options}, we stated that many
+menu items have additional options which are accessed through dialog
+boxes. This chapter covers each dialog and explains all of the
+options available. 
+
+\section1 The File Dialogs
+
+\target dialog-file-new
+\section2  New File Dialog
+
+Click \Menu File|New (or press \Key Ctrl+N) to invoke the \Dialog{New
+File} dialog. This dialog shows four file types to choose from: C++
+Project, Forms, Source files, and Main files. 
+
+The 'Insert Into' drop-down combobox lists the open projects,
+defaulting to the current project. New files are added to the project
+displayed in the 'Insert Into' combobox. To add a new file to a
+different project, choose the project you want to use in the 'Insert
+Into' combobox.
+
+The 'Dialog' file type is highlighted by default when the \Dialog{New
+File} dialog pops up. Click on the file type you want to use and click
+\OK to create it. Click \CANCEL to leave the \Dialog{New File} dialog
+without creating a new file. Note that if you select C++ Project, the
+'Insert Into' combobox will be grayed out, since it is not possible to
+insert a new C++ Project into an existing project.
+
+\section3 C++ Project Files
+
+Click C++ Project to start a new project. This option invokes the
+\l{Project Settings} dialog. C++ projects are saved as \File .pro
+files, which include the information \QD needs to manage projects.
+When you add a form to your project in \QD, it is automatically added
+to the FORMS section of the project. The \File .pro file contains the
+list of forms, \File .ui files, used in the project for \Cmd uic (user
+interface compiler). \QD reads and writes .ui files,e.g. form.ui. The
+uic creates both a header file, e.g.form.h, and an implementation
+file,e.g.form.cpp, from the \File .ui file. For further information
+about \Cmd uic see ###URL.
+
+\section3 Dialog Forms
+
+Click Dialog to create a plain form. ###Typically, this type of form is
+used to present the end user with configurational set up options,
+e.g.printer setting  dialogs, find and replace dialogs, etc. 
+
+\section3 Wizard Forms 
+
+Click Wizard to invoke a form designed to help you create wizards.
+
+\section3 Widget Forms 
+
+Click Widget to create a widget### that you will use later as a
+component in a dialog. Any widget in Qt can become a form. 
+
+\section3 Mainwindow Form
+
+Click MainWindow to invoke the \l{Mainwindow Wizard}. The wizard
+allows us to create actions, menu bars and a toolbar through which the
+user can invoke actions. The Mainwindow is a form that is used in
+conjunction with a single main widget.
+
+\section3 Configuration Dialog Form 
+
+The Configuration Dialog form is a template with default widgets.  
+
+\section3 Dialog with Buttons(bottom) Form  
+
+The Dialog with Buttons (bottom) form is a template with default
+widgets at the bottom of the form.
+
+\section3 Dialog with Buttons Form(right)
+
+The Dialog with Buttons (right) form is a template with default
+widgets at the right of the form.
+
+\section3 New Template Form
+
+Click New Template to create a form for designing templates. 
+
+\section3 Tab Dialog Form
+
+The Tab Dialog form is a template with default widgets.
+
+\section3 C++ Source File 
+
+C++ Source File has the extension \File.cpp and ###
+
+\section3 C++ Header File
+
+The C++ Header File ### has the extension .h and 
+
+\section3 C++ Main File
+
+The C++ Main File invokes ### the Configure Main File window. To change
+the default file name, type it next to 'Filename'. 
+
+\target dialog-file-open
+\section2 File Open Dialog
+
+Click \Menu File|Open (or press\Key Ctrl+O) to invoke the
+\Dialog{Open} dialog. Use this dialog to open existing files. 
+
+The \Dialog Open dialog defaults the directory and file type. To
+choose a different directory, click the 'Look In' combobox. Choose a
+file and the name will appear in the 'File Name' combobox. To choose a
+different file type, click the 'File Type'combobox. Click the 'Create
+New Folder' toolbar button to create a new directory. Click the 'List
+View' toolbar button to view folders and files in a list with only the
+names showing. Click the 'Details' toolbar button to view the folders
+and file names along with their size, type, date, and attributes.
+Click the Size, Type, Date, or Attributes column headers to sort the
+folders or files. Click \Button Open to open the file. Click \CANCEL
+to leave the dialog without opening a new file. 
+
+\target dialog-file-save-as
+\section2 File Save As Dialog
+
+Click \Menu{File|Save As} to invoke the \Dialog{Save As} dialog. Use this
+dialog to save files to a directory.
+
+The \Dialog{Save As} dialog defaults the directory and file type.
+To choose a different directory, click the 'Look In' combobox. Choose
+a file and the name will appear in the 'File Name' combobox. To choose
+a different file type, click the 'File Type'combobox. Click the
+'Create New Folder' toolbar button to create a new directory. Click
+the 'List View' toolbar button to view folders and files in a list
+with only the names showing. Click the 'Details' toolbar button to
+view the folders and file names along with their size, type, date, and
+attributes. Click the Size, Type, Date, or Attributes column headers
+to sort the folders or files. Click \Button Save to save the file.
+Click \CANCEL to leave the dialog without saving a file. 
+
+\target dialog-file-create-template
+\section2 Create Template Dialog
+
+Click \Menu{File|Create Template} to invoke the \Dialog{Create
+Template} dialog. Use this dialog to create templates. 
+
+The 'Template Name' line edit defauls to 'New Template'. If you
+want a different name, type it in the line edit. Click the 'Baseclass
+for Template' scroll bar to choose a base class. Click \Button Create
+to create the template. Click \CANCEL to leave the dialog without
+creating a template.
+
+\section1 The Edit Dialogs
+
+\target dialog-edit-slots
+\section2 Edit Slots Dialog
+
+Click \Menu Edit|Slots to invoke the \Dialog{Edit Slots} dialog. Use this
+dialog to edit or create slots which are used in conjunction with
+signals to provide communication between objects.
+
+When this dialog is invoked, all existing slots are shown in the
+'Slot' listbox. The column headers Slot, Type, Specifier, Access, and
+In-Use provide details about each slot that is listed. Click on any of
+the column headers to sort the slots. To create a new slot, click the
+\Button {New Slot} button. The new slot has a default name that you
+should replace by typing the new name in the 'Slot' line edit. The
+'Return Type' is also a default that can be changed by typing in the
+line edit. To change the 'Specifier' or 'Access', click the combobox
+and choose a type. To delete a slot from the listbox, click the slot
+you want to delete, and then click the \Button {Delete Slot} button.
+Click \OK to save all changes made to slots. Click \CANCEL to leave
+the dialog without making any changes to slots.   
+
+\target dialog-view-connections
+\section2 View Connections Dialog 
+
+Click \Menu Edit|Connections to invoke the \Dialog{View Connections}
+dialog. This dialog lists the connections that currently exist between
+signals and slots.
+
+When this dialog is invoked, all existing connections are shown in the
+listbox. The column headers Sender, Signal, Receiver, and Slot provide
+details about each connection. Click the column headers to sort the
+connections. To delete a connection from the listbox, click the
+connection you want to disconnect and then click the \Button
+{Disconnect}.To edit a connection, click the \Button {Edit...} button
+to invoke the \Dialog{Edit Connections Dialog}. Click the \Button
+Close button to leave the dialog without making any changes.
+
+
+\target dialog-edit-form-settings
+\section2 Form Settings Dialog
+
+Click \Menu {Edit|Form Settings} to invoke the \Dialog{Form
+Settings} dialog. Use this dialog to save the form's settings, pixmap,
+and layout properties.
+
+In the Settings section, change the name of the form by typing in the
+'Class Name' line edit. You can also enter text to the 'Comment' and
+'Author' line edits or choose to leave them blank, as they are not
+required.
+
+In the Pixmaps section, the default is set to 'Project Imagefile',
+This is the recommended option because with this option, \QD
+automatically handles the images by creating all the images in a
+subdirectory. Then UIC produces code that contains one copy of the
+image and the necessary code to access it. If you do not want \QD to
+handle the images, choose the 'Save Inline' or 'Use Function'
+radiobuttons. 'Save Inline'saves the pixmaps as binary data in the
+\files {.ui} files. The disadvantage with this option is that it is
+only usable in the current form. Click 'Use Function' to use your own
+icon-loader function for loading pixmaps. Type the function in the
+'Use Function' line edit. This function is used in the generated code
+for loading pixmaps.    
+
+Click on a radiobutton to choose a
+different pixmap property. If you click the 'Use Button' radiobutton,
+you have the option to type a function in the line edit next to the
+radiobutton. In the Layouts section, you can change the default for
+'Default Margin' and 'Default Spacing' by clicking the spinbox for
+each. Click \OK to save the changes. Click \CANCEL to leave the dialog
+without making any changes.
+
+\target dialog-edit-preferences
+\section2 Preferences Dialog 
+
+Click \Menu {Edit|Preferences} to invoke the \Dialog Preferences
+dialog. This dialog has two tabs, one for 'General' preferences, and
+one for the 'C++ Editor'. Both tabs give you options to customize the user
+interface to your preference.
+
+\section3 General Tab
+
+The 'General' tab has sections for Background, Grid, General, and
+Toolbars. 
+
+The Background defaults to Pixmap. Click the 'Select a Pixmap'
+button next to the 'Pixmap' radiobutton to invoke the \Dialog Choose a
+Pixmap...' dialog. The directory and file type for this dialog are
+defaulted. Choose a file, and view the sample in the listbox located
+on the right side of the dialog. Click \OK to save the change. Click
+\CANCEL to leave the dialog without choosing a new pixmap. 
+
+Click the 'Color' radiobutton if you want to change the background to
+a color instead of a pixmap. Click the 'Choose a Color' button to the
+right of the'Color' radiobutton to invoke the \Dialog{Select Color
+Dialog}.
+
+The 'General' section of the General tab has three checkboxes that are
+checked as a default. The first checkbox is 'Restore last workspace on
+startup'. The second checkbox is 'Show Splash Screen on startup'. And
+the third checkbox is 'Disable Database Auto-Edit in Preview.If you
+want to remove the check, clickthe checkbox. To #######, click the
+\Button {ellipsis...} button next to the listbox. This invoke the
+\Dialog {Find Directory} dialog. Choose a directory and click \OK, or
+click \CANCEL to leave the dialog.
+
+The 'Show Grid' checkbox located above the 'Grid' section is checked
+by default. When it is unchecked, the 'Grid' section is greyed out.
+The 'Snap to Grid' checkbox is also checked by default. When it is
+unchecked, the 'Grid-X' and 'Grid-Y' spin boxes are greyed out. When
+the 'Snap to Grid' box is checked, the spinboxes are defaulted to 10.
+Click the spinboxes to change the value. Developers using \QD almost
+always use Qt's layouts to design their forms and rarely make any use
+of the grid. The grid is provided for the rare occasions when a form
+is created using widgets with fixed sizes and positions.
+
+Click the 'Show Text Labels' checkbox in the 'Toolbars' section to
+display the name of icon on the toolbar. 
+
+\section3 C++ Editor Tab
+
+The C++ Editor gives you options to customize the editor. The 'Syntax
+Highlighting' section lets you change the way the syntax is viewed in
+the editor. Click the 'Element' listbox and choose and choose an
+element. Click the 'Family' listboxto change the font style for that
+element. Click the 'Size' spinbox to choose a font size. You can
+change the font to Bold, Italic, or Underline by clicking the
+corresponding checkbox. Click the \Button Color button to invoke the
+\Dialog{Select Color Dialog}. As you make changes to each element, you
+can view the changes in the 'Preview' line edit. In the 'Options'
+section, the Wordwrap, Completion, and Paren Matching checkboxes are
+checked as a default. Click the checkboxes to deselect them.  
+
+Click \OK to accept changes or click \CANCEL to leave the dialog
+without making any changes. 
+
+
+\section1 The Project Dialogs
+
+\target dialog-add
+\section2 Add Dialog
+
+Click \Menu {Project|Add File} to invoke the \Dialog Add dialog. This dialog
+adds new files imported from outside of Designer.
+
+The \Dialog Add dialog has the directory and file type defaulted. To choose
+a different directory, click the 'Look In' combobox. Choose a file and
+the name will appear in the 'File Name' combobox. To choose a
+different file type, click the 'File Type' combobox. Click the 'Create
+New Folder' toolbar button to create a new directory. Click the 'List
+View' toolbar button to view folders and files in a list with only the
+names showing. Click the 'Details' toolbar button to view the folders
+and file names along with their size, type, date, and attributes.
+Click the Size, Type, Date, or Attributes column headers to sort the
+folders or files. Click \Button Open to open the file. Click \CANCEL
+to leave the dialog without opening a file.
+
+\target dialog-image-collection
+\section2 Image Collection Dialog
+
+Click \Menu{Project|Image Collection} to invoke the \Dialog{Manage Image
+Collection Dialog}. This dialog adds images that are imported from any
+location to the current project or to edits images that currently
+exist. 
+
+Click Add to invoke the \Dialog {Choose Images... Dialog}. This dialog
+defaults the directory and file type. To choose a different
+directory, click the 'Look In' combobox. Choose a file and the name
+will appear in the 'File Name' combobox. To choose a different file
+type, click the 'File Type'combobox. As you choose different files,
+you can preview the images in the window located on the right side of
+the dialog. Click the 'Create New Folder' toolbar button to create a
+new directory. Click the 'List View' toolbar button to view folders
+and files in a list with only the names showing. Click the 'Details'
+toolbar button to view the folders and file names along with their
+size, type, date, and attributes. Click the Size, Type, Date, or
+Attributes column headers to sort the folders or files. Click \Button
+Open to open the file. Click \CANCEL to leave the dialog without
+opening a file.
+
+Click the \Button Delete button to delete an existing image
+from the listbox. Click the \Button Close button to leave the dialog
+without editing or adding images.
+
+
+\target dialog-edit-database-connections
+\section2 Edit Database Connections Dialog
+
+\Dialog{Edit Database Connections Dialog} Click
+\Menu{Project|Database Connections} to connect your project to a
+database or to edit the current connection.
+
+\target dialog-project-settings
+\section2 Project Setting Dialog
+
+Click \Menu {Project|Project Settings} to invoke the \Dialog{Project
+Settings Dialog}. This dialog has makes changes the project settings.
+
+\section3 Settings Tab
+
+The 'Settings' tab shows information about the project. The Project
+File line edit defaults the project name. To change the name, type a new
+name in the line edit. To save the project, click the \Button
+{ellipsis...} button located next to Project File to invoke the
+\Dialog{Save As Dialog}. The 'Language' line edit is greyed out. Click
+the 'Description' line edit if you want to add additional information
+about the project.
+
+\section3 Files Tab
+
+Click the 'Files' tab to enter a name in the 'Database File' line edit.
+Click the \Button {ellipsis...} button to invoke the \Dialog{Save As
+Dialog}.
+
+\section3 C++ Tab
+
+Click the C++ Tab #### Go to Template and
+select app or lib from the list box. For Config, Libs, Defines, and
+Includepath, the default is set to 'all'. Click the list box to select
+unix, win32 or mac.
+
+Click \OK when you are finished or click \CANCEL to exit the dialog
+without making any changes to the project settings. 
+
+\section1 The Search Dialogs
+
+\target dialog-find-text
+\section2 Find Text Dialog
+
+Click \Menu{Search|Find} (or press \Key Ctrl+F) to invoke the \l{Find
+Text Dialog}. This dialog finds specific words or characters in the files.
+
+To find the text in the file that you want, type the text in the 'Find' listbox. You
+can define more specific searches by checking any or all of the
+checkboxes in the 'Options' section. The checkboxes are 'Whole words
+only','Case Sensitive' and 'Start at Beginning'. The 'Direction'
+section offers the 'Forward' radiobutton and the 'Backward'
+radiobutton to specify the location in the file in which you would
+like to start the search. Click the \Button Find button to search for
+text. When the text is found, it is highlighted in the file. Continue
+clicking \Button Find to search the whole file for other occurrences
+of the text.  Click the \Button Close button to leave the dialog.
+
+\target dialog-replace-text
+\section2 Replace Text Dialog
+
+Click \Menu{Search|Replace} (or press \Key {Ctrl+R}) to invoke the
+\Dialog{Replace Text Dialog}. This dialog replaces specific text in a
+file. 
+
+To replace text, type the text you would like to replace in the 'Find'
+listbox. Type the new text in the 'Replace' listbox. You can define
+more specific searches by checking any or all of the checkboxes in the
+'Options' section. The checkboxes are 'Whole words only','Case
+Sensitive' and 'Start at Beginning'. The 'Direction' section offers
+the 'Forward' radiobutton and the 'Backward' radiobutton to specify
+the order in which you would like to search. Click the \Button Replace
+button to search and replace the text. When the text is found, it is
+highlighted in the file. Continue clicking \Button Replace button to
+search and replace the each occurrence of the text in the file. Click
+\Button {Replace All} button to replace all occurences of the text in
+the file at one time. Click the \Button Close button to leave the
+dialog.
+
+\target dialog-go-to-line
+\section2 Goto Line Dialog
+
+Click \Menu{Search|Goto line} (or press \Key {Alt+G}) to invoke the
+\Dialog{Goto Line Dialog}. This dialog takes you to a specific line in
+the file. 
+
+To choose a line number, type the number in the 'Line' spinbox, or
+move the arrows up or down in the spinbox. Click the \Button Goto
+button. The cursor is placed at the beginning of the line in the file.
+Click the \Button Close button to leave the dialog.
+
+\section1 The Help Dialogs
+
+\target dialog-qt-designer
+\section2  Qt Designer Dialog
+
+\Dialog{Qt Designer Dialog} Click \Menu{Help|About...} to view
+information information about \QD.
+
+\target dialog-qt-designer
+\section2 Qt Designer Dialog
+
+\Dialog{Qt Designer Dialog} Click \Menu{Help|About Qt...} to view
+information about Qt.
+
+
+\section1 Select a Color Dialog
+
+You can choose a color from the 'Basic Colors' section and a sample of
+the color will appear in the small box on the bottom of the dialog,
+along with details about color in the line edites to the right. In
+addition, the crosshairs in the larger window in the top right of the
+dialog show the location of the color in the spectrum. You can also
+create a palette of custom colors. There are two ways to do add custom
+colors. Click a color on the color spectrum window. When the color
+appears in the small box below the window, click the color and drag it
+to one of the blank boxes in the 'Custom Color' section of the dialog.
+You can also click and drag colors from the 'Basic Colors' section.
+Another way to add colors is to click the \Button {Add to Custom
+Colors} when you have chosen a color. Click \OK to accept the changes,
+or click \CANCEL to exit the dialog without selecting a color or
+adding custom colors.
+
+\section1 Edit Connections Dialog
+
+Connections between signals and slots can be modified in the
+\Dialog{Edit Connections Dialog}. The top left hand listbox lists the
+Signals that the widget can emit. The top right combobox lists the
+form and its widgets. Beneath the combobox is the 'Slots' listbox
+which shows the slots available in the form or widget displayed in the
+'Slots' combobox which are compatible with the highlighted signal. To
+connect a signal to a slot, choose a signal from the 'Signals' listbox
+by clicking on it. Then choose a form or widget from the 'Slots'
+combobox. Choose a slot for the widget or form you select from the
+listbox. Click \Button Connect. The new connection will appear in the
+'Connections' listbox, along with any existing connections. Click the
+column headers Sender, Signal, Receiver, or Slot to sort the
+connections. To disconnect an existing connection, choose the
+connection from the 'Connections' listbox and click the \Button
+Disconnect button. Click \Button {Edit Slots} to invoke the
+\Dialog{Edit Slots Dialog}. Click \OK to accepts the changes. Click
+\CANCEL to leave the dialog without making changes to the connections.   
+
+

@@ -124,7 +124,7 @@
                         <string>Use a defined function to load pixmaps</string>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>&lt;b&gt;Use a defined function to open pixmaps&lt;/b&gt;&lt;p&gt;If you choose this option you have to define a function in the lineedit at the right which will be used in the generated code for loading pixmaps. When choosing a pixmap in the Qt Designer you will be asked then to specify the arguments which will be passed to that function in the generated code.&lt;p&gt; This way makes it possible to use an own icon-loader function for loading pixmaps, but of course the preview in the Qt Designer can't show the correct image.</string>
+                        <string>&lt;b&gt;Use a defined function to open pixmaps&lt;/b&gt;&lt;p&gt;If you choose this option you must define a function in the line edit at the right which will be used in the generated code for loading pixmaps. When choosing a pixmap in &lt;i&gt;Qt Designer&lt;/i&gt; you will be asked to specify the arguments which will be passed to the function in the generated code.&lt;p&gt; This approach makes it possible to use your own icon-loader function for loading pixmaps.  &lt;i&gt;Qt Designer&lt;/i&gt; can't preview the correct image if you use your own function.</string>
                     </property>
                 </widget>
             </grid>
