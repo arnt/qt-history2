@@ -1,4 +1,17 @@
 #!/usr/bin/perl
+############################################################################
+#
+# Creates a project file for the Qt library
+#
+# Options:
+#   -win        Generate a project file for Windows
+#   -x11	Generate a project file for X11
+#   -o file	Write output to "file" instead of stdout
+#
+#
+# Copyright (C) 1996 by Troll Tech AS.  All rights reserved.
+#
+############################################################################
 
 if ( ! $ENV{"HOSTTYPE"} ) {
     $platform = "win";			# Windows 95 or NT
@@ -79,6 +92,8 @@ print $headers  . "\n\n";
 print $sources  . "\n\n";
 print $target   . "\n\n";
 print $version  . "\n";
+exit 0;						# successfully done
+
 
 #
 # scan_makefile(file)
@@ -113,36 +128,6 @@ sub scan_makefile {
     }
     close(TMP);
     return %vars;
-}
-
-
-#
-# Finds files.
-#
-# Examples:
-#   find_files("/usr","\.cpp$",1)   - finds .cpp files in /usr and below
-#   find_files("/tmp","/^#/",0)	    - finds #* files in /tmp
-#
-
-sub find_files
-{
-    local($dir,$match,$descend) = @_;
-    local(*D);
-    local($file,@files);
-    ($dir eq "") && ($dir = ".");
-    $dir .= "/" if ( !($dir =~ /\/$/) );
-    if ( opendir(D,$dir) ) {
-	($dir eq "./") && ($dir = "");
-	foreach $file ( readdir(D) ) {
-	    next if ( $file  =~ /^\.\.?$/ );
-	    ($file =~ /$match/) && (push @files, ($dir . $file));
-	    if ( $descend && -d $file ) {
-		push @files, &find_files($file,$match,$descend);
-	    }
-	}
-	closedir(D);
-    }
-    return @files;
 }
 
 
