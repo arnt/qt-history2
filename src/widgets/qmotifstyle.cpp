@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#8 $
 **
 ** Implementation of Motif-like style class
 **
@@ -700,9 +700,10 @@ void QMotifStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb, int 
     if ( controls & Slider ) {
 	QPoint bo = p->brushOrigin();
 	p->setBrushOrigin(sliderR.topLeft());
-	drawBevelButton( p, sliderR.x(), sliderR.y(),
-			 sliderR.width(), sliderR.height(), g,
-			 FALSE, &g.brush( QColorGroup::Button ) );
+	if ( sliderR.isValid() )
+	    drawBevelButton( p, sliderR.x(), sliderR.y(),
+			     sliderR.width(), sliderR.height(), g,
+			     FALSE, &g.brush( QColorGroup::Button ) );
 
 	//	qDrawShadePanel( p, sliderR, g, FALSE, 2, &g.fillButton() );
 	p->setBrushOrigin(bo);
