@@ -18,6 +18,7 @@
 #ifndef QT_H
 #include "qatomic.h"
 #include "qbytearray.h"
+#include "qlist.h"
 #include "qmetaobject.h"
 #endif // QT_H
 
