@@ -528,6 +528,9 @@ void QColor::setNamedColor( const QString& name )
     The hue (which \a h points to) is set to -1 if the color is
     achromatic.
 
+    \warning Colors are stored internally as RGB values, so getHSv()
+    may return slightly different values to those set by setHsv().
+
     \sa setHsv(), rgb()
 */
 
@@ -589,6 +592,9 @@ void QColor::hsv( int *h, int *s, int *v ) const
 
     If \a s or \a v are not in the range 0-255, or \a h is < -1, the
     color is not changed.
+
+    \warning Colors are stored internally as RGB values, so getHSv()
+    may return slightly different values to those set by setHsv().
 
     \sa hsv(), setRgb()
 */
