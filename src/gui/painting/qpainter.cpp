@@ -38,7 +38,7 @@
 #include <math.h>
 
 // #define QT_DEBUG_DRAW
-#ifdef QT_DEBUG_DRAW
+=#ifdef QT_DEBUG_DRAW
 bool qt_show_painter_debug_output = true;
 #endif
 
@@ -58,7 +58,7 @@ QPolygon QPainterPrivate::draw_helper_xpolygon(const void *data, ShapeType shape
     case EllipseShape: {
         QPainterPath path;
         path.addEllipse(*reinterpret_cast<const QRectF*>(data));
-        return path.toSubpathPolygons().first() * state->matrix;
+        return path.toSubpathPolygons(state->matrix).first();
     }
     case RectangleShape:
         return QPolygon(*reinterpret_cast<const QRectF*>(data)) * state->matrix;
@@ -1837,14 +1837,20 @@ void QPainter::drawPath(const QPainterPath &path)
         return;
     }
 
-    QList<QPolygon> polygons = path.toSubpathPolygons();
+    uint emulationSpecifier = d->engine->emulationSpecifier;
+    QMatrix convertMatrix;
+    if (emulationSpecifier & QPaintEngine::CoordTransform) {
+        emulationSpecifier &= ~QPaintEngine::CoordTransform;
+        convertMatrix = d->state->matrix;
+    }
+
+    QList<QPolygon> polygons = path.toSubpathPolygons(convertMatrix);
     if (polygons.isEmpty())
         return;
 
 
     save();
 
-    uint emulationSpecifier = d->engine->emulationSpecifier;
     if ((emulationSpecifier & QPaintEngine::LinearGradients)
         && d->engine->hasFeature(QPaintEngine::LinearGradientFillPolygon))
         emulationSpecifier &= ~QPaintEngine::LinearGradients;
@@ -1855,7 +1861,7 @@ void QPainter::drawPath(const QPainterPath &path)
 
     // Fill the path...
     if (d->state->brush.style() != Qt::NoBrush) {
-        QList<QPolygon> fills = path.toFillPolygons();
+        QList<QPolygon> fills = path.toFillPolygons(convertMatrix);
         QPen oldPen = d->state->pen;
         setPen(Qt::NoPen);
 	d->engine->updateState(d->state);
@@ -1873,7 +1879,7 @@ void QPainter::drawPath(const QPainterPath &path)
     if (d->state->pen.style() != Qt::NoPen) {
 	for (int i=0; i<polygons.size(); ++i) {
 	    d->engine->updateState(d->state);
-            if (d->engine->emulationSpecifier) {
+            if (emulationSpecifier) {
                 QPolygon polygon = polygons.at(i);
                 d->draw_helper(&polygon, path.fillRule(), QPainterPrivate::LineShape,
                                QPainterPrivate::StrokeDraw);

@@ -1009,7 +1009,7 @@ QPainterPath QPainterPath::toReversed() const
     Returns a list of polygons corresponding to the subpaths in the painter
     path.
 */
-QList<QPolygon> QPainterPath::toSubpathPolygons() const
+QList<QPolygon> QPainterPath::toSubpathPolygons(const QMatrix &matrix) const
 {
     QList<QPolygon> flatCurves;
     if (isEmpty())
@@ -1023,18 +1023,18 @@ QList<QPolygon> QPainterPath::toSubpathPolygons() const
             if (current.size() > 1)
                 flatCurves += current;
             current.clear();
-            current += QPointF(e.x, e.y);
+            current += QPointF(e.x, e.y) * matrix;
             break;
         case QPainterPath::LineToElement:
-            current += QPointF(e.x, e.y);
+            current += QPointF(e.x, e.y) * matrix;
             break;
         case QPainterPath::CurveToElement:
             Q_ASSERT(elements.at(i+1).type == QPainterPath::CurveToDataElement);
             Q_ASSERT(elements.at(i+2).type == QPainterPath::CurveToDataElement);
-            current += QBezier(elements.at(i-1).x, elements.at(i-1).y,
-                               e.x, e.y,
-                               elements.at(i+1).x, elements.at(i+1).y,
-                               elements.at(i+2).x, elements.at(i+2).y).toPolygon();
+            current += QBezier(QPointF(elements.at(i-1).x, elements.at(i-1).y) * matrix,
+                               QPointF(e.x, e.y) * matrix,
+                               QPointF(elements.at(i+1).x, elements.at(i+1).y) * matrix,
+                               QPointF(elements.at(i+2).x, elements.at(i+2).y) * matrix).toPolygon();
             i+=2;
             break;
         case QPainterPath::CurveToDataElement:
@@ -1052,9 +1052,9 @@ QList<QPolygon> QPainterPath::toSubpathPolygons() const
 /*!
     Returns the painter path as a filled polygon.
 */
-QPolygon QPainterPath::toFillPolygon() const
+QPolygon QPainterPath::toFillPolygon(const QMatrix &matrix) const
 {
-    QList<QPolygon> flats = toSubpathPolygons();
+    QList<QPolygon> flats = toSubpathPolygons(matrix);
     QPolygon polygon;
     if (flats.isEmpty())
         return polygon;
@@ -1072,11 +1072,11 @@ QPolygon QPainterPath::toFillPolygon() const
 /*!
   Creates a polygon from the path.
 */
-QList<QPolygon> QPainterPath::toFillPolygons() const
+QList<QPolygon> QPainterPath::toFillPolygons(const QMatrix &matrix) const
 {
     QList<QPolygon> polys;
 
-    QList<QPolygon> subpaths = toSubpathPolygons();
+    QList<QPolygon> subpaths = toSubpathPolygons(matrix);
     int count = subpaths.size();
 
     if (count == 0)

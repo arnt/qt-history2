@@ -14,15 +14,18 @@
 #ifndef QPAINTERPATH_H
 #define QPAINTERPATH_H
 
+#include "qglobal.h"
 #include "qrect.h"
 #include "qline.h"
 #include "qvector.h"
+#include "qmatrix.h"
 
-class QRegion;
-class QPolygon;
+
+class QFont;
 class QPainterPathPrivate;
 class QPainterPathStrokerPrivate;
-class QFont;
+class QPolygon;
+class QRegion;
 
 class Q_GUI_EXPORT QPainterPath
 {
@@ -87,9 +90,9 @@ public:
     inline bool isEmpty() const;
 
     QPainterPath toReversed() const;
-    QList<QPolygon> toSubpathPolygons() const;
-    QList<QPolygon> toFillPolygons() const;
-    QPolygon toFillPolygon() const;
+    QList<QPolygon> toSubpathPolygons(const QMatrix &matrix = QMatrix()) const;
+    QList<QPolygon> toFillPolygons(const QMatrix &matrix = QMatrix()) const;
+    QPolygon toFillPolygon(const QMatrix &matrix = QMatrix()) const;
 
     int elementCount() const { return elements.size(); }
     const QPainterPath::Element &elementAt(int i) const { return elements.at(i); }

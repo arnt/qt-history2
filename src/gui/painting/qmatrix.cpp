@@ -16,6 +16,8 @@
 #include "qmath_p.h"
 #include "qmatrix.h"
 #include "qregion.h"
+#include "qpainterpath.h"
+
 #include <limits.h>
 
 #ifndef QT_NO_MATRIX
@@ -1009,6 +1011,12 @@ QMatrix &QMatrix::operator=(const QMatrix &matrix)
     _dy  = matrix._dy;
     return *this;
 }
+
+Q_GUI_EXPORT QPainterPath operator *(const QPainterPath &p, const QMatrix &m)
+{
+    return m.map(p);
+}
+
 
 /*****************************************************************************
   QMatrix stream functions
