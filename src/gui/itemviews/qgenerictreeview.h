@@ -48,8 +48,8 @@ public:
     bool isColumnHidden(int column) const;
     bool isOpen(const QModelIndex &item) const;
 
-    QRect itemViewportRect(const QModelIndex &item) const;
-    void ensureItemVisible(const QModelIndex &item);
+    QRect itemViewportRect(const QModelIndex &index) const;
+    void ensureItemVisible(const QModelIndex &index);
     QModelIndex itemAt(int x, int y) const;
 
     void doItemsLayout();
@@ -60,8 +60,8 @@ public:
 
 public slots:
     void hideColumn(int column);
-    void open(const QModelIndex &item);
-    void close(const QModelIndex &item);
+    void open(const QModelIndex &index);
+    void close(const QModelIndex &index);
 
 protected slots:
     void resizeColumnToContents(int column);

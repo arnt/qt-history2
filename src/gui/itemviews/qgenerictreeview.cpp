@@ -195,17 +195,17 @@ bool QGenericTreeView::isOpen(const QModelIndex &item) const
     return d->opened.contains(item);
 }
 
-QRect QGenericTreeView::itemViewportRect(const QModelIndex &item) const
+QRect QGenericTreeView::itemViewportRect(const QModelIndex &index) const
 {
-    if (!item.isValid())
+    if (!index.isValid())
         return QRect();
 
-    int x = columnViewportPosition(item.column());
-    int w = columnWidth(item.column());
-    int vi = d->viewIndex(item);
+    int x = columnViewportPosition(index.column());
+    int w = columnWidth(index.column());
+    int vi = d->viewIndex(index);
     if (vi < 0)
         return QRect();
-    if (item.column() == 0) {
+    if (index.column() == 0) {
         int i = d->indentation(vi);
         x += i;
         w -= i;
@@ -217,26 +217,26 @@ QRect QGenericTreeView::itemViewportRect(const QModelIndex &item) const
     return QRect(x, y, w, h);
 }
 
-void QGenericTreeView::ensureItemVisible(const QModelIndex &item)
+void QGenericTreeView::ensureItemVisible(const QModelIndex &index)
 {
     QRect area = d->viewport->rect();
-    QRect rect = itemViewportRect(item);
-
+    QRect rect = itemViewportRect(index);
+       
     if (area.contains(rect)) {
         d->viewport->repaint(rect);
         return;
     }
-
+    
     // vertical
     if (rect.top() < area.top()) { // above
-        int i = d->viewIndex(item);
+        int i = d->viewIndex(index);
         verticalScrollBar()->setValue(i * verticalFactor());
     } else if (rect.bottom() > area.bottom()) { // below
         QItemOptions options;
         getViewOptions(&options);
         QFontMetrics fontMetrics(this->fontMetrics());
         QAbstractItemDelegate *delegate = itemDelegate();
-        int i = d->viewIndex(item);
+        int i = d->viewIndex(index);
         int y = area.height();
         while (y > 0 && i > 0)
             y -= delegate->sizeHint(fontMetrics, options, d->items.at(i--).index).height();
@@ -247,9 +247,9 @@ void QGenericTreeView::ensureItemVisible(const QModelIndex &item)
 
     // horizontal
     if (rect.left() < area.left()) { // left of
-        horizontalScrollBar()->setValue(item.column() * horizontalFactor());
+        horizontalScrollBar()->setValue(index.column() * horizontalFactor());
     } else if (rect.right() > area.right()) { // right of
-        int c = item.column();
+        int c = index.column();
         int x = area.width();
         while (x > 0 && c > 0)
             x -= columnWidth(c--);
@@ -558,8 +558,9 @@ QRect QGenericTreeView::selectionViewportRect(const QItemSelection &selection) c
 
 void QGenericTreeView::scrollContentsBy(int dx, int dy)
 {
-    int max_dx = horizontalScrollBar()->pageStep() * 20;
-    int max_dy = verticalScrollBar()->pageStep() * 20;
+    int items = qMin(d->items.count(), d->viewport->height() / fontMetrics().height());
+    int max_dx = horizontalFactor() * items;
+    int max_dy = verticalFactor() * items;
 
     // no need to do a lot of work if we are going to redraw the whole thing anyway
     if (QABS(dx) > max_dx || QABS(dy) > max_dy) {
@@ -1029,7 +1030,7 @@ int QGenericTreeViewPrivate::coordinateAt(int value, int iheight) const
 void QGenericTreeViewPrivate::relayout(const QModelIndex &parent)
 {
     if (!q->isVisible()) {
-        items.resize(0);
+        items.clear();
         return;
     }
     // do a local relayout of the items
@@ -1040,7 +1041,7 @@ void QGenericTreeViewPrivate::relayout(const QModelIndex &parent)
             open(p);
         }
     } else {
-        items.resize(0);
+        items.clear();
         q->doItemsLayout();
     }
 }
