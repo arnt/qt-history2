@@ -296,8 +296,15 @@ int main( int argc, char** argv )
 	do {
 	    line = sep;
 	    localsql::Record& rec = rs->currentRecord();
-	    for ( i = 0; i < fieldcount; ++i )
-		line += rec[i].toString().rightJustify( 15 ).mid( 0, 15 ) + sep;
+	    for ( i = 0; i < fieldcount; ++i ) {
+		bool nullfield;
+		if ( !rs->isNull( i, nullfield ) )
+		    break;
+		if ( nullfield )
+		    line += QString("NULL").rightJustify( 15 ).mid( 0, 15 ) + sep;
+		else
+		    line += rec[i].toString().rightJustify( 15 ).mid( 0, 15 ) + sep;
+	    }
 	    outstream << line << endl;
 	} while( rs->next() );
 	outstream << rs->size() << " record(s) processed" << endl;
