@@ -2855,7 +2855,7 @@ QImage QImage::xForm( const QWMatrix &matrix ) const
   Returns a null image if \link setAlphaBuffer() alpha buffer mode\endlink
   is disabled.
 
-  See QPixmap::convertFromImage for a description of the \a
+  See QPixmap::convertFromImage() for a description of the \a
   conversion_flags argument.
 
   The returned image has little-endian bit order, which you can
