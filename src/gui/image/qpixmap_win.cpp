@@ -189,13 +189,27 @@ void QPixmap::fill(const QColor &fillColor)
 
 void QPixmap::resize_helper(const QSize &size)
 {
-    //### this does so not handle bitmaps
-    QImage image(size, 32);
-    image.fill(0);
-    {
-        QPainter p(&image);
-        p.drawPixmap(0, 0, *this);
+    if (size == data->image.size())
+        return;
+
+    QImage image;
+
+    // Initialize new image
+    if (data->image.depth() == 32) {
+        image = QImage(size, 32);
+        image.fill(0);
+    } else {
+        image = QImage(size.width(), size.height(), 1, 2, QImage::LittleEndian);
+        image.setColor(0, QColor(Qt::color0).rgba());
+        image.setColor(1, QColor(Qt::color1).rgba());
     }
+
+    // Copy the data over
+    QPainter p(&image);
+    p.drawPixmap(0, 0, *this);
+    p.end();
+
+    // replace with new data.
     data->image = image;
 }
 
@@ -337,8 +351,8 @@ QPixmap QPixmap::grabWidget(QWidget *widget, const QRect &rect)
     if (!r.intersects(widget->rect()))
         return res;
 
-    res.resize(r.size());
-    buf.resize(r.size());
+    res.resize_helper(r.size());
+    buf.resize_helper(r.size());
     if(!res || !buf)
         return res;
 
