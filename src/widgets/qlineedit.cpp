@@ -122,7 +122,7 @@ struct QLineEditPrivate {
 	dragEnabled( TRUE ),
 	preeditStart(-1),
 	preeditLength(-1),
-	passwordChar( '*' )
+	passwordChar( l->style().styleHint( QStyle::SH_LineEdit_PasswordCharacter, l ) )
 #ifndef QT_NO_CLIPBOARD
 	,clipboard_mode( QClipboard::Clipboard )
 #endif

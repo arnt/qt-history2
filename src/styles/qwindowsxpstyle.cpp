@@ -522,7 +522,7 @@ void QWindowsXPStyle::polish( QWidget *widget )
     }
 
     if ( !widget->ownPalette() )
-	 widget->setBackgroundOrigin( QWidget::AncestorOrigin );
+	widget->setBackgroundOrigin( QWidget::AncestorOrigin );
 
     updateRegion( widget );
 }
@@ -2048,6 +2048,9 @@ int QWindowsXPStyle::styleHint( StyleHint stylehint,
 
     case SH_Table_GridLineColor:
 	return 0xC0C0C0;
+
+    case SH_LineEdit_PasswordCharacter:
+	return 0x25CF;
 
     default:
 	return QWindowsStyle::styleHint( stylehint, widget, opt, returnData );

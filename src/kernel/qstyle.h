@@ -604,6 +604,9 @@ public:
 	// Qt::QRgb - table grid color
 	SH_Table_GridLineColor,
 
+	// QChar - Unicode character for password char
+	SH_LineEdit_PasswordCharacter,
+
 	// do not add any values below/greater than this
 	SH_CustomBase =		0xf0000000
     };
