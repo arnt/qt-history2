@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#37 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -22,7 +22,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#36 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#37 $";
 #endif
 
 
@@ -248,7 +248,169 @@ void QPainter::restore()			// restore/pop painter state
 
 
 // --------------------------------------------------------------------------
-// Painter functions for drawing shadow effects.
+// QPainter xform settings
+//
+
+/*!
+  Enables view transformations if \e enable is TRUE, or disables view
+  transformations if \e enable is FALSE.
+  \sa setWindow(), setViewport(), setWorldMatrix(), setWorldXForm()
+*/
+
+void QPainter::setViewXForm( bool enable )	// set xform
+{
+    if ( !isActive() || enable == testf(VxF) )
+	return;
+    setf( VxF, enable );
+    if ( testf(ExtDev) ) {
+	QPDevCmdParam param[1];
+	param[0].ival = enable;
+	pdev->cmd( PDC_SETVXFORM, param );
+    }
+    updateXForm();
+}
+
+/*!
+  Returns the window rectangle.
+  \sa setWindow()
+*/
+
+QRect QPainter::window() const			// get window
+{
+    return QRect( wx, wy, ww, wh );
+}
+
+/*!
+  Sets the window rectangle view transformation for the painter and
+  enables view transformation.
+
+  The window rectangle is part of the view transformation.
+  View transformations can be combined with world transformations.
+  \sa window(), setViewport(), setViewXForm(), setWorldMatrix(),
+  setWorldXForm()
+*/
+
+void QPainter::setWindow( int x, int y, int w, int h )
+{						// set window
+    if ( !isActive() )
+	return;
+    wx = x;
+    wy = y;
+    ww = w;
+    wh = h;
+    if ( testf(ExtDev) ) {
+	QRect r( x, y, w, h );
+	QPDevCmdParam param[1];
+	param[0].rect = (QRect*)&r;
+	pdev->cmd( PDC_SETWINDOW, param );
+	return;
+    }
+    if ( testf(VxF) )
+	updateXForm();
+    else
+	setViewXForm( TRUE );
+}
+
+/*!
+  Returns the viewport rectangle.
+  \sa setViewport()
+*/
+
+QRect QPainter::viewport() const		// get viewport
+{
+    return QRect( vx, vy, vw, vh );
+}
+
+/*!
+  Sets the viewport rectangle view transformation for the painter and
+  enables view transformation.
+
+  The viewport rectangle is part of the view transformation.
+  View transformations can be combined with world transformations.
+  \sa viewport(), setWindow(), setViewXForm(), setWorldMatrix(),
+  setWorldXForm()
+*/
+
+void QPainter::setViewport( int x, int y, int w, int h )
+{						// set viewport
+    vx = x;
+    vy = y;
+    vw = w;
+    vh = h;
+    if ( testf(ExtDev) ) {
+	QRect r( x, y, w, h );
+	QPDevCmdParam param[1];
+	param[0].rect = (QRect*)&r;
+	pdev->cmd( PDC_SETVIEWPORT, param );
+	return;
+    }
+    if ( testf(VxF) )
+	updateXForm();
+    else
+	setViewXForm( TRUE );
+}
+
+/*!
+  Enables world transformations if \e enable is TRUE, or disables
+  world transformations if \e enable is FALSE.
+  \sa setWorldMatrix(), setWindow(), setViewport(), setViewXForm()
+*/
+
+void QPainter::setWorldXForm( bool enable )	// set world transform
+{
+    if ( !isActive() || enable == testf(WxF) )
+	return;
+    setf( WxF, enable );
+    if ( testf(ExtDev) ) {
+	QPDevCmdParam param[1];
+	param[0].ival = enable;
+	pdev->cmd( PDC_SETWXFORM, param );
+    }
+    updateXForm();
+}
+
+/*!
+  Returns the world transformation matrix.
+*/
+
+const Q2DMatrix &QPainter::worldMatrix() const	// get world xform matrix
+{
+    return wxmat;
+}
+
+/*!
+  Sets the world transformation matrix to \e m and enables world
+  transformation.
+
+  If \e combine is TRUE, then \e m is combined with the
+  current transformation matrix, otherwise \e m will replace
+  the current transformation matrix.
+  \sa worldMatrix(), setWorldXForm(), setWindow(), setViewport(),
+  setViewXForm()
+*/
+
+void QPainter::setWorldMatrix( const Q2DMatrix &m, bool combine )
+{						// set world xform matrix
+    if ( combine )
+	wxmat = m * wxmat;			// combines
+    else
+	wxmat = m;				// set new matrix
+    if ( testf(ExtDev) ) {
+	QPDevCmdParam param[2];
+	param[0].matrix = &wxmat;
+	param[1].ival = combine;
+	pdev->cmd( PDC_SETWMATRIX, param );
+	return;
+    }
+    if ( !testf(WxF) )
+	setWorldXForm( TRUE );
+    else
+	updateXForm();
+}
+
+
+// --------------------------------------------------------------------------
+// QPainter functions for drawing shadow effects.
 //
 
 /*!
