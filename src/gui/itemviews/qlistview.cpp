@@ -922,6 +922,10 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction,
                 d->intersectingStaticSet(rect);
             else
                 d->intersectingDynamicSet(rect);
+            // FIXME: don't get current in this set
+            int idx = d->intersectVector.indexOf(current);
+            if (idx > -1)
+                d->intersectVector.remove(idx);
         }
         return d->closestIndex(pos, d->intersectVector);
     case MovePageUp:
@@ -1181,7 +1185,6 @@ void QListView::doStaticLayout(const QRect &bounds, int first, int last)
         // used when laying out next batch
         d->xposVector.push_back(x);
         d->translate = dy;
-        rect.setRight(x);
         rect.setBottom(y + dy);
     } else { // d->flow == TopToBottom
         int h = bounds.height();
@@ -1204,7 +1207,6 @@ void QListView::doStaticLayout(const QRect &bounds, int first, int last)
         // used when laying out next batch
         d->yposVector.push_back(y);
         d->translate = dx;
-        rect.setBottom(y);
         rect.setRight(x + dx);
     }
 
