@@ -124,11 +124,6 @@ QRepeaterGfx::~QRepeaterGfx()
     for(walker=gfxen.first();walker;walker=gfxen.next()) {
 	delete walker->gfx;
     }
-    /*
-    while(qt_fbdpy->grabbed()) {
-	qt_fbdpy->ungrab();
-    }
-    */
 }
 
 QString dumpRegion(QRegion r)
