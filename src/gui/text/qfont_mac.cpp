@@ -78,7 +78,7 @@ int QFontMetrics::charWidth(const QString &str, int pos) const
 {
     QTextEngine layout(str, d);
     layout.itemize(QTextEngine::WidthOnly);
-    return layout.width(pos, 1);
+    return layout.width(pos, 1).toInt();
 }
 
 QString QFont::rawName() const

@@ -38,7 +38,7 @@ QFontEngine::~QFontEngine()
 {
 }
 
-int QFontEngine::lineThickness() const
+Q26Dot6 QFontEngine::lineThickness() const
 {
   // ad hoc algorithm
   int score = fontDef.pixelSize * fontDef.weight;
@@ -52,10 +52,9 @@ int QFontEngine::lineThickness() const
   return lth;
 }
 
-int QFontEngine::underlinePosition() const
+Q26Dot6 QFontEngine::underlinePosition() const
 {
-  int pos = ((lineThickness() * 2) + 3) / 6;
-  return pos ? pos : 1;
+  return ((lineThickness() * 2) + 3) / 6;
 }
 
 struct QATSUStyle {
@@ -159,7 +158,7 @@ QFontEngineMac::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int tex
     QGlyphLayout *glyphs = si.glyphs;
     if(pState->painter->backgroundMode() == Qt::OpaqueMode) {
 	glyph_metrics_t br = boundingBox(glyphs, si.num_glyphs);
-	pState->painter->fillRect(x+br.x, y+br.y, br.width, br.height,
+	pState->painter->fillRect(x+br.x.toInt(), y+br.y.toInt(), br.width.toInt(), br.height.toInt(),
                                   pState->painter->backgroundColor());
     }
 
@@ -173,7 +172,7 @@ QFontEngineMac::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int tex
 	for(int i = 0; i < si.num_glyphs; i++) {
 	    glyphs--;
 	    w += doTextTask((QChar*)&glyphs->glyph, 0, 1, 1, task, x, y, p);
-	    x += glyphs->advance.x;
+	    x += glyphs->advance.x.toInt();
 	}
     } else {
 	QVarLengthArray<ushort> g(si.num_glyphs);
@@ -182,20 +181,20 @@ QFontEngineMac::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int tex
 	w = doTextTask((QChar*)g.data(), 0, si.num_glyphs, si.num_glyphs, task, x, y, p);
     }
     if(w && textFlags != 0) {
-	int lw = lineThickness();
+	int lw = lineThickness().toInt();
 	if(textFlags & Qt::Underline)
-	    p->drawRect(QRect(x, y+underlinePosition(), si.right_to_left ? -w : w, lw));
+	    p->drawRect(QRect(x, y+underlinePosition().toInt(), si.right_to_left ? -w : w, lw));
 	if(textFlags & Qt::Overline)
-	    p->drawRect(QRect(x, y + (ascent() + 1), si.right_to_left ? -w : w, lw));
+	    p->drawRect(QRect(x, y + (ascent().toInt() + 1), si.right_to_left ? -w : w, lw));
 	if(textFlags & Qt::StrikeOut)
-	    p->drawRect(QRect(x, y + (ascent() / 3), si.right_to_left ? -w : w, lw));
+	    p->drawRect(QRect(x, y + (ascent().toInt() / 3), si.right_to_left ? -w : w, lw));
     }
 }
 
 glyph_metrics_t
 QFontEngineMac::boundingBox(const QGlyphLayout *glyphs, int numGlyphs)
 {
-    int w = 0;
+    Q26Dot6 w;
     const QGlyphLayout *end = glyphs + numGlyphs;
     while(end > glyphs)
 	w += (--end)->advance.x;
@@ -220,7 +219,7 @@ QFontEngineMac::calculateCost()
 {
     // ### don't know how to get the number of glyphs from the font,
     // ### so default to 1024
-    cache_cost = (ascent() + descent() + 1) * maxCharWidth() * 1024;
+    cache_cost = (ascent() + descent() + 1).toInt() * maxCharWidth().toInt() * 1024;
 }
 
 //Create a cacheable ATSUStyle
@@ -295,16 +294,14 @@ static inline int qt_mac_get_measurement(ATSUStyle style, ATSUAttributeTag tag, 
     return FixRound(ret);
 }
 
-int
-QFontEngineMac::ascent() const
+Q26Dot6 QFontEngineMac::ascent() const
 {
     QATSUStyle *st = getFontStyle();
     if(st->ascent != -1)
 	return st->ascent;
     return st->ascent = qt_mac_get_measurement(st->style, kATSUAscentTag, this);
 }
-int
-QFontEngineMac::descent() const
+Q26Dot6 QFontEngineMac::descent() const
 {
     QATSUStyle *st = getFontStyle();
     if(st->descent != -1)
@@ -312,8 +309,7 @@ QFontEngineMac::descent() const
     return st->descent = qt_mac_get_measurement(st->style, kATSUDescentTag, this);
 }
 
-int
-QFontEngineMac::leading() const
+Q26Dot6 QFontEngineMac::leading() const
 {
     QATSUStyle *st = getFontStyle();
     if(st->leading != -1)
@@ -321,8 +317,7 @@ QFontEngineMac::leading() const
     return st->leading = qt_mac_get_measurement(st->style, kATSULeadingTag, this);
 }
 
-int
-QFontEngineMac::maxCharWidth() const
+Q26Dot6 QFontEngineMac::maxCharWidth() const
 {
     QATSUStyle *st = getFontStyle();
     if(st->maxWidth != -1)
@@ -621,23 +616,23 @@ glyph_metrics_t QFontEngineBox::boundingBox(glyph_t)
     return glyph_metrics_t(0, _size, _size, _size, _size, 0);
 }
 
-int QFontEngineBox::ascent() const
+Q26Dot6 QFontEngineBox::ascent() const
 {
     return _size;
 }
 
-int QFontEngineBox::descent() const
+Q26Dot6 QFontEngineBox::descent() const
 {
     return 0;
 }
 
-int QFontEngineBox::leading() const
+Q26Dot6 QFontEngineBox::leading() const
 {
     int l = qRound(_size * 0.15);
     return (l > 0) ? l : 1;
 }
 
-int QFontEngineBox::maxCharWidth() const
+Q26Dot6 QFontEngineBox::maxCharWidth() const
 {
     return _size;
 }
