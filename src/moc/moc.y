@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#267 $
+** $Id: //depot/qt/main/src/moc/moc.y#268 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -191,7 +191,7 @@ struct Argument					// single arg meta data
 
 class ArgList : public QPtrList<Argument> {	// member function arg list
 public:
-    ArgList() { setAutoDelete( TRUE ); qoverload = FALSE;  }
+    ArgList() { setAutoDelete( TRUE ); }
    ~ArgList() { clear(); }
 
     /* the clone has one default argument less, the orignal has all default arguments removed */
@@ -212,7 +212,6 @@ public:
 	    else
 		next();
 	}
-	qoverload = TRUE;
 	return l;
     }
 
@@ -224,7 +223,6 @@ public:
 	return FALSE;
     }
 
-    bool qoverload;
 };
 
 
@@ -2684,7 +2682,7 @@ void generateClass()		      // generate C++ source code for a class
     const char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     const char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#267 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#268 $)\n**\n";
     const char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     const char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2872,30 +2870,21 @@ void generateClass()		      // generate C++ source code for a class
     f = g->signals.first();			// make internal signal methods
     static bool included_list_headers = FALSE;
     int sigindex = 0;
-    int overloads = 0;
     while ( f ) {
-	if( f->args->qoverload ) {
-	    overloads++;
-	    f = g->signals.next();
-	    sigindex++;
-	    continue;
-	} 
 	QCString argstr;
 	char buf[12];
 	Argument *a = f->args->first();
 	int offset = 0;
 	const char *predef_call_func = 0;
 
-	if ( !overloads ) {
-	    if ( !a ) {
+	if ( !a ) {
+	    predef_call_func = "activate_signal";
+	} else if ( f->args->count() == 1 ) {
+	    QCString utype = uType( (a->leftType + ' ' + a->rightType).simplifyWhiteSpace() );
+	    if ( utype == "bool" )
+		predef_call_func = "activate_signal_bool";
+	    else if ( utype == "QString" || utype == "int" || utype == "double"  )
 		predef_call_func = "activate_signal";
-	    } else if ( f->args->count() == 1 ) {
-		QCString utype = uType( (a->leftType + ' ' + a->rightType).simplifyWhiteSpace() );
-		if ( utype == "bool" )
-		    predef_call_func = "activate_signal_bool";
-		else if ( utype == "QString" || utype == "int" || utype == "double"  )
-		    predef_call_func = "activate_signal";
-	    }
 	}
 
 	if ( !predef_call_func && !included_list_headers ) {
@@ -2937,19 +2926,9 @@ void generateClass()		      // generate C++ source code for a class
 	} else {
 	    int nargs = f->args->count();
 	    fprintf( out, "    if ( signalsBlocked() )\n\treturn;\n" );
-	    if ( overloads ) {
-		for ( int i = 0; i <= overloads; i++ )
-		    fprintf( out, "    QConnectionList *clist%d = receivers( staticMetaObject()->signalOffset() + %d );\n",
-			     i, sigindex-overloads+i );
-		fprintf( out, "    if ( !clist0 " );
-		for ( int j = 1; j <= overloads; j++ )
-		    fprintf( out, "&& !clist%d ", j );
-		fprintf( out, ") \n\treturn;\n" );
-	    } else {
-		fprintf( out, "    QConnectionList *clist = receivers( staticMetaObject()->signalOffset() + %d );\n",
-			 sigindex );
-		fprintf( out, "    if ( !clist )\n\treturn;\n" );
-	    }
+	    fprintf( out, "    QConnectionList *clist = receivers( staticMetaObject()->signalOffset() + %d );\n",
+		     sigindex );
+	    fprintf( out, "    if ( !clist )\n\treturn;\n" );
 	    fprintf( out, "    QUObject o[%d];\n", f->args->count() + 1 );
 	    if ( !f->args->isEmpty() ) {
 		offset = 0;
@@ -2967,16 +2946,10 @@ void generateClass()		      // generate C++ source code for a class
 		    offset++;
 		}
 	    }
-	    if ( overloads ) {
-		for ( int i = 0; i <= overloads; i++ )
-		    fprintf( out, "    activate_signal( clist%d, o );\n", i );
-	    } else {
-		fprintf( out, "    activate_signal( clist, o );\n" );
-	    }
+	    fprintf( out, "    activate_signal( clist, o );\n" );
 	    fprintf( out, "}\n" );
 	}
 	
-	overloads = 0;
 	f = g->signals.next();
 	sigindex++;
     }
@@ -3250,22 +3223,20 @@ void addMember( Member m )
     while ( TRUE ) {
 	g->funcs.append( tmpFunc );
 
-	switch( m ) {
-	case SignalMember:
+	if ( m == SignalMember ) {
 	    g->signals.append( tmpFunc );
 	    break;
-	case SlotMember:
-	    g->slots.append( tmpFunc );
-	    // fall through
-	case PropertyCandidateMember:
+	} else {
+	    if ( m == SlotMember )
+		g->slots.append( tmpFunc );
+	    // PropertyCandidateMember or SlotMember
 	    if ( !tmpFunc->name.isEmpty() && tmpFunc->access == Public )
 		g->propfuncs.append( tmpFunc );
+	    if ( !tmpFunc->args || !tmpFunc->args->hasDefaultArguments() )
+		break;
+	    tmpFunc = new Function( *tmpFunc );
+	    tmpFunc->args = tmpFunc->args->magicClone();
 	}
-	
-	if ( !tmpFunc->args || !tmpFunc->args->hasDefaultArguments() )
-	    break;
-	tmpFunc = new Function( *tmpFunc );
-	tmpFunc->args = tmpFunc->args->magicClone();
     }
 
     skipFunc = FALSE;
