@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#49 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#50 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -399,10 +399,8 @@ void QHeader::unMarkLine( int idx )
  */
 int QHeader::cellAt( int c ) const
 {
-    if ( orient == Horizontal )
-	return findCol( c );
-    else
-	return findRow( c );
+    int i = ( orient == Horizontal ) ?  findCol( c ) :  findRow( c );
+    return i >= count() ? -1 : i;
 }
 
 
@@ -852,22 +850,24 @@ int QHeader::cellWidth( int col )
 
 
 /*!
-  Translates from actual indexes to logical indexes
+  Translates from actual index \a a to logical index.  Returns -1 if
+  \a a is outside the legal range.
 */
 
 int QHeader::mapToLogical( int a ) const
 {
-    return data->a2l[ a ];
+    return ( a >= 0 && a < count() ) ? data->a2l[ a ] : -1;
 }
 
 
 /*!
-  Translates from logical indexes to actual indexes
+  Translates from logical index \a l to actual index.  Returns -1 if
+  \a l is outside the legal range.
 */
 
 int QHeader::mapToActual( int l ) const
 {
-    return data->l2a[ l ];
+    return ( l >= 0 && l < count() ) ? data->l2a[ l ] : -1;
 }
 
 
