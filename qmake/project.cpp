@@ -837,6 +837,14 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 			    }
 			}
 		    }
+		} else if(reg_var.cap(1).lower() == "system") {
+		    if(args.count() != 2) {
+			fprintf(stderr, "%s:%d system(execut) requires two arguments\n",
+				parser.file.latin1(), parser.line_no);
+		    } else {
+			fprintf(stderr, "%s:%d system(execut); Not yet implemented..\n", 
+				parser.file.latin1(), parser.line_no);
+		    }
 		} else {
 		    fprintf(stderr, "%s:%d: Unknown replace function: %s\n",
 			    parser.file.latin1(), parser.line_no, reg_var.cap(1).latin1());
