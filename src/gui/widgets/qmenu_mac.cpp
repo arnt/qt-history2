@@ -555,11 +555,21 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
         }
     }
 
+    //mark glyph
+    data.whichData |= kMenuItemDataMark;
+    if(action->action->isChecked()) {
+        if(action->action->actionGroup() && 
+           action->action->actionGroup()->isExclusive())
+            data.mark = diamondMark;
+        else
+            data.mark = checkMark;
+    } else {
+        data.mark = noMark;
+    }
+        
     //actually set it
     SetMenuItemData(action->menu, action->command, true, &data);
 
-    //grrrrr.. why isn't checked in the data?
-    CheckMenuItem(action->menu, index, action->action->isChecked());
 }
 
 void
