@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qvaluelist.h#20 $
+** $Id: //depot/qt/main/src/tools/qvaluelist.h#21 $
 **
 ** Definition of QValueList class
 **
@@ -72,7 +72,7 @@ struct QValueListIterator
     T& operator*() const { return node->data; }
 
     // Compilers are too dumb to understand this for QValueList<int>
-    T* operator->() const { return &(node->data); }
+    //T* operator->() const { return &(node->data); }
 
     Type& operator++() {
         node = node->next;
