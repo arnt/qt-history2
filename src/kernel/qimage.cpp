@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#357 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#358 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -558,7 +558,8 @@ QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) const
 
     QImage image( w, h, depth(), numColors(), bitOrder() );
 
-    if ( x < 0 || y < 0 || x + w > width() || y + h > height() ) {
+    if ( x < 0 || y < 0 || x + w > width() || y + h > height()
+	    || hasAlphaBuffer() ) {
 	// bitBlt will not cover entire image - clear it.
 	// ### should deal with each side separately for efficiency
 	image.fill(0);
