@@ -25,8 +25,6 @@ private slots:
     bool saveAs();
     void about();
     void documentWasModified();
-    void printSetup();
-    void pageSetup();
 
 private:
     void createActions();
@@ -60,10 +58,6 @@ private:
     QAction *pasteAct;
     QAction *aboutAct;
     QAction *aboutQtAct;
-    QAction *printSetupAct;
-    QAction *pageSetupAct;
-
-    QPrinter *printer;
 };
 
 #endif

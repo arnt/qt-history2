@@ -54,8 +54,7 @@ void MainWindow::saveAs()
         if (ret == QMessageBox::No)
             return;
     }
-    if (!fileName.isEmpty())
-        saveFile(fileName);
+    saveFile(fileName);
 }
 
 void MainWindow::openRecentFile()
@@ -143,7 +142,7 @@ void MainWindow::createMenus()
 void MainWindow::loadFile(const QString &fileName)
 {
     QFile file(fileName);
-    if (!file.open(QFile::ReadOnly)) {
+    if (!file.open(QFile::ReadOnly | QFile::Text)) {
         QMessageBox::warning(this, tr("Recent Files"),
                              tr("Cannot read file %1:\n%2.")
                              .arg(fileName)
@@ -163,7 +162,7 @@ void MainWindow::loadFile(const QString &fileName)
 void MainWindow::saveFile(const QString &fileName)
 {
     QFile file(fileName);
-    if (!file.open(QFile::WriteOnly)) {
+    if (!file.open(QFile::WriteOnly | QFile::Text)) {
         QMessageBox::warning(this, tr("Recent Files"),
                              tr("Cannot write file %1:\n%2.")
                              .arg(fileName)

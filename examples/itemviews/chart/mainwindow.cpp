@@ -99,7 +99,7 @@ void MainWindow::openFile()
     if (!fileName.isEmpty()) {
         QFile file(fileName);
 
-        if (file.open(QFile::ReadOnly)) {
+        if (file.open(QFile::ReadOnly | QFile::Text)) {
             QTextStream stream(&file);
             QString line;
 
@@ -138,7 +138,7 @@ void MainWindow::saveFile()
         QFile file(fileName);
         QTextStream stream(&file);
 
-        if (file.open(QFile::WriteOnly)) {
+        if (file.open(QFile::WriteOnly | QFile::Text)) {
             for (int row = 0; row < model->rowCount(QModelIndex()); ++row) {
 
                 QStringList pieces;
