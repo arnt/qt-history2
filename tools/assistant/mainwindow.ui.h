@@ -293,6 +293,13 @@ void MainWindow::init()
 	    move( r.topLeft() );
 	}
     }
+    QString fn = QDir::homeDirPath() + "/.assistanttbrc";
+    QFile f( fn );
+    if ( f.open( IO_ReadOnly ) ) {
+	QTextStream ts( &f );
+	ts >> *this;
+	f.close();
+    }
     QTimer::singleShot( 0, this, SLOT( setup() ) );
 }
 
