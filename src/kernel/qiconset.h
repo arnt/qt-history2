@@ -53,20 +53,22 @@ public:
 
     enum Mode { Normal, Disabled, Active };
 
+    enum State { On, Off };
+
     QIconSet();
-    QIconSet( const QPixmap &, Size = Automatic );
+    QIconSet( const QPixmap &, Size = Automatic, State = Off );
     QIconSet( const QPixmap &smallPix, const QPixmap &largePix );
     QIconSet( const QIconSet & );
     virtual ~QIconSet();
 
-    void reset( const QPixmap &, Size );
+    void reset( const QPixmap &, Size, State = Off );
 
-    virtual void setPixmap( const QPixmap &, Size, Mode = Normal );
-    virtual void setPixmap( const QString &, Size, Mode = Normal );
-    QPixmap pixmap( Size, Mode ) const;
-    QPixmap pixmap( Size s, bool enabled ) const;
-    QPixmap pixmap() const;
-    bool isGenerated( Size, Mode ) const;
+    virtual void setPixmap( const QPixmap &, Size, Mode = Normal, State = Off );
+    virtual void setPixmap( const QString &, Size, Mode = Normal, State = Off );
+    QPixmap pixmap( Size, Mode, State = Off ) const;
+    QPixmap pixmap( Size s, bool enabled, State = Off ) const;
+    QPixmap pixmap( State = Off ) const;
+    bool isGenerated( Size, Mode, State = Off ) const;
 
     bool isNull() const;
 

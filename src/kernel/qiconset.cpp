@@ -70,7 +70,17 @@ struct QIconSetPrivate: public QShared
     Variant largeActive;
     Variant smallDisabled;
     Variant largeDisabled;
+
     QPixmap defpm;
+
+    Variant on_vsmall;
+    Variant on_vlarge;
+    Variant on_smallActive;
+    Variant on_largeActive;
+    Variant on_smallDisabled;
+    Variant on_largeDisabled;
+    
+    QPixmap on_defpm;
 };
 
 
@@ -229,10 +239,10 @@ QIconSet::QIconSet()
 
   \sa reset()
 */
-QIconSet::QIconSet( const QPixmap& pixmap, Size size )
+QIconSet::QIconSet( const QPixmap& pixmap, Size size, State state )
 {
     d = 0;
-    reset( pixmap, size );
+    reset( pixmap, size, state );
 }
 
 
@@ -306,14 +316,14 @@ bool QIconSet::isNull() const
 
   This is equivalent to assigning QIconSet(pm,s) to this icon set.
 */
-void QIconSet::reset( const QPixmap & pm, Size s )
+void QIconSet::reset( const QPixmap & pm, Size s, State state )
 {
     detach();
     if ( s == Small ||
 	 (s == Automatic && pm.width() <= 22 ) )
-	setPixmap( pm, Small, Normal );
+	setPixmap( pm, Small, Normal, state );
     else
-	setPixmap( pm, Large, Normal );
+	setPixmap( pm, Large, Normal, state );
     d->defpm = pm;
 }
 
@@ -329,55 +339,100 @@ void QIconSet::reset( const QPixmap & pm, Size s )
 
   \sa reset()
 */
-void QIconSet::setPixmap( const QPixmap & pm, Size size, Mode mode )
+void QIconSet::setPixmap( const QPixmap & pm, Size size, Mode mode, State state )
 {
     detach();
     if ( d ) {
-	d->vsmall.clearGenerate();
-	d->vlarge.clearGenerate();
-	d->smallDisabled.clearGenerate();
-	d->largeDisabled.clearGenerate();
-	d->smallActive.clearGenerate();
-	d->largeActive.clearGenerate();
+	if ( state == Off ) {
+	    d->vsmall.clearGenerate();
+	    d->vlarge.clearGenerate();
+	    d->smallDisabled.clearGenerate();
+	    d->largeDisabled.clearGenerate();
+	    d->smallActive.clearGenerate();
+	    d->largeActive.clearGenerate();
+	} else {
+	    d->on_vsmall.clearGenerate();
+	    d->on_vlarge.clearGenerate();
+	    d->on_smallDisabled.clearGenerate();
+	    d->on_largeDisabled.clearGenerate();
+	    d->on_smallActive.clearGenerate();
+	    d->on_largeActive.clearGenerate();
+	}
     } else {
 	d = new QIconSetPrivate;
     }
     if ( size == Large || (size == Automatic && pm.width() > 22)) {
 	switch( mode ) {
 	case Active:
-	    if ( !d->largeActive.pm )
-		d->largeActive.pm = new QPixmap();
-	    *d->largeActive.pm = pm;
+	    if ( state == Off ) {
+		if ( !d->largeActive.pm )
+		    d->largeActive.pm = new QPixmap();
+		*d->largeActive.pm = pm;
+	    } else {
+		if ( !d->on_largeActive.pm )
+		    d->on_largeActive.pm = new QPixmap();
+		*d->on_largeActive.pm = pm;
+	    }
 	    break;
 	case Disabled:
-	    if ( !d->largeDisabled.pm )
-		d->largeDisabled.pm = new QPixmap();
-	    *d->largeDisabled.pm = pm;
+	    if ( state == Off ) {
+		if ( !d->largeDisabled.pm )
+		    d->largeDisabled.pm = new QPixmap();
+		*d->largeDisabled.pm = pm;
+	    } else {
+		if ( !d->on_largeDisabled.pm )
+		    d->on_largeDisabled.pm = new QPixmap();
+		*d->on_largeDisabled.pm = pm;
+	    }
 	    break;
 	case Normal:
 	default:
-	    if ( !d->vlarge.pm )
-		d->vlarge.pm = new QPixmap();
-	    *d->vlarge.pm = pm;
+	    if ( state == Off ) {
+		if ( !d->vlarge.pm )
+		    d->vlarge.pm = new QPixmap();
+		*d->vlarge.pm = pm;
+	    } else {
+		if ( !d->on_vlarge.pm )
+		    d->on_vlarge.pm = new QPixmap();
+		*d->on_vlarge.pm = pm;
+	    }
 	    break;
 	}
     } else if ( size == Small  || (size == Automatic && pm.width() <= 22)) {
 	switch( mode ) {
 	case Active:
-	    if ( !d->smallActive.pm )
-		d->smallActive.pm = new QPixmap();
-	    *d->smallActive.pm = pm;
+	    if ( state == Off ) {
+		if ( !d->smallActive.pm )
+		    d->smallActive.pm = new QPixmap();
+		*d->smallActive.pm = pm;
+	    } else {
+		if ( !d->on_smallActive.pm )
+		    d->on_smallActive.pm = new QPixmap();
+		*d->on_smallActive.pm = pm;
+	    }
 	    break;
 	case Disabled:
-	    if ( !d->smallDisabled.pm )
-		d->smallDisabled.pm = new QPixmap();
-	    *d->smallDisabled.pm = pm;
+	    if ( state == Off ) {
+		if ( !d->smallDisabled.pm )
+		    d->smallDisabled.pm = new QPixmap();
+		*d->smallDisabled.pm = pm;
+	    } else {
+		if ( !d->on_smallDisabled.pm )
+		    d->on_smallDisabled.pm = new QPixmap();
+		*d->on_smallDisabled.pm = pm;
+	    }
 	    break;
 	case Normal:
 	default:
-	    if ( !d->vsmall.pm )
-		d->vsmall.pm = new QPixmap();
-	    *d->vsmall.pm = pm;
+	    if ( state == Off ) {
+		if ( !d->vsmall.pm )
+		    d->vsmall.pm = new QPixmap();
+		*d->vsmall.pm = pm;
+	    } else {
+		if ( !d->on_vsmall.pm )
+		    d->on_vsmall.pm = new QPixmap();
+		*d->on_vsmall.pm = pm;
+	    }
 	    break;
 	}
 #if defined(QT_CHECK_RANGE)
@@ -398,12 +453,12 @@ void QIconSet::setPixmap( const QPixmap & pm, Size size, Mode mode )
   QIconSet will determine if the pixmap is Small or Large from its pixel size.
   Pixmaps less than 23 pixels wide are considered to be Small.
 */
-void QIconSet::setPixmap( const QString &fileName, Size s, Mode m )
+void QIconSet::setPixmap( const QString &fileName, Size s, Mode m, State state )
 {
     QPixmap p;
     p.load( fileName );
     if ( !p.isNull() )
-	setPixmap( p, s, m );
+	setPixmap( p, s, m, state );
 }
 
 
@@ -411,7 +466,7 @@ void QIconSet::setPixmap( const QString &fileName, Size s, Mode m )
   Returns a pixmap with size \a s and mode \a m, generating one if
   needed. Generated pixmaps are cached.
 */
-QPixmap QIconSet::pixmap( Size s, Mode m ) const
+QPixmap QIconSet::pixmap( Size s, Mode m, State state ) const
 {
     if ( !d ) {
 	QPixmap r;
@@ -421,166 +476,337 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
     QImage i;
     QIconSetPrivate * p = ((QIconSet *)this)->d;
     QPixmap * pm = 0;
-    if ( s == Large ) {
-	switch( m ) {
-	case Normal:
-	    if ( !p->vlarge.pm ) {
-		Q_ASSERT( p->vsmall.pm );
-		i = p->vsmall.pm->convertToImage();
-		i = i.smoothScale( i.width() * 3 / 2, i.height() * 3 / 2 );
-		p->vlarge.pm = new QPixmap;
-		p->vlarge.generated = TRUE;
-		p->vlarge.pm->convertFromImage( i );
-		if ( !p->vlarge.pm->mask() ) {
-		    i = i.createHeuristicMask();
-		    QBitmap tmp;
-		    tmp.convertFromImage( i, Qt::MonoOnly + Qt::ThresholdDither );
-		    p->vlarge.pm->setMask( tmp );
-		}
-	    }
-	    pm = p->vlarge.pm;
-	    break;
-	case Active:
-	    if ( !p->largeActive.pm ) {
-		p->largeActive.pm = new QPixmap( pixmap( Large, Normal ) );
-		p->largeActive.generated = TRUE;
-	    }
-	    pm = p->largeActive.pm;
-	    break;
-	case Disabled:
-	    if ( !p->largeDisabled.pm ) {
-		QBitmap tmp;
-		if ( p->vlarge.generated && !p->smallDisabled.generated &&
-		     p->smallDisabled.pm && !p->smallDisabled.pm->isNull() ) {
-		    // if there's a hand-drawn disabled small image,
-		    // but the normal big one is generated, use the
-		    // hand-drawn one to generate this one.
-		    i = p->smallDisabled.pm->convertToImage();
+    if ( state == Off ) {
+	if ( s == Large ) {
+	    switch( m ) {
+	    case Normal:
+		if ( !p->vlarge.pm ) {
+		    Q_ASSERT( p->vsmall.pm );
+		    i = p->vsmall.pm->convertToImage();
 		    i = i.smoothScale( i.width() * 3 / 2, i.height() * 3 / 2 );
-		    p->largeDisabled.pm = new QPixmap;
-		    p->largeDisabled.pm->convertFromImage( i );
+		    p->vlarge.pm = new QPixmap;
+		    p->vlarge.generated = TRUE;
+		    p->vlarge.pm->convertFromImage( i );
+		    if ( !p->vlarge.pm->mask() ) {
+			i = i.createHeuristicMask();
+			QBitmap tmp;
+			tmp.convertFromImage( i, Qt::MonoOnly + Qt::ThresholdDither );
+			p->vlarge.pm->setMask( tmp );
+		    }
+		}
+		pm = p->vlarge.pm;
+		break;
+	    case Active:
+		if ( !p->largeActive.pm ) {
+		    p->largeActive.pm = new QPixmap( pixmap( Large, Normal ) );
+		    p->largeActive.generated = TRUE;
+		}
+		pm = p->largeActive.pm;
+		break;
+	    case Disabled:
+		if ( !p->largeDisabled.pm ) {
+		    QBitmap tmp;
+		    if ( p->vlarge.generated && !p->smallDisabled.generated &&
+			 p->smallDisabled.pm && !p->smallDisabled.pm->isNull() ) {
+			// if there's a hand-drawn disabled small image,
+			// but the normal big one is generated, use the
+			// hand-drawn one to generate this one.
+			i = p->smallDisabled.pm->convertToImage();
+			i = i.smoothScale( i.width() * 3 / 2, i.height() * 3 / 2 );
+			p->largeDisabled.pm = new QPixmap;
+			p->largeDisabled.pm->convertFromImage( i );
+			if ( !p->largeDisabled.pm->mask() ) {
+			    i = i.createHeuristicMask();
+			    tmp.convertFromImage( i, Qt::MonoOnly + Qt::ThresholdDither );
+			}
+		    } else {
+			if (pixmap( Large, Normal).mask())
+			    tmp = *pixmap( Large, Normal).mask();
+			else {
+			    QPixmap conv = pixmap( Large, Normal );
+			    if ( !conv.isNull() ) {
+				i = conv.convertToImage();
+				i = i.createHeuristicMask();
+				tmp.convertFromImage( i, Qt::MonoOnly + Qt::ThresholdDither );
+			    }
+			}
+			p->largeDisabled.pm
+			    = new QPixmap( p->vlarge.pm->width()+1,
+					   p->vlarge.pm->height()+1);
+			QColorGroup dis( QApplication::palette().disabled() );
+			p->largeDisabled.pm->fill( dis.background() );
+			QPainter painter( p->largeDisabled.pm );
+			painter.setPen( dis.base() );
+			painter.drawPixmap( 1, 1, tmp );
+			painter.setPen( dis.foreground() );
+			painter.drawPixmap( 0, 0, tmp );
+		    }
 		    if ( !p->largeDisabled.pm->mask() ) {
-			i = i.createHeuristicMask();
-			tmp.convertFromImage( i, Qt::MonoOnly + Qt::ThresholdDither );
+			if ( !tmp.mask() )
+			    tmp.setMask( tmp );
+			QBitmap mask( d->largeDisabled.pm->size() );
+			mask.fill( Qt::color0 );
+			QPainter painter( &mask );
+			painter.drawPixmap( 0, 0, tmp );
+			painter.drawPixmap( 1, 1, tmp );
+			painter.end();
+			p->largeDisabled.pm->setMask( mask );
 		    }
-		} else {
-		    if (pixmap( Large, Normal).mask())
-			tmp = *pixmap( Large, Normal).mask();
-		    else {
-			QPixmap conv = pixmap( Large, Normal );
-			if ( !conv.isNull() ) {
-			    i = conv.convertToImage();
-			    i = i.createHeuristicMask();
-			    tmp.convertFromImage( i, Qt::MonoOnly + Qt::ThresholdDither );
-			}
-		    }
-		    p->largeDisabled.pm
-			= new QPixmap( p->vlarge.pm->width()+1,
-				       p->vlarge.pm->height()+1);
-		    QColorGroup dis( QApplication::palette().disabled() );
-		    p->largeDisabled.pm->fill( dis.background() );
-		    QPainter painter( p->largeDisabled.pm );
-		    painter.setPen( dis.base() );
-		    painter.drawPixmap( 1, 1, tmp );
-		    painter.setPen( dis.foreground() );
-		    painter.drawPixmap( 0, 0, tmp );
+		    p->largeDisabled.generated = TRUE;
 		}
-		if ( !p->largeDisabled.pm->mask() ) {
-		    if ( !tmp.mask() )
-			tmp.setMask( tmp );
-		    QBitmap mask( d->largeDisabled.pm->size() );
-		    mask.fill( Qt::color0 );
-		    QPainter painter( &mask );
-		    painter.drawPixmap( 0, 0, tmp );
-		    painter.drawPixmap( 1, 1, tmp );
-		    painter.end();
-		    p->largeDisabled.pm->setMask( mask );
-		}
-		p->largeDisabled.generated = TRUE;
+		pm = p->largeDisabled.pm;
+		break;
 	    }
-	    pm = p->largeDisabled.pm;
-	    break;
-	}
-    } else {
-	switch( m ) {
-	case Normal:
-	    if ( !p->vsmall.pm ) {
-		Q_ASSERT( p->vlarge.pm );
-		i = p->vlarge.pm->convertToImage();
-		i = i.smoothScale( i.width() * 2 / 3, i.height() * 2 / 3 );
-		p->vsmall.pm = new QPixmap;
-		p->vsmall.generated = TRUE;
-		p->vsmall.pm->convertFromImage( i );
-		if ( !p->vsmall.pm->mask() ) {
-		    i = i.createHeuristicMask();
+	} else {
+	    switch( m ) {
+	    case Normal:
+		if ( !p->vsmall.pm ) {
+		    Q_ASSERT( p->vlarge.pm );
+		    i = p->vlarge.pm->convertToImage();
+		    i = i.smoothScale( i.width() * 2 / 3, i.height() * 2 / 3 );
+		    p->vsmall.pm = new QPixmap;
+		    p->vsmall.generated = TRUE;
+		    p->vsmall.pm->convertFromImage( i );
+		    if ( !p->vsmall.pm->mask() ) {
+			i = i.createHeuristicMask();
+			QBitmap tmp;
+			tmp.convertFromImage( i, Qt::MonoOnly + Qt::ThresholdDither );
+			p->vsmall.pm->setMask( tmp );
+		    }
+		}
+		pm = p->vsmall.pm;
+		break;
+	    case Active:
+		if ( !p->smallActive.pm ) {
+		    p->smallActive.pm = new QPixmap( pixmap( Small, Normal ) );
+		    p->smallActive.generated = TRUE;
+		}
+		pm = p->smallActive.pm;
+		break;
+	    case Disabled:
+		if ( !p->smallDisabled.pm ) {
 		    QBitmap tmp;
-		    tmp.convertFromImage( i, Qt::MonoOnly + Qt::ThresholdDither );
-		    p->vsmall.pm->setMask( tmp );
-		}
-	    }
-	    pm = p->vsmall.pm;
-	    break;
-	case Active:
-	    if ( !p->smallActive.pm ) {
-		p->smallActive.pm = new QPixmap( pixmap( Small, Normal ) );
-		p->smallActive.generated = TRUE;
-	    }
-	    pm = p->smallActive.pm;
-	    break;
-	case Disabled:
-	    if ( !p->smallDisabled.pm ) {
-		QBitmap tmp;
-		if ( p->vsmall.generated && !p->largeDisabled.generated &&
-		     p->largeDisabled.pm && !p->largeDisabled.pm->isNull() ) {
-		    // if there's a hand-drawn disabled large image,
-		    // but the normal small one is generated, use the
-		    // hand-drawn one to generate this one.
-		    i = p->largeDisabled.pm->convertToImage();
-		    i = i.smoothScale( i.width() * 3 / 2, i.height() * 3 / 2 );
-		    p->smallDisabled.pm = new QPixmap;
-		    p->smallDisabled.pm->convertFromImage( i );
-		    if ( !p->smallDisabled.pm->mask() ) {
-			i = i.createHeuristicMask();
-			tmp.convertFromImage( i, Qt::MonoOnly + Qt::ThresholdDither );
-		    }
-		} else {
-		    if ( pixmap( Small, Normal).mask())
-			tmp = *pixmap( Small, Normal).mask();
-		    else {
-			QPixmap conv = pixmap( Small, Normal );
-			if ( !conv.isNull() ) {
-			    i = conv.convertToImage();
+		    if ( p->vsmall.generated && !p->largeDisabled.generated &&
+			 p->largeDisabled.pm && !p->largeDisabled.pm->isNull() ) {
+			// if there's a hand-drawn disabled large image,
+			// but the normal small one is generated, use the
+			// hand-drawn one to generate this one.
+			i = p->largeDisabled.pm->convertToImage();
+			i = i.smoothScale( i.width() * 3 / 2, i.height() * 3 / 2 );
+			p->smallDisabled.pm = new QPixmap;
+			p->smallDisabled.pm->convertFromImage( i );
+			if ( !p->smallDisabled.pm->mask() ) {
 			    i = i.createHeuristicMask();
 			    tmp.convertFromImage( i, Qt::MonoOnly + Qt::ThresholdDither );
 			}
+		    } else {
+			if ( pixmap( Small, Normal).mask())
+			    tmp = *pixmap( Small, Normal).mask();
+			else {
+			    QPixmap conv = pixmap( Small, Normal );
+			    if ( !conv.isNull() ) {
+				i = conv.convertToImage();
+				i = i.createHeuristicMask();
+				tmp.convertFromImage( i, Qt::MonoOnly + Qt::ThresholdDither );
+			    }
+			}
+			p->smallDisabled.pm
+			    = new QPixmap( p->vsmall.pm->width()+1,
+					   p->vsmall.pm->height()+1);
+			QColorGroup dis( QApplication::palette().disabled() );
+			p->smallDisabled.pm->fill( dis.background() );
+			QPainter painter( p->smallDisabled.pm );
+			painter.setPen( dis.base() );
+			painter.drawPixmap( 1, 1, tmp );
+			painter.setPen( dis.foreground() );
+			painter.drawPixmap( 0, 0, tmp );
 		    }
-		    p->smallDisabled.pm
-			= new QPixmap( p->vsmall.pm->width()+1,
-				       p->vsmall.pm->height()+1);
-		    QColorGroup dis( QApplication::palette().disabled() );
-		    p->smallDisabled.pm->fill( dis.background() );
-		    QPainter painter( p->smallDisabled.pm );
-		    painter.setPen( dis.base() );
-		    painter.drawPixmap( 1, 1, tmp );
-		    painter.setPen( dis.foreground() );
-		    painter.drawPixmap( 0, 0, tmp );
-		}
-		if ( !p->smallDisabled.pm->mask() ) {
- 		    if ( !tmp.mask() )
- 			tmp.setMask( tmp );
-		    QBitmap mask( d->smallDisabled.pm->size() );
-		    mask.fill( Qt::color0 );
-		    QPainter painter( &mask );
-		    painter.drawPixmap( 0, 0, tmp );
-		    painter.drawPixmap( 1, 1, tmp );
-		    painter.end();
-		    p->smallDisabled.pm->setMask( mask );
-		}
+		    if ( !p->smallDisabled.pm->mask() ) {
+ 			if ( !tmp.mask() )
+ 			    tmp.setMask( tmp );
+			QBitmap mask( d->smallDisabled.pm->size() );
+			mask.fill( Qt::color0 );
+			QPainter painter( &mask );
+			painter.drawPixmap( 0, 0, tmp );
+			painter.drawPixmap( 1, 1, tmp );
+			painter.end();
+			p->smallDisabled.pm->setMask( mask );
+		    }
 
-		p->smallDisabled.generated = TRUE;
+		    p->smallDisabled.generated = TRUE;
+		}
+		pm = p->smallDisabled.pm;
+		break;
 	    }
-	    pm = p->smallDisabled.pm;
-	    break;
+	}
+    } else { // state == On
+	if ( s == Large ) {
+	    switch( m ) {
+	    case Normal:
+		if ( !p->on_vlarge.pm ) {
+		    QPixmap *fallback = 0;
+		    if ( !(fallback = p->on_vsmall.pm ) )
+			fallback = new QPixmap( Large, Normal, Off );
+		    Q_ASSERT( fallback );
+		    i = fallback->convertToImage();
+		    i = i.smoothScale( i.width() * 3 / 2, i.height() * 3 / 2 );
+		    p->on_vlarge.pm = new QPixmap;
+		    p->on_vlarge.generated = TRUE;
+		    p->on_vlarge.pm->convertFromImage( i );
+		    if ( !p->on_vlarge.pm->mask() ) {
+			i = i.createHeuristicMask();
+			QBitmap tmp;
+			tmp.convertFromImage( i, Qt::MonoOnly + Qt::ThresholdDither );
+			p->on_vlarge.pm->setMask( tmp );
+		    }
+		}
+		pm = p->on_vlarge.pm;
+		break;
+	    case Active:
+		if ( !p->on_largeActive.pm ) {
+		    p->on_largeActive.pm = new QPixmap( pixmap( Large, Normal, On ) );
+		    p->on_largeActive.generated = TRUE;
+		}
+		pm = p->on_largeActive.pm;
+		break;
+	    case Disabled:
+		if ( !p->on_largeDisabled.pm ) {
+		    QBitmap tmp;
+		    if ( p->on_vlarge.generated && !p->on_smallDisabled.generated &&
+			 p->on_smallDisabled.pm && !p->on_smallDisabled.pm->isNull() ) {
+			// if there's a hand-drawn disabled small image,
+			// but the normal big one is generated, use the
+			// hand-drawn one to generate this one.
+			i = p->on_smallDisabled.pm->convertToImage();
+			i = i.smoothScale( i.width() * 3 / 2, i.height() * 3 / 2 );
+			p->on_largeDisabled.pm = new QPixmap;
+			p->on_largeDisabled.pm->convertFromImage( i );
+			if ( !p->on_largeDisabled.pm->mask() ) {
+			    i = i.createHeuristicMask();
+			    tmp.convertFromImage( i, Qt::MonoOnly + Qt::ThresholdDither );
+			}
+		    } else {
+			if (pixmap( Large, Normal, On ).mask())
+			    tmp = *pixmap( Large, Normal, On ).mask();
+			else {
+			    QPixmap conv = pixmap( Large, Normal, On );
+			    if ( !conv.isNull() ) {
+				i = conv.convertToImage();
+				i = i.createHeuristicMask();
+				tmp.convertFromImage( i, Qt::MonoOnly + Qt::ThresholdDither );
+			    }
+			}
+			p->on_largeDisabled.pm
+			    = new QPixmap( p->on_vlarge.pm->width()+1,
+					   p->on_vlarge.pm->height()+1);
+			QColorGroup dis( QApplication::palette().disabled() );
+			p->on_largeDisabled.pm->fill( dis.background() );
+			QPainter painter( p->on_largeDisabled.pm );
+			painter.setPen( dis.base() );
+			painter.drawPixmap( 1, 1, tmp );
+			painter.setPen( dis.foreground() );
+			painter.drawPixmap( 0, 0, tmp );
+		    }
+		    if ( !p->on_largeDisabled.pm->mask() ) {
+			if ( !tmp.mask() )
+			    tmp.setMask( tmp );
+			QBitmap mask( d->largeDisabled.pm->size() );
+			mask.fill( Qt::color0 );
+			QPainter painter( &mask );
+			painter.drawPixmap( 0, 0, tmp );
+			painter.drawPixmap( 1, 1, tmp );
+			painter.end();
+			p->on_largeDisabled.pm->setMask( mask );
+		    }
+		    p->on_largeDisabled.generated = TRUE;
+		}
+		pm = p->on_largeDisabled.pm;
+		break;
+	    }
+	} else {
+	    switch( m ) {
+	    case Normal:
+		if ( !p->on_vsmall.pm ) {
+		    QPixmap *fallback = 0;
+		    if ( !( fallback = p->on_vlarge.pm ) )
+			fallback = new QPixmap( pixmap( Small, Normal, Off ) );
+		    Q_ASSERT( fallback );
+		    i = fallback->convertToImage();
+		    i = i.smoothScale( i.width() * 2 / 3, i.height() * 2 / 3 );
+		    p->on_vsmall.pm = new QPixmap;
+		    p->on_vsmall.generated = TRUE;
+		    p->on_vsmall.pm->convertFromImage( i );
+		    if ( !p->on_vsmall.pm->mask() ) {
+			i = i.createHeuristicMask();
+			QBitmap tmp;
+			tmp.convertFromImage( i, Qt::MonoOnly + Qt::ThresholdDither );
+			p->on_vsmall.pm->setMask( tmp );
+		    }
+		}
+		pm = p->on_vsmall.pm;
+		break;
+	    case Active:
+		if ( !p->on_smallActive.pm ) {
+		    p->on_smallActive.pm = new QPixmap( pixmap( Small, Normal, On ) );
+		    p->on_smallActive.generated = TRUE;
+		}
+		pm = p->on_smallActive.pm;
+		break;
+	    case Disabled:
+		if ( !p->on_smallDisabled.pm ) {
+		    QBitmap tmp;
+		    if ( p->on_vsmall.generated && !p->on_largeDisabled.generated &&
+			 p->on_largeDisabled.pm && !p->on_largeDisabled.pm->isNull() ) {
+			// if there's a hand-drawn disabled large image,
+			// but the normal small one is generated, use the
+			// hand-drawn one to generate this one.
+			i = p->on_largeDisabled.pm->convertToImage();
+			i = i.smoothScale( i.width() * 3 / 2, i.height() * 3 / 2 );
+			p->on_smallDisabled.pm = new QPixmap;
+			p->on_smallDisabled.pm->convertFromImage( i );
+			if ( !p->on_smallDisabled.pm->mask() ) {
+			    i = i.createHeuristicMask();
+			    tmp.convertFromImage( i, Qt::MonoOnly + Qt::ThresholdDither );
+			}
+		    } else {
+			if ( pixmap( Small, Normal, On ).mask())
+			    tmp = *pixmap( Small, Normal, On ).mask();
+			else {
+			    QPixmap conv = pixmap( Small, Normal );
+			    if ( !conv.isNull() ) {
+				i = conv.convertToImage();
+				i = i.createHeuristicMask();
+				tmp.convertFromImage( i, Qt::MonoOnly + Qt::ThresholdDither );
+			    }
+			}
+			p->on_smallDisabled.pm
+			    = new QPixmap( p->on_vsmall.pm->width()+1,
+					   p->on_vsmall.pm->height()+1);
+			QColorGroup dis( QApplication::palette().disabled() );
+			p->on_smallDisabled.pm->fill( dis.background() );
+			QPainter painter( p->on_smallDisabled.pm );
+			painter.setPen( dis.base() );
+			painter.drawPixmap( 1, 1, tmp );
+			painter.setPen( dis.foreground() );
+			painter.drawPixmap( 0, 0, tmp );
+		    }
+		    if ( !p->on_smallDisabled.pm->mask() ) {
+ 			if ( !tmp.mask() )
+ 			    tmp.setMask( tmp );
+			QBitmap mask( d->smallDisabled.pm->size() );
+			mask.fill( Qt::color0 );
+			QPainter painter( &mask );
+			painter.drawPixmap( 0, 0, tmp );
+			painter.drawPixmap( 1, 1, tmp );
+			painter.end();
+			p->on_smallDisabled.pm->setMask( mask );
+		    }
+
+		    p->on_smallDisabled.generated = TRUE;
+		}
+		pm = p->on_smallDisabled.pm;
+		break;
+	    }
 	}
     }
     Q_ASSERT( pm );
@@ -592,9 +818,9 @@ QPixmap QIconSet::pixmap( Size s, Mode m ) const
   Returns a pixmap with size \a s and Mode either Normal or Disabled,
   depending on the value of \a enabled.
 */
-QPixmap QIconSet::pixmap( Size s, bool enabled ) const
+QPixmap QIconSet::pixmap( Size s, bool enabled, State state ) const
 {
-    return pixmap( s, enabled ? Normal : Disabled );
+    return pixmap( s, enabled ? Normal : Disabled, state );
 }
 
 
@@ -603,25 +829,43 @@ QPixmap QIconSet::pixmap( Size s, bool enabled ) const
   automatically generated, and FALSE if it was not. This is mainly
   useful for development purposes.
 */
-bool QIconSet::isGenerated( Size s, Mode m ) const
+bool QIconSet::isGenerated( Size s, Mode m, State state ) const
 {
     if ( !d )
 	return FALSE;
 
-    if ( s == Large ) {
-	if ( m == Disabled )
-	    return d->largeDisabled.generated || !d->largeDisabled.pm;
-	else if ( m == Active )
-	    return d->largeActive.generated || !d->largeActive.pm;
-	else
-	    return d->vlarge.generated || !d->vlarge.pm;
-    } else if ( s == Small ) {
-	if ( m == Disabled )
-	    return d->smallDisabled.generated || !d->smallDisabled.pm;
-	else if ( m == Active )
-	    return d->smallActive.generated || !d->smallActive.pm;
-	else
-	    return d->vsmall.generated || !d->vsmall.pm;
+    if ( state == Off ) {
+	if ( s == Large ) {
+	    if ( m == Disabled )
+		return d->largeDisabled.generated || !d->largeDisabled.pm;
+	    else if ( m == Active )
+		return d->largeActive.generated || !d->largeActive.pm;
+	    else
+		return d->vlarge.generated || !d->vlarge.pm;
+	} else if ( s == Small ) {
+	    if ( m == Disabled )
+		return d->smallDisabled.generated || !d->smallDisabled.pm;
+	    else if ( m == Active )
+		return d->smallActive.generated || !d->smallActive.pm;
+	    else
+		return d->vsmall.generated || !d->vsmall.pm;
+	}
+    } else {
+	if ( s == Large ) {
+	    if ( m == Disabled )
+		return d->on_largeDisabled.generated || !d->on_largeDisabled.pm;
+	    else if ( m == Active )
+		return d->on_largeActive.generated || !d->on_largeActive.pm;
+	    else
+		return d->on_vlarge.generated || !d->on_vlarge.pm;
+	} else if ( s == Small ) {
+	    if ( m == Disabled )
+		return d->on_smallDisabled.generated || !d->on_smallDisabled.pm;
+	    else if ( m == Active )
+		return d->on_smallActive.generated || !d->on_smallActive.pm;
+	    else
+		return d->on_vsmall.generated || !d->on_vsmall.pm;
+	}
     }
     return FALSE;
 }
@@ -634,12 +878,12 @@ bool QIconSet::isGenerated( Size s, Mode m ) const
   \sa reset()
 */
 
-QPixmap QIconSet::pixmap() const
+QPixmap QIconSet::pixmap( State state ) const
 {
     if ( !d )
 	return QPixmap();
 
-    return d->defpm;
+    return ( state == Off ) ? d->defpm : d->on_defpm;
 }
 
 
@@ -674,6 +918,21 @@ void QIconSet::detach()
     p->largeDisabled.pm = d->largeDisabled.pm;
     p->largeDisabled.generated = d->largeDisabled.generated;
     p->defpm = d->defpm;
+
+    p->on_vsmall.pm = d->on_vsmall.pm;
+    p->on_vsmall.generated = d->on_vsmall.generated;
+    p->on_smallActive.pm = d->on_smallActive.pm;
+    p->on_smallActive.generated = d->on_smallActive.generated;
+    p->on_smallDisabled.pm = d->on_smallDisabled.pm;
+    p->on_smallDisabled.generated = d->on_smallDisabled.generated;
+    p->on_vlarge.pm = d->on_vlarge.pm;
+    p->on_vlarge.generated = d->on_vlarge.generated;
+    p->on_largeActive.pm = d->on_largeActive.pm;
+    p->on_largeActive.generated = d->on_largeActive.generated;
+    p->on_largeDisabled.pm = d->on_largeDisabled.pm;
+    p->on_largeDisabled.generated = d->on_largeDisabled.generated;
+    p->on_defpm = d->on_defpm;
+
     d->deref();
     d = p;
 }
