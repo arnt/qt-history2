@@ -32,6 +32,7 @@ Dual Monitor support (Win32)
 
 QFileDialog
     Heed the ExistingFile flag (#if 0ed out for 2.2)
+    Look In: history combo does not summarize correctly (qt-bugs/arc-07/15215)
 
 QToolButton (for 3.0)
     Should use QColorRole::ButtonText to draw the text, not foreground!
@@ -44,8 +45,12 @@ WType_Popup
 
 QListBox
     Inserting items in an empty listbox *with* focus doesn't emit highlighted signal
+
 Accelerator eating broken, this time on Unix
-    support/arc-08/16327
+    Ref. support/arc-08/16327
+
+QMultiLineEdit doesn't show scrollbars in MDI
+    Ref. qt-bugs/arc-07/15500
 
 Cosmetic
 --------
@@ -64,4 +69,8 @@ QEffects
     Submenus are not on top of parent while fading
 
 QMainWindow/QToolBar
-    Hiding toolbars produces debug output (support/arc-08/16011)
+    Hiding a second toolbar produces debug output (support/arc-08/16011)
+    Toolbar dragging produces rubbish qt-bugs/arc-07/15183
+
+QListView
+    remove column produces debug output. (qt-bugs/arc-07/15037)
