@@ -127,6 +127,8 @@ void QAquaFocusWidget::setFocusWidget( QWidget * widget )
 	while(!p->isTopLevel() && !p->testWFlags(WSubWindow))
 	    p = p->parentWidget();
 	if(widget->width() < p->width() - 30 || widget->height() < p->height() - 40) {
+	    if(widget->inherits("QLineEdit") && widget->parentWidget()->inherits("QComboBox"))
+		widget = widget->parentWidget();
 	    d = widget;
 	    reparent( d->parentWidget(), pos() );
 	    raise();
