@@ -1723,9 +1723,7 @@ void QApplication::removeLibraryPath( const QString &path )
 #endif //QT_NO_COMPONENT
 
 /*!
-  Returns a pointer to the default application palette. There is
-  always an application palette, i.e. the returned pointer is
-  guaranteed to be non-null.
+  Returns the application palette.
 
   If a widget is passed in \a w, the default palette for the
   widget's class is returned. This may or may not be the application
