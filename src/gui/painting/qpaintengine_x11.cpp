@@ -1929,21 +1929,48 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
                              sx, sy, sx, sy, x, y, sw, sh);
         } else
 #endif // !QT_NO_XFT && !QT_NO_XRENDER
-        {
-            XCopyArea(d->dpy, pixmap.handle(), d->hd, d->gc, sx, sy, sw, sh, x, y);
-	    if (mode == Qt::CopyPixmap && pixmap.data->alphapm
-		&& d->pdev->devType() == QInternal::Pixmap) {
-		QPixmap *px = static_cast<QPixmap *>(d->pdev);
-		if (px->data->alphapm) {
+            {
+                XCopyArea(d->dpy, pixmap.handle(), d->hd, d->gc, sx, sy, sw, sh, x, y);
+                if (mode == Qt::CopyPixmap && pixmap.data->alphapm
+                    && d->pdev->devType() == QInternal::Pixmap) {
+                    QPixmap *px = static_cast<QPixmap *>(d->pdev);
+                    if (!px->data->alphapm) {
+#undef d
+                        px->data->alphapm = new QPixmap;
+                        px->data->alphapm->data->w = px->data->w;
+                        px->data->alphapm->data->h = px->data->h;
+                        px->data->alphapm->data->d = 8;
+
+
+                        // create 8bpp pixmap and render picture
+                        px->data->alphapm->data->hd =
+                            XCreatePixmap(px->data->alphapm->data->xinfo.display(),
+                                          RootWindow(px->data->alphapm->data->xinfo.display(),
+                                                     px->data->alphapm->data->xinfo.screen()),
+                                          px->data->alphapm->data->w,
+                                          px->data->alphapm->data->h,
+                                          8);
+
+                        px->data->alphapm->data->xft_hd =
+                            (Qt::HANDLE)
+                            XftDrawCreateAlpha(px->data->alphapm->data->xinfo.display(),
+                                               px->data->alphapm->data->hd, 8);
+
+                        XRenderColor color = { 0xffff, 0xffff, 0xffff, 0xffff };
+                        XRenderFillRectangle(px->data->alphapm->data->xinfo.display(), PictOpSrc,
+                                             px->data->alphapm->xftPictureHandle(),
+                                             &color, 0, 0,
+                                             px->data->alphapm->data->w,
+                                             px->data->alphapm->data->h);
+#define d d_func()
+                    }
+
  		    GC agc = XCreateGC(d->dpy, px->data->alphapm->handle(), 0, 0);
 		    XCopyArea(d->dpy, pixmap.data->alphapm->handle(), px->data->alphapm->handle(),
 			      agc, sx, sy, sw, sh, x, y);
 		    XFreeGC(d->dpy, agc);
-		} else {
-		    Q_ASSERT(0); // ### add support for this
 		}
 	    }
-        }
     }
 
     if (mask) { // restore clipping
