@@ -4647,6 +4647,35 @@ bool QETWidget::translateKeyEvent(const XEvent *event, bool grab)
     translateKeyEventInternal(event, count, text, modifiers, code, type,
                                qt_mode_switch_remove_mask != 0);
 
+    // was this the last auto-repeater?
+    qt_auto_repeat_data auto_repeat_data;
+    auto_repeat_data.window = event->xkey.window;
+    auto_repeat_data.keycode = event->xkey.keycode;
+    auto_repeat_data.timestamp = event->xkey.time;
+
+    static uint curr_autorep = 0;
+    if (event->type == XKeyPress) {
+        if (curr_autorep == event->xkey.keycode) {
+            autor = true;
+            curr_autorep = 0;
+        }
+    } else {
+        // look ahead for auto-repeat
+        XEvent nextpress;
+
+        auto_repeat_data.release = true;
+        auto_repeat_data.error = false;
+        if (XCheckIfEvent(dpy, &nextpress, &qt_keypress_scanner,
+                          (XPointer) &auto_repeat_data)) {
+            autor = true;
+
+            // Put it back... we COULD send the event now and not need
+            // the static curr_autorep variable.
+            XPutBackEvent(dpy,&nextpress);
+        }
+        curr_autorep = autor ? event->xkey.keycode : 0;
+    }
+
 #if !defined QT_NO_COMPAT && !defined(QT_NO_ACCEL)
     // process accelerators before doing key compression
     if (type == QEvent::KeyPress && !grab
@@ -4752,35 +4781,6 @@ bool QETWidget::translateKeyEvent(const XEvent *event, bool grab)
 
     if (save != 0)
         qt_mode_switch_remove_mask = save;
-
-    // was this the last auto-repeater?
-    qt_auto_repeat_data auto_repeat_data;
-    auto_repeat_data.window = event->xkey.window;
-    auto_repeat_data.keycode = event->xkey.keycode;
-    auto_repeat_data.timestamp = event->xkey.time;
-
-    static uint curr_autorep = 0;
-    if (event->type == XKeyPress) {
-        if (curr_autorep == event->xkey.keycode) {
-            autor = true;
-            curr_autorep = 0;
-        }
-    } else {
-        // look ahead for auto-repeat
-        XEvent nextpress;
-
-        auto_repeat_data.release = true;
-        auto_repeat_data.error = false;
-        if (XCheckIfEvent(dpy, &nextpress, &qt_keypress_scanner,
-                          (XPointer) &auto_repeat_data)) {
-            autor = true;
-
-            // Put it back... we COULD send the event now and not need
-            // the static curr_autorep variable.
-            XPutBackEvent(dpy,&nextpress);
-        }
-        curr_autorep = autor ? event->xkey.keycode : 0;
-    }
 
     // autorepeat compression makes sense for all widgets (Windows
     // does it automatically ....)
