@@ -730,16 +730,16 @@ void QIconViewItem::setText( const QString &text )
     if ( itemKey.isEmpty() )
 	itemKey = itemText;
 
-    QRect oldRect = rect();
+    QRect or = rect();
     calcRect();
-    oldRect = oldRect.unite( rect() );
+    or = or.unite( rect() );
 
     if ( view ) {
 	if ( QRect( view->contentsX(), view->contentsY(),
 		    view->visibleWidth(), view->visibleHeight() ).
-	     intersects( oldRect ) )
-	    view->repaintContents( oldRect.x() - 1, oldRect.y() - 1,
-				   oldRect.width() + 2, oldRect.height() + 2, FALSE );
+	     intersects( or ) )
+	    view->repaintContents( or.x() - 1, or.y() - 1,
+				   or.width() + 2, or.height() + 2, FALSE );
     }
 }
 
@@ -774,16 +774,16 @@ void QIconViewItem::setPixmap( const QPixmap &icon )
 	*itemIcon = icon;
     else
 	itemIcon = new QPixmap( icon );
-    QRect oldRect = rect();
+    QRect or = rect();
     calcRect();
-    oldRect = oldRect.unite( rect() );
+    or = or.unite( rect() );
 
     if ( view ) {
 	if ( QRect( view->contentsX(), view->contentsY(),
 		    view->visibleWidth(), view->visibleHeight() ).
-	     intersects( oldRect ) )
-	    view->repaintContents( oldRect.x() - 1, oldRect.y() - 1,
-				   oldRect.width() + 2, oldRect.height() + 2, FALSE );
+	     intersects( or ) )
+	    view->repaintContents( or.x() - 1, or.y() - 1,
+				   or.width() + 2, or.height() + 2, FALSE );
     }
 }
 
@@ -3557,7 +3557,7 @@ void QIconView::contentsMouseMoveEvent( QMouseEvent *e )
 
     if ( d->mousePressed && e->state() == NoButton )
 	d->mousePressed = FALSE;
-    
+
     if ( d->mousePressed && item && item == d->currentItem &&
 	 item->isSelected() && item->dragEnabled() ) {
 	if ( !d->startDrag ) {
