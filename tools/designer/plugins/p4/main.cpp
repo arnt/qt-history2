@@ -798,6 +798,12 @@ bool P4Interface::init()
 
 void P4Interface::cleanup()
 {
+    delete P4Info::_files;
+    P4Info::_files = 0;
+    delete P4Info::userName;
+    P4Info::userName = 0;
+    delete P4Info::clientName;
+    P4Info::clientName = 0;
     actions.clear();
     delete outputPage;
 }
