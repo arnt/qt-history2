@@ -1761,7 +1761,8 @@ void QLineEdit::focusOutEvent(QFocusEvent*)
     if (d->cursorTimer > 0)
         killTimer(d->cursorTimer);
     d->cursorTimer = 0;
-    emit lostFocus();
+    if (QFocusEvent::reason() != QFocusEvent::Popup)
+        emit lostFocus();
 #ifdef Q_WS_MAC
     if(d->echoMode == Password || d->echoMode == NoEcho)
         qt_mac_secure_keyboard(false);
