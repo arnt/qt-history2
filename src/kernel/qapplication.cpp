@@ -1670,17 +1670,13 @@ QStringList QApplication::libraryPaths()
 
 /*!
   Sets the list of directories to search when loading libraries to \a paths.
-  If \a paths is empty, the path list is unchanged, otherwise all
-  existing paths will be deleted and the path list will consist of the
+  All existing paths will be deleted and the path list will consist of the
   paths given in \a paths.
 
   \sa libraryPaths(), addLibraryPath(), removeLibraryPath(), QLibrary
  */
 void QApplication::setLibraryPaths( const QStringList &paths )
 {
-    if ( paths.isEmpty() )
-	return;
-
     delete app_libpaths;
     app_libpaths = new QStringList( paths );
 }
