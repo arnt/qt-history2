@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#80 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#81 $
 **
 ** Definition of QWidget class
 **
@@ -31,9 +31,6 @@ public:
    ~QWidget();
 
     WId		 winId() const;
-#if defined(OBSOLETE)
-    WId		 id() const;
-#endif
 
   // GUI style setting
 
@@ -49,11 +46,6 @@ public:
 
     bool	 isEnabled()	const;
     void	 setEnabled( bool );
-#if defined(OBSOLETE)
-    void	 enable();
-    void	 disable();
-    bool	 isDisabled()	const;
-#endif
 
   // Widget coordinates
 
@@ -68,12 +60,6 @@ public:
     QRect	 rect()		const;
     QRect	 childrenRect() const;
 
-
-#if defined(OBSOLETE)
-    bool	 minimumSize( int *w, int *h )	 const;
-    bool	 maximumSize( int *w, int *h )	 const;
-    bool	 sizeIncrement( int *w, int *h ) const;
-#endif
     QSize	 minimumSize()	const;
     QSize	 maximumSize()	const;
     void	 setMinimumSize( const QSize & );
@@ -145,10 +131,6 @@ public:
 
     bool	 isUpdatesEnabled() const;
     void	 setUpdatesEnabled( bool enable );
-#if defined(OBSOLETE)
-    bool	 enableUpdates( bool enable );
-#endif
-
     void	 update();
     void	 update( int x, int y, int w, int h);
     void	 repaint( bool erase=TRUE );
@@ -273,6 +255,18 @@ private:
     friend class QPainter;
     friend class QFontMetrics;
     friend class QFontInfo;
+
+#if defined(OBSOLETE)
+public:
+    WId		 id() const;
+    void	 enable();
+    void	 disable();
+    bool	 isDisabled()	const;
+    bool	 minimumSize( int *w, int *h )	 const;
+    bool	 maximumSize( int *w, int *h )	 const;
+    bool	 sizeIncrement( int *w, int *h ) const;
+    bool	 enableUpdates( bool enable );
+#endif
 };
 
 
@@ -281,11 +275,6 @@ inline bool QWidget::testWFlags( WFlags f ) const
 
 inline WId QWidget::winId() const
 { return winid; }
-
-#if defined(OBSOLETE)
-inline WId QWidget::id() const
-{ qObsolete("QWidget","id","winId"); return winid; }
-#endif
 
 inline bool QWidget::isTopLevel() const
 { return testWFlags(WType_TopLevel); }
@@ -301,17 +290,6 @@ inline bool QWidget::isDesktop() const
 
 inline bool QWidget::isEnabled() const
 { return !testWFlags(WState_Disabled); }
-
-#if defined(OBSOLETE)
-inline void QWidget::enable()
-{ qObsolete("QWidget","enable","setEnabled(TRUE)"); setEnabled(TRUE); }
-
-inline void QWidget::disable()
-{ qObsolete("QWidget","disable","setEnabled(FALSE)"); setEnabled(FALSE); }
-
-inline bool QWidget::isDisabled() const
-{ qObsolete("QWidget","isDisabled","!isEnabled()"); return !isEnabled(); }
-#endif
 
 inline const QRect &QWidget::frameGeometry() const
 { return frect; }
@@ -351,41 +329,6 @@ inline void QWidget::setMaximumSize( const QSize &s )
 { setMaximumSize(s.width(),s.height()); }
 
 
-#if defined(OBSOLETE)
-inline bool QWidget::minimumSize( int *w, int *h ) const
-{
-    qObsolete( "QWidget", "minimumSize(int*,int*)", "minimumSize()" );
-    if ( extra && extra->minw >= 0 && w && h) {
-	*w = extra->minw;
-	*h = extra->minh;
-	return TRUE;
-    }
-    return FALSE;
-}
-
-inline bool QWidget::maximumSize( int *w, int *h ) const
-{
-    qObsolete( "QWidget", "maximumSize(int*,int*)", "maximumSize()" );
-    if ( extra && extra->maxw >= 0 && w && h ) {
-	*w = extra->maxw;
-	*h = extra->maxh;
-	return TRUE;
-    }
-    return FALSE;
-}
-
-inline bool QWidget::sizeIncrement( int *w, int *h ) const
-{
-    qObsolete( "QWidget", "sizeIncrement(int*,int*)", 
-	       "sizeIncrement()" );
-    if ( extra && extra->incw >= 0 && w && h ) {
-	*w = extra->incw;
-	*h = extra->inch;
-	return TRUE;
-    }
-    return FALSE;
-}
-#endif
 
 inline const QColor &QWidget::backgroundColor() const
 { return bg_col; }
@@ -407,16 +350,6 @@ inline bool QWidget::hasMouseTracking() const
 
 inline bool QWidget::isUpdatesEnabled() const
 { return !testWFlags(WState_DisUpdates); }
-
-#if defined(OBSOLETE)
-inline bool QWidget::enableUpdates( bool enable )
-{
-    qObsolete("QWidget","enableUpdates","isUpdatesEnabled/setUpdatesEnabled");
-    bool last=isUpdatesEnabled();
-    setUpdatesEnabled(enable);
-    return last;
-}
-#endif
 
 inline void QWidget::repaint( bool erase )
 { repaint( 0, 0, crect.width(), crect.height(), erase ); }
@@ -462,6 +395,65 @@ inline void QWidget::setWFlags( WFlags f )
 
 inline void QWidget::clearWFlags( WFlags f )
 { flags &= ~f; }
+
+#if defined(OBSOLETE)
+inline WId QWidget::id() const
+{ qObsolete("QWidget","id","winId"); return winid; }
+
+inline void QWidget::enable()
+{ qObsolete("QWidget","enable","setEnabled(TRUE)"); setEnabled(TRUE); }
+
+inline void QWidget::disable()
+{ qObsolete("QWidget","disable","setEnabled(FALSE)"); setEnabled(FALSE); }
+
+inline bool QWidget::isDisabled() const
+{ qObsolete("QWidget","isDisabled","!isEnabled()"); return !isEnabled(); }
+
+inline bool QWidget::minimumSize( int *w, int *h ) const
+{
+    qObsolete( "QWidget", "minimumSize(int*,int*)", "minimumSize()" );
+    if ( extra && extra->minw >= 0 && w && h) {
+	*w = extra->minw;
+	*h = extra->minh;
+	return TRUE;
+    }
+    return FALSE;
+}
+
+inline bool QWidget::maximumSize( int *w, int *h ) const
+{
+    qObsolete( "QWidget", "maximumSize(int*,int*)", "maximumSize()" );
+    if ( extra && extra->maxw >= 0 && w && h ) {
+	*w = extra->maxw;
+	*h = extra->maxh;
+	return TRUE;
+    }
+    return FALSE;
+}
+
+inline bool QWidget::sizeIncrement( int *w, int *h ) const
+{
+    qObsolete( "QWidget", "sizeIncrement(int*,int*)", 
+	       "sizeIncrement()" );
+    if ( extra && extra->incw >= 0 && w && h ) {
+	*w = extra->incw;
+	*h = extra->inch;
+	return TRUE;
+    }
+    return FALSE;
+}
+
+inline bool QWidget::enableUpdates( bool enable )
+{
+    qObsolete("QWidget","enableUpdates","isUpdatesEnabled/setUpdatesEnabled");
+    bool last=isUpdatesEnabled();
+    setUpdatesEnabled(enable);
+    return last;
+}
+
+#endif
+
+
 
 
 #endif // QWIDGET_H

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.h#15 $
+** $Id: //depot/qt/main/src/kernel/qaccel.h#16 $
 **
 ** Definition of QAccel class
 **
@@ -29,11 +29,6 @@ public:
 
     bool	isEnabled() const;
     void	setEnabled( bool );
-#if defined(OBSOLETE)
-    void	enable();			// enable accelerator
-    void	disable();			// disable accelerator
-    bool	isDisabled()	const;
-#endif
 
     uint	count() const;
 
@@ -46,11 +41,6 @@ public:
 
     bool	isItemEnabled( int id )	 const;
     void	setItemEnabled( int id, bool enable );
-#if defined(OBSOLETE)
-    bool	isItemDisabled( int id ) const;
-    void	enableItem( int id );
-    void	disableItem( int id );
-#endif
 
     bool	connectItem( int id,
 			     const QObject *receiver, const char *member );
@@ -70,6 +60,16 @@ private:
     QAccelList *aitems;
     bool	enabled;
     QWidget    *tlw;
+
+#if defined(OBSOLETE)
+public:
+    void	enable();			// enable accelerator
+    void	disable();			// disable accelerator
+    bool	isDisabled()	const;
+    bool	isItemDisabled( int id ) const;
+    void	enableItem( int id );
+    void	disableItem( int id );
+#endif
 };
 
 

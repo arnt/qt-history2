@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#44 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#45 $
 **
 ** Definition of QApplication class
 **
@@ -35,12 +35,6 @@ public:
     static QCursor *overrideCursor();
     static void	    setOverrideCursor( const QCursor &, bool replace=FALSE );
     static void	    restoreOverrideCursor();
-
-#if defined(OBSOLETE)
-    static QCursor *cursor();
-    static void	    setCursor( const QCursor &, bool replace=FALSE );
-    static void	    restoreCursor();
-#endif
 
     static QPalette *palette();
     static void	    setPalette( const QPalette &, bool updateAllWidgets=FALSE);
@@ -109,6 +103,13 @@ private:
     static QWidget *focus_widget;
 
     friend class QWidget;
+
+#if defined(OBSOLETE)
+public:
+    static QCursor *cursor();
+    static void	    setCursor( const QCursor &, bool replace=FALSE );
+    static void	    restoreCursor();
+#endif
 };
 
 
@@ -132,26 +133,6 @@ inline QCursor *QApplication::overrideCursor()
     return app_cursor;
 }
 
-#if defined(OBSOLETE)
-inline QCursor *QApplication::cursor()
-{
-    qObsolete( "QApplication", "cursor", "overrideCursor" );
-    return overrideCursor();
-}
-
-inline void QApplication::setCursor( const QCursor &c, bool replace )
-{
-    qObsolete( "QApplication", "setCursor", "setOverrideCursor" );
-    setOverrideCursor( c, replace );
-}
-
-inline void QApplication::restoreCursor()
-{
-    qObsolete( "QApplication", "restoreCursor", "restoreOverrideCursor" );
-    restoreOverrideCursor();
-}
-#endif
-
 inline QFont *QApplication::font()
 {
     return app_font;
@@ -171,6 +152,26 @@ inline QWidget *QApplication::widgetAt( const QPoint &p, bool child )
 {
     return widgetAt( p.x(), p.y(), child );
 }
+
+#if defined(OBSOLETE)
+inline QCursor *QApplication::cursor()
+{
+    qObsolete( "QApplication", "cursor", "overrideCursor" );
+    return overrideCursor();
+}
+
+inline void QApplication::setCursor( const QCursor &c, bool replace )
+{
+    qObsolete( "QApplication", "setCursor", "setOverrideCursor" );
+    setOverrideCursor( c, replace );
+}
+
+inline void QApplication::restoreCursor()
+{
+    qObsolete( "QApplication", "restoreCursor", "restoreOverrideCursor" );
+    restoreOverrideCursor();
+}
+#endif
 
 
 #endif // QAPP_H

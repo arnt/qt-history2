@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#29 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#30 $
 **
 ** Definition of QListBox widget class
 **
@@ -18,9 +18,6 @@
 
 #define LBI_Undefined	0			// list box item types
 #define LBI_Text	1
-#if defined(OBSOLETE)
-#define LBI_String   (debug("LBI_String is obsolete, use LBI_Text instead"),1)
-#endif
 #define LBI_Pixmap	2
 #define LBI_UserDefined 1000
 
@@ -64,16 +61,8 @@ public:
 
     const char *text( int index )	const;
     const QPixmap *pixmap( int index )	const;
-#if defined(OBSOLETE)
-    const char *string( int index )	const;
-#endif
     void	changeItem( const char *text, int index );
     void	changeItem( const QPixmap &pixmap, int index );
-
-#if defined(OBSOLETE)
-    bool	stringCopy()	const;
-    void	setStringCopy( bool );
-#endif
 
     bool	autoUpdate()	const;
     void	setAutoUpdate( bool );
@@ -163,9 +152,18 @@ private:
     uint	goingDown	: 1;
     int		current;
     QLBItemList *itemList;
+
+#if defined(OBSOLETE)
+public:
+    const char *string( int index )	const;
+    bool	stringCopy()	const;
+    void	setStringCopy( bool );
+#endif
+
 };
 
 #if defined(OBSOLETE)
+#define LBI_String   (qObsolete("","LBI_String","LBI_Text instead"),1)
 inline const char *QListBox::string( int index ) const 
 {
     qObsolete("QListBox","string","text");

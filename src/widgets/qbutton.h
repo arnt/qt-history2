@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#32 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#33 $
 **
 ** Definition of QButton widget class
 **
@@ -73,8 +73,8 @@ private:
 
     friend class QButtonGroup;
 
-public:
 #if defined(OBSOLETE)
+public:
     bool	toggleButton()	const;
     bool        isUp()          const;
     bool        isOff()         const;

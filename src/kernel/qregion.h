@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.h#18 $
+** $Id: //depot/qt/main/src/kernel/qregion.h#19 $
 **
 ** Definition of QRegion class
 **
@@ -38,9 +38,6 @@ public:
     bool    contains( const QRect &r )	const;
 
     void    translate( int dx, int dy );
-#if defined(OBSOLETE)
-    void    move( int dx, int dy );
-#endif
 
     QRegion unite( const QRegion & )	const;
     QRegion intersect( const QRegion &) const;
@@ -83,6 +80,10 @@ private:
     } *data;
 #if defined(_WS_PM_)
     static HPS hps;
+#endif
+#if defined(OBSOLETE)
+public:
+    void    move( int dx, int dy );
 #endif
 };
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#32 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#33 $
 **
 ** Definition of QMenuData class
 **
@@ -104,27 +104,15 @@ public:
     void	setAccel( int key, int id );
 
     const char *text( int id )		const;
-#if defined(OBSOLETE)
-    const char *string( int id )	const;
-#endif
     QPixmap    *pixmap( int id )	const;
     void	changeItem( const char *text, int id );
     void	changeItem( const QPixmap &pixmap, int id );
 
     bool	isItemEnabled( int id ) const;
     void	setItemEnabled( int id, bool enable );
-#if defined(OBSOLETE)
-    bool	isItemDisabled( int id ) const;
-    void	enableItem( int id );
-    void	disableItem( int id );
-#endif
 
     bool	isItemChecked( int id ) const;
     void	setItemChecked( int id, bool check );
-#if defined(OBSOLETE)
-    void	checkItem( int id );
-    void	uncheckItem( int id );
-#endif
 
     virtual void updateItem( int id );
 
@@ -157,6 +145,17 @@ private:
 			   int, int );
     void	removePopup( QPopupMenu * );
     void	setAllDirty( bool );
+
+#if defined(OBSOLETE)
+public:
+    const char *string( int id )	const;
+    bool	isItemDisabled( int id ) const;
+    void	enableItem( int id );
+    void	disableItem( int id );
+    void	checkItem( int id );
+    void	uncheckItem( int id );
+#endif
+
 };
 
 
