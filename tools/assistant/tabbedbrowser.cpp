@@ -169,9 +169,9 @@ void TabbedBrowser::init()
 
     // workaround for sgi style
     QPalette pal = palette();
-    pal.setColor(QPalette::Active, QColorGroup::Button, pal.active().background());
-    pal.setColor(QPalette::Disabled, QColorGroup::Button, pal.disabled().background());
-    pal.setColor(QPalette::Inactive, QColorGroup::Button, pal.inactive().background());
+    pal.setColor(QPalette::Active, QPalette::Button, pal.color(QPalette::Active, QPalette::Background));
+    pal.setColor(QPalette::Disabled, QPalette::Button, pal.color(QPalette::Disabled, QPalette::Background));
+    pal.setColor(QPalette::Inactive, QPalette::Button, pal.color(QPalette::Inactive, QPalette::Background));
 
     QToolButton *newTabButton = new QToolButton(this);
     gui.tab->setCornerWidget(newTabButton, Qt::TopLeft);

@@ -15,7 +15,7 @@
 #include <qfileinfo.h>
 #include <qregexp.h>
 #include <qdir.h>
-#include <qvaluelist.h>
+#include <qlist.h>
 
 #define QT_TITLE "Qt Reference Documentation"
 #define DESIGNER_TITLE "Qt Designer Manual"

@@ -16,7 +16,7 @@
 #include <qdir.h>
 #include <qstringlist.h>
 #include <qapplication.h>
-#include <qcstring.h>
+#include <qbytearray.h>
 #include <ctype.h>
 #include <qtextstream.h>
 #include <qalgorithms.h>

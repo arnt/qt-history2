@@ -124,7 +124,7 @@ void HelpNavigationListItem::addLink(const QString &link)
     }
 
     QString preHash = link.left(hash);
-    if (linkList.grep(preHash, false).count() > 0)
+    if (linkList.find(preHash, QString::CaseInsensitive).count() > 0)
         return;
     linkList << link;
 }

@@ -50,7 +50,7 @@ DocuParser *DocuParser::createParser(const QString &fileName)
     int read = 0;
     int maxlen = 1024;
     int majVer = 0, minVer = 0, serVer = 0;
-    static QRegExp re("assistantconfig +version=\"(\\d)\\.(\\d)\\.(\\d)\"", false);
+    static QRegExp re("assistantconfig +version=\"(\\d)\\.(\\d)\\.(\\d)\"", QString::CaseInsensitive);
     Q_ASSERT(re.isValid());
     while(read != -1) {
          read = file.readLine(str, maxlen);

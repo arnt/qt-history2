@@ -18,11 +18,10 @@
 #include <qserversocket.h>
 #include <qsocket.h>
 #include <qpixmap.h>
-#include <qptrlist.h>
 #include <qstringlist.h>
 #include <qdir.h>
 #include <qmessagebox.h>
-#include <qguardedptr.h>
+#include <qpointer.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <qtextcodec.h>
@@ -183,8 +182,7 @@ int main( int argc, char ** argv )
                 INDEX_CHECK( "Missing content file!" );
                 Config *c = Config::loadConfig( QString::null );
                 Profile *profile = c->profile();
-                bool ok;
-                QStringList entries = profile->docs.grep(argv[i+1], &ok);
+                QStringList entries = profile->docs.find(argv[i+1]);
                 if (entries.count() == 0) {
                     fprintf(stderr, "Could not locate content file: '%s'\n",
                             argv[i+1]);
@@ -263,7 +261,7 @@ int main( int argc, char ** argv )
     QStringList links = conf->source();
     conf->hideSideBar( hideSidebar );
 
-    QGuardedPtr<MainWindow> mw = new MainWindow();
+    QPointer<MainWindow> mw = new MainWindow();
     mw->setObjectName("Assistant");
 
     if ( server ) {

@@ -130,13 +130,13 @@ void MainWindow::setup()
 #endif
 
     QAccel *a = new QAccel(this, dw);
-    a->connectItem(a->insertItem(QAccel::stringToKey(tr("Ctrl+T"))),
+    a->connectItem(a->insertItem(QKeySequence("Ctrl+T")),
                     helpDock, SLOT(toggleContents()));
-    a->connectItem(a->insertItem(QAccel::stringToKey(tr("Ctrl+I"))),
+    a->connectItem(a->insertItem(QKeySequence("Ctrl+I")),
                     helpDock, SLOT(toggleIndex()));
-    a->connectItem(a->insertItem(QAccel::stringToKey(tr("Ctrl+B"))),
+    a->connectItem(a->insertItem(QKeySequence("Ctrl+B")),
                     helpDock, SLOT(toggleBookmarks()));
-    a->connectItem(a->insertItem(QAccel::stringToKey(tr("Ctrl+S"))),
+    a->connectItem(a->insertItem(QKeySequence("Ctrl+S")),
                     helpDock, SLOT(toggleSearch()));
 
     Config *config = Config::configuration();
@@ -310,7 +310,7 @@ void MainWindow::on_actionFilePrint_triggered()
         do {
             qApp->eventLoop()->processEvents(QEventLoop::ExcludeUserInput);
 
-            richText.draw(&p, body.left(), body.top(), view, colorGroup());
+            richText.draw(&p, body.left(), body.top(), view, palette());
             view.moveBy(0, body.height());
             p.translate(0 , -body.height());
             p.drawText(view.right() - p.fontMetrics().width(QString::number(page)),
@@ -466,7 +466,11 @@ void MainWindow::showSettingsDialog(int page)
     settingsDia->fixedFontCombo()->insertStringList(fonts.families());
     settingsDia->fixedFontCombo()->lineEdit()->setText(tabs->styleSheet()->item("pre")->fontFamily());
     settingsDia->linkUnderlineCB()->setChecked(tabs->linkUnderline());
-    settingsDia->colorButton()->setPaletteBackgroundColor(tabs->palette().color(QPalette::Active, QColorGroup::Link));
+
+    QPalette pal = settingsDia->colorButton()->palette();
+    pal.setColor(QPalette::Active, settingsDia->colorButton()->backgroundRole(), tabs->palette().color(QPalette::Active, QPalette::Link));
+    settingsDia->colorButton()->setPalette(pal);
+
     if (page != -1)
         settingsDia->settingsTab()->setCurrentPage(page);
 
@@ -491,11 +495,11 @@ void MainWindow::showSettingsDialog(int page)
     tabs->setBrowserFont(fnt);
     tabs->setLinkUnderline(settingsDia->linkUnderlineCB()->isChecked());
 
-    QPalette pal = tabs->palette();
-    QColor lc = settingsDia->colorButton()->paletteBackgroundColor();
-    pal.setColor(QPalette::Active, QColorGroup::Link, lc);
-    pal.setColor(QPalette::Inactive, QColorGroup::Link, lc);
-    pal.setColor(QPalette::Disabled, QColorGroup::Link, lc);
+    pal = tabs->palette();
+    QColor lc = settingsDia->colorButton()->palette().color(backgroundRole());
+    pal.setColor(QPalette::Active, QPalette::Link, lc);
+    pal.setColor(QPalette::Inactive, QPalette::Link, lc);
+    pal.setColor(QPalette::Disabled, QPalette::Link, lc);
     tabs->setPalette(pal);
 
     QString family = settingsDia->fixedFontCombo()->currentText();
@@ -535,7 +539,7 @@ void MainWindow::saveSettings()
     config->setFontSize(tabs->currentBrowser()->font().pointSize());
     config->setFontFixedFamily(tabs->styleSheet()->item("pre")->fontFamily());
     config->setLinkUnderline(tabs->linkUnderline());
-    config->setLinkColor(tabs->palette().color(QPalette::Active, QColorGroup::Link).name());
+    config->setLinkColor(tabs->palette().color(QPalette::Active, QPalette::Link).name());
     config->setSideBarPage(helpDock->tabWidget()->currentIndex());
     config->setGeometry(QRect(x(), y(), width(), height()));
     config->setMaximized(isMaximized());

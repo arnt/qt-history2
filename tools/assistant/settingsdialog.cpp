@@ -25,7 +25,6 @@
 #include <qlistbox.h>
 #include <qlistview.h>
 #include <qmessagebox.h>
-#include <qptrstack.h>
 #include <qsettings.h>
 #include <qtimer.h>
 #include <qtoolbutton.h>
@@ -52,8 +51,10 @@ void SettingsDialog::init()
 
 void SettingsDialog::on_colorButton_clicked()
 {
-    QColor c = QColorDialog::getColor(gui.colorButton->paletteBackgroundColor(), this);
-    gui.colorButton->setPaletteBackgroundColor(c);
+    QPalette pal = gui.colorButton->palette();
+    QColor c = QColorDialog::getColor(pal.color(backgroundRole()), this);
+    pal.setColor(backgroundRole(), c);
+    gui.colorButton->setPalette(pal);
 }
 
 void SettingsDialog::on_buttonBrowse_clicked()

@@ -139,7 +139,7 @@ void HelpWindow::setSource(const QString &name)
         return;
     }
 
-    setText("<body bgcolor=\"" + paletteBackgroundColor().name() + "\">");
+    setText("<body bgcolor=\"" + palette().color(backgroundRole()).name() + "\">");
     QTextBrowser::setSource(name);
 }
 
