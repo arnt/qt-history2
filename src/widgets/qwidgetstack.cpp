@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#20 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#21 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -311,7 +311,7 @@ int QWidgetStack::id( QWidget * widget ) const
 
 
 /*! Returns a pointer to the currently visible widget (the one on the
-  top of the stack), of 0 if nothing is currently being shown.
+  top of the stack), or 0 if nothing is currently being shown.
 
   \sa aboutToShow() id() raiseWidget()
 */
