@@ -541,17 +541,52 @@ QCanvas Module:
 
 
 
-QFont
-###TODO Lars/Brad
+QFont, QFontDatabase, QFontInfo, QFontMetrics
+---------------------------------------------
 
-QFontDataBase
-###TODO Lars/Brad
+The QFont::CharSet enum was removed and replaced with the QFont::Script enum.
+With this change, a QFont is not associated with a specific character set.
+Instead, QFont uses Unicode Scripts for loading fonts.  On platforms where
+most fonts do not use the Unicode encoding (currently only X11), multiple
+locale and character-set dependent fonts can be loaded for the individual
+Unicode Scripts.
 
-QFontInfo
-###TODO Lars/Brad
+Another new feature of QFont is a much more flexible substitution mechanism.
+Each family can have a list of appropriate substitutes. The font substitution
+feature that allows you to specify a list of substitute fonts. Substitute fonts
+are used when a font cannot be loaded, or if the specified font doesn't have a
+particular character (X11 only). 
 
-QFontMetrics
-###TODO Lars/Brad
+For example (on X11), you select the font Lucida, which doesn't have Korean
+characters. For Korean text, you want to use the Mincho font family. By
+adding Mincho to the list, any Korean characters not found in Lucida will be
+used from Mincho. Because the font substitutions are lists, you can also select
+multiple families, such as Song Ti (for use with Chinese text).
+
+QFontInfo and QFontMetrics had small API changes related to the disappearance
+of QFont::CharSet.  In terms of functionality, the behavior of these classes
+is unchanged.
+
+QFontDatabase had rather significant API cleanups related to the disappearance
+of QFont::CharSet.  Most QFontDatabase member functions take one less argument,
+yet compatibility functions still exist to keep old source working.
+
+Family and style names returned from QFontDatabase are now process and formatted
+in a way that is suitable for display to users.  Family and foundry names are
+capitalized and foundry names are enclosed in square brackets after the family
+name.  For example, the Helvetica font family could have 3 different foundries:
+Adobe, Cronyx and Phaisarn.  In 2.x, QFontDatabase listed them like this:
+
+	adobe-helvetica
+	cronyx-helvetica
+	phaisarn-helvetica
+
+Starting with 3.0, QFontDatabase lists them like this:
+
+	Helvetica [Adobe]
+	Helvetica [Cronyx]
+	Helvetica [Phaisarn]
+
 
 QFrame
 
