@@ -1319,6 +1319,8 @@ void SetupWizardImpl::configDone()
 		args << "sub-examples";
 	    if ( optionsPage->installExtensions->isChecked() )
 		args << "sub-extensions";
+	} else if (globalInformation.reconfig()) {
+	    args << "sub-tools"; // We want to make sure it rebuilds uic etc
 	}
 #elif defined(Q_OS_WIN32)
 	if ( optionsPage ) {
