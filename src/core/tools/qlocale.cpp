@@ -3262,7 +3262,7 @@ QByteArray QLocalePrivate::numberToCLocale(const QString &locale_num) const
 
     } while (false);
 
-    return locale_num.toLatin1();
+    return l_num.toLatin1();
 }
 
 double QLocalePrivate::stringToDouble(QString number, bool *ok) const
