@@ -496,6 +496,10 @@ bool QFontDialog::eventFilter( QObject * o , QEvent * e )
 
 
 #ifdef Q_WS_MAC
+//#define SHOW_FONTS_IN_FAMILIES
+#endif
+
+#ifdef SHOW_FONTS_IN_FAMILIES
 #include <qpainter.h>
 
 class QListBoxFontText : public QListBoxText
@@ -549,6 +553,9 @@ void QFontDialog::updateFamilies()
     QStringList newList;
     QString s;
     QStringList::Iterator it = d->familyNames.begin();
+#ifdef SHOW_FONTS_IN_FAMILIES
+    int idx = 0;
+#endif
     for( ; it != d->familyNames.end() ; it++ ) {
 	s = *it;
 	if ( s.contains('-') ) {
@@ -563,13 +570,13 @@ void QFontDialog::updateFamilies()
 	    newList.append( s + "(BT)" );
 	else
 #endif
-#ifdef Q_WS_MAC
+#ifdef SHOW_FONTS_IN_FAMILIES
 	    d->familyList->insertItem(new QListBoxFontText(s), idx++);
 #else
 	newList.append( s );
 #endif
     }
-#ifndef Q_WS_MAC
+#ifndef SHOW_FONTS_IN_FAMILIES
     d->familyList->insertStringList( newList );
 #endif
 }
