@@ -29,7 +29,8 @@ class QDataStream;
 class Q_CORE_EXPORT QUrl
 {
 public:
-    QUrl(const QString &url = QString());
+    QUrl();
+    QUrl(const QString &url);
     QUrl(const QUrl &copy);
     ~QUrl();
 

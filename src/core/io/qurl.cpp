@@ -1281,7 +1281,7 @@ QByteArray QUrlPrivate::toEncoded(QUrl::FormattingOptions options) const
 
 	url += "//";
 
-        if ((options & QUrl::RemoveUserInfo) != QUrl::RemoveUserInfo) { 
+        if ((options & QUrl::RemoveUserInfo) != QUrl::RemoveUserInfo) {
             if (!userName.isEmpty()) {
                 url += QUrl::toPercentEncoding(userName, ":@#?/");
                 if (!(options & QUrl::RemovePassword) && !password.isEmpty())
@@ -1378,6 +1378,10 @@ QUrl::QUrl(const QString &url) : d(new QUrlPrivate)
 {
     if (!url.isEmpty())
         setUrl(url);
+}
+
+QUrl::QUrl() : d(new QUrlPrivate)
+{
 }
 
 /*!
