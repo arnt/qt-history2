@@ -56,6 +56,7 @@ Option::QMODE Option::mode = Option::WIN_MODE;
 Option::QMODE Option::mode = Option::UNIX_MODE;
 #endif
 bool Option::do_deps = TRUE;
+bool Option::do_dep_heuristics = TRUE;
 bool Option::do_cache = TRUE;
 int Option::debug_level = 0;
 
@@ -95,6 +96,8 @@ Option::parseCommandLine(int argc, char **argv)
 		Option::do_deps = FALSE;
 	    } else if(opt == "nocache") {
 		Option::do_cache = FALSE;
+	    } else if(opt == "nodependheuristics") {
+		Option::do_dep_heuristics = FALSE;
 	    } else if(opt == "mkcache") {
 		Option::cachefile = argv[++x];
 	    } else if(opt == "t" || opt == "template") {
