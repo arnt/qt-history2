@@ -5877,21 +5877,20 @@ void QPSPrintEngine::drawPath(const QPainterPath &p)
             const QPainterPathElement &elm = sub.elements.at(j);
             switch (elm.type) {
             case QPainterPathElement::Line: {
-                d->pageStream << POINT(QPoint(elm.lineData.x2, elm.lineData.y2)) << "LT\n";
+                d->pageStream << elm.lineData.x2 << ' ' << elm.lineData.y2 << " LT\n";
                 break;
             }
             case QPainterPathElement::Bezier: {
-                d->pageStream << POINT(QPoint(elm.bezierData.x2, elm.bezierData.y2))
-                              << POINT(QPoint(elm.bezierData.x3, elm.bezierData.y3))
-                              << POINT(QPoint(elm.bezierData.x4, elm.bezierData.y4))
-                              << "curveto\n";
+                d->pageStream << elm.bezierData.x2 << ' ' << elm.bezierData.y2 << ' '
+                              << elm.bezierData.x3 << ' ' << elm.bezierData.y3 << ' '
+                              << elm.bezierData.x4 << ' ' << elm.bezierData.y4
+                              << " curveto\n";
                 break;
             }
             case QPainterPathElement::Arc: {
-                d->pageStream << RECT(QRect(elm.arcData.x, elm.arcData.y,
-                                            elm.arcData.w, elm.arcData.h))
-                              << elm.arcData.start/16. << ' '
-                              << elm.arcData.length/16.
+                d->pageStream << RECT(QRectFloat(elm.arcData.x, elm.arcData.y, elm.arcData.w, elm.arcData.h))
+                              << elm.arcData.start << ' '
+                              << elm.arcData.length
                               << " ARC\n";
                 break;
             }

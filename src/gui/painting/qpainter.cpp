@@ -778,7 +778,7 @@ QRegion QPainter::clipRegion() const
         return QRegion();
     }
     if (d->state->txop > TxNone)
-	return (d->state->clipRegionMatrix * d->state->matrix.invert()) * d->state->clipRegion;
+	return d->state->clipRegion * d->state->clipRegionMatrix * d->state->matrix.invert();
     else
 	return d->state->clipRegion;
 }
@@ -3040,7 +3040,7 @@ QPointArray QPainter::xForm(const QPointArray &a) const
 #ifndef QT_NO_TRANSFORMATIONS
     if (d->state->txop == TxNone)
         return a;
-    return d->state->matrix * a;
+    return a * d->state->matrix;
 #else
     QPointArray p(a);
     p.translate(d->state->xlatex, d->state->xlatey);
@@ -3077,7 +3077,7 @@ QPointArray QPainter::xForm(const QPointArray &av, int index, int npoints) const
     QPointArray a(lastPoint-index);
     memcpy(a.data(), av.data()+index, (lastPoint-index)*sizeof(QPoint));
 #ifndef QT_NO_TRANSFORMATIONS
-    return d->state->matrix*a;
+    return a * d->state->matrix;
 #else
     a.translate(d->state->xlatex, d->state->xlatey);
     return a;
@@ -3159,7 +3159,7 @@ QPointArray QPainter::xFormDev(const QPointArray &a) const
         QPainter *that = (QPainter*)this;        // mutable
         that->updateInvXForm();
     }
-    return d->invMatrix * a;
+    return a * d->invMatrix;
 #else
     QPointArray p(a);
     p.translate(-d->state->xlatex, -d->state->xlatey);
@@ -3203,7 +3203,7 @@ QPointArray QPainter::xFormDev(const QPointArray &ad, int index, int npoints) co
         QPainter *that = (QPainter*)this;        // mutable
         that->updateInvXForm();
     }
-    return d->invMatrix * a;
+    return a * d->invMatrix;
 #else
     a.translate(-d->state->xlatex, -d->state->xlatey);
     return a;

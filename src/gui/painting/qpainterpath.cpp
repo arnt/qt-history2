@@ -134,19 +134,19 @@ QPointArray QPainterSubpath::toPolygon(const QMatrix &matrix) const
         return QPointArray();
     QPointArray p;
     fflush(stdout);
-    p << (matrix * elements.at(0).firstPoint()).toPoint();
+    p << (elements.at(0).firstPoint() * matrix).toPoint();
     for (int i=0; i<elements.size(); ++i) {
         const QPainterPathElement &elm = elements.at(i);
         switch (elm.type) {
         case QPainterPathElement::Line:
-            p << (matrix * QPointFloat(elm.lineData.x2, elm.lineData.y2)).toPoint();
+            p << (QPointFloat(elm.lineData.x2, elm.lineData.y2) * matrix).toPoint();
             break;
         case QPainterPathElement::Bezier: {
             QPointArray pa;
-            pa << (matrix * QPointFloat(elm.bezierData.x1, elm.bezierData.y1)).toPoint();
-            pa << (matrix * QPointFloat(elm.bezierData.x2, elm.bezierData.y2)).toPoint();
-            pa << (matrix * QPointFloat(elm.bezierData.x3, elm.bezierData.y3)).toPoint();
-            pa << (matrix * QPointFloat(elm.bezierData.x4, elm.bezierData.y4)).toPoint();
+            pa << (QPointFloat(elm.bezierData.x1, elm.bezierData.y1) * matrix).toPoint();
+            pa << (QPointFloat(elm.bezierData.x2, elm.bezierData.y2) * matrix).toPoint();
+            pa << (QPointFloat(elm.bezierData.x3, elm.bezierData.y3) * matrix).toPoint();
+            pa << (QPointFloat(elm.bezierData.x4, elm.bezierData.y4) * matrix).toPoint();
             p += pa.cubicBezier();
             break;
         }
@@ -257,7 +257,7 @@ QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
 
     QRegion scanRegion(pathBounds);
     if (clipRect.isValid())
-        scanRegion &= xform * clipRect;
+        scanRegion &= xform.mapToRegion(clipRect);
     QRect scanRect = scanRegion.boundingRect();
     if (boundingRect)
         *boundingRect = scanRect;

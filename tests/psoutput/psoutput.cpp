@@ -51,12 +51,6 @@ void drawRect( QPainter & p, const QRect &r )
 }
 
 
-void drawWinFocusRect( QPainter & p, const QRect &r )
-{
-    p.drawWinFocusRect( r );
-}
-
-
 void drawEllipse( QPainter & p, const QRect &r )
 {
     p.setPen( QPen( Qt::black, 3 ) );
@@ -274,8 +268,7 @@ void drawTextMetrics( QPainter & p, const QRect &r )
     p.setPen( Qt::lightGray );
     p.drawRect( r );
 
-    int s = 4;
-    QString t = QString::fromLatin1( futility_of_love ).simplifyWhiteSpace();
+    QString t = QString::fromLatin1( futility_of_love ).simplified();
 
     p.setFont( QFont( "times", 9 ) );
     QFontMetrics fm = p.fontMetrics();
@@ -284,9 +277,9 @@ void drawTextMetrics( QPainter & p, const QRect &r )
     int y = r.top() + fm.ascent() + fm.leading();
     int b = 0;
     while( b >= 0 ) {
-	int e = t.find( ' ', b+1 );
+	int e = t.indexOf( ' ', b+1 );
 	if ( e > b ) {
-	    QString w = t.mid( b, e-b ).simplifyWhiteSpace();
+	    QString w = t.mid( b, e-b ).simplified();
 	    QRect wr( x, y - fm.ascent(), fm.width( w ), fm.height() );
 	    if ( wr.right() >= r.right() ) {
 		p.setPen( Qt::lightGray );
@@ -306,9 +299,9 @@ void drawTextMetrics( QPainter & p, const QRect &r )
     }
 }
 
-
-void drawPicture( QPainter & p, const QRect &r )
+void drawPicture( QPainter & , const QRect & )
 {
+#if 0
     QPicture picture;
     QPainter p2( &picture );
     p2.save();
@@ -329,8 +322,8 @@ void drawPicture( QPainter & p, const QRect &r )
     p.setPen( Qt::darkGray );
     p.drawLine( r.left(), r.center().y(), r.right(), r.center().y() );
     p.drawLine( r.center().x(), r.top(), r.center().x(), r.bottom() );
+#endif
 }
-
 
 void lineCapJoinHack(  QPainter & p, int x, int y, int w, int h,
 		       Qt::PenCapStyle s, Qt::PenJoinStyle j )
@@ -371,17 +364,18 @@ void lineCapAndJoin( QPainter & p, const QRect &r )
 
 typedef void (*TestFunction)(QPainter &, const QRect &);
 
+const int numTests = 18;
 
-TestFunction f[19] = {
-    drawPoint, drawPoints, drawLine, drawRect, drawWinFocusRect,
+TestFunction f[numTests] = {
+    drawPoint, drawPoints, drawLine, drawRect,
     drawEllipse, drawArc, drawChord, drawLineSegments, drawPolyline,
     drawPolygon, drawCubicBezier, drawPixmap, drawImage,
     drawTiledPixmap, drawText, drawPicture, drawTextMetrics, lineCapAndJoin
 };
 
 
-const char * n[19] = {
-    "drawPoint", "drawPoints", "drawLine", "drawRect", "drawWinFocusRect",
+const char * n[numTests] = {
+    "drawPoint", "drawPoints", "drawLine", "drawRect",
     "drawEllipse", "drawArc", "drawChord", "drawLineSegments", "drawPolyline",
     "drawPolygon", "drawCubicBezier", "drawPixmap", "drawImage",
     "drawTiledPixmap", "drawText", "drawPicture", "fontMetrics", "lineCap/Join"
@@ -419,15 +413,15 @@ void test( const char * output,
 
     p.setPen( Qt::lightGray );
 
-    for( i=0; i<19; i++ ) {
-	p.save();
+    for( i = 0; i < numTests; i++ ) {
+ 	p.save();
 	p.drawRect( cr );
 	p.setPen( Qt::darkGray );
 	p.drawText( cr.left()+5, cr.top()+12, n[i] );
-	p.setClipRect( cr );
+ 	p.setClipRect(cr);
 	p.translate( cr.left(), cr.top() );
 	f[i]( p, pr );
-	p.restore();
+ 	p.restore();
 
 	// two 28-point margins
 	cr.setRect( cr.right()+1, cr.top(), cr.width(), cr.height() );
@@ -442,20 +436,16 @@ void test( const char * output,
     }
 }
 
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
     QApplication app(argc, argv);
 
-    test( "/tmp/portrait-1.ps", QPrinter::Portrait, QPrinter::Color,
-	  1, FALSE, 0 );
-    test( "/tmp/landscape-1.ps", QPrinter::Landscape, QPrinter::Color,
-	  1, FALSE, 0 );
+    test( "portrait-1.ps", QPrinter::Portrait, QPrinter::Color, 1, FALSE, 0 );
+//     test( "landscape-1.ps", QPrinter::Landscape, QPrinter::Color, 1, FALSE, 0 );
 
-    test( "/tmp/portrait-2.ps", QPrinter::Portrait, QPrinter::Color,
-	  1, TRUE, 0 );
-    test( "/tmp/landscape-2.ps", QPrinter::Landscape, QPrinter::Color,
-	  1, TRUE, 0 );
+//     test( "portrait-2.ps", QPrinter::Portrait, QPrinter::Color, 1, TRUE, 0 );
+//     test( "landscape-2.ps", QPrinter::Landscape, QPrinter::Color, 1, TRUE, 0 );
 
-    test( "/tmp/portrait-mono.ps", QPrinter::Portrait, QPrinter::GrayScale,
-	  1, TRUE, 0 );
+//     test( "portrait-mono.ps", QPrinter::Portrait, QPrinter::GrayScale, 1, TRUE, 0 );
+    return 0;
 }

@@ -49,8 +49,8 @@ void RotatingGradient::paintEvent(QPaintEvent *)
     // move them to the center of the widget. We also add the fade
     // factor to the widgets to tilt them away from the static circle
     // motion.
-    QPoint p1 = matrix*QPoint(-width()/4, 0) + QPoint(width()/2, height()/2);
-    QPoint p2 = matrix*QPoint(width()/4, 0) + QPoint(width()/2, height()/2);
+    QPoint p1 = QPoint(-width()/4, 0)*matrix + QPoint(width()/2, height()/2);
+    QPoint p2 = QPoint(width()/4, 0)*matrix + QPoint(width()/2, height()/2);
 
     int alpha1 = 255;
     int alpha2 = attributes->alpha ? fade : 255;

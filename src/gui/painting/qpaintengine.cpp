@@ -476,10 +476,10 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
             setDirty(DirtyTransform);
         } else {
             QRegion region = s->txop > QPainter::TxNone
-                             ? (s->clipRegionMatrix * s->clipRegion)
+                             ? (s->clipRegion * s->clipRegionMatrix)
                              : s->clipRegion;
             if (joinWithPath)
-                region &= s->clipPathMatrix * s->clipPathRegion;
+                region &= s->clipPathRegion * s->clipPathMatrix;
             updateClipRegion(region, s->clipEnabled);
         }
         clearDirty(DirtyClip);

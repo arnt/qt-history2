@@ -121,7 +121,6 @@ void TextEdit::setupEditActions()
 
     QMenu *menu = new QMenu(tr("&Edit"), this);
     menuBar()->addMenu(menu);
-    menu->setTearOffEnabled(true);
 
     QAction *a;
     a = actionUndo = new QAction(QPixmap(":/images/editundo.png"), tr("&Undo"), this);
