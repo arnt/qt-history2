@@ -199,6 +199,8 @@ static QString varMap(const QString &x)
 	ret = "PRECOMPILED_HEADER";
     else if(ret == "PRECOMPCPP")
 	ret = "PRECOMPILED_SOURCE";
+    else if(ret == "INCPATH")
+	ret = "INCLUDEPATH";
     return ret;
 }
 
