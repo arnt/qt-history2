@@ -215,33 +215,28 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
     }
 }
 
-
-void QPixmap::deref()
+QPixmapData::~QPixmapData()
 {
-    if (data && data->deref()) {                // last reference lost
-        if (data->mcp) {
-            if (mcp_system_unstable) {        // all mcp's gone
-                data->mcp = false;
-                delete DATA_MCPI;
-                DATA_MCPI = 0;
-                data->hbm = 0;
-            } else {
-                data->freeCell(this, true);
-            }
+    if (mcp) {
+        if (mcp_system_unstable) {        // all mcp's gone
+            mcp = false;
+            delete DATA_MCPI;
+            DATA_MCPI = 0;
+            hbm = 0;
+        } else {
+            freeCell(this, true);
         }
-        if (data->mask)
-            delete data->mask;
-        if (data->maskpm)
-            delete data->maskpm;
-        if (data->hbm) {
-            DeleteObject(data->hbm);
-            data->hbm = 0;
-        }
-        delete data->paintEngine;
-        delete data;
     }
+    if (mask)
+        delete mask;
+    if (maskpm)
+        delete maskpm;
+    if (hbm) {
+        DeleteObject(hbm);
+        hbm = 0;
+    }
+    delete paintEngine;
 }
-
 
 QPixmap::QPixmap(int w, int h, const uchar *bits, bool isXbitmap)
     : QPaintDevice(QInternal::Pixmap)

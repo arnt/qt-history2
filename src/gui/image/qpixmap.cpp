@@ -1248,3 +1248,11 @@ bool QPixmap::isDetached() const
 {
     return data->count == 1;
 }
+
+void QPixmap::deref()
+{
+    if(data && data->deref()) { // Destroy image if last ref
+        delete data;
+        data = 0;
+    }
+}

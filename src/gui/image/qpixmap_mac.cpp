@@ -460,30 +460,19 @@ int QPixmap::metric(int m) const
     return val;
 }
 
-void QPixmap::deref()
+QPixmapData::~QPixmapData()
 {
-    if(data && data->deref()) {     // Destroy image if last ref
-        if(data->mask) {
-            delete data->mask;
-            data->mask = 0;
-        }
-        if(data->alphapm) {
-            delete data->alphapm;
-            data->alphapm = 0;
-        }
+    if(mask) 
+        delete mask;
+    if(alphapm) 
+        delete alphapm;
 
-        if(data->cgimage) {
-            CGImageRelease(data->cgimage);
-            data->cgimage = 0;
-        }
+    if(cgimage) 
+        CGImageRelease(cgimage);
 
-        if(data->hd && qApp) {
-            UnlockPixels(GetGWorldPixMap(static_cast<GWorldPtr>(data->hd)));
-            DisposeGWorld(static_cast<GWorldPtr>(data->hd));
-            data->hd = 0;
-        }
-        delete data;
-        data = 0;
+    if(hd && qApp) {
+        UnlockPixels(GetGWorldPixMap(static_cast<GWorldPtr>(hd)));
+        DisposeGWorld(static_cast<GWorldPtr>(hd));
     }
 }
 
@@ -826,6 +815,7 @@ CGImageRef qt_mac_create_cgimage(const QPixmap &px, Qt::PixmapDrawingMode mode)
         }
         image = CGImageMaskCreate(px.width(), px.height(), 8, 8, px.width(), provider, 0, true);
     } else {
+        
         provider = CGDataProviderCreateWithData(new QPixmap(px), addr, bpl*px.height(),
                                                 qt_mac_pixmap_data_free);
         if(mode == Qt::ComposePixmap) {

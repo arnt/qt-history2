@@ -320,33 +320,28 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
 #endif // QT_NO_XFT
 }
 
-
-void QPixmap::deref()
+QPixmapData::~QPixmapData()
 {
-    if (data && data->deref()) {                        // last reference lost
-        delete data->mask;
-        delete data->alphapm;
-        if (data->ximage)
-            qSafeXDestroyImage((XImage*)data->ximage);
-        if (data->maskgc)
-            XFreeGC(data->xinfo.display(), (GC)data->maskgc);
-        if (qApp && data->hd) {
+    delete mask;
+    delete alphapm;
+    if (ximage)
+        qSafeXDestroyImage((XImage*)ximage);
+    if (maskgc)
+        XFreeGC(xinfo.display(), (GC)maskgc);
+    if (qApp && hd) {
 
 #ifndef QT_NO_XFT
-            if (data->xft_hd) {
-                XftDrawDestroy((XftDraw *) data->xft_hd);
-                data->xft_hd = 0;
-            }
+        if (xft_hd) {
+            XftDrawDestroy((XftDraw *) xft_hd);
+            xft_hd = 0;
+        }
 #endif // QT_NO_XFT
 
-            XFreePixmap(data->xinfo.display(), data->hd);
-            data->hd = 0;
-        }
-        delete data->paintEngine;
-        delete data;
+        XFreePixmap(xinfo.display(), hd);
+        hd = 0;
     }
+    delete paintEngine;
 }
-
 
 /*!
     Constructs a monochrome pixmap, with width \a w and height \a h,

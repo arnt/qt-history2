@@ -264,24 +264,18 @@ void QPixmap::init(int w, int h, int d, bool bitmap, Optimization optim)
         data->w = data->h = 0; // out of memory -- create null pixmap
 }
 
-
-void QPixmap::deref()
+QPixmapData::~QPixmapData()
 {
-    if (data && data->deref()) {                        // last reference lost
-        if (qws_trackPixmapData)
-            QwsPixmap::pixmapData->removeAll(data);
-        if (data->mask)
-            delete data->mask;
-        if (data->clut)
-            delete[] data->clut;
+    if (qws_trackPixmapData)
+        QwsPixmap::pixmapData->removeAll(this);
+    if (mask)
+        delete mask;
+    if (clut)
+        delete[] clut;
 
-        if (memorymanager)
-            memorymanager->deletePixmap(data->id);
-        delete data;
-        data = 0;
-    }
+    if (memorymanager)
+        memorymanager->deletePixmap(id);
 }
-
 
 QPixmap::QPixmap(int w, int h, const uchar *bits, bool isXbitmap)
     : QPaintDevice(QInternal::Pixmap)

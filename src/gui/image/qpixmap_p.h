@@ -26,6 +26,7 @@ struct QMCPI;
 
 struct QPixmapData { // internal pixmap data
     QPixmapData() : count(1) { }
+    ~QPixmapData();
 
     void ref() { ++count; }
     bool deref() { return !--count; }
