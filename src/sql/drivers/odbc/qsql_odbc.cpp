@@ -1260,10 +1260,12 @@ void QODBCDriver::cleanup()
 // as two byte unicode characters
 void QODBCPrivate::checkUnicode()
 {
-    if ( !qt_win_unicode ) {
+#if defined(Q_WS_WIN)
+    if ( !qt_winunicode ) {
 	unicode = FALSE;
 	return;
     }
+#endif
 
     SQLRETURN   r;
     SQLUINTEGER fFunc;
