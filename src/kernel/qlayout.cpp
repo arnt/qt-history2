@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#20 $
 **
 ** Implementation of layout classes
 **
@@ -12,7 +12,7 @@
 #include "qlayout.h"
 #include "qmenubar.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#19 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#20 $");
 
 
 /*!
@@ -73,7 +73,7 @@ QLayout::QLayout( QWidget *parent, int border, int autoBorder, const char *name 
 
 /*!
   Returns the main widget of this layout, or 0 if this layout is
-  a sublayout which is not yet inserted.
+  a sub-layout which is not yet inserted.
 */
 
 QWidget * QLayout::mainWidget()
@@ -250,18 +250,19 @@ void QLayout::setMenuBar( QMenuBar *w )
 
 /*!
   \class QBoxLayout qlayout.h
-  \brief The QBoxLayout class specifies child widget geometry.
+  \brief QBoxLayout is the base class of QHBoxLayout and QVBoxLayout
 
   Contents are arranged serially, either horizontal or vertical.
   The contents fill the available space.
 
-  A QBoxLayout (box for short) can contain widgets or other
-  boxes.
+  A QBoxLayout can contain widgets or other layouts.
+
+  QHBoxLayout and QVBoxLayout are convenience classes which are
+  easier to use.
 
   \warning The current version does not support deletion of child widgets.
   If you need to remove widgets that are under geometry management, you have to
-  delete the layout manager first.
-*/
+  delete the layout manager first.  */
 
 static inline bool horz( QGManager::Direction dir )
 {
@@ -413,7 +414,6 @@ QChain * QBoxLayout::mainHorizontalChain()
 
   \sa addStretch
 */
-//###... Should perhaps replace default space?
 void QBoxLayout::addSpacing( int size )
 {
     if ( !basicManager() ) {
@@ -482,6 +482,10 @@ void QBoxLayout::addMaxStrut( int size)
   Adds \a widget to the box, with stretch factor \a stretch and
   alignment \a align.
 
+  \warning QHBoxLayout::add() or QVBoxLayout::add() are recommended
+  for application programmers. They are easier to use, and contain
+  heuristics for setting maximum and minimum sizes.
+
   The stretch factor applies only in the \link direction() direction
   \endlink of the QBoxLayout, and is relative to the other boxes and
   widgets in this QBoxLayout.  Widgets and boxes with higher stretch
@@ -514,6 +518,11 @@ void QBoxLayout::addMaxStrut( int size)
   \sa addLayout(), addSpacing()
 */
 
+#if QT_VERSION == 200
+#error "Binary compatibility."
+#endif
+
+
 void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
 {
     if ( !basicManager() ) {
@@ -530,6 +539,14 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
 #endif
 	return;
     }
+
+#if defined(CHECK_STATE)
+    if ( inherits( "QHBoxLayout" ) )
+	warning( "QBoxLayout::addWidget() obsolete, use QHBoxLayout::add()" );
+    else if ( inherits( "QVBoxLayout" ) )
+	warning( "QBoxLayout::addWidget() obsolete, use QVBoxLayout::add()" );
+#endif
+
 
     const int first = AlignLeft | AlignTop;
     const int last  = AlignRight | AlignBottom;
@@ -572,6 +589,25 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
 */
 
 
+
+
+/*!
+  \class QHBoxLayout qlayout.h
+  \brief The QHBoxLayout class provides a horizontal layout box
+
+  The contents are arranged left to right, they will stretch to fill
+  the available space.
+
+  Use add() to add widgets or other layouts.
+
+  \important addStretch() addSpacing()
+
+  \warning The current version does not support deletion of child widgets.
+  If you need to remove widgets that are under geometry management, you have to
+  delete the layout manager first.
+*/
+
+
 /*!
   Creates a new top-level horizontal box.
  */
@@ -599,8 +635,23 @@ QHBoxLayout::~QHBoxLayout()
   Adds the widget \a w to the hbox, with horizontal stretch factor \a
   stretch. The vertical alignment is given by \a alignment.
 
-  If \a w does not have a QWidget::minimumSize(), it will
-  will be set.....
+  An \a alignment of 0 (the default) lets the widget fill the height
+  of the box (will center if the box is taller than the maximum height
+  of the widget).
+
+  The other possible values for \a alignment are
+  <ul>
+  <li> \c AlignCenter centers vertically in the box.
+  <li> \c AlignTop aligns to the top border of the box.
+  <li> \c AlignBottom aligns to the bottom border of the box.
+  </ul>
+
+  To center horizontally, use addStretch().
+
+  If \a w does not have a QWidget::minimumSize(), suitable maximum and
+  minimum sizes will be chosen heuristically based on \a stretch, \a
+  alignment and QWidget::sizeHint(). To disable the heuristics, set
+  a nonzero minimum size.
  */
 void QHBoxLayout::add( QWidget *w, int stretch, 
 			     int alignment )
@@ -635,8 +686,23 @@ void QHBoxLayout::add( QLayout *layout, int stretch )
     QBoxLayout::addLayout( layout, stretch );
 }
 
-///////////////////////////////////////////////
-///////////////////////////////////////////////
+
+/*!
+  \class QVBoxLayout qlayout.h
+  \brief The QVBoxLayout class provides a vertical layout box
+
+  The contents are arranged top to bottom, they will stretch to fill
+  the available space.
+
+  Use add() to add widgets or other layouts.
+
+  \important addStretch() addSpacing()
+
+  \warning The current version does not support deletion of child widgets.
+  If you need to remove widgets that are under geometry management, you have to
+  delete the layout manager first.
+*/
+
 /*!
   Creates a new top-level vertical box.
  */
@@ -661,11 +727,26 @@ QVBoxLayout::~QVBoxLayout()
 }
 
 /*!
-  Adds the widget \a w to the hbox, with vertical stretch factor \a
+  Adds the widget \a w to the vbox, with vertical stretch factor \a
   stretch. The vertical alignment is given by \a alignment.
 
-  If \a w does not have a QWidget::minimumSize(), it will
-  will be set by
+  An \a alignment of 0 (the default) lets the widget fill the width
+  of the box (will center if the box is wider than the maximum width
+  of the widget).
+
+  The other possible values for \a alignment are
+  <ul>
+  <li> \c AlignCenter centers horizontally in the box.
+  <li> \c AlignLeft aligns to the left border of the box.
+  <li> \c AlignRight aligns to the right border of the box.
+  </ul>
+
+  To center vertically, use addStretch().
+
+  If \a w does not have a QWidget::minimumSize(), suitable maximum and
+  minimum sizes will be chosen heuristically based on \a stretch, \a
+  alignment and QWidget::sizeHint(). To disable the heuristics, set
+  a nonzero minimum size.
  */
 void QVBoxLayout::add( QWidget *w, int stretch, 
 			     int alignment )
@@ -710,16 +791,25 @@ void QVBoxLayout::add( QLayout *layout, int stretch )
   \brief The QGridLayout class specifies child widget geometry.
 
   Contents are arranged in a grid. If you need a more flexible layout,
-  see the QBoxLayout class.
+  see the QHBoxLayout and QVBoxLayout classes.
+
+  To avoid squashed widgets, each column and each row of the grid
+  should have a a minimum size or a nonzero stretch factor. Stretch
+  factors are set with setRowStretch() and setColStretch(). Minimum sizes
+  are set by addColSpacing(), addRowSpacing() and by the minimum sizes
+  of the widgets added. 
+
+  Note that a widget which spans several rows or columns does not
+  influence the minimum size of any of the rows/columns it spans.
 
   \warning The current version does not support deletion of child widgets.
   If you need to remove widgets that are under geometry management, you have to
-  delete the layout manager first.
+  delete the layout manager first.  
 */
 
 
 /*!
-  Constructs a new QGridLayout with \a nRows, \a nCols columns
+  Constructs a new QGridLayout with \a nRows rows, \a nCols columns
    and main widget \a  parent.	\a parent may not be 0.
 
   \a border is the number of pixels between the edge of the widget and
@@ -844,15 +934,13 @@ void QGridLayout::addWidget( QWidget *w, int row, int col, int align )
 /*!
   Adds the widget \a w to the cell grid, spanning multiple rows/columns.
 
-  Note that multicell widgets do not define the columns/rows they
-  span.	 Each column must contain at least one widget that does not
-  span multiple columns. Likewise, each row must contain one widget
-  that does not span multiple rows. If your layout does not satisfy this,
-  consider using the QBoxLayout class instead.
+  Note that multicell widgets do not influence the minimum or maximum
+  size of columns/rows they span. Use addColSpacing() or addRowSpacing()
+  to set minimum sizes explicitly.
 
   Alignment is specified by \a align which takes the same arguments as
   QLabel::setAlignment(), alignment has no effect unless you have set
-  QWidget::maximumSize().
+  QWidget::maximumSize().  
 */
 
 void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow,

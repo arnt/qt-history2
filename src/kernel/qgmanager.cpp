@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#13 $
 **
 ** Implementation of QGGeometry class
 **
@@ -13,7 +13,7 @@
 #include "qlist.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#12 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#13 $");
 
 
 
@@ -23,7 +23,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#12 $");
 
   This class is intended for those who write geometry managers and
   graphical designers. <strong>It is not for the faint of
-  heart. </strong> The QBoxLayout and QGridLayout classes are
+  heart. </strong> The QHBoxLayout, QVBoxLayout and QGridLayout classes are
   available for normal application programming.
 
   Each dimension (horizontal and vertical) is handled independently. Widgets
@@ -38,7 +38,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#12 $");
   the same position.
 
 
-  \sa QBoxLayout QGridLayout 
+  \sa QHBoxLayout QVBoxLayout QGridLayout 
 
 */
 
