@@ -150,9 +150,9 @@ struct QTableHeaderPrivate
   rectangle to include additional cells.
 
   There are various access functions to find out about the area:
-  anchorRow() and anchorCol() return the anchor's position; leftCol(), rightCol(),
-  topRow() and bottomRow() return the rectangle's four edges. All
-  four are part of the selection.
+  anchorRow() and anchorCol() return the anchor's position; leftCol(),
+  rightCol(), topRow() and bottomRow() return the rectangle's four
+  edges. All four are part of the selection.
 
   A newly created QTableSelection is inactive -- isActive() returns
   FALSE.  You must use init() and expandTo() to activate it.
@@ -1239,7 +1239,8 @@ bool QCheckTableItem::isChecked() const
     functions for manipulating <a href="#headers">headers</a>, <a
     href="#columnsrows">rows and columns</a>, <a href="#cells">cells</a>
     and <a href="#selections">selections</a>. QTable also provides
-    in-place editing and <a href="dnd.html">drag and drop</a>. QTable
+    in-place editing and <a href="dnd.html">drag and drop</a>, as well
+    as a useful set of <a href="#signals">signals</a>. QTable
     efficiently supports very large tables, for example, tables one
     million by one million cells are perfectly possible. QTable is
     economical with memory, using none for unused cells.
@@ -1271,11 +1272,11 @@ bool QCheckTableItem::isChecked() const
 
     <a name="columnsrows"><h4>Rows and Columns</h4>
     Row and column sizes are set with setRowHeight() and
-    setColumnWidth().  If you want a row high enough to show the
-    tallest item in its entirety, use adjustRow(). Similarly, to make a
-    column wide enough to show the widest item use adjustColumn(). If
-    you want the row height and column width to adjust automatically as
-    the contents of the table changes use setRowStretchable() and
+    setColumnWidth().  If you want a row high enough to show the tallest
+    item in its entirety, use adjustRow(). Similarly, to make a column
+    wide enough to show the widest item use adjustColumn(). If you want
+    the row height and column width to adjust automatically as the
+    height and width of the table changes use setRowStretchable() and
     setColumnStretchable(). 
     
     Rows and columns can be hidden and shown with hideRow(),
@@ -1402,6 +1403,17 @@ bool QCheckTableItem::isChecked() const
     removeSelection() and remove all selections with clearSelection().
     Selections are QTableSelection objects.
 
+    <a name="signals"><h4>Signals</h4>
+
+    When the user clicks a cell the currentChanged() signal is emitted.
+    You can also connect to the lower level clicked(), doubleClicked()
+    and pressed() signals. If the user changes the selection the
+    selectionChanged() signal is emitted; similarly if the user changes
+    a cell's value the valueChanged() signal is emitted. If the
+    user right-clicks (or presses the platform-specific key sequence)
+    the contextMenuRequested() signal is emitted. If the user drops a
+    drag and drop object the dropped() signal is emitted with the drop
+    event.
 */
 
 /*! \fn void QTable::currentChanged( int row, int col )
@@ -1489,12 +1501,6 @@ bool QCheckTableItem::isChecked() const
   Call setNumRows() and setNumCols() to set the table size before
   populating the table if you're using QTableItems.
 
-  Performance will be improved by modifying the table widget's
-  window-system properties (widget flags) using setWFlags() so that only
-  part of each QTableItem child is redrawn.  This may be unsuitable for
-  custom QTableItem subclasses, in which case the \c WNorthWestGravity
-  and \c WRepaintNoErase flags should be cleared.
-
   \sa QWidget::clearWFlags() Qt::WidgetFlags
 */
 
@@ -1508,12 +1514,6 @@ QTable::QTable( QWidget *parent, const char *name )
 
 /*! Constructs an empty table called \a name with \a numRows rows and \a
  numCols columns. The table is a child of \a parent.
-
-  Performance will be improved by modifying the table widget's
-  window-system properties (widget flags) using setWFlags() so that only
-  part of each QTableItem child is redrawn.  This may be unsuitable for
-  custom QTableItem subclasses, in which case the \c WNorthWestGravity
-  and \c WRepaintNoErase flags should be cleared.
 
   If you're using QTableItems to populate the table's cells, you can
   create QTableItem, QComboTableItem and QCheckTableItem items and
@@ -3391,7 +3391,10 @@ bool QTable::sorting() const
 
 static bool inUpdateGeometries = FALSE;
 
-/*! This function updates the geometries of the left and top header.
+/*! 
+    This function updates the geometries of the left and top header.
+    You would not normally need to call this function.
+
 */
 
 void QTable::updateGeometries()
@@ -4272,8 +4275,10 @@ void QTable::adjustRow( int row )
     If \a stretch is TRUE, column \a col is set to be stretchable;
     otherwise column \a col is set to be unstretchable.
 
-    A stretchable column is a column that automatically adjusts its
-    width so that it is always wide enough to show its widest item.
+    If the table widget's width decreases or increases stretchable
+    columns will grow narrower or wider to fit the space available as
+    completely as possible. The user cannot manually resize stretchable
+    columns.
 
   \sa isColumnStretchable() setRowStretchable() adjustColumn()
 */
@@ -4286,8 +4291,10 @@ void QTable::setColumnStretchable( int col, bool stretch )
 /*! If \a stretch is TRUE, row \a row is set to be stretchable;
     otherwise row \a row is set to be unstretchable.
 
-    A stretchable row is a row that automatically adjusts its
-    height so that it is always tall enough to show its tallest item.
+    If the table widget's height decreases or increases stretchable
+    rows will grow shorter or taller to fit the space available as
+    completely as possible. The user cannot manually resize stretchable
+    rows.
 
   \sa isRowStretchable() setColumnStretchable()
 */
@@ -4517,7 +4524,9 @@ void QTable::insertColumns( int col, int count )
     repaintContents( contentsX(), contentsY(), visibleWidth(), visibleHeight() );
 }
 
-/*! Removes row \a row.
+/*! 
+    Removes row \a row, and deletes all its cells including any table
+    items and widgets the cells may contain.
 
   \sa hideRow() insertRows() removeColumn() removeRows()
 */
@@ -4533,7 +4542,9 @@ void QTable::removeRow( int row )
     setNumRows( numRows() - 1 );
 }
 
-/*! Removes the rows listed in the array \a rows.
+/*! 
+    Removes the rows listed in the array \a rows, and deletes all their
+    cells including any table items and widgets the cells may contain.
 
    \sa removeRow() insertRows() removeColumns()
 */
@@ -4555,7 +4566,9 @@ void QTable::removeRows( const QMemArray<int> &rows )
     setNumRows( numRows() - rows.count() );
 }
 
-/*! Removes column \a col.
+/*! 
+    Removes column \a col, and deletes all its cells including any table
+    items and widgets the cells may contain.
 
   \sa removeColumns() hideColumn() insertColumns() removeRow()
 */
@@ -4571,7 +4584,10 @@ void QTable::removeColumn( int col )
     setNumCols( numCols() - 1 );
 }
 
-/*! Removes the columns listed in the array \a cols.
+/*! 
+    Removes the columns listed in the array \a cols, and deletes all
+    their cells including any table items and widgets the cells may
+    contain.
 
    \sa removeColumn() insertColumns() removeRows()
 */
@@ -4728,26 +4744,28 @@ void QTable::windowActivationChange( bool )
 /* \class QTableHeader qtable.h
   module table
 
-  \brief The QTableHeader class allows for creation and manipulation of spreadsheet
-  headers.
+  \brief The QTableHeader class allows for creation and manipulation of
+  table headers.
 
-  As \l QTable objects are already outfitted with a horizontal and a vertical
-  header you will rarely use this class. You can access them via QTable::horizontalHeader()
-  and QTable::verticalHeader().
+   QTable uses this subclass of QHeader for its headers. QTable has a
+   horizontalHeader() for displaying column labels, and a
+   verticalHeader() for displaying row labels.
+
 */
 
 /* \enum QTableHeader::SectionState
 
-  This enum type denotes the state of a spreadsheet header.
+  This enum type denotes the state of the header's text 
 
-  \value Normal    The section title appears in roman letters.
-  \value Bold      The section title appears in bold letters.
-  \value Selected  The section itself appears in a sunken fashion
-		   ("pressed").
+  \value Normal the default
+  \value Bold      
+  \value Selected  typically represented by showing the section "sunken"
+  or "pressed in"
 */
 
-/*! Creates a new table header object \a name with \a i sections as a child of
-  the widget \a parent and attached to the table \a t.
+/*! 
+    Creates a new table header called \a name with \a i sections. It is a
+    child of widget \a parent and attached to table \a t.
 */
 
 QTableHeader::QTableHeader( int i, QTable *t,
@@ -4786,12 +4804,11 @@ QTableHeader::QTableHeader( int i, QTable *t,
 	     this, SLOT( updateWidgetStretches() ) );
 }
 
-/*! Adds a new section with the section title \a s to \e this
-  QTableHeader.
-
-  If \a size is non-negative this value is used
-  as the section width. With a negative value the section width
-  depends on the length of the string \a s.
+/*! 
+    Adds a new section, \a size pixels wide (or high for vertical
+    headers) with the label \a s. If \a size is negative the section's
+    size is calculated based on the width (or height) of the label's
+    text.
 */
 
 void QTableHeader::addLabel( const QString &s , int size )
@@ -4803,7 +4820,8 @@ void QTableHeader::addLabel( const QString &s , int size )
     QHeader::addLabel( s , size );
 }
 
-/*! Defines a new SectionState \a astate for section \a s.
+/*! 
+    Sets the SectionState of section \a s to \a astate.
 
   \sa sectionState()
 */
@@ -4893,7 +4911,7 @@ void QTableHeader::paintEvent( QPaintEvent *e )
 
 /*! \reimp
 
-  Paints the header section with the index \a index into the
+  Paints the header section with index \a index into the
   rectangular region \a fr on the painter \a p.
 */
 
@@ -5221,8 +5239,8 @@ void QTableHeader::sectionWidthChanged( int col, int, int )
 
 /*! \reimp
 
-  Returns the size of section \a section in pixels and \e -1
-  when there is no such \a section.
+  Returns the size of section \a section in pixels or -1 if \a section
+  is out of range.
 */
 
 int QTableHeader::sectionSize( int section ) const
@@ -5236,8 +5254,8 @@ int QTableHeader::sectionSize( int section ) const
 
 /*! \reimp
 
-  Returns the start position of section \a section in pixels
-  and \e -1 when there is no such section.
+  Returns the start position of section \a section in pixels or -1 if \a
+  section is out of range.
 
   \sa sectionAt()
 */
@@ -5253,8 +5271,8 @@ int QTableHeader::sectionPos( int section ) const
 
 /*! \reimp
 
-  Returns the section that contains position \a pos
-  (in pixels) and \e -1 otherwise.
+  Returns the number of the section at index position \a pos or -1 if
+  there is no section at the position given.
 
   \sa sectionPos()
 */
@@ -5296,9 +5314,9 @@ void QTableHeader::setCaching( bool b )
     }
 }
 
-/*! Makes section \a s stretcheable if \a b is TRUE
-  and prevents resizing of \e this section if \a b
-  is FALSE.
+/*! 
+    If \a b is TRUE, section \a s is stretchable; otherwise the section
+    is not stretchable.
 
   \sa isSectionStretchable()
 */
@@ -5314,7 +5332,9 @@ void QTableHeader::setSectionStretchable( int s, bool b )
 	numStretches--;
 }
 
-/*! Returns whether section \a s is stretcheable or not.
+/*! 
+    Returns TRUE if section \a s is stretcheable; otherwise returns
+    FALSE.
 
   \sa setSectionStretchable()
 */

@@ -19,8 +19,8 @@
 
 // Table size
 
-const int numRows = 100;
-const int numCols = 100;
+const int numRows = 30;
+const int numCols = 10;
 
 // The program starts here.
 
@@ -34,6 +34,7 @@ int main( int argc, char **argv )
     header->setLabel( 0, QObject::tr( "Tiny" ), 40 );
     header->setLabel( 1, QObject::tr( "Checkboxes" ) );
     header->setLabel( 5, QObject::tr( "Combos" ) );
+    header->setMovingEnabled(TRUE);
 
     QImage img( qtlogo_xpm );
     QPixmap pix = img.scaleHeight( table.rowHeight(3) );
@@ -51,6 +52,10 @@ int main( int argc, char **argv )
     }	               
     for ( int j = 0; j < numRows; ++j )
 	table.setItem( j, 1, new QCheckTableItem( &table, "Check me" ) );
+
+    for ( int i = table.numCols() - 1; i > table.numCols() / 2; i--) 
+	table.setColumnStretchable(i, TRUE);
+    table.setRowStretchable(0, TRUE);
 
     app.setMainWidget( &table );
     table.show();
