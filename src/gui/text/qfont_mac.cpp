@@ -138,6 +138,16 @@ void QFontPrivate::load(QFont::Script script)
         return; // the font info and fontdef should already be filled
     }
 
+#if !defined(QT_NO_DEBUG)
+    if (req.family == QLatin1String("__Qt__Box__Engine__")) {
+        QFontEngine *e = new QTestFontEngine(request.pixelSize);
+        engineData->engine = e;
+        e->fontDef = req;
+        QFontCache::instance->insertEngine(key, e);
+        return;
+    }
+#endif
+
     engine = new QFontEngineMac;
     engineData->engine = engine;
     ++engine->ref; //a ref for the engineData->engine
