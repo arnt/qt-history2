@@ -69,12 +69,12 @@ public:
 
     bool removeLibrary( const QString& file )
     {
-	QPlugIn* plugin = libDict[ file ];
+	Type* plugin = libDict[ file ];
 	if ( !plugin )
 	    return FALSE;
 
 	{
-	    QStringList al = plugin->featureList();
+	    QStringList al = ((QPlugIn*)plugin)->featureList();
 	    for ( QStringList::Iterator a = al.begin(); a != al.end(); a++ )
 		plugDict.remove( *a );
 	}
@@ -107,20 +107,20 @@ public:
 	return defFunction;
     }
 
-    QPlugIn *plugIn( const QString &feature )
+    Type *plugIn( const QString &feature )
     {
-	return plugDict[feature];
+	return (Type*)plugDict[feature];
     }
 
-    QPlugIn* plugInFromFile( const QString& fileName )
+    Type* plugInFromFile( const QString& fileName )
     {
 	return libDict[fileName];
     }
 
-    QList<QPlugIn> plugInList()
+    QList<Type> plugInList()
     {
-	QList<QPlugIn> list;
-	QDictIterator<QPlugIn> it( libDict );
+	QList<Type> list;
+	QDictIterator<Type> it( libDict );
 
 	while ( it.current() ) {
 #ifdef CHECK_RANGE
@@ -137,7 +137,7 @@ public:
     {
 	QStringList list;
 
-	QDictIterator<QPlugIn> it( libDict );
+	QDictIterator<Type> it( libDict );
 	while ( it.current() ) {
 	    list << it.currentKey();
 	    ++it;
@@ -146,24 +146,43 @@ public:
 	return list;
     }
 
-    QStringList features()
+    QStringList featureList()
     {
 	QStringList list;
-	QDictIterator<QPlugIn> it (libDict);
+	QDictIterator<Type> it (plugDict);
 
 	while( it.current() ) {
-	    QStringList widgets = it.current()->featureList();
-	    for ( QStringList::Iterator w = widgets.begin(); w != widgets.end(); w++ )
-		list << *w;
+	    list << it.currentKey();
 	    ++it;
 	}
 
 	return list;
     }
 
+    bool selectFeature( const QString& feat )
+    {
+	Type* plugin = plugIn( feat );
+	QDictIterator<Type> it( libDict );
+
+	while ( it.current() ) {
+	    if ( it.current() != plugin && it.current()->loaded() )
+		it.current()->unload();
+	    ++it;
+	}
+
+	return plugin != 0;
+    }
+
+    void unloadFeature( const QString& feat )
+    {
+	Type* plugin = plugIn( feat );
+	if ( plugin && plugin->loaded() )
+	    plugin->unload();
+    }
+
 private:
-    QDict<QPlugIn> plugDict;	    // Dict to match requested interface with plugin
-    QDict<QPlugIn> libDict;	    // Dict to match library file with plugin
+    QDict<Type> plugDict;	    // Dict to match requested feature with plugin
+    QDict<Type> libDict;	    // Dict to match library file with plugin
 
     QPlugIn::LibraryPolicy defPol;
     QString defFunction;

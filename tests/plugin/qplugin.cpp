@@ -247,6 +247,14 @@ bool QPlugIn::unload( bool force )
 }
 
 /*!
+  Returns TRUE if the library is loaded.
+*/
+bool QPlugIn::loaded() const
+{
+    return pHnd != 0;
+}
+
+/*!
   Sets the current policy to \a pol.
   Forces the library to load if \a pol is set to
   OptimizeSpeed.
@@ -465,9 +473,9 @@ QStringList QPlugIn::featureList()
 /*!
   \fn bool QPlugInManager::removeLibrary( const QString& file )
 
-  Tries to unload the library and removes the library from management. All features
-  provided by the specified library will no longer be available using this plugin
-  manager, and the corresponding QPlugIn object will be deleted in any case.
+  Tries to unload the library and removes all features provided by the 
+  specified library from manager, so they will no longer be available using 
+  this plugin manager. The corresponding QPlugIn object will be deleted.
   
   Returns TRUE when successful, otherwise returns FALSE.
 */
@@ -488,7 +496,7 @@ QStringList QPlugIn::featureList()
 /*!
   \fn QPlugIn* QPlugInManager::plugInFromFile( const QString& file )
   
-  Returns the QPlugIn object that provides acces to the library \a file, or null
+  Returns the QPlugIn object that provides access to the library \a file, or null
   if the library is not know to this manager.
 */
 
@@ -505,13 +513,30 @@ QStringList QPlugIn::featureList()
 */
 
 /*!
-  \fn QStringList QPlugInManager::features()
+  \fn QStringList QPlugInManager::featureList()
 
   Returns a list of all features known to this manager.
-  The method will call the features() method for all QPlugIn objects handled by this
-  plugin manager and return the results, so calling this function may be quite ineffective. 
-  
-  Use plugIn() to get access to the plugin object providing the specified feature.
+  As the plugin manager uses an internal QDict to match features and plugins this method 
+  does not need to call methods of the library. Thus, calling this function may be quite 
+  effective.
 
-  \sa plugIn, plugInFromFile
+  \sa selectFeature, plugIn, plugInFromFile
+*/
+
+/*!
+  \fn bool QPlugInManager::selectFeature( const QString& feat )
+
+  Unloads all plugins but the one that provides the feature \a feat and returns TRUE
+  when the plugin providing the feature is available.
+
+  \sa unloadFeature, featureList, plugInList
+*/
+
+/*!
+  \fn void unloadFeature( const QString& feat )
+
+  This function is pretty much the opposite of the above, as it unloads the library that
+  provides the feature \a feat.
+
+  \sa selectFeature, featureList, plugIn
 */

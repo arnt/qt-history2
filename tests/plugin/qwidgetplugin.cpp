@@ -60,5 +60,5 @@ QWidget* QWidgetPlugInManager::newWidget( const QString& classname, QWidget* par
 */
 QStringList QWidgetPlugInManager::widgets()
 {
-    return features();
+    return featureList();
 }

@@ -60,5 +60,5 @@ QAction* QActionPlugInManager::newAction( const QString& classname, QObject* par
 */
 QStringList QActionPlugInManager::actions()
 {
-    return features();
+    return featureList();
 }

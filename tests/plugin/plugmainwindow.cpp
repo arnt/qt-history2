@@ -112,8 +112,9 @@ void PlugMainWindow::fileClose()
 
     QList<QPlugIn> pl;
     if ( widgetManager ) {
+	QList<QWidgetPlugIn> pl;
 	pl = widgetManager->plugInList();
-	QListIterator<QPlugIn> it( pl );
+	QListIterator<QWidgetPlugIn> it( pl );
 	while ( it.current() ) {
 	    QPlugIn* p = it.current();
 	    ++it;
@@ -124,8 +125,9 @@ void PlugMainWindow::fileClose()
 	}
     }
     if ( actionManager ) {
-	QList<QPlugIn> pl = actionManager->plugInList();
-	QListIterator<QPlugIn> it( pl );
+	QList<QActionPlugIn> pl;
+	pl = actionManager->plugInList();
+	QListIterator<QActionPlugIn> it( pl );
 	while ( it.current() ) {
 	    QPlugIn* p = it.current();	    
 	    ++it;
@@ -169,7 +171,6 @@ void PlugMainWindow::fileClose()
 			    widgetMenu->removeItem( it.key() );
 			    menuIDs.remove( it );
 			}
-
 		    }
 		}
 	    }
@@ -200,6 +201,8 @@ void PlugMainWindow::runWidget( int id )
     QString wname = menuIDs[id];
     if ( centralWidget() )
 	delete centralWidget();
+
+    widgetManager->selectFeature( wname);
 
     QWidget* w = QWidgetFactory::create( wname, this );
     if ( !w ) {

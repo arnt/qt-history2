@@ -20,6 +20,7 @@ public:
 
     bool load();
     bool unload( bool force = FALSE );
+    bool loaded() const;
 
     void setPolicy( LibraryPolicy pol );
     LibraryPolicy policy() const;
