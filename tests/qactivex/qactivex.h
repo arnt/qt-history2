@@ -8,6 +8,7 @@ class QClientSite;
 
 class QActiveX : public QWidget, public QComBase
 {
+    friend class QClientSite;
 public:
     QMetaObject *metaObject() const;
     const char *className() const;
@@ -42,6 +43,7 @@ private:
     QMetaObject *parentMetaObject() const;
 
     QClientSite *clientsite;
+    QSize extent;
 };
 
 #endif //QACTIVEX_H

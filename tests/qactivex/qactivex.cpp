@@ -132,6 +132,7 @@ public:
 	    control->QueryInterface( IID_IOleObject, (void**)&ole );
 	    if ( ole ) {
 		ole->Advise( (IAdviseSink*)(IAdviseSink2*)this, &oleconnection );
+		// ole->SetClientSite( 0 );
 		ole->SetClientSite( (IOleClientSite*)this );
 		QString appname;
 		if ( qApp->mainWidget() )
@@ -141,22 +142,42 @@ public:
 		if ( appname.isEmpty() )
 		    appname = qApp->name();
 		ole->SetHostNames( QStringToBSTR( appname ), 0 );
-
-		RECT rc = { 0, 0, activex->width(), activex->height() };
-		ole->DoVerb( OLEIVERB_UIACTIVATE, 0, (IOleClientSite*)this, 0/*reserved*/, activex->winId(), &rc );
-	    }
-
-	    CComPtr<IViewObject> view;
-	    control->QueryInterface( IID_IViewObject, (void**)&view );
-	    if ( view ) {
-		view->SetAdvise( DVASPECT_CONTENT, ADVF_ONLYONCE, (IAdviseSink*)(IAdviseSink2*)this );
 	    }
 
 	    CComPtr<IOleDocumentView> document;
 	    control->QueryInterface( IID_IOleDocumentView, (void**)&document );
 	    if ( document ) {
+		document->SetInPlaceSite( 0 );
 		document->SetInPlaceSite( (IOleInPlaceSite*)(IOleInPlaceSiteEx*)this );
 		document->UIActivate( TRUE );
+	    }
+
+	    CComPtr<IViewObject> view;
+	    control->QueryInterface( IID_IViewObject, (void**)&view );
+	    if ( view ) {
+		view->SetAdvise( DVASPECT_CONTENT, ADVF_PRIMEFIRST, 0 );
+		view->SetAdvise( DVASPECT_CONTENT, ADVF_PRIMEFIRST, (IAdviseSink*)(IAdviseSink2*)this );
+	    }
+
+	    CComPtr<IViewObjectEx> viewex;
+	    control->QueryInterface( IID_IViewObjectEx, (void**)&viewex );
+	    if ( viewex ) {
+		SIZE hsz;
+		DVEXTENTINFO info;
+		info.cb = sizeof(DVEXTENTINFO);
+		info.dwExtentMode = DVEXTENT_CONTENT;
+		if ( viewex->GetNaturalExtent( DVASPECT_CONTENT, 0, 0, 0, &info, &hsz ) == S_OK ) {
+		    SIZE psz;
+		    AtlHiMetricToPixel( &info.sizelProposed, &psz );
+		    activex->extent = QSize( psz.cx, psz.cy );
+		    if ( activex->extent.isValid() )
+			QApplication::postEvent( activex->parentWidget(), new QEvent( QEvent::LayoutHint ) );
+		}
+	    }
+	    
+	    if ( ole ) {
+		RECT rc = { 0, 0, activex->width(), activex->height() };
+		ole->DoVerb( OLEIVERB_UIACTIVATE, 0, (IOleClientSite*)this, 0/*reserved*/, activex->winId(), &rc );
 	    }
 	}
     }
@@ -507,6 +528,19 @@ public:
     HRESULT __stdcall ShowObject()
     {
 	qDebug( "IOleClientSite::ShowObject" );
+	if ( !activex->extent.isValid() ) {
+	    CComPtr<IOleObject> ole;
+	    control->QueryInterface( IID_IOleObject, (void**)&ole );
+	    if ( ole ) {
+		SIZE sz, psz;
+		if ( ole->GetExtent( DVASPECT_CONTENT, &sz ) == S_OK ) {
+		    AtlHiMetricToPixel( &sz, &psz );
+		    activex->extent = QSize( psz.cx, psz.cy );
+		    if ( activex->extent.isValid() )
+			QApplication::postEvent( activex->parentWidget(), new QEvent( QEvent::LayoutHint ) );
+		}
+	    }
+	}
 	activex->show();
 	return S_OK;
     }
@@ -518,11 +552,17 @@ public:
     HRESULT __stdcall RequestNewObjectLayout()
     {
 	qDebug( "IOleClientSite::RequestNewObjectLayout" );
-	SIZE sz;
 	CComPtr<IOleObject> ole;
 	control->QueryInterface( IID_IOleObject, (void**)&ole );
 	if ( ole ) {
+	    SIZE sz;
 	    ole->GetExtent( DVASPECT_CONTENT, &sz );
+	    ole->SetExtent( DVASPECT_CONTENT, &sz );
+	    SIZE psz;
+	    AtlHiMetricToPixel( &sz, &psz );
+	    activex->extent = QSize( psz.cx, psz.cy );
+	    if ( activex->extent.isValid() )
+		QApplication::postEvent( activex->parentWidget(), new QEvent( QEvent::LayoutHint ) );
 	}
 	return E_NOTIMPL;//###
     }
@@ -633,6 +673,9 @@ public:
 	if ( inplace ) {
 	    RECT posRect = { 0, 0, activex->width(), activex->height() };
 	    RECT clipRect = { 0, 0, activex->width(), activex->height() };
+	    /*activex->extent = QSize( lprcPosRect->right - lprcPosRect->left,
+				     lprcPosRect->bottom - lprcPosRect->top );*/
+
 	    inplace->SetObjectRects( &posRect, &clipRect );
 	}
 	return S_OK;
@@ -942,13 +985,9 @@ QSize QActiveX::sizeHint() const
     if ( isNull() )
 	return QWidget::sizeHint();
 
-    CComPtr<IOleObject> ole;
-    queryInterface( IID_IOleObject, (void**)&ole );
-    if ( ole ) {
-	SIZE sz;
-	if ( ole->GetExtent( DVASPECT_CONTENT, &sz ) == S_OK )
-	    return QSize( sz.cx, sz.cy );
-    }
+    if ( extent.isValid() )
+	return extent;
+
     return QWidget::sizeHint();
 }
 
@@ -959,6 +998,9 @@ QSize QActiveX::minimumSizeHint() const
 {
     if ( isNull() )
 	return QWidget::minimumSizeHint();
+
+    if ( extent.isValid() )
+	return extent;
 
     return QWidget::minimumSizeHint();
 }

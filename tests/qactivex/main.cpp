@@ -66,8 +66,10 @@ public:
 	populate();
 
 	connect( pbInvoke, SIGNAL(clicked()), this, SLOT(invoke()) );
-
 	connect( listview, SIGNAL(doubleClicked(QListViewItem*)), this, SLOT(invoke(QListViewItem*)) );
+
+	connect( activex, SIGNAL(signal(const QString&,int,void*)), this, SLOT(slot(const QString&,int,void*)) );
+	connect( activex, SIGNAL(propertyChanged(const QString&)), this, SLOT(propertyChanged(const QString&)) );
     }
 
 public slots:
@@ -103,12 +105,11 @@ public slots:
 	pbInvoke->setDefault( TRUE );
 	leSlot->setFocus();
 	QString name = leControl->text();
-	activex->setControl( axcontrols[name] );
+	QString ctrl = axcontrols[name];
+	if ( ctrl.isEmpty() )
+	    ctrl = name;
+	activex->setControl( ctrl );
 	populate();
-	if ( !activex->isNull() ) {
-	    connect( activex, SIGNAL(signal(const QString&,int,void*)), this, SLOT(slot(const QString&,int,void*)) );
-	    connect( activex, SIGNAL(propertyChanged(const QString&)), this, SLOT(propertyChanged(const QString&)) );
-	}
     }
 
     void populate()

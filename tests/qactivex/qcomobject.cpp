@@ -991,7 +991,7 @@ void QComBase::clear()
 	    delete [] (QMetaData*)metaobj->slot( 0 );
 
 	// clean up signal info
-	for ( i = 1; i < metaobj->numSignals(); ++i ) { // 0 is the static signal
+	for ( i = 2; i < metaobj->numSignals(); ++i ) { // 0 and 1 are static signals
 	    const QMetaData *signal_data = metaobj->signal( i );
 	    QUMethod *signal = (QUMethod*)signal_data->method;
 	    if ( signal ) {
@@ -1052,8 +1052,14 @@ QMetaObject *QComBase::metaObject() const
 	{ "argv", &static_QUType_ptr, "void", QUParameter::In }
     };
     static const QUMethod signal_0 = {"signal", 3, param_signal_0 };
+
+    static const QUParameter param_signal_1[] = {
+	{ "name", &static_QUType_QString, 0, QUParameter::In }
+    };
+    static const QUMethod signal_1 = {"propertyChanged", 1, param_signal_1 };
     static const QMetaData signal_tbl[] = {
-	{ "signal(const QString&,int,void*)", &signal_0, QMetaData::Public }
+	{ "signal(const QString&,int,void*)", &signal_0, QMetaData::Public },
+	{ "propertyChanged(const QString&)", &signal_1, QMetaData::Public }
     };
     static const QMetaProperty props_tbl[1] = {
  	{ "QString","control", 259, (QMetaObject**)&tempMetaObj, 0, -1 }
@@ -1066,7 +1072,7 @@ QMetaObject *QComBase::metaObject() const
 	tempMetaObj = QMetaObject::new_metaobject(
 	    "QComBase", parentObject,
 	    0, 0,
-	    0, 0,
+	    signal_tbl, 2,
 #ifndef QT_NO_PROPERTIES
 	    props_tbl, 1,
 	    0, 0,
@@ -1205,26 +1211,6 @@ QMetaObject *QComBase::metaObject() const
 				if ( bindable ) {
 				    if ( !eventSink )
 					that->eventSink = new QAxEventSink( that );
-				    // generate generic changed signal
-				    if ( !signallist.find( "propertyChanged(const QString&)" ) ) {
-					QString signalName = "propertyChanged";
-					QString signalParam = "const QString&";
-					QString signalProto = signalName + "(" + signalParam + ")";
-					QString paramName = "name";
-
-					QUMethod *signal = new QUMethod;
-					signal->name = new char[signalName.length()+1];
-					signal->name = qstrcpy( (char*)signal->name, signalName );
-					signal->count = 1;
-					QUParameter *param = new QUParameter;
-					param->name = new char[paramName.length()+1];
-					param->name = qstrcpy( (char*)param->name, paramName );
-					param->inOut = QUParameter::In;
-					QStringToQUType( signalParam, param );
-					signal->parameters = param;
-
-					signallist.insert( signalProto, signal );
-				    }
 				    // generate changed signal
 				    QString signalName = function + "Changed";
 				    QString signalParam = constRefify( paramTypes[0] );
@@ -1420,26 +1406,6 @@ QMetaObject *QComBase::metaObject() const
 			    if ( bindable ) {
 				if ( !eventSink )
 				    that->eventSink = new QAxEventSink( that );
-				// generate generic changed signal
-				if ( !signallist.find( "propertyChanged(const QString&)" ) ) {
-				    QString signalName = "propertyChanged";
-				    QString signalParam = "const QString&";
-				    QString signalProto = signalName + "(" + signalParam + ")";
-				    QString paramName = "name";
-
-				    QUMethod *signal = new QUMethod;
-				    signal->name = new char[signalName.length()+1];
-				    signal->name = qstrcpy( (char*)signal->name, signalName );
-				    signal->count = 1;
-				    QUParameter *param = new QUParameter;
-				    param->name = new char[paramName.length()+1];
-				    param->name = qstrcpy( (char*)param->name, paramName );
-				    param->inOut = QUParameter::In;
-				    QStringToQUType( signalParam, param );
-				    signal->parameters = param;
-
-				    signallist.insert( signalProto, signal );
-				}
 				// generate changed signal
 				QString signalName = variableName + "Changed";
 				QString signalParam = constRefify( variableType );
@@ -1724,8 +1690,10 @@ QMetaObject *QComBase::metaObject() const
 
     // setup signal data
     index = 0;
-    QMetaData *const signal_data = new QMetaData[signallist.count()+1];
+    QMetaData *const signal_data = new QMetaData[signallist.count()+2];
     if ( signal_data ) {
+	signal_data[index] = signal_tbl[index];
+	++index;
 	signal_data[index] = signal_tbl[index];
 	++index;
     }
@@ -1801,7 +1769,7 @@ QMetaObject *QComBase::metaObject() const
     that->metaobj = QMetaObject::new_metaobject( 
 	className(), parentObject, 
 	slot_data, slotlist.count(),
-	signal_data, signallist.count()+1,
+	signal_data, signallist.count()+2,
 	prop_data, proplist.count()+1,
 	enum_data, enumlist.count(),
 	class_info, infolist.count() );
