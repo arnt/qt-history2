@@ -1619,8 +1619,15 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
     \sa trueMatrix(), QMatrix, QPainter::setWorldMatrix() QImage::transformat()
 */
 
-QPixmap QPixmap::transform(const QMatrix &matrix) const
+QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) const
 {
+    if (mode == Qt::SmoothTransformation) {
+        // ###### do this efficiently!
+        QImage image = toImage();
+        image.transform(matrix, mode);
+        return QPixmap(image);
+    }
+
     int           w = 0;
     int           h = 0;                                // size of target pixmap
     int           ws, hs;                                // size of source pixmap

@@ -55,7 +55,7 @@ public:
     static int defaultDepth();
 
     void fill(const QColor &fillColor = Qt::white);
-    void fill(const QWidget *, int xofs, int yofs);
+    inline void fill(const QWidget *, int xofs, int yofs);
     void fill(const QWidget *, const QPoint &ofs);
     void resize(int width, int height);
     void resize(const QSize &);
@@ -72,7 +72,7 @@ public:
     static QPixmap grabWidget(QWidget *widget, int x=0, int y=0, int w=-1, int h=-1);
 
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
-    QPixmap transform(const QMatrix &) const;
+    QPixmap transform(const QMatrix &, Qt::TransformationMode mode = Qt::FastTransformation) const;
     static QMatrix trueMatrix(const QMatrix &m, int w, int h);
 #endif
 
