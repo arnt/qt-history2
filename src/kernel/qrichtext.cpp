@@ -5683,8 +5683,10 @@ QString QTextFormat::makeFormatChangeTags( QTextFormat *f ) const
 	tag += "<font ";
 	if ( font().family() != defaultFormat->font().family() )
 	    tag +="face=\"" + fn.family() + "\" ";
-	if ( font().pointSize() != defaultFormat->font().pointSize() )
+	if ( font().pointSize() != defaultFormat->font().pointSize() ) {
 	    tag +="size=\"" + QString::number( makeLogicFontSize( fn.pointSize() ) ) + "\" ";
+	    tag +="style=\"font-size:" + QString::number( fn.pointSize() ) + "pt\" ";
+	}
 	if ( color().rgb() != defaultFormat->color().rgb() )
 	    tag +="color=\"" + col.name() + "\" ";
 	tag += ">";
@@ -5738,6 +5740,15 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
 		format.logicalFontSize = n;
 		format.fn.setPointSize( format.stdPointSize );
 		style->styleSheet()->scaleFont( format.fn, format.logicalFontSize );
+	    }
+	    if ( attr.contains("style" ) ) {
+		QString a = attr["style"];
+		if ( a.startsWith( "font-size:" ) ) {
+		    QString s = a.mid( a.find( ':' ) + 1 );
+		    int n = s.left( s.length() - 2 ).toInt();
+		    format.logicalFontSize = 0;
+		    format.fn.setPointSize( n );
+		}
 	    }
 	    if ( attr.contains("face") ) {
 		QString a = attr["face"];
