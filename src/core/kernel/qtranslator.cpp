@@ -1095,7 +1095,7 @@ QTranslatorMessage::QTranslatorMessage(QDataStream & stream)
             break;
         case Tag_Context:
             stream >> cx;
-            if (cx == "") // for compatibility
+            if (cx.isEmpty()) // for compatibility
                 cx = 0;
             break;
         case Tag_Comment:

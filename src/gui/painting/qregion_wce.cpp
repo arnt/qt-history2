@@ -1117,7 +1117,7 @@ InsertionSort(register EdgeTableEntry *AET)
             changed = 1;
         }
     }
-    return(changed);
+    return changed;
 }
 
 
@@ -1204,7 +1204,7 @@ static int PtsToRegion(register int numFullPtBlocks, register int iCurPtBlock,
     }
     reg->numRects = numRects;
 
-    return(true);
+    return true;
 }
 
 

@@ -102,7 +102,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
     QHash<QString, bool> seen;
     QString paths[] = { QString("SRCMOC"), QString("SOURCES"), QString("HEADERS"),
                         QString::null };
-    for(int y = 0; paths[y] != QString::null; y++) {
+    for(int y = 0; !paths[y].isNull(); y++) {
         QStringList &l = project->variables()[paths[y]];
         for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
             //establish file types
@@ -126,7 +126,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
                     QString deps[] = { QString("DEPENDPATH"),
                                      QString("INCLUDEPATH"), QString::null },
                                      dd, dv;
-                    for(int yy = 0; deps[yy] != QString::null; yy++) {
+                    for(int yy = 0; !deps[yy].isNull(); yy++) {
                         QStringList &l2 = project->variables()[deps[yy]];
                         for(QStringList::Iterator val_it2 = l2.begin();
                             val_it2 != l2.end(); ++val_it2) {

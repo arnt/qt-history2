@@ -524,7 +524,7 @@ void DomTool::fixAttribute(QDomNode &node, double version)
         for (int i = 0; i < props; ++i)
             if ((version < propertyTable[i].version)
                  && (clss == propertyTable[i].clss)
-                 && (propertyTable[i].before == QString::null
+                 && (propertyTable[i].before.isNull()
                       || name == propertyTable[i].before)) {
                 node.toElement().setAttribute(QLatin1String("name"), propertyTable[i].after);
                 return;

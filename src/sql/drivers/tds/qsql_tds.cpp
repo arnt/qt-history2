@@ -141,7 +141,7 @@ static int CS_PUBLIC qTdsMsgHandler (DBPROCESS* dbproc,
     QTDSResultPrivate* p = errs()->value(dbproc);
 
     if (!p) {
-//        ### umm... temporary disabled since this throws shitloads of warnings...
+//        ### umm... temporary disabled since this throws a lot of warnings...
 //        qWarning("QTDSDriver warning (%d): [%s] from server [%s]", msgstate, msgtext, srvname);
         return INT_CANCEL;
     }

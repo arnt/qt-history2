@@ -1770,7 +1770,7 @@ static int parseGeometry(const char* string,
         int tempX=0, tempY=0;
         char *nextCharacter;
 
-        if (!string || (*string == '\0')) return(mask);
+        if (!string || (*string == '\0')) return mask;
         if (*string == '=')
                 string++;  /* ignore possible '=' at beg of geometry spec */
 
@@ -1806,7 +1806,7 @@ static int parseGeometry(const char* string,
                 {        strind++;
                         tempX = ReadInteger(strind, &nextCharacter);
                         if (strind == nextCharacter)
-                            return(0);
+                            return 0;
                         strind = nextCharacter;
                 }
                 mask |= XValue;
@@ -1815,7 +1815,7 @@ static int parseGeometry(const char* string,
                                 strind++;
                                 tempY = -ReadInteger(strind, &nextCharacter);
                                 if (strind == nextCharacter)
-                                    return(0);
+                                    return 0;
                                 strind = nextCharacter;
                                 mask |= YNegative;
 
@@ -1825,7 +1825,7 @@ static int parseGeometry(const char* string,
                                 strind++;
                                 tempY = ReadInteger(strind, &nextCharacter);
                                 if (strind == nextCharacter)
-                                    return(0);
+                                    return 0;
                                 strind = nextCharacter;
                         }
                         mask |= YValue;

@@ -1109,7 +1109,7 @@ QMakeProject::read(uchar cmd)
         if(s == "qt" || s == "qt-mt" || s == "qte" || s == "qte-mt") {
             QString &ver = vars["VERSION"].first();
 //            fprintf(stderr,"Current QT version number: " + ver + "\n");
-            if(ver != "" && ver != test_version) {
+            if(!ver.isEmpty() && ver != test_version) {
                 ver = test_version;
                 fprintf(stderr,"Changed QT version number to " + test_version + "!\n");
             }
