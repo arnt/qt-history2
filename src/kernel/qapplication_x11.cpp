@@ -614,8 +614,8 @@ static bool qt_set_desktop_properties()
     const char *data;
 
     int e = XGetWindowProperty( appDpy, appRootWin, qt_desktop_properties, 0, 1,
-			     FALSE, AnyPropertyType, &type, &format, &nitems,
-			     &after,  (unsigned char**)&data );
+				FALSE, AnyPropertyType, &type, &format, &nitems,
+				&after,  (unsigned char**)&data );
     if ( data )
 	XFree(  (unsigned char*)data );
     if ( e != Success || !nitems )
@@ -627,9 +627,12 @@ static bool qt_set_desktop_properties()
 	XGetWindowProperty( appDpy, appRootWin, qt_desktop_properties,
 			    offset, 1024, FALSE, AnyPropertyType,
 			    &type, &format, &nitems, &after, (unsigned char**) &data );
-	properties.writeBlock(data, nitems);
-	offset += 1024;
-	XFree(  (unsigned char*)data );
+	if (format == 8) {
+	    properties.writeBlock(data, nitems);
+	    offset += nitems / 4;
+	}
+	
+	XFree( (unsigned char *) data );
     }
 
     QDataStream d( properties.buffer(), IO_ReadOnly );
@@ -4700,7 +4703,7 @@ QSessionManager::QSessionManager( QApplication * app, QString &session )
     cb.shutdown_cancelled.client_data = (SmPointer) this;
 
     char* session_manager = getenv("SESSION_MANAGER");
-    
+
     // avoid showing a warning message below
     if ( !session_manager || !session_manager[0] )
 	return;
