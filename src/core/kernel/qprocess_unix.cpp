@@ -718,14 +718,14 @@ bool QProcess::start(QStringList *env)
     }
 #ifdef Q_OS_MAC
     if(i) {
-        QCString arg_bundle = arglistQ[0];
+        QByteArray arg_bundle = arglistQ[0];
         QFileInfo fi(arg_bundle);
         if(fi.exists() && fi.isDir() && arg_bundle.right(4) == ".app") {
-            QCString exe = arg_bundle;
+            QByteArray exe = arg_bundle;
             int lslash = exe.lastIndexOf('/');
             if(lslash != -1)
                 exe = exe.mid(lslash+1);
-            exe = QCString(arg_bundle + "/Contents/MacOS/" + exe);
+            exe = QByteArray(arg_bundle + "/Contents/MacOS/" + exe);
             exe = exe.left(exe.length() - 4); //chop off the .app
             if(QFile::exists(exe)) {
                 arglistQ[0] = exe;
