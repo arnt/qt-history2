@@ -141,4 +141,4 @@ QRESULT QComLibrary::queryInterface( const QUuid& request, QUnknownInterface** i
     return entry ? entry->queryInterface( request, iface ) : QE_NOCOMPONENT;
 }
 
-#endif QT_NO_COMPONENT
+#endif // QT_NO_COMPONENT
