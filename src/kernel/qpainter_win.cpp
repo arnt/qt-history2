@@ -752,7 +752,7 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 #endif
 		}
 	    } else {
-		hdc = GetDC( w->winId() );
+		hdc = GetDC( w->isDesktop() ? 0 : w->winId() );
 	    }
 	    w->hdc = hdc;
 	}
@@ -886,7 +886,7 @@ bool QPainter::end()
     if ( pdev->devType() == QInternal::Widget ) {
 	if ( !((QWidget*)pdev)->testWState(Qt::WState_InPaintEvent) ) {
 	    QWidget *w = (QWidget*)pdev;
-	    ReleaseDC( w->winId(), hdc );
+	    ReleaseDC( w->isDesktop() ? 0 : w->winId(), hdc );
 	    w->hdc = 0;
 	}
     } else if ( pdev->devType() == QInternal::Pixmap ) {
