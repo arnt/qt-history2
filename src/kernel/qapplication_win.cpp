@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#204 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#205 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2534,7 +2534,8 @@ bool QETWidget::translateConfigEvent( const MSG &msg )
 	} else {
 	    deferResize( oldSize );
 	}
-	update();
+	if ( !testWFlags(WResizeNoErase) )
+	    repaint( TRUE );
     } else if ( msg.message == WM_MOVE ) {	// move event
 	QPoint oldPos = pos();
 	// Ignore silly Windows move event to wild pos after iconify.
