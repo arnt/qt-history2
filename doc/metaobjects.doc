@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: metaobjects.doc,v 1.4 1996/02/17 20:40:29 agulbra Exp $
+** $Id: metaobjects.doc,v 1.5 1996/02/17 21:47:07 agulbra Exp $
 **
 ** Explanation of moc and the meta object system
 **
@@ -29,7 +29,7 @@ declaration.
 Syntactically, signals and slots are categories.  A minimal
 C++ class declaration might read:
 
-<pre>
+\code
     class Foo : public Bar
     {
     public:
@@ -39,12 +39,12 @@ C++ class declaration might read:
     private:
 	int internal;
     };
-</pre>
+\endcode
 
 This little class has an internal state and public methods to access
 that state.  A small Qt class might read:
 
-<pre>
+\code
     class Foo : public QObject
     {
 	Q_OBJECT;
@@ -58,7 +58,7 @@ that state.  A small Qt class might read:
     private:
 	int internal;
     };
-</pre>
+\endcode
 
 This class has the same internal state, and also public methods to
 access the state, but in addition it has some support for component
@@ -73,23 +73,23 @@ next code fragment shows this.
 Slots are implemented by the application programmer (that's you).
 Here is a possible implementation of Foo::setSomething():
 
-<pre>
+\code
     void Foo::setSomething(int s) {
 	if (s != internal) {
 	    internal = s;
 	    emit somethingChanged(s);
 	}
     }
-</pre>
+\endcode
 
 The example may appear useless, but anyway, here is one way to connect
 two of these already useless objects together:
 
-<pre>
+\code
     Foo yo, go;
 
     connect(&amp;yo, SIGNAL(somethingChanged(int)), &amp;go, SLOT(setSomething(int)));
-</pre>
+\endcode
 
 Then a call to <code>yo.setSomething()</code> will make yo emit a
 signal, which go will receive and act on.  Since this action changes
@@ -115,17 +115,17 @@ file, <code>qlcdnum.cpp</code>.  <code>mlcdnum.cpp</code> is generated
 by this generic rule which also generates all other meta object files
 internal to Qt:
 
-<pre>
+\code
 m%.cpp: q%.h
 	..somewhere../bin/moc $&lt; -o $@
-</pre>
+\endcode
 
 A specific rule for mlcdnum.cpp would look like this:
 
-<pre>
+\code
     mlcdnum.cpp: qlcdnum.h
 	..somewhere../bin/moc qlcdnum.h -o mlcdnum.cpp
-</pre>
+\endcode
 
 Both C++ files are compiled and linked in the usual way.
 
@@ -204,21 +204,21 @@ you want to read about <a href=qlcdnumber.html>QLCDNumber</a> or any of
 its parent classes please do it now, before you go through the
 example.
 
-<pre>
+\code
     #include "qframe.h"
     #include "qbitarry.h"
 
     class QLCDNumber : public QFrame
-</pre>
+\endcode
 
 QLCDNumber inherits QObject, which has most of the signal/slot
 knowledge, via QFrame and QWidget, and #include's the relevant
 declarations.
 
-<pre>
+\code
     {
 	Q_OBJECT
-</pre>
+\endcode
 
 Q_OBJECT is expanded by the preprocessor to declare several member
 functions that are implemented by the moc; if you get compiler errors
@@ -226,11 +226,11 @@ along the lines of "virtual function QButton::className not defined"
 you have probably forgotten to <a href=moc.html>run the moc</a> or to
 include the moc output in the link command.
 
-<pre>
+\code
     public:
 	QLCDNumber( QWidget *parent=0, const char *name=0 );
 	QLCDNumber( uint numDigits, QWidget *parent=0, const char *name=0 );
-</pre>
+\endcode
 
 It's not obviously relevant to the moc, but if you inherit QWidget you
 almost certainly want to have <em>parent</em> and <em>name</em>
@@ -240,10 +240,10 @@ constructor.
 Some destructors and member functions are omitted here, the moc
 ignores member functions.
 
-<pre>
+\code
     signals:
 	void	overflow();
-</pre>
+\endcode
 
 QLCDNumber emits a signal when it is asked to show an impossible
 value.
@@ -256,7 +256,7 @@ and everything will be fine.
 overflows."  Then you connect the signal to two different slots.  Qt
 will call both (in arbitrary order).
 
-<pre>
+\code
     public slots:
 	void	display( int num );
 	void	display( long num );
@@ -268,7 +268,7 @@ will call both (in arbitrary order).
 	void    setOctMode();
 	void    setBinMode();
 	void	smallDecimalPoint( bool );
-</pre>
+\endcode
 
 A slot is a receiving function, used to get information about state
 changes in other widgets.  QLCDNumber uses it, as you can see, to set
@@ -287,16 +287,16 @@ yourself.)
 Some more irrelevant member functions have been omitted from this
 example.
 
-<pre>
+\code
     };
-</pre>
+\endcode
 
 <h2>Moc output</h2>
 
 This is really internal to Qt, but for the curious, here is the meat
 of the resulting mlcdnum.cpp:
 
-<pre>
+\code
     const char *QLCDNumber::className() const
     {
 	return "QLCDNumber";
@@ -310,13 +310,13 @@ of the resulting mlcdnum.cpp:
 	    return;
 	if ( !QFrame::metaObject() )
 	    QFrame::initMetaObject();
-</pre>
+\endcode
 
 That last line is because QLCDNumber inherits QFrame.  The next part,
 which sets up the table/signal structures, has been deleted for
 brevity.
 
-<pre>
+\code
     }
 
     // SIGNAL overflow
@@ -324,7 +324,7 @@ brevity.
     {
 	activate_signal( "overflow()" );
     }
-</pre>
+\endcode
 
 One function is generated for each signal, and at present it almost
 always is a single call to activate_signal(), which finds the
