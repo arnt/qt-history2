@@ -39,10 +39,10 @@ sub outmsg {
     # Remove blank lines
     $msgid =~ s/\n\n+/\n/gs;
     $msgid = "\"\"\n$msgid" if $msgid =~ /\n/s;
-    print "#. scope ${scope}\n";
     print "#: $file:$line\n";
-    print "msgid $msgid\n";
-    print "msgstr \"\"\n";
+    $msgid =~ s/^"//;
+    print "msgid \"${scope}::$msgid\n";
+    print "msgstr \"$msgid\n";
     print "\n";
 }
 
