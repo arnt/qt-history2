@@ -1061,6 +1061,7 @@ void MainWindow::fileCloseProject()
 	} else {
 	    emit hasActiveWindow( FALSE );
 	    emit hasActiveForm( FALSE );
+	    updateUndoRedo( FALSE, FALSE, QString::null, QString::null );
 	}
     }
 }

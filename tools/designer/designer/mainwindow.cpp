@@ -1393,6 +1393,12 @@ void MainWindow::activeWindowChanged( QWidget *w )
 	actionEditRedo->setEnabled( FALSE );
     }
 
+    if ( !w ) {
+	emit formWindowChanged();
+	emit hasActiveForm( FALSE );
+	updateUndoRedo( FALSE, FALSE, QString::null, QString::null );
+    }
+
     selectionChanged();
 
     if ( w && w->inherits( "SourceEditor" ) ) {
