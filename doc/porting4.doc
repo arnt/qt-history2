@@ -244,4 +244,14 @@ Null QRegions have been removed, use isEmpty() in most places where you would
 have used a null Qregion. rects() now returns a QVector<QRect> instead of
 QMemArray<QRect>.
 
+\section1 QIconFactory
+
+QIconFactory has been removed in favor of using function pointers. Generally
+this involves taking the QIconFactory::createPixmap() function and making it a
+regular functions. Use QIconSet::setPixmapGeneratorFn() in place of
+QIconSet::installFactory() and QIconSet::setDefaultPixmapGeneratorFn() and
+QIconSet::defaultPixmapGeneratorFn() in place of
+QIconFactory::installDefaultFactory() and QIconFactory::defaultFactory()
+respectively.
+
 */
