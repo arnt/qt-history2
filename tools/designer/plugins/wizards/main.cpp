@@ -49,9 +49,6 @@ private:
     bool inUse;
 };
 
-extern void qInitImages_wizards();
-extern void qCleanupImages_wizards();
-
 StandardTemplateWizardInterface::StandardTemplateWizardInterface()
     : inUse( FALSE )
 {
