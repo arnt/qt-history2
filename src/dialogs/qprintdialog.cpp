@@ -861,7 +861,7 @@ QPrintDialog::QPrintDialog( QPrinter *prn, QWidget *parent, const char *name )
     tll->addWidget( g );
     tll->addSpacing( 12 );
 
-    QBoxLayout *l = new QBoxLayout( QBoxLayout::LeftToRight, 12, 0 );
+    QBoxLayout *l = new QBoxLayout( QBoxLayout::LeftToRight );
     d->customLayout = new QBoxLayout( QBoxLayout::LeftToRight );
     tll->addLayout( l );
     l->addLayout( d->customLayout );
@@ -951,7 +951,7 @@ void QPrintDialog::setGlobalPrintDialog( QPrintDialog *pd )
 
 QGroupBox * QPrintDialog::setupPrinterSettings()
 {
-    QGroupBox * g = new QGroupBox( tr( "Printer settings"),
+    QGroupBox * g = new QGroupBox( 1, Horizontal, tr( "Printer settings"),
 				   this, "settings group box" );
 
     d->colorMode = new QButtonGroup( this );
@@ -959,19 +959,14 @@ QGroupBox * QPrintDialog::setupPrinterSettings()
     connect( d->colorMode, SIGNAL(clicked(int)),
 	     this, SLOT(colorModeSelected(int)) );
 
-    QBoxLayout * tll = new QBoxLayout( g, QBoxLayout::Down, 12, 0 );
-    tll->addSpacing( 8 );
-
     QRadioButton *rb;
     rb = new QRadioButton( tr( "Print in color if available" ),
 			   g, "color" );
-    tll->addWidget( rb );
     d->colorMode->insert( rb, QPrinter::Color );
     rb->setChecked( TRUE );
 
     rb = new QRadioButton( tr("Print in grayscale"),
 			   g, "graysacle" );
-    tll->addWidget( rb );
     d->colorMode->insert( rb, QPrinter::GrayScale );
 
     return g;
@@ -979,11 +974,10 @@ QGroupBox * QPrintDialog::setupPrinterSettings()
 
 QGroupBox * QPrintDialog::setupDestination()
 {
-    QGroupBox * g = new QGroupBox( tr( "Print destination"),
+    QGroupBox * g = new QGroupBox( 0, Horizontal, tr( "Print destination"),
 				   this, "destination group box" );
 
-    QBoxLayout * tll = new QBoxLayout( g, QBoxLayout::Down, 12, 0 );
-    tll->addSpacing( 8 );
+    QBoxLayout * tll = new QBoxLayout( g->layout(), QBoxLayout::Down );
 
     d->printerOrFile = new QButtonGroup( this );
     d->printerOrFile->hide();
@@ -1153,11 +1147,10 @@ QGroupBox * QPrintDialog::setupDestination()
 
 QGroupBox * QPrintDialog::setupOptions()
 {
-    QGroupBox * g = new QGroupBox( tr( "Options"),
+    QGroupBox * g = new QGroupBox( 0, Horizontal, tr( "Options"),
 				   this, "options group box" );
 
-    QBoxLayout * tll = new QBoxLayout( g, QBoxLayout::Down, 12, 2 );
-    tll->addSpacing( 8 );
+    QBoxLayout * tll = new QBoxLayout( g->layout(), QBoxLayout::Down );
 
     QBoxLayout *lay = new QBoxLayout( QBoxLayout::LeftToRight );
     tll->addLayout( lay );
@@ -1267,30 +1260,24 @@ void isc( QPrintDialogPrivate * d,
 
 QGroupBox * QPrintDialog::setupPaper()
 {
-    QGroupBox * g = new QGroupBox( tr( "Paper format"),
+    QGroupBox * g = new QGroupBox( 1, Horizontal, tr( "Paper format"),
 				   this, "Paper format" );
-
-    QBoxLayout * tll = new QBoxLayout( g, QBoxLayout::Down, 12, 0 );
-    tll->addSpacing( 12 );
-
     d->pageSize = QPrinter::A4;
 
     // page orientation
     d->orientationCombo = new QComboBox( FALSE, g );
-    tll->addWidget( d->orientationCombo );
     d->orientationCombo->insertItem( tr( "Portrait" ), -1 );
     d->orientationCombo->insertItem( tr( "Landscape" ), -1 );
 
     d->orientation = QPrinter::Portrait;
 
-    tll->addSpacing( 8 );
+    g->addSpace( 8 );
 
     connect( d->orientationCombo, SIGNAL( activated( int ) ),
 	     this, SLOT( orientSelected( int ) ) );
 
     // paper size
     d->sizeCombo = new QComboBox( FALSE, g );
-    tll->addWidget( d->sizeCombo );
 
     int n;
     for( n=0; n<QPrinter::NPageSize; n++ )
@@ -1329,8 +1316,6 @@ QGroupBox * QPrintDialog::setupPaper()
 
     connect( d->sizeCombo, SIGNAL( activated( int ) ),
 	     this, SLOT( paperSizeSelected( int ) ) );
-
-    tll->activate();
 
     return g;
 }
