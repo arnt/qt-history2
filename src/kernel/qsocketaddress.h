@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qserversocket.h#2 $
+** $Id: //depot/qt/main/src/kernel/qsocketaddress.h#1 $
 **
-** Definition of QServerSocket class
+** Definition of QSocketAddress class
 **
 ** Created : 990221
 **
@@ -23,48 +23,23 @@
 **
 *****************************************************************************/
 
-#ifndef QSERVERSOCKET_H
-#define QSERVERSOCKET_H
+#ifndef QSOCKETADDRESS_H
+#define QSOCKETADDRESS_H
 
 #ifndef QT_H
-#include "qobject.h"
-#include "qsocket.h"
+#include "qstring.h"
 #endif // QT_H
 
 
-class QServerSocket : public QObject
+class QSocketAddress
 {
-    Q_OBJECT
 public:
-    QServerSocket( const QObject *parent=0, const char *name=0 );
-    QServerSocket( int port, const QObject *parent=0, const char *name=0 );
+    QSocketAddress();
 
-    int		 port() const;
-    void	 setPort( int port );
-
-    virtual void newConnection( int socket );
- 
-protected:
-    QSocket	*socket();
-    virtual bool accept( void *internet_address ) const;
-
-protected slots:
-    void	 incomingConnection( int socket );
-
-private:
-    QSocket	*serverSocket;
+    void *data()  const { return 0; }
+    int   datalen() const { return 0; }
+    void  setData( void * ) { }
 };
 
 
-inline int QServerSocket::port() const
-{
-    return serverSocket->port();
-}
-
-inline QSocket *QServerSocket::socket()
-{
-    return serverSocket;
-}
-
-
-#endif // QSERVERSOCKET_H
+#endif // QSOCKETADDRESS_H
