@@ -15,8 +15,6 @@
 #ifndef QDATETIME_H
 #define QDATETIME_H
 
-#include "qdatetime.h"
-
 #ifndef QT_H
 #include "qstring.h"
 #include "qnamespace.h"
