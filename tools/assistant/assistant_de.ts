@@ -270,7 +270,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message encoding="UTF-8">
-        <source>About Qt...</source>
+        <source>About Qt</source>
         <translation type="unfinished"></translation>
     </message>
     <message encoding="UTF-8">
