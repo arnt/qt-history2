@@ -75,7 +75,7 @@ static void qt_mac_set_port(const QPainter *p)
         mpe = static_cast<QQuickDrawPaintEngine *>(engine);
     if (mpe) {
         mpe->syncState();
-        if(mpe->type() == QPaintEngine::QuickDraw) {
+        if (mpe->type() == QPaintEngine::QuickDraw) {
             mpe->setupQDPort(true);
         } else {
             QRegion rgn;
@@ -109,7 +109,7 @@ static inline const Rect *qt_glb_mac_rect(const QRect &qr, const QPaintDevice *p
     if (useOffset)
         offset = 1;
     SetRect(&r, tl.x(), tl.y(), (tl.x() + qr.width()) - offset, (tl.y() + qr.height()) - offset);
-    if(use_rect) {
+    if (use_rect) {
         r.right -= rect.width();
         r.bottom -= rect.height();
     }
@@ -512,103 +512,103 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
                                     QAquaWidgetSize sz)
 {
     QSize ret(-1, -1);
-    if(QSysInfo::MacintoshVersion < QSysInfo::MV_10_3 && sz == QAquaSizeMini)
+    if (QSysInfo::MacintoshVersion < QSysInfo::MV_10_3 && sz == QAquaSizeMini)
         return ret;
 
-    if(sz != QAquaSizeSmall && sz != QAquaSizeLarge && sz != QAquaSizeMini) {
+    if (sz != QAquaSizeSmall && sz != QAquaSizeLarge && sz != QAquaSizeMini) {
         qDebug("Not sure how to return this...");
         return ret;
     }
-    if(widg && widg->testAttribute(Qt::WA_SetFont)) //if you're using a custom font, no constraints for you!
+    if (widg && widg->testAttribute(Qt::WA_SetFont)) //if you're using a custom font, no constraints for you!
         return ret;
 
-    if(ct == QStyle::CT_CustomBase && widg) {
-        if(qt_cast<const QPushButton *>(widg))
+    if (ct == QStyle::CT_CustomBase && widg) {
+        if (qt_cast<const QPushButton *>(widg))
             ct = QStyle::CT_PushButton;
-        else if(qt_cast<const QRadioButton *>(widg))
+        else if (qt_cast<const QRadioButton *>(widg))
             ct = QStyle::CT_RadioButton;
-        else if(qt_cast<const QCheckBox *>(widg))
+        else if (qt_cast<const QCheckBox *>(widg))
             ct = QStyle::CT_CheckBox;
-        else if(qt_cast<const QComboBox *>(widg))
+        else if (qt_cast<const QComboBox *>(widg))
             ct = QStyle::CT_ComboBox;
-        else if(qt_cast<const QComboBox *>(widg))
+        else if (qt_cast<const QComboBox *>(widg))
             ct = QStyle::CT_ToolButton;
-        else if(qt_cast<const QSlider *>(widg))
+        else if (qt_cast<const QSlider *>(widg))
             ct = QStyle::CT_Slider;
-        else if(qt_cast<const QProgressBar *>(widg))
+        else if (qt_cast<const QProgressBar *>(widg))
             ct = QStyle::CT_ProgressBar;
-        else if(qt_cast<const QLineEdit *>(widg))
+        else if (qt_cast<const QLineEdit *>(widg))
             ct = QStyle::CT_LineEdit;
 #ifdef QT_COMPAT
-        else if(widg->inherits("QHeader"))
+        else if (widg->inherits("QHeader"))
             ct = QStyle::CT_Header;
 #endif
-        else if(qt_cast<const QMenuBar *>(widg)
+        else if (qt_cast<const QMenuBar *>(widg)
 #ifdef QT_COMPAT
 		|| widg->inherits("Q3MenuBar")
 #endif
 	       )
             ct = QStyle::CT_MenuBar;
-        else if(qt_cast<const QSizeGrip *>(widg))
+        else if (qt_cast<const QSizeGrip *>(widg))
             ct = QStyle::CT_SizeGrip;
         else
             return ret;
     }
 
-    if(ct == QStyle::CT_PushButton) {
+    if (ct == QStyle::CT_PushButton) {
         const QPushButton *psh = static_cast<const QPushButton *>(widg);
         int minw = -1;
         // Aqua Style guidelines restrict the size of OK and Cancel buttons to 68 pixels.
         // However, this doesn't work for German, therefore only do it for English,
         // I suppose it would be better to do some sort of lookups for languages
         // that like to have really long words.
-        if(psh->text() == "OK" || psh->text() == "Cancel")
+        if (psh->text() == "OK" || psh->text() == "Cancel")
             minw = 69;
         if (psh->text().contains('\n'))
             ret = QSize(minw, -1);
-        else if(sz == QAquaSizeLarge)
+        else if (sz == QAquaSizeLarge)
             ret = QSize(minw, qt_mac_aqua_get_metric(kThemeMetricPushButtonHeight));
-        else if(sz == QAquaSizeSmall)
+        else if (sz == QAquaSizeSmall)
             ret = QSize(minw, qt_mac_aqua_get_metric(kThemeMetricSmallPushButtonHeight));
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-        else if(sz == QAquaSizeMini)
+        else if (sz == QAquaSizeMini)
             ret = QSize(minw, qt_mac_aqua_get_metric(kThemeMetricMiniPushButtonHeight));
 #endif
 #if 0 //Not sure we are applying the rules correctly for RadioButtons/CheckBoxes --Sam
-    } else if(ct == QStyle::CT_RadioButton) {
+    } else if (ct == QStyle::CT_RadioButton) {
         QRadioButton *rdo = static_cast<QRadioButton *>(widg);
         // Exception for case where multiline radiobutton text requires no size constrainment
-        if(rdo->text().find('\n') != -1)
+        if (rdo->text().find('\n') != -1)
             return ret;
-        if(sz == QAquaSizeLarge)
+        if (sz == QAquaSizeLarge)
             ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricRadioButtonHeight));
-        else if(sz == QAquaSizeSmall)
+        else if (sz == QAquaSizeSmall)
             ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricSmallRadioButtonHeight));
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-        else if(sz == QAquaSizeMini)
+        else if (sz == QAquaSizeMini)
             ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricMiniRadioButtonHeight));
 #endif
-    } else if(ct == QStyle::CT_CheckBox) {
-        if(sz == QAquaSizeLarge)
+    } else if (ct == QStyle::CT_CheckBox) {
+        if (sz == QAquaSizeLarge)
             ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricCheckBoxHeight));
-        else if(sz == QAquaSizeSmall)
+        else if (sz == QAquaSizeSmall)
             ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricSmallCheckBoxHeight));
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-        else if(sz == QAquaSizeMini)
+        else if (sz == QAquaSizeMini)
             ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricMiniCheckBoxHeight));
 #endif
 #endif
-    } else if(ct == QStyle::CT_SizeGrip) {
-        if(sz == QAquaSizeLarge || sz == QAquaSizeSmall) {
+    } else if (ct == QStyle::CT_SizeGrip) {
+        if (sz == QAquaSizeLarge || sz == QAquaSizeSmall) {
             Rect r;
             Point p = { 0, 0 };
             ThemeGrowDirection dir = kThemeGrowRight | kThemeGrowDown;
-            if(QApplication::isRightToLeft())
+            if (QApplication::isRightToLeft())
                 dir = kThemeGrowLeft | kThemeGrowDown;
-            if(GetThemeStandaloneGrowBoxBounds(p, dir, sz != QAquaSizeSmall, &r) == noErr)
+            if (GetThemeStandaloneGrowBoxBounds(p, dir, sz != QAquaSizeSmall, &r) == noErr)
                 ret = QSize(r.right - r.left, r.bottom - r.top);
         }
-    } else if(ct == QStyle::CT_ComboBox) {
+    } else if (ct == QStyle::CT_ComboBox) {
         if (sz == QAquaSizeLarge ||
             (sz != QAquaSizeLarge && QSysInfo::MacintoshVersion < QSysInfo::MV_10_3)) {
             ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricPopupButtonHeight) + 1);
@@ -620,23 +620,23 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
             ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricMiniPopupButtonHeight));
 #endif
 
-    } else if(ct == QStyle::CT_ToolButton && sz == QAquaSizeSmall) {
+    } else if (ct == QStyle::CT_ToolButton && sz == QAquaSizeSmall) {
         int width = 0, height = 0;
-        if(szHint == QSize(-1, -1)) { //just 'guess'..
+        if (szHint == QSize(-1, -1)) { //just 'guess'..
             const QToolButton *bt = static_cast<const QToolButton *>(widg);
-            if(!bt->icon().isNull()) {
+            if (!bt->icon().isNull()) {
                 Qt::IconSize sz = Qt::SmallIconSize;
-                if(bt->iconSize() == Qt::LargeIconSize)
+                if (bt->iconSize() == Qt::LargeIconSize)
                     sz = Qt::LargeIconSize;
                 QSize iconSize = sz == Qt::SmallIconSize ? QSize(22, 22) : QSize(32, 32);
                 QPixmap pm = bt->icon().pixmap(sz, QIcon::Normal);
                 width = qMax(width, qMax(iconSize.width(), pm.width()));
                 height = qMax(height, qMax(iconSize.height(), pm.height()));
             }
-            if(!bt->text().isNull() && bt->toolButtonStyle() != Qt::ToolButtonIconOnly) {
+            if (!bt->text().isNull() && bt->toolButtonStyle() != Qt::ToolButtonIconOnly) {
                 int text_width = bt->fontMetrics().width(bt->text()),
                    text_height = bt->fontMetrics().height();
-                if(bt->toolButtonStyle() == Qt::ToolButtonTextUnderIcon) {
+                if (bt->toolButtonStyle() == Qt::ToolButtonTextUnderIcon) {
                     width = qMax(width, text_width);
                     height += text_height;
                 } else {
@@ -651,71 +651,71 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
         width =  qMax(20, width +  5); //border
         height = qMax(20, height + 5); //border
         ret = QSize(width, height);
-    } else if(ct == QStyle::CT_Slider) {
+    } else if (ct == QStyle::CT_Slider) {
         int w = -1;
         const QSlider *sld = static_cast<const QSlider *>(widg);
-        if(sz == QAquaSizeLarge) {
-            if(sld->orientation() == Qt::Horizontal) {
+        if (sz == QAquaSizeLarge) {
+            if (sld->orientation() == Qt::Horizontal) {
                 w = qt_mac_aqua_get_metric(kThemeMetricHSliderHeight);
-                if(sld->tickPosition() != QSlider::NoTicks)
+                if (sld->tickPosition() != QSlider::NoTicks)
                     w += qt_mac_aqua_get_metric(kThemeMetricHSliderTickHeight);
             } else {
                 w = qt_mac_aqua_get_metric(kThemeMetricVSliderWidth);
-                if(sld->tickPosition() != QSlider::NoTicks)
+                if (sld->tickPosition() != QSlider::NoTicks)
                     w += qt_mac_aqua_get_metric(kThemeMetricVSliderTickWidth);
             }
-        } else if(sz == QAquaSizeSmall) {
-            if(sld->orientation() == Qt::Horizontal) {
+        } else if (sz == QAquaSizeSmall) {
+            if (sld->orientation() == Qt::Horizontal) {
                 w = qt_mac_aqua_get_metric(kThemeMetricSmallHSliderHeight);
-                if(sld->tickPosition() != QSlider::NoTicks)
+                if (sld->tickPosition() != QSlider::NoTicks)
                     w += qt_mac_aqua_get_metric(kThemeMetricSmallHSliderTickHeight);
             } else {
                 w = qt_mac_aqua_get_metric(kThemeMetricSmallVSliderWidth);
-                if(sld->tickPosition() != QSlider::NoTicks)
+                if (sld->tickPosition() != QSlider::NoTicks)
                     w += qt_mac_aqua_get_metric(kThemeMetricSmallVSliderTickWidth);
             }
         }
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-        else if(sz == QAquaSizeMini) {
-            if(sld->orientation() == Qt::Horizontal) {
+        else if (sz == QAquaSizeMini) {
+            if (sld->orientation() == Qt::Horizontal) {
                 w = qt_mac_aqua_get_metric(kThemeMetricMiniHSliderHeight);
-                if(sld->tickPosition() != QSlider::NoTicks)
+                if (sld->tickPosition() != QSlider::NoTicks)
                     w += qt_mac_aqua_get_metric(kThemeMetricMiniHSliderTickHeight);
             } else {
                 w = qt_mac_aqua_get_metric(kThemeMetricMiniVSliderWidth);
-                if(sld->tickPosition() != QSlider::NoTicks)
+                if (sld->tickPosition() != QSlider::NoTicks)
                     w += qt_mac_aqua_get_metric(kThemeMetricMiniVSliderTickWidth);
             }
         }
 #endif
-        if(sld->orientation() == Qt::Horizontal)
+        if (sld->orientation() == Qt::Horizontal)
             ret.setHeight(w);
         else
             ret.setWidth(w);
-    } else if(ct == QStyle::CT_ProgressBar) {
-        if(sz == QAquaSizeLarge)
+    } else if (ct == QStyle::CT_ProgressBar) {
+        if (sz == QAquaSizeLarge)
             ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricLargeProgressBarThickness));
-        else if(sz == QAquaSizeSmall)
+        else if (sz == QAquaSizeSmall)
             ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricNormalProgressBarThickness));
-    } else if(ct == QStyle::CT_LineEdit) {
-        if(!widg || !qt_cast<QComboBox *>(widg->parentWidget())) {
+    } else if (ct == QStyle::CT_LineEdit) {
+        if (!widg || !qt_cast<QComboBox *>(widg->parentWidget())) {
             //should I take into account the font dimentions of the lineedit? -Sam
-            if(sz == QAquaSizeLarge)
+            if (sz == QAquaSizeLarge)
                 ret = QSize(-1, 22);
             else
                 ret = QSize(-1, 19);
         }
-    } else if(ct == QStyle::CT_Header) {
-	if(sz == QAquaSizeLarge && (widg && (qt_cast<const QTreeView *>(widg)
+    } else if (ct == QStyle::CT_Header) {
+	if (sz == QAquaSizeLarge && (widg && (qt_cast<const QTreeView *>(widg)
 #ifdef QT_COMPAT
 			|| widg->parentWidget()->inherits("Q3ListView")
 #endif
 			)))
            ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricListHeaderHeight));
-    } else if(ct == QStyle::CT_MenuBar) {
-        if(sz == QAquaSizeLarge) {
+    } else if (ct == QStyle::CT_MenuBar) {
+        if (sz == QAquaSizeLarge) {
             SInt16 size;
-            if(!GetThemeMenuBarHeight(&size))
+            if (!GetThemeMenuBarHeight(&size))
                 ret = QSize(-1, size);
         }
     }
@@ -726,25 +726,25 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
 #if defined(QMAC_QAQUASTYLE_SIZE_CONSTRAIN) || defined(DEBUG_SIZE_CONSTRAINT)
 static QAquaWidgetSize qt_aqua_guess_size(const QWidget *widg, QSize large, QSize small, QSize mini)
 {
-    if(large == QSize(-1, -1)) {
-        if(small != QSize(-1, -1))
+    if (large == QSize(-1, -1)) {
+        if (small != QSize(-1, -1))
             return QAquaSizeSmall;
-        if(mini != QSize(-1, -1))
+        if (mini != QSize(-1, -1))
             return QAquaSizeMini;
         return QAquaSizeUnknown;
-    } else if(small == QSize(-1, -1)) {
-        if(mini != QSize(-1, -1))
+    } else if (small == QSize(-1, -1)) {
+        if (mini != QSize(-1, -1))
             return QAquaSizeMini;
         return QAquaSizeLarge;
-    } else if(mini == QSize(-1, -1)) {
+    } else if (mini == QSize(-1, -1)) {
         return QAquaSizeLarge;
     }
 
 #ifndef QT_NO_MAINWINDOW
-    if(qt_cast<QDockWindow *>(widg->topLevelWidget()) || qgetenv("QWIDGET_ALL_SMALL")) {
-        //if(small.width() != -1 || small.height() != -1)
+    if (qt_cast<QDockWindow *>(widg->topLevelWidget()) || qgetenv("QWIDGET_ALL_SMALL")) {
+        //if (small.width() != -1 || small.height() != -1)
         return QAquaSizeSmall;
-    } else if(qgetenv("QWIDGET_ALL_MINI")) {
+    } else if (qgetenv("QWIDGET_ALL_MINI")) {
         return QAquaSizeMini;
     }
 #endif
@@ -754,35 +754,35 @@ static QAquaWidgetSize qt_aqua_guess_size(const QWidget *widg, QSize large, QSiz
        tested it as it would probably look pretty strange to have some widgets
        big and some widgets small in the same window?? -Sam */
     int large_delta=0;
-    if(large.width() != -1) {
+    if (large.width() != -1) {
         int delta = large.width() - widg->width();
         large_delta += delta * delta;
     }
-    if(large.height() != -1) {
+    if (large.height() != -1) {
         int delta = large.height() - widg->height();
         large_delta += delta * delta;
     }
     int small_delta=0;
-    if(small.width() != -1) {
+    if (small.width() != -1) {
         int delta = small.width() - widg->width();
         small_delta += delta * delta;
     }
-    if(small.height() != -1) {
+    if (small.height() != -1) {
         int delta = small.height() - widg->height();
         small_delta += delta * delta;
     }
     int mini_delta=0;
-    if(mini.width() != -1) {
+    if (mini.width() != -1) {
         int delta = mini.width() - widg->width();
         mini_delta += delta * delta;
     }
-    if(mini.height() != -1) {
+    if (mini.height() != -1) {
         int delta = mini.height() - widg->height();
         mini_delta += delta * delta;
     }
-    if(mini_delta < small_delta && mini_delta < large_delta)
+    if (mini_delta < small_delta && mini_delta < large_delta)
         return QAquaSizeMini;
-    else if(small_delta < large_delta)
+    else if (small_delta < large_delta)
         return QAquaSizeSmall;
 #endif
     return QAquaSizeLarge;
@@ -794,12 +794,12 @@ QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg,
                                        QSize szHint=QSize(-1, -1), QSize *insz = 0)
 {
 #if defined(QMAC_QAQUASTYLE_SIZE_CONSTRAIN) || defined(DEBUG_SIZE_CONSTRAINT)
-    if(!widg) {
-        if(insz)
+    if (!widg) {
+        if (insz)
             *insz = QSize();
-        if(qgetenv("QWIDGET_ALL_SMALL"))
+        if (qgetenv("QWIDGET_ALL_SMALL"))
             return QAquaSizeSmall;
-        if(qgetenv("QWIDGET_ALL_MINI"))
+        if (qgetenv("QWIDGET_ALL_MINI"))
             return QAquaSizeMini;
         return QAquaSizeUnknown;
     }
@@ -809,37 +809,37 @@ QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg,
     bool guess_size = false;
     QAquaWidgetSize ret = QAquaSizeUnknown;
     QMacStyle *macStyle = qt_cast<QMacStyle *>(widg->style());
-    if(macStyle) {
+    if (macStyle) {
         QMacStyle::WidgetSizePolicy wsp = macStyle->widgetSizePolicy(widg);
-        if(wsp == QMacStyle::SizeDefault)
+        if (wsp == QMacStyle::SizeDefault)
             guess_size = true;
-        else if(wsp == QMacStyle::SizeMini)
+        else if (wsp == QMacStyle::SizeMini)
             ret = QAquaSizeMini;
-        else if(wsp == QMacStyle::SizeSmall)
+        else if (wsp == QMacStyle::SizeSmall)
             ret = QAquaSizeSmall;
-        else if(wsp == QMacStyle::SizeLarge)
+        else if (wsp == QMacStyle::SizeLarge)
             ret = QAquaSizeLarge;
     }
-    if(guess_size)
+    if (guess_size)
         ret = qt_aqua_guess_size(widg, large, small, mini);
 
     QSize *sz = 0;
-    if(ret == QAquaSizeSmall)
+    if (ret == QAquaSizeSmall)
         sz = &small;
-    else if(ret == QAquaSizeLarge)
+    else if (ret == QAquaSizeLarge)
         sz = &large;
-    else if(ret == QAquaSizeMini)
+    else if (ret == QAquaSizeMini)
         sz = &mini;
-    if(insz)
+    if (insz)
         *insz = sz ? *sz : QSize(-1, -1);
 #ifdef DEBUG_SIZE_CONSTRAINT
-    if(sz) {
+    if (sz) {
         const char *size_desc = "Unknown";
-        if(sz == &small)
+        if (sz == &small)
             size_desc = "Small";
-        else if(sz == &large)
+        else if (sz == &large)
             size_desc = "Large";
-        else if(sz == &mini)
+        else if (sz == &mini)
             size_desc = "Mini";
         qDebug("%s - %s: %s taken (%d, %d) [%d, %d]", widg ? widg->name() : "*Unknown*",
                widg ? widg->className() : "*Unknown*", size_desc, widg->width(), widg->height(),
@@ -848,7 +848,7 @@ QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg,
 #endif
     return ret;
 #else
-    if(insz)
+    if (insz)
         *insz = QSize();
     Q_UNUSED(widg);
     Q_UNUSED(ct);
@@ -860,7 +860,7 @@ QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg,
 //utility to figure out the size (from the painter)
 static QAquaWidgetSize qt_mac_get_size_for_painter(QPainter *p)
 {
-    if(p && p->device()->devType() == QInternal::Widget)
+    if (p && p->device()->devType() == QInternal::Widget)
         return qt_aqua_size_constrain(static_cast<QWidget *>(p->device()));
     return qt_aqua_size_constrain(0);
 }
@@ -1465,7 +1465,8 @@ bool QMacStylePrivate::eventFilter(QObject *o, QEvent *e)
 bool QMacStylePrivate::doAnimate(QMacStylePrivate::Animates as)
 {
     if (as == AquaPushButton && !useHITheme) {
-        if (buttonState.frame == 25 && buttonState.dir == ButtonState::ButtonDark)
+        const int MaxFrames = QSysInfo::MacintoshVersion == QSysInfo::MV_10_2 ? 13 : 10;
+        if (buttonState.frame == MaxFrames && buttonState.dir == ButtonState::ButtonDark)
             buttonState.dir = ButtonState::ButtonLight;
         else if (!buttonState.frame && buttonState.dir == ButtonState::ButtonLight)
             buttonState.dir = ButtonState::ButtonDark;
@@ -1524,13 +1525,13 @@ void QMacStylePrivate::HIThemePolish(QWidget *w)
     }
 
 #ifndef QT_NO_MAINWINDOW
-    else if(QToolBar *bar = qt_cast<QToolBar*>(w)) {
+    else if (QToolBar *bar = qt_cast<QToolBar*>(w)) {
         QLayout *layout = bar->layout();
         layout->setSpacing(0);
         layout->setMargin(0);
     }
 #endif
-    else if(QRubberBand *rubber = qt_cast<QRubberBand*>(w)) {
+    else if (QRubberBand *rubber = qt_cast<QRubberBand*>(w)) {
         rubber->setWindowOpacity(0.25);
     }
     q->QWindowsStyle::polish(w);
@@ -1881,7 +1882,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
         if (const QStyleOptionButton *btn = ::qt_cast<const QStyleOptionButton *>(opt)) {
             if (!(btn->state & (QStyle::State_Raised | QStyle::State_Down | QStyle::State_On)))
                 break;
-            if(btn->state & QStyle::State_On)
+            if (btn->state & QStyle::State_On)
                 tds = kThemeStatePressed;
             HIThemeButtonDrawInfo bdi;
             bdi.version = qt_mac_hitheme_version;
@@ -1960,7 +1961,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                 HIRect cr;
                 HIThemeDrawMenuItem(&menuRect, &itemRect, &mdi,
                                     cg, kHIThemeOrientationNormal, &cr);
-                if(ce == QStyle::CE_MenuEmptyArea)
+                if (ce == QStyle::CE_MenuEmptyArea)
                     break;
                 contentRect = qt_qrectForHIRect(cr);
             }
@@ -2655,7 +2656,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                 mflags |= QStyle::State_Down;
 
             if (tb->subControls & QStyle::SC_ToolButton) {
-                if(bflags & (QStyle::State_Down | QStyle::State_On | QStyle::State_Raised)) {
+                if (bflags & (QStyle::State_Down | QStyle::State_On | QStyle::State_Raised)) {
                     HIThemeButtonDrawInfo bdi;
                     bdi.version = qt_mac_hitheme_version;
                     bdi.state = tds;
@@ -3021,7 +3022,7 @@ void QMacStylePrivate::HIThemeAdjustButtonSize(QStyle::ContentsType ct, QSize &s
     if (ct == QStyle::CT_ToolButton)
         bkind = kThemeBevelButton;
     if (qt_aqua_size_constrain(widget) == QAquaSizeSmall) {
-        if(bkind == kThemeBevelButton)
+        if (bkind == kThemeBevelButton)
             bkind = kThemeSmallBevelButton;
     } else if (ct == QStyle::CT_ComboBox) {
         bkind = kThemePopupButton;
@@ -3050,7 +3051,7 @@ void QMacStylePrivate::AppManPolish(QWidget *w)
     addWidget(w);
 
 #ifdef QMAC_DO_SECONDARY_GROUPBOXES
-    if(w->parentWidget() && qt_cast<QGroupBox*>(w->parentWidget())
+    if (w->parentWidget() && qt_cast<QGroupBox*>(w->parentWidget())
             && !w->testAttribute(Qt::WA_SetPalette)
             && w->parentWidget()->parentWidget()
             && qt_cast<QGroupBox*>(w->parentWidget()->parentWidget())) {
@@ -3072,25 +3073,25 @@ void QMacStylePrivate::AppManPolish(QWidget *w)
     }
 #endif
 
-    if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_2) {
-        if(qt_cast<QGroupBox*>(w))
+    if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_2) {
+        if (qt_cast<QGroupBox*>(w))
             w->setAttribute(Qt::WA_ContentsPropagated, true);
     }
 	/*
-    } else if(QDialogButtons *btns = qt_cast<QDialogButtons*>(w)) {
-        if(btns->buttonText(QDialogButtons::Help).isNull())
+    } else if (QDialogButtons *btns = qt_cast<QDialogButtons*>(w)) {
+        if (btns->buttonText(QDialogButtons::Help).isNull())
             btns->setButtonText(QDialogButtons::Help, "?");
 	    */
 #ifndef QT_NO_MAINWINDOW
-    else if(QToolBar *bar = qt_cast<QToolBar*>(w)) {
+    else if (QToolBar *bar = qt_cast<QToolBar*>(w)) {
         QLayout *layout = bar->layout();
         layout->setSpacing(0);
         layout->setMargin(0);
     }
 #endif
-    else if(QRubberBand *rubber = qt_cast<QRubberBand*>(w)) {
+    else if (QRubberBand *rubber = qt_cast<QRubberBand*>(w)) {
         rubber->setWindowOpacity(0.25);
-    } else if(QMenu *menu = qt_cast<QMenu*>(w)) {
+    } else if (QMenu *menu = qt_cast<QMenu*>(w)) {
         menu->setWindowOpacity(0.95);
     }
     q->QWindowsStyle::polish(w);
@@ -3099,9 +3100,9 @@ void QMacStylePrivate::AppManPolish(QWidget *w)
 void QMacStylePrivate::AppManUnpolish(QWidget *w)
 {
     removeWidget(w);
-    if(QRubberBand *rubber = qt_cast<QRubberBand*>(w))
+    if (QRubberBand *rubber = qt_cast<QRubberBand*>(w))
         rubber->setWindowOpacity(1.0);
-    else if(qt_cast<QMenu*>(w))
+    else if (qt_cast<QMenu*>(w))
         w->setWindowOpacity(1.0);
 }
 
@@ -3494,7 +3495,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                 os << "$qt_mac_pshbtn_" << opt->rect.width() << "x" << opt->rect.height() << "_"
                    << opt->state << "_" << frame;
                 tds = kThemeStatePressed;
-                if(frame && !QPixmapCache::find(pmkey, buffer)) {
+                if (frame && !QPixmapCache::find(pmkey, buffer)) {
                     do_draw = true;
                     buffer = QPixmap(opt->rect.width(), opt->rect.height(), 32);
                     buffer.fill(Qt::color0);
@@ -3545,7 +3546,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                     QImage mask_out(img.width(), img.height(), 1, 2, QImage::LittleEndian);
                     for (int y = 0; y < img.height(); ++y) {
                         //calculate a mask
-                        for(int maskx = 0; maskx < img.width(); ++maskx) {
+                        for (int maskx = 0; maskx < img.width(); ++maskx) {
                             QRgb in = img.pixel(maskx, y), out = maskimg.pixel(maskx, y);
                             int diff = (((qRed(in)-qRed(out))*((qRed(in)-qRed(out)))) +
                                     ((qGreen(in)-qGreen(out))*((qGreen(in)-qGreen(out)))) +
@@ -3554,8 +3555,8 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                         }
                         //pulse the colors
                         uchar *bytes = img.scanLine(y);
-                        for(int x = 0; x < img.bytesPerLine(); x++)
-                            *(bytes + x) = (*(bytes + x) * (100 - frame)) / 100;
+                        for (int x = 0; x < img.bytesPerLine(); ++x)
+                            *(bytes + x) = 255 - (((255 - *(bytes + x)) * (128 - (frame<<2))) >> 7);
                     }
                     buffer = img;
                     QBitmap qmask(mask_out);
@@ -3827,7 +3828,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
         qt_mac_set_port(p);
         ThemeGrowDirection dir = kThemeGrowRight | kThemeGrowDown;
 #if 0
-        if(QApplication::isRightToLeft())
+        if (QApplication::isRightToLeft())
             dir = kThemeGrowLeft | kThemeGrowDown;
 #endif
         DrawThemeStandaloneGrowBox(orig, dir, false, kThemeStateActive);
@@ -3897,11 +3898,11 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
                 else if (slider->activeSubControls == QStyle::SC_ScrollBarAddLine)
                     tdi.trackInfo.scrollbar.pressState = kThemeLeftInsideArrowPressed
                                                          | kThemeRightOutsideArrowPressed;
-                else if(slider->activeSubControls == QStyle::SC_ScrollBarAddPage)
+                else if (slider->activeSubControls == QStyle::SC_ScrollBarAddPage)
                     tdi.trackInfo.scrollbar.pressState = kThemeRightTrackPressed;
-                else if(slider->activeSubControls == QStyle::SC_ScrollBarSubPage)
+                else if (slider->activeSubControls == QStyle::SC_ScrollBarSubPage)
                     tdi.trackInfo.scrollbar.pressState = kThemeLeftTrackPressed;
-                else if(slider->activeSubControls == QStyle::SC_ScrollBarSlider)
+                else if (slider->activeSubControls == QStyle::SC_ScrollBarSlider)
                     tdi.trackInfo.scrollbar.pressState = kThemeThumbPressed;
             }
 
@@ -4069,7 +4070,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
                 mflags |= QStyle::State_Down;
 
             if (tb->subControls & QStyle::SC_ToolButton) {
-                if(bflags & (QStyle::State_Down | QStyle::State_On | QStyle::State_Raised)) {
+                if (bflags & (QStyle::State_Down | QStyle::State_On | QStyle::State_Raised)) {
                     ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
                     if (tb->state & QStyle::State_HasFocus && QMacStyle::focusRectPolicy(widget)
                             != QMacStyle::FocusDisabled)
@@ -4228,7 +4229,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
                         x += iw;
                     else
                         x += (br.width() / 2) - (p->fontMetrics().width(tbar->text) / 2);
-                    if(iw)
+                    if (iw)
                         pixp.drawPixmap(x - iw, y, tbar->icon);
                     pixp.drawText(x, y + p->fontMetrics().ascent(), tbar->text);
                     pixp.restore();
@@ -4265,7 +4266,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
                     ctrl_tds = kThemeStatePressed;
                 ThemeTitleBarWidget twt = types[i].mac_type;
                 /*
-                if(tbar->window() && tbar->window()->isWindowModified() && twt == kThemeWidgetCloseBox)
+                if (tbar->window() && tbar->window()->isWindowModified() && twt == kThemeWidgetCloseBox)
                     twt = kThemeWidgetDirtyCloseBox;
                     */
                 DrawThemeTitleBarWidget(QtWinType, wm_rect, ctrl_tds, &tm, twa, twt);
@@ -4518,10 +4519,10 @@ int QMacStylePrivate::AppManPixelMetric(QStyle::PixelMetric metric, const QStyle
             twm.titleWidth = tbar->rect.width();
             twm.titleHeight = tbar->rect.height();
             ThemeWindowAttributes twa = kThemeWindowHasTitleText;
-            if(tbar->titleBarState)
+            if (tbar->titleBarState)
                 twa |= kThemeWindowHasFullZoom | kThemeWindowHasCloseBox
                        | kThemeWindowHasCollapseBox;
-            else if(tbar->titleBarFlags & Qt::WStyle_SysMenu)
+            else if (tbar->titleBarFlags & Qt::WStyle_SysMenu)
                 twa |= kThemeWindowHasCloseBox;
 
             Rect r;
@@ -4697,7 +4698,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
     case PM_DialogButtonsButtonHeight: {
         QSize sz;
         ret = qt_aqua_size_constrain(0, QStyle::CT_PushButton, QSize(-1, -1), &sz);
-        if(sz == QSize(-1, -1))
+        if (sz == QSize(-1, -1))
             ret = 32;
         else
             ret = sz.height();
@@ -4705,7 +4706,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
     case PM_DialogButtonsButtonWidth: {
         QSize sz;
         ret = qt_aqua_size_constrain(0, QStyle::CT_PushButton, QSize(-1, -1), &sz);
-        if(sz == QSize(-1, -1))
+        if (sz == QSize(-1, -1))
             ret = 70;
         else
             ret = sz.width();
@@ -4733,7 +4734,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
         break;
     case PM_DefaultFrameWidth:
 #ifndef QT_NO_MAINWINDOW
-        if(widget && (widget->isTopLevel() || !widget->parentWidget()
+        if (widget && (widget->isTopLevel() || !widget->parentWidget()
                 || (qt_cast<const QMainWindow*>(widget->parentWidget())
                    && static_cast<QMainWindow *>(widget->parentWidget())->centralWidget() == widget))
                 && (qt_cast<const QViewport *>(widget)
@@ -5140,7 +5141,7 @@ QMacStyle::WidgetSizePolicy QMacStyle::widgetSizePolicy(const QWidget *w)
         if (QMacStylePrivate::PolicyState::sizeMap.contains(w))
             ret = QMacStylePrivate::PolicyState::sizeMap[w];
         if (ret == SizeDefault) {
-	    for(QWidget *p = w->parentWidget(); p; p = p->parentWidget()) {
+	    for (QWidget *p = w->parentWidget(); p; p = p->parentWidget()) {
                 if (QMacStylePrivate::PolicyState::sizeMap.contains(p)) {
                     ret = QMacStylePrivate::PolicyState::sizeMap[p];
                     if (ret != SizeDefault)
