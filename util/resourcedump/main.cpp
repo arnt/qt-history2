@@ -2,11 +2,24 @@
 #include <qfile.h>
 #include <qstack.h>
 
-#define LINELENGTH (uint)30
+#ifdef Q_OS_UNIX
+# include <util.h>
+# include <sys/ioctl.h>
+# include <stdio.h>
+#endif
 
 int
 main(int argc, char **argv)
 {
+    int terminal_width = 80;
+#ifdef Q_OS_UNIX
+    struct winsize wsz;
+    if(ioctl(1, TIOCGWINSZ, &wsz) == 0 && wsz.ws_col > 0)
+        terminal_width = wsz.ws_col;
+#endif
+    const uint line_width = (terminal_width / 4) - 5;
+
+
     if(argc == 1) {
         fprintf(stderr, "%s <binary> [resources]\n", argv[0]);
         return 666;
@@ -74,21 +87,21 @@ main(int argc, char **argv)
             }
             const uint datalen = resource->size();
             const uchar *data = resource->data();
-            for(uint i = 0, off; i < datalen; i+=LINELENGTH) {
-                uint chunks = qMin(LINELENGTH, datalen-i);
+            for(uint i = 0, off; i < datalen; i+=line_width) {
+                uint chunks = qMin(line_width, datalen-i);
                 for(off = 0; off < chunks; off++) {
-                    if(off == LINELENGTH / 2)
+                    if(off == line_width / 2)
                         printf(" ");
                     printf("%02x ", data[i+off]);
                 }
-                if(chunks < LINELENGTH/2) 
+                if(chunks < line_width/2) 
                     printf(" ");
-                for(off = 0; off < LINELENGTH-chunks; off++) 
+                for(off = 0; off < line_width-chunks; off++) 
                     printf("   ");
                 printf(" |");
                 for(off = 0; off < chunks; off++)
                     printf("%c", (data[i+off] > 31 && data[i+off] < 126) ? data[i+off] : '.');
-                for(off = 0; off < LINELENGTH-chunks; off++)
+                for(off = 0; off < line_width-chunks; off++)
                     printf(" ");
                 printf("|\n");
             }
