@@ -244,7 +244,7 @@ public:
 	    for ( p = 0; p < pcount && ok; ++p ) {
 		// map the VARIANT to the void*
 		QString ptype = meta->paramType(signame, p);
-		varp[p] = VARIANTToQVariant(pDispParams->rgvarg[pcount - p - 1], ptype.latin1());
+		varp[p] = VARIANTToQVariant(pDispParams->rgvarg[pcount - p - 1], ptype);
 		if (ptype != "QVariant") {
 		    ok = varp[p].isValid();
 		    argv[p + 1] = varp[p].data();
@@ -1269,7 +1269,7 @@ private:
     QMap<QString, QList<QPair<QString, int> > > enum_list;
     inline void addEnumValue(const QString &enumname, const QString &key, int value)
     {
-	enum_list[enumname].append(QPair<QString, int>(key, value));	
+	enum_list[enumname].append(QPair<QString, int>(key, value));
     }
 
     inline bool hasEnum(const QString &enumname)
@@ -1901,7 +1901,7 @@ void MetaObjectGenerator::readVarsInfo(ITypeInfo *typeinfo, ushort nVars)
 		addChangedSignal(variableName, variableType, vardesc->memid);
 		flags |= Bindable;
 	    }
-	    addProperty(variableName, variableType, flags);
+	    addProperty(variableType, variableName, flags);
 	}
 
 	// generate a set slot
@@ -2690,8 +2690,9 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
 
     int p;
     for (p = 0; p < params.cArgs; ++p) {
-       QString type = d->metaobj->paramType(signature, p);
-       QVariantToVARIANT(QVariant(QVariant::nameToType(type.latin1()), v[p+1]), params.rgvarg[params.cArgs - p - 1], type);
+	bool out;
+	QString type = d->metaobj->paramType(signature, p, &out);
+	QVariantToVARIANT(QVariant(QVariant::nameToType(type.latin1()), v[p+1]), params.rgvarg[params.cArgs - p - 1], type, out);
     }
 
     // return value
@@ -2720,7 +2721,7 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
 	bool out;
 	QString ptype = d->metaobj->paramType(signature, p, &out);
 	if (out)
-	    QVariantToVoidStar(VARIANTToQVariant(params.rgvarg[params.cArgs - p - 1], ptype.latin1()), v[p+1]);
+	    QVariantToVoidStar(VARIANTToQVariant(params.rgvarg[params.cArgs - p - 1], ptype), v[p+1]);
     }
     // clean up
     for ( p = 0; p < params.cArgs; ++p )
@@ -2752,6 +2753,12 @@ int QAxBase::qt_metacall(QMetaObject::Call call, int id, void **v)
     case QMetaObject::ResetProperty:
 	id = internalProperty(call, id, v);
 	break;
+    case QMetaObject::QueryPropertyScriptable:
+    case QMetaObject::QueryPropertyDesignable:
+    case QMetaObject::QueryPropertyStored:
+    case QMetaObject::QueryPropertyEditable:
+	id -= d->metaobj->propertyCount();
+	break;
     }
     Q_ASSERT(id < 0);
     return id;
@@ -2760,7 +2767,7 @@ int QAxBase::qt_metacall(QMetaObject::Call call, int id, void **v)
 /*!
     \internal
 */
-bool QAxBase::dynamicCallHelper( const QString &name, void *inout, QVariant vars[], QString &type )
+bool QAxBase::dynamicCallHelper( const QString &name, void *inout, QList<QVariant> &vars, QString &type )
 {
     IDispatch *disp = d->dispatch();
     if ( !disp )
@@ -2769,16 +2776,13 @@ bool QAxBase::dynamicCallHelper( const QString &name, void *inout, QVariant vars
     if (!d->metaobj)
 	metaObject();
 
-    int varc = 0;
-    while ( vars[varc].isValid() ) {
-	if ( vars[varc].type() == -1 )
-	    vars[varc] = QVariant();
-	varc++;
-    }
+    int varc = vars.count();
 
     QString function = name;
-    VARIANT *arg = varc ? new VARIANT[varc] : 0;
+    VARIANT staticarg;
+    VARIANT *arg = 0;
     VARIANTARG *res = (VARIANTARG*)inout;
+
     unsigned short disptype;
 
     int id = -1;
@@ -2794,15 +2798,10 @@ bool QAxBase::dynamicCallHelper( const QString &name, void *inout, QVariant vars
 	} else {
 	    function = function.left(function.indexOf('('));
 	}
-	if (varc) {
-	    for (int i = 0; i < varc; ++i) {
-		VariantInit(arg + (varc - i - 1));
-		QVariantToVARIANT(vars[i], arg[varc - i - 1], d->metaobj->paramType(name, i));
-	    }
-	} else if (name.length() > function.length() + 2) {
+	bool parse = !varc && name.length() > function.length() + 2;
+	if (parse) {
 	    QString args = name.mid(function.length() + 1);
 	    // parse argument string int list of arguments
-	    QStringList argList;
 	    QString curArg;
 	    const QChar *c = args.unicode();
 	    int index = 0;
@@ -2846,7 +2845,7 @@ bool QAxBase::dynamicCallHelper( const QString &name, void *inout, QVariant vars
 		    if (inString)
 			break;
 		    curArg = curArg.trimmed();
-		    argList += curArg;
+		    vars << curArg;
 		    curArg = QString::null;
 		    continue;
 		default:
@@ -2856,15 +2855,15 @@ bool QAxBase::dynamicCallHelper( const QString &name, void *inout, QVariant vars
 		curArg += cc;
 	    }
 
-	    varc = argList.count();
-	    if (varc) {
-		arg = new VARIANT[varc];
-		int index = 0;
-		for (QStringList::Iterator it = argList.begin(); it != argList.end(); ++it, ++index) {
-		    QVariant var(*it);
-		    VariantInit( arg + (varc-index-1) );
-		    QVariantToVARIANT( var, arg[varc-index-1], "QVariant" );
-		}
+	    varc = vars.count();
+	}
+	if (varc) {
+	    arg = varc == 1 ? &staticarg : new VARIANT[varc];
+	    for (int i = 0; i < varc; ++i) {
+		VariantInit(arg + (varc - i - 1));
+		bool out = FALSE;
+		QString paramType = parse ? "QVariant" : d->metaobj->paramType(name, i, &out);
+		QVariantToVARIANT(vars.at(i), arg[varc - i - 1], paramType, out);
 	    }
 	}
     } else {
@@ -2878,14 +2877,14 @@ bool QAxBase::dynamicCallHelper( const QString &name, void *inout, QVariant vars
 	} else {
 	    function = name;
 	}
-	if ( varc ) {
+	if ( varc == 1 ) {
+	    arg = &staticarg;
 	    varc = 1;
-	    QVariantToVARIANT( vars[0], arg[0], type );
+	    QVariantToVARIANT( vars.at(0), staticarg, type );
 	    res = 0;
 	    disptype = DISPATCH_PROPERTYPUT;
 	}
     }
-
     DISPID dispid;
     OLECHAR *names = (TCHAR*)function.ucs2();
     disp->GetIDsOfNames( IID_NULL, &names, 1, LOCALE_USER_DEFAULT, &dispid );
@@ -2930,13 +2929,14 @@ bool QAxBase::dynamicCallHelper( const QString &name, void *inout, QVariant vars
     if ( disptype == DISPATCH_METHOD && id >= 0 && varc ) {
 	for ( int i = 0; i < varc; ++i )
 	    if ( arg[varc-i-1].vt & VT_BYREF ) // update out-parameters
-		vars[i] = VARIANTToQVariant( arg[varc-i-1], vars[i].typeName() );
+		vars[i] = VARIANTToQVariant( arg[varc-i-1], vars.at(i).typeName() );
     }
 
     // clean up
     for ( int i = 0; i < varc; ++i )
 	clearVARIANT( params.rgvarg+i );
-    delete[] arg;
+    if (arg != &staticarg)
+	delete[] arg;
 
     return checkHRESULT( hres, &excepinfo, this, function, varc-argerr-1 );
 }
@@ -3003,29 +3003,23 @@ QVariant QAxBase::dynamicCall( const QString &function, const QVariant &var1,
 							const QVariant &var7,
 							const QVariant &var8 )
 {
-    VARIANTARG res;
-    res.vt = VT_EMPTY;
+    QList<QVariant> vars;
+    QVariant var = var1;
+    int argc = 1;
+    while(var.isValid()) {
+	vars << var;
+	switch(++argc) {
+	case 2: var = var2; break;
+	case 3: var = var3; break;
+	case 4: var = var4; break;
+	case 5: var = var5; break;
+	case 6: var = var6; break;
+	case 7: var = var7; break;
+	case 8: var = var8; break;
+	}
+    }
 
-    int varc = 0;
-    QVariant vars[9]; // 8 + terminating invalid
-    vars[varc++] = var1;
-    vars[varc++] = var2;
-    vars[varc++] = var3;
-    vars[varc++] = var4;
-    vars[varc++] = var5;
-    vars[varc++] = var6;
-    vars[varc++] = var7;
-    vars[varc++] = var8;
-    vars[varc++] = QVariant();
-
-    QString rettype;
-    if (!dynamicCallHelper(QMetaObject::normalizedSignature(function.latin1()), &res, vars, rettype))
-	return QVariant();
-
-    QVariant qvar = VARIANTToQVariant( res, rettype );
-    clearVARIANT( &res );
-
-    return qvar;
+    return dynamicCall(function, vars);
 }
 
 /*!
@@ -3045,24 +3039,8 @@ QVariant QAxBase::dynamicCall( const QString &function, QList<QVariant> &vars )
     VARIANTARG res;
     res.vt = VT_EMPTY;
 
-    const int count = vars.count();
-    QVariant *vararray = new QVariant[ count + 1 ];
-    int i = 0;
-    for ( QList<QVariant>::Iterator it = vars.begin(); it != vars.end(); ++it ) {
-	QVariant var = *it;
-	if ( !var.isValid() )
-	    var.rawAccess( this, (QVariant::Type)-1 );
-	vararray[i++] = var;
-    }
-
     QString rettype;
-    bool ok = dynamicCallHelper(QMetaObject::normalizedSignature(function.latin1()), &res, vararray, rettype);
-    if ( ok ) {
-	vars.clear();
-	for ( i = 0; i < count; ++i )
-	    vars << vararray[i];
-    }
-    delete[] vararray;
+    bool ok = dynamicCallHelper(QMetaObject::normalizedSignature(function.latin1()), &res, vars, rettype);
 
     QVariant qvar = VARIANTToQVariant( res, rettype );
     clearVARIANT( &res );
@@ -3111,21 +3089,35 @@ QAxObject *QAxBase::querySubObject( const QString &name, const QVariant &var1,
 							 const QVariant &var7,
 							 const QVariant &var8 )
 {
+    QList<QVariant> vars;
+    QVariant var = var1;
+    int argc = 1;
+    while(var.isValid()) {
+	vars << var;
+	switch(++argc) {
+	case 2: var = var2; break;
+	case 3: var = var3; break;
+	case 4: var = var4; break;
+	case 5: var = var5; break;
+	case 6: var = var6; break;
+	case 7: var = var7; break;
+	case 8: var = var8; break;
+	}
+    }
+
+    return querySubObject(name, vars);
+}
+
+/*!
+    \overload
+
+    The QVariant objects in \a vars are updated when the method has
+    out-parameters.
+*/
+QAxObject *QAxBase::querySubObject( const QString &name, QList<QVariant> &vars)
+{
     QAxObject *object = 0;
-
     VARIANTARG res;
-
-    int varc = 0;
-    QVariant vars[9];
-    vars[varc++] = var1;
-    vars[varc++] = var2;
-    vars[varc++] = var3;
-    vars[varc++] = var4;
-    vars[varc++] = var5;
-    vars[varc++] = var6;
-    vars[varc++] = var7;
-    vars[varc++] = var8;
-    vars[varc++] = QVariant();
 
     QString rettype;
     if (!dynamicCallHelper(QMetaObject::normalizedSignature(name.latin1()), &res, vars, rettype))
@@ -3167,8 +3159,6 @@ QAxObject *QAxBase::querySubObject( const QString &name, const QVariant &var1,
     clearVARIANT( &res );
     return object;
 }
-
-
 
 class QtPropertyBag : public IPropertyBag
 {

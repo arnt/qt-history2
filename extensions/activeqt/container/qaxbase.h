@@ -47,7 +47,7 @@ public:
 
     long queryInterface( const QUuid &, void** ) const;
 
-    QVariant dynamicCall( const QString&, const QVariant &v1 = QVariant(), 
+    QVariant dynamicCall( const QString &name, const QVariant &v1 = QVariant(), 
 					   const QVariant &v2 = QVariant(),
 					   const QVariant &v3 = QVariant(),
 					   const QVariant &v4 = QVariant(),
@@ -55,7 +55,7 @@ public:
 					   const QVariant &v6 = QVariant(),
 					   const QVariant &v7 = QVariant(),
 					   const QVariant &v8 = QVariant() );
-    QVariant dynamicCall( const QString&, QList<QVariant> &vars );
+    QVariant dynamicCall( const QString &name, QList<QVariant> &vars );
     QAxObject *querySubObject( const QString &name, const QVariant &v1 = QVariant(),
 					    const QVariant &v2 = QVariant(),
 					    const QVariant &v3 = QVariant(),
@@ -64,6 +64,7 @@ public:
 					    const QVariant &v6 = QVariant(),
 					    const QVariant &v7 = QVariant(),
 					    const QVariant &v8 = QVariant() );
+    QAxObject* querySubObject( const QString &name, QList<QVariant> &vars );
 
     virtual const QMetaObject *metaObject() const;
     virtual int qt_metacall(QMetaObject::Call, int, void **);
@@ -116,7 +117,7 @@ private:
     virtual const QMetaObject *parentMetaObject() const = 0;
     int internalProperty(QMetaObject::Call, int index, void **v);
     int internalInvoke(QMetaObject::Call, int index, void **v);
-    bool dynamicCallHelper( const QString &name, void *out, QVariant var[], QString &type );
+    bool dynamicCallHelper( const QString &name, void *out, QList<QVariant> &var, QString &type );
 
     QString ctrl;
 };
