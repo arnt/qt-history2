@@ -341,24 +341,22 @@ bool QSQLiteResult::fetchFirst()
 
 QSqlVariant QSQLiteResult::data(int field)
 {
-    if (!isSelect() || !isValid())
+    int pos = d->forwardOnly ? 0 : at();
+
+    if (!isSelect() || !isValid() || pos >= d->rowCache.count())
         return QSqlVariant();
-   
-    if (d->forwardOnly)
-        return *(d->rowCache.at(0)->at(field));
-    else
-        return *(d->rowCache.at(at())->at(field));
+
+    return *(d->rowCache.at(pos)->at(field));
 }
 
 bool QSQLiteResult::isNull(int field)
 {
-    if (!isSelect() || !isValid())
+    int pos = d->forwardOnly ? 0 : at();
+
+    if (!isSelect() || !isValid() || pos >= d->rowCache.count())
         return FALSE;
-    
-    if (d->forwardOnly)
-        return d->rowCache.at(0)->at(field)->isNull();
-    else
-        return d->rowCache.at(at())->at(field)->isNull();
+
+    return d->rowCache.at(pos)->at(field)->isNull();
 }
 
 /*
