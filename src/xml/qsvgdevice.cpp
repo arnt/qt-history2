@@ -672,7 +672,8 @@ bool QSvgDevice::cmd ( int c, QPainter *painter, QPDevCmdParam *p )
 	// ### optimize application of attributes utilizing <g>
 	if ( dirtyStyle )		// only reset when entering
 	    applyStyle( &e, c );	// or leaving a <g> tag
-	if ( dirtyTransform && e.tagName() != "g" ) // same as above but not for <g> tags
+	if ( dirtyTransform && e.tagName() != "g" ) {
+	    // same as above but not for <g> tags
 	    applyTransform( &e );
 	    if ( c == PdcSave )
 		dirtyTransform = FALSE;
