@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of an example program for Qt.  This example
 ** program may be used, distributed and modified without limitation.
@@ -84,8 +84,8 @@ HelpWindow::HelpWindow( const QString& home_, const QString& _path,
     go->insertItem( icon_home, tr("&Home"), browser, SLOT( home() ) );
 
     QPopupMenu* help = new QPopupMenu( this );
-    help->insertItem( tr("&About ..."), this, SLOT( about() ) );
-    help->insertItem( tr("About &Qt ..."), this, SLOT( aboutQt() ) );
+    help->insertItem( tr("&About"), this, SLOT( about() ) );
+    help->insertItem( tr("About &Qt"), this, SLOT( aboutQt() ) );
 
     hist = new QPopupMenu( this );
     QStringList::Iterator it = history.begin();
