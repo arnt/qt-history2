@@ -1088,8 +1088,7 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
             p->fillRect(opt->rect, fill);
         }
         break; }
-    case PE_PanelButtonBevel:
-    case PE_FrameButtonBevel:
+    case PE_PanelButtonCommand:
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             bool panel = pe == PE_PanelButtonBevel;
             QBrush fill;
@@ -1371,17 +1370,25 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, 
         if (opt->state & (Style_Open | Style_Children | Style_Item | Style_Sibling))
             p->fillRect(mid_h, opt->rect.y(), 1, bef_v - opt->rect.y(), brush);
         break; }
+    case PE_FrameButtonBevel:
+    case PE_PanelButtonBevel:
     case PE_PanelHeader: {
         QBrush fill;
+        bool panel = pe != PE_FrameButtonBevel;
         if (!(opt->state & Style_Down) && (opt->state & Style_On))
             fill = QBrush(opt->palette.light().color(), Qt::Dense4Pattern);
         else
             fill = opt->palette.brush(QPalette::Button);
 
-        if (opt->state & (Style_Raised | Style_Down | Style_On | Style_Sunken))
-            qDrawWinButton(p, opt->rect, opt->palette, opt->state & (Style_Down | Style_On), &fill);
-        else
-            p->fillRect(opt->rect, fill);
+        if (opt->state & (Style_Raised | Style_Down | Style_On | Style_Sunken)) {
+            qDrawWinButton(p, opt->rect, opt->palette, opt->state & (Style_Down | Style_On),
+                           panel ? &fill : 0);
+        } else {
+            if (panel)
+                p->fillRect(opt->rect, fill);
+            else
+                p->drawRect(opt->rect);
+        }
         break; }
 #if defined(Q_WS_WIN)
     case PE_IndicatorHeaderArrow:

@@ -132,6 +132,7 @@ public:
         PE_FrameButtonBevel,
         PE_FrameButtonTool,
 
+        PE_PanelButtonCommand,
         PE_PanelButtonBevel,
         PE_PanelButtonTool,
         PE_PanelHeader,

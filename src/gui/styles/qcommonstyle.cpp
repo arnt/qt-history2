@@ -177,6 +177,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         qDrawShadeRect(p, opt->rect, opt->palette,
                        opt->state & (Style_Sunken | Style_Down | Style_On), 1, 0);
         break;
+    case PE_PanelButtonCommand:
     case PE_PanelButtonBevel:
     case PE_PanelButtonTool:
     case PE_IndicatorButtonDropDown:
@@ -638,7 +639,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 || btn->state & (Style_Down | Style_On)) {
                 QStyleOptionButton tmpBtn = *btn;
                 tmpBtn.rect = br;
-                drawPrimitive(PE_PanelButtonBevel, &tmpBtn, p, widget);
+                drawPrimitive(PE_PanelButtonCommand, &tmpBtn, p, widget);
             }
             if (btn->features & QStyleOptionButton::HasMenu) {
                 int mbi = pixelMetric(PM_MenuButtonIndicator, btn, widget);
@@ -1162,7 +1163,7 @@ void QCommonStyle::drawControlMask(ControlElement ce, const QStyleOption *opt, Q
         if (const QStyleOptionButton *btn = qt_cast<const QStyleOptionButton *>(opt)) {
             QStyleOptionButton newBtn = *btn;
             newBtn.palette = pal;
-            drawPrimitive(PE_PanelButtonBevel, &newBtn, p, w);
+            drawPrimitive(PE_PanelButtonCommand, &newBtn, p, w);
         }
         break;
     case CE_RubberBand:
