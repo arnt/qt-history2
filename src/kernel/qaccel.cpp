@@ -320,7 +320,7 @@ bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
     // Needs to be declared and used here because of "goto doclash"
     QStatusBar* mainStatusBar = 0;
 
-    // Accelerators can NOT be modifiers themselvs...
+    // Modifiers can NOT be accelerators...
     if ( e->key() >= Key_Shift &&
 	 e->key() <= Key_Alt )
 	 return FALSE;
