@@ -21,7 +21,7 @@
 #endif
 
 
-#define QT_VERSION_STR   "4.0.0-b1"
+#define QT_VERSION_STR   "4.0.0-b2"
 /*
    QT_VERSION is (major << 16) + (minor << 8) + patch.
  */
@@ -1700,8 +1700,8 @@ inline QForeachContainer<T> *qForeachContainer(const T &, U &memory)
 
 template <typename T, typename U>
 inline void qForeachContainerNew(const T& t, U &memory)
-{   
-    new (memory.padding) QForeachContainer<T>(t); 
+{
+    new (memory.padding) QForeachContainer<T>(t);
 }
 
 #define Q_FOREACH(variable, container) \
