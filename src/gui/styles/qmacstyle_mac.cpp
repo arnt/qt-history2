@@ -4959,6 +4959,19 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
     }
 }
 
+void QMacStyle::drawControlMask(ControlElement ce, const QStyleOption *opt, QPainter *p,
+                                const QWidget *w) const
+{
+    switch (ce) {
+    default:
+        QWindowsStyle::drawControlMask(ce, opt, p, w);
+        break;
+    case CE_RubberBand:
+        p->fillRect(opt->rect, Qt::color1);
+        break;
+    }
+}
+
 /*! \reimp */
 QRect QMacStyle::subRect(SubRect sr, const QStyleOption *opt, const QWidget *w) const
 {
