@@ -61,25 +61,34 @@ void QDir::slashify( QString& n )
 
 QString QDir::homeDirPath()
 {
-    LPMALLOC pIMalloc = 0;
-    HRESULT res = SHGetMalloc( &pIMalloc );
-    Q_ASSERT( pIMalloc );
-
     typedef HRESULT (WINAPI *PtrSHGetSpecialFolderLocation)(HWND,int,LPITEMIDLIST*); 
+    typedef BOOL    (WINAPI *PtrSHGetPathFromIDList)(LPCITEMIDLIST,LPSTR); 
+    typedef HRESULT (WINAPI *PtrSHGetMalloc)(LPMALLOC*); 
+
     static PtrSHGetSpecialFolderLocation ptrSHGetSpecialFolderLocation= 0;
+    static PtrSHGetPathFromIDList ptrSHGetPathFromIDList = 0;
+    static PtrSHGetMalloc ptrSHGetMalloc = 0;
+
+
     static bool shGSFLLookup = FALSE;
     if ( !shGSFLLookup ) {
 	shGSFLLookup = TRUE;
 	ptrSHGetSpecialFolderLocation = (PtrSHGetSpecialFolderLocation)QLibrary::resolve( "ceshell", "SHGetSpecialFolderLocation" );
+	ptrSHGetPathFromIDList = (PtrSHGetPathFromIDList)QLibrary::resolve( "ceshell", "SHGetPathFromIDList" );
+	ptrSHGetMalloc = (PtrSHGetMalloc)QLibrary::resolve( "ceshell", "SHGetMalloc" );
     }
 
     if ( ptrSHGetSpecialFolderLocation ) {
+	LPMALLOC pIMalloc = 0;
+	HRESULT res = ptrSHGetMalloc( &pIMalloc );
+	Q_ASSERT( pIMalloc );
+
 	LPITEMIDLIST il;
-	if ( NOERROR != SHGetSpecialFolderLocation( 0, CSIDL_PERSONAL, &il ) ) 
+	if ( NOERROR != ptrSHGetSpecialFolderLocation( 0, CSIDL_PERSONAL, &il ) ) 
 	    return QString::null;
-	TCHAR Path[ MAX_PATH ];
-	SHGetPathFromIDList( il, Path ); 
-	QString d = QString::fromUcs2( Path );
+	char Path[ MAX_PATH ];
+	ptrSHGetPathFromIDList( il, Path ); 
+	QString d = QString::fromLocal8Bit( Path );
 	pIMalloc->Free( il );
 	slashify( d );
 	return d;
