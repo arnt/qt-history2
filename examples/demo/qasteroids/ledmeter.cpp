@@ -9,7 +9,6 @@
 
 KALedMeter::KALedMeter( QWidget *parent ) : QFrame( parent )
 {
-    mCRanges.setAutoDelete( TRUE );
     mRange = 100;
     mCount = 20;
     mCurrentCount = 0;
@@ -54,9 +53,9 @@ void KALedMeter::setValue( int v )
 
 void KALedMeter::addColorRange( int pc, const QColor &c )
 {
-    ColorRange *cr = new ColorRange;
-    cr->mPc = pc;
-    cr->mColor = c;
+    ColorRange cr;
+    cr.mPc = pc;
+    cr.mColor = c;
     mCRanges.append( cr );
     calcColorRanges();
 }
@@ -79,8 +78,8 @@ void KALedMeter::drawContents( QPainter *p )
 
     if ( !mCRanges.isEmpty() )
     {
-        col = mCRanges.at( cidx )->mColor;
-        ncol = mCRanges.at( cidx )->mValue;
+        col = mCRanges.at( cidx ).mColor;
+        ncol = mCRanges.at( cidx ).mValue;
     }
     p->setBrush( col );
     p->setPen( col );
@@ -93,8 +92,8 @@ void KALedMeter::drawContents( QPainter *p )
         {
             if ( ++cidx < mCRanges.count() )
             {
-                col = mCRanges.at( cidx )->mColor;
-                ncol = mCRanges.at( cidx )->mValue;
+                col = mCRanges.at( cidx ).mColor;
+                ncol = mCRanges.at( cidx ).mValue;
                 p->setBrush( col );
                 p->setPen( col );
             }
@@ -107,12 +106,11 @@ void KALedMeter::drawContents( QPainter *p )
 void KALedMeter::calcColorRanges()
 {
     int prev = 0;
-    ColorRange *cr;
     for (int i = 0; i < mCRanges.size(); ++i)
     {
-	cr = mCRanges.at(i);
-        cr->mValue = prev + cr->mPc * mCount / 100;
-        prev = cr->mValue;
+	ColorRange &cr = mCRanges[i];
+        cr.mValue = prev + cr.mPc * mCount / 100;
+        prev = cr.mValue;
     }
 }
 

@@ -72,11 +72,6 @@ KAsteroidsView::KAsteroidsView( QWidget *parent, const char *name )
     view.setVScrollBarMode( QScrollView::AlwaysOff );
     view.setHScrollBarMode( QScrollView::AlwaysOff );
     view.viewport()->setFocusProxy( this );
-    rocks.setAutoDelete( TRUE );
-    missiles.setAutoDelete( TRUE );
-    bits.setAutoDelete( TRUE );
-    powerups.setAutoDelete( TRUE );
-    exhaust.setAutoDelete( TRUE );
 
     field.setBackgroundColor( black );
     QPixmap pm( IMG_BACKGROUND );
@@ -115,6 +110,11 @@ KAsteroidsView::KAsteroidsView( QWidget *parent, const char *name )
 
 KAsteroidsView::~KAsteroidsView()
 {
+    qDeleteAll(rocks);
+    qDeleteAll(missiles);
+    qDeleteAll(bits);
+    qDeleteAll(powerups);
+    qDeleteAll(exhaust);
 }
 
 // - - -

@@ -47,7 +47,7 @@ protected:
     int mCount;
     int mCurrentCount;
     int mValue;
-    QList<ColorRange *> mCRanges;
+    QList<ColorRange> mCRanges;
 };
 
 #endif
