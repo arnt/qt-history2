@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#71 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#72 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -32,7 +32,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#71 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#72 $";
 #endif
 
 
@@ -1527,7 +1527,7 @@ static int KeyTbl[] = {				// keyboard mapping table
 bool QETWidget::translateKeyEvent( const XEvent *event )
 {
     int	   type;
-    int	   code = 0;
+    int	   code = -1;
     char   ascii[16]; // 16 for no real reason :)
     int	   count;
     int	   state;
@@ -1540,9 +1540,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event )
 
     // commentary in X11/keysymdef says that X codes match ASCII, so it
     // is safe to use the locale functions to process X codes
-    if ( key < 256 && isprint(key)) {
-	code = toupper(key);
-    }
+    code = ( key < 256 && isprint(key)) ? toupper(key) : 0;
     else
     if ( key >= XK_F1 && key <= XK_F24 )	// function keys
 	code = Key_F1 + ((int)key - XK_F1);	// assumes contiguous codes!
@@ -1563,7 +1561,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event )
 	}
     }
 #if 0 //defined(DEBUG)
-    if ( code == 0 ) {				// cannot translate keysym
+    if ( code < 0 ) {				// cannot translate keysym
 	debug( "translateKey: No translation for X keysym %s (0x%x)",
 	       XKeysymToString(XLookupKeysym(&((XEvent*)event)->xkey,0)),
 	       key );
