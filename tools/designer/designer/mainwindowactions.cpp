@@ -355,7 +355,8 @@ void MainWindow::setupLayoutActions()
     connect( actionEditBreakLayout, SIGNAL( activated() ), this, SLOT( editBreakLayout() ) );
 
     int id = WidgetDatabase::idFromClassName( "Spacer" );
-    QAction* a = new QAction( actionGroupTools, QString::number( id ).latin1() );
+    QAction* a = new WidgetAction( actionGroupTools, QString::number( id ).latin1() );
+    actionSpacer = a;
     a->setToggleAction( TRUE );
     a->setText( WidgetDatabase::className( id ) );
     a->setMenuText( tr( "Add ") + WidgetDatabase::className( id ) );
@@ -368,7 +369,8 @@ void MainWindow::setupLayoutActions()
 	.arg(WidgetDatabase::toolTip( id ))
 	.arg(WidgetDatabase::whatsThis( id ))
 	.arg(WidgetDatabase::toolTip( id ) ));
-
+    actionSpacer->addTo( commonWidgetsToolBar );
+    commonWidgetsToolBar->setStretchableWidget( new QWidget( commonWidgetsToolBar ) );
     QWhatsThis::add( layoutToolBar, tr( "<b>The Layout toolbar</b>%1" ).arg(tr(toolbarHelp).arg("")) );
     actionEditAdjustSize->addTo( layoutToolBar );
     layoutToolBar->addSeparator();
@@ -530,7 +532,6 @@ void MainWindow::setupToolActions()
 	    if ( WidgetDatabase::isCommon( i ) )
 		a->addTo( commonWidgetsToolBar );
 	}
-	commonWidgetsToolBar->setStretchableWidget( new QWidget( commonWidgetsToolBar ) );
 	tb2->setStretchableWidget( new QWidget( tb2 ) );
     }
 

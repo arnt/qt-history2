@@ -407,6 +407,7 @@ private:
     QAction *actionEditSource, *actionNewFile, *actionFileSave, *actionFileExit;
     QAction *actionSearchFind, *actionSearchIncremetal, *actionSearchReplace, *actionSearchGotoLine;
     QActionGroup *actionGroupNew;
+    QAction *actionSpacer;
 
     QPopupMenu *rmbWidgets;
     QPopupMenu *rmbFormWindow;
