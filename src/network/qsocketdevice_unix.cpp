@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#27 $
+** $Id: //depot/qt/main/src/network/qsocketdevice_unix.cpp#28 $
 **
 ** Implementation of QSocketDevice class.
 **
@@ -185,17 +185,30 @@
 
 #else // ### remove before 3.0
 
+// The definition of the getsockopt() function in POSIX.1g Draft 6.6 and
+// XPG5 / XNS5.0 uses a socklen_t data type instead of a size_t data type
+// as specified in XNS4.0 / XPG4v2.
+
+// ### Where there are drafts, there is mess. May have to partially
+// ### test the OS version to specify the correct SOCKLEN_T.
+
 #include <unistd.h>
-#if defined(_XOPEN_UNIX)
-// XPG5 is supported
-#  define SOCKLEN_T socklen_t
-#elif defined(_XOPEN_XPG4)
-// XPG4 is supported
-#  define SOCKLEN_T size_t
-#elif defined(BSD4_4)
+#if defined(BSD4_4)
 // BSD 4.4 - FreeBSD at least
 #  define SOCKLEN_T socklen_t
+#elif defined(_XOPEN_SOURCE)
+// XPG3 is supported
+#  if _XOPEN_SOURCE >= 500
+// XPG5 is supported
+#    define SOCKLEN_T socklen_t
+#  elif _XOPEN_SOURCE >= 420
+// XPG4v2 is supported
+#    define SOCKLEN_T size_t
+#  else
+#    define SOCKLEN_T int
+#  endif
 #else
+// fall out
 #  define SOCKLEN_T int
 #endif
 
