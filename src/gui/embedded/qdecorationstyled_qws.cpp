@@ -127,11 +127,15 @@ bool QDecorationStyled::paint(QPainter *painter, const QWidget *widget, int deco
         opt.text = widget->windowTitle();
         opt.palette = pal;
 
+#ifndef QT_QWS_NO_BACKING_STORE
+        opt.rect = QRect(widget->rect().x(), -titleHeight, widget->rect().width(), titleHeight);
+#else
         QRect titleRect(widget->rect().x(), -titleHeight, widget->rect().width(), titleHeight);
         opt.rect = QRect(QPoint(0,0), titleRect.size());
         QPixmap pm(titleRect.size());
         QPainter p;
         p.begin(&pm);
+#endif
         // If we're not painting all, then lets clip to only those who are not painted
         if (!paintAll) {
             const QRect widgetRect = widget->rect();
@@ -154,10 +158,15 @@ bool QDecorationStyled::paint(QPainter *painter, const QWidget *widget, int deco
         if (state == Pressed)
             opt.activeSubControls = opt.subControls;
 
+#ifndef QT_QWS_NO_BACKING_STORE
+        painter->setFont(widget->font());
+        style->drawComplexControl(QStyle::CC_TitleBar, &opt, painter, widget);
+#else
         p.setFont(widget->font());
         style->drawComplexControl(QStyle::CC_TitleBar, &opt, &p, widget);
         p.end();
         painter->drawPixmap(titleRect.topLeft(), pm);
+#endif
         painter->restore();
 
         decorationRegion &= ~(Title | Menu | Help | Minimize | Maximize | Close);

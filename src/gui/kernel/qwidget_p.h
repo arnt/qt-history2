@@ -99,6 +99,10 @@ struct QTLWExtra {
     QRegion decor_allocated_region; // decoration allocated region
     QWSManager *qwsManager;
 #endif
+#if defined Q_WS_QWS
+    QPixmap backingStore;
+    QPoint backingStoreOffset;
+#endif
 #if defined(Q_WS_WIN)
     HICON winIconBig; // internal big Windows icon
     HICON winIconSmall; // internal small Windows icon
@@ -234,7 +238,14 @@ public:
     QRegion requestedRegion() const;
     QRegion allocatedRegion() const;
     QRegion paintableRegion() const;
+    void requestWindowRegion(const QRegion &r);
 
+    void doPaint(const QRegion &rgn);
+
+#ifndef QT_QWS_NO_BACKING_STORE
+    void bltToScreen(const QRegion &rgn);
+    void paintHierarchy();
+#endif
 #ifndef QT_NO_CURSOR
     void updateCursor(const QRegion &r) const;
 #endif

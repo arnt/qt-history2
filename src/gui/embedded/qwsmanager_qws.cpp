@@ -388,6 +388,27 @@ bool QWSManager::repaintRegion(int decorationRegion, QDecoration::DecorationStat
     if (d->managed->testAttribute(Qt::WA_WState_InPaintEvent))
         qWarning("QWSManager::paintEvent() recursive paint event detected");
     d->managed->setAttribute(Qt::WA_WState_InPaintEvent);
+
+#ifndef QT_QWS_NO_BACKING_STORE
+    QTLWExtra *topextra = d->managed->d->extra->topextra;
+    QPixmap *buf = &topextra->backingStore;
+    if (buf->isNull()) {
+        qDebug("QWSManager::repaintRegion empty buf");
+        d->managed->setAttribute(Qt::WA_WState_InPaintEvent, false);
+        return false;
+    }
+    QPainter painter;
+    painter.begin(buf);
+    painter.setClipRegion(dec.region(d->managed, d->managed->rect().translated(-topextra->backingStoreOffset )));
+    //  painter.setClipRegion(QRect(QPoint(0,0),d->managed->frameSize()));//###
+
+    painter.translate(-topextra->backingStoreOffset);
+
+    result = dec.paint(&painter, d->managed, decorationRegion, state);
+    painter.end();
+
+    d->managed->d->bltToScreen(dec.region(d->managed, d->managed->geometry()) );
+#else
     QPainter painter(d->managed);
 
     // Adjust our widget region to contain the window
@@ -415,7 +436,7 @@ bool QWSManager::repaintRegion(int decorationRegion, QDecoration::DecorationStat
 
     painter.setClipRegion(dec.region(d->managed, d->managed->rect()));
     result = dec.paint(&painter, d->managed, decorationRegion, state);
-
+#endif
     d->managed->setAttribute(Qt::WA_WState_InPaintEvent, false);
     return result;
 }

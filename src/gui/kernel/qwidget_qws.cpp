@@ -31,7 +31,12 @@
 #include "qwsmanager_qws.h"
 #include "qwsregionmanager_qws.h"
 
-#include <private/qpaintengine_qws_p.h>
+#include <private/qpaintengine_qws_p.h> //### this one goes away very soon
+
+#include <qgfxraster_qws.h>
+
+
+#include "qdebug.h"
 
 #include "qwidget_p.h"
 #define d d_func()
@@ -619,6 +624,7 @@ void QWidget::update(const QRect &r)
     }
 }
 
+#ifdef QT_QWS_NO_BACKING_STORE
 struct QWSDoubleBuffer
 {
     enum {
@@ -695,18 +701,112 @@ static void qt_qws_release_double_buffer(QWSDoubleBuffer **db)
         qt_global_double_buffer_active = false;
 }
 
+#endif
+
+
+#ifndef QT_QWS_NO_BACKING_STORE
+void QWidgetPrivate::bltToScreen(const QRegion &globalrgn)
+{
+    static QGfx *gfx = 0;
+    if ( !gfx)
+        gfx = qt_screen->screenGfx();
+
+
+//take the logic from QWSPaintEngine::begin
+    QWidget *win = q->window();
+
+//     QPoint globalpos=q->mapToGlobal(QPoint(0,0));
+//     QRegion cliprgn = rgn;
+//     cliprgn.translate(globalpos);
+
+    QTLWExtra *topextra = win->d->extra->topextra;
+    QPixmap *buf = &topextra->backingStore;
+    QPoint bsoffs = topextra->backingStoreOffset;
+
+    QPoint topLeft = win->pos();
+
+    gfx->setWidgetDeviceRegion(globalrgn);
+
+    gfx->setClipRegion(QRegion(), Qt::NoClip);
+
+
+    gfx->setSource(buf);
+    gfx->setAlphaType(QGfx::IgnoreAlpha);
+
+    gfx->blt(topLeft.x(),topLeft.y(), buf->width(), buf->height(), 0, 0);
+}
+#endif
+
+
+void QWidgetPrivate::paintHierarchy()
+{
+#if 0 //DEBUG
+    static bool painting = false;
+    bool outermost = !painting;
+    if (outermost)
+        qDebug(">>>>> paintHierarchy %p START", q);
+    painting = true;
+#endif
+    doPaint(q->rect());
+
+    for (int i = 0; i < children.size(); ++i) {
+        register QObject *obj=children.at(i);
+        if (obj->isWidgetType()) {
+            QWidget* w = static_cast<QWidget*>(obj);
+            if (w->isVisible() && !w->isWindow())
+                w->d->paintHierarchy();
+        }
+    }
+#if 0 //DEBUG
+    if (outermost) {
+        qDebug("<<<<<< paintHierarchy %p END", q);
+        painting = false;
+    }
+#endif
+}
+
+
+
+
+
 void QWidget::repaint(const QRegion& rgn)
 {
     if (!isVisible() || !updatesEnabled() || !testAttribute(Qt::WA_Mapped) || rgn.isEmpty())
         return;
+#ifdef QT_QWS_NO_BACKING_STORE
+    d->doPaint(rgn);
+#else
+    QRegion globalrgn = rgn;
+    QPoint globalPos = mapToGlobal(QPoint(0,0));
+    globalrgn.translate(globalPos);
+    globalrgn &= d->paintableRegion();
 
-    if (testAttribute(Qt::WA_WState_InPaintEvent))
+    QRegion repaintRgn = globalrgn;
+    repaintRgn.translate(-globalPos);
+
+    d->doPaint(repaintRgn);
+
+    d->bltToScreen(globalrgn);
+#endif
+
+    if (testAttribute(Qt::WA_ContentsPropagated))
+        d->updatePropagatedBackground(&rgn);
+}
+
+void QWidgetPrivate::doPaint(const QRegion &rgn)
+{
+
+    qDebug("doPaint %p child of %p", q, q->parentWidget());
+
+
+    if (q->testAttribute(Qt::WA_WState_InPaintEvent))
         qWarning("QWidget::repaint: recursive repaint detected.");
 
-    setAttribute(Qt::WA_WState_InPaintEvent);
+    q->setAttribute(Qt::WA_WState_InPaintEvent);
 
     QRect br = rgn.boundingRect();
-    bool do_clipping = (br != QRect(0, 0, data->crect.width(), data->crect.height()));
+    bool do_clipping = (br != QRect(0, 0, data.crect.width(), data.crect.height()));
+#ifdef QT_QWS_NO_BACKING_STORE
     bool double_buffer = !qt_override_paint_on_screen &&
                          (!testAttribute(Qt::WA_PaintOnScreen)
                           && !testAttribute(Qt::WA_NoSystemBackground)
@@ -721,9 +821,15 @@ void QWidget::repaint(const QRegion& rgn)
         redirectionOffset = br.topLeft();
         QPainter::setRedirected(this, qDoubleBuffer->hd, redirectionOffset);
     }
+#else
+    QWidget *tlw = q->window();
+    QTLWExtra *topextra = tlw->d->extra->topextra;
+    QPoint redirectionOffset = topextra->backingStoreOffset + q->mapFrom(tlw,QPoint(0,0));
+    QPainter::setRedirected(q, &topextra->backingStore, redirectionOffset);
+#endif
 
     QPainter p; // We'll use it several times
-
+#ifdef QT_QWS_NO_BACKING_STORE
     // Set clipping
     if (do_clipping) {
         if (redirectionOffset.isNull()) {
@@ -734,18 +840,30 @@ void QWidget::repaint(const QRegion& rgn)
             paintEngine()->setSystemClip(redirectionRegion);
         }
     }
+#else
+    //###### clipping
+    QRegion clipRegion(rgn);
+    clipRegion.translate(-redirectionOffset);
+    topextra->backingStore.paintEngine()->setSystemClip(clipRegion);
 
-    if (!testAttribute(Qt::WA_NoBackground) && !testAttribute(Qt::WA_NoSystemBackground))
-        d->composeBackground(br);
+#endif
+    if (!q->testAttribute(Qt::WA_NoBackground) && !q->testAttribute(Qt::WA_NoSystemBackground))
+        composeBackground(br);
 
     // Send paint event to self
     QPaintEvent e(rgn);
-    QApplication::sendSpontaneousEvent(this, &e);
-
+    QApplication::sendSpontaneousEvent(q, &e);
+#ifdef QT_QWS_NO_BACKING_STORE
     // Clear the clipping again
     if (do_clipping)
         paintEngine()->setSystemClip(QRegion());
+#else
+    topextra->backingStore.paintEngine()->setSystemClip(QRegion());
+#endif
 
+#ifndef QT_QWS_NO_BACKING_STORE
+    QPainter::restoreRedirected(q);
+#else
     // Flush double buffer, if used
     if (double_buffer) {
         QPainter::restoreRedirected(this);
@@ -769,20 +887,37 @@ void QWidget::repaint(const QRegion& rgn)
             qt_double_buffer_timer = qApp->startTimer(500);
         }
     }
+#endif
 
     // Clean out the temporary engine if used...
-    if (d->extraPaintEngine) {
-        delete d->extraPaintEngine;
-        d->extraPaintEngine = 0;
+    if (extraPaintEngine) {
+        delete extraPaintEngine;
+        extraPaintEngine = 0;
     }
 
-    setAttribute(Qt::WA_WState_InPaintEvent, false);
+    q->setAttribute(Qt::WA_WState_InPaintEvent, false);
 
-    if(!testAttribute(Qt::WA_PaintOutsidePaintEvent) && paintingActive())
+    if(!q->testAttribute(Qt::WA_PaintOutsidePaintEvent) && q->paintingActive())
         qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");
+}
 
-    if (testAttribute(Qt::WA_ContentsPropagated))
-        d->updatePropagatedBackground(&rgn);
+
+void QWidgetPrivate::requestWindowRegion(const QRegion &r)
+{
+    q->qwsDisplay()->requestRegion(data.winid, r);
+#ifndef QT_QWS_NO_BACKING_STORE
+    Q_ASSERT(extra && extra->topextra);
+    QRect br = r.boundingRect();
+    if (extra->topextra->backingStore.size() != br.size()) {
+        extra->topextra->backingStore = QPixmap(br.size());
+#if 0 //DEBUG
+        extra->topextra->backingStore.fill(QColor(Qt::yellow));
+        qDebug() << "backingStore size" << br.size() << "offset" << br.topLeft() - q->geometry().topLeft();
+#endif
+    }
+    extra->topextra->backingStoreOffset = br.topLeft() - q->geometry().topLeft();
+    paintHierarchy();
+#endif
 }
 
 void QWidgetPrivate::show_sys()
@@ -797,7 +932,7 @@ void QWidgetPrivate::show_sys()
             r += wmr;
         }
 #endif
-        q->qwsDisplay()->requestRegion(data.winid, r);
+        requestWindowRegion(r);
         if (q->windowType() != Qt::Popup
             && q->windowType() != Qt::Tool
             && q->windowType() != Qt::ToolTip ) {
@@ -826,7 +961,7 @@ void QWidgetPrivate::hide_sys()
 
     if (q->isWindow()) {
         q->releaseMouse();
-        q->qwsDisplay()->requestRegion(data.winid, QRegion());
+        requestWindowRegion(QRegion());
         q->qwsDisplay()->requestFocus(data.winid,false);
     } else {
         QWidget *p = q->parentWidget();
@@ -1032,7 +1167,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
                     rgn += wmr;
                 }
 #endif
-                q->qwsDisplay()->requestRegion(data.winid, rgn);
+                requestWindowRegion(rgn);
                 if (d->extra && d->extra->topextra) {
                     QRect br(rgn.boundingRect());
                     br = qt_screen->mapFromDevice(br, QSize(qt_screen->deviceWidth(), qt_screen->deviceHeight()));
@@ -1605,7 +1740,7 @@ void QWidget::setMask(const QRegion& region)
                 rgn += wmr;
             }
 #endif
-            qwsDisplay()->requestRegion(winId(), rgn);
+            d->requestWindowRegion(rgn);
         } else {
             d->updateRequestedRegion(mapToGlobal(QPoint(0,0)));
             parentWidget()->data->paintable_region_dirty = true;
@@ -1688,6 +1823,8 @@ static QWSPaintEngine *qt_widget_paintengine = 0;
 */
 QPaintEngine *QWidget::paintEngine() const
 {
+    qWarning("QWidget::paintEngine() should no longer be called");
+
     if (!qt_widget_paintengine) {
         qt_widget_paintengine = new QWSPaintEngine();
         qt_paintengine_cleanup_handler.set(&qt_widget_paintengine);
