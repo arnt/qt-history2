@@ -40,11 +40,12 @@
 
 #include <qlistbox.h>
 
+#ifndef QT_NO_REMOTE
 class QTestListBox : public QListBox
 {
 public:
     bool index2MousePos(int item, QPoint& mouse_pos);
     bool index2MousePos(const QString& itemText, int item, QPoint& mouse_pos);
 };
-
+#endif
 #endif

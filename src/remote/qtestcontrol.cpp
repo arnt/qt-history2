@@ -36,6 +36,9 @@
 **********************************************************************/
 
 #include <qapplication.h>
+
+#ifndef QT_NO_REMOTE
+
 #include <qdatetime.h>
 #include <qcursor.h>
 #include <qlistbox.h>
@@ -1595,3 +1598,5 @@ void QTestControl::rDebug(const QString msg)
     S.send(m_socket);
 #endif
 }
+
+#endif //QT_NO_REMOTE

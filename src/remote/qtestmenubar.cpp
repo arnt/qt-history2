@@ -37,6 +37,8 @@
 
 #include "qtestmenubar_p.h"
 
+#ifndef QT_NO_REMOTE
+
 /*!
   \class QTestMenuBar qtestmenubar.h
   \brief The QTestMenuBar class is an extension to QMenuBar and introduces
@@ -241,3 +243,4 @@ int QTestMenuBar::calculateItemRects (QRect* &item_rects)
 # undef irects
 }
 */
+#endif //QT_NO_REMOTE

@@ -2,6 +2,8 @@
 #define QTESTWIDGETS_P_H
 
 #include <qobject.h>
+
+#ifndef QT_NO_REMOTE
 #include <qstring.h>
 #include <qstringlist.h>
 #include <qintdict.h>
@@ -84,4 +86,5 @@ public slots:
 
 };
 
+#endif
 #endif

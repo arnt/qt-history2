@@ -39,7 +39,7 @@
 #define QTESTPOPUPMENU_H
 
 #include <qpopupmenu.h>
-
+#ifndef QT_NO_REMOTE
 class QTestPopupMenu : public QPopupMenu
 {
 public:
@@ -47,5 +47,5 @@ public:
     bool index2MousePos(const QString& menu_text, QPoint &mouse_pos);
     bool mousePos2Index( const QPoint &pos, int &index );
 };
-
+#endif
 #endif

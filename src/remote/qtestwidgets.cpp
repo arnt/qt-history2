@@ -1,5 +1,5 @@
 #include "qtestwidgets_p.h"
-
+#ifndef QT_NO_REMOTE
 #include <qstring.h>
 #include "qapplication.h"
 #include <qobjectlist.h>
@@ -683,3 +683,4 @@ void QTestWidgets::onDestroyed( QObject *object )
     }
 }
 
+#endif

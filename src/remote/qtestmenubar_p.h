@@ -40,6 +40,7 @@
 
 #include <qmenubar.h>
 
+#ifndef QT_NO_REMOTE
 class QTestMenuBar : public QMenuBar
 {
 public:
@@ -49,6 +50,6 @@ public:
 private:
 //    int calculateItemRects (QRect* &item_rects);
 };
-
+#endif
 
 #endif

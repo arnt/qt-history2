@@ -36,6 +36,9 @@
 **********************************************************************/
 
 #include "qtestlistbox_p.h"
+
+#ifndef QT_NO_REMOTE
+
 #include "qtestcontrol_p.h"
 #include <qregexp.h>
 #include <stdlib.h>
@@ -143,3 +146,5 @@ bool QTestListBox::index2MousePos(const QString& itemText, int listItem, QPoint&
 
     return was_text_found;
 }
+
+#endif //QT_NO_REMOTE

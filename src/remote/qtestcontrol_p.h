@@ -38,8 +38,11 @@
 #ifndef QTESTCONTROL
 #define QTESTCONTROL
 
-#include <time.h>
 #include <qfile.h>
+
+#ifndef QT_NO_REMOTE
+
+#include <time.h>
 #include <qtextstream.h>
 #include <qstringlist.h>
 #include <qlistview.h>
@@ -165,5 +168,7 @@ private:
     void notify( QObject* event_widget, QEvent* event );
     void handleCommand( QRemoteMessage *msg );
 };
+
+#endif //QT_NO_REMOTE
 
 #endif

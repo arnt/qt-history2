@@ -37,6 +37,8 @@
 
 #define INCLUDE_MENUITEM_DEF
 #include "qtestpopupmenu_p.h"
+
+#ifndef QT_NO_REMOTE
 #include <qregexp.h>
 #include "qtestcontrol_p.h"
 
@@ -165,3 +167,4 @@ bool QTestPopupMenu::mousePos2Index( const QPoint &pos, int &index )
 
     return FALSE;
 }
+#endif
