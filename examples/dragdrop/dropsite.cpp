@@ -78,21 +78,6 @@ void DropSite::dropEvent( QDropEvent * e )
     setBackgroundColor(lightGray);
 
     // Try to decode to the data you understand...
-
-    QString str;
-    if ( QTextDrag::decode( e, str ) ) {
-	setText( str );
-	setMinimumSize( minimumSize().expandedTo( sizeHint() ) );
-	return;
-    }
-
-    QPixmap pm;
-    if ( QImageDrag::decode( e, pm ) ) {
-	setPixmap( pm );
-	setMinimumSize( minimumSize().expandedTo( sizeHint() ) );
-	return;
-    }
-
     QStrList strings;
     if ( QUriDrag::decode( e, strings ) ) {
 	QString m("Full URLs:\n");
@@ -105,6 +90,20 @@ void DropSite::dropEvent( QDropEvent * e )
 		m = m + "   " + *i + '\n';
 	}
 	setText( m );
+	setMinimumSize( minimumSize().expandedTo( sizeHint() ) );
+	return;
+    }
+
+    QString str;
+    if ( QTextDrag::decode( e, str ) ) {
+	setText( str );
+	setMinimumSize( minimumSize().expandedTo( sizeHint() ) );
+	return;
+    }
+
+    QPixmap pm;
+    if ( QImageDrag::decode( e, pm ) ) {
+	setPixmap( pm );
 	setMinimumSize( minimumSize().expandedTo( sizeHint() ) );
 	return;
     }
