@@ -43,26 +43,23 @@ void Window::createIcons()
 {
     QPixmap pixmap;
 
-    pixmap.load(":/images/config.png");
     OptionButton *configButton = new OptionButton(104, 104, 0, contentsWidget);
-    configButton->setIcon(QIcon(pixmap));
+    configButton->setIcon(QIcon(":/images/config.png"));
     configButton->setText(tr("Configuration"));
     configButton->setCheckable(true);
     configButton->setAutoExclusive(true);
     configButton->setChecked(true);
     configButton->move(0, 0);
 
-    pixmap.load(":/images/update.png");
     OptionButton *updateButton = new OptionButton(104, 104, 1, contentsWidget);
-    updateButton->setIcon(QIcon(pixmap));
+    updateButton->setIcon(QIcon(":/images/update.png"));
     updateButton->setText(tr("Update"));
     updateButton->setCheckable(true);
     updateButton->setAutoExclusive(true);
     updateButton->move(0, 104);
 
-    pixmap.load(":/images/query.png");
     OptionButton *queryButton = new OptionButton(104, 104, 2, contentsWidget);
-    queryButton->setIcon(QIcon(pixmap));
+    queryButton->setIcon(QIcon(":/images/query.png"));
     queryButton->setText(tr("Query"));
     queryButton->setCheckable(true);
     queryButton->setAutoExclusive(true);
