@@ -25,6 +25,9 @@ class Q_GUI_EXPORT QTreeView : public QAbstractItemView
     Q_DECLARE_PRIVATE(QTreeView)
     Q_PROPERTY(bool rootIsDecorated READ rootIsDecorated WRITE setRootIsDecorated)
     Q_PROPERTY(int indentation READ indentation WRITE setIndentation)
+    Q_PROPERTY(bool alternatingRowColors READ alternatingRowColors WRITE setAlternatingRowColors)
+    Q_PROPERTY(QColor oddRowColor READ oddRowColor WRITE setOddRowColor)
+    Q_PROPERTY(QColor evenRowColor READ evenRowColor WRITE setEvenRowColor)
 
 public:
     QTreeView(QWidget *parent = 0);
@@ -57,6 +60,15 @@ public:
     QModelIndex itemAbove(const QModelIndex &index) const;
     QModelIndex itemBelow(const QModelIndex &index) const;
 
+    void setAlternatingRowColors(bool enable);
+    bool alternatingRowColors() const;
+
+    void setOddRowColor(const QColor &odd);
+    QColor oddRowColor() const;
+
+    void setEvenRowColor(const QColor &even);
+    QColor evenRowColor() const;
+    
     void doItemsLayout();
     void reset();
 

@@ -457,6 +457,9 @@ void QTreeView::paintEvent(QPaintEvent *e)
     QModelIndex index;
     QModelIndex current = selectionModel()->currentIndex();
     QStyle::SFlags state = option.state;
+    bool alternate = d->alternatingColors;
+    QColor oddColor = d->oddColor;
+    QColor evenColor = d->evenColor;
 
     int t = area.top();
     int h = area.bottom() + 1;
@@ -474,6 +477,8 @@ void QTreeView::paintEvent(QPaintEvent *e)
         if (y + s >= t) {
             option.rect.setRect(0, y, 0, s);
             option.state = state|(items.at(i).open ? QStyle::Style_Open : QStyle::Style_Default);
+            if (alternate)
+                option.palette.setColor(QPalette::Base, i & 1 ? oddColor : evenColor);
             d->current = i;
             drawRow(&painter, option, index);
         }
@@ -500,7 +505,7 @@ void QTreeView::paintEvent(QPaintEvent *e)
 */
 
 void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
-                               const QModelIndex &index) const
+                        const QModelIndex &index) const
 {
     QStyleOptionViewItem opt = option;
     QBrush base = option.palette.base();
@@ -651,6 +656,56 @@ QModelIndex QTreeView::itemBelow(const QModelIndex &index) const
 {
     int vi = d->viewIndex(index);
     return d->modelIndex(d->below(vi));
+}
+
+/*!
+  \property QTreeView::alternatingRowColors
+  \brief whether to draw the background using alternating colors
+  
+  If this property is true, the item background will be drawn using
+  alternating colors, otherwise the background will be drawn using the QPalette::Base color.
+*/
+
+void QTreeView::setAlternatingRowColors(bool enable)
+{
+    d->alternatingColors = enable;
+    if (isVisible())
+        d->viewport->update();
+}
+
+bool QTreeView::alternatingRowColors() const
+{
+    return d->alternatingColors;
+}
+
+/*!
+  \property QTreeView::oddRowColor
+  \brief the color used to draw the background for odd rows
+*/
+
+void QTreeView::setOddRowColor(const QColor &odd)
+{
+    d->oddColor = odd;
+}
+
+QColor QTreeView::oddRowColor() const
+{
+    return d->oddColor;
+}
+
+/*!
+  \property QTreeView::evenRowColor
+  \brief the color used to draw the background for even rows
+*/
+
+void QTreeView::setEvenRowColor(const QColor &even)
+{
+    d->evenColor = even;
+}
+
+QColor QTreeView::evenRowColor() const
+{
+    return d->evenColor;
 }
 
 /*!
