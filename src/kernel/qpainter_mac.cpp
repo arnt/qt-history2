@@ -25,7 +25,6 @@
 #include <qptrstack.h>
 #include <qtextcodec.h>
 #include <qprinter.h>
-#include <private/qcomplextext_p.h>
 #include <private/qtextengine_p.h>
 #include <private/qfontengine_p.h>
 #include <private/qtextlayout_p.h>

@@ -17,7 +17,6 @@
 #include "qbitmap.h"
 #include "qpixmapcache.h"
 #include "qfontdata_p.h"
-#include "qcomplextext_p.h"
 #include "qtextcodec.h"
 #include "qmemorymanager_qws.h"
 #include "qwsdisplay_qws.h"

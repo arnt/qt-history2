@@ -284,7 +284,6 @@
 
 #if defined( QT_MOC_CPP ) || defined( QT_H_CPP )
 #include <private/qcom_p.h>
-#include "private/qcomplextext_p.h"
 #include <private/qfontdata_p.h>
 #include "qplatformdefs.h"
 #include "private/qfontengine_p.h"
@@ -304,7 +303,6 @@
 #include "private/qinternal_p.h"
 #include "private/qdir_p.h"
 #include "private/qtextengine_p.h"
-#include "private/qcomplextext_p.h"
 #include "private/qsharedmemory_p.h"
 #include "private/qprinter_p.h"
 #include "private/qsqldriverinterface_p.h"

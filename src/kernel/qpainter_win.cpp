@@ -23,7 +23,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include "qapplication_p.h"
-#include "qcomplextext_p.h"
 #include "qfontdata_p.h"
 #include "qt_windows.h"
 #include "qtextlayout_p.h"

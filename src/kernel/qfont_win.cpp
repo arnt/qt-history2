@@ -20,7 +20,6 @@
 #include "qfont.h"
 #include "qfontdata_p.h"
 #include "qfontengine_p.h"
-#include "qcomplextext_p.h"
 #include "qfontmetrics.h"
 #include "qfontinfo.h"
 

@@ -15,7 +15,6 @@
 #include "qpixmapcache.h"
 #include "qbitmap.h"
 #include "qapplication_p.h"
-#include "qcomplextext_p.h"
 
 //antialiasing
 #ifndef Q_WS_MACX
