@@ -16,7 +16,6 @@
 #include "qfileinfoengine.h"
 #include "qfileinfoengine_p.h"
 #include <qplatformdefs.h>
-#include <qlibrary.h>
 #include <qdir.h>
 
 #include <private/qmutexpool_p.h>
@@ -74,22 +73,22 @@ static void resolveLibs()
 
         triedResolve = true;
         if (QSysInfo::WindowsVersion & QSysInfo::WV_NT_based) {
-            QLibrary lib("advapi32");
-            ptrGetNamedSecurityInfoW = (PtrGetNamedSecurityInfoW) lib.resolve("GetNamedSecurityInfoW");
-            ptrLookupAccountSidW = (PtrLookupAccountSidW) lib.resolve("LookupAccountSidW");
-            ptrAllocateAndInitializeSid = (PtrAllocateAndInitializeSid) lib.resolve("AllocateAndInitializeSid");
-            ptrBuildTrusteeWithSidW = (PtrBuildTrusteeWithSidW) lib.resolve("BuildTrusteeWithSidW");
-            ptrBuildTrusteeWithNameW = (PtrBuildTrusteeWithNameW) lib.resolve("BuildTrusteeWithNameW");
-            ptrGetEffectiveRightsFromAclW = (PtrGetEffectiveRightsFromAclW) lib.resolve("GetEffectiveRightsFromAclW");
-            ptrFreeSid = (PtrFreeSid) lib.resolve("FreeSid");
+	    HINSTANCE advapiHnd = LoadLibraryW(L"advapi32");
+            ptrGetNamedSecurityInfoW = (PtrGetNamedSecurityInfoW)GetProcAddress(advapiHnd, "GetNamedSecurityInfoW");
+            ptrLookupAccountSidW = (PtrLookupAccountSidW)GetProcAddress(advapiHnd, "LookupAccountSidW");
+            ptrAllocateAndInitializeSid = (PtrAllocateAndInitializeSid)GetProcAddress(advapiHnd, "AllocateAndInitializeSid");
+            ptrBuildTrusteeWithSidW = (PtrBuildTrusteeWithSidW)GetProcAddress(advapiHnd, "BuildTrusteeWithSidW");
+            ptrBuildTrusteeWithNameW = (PtrBuildTrusteeWithNameW)GetProcAddress(advapiHnd, "BuildTrusteeWithNameW");
+            ptrGetEffectiveRightsFromAclW = (PtrGetEffectiveRightsFromAclW)GetProcAddress(advapiHnd, "GetEffectiveRightsFromAclW");
+            ptrFreeSid = (PtrFreeSid)GetProcAddress(advapiHnd, "FreeSid");
             if (ptrBuildTrusteeWithNameW) {
-                QLibrary versionLib("version");
+		HINSTANCE versionHnd = LoadLibraryW(L"version");
                 typedef DWORD (WINAPI *PtrGetFileVersionInfoSizeW)(LPWSTR lptstrFilename,LPDWORD lpdwHandle);
-                PtrGetFileVersionInfoSizeW ptrGetFileVersionInfoSizeW = (PtrGetFileVersionInfoSizeW)versionLib.resolve("GetFileVersionInfoSizeW");
+                PtrGetFileVersionInfoSizeW ptrGetFileVersionInfoSizeW = (PtrGetFileVersionInfoSizeW)GetProcAddress(versionHnd, "GetFileVersionInfoSizeW");
                 typedef BOOL (WINAPI *PtrGetFileVersionInfoW)(LPWSTR lptstrFilename,DWORD dwHandle,DWORD dwLen,LPVOID lpData);
-                PtrGetFileVersionInfoW ptrGetFileVersionInfoW = (PtrGetFileVersionInfoW)versionLib.resolve("GetFileVersionInfoW");
+                PtrGetFileVersionInfoW ptrGetFileVersionInfoW = (PtrGetFileVersionInfoW)GetProcAddress(versionHnd, "GetFileVersionInfoW");
                 typedef BOOL (WINAPI *PtrVerQueryValueW)(const LPVOID pBlock,LPWSTR lpSubBlock,LPVOID *lplpBuffer,PUINT puLen);
-                PtrVerQueryValueW ptrVerQueryValueW = (PtrVerQueryValueW)versionLib.resolve("VerQueryValueW");
+                PtrVerQueryValueW ptrVerQueryValueW = (PtrVerQueryValueW)GetProcAddress(versionHnd, "VerQueryValueW");
                 if (ptrGetFileVersionInfoSizeW && ptrGetFileVersionInfoW && ptrVerQueryValueW) {
                     DWORD fakeHandle;
                     DWORD versionSize = ptrGetFileVersionInfoSizeW(L"secur32.dll", &fakeHandle);
@@ -107,9 +106,9 @@ static void resolveLibs()
                                 wVer4 = LOWORD(pLocalInfo->dwFileVersionLS);
                                 // It will not work with secur32.dll version 5.0.2195.2862
                                 if (!(wVer1 == 5 && wVer2 == 0 && wVer3 == 2195 && (wVer4 == 2862 || wVer4 == 4587))) {
-                                    QLibrary userLib("secur32");
+				    HINSTANCE userHnd = LoadLibraryW(L"secur32");
                                     typedef BOOL (WINAPI *PtrGetUserNameExW)(EXTENDED_NAME_FORMAT nameFormat, ushort* lpBuffer, LPDWORD nSize);
-                                    PtrGetUserNameExW ptrGetUserNameExW = (PtrGetUserNameExW)userLib.resolve("GetUserNameExW");
+                                    PtrGetUserNameExW ptrGetUserNameExW = (PtrGetUserNameExW)GetProcAddress(userHnd, "GetUserNameExW");
                                     if (ptrGetUserNameExW) {
                                         static TCHAR buffer[258];
                                         DWORD bufferSize = 257;
