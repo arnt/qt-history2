@@ -193,6 +193,8 @@ void FormWindow::setMainWindow( MainWindow *w )
 
 void FormWindow::initSlots()
 {
+    if ( qstrcmp( name(), "qt_fakewindow" ) == 0 )
+	return;
     QString lang = "C++";
     if ( project() )
 	lang = project()->language();
