@@ -165,7 +165,7 @@ public:
 	AtWordBoundary,
 	Anywhere,
 	AtWhiteSpace = AtWordBoundary, // deprecated, don't use
-	PreferWordBoundary
+	AtWordOrDocumentBoundary
     };
 
     enum KeyboardAction {

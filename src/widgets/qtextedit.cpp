@@ -4432,7 +4432,7 @@ int QTextEdit::wrapColumnOrWidth() const
   newlines.
   \value Anywhere  Break anywhere, including within words.
   \value AtWordBoundary Don't use this deprecated value (it is a
-  \value PreferWordBoundary Break lines at whitespace, e.g. spaces or
+  \value AtWordOrDocumentBoundary Break lines at whitespace, e.g. spaces or
   newlines if possible. Break it anywhere otherwise.
   synonym for AtWhiteSpace which you should use instead).
 
@@ -4456,9 +4456,9 @@ void QTextEdit::setWrapPolicy( WrapPolicy policy )
 	return;
     wPolicy = policy;
     QTextFormatter *formatter;
-    if ( policy == AtWordBoundary || policy == PreferWordBoundary ) {
+    if ( policy == AtWordBoundary || policy == AtWordOrDocumentBoundary ) {
 	formatter = new QTextFormatterBreakWords;
-	formatter->setAllowBreakInWords( policy == PreferWordBoundary );
+	formatter->setAllowBreakInWords( policy == AtWordOrDocumentBoundary );
     } else {
 	formatter = new QTextFormatterBreakInWords;
     }
@@ -5655,7 +5655,7 @@ void QTextEdit::optimMousePressEvent( QMouseEvent * e )
     d->od->selStart.line = e->y() / fm.lineSpacing();
     if ( d->od->selStart.line > d->od->numLines-1 ) {
 	d->od->selStart.line = d->od->numLines-1;
-	d->od->selStart.index = d->od->lines[ d->od->numLines-1 ].length(); 
+	d->od->selStart.index = d->od->lines[ d->od->numLines-1 ].length();
     } else {
 	QString str = d->od->lines[ d->od->selStart.line ];
 	d->od->selStart.index = optimCharIndex( str );
@@ -5785,8 +5785,8 @@ void QTextEdit::optimDoAutoScroll()
 	scrollTimer->stop();
 }
 
-/*! \internal 
- 
+/*! \internal
+
   Returns the index of the character in the string \a str that is
   currently under the mouse pointer.
 */

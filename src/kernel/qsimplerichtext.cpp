@@ -252,6 +252,8 @@ void QSimpleRichText::setWidth( QPainter *p, int w )
 {
     if ( w == d->cachedWidth  && d->cachedWidthWithPainter )
 	return;
+    d->doc->formatter()->setAllowBreakInWords( p && p->device() &&
+		     p->device()->devType() == QInternal::Printer );
     p->save();
     d->cachedWidth = w;
     d->cachedWidthWithPainter = TRUE;
