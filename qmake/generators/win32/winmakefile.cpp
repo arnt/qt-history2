@@ -285,7 +285,7 @@ void Win32MakefileGenerator::processRcFileVar()
 void Win32MakefileGenerator::processQtConfig()
 {
     if (project->isActiveConfig("qt")) {
-        if (!(project->isActiveConfig("target_qt") && !project->variables()["QMAKE_LIB_FLAG"].isEmpty())) {
+        if (!project->isActiveConfig("target_qt") && !project->isEmpty("QMAKE_LIB_FLAG")) {
             if (!project->variables()["QMAKE_QT_DLL"].isEmpty()) {
                 int hver = findHighestVersion(project->first("QMAKE_LIBDIR_QT"), "qt");
                 if(hver != -1) {
@@ -296,7 +296,7 @@ void Win32MakefileGenerator::processQtConfig()
                         (*libit).replace(QRegExp("qt\\.lib"), ver);
                 }
             }
-            if (!project->isActiveConfig("dll") && !project->isActiveConfig("plugin"))
+            if (!project->isEmpty("QMAKE_APP_FLAG"))
                 project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_ENTRY"];
         }
     }
