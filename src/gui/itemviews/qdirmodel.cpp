@@ -452,18 +452,18 @@ QModelIndex QDirModel::parent(const QModelIndex &child) const
 	return QModelIndex();
 
     QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(child.data());
-    if (!node || node == &d->root)
+    if (!node) {
+        qWarning("parent: valid index without node");
         return QModelIndex();
+    }
 
     QDirModelPrivate::QDirNode *par = d->parent(node);
-    if (!par) {
-        qWarning("parent: non-root node without parent");
-	return QModelIndex();
-    }
+    if (!par)
+	return QModelIndex(); // parent is the root node
 
     int r = d->idx(par);
     if (r < 0) {
-        qWarning("parent: the row was negative");
+        qWarning("parent: the row was invalid");
         QModelIndex();
     }
     return createIndex(r, 0, par);
