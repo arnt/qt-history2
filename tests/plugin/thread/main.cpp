@@ -119,14 +119,15 @@ void TestInterface::countWidgets()
     if ( !fwIface )
 	 return;
 
-    DesignerWidgetListInterface *wlIface = (DesignerWidgetListInterface*)fwIface->queryInterface( "*DesignerWidgetListInterface" );
-    if ( !wlIface )
-	return;
-
     DesignerWidgetInterface *awIface = (DesignerWidgetInterface*)fwIface->queryInterface( "*DesignerActiveWidgetInterface" );
     if ( awIface ) {
 	qDebug( awIface->requestProperty( "name" ).toString() );
+	awIface->release();
     }
+
+    DesignerWidgetListInterface *wlIface = (DesignerWidgetListInterface*)fwIface->queryInterface( "*DesignerWidgetListInterface" );
+    if ( !wlIface )
+	return;
 
     DesignerWidgetInterface *wIface = wlIface->current();
     int count = 0;
