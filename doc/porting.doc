@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.13 1998/11/21 18:50:08 ettrich Exp $
+** $Id: porting.doc,v 1.14 1998/12/09 09:15:03 warwick Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -127,7 +127,45 @@ QString has undergone major changes internally, and although it is highly
 backward compatible, it is worth studying in detail when porting to Qt 2.0.
 
 <dl compact>
-<dt><b>Unicode</b></dt>
+<dt><b>QString or STL string?</b></dt>
+<dd>
+<p>
+STL string is not Unicode, and is inefficient when used with Qt.
+For example, when using:
+<pre>
+    QLabel::setText( const QString& )
+</pre>
+if you use STL string, like this:
+<pre>
+    void myclass::dostuffwithtext( const string& str )
+    {
+	mylabel.setText( QString(str.c_str()) );
+    }
+</pre>
+that will create a (ASCII only) copy of str, stored in mylabel.
+But this:
+<pre>
+    void myclass::dostuffwithtext( const QString& str )
+    {
+	mylabel.setText( str );
+    }
+</pre>
+will make an implicitly shared reference to str in the QLabel - no copying
+at all.  This function might be 10 nested function calls away from something
+like this:
+<pre>
+    void toplevelclass::initializationstuff()
+    {
+	doStuff( tr("Okay") );
+    }
+</pre>
+At this point, in Qt 2.0, the tr() does a very fast dictionary lookup
+through memory-mapped message files, returning some Unicode QString for
+the appropriate language (the default being to just make a QString out
+of the text, of course - you're not FORCED to use any of these features),
+and that SAME memory mapped Unicode will be passed though the system.
+All occurrences of the translation of "Okay" will be shared.
+
 <dd>
 Now uses Unicode.  data() is obsolete - you cannot directly access the
  string as an array of bytes, because it isn't one.  Often, ascii() is
