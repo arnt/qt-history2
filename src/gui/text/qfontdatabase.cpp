@@ -920,7 +920,7 @@ QFontDatabase::findFont(QFont::Script script, const QFontPrivate *fp,
 
 #if !defined(QT_NO_DEBUG)
     if (request.family == QLatin1String("__Qt__Box__Engine__"))
-        return new QFontEngineBox(request.pixelSize);
+        return new QTestFontEngine(request.pixelSize);
 #endif
 
 #if defined(Q_WS_X11) && !defined(QT_NO_XFTFREETYPE)

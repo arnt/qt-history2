@@ -53,6 +53,9 @@ public:
 
         // Trolltech QWS types
         Freetype
+#ifndef QT_NO_DEBUG
+        ,  TestFontEngine = 0x1000
+#endif
     };
 
     enum Capabilities {
@@ -479,5 +482,15 @@ public:
 };
 
 #endif // Q_WS_WIN
+
+#ifndef QT_NO_DEBUG
+class QTestFontEngine : public QFontEngineBox
+{
+public:
+    QTestFontEngine(int size) : QFontEngineBox(size) {}
+    Type type() const { return TestFontEngine; }
+};
+
+#endif
 
 #endif
