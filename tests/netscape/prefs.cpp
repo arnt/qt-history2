@@ -34,6 +34,8 @@ Preferences::Preferences(QWidget* parent, const char* name, int f) :
     QPushButton*  cancel = new QPushButton("Cancel",buttons);
 
     ok->setDefault(TRUE);
+    connect(ok, SIGNAL(clicked()), this, SLOT(accept()));
+    connect(cancel, SIGNAL(clicked()), this, SLOT(reject()));
 
     QFontMetrics fm=fontMetrics();
     int w = fm.width("New Page Colors ")+selector->treeStepSize()*2;
@@ -61,6 +63,8 @@ Preferences::Preferences(QWidget* parent, const char* name, int f) :
      add(new PreferenceItem(group, "Cache"), new DummyCategory);
      add(new PreferenceItem(group, "Proxies"), new DummyCategory);
      add(new PreferenceItem(group, "Disk Space"), new DummyCategory);
+
+    setCaption("Netscape: Preferences");
 }
 
 void Preferences::add( PreferenceItem* item, QWidget* stack_item)
@@ -100,7 +104,7 @@ main(int argc, char** argv)
     Preferences m;
     m.show();
 
-    QObject::connect(qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()));
+    QObject::connect(&app, SIGNAL(lastWindowClosed()), &app, SLOT(quit()));
 
     return app.exec();
 }
