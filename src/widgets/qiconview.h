@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#70 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#71 $
 **
 ** Definition of QIconView widget class
 **
@@ -414,7 +414,8 @@ protected slots:
     virtual void adjustItems();
     virtual void slotUpdate();
     virtual void selectHighlightedItem();
-
+    virtual void updateContents();
+    
 private slots:
     void clearInputString();
 
