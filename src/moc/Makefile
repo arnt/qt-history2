@@ -69,18 +69,20 @@ moc.o: /home/popcorn/home/hanord/qt/include/qstring.h
 moc.o: /home/popcorn/home/hanord/qt/include/qarray.h
 moc.o: /home/popcorn/home/hanord/qt/include/qgarray.h
 moc.o: /home/popcorn/home/hanord/qt/include/qshared.h
-moc.o: /home/popcorn/home/hanord/qt/include/qglobal.h /usr/include/string.h
+moc.o: /home/popcorn/home/hanord/qt/include/qglobal.h
+moc.o: /home/popcorn/home/hanord/qt/include/qgeneric.h /usr/include/string.h
 moc.o: /usr/include/features.h /usr/include/sys/cdefs.h /usr/include/malloc.h
 moc.o: /home/popcorn/home/hanord/qt/include/qlist.h
 moc.o: /home/popcorn/home/hanord/qt/include/qglist.h
 moc.o: /home/popcorn/home/hanord/qt/include/qcollect.h
 moc.o: /home/popcorn/home/hanord/qt/include/qglobal.h
+moc.o: /home/popcorn/home/hanord/qt/include/qgeneric.h
 moc.o: /home/popcorn/home/hanord/qt/include/qstring.h
 moc.o: /home/popcorn/home/hanord/qt/include/qarray.h
 moc.o: /home/popcorn/home/hanord/qt/include/qgarray.h
 moc.o: /home/popcorn/home/hanord/qt/include/qshared.h /usr/include/string.h
 moc.o: /usr/include/features.h /usr/include/sys/cdefs.h
 moc.o: /home/popcorn/home/hanord/qt/include/qdatetm.h /usr/include/ctype.h
-moc.o: /usr/include/stdio.h /usr/include/libio.h /usr/include/stdlib.h
-moc.o: /usr/include/errno.h /usr/include/linux/errno.h lex.yy.c
-moc.o: /usr/include/malloc.h
+moc.o: /usr/include/stdio.h /usr/include/libio.h /usr/include/_G_config.h
+moc.o: /usr/include/stdlib.h /usr/include/errno.h /usr/include/linux/errno.h
+moc.o: /usr/include/alloca.h

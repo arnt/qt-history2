@@ -16,29 +16,24 @@ CC		= gcc
 
 #######	Files
 
-HEADERS		= qbutton.h	qchkbox.h	qlabel.h        qlcdnum.h     \
-                  qlined.h      \
-		  qlistbox.h	qmenubar.h	qmenudta.h	qpopmenu.h    \
-		  qpushbt.h	qradiobt.h	qrangect.h	qscrbar.h     \
-		  qtablew.h
-SOURCES		= qbutton.cpp	qchkbox.cpp	qlabel.cpp      qlcdnum.cpp   \
-                  qlined.cpp    \
-		  qlistbox.cpp	qmenubar.cpp	qmenudta.cpp	qpopmenu.cpp  \
-		  qpushbt.cpp	qradiobt.cpp	qrangect.cpp	qscrbar.cpp   \
-		  qtablew.cpp
-OBJECTS		= qbutton.o	qchkbox.o	qlabel.o        qlcdnum.o     \
-                  qlined.o      \
-		  qlistbox.o	qmenubar.o	qmenudta.o	qpopmenu.o    \
-		  qpushbt.o	qradiobt.o	qrangect.o	qscrbar.o     \
-		  qtablew.o
-SRCMETA		= mbutton.cpp	mchkbox.cpp	mlabel.cpp      mlcdnum.cpp   \
-                  mlined.cpp    \
-		  mlistbox.cpp	mmenubar.cpp	mpopmenu.cpp	mpushbt.cpp   \
-		  mradiobt.cpp	mscrbar.cpp	mtablew.cpp
-OBJMETA		= mbutton.o	mchkbox.o	mlabel.o        mlcdnum.o     \
-                  mlined.o      \
-		  mlistbox.o	mmenubar.o	mpopmenu.o	mpushbt.o     \
-		  mradiobt.o	mscrbar.o	mtablew.o
+HEADERS		= qbutton.h	qchkbox.h	qlabel.h	qlcdnum.h     \
+		  qlined.h	qlistbox.h	qmenubar.h	qmenudta.h    \
+		  qpopmenu.h	qpushbt.h	qradiobt.h	qrangect.h    \
+		  qscrbar.h	qtablew.h
+SOURCES		= qbutton.cpp	qchkbox.cpp	qlabel.cpp	qlcdnum.cpp   \
+		  qlined.cpp	qlistbox.cpp	qmenubar.cpp	qmenudta.cpp  \
+		  qpopmenu.cpp	qpushbt.cpp	qradiobt.cpp	qrangect.cpp  \
+		  qscrbar.cpp	qtablew.cpp
+OBJECTS		= qbutton.o	qchkbox.o	qlabel.o	qlcdnum.o     \
+		  qlined.o	qlistbox.o	qmenubar.o	qmenudta.o    \
+		  qpopmenu.o	qpushbt.o	qradiobt.o	qrangect.o    \
+		  qscrbar.o	qtablew.o
+SRCMETA		= mbutton.cpp	mchkbox.cpp	mlabel.cpp	mlcdnum.cpp   \
+		  mlined.cpp	mlistbox.cpp	mmenubar.cpp	mpopmenu.cpp  \
+		  mpushbt.cpp	mradiobt.cpp	mscrbar.cpp	mtablew.cpp
+OBJMETA		= mbutton.o	mchkbox.o	mlabel.o	mlcdnum.o     \
+		  mlined.o	mlistbox.o	mmenubar.o	mpopmenu.o    \
+		  mpushbt.o	mradiobt.o	mscrbar.o	mtablew.o
 TARGET		= $(LIBDIR)/libqwidgets.a
 
 #######	Implicit rules
@@ -284,12 +279,6 @@ qlistbox.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 qlistbox.o: /home/popcorn/home/hanord/qt/include/qfont.h
 qlistbox.o: /home/popcorn/home/hanord/qt/include/qcursor.h
 qlistbox.o: /home/popcorn/home/hanord/qt/include/qevent.h
-qlistbox.o: /home/popcorn/home/hanord/qt/include/qstrlist.h
-qlistbox.o: /home/popcorn/home/hanord/qt/include/qlist.h
-qlistbox.o: /home/popcorn/home/hanord/qt/include/qglist.h
-qlistbox.o: /home/popcorn/home/hanord/qt/include/qcollect.h
-qlistbox.o: /home/popcorn/home/hanord/qt/include/qdstream.h
-qlistbox.o: /home/popcorn/home/hanord/qt/include/qiodev.h
 qlistbox.o: /home/popcorn/home/hanord/qt/include/qfontmet.h
 qlistbox.o: /home/popcorn/home/hanord/qt/include/qpainter.h
 qlistbox.o: /home/popcorn/home/hanord/qt/include/qregion.h
@@ -297,6 +286,13 @@ qlistbox.o: /home/popcorn/home/hanord/qt/include/qpen.h
 qlistbox.o: /home/popcorn/home/hanord/qt/include/qbrush.h
 qlistbox.o: /home/popcorn/home/hanord/qt/include/qwmatrix.h
 qlistbox.o: /home/popcorn/home/hanord/qt/include/qpntarry.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qstrlist.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qlist.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qglist.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qcollect.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qdstream.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qiodev.h
+qlistbox.o: /home/popcorn/home/hanord/qt/include/qkeycode.h
 qmenubar.o: qmenubar.h qpopmenu.h qtablew.h
 qmenubar.o: /home/popcorn/home/hanord/qt/include/qwidget.h
 qmenubar.o: /home/popcorn/home/hanord/qt/include/qwindefs.h
@@ -640,12 +636,6 @@ mlistbox.o: /home/popcorn/home/hanord/qt/include/qcolor.h
 mlistbox.o: /home/popcorn/home/hanord/qt/include/qfont.h
 mlistbox.o: /home/popcorn/home/hanord/qt/include/qcursor.h
 mlistbox.o: /home/popcorn/home/hanord/qt/include/qevent.h
-mlistbox.o: /home/popcorn/home/hanord/qt/include/qstrlist.h
-mlistbox.o: /home/popcorn/home/hanord/qt/include/qlist.h
-mlistbox.o: /home/popcorn/home/hanord/qt/include/qglist.h
-mlistbox.o: /home/popcorn/home/hanord/qt/include/qcollect.h
-mlistbox.o: /home/popcorn/home/hanord/qt/include/qdstream.h
-mlistbox.o: /home/popcorn/home/hanord/qt/include/qiodev.h
 mmenubar.o: /home/popcorn/home/hanord/qt/include/qmetaobj.h
 mmenubar.o: /home/popcorn/home/hanord/qt/include/qconnect.h
 mmenubar.o: /home/popcorn/home/hanord/qt/include/qobject.h

@@ -119,10 +119,12 @@ qapp_x11.o: /home/popcorn/home/hanord/qt/include/qshared.h
 qapp_x11.o: /home/popcorn/home/hanord/qt/include/qgeneric.h
 qapp_x11.o: /usr/include/string.h /usr/include/features.h
 qapp_x11.o: /usr/include/sys/cdefs.h qpaintd.h qrect.h qsize.h qpoint.h
-qapp_x11.o: qcolor.h qfont.h qcursor.h qevent.h
+qapp_x11.o: qcolor.h qfont.h qcursor.h qevent.h qwidcoll.h
 qapp_x11.o: /home/popcorn/home/hanord/qt/include/qlist.h
 qapp_x11.o: /home/popcorn/home/hanord/qt/include/qglist.h
 qapp_x11.o: /home/popcorn/home/hanord/qt/include/qcollect.h
+qapp_x11.o: /home/popcorn/home/hanord/qt/include/qintdict.h
+qapp_x11.o: /home/popcorn/home/hanord/qt/include/qgdict.h
 qapp_x11.o: /usr/include/stdlib.h /usr/include/errno.h
 qapp_x11.o: /usr/include/linux/errno.h /usr/include/alloca.h
 qapp_x11.o: /usr/include/signal.h /usr/include/sys/types.h
@@ -139,8 +141,6 @@ qapp_x11.o: /usr/include/sys/param.h /usr/include/limits.h
 qapp_x11.o: /usr/include/posix1_lim.h /usr/include/linux/limits.h
 qapp_x11.o: /usr/include/posix2_lim.h /usr/include/linux/param.h
 qapp_x11.o: /home/popcorn/home/hanord/qt/include/qmemchk.h
-qapp_x11.o: /home/popcorn/home/hanord/qt/include/qintdict.h
-qapp_x11.o: /home/popcorn/home/hanord/qt/include/qgdict.h
 qapp_x11.o: /home/popcorn/home/hanord/qt/include/qstack.h
 qapp_x11.o: /usr/include/X11/keysymdef.h qkeycode.h
 qcol_x11.o: qcolor.h qwindefs.h qobjdefs.h
@@ -545,22 +545,23 @@ qwid_x11.o: /usr/include/linux/time.h /usr/include/sys/time.h
 qwid_x11.o: /usr/include/sys/param.h /usr/include/limits.h
 qwid_x11.o: /usr/include/posix1_lim.h /usr/include/linux/limits.h
 qwid_x11.o: /usr/include/posix2_lim.h /usr/include/linux/param.h
-qwidget.o: qwidget.h qwindefs.h qobjdefs.h
-qwidget.o: /home/popcorn/home/hanord/qt/include/qglobal.h qobject.h
+qwidget.o: qobjcoll.h qmetaobj.h qconnect.h qobject.h qobjdefs.h
+qwidget.o: /home/popcorn/home/hanord/qt/include/qglobal.h
 qwidget.o: /home/popcorn/home/hanord/qt/include/qstring.h
 qwidget.o: /home/popcorn/home/hanord/qt/include/qarray.h
 qwidget.o: /home/popcorn/home/hanord/qt/include/qgarray.h
 qwidget.o: /home/popcorn/home/hanord/qt/include/qshared.h
 qwidget.o: /home/popcorn/home/hanord/qt/include/qgeneric.h
 qwidget.o: /usr/include/string.h /usr/include/features.h
-qwidget.o: /usr/include/sys/cdefs.h qpaintd.h qrect.h qsize.h qpoint.h
-qwidget.o: qcolor.h qfont.h qcursor.h qevent.h qobjcoll.h qmetaobj.h
-qwidget.o: qconnect.h /home/popcorn/home/hanord/qt/include/qlist.h
+qwidget.o: /usr/include/sys/cdefs.h
+qwidget.o: /home/popcorn/home/hanord/qt/include/qlist.h
 qwidget.o: /home/popcorn/home/hanord/qt/include/qglist.h
 qwidget.o: /home/popcorn/home/hanord/qt/include/qcollect.h
 qwidget.o: /home/popcorn/home/hanord/qt/include/qdict.h
-qwidget.o: /home/popcorn/home/hanord/qt/include/qgdict.h qapp.h
-qwidget.o: /home/popcorn/home/hanord/qt/include/qintdict.h
+qwidget.o: /home/popcorn/home/hanord/qt/include/qgdict.h qwidget.h qwindefs.h
+qwidget.o: qpaintd.h qrect.h qsize.h qpoint.h qcolor.h qfont.h qcursor.h
+qwidget.o: qevent.h qwidcoll.h
+qwidget.o: /home/popcorn/home/hanord/qt/include/qintdict.h qapp.h
 qwmatrix.o: qwmatrix.h qwindefs.h qobjdefs.h
 qwmatrix.o: /home/popcorn/home/hanord/qt/include/qglobal.h
 qwmatrix.o: /home/popcorn/home/hanord/qt/include/qdstream.h
