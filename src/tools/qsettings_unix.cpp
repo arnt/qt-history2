@@ -61,8 +61,9 @@
   \ingroup misc
   \mainclass
 
-  On Unix systems, QSettings uses text files to store settings. On
-  Windows systems, QSettings uses the system registry.
+  On Unix systems, QSettings uses text files to store settings. On Windows
+  systems, QSettings uses the system registry.  On MacOSX, QSettings will
+  behave as on Unix, and store to text files.
 
   Each setting comprises an identifying key and the data associated with
   the key. A key is a unicode string which consists of \e two or more
@@ -184,8 +185,8 @@
 /*!
     \enum QSettings::System
 
-    \value Mac (reserved for future use)
-    \value Unix Unix, Linux and Unix-like execution environments
+    \value Mac Macintosh execution environments
+    \value Unix MacOSX, Unix, Linux and Unix-like execution environments
     \value Windows Windows execution environments
 */
 
@@ -602,8 +603,12 @@ QDateTime QSettingsPrivate::modificationTime()
 */
 void QSettings::insertSearchPath( System s, const QString &path)
 {
-    if ( s != Unix )
-	return;
+    if ( s != Unix ) {
+#ifdef Q_OS_MAC
+	if(s != Mac) //mac is respected on the mac as well
+#endif
+	    return;
+    }
     initSearchPaths();
 
     QStringList::Iterator it = searchPaths->find(searchPaths->last());
