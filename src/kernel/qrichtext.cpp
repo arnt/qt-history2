@@ -887,7 +887,7 @@ QTextDocument::QTextDocument( QTextDocument *p )
     factory_ = QMimeSourceFactory::defaultFactory();
     contxt = QString::null;
     fCollection->setStyleSheet( sheet_ );
-    
+
     linkC = Qt::blue;
     underlLinks = TRUE;
     backBrush = 0;
@@ -1957,7 +1957,7 @@ QTextParag *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch, co
 
     if ( drawCursor && cursor )
 	tmpCursor = cursor;
-    if ( cx < 0 || cy < 0 ) {
+    if ( cx < 0 && cy < 0 ) {
 	cx = 0;
 	cy = 0;
 	cw = width();
@@ -2249,10 +2249,10 @@ void QTextString::basicDirection() const
 
 
 void QTextDocument::setStyleSheet( QStyleSheet *s )
-{ 
-    if ( !s ) 
+{
+    if ( !s )
 	return;
-    sheet_ = s; 
+    sheet_ = s;
     fCollection->setStyleSheet( s );
     updateStyles();
 }
