@@ -218,14 +218,14 @@ bool QAbstractItemModel::greater(const QModelIndex &left, const QModelIndex &rig
 QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role, const QVariant &value, int hits) const
 {
     QModelIndexList result;
-    QString val = value.toString();
+    QString val = value.toString().toLower();
     QModelIndex idx;
     QModelIndex par = parent(start);
     int hit = 0;
     int col = start.column();
     for (int row = start.row(); row < rowCount(par) && hit < hits; ++row) {
         idx = index(row, col, par);
-        if (data(idx, role).toString().startsWith(val)) {
+        if (data(idx, role).toString().toLower().startsWith(val)) {
             result.append(idx);
             ++hit;
         }
