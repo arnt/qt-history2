@@ -1,3 +1,18 @@
+####### This section was automatically generated from
+#######    /home/hanord/qt/tutorial/Makefile for building on
+#######     on Tue Apr  1 19:27:47 MET DST 1997
+
+INCDIR = $(QTDIR)/include
+CFLAGS =  -O2 -fno-strength-reduce -Wall -W
+LIBCFLAGS = -fPIC
+YACCCFLAGS = -Wno-unused -Wno-parentheses
+LFLAGS = -L$(QTDIR)/lib -lqt
+CC = gcc
+MOC = moc
+SHELL =	/bin/sh
+
+####### End of automatically generated section
+#
 # $Source: /tmp/cvs/qt/tutorial/Makefile,v $
 #
 
