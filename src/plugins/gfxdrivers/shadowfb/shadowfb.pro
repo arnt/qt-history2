@@ -2,7 +2,7 @@ TEMPLATE = lib
 TARGET	 = qgfxshadowfb
 
 CONFIG  += qt warn_off plugin
-DESTDIR		= ../../../gfxdrivers
+DESTDIR		= $$QT_BUILD_TREE/plugins/gfxdrivers
 
 DEFINES	+= QT_QWS_SHADOWFB
 unix:OBJECTS_DIR = .obj

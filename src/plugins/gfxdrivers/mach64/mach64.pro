@@ -2,7 +2,7 @@ TEMPLATE = lib
 TARGET	 = qgfxmach64
 
 CONFIG  += qt warn_off plugin
-DESTDIR	 = ../../../gfxdrivers
+DESTDIR	 = $$QT_BUILD_TREE/plugins/gfxdrivers
 
 DEFINES	+= QT_QWS_MACH64
 unix:OBJECTS_DIR = .obj

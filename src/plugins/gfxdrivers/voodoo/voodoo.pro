@@ -2,7 +2,7 @@ TEMPLATE = lib
 TARGET	 = qgfxvoodoo
 
 CONFIG  += qt warn_off plugin
-DESTDIR	 = ../../../gfxdrivers
+DESTDIR	 = $$QT_BUILD_TREE/plugins/gfxdrivers
 
 DEFINES	+= QT_QWS_VOODOO
 unix:OBJECTS_DIR	= .obj

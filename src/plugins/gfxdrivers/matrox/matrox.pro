@@ -2,7 +2,7 @@ TEMPLATE = lib
 TARGET	 = qgfxmatrox
 
 CONFIG  += qt warn_off plugin
-DESTDIR	 = ../../../gfxdrivers
+DESTDIR	 = $$QT_BUILD_TREE/plugins/gfxdrivers
 
 DEFINES	+= QT_QWS_MATROX
 unix:OBJECTS_DIR = .obj
