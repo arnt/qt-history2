@@ -59,7 +59,7 @@ public:
     ~QSqlSelectCursor();
     bool exec( const QString& query );
 
-private:
+protected:
     QSqlIndex primaryIndex( bool = TRUE ) const { return QSqlIndex(); }
     QSqlIndex index( const QStringList& ) const { return QSqlIndex(); }
     QSqlIndex index( const QString& ) const { return QSqlIndex(); }
@@ -89,6 +89,7 @@ private:
     QString toString( const QString& = QString::null, const QString& = "," ) const { return QString::null; }
     bool select( const QString &, const QSqlIndex& = QSqlIndex() );
 
+private:
     void populateCursor();
     
     QSqlSelectCursorPrivate * d;
