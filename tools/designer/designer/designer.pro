@@ -105,3 +105,7 @@ sql {
 	HEADERS += 		  database.h		  dbconnectionsimpl.h   propertyeditorsql.h
 	INTERFACES +=             dbconnections.ui 
 }
+
+target.path=$$QT_INSTALL_BINPATH
+isEmpty(target.path):target.path=$$QT_PREFIX/bin
+INSTALLS        += target

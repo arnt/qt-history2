@@ -24,3 +24,9 @@ INCLUDEPATH	= ../shared ../util ../../../src/3rdparty/zlib/
 DESTDIR		= $(QTDIR)/lib
 VERSION		= 1.0.0
 DEFINES		+= RESOURCE
+
+unix {
+	target.path=$$QT_INSTALL_LIBPATH
+	isEmpty(target.path):target.path=$$QT_PREFIX/lib
+	INSTALLS        += target
+}

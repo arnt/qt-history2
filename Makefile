@@ -20,6 +20,17 @@ all: symlinks src-qmake src-moc sub-src sub-tools sub-tutorial sub-examples
 	@echo "Enjoy!   - the Trolltech team"
 	@echo
 
+install: all moc-install src-install tools-install
+
+moc-install: src-moc
+	cd src/moc; $(MAKE) install
+
+src-install: sub-src
+	cd src; $(MAKE) install
+
+tools-install: sub-tools
+	cd tools; $(MAKE) install
+
 src-qmake: symlinks FORCE
 	cd qmake; $(MAKE)
 
