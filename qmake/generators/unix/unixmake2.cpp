@@ -39,6 +39,7 @@
 #include "option.h"
 #include <qregexp.h>
 #include <qfile.h>
+#include <qdir.h>
 #include <time.h>
 
 
@@ -74,9 +75,9 @@ UnixMakefileGenerator::writeMakefile(QTextStream &t)
 void
 UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 {
-    QString ofile = Option::output.name();
-    if(ofile.findRev(Option::dir_sep) != -1)
-	ofile = ofile.right(ofile.length() - ofile.findRev(Option::dir_sep) -1);
+    QString deps = Option::output.name();
+    if(deps.findRev(Option::dir_sep) != -1)
+	deps = deps.right(deps.length() - deps.findRev(Option::dir_sep) -1);
     bool do_incremental = (project->isActiveConfig("incremental") &&
 			   !project->variables()["QMAKE_INCREMENTAL"].isEmpty() &&
 			   (!project->variables()["QMAKE_APP_FLAG"].isEmpty() ||
@@ -255,6 +256,18 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     }
 
     t << "####### Build rules" << endl << endl;
+    QString srcdir = QDir::currentDirPath(), qtdir=project->first("QT_SOURCE_TREE");
+    if(!project->variables()["QMAKE_ABSOLUTE_SOURCE_PATH"].isEmpty())
+	srcdir = project->first("QMAKE_ABSOLUTE_SOURCE_PATH");
+    if(project->first("QT_PRODUCT") == "qt-internal" && 
+       !qtdir.isEmpty() && srcdir.left(qtdir.length()) == qtdir) {
+	deps.prepend("QTDIR ");
+	t << "QTDIR: FORCE" << "\n\t"
+	  << "@if [ \"$(QTDIR)\" != \"" << qtdir << "\" ]; then"
+	  << " echo \"Warning: ********* Your QTDIR seems to be wrong!\";" 
+	  << " test ! /bin/true; fi" << endl;
+    }
+
     if(!project->variables()["SUBLIBS"].isEmpty()) {
 	t << "SUBLIBS= ";
 	QStringList &l = project->variables()["SUBLIBS"];
@@ -263,7 +276,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	t << endl << endl;
     }
     if(!project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
-	t << "all: " << ofile <<  " " << varGlue("ALL_DEPS",""," "," ") <<  "$(TARGET)" << endl << endl;
+	t << "all: " << deps <<  " " << varGlue("ALL_DEPS",""," "," ") <<  "$(TARGET)" << endl << endl;
 
 	QString destdir = project->first("DESTDIR");
 	if(do_incremental) {
@@ -302,7 +315,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    t << endl << endl;
 	}
     } else if(!project->isActiveConfig("staticlib")) {
-	t << "all: " << ofile << " " << varGlue("ALL_DEPS",""," ","") << " " <<  var("DESTDIR_TARGET") << endl << endl;
+	t << "all: " << deps << " " << varGlue("ALL_DEPS",""," ","") << " " <<  var("DESTDIR_TARGET") << endl << endl;
 
 	QString destdir = project->first("DESTDIR");
 	if(do_incremental) {
@@ -390,7 +403,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	      << endl << endl;
 	}
     } else {
-	t << "all: " << ofile << " " << varGlue("ALL_DEPS",""," "," ") << "$(TARGET)" << endl << endl;
+	t << "all: " << deps << " " << varGlue("ALL_DEPS",""," "," ") << "$(TARGET)" << endl << endl;
 	t << "staticlib: $(TARGET)" << endl << endl;
 	t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS") << "\n\t";
 
@@ -520,6 +533,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << "perl -pi -e 's{#include \"allmoc.h\"}{#define QT_H_CPP\\n#include \"" << qt_dot_h << "\"}' " << outdir << "allmoc.cpp" << "\n\t"
 	  << "rm " << outdir << "allmoc.h" << endl << endl;
     }
+    t <<"FORCE:" << endl << endl;
 }
 
 void
