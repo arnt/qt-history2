@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontmetrics.h#17 $
+** $Id: //depot/qt/main/src/kernel/qfontmetrics.h#18 $
 **
 ** Definition of QFontMetrics class
 **
@@ -47,6 +47,7 @@ private:
     QFont	f;
     QPaintDevice *pdev;
     friend class QPaintDevice;
+    friend class QPainter;
 };
 
 

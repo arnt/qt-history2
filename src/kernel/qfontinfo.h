@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontinfo.h#6 $
+** $Id: //depot/qt/main/src/kernel/qfontinfo.h#7 $
 **
 ** Definition of QFontInfo class
 **
@@ -44,6 +44,7 @@ private:
     QFont	f;
     QPaintDevice *pdev;
     friend class QPaintDevice;
+    friend class QPainter;
 };
 
 
