@@ -2087,37 +2087,27 @@ QPoint QWidget::pos() const
 
 QRect QWidget::rect() const
 {
-    if (testAttribute(Qt::WA_InvalidSize))
-        const_cast<QWidget*>(this)->adjustSize();
     return QRect(0,0,data->crect.width(),data->crect.height());
 }
 
 
 const QRect &QWidget::geometry() const
 {
-    if (testAttribute(Qt::WA_InvalidSize))
-        const_cast<QWidget*>(this)->adjustSize();
     return data->crect;
 }
 
 QSize QWidget::size() const
 {
-    if (testAttribute(Qt::WA_InvalidSize))
-        const_cast<QWidget*>(this)->adjustSize();
     return data->crect.size();
 }
 
 int QWidget::width() const
 {
-    if (testAttribute(Qt::WA_InvalidSize))
-        const_cast<QWidget*>(this)->adjustSize();
     return data->crect.width();
 }
 
 int QWidget::height() const
 {
-    if (testAttribute(Qt::WA_InvalidSize))
-        const_cast<QWidget*>(this)->adjustSize();
     return data->crect.height();
 }
 
@@ -3443,10 +3433,10 @@ QSize QWidget::frameSize() const
 void QWidget::move(int x, int y)
 {
     QPoint oldp = pos();
+    setAttribute(Qt::WA_Moved);
     setGeometry_sys(x + geometry().x() - QWidget::x(),
                     y + geometry().y() - QWidget::y(),
                     width(), height(), true);
-    setAttribute(Qt::WA_Moved);
     if (oldp != pos())
         d->updateInheritedBackground();
 }
@@ -3458,10 +3448,9 @@ void QWidget::move(int x, int y)
 */
 void QWidget::resize(int w, int h)
 {
-    setAttribute(Qt::WA_InvalidSize, false);
+    setAttribute(Qt::WA_Resized);
     QSize olds = size();
     setGeometry_sys(geometry().x(), geometry().y(), w, h, false);
-    setAttribute(Qt::WA_Resized);
     if (testAttribute(Qt::WA_ContentsPropagated) &&  olds != size())
         d->updatePropagatedBackground();
 }
@@ -3473,12 +3462,11 @@ void QWidget::resize(int w, int h)
 */
 void QWidget::setGeometry(int x, int y, int w, int h)
 {
-    setAttribute(Qt::WA_InvalidSize, false);
     QPoint oldp = pos();
     QSize olds = size();
-    setGeometry_sys(x, y, w, h, true);
     setAttribute(Qt::WA_Resized);
     setAttribute(Qt::WA_Moved);
+    setGeometry_sys(x, y, w, h, true);
 
     if (testAttribute(Qt::WA_ContentsPropagated) && olds != size())
         d->updatePropagatedBackground();
@@ -3645,42 +3633,13 @@ void QWidget::setUpdatesEnabled(bool enable)
         setWState(Qt::WState_BlockUpdates);
 }
 
-
-QSize qt_initial_size(QWidget *w) {
-    QSize s = w->sizeHint();
-    QSizePolicy::ExpandData exp;
-#ifndef QT_NO_LAYOUT
-    QLayout *layout = w->layout();
-    if (layout) {
-        if (layout->hasHeightForWidth())
-            s.setHeight(layout->totalHeightForWidth(s.width()));
-        exp = layout->expanding();
-    } else
-#endif
-    {
-        if (w->sizePolicy().hasHeightForWidth())
-            s.setHeight(w->heightForWidth(s.width()));
-        exp = w->sizePolicy().expanding();
-    }
-    if (exp & QSizePolicy::Horizontally)
-        s.setWidth(qMax(s.width(), 200));
-    if (exp & QSizePolicy::Vertically)
-        s.setHeight(qMax(s.height(), 150));
-#if defined(Q_WS_X11)
-    QRect screen = QApplication::desktop()->screenGeometry(w->x11Info()->screen());
-#else // all others
-    QRect screen = QApplication::desktop()->screenGeometry(w->pos());
-#endif
-    s.setWidth(qMin(s.width(), screen.width()*2/3));
-    s.setHeight(qMin(s.height(), screen.height()*2/3));
-    return s + w->contentsMarginSize();    //account for the margins
-}
-
 /*!
     Shows the widget and its child widgets.
 
     If its size or position has changed, Qt guarantees that a widget
-    gets move and resize events just before it is shown.
+    gets move and resize events just before it is shown. If the widget
+    has not been resized yet, Qt will adjust the widget's size to a
+    useful default using adjustSize().
 
     You almost never have to reimplement this function. If you need to
     change some settings before a widget is shown, use showEvent()
@@ -3714,6 +3673,20 @@ void QWidget::show()
     if (needUpdateGeometry)
         updateGeometry();
 
+    // adjust size if necessary
+    if (!testAttribute(Qt::WA_Resized)
+        && (isTopLevel() || !parentWidget()->d->layout))  {
+        if (isTopLevel()) {
+            uint state = windowState();
+            adjustSize();
+            if (windowState() != state)
+                setWindowState(state);
+        } else {
+            adjustSize();
+        }
+        setAttribute(Qt::WA_Resized, false);
+    }
+
     if (isTopLevel() || parentWidget()->isVisible())
         show_helper();
 
@@ -3740,14 +3713,12 @@ void QWidget::show_helper()
     if (!isTopLevel() && parentWidget()->d->layout)
         parentWidget()->d->layout->activate();
 #endif
-    // adjust size if necessary
-    if (testAttribute(Qt::WA_InvalidSize))
-        adjustSize();
 #ifndef QT_NO_LAYOUT
     // activate our layout before we and our children become visible
     if (d->layout)
         d->layout->activate();
 #endif
+
     // make sure we receive pending move and resize events
     if (testAttribute(Qt::WA_PendingMoveEvent)) {
         QMoveEvent e(data->crect.topLeft(), data->crect.topLeft());
@@ -3772,19 +3743,6 @@ void QWidget::show_helper()
                                         QEvent::ChildInserted);
 #endif
 
-    if (isTopLevel() && !testAttribute(Qt::WA_Resized))  {
-#ifndef Q_OS_TEMP
-        // toplevels with layout may need a initial size
-        QSize s = qt_initial_size(this);
-	uint state = windowState();
-        if (!s.isEmpty()) {
-            resize(s);
-            setAttribute(Qt::WA_Resized, false);
-        }
-	if (windowState() != state)
-	    setWindowState(state);
-#endif // Q_OS_TEMP
-    }
 
     // popup handling: new popups and tools need to be raised, and
     // exisiting popups must be closed.
@@ -4285,47 +4243,53 @@ QRegion QWidget::clipRegion() const
 
     Uses sizeHint() if valid (i.e if the size hint's width and height
     are \>= 0), otherwise sets the size to the children rectangle (the
-    union of all child widget geometries).
+    union of all child widget geometries). For toplevel widgets, the
+    function also takes the screen size into account.
 
     \sa sizeHint(), childrenRect()
 */
 
 void QWidget::adjustSize()
 {
-    setAttribute(Qt::WA_InvalidSize, false);
     ensurePolished();
+
     QSize s = sizeHint();
+
     if (isTopLevel()) {
-
-#if defined(Q_WS_X11)
-        QRect screen = QApplication::desktop()->screenGeometry(d->xinfo->screen());
-#else // all others
-        QRect screen = QApplication::desktop()->screenGeometry(pos());
-#endif
-
+        QSizePolicy::ExpandData exp;
 #ifndef QT_NO_LAYOUT
-        if (layout()) {
-            if (layout()->hasHeightForWidth()) {
-                s = s.boundedTo(screen.size());
-                s.setHeight(layout()->totalHeightForWidth(s.width()));
-            }
+        if (QLayout *l = layout()) {
+            if (l->hasHeightForWidth())
+                s.setHeight(l->totalHeightForWidth(s.width()));
+            exp = l->expanding();
         } else
 #endif
         {
-            if (sizePolicy().hasHeightForWidth()) {
-                s = s.boundedTo(screen.size());
+            if (sizePolicy().hasHeightForWidth())
                 s.setHeight(heightForWidth(s.width()));
-            }
+            exp = sizePolicy().expanding();
         }
+        if (exp & QSizePolicy::Horizontally)
+            s.setWidth(qMax(s.width(), 200));
+        if (exp & QSizePolicy::Vertically)
+            s.setHeight(qMax(s.height(), 150));
+#if defined(Q_WS_X11)
+        QRect screen = QApplication::desktop()->screenGeometry(x11Info()->screen());
+#else // all others
+        QRect screen = QApplication::desktop()->screenGeometry(pos());
+#endif
+        s.setWidth(qMin(s.width(), screen.width()*2/3));
+        s.setHeight(qMin(s.height(), screen.height()*2/3));
     }
-    if (s.isValid()) {
-        resize(s);
-        return;
+
+    if (!s.isValid()) {
+        QRect r = childrenRect(); // get children rectangle
+        if (r.isNull())
+            return;
+        s = r.size() + QSize(2 * r.x(),  2 * r.y());
     }
-    QRect r = childrenRect();                        // get children rectangle
-    if (r.isNull())                                // probably no widgets
-        return;
-    resize(r.width() + 2 * r.x(), r.height() + 2 * r.y());
+
+    resize(s);
 }
 
 
@@ -6218,15 +6182,8 @@ const QPixmap *QWidget::icon() const
     position. This is set/cleared by QWidget::move() and
     by QWidget::setGeometry().
 
-    \value WA_InvalidSize Indicates that the widget has an invalid
-    size. Showing the widget or calling any geometry function
-    (e.g. QWidget::height() or QWidget::size()) will call
-    QWidget::adjustSize() first. The attribute is used by widgets like
-    QMenu that automatically change their size depending on the
-    contents. This is set by widget's author and cleared by the Qt kernel.
-
-    \value WA_Mapped Indicates that the widget is mapped on screen.
-    This is set/cleared by the Qt kernel.
+    \row \i Qt::WA_Mapped \i Indicates that the widget is mapped on screen.
+    \i Qt kernel.
 
     \value WA_OutsideWSRange Indicates that the widget is outside
     the valid range of the window system's coordinate system. A widget

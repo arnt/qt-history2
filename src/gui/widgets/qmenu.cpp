@@ -1722,6 +1722,7 @@ QMenu::timerEvent(QTimerEvent *e)
 void QMenu::actionEvent(QActionEvent *e)
 {
     d->itemsDirty = 1;
+    setAttribute(Qt::WA_Resized, false);
     if(d->tornPopup)
         d->tornPopup->syncWithMenu(this, e);
 #ifdef Q_WS_MAC

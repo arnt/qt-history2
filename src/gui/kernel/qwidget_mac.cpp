@@ -67,7 +67,6 @@ enum {
 extern void qt_set_paintevent_clipping(QPaintDevice*, const QRegion&); //qpaintengine_mac.cpp
 extern void qt_clear_paintevent_clipping(QPaintDevice *); //qpaintengine_mac.cpp
 extern QSize qt_naturalWidgetSize(QWidget *); //qwidget.cpp
-extern QSize qt_initial_size(QWidget *w); //qwidget.cpp
 extern void qt_mac_clip_cg_handle(CGContextRef, const QRegion &, const QPoint &, bool); //qpaintdevice_mac.cpp
 extern void qt_mac_unicode_reset_input(QWidget *); //qapplication_mac.cpp
 extern void qt_mac_unicode_init(QWidget *); //qapplication_mac.cpp
@@ -87,6 +86,37 @@ extern QRegion qt_mac_convert_mac_region(RgnHandle rgn); //qregion_mac.cpp
 /*****************************************************************************
   QWidget utility functions
  *****************************************************************************/
+
+static QSize qt_initial_size(QWidget *w) {
+    QSize s = w->sizeHint();
+    QSizePolicy::ExpandData exp;
+#ifndef QT_NO_LAYOUT
+    QLayout *layout = w->layout();
+    if (layout) {
+        if (layout->hasHeightForWidth())
+            s.setHeight(layout->totalHeightForWidth(s.width()));
+        exp = layout->expanding();
+    } else
+#endif
+    {
+        if (w->sizePolicy().hasHeightForWidth())
+            s.setHeight(w->heightForWidth(s.width()));
+        exp = w->sizePolicy().expanding();
+    }
+    if (exp & QSizePolicy::Horizontally)
+        s.setWidth(qMax(s.width(), 200));
+    if (exp & QSizePolicy::Vertically)
+        s.setHeight(qMax(s.height(), 150));
+#if defined(Q_WS_X11)
+    QRect screen = QApplication::desktop()->screenGeometry(w->x11Info()->screen());
+#else // all others
+    QRect screen = QApplication::desktop()->screenGeometry(w->pos());
+#endif
+    s.setWidth(qMin(s.width(), screen.width()*2/3));
+    s.setHeight(qMin(s.height(), screen.height()*2/3));
+    return s + w->contentsMarginSize();    //account for the margins
+}
+
 QPoint posInWindow(QWidget *w)
 {
     QPoint ret = w->data->wrect.topLeft();
@@ -1337,7 +1367,7 @@ void QWidget::update(const QRegion &rgn)
 void QWidget::repaint(const QRegion &rgn)
 {
     HIViewSetNeedsDisplayInRegion((HIViewRef)winId(), rgn.handle(true), true);
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)    
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     OSStatus (*HIViewRender_ptr)(HIViewRef) = HIViewRender; // workaround for gcc warning
     if(HIViewRender_ptr)
         (*HIViewRender_ptr)((HIViewRef)topLevelWidget()->winId()); //yes the top level!!
