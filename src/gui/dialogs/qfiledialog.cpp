@@ -333,11 +333,11 @@ QFileDialog::QFileDialog(QWidget *parent, Qt::WFlags f)
 }
 
 /*!
-    Constructs a file dialog with the given \a parent. The dialog has
-    the given \a caption, starts in the given \a directory, has the filters
-    specified by \a filter, with the filter in \a selectedFilter
-    selected, and with the \a selectedFile selected. The files that
-    can be chosen are determined by the \a fileMode.
+    Constructs a file dialog with the given \a parent and \a caption that
+    initially displays the contents of the specified \a directory.
+    The contents of the directory are filtered before being shown in the
+    dialog, using a semicolon-separated list of filters specified by
+    \a filter.
 */
 QFileDialog::QFileDialog(QWidget *parent,
                          const QString &caption,
@@ -353,6 +353,9 @@ QFileDialog::QFileDialog(QWidget *parent,
         d->setup(directory, nameFilter);
 }
 
+/*!
+    \internal
+*/
 QFileDialog::QFileDialog(const QFileDialogArgs &args)
     : QDialog(*new QFileDialogPrivate, args.parent, 0)
 {
@@ -710,7 +713,8 @@ QStringList QFileDialog::history() const
 }
 
 /*!
-  \brief set the item delegate used to render the items in the views in the filedialog.
+  \brief set the item delegate used to render the items in the views in the
+  filedialog to the specified \a delegate
 */
 void QFileDialog::setItemDelegate(QAbstractItemDelegate *delegate)
 {
@@ -719,7 +723,8 @@ void QFileDialog::setItemDelegate(QAbstractItemDelegate *delegate)
 }
 
 /*!
-  \brief returns the item delegate used to render the items in the views in the filedialog.
+  \brief returns the item delegate used to render the items in the views in
+  the filedialog
 */
 QAbstractItemDelegate *QFileDialog::itemDelegate() const
 {
@@ -727,7 +732,8 @@ QAbstractItemDelegate *QFileDialog::itemDelegate() const
 }
 
 /*!
-  \brief set the icon provider used by the filedialog.
+  \brief set the icon provider used by the filedialog to the specified
+  \a provider
 */
 void QFileDialog::setIconProvider(QFileIconProvider *provider)
 {
@@ -1766,7 +1772,7 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
                                      const QString &dir,
                                      const QString &filter,
                                      QString *selectedFilter,
-                                     QFileDialog::Options options)
+                                     Options options)
 {
     QString directory = QFileDialogPrivate::workingDirectory(dir);
     QString selection = QFileDialogPrivate::initialSelection(dir);
@@ -2053,7 +2059,7 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
                                           const QString &dir,
                                           const QString &filter,
                                           QString *selectedFilter,
-                                          QFileDialog::Options options)
+                                          Options options)
 {
     QString directory = QFileDialogPrivate::workingDirectory(dir);
 
@@ -2138,6 +2144,37 @@ QString QFileDialog::selectedFile() const
     \fn void QFileDialog::setDir( const QDir &directory )
 
     Use setDirectory() instead.
+*/
+
+/*!
+    \fn QStringList QFileDialog::getOpenFileNames(const QString &filter,
+        const QString &dir, QWidget *parent, const char* name,
+        const QString &caption, QString *selectedFilter, bool resolveSymlinks)
+    \compat
+*/
+
+/*!
+    \fn QString QFileDialog::getOpenFileName(const QString &dir,
+        const QString &filter, QWidget *parent = 0, const char *name,
+        const QString &caption, QString *selectedFilter, bool resolveSymlinks)
+
+    \compat
+*/
+
+/*!
+    \fn QString QFileDialog::getSaveFileName(const QString &dir,
+        const QString &filter, QWidget *parent, const char *name,
+        const QString &caption, QString *selectedFilter, bool resolveSymlinks)
+
+    \compat
+*/
+
+/*!
+    \fn QString QFileDialog::getExistingDirectory(const QString &dir,
+        QWidget *parent, const char *name, const QString &caption,
+        bool dirOnly, bool resolveSymlinks)
+
+    \compat
 */
 
 #include "moc_qfiledialog.cpp"
