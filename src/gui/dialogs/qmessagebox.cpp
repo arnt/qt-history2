@@ -951,7 +951,7 @@ void QMessageBox::keyPressEvent(QKeyEvent *e)
     if (!(e->state() & Qt::AltButton)) {
         int key = e->key() & ~(Qt::MODIFIER_MASK|Qt::UNICODE_ACCEL);
         if (key) {
-            QObjectList list = children();
+            QList<QPushButton *> list = qFindChildren<QPushButton *>(this);
             for (int i = 0; i < list.size(); ++i) {
                 QPushButton *pb = qt_cast<QPushButton *>(list.at(i));
                 int acc = pb->shortcut() & ~(Qt::MODIFIER_MASK|Qt::UNICODE_ACCEL);
