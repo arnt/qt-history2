@@ -132,10 +132,16 @@ public:
     const QColorGroup &active() const { return data->active; }
     const QColorGroup &disabled() const { return data->disabled; }
     const QColorGroup &inactive() const { return data->inactive; }
+#ifndef QT_NO_COMPAT
+    const QColorGroup &normal() const { return active(); }
+#endif
 
     void	setActive( const QColorGroup & );
     void	setDisabled( const QColorGroup & );
     void	setInactive( const QColorGroup & );
+#ifndef QT_NO_COMPAT
+    void	setNormal( const QColorGroup & cg ) { setActive(cg); }
+#endif
 
     bool	operator==( const QPalette &p ) const;
     bool	operator!=( const QPalette &p ) const
