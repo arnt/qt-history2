@@ -12,6 +12,9 @@ unix {
 	    LIBS 	*= -ldb2
 	}
 }
+win32 {
+    LIBS += db2cli.lib
+}
 
 REQUIRES	= sql
 
