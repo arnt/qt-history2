@@ -6,24 +6,16 @@
 #include <qhash.h>
 #include "configureapp.h"
 
-#if defined ( Q_CC_MSVC_NET ) && _MSV_VER < 1310 // Avoids nasty warning for xlocale, line 450
-#  pragma warning ( push )
-#  pragma warning ( disable : 4189 )
-#  include <iostream>
-#  pragma warning ( pop )
-#else
-#  include <iostream>
-#endif // avoid warning in xlocale on windows .net 1310
-
+#include <iostream.h>
 #include <windows.h>
 
-using namespace std;
-
+//using namespace std;
+/*
 std::ostream &operator<<( std::ostream &s, const QString &val ) {
     s << val.latin1();
     return s;
 }
-
+*/
 // Macros to simplify options marking, and WinCE only code
 #define MARK_OPTION(x,y) ( dictionary[ #x ] == #y ? "*" : " " )
 #define WCE(x) if ( dictionary[ "QMAKESPEC" ].startsWith( "wince-" ) ) { x }
