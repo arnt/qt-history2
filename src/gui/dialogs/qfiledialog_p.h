@@ -103,7 +103,7 @@ public:
 #endif
         }
     inline QFileDialog::ViewMode viewMode() const
-        { return (listMode->isDown() ? QFileDialog::List : QFileDialog::Detail); }
+        { return (listModeButton->isDown() ? QFileDialog::List : QFileDialog::Detail); }
 
     // static stuff
     static QString encodeFileName(const QString &filename);
@@ -123,10 +123,10 @@ public:
 
     QList<QPersistentModelIndex> history;
 
-    QComboBox *lookIn;
-    QFileDialogLineEdit *fileName;
+    QComboBox *lookInCombo;
+    QFileDialogLineEdit *fileNameEdit;
     QFileDialogLineEdit *lookInEdit;
-    QComboBox *fileType;
+    QComboBox *fileTypeCombo;
 
     QAction *openAction;
     QAction *renameAction;
@@ -140,13 +140,17 @@ public:
     QAction *showHiddenAction;
 
     QPushButton *acceptButton;
-    QPushButton *cancelButton;
+    QPushButton *rejectButton;
 
-    QToolButton *back;
-    QToolButton *toParent;
-    QToolButton *newFolder;
-    QToolButton *detailMode;
-    QToolButton *listMode;
+    QToolButton *backButton;
+    QToolButton *toParentButton;
+    QToolButton *newFolderButton;
+    QToolButton *detailModeButton;
+    QToolButton *listModeButton;
+
+    QLabel *lookInLabel;
+    QLabel *fileNameLabel;
+    QLabel *fileTypeLabel;
 };
 
 struct QFileDialogArgs

@@ -41,6 +41,7 @@ public:
     enum ViewMode { Detail, List };
     enum FileMode { AnyFile, ExistingFile, Directory, ExistingFiles, DirectoryOnly };
     enum AcceptMode { AcceptOpen, AcceptSave };
+    enum DialogLabel { LookIn, FileName, FileType, Accept, Reject };
 
     enum Option {
         ShowDirsOnly = 0x01,
@@ -99,6 +100,9 @@ public:
 
     void setIconProvider(QFileIconProvider *provider);
     QFileIconProvider *iconProvider() const;
+
+    void setLabelText(DialogLabel label, const QString &text);
+    QString labelText(DialogLabel label) const;
 
 signals:
     void filesSelected(const QStringList &files);
