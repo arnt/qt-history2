@@ -301,6 +301,8 @@ void QTitleBar::mousePressEvent( QMouseEvent * e)
 	    break;
 	}
 	repaint( FALSE );
+    } else {
+	d->pressed = FALSE;
     }
 }
 
@@ -390,7 +392,7 @@ void QTitleBar::mouseMoveEvent( QMouseEvent * e)
 	break; 
 
     case QStyle::SC_TitleBarLabel:
-	if ( d->buttonDown == QStyle::SC_TitleBarLabel && d->movable) {
+	if ( d->buttonDown == QStyle::SC_TitleBarLabel && d->movable && d->pressed ) {
 	    if ( (d->moveOffset - mapToParent( e->pos() ) ).manhattanLength() >= 4 ) {
 		QPoint p = mapFromGlobal(e->globalPos());
 #ifndef QT_NO_WORKSPACE
