@@ -37,6 +37,7 @@
 #include "qt_mac.h"
 #include "qlist.h"
 
+struct timeval; //stdc struct
 struct MacTimerInfo {
     int	     id;
     int  interval;

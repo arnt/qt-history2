@@ -2,12 +2,9 @@
 #define QGUIEVENTLOOP_H
 
 #include <qeventloop.h>
+#include <qwindowdefs.h>
 
 class QGuiEventLoopPrivate;
-#ifdef Q_WS_MAC
-struct timeval; //stdc struct
-struct MacTimerInfo; //internal structure (qguieventloop_p.h)
-#endif
 
 class QGuiEventLoop : public QEventLoop
 {
