@@ -4,8 +4,8 @@ DEFINES	       += QT_MOC QT_NO_CODECS QT_LITE_UNICODE QT_NO_COMPONENT QT_NO_STL
 win32:DEFINES  += QT_NODLL
 LEXSOURCES	= moc.l
 YACCSOURCES	= moc.y
-INCLUDEPATH	= $(QTDIR)/include ../tools .
-DEPENDPATH	= $(QTDIR)/include ../tools .
+INCLUDEPATH	+= $$QT_SOURCE_TREE/include ../tools .
+DEPENDPATH	+= $$QT_SOURCE_TREE/include ../tools .
 LIBS		=
 DESTDIR         = ../../bin
 OBJECTS_DIR	= .
@@ -39,9 +39,8 @@ macx:LIBS	+= -framework Carbon
 
 TARGET		= moc
 
-target.path=$$bin.path
-isEmpty(target.path):target.path=$$QT_PREFIX/bin
-INSTALLS       += target
+target.path=$$bins.path
+INSTALLS += target
 
 *-mwerks {
    TEMPLATE = lib
@@ -49,7 +48,7 @@ INSTALLS       += target
    CONFIG -= static
    CONFIG += shared plugin
    DEFINES += MOC_MWERKS_PLUGIN
-   MWERKSDIR = $(QTDIR)/util/mwerks_plugin
+   MWERKSDIR = $QT_SOURCE_TREE/util/mwerks_plugin
    INCLUDEPATH += $$MWERKSDIR/Headers
    LIBS += $$MWERKSDIR/Libraries/PluginLib4.shlb
    SOURCES += mwerks_mac.cpp
