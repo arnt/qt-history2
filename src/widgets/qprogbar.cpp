@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogbar.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qprogbar.cpp#10 $
 **
 ** Implementation of QProgressBar class
 **
@@ -14,7 +14,7 @@
 #include "qdrawutl.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qprogbar.cpp#9 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qprogbar.cpp#10 $");
 
 
 /*!
@@ -167,11 +167,12 @@ void QProgressBar::show()
   progress bar.  
 */ 
 
-bool QProgressBar::setIndicator( QString& indicator, int progress, int total_steps )
+bool QProgressBar::setIndicator( QString& indicator, int progress,
+				 int totalSteps )
 {
-    if ( !total_steps )
+    if ( !totalSteps )
 	return FALSE;
-    int np = progress * 100 / total_steps;
+    int np = progress * 100 / totalSteps;
     if ( np != percentage ) {
 	percentage = np;
 	indicator.sprintf( "%d%%", np );
