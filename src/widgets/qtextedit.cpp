@@ -98,37 +98,39 @@ public:
 static bool block_set_alignment = FALSE;
 
 /*!
-  \class QTextEdit qtextedit.h
-  \brief The QTextEdit widget provides a sophisticated single-page rich text editor.
+    \class QTextEdit qtextedit.h
+    \brief The QTextEdit widget provides a sophisticated single-page rich text editor.
 
-  \ingroup basic
-  \ingroup text
-  \mainclass
+    \ingroup basic
+    \ingroup text
+    \mainclass
 
     QTextEdit is an advanced WYSIWYG editor supporting rich text
-    formatting. It is optimized to handle large documents and to respond
-    quickly to user input.
+    formatting. It is optimized to handle large documents and to
+    respond quickly to user input.
 
-    Internally QTextEdit works on paragraphs and characters. A paragraph
-    is a formatted string which is word-wrapped to fit into the width of
-    the widget. The words in the paragraph are aligned in accordance
-    with the paragraph's alignment(). Paragraphs are separated by hard
-    line breaks. Each character within a paragraph has its own
-    attributes, for example, font and color.
+    QTextEdit works on paragraphs and characters. A paragraph is a
+    formatted string which is word-wrapped to fit into the width of
+    the widget. A document consists of zero or more paragraphs,
+    indexed from 0. Characters are indexed on a per-paragraph basis,
+    also indexed from 0. The words in the paragraph are aligned in
+    accordance with the paragraph's alignment(). Paragraphs are
+    separated by hard line breaks. Each character within a paragraph
+    has its own attributes, for example, font and color.
 
     QTextEdit can display images (using QMimeSourceFactory), lists and
     tables. If the text is too large to view within the text edit's
-    viewport, scrollbars will appear. The text edit can load both plain
-    text and HTML files (a subset of HTML 3.2 and 4).  The rendering
-    style and the set of valid tags are defined by a styleSheet().
-    Change the style sheet with \l{setStyleSheet()}; see QStyleSheet
-    for details. The images identified by image tags are displayed if
-    they can be interpreted using the text edit's
+    viewport, scrollbars will appear. The text edit can load both
+    plain text and HTML files (a subset of HTML 3.2 and 4).  The
+    rendering style and the set of valid tags are defined by a
+    styleSheet(). Change the style sheet with \l{setStyleSheet()}; see
+    QStyleSheet for details. The images identified by image tags are
+    displayed if they can be interpreted using the text edit's
     \l{QMimeSourceFactory}; see setMimeSourceFactory().
 
-    If you want a text browser with more navigation use
-    QTextBrowser. If you just need to display a small piece of rich
-    text use QLabel or QSimpleRichText.
+    If you want a text browser with more navigation use QTextBrowser.
+    If you just need to display a small piece of rich text use QLabel
+    or QSimpleRichText.
 
     If you create a new QTextEdit, and want to allow the user to edit
     rich text, call setTextFormat(Qt::RichText) to ensure that the
@@ -138,7 +140,8 @@ static bool block_set_alignment = FALSE;
     explicitly the text edit will guess from the text itself whether
     it is rich text or plain text. This means that if the text looks
     like HTML or XML it will probably be interpreted as rich text, so
-    you should call setTextFormat(Qt::PlainText) to preserve such text.
+    you should call setTextFormat(Qt::PlainText) to preserve such
+    text.
 
     The text edit documentation uses the following concepts:
     \list
@@ -150,70 +153,72 @@ static bool block_set_alignment = FALSE;
     \endlist
 
     The text is set or replaced using setText() which deletes any
-    existing text and replaces it with the text passed in the setText()
-    call. Text can be inserted with insert(), paste() and
+    existing text and replaces it with the text passed in the
+    setText() call. Text can be inserted with insert(), paste() and
     pasteSubType(). Text can also be cut(). The entire text is deleted
     with clear() and the selected text is deleted with
     removeSelectedText(). Selected (marked) text can also be deleted
     with del() (which will delete the character to the right of the
     cursor if no text is selected).
 
-    The current format's attributes are set with setItalic(), setBold(),
-    setUnderline(), setFamily() (font family), setPointSize(),
-    setColor() and setCurrentFont().  The current paragraph's style is
-    set with setParagType() and its alignment is set with
-    setAlignment().
+    The current format's attributes are set with setItalic(),
+    setBold(), setUnderline(), setFamily() (font family),
+    setPointSize(), setColor() and setCurrentFont().  The current
+    paragraph's style is set with setParagType() and its alignment is
+    set with setAlignment().
 
     Use setSelection() to select text. The setSelectionAttributes()
-    function is used to indicate how selected text should be displayed.
-    Use hasSelectedText() to find out if any text is selected.
-    The currently selected text's position is available using
-    getSelection() and the selected text itself is returned by
+    function is used to indicate how selected text should be
+    displayed. Use hasSelectedText() to find out if any text is
+    selected. The currently selected text's position is available
+    using getSelection() and the selected text itself is returned by
     selectedText(). The selection can be copied to the clipboard with
     copy(), or cut to the clipboard with cut(). It can be deleted with
     removeSelectedText(). The entire text can be selected (or
     unselected) using selectAll(). QTextEdit supports multiple
     selections. Most of the selection functions operate on the default
-    selection, selection 0.
+    selection, selection 0. If the user presses a non-selecting key,
+    e.g. a cursor key without also holding down Shift, all selections
+    are cleared.
 
-    Set and get the position of the cursor with setCursorPosition() and
-    getCursorPosition() respectively. When the cursor is moved, the
-    signals currentFontChanged(), currentColorChanged() and
-    currentAlignmentChanged() are emitted to reflect the font, color and
-    alignment at the new cursor position.
+    Set and get the position of the cursor with setCursorPosition()
+    and getCursorPosition() respectively. When the cursor is moved,
+    the signals currentFontChanged(), currentColorChanged() and
+    currentAlignmentChanged() are emitted to reflect the font, color
+    and alignment at the new cursor position.
 
-    If the text changes, the textChanged() signal is emitted, and if the
-    user inserts a new line by pressing Return or Enter, returnPressed()
-    is emitted. The isModified() function will return TRUE if the text
-    has been modified.
+    If the text changes, the textChanged() signal is emitted, and if
+    the user inserts a new line by pressing Return or Enter,
+    returnPressed() is emitted. The isModified() function will return
+    TRUE if the text has been modified.
 
-    QTextEdit provides command-based undo and redo. To set the depth of
-    the command history use setUndoDepth() which defaults to 100
-    steps. To undo or redo the last operation call undo() or
-    redo(). The signals undoAvailable() and redoAvailable() indicate
-    whether the undo and redo operations can be executed.
+    QTextEdit provides command-based undo and redo. To set the depth
+    of the command history use setUndoDepth() which defaults to 100
+    steps. To undo or redo the last operation call undo() or redo().
+    The signals undoAvailable() and redoAvailable() indicate whether
+    the undo and redo operations can be executed.
 
-    The indent() function is used to reindent a paragraph. It is useful
-    for code editors, for example in <em>Qt Designer</em>'s code editor
-    \e{Ctrl+I} invokes the indent() function.
+    The indent() function is used to reindent a paragraph. It is
+    useful for code editors, for example in <em>Qt Designer</em>'s
+    code editor \e{Ctrl+I} invokes the indent() function.
 
-  Loading and saving text is achieved using setText() and text(), for
-  example:
-  \code
+    Loading and saving text is achieved using setText() and text(),
+    for example:
+    \code
     QFile file( fileName ); // Read the text from a file
     if ( file.open( IO_ReadOnly ) ) {
 	QTextStream ts( &file );
 	textEdit->setText( ts.read() );
     }
-  \endcode
-  \code
+    \endcode
+    \code
     QFile file( fileName ); // Write the text to a file
     if ( file.open( IO_WriteOnly ) ) {
 	QTextStream ts( &file );
 	ts << textEdit->text();
 	textEdit->setModified( FALSE );
     }
-  \endcode
+    \endcode
 
     By default the text edit wraps words at whitespace to fit within
     the text edit widget. The setWordWrap() function is used to
@@ -233,69 +238,71 @@ static bool block_set_alignment = FALSE;
     with setLinkUnderline(). The tab stop width is set with
     setTabStopWidth().
 
-    The zoomIn() and zoomOut() functions can be used to resize the text
-    by increasing (decreasing for zoomOut()) the point size used. Images
-    are not affected by the zoom functions.
+    The zoomIn() and zoomOut() functions can be used to resize the
+    text by increasing (decreasing for zoomOut()) the point size used.
+    Images are not affected by the zoom functions.
 
     The lines() function returns the number of lines in the text and
     paragraphs() returns the number of paragraphs. The number of lines
-    within a particular paragraph is returned by linesOfParagraph(). The
-    length of the entire text in characters is returned by length().
+    within a particular paragraph is returned by linesOfParagraph().
+    The length of the entire text in characters is returned by
+    length().
 
-    You can scroll to an anchor in the text, e.g. \c{<a name="anchor">}
-    with scrollToAnchor(). The find() function can be used to find and
-    select a given string within the text.
+    You can scroll to an anchor in the text, e.g. \c{<a
+    name="anchor">} with scrollToAnchor(). The find() function can be
+    used to find and select a given string within the text.
 
     The list of key-bindings which are implemented for editing:
-  \list
-  \i <i> Backspace </i> -- Delete the character to the left of the cursor
-  \i <i> Delete </i> -- Delete the character to the right of the cursor
-  \i <i> Ctrl+A </i> -- Move the cursor to the beginning of the line
-  \i <i> Ctrl+B </i> -- Move the cursor one character left
-  \i <i> Ctrl+C </i> -- Copy the marked text to the clipboard (also
-  <i>Ctrl+Insert</i> under Windows)
-  \i <i> Ctrl+D </i> -- Delete the character to the right of the cursor
-  \i <i> Ctrl+E </i> -- Move the cursor to the end of the line
-  \i <i> Ctrl+F </i> -- Move the cursor one character right
-  \i <i> Ctrl+H </i> -- Delete the character to the left of the cursor
-  \i <i> Ctrl+K </i> -- Delete to end of line
-  \i <i> Ctrl+N </i> -- Move the cursor one line down
-  \i <i> Ctrl+P </i> -- Move the cursor one line up
-  \i <i> Ctrl+V </i> -- Paste the clipboard text into line edit (also
-  <i>Shift+Insert</i> under Windows)
-  \i <i> Ctrl+X </i> -- Cut the marked text, copy to clipboard (also
-  <i>Shift+Delete</i> under Windows)
-  \i <i> Ctrl+Z </i> -- Undo the last operation
-  \i <i> Ctrl+Y </i> -- Redo the last operation
-  \i <i> Left Arrow </i> -- Move the cursor one character left
-  \i <i> Ctrl+Left Arrow </i> -- Move the cursor one word left
-  \i <i> Right Arrow </i> -- Move the cursor one character right
-  \i <i> Ctrl+Right Arrow </i> -- Move the cursor one word right
-  \i <i> Up Arrow </i> -- Move the cursor one line up
-  \i <i> Ctrl+Up Arrow </i> -- Move the cursor one word up
-  \i <i> Down Arrow </i> -- Move the cursor one line down
-  \i <i> Ctrl+Down Arrow </i> -- Move the cursor one word down
-  \i <i> Page Up </i> -- Move the cursor one page up
-  \i <i> Page Down </i> -- Move the cursor one page down
-  \i <i> Home </i> -- Move the cursor to the beginning of the line
-  \i <i> Ctrl+Home Arrow </i> -- Move the cursor to the beginning of the text
-  \i <i> End </i> -- Move the cursor to the end of the line
-  \i <i> Ctrl+End Arrow </i> -- Move the cursor to the end of the text
-    \i <i> Shift+Wheel</i> -- Scroll the page horizontally (the Wheel is
-    the mouse wheel)
-    \i <i> Ctrl+Wheel</i> -- Zoom the text
-  \endlist
+    \table
+    \header \i Keypresses \i Action
+    \row \i \e{Backspace} \i Delete the character to the left of the cursor
+    \row \i \e{Delete} \i Delete the character to the right of the cursor
+    \row \i \e{Ctrl+A} \i Move the cursor to the beginning of the line
+    \row \i \e{Ctrl+B} \i Move the cursor one character left
+    \row \i \e{Ctrl+C} \i Copy the marked text to the clipboard (also
+			  \e{Ctrl+Insert} under Windows)
+    \row \i \e{Ctrl+D} \i Delete the character to the right of the cursor
+    \row \i \e{Ctrl+E} \i Move the cursor to the end of the line
+    \row \i \e{Ctrl+F} \i Move the cursor one character right
+    \row \i \e{Ctrl+H} \i Delete the character to the left of the cursor
+    \row \i \e{Ctrl+K} \i Delete to end of line
+    \row \i \e{Ctrl+N} \i Move the cursor one line down
+    \row \i \e{Ctrl+P} \i Move the cursor one line up
+    \row \i \e{Ctrl+V} \i Paste the clipboard text into line edit
+			  (also \e{Shift+Insert} under Windows)
+    \row \i \e{Ctrl+X} \i Cut the marked text, copy to clipboard
+			  (also \e{Shift+Delete} under Windows)
+    \row \i \e{Ctrl+Z} \i Undo the last operation
+    \row \i \e{Ctrl+Y} \i Redo the last operation
+    \row \i \e{LeftArrow} \i Move the cursor one character left
+    \row \i \e{Ctrl+LeftArrow} \i Move the cursor one word left
+    \row \i \e{RightArrow} \i Move the cursor one character right
+    \row \i \e{Ctrl+RightArrow} \i Move the cursor one word right
+    \row \i \e{UpArrow} \i Move the cursor one line up
+    \row \i \e{Ctrl+UpArrow} \i Move the cursor one word up
+    \row \i \e{DownArrow} \i Move the cursor one line down
+    \row \i \e{Ctrl+Down Arrow} \i Move the cursor one word down
+    \row \i \e{PageUp} \i Move the cursor one page up
+    \row \i \e{PageDown} \i Move the cursor one page down
+    \row \i \e{Home} \i Move the cursor to the beginning of the line
+    \row \i \e{Ctrl+Home} \i Move the cursor to the beginning of the text
+    \row \i \e{End} \i Move the cursor to the end of the line
+    \row \i \e{Ctrl+End} \i Move the cursor to the end of the text
+    \row \i \e{Shift+Wheel} \i Scroll the page horizontally
+			       (the Wheel is the mouse wheel)
+    \row \i \e{Ctrl+Wheel} \i Zoom the text
+    \endtable
 
-    To select (mark) text hold down the Shift key whilst pressing one of
-    the movement keystrokes, for example, <i>Shift+Right Arrow</i> will
-    select the character to the right, and <i>Shift+Ctrl+Right Arrow</i>
-    will select the word to the right, etc.
+    To select (mark) text hold down the Shift key whilst pressing one
+    of the movement keystrokes, for example, <i>Shift+Right Arrow</i>
+    will select the character to the right, and <i>Shift+Ctrl+Right
+    Arrow</i> will select the word to the right, etc.
 
-    By default the text edit widget operates in insert mode so all text
-    that the user enters is inserted into the text edit and any text to
-    the right of the cursor is moved out of the way. The mode can be
-    changed to overwrite, where new text overwrites any text to the right
-    of the cursor, using setOverwriteMode().
+    By default the text edit widget operates in insert mode so all
+    text that the user enters is inserted into the text edit and any
+    text to the right of the cursor is moved out of the way. The mode
+    can be changed to overwrite, where new text overwrites any text to
+    the right of the cursor, using setOverwriteMode().
 
     QTextEdit can also be used as read-only text viewer. Call
     setReadOnly( TRUE ) to disable editing. A read-only QTextEdit
@@ -304,19 +311,19 @@ static bool block_set_alignment = FALSE;
 
     When QTextEdit is used read-only the key-bindings are limited to
     navigation, and text may only be selected with the mouse:
-    \list
-    \i <i> Up Arrow </i> -- Move one line up
-    \i <i> Down Arrow </i> -- Move one line down
-    \i <i> Left Arrow </i> -- Move one character left
-    \i <i> Right Arrow </i> -- Move one character right
-    \i <i> Page Up </i> -- Move one (viewport) page up
-    \i <i> Page Down </i> -- Move one (viewport) page down
-    \i <i> Home </i> -- Move to the beginning of the text
-    \i <i> End </i> -- Move to the end of the text
-    \i <i> Shift+Wheel</i> -- Scroll the page horizontally (the Wheel is
-    the mouse wheel)
-    \i <i> Ctrl+Wheel</i> -- Zoom the text
-    \endlist
+    \table
+    \header \i Keypresses \i Action
+    \row \i \e{UpArrow} \i Move one line up
+    \row \i \e{DownArrow} \i Move one line down
+    \row \i \e{LeftArrow} \i Move one character left
+    \row \i \e{RightArrow} \i Move one character right
+    \row \i \e{PageUp} \i Move one (viewport) page up
+    \row \i \e{PageDown} \i Move one (viewport) page down
+    \row \i \e{Home} \i Move to the beginning of the text
+    \row \i \e{End} \i Move to the end of the text
+    \row \i \e{Shift+Wheel} \i Scroll the page horizontally (the Wheel is the mouse wheel)
+    \row \i \e{Ctrl+Wheel} \i Zoom the text
+    \endtable
 
     The text edit may be able to provide some meta-information. For
     example, the documentTitle() function will return the text from
@@ -560,10 +567,13 @@ static bool block_set_alignment = FALSE;
   This signal is emitted if the user pressed the Return or the Enter key.
 */
 
-/*! \fn QTextCursor *QTextEdit::textCursor() const
+/*!
+    \fn QTextCursor *QTextEdit::textCursor() const
 
-  Returns the text edit's text cursor. QTextCursor is not in the
-  public API, but in special circumstances you might wish to use it.
+    Returns the text edit's text cursor.
+
+    \warning QTextCursor is not in the public API, but in special
+    circumstances you might wish to use it.
 */
 
 /*!  Constructs an empty QTextEdit with parent \a parent and name \a
@@ -3334,8 +3344,9 @@ Qt::TextFormat QTextEdit::textFormat() const
     return doc->textFormat();
 }
 
-/*! Returns the number of paragraphs in the text.
- */
+/*!
+    Returns the number of paragraphs in the text; this could be 0.
+*/
 
 int QTextEdit::paragraphs() const
 {
@@ -3347,8 +3358,10 @@ int QTextEdit::paragraphs() const
     return doc->lastParag()->paragId() + 1;
 }
 
-/*! Returns the number of lines in paragraph \a para.
- */
+/*!
+    Returns the number of lines in paragraph \a para, or -1 if there
+    is no paragraph with index \a para.
+*/
 
 int QTextEdit::linesOfParagraph( int para ) const
 {
@@ -3366,8 +3379,10 @@ int QTextEdit::linesOfParagraph( int para ) const
     return p->lines();
 }
 
-/*! Returns the length of the paragraph \a para (number of characters)
-  */
+/*!
+    Returns the length of the paragraph \a para (number of
+    characters), or -1 if there is no paragraph with index \a para
+*/
 
 int QTextEdit::paragraphLength( int para ) const
 {
@@ -3385,11 +3400,12 @@ int QTextEdit::paragraphLength( int para ) const
     return p->length() - 1;
 }
 
-/*! Returns the number of lines in the text edit.
+/*!
+    Returns the number of lines in the text edit; this could be 0.
 
-  \warning This function may be slow. Lines change all the time during
-  word wrapping, so this function has to iterate over all the paragraphs
-  and get the number of lines from each one individually.
+    \warning This function may be slow. Lines change all the time
+    during word wrapping, so this function has to iterate over all the
+    paragraphs and get the number of lines from each one individually.
 */
 
 int QTextEdit::lines() const
@@ -4716,8 +4732,9 @@ QRect QTextEdit::paragraphRect( int para ) const
     return p->rect();
 }
 
-/*! Returns the paragraph which is at position \a pos (in contents
-  coordinates), or -1 if there is no paragraph at \a pos.
+/*!
+    Returns the paragraph which is at position \a pos (in contents
+    coordinates), or -1 if there is no paragraph with index \a pos.
 */
 
 int QTextEdit::paragraphAt( const QPoint &pos ) const
@@ -4729,10 +4746,11 @@ int QTextEdit::paragraphAt( const QPoint &pos ) const
     return -1;
 }
 
-/*! Returns the index of the character (relative to its paragraph) at
-  position \a pos (in contents coordinates). If \a para is not null,
-  \a para is set to this paragraph. If there is no character at \a
-  pos, -1 is returned.
+/*!
+    Returns the index of the character (relative to its paragraph) at
+    position \a pos (in contents coordinates). If \a para is not null,
+    \e *\a para is set to this paragraph. If there is no character at
+    \a pos, -1 is returned.
 */
 
 int QTextEdit::charAt( const QPoint &pos, int *para ) const
@@ -4832,7 +4850,7 @@ void QTextEdit::updateCursor( const QPoint & pos )
     if ( isReadOnly() && linksEnabled() ) {
 	QTextCursor c = *cursor;
 	placeCursor( pos, &c, TRUE );
-	
+
 #ifndef QT_NO_NETWORKPROTOCOL
 	if ( c.parag() && c.parag()->at( c.index() ) &&
 	     c.parag()->at( c.index() )->isAnchor() &&
@@ -4841,7 +4859,7 @@ void QTextEdit::updateCursor( const QPoint & pos )
 		onLink = c.parag()->at( c.index() )->anchorHref();
 	    else
 		onLink = QString::null;
-	
+
 #ifndef QT_NO_CURSOR
 	    viewport()->setCursor( onLink.isEmpty() ? arrowCursor : pointingHandCursor );
 #endif
