@@ -1149,9 +1149,6 @@ void QPainter::drawTextItem(int x, int y, const QTextItem &ti, int textFlags)
     QFontEngine *fe = engine->fontEngine(*si);
     Q_ASSERT( fe );
 
-    x += si->x;
-    y += si->y;
-
     QGlyphFragment gf;
     gf.analysis = si->analysis;
     gf.hasPositioning = si->hasPositioning;

@@ -1140,8 +1140,8 @@ void QPSPrinterFontPrivate::drawText( QTextStream &stream, const QPoint &p, QTex
     int len = engine->length( item );
     QScriptItem &si = engine->items[item];
 
-    int x = p.x() + si.x;
-    int y = p.y() + si.y;
+    int x = p.x();
+    int y = p.y();
     if ( y != d->textY || d->textY == 0 )
         stream << y << " Y";
     d->textY = y;
@@ -1816,8 +1816,8 @@ void QPSPrinterFontTTF::drawText( QTextStream &stream, const QPoint &p, QTextEng
     engine->shape( item );
     int len = si.num_glyphs;
 
-    int x = p.x() + si.x;
-    int y = p.y() + si.y;
+    int x = p.x();
+    int y = p.y();
     if ( y != d->textY || d->textY == 0 )
         stream << y << " Y";
     d->textY = y;
@@ -3721,8 +3721,8 @@ void QPSPrinterFontAsian::drawText( QTextStream &stream, const QPoint &p, QTextE
     int len = engine->length( item );
     QScriptItem &si = engine->items[item];
 
-    int x = p.x() + si.x;
-    int y = p.y() + si.y;
+    int x = p.x();
+    int y = p.y();
     if ( y != d->textY || d->textY == 0 )
         stream << y << " Y";
     d->textY = y;

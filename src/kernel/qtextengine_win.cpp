@@ -10,6 +10,8 @@
 **
 ****************************************************************************/
 
+#if 0
+
 #ifdef QT_THREAD_SUPPORT
 #  include <private/qmutexpool_p.h>
 #endif // QT_THREAD_SUPPORT
@@ -557,6 +559,9 @@ static void uspAppendItems(QTextEngine *engine, int &start, int &stop, BidiContr
     ++stop;
     start = stop;
 }
+
+#endif
+
 // -----------------------------------------------------------------------------------------------------
 //
 // Text engine classes

@@ -32,8 +32,6 @@ public:
     inline bool isValid() const { return (bool)eng; }
 
     QRect rect() const;
-    int x() const;
-    int y() const;
     int width() const;
     int ascent() const;
     int descent() const;
@@ -130,7 +128,7 @@ public:
     ~QTextLayout();
 
     void setText( const QString& string, const QFont& fnt );
-    void setText( const QString& string, const QTextFormatCollection *formats );
+    void setFormatCollection(const QTextFormatCollection *formats);
     void setText( const QString& string);
     QString text() const;
 
@@ -138,9 +136,6 @@ public:
 	AtWordBoundaries,
 	AtCharBoundaries
     };
-
-    /* add an additional item boundary eg. for style change */
-    void setBoundary( int strPos );
 
     void setFormat(int from, int length, int format);
     void setTextFlags(int textFlags);

@@ -817,7 +817,7 @@ static void calcLineBreaks(const QString &str, QCharAttributes *charAttributes)
 
 
 
-void QTextEngine::init(const QString &str)
+void QTextEngine::setText(const QString &str)
 {
     pal = 0;
     textFlags = 0;
@@ -826,12 +826,6 @@ void QTextEngine::init(const QString &str)
     haveCharAttributes = false;
     widthOnly = false;
 
-#ifdef Q_WS_WIN
-    if ( !resolvedUsp10 )
-	resolveUsp10();
-#endif
-    memory = 0;
-    allocated = 0;
     used = 0;
 
     reallocate(qMax( 16, str.length()*3/2 ));
@@ -954,6 +948,38 @@ void QTextEngine::splitItem( int item, int pos )
 //     qDebug("split at position %d itempos=%d", pos, item );
 }
 
+void QTextEngine::itemize( int mode )
+{
+    items.clear();
+    if ( string.length() == 0 )
+	return;
+
+    if ( !(mode & NoBidi) ) {
+	if ( direction == QChar::DirON )
+	    direction = basicDirection( string );
+	bidiItemize( this, direction == QChar::DirR, mode );
+    } else {
+	BidiControl control( FALSE );
+	if ( mode & QTextEngine::SingleLine )
+	    control.singleLine = TRUE;
+	int start = 0;
+	int stop = string.length() - 1;
+	appendItems(this, start, stop, control, QChar::DirL);
+    }
+    if ( (mode & WidthOnly) == WidthOnly )
+	widthOnly = TRUE;
+}
+
+int QTextEngine::findItem(int strPos) const
+{
+    // ##### use binary search
+    int item;
+    for ( item = items.size()-1; item > 0; --item ) {
+	if ( items[item].position <= strPos )
+	    break;
+    }
+    return item;
+}
 
 int QTextEngine::width( int from, int len ) const
 {
@@ -1006,28 +1032,6 @@ int QTextEngine::width( int from, int len ) const
     return w;
 }
 
-void QTextEngine::itemize( int mode )
-{
-    items.clear();
-    if ( string.length() == 0 )
-	return;
-
-    if ( !(mode & NoBidi) ) {
-	if ( direction == QChar::DirON )
-	    direction = basicDirection( string );
-	bidiItemize( this, direction == QChar::DirR, mode );
-    } else {
-	BidiControl control( FALSE );
-	if ( mode & QTextEngine::SingleLine )
-	    control.singleLine = TRUE;
-	int start = 0;
-	int stop = string.length() - 1;
-	appendItems(this, start, stop, control, QChar::DirL);
-    }
-    if ( (mode & WidthOnly) == WidthOnly )
-	widthOnly = TRUE;
-}
-
 glyph_metrics_t QTextEngine::boundingBox( int from,  int len ) const
 {
     glyph_metrics_t gm;
@@ -1075,17 +1079,6 @@ glyph_metrics_t QTextEngine::boundingBox( int from,  int len ) const
 	}
     }
     return gm;
-}
-
-int QTextEngine::findItem(int strPos) const
-{
-    // ##### use binary search
-    int item;
-    for ( item = items.size()-1; item > 0; --item ) {
-	if ( items[item].position <= strPos )
-	    break;
-    }
-    return item;
 }
 
 QFontPrivate *QTextEngine::fontPrivate(const QScriptItem &si) const

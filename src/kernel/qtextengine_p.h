@@ -180,7 +180,7 @@ struct QScriptItem
     inline QScriptItem() : position( 0 ), isSpace( FALSE ), isTab( FALSE ),
 			   isObject( FALSE ), hasPositioning( FALSE ),
 			   descent( -1 ), ascent( -1 ), width( -1 ),
-			   x( 0 ), y( 0 ), num_glyphs( 0 ), glyph_data_offset( 0 ),
+			   num_glyphs( 0 ), glyph_data_offset( 0 ),
 			   format(-1) { }
 
     int position;
@@ -193,8 +193,6 @@ struct QScriptItem
     short descent;
     int ascent;
     int width;
-    int x;
-    int y;
     int num_glyphs;
     int glyph_data_offset;
     int format;
@@ -253,15 +251,16 @@ class QPalette;
 
 class QTextEngine {
 public:
-    QTextEngine( const QString &str) : fnt(0), formats(0)
-	{ init(str); }
-    QTextEngine( const QString &str, QFontPrivate *f ) : fnt(f), formats(0)
-	{ init(str); if (fnt) fnt->ref(); }
-    QTextEngine( const QString &str, const QTextFormatCollection *fmts ) : fnt(0), formats(fmts)
-	{ init(str); }
+    QTextEngine()
+	: fnt(0), formats(0), allocated(0), memory(0)
+	{}
+    QTextEngine(const QString &str, QFontPrivate *f )
+	: fnt(f), formats(0), allocated(0), memory(0)
+	{ setText(str); fnt->ref(); }
     ~QTextEngine();
 
-    void init(const QString &str);
+    void setText(const QString &str);
+    void setFormatCollection(const QTextFormatCollection *fmts) { formats = fmts; }
 
     enum Mode {
 	Full = 0x00,

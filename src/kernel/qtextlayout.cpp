@@ -24,17 +24,7 @@
 QRect QTextItem::rect() const
 {
     QScriptItem& si = eng->items[itm];
-    return QRect( si.x, si.y - si.ascent, si.width, si.ascent+si.descent );
-}
-
-int QTextItem::x() const
-{
-    return eng->items[itm].x;
-}
-
-int QTextItem::y() const
-{
-    return eng->items[itm].y;
+    return QRect( 0, - si.ascent, si.width, si.ascent+si.descent );
 }
 
 int QTextItem::width() const
@@ -104,12 +94,12 @@ bool QTextItem::isTab() const
 
 
 QTextLayout::QTextLayout()
-    :d(0)
-{}
+{ d = new QTextEngine(); }
 
 QTextLayout::QTextLayout(const QString& string)
 {
-    d = new QTextEngine(string);
+    d = new QTextEngine();
+    d->setText(string);
 }
 
 QTextLayout::QTextLayout( const QString& string, QPainter *p )
@@ -128,22 +118,21 @@ QTextLayout::~QTextLayout()
     delete d;
 }
 
+// ####### go away!
 void QTextLayout::setText( const QString& string, const QFont& fnt )
 {
     delete d;
     d = new QTextEngine( (string.isNull() ? (const QString&)QString::fromLatin1("") : string), fnt.d );
 }
 
-void QTextLayout::setText( const QString& string, const QTextFormatCollection *formats )
+void QTextLayout::setFormatCollection(const QTextFormatCollection *formats )
 {
-    delete d;
-    d = new QTextEngine( (string.isNull() ? (const QString&)QString::fromLatin1("") : string), formats );
+    d->setFormatCollection(formats);
 }
 
 void QTextLayout::setText( const QString& string )
 {
-    delete d;
-    d = new QTextEngine( (string.isNull() ? (const QString&)QString::fromLatin1("") : string));
+    d->setText(string);
 }
 
 QString QTextLayout::text() const
@@ -152,25 +141,6 @@ QString QTextLayout::text() const
 }
 
 /* add an additional item boundary eg. for style change */
-void QTextLayout::setBoundary( int strPos )
-{
-    if ( strPos <= 0 || strPos >= (int)d->string.length() )
-	return;
-
-    int itemToSplit = 0;
-    while ( itemToSplit < d->items.size() && d->items[itemToSplit].position <= strPos )
-	itemToSplit++;
-    itemToSplit--;
-    if ( d->items[itemToSplit].position == strPos ) {
-	// already a split at the requested position
-	return;
-    }
-    // we have to ensure we get correct shaping for arabic and other
-    // complex languages so we have to call shape _before_ we split the item.
-    d->shape(itemToSplit);
-    d->splitItem( itemToSplit, strPos - d->items[itemToSplit].position );
-}
-
 
 int QTextLayout::numItems() const
 {
