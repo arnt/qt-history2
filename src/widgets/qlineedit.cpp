@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#173 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#174 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -166,6 +166,7 @@ QLineEdit::QLineEdit( QWidget *parent, const char *name )
     setFocusPolicy( StrongFocus );
     setCursor( ibeamCursor );
     setBackgroundMode( PaletteBase );
+    setKeyCompression( TRUE );
     alignmentFlag = Qt::AlignLeft;
     alignOffset = 0;
     setAcceptDrops( TRUE );
