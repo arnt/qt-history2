@@ -28,7 +28,7 @@ ListViewContainer::ListViewContainer(QGenericListView *listView, QWidget *parent
     // setup the listview
     Q_ASSERT(list);
     list->setParent(this);
-    list->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    list->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Minimum);
     list->viewport()->installEventFilter(this);
     setFocusProxy(list);
     list->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -1308,7 +1308,6 @@ void QComboBox::resizeEvent(QResizeEvent *)
 void QComboBox::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
-    QRect comboRect = rect();
     painter.setPen(palette().color(QPalette::Text));
 
     // paint the combobox except content
