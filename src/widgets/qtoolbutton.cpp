@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#6 $
 **
 ** Implementation of something useful.
 **
@@ -21,7 +21,7 @@
 #include "qimage.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#5 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#6 $");
 
 
 static QToolButton * threeDeeButton = 0;
@@ -50,6 +50,9 @@ QToolButton::QToolButton( QWidget * parent, const char * name )
     init();
     setAutoMinimumSize( TRUE );
     setUsesBigPixmap( FALSE );
+    if ( parent->inherits( "QToolBar" ) )
+	 connect( parent, SIGNAL(useBigPixmaps(bool)),
+		  this, SLOT(setUsesBigPixmap(bool)) );
 }
 
 
@@ -91,7 +94,9 @@ QToolButton::QToolButton( const QPixmap & pm, const char * textLabel,
     connect( this, SIGNAL(clicked()), receiver, slot );
     connect( parent, SIGNAL(useBigPixmaps(bool)),
 	     this, SLOT(setUsesBigPixmap(bool)) );
-    debug( "Sex %s", grouptext );
+    if ( grouptext && *grouptext )
+	warning( "QToolButton::QToolButton: (%s) Not using grouptext \"%s\"",
+		 name, grouptext );
 }
 
 
@@ -128,7 +133,7 @@ void QToolButton::setToggleButton( bool enable )
 QSize QToolButton::sizeHint() const
 {
     int w, h;
-    
+
     if ( text() ) {
 	w = fontMetrics().width( text() );
 	h = fontMetrics().height(); // boundingRect()?
@@ -137,7 +142,7 @@ QSize QToolButton::sizeHint() const
     } else {
 	w = h = 16;
     }
-    
+
     if ( usesTextLabel() ) {
 	h += 4 + fontMetrics().height();
 	int tw = fontMetrics().width( textLabel() );
@@ -159,12 +164,18 @@ QPixmap QToolButton::bigPixmap()
 	return QPixmap();
 
     if ( bpID == pixmap()->serialNumber() )
-	return sp;
+	return bp;
 
     bpID = pixmap()->serialNumber();
     if ( pixmap()->width() < 21 && pixmap()->height() < 21 ) {
 	QImage i( pixmap()->convertToImage() );
-	i = i.smoothScale( 24, 24 );
+	if ( i.width() > i.height() )
+	    i = i.smoothScale( 24, i.height() * 24 / i.width() );
+	else if ( i.width() < i.height() )
+	    i = i.smoothScale( i.width() * 24 / i.height(), 24 );
+	else
+	    i = i.smoothScale( 24, 24 );
+	
 	bp.convertFromImage( i );
     } else {
 	bp = *pixmap();
@@ -190,6 +201,13 @@ QPixmap QToolButton::smallPixmap()
 	sp = *pixmap();
     } else {
 	QImage i( pixmap()->convertToImage() );
+	if ( i.width() > i.height() )
+	    i = i.smoothScale( 16, i.height() * 16 / i.width() );
+	else if ( i.width() < i.height() )
+	    i = i.smoothScale( i.width() * 16 / i.height(), 16 );
+	else
+	    i = i.smoothScale( 16, 16 );
+
 	sp.convertFromImage( i.smoothScale( 16, 16 ) );
     }
     return sp;
