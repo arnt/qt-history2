@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#23 $
+** $Id: //depot/qt/main/src/tools/qstring.h#24 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
@@ -152,8 +152,8 @@ public:
     QString	right( uint len )	const;
     QString	mid( uint index, uint len) const;
 
-    QString	leftJustify( uint width, char fill=' ' )  const;
-    QString	rightJustify( uint width, char fill=' ' ) const;
+    QString	leftJustify( uint width, char fill=' ', bool trunc=FALSE)const;
+    QString	rightJustify( uint width, char fill=' ',bool trunc=FALSE)const;
 
     QString     lower() const;
     QString     upper()	const;

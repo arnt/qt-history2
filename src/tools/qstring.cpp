@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#40 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#41 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -20,7 +20,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#40 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#41 $";
 #endif
 
 
@@ -809,7 +809,7 @@ QString QString::right( uint len ) const
   Example:
   \code
     QString s = "Two pineapples";
-    QString t = s.mid( 4, 9 );		// t == "pineapple"
+    QString t = s.mid( 4, 4 );		// t == "pine"
   \endcode
 
   \sa left(), right()
@@ -835,8 +835,10 @@ QString QString::mid( uint index, uint len ) const
   Returns a string of length \e width (plus '\0') that contains this
   string and padded by the \e fill character.
 
-  If the length of the string exceeds \e width, then the result
-  string will be a truncated copy of the string.
+  If the length of the string exceeds \e width and \e truncate is FALSE,
+  then the returned string will be a copy of the string.
+  If the length of the string exceeds \e width and \e truncate is TRUE,
+  then the returned string will be a left(\e width).
 
   Example:
   \code
@@ -847,28 +849,34 @@ QString QString::mid( uint index, uint len ) const
   \sa rightJustify()
  ----------------------------------------------------------------------------*/
 
-QString QString::leftJustify( uint width, char fill ) const
+QString QString::leftJustify( uint width, char fill, bool truncate ) const
 {
-    QString tmp;
+    QString result;
     int len = strlen(data());
     int padlen = width - len;
     if ( padlen > 0 ) {
-	tmp.QByteArray::resize( len+padlen+1 );
-	memcpy( tmp.data(), data(), len );
-	memset( tmp.data()+len, fill, padlen );
-	tmp[len+padlen] = '\0';
+	result.QByteArray::resize( len+padlen+1 );
+	memcpy( result.data(), data(), len );
+	memset( result.data()+len, fill, padlen );
+	result[len+padlen] = '\0';
     }
-    else
-	tmp = this->left( width );
-    return tmp;
+    else {
+	if ( truncate )
+	    result = left( width );
+	else
+	    result = copy();
+    }
+    return result;
 }
 
 /*----------------------------------------------------------------------------
   Returns a string of length \e width (plus '\0') that contains pad
   characters followed by the string.
 
-  If the length of the string exceeds \e width, then the returned string
-  will be a truncated copy of the string.
+  If the length of the string exceeds \e width and \e truncate is FALSE,
+  then the returned string will be a copy of the string.
+  If the length of the string exceeds \e width and \e truncate is TRUE,
+  then the returned string will be a right(\e width).
 
   Example:
   \code
@@ -879,20 +887,24 @@ QString QString::leftJustify( uint width, char fill ) const
   \sa leftJustify()
  ----------------------------------------------------------------------------*/
 
-QString QString::rightJustify( uint width, char fill ) const
+QString QString::rightJustify( uint width, char fill, bool truncate ) const
 {
-    QString tmp;
+    QString result;
     int len = strlen(data());
     int padlen = width - len;
     if ( padlen > 0 ) {
-	tmp.QByteArray::resize( len+padlen+1 );
-	memset( tmp.data(), fill, padlen );
-	memcpy( tmp.data()+padlen, data(), len );
-	tmp[len+padlen] = '\0';
+	result.QByteArray::resize( len+padlen+1 );
+	memset( result.data(), fill, padlen );
+	memcpy( result.data()+padlen, data(), len );
+	result[len+padlen] = '\0';
     }
-    else
-	tmp = this->right( width );
-    return tmp;
+    else {
+	if ( truncate )
+	    result = left( width );
+	else
+	    result = copy();
+    }
+    return result;
 }
 
 /*----------------------------------------------------------------------------
@@ -906,8 +918,6 @@ QString QString::rightJustify( uint width, char fill ) const
     QString s("TeX");
     QString t = s.lower();		// t == "tex"
   \endcode
-
-  \todo Non-ASCII character set support
 
   \sa upper()
  ----------------------------------------------------------------------------*/
@@ -936,8 +946,6 @@ QString QString::lower() const
     QString s("TeX");
     QString t = s.upper();		// t == "TEX"
   \endcode
-
-  \todo Non-ASCII character set support
 
   \sa lower()
  ----------------------------------------------------------------------------*/
@@ -1007,7 +1015,7 @@ QString QString::stripWhiteSpace() const
 
   \code
     QString s = "  lots\t of\nwhite    space ";
-    QString t = s.simplifyWhiteSpace();		// t == "lots of white space"
+    QString t = s.simplifyWhiteSpace();	// t == "lots of white space"
   \endcode
 
   \sa stripWhiteSpace()
