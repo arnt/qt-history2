@@ -53,9 +53,6 @@ QUrl
     Directories that contain the '\' character cannot be read properly by QUrl (it
     hoses the name in slashify()) (qt-bugs/arc-07/15583)
 
-QWorkspace
-    Resizing doesn't keep the icons in the visible area
-
 Cosmetic
 --------
 
@@ -71,6 +68,3 @@ QFileDialog
 
 QMainWindow/QToolBar
     Toolbar dragging produces rubbish qt-bugs/arc-07/15183
-
-QApplication (win32)
-    Don't reset everything on every WM_SETTINGCHANGE event

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#418 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#419 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -411,6 +411,11 @@ static void qt_set_windows_resources()
     QApplication::setFont( messageFont, TRUE, "QMessageBox");
     QApplication::setFont( statusFont, TRUE, "QTipLabel");
     QApplication::setFont( statusFont, TRUE, "QStatusBar");
+
+    BOOL effect = FALSE;
+
+    if ( qt_std_pal && *qt_std_pal != QApplication::palette() )
+	return;
 
     // Do the color settings
 
