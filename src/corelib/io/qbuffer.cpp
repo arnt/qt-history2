@@ -383,6 +383,18 @@ bool QBuffer::atEnd() const
 }
 
 /*!
+   \reimp
+*/
+bool QBuffer::canReadLine() const
+{
+    Q_D(const QBuffer);
+    if (!isOpen())
+	return false;
+
+    return d->buf->indexOf('\n', d->ioIndex) != -1;
+}
+
+/*!
     \reimp
 */
 qint64 QBuffer::readData(char *data, qint64 len)

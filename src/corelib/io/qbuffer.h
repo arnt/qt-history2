@@ -51,7 +51,8 @@ public:
     qint64 pos() const;
     bool seek(qint64 off);
     bool atEnd() const;
-
+    bool canReadLine() const;    
+    
 protected:
     qint64 readData(char *data, qint64 maxlen);
     qint64 writeData(const char *data, qint64 len);
