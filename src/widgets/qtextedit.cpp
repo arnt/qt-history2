@@ -624,6 +624,7 @@ QTextEdit::~QTextEdit()
 
 void QTextEdit::init()
 {
+    d = new QTextEditPrivate;
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     d->od = 0;
     d->optimMode = FALSE;
@@ -633,7 +634,6 @@ void QTextEdit::init()
     readonly = TRUE;
     setReadOnly( FALSE );
     setFrameStyle( LineEditPanel | Sunken );
-    d = new QTextEditPrivate;
     connect( doc, SIGNAL( minimumWidthChanged( int ) ),
 	     this, SLOT( documentWidthChanged( int ) ) );
 
