@@ -546,8 +546,7 @@ void QWindowsStyle::drawControl( ControlElement element,
 		} else {
  		    p->setPen( cg.shadow() );
 		    p->drawLine( r2.left() + 1, r2.top() + 1, 
-				 r2.right() - (selected ? 1 :
-					       (firstIsCurrent ? 0 : 2) ),
+				 r2.right() - (firstIsCurrent ? 0 : 2),
 				 r2.top() + 1 );
 		    p->setPen( cg.dark() );
 		    p->drawLine( r2.left(), r2.top(), r2.right(), r2.top() );
