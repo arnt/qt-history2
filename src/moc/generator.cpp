@@ -217,16 +217,21 @@ void Generator::generateCode()
     fprintf(out, "static const char qt_meta_stringdata_%s[] = {\n", qualifiedClassNameIdentifier.constData());
     fprintf(out, "    \"");
     int col = 0;
+    int len = 0;
     for (i = 0; i < strings.size(); ++i) {
         QByteArray s = strings.at(i);
-        if (col && col + strlen(s) >= 72) {
+        len = s.length();
+        if (col && col + len >= 72) {
             fprintf(out, "\"\n    \"");
             col = 0;
+        } else if (len && s.at(0) >= '0' && s.at(0) <= '9') {
+            fprintf(out, "\"\"");
+            len += 2;
         }
         if (!is_ident_start(s[0]))
             fprintf(out, "\"\"");
         fprintf(out, "%s\\0", s.constData());
-        col += strlen(s)+2;
+        col += len + 2;
     }
     fprintf(out, "\"\n};\n\n");
 
