@@ -299,8 +299,8 @@ void MainWindow::on_actionEditFindAgainPrev_triggered()
 void MainWindow::on_actionGoHome_triggered()
 {
     QString home = Config::configuration()->homePage();    
-#if defined(Q_OS_WIN32)
     QUrl url(home);
+#if defined(Q_OS_WIN32)
     home = home.toLower();
     if (!url.isValid()) {
         foreach (QFileInfo drive, QDir::drives()) {
@@ -311,6 +311,9 @@ void MainWindow::on_actionGoHome_triggered()
         }
     }
     home = home.replace("\\", "/");
+#else
+    if (!url.isValid() || url.scheme().isEmpty())
+        home.prepend("file:");
 #endif
     showLink(home);
 }
