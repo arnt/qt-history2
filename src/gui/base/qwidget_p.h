@@ -151,7 +151,10 @@ public:
 #if defined(Q_WS_X11)
 	,xinfo(0)
 #endif
-    {high_attributes[0] = 0;}
+    {
+	isWidget = true;
+	high_attributes[0] = 0;
+    }
     ~QWidgetPrivate();
 
     QWExtra	*extraData() const;

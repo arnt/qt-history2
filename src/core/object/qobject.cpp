@@ -265,15 +265,7 @@ void *qt_find_obj_child( QObject *parent, const char *type, const char *name )
 */
 
 QObject::QObject(QObject *parent)
-    :
-    isWidget( FALSE ), 				// assume not a widget object
-    pendTimer( FALSE ),				// no timers yet
-    blockSig( FALSE ),      			// not blocking signals
-    wasDeleted( FALSE ),       			// double-delete catcher
-    hasPostedEvents( FALSE ),
-    hasPostedChildInsertedEvents( FALSE ),
-    parentObj( 0 ),				// no parent yet. It is set by setParent()
-    d_ptr( new QObjectPrivate )
+    : d_ptr( new QObjectPrivate )
 {
     d_ptr->q_ptr = this;
     setParent(parent);
@@ -288,15 +280,7 @@ QObject::QObject(QObject *parent)
     \obsolete
  */
 QObject::QObject( QObject *parent, const char *name )
-    :
-    isWidget( FALSE ), 				// assume not a widget object
-    pendTimer( FALSE ),				// no timers yet
-    blockSig( FALSE ),      			// not blocking signals
-    wasDeleted( FALSE ),       			// double-delete catcher
-    hasPostedEvents( FALSE ),
-    hasPostedChildInsertedEvents( FALSE ),
-    parentObj( 0 ),				// no parent yet. It is set by setParent()
-    d_ptr( new QObjectPrivate )
+    : d_ptr( new QObjectPrivate )
 {
     d_ptr->q_ptr = this;
     setParent(parent);
@@ -309,49 +293,29 @@ QObject::QObject( QObject *parent, const char *name )
 
 /*!\internal*/
 QObject::QObject(QObjectPrivate &dd, QObject *parent)
-    :
-    isWidget( FALSE ), 				// assume not a widget object
-    pendTimer( FALSE ),				// no timers yet
-    blockSig( FALSE ),      			// not blocking signals
-    wasDeleted( FALSE ),       			// double-delete catcher
-    hasPostedEvents( FALSE ),
-    hasPostedChildInsertedEvents( FALSE ),
-    parentObj( 0 ),				// no parent yet. It is set by setParent()
-    d_ptr(&dd)
+    : d_ptr(&dd)
 {
     d_ptr->q_ptr = this;
-    setParent(parent);
-    QEvent e( QEvent::Create );
-    QCoreApplication::sendEvent( this, &e );
-    QCoreApplication::postEvent(this, new QEvent(QEvent::PolishRequest));
-}
-
-/*!\internal*/
-QObject::QObject(QWidgetPrivate &dd, QObject *parent)
-    :
-    isWidget(true),
-    pendTimer(false),
-    blockSig(false),
-    wasDeleted(false),
-    hasPostedEvents(false),
-    hasPostedChildInsertedEvents(false),
-    parentObj(0),
-    d_ptr((QObjectPrivate*)&dd)
-{
-    d_ptr->q_ptr = this;
-    if (parent) {
-	parentObj = parent;
-	parentObj->d->children.append(this);
+    if (d->isWidget) {
+	if (parent) {
+	    d->parent = parent;
+	    d->parent->d->children.append(this);
 #if defined(QT_THREAD_SUPPORT)
-	d->thread = parentObj->d->thread;
+	    d->thread = d->parent->d->thread;
 #endif
-    }
+	}
 #if defined(QT_THREAD_SUPPORT)
-    else {
-	d->thread = QThread::currentThread();
-    }
+	else {
+	    d->thread = QThread::currentThread();
+	}
 #endif
-    // no events sent here, this is done at the end of the QWidget constructor
+	// no events sent here, this is done at the end of the QWidget constructor
+    } else {
+	setParent(parent);
+	QEvent e( QEvent::Create );
+	QCoreApplication::sendEvent( this, &e );
+	QCoreApplication::postEvent(this, new QEvent(QEvent::PolishRequest));
+    }
 }
 
 /*!
@@ -376,18 +340,18 @@ QObject::QObject(QWidgetPrivate &dd, QObject *parent)
 
 QObject::~QObject()
 {
-    if ( wasDeleted ) {
+    if ( d->wasDeleted ) {
 #if defined(QT_DEBUG)
 	qWarning( "Double QObject deletion detected." );
 #endif
 	return;
     }
-    wasDeleted = 1;
+    d->wasDeleted = true;
 
     QEvent e( QEvent::Destroy );
     QCoreApplication::sendEvent( this, &e );
 
-    blockSig = 0; // unblock signals so we always emit destroyed()
+    d->blockSig = 0; // unblock signals so we always emit destroyed()
     emit destroyed( this );
 
     {
@@ -446,10 +410,10 @@ QObject::~QObject()
 #else
     QEventLoop *eventloop = QEventLoop::instance();
 #endif
-    if (eventloop && pendTimer)
+    if (eventloop && d->pendTimer)
 	eventloop->unregisterTimers(this);
 
-    if ( parentObj )				// remove it from parent object
+    if ( d->parent )				// remove it from parent object
 	setParent_helper(0);
 
     d->eventFilters.clear();
@@ -790,9 +754,9 @@ void QObject::ensurePolished() const
 
     QEvent e(QEvent::Polish);
     QCoreApplication::sendEvent((QObject*)this, &e);
-    if (parentObj) {
+    if (d->parent) {
 	QChildEvent e(QEvent::ChildPolished, (QObject*)this);
-	QCoreApplication::sendEvent((QObject*)parentObj, &e);
+	QCoreApplication::sendEvent(d->parent, &e);
     }
 }
 
@@ -904,8 +868,8 @@ bool QObject::eventFilter( QObject * /* watched */, QEvent * /* e */ )
 
 bool QObject::blockSignals( bool block )
 {
-    bool previous = blockSig;
-    blockSig = block;
+    bool previous = d->blockSig;
+    d->blockSig = block;
     return previous;
 }
 
@@ -921,7 +885,7 @@ Qt::HANDLE QObject::thread() const
  */
 void QObject::setThread(Qt::HANDLE thread)
 {
-    Q_ASSERT_X(!parentObj, "QObject::setThread",
+    Q_ASSERT_X(!d->parent, "QObject::setThread",
 	       "Cannot set the thread on an object with a parent.");
     Q_ASSERT_X(thread != 0, "QObject::setThread",
 	       "thread argument must not be zero.");
@@ -992,7 +956,7 @@ void QObject::setThread(Qt::HANDLE thread)
 
 int QObject::startTimer( int interval )
 {
-    pendTimer = TRUE;				// set timer flag
+    d->pendTimer = TRUE;				// set timer flag
 #if defined(QT_THREAD_SUPPORT)
     QEventLoop *eventloop = QEventLoop::instance(d->thread);
 #else
@@ -1063,7 +1027,8 @@ static void objSearch( QObjectList &result,
     \sa children()
 */
 
-/*!
+/*! \fn const QObjectList &QObject::children() const
+
     Returns a list of child objects, or 0 if this object has no
     children.
 
@@ -1083,10 +1048,6 @@ static void objSearch( QObjectList &result,
 
     \sa child(), queryList(), parent(), setParent()
 */
-const QObjectList &QObject::children() const
-{
-    return d->children;
-}
 
 
 
@@ -1227,35 +1188,35 @@ QObject *QObject::findChild_helper(const char *name, const QMetaObject &mo) cons
 
 void QObject::setParent(QObject *parent)
 {
-    Q_ASSERT(!isWidget);
+    Q_ASSERT(!d->isWidget);
     setParent_helper(parent);
 }
 
 
 void QObject::setParent_helper(QObject *parent)
 {
-    if (parent && parent == parentObj)
+    if (parent && parent == d->parent)
 	return;
-    if (parentObj && parentObj->d->children.remove(this)) {
+    if (d->parent && d->parent->d->children.remove(this)) {
 	QChildEvent e(QEvent::ChildRemoved, this);
-	QCoreApplication::sendEvent( parentObj, &e);
+	QCoreApplication::sendEvent( d->parent, &e);
     }
-    parentObj = parent;
-    if (parentObj) {
+    d->parent = parent;
+    if (d->parent) {
 #if defined(QT_THREAD_SUPPORT)
 	// object heirarchies are constrained to a single thread
-	d->thread = parentObj->d->thread;
+	d->thread = d->parent->d->thread;
 #endif
-	parentObj->d->children.append(this);
+	d->parent->d->children.append(this);
 	const QMetaObject *polished = d->polished;
 	QChildEvent e(QEvent::ChildAdded, this);
-	QCoreApplication::sendEvent(parentObj, &e);
+	QCoreApplication::sendEvent(d->parent, &e);
 	if (polished) {
 	    QChildEvent e(QEvent::ChildPolished, this);
-	    QCoreApplication::sendEvent(parentObj, &e);
+	    QCoreApplication::sendEvent(d->parent, &e);
 	}
 #ifdef QT_COMPAT
-	QCoreApplication::postEvent(parentObj, new QChildEvent(QEvent::ChildInserted, this));
+	QCoreApplication::postEvent(d->parent, new QChildEvent(QEvent::ChildInserted, this));
 #endif
 #ifdef QT_THREAD_SUPPORT
     } else {
@@ -2258,7 +2219,7 @@ void QMetaObject::connectSlotsByName(const QObject *o)
  */
 void QMetaObject::activate(QObject *obj, int signal_index, void **argv)
 {
-    if (obj->blockSig)
+    if (obj->d->blockSig)
 	return;
     int i = 0;
     QObjectPrivate::Connections::Connection *c, *nc, cc;
@@ -2404,7 +2365,7 @@ static void dumpRecursive( int level, QObject *object )
 {
 #if defined(QT_DEBUG)
     if ( object ) {
-	QString buf;
+	QByteArray buf;
 	buf.fill( '\t', level/2 );
 	if ( level % 2 )
 	    buf += "    ";

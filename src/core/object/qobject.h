@@ -37,7 +37,8 @@ class QCustomEvent;
 struct QMetaObject;
 class QCoreVariant;
 class QObjectPrivate;
-class QWidgetPrivate;
+class QObject;
+class QWidget;
 #ifndef QT_NO_REGEXP
 class QRegExp;
 #endif
@@ -46,6 +47,28 @@ class QObjectUserData;
 #endif
 
 typedef QList<QObject*> QObjectList;
+
+class QObjectData {
+public:
+    virtual ~QObjectData() = 0;
+    QObject *q_ptr;
+    QObject *parent;
+    QObjectList children;
+
+    uint isWidget : 1;
+    uint pendTimer : 1;
+    uint blockSig : 1;
+    uint wasDeleted : 1;
+    uint ownObjectName : 1;
+    uint hasPostedEvents : 1;
+#ifdef QT_COMPAT
+    uint hasPostedChildInsertedEvents : 1;
+    uint unused : 25;
+#else
+    uint unused : 26;
+#endif
+};
+
 
 class Q_CORE_EXPORT QObject: public Qt
 {
@@ -77,9 +100,9 @@ public:
     void setObjectName(const char *name);
     void setObjectNameConst(const char *name);
 
-    inline bool isWidgetType() const { return isWidget; }
+    inline bool isWidgetType() const { return d_ptr->isWidget; }
 
-    inline bool signalsBlocked() const { return blockSig; }
+    inline bool signalsBlocked() const { return d_ptr->blockSig; }
     bool blockSignals(bool b);
 
 #if defined(QT_THREAD_SUPPORT)
@@ -105,7 +128,7 @@ public:
 			  bool regexpMatch = true,
 			  bool recursiveSearch = true) const;
 #endif
-    const QObjectList &children() const;
+    const QObjectList &children() const { return d_ptr->children; }
 
     void setParent(QObject *);
     void installEventFilter(const QObject *);
@@ -149,7 +172,7 @@ signals:
     void destroyed(QObject * = 0);
 
 public:
-    inline QObject *parent() const { return parentObj; }
+    inline QObject *parent() const { return d_ptr->parent; }
 
     inline bool inherits(const char *classname) const
 	{ return qt_metacast(classname) != 0; }
@@ -202,25 +225,10 @@ public:
 protected:
     QObject(QObjectPrivate &d, QObject *parent);
 private:
-    QObject(QWidgetPrivate &d, QObject *parent);
     void setParent_helper(QObject *);
-    uint isWidget : 1;
-    uint pendTimer : 1;
-    uint blockSig : 1;
-    uint wasDeleted : 1;
-    uint ownObjectName : 1;
-    uint hasPostedEvents : 1;
-#ifdef QT_COMPAT
-    uint hasPostedChildInsertedEvents : 1;
-    uint unused : 25;
-#else
-    uint unused : 26;
-#endif
-
-    QObject *parentObj;
 
 protected:
-    QObjectPrivate *d_ptr;
+    QObjectData *d_ptr;
     Q_DECL_PRIVATE( QObject );
 
     static const QMetaObject staticQtMetaObject;
@@ -240,7 +248,7 @@ private: // Disabled copy constructor and operator=
 inline bool QObject::isAncestorOf(const QObject *child) const
 {
     while (child) {
-	child = child->parentObj;
+	child = child->d_ptr->parent;
 	if (child == this)
 	    return true;
     }

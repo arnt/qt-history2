@@ -374,11 +374,12 @@ bool QCoreApplication::notify( QObject *receiver, QEvent *e )
 	       .arg(QString::number((ulong) QThread::currentThread(), 16))
 	       .arg(receiver->objectName())
 	       .arg(receiver->className())
-	       .arg(QString::number((ulong) receiver->thread(), 16)));
+	       .arg(QString::number((ulong) receiver->thread(), 16))
+	       .latin1());
 #endif
 
 #ifdef QT_COMPAT
-    if (e->type() == QEvent::ChildRemoved && receiver->hasPostedChildInsertedEvents) {
+    if (e->type() == QEvent::ChildRemoved && receiver->d->hasPostedChildInsertedEvents) {
 	QPostEventList *postedEvents = qt_postEventList(receiver);
 	if (postedEvents) {
 	    M_LOCK(&postedEvents->mutex);
@@ -404,7 +405,7 @@ bool QCoreApplication::notify( QObject *receiver, QEvent *e )
 			postedChildInsertEventsRemaining = true;
 		    }
 		}
-		receiver->hasPostedChildInsertedEvents = postedChildInsertEventsRemaining;
+		receiver->d->hasPostedChildInsertedEvents = postedChildInsertEventsRemaining;
 	    }
 	}
     }
@@ -644,16 +645,16 @@ void QCoreApplication::postEvent( QObject *receiver, QEvent *event )
     M_LOCK(&postedEvents->mutex);
 
     // if this is one of the compressible events, do compression
-    if (receiver->hasPostedEvents && self && self->compressEvent(event, receiver, postedEvents)) {
+    if (receiver->d->hasPostedEvents && self && self->compressEvent(event, receiver, postedEvents)) {
 	delete event;
 	return;
     }
 
     event->posted = TRUE;
-    receiver->hasPostedEvents = true;
+    receiver->d->hasPostedEvents = true;
 #ifdef QT_COMPAT
     if (event->type() == QEvent::ChildInserted)
-	receiver->hasPostedChildInsertedEvents = true;
+	receiver->d->hasPostedChildInsertedEvents = true;
 #endif
     postedEvents->append( QPostEvent( receiver, event ) );
 
@@ -701,7 +702,7 @@ void QCoreApplication::sendPostedEvents( QObject *receiver, int event_type )
 
 #ifdef QT_COMPAT
     // optimize sendPostedEvents(w, QEvent::ChildInserted) calls away
-    if (receiver && event_type == QEvent::ChildInserted && !receiver->hasPostedChildInsertedEvents)
+    if (receiver && event_type == QEvent::ChildInserted && !receiver->d->hasPostedChildInsertedEvents)
 	return;
     // Make sure the object hierarchy is stable before processing events
     // to avoid endless loops
@@ -711,7 +712,7 @@ void QCoreApplication::sendPostedEvents( QObject *receiver, int event_type )
 
     M_LOCK(&postedEvents->mutex);
 
-    if (!*postedEvents || (receiver && !receiver->hasPostedEvents))
+    if (!*postedEvents || (receiver && !receiver->d->hasPostedEvents))
 	return;
 
     // okay. here is the tricky loop. be careful about optimizing
@@ -775,18 +776,18 @@ void QCoreApplication::sendPostedEvents( QObject *receiver, int event_type )
 	if (!receiver) {
 	    for (i = 0; i < postedEvents->size(); ++i) {
 		if ((receiver = postedEvents->at(i).receiver)) {
-		    receiver->hasPostedEvents = false;
+		    receiver->d->hasPostedEvents = false;
 #ifdef QT_COMPAT
-		    receiver->hasPostedChildInsertedEvents = false;
+		    receiver->d->hasPostedChildInsertedEvents = false;
 #endif
 		}
 	    }
 	    postedEvents->clear();
 	    postedEvents->offset = 0;
 	} else {
-	    receiver->hasPostedEvents = false;
+	    receiver->d->hasPostedEvents = false;
 #ifdef QT_COMPAT
-	    receiver->hasPostedChildInsertedEvents = false;
+	    receiver->d->hasPostedChildInsertedEvents = false;
 #endif
 	}
     }
@@ -795,9 +796,9 @@ void QCoreApplication::sendPostedEvents( QObject *receiver, int event_type )
 	if (!receiver) {
 	    for (i = 0; i < postedEvents->size(); ++i)
 		if ((receiver = postedEvents->at(i).receiver))
-		    receiver->hasPostedChildInsertedEvents = false;
+		    receiver->d->hasPostedChildInsertedEvents = false;
 	} else {
-	    receiver->hasPostedChildInsertedEvents = false;
+	    receiver->d->hasPostedChildInsertedEvents = false;
 	}
     }
 #endif
@@ -827,12 +828,12 @@ void QCoreApplication::removePostedEvents( QObject *receiver )
     // happen while the event loop is in the middle of posting events,
     // and when we get here, we may not have any more posted events
     // for this object.
-    if ( !receiver->hasPostedEvents ) return;
+    if ( !receiver->d->hasPostedEvents ) return;
 
     // iterate over the object-specific list and delete the events.
     // leave the QPostEvent objects; they'll be deleted by
     // sendPostedEvents().
-    receiver->hasPostedEvents = false;
+    receiver->d->hasPostedEvents = false;
     for (int i = 0; i < postedEvents->size(); ++i) {
 	const QPostEvent &pe = postedEvents->at(i);
 	if (pe.receiver == receiver) {

@@ -5426,7 +5426,7 @@ void QWidget::updateGeometry()
  */
 void QWidget::setParent_helper(QObject *parent)
 {
-    if (parent && !parent->isWidget) {
+    if (parent && !parent->d->isWidget) {
 	qWarning("QWidget::setParent: Cannot reparent a widget into an object.");
 	return;
     }

@@ -48,11 +48,12 @@ private: \
     friend class Class
 
 
-class Q_CORE_EXPORT QObjectPrivate : public Qt
+inline QObjectData::~QObjectData() {}
+
+
+class Q_CORE_EXPORT QObjectPrivate : public QObjectData, public Qt
 {
     Q_DECL_PUBLIC( QObject );
-protected:
-    QObject *q_ptr;
 
 public:
 
@@ -67,6 +68,15 @@ public:
 	objectName(0),
 	ownObjectName(false)
     {
+	// QObjectData initialization
+	q_ptr = 0;
+	parent = 0;				// no parent yet. It is set by setParent()
+	isWidget = false; 				// assume not a widget object
+	pendTimer = false;				// no timers yet
+	blockSig = false;      			// not blocking signals
+	wasDeleted = false;       			// double-delete catcher
+	hasPostedEvents = false;
+	hasPostedChildInsertedEvents = false;
 #if defined(QT_THREAD_SUPPORT)
 	spinlock.initialize();
 #endif
@@ -128,7 +138,6 @@ public:
     static void resetCurrentSender(QObject *receiver, QObject *sender);
 
 
-    QObjectList children;
     QList<QPointer<QObject> > eventFilters;
 
 #ifndef QT_NO_USERDATA

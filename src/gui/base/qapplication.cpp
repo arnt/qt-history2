@@ -894,7 +894,7 @@ QApplication::~QApplication()
     QWidget::mapper = 0;
     for (QWidgetMapper::Iterator it = myMapper->begin(); it != myMapper->end(); ++it) {
 	register QWidget *w = *it;
-	if ( !w->parentObj )			// widget is a parent
+	if ( !w->parent() )			// widget is a parent
 	    w->destroy( TRUE, TRUE );
     }
     delete myMapper;
@@ -2473,7 +2473,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 #endif
 
 #ifdef QT_COMPAT
-    if (e->type() == QEvent::ChildRemoved && receiver->hasPostedChildInsertedEvents) {
+    if (e->type() == QEvent::ChildRemoved && receiver->d->hasPostedChildInsertedEvents) {
 	extern QPostEventList *qt_postEventList(QObject *); // from qcoreapplication.cpp
 	QPostEventList *postedEvents = qt_postEventList(receiver);
 	if (postedEvents) {
@@ -2500,7 +2500,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
 			postedChildInsertEventsRemaining = true;
 		    }
 		}
-		receiver->hasPostedChildInsertedEvents = postedChildInsertEventsRemaining;
+		receiver->d->hasPostedChildInsertedEvents = postedChildInsertEventsRemaining;
 	    }
 	}
     }
