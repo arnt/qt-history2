@@ -570,6 +570,7 @@ void QFont::setRawName( const QString &name )
 void QFont::cleanup()
 {
     delete QFontPrivate::fontCache;
+    QFontPrivate::fontCache = NULL;
 }
 
 Qt::HANDLE QFont::handle() const

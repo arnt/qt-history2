@@ -2292,14 +2292,25 @@ bool QFontCache::insert(const QString &key, const QFontStruct *qfs, int cost)
 }
 
 
+#ifdef Q_WS_MAC
+template<> inline void QCache<QFontStruct>::deleteItem( QPtrCollection::Item d )
+#else
 void QFontCache::deleteItem(Item d)
+#endif
 {
+
     QFontStruct *qfs = (QFontStruct *) d;
 
     // don't try to delete negative cache items
     if (qfs == (QFontStruct *) -1)
 	return;
 
+#ifdef Q_WS_MAC
+    if (this != QFontPrivate::fontCache)
+	qWarning( "Multiple QCache<QFontStruct> exist." );
+
+    qfs->deref();
+#endif
     if (qfs->count == 0) {
 
 #ifdef QFONTCACHE_DEBUG

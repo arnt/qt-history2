@@ -194,8 +194,9 @@ public:
     ~QFontCache();
 
     bool insert(const QString &, const QFontStruct *, int c);
-    void deleteItem(Item);
-
+#ifndef Q_WS_MAC
+    void deleteItem(Item d);
+#endif
     void timerEvent(QTimerEvent *);
 
 
@@ -464,7 +465,10 @@ public:
 #endif
 
 #if defined( Q_WS_MAC )
-    ~QFontPrivate() { if( fin ) fin->deref(); }
+    ~QFontPrivate() {
+	if( fin && fin->deref() )
+	    delete fin; 
+    }
     void macSetFont(QPaintDevice *);
     void drawText( int x, int y, QString s, int len );
     void computeLineWidth();
