@@ -530,7 +530,7 @@ void qSystemWarning( const char *msg, ... )
 	}
 	(*handler)( QtSystemMsg, buf );
     } else {
-	vsprintf( buf, msg, ap );		// ### is there no vsnprintf()?
+	vsprintf( buf.data(), msg, ap );		// ### is there no vsnprintf()?
 	va_end( ap );
 #if defined(Q_CC_MWERKS)
         mac_default_handler(buf);
