@@ -1697,7 +1697,8 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
         case WM_ERASEBKGND:                        // erase window background
             if (!widget->testAttribute(Qt::WA_PendingUpdate)
                 && !widget->testAttribute(Qt::WA_NoBackground)
-                && widget->windowType() != Qt::Popup)
+                && widget->windowType() != Qt::Popup
+                && widget->windowType() != Qt::ToolTip)
                 widget->eraseWindowBackground((HDC)wParam);
             RETURN(true);
             break;
@@ -1836,7 +1837,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
             break;
 #endif
 
-        case WM_IME_STARTCOMPOSITION: 
+        case WM_IME_STARTCOMPOSITION:
         case WM_IME_ENDCOMPOSITION:
         case WM_IME_COMPOSITION: {
             QWidget *fw = qApp->focusWidget();

@@ -906,9 +906,12 @@ void QWidgetPrivate::updateSystemBackground()
 {
     Q_Q(QWidget);
     QBrush brush = q->palette().brush(q->backgroundRole());
+    Qt::WindowType type = q->windowType();
     if (brush.style() == Qt::NoBrush
         || q->testAttribute(Qt::WA_NoSystemBackground)
-        || q->testAttribute(Qt::WA_UpdatesDisabled))
+        || q->testAttribute(Qt::WA_UpdatesDisabled)
+        || type == Qt::Popup || type == Qt::ToolTip
+        )
         XSetWindowBackgroundPixmap(X11->display, q->winId(), XNone);
     else if (isBackgroundInherited())
         XSetWindowBackgroundPixmap(X11->display, q->winId(), ParentRelative);
