@@ -6,7 +6,7 @@ General clean-up
   Use ptrdiff_t instead of uint or whatever for pointer substraction.
   Review code and API to get 64-bit-clean.
 
-Check > 2Gb file access is possible on 64-bit platforms
+Large file access > 2Gb
   On 64-bit platforms offsets must be ulong, not uint, etc.
   On 32-bit platforms, Qt should be "large file safe" if not "large file aware".
 
@@ -45,6 +45,11 @@ QMenuData
   Clean up the semi-internalness of QMenuItem, ref qmenudata.h. Either
   make it public or provide another API (e.g. methods in QMenuData) for
   asking about the contents of an existing menu.
+
+QSemiModal
+  Find a way to have QSemiModal #ifdef'ed out by QT_NO_COMPAT if nexessary
+  but gave its MOC functions linked in if necessary... Probably the MOC
+  code needs to be put in the header?
 
 
 Specific enhancements
