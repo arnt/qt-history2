@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#48 $
 **
 ** Implementation of movie classes
 **
@@ -248,6 +248,7 @@ void QMoviePrivate::flushBuffer()
 	buf_r = (buf_r + used)%buf_size;
 	buf_usage -= used;
     }
+    if(error) frametimer->stop();
     maybeReady();
 }
 
@@ -848,7 +849,7 @@ void QMovie::disconnectStatus(QObject* receiver, const char *member)
 ** QMoviePrivate meta object code from reading C++ file 'standard input'
 **
 ** Created: Fri Aug 21 01:55:09 1998
-**      by: The Qt Meta Object Compiler ($Revision: 1.47 $)
+**      by: The Qt Meta Object Compiler ($Revision: 1.48 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
