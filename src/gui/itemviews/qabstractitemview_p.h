@@ -13,10 +13,10 @@ public:
 
     void init();
 
-    inline bool shouldEdit(const QModelIndex &item, QItemDelegate::StartEditAction action)
+    inline bool shouldEdit(const QModelIndex &item, QAbstractItemDelegate::StartEditAction action)
 	{ return q_func()->model()->isEditable(item) && (action & startEditActions); }
 
-    bool createEditor(const QModelIndex &item, QItemDelegate::StartEditAction action, QEvent *event);
+    bool createEditor(const QModelIndex &item, QAbstractItemDelegate::StartEditAction action, QEvent *event);
 //     bool sendItemEvent(const QModelIndex &data, QEvent *event);
 //     QWidget *findPersistentEditor( const QModelIndexPtr &item ) const;
 //     void insertPersistentEditor( const QModelIndexPtr &item, QWidget *editor );
@@ -24,7 +24,7 @@ public:
     QGenericItemModel *model;
     QPointer<QWidget> currentEditor;
     QModelIndex editItem;
-    mutable QItemDelegate *delegate;
+    mutable QAbstractItemDelegate *delegate;
     QItemSelectionModelPointer selectionModel;
  //    QVector<int> sorting;
 //     int sortColumn;

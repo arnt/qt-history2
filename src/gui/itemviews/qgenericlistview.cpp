@@ -1,5 +1,5 @@
 #include "qgenericlistview.h"
-#include <qitemdelegate.h>
+#include <qabstractitemdelegate.h>
 #include <qapplication.h>
 #include <qdragobject.h>
 #include <qpainter.h>
@@ -370,7 +370,7 @@ public:
     void createStaticColumn(int &x, int &y, int &dx, int &wraps, int i,
 			    const QRect &bounds, int spacing, int delta);
     void initStaticLayout(int &x, int &y, int first, const QRect &bounds);
-    
+
     QGenericListView::Flow flow;
     QGenericListView::Wrap wrap;
     QGenericListView::Movement movement;
@@ -443,7 +443,7 @@ void QGenericListView::setSpacing(int space)
 void QGenericListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionUpdateMode mode)
 {
     QRect crect(rect.left() + contentsX(), rect.top() + contentsY(), rect.width(), rect.height());
-    
+
     if (d->movement == Static)
 	d->intersectingStaticSet(crect);
     else
@@ -620,7 +620,7 @@ void QGenericListView::paintEvent(QPaintEvent *e)
     getViewOptions(&options);
 
     QModelIndex current = currentItem();
-    QItemDelegate *delegate = itemDelegate();
+    QAbstractItemDelegate *delegate = itemDelegate();
     QItemSelectionModel *selections = selectionModel();
     bool focus = viewport()->hasFocus() && current.isValid();
     QVector<QModelIndex>::iterator it = d->intersectVector.begin();
@@ -782,7 +782,7 @@ void QGenericListView::ensureItemVisible(const QModelIndex &item)
 
     if (area.contains(rect) || model()->parent(item) != root())
 	return;
-    
+
     // vertical
     if (rect.top() < area.top()) { // above
 	int cy = contentsY() + rect.top();
@@ -904,7 +904,7 @@ void QGenericListView::doStaticLayout(const QRect &bounds, int first, int last)
     QFontMetrics fontMetrics(font());
     QItemOptions options;
     getViewOptions(&options);
-    QItemDelegate *delegate = itemDelegate();
+    QAbstractItemDelegate *delegate = itemDelegate();
     QSize hint;
     QRect rect = bounds;
 /*
@@ -1175,7 +1175,7 @@ void QGenericListViewPrivate::createItems(int to)
     q->getViewOptions(&options);
     QFontMetrics fontMetrics(q->font());
     QGenericItemModel *model = q->model();
-    QItemDelegate *delegate = q->itemDelegate();
+    QAbstractItemDelegate *delegate = q->itemDelegate();
     QModelIndex root = q->root();
     for (int i = count; i < to; ++i) {
 	size = delegate->sizeHint(fontMetrics, options, model->index(i, 0, root)); // FIXME: optimized size
@@ -1193,7 +1193,7 @@ void QGenericListViewPrivate::drawDraggedItems(QPainter *painter, const QPoint &
     int cy = q->contentsY();
     QItemOptions options;
     q->getViewOptions(&options);
-    QItemDelegate *delegate = q->itemDelegate();
+    QAbstractItemDelegate *delegate = q->itemDelegate();
     QPoint delta = pos - q->dragRect().topLeft();
     QVector<QModelIndex>::const_iterator it = draggedItems.begin();
     QGenericListViewItem item = indexToListViewItem(*it);

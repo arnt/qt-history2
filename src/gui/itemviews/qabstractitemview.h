@@ -5,7 +5,7 @@
 #include <qviewport.h>
 #include <qgenericitemmodel.h>
 #include <qitemselectionmodel.h>
-#include <qitemdelegate.h>
+#include <qabstractitemdelegate.h>
 #include <qdragobject.h>
 #include <qevent.h>
 #endif
@@ -39,8 +39,8 @@ public:
     void setCurrentItem(const QModelIndex &data);
     QModelIndex currentItem() const;
 
-    void setItemDelegate(QItemDelegate *delegate);
-    QItemDelegate *itemDelegate() const;
+    void setItemDelegate(QAbstractItemDelegate *delegate);
+    QAbstractItemDelegate *itemDelegate() const;
 
     virtual void setStartEditActions(int actions);
     int startEditActions() const;
@@ -52,7 +52,7 @@ public:
     virtual int contentsY() const = 0;
     virtual int contentsWidth() const = 0;
     virtual int contentsHeight() const = 0;
-    
+
     int visibleWidth() const;
     int visibleHeight() const;
     QRect visibleRect() const;
@@ -82,13 +82,13 @@ protected:
 
     enum CursorAction { MoveDown, MoveUp, MoveLeft, MoveRight, MoveHome, MoveEnd, MovePageUp, MovePageDown };
     virtual QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state) = 0;
-    
+
     inline QModelIndex itemAt(const QPoint &p) const { return itemAt(p.x(), p.y()); }
     virtual QModelIndex itemAt(int x, int y) const = 0;
 
     virtual QRect itemViewportRect(const QModelIndex &item) const = 0;
     virtual void ensureItemVisible(const QModelIndex &item) = 0;
-    
+
     virtual void updateItem(const QModelIndex &item);
     virtual void updateRow(const QModelIndex &item);
     virtual void updateViewport(const QRect &rect);
@@ -96,8 +96,8 @@ protected:
 
     virtual void setSelection(const QRect&, QItemSelectionModel::SelectionUpdateMode) = 0;
     virtual QRect selectionRect(const QItemSelection *selection) const = 0;
-    
-    virtual bool startEdit(const QModelIndex &item, QItemDelegate::StartEditAction action, QEvent *event);
+
+    virtual bool startEdit(const QModelIndex &item, QAbstractItemDelegate::StartEditAction action, QEvent *event);
     virtual void endEdit(const QModelIndex &item, bool accept);
 
     virtual QItemSelectionModel::SelectionBehavior selectionBehavior() const;
@@ -122,7 +122,7 @@ protected:
     enum State { NoState, Dragging, Selecting, Editing, Opening, Closing };
     State state() const;
     void setState(State state);
-    
+
     virtual void viewportMousePressEvent(QMouseEvent *e);
     virtual void viewportMouseMoveEvent(QMouseEvent *e);
     virtual void viewportMouseReleaseEvent(QMouseEvent *e);
@@ -132,13 +132,13 @@ protected:
     virtual void viewportDragMoveEvent(QDragMoveEvent *e);
     virtual void viewportDragLeaveEvent(QDragLeaveEvent *e);
     virtual void viewportDropEvent(QDropEvent *e);
-    
+
     void focusInEvent(QFocusEvent *e);
     void focusOutEvent(QFocusEvent *e);
     void keyPressEvent(QKeyEvent *e);
     void resizeEvent(QResizeEvent *e);
     void showEvent(QShowEvent *e);
-    
+
 private slots:
     void fetchMore();
 };

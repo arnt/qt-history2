@@ -4,7 +4,7 @@
 #include <qpainter.h>
 #include <qstyle.h>
 #include <qgenericitemmodel.h>
-#include <qitemdelegate.h>
+#include <qabstractitemdelegate.h>
 #include <qevent.h>
 #include <qscrollbar.h>
 #include <private/qabstractitemview_p.h>
@@ -133,7 +133,7 @@ int QGenericHeader::sectionSizeHint(int section, bool all) const
 {
     QItemOptions options;
     getViewOptions(&options);
-    QItemDelegate *delegate = itemDelegate();
+    QAbstractItemDelegate *delegate = itemDelegate();
     int hint = 0;
     int row = orientation() == Vertical ? section : 0;
     int col = orientation() == Vertical ? 0 : section;
@@ -166,7 +166,7 @@ int QGenericHeader::sectionSizeHint(int section, bool all) const
 void QGenericHeader::paintEvent(QPaintEvent *e)
 {
     QPainter painter(viewport());
-    
+
     int offset = d->offset;
 
     QItemOptions options;
@@ -180,7 +180,7 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
 	start = indexAt(offset);
 	end = indexAt(offset +  + viewport()->height());
     }
-    
+
     int tmp = start;
     start = qMin(start, end);
     end = qMax(tmp, end);
@@ -190,7 +190,7 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
     QModelIndex item;
     if (d->sections.isEmpty())
 	return;
-    QItemDelegate *delegate = itemDelegate();
+    QAbstractItemDelegate *delegate = itemDelegate();
     const QGenericHeaderPrivate::HeaderSection *sections = d->sections.constData();
     for (int i = start; i <= end; ++i) {
 	if (sections[i].hidden)
@@ -206,7 +206,7 @@ void QGenericHeader::paintEvent(QPaintEvent *e)
     }
 }
 
-void QGenericHeader::paintSection(QPainter *painter, QItemDelegate *delegate,
+void QGenericHeader::paintSection(QPainter *painter, QAbstractItemDelegate *delegate,
 				  QItemOptions *options, const QModelIndex &item)
 {
     QStyle::SFlags flags = QStyle::Style_Off | (orientation() == Horizontal ? QStyle::Style_Horizontal : 0);
@@ -423,7 +423,7 @@ void QGenericHeader::contentsRemoved(const QModelIndex &parent,
 void QGenericHeader::ensureItemVisible(const QModelIndex &index)
 {
     // this should only update the scrollvalue, and only if the item is not visible
-    
+
 //     if (orientation() == Horizontal)
 // 	setOffset(sectionPosition(index.column()));
 //     else

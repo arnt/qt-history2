@@ -27,7 +27,7 @@ public:
     Orientation orientation() const;
     int offset() const;
     int size() const;
-    QSize sizeHint() const;    
+    QSize sizeHint() const;
     int sectionSizeHint(int section, bool all = true) const;
 
     int sectionAt(int position) const;
@@ -90,10 +90,10 @@ protected:
     void viewportMousePressEvent(QMouseEvent *e);
     void viewportMouseMoveEvent(QMouseEvent *e);
     void viewportMouseReleaseEvent(QMouseEvent *e);
-    
+
     void resizeEvent(QResizeEvent *e);
 
-    virtual void paintSection(QPainter *painter, QItemDelegate *delegate, QItemOptions *options,
+    virtual void paintSection(QPainter *painter, QAbstractItemDelegate *delegate, QItemOptions *options,
 			      const QModelIndex &item);
 
     int indexAt(int position) const;

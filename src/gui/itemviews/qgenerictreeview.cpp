@@ -91,7 +91,7 @@ public:
     int indentation(int item) const;
     int coordinate(int item, int value) const;
     int item(int coordinate, int value) const;
-    
+
     int viewIndex(const QModelIndex &index, int value) const;
     QModelIndex modelIndex(int i) const;
 
@@ -225,7 +225,7 @@ int QGenericTreeView::contentsHeight() const
 void QGenericTreeView::paintEvent(QPaintEvent *e)
 {
     QPainter painter(viewport());
-    
+
     d->left = 0;//qMax(d->header->sectionAt(contentsX()), 0);
     d->right = -1;//d->header->sectionAt(contentsX() + visibleWidth());
     if (d->right < 0)
@@ -235,11 +235,11 @@ void QGenericTreeView::paintEvent(QPaintEvent *e)
 	return;
 
     QGenericTreeViewItem *items = d->items.data();
-    
+
     QItemOptions options;
     getViewOptions(&options);
     QFontMetrics fontMetrics(this->fontMetrics());
-    QItemDelegate *delegate = itemDelegate();
+    QAbstractItemDelegate *delegate = itemDelegate();
     QModelIndex index;
     QModelIndex current = selectionModel()->currentItem();
 
@@ -389,7 +389,7 @@ void QGenericTreeView::ensureItemVisible(const QModelIndex &item)
 
     if (area.contains(rect))
 	return;
-    
+
     // vertical
     if (rect.top() < area.top()) { // above
 	int v = verticalScrollBar()->value();
@@ -399,7 +399,7 @@ void QGenericTreeView::ensureItemVisible(const QModelIndex &item)
  	QItemOptions options;
  	getViewOptions(&options);
  	QFontMetrics fontMetrics(this->fontMetrics());
- 	QItemDelegate *delegate = itemDelegate();
+ 	QAbstractItemDelegate *delegate = itemDelegate();
 	int v = verticalScrollBar()->value();
 	int i = d->viewIndex(item, v);
  	int y = area.height();
@@ -408,7 +408,7 @@ void QGenericTreeView::ensureItemVisible(const QModelIndex &item)
 	int a = (-y * verticalFactor()) / delegate->sizeHint(fontMetrics, options, d->items.at(i).index).height();
 	verticalScrollBar()->setValue(++i * verticalFactor() + a);
     }
-    
+
     // horizontal
     if (rect.left() < area.left()) { // left of
 	horizontalScrollBar()->setValue(item.column() * horizontalFactor());
@@ -622,12 +622,12 @@ void QGenericTreeView::updateGeometries()
 {
     QSize hint = d->header->sizeHint();
     setViewportMargins(0, hint.height(), 0, 0);
-    
+
     bool reverse = QApplication::reverseLayout();
     QRect vg = viewport()->geometry();
     d->header->setGeometry(reverse ? vg.right() - hint.width() : vg.left(),
 			   vg.top() - hint.height() - 1, vg.width(), hint.height());
-    
+
     // update sliders
     QItemOptions options;
     getViewOptions(&options);
@@ -750,8 +750,8 @@ int QGenericTreeViewPrivate::coordinate(int item, int value) const
     QItemOptions options;
     q->getViewOptions(&options);
     QFontMetrics fontMetrics(q->fontMetrics());
-    QItemDelegate *delegate = q->itemDelegate();
-    
+    QAbstractItemDelegate *delegate = q->itemDelegate();
+
     int i = itemAt(value); // first item (may start above the page)
     int ih = delegate->sizeHint(fontMetrics, options, items.at(i).index).height();
     int y = coordinateAt(value, ih); // the part of the item above the page
@@ -775,7 +775,7 @@ int QGenericTreeViewPrivate::item(int coordinate, int value) const
     QItemOptions options;
     q->getViewOptions(&options);
     QFontMetrics fontMetrics(q->fontMetrics());
-    QItemDelegate *delegate = q->itemDelegate();
+    QAbstractItemDelegate *delegate = q->itemDelegate();
 
     int i = itemAt(value);
     int y = coordinateAt(value, delegate->sizeHint(fontMetrics, options, items[i].index).height());
