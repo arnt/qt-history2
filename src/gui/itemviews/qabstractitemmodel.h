@@ -185,13 +185,16 @@ public:
 
 signals:
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    void headerDataChanged(Qt::Orientation orientation, int first, int last);
     void rowsInserted(const QModelIndex &parent, int first, int last);
     void rowsRemoved(const QModelIndex &parent, int first, int last);
     void columnsInserted(const QModelIndex &parent, int first, int last);
     void columnsRemoved(const QModelIndex &parent, int first, int last);
-    void headerChanged(Qt::Orientation orientation, int first, int last);
     void reset();
 
+protected slots:
+    void resetPresistentIndexes();
+    
 protected:
     QAbstractItemModel(QAbstractItemModelPrivate &dd, QObject *parent);
 

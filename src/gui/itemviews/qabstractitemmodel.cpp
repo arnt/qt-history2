@@ -577,6 +577,7 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
 QAbstractItemModel::QAbstractItemModel(QObject *parent)
     : QObject(*new QAbstractItemModelPrivate, parent)
 {
+    QObject::connect(this, SIGNAL(reset()), this, SLOT(resetPresistentIndexes()));
 }
 
 /*!
@@ -585,6 +586,7 @@ QAbstractItemModel::QAbstractItemModel(QObject *parent)
 QAbstractItemModel::QAbstractItemModel(QAbstractItemModelPrivate &dd, QObject *parent)
     : QObject(dd, parent)
 {
+    QObject::connect(this, SIGNAL(reset()), this, SLOT(resetPresistentIndexes()));
 }
 
 /*!
@@ -1100,6 +1102,13 @@ bool QAbstractItemModel::setHeaderData(int section, Qt::Orientation orientation,
     use to create model indices.
 */
 
+/*!
+  \internal
+*/
+void QAbstractItemModel::resetPresistentIndexes()
+{
+    invalidatePersistentIndexes();
+}
 
 /*!
   \internal
