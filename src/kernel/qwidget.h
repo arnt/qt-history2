@@ -109,7 +109,6 @@ class Q_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY( QString iconText READ iconText WRITE setIconText )
 #endif
     Q_PROPERTY( bool mouseTracking READ hasMouseTracking WRITE setMouseTracking )
-    Q_PROPERTY( bool underMouse READ hasMouse )
     Q_PROPERTY( bool isActiveWindow READ isActiveWindow )
     Q_PROPERTY( bool focusEnabled READ isFocusEnabled )
     Q_PROPERTY( FocusPolicy focusPolicy READ focusPolicy WRITE setFocusPolicy )
@@ -213,7 +212,7 @@ public:
 
     QWidget	*topLevelWidget()   const;
 
-    // Widget attribute functions
+    // Widget appearance functions
 
     BackgroundMode	backgroundMode() const;
     void setBackgroundMode( BackgroundMode );
@@ -265,7 +264,7 @@ public:
     QString		iconText() const;
 #endif
     bool		hasMouseTracking() const;
-    bool		hasMouse() const;
+    bool underMouse() const;
 
     void setMask( const QBitmap & );
     void setMask( const QRegion & );
@@ -407,6 +406,7 @@ public:
     { reparent(parent, getWFlags() & ~WType_Mask); move(p); if (showIt) show(); }
     void recreate( QWidget *parent, WFlags f, const QPoint & p, bool showIt=false )
     { reparent(parent, f, p, showIt); }
+    bool hasMouse() const { return underMouse(); }
 #endif
 
     void		erase();
@@ -467,14 +467,17 @@ public:
 #endif
 #endif
 
+    enum WidgetAttribute {
+	WA_Disabled,
+	WA_UnderMouse,
 
-    enum Attribute {
+	WA_ForceDisabled = 32,
 	WA_KeyCompression,
 	WA_PendingMoveEvent,
 	WA_PendingResizeEvent
     };
-    void setAttribute(Attribute, bool);
-    bool hasAttribute(Attribute) const;
+    void setAttribute(WidgetAttribute, bool);
+    bool testAttribute(WidgetAttribute) const;
 
 protected:
     // Event handlers
@@ -608,9 +611,10 @@ private:
     void	 hideChildren( bool spontaneous );
     void	 reparentSys( QWidget *parent, WFlags, const QPoint &,  bool showIt);
     void	 deactivateWidgetCleanup();
-    void	 internalSetGeometry( int, int, int, int, bool );
-    void	 internalShow();
-    void	 internalHide();
+    void setGeometry_helper(int, int, int, int, bool);
+    void show_helper();
+    void hide_helper();
+    void setEnabled_helper(bool);
     void	 reparentFocusWidgets( QWidget * );
     void         setBackgroundFromMode();
     void         setBackgroundColorDirect( const QColor & );
@@ -620,7 +624,9 @@ private:
     void	 updateFrameStrut() const;
 
     WId		 winid;
-    uint	 widget_state;
+    uint	 widget_state; // will go away, eventually
+    uint widget_attributes;
+    bool testAttribute_helper(WidgetAttribute) const;
     uint	 widget_flags;
     uint	 focus_policy : 4;
     uint 	 own_font :1;
@@ -715,7 +721,7 @@ inline bool QWidget::isDesktop() const
 { return testWFlags(WType_Desktop); }
 
 inline bool QWidget::isEnabled() const
-{ return !testWState(WState_Disabled); }
+{ return !testAttribute(WA_Disabled); }
 
 inline bool QWidget::isModal() const
 { return testWFlags(WShowModal); }
@@ -782,8 +788,8 @@ inline QFontInfo QWidget::fontInfo() const
 inline bool QWidget::hasMouseTracking() const
 { return testWState(WState_MouseTracking); }
 
-inline bool QWidget::hasMouse() const
-{ return testWState(WState_HasMouse); }
+inline bool QWidget::underMouse() const
+{ return testAttribute(WA_UnderMouse); }
 
 inline bool  QWidget::isFocusEnabled() const
 { return focusPolicy() != NoFocus; }
@@ -888,6 +894,13 @@ inline void QWidget::setSizePolicy( QSizePolicy::SizeType hor, QSizePolicy::Size
 inline bool QWidget::isInputMethodEnabled() const
 {
     return (bool)im_enabled;
+}
+
+inline bool QWidget::testAttribute(WidgetAttribute attribute) const
+{
+    if (attribute < (1<<sizeof(uint)))
+	return widget_attributes & (1<<attribute);
+    return testAttribute_helper(attribute);
 }
 
 #ifndef QT_NO_COMPAT

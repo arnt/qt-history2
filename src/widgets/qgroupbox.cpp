@@ -575,12 +575,12 @@ void QGroupBox::childEvent( QChildEvent *c )
 	if ( w == d->checkbox )
 	    return;
 	if ( d->checkbox->isChecked() ) {
-	    if ( !w->testWState( WState_ForceDisabled ) )
-		w->setEnabled( TRUE );
+	    if (!w->testAttribute(WA_ForceDisabled))
+		w->setEnabled(true);
 	} else {
 	    if ( w->isEnabled() ) {
-		w->setEnabled( FALSE );
-		((QGroupBox*)w)->clearWState( WState_ForceDisabled );
+		w->setEnabled(false);
+		w->setAttribute(WA_ForceDisabled, false);
 	    }
 	}
     }
@@ -885,12 +885,12 @@ void QGroupBox::setChildrenEnabled( bool b )
 	     ) {
 	    QWidget *w = static_cast<QWidget *>(o);
 	    if ( b ) {
-		if ( !w->testWState( WState_ForceDisabled ) )
-		    w->setEnabled( TRUE );
+		if (!w->testAttribute(WA_ForceDisabled))
+		    w->setEnabled(true);
 	    } else {
-		if ( w->isEnabled() ) {
-		    w->setEnabled( FALSE );
-		    ((QGroupBox*)w)->clearWState( WState_ForceDisabled );
+		if (w->isEnabled()) {
+		    w->setEnabled(false);
+		    w->setAttribute(WA_ForceDisabled, false);
 		}
 	    }
 	}

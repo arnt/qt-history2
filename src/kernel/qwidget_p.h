@@ -139,10 +139,9 @@ public:
     QWidgetPrivate() :
 	QObjectPrivate(), extra(0), focus_child(0),
 #ifndef QT_NO_LAYOUT
-	layout(0),
+	layout(0)
 #endif
-	attributes(0)
-	{}
+	{high_attributes[0] = 0;}
     ~QWidgetPrivate();
 
     QWExtra	*extraData() const;
@@ -172,10 +171,8 @@ public:
     QLayout *layout;
 #endif
 
-    uint attributes;
-
-    void setAttribute(QWidget::Attribute attribute, bool b);
-    bool hasAttribute(QWidget::Attribute attribute) const;
+#define WA_MAX 32
+    uint high_attributes[WA_MAX/sizeof(uint)]; // the low ones are in QWidget::widget_attributes
 };
 
 inline QWExtra *QWidgetPrivate::extraData() const
@@ -188,20 +185,6 @@ inline QTLWExtra *QWidgetPrivate::topData() const
     const_cast<QWidgetPrivate *>(this)->createTLExtra();
     return extra->topextra;
 }
-
-inline void QWidgetPrivate::setAttribute(QWidget::Attribute attribute, bool b)
-{
-    if (b)
-	attributes |= (1<<attribute);
-    else
-	attributes &= ~(1<<attribute);
-}
-
-inline bool QWidgetPrivate::hasAttribute(QWidget::Attribute attribute) const
-{
-    return attributes & (1<<attribute);
-}
-
 
 #if defined (Q_WS_X11) || defined (Q_WS_QWS)
 extern int qt_widget_tlw_gravity;

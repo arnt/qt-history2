@@ -1671,7 +1671,7 @@ void QWidget::stackUnder(QWidget *w)
 }
 
 
-void QWidget::internalSetGeometry(int x, int y, int w, int h, bool isMove)
+void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
 {
     if (isTopLevel() && isMove) {
 	d->createTLExtra();
@@ -1785,7 +1785,7 @@ void QWidget::internalSetGeometry(int x, int y, int w, int h, bool isMove)
 		QRegion upd((oldregion + clpreg) - bltregion);
 		if(isResize && !testWFlags(WStaticContents))
 		    upd += clippedRegion();
-		qt_dirty_wndw_rgn("internalSetGeometry",this, upd);
+		qt_dirty_wndw_rgn("setGeometry_helper",this, upd);
 		//and force the update
 		if(isResize || 1)
 		    qt_event_request_updates();

@@ -1832,7 +1832,7 @@ static void do_size_hints( QWidget* widget, QWExtra *x )
 }
 
 
-void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
+void QWidget::setGeometry_helper( int x, int y, int w, int h, bool isMove )
 {
     Display *dpy = x11Display();
 
@@ -1902,9 +1902,9 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	}
     } else {
 	if (isMove && pos() != oldPos)
-	    d->setAttribute(WA_PendingMoveEvent, true);
+	    setAttribute(WA_PendingMoveEvent, true);
 	if (isResize)
-	    d->setAttribute(WA_PendingResizeEvent, true);
+	    setAttribute(WA_PendingResizeEvent, true);
     }
 }
 

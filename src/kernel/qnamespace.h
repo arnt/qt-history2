@@ -132,7 +132,7 @@ public:
     // QWidget state flags (internal, barely documented in qwidget.cpp)
     enum WidgetState {
 	WState_Created		= 0x00000001,
-	WState_Disabled		= 0x00000002,
+	WState_Reserved3	= 0x00000002, // was Disabled
 	WState_Visible		= 0x00000004,
 	WState_Hidden		= 0x00000008,
 	WState_ForceHide	= WState_Hidden,
@@ -153,9 +153,9 @@ public:
 	WState_ExplicitShowHide	= 0x00040000,
 	WState_Maximized	= 0x00080000,
 	WState_Minimized	= 0x00100000,
-	WState_ForceDisabled	= 0x00200000,
+	WState_Reserved4	= 0x00200000, // was ForceDisabled
 	WState_Exposed		= 0x00400000,
-	WState_HasMouse		= 0x00800000
+	WState_Reserved2	= 0x00800000 // was HasMouse
     };
 
     // Widget flags2; documented in qwidget.cpp

@@ -327,7 +327,7 @@ QWidgetPrivate::~QWidgetPrivate()
 
     If your widget only contains child widgets, you probably do not need to
     implement any event handlers. If you want to detect a mouse click in
-    a child widget call the child's hasMouse() function inside the
+    a child widget call the child's underMouse() function inside the
     parent widget's mousePressEvent().
 
     Widgets that accept keyboard input need to reimplement a few more
@@ -456,11 +456,6 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     Widget state flags:
   \list
   \i WState_Created The widget has a valid winId().
-  \i WState_Disabled The widget does not receive any mouse or keyboard
-  events.
-  \i WState_ForceDisabled The widget is explicitly disabled, i.e. it
-  will remain disabled even when all its ancestors are set to the enabled
-  state. This implies WState_Disabled.
   \i WState_Visible The widget is currently visible.
   \i WState_Hidden The widget is hidden, i.e. it won't
   become visible unless you call show() on it. WState_Hidden
@@ -477,7 +472,6 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
   \i WState_DND The widget supports drag and drop, see setAcceptDrops().
   \i WState_Exposed the widget was finally exposed (X11 only,
       helps avoid paint event doubling).
-  \i WState_HasMouse The widget is under the mouse cursor.
   \endlist
 */
 
@@ -659,7 +653,6 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     Internal flags.
 
     \value WState_Created
-    \value WState_Disabled
     \value WState_Visible
     \value WState_Hidden
     \value WState_OwnCursor
@@ -678,7 +671,6 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
     \value WState_Minimized
     \value WState_ForceDisabled
     \value WState_Exposed
-    \value WState_HasMouse
     \value WState_OwnSizePolicy
 */
 
@@ -725,6 +717,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 
     isWidget = TRUE;				// is a widget
     winid = 0;					// default attributes
+    widget_attributes = 0;
     widget_state = 0;
     widget_flags = f;
 
@@ -758,7 +751,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     } else {
 	// propagate enabled state
 	if ( !parentWidget()->isEnabled() )
-	    setWState( WState_Disabled );
+	    setAttribute( WA_Disabled, true );
 	// new widgets do not show up in already visible parents
 	if (parentWidget()->isVisible())
 	    setWState(WState_Hidden);
@@ -798,6 +791,7 @@ QWidget::QWidget( QWidgetPrivate *dd, QWidget* parent, const char* name, WFlags 
 
     isWidget = TRUE;				// is a widget
     winid = 0;					// default attributes
+    widget_attributes = 0;
     widget_state = 0;
     widget_flags = f;
 
@@ -831,7 +825,7 @@ QWidget::QWidget( QWidgetPrivate *dd, QWidget* parent, const char* name, WFlags 
     } else {
 	// propagate enabled state
 	if ( !parentWidget()->isEnabled() )
-	    setWState( WState_Disabled );
+	    setAttribute( WA_Disabled, true );
 	// new widgets do not show up in already visible parents
 	if (parentWidget()->isVisible())
 	    setWState(WState_Hidden);
@@ -1253,8 +1247,10 @@ void QWidget::styleChange( QStyle& /* oldStyle */ )
 */
 
 /*!
-    \property QWidget::underMouse
-    \brief whether the widget is under the mouse cursor
+    \fn QWidget::underMouse()
+
+    Returns true if the widget is under the mouse cursor; otherwise
+    returns false.
 
     This value is not updated properly during drag and drop
     operations.
@@ -1301,12 +1297,12 @@ void QWidget::styleChange( QStyle& /* oldStyle */ )
 bool QWidget::isEnabledTo( QWidget* ancestor ) const
 {
     const QWidget * w = this;
-    while ( w && !w->testWState(WState_ForceDisabled)
+    while ( w && !w->testAttribute(WA_ForceDisabled)
 	    && !w->isTopLevel()
 	    && w->parentWidget()
 	    && w->parentWidget() != ancestor )
 	w = w->parentWidget();
-    return !w->testWState( WState_ForceDisabled );
+    return !w->testAttribute(WA_ForceDisabled);
 }
 
 
@@ -1338,55 +1334,41 @@ bool QWidget::isEnabledTo( QWidget* ancestor ) const
 */
 void QWidget::setEnabled( bool enable )
 {
-    if ( enable )
-	clearWState( WState_ForceDisabled );
-    else
-	setWState( WState_ForceDisabled );
+    setAttribute(WA_ForceDisabled, !enable);
+    setEnabled_helper(enable);
+}
 
-    if ( !isTopLevel() && parentWidget() &&
-	 !parentWidget()->isEnabled() && enable )
+void QWidget::setEnabled_helper(bool enable)
+{
+    if (enable && !isTopLevel() && parentWidget() && !parentWidget()->isEnabled())
 	return; // nothing we can do
+    if (enable != testAttribute(WA_Disabled))
+	return; // nothing to do
 
-    if ( enable ) {
-	if ( testWState(WState_Disabled) ) {
-	    clearWState( WState_Disabled );
-	    setBackgroundFromMode();
-	    enabledChange( !enable );
-	    for (int i = 0; i < d->children.size(); ++i) {
-		QWidget *w = static_cast<QWidget *>(d->children.at(i));
-		if ( w->isWidgetType() && !w->testWState( WState_ForceDisabled ) )
-			w->setEnabled( TRUE );
-	    }
-	}
-    } else {
-	if ( !testWState(WState_Disabled) ) {
-	    if ( focusWidget() == this && ( !parentWidget() || parentWidget()->isEnabled() ) ) {
-		if ( !focusNextPrevChild( TRUE ) )
-		    clearFocus();
-	    }
-	    setWState( WState_Disabled );
-	    setBackgroundFromMode();
-	    enabledChange( !enable );
-	    for (int i = 0; i < d->children.size(); ++i) {
-		QWidget *w = static_cast<QWidget *>(d->children.at(i));
-		if ( w->isWidgetType() && w->isEnabled() ) {
-		    w->setEnabled( FALSE );
-		    w->clearWState( WState_ForceDisabled );
-		}
-	    }
-	}
+    setAttribute(WA_Disabled, !enable);
+    setBackgroundFromMode();
+    enabledChange(!enable);
+
+    if (!enable && focusWidget() == this && (!parentWidget()||parentWidget()->isEnabled()))
+	if (!focusNextPrevChild(true))
+	    clearFocus();
+
+    WidgetAttribute attribute = enable ? WA_ForceDisabled : WA_Disabled;
+    for (int i = 0; i < d->children.size(); ++i) {
+	QWidget *w = static_cast<QWidget *>(d->children.at(i));
+	if (w->isWidgetType() && !w->testAttribute(attribute))
+	    w->setEnabled_helper(enable);
     }
 #if defined(Q_WS_X11)
     if ( testWState( WState_OwnCursor ) ) {
 	// enforce the windows behavior of clearing the cursor on
 	// disabled widgets
-
 	extern void qt_x11_enforce_cursor( QWidget * w ); // defined in qwidget_x11.cpp
 	qt_x11_enforce_cursor( this );
     }
 #endif
 #ifdef Q_WS_WIN
-    QInputContext::enable( this, im_enabled & !((bool)testWState(WState_Disabled)) );
+    QInputContext::enable(this, im_enabled && enable);
 #endif
 }
 
@@ -1917,7 +1899,7 @@ void QWidget::setFixedHeight( int h )
     of \a parent. The \a parent must not be 0 and must be a parent
     of the calling widget.
 
-    \sa mapFrom() mapToParent() mapToGlobal() hasMouse()
+    \sa mapFrom() mapToParent() mapToGlobal() underMouse()
 */
 
 QPoint QWidget::mapTo( QWidget * parent, const QPoint & pos ) const
@@ -1939,7 +1921,7 @@ QPoint QWidget::mapTo( QWidget * parent, const QPoint & pos ) const
     of \a parent to this widget's coordinate system. The \a parent
     must not be 0 and must be a parent of the calling widget.
 
-    \sa mapTo() mapFromParent() mapFromGlobal() hasMouse()
+    \sa mapTo() mapFromParent() mapFromGlobal() underMouse()
 */
 
 QPoint QWidget::mapFrom( QWidget * parent, const QPoint & pos ) const
@@ -1962,7 +1944,7 @@ QPoint QWidget::mapFrom( QWidget * parent, const QPoint & pos ) const
 
     Same as mapToGlobal() if the widget has no parent.
 
-    \sa mapFromParent() mapTo() mapToGlobal() hasMouse()
+    \sa mapFromParent() mapTo() mapToGlobal() underMouse()
 */
 
 QPoint QWidget::mapToParent( const QPoint &pos ) const
@@ -1976,7 +1958,7 @@ QPoint QWidget::mapToParent( const QPoint &pos ) const
 
     Same as mapFromGlobal() if the widget has no parent.
 
-    \sa mapToParent() mapFrom() mapFromGlobal() hasMouse()
+    \sa mapToParent() mapFrom() mapFromGlobal() underMouse()
 */
 
 QPoint QWidget::mapFromParent( const QPoint &pos ) const
@@ -3061,7 +3043,7 @@ void QWidget::setInputMethodEnabled( bool b )
 {
     im_enabled = b;
 #ifdef Q_WS_WIN
-    QInputContext::enable( this, im_enabled & !((bool)testWState(WState_Disabled)) );
+    QInputContext::enable( this, im_enabled && isEnabled() );
 #endif
 }
 
@@ -3285,7 +3267,7 @@ static void qt_update_bg_recursive( QWidget *widget )
 void QWidget::move( int x, int y )
 {
     QPoint oldp(pos());
-    internalSetGeometry( x + geometry().x() - QWidget::x(),
+    setGeometry_helper( x + geometry().x() - QWidget::x(),
 			 y + geometry().y() - QWidget::y(),
 			 width(), height(), TRUE );
     if ( isVisible() && oldp != pos() )
@@ -3299,7 +3281,7 @@ void QWidget::move( int x, int y )
 */
 void QWidget::resize( int w, int h )
 {
-    internalSetGeometry( geometry().x(), geometry().y(), w, h, FALSE );
+    setGeometry_helper( geometry().x(), geometry().y(), w, h, FALSE );
     setWState( WState_Resized );
 }
 
@@ -3311,7 +3293,7 @@ void QWidget::resize( int w, int h )
 void QWidget::setGeometry( int x, int y, int w, int h )
 {
     QPoint oldp( pos( ));
-    internalSetGeometry( x, y, w, h, TRUE );
+    setGeometry_helper( x, y, w, h, TRUE );
     setWState( WState_Resized );
     if ( isVisible() && oldp != pos() )
 	qt_update_bg_recursive( this );
@@ -3481,7 +3463,7 @@ void QWidget::show()
 	updateGeometry();
 
     if ( isTopLevel() || parentWidget()->isVisible() )
-	internalShow();
+	show_helper();
 
     QEvent showToParentEvent( QEvent::ShowToParent );
     QApplication::sendEvent( this, &showToParentEvent );
@@ -3492,7 +3474,7 @@ void QWidget::show()
    Makes the widget visible in the isVisible() meaning of the word.
    It is only called for toplevels or widgets with visible parents.
  */
-void QWidget::internalShow()
+void QWidget::show_helper()
 {
     in_show = true; // qws optimization
 
@@ -3511,15 +3493,15 @@ void QWidget::internalShow()
 	d->layout->activate();
 
     // make sure we receive pending move and resize events
-    if (d->hasAttribute(WA_PendingMoveEvent)) {
+    if (testAttribute(WA_PendingMoveEvent)) {
 	QMoveEvent e(crect.topLeft(), crect.topLeft());
 	QApplication::sendEvent(this, &e);
-	d->setAttribute(WA_PendingMoveEvent, false);
+	setAttribute(WA_PendingMoveEvent, false);
     }
-    if (d->hasAttribute(WA_PendingResizeEvent)) {
+    if (testAttribute(WA_PendingResizeEvent)) {
 	QResizeEvent e(crect.size(), crect.size());
 	QApplication::sendEvent(this, &e);
-	d->setAttribute(WA_PendingResizeEvent, false);
+	setAttribute(WA_PendingResizeEvent, false);
     }
 
     // become visible before showing all children
@@ -3633,7 +3615,7 @@ void QWidget::hide()
 	return;
     setWState(WState_Hidden);
     if (testWState(WState_ExplicitShowHide))
-	internalHide();
+	hide_helper();
     else
 	setWState(WState_ExplicitShowHide);
     QEvent hideToParentEvent( QEvent::HideToParent );
@@ -3642,7 +3624,7 @@ void QWidget::hide()
 
 /*!\internal
  */
-void QWidget::internalHide()
+void QWidget::hide_helper()
 {
     if ( testWFlags(WType_Popup) )
 	qApp->closePopup( this );
@@ -3718,7 +3700,7 @@ void QWidget::showChildren(bool spontaneous)
 	    QApplication::sendSpontaneousEvent(widget, &e);
 	} else {
 	    if (widget->testWState(WState_ExplicitShowHide))
-		widget->internalShow();
+		widget->show_helper();
 	    else
 		widget->show();
 	}
@@ -5554,7 +5536,7 @@ void QWidget::drawText(const QPoint &p, const QString &str)
 */
 
 /*!
-    \enum QWidget::Attribute
+    \enum QWidget::WidgetAttribute
 
     \keyword widget attributes
 
@@ -5597,6 +5579,21 @@ void QWidget::drawText(const QPoint &p, const QString &str)
     \row \i WA_PendingResizeEvent \i Indicates that a resize event is
     pending, e.g. when a hidden widget was resized. \i Qt kernel
 
+    \row \i WA_UnderMouse \i Indicates that the widget is under the
+    mouse cursor. The value is not updated correctly during drag and
+    drop operations. There is also a getter function
+    QWidget::underMouse(). \i Qt kernel
+
+    \row \i WA_Disabled \i Indicates that the widget is disabled, i.e.
+    it does not receive any mouse or keyboard events. There is also a
+    getter functions QWidget::isEnabled().  \i Qt kernel
+
+    \row \i WA_ForceDisabled \i Indicates that the widget is
+    explicitely disabled, i.e. it will remain disabled even when all
+    its ancestors are set to the enabled state. This implies
+    WA_Disabled. \i Function QWidget::setEnabled() and
+    QWidget::setDisabled().
+
     \endtable
 */
 
@@ -5605,17 +5602,31 @@ void QWidget::drawText(const QPoint &p, const QString &str)
 
   \sa hasAttribute()
  */
-void QWidget::setAttribute(Attribute attribute, bool b)
+void QWidget::setAttribute(WidgetAttribute attribute, bool b)
 {
-    d->setAttribute(attribute, b);
+    if (attribute < (1<<sizeof(uint))) {
+	if (b)
+	    widget_attributes |= (1<<attribute);
+	else
+	    widget_attributes &= ~(1<<attribute);
+    } else {
+	int x = attribute - (1<<sizeof(uint));
+	if (b)
+	    d->high_attributes[x / (1<<sizeof(uint))] |= (1<<x);
+	else
+	    d->high_attributes[x / (1<<sizeof(uint))] &= ~(1<<x);
+    }
 }
 
-/*!  Returns true if attribute \a attribute is set on this widget;
+/*! \fn bool QWidget::testAttribute(WidgetAttribute attribute) const
+
+  Returns true if attribute \a attribute is set on this widget;
   otherwise returns false.
 
   \sa setAttribute()
  */
-bool QWidget::hasAttribute(Attribute attribute) const
+bool QWidget::testAttribute_helper(WidgetAttribute attribute) const
 {
-    return d->hasAttribute(attribute);
+    int x = attribute - (1<<sizeof(uint));
+    return (d->high_attributes[x / (1<<sizeof(uint))] & (1<<x));
 }

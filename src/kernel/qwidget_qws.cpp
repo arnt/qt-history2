@@ -888,7 +888,7 @@ void qt_clearRegion( QWidget *w, const QRegion &r, const QColor &c, bool dev )
 }
 */
 
-void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
+void QWidget::setGeometry_helper( int x, int y, int w, int h, bool isMove )
 {
     if ( d->extra ) {				// any size restrictions?
 	w = QMIN(w,d->extra->maxw);

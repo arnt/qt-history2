@@ -5187,7 +5187,7 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     }
 
     // compress keys
-    if ( !text.isEmpty() && hasAttribute(WA_KeyCompression) &&
+    if ( !text.isEmpty() && testAttribute(WA_KeyCompression) &&
 	 // do not compress keys if the key event we just got above matches
 	 // one of the key ranges used to compute stopCompression
 	 !( (code >= Key_Escape && code <= Key_SysReq)
@@ -5489,7 +5489,7 @@ bool QETWidget::translateScrollDoneEvent( const XEvent *event )
 
 bool QETWidget::translateConfigEvent( const XEvent *event )
 {
-    // config pending is only set on resize, see qwidget_x11.cpp, internalSetGeometry()
+    // config pending is only set on resize, see qwidget_x11.cpp, setGeometry_helper()
     bool was_resize = testWState( WState_ConfigPending );
 
     clearWState(WState_ConfigPending);
@@ -5548,7 +5548,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 		QResizeEvent e( newSize, oldSize );
 		QApplication::sendSpontaneousEvent( this, &e );
 	    } else {
-		d->setAttribute(WA_PendingResizeEvent, true);
+		setAttribute(WA_PendingResizeEvent, true);
 	    }
 	}
 
@@ -5560,7 +5560,7 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 		QMoveEvent e( newCPos, oldPos ); // pos (including frame), not cpos
 		QApplication::sendSpontaneousEvent( this, &e );
 	    } else {
-		d->setAttribute(WA_PendingMoveEvent, true);
+		setAttribute(WA_PendingMoveEvent, true);
 	    }
 	}
     } else {

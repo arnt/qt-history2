@@ -2250,13 +2250,13 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 
     bool res = FALSE;
     if ( !receiver->isWidgetType() )
-	res = internalNotify( receiver, e );
+	res = notify_helper( receiver, e );
     else switch ( e->type() ) {
 #ifndef QT_NO_ACCEL
     case QEvent::Accel:
 	{
 	    QKeyEvent* key = (QKeyEvent*) e;
-	    res = internalNotify( receiver, e );
+	    res = notify_helper( receiver, e );
 
 	    if ( !res && !key->isAccepted() )
 		res = qt_dispatchAccelEvent( (QWidget*)receiver, key );
@@ -2264,7 +2264,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	    // next lines are for compatibility with Qt <= 3.0.x: old
 	    // QAccel was listening on toplevel widgets
 	    if ( !res && !key->isAccepted() && !((QWidget*)receiver)->isTopLevel() )
-		res = internalNotify( ((QWidget*)receiver)->topLevelWidget(), e );
+		res = notify_helper( ((QWidget*)receiver)->topLevelWidget(), e );
 	}
     break;
 #endif //QT_NO_ACCEL
@@ -2284,7 +2284,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 		    key->accept();
 		else
 		    key->ignore();
-		res = internalNotify( w, e );
+		res = notify_helper( w, e );
 		if ( res || key->isAccepted() )
 		    break;
 		w = w->parentWidget( TRUE );
@@ -2313,7 +2313,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	    while ( w ) {
 		QMouseEvent me(mouse->type(), relpos, mouse->globalPos(), mouse->button(), mouse->state());
 		me.spont = mouse->spontaneous();
-		res = internalNotify( w, w == receiver ? mouse : &me );
+		res = notify_helper( w, w == receiver ? mouse : &me );
 		e->spont = FALSE;
 		if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation))
 		    break;
@@ -2347,7 +2347,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	    while ( w ) {
 		QWheelEvent we(relpos, wheel->globalPos(), wheel->delta(), wheel->state(), wheel->orientation());
 		we.spont = wheel->spontaneous();
-		res = internalNotify( w,  w == receiver ? wheel : &we );
+		res = notify_helper( w,  w == receiver ? wheel : &we );
 		e->spont = FALSE;
 		if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation))
 		    break;
@@ -2370,7 +2370,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	    while ( w ) {
 		QContextMenuEvent ce(context->reason(), relpos, context->globalPos(), context->state());
 		ce.spont = e->spontaneous();
-		res = internalNotify( w,  w == receiver ? context : &ce );
+		res = notify_helper( w,  w == receiver ? context : &ce );
 		e->spont = FALSE;
 
 		if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation))
@@ -2398,7 +2398,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 				tablet->pressure(), tablet->xTilt(), tablet->yTilt(),
 				tablet->uniqueId());
 		te.spont = e->spontaneous();
-		res = internalNotify( w, w == receiver ? tablet : &te );
+		res = notify_helper( w, w == receiver ? tablet : &te );
 		e->spont = FALSE;
 		if (res || w->isTopLevel() || w->testWFlags(WNoMousePropagation))
 		    break;
@@ -2415,7 +2415,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
     break;
 #endif
     default:
-	res = internalNotify( receiver, e );
+	res = notify_helper( receiver, e );
 	break;
     }
 
@@ -2454,34 +2454,19 @@ bool QApplication::event( QEvent *e )
 
   Helper function called by notify()
  */
-bool QApplication::internalNotify( QObject *receiver, QEvent * e)
+bool QApplication::notify_helper( QObject *receiver, QEvent * e)
 {
-    // send to all application event filters
-    for (int i = 0; i < d->eventFilters.size(); ++i) {
-	register QObject *obj = d->eventFilters.at(i);
-	if ( obj && obj->eventFilter(receiver,e) )
-	    return TRUE;
-    }
-
-    if (receiver != this) {
-	// send to all event filters on the object
-	for (int i = 0; i < receiver->d->eventFilters.size(); ++i) {
-	    register QObject *obj = receiver->d->eventFilters.at(i);
-	    if ( obj && obj->eventFilter(receiver,e) )
-		return TRUE;
-	}
-    }
-
     bool consumed = FALSE;
     bool handled = FALSE;
+
     if ( receiver->isWidgetType() ) {
 	QWidget *widget = (QWidget*)receiver;
 
 	// toggle HasMouse widget state on enter and leave
 	if ( e->type() == QEvent::Enter || e->type() == QEvent::DragEnter )
-	    widget->setWState( WState_HasMouse );
+	    widget->setAttribute(QWidget::WA_UnderMouse, true);
 	else if ( e->type() == QEvent::Leave || e->type() == QEvent::DragLeave )
-	    widget->clearWState( WState_HasMouse );
+	    widget->setAttribute(QWidget::WA_UnderMouse, false);
 
 	// throw away any mouse-tracking-only mouse events
 	if ( e->type() == QEvent::MouseMove &&
@@ -2531,6 +2516,28 @@ bool QApplication::internalNotify( QObject *receiver, QEvent * e)
 	    }
 	}
 
+    }
+
+    if (!handled) {
+	// send to all application event filters
+	for (int i = 0; i < d->eventFilters.size(); ++i) {
+	    register QObject *obj = d->eventFilters.at(i);
+	    if ( obj && obj->eventFilter(receiver,e) ) {
+		handled = consumed = true;
+		break;
+	    }
+	}
+
+	if (receiver != this) {
+	    // send to all event filters on the object
+	    for (int i = 0; i < receiver->d->eventFilters.size(); ++i) {
+		register QObject *obj = receiver->d->eventFilters.at(i);
+		if ( obj && obj->eventFilter(receiver,e) ) {
+		    handled = consumed = true;
+		    break;
+		}
+	    }
+	}
     }
 
     if (!handled)

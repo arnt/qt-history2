@@ -287,7 +287,7 @@ private:
     void initialize( int, char ** );
     void init_precmdline();
     void process_cmdline( int* argcptr, char ** argv );
-    bool internalNotify( QObject *, QEvent * );
+    bool notify_helper( QObject *, QEvent * );
 #if defined(Q_WS_QWS)
     static QWidget *findChildWidget( const QWidget *p, const QPoint &pos );
     static QWidget *findWidget( const QObjectList&, const QPoint &, bool rec );

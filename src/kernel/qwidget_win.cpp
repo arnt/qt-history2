@@ -397,7 +397,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     }
 
     setFontSys();
-    QInputContext::enable( this, im_enabled & !((bool)testWState(WState_Disabled)) );
+    QInputContext::enable( this, im_enabled & isEnabled() );
 }
 
 
@@ -1092,7 +1092,7 @@ void QWidget::stackUnder( QWidget* w)
 //
 void qWinRequestConfig( WId, int, int, int, int, int );
 
-void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
+void QWidget::setGeometry_helper( int x, int y, int w, int h, bool isMove )
 {
     if ( d->extra ) {				// any size restrictions?
 	w = QMIN(w,d->extra->maxw);

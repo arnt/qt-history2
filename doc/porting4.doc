@@ -107,6 +107,16 @@ The following functions were incorrectly marked as virtual:
 \endlist
 
 
+\section1 QWidget
+
+The following functions are obsolete. Most will continue to work in
+COMPAT mode, but we recommend not using them in new code.
+
+\list
+\i QWidget::hasMouse() - use QWidget::underMouse() instead.
+\endlist
+
+
 \section1 QString
 
 If you specify a negative value for \e len to left() or right() then
