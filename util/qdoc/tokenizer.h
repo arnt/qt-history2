@@ -13,10 +13,10 @@
 #include "location.h"
 
 /*
-  Here come the C++ tokens we support.  The first part contains all-purpose
-  tokens; then comes keywords.  If you add a keyword, make sure to modify the
-  keyword array in tokenizer.cpp as well, and make sure Tok_FirstKeyword and
-  Tok_LastKeyword are right.
+  Here come the C++ tokens we support.  The first part contains
+  all-purpose tokens; then comes keywords. If you add a keyword, make
+  sure to modify the keyword array in tokenizer.cpp as well, and make
+  sure Tok_FirstKeyword and Tok_LastKeyword are right.
 */
 enum { Tok_Eoi, Tok_Ampersand, Tok_Aster, Tok_LeftParen, Tok_RightParen,
        Tok_LeftParenAster, Tok_Equal, Tok_LeftBrace, Tok_RightBrace,
@@ -37,8 +37,9 @@ enum { Tok_Eoi, Tok_Ampersand, Tok_Aster, Tok_LeftParen, Tok_RightParen,
 /*
   The Tokenizer class implements lexical analysis of C++ source files.
 
-  Not every operator or keyword of C++ is recognized; only those that are
-  interesting to us.  Some Qt keywords or macros are also recognized.
+  Not every operator or keyword of C++ is recognized; only those that
+  are interesting to us. Some Qt keywords or macros are also
+  recognized.
 
   The class is an abstract base class inherited by FileTokenizer and
   StringTokenizer.
@@ -46,7 +47,7 @@ enum { Tok_Eoi, Tok_Ampersand, Tok_Aster, Tok_LeftParen, Tok_RightParen,
 class Tokenizer
 {
 public:
-    virtual ~Tokenizer() { }
+    virtual ~Tokenizer();
 
     int getToken();
 
@@ -70,12 +71,6 @@ private:
     Tokenizer& operator=( const Tokenizer& );
 #endif
 
-    int getChar();
-    int getTokenAfterPreprocessor();
-    void pushSkipping( bool skip );
-    bool popSkipping();
-    bool isTrue( const QString& condition ) const;
-
     /*
       This limit on the length of a lexeme seems fairly high, but a
       doc comment can be arbitrarily long. The previous 65536 limit
@@ -83,10 +78,17 @@ private:
     */
     enum { yyLexBufSize = 524288 };
 
+
+    int getChar();
+    int getTokenAfterPreprocessor();
+    void pushSkipping( bool skip );
+    bool popSkipping();
+    bool isTrue( const QString& condition ) const;
+
     Location yyTokLoc;
     Location yyCurLoc;
-    char yyLexBuf1[yyLexBufSize];
-    char yyLexBuf2[yyLexBufSize];
+    char *yyLexBuf1;
+    char *yyLexBuf2;
     char *yyPrevLex;
     char *yyLex;
     size_t yyLexLen;
@@ -110,7 +112,8 @@ inline int Tokenizer::getChar() {
 }
 
 /*
-  The FileTokenizer class is a Tokenizer that gets its input from a FILE *.
+  The FileTokenizer class is a Tokenizer that gets its input from a
+  FILE *.
 */
 class FileTokenizer : public Tokenizer
 {
@@ -132,8 +135,8 @@ private:
 };
 
 /*
-  The StringTokenizer class is a Tokenizer that gets its input from a char
-  string.
+  The StringTokenizer class is a Tokenizer that gets its input from a
+  char string.
 */
 class StringTokenizer : public Tokenizer
 {

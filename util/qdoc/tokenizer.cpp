@@ -15,6 +15,13 @@
 /* tmake ignore Q_OBJECT */
 
 /*
+  This limit on the length of a lexeme seems fairly high, but a doc
+  comment can be arbitrarily long. The previous 65536 limit was
+  reached by some of Mark Summerfield's documentation.
+*/
+static const int yyLexBufSize = 524288;
+
+/*
   If you change this, make sure to change tokenizer.h as well.
 */
 static const char kwords[][16] = {
@@ -38,6 +45,12 @@ static int hashKword( const char *s, int len )
 {
     return ( ((uchar) s[0]) + (((uchar) s[2]) << 5) +
 	     (((uchar) s[len - 1]) << 3) ) % KwordHashTableSize;
+}
+
+Tokenizer::~Tokenizer()
+{
+    delete[] yyLexBuf1;
+    delete[] yyLexBuf2;
 }
 
 int Tokenizer::getToken()
@@ -320,6 +333,8 @@ int Tokenizer::getToken()
 
 Tokenizer::Tokenizer()
 {
+    yyLexBuf1 = new char[yyLexBufSize];
+    yyLexBuf2 = new char[yyLexBufSize];
     yyPrevLex = yyLexBuf1;
     yyPrevLex[0] = '\0';
     yyLex = yyLexBuf2;
