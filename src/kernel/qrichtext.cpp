@@ -1632,7 +1632,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
     QString anchorName;
 
     QString wellKnownTags = "br hr wsp table qt body meta title";
-    
+
     while ( pos < length ) {
 	if ( hasPrefix(doc, length, pos, '<' ) ){
 	    if ( !hasPrefix( doc, length, pos+1, QChar('/') ) ) {
@@ -1986,12 +1986,8 @@ void QTextDocument::setRichTextInternal( const QString &text )
 
 		c = parseChar( doc, length, pos, wsm );
 
-		if ( c == '\n' ) {
-		    if ( wsm == QStyleSheetItem_WhiteSpaceNoCompression )
-			continue;
-		    else  // happens only in whitespacepre-mode or with WhiteSpaceNormalWithNewlines.
-			break;  // we want a new line in this case
-		}
+		if ( c == '\n' )  // happens only in whitespacepre-mode or with WhiteSpaceNormalWithNewlines.
+		    break;  // we want a new line in this case
 
 		bool c_isSpace = c.isSpace() && c.unicode() != 0x00a0U &&
 		   curtag.wsm != QStyleSheetItem_WhiteSpaceNoCompression;
@@ -2178,7 +2174,7 @@ QString QTextDocument::richText( QTextParag *p ) const
 	return p->richText();
     QString s = "";
     if ( !par ) {
-	s += "<html><head><meta name=\"qtextedit\" content=\"3.0.5\"></head><body style=\"font-size:" ;
+	s += "<html><head><meta name=\"qtextedit\" content=\"3.0.5\"/></head><body style=\"font-size:" ;
 	s += QString::number( formatCollection()->defaultFormat()->font().pointSize() );
 	s += "pt;font-family:";
 	s += formatCollection()->defaultFormat()->font().family();
@@ -2201,7 +2197,12 @@ QString QTextDocument::richText( QTextParag *p ) const
 
     while ( p ) {
 	listDepth = p->listDepth();
-	if ( listDepth > pastListDepth ) {
+	if ( listDepth < pastListDepth )  {
+	    for ( int i = listDepth+1; i <= pastListDepth; i++ )
+		s += list_is_ordered( listStyles[i] ) ? "</ol>" : "</ul>";
+	    s += '\n';
+	} else if ( listDepth > pastListDepth ) {
+	    s += '\n';
 	    listStyles.resize( QMAX( (int)listStyles.size(), listDepth+1 ) );
 	    QString list_type;
 	    listStyles[listDepth] = p->listStyle();
@@ -2212,11 +2213,10 @@ QString QTextDocument::richText( QTextParag *p ) const
 		s += list_type + ">";
 	    }
 	} else {
-	    for ( int i = listDepth+1; i <= pastListDepth; i++ )
-		s += list_is_ordered( listStyles[i] ) ? "</ol>" : "</ul>";
+	    s += '\n';
 	}
+
 	QString ps = p->richText();
-	
 	
 	  // for the bottom margin we need to know whether we are at the end of a list
 	futureListDepth = 0;
@@ -2234,7 +2234,7 @@ QString QTextDocument::richText( QTextParag *p ) const
 	    s += direction_to_string( p->direction() );
 	    s +=">";
 	    s += ps;
-	    s += "\n";
+	    s += "</li>";
 	} else {
 	    // normal paragraph item
 	    s += "<p";
@@ -2243,7 +2243,7 @@ QString QTextDocument::richText( QTextParag *p ) const
 	    s +=direction_to_string( p->direction() );
 	    s += ">";
 	    s += ps;
-	    s += "</p>\n";
+	    s += "</p>";
 	}
 	pastListDepth = listDepth;
 	p = p->next();
@@ -2254,7 +2254,7 @@ QString QTextDocument::richText( QTextParag *p ) const
     }
 	
     if ( !par )
-	s += "</body></html>\n";
+	s += "\n</body></html>\n";
 
     return s;
 }
@@ -5128,7 +5128,6 @@ QString QTextParag::richText() const
     QString s;
     QTextStringChar *formatChar = 0;
     QString spaces;
-    int firstcol = 0;
     for ( int i = 0; i < length()-1; ++i ) {
 	QTextStringChar *c = &str->at( i );
 	if ( c->isAnchor() && !c->anchorName().isEmpty() ) {
@@ -5150,17 +5149,13 @@ QString QTextParag::richText() const
 						    formatChar->format() , formatChar->anchorHref(), c->anchorHref() );
 	    formatChar = c;
 	}
-	if ( c->c == '<' ) {
+	if ( c->c == '<' )
 	    s += "&lt;";
-	} else if ( c->c == '>' ) {
+	else if ( c->c == '>' )
 	    s += "&gt;";
-	} else if ( c->isCustom() ) {
+	else if ( c->isCustom() )
 	    s += c->customItem()->richText();
-	} else if ( c->c == ' ' && s.length() - firstcol > 60 && i < length() - 5 ) {
-	    s += '\n';
-	    s += c->c;
-	    firstcol = s.length();
-	} else
+	else
 	    s += c->c;
     }
     if ( formatChar )
@@ -6414,14 +6409,12 @@ QString QTextFormat::makeFormatChangeTags( QTextFormat* defaultFormat, QTextForm
     if ( f ) {
 	if ( f->font().family() != defaultFormat->font().family()
 	     || f->font().pointSize() != defaultFormat->font().pointSize()
+	     || f->font().weight() != defaultFormat->font().weight()
+	     || f->font().italic() != defaultFormat->font().italic()
 	     || f->color().rgb() != defaultFormat->color().rgb() )
 	    tag += "</font>";
 	if ( f->font().underline() && f->font().underline() != defaultFormat->font().underline() )
 	    tag += "</u>";
-	if ( f->font().italic() && f->font().italic() != defaultFormat->font().italic() )
-	    tag += "</i>";
-	if ( f->font().bold() && f->font().bold() != defaultFormat->font().bold() )
-	    tag += "</b>";
 	if ( !oldAnchorHref.isEmpty() )
 	    tag += "</a>";
     }
@@ -6430,10 +6423,6 @@ QString QTextFormat::makeFormatChangeTags( QTextFormat* defaultFormat, QTextForm
 	tag += "<a href=\"" + anchorHref + "\">";
 
     if ( font() != defaultFormat->font() ) {
-	if ( font().bold() && font().bold() != defaultFormat->font().bold() )
-	    tag += "<b>";
-	if ( font().italic() && font().italic() != defaultFormat->font().italic() )
-	    tag += "<i>";
 	if ( font().underline() && font().underline() != defaultFormat->font().underline() )
 	    tag += "<u>";
     }
@@ -6442,8 +6431,12 @@ QString QTextFormat::makeFormatChangeTags( QTextFormat* defaultFormat, QTextForm
 	QString s;
 	if ( font().family() != defaultFormat->font().family() )
 	    s += QString(!!s?";":"") + "font-family:" + fn.family();
+	if ( font().italic() && font().italic() != defaultFormat->font().italic() )
+	    s += QString(!!s?";":"") + "font-style:" + (font().italic() ? "italic" : "normal");
 	if ( font().pointSize() != defaultFormat->font().pointSize() )
 	    s += QString(!!s?";":"") + "font-size:" + QString::number( fn.pointSize() ) + "pt";
+	if ( font().weight() != defaultFormat->font().weight() )
+	    s += QString(!!s?";":"") + "font-weight:" + QString::number( fn.weight() * 8 );
 	if ( color().rgb() != defaultFormat->color().rgb() )
 	    s += QString(!!s?";":"") + "color:" + col.name();
 	if ( !s.isEmpty() )
@@ -6458,14 +6451,12 @@ QString QTextFormat::makeFormatEndTags( QTextFormat* defaultFormat, const QStrin
     QString tag;
     if ( font().family() != defaultFormat->font().family()
 	 || font().pointSize() != defaultFormat->font().pointSize()
+	 || font().weight() != defaultFormat->font().weight()
+	 || font().italic() != defaultFormat->font().italic()
 	 || color().rgb() != defaultFormat->color().rgb() )
 	tag += "</font>";
     if ( font().underline() && font().underline() != defaultFormat->font().underline() )
 	tag += "</u>";
-    if ( font().italic() && font().italic() != defaultFormat->font().italic() )
-	tag += "</i>";
-    if ( font().bold() && font().bold() != defaultFormat->font().bold() )
-	tag += "</b>";
     if ( !anchorHref.isEmpty() )
 	tag += "</a>";
     return tag;
@@ -6523,7 +6514,7 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
     if ( style->definesFontUnderline() )
 	format.fn.setUnderline( style->fontUnderline() );
 
-    
+
     if ( style->name() == "font") {
 	if ( attr.contains("color") ) {
 	    QString s = attr["color"];
@@ -6558,6 +6549,18 @@ QTextFormat QTextFormat::makeTextFormat( const QStyleSheetItem *style, const QMa
 	    if ( style.startsWith("font-size:" ) && style.endsWith("pt") ) {	
 		format.logicalFontSize = 0;
 		format.setPointSize( int( scaleFontsFactor * style.mid( 10, style.length() - 12 ).toInt() ) );
+	    } if ( style.startsWith("font-style:" ) ) {
+		QString s = style.mid( 11 );
+		if ( s == "normal" ) 
+		    format.fn.setItalic( FALSE );
+		else if ( s == "italic" || s == "oblique" )
+		    format.fn.setItalic( TRUE );
+	    } else if ( style.startsWith("font-weight:" ) ) {
+		QString s = style.mid( 12 );
+		bool ok = TRUE;
+		int n = s.toInt( &ok );
+		if ( ok )
+		    format.fn.setWeight( n/8 );
 	    } else if ( style.startsWith("font-family:" ) ) {
 		format.fn.setFamily( style.mid(12) );
 	    } else if ( style.startsWith("color:" ) ) {
