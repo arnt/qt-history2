@@ -6,32 +6,31 @@
 #include "qtimer.h"
 #include "qdatetime.h"
 
-// Internal class to get access to protected QWidget-members
+/* 
+  Internal class to get access to protected QWidget-members
+*/
 
 class QAccessWidget : public QWidget
 {
     friend class QAlphaWidget;
-    friend class QScrollEffect;
     friend class QRollEffect;
 public:
     QAccessWidget( QWidget* parent = 0, const char* name = 0, WFlags f = 0 )
     {}
 };
 
-// Internal class QAlphaWidget
+/* 
+  Internal class QAlphaWidget.
+
+  The QAlphaWidget is shown while the animation lasts
+  and displays the pixmap resulting from the alpha blending.
+*/
 
 class QAlphaWidget: public QWidget
 {
     Q_OBJECT
 public:
-    QAlphaWidget( QWidget* w, QWidget* parent = 0, const char* name = 0, WFlags f = 0)
-	: QWidget( parent, name, 
-	    f | WStyle_Customize | WStyle_NoBorder | WStyle_Tool | WStyle_StaysOnTop | WResizeNoErase | WRepaintNoErase )
-    {
-	setBackgroundMode( NoBackground );
-	widget = (QAccessWidget*)w;
-	alpha = 0;
-    }
+    QAlphaWidget( QWidget* w, QWidget* parent = 0, const char* name = 0, WFlags f = 0);
 
     void run( int time );
 
@@ -56,14 +55,37 @@ private:
     bool showWidget;
     QTimer anim;
     QTime checkTime;
-
 };
 
-void QAlphaWidget::paintEvent( QPaintEvent* e )
+static QAlphaWidget* blend = 0;
+
+/*
+  Constructs a QAlphaWidget.
+*/
+QAlphaWidget::QAlphaWidget( QWidget* w, QWidget* parent, const char* name, WFlags f )
+    : QWidget( parent, name, 
+	f | WStyle_Customize | WStyle_NoBorder | WStyle_Tool | WStyle_StaysOnTop | WResizeNoErase | WRepaintNoErase )
+{
+    if ( blend )
+	delete blend;
+
+    setBackgroundMode( NoBackground );
+    widget = (QAccessWidget*)w;
+    alpha = 0;
+}
+
+/*!
+  \reimp
+*/
+void QAlphaWidget::paintEvent( QPaintEvent* )
 {
     bitBlt( this, QPoint(0,0), &pm );
 }
 
+/*
+  Grabs the images that are to be blended and moves
+  the alphawidget into position.
+*/
 void QAlphaWidget::init()
 {
     move( widget->geometry().x(),widget->geometry().y() );
@@ -78,6 +100,10 @@ void QAlphaWidget::init()
 	widget->geometry().width(), widget->geometry().height() );
 }
 
+/*
+  Starts the alphablending animation.
+  The animation will take about \a time ms
+*/
 void QAlphaWidget::run( int time )
 {
     checkTime.start();
@@ -109,6 +135,9 @@ void QAlphaWidget::run( int time )
     }
 }
 
+/*!
+  \reimp
+*/
 bool QAlphaWidget::eventFilter( QObject* o, QEvent* e )
 {
     switch ( e->type() )
@@ -128,6 +157,12 @@ bool QAlphaWidget::eventFilter( QObject* o, QEvent* e )
     return QWidget::eventFilter( o, e );
 }
 
+/*
+  Render alphablending for the time elapsed.
+
+  Show the blended widget and free all allocated source
+  if the blending is finished.
+*/
 void QAlphaWidget::render()
 {
     alpha = double(checkTime.elapsed()) / duration;
@@ -135,10 +170,13 @@ void QAlphaWidget::render()
 	anim.stop();
 	widget->removeEventFilter( this );
 	widget->clearWState( WState_Visible );
+	widget->setWState( WState_ForceHide );
+	
 	BackgroundMode bgm = widget->backgroundMode();
-	widget->setBackgroundMode( NoBackground );
-	if ( showWidget )
+	if ( showWidget ) {
+	    widget->setBackgroundMode( NoBackground );
 	    widget->show();
+	}
 	hide();
 	if ( showWidget ) {
 	    widget->clearWState( WState_Visible ); // prevent update in setBackgroundMode
@@ -146,6 +184,7 @@ void QAlphaWidget::render()
 	    widget->setWState( WState_Visible );
 	}
 	delete this;
+	blend = 0;
     } else {
 	alphaBlend();
 	pm = mixed;
@@ -153,6 +192,9 @@ void QAlphaWidget::render()
     }
 }
 
+/*
+  Caluclate an alphablended image
+*/
 void QAlphaWidget::alphaBlend()
 {
     const double ia = 1-alpha;
@@ -169,9 +211,9 @@ void QAlphaWidget::alphaBlend()
 	    UINT32 bp = bl[sx];
 	    UINT32 fp = fl[sx];
 
-	    ((UINT32*)(md[sy]))[sx] =  qRgb(qRed(bp)*ia + qRed(fp)*alpha, 
-		qGreen(bp)*ia + qGreen(fp)*alpha, 
-		qBlue(bp)*ia + qBlue(fp)*alpha);
+	    ((UINT32*)(md[sy]))[sx] =  qRgb(int (qRed(bp)*ia + qRed(fp)*alpha), 
+					    int (qGreen(bp)*ia + qGreen(fp)*alpha), 
+					    int (qBlue(bp)*ia + qBlue(fp)*alpha) );
 	}
     }
 }
@@ -213,11 +255,22 @@ private:
     QPixmap pm;
 };
 
+static QRollEffect* roll = 0;
+
+/*
+  Construct a QRollEffect widget
+
+  The QRollEffect widget is shown while the animation lasts
+  and displays the pixmap shifted.
+*/
 QRollEffect::QRollEffect( QWidget* w, Qt::Orientation orient )
 : QWidget(0, 0, 
 	  WStyle_Customize | WStyle_NoBorder | WStyle_Tool | WStyle_StaysOnTop | WResizeNoErase | WRepaintNoErase )
   , orientation(orient)
 {
+    if ( roll )
+	delete roll;
+
     widget = (QAccessWidget*) w;
     ASSERT( widget );
 
@@ -247,14 +300,20 @@ QRollEffect::QRollEffect( QWidget* w, Qt::Orientation orient )
     resize( widget->size().width(), widget->size().height() );
 
     pm = QPixmap::grabWidget( widget );
-
 }
 
-void QRollEffect::paintEvent( QPaintEvent* e )
+/*!
+  \reimp
+*/
+void QRollEffect::paintEvent( QPaintEvent* )
 {
-    bitBlt( this, QPoint( currentWidth - totalWidth,currentHeight - totalHeight), &pm );
+    bitBlt( this, currentWidth - totalWidth,currentHeight - totalHeight, 
+	&pm, 0,0, pm.width(), pm.height(), Qt::CopyROP, TRUE );
 }
 
+/*!
+  \reimp
+*/
 bool QRollEffect::eventFilter( QObject* o, QEvent* e )
 {
     switch ( e->type() )
@@ -275,6 +334,11 @@ bool QRollEffect::eventFilter( QObject* o, QEvent* e )
     return QWidget::eventFilter( o, e );
 }
 
+/*
+  Start the animation.
+
+  The animation will take about \a time ms
+*/
 void QRollEffect::run( int time )
 {
     duration  = time;
@@ -297,6 +361,9 @@ void QRollEffect::run( int time )
     checkTime.start();
 }
 
+/*
+  Roll according to the time elapsed.
+*/
 void QRollEffect::scroll()
 {
     if ( !done ) {
@@ -328,11 +395,14 @@ void QRollEffect::scroll()
     }
     if ( done ) {
 	anim.stop();
+	widget->removeEventFilter( this );
 	widget->clearWState( WState_Visible );
-	BackgroundMode bgm = widget->backgroundMode();
-	widget->setBackgroundMode( NoBackground );
-	if ( showWidget )
+	widget->setWState( WState_ForceHide );
+        BackgroundMode bgm = widget->backgroundMode();
+	if ( showWidget ) {
+	    widget->setBackgroundMode( NoBackground );
 	    widget->show();
+	}
 	hide();
 	if ( showWidget) {
 	    widget->clearWState( WState_Visible ); // prevent update in setBackgroundMode
@@ -340,6 +410,7 @@ void QRollEffect::scroll()
 	    widget->setWState( WState_Visible );
 	}
 	delete this;
+	roll = 0;
     }
 }
 
@@ -347,8 +418,6 @@ void QRollEffect::scroll()
 #include "qeffects.moc"
 
 // global functions
-
-static QRollEffect* roll = 0;
 
 void scrollEffect( QWidget* w, Qt::Orientation orient, int time )
 {
@@ -358,8 +427,6 @@ void scrollEffect( QWidget* w, Qt::Orientation orient, int time )
     roll = new QRollEffect( w, orient );
     roll->run( time );
 }
-
-static QAlphaWidget* blend = 0;
 
 void fadeEffect( QWidget* w, int time )
 {
