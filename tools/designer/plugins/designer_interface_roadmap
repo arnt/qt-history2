@@ -244,6 +244,7 @@ Comments
   can provide a DesignerFormWindowInterface.
   Properties
     - count (read only)
+    - fileList (read only)
 
   Functions:
     - newForm
