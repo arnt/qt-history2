@@ -6,6 +6,7 @@
 
 //these don't belong here, but will be moved to an
 //appropriate place later
+//features
 #ifndef QT_NO_IMAGEIO_JPEG
 #define QT_NO_IMAGEIO_JPEG
 #endif
@@ -18,6 +19,18 @@
 #ifndef QT_NO_SQL
 #define QT_NO_SQL
 #endif
+#define QT_FATAL_ASSERT
+#define QT_NO_XINERAMA
+//mac thingy
+#ifndef ONE_PIXEL_LOCK
+#define ONE_PIXEL_LOCK
+#endif
+//carbon things
+#define ALLOW_OLD_CARBON
+#define _EVENT_HANDLERS 0
+#define ALLOW_OLD_CREATE_FOO_CONTROL_PARAMETERS 0
+#define CARBON_ON_MAC_O 1
+#define ALLOW_OLD_BLOCKING_APIS 0
 
 //hacks to work around wchar problems
 #undef wchar_t

@@ -64,14 +64,6 @@ bool QFile::remove( const QString &fileName )
     return unlink( QFile::encodeName(QDir::convertSeparators(fileName)) ) == 0;	
 }
 
-#if defined(O_NONBLOCK)
-# define HAS_ASYNC_FILEMODE
-# define OPEN_ASYNC O_NONBLOCK
-#elif defined(O_NDELAY)
-# define HAS_ASYNC_FILEMODE
-# define OPEN_ASYNC O_NDELAY
-#endif
-
 bool QFile::open( int m )
 {
     if ( isOpen() ) {				// file already open
@@ -114,16 +106,10 @@ bool QFile::open( int m )
 	    else
 		oflags |= OPEN_CREAT;
 	}
-#if defined(HAS_TEXT_FILEMODE)
 	if ( isTranslated() )
 	    oflags |= OPEN_TEXT;
 	else
 	    oflags |= OPEN_BINARY;
-#endif
-#if defined(HAS_ASYNC_FILEMODE)
-	if ( isAsynchronous() )
-	    oflags |= OPEN_ASYNC;
-#endif
 	fd = OPEN( QFile::encodeName(QDir::convertSeparators(fn)), oflags, 0666 );
 
 	if ( fd != -1 ) {			// open successful
@@ -153,12 +139,10 @@ bool QFile::open( int m )
 	    }
 	}
 	qstrcpy( perm2, perm );
-#if defined(HAS_TEXT_FILEMODE)
 	if ( isTranslated() )
 	    strcat( perm2, "t" );
 	else
 	    strcat( perm2, "b" );
-#endif
 	while (1) { // At most twice
 
 	    fh = fopen( QFile::encodeName(QDir::convertSeparators(fn)), perm2 );
