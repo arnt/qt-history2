@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#2 $
 **
 ** Implementation of QPixmap class for X11
 **
 ** Author  : Haavard Nord
 ** Created : 940501
 **
-** Copyright (C) 1994-1995 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1994,1995 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -22,9 +22,38 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#2 $";
 #endif
 
+
+/*!
+\class QPixmap qpixmap.h
+\brief The QPixmap class is a off-screen paint device.
+
+The normal use of a pixmap is to use it for smooth update of a widget.
+Whenever something complex needs to be drawn, you can use a pixmap to
+obtains flicker-free drawing:
+
+<ol plain>
+<li> Create a pixmap with the necessary size.
+<li> Fill the pixmap with the widget background color.
+<li> Draw into the pixmap using a QPainter.
+<li> bitBlt the contens of the pixmap onto the widget.
+</ol>
+
+The code may look like this:
+\code
+QWidget  w;		\/ widget to update
+QPixmap  pm(100, 100);	\/ 100x100 pixmap
+QPainter p;		\/ painter
+
+p.begin( &pm );
+  \/ do complex drawing
+p.end();
+			\/ copy pixmap to widget
+bitBlt( &w, 0, 0, &pm, 0, 0, 0, 0 );
+\endcode
+*/
 
 // --------------------------------------------------------------------------
 // Internal functions
@@ -56,12 +85,19 @@ static int highest_bit( ulong v )
 // QPixmap member functions
 //
 
+/*!
+Constructs a null pixmap.
+
+A null pixmap has zero width, zero height and no contents, and can therefore
+not be drawn or drawn into.
+*/
+
 QPixmap::QPixmap()
     : QPaintDevice( PDT_PIXMAP )
 {
     data = new QPixmapData;
     CHECK_PTR( data );
-    data->dirty  = data->optim = 0;
+    data->dirty  = data->optim = FALSE;
     data->virgin = TRUE;
     data->ximage = 0;
     data->w = data->h = 0;
@@ -69,12 +105,21 @@ QPixmap::QPixmap()
     hd = 0;
 }
 
+/*!
+Constructs a \e w x \e h pixmap of \e depth bits per pixels.
+The contents of the pixmap is uninitialized.
+
+The \e depth can be either 1 (monochrome) or the default depth
+supported by the hardware (normally 8 bits).
+If \e depth is negative, the the hardware depth will be used.
+*/
+
 QPixmap::QPixmap( int w, int h, int depth )
     : QPaintDevice( PDT_PIXMAP )
 {
     data = new QPixmapData;
     CHECK_PTR( data );
-    data->dirty  = data->optim = 0;
+    data->dirty  = data->optim = FALSE;
     data->virgin = TRUE;
     data->ximage = 0;
     if ( w <= 0 ) w = 1;
@@ -89,7 +134,7 @@ QPixmap::QPixmap( int w, int h, int depth )
 	hd = 0;
 	data->d = 0;
 #if defined(CHECK_RANGE)
-	warning( "QPixmap: Illegal depth %d.  Legal values are 1 and %d",
+	warning( "QPixmap: Invalid depth %d.  Legal values are 1 and %d",
 		 depth, dd );
 #endif
 	return;
@@ -97,12 +142,18 @@ QPixmap::QPixmap( int w, int h, int depth )
     hd = XCreatePixmap( dpy, DefaultRootWindow(dpy), w, h, data->d );
 }
 
+/*!
+Constructs a monochrome pixmap which is initialized with the data in \e bits.
+This constructor is protected and used by the QBitmap class.
+*/
+
 QPixmap::QPixmap( int w, int h, const char *bits, bool isXbitmap )
     : QPaintDevice( PDT_PIXMAP )
 {						// for bitmaps only
     data = new QPixmapData;
     CHECK_PTR( data );
-    data->dirty  = data->optim = 0;		// no caching
+    data->dirty  = data->optim = FALSE;		// no caching
+    data->virgin = FALSE;
     data->ximage = 0;
     if ( w <= 0 ) w = 1;
     if ( h <= 0 ) h = 1;
@@ -115,9 +166,12 @@ QPixmap::QPixmap( int w, int h, const char *bits, bool isXbitmap )
 	bits = (const char *)flipped_bits;
     }
     hd = XCreateBitmapFromData( dpy, DefaultRootWindow(dpy), bits, w, h );
-    data->virgin = TRUE;
     delete flipped_bits;
 }
+
+/*!
+Constructs a pixmap which is a shallow copy of \e p.
+*/
 
 QPixmap::QPixmap( const QPixmap &p )
 {
@@ -128,18 +182,30 @@ QPixmap::QPixmap( const QPixmap &p )
     hd  = p.hd;					// copy QPaintDevice drawable
 }
 
+/*!
+Constructs a pixmap which is initialized with an image.
+
+\sa convertToPixmap().
+*/
+
 QPixmap::QPixmap( const QImage &image )
     : QPaintDevice( PDT_PIXMAP )
 {
     data = new QPixmapData;
     CHECK_PTR( data );
-    data->dirty  = data->optim = 0;
+    data->dirty  = data->optim = FALSE;
     data->virgin = TRUE;
     data->ximage = 0;
+    data->w = data->h = 0;
+    data->d = 0;
     hd = 0;
     convertFromImage( &image );
-    data->virgin = FALSE;
 }
+
+/*!
+Dereferences the internal pixmap data, and deletes it if this is the
+last reference.
+*/
 
 QPixmap::~QPixmap()
 {
@@ -152,6 +218,13 @@ QPixmap::~QPixmap()
     }
 }
 
+
+/*!
+Assigns \e p to this pixmap and returns a reference to the pixmap.
+
+Since pixmaps share data, this assignment makes a shallow reference
+to \e p.
+*/
 
 QPixmap &QPixmap::operator=( const QPixmap &p )
 {
@@ -170,6 +243,13 @@ QPixmap &QPixmap::operator=( const QPixmap &p )
     return *this;
 }
 
+/*!
+Converts the image \e im to a pixmap and sets it to this pixmap.
+Returns a reference to the pixmap.
+
+\sa convertToPixmap().
+*/
+
 QPixmap &QPixmap::operator=( const QImage &im )
 {
     *this = QPixmap( im );
@@ -177,11 +257,19 @@ QPixmap &QPixmap::operator=( const QImage &im )
 }
 
 
-bool QPixmap::cacheImage( bool onOff )
+/*!
+Enables the internal image cache if \e enable is TRUE, or disables it if
+\e enable is FALSE.  Returns the previous setting of the image cache.
+
+Enabling the internal image cache speeds up functions that fetch the
+pixmap contents; convertToImage() and xForm().
+*/
+
+bool QPixmap::enableImageCache( bool enable )
 {
     bool v = data->optim;
-    data->optim = onOff ? 1 : 0;
-    data->dirty = 0;
+    data->optim = enable ? 1 : 0;
+    data->dirty = FALSE;
     if ( data->ximage ) {
 	XDestroyImage( (XImage*)data->ximage );
 	data->ximage = 0;
@@ -189,14 +277,26 @@ bool QPixmap::cacheImage( bool onOff )
     return v;
 }
 
+
+/*!
+Fills the pixmap with the color \e fillColor.
+*/
+
 void QPixmap::fill( const QColor &fillColor )	// fill pixmap contents
 {
+    if ( isNull() )
+	return;
     detach();                                   // detach other references
     GC gc = qt_xget_temp_gc( depth()==1 );
     XSetForeground( dpy, gc, fillColor.pixel() );
     XFillRectangle( dpy, hd, gc, 0, 0, width(), height() );
 }
 
+
+/*!
+Returns pixmap metics.  This is a reimplementation of the virtual function
+QPaintDevice::metric().
+*/
 
 long QPixmap::metric( int m ) const		// get metric information
 {
@@ -236,33 +336,39 @@ long QPixmap::metric( int m ) const		// get metric information
 
 
 /*!
-Converts the pixmap to an image.
+Converts the pixmap to an image and returns TRUE if successful.
+
+\bug Does not support 2 or 4 bit display hardware. This function needs
+to be tested on different types of X servers.
 */
 
 bool QPixmap::convertToImage( QImage *image ) const
 {						// get image data from pixmap
-    if ( isNull() || !image )
+    if ( isNull() ) {
+#if defined(CHECK_NULL)
+	warning( "QPixmap::convertToImage: Cannot convert null pixmap" );
+#endif
 	return FALSE;
-
-    int w = width();
-    int h = height();
-    int d = depth();
-
-    if ( d > 1 && d < 8 )			// set to nearest valid depth
-	d = 8;					//   2..7 ==> 8
-    else if ( d > 8 )
-	d = 24;					//   > 9  ==> 24
-    
-    image->create( width(), height(), d );
-    if ( image->isNull() )			// could not create image
-	return FALSE;
-
-    bool mono = d == 1;
+    }
 
     int     scr    = qt_xscreen();
     Visual *visual = DefaultVisual(dpy,scr);
     bool    trucol = visual->c_class == TrueColor;
     XImage *xi = 0;				// get pixmap data from server
+    int	    w  = width();
+    int	    h  = height();
+    int	    d  = depth();
+
+    if ( d > 1 && d < 8 )			// set to nearest valid depth
+	d = 8;					//   2..7 ==> 8
+    else if ( d > 8 || trucol )
+	d = 24;					//   > 9  ==> 24
+    
+    image->create( w, h, d );
+    if ( image->isNull() )			// could not create image
+	return FALSE;
+
+    bool mono = d == 1;
 
     if ( data->optim ) {
 	if ( !data->dirty )
@@ -276,15 +382,7 @@ bool QPixmap::convertToImage( QImage *image ) const
 	xi = XGetImage( dpy, hd, 0, 0, w, h, AllPlanes,
 			mono ? XYPixmap : ZPixmap );
     CHECK_PTR( xi );
-    if ( xi->bits_per_pixel == d ) {		// compatible depth
-	char *xidata = xi->data;		// copy each scanline
-	int bpl = image->bytesPerLine();
-	for ( int y=0; y<h; y++ ) {
-	    memcpy( image->scanline(y), xidata, bpl );
-	    xidata += xi->bytes_per_line;
-	}
-    }
-    else if ( trucol ) {			// truecolor
+    if ( trucol ) {				// truecolor
 	uint red_mask    = visual->red_mask;
 	uint green_mask  = visual->green_mask;
 	uint blue_mask   = visual->blue_mask;
@@ -292,8 +390,6 @@ bool QPixmap::convertToImage( QImage *image ) const
 	int  green_shift = highest_bit( green_mask ) - 7;
 	int  blue_shift  = highest_bit( blue_mask )  - 7;
 	int  r, g, b;
-
-	ASSERT( image->depth() == 24 );
 
 	uchar *dst = image->bits();
 	uchar *src;
@@ -357,12 +453,21 @@ bool QPixmap::convertToImage( QImage *image ) const
 	    }
 	}
     }
+    else if ( xi->bits_per_pixel == d ) {	// compatible depth
+	char *xidata = xi->data;		// copy each scanline
+	int bpl = image->bytesPerLine();
+	for ( int y=0; y<h; y++ ) {
+	    memcpy( image->scanline(y), xidata, bpl );
+	    xidata += xi->bytes_per_line;
+	}
+    }
     else {					// !!! to be implemented
 	/* Typically 2 or 4 bits display depth */
 #if defined(CHECK_RANGE)
 	warning( "QPixmap::convertToImage: DISPLAY NOT SUPPORTED (BPP=%d)",
 		 xi->bits_per_pixel );
 #endif
+	return FALSE;
     }
 
     if ( mono ) {				// bitmap
@@ -410,7 +515,7 @@ bool QPixmap::convertToImage( QImage *image ) const
 	}
     }
     if ( data->optim ) {			// keep ximage that we fetched
-	((QPixmap*)this)->data->dirty  = 0;
+	((QPixmap*)this)->data->dirty  = FALSE;
 	((QPixmap*)this)->data->ximage = xi;
     }
     else
@@ -420,7 +525,18 @@ bool QPixmap::convertToImage( QImage *image ) const
 
 
 /*!
-Creates a pixmap from an image.
+Converts the image data and sets this pixmap. Returns TRUE if successful.
+
+If \e image has more colors than the number of available colors, we
+pick the most important colors, using the diversity algorithm of
+John Bradley et. al. (author of XV). This algorithm chooses colors
+on basis of popularity and distance.
+
+If this pixmap is an instance of QBitmap and \e image has 8 or 24 bits
+depth, then the image will dithered using the Floyd-Steinberg dithering
+algorithm.
+
+\bug Does not support 2 or 4 bit display hardware. More testing needed.
 */
 
 bool QPixmap::convertFromImage( const QImage *image )
@@ -462,9 +578,13 @@ bool QPixmap::convertFromImage( const QImage *image )
 	hd = XCreateBitmapFromData( dpy, DefaultRootWindow(dpy), bits, w, h );
 	delete flipped_bits;
 	data->w = w;  data->h = h;  data->d = d;
-/*
-  THROW OLD!!! VIRGIN OG GUTTA!!!
-*/
+	if ( data->optim ) {
+	    data->dirty = FALSE;
+	    if ( data->ximage ) {		// we got no X image data
+		XDestroyImage( (XImage*)data->ximage );
+		data->ximage = 0;
+	    }
+	}
 	return TRUE;
     }
 
@@ -725,7 +845,7 @@ bool QPixmap::convertFromImage( const QImage *image )
 
     XPutImage( dpy, hd, qt_xget_readonly_gc(), xi, 0, 0, 0, 0, w, h );
     if ( data->optim ) {			// keep ximage that we created
-	data->dirty  = 0;
+	data->dirty  = FALSE;
 	data->ximage = xi;
     }
     else
@@ -756,23 +876,20 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 }
 
 
-#undef abs
-inline int abs( int x )
-{
-    return x >= 0 ? x : -x;
-}
-
-#undef max
-inline int max( int x, int y )
-{
-    return x > y ? x : y;
-}
-
-static inline int d2i_round( double d )
+static inline int d2i_round( double d )		// double -> int, rounded
 {
     return d > 0 ? int(d+0.5) : int(d-0.5);
 }
 
+
+/*!
+Transforms the pixmap using \e matrix, and returns the transformed pixmap.
+
+Qt uses this function to implemented rotated text on window systems that
+do not support such fancy features.
+
+\bug 2 and 4 bits pixmaps not supported.
+*/
 
 QPixmap QPixmap::xForm( const Q2DMatrix &matrix )
 {						// world transform pixmap
@@ -793,13 +910,13 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix )
     matrix.map( ws,  0, &x2, &y2 );
     matrix.map( ws, hs, &x3, &y3 );
     matrix.map(  0, hs, &x4, &y4 );
-    int h13 = abs(y3-y1);
-    int w13 = abs(x3-x1);
-    int h24 = abs(y4-y2);
-    int w24 = abs(x4-x2);
+    int h13 = QABS(y3-y1);
+    int w13 = QABS(x3-x1);
+    int h24 = QABS(y4-y2);
+    int w24 = QABS(x4-x2);
 
-    h = max(h13,h24);				// size of target pixmap
-    w = max(w13,w24);
+    h = QMAX(h13,h24);				// size of target pixmap
+    w = QMAX(w13,w24);
 
     XImage *xi = 0;				// get bitmap data from server
     if ( data->optim ) {
@@ -854,7 +971,7 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix )
 	QPixmap bm( w, h, 1 );			//   then return empty bitmap
 	bm.fill( color0 );
 	if ( data->optim ) {			// keep ximage that we fetched
-	    data->dirty  = 0;
+	    data->dirty  = FALSE;
 	    data->ximage = xi;
 	}
 	else
@@ -991,7 +1108,7 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix )
 	p += p_inc;
     }
     if ( data->optim ) {			// keep ximage that we fetched
-	data->dirty  = 0;
+	data->dirty  = FALSE;
 	data->ximage = xi;
     }
     else
@@ -1016,6 +1133,16 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix )
     }
 }
 
+
+/*!
+Returns the actual matrix used for transforming pixmaps.
+
+When transforming a pixmap with xForm(), the transformation matrix is
+translated to compensate for undesired vertical and horizontal displacement.
+
+This function returns the modified matrix, which maps points correctly
+from the original pixmap into the new pixmap.
+*/
 
 Q2DMatrix QPixmap::trueMatrix( const Q2DMatrix &matrix, int ws, int hs )
 {						// get true wxform matrix
