@@ -25,9 +25,9 @@
 #include <qscrollbar.h>
 #include <qwhatsthis.h>
 #include <qtooltip.h>
-#include <qrubberband.h>
 #include <qitemdelegate.h>
 #include <qdatetime.h>
+#include <qrubberband.h>
 #include <qdebug.h>
 
 #include <private/qabstractitemview_p.h>
@@ -65,7 +65,8 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         alternatingColors(false),
         oddColor(Qt::lightGray),
         evenColor(Qt::white),
-        draggableItems(true)
+        draggableItems(true),
+        dropIndicator(0)
 {
 }
 
@@ -95,6 +96,8 @@ void QAbstractItemViewPrivate::init()
 
     q->setHorizontalFactor(64);
     q->setVerticalFactor(64);
+
+    dropIndicator = new QRubberBand(QRubberBand::Line, viewport);
 
     doDelayedItemsLayout();
 }
@@ -1062,19 +1065,44 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *e)
 
     QModelIndex index = itemAt(e->pos());
 
-    // set the item under the cursor to current
-//     if (index.isValid())
-//         selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
-
     if (d->canDecode(e)) {
-        if (model()->flags(index) & QAbstractItemModel::ItemIsDropEnabled)
+        if (index.isValid()) {
+            // update the drag indicator geometry
+            static const int margin = 2;
+            QRect rect = itemViewportRect(index);
+            QRect global(d->viewport->mapToGlobal(rect.topLeft()), rect.size());
+            if (e->pos().y() - rect.top() < margin) {
+                QRect geometry(global.left(), global.top() - 2, global.width(), 4);
+                if (geometry != d->dropIndicator->geometry())
+                    d->dropIndicator->setGeometry(geometry);
+            } else if (rect.bottom() - e->pos().y() < margin) {
+                QRect geometry(global.left(), global.bottom() - 1, global.width(), 4);
+                if (geometry != d->dropIndicator->geometry())
+                    d->dropIndicator->setGeometry(geometry);
+            } else if (model()->flags(index) & QAbstractItemModel::ItemIsDropEnabled) {
+                if (global != d->dropIndicator->geometry()) {
+                    d->dropIndicator->setGeometry(global);
+                    QRegion top(0, 0, rect.width(), 3);
+                    QRegion left(0, 0, 3, rect.height());
+                    QRegion bottom(0, rect.height() - 3, rect.width(), 3);
+                    QRegion right(rect.width() - 3, 0, 3, rect.height());
+                    d->dropIndicator->setMask(top + left + bottom + right);
+                }
+            }
+            if (!d->dropIndicator->isVisible()) {
+                d->dropIndicator->show();
+                d->dropIndicator->raise();
+            }
             e->accept(); // allow dropping on dropenabled items
-        else if (!index.isValid())
+        } else {
             e->accept(); // allow dropping in empty areas
+        }
     }
 
     if (d->shouldAutoScroll(e->pos()))
         startAutoScroll();
+
+    QViewport::dragMoveEvent(e);
 }
 
 /*!
@@ -1083,6 +1111,7 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *e)
 void QAbstractItemView::dragLeaveEvent(QDragLeaveEvent *)
 {
     stopAutoScroll();
+    d->dropIndicator->hide();
 }
 
 /*!
@@ -1101,6 +1130,7 @@ void QAbstractItemView::dropEvent(QDropEvent *e)
             e->acceptProposedAction();
     }
     stopAutoScroll();
+    d->dropIndicator->hide();
 }
 
 /*!
@@ -1320,7 +1350,6 @@ bool QAbstractItemView::edit(const QModelIndex &index,
 /*!
   \internal
 */
-
 void QAbstractItemView::updateEditorData()
 {
     QMap<QPersistentModelIndex, QWidget*>::iterator it = d->editors.begin();

@@ -104,6 +104,7 @@ public:
     QColor evenColor;
 
     bool draggableItems;
+    QRubberBand *dropIndicator;
 };
 
 /*
