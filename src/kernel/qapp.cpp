@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#22 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#21 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#22 $";
 #endif
 
 
@@ -305,7 +305,7 @@ QWidget *d = QApplication::desktop();
 d->height();			\/ height of display
 d->width();			\/ width of display
 d->setBackgroundColor( red );
-\encode
+\endcode
 */
 
 
@@ -441,3 +441,26 @@ void QApplication::flushX()	{}		// do nothing
 void QApplication::syncX()	{}		// do nothing
 
 #endif
+
+/*! \page index.html
+
+<title>Qt toolkit - documentation home page</title>
+</head><body>
+
+<h1>Qt documentation home page</h1>
+
+The Qt toolkit documentation is organized as one HTML page per class,
+header file, example program, or topical documentation files.
+<p>
+There are several different index pages: <ul>
+<li><a href=classes.html>Alphabetical class list</a>
+<li><a href=hierarchy.html>The classes according to inheritance</a>
+<li><a href=headers.html>All the header files</a>
+<li><a href=enums.html>All the enum types</a>
+<li><a href=examples.html>All the example programs</a>
+</ul>
+
+<p>There are also topical pages on these topics:<ul>
+<li><a href=fontmatch.html>Font matching</a>
+<li><a href=handleclass.html>Handle classes</a>
+</ul> */
