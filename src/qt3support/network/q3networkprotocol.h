@@ -34,8 +34,8 @@ template <class T> class Q3ValueList;
 class Q_COMPAT_EXPORT Q3NetworkProtocolFactoryBase
 {
 public:
-   virtual Q3NetworkProtocol *createObject() = 0;
-
+    virtual ~Q3NetworkProtocolFactoryBase() {}
+    virtual Q3NetworkProtocol *createObject() = 0;
 };
 
 template< class Protocol >

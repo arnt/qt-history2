@@ -176,6 +176,7 @@ private:
 class Q_XML_EXPORT QXmlReader
 {
 public:
+    virtual ~QXmlReader() {}
     virtual bool feature(const QString& name, bool *ok = 0) const = 0;
     virtual void setFeature(const QString& name, bool value) = 0;
     virtual bool hasFeature(const QString& name) const = 0;
@@ -229,7 +230,7 @@ public:
     bool parse(const QXmlInputSource* input);
     virtual bool parse(const QXmlInputSource* input, bool incremental);
     virtual bool parseContinue();
-    
+
 private:
     Q_DISABLE_COPY(QXmlSimpleReader)
     Q_DECLARE_PRIVATE(QXmlSimpleReader)
@@ -261,6 +262,7 @@ public:
 class Q_XML_EXPORT QXmlContentHandler
 {
 public:
+    virtual ~QXmlContentHandler() {}
     virtual void setDocumentLocator(QXmlLocator* locator) = 0;
     virtual bool startDocument() = 0;
     virtual bool endDocument() = 0;
@@ -278,6 +280,7 @@ public:
 class Q_XML_EXPORT QXmlErrorHandler
 {
 public:
+    virtual ~QXmlErrorHandler() {}
     virtual bool warning(const QXmlParseException& exception) = 0;
     virtual bool error(const QXmlParseException& exception) = 0;
     virtual bool fatalError(const QXmlParseException& exception) = 0;
@@ -287,6 +290,7 @@ public:
 class Q_XML_EXPORT QXmlDTDHandler
 {
 public:
+    virtual ~QXmlDTDHandler() {}
     virtual bool notationDecl(const QString& name, const QString& publicId, const QString& systemId) = 0;
     virtual bool unparsedEntityDecl(const QString& name, const QString& publicId, const QString& systemId, const QString& notationName) = 0;
     virtual QString errorString() const = 0;
@@ -295,6 +299,7 @@ public:
 class Q_XML_EXPORT QXmlEntityResolver
 {
 public:
+    virtual ~QXmlEntityResolver() {}
     virtual bool resolveEntity(const QString& publicId, const QString& systemId, QXmlInputSource*& ret) = 0;
     virtual QString errorString() const = 0;
 };
@@ -302,6 +307,7 @@ public:
 class Q_XML_EXPORT QXmlLexicalHandler
 {
 public:
+    virtual ~QXmlLexicalHandler() {}
     virtual bool startDTD(const QString& name, const QString& publicId, const QString& systemId) = 0;
     virtual bool endDTD() = 0;
     virtual bool startEntity(const QString& name) = 0;
@@ -315,6 +321,7 @@ public:
 class Q_XML_EXPORT QXmlDeclHandler
 {
 public:
+    virtual ~QXmlDeclHandler() {}
     virtual bool attributeDecl(const QString& eName, const QString& aName, const QString& type, const QString& valueDefault, const QString& value) = 0;
     virtual bool internalEntityDecl(const QString& name, const QString& value) = 0;
     virtual bool externalEntityDecl(const QString& name, const QString& publicId, const QString& systemId) = 0;

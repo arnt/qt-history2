@@ -19,6 +19,7 @@
 
 struct QFactoryInterface
 {
+    virtual ~QFactoryInterface() {}
     virtual QStringList keys() const = 0;
 };
 

@@ -50,6 +50,7 @@ class Q_COMPAT_EXPORT Q3FilePreview
 {
 public:
     Q3FilePreview();
+    virtual ~Q3FilePreview() {}
     virtual void previewUrl(const Q3Url &url) = 0;
 
 };

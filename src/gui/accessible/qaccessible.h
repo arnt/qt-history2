@@ -261,6 +261,7 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(QAccessible::Relation)
 class Q_GUI_EXPORT QAccessibleInterface : public QAccessible
 {
 public:
+    virtual ~QAccessibleInterface() {}
     // check for valid pointers
     virtual bool isValid() const = 0;
     virtual QObject *object() const = 0;

@@ -57,6 +57,7 @@ Q_DECLARE_INTERFACE(QWidgetFactoryInterface, "http://trolltech.com/Qt/QWidgetFac
 
 struct QWidgetContainerInterfacePrivate
 {
+    virtual ~QWidgetContainerInterfacePrivate() {}
     virtual QWidget *containerOfWidget(const QString &f, QWidget *container) const = 0;
     virtual bool isPassiveInteractor(const QString &f, QWidget *container) const = 0;
 

@@ -20,6 +20,7 @@
 class Q_GUI_EXPORT QPrintEngine
 {
 public:
+    virtual ~QPrintEngine() {}
     enum PrintEnginePropertyKey {
         PPK_CollateCopies,
         PPK_ColorMode,
