@@ -13,7 +13,7 @@
 ####### Lex/yacc programs and options
 
 LEX	=	flex
-YACC	=	byacc -d
+YACC	=	#$ $text = ($is_unix ? "yacc -d" : "byacc -d");
 
 ####### Lex/yacc files
 
@@ -31,7 +31,7 @@ $(LEXOUT): $(LEXIN)
 
 $(MOCGEN): moc.y $(LEXOUT)
 	$(YACC) moc.y
-	#$ $text = ($is_unix ? "-rm -f " : "-del ") . '$(MOCGEN)'
+	#$ $text = ($is_unix ? "-rm -f " : "-del ") . '$(MOCGEN)';
 	#$ $text = ($is_unix ? "-mv " : "-ren ") . '$(YACCOUT) $(MOCGEN)'; 
 
 ####### Compile the C++ sources
