@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#141 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#142 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -45,7 +45,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#141 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#142 $")
 
 
 /*****************************************************************************
@@ -98,15 +98,16 @@ typedef void  (*VFPTR)();
 typedef declare(QListM,void) QVFuncList;
 static QVFuncList *postRList = 0;		// list of post routines
 
-static void	trapSignals( int signo );	// default signal handler
-static int	trapIOErrors( Display * );	// default X11 IO error handler
+static void	qt_sighandler( int signo );	// default signal handler
+static int	qt_x_errhandler( Display *, XErrorEvent * );
+static int	qt_xio_errhandler( Display * );
 
 static void	cleanupPostedEvents();
 
 static void	initTimers();
 static void	cleanupTimers();
 static timeval *waitTimer();
-static bool	activateTimer();
+static bool	activateTimers();
 static timeval	watchtime;			// watch if time is turned back
 
 static void	qt_save_rootinfo();
@@ -148,13 +149,15 @@ void qt_init( int *argcptr, char **argv )
     int argc = *argcptr;
     int i, j;
 
-  // Install default traps
+  // Install default error handlers
 
 #if !defined(_OS_WIN32_)
-    signal( SIGQUIT, (SIG_HANDLER)trapSignals );
+    signal( SIGQUIT, (SIG_HANDLER)qt_sighandler );
 #endif
-    signal( SIGINT, (SIG_HANDLER)trapSignals );
-    XSetIOErrorHandler( trapIOErrors );
+    signal( SIGINT, (SIG_HANDLER)qt_sighandler );
+
+    XSetErrorHandler( qt_x_errhandler );
+    XSetIOErrorHandler( qt_xio_errhandler );
 
   // Set application name
 
@@ -375,13 +378,23 @@ void qt_updated_rootinfo()
 }
 
 
-static void trapSignals( int signo )		// default signal handler
+static void qt_sighandler( int signo )		// default signal handler
 {
     warning( "%s: Signal %d received", appName, signo );
     exit( 0 );
 }
 
-static int trapIOErrors( Display * )		// default X11 IO error handler
+
+static int qt_x_errhandler( Display *dpy, XErrorEvent *err )
+{						// default X11 error handler
+    char errstr[256];
+    XGetErrorText( dpy, err->error_code, errstr, 256 );    
+    fatal( "X Error: %s\n  Major opcode:  %d", errstr, err->request_code );
+    return 0;
+}
+
+
+static int qt_xio_errhandler( Display * )	// default X11 IO error handler
 {
     fatal( "%s: Fatal IO error: client killed", appName );
     return 0;
@@ -1173,12 +1186,12 @@ int QApplication::enter_loop()
 	    if ( !widget )			// don't know this window
 		continue;
 
-	    if ( widget->x11Event(&event) )	// send trough widget filter
-		continue;
-
 	    if ( app_do_modal )			// modal event handling
 		if ( !qt_try_modal(widget, &event) )
 		    continue;
+
+	    if ( widget->x11Event(&event) )	// send trough widget filter
+		continue;
 
 	    switch ( event.type ) {
 
@@ -1347,7 +1360,7 @@ int QApplication::enter_loop()
 	    sn_activate();
 	}
 
-	activateTimer();			// activate timer(s)
+	activateTimers();			// activate timers
 	qt_reset_color_avail();			// color approx. optimization
 
     }
@@ -1405,12 +1418,12 @@ bool QApplication::x11EventFilter( XEvent * )
 	    QWidget *widget	A modal widget
  *****************************************************************************/
 
-bool qt_modal_state()				// application in modal state?
+bool qt_modal_state()
 {
     return app_do_modal;
 }
 
-void qt_enter_modal( QWidget *widget )		// enter modal state
+void qt_enter_modal( QWidget *widget )
 {
     if ( !modal_stack ) {			// create modal stack
 	modal_stack = new QWidgetList;
@@ -1422,7 +1435,7 @@ void qt_enter_modal( QWidget *widget )		// enter modal state
 }
 
 
-void qt_leave_modal( QWidget *widget )		// leave modal state
+void qt_leave_modal( QWidget *widget )
 {
     if ( modal_stack && modal_stack->removeRef(widget) ) {
 	if ( modal_stack->isEmpty() ) {
@@ -1437,9 +1450,19 @@ void qt_leave_modal( QWidget *widget )		// leave modal state
 
 static bool qt_try_modal( QWidget *widget, XEvent *event )
 {
-    bool     block_event  = FALSE;
-    bool     expose_event = FALSE;
-    QWidget *modal = 0;
+    if ( popupWidgets )				// popup widget mode
+	return TRUE;
+
+    QWidget *modal=0, *top=modal_stack->getFirst();
+
+    widget = widget->topLevelWidget();
+    if ( widget->testWFlags(WType_Modal) )	// widget is modal
+	modal = widget;
+    if ( modal == top )				// don't block event
+	return TRUE;
+
+    bool block_event  = FALSE;
+    bool expose_event = FALSE;
 
     switch ( event->type ) {
 	case ButtonPress:			// disallow mouse/key events
@@ -1454,18 +1477,6 @@ static bool qt_try_modal( QWidget *widget, XEvent *event )
 	    expose_event = TRUE;
 	    break;
     }
-
-    if ( popupWidgets )				// popup widget mode
-	return TRUE;
-
-    widget = widget->topLevelWidget();
-    if ( widget->testWFlags(WType_Modal) )	// widget is modal
-	modal = widget;
-
-    QWidget *top = modal_stack->getFirst();
-
-    if ( modal == top )				// don't block event
-	return TRUE;
 
     if ( top->parentWidget() == 0 && (block_event || expose_event) )
 	XRaiseWindow( appDpy, top->id() );	// raise app-modal widget
@@ -1488,7 +1499,7 @@ static bool qt_try_modal( QWidget *widget, XEvent *event )
 	    QWidget *widget	The popup widget to be removed
  *****************************************************************************/
 
-void qt_open_popup( QWidget *popup )		// add popup widget
+void qt_open_popup( QWidget *popup )
 {
     if ( !popupWidgets ) {			// create list
 	popupWidgets = new QWidgetList;
@@ -1508,7 +1519,7 @@ void qt_open_popup( QWidget *popup )		// add popup widget
     }
 }
 
-void qt_close_popup( QWidget *popup )		// remove popup widget
+void qt_close_popup( QWidget *popup )
 {
     if ( !popupWidgets )
 	return;
@@ -1536,9 +1547,9 @@ void qt_close_popup( QWidget *popup )		// remove popup widget
   make our own from scratch.
 
   NOTE: These functions are for internal use. QObject::startTimer() and
-	 QObject::killTimer() are for public use.
-	 The QTimer class provides a high-level interface which translates
-	 timer events into signals.
+	QObject::killTimer() are for public use.
+	The QTimer class provides a high-level interface which translates
+	timer events into signals.
 
   qStartTimer( interval, obj )
 	Starts a timer which will run until it is killed with qKillTimer()
@@ -1722,7 +1733,7 @@ static timeval *waitTimer()			// time to wait for next timer
     return 0;					// no timers
 }
 
-static bool activateTimer()			// activate timer(s)
+static bool activateTimers()			// activate timers
 {
     if ( !timerList || !timerList->count() )	// no timers
 	return FALSE;
@@ -1837,7 +1848,7 @@ bool qKillTimer( QObject *obj )			// kill timers for obj
 
 
 /*****************************************************************************
-  Event translation; translates X events to Qt events
+  Event translation; translates X11 events to Qt events
  *****************************************************************************/
 
 //
