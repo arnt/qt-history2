@@ -121,3 +121,12 @@ QDnsHostInfo QDnsAgent::getHostByName(const QString &hostName)
 #endif
     return results;
 }
+
+QString QDns::getHostName()
+{
+    char hostName[512];
+    if (gethostname(hostName, sizeof(hostName)) == -1)
+        return QString::null;
+    hostName[sizeof(hostName) - 1] = '\0';
+    return QString::fromLocal8Bit(hostName);
+}
