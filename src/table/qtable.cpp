@@ -1348,10 +1348,10 @@ void QTable::paintFocus( QPainter *p, const QRect &cr )
 
 void QTable::paintEmptyArea( QPainter *p, int cx, int cy, int cw, int ch )
 {
-    // Region of the rect we should draw (clipping is in device coordinates).
-    QRegion reg( p->xForm( QRect( cx, cy, cw, ch ) ) );
+    // Region of the rect we should draw
+    QRegion reg( QRect( cx, cy, cw, ch ) );
     // Subtract the table from it
-    reg = reg.subtract( p->xForm( QRect( QPoint( 0, 0 ), tableSize() ) ) );
+    reg = reg.subtract( QRect( QPoint( 0, 0 ), tableSize() ) );
     p->save();
     // Set clip region...
     p->setClipRegion( reg );
