@@ -1077,9 +1077,9 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
             di.cbSize = sizeof(DOCINFOA);
 	    QCString docNameA = doc_name.local8Bit();
             di.lpszDocName = docNameA.data();
-	    QCString outfileA = (TCHAR*)output_filename.local8Bit();
+	    QCString outfileA = output_filename.local8Bit();
 	    if ( output_file && !output_filename.isEmpty() )
-		di.lpszOutput = (TCHAR*)outfileA.data();
+		di.lpszOutput = outfileA.data();
             if ( ok && StartDocA(hdc, &di) == SP_ERROR )
                 ok = FALSE;
         } );
