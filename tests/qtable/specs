@@ -71,9 +71,6 @@ Known Bugs:
 selections and cursor-movement we have to use actual and not logical
 indices.
 
-- When resizing cols/rows using the header we have repaint errors
-(because of the widgets used for drawing the lines)
-
 
 
 Other todos:

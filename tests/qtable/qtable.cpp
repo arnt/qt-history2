@@ -1945,7 +1945,7 @@ void QTable::sortColumn( int col, bool ascending )
 }
 
 /*!  Hides the row \a row.
-  
+
   \sa showRow()
 */
 
@@ -1957,7 +1957,7 @@ void QTable::hideRow( int row )
 }
 
 /*!  Hides the column \a col.
-  
+
   \sa showCol()
 */
 
@@ -1969,7 +1969,7 @@ void QTable::hideColumn( int col )
 }
 
 /*!  Shows the row \a row.
-  
+
   \sa hideRow()
 */
 
@@ -1981,7 +1981,7 @@ void QTable::showRow( int row )
 }
 
 /*!  Shows the column \a col.
-  
+
   \sa hideColumn()
 */
 
@@ -2303,6 +2303,25 @@ int QTableHeader::sectionPos( int section ) const
     if ( caching )
 	return sectionPoses[ section ];
     return QHeader::sectionPos( section );
+}
+
+int QTableHeader::sectionAt( int pos ) const
+{
+    if ( !caching )
+	return QHeader::sectionAt( pos );
+    int l = 0;
+    int r = count() - 1;
+    int i = ( (l+r+1) / 2 );
+    while ( r - l ) {
+	if ( sectionPoses[i] > pos )
+	    r = i -1;
+	else
+	    l = i;
+	i = ( (l+r+1) / 2 );
+    }
+    if ( sectionPoses[i] <= pos && pos <= sectionPoses[i] + sectionSizes[ mapToSection( i ) ] )
+	return mapToSection( i );
+    return -1;
 }
 
 void QTableHeader::setCaching( bool b )

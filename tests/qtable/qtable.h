@@ -163,7 +163,7 @@ public:
     virtual void hideColumn( int col );
     virtual void showRow( int row );
     virtual void showColumn( int col );
-    
+
 protected:
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     void contentsMousePressEvent( QMouseEvent* );
@@ -256,7 +256,8 @@ public:
 
     int sectionSize( int section ) const;
     int sectionPos( int section ) const;
-
+    int sectionAt( int section ) const;
+    
 signals:
     void sectionSizeChanged( int s );
 
