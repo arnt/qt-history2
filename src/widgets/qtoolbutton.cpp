@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#22 $
 **
 ** Implementation of QToolButton class
 **
@@ -22,7 +22,7 @@
 #include "qiconset.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#21 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#22 $");
 
 
 static QToolButton * threeDeeButton = 0;
@@ -329,6 +329,16 @@ void QToolButton::drawButton( QPainter * p )
 	p->drawPolyline( a );
     }
     drawButtonLabel( p );
+
+    if ( hasFocus() ) {
+        if ( style() == WindowsStyle ) {
+            p->drawWinFocusRect( 3, 3, width()-6, height()-6,
+                                 colorGroup().background() );
+        } else {
+            p->setPen( black );
+            p->drawRect( 3, 3, width()-6, height()-6 );
+        }
+    }
 }
 
 
