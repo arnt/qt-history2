@@ -359,7 +359,7 @@ protected:
 	pressedHandle = -1;
 
 	if ( e->button() == RightButton && win->isDockMenuEnabled() ) {
-	    qDebug( "todo: hidedock menu" ); // ### TODO: HideDock menu
+	    // ### TODO: HideDock menu
 	} else {
 	    mouseMoveEvent( e );
 	}
