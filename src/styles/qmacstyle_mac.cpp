@@ -463,7 +463,7 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 
 	    int lw = opt.isDefault() ? pixelMetric(PM_DefaultFrameWidth) : opt.lineWidth();
 	    p->fillRect(r.x(), r.y(), lw, r.height(), cg.background()); //left
-	    p->fillRect(r.right()-lw, r.y(), lw, r.height(), cg.background()); //right
+	    p->fillRect(r.right()-lw+1, r.y(), lw, r.height(), cg.background()); //right
 	    p->fillRect(r.x(), r.y(), r.width(), lw, cg.background()); //top
 	    p->fillRect(r.x(), r.bottom()-lw+1, r.width(), lw, cg.background()); //bottm
 
