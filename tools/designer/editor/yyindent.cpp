@@ -94,12 +94,12 @@ static const int ppCommentOffset = 2;
 void setTabSize( int size )
 {
     ppHardwareTabSize = size;
-    ppContinuationIndentSize = 2 * size;
 }
 
 void setIndentSize( int size )
 {
     ppIndentSize = size;
+    ppContinuationIndentSize = 2 * size;
 }
 
 static QRegExp *literal = 0;
@@ -208,17 +208,29 @@ static QString trimmedCodeLine( const QString& t )
     }
 
     /*
-      Replace case and goto labels by spaces, to allow esoteric
-      alignments:
+      Replace goto and switch labels by whitespace, but be careful
+      with this case:
 
-	  foo1: foo2: bar1;
-		      bar2;
+	  foo1: bar1;
+	      bar2;
     */
     while ( trimmed.findRev(':') != -1 && trimmed.find(*label) != -1 ) {
 	QString cap1 = label->cap( 1 );
 	int pos1 = label->pos( 1 );
-	for ( int i = 0; i < (int) cap1.length(); i++ )
+	int stop = cap1.length();
+
+	if ( pos1 + stop < (int) trimmed.length() && ppIndentSize < stop )
+	    stop = ppIndentSize;
+
+	int i = 0;
+	while ( i < stop ) {
 	    eraseChar( trimmed, pos1 + i, ' ' );
+	    i++;
+	}
+	while ( i < (int) cap1.length() ) {
+	    eraseChar( trimmed, pos1 + i, ';' );
+	    i++;
+	}
     }
 
     /*
@@ -772,8 +784,7 @@ static int indentForContinuationLine()
 	  continuation line or something.
 	*/
 	if ( delimDepth == 0 ) {
-	    if ( leftBraceFollowed || isContinuationLine() ||
-		 yyLine->endsWith(",") ) {
+	    if ( leftBraceFollowed ) {
 		/*
 		  We have
 
@@ -781,6 +792,18 @@ static int indentForContinuationLine()
 		      {
 
 		  or
+
+		      Bar::Bar()
+			  : Foo( x )
+		      {
+
+		  The "{" should be flush left.
+		*/
+		if ( !isContinuationLine() )
+		    return indentOfLine( *yyLine );
+	    } else if ( isContinuationLine() || yyLine->endsWith(",") ) {
+		/*
+		  We have
 
 		      x = a +
 			  b +
@@ -792,9 +815,8 @@ static int indentForContinuationLine()
 			  1, 2, 3,
 			  4, 5, 6
 
-		  The "{" should fall right under the "int", the "c;"
-		  right under the "b +", and the "4, 5, 6" right
-		  under the "1, 2, 3,".
+		  The "c;" should fall right under the "b +", and the
+		  "4, 5, 6" right under the "1, 2, 3,".
 		*/
 		return indentOfLine( *yyLine );
 	    } else {
@@ -957,7 +979,8 @@ static void initializeIndenter()
 {
     literal = new QRegExp( "([\"'])(?:\\\\.|[^\\\\])*\\1" );
     literal->setMinimal( TRUE );
-    label = new QRegExp( "^\\s*((?:case\\b([^:]|::)+|[a-zA-Z_0-9]+):)(?!:)" );
+    label = new QRegExp(
+	"^\\s*((?:case\\b([^:]|::)+|[a-zA-Z_0-9]+)(?:\\s+slots)?:)(?!:)" );
     inlineCComment = new QRegExp( "/\\*.*\\*/" );
     inlineCComment->setMinimal( TRUE );
     braceX = new QRegExp( "^\\s*\\}\\s*(?:else|catch)\\b" );
@@ -1033,15 +1056,20 @@ int indentForBottomLine( const QStringList& program, QChar typedIn )
 	    */
 	    indent -= ppIndentSize;
 	} else if ( okay(typedIn, ':') ) {
-	    QRegExp caseLabel( "\\s*(?:case\\b([^:]|::)+|default\\s*):\\s*" );
+	    QRegExp caseLabel(
+		"\\s*(?:case\\b(?:[^:]|::)+"
+		"|(?:public|protected|private|signals|default)(?:\\s+slots)?\\s*"
+		")?:.*" );
 
 	    if ( caseLabel.exactMatch(bottomLine) ) {
 		/*
-		  Move a case label one level to the left, but only
-		  if the user did not play around with it yet. Some
-		  users have exotic tastes in the matter, and most
-		  users probably are not patient enough to wait for
-		  the final ':' to format their code properly.
+		  Move a case label (or the ':' in front of a
+		  constructor initialization list) one level to the
+		  left, but only if the user did not play around with
+		  it yet. Some users have exotic tastes in the
+		  matter, and most users probably are not patient
+		  enough to wait for the final ':' to format their
+		  code properly.
 
 		  We don't attempt the same for goto labels, as the
 		  user is probably the middle of "foo::bar". (Who
