@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.h#19 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.h#20 $
 **
 ** Definition of QScrollView class
 **
@@ -81,6 +81,11 @@ protected:
     bool	eventFilter( QObject *, QEvent *e );
 
     virtual void viewportPaintEvent( QPaintEvent* );
+    virtual void viewportMousePressEvent( QMouseEvent* );
+    virtual void viewportMouseReleaseEvent( QMouseEvent* );
+    virtual void viewportMouseDoubleClickEvent( QMouseEvent* );
+    virtual void viewportMouseMoveEvent( QMouseEvent* );
+
     virtual void drawContentsOffset(QPainter*, int ox, int oy,
 		    int cx, int cy, int cw, int ch);
     void	frameChanged();
