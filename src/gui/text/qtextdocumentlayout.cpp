@@ -49,13 +49,6 @@ int QTextDocumentLayout::hitTest(const QPoint &point, QText::HitTestAccuracy acc
     return -1;
 }
 
-
-
-QTextListFormat QTextDocumentLayout::listFormat(QTextBlockIterator bl) const
-{
-    return bl.blockFormat().listFormat();
-}
-
 int QTextDocumentLayout::indent(QTextBlockIterator bl) const
 {
     QTextBlockFormat blockFormat = bl.blockFormat();
@@ -69,7 +62,7 @@ void QTextDocumentLayout::drawListItem(QPainter *painter, const PaintContext &co
     QTextBlockFormat blockFormat = bl.blockFormat();
     QTextCharFormat charFormat = bl.charFormat();
     QFontMetrics fontMetrics(charFormat.font());
-    const int style = listFormat(bl).style();
+    const int style = bl.blockFormat().listFormat().style();
     QString itemText;
     QPoint pos = QTextPieceTable::block(bl)->rect.topLeft();
     QSize size;
@@ -165,7 +158,7 @@ void QTextDocumentLayout::drawBlock(QPainter *painter, const PaintContext &conte
         ++nSel;
     }
 
-    if (listFormat(bl).style() != QTextListFormat::ListStyleUndefined)
+    if (bl.blockFormat().listFormat().style() != QTextListFormat::ListStyleUndefined)
         drawListItem(painter, context, bl, s);
 
     if (tl->numLines() == 0) {

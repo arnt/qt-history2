@@ -38,7 +38,6 @@ private:
                       const QTextBlockIterator block, const QTextLayout::Selection &selection);
 
     int indent(const QTextBlockIterator block) const;
-    QTextListFormat listFormat(const QTextBlockIterator block) const;
 
     void layoutBlock(const QTextBlockIterator block, const QPoint &p, int width);
     QTextBlockIterator layoutCell(QTextBlockIterator block, QPoint *pos, int width);
