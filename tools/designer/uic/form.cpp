@@ -1005,6 +1005,8 @@ void Uic::createFormImpl( const QDomElement &e )
     if ( needEndl )
 	out << endl;
 
+    out << indent << "retranslateStrings();" << endl;
+
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName()  == "connections" ) {
 	    // setup signals and slots connections
@@ -1065,10 +1067,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	    out << indent << (*buddy).key << "->setBuddy( " << registeredName( (*buddy).buddy ) << " );" << endl;
 	    firstBuddy = FALSE;
 	}
-
     }
-
-    out << indent << "retranslateStrings();" << endl;
 
     if ( extraSlots.find( "init()" ) != extraSlots.end() )
 	out << indent << "init();" << endl;
