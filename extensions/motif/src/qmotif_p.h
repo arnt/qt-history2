@@ -11,7 +11,7 @@ public:
 
     XtAppContext appContext;
     bool ownContext;
-    QArray<XtEventDispatchProc> dispatchers;
+    QMemArray<XtEventDispatchProc> dispatchers;
     QMotifEventLoop *eventloop;
     QWidgetIntDict mapper;
 };
