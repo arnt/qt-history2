@@ -35,6 +35,9 @@ unix {
 	system-zlib:LIBS += -lz
 }
 
+TRANSLATIONS	= designer_de.ts \
+		  designer_fr.ts
+
 DBFILE	= designer.db
 LANGUAGE	= C++
 

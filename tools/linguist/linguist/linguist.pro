@@ -26,6 +26,8 @@ SOURCES		= finddialog.cpp \
 FORMS		= about.ui
 
 win32:RC_FILE	= linguist.rc
+TRANSLATIONS	= linguist_de.ts \
+		  linguist_fr.ts
 
 DEFINES 	+= QT_INTERNAL_XML
 include( ../../../src/qt_professional.pri )

@@ -11,6 +11,10 @@ isEmpty(target.path):target.path=$$QT_PREFIX/bin
 INSTALLS        += target
 PROJECTNAME	= Assistant
 FORMS	= mainwindow.ui topicchooser.ui finddialog.ui helpdialog.ui settingsdialog.ui 
+
+TRANSLATIONS	= assistant_de.ts \
+		  assistant_fr.ts
+
 TEMPLATE	=app
 CONFIG	+= qt warn_off release
 DBFILE	= assistant.db
