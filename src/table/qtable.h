@@ -340,7 +340,9 @@ public slots:
     void insertRow( int row );
     void insertColumn( int col );
     void removeRow( int row );
+    void removeRows( const QArray<int> &rows );
     void removeColumn( int col );
+    void removeColumns( const QArray<int> &cols );
 
 protected:
     enum EditMode { NotEditing, Editing, Replacing };
