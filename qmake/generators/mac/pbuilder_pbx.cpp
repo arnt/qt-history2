@@ -779,6 +779,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << "\t\t\t" << "name = \"" << lib << "\";" << "\n"
 	  << "\t\t\t" << "productName = " << lib << ";" << "\n";
     }
+    t << "\t\t\t" << "startupPath = \"<<ProjectDirectory>>\";" << "\n";
     if(!project->isEmpty("DESTDIR"))
 	t << "\t\t\t" << "productInstallPath = \"" << project->first("DESTDIR") << "\";" << "\n";
     t << "\t\t" << "};" << "\n";
