@@ -838,6 +838,11 @@ static void calcLineBreaks(const QString &str, QCharAttributes *charAttributes)
 
 static void init(QTextEngine *e)
 {
+#ifdef Q_WS_WIN
+    if(!resolvedUsp10)
+        resolveUsp10();
+#endif
+
     e->formats = 0;
 
     e->direction = QChar::DirON;
@@ -932,8 +937,13 @@ const QCharAttributes *QTextEngine::attributes()
         int from = si.position;
         int len = length(i);
         int script = si.analysis.script;
+#ifdef Q_WS_WIN
+        if(hasUsp10) {
+            script = (QFont::Script)qt_scriptForChar(string.at(si.position).unicode());
+        }
+#endif
         Q_ASSERT(script < QFont::NScripts);
-        qt_scriptEngines[si.analysis.script].charAttributes(script, string, from, len, (QCharAttributes *) memory);
+        qt_scriptEngines[script].charAttributes(script, string, from, len, (QCharAttributes *) memory);
     }
 
     calcLineBreaks(string, (QCharAttributes *) memory);

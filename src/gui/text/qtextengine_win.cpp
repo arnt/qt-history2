@@ -11,8 +11,6 @@
 **
 ****************************************************************************/
 
-#if 0
-
 #ifdef QT_THREAD_SUPPORT
 #  include <private/qmutexpool_p.h>
 #endif // QT_THREAD_SUPPORT
@@ -53,7 +51,12 @@ typedef struct tag_SCRIPT_ITEM {
     QScriptAnalysis  a;
 } SCRIPT_ITEM;
 
-typedef QGlyphAttributes SCRIPT_VISATTR;
+typedef QGlyphLayout::Attributes SCRIPT_VISATTR;
+
+typedef struct tagGOFFSET {
+  LONG  du;
+  LONG  dv;
+} GOFFSET;
 
 #define USP_E_SCRIPT_NOT_IN_FONT   \
         MAKE_HRESULT(SEVERITY_ERROR,FACILITY_ITF,0x200)    // Script doesn't exist in font
@@ -173,9 +176,7 @@ static void resolveUsp10()
         QLibrary lib("usp10");
         lib.setAutoUnload(false);
 
-        // ##########################
         hasUsp10 = false;
-        return;
 
         ScriptFreeCache = (fScriptFreeCache) lib.resolve("ScriptFreeCache");
         ScriptItemize = (fScriptItemize) lib.resolve("ScriptItemize");
@@ -498,7 +499,6 @@ static void uspAppendItems(QTextEngine *engine, int &start, int &stop, BidiContr
             res = ScriptItemize((WCHAR *)(text+start), stop-start+1, alloc-1, 0, 0, usp_items, &numItems);
         }
     }
-    items.resize(items.size() + numItems);
     int i;
     if (control.singleLine) {
         for(i = 0; i < numItems; i++) {
@@ -529,13 +529,11 @@ static void uspAppendItems(QTextEngine *engine, int &start, int &stop, BidiContr
                     item.analysis.script = usp_latin_script;
                     item.isObject = true;
                     b = true;
-                } else if ((uc >= 9 && uc <=13) ||
-                           (category >= QChar::Separator_Space && category <= QChar::Separator_Paragraph)) {
+                } else if (uc == 9) {
                     item.analysis.script = usp_latin_script;
                     item.isSpace = true;
-                    item.isTab = (uc == '\t');
-                    if (item.isTab)
-                        item.analysis.bidiLevel = control.baseLevel();
+                    item.isTab = true;
+                    item.analysis.bidiLevel = control.baseLevel();
                     b = true;
                 } else if (b) {
                     b = false;
@@ -560,8 +558,6 @@ static void uspAppendItems(QTextEngine *engine, int &start, int &stop, BidiContr
     start = stop;
 }
 
-#endif
-
 // -----------------------------------------------------------------------------------------------------
 //
 // Text engine classes
@@ -577,124 +573,134 @@ void QTextEngine::shapeText(int item) const
         return;
 
     QFont::Script script = (QFont::Script)si.analysis.script;
-#if 0
     // Just to get the warning away
     int from = si.position;
-#endif
     int len = length(item);
     Q_ASSERT(len > 0);
     Q_UNUSED(len); // --release warning
 
     si.glyph_data_offset = used;
 
-#if 0
-    if (!si.font()) {
-        if (hasUsp10) {
-            const SCRIPT_PROPERTIES *script_prop = script_properties[si.analysis.script];
-            script = scriptForWinLanguage(script_prop->langid);
-            if (script == QFont::Latin && script_prop->fAmbiguousCharSet) {
-                // either some asian language or something Uniscribe doesn't recognise
-                // we look at the first character to find out what it is
-                script = (QFont::Script)qt_scriptForChar(string.unicode()[si.position].unicode());
-                if ((script >= QFont::Han && script <= QFont::Yi)
-                    || script == QFont::KatakanaHalfWidth || script == QFont::UnknownScript) {
-                    // maybe some asian language
-                    int i;
-                    for(i = 0; i < 5; i++) {
-                        QFontEngine *fe = fnt->engineForScript(tryScripts[i]);
-                        if (fe->type() == QFontEngine::Box)
-                            continue;
+    QFont fnt = font(si);
+    QFontPrivate *fp = fnt.d;
+    if (hasUsp10) {
+        const SCRIPT_PROPERTIES *script_prop = script_properties[si.analysis.script];
+        script = scriptForWinLanguage(script_prop->langid);
+        if (script == QFont::Latin && script_prop->fAmbiguousCharSet) {
+            // either some asian language or something Uniscribe doesn't recognise
+            // we look at the first character to find out what it is
+            script = (QFont::Script)qt_scriptForChar(string.unicode()[si.position].unicode());
+            if ((script >= QFont::Han && script <= QFont::Yi)
+                || script == QFont::KatakanaHalfWidth || script == QFont::UnknownScript) {
+                // maybe some asian language
+                int i;
+                for(i = 0; i < 5; i++) {
+                    QFontEngine *fe = fp->engineForScript(tryScripts[i]);
+                    if (fe->type() == QFontEngine::Box)
+                        continue;
 
-                        if (fe->canRender(string.unicode()+from, len)) {
-                            script = tryScripts[i];
-                            break;
-                        }
+                    if (fe->canRender(string.unicode()+from, len)) {
+                        script = tryScripts[i];
+                        break;
                     }
                 }
             }
         }
-        QFontEngine *fe = fnt->engineForScript(script);
-        if (fe->type() == QFontEngine::Box)
-            fe = fnt->engineForScript(QFont::NoScript);
-        si.setFont(fe);
     }
-#endif
+    QFontEngine *fontEngine = fp->engineForScript(script);
+    if (fontEngine->type() == QFontEngine::Box)
+        fontEngine = fp->engineForScript(QFont::NoScript);
 
-#if 0
-    if (hasUsp10 && si.fontEngine->ttf) {
+    if (hasUsp10 && fontEngine->ttf) {
         int l = len;
         si.analysis.logicalOrder = true;
         HRESULT res = E_OUTOFMEMORY;
         HDC hdc = 0;
 
-        do {
-            ensureSpace(l);
+        QVarLengthArray<WORD> glyphs(l);
+        QVarLengthArray<WORD> logClusters(l);
+        QVarLengthArray<SCRIPT_VISATTR> glyphAttributes(l);
+        
 
-            res = ScriptShape(hdc, &si.font()->script_cache, (WCHAR *)string.unicode() + from, len,
-                               l, &si.analysis, glyphs(&si), logClusters(&si), glyphAttributes(&si),
+        do {
+            res = ScriptShape(hdc, &fontEngine->script_cache, (WCHAR *)string.unicode() + from, len,
+                               l, &si.analysis, glyphs.data(), logClusters.data(), glyphAttributes.data(),
                                &si.num_glyphs);
             if (res == E_PENDING) {
-                hdc = si.font()->dc();
-                SelectObject(hdc, si.font()->hfont);
+                hdc = GetDC(0);
+                SelectObject(hdc, fontEngine->hfont);
             } else if (res == USP_E_SCRIPT_NOT_IN_FONT) {
                 si.analysis.script = 0;
-                hdc = 0;
             } else if (res == E_OUTOFMEMORY) {
                 l += 32;
+                glyphs.resize(l);
+                logClusters.resize(l);
+                glyphAttributes.resize(l);
             } else if (res != S_OK) {
                 Q_ASSERT(false);
             }
         } while(res != S_OK);
 
-
         ABC abc;
-        res = ScriptPlace(hdc, &si.font()->script_cache, glyphs(&si), si.num_glyphs,
-                           glyphAttributes(&si), &si.analysis, advances(&si), offsets(&si), &abc);
+        QVarLengthArray<int> advances(si.num_glyphs);
+        QVarLengthArray<GOFFSET> offsets(si.num_glyphs);
+        res = ScriptPlace(hdc, &fontEngine->script_cache, glyphs.data(), si.num_glyphs,
+                           glyphAttributes.data(), &si.analysis, advances.data(), offsets.data(), &abc);
         if (res == E_PENDING) {
-            hdc = si.font()->dc();
-            SelectObject(hdc, si.font()->hfont);
-            ScriptPlace(hdc, &si.font()->script_cache, glyphs(&si), si.num_glyphs,
-                         glyphAttributes(&si), &si.analysis, advances(&si), offsets(&si), &abc);
+            Q_ASSERT(hdc == 0);
+            hdc = GetDC(0);
+            SelectObject(hdc, fontEngine->hfont);
+            ScriptPlace(hdc, &fontEngine->script_cache, glyphs.data(), si.num_glyphs,
+                         glyphAttributes.data(), &si.analysis, advances.data(), offsets.data(), &abc);
         }
         si.width = abc.abcA + abc.abcB + abc.abcC;
-    } else
-#endif
-    {
+
+        ensureSpace(si.num_glyphs);
+        si.glyph_data_offset = used;
+        QGlyphLayout *g = this->glyphs(&si);
+        for(int i = 0; i < si.num_glyphs; ++i) {
+            g[i].glyph = glyphs[i];
+            g[i].advance.rx() = advances[i];
+            g[i].advance.ry() = 0;
+            g[i].offset.rx() = offsets[i].du;
+            g[i].offset.ry() = offsets[i].dv;
+            g[i].attributes = glyphAttributes[i];
+        }
+        unsigned short *lc = this->logClusters(&si);
+        for(int i = 0; i < len; ++i) 
+            lc[i] = logClusters[i];
+
+        if (hdc)
+            ReleaseDC(0, hdc);
+        si.analysis.script = script;
+    } else {
         Q_ASSERT(script < QFont::NScripts);
         Q_UNUSED(script); // --release warning
-
-        QFontEngine *font = fontEngine(si);
 
         QShaperItem shaper_item;
         shaper_item.script = si.analysis.script;
         shaper_item.string = &string;
         shaper_item.from = si.position;
         shaper_item.length = length(item);
-        shaper_item.font = font;
+        shaper_item.font = fontEngine;
         shaper_item.num_glyphs = qMax(num_glyphs - used, shaper_item.length);
-        // ### DesignMetrics
         shaper_item.flags = si.analysis.bidiLevel % 2 ? RightToLeft : 0;
+        if (designMetrics)
+            shaper_item.flags |= DesignMetrics;
 
-    //     qDebug("shaping");
         while (1) {
-    //         qDebug("    . num_glyphs=%d, used=%d, item.num_glyphs=%d", num_glyphs, used, shaper_item.num_glyphs);
             ensureSpace(shaper_item.num_glyphs);
             shaper_item.num_glyphs = num_glyphs - used;
-    //          qDebug("    .. num_glyphs=%d, used=%d, item.num_glyphs=%d", num_glyphs, used, shaper_item.num_glyphs);
             shaper_item.glyphs = glyphs(&si);
             shaper_item.log_clusters = logClusters(&si);
             if (qt_scriptEngines[shaper_item.script].shape(&shaper_item))
                 break;
         }
-
-    //     qDebug("    -> item: script=%d num_glyphs=%d", shaper_item.script, shaper_item.num_glyphs);
         si.num_glyphs = shaper_item.num_glyphs;
 
-        used += si.num_glyphs;
-
         QGlyphLayout *g = shaper_item.glyphs;
-        // ############ general solution needed
 #if 0
+        // ############ general solution needed
         if (this->font(si).d->kerning && font->type() == QFontEngine::Xft) {
             FT_Face face = static_cast<QFontEngineXft *>(font)->freetypeFace();
             if (FT_HAS_KERNING(face)) {
@@ -714,10 +720,9 @@ void QTextEngine::shapeText(int item) const
             si.width += (g++)->advance.x();
 
     }
-    QFontEngine *f = fontEngine(si);
-    si.ascent = f->ascent();
-    si.descent = f->descent();
+    si.ascent = fontEngine->ascent();
+    si.descent = fontEngine->descent();
 
-    ((QTextEngine *)this)->used += si.num_glyphs;
+    used += si.num_glyphs;
 }
 
