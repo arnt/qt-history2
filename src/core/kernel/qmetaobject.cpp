@@ -1599,22 +1599,26 @@ int QMetaType::type(const char *typeName)
 
 bool QMetaType::save(QDataStream &stream, int type, const void *data)
 {
+    // FIXME - also stream simple types?
     if (!data || !isRegistered(type))
         return false;
     QMetaType::SaveOperator saveOp = customTypes.at(type - User).saveOp;
     if (!saveOp)
         return false;
-    return saveOp(stream, data);
+    saveOp(stream, data);
+    return true;
 }
 
 bool QMetaType::load(QDataStream &stream, int type, void *data)
 {
+    // FIXME - also stream simple types?
     if (!data || !isRegistered(type))
         return false;
     QMetaType::LoadOperator loadOp = customTypes.at(type - User).loadOp;
     if (!loadOp)
         return false;
-    return loadOp(stream, data);
+    loadOp(stream, data);
+    return true;
 }
 
 /*

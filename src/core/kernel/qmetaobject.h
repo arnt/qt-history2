@@ -128,8 +128,8 @@ public:
 
     typedef void (*Destructor)(void *);
     typedef void *(*CopyConstructor)(const void *);
-    typedef bool (*SaveOperator)(QDataStream &, const void *);
-    typedef bool (*LoadOperator)(QDataStream &, void *);
+    typedef void (*SaveOperator)(QDataStream &, const void *);
+    typedef void (*LoadOperator)(QDataStream &, void *);
 
     static int registerType(const char *typeName, Destructor destructor,
                             CopyConstructor copyConstructor);
@@ -159,21 +159,15 @@ void *qMetaTypeCopyHelper(const T *t)
 }
 
 template <typename T>
-bool qMetaTypeSaveHelper(QDataStream &stream, const T *t)
+void qMetaTypeSaveHelper(QDataStream &stream, const T *t)
 {
-    if (!t)
-        return false;
     stream << *t;
-    return true;
 }
 
 template <typename T>
-bool qMetaTypeLoadHelper(QDataStream &stream, T *t)
+void qMetaTypeLoadHelper(QDataStream &stream, T *t)
 {
-    if (!t)
-        return false;
     stream >> *t;
-    return true;
 }
 
 template <typename T>
@@ -191,8 +185,8 @@ static int qRegisterMetaType(const char *typeName, T * = 0)
 template <typename T>
 static void qRegisterMetaTypeStreamOperators(const char *typeName, T * = 0)
 {
-    typedef bool(*SavePtr)(QDataStream &, const T *);
-    typedef bool(*LoadPtr)(QDataStream &, T *);
+    typedef void(*SavePtr)(QDataStream &, const T *);
+    typedef void(*LoadPtr)(QDataStream &, T *);
     SavePtr sptr = qMetaTypeSaveHelper<T>;
     LoadPtr lptr = qMetaTypeLoadHelper<T>;
 
