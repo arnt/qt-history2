@@ -343,6 +343,7 @@ int	  QApplication::wheel_scroll_lines = 3;		// number of lines to scroll
 #endif
 bool	  qt_is_gui_used;
 bool      Q_EXPORT qt_resolve_symlinks = TRUE;
+bool      Q_EXPORT qt_tab_all_widgets  = TRUE;
 QRect qt_maxWindowRect;
 static int drag_time = 500;
 static int drag_distance = 4;

@@ -92,6 +92,32 @@ static void qt_mac_unfix_key(QString &k) {
 #define MACKEY_SEP '.'
 #endif
 
+QString 
+qt_mac_get_global_setting(QString key, QString ret=QString::null, QString file=QString::null)
+{
+    if(file.isNull())
+	file = "/Users/sam/Library/Preferences/.GlobalPreferences";
+    CFStringRef k = CFStringCreateWithCharacters(NULL, (UniChar *)key.unicode(), key.length()),
+	       id = CFStringCreateWithCharacters(NULL, (UniChar *)file.unicode(), file.length());
+    if(CFPropertyListRef r = CFPreferencesCopyValue(k, id, kCFPreferencesCurrentUser, kCFPreferencesAnyHost)) {
+	if(CFGetTypeID(r) == CFStringGetTypeID()) {
+	    ret = cfstring2qstring((CFStringRef)r);
+	} else if(CFGetTypeID(r) == CFBooleanGetTypeID()) {
+	    ret = CFEqual((CFBooleanRef)r, kCFBooleanTrue) ? "TRUE" : "FALSE";
+	} else if(CFGetTypeID(r) == CFNumberGetTypeID()) {
+	    int num;
+	    if(CFNumberGetValue((CFNumberRef)r, kCFNumberIntType, &num))
+                ret = QString::number(num);
+        } else {
+	    qDebug("qt-internal::QSettings, %s: no hablo %d", key.latin1(), (int)CFGetTypeID(r));
+	}
+	CFRelease(r);
+    }
+    CFRelease(id);
+    CFRelease(k);
+    return ret;
+}
+
 /*****************************************************************************
   Developers are allowed to access this to influence the base (defaults to 'com.')
  *****************************************************************************/
