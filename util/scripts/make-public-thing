@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#51 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#52 $
 
 $snapshotversion=200;
 $base = "/tmp/striptree-$$";
@@ -146,8 +146,11 @@ cd ../..
 WINFILES='src/Makefile.win32-dll '`find src -name '*_win.*'; find include -name '*_win.*'`
 rm -f \$WINZIP
 WINZIP=/local/qt/dist/qtwin$snapshotversion-`date +%Y%m%d`-snapshot.zip
-rm -f
-zip -9 \$WINZIP \$WINFILES
+rm -f \$WINZIP
+echo sex
+echo zip -9 \$WINZIP \$WINFILES 
+echo sexsex
+zip -9 \$WINZIP \$WINFILES 
 rm \$WINFILES
 rm -rf $base/cvs/qt/*/*/*_win.*
 
