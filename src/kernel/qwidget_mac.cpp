@@ -1047,8 +1047,6 @@ void QWidget::reparentSys(QWidget *parent, WFlags f, const QPoint &p,
     QObjectList chldrn = queryList();
     for(int i = 0; i < chldrn.size(); i++) {
 	QObject *obj = chldrn.at(i);
-	if(obj->inherits("QAccel"))
-	    ((QAccel*)obj)->repairEventFilter();
 	if(obj->isWidgetType()) {
 	    QWidget *w = (QWidget *)obj;
 	    if(((WindowPtr)w->hd) == old_hd) {
