@@ -658,12 +658,12 @@ void QTreeView::doItemsLayout()
 {
     QAbstractItemView::doItemsLayout();
     QStyleOptionViewItem option = viewOptions();
-    if (model()->rowCount(root()) <= 0)
-        return;
-    QModelIndex index = model()->index(0, 0, root());
-    d->itemHeight = itemDelegate()->sizeHint(fontMetrics(), option, model(), index).height();
-    d->layout(-1);
-    d->reopenChildren(root(), false);
+    if (model()->rowCount(root()) > 0) {
+        QModelIndex index = model()->index(0, 0, root());
+        d->itemHeight = itemDelegate()->sizeHint(fontMetrics(), option, model(), index).height();
+        d->layout(-1);
+        d->reopenChildren(root(), false);
+    }
     updateGeometries();
 }
 
