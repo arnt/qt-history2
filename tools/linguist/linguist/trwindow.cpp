@@ -1769,11 +1769,6 @@ void TrWindow::setupMenuBar()
 
     // Translation menu
     // when updating the accelerators, remember the status bar
-    beginFromSourceAct = new Action( translationp, tr("&Begin from Source"),
-				     me, SLOT(beginFromSource()),
-				     QAccel::stringToKey(tr("Ctrl+B")) );
-    connect( me, SIGNAL(updateActions(bool)), beginFromSourceAct,
-	     SLOT(setEnabled(bool)) );
     prevUnfinishedAct = new Action( translationp, tr("&Prev Unfinished"),
 				    this, SLOT(prevUnfinished()),
 				    QAccel::stringToKey(tr("Ctrl+K")) );
@@ -1790,6 +1785,11 @@ void TrWindow::setupMenuBar()
     doneAndNextAct = new Action( translationp, tr("Done and &Next"),
 				 this, SLOT(doneAndNext()),
 				 QAccel::stringToKey(tr("Ctrl+Return")) );
+    beginFromSourceAct = new Action( translationp, tr("&Begin from Source"),
+				     me, SLOT(beginFromSource()),
+				     QAccel::stringToKey(tr("Ctrl+B")) );
+    connect( me, SIGNAL(updateActions(bool)), beginFromSourceAct,
+	     SLOT(setEnabled(bool)) );
 
     // Phrasebook menu
     newPhraseBookAct = new Action( phrasep, tr("&New Phrase Book..."),
@@ -1929,16 +1929,16 @@ void TrWindow::setupToolBars()
     replaceAct->addToToolbar( editt, tr("Replace"), "replace" );
 #endif
 
-    beginFromSourceAct->addToToolbar( translationst, tr("Begin from Source"),
-				      "searchfind" );
-    prevAct->addToToolbar( translationst, tr("Prev"), "searchfind" );
-    nextAct->addToToolbar( translationst, tr("Next"), "searchfind" );
+    // beginFromSourceAct->addToToolbar( translationst, 
+    //                                tr("Begin from Source"), "searchfind" );
+    prevAct->addToToolbar( translationst, tr("Prev"), "prev" );
+    nextAct->addToToolbar( translationst, tr("Next"), "next" );
     prevUnfinishedAct->addToToolbar( translationst, tr("Prev Unfinished"),
-				     "searchfind" );
+				     "prevunfinished" );
     nextUnfinishedAct->addToToolbar( translationst, tr("Next Unfinished"),
-				     "searchfind" );
+				     "nextunfinished" );
     doneAndNextAct->addToToolbar( translationst, tr("Done and Next"),
-				  "searchfind" );
+				  "doneandnext" );
 
     acceleratorsAct->addToToolbar( validationt, tr("Accelerators"), "accel" );
     endingPunctuationAct->addToToolbar( validationt, tr("Punctuation"),
