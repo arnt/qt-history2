@@ -102,12 +102,14 @@ bool QWaitConditionPrivate::wait(QMutex *mutex, unsigned long time)
 QWaitCondition::QWaitCondition()
 {
     d = new QWaitConditionPrivate;
-    d->freeQueue.setAutoDelete(TRUE);
 }
 
 QWaitCondition::~QWaitCondition()
 {
     Q_ASSERT(d->queue.isEmpty());
+    
+    for(EventQueue::Iterator it = d->freeQueue.begin(); it != d->freeQueue.end(); ++it)
+	delete (*it);
     delete d;
 }
 

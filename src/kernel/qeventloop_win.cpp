@@ -237,8 +237,8 @@ static void sn_cleanup()
     DestroyWindow(sn_win);
     sn_win = 0;
     for ( int i=0; i<3; i++ ) {
-	while (!(*sn_vec[i])->isEmpty())
-	    delete (*sn_vec[i])->takeFirst();
+	for(QSNDict::Iterator it = (*sn_vec[i])->begin(); it != (*sn_vec[i])->end(); ++it)
+	    delete (*it);
 	delete *sn_vec[i];
 	*sn_vec[i] = 0;
     }

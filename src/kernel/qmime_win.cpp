@@ -24,6 +24,7 @@
 #include "qapplication_p.h"
 #include "qtextcodec.h"
 #include "qregexp.h"
+#include "qtl.h"
 #include <shlobj.h>
 
 #ifndef QT_NO_IMAGEIO_BMP
@@ -797,7 +798,7 @@ void cleanup_mimes()
     while ( mimes.size() )
  	delete mimes.first();
 
-    mimetypes.setAutoDelete(TRUE);
+    qDeleteAll( mimetypes );
     mimetypes.clear();
 }
 

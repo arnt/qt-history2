@@ -43,22 +43,29 @@ static bool mcp_system_unstable = FALSE;
   implement the setOptimization(MemoryOptim) feature for Win9x.
 */
 
-struct QMCPFreeNode {
-    QMCPFreeNode( short o, short s ) : offset(o), size(s) {}
-    short offset;
-    short size;
-};
-
-typedef QList<QMCPFreeNode*> QMCPFreeList;
 
 class QMultiCellPixmap {
 public:
+    struct FreeNode {
+	FreeNode() : offset(0), size(0) {}
+	FreeNode(short o, short s) : offset(o), size(s) {}
+	FreeNode(const FreeNode &o) : offset(o.offset), size(o.size) {}
+	FreeNode &operator =(const FreeNode &o) { offset = o.offset; size = o.size; return *this; }
+	bool operator==(const FreeNode &o) { return (offset == o.offset && size == o.size); }
+	short offset;
+	short size;
+    };
+    typedef QList<FreeNode> FreeList;
+
+
     QMultiCellPixmap( int width, int depth, int maxHeight );
    ~QMultiCellPixmap();
     bool isEmpty() const
     {
-	QMCPFreeNode *n = free_list->last();
-	return n && n->offset == 0 && n->size == max_height;
+	if(free_list.isEmpty())
+	    return true;
+	FreeNode n = free_list.last();
+	return n.offset == 0 && n.size == max_height;
     }
     QPixmap *sharedPixmap() const { return pixmap; }
     HDC	     handle()	    const { return pixmap->handle(); }
@@ -69,7 +76,7 @@ public:
 private:
     QPixmap	  *pixmap;
     int		   max_height;
-    QMCPFreeList *free_list;
+    FreeList free_list;
 };
 
 
@@ -1196,33 +1203,30 @@ QMultiCellPixmap::QMultiCellPixmap( int width, int depth, int maxHeight )
     pixmap = new QPixmap( width, height, depth, QPixmap::NormalOptim );
     pixmap->detach();				// clears uninit flag
     max_height = maxHeight;
-    free_list = new QMCPFreeList;
-    free_list->setAutoDelete( TRUE );
     // The whole pixmap area can be allocated
-    free_list->append( new QMCPFreeNode(0,max_height) );
+    free_list.append( FreeNode(0,max_height) );
 }
 
 QMultiCellPixmap::~QMultiCellPixmap()
 {
-    delete free_list;
     delete pixmap;
 }
 
 int QMultiCellPixmap::allocCell( int height )
 {
-    QMCPFreeNode *n = free_list->first();
-    for(int i = 0; (i < free_list->size()) && (n->size < height); ++i)
-	n = free_list->at(i);			// find free space
-    if ( (n == free_list->last())
-	 && (n->size < height))			// not enough space
+    FreeNode n = free_list.first();
+    for(int i = 0; (i < free_list.size()) && (n.size < height); ++i)
+	n = free_list.at(i);			// find free space
+    if ( (n == free_list.last())
+	 && (n.size < height))			// not enough space
 	return -1;
-    int offset = n->offset;
-    if ( n->size > height ) {			// alloc part of free space
-	n->offset += height;
-	n->size -= height;
+    int offset = n.offset;
+    if ( n.size > height ) {			// alloc part of free space
+	n.offset += height;
+	n.size -= height;
     } else {					// perfect fit, height == size
-	Q_ASSERT( n->size == height );
-	free_list->remove(n);			// remove the node
+	Q_ASSERT( n.size == height );
+	free_list.remove(n);			// remove the node
     }
     int pm_height = pixmap->height();
     while ( offset + height > pm_height )
@@ -1234,38 +1238,37 @@ int QMultiCellPixmap::allocCell( int height )
 
 void QMultiCellPixmap::freeCell( int offset, int size )
 {
-    QMCPFreeNode *n = free_list->first();
-    QMCPFreeNode *p = 0;
+    FreeNode n = free_list.first();
     int i = 0;
-    for(; (i < free_list->size()) && (n->offset < offset); ++i) {
-	p = n;
-	n = free_list->at(i);
-    }
-    if ( p && p->offset + p->size == offset ) {
+    for(; (i < free_list.size()) && (free_list.at(i).offset < offset); ++i)
+	;
+    if ( i > 0 && free_list.at(i-1).offset + free_list.at(i-1).size == offset ) {
 	// The previous free node is adjacent to the cell we are freeing up,
 	// then expand the size of the prev node to include this space.
-	p->size += size;
-	if ( n && p->offset + p->size == n->offset ) {
+	FreeNode &p = free_list[i-1];
+	p.size += size;
+	if ( i < free_list.size() && p.offset + p.size == free_list.at(i).offset ) {
 	    // If the next node comes after the prev node, collapse them.
-	    p->size += n->size;
-	    free_list->remove(n);	// removes the current node (i.e. n)
+	    p.size += n.size;
+	    free_list.removeAt(i);	// removes the current node
 	}
-    } else if ( n ) {
+    } else if ( i < free_list.size() ) {
+	FreeNode &n = free_list[i];
 	// We have found the first free node after the cell.
-	if ( offset + size == n->offset ) {
+	if ( offset + size == n.offset ) {
 	    // The next free node comes right after the freed up area, then
 	    // include this area.
-	    n->offset -= size;
-	    n->size   += size;
+	    n.offset -= size;
+	    n.size   += size;
 	} else {
 	    // Insert a new free node before this one.
-	    free_list->insert( i, new QMCPFreeNode(offset,size) );
+	    free_list.insert( i, FreeNode(offset,size) );
 	}
     } else {
 	// n == 0, this means the free_list is empty or that the cell is
 	// after the last free block (but still not adjacent to p),
 	// then append a new free node.
-	free_list->append( new QMCPFreeNode(offset,size) );
+	free_list.append( FreeNode(offset,size) );
     }
 }
 
@@ -1289,6 +1292,7 @@ static void cleanup_mcp()
 	mcp_system_unstable = TRUE;		// tell QPixmap::deref()
 	mcp_lists_init = FALSE;
 	for ( int i=0; i<mcp_num_lists; i++ ) {
+	    qDeleteAll(*mcp_lists[i]);
 	    delete mcp_lists[i];
 	    mcp_lists[i] = 0;
 	}
@@ -1341,10 +1345,9 @@ int QPixmap::allocCell()
     int i = index_of_mcp_list(width(), depth() == 1, &s);
     if ( i < 0 )				// too large width
 	return -1;
-    if ( !mcp_lists[i] ) {
+    if ( !mcp_lists[i] )
 	mcp_lists[i] = new QMultiCellPixmapList;
-	mcp_lists[i]->setAutoDelete( TRUE );
-    }
+
     QMultiCellPixmapList *list = mcp_lists[i];
     QMultiCellPixmap     *mcp  = list->first();
     int offset = -1;
@@ -1421,12 +1424,11 @@ void QMultiCellPixmap::debugger()
 	   pixmap->width(), max_height, pixmap->depth(), this );
     qDebug( "    Actual pixmap height = %d", pixmap->height() );
     qDebug( "    Free List" );
-    QMCPFreeNode *n = 0;
-    for(int i = 0; i < free_list->size(); ++i) {
-	n = free_list->at(i);
-	qDebug( "      Offset %4d, Size %3d", n->offset, n->size );
+    for(int i = 0; i < free_list.size(); ++i) {
+	FreeNode n = free_list.at(i);
+	qDebug( "      Offset %4d, Size %3d", n.offset, n.size );
     }
-    qDebug( "      Num free nodes = %d", free_list->count() );
+    qDebug( "      Num free nodes = %d", free_list.count() );
 }
 
 

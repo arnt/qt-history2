@@ -828,14 +828,14 @@ const QString qt_reg_winclass( Qt::WFlags flags )	// register window class
 
 #endif
 
-    winclassNames->insert(cname.latin1(), 1);
+    winclassNames.insert(cname.latin1(), 1);
     return cname;
 }
 
 static void unregWinClasses()
 {
     winclassNames.ensure_constructed();
-    QHash<QString, int*>::ConstIterator it = winclassNames.constBegin();
+    QHash<QString, int>::ConstIterator it = winclassNames.constBegin();
     while ( it != winclassNames.constEnd() ) {
 	const char *k = it.key();
 	QT_WA( {
