@@ -16,7 +16,6 @@
 
 #ifndef QT_NO_ACCESSIBILITY
 
-#include "qaccel.h"
 #include "qapplication.h"
 #include "qgroupbox.h"
 #include "qlabel.h"

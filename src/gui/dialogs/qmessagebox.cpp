@@ -16,7 +16,6 @@
 
 #ifndef QT_NO_MESSAGEBOX
 
-#include "qaccel.h"
 #include "qevent.h"
 #include "qdesktopwidget.h"
 #include "qlabel.h"
