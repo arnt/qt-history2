@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.h#1 $
+** $Id: //depot/qt/main/src/kernel/qcolor.h#2 $
 **
 ** Definition of QColor class
 **
@@ -25,8 +25,10 @@ class QColor					// RGB based color
 {
 public:
     QColor();					// default RGB=0,0,0
+    QColor( const QColor & );			// copy color
     QColor( int r, int g, int b );		// specify RGB
     QColor( const char *name );			// load color from database
+   ~QColor();
 
     bool   setRGB( int r, int g, int b );	// set RGB value
     bool   setRGB( ulong rgb );
