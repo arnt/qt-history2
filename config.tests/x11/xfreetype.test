@@ -110,22 +110,13 @@ fi
 
 
 # check for XftNameUnparse in X11/Xft/Xft.h
+XFTNAMEUNPARSE=yes
 if [ "$XFREETYPE" = "yes" ] && [ -f "$XFT_H" ]
 then
-    grep XftNameUnparse $XFT_H >/dev/null || XFREETYPE=no
-    if [ "$XFREETYPE" = "no" ]
+    grep XftNameUnparse $XFT_H >/dev/null || XFTNAMEUNPARSE=no
+    if [ "$XFTNAMEUNPARSE" = "no" ]
     then
 	echo "xftnameunparse" > $x11tests/xfreetype.cfg
-    fi
-
-    if [ "$VERBOSE" = "yes" ]
-    then
-	if [ "$XFREETYPE" = "yes" ]
-	then
-	    echo "  Found XftNameUnparse in $XFT_H"
-	else
-	    echo "  Could not find XftNameUnparse in $XFT_H"
-	fi
     fi
 fi
 
