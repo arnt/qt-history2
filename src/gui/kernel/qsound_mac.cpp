@@ -128,7 +128,7 @@ QAuServerMac::QAuServerMac(QObject* parent) : QAuServer(parent,"Mac Audio Server
 {
     if(!servers++)
         EnterMovies();
-    offscreen = new QPixmap(1, 1);
+    offscreen = new QPixmap(1, 1); // Perhaps it should be a different size --Sam
 }
 
 QAuServerMac::~QAuServerMac()
