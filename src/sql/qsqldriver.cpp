@@ -45,7 +45,7 @@
 
 /*!
   \class QSqlDriver qsqldriver.h
-  \brief Class used for accessing databases
+    \brief Class used to access SQL databases
 
   \module sql
 
@@ -74,23 +74,25 @@ QSqlDriver::~QSqlDriver()
 }
 
 /*! \fn bool QSqlDriver::open( const QString& db, const QString& user, const QString& password, const QString& host )
-    Derived classes must override this abstract virtual method in order to open the database.
-    Return TRUE on success, FALSE on failure.
+    Derived classes must override this abstract virtual function in
+    order to open a database connection. Return TRUE on success, FALSE
+    on failure.
 
     \sa setOpen()
 
 */
 
 /*! \fn bool QSqlDriver::close()
-    Derived classes must override this abstract virtual method in order to close the database.
-    Return TRUE on success, FALSE on failure.
+    Derived classes must override this abstract virtual function in
+    order to close the database connection. Return TRUE on success,
+    FALSE on failure.
 
     \sa setOpen()
 
 */
 
 /*! \fn QSqlQuery QSqlDriver::createQuery() const
-    Creates an empty SQL result on the database.  Derived classes must override this method
+    Creates an empty SQL result on the database.  Derived classes must override this function
     and return a QSqlQuery object appropriate for their database to the caller.
 
 */
@@ -101,7 +103,7 @@ QSqlDriver::~QSqlDriver()
 //    	delete r;
 //}
 
-/*!  Returns TRUE if the database state is open, FALSE otherwise.
+/*!  Returns TRUE if the database connection is open, FALSE otherwise.
 
 */
 
@@ -110,7 +112,8 @@ bool QSqlDriver::isOpen() const
     return ((dbState & DBState_Open) == DBState_Open);
 }
 
-/*!  Returns TRUE if the there was an error opening the database, FALSE otherwise.
+/*!  Returns TRUE if the there was an error opening the database
+    connection, FALSE otherwise.
 
 */
 
@@ -131,20 +134,19 @@ bool QSqlDriver::isOpenError() const
 
   Returns TRUE if the database supports reporting information about
   the size of a query, FALSE otherwise.  Note that some databases do
-  not support returning the size (in number of rows returned) of a
-  query, so therefore QSql::size() will return -1.
+  not support returning the size (i.e. number of rows returned) of a
+  query, in which case QSql::size() will return -1.
 
 */
 
 /*! \fn bool QSqlDriver::canEditBinaryFields() const
 
-  Returns TRUE if the database can save binary data to the database,
-  FALSE otherwise.
+  Returns TRUE if the database can store binary data, FALSE otherwise.
 
 */
 
-/*! Protected method which sets the open state of the database to \a o.
-    Derived classes can use this method to report the status of open().
+/*! Protected function which sets the open state of the database to \a o.
+    Derived classes can use this function to report the status of open().
 
     \sa open(), setOpenError()
 
@@ -158,8 +160,8 @@ void QSqlDriver::setOpen( bool o )
 	dbState &= ~DBState_Open;
 }
 
-/*! Protected method which sets the open error state of the database to \a e.
-    Derived classes can use this method to report the status of open().
+/*! Protected function which sets the open error state of the database to \a e.
+    Derived classes can use this function to report the status of open().
     Note that if \a e is TRUE the open state of the database is set to closed
     (i.e., isOpen() returns FALSE).
 
@@ -177,8 +179,9 @@ void QSqlDriver::setOpenError( bool e )
 	dbState &= ~DBState_OpenError;
 }
 
-/*! Protected method which derived classes can override to begin a transaction.
-    If successful, return TRUE, otherwise return FALSE.  The default implementation returns FALSE.
+/*! Protected function which derived classes can override to begin a
+    transaction. If successful, return TRUE, otherwise return FALSE.
+    The default implementation returns FALSE.
 
     \sa setTransactionSupport(), transaction(), commit(), rollback()
 
@@ -189,8 +192,9 @@ bool QSqlDriver::beginTransaction()
     return FALSE;
 }
 
-/*! Protected method which derived classes can override to commit a transaction.
-    If successful, return TRUE, otherwise return FALSE. The default implementation returns FALSE.
+/*! Protected function which derived classes can override to commit a
+    transaction. If successful, return TRUE, otherwise return FALSE. The
+    default implementation returns FALSE.
 
     \sa setTransactionSupport(), transaction(), commit(), rollback()
 
@@ -201,8 +205,9 @@ bool QSqlDriver::commitTransaction()
     return FALSE;
 }
 
-/*! Protected method which derived classes can override to rollback a transaction.
-    If successful, return TRUE, otherwise return FALSE.  The default implementation returns FALSE.
+/*! Protected function which derived classes can override to rollback a
+    transaction. If successful, return TRUE, otherwise return FALSE.
+    The default implementation returns FALSE.
 
     \sa setTransactionSupport(), transaction(), commit(), rollback()
 
@@ -213,8 +218,8 @@ bool QSqlDriver::rollbackTransaction()
     return FALSE;
 }
 
-/*! Protected method which allows derived classes to set the value of the last error that occurred
-    on the database.
+/*! Protected function which allows derived classes to set the value of
+    the last error, \a e, that occurred on the database.
 
     \sa lastError()
 
@@ -225,8 +230,8 @@ void QSqlDriver::setLastError( const QSqlError& e )
     error = e;
 }
 
-/*! Returns a QSqlError object which contains information about the last error that occurred on the
-    database.
+/*! Returns a QSqlError object which contains information about the last
+    error that occurred on the database.
 
 */
 
@@ -246,22 +251,22 @@ QStringList QSqlDriver::tables( const QString&  ) const
 }
 
 /*!
-  Returns the primary index for table \a tablename.  If no
-  such index exists, the QSqlIndex that is returned will be
-  empty.  The default implementation returns an empty index.
+  Returns the primary index for table \a tableName.  Returns an empty
+  QSqlIndex if the table doesn't have a primary index. The default
+  implementation returns an empty index.
 
 */
 
-QSqlIndex QSqlDriver::primaryIndex( const QString&  ) const
+QSqlIndex QSqlDriver::primaryIndex( const QString& ) const
 {
     return QSqlIndex();
 }
 
 
 /*!
-  Returns a list of fields for table \a tablename.  If no
-  such table exists, an empty list is returned.  The default
-  implementation returns an empty record.
+  Returns a QSqlRecord populated with the names of the fields in table
+  \a tableName.  If no such table exists, an empty list is returned.
+  The default implementation returns an empty record.
 
 */
 
@@ -270,8 +275,8 @@ QSqlRecord QSqlDriver::record( const QString&  ) const
     return QSqlRecord();
 }
 
-/*!  Returns a list of fields for the SQL \a query. The default
-implementation returns an empty record.
+/*!  Returns a QSqlRecord populated with the names of the fields in the
+    SQL \a query. The default implementation returns an empty record.
 
 */
 
@@ -282,7 +287,7 @@ QSqlRecord QSqlDriver::record( const QSqlQuery& ) const
 
 /*!  Returns a string representation of the 'NULL' value for the
   database.  This is used, for example, when constructing INSERT and
-  UPDATE statements.  The default implementation returns 'NULL'.
+  UPDATE statements.  The default implementation returns the string 'NULL'.
 
 */
 
