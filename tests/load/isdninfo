@@ -5,7 +5,7 @@
 # A very simple, non-robust cgi-bin program that prints the bytes in/out
 # per second, each second, forever.
 #
-# Only tested with our Troll Tech Australia office connection.
+# Only tested with our Trolltech Australia office connection.
 #
 
 $channels = 4;

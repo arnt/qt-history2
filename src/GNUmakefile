@@ -1,9 +1,9 @@
 #############################################################################
-# $Id: //depot/qt/main/src/GNUmakefile#7 $
+# $Id: //depot/qt/main/src/GNUmakefile#8 $
 #
 # Unix Makefile, requires GNU make (gmake).
 #
-# Copyright (C) 1999 by Troll Tech AS.  All rights reserved.
+# Copyright (C) 1999 by Trolltech AS.  All rights reserved.
 #
 #############################################################################
 

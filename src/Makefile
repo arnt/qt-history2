@@ -1,9 +1,9 @@
 #############################################################################
-# $Id: //depot/qt/main/src/Makefile#90 $
+# $Id: //depot/qt/main/src/Makefile#91 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
-# Copyright (C) 1999 by Troll Tech AS.  All rights reserved.
+# Copyright (C) 1999 by Trolltech AS.  All rights reserved.
 #
 #############################################################################
 
