@@ -95,7 +95,7 @@ void QFont::setPixelSizeFloat( float pixelSize )
  *****************************************************************************/
 
 QFontStruct::QFontStruct( const QString &key )
-    : QShared(), k(key), hdc(0), hfont(0)
+    : QShared(), k(key), hdc(0), hfont(0), paintDevice( 0 )
 {
     cache_cost = 1;
 }
@@ -131,7 +131,8 @@ void QFontStruct::reset()
 	    SelectObject( hdc, systemFont() );
 	    if ( !stockFont )
 		DeleteObject( hfont );
-	    DeleteDC( hdc );
+	    if ( !paintDevice )
+		ReleaseDC( 0, hdc );
 	    hdc = 0;
 	    hfont = 0;
 	}
@@ -355,11 +356,15 @@ void QFontPrivate::load()
     fin = qfs;
 
     if ( !fin->font() ) {			// font not loaded
-	if ( paintdevice )
+	if ( paintdevice ) {
 	    fin->hdc = paintdevice->handle();
-	else if ( qt_winver & Qt::WV_NT_based )
+	    fin->paintDevice = TRUE;
+	} else if ( qt_winver & Qt::WV_NT_based ) {
 	    fin->hdc = GetDC( 0 );
-	fin->hfont = create( &fin->stockFont, fin->hdc );
+	}
+	bool stock = fin->stockFont;
+	fin->hfont = create( &stock, fin->hdc );
+	fin->stockFont = stock;
 	HGDIOBJ obj = SelectObject( fin->dc(), fin->hfont );
 #ifndef QT_NO_DEBUG
 	if ( !obj ) {

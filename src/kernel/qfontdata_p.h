@@ -150,13 +150,14 @@ public:
     HFONT	    font()	 const { return hfont; }
     TEXTMETRICA	   *textMetricA() const;
     TEXTMETRICW	   *textMetricW() const;
-	QString key() const  { return k; }
+    QString key() const  { return k; }
     void	    reset();
 
     QString	k;
     HDC		hdc;
     HFONT	hfont;
-    bool	stockFont;
+    uint	stockFont:1;
+    uint	paintDevice:1;
     union {
 	TEXTMETRICW	w;
 	TEXTMETRICA	a;
