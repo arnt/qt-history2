@@ -895,7 +895,7 @@ void ClassDecl::fillInDocsThis()
 	}
 
 	/*
-	  Second pass:  Put '\overload's to all functions, except the first one.
+	  Second pass:  Put '\overload's for all functions but the first one.
 	*/
 	int overloadNo = 1;
 	g = (*f).begin();
