@@ -10,6 +10,7 @@
 
 #include "buttongroups.h"
 
+#include <qpopupmenu.h>
 #include <qbuttongroup.h>
 #include <qlayout.h>
 #include <qradiobutton.h>
@@ -84,17 +85,26 @@ ButtonsGroups::ButtonsGroups( QWidget *parent, const char *name )
     QGroupBox *bgrp4 = new QButtonGroup( 1, QGroupBox::Horizontal, "Groupbox with normal buttons", this );
     box2->addWidget( bgrp4 );
 
-    // insert three pushbuttons...
+    // insert four pushbuttons...
     (void)new QPushButton( "&Push Button", bgrp4, "push" );
-    QPushButton *tb2 = new QPushButton( "&Toggle Button", bgrp4, "toggle" );
-    QPushButton *tb3 = new QPushButton( "&Flat Button", bgrp4, "flat" );
 
-    // ... and make the second one a toggle button
+    // now make the second one a toggle button
+    QPushButton *tb2 = new QPushButton( "&Toggle Button", bgrp4, "toggle" );
     tb2->setToggleButton( TRUE );
     tb2->setOn( TRUE );
 
     // ... and make the third one a flat button
+    QPushButton *tb3 = new QPushButton( "&Flat Button", bgrp4, "flat" );
     tb3->setFlat(TRUE);
+
+    // .. and the fourth a button with a menu
+    QPushButton *tb4 = new QPushButton( "Popup Button", bgrp4, "popup" );
+    QPopupMenu *menu = new QPopupMenu(tb4);
+    menu->insertItem("Item1", 0);
+    menu->insertItem("Item2", 1);
+    menu->insertItem("Item3", 2);
+    menu->insertItem("Item4", 3);
+    tb4->setPopup(menu);
 }
 
 /*
