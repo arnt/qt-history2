@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindefs.h#100 $
+** $Id: //depot/qt/main/src/kernel/qwindefs.h#101 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -252,6 +252,9 @@ struct QWExtra {
     QPixmap *bg_pix;				// background pixmap
     char     bg_mode;				// background mode
     QFocusData *focusData;			// focus data (for TLW)
+#if defined(_WS_X11_)
+    void * xic;
+#endif
 };
 
 

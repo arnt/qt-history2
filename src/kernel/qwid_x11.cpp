@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#206 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#207 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#206 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#207 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -350,6 +350,11 @@ void QWidget::destroy( bool destroyWindow )
 	    releaseMouse();
 	if ( keyboardGrb == this )
 	    releaseKeyboard();
+	if ( extra && extra->xic ) {
+	    // ### this should really be in deleteExtra()
+	    XDestroyIC( (XIC)extra->xic );
+	    extra->xic = 0;
+	}
 	if ( testWFlags(WType_Modal) )		// just be sure we leave modal
 	    qt_leave_modal( this );
 	else if ( testWFlags(WType_Popup) )

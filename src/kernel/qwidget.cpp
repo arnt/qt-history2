@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#212 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#213 $
 **
 ** Implementation of QWidget class
 **
@@ -28,7 +28,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#212 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#213 $");
 
 
 /*!
@@ -803,6 +803,9 @@ void QWidget::createExtra()
 #endif
 	extra->bg_mode = PaletteBackground;
 	extra->focusData = 0;
+#if defined(_WS_X11_)
+	extra->xic = 0;
+#endif
     }
 }
 
@@ -824,6 +827,7 @@ void QWidget::deleteExtra()
 	delete extra->bg_pix;
 	delete extra->focusData;
 	delete extra;
+	// extra->xic destroyed in QWidget::destroy()
 	extra = 0;
     }
 }

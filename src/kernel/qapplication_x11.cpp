@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#257 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#258 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -59,7 +59,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#257 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#258 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -131,6 +131,8 @@ static void	initTimers();
 static void	cleanupTimers();
 static timeval	watchtime;			// watch if time is turned back
 
+static XIM xim;
+
 timeval        *qt_wait_timer();
 int	        qt_activate_timers();
 
@@ -188,8 +190,6 @@ static int qt_xio_errhandler( Display * )
 }
 #endif
 
-
-static XIC xic;
 
 /*****************************************************************************
   qt_init() - initializes Qt for X11
@@ -388,14 +388,10 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 	QApplication::setPalette( pal );
     }
     setlocale( LC_ALL, "" );		// use correct char set mapping
-    XIM xim = 0;
     if ( XSupportsLocale() &&
 	 ( qstrlen(XSetLocaleModifiers( "@im=none" )) ||
-	   qstrlen(XSetLocaleModifiers( "" ) ) ) &&
-	 (xim=XOpenIM (appDpy, 0, 0, 0)) )
-	xic = XCreateIC( xim,
-			 XNInputStyle, XIMPreeditNone + XIMStatusNone,
-			 0 );
+	   qstrlen(XSetLocaleModifiers( "" ) ) ) )
+	xim = XOpenIM (appDpy, 0, 0, 0);
 }
 
 void qt_init( int *argcptr, char **argv )
@@ -440,6 +436,10 @@ void qt_cleanup()
     CLEANUP_GC(app_gc_ro_m);
     CLEANUP_GC(app_gc_tmp);
     CLEANUP_GC(app_gc_tmp_m);
+
+    if ( xim )
+	XCloseIM( xim );
+    xim = 0;
 
     if ( !appForeignDpy )
 	XCloseDisplay( appDpy );		// close X display
@@ -2560,20 +2560,36 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     int	   type;
     int	   code = -1;
     char   ascii[16];
-    int	   count;
+    int	   count = 0;
     int	   state;
     KeySym key;
-    //    static XComposeStatus composeStatus; // starts as all zeros
     Status status;
 
     type = (event->type == KeyPress) ? Event_KeyPress : Event_KeyRelease;
 
-    count = XmbLookupString( xic, &((XEvent*)event)->xkey, ascii, 16, &key,
-			     &status );
-
-    debug( "promp: %08x, %d, %08x", (int)key, status, (int)xic );
+    if ( type == Event_KeyPress ) {
+	QWExtra * xd = extraData();
+	if ( !xd ) {
+	    createExtra();
+	    xd = extraData();
+	}
+	if ( xd->xic == 0 )
+	    xd->xic = (void*)XCreateIC( xim, XNInputStyle,
+					XIMPreeditNothing + XIMStatusNothing,
+					XNClientWindow, winId(),
+					0 );
+	if ( !XFilterEvent( (XEvent*)event, winId() ) ) {
+	    count = XmbLookupString( (XIC)(xd->xic), &((XEvent*)event)->xkey,
+				     ascii, 16, &key, &status );
+	}
+    } else {
+	// ### hack
+	// this can be used for releases, unlike XmbBlahBlah
+	count = XLookupString( &((XEvent*)event)->xkey, ascii, 16, &key, 0 );
+    }
 
     state = translateButtonState( event->xkey.state );
+
 
     // commentary in X11/keysymdef says that X codes match ASCII, so it
     // is safe to use the locale functions to process X codes
