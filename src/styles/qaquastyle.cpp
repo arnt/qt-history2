@@ -111,7 +111,7 @@ void QAquaStyleFocusWidget::paintEvent( QPaintEvent * )
     qAquaPixmap( "focus_tr", pmtr );
     qAquaPixmap( "focus_br", pmbr );
 
-    QSharedDoubleBuffer buffer( (bool)FALSE, (bool)FALSE );
+    QSharedDoubleBuffer buffer( QSharedDoubleBuffer::NoFlags );
     buffer.begin( this, rect() );
     buffer.painter()->drawTiledPixmap( 4, 0, width() - 8, pmt.height(), pmt );
     buffer.painter()->drawTiledPixmap( 4, height() - pmb.height(), width() - 8, pmb.height(), pmb );
@@ -1293,7 +1293,6 @@ QSize QAquaStyle::sizeFromContents( ContentsType contents,
     {
 	QSize macsz;
 	if(qt_aqua_size_constrain(widget, contents, &macsz) != QAquaSizeUnknown && macsz != QSize(-1, -1)) {
-	    QSize oldsz = sz;
 	    if(macsz.width() != -1)
 		sz.setWidth(macsz.width());
 	    if(macsz.height() != -1)
@@ -1536,7 +1535,7 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 
     case CC_SpinWidget: {
 	if(sub & SC_SpinWidgetFrame) 
-	    drawPrimitive(PE_PanelLineEdit, p, r, cg);
+	    drawPrimitive(PE_PanelLineEdit, p, r, cg, Style_Sunken);
 
 	QPixmap btn;
 	if(sub & SC_SpinWidgetUp) {

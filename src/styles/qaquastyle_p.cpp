@@ -40,6 +40,7 @@
 #include <qtoolbutton.h>
 #include <qsize.h>
 #include <qslider.h>
+#include <qlabel.h>
 #ifdef Q_WS_MAC
 #  include <qt_mac.h>
 #endif
@@ -347,11 +348,10 @@ bool QAquaAnimate::focusable(QWidget *w)
 void qt_mac_polish_font(QWidget *w, QAquaWidgetSize size=QAquaSizeLarge)
 {
 #ifdef Q_WS_MAC
-    if( !w->ownFont() && w->font() == qApp->font() ) {
-	bool set_font = TRUE;
+    if(!w->ownFont() && (w->font() == qApp->font() || 
+			 (w->parentWidget() && w->font() == w->parentWidget()->font()))) {
 	short key = kThemeSystemFont;
-	if(size == QAquaSizeSmall)
-	    key = kThemeSmallSystemFont;
+	bool set_font = TRUE, find_small = (size == QAquaSizeSmall), find_bold = FALSE;
 	if(w->inherits("QPushButton"))
 	    key = kThemePushButtonFont;
 	else if(w->inherits("QListView") || w->inherits("QListBox"))
@@ -360,16 +360,26 @@ void qt_mac_polish_font(QWidget *w, QAquaWidgetSize size=QAquaSizeLarge)
 	    key = kThemeWindowTitleFont;
 	else if(w->inherits("QMenuBar"))
 	    key = kThemeMenuTitleFont;
-	else if(w->inherits("QTipLabel"))
-	    key = kThemeSystemFont;
 	else if(w->inherits("QPopupMenu"))
 	    key = kThemeMenuItemFont;
-	else if(w->inherits("QLabel"))
+	else if(w->inherits("QHeader") || w->inherits("QTipLabel"))
+	    find_small = TRUE;
+	else if((w->inherits("QLabel") && ((QLabel*)w)->buddy()) || w->inherits("QGroupBox"))
 	    key = kThemeLabelFont;
+	else if(w->inherits("QLabel") && w->topLevelWidget() && w->topLevelWidget()->inherits("QMessageBox"))
+	    find_bold = TRUE;
 #if 0
 	else
 	    set_font = FALSE;
 #endif
+	if(find_small && (key == kThemeLabelFont || key == kThemeSystemFont))
+	    key = kThemeSmallSystemFont;
+	if(find_bold) {
+	    if(key == kThemeSystemFont)
+		key = kThemeEmphasizedSystemFont;
+	    else if(key == kThemeSmallSystemFont)
+		key = kThemeSmallEmphasizedSystemFont;
+	}
 	if(set_font) {
 	    Str255 f_name;
 	    SInt16 f_size;
@@ -632,8 +642,8 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
 		width = QMAX(height, text_height);
 	    }
 	}
-	width =  QMAX(20, width +  (5 * 2)); //border
-	height = QMAX(20, height + (5 * 2)); //border
+	width =  QMAX(20, width +  5); //border
+	height = QMAX(20, height + 5); //border
 	ret = QSize(width, height);
     } else if(ct == QStyle::CT_Slider) {
 	int w = -1;
@@ -727,8 +737,9 @@ QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg, QStyle::ContentsType
 	sz = &large;
     if(insz)
 	*insz = sz ? *sz : QSize(-1, -1);
-    if(sz) {
 #ifdef DEBUG_SIZE_CONSTRAINT
+    if(sz) {
+
 	const char *size_desc = "Unknown";
 	if(sz == &small)
 	    size_desc = "Small";
@@ -737,8 +748,8 @@ QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg, QStyle::ContentsType
 	qDebug("%s - %s: %s taken (%d, %d) [ %d, %d ]", widg ? widg->name() : "*Unknown*", 
 	       widg ? widg->className() : "*Unknown*", size_desc, widg->width(), widg->height(), 
 	       sz->width(), sz->height());
-#endif
     }
+#endif
     return ret;
 #else
     if(insz)

@@ -62,13 +62,14 @@ class Q_EXPORT QSharedDoubleBuffer
 {
 public:
     enum DoubleBufferFlags {
+	NoFlags         = 0x00,
 	InitBG		= 0x01,
 	Force		= 0x02,
 	Default		= InitBG | Force
     };
     typedef uint DBFlags;
 
-    QSharedDoubleBuffer( DBFlags f );
+    QSharedDoubleBuffer( DBFlags f = Default );
     QSharedDoubleBuffer( QWidget* widget,
 			 int x = 0, int y = 0, int w = -1, int h = -1,
 			 DBFlags f = Default );

@@ -551,6 +551,7 @@ void QMacStyle::drawPrimitive( PrimitiveElement pe,
 	if(qt_mac_get_size_for_painter(p) == QAquaSizeSmall)
 	    bkind = kThemeSmallCheckBox;
 	if(pe == PE_Indicator) {
+
 	    p->fillRect(r, white);
 	    ((QMacPainter *)p)->setport();
 	    DrawThemeButton(qt_glb_mac_rect(r, p), bkind,
@@ -1025,7 +1026,7 @@ void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
     case CC_SpinWidget: {
 	QSpinWidget * sw = (QSpinWidget *) widget;
 	if(sub & SC_SpinWidgetFrame) 
-	    drawPrimitive(PE_PanelLineEdit, p, r, cg);
+	    drawPrimitive(PE_PanelLineEdit, p, r, cg, Style_Sunken);
 	if((sub & SC_SpinWidgetDown) || (sub & SC_SpinWidgetUp)) {
 	    if(!sw->isUpEnabled() && !sw->isDownEnabled())
 		tds = kThemeStateUnavailable;
@@ -1297,6 +1298,18 @@ QRect QMacStyle::querySubControlMetrics( ComplexControl control,
 {
     QRect ret;
     switch(control) {
+    case CC_SpinWidget: {
+	if(0 && (sc == SC_SpinWidgetUp || sc == SC_SpinWidgetDown)) {
+	    QRect field = QWindowsStyle::querySubControlMetrics(control, w, SC_SpinWidgetButtonField, opt);
+	    const int w = 12, h = 10; //isn't there some way to get this from the AppManager?
+	    int x = field.x() + ((field.width() / 2) - (w / 2)), y = field.y() + (field.height() / 2);
+	    if(sc == SC_SpinWidgetUp)
+		y -= h;
+	    ret.setRect(x, y, w, h);
+	} else {
+	    ret = QWindowsStyle::querySubControlMetrics(control, w, sc, opt);
+	}
+	break; }
     case CC_TitleBar: {
 	if(!w)
 	    break;
