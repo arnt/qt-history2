@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.h#1 $
+** $Id: //depot/qt/main/src/tools/qgarray.h#2 $
 **
 ** Definition of QGArray class
 **
@@ -45,8 +45,8 @@ protected:
     int		contains( const char *d, uint sz ) const;
 
     char       *at( uint index ) const
-#if defined(CHECK_RANGE) || defined(QGARRAY_C)
-	;					// safe (impl. in qgarray.C)
+#if defined(CHECK_RANGE) || defined(QGARRAY_CPP)
+	;					// safe (impl. in qgarray.cpp)
 #else
 	{ return &p->data[index]; }		// fast
 #endif

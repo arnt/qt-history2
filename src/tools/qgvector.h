@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.h#1 $
+** $Id: //depot/qt/main/src/tools/qgvector.h#2 $
 **
 ** Definition of QGVector class
 **
@@ -18,11 +18,7 @@
 class QStream;
 
 
-// --------------------------------------------------------------------------
-// QGVector class
-//
-
-class QGVector : public QCollection		// generic array
+class QGVector : public QCollection		// generic vector
 {
 friend class QGList;				// needed by QGList::asVector
 public:
@@ -59,8 +55,8 @@ protected:
     uint  contains( GCI ) const;		// get number of equal matches
 
     GCI	  at( uint index ) const
-#if defined(CHECK_RANGE) || defined(QGVECTOR_C)
-	;					// safe (impl. in qcvector.C)
+#if defined(CHECK_RANGE) || defined(QGVECTOR_CPP)
+	;					// safe (impl. in qcvector.cpp)
 #else
 	{ return vec[index]; }			// fast
 #endif
