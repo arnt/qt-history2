@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#376 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#377 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -37,11 +37,6 @@
 #include "qabstractlayout.h"
 #include "qtextcodec.h"
 #include "qt_x11.h"
-
-// Also in qapplication_x11
-#if defined(X11R4) || (defined(_OS_OSF_) && (XlibSpecificationRelease < 6)) || defined(_OS_AIX_)
-#define NO_XIM
-#endif
 
 void qt_enter_modal( QWidget * );		// defined in qapplication_x11.cpp
 void qt_leave_modal( QWidget * );		// --- "" ---

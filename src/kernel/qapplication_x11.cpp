@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#522 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#523 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -63,7 +63,9 @@
 #if defined(_OS_WIN32_)
 #undef gettimeofday
 #endif
+
 #include "qt_x11.h"
+
 #ifndef X11R4
 #include <X11/Xlocale.h>
 #endif
@@ -220,11 +222,6 @@ static void	cleanupTimers();
 static timeval	watchtime;			// watch if time is turned back
 timeval        *qt_wait_timer();
 int	        qt_activate_timers();
-
-// Also in qwidget_x11
-#if defined(X11R4) || (defined(_OS_OSF_) && (XlibSpecificationRelease < 6)) || defined(_OS_AIX_)
-#define NO_XIM
-#endif
 
 #if !defined(NO_XIM)
 XIM	qt_xim = 0;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qt_x11.h#5 $
+** $Id: //depot/qt/main/src/kernel/qt_x11.h#6 $
 **
 ** Includes X11 system header files.
 **
@@ -27,6 +27,11 @@
 #define QT_X11_H
 
 
+// this file is not part of the Qt API.  It exists for the convenience
+// of q*.cpp.  This header file may change from version to version
+// without notice.
+
+
 #include "qwindowdefs.h"
 #define	 GC GC_QQQ
 #include <X11/Xlib.h>
@@ -48,6 +53,21 @@
 typedef char *XPointer;
 #else
 #undef  X11R4
+#endif
+
+
+#if defined(X11R4)
+// X11R4 does not have XIM
+#define NO_XIM
+#elif defined(_OS_OSF_) && (XlibSpecificationRelease < 6)
+// broken in Xlib up to OSF/1 3.2
+#define NO_XIM
+#elif defined(_OS_AIX_)
+// broken in Xlib up to what?
+#define NO_XIM
+#elif defined(NO_DEBUG) && defined(OS_IRIX) && defined(_CC_EDG_)
+// XCreateIC broken when compiling -64 on IRIX 6.5.2
+#define NO_XIM
 #endif
 
 
