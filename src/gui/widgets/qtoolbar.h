@@ -45,6 +45,12 @@ public:
     Qt::ToolBarArea area() const;
     void setArea(Qt::ToolBarArea area, bool linebreak = false);
 
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QToolBar(QMainWindow *parent, const char *name);
+    inline QT_COMPAT void setLabel(const QString &label) { setWindowTitle(label); }
+    inline QT_COMPAT QString label() const { return windowTitle(); }
+#endif
+
 signals:
     void actionTriggered(QAction *action);
 

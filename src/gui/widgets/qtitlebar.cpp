@@ -162,7 +162,7 @@ QTitleBar::QTitleBar(QWidget *w, QWidget *parent, const char *name)
     d->buttonDown = QStyle::SC_None;
     d->act = 0;
     if (w) {
-        setWFlags(reinterpret_cast<QTitleBar *>(w)->getWFlags());
+        setWFlags(static_cast<QTitleBar *>(w)->getWFlags());
         if (w->minimumSize() == w->maximumSize())
             clearWFlags(Qt::WStyle_Maximize);
         setWindowTitle(w->windowTitle());

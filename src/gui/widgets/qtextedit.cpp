@@ -57,13 +57,13 @@ QRichTextDrag::QRichTextDrag(const QTextDocumentFragment &_fragment, QWidget *dr
 }
 
 const char *QRichTextDrag::format(int i) const
-{ 
+{
     const char *fmt = QTextDrag::format(i);
-    if (fmt) 
-        return fmt; 
+    if (fmt)
+        return fmt;
     if (QTextDrag::format(i - 1))
-        return "application/x-qt-richtext"; 
-    return 0; 
+        return "application/x-qt-richtext";
+    return 0;
 }
 
 QByteArray QRichTextDrag::encodedData(const char *mime) const
@@ -446,6 +446,16 @@ QTextEdit::QTextEdit(const QString &text, QWidget *parent)
     d->init(fragment);
 }
 
+#ifdef QT_COMPAT
+QTextEdit::QTextEdit(QWidget *parent, const char *name)
+    : QViewport(*new QTextEditPrivate, parent)
+{
+    d->init();
+    setObjectName(name);
+}
+#endif
+
+
 QTextEdit::~QTextEdit()
 {
 }
@@ -683,7 +693,7 @@ void QTextEdit::setCurrentFont(const QFont &f)
     If there is no operation to undo, i.e. there is no undo step in
     the undo/redo history, nothing happens.
 
-    \sa redo() 
+    \sa redo()
 */
 void QTextEdit::undo()
 {
@@ -713,7 +723,7 @@ void QTextEdit::redo()
 }
 
 /*!
-    Copies the selected text to the clipboard and deletes it from 
+    Copies the selected text to the clipboard and deletes it from
     the text edit.
 
     If there is no selected text nothing happens.
@@ -799,7 +809,7 @@ void QTextEdit::timerEvent(QTimerEvent *ev)
 }
 
 /*!
-    Changes the text of the text edit to the string \a text. 
+    Changes the text of the text edit to the string \a text.
     Any previous text is removed.
 
     \a text is interpreted as plain text.
@@ -831,7 +841,7 @@ QString QTextEdit::plainText() const
 /*!
     \overload
 
-    Changes the text of the text edit to the string \a text. 
+    Changes the text of the text edit to the string \a text.
     Any previous text is removed.
 
     \a text is interpreted as rich text in html format.
@@ -850,7 +860,7 @@ void QTextEdit::setHtml(const QString &text)
 /*!
     \overload
 
-    Changes the text of the text edit to the string \a text. 
+    Changes the text of the text edit to the string \a text.
     Any previous text is removed.
 
     \a text is interpreted as rich text in html format. Any encoding

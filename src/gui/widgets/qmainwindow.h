@@ -33,6 +33,11 @@ public:
     void setDockWindowState(const QString &state);
     QString dockWindowState() const;
 
+#ifdef QT_COMPAT
+    QT_COMPAT_CONSTRUCTOR QMainWindow(QWidget *parent, const char *name, Qt::WFlags flags = 0);
+    inline QT_COMPAT void setCentralWidget(QWidget *w) { setCenterWidget(w); }
+    inline QT_COMPAT QWidget *centralWidget() const { return centerWidget(); }
+#endif
 protected:
     void childEvent(QChildEvent *event);
     bool event(QEvent *event);

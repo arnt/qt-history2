@@ -20,7 +20,19 @@ public:
 
 QMainWindow::QMainWindow(QWidget *parent, Qt::WFlags flags)
     : QWidget(*(new QMainWindowPrivate()), parent, flags)
-{ d->layout = new QMainWindowLayout(this); }
+{
+    d->layout = new QMainWindowLayout(this);
+}
+
+#ifdef QT_COMPAT
+QMainWindow::QMainWindow(QWidget *parent, const char *name, Qt::WFlags flags)
+    : QWidget(*(new QMainWindowPrivate()), parent, flags)
+{
+    setObjectName(name);
+    d->layout = new QMainWindowLayout(this);
+}
+#endif
+
 
 QMainWindow::~QMainWindow()
 { }

@@ -166,6 +166,7 @@ signals:
 
 #if defined(QT_COMPAT)
 public:
+    QT_COMPAT_CONSTRUCTOR QTextEdit(QWidget *parent, const char *name);
     inline QT_COMPAT bool find(const QString &exp, bool cs, bool wo)
     {
         QTextDocument::FindFlags flags = 0;

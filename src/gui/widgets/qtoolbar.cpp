@@ -229,6 +229,7 @@ public:
     Qt::ToolBarAreaFlags allowedAreas;
     QToolBarExtension *extension;
     QToolBarHandle *handle;
+    void init();
 };
 
 void QToolBarPrivate::actionTriggered()
@@ -238,22 +239,35 @@ void QToolBarPrivate::actionTriggered()
     emit q->actionTriggered(action);
 }
 
+void QToolBarPrivate::init()
+{
+    q->setFrameStyle(QFrame::Panel | QFrame::Raised);
+
+    QBoxLayout *layout = new QBoxLayout(QBoxLayout::LeftToRight, q);
+    layout->setSpacing(2);
+    handle = new QToolBarHandle(q);
+    extension = new QToolBarExtension(q);
+    extension->hide();
+    layout->removeWidget(d->extension);
+    q->setArea(Qt::ToolBarAreaTop);
+}
 
 QToolBar::QToolBar(QMainWindow *parent)
     : QFrame(*new QToolBarPrivate, parent)
 {
     Q_ASSERT_X(parent != 0, "QMainWindow", "parent cannot be zero");
-
-    setFrameStyle(QFrame::Panel | QFrame::Raised);
-
-    QBoxLayout *layout = new QBoxLayout(QBoxLayout::LeftToRight, this);
-    layout->setSpacing(2);
-    d->handle = new QToolBarHandle(this);
-    d->extension = new QToolBarExtension(this);
-    d->extension->hide();
-    layout->removeWidget(d->extension);
-    setArea(Qt::ToolBarAreaTop);
+    d->init();
 }
+
+#ifdef QT_COMPAT
+QToolBar::QToolBar(QMainWindow *parent, const char *name)
+    : QFrame(*new QToolBarPrivate, parent)
+{
+    Q_ASSERT_X(parent != 0, "QMainWindow", "parent cannot be zero");
+    d->init();
+    setObjectName(name);
+}
+#endif
 
 QToolBar::~QToolBar()
 {

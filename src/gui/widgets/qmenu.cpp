@@ -1837,7 +1837,7 @@ int QMenu::insertAny(const QIconSet *icon, const QString *text, const QObject *r
 {
     QAction *act = new QAction;
     if(id != -1)
-        reinterpret_cast<QMenuItem*>(act)->setId(id);
+        static_cast<QMenuItem*>(act)->setId(id);
     if(icon)
         act->setIcon(*icon);
     if(text)
@@ -1880,7 +1880,7 @@ QAction *QMenu::findActionForId(int id) const
 bool QMenu::setItemParameter(int id, int param)
 {
     if(QAction *act = findActionForId(id)) {
-        reinterpret_cast<QMenuItem*>(act)->setSignalValue(param);
+        static_cast<QMenuItem*>(act)->setSignalValue(param);
         return true;
     }
     return false;
@@ -1889,7 +1889,7 @@ bool QMenu::setItemParameter(int id, int param)
 int QMenu::itemParameter(int id) const
 {
     if(QAction *act = findActionForId(id))
-        return reinterpret_cast<QMenuItem*>(act)->signalValue();
+        return static_cast<QMenuItem*>(act)->signalValue();
     return id;
 }
 
@@ -1912,6 +1912,6 @@ int QMenu::findIdForAction(QAction *act) const
 {
     if(!act)
         return -1;
-    return reinterpret_cast<QMenuItem*>(act)->id();
+    return static_cast<QMenuItem*>(act)->id();
 }
 #endif
