@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#493 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#494 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -2590,7 +2590,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	     && replayPopupMouseEvent ) {
 	    // the popup dissappeared. Replay the event
 	    QWidget* w = QApplication::widgetAt( gpos.x, gpos.y, TRUE );
-	    if (w && w->rect().contains( gpos.x, gpos.y ) && !qt_blocked_modal( w ) ) {
+	    if (w && !qt_blocked_modal( w ) ) {
 		if ( w->isEnabled() ) {
 		    QWidget* tw = w;
 		    while ( tw->focusProxy() )
