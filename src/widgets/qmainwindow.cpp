@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#71 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#72 $
 **
 ** Implementation of QMainWindow class
 **
@@ -596,9 +596,11 @@ void QMainWindow::addToolBar( QToolBar * toolBar,
     if ( !toolBar )
 	return;
 
-    if ( toolBar->mw )
+    if ( toolBar->mw ) {
 	toolBar->mw->removeToolBar( toolBar );
-
+	toolBar->mw = this;
+    }
+    
     setDockEnabled( edge, TRUE );
 
     QMainWindowPrivate::ToolBarDock * dl = 0;
