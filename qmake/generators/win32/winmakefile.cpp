@@ -387,7 +387,7 @@ Win32MakefileGenerator::processPrlFiles()
 	QString where = "QMAKE_LIBS";
 	if(!project->isEmpty("QMAKE_INTERNAL_PRL_LIBS"))
 	    where = project->first("QMAKE_INTERNAL_PRL_LIBS");
-	QStringList &l = project->variables()[where];
+	QStringList l = project->variables()[where];
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	    QString opt = (*it);
 	    if(opt.startsWith("/")) {
