@@ -337,6 +337,8 @@ bool QAquaAnimate::eventFilter( QObject * o, QEvent * e )
 	QMouseEvent *me = (QMouseEvent*)e;
 	d->noPulse = me->type() == QEvent::MouseButtonPress && me->button() == Qt::LeftButton ? 
 				    (QPushButton*)o : NULL;
+    } else if( o && e->type() == QEvent::Paint && o->inherits("QPushButton") ) {
+	addWidget( (QPushButton*)o );
     } else if( o && (e->type() == QEvent::FocusOut || e->type() == QEvent::Show) &&
 	       o->inherits("QPushButton") ) {
 	QPushButton *btn = (QPushButton *)o;
