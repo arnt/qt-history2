@@ -3101,11 +3101,7 @@ bool QWidget::isActiveWindow() const
 	parent = ::GetParent( parent );
     }
     if ( topparent ) {
-	WINDOWINFO info;
-	memset( &info, 0, sizeof(WINDOWINFO) );
-	info.cbSize = sizeof(WINDOWINFO);
-	GetWindowInfo( topparent, &info );
-	if ( info.dwWindowStatus == WS_ACTIVECAPTION )
+	if ( topparent == GetActiveWindow() )
 	    return TRUE;
     }
 #endif
