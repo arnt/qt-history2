@@ -2,19 +2,19 @@
 # Qt Makefile - tools
 #############################################################################
 
-#######	Directories
+####### Directories
 
 SRCDIR		= $(QTDIR)/src
 INCDIR		= $(SRCDIR)/include
 LIBDIR		= $(SRCDIR)/lib
 
-#######	Compiler
+####### Compiler
 
 #CFLAGS		= -O2 -DNO_DEBUG -DNO_CHECK
 CFLAGS		= -O2
 CC		= gcc
 
-#######	Files
+####### Files
 
 HEADERS		= qarray.h	qbitarry.h	qbuffer.h	qcollect.h    \
 		  qdatetm.h	qdict.h		qdstream.h	qfile.h	      \
@@ -38,7 +38,7 @@ OBJECTS		= qbitarry.o	qbuffer.o	qcollect.o	qdatetm.o     \
 		  qudpcomm.o
 TARGET		= $(LIBDIR)/libqtools.a
 
-#######	Implicit rules
+####### Implicit rules
 
 .SUFFIXES:
 .SUFFIXES: .cpp $(SUFFIXES)
@@ -46,7 +46,7 @@ TARGET		= $(LIBDIR)/libqtools.a
 .cpp.o:
 	$(CC) -c $(CFLAGS) -I$(INCDIR) $<
 
-#######	Build rules
+####### Build rules
 
 all: $(HEADERS) $(SOURCES) $(TARGET)
 
