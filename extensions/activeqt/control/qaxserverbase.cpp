@@ -1172,8 +1172,8 @@ void QAxServerBase::internalBind()
 */
 void QAxServerBase::internalConnect()
 {
-    QString eventsID = qAxFactory()->eventsID(class_name);
-    if ( !eventsID.isEmpty() ) {
+    QUuid eventsID = qAxFactory()->eventsID(class_name);
+    if ( !eventsID.isNull() ) {
 	if (!points[eventsID])
 	    points[eventsID] = new QAxConnection( this, eventsID );
 	// connect the generic slot to all signals of qt.object
