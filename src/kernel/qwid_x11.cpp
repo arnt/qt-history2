@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#193 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#194 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#193 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#194 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -497,7 +497,7 @@ QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 
 void QWidget::setBackgroundColor( const QColor &color )
 {
-    setBackgroundMode( AbsColor );
+    setBackgroundMode( FixedColor );
     setBackgroundColorDirect( color );
 }
 
@@ -554,7 +554,7 @@ void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 	if ( testWFlags(WType_Desktop) )	// save rootinfo later
 	    qt_updated_rootinfo();
     }
-    setBackgroundMode( AbsPixmap );
+    setBackgroundMode( FixedPixmap );
     backgroundPixmapChange( old );
 }
 
@@ -585,7 +585,7 @@ void QWidget::setBackgroundEmpty()
 {
     allow_null_pixmaps++;
     setBackgroundPixmap(QPixmap());
-    setBackgroundMode( AbsEmpty );
+    setBackgroundMode( NoBackground );
     allow_null_pixmaps--;
 }
 

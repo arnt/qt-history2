@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#121 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#122 $
 **
 ** Definition of QWidget class
 **
@@ -92,8 +92,10 @@ public:
 
   // Widget attribute functions
 
-    enum BackgroundMode { AbsColor, AbsPixmap, AbsEmpty,
-	    Foreground, Background, Light, Midlight, Dark, Mid, Text, Base };
+    enum BackgroundMode { FixedColor, FixedPixmap, NoBackground,
+	    PaletteForeground, PaletteBackground, PaletteLight,
+	    PaletteMidlight, PaletteDark, PaletteMid,
+	    PaletteText, PaletteBase };
     BackgroundMode backgroundMode() const;
     void setBackgroundMode( BackgroundMode );
 

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#88 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#89 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#88 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#89 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 #if QT_VERSION == 200
@@ -177,7 +177,7 @@ QLineEdit::QLineEdit( QWidget *parent, const char *name )
     tbuf	  = "";
     setFocusPolicy( StrongFocus );
     setCursor( ibeamCursor );
-    setBackgroundMode( Base );
+    setBackgroundMode( PaletteBase );
 }
 
 /*!

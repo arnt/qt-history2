@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#195 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#196 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#195 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#196 $");
 
 
 /*!
@@ -1290,36 +1290,36 @@ QWidget *QWidget::topLevelWidget() const
 
 void QWidget::setBackgroundColorFromMode(bool override_abs)
 {
-    switch (extra ? (BackgroundMode)extra->bg_mode : AbsColor) {
-      case AbsColor:
-      case AbsPixmap:
-      case AbsEmpty:
+    switch (extra ? (BackgroundMode)extra->bg_mode : FixedColor) {
+      case FixedColor:
+      case FixedPixmap:
+      case NoBackground:
 	// For compatibility - see setPalette
 	if (override_abs)
 	    setBackgroundColorDirect( colorGroup().background() );
 	break;
-      case Foreground:
+      case PaletteForeground:
 	setBackgroundColorDirect( colorGroup().foreground() );
 	break;
-      case Background:
+      case PaletteBackground:
 	setBackgroundColorDirect( colorGroup().background() );
 	break;
-      case Light:
+      case PaletteLight:
 	setBackgroundColorDirect( colorGroup().light() );
 	break;
-      case Midlight:
+      case PaletteMidlight:
 	setBackgroundColorDirect( colorGroup().midlight() );
 	break;
-      case Dark:
+      case PaletteDark:
 	setBackgroundColorDirect( colorGroup().dark() );
 	break;
-      case Mid:
+      case PaletteMid:
 	setBackgroundColorDirect( colorGroup().mid() );
 	break;
-      case Text:
+      case PaletteText:
 	setBackgroundColorDirect( colorGroup().text() );
 	break;
-      case Base:
+      case PaletteBase:
 	setBackgroundColorDirect( colorGroup().base() );
 	break;
     }
@@ -1327,11 +1327,11 @@ void QWidget::setBackgroundColorFromMode(bool override_abs)
 
 /*!
   Returns the mode most recently set by setBackgroundMode().
-  The default is \link QWidget::BackgroundMode AbsColor\endlink.
+  The default is \link QWidget::BackgroundMode FixedColor\endlink.
 */
 QWidget::BackgroundMode QWidget::backgroundMode() const
 {
-    return extra ? (BackgroundMode)extra->bg_mode : AbsColor;
+    return extra ? (BackgroundMode)extra->bg_mode : FixedColor;
 }
 
 /*!
@@ -1348,21 +1348,21 @@ QWidget::BackgroundMode QWidget::backgroundMode() const
   The following values are valid:
 
   <ul>
-    <li> \c Foreground
+    <li> \c PaletteForeground
 	- use palette() . \link QColorGroup::foreground() foreground()\endlink
-    <li> \c Background
+    <li> \c PaletteBackground
 	- use palette() . \link QColorGroup::background() background()\endlink
-    <li> \c Light
+    <li> \c PaletteLight
 	- use palette() . \link QColorGroup::light() light()\endlink
-    <li> \c Midlight
+    <li> \c PaletteMidlight
 	- use palette() . \link QColorGroup::midlight() midlight()\endlink
-    <li> \c Dark
+    <li> \c PaletteDark
 	- use palette() . \link QColorGroup::dark() dark()\endlink
-    <li> \c Mid
+    <li> \c PaletteMid
 	- use palette() . \link QColorGroup::mid() mid()\endlink
-    <li> \c Text
+    <li> \c PaletteText
 	- use palette() . \link QColorGroup::text() text()\endlink
-    <li> \c Base
+    <li> \c PaletteBase
 	- use palette() . \link QColorGroup::base() base()\endlink
   </ul>
 
@@ -1370,16 +1370,16 @@ QWidget::BackgroundMode QWidget::backgroundMode() const
   function setBackgroundColor() is called, the mode will be set to
   one of:
   <ul>
-    <li> \c AbsPixmap - the pixmap set by setBackgroundPixmap()
-    <li> \c AbsEmpty - no color, as set by setBackgroundEmpty()
-    <li> \c AbsColor - the color set by setBackgroundColor()
+    <li> \c NoBackground - no color, as set by setBackgroundEmpty()
+    <li> \c FixedColor - the color set by setBackgroundColor()
+    <li> \c FixedPixmap - the pixmap set by setBackgroundPixmap()
   </ul>
 
   These values may not be used as parameters to setBackgroundMode().
 
   \define QWidget::BackgroundMode
   For most widgets the default (Background, normally
-  gray) suffices, but some need to use Base (the
+  gray) suffices, but some need to use PaletteBase (the
   background color for text output, normally white) and a few need
   other colors.
 
@@ -1387,7 +1387,7 @@ QWidget::BackgroundMode QWidget::backgroundMode() const
   its environment, does this:
 
   \code
-    setBackgroundMode( Base );
+    setBackgroundMode( PaletteBase );
   \endcode
 
   If you want to change the color scheme of a widget, the setPalette()
@@ -1404,7 +1404,7 @@ QWidget::BackgroundMode QWidget::backgroundMode() const
 */
 void QWidget::setBackgroundMode( BackgroundMode m )
 {
-    if (m==AbsColor && !extra) return;
+    if (m==FixedColor && !extra) return;
 
     createExtra();
     if (extra->bg_mode != m) {

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.cpp#66 $
+** $Id: //depot/qt/main/src/widgets/qmlined.cpp#67 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -146,16 +146,8 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
 		   Tbl_smoothVScrolling |
 		   Tbl_clipCellPainting
 		   );
-    switch ( style() ) {
-	case WindowsStyle:
-	case MotifStyle:
-	    setFrameStyle( QFrame::WinPanel | QFrame::Sunken );
-	    setBackgroundMode( Base );
-	    break;
-	default:
-	    setFrameStyle( QFrame::Panel | QFrame::Plain );
-	    setLineWidth( 1 );
-    }
+    setFrameStyle( QFrame::WinPanel | QFrame::Sunken );
+    setBackgroundMode( PaletteBase );
     setFocusPolicy( StrongFocus );
     setCursor( ibeamCursor );
     ((QScrollBar*)verticalScrollBar())->setCursor( arrowCursor );

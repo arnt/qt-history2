@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#115 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#116 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#115 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#116 $");
 
 Q_DECLARE(QListM, QListBoxItem);
 
@@ -418,7 +418,7 @@ QListBox::QListBox( QWidget *parent, const char *name, WFlags f )
 	case WindowsStyle:
 	case MotifStyle:
 	    setFrameStyle( QFrame::WinPanel | QFrame::Sunken );
-	    setBackgroundMode( Base );
+	    setBackgroundMode( PaletteBase );
 	    break;
 	default:
 	    setFrameStyle( QFrame::Panel | QFrame::Plain );

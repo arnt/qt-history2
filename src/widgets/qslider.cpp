@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#39 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#40 $
 **
 ** Implementation of QSlider class
 **
@@ -15,7 +15,7 @@
 #include "qtimer.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#39 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#40 $");
 
 
 static const int motifBorder = 2;
@@ -115,7 +115,9 @@ void QSlider::init()
     ticks = NoMarks;
     tickInt = 0;
     if ( style() == MotifStyle )
-	setBackgroundMode( Mid );
+	setBackgroundMode( PaletteMid );
+    else
+	setBackgroundMode( PaletteBackground );
     setFocusPolicy( NoFocus );
     initTicks();
 }
@@ -279,9 +281,11 @@ void QSlider::resizeEvent( QResizeEvent * )
 
 void QSlider::setPalette( const QPalette &p )
 {
-    QWidget::setPalette( p );
     if ( style() == MotifStyle )
-	setBackgroundMode( Mid );
+	setBackgroundMode( PaletteMid );
+    else
+	setBackgroundMode( PaletteBackground );
+    QWidget::setPalette( p );
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#76 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#77 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -26,7 +26,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#76 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#77 $");
 
 
 extern "C" LRESULT CALLBACK WndProc( HWND, UINT, WPARAM, LPARAM );
@@ -355,7 +355,7 @@ void QWidget::setBackgroundColorDirect( const QColor &color )
 
 void QWidget::setBackgroundColor( const QColor &color )
 {
-    setBackgroundMode( AbsColor );
+    setBackgroundMode( FixedColor );
     setBackgroundColorDirect( color );
 }
 
@@ -379,7 +379,7 @@ void QWidget::setBackgroundPixmap( const QPixmap &pixmap )
 	    createExtra();
 	extra->bg_pix = new QPixmap( pixmap );
     }
-    setBackgroundMode( AbsPixmap );
+    setBackgroundMode( FixedPixmap );
     backgroundPixmapChange( old );
 }
 
@@ -388,7 +388,7 @@ void QWidget::setBackgroundEmpty()
 {
     allow_null_pixmaps++;
     setBackgroundPixmap(QPixmap());
-    setBackgroundMode( AbsEmpty );
+    setBackgroundMode( NoBackground );
     allow_null_pixmaps--;
 }
 
