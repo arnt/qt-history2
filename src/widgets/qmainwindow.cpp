@@ -47,9 +47,9 @@
 //#define QMAINWINDOW_DEBUG
 #define TOOLBAR_MENU
 
-//***********************************************************************************
+//****************************************************************************
 // -------------------------- static convenience functions -------------------
-//***********************************************************************************
+//****************************************************************************
 
 bool operator<( const QRect &r1, const QRect &r2 )
 {
@@ -1203,7 +1203,6 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
 	relative = 0;
 	ipos = QMainWindowPrivate::Before;
     }
-
 }
 
 
@@ -1371,10 +1370,13 @@ QMenuBar * QMainWindow::menuBar() const
     QObjectList * l
 	= ((QObject*)this)->queryList( "QMenuBar", 0, FALSE, FALSE );
     QMenuBar * b;
-    if ( l && l->count() )
+    if ( l && l->count() ) {
 	b = (QMenuBar *)l->first();
-    else
+    } else {
 	b = new QMenuBar( (QMainWindow *)this, "automatic menu bar" );
+	if ( isVisible() )
+	    b->show();
+    }
     delete l;
     d->mb = b;
     d->mb->installEventFilter( this );
@@ -1388,6 +1390,11 @@ QMenuBar * QMainWindow::menuBar() const
   The old status bar, if there was any, is deleted along with its
   contents.
 
+  Note that \a newStatusBar must be a child of this main window, and
+  that it is not automatically displayed.  If you call this function
+  after show(), you probably also need to call \a
+  newStatusBar->show().
+  
   \sa setMenuBar() statusBar()
 */
 
@@ -1423,10 +1430,13 @@ QStatusBar * QMainWindow::statusBar() const
     QObjectList * l
 	= ((QObject*)this)->queryList( "QStatusBar", 0, FALSE, FALSE );
     QStatusBar * s;
-    if ( l && l->count() )
+    if ( l && l->count() ) {
 	s = (QStatusBar *)l->first();
-    else
+    } else {
 	s = new QStatusBar( (QMainWindow *)this, "automatic status bar" );
+	if ( isVisible() )
+	    s->show();
+    }
     delete l;
     ((QMainWindow *)this)->setStatusBar( s );
     return s;
