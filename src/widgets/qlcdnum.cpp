@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnum.cpp#30 $
+** $Id: //depot/qt/main/src/widgets/qlcdnum.cpp#31 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 #include <stdio.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#30 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnum.cpp#31 $")
 
 
 /*! \class QLCDNumber qlcdnum.h
@@ -117,7 +117,7 @@ static QString long2string( long num, int base, int ndigits, bool *oflow )
 }
 
 
-QString double2string( double num, int base, int ndigits, bool *oflow )
+static QString double2string( double num, int base, int ndigits, bool *oflow )
 {
     QString s;
     if ( base != QLCDNumber::DEC ) {
@@ -142,7 +142,7 @@ QString double2string( double num, int base, int ndigits, bool *oflow )
 }
 
 
-char *getSegments( char ch )			// gets list of segments for ch
+static char *getSegments( char ch )		// gets list of segments for ch
 {
     static char segments[30][8] =
        { { 0, 1, 2, 4, 5, 6,-1, 0},		// 0	0 / O
@@ -255,7 +255,7 @@ void QLCDNumber::init()
 {
     initMetaObject();
     setFrameStyle( QFrame::Box | QFrame::Raised );
-    val        = 0;
+    val	       = 0;
     base       = DEC;
     smallPoint = FALSE;
     setNumDigits( ndigits );
@@ -270,7 +270,7 @@ QLCDNumber::~QLCDNumber()
 
 /*! \fn int QLCDNumber::numDigits() const
 
-  Returns the current number of digits.  If smallDecimalPoint() is
+  Returns the current number of digits.	 If smallDecimalPoint() is
   FALSE, the decimal point occupies one digit position.
 
   \sa setNumDigits() smallDecimalPoint() */
@@ -326,7 +326,7 @@ void QLCDNumber::setNumDigits( int numDigits )
 	update();
 	/*	// ### hack - emit overflow() by hand
 	bool of;
- 	QString s = double2string( num, base, ndigits, &of );
+	QString s = double2string( num, base, ndigits, &of );
 	if ( of )
 	    emit overflow();
 	*/
@@ -369,18 +369,18 @@ QLCDNumber::Mode QLCDNumber::mode() const
     const char *) was the last called 0 will be returned.
     \sa longValue(), display()
 */
- 
+
 double QLCDNumber::value() const
 {
     return val;
 }
 
 /*! Returns the last value set by one of the display() slots rounded to the
-    nearest long. If display(const char *) was the last called 0 will be 
+    nearest long. If display(const char *) was the last called 0 will be
     returned.
     \sa value(), display()
 */
- 
+
 long QLCDNumber::longValue() const
 {
     return (long) (val < 0 ? val - 0.5 : val + 0.5);
@@ -535,7 +535,7 @@ void QLCDNumber::setSmallDecimalPoint( bool b )
 }
 
 
-/*! Handles resize Events for the QLCDNumber. 
+/*! Handles resize Events for the QLCDNumber.
 
   \internal
 
