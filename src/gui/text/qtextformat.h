@@ -148,8 +148,11 @@ public:
         ImageWidth = 0x5010,
         ImageHeight = 0x5011,
 
+        // internal properties
+        DocumentFragmentMark = 0x6000,
+
         // --
-        UserProperty = 0x10000
+        UserProperty = 0x100000
     };
 
     enum ObjectTypes {

@@ -984,6 +984,10 @@ void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)
 {
     const QTextCharFormat format = fragment.charFormat();
 
+    if (format.hasProperty(QTextFormat::DocumentFragmentMark)
+        && format.boolProperty(QTextFormat::DocumentFragmentMark))
+        html += QLatin1String("<!--StartFragment-->");
+
     bool closeAnchor = false;
 
     if (format.isAnchor()) {
@@ -1054,6 +1058,10 @@ void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)
 
     if (closeAnchor)
         html += QLatin1String("</a>");
+
+    if (format.hasProperty(QTextFormat::DocumentFragmentMark)
+        && format.boolProperty(QTextFormat::DocumentFragmentMark) == false)
+        html += QLatin1String("<!--EndFragment-->");
 }
 
 static bool isOrderedList(int style)

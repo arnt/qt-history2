@@ -38,7 +38,7 @@
 class QTextDocumentFragmentPrivate
 {
 public:
-    QTextDocumentFragmentPrivate() : hasTitle(false) {}
+    QTextDocumentFragmentPrivate() : hasTitle(false), setMarkerForHtmlExport(false) {}
     QTextDocumentFragmentPrivate(const QTextCursor &cursor);
 
     void insert(QTextCursor &cursor) const;
@@ -71,6 +71,8 @@ public:
 
     Q_INT8 hasTitle;
     QString title;
+
+    bool setMarkerForHtmlExport;
 };
 
 // ###### Versioning!
@@ -115,7 +117,7 @@ class QTextHTMLImporter : public QTextHtmlParser
 {
     struct Table;
 public:
-    QTextHTMLImporter(QTextDocumentFragmentPrivate *d, const QString &html);
+    QTextHTMLImporter(QTextDocumentFragmentPrivate *d, QString html);
 
     void import();
 

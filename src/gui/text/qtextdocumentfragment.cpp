@@ -23,7 +23,7 @@
 #include <qdatastream.h>
 
 QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cursor)
-    : hasTitle(false)
+    : hasTitle(false), setMarkerForHtmlExport(false)
 {
     if (!cursor.hasSelection())
         return;
@@ -142,6 +142,14 @@ void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
             formatIdx = formatIndexMap.value(f.charFormat, -1);
         else
             formatIdx = defaultCharFormat;
+
+        if (setMarkerForHtmlExport
+            && (i == 0 || i == fragments.count() - 1)) {
+
+            QTextCharFormat fmt = formats->charFormat(formatIdx);
+            fmt.setProperty(QTextFormat::DocumentFragmentMark, (i == 0));
+            formatIdx = formats->indexForFormat(fmt);
+        }
 
         QString text(localBuffer.constData() + f.position, f.size);
 
@@ -345,7 +353,9 @@ QString QTextDocumentFragment::toHtml() const
 {
     QTextDocument doc;
     QTextCursor cursor(&doc);
+    d->setMarkerForHtmlExport = true;
     cursor.insertFragment(*this);
+    d->setMarkerForHtmlExport = false;
     return doc.toHtml();
 }
 
@@ -420,9 +430,18 @@ QTextDocumentFragment QTextDocumentFragment::fromPlainText(const QString &plainT
     return res;
 }
 
-QTextHTMLImporter::QTextHTMLImporter(QTextDocumentFragmentPrivate *_d, const QString &html)
+QTextHTMLImporter::QTextHTMLImporter(QTextDocumentFragmentPrivate *_d, QString html)
     : d(_d), indent(0), setNamedAnchorInNextOutput(false)
 {
+    const int startFragmentPos = html.indexOf(QLatin1String("<!--StartFragment-->"));
+    if (startFragmentPos != -1) {
+        const int endFragmentPos = html.indexOf(QLatin1String("<!--EndFragment-->"));
+        if (startFragmentPos < endFragmentPos)
+            html = html.mid(startFragmentPos, endFragmentPos - startFragmentPos);
+        else
+            html = html.mid(startFragmentPos);
+    }
+
     parse(html);
 //    dumpHtml();
 }
