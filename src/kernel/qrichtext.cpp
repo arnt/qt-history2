@@ -3004,7 +3004,7 @@ bool QTextDocument::find( QTextCursor& cursor, const QString &expr, bool cs, boo
 	    for ( ;; ) {
 		int res = forward ? s.find( expr, start, cs ) : s.findRev( expr, start, cs );
 		int end = res + expr.length();
-		if ( res == -1 || ( !forward && start < res ) )
+		if ( res == -1 || ( !forward && start <= res ) )
 		    break;
 		if (!wo || ((res == 0 || !s[res-1].isLetterOrNumber())
 			    && (end == (int)s.length() || !s[end].isLetterOrNumber()) ) ) {

@@ -3859,6 +3859,8 @@ bool QTextEdit::find( const QString &expr, bool cs, bool wo, bool forward,
 	    findcur.gotoNextLetter();
 	else
 	    findcur.gotoPreviousLetter();
+    } else if (!forward && findcur.index() == 0 && findcur.paragraph() == findcur.topParagraph()) {
+	findcur.gotoEnd();
     }
     removeSelection( QTextDocument::Standard );
     bool found = doc->find( findcur, expr, cs, wo, forward );
