@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#9 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombobox.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombobox.cpp#9 $";
 #endif
 
 /*!
@@ -26,7 +26,7 @@ static char ident[] = "$Id: //depot/qt/main/src/widgets/qcombobox.cpp#8 $";
 \brief The QComboBox widget is a combined button and popup list.
 
 A combo box is a kind of popup menu that is opened by pressing a button.
-The popup list contains a number of text/pixmap items.
+The popup list contains a number of string/pixmap items.
 The button displays the current item when the popup list is closed.
 
 A combo box emits two signals, activated() and highlighted(), when
@@ -195,16 +195,16 @@ void QComboBox::setStrList( const char **strs, int numStrings )
 
 
 /*!
-Inserts a text item at position \e index. The item will be appended if
+Inserts a string item at position \e index. The item will be appended if
 \e index is negative.
 */
 
-void QComboBox::insertItem( const char *text, int index )
+void QComboBox::insertItem( const char *string, int index )
 {
     int cnt = count();
     if ( !checkInsertIndex( "insertItem", cnt, &index ) )
 	return;
-    d->popup->insertItem( text, index, index );
+    d->popup->insertItem( string, index, index );
     if ( index != cnt )
 	reIndex();
     if ( index == d->current )
@@ -259,14 +259,14 @@ void QComboBox::clear()
 
 
 /*!
-Returns the text item at a given index, or 0 if the item is not a text.
+Returns the string item at a given index, or 0 if the item is not a string.
 */
 
-const char *QComboBox::text( int index ) const
+const char *QComboBox::string( int index ) const
 {
-    if ( !checkIndex( "text", count(), index ) )
+    if ( !checkIndex( "string", count(), index ) )
 	return 0;
-    return d->popup->text( index );
+    return d->popup->string( index );
 }
 
 /*!
@@ -281,14 +281,14 @@ QPixmap *QComboBox::pixmap( int index ) const
 }
 
 /*!
-Replaces the item at position \e index with a text.
+Replaces the item at position \e index with a string.
 */
 
-void QComboBox::changeItem( const char *text, int index )
+void QComboBox::changeItem( const char *string, int index )
 {
     if ( !checkIndex( "changeItem", count(), index ) )
 	return;
-    d->popup->changeItem( text, index );
+    d->popup->changeItem( string, index );
 }
 
 /*!
@@ -368,7 +368,7 @@ void QComboBox::adjustSize()
 	buttonH = 0;
 	buttonW = 0;
     }
-    const char *tmp = d->popup->text( d->current );
+    const char *tmp = d->popup->string( d->current );
     int w, h;
     if ( tmp ) {
 	QFontMetrics fm( font() );
@@ -470,7 +470,7 @@ void QComboBox::paintEvent( QPaintEvent * )
 			 g.light(), g.dark(), 2 );
 	QFontMetrics fm( font() );
 	QRect clip( 2, 2, xPos - 2 - 3, height() - 4 );
-	const char *tmp = d->popup->text( d->current );
+	const char *tmp = d->popup->string( d->current );
 	if ( tmp ) {
 	    p.drawText( clip, AlignCenter | AlignVCenter, tmp );
 	} else {
