@@ -3185,6 +3185,12 @@ void QFileDialog::okClicked()
 	}
     }
 
+    if ( mode() == AnyFile ) {
+        d->currentFileName = d->url + nameEdit->text();
+        accept();
+        return;
+    }
+
     // If selection is valid, return it, else try
     // using selection as a directory to change to.
     if ( !d->currentFileName.isNull() && !d->currentFileName.contains( "*" ) ) {
@@ -3984,7 +3990,14 @@ void QFileDialog::setMode( Mode newMode )
 	trySetSelection( f.isDir(), d->url, TRUE );
     }
 
-    QString okt = mode() == AnyFile ? tr("Save") : tr("Open");
+    QString okt;
+    if ( mode() == AnyFile )
+        okt = tr("Save");
+    else if ( mode() == Directory || mode() == DirectoryOnly )
+        okt = tr("OK");
+    else
+        okt = tr("Open");
+    
     okB->setText( okt );
 }
 
