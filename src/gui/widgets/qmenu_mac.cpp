@@ -77,7 +77,7 @@ struct QMacMenuBind {
     MenuRef mac_menu;
     EventHandlerRef handler;
 };
-QMAC_PASCAL OSStatus qt_menu_event(EventHandlerCallRef er, EventRef event, void *data)
+QMAC_PASCAL OSStatus qt_mac_menu_event(EventHandlerCallRef er, EventRef event, void *data)
 {
     bool handled_event = true;
     QMacMenuBind *mb = (QMacMenuBind*)data;
@@ -88,6 +88,7 @@ QMAC_PASCAL OSStatus qt_menu_event(EventHandlerCallRef er, EventRef event, void 
 	    qDebug("targeting %p %p", mb->qmenu, mb->qmenubar);
 	    handled_event = false;
 	} else if(ekind == kEventMenuDispose) {
+	    qDebug("dispose..");
 	    delete mb;
 	} else {
 	    handled_event = false;
@@ -112,7 +113,7 @@ static const EventHandlerUPP make_menu_eventUPP()
     if(mac_menu_eventUPP)
 	return mac_menu_eventUPP;
     qAddPostRoutine(cleanup_menu_eventUPP);
-    return mac_menu_eventUPP = NewEventHandlerUPP(qt_menu_event);
+    return mac_menu_eventUPP = NewEventHandlerUPP(qt_mac_menu_event);
 }
 static MenuRef qt_mac_create_menu(QMacMenuBind *mb) 
 {
@@ -355,6 +356,10 @@ Q4MenuPrivate::macMenu()
     if(!mac_menu)
 	mac_menu = new QMacMenuPrivate;
     mac_menu->menu = qt_mac_create_menu(q);
+
+    QList<QAction*> items = q->actions();
+    for(int i = 0; i < items.count(); i++) 
+	mac_menu->addAction(items[i]);
     return mac_menu->menu;
 }
 MenuRef Q4Menu::macMenu() { return d->macMenu(); }
@@ -392,11 +397,13 @@ Q4MenuBarPrivate::QMacMenuBarPrivate::addAction(QAction *a, QMacMenuAction *befo
 void 
 Q4MenuBarPrivate::QMacMenuBarPrivate::addAction(QMacMenuAction *action, QMacMenuAction *before)
 {
-    if(!action)
+    if(!action || !menu)
 	return;
     int before_index = actionItems.indexOf(before);
-    if(actionItems.indexOf(action) == -1)
+    if(actionItems.indexOf(action) == -1) {
+	qDebug("adding action %p (%d)", action, before_index);
 	actionItems.insert(before_index, action);
+    }
     if(action->action->isVisible()) {
 	action->visible = 1;
 	if(before)
@@ -410,7 +417,7 @@ Q4MenuBarPrivate::QMacMenuBarPrivate::addAction(QMacMenuAction *action, QMacMenu
 void 
 Q4MenuBarPrivate::QMacMenuBarPrivate::syncAction(QMacMenuAction *action)
 {
-    if(!action)
+    if(!action || !menu)
 	return;
     if(!action->action->isVisible()) {
 	if(action->visible) {
@@ -446,7 +453,7 @@ Q4MenuBarPrivate::QMacMenuBarPrivate::syncAction(QMacMenuAction *action)
 void 
 Q4MenuBarPrivate::QMacMenuBarPrivate::removeAction(QMacMenuAction *action)
 {
-    if(!action)
+    if(!action || !menu)
 	return;
     if(action->visible)
 	DeleteMenuItem(menu, findActionIndex(action));
@@ -489,6 +496,7 @@ Q4MenuBarPrivate::macCreateMenuBar(QWidget *parent)
 void Q4MenuBarPrivate::macDestroyMenuBar()
 {
     delete mac_menubar;
+    mac_menubar = 0;
 }
 
 MenuRef Q4MenuBarPrivate::macMenu()
