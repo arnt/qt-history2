@@ -1,5 +1,7 @@
 #include "qcomplextext_p.h"
+#include "qrichtext_p.h"
 #include <stdlib.h>
+
 // -----------------------------------------------------
 
 static QChar *shapeBuffer = 0;
@@ -101,7 +103,7 @@ QComplexText::Shape QComplexText::glyphVariant( const QString &str, int pos)
 	case QChar::Right:
 	    // only rule R2 applies
 	    if( nextVisualCharJoins( str, pos ) )
-		return XRight;
+		return XFinal;
 	    return XIsolated;
 	case QChar::Dual:
 	    bool right = nextVisualCharJoins( str, pos );
@@ -110,9 +112,9 @@ QComplexText::Shape QComplexText::glyphVariant( const QString &str, int pos)
 	    if( right && left )
 		return XMedial;
 	    else if ( right )
-		return XRight;
+		return XFinal;
 	    else if ( left )
-		return XLeft;
+		return XInitial;
 	    else
 		return XIsolated;
     }
@@ -146,7 +148,7 @@ QComplexText::Shape QComplexText::glyphVariantLogical( const QString &str, int p
 	case QChar::Right:
 	    // only rule R2 applies
 	    if( nextLogicalCharJoins( str, pos ) )
-		return XRight;
+		return XFinal;
 	    return XIsolated;
 	case QChar::Dual:
 	    bool right = nextLogicalCharJoins( str, pos );
@@ -155,9 +157,9 @@ QComplexText::Shape QComplexText::glyphVariantLogical( const QString &str, int p
 	    if( right && left )
 		return XMedial;
 	    else if ( right )
-		return XRight;
+		return XFinal;
 	    else if ( left )
-		return XLeft;
+		return XInitial;
 	    else
 		return XIsolated;
     }
@@ -574,3 +576,63 @@ QChar QComplexText::shapedCharacter( const QString &str, int pos )
     }
 }
 
+void QComplexText::glyphPositions( QTextString *str )
+{
+    Shape lastShape = XIsolated;
+    Shape shape = XIsolated;
+    
+    int len = str->length();
+    QTextString::Char *ch = &str->at( 0 );
+    for ( int i = 0; i < len; i++ ) {
+	// ignore custom Items
+	if ( ch->isCustom() ) {
+	    lastShape = XIsolated;
+	    ++ch;
+	    continue;
+	}
+
+	const QChar &c = ch->c;
+	QTextString::Char::Type type = QTextString::Char::Regular;
+	QChar shapedChar;
+	bool join = FALSE;
+	if ( c.isMark() ) {
+	    type = QTextString::Char::Mark;
+	    shape = lastShape;
+	} 
+#if 0
+	else {
+	    switch( c.row() ) {
+		case 0x06: // arabic, needs shaping
+		    shapedChar = arabicUnicodeMapping[c.cell()][0];
+		    shape = arabicUnicodeMapping[c.cell()][1];
+		    if ( (lastShape & XInitial) && (shape & XFinal) ) {
+			join = TRUE;
+		    }
+		    break;
+		default:
+		    break;
+	    } 	 
+	}
+#endif
+	switch( type ) {
+	    case QTextString::Char::Mark:
+		if ( ch->type != QTextString::Char::Mark ) {
+		    QTextFormat *f = ch->d.format;
+		    ch->d.mark = new QTextString::Char::MarkData;
+		    ch->d.mark->format = f;
+		    ch->type = QTextString::Char::Mark;
+		}
+		// XXX position the glyph correctly!
+		if ( i > 0 ) 
+		    ch->d.mark->xoff = - str->width( i - 1 );
+		else
+		    ch->d.mark->xoff = 0;
+		ch->d.mark->yoff = 0;
+	    default:
+		break;
+	}
+	lastShape = shape;
+	++ch;
+    }
+
+}

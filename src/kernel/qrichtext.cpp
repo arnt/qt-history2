@@ -54,6 +54,7 @@
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qcursor.h"
+#include "qcomplextext_p.h"
 
 #include <stdlib.h>
 
@@ -2398,7 +2399,7 @@ void QTextDocument::updateStyles()
 
 void QTextString::Char::setFormat( QTextFormat *f )
 {
-    if ( !isCustom() ) {
+    if ( type == Regular ) {
 	d.format = f;
     } else {
 	if ( !d.custom ) {
@@ -2412,7 +2413,7 @@ void QTextString::Char::setFormat( QTextFormat *f )
 void QTextString::Char::setCustomItem( QTextCustomItem *i )
 {
     if ( !isCustom() ) {
-	QTextFormat *f = d.format;
+	QTextFormat *f = format();
 	d.custom = new CustomData;
 	d.custom->format = f;
 	type = Custom;
@@ -2429,6 +2430,8 @@ int QTextString::width(int idx) const
      if( c->isCustom() ) {
 	 if( c->customItem()->placement() == QTextCustomItem::PlaceInline )
 	     w = c->customItem()->width;
+     } else if ( c->type == Char::Mark ) {
+	 return 0;
      } else {
 	 int r = c->c.row();
 	 if( r < 0x06 || r > 0x1f )
@@ -2874,6 +2877,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     int cy = 0;
     int curx = -1, cury, curh;
     bool lastDirection = chr->rightToLeft;
+    QTextString::Char::Type lastType = chr->type;
     int tw = 0;
 
     QString qstr = str->toString();
@@ -2971,17 +2975,25 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 
 	//if something (format, etc.) changed, draw what we have so far
 	if ( ( ( ( alignment() & Qt::AlignJustify ) == Qt::AlignJustify && at(paintEnd)->c.isSpace() ) ||
-	       lastDirection != (bool)chr->rightToLeft ||
+	       lastDirection != (bool)chr->rightToLeft || chr->type != lastType ||
 	       lastY != cy || chr->format() != lastFormat ||
 	       (paintEnd != -1 && at(paintEnd)->c =='\t') || chr->c == '\t' ||
 	       selectionChange || chr->isCustom() ) ) {
 	    if ( paintStart <= paintEnd ) {
+		// ### temporary hack until I get the new placement/shaping stuff working
+		int x = startX;
+		if ( lastType == QTextString::Char::Mark && i > 0 ) {
+		    if ( !lastDirection )
+			x += str->at(i - 1).d.mark->xoff;
+		    else if ( i > 1 )
+			x -= str->at(i - 1).d.mark->xoff + str->width( i - 2 );
+		}
 		if ( lastDirection ) // right to left
-		    drawParagString( painter, revstr, length()- paintEnd - 1, paintEnd - paintStart + 1, startX, lastY,
+		    drawParagString( painter, revstr, length()- paintEnd - 1, paintEnd - paintStart + 1, x, lastY,
 				     lastBaseLine, bw, lasth, drawSelections,
 				     lastFormat, i, selectionStarts, selectionEnds, cg );
 		else
-		    drawParagString( painter, qstr, paintStart, paintEnd - paintStart + 1, startX, lastY,
+		    drawParagString( painter, qstr, paintStart, paintEnd - paintStart + 1, x, lastY,
 				     lastBaseLine, bw, lasth, drawSelections,
 				     lastFormat, i, selectionStarts, selectionEnds, cg );
 	    }
@@ -3037,6 +3049,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	lastBaseLine = baseLine;
 	lasth = h;
 	lastDirection = chr->rightToLeft;
+	lastType = chr->type;
     }
 	
     // if we are through the parag, but still have some stuff left to draw, draw it now
@@ -3049,12 +3062,21 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 		    break;
 	    }
 	}
+	// ### temporary hack until I get the new placement/shaping stuff working
+	int x = startX;
+	if ( lastType == QTextString::Char::Mark && i > 0 ) {
+	    if ( !lastDirection )
+		x += str->at(i - 1).d.mark->xoff;
+	    else if ( i > 1 )
+		x -= str->at(i - 1).d.mark->xoff + str->width( i - 2 );
+	}
 	if ( lastDirection ) // right to left
-	    drawParagString( painter, revstr, length() - paintEnd - 1, paintEnd-paintStart+1, startX, lastY,
+	    drawParagString( painter, revstr, length() - paintEnd - 1, paintEnd-paintStart+1, x, lastY,
 			     lastBaseLine, bw, h, drawSelections,
 			     lastFormat, i, selectionStarts, selectionEnds, cg );
 	else
-	    drawParagString( painter, qstr, paintStart, paintEnd-paintStart+1, startX, lastY, lastBaseLine, bw, h, drawSelections,
+	    drawParagString( painter, qstr, paintStart, paintEnd-paintStart+1, x, lastY, 
+			     lastBaseLine, bw, h, drawSelections,
 			     lastFormat, i, selectionStarts, selectionEnds, cg );
     }
 	
@@ -4261,6 +4283,9 @@ QTextFormatterBreakWords::QTextFormatterBreakWords()
 int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 				      int start, const QMap<int, QTextParag::LineStart*> & )
 {
+    if ( parag->string() )
+	QComplexText::glyphPositions( parag->string() );
+
     QTextString::Char *c = 0;
     QTextString::Char *firstChar = 0;
     QTextString *string = parag->string();

@@ -788,6 +788,7 @@ public:
 	uint lineStart : 1;
 	uint rightToLeft : 1;
 	uint hasCursor : 1;
+	uint canBreak : 1;
 	Type type : 3;
 	
 	int x;
@@ -835,9 +836,12 @@ public:
 	union {
 	    QTextFormat* format;
 	    CustomData* custom;
+	    MarkData *mark;
 	    ShapedData *shaped;
 	    LigatureData *ligature;
 	} d;
+	friend class QComplexText;
+	friend class QTextParag;
     };
 
     QTextString();
@@ -2463,7 +2467,7 @@ inline QTextString::Char::~Char()
 
 inline QTextFormat *QTextString::Char::format() const
 {
-    return !isCustom() ? d.format : d.custom->format;
+    return (type == Regular) ? d.format : d.custom->format;
 }
 
 
