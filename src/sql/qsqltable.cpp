@@ -29,7 +29,7 @@ class QSqlTablePrivate
 {
 public:
     QSqlTablePrivate()
-	: nullTxt( "NULL" ),
+	: nullTxt( qApp->tr( "NULL" ) ),
 	  haveAllRows(FALSE),
 	  continuousEdit(FALSE),
 	  ro(TRUE),
@@ -42,8 +42,8 @@ public:
 	  insertRowLast(-1),
 	  insertHeaderLabelLast(),
 	  insertPreRows(-1),
-	  confEdits( TRUE ),
-	  confCancs( TRUE ),
+	  confEdits( FALSE ),
+	  confCancs( FALSE ),
 	  cancelMode( FALSE )
     {}
     ~QSqlTablePrivate() { if ( propertyMap ) delete propertyMap; }
@@ -53,7 +53,6 @@ public:
     ColIndex     colIndex;
     bool         haveAllRows;
     bool         continuousEdit;
-
     bool         ro;
     QSqlEditorFactory* editorFactory;
     QSqlPropertyMap* propertyMap;
@@ -260,10 +259,10 @@ bool QSqlTable::eventFilter( QObject *o, QEvent *e )
 {
     if ( !o || !e )
 	return QTable::eventFilter( o, e );
-    
+
     if ( d->cancelMode )
 	return TRUE;
-    
+
     int r = currentRow();
     int c = currentColumn();
 
@@ -279,7 +278,7 @@ bool QSqlTable::eventFilter( QObject *o, QEvent *e )
 	int conf = Yes;
 	QKeyEvent *ke = (QKeyEvent*)e;
 	if ( ke->key() == Key_Escape && d->mode == QSqlTable::Insert ){
-	    if ( confirmCancels() && !d->cancelMode ) 
+	    if ( confirmCancels() && !d->cancelMode )
 		conf = confirmCancel( QSqlTable::Insert );
 	    if ( conf == Yes ) {
 		insertCancelled = TRUE;
@@ -291,10 +290,10 @@ bool QSqlTable::eventFilter( QObject *o, QEvent *e )
 	    }
 	}
 	if ( ke->key() == Key_Escape && d->mode == QSqlTable::Update ) {
- 	    if ( confirmCancels() && !d->cancelMode ) 
+ 	    if ( confirmCancels() && !d->cancelMode )
  		conf = confirmCancel( QSqlTable::Update );
- 	    if ( conf == Yes ) 
-		endUpdate();		
+ 	    if ( conf == Yes )
+		endUpdate();
 	    else {
 		editorWidget->setActiveWindow();
 		editorWidget->setFocus();
