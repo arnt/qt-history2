@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#72 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#73 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -29,7 +29,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#72 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#73 $");
 
 
 /*
@@ -1289,9 +1289,9 @@ void QPainter::drawPoint( int x, int y )
 void QPainter::drawPoints( const QPointArray& a, int index, int npoints )
 {
     if ( npoints < 0 )
-	npoints = pa.size() - index;
+	npoints = a.size() - index;
     if ( index + npoints > (int)a.size() )
-	npoints = pa.size() - index;
+	npoints = a.size() - index;
     if ( !isActive() || npoints < 1 || index < 0 || cpen.style() == NoPen )
 	return;
     QPointArray pa = a;

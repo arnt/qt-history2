@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#5 $
 **
 ** Implementation of movie classes
 **
@@ -100,6 +100,8 @@
   QImageFormatDecoderFactory.
 */
 
+static const int max_header = 32;
+
 struct QImageDecoderPrivate {
     QImageDecoderPrivate()
     {
@@ -107,7 +109,7 @@ struct QImageDecoderPrivate {
     }
 
     static QList<QImageFormatDecoderFactory> factories;
-    static const int max_header = 32;
+
     uchar header[max_header];
     int count;
 };
@@ -156,7 +158,7 @@ int QImageDecoder::decode(const uchar* buffer, int length)
 	return actual_decoder->decode(img, consumer, buffer, length);
     } else {
 	int consumed=0;
-	while (consumed < length && d->count < d->max_header) {
+	while (consumed < length && d->count < max_header) {
 	    d->header[d->count++] = buffer[consumed++];
 	}
 
@@ -520,24 +522,25 @@ int QImageFormatDecoderGIF::decode(QImage& img, QImageConsumer* consumer,
 		sp = stack;
 	    }
 	    break;
-	  case TableImageLZWSize:
+	  case TableImageLZWSize: {
 	    lzwsize=ch;
 	    code_size=lzwsize+1;
 	    clear_code=1<<lzwsize;
 	    end_code=clear_code+1;
 	    max_code_size=2*clear_code;
 	    max_code=clear_code+2;
-	    for (int i=0; i<clear_code; i++) {
+	    int i;
+	    for (i=0; i<clear_code; i++) {
 		table[0][i]=0;
 		table[1][i]=i;
 	    }
-	    for (int i=clear_code; i<(1<<max_lzw_bits); i++) {
+	    for (i=clear_code; i<(1<<max_lzw_bits); i++) {
 		table[0][i]=table[1][i]=0;
 	    }
 	    state=ImageDataBlockSize;
 	    count=0;
 	    break;
-	  case ImageDataBlockSize:
+	  } case ImageDataBlockSize:
 	    expectcount=ch;
 	    if (expectcount) {
 		state=ImageDataBlock;
@@ -587,18 +590,19 @@ int QImageFormatDecoderGIF::decode(QImage& img, QImageConsumer* consumer,
 
 		if (code==clear_code) {
 		    if (!needfirst) {
+			int i;
 			code_size=lzwsize+1;
 			max_code_size=2*clear_code;
 			max_code=clear_code+2;
-			for (int i=0; i<clear_code; i++) {
+			for (i=0; i<clear_code; i++) {
 			    table[0][i]=0;
 			    table[1][i]=i;
 			}
-			for (int i=clear_code; i<(1<<max_lzw_bits); i++) {
+			for (i=clear_code; i<(1<<max_lzw_bits); i++) {
 			    table[0][i]=table[1][i]=0;
 			}
 		    }
-		    needfirst=true;
+		    needfirst=TRUE;
 		} else if (code==end_code) {
 		    state=ImageDataBlockSize;
 		} else {
@@ -607,7 +611,7 @@ int QImageFormatDecoderGIF::decode(QImage& img, QImageConsumer* consumer,
 			if (!(preserve_trans && firstcode==trans))
 			    line[y][x] = firstcode;
 			x++;
-			needfirst=false;
+			needfirst=FALSE;
 			if (x>right) {
 			    x=left;
 			    nextY(img,consumer);
@@ -814,32 +818,37 @@ void QImageFormatDecoderGIF::nextY(QImage& img, QImageConsumer* consumer)
 	y++;
 	break;
       case 1:
-	my = QMIN(7, bottom-y);
-	for (int i=1; i<=my; i++)
-	    memcpy(img.scanLine(y+i), img.scanLine(y), img.width());
-	if (consumer) digress =
-	    !consumer->changed(QRect(left, y, right-left+1, my+1));
-	y+=8;
-	if (y>bottom) { interlace++; y=4; }
-	break;
+	{
+	    int i;
+	    my = QMIN(7, bottom-y);
+	    for (i=1; i<=my; i++)
+	        memcpy(img.scanLine(y+i), img.scanLine(y), img.width());
+	    if (consumer) digress =
+	        !consumer->changed(QRect(left, y, right-left+1, my+1));
+	    y+=8;
+	    if (y>bottom) { interlace++; y=4; }
+	} break;
       case 2:
-	my = QMIN(3, bottom-y);
-	for (int i=1; i<=my; i++)
-	    memcpy(img.scanLine(y+i), img.scanLine(y), img.width());
-	if (consumer) digress =
-	    !consumer->changed(QRect(left, y, right-left+1, my+1));
-	y+=8;
-	if (y>bottom) { interlace++; y=2; }
-	break;
+	{
+	    int i;
+	    my = QMIN(3, bottom-y);
+	    for (i=1; i<=my; i++)
+	        memcpy(img.scanLine(y+i), img.scanLine(y), img.width());
+    	    if (consumer) digress =
+	        !consumer->changed(QRect(left, y, right-left+1, my+1));
+	    y+=8;
+	    if (y>bottom) { interlace++; y=2; }
+	} break;
       case 3:
-	my = QMIN(1, bottom-y);
-	for (int i=1; i<=my; i++)
-	    memcpy(img.scanLine(y+i), img.scanLine(y), img.width());
-	if (consumer) digress =
-	    !consumer->changed(QRect(left, y, right-left+1, my+1));
-	y+=4;
-	if (y>bottom) { interlace++; y=1; }
-	break;
+	{
+	    my = QMIN(1, bottom-y);
+	    for (int i=1; i<=my; i++)
+	        memcpy(img.scanLine(y+i), img.scanLine(y), img.width());
+	    if (consumer) digress =
+	        !consumer->changed(QRect(left, y, right-left+1, my+1));
+	    y+=4;
+	    if (y>bottom) { interlace++; y=1; }
+	} break;
       case 4:
 	if (consumer) digress =
 	    !consumer->changed(QRect(left, y, right-left+1, 1));

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qmovie.cpp#5 $
 **
 ** Implementation of movie classes
 **
@@ -9,7 +9,6 @@
 **
 *****************************************************************************/
 
-#define private public
 #include "qtimer.h"
 #include "qpainter.h"
 #include "qlist.h"
@@ -74,9 +73,9 @@ public: // for QMovie
     QMoviePrivate(QDataSource* src, QMovie* tht, int bufsize) :
 	that(tht),
 	buf_size(bufsize),
-	frametimer(this),
-	pump(new QDataPump(src, this))
+	frametimer(this)
     {
+	pump = new QDataPump(src, this);
 	buffer = new uchar[bufsize];
 	QObject::connect(&frametimer, SIGNAL(timeout()), this, SLOT(refresh()));
 	source = src;
@@ -294,7 +293,7 @@ public: // for QMovie
 	} else {
 	    delete decoder;
 	    decoder = 0;
-	    emit dataStatus(QMovie::EndOfFilm);
+	    emit dataStatus(QMovie::EndOfMovie);
 	}
     }
 
@@ -635,7 +634,7 @@ void QMovie::disconnectUpdate(QObject* receiver, const char* member)
    <li> \c QMovie::Paused - signalled when the movie is paused by a call to paused(),
 			or by after \link step() stepping \endlink pauses.
    <li> \c QMovie::EndOfFrame - signalled at end-of-frame, after any update signals.
-   <li> \c QMovie::EndOfFilm - signalled when the movie completes and is not looping.
+   <li> \c QMovie::EndOfMovie - signalled when the movie completes and is not looping.
   </ul>
 
   More status messages may be added in the future, so a general test for
@@ -669,8 +668,8 @@ void QMovie::disconnectStatus(QObject* receiver, const char* member)
 /****************************************************************************
 ** QMoviePrivate meta object code from reading C++ file 'qmovie.cpp'
 **
-** Created: Fri Jun 20 20:19:36 1997
-**      by: The Qt Meta Object Compiler ($Revision: 1.4 $)
+** Created: Thu Jun 26 16:21:01 1997
+**      by: The Qt Meta Object Compiler ($Revision: 1.5 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/

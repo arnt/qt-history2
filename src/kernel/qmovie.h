@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.h#2 $
+** $Id: //depot/qt/main/src/kernel/qmovie.h#3 $
 **
 ** Definition of movie classes
 **
@@ -16,7 +16,7 @@
 #include "qpixmap.h"
 
 class QIODevice;
-struct QMoviePrivate;
+class QMoviePrivate;
 
 class QMovie {
 public:
@@ -57,7 +57,7 @@ public:
     enum {  UnrecognizedFormat=-1,
 	    Paused=1,
 	    EndOfFrame=2,
-	    EndOfFilm=3 } Status;
+	    EndOfMovie=3 } Status;
     void connectStatus(QObject* receiver, const char* member);
     void disconnectStatus(QObject* receiver, const char* member=0);
 

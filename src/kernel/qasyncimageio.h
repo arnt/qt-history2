@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#3 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#4 $
 **
 ** Definition of asynchronous image/movie loading classes
 **
@@ -62,7 +62,9 @@ private:
     QImageDecoderPrivate *d;
 };
 
-class QImageFormatDecoderGIF : QImageFormatDecoder {
+static const int max_lzw_bits=12;
+
+class QImageFormatDecoderGIF : public QImageFormatDecoder {
     class Factory : public QImageFormatDecoderFactory {
 	QImageFormatDecoder* decoderFor(const uchar* buffer, int length);
 	const char* formatName() const;
@@ -121,7 +123,7 @@ private:
     int interlace;
     int accum;
     int bitcount;
-    static const int max_lzw_bits=12;
+
     int code_size, clear_code, end_code, max_code_size, max_code;
     int firstcode, oldcode, incode;
     short table[2][1<< max_lzw_bits];
