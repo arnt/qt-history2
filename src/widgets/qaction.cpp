@@ -294,7 +294,7 @@ QString QActionPrivate::statusTip() const
 
   Note: for accelerators and status tips to work, \a parent
   must be a widget.
- */
+*/
 QAction::QAction( QObject* parent, const char* name, bool toggle )
     : QObject( parent, name )
 {
@@ -319,7 +319,7 @@ QAction::QAction( QObject* parent, const char* name, bool toggle )
   Unless you call setToolTip() to define a separate tip text, \a text
   and \a accel will show up in tool tips. They will also serve as status tip
   as long as no statusTip() and no toolTip() have been defined.
- */
+*/
 QAction::QAction( const QString& text, const QIconSet& icon, const QString& menuText, int accel, QObject* parent, const char* name, bool toggle )
     : QObject( parent, name )
 {
@@ -348,7 +348,7 @@ QAction::QAction( const QString& text, const QIconSet& icon, const QString& menu
   is a QActionGroup.
 
   For accelerators and status tips to work, \a parent must be a widget.
- */
+*/
 QAction::QAction( const QString& text, const QString& menuText, int accel, QObject* parent, const char* name, bool toggle )
     : QObject( parent, name )
 {
@@ -390,7 +390,7 @@ QAction::~QAction()
   \a icon is used as tool button icon and in the menu entry.
 
   \sa iconSet();
- */
+*/
 void QAction::setIconSet( const QIconSet& icon )
 {
     register QIconSet *i = d->iconset;
@@ -402,7 +402,7 @@ void QAction::setIconSet( const QIconSet& icon )
 /*! Returns the icon set.
 
   \sa setIconSet();
- */
+*/
 QIconSet QAction::iconSet() const
 {
     if ( d->iconset )
@@ -418,7 +418,7 @@ QIconSet QAction::iconSet() const
   the relevant properties are not defined otherwise.
 
   \sa text(), setMenuText(), setToolTip(), setStatusTip()
- */
+*/
 void QAction::setText( const QString& text )
 {
     d->text = text;
@@ -434,7 +434,7 @@ void QAction::setText( const QString& text )
   accel() serves as menu text, tool tip and status tip.
 
   \sa setText(), setMenuText(), setToolTip(), setStatusTip()
- */
+*/
 QString QAction::text() const
 {
     return d->text;
@@ -450,7 +450,7 @@ QString QAction::text() const
   in menu items, tool tips and button text is appropriate.
 
   \sa menuText(), setText(), text()
- */
+*/
 void QAction::setMenuText( const QString& text )
 {
     d->menutext = text;
@@ -462,7 +462,7 @@ void QAction::setMenuText( const QString& text )
   If no menu text has been defined, this is the same as text().
 
   \sa setMenuText(),  text()
- */
+*/
 QString QAction::menuText() const
 {
     return d->menuText();
@@ -474,7 +474,7 @@ QString QAction::menuText() const
   \a tip serves as message in the status bar as well.
 
   \sa toolTip(), statusTip()
- */
+*/
 void QAction::setToolTip( const QString& tip )
 {
     d->tooltip = tip;
@@ -504,6 +504,11 @@ QString QAction::toolTip() const
 
   \sa statusTip(), toolTip()
 */
+//#### Please reimp for QActionGroup!
+//#### For consistency reasons even action groups should show
+//#### status tips (as they already do with tool tips)
+//#### Please change QActionGroup class doc appropriately after 
+//#### reimplementation.
 void QAction::setStatusTip( const QString& tip )
 {
     d->statustip = tip;
@@ -535,7 +540,7 @@ QString QAction::statusTip() const
   featuring QAction</A>.)
 
   \sa whatsThis(), QStyleSheet, QWhatsThis
- */
+*/
 void QAction::setWhatsThis( const QString& whatsThis )
 {
     if ( d->whatsthis == whatsThis )
@@ -552,7 +557,7 @@ void QAction::setWhatsThis( const QString& whatsThis )
   as default value here.
 
   \sa setWhatsThis()
- */
+*/
 QString QAction::whatsThis() const
 {
     return d->whatsthis;
@@ -573,7 +578,12 @@ QString QAction::whatsThis() const
   has to be the application window.
 
   \sa accel()
- */
+*/
+//#### Please reimp for QActionGroup!
+//#### For consistency reasons even QActionGroups should respond to
+//#### their accelerators and e.g. open the relevant submenu. 
+//#### Please change appropriate QActionGroup class doc after 
+//#### reimplementation.
 void QAction::setAccel( int key )
 {
     d->key = key;
@@ -607,7 +617,7 @@ void QAction::setAccel( int key )
   The hexadecimal keycodes can be found in \l Qt::Key and \l Qt::Modifier.
 
   \sa setAccel()
- */
+*/
 int QAction::accel() const
 {
     return d->key;
@@ -625,7 +635,7 @@ int QAction::accel() const
   preferred signal for toggle actions.
 
   \sa isToggleAction()
- */
+*/
 void QAction::setToggleAction( bool enable )
 {
     if ( enable == (bool)d->toggleaction )
@@ -637,7 +647,7 @@ void QAction::setToggleAction( bool enable )
 /*! Returns whether the action is a toggle action or not.
 
   \sa setToggleAction()
- */
+*/
 bool QAction::isToggleAction() const
 {
     return d->toggleaction;
@@ -649,7 +659,7 @@ bool QAction::isToggleAction() const
   This function has no effect on command actions and QActionGroups.
 
   \sa isOn(), isToggleAction(), setToggleAction()
- */
+*/
 void QAction::setOn( bool enable )
 {
     if ( !isToggleAction() ) {
@@ -688,7 +698,7 @@ bool QAction::isOn() const
   provided whatsThis() is set.
 
   \sa isEnabled()
- */
+*/
 void QAction::setEnabled( bool enable )
 {
     d->enabled = enable;
@@ -704,7 +714,7 @@ void QAction::setEnabled( bool enable )
   and can't be chosen by the user.
 
   \sa setEnabled()
- */
+*/
 bool QAction::isEnabled() const
 {
     return d->enabled;
@@ -756,7 +766,7 @@ void QAction::toolButtonToggled( bool on )
   if \a w is of an unsupported class.
 
   \sa removeFrom()
- */
+*/
 bool QAction::addTo( QWidget* w )
 {
     if ( w->inherits( "QToolBar" ) ) {
@@ -1043,7 +1053,8 @@ void QActionGroupPrivate::update( const QActionGroup* that )
   \skipto colors->addTo
   \printline colors->addTo
 
-  (code taken from the action/actiongroup example)
+  (Please refer to the <A HREF="actiongroup.html">QActionGroup Walkthrough</A> 
+  for a detailed explanation.)
 
   The order in which member actions appear in a widget follows the
   sequence they were inserted into QActionGroup. A QAction
@@ -1122,7 +1133,7 @@ void QActionGroupPrivate::update( const QActionGroup* that )
   If \a exclusive is TRUE, any toggle action that is a member of this
   group is toggled off by another member action being toggled on.
 
- */
+*/
 QActionGroup::QActionGroup( QObject* parent, const char* name, bool exclusive )
     : QAction( parent, name )
 {
@@ -1177,7 +1188,7 @@ QActionGroup::~QActionGroup()
   Command action members are not affected.
 
   \sa isExclusive(), setToggleAction()
- */
+*/
 void QActionGroup::setExclusive( bool enable )
 {
     d->exclusive = enable;
@@ -1210,14 +1221,16 @@ bool QActionGroup::isExclusive() const
   \dontinclude action/actiongroup/editor.cpp
   \skipto QActionGroup
   \printline QActionGroup
-  \skipto setUsesDropDown
-  \printline setUsesDropDown
-  \skipto setMenuText
+
+  \skipto QPopupMenu 
+  \printline QPopupMenu
+  \printuntil setUsesDropDown
   \printline setMenuText
 
-  \printuntil colors->addTo
+  \printline colors->addTo
 
-  (c.f. the action/actiongroup example)
+  (For a detailed explanation of the above code please refer to the 
+  <A HREF="actiongroup.html">QActionGroup Walkthrough</A>. 
 
   Changing setUsesDropDown() effects subsequent calls to addTo() only.
 
@@ -1311,7 +1324,7 @@ void QActionGroup::insertSeparator()
   action group to a widget.
 
   \sa setExclusive, setUsesDropDown, removeFrom()
- */
+*/
 bool QActionGroup::addTo( QWidget* w )
 {
     if ( w->inherits( "QToolBar" ) ) {
@@ -1409,8 +1422,8 @@ bool QActionGroup::addTo( QWidget* w )
     return TRUE;
 }
 
-/*!\reimp
- */
+/*! \reimp
+*/
 bool QActionGroup::removeFrom( QWidget* w )
 {
     for ( QListIterator<QAction> it( d->actions); it.current(); ++it ) {
@@ -1444,8 +1457,7 @@ bool QActionGroup::removeFrom( QWidget* w )
     return TRUE;
 }
 
-/*!
-  \internal
+/*! \internal
 */
 void QActionGroup::childToggled( bool b )
 {
@@ -1470,8 +1482,7 @@ void QActionGroup::childToggled( bool b )
     }
 }
 
-/*!
-  \internal
+/*! \internal
 */
 void QActionGroup::childDestroyed()
 {
@@ -1480,8 +1491,8 @@ void QActionGroup::childDestroyed()
 	d->selected = 0;
 }
 
-/*!\reimp
- */
+/*! \reimp
+*/
 void QActionGroup::setEnabled( bool enable )
 {
     if ( enable == isEnabled() )
@@ -1491,7 +1502,7 @@ void QActionGroup::setEnabled( bool enable )
     d->update( this );
 }
 
-/*!\reimp
+/*! \reimp
 */
 void QActionGroup::setIconSet( const QIconSet& icon )
 {
@@ -1499,7 +1510,7 @@ void QActionGroup::setIconSet( const QIconSet& icon )
     d->update( this );
 }
 
-/*!\reimp
+/*! \reimp
 */
 void QActionGroup::setText( const QString& txt )
 {
@@ -1510,7 +1521,7 @@ void QActionGroup::setText( const QString& txt )
     d->update( this );
 }
 
-/*!\reimp
+/*! \reimp
 */
 void QActionGroup::setMenuText( const QString& text )
 {
@@ -1521,7 +1532,7 @@ void QActionGroup::setMenuText( const QString& text )
     d->update( this );
 }
 
-/*!\reimp
+/*! \reimp
 */
 void QActionGroup::setToolTip( const QString& text )
 {
@@ -1535,7 +1546,7 @@ void QActionGroup::setToolTip( const QString& text )
     d->update( this );
 }
 
-/*!\reimp
+/*! \reimp
 */
 void QActionGroup::setWhatsThis( const QString& text )
 {
@@ -1549,7 +1560,7 @@ void QActionGroup::setWhatsThis( const QString& text )
     d->update( this );
 }
 
-/*!\reimp
+/*! \reimp
 */
 void QActionGroup::childEvent( QChildEvent *e )
 {
@@ -1592,7 +1603,7 @@ void QActionGroup::childEvent( QChildEvent *e )
 
   To call a user program depending on which action was switched on connect
   this signal to a slot that takes care of the action argument
-  (c.f. the action/actiongroup example ):
+  (c.f. the <A HREF="actiongroup.html">QActionGroup Walkthrough</A>):
 
   \dontinclude action/actiongroup/editor.cpp
   \skipto QActionGroup
@@ -1606,8 +1617,7 @@ void QActionGroup::childEvent( QChildEvent *e )
   \sa setExclusive(), isOn()
 */
 
-/*!
-  \internal
+/*! \internal
 */
 void QActionGroup::internalComboBoxActivated( int index )
 {
@@ -1629,8 +1639,7 @@ void QActionGroup::internalComboBoxActivated( int index )
     }
 }
 
-/*!
-  \internal
+/*! \internal
 */
 void QActionGroup::internalToggle( QAction *a )
 {
@@ -1641,8 +1650,7 @@ void QActionGroup::internalToggle( QAction *a )
     }
 }
 
-/*!
-  \internal
+/*! \internal
 */
 void QActionGroup::objectDestroyed()
 {

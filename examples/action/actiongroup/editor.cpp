@@ -1,9 +1,14 @@
+/*
+$Id$
+*/  
+
 #include "editor.h"
 
 #include <qtextedit.h>
-#include <qaction.h>
-#include <qpopupmenu.h>
 #include <qmenubar.h>
+#include <qpopupmenu.h>
+#include <qtoolbar.h>
+#include <qaction.h>
 
 #include "red.xpm"
 #include "black.xpm"
@@ -26,13 +31,12 @@ Editor::Editor()
     QToolBar * toolbar = new QToolBar( this, "toolbar" );
     colors->addTo( toolbar );
 
-    // members of colors now show up in a separate submenu
-    colors->setUsesDropDown( TRUE );
-    // set a menu text for this submenu
-    colors->setMenuText( "Font Color" );
-
     QPopupMenu * font = new QPopupMenu( this );
     menuBar()->insertItem( "&Font", font );
+
+    colors->setUsesDropDown( TRUE );
+    colors->setMenuText( "Font Color" );
+
     colors->addTo( font );
 
     editor = new QTextEdit( this, "editor" );

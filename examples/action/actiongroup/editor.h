@@ -1,12 +1,14 @@
+/*
+$Id$
+*/  
+
 #ifndef EDITOR_H
 #define EDITOR_H
 
 #include <qmainwindow.h>
 
-
 class QTextEdit;
 class QAction;
-
 
 class Editor : public QMainWindow
 {
@@ -24,4 +26,3 @@ private:
 };
 
 #endif
-
