@@ -73,6 +73,11 @@ QByteArray QUtf8Codec::fromUnicode(const QString& uc, int& lenInOut) const
 
 QString QUtf8Codec::toUnicode(const char* chars, int len) const
 {
+    if (len > 3 && (uchar)chars[0] == 0xef && (uchar)chars[1] == 0xbb && (uchar)chars[2] == 0xbf) {
+	// starts with a byte order mark
+	chars += 3;
+	len -= 3;
+    }
     return QString::fromUtf8( chars, len );
 }
 

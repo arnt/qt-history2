@@ -245,11 +245,22 @@ void HelpWindow::setCharacterEncoding( const QString &name )
 	if ( text.contains( "</head>", FALSE ) )
 	    break;
     }
-    int i = text.find( "charset=" );
     QString encoding;
+    if (text.length() > 3
+	&& text[0].unicode() == 0xef
+	&& text[1].unicode() == 0xbb
+	&& text[2].unicode() == 0xbf) {
+	encoding = "utf-8";
+    } else if (text.length() > 2
+	       && ((text[0].unicode() == 0xfe && text[1].unicode() == 0xff)
+		   || (text[0].unicode() == 0xff && text[1].unicode() == 0xfe))) {
+	encoding = "ISO-10646-UCS-2";
+    } else {
+	int i = text.find( "charset=" );
     if ( i > -1 ) {
 	encoding = text.right( text.length() - (i+8) );
 	encoding = encoding.left( encoding.find( "\"" ) );
+	}
     }
     QTextCodec *codec = QTextCodec::codecForName( encoding.latin1() );
     if ( !codec )
