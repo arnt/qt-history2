@@ -484,7 +484,27 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
         if(task & DRAW) {
             Rect clipr;
             GetPortBounds(ctx_port, &clipr);
+#if 1
+            CGContextBeginPath(ctx);
+            if(rgn.isEmpty()) {
+                CGContextAddRect(ctx, CGRectMake(0, 0, 0, 0));
+            } else {
+                QVector<QRect> rects = rgn.rects();
+                const int count = rects.size();
+                for(int i = 0; i < count; i++) {
+                    const QRect &r = rects[i];
+                    qDebug("mapping %d %d %d %d -- %d %d %d %d [%d/%d/%d]",
+                           r.x(), r.y(), r.width(), r.height(),
+                           r.x(), (clipr.bottom - clipr.top) - r.y() - r.height(), 
+                           r.width(), r.height(), clipr.bottom, clipr.top, clipr.bottom-clipr.top);
+                    CGContextAddRect(ctx, CGRectMake(r.x(), (clipr.bottom - clipr.top) - r.y() - r.height(), 
+                                                     r.width(), r.height()));
+                }
+            }
+            CGContextClip(ctx);
+#else
             ClipCGContextToRegion(ctx, &clipr, rgn.handle(true));
+#endif
         }
     } else {
         Q_ASSERT(!(task & DRAW));
