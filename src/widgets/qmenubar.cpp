@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#169 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#170 $
 **
 ** Implementation of QMenuBar class
 **
@@ -817,7 +817,7 @@ void QMenuBar::mousePressEvent( QMouseEvent *e )
 	return;
     mouseBtDn = TRUE;				// mouse button down
     int item = itemAtPos( e->pos() );
-    setActiveItem( item );
+    setActiveItem( item, TRUE, FALSE );
 }
 
 
@@ -855,12 +855,12 @@ void QMenuBar::mouseMoveEvent( QMouseEvent *e )
 		if ( actItem == item )
 		    actItem = -1; // trigger update
 	    }
-	    setActiveItem( item, FALSE );
+	    setActiveItem( item, FALSE, FALSE );
 	}
 	return;
     }
 
-    if ( item >= 0 && mouseBtDn )
+    if ( item >= 0 ) //&& mouseBtDn )
 	setActiveItem( item, TRUE, FALSE );
 }
 
