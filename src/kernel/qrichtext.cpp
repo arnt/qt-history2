@@ -1230,6 +1230,7 @@ QTextDocument::QTextDocument( QTextDocument *p )
     if ( p )
 	cx = cy = 0;
     cw = 600;
+    vw = 0;
     flow_ = new QTextFlow;
     flow_->setWidth( cw );
 
