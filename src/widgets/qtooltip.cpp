@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#79 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#80 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -32,8 +32,8 @@
 
 static inline QRect entireWidget()
 {
-    return QRect( QCOORD_MIN, QCOORD_MIN,
-		  QCOORD_MAX-QCOORD_MIN, QCOORD_MAX-QCOORD_MIN ); //32bit?
+    return QRect( -QWIDGETSIZE_MAX, -QWIDGETSIZE_MAX,
+		  2*QWIDGETSIZE_MAX, 2*QWIDGETSIZE_MAX );
 }
 
 
@@ -964,7 +964,7 @@ void QToolTipGroup::setDelay( bool enable )
 ** QTipLabel meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Sun Aug 23 21:50:26 1998
-**      by: The Qt Meta Object Compiler ($Revision: 2.74 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.75 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/
