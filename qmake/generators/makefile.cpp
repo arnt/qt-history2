@@ -1127,7 +1127,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 
 	if(!target.isEmpty()) {
 	    t << "install_" << (*it) << ": " << "\n\t"
-	      << "[ -d " << dst << " ] || mkdir -p " << dst << "\n\t"
+	      << "test -d " << dst << " || mkdir -p " << dst << "\n\t"
 	      << target << endl;
 	    all_installs += QString("install_") + (*it) + " ";
 	    if(!uninst.isEmpty()) {

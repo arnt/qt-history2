@@ -227,12 +227,12 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	t << "###### Dependancies" << endl << endl;
 	t << odir << ".deps/%.d: %.cpp\n\t"
 	  << "@echo Creating depend for $<" << "\n\t"
-	  << "@[ -d $(@D) ] || mkdir -p $(@D)" << "\n\t"
+	  << "@test -d $(@D) || mkdir -p $(@D)" << "\n\t"
 	  << "@$(CXX) " << cmd << " $< | sed \"s,^\\($(*F).o\\):," << odir << "\\1:,g\" >$@" << endl << endl;
 
 	t << odir << ".deps/%.d: %.c\n\t"
 	  << "@echo Creating depend for $<" << "\n\t"
-	  << "@[ -d $(@D) ] || mkdir -p $(@D)" << "\n\t"
+	  << "@test -d $(@D) || mkdir -p $(@D)" << "\n\t"
 	  << "@$(CC) " << cmd << " $< | sed \"s,^\\($(*F).o\\):," << odir << "\\1:,g\" >$@" << endl << endl;
 
 
