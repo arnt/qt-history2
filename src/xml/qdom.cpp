@@ -5750,7 +5750,7 @@ void QDomDocumentPrivate::save( QTextStream& s, int ) const
     bool doc = FALSE;
 
     QDomNodePrivate* n = first;
-    if ( n->isProcessingInstruction() && n->nodeName()=="xml" ) {
+    if ( n && n->isProcessingInstruction() && n->nodeName()=="xml" ) {
 	// we have an XML declaration
 	QString data = n->nodeValue();
 	QRegExp encoding( "encoding\\s*=\\s*((\"([^\"]*)\")|('([^']*)'))" );
