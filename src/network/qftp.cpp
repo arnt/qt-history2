@@ -1358,9 +1358,17 @@ int QFtp::cd( const QString &dir )
 }
 
 /*!
-  Downloads the file \a file from the server. When there is data available to
-  read, the readyRead() signal is emitted. You can then read the data with the
-  readBlock() or readAll() function.
+  Downloads the file \a file from the server.
+
+  If \a dev is 0, then the readyRead() signal is emitted when there is data
+  available to read. You can then read the data with the readBlock() or
+  readAll() function.
+
+  If \a dev is not 0, the data is stored to the device \a dev. Make sure that
+  the \a dev pointer is valid throughout the whole pending operation (it is
+  safe to emit it when the commandFinished() is emitted). In this case the
+  readyRead() signal is never emitted and you can't read data with the
+  readBlcok or readAll() function.
 
   If you don't read the data immediately when it is available, i.e. when the
   readyRead() signal is emitted, it is still available until the next command
@@ -1382,24 +1390,6 @@ int QFtp::cd( const QString &dir )
 
   \sa readyRead() dataTransferProgress() commandStarted() commandFinished()
 */
-int QFtp::get( const QString &file )
-{
-    QStringList cmds;
-    cmds << ( "SIZE " + file + "\r\n" );
-    cmds << "TYPE I\r\n";
-    cmds << "PASV\r\n";
-    cmds << ( "RETR " + file + "\r\n" );
-    return addCommand( new QFtpCommand( Get, cmds ) );
-}
-
-/*! \overload
-  Downloads the file \a file from the server and stores it on the IO device \a
-  dev. Make sure that the \a dev pointer is valid throughout the whole pending
-  operation (it is safe to emit it when the commandFinished() is emitted).
-
-  This overload emits the same signals, except for the readyRead() signal which
-  is never emitted.
-*/
 int QFtp::get( const QString &file, QIODevice *dev )
 {
     QStringList cmds;
@@ -1407,7 +1397,9 @@ int QFtp::get( const QString &file, QIODevice *dev )
     cmds << "TYPE I\r\n";
     cmds << "PASV\r\n";
     cmds << ( "RETR " + file + "\r\n" );
-    return addCommand( new QFtpCommand( Get, cmds, dev ) );
+    if ( dev )
+	return addCommand( new QFtpCommand( Get, cmds, dev ) );
+    return addCommand( new QFtpCommand( Get, cmds ) );
 }
 
 /*! \overload
