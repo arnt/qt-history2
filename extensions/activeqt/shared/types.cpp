@@ -22,6 +22,7 @@
 #include <qobject.h>
 #ifdef QAX_SERVER
 #include <qaxfactory.h>
+#include <qlibrary.h>
 extern QAxFactoryInterface *qAxFactory();
 extern ITypeLib *qAxTypeLibrary;
 
@@ -297,6 +298,26 @@ bool QVariantToVARIANT( const QVariant &var, VARIANT &arg, const char *type )
 	}
 	break;
 
+    case QVariant::StringList:
+	{
+	    arg.vt = VT_ARRAY|VT_BSTR;
+	    const QStringList strings = qvar.toStringList();
+	    const int count = strings.count();
+
+	    arg.parray = SafeArrayCreateVector( VT_BSTR, 0, count );
+	    QStringList::ConstIterator it = strings.begin();
+	    LONG index = 0;
+	    while ( it != strings.end() ) {
+		QString string = *it;
+		++it;
+		BSTR bstr = QStringToBSTR(string);
+		SafeArrayPutElement( arg.parray, &index, bstr );
+		SysFreeString(bstr);
+		++index;
+	    }
+	}
+	break;
+
     case QVariant::ByteArray:
 	{
 	    arg.vt = VT_ARRAY|VT_UI1;
@@ -328,15 +349,29 @@ bool QVariantToVARIANT( const QVariant &var, VARIANT &arg, const char *type )
     case QVariant::Size:
     case QVariant::Point:
 	{
+	    typedef HRESULT(WINAPI* PGetRecordInfoFromTypeInfo)(ITypeInfo *, IRecordInfo **);
+	    static PGetRecordInfoFromTypeInfo pGetRecordInfoFromTypeInfo = 0;
+	    static bool resolved = FALSE;
+	    if (!resolved) {
+		resolved = TRUE;
+		pGetRecordInfoFromTypeInfo = (PGetRecordInfoFromTypeInfo)QLibrary::resolve("oleaut32", "GetRecordInfoFromTypeInfo");
+	    }
+	    if (!pGetRecordInfoFromTypeInfo)
+		break;
+
 	    ITypeInfo *typeInfo = 0;
 	    IRecordInfo *recordInfo = 0;
 	    CLSID clsid = qvar.type() == QVariant::Rect ? CLSID_QRect
 		:qvar.type() == QVariant::Size ? CLSID_QSize
 		:CLSID_QPoint;
 	    qAxTypeLibrary->GetTypeInfoOfGuid(clsid, &typeInfo);
-
-	    GetRecordInfoFromTypeInfo(typeInfo, &recordInfo);
+	    if (!typeInfo)
+		break;
+	    pGetRecordInfoFromTypeInfo(typeInfo, &recordInfo);
 	    typeInfo->Release();
+	    if (!recordInfo)
+		break;
+
 	    void *record = 0;
 	    switch (qvar.type()) {
 	    case QVariant::Rect:
@@ -438,6 +473,7 @@ static inline void makeReference( VARIANT &arg )
 	break;
     case VT_ARRAY|VT_VARIANT:
     case VT_ARRAY|VT_UI1:
+    case VT_ARRAY|VT_BSTR:
 	arg.pparray = new SAFEARRAY*(arg.parray);
 	break;
     }
@@ -903,6 +939,38 @@ bool VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	}
 	break;
 
+    case VT_ARRAY|VT_BSTR:
+    case VT_ARRAY|VT_BSTR|VT_BYREF:
+	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra 
+	     && *(char*)param->typeExtra == QVariant::StringList ) {
+	    SAFEARRAY *array = 0;
+	    if ( arg.vt & VT_BYREF )
+		array = *arg.pparray;
+	    else
+		array = arg.parray;
+	    QStringList strings;
+	    QStringList *reference = (QStringList*)static_QUType_varptr.get( obj );
+
+	    if ( array && array->cDims == 1 ) {
+		long lBound, uBound;
+		SafeArrayGetLBound( array, 1, &lBound );
+		SafeArrayGetUBound( array, 1, &uBound );
+
+		for (long i = lBound; i <= uBound; ++i ) {
+		    BSTR bstr;
+		    SafeArrayGetElement( array, &i, &bstr );
+		    QString qstr = BSTRToQString(bstr);
+		    strings << qstr;
+		}
+	    }
+	    if ( reference )
+		*reference = strings;
+	    else
+		reference = new QStringList(strings);
+	    static_QUType_varptr.set( obj, reference );
+	}
+	break;
+
     case VT_ARRAY|VT_UI1:
     case VT_ARRAY|VT_UI1|VT_BYREF:
 	if ( QUType::isEqual( param->type, &static_QUType_varptr ) && param->typeExtra 
@@ -1192,6 +1260,37 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
 	    var = list;
 	}
 	break;
+
+    case VT_ARRAY|VT_BSTR:
+    case VT_ARRAY|VT_BSTR|VT_BYREF:
+	{
+	    SAFEARRAY *array = 0;
+	    if ( arg.vt & VT_BYREF )
+		array = *arg.pparray;
+	    else
+		array = arg.parray;
+
+	    QStringList strings;
+	    if (!array || array->cDims != 1 ) {
+		var = strings;
+		break;
+	    }
+
+	    long lBound, uBound;
+	    SafeArrayGetLBound( array, 1, &lBound );
+	    SafeArrayGetUBound( array, 1, &uBound );
+
+	    for ( long i = lBound; i <= uBound; ++i ) {
+		BSTR bstr;
+		SafeArrayGetElement( array, &i, &bstr );
+		QString str = BSTRToQString( bstr );
+		strings << str;
+	    }
+
+	    var = strings;
+	}
+	break;
+
     case VT_ARRAY|VT_UI1:
     case VT_ARRAY|VT_UI1|VT_BYREF:
 	{
@@ -1323,6 +1422,9 @@ bool QVariantToQUObject( const QVariant &var, QUObject &obj, const QUParameter *
     case QVariant::ByteArray:
 	static_QUType_varptr.set( &obj, new QByteArray(var.toByteArray()) );
 	break;
+    case QVariant::StringList:
+	static_QUType_varptr.set( &obj, new QStringList(var.toStringList()) );
+	break;
     default:
 	return FALSE;
     }
@@ -1402,6 +1504,7 @@ static inline void updateReference( VARIANT &dest, VARIANT &src, bool byref )
 	    break;
 	case VT_ARRAY|VT_VARIANT:
 	case VT_ARRAY|VT_UI1:
+	case VT_ARRAY|VT_BSTR:
 	    if ( *dest.pparray ) SafeArrayDestroy( *dest.pparray );
 	    *dest.pparray = src.parray;
 	    break;
@@ -1556,6 +1659,9 @@ bool QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 	    case QVariant::ByteArray:
 		value = *(QByteArray*)ptrvalue;
 		break;
+	    case QVariant::StringList:
+		value = *(QStringList*)ptrvalue;
+		break;
 	    case QVariant::Rect:
 		value = *(QRect*)ptrvalue;
 		break;
@@ -1661,6 +1767,9 @@ void clearQUObject( QUObject *obj, const QUParameter *param )
 	    break;
 	case QVariant::ByteArray:
 	    delete (QByteArray*)ptrvalue;
+	    break;
+	case QVariant::StringList:
+	    delete (QStringList*)ptrvalue;
 	    break;
 	case QVariant::Rect:
 	    delete (QRect*)ptrvalue;
