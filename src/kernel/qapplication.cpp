@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#217 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#218 $
 **
 ** Implementation of QApplication class
 **
@@ -227,9 +227,12 @@ void process_cmdline( int* argcptr, char ** argv )
   documentation for argv() contains a detailed description of how to
   process command line arguments.
 
-  Qt debugging options:
+  Qt debugging options (not available if Qt was compiled with the
+  NO_DEBUG flag defined):
   <ul>
   <li> \c -nograb, tells Qt to never grab the mouse or the keyboard.
+  <li> \c -dograb (only under X11), running under a debugger can cause
+  an implicit -nograb, use -dograb to override.
   <li> \c -sync (only under X11), switches to synchronous mode for
 	debugging.
   </ul>

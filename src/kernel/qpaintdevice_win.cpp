@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#62 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#63 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -92,8 +92,11 @@ static void qDrawTransparentPixmap( HDC hdc_dest, bool destIsPixmap,
 				    int sx, int sy, int sw, int sh,
 				    QPixmap **blackSourcePixmap )
 {
-#if defined(DEBUG)
-    ASSERT( sw > 0 && sh > 0 && pixmap->handle() && mask->handle() );
+#if defined(CHECK_RANGE)
+    if ( !( sw > 0 && sh > 0 && pixmap->handle() && mask->handle() ) ) {
+	warning( "qDrawTransparentPixmap: Parameters out of range." );
+	return;
+    }
 #endif
     HDC	     hdc;
     HDC	     hdc_buf = 0;

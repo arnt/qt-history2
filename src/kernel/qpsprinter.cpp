@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#90 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#91 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -2444,9 +2444,9 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 		stream << "/OMo true d\n";
 	    break;
 	case PDC_SETROP:
-#if defined(DEBUG)
+#if defined(CHECK_RANGE)
 	    if ( p[0].ival != Qt::CopyROP )
-		debug( "QPrinter: Raster operation setting not supported" );
+		warning( "QPrinter: Raster operation setting not supported" );
 #endif
 	    break;
 	case PDC_SETBRUSHORIGIN:
@@ -2460,7 +2460,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    break;
 	case PDC_SETBRUSH:
 	    if ( p[0].brush->style() == Qt::CustomPattern ) {
-#if defined(DEBUG)
+#if defined(CHECK_RANGE)
 		warning( "QPrinter: Pixmap brush not supported" );
 #endif
 		return FALSE;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#73 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#74 $
 **
 ** Implementation of QDir class
 **
@@ -1124,7 +1124,7 @@ QString QDir::currentDirPath()
 	}
     } else {
 #if defined(DEBUG)
-	debug( "QDir::currentDirPath: stat(\".\") failed" );
+	warning( "QDir::currentDirPath: stat(\".\") failed" );
 #endif
 	forcecwd    = TRUE;
     }
@@ -1449,7 +1449,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 
     ff = FF_GETFIRST( p, &finfo );
     if ( ff == FF_ERROR ) {
-#if defined(DEBUG)
+#if defined(CHECK_RANGE)
 	warning( "QDir::readDirEntries: Cannot read the directory: %s",
 		 (const char *)dPath );
 #endif

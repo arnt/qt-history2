@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#458 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#459 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -1747,7 +1747,7 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 	    QSockNot *p = list->first();
 	    while ( p && p->fd > sockfd )
 		p = list->next();
-#if defined(DEBUG)
+#if defined(CHECK_STATE)
 	    if ( p && p->fd == sockfd ) {
 		static const char *t[] = { "read", "write", "exception" };
 		warning( "QSocketNotifier: Multiple socket notifiers for "

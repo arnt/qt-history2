@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#270 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#271 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -929,7 +929,7 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
 	CHECK_PTR( sn );
 	sn->obj = obj;
 	sn->fd	= sockfd;
-#if defined(DEBUG)
+#if defined(CHECK_STATE)
 	if ( dict->find(sockfd) ) {
 	    static const char *t[] = { "read", "write", "exception" };
 	    warning( "QSocketNotifier: Multiple socket notifiers for "
@@ -1839,7 +1839,7 @@ int qStartTimer( int interval, QObject *obj )
 	}
     }
     if ( t->id == 0 ) {
-#if defined(DEBUG)
+#if defined(CHECK_STATE)
 	warning( "qStartTimer: No more Windows timers" );
 #endif
 	delete t;				// could not set timer

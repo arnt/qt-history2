@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsize.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qsize.cpp#33 $
 **
 ** Implementation of QSize class
 **
@@ -275,7 +275,7 @@ void QSize::transpose()
 
 void QSize::warningDivByZero()
 {
-#if defined(DEBUG)
+#if defined(CHECK_MATH)
     warning( "QSize: Division by zero error" );
 #endif
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#150 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#151 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -656,11 +656,10 @@ void QFont::load() const
 	    // If we get a cache overflow, we make room for this font only
 	    if ( size > fontCache->maxCost() + reserveCost )
 		fontCache->setMaxCost( size + reserveCost );
-	    if ( !fontCache->insert(d->fin->name(), d->fin, size) ) {
-#if defined(DEBUG)
+#if defined(CHECK_STATE)
+	    if ( !fontCache->insert(d->fin->name(), d->fin, size) )
 		fatal( "QFont::load: Cache overflow error" );
 #endif
-	    }
 	    d->fin->f = f;
 	    initFontInfo();
 	}

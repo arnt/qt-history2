@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#109 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#110 $
 **
 ** Implementation of QTableView class
 **
@@ -1282,10 +1282,9 @@ void QTableView::setupPainter( QPainter * )
 void QTableView::paintEvent( QPaintEvent *e )
 {
     QRect updateR = e->rect();			// update rectangle
-#if DEBUG_INFO
-    debug("Update rect = ( %i, %i, %i, %i )",
-	   updateR.x(),updateR.y(), updateR.width(), updateR.height() );
-#endif
+
+    //debug("Update rect = ( %i, %i, %i, %i )",
+    //updateR.x(),updateR.y(), updateR.width(), updateR.height() );
 
     if ( sbDirty ) {
 	bool e = eraseInPaint;

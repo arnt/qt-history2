@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.cpp#34 $
+** $Id: //depot/qt/main/src/tools/qgvector.cpp#35 $
 **
 ** Implementation of QGVector class
 **
@@ -397,7 +397,7 @@ void QGVector::toList( QGList *list ) const	// store items in list
 
 void QGVector::warningIndexRange( uint i )
 {
-#if defined(DEBUG)
+#if defined(CHECK_RANGE)
     warning( "QGVector::operator[]: Index %d out of range", i );
 #else
     Q_UNUSED( i )

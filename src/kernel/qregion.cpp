@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.cpp#33 $
+** $Id: //depot/qt/main/src/kernel/qregion.cpp#34 $
 **
 ** Implementation of QRegion class
 **
@@ -112,13 +112,13 @@ void QRegion::exec( const QByteArray &buffer )
     QDataStream s( &buf );
     buf.open( IO_ReadOnly );
     QRegion rgn;
-#if defined(DEBUG)
+#if defined(CHECK_STATE)
     int test_cnt = 0;
 #endif
     while ( !s.eof() ) {
 	int id;
 	s >> id;
-#if defined(DEBUG)
+#if defined(CHECK_STATE)
 	if ( test_cnt > 0 && id != QRGN_TRANSLATE )
 	    warning( "QRegion::exec: Internal error" );
 	test_cnt++;

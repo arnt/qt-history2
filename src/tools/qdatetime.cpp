@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#73 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#74 $
 **
 ** Implementation of date and time classes
 **
@@ -208,10 +208,13 @@ int QDate::daysInYear() const
   Month 1 == "Jan", month 2 == "Feb" etc.
 */
 
-QString QDate::monthName( int month) const
+QString QDate::monthName( int month ) const
 {
-#if defined(DEBUG)
-    ASSERT( month > 0 && month <= 12 );
+#if defined(CHECK_RANGE)
+    if ( month < 0 || month > 12 ) {
+	warning( "QDate::monthName: Parameter out ouf range." );
+	month = 0;
+    }
 #endif
     return monthNames[month-1];
 }
@@ -224,8 +227,11 @@ QString QDate::monthName( int month) const
 
 QString QDate::dayName( int weekday) const
 {
-#if defined(DEBUG)
-    ASSERT( weekday > 0 && weekday <= 7 );
+#if defined(CHECK_RANGE)
+    if ( weekday < 0 || weekday > 7 ) {
+	warning( "QDate::dayName: Parameter out of range." );
+	weekday = 0;
+    }
 #endif
     return weekdayNames[weekday-1];
 }

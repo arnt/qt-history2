@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#65 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#66 $
 **
 ** Global functions
 **
@@ -152,6 +152,9 @@ static msg_handler handler = 0;			// pointer to debug handler
   Under X11, the text is printed to stderr.  Under Windows, the text is
   sent to the debugger.
 
+  Note: If DEBUG was not defined when the Qt library was built
+  (i.e. NO_DEBUG was defined), this function does nothing.
+
   \warning The internal buffer is limited to 512 bytes (including the
   0-terminator).
 
@@ -162,6 +165,7 @@ static msg_handler handler = 0;			// pointer to debug handler
 Q_EXPORT
 void debug( const char *msg, ... )
 {
+#if defined(TESTEAA)
     char buf[512];
     va_list ap;
     va_start( ap, msg );			// use variable arg list
@@ -174,6 +178,9 @@ void debug( const char *msg, ... )
 	va_end( ap );
 	fprintf( stderr, "\n" );		// add newline
     }
+#else
+    Q_UNUSED( msg );
+#endif
 }
 
 /*!

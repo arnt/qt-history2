@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#145 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#146 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -474,7 +474,7 @@ void QPainter::updatePen()
 	    break;
 	default:
 	    s = PS_SOLID;
-#if defined(DEBUG)
+#if defined(CHECK_STATE)
 	    warning( "QPainter::updatePen: Invalid pen style" );
 #endif
     }

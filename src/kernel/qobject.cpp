@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#194 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#195 $
 **
 ** Implementation of QObject class
 **
@@ -352,7 +352,7 @@ QObject::~QObject()
 {
     if ( wasDeleted ) {
 #if defined(DEBUG)
-	debug( "Double QObject deletion detected." );
+	warning( "Double QObject deletion detected." );
 #endif
 	return;
     }

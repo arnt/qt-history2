@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#218 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#219 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -732,7 +732,7 @@ bool QImage::create( int width, int height, int depth, int numColors,
     if ( depth != 1 )
 	bitOrder = IgnoreEndian;
 
-#if defined(DEBUG)
+#if defined(CHECK_RANGE)
     if ( depth == 24 )
 	warning( "QImage::create: 24-bpp images no longer supported, "
 		 "use 32-bpp instead" );
@@ -4053,10 +4053,10 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
 
     for( currentColor=0; currentColor < ncols; ++currentColor ) {
 	if ( !read_xpm_string( buf, d, source, index ) ) {
-#if defined(DEBUG)
+#if defined(CHECK_RANGE)
 	    warning( "QImage: XPM color specification missing");
-	    return;
 #endif
+	    return;
 	}
 	QString index;
 	index = buf.left( cpp );
@@ -4064,7 +4064,7 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
 	if ( buf[0] != 'c' || buf[1] != ' ' ) {
 	    i = buf.find( " c " );
 	    if ( i < 0 ) {
-#if defined(DEBUG)
+#if defined(CHECK_RANGE)
 		warning( "QImage: XPM color specification is missing");
 #endif
 		return;				// no c specification
@@ -4096,7 +4096,7 @@ static void read_xpm_image_or_array( QImageIO * iio, const char ** source,
     // Read pixels
     for( int y=0; y<h; y++ ) {
 	if ( !read_xpm_string( buf, d, source, index ) ) {
-#if defined(DEBUG)
+#if defined(CHECK_RANGE)
 	    warning( "QImage: XPM pixels missing on image line %d", y);
 #endif
 	    return;
