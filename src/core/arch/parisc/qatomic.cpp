@@ -18,13 +18,8 @@ int *getLock(volatile void *addr)
 
 static int *align16(int *lock)
 {
-    long off = (((long) lock) % 4);
-    for (long i = 0; i < 4; ++i) {
-	if (i == off)
-	    continue;
-        Q_ASSERT(lock[i] != 0);
-    }
-    return lock + off;
+    long off = (((long) lock) % 16);
+    return (int *)(long(lock) + off);
 }
 
 extern "C" {
