@@ -165,7 +165,7 @@ const QPicture *QLabel::picture() const
     \sa setAlignment(), setFrameStyle(), setIndent()
 */
 QLabel::QLabel(QWidget *parent, Qt::WFlags f)
-    : QFrame(*new QLabelPrivate(), parent, f | Qt::WMouseNoMask )
+    : QFrame(*new QLabelPrivate(), parent, f)
 {
     d->init();
 }
@@ -179,7 +179,7 @@ QLabel::QLabel(QWidget *parent, Qt::WFlags f)
     \sa setText(), setAlignment(), setFrameStyle(), setIndent()
 */
 QLabel::QLabel(const QString &text, QWidget *parent, Qt::WFlags f)
-        : QFrame(*new QLabelPrivate(), parent, f | Qt::WMouseNoMask )
+        : QFrame(*new QLabelPrivate(), parent, f)
 {
     d->init();
     setText(text);
@@ -197,7 +197,7 @@ QLabel::QLabel(const QString &text, QWidget *parent, Qt::WFlags f)
 */
 
 QLabel::QLabel(QWidget *parent, const char *name, Qt::WFlags f)
-    : QFrame(*new QLabelPrivate(), parent, f | Qt::WMouseNoMask )
+    : QFrame(*new QLabelPrivate(), parent, f)
 {
     if (name)
         setObjectName(name);
@@ -216,7 +216,7 @@ QLabel::QLabel(QWidget *parent, const char *name, Qt::WFlags f)
 
 QLabel::QLabel(const QString &text, QWidget *parent, const char *name,
                 Qt::WFlags f)
-        : QFrame(*new QLabelPrivate(), parent, f | Qt::WMouseNoMask )
+        : QFrame(*new QLabelPrivate(), parent, f)
 {
     if (name)
         setObjectName(name);
@@ -242,7 +242,7 @@ QLabel::QLabel(const QString &text, QWidget *parent, const char *name,
 */
 QLabel::QLabel(QWidget *buddy,  const QString &text,
                 QWidget *parent, const char *name, Qt::WFlags f)
-    : QFrame(*new QLabelPrivate(), parent, f | Qt::WMouseNoMask)
+    : QFrame(*new QLabelPrivate(), parent, f)
 {
     if (name)
         setObjectName(name);
