@@ -641,7 +641,7 @@ void QTextHTMLImporter::scanTable(int tableNodeIdx, Table *table)
                     if (c.tableCellRowSpan > 1) {
                         table->rowSpanCellsPerRow.resize(effectiveRow + c.tableCellRowSpan + 1);
 
-                        for (int r = effectiveRow + 1; r < c.tableCellRowSpan; ++r)
+                        for (int r = effectiveRow + 1; r < effectiveRow + c.tableCellRowSpan; ++r)
                             table->rowSpanCellsPerRow[r]++;
                     }
 
