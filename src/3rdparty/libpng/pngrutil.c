@@ -289,7 +289,7 @@ png_decompress_chunk(png_structp png_ptr, int comp_type,
       /* Copy what we can of the error message into the text chunk */
       text_size = (png_size_t)(chunklength - (text - chunkdata));
       text_size = sizeof(msg) > text_size ? text_size : sizeof(msg);
-      png_memcpy(text, msg, text_size);
+/*      png_memcpy(text, msg, text_size); */
    }
 
    return chunkdata;
