@@ -48,7 +48,8 @@ public:
     void setChildrenCollapsible(bool);
     bool childrenCollapsible() const;
 
-    void setCollapsible(QWidget *w, bool);
+    void setCollapsible(int index, bool);
+    bool isCollapsible(int index) const;
     void setOpaqueResize(bool opaque = true);
     bool opaqueResize() const;
     void refresh();
@@ -69,11 +70,7 @@ public:
     QWidget *widget(int index) const;
     int count() const;
 
-    void moveSplitter(int pos, int index);
     void getRange(int index, int *, int *) const;
-    void setRubberband(int position);
-    int closestLegalPosition(int, int);
-    int indexOfHandle(QSplitterHandle *handle) const;
     QSplitterHandle *handle(int index) const;
 
     void setStretchFactor(int index, int stretch);
@@ -90,6 +87,9 @@ protected:
     void resizeEvent(QResizeEvent *);
 
     void changeEvent(QEvent *);
+    void moveSplitter(int pos, int index);
+    void setRubberBand(int position);
+    int closestLegalPosition(int, int);
 
 #ifdef QT3_SUPPORT
 public:
@@ -99,12 +99,15 @@ public:
     QT3_SUPPORT void setResizeMode(QWidget *w, ResizeMode mode);
     inline QT3_SUPPORT void moveToFirst(QWidget *w) { insertWidget(0,w); }
     inline QT3_SUPPORT void moveToLast(QWidget *w) { addWidget(w); }
+    inline QT3_SUPPORT void setCollapsible(QWidget *w, bool collapse)
+    { setCollapsible(indexOf(w), collapse); }
 #endif
 
 private:
     Q_DISABLE_COPY(QSplitter)
     Q_DECLARE_PRIVATE(QSplitter)
 private:
+    friend class QSplitterHandle;
 };
 
 //#ifdef QT3_SUPPORT

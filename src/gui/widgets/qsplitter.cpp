@@ -212,7 +212,7 @@ void QSplitterHandle::moveSplitter(int pos)
 {
     if (d->s->isRightToLeft() && d->orient == Qt::Horizontal)
         pos = d->s->contentsRect().width() - pos;
-    d->s->moveSplitter(pos, d->s->indexOfHandle(this));
+    d->s->moveSplitter(pos, d->s->indexOf(this));
 }
 
 /*!
@@ -228,9 +228,9 @@ int QSplitterHandle::closestLegalPosition(int pos)
     QSplitter *s = d->s;
     if (s->isRightToLeft() && d->orient == Qt::Horizontal) {
         int w = s->contentsRect().width();
-        return w - s->closestLegalPosition(w - pos, s->indexOfHandle(this));
+        return w - s->closestLegalPosition(w - pos, s->indexOf(this));
     }
-    return s->closestLegalPosition(pos, s->indexOfHandle(this));
+    return s->closestLegalPosition(pos, s->indexOf(this));
 }
 
 /*!
@@ -258,7 +258,7 @@ void QSplitterHandle::mouseMoveEvent(QMouseEvent *e)
     if (opaqueResize()) {
         moveSplitter(pos);
     } else {
-        d->s->setRubberband(closestLegalPosition(pos));
+        d->s->setRubberBand(closestLegalPosition(pos));
     }
 }
 
@@ -279,7 +279,7 @@ void QSplitterHandle::mouseReleaseEvent(QMouseEvent *e)
     if (!opaqueResize() && e->button() == Qt::LeftButton) {
         int pos = d->pick(parentWidget()->mapFromGlobal(e->globalPos()))
                      - mouseOffset;
-        d->s->setRubberband(-1);
+        d->s->setRubberBand(-1);
         moveSplitter(pos);
     }
 }
@@ -1010,7 +1010,7 @@ bool QSplitter::childrenCollapsible() const
 }
 
 /*!
-    Sets whether the child widget \a w is collapsible to \a collapse.
+    Sets whether the child widget at index \a index is collapsible to \a collapse.
 
     By default, children are collapsible, meaning that the user can
     resize them down to size 0, even if they have a non-zero
@@ -1022,13 +1022,26 @@ bool QSplitter::childrenCollapsible() const
     \sa childrenCollapsible
 */
 
-void QSplitter::setCollapsible(QWidget *w, bool collapse)
+void QSplitter::setCollapsible(int index, bool collapse)
 {
-    QSplitterLayoutStruct *s = d->findWidget(w);
-    if (s)
-        s->collapsible = collapse ? 1 : 0;
-    else
-        qWarning() << "QSplitter::setCollapsible() cannot find" << w << "in" << this;
+
+    if (index < 0 || index >= d->list.size()) {
+        qWarning() << "QSplitter::setCollapsible() index" << index << "out of range";
+        return;
+    }
+    d->list.at(index)->collapsible = collapse ? 1 : 0;
+}
+
+/*!
+    Returns true if the widget at \a index is collapsible, otherwise returns false
+*/
+bool QSplitter::isCollapsible(int index) const
+{
+    if (index < 0 || index >= d->list.size()) {
+        qWarning() << "QSplitter::isCollapsible() index" << index << "out of range";
+        return false;
+    }
+    return d->list.at(index)->collapsible;
 }
 
 /*!
@@ -1076,15 +1089,20 @@ void QSplitter::insertWidget(int index, QWidget *widget)
 /*!
     \fn int QSplitter::indexOf(QWidget *widget) const
 
-    Returns the index in the splitter's layout of the specified \a widget.
+    Returns the index in the splitter's layout of the specified \a widget. This
+    also works for handles.
 
-    \sa count(), widget(), indexOfHandle()
+    Handles are numbered from 0. There are as many handles as there
+    are child widgets, but the handle at position 0 is always hidden.
+
+
+    \sa count(), widget()
 */
 int QSplitter::indexOf(QWidget *w) const
 {
     for (int i = 0; i < d->list.size(); ++i) {
         QSplitterLayoutStruct *s = d->list.at(i);
-        if (s->widget == w)
+        if (s->widget == w || s->handle == w)
             return i;
     }
     return -1;
@@ -1095,30 +1113,11 @@ int QSplitter::indexOf(QWidget *w) const
     This function can be reimplemented in subclasses to provide support
     for custom handles.
 
-    \sa handle(), indexOfHandle()
+    \sa handle(), indexOf()
 */
 QSplitterHandle *QSplitter::createHandle()
 {
     return new QSplitterHandle(d->orient, this);
-}
-
-/*!
-    Returns the index in the splitter's layout for the given \a
-    handle.
-    
-    Handles are numbered from 0. There are as many handles as there
-    are child widgets, but the handle at position 0 is always hidden.
-
-    \sa handle(), indexOf()
-*/
-int QSplitter::indexOfHandle(QSplitterHandle *handle) const
-{
-    for (int i = 0; i < d->list.size(); ++i) {
-        QSplitterLayoutStruct *s = d->list.at(i);
-        if (s->handle == handle)
-            return i;
-    }
-    return -1;
 }
 
 /*!
@@ -1130,7 +1129,7 @@ int QSplitter::indexOfHandle(QSplitterHandle *handle) const
     of horizontal splitters is reversed. The handle will be to the
     right of the widget at \a index.
 
-    \sa count(), widget(), indexOfHandle(), createHandle(), setHandleWidth()
+    \sa count(), widget(), indexOf(), createHandle(), setHandleWidth()
 */
 QSplitterHandle *QSplitter::handle(int index) const
 {
@@ -1203,7 +1202,7 @@ void QSplitter::childEvent(QChildEvent *c)
     rubber band is removed.
 */
 
-void QSplitter::setRubberband(int pos)
+void QSplitter::setRubberBand(int pos)
 {
     if (pos < 0) {
         if (d->rubberBand)
