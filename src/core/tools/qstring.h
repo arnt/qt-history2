@@ -760,12 +760,12 @@ Q_CORE_EXPORT QDataStream &operator>>(QDataStream &, QString &);
 #endif
 
 #ifdef QT_COMPAT
-class QT_COMPAT QConstString : public QString
+class QConstString : public QString
 {
 public:
-    inline QConstString(const QChar *unicode, int size)
+    inline QT_COMPAT_CONSTRUCTOR QConstString(const QChar *unicode, int size)
         :QString(unicode, size){} // cannot use fromRawData() due to changed semantics
-    inline const QString &string() const { return *this; }
+    inline QT_COMPAT const QString &string() const { return *this; }
 };
 #endif
 
