@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#15 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -192,7 +192,7 @@ static QWidget * find_child( QWidget * tlw, QPoint & p )
 void qt_handle_xdnd_enter( QWidget *, const XEvent * xe ) {
     const long *l = xe->xclient.data.l;
 
-    debug( "xdnd enter" );
+    //debug( "xdnd enter" );
 
     // first, build the atom dict, if possible
     if ( !qt_xdnd_drag_types ) {
@@ -234,7 +234,7 @@ void qt_handle_xdnd_enter( QWidget *, const XEvent * xe ) {
 
     if ( l[1] & 1 ) {
 	// should retrieve that property
-	debug( "more types than expected from %08lx", qt_xdnd_dragsource_xid );
+	//debug( "more types than expected from %08lx", qt_xdnd_dragsource_xid );
     }
 }
 
@@ -298,7 +298,7 @@ void qt_handle_xdnd_leave( QWidget *w, const XEvent * xe )
 
     const unsigned long *l = (const unsigned long *)xe->xclient.data.l;
 
-    debug( "xdnd leave" );
+    //debug( "xdnd leave" );
 
     if ( l[0] != qt_xdnd_dragsource_xid ) {
 	debug( "xdnd drag leave from unexpected source (%08lx not %08lx",
@@ -353,7 +353,7 @@ void qt_handle_xdnd_drop( QWidget *, const XEvent * xe )
 
     const unsigned long *l = (const unsigned long *)xe->xclient.data.l;
 
-    debug( "xdnd drop" );
+    //debug( "xdnd drop" );
 
     if ( l[0] != qt_xdnd_dragsource_xid ) {
 	debug( "xdnd drop from unexpected source (%08lx not %08lx",
@@ -553,8 +553,6 @@ void qt_xdnd_handle_selection_request( const XSelectionRequestEvent * req )
     if ( !req || !qt_xdnd_drag_types )
 	return;
     QString * format = qt_xdnd_drag_types->find( req->target );
-    debug ( "hsr format %08lx string <%s> %p", req->target, format->data(),
-	    qt_xdnd_source_object );
     if ( format && qt_xdnd_source_object ) {
 	XEvent evt;
 	evt.xselection.type = SelectionNotify;
@@ -590,7 +588,6 @@ void qt_xdnd_handle_selection_request( const XSelectionRequestEvent * req )
 
 static QByteArray qt_xdnd_obtain_data( const char * format )
 {
-    debug ( "xdnd od %s", format );
     QByteArray result;
 
     if ( qt_xdnd_dragsource_xid && qt_xdnd_source_object &&
@@ -640,7 +637,7 @@ static QByteArray qt_xdnd_obtain_data( const char * format )
 							    qt_xdnd_selection,
 							    nbytes );
 	    } else if ( type != *a ) {
-		debug( "Qt clipboard: unknown atom %ld", type);
+		//debug( "Qt clipboard: unknown atom %ld", type);
 	    }
 	}
 	qt_xdnd_target_data.insert( (int)a, new QByteArray( result ) );
