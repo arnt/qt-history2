@@ -80,7 +80,7 @@ bool VcprojGenerator::writeMakefile(QTextStream &t)
 	return TRUE;
     }
     return FALSE;
-    
+
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -110,7 +110,7 @@ void VcprojGenerator::init()
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_QT"];
 	project->variables()["QMAKE_LIBDIR"] += project->variables()["QMAKE_LIBDIR_QT"];
 
-	if( projectTarget == SharedLib ) 
+	if( projectTarget == SharedLib )
 	    project->variables()["DEFINES"] += "QT_DLL";
 
 	if( project->isActiveConfig("accessibility" ) )
@@ -119,7 +119,7 @@ void VcprojGenerator::init()
 	if ( project->isActiveConfig("plugin")) {
 	    project->variables()["DEFINES"] += "QT_PLUGIN";
 	    project->variables()["CONFIG"] += "dll";
-	}	    
+	}
 
 	if( project->isActiveConfig("thread") ) {
 	    project->variables()["DEFINES"] += "QT_THREAD_SUPPORT";
@@ -181,7 +181,10 @@ void VcprojGenerator::initConfiguration()
     // - Do this first since main configuration elements may need
     // - to know of certain compiler/linker options
     initCompilerTool();
-    initLinkerTool();
+    if ( projectTarget == StaticLib )
+	initLibrarianTool();
+    else
+	initLinkerTool();
     initIDLTool();
 
     // Own elements -----------------------------
@@ -207,8 +210,8 @@ void VcprojGenerator::initConfiguration()
     vcProject.Configuration.DeleteExtensionsOnClean = project->first("DeleteExtensionsOnClean");
     vcProject.Configuration.ImportLibrary = vcProject.Configuration.linker.ImportLibrary;
     vcProject.Configuration.IntermediateDirectory = project->first("OBJECTS_DIR");
-    temp = (projectTarget == StaticLib) ? project->first("DESTDIR"):project->first("DLLDESTDIR");
-    vcProject.Configuration.OutputDirectory = ( temp.isEmpty() ? QString(".") : temp );
+//    temp = (projectTarget == StaticLib) ? project->first("DESTDIR"):project->first("DLLDESTDIR");
+    vcProject.Configuration.OutputDirectory = "."; //( temp.isEmpty() ? QString(".") : temp );
     vcProject.Configuration.PrimaryOutput = project->first("PrimaryOutput");
     vcProject.Configuration.WholeProgramOptimization = vcProject.Configuration.compiler.WholeProgramOptimization;
     temp = project->first("UseOfATL");
@@ -218,7 +221,7 @@ void VcprojGenerator::initConfiguration()
     if ( !temp.isEmpty() )
         vcProject.Configuration.UseOfMfc = useOfMfc( temp.toShort() );
 
-    // Configuration does not need parameters from 
+    // Configuration does not need parameters from
     // these sub XML items;
     initCustomBuildTool();
     initPreBuildEventTools();
@@ -243,7 +246,7 @@ void VcprojGenerator::initCompilerTool()
 	vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_RELEASE"] );
 	vcProject.Configuration.compiler.PreprocessorDefinitions += "QT_NO_DEBUG";
 	if ( project->isActiveConfig("thread") ) {
-	    if ( (projectTarget == Application) || (projectTarget == StaticLib) ) 
+	    if ( (projectTarget == Application) || (projectTarget == StaticLib) )
 		vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_MT"] );
 	    else
 		vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_MT_DLL"] );
@@ -286,26 +289,40 @@ void VcprojGenerator::initCompilerTool()
     vcProject.Configuration.compiler.parseOptions( project->variables()["MSVCPROJ_INCPATH"] );
 }
 
+void VcprojGenerator::initLibrarianTool()
+{
+    vcProject.Configuration.librarian.OutputFile = project->first( "DESTDIR" );
+    if( vcProject.Configuration.librarian.OutputFile.isEmpty() )
+	vcProject.Configuration.librarian.OutputFile = ".\\";
+
+    if( !vcProject.Configuration.librarian.OutputFile.endsWith("\\") )
+    	vcProject.Configuration.librarian.OutputFile += '\\';
+
+    vcProject.Configuration.librarian.OutputFile += project->first("MSVCPROJ_TARGET");
+}
+
 void VcprojGenerator::initLinkerTool()
 {
     vcProject.Configuration.linker.parseOptions( project->variables()["MSVCPROJ_LFLAGS"] );
     vcProject.Configuration.linker.AdditionalDependencies += project->variables()["MSVCPROJ_LIBS"];
 
     switch ( projectTarget ) {
-	case StaticLib:
 	case Application:
-	    vcProject.Configuration.linker.OutputFile = project->first("DESTDIR");
+	    vcProject.Configuration.linker.OutputFile = project->first( "DESTDIR" );
 	    break;
 	case SharedLib:
 	    vcProject.Configuration.linker.parseOptions( project->variables()["MSVCPROJ_LIBOPTIONS"] );
-	    vcProject.Configuration.linker.OutputFile = project->first("DLLDESTDIR");
+	    vcProject.Configuration.linker.OutputFile = project->first( "DLLDESTDIR" );
 	    break;
     }
 
     if( vcProject.Configuration.linker.OutputFile.isEmpty() )
-	vcProject.Configuration.linker.OutputFile = ".";
+	vcProject.Configuration.linker.OutputFile = ".\\";
 
-    vcProject.Configuration.linker.OutputFile += "\\" + project->first("MSVCPROJ_TARGET");
+    if( !vcProject.Configuration.linker.OutputFile.endsWith("\\") )
+    	vcProject.Configuration.linker.OutputFile += '\\';
+
+    vcProject.Configuration.linker.OutputFile += project->first("MSVCPROJ_TARGET");
     vcProject.Configuration.linker.ProgramDatabaseFile = project->first("OBJECTS_DIR") + project->first("QMAKE_ORIG_TARGET") + ".pdb";
 
     if ( project->isActiveConfig("release") ){
@@ -313,7 +330,7 @@ void VcprojGenerator::initLinkerTool()
     } else {
 	vcProject.Configuration.linker.parseOptions( project->variables()["QMAKE_LFLAGS_DEBUG"] );
     }
-    
+
     if ( project->isActiveConfig("dll") ){
 	vcProject.Configuration.linker.parseOptions( project->variables()["QMAKE_LFLAGS_QT_DLL"] );
     }
@@ -323,7 +340,7 @@ void VcprojGenerator::initLinkerTool()
     } else {
 	vcProject.Configuration.linker.parseOptions( project->variables()["QMAKE_LFLAGS_WINDOWS"] );
     }
-    
+
 }
 
 void VcprojGenerator::initIDLTool()
@@ -349,7 +366,7 @@ void VcprojGenerator::initPreBuildEventTools()
 
 void VcprojGenerator::initPostBuildEventTools()
 {
-    if( project->isActiveConfig( "activeqt" ) ) { 
+    if( project->isActiveConfig( "activeqt" ) ) {
 	QString name = project->first( "QMAKE_ORIG_TARGET" );
 	QString nameext = project->first( "TARGET" );
 	QString objdir = project->first( "OBJECTS_DIR" );
@@ -358,12 +375,12 @@ void VcprojGenerator::initPostBuildEventTools()
 	vcProject.Configuration.postBuild.Description = "Finalizing ActiveQt server...";
 
 	if( project->isActiveConfig( "dll" ) ) { // In process
-	    vcProject.Configuration.postBuild.CommandLine = 
+	    vcProject.Configuration.postBuild.CommandLine =
 		// call idc to generate .idl file from .dll
 		idc + " " + vcProject.Configuration.OutputDirectory + "\\" + nameext + " -idl " + objdir + name + ".idl -version 1.0 &amp;&amp; " +
 		// call midl to create implementations of the .idl file
-		project->first( "QMAKE_IDL" ) + " " + objdir + name + ".idl /nologo /o " + objdir + name + ".midl /tlb " + objdir + name + ".tlb /iid " + objdir + 
-		"dump.midl /dlldata " + objdir + "dump.midl /cstub " + objdir + "dump.midl /header " + objdir + "dump.midl /proxy " + objdir + "dump.midl /sstub " + 
+		project->first( "QMAKE_IDL" ) + " " + objdir + name + ".idl /nologo /o " + objdir + name + ".midl /tlb " + objdir + name + ".tlb /iid " + objdir +
+		"dump.midl /dlldata " + objdir + "dump.midl /cstub " + objdir + "dump.midl /header " + objdir + "dump.midl /proxy " + objdir + "dump.midl /sstub " +
 		objdir + "dump.midl &amp;&amp; " +
 		// call idc to replace tlb...
 		idc + " " + vcProject.Configuration.OutputDirectory + "\\" + nameext + " /tlb " + objdir + name + ".tlb &amp;&amp; " +
@@ -374,8 +391,8 @@ void VcprojGenerator::initPostBuildEventTools()
 		// call application to dump idl
 		vcProject.Configuration.OutputDirectory + "\\" + nameext + " -dumpidl " + objdir + name + ".idl -version 1.0 &amp;&amp; " +
 		// call midl to create implementations of the .idl file
-		project->first( "QMAKE_IDL" ) + " " + objdir + name + ".idl /nologo /o " + objdir + name + ".midl /tlb " + objdir + name + ".tlb /iid " + objdir + 
-		"dump.midl /dlldata " + objdir + "dump.midl /cstub " + objdir + "dump.midl /header " + objdir + "dump.midl /proxy " + objdir + "dump.midl /sstub " + 
+		project->first( "QMAKE_IDL" ) + " " + objdir + name + ".idl /nologo /o " + objdir + name + ".midl /tlb " + objdir + name + ".tlb /iid " + objdir +
+		"dump.midl /dlldata " + objdir + "dump.midl /cstub " + objdir + "dump.midl /header " + objdir + "dump.midl /proxy " + objdir + "dump.midl /sstub " +
 		objdir + "dump.midl &amp;&amp; " +
 		// call idc to replace tlb...
 		idc + " " + vcProject.Configuration.OutputDirectory + "\\" + nameext + " /tlb " + objdir + name + ".tlb &amp;&amp; " +
@@ -879,7 +896,7 @@ bool VcprojGenerator::openOutput(QFile &file) const
 	int slashfind = ofile.findRev('\\');
 	if (slashfind == -1) {
 	    ofile = ofile.replace("-", "_");
-	} else { 
+	} else {
 	    int hypenfind = ofile.find('-', slashfind);
 	    while (hypenfind != -1 && slashfind < hypenfind) {
 		ofile = ofile.replace(hypenfind, 1, "_");

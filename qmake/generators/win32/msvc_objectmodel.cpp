@@ -94,6 +94,7 @@ const char* _ErrorCheckStubData 		= "\n\t\t\t\tErrorCheckStubData=\"";
 const char* _ExceptionHandling 			= "\n\t\t\t\tExceptionHandling=\"";
 const char* _ExcludedFromBuild 			= "\n\t\t\t\tExcludedFromBuild=\"";
 const char* _ExpandAttributedSource 		= "\n\t\t\t\tExpandAttributedSource=\"";
+const char* _ExportNamedFunctions		= "\n\t\t\t\tExportNamedFunctions=\"";
 const char* _FavorSizeOrSpeed 			= "\n\t\t\t\tFavorSizeOrSpeed=\"";
 const char* _Filter				= "\n\t\t\tFilter=\"";
 const char* _ForceConformanceInForLoopScope 	= "\n\t\t\t\tForceConformanceInForLoopScope=\"";
@@ -1619,6 +1620,31 @@ bool VCMIDLTool::parseOption( const char* option )
     return TRUE;
 }
 
+// VCLibrarianTool --------------------------------------------------
+VCLibrarianTool::VCLibrarianTool()
+    :	IgnoreAllDefaultLibraries( unset ),
+	SuppressStartupBanner( _True )
+{
+}
+
+QTextStream &operator<<( QTextStream &strm, const VCLibrarianTool &tool )
+{
+    strm << _begTool3;
+    strm << SPair( _ToolName, QString( "VCLibrarianTool" ) );
+    strm << XPair( _AdditionalDependencies4, tool.AdditionalDependencies );
+    strm << XPair( _AdditionalLibraryDirectories, tool.AdditionalLibraryDirectories );
+    strm << XPair( _AdditionalOptions, tool.AdditionalOptions );
+    strm << XPair( _ExportNamedFunctions, tool.ExportNamedFunctions );
+    strm << XPair( _ForceSymbolReferences, tool.ForceSymbolReferences );
+    strm << TPair( _IgnoreAllDefaultLibraries, tool.IgnoreAllDefaultLibraries );
+    strm << XPair( _IgnoreDefaultLibraryNames, tool.IgnoreDefaultLibraryNames );
+    strm << SPair( _ModuleDefinitionFile, tool.ModuleDefinitionFile );
+    strm << SPair( _OutputFile, tool.OutputFile );
+    strm << TPair( _SuppressStartupBanner, tool.SuppressStartupBanner );
+    strm << "/>";
+    return strm;
+}
+
 // VCCustomBuildTool ------------------------------------------------
 VCCustomBuildTool::VCCustomBuildTool()
 {
@@ -1733,7 +1759,10 @@ QTextStream &operator<<( QTextStream &strm, const VCConfiguration &tool )
     strm << ">";
     strm << tool.compiler;
     strm << tool.custom;
-    strm << tool.linker;
+    if ( tool.ConfigurationType == typeStaticLibrary )
+	strm << tool.librarian;
+    else
+	strm << tool.linker;
     strm << tool.idl;
     strm << tool.postBuild;
     strm << tool.preBuild;

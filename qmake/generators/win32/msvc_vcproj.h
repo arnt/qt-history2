@@ -72,6 +72,7 @@ protected:
     void initConfiguration();
     void initCompilerTool();
     void initLinkerTool();
+    void initLibrarianTool();
     void initIDLTool();
     void initCustomBuildTool();
     void initPreBuildEventTools();

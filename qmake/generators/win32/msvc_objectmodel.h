@@ -548,6 +548,27 @@ public:
     VCConfiguration*	    config;
 };
 
+class VCLibrarianTool : public VCToolBase
+{
+public:
+    // Functions
+    VCLibrarianTool();
+    ~VCLibrarianTool(){};
+    virtual bool parseOption( const char* option ){ return FALSE; };
+
+    // Variables
+    QStringList		    AdditionalDependencies;
+    QStringList		    AdditionalLibraryDirectories;
+    QStringList		    AdditionalOptions;
+    QStringList		    ExportNamedFunctions;
+    QStringList		    ForceSymbolReferences;
+    triState		    IgnoreAllDefaultLibraries;
+    QStringList		    IgnoreDefaultLibraryNames;
+    QString		    ModuleDefinitionFile;
+    QString		    OutputFile;
+    triState		    SuppressStartupBanner;
+};
+
 class VCCustomBuildTool : public VCToolBase
 {
 public:
@@ -650,6 +671,7 @@ public:
     // XML sub-parts
     VCCLCompilerTool	    compiler;
     VCLinkerTool	    linker;
+    VCLibrarianTool	    librarian;
     VCCustomBuildTool	    custom;
     VCMIDLTool		    idl;
     VCPostBuildEventTool    postBuild;
@@ -658,7 +680,6 @@ public:
     VCResourceCompilerTool  resource;
 };
 
-class VCConfiguration;
 class VcprojGenerator;
 class VCFilter
 {
@@ -710,6 +731,7 @@ QTextStream &operator<<( QTextStream &, const VCCLCompilerTool & );
 QTextStream &operator<<( QTextStream &, const VCLinkerTool & );
 QTextStream &operator<<( QTextStream &, const VCMIDLTool & );
 QTextStream &operator<<( QTextStream &, const VCCustomBuildTool & );
+QTextStream &operator<<( QTextStream &, const VCLibrarianTool & );
 QTextStream &operator<<( QTextStream &, const VCResourceCompilerTool & );
 QTextStream &operator<<( QTextStream &, const VCEventTool & );
 QTextStream &operator<<( QTextStream &, const VCConfiguration & );
