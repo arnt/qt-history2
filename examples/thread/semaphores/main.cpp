@@ -12,6 +12,7 @@
 #include <qpushbutton.h>
 #include <qmultilineedit.h>
 #include <qthread.h>
+#include <qsemaphore.h>
 #include <qlayout.h>
 #include <qmessagebox.h>
 #include <qlabel.h>

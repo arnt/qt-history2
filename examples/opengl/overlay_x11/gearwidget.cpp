@@ -20,6 +20,10 @@
 #include <X11/Xlib.h>
 #endif
 
+#if defined(Q_CC_MSVC)
+#pragma warning(disable:4305) // init: truncation from const double to float
+#endif
+
 /*
  * Draw a gear wheel.  You'll probably want to call this function when
  * building a display list since we do a lot of trig here.
@@ -247,7 +251,7 @@ void GearWidget::resizeGL( int width, int height )
 
 void GearWidget::paintGL()
 {
-    debug( "GearWidget: Doing GL rendering." );
+    qDebug( "GearWidget: Doing GL rendering." );
 #if defined (Q_GLX)
     static bool doneIt = FALSE;
     if ( !doneIt ) {
@@ -256,7 +260,7 @@ void GearWidget::paintGL()
 	// simpler in future versions of Qt!
 	XWindowAttributes a;
 	XGetWindowAttributes( x11Display(), winId(), &a );
-	debug( "QGLWidget: using Visual ID: 0x%x.",
+	qDebug( "QGLWidget: using Visual ID: 0x%x.",
 	       (int)XVisualIDFromVisual( a.visual ) );
     }
 #endif

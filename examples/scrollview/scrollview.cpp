@@ -83,7 +83,7 @@ class BigMatrix : public QScrollView {
     QMultiLineEdit *dragging;
 public:
     BigMatrix(QWidget* parent) :
-	QScrollView(parent,"matrix", WNorthWestGravity),
+	QScrollView(parent,"matrix", WStaticContents),
 	bg("bg.ppm")
     {
 	bg.load("bg.ppm");
