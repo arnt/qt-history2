@@ -2220,7 +2220,8 @@ void TrWindow::setupRecentFilesMenu()
 void TrWindow::recentFileActivated( int id )
 {
     if ( id != -1 ) {
-	openFile( *recentFiles.at( id ) );
+	if ( maybeSave() )
+	    openFile( *recentFiles.at( id ) );
     }
 }
 
