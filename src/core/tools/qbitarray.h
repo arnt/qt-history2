@@ -13,7 +13,7 @@ class Q_CORE_EXPORT QBitArray
     QByteArray d;
 
 public:
-    inline QBitArray(){}
+    inline QBitArray() {}
     QBitArray(int size, bool val = false);
     inline QBitArray &operator=(const QBitArray &other) { d = other.d; return *this; }
 
@@ -27,6 +27,7 @@ public:
 
     inline void detach() { d.detach(); }
     inline bool isDetached() const { return d.isDetached(); }
+    inline void clear() { d.clear(); }
 
     bool testBit(int i) const;
     void setBit(int i);
@@ -51,11 +52,12 @@ public:
     inline bool fill(bool val, int size = -1)
         { *this=QBitArray((size < 0 ? this->size() : size), val); return true; }
 
+    inline void truncate(int pos) { if (pos < size()) resize(pos); }
+
     void fill(bool val, int first, int last);
 
     inline bool ensure_constructed()
     { return d.ensure_constructed(); }
-
 };
 
 QBitArray operator&(const QBitArray &, const QBitArray &);

@@ -248,6 +248,22 @@ void QBitArray::fill(bool value, int first, int last)
     \internal
 */
 
+/*! \fn void QBitArray::clear()
+
+    Clears the contents of the bit array and makes it empty.
+
+    \sa resize(), isEmpty()
+*/
+
+/*! \fn void QBitArray::truncate(int pos)
+
+    Truncates the bit array at index position \a pos.
+
+    If \a pos is beyond the end of the array, nothing happens.
+
+    \sa resize()
+*/
+
 /*! \fn bool QBitArray::toggleBit(int i)
 
     Inverts the value of the bit at index position \a i.
@@ -660,12 +676,11 @@ QDataStream &operator>>(QDataStream &in, QBitArray &ba)
     Q_UINT32 len;
     in >> len;
     if (!len) {
-        ba.d.clear();
+        ba.clear();
     } else {
         ba.resize(len);
         if (ba.size() != (int)len) {
             qWarning("QDataStream: Not enough memory to read QBitArray");
-            len = 0;
         } else {
             in.readRawBytes(ba.d.data() + 1, ba.d.size() - 1);
             *ba.d.data() = ba.d.size() * 8 - len;
