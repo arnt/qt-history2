@@ -80,7 +80,7 @@ static QAlphaWidget* q_blend = 0;
   Constructs a QAlphaWidget.
 */
 QAlphaWidget::QAlphaWidget(QWidget* w, Qt::WFlags f)
-    : QWidget(0, f)
+    : QWidget(QApplication::desktop()->screen(QApplication::desktop()->screenNumber(w)), f)
 {
     setEnabled(false);
 
