@@ -57,13 +57,13 @@ extern "C" {
 	volatile LONG *lptr = reinterpret_cast<volatile LONG *>(ptr);
 	LONG lexpected = expected;
 	LONG lnewval = newval;
-        return InterlockedCompareExchange(lptr, lexpected, lnewval) == lexpected;
+        return InterlockedCompareExchange(lptr, lnewval, lexpected) == lexpected;
     }
 
     inline int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval)
     {
 	PVOID volatile *pptr = reinterpret_cast<PVOID volatile *>(ptr);
-        return InterlockedCompareExchangePointer(pptr, expected, newval) == expected;
+        return InterlockedCompareExchangePointer(pptr, newval, expected) == expected;
     }
 
     inline int q_atomic_increment(volatile int *ptr)
