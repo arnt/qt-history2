@@ -121,6 +121,46 @@ qdb::Op* Program::next()
     return 0;
 }
 
+static QString asListing( const QVariant& v )
+{
+    QString s;
+    switch( v.type() ) {
+    case QVariant::List: {
+	s = "list(";
+	QValueList<QVariant> l = v.toList();
+	for ( uint i = 0; i < l.count(); ++i )
+	    s += asListing( l[i] ) + (i<l.count()-1?QString(","):QString(")"));
+	break;
+    }
+    default:
+	s = v.toString();
+    }
+    if ( s.isNull() )
+	s = ".";
+    return s;
+}
+
+/*! Returns the contents of the program as a string list.
+*/
+
+QStringList Program::listing() const
+{
+    ((Program*)this)->resetCounter();
+    QStringList l;
+    int i = 0;
+    qdb::Op* op = 0;
+    while( (op = ((Program*)this)->next() ) ) {
+	QString s =  QString::number( i ).rightJustify(4) + op->name().rightJustify(15);
+	s += asListing( op->P(0) ).rightJustify(15);
+	s += asListing( op->P(1) ).rightJustify(15);
+	s += asListing( op->P(2) ).rightJustify(15);
+	l += s;
+	++i;
+    }
+    ((Program*)this)->resetCounter();
+    return l;
+}
+
 
 ////////
 

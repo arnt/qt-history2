@@ -2,6 +2,8 @@
 #define ENVIRONMENT_H
 
 #include <qvariant.h>
+#include <qstring.h>
+#include <qstringlist.h>
 #include <qvaluestack.h>
 #include <qvaluelist.h>
 #include <qtextstream.h>
@@ -83,6 +85,7 @@ namespace qdb {
 	virtual void resetCounter() = 0;
 	virtual int counter() = 0;
 	virtual Op* next() = 0;
+	virtual QStringList listing() const = 0;
     };
 
     struct Environment
@@ -98,10 +101,6 @@ namespace qdb {
 	virtual void addResultSet( int id ) = 0;
 	virtual FileDriver* fileDriver( int id ) = 0;
 	virtual ResultSet* resultSet( int id ) = 0;
-	virtual bool save( QIODevice *dev ) = 0;
-	virtual bool save( const QString& filename ) = 0;
-	virtual bool saveListing( QTextStream& stream ) = 0;
-	virtual bool saveListing( const QString& filename ) = 0;
 	virtual void setLastError( const QString& error ) = 0;
 	virtual QString lastError() const = 0;
     };

@@ -20,10 +20,6 @@ public:
     qdb::Stack* stack();
     qdb::Program* program();
     qdb::ResultSet* resultSet( int id );
-    bool save( QIODevice *dev );
-    bool save( const QString& filename );
-    bool saveListing( QTextStream& stream );
-    bool saveListing( const QString& filename );
     void setLastError( const QString& error );
     QString lastError() const;
 

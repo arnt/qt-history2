@@ -107,6 +107,7 @@ public:
     void resetCounter();
     int counter();
     qdb::Op* next();
+    QStringList listing() const;
 
 private:
     QList< qdb::Op > ops;
