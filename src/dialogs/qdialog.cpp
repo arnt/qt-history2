@@ -212,7 +212,7 @@ public:
   If \a modal is FALSE (the default), the dialog is modeless and should
   be displayed with show(). If \a modal is TRUE and the dialog is
   displayed with exec(), the dialog is modal, i.e. blocks input to other
-  windows. If \a modal is TRUE and the dialog is displayed show(), the
+  windows. If \a modal is TRUE and the dialog is displayed using show(), the
   dialog is semi-modal.
 
   The widget flags \a f are passed on to the QWidget constructor.
