@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#59 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#60 $
 **
 ** Definition of QWidget class
 **
@@ -274,7 +274,7 @@ inline int QWidget::height() const
 inline QRect QWidget::rect() const
 { return QRect(0,0,crect.width(),crect.height()); }
 
-const QColor &QWidget::backgroundColor() const
+inline const QColor &QWidget::backgroundColor() const
 { return bg_col; }
 
 inline const QPalette &QWidget::palette() const
