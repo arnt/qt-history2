@@ -180,6 +180,8 @@ struct QListViewPrivate
     QTimer *scrollTimer;
 
     bool clearing;
+    
+    int minLeftBearing, minRightBearing;
 };
 
 
@@ -1200,7 +1202,8 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
     p->fillRect( 0, 0, width, height(), cg.base() );
 
     int marg = lv ? lv->itemMargin() : 1;
-
+    if ( align != AlignLeft )
+	marg -= lv->d->minRightBearing;
     if ( isSelected() &&
 	 (column==0 || listView()->allColumnsShowFocus()) ) {
 	    p->fillRect( r - marg, 0, width - r + marg, height(),
@@ -1239,13 +1242,8 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 int QListViewItem::width( const QFontMetrics& fm,
 			  const QListView* lv, int c ) const
 {
-    QString t( text( c ) );
-    int lb = 0, rb = 0;
-    if ( t.length() >= 1 ) {
-	lb = fm.leftBearing( t[ 0 ] );
-	rb = fm.rightBearing( t[ (int) t.length() - 1 ] );
-    }
-    int w = fm.width( t ) + lv->itemMargin() * 2 + lb + rb;
+    int w = fm.width( text( c ) ) + lv->itemMargin() * 2 
+	    - lv->d->minLeftBearing - lv->d->minRightBearing;
     const QPixmap * pm = pixmap( c );
     if ( pm )
 	w += pm->width() + lv->itemMargin(); // ### correct margin stuff?
@@ -1679,7 +1677,8 @@ QListView::QListView( QWidget * parent, const char *name )
     d->scrollTimer = 0;
     d->sortIndicator = FALSE;
     d->clearing = FALSE;
-
+    d->minLeftBearing = d->minRightBearing = 0;
+    
     connect( d->timer, SIGNAL(timeout()),
 	     this, SLOT(updateContents()) );
     connect( d->dirtyItemTimer, SIGNAL(timeout()),
@@ -3839,7 +3838,10 @@ void QListView::widthChanged( const QListViewItem* item, int c )
     if ( c >= d->h->count() )
 	return;
 
+    
     QFontMetrics fm = fontMetrics();
+    d->minLeftBearing = fm.minLeftBearing();
+    d->minRightBearing = fm.minRightBearing();
     int col = c < 0 ? 0 : c;
     while ( col == c || ( c < 0 && col < d->h->count() ) ) {
 	if ( d->column[col]->wmode == Maximum ) {
