@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#132 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#133 $
 **
 ** Implementation of QButton widget class
 **
@@ -774,6 +774,7 @@ void QButton::paintEvent( QPaintEvent *event )
 	paint.begin( this );
 	paint.setClipRegion( event->region() );
 	paint.drawPixmap( 0, 0, *drawpm );
+	paint.end();
     } else {
 	erase( event ? event->rect() : rect() );
 	QPainter paint( this );
