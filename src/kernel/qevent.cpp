@@ -647,7 +647,7 @@ QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation o
   \fn int QKeyEvent::key() const
   Returns the code of the key that was pressed or released.
 
-  The header file qnamespace.h lists the possible keyboard codes.  These codes
+  See \l Qt::Key for the list of keyboard codes.  These codes
   are independent of the underlying window system.
 
   Key code 0 means that the event is not a result of a known key (e.g. it
