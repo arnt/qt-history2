@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#139 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#140 $
 **
 ** Implementation of QFileDialog class
 **
@@ -502,7 +502,7 @@ void QFileDialogPrivate::MCList::setUpContents()
 		file = lv->firstChild();
 		i = 0;
 		maxw = 40;
-		totalw = 0;
+		/* totalw = 0; */
 
 		delete widths;
 		widths = new QArray<int>( (count+numRows()-1)/numRows() );
@@ -515,7 +515,7 @@ void QFileDialogPrivate::MCList::setUpContents()
 			file = file->nextSibling();
 			if ( (i+1) % numRows() == 0 || !file ) {
 			    (*widths)[ i / numRows() ] = maxw;
-			    totalw += maxw;
+			    /* totalw += maxw; */
 			    maxw = 40;
 			}
 			i++;
