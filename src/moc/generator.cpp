@@ -300,7 +300,7 @@ void Generator::generateCode()
     }
     if (!extraList.isEmpty()) {
         fprintf(out, "static const QMetaObject *qt_meta_extradata_%s[] = {\n    ", qualifiedClassNameIdentifier.constData());
-        for (i = 0; i < extraList.count(); ++i) {
+        for (int i = 0; i < extraList.count(); ++i) {
             if (i)
                 fprintf(out, ",\n    ");
             fprintf(out, "    &%s::staticMetaObject", extraList.at(i).constData());
@@ -343,12 +343,12 @@ void Generator::generateCode()
     fprintf(out, "    if (!strcmp(_clname, qt_meta_stringdata_%s))\n"
                   "\treturn static_cast<void*>(const_cast<%s*>(this));\n",
             qualifiedClassNameIdentifier.constData(),  cdef->qualified.constData());
-    for (i = 1; i < cdef->superclassList.size(); ++i) { // for all superclasses but the first one
+    for (int i = 1; i < cdef->superclassList.size(); ++i) { // for all superclasses but the first one
         const char *cname = cdef->superclassList.at(i);
         fprintf(out, "    if (!strcmp(_clname, \"%s\"))\n\treturn static_cast<%s*>(const_cast<%s*>(this));\n",
                 cname, cname,   qualifiedClassNameIdentifier.constData());
     }
-    for (i = 0; i < cdef->interfaceList.size(); ++i) {
+    for (int i = 0; i < cdef->interfaceList.size(); ++i) {
         const QList<QByteArray> &iface = cdef->interfaceList.at(i);
         for (int j = 0; j < iface.size(); ++j) {
             fprintf(out, "    if (!strcmp(_clname, %s_iid))\n\treturn ", iface.at(j).constData());
