@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#76 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#77 $
 **
 ** Implementation of QDialog class
 **
@@ -279,18 +279,16 @@ void QDialog::keyPressEvent( QKeyEvent *e )
 	case Key_Escape:
 	    reject();
 	    break;
-#if 0 // ### we ought to have it but it doesn't compile
 	case Key_Up:
 	case Key_Left:
-	    if ( focusWidget() )
-		(void)focusWidget()->focusNextPrevChild( FALSE );
+	    // call ours, since c++ blocks us from calling the one
+	    // belonging to focusWidget().
+	    focusNextPrevChild( FALSE );
 	    break;
 	case Key_Down:
 	case Key_Right:
-	    if ( focusWidget() )
-		(void)focusWidget()->focusNextPrevChild( TRUE );
+	    focusNextPrevChild( TRUE );
 	    break;
-#endif
 	default:
 	    e->ignore();
 	    return;
@@ -351,15 +349,13 @@ void QDialog::show()
 	while ( (extraw == 0 || extrah == 0) &&
 		it.current() != 0 ) {
 	    int w, h;
-	    w = it.current()->frameGeometry().width() -
-		it.current()->width();
-	    h = it.current()->frameGeometry().height() -
-		it.current()->height();
+	    QWidget * current = it.current();
+	    ++it;
+	    w = current->frameGeometry().width() - current->width();
+	    h = current->frameGeometry().height() - current->height();
 
 	    extraw = QMAX( extraw, w );
 	    extrah = QMAX( extrah, h );
-	    // ### ++it at the end of the loop
-	    ++it;
 	}
 	delete list;
 
