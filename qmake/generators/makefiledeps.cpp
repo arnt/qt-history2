@@ -454,7 +454,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
             //got a preprocessor symbol
             ++x;
             while(x < buffer_len) {
-                if(*(buffer+x) != ' ' || *(buffer+x) != '\t')
+                if(*(buffer+x) != ' ' && *(buffer+x) != '\t')
                     break;
                 ++x;
             }
