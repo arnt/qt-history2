@@ -234,7 +234,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 }
 
 /*!
-  \enum PrimitiveOperation
+  \enum QStyle::PrimitiveOperation
 
   This enum represents a style PrimitiveOperation.  A PrimitiveOperation is
   a common GUI element, such as a checkbox indicator or pushbutton bevel.
@@ -289,7 +289,7 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 */
 
 /*!
-  \fn void drawPrimitive ( PrimitiveOperation op, QPainter *p, const QRect &r, const QColorGroup &cg, PFlags flags = PStyle_Default, void **data = 0 ) const;
+  \fn void QStyle::drawPrimitive ( PrimitiveOperation op, QPainter *p, const QRect &r, const QColorGroup &cg, PFlags flags = PStyle_Default, void **data = 0 ) const
 
   Draws the style primitive \a op using the painter \a p in the
   rect \a r.  Colors are used from the color group \cg.

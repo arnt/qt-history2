@@ -183,7 +183,8 @@ void QMotifStyle::polish( QApplication* a )
 }
 
 
-
+/*!\reimp
+*/
 void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 				 QPainter *p,
 				 const QRect &r,
@@ -648,6 +649,8 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 }
 
 
+/*!\reimp
+*/
 void QMotifStyle::drawControl( ControlElement element,
 			       QPainter *p,
 			       const QWidget *widget,
@@ -1060,6 +1063,8 @@ static void get_combo_parameters( const QRect &r,
     ax  += (ew-awh)/2;
 }
 
+/*!\reimp
+*/
 void QMotifStyle::drawComplexControl( ComplexControl control,
 				     QPainter *p,
 				     const QWidget *widget,
@@ -1289,6 +1294,8 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 }
 
 
+/*!\reimp
+*/
 int QMotifStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
 {
      int ret;
@@ -1365,6 +1372,8 @@ int QMotifStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
 }
 
 
+/*!\reimp
+*/
 QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 					   const QWidget *widget,
 					   SubControl sc,
@@ -1568,6 +1577,8 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
     return rect;
 }
 
+/*!\reimp
+*/
 QSize QMotifStyle::sizeFromContents( ContentsType contents,
 				     const QWidget *widget,
 				     const QSize &contentsSize,
@@ -1637,6 +1648,8 @@ QSize QMotifStyle::sizeFromContents( ContentsType contents,
     return sz;
 }
 
+/*!\reimp
+*/
 QRect QMotifStyle::subRect( SubRect r, const QWidget *widget ) const
 {
     QRect rect;

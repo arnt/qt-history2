@@ -1150,6 +1150,8 @@ QPixmap QWindowsStyle::stylePixmap(StylePixmap stylepixmap,
     return QPixmap();
 }
 
+/*!\reimp
+*/
 void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 					const QWidget *w,
 					const QRect &r,
