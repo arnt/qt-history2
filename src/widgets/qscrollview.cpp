@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#39 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#40 $
 **
 ** Implementation of QScrollView class
 **
@@ -149,8 +149,8 @@ struct QScrollViewData {
     int		vx, vy, vwidth, vheight; // for drawContents-style usage
     int		l_marg, r_marg, t_marg, b_marg;
     QScrollView::ResizePolicy policy;
-    QScrollView::ScrollBarMode	vMode		: 2;
-    QScrollView::ScrollBarMode	hMode		: 2;
+    QScrollView::ScrollBarMode	vMode;
+    QScrollView::ScrollBarMode	hMode;
 };
 
 /*!
