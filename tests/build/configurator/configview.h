@@ -13,10 +13,11 @@ public:
 	~CConfigView();
 
 	QStringList* activeModules();
-
-	enum { NUM_MODULES = 13 };
+	QString mapOption( QString strOption );
+	enum { NUM_MODULES = 14 };
 private:
 	static QString m_Modules[ NUM_MODULES ];
+	static QString m_ConfigOpts[ NUM_MODULES ];
 	QStringList m_activeModules;
 
 public slots:

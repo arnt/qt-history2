@@ -8,6 +8,7 @@
 #include <qpushbutton.h>
 #include <qbuttongroup.h>
 #include <qlabel.h>
+#include <qcheckbox.h>
 #include <qhbox.h>
 #include <qvbox.h>
 #include <qdir.h>
@@ -25,8 +26,6 @@ CDialogWidget::CDialogWidget( QWidget* pParent, const char* pName, WFlags f ) :
     QHBoxLayout* pTopLevelLayout;
     QVBox* pProjectSettingsBox;
     QHBox* pButtonBox;
-	QVBox* pProjectSettings2Box;
-
     QButtonGroup* pThreadGroup;
     QButtonGroup* pLibGroup;
     QGroupBox* pConfigGroup;
@@ -41,15 +40,14 @@ CDialogWidget::CDialogWidget( QWidget* pParent, const char* pName, WFlags f ) :
     QLabel* pOptionsLabel;
     QPushButton* pCloseButton;
     QPushButton* pGenerateButton;
-
+	QCheckBox* pDebug;
 /*
 ** Create widgets and layouts
 */
 	pTopLevelLayout = new QHBoxLayout( this );
-	pConfigGroup = new QGroupBox( 1, Qt::Horizontal, "Available configurations", this );
+	pConfigGroup = new QGroupBox( 1, Qt::Horizontal, "Module options", this );
 	m_pConfigView = new CConfigView( pConfigGroup );
 	pProjectSettingsBox = new QVBox( this);
-	pProjectSettings2Box = new QVBox( this );
 	pThreadGroup = new QButtonGroup( 1, Qt::Horizontal, "Threading options", pProjectSettingsBox );
 	pNonThreaded = new QRadioButton( "Non-threaded", pThreadGroup );
 	pThreaded = new QRadioButton( "Threaded", pThreadGroup );
@@ -74,11 +72,11 @@ CDialogWidget::CDialogWidget( QWidget* pParent, const char* pName, WFlags f ) :
 	pButtonBox = new QHBox( pProjectSettingsBox );
 	pGenerateButton = new QPushButton( "Generate", pButtonBox );
 	pCloseButton = new QPushButton( "Close", pButtonBox );
-
+	pDebug = new QCheckBox( "debug", pConfigGroup );
+	
 	pTopLevelLayout->setSpacing( 3 );
 	pTopLevelLayout->addWidget( pConfigGroup );
 	pTopLevelLayout->addWidget( pProjectSettingsBox );
-	pTopLevelLayout->addWidget( pProjectSettings2Box );
 	
 /*
 ** Set the initial default state
@@ -94,6 +92,7 @@ CDialogWidget::CDialogWidget( QWidget* pParent, const char* pName, WFlags f ) :
     connect( pLibGroup, SIGNAL( clicked( int ) ), this, SLOT( clickedLib( int ) ) );
     connect( pThreadGroup, SIGNAL( clicked( int ) ), this, SLOT( clickedThread( int ) ) );
     connect( m_pPlatform, SIGNAL( activated( const QString& ) ), this, SLOT( FillCompilers( const QString& ) ) );
+	connect( pDebug, SIGNAL( toggled( bool ) ), this, SLOT( toggledDebug( bool ) ) );
 }
 
 CDialogWidget::~CDialogWidget( )
@@ -102,56 +101,60 @@ CDialogWidget::~CDialogWidget( )
 
 void CDialogWidget::generate()
 {
-    QStringList* pModules;
-    QString strQMake;
+	QStringList* pModules;
+	QString strQMake;
+	QString strConfigs;
+	QString strDefines;
 
-    pModules = m_pConfigView->activeModules();
+	pModules = m_pConfigView->activeModules();
 
-    strQMake = "qmake qt";
-
-    if ( !pModules->isEmpty() || m_bThreaded )
-    {
-	strQMake += " \"CONFIG+=";
+	// Add all the configuration options from the module list
 	for ( QStringList::Iterator it = pModules->begin(); it != pModules->end(); ++it )
 	{
-	    strQMake += *it + " ";
+		strConfigs += m_pConfigView->mapOption( *it ) + " ";
 	}
 
 	if ( m_bThreaded )
 	{
-	    strQMake += "thread ";
+		strConfigs += "thread ";
 	}
 
-	strQMake.truncate( strQMake.length() - 1 ); // Remove the trailing space
-	strQMake += "\""; // Terminate the CONFIG+= part
-    }
-
-    if ( m_bShared )
-    {
-	if ( m_pPlatform->currentText() == "win32" )
+	if ( m_bShared )
 	{
-	    strQMake += " \"DEFINES+=QT_MAKEDLL\"";
-	}
-    }
-    else
-    {
-	if ( m_pPlatform->currentText() == "win32" )
-	{
-	    strQMake += " \"DEFINES+=QT_NODLL\"";
+		if ( m_pPlatform->currentText() == "win32" )
+		{
+			strDefines += "QT_MAKEDLL ";
+		}
+		strConfigs += "dll ";
 	}
 	else
 	{
-	    strQMake += " \"CONFIG+=staticlib\"";
+		if ( m_pPlatform->currentText() == "win32" )
+		{
+			strDefines += "QT_NODLL ";
+		}
+		strConfigs += "staticlib ";
 	}
-    }
 
-    strQMake += " -mkspec " + m_pPlatform->currentText() + "-" + m_pCompiler->currentText() + " -o " + m_pOutNameEdit->text();
-    if ( m_pOptions->text().length() )
-    {
-	strQMake += " " + m_pOptions->text();
+	if ( m_bDebug )
+	{
+		strConfigs += "debug ";
+	}
+	else
+	{
+		strConfigs += "release ";
+	}
+
+	strConfigs.truncate( strConfigs.length() - 1 ); // Remove the trailing space
+	strDefines.truncate( strDefines.length() - 1 ); // Remove the trailing space
+
+	strQMake = "qmake qt \"CONFIGS+=" + strConfigs + "\" \"DEFINES+=" + strDefines + "\" -mkspec " + m_pPlatform->currentText() + "-" + m_pCompiler->currentText() + " -o " + m_pOutNameEdit->text();
+	if ( m_pOptions->text().length() )
+	{
+		strQMake += " " + m_pOptions->text();
     }
-    qDebug( strQMake );
-    system( strQMake.latin1() );
+	qDebug( strQMake );
+	system( strQMake.latin1() );
 }
 
 void CDialogWidget::clickedLib( int nID )
@@ -201,4 +204,9 @@ void CDialogWidget::FillPlatforms()
 	}
 	++mkspecIterator;
     }
+}
+
+void CDialogWidget::toggledDebug( bool bDebug )
+{
+	m_bDebug = bDebug;
 }

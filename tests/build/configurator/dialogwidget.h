@@ -20,6 +20,7 @@ public slots:
 	void clickedLib( int );
 	void clickedThread( int );
 	void FillCompilers( const QString& strPlatform );
+	void toggledDebug( bool );
 
 private:
 	CConfigView* m_pConfigView;
@@ -30,6 +31,7 @@ private:
 
 	bool m_bShared;
 	bool m_bThreaded;
+	bool m_bDebug;
 
 private:
 	void FillPlatforms();

@@ -14,6 +14,7 @@ CConfigView::CConfigView( QWidget* pParent, const char* pName, WFlags w ) : QScr
 	QVBoxLayout* pConfigsLayout;
 	QCheckBox* pConfigCheck;
 	QSignalMapper* pMapper;
+	QFrame* pLine;
 
 	pMapper = new QSignalMapper( this );
 	connect( pMapper, SIGNAL( mapped( const QString& ) ), this, SLOT( configToggled( const QString& ) ) );
@@ -30,11 +31,25 @@ CConfigView::CConfigView( QWidget* pParent, const char* pName, WFlags w ) : QScr
 */
 	for( i = 0; i < NUM_MODULES; i++ )
 	{
-		pConfigCheck = new QCheckBox( m_Modules[ i ], this );
-		pConfigsLayout->addWidget( pConfigCheck );
-		pMapper->setMapping( pConfigCheck, m_Modules[ i ] );
-		connect( pConfigCheck, SIGNAL( clicked() ), pMapper, SLOT( map() ) );
+		if ( m_Modules[ i ].length() )
+		{
+			pConfigCheck = new QCheckBox( m_Modules[ i ], this );
+			pConfigsLayout->addWidget( pConfigCheck );
+			pMapper->setMapping( pConfigCheck, m_Modules[ i ] );
+			connect( pConfigCheck, SIGNAL( clicked() ), pMapper, SLOT( map() ) );
+		}
+		else
+		{
+			pLine = new QFrame( this );
+			pLine->setFrameShape( QFrame::HLine );
+			pLine->setFrameStyle( QFrame::HLine | QFrame::Sunken );
+			pConfigsLayout->addWidget( pLine );
+		}
 	}
+	pLine = new QFrame( this );
+	pLine->setFrameShape( QFrame::HLine );
+	pLine->setFrameStyle( QFrame::HLine | QFrame::Sunken );
+	pConfigsLayout->addWidget( pLine );
 }
 
 CConfigView::~CConfigView()
@@ -48,7 +63,14 @@ QStringList* CConfigView::activeModules()
 
 QString CConfigView::m_Modules[ NUM_MODULES ] =
 {
-	"internal","tools","kernel","widgets","dialogs","iconview","workspace","network","canvas","table","xml","opengl","sql"
+	"internal", "base", "network", "canvas", "table", "xml", "opengl", "sql",
+	"", "gif", "jpeg", "libpng", "mng", "zlib"
+};
+
+QString CConfigView::m_ConfigOpts[ NUM_MODULES ] =
+{
+	"internal", "tools kernel widgets dialogs iconview workspace", "network", "canvas", "table", "xml", "opengl", "sql",
+	"", "gif", "jpeg", "png", "mng", "zlib"
 };
 
 void CConfigView::configToggled( const QString& moduleName )
@@ -66,4 +88,18 @@ void CConfigView::configToggled( const QString& moduleName )
 	{
 		m_activeModules.append( moduleName );
 	}
+}
+
+QString CConfigView::mapOption( QString strOption )
+{
+	int i;
+
+	for ( i = 0; i < NUM_MODULES; i++ )
+	{
+		if ( m_Modules[ i ] == strOption )
+		{
+			return m_ConfigOpts[ i ];
+		}
+	}
+	return QString( "" );
 }
