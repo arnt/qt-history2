@@ -1188,7 +1188,9 @@ QVariant WidgetFactory::defaultValue( QObject *w, const QString &propName )
     } else if ( propName == "frameworkCode" ) {
 	return QVariant( TRUE, 0 );
     } else if ( propName == "layoutMargin" ) {
-	if ( MainWindow::self->formWindow() )
+	if ( w->inherits( "QLayoutWidget" ) )
+	    return QVariant( 0 );
+	else if ( MainWindow::self->formWindow() )
 	    return QVariant( MainWindow::self->formWindow()->layoutDefaultMargin() );
     } else if ( propName == "layoutSpacing" ) {
 	if ( MainWindow::self->formWindow() )
