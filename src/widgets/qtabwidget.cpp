@@ -45,6 +45,7 @@
 #include "qaccel.h"
 #include "qstyle.h"
 #include "qpainter.h"
+#include "qtoolbutton.h"
 
 /*!
     \class QTabWidget qtabwidget.h
@@ -189,7 +190,8 @@ class QTabWidgetData
 public:
     QTabWidgetData()
         : tabs(0), tabBase(0), stack(0), dirty( TRUE ),
-          pos( QTabWidget::Top ), shape( QTabWidget::Rounded ) {};
+          pos( QTabWidget::Top ), shape( QTabWidget::Rounded ),
+	  tabCloseButton(0) {};
     ~QTabWidgetData(){};
     QTabBar* tabs;
     QTabBarBase* tabBase;
@@ -198,6 +200,7 @@ public:
     QTabWidget::TabPosition pos;
     QTabWidget::TabShape shape;
     int alignment;
+    QToolButton* tabCloseButton;
 };
 
 /*!
@@ -208,6 +211,14 @@ QTabWidget::QTabWidget( QWidget *parent, const char *name, WFlags f )
     : QWidget( parent, name, f )
 {
     d = new QTabWidgetData;
+
+    d->tabCloseButton = new QToolButton( parent );
+    d->tabCloseButton->setCursor( arrowCursor );
+    d->tabCloseButton->setPixmap( style().stylePixmap( QStyle::SP_DockWindowCloseButton,
+						       d->tabCloseButton ) );
+    d->tabCloseButton->setFixedSize( 12, 12 );
+    d->tabCloseButton->hide();
+    QObject::connect( d->tabCloseButton, SIGNAL( clicked() ), this, SLOT( removeCurrentPage() ) );
 
     d->stack = new QWidgetStack( this, "tab pages" );
     d->stack->installEventFilter( this );
@@ -464,6 +475,31 @@ void QTabWidget::setTabEnabled( QWidget* w, bool enable)
 }
 
 /*!
+   Returns TRUE if the tab close button is visible; otherwise returns FALSE.
+
+   \sa setTabCloseButtonVisible(), QWidget::isVisible()
+*/
+
+bool QTabWidget::isCloseButtonVisible() const
+{
+    return d->tabCloseButton->isVisible();
+}
+
+/*!
+  If \a visible is TRUE, the tab close button is visible; otherwise the tab close button is
+  visible.
+*/
+
+void QTabWidget::setCloseButtonVisible( bool visible )
+{
+    if ( visible ) {
+	d->tabCloseButton->show();
+    } else {
+	d->tabCloseButton->hide();
+    }
+}
+
+/*!
     Ensures that page \a w is shown. This is useful mainly for
     accelerators.
 
@@ -628,6 +664,22 @@ void QTabWidget::showTab( int i )
     }
 }
 
+/*!
+  Removes the current page from this stack of widgets. Does not delete the widget.
+*/
+
+void QTabWidget::removeCurrentPage()
+{
+    int i = currentPageIndex();
+    if ( i > 0 ) {
+	setCurrentPage( i - 1 );
+	removePage( page(i) );
+    } else if ( count() > 1 ) {
+	setCurrentPage( 1 );
+	removePage( page(0) );
+    }
+}
+
 /*
     Set up the layout.
 */
@@ -642,8 +694,9 @@ void QTabWidget::setUpLayout( bool onlyCheck )
     }
 
     QSize t( d->tabs->sizeHint() );
-    if ( t.width() > width() )
-	t.setWidth( width() );
+    int tw = ( d->tabCloseButton->isVisible() ? width() - t.height() : width() );
+    if ( t.width() > tw )
+	t.setWidth( tw );
     int lw = d->stack->lineWidth();
     bool reverse = QApplication::reverseLayout();
     int tabx, taby, stacky, exty, exth, overlap;
@@ -690,6 +743,10 @@ void QTabWidget::setUpLayout( bool onlyCheck )
 	update();
     if ( autoMask() )
 	updateMask();
+
+    int cy = ( t.height() / 2 ) - ( d->tabCloseButton->height() / 2 );
+    d->tabCloseButton->move( width() - t.height() + cy, cy );
+    d->tabCloseButton->setEnabled( count() > 1 );
 }
 
 /*!

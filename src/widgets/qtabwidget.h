@@ -61,6 +61,7 @@ class Q_EXPORT QTabWidget : public QWidget
     Q_PROPERTY( int margin READ margin WRITE setMargin )
     Q_PROPERTY( int currentPage READ currentPageIndex WRITE setCurrentPage )
     Q_PROPERTY( int count READ count )
+    Q_PROPERTY( bool closeButtonVisible READ isCloseButtonVisible WRITE setCloseButtonVisible )
     Q_OVERRIDE( bool autoMask DESIGNABLE true SCRIPTABLE true )
 
 public:
@@ -83,6 +84,9 @@ public:
 
     bool isTabEnabled(  QWidget * ) const;
     void setTabEnabled( QWidget *, bool );
+
+    bool isCloseButtonVisible() const;
+    void setCloseButtonVisible( bool enable );
 
     QString tabLabel( QWidget * ) const;
     void setTabLabel( QWidget *p, const QString &l );
@@ -138,11 +142,11 @@ signals:
 
 private slots:
     void showTab( int i );
+    void removeCurrentPage();
 
 private:
     QTabWidgetData *d;
     void setUpLayout( bool = FALSE );
-
     friend class QTabDialog;
 
 private:	// Disabled copy constructor and operator=
