@@ -4,6 +4,7 @@
 #include "qsettings.h"
 #include "qlibrary.h"
 #include "qcleanuphandler.h"
+#include "qsettings.h"
 
 /*!
   \class QComponentFactory qcomponentfactory.h
@@ -44,6 +45,7 @@ QCleanupHandler< QLibrary > qt_component_server_cleanup;
 
 QRESULT QComponentFactory::createInstance( const QUuid &cid, const QUuid &iid, QUnknownInterface** instance, QUnknownInterface *outer )
 {
+#if defined(Q_WS_WIN)
     QSettings settings;
     bool ok;
 
@@ -68,6 +70,8 @@ QRESULT QComponentFactory::createInstance( const QUuid &cid, const QUuid &iid, Q
     } else {
 	library->queryInterface( iid, instance );
     }
+#else
+#endif
 }
 
 /*!
@@ -110,6 +114,57 @@ bool QComponentFactory::unregisterServer( const QString &filename )
     bool ok = iface->unregisterComponents();
     iface->release();
     return ok;
+}
+
+/*!
+  Registers the component with id \a cid in the global component database. 
+  The component is registered with an optional \a description and is provided 
+  by the server at \a filepath.
+
+  Call this function for each component in an implementation of 
+  QComponentServerInterface::registerComponents().
+
+  \sa unregisterComponent(), registerServer()
+*/
+bool QComponentFactory::registerComponent( const QUuid &cid, const QString &filepath, const QString &description )
+{
+#if defined(Q_WS_WIN)
+    QString cidStr = cid.toString();
+    QSettings settings;
+    bool ok;
+
+    settings.insertSearchPath( QSettings::Windows, "/Classes" );
+    ok = settings.writeEntry( "/CLSID/" + cidStr + "/InprocServer32/Default", filepath );
+    if ( !!description )
+	ok = ok && settings.writeEntry( "/CLSID/" + cidStr + "/Default", description );
+
+    return ok;
+#else
+#endif
+}
+
+/*!
+  Unregisters the component with id \a cid from the global component database.
+  
+  Call this function for each component in an implementation of 
+  QComponentServerInterface::unregisterComponents().
+
+  \sa registerComponent(), unregisterServer()
+*/
+bool QComponentFactory::unregisterComponent( const QUuid &cid )
+{
+#if defined(Q_WS_WIN)
+    QString cidStr = cid.toString();
+    QSettings settings;
+    bool ok;
+
+    settings.insertSearchPath( QSettings::Windows, "/Classes" );
+    ok = settings.removeEntry( "/CLSID/" + cidStr + "/InprocServer32/Default" );
+    ok = ok && settings.removeEntry( "/CLSID/" + cidStr + "/Default" );
+
+    return ok;
+#else
+#endif
 }
 
 #endif // QT_NO_COMPONENT
