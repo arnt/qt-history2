@@ -299,6 +299,15 @@ bool FileDriver::insert( const qdb::List& data )
 	    ERROR_RETURN( "internal error:FileDriver::insert: unknown field number:" + QString::number(pos) );
 	}
 	QVariant val = insertData[1];
+	if ( xbaseTypeToVariant( d->file.GetFieldType( pos ) ) == QVariant::Date ) {
+	    QDate d = val.toDate();
+	    if ( !d.isValid() ) {
+		ERROR_RETURN( "Invalid date '" + val.toString() + "'" );
+	    }
+	    val = QString( QString::number( d.year() ) +
+			   QString::number( d.month() ).rightJustify( 2, '0' ) +
+			   QString::number( d.day() ).rightJustify( 2, '0' ) );
+	}
 	if ( d->file.PutField( pos, val.toString().latin1() ) != XB_NO_ERROR ) {
 	    ERROR_RETURN( "internal error:FileDriver::insert: invalid field number or data");
 	}
