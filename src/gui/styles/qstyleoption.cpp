@@ -718,3 +718,367 @@ void QStyleOption::init(const QWidget *w)
     \property QStyleOptionListViewItem::childCount
     \brief The number of children the item has.
 */
+
+/*!
+    \class QStyleOptionListView qstyleoption.h
+    \brief QStyleOptionListView describes the parameters for drawing a Q3ListView.
+
+    The structure is used for drawing the compat \l Q3ListView. It is not
+    recommended for use in new code.
+*/
+
+/*!
+    \fn QStyleOptionListView::QStyleOptionListView(int version)
+    Creates a QStyleOptionListView structure with version \a version
+
+    The values in the structure are either zero, null, or empty. It is the
+    developer's responsibility to set them to correct values.
+*/
+
+/*!
+    \property QStyleOptionListView::items
+    \brief A list of items in the \l Q3ListView.
+
+    This is a list of \l {QStyleOptionListViewItem}s. The first item can be
+    used for most of the calculation that are needed for listview. Any
+    additional items are the children of this first item. Which may be used for
+    additional information.
+
+    \sa QStyleOptionListViewItem
+*/
+
+/*!
+    \property QStyleOptionListView::viewportPalette
+    \brief The palette of the viewport of the \l Q3ListView.
+*/
+
+/*!
+    \property QStyleOptionListView::viewportBGRole
+    \brief The background role of the viewport of the \l Q3ListView.
+
+    \sa QWidget::backgroundRole()
+*/
+
+/*!
+    \property QStyleOptionListView::sortColumn
+    \brief The sort column of the listview.
+
+    \sa Q3ListView::sortColumn()
+*/
+
+/*!
+    \property QStyleOptionListView::itemMargin
+    \brief The margin for items in the listview.
+
+    \sa Q3ListView::itemMargin()
+*/
+
+/*!
+    \property QStyleOptionListView::treeStepSize
+    \brief The number of pixel to offset children items from their parents.
+
+    \sa Q3ListView::treeStepSize()
+*/
+
+/*!
+    \property QStyleOptionListView::rootIsDecorated
+    \brief Whether root items are decorated or not
+
+    \sa Q3ListView::rootIsDecorated()
+*/
+
+/*!
+    \class QStyleOptionDockWindow
+    \brief The QStyleOptionDockWindow describes parameters for drawing various
+    parts of \l Q3DockWindows.
+
+    This structure is used for drawing the old Q3DockWindow and its parts. It
+    is not recommended for new classes.
+*/
+
+/*!
+    \fn QStyleOptionDockWindow::QStyleOptionDockWindow(int version)
+    Constructs a QStyleOptionDockWindow with version \a version.
+
+    The values in the structure will be set to false. It is the responsibility
+    of the developer to set them correctly.
+*/
+
+/*!
+    \property QStyleOptionDockWindow::docked
+    \brief Indicates that the dock window is currently docked.
+*/
+
+/*!
+    \property QStyleOptionDockWindow::isCloseEnabled
+    \brief Indicates that the dock window has a close button.
+*/
+
+/*!
+    \class QStyleOptionToolButton qstyleoption.h
+    \brief QStyleOptionToolButton describes the parameters for drawing a tool button.
+
+    The QStyleOptionToolButton structure is used for drawing \l {QToolButton}s
+*/
+
+/*!
+    \enum QStyleOptionToolButton::ToolButtonFeature
+    Describes the various features that a tool button can have.
+
+    \value None A normal tool button.
+    \value Arrow The tool button is an arrow.
+    \value TextLabel The tool button has a text label.
+    \value Menu The tool button has a menu.
+    \value PopupDelay There is a delay to showing the menu.
+    \value BigPixmap The tool button uses big pixmaps.
+
+    \sa features QToolButton::usesTextLabel(), QToolButton::popupDelay(), QToolButton::usesBigPixmap()
+*/
+
+/*!
+    \fn QStyleOptionToolButton::QStyleOptionToolButton(int version)
+
+    Construct a QStyleOptionToolButton with version \a version.
+
+    The values of the structure are either zero, empty, or null. It is the
+    responsibility of the developer to set them correctly.
+*/
+
+/*!
+    \property QStyleOptionToolButton::features
+    \brief The features of the tool button.
+
+    This is a bitwise OR describing the features of the button.
+    \sa ToolButtonFeature
+*/
+
+/*!
+    \property QStyleOptionToolButton::icon
+    \brief The iconset (if any) for the tool button.
+*/
+
+/*!
+    \property QStyleOptionToolButton::text
+    \brief The text (if any) of the tool button.
+
+    Note that this is only used if the \l TextLabel feature is part of the features.
+    \sa ToolButtonFeatures
+*/
+
+/*!
+    \property QStyleOptionToolButton::arrowType
+    \brief The direction of the arrow for the tool button
+
+    Note that this is only used if the \l Arrow feature is part of the features.
+    \sa ToolButtonFeatures
+*/
+
+/*!
+    \property QStyleOptionToolButton::bgRole
+    \brief The background role of the tool button
+    \sa QWidget::backgroundRole()
+*/
+
+/*!
+    \property QStyleOptionToolButton::parentBGRole
+    \brief The background role of the parent of the tool button
+
+    This can also be the same as bgRole if the button has no parent.
+    \sa QWidget::backgroundRole()
+*/
+
+/*!
+    \property QStyleOptionToolButton::parentPalette
+    \brief The parent's palette (if the tool button has one).
+*/
+
+/*!
+    \property QStyleOptionToolButton::pos
+    \brief The position of the tool button
+*/
+
+/*!
+    \property QStyleOptionToolButton::font
+    \brief The font that is used for the text.
+
+    Note that this is only used if the \l TextLabel feature is part of the features.
+    \sa ToolButtonFeatures
+*/
+
+/*!
+    \property QStyleOptionToolButton::textPosition
+    \brief The position of the text in the tool button.
+
+    Note that this is only used if the \l TextLabel feature is part of the features.
+    \sa ToolButtonFeatures
+*/
+
+/*!
+    \class QStyleOptionComboBox qstyleoption.h
+    \brief QStyleOptionComboBox describes the parameter for drawing a combobox.
+
+    The QStyleOptionComboBox structure is used for drawing QComboBox.
+*/
+
+/*!
+    \fn QStyleOptionComboBox::QStyleOptionComboBox(int version)
+
+    Create a QStyleOptionComboBox structure with version \a version
+
+    The values of the structure are set to zero or null. It is the developer's
+    responsibility to set them correctly.
+*/
+
+/*!
+    \property QStyleOptionComboBox::editable
+    \brief whether or not the combobox is editable or not.
+    \sa QComboBox::isEditable()
+*/
+
+/*!
+    \property QStyleOptionComboBox::popupRect
+    \brief The popup rectangle for the combobox.
+*/
+
+/*!
+    \class QStyleOptionToolBox qstyleoption.h
+    \brief QStyleOptionToolBox describes the parameters needed for drawing a tool box.
+
+    The QStyleOptionToolBox structure is used for drawing parts of the \l QToolBox.
+*/
+
+/*!
+    \fn QStyleOptionToolBox::QStyleOptionToolBox(int version)
+    Create a QStyleOptionToolBox structure with version \a version
+
+    The values of the structure are set to zero, null, or empty. It is the
+    developers responsibility to set them correctly.
+*/
+
+/*!
+    \property QStyleOptionToolBox::icon
+    \brief The iconset (if any) for the tool box tab.
+*/
+
+/*!
+    \property QStyleOptionToolBox::text
+    \brief The text (if any) for the tool box tab.
+*/
+
+/*!
+    \property QStyleOptionToolBox::bgRole
+    \brief The background role for the tool box tab.
+*/
+
+/*!
+    \property QStyleOptionToolBox::currentWidgetBGRole
+    \brief The background role for the current widget.
+
+    This may be useful if you wish to draw the selected tab differently.
+*/
+
+/*!
+    \property QStyleOptionToolBox::currentWidgetPalette
+    \brief The palette for the current widget.
+
+    This may be useful if you wish the draw the selected tab differently.
+*/
+
+/*!
+    \class QStyleOptionTitleBar qstyleoption.h
+    \brief QStyleOptionTitleBar describes the parameters for drawing a title bar.
+
+    The QStyleOptionTitleBar structure is used to draw QTitleBar an internal
+    class.
+*/
+
+/*!
+    \fn QStyleOptionTitleBar::QStyleOptionTitleBar(int version)
+    Construct a QStyleOptionTitleBar with version \a version.
+
+    The values of the structure will be zero, null, or empty. It is the
+    responsibility of the developer to set them correctly.
+*/
+
+/*!
+    \property QStyleOptionTitleBar::text
+    \brief The text of the title bar.
+*/
+
+/*!
+    \property QStyleOptionTitleBar::icon
+    \brief The icon for the title bar (if any).
+*/
+
+/*!
+    \property QStyleOptionTitleBar::titleBarState
+    \brief The state of the title bar.
+    This is basically the window state of the underlying widget.
+    \sa QWidget::windowState()
+*/
+
+/*!
+    \property QStyleOptionTitleBar::titleBarFlags
+    \brief The widget flags for the title bar.
+    \sa Qt::WFlags
+*/
+
+/*!
+    \class QStyleOptionViewItem qstyleoption.h
+    \brief QStyleOptionViewItem describes parameters to draw an item in Interviews.
+
+    The QStyleOptionViewItem structure is used by Interviews to draw its items.
+*/
+
+/*!
+    \enum QStyleOptionViewItem::Position
+    This enum describes the position of the item's decoration.
+    \value Left
+    \value Right
+    \value Top
+    \value Bottom
+
+    \sa decorationPosition
+*/
+
+/*!
+    \enum QStyleOptionViewItem::Size
+    This enum describes the size of the item's decoration size.
+    \value Small
+    \value Large
+
+    \sa decorationSize
+*/
+
+/*!
+    \fn QStyleOptionViewItem::QStyleOptionViewItem(int version)
+    Construct a QStyleOptionViewItem with version \a version.
+
+    The values of the structure are set to zero. It is the responsibility of
+    the developer to set them to the correct values.
+*/
+
+/*!
+    \property QStyleOptionViewItem::displayAlignment
+    \brief The display alignment for the item.
+*/
+
+/*!
+    \property QStyleOptionViewItem::decorationAlignment
+    \brief The decoration alignment for the item.
+*/
+
+/*!
+    \property QStyleOptionViewItem::decorationPosition
+    \brief The position of the decoration for the item.
+
+    \sa Position
+*/
+
+/*!
+    \property QStyleOptionViewItem::decorationSize
+    \brief The size ofthe decoration for the item.
+
+    \sa Size
+*/
+

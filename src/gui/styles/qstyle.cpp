@@ -538,6 +538,10 @@ QRect QStyle::itemRect(const QRect &r,
 
 /*!
   \obsolete
+
+    Returns the appropriate area within rectangle \a r in which to draw the \a
+    pixmap and \a text using the painter \a p. The \a flags determine the \a
+    pixmap's alignment.
 */
 QRect QStyle::itemRect(QPainter *p, const QRect &r,
                         int flags, bool enabled,
@@ -823,7 +827,7 @@ void QStyle::drawItem(QPainter *p, const QRect &r,
     \row \i \l Style_NoChange \i Indicates a "tri-state" controller.
     \row \i \l Style_Enable \i Indicates the controller is enabled.
     \row \i{1,2} \l PE_TreeBranch \i{1,2} (const \l QStyleOption *) \i \l Style_Down \i Indicates the Tree Branch is pressed
-    \row \i Style_Open \i Indicates the tree branch is not collapsed.
+    \row \i \l Style_Open \i Indicates the tree branch is not collapsed.
     \row \i \l PE_HeaderArrow \i (const \l QStyleOptionHeader *) \i \l Style_Up \i Indicates the arrow should be drawn up otherwise it should be down.
     \row \i{1,3} \l PE_HeaderSection \i{1,3} (const \l QStyleOptionHeader *) \i \l Style_Sunken \i Indicates the section is pressed.
     \row \i \l Style_Up \i Indicates the sort indicator should be pointing up.
