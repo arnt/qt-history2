@@ -134,6 +134,7 @@ void Uic::embed( QTextStream& out, const char* project, const QStringList& image
     out << "#include <qdict.h>\n";
     out << "#include <qmime.h>\n";
     out << "#include <qdragobject.h>\n";
+    out << "\n";
 
     QPtrList<EmbedImage> list_image;
     int image_count = 0;
