@@ -1671,8 +1671,11 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
             file = Option::fixPathToLocalOS(file);
 
             QMap<QString, QStringList> tmp;
-            if(doProjectInclude(file, false, tmp, seek_var) == IncludeSuccess)
+            if(doProjectInclude(file, false, tmp, seek_var) == IncludeSuccess) {
+                if(tmp.contains("QMAKE_INTERNAL_INCLUDED_FILES"))
+                    place["QMAKE_INTERNAL_INCLUDED_FILES"] += tmp["QMAKE_INTERNAL_INCLUDED_FILES"];
                 ret = tmp[seek_var].join(QString(Option::field_sep));
+            }
         }
         break; }
     case E_EVAL: {
@@ -2134,6 +2137,8 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
         bool ret = false;
         QMap<QString, QStringList> tmp;
         if(doProjectInclude(Option::fixPathToLocalOS(args[0]), false, tmp, args[1]) == IncludeSuccess) {
+            if(tmp.contains("QMAKE_INTERNAL_INCLUDED_FILES"))
+                place["QMAKE_INTERNAL_INCLUDED_FILES"] += tmp["QMAKE_INTERNAL_INCLUDED_FILES"];
             if(args.count() == 2) {
                 ret = tmp.contains(args[1]);
             } else {
