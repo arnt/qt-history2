@@ -652,7 +652,7 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t)
 	sr.replace(QRegExp("/"), "-");
 	//qmake it
 	t << mkfile << ": " << "\n\t"
-	  << "cd " << (*it) << " && $(QMAKE) -o $(MAKEFILE)" << endl;
+	  << "cd " << (*it) << " && $(QMAKE)" << buildArgs() << " -o $(MAKEFILE)" << endl;
 	//actually compile/
 	t << "sub-" << sr << ": " << mkfile << " FORCE" << "\n\t"
 	  << "cd " << *(it) << " && $(MAKE) -f $(MAKEFILE)" << endl << endl;
