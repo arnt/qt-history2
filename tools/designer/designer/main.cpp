@@ -183,7 +183,6 @@ static void crashHandler( int )
 	MainWindow::self->saveAllTemp();
     ::exit( -1 ); 
 }
-#endif
 
 #if defined(Q_C_CALLBACKS)
 }
