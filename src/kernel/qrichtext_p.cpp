@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext_p.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qrichtext_p.cpp#14 $
 **
 ** Implementation of the internal Qt classes dealing with rich text
 **
@@ -312,19 +312,18 @@ int QTextFormat::descent() const
 
 void QTextFormat::generateKey()
 {
-    k="";
     QTextOStream ts( &k );
     ts << fn.pointSize()
-       << "/" << fn.weight()
-       << "/" << (int)fn.underline()
-       << "/" << (int)fn.strikeOut()
-       << "/" << (int)fn.italic()
-       << "/" << col.pixel()
-       << "/" << fn.family()
-       << "/" << (int)isMisspelled()
-       << "/" << anchor_href
-       << "/" << anchor_name
-       << "/" << (int)vAlign();
+       << fn.weight()
+       << (int)fn.underline()
+       << (int)fn.strikeOut()
+       << (int)fn.italic()
+       << col.pixel()
+       << fn.family()
+       << (int)isMisspelled()
+       << anchor_href
+       << anchor_name
+       << (int)vAlign();
 }
 
 QString QTextFormat::getKey( const QFont &fn, const QColor &col, bool misspelled,
@@ -333,16 +332,16 @@ QString QTextFormat::getKey( const QFont &fn, const QColor &col, bool misspelled
     QString k;
     QTextOStream ts( &k );
     ts << fn.pointSize()
-       << "/" << fn.weight()
-       << "/" << (int)fn.underline()
-       << "/" << (int)fn.strikeOut()
-       << "/" << (int)fn.italic()
-       << "/" << col.pixel()
-       << "/" << fn.family()
-       << "/" << (int)misspelled
-       << "/" << lhref
-       << "/" << lnm
-       << "/" << (int)a;
+       << fn.weight()
+       << (int)fn.underline()
+       << (int)fn.strikeOut()
+       << (int)fn.italic()
+       << col.pixel()
+       << fn.family()
+       << (int)misspelled
+       << lhref
+       << lnm
+       << (int)a;
     return k;
 }
 
