@@ -2971,7 +2971,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 
 	//if something (format, etc.) changed, draw what we have so far
 	if ( ( ( ( alignment() & Qt::AlignJustify ) == Qt::AlignJustify && at(paintEnd)->c.isSpace() ) ||
-	       lastDirection != chr->rightToLeft ||
+	       lastDirection != (bool)chr->rightToLeft ||
 	       lastY != cy || chr->format() != lastFormat ||
 	       (paintEnd != -1 && at(paintEnd)->c =='\t') || chr->c == '\t' ||
 	       selectionChange || chr->isCustom() ) ) {
