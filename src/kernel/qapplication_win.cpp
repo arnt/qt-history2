@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#143 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#144 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -30,7 +30,7 @@
 #include <mywinsock.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#143 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#144 $");
 
 
 /*****************************************************************************
@@ -583,7 +583,6 @@ class QPEObject : public QObject		// trick to set/clear pendEvent
 {
 public:
     void setPendEventFlag()	{ pendEvent = TRUE; }
-    void clearPendEventFlag()	{ pendEvent = FALSE; }
 };
 
 class QPEvent : public QEvent			// trick to set/clear posted
@@ -642,6 +641,8 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
     bool first=TRUE;
 
     while ( (pe = it.current()) ) {
+	++it;
+	postedEvents->take( postedEvents->findRef( pe ) );
 	if ( pe->event
 	  && pe->receiver == receiver
 	  && pe->event->type() == event_type )
@@ -664,14 +665,8 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 	      default:
 		sendEvent( receiver, pe->event );
 	    }
-	    if ( pe == it.current() ) {
-		((QPEvent*)pe->event)->clearPostedFlag();
-		++it;
-		((QPEObject*)pe->receiver)->clearPendEventFlag();
-		postedEvents->removeRef( pe );
-	    }
-	} else {
-	    ++it;
+	    ((QPEvent*)pe->event)->clearPostedFlag();
+	    delete pe;
 	}
     }
     if ( !first ) {
@@ -703,17 +698,14 @@ static void sendPostedEvents()			// transmit posted events
     QPostEventListIt it(*postedEvents);
     QPostEvent *pe;
     while ( (pe=it.current()) ) {
+	++it;
+	postedEvents->take( postedEvents->findRef( pe ) );
 	if ( pe->event ) {
 	    QApplication::sendEvent( pe->receiver, pe->event );
-	    if ( pe == it.current() ) {
+	    if ( pe == it.current() )
 		((QPEvent*)pe->event)->clearPostedFlag();
-	    }
 	}
-	if ( pe == it.current() ) {
-	    ++it;
-	    ((QPEObject*)pe->receiver)->clearPendEventFlag();
-	    postedEvents->removeRef( pe );
-	}
+	delete pe;
     }
 }
 
@@ -725,7 +717,6 @@ void qRemovePostedEvents( QObject *receiver )	// remove receiver from list
     register QPostEvent *pe = postedEvents->first();
     while ( pe ) {
 	if ( pe->receiver == receiver ) {	// remove this receiver
-	    ((QPEObject*)pe->receiver)->clearPendEventFlag();
 	    ((QPEvent*)pe->event)->clearPostedFlag();
 	    postedEvents->remove();
 	    pe = postedEvents->current();

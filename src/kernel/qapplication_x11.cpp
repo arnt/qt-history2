@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#309 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#310 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -86,7 +86,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#309 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#310 $");
 
 
 /*****************************************************************************
@@ -1284,7 +1284,6 @@ class QPEObject : public QObject		// trick to set/clear pendEvent
 {
 public:
     void setPendEventFlag()	{ pendEvent = TRUE; }
-    void clearPendEventFlag()	{ pendEvent = FALSE; }
 };
 
 class QPEvent : public QEvent			// trick to set/clear posted
@@ -1343,6 +1342,8 @@ void qt_x11SendPostedEvents()			// transmit posted events
     QPostEventListIt it(*postedEvents);
     QPostEvent *pe;
     while ( (pe=it.current()) ) {
+	++it;
+	postedEvents->take( postedEvents->findRef( pe ) );
 	if ( pe->event ) {
 	    if ( pe->event->type() == Event_LayoutHint ) {
 		// layout hints are idempotent and can cause quite
@@ -1363,26 +1364,20 @@ void qt_x11SendPostedEvents()			// transmit posted events
 		}
 	    }
 	    QApplication::sendEvent( pe->receiver, pe->event );
-	    if ( pe == it.current() ) {
-		((QPEvent*)pe->event)->clearPostedFlag();
-	    }
+	    ((QPEvent*)pe->event)->clearPostedFlag();
 	}
-	if ( pe == it.current() ) {
-	    ++it;
-	    ((QPEObject*)pe->receiver)->clearPendEventFlag();
-	    postedEvents->removeRef( pe );
-	}
+	delete pe;
     }
 }
 
 
 /*!
-  Immediately despatches all events which have been previously enqueued
+  Immediately dispatches all events which have been previously enqueued
   with QApplication::postEvent() and which are for the object \a receiver
   and have the \a event_type.
 
   Some event compression may occur.  Note that events from the
-  server are \e not despatched by this function.
+  server are \e not dispatched by this function.
 */
 void QApplication::sendPostedEvents( QObject *receiver, int event_type )
 {
@@ -1397,54 +1392,51 @@ void QApplication::sendPostedEvents( QObject *receiver, int event_type )
     bool first=TRUE;
 
     while ( (pe = it.current()) ) {
+	++it;
+	
+	postedEvents->take( postedEvents->findRef( pe ) );
 	if ( pe->event
-	  && pe->receiver == receiver
-	  && pe->event->type() == event_type )
-	{
-	    switch ( event_type ) {
-	      case Event_Move:
-		if ( first ) {
-		    oldpos = ((QMoveEvent*)pe->event)->oldPos();
-		    first = FALSE;
+	     && pe->receiver == receiver
+	     && pe->event->type() == event_type )
+	    {
+		switch ( event_type ) {
+		case Event_Move:
+		    if ( first ) {
+			oldpos = ((QMoveEvent*)pe->event)->oldPos();
+			first = FALSE;
+		    }
+		    newpos = ((QMoveEvent*)pe->event)->pos();
+		    break;
+		case Event_Resize:
+		    if ( first ) {
+			oldsize = ((QResizeEvent*)pe->event)->oldSize();
+			first = FALSE;
+		    }
+		    newsize = ((QResizeEvent*)pe->event)->size();
+		    break;
+		default:
+		    sendEvent( receiver, pe->event );
 		}
-		newpos = ((QMoveEvent*)pe->event)->pos();
-		break;
-	      case Event_Resize:
-		if ( first ) {
-		    oldsize = ((QResizeEvent*)pe->event)->oldSize();
-		    first = FALSE;
-		}
-		newsize = ((QResizeEvent*)pe->event)->size();
-		break;
-	      default:
-		sendEvent( receiver, pe->event );
-	    }
-	    if ( pe == it.current() ) {
 		((QPEvent*)pe->event)->clearPostedFlag();
-		++it;
-		((QPEObject*)pe->receiver)->clearPendEventFlag();
-		postedEvents->removeRef( pe );
+		delete pe;
 	    }
-	} else {
-	    ++it;
-	}
     }
     if ( !first ) {
 	// Got one
 	switch ( event_type ) {
-	  case Event_Move:
+	case Event_Move:
 	    {
 		QMoveEvent e(newpos, oldpos);
 		sendEvent( receiver, &e );
 	    }
 	    break;
-	  case Event_Resize:
+	case Event_Resize:
 	    {
 		QResizeEvent e(newsize, oldsize);
 		sendEvent( receiver, &e );
 	    }
 	    break;
-	  default:
+	default:
 	    ; // Nothing
 	}
     }
@@ -1458,7 +1450,6 @@ void qRemovePostedEvents( QObject *receiver )	// remove receiver from list
     register QPostEvent *pe = postedEvents->first();
     while ( pe ) {
 	if ( pe->receiver == receiver ) {	// remove this receiver
-	    ((QPEObject*)pe->receiver)->clearPendEventFlag();
 	    ((QPEvent*)pe->event)->clearPostedFlag();
 	    postedEvents->remove();
 	    pe = postedEvents->current();
