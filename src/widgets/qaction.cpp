@@ -124,7 +124,7 @@
   children of the main window.
 
   To prevent recursions it is advisable to never create an action as a child of a widget
-  it is added to later. 
+  it is added to later.
 */
 
 
@@ -843,7 +843,7 @@ void QAction::showStatusText( const QString& text )
 	if ( !l )
 	    return;
 	// #### hopefully the last one is the one of the mainwindow...
-	QStatusBar *bar = (QStatusBar*)l->last();
+	bar = (QStatusBar*)l->last();
 	delete l;
     }
     if ( bar ) {
