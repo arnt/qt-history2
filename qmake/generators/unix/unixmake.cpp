@@ -129,6 +129,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    t << incrs_out.join(" \\\n\t\t") << endl;
 	    do_incremental = FALSE;
 	} else if(!incrs_out.count()) {
+	    t << endl;
 	    do_incremental = FALSE;
 	} else {
 	    t << endl;
