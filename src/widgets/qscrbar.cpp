@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#13 $
 **
 ** Implementation of QScrollBar class
 **
@@ -16,7 +16,7 @@
 #include "qwmatrix.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrbar.cpp#12 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qscrbar.cpp#13 $";
 #endif
 
 
@@ -137,9 +137,8 @@ void QScrollBar::timerEvent( QTimerEvent * )
 }
 
 
-bool QScrollBar::keyPressEvent( QKeyEvent * )
+void QScrollBar::keyPressEvent( QKeyEvent * )
 {
-    return TRUE;
 }
 
 
