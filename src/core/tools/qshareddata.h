@@ -17,27 +17,25 @@ public:
     QSharedData(const QSharedData &) { ref = 0; }
 
 private:
-    // using the assignment operator would lead to corruption in the refcounting
+    // using the assignment operator would lead to corruption in the ref-counting
     QSharedData &operator=(const QSharedData &);
 };
 
 template <class T> class QExplicitlySharedDataPointer
 {
-protected:
-    T *d;
 public:
-    T * operator->() { return d; }
-    const T * operator->() const { return d; }
-    operator T *() { return d; }
-    operator const T *() const { return d; }
-    T * data() { return d; }
-    const T * data() const { return d; }
-    const T * constData() const { return d; }
+    inline T *operator->() { return d; }
+    inline const T *operator->() const { return d; }
+    inline operator T *() { return d; }
+    inline operator const T *() const { return d; }
+    inline T *data() { return d; }
+    inline const T *data() const { return d; }
+    inline const T *constData() const { return d; }
 
     QExplicitlySharedDataPointer() { d = 0; }
     ~QExplicitlySharedDataPointer() { if (d && !--d->ref) delete d; }
 
-    Q_EXPLICIT QExplicitlySharedDataPointer(T *data) : d(data) { if (d) ++d->ref; }
+    explicit QExplicitlySharedDataPointer(T *data) : d(data) { if (d) ++d->ref; }
     QExplicitlySharedDataPointer(const QExplicitlySharedDataPointer &o) : d(o.d) { if (d) ++d->ref; }
     QExplicitlySharedDataPointer & operator=(const QExplicitlySharedDataPointer &o) {
         if (o.d != d) {
@@ -58,50 +56,66 @@ public:
                 delete x;
         }
         return *this;
-
     }
 
     bool operator!() const { return !d; }
-    bool isNull() const { return !d; }
+
+private:
+    T *d;
 };
 
-template<class T> class QSharedDataPointer : private QExplicitlySharedDataPointer<T>
+template <class T> class QSharedDataPointer
 {
 public:
-    T * operator->() { if (this->d && this->d->ref != 1) detach(); return this->d; }
-    const T * operator->() const { return this->d; }
-    operator T *() { if (this->d && this->d->ref != 1) detach(); return this->d; }
-    operator const T *() const { return this->d; }
-    T * data() { if (this->d && this->d->ref != 1) detach(); return this->d; }
-    const T * data() const { return this->d; }
-    const T * constData() const { return this->d; }
+    inline void detach() { if (d && d->ref != 1) detach_helper(); }
+    T * operator->() { detach(); return d; }
+    const T * operator->() const { return d; }
+    operator T *() { detach(); return d; }
+    operator const T *() const { return d; }
+    T * data() { detach(); return d; }
+    const T * data() const { return d; }
+    const T * constData() const { return d; }
 
-    QSharedDataPointer() : QExplicitlySharedDataPointer<T>() {}
-    ~QSharedDataPointer() {}
+    QSharedDataPointer() { d = 0; }
+    ~QSharedDataPointer() { if (d && !--d->ref) delete d; }
 
-    Q_EXPLICIT QSharedDataPointer(T *data) : QExplicitlySharedDataPointer<T>(data) {}
-    QSharedDataPointer(const QSharedDataPointer<T> &o) : QExplicitlySharedDataPointer<T>(o) {}
-
-    QSharedDataPointer & operator=(const QSharedDataPointer<T> &o) {
-        QExplicitlySharedDataPointer<T>::operator=(o);
+    Q_EXPLICIT QSharedDataPointer(T *data) : d(data) { if (d) ++d->ref; }
+    QSharedDataPointer(const QSharedDataPointer &o) : d(o.d) { if (d) ++d->ref; }
+    QSharedDataPointer & operator=(const QSharedDataPointer &o) {
+        if (o.d != d) {
+            T *x = o.d;
+            if (x) ++x->ref;
+            x = qAtomicSetPtr(&d, x);
+            if (x && !--x->ref)
+                delete x;
+        }
         return *this;
     }
     QSharedDataPointer &operator=(T *o) {
-        QExplicitlySharedDataPointer<T>::operator=(o);
+        if (o != d) {
+            T *x = o;
+            if (x) ++x->ref;
+            x = qAtomicSetPtr(&d, x);
+            if (x && !--x->ref)
+                delete x;
+        }
         return *this;
     }
 
-    bool operator!() const { return !this->d; }
-    void detach();
+    bool operator!() const { return !d; }
+
+private:
+    void detach_helper();
+
+    T *d;
 };
 
 template <class T>
-Q_OUTOFLINE_TEMPLATE void QSharedDataPointer<T>::detach()
+Q_OUTOFLINE_TEMPLATE void QSharedDataPointer<T>::detach_helper()
 {
-    if (!this->d) return;
-    T *x = new T(*this->d);
+    T *x = new T(*d);
     ++x->ref;
-    x = qAtomicSetPtr(&this->d, x);
+    x = qAtomicSetPtr(&d, x);
     if (!--x->ref)
         delete x;
 }
