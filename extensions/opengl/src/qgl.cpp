@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#8 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#9 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -12,14 +12,21 @@
 #include "qgl.h"
 
 #if defined(Q_GLX)
+#include <qintdict.h>
 #define INT8  dummy_INT8
 #define INT32 dummy_INT32
 #include <GL/glx.h>
 #undef  INT8
 #undef  INT32
+#define	 GC GC_QQQ
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
+#include <X11/Xos.h>
+#include <X11/Xatom.h>
+#include <X11/Xmu/StdCmap.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#8 $");
+RCSTAG("$Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#9 $");
 
 
 #if defined(_CC_MSVC_)
@@ -637,14 +644,14 @@ bool QGLContext::chooseContext()
 	    rc = wglCreateContext( dc );
 	    success = TRUE;
 	} else {
-#if 1
+#if 0
 	    LPVOID lpMsgBuf;
 	    FormatMessage( 
 		FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM,
 		0, GetLastError(),
 		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
 		(LPTSTR) &lpMsgBuf, 0, 0 );
-	    debug( (const char *)lpMsgBuf );
+	    warning( (const char *)lpMsgBuf );
 	    LocalFree( lpMsgBuf );
 #endif
 	}
@@ -1004,6 +1011,9 @@ QGLWidget::QGLWidget( const QGLFormat &format, QWidget *parent,
 QGLWidget::~QGLWidget()
 {
     delete glcx;
+#if defined(GLX_MESA_release_buffers)
+    glXReleaseBuffersMESA( dpy, winId() );
+#endif
 }
 
 
@@ -1050,6 +1060,50 @@ void QGLWidget::setFormat( const QGLFormat &format )
 {
     setContext( new QGLContext(format,this) );
 }
+
+
+#if defined(Q_GLX)
+
+/*
+  The create_cmap function is internal and used by QGLWidget::setContext()
+  and GLX (not Windows).  If the application can't find any sharable
+  colormaps, it must at least create as few colormaps than necessary.  The
+  dictionary solution below ensures only one colormap is created per visual.
+  Colormaps are also deleted when the application terminates.
+*/
+
+struct CMap {
+    CMap( Colormap m ) : cmap(m) {}
+   ~CMap() { XFreeColormap(QPaintDevice::x__Display(),cmap); }
+    Colormap cmap;
+};
+
+static QIntDict<CMap> *cmap_dict = 0;
+
+static void cleanup_cmaps()
+{
+    if ( !cmap_dict )
+	return;
+    cmap_dict->setAutoDelete( TRUE );
+    delete cmap_dict;
+    cmap_dict = 0;
+}
+
+static Colormap create_cmap( Display *dpy, XVisualInfo *vi )
+{
+    if ( !cmap_dict ) {
+	cmap_dict = new QIntDict<CMap>;
+	qAddPostRoutine( cleanup_cmaps );
+    }
+    CMap *x = cmap_dict->find( (long)vi->visualid+1 );
+    if ( !x ) {
+	x = new CMap( XCreateColormap(dpy, RootWindow(dpy,vi->screen),
+				      vi->visual, AllocNone) );
+	cmap_dict->insert( (long)vi->visualid+1, x );
+    }
+    return x->cmap;
+}
+#endif // Q_GLX
 
 
 /*!
@@ -1114,14 +1168,26 @@ void QGLWidget::setContext( QGLContext *context )
 	 XVisualIDFromVisual((Visual*)QPaintDevice::x11Visual()) )
 	return;
 
-    /*
-      Here we can optimize:
-	1) Create one colormap for each visual.
-	2) Recreate window only if necessary.
-    */
-    Colormap cmap;
-    cmap = XCreateColormap( dpy, RootWindow(dpy,vi->screen),
-			    vi->visual, AllocNone );
+    // Try to find a shared colormap
+    Colormap cmap = 0;
+    if ( XmuLookupStandardColormap(dpy,vi->screen,vi->visualid,vi->depth,
+				   XA_RGB_DEFAULT_MAP,FALSE,TRUE) ) {
+	XStandardColormap *c;
+	int n;
+	if ( XGetRGBColormaps(dpy,RootWindow(dpy,vi->screen),&c,&n,
+			      XA_RGB_DEFAULT_MAP) ) {
+	    int i = 0;
+	    while ( i < n && cmap == 0 ) {
+		if ( c[i].visualid == vi->visualid )
+		    cmap = c[i].colormap;
+		i++;
+	    }
+	    XFree( (char *)c );
+	}
+    }    
+    if ( cmap == 0 )
+	cmap = create_cmap( dpy, vi );
+
     XSetWindowAttributes a;
     a.colormap = cmap;
     a.background_pixel = backgroundColor().pixel();
@@ -1132,10 +1198,13 @@ void QGLWidget::setContext( QGLContext *context )
     Window w = XCreateWindow( dpy, p,  x(), y(), width(), height(),
 			      0, vi->depth, InputOutput,  vi->visual,
 			      CWBackPixel|CWBorderPixel|CWColormap, &a );
+#if defined(GLX_MESA_release_buffers)
+    glXReleaseBuffersMESA( dpy, winId() );
+#endif
     create( w );
+    clearWFlags( WState_Visible );	// workaround for Qt 1.30 bug
     if ( visible )
 	show();
-
 #endif
 }
 
