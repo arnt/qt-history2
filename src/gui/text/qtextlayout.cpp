@@ -1071,7 +1071,7 @@ void QTextLine::layout_helper(int maxGlyphs)
 
     Q_ASSERT(line.from < eng->layoutData->string.length());
 
-    bool breakany = eng->option.wrapMode() & QTextOption::WrapAnywhere;
+    bool breakany = (eng->option.wrapMode() == QTextOption::WrapAnywhere);
 
     // #### binary search!
     int item;
@@ -1095,7 +1095,7 @@ void QTextLine::layout_helper(int maxGlyphs)
             QTextFormat format = eng->formats()->format(eng->formatIndex(&eng->layoutData->items[item]));
             if (eng->block.docHandle())
                 eng->docLayout()->layoutObject(QTextInlineObject(item, eng), format);
-            if (line.length && !(eng->option.wrapMode() & QTextOption::ManualWrap)) {
+            if (line.length && eng->option.wrapMode() != QTextOption::ManualWrap) {
                 if (line.textWidth + current.width > line.width || glyphCount > maxGlyphs)
                     goto found;
             }
@@ -1171,7 +1171,7 @@ void QTextLine::layout_helper(int maxGlyphs)
 //                    current.position + next, pos, next, logClusters[pos], logClusters[next], tmpw.value(), spacew.value());
 
             if (line.length && tmpw != qreal(0) && (line.textWidth + tmpw > line.width || glyphCount > maxGlyphs)
-                && !(eng->option.wrapMode() & QTextOption::ManualWrap))
+                && eng->option.wrapMode() != QTextOption::ManualWrap)
                 goto found;
 
             line.textWidth += tmpw;
