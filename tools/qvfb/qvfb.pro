@@ -1,5 +1,5 @@
 TEMPLATE        = app
-CONFIG          += qt warn_on debug uic
+CONFIG          += qt warn_on uic
 TARGET          = qvfb
 
 DEPENDPATH      = ../../include
