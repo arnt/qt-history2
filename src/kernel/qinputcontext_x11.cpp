@@ -34,9 +34,9 @@
 **********************************************************************/
 
 #include "qplatformdefs.h"
-#include "qinputcontext_p.h"
 #include "qapplication.h"
 #include "qwidget.h"
+#include "qinputcontext_p.h"
 
 #include <stdlib.h>
 #include <limits.h>
