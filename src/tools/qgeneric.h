@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgeneric.h#1 $
+** $Id: //depot/qt/main/src/tools/qgeneric.h#2 $
 **
 ** Macros for pasting tokens; utilized by our generic classes
 **
 ** Author  : Haavard Nord
 ** Created : 920529
 **
-** Copyright (C) 1992-1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1992-1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -14,12 +14,15 @@
 #define QGENERIC_H
 
 
-#ifndef __STDC__
-#define __STDC__ 1		/* comment out this line for K&R style cpp */
-#endif
+#if defined(_CC_MPW_)
 
+#include <generic.h>		/* MPW C++ has a non-standard preprocessor */
 
-#if defined(__STDC__)
+#else
+
+#define USE_STDC_MACROS		/* comment out this line for K&R style cpp */
+
+#if defined(USE_STDC_MACROS)
 
 // Standard token-pasting macros for ANSI C preprocessors
 
@@ -45,6 +48,7 @@
 #define declare2(a,t1,t2)	name2(a,declare2)(t1,t2)
 #define implement2(a,t1,t2)	name2(a,implement2)(t1,t2)
 
+#endif
 
 #endif // QGENERIC_H
 
