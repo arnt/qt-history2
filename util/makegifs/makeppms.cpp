@@ -5,6 +5,7 @@
 #include <qmotifstyle.h>
 #include <qwindowsstyle.h>
 
+#include <qdial.h>
 #include <qmainwindow.h>
 #include <qtoolbutton.h>
 #include <qtoolbar.h>
@@ -562,6 +563,17 @@ public:
     }
 };
 
+class EgQDial : public QDial {
+public:
+    EgQDial() :
+	QDial()
+    {
+	setValue(42);
+	setNotchesVisible(TRUE);
+	resize(60,60);
+    }
+};
+
 class EgQSpinBox2 : public EgQSpinBox {
 public:
     EgQSpinBox2() :
@@ -812,6 +824,7 @@ int main( int argc, char **argv )
 	DEPICT( EgQGrid, "qgrid", "QGrid" );
 	DEPICT( EgQHBox, "qhbox", "QHBox" );
 	DEPICT( EgQVBox, "qvbox", "QVBox" );
+	DEPICT( EgQDial, "qdial", "QDial" );
 
 	DEPICT( EgQSizeGrip, "qsizegrip", "QSizeGrip" );	
 	
