@@ -627,7 +627,9 @@ QWorkspace::QWorkspace( QWidget *parent, const char *name )
 
 QWorkspace::~QWorkspace()
 {
-    delete d;
+    delete d->popup;
+    delete d->toolPopup;
+    delete d;    
     d = 0;
 }
 
