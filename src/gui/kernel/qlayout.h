@@ -14,218 +14,157 @@
 #ifndef QLAYOUT_H
 #define QLAYOUT_H
 
-#include "QtGui/qabstractlayout.h"
-#ifdef QT_INCLUDE_COMPAT
-#include "QtGui/qwidget.h"
-#endif
+#include "QtCore/qobject.h"
+#include "QtGui/qlayoutitem.h"
+#include "QtGui/qsizepolicy.h"
+#include "QtCore/qrect.h"
 
-#include <limits.h>
+#include "limits.h"
 
-#ifndef QT_NO_LAYOUT
-
-class QGridLayoutPrivate;
-
-class Q_GUI_EXPORT QGridLayout : public QLayout
-{
-    Q_OBJECT
-    Q_DECLARE_PRIVATE(QGridLayout)
-public:
-    explicit QGridLayout(QWidget *parent);
-    explicit QGridLayout(QLayout *parentLayout);
-    QGridLayout();
+class QLayout;
+class QSize;
 
 #ifdef QT3_SUPPORT
-    QT3_SUPPORT_CONSTRUCTOR QGridLayout(QWidget *parent, int nRows, int nCols = 1, int border = 0,
-                                      int spacing = -1, const char *name = 0);
-    QT3_SUPPORT_CONSTRUCTOR QGridLayout(int nRows, int nCols = 1, int spacing = -1, const char *name = 0);
-    QT3_SUPPORT_CONSTRUCTOR QGridLayout(QLayout *parentLayout, int nRows, int nCols = 1, int spacing = -1,
-                                      const char *name = 0);
+class Q_GUI_EXPORT QLayoutIterator
+{
+public:
+    inline QT3_SUPPORT_CONSTRUCTOR QLayoutIterator(QLayout *i) : layout(i), index(0) {}
+    inline QLayoutIterator(const QLayoutIterator &i)
+	: layout(i.layout), index(i.index) {}
+    inline QLayoutIterator &operator=(const QLayoutIterator &i) {
+        layout = i.layout;
+        index = i.index;
+        return *this;
+    }
+    inline QT3_SUPPORT QLayoutItem *operator++();
+    inline QT3_SUPPORT QLayoutItem *current();
+    inline QT3_SUPPORT QLayoutItem *takeCurrent();
+    inline QT3_SUPPORT void deleteCurrent();
+
+private:
+    // hack to avoid deprecated warning
+    friend class QLayout;
+    inline QLayoutIterator(QLayout *i, bool) : layout(i), index(0) {}
+    QLayout *layout;
+    int index;
+};
 #endif
-    ~QGridLayout();
 
-    QSize sizeHint() const;
-    QSize minimumSize() const;
-    QSize maximumSize() const;
+class QLayoutPrivate;
 
-    void setRowStretch(int row, int stretch);
-    void setColumnStretch(int column, int stretch);
-    int rowStretch(int row) const;
-    int columnStretch(int column) const;
+class Q_GUI_EXPORT QLayout : public QObject, public QLayoutItem
+{
+    Q_OBJECT
+    Q_DECLARE_PRIVATE(QLayout)
 
-    void setRowSpacing(int row, int minSize);
-    void setColumnSpacing(int column, int minSize);
-    int rowSpacing(int row) const;
-    int columnSpacing(int column) const;
+    Q_ENUMS(ResizeMode)
+    Q_PROPERTY(int margin READ margin WRITE setMargin)
+    Q_PROPERTY(int spacing READ spacing WRITE setSpacing)
+    Q_PROPERTY(ResizeMode resizeMode READ resizeMode WRITE setResizeMode)
 
-    int columnCount() const;
-    int rowCount() const;
-    QRect cellGeometry(int row, int column) const;
+public:
+    enum ResizeMode { Auto, FreeResize, Minimum, Fixed };
 
-    bool hasHeightForWidth() const;
-    int heightForWidth(int) const;
-    int minimumHeightForWidth(int) const;
+    QLayout(QWidget *parent);
+    QLayout(QLayout *parentLayout);
+    QLayout();
+    ~QLayout();
+
+    int margin() const;
+    int spacing() const;
+
+    void setMargin(int);
+    void setSpacing(int);
+
+    void setResizeMode(ResizeMode);
+    ResizeMode resizeMode() const;
+
+    void setMenuBar(QWidget *w);
+    QWidget *menuBar() const;
+
+    QWidget *parentWidget() const;
+    bool isTopLevel() const;
+
+    void invalidate();
+    QRect geometry() const;
+    bool activate();
+    void update();
+
+    void addWidget(QWidget *w);
+    virtual void addItem(QLayoutItem *) = 0;
+
+    void removeWidget(QWidget *w);
+    void removeItem(QLayoutItem *);
 
     QSizePolicy::ExpandData expanding() const;
-    void invalidate();
-
-    inline void addWidget(QWidget *w) { QLayout::addWidget(w); }
-    void addWidget(QWidget *, int row, int column, Qt::Alignment = 0);
-    void addWidget(QWidget *, int row, int column, int rowSpan, int columnSpan, Qt::Alignment = 0);
-    void addLayout(QLayout *, int row, int column, Qt::Alignment = 0);
-    void addLayout(QLayout *, int row, int column, int rowSpan, int columnSpan, Qt::Alignment = 0);
-
-    void setOrigin(Qt::Corner);
-    Qt::Corner origin() const;
-    QLayoutItem *itemAt(int) const;
-    QLayoutItem *takeAt(int);
-    void setGeometry(const QRect&);
-
-    void addItem(QLayoutItem *item, int row, int column, int rowSpan = 1, int columnSpan = 1, Qt::Alignment = 0);
-
-    void setDefaultPositioning(int n, Qt::Orientation orient);
-    void getItemPosition(int idx, int *row, int *column, int *rowSpan, int *columnSpan);
-
-protected:
-    bool findWidget(QWidget* w, int *r, int *c);
-    void addItem(QLayoutItem *);
-
-private:
-    Q_DISABLE_COPY(QGridLayout)
-
-#ifdef QT3_SUPPORT
-public:
-    QT3_SUPPORT void expand(int rows, int cols);
-    inline QT3_SUPPORT void addRowSpacing(int row, int minsize) { addItem(new QSpacerItem(0,minsize), row, 0); }
-    inline QT3_SUPPORT void addColSpacing(int col, int minsize) { addItem(new QSpacerItem(minsize,0), 0, col); }
-    inline QT3_SUPPORT void addMultiCellWidget(QWidget *w, int fromRow, int toRow, int fromCol, int toCol, Qt::Alignment _align = 0)
-        { addWidget(w, fromRow, fromCol, (toRow < 0) ? -1 : toRow - fromRow + 1, (toCol < 0) ? -1 : toCol - fromCol + 1, _align); }
-    inline QT3_SUPPORT void addMultiCell(QLayoutItem *l, int fromRow, int toRow, int fromCol, int toCol, Qt::Alignment _align = 0)
-        { addItem(l, fromRow, fromCol, (toRow < 0) ? -1 : toRow - fromRow + 1, (toCol < 0) ? -1 : toCol - fromCol + 1, _align); }
-    inline QT3_SUPPORT void addMultiCellLayout(QLayout *layout, int fromRow, int toRow, int fromCol, int toCol, Qt::Alignment _align = 0)
-        { addLayout(layout, fromRow, fromCol, (toRow < 0) ? -1 : toRow - fromRow + 1, (toCol < 0) ? -1 : toCol - fromCol + 1, _align); }
-
-    inline QT3_SUPPORT int numRows() const { return rowCount(); }
-    inline QT3_SUPPORT int numCols() const { return columnCount(); }
-    inline QT3_SUPPORT void setColStretch(int col, int stretch) {setColumnStretch(col, stretch); }
-    inline QT3_SUPPORT int colStretch(int col) const {return columnStretch(col); }
-    inline QT3_SUPPORT void setColSpacing(int col, int minSize) { setColumnSpacing(col, minSize); }
-    inline QT3_SUPPORT int colSpacing(int col) const { return columnSpacing(col); }
-#endif
-};
-
-class QBoxLayoutPrivate;
-
-class Q_GUI_EXPORT QBoxLayout : public QLayout
-{
-    Q_OBJECT
-    Q_DECLARE_PRIVATE(QBoxLayout)
-public:
-    enum Direction { LeftToRight, RightToLeft, TopToBottom, BottomToTop,
-                     Down = TopToBottom, Up = BottomToTop };
-
-    explicit QBoxLayout(Direction, QWidget *parent);
-    explicit QBoxLayout(Direction, QLayout *parentLayout);
-    explicit QBoxLayout(Direction);
-
-#ifdef QT3_SUPPORT
-    QT3_SUPPORT_CONSTRUCTOR QBoxLayout(QWidget *parent, Direction, int border = 0, int spacing = -1,
-                const char *name = 0);
-    QT3_SUPPORT_CONSTRUCTOR  QBoxLayout(QLayout *parentLayout, Direction, int spacing = -1,
-                const char *name = 0);
-    QT3_SUPPORT_CONSTRUCTOR  QBoxLayout(Direction, int spacing, const char *name = 0);
-#endif
-    ~QBoxLayout();
-
-    Direction direction() const;
-    void setDirection(Direction);
-
-    void addSpacing(int size);
-    void addStretch(int stretch = 0);
-    void addWidget(QWidget *, int stretch = 0, Qt::Alignment alignment = 0);
-    void addLayout(QLayout *layout, int stretch = 0);
-    void addStrut(int);
-    void addItem(QLayoutItem *);
-
-    void insertSpacing(int index, int size);
-    void insertStretch(int index, int stretch = 0);
-    void insertWidget(int index, QWidget *widget, int stretch = 0, Qt::Alignment alignment = 0);
-    void insertLayout(int index, QLayout *layout, int stretch = 0);
-
-    bool setStretchFactor(QWidget *w, int stretch);
-    bool setStretchFactor(QLayout *l, int stretch);
-    bool setAlignment(QWidget *w, Qt::Alignment alignment);
-    bool setAlignment(QLayout *l, Qt::Alignment alignment);
-#ifdef Q_NO_USING_KEYWORD
-    inline void setAlignment(Qt::Alignment alignment) { QLayoutItem::setAlignment(alignment); }
-#else
-    using QLayoutItem::setAlignment;
-#endif
-
-    QSize sizeHint() const;
     QSize minimumSize() const;
     QSize maximumSize() const;
+    void setGeometry(const QRect&) = 0;
+    virtual QLayoutItem *itemAt(int index) const = 0;
+    virtual QLayoutItem *takeAt(int index) = 0;
+    bool isEmpty() const;
 
-    bool hasHeightForWidth() const;
-    int heightForWidth(int) const;
-    int minimumHeightForWidth(int) const;
+    int totalHeightForWidth(int w) const;
+    QSize totalMinimumSize() const;
+    QSize totalMaximumSize() const;
+    QSize totalSizeHint() const;
+    QLayout *layout();
 
-    QSizePolicy::ExpandData expanding() const;
-    void invalidate();
-    QLayoutItem *itemAt(int) const;
-    QLayoutItem *takeAt(int);
-    void setGeometry(const QRect&);
+    void setEnabled(bool);
+    bool isEnabled() const;
 
-    int findWidget(QWidget* w);
+    void freeze(int w=0, int h=0);
+
+    static QSize closestAcceptableSize(const QWidget *w, QSize s);
 
 protected:
-    void insertItem(int index, QLayoutItem *);
+    void widgetEvent(QEvent *);
+    void childEvent(QChildEvent *e);
+    void addChildLayout(QLayout *l);
+    void addChildWidget(QWidget *w);
+    void deleteAllItems();
+
+    QRect alignmentRect(const QRect&) const;
+protected:
+    QLayout(QLayoutPrivate &d, QLayout*, QWidget*);
 
 private:
-    Q_DISABLE_COPY(QBoxLayout)
-};
+    Q_DISABLE_COPY(QLayout)
 
-class Q_GUI_EXPORT QHBoxLayout : public QBoxLayout
-{
-    Q_OBJECT
-public:
-    QHBoxLayout();
-    explicit QHBoxLayout(QWidget *parent);
-    explicit QHBoxLayout(QLayout *parentLayout);
-    ~QHBoxLayout();
+    static void activateRecursiveHelper(QLayoutItem *item);
+
+    friend class QApplication;
 
 #ifdef QT3_SUPPORT
-    QT3_SUPPORT_CONSTRUCTOR QHBoxLayout(QWidget *parent, int border,
-                 int spacing = -1, const char *name = 0);
-    QT3_SUPPORT_CONSTRUCTOR QHBoxLayout(QLayout *parentLayout,
-                 int spacing, const char *name = 0);
-    QT3_SUPPORT_CONSTRUCTOR QHBoxLayout(int spacing, const char *name = 0);
-#endif
-
-private:
-    Q_DISABLE_COPY(QHBoxLayout)
-};
-
-class Q_GUI_EXPORT QVBoxLayout : public QBoxLayout
-{
-    Q_OBJECT
 public:
-    QVBoxLayout();
-    explicit QVBoxLayout(QWidget *parent);
-    explicit QVBoxLayout(QLayout *parentLayout);
-    ~QVBoxLayout();
+    QT3_SUPPORT_CONSTRUCTOR QLayout(QWidget *parent, int margin, int spacing = -1,
+                             const char *name = 0);
+    QT3_SUPPORT_CONSTRUCTOR QLayout(QLayout *parentLayout, int spacing, const char *name = 0);
+    QT3_SUPPORT_CONSTRUCTOR QLayout(int spacing, const char *name = 0);
+    inline QT3_SUPPORT QWidget *mainWidget() const { return parentWidget(); }
+    inline QT3_SUPPORT void remove(QWidget *w) { removeWidget(w); }
+    inline QT3_SUPPORT void add(QWidget *w) { addWidget(w); }
+
+    QT3_SUPPORT void setAutoAdd(bool a);
+    QT3_SUPPORT bool autoAdd() const;
+    inline QT3_SUPPORT QLayoutIterator iterator() { return QLayoutIterator(this,true); }
+
+    inline QT3_SUPPORT int defaultBorder() const { return spacing(); }
+#endif
+};
 
 #ifdef QT3_SUPPORT
-    QT3_SUPPORT_CONSTRUCTOR QVBoxLayout(QWidget *parent, int border,
-                 int spacing = -1, const char *name = 0);
-    QT3_SUPPORT_CONSTRUCTOR QVBoxLayout(QLayout *parentLayout,
-                 int spacing, const char *name = 0);
-    QT3_SUPPORT_CONSTRUCTOR QVBoxLayout(int spacing, const char *name = 0);
+inline QLayoutItem *QLayoutIterator::operator++() { return layout->itemAt(++index); }
+inline QLayoutItem *QLayoutIterator::current() { return layout->itemAt(index); }
+inline QLayoutItem *QLayoutIterator::takeCurrent() { return layout->takeAt(index); }
+inline void QLayoutIterator::deleteCurrent() { delete  layout->takeAt(index); }
 #endif
 
-private:
-    Q_DISABLE_COPY(QVBoxLayout)
-};
 
-#endif // QT_NO_LAYOUT
+#endif
 
-#endif // QLAYOUT_H
+//### support old includes
+#if 1 //def QT3_SUPPORT
+#include "QtGui/qboxlayout.h"
+#include "QtGui/qgridlayout.h"
+#endif

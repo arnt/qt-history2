@@ -25,9 +25,7 @@
 // We mean it.
 //
 
-#ifndef QLAYOUT_H
-    #error "Need to include qlayout.h before including qlayoutengine_p.h"
-#endif
+#include <qlayoutitem.h> //for QLAYOUTSIZE_MAX
 
 #ifndef QT_NO_LAYOUT
 

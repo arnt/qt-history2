@@ -6,19 +6,21 @@ PRECOMPILED_HEADER = kernel/qt_gui_pch.h
 
 KERNEL_P= kernel
 HEADERS += \
-	kernel/qabstractlayout.h \
 	kernel/qaction.h \
 	kernel/qactiongroup.h \
 	kernel/qapplication.h \
 	kernel/qapplication_p.h \
+	kernel/qboxlayout.h \
 	kernel/qclipboard.h \
 	kernel/qcursor.h \
 	kernel/qdesktopwidget.h \
 	kernel/qdrag.h \
 	kernel/qdnd_p.h \
 	kernel/qevent.h \
+	kernel/qgridlayout.h \
 	kernel/qkeysequence.h \
 	kernel/qlayout.h \
+	kernel/qlayoutitem.h \
 	kernel/qmime.h \
 	kernel/qsessionmanager.h \
 	kernel/qshortcut.h \
@@ -33,18 +35,20 @@ HEADERS += \
 	kernel/qwindowdefs.h 
 
 SOURCES += \
-	kernel/qabstractlayout.cpp \
 	kernel/qaction.cpp \
 	kernel/qactiongroup.cpp \
 	kernel/qapplication.cpp \
+	kernel/qboxlayout.cpp \
 	kernel/qclipboard.cpp \
 	kernel/qcursor.cpp \
 	kernel/qdrag.cpp \
 	kernel/qdnd.cpp \
 	kernel/qevent.cpp \
+	kernel/qgridlayout.cpp \
 	kernel/qkeysequence.cpp \
 	kernel/qlayout.cpp \
 	kernel/qlayoutengine.cpp \
+	kernel/qlayoutitem.cpp \
 	kernel/qmime.cpp \
 	kernel/qpalette.cpp \
 	kernel/qshortcut.cpp \
