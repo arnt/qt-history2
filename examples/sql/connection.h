@@ -18,8 +18,8 @@ static bool createConnection()
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName(":memory:");
     if (!db.open()) {
-        qSystemWarning("Cannot open database: %s",
-                       db.lastError().text().ascii());
+        qCritical("Cannot open database: %s (%s)", db.lastError().text().ascii(), 
+                  qt_error_string().local8Bit());
         return false;
     }
 
