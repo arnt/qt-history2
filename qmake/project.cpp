@@ -58,6 +58,7 @@ struct parser_info {
     QString file;
     int line_no;
 } parser;
+
 static void qmake_error_msg(const char *msg)
 {
     fprintf(stderr, "%s:%d: %s\n", parser.file.latin1(), parser.line_no, msg);
@@ -68,11 +69,11 @@ static QString varMap(const QString &x)
     QString ret(x);
     if(ret.startsWith("TMAKE")) //tmake no more!
 	ret = "QMAKE" + ret.mid(5);
-    if(ret == "INTERFACES")
+    else if(ret == "INTERFACES")
 	ret = "FORMS";
-    if(ret == "QMAKE_POST_BUILD")
+    else if(ret == "QMAKE_POST_BUILD")
 	ret = "QMAKE_POST_LINK";
-    if(ret == "TARGETDEPS")
+    else if(ret == "TARGETDEPS")
 	ret = "POST_TARGETDEPS";
     return ret;
 }
@@ -1011,7 +1012,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		QStringList &lst = (*((QMap<QString, QStringList>*)&place))[replacement];
 		lst.clear();
 		for(QStringList::ConstIterator arg_it = arg_list.begin();
-		    arg_it != arg_list.end(); ++arg_it) 
+		    arg_it != arg_list.end(); ++arg_it)
 		    lst += split_value_list((*arg_it));
 	    } else if(val.lower() == "join") {
 		if(arg_list.count() < 1 || arg_list.count() > 4) {
