@@ -1148,13 +1148,17 @@ void QLineEdit::mouseDoubleClickEvent( QMouseEvent * )
     bool oldHST = hasSelectedText();
     d->inDoubleClick = TRUE;
 
-    QTextCursor c1 = *d->cursor;
-    QTextCursor c2 = *d->cursor;
-    c1.gotoWordLeft();
-    c2.gotoWordRight();
-
-    d->parag->setSelection( QTextDocument::Standard, c1.index(), c2.index() );
-    *d->cursor = c2;
+    if ( echoMode() == Password ) {
+	selectAll();
+    } else {
+	QTextCursor c1 = *d->cursor;
+	QTextCursor c2 = *d->cursor;
+	c1.gotoWordLeft();
+	c2.gotoWordRight();
+	
+	d->parag->setSelection( QTextDocument::Standard, c1.index(), c2.index() );
+	*d->cursor = c2;
+    }
 #ifndef QT_NO_CLIPBOARD
     if (! d->mousePressed && QApplication::clipboard()->supportsSelection()) {
 	QApplication::clipboard()->setSelectionMode(TRUE);
