@@ -1368,8 +1368,9 @@ bool QLineEdit::event( QEvent * e )
     } else if ( e->type() == QEvent::Timer ) {
 	// should be timerEvent, is here for binary compatibility
 	int timerId = ((QTimerEvent*)e)->timerId();
-	if ( timerId == d->cursorTimer )
-	d->setCursorVisible( !d->cursorVisible );
+	if ( timerId == d->cursorTimer ) {
+	    if(!hasSelectedText() || style().styleHint( QStyle::SH_BlinkCursorWhenTextSelected ))
+		d->setCursorVisible( !d->cursorVisible );
 #ifndef QT_NO_DRAGANDDROP
 	else if ( timerId == d->dndTimer.timerId() )
 	    d->drag();
@@ -1792,7 +1793,6 @@ void QLineEdit::focusInEvent( QFocusEvent* e )
 	int cft = QApplication::cursorFlashTime();
 	d->cursorTimer = cft ? startTimer( cft/2 ) : -1;
     }
-    d->setCursorVisible( TRUE );
     d->updateMicroFocusHint();
 }
 
@@ -2308,8 +2308,11 @@ void QLineEditPrivate::moveCursor( int pos, bool mark )
 	setCursorVisible( TRUE );
     }
     updateMicroFocusHint();
-    if ( mark )
+    if ( mark ) {
+	if( !q->style().styleHint( QStyle::SH_BlinkCursorWhenTextSelected )) 
+	    setCursorVisible( FALSE );
 	emit q->selectionChanged();
+    }
 }
 
 void QLineEditPrivate::finishChange( int validateFromState, bool setModified )
@@ -2381,8 +2384,6 @@ void QLineEditPrivate::setText( const QString& txt )
 void QLineEditPrivate::setCursorVisible( bool visible )
 {
     if ( (bool)cursorVisible == visible ) 
-	return;
-    else if(visible && q->hasSelectedText() && !q->style().styleHint( QStyle::SH_BlinkCursorWhenTextSelected ))
 	return;
     if ( cursorTimer )
 	cursorVisible = visible;
