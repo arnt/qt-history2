@@ -95,9 +95,8 @@ qdstream.o: /usr/include/errno.h /usr/include/linux/errno.h
 qfile.o: qfile.h qiodev.h qglobal.h qstring.h qarray.h qgarray.h qshared.h
 qfile.o: /usr/include/string.h /usr/include/features.h
 qfile.o: /usr/include/sys/cdefs.h /usr/include/stdio.h /usr/include/libio.h
-qfile.o: qdatetm.h /usr/include/sys/types.h /usr/include/linux/types.h
-qfile.o: /usr/include/sys/stat.h /usr/include/linux/stat.h
-qfile.o: /usr/include/fcntl.h /usr/include/gnu/types.h
+qfile.o: qdatetm.h /usr/include/fcntl.h /usr/include/sys/types.h
+qfile.o: /usr/include/linux/types.h /usr/include/gnu/types.h
 qfile.o: /usr/include/linux/fcntl.h /usr/include/errno.h
 qfile.o: /usr/include/linux/errno.h /usr/include/limits.h
 qgarray.o: qgarray.h qshared.h qglobal.h /usr/include/string.h
