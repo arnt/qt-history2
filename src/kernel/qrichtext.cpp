@@ -4614,9 +4614,9 @@ void QTextParagraph::setColorForSelection( QColor &color, QPainter &painter,
 {
     if (selection < 0)
 	return;
-    color = ( hasdoc ?
-	  document()->selectionColor( selection ) :
-	  cg.color( QColorGroup::Highlight ) );
+    color = ( hasdoc && selection != QTextDocument::Standard ) ?
+	    document()->selectionColor( selection ) :
+	    cg.color( QColorGroup::Highlight );
     if ( selection == QTextDocument::IMCompositionText ) {
 	int h1, s1, v1, h2, s2, v2;
 	cg.color( QColorGroup::Base ).hsv( &h1, &s1, &v1 );
