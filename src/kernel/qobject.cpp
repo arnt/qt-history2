@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#160 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#161 $
 **
 ** Implementation of QObject class
 **
@@ -896,8 +896,6 @@ QConnectionList *QObject::receivers( const char *signal ) const
 }
 
 
-#warning "insertChild and removeChild should be virtual.  -- Haavard"
-
 /*!
   Inserts an object \e obj into the list of child objects.
 
@@ -1402,8 +1400,6 @@ bool QObject::connect( const QObject *sender,	const char *signal,
   A signal-slot connection is removed when either of the objects
   involved are destroyed.
 */
-
-#warning "disconnect const foo.  -- Arnt"
 
 /*!
   Disconnects \e signal in object \e sender from \e member in object \e

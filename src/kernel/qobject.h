@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.h#49 $
+** $Id: //depot/qt/main/src/kernel/qobject.h#50 $
 **
 ** Definition of QObject class
 **
@@ -70,8 +70,8 @@ public:
 				  bool regexpMatch = TRUE,
 				  bool recursiveSearch = TRUE );
 
-    void	insertChild( QObject * );
-    void	removeChild( QObject * );
+    virtual void insertChild( QObject * );
+    virtual void removeChild( QObject * );
 
     void	installEventFilter( const QObject * );
     void	removeEventFilter( const QObject * );
