@@ -90,6 +90,8 @@ protected:
 public:
     enum ResizeMode { Stretch, KeepSize, FollowSizeHint, Auto };
     QT_COMPAT void setResizeMode(QWidget *w, ResizeMode mode);
+protected:
+    QT_COMPAT int idAfter(QWidget*) const;
 #endif
 
 private:
