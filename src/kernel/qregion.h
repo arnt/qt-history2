@@ -113,13 +113,10 @@ private:
     QRegion winCombine( const QRegion &, int ) const;
 #endif
 #if defined(Q_WS_MAC)
-    friend void scaledBitBlt( QPaintDevice *dst, int dx, int dy, int dw, int dh,
-			      const QPaintDevice *src, int sx, int sy, int sw, int sh, 
-			      Qt::RasterOp rop, bool imask);
-    friend void dirty_wndw_rgn_internal(const QWidget *, const QRegion &);
-    friend class QPainter;
+    friend class QMacSavedPortInfo;
     friend class QWidget;
-    friend QMAC_PASCAL OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef, RgnHandle,RgnHandle, void *);
+    friend void qt_dirty_wndw_rgn_internal(const QWidget *p, const QRegion &r);
+    friend QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef, RgnHandle,RgnHandle, void *);
     QRegion(const RgnHandle);
     void rectifyRegion();
 #endif

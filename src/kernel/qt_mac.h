@@ -28,6 +28,7 @@
 #endif
 #undef OLD_DEBUG
 
+#include <qwidget.h>
 extern int mac_window_count; //qwidget_mac.cpp
 
 class QMacSavedFontInfo 
@@ -81,11 +82,68 @@ class QMacSavedPortInfo
 public:
     inline QMacSavedPortInfo() { init(); }
     inline QMacSavedPortInfo(QPaintDevice *pd) { init(); setPaintDevice(pd); }
+    inline QMacSavedPortInfo(QPaintDevice *pd, const QRect &r) 
+	{ init(); setPaintDevice(pd); setClipRegion(r); }
+    inline QMacSavedPortInfo(QPaintDevice *pd, const QRegion &r) 
+	{ init(); setPaintDevice(pd); setClipRegion(r); }
     ~QMacSavedPortInfo();
+    static bool setClipRegion(const QRect &r);
+    static bool setClipRegion(const QRegion &r);
     static bool setPaintDevice(QPaintDevice *);
+    static bool flush(QPaintDevice *);
+    static bool flush(QPaintDevice *, const QRegion &r, bool force=FALSE);
 
     static void removingGWorld(const GWorldPtr w);
 };
+
+inline bool QMacSavedPortInfo::flush(QPaintDevice *pdev) 
+{
+#ifdef Q_WS_MACX
+    if ( pdev->devType() == QInternal::Widget ) {
+	QWidget *w = (QWidget *)pdev;
+	if ( !w->isHidden() && !w->isDesktop() && QDIsPortBuffered(GetWindowPort((WindowPtr)w->handle())))
+	    QDFlushPortBuffer(GetWindowPort((WindowPtr)w->handle()), NULL);
+    } else if( pdev->devType() == QInternal::Pixmap || pdev->devType() == QInternal::Printer) {
+	QDFlushPortBuffer((GWorldPtr)pdev->handle(), NULL);
+    }
+#endif
+    return TRUE;
+}
+
+inline bool QMacSavedPortInfo::flush(QPaintDevice *pdev, const QRegion &r, bool force) 
+{
+#ifdef Q_WS_MACX
+    CGrafPtr toFlush = NULL;
+    if ( pdev->devType() == QInternal::Widget ) {
+	QWidget *w = (QWidget *)pdev;
+	if ( w->isHidden() || w->isDesktop() || !QDIsPortBuffered(GetWindowPort((WindowPtr)w->handle())))
+	    return FALSE;
+	toFlush = GetWindowPort((WindowPtr)w->handle());
+    } else if( pdev->devType() == QInternal::Pixmap || pdev->devType() == QInternal::Printer) {
+	toFlush = (GWorldPtr)pdev->handle();
+    }
+    QDFlushPortBuffer(toFlush, (!r.data->is_rect || force) ? (RgnHandle)r.handle(force) : NULL);
+#endif
+    return TRUE;
+}
+
+inline bool QMacSavedPortInfo::setClipRegion(const QRect &rect)
+{
+    Rect r;
+    SetRect(&r, rect.x(), rect.y(), rect.right()+1, rect.bottom()+1);
+    ClipRect(&r);
+    return TRUE;
+}
+
+inline bool QMacSavedPortInfo::setClipRegion(const QRegion &r)
+{
+    if(r.data->is_null)
+	return setClipRegion(QRect());
+    else if(r.data->is_rect)
+	return setClipRegion(r.data->rect);
+    SetClip((RgnHandle)r.handle());
+    return TRUE;
+}
 
 inline bool
 QMacSavedPortInfo::setPaintDevice(QPaintDevice *pd)

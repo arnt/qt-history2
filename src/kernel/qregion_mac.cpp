@@ -107,14 +107,10 @@ QRegion::QRegion( bool is_null )
 {
     data = new QRegionData;
     Q_CHECK_PTR( data );
-    if(is_null) {
-	data->is_null = TRUE;
+    if((data->is_null = is_null)) {
 	data->is_rect = TRUE;
 	data->rect = QRect();
     } else {
-	data = new QRegionData;
-	Q_CHECK_PTR( data );
-	data->is_null = FALSE;
 	data->is_rect = FALSE;
 	data->rgn = NewRgn();
     }
@@ -132,6 +128,7 @@ QRegion::QRegion( const QRect &r, RegionType t )
     } else {
 	Rect rect;
 	SetRect(&rect, rr.x(), rr.y(), rr.right()+1, rr.bottom()+1);
+	data->is_rect = FALSE;
 	data->rgn = NewRgn();
 	OpenRgn();
 	FrameOval(&rect);
@@ -247,6 +244,7 @@ QRegion::QRegion( const QBitmap &bm )
     data = new QRegionData;
     Q_CHECK_PTR( data );
     data->is_null = FALSE;
+    data->is_rect = FALSE;
 #if 0 //this should work, but didn't
     data->rgn = NewRgn();
     BitMapToRegion(data->rgn, (BitMap *)*GetGWorldPixMap((GWorldPtr)bm.handle()));
@@ -339,15 +337,16 @@ void QRegion::translate( int x, int y )
 
 QRegion QRegion::unite( const QRegion &r ) const
 {
+    if(data->is_null || r.data->is_null ) 
+	return (!data->is_null ? this : &r)->copy();
+
     if(data->is_rect && r.data->is_rect && data->rect.contains(r.data->rect))
 	return QRegion(data->rect);
-    if(r.data->is_null) 
-	return copy();
+
     if(data->is_rect) 
 	((QRegion *)this)->rectifyRegion();
     if(r.data->is_rect)
 	((QRegion *)&r)->rectifyRegion();
-
     QRegion result( FALSE );
     UnionRgn(data->rgn, r.data->rgn, result.data->rgn);
     return result;
@@ -355,15 +354,16 @@ QRegion QRegion::unite( const QRegion &r ) const
 
 QRegion QRegion::intersect( const QRegion &r ) const
 {
+    if(data->is_null || r.data->is_null ) 
+	return QRegion();
+
     if(data->is_rect && r.data->is_rect) 
 	return QRegion(data->rect & r.data->rect);
-    if(r.data->is_null) 
-	return QRegion(QRect());
+
     if(data->is_rect) 
 	((QRegion *)this)->rectifyRegion();
     if(r.data->is_rect) 
 	((QRegion *)&r)->rectifyRegion();
-
     QRegion result( FALSE );
     SectRgn( data->rgn, r.data->rgn, result.data->rgn );
     return result;
@@ -371,13 +371,13 @@ QRegion QRegion::intersect( const QRegion &r ) const
 
 QRegion QRegion::subtract( const QRegion &r ) const
 {
-    if(r.data->is_null)
-	return copy();
+    if(data->is_null || r.data->is_null ) 
+	return (!data->is_null ? this : &r)->copy();
+
     if(data->is_rect) 
 	((QRegion *)this)->rectifyRegion();
     if(r.data->is_rect)
 	((QRegion *)&r)->rectifyRegion();
-
     QRegion result( FALSE );
     DiffRgn( data->rgn, r.data->rgn, result.data->rgn );
     return result;
@@ -385,13 +385,13 @@ QRegion QRegion::subtract( const QRegion &r ) const
 
 QRegion QRegion::eor( const QRegion &r ) const
 {
-    if(r.data->is_null)
-	return copy();
+    if(data->is_null || r.data->is_null ) 
+	return (!data->is_null ? this : &r)->copy();
+
     if(data->is_rect) 
 	((QRegion *)this)->rectifyRegion();
     if(r.data->is_rect)
 	((QRegion *)&r)->rectifyRegion();
-
     QRegion result( FALSE );
     XorRgn( data->rgn, r.data->rgn, result.data->rgn );
     return result;

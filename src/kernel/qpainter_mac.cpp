@@ -545,16 +545,7 @@ void QPainter::flush()
 {
     if(!isActive())
 	return;
-    
-    CGrafPtr toFlush = NULL;
-    RgnHandle area = NULL;
-    if(!paintreg.data->is_rect)
-	area = paintreg.data->rgn;
-    if ( pdev->devType() == QInternal::Widget )
-	toFlush = GetWindowPort((WindowPtr)pdev->handle());
-    else if( pdev->devType() == QInternal::Pixmap || pdev->devType() == QInternal::Printer)
-	toFlush = (GWorldPtr)pdev->handle();
-    QDFlushPortBuffer(toFlush, area);
+    QMacSavedPortInfo::flush(pdev, paintreg);
 }
 
 void QPainter::setBackgroundColor( const QColor &c )
@@ -1811,15 +1802,5 @@ inline void QPainter::updateClipRegion()
 	    paintreg = clippedreg;
 	}
     }
-    if(paintreg.data->is_rect || paintreg.isNull()) {
-	Rect r;
-	if(paintreg.data->is_rect)
-	    SetRect(&r, paintreg.data->rect.x(), paintreg.data->rect.y(), 
-		    paintreg.data->rect.right()+1, paintreg.data->rect.bottom()+1);
-	else
-	    SetRect(&r, 0, 0, 0, 0);
-	ClipRect(&r);
-    } else {
-	SetClip((RgnHandle)paintreg.handle()); //probably shouldn't do this?
-    }
+    QMacSavedPortInfo::setClipRegion(paintreg);
 }

@@ -2185,10 +2185,8 @@ void QApplication::flush()
 {
     sendPostedEvents();
     if(QWidgetList *list   = qApp->topLevelWidgets()) {
-	for ( QWidget     *widget = list->first(); widget; widget = list->next() ) {
-	    if ( !widget->isHidden() && !widget->isDesktop())
-		QDFlushPortBuffer(GetWindowPort((WindowPtr)widget->handle()),NULL);
-	}
+	for ( QWidget     *widget = list->first(); widget; widget = list->next() ) 
+	    QMacSavedPortInfo::flush(widget);
 	delete list;
     }
 }
