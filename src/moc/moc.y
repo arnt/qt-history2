@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#207 $
+** $Id: //depot/qt/main/src/moc/moc.y#208 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -312,7 +312,7 @@ int	   tmpYYStart;				// Used to store the lexers current mode
 int	   tmpYYStart2;				// Used to store the lexers current mode
 						// (if tmpYYStart is already used)
 
-const int  formatRevision = 11;			// moc output format revision
+const int  formatRevision = 12;			// moc output format revision
 
 %}
 
@@ -2533,7 +2533,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#207 $)\n**\n";
+		 "**      by: The Qt MOC ($Id: //depot/qt/main/src/moc/moc.y#208 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -2632,7 +2632,10 @@ void generateClass()		      // generate C++ source code for a class
 //
     fprintf( out, "QMetaObject* %s::staticMetaObject()\n{\n", (const char*)qualifiedClassName() );
     fprintf( out, "    if ( metaObj )\n\treturn metaObj;\n" );
-    fprintf( out, "    (void) %s::staticMetaObject();\n", (const char*)superclassName );
+    if ( !superclassName.isEmpty() )
+	fprintf( out, "    QMetaObject* parentObject = %s::staticMetaObject();\n", (const char*)superclassName );
+    else
+	fprintf( out, "    QMetaObject* parentObject = 0;\n" );
 
 //
 // Build the enums array in staticMetaObject()
@@ -2664,8 +2667,7 @@ void generateClass()		      // generate C++ source code for a class
 // Finally code to create and return meta object
 //
     fprintf( out, "    metaObj = QMetaObject::new_metaobject(\n"
-		  "\t\"%s\", \"%s\",\n",
-	     (const char*)qualifiedClassName(), (const char*)qualifiedSuperclassName() );
+		  "\t\"%s\", parentObject,\n", (const char*)qualifiedClassName() );
 
     if ( slots.count() )
 	fprintf( out, "\tslot_tbl, %d,\n", slots.count() );

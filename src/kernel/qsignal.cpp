@@ -232,7 +232,7 @@ QMetaObject* QSignal::staticMetaObject()
 {
     if ( metaObj )
 	return metaObj;
-    (void)QObject::staticMetaObject();
+    QMetaObject *parentObject = QObject::staticMetaObject();
 
     typedef void(QSignal::*m2_t0)(int);
     m2_t0 v2_0 =  &QSignal::dummy;
@@ -241,7 +241,7 @@ QMetaObject* QSignal::staticMetaObject()
     signal_tbl[0].ptr = *((QMember*)&v2_0);
     signal_tbl[0].access = QMetaData::Public;
     metaObj = QMetaObject::new_metaobject(
-	"QSignal", "QObject",
+	"QSignal", parentObject,
 	0, 0,
 	signal_tbl, 1,
 #ifndef QT_NO_PROPERTIES

@@ -36,7 +36,7 @@
 **********************************************************************/
 
 #include "qmetaobject.h"
-#include "qobjectdict.h"
+#include "qasciidict.h"
 
 // NOT REVISED
 
@@ -109,9 +109,6 @@
 */
 
 
-QObjectDictionary *objectDict = 0;		// global object dictionary
-
-
 /*****************************************************************************
   The private object.
  *****************************************************************************/
@@ -182,7 +179,7 @@ static int optDictSize( int n )
 
 /*!\internal
  */
-QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
+QMetaObject::QMetaObject( const char *class_name, QMetaObject *super_class,
 			  QMetaData *slot_data,	  int n_slots,
 			  QMetaData *signal_data, int n_signals,
 #ifndef QT_NO_PROPERTIES
@@ -191,17 +188,9 @@ QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
 #endif
 			  QClassInfo *class_info, int n_info )
 {
-    if ( !objectDict ) {			// first meta object created
-	objectDict
-	    = new QObjectDictionary( 211,
-				     TRUE,	// no copying of keys
-				     FALSE );	// case sensitive
-	CHECK_PTR( objectDict );
-	objectDict->setAutoDelete( TRUE );	// use as master dict
-    }
-
     classname = class_name;			// set meta data
-    superclassname = superclass_name;
+    superclass = super_class;
+    superclassname = superclass ? superclass->className() : 0;
     slotDict = init( slotData = slot_data, n_slots );
     signalDict = init( signalData = signal_data, n_signals );
 
@@ -216,10 +205,6 @@ QMetaObject::QMetaObject( const char *class_name, const char *superclass_name,
 #endif
     d->classInfo = class_info;
     d->numClassInfo = n_info;
-
-    objectDict->insert( classname, this );	// insert into object dict
-
-    superclass = objectDict->find( superclassname ); // get super class meta object
 
     signaloffset = superclass ? ( superclass->signalOffset() + superclass->numSignals() ) : 0;
     slotoffset = superclass ? ( superclass->slotOffset() + superclass->numSlots() ) : 0;
@@ -380,7 +365,7 @@ int QMetaObject::findSlot( const char* n, bool super ) const
 /*!\internal
  */
 QMetaObject *QMetaObject::new_metaobject( const char *classname,
-					  const char *superclassname,
+					  QMetaObject *superclassobject,
 					  QMetaData *slot_data,	int n_slots,
 					  QMetaData *signal_data,int n_signals,
 #ifndef QT_NO_PROPERTIES
@@ -389,7 +374,7 @@ QMetaObject *QMetaObject::new_metaobject( const char *classname,
 #endif
 					  QClassInfo * class_info, int n_info )
 {
-    return new QMetaObject( classname, superclassname, slot_data, n_slots,
+    return new QMetaObject( classname, superclassobject, slot_data, n_slots,
 			    signal_data, n_signals,
 #ifndef QT_NO_PROPERTIES
 			    prop_data, n_props,
@@ -927,16 +912,7 @@ QMetaObjectCleanUp::QMetaObjectCleanUp()
 
 QMetaObjectCleanUp::~QMetaObjectCleanUp()
 {
-    if ( !metaObject )
-	return;
-
-    if ( objectDict ) {
-	objectDict->remove( metaObject->className() );
-	if ( !objectDict->count() ) {
-	    delete objectDict;
-	    objectDict = 0;
-	}
-    }
+    delete metaObject;
     metaObject = 0;
 }
 
@@ -948,4 +924,3 @@ void QMetaObjectCleanUp::setMetaObject( QMetaObject *mo )
 #endif
     metaObject = mo;
 }
-

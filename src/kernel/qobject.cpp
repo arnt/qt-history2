@@ -39,9 +39,9 @@
 #include "qapplication.h"
 #include "qobject.h"
 #include "qobjectlist.h"
-#include "qobjectdict.h"
 #include "qsignalslotimp.h"
 #include "qregexp.h"
+#include "qmetaobject.h"
 #include <ctype.h>
 
 #include "qpixmap.h"
@@ -321,7 +321,7 @@ static void remove_tree( QObject* obj )
 
 QObject::QObject( QObject *parent, const char *name )
 {
-    if ( !objectDict )				// will create object dict
+    if ( !metaObj )				// will create object dict
 	(void) staticMetaObject();
     objname       = name ? qstrdup(name) : 0;   // set object name
     childObjects  = 0;				// no children yet
@@ -1899,7 +1899,7 @@ QMetaObject* QObject::staticMetaObject()
     enum_tbl[2].items[2].key = "AutoText";
     enum_tbl[2].items[2].value = (int) Qt::AutoText;
 #endif
-    metaObj = new QMetaObject( "QObject", "",
+    metaObj = new QMetaObject( "QObject", 0,
 	slot_tbl, 1,
 	signal_tbl, 1,
 #ifndef QT_NO_PROPERTIES

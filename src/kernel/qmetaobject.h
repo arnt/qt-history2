@@ -137,7 +137,7 @@ class QMetaObjectPrivate;
 class Q_EXPORT QMetaObject			// meta object class
 {
 public:
-    QMetaObject( const char *class_name, const char *superclass_name,
+    QMetaObject( const char *class_name, QMetaObject *superclass,
 		 QMetaData *slot_data,	int n_slots,
 		 QMetaData *signal_data, int n_signals,
 #ifndef QT_NO_PROPERTIES
@@ -184,7 +184,7 @@ public:
     // static wrappers around constructors, necessary to work around a
     // Windows-DLL limitation: objects can only be deleted within a
     // DLL if they were actually created within that DLL.
-    static QMetaObject	*new_metaobject( const char *, const char *,
+    static QMetaObject	*new_metaobject( const char *, QMetaObject *,
 					QMetaData *, int,
 					QMetaData *, int,
 #ifndef QT_NO_PROPERTIES

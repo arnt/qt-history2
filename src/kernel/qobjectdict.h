@@ -66,9 +66,4 @@ public:
 	{ return (QObjectDictionary&)QAsciiDict<QMetaObject>::operator=(dict);}
 };
 
-// Global object dictionary defined in qmetaobject.cpp
-
-extern Q_EXPORT QObjectDictionary *objectDict;
-
-
 #endif // QOBJECTDICT_H
