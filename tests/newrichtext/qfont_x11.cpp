@@ -1697,7 +1697,6 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 
     FontEngineIface *qfs = 0;
     QCString fontname;
-    QTextCodec *codec = 0;
     XFontStruct *xfs = 0;
 
 #ifndef QT_NO_XFTFREETYPE
@@ -1849,39 +1848,6 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	    return;
 	}
 
-	// get unicode -> font encoding codec
-	if (script < QFont::Unicode || script > QFont::NoScript) {
-	    if ( script == QFont::Hebrew )
-		codec = QTextCodec::codecForName( "ISO 8859-8-I" );
-	    else if ( script == QFont::Latin )
-		codec = QTextCodec::codecForName("ISO-8859-1");
-	    else
-		codec =
-		    QTextCodec::codecForName(script_table[script].list[script_table[script].index]);
-
-#ifdef QFONTLOADER_DEBUG
-	    if (codec) {
-		qDebug("QFontLoader: got codec %s for script %d %s",
-		       codec->name(), script,
-		       script_table[script].list[script_table[script].index]);
-	    }
-#endif
-
-	    // if we don't have a codec for the font, don't even bother loading it
-	    if (! codec) {
-#ifdef QFONTLOADER_DEBUG
-		qDebug("QFontLoader: no codec for script %d %s",
-		       script,
-		       script_table[script].list[script_table[script].index]);
-#endif
-
-		x11data.fontstruct[script] = new FontEngineBox( pixelSize( request,  paintdevice, x11Screen ) );
-		initFontInfo(script, scale);
-		fontCache->insert(k, x11data.fontstruct[script], 1);
-		return;
-	    }
-	}
-
 	// font was never loaded, we need to do that now
 #ifdef QFONTLOADER_DEBUG
 	qDebug("QFontLoader: %p loading font for %d %s\n\t%s", this,
@@ -1925,7 +1891,7 @@ void QFontPrivate::load(QFont::Script script, bool tryUnicode)
 	cost = ((xfs->max_bounds.ascent + xfs->max_bounds.descent) *
 		(xfs->max_bounds.width * cost / 8));
 	// ### fix cmap index
-	qfs = new FontEngineXLFD( xfs, fontname, codec, 0);
+	qfs = new FontEngineXLFD( xfs, fontname, script_table[script].list[script_table[script].index], 0);
     }
 #ifndef QT_NO_XFTFREETYPE
     else if (xftfs) {

@@ -1,0 +1,33 @@
+#!/usr/bin/perl
+open IN, "encodings.in"
+  or die "Can't open in\n";
+open header, ">encodings.h"
+  or die "Can't open header\n";
+open out, ">encodings.gperf"
+  or die "Can't open out\n";
+
+print out "struct encodings {\n    const char *name;\n    FontMapper mapper;\n};\n%%\n";
+
+$num = 0;
+while (<IN>) {
+    chomp;
+    $attr = $_;
+    $num = $num + 1;
+
+    $up = uc($attr);
+    push(@a, "    \"$up\",");
+    $up =~ s/-/_/;
+    $up =~ s/\./_/;
+    print out $attr . ", ENC_" . $up . "\n";
+
+    print header "#define ENC_" . $up . " 0\n";
+
+    }
+print out "%%\n";
+close out;
+
+print header "};\n";
+close header;
+
+system("/bin/sh", "-c", "gperf -c -a -L 'ANSI-C' -D -E -C -o -t -k '*' -NfindEncoding -Hhash_encoding -Wwordlist_encoding -s 2 encodings.gperf > encodings.c");
+system("/bin/sh", "-c", 'perl -pi -e "s/\"\"}/\"\", 0}/g" encodings.c');

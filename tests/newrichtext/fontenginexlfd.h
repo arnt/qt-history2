@@ -8,10 +8,12 @@ class QTextCodec;
 
 #include <qt_x11.h>
 
+typedef bool (*FontMapper)( const QChar *str_in, unsigned short *glyph_out, int num_chars );
+
 class FontEngineXLFD : public FontEngineIface
 {
 public:
-    FontEngineXLFD( XFontStruct *fs, const char *name, QTextCodec *codec, int cmap );
+    FontEngineXLFD( XFontStruct *fs, const char *name, const char *encoding, int cmap );
     ~FontEngineXLFD();
 
     Error stringToCMap( const QChar *str,  int len, GlyphIndex *glyphs, int *nglyphs ) const;
@@ -40,7 +42,7 @@ private:
     friend class QFontPrivate;
     XFontStruct *_fs;
     QCString _name;
-    QTextCodec *_codec;
+    FontMapper fontMapper;
     float _scale; // needed for printing, to correctly scale font metrics for bitmap fonts
     int _cmap;
 };
