@@ -40,7 +40,10 @@ QSqlPropertyMap::QSqlPropertyMap()
 QVariant QSqlPropertyMap::property( QObject * object )
 {
     if( !object ) return QVariant();
-
+#ifdef CHECK_RANGE
+    if ( !propertyMap.contains( QString(object->metaObject()->className()) ) )
+	qWarning("QSqlPropertyMap::property: %s does not exist", object->metaObject()->className() );
+#endif
     return object->property( propertyMap[ object->metaObject()->className() ] );
 }
 
@@ -212,7 +215,7 @@ void QSqlFormMap::syncFields()
   \brief Class used for creating SQL forms
 
   \module sql
-  
+
   This class is used to create SQL forms for accessing, updating,
   inserting and deleting data from a database. Populate the form with
   widgets created by the QSqlEditorFactory class, to get the proper
@@ -226,24 +229,24 @@ void QSqlFormMap::syncFields()
 
      // Set the view the form should operate on
      form.setView( &myView );
-     
-     // Create an appropriate widget for displaying/editing 
+
+     // Create an appropriate widget for displaying/editing
      // field 0 in myView.
      w = factory.createEditor( &form, myView.field( 0 ) );
-     
+
      // Associate the newly created widget with field 0 in myView
      form.associate( w, myView.field( 0 ) );
-     
+
      // Now, update the contents of the form from the fields in the form.
      form.syncWidgets();
   <\code>
-  
+
   If you want to use custom editors for displaying/editing data fields,
   you will have to install a custom QSqlPropertyMap. The form uses this
   object to get or set the value of a widget (ie. the text in a QLineEdit,
   the index in a QComboBox).
   You will also have use the Q_PROPERTY macro in the class definition,
-  and define a pair of functions that can get or set the value of the 
+  and define a pair of functions that can get or set the value of the
   widget.
 */
 
@@ -305,7 +308,7 @@ void QSqlForm::installPropertyMap( QSqlPropertyMap * m )
 }
 
 /*!
-  
+
   Refresh the widgets in the form with values from the associated SQL
   fields. Also emits a signal to indicate that the form state has
   changed.
@@ -332,7 +335,7 @@ void QSqlForm::syncFields()
 }
 
 /*!
- 
+
   Move to the first record in the associated view.
 */
 void QSqlForm::first()
@@ -343,7 +346,7 @@ void QSqlForm::first()
 }
 
 /*!
- 
+
   Move to the last set record in the associated view.
 */
 void QSqlForm::last()
@@ -354,7 +357,7 @@ void QSqlForm::last()
 }
 
 /*!
- 
+
   Move to the next record in the associated view.
 */
 void QSqlForm::next()
@@ -370,7 +373,7 @@ void QSqlForm::next()
 }
 
 /*!
- 
+
   Move to the previous record in the associated view.
 */
 void QSqlForm::previous()
@@ -385,7 +388,7 @@ void QSqlForm::previous()
 }
 
 /*!
- 
+
   Insert a new record in the associated view.
 */
 bool QSqlForm::insert()
@@ -399,7 +402,7 @@ bool QSqlForm::insert()
 }
 
 /*!
- 
+
   Update the current record in the associated view.
 */
 bool QSqlForm::update()
@@ -413,7 +416,7 @@ bool QSqlForm::update()
 }
 
 /*!
- 
+
   Delete the current record from the associated view.
 */
 bool QSqlForm::del()
@@ -426,7 +429,7 @@ bool QSqlForm::del()
 }
 
 /*!
- 
+
   Seek to the i'th record in the associated view.
 */
 void QSqlForm::seek( int i )
