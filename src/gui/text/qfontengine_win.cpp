@@ -228,7 +228,7 @@ QFontEngineWin::QFontEngineWin( const QString &name, HDC _hdc, HFONT _hfont, boo
     // TextOutW doesn't work for symbol fonts on Windows 95!
     // since we're using glyph indices we don't care for ttfs about this!
     if ( qWinVersion() == Qt::WV_95 && !ttf &&
-	 ( _name == QLatin1String("Marlett") || _name == QLatin1String("Symbol") || 
+	 ( _name == QLatin1String("Marlett") || _name == QLatin1String("Symbol") ||
 	   _name == QLatin1String("Webdings") || _name == QLatin1String("Wingdings") ) )
 	    useTextOutA = TRUE;
 #endif
@@ -243,14 +243,14 @@ QFontEngine::FECaps QFontEngineWin::capabilites() const
 	);
 }
 
-QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored ) const
+QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, Flags flags ) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;
 	return OutOfMemory;
     }
 
-    getGlyphIndexes( str, len, glyphs, mirrored );
+    getGlyphIndexes( str, len, glyphs, flags & Mirrored );
 
     HDC hdc = dc();
     unsigned int glyph;
@@ -684,7 +684,7 @@ QFontEngine::FECaps QFontEngineBox::capabilites() const
     return FullTransformations;
 }
 
-QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *,  int len, QGlyphLayout *glyphs, int *nglyphs, bool ) const
+QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *,  int len, QGlyphLayout *glyphs, int *nglyphs, Flags ) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;

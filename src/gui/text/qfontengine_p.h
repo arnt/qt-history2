@@ -51,7 +51,6 @@ public:
 
 	// MS Windows types
 	Win,
-	Uniscribe,
 
 	// Apple MacOS types
 	Mac,
@@ -76,19 +75,28 @@ public:
 	_scale = 1;
 #endif
     }
+
+    enum FlagsEnum {
+	DeviceMetrics = 0x0000,
+	DesignMetrics = 0x0001,
+
+	Mirrored = 0x1000
+    };
+    Q_DECLARE_FLAGS(Flags, FlagsEnum);
+
     virtual ~QFontEngine();
 
     virtual FECaps capabilites() const = 0;
 
     /* returns 0 as glyph index for non existant glyphs */
-    virtual Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored) const = 0;
+    virtual Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, Flags flags) const = 0;
 
 #if defined(Q_WS_X11)
     virtual int cmap() const { return -1; }
 #endif
 
     virtual QOpenType *openType() const { return 0; }
-    virtual void recalcAdvances(int , QGlyphLayout *) const {}
+    virtual void recalcAdvances(int , QGlyphLayout *, Flags flags) const {}
 
     virtual void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags) = 0;
 
@@ -170,10 +178,10 @@ public:
     FECaps capabilites() const;
 
     QOpenType *openType() const;
-    void recalcAdvances(int len, QGlyphLayout *glyphs) const;
+    void recalcAdvances(int len, QGlyphLayout *glyphs, Flags flags) const;
 
     /* returns 0 as glyph index for non existant glyphs */
-    Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored) const;
+    Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, Flags flags) const;
 
     void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags);
 
@@ -213,7 +221,7 @@ public:
 
     FECaps capabilites() const;
 
-    Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored) const;
+    Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, Flags flags) const;
 
     void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags);
 
@@ -273,7 +281,7 @@ public:
 
     QOpenType *openType() const;
 
-    Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored) const;
+    Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, Flags flags) const;
 
     void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags);
 
@@ -300,7 +308,7 @@ public:
     Type type() const;
     XftPattern *pattern() const { return _pattern; }
 
-    void recalcAdvances(int len, QGlyphLayout *glyphs) const;
+    void recalcAdvances(int len, QGlyphLayout *glyphs, Flags flags) const;
 
     FT_Face freetypeFace() const { return _face; }
 private:
@@ -331,7 +339,7 @@ public:
 
     FECaps capabilites() const;
 
-    Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored) const;
+    Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, Flags flags) const;
 
     void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags);
 
@@ -377,7 +385,7 @@ public:
 
     FECaps capabilites() const;
 
-    Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored) const;
+    Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, Flags flags) const;
 
     void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags);
 
@@ -434,7 +442,7 @@ public:
     QFontEngineMac();
     ~QFontEngineMac();
 
-    Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored) const;
+    Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, Flags flags) const;
 
     void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags);
 
@@ -470,7 +478,7 @@ public:
 
     FECaps capabilites() const;
 
-    Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored) const;
+    Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, Flags flags) const;
 
     void draw(QPaintEngine *p, int x, int y, const QTextItem &si, int textFlags);
 

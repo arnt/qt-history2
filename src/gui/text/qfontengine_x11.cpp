@@ -107,7 +107,7 @@ QFontEngine::FECaps QFontEngineBox::capabilites() const
     return FullTransformations;
 }
 
-QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *, int len, QGlyphLayout *glyphs, int *nglyphs, bool ) const
+QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *, int len, QGlyphLayout *glyphs, int *nglyphs, Flags ) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;
@@ -275,13 +275,14 @@ QFontEngine::FECaps QFontEngineXLFD::capabilites() const
     return NoTransformations;
 }
 
-QFontEngine::Error QFontEngineXLFD::stringToCMap( const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored ) const
+QFontEngine::Error QFontEngineXLFD::stringToCMap( const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, Flags flags ) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;
 	return OutOfMemory;
     }
 
+    bool mirrored = flags & Mirrored;
     if ( _codec ) {
 	bool haveNbsp = FALSE;
 	for ( int i = 0; i < len; i++ )
@@ -608,7 +609,7 @@ bool QFontEngineXLFD::canRender( const QChar *string, int len )
 {
     QVarLengthArray<QGlyphLayout, 256> glyphs(len);
     int nglyphs = len;
-    if ( stringToCMap( string, len, glyphs, &nglyphs, FALSE ) == OutOfMemory ) {
+    if ( stringToCMap( string, len, glyphs, &nglyphs, 0 ) == OutOfMemory ) {
 	glyphs.resize(nglyphs);
 	stringToCMap( string, len, glyphs, &nglyphs, FALSE );
     }
@@ -762,13 +763,14 @@ void QFontEngineLatinXLFD::findEngine( const QChar &ch )
 }
 
 QFontEngine::Error
-QFontEngineLatinXLFD::stringToCMap( const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored ) const
+QFontEngineLatinXLFD::stringToCMap( const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, Flags flags ) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;
 	return OutOfMemory;
     }
 
+    bool mirrored = flags & Mirrored;
     int i;
     bool missing = FALSE;
     const QChar *c = str+len;
@@ -1134,13 +1136,14 @@ QFontEngine::FECaps QFontEngineXft::capabilites() const
     return (_face->face_flags & FT_FACE_FLAG_SCALABLE) ? FullTransformations : NoTransformations;
 }
 
-QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored ) const
+QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, Flags flags ) const
 {
     if ( *nglyphs < len ) {
 	*nglyphs = len;
 	return OutOfMemory;
     }
 
+    bool mirrored = flags & Mirrored;
     if ( mirrored ) {
 	for ( int i = 0; i < len; ++i ) {
 	    unsigned short uc = ::mirroredChar(str[i]).unicode();
@@ -1192,7 +1195,7 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str, int len, QGly
 }
 
 
-void QFontEngineXft::recalcAdvances(int len, QGlyphLayout *glyphs) const
+void QFontEngineXft::recalcAdvances(int len, QGlyphLayout *glyphs, Flags) const
 {
     for ( int i = 0; i < len; i++ ) {
 	FT_UInt glyph = glyphs[i].glyph;
@@ -1506,7 +1509,7 @@ int QFontEngineXft::minRightBearing() const
 	QChar *ch = (QChar *)char_table;
 	QGlyphLayout glyphs[char_table_entries];
 	int ng = char_table_entries;
-	stringToCMap(ch, char_table_entries, glyphs, &ng, false);
+	stringToCMap(ch, char_table_entries, glyphs, &ng, 0);
 	while (--ng) {
 	    if (glyphs[ng].glyph) {
 		glyph_metrics_t gi = that->boundingBox( glyphs[ng].glyph );

@@ -2156,7 +2156,7 @@ int QFontMetrics::leftBearing(QChar ch) const
 
     QGlyphLayout glyphs[10];
     int nglyphs = 9;
-    engine->stringToCMap( &ch, 1, glyphs, &nglyphs, FALSE );
+    engine->stringToCMap( &ch, 1, glyphs, &nglyphs, 0 );
     // ### can nglyphs != 1 happen at all? Not currently I think
     glyph_metrics_t gi = engine->boundingBox( glyphs[0].glyph );
     return gi.x;
@@ -2188,7 +2188,7 @@ int QFontMetrics::rightBearing(QChar ch) const
 
     QGlyphLayout glyphs[10];
     int nglyphs = 9;
-    engine->stringToCMap( &ch, 1, glyphs, &nglyphs, FALSE );
+    engine->stringToCMap( &ch, 1, glyphs, &nglyphs, 0 );
     // ### can nglyphs != 1 happen at all? Not currently I think
     glyph_metrics_t gi = engine->boundingBox( glyphs[0].glyph );
     return gi.xoff - gi.x - gi.width;
@@ -2235,7 +2235,7 @@ int QFontMetrics::width( const QString &str, int len ) const
 
 	    QGlyphLayout glyphs[8];
 	    int nglyphs = 7;
-	    engine->stringToCMap( ch, 1, glyphs, &nglyphs, FALSE );
+	    engine->stringToCMap( ch, 1, glyphs, &nglyphs, 0 );
 
 	    // ### can nglyphs != 1 happen at all? Not currently I think
 	    if ( uc < QFontEngineData::widthCacheSize && glyphs[0].advance.x < 0x100 )
@@ -2352,7 +2352,7 @@ QRect QFontMetrics::boundingRect( QChar ch ) const
 
     QGlyphLayout glyphs[10];
     int nglyphs = 9;
-    engine->stringToCMap( &ch, 1, glyphs, &nglyphs, FALSE );
+    engine->stringToCMap( &ch, 1, glyphs, &nglyphs, 0 );
     glyph_metrics_t gi = engine->boundingBox( glyphs[0].glyph );
     return QRect( gi.x, gi.y, gi.width, gi.height );
 }
@@ -2795,7 +2795,7 @@ bool QFontInfo::fixedPitch() const
 	QChar ch[2] = { QChar('i'), QChar('m') };
 	QGlyphLayout g[2];
 	int l = 2;
-	engine->stringToCMap(ch, 2, g, &l, false);
+	engine->stringToCMap(ch, 2, g, &l, 0);
 	engine->fontDef.fixedPitch = g[0].advance.x == g[1].advance.x;
 	engine->fontDef.fixedPitchComputed = TRUE;
     }

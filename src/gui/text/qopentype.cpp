@@ -462,7 +462,7 @@ void QOpenType::appendTo(QTextEngine *engine, QScriptItem *si, bool doLogCluster
     // calulate the advances for the shaped glyphs
 //     qDebug("unpositioned: ");
     QFontEngine *font = engine->fontEngine(*si);
-    font->recalcAdvances( str->length, glyphs );
+    font->recalcAdvances( str->length, glyphs, 0 ); // WYSIWYG: Fixme
     si->num_glyphs += str->length;
 
     // positioning code:

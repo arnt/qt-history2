@@ -1474,10 +1474,10 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 	control |= (form(reordered[i]) == Control);
 
     QFontEngine *font = engine->fontEngine(*si);
+    QFontEngine::Flags flags = (si->analysis.bidiLevel %2) ? QFontEngine::Mirrored : QFontEngine::DeviceMetrics;
 #ifdef QT_OPENTYPE
     if (openType) {
-	int error = font->stringToCMap((QChar *)(unsigned short *)reordered, len, glyphs,
-					     &len, (si->analysis.bidiLevel %2));
+	int error = font->stringToCMap((const QChar *)(unsigned short *)reordered, len, glyphs, &len, flags);
 	assert (!error);
 
 	// we need to keep track of where the base glyph is for some
@@ -1624,8 +1624,7 @@ static void indic_shape_syllable( int script, const QString &string, int from, i
 
 	QGlyphLayout *g = engine->glyphs(si)+si->num_glyphs;
 
-	int error = font->stringToCMap((QChar *)(unsigned short *)reordered, len, g, &len,
-						 (si->analysis.bidiLevel %2));
+	int error = font->stringToCMap((QChar *)(unsigned short *)reordered, len, g, &len, flags);
 	assert (!error);
 
 	for (int i = 0; i < len; ++i)
@@ -1903,10 +1902,10 @@ static void tibetan_shape_syllable( const QString &string, int from, int syllabl
     int firstGlyph = si->num_glyphs;
 
     QFontEngine *font = engine->fontEngine(*si);
+    QFontEngine::Flags flags = (si->analysis.bidiLevel %2) ? QFontEngine::Mirrored : QFontEngine::DeviceMetrics;
 #ifdef QT_OPENTYPE
     if (openType) {
-	int error = font->stringToCMap(str, len, glyphs, &len,
-					     (si->analysis.bidiLevel %2));
+	int error = font->stringToCMap(str, len, glyphs, &len, flags);
 	assert (!error);
 
 	// we need to keep track of where the base glyph is for some scripts and abuse the logcluster feature for this.
@@ -1941,8 +1940,7 @@ static void tibetan_shape_syllable( const QString &string, int from, int syllabl
 
 	QGlyphLayout *g = engine->glyphs(si)+si->num_glyphs;
 
-	int error = font->stringToCMap((QChar *)(unsigned short *)reordered, len, g, &len,
-						 (si->analysis.bidiLevel %2));
+	int error = font->stringToCMap((QChar *)(unsigned short *)reordered, len, g, &len, flags);
 	assert (!error);
 
 	for (int i = 0; i < len; ++i)
@@ -2384,11 +2382,11 @@ static void khmer_shape_syllable( const QString &string, int from, int syllableL
     int firstGlyph = si->num_glyphs;
 
     QFontEngine *font = engine->fontEngine(*si);
+    QFontEngine::Flags flags = (si->analysis.bidiLevel %2) ? QFontEngine::Mirrored : QFontEngine::DeviceMetrics;
 #ifdef QT_OPENTYPE
     int j;
     if (openType) {
-	int error = font->stringToCMap((QChar *)reordered, len, glyphs, &len,
-					     (si->analysis.bidiLevel %2));
+	int error = font->stringToCMap((QChar *)reordered, len, glyphs, &len, flags);
 	assert (!error);
 
 	unsigned short logClusters[16];
@@ -2446,8 +2444,7 @@ static void khmer_shape_syllable( const QString &string, int from, int syllableL
 
 	QGlyphLayout *g = engine->glyphs(si)+si->num_glyphs;
 
-	int error = font->stringToCMap((QChar *)(unsigned short *)reordered, len, g, &len,
-						 (si->analysis.bidiLevel %2));
+	int error = font->stringToCMap((QChar *)(unsigned short *)reordered, len, g, &len, flags);
 	assert (!error);
 
 	for (int i = 0; i < len; ++i)
@@ -2657,6 +2654,7 @@ static void hangul_shape_syllable( const QString &string, int from, int syllable
     int len = syllableLength;
 
     QFontEngine *font = engine->fontEngine(*si);
+    QFontEngine::Flags flags = (si->analysis.bidiLevel %2) ? QFontEngine::Mirrored : QFontEngine::DeviceMetrics;
 #ifdef QT_OPENTYPE
     if (openType && !composed) {
 
@@ -2674,7 +2672,7 @@ static void hangul_shape_syllable( const QString &string, int from, int syllable
 	    logClusters[i] = i;
 	glyphs[0].attributes.clusterStart = TRUE;
 
-	int error = font->stringToCMap(ch, len, glyphs, &len, (si->analysis.bidiLevel %2));
+	int error = font->stringToCMap(ch, len, glyphs, &len, flags);
 	assert(!error);
 
 	openType->init(glyphs, len, logClusters, len);
@@ -2720,8 +2718,7 @@ static void hangul_shape_syllable( const QString &string, int from, int syllable
 
 	QGlyphLayout *glyphs = engine->glyphs(si)+si->num_glyphs;
 
-	int error = font->stringToCMap(chars, len, glyphs, &len,
-					     (si->analysis.bidiLevel %2));
+	int error = font->stringToCMap(chars, len, glyphs, &len, flags);
 	assert (!error);
 
 	for (i = 0; i < len; i++) {

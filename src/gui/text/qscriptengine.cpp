@@ -296,10 +296,11 @@ static void convertToCMap( const QChar *chars, int len, QTextEngine *engine, QSc
     si->num_glyphs = len;
     engine->ensureSpace( len );
     QFontEngine *font = engine->fontEngine(*si);
-    int error = font->stringToCMap( chars, len, glyphs, &si->num_glyphs, (si->analysis.bidiLevel %2) );
+    QFontEngine::Flags f = (si->analysis.bidiLevel %2) ? QFontEngine::Mirrored : QFontEngine::DeviceMetrics;
+    int error = font->stringToCMap( chars, len, glyphs, &si->num_glyphs, f);
     if ( error == QFontEngine::OutOfMemory ) {
 	engine->ensureSpace( si->num_glyphs );
-	font->stringToCMap( chars, len, glyphs, &si->num_glyphs, (si->analysis.bidiLevel %2) );
+	font->stringToCMap(chars, len, glyphs, &si->num_glyphs, f);
     }
 }
 
@@ -349,6 +350,7 @@ static void basic_attributes( int /*script*/, const QString &text, int from, int
 enum ArabicGroup {
     // NonJoining
     ArabicNone,
+    ArabicSpace,
     // Transparent
     Transparent,
     // Causing
@@ -537,6 +539,8 @@ static inline ArabicGroup arabicGroup(unsigned short uc)
 	return (ArabicGroup) arabic_group[uc-0x600];
     else if (uc == 0x200d)
 	return Center;
+    else if (::category(uc) == QChar::Separator_Space)
+	return ArabicSpace;
     else
 	return ArabicNone;
 }
@@ -597,6 +601,7 @@ enum Joining {
 static const Joining joining_for_group[ArabicGroupsEnd] = {
     // NonJoining
     JNone, // ArabicNone
+    JNone, // ArabicSpace
     // Transparent
     JTransparent, // Transparent
     // Causing
@@ -730,6 +735,8 @@ static void getArabicProperties(const unsigned short *chars, int len, ArabicProp
 	    if (properties[lastPos].shape == XFinal)
 		properties[lastPos-1].justification = QGlyphLayout::Arabic_Normal;
 	    break;
+	case ArabicNone:
+	    break;
 
 	default:
 	    Q_ASSERT(false);
@@ -743,6 +750,8 @@ static void getArabicProperties(const unsigned short *chars, int len, ArabicProp
 	// ### Center should probably be treated as transparent when it comes to justification.
 	case Center:
 	    break;
+	case ArabicSpace:
+	    properties[i].justification = QGlyphLayout::Arabic_Space;
 
 	case Kashida:
 	    properties[i].justification = QGlyphLayout::Arabic_Kashida;

@@ -119,13 +119,13 @@ QFontEngine::FECaps QFontEngineFT::capabilites() const
 
 
 /* returns 0 as glyph index for non existant glyphs */
-QFontEngine::Error QFontEngineFT::stringToCMap( const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored ) const
+QFontEngine::Error QFontEngineFT::stringToCMap( const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, Flags flags ) const
 {
     if(*nglyphs < len) {
 	*nglyphs = len;
 	return OutOfMemory;
     }
-    if ( mirrored ) {
+    if ( flags & Mirrored ) {
 	for(int i = 0; i < len; i++ ) {
 	    unsigned short ch = ::mirroredChar(str[i]).unicode();
 	    if (ch == 0xa0) ch = 0x20;
@@ -321,7 +321,7 @@ QOpenType *QFontEngineFT::openType() const
     return _openType;
 }
 
-void QFontEngineFT::recalcAdvances(int len, QGlyphLayout *glyphs) const
+void QFontEngineFT::recalcAdvances(int len, QGlyphLayout *glyphs, Flags) const
 {
     for ( int i = 0; i < len; i++ ) {
 	FT_UInt g = glyphs[i].glyph;
@@ -352,7 +352,7 @@ QFontEngine::FECaps QFontEngineBox::capabilites() const
     return FullTransformations;
 }
 
-QFontEngine::Error QFontEngineBox::stringToCMap(const QChar *, int len, QGlyphLayout *glyphs, int *nglyphs, bool) const
+QFontEngine::Error QFontEngineBox::stringToCMap(const QChar *, int len, QGlyphLayout *glyphs, int *nglyphs, Flags) const
 {
     if(*nglyphs < len) {
 	*nglyphs = len;

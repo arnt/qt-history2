@@ -78,8 +78,7 @@ QFontEngineMac::~QFontEngineMac()
 }
 
 QFontEngine::Error
-QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs,
-			     bool /*mirrored*/) const
+QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, Flags /*flags*/) const
 {
     if(*nglyphs < len) {
 	*nglyphs = len;
@@ -577,7 +576,7 @@ QFontEngine::FECaps QFontEngineBox::capabilites() const
     return FullTransformations;
 }
 
-QFontEngine::Error QFontEngineBox::stringToCMap(const QChar *,  int len, QGlyphLayout *glyphs, int *nglyphs, bool) const
+QFontEngine::Error QFontEngineBox::stringToCMap(const QChar *,  int len, QGlyphLayout *glyphs, int *nglyphs, Flags) const
 {
     if(*nglyphs < len) {
 	*nglyphs = len;

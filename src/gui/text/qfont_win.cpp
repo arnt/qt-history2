@@ -377,7 +377,7 @@ int QFontMetrics::width( QChar ch ) const
     QGlyphLayout glyphs[8];
 
     int nglyphs = 7;
-    engine->stringToCMap( &ch, 1, glyphs, &nglyphs, FALSE );
+    engine->stringToCMap( &ch, 1, glyphs, &nglyphs, 0 );
 
     return glyphs[0].advance.x;
 }
