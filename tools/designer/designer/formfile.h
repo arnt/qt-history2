@@ -80,7 +80,7 @@ public:
     void functionRetTypeChanged( const QString &fuName, const QString &oldType, const QString &newType );
 
     void showFormWindow();
-    SourceEditor *showEditor();
+    SourceEditor *showEditor( bool askForUih = TRUE );
 
     static QString createUnnamedFileName();
     QString formName() const;
@@ -97,7 +97,7 @@ public:
     bool hasTempFileName() const { return fileNameTemp; }
     void setCodeFileState( UihState );
     int codeFileState() const;
-    bool setupUihFile();
+    bool setupUihFile( bool askForUih = TRUE );
 
 signals:
     void somethingChanged( FormFile* );

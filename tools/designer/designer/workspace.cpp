@@ -195,7 +195,7 @@ WorkspaceItem::WorkspaceItem( QListViewItem *parent, FormFile* ff, Type type )
     if ( type ==  FormFileType ) {
 	setPixmap( 0, *formPixmap );
 	QObject::connect( ff, SIGNAL( somethingChanged(FormFile*) ), listView(), SLOT( update(FormFile*) ) );
-	if ( formFile->supportsCodeFile() && !( (WorkspaceItem*)parent )->project->isCpp() ) {
+	if ( formFile->supportsCodeFile() ) {
 	    (void) new WorkspaceItem( this, formFile, FormSourceType );
 	}
     } else if ( type == FormSourceType ) {
@@ -219,7 +219,8 @@ void WorkspaceItem::paintCell( QPainter *p, const QColorGroup &cg, int column, i
     g.setColor( QColorGroup::Base, backgroundColor() );
     g.setColor( QColorGroup::Foreground, Qt::black );
 
-    if ( type() == FormSourceType && !formFile->hasFormCode() ) {
+    if ( type() == FormSourceType && ( !formFile->hasFormCode() ||
+	 formFile->codeFileState() == FormFile::Deleted ) ) {
 	g.setColor( QColorGroup::Text, listView()->palette().disabled().color( QColorGroup::Text) );
 	g.setColor( QColorGroup::HighlightedText, listView()->palette().disabled().color( QColorGroup::Text) );
     } else {
@@ -478,16 +479,6 @@ void Workspace::setCurrentProject( Project *pro )
     completionDirty = TRUE;
 }
 
-void Workspace::addFormSourceItem( FormFile *ff )
-{
-    if ( ff->isFake() )
-	return;
-    WorkspaceItem *parent = findItem( ff );
-    if ( !parent || parent->firstChild() )
-	return;
-    (void) new WorkspaceItem( parent, ff, WorkspaceItem::FormSourceType );
-}
-
 void Workspace::sourceFileAdded( SourceFile* sf )
 {
     (void) new WorkspaceItem( projectItem, sf );
@@ -646,8 +637,6 @@ void Workspace::itemClicked( int button, QListViewItem *i, const QPoint& )
     closeAutoOpenItems();
 
     WorkspaceItem* wi = (WorkspaceItem*)i;
-    if ( wi->type() == WorkspaceItem::SourceFileType )
-	mainWindow->editSource( wi->sourceFile );
     switch( wi->type() ) {
     case WorkspaceItem::ProjectType:
 	break; // ### TODO
@@ -655,7 +644,7 @@ void Workspace::itemClicked( int button, QListViewItem *i, const QPoint& )
 	wi->formFile->showFormWindow();
 	break;
     case WorkspaceItem::FormSourceType:
-	wi->formFile->showEditor();
+	wi->formFile->showEditor( FALSE );
 	break;
     case WorkspaceItem::SourceFileType:
 	mainWindow->editSource( wi->sourceFile );
@@ -752,7 +741,6 @@ void Workspace::rmbClicked( QListViewItem *i, const QPoint& pos )
 	( (WorkspaceItem*)i )->formFile->setModified( TRUE );
 	( (WorkspaceItem*)i )->formFile->setCodeFileState( FormFile::Deleted );
 	delete ( (WorkspaceItem*)i )->formFile->editor();
-	delete i;
 	break;
     case OPEN_OBJECT_SOURCE:
     case OPEN_SOURCE:

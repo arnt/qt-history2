@@ -392,13 +392,14 @@ void FormFile::showFormWindow()
     MainWindow::self->openFormWindow( pro->makeAbsolute( filename ), TRUE, this );
 }
 
-bool FormFile::setupUihFile()
+bool FormFile::setupUihFile( bool askForUih )
 {
-    if ( !pro->isCpp() ) {
+    if ( !pro->isCpp() || !askForUih ) {
 	if ( !hasFormCode() ) {
 	    createFormCode();
 	    setModified( TRUE );
 	}
+	codeFileStat = FormFile::Ok;
 	return TRUE;
     }
     if ( codeFileStat != FormFile::Ok && !ed ) {
@@ -414,24 +415,23 @@ bool FormFile::setupUihFile()
 		createFormCode();
 	} else {
 	    if ( QMessageBox::Yes != QMessageBox::information( MainWindow::self, tr( "Creating ui.h file" ),
-						 tr( "Do you really want to create an new \"ui.h\" file?" ),
+						 tr( "Do you want to create an new \"ui.h\" file?" ),
 						 QMessageBox::Yes, QMessageBox::No ) )
 		return FALSE;
 	    createFormCode();
 	}
 	setModified( TRUE );
-	MainWindow::self->workspace()->addFormSourceItem( this );
     }
     codeFileStat = FormFile::Ok;
     return TRUE;
 }
 
-SourceEditor *FormFile::showEditor()
+SourceEditor *FormFile::showEditor( bool askForUih )
 {
     if ( !MainWindow::self )
 	return 0;
     showFormWindow();
-    if ( !setupUihFile() )
+    if ( !setupUihFile( askForUih ) )
 	return 0;
     SourceEditor *e = MainWindow::self->openSourceEdior();
     return e;
@@ -474,8 +474,6 @@ int FormFile::codeFileState() const
 
 void FormFile::setCodeFileState( UihState s )
 {
-    if ( s == FormFile::Ok )
-	MainWindow::self->workspace()->addFormSourceItem( this );
     codeFileStat = s;
 }
 
