@@ -2,6 +2,7 @@
 #include <qlabel.h>
 #include <qsplitter.h>
 
+#include <qlineedit.h>
 
 int main( int argc, char ** argv )
 {
@@ -10,10 +11,18 @@ int main( int argc, char ** argv )
 
     QSplitter f( QSplitter::Vertical );
 
-    QLabel l( "Judean Popular Front", &f );
+    
+    QSplitter top( &f );
+    
+    QLabel l( "Label", &top );
     l.setBackgroundColor( Qt::blue.light() );
-    l.setMinimumSize( l.sizeHint() );
-
+    
+    QLineEdit led( &top );
+    top.setResizeMode( &l, QSplitter::FollowSizeHint );
+    
+    
+    QObject::connect( &led, SIGNAL(textChanged(const QString&)),
+		      &l, SLOT(setText(const QString&)) );
 
     QSplitter m( &f );
 
@@ -26,7 +35,7 @@ int main( int argc, char ** argv )
     l1.setMinimumSize( l1.sizeHint() );
 
 
-    QLabel l2( "Judean Popular People's Front", &m );
+    QLabel l2( "Judean Popular Front", &m );
     //    l2.setBackgroundColor( white );
     l2.setAlignment( Qt::AlignCenter );
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#79 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#80 $
 **
 **  Splitter widget
 **
@@ -648,6 +648,11 @@ void QSplitter::doResize()
 	    a[i].sizeHint = a[i].minimumSize = s->sizer;
 	    a[i].maximumSize = pick( s->wid->maximumSize() );
 	    a[i].empty = FALSE;
+	} else if ( s->mode == FollowSizeHint ) {
+	    a[i].stretch = 0;
+	    a[i].minimumSize = a[i].sizeHint = pick( s->wid->sizeHint() );
+	    a[i].maximumSize = pick( s->wid->maximumSize() );
+	    a[i].empty = FALSE;
 	} else { //proportional
 	    a[i].stretch = s->sizer;
 	    a[i].maximumSize = pick( s->wid->maximumSize() );
@@ -735,6 +740,9 @@ void QSplitter::recalc( bool update )
 
   <li> \c KeepSize - QSplitter will try to keep this widget's size
   unchanged.
+
+  <li> \c FollowSizeHint - QSplitter will resize the widget when its
+  size hint changes.
 
   </ul>
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.h#29 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.h#30 $
 **
 ** Defintion of  QSplitter class
 **
@@ -38,7 +38,7 @@ class Q_EXPORT QSplitter : public QFrame
 {
     Q_OBJECT
 public:
-    enum ResizeMode { Stretch, KeepSize };
+    enum ResizeMode { Stretch, KeepSize, FollowSizeHint };
 
     QSplitter( QWidget *parent=0, const char *name=0 );
     QSplitter( Orientation, QWidget *parent=0, const char *name=0 );
