@@ -58,6 +58,10 @@ void QTextEdit::init()
 {
     buf_pixmap = 0;
     doubleBuffer = 0;
+    drawAll = TRUE;
+    mousePressed = FALSE;
+    inDoubleClick = FALSE;
+
     doc->setFormatter( new QTextEditFormatterBreakWords( doc ) );
     currentFormat = doc->formatCollection()->defaultFormat();
     currentAlignment = Qt::AlignLeft;
@@ -66,27 +70,36 @@ void QTextEdit::init()
     viewport()->setBackgroundMode( PaletteBase );
     resizeContents( 0, doc->lastParag() ?
 		    ( doc->lastParag()->paragId() + 1 ) * doc->formatCollection()->defaultFormat()->height() : 0 );
-    cursor = new QTextEditCursor( doc );
-    interval = 0;
+    
     setKeyCompression( TRUE );
     setHScrollBarMode( AlwaysOff );
     setVScrollBarMode( AlwaysOn );
-    drawAll = TRUE;
     viewport()->setMouseTracking( TRUE );
-    mousePressed = FALSE;
+    viewport()->setCursor( ibeamCursor );
+    viewport()->setFocusPolicy( WheelFocus );
+
+    cursor = new QTextEditCursor( doc );
+    
     formatTimer = new QTimer( this );
     connect( formatTimer, SIGNAL( timeout() ),
 	     this, SLOT( formatMore() ) );
+    lastFormatted = doc->firstParag();
+    
     scrollTimer = new QTimer( this );
     connect( scrollTimer, SIGNAL( timeout() ),
 	     this, SLOT( doAutoScroll() ) );
+    
+    interval = 0;
     changeIntervalTimer = new QTimer( this );
     connect( changeIntervalTimer, SIGNAL( timeout() ),
 	     this, SLOT( doChangeInterval() ) );
-    lastFormatted = doc->firstParag();
+
+    cursorVisible = TRUE;
+    blinkTimer = new QTimer( this );
+    connect( blinkTimer, SIGNAL( timeout() ),
+	     this, SLOT( blinkCursor() ) );
+    
     formatMore();
-    viewport()->setCursor( ibeamCursor );
-    viewport()->setFocusPolicy( WheelFocus );
 
     completionPopup = new QVBox( this, 0, WType_Popup );
     completionPopup->setFrameStyle( QFrame::Box | QFrame::Plain );
@@ -97,7 +110,9 @@ void QTextEdit::init()
     completionPopup->installEventFilter( this );
     completionPopup->setFocusProxy( completionListBox );
     completionOffset = 0;
-    inDoubleClick = FALSE;
+
+    blinkCursorVisible = FALSE;
+    blinkTimer->start( QApplication::cursorFlashTime() / 2 );
 }
 
 void QTextEdit::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
@@ -537,6 +552,9 @@ void QTextEdit::drawCursor( bool visible )
 {
     if ( !cursor->parag()->isValid() )
 	return;
+    
+    cursorVisible = visible;
+    
     QPainter p;
     p.begin( viewport() );
     p.translate( -contentsX(), -contentsY() );
@@ -1211,13 +1229,23 @@ bool QTextEdit::find( const QString &expr, bool cs, bool wo, bool forward,
 			   int *parag, int *index )
 {
     drawCursor( FALSE );
-    for ( int i = 0; i < doc->numSelections; ++i ) // start with 1 as we don't want to remove the Standard-Selection
+    for ( int i = 0; i < doc->numSelections; ++i )
 	doc->removeSelection( i );
-    bool found = doc->find( expr, cs, wo, found, parag, index, cursor );
+    bool found = doc->find( expr, cs, wo, forward, parag, index, cursor );
     ensureCursorVisible();
     drawCursor( TRUE );
     repaintChanged();
     return found;
+}
+
+void QTextEdit::blinkCursor()
+{
+    if ( !cursorVisible )
+	return;
+    bool cv = cursorVisible;
+    blinkCursorVisible = !blinkCursorVisible;
+    drawCursor( blinkCursorVisible );
+    cursorVisible = cv;
 }
 
 void QTextEdit::UndoRedoInfo::clear()

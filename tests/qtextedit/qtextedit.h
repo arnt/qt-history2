@@ -57,7 +57,7 @@ public:
 
     bool find( const QString &expr, bool cs, bool wo, bool forward = TRUE,
 	       int *parag = 0, int *index = 0 );
-    
+
 signals:
     void currentFontChanged( const QFont &f );
     void currentColorChanged( const QColor &c );
@@ -81,7 +81,8 @@ private slots:
     void doResize();
     void doAutoScroll();
     void doChangeInterval();
-
+    void blinkCursor();
+    
 private:
     enum MoveDirection {
 	MoveLeft,
@@ -133,7 +134,7 @@ private:
     QTextEditCursor *cursor;
     bool drawAll;
     bool mousePressed;
-    QTimer *formatTimer, *scrollTimer, *changeIntervalTimer;
+    QTimer *formatTimer, *scrollTimer, *changeIntervalTimer, *blinkTimer;
     QTextEditParag *lastFormatted;
     int interval;
     QVBox *completionPopup;
@@ -147,6 +148,7 @@ private:
     bool inDoubleClick;
     QPoint oldMousePos, mousePos;
     QPixmap *buf_pixmap;
+    bool cursorVisible, blinkCursorVisible;
 
 };
 
