@@ -19,8 +19,9 @@
 #include <qregexp.h>
 #include <qstring.h>
 #include <qxml.h>
+#include <qdatastream.h>
 
-QDataStream &operator>>( QDataStream &s, ContentItem &ci )
+QDataStream &operator>>(QDataStream &s, ContentItem &ci)
 {
     s >> ci.title;
     s >> ci.reference;
@@ -28,7 +29,7 @@ QDataStream &operator>>( QDataStream &s, ContentItem &ci )
     return s;
 }
 
-QDataStream &operator<<( QDataStream &s, const ContentItem &ci )
+QDataStream &operator<<(QDataStream &s, const ContentItem &ci)
 {
     s << ci.title;
     s << ci.reference;
@@ -38,43 +39,43 @@ QDataStream &operator<<( QDataStream &s, const ContentItem &ci )
 
 const QString DocuParser::DocumentKey = "/Qt Assistant/" + QString(QT_VERSION_STR) + "/";
 
-DocuParser *DocuParser::createParser( const QString &fileName )
+DocuParser *DocuParser::createParser(const QString &fileName)
 {
-    QFile file( fileName );
-    if( !file.open( IO_ReadOnly ) ) {	
-	return 0;	
+    QFile file(fileName);
+    if(!file.open(IO_ReadOnly)) {
+	return 0;
     }
-    
+
     QString str;
     int read = 0;
     int maxlen = 1024;
     int majVer = 0, minVer = 0, serVer = 0;
-    static QRegExp re( "assistantconfig +version=\"(\\d)\\.(\\d)\\.(\\d)\"", FALSE );
-    Q_ASSERT( re.isValid() );
-    while( read != -1 ) {
- 	read = file.readLine( str, maxlen );
-	if( re.search( str ) >= 0 ) {
-	    majVer = re.cap( 1 ).toInt();
-	    minVer = re.cap( 2 ).toInt();
-	    serVer = re.cap( 3 ).toInt();
+    static QRegExp re("assistantconfig +version=\"(\\d)\\.(\\d)\\.(\\d)\"", false);
+    Q_ASSERT(re.isValid());
+    while(read != -1) {
+ 	read = file.readLine(str, maxlen);
+	if(re.search(str) >= 0) {
+	    majVer = re.cap(1).toInt();
+	    minVer = re.cap(2).toInt();
+	    serVer = re.cap(3).toInt();
 	}
     }
 
-    if( majVer == 3 && minVer >= 2 ) 
+    if(majVer == 3 && minVer >= 2)
 	return new DocuParser320;
-    
-    return new DocuParser310;	
+
+    return new DocuParser310;
 }
 
 
-bool DocuParser::parse( QFile *file )
+bool DocuParser::parse(QFile *file)
 {
-    QXmlInputSource source( file );
+    QXmlInputSource source(file);
     QXmlSimpleReader reader;
-    reader.setContentHandler( this );
-    reader.setErrorHandler( this );
-    setFileName( QFileInfo( *file ).absFilePath() );
-    return reader.parse( source );
+    reader.setContentHandler(this);
+    reader.setErrorHandler(this);
+    setFileName(QFileInfo(*file).absFilePath());
+    return reader.parse(source);
 }
 
 
@@ -95,20 +96,20 @@ QList<IndexItem*> DocuParser::getIndexItems()
     return indexList;
 }
 
-QString DocuParser::absolutify( const QString &name ) const
+QString DocuParser::absolutify(const QString &name) const
 {
-    QFileInfo orgPath( name );
-    if( orgPath.isRelative() )
-	return QFileInfo( fname ).dirPath() + QDir::separator() + name;
+    QFileInfo orgPath(name);
+    if(orgPath.isRelative())
+	return QFileInfo(fname).dirPath() + QDir::separator() + name;
     return name;
 }
 
 
-void DocuParser310::addTo( Profile *p )
+void DocuParser310::addTo(Profile *p)
 {
-    p->addDCFTitle( fname, docTitle );
-    p->addDCFIcon( docTitle, iconName );
-    p->addDCFIndexPage( docTitle, conURL );
+    p->addDCFTitle(fname, docTitle);
+    p->addDCFIcon(docTitle, iconName);
+    p->addDCFIndexPage(docTitle, conURL);
 }
 
 
@@ -123,39 +124,39 @@ bool DocuParser310::startDocument()
     contentList.clear();
     indexList.clear();
 
-    return TRUE;
+    return true;
 }
 
 
-bool DocuParser310::startElement( const QString &, const QString &,
+bool DocuParser310::startElement(const QString &, const QString &,
 			       const QString &qname,
-			       const QXmlAttributes &attr )
+			       const QXmlAttributes &attr)
 {
     if (qname == "DCF" && state == StateInit) {
 	state = StateContent;
-	contentRef = absolutify( attr.value( "ref" ) );
+	contentRef = absolutify(attr.value("ref"));
 	conURL = contentRef;
-	docTitle = attr.value( "title" );
-	iconName = absolutify( attr.value( "icon" ) );
-	contentList.append( ContentItem( docTitle, contentRef, depth ) );
+	docTitle = attr.value("title");
+	iconName = absolutify(attr.value("icon"));
+	contentList.append(ContentItem(docTitle, contentRef, depth));
     } else if (qname == "section" && (state == StateContent || state == StateSect)) {
 	state = StateSect;
-	contentRef = absolutify( attr.value( "ref" ) );
-	title = attr.value( "title" );
+	contentRef = absolutify(attr.value("ref"));
+	title = attr.value("title");
 	depth++;
-	contentList.append( ContentItem( title, contentRef, depth ) );
+	contentList.append(ContentItem(title, contentRef, depth));
     } else if (qname == "keyword" && state == StateSect) {
 	state = StateKeyword;
-	indexRef = absolutify( attr.value( "ref" ) );
+	indexRef = absolutify(attr.value("ref"));
     } else
-	return FALSE;
-    return TRUE;
+	return false;
+    return true;
 }
 
-bool DocuParser310::endElement( const QString &nameSpace, const QString &localName,
-			     const QString &qName )
+bool DocuParser310::endElement(const QString &nameSpace, const QString &localName,
+			     const QString &qName)
 {
-    switch( state ) {
+    switch(state) {
     case StateInit:
 	break;
     case StateContent:
@@ -168,50 +169,50 @@ bool DocuParser310::endElement( const QString &nameSpace, const QString &localNa
 	state = StateSect;
 	break;
     }
-    return TRUE;
+    return true;
 }
 
 
-bool DocuParser310::characters( const QString& ch )
+bool DocuParser310::characters(const QString& ch)
 {
     QString str = ch.simplifyWhiteSpace();
-    if ( str.isEmpty() )
-	return TRUE;
+    if (str.isEmpty())
+	return true;
 
-    switch ( state ) {
+    switch (state) {
 	case StateInit:
         case StateContent:
         case StateSect:
-            return FALSE;
+            return false;
 	    break;
         case StateKeyword:
-	    indexList.append( new IndexItem( str, indexRef ) );
+	    indexList.append(new IndexItem(str, indexRef));
 	    break;
 	default:
-            return FALSE;
+            return false;
     }
-    return TRUE;
+    return true;
 }
 
 
-bool DocuParser310::fatalError( const QXmlParseException& exception )
+bool DocuParser310::fatalError(const QXmlParseException& exception)
 {
-    errorProt += QString( "fatal parsing error: %1 in line %2, column %3\n" )
-        .arg( exception.message() )
-        .arg( exception.lineNumber() )
-        .arg( exception.columnNumber() );
+    errorProt += QString("fatal parsing error: %1 in line %2, column %3\n")
+        .arg(exception.message())
+        .arg(exception.lineNumber())
+        .arg(exception.columnNumber());
 
-    return QXmlDefaultHandler::fatalError( exception );
+    return QXmlDefaultHandler::fatalError(exception);
 }
 
 
 DocuParser320::DocuParser320()
-    : prof( new Profile )
+    : prof(new Profile)
 {
 }
 
 
-void DocuParser320::addTo( Profile *p )
+void DocuParser320::addTo(Profile *p)
 {
     QMap<QString,QString>::ConstIterator it;
 
@@ -237,72 +238,72 @@ bool DocuParser320::startDocument()
     contentList.clear();
     indexList.clear();
 
-    prof->addDCF( fname );
+    prof->addDCF(fname);
 
-    return TRUE;
+    return true;
 }
 
-bool DocuParser320::startElement( const QString &, const QString &,
+bool DocuParser320::startElement(const QString &, const QString &,
 			       const QString &qname,
-			       const QXmlAttributes &attr )
+			       const QXmlAttributes &attr)
 {
     QString lower = qname.lower();
 
-    switch( state ) {
-	
+    switch(state) {
+
     case StateInit:
-	if( lower == "assistantconfig" )	    
+	if(lower == "assistantconfig")
 	    state = StateDocRoot;
 	break;
 
     case StateDocRoot:
-	if( lower == "dcf" ) {
+	if(lower == "dcf") {
 	    state = StateContent;
-	    contentRef = absolutify( attr.value( "ref" ) );
+	    contentRef = absolutify(attr.value("ref"));
 	    conURL = contentRef;
-	    docTitle = attr.value( "title" );
-	    iconName = absolutify( attr.value( "icon" ) );
-	    contentList.append( ContentItem( docTitle, contentRef, depth ) );
-	} else if( lower == "profile" ) {
+	    docTitle = attr.value("title");
+	    iconName = absolutify(attr.value("icon"));
+	    contentList.append(ContentItem(docTitle, contentRef, depth));
+	} else if(lower == "profile") {
 	    state = StateProfile;
 	}
 	break;
 
     case StateSect:
-	if ( lower == "keyword" && state == StateSect ) {
+	if (lower == "keyword" && state == StateSect) {
 	    state = StateKeyword;
-	    indexRef = absolutify( attr.value( "ref" ) );
+	    indexRef = absolutify(attr.value("ref"));
 	    break;
 	} // else if (lower == "section")
     case StateContent:
-	if( lower == "section" ) {
+	if(lower == "section") {
 	    state = StateSect;
-	    contentRef = absolutify( attr.value( "ref" ) );
-	    title = attr.value( "title" );
+	    contentRef = absolutify(attr.value("ref"));
+	    title = attr.value("title");
 	    depth++;
-	    contentList.append( ContentItem( title, contentRef, depth ) );
+	    contentList.append(ContentItem(title, contentRef, depth));
 	}
 	break;
 
     case StateProfile:
-	if( lower == "property" ) {
+	if(lower == "property") {
 	    state = StateProperty;
-	    propertyName = attr.value( "name" );
+	    propertyName = attr.value("name");
 	}
 	break;
 
     case StateProperty:
 	break;
-    }    
-    
-    return TRUE;
+    }
+
+    return true;
 }
 
-bool DocuParser320::endElement( const QString &nameSpace,
+bool DocuParser320::endElement(const QString &nameSpace,
 				const QString &localName,
-				const QString &qName )
+				const QString &qName)
 {
-    switch( state ) {
+    switch(state) {
     case StateInit:
 	break;
     case StateDocRoot:
@@ -313,22 +314,22 @@ bool DocuParser320::endElement( const QString &nameSpace,
 	break;
     case StateProperty:
 	state = StateProfile;
-	if( propertyName.isEmpty() || propertyValue.isEmpty() )
-	    return FALSE;
+	if(propertyName.isEmpty() || propertyValue.isEmpty())
+	    return false;
 	{
 	    static const QStringList lst = QStringList() << "startpage" << "abouturl"
 							 << "applicationicon" << "assistantdocs";
 	    if (lst.contains(propertyName))
-		propertyValue = absolutify( propertyValue );
+		propertyValue = absolutify(propertyValue);
 	}
-	prof->addProperty( propertyName, propertyValue );
+	prof->addProperty(propertyName, propertyValue);
 	break;
     case StateContent:
-	if( !iconName.isEmpty() ) prof->addDCFIcon( docTitle, iconName );
-	if( contentRef.isEmpty() )
-	    return FALSE;
-	prof->addDCFIndexPage( docTitle, conURL );
-	prof->addDCFTitle( fname, docTitle );
+	if(!iconName.isEmpty()) prof->addDCFIcon(docTitle, iconName);
+	if(contentRef.isEmpty())
+	    return false;
+	prof->addDCFIndexPage(docTitle, conURL);
+	prof->addDCFTitle(fname, docTitle);
 	state = StateDocRoot;
 	break;
     case StateSect:
@@ -338,39 +339,39 @@ bool DocuParser320::endElement( const QString &nameSpace,
 	state = StateSect;
 	break;
     }
-    return TRUE;
+    return true;
 }
 
-bool DocuParser320::characters( const QString& ch )
+bool DocuParser320::characters(const QString& ch)
 {
     QString str = ch.simplifyWhiteSpace();
-    if ( str.isEmpty() )
-	return TRUE;
+    if (str.isEmpty())
+	return true;
 
-    switch ( state ) {
+    switch (state) {
     case StateInit:
     case StateContent:
     case StateSect:
-	return FALSE;
+	return false;
 	break;
     case StateKeyword:
-	indexList.append( new IndexItem( str, indexRef ) );
+	indexList.append(new IndexItem(str, indexRef));
 	break;
     case StateProperty:
-        propertyValue = ch;	
+        propertyValue = ch;
 	break;
     default:
-	return FALSE;
+	return false;
     }
-    return TRUE;
+    return true;
 }
 
-bool DocuParser320::fatalError( const QXmlParseException& exception )
+bool DocuParser320::fatalError(const QXmlParseException& exception)
 {
-    errorProt += QString( "fatal parsing error: %1 in line %2, column %3\n" )
-        .arg( exception.message() )
-        .arg( exception.lineNumber() )
-        .arg( exception.columnNumber() );
+    errorProt += QString("fatal parsing error: %1 in line %2, column %3\n")
+        .arg(exception.message())
+        .arg(exception.lineNumber())
+        .arg(exception.columnNumber());
 
-    return QXmlDefaultHandler::fatalError( exception );
+    return QXmlDefaultHandler::fatalError(exception);
 }

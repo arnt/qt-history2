@@ -141,7 +141,7 @@ private:
     QStringList terms, foundDocs;
     bool initDoneMsgShown;
     void getAllContents();
-    QHash<QString, ContentList*> contentList;
+    QHash<QString, ContentList> contentList;
     QPopupMenu *itemPopup;
     QString cacheFilesPath;
 };

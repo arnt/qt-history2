@@ -124,7 +124,7 @@
     <function specifier="non virtual">setMimeExtension( const QString &amp; ext )</function>
     <function specifier="non virtual">setBrowserFont( const QFont &amp; fnt )</function>
     <function specifier="non virtual" returnType="QFont">browserFont()</function>
-    <function specifier="non virtual" returnType="QPtrList&lt;HelpWindow&gt;">browsers() const</function>
+    <function specifier="non virtual" returnType="QList&lt;HelpWindow*&gt;">browsers() const</function>
     <function returnType="HelpWindow*">newBackgroundTab( const QString &amp; url )</function>
     <function returnType="HelpWindow*" access="private">createHelpWindow(const QString &amp;)</function>	
     <function>setTitle(HelpWindow*, const QString &amp;)</function>

@@ -18,6 +18,8 @@
 #include <qapplication.h>
 #include <qcstring.h>
 #include <ctype.h>
+#include <qtextstream.h>
+#include <qtl.h>
 
 struct Term {
     Term() : frequency(-1) {}
@@ -269,7 +271,7 @@ QStringList Index::query( const QStringList &terms, const QStringList &termSeq, 
     QStringList results;
     qHeapSort( minDocs );
     if ( termSeq.isEmpty() ) {
-	for(QList<Document>::Iterator it = minDocs.begin(); it != minDocs.end(); ++it) 
+	for(QList<Document>::Iterator it = minDocs.begin(); it != minDocs.end(); ++it)
 	    results << docList[ (int)(*it).docNumber ];
 	return results;
     }

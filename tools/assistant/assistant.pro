@@ -3,6 +3,7 @@ LANGUAGE = C++
 TARGET	 = assistant
 
 CONFIG	+= qt warn_off
+QCONFIG += compat
 
 PROJECTNAME	= Assistant
 DESTDIR		= ../../bin
@@ -26,6 +27,7 @@ HEADERS	+= helpwindow.h \
         profile.h \
         config.h
 
+DEFINES += QT_KEYWORDS
 #DEFINES +=  QT_PALMTOPCENTER_DOCS
 !network:DEFINES	+= QT_INTERNAL_NETWORK
 else:QCONFIG += network
