@@ -163,14 +163,6 @@ struct Q_EXPORT QInterfaceListInterface
     virtual QUuid   interfaceId( int index ) = 0;
 };
 
-class Q_EXPORT QComponentFactory
-{
-public:
-    static QRESULT createInstance( const QUuid &cid, const QUuid &iid, QUnknownInterface** instance, QUnknownInterface *outer );
-    static bool registerServer( const QString &filename );
-    static bool unregisterServer( const QString &filename );
-};
-
 class Q_EXPORT QComponentRegistration
 {
 public:

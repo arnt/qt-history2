@@ -88,6 +88,5 @@ tools {
 		  $$TOOLS_CPP/qstring.cpp \
 		  $$TOOLS_CPP/qstringlist.cpp \
 		  $$TOOLS_CPP/qtextstream.cpp \
-		  $$TOOLS_CPP/qcom.cpp \
 		  $$TOOLS_CPP/quuid.cpp
 }
