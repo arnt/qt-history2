@@ -172,14 +172,16 @@ public:
 
   \ingroup environment
 
-  An object of this class contains a set of \l QTranslatorMessage objects, each
-  of which specifies a translation from the source language to a target
-  language, and provides functions to add, look up. and remove such translations
-  as well as the ability to load and save the object to a file.
+  An object of this class contains a set of QTranslatorMessage
+  objects, each of which specifies a translation from a source
+  language to a target language.  QTranslator provides functions to
+  look up such translations, add new ones, remove, load and save them,
+  etc.
 
-  The most common use of QTranslator is expected to be loading one from a file,
-  installing it using QApplication::installTranslator(), and using it via
-  QObject::tr(), like this:
+  The most common use of QTranslator is expected to be loading a
+  translator file, installing it using
+  QApplication::installTranslator(), and using it via QObject::tr(),
+  like this:
 
   \code
   int main( int argc, char ** argv )
@@ -198,23 +200,54 @@ public:
   }
   \endcode
 
-  Slightly more advanced usage of QTranslator includes direct lookup using
-  find(), adding new translations using insert() and removing existing ones
-  using remove() or even clear(), and testing whether the QTranslator contains a
-  translation using contains().
+  Most applications will never need to do anything else with this
+  class.  However, applications that work on translator files need the
+  other functions in this class.
 
-  The lookup is performed using a \e key, which consists of
-  <ul>
-  <li> a \e context - the name of the class that uses the translation
-  <li> a \e source \e text - the fallback text if no translation is available
-  <li> an optional \e comment that may help the human translator provide a
-       better translation, but which isn't seen by end-users.
+  It is possible to do lookup using find() (as tr() and
+  QApplication::translate() do) and contains(), insert a new
+  translation message using insert() and removing them using remove().
+
+  Since end-user programs and translation tools have rather different
+  requirements, QTranslator can use stripped translator files in a way
+  that uses a minimum of memory and provides very little functionality
+  other than find().
+
+  Thus, load() may not load enough information to make anything more
+  than find() work.  save() has an argument indicating whether to save
+  just this minimum of information, or everything.
+
+  Everything means that for each translation item the following information
+  is kept: <ul>
+  <li> The \e translated \e text - the return value from tr().
+  <li> The input key: <ul>
+    <li> The \e source \e text - the argument to tr(), normally.
+    <li> The \e context - usually the class name for the tr() caller.
+    <li> The \e comment - a comment which helps disambiguate different uses
+    of the same text in the same context.
   </ul>
+  <li> The status of this item - "fully translated", "needs more work" or "not
+  currently in use".
+  </ul>
+  
+  The minimum is, for each item, just the information that is
+  necessary for find() to return the right text.  This may include the
+  source, context and comment, but usually is just a hash value and
+  the translated text.
 
-  The comment is part of the key because it disambiguates identical text (for a
-  given context) that requires different translations.  Thus, the key
-  ( "FunnyDialog", "&Save...", "File > Save" ) is distinct from ( "FunnyDialog",
-  "&Save...", "Macro > Save" ).
+  For example, the "Cancel" in a dialog might have "Anuluj" when the
+  program runs in Polish, in which case the source text would be
+  "Cancel", the context would (normally) be the dialog's class name,
+  there would normally be no comment, and the translated text would be
+  "Anuluj".
+
+  But it's not always so simple: The Spanish version of a printer
+  dialog with settings for two-sided printing and binding would
+  probably require both "Activado" and "Activada" as translations for
+  "Enabled".  In this case, the source text would be "Enabled" in both
+  cases and the context would be the dialog's class name, but the two
+  items would have disambiguating comments such as "two-sided
+  printing" for one and "binding" for the other.
 
   \sa QTranslatorMessage QApplication::installTranslator(), QApplication::removeTranslator() QObject::tr() QApplication::translate()
 */
@@ -228,14 +261,13 @@ public:
   <li> \c Stripped - files are saved with just what's needed for end-users.
   </ul>
 
-  \warning Once stripped, only the following member functions should be called:
+  \warning Once stripped, only the following member functions can be relied upon:
 
   <ul>
-  <li> find(), but only with a key for which there existed a Finished message in
-       the translator before stripping (other keys may produce random
-       translations instead of QString::null)
-  <li> clear(), after which everything is permitted again
-  <li> load().
+  <li> find() (if the key for which there existed a Finished message in
+       the translator before stripping)
+  <li> clear()
+  <li> load()
   </ul>
 */
 
@@ -940,7 +972,7 @@ QTranslatorMessage::QTranslatorMessage( QDataStream & stream )
   Returns the hash value used internally to represent the lookup key.  This
   value is zero only if this translator message was constructed from a stream
   containing invalid data.
-  
+
   The hashing function is unspecified, but it will remain unchanged in future
   versions of Qt.
 */
@@ -1071,7 +1103,7 @@ void QTranslatorMessage::write( QDataStream & stream,
 
 /*!  Returns the widest lookup prefix that is common to this translator message
   and message \a m.
-  
+
   For example, if the extended key is for this message is ( 42, "FunnyDialog",
   "Yes", "Funny?" ) and that for \a m is ( 42, "FunnyDialog", "No", "Funny?" ),
   returns \l HashContext.
