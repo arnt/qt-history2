@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#37 $
 **
 ** Implementation of QProcess class for Win32
 **
@@ -207,6 +207,12 @@ bool QProcess::start()
 
     // CreateProcess()
     bool success;
+    DWORD creationFlags;
+    if ( qt_winver & WV_NT_based ) {
+	creationFlags = CREATE_NO_WINDOW;
+    } else {
+	creationFlags = DETACHED_PROCESS;
+    }
 #if defined(UNICODE)
     if ( qt_winver & WV_NT_based ) {
 	STARTUPINFO startupInfo = { sizeof( STARTUPINFO ), 0, 0, 0,
@@ -218,7 +224,7 @@ bool QProcess::start()
 	};
 	TCHAR *commandLine = (TCHAR*)qt_winTchar_new( args );
 	success = CreateProcess( 0, commandLine,
-		0, 0, TRUE, CREATE_NO_WINDOW, 0,
+		0, 0, TRUE, creationFlags, 0,
 		(TCHAR*)qt_winTchar(workingDir.absPath(),TRUE),
 		&startupInfo, &d->pid );
 	delete[] commandLine;
@@ -233,7 +239,7 @@ bool QProcess::start()
 	    d->pipeStdin[0], d->pipeStdout[1], d->pipeStderr[1]
 	};
 	success = CreateProcessA( 0, args.local8Bit().data(),
-		0, 0, TRUE, DETACHED_PROCESS, 0,
+		0, 0, TRUE, creationFlags, 0,
 		(const char*)workingDir.absPath().local8Bit(),
 		&startupInfo, &d->pid );
     }
