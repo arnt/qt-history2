@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#12 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -872,3 +872,111 @@ void QLayout::invalidate()
 
 }
 
+
+/*!
+  \class QSizePolicy qsizepolicy.h
+  \brief A layout attribute describing horizontal and vertical resizing.
+
+  Widgets which override QWidget::sizePolicy() return a QSizePolicy
+  describing the horizontal and vertical resizing policy best used when
+  laying out the widget.
+
+  Only \link QSizePolicy::QSizePolicy(SizeType,SizeType) the constructor
+  \endlink is of interest in most applications.
+*/
+
+/*!
+  \fn QSizePolicy::QSizePolicy () 
+
+  Default constructor, produces a minimally initialized QSizePolicy.
+*/
+
+/*!
+  \fn QSizePolicy::QSizePolicy (SizeType hor, SizeType ver, bool hfw=FALSE) 
+
+  This is the constructor normally used to return a value in the overridden
+  \link QWidget::sizeHint() sizeHint() \endlink function of a QWidget
+  subclass.
+
+  It constructs a QSizePolicy with independent horizontal and vertical
+  sizing types, \a hor and \a ver respectively.  These sizing types
+  affect how the widget is treated by the \a link QLayout layout
+  engine\endlink.  
+
+  \define QSizePolicy::SizeType
+
+  The sizing types are:
+<ul>
+    <li> \c Fixed - the sizeHint() is ideal, so never grow or shrink
+		(eg. the vertical direction of a pushbutton)
+    <li> \c Minimum - the sizeHint() is sufficient, but the widget can
+		use extra space if available.
+		(eg. the horizontal direction of a pushbutton)
+    <li> \c Maximum - the sizeHint() is a maximum, the widget can be shrunk
+		any amount without detriment if other widgets need the space
+	       	(eg. a separator line)
+    <li> \c Preferred - the sizeHint() is best, but the widget can use
+		extra space if necessary. ##### right Paul?
+		(eg. ##### Paul?)
+    <li> \c MinimumExpanding - the sizeHint() is a minimum,
+		the widget should get as much space as possible.
+		(eg. ##### Paul?)
+    <li> \c Expanding - the sizeHint() is a mere guide to initial size,
+		the widget should get as much space as possible.
+		(eg. the horizontal direction of a slider)
+</ul>
+
+  If \a hfw is TRUE, the height of the widget is dependent on the
+  width of the widget (for example, a widget with automatic word-breaking).
+*/
+
+/*!
+    \fn SizeType QSizePolicy::horData () const
+
+    \internal
+*/
+/*!
+    \fn SizeType QSizePolicy::verData () const
+
+    \internal
+*/
+/*!
+    \fn bool QSizePolicy::hasWidthForHeight () 
+
+    \internal
+*/
+/*!
+    \fn bool QSizePolicy::mayGrowHorizontally () const
+
+    \internal
+*/
+/*!
+    \fn bool QSizePolicy::mayGrowVertically () const
+
+    \internal
+*/
+/*!
+    \fn bool QSizePolicy::mayShrinkHorizontally () const
+
+    \internal
+*/
+/*!
+    \fn bool QSizePolicy::mayShrinkVertically () const
+
+    \internal
+*/
+/*!
+    \fn void QSizePolicy::setHorData (SizeType d) 
+
+    \internal
+*/
+/*!
+    \fn void QSizePolicy::setVerData (SizeType d) 
+
+    \internal
+*/
+/*!
+    \fn ExpandData QSizePolicy::expanding () const
+
+    \internal
+*/

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#353 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#354 $
 **
 ** Implementation of QWidget class
 **
@@ -3055,7 +3055,7 @@ void QWidget::adjustSize()
   The default implementation returns an invalid size if there is no layout
   for this widget, the layout's preferred size otherwise.
 
-  \sa QSize::isValid(), resize(), setMinimumSize()
+  \sa QSize::isValid(), resize(), setMinimumSize(), sizePolicy()
 */
 
 QSize QWidget::sizeHint() const
