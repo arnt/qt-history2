@@ -22,6 +22,14 @@
 
     \tableofcontents
 
+    \section1 dlopen() Compatibility Library for Darwin (\c dlcompat)
+
+    \e{Dlcompat is] a small library that emulates the dlopen()
+    interface on top of Darwin's dyld API.} -- quoted from \c
+    src/3rdparty/dlcompat/README.
+
+    See \c src/3rdparty/dlcompat/LICENSE for license details.
+
     \section1 FreeType 2 (\c freetype)
 
     \e{The FreeType project is a team of volunteers who develop free, portable
@@ -35,7 +43,6 @@
     See also the files in \c src/3rdparty/opentype, which are used by
     FreeType.
 
-
     \section1 The Independent JPEG Group's JPEG Software (\c libjpeg)
 
     \e{This package contains C software to implement JPEG image compression and
@@ -48,7 +55,6 @@
 
     See \c src/3rdparty/libjpeg/README for license details.
 
-
     \section1 PNG Reference Library (\c libpng)
 
     \e{Libpng was written as a companion to the PNG specification, as a way
@@ -58,6 +64,21 @@
 
     See \c src/3rdparty/libpng/LICENSE for license details.
 
+    \section1 SQLite (\c sqlite)
+
+    \e{SQLite is a small C library that implements a
+    self-contained, embeddable, zero-configuration SQL database engine.}
+    -- quoted from \l{http://www.sqlite.org/}{www.sqlite.org}.
+
+    According to the comments in the source files, the code is in the
+    public domain.
+
+    \section1 Wintab API (\c wintab)
+
+    Wintab is a de facto API for pointing devices on Windows. The
+    wintab code is from \l{http://www.pointing.com/WINTAB.HTM}.
+
+    See \c src/3rdparty/wintab/wintab.h for license details.
 
     \section1 Data Compression Library (\c zlib)
 
