@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#50 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#51 $
 **
 ** Global type declarations and definitions
 **
@@ -57,10 +57,11 @@
 #error "Qt has not been ported to this OS - talk to qt-bugs@troll.no"
 #endif
 
-#if defined(_OS_SUN_) || defined(_OS_SOLARIS_) || defined(_OS_HPUX_) || defined(_OS_ULTRIX_) || defined(_OS_LINUX_) || defined(_OS_IRIX_)
 #if !defined(UNIX)
 #define UNIX
 #endif
+#if defined(_OS_MAC_) || defined(_OS_MSDOS_) || defined(_OS_OS2_) || defined(_OS_WIN32_)
+#undef  UNIX
 #endif
 
 
