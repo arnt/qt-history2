@@ -2630,7 +2630,8 @@ bool QAxBase::internalInvoke( const QCString &name, void *inout, QVariant vars[]
 
     if ( disptype == DISPATCH_METHOD && id >= 0 && varc ) {
 	for ( int i = 0; i < varc; ++i )
-	    vars[i] = VARIANTToQVariant( arg[varc-i-1], vars[i].typeName() );
+	    if ( arg[varc-i-1].vt & VT_BYREF ) // update out-parameters
+		vars[i] = VARIANTToQVariant( arg[varc-i-1], vars[i].typeName() );
     }
 
     // clean up
