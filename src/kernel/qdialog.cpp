@@ -262,7 +262,7 @@ int QDialog::exec()
 
 
 /*!
-  Closes the dialog and sets the result code to \e r.
+  Hides the dialog and sets the result code to \e r.
 
   Equivalent to calling hide(), then setResult(\e r ).
 
@@ -280,7 +280,7 @@ int QDialog::exec()
 
 void QDialog::done( int r )
 {
-    close();
+    hide();
     setResult( r );
 }
 
