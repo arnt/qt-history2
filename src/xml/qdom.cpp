@@ -5962,10 +5962,26 @@ QDomDocument::~QDomDocument()
 {
 }
 
+/*!  \overload
+  This function reads the XML document from the string \a text. Since \a text
+  is already a unicode string, no encoding detection is done.
+*/
+bool QDomDocument::setContent( const QString& text, bool namespaceProcessing, QString *errorMsg, int *errorLine, int *errorColumn )
+{
+    if ( !impl )
+	impl = new QDomDocumentPrivate;
+    QXmlInputSource source;
+    source.setData( text );
+    return IMPL->setContent( source, namespaceProcessing, errorMsg, errorLine, errorColumn );
+}
+
 /*!
-  This function parses the string \a text and sets it as the content of the
-  document. If \a namespaceProcessing is TRUE, the parser recognizes namespaces
-  in the XML file and sets the prefix name, local name and namespace URI to
+  This function parses the XML document from the byte array \a buffer and sets
+  it as the content of the document. It tries to detect the encoding of the
+  document as required by the XML specification.
+
+  If \a namespaceProcessing is TRUE, the parser recognizes namespaces in the
+  XML file and sets the prefix name, local name and namespace URI to
   appropriate values. If \a namespaceProcessing is FALSE, the parser does no
   namespace processing when it reads the XML file.
 
@@ -5984,18 +6000,6 @@ QDomDocument::~QDomDocument()
   \sa QDomNode::namespaceURI() QDomNode::localName() QDomNode::prefix()
   QString::isNull() QString::isEmpty()
 */
-bool QDomDocument::setContent( const QString& text, bool namespaceProcessing, QString *errorMsg, int *errorLine, int *errorColumn )
-{
-    if ( !impl )
-	impl = new QDomDocumentPrivate;
-    QXmlInputSource source;
-    source.setData( text );
-    return IMPL->setContent( source, namespaceProcessing, errorMsg, errorLine, errorColumn );
-}
-
-/*!  \overload
-  This function reads the XML document from the byte array \a buffer.
-*/
 bool QDomDocument::setContent( const QByteArray& buffer, bool namespaceProcessing, QString *errorMsg, int *errorLine, int *errorColumn )
 {
     if ( !impl )
@@ -6007,6 +6011,9 @@ bool QDomDocument::setContent( const QByteArray& buffer, bool namespaceProcessin
 
 /*!  \overload
   This function reads the XML document from the C string \a buffer.
+
+  Use this function with extreme care, since it does not try to detect the
+  encoding, but rather assumes that the C string is in Utf8 encoding.
 */
 bool QDomDocument::setContent( const QCString& buffer, bool namespaceProcessing, QString *errorMsg, int *errorLine, int *errorColumn )
 {
@@ -6025,7 +6032,8 @@ bool QDomDocument::setContent( QIODevice* dev, bool namespaceProcessing, QString
 }
 
 /*! \overload
-  This function reads the XML document from the string \a text.
+  This function reads the XML document from the string \a text. Since \a text
+  is already a unicode string, no encoding detection is done.
 
   No namespace processing is done.
 */
@@ -6046,6 +6054,9 @@ bool QDomDocument::setContent( const QByteArray& buffer, QString *errorMsg, int 
 
 /*!  \overload
   This function reads the XML document from the C string \a buffer.
+
+  Use this function with extreme care, since it does not try to detect the
+  encoding, but rather assumes that the C string is in Utf8 encoding.
 
   No namespace processing is done.
 */
