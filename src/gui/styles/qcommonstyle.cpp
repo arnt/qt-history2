@@ -1600,7 +1600,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                                                                       SC_ScrollBarSlider, widget));
                 if (newScrollbar.rect.isValid()) {
                     if (!(scrollbar->activeSubControls & SC_ScrollBarSlider))
-                        newScrollbar.state |= ~(State_Sunken | State_MouseOver);
+                        newScrollbar.state &= ~(State_Sunken | State_MouseOver);
                     drawControl(CE_ScrollBarSlider, &newScrollbar, p, widget);
 
                     if (scrollbar->state & State_HasFocus) {

@@ -691,7 +691,8 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
 
     case CE_ScrollBarSlider: {
         QStyleOption bevelOpt = *opt;
-        bevelOpt.state = (opt->state | State_Raised) & ~State_Sunken;
+        bevelOpt.state |= State_Raised;
+        bevelOpt.state &= ~(State_Sunken | State_On);
         p->save();
         p->setBrushOrigin(bevelOpt.rect.topLeft());
         drawPrimitive(PE_PanelButtonBevel, &bevelOpt, p, widget);
