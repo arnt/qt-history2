@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#87 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#88 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#87 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#88 $";
 #endif
 
 
@@ -132,8 +132,14 @@ bool QWidget::create()				// create widget
     }
     else if ( overlap ) {			// top level widget
 	if ( modal ) {
-	    if ( parentWidget() )		// modal to one widget
-		XSetTransientForHint( dpy, id, parentWidget()->id() );
+	    QWidget *p = parentWidget();	// real parent
+	    QWidget *pp = p ? p->parentWidget() : 0;
+	    while ( pp && !pp->testWFlags(WType_Modal) ) {
+		p = pp;				// find real parent
+		pp = pp->parentWidget();
+	    }
+	    if ( p )				// modal to one widget
+		XSetTransientForHint( dpy, id, p->id() );
 	    else				// application-modal
 		XSetTransientForHint( dpy, id, qt_xrootwin() );
 	}
@@ -190,6 +196,7 @@ bool QWidget::destroy()				// destroy widget
     if ( parentWidget() && parentWidget()->focusChild == this )
 	parentWidget()->focusChild = 0;
     if ( testWFlags(WState_Created) ) {
+	emit destroyed();			// send out destroyed signal
 	clearWFlags( WState_Created );
 	focusChild = 0;
 	if ( children() ) {
@@ -208,7 +215,6 @@ bool QWidget::destroy()				// destroy widget
 	if ( !testWFlags(WType_Desktop) )
 	    XDestroyWindow( dpy, ident );
 	set_id( 0 );
-	emit destroyed();			// send out destroyed signal
     }
     return TRUE;
 }
