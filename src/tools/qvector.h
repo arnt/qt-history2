@@ -234,24 +234,33 @@ void QVector<T>::realloc(int size, int alloc)
     union { QVectorData *p; Data *d; } x;
     x.d = d;
     if (alloc != d->alloc || d->ref != 1) {
-	if (QTypeInfo<T>::isStatic)
+	// (re)allocate memory
+	if (QTypeInfo<T>::isStatic) {
 	    x.p = QVectorData::malloc(alloc, sizeof(T));
-	else if (d->ref != 1)
+	} else if (d->ref != 1) {
 	    x.p = QVectorData::malloc(alloc, sizeof(T), p);
-	else
+	} else {
+	    if (QTypeInfo<T>::isComplex) {
+		// call the destructor on all objects that need to be
+		// destroyed when shrinking
+		if (size < d->size) {
+		    j = d->array + size;
+		    i = d->array + d->size;
+		    while (i-- != j)
+			i->~T();
+		    i = d->array + size;
+		}
+	    }
 	    x.p = p = p->realloc(alloc, sizeof(T));
+	}
 	x.d->ref = 1;
     }
     if (QTypeInfo<T>::isComplex) {
 	if (size < d->size) {
 	    j = d->array + size;
-	    if (d == x.d) {
-		i = d->array + d->size;
-		while (i-- != j)
-		    i->~T();
-	    }
 	    i = x.d->array + size;
 	} else {
+	    // construct all new objects when growing
 	    i = x.d->array + size;
 	    j = x.d->array + d->size;
 	    while (i != j)
@@ -259,6 +268,7 @@ void QVector<T>::realloc(int size, int alloc)
 	    j = d->array + d->size;
 	}
 	if (i != j) {
+	    // copy objects from the old array into the new array
 	    b = x.d->array;
 	    while (i != b)
 		new (--i) T(*--j);
