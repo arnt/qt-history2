@@ -179,7 +179,7 @@ public:
     friend bool operator==(char ch, QChar c);
     friend bool operator==(QChar c, char ch);
     friend bool operator==(QChar c, unsigned short ch);
-    friend bool operator==(unsigned short c, QChar c);
+    friend bool operator==(unsigned short ch, QChar c);
     friend bool operator==(QChar c1, QChar c2);
     friend bool operator==(int ch, QChar c);
     friend bool operator==(QChar c, int ch);
@@ -187,14 +187,14 @@ public:
     friend bool operator!=(char ch, QChar c);
     friend bool operator!=(QChar c, char ch);
     friend bool operator!=(QChar c, unsigned short ch);
-    friend bool operator!=(unsigned short c, QChar c);
+    friend bool operator!=(unsigned short ch, QChar c);
     friend bool operator!=(int ch, QChar c);
     friend bool operator!=(QChar c, int ch);
     friend bool operator<=(QChar c, char ch);
     friend bool operator<=(char ch, QChar c);
     friend bool operator<=(QChar c1, QChar c2);
     friend bool operator<=(QChar c, unsigned short ch);
-    friend bool operator<=(unsigned short c, QChar c);
+    friend bool operator<=(unsigned short ch, QChar c);
     friend bool operator<=(int ch, QChar c);
     friend bool operator<=(QChar c, int ch);
 
@@ -292,19 +292,6 @@ inline bool operator>(QChar c, char ch) { return !(ch>=c); }
 inline bool operator>(char ch, QChar c) { return !(c>=ch); }
 #endif
 #endif
-
-inline bool operator==(const QChar &ch, QChar::SpecialChars sc)
-{ return ch.unicode() == sc; }
-inline bool operator==(QChar::SpecialChars sc, const QChar &ch)
-{ return sc == ch.unicode(); }
-inline bool operator!=(const QChar &ch, QChar::SpecialChars sc)
-{ return ch.unicode() != sc; }
-inline bool operator!=(QChar::SpecialChars sc, const QChar &ch)
-{ return sc != ch.unicode(); }
-inline bool operator<=(const QChar &ch, QChar::SpecialChars sc)
-{ return ch.unicode() < sc; }
-inline bool operator<=(QChar::SpecialChars sc, const QChar &ch)
-{ return sc < ch.unicode(); }
 
 inline bool operator==(unsigned short ch, QChar c) { return ch == c.ucs; }
 inline bool operator==(QChar c, unsigned short ch) { return ch == c.ucs; }
