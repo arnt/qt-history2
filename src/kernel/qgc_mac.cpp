@@ -310,7 +310,6 @@ QQuickDrawGC::drawRect(const QRect &r)
 	    if(d->current.brush.style() == QBrush::CustomPattern) {
 		pm = d->current.brush.pixmap();
 	    } else {
-		qDebug("%d: a brush style pix..", __LINE__);
 		pm = d->brush_style_pix;
 		if(d->current.bg.mode == OpaqueMode) {
 		    ::RGBColor f;
@@ -461,7 +460,6 @@ QQuickDrawGC::drawPolyInternal(const QPointArray &pa, bool close, bool inset)
 	    if(d->current.brush.style() == QBrush::CustomPattern) {
 		pm = d->current.brush.pixmap();
 	    } else {
-		qDebug("%d: a brush style pix..", __LINE__);
 		pm = d->brush_style_pix;
 		if(d->current.bg.mode == OpaqueMode) {
 		    ::RGBColor f;
@@ -520,7 +518,6 @@ QQuickDrawGC::drawEllipse(const QRect &r)
 	    if(d->current.brush.style() == QBrush::CustomPattern) {
 		pm = d->current.brush.pixmap();
 	    } else {
-		qDebug("%d: a brush style pix..", __LINE__);
 		pm = d->brush_style_pix;
 		if(d->current.bg.mode == OpaqueMode) {
 		    ::RGBColor f;
