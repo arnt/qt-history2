@@ -49,7 +49,7 @@
 #ifndef QT_NO_SQL
 
 class NumEdit;
-class QLabel;
+class QDateTimeEditLabel;
 
 class Q_EXPORT QDateTimeEditBase : public QFrame
 {
@@ -68,10 +68,11 @@ protected:
     bool eventFilter( QObject *, QEvent * );
     void updateArrows();
     void layoutArrows();
+    void drawContents( QPainter * );
 
-    QPushButton * up, * down;
-    NumEdit     * ed[3];
-    QLabel      * sep[2];
+    QPushButton        * up, * down;
+    NumEdit            * ed[3];
+    QDateTimeEditLabel * sep[2];
     QString lastValid[3];
 };
 

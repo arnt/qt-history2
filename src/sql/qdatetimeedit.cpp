@@ -66,6 +66,20 @@ public:
     }
 };
 
+class QDateTimeEditLabel : public QLabel
+{
+public:
+    QDateTimeEditLabel( QWidget * parent = 0, const char * name = 0, 
+		        WFlags f = 0 )
+	: QLabel( parent, name, f){}
+    
+protected:
+    void drawContents( QPainter * p )
+    {
+	p->fillRect( contentsRect(), colorGroup().background() );
+	QLabel::drawContents( p );
+    }
+};
 
 /*!
 
@@ -90,21 +104,18 @@ void QDateTimeEditBase::init()
     setLineWidth( 2 );
 
     QPalette p = palette();
-    p.setBrush( QPalette::Inactive, QColorGroup::Background,
-		palette().inactive().brush( QColorGroup::Background ) );
-    p.setBrush( QPalette::Active, QColorGroup::Background,
-		palette().active().brush( QColorGroup::Base ) );
+    p.setColor( QPalette::Active, QColorGroup::Background,
+		palette().active().color( QColorGroup::Base ) );
+    p.setColor( QPalette::Inactive, QColorGroup::Background,
+		palette().inactive().color( QColorGroup::Base ) );
     setPalette( p );
-    // setBackgroundMode( PaletteBase );
+
     ed[0] = new NumEdit( this, "Ed_1" );
     ed[1] = new NumEdit( this, "Ed_2" );
     ed[2] = new NumEdit( this, "Ed_3" );
 
-    sep[0] = new QLabel( this );
-    sep[1] = new QLabel( this );
-
-    // sep[0]->setBackgroundMode( PaletteBase );
-    // sep[1]->setBackgroundMode( PaletteBase );
+    sep[0] = new QDateTimeEditLabel( this );
+    sep[1] = new QDateTimeEditLabel( this );
 
     up   = new QPushButton( this );
     up->setFocusPolicy( QWidget::NoFocus );
@@ -149,6 +160,14 @@ QSize QDateTimeEditBase::sizeHint() const
 	     + h // font height
 	     );
     return r.expandedTo( QApplication::globalStrut() );
+}
+
+/*!
+  \reimp
+*/
+void QDateTimeEditBase::drawContents( QPainter * p )
+{
+    p->fillRect( contentsRect(), colorGroup().background() );
 }
 
 /*!
@@ -213,27 +232,25 @@ void QDateTimeEditBase::updateArrows()
 void QDateTimeEditBase::stepUp()
 {
     int i = 0;
-    int focus = -1;
+    int focus = 0;
 
     for( i = 0; i < 3; i++)
 	if( ed[i]->hasFocus() )
 	    focus = i;
+       
+    NumEdit * e = ed[focus];
+    QIntValidator * v = (QIntValidator *) e->validator();
 
-    if( focus != -1 ){
-	NumEdit * e = ed[focus];
-	QIntValidator * v = (QIntValidator *) e->validator();
+    if( !v ) return;
+    int n = e->text().toInt();
+    n++;
 
-	if( !v ) return;
-	int n = e->text().toInt();
-	n++;
+    if( n > v->top() )
+	n = v->top();
+    else if( n < v->bottom() )
+	n = v->bottom();
 
-	if( n > v->top() )
-	    n = v->top();
-	else if( n < v->bottom() )
-	    n = v->bottom();
-
-	e->setText( QString::number( n ) );
-    }
+    e->setText( QString::number( n ) );
 }
 
 /*!
@@ -244,27 +261,25 @@ void QDateTimeEditBase::stepUp()
 void QDateTimeEditBase::stepDown()
 {
     int i = 0;
-    int focus = -1;
+    int focus = 0;
 
     for( i = 0; i < 3; i++)
 	if( ed[i]->hasFocus() )
 	    focus = i;
 
-    if( focus != -1 ){
-	NumEdit * e = ed[focus];
-	QIntValidator * v = (QIntValidator *) e->validator();
+    NumEdit * e = ed[focus];
+    QIntValidator * v = (QIntValidator *) e->validator();
 
-	if( !v ) return;
-	int n = e->text().toInt();
-	n--;
+    if( !v ) return;
+    int n = e->text().toInt();
+    n--;
 
-	if( n > v->top() )
-	    n = v->top();
-	else if( n < v->bottom() )
-	    n = v->bottom();
+    if( n > v->top() )
+	n = v->top();
+    else if( n < v->bottom() )
+	n = v->bottom();
 
-	e->setText( QString::number( n ) );
-    }
+    e->setText( QString::number( n ) );
 }
 
 /*!
@@ -544,7 +559,7 @@ void QDateEdit::resizeEvent( QResizeEvent * )
     layoutArrows();
 
     int h       = height() - frameWidth()*2;
-    int numSize = (width() - up->width()) / 10;
+    int numSize = (width() - up->width() - frameWidth()*2) / 10;
     int offset  = frameWidth();
 
     ed[yearPos]->resize( numSize*4, h );
@@ -559,7 +574,6 @@ void QDateEdit::resizeEvent( QResizeEvent * )
     sep[1]->resize( numSize, h - 2);
     sep[0]->move( ed[0]->x() + ed[0]->width() + 1, offset );
     sep[1]->move( ed[1]->x() + ed[1]->width() + 1, offset );
-
 }
 
 /*!
@@ -646,9 +660,10 @@ QTime QTimeEdit::time() const
  */
 void QTimeEdit::resizeEvent( QResizeEvent * )
 {
-    int mSize = 6;
+    layoutArrows();
+
     int h     = height() - frameWidth()*2;
-    int numSize = (width() - 15) / 8;
+    int numSize = (width() -  up->width() - frameWidth()*2) / 8;
     int offset  = frameWidth();
 
     ed[0]->resize( numSize*2, h );
@@ -656,14 +671,13 @@ void QTimeEdit::resizeEvent( QResizeEvent * )
     ed[2]->resize( numSize*2, h );
 
     ed[0]->move( offset, offset );
-    ed[1]->move( ed[0]->x() + ed[0]->width() + mSize, offset );
-    ed[2]->move( ed[1]->x() + ed[1]->width() + mSize, offset );
+    ed[1]->move( ed[0]->x() + ed[0]->width() + numSize, offset );
+    ed[2]->move( ed[1]->x() + ed[1]->width() + numSize, offset );
 
-    sep[0]->resize( mSize, h - 2);
-    sep[1]->resize( mSize, h - 2);
+    sep[0]->resize( numSize, h - 2);
+    sep[1]->resize( numSize, h - 2);
     sep[0]->move( ed[0]->x() + ed[0]->width() + 1, offset );
     sep[1]->move( ed[1]->x() + ed[1]->width() + 1, offset );
-    layoutArrows();
 }
 
 
