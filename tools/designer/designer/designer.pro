@@ -424,11 +424,11 @@ table {
 INCLUDEPATH	+= ../shared ../uilib
 LIBS            += -L$$QT_BUILD_TREE/lib -lqui
 
-hpux-acc {
+hpux-acc* {
 	LIBS            += $$QT_BUILD_TREE/lib/libqassistantclient.a
 }
 
-!hpux-acc {
+!hpux-acc* {
 	LIBS		+= -lqassistantclient
 }
 

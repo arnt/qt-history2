@@ -23,7 +23,7 @@ OUTDIR=$4
 #   	work for us with gcc 2.95.2.
 NOTYPE=no
 
-if [ $XPLATFORM = "solaris-g++" -o $XPLATFORM = "hpux-g++" -o $XPLATFORM = "aix-g++" ]; then
+if [ $XPLATFORM = "solaris-g++" -o $XPLATFORM = "hpux-g++" -o $XPLATFORM = "aix-g++" -o $XPLATFORM = "aix-g++-64" ]; then
     NOTYPE=yes
 
     test -d $OUTDIR/config.tests/x11/notype || mkdir -p $OUTDIR/config.tests/x11/notype
