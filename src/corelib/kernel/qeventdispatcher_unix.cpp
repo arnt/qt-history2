@@ -373,7 +373,8 @@ void QEventDispatcherUNIX::registerTimer(int timerId, int interval, QObject *obj
 
     Q_D(QEventDispatcherUNIX);
 
-    Q_ASSERT_X(interval < 0 || !obj, "QEventDispatcherUNIX::registerTimer", "invalid arguments");
+    Q_ASSERT_X(interval >= 0 && obj != 0, "QEventDispatcherUNIX::registerTimer",
+               "invalid arguments");
     QTimerInfo *t = new QTimerInfo;                // create timer
     t->id = timerId;
     t->interval.tv_sec  = interval / 1000;
