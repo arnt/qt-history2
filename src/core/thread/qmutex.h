@@ -16,8 +16,6 @@
 
 #include "qglobal.h"
 
-typedef void *QStaticMutex;
-
 #ifndef QT_NO_THREAD
 
 class QMutexPrivate;
@@ -37,13 +35,15 @@ public:
 
     inline bool isLocked()
     {
-        if (!tryLock()) return true;
+        if (!tryLock())
+            return true;
         unlock();
         return false;
     }
 
 #if defined(QT_COMPAT)
-    inline QT_COMPAT bool locked() { return isLocked(); }
+    inline QT_COMPAT bool locked()
+    { return isLocked(); }
 #endif
 
 private:
@@ -58,7 +58,6 @@ public:
     inline QMutexLocker(QMutex *m)
         : mtx(m)
     { relock(); }
-    QMutexLocker(QStaticMutex &m);
     inline ~QMutexLocker()
     { unlock(); }
 
@@ -105,7 +104,6 @@ class Q_CORE_EXPORT QMutexLocker
 {
 public:
     inline QMutexLocker(QMutex *) {}
-    inline QMutexLocker(QStaticMutex &) {}
     inline ~QMutexLocker() {}
 
     static inline void unlock() {}

@@ -15,9 +15,17 @@
 #include "qmutex.h"
 
 #ifndef QT_NO_THREAD
+#include "qatomic.h"
 #include "qmutex_p.h"
 #include <errno.h>
 #include <string.h>
+
+
+static void report_error(int code, const char *where, const char *what)
+{
+    if (code != 0)
+        qWarning("%s: %s failure: %s", where, what, strerror(code));
+}
 
 
 /*!
@@ -133,16 +141,9 @@ QMutex::QMutex(bool recursive)
     d->recursive = recursive;
     d->owner = 0;
     d->count = 0;
-
-    int code;
-    code = pthread_mutex_init(&d->mutex, NULL);
-    if (code != 0)
-        qWarning("QMutex: cannot create mutex: %s", strerror(code));
-    if (d->recursive) {
-        code = pthread_mutex_init(&d->mutex2, NULL);
-        if (code != 0)
-            qWarning("QMutex: cannot create support mutex: %s", strerror(code));
-    }
+    d->waiters = 0;
+    report_error(pthread_mutex_init(&d->mutex, NULL), "QMutex", "mutex init");
+    report_error(pthread_cond_init(&d->cond, NULL), "QMutex", "cv init");
 }
 
 /*!
@@ -153,16 +154,8 @@ QMutex::QMutex(bool recursive)
 */
 QMutex::~QMutex()
 {
-    int code;
-    if (d->recursive) {
-        code = pthread_mutex_destroy(&d->mutex2);
-        if (code != 0)
-            qWarning("QMutex: cannot destroy support mutex: %s", strerror(code));
-    }
-    code = pthread_mutex_destroy(&d->mutex);
-    if (code != 0)
-        qWarning("QMutex: cannot destroy mutex: %s", strerror(code));
-
+    report_error(pthread_cond_destroy(&d->cond), "QMutex", "cv destroy");
+    report_error(pthread_mutex_destroy(&d->mutex), "QMutex", "mutex destroy");
     delete d;
 }
 
@@ -174,31 +167,23 @@ QMutex::~QMutex()
 */
 void QMutex::lock()
 {
-    int code;
-    if (! d->recursive) {
-        code = pthread_mutex_lock(&d->mutex);
-        if (code != 0)
-            qWarning("QMutex::lock: %s", strerror(code));
-        return;
+    const pthread_t self = pthread_self();
+    const pthread_t none = 0;
+
+    ++d->waiters;
+    while (!q_atomic_test_and_set_ptr(&d->owner, none, self)) {
+        if (d->recursive && d->owner == self) {
+            break;
+        } else if (d->owner == self) {
+            qWarning("QMutex::lock(): Deadlock detected in Thread %d", d->owner);
+        }
+
+        report_error(pthread_mutex_lock(&d->mutex), "QMutex::lock()", "mutex lock");
+        report_error(pthread_cond_wait(&d->cond, &d->mutex), "QMutex::lock()", "cv wait");
+        report_error(pthread_mutex_unlock(&d->mutex), "QMutex::lock()", "mutex unlock");
     }
-
-    pthread_mutex_lock(&d->mutex2);
-
-    if (d->count > 0 && d->owner == pthread_self()) {
-        d->count++;
-    } else {
-        pthread_mutex_unlock(&d->mutex2);
-
-        code = pthread_mutex_lock(&d->mutex);
-        if (code != 0)
-            qWarning("QMutex::lock: %s", strerror(code));
-
-        pthread_mutex_lock(&d->mutex2);
-        d->count = 1;
-        d->owner = pthread_self();
-    }
-
-    pthread_mutex_unlock(&d->mutex2);
+    --d->waiters;
+    ++d->count;
 }
 
 /*!
@@ -214,39 +199,15 @@ void QMutex::lock()
 */
 bool QMutex::tryLock()
 {
-    int code;
-    if (! d->recursive) {
-        code = pthread_mutex_trylock(&d->mutex);
-        if (code != 0) {
-            if (code != EBUSY)
-                qWarning("QMutex:tryLock: %s", strerror(code));
+    const pthread_t self = pthread_self();
+    const pthread_t none = 0;
+
+    if (!q_atomic_test_and_set_ptr(&d->owner, none, self)) {
+        if (!d->recursive || d->owner != self)
             return false;
-        }
-        return true;
     }
-
-    bool ret = true;
-
-    pthread_mutex_lock(&d->mutex2);
-
-    if (d->count > 0 && d->owner == pthread_self()) {
-        d->count++;
-    } else {
-        code = pthread_mutex_trylock(&d->mutex);
-
-        if (code != 0) {
-            if (code != EBUSY)
-                qWarning("QMutex:tryLock: %s", strerror(code));
-            ret = false;
-        } else {
-            d->count = 1;
-            d->owner = pthread_self();
-        }
-    }
-
-    pthread_mutex_unlock(&d->mutex2);
-
-    return ret;
+    ++d->count;
+    return true;
 }
 
 /*!
@@ -259,32 +220,18 @@ bool QMutex::tryLock()
 */
 void QMutex::unlock()
 {
-    int code;
-    if (! d->recursive) {
-        code = pthread_mutex_unlock(&d->mutex);
-        if (code != 0)
-            qWarning("QMutex::unlock: %s", strerror(code));
-        return;
-    }
+    const pthread_t none = 0;
 
-    pthread_mutex_lock(&d->mutex2);
+    Q_ASSERT(d->owner == pthread_self());
 
-    if (d->owner == pthread_self()) {
-        // do nothing if the count is already 0... to reflect the behaviour described
-        // in the docs
-        if (d->count && (--d->count) < 1) {
-            d->count = 0;
-            code = pthread_mutex_unlock(&d->mutex);
-            if (code != 0)
-                qWarning("QMutex::unlock: %s", strerror(code));
+    if (!--d->count) {
+        (void) q_atomic_set_ptr(&d->owner, none);
+        if (d->waiters != 0) {
+            pthread_mutex_lock(&d->mutex);
+            pthread_cond_signal(&d->cond);
+            pthread_mutex_unlock(&d->mutex);
         }
-    } else {
-        qWarning("QMutex::unlock: unlock from different thread than locker");
-        qWarning("                was locked by %lu, unlock attempt from %lu",
-                 ulong(d->owner), ulong(pthread_self()));
     }
-
-    pthread_mutex_unlock(&d->mutex2);
 }
 
 /*! \fn bool QMutex::isLocked()
@@ -297,6 +244,12 @@ void QMutex::unlock()
     previously locked the mutex will return undefined results.
 
     \sa lock(), unlock()
+*/
+
+/*! \obsolete
+    \fn bool QMutex::locked()
+
+    Use isLocked() instead.
 */
 
 /*!

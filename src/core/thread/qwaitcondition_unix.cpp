@@ -14,12 +14,22 @@
 #include "qplatformdefs.h"
 #include "qwaitcondition.h"
 #include "qmutex.h"
+#include "qatomic.h"
 #include "qmutex_p.h"
 #include <errno.h>
 #include <string.h>
 
 
+static void report_error(int code, const char *where, const char *what)
+{
+    if (code != 0)
+        qWarning("%s: %s failure: %s", where, what, strerror(code));
+}
+
+
+
 struct QWaitConditionPrivate {
+    pthread_mutex_t mutex;
     pthread_cond_t cond;
 };
 
@@ -115,10 +125,8 @@ struct QWaitConditionPrivate {
 QWaitCondition::QWaitCondition()
 {
     d = new QWaitConditionPrivate;
-
-    int ret = pthread_cond_init(&d->cond, NULL);
-    if (ret)
-        qWarning("QWaitCondition: constructor failure: %s", strerror(ret));
+    report_error(pthread_mutex_init(&d->mutex, NULL), "QWaitCondition", "mutex init");
+    report_error(pthread_cond_init(&d->cond, NULL), "QWaitCondition", "cv init");
 }
 
 
@@ -127,11 +135,8 @@ QWaitCondition::QWaitCondition()
 */
 QWaitCondition::~QWaitCondition()
 {
-    int ret = pthread_cond_destroy(&d->cond);
-    if (ret != 0) {
-        qWarning("QWaitCondition: destructor failure: %s", strerror(ret));
-    }
-
+    report_error(pthread_cond_destroy(&d->cond), "QWaitCondition", "cv destroy");
+    report_error(pthread_mutex_destroy(&d->mutex), "QWaitCondition", "mutex destroy");
     delete d;
 }
 
@@ -144,9 +149,7 @@ QWaitCondition::~QWaitCondition()
 */
 void QWaitCondition::wakeOne()
 {
-    int ret = pthread_cond_signal(&d->cond);
-    if (ret != 0)
-        qWarning("QWaitCondition::wakeOne() failure: %s", strerror(ret));
+    report_error(pthread_cond_signal(&d->cond), "QWaitCondition::wakeOne()", "cv signal");
 }
 
 /*!
@@ -155,12 +158,10 @@ void QWaitCondition::wakeOne()
     scheduling policies, and cannot be controlled or predicted.
 
     \sa wakeOne()
-*/
+ */
 void QWaitCondition::wakeAll()
 {
-    int ret =pthread_cond_broadcast(&d->cond);
-    if (ret != 0)
-        qWarning("QWaitCondition::wakeAll() failure: %s", strerror(ret));
+    report_error(pthread_cond_broadcast(&d->cond), "QWaitCondition::wakeAll()", "cv broadcast");
 }
 
 /*!
@@ -172,11 +173,11 @@ void QWaitCondition::wakeAll()
     will block until either of these conditions is met:
     \list
     \i Another thread signals it using wakeOne() or wakeAll(). This
-       function will return true in this case.
+    function will return true in this case.
     \i \a time milliseconds has elapsed. If \a time is ULONG_MAX (the
-       default), then the wait will never timeout (the event must be
-       signalled). This function will return false if the wait timed
-       out.
+    default), then the wait will never timeout (the event must be
+    signalled). This function will return false if the wait timed
+    out.
     \endlist
 
     The mutex will be returned to the same locked state. This funtion
@@ -184,7 +185,7 @@ void QWaitCondition::wakeAll()
     to the wait state.
 
     \sa wakeOne(), wakeAll()
-*/
+ */
 bool QWaitCondition::wait(QMutex *mutex, unsigned long time)
 {
     if (! mutex)
@@ -195,7 +196,10 @@ bool QWaitCondition::wait(QMutex *mutex, unsigned long time)
         return false;
     }
 
-    int ret;
+    report_error(pthread_mutex_lock(&d->mutex), "QWaitCondition::wait()", "mutex lock");
+    mutex->unlock();
+
+    int code;
     if (time != ULONG_MAX) {
         struct timeval tv;
         gettimeofday(&tv, 0);
@@ -205,13 +209,16 @@ bool QWaitCondition::wait(QMutex *mutex, unsigned long time)
         ti.tv_sec = tv.tv_sec + (time / 1000) + (ti.tv_nsec / 1000000000);
         ti.tv_nsec %= 1000000000;
 
-        ret = pthread_cond_timedwait(&d->cond, &mutex->d->mutex, &ti);
+        code = pthread_cond_timedwait(&d->cond, &d->mutex, &ti);
     } else {
-        ret = pthread_cond_wait(&d->cond, &mutex->d->mutex);
+        code = pthread_cond_wait(&d->cond, &d->mutex);
     }
 
-    if (ret && ret != ETIMEDOUT)
-        qWarning("QWaitCondition::wait() failure: %s",strerror(ret));
+    mutex->lock();
+    report_error(pthread_mutex_unlock(&d->mutex), "QWaitCondition::wait()", "mutex unlock");
 
-    return (ret == 0);
+    if (code && code != ETIMEDOUT)
+        report_error(code, "QWaitCondition::wait()", "cv wait");
+
+    return (code == 0);
 }

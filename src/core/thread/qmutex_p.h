@@ -33,9 +33,10 @@ struct QMutexPrivate
 
     pthread_t owner;
     unsigned int count;
+    QAtomic waiters;
 
     pthread_mutex_t mutex;
-    pthread_mutex_t mutex2;
+    pthread_cond_t cond;
 };
 #endif
 
