@@ -484,7 +484,7 @@ in the QSqlCursor constructor.
 The SQL executed by the cur.select() call is
 
 \code
-    SELECT staff.id, staff.forename, staff.surname, staff.salary, staff.statusid FROM staff;
+    SELECT staff.id, staff.forename, staff.surname, staff.salary, staff.statusid FROM staff
 \endcode
 
 Next, we iterate through the records returned by this select statement
@@ -507,7 +507,7 @@ statement's WHERE clause).
 This select() call will execute the SQL
 \code
     SELECT staff.id, staff.forename, staff.surname, staff.salary, staff.statusid 
-    FROM staff WHERE staff.id > 100;
+    FROM staff WHERE staff.id > 100
 \endcode
 
 This will retrieve only those staff whose \c id is greater than 100.
@@ -530,7 +530,7 @@ staff.surname. Each field in the index object is used in the ORDER BY
 clause of the select statement.  The SQL executed here is 
 \code
     SELECT staff.id, staff.forename, staff.surname, staff.salary, staff.statusid 
-    FROM staff ORDER BY staff.surname ASC;
+    FROM staff ORDER BY staff.surname ASC
 \endcode
 
 Combining the retrieval of a subset of records and ordering the results
@@ -545,7 +545,7 @@ object to sort by (the ORDER BY clause). This produces
 
 \code
     SELECT staff.id, staff.forename, staff.surname, staff.salary, staff.statusid
-    FROM staff WHERE staff.surname LIKE 'A%' ORDER BY staff.surname ASC;
+    FROM staff WHERE staff.surname LIKE 'A%' ORDER BY staff.surname ASC
 \endcode
 
 To sort by more than one field, an index can be created which contains
@@ -564,7 +564,7 @@ based on these fields, finally executing the select() call using this
 index. This executes
 \code
     SELECT staff.id, staff.forename, staff.surname, staff.salary, staff.statusid
-    FROM staff ORDER BY staff.surname ASC, staff.forename ASC;
+    FROM staff ORDER BY staff.surname ASC, staff.forename ASC
 \endcode
 
 If we need to retrieve records with fields that match specific criteria we
@@ -579,7 +579,7 @@ can create a filter based on an index.
 This executes
 \code
     SELECT staff.id, staff.forename, staff.surname, staff.salary, staff.statusid 
-    FROM staff WHERE staff.surname='Bloggs' ORDER BY staff.id ASC, staff.forename ASC;
+    FROM staff WHERE staff.surname='Bloggs' ORDER BY staff.id ASC, staff.forename ASC
 \endcode
 
 The "order" \l QSqlIndex contains two fields, "id" and "forename"
@@ -610,7 +610,7 @@ we call select() which generates and executes the following SQL:
     SELECT creditors.city, creditors.surname, creditors.forename, creditors.id 
     FROM creditors 
     WHERE creditors.surname = 'Chirac' AND creditors.city = 'Paris' 
-    ORDER BY creditors.surname ASC, creditors.forename ASC;
+    ORDER BY creditors.surname ASC, creditors.forename ASC
 \endcode
 The filter fields are used in the WHERE clause. Their values are taken
 from the cursor's current values for those fields; we set these values
@@ -718,7 +718,7 @@ the price of every item in the price list, using a single SQL statement
 with \l QSqlQuery is more efficient, e.g.
 
 \code
-    QSqlQuery query( "UPDATE prices SET price = price * 1.05;"  );
+    QSqlQuery query( "UPDATE prices SET price = price * 1.05"  );
 \endcode
 
 \target Deleting_Records
@@ -740,7 +740,7 @@ criteria it is more efficient to do so using a single SQL statement,
 e.g.
 
 \code
-    QSqlQuery query( "DELETE FROM prices WHERE id >= 2450 AND id <= 2500;" );
+    QSqlQuery query( "DELETE FROM prices WHERE id >= 2450 AND id <= 2500" );
 \endcode
 
 \target Data-Aware_Widgets
@@ -1269,28 +1269,28 @@ You may need to modify the SQL to match that used by your particular
 database. 
 
 \code
-create table people (id integer primary key, name char(40));
+create table people (id integer primary key, name char(40))
 
 create table staff (id integer primary key, forename char(40),
-		    surname char(40), salary float, statusid integer);
+		    surname char(40), salary float, statusid integer)
 
-create table status (id integer primary key, name char(30));
+create table status (id integer primary key, name char(30))
 
 create table creditors (id integer primary key, forename char(40),
-			surname char(40), city char(30));
+			surname char(40), city char(30))
 
-create table prices (id integer primary key, name char(40), price float);
+create table prices (id integer primary key, name char(40), price float)
 
 create table invoiceitem (id integer primary key, 
 			  pricesid integer, quantity integer,
-			  paiddate date);
+			  paiddate date)
 \endcode 
 
 A sequence was used in the calculateField() example above.  Note that
 sequences are not supported in all databases.
 
 \code
-create sequence invoiceitem_seq;
+create sequence invoiceitem_seq
 \endcode
 
 */
