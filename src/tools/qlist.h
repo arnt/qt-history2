@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qlist.h#2 $
+** $Id: //depot/qt/main/src/tools/qlist.h#3 $
 **
 ** Definition of QList template/macro class
 **
 ** Author  : Haavard Nord
 ** Created : 920701
 **
-** Copyright (C) 1992-1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1992-1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -66,7 +66,7 @@ public:									      \
     type *last()			{ return (type *)QGList::last(); }    \
     type *next()			{ return (type *)QGList::next(); }    \
     type *prev()			{ return (type *)QGList::prev(); }    \
-    void  asVector( QGVector &vec )const{ QGList::asVector(vec); }	      \
+    void  toVector( QGVector &vec )const{ QGList::toVector(vec); }	      \
     int	  apply( int (*applyFunc)(type*,void*), void *x ) const		      \
 				{ return QGList::apply( (GCF)applyFunc, x ); }\
 private:								      \
@@ -145,7 +145,7 @@ public:
     type *last()			{ return (type *)QGList::last(); }
     type *next()			{ return (type *)QGList::next(); }
     type *prev()			{ return (type *)QGList::prev(); }
-    void  asVector( QGVector &vec )const{ QGList::asVector(vec); }
+    void  toVector( QGVector &vec )const{ QGList::toVector(vec); }
     int	  apply( int (*applyFunc)(type*,void*), void *x ) const
 				{ return QGList::apply( (GCF)applyFunc, x ); }
 private:

@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qvector.h#2 $
+** $Id: //depot/qt/main/src/tools/qvector.h#3 $
 **
 ** Definition of QVector template/macro class
 **
 ** Author  : Haavard Nord
 ** Created : 930907
 **
-** Copyright (C) 1993,1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -66,7 +66,7 @@ public:									      \
     type *operator[]( int i ) const	{ return (type *)QGVector::at(i); }   \
     type *at( uint i ) const		{ return (type *)QGVector::at(i); }   \
 	  operator const type**()  const{ return (const type **)data(); }     \
-    void  asList( QGList &list ) const	{ QGVector::asList(list); }	      \
+    void  toList( QGList &list ) const	{ QGVector::toList(list); }	      \
     int	  apply( int (*applyFunc)(type*,void*), void *x )		      \
 				{ return QGVector::apply( (GCF)applyFunc, x);}\
 private:								      \
@@ -117,7 +117,7 @@ public:
     type *operator[]( int i ) const	{ return (type *)QGVector::at(i); }
     type *at( uint i ) const		{ return (type *)QGVector::at(i); }
 	  operator const type**()  const{ return (const type **)data(); }
-    void  asList( QGList &list ) const	{ QGVector::asList(list); }
+    void  toList( QGList &list ) const	{ QGVector::toList(list); }
     int	  apply( int (*applyFunc)(type*,void*), void *x )
 				{ return QGVector::apply( (GCF)applyFunc, x);}
 private:

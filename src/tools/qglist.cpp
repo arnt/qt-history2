@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#2 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#3 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
 ** Author  : Haavard Nord
 ** Created : 920624
 **
-** Copyright (C) 1992-1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1992-1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qglist.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qglist.cpp#3 $";
 #endif
 
 
@@ -424,7 +424,7 @@ GCI QGList::prev()				// get previous item in list
 }
 
 
-void QGList::asVector( QGVector &vector ) const // store items in vector
+void QGList::toVector( QGVector &vector ) const // store items in vector
 {
     vector.clear();
     if ( !vector.resize( count() ) )

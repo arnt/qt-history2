@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.h#4 $
+** $Id: //depot/qt/main/src/tools/qgvector.h#5 $
 **
 ** Definition of QGVector class
 **
 ** Author  : Haavard Nord
 ** Created : 930907
 **
-** Copyright (C) 1993-1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1993-1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -18,7 +18,7 @@
 
 class QGVector : public QCollection		// generic vector
 {
-friend class QGList;				// needed by QGList::asVector
+friend class QGList;				// needed by QGList::toVector
 public:
     QDataStream &read( QDataStream & );		// read vector from stream
     QDataStream &write( QDataStream & ) const;	// write vector to stream
@@ -58,9 +58,9 @@ protected:
 #else
 	{ return vec[index]; }			// fast
 #endif
-    bool insertGrow( uint index, GCI );		// insert and grow if necessary
+    bool insertExpand( uint index, GCI );	// insert, expand if necessary
 
-    void asList( QGList & ) const;		// put items in list
+    void toList( QGList & ) const;		// put items in list
 
     int	 apply( GCF, void * ) const;		// apply function to all items
 

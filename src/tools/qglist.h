@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.h#3 $
+** $Id: //depot/qt/main/src/tools/qglist.h#4 $
 **
 ** Definition of QGList and QGListIterator classes
 **
 ** Author  : Haavard Nord
 ** Created : 920624
 **
-** Copyright (C) 1992-1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1992-1994 by Troll Tech AS.  All rights reserved.
 **
 *****************************************************************************/
 
@@ -41,7 +41,7 @@ private:
 class QGList : public QCollection		// doubly linked generic list
 {
 friend class QGListIterator;
-friend class QGVector;				// needed by QGVector::asList
+friend class QGVector;				// needed by QGVector::toList
 public:
     uint  count() const	 { return numNodes; }	// return number of nodes
 
@@ -85,7 +85,7 @@ protected:
     GCI	  next();				// get next item in list
     GCI	  prev();				// get previous item in list
 
-    void  asVector( QGVector & ) const;		// put items in vector
+    void  toVector( QGVector & ) const;		// put items in vector
 
     int	  apply( GCF, void * ) const;		// apply function to all items
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#2 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#3 $
 **
 ** Implementation of QGArray class
 **
@@ -28,7 +28,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgarray.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgarray.cpp#3 $";
 #endif
 
 
@@ -163,7 +163,7 @@ bool QGArray::fill( const char *d, int len, uint sz )
 }
 
 
-QGArray& QGArray::assign( const QGArray &a )
+QGArray &QGArray::assign( const QGArray &a )
 {						// shallow copy
     a.p->ref();					// avoid 'a = a'
     if ( p->deref() ) {				// delete when last reference
@@ -175,7 +175,7 @@ QGArray& QGArray::assign( const QGArray &a )
     return *this;
 }
 
-QGArray& QGArray::assign( char *d, uint len )	// shallow copy
+QGArray &QGArray::assign( char *d, uint len )	// shallow copy
 {
     if ( p->count > 1 ) {			// disconnect this
 	p->count--;
@@ -191,7 +191,7 @@ QGArray& QGArray::assign( char *d, uint len )	// shallow copy
     return *this;
 }
 
-QGArray& QGArray::duplicate( const QGArray &a ) // deep copy
+QGArray &QGArray::duplicate( const QGArray &a ) // deep copy
 {
     if ( p->count > 1 ) {			// disconnect this
 	p->count--;
@@ -214,7 +214,7 @@ QGArray& QGArray::duplicate( const QGArray &a ) // deep copy
     return *this;
 }
 
-QGArray& QGArray::duplicate( const char *d, uint len )
+QGArray &QGArray::duplicate( const char *d, uint len )
 {						// deep copy
     if ( p->count > 1 ) {			// disconnect this
 	p->count--;
@@ -237,6 +237,12 @@ QGArray& QGArray::duplicate( const char *d, uint len )
 	    memcpy( p->data, d, len );
     }
     return *this;
+}
+
+void QGArray::store( const char *d, uint len )
+{						// store, but not deref
+    resize( len );
+    memcpy( p->data, d, len );
 }
 
 
@@ -343,8 +349,8 @@ char *QGArray::at( uint index ) const		// checked indexing
     return &p->data[index];
 }
 
-bool QGArray::setAt( uint index, const char *d, uint sz )
-{						// set and grow if necessary
+bool QGArray::setExpand( uint index, const char *d, uint sz )
+{						// set and expand if necessary
     index *= sz;
     if ( index >= p->len ) {
 	if ( !resize( index+sz ) )		// no memory

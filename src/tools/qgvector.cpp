@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.cpp#3 $
+** $Id: //depot/qt/main/src/tools/qgvector.cpp#4 $
 **
 ** Implementation of QGVector class
 **
 ** Author  : Haavard Nord
 ** Created : 930907
 **
-** Copyright (C) 1993,1994 by Troll Tech as.  All rights reserved.
+** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
 **
 ** --------------------------------------------------------------------------
 ** The internal array is normally allocated with malloc(), deallocated with
@@ -31,7 +31,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgvector.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgvector.cpp#4 $";
 #endif
 
 
@@ -418,7 +418,7 @@ GCI QGVector::at( uint index ) const		// checked indexing
     return vec[index];
 }
 
-bool QGVector::insertGrow( uint index, GCI d )	// insert and grow if necessary
+bool QGVector::insertExpand( uint index, GCI d )// insert and grow if necessary
 {
     if ( index >= len ) {
 	if ( !resize( index+1 ) )		// no memory
@@ -429,7 +429,7 @@ bool QGVector::insertGrow( uint index, GCI d )	// insert and grow if necessary
 }
 
 
-void QGVector::asList( QGList &list ) const	// store items in list
+void QGVector::toList( QGList &list ) const	// store items in list
 {
     list.clear();
     for ( uint i=0; i<len; i++ ) {

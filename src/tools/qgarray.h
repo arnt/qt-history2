@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.h#2 $
+** $Id: //depot/qt/main/src/tools/qgarray.h#3 $
 **
 ** Definition of QGArray class
 **
@@ -40,6 +40,7 @@ protected:
     QGArray    &assign( char *d, uint len );
     QGArray    &duplicate( const QGArray &a );
     QGArray    &duplicate( const char *d, uint len );
+    void	store( const char *d, uint len );
 
     int		find( const char *d, uint index, uint sz ) const;
     int		contains( const char *d, uint sz ) const;
@@ -50,7 +51,7 @@ protected:
 #else
 	{ return &p->data[index]; }		// fast
 #endif
-    bool	setAt( uint index, const char *d, uint sz );
+    bool	setExpand( uint index, const char *d, uint sz );
 
 protected:
     struct array_data : QShared {		// shared array
