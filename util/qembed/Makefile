@@ -11,7 +11,7 @@ LIBDIR	=	$(BASEDIR)/lib
 ####### Compiler
 
 CFLAGS	=	-O2
-LFLAGS	=	-L$(LIBDIR) -lqtools
+LFLAGS	=	-L$(LIBDIR) -lqt
 CC	=	gcc
 
 ####### Files
