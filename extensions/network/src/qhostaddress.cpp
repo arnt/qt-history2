@@ -125,7 +125,7 @@ uint QHostAddress::ip4Addr() const
   \sa ip4Addr()
 */
 
-QString QHostAddress::string() const
+QString QHostAddress::toString() const
 {
     uint i = ip4Addr();
     QString s;

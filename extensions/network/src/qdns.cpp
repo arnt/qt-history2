@@ -298,7 +298,7 @@ void QDnsAnswer::parseA()
 				( answer[pp+3] ) );
 #if defined(DEBUG_QDNS)
     qDebug( "QDns: saw %s IN A %s (ttl %d)", label.ascii(),
-	    rr->address.string().ascii(), ttl );
+	    rr->address.toString().ascii(), ttl );
 #endif
 
 }
@@ -751,9 +751,9 @@ QDnsManager::QDnsManager()
 	if ( !ns->current() ) {
 	    ns->append( new QHostAddress(*h) );
 #if defined(DEBUG_QDNS)
-	    qDebug( "using name server %s", h->string().latin1() );
+	    qDebug( "using name server %s", h->toString().latin1() );
 	} else {
-	    qDebug( "skipping address %s", h->string().latin1() );
+	    qDebug( "skipping address %s", h->toString().latin1() );
 #endif
 	}
 	::ns->next();
@@ -830,7 +830,7 @@ void QDnsManager::answer()
     int r = socket->readBlock( a.data(), a.size() );
 #if defined(DEBUG_QDNS)
     qDebug("DNS Manager: answer arrived: %d bytes from %s:%d", r,
-	   socket->peerAddress().string().ascii(), socket->peerPort() );
+	   socket->peerAddress().toString().ascii(), socket->peerPort() );
 #endif
     if ( r < 12 )
 	return;
@@ -962,7 +962,7 @@ void QDnsManager::transmitQuery( int i )
 #if defined(DEBUG_QDNS)
     qDebug( "issuing query %d about %s type %d to %s",
 	    q->id, q->l.ascii(), q->t,
-	    ns->at( q->step % ns->count() )->string().ascii() );
+	    ns->at( q->step % ns->count() )->toString().ascii() );
 #endif
     if ( ns->count() > 1 && q->step == 0 ) {
 	// if it's the first time, send nonrecursive queries to the
@@ -972,7 +972,7 @@ void QDnsManager::transmitQuery( int i )
 	while( (server=ns->next()) != 0 ) {
 	    socket->writeBlock( p.data(), pp, *server, 53 );
 #if defined(DEBUG_QDNS)
-	    qDebug( "copying query to %s", server->string().ascii() );
+	    qDebug( "copying query to %s", server->toString().ascii() );
 #endif
 	}
     }
@@ -1202,7 +1202,7 @@ void QDnsSocket::answer()
 
   \brief The QDns class provides asynchronous DNS lookups.
 
-  \extension network
+  \extension Network
 
   Both Windows and UNIX provides synchronous DNS lookups; Windows
   provides some asynchronous support too.  Neither OS provides
