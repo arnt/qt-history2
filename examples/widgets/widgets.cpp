@@ -736,7 +736,7 @@ void WidgetView::showProperties()
 	const char* s = "readwrite";
 	if (!p->writeable() )
 	    s = "read-only";
-	qDebug("%d: %s  ( %s, %s )", ++i, p->name, s, p->type );
+	qDebug("%d: %s  ( %s, %s )", ++i, p->name(), s, p->type() );
     }
 }
 
