@@ -280,7 +280,7 @@ struct Q_GUI_EXPORT QAccessibleInterface : public QAccessible, public QUnknownIn
     // action
     virtual int userActionCount(int child) const = 0;
     virtual QString actionText(int action, Text t, int child) const = 0;
-    virtual bool doAction(int action, int child, const QVariantList &params) = 0;
+    virtual bool doAction(int action, int child, const QVariantList &params = QVariantList()) = 0;
 };
 
 // {49F4C6A7-412F-41DE-9E24-648843421FD3}
