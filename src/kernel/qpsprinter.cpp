@@ -61,6 +61,12 @@
 #include "qmap.h"
 
 #include <ctype.h>
+#if defined(_OS_WIN32_)
+#include <io.h>
+#else
+#include <unistd.h>
+#include <stdlib.h>
+#endif
 
 #ifdef Q_WS_X11
 #include "qt_x11.h"
@@ -1657,6 +1663,39 @@ static const struct {
     { 0xFFFF, 0 }
 };
 
+// duplicate entries in the glyph list. Do not download these, to avoid
+// doubly defined gl;yphs
+static const unsigned short duplicateEntries[] = {
+    0x00A0,
+	0x0394,
+	0x03a9,
+	0xf6c1,
+	0x021a,
+	0x2215,
+	0x00ad,
+	0x02c9,
+	0x03bc,
+	0x2219,
+	0xf6c2,
+	0x00a0,
+	0x021b,
+	0x0
+	};
+
+static inline bool duplicate( unsigned short unicode )
+{
+    const unsigned short *g = duplicateEntries;
+    bool duplicate = FALSE;
+    while( *g ) {
+	if ( *g == unicode ) {
+	    duplicate = TRUE;
+	    break;
+	}
+	g++;
+    }
+    return duplicate;
+}
+
 // ---------------------------------------------------------------------
 // postscript font substitution dictionary. We assume every postscript printer has at least
 // Helvetica, Times, Courier and Symbol
@@ -2494,6 +2533,13 @@ typedef struct {
   Q_UINT16 fraction;
 } Fixed; // 16.16 bit fixed-point number
 
+static float f2dot14( ushort s )
+{
+    float f = ((float)( s & 0x3fff ))/ 16384.;
+    f += (s & 0x8000) ? ( (s & 0x4000) ? -1 : -2 ) : ( (s & 0x4000) ? 1 : 0 );
+    return f;
+}
+    
 typedef struct {
   int*    epts_ctr;                     /* array of contour endpoints */
   int     num_pts, num_ctr;             /* number of points, number of coutours */
@@ -4166,111 +4212,97 @@ void QPSPrinterFontTTF::charprocComposite(BYTE *glyph, QTextStream& s)
   USHORT glyphIndex;
   int arg1;
   int arg2;
-#ifdef DEBUG_TRUETYPE
-  USHORT xscale;
-  USHORT yscale;
-  USHORT scale01;
-  USHORT scale10;
-#endif
+  float xscale = 1;
+  float yscale = 1;
+  float scale01 = 0;
+  float scale10 = 0;
 
   /* Once around this loop for each component. */
   do {
-    flags = getUSHORT(glyph);   /* read the flags word */
-    glyph += 2;
+      flags = getUSHORT(glyph);   /* read the flags word */
+      glyph += 2;
 
-    glyphIndex = getUSHORT(glyph);      /* read the glyphindex word */
-    glyph += 2;
+      glyphIndex = getUSHORT(glyph);      /* read the glyphindex word */
+      glyph += 2;
 
-    if(flags & ARG_1_AND_2_ARE_WORDS) {
+      if(flags & ARG_1_AND_2_ARE_WORDS) {
                                 /* The tt spec. seems to say these are signed. */
-      arg1 = getSHORT(glyph);
-      glyph += 2;
-      arg2 = getSHORT(glyph);
-      glyph += 2;
-    } else {                    /* The tt spec. does not clearly indicate */
+	  arg1 = getSHORT(glyph);
+	  glyph += 2;
+	  arg2 = getSHORT(glyph);
+	  glyph += 2;
+      } else {                    /* The tt spec. does not clearly indicate */
                                 /* whether these values are signed or not. */
-      arg1 = *(glyph++);
-      arg2 = *(glyph++);
-    }
-
-    if(flags & WE_HAVE_A_SCALE) {
-#ifdef DEBUG_TRUETYPE
-      xscale = yscale = getUSHORT(glyph);
-      scale01 = scale10 = 0;
-#endif
-      glyph += 2;
-    } else if(flags & WE_HAVE_AN_X_AND_Y_SCALE) {
-#ifdef DEBUG_TRUETYPE
-      xscale = getUSHORT(glyph);
-#endif
-      glyph += 2;
-#ifdef DEBUG_TRUETYPE
-      yscale = getUSHORT(glyph);
-      scale01 = scale10 = 0;
-#endif
-      glyph += 2;
-    } else if(flags & WE_HAVE_A_TWO_BY_TWO) {
-#ifdef DEBUG_TRUETYPE
-      xscale = getUSHORT(glyph);
-#endif
-      glyph += 2;
-#ifdef DEBUG_TRUETYPE
-      scale01 = getUSHORT(glyph);
-#endif
-      glyph += 2;
-#ifdef DEBUG_TRUETYPE
-      scale10 = getUSHORT(glyph);
-#endif
-      glyph += 2;
-#ifdef DEBUG_TRUETYPE
-      yscale = getUSHORT(glyph);
-#endif
-      glyph += 2;
-    }
-#ifdef DEBUG_TRUETYPE
-    else {
-      xscale = yscale = scale01 = scale10 = 0;
-    }
-#endif
-
-    /* Debugging */
-#ifdef DEBUG_TRUETYPE
-    fprintf(stderr,"% flags=%d, arg1=%d, arg2=%d, xscale=%d, yscale=%d, scale01=%d, scale10=%d\n",
-            (int)flags,arg1,arg2,(int)xscale,(int)yscale,(int)scale01,(int)scale10);
-#endif
-
-    /* If we have an (X,Y) shif and it is non-zero, */
-    /* translate the coordinate system. */
-    if( flags & ARGS_ARE_XY_VALUES ) {
-      if( arg1 != 0 || arg2 != 0 ) {
-        s <<"gsave ";
-        s << topost(arg1);
-        s << " ";
-        s << topost(arg2);
-        s << " translate\n";
-
-        //fprintf(stderr,"gsave %d %d translate\n", topost(arg1), topost(arg2) );
+	  arg1 = *(glyph++);
+	  arg2 = *(glyph++);
       }
-    } else {
-      s << "% unimplemented shift, arg1=";
-      s << arg1;
-      s << ", arg2=";
-      s << arg2;
-      s << "\n";
-    }
 
-    /* Invoke the CharStrings procedure to print the component. */
-    s << "false CharStrings /";
-    s << glyphName( glyphIndex );
-    s << " get exec\n";
+      if(flags & WE_HAVE_A_SCALE) {
+	  xscale = yscale = f2dot14( getUSHORT(glyph) );
+	  glyph += 2;
+      } else if(flags & WE_HAVE_AN_X_AND_Y_SCALE) {
+	  xscale = f2dot14( getUSHORT(glyph) );
+	  glyph += 2;
+	  yscale = f2dot14( getUSHORT(glyph) );
+	  glyph += 2;
+      } else if(flags & WE_HAVE_A_TWO_BY_TWO) {
+	  xscale = f2dot14( getUSHORT(glyph) );
+	  glyph += 2;
+	  scale01 = f2dot14( getUSHORT(glyph) );
+	  glyph += 2;
+	  scale10 = f2dot14( getUSHORT(glyph) );
+	  glyph += 2;
+	  yscale = f2dot14( getUSHORT(glyph) );
+	  glyph += 2;
+      }
 
-    //  printf("false CharStrings /%s get exec\n",
-    //ttfont_CharStrings_getname(font,glyphIndex));
+      /* Debugging */
+#ifdef DEBUG_TRUETYPE
+      fprintf(stderr,"% flags=%d, arg1=%d, arg2=%d, xscale=%d, yscale=%d, scale01=%d, scale10=%d\n",
+	      (int)flags,arg1,arg2,(int)xscale,(int)yscale,(int)scale01,(int)scale10);
+#endif
 
-    /* If we translated the coordinate system, */
-    /* put it back the way it was. */
-    if( flags & ARGS_ARE_XY_VALUES && (arg1 != 0 || arg2 != 0) )
-      s <<"grestore ";
+
+      if ( (flags & ARGS_ARE_XY_VALUES) != ARGS_ARE_XY_VALUES ) {
+	  s << "% unimplemented shift, arg1=" << arg1;
+	  s << ", arg2=" << arg2 << "\n";
+	  arg1 = arg2 = 0;
+      }	
+
+      /* If we have an (X,Y) shif and it is non-zero, */
+      /* translate the coordinate system. */
+      if ( flags & (WE_HAVE_A_TWO_BY_TWO|WE_HAVE_AN_X_AND_Y_SCALE) ) {
+#if 0
+	  // code similar to this would be needed for two_by_tow
+	  s << "gsave [ " << xscale << " " << scale01 << " " << scale10 << " "
+	    << yscale << " " << topost(arg1) << " " << topost(arg2) << "] SM\n";
+#endif
+	  if ( flags & WE_HAVE_A_TWO_BY_TWO )
+	      s << "% Two by two transformation, unimplemented\n";
+	  s <<"gsave " << topost(arg1);
+	  s << " " << topost(arg2);
+	  s << " translate\n";
+	  s << xscale << " " << yscale << " scale\n";
+      } else if ( flags & ARGS_ARE_XY_VALUES && ( arg1 != 0 || arg2 != 0 ) ) {
+	  s <<"gsave " << topost(arg1);
+	  s << " " << topost(arg2);
+	  s << " translate\n";
+      }
+
+      /* Invoke the CharStrings procedure to print the component. */
+      s << "false CharStrings /";
+      s << glyphName( glyphIndex );
+      s << " get exec\n";
+
+      //  printf("false CharStrings /%s get exec\n",
+      //ttfont_CharStrings_getname(font,glyphIndex));
+
+      /* If we translated the coordinate system, */
+      /* put it back the way it was. */
+      if( (flags & ARGS_ARE_XY_VALUES && (arg1 != 0 || arg2 != 0) ) ||
+	  ( flags & (WE_HAVE_A_TWO_BY_TWO|WE_HAVE_AN_X_AND_Y_SCALE) ) ) {
+	  s <<"grestore ";
+      }
   } while(flags & MORE_COMPONENTS);
 }
 
@@ -5325,9 +5357,12 @@ QByteArray compress( const QImage & image, bool gray ) {
             uchar * s = image.scanLine( y );
             for( int x=0; x < image.width(); x++ ) {
                 pixel[i] = image.color( s[x] );
-                if ( qAlpha( pixel[i] )< 0x40 ) // 25% alpha, convert to white
-                    pixel[i] = qRgb( 0xff, 0xff, 0xff );
-                else
+#if 0
+		// commented out, as it doesn't seem to work correctly with 8bit images.
+               if ( qAlpha( pixel[i] )< 0x40 ) // 25% alpha, convert to white
+                   pixel[i] = qRgb( 0xff, 0xff, 0xff );
+               else
+#endif 	   
                     pixel[i] &= RGB_MASK;
                 i++;
             }
