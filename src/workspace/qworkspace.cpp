@@ -1232,17 +1232,46 @@ QWorkspaceChild* QWorkspace::findChild( QWidget* w)
 }
 
 /*!
-  Returns a list of all windows.
+  \obsolete
+  \overload
  */
 QWidgetList QWorkspace::windowList() const
 {
+    return windowList( CreationOrder );
+}
+
+/*!
+    Returns a list of all windows. If \a order is CreationOrder
+    (the default) the windows are listed in the order in which they
+    had been inserted into the workspace. If \a order is StackingOrder
+    the windows are listed in their stacking order, with the topmost window
+    being the last window in the list.
+*/
+QWidgetList QWorkspace::windowList( WindowOrder order ) const
+{
     QWidgetList windows;
-    QPtrListIterator<QWorkspaceChild> it( d->windows );
-    while ( it.current () ) {
-	QWorkspaceChild* c = it.current();
-	++it;
-	if ( c->windowWidget() )
-	    windows.append( c->windowWidget() );
+    if ( order == StackingOrder ) {
+	const QObjectList *cl = children();
+	if ( cl ) {
+	    QObjectListIt it( *cl );
+	    while (it.current()) {
+		QObject *o = it.current();
+		++it;
+		if (!o->inherits("QWorkspaceChild"))
+		    continue;
+		QWorkspaceChild *c = (QWorkspaceChild*)o;
+		if (c->windowWidget())
+		    windows.append(c->windowWidget());
+	    }
+	}
+    } else {
+	QPtrListIterator<QWorkspaceChild> it( d->windows );
+	while (it.current()) {
+	    QWorkspaceChild* c = it.current();
+	    ++it;
+	    if ( c->windowWidget() )
+		windows.append( c->windowWidget() );
+	}
     }
     return windows;
 }
@@ -2833,6 +2862,15 @@ void QWorkspace::scrollBarChanged()
     }
     updateWorkspace();
 }
+
+/*!
+    \enum QWorkspace::WindowOrder
+
+    Specifies the order in which windows are returned from windowList().
+
+    \value CreationOrder The windows are returned in the order of their creation
+    \value StackingOrder The windows are returned in the order of their stacking
+*/
 
 #ifdef QT_WORKSPACE_WINDOWMODE
 /*!

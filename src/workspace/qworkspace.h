@@ -79,8 +79,11 @@ public:
 
     ~QWorkspace();
 
+    enum WindowOrder { CreationOrder, StackingOrder };
+
     QWidget* activeWindow() const;
-    QWidgetList windowList() const;
+    QWidgetList windowList() const; // ### merge with below in 4.0
+    QWidgetList windowList( WindowOrder order ) const;
 
     QSize sizeHint() const;
 
