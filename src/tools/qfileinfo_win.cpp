@@ -44,7 +44,6 @@
 #ifndef Q_OS_TEMP
 #include <direct.h>
 #endif
-#include <tchar.h>
 #include <objbase.h>
 #include <shlobj.h>
 #include <initguid.h>
@@ -52,7 +51,6 @@
 
 #ifndef Q_OS_TEMP
 
-// ### Can including accctrl.h cause problems on non-NT Win platforms?
 #include <accctrl.h>
 
 
@@ -110,10 +108,14 @@ static void resolveLibs()
 	    ptrFreeSid = (PtrFreeSid) lib.resolve( "FreeSid" );
 
 	    if ( ptrBuildTrusteeWithNameW ) {
-		static TCHAR buffer[258];
-		DWORD bufferSize = 257;
-		GetUserNameW( buffer, &bufferSize );
-		ptrBuildTrusteeWithNameW( &currentUserTrusteeW, (ushort*)buffer );
+		typedef BOOL (WINAPI *PtrGetUserNameW)(ushort* lpBuffer,LPDWORD nSize);
+		PtrGetUserNameW ptrGetUserNameW = (PtrGetUserNameW)lib.resolve( "GetUserNameW" );
+		if ( ptrGetUserNameW ) {
+		    static TCHAR buffer[258];
+		    DWORD bufferSize = 257;
+		    GetUserNameW( buffer, &bufferSize );
+		    ptrBuildTrusteeWithNameW( &currentUserTrusteeW, (ushort*)buffer );
+		}
 	    }
 	}
     }
