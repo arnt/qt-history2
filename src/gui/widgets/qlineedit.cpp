@@ -748,26 +748,30 @@ void QLineEdit::end(bool mark)
     returns false (the user hasn't entered any text), insert the
     default value.
 
-    Calling clearModified() or setText() resets the modified flag to
-    false.
+    Calling setText() resets the modified flag to false.
 */
 
 bool QLineEdit::isModified() const
 {
-    return d->modified;
+    return d->modifiedState != d->undoState;
 }
 
-/*!
-    Resets the modified flag to false.
+void QLineEdit::setModified(bool modified)
+{
+    if (modified)
+        d->modifiedState = -1;
+    else
+        d->modifiedState = d->undoState;
+}
+
+
+/*!\fn QLineEdit::clearModified()
+
+Use setModified(false) instead.
 
     \sa isModified()
 */
-void QLineEdit::clearModified()
-{
-    d->modified = false;
-    d->history.clear();
-    d->undoState = 0;
-}
+
 
 /*!
     \property QLineEdit::hasSelectedText
@@ -819,11 +823,11 @@ int QLineEdit::selectionStart() const
 /*!
     Use isModified() instead.
 */
-bool QLineEdit::edited() const { return d->modified; }
+bool QLineEdit::edited() const { return isModified(); }
 /*!
-    To set isModified() to false use clearModified() or setText.
+    Use setModified()  or setText().
 */
-void QLineEdit::setEdited(bool on) { d->modified = on; }
+void QLineEdit::setEdited(bool on) { setModified(on); }
 
 /*!
 ###
@@ -1058,7 +1062,7 @@ void QLineEdit::undo()
 {
     resetInputContext();
     d->undo();
-    d->finishChange(-1, false);
+    d->finishChange(-1, true);
 }
 
 /*!
@@ -2181,7 +2185,7 @@ void QLineEditPrivate::moveCursor(int pos, bool mark)
     d->emitCursorPositionChanged();
 }
 
-void QLineEditPrivate::finishChange(int validateFromState, bool setModified)
+void QLineEditPrivate::finishChange(int validateFromState, bool update)
 {
     bool lineDirty = selDirty;
     if (textDirty) {
@@ -2205,14 +2209,14 @@ void QLineEditPrivate::finishChange(int validateFromState, bool setModified)
         if (validateFromState >= 0 && wasValidInput && !validInput) {
             undo(validateFromState);
             history.resize(undoState);
+            if (modifiedState > undoState)
+                modifiedState = -1;
             validInput = true;
-            textDirty = setModified = false;
+            textDirty = false;
         }
         updateTextLayout();
         updateMicroFocusHint();
         lineDirty |= textDirty;
-        if (setModified)
-            modified = true;
         if (textDirty) {
             textDirty = false;
             emit q->textChanged(maskData ? stripString(text) : text);
@@ -2225,7 +2229,7 @@ void QLineEditPrivate::finishChange(int validateFromState, bool setModified)
         selDirty = false;
         emit q->selectionChanged();
     }
-    if (lineDirty || !setModified)
+    if (lineDirty || update)
         q->update();
     emitCursorPositionChanged();
 }
@@ -2251,11 +2255,10 @@ void QLineEditPrivate::setText(const QString& txt, int pos)
         text = txt.isEmpty() ? txt : txt.left(maxLength);
     }
     history.clear();
-    undoState = 0;
+    modifiedState =  undoState = 0;
     cursor = (pos < 0 || pos > text.length()) ? text.length() : pos;
     textDirty = (oldText != text);
-    d->modified = false;
-    d->finishChange(-1, false);
+    d->finishChange(-1, true);
 }
 
 
@@ -2699,7 +2702,6 @@ void QLineEditPrivate::undo(int until)
                 break;
         }
     }
-    modified = (undoState != 0);
     textDirty = true;
     emitCursorPositionChanged();
 }

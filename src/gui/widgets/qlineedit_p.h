@@ -27,11 +27,11 @@ public:
 
     QLineEditPrivate()
         : cursor(0), cursorTimer(0), frame(1),
-          cursorVisible(0), separator(0), readOnly(0), modified(0),
+          cursorVisible(0), separator(0), readOnly(0),
           direction(QChar::DirON), dragEnabled(1), alignment(0),
           echoMode(0), textDirty(0), selDirty(0), validInput(1),
           ascent(0), maxLength(32767), hscroll(0), lastCursorPos(-1), maskData(0),
-          undoState(0), selstart(0), selend(0),
+          modifiedState(0), undoState(0), selstart(0), selend(0),
           imstart(0), imend(0), imselstart(0), imselend(0)
         {}
     ~QLineEditPrivate()
@@ -50,7 +50,6 @@ public:
     uint cursorVisible : 1;
     uint separator : 1;
     uint readOnly : 1;
-    uint modified : 1;
     uint direction : 5;
     uint dragEnabled : 1;
     uint alignment : 3;
@@ -69,7 +68,7 @@ public:
     inline void emitCursorPositionChanged();
     bool sendMouseEventToInputContext(QMouseEvent *e);
 
-    void finishChange(int validateFromState = -1, bool setModified = true);
+    void finishChange(int validateFromState = -1, bool update = false);
 
     QPointer<QValidator> validator;
     struct MaskInputData {
@@ -105,6 +104,7 @@ public:
         QChar c;
         int pos;
     };
+    int modifiedState;
     int undoState;
     QVector<Command> history;
     void addCommand(const Command& cmd);

@@ -37,7 +37,7 @@ class Q_GUI_EXPORT QLineEdit : public QWidget
     Q_PROPERTY(QString displayText READ displayText)
     Q_PROPERTY(int cursorPosition READ cursorPosition WRITE setCursorPosition)
     Q_PROPERTY(Qt::Alignment alignment READ alignment WRITE setAlignment)
-    Q_PROPERTY(bool modified READ isModified)
+    Q_PROPERTY(bool modified READ isModified WRITE setModified DESIGNABLE false)
     Q_PROPERTY(bool hasSelectedText READ hasSelectedText)
     Q_PROPERTY(QString selectedText READ selectedText)
     Q_PROPERTY(bool dragEnabled READ dragEnabled WRITE setDragEnabled)
@@ -97,7 +97,7 @@ public:
     void end(bool mark);
 
     bool isModified() const;
-    void clearModified();
+    void setModified(bool);
 
     void setSelection(int, int);
     bool hasSelectedText() const;
@@ -164,6 +164,7 @@ protected:
 
 public:
 #ifdef QT_COMPAT
+    inline QT_COMPAT void clearModified() { setModified(false); }
     inline QT_COMPAT void cursorLeft(bool mark, int steps = 1) { cursorForward(mark, -steps); }
     inline QT_COMPAT void cursorRight(bool mark, int steps = 1) { cursorForward(mark, steps); }
     QT_COMPAT bool validateAndSet(const QString &, int, int, int);
