@@ -40,6 +40,8 @@ HEADERS        += helpwindow.h \
         tabbedbrowser.h \
         config.h
 
+RESOURCES += assistant.res
+
 DEFINES += QT_KEYWORDS
 #DEFINES +=  QT_PALMTOPCENTER_DOCS
 !network:DEFINES        += QT_INTERNAL_NETWORK
@@ -67,23 +69,3 @@ TRANSLATIONS        = assistant_de.ts \
 
 unix:!zlib:LIBS        += -lz
 
-QMAKE_RESOURCE_PREFIX = /trolltech/assistant/
-RESOURCES = images/editcopy.png \
-        images/find.png \
-        images/home.png \
-        images/next.png \
-        images/previous.png \
-        images/print.png \
-        images/whatsthis.xpm \
-        images/book.png \
-        images/designer.png \
-        images/assistant.png \
-        images/linguist.png \
-        images/qt.png \
-        images/zoomin.png \
-        images/zoomout.png \
-        images/splash.png \
-        images/appicon.png \
-        images/addtab.png \
-        images/closetab.png \
-        images/d_closetab.png
