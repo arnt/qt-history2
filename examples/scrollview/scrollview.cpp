@@ -251,11 +251,11 @@ public:
 	f_options = new QPopupMenu( menubar );
 	Q_CHECK_PTR( f_options );
 	f_options->setCheckable( TRUE );
-	menubar->insertItem( "&Frame", f_options );
+	menubar->insertItem( "F&rame", f_options );
 	connect( f_options, SIGNAL(activated(int)),
 	    this, SLOT(doFMenuItem(int)) );
 
-	f_options->insertItem( "No frame", style_id );
+	f_options->insertItem( "No Frame", style_id );
 	f_options->insertItem( "Box", style_id|QFrame::Box );
 	f_options->insertItem( "Panel", style_id|QFrame::Panel );
 	f_options->insertItem( "WinPanel", style_id|QFrame::WinPanel );
@@ -270,10 +270,10 @@ public:
 	lw_options->setCheckable( TRUE );
 	for (int lw = 1; lw <= max_lw; lw++) {
 	    QString str;
-	    str.sprintf("%d pixels", lw);
+	    str.sprintf("%d Pixels", lw);
 	    lw_options->insertItem( str, lw_id | lw );
 	}
-	f_options->insertItem( "Line width", lw_options );
+	f_options->insertItem( "Line Width", lw_options );
 	connect( lw_options, SIGNAL(activated(int)),
 	    this, SLOT(doFMenuItem(int)) );
 	mlw_options = new QPopupMenu( menubar );
@@ -281,10 +281,10 @@ public:
 	mlw_options->setCheckable( TRUE );
 	for (int mlw = 0; mlw <= max_mlw; mlw++) {
 	    QString str;
-	    str.sprintf("%d pixels", mlw);
+	    str.sprintf("%d Pixels", mlw);
 	    mlw_options->insertItem( str, mlw_id | mlw );
 	}
-	f_options->insertItem( "Midline width", mlw_options );
+	f_options->insertItem( "Midline Width", mlw_options );
 	connect( mlw_options, SIGNAL(activated(int)),
 	    this, SLOT(doFMenuItem(int)) );
 	mw_options = new QPopupMenu( menubar );
@@ -292,10 +292,10 @@ public:
 	mw_options->setCheckable( TRUE );
 	for (int mw = 0; mw <= max_mw; mw++) {
 	    QString str;
-	    str.sprintf("%d pixels", mw);
+	    str.sprintf("%d Pixels", mw);
 	    mw_options->insertItem( str, mw_id | mw );
 	}
-	f_options->insertItem( "Margin width", mw_options );
+	f_options->insertItem( "Margin Width", mw_options );
 	connect( mw_options, SIGNAL(activated(int)),
 	    this, SLOT(doFMenuItem(int)) );
 
