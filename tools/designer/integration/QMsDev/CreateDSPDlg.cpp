@@ -20,6 +20,8 @@ CCreateDSPDlg::CCreateDSPDlg(CWnd* pParent /*=NULL*/)
 {
 	//{{AFX_DATA_INIT(CCreateDSPDlg)
 	m_qtProject = _T("");
+	m_processAll = FALSE;
+	m_qmakeOpts = _T("");
 	//}}AFX_DATA_INIT
 }
 
@@ -29,6 +31,8 @@ void CCreateDSPDlg::DoDataExchange(CDataExchange* pDX)
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CCreateDSPDlg)
 	DDX_Text(pDX, IDC_QTPROJECT, m_qtProject);
+	DDX_Check(pDX, IDC_PROCESSALL, m_processAll);
+	DDX_Text(pDX, IDC_QMAKEOPTS, m_qmakeOpts);
 	//}}AFX_DATA_MAP
 }
 
@@ -36,6 +40,7 @@ void CCreateDSPDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CCreateDSPDlg, CDialog)
 	//{{AFX_MSG_MAP(CCreateDSPDlg)
 	ON_BN_CLICKED(IDC_QTPROJECTBUTTON, OnQtprojectbutton)
+	ON_BN_CLICKED(IDC_PROCESSALL, OnClickedProcessAll )
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -51,55 +56,19 @@ void CCreateDSPDlg::OnQtprojectbutton()
     }
 }
 
-void CCreateDSPDlg::OnOK() 
+void CCreateDSPDlg::OnClickedProcessAll()
 {
-    CString qtProject;
-    CString projectPath;
-    CString projectBase;
-    CString qmakeOpts;
-    CString qtDir( getenv( "QTDIR" ) );
-
-    GetDlgItemText( IDC_QTPROJECT, qtProject );
-    GetDlgItemText( IDC_QMAKEOPTS, qmakeOpts );
-    projectPath = qtProject.Left( qtProject.ReverseFind( '\\' ) );
-    projectBase = qtProject.Right( qtProject.GetLength() - projectPath.GetLength() );
-    projectBase = projectBase.Left( projectBase.GetLength() - 4 );
-
-    CString command( qtDir + "\\bin\\qmake.exe " + qtProject + " -o " + projectPath + projectBase + ".dsp" + " -t " );
-    if( projectIsLibrary( qtProject ) )
-	command += "vclib " + qmakeOpts;
-    else
-	command += "vcapp " + qmakeOpts;
-
-    if( system( command ) == 0 )
-        CDialog::OnOK();
-    else
-	AfxMessageBox( "An error occurred while processing the project file" );
+    GetDlgItem( IDC_QTPROJECT )->EnableWindow( !( (CButton*)GetDlgItem( IDC_PROCESSALL ) )->GetCheck() );
 }
 
-bool CCreateDSPDlg::projectIsLibrary( CString projectPath )
+BOOL CCreateDSPDlg::OnInitDialog() 
 {
-    CFile inFile;
+	CDialog::OnInitDialog();
+	CString qtProject;
 
-    CString buffer;
-    char c;
-
-    if( inFile.Open( projectPath, CFile::modeRead ) ) {
-	while( inFile.Read( &c, sizeof( c ) ) ) {
-	    if( c != '\n' )
-		buffer += c;
-	    else {
-		// A complete line has been read.
-		if( buffer.Left( 8 ) == "TEMPLATE" ) {
-		    // This is the template line
-		    if( buffer.Find( "lib" ) != -1 )
-			return true;
-		    break;
-		}
-		buffer.Empty();
-	    }
-	}
-    }
-
-    return false;
+	GetDlgItemText( IDC_QTPROJECT, qtProject );
+	GetDlgItem( IDC_PROCESSALL )->EnableWindow( qtProject.GetLength() > 0);
+	
+	return TRUE;  // return TRUE unless you set the focus to a control
+	              // EXCEPTION: OCX Property Pages should return FALSE
 }

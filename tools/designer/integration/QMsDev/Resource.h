@@ -32,6 +32,7 @@
 #define IDC_QTPROJECTBUTTON             1012
 #define IDC_QMAKEOPTS                   1013
 #define IDC_OPENPROJECT                 1014
+#define IDC_PROCESSALL                  1015
 #define ID_BUTTON32777                  32777
 #define ID_BUTTON32778                  32778
 #define ID_BUTTON32779                  32779
@@ -55,7 +56,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        144
 #define _APS_NEXT_COMMAND_VALUE         32795
-#define _APS_NEXT_CONTROL_VALUE         1015
+#define _APS_NEXT_CONTROL_VALUE         1016
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

@@ -16,11 +16,12 @@ class CCreateDSPDlg : public CDialog
 public:
 	CCreateDSPDlg(CWnd* pParent = NULL);   // standard constructor
 
-	bool projectIsLibrary( CString projectPath );
 // Dialog Data
 	//{{AFX_DATA(CCreateDSPDlg)
 	enum { IDD = IDD_CREATEDSPDLG };
 	CString	m_qtProject;
+	BOOL	m_processAll;
+	CString	m_qmakeOpts;
 	//}}AFX_DATA
 
 
@@ -37,7 +38,8 @@ protected:
 	// Generated message map functions
 	//{{AFX_MSG(CCreateDSPDlg)
 	afx_msg void OnQtprojectbutton();
-	virtual void OnOK();
+	afx_msg void OnClickedProcessAll();
+	virtual BOOL OnInitDialog();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 };

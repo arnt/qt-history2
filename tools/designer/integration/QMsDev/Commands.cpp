@@ -11,6 +11,7 @@
 #include <direct.h>
 #include <process.h>
 #include <windows.h>
+#include <oleauto.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -991,6 +992,35 @@ STDMETHODIMP CCommands::QMsDevNewQtDialog()
     return S_OK;
 }
 
+bool projectIsLibrary( CString projectPath )
+{
+    AFX_MANAGE_STATE( AfxGetStaticModuleState() );
+
+    CFile inFile;
+
+    CString buffer;
+    char c;
+
+    if( inFile.Open( projectPath, CFile::modeRead ) ) {
+	while( inFile.Read( &c, sizeof( c ) ) ) {
+	    if( c != '\n' )
+		buffer += c;
+	    else {
+		// A complete line has been read.
+		if( buffer.Left( 8 ) == "TEMPLATE" ) {
+		    // This is the template line
+		    if( buffer.Find( "lib" ) != -1 )
+			return true;
+		    break;
+		}
+		buffer.Empty();
+	    }
+	}
+    }
+
+    return false;
+}
+
 STDMETHODIMP CCommands::QMsDevCreateDSP()
 {
     AFX_MANAGE_STATE(AfxGetStaticModuleState());
@@ -1011,8 +1041,61 @@ STDMETHODIMP CCommands::QMsDevCreateDSP()
     if ( dialog.DoModal() == IDCANCEL ) {
 	VERIFY_OK(m_pApplication->EnableModeless(VARIANT_TRUE));
 	return S_FALSE;
+    } else {
+	VERIFY_OK(m_pApplication->EnableModeless(VARIANT_TRUE));
+	if( dialog.m_processAll ) {
+	    CComPtr<IDispatch> pProjectsDisp;
+	    if( SUCCEEDED( m_pApplication->get_Projects( &pProjectsDisp ) ) ) {
+		CComQIPtr<IProjects, &IID_IProjects> pProjects = pProjectsDisp;
+		long numProjects;
+		if( SUCCEEDED( pProjects->get_Count( &numProjects ) ) ) {
+		    CComQIPtr<IGenericProject, &IID_IGenericProject> pItem;
+		    for( int i = 0; i < numProjects; i++ ) {
+			VARIANT varItem;
+
+			varItem.lVal = i;
+			varItem.vt = VT_UI4;
+			if( SUCCEEDED( pProjects->Item( varItem, &pItem ) ) ) {
+			    CComBSTR projectName;
+			    pItem->get_FullName( &projectName );
+			    CString projectAnsi = projectName;
+			    projectAnsi = projectAnsi.Left( projectAnsi.GetLength() - 4 ) + ".pro";
+			    CString projectPath = projectAnsi.Left( projectAnsi.ReverseFind( '\\' ) );
+			    CString projectBase = projectAnsi.Mid( projectAnsi.ReverseFind( '\\' ) );
+			    CString qtDir( getenv( "QTDIR" ) );
+			    CString command( qtDir + "\\bin\\qmake.exe " + projectAnsi + " -o " + projectPath + projectBase + ".dsp -t " );
+			    if( projectIsLibrary( dialog.m_qtProject ) )
+				command += "vclib";
+			    else
+				command += "vcapp";
+			    command += dialog.m_qmakeOpts;
+			    if( system( command ) )
+				AfxMessageBox( "An error occurred while processing \"" + projectAnsi + "\"" );
+			}
+		    }
+		}
+	    }
+
+	}
+	else {
+	    CString projectPath;
+	    CString projectBase;
+	    CString qtDir( getenv( "QTDIR" ) );
+
+	    projectPath = dialog.m_qtProject.Left( dialog.m_qtProject.ReverseFind( '\\' ) );
+	    projectBase = dialog.m_qtProject.Right( dialog.m_qtProject.GetLength() - projectPath.GetLength() );
+	    projectBase = projectBase.Left( projectBase.GetLength() - 4 );
+
+	    CString command( qtDir + "\\bin\\qmake.exe " + dialog.m_qtProject + " -o " + projectPath + projectBase + ".dsp" + " -t " );
+	    if( projectIsLibrary( dialog.m_qtProject ) )
+		command += "vclib " + dialog.m_qmakeOpts;
+	    else
+		command += "vcapp " + dialog.m_qmakeOpts;
+
+	    if( system( command ) )
+		AfxMessageBox( "An error occurred while processing the project file" );
+	}
     }
-    VERIFY_OK(m_pApplication->EnableModeless(VARIANT_TRUE));
     
     return S_OK;
 }
