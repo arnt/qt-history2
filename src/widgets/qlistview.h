@@ -166,7 +166,7 @@ protected:
 
     bool activatedPos( QPoint & );
 #ifndef QT_NO_DRAGANDDROP
-    virtual void dropped( QDropEvent *e, QMimeSource *mime );
+    virtual void dropped( QDropEvent *e );
 #endif
     virtual void dragEntered();
     virtual void dragLeft();
@@ -188,7 +188,7 @@ private:
     uint is_root: 1;
     uint allow_drag : 1;
     uint allow_drop : 1;
-    
+
     QListViewItem * parentItem;
     QListViewItem * siblingItem;
     QListViewItem * childItem;
@@ -330,7 +330,7 @@ signals:
     void expanded( QListViewItem *item );
     void collapsed( QListViewItem *item );
 #ifndef QT_NO_DRAGANDDROP
-    void dropped( QDropEvent *e, QMimeSource *mime );
+    void dropped( QDropEvent *e );
 #endif
 
 protected:
