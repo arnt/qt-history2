@@ -876,7 +876,6 @@ void QMacStyle::drawControl(ControlElement element,
 	d->addWidget(btn);
 	if(btn->isToggleButton() && btn->isOn())
 	    tds = kThemeStatePressed;
-	bool do_draw = TRUE;
 	QPixmap *buffer = NULL;
 	QString pmkey;
 	QTextOStream os(&pmkey);
@@ -892,40 +891,37 @@ void QMacStyle::drawControl(ControlElement element,
 		    buffer = new QPixmap(r.width(), r.height(), 32);
 		    buffer->fill(color0);
 		} else {
-		    do_draw = FALSE;
+		    p->drawPixmap(r, *buffer);
+		    break;
 		}
 	    }
 	}
-	if(do_draw) {
-	    ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
-	    if(btn->isFlat())
-		info.adornment = kThemeAdornmentNoShadow;
-	    const Rect *mac_rct = NULL;
-	    const QRect off_rct(1, 1, 1, 2);
-	    if(buffer) {
-		QMacSavedPortInfo::setPaintDevice(buffer);
-		mac_rct = qt_glb_mac_rect(QRect(0, 0, r.width(), r.height()), buffer, TRUE, off_rct);
-	    } else {
-		((QMacPainter *)p)->setport();
-		mac_rct = qt_glb_mac_rect(r, p, TRUE, off_rct);
-	    }
-	    DrawThemeButton(mac_rct, kThemePushButton, &info, NULL, NULL, NULL, 0);
-	    if(buffer) {
-		if(frame) {
-		    QImage img;
-		    img = *buffer;
-		    for(int y = 0; y < img.height(); y++) {
-			uchar *bytes = img.scanLine(y);
-			for(int x = 0; x < img.bytesPerLine(); x++) 
-			    *(bytes + x) = (*(bytes + x) * (100 - frame)) / 100;
-		    }
-		    *buffer = img;
-		}
-	    }
-	}
+	ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
+	if(btn->isFlat())
+	    info.adornment = kThemeAdornmentNoShadow;
+	const Rect *mac_rct = NULL;
+	const QRect off_rct(1, 1, 1, 2);
 	if(buffer) {
+	    QMacSavedPortInfo::setPaintDevice(buffer);
+	    mac_rct = qt_glb_mac_rect(QRect(0, 0, r.width(), r.height()), buffer, TRUE, off_rct);
+	} else {
+	    ((QMacPainter *)p)->setport();
+	    mac_rct = qt_glb_mac_rect(r, p, TRUE, off_rct);
+	}
+	DrawThemeButton(mac_rct, kThemePushButton, &info, NULL, NULL, NULL, 0);
+	if(buffer) {
+	    if(frame) {
+		QImage img;
+		img = *buffer;
+		for(int y = 0; y < img.height(); y++) {
+		    uchar *bytes = img.scanLine(y);
+		    for(int x = 0; x < img.bytesPerLine(); x++) 
+			*(bytes + x) = (*(bytes + x) * (100 - frame)) / 100;
+		}
+		*buffer = img;
+	    }
 	    p->drawPixmap(r, *buffer);
-	    if(do_draw && !QPixmapCache::insert(pmkey, buffer))	// save in cache
+	    if(!QPixmapCache::insert(pmkey, buffer))	// save in cache
 		delete buffer;
 	}
 	break; }
