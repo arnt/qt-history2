@@ -385,13 +385,13 @@ int QMetaObject::findSlot( const char* n, bool super ) const
  */
 QMetaObject *QMetaObject::new_metaobject( const char *classname,
 					  QMetaObject *superclassobject,
-					  const QMetaData *slot_data,	int n_slots,
-					  const QMetaData *signal_data,int n_signals,
+					  const QMetaData * const slot_data, int n_slots,
+					  const QMetaData * const signal_data, int n_signals,
 #ifndef QT_NO_PROPERTIES
-					  const QMetaProperty *prop_data, int n_props,
-					  const QMetaEnum *enum_data, int n_enums,
+					  const QMetaProperty * const prop_data, int n_props,
+					  const QMetaEnum * const enum_data, int n_enums,
 #endif
-					  const QClassInfo * class_info, int n_info )
+					  const QClassInfo * const class_info, int n_info )
 {
     return new QMetaObject( classname, superclassobject, slot_data, n_slots,
 			    signal_data, n_signals,

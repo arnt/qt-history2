@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id:  qt/qmetaobject.h   3.0.0-beta5   edited Sep 12 10:50 $
 **
 ** Definition of QMetaObject class
 **
@@ -135,7 +135,7 @@ struct QClassInfo				// class info meta data
 class Q_EXPORT QMetaObject			// meta object class
 {
 public:
-    QMetaObject( const char *class_name, QMetaObject *superclass,
+    QMetaObject( const char * const class_name, QMetaObject *superclass,
 		 const QMetaData * const slot_data, int n_slots,
 		 const QMetaData * const signal_data, int n_signals,
 #ifndef QT_NO_PROPERTIES
