@@ -266,6 +266,40 @@ void *qt_find_obj_child( QObject *parent, const char *type, const char *name )
 }
 
 
+
+#ifndef QT_NO_PRELIMINARY_SIGNAL_INTERCEPTOR
+/*
+  Preliminary signal interceptor
+ */
+QObject* qt_preliminary_signal_interceptor = 0;
+static QObject* qt_intercept_signal_sender = 0;
+
+static void qt_intercept_signal( QObject* sender, int signal, QUObject* o )
+{
+    QMetaObject* mo = sender->metaObject();
+    while ( mo && signal - mo->signalOffset() < 0 )
+	mo = mo->superClass();
+    if ( !mo )
+	return;
+    const QMetaData* sigData = mo->signal( signal - mo->signalOffset() );
+    if ( !sigData )
+	return;
+    QCString s;
+    s.sprintf( "%s_%s", mo->className(), sigData->name );
+    int slot = qt_preliminary_signal_interceptor->metaObject()->findSlot( s, TRUE );
+    if ( slot >= 0 ) {
+	QObject* old_sender = qt_intercept_signal_sender;
+	qt_intercept_signal_sender = sender;
+	qt_preliminary_signal_interceptor->qt_invoke( slot, o );
+	qt_intercept_signal_sender = old_sender;
+    }
+}
+
+/*
+  End Preliminary signal interceptor
+ */
+#endif // QT_NO_PRELIMINARY_SIGNAL_INTERCEPTOR
+
 static QObjectList* object_trees = 0;
 
 #ifdef QT_THREAD_SUPPORT
@@ -1146,6 +1180,21 @@ QConnectionList *QObject::receivers( const char* signal ) const
 
 QConnectionList *QObject::receivers( int signal ) const
 {
+#ifndef QT_NO_PRELIMINARY_SIGNAL_INTERCEPTOR
+    if ( qt_preliminary_signal_interceptor && signal >= 0 ) {
+	if ( !connections ) {
+	    QObject* that = (QObject*) this;
+	    that->connections = new QSignalVec( signal+1 );
+	    that->connections->setAutoDelete( TRUE );
+	}
+	if ( !connections->at( signal ) ) {
+	    QConnectionList* clist = new QConnectionList;
+	    clist->setAutoDelete( TRUE );
+	    connections->insert( signal, clist );
+	    return clist;
+	}
+    }
+#endif
     if ( connections && signal >= 0 )
 	return connections->at( signal );
     return 0;
@@ -1441,6 +1490,10 @@ static void err_info_about_candidates( int code,
 
 const QObject *QObject::sender()
 {
+#ifndef QT_NO_PRELIMINARY_SIGNAL_INTERCEPTOR
+    if ( this == qt_preliminary_signal_interceptor )
+	return qt_intercept_signal_sender;
+#endif
     if ( senderObjects &&
 	 senderObjects->currentSender &&
 	 /*
@@ -2188,6 +2241,17 @@ QMetaObject* QObject::staticQtMetaObject()
   */
 void QObject::activate_signal( int signal )
 {
+#ifndef QT_NO_PRELIMINARY_SIGNAL_INTERCEPTOR
+    if ( qt_preliminary_signal_interceptor ) {
+	if ( !signalsBlocked() && signal >= 0 &&
+	     ( !connections || !connections->at( signal ) ) ) {
+	    QUObject o[1];
+	    qt_intercept_signal( this, signal, o );
+	    return;
+	}
+    }
+#endif
+
     if ( !connections || signalsBlocked() || signal < 0 )
 	return;
     QConnectionList *clist = connections->at( signal );
@@ -2203,6 +2267,11 @@ void QObject::activate_signal( QConnectionList *clist, QUObject *o )
 {
     if ( !clist )
 	return;
+
+#ifndef QT_NO_PRELIMINARY_SIGNAL_INTERCEPTOR
+    if ( qt_preliminary_signal_interceptor )
+	qt_intercept_signal( this, connections->findRef( clist), o );
+#endif
 
     QObject *object;
     QSenderObjectList* sol;
@@ -2274,6 +2343,29 @@ void QObject::activate_signal( QConnectionList *clist, QUObject *o )
   only a typedef it cannot be a simple overload.
 */
 
+#ifndef QT_NO_PRELIMINARY_SIGNAL_INTERCEPTOR
+#define ACTIVATE_SIGNAL_WITH_PARAM(FNAME,TYPE)				      \
+void QObject::FNAME( int signal, TYPE param )				      \
+{									      \
+    if ( qt_preliminary_signal_interceptor ) { \
+	if ( !signalsBlocked() && signal >= 0 && \
+	     ( !connections || !connections->at( signal ) ) ) { \
+	    QUObject o[2];							      \
+	    static_QUType_##TYPE.set( o+1, param );					      \
+	    qt_intercept_signal( this, signal, o ); \
+	    return; \
+	} \
+    } \
+    if ( !connections || signalsBlocked() || signal < 0 )		      \
+	return;								      \
+    QConnectionList *clist = connections->at( signal );			      \
+    if ( !clist )							      \
+	return;								      \
+    QUObject o[2];							      \
+    static_QUType_##TYPE.set( o+1, param );					      \
+    activate_signal( clist, o );					      \
+}
+#else
 #define ACTIVATE_SIGNAL_WITH_PARAM(FNAME,TYPE)				      \
 void QObject::FNAME( int signal, TYPE param )				      \
 {									      \
@@ -2287,6 +2379,7 @@ void QObject::FNAME( int signal, TYPE param )				      \
     activate_signal( clist, o );					      \
 }
 
+#endif
 // We don't want to duplicate too much text so...
 
 ACTIVATE_SIGNAL_WITH_PARAM( activate_signal, int )
