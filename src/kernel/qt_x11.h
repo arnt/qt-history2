@@ -134,6 +134,10 @@ extern "C" {
 #  endif
 #endif // QT_NO_XINERAMA
 
+// #define QT_NO_XRANDR
+#ifndef QT_NO_XRANDR
+#  include <X11/extensions/Xrandr.h>
+#endif // QT_NO_XRANDR
 
 // #define QT_NO_XRENDER
 #ifndef QT_NO_XRENDER

@@ -34,6 +34,7 @@
 **********************************************************************/
 
 #include "qdesktopwidget.h"
+#include "qapplication.h"
 #include "qobjectlist.h"
 #include "qt_x11.h"
 
@@ -92,7 +93,6 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate()
     : use_xinerama(FALSE), defaultScreen(0), screenCount(1),
       screens( 0 ), rects( 0 ), workareas( 0 )
 {
-    init();
 }
 
 QDesktopWidgetPrivate::~QDesktopWidgetPrivate()
@@ -132,7 +132,9 @@ void QDesktopWidgetPrivate::init()
 	screenCount = ScreenCount(QPaintDevice::x11AppDisplay());
     }
 
+    delete [] rects;
     rects     = new QRect[ screenCount ];
+    delete [] workareas;
     workareas = new QRect[ screenCount ];
 
     // get the geometry of each screen
@@ -170,7 +172,16 @@ void QDesktopWidgetPrivate::init()
 QDesktopWidget::QDesktopWidget()
     : QWidget( 0, "desktop", WType_Desktop )
 {
-    d = new QDesktopWidgetPrivate;
+    d = new QDesktopWidgetPrivate();
+
+    /*
+      we don't call d->init() here, since the initial resize event
+      will end up calling init() a second time, which is inefficient.
+      instead, for the sending of all posted event to the desktop
+      widget (including the initial resize event, which calls
+      d->init()).
+    */
+    QApplication::sendPostedEvents( this, 0 );
 }
 
 QDesktopWidget::~QDesktopWidget()
@@ -309,6 +320,7 @@ int QDesktopWidget::screenNumber( const QPoint &point ) const
 
 void QDesktopWidget::resizeEvent( QResizeEvent *event )
 {
+    d->init();
     qt_desktopwidget_workarea_dirty = TRUE;
     QWidget::resizeEvent( event );
 }

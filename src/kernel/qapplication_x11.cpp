@@ -269,6 +269,11 @@ static const int FocusModel_Other = 0;
 static const int FocusModel_PointerRoot = 1;
 static int qt_focus_model = -1;
 
+// TRUE if Qt is compiled w/ XRandR support and XRandR exists on the connected
+// Display
+bool	qt_use_xrandr	= FALSE;
+static int xrandr_eventbase;
+
 // TRUE if Qt is compiled w/ XRender support and XRender exists on the connected
 // Display
 bool	qt_use_xrender	= FALSE;
@@ -1857,6 +1862,15 @@ void qt_init_internal( int *argcptr, char **argv,
 	qt_get_net_supported();
 	qt_get_net_virtual_roots();
 
+#ifndef QT_NO_XRANDR
+	// See if XRandR is supported on the connected display
+	int xrandr_errorbase;
+	if ( XRRQueryExtension( appDpy, &xrandr_eventbase, &xrandr_errorbase ) ) {
+	    // XRandR is supported
+	    qt_use_xrandr = TRUE;
+	}
+#endif // QT_NO_XRANDR
+
 #ifndef QT_NO_XRENDER
 	// See if XRender is supported on the connected display
 	int xrender_eventbase, xrender_errorbase;
@@ -1948,11 +1962,18 @@ void qt_init_internal( int *argcptr, char **argv,
     if( qt_is_gui_used ) {
 	qApp->setName( appName );
 
-	XSelectInput( appDpy, QPaintDevice::x11AppRootWindow(),
-		      KeymapStateMask |
-		      EnterWindowMask | LeaveWindowMask |
-		      PropertyChangeMask
-		      );
+	int screen;
+	for ( screen = 0; screen < appScreenCount; ++screen ) {
+	    XSelectInput( appDpy, QPaintDevice::x11AppRootWindow( screen ),
+			  KeymapStateMask |
+			  EnterWindowMask | LeaveWindowMask |
+			  PropertyChangeMask );
+
+#ifndef QT_NO_XRANDR
+	    if (qt_use_xrandr)
+		XRRSelectInput( appDpy, QPaintDevice::x11AppRootWindow( screen ), True );
+#endif // QT_NO_XRANDR
+	}
     }
 
     // XIM segfaults on Solaris with "C" locale!
@@ -3380,6 +3401,24 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	return 0;
     }
 #endif
+
+#ifndef QT_NO_XRANDR
+    if (event->type == xrandr_eventbase + RRScreenChangeNotify) {
+	// update Xlib internals with the latest screen configuration
+	XRRUpdateConfiguration(event);
+
+	// update the size for desktop widget
+	int scr = XRRRootToScreen( appDpy, event->xany.window );
+	QWidget *w = desktop()->screen( scr );
+	QSize oldSize( w->size() );
+	w->crect.setWidth( DisplayWidth( appDpy, scr ) );
+        w->crect.setHeight( DisplayHeight( appDpy, scr ) );
+	if ( w->size() != oldSize ) {
+	    QResizeEvent e( w->size(), oldSize );
+	    QApplication::sendEvent( w, &e );
+	}
+    }
+#endif // QT_NO_XRANDR
 
     switch ( event->type ) {
 
