@@ -1354,16 +1354,12 @@ QRect QPlatinumStyle::querySubControlMetrics( ComplexControl control,
 	{
 	    const QScrollBar *sb;
 	    sb = (const QScrollBar *)widget;
-	    int sliderStart = 0;
+	    int sliderStart = sb->sliderStart();
 	    int sbextent = pixelMetric( PM_ScrollBarExtent, widget );
 	    int maxlen = ((sb->orientation() == Qt::Horizontal) ?
 			  sb->width() : sb->height()) - ( sbextent * 2 );
 
 	    int sliderlen;
-	    if ( data )
-		sliderStart = *((int*) data[0]);
-	    else
-		sliderStart = sbextent;
 
 	    // calculate length
 	    if ( sb->maxValue() != sb->minValue() ) {

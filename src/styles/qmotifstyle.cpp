@@ -1495,12 +1495,9 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 		const QSlider * sl = (const QSlider *) widget;
 		int tickOffset  = pixelMetric( PM_SliderTickmarkOffset, sl );
 		int thickness   = pixelMetric( PM_SliderControlThickness, sl );
-		int sliderPos   = 0;
+		int sliderPos   = sl->sliderStart();
 		int len         = pixelMetric( PM_SliderLength, sl );
 		int motifBorder = 3;
-
-		if ( data )
-		    sliderPos = *((int *) data[0]);
 
 		if ( sl->orientation() == Horizontal )
 		    rect.setRect( sliderPos + motifBorder,
@@ -1522,7 +1519,7 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 		break;
 
 	    const QScrollBar *scrollbar = (const QScrollBar *) widget;
-	    int sliderstart = 0;
+	    int sliderstart = scrollbar->sliderStart();
 	    int sbextent = pixelMetric(PM_ScrollBarExtent, widget);
 	    int fw = pixelMetric(PM_DefaultFrameWidth, widget);
 	    int buttonw = sbextent - (fw * 2);
@@ -1530,11 +1527,6 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 			  scrollbar->width() : scrollbar->height()) -
 			 (buttonw * 2) - (fw * 2);
 	    int sliderlen;
-
-	    if (data)
-		sliderstart = *((int *) data[0]);
-	    else
-		sliderstart = sbextent;
 
 	    // calculate slider length
 	    if (scrollbar->maxValue() != scrollbar->minValue()) {

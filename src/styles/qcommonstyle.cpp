@@ -1622,10 +1622,7 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 		      scrollbar->width() : scrollbar->height()) - (sbextent * 2);
 	int sliderlen;
 
-	if (data)
-	    sliderstart = *((int*) data[0]);
-	else
-	    sliderstart = sbextent;
+	sliderstart = scrollbar->sliderStart();
 
 	// calculate slider length
 	if (scrollbar->maxValue() != scrollbar->minValue()) {
@@ -1713,8 +1710,7 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 		    int thickness  = pixelMetric( PM_SliderControlThickness, sl );
 		    int len   = pixelMetric( PM_SliderLength, sl );
 
-		    if ( data )
-			sliderPos = *((int *) data[0]);
+		    sliderPos = sl->sliderStart();
 
 		    if ( sl->orientation() == Horizontal )
 			rect.setRect( sliderPos, tickOffset, len, thickness );

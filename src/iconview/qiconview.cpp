@@ -71,6 +71,7 @@
 #include "qstringlist.h"
 #include "qcleanuphandler.h"
 #include "private/qrichtext_p.h"
+#include "qstyle.h"
 
 #include <stdlib.h>
 #include <math.h>

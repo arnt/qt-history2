@@ -60,6 +60,7 @@
 #include "qdragobject.h"
 #include "qevent.h"
 #include "qlistbox.h"
+#include "qstyle.h"
 
 #include <stdlib.h>
 

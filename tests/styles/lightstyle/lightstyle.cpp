@@ -1268,16 +1268,11 @@ QRect LightStyle::querySubControlMetrics( ComplexControl control,
     case CC_ScrollBar:
 	{
 	    const QScrollBar *scrollbar = (const QScrollBar *) widget;
-	    int sliderstart = 0;
+	    int sliderstart = scrollbar->sliderStart();
 	    int sbextent = pixelMetric(PM_ScrollBarExtent, widget);
 	    int maxlen = ((scrollbar->orientation() == Qt::Horizontal) ?
 			  scrollbar->width() : scrollbar->height()) - (sbextent * 3);
 	    int sliderlen;
-
-	    if (data)
-		sliderstart = *((int*) data[0]);
-	    else
-		sliderstart = sbextent;
 
 	    // calculate slider length
 	    if (scrollbar->maxValue() != scrollbar->minValue()) {

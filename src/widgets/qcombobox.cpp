@@ -50,6 +50,7 @@
 #include "qeffects_p.h"
 #include "qstringlist.h"
 #include "qcombobox.h"
+#include "qstyle.h"
 #include <limits.h>
 
 /*!

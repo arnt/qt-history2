@@ -82,6 +82,7 @@
 #include "qsemimodal.h"
 #include "qpainter.h"
 #include "qcleanuphandler.h"
+#include "qstyle.h"
 
 #ifndef Q_OS_TEMP
 #include <time.h>

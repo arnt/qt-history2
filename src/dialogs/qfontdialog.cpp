@@ -52,6 +52,7 @@
 #include "qlabel.h"
 #include "qapplication.h"
 #include "qfontdatabase.h"
+#include "qstyle.h"
 
 #include <ctype.h>
 

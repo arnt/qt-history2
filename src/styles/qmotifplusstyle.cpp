@@ -1574,11 +1574,8 @@ QRect QMotifPlusStyle::querySubControlMetrics(ComplexControl control,
 		int tickOffset  = pixelMetric( PM_SliderTickmarkOffset, widget );
 		int thickness   = pixelMetric( PM_SliderControlThickness, widget );
 		int len         = pixelMetric( PM_SliderLength, widget ) + 2;
-		int sliderPos   = 0;
+		int sliderPos   = slider->sliderStart();
 		int motifBorder = 2;
-
-		if ( data )
-		    sliderPos = *((int *) data[0]);
 
 		if ( slider->orientation() == Horizontal )
 		    rect.setRect( sliderPos + motifBorder,

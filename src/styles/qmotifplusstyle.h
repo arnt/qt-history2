@@ -40,7 +40,6 @@
 
 
 #ifndef QT_H
-#include "qstyle.h"
 #include "qmotifstyle.h"
 #endif // QT_H
 

@@ -10,6 +10,7 @@
 #include <qdragobject.h>
 #include <qbitmap.h>
 #include <qinputdialog.h>
+#include <qstyle.h>
 #include "mainwindow.h"
 #include "defs.h"
 #include "widgetfactory.h"

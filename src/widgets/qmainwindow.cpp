@@ -58,6 +58,7 @@
 #include "qbitmap.h"
 #include "qdockarea.h"
 #include "qstringlist.h"
+#include "qstyle.h"
 #ifdef Q_WS_MAC
 #  include "qt_mac.h"
 #endif

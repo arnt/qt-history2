@@ -325,11 +325,8 @@ void QSlider::setOrientation( Orientation orientation )
 
 QRect QSlider::sliderRect() const
 {
-    void * data[1];
-    data[0] = (void *) &sliderPos;
-
     return style().querySubControlMetrics( QStyle::CC_Slider, this,
-					   QStyle::SC_SliderHandle, data );
+					   QStyle::SC_SliderHandle );
 }
 
 /*!
@@ -371,11 +368,8 @@ void QSlider::paintEvent( QPaintEvent * )
     if (hasFocus())
 	flags |= QStyle::Style_HasFocus;
 
-    void *data[1];
-    data[0] = (void *) &sliderPos;
-
     style().drawComplexControl( QStyle::CC_Slider, &p, this, rect(), colorGroup(),
-				flags, QStyle::SC_All, state == Dragging ? QStyle::SC_SliderHandle : QStyle::SC_None, data );
+				flags, QStyle::SC_All, state == Dragging ? QStyle::SC_SliderHandle : QStyle::SC_None );
 }
 
 

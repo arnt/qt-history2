@@ -43,7 +43,6 @@ class QTimer;
 #ifndef QT_H
 #include "qwidget.h"
 #include "qrangecontrol.h"
-#include "qstyle.h"
 #endif // QT_H
 
 #ifndef QT_NO_SCROLLBAR
@@ -130,12 +129,10 @@ private:
     void startAutoRepeat();
     void stopAutoRepeat();
 
-    QStyle::SubControl pointOver( const QPoint &p ) const;
-
     int rangeValueToSliderPos( int val ) const;
     int sliderPosToRangeValue( int  val ) const;
 
-    void action( QStyle::SubControl control );
+    void action( int control );
 
     void drawControls( uint controls, uint activeControl ) const;
     void drawControls( uint controls, uint activeControl,

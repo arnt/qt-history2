@@ -47,6 +47,7 @@
 #include "qptrdict.h"
 #include "qapplication.h"
 #include "qtimer.h"
+#include "qstyle.h"
 
 const int coord_limit = 4000;
 static const int autoscroll_margin = 16;

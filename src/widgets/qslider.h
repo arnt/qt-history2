@@ -76,6 +76,8 @@ public:
     virtual void	setTracking( bool enable );
     bool	tracking() const;
     virtual void 	setPalette( const QPalette & );
+
+    int		sliderStart() const;
     QRect	sliderRect() const;
     QSize	sizeHint() const;
     QSizePolicy sizePolicy() const;
@@ -171,6 +173,10 @@ inline QSlider::Orientation QSlider::orientation() const
     return orient;
 }
 
+inline int QSlider::sliderStart() const
+{
+    return sliderPos;
+}
 
 #endif // QT_NO_SLIDER
 

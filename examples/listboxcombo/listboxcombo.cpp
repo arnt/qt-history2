@@ -19,6 +19,7 @@
 #include <qlabel.h>
 #include <qimage.h>
 #include <qpainter.h>
+#include <qstyle.h>
 
 
 class MyListBoxItem : public QListBoxItem

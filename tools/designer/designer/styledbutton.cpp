@@ -30,6 +30,7 @@
 #include <qpixmap.h>
 #include <qapplication.h>
 #include <qdragobject.h>
+#include <qstyle.h>
 
 StyledButton::StyledButton(QWidget* parent, const char* name)
     : QButton( parent, name ), pix( 0 ), spix( 0 ), s( 0 ), formWindow( 0 ), mousePressed( FALSE )

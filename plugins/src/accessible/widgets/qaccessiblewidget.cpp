@@ -1,6 +1,7 @@
 #include "qaccessiblewidget.h"
 
 #include <qapplication.h>
+#include <qstyle.h>
 #include <qobjectlist.h>
 #include <qpushbutton.h>
 #include <qslider.h>

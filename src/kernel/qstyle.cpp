@@ -1221,9 +1221,9 @@ the mouse is over the tool button, FALSE otherwise.</td>
 <td rowspan=2 valign=top><b>CC_ScrollBar</b><br>const QScrollBar *</td>
 <td valign=top>Style_Enabled</td>
 <td valign=top>set if the scrollbar is enabled.</td>
-<td valign=top>data[0]</td>
-<td valign=top>int *</td>
-<td valign=top>position in pixels for the start of the scrollbar handle.</td>
+<td valign=top>unused</td>
+<td valign=top>&nbsp;</td>
+<td valign=top>&nbsp;</td>
 </tr>
 <tr bgcolor=#d0d0d0>
 <td valign=top>Style_HasFocus</td>
@@ -1236,9 +1236,9 @@ the mouse is over the tool button, FALSE otherwise.</td>
 <td rowspan=2 valign=top><b>CC_Slider</b><br>const QSlider *</td>
 <td valign=top>Style_Enabled</td>
 <td valign=top>set if the slider is enabled.</td>
-<td valign=top>data[0]</td>
-<td valign=top>int *</td>
-<td valign=top>position in pixels for the start of the slider handle.</td>
+<td valign=top>unused</td>
+<td valign=top>&nbsp;</td>
+<td valign=top>&nbsp;</td>
 </tr>
 <tr bgcolor=#f0f0f0>
 <td valign=top>Style_HasFocus</td>

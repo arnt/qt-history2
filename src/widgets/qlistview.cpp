@@ -57,6 +57,7 @@
 #include "qlineedit.h"
 #include "qvbox.h"
 #include "qtooltip.h"
+#include "qstyle.h"
 #include "../kernel/qinternal_p.h"
 
 const int Unsorted = 16383;

@@ -51,6 +51,7 @@
 #include "qdragobject.h"
 #include "qgridview.h"
 #include "qapplication.h"
+#include "qstyle.h"
 
 //////////// QWellArray BEGIN
 

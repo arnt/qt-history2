@@ -68,6 +68,7 @@
 #include <qdragobject.h>
 #include <qdom.h>
 #include <qprocess.h>
+#include <qstyle.h>
 
 #ifndef QT_NO_SQL
 #include <qdatetimeedit.h>

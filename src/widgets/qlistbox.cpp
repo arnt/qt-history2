@@ -56,6 +56,7 @@
 #include "qptrdict.h"
 #include "qtimer.h"
 #include "qstringlist.h"
+#include "qstyle.h"
 
 #include <stdlib.h>
 

@@ -57,6 +57,7 @@
 #include "qwmatrix.h"
 #include "qimage.h"
 #include "qscrollbar.h"
+#include "qstyle.h"
 
 #define BUTTON_WIDTH	16
 #define BUTTON_HEIGHT	14
