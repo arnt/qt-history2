@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.h#8 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.h#9 $
 **
 ** Definition of QBitmap class
 **
@@ -19,13 +19,30 @@
 class QBitmap : public QPixmap			// bitmap class
 {
 public:
-    QBitmap( int w, int h ) : QPixmap( w, h, 1 )	{}
-    QBitmap( int w, int h, const char *data, bool isXbitmap=FALSE );
-    QBitmap( const QPixmap &pm ) : QPixmap( pm )	{}
-    QBitmap( QImageData *i ) : QPixmap( i )	{}
+    QBitmap()						{}
+    QBitmap( int w, int h )	 : QPixmap( w, h, 1 )	{}
+    QBitmap( int w, int h, const char *bits, bool isXbitmap=FALSE )
+				 : QPixmap( w, h, bits, isXbitmap ) {}
+    QBitmap( const QBitmap &bm ) : QPixmap( bm )	{}
+    QBitmap( const QImage  &im ) : QPixmap( im )	{}
+
+    QBitmap &operator=( const QBitmap & );
+    QBitmap &operator=( const QImage  & );
+
 protected:
     bool  isBitmap() const;
 };
+
+
+inline QBitmap &QBitmap::operator=( const QBitmap &bm )
+{
+    return (QBitmap&)QPixmap::operator=(bm);
+}
+
+inline QBitmap &QBitmap::operator=( const QImage  &im )
+{
+    return (QBitmap&)QPixmap::operator=(im);
+}
 
 
 #endif // QBITMAP_H
