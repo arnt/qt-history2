@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qviewp.h#2 $
+** $Id: //depot/qt/main/src/widgets/qviewp.h#3 $
 **
 ** Definition of QViewport class
 **
@@ -14,34 +14,40 @@
 #include <qwidget.h>
 #include <qscrbar.h>
 
+struct QViewportData;
+
 class QViewport : public QWidget
 {
     Q_OBJECT
 public:
     QViewport(QWidget *parent=0, const char *name=0, WFlags f=0);
+    ~QViewport();
 
     void view(QWidget* child);
 
-    QScrollBar& horizontalScrollBar();
-    QScrollBar& verticalScrollBar();
+    enum ScrollBarMode { Auto, AlwaysOff, AlwaysOn };
 
-    void show();
+    ScrollBarMode vScrollBarMode() const;
+    virtual void  setVScrollBarMode( ScrollBarMode );
 
-    // Visual properties.
-    virtual int scrollBarWidth() const;
-    virtual bool scrollBarOnLeft() const;
-    virtual bool scrollBarOnTop() const;
-    virtual bool emptyCorner() const;
-    virtual bool alwaysEmptyCorner() const;
+    ScrollBarMode hScrollBarMode() const;
+    virtual void  setHScrollBarMode( ScrollBarMode );
 
-    virtual void setBackgroundColor(const QColor&);
-    virtual void setBackgroundPixmap(const QPixmap&);
+    QWidget*     cornerWidget() const;
+    virtual void setCornerWidget(QWidget*);
 
-    void viewResize( int w, int h );
-    int viewWidth() const;
-    int viewHeight() const;
+    QScrollBar&  horizontalScrollBar();
+    QScrollBar&  verticalScrollBar();
 
-    void resize( int w, int h );
+    void	setBackgroundColor(const QColor&);
+    void	setBackgroundPixmap(const QPixmap&);
+
+    void	viewResize( int w, int h );
+    int		viewWidth() const;
+    int		viewHeight() const;
+
+    void	resize( int w, int h );
+    void	show();
 
 public slots:
     void centerOn(int x, int y);
@@ -56,31 +62,21 @@ protected:
     void resizeEvent(QResizeEvent*);
     bool eventFilter( QObject *, QEvent *e );
 
-    virtual void drawContents(QPainter*, int cx, int cy, int cw, int ch);
     virtual void drawContentsOffset(QPainter*, int ox, int oy,
 		    int cx, int cy, int cw, int ch);
 
+    QWidget* portHole();
+
 private:
     void moveView(int x, int y);
-
     int viewX() const;
     int viewY() const;
 
-    bool viewVisible() const;
-
-    QScrollBar hbar;
-    QScrollBar vbar;
-    QWidget porthole;
-    QWidget* viewed;
-    static bool signal_choke;
-    int vx, vy, vwidth, vheight; // for drawContents-style usage
+    QViewportData* d;
 
 private slots:
     void hslide(int);
     void vslide(int);
 };
-
-inline QScrollBar& QViewport::horizontalScrollBar() { return hbar; }
-inline QScrollBar& QViewport::verticalScrollBar() { return vbar; }
 
 #endif
