@@ -519,7 +519,7 @@ void Resource::saveObject( QObject *obj, QDesignerGridLayout* grid, QTextStream 
 	    QTab *t = tb->tabAt( i );
 	    if ( !t )
 		continue;
-	    QWidget *w = ws->widget( t->identitifer() );
+	    QWidget *w = ws->widget( t->identifier() );
 	    if ( !w )
 		continue;
 	    if ( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( w ) ) == -1 )
