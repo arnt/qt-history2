@@ -28,21 +28,21 @@
 
 static const short rasterOpCodes[] = {
     R2_COPYPEN,        // CopyROP
-    R2_MERGEPEN,        // OrROP
-    R2_XORPEN,        // XorROP
-    R2_MASKNOTPEN,        // NotAndROP
-    R2_NOTCOPYPEN,        // NotCopyROP
-    R2_MERGENOTPEN,        // NotOrROP
-    R2_NOTXORPEN,        // NotXorROP
+    R2_MERGEPEN,       // OrROP
+    R2_XORPEN,         // XorROP
+    R2_MASKNOTPEN,     // NotAndROP
+    R2_NOTCOPYPEN,     // NotCopyROP
+    R2_MERGENOTPEN,    // NotOrROP
+    R2_NOTXORPEN,      // NotXorROP
     R2_MASKPEN,        // AndROP
-    R2_NOT,                // NotROP
-    R2_BLACK,        // ClearROP
-    R2_WHITE,        // SetROP
-    R2_NOP,                // NopROP
-    R2_MASKPENNOT,        // AndNotROP
-    R2_MERGEPENNOT,        // OrNotROP
-    R2_NOTMASKPEN,        // NandROP
-    R2_NOTMERGEPEN        // NorROP
+    R2_NOT,            // NotROP
+    R2_BLACK,          // ClearROP
+    R2_WHITE,          // SetROP
+    R2_NOP,            // NopROP
+    R2_MASKPENNOT,     // AndNotROP
+    R2_MERGEPENNOT,    // OrNotROP
+    R2_NOTMASKPEN,     // NandROP
+    R2_NOTMERGEPEN     // NorROP
 };
 
 class Q_GUI_EXPORT QWin32PaintEnginePrivate : public QPaintEnginePrivate
@@ -70,29 +70,29 @@ public:
     {
     }
 
-    HWND                      hwnd;
-    HDC                       hdc;
-    HPEN                      hpen;
-    HFONT                hfont;
-    HBRUSH                hbrush;
-    HBITMAP                hbrushbm;
-    HPALETTE            holdpal;
-    uint                 flags;
+    HWND hwnd;
+    HDC hdc;
+    HPEN hpen;
+    HFONT hfont;
+    HBRUSH hbrush;
+    HBITMAP hbrushbm;
+    HPALETTE holdpal;
+    uint flags;
 
-    void                 *penRef;
-    void                 *brushRef;
+    void *penRef;
+    void *brushRef;
 
-    uint                 nocolBrush:1;
-    uint                pixmapBrush:1;
-    uint                usesWidgetDC:1;
+    uint nocolBrush:1;
+    uint pixmapBrush:1;
+    uint usesWidgetDC:1;
 
-    Qt::RasterOp        rasterOp;
-    Qt::PenStyle         pStyle;
-    int                        pWidth;
-    COLORREF            pColor;
-    COLORREF            bColor;
+    Qt::RasterOp rasterOp;
+    Qt::PenStyle pStyle;
+    int pWidth;
+    COLORREF pColor;
+    COLORREF bColor;
 
-    uint                 fontFlags;
+    uint fontFlags;
 };
 
 #if defined QT_GDIPLUS_SUPPORT
