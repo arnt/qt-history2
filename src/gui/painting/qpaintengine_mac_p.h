@@ -30,10 +30,16 @@
 #  include <private/qt_mac_p.h>
 #endif
 #include <private/qpaintengine_p.h>
+#include <private/qpolygonclipper_p.h>
 
 /*****************************************************************************
   QuickDraw Private data
  *****************************************************************************/
+struct qt_float_point
+{
+    float x, y;
+};
+
 class paintevent_item;
 class QQuickDrawPaintEnginePrivate;
 class QCoreGraphicsPaintEnginePrivate;
@@ -168,6 +174,7 @@ public:
     uint unclipped : 1, locked : 1;
     QMacSavedPortInfo *saved;
     paintevent_item *paintevent;
+    QPolygonClipper<qt_float_point, qt_float_point, float> polygonClipper;
 
     struct {
         QRegion pdev, paintable;

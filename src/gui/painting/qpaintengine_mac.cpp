@@ -140,6 +140,13 @@ QQuickDrawPaintEngine::begin(QPaintDevice *pdev)
         return false;
     }
 
+    // Set up the polygon clipper.
+    const int BUFFERZONE = 100;
+    d->polygonClipper.setBoundingRect(QRect(-BUFFERZONE,
+                                            -BUFFERZONE,
+                                            pdev->width() + 2*BUFFERZONE,
+                                            pdev->height() + 2 * BUFFERZONE));
+
     d->saved = new QMacSavedPortInfo;     //save the gworld now, we'll reset it in end()
     d->pdev = pdev;
     setActive(true);
@@ -288,12 +295,14 @@ QQuickDrawPaintEngine::drawLine(const QLineF &line)
 }
 
 void
-QQuickDrawPaintEngine::drawRect(const QRectF &r)
+QQuickDrawPaintEngine::drawRect(const QRectF &in_r)
 {
     Q_ASSERT(isActive());
     setupQDPort();
     if(d->clip.paintable.isEmpty())
         return;
+
+    QRect r = in_r.toRect().intersect(d->polygonClipper.boundingRect()).normalize();
 
     Rect rect;
     SetRect(&rect, qRound(r.x())+d->offx, qRound(r.y())+d->offy,
@@ -323,13 +332,13 @@ QQuickDrawPaintEngine::drawRect(const QRectF &r)
                 QRegion clip = d->current.clip;
 
                 //create the region
-                QRegion newclip(r.toRect());
+                QRegion newclip(r);
                 if(clipon)
                     newclip &= clip;
                 setClippedRegionInternal(&newclip);
 
                 //draw the brush
-                drawTiledPixmap(r, pm, QPointF(r.x(), r.y()) - d->current.bg.origin, Qt::ComposePixmap);
+                drawTiledPixmap(r, pm, QPoint(r.x(), r.y()) - d->current.bg.origin, Qt::ComposePixmap);
 
                 //restore the clip
                 setClippedRegionInternal(clipon ? &clip : 0);
@@ -374,17 +383,19 @@ QQuickDrawPaintEngine::drawPoints(const QPointF *points, int pointCount)
 }
 
 void
-QQuickDrawPaintEngine::drawEllipse(const QRectF &r)
+QQuickDrawPaintEngine::drawEllipse(const QRectF &in_r)
 {
     Q_ASSERT(isActive());
+
+    QRect r = in_r.toRect().intersect(d->polygonClipper.boundingRect()).normalize();
 
     setupQDPort();
     if(d->clip.paintable.isEmpty())
         return;
 
     Rect mac_r;
-    SetRect(&mac_r, qRound(r.x()) + d->offx, qRound(r.y()) + d->offy,
-            qRound(r.x() + r.width()) + d->offx, qRound(r.y() + r.height()) + d->offy);
+    SetRect(&mac_r, r.x() + d->offx, r.y() + d->offy,
+            r.x() + r.width() + d->offx, r.y() + r.height() + d->offy);
     if(d->current.brush.style() != Qt::NoBrush) {
         setupQDBrush();
         if(d->current.brush.style() == Qt::SolidPattern) {
@@ -410,7 +421,7 @@ QQuickDrawPaintEngine::drawEllipse(const QRectF &r)
                 QRegion clip = d->current.clip;
 
                 //create the region
-                QRegion newclip(r.toRect(), QRegion::Ellipse);
+                QRegion newclip(r, QRegion::Ellipse);
                 if(clipon)
                     newclip &= clip;
                 setClippedRegionInternal(&newclip);
@@ -452,15 +463,17 @@ QQuickDrawPaintEngine::drawPolygon(const QPointF *points, int pointCount, Polygo
 {
     Q_ASSERT(isActive());
 
-    // Make an int based version, since we have to go through this conversion at least twice
-    // in any of these branches, which is "bad" on G5s.
-    QVarLengthArray<QPoint> fixedPoints(pointCount);
-    for (int i = 0; i < pointCount; ++i) {
-        fixedPoints[i].rx() = qRound(points[i].x());
-        fixedPoints[i].ry() = qRound(points[i].y());
+    // clip and round
+    int cCount;
+    qt_float_point *cPoints;
+    d->polygonClipper.clipPolygon((qt_float_point *)points, pointCount, &cPoints, &cCount);
+    QVarLengthArray<QPoint> fixedPoints(cCount);
+    for (int i = 0; i < cCount; ++i) {
+        fixedPoints[i].rx() = qRound(cPoints[i].x);
+        fixedPoints[i].ry() = qRound(cPoints[i].y);
     }
 
-
+    //do the drawing
     if (mode == PolylineMode) {
         if(pointCount)
             return;
