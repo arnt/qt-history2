@@ -71,7 +71,7 @@ public:
         ;
 #endif
     // #### move to qnamespace
-    enum CaseSensitivity { CaseSensitive, CaseInsensitive };
+    enum CaseSensitivity { CaseInsensitive, CaseSensitive };
 
     int find(QChar c, int i = 0, CaseSensitivity cs = CaseSensitive) const;
     int find(const QString &s, int i = 0, CaseSensitivity cs = CaseSensitive) const;
