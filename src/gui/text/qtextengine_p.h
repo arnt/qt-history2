@@ -14,7 +14,6 @@
 #ifndef QTEXTENGINE_P_H
 #define QTEXTENGINE_P_H
 
-#ifndef QT_H
 #include "qglobal.h"
 #include "qstring.h"
 #include "qnamespace.h"
@@ -24,8 +23,6 @@
 #include <qvector.h>
 #include <qpaintengine.h>
 #include <qtextobject.h>
-#include <qpointfloat.h>
-#endif // QT_H
 
 #include <stdlib.h>
 #ifndef Q_OS_TEMP

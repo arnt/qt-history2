@@ -22,7 +22,6 @@
 #include <qabstracttextdocumentlayout.h>
 #include "qtextdocument_p.h"
 #include "qtextformat_p.h"
-#include "qrectfloat.h"
 #include <limits.h>
 
 #include "qfontengine_p.h"

@@ -18,12 +18,11 @@
 #include "qwindowdefs.h"
 #include "qpointarray.h"
 #include "qrect.h"
-#include "qpointfloat.h"
+#include "qpoint.h"
 #include "qregion.h"
 #endif // QT_H
 
 #ifndef QT_NO_MATRIX
-
 
 class Q_GUI_EXPORT QMatrix // 2D transform matrix
 {

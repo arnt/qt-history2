@@ -21,8 +21,6 @@
 #include "qfontengine_p.h"
 #include <stdlib.h>
 #include <qvarlengtharray.h>
-#include <qrectfloat.h>
-#include <qpointfloat.h>
 #ifdef QT_OPENTYPE
 #include "qopentype_p.h"
 #endif
