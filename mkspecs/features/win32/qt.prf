@@ -14,7 +14,9 @@ plugin {
   }
 }
 INCLUDEPATH += $$QMAKE_INCDIR_QT
-INCLUDEPATH += $$QMAKE_INCDIR_QT/activeqt
+contains( QT_PRODUCT, qt-(enterprise|internal) ) {
+  INCLUDEPATH += $$QMAKE_INCDIR_QT/activeqt
+}
 QMAKE_LIBDIR += $$QMAKE_LIBDIR_QT
 !debug:DEFINES += QT_NO_DEBUG
 target_qt {
