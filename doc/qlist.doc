@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qlist.doc,v 1.12 1995/12/18 19:10:18 hanord Exp $
+** $Id: qlist.doc,v 1.13 1995/12/18 19:14:12 hanord Exp $
 **
 ** QList and QListIterator class documentation
 **
@@ -841,9 +841,9 @@
   \class QStrList qstrlist.h
   \brief The QStrList class provides a doubly linked list of \c char*.
 
-  \ingroup predefcollection
-
   \inherit QList
+
+  \ingroup predefcollection
 
   This class is a QList\<char*\> instance.
   It can make deep copies of the strings that are inserted.
@@ -909,6 +909,8 @@ case insensitive compare.
 /*----------------------------------------------------------------------------
   \class QStrListIterator qstrlist.doc
   \brief The QStrListIterator class is an iterator for the QStrList and QStrIList classes.
+
+  \inherit QListIterator
 
   \ingroup predefiterators
 
