@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/widgets/widgets.cpp#7 $
+** $Id: //depot/qt/main/examples/widgets/widgets.cpp#8 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -491,17 +491,20 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     (void) new QCheckListItem( lit, "Jarlsberg", QCheckListItem::RadioButton );
 
 
-     QTextView *qmlv =  new QTextView( "<h1>QTextView</h1><p>"
- 				  "Qt supports rich text in form of an XML subset. You can have "
- 				  "<em>emphasized</em> and <b>bold</b> text.<p>"
- 				  "Style sheets are supported.",
+     QTextView *qmlv =  new QTextView( "<h1>QTextView</h1>"
+		      "<p>Qt supports formatted rich text, such "
+		      "as the heading above, <em>emphasized</em> and "
+		      "<b>bold</b> text, via an XML subset.</p> "
+		      "<p>Style sheets are supported.</p>",
  				  "", split );
+    qmlv->setFont(QFont("Times",12));
+    qmlv->setFrameStyle( QFrame::WinPanel | QFrame::Sunken );
 
     // Create an label and a message in the status bar
     // The message is updated when buttons are clicked etc.
     msg = new QLabel( statusBar(), "message" );
     msg->setAlignment( AlignCenter );
-    msg->setFont( QFont("times",12,QFont::Bold) );
+    msg->setFont( QFont("Times",12,QFont::Bold) );
     msg->setText( "Message" );
     msg->setMinimumHeight( msg->sizeHint().height() );
     msg->setText( "" );
