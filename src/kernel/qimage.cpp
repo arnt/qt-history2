@@ -281,7 +281,7 @@ QImage::QImage( const QSize& size, int depth, int numColors, Endian bitOrder )
     create( size, depth, numColors, bitOrder );
 }
 
-
+#ifndef QT_NO_IMAGEIO
 /*!
   Constructs an image from loading \a fileName and an optional
   \a format.
@@ -346,6 +346,8 @@ QImage::QImage( const QByteArray &array )
     init();
     loadFromData(array);
 }
+#endif //QT_NO_IMAGEIO
+
 
 /*!
   Constructs a
@@ -3155,7 +3157,7 @@ QImage QImage::swapRGB() const
     return res;
 }
 
-
+#ifndef QT_NO_IMAGEIO
 /*!
   Returns a string that specifies the image format of the file \a fileName,
   or null if the file cannot be read or if the format cannot be recognized.
@@ -3298,12 +3300,12 @@ bool QImage::save( const QString &fileName, const char* format, int quality ) co
 	io.setQuality( QMAX(quality,100) );
     return io.write();
 }
-
+#endif //QT_NO_IMAGEIO
 
 /*****************************************************************************
   QImage stream functions
  *****************************************************************************/
-#ifndef QT_NO_DATASTREAM
+#if !defined(QT_NO_DATASTREAM) && !defined(QT_NO_IMAGEIO)
 /*!
   \relates QImage
   Writes the image \a image to the stream \a s as a PNG image.
@@ -3461,6 +3463,7 @@ static void swapPixel01( QImage *image )	// 1-bpp: swap 0 and 1 pixels
   \sa QImage, QPixmap, QFile, QMovie
 */
 
+#ifndef QT_NO_IMAGEIO
 struct QImageIOData
 {
     const char *parameters;
@@ -4114,6 +4117,7 @@ bool QImageIO::write()
     }
     return iostat == 0;				// image successfully written?
 }
+#endif //QT_NO_IMAGEIO
 
 #ifndef QT_NO_IMAGEIO_BMP
 

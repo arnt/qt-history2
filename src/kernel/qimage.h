@@ -72,9 +72,11 @@ public:
 	    Endian bitOrder=IgnoreEndian );
     QImage( const QSize&, int depth, int numColors=0,
 	    Endian bitOrder=IgnoreEndian );
+#ifndef QT_NO_IMAGEIO
     QImage( const QString &fileName, const char* format=0 );
     QImage( const char *xpm[] );
     QImage( const QByteArray &data );
+#endif
     QImage( uchar* data, int w, int h, int depth,
 		QRgb* colortable, int numColors,
 		Endian bitOrder );
@@ -169,6 +171,7 @@ public:
     static Endian systemBitOrder();
     static Endian systemByteOrder();
 
+#ifndef QT_NO_IMAGEIO
     static const char* imageFormat( const QString &fileName );
     static QStrList inputFormats();
     static QStrList outputFormats();
@@ -182,6 +185,7 @@ public:
     bool	loadFromData( QByteArray data, const char* format=0 );
     bool	save( const QString &fileName, const char* format,
 		      int quality=-1 ) const;
+#endif //QT_NO_IMAGEIO
 
     bool	valid( int x, int y ) const;
     int		pixelIndex( int x, int y ) const;
@@ -240,11 +244,12 @@ private:
 
 // QImage stream functions
 
-#ifndef QT_NO_DATASTREAM
+#if !defined(QT_NO_DATASTREAM) && !defined(QT_NO_IMAGEIO)
 Q_EXPORT QDataStream &operator<<( QDataStream &, const QImage & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QImage & );
 #endif
 
+#ifndef QT_NO_IMAGEIO
 class QIODevice;
 typedef void (*image_io_handler)( QImageIO * ); // image IO handler
 
@@ -312,6 +317,7 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
+#endif //QT_NO_IMAGEIO
 
 Q_EXPORT void bitBlt( QImage* dst, int dx, int dy, const QImage* src,
 		      int sx=0, int sy=0, int sw=-1, int sh=-1,

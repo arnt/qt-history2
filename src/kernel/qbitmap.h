@@ -54,8 +54,9 @@ public:
     QBitmap( int w, int h,  const uchar *bits, bool isXbitmap=FALSE );
     QBitmap( const QSize &, const uchar *bits, bool isXbitmap=FALSE );
     QBitmap( const QBitmap & );
+#ifndef QT_NO_IMAGEIO
     QBitmap( const QString &fileName, const char *format=0 );
-
+#endif
     QBitmap &operator=( const QBitmap & );
     QBitmap &operator=( const QPixmap & );
     QBitmap &operator=( const QImage  & );

@@ -65,12 +65,14 @@ public:
     QPixmap( const QImage& image );
     QPixmap( int w, int h,  int depth = -1, Optimization = DefaultOptim );
     QPixmap( const QSize &, int depth = -1, Optimization = DefaultOptim );
+#ifndef QT_NO_IMAGEIO
     QPixmap( const QString& fileName, const char *format=0,
 	     ColorMode mode=Auto );
     QPixmap( const QString& fileName, const char *format,
 	     int conversion_flags );
     QPixmap( const char *xpm[] );
     QPixmap( const QByteArray &data );
+#endif
     QPixmap( const QPixmap & );
    ~QPixmap();
 
@@ -109,7 +111,7 @@ public:
     QImage	convertToImage() const;
     bool	convertFromImage( const QImage &, ColorMode mode=Auto );
     bool	convertFromImage( const QImage &, int conversion_flags );
-
+#ifndef QT_NO_IMAGEIO
     static const char* imageFormat( const QString &fileName );
     bool	load( const QString& fileName, const char *format=0,
 		      ColorMode mode=Auto );
@@ -125,7 +127,8 @@ public:
 			      const char* format=0,
 			      int conversion_flags=0 );
     bool	save( const QString& fileName, const char* format, int quality = -1 ) const;
-
+#endif
+    
 #if defined(Q_WS_WIN)
     HBITMAP	hbm()		const;
 #endif
@@ -302,7 +305,7 @@ inline bool QPixmap::isMultiCellPixmap() const
   QPixmap stream functions
  *****************************************************************************/
 
-#ifndef QT_NO_DATASTREAM
+#if !defined(QT_NO_DATASTREAM) && !defined(QT_NO_IMAGEIO)
 Q_EXPORT QDataStream &operator<<( QDataStream &, const QPixmap & );
 Q_EXPORT QDataStream &operator>>( QDataStream &, QPixmap & );
 #endif

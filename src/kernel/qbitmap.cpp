@@ -167,7 +167,7 @@ QBitmap::QBitmap( const QBitmap &bitmap )
 {
 }
 
-
+#ifndef QT_NO_IMAGEIO
 /*!
   Constructs a pixmap from the file \a fileName. If the file does not
   exist or is of an unknown format, the pixmap becomes a null pixmap.
@@ -185,7 +185,7 @@ QBitmap::QBitmap( const QString& fileName, const char *format )
     data->bitmap = TRUE;
     load( fileName, format, Mono );
 }
-
+#endif
 
 /*!
   Assigns the bitmap \a bitmap to this bitmap and returns a reference to this

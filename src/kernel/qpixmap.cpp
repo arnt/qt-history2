@@ -219,7 +219,7 @@ QPixmap::QPixmap( const QSize &size, int depth, Optimization optimization )
     init( size.width(), size.height(), depth, FALSE, optimization );
 }
 
-
+#ifndef QT_NO_IMAGEIO
 /*!
   Constructs a pixmap from the file \e fileName. If the file does not
   exist or is of an unknown format, the pixmap becomes a null pixmap.
@@ -305,7 +305,7 @@ QPixmap::QPixmap( const QByteArray & img_data )
     init( 0, 0, 0, FALSE, defOptim );
     loadFromData( img_data );
 }
-
+#endif //QT_NO_IMAGEIO
 
 /*!
   Constructs a pixmap that is a copy of \e pixmap.
@@ -687,7 +687,7 @@ QBitmap QPixmap::createHeuristicMask( bool clipTight ) const
     return m;
 }
 
-
+#ifndef QT_NO_IMAGEIO
 /*!
   Returns a string that specifies the image format of the file \e fileName,
   or null if the file cannot be read or if the format cannot be recognized.
@@ -751,7 +751,7 @@ bool QPixmap::load( const QString &fileName, const char *format,
     }
     return load( fileName, format, conversion_flags );
 }
-
+#endif //QT_NO_IMAGEIO
 
 /*!
   \overload
@@ -773,7 +773,7 @@ bool QPixmap::convertFromImage( const QImage &image, ColorMode mode )
     return convertFromImage( image, conversion_flags );
 }
 
-
+#ifndef QT_NO_IMAGEIO
 /*!
   Loads a pixmap from the binary data in \e buf (\e len bytes).
   Returns TRUE if successful, or FALSE if the pixmap could not be loaded.
@@ -872,7 +872,7 @@ bool QPixmap::save( const QString &fileName, const char *format, int quality ) c
     }
     return io.write();
 }
-
+#endif //QT_NO_IMAGEIO
 
 /*!
   \fn int QPixmap::serialNumber() const
@@ -1058,7 +1058,7 @@ QWMatrix QPixmap::trueMatrix( const QWMatrix &matrix, int w, int h )
 /*****************************************************************************
   QPixmap stream functions
  *****************************************************************************/
-#ifndef QT_NO_DATASTREAM
+#if !defined(QT_NO_DATASTREAM) && !defined(QT_NO_IMAGEIO)
 /*!
   \relates QPixmap
   Writes a pixmap to the stream as a PNG image.

@@ -170,28 +170,34 @@
 
 // Images
 /*!
+  Image formats
+*/
+//#define QT_NO_IMAGEIO
+
+#if defined(QT_NO_IMAGEIO)
+/*!
     BMP image I/O
     <p>The Windows Bitmap (BMP) image format is common on MS-Windows.
     <p>This is an uncompressed image format
     offering few advantages over PNG or JPEG.
 */
-#if defined(QT_NO_DATASTREAM)
-# define QT_NO_IMAGEIO_BMP
-#endif
+# if defined(QT_NO_DATASTREAM)
+#  define QT_NO_IMAGEIO_BMP
+# endif
 /*!
     PPM image I/O
     <p>The Portable PixMap (PPM) image format is common on Unix.
     <p>This is an uncompressed image format
     offering few advantages over PNG or JPEG.
 */
-//#define QT_NO_IMAGEIO_PPM
+# define QT_NO_IMAGEIO_PPM
 /*!
     XBM image I/O
     <p>The X11 BitMap (XBM) image format is common on X11.
     <p>This is an uncompressed monochrome image format.
     Qt uses this format for some internal images (eg. mouse cursors).
 */
-//#define QT_NO_IMAGEIO_XBM
+# define QT_NO_IMAGEIO_XBM
 /*!
     XPM image I/O
     <p>The X11 PixMap (XPM) image format is common on X11.
@@ -200,29 +206,37 @@
     included in source files as they are C code.
     Qt uses this format for some internal images (eg. QMessageBox icons).
 */
-#if defined(QT_NO_TEXTSTREAM)
-# define QT_NO_IMAGEIO_XPM
-#endif
+# if defined(QT_NO_TEXTSTREAM)
+#  define QT_NO_IMAGEIO_XPM
+# endif
 /*!
     PNG image I/O
     <p>The Portable Network Graphics (PNG) is a compressed image format.
     <p>See <a href=http://www.libpng.org/pub/png/>The PNG Home Site</a> for
     details of the format.
 */
-//#define QT_NO_IMAGEIO_PNG
+# ifndef QT_NO_IMAGEIO_PNG
+#  define QT_NO_IMAGEIO_PNG
+# endif
 /*!
     MNG image I/O
     <p>The Multiple-image Network Graphics (MNG) is a compressed animation format.
     <p>See <a href=http://www.libpng.org/pub/mng/>The MNG Home Site</a> for
     details of the format.
 */
-//#define QT_NO_IMAGEIO_MNG
+# ifndef QT_NO_IMAGEIO_MNG
+#  define QT_NO_IMAGEIO_MNG
+# endif
 /*!
     JPEG image I/O
     <p>The Joint Photographic Experts Group (JPEG) is a compressed lossy image format that gives high compression
 	for real-world and photo-realistic images.
 */
-//#define QT_NO_IMAGEIO_JPEG
+# ifndef QT_NO_IMAGEIO_JPEG
+#  define QT_NO_IMAGEIO_JPEG
+# endif
+
+#endif //QT_NO_IMAGEIO
 
 /*!
     Asynchronous I/O
@@ -233,7 +247,9 @@
     Asynchronous image I/O
     <p>Allows push-driven images.
 */
-//#define QT_NO_ASYNC_IMAGE_IO
+#if defined(QT_NO_IMAGEIO)
+# define QT_NO_ASYNC_IMAGE_IO
+#endif
 #if defined(QT_NO_ASYNC_IO) || defined(QT_NO_ASYNC_IMAGE_IO)
     /*!
 	Animated images
