@@ -245,6 +245,9 @@ int QDialog::exec()
 		 "makes no sense" );
 #endif
     setResult( 0 );
+
+    bool destructiveClose = testWFlags( WDestructiveClose );
+    clearWFlags( WDestructiveClose );
     show();
 
     if ( testWFlags(WType_Modal) && !in_loop ) {
@@ -252,7 +255,12 @@ int QDialog::exec()
 	qApp->enter_loop();
     }
 
-    return result();
+    int res = result();
+
+    if ( destructiveClose )
+      delete this;
+
+    return res;
 }
 
 
