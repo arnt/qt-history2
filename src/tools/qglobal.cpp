@@ -342,7 +342,7 @@ static const int QT_BUFFER_LENGTH = 8196;	// internal buffer length
 
 
 #ifdef Q_OS_MAC
-const unsigned char * p_str(const char * c, int len=-1)
+unsigned char * p_str(const char * c, int len=-1)
 {
     const int maxlen = 255;
     if(len == -1)
@@ -358,7 +358,7 @@ const unsigned char * p_str(const char * c, int len=-1)
     return ret;
 }
 
-const unsigned char * p_str(const QString &s)
+unsigned char * p_str(const QString &s)
 {
     return p_str(s, s.length());
 }

@@ -30,7 +30,8 @@
 #include "qstring.h"
 #include "qfont.h"
 #include "qfontdata_p.h"
-#include "qfontdatabase.h"
+#include "qpaintdevicemetrics.h"
+//#include "qfontdatabase.h"
 #include "qfontmetrics.h"
 #include "qfontinfo.h"
 #include "qt_mac.h"
@@ -338,7 +339,7 @@ inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *
 
 
 QCString p2qstring(const unsigned char *c); //qglobal.cpp
-const unsigned char * p_str(const QString &); //qglobal.cpp
+unsigned char * p_str(const QString &); //qglobal.cpp
 enum text_task { GIMME_WIDTH=0x01, GIMME_DRAW=0x02, GIMME_EXISTS=0x04 };
 #if defined( QMAC_FONT_ATSUI )
 static int do_text_task(const QFontPrivate *d, const QChar *s, int pos,
@@ -523,7 +524,7 @@ static QMAC_PASCAL OSStatus macFallbackChar(UniChar *, ByteCount, ByteCount *oSr
 					     0, NULL, NULL, NULL, iDestLen, oSrcConvLen,
 					     oDestConvLen, oStr);
     DisposeUnicodeToTextInfo(&tuni);
-    return err == noErr ? noErr : kTECUnmappableElementErr;
+    return err == noErr ? (OSStatus)noErr : (OSStatus)kTECUnmappableElementErr;
 }
 static UnicodeToTextFallbackUPP qt_macFallbackCharUPP = NULL;
 static void cleanup_font_fallbackUPP() 
@@ -542,10 +543,10 @@ static const UnicodeToTextFallbackUPP make_font_fallbackUPP()
 }
 
 static int do_text_task(const QFontPrivate *d, const QChar *s, int len, uchar task,
-			int x=-1, int y=-1)
+			int =-1, int =-1)
 {
     //set the grafport font
-    QMacSetFontInfo fi(d);
+    QMacSetFontInfo fi(d, NULL);
     FontInfo setfi; GetFontInfo(&setfi);
     OSStatus err;
 
@@ -658,7 +659,7 @@ static inline int do_text_task(const QFontPrivate *d, QString s, int pos, int le
 	} 
     }
     if(is_latin) {
-	QMacSetFontInfo fi(d);
+	QMacSetFontInfo fi(d, NULL);
 	if(task & GIMME_EXISTS) {
 	    if(task != GIMME_EXISTS)
 		qWarning("GIMME_EXISTS must appear by itself!");
@@ -668,7 +669,7 @@ static inline int do_text_task(const QFontPrivate *d, QString s, int pos, int le
 	const int maxlen = 255;
 	int curlen = len, curpos = pos;
 	while (curlen > 0) {
-	    const unsigned char *str = p_str(s.mid(curpos, QMIN(curlen,maxlen)));
+	    unsigned char *str = p_str(s.mid(curpos, QMIN(curlen,maxlen)));
 	    if(task & GIMME_DRAW) 
 		DrawString(str);
 	    if(task & GIMME_WIDTH)
@@ -688,7 +689,7 @@ static inline int do_text_task(const QFontPrivate *d, const QChar &c, uchar task
     if(c.row() || (c.cell() & (1 << 7)))
 	return do_text_task(d, &c, 1, task, x, y);
 
-    QMacSetFontInfo fi(d);
+    QMacSetFontInfo fi(d, NULL);
     int ret = 0; //latin1 optimization
     if(task & GIMME_EXISTS) {
 	if(task != GIMME_EXISTS)
@@ -900,6 +901,7 @@ void QFontPrivate::drawText(int x, int y, const QString &s, int len, QPaintDevic
 #ifdef QMAC_FONT_ATSUI
     int w = do_text_task(this, s, 0, len, task, x, y, dev, rgn);
 #else
+    Q_UNUSED(rgn);
     int w = do_text_task(this, s, 0, len, task, x, y);
 #endif
     
