@@ -49,9 +49,10 @@ unsigned long RCFilter::addRef()
 
 unsigned long RCFilter::release()
 {
-    if ( !--ref )
+    if ( !--ref ) {
 	delete this;
-
+	return 0;
+    }
     return ref;
 }
 
