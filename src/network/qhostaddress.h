@@ -39,9 +39,7 @@ public:
     QHostAddress( Q_UINT32 ip4Addr );
     QHostAddress( Q_UINT8 *ip6Addr );
     QHostAddress(const Q_IPV6ADDR &ip6Addr);
-#ifndef QT_NO_STRINGLIST
     QHostAddress(const QString &address);
-#endif
     QHostAddress( const QHostAddress & );
     virtual ~QHostAddress();
 
@@ -49,9 +47,7 @@ public:
 
     void setAddress( Q_UINT32 ip4Addr );
     void setAddress( Q_UINT8 *ip6Addr );
-#ifndef QT_NO_STRINGLIST
     bool setAddress( const QString& address );
-#endif
     bool	 isIp4Addr()	 const; // obsolete
     Q_UINT32	 ip4Addr()	 const; // obsolete
 

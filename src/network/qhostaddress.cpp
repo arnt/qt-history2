@@ -184,7 +184,6 @@ void QHostAddress::setAddress( Q_UINT8 *ip6Addr )
     d = new QHostAddressPrivate( ip6Addr );
 }
 
-#ifndef QT_NO_STRINGLIST
 static bool parseIp4(const QString& address, Q_UINT32 *addr)
 {
     QStringList ipv4 = QStringList::split(".", address, FALSE);
@@ -288,7 +287,6 @@ bool QHostAddress::setAddress(const QString& address)
 
     return FALSE;
 }
-#endif
 
 /*!
     \obsolete
