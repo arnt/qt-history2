@@ -117,6 +117,7 @@ sub find_files {
 find_files("$EXPORT_DIRECTORY");
 
 #generate output
+print "VERSION\n";
 print "{\n";
 print "  global:\n";
 print "  extern \"C++\"\n";
