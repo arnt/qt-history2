@@ -42,6 +42,12 @@ public:
 
     QVariant data(const QModelIndex &idx, int role = QAbstractItemModel::DisplayRole) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
+#ifdef Q_NO_USING_KEYWORD
+    inline bool setData(const QModelIndex &index, const QVariant &value)
+    { return QAbstractItemModel::setData(index, value); }
+#else
+    using QAbstractItemModel::setData;
+#endif
 
     bool setRecord(int row, const QSqlRecord &record);
 

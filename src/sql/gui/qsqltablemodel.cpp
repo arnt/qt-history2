@@ -13,7 +13,7 @@
 
 #include "qsqltablemodel.h"
 
-#include "qhash.h"
+#include "qmap.h"
 #include "qsqldriver.h"
 #include "qsqlerror.h"
 #include "qsqlfield.h"
@@ -22,6 +22,8 @@
 #include "qsqlrecord.h"
 
 #include "qsqlquerymodel_p.h"
+
+#include <qdebug.h>
 
 class QSqlTableModelPrivate: public QSqlQueryModelPrivate
 {
@@ -52,8 +54,16 @@ public:
 
     QSqlRecord editBuffer;
 
-    typedef QHash<int, QVector<QVariant> > CacheHash;
-    CacheHash cache;
+    QList<int> insertIndexes;
+    typedef QMap<int, QVector<QVariant> > CacheMap;
+    CacheMap cache;
+
+    inline bool insertIndexesContains(int row) const
+    {
+        return qBinaryFind(insertIndexes.constBegin(), insertIndexes.constEnd(), row)
+                != insertIndexes.constEnd();
+    }
+
 };
 
 #define d d_func()
@@ -81,6 +91,7 @@ void QSqlTableModelPrivate::clear()
     primaryIndex.clear();
     rec.clear();
     filter.clear();
+    insertIndexes.clear();
 }
 
 void QSqlTableModelPrivate::clearEditBuffer()
@@ -239,20 +250,19 @@ QVariant QSqlTableModel::data(const QModelIndex &idx, int role) const
         return QVariant();
 
     QModelIndex item = dataIndex(idx);
-    if (idx.row() == d->insertIndex) {
-        QVariant val;
-        if (item.column() < 0 || item.column() >= d->rec.count())
-            return val;
-        val = d->editBuffer.value(idx.column());
-        if (val.type() == QVariant::Invalid)
-            val = QVariant(d->rec.field(item.column()).type());
-        return val;
-    }
 
     switch (d->strategy) {
     case OnFieldChange:
-        break;
     case OnRowChange:
+        if (idx.row() == d->insertIndex) {
+            QVariant val;
+            if (item.column() < 0 || item.column() >= d->rec.count())
+                return val;
+            val = d->editBuffer.value(idx.column());
+            if (val.type() == QVariant::Invalid)
+                val = QVariant(d->rec.field(item.column()).type());
+            return val;
+        }
         if (d->editIndex == item.row()) {
             QVariant var = d->editBuffer.value(item.column());
             if (var.isValid())
@@ -260,8 +270,8 @@ QVariant QSqlTableModel::data(const QModelIndex &idx, int role) const
         }
         break;
     case OnManualSubmit: {
-        QVariant var = d->cache.value(item.row()).value(item.column());
-        if (var.isValid())
+        QVariant var = d->cache.value(idx.row()).value(item.column());
+        if (var.isValid() || d->insertIndexesContains(idx.row()))
             return var;
         break; }
     }
@@ -270,8 +280,19 @@ QVariant QSqlTableModel::data(const QModelIndex &idx, int role) const
 
 QVariant QSqlTableModel::headerData(int section, Qt::Orientation orientation, int role)
 {
-    if (orientation == Qt::Vertical)
-        return "*";
+    if (orientation == Qt::Vertical) {
+        switch (d->strategy) {
+        case OnFieldChange:
+        case OnRowChange:
+            if (d->insertIndex == section)
+                return QLatin1String("*");
+            break;
+        case OnManualSubmit:
+            if (d->insertIndexesContains(section))
+                return QLatin1String("*");
+            break;
+        }
+    }
     return QSqlQueryModel::headerData(section, orientation, role);
 }
 
@@ -314,14 +335,13 @@ bool QSqlTableModel::setData(const QModelIndex &index, int role, const QVariant 
     if (index.column() >= rec.count())
         return false;
 
-    if (index.row() == d->insertIndex) {
-        d->editBuffer.setValue(index.column(), value);
-        return true;
-    }
-
     bool isOk = true;
     switch (d->strategy) {
     case OnFieldChange: {
+        if (index.row() == d->insertIndex) {
+            d->editBuffer.setValue(index.column(), value);
+            return true;
+        }
         d->clearEditBuffer();
         d->editBuffer.setValue(index.column(), value);
         isOk = update(index.row(), d->editBuffer);
@@ -330,6 +350,10 @@ bool QSqlTableModel::setData(const QModelIndex &index, int role, const QVariant 
         break;
     }
     case OnRowChange:
+        if (index.row() == d->insertIndex) {
+            d->editBuffer.setValue(index.column(), value);
+            return true;
+        }
         if (d->editIndex != index.row()) {
             // ### TODO: refresh/emit after row change
             if (d->editBuffer.isEmpty())
@@ -494,11 +518,18 @@ bool QSqlTableModel::submitChanges()
         select();
         break;
     case OnManualSubmit:
-        QSqlTableModelPrivate::CacheHash::const_iterator i = d->cache.constBegin();
+        QSqlTableModelPrivate::CacheMap::const_iterator i = d->cache.constBegin();
         while (i != d->cache.constEnd()) {
-            if (!update(i.key(), d->record(i.value()))) {
-                isOk = false;
-                break;
+            if (d->insertIndexesContains(i.key())) {
+                if (!insert(d->record(i.value()))) {
+                    isOk = false;
+                    break;
+                }
+            } else {
+                if (!update(i.key(), d->record(i.value()))) {
+                    isOk = false;
+                    break;
+                }
             }
             ++i;
         }
@@ -771,9 +802,28 @@ bool QSqlTableModel::insertRow(int row, const QModelIndex &parent, int count)
     if (count != 1 || row < 0 || row > rowCount() || parent.isValid())
         return false;
 
-    d->insertIndex = row;
-    // ### apply dangling changes... ?
-    d->clearEditBuffer();
+    if (d->strategy == OnManualSubmit) {
+        QList<int>::iterator vit = d->insertIndexes.insert(
+                qUpperBound(d->insertIndexes.begin(), d->insertIndexes.end(), row), row);
+        while (++vit != d->insertIndexes.end())
+            *vit += 1;
+
+        QMapMutableIterator<int, QVector<QVariant> > it(d->cache);
+        it.toBack();
+
+        // shift the indexes in the cache
+        while (it.hasPrevious() && it.peekPrevious().key() >= row) {
+            it.previous();
+            int oldKey = it.key();
+            QVector<QVariant> oldValue = it.value();
+            it.remove();
+            d->cache.insert(oldKey + 1, oldValue);
+        }
+    } else {
+        d->insertIndex = row;
+        // ### apply dangling changes...
+        d->clearEditBuffer();
+    }
     emit primeInsert(row, d->editBuffer);
 #define UGLY_WORKAROUND
 #ifdef UGLY_WORKAROUND
@@ -791,7 +841,9 @@ bool QSqlTableModel::insertRow(int row, const QModelIndex &parent, int count)
 int QSqlTableModel::rowCount() const
 {
     int rc = QSqlQueryModel::rowCount();
-    if (d->insertIndex >= 0)
+    if (d->strategy == OnManualSubmit)
+        rc += d->insertIndexes.count();
+    else if (d->insertIndex >= 0)
         ++rc;
     return rc;
 }
@@ -807,9 +859,19 @@ int QSqlTableModel::rowCount() const
  */
 QModelIndex QSqlTableModel::dataIndex(const QModelIndex &item) const
 {
-    QModelIndex it = QSqlQueryModel::dataIndex(item);
-    if (d->insertIndex >= 0 && it.row() >= d->insertIndex)
-        return createIndex(it.row() - 1, it.column(), it.data());
+    const QModelIndex it = QSqlQueryModel::dataIndex(item);
+    if (d->strategy == OnManualSubmit) {
+        int i = 0;
+        int rowOffset = 0;
+        while (i < d->insertIndexes.count() && d->insertIndexes.at(i) <= it.row()) {
+            ++i;
+            ++rowOffset;
+        }
+        return createIndex(it.row() - rowOffset, it.column(), it.data());
+    } else {
+        if (d->insertIndex >= 0 && it.row() >= d->insertIndex)
+            return createIndex(it.row() - 1, it.column(), it.data());
+    }
     return it;
 }
 
