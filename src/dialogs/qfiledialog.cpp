@@ -2848,24 +2848,26 @@ QString QFileDialog::dirPath() const
 
 // This regex allows (*.a *.b *.c) and (*.a;*.b;*.c) which are OK, but
 // also allows (*.a *.b;*.c) which is not (the filter likes to have
-// only one kind of separator). The fix is long and tedious.
+// only one kind of separator). The fix would be long and tedious.
+// Also allows (*) as a special case.
 extern const char qt_file_dialog_filter_reg_exp[] = 
-    "\\((?:\\*\\.[^ ;]+[ ;])*(?:\\*\\.[^ ;]+)\\)$";
+    "\\((?:(?:\\*\\.[^ ;]+[ ;])*(?:\\*\\.[^ ;]+)|\\*)\\)$";
 
 /*!
 
   Sets the filter used in the file dialog to \a newFilter.
 
-  If \a newFilter matches the regular expression
-  <tt>([a-zA-Z0-9\.\*\?\ \+\;]*)$</tt> (i.e., it ends with a normal wildcard
-  expression enclosed in parentheses), only the parenthesized is used.
-  This means that these calls are all equivalent:
+  If \a newFilter contains a pair of parentheses containing either a
+  single asterisk <b>*</b>, e.g. "All Unix files (*)", or one or more of
+  <em><b>*.something</b></em> separated by spaces or by semi-colons then
+  only the text contained in the parentheses is used as the filter. This
+  means that these calls are all equivalent:
 
   \code
      fd->setFilter( "All C++ files (*.cpp *.cc *.C *.cxx *.c++)" );
-     fd->setFilter( "*.cpp *.cc *.C *.cxx *.c++" )
+     fd->setFilter( "*.cpp *.cc *.C *.cxx *.c++" );
      fd->setFilter( "All C++ files (*.cpp;*.cc;*.C;*.cxx;*.c++)" );
-     fd->setFilter( "*.cpp;*.cc;*.C;*.cxx;*.c++" )
+     fd->setFilter( "*.cpp;*.cc;*.C;*.cxx;*.c++" );
   \endcode
 
   \sa setFilters()
