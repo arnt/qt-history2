@@ -915,12 +915,11 @@ void QTabWidget::updateMask()
 bool QTabWidget::eventFilter( QObject *o, QEvent * e)
 {
     if ( o == this ) {
-	if ( e->type() == QEvent::LanguageChange ) {
+	if ( e->type() == QEvent::LanguageChange || e->type() == QEvent::LayoutHint ) {
 	    d->dirty = TRUE;
 	    setUpLayout();
 	    updateGeometry();
-	}
-	else if ( e->type() == QEvent::KeyPress ) {
+	} else if ( e->type() == QEvent::KeyPress ) {
 	    QKeyEvent *ke = (QKeyEvent*) e;
 	    if ( ( ke->key() == Qt::Key_Tab || ke->key() == Qt::Key_Backtab ) &&
 		 count() > 1 &&

@@ -1029,6 +1029,8 @@ void QTabBar::layoutTabs()
     if ( lstatic->isEmpty() )
 	return;
 
+    QSize oldSh = sizeHint();
+
     int hframe, vframe, overlap;
     hframe  = style().pixelMetric( QStyle::PM_TabBarTabHSpace, this );
     vframe  = style().pixelMetric( QStyle::PM_TabBarTabVSpace, this );
@@ -1069,6 +1071,9 @@ void QTabBar::layoutTabs()
     }
     for ( t = lstatic->first(); t; t = lstatic->next() )
 	t->r.setHeight( r.height() );
+
+    if ( sizeHint() != oldSh )
+	updateGeometry();
 }
 
 /*!
