@@ -987,6 +987,7 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 
 #if defined(Q_WS_WIN)
     case PM_TitleBarHeight:
+#ifndef QT_NO_MAINWINDOW
         if (widget && (widget->testWFlags(WStyle_Tool) || qt_cast<QDockWindow*>(widget))) {
             // MS always use one less than they say
 #if defined(Q_OS_TEMP)
@@ -994,9 +995,12 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 #else
             ret = GetSystemMetrics(SM_CYSMCAPTION) - 1;
 #endif
-        } else {
+        } else
+#endif // QT_NO_MAINWINDOW
+        {
             ret = GetSystemMetrics(SM_CYCAPTION) - 1;
         }
+
         break;
 
     case PM_ScrollBarExtent:
