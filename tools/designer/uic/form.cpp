@@ -193,9 +193,9 @@ void Uic::createFormDecl( const QDomElement &e )
     }
 
     // forward declarations for child widgets and layouts
-    out << "class QVBoxLayout; " << endl;
-    out << "class QHBoxLayout; " << endl;
-    out << "class QGridLayout; " << endl;
+    out << "class QVBoxLayout;" << endl;
+    out << "class QHBoxLayout;" << endl;
+    out << "class QGridLayout;" << endl;
     if ( objClass == "QMainWindow" ) {
 	out << "class QAction;" << endl;
 	out << "class QActionGroup;" << endl;
@@ -702,11 +702,6 @@ void Uic::createFormImpl( const QDomElement &e )
 	if ( !(*it).isEmpty() )
 	    out << "#include <" << *it << ">" << endl;
     }
-    localIncludes = unique( localIncludes );
-    for ( it = localIncludes.begin(); it != localIncludes.end(); ++it ) {
-	if ( !(*it).isEmpty() && *it != QFileInfo( fileName + ".h" ).fileName() )
-	    out << "#include \"" << *it << "\"" << endl;
-    }
 
     if ( externPixmaps ) {
 	out << "#include <qmime.h>" << endl;
@@ -720,11 +715,6 @@ void Uic::createFormImpl( const QDomElement &e )
 	out << "#include <qmenubar.h>" << endl;
 	out << "#include <qpopupmenu.h>" << endl;
 	out << "#include <qtoolbar.h>" << endl;
-    }
-
-    if ( QFile::exists( fileName + ".h" ) ) {
-	out << "#include \"" << QFileInfo(fileName).fileName() << ".h\"" << endl;
-	writeSlotImpl = FALSE;
     }
 
     // find out what images are required
@@ -742,6 +732,20 @@ void Uic::createFormImpl( const QDomElement &e )
     if ( !requiredImages.isEmpty() || externPixmaps ) {
 	out << "#include <qimage.h>" << endl;
 	out << "#include <qpixmap.h>" << endl << endl;
+    }
+
+    /*
+      Put local includes after all global includes
+    */
+    localIncludes = unique( localIncludes );
+    for ( it = localIncludes.begin(); it != localIncludes.end(); ++it ) {
+	if ( !(*it).isEmpty() && *it != QFileInfo( fileName + ".h" ).fileName() )
+	    out << "#include \"" << *it << "\"" << endl;
+    }
+
+    if ( QFile::exists( fileName + ".h" ) ) {
+	out << "#include \"" << QFileInfo(fileName).fileName() << ".h\"" << endl;
+	writeSlotImpl = FALSE;
     }
 
     // register the object and unify its name
