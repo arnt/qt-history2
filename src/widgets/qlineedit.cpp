@@ -767,12 +767,20 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	case Key_Insert:
 	    copy();
 	    break;
+#endif
+#endif
 	case Key_Delete:
-	    if ( !d->readonly )
+	    if ( !d->readonly ) {
+		cursorWordForward( TRUE );
 		del();
+	    }
 	    break;
-#endif
-#endif
+	case Key_Backspace:
+	    if ( !d->readonly ) {
+		cursorWordBackward( TRUE );
+		del();
+	    }
+	    break;
 	case Key_Right:
 	case Key_Left:
 	    if ( d->parag->string()->isRightToLeft() == (e->key() == Key_Right) ) {
@@ -1020,7 +1028,7 @@ void QLineEdit::drawContents( QPainter *painter )
 	bg = QBrush( g.background(), *paletteBackgroundPixmap() );
     else if ( !isEnabled() )
 	g.brush( QColorGroup::Background );
-    
+
     buffer.painter()->fillRect( 0, 0, width(), height(), bg );
     if ( linetop ) {
 	painter->fillRect( 0, 0, width(), linetop, bg );
