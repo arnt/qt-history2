@@ -394,7 +394,7 @@ QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
     number is non zero, the point is inside the path. This fill mode
     can also in most cases be considered as the intersection of closed
     shapes.
-
+*/
 
 /*!
  * Creates a new empty QPainterPath.
