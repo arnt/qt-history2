@@ -39,11 +39,11 @@
 #include "metrowerks_xml.h"
 #include <time.h>
 #include <qdir.h>
+#include <qdict.h>
 #include <qregexp.h>
 #include <stdlib.h>
 #ifdef Q_OS_MAC
 #include "Files.h"
-#include <qdict.h>
 #include "Resources.h"
 #include "Script.h"
 #include <sys/types.h>
@@ -307,7 +307,7 @@ MetrowerksMakefileGenerator::init()
     MakefileGenerator::init();
 
     //set the files to the type I expect
-    QDict<void> seen(293);;
+    QDict<void> seen(293);
     QStringList &s = project->variables()["SOURCES"];
     for(QStringList::Iterator src_it = s.begin(); src_it != s.end(); ++src_it) {
 	seen.insert((*src_it), (void *)1);
