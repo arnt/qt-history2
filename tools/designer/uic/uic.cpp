@@ -2093,6 +2093,7 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
     } else if ( e.tagName() == "date" ) {
 	QDomElement n3 = e.firstChild().toElement();
 	int y, m, d;
+	y = m = d = 0;
 	while ( !n3.isNull() ) {
 	    if ( n3.tagName() == "year" )
 		y = n3.firstChild().toText().data().toInt();
@@ -2107,6 +2108,7 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
     } else if ( e.tagName() == "time" ) {
 	QDomElement n3 = e.firstChild().toElement();
 	int h, m, s;
+	h = m = s = 0;
 	while ( !n3.isNull() ) {
 	    if ( n3.tagName() == "hour" )
 		h = n3.firstChild().toText().data().toInt();
@@ -2121,6 +2123,7 @@ QString Uic::setObjectProperty( const QString& objClass, const QString& obj, con
     } else if ( e.tagName() == "datetime" ) {
 	QDomElement n3 = e.firstChild().toElement();
 	int h, mi, s, y, mo, d;
+	h = mi = s = y = mo = d = 0;
 	while ( !n3.isNull() ) {
 	    if ( n3.tagName() == "hour" )
 		h = n3.firstChild().toText().data().toInt();
