@@ -9,8 +9,7 @@ public:
 
     // From QUnknownInterface
     QRESULT queryInterface( const QUuid&, QUnknownInterface **iface );
-    ulong addRef();
-    ulong release();
+    Q_REFCOUNT;
 
     // From QFeatureListInterface
     QStringList featureList() const;

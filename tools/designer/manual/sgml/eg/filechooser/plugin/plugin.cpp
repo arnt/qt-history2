@@ -82,20 +82,6 @@ QRESULT CustomWidgetInterface::queryInterface( const QUuid& uuid, QUnknownInterf
 	(*iface)->addRef();
 }
 
-unsigned long CustomWidgetInterface::addRef()
-{
-    return ref++;
-}
-
-unsigned long CustomWidgetInterface::release()
-{
-    if ( !--ref ) {
-	delete this;
-	return 0;
-    }
-    return ref;
-}
-
 Q_EXPORT_INTERFACE()
 {
     Q_CREATE_INSTANCE( CustomWidgetInterface );

@@ -160,12 +160,22 @@ static bool block_set_alignment = FALSE;
     <li><i> Page Down </i> Move one (viewport) page down
     <li><i> Home </i> Move to the beginning of the text
     <li><i> End </i> Move to the end of the text
+    <li><i> Shift+Wheel</i> Scroll the page horizontally (the Wheel is
+    the mouse wheel)
+    <li><i> Ctrl+Wheel</i> Zoom the text
+    <li>
     </ul>
 
     The text view may be able to provide some meta-information. The
     documentTitle() function will return the text from within HTML
     \c{<title>} tags.
 
+    The text displayed in a text view has \e context. The context is a
+    path which the text view's QMimeSourceFactory uses to resolve the
+    locations of files and images. It is passed to the
+    mimeSourceFactory() when quering data. (See QTextView::QTextView()
+    and context().) 
+    
   Note that we do not intend to add a full-featured web browser widget
   to Qt (because that would easily double Qt's size and only few
   applications would benefit from it). In particular, the rich text
@@ -242,6 +252,22 @@ QTextView::QTextView( QWidget *parent, const char *name )
 /*!  Constructs a QTextView displaying the text \a text with
   context \a context, with the usual \a parent and \a name optional
   arguments.
+
+    The \a context is a path which the text view's QMimeSourceFactory
+    uses to resolve the locations of files and images. It is passed to
+    the mimeSourceFactory() when quering data. 
+    
+    For example if the text contains an image tag, 
+    \c{<img src="image.png">}, and the context is "path/to/look/in", the
+    QMimeSourceFactory will try to load the image from
+    "path/to/look/in/image.png". If the tag was 
+    \c{<img src="/image.png">}, the context will not be used (because
+    QMimeSourceFactory recognizes that we have given an absolute path)
+    and will try to load "/image.png". The context is applied in exactly
+    the same way to \e hrefs, for example, 
+    \c{<a href="target.html">Target</a>}, would resolve to
+    "path/to/look/in/target.html".
+
 */
 
 QTextView::QTextView( const QString& text, const QString& context,
@@ -1958,9 +1984,10 @@ QString QTextView::text( int para ) const
   depending on the textFormat(). The default setting is \c AutoText,
   i.e. the text view autodetects the format from \a text.
 
-  The optional \a context is used to resolve references within the
-  text document, for example image sources. It is passed directly to
-  the mimeSourceFactory() when quering data.
+  The optional \a context is a path which the text view's
+  QMimeSourceFactory uses to resolve the locations of files and images.
+  (See QTextView::QTextView().) It is passed to the mimeSourceFactory()
+  when quering data.
 
   \sa text(), setTextFormat()
 */
@@ -1999,7 +2026,8 @@ void QTextView::setText( const QString &text, const QString &context )
     otherwise it is case insensitive. If \a wo is TRUE the search looks
     for whole word matches only; otherwise it searches for any matching
     text. If \a forward is TRUE (the default) the search works forward
-    from the starting position, otherwise it works backwards.
+    from the starting position to the end of the text, otherwise it
+    works backwards to the beginning of the text.
 
     If \a expr is found the function returns TRUE and overwrites \a para
     with the number of the paragraph in which the first character of the
@@ -2124,9 +2152,9 @@ void QTextView::getSelection( int &paraFrom, int &indexFrom,
 
   <ul>
 
-  <li> \c PlainText - all characters except newlines are displayed
+  <li> \c PlainText - all characters, except newlines, are displayed
   verbatim, including spaces. Whenever a newline appears in the text the
-  text in the text view that follows the newline begins on a new line.
+  text view inserts a hard line break and begins a new paragraph.
 
   <li> \c RichText - rich text rendering. The available styles are
   defined in the default stylesheet QStyleSheet::defaultSheet().
@@ -2554,6 +2582,9 @@ void QTextView::handleReadOnlyKeyEvent( QKeyEvent *e )
 
 /*!  Returns the context of the view.
 
+    The context is a path which the text view's QMimeSourceFactory 
+    uses to resolve the locations of files and images. 
+    
   \sa text(), setText()
 */
 
@@ -3020,6 +3051,23 @@ void QTextView::setFont( const QFont &f )
     formatMore();
     repaintChanged();
 }
+
+/*! \fn zoomIn()
+
+    Zooms in on the text by by making the standard font size one
+    point larger and recalculating all font sizes. This does not change
+    the size of images.
+
+*/
+
+/*! \fn zoomOut()
+
+    Zooms out on the text by by making the standard font size one
+    point smaller and recalculating all font sizes. This does not change
+    the size of images.
+
+*/
+
 
 /*!
     Zooms in on the text by by making the standard font size \a range
