@@ -35,8 +35,14 @@ private slots:
 	    } else {
 		if ( bytesAvail < packetSize )
 		    return;
+		// read the packet in a byte array to be sure that you don't
+		// read too much or too less
+		QByteArray ba( packetSize );
+		readBlock( ba.data(), packetSize );
+		QDataStream ds2( ba, IO_ReadOnly );
+
 		QVariant variant;
-		ds >> variant;
+		ds2 >> variant;
 		bytesAvail -= packetSize;
 		packetSize = 0;
 		switch ( variant.type() ) {
