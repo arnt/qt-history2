@@ -33,7 +33,7 @@ cat <<EOF
 # Read PORTING for instructions how to port Qt to a new platform.
 
 
-all: $SYMLINKS moc src tutorial examples
+all: $SYMLINKS moc src util tutorial examples
 	@echo
 	@echo "The Qt library is now built in ./lib"
 	@echo "The Qt examples are built in the directories in ./examples"
@@ -46,6 +46,16 @@ moc: .buildopts FORCE
 	cd src/moc; \$(MAKE)
 	cp src/moc/moc bin/moc
 
+util: mergetr msg2qm
+
+mergetr: src FORCE
+	cd src/util/mergetr; \$(MAKE)
+	cp src/util/mergetr/mergetr bin/mergetr
+	
+msg2qm: src FORCE
+	cd src/util/msg2qm; \$(MAKE)
+	cp src/util/msg2qm/msg2qm bin/msg2qm
+	
 symlinks:
 	@cd include; rm -f q*.h; ln -s ../src/*/q*.h .
 
