@@ -23,8 +23,8 @@
 
 enum {
     Compressed = 0x01
-};
-static QStringList qt_resource_search_paths;
+}
+Q_GLOBAL_STATIC(QStringList, qt_resource_search_paths)
 
 
 /* ******************** QResource ***************** */
@@ -87,7 +87,7 @@ private:
 
 protected:
     friend struct QResourceNode;
-    QResourcePrivate(QResource *qq) : q_ptr(qq), lang(QLocale::C), 
+    QResourcePrivate(QResource *qq) : q_ptr(qq), lang(QLocale::C),
                                       country(QLocale::AnyCountry), compressed(0),
                                       size(0), data(0), decompressed(0), node(0) { }
     ~QResourcePrivate() {
@@ -97,27 +97,27 @@ protected:
     static QResource *locateResource(const QString &resource);
 };
 
-QResource *QResourceNode::localeResource() 
+QResource *QResourceNode::localeResource()
 {
-    if(container) { 
+    if(container) {
         if(resources.isEmpty()) { //create a resource as needed
             QResource *ret = new QResource;
             ret->d->node = this;
             resources.append(ret);
             return ret;
         }
-        Q_ASSERT(resources.count() == 1); 
+        Q_ASSERT(resources.count() == 1);
         return resources.first(); //containers do not get localized
     } else if(!resources.isEmpty()) {
         QResource *ret = 0;
         QLocale systemLocale = QLocale::system();
         for(int i = 0; i < resources.count(); i++) {
             QResource *resource = resources.at(i);
-            if(resource->d->lang == systemLocale.language() && 
-               resource->d->country == systemLocale.country()) 
+            if(resource->d->lang == systemLocale.language() &&
+               resource->d->country == systemLocale.country())
                 return resource;
             if(!ret && resource->d->lang == QLocale::C && //default
-               resource->d->country == QLocale::AnyCountry) 
+               resource->d->country == QLocale::AnyCountry)
                 ret = resource;
         }
         return ret;
@@ -196,7 +196,7 @@ QResource::name() const
 const QResource
 *QResource::parent() const
 {
-    if(QResourceNode *ret = d->node->parent) 
+    if(QResourceNode *ret = d->node->parent)
         return ret->localeResource();
     return 0;
 }
@@ -280,7 +280,7 @@ QResource
         return 0;
     if(resource[0] == QLatin1Char('/'))
         return QResourcePrivate::locateResource(resource);
-    QStringList searchPaths = qt_resource_search_paths;
+    QStringList searchPaths = *qt_resource_search_paths();
     if(searchPaths.isEmpty())
         searchPaths << QLatin1String("/");
     for(int i = 0; i < searchPaths.count(); i++) {
@@ -304,7 +304,7 @@ QResource::addSearchPath(const QString &path)
         qWarning("QResource::addSearchPath: Search paths must be absolute (start with /) [%s]", path.latin1());
         return;
     }
-    qt_resource_search_paths.append(path);
+    qt_resource_search_paths()->append(path);
 }
 
 
