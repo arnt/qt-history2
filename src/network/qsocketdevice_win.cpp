@@ -643,7 +643,7 @@ Q_LONG QSocketDevice::waitForMore(int msecs, bool *timeout) const
 }
 
 
-Q_LONG QSocketDevice::readBlock(char *data, Q_ULONG maxlen)
+Q_LONG QSocketDevice::readBlock(char *data, Q_LONG maxlen)
 {
     if (data == 0 && maxlen != 0) {
         qWarning("QSocketDevice::readBlock: Null pointer error");
@@ -741,7 +741,7 @@ Q_LONG QSocketDevice::readBlock(char *data, Q_ULONG maxlen)
 }
 
 
-Q_LONG QSocketDevice::writeBlock(const char *data, Q_ULONG len)
+Q_LONG QSocketDevice::writeBlock(const char *data, Q_LONG len)
 {
     if (data == 0 && len != 0) {
         qWarning("QSocketDevice::writeBlock: Null pointer error");
@@ -818,7 +818,7 @@ Q_LONG QSocketDevice::writeBlock(const char *data, Q_ULONG len)
 }
 
 
-Q_LONG QSocketDevice::writeBlock(const char *data, Q_ULONG len, const QHostAddress &host,
+Q_LONG QSocketDevice::writeBlock(const char *data, Q_LONG len, const QHostAddress &host,
                                  Q_UINT16 port)
 {
     if (d->t != Datagram) {

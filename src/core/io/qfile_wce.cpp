@@ -258,7 +258,7 @@ bool QFile::at(Offset pos)
     bool okay;
     if (isRaw()) {                                // raw file
         pos = (int)QT_LSEEK(d->fd, pos, SEEK_SET);
-        okay = pos != (Q_ULONG)-1;
+        okay = pos != -1;
     } else {                                        // buffered file
         okay = fseek(d->fh, pos, SEEK_SET) == 0;
     }
@@ -269,7 +269,7 @@ bool QFile::at(Offset pos)
     return okay;
 }
 
-Q_LONG QFile::readBlock(char *p, Q_ULONG len)
+Q_LONG QFile::readBlock(char *p, Q_LONG len)
 {
     if (!p)
         qWarning("QFile::readBlock: Null pointer error");
@@ -281,10 +281,10 @@ Q_LONG QFile::readBlock(char *p, Q_ULONG len)
         qWarning("QFile::readBlock: Read operation not permitted");
         return -1;
     }
-    Q_ULONG nread = 0;                                        // number of bytes read
+    Q_LONG nread = 0;                                        // number of bytes read
     if (!d->ungetchBuffer.isEmpty()) {
         // need to add these to the returned string.
-        Q_ULONG l = d->ungetchBuffer.size();
+        Q_LONG l = d->ungetchBuffer.size();
         while(nread < l) {
             *p = d->ungetchBuffer[int(l - nread - 1)];
             p++;
@@ -312,7 +312,7 @@ Q_LONG QFile::readBlock(char *p, Q_ULONG len)
     return nread;
 }
 
-Q_LONG QFile::writeBlock(const char *p, Q_ULONG len)
+Q_LONG QFile::writeBlock(const char *p, Q_LONG len)
 {
     if (p == 0 && len != 0)
         qWarning("QFile::writeBlock: Null pointer error");
@@ -324,7 +324,7 @@ Q_LONG QFile::writeBlock(const char *p, Q_ULONG len)
         qWarning("QFile::writeBlock: Write operation not permitted");
         return -1;
     }
-    Q_ULONG nwritten;                                // number of bytes written
+    Q_LONG nwritten;                                // number of bytes written
     if (isRaw())                                // raw file
         nwritten = QT_WRITE(d->fd, p, len);
     else                                        // buffered file

@@ -171,7 +171,7 @@ QFSFileEngine::flush()
 }
 
 Q_LONG
-QFSFileEngine::readBlock(uchar *data, Q_ULONG len)
+QFSFileEngine::readBlock(uchar *data, Q_LONG len)
 {
     int ret = 0;
     if(d->hasCachedChar) {
@@ -186,7 +186,7 @@ QFSFileEngine::readBlock(uchar *data, Q_ULONG len)
 }
 
 Q_LONG
-QFSFileEngine::writeBlock(const uchar *data, Q_ULONG len)
+QFSFileEngine::writeBlock(const uchar *data, Q_LONG len)
 {
     return QT_WRITE(d->fd, data, len);
 }

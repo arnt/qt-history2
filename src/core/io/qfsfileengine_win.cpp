@@ -127,7 +127,7 @@ QFSFileEngine::size() const
 }
 
 uchar
-*QFSFileEngine::map(Q_ULONG /*len*/)
+*QFSFileEngine::map(Q_LONG /*len*/)
 {
     return 0;
 }

@@ -354,8 +354,8 @@ public:
     Offset  size() const;
     Offset  at()   const;
     bool  at(Offset pos);
-    Q_LONG readBlock(char *p, Q_ULONG len);
-    Q_LONG writeBlock(const char *p, Q_ULONG len);
+    virtual Q_LONG readBlock(char *p, Q_LONG len);
+    virtual Q_LONG writeBlock(const char *p, Q_LONG len);
     int   getch();
     int   putch(int ch);
     int   ungetch(int ch);
@@ -439,7 +439,7 @@ bool QStringBuffer::at(Offset pos)
 }
 
 
-Q_LONG QStringBuffer::readBlock(char *p, Q_ULONG len)
+Q_LONG QStringBuffer::readBlock(char *p, Q_LONG len)
 {
     Q_CHECK_PTR(p);
     if (!isOpen()) {
@@ -464,7 +464,7 @@ Q_LONG QStringBuffer::readBlock(char *p, Q_ULONG len)
     return len;
 }
 
-Q_LONG QStringBuffer::writeBlock(const char *p, Q_ULONG len)
+Q_LONG QStringBuffer::writeBlock(const char *p, Q_LONG len)
 {
     if (p == 0 && len != 0)
         qWarning("QStringBuffer::writeBlock: Null pointer error");

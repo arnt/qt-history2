@@ -990,7 +990,7 @@ void QSocket::clearPendingData()
     number of bytes read. Returns -1 if an error occurred.
 */
 
-Q_LONG QSocket::readBlock(char *data, Q_ULONG maxlen)
+Q_LONG QSocket::readBlock(char *data, Q_LONG maxlen)
 {
     if (data == 0 && maxlen != 0) {
         qWarning("QSocket::readBlock: Null pointer error");
@@ -1028,7 +1028,7 @@ Q_LONG QSocket::readBlock(char *data, Q_ULONG maxlen)
     number of bytes written. Returns -1 if an error occurred.
 */
 
-Q_LONG QSocket::writeBlock(const char *data, Q_ULONG len)
+Q_LONG QSocket::writeBlock(const char *data, Q_LONG len)
 {
     if (data == 0 && len != 0) {
         qWarning("QSocket::writeBlock: Null pointer error");
@@ -1164,7 +1164,7 @@ bool QSocket::canReadLine() const
   \internal
     So that it's not hidden by our other readLine().
 */
-Q_LONG QSocket::readLine(char *data, Q_ULONG maxlen)
+Q_LONG QSocket::readLine(char *data, Q_LONG maxlen)
 {
     return QIODevice::readLine(data,maxlen);
 }

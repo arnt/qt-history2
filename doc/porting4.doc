@@ -236,6 +236,12 @@ QByteArray/QCString use toLocal8Bit()
 QByteArray/QCString use toUtf8()
 \endlist
 
+\section1 QIODevice
+
+Virtuals readBlock and writeBlock now accept a Q_LONG length argument
+(rather than a Q_ULONG). All subclass will need to change as this is a
+pure virtual function build errors will occur.
+
 \section1 QByteArray
 
 QByteArray is now implicitly shared. It provides most of the

@@ -64,11 +64,10 @@ public:
     bool at(Offset);
     bool atEnd() const;
 
-    Q_LONG readBlock(char *data, Q_ULONG len);
-    Q_LONG writeBlock(const char *data, Q_ULONG len);
-    inline Q_LONG writeBlock(const QByteArray &data) { return writeBlock(data.data(), data.size()); }
-    Q_LONG readLine(char *data, Q_ULONG maxlen);
-    Q_LONG readLine(QString &, Q_ULONG maxlen);
+    virtual Q_LONG readBlock(char *data, Q_LONG len);
+    virtual Q_LONG writeBlock(const char *data, Q_LONG len);
+    virtual Q_LONG readLine(char *data, Q_LONG maxlen);
+    Q_LONG readLine(QString &string, Q_LONG maxlen);
 
     int getch();
     int putch(int);

@@ -34,8 +34,8 @@ public:
 
     virtual void setFileName(const QString &file) = 0;
 
-    virtual Q_LONG readBlock(uchar *data, Q_ULONG len) = 0;
-    virtual Q_LONG writeBlock(const uchar *data, Q_ULONG len) = 0;
+    virtual Q_LONG readBlock(uchar *data, Q_LONG len) = 0;
+    virtual Q_LONG writeBlock(const uchar *data, Q_LONG len) = 0;
     
     virtual bool remove() = 0;
     virtual bool rename(const QString &newName) = 0;
@@ -49,7 +49,7 @@ public:
     virtual int handle() const = 0;
 
     //maybe
-    virtual uchar *map(Q_ULONG len) = 0; //can we implement a mmap?
+    virtual uchar *map(Q_LONG len) = 0; //can we implement a mmap?
 };
 
 class QFileEngineHandler
@@ -81,8 +81,8 @@ public:
 
     virtual void setFileName(const QString &file);
 
-    virtual Q_LONG readBlock(uchar *data, Q_ULONG len);
-    virtual Q_LONG writeBlock(const uchar *data, Q_ULONG len);
+    virtual Q_LONG readBlock(uchar *data, Q_LONG len);
+    virtual Q_LONG writeBlock(const uchar *data, Q_LONG len);
     
     virtual bool remove();
     virtual bool rename(const QString &newName);
@@ -96,6 +96,6 @@ public:
     virtual int handle() const;
 
     //maybe
-    virtual uchar *map(Q_ULONG len);
+    virtual uchar *map(Q_LONG len);
 };
 #endif /* __QFILEENGINE_H__ */

@@ -720,7 +720,7 @@ bool QIODevice::atEnd() const
 
 
 /*!
-    \fn int QIODevice::readBlock(char *data, Q_ULONG maxlen)
+    \fn Q_LONG QIODevice::readBlock(char *data, Q_LONG maxlen)
 
     Reads at most \a maxlen bytes from the I/O device into \a data and
     returns the number of bytes actually read.
@@ -781,7 +781,7 @@ QByteArray QIODevice::readAll()
 }
 
 /*!
-    \fn int QIODevice::writeBlock(const char *data, Q_ULONG len)
+    \fn Q_LONG QIODevice::writeBlock(const char *data, Q_LONG len)
 
     Writes \a len bytes from \a data to the I/O device and returns the
     number of bytes actually written.
@@ -794,15 +794,12 @@ QByteArray QIODevice::readAll()
 */
 
 /*!
+    \fn Q_LONG QIODevice::writeBlock(const QByteArray& data)
     \overload
 
     This convenience function is the same as calling writeBlock(
     data.data(), data.size()).
 */
-Q_LONG QIODevice::writeBlock(const QByteArray& data)
-{
-    return writeBlock(data, data.size());
-}
 
 /*!
     Reads a line of text, (or up to \a maxlen bytes if a newline isn't
@@ -818,7 +815,7 @@ Q_LONG QIODevice::writeBlock(const QByteArray& data)
     \sa readBlock(), QTextStream::readLine()
 */
 
-Q_LONG QIODevice::readLine(char *data, Q_ULONG maxlen)
+Q_LONG QIODevice::readLine(char *data, Q_LONG maxlen)
 {
     if (maxlen == 0)                                // application bug?
         return 0;

@@ -457,6 +457,7 @@ QFile::rename(const QString &newName)
         }
         setStatus(QIODevice::RenameError, errno);
     }
+    return false;
 }
 
 /*!
@@ -801,7 +802,7 @@ QFile::atEnd() const
 */
 
 Q_LONG
-QFile::readBlock(char *data, Q_ULONG len)
+QFile::readBlock(char *data, Q_LONG len)
 {
     if (len <= 0) // nothing to do
         return 0;
@@ -815,9 +816,9 @@ QFile::readBlock(char *data, Q_ULONG len)
         return -1;
     }
 
-    Q_ULONG ret = 0;
+    Q_LONG ret = 0;
     if (!d->ungetchBuffer.isEmpty()) {
-        uint l = d->ungetchBuffer.size();
+        Q_LONG l = d->ungetchBuffer.size();
         while(ret < l) {
             *data = d->ungetchBuffer.at(l - ret - 1);
             data++;
@@ -850,7 +851,7 @@ QFile::readBlock(char *data, Q_ULONG len)
 */
 
 Q_LONG
-QFile::writeBlock(const char *data, Q_ULONG len)
+QFile::writeBlock(const char *data, Q_LONG len)
 {
     if (!len) // nothing to do
         return 0;
@@ -864,7 +865,7 @@ QFile::writeBlock(const char *data, Q_ULONG len)
         return -1;
     }
 
-    Q_ULONG ret = d->fileEngine->writeBlock((const uchar *)data, len);
+    Q_LONG ret = d->fileEngine->writeBlock((const uchar *)data, len);
     if (ret != len) // write error
         setStatus(errno == ENOSPC ? QIODevice::ResourceError : QIODevice::WriteError, errno);
     return ret;
@@ -886,7 +887,7 @@ QFile::writeBlock(const char *data, Q_ULONG len)
 */
 
 Q_LONG
-QFile::readLine(char *data, Q_ULONG maxlen)
+QFile::readLine(char *data, Q_LONG maxlen)
 {
     if (maxlen == 0) // application bug?
         return 0;
@@ -923,7 +924,7 @@ QFile::readLine(char *data, Q_ULONG maxlen)
 */
 
 Q_LONG
-QFile::readLine(QString &s, Q_ULONG maxlen)
+QFile::readLine(QString &s, Q_LONG maxlen)
 {
     QByteArray ba;
     ba.resize(maxlen);

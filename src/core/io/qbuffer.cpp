@@ -301,7 +301,7 @@ bool QBuffer::at(Offset pos)
   \reimp
 */
 
-Q_LONG QBuffer::readBlock(char *p, Q_ULONG len)
+Q_LONG QBuffer::readBlock(char *p, Q_LONG len)
 {
     if (!p) {
         qWarning("QBuffer::readBlock: Null pointer error");
@@ -345,7 +345,7 @@ Q_LONG QBuffer::readBlock(char *p, Q_ULONG len)
     \sa readBlock()
 */
 
-Q_LONG QBuffer::writeBlock(const char *ptr, Q_ULONG len)
+Q_LONG QBuffer::writeBlock(const char *ptr, Q_LONG len)
 {
     if (len == 0)
         return 0;
@@ -380,7 +380,7 @@ Q_LONG QBuffer::writeBlock(const char *ptr, Q_ULONG len)
   \reimp
 */
 
-Q_LONG QBuffer::readLine(char *p, Q_ULONG maxlen)
+Q_LONG QBuffer::readLine(char *p, Q_LONG maxlen)
 {
     if (p == 0) {
         qWarning("QBuffer::readLine: Null pointer error");
@@ -396,7 +396,7 @@ Q_LONG QBuffer::readLine(char *p, Q_ULONG maxlen)
     }
     if (maxlen == 0)
         return 0;
-    Q_ULONG start = ioIndex;
+    Q_LONG start = ioIndex;
     const char *dat = d->buf->constData() + ioIndex;
     maxlen--;                                   // make room for 0-terminator
     if (d->buf->size() - ioIndex < maxlen)

@@ -109,11 +109,11 @@ public:
     virtual bool atEnd() const;
     inline bool reset() { return at(0); }
 
-    virtual Q_LONG readBlock(char *data, Q_ULONG maxlen) = 0;
-    virtual Q_LONG writeBlock(const char *data, Q_ULONG len) = 0;
-    virtual Q_LONG readLine(char *data, Q_ULONG maxlen);
-    Q_LONG writeBlock(const QByteArray &data);
+    virtual Q_LONG readBlock(char *data, Q_LONG maxlen) = 0;
+    virtual Q_LONG writeBlock(const char *data, Q_LONG len) = 0;
+    virtual Q_LONG readLine(char *data, Q_LONG maxlen);
     virtual QByteArray readAll();
+    inline Q_LONG writeBlock(const QByteArray &data) { return writeBlock(data.data(), data.size()); }
 
     virtual int getch() = 0;
     virtual int putch(int) = 0;

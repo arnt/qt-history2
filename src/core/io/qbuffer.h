@@ -44,10 +44,9 @@ public:
     Offset at() const;
     bool at(Offset);
 
-    Q_LONG readBlock(char *data, Q_ULONG size);
-    Q_LONG writeBlock(const char *data, Q_ULONG size);
-    Q_LONG writeBlock(const QByteArray &data) { return QIODevice::writeBlock(data); }
-    Q_LONG readLine(char *data, Q_ULONG size);
+    virtual Q_LONG readBlock(char *data, Q_LONG size);
+    virtual Q_LONG writeBlock(const char *data, Q_LONG size);
+    virtual Q_LONG readLine(char *data, Q_LONG size);
 
     int getch();
     int putch(int);

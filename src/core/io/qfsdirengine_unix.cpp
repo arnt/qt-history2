@@ -31,7 +31,7 @@
 #define q q_func()
 
 bool 
-QFSDirEngine::mkdir(const QString &dirName, QDir::Recursivity recurse) const
+QFSDirEngine::mkdir(const QString &dirName, QDir::Recursivity /*recurse*/) const
 {
 #if defined(Q_OS_DARWIN)  // Mac X doesn't support trailing /'s
     QString name = dirName;
@@ -45,7 +45,7 @@ QFSDirEngine::mkdir(const QString &dirName, QDir::Recursivity recurse) const
 }
 
 bool 
-QFSDirEngine::rmdir(const QString &dirName, QDir::Recursivity recurse) const
+QFSDirEngine::rmdir(const QString &dirName, QDir::Recursivity /*recurse*/) const
 {
     return ::rmdir(QFile::encodeName(dirName)) == 0;
 }

@@ -80,9 +80,9 @@ public:
     Q_ULONG bytesToWrite() const;
     void clearPendingData();
 
-    Q_LONG readBlock(char *data, Q_ULONG maxlen);
-    Q_LONG writeBlock(const char *data, Q_ULONG len);
-    Q_LONG readLine(char *data, Q_ULONG maxlen);
+    virtual Q_LONG readBlock(char *data, Q_LONG maxlen);
+    virtual Q_LONG writeBlock(const char *data, Q_LONG len);
+    virtual Q_LONG readLine(char *data, Q_LONG maxlen);
 
     int getch();
     int putch(int);
