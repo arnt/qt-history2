@@ -4271,17 +4271,17 @@ void MainWindow::setupActionManager()
     }
 
     QStringList lst = actionPluginManager->featureList();
-    for ( QStringList::Iterator it = lst.begin(); it != lst.end(); ++it ) {
-	ActionInterface *iface = actionPluginManager->queryInterface( *it );
+    for ( QStringList::Iterator ait = lst.begin(); ait != lst.end(); ++ait ) {
+	ActionInterface *iface = actionPluginManager->queryInterface( *ait );
 	if ( !iface )
 	    continue;
 
 	iface->connectTo( desInterface );
-	QAction *a = iface->create( *it, this );
+	QAction *a = iface->create( *ait, this );
 	if ( !a )
 	    continue;
 
-	QString grp = iface->group( *it );
+	QString grp = iface->group( *ait );
 	if ( grp.isEmpty() )
 	    grp = "3rd party actions";
 	QPopupMenu *menu = 0;
