@@ -85,6 +85,7 @@ public:
     inline bool isEmpty() const;
 
     QList<QPolygon> toSubpathPolygons() const;
+    QList<QPolygon> toFillPolygons() const;
     QPolygon toFillPolygon() const;
 
     int elementCount() const { return elements.size(); }

@@ -686,7 +686,7 @@ QPainterPath QPainterPath::createReversed() const;
 QList<QPolygon> QPainterPath::toSubpathPolygons() const
 {
     QList<QPolygon> flatCurves;
-    if (q->elements.isEmpty())
+    if (isEmpty())
         return flatCurves;
 
     QPolygon current;
@@ -723,21 +723,92 @@ QList<QPolygon> QPainterPath::toSubpathPolygons() const
     return flatCurves;
 }
 
+QPolygon QPainterPath::toFillPolygon() const
+{
+    QList<QPolygon> flats = toSubpathPolygons();
+    QPolygon polygon;
+    if (flats.isEmpty())
+        return polygon;
+    QPointF first = flats.first().first();
+    for (int i=0; i<flats.size(); ++i) {
+        polygon += flats.at(i);
+        if (!flats.at(i).isClosed())
+            polygon += flats.at(i).first();
+        polygon += first;
+    }
+    return polygon;
+}
+
 /*!
   Creates a polygon from the path.
 */
-QPolygon QPainterPath::toFillPolygon() const
+QList<QPolygon> QPainterPath::toFillPolygons() const
 {
-    QPolygon fillPoly;
-    QList<QPolygon> subpaths = toSubpathPolygons();
+    QList<QPolygon> polys;
 
-    for (int i=0; i<subpaths.size(); ++i) {
-        fillPoly += subpaths.at(i);
-        if (i != 0)
-            fillPoly += subpaths.at(0).first();
+    QList<QPolygon> subpaths = toSubpathPolygons();
+    int count = subpaths.size();
+
+    if (count == 0)
+        return polys;
+
+    QList<QRectF> bounds;
+    for (int i=0; i<count; ++i)
+        bounds += subpaths.at(i).boundingRect();
+
+    QVector< QList<int> > isects;
+    isects.resize(count);
+
+    for (int j=0; j<count; ++j) {
+        QRectF cbounds = bounds.at(j);
+        for (int i=j+1; i<count; ++i) {
+            if (cbounds.intersects(bounds.at(i))) {
+                isects[j] << i;
+            }
+        }
     }
 
-    return fillPoly;
+
+    for (int i=0; i<count; ++i) {
+        if (isects[i].isEmpty()) {
+            polys += subpaths.at(i);
+            // Close if not closed...
+            if (subpaths.at(i).isClosed())
+                polys[polys.size()-1] += subpaths.at(i).first();
+        } else {
+            QList<int> l = isects[i];
+            if (l.first() == -1)
+                continue;
+            QPolygon buildUp = subpaths.at(i);
+            QPointF rewindPt = buildUp.first();
+            // Close if not closed...
+            if (!buildUp.isClosed())
+                buildUp += rewindPt;
+
+            for (int il=0; il<l.size(); ++il) {
+                const QList<int> &currentISects = isects.at(l.at(il));
+
+                // Insert only unique new polys
+                for (int ai=0; ai<currentISects.size(); ++ai)
+                    if (!l.contains(currentISects.at(ai)))
+                        l.append(currentISects.at(ai));
+
+                // They are added to current so skip for later.
+                isects[l.at(il)].clear();
+                isects[l.at(il)] += -1;
+
+                // Add path to current buildup.
+                buildUp += subpaths.at(l.at(il));
+                if (!subpaths.at(l.at(il)).isClosed())
+                    buildUp += subpaths.at(l.at(il)).first();
+                buildUp += rewindPt;
+            }
+
+            polys += buildUp;
+        }
+    }
+
+    return polys;
 }
 
 /*******************************************************************************

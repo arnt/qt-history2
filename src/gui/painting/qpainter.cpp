@@ -49,12 +49,13 @@ QPolygon QPainterPrivate::draw_helper_xpolygon(const void *data, ShapeType shape
     case EllipseShape: {
         QPainterPath path;
         path.addEllipse(*reinterpret_cast<const QRectF*>(data));
-        return path.toFillPolygon() * state->matrix;
+        return path.toSubpathPolygons().first() * state->matrix;
     }
     case RectangleShape:
         return QPolygon(*reinterpret_cast<const QRectF*>(data)) * state->matrix;
     case PathShape:
-        return reinterpret_cast<const QPainterPath*>(data)->toFillPolygon() * state->matrix;
+        Q_ASSERT("should not happend...");
+        return QPolygon();
     default:
         return (*reinterpret_cast<const QPolygon*>(data)) * state->matrix;
     }
@@ -150,12 +151,15 @@ void QPainterPrivate::draw_helper(const void *data, bool winding, ShapeType shap
                 break;
             case PathShape: {
                 const QPainterPath *path = reinterpret_cast<const QPainterPath*>(data);
-                if (engine->hasFeature(QPaintEngine::PainterPaths))
+                if (engine->hasFeature(QPaintEngine::PainterPaths)) {
                     engine->drawPath(*path);
-                else
-                    engine->drawPolygon(path->toFillPolygon(), winding
-                                           ? QPaintEngine::WindingMode
-                                           : QPaintEngine::OddEvenMode);
+                } else {
+                    QList<QPolygon> polys = path->toFillPolygons();
+                    for (int i=0; i<polys.size(); ++i)
+                        engine->drawPolygon(polys.at(i), winding
+                                            ? QPaintEngine::WindingMode
+                                            : QPaintEngine::OddEvenMode);
+                }
                 break;
             }
             default:
@@ -1360,16 +1364,18 @@ void QPainter::drawPath(const QPainterPath &path)
 
     // Fill the path...
     if (d->state->brush.style() != Qt::NoBrush) {
-	QPolygon fillPoly = path.toFillPolygon();
+        QList<QPolygon> fills = path.toFillPolygons();
         QPen oldPen = d->state->pen;
         setPen(Qt::NoPen);
 	d->engine->updateState(d->state);
-        if (d->engine->emulationSpecifier)
-            d->draw_helper(&fillPoly, path.fillMode() == QPainterPath::Winding,
-                           QPainterPrivate::PolygonShape);
-	else
-            d->engine->drawPolygon(fillPoly, path.fillMode() == QPainterPath::Winding ?
-                                   QPaintEngine::WindingMode : QPaintEngine::OddEvenMode);
+        for (int i=0; fills.size(); ++i) {
+            if (d->engine->emulationSpecifier)
+                d->draw_helper(&fills.at(i), path.fillMode() == QPainterPath::Winding,
+                               QPainterPrivate::PolygonShape);
+            else
+                d->engine->drawPolygon(fills.at(i), path.fillMode() == QPainterPath::Winding ?
+                                       QPaintEngine::WindingMode : QPaintEngine::OddEvenMode);
+        }
         setPen(oldPen);
     }
 
