@@ -400,7 +400,7 @@ QVariant QDirModel::data(const QModelIndex &index, int role) const
 bool QDirModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     if (!index.isValid() || index.column() != 0
-        || (flags(index) & ItemIsEditable == 0) || role != EditRole)
+        || (flags(index) & ItemIsEditable) == 0 || role != EditRole)
         return false;
 
     QDirModelPrivate::QDirNode *node = static_cast<QDirModelPrivate::QDirNode*>(index.data());
