@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#128 $
+** $Id: //depot/qt/main/src/widgets/qscrollbar.cpp#129 $
 **
 ** Implementation of QScrollBar class
 **
@@ -493,7 +493,7 @@ void QScrollBar::resizeEvent( QResizeEvent * )
   Handles paint events for the scroll bar.
 */
 
-void QScrollBar::paintEvent( QPaintEvent *event )
+void QScrollBar::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
 
