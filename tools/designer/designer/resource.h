@@ -145,6 +145,7 @@ private:
     bool hasFunctions;
     QStringList includeHints;
 
+    QString uiFileVersion;
 };
 
 #endif

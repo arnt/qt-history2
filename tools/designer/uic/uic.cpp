@@ -131,6 +131,7 @@ Uic::Uic( const QString &fn, const char *outputFn, QTextStream &outStream,
     pixmapLoaderFunction = getPixmapLoaderFunction( doc.firstChild().toElement() );
     nameOfClass = getFormClassName( doc.firstChild().toElement() );
 
+    uiFileVersion = doc.firstChild().toElement().attribute("version");
     stdsetdef = toBool( doc.firstChild().toElement().attribute("stdsetdef") );
 
     if ( doc.firstChild().isNull() || doc.firstChild().firstChild().isNull() )
@@ -363,6 +364,8 @@ void Uic::createActionImpl( const QDomElement &n, const QString &parent )
 	else
 	    continue;
 	bool subActionsDone = FALSE;
+	bool hasMenuText = FALSE;
+	QString actionText;
 	for ( QDomElement n2 = ae.firstChild().toElement(); !n2.isNull(); n2 = n2.nextSibling().toElement() ) {
 	    if ( n2.tagName() == "property" ) {
 		bool stdset = stdsetdef;
@@ -382,6 +385,11 @@ void Uic::createActionImpl( const QDomElement &n, const QString &parent )
 		    call += "setProperty( \"" + prop + "\", QVariant(" + value + "));";
 		}
 
+		if (prop == "menuText")
+		    hasMenuText = TRUE;
+		else if (prop == "text")
+		    actionText = value;
+
 		if ( n2.firstChild().toElement().tagName() == "string" ) {
 		    trout << indent << call << endl;
 		} else {
@@ -392,6 +400,9 @@ void Uic::createActionImpl( const QDomElement &n, const QString &parent )
 		subActionsDone = TRUE;
 	    }
 	}
+	// workaround for loading pre-3.3 files expecting bogus QAction behavior
+	if (!hasMenuText && !actionText.isEmpty() && uiFileVersion < "3.3")
+	    trout << indent << objName << "->setMenuText(" << actionText << ");" << endl;
     }
 }
 

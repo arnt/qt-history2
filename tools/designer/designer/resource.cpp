@@ -353,6 +353,7 @@ bool Resource::load( FormFile *ff, QIODevice* dev, Project *defProject )
 	    langIface->addRef();
     }
 
+    uiFileVersion = doc.firstChild().toElement().attribute("version");
     QDomElement e = doc.firstChild().toElement().firstChild().toElement();
 
     QDomElement forwards = e;
@@ -2942,9 +2943,17 @@ void Resource::loadChildAction( QObject *parent, const QDomElement &e )
 	a = new QDesignerAction( parent );
 	MetaDataBase::addEntry( a );
 	QDomElement n2 = n.firstChild().toElement();
+	bool hasMenuText = FALSE;
 	while ( !n2.isNull() ) {
 	    if ( n2.tagName() == "property" ) {
-		setObjectProperty( a, n2.attribute( "name" ), n2.firstChild().toElement() );
+		QDomElement n3(n2); // don't modify n2
+		QString prop = n3.attribute( "name" );
+		if (prop == "menuText")
+		    hasMenuText = TRUE;
+		QDomElement value(n3.firstChild().toElement());
+		setObjectProperty( a, prop, value );
+		if (!hasMenuText && uiFileVersion < "3.3" && prop == "text")
+		    setObjectProperty( a, "menuText", value );
 	    }
 	    n2 = n2.nextSibling().toElement();
 	}
@@ -2954,9 +2963,17 @@ void Resource::loadChildAction( QObject *parent, const QDomElement &e )
 	a = new QDesignerActionGroup( parent );
 	MetaDataBase::addEntry( a );
 	QDomElement n2 = n.firstChild().toElement();
+	bool hasMenuText = FALSE;
 	while ( !n2.isNull() ) {
 	    if ( n2.tagName() == "property" ) {
-		setObjectProperty( a, n2.attribute( "name" ), n2.firstChild().toElement() );
+		QDomElement n3(n2); // don't modify n2
+		QString prop = n3.attribute( "name" );
+		if (prop == "menuText")
+		    hasMenuText = TRUE;
+		QDomElement value = n3.firstChild().toElement();
+		setObjectProperty( a, prop, value );
+		if (!hasMenuText && uiFileVersion < "3.3" && prop == "text")
+		    setObjectProperty( a, "menuText", value );
 	    } else if ( n2.tagName() == "action" ||
 			n2.tagName() == "actiongroup" ) {
 		loadChildAction( a, n2 );
