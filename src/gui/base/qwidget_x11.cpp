@@ -1487,7 +1487,6 @@ void QWidget::repaint(const QRegion& rgn)
     QRect brWS = d->mapToWS(br);
     bool do_clipping = (br != QRect(0,0,data->crect.width(),data->crect.height()));
 
-    QPoint dboff;
     bool double_buffer = (!testAttribute(WA_PaintOnScreen)
 			  && br.width()  <= QX11DoubleBuffer::MaxWidth
 			  && br.height() <= QX11DoubleBuffer::MaxHeight
@@ -1496,24 +1495,26 @@ void QWidget::repaint(const QRegion& rgn)
     HANDLE old_hd = hd;
     HANDLE old_rendhd = rendhd;
 
-    if (double_buffer) {
-        qt_x11_get_double_buffer(hd, rendhd, d->xinfo->screen(), d->xinfo->depth(), br.width(),
-                                 br.height());
+    QPoint redirectionOffset;
 
-        dboff = br.topLeft();
-        QPainter::setRedirected(this, this, dboff);
-        if (do_clipping) {
-            QRegion region_in_pm(rgn);
-            region_in_pm.translate(-dboff);
-            qt_set_paintevent_clipping(this, region_in_pm);
-        }
+    if (double_buffer) {
+        qt_x11_get_double_buffer(hd, rendhd, d->xinfo->screen(), d->xinfo->depth(),
+                                 br.width(), br.height());
+        redirectionOffset = br.topLeft();
     } else {
-        QPoint off = data->wrect.topLeft();
-        QPainter::setRedirected(this, this, off);
-        if (do_clipping) {
-            QRegion region_in_pm(rgn);
-            region_in_pm.translate(-off);
-            qt_set_paintevent_clipping(this, region_in_pm);
+        redirectionOffset = data->wrect.topLeft();
+    }
+
+    if (!redirectionOffset.isNull())
+        QPainter::setRedirected(this, this, redirectionOffset);
+
+    if (do_clipping) {
+        if (redirectionOffset.isNull()) {
+            qt_set_paintevent_clipping(this, rgn);
+        } else {
+            QRegion redirectedRegion(rgn);
+            redirectedRegion.translate(-redirectionOffset);
+            qt_set_paintevent_clipping(this, redirectedRegion);
         }
     }
 
@@ -1538,7 +1539,7 @@ void QWidget::repaint(const QRegion& rgn)
 					    int x, int y, int width, int height,
 					    const QBrush &brush, int offx, int offy);
 	    qt_erase_background(q->hd, q->d->xinfo->screen(),
-				br.x() - dboff.x(), br.y() - dboff.y(),
+				br.x() - redirectionOffset.x(), br.y() - redirectionOffset.y(),
 				br.width(), br.height(), data->pal.brush(w->d->bg_role),
 				br.x() + offset.x(), br.y() + offset.y());
 	} else {
@@ -1554,7 +1555,7 @@ void QWidget::repaint(const QRegion& rgn)
 	    w = parents.pop();
 	    for (;;) {
 		if (w->testAttribute(QWidget::WA_ContentsPropagated)) {
-		    QPainter::setRedirected(w, q, offset + dboff);
+		    QPainter::setRedirected(w, q, offset + redirectionOffset);
 		    QRect rr = d->clipRect();
 		    rr.moveBy(offset);
 		    QPaintEvent e(rr);
@@ -1582,7 +1583,9 @@ void QWidget::repaint(const QRegion& rgn)
     if (do_clipping)
 	qt_clear_paintevent_clipping();
 
-    QPainter::restoreRedirected(this);
+    if (!redirectionOffset.isNull())
+        QPainter::restoreRedirected(this);
+
     if (double_buffer) {
 	GC gc = qt_xget_temp_gc(d->xinfo->screen(), false);
 	QVector<QRect> rects = rgn.rects();
