@@ -345,15 +345,23 @@ void DrawControl::createMenus()
 #endif
 
     QButtonGroup *shapeG      = new QButtonGroup;
+    shapeG->setExclusive(TRUE);
     QButtonGroup *brushStyleG = new QButtonGroup;
+    brushStyleG->setExclusive(TRUE);
     QButtonGroup *brushColorG = new QButtonGroup;
+    brushColorG->setExclusive(TRUE);
     QButtonGroup *penStyleG  = new QButtonGroup;
+    penStyleG->setExclusive(TRUE);
     QButtonGroup *penColorG  = new QButtonGroup;
+    penColorG->setExclusive(TRUE);
     QButtonGroup *penWidthG  = new QButtonGroup;
+    penWidthG->setExclusive(TRUE);
 
 #if !defined(NO_FONT_SELECTION)
     QButtonGroup *fontNameG  = new QButtonGroup;
+    fontNameG->setExclusive(TRUE);
     QButtonGroup *fontSizeG  = new QButtonGroup;
+    fontSizeG->setExclusive(TRUE);
     connect( fontSizeG	 ,SIGNAL(clicked(int)),SLOT(fontSizeSelected(int)));
     connect( fontNameG	 ,SIGNAL(clicked(int)),SLOT(fontNameSelected(int)));
 #endif
@@ -510,6 +518,7 @@ void DrawControl::createMenus()
 	QPushButton *tmp = new QPushButton( s, this );
 	tmp->setFont( QFont( "Times", 18 ) );
 	tmp->setGeometry(400, i*30 + 270, 130, 30 );
+	tmp->setToggleButton(TRUE);
 	fontSizeG->insert( tmp, i );
 #if !defined(NO_MENUS)
 	fontSizeM->insertItem( s, i );
@@ -576,12 +585,14 @@ static unsigned char bm1_bits[] = {	// "smiling" face
    0x40, 0x00, 0x00, 0x01, 0x80, 0x01, 0xc0, 0x00, 0x00, 0x06, 0x30, 0x00,
    0x00, 0xf8, 0x0f, 0x00, 0x00, 0x00, 0x00, 0x00};
 
+#if 0
 #define bm2_width 16
 #define bm2_height 16
 static unsigned char bm2_bits[] = {    // pattern with "Qt" embedded
    0x8e, 0xf0, 0x99, 0x92, 0x15, 0x91, 0x73, 0xf8, 0xee, 0x1f, 0x99, 0xc9,
    0x5a, 0x29, 0x32, 0x2f, 0xf2, 0xae, 0x91, 0xd9, 0x92, 0x15, 0xf8, 0x73,
    0x1f, 0xee, 0x89, 0x98, 0xc9, 0x59, 0x8f, 0x30};
+#endif
 
 void DrawControl::setBrushPattern( QBrush *b, int index )
 {
@@ -665,7 +676,7 @@ void DrawView::drawShape( QPainter *p, const QPoint &pnt, Shape shape,
 	    p->drawEllipse( pnt+rct );
 	    break;
 	case Arc:
-	    p->drawArc( pnt+rct, angle1, angle2 );
+            p->drawArc( pnt+rct, angle1, angle2 );
 	    break;
 	case Pie:
 	    p->drawPie( pnt+rct, angle1, angle2);
