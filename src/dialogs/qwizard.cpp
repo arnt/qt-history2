@@ -402,6 +402,8 @@ void QWizard::setHelpEnabled( bool enable )
 /*!
   \fn void QWizard::setFinish( QWidget *, bool )
   \obsolete
+  
+  Use setFinishEnabled instead
 */
 
 /*!
