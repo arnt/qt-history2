@@ -1163,13 +1163,6 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 drawPrimitive(pe, &arrowOpt, p, widget);
             } else {
                 QColor btext = toolbutton->palette.foreground().color();
-
-                // remove the space used for the menu button when
-                // positioning the text label and/or icon
-                if (toolbutton->features & QStyleOptionToolButton::Menu)
-                    rect.addCoords(0, 0, -pixelMetric(QStyle::PM_MenuButtonIndicator,
-                                                      toolbutton, widget), 0);
-
                 if (toolbutton->icon.isNull() && !toolbutton->text.isEmpty()
                     || toolbutton->toolButtonStyle == Qt::ToolButtonTextOnly) {
                     int alignment = Qt::AlignCenter | Qt::TextShowMnemonic;
@@ -1920,8 +1913,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             button = visualRect(opt->direction, opt->rect,
                                 subControlRect(cc, toolbutton, SC_ToolButton, widget));
             menuarea = visualRect(opt->direction, opt->rect,
-                                  subControlRect(cc, toolbutton, SC_ToolButtonMenu,
-                                                         widget));
+                                  subControlRect(cc, toolbutton, SC_ToolButtonMenu, widget));
 
             State bflags = toolbutton->state;
 
@@ -1959,6 +1951,9 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
                 QStyleOptionFocusRect fr;
                 fr.rect = toolbutton->rect;
                 fr.rect.addCoords(3, 3, -3, -3);
+                if (toolbutton->features & QStyleOptionToolButton::Menu)
+                    fr.rect.addCoords(0, 0, -pixelMetric(QStyle::PM_MenuButtonIndicator,
+                                                         toolbutton, widget), 0);
                 fr.palette = toolbutton->palette;
                 fr.state = State_None;
                 drawPrimitive(PE_FrameFocusRect, &fr, p, widget);
