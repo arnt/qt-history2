@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#23 $
 **
 ** Implementation of QFont and QFontInfo classes for X11
 **
@@ -25,7 +25,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#22 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#23 $";
 #endif
 
 // #define DEBUG_FONT
@@ -957,7 +957,7 @@ int QFontMetrics::height() const
 {
     if ( DIRTY_METRICS )
         f.loadFont();
-    return f.d->xfd->f->max_bounds.ascent + f.d->xfd->f->max_bounds.descent +1;
+    return f.d->xfd->f->max_bounds.ascent + f.d->xfd->f->max_bounds.descent;
 }
 
 int QFontMetrics::leading() const
@@ -972,7 +972,7 @@ int QFontMetrics::lineSpacing() const
 {
     if ( DIRTY_METRICS )
         f.loadFont();
-    return f.d->xfd->f->ascent + f.d->xfd->f->descent + 1;
+    return f.d->xfd->f->ascent + f.d->xfd->f->descent;
 }
 
 int QFontMetrics::width( const char *str, int len ) const
@@ -997,14 +997,31 @@ QRect QFontMetrics::boundingRect( const char *str, int len ) const
     XCharStruct overall;
 
     XTextExtents( fs, str, len, &direction, &ascent, &descent, &overall );
-    int startX = overall.lbearing >= 0 ? -1 : overall.lbearing - 1;
-    int width;
-    if ( overall.rbearing < overall.width )
-        width =  overall.width - startX + 1;
-    else
-        width =  overall.rbearing - startX + 1;
-    return QRect( startX, -overall.ascent - 1, width, 
-                  overall.descent  + overall.ascent   + 3 );
+    int startX = overall.lbearing;
+    int width  = overall.rbearing - startX;
+    ascent     = overall.ascent;
+    descent    = overall.descent;
+    if ( !f.d->act.underline && !f.d->act.strikeOut ) {
+        width  = overall.rbearing - startX;
+    } else {
+        if ( startX > 0 )
+            startX = 0;
+        if ( overall.rbearing < overall.width )
+           width =  overall.width - startX;
+        else
+           width =  overall.rbearing - startX;
+        if ( f.d->act.underline ) {
+            int ulPos = underlinePos() + lineWidth(); // X descent is 1 
+            if ( descent < ulPos ) // more than logical descent, so don't
+                descent = ulPos;   // subtract 1 here!
+        }
+        if ( f.d->act.strikeOut ) {
+            int soPos = strikeOutPos();
+            if ( ascent < soPos )
+                ascent = soPos;
+        }
+    }
+    return QRect( startX - 1, -ascent - 1, width + 2, descent + ascent + 2 );
 }
 
 int QFontMetrics::maxWidth() const
