@@ -386,7 +386,7 @@ QAction* P4Interface::create( const QString& actionname, QObject* parent )
 	connect( a, SIGNAL( toggled(bool) ), this, SLOT( p4Aware(bool) ) );
 	a->setOn( aware );
 
-	p4Actions->insertSeparator();
+	p4Actions->addSeparator();
 
 	actionSync = new QAction( "P4 Sync", QIconSet((const char**)sync_xpm), "&Sync", 0, p4Actions, "P4 Sync" );
 	actionSync->setToolTip( tr("Sync to head revision") );
@@ -408,7 +408,7 @@ QAction* P4Interface::create( const QString& actionname, QObject* parent )
 	actionRevert->setStatusTip( tr("Reverts changes to form(s)") );
 	connect( actionRevert, SIGNAL( activated() ), this, SLOT( p4Revert() ) );
 
-	p4Actions->insertSeparator();
+	p4Actions->addSeparator();
 
 	actionAdd = new QAction( "P4 Add", QIconSet((const char**)add_xpm), "&Add", 0, p4Actions, "P4 Add" );
 	actionAdd->setToolTip( tr("Add form") );
@@ -420,7 +420,7 @@ QAction* P4Interface::create( const QString& actionname, QObject* parent )
 	actionDelete->setStatusTip( tr("Checks out file for delete") );
 	connect( actionDelete, SIGNAL( activated() ), this, SLOT( p4Delete() ) );
 
-	p4Actions->insertSeparator();
+	p4Actions->addSeparator();
 
 	actionDiff = new QAction( "P4 Diff", QIconSet((const char**)diff_xpm), "Di&ff", 0, p4Actions, "P4 Diff" );
 	actionDiff->setToolTip( tr("Diff against depot") );
