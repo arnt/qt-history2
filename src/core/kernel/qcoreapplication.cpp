@@ -608,6 +608,7 @@ int QCoreApplication::loopLevel() const
 
   The event must be allocated on the heap since the post event queue
   will take ownership of the event and delete it once it has been posted.
+  It is \e {not safe} to modify or delete the event after it has been posted.
 
   When control returns to the main event loop, all events that are
   stored in the queue will be sent using the notify() function.
