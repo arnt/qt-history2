@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#137 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#138 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#137 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#138 $");
 
 
 /*!
@@ -3032,7 +3032,8 @@ static void read_pbm_image( QImageIO *iio )	// read PBM image data
     if ( w <= 0 || w > 32767 || h <= 0 || h > 32767 || mcc < 0 || mcc > 32767 )
 	return;					// weird P.M image
 
-    ASSERT( mcc <= 255 );
+    if ( mcc > 255 )
+	mcc = 255;
     image.create( w, h, nbits, 0,
 		  nbits == 1 ? QImage::BigEndian :  QImage::IgnoreEndian );
     if ( image.isNull() )
@@ -3113,26 +3114,27 @@ static void write_pbm_image( QImageIO *iio )
     QIODevice* out = iio->ioDevice();
     QString str;
 
-    QImage image = iio->image();
+    QImage  image  = iio->image();
+    QString format = iio->format();
+    format = format.left(3);			// ignore RAW part
+    bool gray = format == "PGM";
+
+    if ( format == "PBM" && image.depth() != 1 ) {
+	image = image.convertDepth(1);
+    } else if ( image.depth() == 1 ) {
+	image = image.convertDepth(8);
+    }
 
     if ( image.depth() == 1 && image.numColors() == 2 ) {
-	if ( image.color(0) == qRgb(0,0,0) &&
-	     image.color(1) == qRgb(255,255,255) ) {
-	    // 0=Black, 1=White - invert
+	if ( qGray(image.color(0)) < qGray(image.color(1)) ) {
+	    // 0=dark/black, 1=light/white - invert
 	    image.detach();
-	    int w=(image.width()+7)/8;
-	    for (int y=0; y<image.height(); y++) {
+	    for ( int y=0; y<image.height(); y++ ) {
 		uchar *p = image.scanLine(y);
-		for (int x=0; x<w; x++) {
-		    *p++ ^= 0xff;
-		}
+		uchar *end = p + image.bytesPerLine();
+		while ( p < end )
+		    *p++ ^= 0x00ffffff;
 	    }
-	} else if ( image.color(1) == qRgb(0,0,0) &&
-		    image.color(0) == qRgb(255,255,255) ) {
-	    // 1=Black, 0=White - normal PBM
-	} else {
-	    // Not monochrome - make it so.
-	    image = image.convertDepth(8);
 	}
     }
 
@@ -3148,9 +3150,10 @@ static void write_pbm_image( QImageIO *iio )
 		iio->setStatus(1);
 		return;
 	    }
+	    w = (w+7)/8;
 	    for (uint y=0; y<h; y++) {
 		uchar* line = image.scanLine(y);
-	        if ( w != (uint)out->writeBlock((char*)line, w) ) {
+		if ( w != (uint)out->writeBlock((char*)line, w) ) {
 	    	    iio->setStatus(1);
 		    return;
 		}
@@ -3165,21 +3168,33 @@ static void write_pbm_image( QImageIO *iio )
 		iio->setStatus(1);
 		return;
 	    }
-	    QRgb* color = image.colorTable();
-	    char* buf = new char[w*3];
+	    QRgb  *color = image.colorTable();
+	    uchar *buf   = new uchar[w*3];
 	    for (uint y=0; y<h; y++) {
-		uchar* line = image.scanLine(y);
-		for (uint x=0; x<w; x++) {
-		    QRgb rgb = color[line[x]];
-		    buf[x*3+0] = qRed(rgb);
-		    buf[x*3+1] = qGreen(rgb);
-		    buf[x*3+2] = qBlue(rgb);
+		uchar *b = image.scanLine(y);
+		uchar *p = buf;
+		uchar *end = buf+w*3;
+		if ( gray ) {
+		    while ( p < end ) {
+			uchar g = (uchar)qGray(color[*b++]);
+			*p++ = g;
+			*p++ = g;
+			*p++ = g;
+		    }
+		} else {
+		    while ( p < end ) {
+			QRgb rgb = color[*b++];
+			*p++ = qRed(rgb);
+			*p++ = qGreen(rgb);
+			*p++ = qBlue(rgb);
+		    }
 		}
-		if ( w*3 != (uint)out->writeBlock(buf, w*3) ) {
+		if ( w*3 != (uint)out->writeBlock((char*)buf, w*3) ) {
 		    iio->setStatus(1);
 		    return;
 		}
 	    }
+	    delete [] buf;
 	    }
 	    break;
 	
@@ -3190,26 +3205,38 @@ static void write_pbm_image( QImageIO *iio )
 		iio->setStatus(1);
 		return;
 	    }
-	    char* buf = new char[w*3];
+	    uchar *buf = new uchar[w*3];
 	    for (uint y=0; y<h; y++) {
-		ulong* line = (ulong*)image.scanLine(y);
-		for (uint x=0; x<w; x++) {
-		    QRgb rgb = line[x];
-		    buf[x*3+0] = qRed(rgb);
-		    buf[x*3+1] = qGreen(rgb);
-		    buf[x*3+2] = qBlue(rgb);
+		QRgb  *b = (QRgb*)image.scanLine(y);
+		uchar *p = buf;
+		uchar *end = buf+w*3;
+		if ( gray ) {
+		    while ( p < end ) {
+			uchar g = (uchar)qGray(*b++);
+			*p++ = g;
+			*p++ = g;
+			*p++ = g;
+		    }
+		} else {
+		    while ( p < end ) {
+			QRgb rgb = *b++;
+			*p++ = qRed(rgb);
+			*p++ = qGreen(rgb);
+			*p++ = qBlue(rgb);
+		    }
 		}
-		uint nr = out->writeBlock(buf, w*3);
-		if (nr != w*3) {
+		if ( w*3 != (uint)out->writeBlock((char*)buf, w*3) ) {
 		    iio->setStatus(1);
 		    return;
 		}
 	    }
+	    delete [] buf;
 	    }
     }
 
     iio->setStatus(0);
 }
+
 
 class QImageIOFrameGrabber : public QImageConsumer {
 public:
