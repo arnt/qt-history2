@@ -705,13 +705,12 @@ private:
     void emitTable(const QTextTable *table);
     void emitFragment(const QTextFragment &fragment);
 
-    void emitBlockFormatAttributes(const QTextBlockFormat &format);
+    void emitBlockAttributes(const QTextBlock &block);
     bool emitCharFormatStyle(const QTextCharFormat &format, bool ignoreDifferenceToDefaultFont = false);
     void emitTextLength(const char *attribute, const QTextLength &length);
     void emitAlignment(Qt::Alignment alignment);
     void emitFloatStyle(QTextFrameFormat::Position pos);
     void emitAttribute(const char *attribute, const QString &value);
-    void emitMargins(const QTextBlockFormat &format);
 
     QString html;
     QFont defaultFont;
@@ -728,10 +727,11 @@ QString QTextHtmlExporter::toHtml()
 {
     // ### title
 
-    QLatin1String style(" style=\"");
     html = QLatin1String("<html><body");
 
+    QLatin1String style(" style=\"");
     html += style;
+
     QTextCharFormat fmt;
     fmt.setFont(defaultFont);
     const bool styleEmitted = emitCharFormatStyle(fmt, true /*ignore difference to default font*/);
@@ -956,8 +956,23 @@ void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)
         html += QLatin1String("</a>");
 }
 
-void QTextHtmlExporter::emitMargins(const QTextBlockFormat &format)
+static bool isOrderedList(int style)
 {
+    return style == QTextListFormat::ListDecimal || style == QTextListFormat::ListLowerAlpha
+           || style == QTextListFormat::ListUpperAlpha;
+}
+
+void QTextHtmlExporter::emitBlockAttributes(const QTextBlock &block)
+{
+    QTextBlockFormat format = block.blockFormat();
+    emitAlignment(format.alignment());
+
+    QTextBlockFormat::Direction dir = format.direction();
+    if (dir == QTextBlockFormat::LeftToRight)
+        html += QLatin1String(" dir='ltr'");
+    else if (dir == QTextBlockFormat::RightToLeft)
+        html += QLatin1String(" dir='rtl'");
+
     bool hasMargin = false;
     QLatin1String style(" style=\"");
     html += style;
@@ -994,28 +1009,9 @@ void QTextHtmlExporter::emitMargins(const QTextBlockFormat &format)
         html += QLatin1Char('"');
     else
         html.truncate(html.size() - qstrlen(style.latin1()));
-}
-
-void QTextHtmlExporter::emitBlockFormatAttributes(const QTextBlockFormat &format)
-{
-    emitAlignment(format.alignment());
-
-    QTextBlockFormat::Direction dir = format.direction();
-    if (dir == QTextBlockFormat::LeftToRight)
-        html += QLatin1String(" dir='ltr'");
-    else if (dir == QTextBlockFormat::RightToLeft)
-        html += QLatin1String(" dir='rtl'");
-
-    emitMargins(format);
 
     if (format.hasProperty(QTextFormat::BlockBackgroundColor))
         emitAttribute("bgcolor", format.backgroundColor().name());
-}
-
-static bool isOrderedList(int style)
-{
-    return style == QTextListFormat::ListDecimal || style == QTextListFormat::ListLowerAlpha
-           || style == QTextListFormat::ListUpperAlpha;
 }
 
 void QTextHtmlExporter::emitBlock(const QTextBlock &block)
@@ -1049,7 +1045,8 @@ void QTextHtmlExporter::emitBlock(const QTextBlock &block)
     } else if (!list)
         html += QLatin1String("<p");
 
-    emitBlockFormatAttributes(block.blockFormat());
+    emitBlockAttributes(block);
+
     html += QLatin1Char('>');
 
     for (QTextBlock::Iterator it = block.begin();
