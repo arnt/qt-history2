@@ -2661,11 +2661,12 @@ QList<QToolBar> QMainWindow::toolBars( ToolBarDock dock ) const
   otherwise.
 
   Movable toolbars can be dragged around between and within the
-  different toolbar docks by the user.
+  different toolbar docks by the user. By default toolbars are moved
+  transparent, but this setting can be changed by setOpaqueMoving().
 
   The default is TRUE.
 
-  \sa setDockEnabled(), toolbarsMovable()
+  \sa setDockEnabled(), toolbarsMovable(), setOpaqueMoving()
 */
 
 void QMainWindow::setToolBarsMovable( bool enable )
@@ -2684,3 +2685,28 @@ bool QMainWindow::toolBarsMovable() const
     return d->movable;
 }
 
+/*!
+  If you set \a b to TRUE, the use can move the 
+  toolbars opaque, otherwise this is done transparent. This
+  setting makes only sense, if toolBarsMovable() is set to TRUE.
+  
+  \sa setToolbarsMovable()
+*/
+
+void QMainWindow::setOpaqueMoving( bool b )
+{
+    d->opaque = b;
+}
+
+/*!
+  Returns whether the toolbars of the mainwindow can 
+  be moved opaque or transparent.
+  
+  \sa setOpaqueMoving()
+*/
+
+bool QMainWindow::opaqueMoving() const
+{
+    return d->opaque;
+}
+					 

@@ -45,6 +45,7 @@ class Q_EXPORT QMainWindow: public QWidget
     Q_PROPERTY( bool usesBigPixmaps READ usesBigPixmaps WRITE setUsesBigPixmaps )
     Q_PROPERTY( bool usesTextLabel READ usesTextLabel WRITE setUsesTextLabel )
     Q_PROPERTY( bool toolBarsMovable READ toolBarsMovable WRITE setToolBarsMovable )
+    Q_PROPERTY( bool opaqueMoving READ opaqueMoving WRITE setOpaqueMoving )
 
 public:
     QMainWindow( QWidget * parent = 0, const char * name = 0, WFlags f = WType_TopLevel );
@@ -81,7 +82,8 @@ public:
     bool usesBigPixmaps() const;
     bool usesTextLabel() const;
     bool toolBarsMovable() const;
-
+    bool opaqueMoving() const;
+    
     bool eventFilter( QObject*, QEvent* );
 
     bool getLocation( QToolBar *tb, ToolBarDock &dock, int &index, bool &nl, int &extraOffset ) const;
@@ -93,7 +95,8 @@ public slots:
     virtual void setUsesBigPixmaps( bool );
     void setUsesTextLabel( bool ); // virtual 3.0
     void setToolBarsMovable( bool ); // virtual 3.0
-
+    void setOpaqueMoving( bool ); // virtual 3.0
+    
     void whatsThis();
 
 signals:

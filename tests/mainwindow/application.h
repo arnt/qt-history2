@@ -44,18 +44,19 @@ private slots:
     void toggleJust();
     void toggleBigpix();
     void toggleTextLabel();
+    void toggleOpaque();
 
     void about();
     void aboutQt();
 
     void orientationChanged();
-    
+
 private:
     QToolBar *createToolbar( const QString &name, bool nl );
 
     QComboBox *cb;
     QPushButton *pb;
-    
+
     QMultiLineEdit *e;
     QString filename;
 
@@ -63,7 +64,8 @@ private:
     int justId;
     int bigpixId;
     int textlabelid;
-
+    int opaqueId;
+    
 };
 
 

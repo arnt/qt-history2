@@ -134,6 +134,8 @@ ApplicationWindow::ApplicationWindow()
 				    SLOT(toggleBigpix()), CTRL+Key_B );
     textlabelid = appMenu->insertItem( "&Text Labels", this,
 				    SLOT(toggleTextLabel()), CTRL+Key_T );
+    opaqueId = appMenu->insertItem( "&Opaque Toolbar moving", this,
+				    SLOT(toggleOpaque()), ALT+Key_O );
 
     appMenu->insertSeparator();
     fullScreenId = appMenu->insertItem( "&Full Screen", this,
@@ -451,6 +453,13 @@ void ApplicationWindow::toggleTextLabel()
     debug( "toggleTextLabel" );
     setUsesTextLabel( !usesTextLabel() );
     menuBar()->setItemChecked( textlabelid, usesTextLabel() );
+}
+
+void ApplicationWindow::toggleOpaque()
+{
+    debug( "toggleOpaque" );
+    setOpaqueMoving( !opaqueMoving() );
+    menuBar()->setItemChecked( opaqueId, opaqueMoving() );
 }
 
 void ApplicationWindow::toggleFullScreen()
