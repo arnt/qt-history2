@@ -1832,7 +1832,6 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	if(!wordbreak)
 	    tf |= Qt::IncludeTrailingSpaces;
 
-	int add = 0;
 	int leading = fm.leading();
 	int asc = fm.ascent();
 	int desc = fm.descent();
@@ -1841,8 +1840,8 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	//qDebug("\n\nbeginLayout: lw = %d, rectwidth=%d", lineWidth , r.width());
 	while ( !textLayout.atEnd() ) {
 	    height += leading;
-	    textLayout.beginLine( lineWidth == INT_MAX ? lineWidth : lineWidth + add );
-	    //qDebug("-----beginLine( %d )-----",  lineWidth+add );
+	    textLayout.beginLine( lineWidth == INT_MAX ? lineWidth : lineWidth );
+	    //qDebug("-----beginLine( %d )-----",  lineWidth );
 	    bool linesep = false;
 	    while ( 1 ) {
 		QTextItem ti = textLayout.currentItem();
@@ -1875,15 +1874,12 @@ void qt_format_text( const QFont& font, const QRect &_r,
 	    }
 
 	    int ascent = asc, descent = desc, lineLeft, lineRight;
-	    textLayout.setLineWidth( r.width()-rb-lb + add );
-	    int state = textLayout.endLine( 0, height, tf, &ascent, &descent,
-					    &lineLeft, &lineRight );
-
-	    //qDebug("finalizing line: lw=%d ascent = %d, descent=%d lineleft=%d lineright=%d", lineWidth+add, ascent, descent,lineLeft, lineRight  );
+	    textLayout.setLineWidth( r.width()-rb-lb );
+	    textLayout.endLine( 0, height, tf, &ascent, &descent,
+				&lineLeft, &lineRight );
 	    left = QMIN( left, lineLeft );
 	    right = QMAX( right, lineRight );
 	    height += ascent + descent + 1;
-	    add = 0;
 	    if ( linesep )
 		textLayout.nextItem();
 	}
