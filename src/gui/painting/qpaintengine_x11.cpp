@@ -651,7 +651,7 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPolygon &pg,
     // eliminate shared edges
     for (int i = 0; i < et.size(); ++i) {
 	for (int k = i+1; k < et.size(); ++k) {
-            if (et.at(k)->p1.y() > et.at(i)->p1.y())
+            if (et.at(k)->p1.y() > et.at(i)->p1.y() + 0.0001)
                 break;
    	    if (isEqual(et.at(i)->p1, et.at(k)->p1) && isEqual(et.at(i)->p2, et.at(k)->p2)
 		&& et.at(i)->winding != et.at(k)->winding) {
