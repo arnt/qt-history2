@@ -1346,7 +1346,8 @@ void MainWindow::fileCloseProject()
     for ( QMap<QAction*, Project* >::Iterator it = projects.begin(); it != projects.end(); ++it ) {
 	if ( it.data() == pro ) {
 	    a = it.key();
-	    break;
+	    if ( lastValid )
+		break;
 	}
 	lastValid = it.key();
     }
