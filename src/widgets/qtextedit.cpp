@@ -3699,6 +3699,8 @@ void QTextEdit::append( const QString &text )
 	    cursor->splitAndInsertEmptyParag();
  	cursor->insert( text, TRUE );
 	*cursor = oldc;
+	formatMore();
+	repaintChanged();
 	if ( !scrollToEnd )
 	    blockEnsureCursorVisible = FALSE;
 	emit textChanged();
