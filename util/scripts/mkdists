@@ -63,15 +63,13 @@ $version_digits =~ s/(\d\d\d).*/$1/;
 $name = getlogin() || getpwuid($<) || "sexybaby";
 
 $distdir="/tmp/qt-$version-$name";
-mkdir $distdir, 0755 unless ( -d $distdir );
 sub deletefiles {
-    unless ( -d $_ ) {
-	unlink $_;
-	$deleted++;
-    } 
+    -f $_ ? unlink $_ : rmdir $_;
+    $deleted++;
 }
-find( \&deletefiles, $distdir );
+finddepth( \&deletefiles, $distdir ) if -d $distdir;
 print "Deleted $deleted files from last time\n" if ( $deleted );
+mkdir $distdir, 0755;
 
 # at this point, we have a directory structure, possibly full of empty
 # directories.  let's fill it.
@@ -854,7 +852,7 @@ sub copy_source {
     my $ddir;
     ($sdir,$ddir) = @_;
     mkdir $ddir, 0755;
-    open CPIO, "| ( cd $sdir; cpio --quiet -o 2>/dev/null ) | ( cd $ddir; cpio -i --make-directories --quiet )";
+    open CPIO, "| ( cd $sdir; cpio -p 2>/dev/null --make-directories $ddir; )";
     find(
 	sub {
 	    my $d = "$File::Find::dir";
