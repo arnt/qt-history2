@@ -29,7 +29,7 @@ class QString;
 class QStringList;
 
 
-class Q_GUI_EXPORT QListBox : public QScrollView
+class Q_COMPAT_EXPORT QListBox : public QScrollView
 {
     friend class QListBoxItem;
     friend class QListBoxPrivate;
@@ -296,7 +296,7 @@ private:        // Disabled copy constructor and operator=
 };
 
 
-class Q_GUI_EXPORT QListBoxItem
+class Q_COMPAT_EXPORT QListBoxItem
 {
 public:
     QListBoxItem(QListBox* listbox = 0);
@@ -355,7 +355,7 @@ private:        // Disabled copy constructor and operator=
 };
 
 
-class Q_GUI_EXPORT QListBoxText : public QListBoxItem
+class Q_COMPAT_EXPORT QListBoxText : public QListBoxItem
 {
 public:
     QListBoxText(QListBox* listbox, const QString & text=QString::null);
@@ -380,7 +380,7 @@ private:        // Disabled copy constructor and operator=
 };
 
 
-class Q_GUI_EXPORT QListBoxPixmap : public QListBoxItem
+class Q_COMPAT_EXPORT QListBoxPixmap : public QListBoxItem
 {
 public:
     QListBoxPixmap(QListBox* listbox, const QPixmap &);
