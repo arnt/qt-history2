@@ -569,7 +569,7 @@ void QWindowsStyle::drawControl( ControlElement element,
 		bool firstTab = tb->indexOf( t->identifier() ) == 0;
 		if ( selected ) {
 		    p->fillRect( QRect( r2.left()+1, r2.top(), r2.width()-3, 1),
-				 tb->palette().active().brush( QColorGroup::Background ));
+				 cg.brush( QColorGroup::Background ));
 		    p->setPen( cg.background() );
 		    p->drawLine( r2.left()+1, r2.top(), r2.left()+1, r2.bottom()-2 );
 		    p->setPen( cg.dark() );
