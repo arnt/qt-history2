@@ -568,7 +568,7 @@ void QGenericTableView::rowHeightChanged(int row, int, int)
     int y = rowViewportPosition(row);
     d->viewport->update(QRect(0, y, d->viewport->width(), d->viewport->height() - y));
     updateGeometries();
-    updateCurrentEditor();
+    updateEditors();
 }
 
 void QGenericTableView::columnWidthChanged(int column, int, int)
@@ -578,7 +578,7 @@ void QGenericTableView::columnWidthChanged(int column, int, int)
     QRect rect(x, 0, d->viewport->width() - x, d->viewport->height());
     d->viewport->update(rect.normalize());
     updateGeometries();
-    updateCurrentEditor();
+    updateEditors();
 }
 
 void QGenericTableView::rowIndexChanged(int, int oldIndex, int newIndex)

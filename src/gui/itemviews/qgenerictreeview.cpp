@@ -226,6 +226,8 @@ void QGenericTreeView::ensureItemVisible(const QModelIndex &index)
     QRect area = d->viewport->rect();
     QRect rect = itemViewportRect(index);
 
+    if (rect.isEmpty())
+        return;
     if (area.contains(rect)) {
         d->viewport->repaint(rect);
         return;
@@ -241,6 +243,10 @@ void QGenericTreeView::ensureItemVisible(const QModelIndex &index)
         QFontMetrics fontMetrics(this->fontMetrics());
         QAbstractItemDelegate *delegate = itemDelegate();
         int i = d->viewIndex(index);
+        if (i < 0) {
+            qWarning("ensureItemVisible: item index was illegal: %d", i);
+            return;
+        }
         int y = area.height();
         while (y > 0 && i > 0)
             y -= delegate->sizeHint(fontMetrics, options, d->items.at(i--).index).height();
@@ -654,7 +660,7 @@ void QGenericTreeView::columnWidthChanged(int column, int, int)
     QRect rect(x, 0, d->viewport->width() - x, d->viewport->height());
     d->viewport->update(rect.normalize());
     updateGeometries();
-    updateCurrentEditor();
+    updateEditors();
 }
 
 void QGenericTreeView::updateGeometries()

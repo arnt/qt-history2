@@ -73,10 +73,10 @@ void QAbstractItemViewPrivate::init()
                      q, SLOT(verticalScrollbarAction(int)));
     QObject::connect(q->horizontalScrollBar(), SIGNAL(actionTriggered(int)),
                      q, SLOT(horizontalScrollbarAction(int)));
-    QObject::connect(q->verticalScrollBar(), SIGNAL(valueChanged(int)),
-                     q, SLOT(updateCurrentEditor()), QueuedConnection);
-    QObject::connect(q->horizontalScrollBar(), SIGNAL(valueChanged(int)),
-                     q, SLOT(updateCurrentEditor()), QueuedConnection);
+//     QObject::connect(q->verticalScrollBar(), SIGNAL(valueChanged(int)),
+//                      q, SLOT(updateEditors()), QueuedConnection);
+//     QObject::connect(q->horizontalScrollBar(), SIGNAL(valueChanged(int)),
+//                      q, SLOT(updateEditors()), QueuedConnection);
     QObject::connect(q, SIGNAL(needMore()), model, SLOT(fetchMore()), QueuedConnection);
 
     q->setAttribute(WA_PaintOnScreen);
@@ -1033,13 +1033,15 @@ void QAbstractItemView::endEdit(const QModelIndex &index, bool accept)
         if (accept)
             itemDelegate()->setModelData(persistent, index);
     } else if (accept) {
-        itemDelegate()->setModelData(d->currentEditor, index);
-        itemDelegate()->releaseEditor(QAbstractItemDelegate::Accepted, d->currentEditor, index);
+        itemDelegate()->setModelData(d->currentEditor.second, index);
+        itemDelegate()->releaseEditor(QAbstractItemDelegate::Accepted,
+                                      d->currentEditor.second, index);
     } else {
-        itemDelegate()->releaseEditor(QAbstractItemDelegate::Cancelled, d->currentEditor, index);
+        itemDelegate()->releaseEditor(QAbstractItemDelegate::Cancelled,
+                                      d->currentEditor.second, index);
     }
-    d->currentEditor = 0;
-    d->editItem = QModelIndex();
+    QPersistentModelIndex idx;
+    d->currentEditor = QPair<QPersistentModelIndex, QPointer<QWidget> >(idx, 0);
     setFocus();
 }
 
@@ -1050,7 +1052,7 @@ void QAbstractItemView::endEdit(const QModelIndex &index, bool accept)
 QWidget *QAbstractItemView::currentEditor() const
 {
     if (d->state == Editing)
-        return d->currentEditor;
+        return d->currentEditor.second;
     return 0;
 }
 
@@ -1058,19 +1060,17 @@ QWidget *QAbstractItemView::currentEditor() const
 /*!
     \internal
 */
-void QAbstractItemView::updateCurrentEditor()
+void QAbstractItemView::updateEditors()
 {
     //  this presumes that only one editor is open at one time
     QModelIndex item = currentItem(); // the edited item
-    if (!d->currentEditor)//|| !item->isEditable() || item->editType() != QAbstractItemDelegate::PersistentWidget)
-        return;
     QItemOptions options;
     getViewOptions(&options);
     options.itemRect = itemViewportRect(currentItem());
-    itemDelegate()->updateEditorGeometry(d->currentEditor, options, item);
+    itemDelegate()->updateEditorGeometry(d->currentEditor.second, options, item);
 
-    QMap<QPersistentModelIndex, QWidget*>::iterator it = d->persistentEditors.begin();
-    for (; it != d->persistentEditors.end(); ++it) {
+    QMap<QPersistentModelIndex, QPointer<QWidget> >::iterator it = d->editors.begin();
+    for (; it != d->editors.end(); ++it) {
         options.itemRect = itemViewportRect(it.key());
         itemDelegate()->updateEditorGeometry(it.value(), options, it.key());
     }
@@ -1107,14 +1107,14 @@ void QAbstractItemView::horizontalScrollbarAction(int)
 */
 bool QAbstractItemView::eventFilter(QObject *object, QEvent *event)
 {
-    if (object == d->currentEditor && event->type() == QEvent::KeyPress) {
+    if (object == d->currentEditor.second && event->type() == QEvent::KeyPress) {
         switch (static_cast<QKeyEvent *>(event)->key()) {
         case Key_Escape:
-            endEdit(d->editItem, false);
+            endEdit(d->currentEditor.first, false);
             return true;
         case Key_Enter:
         case Key_Return:
-            endEdit(d->editItem, true);
+            endEdit(d->currentEditor.first, true);
             return true;
         default:
             break;
@@ -1257,8 +1257,8 @@ void QAbstractItemView::contentsChanged(const QModelIndex &topLeft, const QModel
 {
     // Single item changed
     if (topLeft == bottomRight && topLeft.isValid()) {
-        if (d->currentEditor && topLeft == currentItem())
-            itemDelegate()->setEditorData(d->currentEditor, topLeft);
+        if (d->currentEditor.second && topLeft == currentItem())
+            itemDelegate()->setEditorData(d->currentEditor.second, topLeft);
         else
             d->viewport->update(itemViewportRect(topLeft));
         return;
@@ -1346,7 +1346,7 @@ void QAbstractItemView::selectionChanged(const QItemSelection &deselected,
 */
 void QAbstractItemView::currentChanged(const QModelIndex &old, const QModelIndex &current)
 {
-    if (d->currentEditor)
+    if (d->currentEditor.second)
         endEdit(old, true);
 
     if (old.isValid())
@@ -1662,9 +1662,9 @@ QWidget *QAbstractItemViewPrivate::requestEditor(QAbstractItemDelegate::StartEdi
         if (event && (action == QAbstractItemDelegate::AnyKeyPressed
                       || event->type() == QEvent::MouseButtonPress))
             QApplication::sendEvent(editor, event);
-        currentEditor = editor;
-        currentEditor->installEventFilter(q);
-        editItem = index;
+        editor->installEventFilter(q);
+        QPersistentModelIndex idx = QPersistentModelIndex(index, d->model);
+        currentEditor = QPair<QPersistentModelIndex, QPointer<QWidget> >(idx, editor);
     }
     return editor;
 }
@@ -1672,8 +1672,8 @@ QWidget *QAbstractItemViewPrivate::requestEditor(QAbstractItemDelegate::StartEdi
 QWidget *QAbstractItemViewPrivate::persistentEditor(const QModelIndex &index) const
 {
     QPersistentModelIndex persistent(index, model);
-    QMap<QPersistentModelIndex, QWidget*>::ConstIterator it = persistentEditors.find(persistent);
-    if (it != persistentEditors.end())
+    QMap<QPersistentModelIndex, QPointer<QWidget> >::ConstIterator it = editors.find(persistent);
+    if (it != editors.end())
         return *it;
     return 0;
 }
@@ -1681,5 +1681,5 @@ QWidget *QAbstractItemViewPrivate::persistentEditor(const QModelIndex &index) co
 void QAbstractItemViewPrivate::setPersistentEditor(QWidget *editor, const QModelIndex &index)
 {
     QPersistentModelIndex persistent(index, model);
-    persistentEditors.insert(persistent, editor);
+    editors.insert(persistent, editor);
 }

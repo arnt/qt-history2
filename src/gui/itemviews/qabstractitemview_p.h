@@ -24,18 +24,19 @@ public:
     void setPersistentEditor(QWidget *editor, const QModelIndex &index);
 
     QAbstractItemModel *model;
-    QPointer<QWidget> currentEditor;
-    QModelIndex editItem;
+
     mutable QAbstractItemDelegate *delegate;
     QItemSelectionModel *selectionModel;
     int selectionMode;
     int selectionBehavior;
 
-    QMap<QPersistentModelIndex, QWidget*> persistentEditors;
+    QMap<QPersistentModelIndex, QPointer<QWidget> > editors;
+    QPair<QPersistentModelIndex, QPointer<QWidget> > currentEditor;
 
     QModelIndex pressedItem;
     Qt::ButtonState pressedState;
     QPoint pressedPosition;
+    
     QAbstractItemView::State state;
     QPoint cursorIndex;
     int startEditActions;

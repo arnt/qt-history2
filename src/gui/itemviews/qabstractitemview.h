@@ -104,7 +104,7 @@ protected slots:
     virtual void contentsRemoved(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     virtual void selectionChanged(const QItemSelection &deselected, const QItemSelection &selected);
     virtual void currentChanged(const QModelIndex &old, const QModelIndex &current);
-    virtual void updateCurrentEditor();
+    virtual void updateEditors();
     virtual void updateGeometries();
     virtual void verticalScrollbarAction(int action);
     virtual void horizontalScrollbarAction(int action);
