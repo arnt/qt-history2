@@ -35,14 +35,14 @@ static QPixmap *bufferPixmap( const QSize &s )
 }
 
 QTextEdit::QTextEdit( QWidget *parent, const QString &fn, bool tabify )
-    : QScrollView( parent, "", WNorthWestGravity | WRepaintNoErase ), 
+    : QScrollView( parent, "", WNorthWestGravity | WRepaintNoErase ),
       doc( new QTextEditDocument( fn, tabify ) ), undoRedoInfo( doc )
 {
     init();
 }
 
 QTextEdit::QTextEdit( QWidget *parent, const QString &text )
-    : QScrollView( parent, "", WNorthWestGravity | WRepaintNoErase ), 
+    : QScrollView( parent, "", WNorthWestGravity | WRepaintNoErase ),
       doc( new QTextEditDocument( QString::null, FALSE ) ), undoRedoInfo( doc )
 {
     doc->setText( text );
@@ -373,7 +373,13 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 		    if ( doCompletion() )
 			break;
 		}
-		insert( e->text(), TRUE );
+		
+		if ( cursor->parag()->type() != QTextEditParag::BulletList && 
+		     cursor->index() == 0 && ( e->text() == "-" || e->text() == "*" ) ) {
+		    setParagType( (int)QTextEditParag::BulletList );
+		} else {
+		    insert( e->text(), TRUE );
+		}
 		break;
 	    }
 	    if ( e->state() & ControlButton ) {
