@@ -424,7 +424,11 @@ QIODevice::Offset QFile::size() const
     } else {
 	::stat( QFile::encodeName(fn), &st );
     }
+#if defined(QT_LARGEFILE_SUPPORT) && !defined(QT_NEWABI)
+    return st.st_size > UINT_MAX ? UINT_MAX : (QIODevice::Offset)st.st_size;
+#else
     return st.st_size;
+#endif
 }
 
 
