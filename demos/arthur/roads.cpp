@@ -22,9 +22,9 @@ Roads::Roads(QWidget *parent)
 //     yellowLine.addEllipse(0, 0, 400, 400);
 
     QPainterPathStroker stroker;
-    stroker.setWidth(10);
+    stroker.setWidth(20);
     carVectors = stroker.createStroke(yellowLine).toSubpathPolygons();
-    pixmap.load("car8x16.png");
+    pixmap.load("car16x32.png");
 
 //     printf("Number of car vectors: %d\n", carVectors.size());
 //     for (int i=0; i<carVectors.size(); ++i) {
@@ -34,7 +34,7 @@ Roads::Roads(QWidget *parent)
 
 void Roads::paintEvent(QPaintEvent *e)
 {
-    int offset = 100;
+    int offset = 50;
     QRect r(offset, offset, width() - 2*offset, height() - 2*offset);
 
     if (backBuffer.size() != size()) {
@@ -55,7 +55,7 @@ void Roads::paintEvent(QPaintEvent *e)
         bp.translate(r.topLeft());
         bp.scale(r.width() / 400.0, r.height() / 400.0);
 
-        bp.strokePath(yellowLine, QPen(Qt::black, 20, Qt::SolidLine, Qt::RoundCap,
+        bp.strokePath(yellowLine, QPen(Qt::black, 40, Qt::SolidLine, Qt::RoundCap,
                                                Qt::RoundJoin));
         bp.strokePath(yellowLine, QPen(Qt::yellow, 0, Qt::DotLine));
     }
@@ -66,7 +66,8 @@ void Roads::paintEvent(QPaintEvent *e)
     p.translate(r.topLeft());
     p.scale(r.width() / 400.0, r.height() / 400.0);
 
-    for (int c=0; c<5; ++c) {
+    const int carCount = 4;
+    for (int c=0; c<carCount; ++c) {
         int i = c % carVectors.size();
         int t = (animationStep + c*17) % carVectors.at(i).size();
         QLineF vec = t == carVectors.at(i).size()-1
@@ -81,13 +82,12 @@ void Roads::paintEvent(QPaintEvent *e)
         if (vec.vy() < 0)
             angle = 360 - angle;
 
-
         p.setPen(Qt::NoPen);
         p.setBrush(Qt::red);
         p.rotate(angle-180);
 
         //         p.drawRect(-8, -4, 16, 8);
-        p.drawPixmap(-4, -8, pixmap);
+        p.drawPixmap(-pixmap.width() / 2, -pixmap.height() / 2, pixmap);
 
         p.translate(-vec.start().toPoint());
         p.restore();

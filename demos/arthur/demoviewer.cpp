@@ -179,16 +179,22 @@ void DemoViewer::itemSelected()
 void DemoViewer::antialiasChanged(bool val)
 {
     attributes->antialias = val;
+    if (DemoWidget *w = qt_cast<DemoWidget*>(widgets->currentWidget()))
+        w->resetState();
 }
 
 void DemoViewer::alphaChanged(bool val)
 {
     attributes->alpha = val;
+    if (DemoWidget *w = qt_cast<DemoWidget*>(widgets->currentWidget()))
+        w->resetState();
 }
 
 void DemoViewer::fillModeChanged(int mode)
 {
     attributes->fillMode = static_cast<Attributes::BackgroundFill>(mode);
+    if (DemoWidget *w = qt_cast<DemoWidget*>(widgets->currentWidget()))
+        w->resetState();
 }
 
 void DemoViewer::showEvent(QShowEvent *)

@@ -28,6 +28,8 @@ public:
     virtual void startAnimation();
     virtual void stopAnimation();
 
+    virtual void resetState() { }
+
     void setAttributes(Attributes *attr) { attributes = attr; }
 
     void timerEvent(QTimerEvent *e);

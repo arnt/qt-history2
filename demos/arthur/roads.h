@@ -28,6 +28,10 @@ public:
     void mousePressEvent(QMouseEvent *) { stopAnimation(); }
     void mouseReleaseEvent(QMouseEvent *) { startAnimation(); }
 
+    void hideEvent(QHideEvent *e) { resetState(); }
+
+    void resetState() { backBuffer = QPixmap(); }
+
 private:
     QPainterPath yellowLine;
     QList<QPolygon> carVectors;
