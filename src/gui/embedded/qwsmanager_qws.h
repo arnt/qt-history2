@@ -24,6 +24,7 @@
 
 #ifndef QT_NO_QWS_MANAGER
 
+class QAction;
 class QPixmap;
 class QWidget;
 class QPopupMenu;
@@ -49,8 +50,8 @@ public:
     static QWidget *grabbedMouse();
 
 protected slots:
-    void menuActivated(int);
-    void styleMenuActivated(int);
+    void menuActivated(QAction *item);
+    void styleMenuActivated(QAction *item);
 
 protected:
     void handleMove();

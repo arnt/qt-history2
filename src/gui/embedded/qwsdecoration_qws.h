@@ -39,9 +39,7 @@ public:
     virtual void close(QWidget *);
     virtual void minimize(QWidget *);
     virtual void maximize(QWidget *);
-#ifndef QT_NO_POPUPMENU
-    virtual QPopupMenu *menu(const QWidget *, const QPoint &);
-#endif
+
     virtual void paint(QPainter *, const QWidget *) = 0;
     virtual void paintButton(QPainter *, const QWidget *, Region, int state) = 0;
 };

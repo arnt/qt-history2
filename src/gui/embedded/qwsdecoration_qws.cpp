@@ -188,29 +188,6 @@ void QWSDecoration::maximize(QWidget *widget)
 }
 
 /*!
-    Called to create a QPopupMenu containing the valid menu operations.
-
-    The default implementation adds all possible window operations.
-*/
-
-#ifndef QT_NO_POPUPMENU
-QPopupMenu *QWSDecoration::menu(const QWidget *, const QPoint &)
-{
-    QPopupMenu *m = new QPopupMenu();
-
-    m->insertItem(qApp->translate("QWSDecoration", "&Restore"), (int)Normalize);
-    m->insertItem(qApp->translate("QWSDecoration", "&Move"), (int)Title);
-    m->insertItem(qApp->translate("QWSDecoration", "&Size"), (int)BottomRight);
-    m->insertItem(qApp->translate("QWSDecoration", "Mi&nimize"), (int)Minimize);
-    m->insertItem(qApp->translate("QWSDecoration", "Ma&ximize"), (int)Maximize);
-    m->insertSeparator();
-    m->insertItem(qApp->translate("QWSDecoration", "Close"), (int)Close);
-
-    return m;
-}
-#endif
-
-/*!
     \fn void QWSDecoration::paint(QPainter *painter, const QWidget *widget)
 
     Override to paint the border and title decoration around \a widget

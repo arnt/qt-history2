@@ -115,21 +115,31 @@ public:
     QWSDecoration::Region activeRegion;
     QWidget *managed;
     QPopupMenu *popup;
-//    QRect normalSize; // ???
     QWSButton *menuBtn;
     QWSButton *closeBtn;
     QWSButton *minimizeBtn;
     QWSButton *maximizeBtn;
 
+    enum MenuAction {
+        NormalizeAction,
+        TitleAction,
+        BottomRightAction,
+        MinimizeAction,
+        MaximizeAction,
+        CloseAction,
+        LastMenuAction
+    };
+    QAction *menuActions[LastMenuAction];
+
     int dx;
     int dy;
-//    int skipCount; // ???
 
     static QWidget *active;
     static QPoint mousePos;
 };
 QWidget *QWSManagerPrivate::active = 0;
 QPoint QWSManagerPrivate::mousePos;
+
 
 QWSManagerPrivate::QWSManagerPrivate()
     : QObjectPrivate(), activeRegion(QWSDecoration::None), managed(0), popup(0), menuBtn(0),
@@ -481,20 +491,37 @@ void QWSManager::menu(const QPoint &pos)
 {
 #ifndef QT_NO_POPUPMENU
     if (!d->popup) {
-        d->popup = QApplication::qwsDecoration().menu(d->managed, d->managed->pos());
+        // Basic window operation menu
+        d->popup = new QPopupMenu();
+        d->menuActions[QWSManagerPrivate::NormalizeAction] = new QAction(qApp->translate("QWSDecoration",  "&Restore"));
+        d->menuActions[QWSManagerPrivate::TitleAction] = new QAction(qApp->translate("QWSDecoration",  "&Move"));
+        d->menuActions[QWSManagerPrivate::BottomRightAction] = new QAction(qApp->translate("QWSDecoration",  "&Size"));
+        d->menuActions[QWSManagerPrivate::MinimizeAction] = new QAction(qApp->translate("QWSDecoration",  "Mi&nimize"));
+        d->menuActions[QWSManagerPrivate::MaximizeAction] = new QAction(qApp->translate("QWSDecoration",  "Ma&ximize"));
+        d->menuActions[QWSManagerPrivate::CloseAction] = new QAction(qApp->translate("QWSDecoration",  "Close"));
+
+        d->popup->addAction(d->menuActions[QWSManagerPrivate::NormalizeAction]);
+        d->popup->addAction(d->menuActions[QWSManagerPrivate::TitleAction]);
+        d->popup->addAction(d->menuActions[QWSManagerPrivate::BottomRightAction]);
+        d->popup->addAction(d->menuActions[QWSManagerPrivate::MinimizeAction]);
+        d->popup->addAction(d->menuActions[QWSManagerPrivate::MaximizeAction]);
+        d->popup->addSeparator();
+        d->popup->addAction(d->menuActions[QWSManagerPrivate::CloseAction]);
+        connect(d->popup, SIGNAL(activated(QAction*)), SLOT(menuActivated(QAction*)));
 
         // Add Style menu
         QPopupMenu *styleMenu = new QPopupMenu();
         for (int i = 0; !WMStyleList[i].WMStyleName.isEmpty(); i++)
-            styleMenu->insertItem(qApp->translate("QWSDecoration", WMStyleList[i].WMStyleName.latin1()), WMStyleList[i].WMStyleType);
-        styleMenu->connect(styleMenu, SIGNAL(activated(int)), this, SLOT(styleMenuActivated(int)));
-//        d->popup->insertSeparator();
-//        d->popup->insertItem(tr("Style"), styleMenu);
-
-        connect(d->popup, SIGNAL(activated(int)), SLOT(menuActivated(int)));
+            styleMenu->addAction(qApp->translate("QWSDecoration", WMStyleList[i].WMStyleName.latin1()));
+        styleMenu->addSeparator();
+        styleMenu->addAction("foobar");
+        connect(styleMenu, SIGNAL(activated(QAction*)), this, SLOT(styleMenuActivated(QAction*)));
+        d->popup->addSeparator();
+        d->popup->addMenu(tr("Style"), styleMenu);
     }
-    d->popup->setItemEnabled(QWSDecoration::Maximize, !d->managed->isMaximized());
-    d->popup->setItemEnabled(QWSDecoration::Normalize, d->managed->isMaximized());
+
+    d->menuActions[QWSManagerPrivate::MaximizeAction]->setEnabled(!d->managed->isMaximized());
+    d->menuActions[QWSManagerPrivate::NormalizeAction]->setEnabled(d->managed->isMaximized());
     d->popup->popup(pos);
 #endif
 }
@@ -508,12 +535,11 @@ void QWSManager::menu(const QPoint &pos)
 #include <qsgistyle.h>
 #include <qwindowsstyle.h>
 
-void QWSManager::styleMenuActivated(int id)
+void QWSManager::styleMenuActivated(QAction *item)
 {
     for (int i = 0; !WMStyleList[i].WMStyleName.isEmpty(); i++) {
-        if (id == WMStyleList[i].WMStyleType) {
+        if (item->text() == qApp->translate("QWSDecoration", WMStyleList[i].WMStyleName.latin1()))
             qApp->qwsSetDecoration(WMStyleList[i].new_WMDecorations());
-        }
     }
 
     // Force a repaint of the WM regions
@@ -522,33 +548,27 @@ void QWSManager::styleMenuActivated(int id)
     d->managed->resize(s.width(), s.height());
 }
 
-void QWSManager::menuActivated(int id)
+void QWSManager::menuActivated(QAction *item)
 {
-    switch (id) {
-        case QWSDecoration::Close:
-            close();
-            return;
-        case QWSDecoration::Minimize:
-            minimize();
-            break;
-        case QWSDecoration::Maximize:
-        case QWSDecoration::Normalize:
-            toggleMaximize();
-            break;
-        case QWSDecoration::Title:
-            d->mousePos = QCursor::pos();
-            d->activeRegion = QWSDecoration::Title;
-            d->active = d->managed;
-            d->managed->grabMouse();
-            break;
-        case QWSDecoration::BottomRight:
-            d->mousePos = QCursor::pos();
-            d->activeRegion = QWSDecoration::BottomRight;
-            d->active = d->managed;
-            d->managed->grabMouse();
-            break;
-        default:
-            break;
+    if (item == d->menuActions[QWSManagerPrivate::CloseAction]) {
+        close();
+    } else if (item == d->menuActions[QWSManagerPrivate::MinimizeAction]) {
+        minimize();
+    } else if (item == d->menuActions[QWSManagerPrivate::MaximizeAction]
+               || item == d->menuActions[QWSManagerPrivate::NormalizeAction]) {
+        toggleMaximize();
+    } else if (item == d->menuActions[QWSManagerPrivate::TitleAction]) {
+        d->mousePos = QCursor::pos();
+        d->activeRegion = QWSDecoration::Title;
+        d->active = d->managed;
+        d->managed->grabMouse();
+    } else if (item == d->menuActions[QWSManagerPrivate::BottomRightAction]) {
+        d->mousePos = QCursor::pos();
+        d->activeRegion = QWSDecoration::BottomRight;
+        d->active = d->managed;
+        d->managed->grabMouse();
+    } else {
+        qWarning("QWSManager: Unknown menu option");
     }
 }
 
