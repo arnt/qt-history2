@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#366 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#367 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1684,8 +1684,8 @@ void QFileDialog::init()
              this, SLOT( createdDirectory( const QUrlInfo &, QNetworkOperation * ) ) );
     connect( &d->url, SIGNAL( itemChanged( QNetworkOperation * ) ),
              this, SLOT( itemChanged( QNetworkOperation * ) ) );
-    connect( &d->url, SIGNAL( copyProgress( int, int, QNetworkOperation * ) ),
-             this, SLOT( copyProgress( int, int, QNetworkOperation * ) ) );
+    connect( &d->url, SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ),
+             this, SLOT( dataTransferProgress( int, int, QNetworkOperation * ) ) );
 
     nameEdit = new QLineEdit( this, "name/filter editor" );
     connect( nameEdit, SIGNAL(textChanged(const QString&)),
@@ -3801,14 +3801,14 @@ static bool isRoot( const QUrl &u )
 	if ( u.path() == "/" )
 	    return TRUE;
 #elif defined(_OS_WIN32_)
-	if ( u.path().length() == 3 && 
+	if ( u.path().length() == 3 &&
 	     u.path().right( 2 ) == ":/" )
 	    return TRUE;
 #endif
 	
 	if ( !u.isLocalFile() && u.path() == "/" )
 	    return TRUE;
-	    
+	
 	return FALSE;
 }
 
@@ -3841,14 +3841,6 @@ void QFileDialog::urlStart( QNetworkOperation *op )
 	else
 	    d->cdToParent->setEnabled( TRUE );
     }
-    // ############ todo prgress dia
-//     } else if ( op->operation() == QNetworkProtocol::OpGet ) {
-// 	d->progressDia = new QProgressDialog( this, "", TRUE );
-// 	d->progressDia->setCaption( tr( "Copy File" ) );
-//     } else if ( op->operation() == QNetworkProtocol::OpGet ) {
-// 	d->progressDia = new QProgressDialog( this, "", TRUE );
-// 	d->progressDia->setCaption( tr( "Move File" ) );
-//     }
 }
 
 void QFileDialog::urlFinished( QNetworkOperation *op )
@@ -3884,18 +3876,12 @@ void QFileDialog::urlFinished( QNetworkOperation *op )
     } else if ( op->operation() == QNetworkProtocol::OpPut ) {
  	rereadDir();
     }
-    // ############# todo progressdia
-//     } else if ( ( op->operation() == QNetworkProtocol::OpCopy ||
-// 		  op->operation() == QNetworkProtocol::OpMove ) &&
-// 		d->progressDia ) {
-// 	delete d->progressDia;
-// 	d->progressDia = 0;
-// 	rereadDir();
-//     }
 }
 
-void QFileDialog::copyProgress( int step, int total, QNetworkOperation *op )
+void QFileDialog::dataTransferProgress( int, int, QNetworkOperation * )
 {
+//############# todo show progress!
+#if 0
     if ( !d->progressDia )
 	return;
 
@@ -3910,6 +3896,7 @@ void QFileDialog::copyProgress( int step, int total, QNetworkOperation *op )
     }
 
     d->progressDia->setProgress( step );
+#endif
 }
 
 void QFileDialog::insertEntry( const QUrlInfo &inf, QNetworkOperation * )

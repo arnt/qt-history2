@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlocalfs.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qlocalfs.cpp#15 $
 **
 ** Implementation of QLocalFs class
 **
@@ -196,6 +196,8 @@ void QLocalFs::operationGet( QNetworkOperation *op )
     QByteArray s;
     s.resize( f.size() );
     f.readBlock( s.data(), f.size() );
+    // #### todo progress
+    emit dataTransferProgress( f.size(), f.size(), op );
     emit data( s, op );
     op->setState( StDone );
     f.close();
@@ -222,6 +224,8 @@ void QLocalFs::operationPut( QNetworkOperation *op )
     }
 
     f.writeBlock( op->rawArg2(), op->rawArg2().size() );
+    // #### todo progress
+    emit dataTransferProgress( op->rawArg2().size(), op->rawArg2().size(), op );
     op->setState( StDone );
     f.close();
     emit finished( op );

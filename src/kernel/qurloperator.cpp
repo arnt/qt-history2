@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#28 $
 **
 ** Implementation of QUrlOperator class
 **
@@ -158,19 +158,14 @@ struct QUrlOperatorPrivate
 */
 
 /*!
-  \fn void QUrlOperator::copyProgress( int step, int total, QNetworkOperation *op )
+  \fn void QUrlOperator::dataTransferProgress( int bytesDone, int bytesTotal, QNetworkOperation *op )
 
-  When copying a file this signal is emitted during the progress. You
-  get the source and destinations usung the first two argumes of \op,
-  this means with op->arg1() and op->arg2(). \a step is the progress
-  (always <= \a total) or -1, if copying just started. \a total is the
-  number of steps needed to copy the file.
-
-  This signal can be used to show the progress when copying files.
-
-  \a op is the pointer to the operation object, which contains all infos
-  of the operation, including the state and so on.
-
+  When transferring data (using put or get) this signal is emitted during the progress. 
+  \a bytesDone tells how much bytes of \a bytesTotal are transferred, more information
+  about the operation is stored in the \a op, the pointer to the network operation
+  which is processed. \a bytesTotal may be -1, which means that the number of total
+  bytes is not known.
+  
   \sa QNetworkOperation::QNetworkOperation()
 */
 
@@ -205,9 +200,9 @@ struct QUrlOperatorPrivate
 */
 
 /*!
-  \fn void QUrlOperator::emitCopyProgress( int step, int total, QNetworkOperation * )
+  \fn void QUrlOperator::emitDataTransferProgress( int bytesDone, int bytesTotal, QNetworkOperation * )
 
-  Emits the signal copyProgress( int, int, QNetworkOperation * ).
+  Emits the signal dataTransferProgress( int, int, QNetworkOperation * ).
 */
 
 /*!
@@ -428,8 +423,15 @@ const QNetworkOperation *QUrlOperator::rename( const QString &oldname, const QSt
 
 /*!
   Copies the file \a from to \a to. If \a move is TRUE,
-  the file is moved (copied and removed). During the copy-process
-  copyProgress( int, int, QNetworkOperation * ) is emitted.
+  the file is moved (copied and removed). 
+  The copying is done using get and put operations. So if you want to get notified
+  about the progress of the operation, connect to the \c dataTransferProgress
+  signal. But you have to know, that the get and the put operations emit
+  this signal! So, the number of transferred and total bytes which you get as
+  argument in this signal isn't related to the the whole copy operation, but
+  first to the get and then to the put operation. So always check for
+  the operation from which the signal comes.
+  
   Also at the end finished( QNetworkOperation * ) (on success or failure) is emitted,
   so check the state of the network operation object to see if the
   operation was successful or not.
@@ -456,12 +458,15 @@ QList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QString 
     if ( !gProt || !QNetworkProtocol::getNetworkProtocol( QUrl( to ).protocol() ) )
 	return ops;
 
+    u->d->entryMap = d->entryMap;
     gProt->setUrl( u );
 
     if ( gProt && ( gProt->supportedOperations() & QNetworkProtocol::OpGet ) &&
 	 ( gProt->supportedOperations() & QNetworkProtocol::OpPut ) ) {
 	connect( gProt, SIGNAL( data( const QByteArray &, QNetworkOperation * ) ),
 		 this, SLOT( getGotData( const QByteArray &, QNetworkOperation * ) ) );
+	connect( gProt, SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ),
+		 this, SLOT( emitDataTransferProgress( int, int, QNetworkOperation * ) ) );
 	connect( gProt, SIGNAL( finished( QNetworkOperation * ) ),
 		 this, SLOT( finishedGet( QNetworkOperation * ) ) );
 	connect( gProt, SIGNAL( finished( QNetworkOperation * ) ),
@@ -475,9 +480,12 @@ QList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QString 
 							  QString::null, QString::null );
 	ops.append( opPut );
 	QUrlOperator *u2 = new QUrlOperator( to );
+	u2->d->entryMap = d->entryMap;
 	QNetworkProtocol *pProt = QNetworkProtocol::getNetworkProtocol( u2->protocol() );
 	pProt->setUrl( u2 );
 	
+	connect( pProt, SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ),
+		 this, SLOT( emitDataTransferProgress( int, int, QNetworkOperation * ) ) );
 	connect( pProt, SIGNAL( finished( QNetworkOperation * ) ),
 		 this, SLOT( emitFinished( QNetworkOperation * ) ) );
 
@@ -514,8 +522,6 @@ QList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QString 
 /*!
   Copies \a files to the directory \a dest. If \a move is TRUE,
   the files are moved and not copied.
-  During the copy-process copyProgress( int, int, QNetworkOperation * )
-  is emitted.
   Also at the end finished( QNetworkOperation * ) (on success or failure) is emitted,
   so check the state of the network operation object to see if the
   operation was successful or not.

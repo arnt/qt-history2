@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#45 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.cpp#46 $
 **
 ** Implementation of Network Extension Library
 **
@@ -96,6 +96,8 @@ void QFtp::operationRename( QNetworkOperation *op )
 
 void QFtp::operationGet( QNetworkOperation *op )
 {
+    getTotalSize = -1;
+    getDoneSize = 0;
     commandSocket->writeBlock( "TYPE I\r\n", 8 );
 }
 
@@ -425,6 +427,7 @@ void QFtp::dataConnected()
 	commandSocket->writeBlock( cmd.latin1(), cmd.length() );
     } break;
     case OpPut: { // upload file
+	// #### todo progress
 	if ( !operationInProgress() || operationInProgress()->arg1().isEmpty() ) {
 	    qWarning( "no filename" );
 	    break;
@@ -497,7 +500,15 @@ void QFtp::dataReadyRead()
 	s.resize( dataSocket->bytesAvailable() );
 	dataSocket->readBlock( s.data(), dataSocket->bytesAvailable() );
 	emit data( s, operationInProgress() );
-	//qDebug( "%s", s.data() );
+	if ( url() ) {
+	    if ( getTotalSize == -1 ) {
+		QUrlInfo inf = url()->info( QUrl( operationInProgress()->arg1() ).fileName() );
+		getTotalSize = (int)inf.size() ? (int)inf.size() : -1;
+	    }
+	    getDoneSize += s.size();
+	    emit dataTransferProgress( getDoneSize, getTotalSize, operationInProgress() );
+	}
+	// qDebug( "%s", s.data() );
     } break;
     }
 }

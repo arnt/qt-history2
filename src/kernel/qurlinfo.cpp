@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurlinfo.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qurlinfo.cpp#17 $
 **
 ** Implementation of QUrlInfo class
 **
@@ -115,6 +115,7 @@ QUrlInfo::QUrlInfo()
     d->isDir = FALSE;
     d->isFile = TRUE;
     d->isReadable = TRUE;
+    d->size = 0;
 }
 
 /*!

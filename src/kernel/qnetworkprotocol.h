@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#29 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#30 $
 **
 ** Implementation of QNetworkProtocol class
 **
@@ -147,6 +147,7 @@ signals:
     void createdDirectory( const QUrlInfo &, QNetworkOperation *res );
     void removed( QNetworkOperation *res );
     void itemChanged( QNetworkOperation *res );
+    void dataTransferProgress( int bytesDone, int bytesTotal, QNetworkOperation *res );
 
 protected:
     virtual void processOperation( QNetworkOperation *op );
@@ -172,6 +173,7 @@ private slots:
     void emitRemoved( QNetworkOperation *res );
     void emitItemChanged( QNetworkOperation *res );
     void emitData( const QByteArray &, QNetworkOperation *res );
+    void emitDataTransferProgress( int bytesDone, int bytesTotal, QNetworkOperation *res );
     void removeMe();
 
 };

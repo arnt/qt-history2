@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#37 $
 **
 ** Implementation of QNetworkProtocol class
 **
@@ -171,6 +171,20 @@ struct QNetworkProtocolPrivate
 */
 
 /*!
+  \fn void QNetworkProtocol::dataTransferProgress( int bytesDone, int bytesTotal, QNetworkOperation *op )
+
+  When transferring data (using put or get) this signal is emitted during the progress. 
+  \a bytesDone tells how much bytes of \a bytesTotal are transferred, more information
+  about the operation is stored in the \a op, the pointer to the network operation
+  which is processed. \a bytesTotal may be -1, which means that the number of total
+  bytes is not known.
+
+  When a protocol emits this signal, QNetworkProtocol is smart enough
+  to let the QUrlOperator, which is used by the network protocol, emit
+  its corresponding signal.
+*/
+
+/*!
   \fn void QNetworkProtocol::connectionStateChanged( int state, const QString &data )
 
   This signal is emitted whenever the state of the connection of
@@ -218,6 +232,8 @@ QNetworkProtocol::QNetworkProtocol()
 	     this, SLOT( emitRemoved( QNetworkOperation * ) ) );
     connect( this, SIGNAL( itemChanged( QNetworkOperation * ) ),
 	     this, SLOT( emitItemChanged( QNetworkOperation * ) ) );
+    connect( this, SIGNAL( dataTransferProgress( int, int, QNetworkOperation * ) ),
+	     this, SLOT( emitDataTransferProgress( int, int, QNetworkOperation * ) ) );
 
     connect( this, SIGNAL( finished( QNetworkOperation * ) ),
 	     this, SLOT( processNextOperation( QNetworkOperation * ) ) );
@@ -800,6 +816,18 @@ void QNetworkProtocol::emitData( const QByteArray &d, QNetworkOperation *res )
 {
     if ( url() )
 	url()->emitData( d, res );
+}
+
+/*!
+  \fn void QNetworkProtocol::emitDataTransferProgress( int bytesDone, int bytesTotal, QNetworkOperation *op )
+
+  Emits the signal dataTransferProgress( int bytesDone, int bytesTotal, QNetworkOperation * ).
+*/
+
+void QNetworkProtocol::emitDataTransferProgress( int bytesDone, int bytesTotal, QNetworkOperation *res )
+{
+    if ( url() )
+	url()->emitDataTransferProgress( bytesDone, bytesTotal, res );
 }
 
 

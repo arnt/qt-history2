@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.h#17 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.h#18 $
 **
 ** Implementation of QUrlOperator class
 **
@@ -58,7 +58,7 @@ public:
     virtual const QNetworkOperation *get();
     virtual const QNetworkOperation *put( const QByteArray &data );
     virtual QList<QNetworkOperation> copy( const QString &from, const QString &to, bool move = FALSE );
-    virtual QValueList< QList<QNetworkOperation> > copy( const QStringList &files, const QString &dest, 
+    virtual QValueList< QList<QNetworkOperation> > copy( const QStringList &files, const QString &dest,
 							 bool move = FALSE );
     virtual bool isDir();
 
@@ -77,7 +77,7 @@ public slots:
     void emitRemoved( QNetworkOperation *res );
     void emitItemChanged( QNetworkOperation *res );
     void emitData( const QByteArray &, QNetworkOperation *res );
-    void emitCopyProgress( int step, int total, QNetworkOperation *res );
+    void emitDataTransferProgress( int bytesDone, int bytesTotal, QNetworkOperation *res );
 
 signals:
     void newChild( const QUrlInfo &, QNetworkOperation *res );
@@ -87,7 +87,7 @@ signals:
     void removed( QNetworkOperation *res );
     void itemChanged( QNetworkOperation *res );
     void data( const QByteArray &, QNetworkOperation *res );
-    void copyProgress( int step, int total, QNetworkOperation *res );
+    void dataTransferProgress( int bytesDone, int bytesTotal, QNetworkOperation *res );
 
 protected:
     virtual void reset();
@@ -133,9 +133,9 @@ inline void QUrlOperator::emitItemChanged( QNetworkOperation *res )
     emit itemChanged( res );
 }
 
-inline void QUrlOperator::emitCopyProgress( int step, int total, QNetworkOperation *res )
+inline void QUrlOperator::emitDataTransferProgress( int bytesDone, int bytesTotal, QNetworkOperation *res )
 {
-    emit copyProgress( step, total, res );
+    emit dataTransferProgress( bytesDone, bytesTotal, res );
 }
 
 inline void QUrlOperator::emitFinished( QNetworkOperation *res )
