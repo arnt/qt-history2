@@ -289,7 +289,7 @@ bool Q3Process::start( QStringList *env )
     bool success;
     d->newPid();
 #ifdef UNICODE
-    if( qt_winunicode ) {
+    if (!(QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based)) {
 	STARTUPINFOW startupInfo = {
 	    sizeof( STARTUPINFO ), 0, 0, 0,
 	    (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT, (ulong)CW_USEDEFAULT,
@@ -381,8 +381,9 @@ bool Q3Process::start( QStringList *env )
 	if ( appName.isNull() )
 	    applicationName = 0;
 	else
-	    applicationName = appName.local8Bit().data();
-	success = CreateProcessA( applicationName, args.local8Bit().data(),
+	    applicationName = const_cast<char *>(appName.local8Bit());
+	success = CreateProcessA( applicationName,
+		const_cast<char *>(args.local8Bit()),
 		0, 0, TRUE, comms==0 ? CREATE_NEW_CONSOLE : DETACHED_PROCESS,
 		env==0 ? 0 : envlist.data(),
 		(const char*)workingDir.absPath().local8Bit(),
@@ -545,7 +546,7 @@ void Q3Process::socketWrite( int )
     while ( !d->stdinBuf.isEmpty() && isRunning() ) {
 	if ( !WriteFile( d->pipeStdin[1],
 		    d->stdinBuf.head()->data() + d->stdinBufRead,
-		    QMIN( 8192, d->stdinBuf.head()->size() - d->stdinBufRead ),
+		    qMin( 8192, int(d->stdinBuf.head()->size() - d->stdinBufRead) ),
 		    &written, 0 ) ) {
 	    d->lookup->start( 100 );
 	    return;
