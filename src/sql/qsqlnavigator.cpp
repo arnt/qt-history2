@@ -130,8 +130,7 @@ void QSqlNavigator::refresh()
     QSqlCursor* cursor = defaultCursor();
     if ( !cursor )
         return;
-    QString currentFilter = cursor->filter();
-    currentFilter = d->ftr;
+    QString currentFilter = d->ftr;
     QStringList currentSort = cursor->sort().toStringList( QString::null, TRUE );
     if ( !currentSort.count() )
         currentSort = d->srt;
