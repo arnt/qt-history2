@@ -288,14 +288,11 @@ void QDial::repaintScreen( const QRect *cr )
     }
 
     // erase remaining space around the dial
-    p.save();
     QRegion remaining( 0, 0, width(), height() );
     remaining = remaining.subtract( QRegion( te, QRegion::Ellipse ) );
     if ( p.hasClipping() )
 	remaining = remaining.intersect( p.clipRegion() );
-    p.setClipRegion( remaining );
-    p.fillRect( remaining.boundingRect(), colorGroup().brush( QColorGroup::Background ) );
-    p.restore();
+    erase(remaining);
 
     if ( resetClipping ) {
 	if ( cr )
