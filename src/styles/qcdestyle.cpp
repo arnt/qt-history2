@@ -296,11 +296,13 @@ void QCDEStyle::drawExclusiveIndicator( QPainter* p,
     p->drawPolygon( a );
 }
 
+/*! \reimp */
 int QCDEStyle::menuBarFrameWidth() const
 {
     return 1;
 }
 
+/*! \reimp */
 void QCDEStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
                                  QMenuItem* mi, QColorGroup& g, bool active,
                                  bool down, bool hasFocus )

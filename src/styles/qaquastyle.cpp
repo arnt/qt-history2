@@ -9197,7 +9197,7 @@ static void qAquaPixmap( const QString & s, QPixmap & p )
 }
 
 /*!
-    Constructs a QAquaStyle object.
+  Constructs a QAquaStyle object.
 */
 QAquaStyle::QAquaStyle()
 {
@@ -9551,6 +9551,7 @@ QRect QAquaStyle::buttonRect( int x, int y, int w, int h) const
     return r;
 }
 
+/*! \reimp */
 void QAquaStyle::drawToolButton ( QToolButton * btn, QPainter * p )
 {
     QPixmap px;
@@ -9746,6 +9747,7 @@ void QAquaStyle::drawBevelButton( QPainter * p, int x, int y, int w, int h,
 
 }
 
+/*! \reimp */
 QRect QAquaStyle::pushButtonContentsRect( QPushButton* btn ) const
 {
 #ifndef QT_NO_PUSHBUTTON
@@ -9754,7 +9756,6 @@ QRect QAquaStyle::pushButtonContentsRect( QPushButton* btn ) const
 }
 
 /*! \reimp */
-
 void QAquaStyle::drawPushButton( QPushButton* btn, QPainter *p)
 {
 #ifndef QT_NO_PUSHBUTTON
@@ -9814,7 +9815,6 @@ void QAquaStyle::drawPushButton( QPushButton* btn, QPainter *p)
 }
 
 /*! \reimp */
-
 void QAquaStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 {
 #ifndef QT_NO_PUSHBUTTON
@@ -9871,7 +9871,6 @@ void QAquaStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 #define SLIDER_MIN      9 // ### motif says 6 but that's too small
 
 /*! \reimp */
-
 void QAquaStyle::scrollBarMetrics( const QScrollBar* sb,
                                        int &sliderMin, int &sliderMax,
                                        int &sliderLength, int& buttonDim )const
@@ -10034,7 +10033,6 @@ void QAquaStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
 }
 
 /*! \reimp */
-
 void QAquaStyle::drawIndicator( QPainter* p, int x, int y, int /*w*/, int/*h*/,
                                 const QColorGroup  & g, int s, bool down,
                                 bool enabled )
@@ -10057,7 +10055,6 @@ void QAquaStyle::drawIndicator( QPainter* p, int x, int y, int /*w*/, int/*h*/,
 }
 
 /*! \reimp */
-
 void QAquaStyle::drawIndicatorMask( QPainter *p, int x, int y, int w, int h,
                                     int /*s*/ )
 {
@@ -10065,16 +10062,13 @@ void QAquaStyle::drawIndicatorMask( QPainter *p, int x, int y, int w, int h,
 }
 
 /*! \reimp */
-
-QSize
-QAquaStyle::indicatorSize() const
+QSize QAquaStyle::indicatorSize() const
 {
     return QSize(15,18);
 }
 
 #define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
 /*! \reimp */
-
 void QAquaStyle::drawExclusiveIndicator( QPainter* p, int x, int y, int /*w*/,
                                          int /*h*/, const QColorGroup & g,
                                          bool on, bool down,
@@ -10096,8 +10090,7 @@ void QAquaStyle::drawExclusiveIndicator( QPainter* p, int x, int y, int /*w*/,
     p->drawPixmap( x, y, px );
 }
 
-/*!\reimp
-*/
+/*! \reimp */
 void QAquaStyle::drawExclusiveIndicatorMask( QPainter *p, int x, int y,
                                              int /*w*/, int /*h*/,
                                              bool /* on */)
@@ -10109,14 +10102,12 @@ void QAquaStyle::drawExclusiveIndicatorMask( QPainter *p, int x, int y,
 }
 
 /*! \reimp */
-
 QSize QAquaStyle::exclusiveIndicatorSize() const
 {
     return QSize(14,17);
 }
 
 /*! \reimp */
-
 void QAquaStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
                                   const QColorGroup & g, bool /* sunken */,
                                   bool /*editable*/, bool /* enabled */,
@@ -10141,7 +10132,6 @@ void QAquaStyle::drawComboButton( QPainter *p, int x, int y, int w, int h,
 
 
 /*! \reimp */
-
 QRect QAquaStyle::comboButtonRect( int x, int y, int w, int h) const
 {
     QRect r(x+3, y+3, w-6-20, h-6);
@@ -10151,7 +10141,6 @@ QRect QAquaStyle::comboButtonRect( int x, int y, int w, int h) const
 }
 
 /*! \reimp */
-
 QRect QAquaStyle::comboButtonFocusRect( int x, int y, int w, int h) const
 {
     return QRect(x+4, y+4, w-8-20, h-8);
@@ -10592,9 +10581,7 @@ void QAquaStyle::drawPanel( QPainter *p, int x, int y, int w, int h,
     QWindowsStyle::drawPanel( p, x, y, w, h, g, sunken, lineWidth, fill );
 }
 
-/*
-  !\reimp
- */
+/*! \reimp */
 void QAquaStyle::drawToolBarPanel( QPainter * p, int x, int y,
                                    int w, int h, const QColorGroup & g,
                                    const QBrush * /*fill*/ )
@@ -10602,9 +10589,7 @@ void QAquaStyle::drawToolBarPanel( QPainter * p, int x, int y,
     p->fillRect( x, y, w, h, g.brush( QColorGroup::Button ) );
 }
 
-/*
-  !\reimp
-*/
+/*! \reimp */
 void QAquaStyle::drawToolBarSeparator( QPainter * p, int, int, int w, int h,
                                        const QColorGroup &,
                                        Qt::Orientation orientation )
@@ -10618,9 +10603,7 @@ void QAquaStyle::drawToolBarSeparator( QPainter * p, int, int, int w, int h,
     p->drawPixmap( 0, 0, px );
 }
 
-/*
-  !\reimp
- */
+/*! \reimp */
 QSize QAquaStyle::toolBarSeparatorSize( Qt::Orientation orientation ) const
 {
     if( orientation == Vertical )
@@ -10630,9 +10613,7 @@ QSize QAquaStyle::toolBarSeparatorSize( Qt::Orientation orientation ) const
 }
 
 
-/*
-  !\reimp
- */
+/*! \reimp */
 void QAquaStyle::drawMenuBarPanel( QPainter * p, int x, int y,
                                    int w, int h, const QColorGroup & g,
                                    const QBrush * /*fill*/ )
@@ -10640,8 +10621,7 @@ void QAquaStyle::drawMenuBarPanel( QPainter * p, int x, int y,
     p->fillRect( x, y, w, h, g.brush( QColorGroup::Button ) );
 }
 
-/*!\reimp
- */
+/*! \reimp */
 void QAquaStyle::drawToolBarHandle( QPainter *p, const QRect &r,
                                     Qt::Orientation orientation,
                                     bool highlight, const QColorGroup &cg,
@@ -10712,6 +10692,7 @@ void QAquaStyle::drawToolBarHandle( QPainter *p, const QRect &r,
     p->restore();
 }
 
+/*! \reimp */
 void QAquaStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
                                   QMenuItem* mi, QColorGroup& g,
                                   bool active, bool down, bool )
@@ -10728,6 +10709,7 @@ void QAquaStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
               (down && active) ? &white : &g.buttonText() );
 }
 
+/*! \reimp */
 void  QAquaStyle::drawFocusRect( QPainter * p, const QRect & r,
                                  const QColorGroup & g, const QColor* bg,
                                  bool atBorder)

@@ -1529,6 +1529,7 @@ void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw,
 #endif
 }
 
+/*! \reimp */
 void QWindowsStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
                                      QMenuItem* mi, QColorGroup& g,
                                      bool active, bool down, bool hasFocus )

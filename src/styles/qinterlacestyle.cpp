@@ -271,7 +271,8 @@ void QInterlaceStyle::drawFocusRect ( QPainter *p, const QRect &/*r*/, const QCo
   \reimp
 */
 void QInterlaceStyle::drawButton( QPainter *p, int x, int y, int w, int h,
-			     const QColorGroup &g, bool /*sunken*/, const QBrush *fill)
+				  const QColorGroup &g, bool /* sunken */,
+				  const QBrush *fill )
 {
     const int lineWidth = 2;
 
@@ -300,7 +301,8 @@ void QInterlaceStyle::drawButton( QPainter *p, int x, int y, int w, int h,
     }
 }
 
-void QInterlaceStyle::drawButtonMask ( QPainter * p, int x, int y, int w, int h )
+/*! \reimp */
+void QInterlaceStyle::drawButtonMask( QPainter * p, int x, int y, int w, int h )
 {
     QBrush fill( color1 );
     QColorGroup cg;
@@ -312,7 +314,7 @@ void QInterlaceStyle::drawButtonMask ( QPainter * p, int x, int y, int w, int h 
   \reimp
 */
 void QInterlaceStyle::drawBevelButton( QPainter *p, int x, int y, int w, int h,
-				const QColorGroup &g, bool sunken, const QBrush* fill)
+				       const QColorGroup &g, bool sunken, const QBrush* fill )
 {
     QInterlaceStyle::drawButton(p, x, y, w, h, g, sunken, fill);
 }

@@ -69,6 +69,11 @@
   All the functions are documented in \l QStyle.
 */
 
+/*! \fn int QCommonStyle::menuBarFrameWidth() const
+
+  \reimp
+*/
+
 /*!
   Constructs a QCommonStyle that provides the style \a s.  This determines
   the default behavior of the virtual functions.
@@ -77,15 +82,12 @@ QCommonStyle::QCommonStyle(GUIStyle s) : QStyle(s)
 {
 }
 
- /*!\reimp
-*/
+/*! \reimp */
 QCommonStyle::~QCommonStyle()
 {
 }
 
-
-/*!\reimp
-*/
+/*! \reimp */
 void QCommonStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
 				    QMenuItem* mi, QColorGroup& g,
 				    bool, bool, bool )
@@ -96,10 +98,7 @@ void QCommonStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
 #endif
 }
 
-
-
-/*!\reimp
- */
+/*! \reimp */
 void QCommonStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 {
 #ifndef QT_NO_PUSHBUTTON
@@ -140,12 +139,7 @@ void QCommonStyle::drawPushButtonLabel( QPushButton* btn, QPainter *p)
 #endif
 }
 
-
-
-
-
-/*!\reimp
- */
+/*! \reimp */
 void QCommonStyle::tabbarMetrics( const QTabBar* t, int& hframe, int& vframe,
 				  int& overlap) const
 {
@@ -158,8 +152,7 @@ void QCommonStyle::tabbarMetrics( const QTabBar* t, int& hframe, int& vframe,
 #endif
 }
 
-/*!\reimp
- */
+/*! \reimp */
 void QCommonStyle::drawTab( QPainter* p,  const  QTabBar* tb, QTab* t , bool selected )
 {
 #ifndef QT_NO_TABBAR
@@ -201,8 +194,7 @@ void QCommonStyle::drawTab( QPainter* p,  const  QTabBar* tb, QTab* t , bool sel
 #endif
 }
 
-/*!\reimp
- */
+/*! \reimp */
 void QCommonStyle::drawTabMask( QPainter* p,  const  QTabBar* /* tb*/ , QTab* t, bool /* selected */ )
 {
 #ifndef QT_NO_TABBAR
@@ -210,8 +202,7 @@ void QCommonStyle::drawTabMask( QPainter* p,  const  QTabBar* /* tb*/ , QTab* t,
 #endif
 }
 
-/*!\reimp
- */
+/*! \reimp */
 QStyle::ScrollControl QCommonStyle::scrollBarPointOver( const QScrollBar* sb, int sliderStart, const QPoint& p )
 {
 #ifndef QT_NO_SCROLLBAR
@@ -232,8 +223,7 @@ QStyle::ScrollControl QCommonStyle::scrollBarPointOver( const QScrollBar* sb, in
 #endif
 }
 
-
-
+/*! \reimp */
 QRect QCommonStyle::pushButtonContentsRect( QPushButton* btn ) const
 {
 #ifndef QT_NO_PUSHBUTTON
@@ -245,6 +235,7 @@ QRect QCommonStyle::pushButtonContentsRect( QPushButton* btn ) const
 #endif
 }
 
+/*! \reimp */
 void QCommonStyle::drawTitleBar( QPainter *p, int x, int y, int w, int h,
 				const QColor &left, const QColor &right,
 				bool /*active*/ )
@@ -270,6 +261,7 @@ void QCommonStyle::drawTitleBar( QPainter *p, int x, int y, int w, int h,
     }
 }
 
+/*! \reimp */
 void QCommonStyle::drawTitleBarLabel( QPainter *p, int x, int y, int w, int h,
 				     const QString &text, const QColor &tc, bool /*active*/ )
 {
@@ -277,12 +269,14 @@ void QCommonStyle::drawTitleBarLabel( QPainter *p, int x, int y, int w, int h,
     p->drawText( x, y, w, h, AlignAuto | AlignVCenter | SingleLine, text );
 }
 
+/*! \reimp */
 void QCommonStyle::drawTitleBarButton( QPainter *p, int x, int y, int w, int h,
 				      const QColorGroup &g, bool down )
 {
     drawToolButton( p, x, y, w, h, g, FALSE, down, TRUE );
 }
 
+/*! \reimp */
 void QCommonStyle::drawTitleBarButtonLabel( QPainter *p, int x, int y, int w, int h,
 					   const QPixmap *pm, int /*button*/, bool down )
 {
@@ -297,14 +291,14 @@ void QCommonStyle::drawTitleBarButtonLabel( QPainter *p, int x, int y, int w, in
     }
 }
 
-// header
+/*! \reimp */
 void QCommonStyle::drawHeaderSection( QPainter *p, int x, int y, int w, int h,
 				     const QColorGroup &g, bool down )
 {
     drawBevelButton( p, x, y, w, h, g, down );
 }
 
-// range control widget
+/*! \reimp */
 void QCommonStyle::drawRangeControlWidgetButton( QPainter *p, int x, int y, int w, int h,
 						 const QColorGroup &g, QRangeControlWidget*,
 						 bool /*downbtn*/, bool /*enabled*/, bool down )
@@ -312,6 +306,7 @@ void QCommonStyle::drawRangeControlWidgetButton( QPainter *p, int x, int y, int 
     drawButton( p, x, y, w, h, g, down );
 }
 
+/*! \reimp */
 void QCommonStyle::drawRangeControlWidgetSymbol( QPainter *p, int x, int y, int w, int h,
 						 const QColorGroup &g, QRangeControlWidget* rc,
 						 bool downbtn, bool /*enabled*/, bool down )
@@ -366,12 +361,13 @@ void QCommonStyle::drawRangeControlWidgetSymbol( QPainter *p, int x, int y, int 
     p->restore();
 }
 
-// groupbox
+/*! \reimp */
 void QCommonStyle::drawGroupBoxTitle( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, const QString &text, bool enabled )
 {
     drawItem( p, x, y, w, h, AlignCenter + ShowPrefix, g, enabled, 0, text );
 }
 
+/*! \reimp */
 void QCommonStyle::drawGroupBoxFrame( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, const QGroupBox *gb )
 {
     QPoint		p1, p2;
@@ -446,12 +442,13 @@ void QCommonStyle::drawGroupBoxFrame( QPainter *p, int x, int y, int w, int h, c
     }
 }
 
-// statusbar
+/*! \reimp */
 void QCommonStyle::drawStatusBarSection( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, bool /*permanent*/ )
 {
     qDrawShadeRect( p, x, y, w, h, g, TRUE, 1, 0, 0 );
 }
 
+/*! \reimp */
 void QCommonStyle::drawSizeGrip( QPainter *p, int x, int y, int w, int h, const QColorGroup &g )
 {
     p->save();

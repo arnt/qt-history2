@@ -1265,6 +1265,8 @@ void QMotifStyle::drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientatio
     }
     p->restore();
 }
+
+/*! \reimp */
 void QMotifStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
                                    QMenuItem* mi, QColorGroup& g, bool active,
                                    bool down, bool hasFocus )

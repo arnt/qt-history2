@@ -171,9 +171,6 @@ public:
 
 
 protected:
-    void drawScrollBarBackground( QPainter *p, int x, int y, int w, int h,
-                                  const QColorGroup &g, bool horizontal,
-                                  const QBrush* fill = 0);
     bool eventFilter( QObject *, QEvent * );
     void timerEvent( QTimerEvent * );
 
