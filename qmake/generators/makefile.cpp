@@ -1143,7 +1143,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
         bool do_default = true;
         const QString root = "$(INSTALL_ROOT)";
         QString target, dst;
-        if(project->variables()[(*it) + ".CONFIG"].indexOf("no_path") != -1) {
+        if(project->variables()[(*it) + ".CONFIG"].indexOf("no_path") == -1) {
             dst = fileFixify(project->variables()[pvar].first(), FileFixifyAbsolute, false);
             if(dst.right(1) != Option::dir_sep)
                 dst += Option::dir_sep;
