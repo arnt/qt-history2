@@ -4267,6 +4267,11 @@ int QImage::serialNumber() const
     return data->ser_no;
 }
 
+/*!
+    Returns true if the image is detached; otherwise returns false.
+
+    \sa detach()
+*/
 
 bool QImage::isDetached() const
 {
