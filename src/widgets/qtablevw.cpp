@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#55 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#56 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qdrawutl.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#55 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#56 $");
 
 
 const int sbDim = 16;
@@ -280,8 +280,11 @@ void QTableView::setNumRows( int rows )
     }
     updateScrollBars( verRange );
     if ( yOffset() > 0 && testTableFlags( Tbl_autoVScrollBar ) &&
-	 !(vScrollBar && vScrollBar->isVisible()) )
+	 !testTableFlags( Tbl_vScrollBar ) ) {
 	setYOffset( 0 );
+	if ( autoUpdate() )
+	    update();
+    }
 }
 
 /*!
@@ -318,8 +321,11 @@ void QTableView::setNumCols( int cols )
     }
     updateScrollBars( horRange );
     if ( xOffset() > 0 && testTableFlags( Tbl_autoHScrollBar ) &&
-	 !(hScrollBar && hScrollBar->isVisible()) )
+	 !testTableFlags( Tbl_hScrollBar ) ) {
 	setXOffset( 0 );
+	if ( autoUpdate() )
+	    update();
+    }
 }
 
 
