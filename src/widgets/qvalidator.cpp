@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#24 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#25 $
 **
 ** Implementation of validator classes.
 **
@@ -44,11 +44,39 @@
   subclass.  It returns Invalid, Valid or Acceptable depending on
   whether its argument is valid (for the class' definition of valid).
 
+  The three states require some explanation.  An \c Invalid string is
+  \e clearly invalid.  \c Valid is less obvious - the concept of
+  validity is slippery when the string is incomplete (still being
+  edited).  QValidator defines \c Valid as the property of a string
+  that it is not clearly invalid.  \c Acceptable means that the string
+  is acceptable as a final result.  One might say that any string that
+  is a plausible intermediate state during entry of an \c Acceptable
+  string is \c Valid.
+
+  Here are some examples: <ol>
+
+  <li>For a line edit that accepts integers from 0 to 999 inclusive,
+  42 and 666 are \c Acceptable, the empty string and 1114 are \c Valid
+  and asdf is \c Invalid.
+  
+  <li>For an editable combo box that accepts URLs, any well-formed URL
+  is \c Acceptable, "http://www.troll.no/," is \c Valid (it can be a
+  cut-and-paste job that accidentally took in a comma at the end), the
+  empty string is valid (the user might select and delete all of the
+  text in preparation to entering a new URL), and "http:///./moron"
+  is \c Invalid.
+
+  <li>For a spin box that accepts lengths, "11cm" and "1in" are \c
+  Acceptable, "11" and the empty string are \c Valid, and
+  "http://www.troll.no" and "hour" are \c Invalid.
+
   fixup() is provided for validators that can repair some or all user
   errors.  The default does nothing.  QLineEdit, for example, will
   call fixup() if the user presses Return and the content is not
-  currently valid, in case fixup() can do magic.
-
+  currently valid, in case fixup() can do magic.  This allows some \c
+  Invalid strings to be made \c Acceptable, too, spoiling the muddy
+  definition above even more.
+  
   QValidator is generally used with QLineEdit, QSpinBox and QComboBox.
 */
 
