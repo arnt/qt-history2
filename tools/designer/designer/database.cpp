@@ -91,7 +91,6 @@ bool QDesignerDataBrowser::event( QEvent* e )
 QDesignerDataView::QDesignerDataView( QWidget *parent, const char *name )
     : QDataView( parent, name )
 {
-    setForm( frm );
 }
 
 bool QDesignerDataView::event( QEvent* e )
@@ -106,6 +105,7 @@ bool QDesignerDataView::event( QEvent* e )
 	) {
 	if ( e->type() == QEvent::Show ) {
 	    setForm( frm );
+	    readFields();
 	    return TRUE;
 	}
     }
