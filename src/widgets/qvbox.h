@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvbox.h#8 $
+** $Id: //depot/qt/main/src/widgets/qvbox.h#9 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -15,7 +15,7 @@
 #include "qhbox.h"
 #endif // QT_H
 
-class QVBox : public QHBox
+class Q_EXPORT QVBox : public QHBox
 {
     Q_OBJECT
 public:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.h#8 $
+** $Id: //depot/qt/main/src/widgets/qworkspace.h#9 $
 **
 ** Definition of the QWorkspace class
 **
@@ -44,7 +44,7 @@
 
 #include "qworkspacechild.h"
 
-class QWorkspace : public QWidget
+class Q_EXPORT QWorkspace : public QWidget
 {
     Q_OBJECT
 public:

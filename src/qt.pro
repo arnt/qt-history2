@@ -169,6 +169,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$WIDGETS_H/qmainwindow.h \
 		  $$WIDGETS_H/qmenubar.h \
 		  $$WIDGETS_H/qmenudata.h \
+		  $$WIDGETS_H/qml.h \
 		  $$WIDGETS_H/qmultilineedit.h \
 		  $$WIDGETS_H/qpopupmenu.h \
 		  $$WIDGETS_H/qprogressbar.h \
@@ -192,7 +193,6 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$WIDGETS_H/qwhatsthis.h \
 		  $$WIDGETS_H/qworkspace.h \
 		  $$WIDGETS_H/qworkspacechild.h \
-		  $$WIDGETS_H/qml.h \
 		  $$WIDGETS_H/qwidgetstack.h
 
 
@@ -330,6 +330,7 @@ SOURCES	       += tools/qbitarray.cpp \
 		  widgets/qmainwindow.cpp \
 		  widgets/qmenubar.cpp \
 		  widgets/qmenudata.cpp \
+		  widgets/qml.cpp \
 		  widgets/qmultilineedit.cpp \
 		  widgets/qpopupmenu.cpp \
 		  widgets/qprogressbar.cpp \
@@ -354,7 +355,6 @@ SOURCES	       += tools/qbitarray.cpp \
 		  widgets/qwidgetstack.cpp \
 		  widgets/qworkspace.cpp \
 		  widgets/qworkspacechild.cpp \
-		  widgets/qml.cpp \
 		  dialogs/qcolordialog.cpp \
 		  dialogs/qdeveloper.cpp \
 		  dialogs/qfiledialog.cpp \

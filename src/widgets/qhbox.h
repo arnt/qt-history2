@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qhbox.h#10 $
+** $Id: //depot/qt/main/src/widgets/qhbox.h#11 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -19,7 +19,7 @@
 
 class QBoxLayout;
 
-class QHBox : public QFrame
+class Q_EXPORT QHBox : public QFrame
 {
     Q_OBJECT
 public:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.h#9 $
+** $Id: //depot/qt/main/src/widgets/qml.h#10 $
 **
 ** Definition of QML classes
 **
@@ -26,16 +26,17 @@
 #ifndef QML_H
 #define QML_H
 
+#include "qlist.h"
+#include "qdict.h"
+#include "qpixmap.h"
+#include "qscrollview.h"
+#include "qcolor.h"
 
-#include <qlist.h>
-#include <qdict.h>
-#include <qpixmap.h>
-#include <qscrollview.h>
-#include <qcolor.h>
 
 class QMLStyleSheet;
 class QMLStyleData;
-class QMLStyle : public Qt
+
+class Q_EXPORT QMLStyle : public Qt
 {
 public:
     QMLStyle( QMLStyleSheet* parent, const QString& name );
@@ -97,7 +98,7 @@ private:
     QMLStyleData* d;
 };
 
-class QMLProvider : public QObject
+class Q_EXPORT QMLProvider : public QObject
 {
     Q_OBJECT
 public:
@@ -128,7 +129,8 @@ private:
 
 class QMLNode;
 class QMLContainer;
-class QMLStyleSheet : public QObject
+
+class Q_EXPORT QMLStyleSheet : public QObject
 {
     Q_OBJECT
 public:
@@ -158,10 +160,9 @@ private:
 
 
 class QMLContainer;
-
-
 class QMLSimpleDocumentData;
-class QMLSimpleDocument
+
+class Q_EXPORT QMLSimpleDocument
 {
 public:
     QMLSimpleDocument( const QString& contents, const QWidget* w = 0);
@@ -179,10 +180,10 @@ private:
 };
 
 
-
 class QMLDocument;
 class QMLViewData;
-class QMLView : public QScrollView
+
+class Q_EXPORT QMLView : public QScrollView
 {
     Q_OBJECT
 public:
@@ -235,7 +236,8 @@ private:
 
 #if 0
 class QMLCursor;
-class QMLEdit : public QMLView
+
+class Q_EXPORT QMLEdit : public QMLView
 {
     //    Q_OBJECT
 public:
@@ -273,7 +275,8 @@ private:
 #endif
 
 class QMLBrowserData;
-class QMLBrowser : public QMLView
+
+class Q_EXPORT QMLBrowser : public QMLView
 {
     Q_OBJECT
 public:
@@ -312,4 +315,4 @@ private:
 };
 
 
-#endif
+#endif // QML_H
