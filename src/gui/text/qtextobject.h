@@ -24,6 +24,7 @@ class QTextCursor;
 class QTextBlock;
 class QTextFragment;
 class QTextLayout;
+class QTextList;
 
 class Q_GUI_EXPORT QTextObject : public QObject
 {
@@ -174,6 +175,8 @@ public:
     QString text() const;
 
     const QTextDocument *document() const;
+
+    QTextList *textList() const;
 
     class Q_GUI_EXPORT iterator {
         const QTextDocumentPrivate *p;

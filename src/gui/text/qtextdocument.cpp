@@ -1031,7 +1031,7 @@ void QTextHtmlExporter::emitBlock(const QTextBlock &block)
     if (block.begin().atEnd())
         return;
 
-    QTextList *list = qt_cast<QTextList *>(doc->objectForFormat(block.blockFormat()));
+    QTextList *list = block.textList();
     if (list) {
         if (list->itemNumber(block) == 0) { // first item? emit <ul> or appropriate
             const QTextListFormat format = list->format();

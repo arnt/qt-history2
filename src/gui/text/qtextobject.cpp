@@ -17,6 +17,7 @@
 #include "qtextformat_p.h"
 #include "qtextdocument_p.h"
 #include "qtextcursor.h"
+#include "qtextlist.h"
 
 #define d d_func()
 #define q q_func()
@@ -992,6 +993,20 @@ QString QTextBlock::text() const
 const QTextDocument *QTextBlock::document() const
 {
     return p ? p->document() : 0;
+}
+
+/*!
+    Returns a pointer to the corresponding QTextList if the block is
+    part of a list. Returns a null pointer otherwise.
+*/
+QTextList *QTextBlock::textList() const
+{
+    if (!isValid())
+        return 0;
+
+    const QTextBlockFormat fmt = blockFormat();
+    QTextObject *obj = p->document()->objectForFormat(fmt);
+    return qt_cast<QTextList *>(obj);
 }
 
 
