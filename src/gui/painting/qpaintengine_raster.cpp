@@ -972,6 +972,11 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
     int y0 = (ry < 0) ? -ry : 0;
     int x0 = (rx < 0) ? -rx : 0;
 
+    QRasterBuffer *rb = d->rasterBuffer;
+
+    w = qMin(w, rb->width() - rx);
+    h = qMin(h, rb->height() - ry);
+
     static QDataBuffer<QT_FT_Span> spans;
 
     for (int y=y0; y < h; ++y) {
