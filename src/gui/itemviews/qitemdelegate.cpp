@@ -183,6 +183,11 @@ QItemDelegate::EditorType QItemDelegate::editorType(const QAbstractItemModel *,
 }
 
 /*!
+    \fn QWidget *QItemDelegate::editor(QAbstractItemDelegate::BeginEditAction action,
+                    QWidget *parent,
+                    const QStyleOptionViewItem &option,
+                    const QAbstractItemModel *model, const QModelIndex &index)
+
     Returns the widget used to edit the item specified by the \a model and
     item \a index for the editing \a action given. The \a parent widget and
     style \a option are used to control how the editor widget appears.

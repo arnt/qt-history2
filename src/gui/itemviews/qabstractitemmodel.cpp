@@ -353,16 +353,16 @@ bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
 
     \ingroup model-view
 
-    This class is used as an index into QAbstractItemModel derived
-    data models. The index is used by item views, delegates and
-    selection models to locate an item in the model. QModelIndex
-    objects are created by the model.
+    This class is used as an index into item models derived from
+    QAbstractItemModel. The index is used by item views, delegates, and
+    selection models to locate an item in the model. QModelIndex objects are
+    created by the model.
+
+    An invalid model index can be constructed with the zero argument form of
+    the QModelIndex() constructor. This is useful when referring to top-level
+    items in a model.
 
     A model index has a row(), a column(), and a type().
-    \omit
-    It can also provide a \c{void} \c{*} pointer to the data() located
-    at the index position.
-    \endomit
 
     \sa \link model-view-programming.html Model/View Programming\endlink QPersistentModelIndex QAbstractItemModel
 */
@@ -387,8 +387,10 @@ bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
 /*!
     \fn QModelIndex::QModelIndex(int row, int column, void *data, Type type)
 
+    \internal
+
     Creates a new model index at the given \a row and \a column,
-    pointing to data \a data, and of type \a type.
+    pointing to some \a data of the specified \a type.
 */
 
 /*!
@@ -591,7 +593,7 @@ QAbstractItemModel::~QAbstractItemModel()
 /*!
     \fn void QAbstractItemModel::rowsInserted(const QModelIndex &parent, int start, int end)
 
-    This signal is emitted when rows have been inserted into the
+    This signal is emitted after rows have been inserted into the
     model. The new items are those between \a start and \a end
     inclusive, under the given \a parent item.
 
@@ -611,7 +613,7 @@ QAbstractItemModel::~QAbstractItemModel()
 /*!
     \fn void QAbstractItemModel::columnsInserted(const QModelIndex &parent, int start, int end)
 
-    This signal is emitted when columns have been inserted into the
+    This signal is emitted after columns have been inserted into the
     model. The new items are those between \a start and \a end
     inclusive, under the given \a parent item.
 
@@ -714,7 +716,7 @@ QMap<int, QVariant> QAbstractItemModel::itemData(const QModelIndex &index) const
 
     \overload
 
-    Sets the \c Edit role data for the item at \a index to \a value.
+    Sets the \c EditRole role data for the item at \a index to \a value.
     Returns true if successful; otherwise returns false.
 
     \sa data() itemData()
@@ -871,8 +873,7 @@ bool QAbstractItemModel::isSortable() const
 }
 
 /*!
-    Sorts the model, if it is sortable, by column \a column in the
-    given \a order.
+    Sorts the model by \a column, if it is sortable, in the given \a order.
 
     The base class implementation does nothing.
 
@@ -1007,10 +1008,11 @@ QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
 /*!
     \fn QModelIndex QAbstractItemModel::createIndex(int row, int column, void *data, QModelIndex::Type type) const
 
-    \internal
-
-    Creates a model index for the given \a row and \c column that
+    Creates a model index for the given \a row and \a column that
     points to the given \a data and is of the given \a type.
+
+    This function provides a consistent interface that model subclasses must
+    use to create model indices.
 */
 
 
@@ -1034,6 +1036,10 @@ bool QAbstractItemModel::isValid(int row, int column, const QModelIndex &parent)
     Invalidates the persistent indices by setting them to invalid
     model indexes. Affects the given \a parent index, or if the \a
     parent is invalid affects all indexes.
+
+    This function is used in model subclasses that can manage persistent
+    model indices.
+
 */
 void QAbstractItemModel::invalidatePersistentIndexes(const QModelIndex &parent)
 {
@@ -1282,7 +1288,7 @@ int QAbstractTableModel::columnCount(const QModelIndex &parent) const
     \fn int QAbstractListModel::columnCount() const
 
     Returns the number of columns in the model.
-    This list model only contains one column of items.
+    List models only contain one column of items.
 */
 
 /*!
