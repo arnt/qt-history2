@@ -206,7 +206,7 @@ int q_compare( const QSqlRecord* buf1, const QSqlRecord* buf2, const QSqlIndex& 
 {
     int cmp = 0;
 
-    QString s1, s2; //##
+    //    QString s1, s2; //##
 
     //    for ( uint i = 0; i < idx.count(); ++i ) {
     int i = 0;
@@ -232,8 +232,8 @@ int q_compare( const QSqlRecord* buf1, const QSqlRecord* buf2, const QSqlIndex& 
 		break;
 	    }
 	}
-	s1 = f1->value().toString().simplifyWhiteSpace() + ";";
-	s2 = buf2->value( fn ).toString().simplifyWhiteSpace() + ";";
+	//	s1 = f1->value().toString().simplifyWhiteSpace() + ";"; ### what is this?
+	//	s2 = buf2->value( fn ).toString().simplifyWhiteSpace() + ";";
 	//    }
     if ( reverse ) {
 	if ( cmp < 0 )
@@ -276,58 +276,65 @@ bool QSqlCursorNavigator::findBuffer( const QSqlIndex& idx, int atHint )
 	return FALSE;
     if ( !cur->isActive() )
 	return FALSE;
-    QSqlRecord* buf = cur->editBuffer();
+    if ( !idx.count() )
+	return FALSE;
 
-    bool seekPrimary = (idx.count() ? TRUE : FALSE );
+    QSqlRecord* buf = cur->editBuffer();
 
     QApplication::setOverrideCursor( Qt::waitCursor );
     bool indexEquals = FALSE;
+    /* check the hint */
+    if ( cur->seek( atHint ) )
+	indexEquals = q_index_matches( cur, idx );
 
-    if ( seekPrimary ) {
-
-	indexEquals = FALSE;
-
-	/* check the hint */
-	if ( cur->seek( atHint ) )
-	    indexEquals = q_index_matches( cur, idx );
-
-	if ( !indexEquals ) {
-	    /* check current page */
-	    int pageSize = 20;
-	    int startIdx = QMAX( atHint - pageSize, 0 );
-	    int endIdx = atHint + pageSize;
-	    for ( int j = startIdx; j <= endIdx; ++j ) {
-		if ( cur->seek( j ) ) {
-		    indexEquals = q_index_matches( cur, idx );
-		    if ( indexEquals )
-			break;
-		}
+    if ( !indexEquals ) {
+	/* check current page */
+	int pageSize = 20;
+	int startIdx = QMAX( atHint - pageSize, 0 );
+	int endIdx = atHint + pageSize;
+	for ( int j = startIdx; j <= endIdx; ++j ) {
+	    if ( cur->seek( j ) ) {
+		indexEquals = q_index_matches( cur, idx );
+		if ( indexEquals )
+		    break;
 	    }
 	}
+    }
 
-	if ( !indexEquals && cur->driver()->hasQuerySizeSupport() ) {
-	    /* binary search based on record buffer and current sort fields */
-	    int lo = 0;
-	    int hi = cur->size();
-	    int mid;
-	    if ( q_compare( buf, cur, cur->sort() ) >= 0 )
-		lo = cur->at();
-	    while( lo != hi ) {
-		mid = lo + (hi - lo) / 2;
-		if ( !cur->seek( mid ) )
-		    break;
-		if ( q_index_matches( cur, idx ) ) {
-		    indexEquals = TRUE;
-		    break;
-		}
-		int c = q_compare( buf, cur, cur->sort() );
-		if ( c < 0 )
-		    hi = mid;
-		else if ( c == 0 ) {
-		    // found it, but there may be duplicates
-		    int at = mid;
+    if ( !indexEquals && cur->driver()->hasQuerySizeSupport() && cur->sort().count() ) {
+	/* binary search based on record buffer and current sort fields */
+	int lo = 0;
+	int hi = cur->size();
+	int mid;
+	if ( q_compare( buf, cur, cur->sort() ) >= 0 )
+	    lo = cur->at();
+	while( lo != hi ) {
+	    mid = lo + (hi - lo) / 2;
+	    if ( !cur->seek( mid ) )
+		break;
+	    if ( q_index_matches( cur, idx ) ) {
+		indexEquals = TRUE;
+		break;
+	    }
+	    int c = q_compare( buf, cur, cur->sort() );
+	    if ( c < 0 )
+		hi = mid;
+	    else if ( c == 0 ) {
+		// found it, but there may be duplicates
+		int at = mid;
+		do {
+		    mid--;
+		    if ( !cur->seek( mid ) )
+			break;
+		    if ( q_index_matches( cur, idx ) ) {
+			indexEquals = TRUE;
+			break;
+		    }
+		} while ( q_compare( buf, cur, cur->sort() ) == 0 );
+		if ( !indexEquals ) {
+		    mid = at;
 		    do {
-			mid--;
+			mid++;
 			if ( !cur->seek( mid ) )
 			    break;
 			if ( q_index_matches( cur, idx ) ) {
@@ -335,39 +342,27 @@ bool QSqlCursorNavigator::findBuffer( const QSqlIndex& idx, int atHint )
 			    break;
 			}
 		    } while ( q_compare( buf, cur, cur->sort() ) == 0 );
-		    if ( !indexEquals ) {
-			mid = at;
-			do {
-			    mid++;
-			    if ( !cur->seek( mid ) )
-				break;
-			    if ( q_index_matches( cur, idx ) ) {
-				indexEquals = TRUE;
-				break;
-			    }
-			} while ( q_compare( buf, cur, cur->sort() ) == 0 );
-		    }
-		    break;
-		} else if ( c > 0 ) {
-		    lo = mid + 1;
 		}
+		break;
+	    } else if ( c > 0 ) {
+		lo = mid + 1;
 	    }
 	}
+    }
 
-	if ( !indexEquals ) {
-	    /* give up, use brute force */
-	    int startIdx = 0;
-	    if ( cur->at() != startIdx ) {
-		cur->seek( startIdx );
-	    }
-	    for ( ;; ) {
-		indexEquals = FALSE;
-		indexEquals = q_index_matches( cur, idx );
-		if ( indexEquals )
-		    break;
-		if ( !cur->next() )
-		    break;
-	    }
+    if ( !indexEquals ) {
+	/* give up, use brute force */
+	int startIdx = 0;
+	if ( cur->at() != startIdx ) {
+	    cur->seek( startIdx );
+	}
+	for ( ;; ) {
+	    indexEquals = FALSE;
+	    indexEquals = q_index_matches( cur, idx );
+	    if ( indexEquals )
+		break;
+	    if ( !cur->next() )
+		break;
 	}
     }
     QApplication::restoreOverrideCursor();
