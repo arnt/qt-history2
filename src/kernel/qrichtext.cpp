@@ -1562,8 +1562,6 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			depth--;
 		    }
 		    curListStyle = chooseListStyle( nstyle, attr, curListStyle );
-		    if ( tagname == "center" )
-			curAlignment = AlignCenter;
 		}
 
 		if ( !nstyle || nstyle->whiteSpaceMode() != QStyleSheetItem::WhiteSpacePre ) {
@@ -1604,6 +1602,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    curpar->addCustomItem();
 		    registerCustomItem( custom, curpar );
 		    hasNewPar = FALSE;
+		    curpar->setAlignment( curAlignment );
 		} else if ( !emptyTag ) {
 		    tags.push( curtag );
 		    listStyles.push( curListStyle );
@@ -1642,8 +1641,8 @@ void QTextDocument::setRichTextInternal( const QString &text )
 				curpar->setStyleSheetItems( vec );
 			    }
 			}
-			if ( curtag.style->alignment() != QStyleSheetItem::Undefined )
-			    curAlignment = curtag.style->alignment();
+			if ( nstyle->alignment() != QStyleSheetItem::Undefined )
+			    curAlignment = nstyle->alignment();
 			
 			curtag.style = nstyle;
 			curtag.wsm = nstyle->whiteSpaceMode();
@@ -1676,7 +1675,10 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    }
 		
 		    if ( attr.contains( "align" ) &&
-			 ( curtag.name == "p" || curtag.name == "div" || curtag.name == "li" || curtag.name[ 0 ] == 'h' ) ) {
+			 ( curtag.name == "p" ||
+			   curtag.name == "div" ||
+			   curtag.name == "li" ||
+			   curtag.name[ 0 ] == 'h' ) ) {
 			QString align = attr["align"];
 			if ( align == "center" )
 			    curAlignment = Qt::AlignCenter;
@@ -1717,7 +1719,6 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		
 		    curtag = tags.pop();
 		    curListStyle = listStyles.pop();
-		
 		    depth--;
 		}
 
