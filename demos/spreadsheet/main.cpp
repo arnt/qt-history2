@@ -1,5 +1,7 @@
 #include <qapplication.h>
 #include <qtablewidget.h>
+#include <qstatusbar.h>
+#include <qmainwindow.h>
 
 class SpreadSheetItem : public QTableWidgetItem
 {
@@ -26,7 +28,8 @@ public:
             int sum = 0;
             for (int r=table->row(start); r<=table->row(end);  ++r)
                 for (int c=table->column(start); c<=table->column(end); ++c)
-                    sum += table->item(r, c)->text().toInt();
+                    if (table->item(r,c) != this)
+                        sum += table->item(r, c)->text().toInt();
             return (sum);
         } else if (op == "+") {
             return (start->text().toInt() + end->text().toInt());
@@ -91,18 +94,49 @@ private:
     QTableWidget *table;
 };
 
-static const int numRows = 9;
-static const int numColumns = 9;
+
+class SpreadSheet : public QMainWindow
+{
+
+    Q_OBJECT
+
+public:
+    static const int numRows = 9;
+    static const int numColumns = 9;
+
+    SpreadSheet(QWidget *parent = 0) : QMainWindow(parent) {
+        table = new QTableWidget(numRows, numColumns, this);
+        for (int r=0; r<numRows; ++r)
+            for (int c=0; c<numColumns; ++c)
+                table->setItem(r, c, new SpreadSheetItem(table));
+        setCentralWidget(table);
+        connect(table, SIGNAL(currentChanged(QTableWidgetItem*, QTableWidgetItem*)),
+                this, SLOT(updateStatus(QTableWidgetItem*)));
+        connect(table, SIGNAL(itemChanged(QTableWidgetItem*)),
+                this, SLOT(updateStatus(QTableWidgetItem*)));
+
+        statusBar();
+    }
+
+public slots:
+    void updateStatus(QTableWidgetItem *item) {
+        if (item && item == table->currentItem())
+            statusBar()->message("Content: " + item->data(QAbstractItemModel::EditRole).toString(), 1000);
+        else
+            qDebug("no item!");
+    }
+
+private:
+    QTableWidget *table;
+};
+
 
 int main(int argc, char** argv) {
     QApplication app(argc, argv);
-    QTableWidget table(numRows, numColumns, 0);
-    app.setMainWidget(&table);
-
-    for (int r=0; r<numRows; ++r)
-        for (int c=0; c<numColumns; ++c)
-            table.setItem(r, c, new SpreadSheetItem(&table));
-
-    table.show();
+    SpreadSheet sheet;
+    app.setMainWidget(&sheet);
+    sheet.show();
     return app.exec();
 }
+
+#include "main.moc"
