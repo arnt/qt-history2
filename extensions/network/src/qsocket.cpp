@@ -973,6 +973,7 @@ void QSocket::sn_read()
 #endif
 	    delete a;
 	    emit error( ErrSocketRead );	// socket read error
+	    return;
 	}
 	if ( nread != nbytes ) {		// unexpected
 #if defined(CHECK_RANGE)
