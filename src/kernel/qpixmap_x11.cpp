@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#24 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#23 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#24 $";
 #endif
 
 
@@ -324,53 +324,66 @@ QPixmap &QPixmap::operator=( const QImage &im )
 }
 
 
-/*! \fn bool QPixmap::isNull() const
+/*!
+\fn bool QPixmap::isNull() const
 
-  Returns TRUE if it is a null pixmap.
+Returns TRUE if it is a null pixmap.
 
-  A null pixmap has zero width, zero height and no contents.
-  You cannot draw in a null pixmap or bitBlt anything to it.
+A null pixmap has zero width, zero height and no contents.
+You cannot draw in a null pixmap or bitBlt anything to it.
 
-  \sa isNull(). */
-
-
-/*! \fn int QPixmap::width() const
-
-  Returns the width of the pixmap. */
-
-/*! \fn int QPixmap::height() const
-
-  Returns the height of the pixmap. */
-
-/*!\fn QSize QPixmap::size() const
-
-  Returns the size of the pixmap. */
-
-/*! \fn QRect QPixmap::rect() const
-
-  Returns the enclosing rectangle of the pixmap. */
-
-/*! \fn int QPixmap::depth() const
-
-  Returns the depth of the image.
-
-  The pixmap depth is also called bits per pixel (bpp) or bit planes
-  of a pixmap. */
-
-/*! \fn int QPixmap::numColors() const
-
-  Returns the maximum number of colors that can be used for the pixmap.
-
-  Similar to 2^depth. */
+\sa isNull().
+*/
 
 
-/*! Enables the internal image cache if \e enable is TRUE, or disables it if
-  \e enable is FALSE.  Returns the previous setting of the image cache.
+/*!
+\fn int QPixmap::width() const
+Returns the width of the pixmap.
+*/
 
-  This cache is disabled by default.
+/*!
+\fn int QPixmap::height() const
+Returns the height of the pixmap.
+*/
 
-  Enabling the internal image cache speeds up functions that fetch the
-  pixmap contents; convertToImage() and xForm(). */
+/*!
+\fn QSize QPixmap::size() const
+Returns the size of the pixmap.
+*/
+
+/*!
+\fn QRect QPixmap::rect() const
+
+Returns the enclosing rectangle of the pixmap.
+*/
+
+/*!
+\fn int QPixmap::depth() const
+
+Returns the depth of the image.
+
+The pixmap depth is also called bits per pixel (bpp) or bit planes
+of a pixmap.
+*/
+
+/*!
+\fn int QPixmap::numColors() const
+
+Returns the maximum number of colors that can be used for the pixmap.
+
+Similar to 2^depth.
+*/
+
+
+/*!
+Enables the internal image cache if \e enable is TRUE, or disables it if
+\e enable is FALSE.  Returns the previous setting of the image cache.
+
+This cache is disabled by default.
+
+Enabling the internal image cache speeds up functions that fetch the
+pixmap contents; convertToImage() and xForm().
+*/
 
 bool QPixmap::enableImageCache( bool enable )
 {
@@ -385,7 +398,9 @@ bool QPixmap::enableImageCache( bool enable )
 }
 
 
-/*! Fills the pixmap with the color \e fillColor. */
+/*!
+Fills the pixmap with the color \e fillColor.
+*/
 
 void QPixmap::fill( const QColor &fillColor )	// fill pixmap contents
 {
@@ -398,10 +413,12 @@ void QPixmap::fill( const QColor &fillColor )	// fill pixmap contents
 }
 
 
-/*! Returns pixmap metics.
+/*!
+Returns pixmap metics.
 
-  This is a reimplementation of the virtual function
-  QPaintDevice::metric(). */
+This is a reimplementation of the virtual function
+QPaintDevice::metric().
+*/
 
 long QPixmap::metric( int m ) const		// get metric information
 {
@@ -440,16 +457,18 @@ long QPixmap::metric( int m ) const		// get metric information
 }
 
 
-/*! Converts the pixmap to an image. Returns a null image if the
-  operation failed.
+/*!
+Converts the pixmap to an image. Returns a null image if the
+operation failed.
 
-  If the pixmap has 1 bit depth, the returned image will also get 1
-  bit depth.  If the pixmap has 2-8 bits depth, the returned image
-  gets 8 bit depth.  If the pixmap has greater than 8 bits depth, the
-  returned image gets 24 bits depth.
+If the pixmap has 1 bit depth, the returned image will also get 1
+bit depth.  If the pixmap has 2-8 bits depth, the returned image
+gets 8 bit depth.  If the pixmap has greater than 8 bits depth, the
+returned image gets 24 bits depth.
 
-  \bug Does not support 2 or 4 bit display hardware. This function
-  needs to be tested on different types of X servers. */
+\bug Does not support 2 or 4 bit display hardware. This function
+needs to be tested on different types of X servers.
+*/
 
 QImage QPixmap::convertToImage() const
 {
@@ -639,18 +658,20 @@ QImage QPixmap::convertToImage() const
 }
 
 
-/*! Converts the image data and sets this pixmap. Returns TRUE if
-  successful.
+/*!
+Converts the image data and sets this pixmap. Returns TRUE if
+successful.
 
-  If \e image has more colors than the number of available colors, we
-  try to pick the most important colors.
+If \e image has more colors than the number of available colors, we
+try to pick the most important colors.
 
-  If this pixmap is an instance of QBitmap and \e image has 8 or 24
-  bits depth, then the image will be dithered using the
-  Floyd-Steinberg dithering algorithm.
+If this pixmap is an instance of QBitmap and \e image has 8 or 24
+bits depth, then the image will be dithered using the
+Floyd-Steinberg dithering algorithm.
 
-  \bug Does not support 2 or 4 bit display hardware. This function
-  needs to be tested on different types of X servers. */
+\bug Does not support 2 or 4 bit display hardware. This function
+needs to be tested on different types of X servers.
+*/
 
 bool QPixmap::convertFromImage( const QImage &img )
 {
@@ -964,15 +985,17 @@ bool QPixmap::convertFromImage( const QImage &img )
 }
 
 
-/*! Grabs the contents of a window and makes a pixmap out of it.
-  Returns the pixmap.
+/*!
+Grabs the contents of a window and makes a pixmap out of it.
+Returns the pixmap.
 
-  The argments \e x and \e y specify the offset in the window, while
-  \e w and \e h specify the width and height of the area to be copied.
+The argments \e x and \e y specify the offset in the window, while
+\e w and \e h specify the width and height of the area to be copied.
 
-  If \e w is negative, the function copies everything to the right
-  border of the window.  If \e h is negative, the function copies
-  everything to the bottom of the window. */
+If \e w is negative, the function copies everything to the right
+border of the window.  If \e h is negative, the function copies
+everything to the bottom of the window.
+*/
 
 QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 {
@@ -995,7 +1018,6 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
     QPixmap pm( w, h );				// create new pixmap
     XPutImage( dpy, pm.handle(), qt_xget_readonly_gc(), xi, 0, 0, 0, 0, w, h);
     pm.data->uninit = FALSE;
-    pm.data->bitmap = (DefaultDepth(dpy, qt_xscreen()) == 1); // dubious
     XDestroyImage( xi );
     return pm;
 }
@@ -1007,14 +1029,15 @@ static inline int d2i_round( double d )		// double -> int, rounded
 }
 
 
-/*! Transforms the pixmap using \e matrix, and returns the transformed
-  pixmap.
+/*!
+Transforms the pixmap using \e matrix, and returns the transformed
+pixmap.
 
-  Qt uses this function to implement rotated text on window systems
-  that do not support such complex features.
+Qt uses this function to implement rotated text on window systems
+that do not support such complex features.
 
-  Example of how to manually draw a rotated text at (100,200) in a widget:
-  \code
+Example of how to manually draw a rotated text at (100,200) in a widget:
+\code
   QWidget  w;				// our widget
   char	  *str = "Trolls R Qt";		// text to be drawn
   QFont	   f( "Charter", 24 );		// use Charter 24pt font
@@ -1042,11 +1065,12 @@ static inline int d2i_round( double d )		// double -> int, rounded
 
   bitBlt( &w, 100-x, 200-y,		// blt rp into the widget
 	  &rp, 0, 0, -1, -1 );
-  \endcode
+\endcode
 
-  \sa trueMatrix(), Q2DMatrix.
+\sa trueMatrix(), Q2DMatrix.
 
-  \bug 2 and 4 bits pixmaps not supported. */
+\bug 2 and 4 bits pixmaps not supported.
+*/
 
 QPixmap QPixmap::xForm( const Q2DMatrix &matrix ) const
 {
@@ -1326,18 +1350,20 @@ QPixmap QPixmap::xForm( const Q2DMatrix &matrix ) const
 }
 
 
-/*! Returns the actual matrix used for transforming a pixmap with \e w
-  width and \e h height.
+/*!
+Returns the actual matrix used for transforming a pixmap with \e w
+width and \e h height.
 
-  When transforming a pixmap with xForm(), the transformation matrix
-  is internally adjusted to compensate for unwanted translation,
-  i.e. xForm() returns the smallest pixmap containing all transformed
-  points of the original pixmap.
+When transforming a pixmap with xForm(), the transformation matrix
+is internally adjusted to compensate for unwanted translation,
+i.e. xForm() returns the smallest pixmap containing all transformed
+points of the original pixmap.
 
-  This function returns the modified matrix, which maps points
-  correctly from the original pixmap into the new pixmap.
+This function returns the modified matrix, which maps points
+correctly from the original pixmap into the new pixmap.
 
-  \sa xForm(), Q2DMatrix. */
+\sa xForm(), Q2DMatrix.
+*/
 
 Q2DMatrix QPixmap::trueMatrix( const Q2DMatrix &matrix, int w, int h )
 {						// get true wxform matrix
