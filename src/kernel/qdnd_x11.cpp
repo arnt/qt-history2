@@ -51,10 +51,6 @@
 
 #include "qt_x11.h"
 
-#if defined (Q_OS_AIX)
-#  include <sys/select.h> // needed by AIX 4.1
-#endif
-
 // conflict resolution
 
 // unused, may be used again later: const int XKeyPress = KeyPress;
