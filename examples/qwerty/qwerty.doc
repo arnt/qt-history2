@@ -4,7 +4,7 @@ $Id$
 /*!   \page qwerty-example.html
 
   \ingroup examples
-  \title Simple HTML Browser
+  \title Simple editor that can load encodings
 
 
   <hr>

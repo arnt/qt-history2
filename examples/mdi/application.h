@@ -16,7 +16,7 @@
 #include <qmainwindow.h>
 #include <qptrlist.h>
 
-class QMultiLineEdit;
+class QTextEdit;
 class QToolBar;
 class QPopupMenu;
 class QWorkspace;
@@ -42,7 +42,7 @@ signals:
     void message(const QString&, int );
 
 private:
-    QMultiLineEdit* medit;
+    QTextEdit* medit;
     QMovie * mmovie;
     QString filename;
 };

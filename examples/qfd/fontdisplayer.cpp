@@ -36,7 +36,7 @@ FontRowTable::FontRowTable( QWidget* parent, const char* name ) :
 
 QSize FontRowTable::sizeHint() const
 {
-    return 16*cellSize()+QSize(2,2)*(margin()+frameWidth());
+    return 24*cellSize()+QSize(2,2)*(margin()+frameWidth());
 }
 
 QSize FontRowTable::cellSize() const
@@ -109,17 +109,18 @@ void FontRowTable::paintEvent( QPaintEvent* e )
     }
 }
 
-void FontRowTable::setRow(int r)
+void FontRowTable::setRow(int)
 {
-    row = r;
-
     QFontMetrics fm = fontMetrics();
-    QString str;
-    str.sprintf("mLB=%d mRB=%d mW=%d",
-	fm.minLeftBearing(),
-	fm.minRightBearing(),
-	fm.maxWidth()
-	);
+    QFontInfo fi = fontInfo();
+    QString str = QString("%1 %2pt%3%4 mLB=%5 mRB=%6 mW=%7")
+		    .arg(fi.family())
+		    .arg(fi.pointSize())
+		    .arg(fi.bold() ? " bold" : "")
+		    .arg(fi.italic() ? " italic" : "")
+		    .arg(fm.minLeftBearing())
+		    .arg(fm.minRightBearing())
+		    .arg(fm.maxWidth());
 
     emit fontInformation(str);
     update();
@@ -131,8 +132,10 @@ void FontRowTable::chooseFont()
     QFont oldfont = tablefont;
     tablefont = QFontDialog::getFont(&ok, oldfont, this);
 
-    if (ok)
+    if (ok) {
 	setFont(tablefont);
+	setRow(0);
+    }
     else
 	tablefont = oldfont;
 

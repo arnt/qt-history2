@@ -215,10 +215,10 @@ void MenuExample::contextMenuEvent( QContextMenuEvent * )
 {
     QPopupMenu*	contextMenu = new QPopupMenu( this );
     Q_CHECK_PTR( contextMenu );
-    QLabel *caption = new QLabel( "<font color=darkblue><u><b>"
-	"Context Menu</b></u></font>", this );
-    caption->setAlignment( Qt::AlignCenter );
-    contextMenu->insertItem( caption );
+//    QLabel *caption = new QLabel( "<font color=darkblue><u><b>"
+//	"Context Menu</b></u></font>", this );
+//    caption->setAlignment( Qt::AlignCenter );
+//    contextMenu->insertItem( caption );
     contextMenu->insertItem( "&New",  this, SLOT(news()), CTRL+Key_N );
     contextMenu->insertItem( "&Open...", this, SLOT(open()), CTRL+Key_O );
     contextMenu->insertItem( "&Save", this, SLOT(save()), CTRL+Key_S );

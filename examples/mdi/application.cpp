@@ -20,7 +20,6 @@
 #include <qpopupmenu.h>
 #include <qmenubar.h>
 #include <qmovie.h>
-#include <qmultilineedit.h>
 #include <qfile.h>
 #include <qfiledialog.h>
 #include <qlabel.h>
@@ -31,6 +30,7 @@
 #include <qpushbutton.h>
 #include <qaccel.h>
 #include <qtextstream.h>
+#include <qtextedit.h>
 #include <qpainter.h>
 #include <qpaintdevicemetrics.h>
 #include <qwhatsthis.h>
@@ -291,7 +291,7 @@ MDIWindow::MDIWindow( QWidget* parent, const char* name, int wflags )
     : QMainWindow( parent, name, (WFlags)wflags )
 {
     mmovie = 0;
-    medit = new QMultiLineEdit( this );
+    medit = new QTextEdit( this );
     setFocusProxy( medit );
     setCentralWidget( medit );
 }
