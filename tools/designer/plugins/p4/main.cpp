@@ -611,12 +611,11 @@ void P4Interface::formChanged()
     if ( !appInterface )
         return;
 
-    if ( !( fwIface = appInterface->currentForm() ) )
-	return;
-
-    QString filename = fwIface->fileName();
-
-    fwIface->onModificationChange( this, SLOT( p4MightEdit( bool ) ) );
+    QString filename;
+    if ( ( fwIface = appInterface->currentForm() ) ) {
+	filename = fwIface->fileName();
+	fwIface->onModificationChange( this, SLOT( p4MightEdit( bool ) ) );
+    }
 
     if ( filename.isEmpty() ) {
 	actionSync->setEnabled( FALSE );
@@ -766,6 +765,9 @@ void P4Interface::cleanup()
 {
     actions.clear();
     delete outputPage;
+    delete P4Info::_files;
+    delete P4Info::clientName;
+    delete P4Info::userName;
 }
 
 bool P4Interface::canUnload() const

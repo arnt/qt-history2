@@ -16,8 +16,10 @@ QString *P4Info::clientName = 0;
 
 QDict<P4Info> *P4Info::files()
 {
-    if ( !P4Info::_files )
+    if ( !P4Info::_files ) {
 	P4Info::_files = new QDict<P4Info>(53);
+	_files->setAutoDelete( TRUE );
+    }
 
     return P4Info::_files;
 }
@@ -121,7 +123,6 @@ void P4FStat::processExited()
     if ( old ) {
 	wasIgnore = old->ignoreEdit;
 	P4Info::files()->remove( fileName() );
-	delete old;
     }
 
     P4Info* p4i = new P4Info;
