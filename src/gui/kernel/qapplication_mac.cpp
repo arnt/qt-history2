@@ -1267,9 +1267,12 @@ static int get_key(int modif, int key, int scan)
 */
 bool QApplicationPrivate::do_mouse_down(Point *pt, bool *mouse_down_unhandled, EventRef mouseEv)
 {
-    QWidget *widget;
-    int popup_close_count = 0;
+    //find the widget/part
+    QWidget *widget = 0;
     short windowPart = qt_mac_window_at(pt->h, pt->v, &widget);
+
+    //close down the popups
+    int popup_close_count = 0;
     if(q->inPopupMode() && widget != q->activePopupWidget()) {
         while(q->inPopupMode()) {
             q->activePopupWidget()->close();
@@ -1279,6 +1282,7 @@ bool QApplicationPrivate::do_mouse_down(Point *pt, bool *mouse_down_unhandled, E
         }
     }
 
+    //handle the down
     if(mouse_down_unhandled)
         (*mouse_down_unhandled) = false;
     if(windowPart == inMenuBar) {
@@ -1295,9 +1299,27 @@ bool QApplicationPrivate::do_mouse_down(Point *pt, bool *mouse_down_unhandled, E
             set_active = !(GetCurrentKeyModifiers() & cmdKey);
         if(set_active) {
             widget->raise();
-            if(widget->isTopLevel() && !widget->isDesktop() && !widget->isPopup() &&
-               !qt_mac_is_macsheet(widget) && (widget->isModal() || !::qt_cast<QDockWindow *>(widget)))
+            if(!widget->isActiveWindow() && widget->isTopLevel() && !widget->isDesktop() 
+               && !widget->isPopup() && !qt_mac_is_macsheet(widget) 
+               && (widget->isModal() || !::qt_cast<QDockWindow *>(widget))) {
                 widget->setActiveWindow();
+                if(windowPart == inContent) {
+                    HIViewRef child;
+                    const HIPoint hiPT = CGPointMake(pt->h - widget->geometry().x(), pt->v - widget->geometry().y());
+                    if(HIViewGetSubviewHit((HIViewRef)widget->winId(), &hiPT, true, &child) == noErr && child) {
+                        for(QWidget *child_widget = QWidget::find((WId)child); child_widget;
+                            child_widget = child_widget->parentWidget()) {
+                            if(child_widget->testAttribute(Qt::WA_MacNoClickThrough)) {
+                                if(mouse_down_unhandled)
+                                    (*mouse_down_unhandled) = true;
+                                return false;
+                            }
+                            if(child_widget == widget)
+                                break;
+                        }
+                    }
+                }
+            }
         }
     }
     if(windowPart == inContent)
@@ -1877,14 +1899,6 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 qDebug("%s:%d Mouse_button_state = %d", __FILE__, __LINE__, mouse_button_state);
 #endif
                 break;
-            } else if(QWidget* w = widget) {
-                while(w->focusProxy())
-                    w = w->focusProxy();
-                QWidget *tlw = w->topLevelWidget();
-                tlw->raise();
-                if(tlw->isTopLevel() && !tlw->isDesktop() && !tlw->isPopup() && !qt_mac_is_macsheet(tlw) &&
-                   (tlw->isModal() || !::qt_cast<QDockWindow *>(tlw)))
-                    tlw->setActiveWindow();
             }
         }
         mouse_button_state = after_state;

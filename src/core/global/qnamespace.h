@@ -278,6 +278,7 @@ public:
         WA_PaintOnScreen,
         WA_NoSystemBackground,
         WA_Mapped,
+        WA_MacNoClickThrough, //mac only
 
         WA_ForceDisabled = 32,
         WA_KeyCompression,
