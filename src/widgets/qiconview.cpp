@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#130 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#131 $
 **
 ** Definition of QIconView widget class
 **
@@ -2940,14 +2940,14 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 	if ( item && item->isSelectable() ) {
 	    if ( d->selectionMode == Single )
 		item->setSelected( TRUE, e->state() & ControlButton );
-	    else if ( d->selectionMode == Multi ) 
+	    else if ( d->selectionMode == Multi )
 		item->setSelected( !item->isSelected(), e->state() & ControlButton );
 	    else if ( d->selectionMode == Extended ) {
 		if ( e->state() & ShiftButton ) {
 		    QRect r;
 		    bool select = !item->isSelected();
 		    if ( d->currentItem )
-			r = QRect( QMIN( d->currentItem->x(), item->x() ), 
+			r = QRect( QMIN( d->currentItem->x(), item->x() ),
 				   QMIN( d->currentItem->y(), item->y() ),
 				   0, 0 );
 		    else
@@ -2976,7 +2976,8 @@ void QIconView::contentsMousePressEvent( QMouseEvent *e )
 
 	setCurrentItem( item );
 
-	if ( !d->currentItem && d->selectionMode != Single ) {
+	if ( !d->currentItem && ( d->selectionMode == Multi ||
+				  d->selectionMode == Extended ) ) {
 	    if ( d->rubber )
 		delete d->rubber;
 	    d->rubber = 0;
