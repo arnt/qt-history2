@@ -22,7 +22,7 @@ MainWindow::MainWindow()
     createActions();
     createMenus();
 
-    statusBar()->message(tr("A context menu is available by right-clicking"));
+    statusBar()->showMessage(tr("A context menu is available by right-clicking"));
 
     setWindowTitle(tr("Menus"));
     setMinimumSize(160, 160);

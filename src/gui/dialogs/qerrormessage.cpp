@@ -95,7 +95,7 @@ after seeing each message.
 
 \img qerrormessage.png
 
-\sa QMessageBox QStatusBar::message()
+\sa QMessageBox QStatusBar::showMessage()
 */
 
 static QErrorMessage * qtMessageHandler = 0;

@@ -109,7 +109,7 @@ void MainWindow::setup()
         return;
 
     qApp->setOverrideCursor(QCursor(Qt::WaitCursor));
-    statusBar()->message(tr("Initializing Qt Assistant..."));
+    statusBar()->showMessage(tr("Initializing Qt Assistant..."));
     setupCompleted = true;
     helpDock->initialize();
     connect(ui.actionGoPrevious, SIGNAL(triggered()), tabs, SLOT(backward()));

@@ -38,9 +38,13 @@ public:
     bool isSizeGripEnabled() const;
 
 public slots:
-    void message(const QString &);
-    void message(const QString &, int);
-    void clear();
+    void showMessage(const QString &text, int timeout = 0);
+    void clearMessage();
+
+#ifdef QT_COMPAT
+    inline QT_COMPAT void message(const QString &text, int timeout = 0) { showMessage(text, timeout); }
+    inline QT_COMPAT void clear() { clearMessage(); }
+#endif
 
 signals:
     void messageChanged(const QString &text);

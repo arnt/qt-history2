@@ -571,7 +571,7 @@ void HelpDialog::showInitDoneMessage()
     if (initDoneMsgShown)
         return;
     initDoneMsgShown = true;
-    help->statusBar()->message(tr("Done"), 3000);
+    help->statusBar()->showMessage(tr("Done"), 3000);
 }
 
 void HelpDialog::currentIndexChanged(Q3ListBoxItem *)
@@ -935,7 +935,7 @@ void HelpDialog::setupFullTextIndex()
              this, SLOT(setIndexingProgress(int)));
     QFile f(cacheFilesPath + QDir::separator() + QLatin1String("indexdb.dict.") + pname);
     if (!f.exists()) {
-        help->statusBar()->clear();
+        help->statusBar()->clearMessage();
         setCursor(Qt::waitCursor);
         ui.labelPrepare->setText(tr("Indexing files..."));
         ui.progressPrepare->setMaximum(100);
@@ -952,10 +952,10 @@ void HelpDialog::setupFullTextIndex()
         showInitDoneMessage();
     } else {
         setCursor(Qt::waitCursor);
-        help->statusBar()->message(tr("Reading dictionary..."));
+        help->statusBar()->showMessage(tr("Reading dictionary..."));
         processEvents();
         fullTextIndex->readDict();
-        help->statusBar()->message(tr("Done"), 3000);
+        help->statusBar()->showMessage(tr("Done"), 3000);
         setCursor(Qt::arrowCursor);
     }
 }
@@ -1014,7 +1014,7 @@ void HelpDialog::startSearch()
     foundDocs.clear();
     foundDocs = fullTextIndex->query(terms, termSeq, seqWords);
     QString msg = QString::fromLatin1("%1 documents found.").arg(foundDocs.count());
-    help->statusBar()->message(tr(msg), 3000);
+    help->statusBar()->showMessage(tr(msg), 3000);
     ui.resultBox->clear();
     for (it = foundDocs.begin(); it != foundDocs.end(); ++it)
         ui.resultBox->insertItem(fullTextIndex->getDocumentTitle(*it));

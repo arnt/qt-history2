@@ -492,7 +492,7 @@ void FormWindow::handleMousePressEvent(QWidget *w, QMouseEvent *e)
 
         clearSelection(false);
 
-        // mainWindow()->statusBar()->message(tr("Set buddy for '%1' to...").arg(w->name())); /// ### enable me?
+        // mainWindow()->statusBar()->showMessage(tr("Set buddy for '%1' to...").arg(w->name())); /// ### enable me?
 
         startPos = mapFromGlobal(e->globalPos());
         currentPos = startPos;
@@ -585,10 +585,10 @@ void FormWindow::handleMouseMoveEvent(QWidget *w, QMouseEvent *e)
             endWidget = newendWidget;
 
         if (endWidget)
-            mainWindow()->statusBar()->message(tr("Set buddy '%1' to '%2'").arg(startWidget->name()).
+            mainWindow()->statusBar()->showMessage(tr("Set buddy '%1' to '%2'").arg(startWidget->name()).
                                                 arg(endWidget->name()));
         else
-            mainWindow()->statusBar()->message(tr("Set buddy '%1' to ...").arg(startWidget->name()));
+            mainWindow()->statusBar()->showMessage(tr("Set buddy '%1' to ...").arg(startWidget->name()));
 
         currentPos = mapFromGlobal(e->globalPos());
     } break;

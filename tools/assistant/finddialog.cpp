@@ -36,7 +36,7 @@ FindDialog::FindDialog(MainWindow *parent)
     if (layout())
         layout()->addWidget(sb);
 
-    sb->message(tr("Enter the text you are looking for."));
+    sb->showMessage(tr("Enter the text you are looking for."));
 }
 
 FindDialog::~FindDialog()
@@ -56,7 +56,7 @@ void FindDialog::on_closeButton_clicked()
 void FindDialog::doFind(bool forward)
 {
     QTextBrowser *browser = static_cast<QTextBrowser*>(mainWindow()->browsers()->currentBrowser());
-    sb->clear();
+    sb->clearMessage();
 
     if (ui.comboFind->currentText() != findExpr || lastBrowser != browser)
         onceFound = false;
@@ -106,9 +106,9 @@ bool FindDialog::hasFindExpression() const
 void FindDialog::statusMessage(const QString &message)
 {
     if (isVisible())
-        sb->message(message);
+        sb->showMessage(message);
     else
-        static_cast<MainWindow*>(parent())->statusBar()->message(message, 2000);
+        static_cast<MainWindow*>(parent())->statusBar()->showMessage(message, 2000);
 }
 
 MainWindow *FindDialog::mainWindow() const

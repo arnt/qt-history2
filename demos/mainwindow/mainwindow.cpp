@@ -63,7 +63,7 @@ MainWindow::MainWindow(QWidget *parent, Qt::WFlags flags)
     center->setMinimumSize(400, 200);
     setCentralWidget(center);
 
-    statusBar()->message(tr("Status Bar"));
+    statusBar()->showMessage(tr("Status Bar"));
 }
 
 void MainWindow::actionTriggered(QAction *action)

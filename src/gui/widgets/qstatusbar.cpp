@@ -19,7 +19,6 @@
 #include "qlayout.h"
 #include "qpainter.h"
 #include "qtimer.h"
-#include "qdrawutil.h"
 #include "qstyle.h"
 #include "qstyleoption.h"
 #include "qsizegrip.h"
@@ -78,19 +77,18 @@ public:
 
     QStatusBar lets you display all three types of indicators.
 
-    To display a \e temporary message, call message() (perhaps by
+    To display a \e temporary message, call showMessage() (perhaps by
     connecting a suitable signal to it). To remove a temporary
-    message, call clear(). There are two variants of message(): one
-    that displays the message until the next clear() or message() and
-    one that has a time limit:
+    message, call clearMessage(), or set a time limit when calling
+    showMessage():
 
     \code
         connect(loader, SIGNAL(progressMessage(QString)),
-                 statusBar(), SLOT(message(QString)));
+                 statusBar(), SLOT(showMessage(QString)));
 
-        statusBar()->message("Loading...");  // Initial message
+        statusBar()->showMessage("Loading...");  // Initial message
         loader.loadStuff();                  // Emits progress messages
-        statusBar()->message("Done.", 2000); // Final message for 2 seconds
+        statusBar()->showMessage("Done.", 2000); // Final message for 2 seconds
     \endcode
 
     \e Normal and \e Permanent messages are displayed by creating a
@@ -356,46 +354,21 @@ void QStatusBar::reformat()
     repaint();
 }
 
-
-
-
 /*!
-    Hides the normal status indicators and displays \a message until
-    clear() or another message() is called.
-
-    \sa clear()
-*/
-void QStatusBar::message(const QString &message)
-{
-    Q_D(QStatusBar);
-    if (d->tempItem == message)
-        return;
-    d->tempItem = message;
-    if (d->timer) {
-        delete d->timer;
-        d->timer = 0;
-    }
-    hideOrShow();
-}
-
-
-/*!
-    \overload
-
     Hides the normal status indications and displays \a message for \a
-    ms milli-seconds or until clear() or another message() is called,
-    whichever occurs first.
+    timeout milli-seconds (if non-zero), or until clearMessage() or 
+    another showMessage() is called, whichever occurs first.
 */
-void QStatusBar::message(const QString &message, int ms)
+void QStatusBar::showMessage(const QString &message, int timeout)
 {
     Q_D(QStatusBar);
     d->tempItem = message;
 
-    if (!d->timer) {
-        d->timer = new QTimer(this);
-        connect(d->timer, SIGNAL(timeout()), this, SLOT(clear()));
-    }
     if (ms > 0) {
+        if (!d->timer) {
+            d->timer = new QTimer(this);
+            connect(d->timer, SIGNAL(timeout()), this, SLOT(clearMessage()));
+        }
         d->timer->start(ms);
     } else if (d->timer) {
         delete d->timer;
@@ -408,10 +381,10 @@ void QStatusBar::message(const QString &message, int ms)
 /*!
     Removes any temporary message being shown.
 
-    \sa message()
+    \sa showMessage()
 */
 
-void QStatusBar::clear()
+void QStatusBar::clearMessage()
 {
     Q_D(QStatusBar);
     if (d->tempItem.isEmpty())
@@ -425,18 +398,32 @@ void QStatusBar::clear()
 }
 
 /*!
+    \fn void QStatusBar::message(const QString &message, int timeout)
+
+    Hides the normal status indications and displays \a message for \a
+    timeout milli-seconds or until clearMessage() or another showMessage() is called,
+    whichever occurs first.
+*/
+
+/*!
+    \fn void QStatusBar::clear()
+
+    Removes any temporary message being shown.
+*/
+
+/*!
     \fn QStatusBar::messageChanged(const QString &message)
 
     This signal is emitted when the temporary status messages
     changes. \a message is the new temporary message, and is a
     null-string when the message has been removed.
 
-    \sa message(), clear()
+    \sa showMessage(), clearMessage()
 */
 
 /*!
-    Ensures that the right widgets are visible. Used by message() and
-    clear().
+    Ensures that the right widgets are visible. Used by showMessage() and
+    clearMessage().
 */
 void QStatusBar::hideOrShow()
 {

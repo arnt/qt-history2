@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
     menu->addAction(QObject::tr("Add connection"), &browser, SLOT(addConnection()));
 
     QObject::connect(&browser, SIGNAL(statusMessage(QString)),
-                     mainWin.statusBar(), SLOT(message(QString)));
+                     mainWin.statusBar(), SLOT(showMessage(QString)));
     mainWin.show();
 
     return app.exec();

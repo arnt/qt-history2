@@ -575,7 +575,7 @@ bool QMainWindow::event(QEvent *event)
         return true;
     } else if (event->type() == QEvent::StatusTip) {
         if (QStatusBar *sb = d->layout->statusBar())
-            sb->message(static_cast<QStatusTipEvent*>(event)->tip());
+            sb->showMessage(static_cast<QStatusTipEvent*>(event)->tip());
         else
             static_cast<QStatusTipEvent*>(event)->ignore();
         return true;

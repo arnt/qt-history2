@@ -298,7 +298,7 @@ Main::Main()
 
     menuBar()->insertItem( "&Help", help );
 
-    statusBar()->message( "Ready" );
+    statusBar()->showMessage( "Ready" );
 }
 
 void Main::open()

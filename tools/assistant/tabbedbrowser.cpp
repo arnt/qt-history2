@@ -112,7 +112,7 @@ HelpWindow *TabbedBrowser::createHelpWindow(const QString &title)
     //win->setStyleSheet(tabStyleSheet);
     ui.tab->addTab(win, reduceLabelLength(title));
     connect(win, SIGNAL(highlighted(const QString &)),
-             (const QObject*) (mainWin->statusBar()), SLOT(message(const QString &)));
+             (const QObject*) (mainWin->statusBar()), SLOT(showMessage(const QString &)));
     connect(win, SIGNAL(chooseWebBrowser()), mainWin, SLOT(showWebBrowserSettings()));
     connect(win, SIGNAL(backwardAvailable(bool)),
              mainWin, SLOT(backwardAvailable(bool)));

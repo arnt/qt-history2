@@ -379,11 +379,11 @@ MainWindow::~MainWindow()
 void MainWindow::fileSave()
 {
     if (! modified) {
-        statusBar()->message("No changes to be saved.", 2000);
+        statusBar()->showMessage("No changes to be saved.", 2000);
         return;
     }
 
-    statusBar()->message("Saving changes...");
+    statusBar()->showMessage("Saving changes...");
 
     {
         QSettings settings("trolltech.com");
@@ -483,7 +483,7 @@ void MainWindow::fileSave()
 #endif // Q_WS_X11
 
     setModified(false);
-    statusBar()->message("Saved changes.");
+    statusBar()->showMessage("Saved changes.");
 }
 
 

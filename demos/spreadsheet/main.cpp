@@ -261,7 +261,7 @@ SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
 void SpreadSheet::updateStatus(QTableWidgetItem *item)
 {
     if (item && item == table->currentItem())
-        statusBar()->message(item->data(QAbstractItemModel::StatusTipRole).toString(), 1000);
+        statusBar()->showMessage(item->data(QAbstractItemModel::StatusTipRole).toString(), 1000);
 }
 
 void SpreadSheet::updateColor(QTableWidgetItem *item)

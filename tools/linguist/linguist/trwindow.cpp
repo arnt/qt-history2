@@ -351,12 +351,12 @@ void TrWindow::openFile( const QString& name )
     if (name.isEmpty())
         return;
 
-    statusBar()->message(tr("Loading..."));
+    statusBar()->showMessage(tr("Loading..."));
     qApp->processEvents();
     tor.clear();
 
     if (!tor.load(name)) {
-        statusBar()->clear();
+        statusBar()->clearMessage();
         QMessageBox::warning(this, tr("Qt Linguist"), tr("Cannot open '%1'.").arg(name));
         return;
     }
@@ -419,7 +419,7 @@ void TrWindow::openFile( const QString& name )
     me->showNothing();
     doneAndNextAct->setEnabled(false);
     doneAndNextAlt->setEnabled(false);
-    statusBar()->message(tr("%1 source phrase(s) loaded.").arg(numMessages), MessageMS);
+    statusBar()->showMessage(tr("%1 source phrase(s) loaded.").arg(numMessages), MessageMS);
     foundWhere = 0;
     foundOffset = 0;
 
@@ -449,7 +449,7 @@ void TrWindow::save()
     if (tor.save(filename)) {
         dirty = false;
         updateCaption();
-        statusBar()->message(tr("File saved."), MessageMS);
+        statusBar()->showMessage(tr("File saved."), MessageMS);
     } else {
         QMessageBox::warning(this, tr("Qt Linguist"), tr("Cannot save '%1'.")
             .arg(filename));
@@ -477,7 +477,7 @@ void TrWindow::release()
         tr("Qt message files for released applications (*.qm)\nAll files (*)"));
     if (!newFilename.isEmpty()) {
         if (tor.release(newFilename))
-            statusBar()->message(tr("File created."), MessageMS);
+            statusBar()->showMessage(tr("File created."), MessageMS);
         else
             QMessageBox::warning(this, tr("Qt Linguist"),
             tr("Cannot save '%1'.").arg(newFilename));
@@ -496,7 +496,7 @@ void TrWindow::print()
     if (dlg.exec()) {
         QApplication::setOverrideCursor(Qt::WaitCursor);
         printer.setDocName(filename);
-        statusBar()->message(tr("Printing..."));
+        statusBar()->showMessage(tr("Printing..."));
         PrintOut pout(&printer);
         ctxtList = cmdl->contextList();
 
@@ -546,16 +546,16 @@ void TrWindow::print()
 
                 if (pout.pageNum() != pageNum) {
                     pageNum = pout.pageNum();
-                    statusBar()->message(tr("Printing... (page %1)")
+                    statusBar()->showMessage(tr("Printing... (page %1)")
                         .arg(pageNum));
                 }
             }
         }
         pout.flushLine(true);
         QApplication::restoreOverrideCursor();
-        statusBar()->message(tr("Printing completed"), MessageMS);
+        statusBar()->showMessage(tr("Printing completed"), MessageMS);
     } else {
-        statusBar()->message(tr("Printing aborted"), MessageMS);
+        statusBar()->showMessage(tr("Printing aborted"), MessageMS);
     }
 }
 
@@ -610,7 +610,7 @@ void TrWindow::findAgain()
                     if (searchItem(m->sourceText(), scopeNo, mit)) {
                         finddlg->hide();
                         if (!delayedMsg.isEmpty())
-                            statusBar()->message(delayedMsg, MessageMS);
+                            statusBar()->showMessage(delayedMsg, MessageMS);
                         return;
                     }
                     foundWhere = FindDialog::Translations;
@@ -620,7 +620,7 @@ void TrWindow::findAgain()
                     if (searchItem(m->translation(), scopeNo, mit)) {
                         finddlg->hide();
                         if (!delayedMsg.isEmpty())
-                            statusBar()->message(delayedMsg, MessageMS);
+                            statusBar()->showMessage(delayedMsg, MessageMS);
                         return;
                     }
                     foundWhere = FindDialog::Comments;
@@ -630,7 +630,7 @@ void TrWindow::findAgain()
                     if (searchItem(c->fullContext(), scopeNo, mit)) {
                         finddlg->hide();
                         if (!delayedMsg.isEmpty())
-                            statusBar()->message(delayedMsg, MessageMS);
+                            statusBar()->showMessage(delayedMsg, MessageMS);
                         return;
                     }
                     foundWhere = 0;
@@ -696,7 +696,7 @@ void TrWindow::newPhraseBook()
         PhraseBook pb;
         if (savePhraseBook(name, pb)) {
             if (openPhraseBook(name))
-                statusBar()->message(tr("Phrase book created."), MessageMS);
+                statusBar()->showMessage(tr("Phrase book created."), MessageMS);
         }
     }
 }
@@ -729,7 +729,7 @@ void TrWindow::openPhraseBook()
     if (!name.isEmpty() && !phraseBooksContains(name)) {
         if (openPhraseBook(name)) {
             int n = phraseBookFromFileName(name).count();
-            statusBar()->message(tr("%1 phrase(s) loaded.").arg(n), MessageMS);
+            statusBar()->showMessage(tr("%1 phrase(s) loaded.").arg(n), MessageMS);
         }
     }
 }
@@ -784,7 +784,7 @@ void TrWindow::printPhraseBook(QAction *action)
     QPrintDialog dlg(&printer, this);
     if (dlg.exec()) {
         printer.setDocName(phraseBook.fileName());
-        statusBar()->message(tr("Printing..."));
+        statusBar()->showMessage(tr("Printing..."));
         PrintOut pout(&printer);
         pout.setRule(PrintOut::ThinRule);
         foreach (Phrase p, phraseBook) {
@@ -797,16 +797,16 @@ void TrWindow::printPhraseBook(QAction *action)
 
             if (pout.pageNum() != pageNum) {
                 pageNum = pout.pageNum();
-                statusBar()->message(tr("Printing... (page %1)")
+                statusBar()->showMessage(tr("Printing... (page %1)")
                     .arg(pageNum));
             }
             pout.setRule(PrintOut::NoRule);
             pout.flushLine(true);
         }
         pout.flushLine(true);
-        statusBar()->message(tr("Printing completed"), MessageMS);
+        statusBar()->showMessage(tr("Printing completed"), MessageMS);
     } else {
-        statusBar()->message(tr("Printing aborted"), MessageMS);
+        statusBar()->showMessage(tr("Printing aborted"), MessageMS);
     }
 }
 
@@ -914,7 +914,7 @@ void TrWindow::updateCaption()
 void TrWindow::showNewScope(const QModelIndex &current, const QModelIndex &old)
 {
     stv->clearSelection();
-    statusBar()->clear();
+    statusBar()->clearMessage();
 
     if (current.isValid()) {
         ContextItem *c = cmdl->contextItem(current);
@@ -946,7 +946,7 @@ void TrWindow::showNewCurrent(const QModelIndex &current, const QModelIndex &old
         if (m->danger())
             printDanger(m);
         else
-            statusBar()->clear();
+            statusBar()->clearMessage();
 
         doneAndNextAct->setEnabled(m->message().type() !=
             MetaTranslatorMessage::Obsolete);
@@ -1174,7 +1174,7 @@ void TrWindow::nextUnfinished()
         if (!next(true)) {
             // If no Unfinished message is left, the user has finished the job.  We
             // congratulate on a job well done with this ringing bell.
-            statusBar()->message(tr("No untranslated phrases left."), MessageMS);
+            statusBar()->showMessage(tr("No untranslated phrases left."), MessageMS);
             qApp->beep();
         }
     }
@@ -1186,7 +1186,7 @@ void TrWindow::prevUnfinished()
         if (!prev(true)) {
             // If no Unfinished message is left, the user has finished the job.  We
             // congratulate on a job well done with this ringing bell.
-            statusBar()->message(tr("No untranslated phrases left."), MessageMS);
+            statusBar()->showMessage(tr("No untranslated phrases left."), MessageMS);
             qApp->beep();
         }
     }
@@ -1757,12 +1757,12 @@ bool TrWindow::danger( const QString& source, const QString& translation,
 
         if (!sk && tk) {
             if (verbose)
-                statusBar()->message(tr("Accelerator possibly superfluous in"
+                statusBar()->showMessage(tr("Accelerator possibly superfluous in"
                                          " translation."), ErrorMS);
             return true;
         } else if (sk && !tk) {
             if (verbose)
-                statusBar()->message(tr("Accelerator possibly missing in"
+                statusBar()->showMessage(tr("Accelerator possibly missing in"
                                          " translation."), ErrorMS);
             return true;
         }
@@ -1770,7 +1770,7 @@ bool TrWindow::danger( const QString& source, const QString& translation,
     if (endingPunctuationAct->isChecked()) {
         if (ending(source) != ending(translation)) {
             if (verbose)
-                statusBar()->message(tr("Translation does not end with the"
+                statusBar()->showMessage(tr("Translation does not end with the"
                     " same punctuation as the source text."), ErrorMS);
             return true;
         }
@@ -1794,7 +1794,7 @@ bool TrWindow::danger( const QString& source, const QString& translation,
                 }
                 if (!phraseFound) {
                     if (verbose)
-                        statusBar()->message(tr("A phrase book suggestion for"
+                        statusBar()->showMessage(tr("A phrase book suggestion for"
                             " '%1' was ignored.").arg(s), ErrorMS );
                     return true;
                 }
@@ -1802,7 +1802,7 @@ bool TrWindow::danger( const QString& source, const QString& translation,
         }
     }
     if (verbose)
-        statusBar()->clear();
+        statusBar()->clearMessage();
 
     return false;
 }

@@ -484,7 +484,7 @@ void QTextBrowser::mouseMoveEvent(QMouseEvent *ev)
 
         QUrl url = QUrl(d->currentURL).resolved(anchor);
         emit highlighted(url);
-        // convenience to ease connecting to QStatusBar::message(const QString &)
+        // convenience to ease connecting to QStatusBar::showMessage(const QString &)
         emit highlighted(url.toString());
     }
 

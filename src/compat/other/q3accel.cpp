@@ -458,16 +458,16 @@ bool Q3AccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
 	// Only display message if we are, or were, in a partial match
 	if (mainStatusBar && (QKeySequence::PartialMatch == currentState || intermediate.count())) {
 	    if (currentState == QKeySequence::PartialMatch) {
-		mainStatusBar->message((QString)partial + ", ...", 0);
+		mainStatusBar->showMessage((QString)partial + ", ...");
 	    } else if (!identicalDisabled) {
 		QString message = Q3Accel::tr("%1, %2 not defined").
 		    arg((QString)intermediate).
 		    arg(QKeySequence::encodeString(e->key() | translateModifiers(e->state())));
-		mainStatusBar->message(message, 2000);
+		mainStatusBar->showMessage(message, 2000);
 		// Since we're a NoMatch, reset the clash count
 		clash = -1;
 	    } else {
-	    	mainStatusBar->clear();
+	    	mainStatusBar->clearMessage();
 	    }
 	}
 #endif
@@ -481,7 +481,7 @@ bool Q3AccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
 	clash = -1; // reset
 #ifndef QT_NO_STATUSBAR
 	if (currentState == QKeySequence::PartialMatch && mainStatusBar)
-		mainStatusBar->clear();
+		mainStatusBar->clearMessage();
 #endif
 	currentState = QKeySequence::NoMatch; // Free sequence keylock
 	intermediate = QKeySequence();
@@ -505,7 +505,7 @@ bool Q3AccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
 	if (mainStatusBar &&
 	     !lastitem->signal &&
 	     !(lastaccel->parent->receivers(SIGNAL(activatedAmbiguously(int)))))
-	    mainStatusBar->message(message, 2000);
+	    mainStatusBar->showMessage(message, 2000);
 #endif
 	lastaccel->activateAmbiguously(lastitem);
     } else { // start (or wrap) with the first matching
@@ -516,7 +516,7 @@ bool Q3AccelManager::dispatchAccelEvent(QWidget* w, QKeyEvent* e)
 	if (mainStatusBar &&
 	     !firstitem->signal &&
 	     !(firstaccel->parent->receivers(SIGNAL(activatedAmbiguously(int)))))
-	    mainStatusBar->message(message, 2000);
+	    mainStatusBar->showMessage(message, 2000);
 #endif
 	firstaccel->activateAmbiguously(firstitem);
     }

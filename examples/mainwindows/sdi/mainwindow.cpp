@@ -246,7 +246,7 @@ void MainWindow::loadFile(const QString &fileName)
     QApplication::restoreOverrideCursor();
 
     setCurrentFile(fileName);
-    statusBar()->message(tr("File loaded"), 2000);
+    statusBar()->showMessage(tr("File loaded"), 2000);
 }
 
 void MainWindow::saveFile(const QString &fileName)
@@ -266,7 +266,7 @@ void MainWindow::saveFile(const QString &fileName)
     QApplication::restoreOverrideCursor();
 
     setCurrentFile(fileName);
-    statusBar()->message(tr("File saved"), 2000);
+    statusBar()->showMessage(tr("File saved"), 2000);
 }
 
 void MainWindow::setCurrentFile(const QString &fileName)

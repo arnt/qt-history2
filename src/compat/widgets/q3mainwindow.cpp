@@ -832,9 +832,9 @@ void Q3MainWindow::setStatusBar(QStatusBar * newStatusBar)
 #if 0
     // ### this code can cause unnecessary creation of a tool tip group
     connect(toolTipGroup(), SIGNAL(showTip(QString)),
-             d->sb, SLOT(message(QString)));
+             d->sb, SLOT(showMessage(QString)));
     connect(toolTipGroup(), SIGNAL(removeTip()),
-             d->sb, SLOT(clear()));
+             d->sb, SLOT(clearMessage()));
 #endif
     d->sb->installEventFilter(this);
     triggerLayout();
@@ -889,9 +889,9 @@ void Q3MainWindow::setToolTipGroup(QToolTipGroup * newToolTipGroup)
     d->ttg = newToolTipGroup;
 
     connect(toolTipGroup(), SIGNAL(showTip(QString)),
-             statusBar(), SLOT(message(QString)));
+             statusBar(), SLOT(showMessage(QString)));
     connect(toolTipGroup(), SIGNAL(removeTip()),
-             statusBar(), SLOT(clear()));
+             statusBar(), SLOT(clearMessage()));
 }
 
 
@@ -1516,7 +1516,7 @@ bool Q3MainWindow::event(QEvent * e)
 {
     if (e->type() == QEvent::StatusTip) {
         if (d->sb) {
-            d->sb->message(static_cast<QStatusTipEvent*>(e)->tip());
+            d->sb->showMessage(static_cast<QStatusTipEvent*>(e)->tip());
             return true;
         }
     }

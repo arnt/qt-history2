@@ -1118,9 +1118,9 @@ void Q3Action::showStatusText(const QString& text)
     }
     if (bar) {
         if (text.isEmpty())
-            bar->clear();
+            bar->clearMessage();
         else
-            bar->message(text);
+            bar->showMessage(text);
     }
 #endif
 }
