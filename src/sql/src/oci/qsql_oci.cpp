@@ -42,8 +42,12 @@
 #include <oci.h>
 #include <qdatetime.h>
 #include <qvector.h>
+#include <qarray.h>
 #include <qstringlist.h>
 #include <stdlib.h>
+
+#define QOCI_DYNAMIC_CHUNK_SIZE  255
+#define QOCI_BYTEARRAY_SIZE      255
 
 class QOCIPrivate
 {
@@ -96,7 +100,9 @@ QVariant::Type qDecodeOCIType( const QString& ocitype, int ocilen, int ociprec, 
 	type = QVariant::Int;
     else if ( ocitype == "FLOAT" )
 	type = QVariant::Double;
-    else if ( ocitype == "LONG" || ocitype == "RAW" || ocitype == "LONG RAW" || ocitype == "ROWID" || ocitype == "NCLOB" || ocitype == "CLOB" || ocitype == "CFILE" || ocitype == "BFILE" || ocitype == "BLOB" )
+    else if ( ocitype == "LONG" )
+	type = QVariant::CString;
+    else if ( ocitype == "RAW" || ocitype == "LONG RAW" || ocitype == "ROWID" || ocitype == "NCLOB" || ocitype == "CLOB" || ocitype == "CFILE" || ocitype == "BFILE" || ocitype == "BLOB" )
 	type = QVariant::ByteArray;
     else if ( ocitype == "DATE" )
 	type = QVariant::DateTime;
@@ -137,6 +143,8 @@ QVariant::Type qDecodeOCIType( int ocitype )
 	type = QVariant::Double;
 	break;
     case SQLT_LNG:
+	type = QVariant::CString;
+	break;
     case SQLT_VBI:
     case SQLT_BIN:
     case SQLT_LBI:
@@ -238,7 +246,7 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
     if ( r != 0 )
 	qWarning( "qMakeOraField: " + qOraWarn( p ) );
 #endif
-    
+
     type = qDecodeOCIType( colType );
     if ( type == QVariant::Int ) {
 	if ( colLength == 22 && colPrecision == 0 && colScale == 0 )
@@ -247,7 +255,7 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
 	    type = QVariant::Double;
     }
     if ( type == QVariant::ByteArray )
-	colLength = 255;
+	 colLength = QOCI_BYTEARRAY_SIZE;
 
     ofi.name = QString((char*)colName);
     ofi.name.truncate(colNameLen);
@@ -263,6 +271,7 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
 //     qDebug("field length:" + QString::number(colLength));
 //     qDebug("field scale:" + QString::number(colScale));
 //     qDebug("field prec:" + QString::number(colPrecision));
+//     qDebug("---------------");
 
     return ofi;
 }
@@ -276,10 +285,9 @@ public:
 	len.setAutoDelete( TRUE );
 	ind.setAutoDelete( TRUE );
 	typ.setAutoDelete( TRUE );
-	def.setAutoDelete( FALSE );
 
 	ub4 dataSize(0);
-	OCIDefine* dfn;
+ 	OCIDefine* dfn = 0;
 	int r;
 
 	OCIParam* param = 0;
@@ -306,24 +314,35 @@ public:
 	 			dataSize,
          			SQLT_DAT,
 	 			(dvoid *) createInd( count-1 ),
-         			(ub2 *) 0,
-	 			(ub2 *) 0,
-	 			OCI_DEFAULT);
+         			0, 0, OCI_DEFAULT);
+		break;
+	    case QVariant::CString:
+	    	r = OCIDefineByPos( d->sql,
+				    &dfn,
+				    d->err,
+				    count,
+				    0,
+				    SB4MAXVAL,/* really big */
+				    SQLT_STR,
+				    (dvoid *) createInd( count-1 ),
+				    (ub2 *) 0,
+				    (ub2 *) 0,
+				    OCI_DYNAMIC_FETCH ); /* piecewise */
 		break;
 	    default:
+	    case QVariant::ByteArray:				
 	    	r = OCIDefineByPos( d->sql,
-				    (type == QVariant::ByteArray ? def.at(count-1) : &dfn ),
+				    &dfn,
 				    d->err,
 				    count,
 				    create(count-1,dataSize),
 				    dataSize,
 				    SQLT_STR,
 				    (dvoid *) createInd( count-1 ),
-				    (ub2 *) 0,
-				    (ub2 *) 0,
-				    type == QVariant::ByteArray ? OCI_DYNAMIC_FETCH : OCI_DEFAULT);
+				    0, 0, OCI_DEFAULT);
 		break;
 	    }
+	    def[count-1] = dfn;
 	    count++;
 	    parmStatus = OCIParamGet( d->sql,
 				      OCI_HTYPE_STMT,
@@ -334,7 +353,7 @@ public:
 
 #ifdef QT_CHECK_RANGE
 	    if ( r != 0 )
-	    	qWarning( "QOCIResultPrivate::bind fields: " + QString::number(r) + " " + qOraWarn( d ) );
+	    	qWarning( "QOCIResultPrivate::bind field: " + QString::number(r) + " " + qOraWarn( d ) );
 #endif
     }
     ~QOCIResultPrivate()
@@ -360,9 +379,13 @@ public:
     {
 	return *typ.at( i );
     }
-    int fieldFromDefine( OCIDefine** d )
+    int fieldFromDefine( OCIDefine* d )
     {
-	return def.findRef( d );
+	return def.find( d );
+    }
+    int length( int i )
+    {
+	return *len[i];
     }
     QVariant value( int i )
     {
@@ -387,6 +410,9 @@ public:
 	case QVariant::String:
 	    v = QVariant( QString( at(i) ) );
 	    break;
+	case QVariant::CString:
+	    v = QVariant( QCString( at(i), length(i)+1 ) );
+	    break;
 	case QVariant::Int:
 	    v = QVariant( QString( at(i) ).toInt() );
 	    break;
@@ -394,27 +420,9 @@ public:
 	    v = QVariant( QString( at(i) ).toDouble() );
 	    break;
 	case QVariant::ByteArray: {
-	    QString data( at(i) );
-	    char *ba = new char[ data.length() / 2 ];
-	    for ( int i = 0; i < (int)data.length() / 2; ++i ) {
-		char h = data[ 2 * i ].latin1();
-		char l = data[ 2 * i  + 1 ].latin1();
-		uchar r = 0;
-		if ( h <= '9' )
-		    r += h - '0';
-		else
-		    r += h - 'a' + 10;
-		r = r << 4;
-		if ( l <= '9' )
-		    r += l - '0';
-		else
-		    r += l - 'a' + 10;
-		ba[ i ] = r;
-	    }
-	    QByteArray b;
-	    b.duplicate( ba, data.length() / 2 );
-	    delete [] ba;
-    	    v = QVariant( b );
+	    QByteArray ba;
+	    ba.duplicate( at(i), length(i) );
+	    return QVariant( ba );
 	    break;
 	}
 	default:
@@ -450,7 +458,7 @@ private:
     QVector<int> len;
     QVector<sb2> ind;
     QVector<QVariant::Type> typ;
-    QVector< OCIDefine* > def;
+    QArray< OCIDefine* > def;
 };
 
 
@@ -471,7 +479,7 @@ QOCIResult::~QOCIResult()
 	int r = OCIHandleFree( d->sql,OCI_HTYPE_STMT );
 #ifdef QT_CHECK_RANGE
 	if ( r != 0 )
-	    qWarning( "QOCIResult::reset: Unable to free statement handle: " + qOraWarn( d ) );
+	    qWarning( "QOCIResult::reset: unable to free statement handle: " + qOraWarn( d ) );
 #endif
     }
     delete d;
@@ -492,7 +500,7 @@ bool QOCIResult::reset ( const QString& query )
 	r = OCIHandleFree( d->sql,OCI_HTYPE_STMT );
 #ifdef QT_CHECK_RANGE
 	if ( r != 0 )
-	    qWarning( "QOCIResult::reset: Unable to free statement handle: " + qOraWarn( d ) );
+	    qWarning( "QOCIResult::reset: unable to free statement handle: " + qOraWarn( d ) );
 #endif
     }
     cached = FALSE;
@@ -505,7 +513,7 @@ bool QOCIResult::reset ( const QString& query )
 			0);
     if ( r != 0 ) {
 #ifdef QT_CHECK_RANGE
-	qWarning( "QOCIResult::reset: Unable to alloc statement: " + qOraWarn( d ) );
+	qWarning( "QOCIResult::reset: unable to alloc statement: " + qOraWarn( d ) );
 #endif
 	return FALSE;
     }
@@ -522,7 +530,7 @@ bool QOCIResult::reset ( const QString& query )
 			OCI_DEFAULT );
     if ( r != 0 ) {
 #ifdef QT_CHECK_RANGE
-	qWarning( "QOCIResult::reset: Unable to prepare statement: " + qOraWarn( d ) );
+	qWarning( "QOCIResult::reset: unable to prepare statement: " + qOraWarn( d ) );
 #endif
 	return FALSE;
     }
@@ -545,7 +553,7 @@ bool QOCIResult::reset ( const QString& query )
 				OCI_DEFAULT );
 	if ( r != 0 ) {
 #ifdef QT_CHECK_RANGE
-	    qWarning( qOraWarn( d ) );
+	    qWarning( "OCIResult::reset: unable to execute statement: " + qOraWarn( d ) );
 #endif
 	    setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
 	    return FALSE;
@@ -574,14 +582,14 @@ bool QOCIResult::reset ( const QString& query )
 				      count );
 	}
 	setSelect( TRUE );
-    } else { // non-SELECT
+    } else { /* non-SELECT */
     	r = OCIStmtExecute( d->svc, d->sql, d->err, 1,0,
 				(CONST OCISnapshot *) NULL,
 				(OCISnapshot *) NULL,
 				d->transaction ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS  );
 	if ( r != 0 ) {
 #ifdef QT_CHECK_RANGE
-	    qWarning( qOraWarn( d ) );
+	    qWarning( "OCIResult::reset: unable to execute statement: " + qOraWarn( d ) );
 #endif
 	    setLastError( qMakeError( "Unable to execute statement", QSqlError::Statement, d ) );
 	    return FALSE;
@@ -597,41 +605,67 @@ bool QOCIResult::cacheNext()
 {
     if ( cached )
 	return FALSE;
+    QMap< int, QCString > binMap;
     int currentRecord = at() + 1;
     int r = 0;
     r = OCIStmtFetch (  d->sql, d->err, 1, OCI_FETCH_NEXT, OCI_DEFAULT );
     if ( r == OCI_NEED_DATA ) { /* piecewise */
-	// ###
-	OCIDefine 	*dfn;
+	QCString       bin;
+	OCIDefine*     dfn;
 	ub4            typep;
 	ub1            in_outp;
 	ub4            iterp;
 	ub4            idxp;
 	ub1            piecep;
-	r = OCIStmtGetPieceInfo( d->sql,
-				 d->err,
-				 (dvoid**) &dfn,
-				 &typep,
-				 &in_outp,
-				 &iterp,
-				 &idxp,
-				 &piecep );
-	switch ( piecep ) {
-	case OCI_FIRST_PIECE:
-	    qDebug("first piece");
-	    qDebug("typep:" + QString::number(typep));
-	    qDebug("in_outp:" + QString::number(in_outp));
-	    qDebug("iterp:" + QString::number(iterp));
-	    qDebug("idxp:" + QString::number(idxp));
-	    break;
-	case OCI_NEXT_PIECE:
-	    qDebug("next piece");
-	    break;
-	case OCI_LAST_PIECE:
-	    qDebug("next piece");
-	    break;
-	default:
-	    qDebug("unknown piecep");
+	sword          status;
+	text           col [QOCI_DYNAMIC_CHUNK_SIZE+1]; 
+	int            fieldNum = -1;
+	bool           nullField;
+	for ( ; ; ) {
+	    r = OCIStmtGetPieceInfo( d->sql, d->err, (dvoid**) &dfn, &typep,
+				     &in_outp, &iterp, &idxp, &piecep );
+	    if ( r != OCI_SUCCESS )
+		qWarning( "QOCIResult::cacheNext: unable to get piece info: " + qOraWarn(d) );
+ 	    fieldNum = cols->fieldFromDefine( dfn );
+	    int chunkSize = QOCI_DYNAMIC_CHUNK_SIZE;	
+	    nullField = FALSE;
+	    r  = OCIStmtSetPieceInfo( dfn, OCI_HTYPE_DEFINE,   
+				      d->err, (void *)col, 
+				      (ub4 *)&chunkSize, piecep, NULL, NULL);   
+	    if ( r != OCI_SUCCESS )
+		qWarning( "QOCIResult::cacheNext: unable to set piece info: " + qOraWarn(d) );
+	    
+	    status = OCIStmtFetch (  d->sql, d->err, 1, OCI_FETCH_NEXT, OCI_DEFAULT );	
+	    if ( status == -1 ) {
+		int errcode;
+		OCIErrorGet((dvoid *)d->err, (ub4) 1, (text *) NULL, &errcode, NULL, 0, OCI_HTYPE_ERROR);
+		switch ( errcode ) {
+		case 1405: /* NULL */
+		    nullField = TRUE;
+		    break;
+		default:
+		    qWarning( "QOCIResult::cacheNext: unable to fetch next: " + qOraWarn(d) );
+		    break;
+		}
+	    }
+	    if ( status == OCI_NO_DATA ) {
+		break;    
+	    }
+	    if ( nullField ) {
+		binMap[ fieldNum ] = QCString();
+	    }
+	    else {
+		if ( chunkSize ) {
+		    QCString tmp( (char*)col, chunkSize+1 );
+		    binMap[ fieldNum ] += tmp;
+		} else {
+		    binMap[ fieldNum ] = QCString();		    
+		}
+	    }
+	    if ( status == OCI_SUCCESS_WITH_INFO ||    
+		 status == OCI_NEED_DATA ) {
+	    } else 
+		break;
 	}
     }
     if( r == OCI_ERROR ) {
@@ -654,7 +688,12 @@ bool QOCIResult::cacheNext()
     }
     if ( r == 0 ) {
 	for ( int i = 0; i < cols->size(); ++i ) {
-	    QVariant v = cols->value( i );
+	    QVariant v;
+	    if ( binMap.contains( i ) ) {
+		v = QVariant( binMap[i] );
+	    } else {
+		v = QVariant( cols->value( i ) );
+	    }
 	    QSqlField f( QString::null, v.type() );
 	    f.setValue( v );
 	    f.setNull( cols->isNull(i) );
@@ -772,7 +811,7 @@ void QOCIDriver::init()
 			    NULL);
 #ifdef QT_CHECK_RANGE
     if ( r != 0 )
-	qWarning( "QOCIDriver: Unable to create environment: " + qOraWarn( d ) );
+	qWarning( "QOCIDriver: unable to create environment: " + qOraWarn( d ) );
 #endif
     r = OCIHandleAlloc( (dvoid *) d->env,
 			(dvoid **) &d->err,
@@ -781,7 +820,7 @@ void QOCIDriver::init()
 			(dvoid **) 0);
 #ifdef QT_CHECK_RANGE
     if ( r != 0 )
-	qWarning( "QOCIDriver: Unable to alloc error handle: " + qOraWarn( d ) );
+	qWarning( "QOCIDriver: unable to alloc error handle: " + qOraWarn( d ) );
 #endif
     r = OCIHandleAlloc( (dvoid *) d->env,
 			(dvoid **) &d->svc,
@@ -790,7 +829,7 @@ void QOCIDriver::init()
 			(dvoid **) 0);
 #ifdef QT_CHECK_RANGE
     if ( r != 0 )
-	qWarning( "QOCIDriver: Unable to alloc service context: " + qOraWarn( d ) );
+	qWarning( "QOCIDriver: unable to alloc service context: " + qOraWarn( d ) );
 #endif
     if ( r != 0 )
     	setLastError( qMakeError( "Unable to initialize", QSqlError::Connection, d ) );
@@ -934,17 +973,6 @@ QSqlRecord QOCIDriver::record( const QString& tablename ) const
 	QSqlField f( t.value(0).toString(), ty );
 	fil.append( f );
     }
-//     QSqlQuery t2 = createQuery();
-//     QString stmt2("select b.column_name "
-// 		  "from user_constraints a, user_tab_columns b, user_ind_columns c "
-// 		  "where a.constraint_type='P' "
-// 		  "and a.table_name='%1' "
-// 		  "and c.index_name = a.constraint_name "
-// 		  "and b.column_name = c.column_name "
-// 		  "and b.table_name = a.table_name;");
-//     t2.exec( stmt2.arg( tablename.upper() ) );
-//     while ( t2.next() )
-// 	fil.field( t2.value(0).toString() )->setPrimaryIndex( TRUE );
     return fil;
 }
 
