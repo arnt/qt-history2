@@ -1,5 +1,5 @@
-#ifndef QDEFAULTPLUGIN_H
-#define QDEFAULTPLUGIN_H
+#ifndef QWIDGETPLUGIN_H
+#define QWIDGETPLUGIN_H
 
 #include "qplugin.h"
 #include <qiconset.h>
@@ -8,10 +8,10 @@
 
 class QDialog;
 
-class QDefaultPlugIn : public QPlugIn, public QDefaultInterface
+class QWidgetPlugIn : public QPlugIn, public QWidgetInterface
 {
 public:
-    QDefaultPlugIn( const QString& filename, LibraryPolicy = DefaultPolicy );
+    QDefaultPlugIn( const QString& filename, LibraryPolicy = Default );
 
     QWidget* create( const QString& classname, QWidget* parent = 0, const char* name = 0 );
     QStringList widgets();
@@ -20,16 +20,16 @@ public:
     bool removeFromManager( QPlugInDict& dict );
 };
 
-class QDefaultPlugInManager : public QPlugInManager<QDefaultPlugIn>, public QWidgetFactory
+class QWidgetPlugInManager : public QPlugInManager<QWidgetPlugIn>, public QWidgetFactory
 {
 public:
-    QDefaultPlugInManager( const QString& path = QString::null, QPlugIn::LibraryPolicy = QPlugIn::DefaultPolicy );
+    QDefaultPlugInManager( const QString& path = QString::null, QPlugIn::LibraryPolicy = QPlugIn::Default );
 
 private:
-    QString factoryName() const { return "QDefaultPlugInManager"; }
+    QString factoryName() const { return "QWidgetPlugInManager"; }
 
     QWidget* newWidget( const QString& classname, QWidget* parent = 0, const char* name = 0 );
     QStringList widgets();
 };
 
-#endif // QDEFAULTPLUGIN_H
+#endif // QWIDGETPLUGIN_H

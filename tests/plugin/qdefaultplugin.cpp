@@ -1,23 +1,23 @@
-#include "qdefaultplugin.h"
+#include "qwidgetplugin.h"
 #include <qwidget.h>
 
 /*!
-  \class QDefaultPlugIn qdefaultplugin.h
+  \class QWidgetPlugIn qdefaultplugin.h
 
-  \brief A plugin loader implementing the QDefaultInterface
+  \brief A plugin loader implementing the QWidgetInterface
 */
 
 /*!
   Constructs a default plugin with file \a file and policy \a pol.
 */
-QDefaultPlugIn::QDefaultPlugIn( const QString& file, LibraryPolicy pol )
+QWidgetPlugIn::QWidgetPlugIn( const QString& file, LibraryPolicy pol )
     : QPlugIn( file, pol )
 {
 }
 
 /*! \reimp
 */
-bool QDefaultPlugIn::addToManager( QPlugInDict& dict )
+bool QWidgetPlugIn::addToManager( QPlugInDict& dict )
 {
     if ( !use() )
 	return FALSE;
@@ -40,7 +40,7 @@ bool QDefaultPlugIn::addToManager( QPlugInDict& dict )
 
 /*! \reimp
 */
-bool QDefaultPlugIn::removeFromManager( QPlugInDict& dict )
+bool QWidgetPlugIn::removeFromManager( QPlugInDict& dict )
 {
     bool res = TRUE;
 
@@ -53,7 +53,7 @@ bool QDefaultPlugIn::removeFromManager( QPlugInDict& dict )
 
 /*! \reimp
 */
-QWidget* QDefaultPlugIn::create( const QString& classname, QWidget* parent, const char* name )
+QWidget* QWidgetPlugIn::create( const QString& classname, QWidget* parent, const char* name )
 {
     if ( !use() )
 	return 0;
@@ -65,7 +65,7 @@ QWidget* QDefaultPlugIn::create( const QString& classname, QWidget* parent, cons
 
 /*! \reimp
 */
-QStringList QDefaultPlugIn::widgets()
+QStringList QWidgetPlugIn::widgets()
 {
     if ( !use() )
 	return QStringList();
@@ -87,14 +87,14 @@ QStringList QDefaultPlugIn::widgets()
 
   \sa QPlugInManager
 */
-QDefaultPlugInManager::QDefaultPlugInManager( const QString& path, QPlugIn::LibraryPolicy pol )
-: QPlugInManager<QDefaultPlugIn>( path, pol )
+QWidgetPlugInManager::QWidgetPlugInManager( const QString& path, QPlugIn::LibraryPolicy pol )
+: QPlugInManager<QWidgetPlugIn>( path, pol )
 {
 }
 
 /*! \reimp
 */
-QWidget* QDefaultPlugInManager::newWidget( const QString& classname, QWidget* parent, const char* name )
+QWidget* QWidgetPlugInManager::newWidget( const QString& classname, QWidget* parent, const char* name )
 {
     QDefaultPlugIn* plugin = (QDefaultPlugIn*)plugDict[ classname ];
     if ( plugin )
@@ -105,7 +105,7 @@ QWidget* QDefaultPlugInManager::newWidget( const QString& classname, QWidget* pa
 /*!
   Returns a list of all widget classes supported by registered plugins.
 */
-QStringList QDefaultPlugInManager::widgets()
+QStringList QWidgetPlugInManager::widgets()
 {
     QStringList list;
     QDictIterator<QPlugIn> it (libDict);
