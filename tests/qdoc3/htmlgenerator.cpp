@@ -64,7 +64,7 @@ void HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
     case Atom::FootnoteRight:
 	break;
     case Atom::FormatElse:
-    case Atom::FormatFi:
+    case Atom::FormatEndif:
     case Atom::FormatIf:
 	break;
     case Atom::FormattingLeft:
@@ -234,6 +234,9 @@ void HtmlGenerator::generateAtom( const Atom *atom, const Node *relative,
     case Atom::TableOfContents:
 	break;
     case Atom::Target:
+	break;
+    case Atom::UnhandledFormat:
+	out() << "<font color=\"red\"><b>&lt;Missing HTML&gt;</b></font>";
 	break;
     case Atom::UnknownCommand:
 	out() << "<font color=\"red\"><b><code>\\" << protect( atom->string() )

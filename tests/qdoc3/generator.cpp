@@ -146,8 +146,12 @@ void Generator::generateText( const Text& text, const Node *relative,
 			      CodeMarker *marker )
 {
     if ( text.firstAtom() != 0 ) {
+qDebug( "Generate text" );
+text.dump();
+qDebug( " " );
+	int numAtoms = 0;
 	startText( relative, marker );
-	generateAtomList( text.firstAtom(), relative, marker, TRUE );
+	generateAtomList( text.firstAtom(), relative, marker, TRUE, numAtoms );
 	endText( relative, marker );
     }
 }
@@ -391,32 +395,45 @@ void Generator::generateReimplementedFrom( const FunctionNode *func,
     }
 }
 
-Atom *Generator::generateAtomList( const Atom *atom, const Node *relative,
-				   CodeMarker *marker, bool generate )
+const Atom *Generator::generateAtomList( const Atom *atom, const Node *relative,
+					 CodeMarker *marker, bool generate,
+					 int& numAtoms )
 {
     while ( atom != 0 ) {
 	if ( atom->type() == Atom::FormatIf ) {
+	    int numAtoms0 = numAtoms;
 	    bool rightFormat = ( atom->string() == format() );
 	    atom = generateAtomList( atom->next(), relative, marker,
-				     generate && rightFormat );
-	    if ( atom == 0 ) {
+				     generate && rightFormat, numAtoms );
+	    if ( atom == 0 )
 		return 0;
-	    } else if ( atom->type() == Atom::FormatElse ) {
+
+	    if ( atom->type() == Atom::FormatElse ) {
 		atom = generateAtomList( atom->next(), relative, marker,
-					 generate && !rightFormat );
-	    } else if ( atom->type() == Atom::FormatEndif ) {
-		if ( !rightFormat )
+					 generate && !rightFormat, numAtoms );
+		if ( atom == 0 )
+		    return 0;
+	    }
+
+	    if ( atom->type() == Atom::FormatEndif ) {
+		if ( generate && numAtoms0 == numAtoms ) {
 		    relative->location().warning(
 			    tr("Output format '%1' not handled")
 			    .arg(format()) );
+		    Atom unhandledFormatAtom( Atom::UnhandledFormat, format() );
+		    generateAtomList( &unhandledFormatAtom, relative, marker,
+				      generate, numAtoms );
+		}
 		atom = atom->next();
 	    }
 	} else if ( atom->type() == Atom::FormatElse ||
 		    atom->type() == Atom::FormatEndif ) {
 	    return atom;
 	} else {
-	    if ( generate )
+	    if ( generate ) {
 		generateAtom( atom, relative, marker );
+		numAtoms++;
+	    }
 	    atom = atom->next();
 	}
     }

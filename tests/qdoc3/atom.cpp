@@ -73,6 +73,7 @@
   \value TableRight
   \value TableOfContents
   \value Target
+  \value UnhandledFormat
   \value UnknownCommand
 */
 
@@ -122,6 +123,7 @@ static const struct {
     { "TableRight", Atom::TableRight },
     { "TableOfContents", Atom::TableOfContents },
     { "Target", Atom::Target },
+    { "UnhandledFormat", Atom::UnhandledFormat },
     { "UnknownCommand", Atom::UnknownCommand },
     { 0, 0 }
 };

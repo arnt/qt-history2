@@ -21,7 +21,8 @@ public:
 		SectionLeft, SectionRight, SectionHeadingLeft,
 		SectionHeadingRight, SidebarLeft, SidebarRight,
 		String, TableLeft, TableRight, TableOfContents,
-		Target, UnknownCommand, Last = UnknownCommand };
+		Target, UnhandledFormat, UnknownCommand,
+		Last = UnknownCommand };
 
     Atom( Type type, const QString& string = "" )
 	: nex( 0 ), typ( type ), str( string ) { }

@@ -691,7 +691,7 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 			    // ###
 			}
 			while ( numPendingFi-- > 0 )
-			    append( Atom::FormatEnd );
+			    append( Atom::FormatEndif );
 		    } else {
 			location().warning(
 				tr("Unknown command '\\%1'").arg(commandStr),
@@ -1210,13 +1210,13 @@ void DocParser::expandMacro( const QString& name, const QString& def,
 
 	int i = 0;
 	while ( i < (int) def.length() ) {
-	    int paramNo = def[i + 1].toDigit();
+	    int paramNo = def[i + 1].digitValue();
 	    if ( def[i] == '\\' && paramNo >= 1 && paramNo <= numParams ) {
 		if ( !rawString.isEmpty() ) {
 		    append( Atom::RawString, rawString );
 		    rawString = "";
 		}
-		appendString( args[paramNo - 1] );
+		append( Atom::String, args[paramNo - 1] );
 		i += 2;
 	    } else {
 		rawString += def[i++];

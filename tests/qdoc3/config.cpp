@@ -8,6 +8,22 @@
 
 #include "config.h"
 
+struct MetaKeyState
+{
+    QStringList accum;
+    QStringList next;
+
+    MetaKeyState() { begin(); }
+
+    void end() {
+	accum += next;
+	next.clear();
+    }
+    void begin() {
+	next << "";
+    }
+};
+
 /*! \class Config
 
 */
@@ -72,7 +88,9 @@ int Config::getInt( const QString& var ) const
 */
 QString Config::getString( const QString& var ) const
 {
-    return getStringList( var ).join( " " );
+    if ( !locMap[var].isEmpty() )
+	(Location&) lastLoc = locMap[var];
+    return stringValueMap[var];
 }
 
 Set<QString> Config::getStringSet( const QString& var ) const
@@ -175,8 +193,16 @@ QString Config::findFile( const QStringList& files, const QStringList& dirs,
     return "";
 }
 
+bool Config::isMetaKeyChar( QChar ch )
+{
+    return ch.isLetterOrNumber() || ch == '_' || ch == '.' || ch == '{'
+	   || ch == '}' || ch == ',';
+}
+
 void Config::load( Location location, const QString& fileName )
 {
+    QRegExp keySyntax( "\\w+(?:\\.\\w+)*" );
+
 #define SKIP_CHAR() \
 	location.advance( text[i++] )
 #define SKIP_SPACES() \
@@ -208,10 +234,8 @@ void Config::load( Location location, const QString& fileName )
 	    do {
 		SKIP_CHAR();
 	    } while ( text[i] != '\n' );
-	} else if ( text[i].isLetterOrNumber() ) {
+	} else if ( isMetaKeyChar(text[i]) ) {
 	    Location keyLoc = location;
-	    QRegExp keySyntax( "\\w+(?:\\.\\w+)*" );
-	    QString key;
 	    bool plus = FALSE;
 	    QString stringValue;
 	    QStringList stringListValue;
@@ -219,18 +243,52 @@ void Config::load( Location location, const QString& fileName )
 	    bool inQuote = FALSE;
 	    bool prevWordQuoted = TRUE;
 
+	    QValueStack<MetaKeyState> stack;
+	    stack.push( MetaKeyState() );
+
 	    do {
-		key += text[i];
+		if ( text[i] == '{' ) {
+		    stack.push( MetaKeyState() );
+		} else if ( text[i] == '}' ) {
+		    if ( stack.count() == 1 )
+			location.fatal( tr("Unexpected '}' in key") );
+
+		    stack.last().end();
+
+		    QStringList suffixes = stack.pop().accum;
+		    QStringList prefixes = stack.top().next;
+		    stack.top().next.clear();
+
+		    QStringList::ConstIterator pre = prefixes.begin();
+		    while ( pre != prefixes.end() ) {
+			QStringList::ConstIterator suf = suffixes.begin();
+			while ( suf != suffixes.end() ) {
+			    stack.top().next << ( *pre + *suf );
+			    ++suf;
+			}
+			++pre;
+		    }
+		} else if ( text[i] == ',' && stack.count() > 1 ) {
+		    stack.top().end();
+		    stack.top().begin();
+		} else {
+		    QStringList::Iterator pre = stack.top().next.begin();
+		    while ( pre != stack.top().next.end() ) {
+			*pre += text[i];
+			++pre;
+		    }
+		}
 		SKIP_CHAR();
-	    } while ( text[i].isLetterOrNumber() || text[i] == '_' ||
-		      text[i] == '.' );
+	    } while ( isMetaKeyChar(text[i]) );
 
-	    if ( !keySyntax.exactMatch(key) )
-		location.fatal( tr("Bad key syntax") );
+	    if ( stack.count() > 1 )
+		location.fatal( tr("Missing '}' in key") );
 
+	    stack.top().end();
+	    QStringList keys = stack.top().accum;
 	    SKIP_SPACES();
 
-	    if ( key == "include" ) {
+	    if ( keys.count() == 1 && keys.first() == "include" ) {
 		QString includeFile;
 
 		if ( text[i] != '(' )
@@ -323,26 +381,34 @@ void Config::load( Location location, const QString& fileName )
 		    }
 		}
 
-		if ( plus ) {
-		    if ( locMap[key].isEmpty() ) {
-			locMap[key] = keyLoc;
+		QStringList::ConstIterator key = keys.begin();
+		while ( key != keys.end() ) {
+		    if ( !keySyntax.exactMatch(*key) )
+			keyLoc.fatal( tr("Invalid key '%1'").arg(*key) );
+
+		    if ( plus ) {
+			if ( locMap[*key].isEmpty() ) {
+			    locMap[*key] = keyLoc;
+			} else {
+			    locMap[*key].setEtc( TRUE );
+			}
+			if ( stringValueMap[*key].isEmpty() ) {
+			    stringValueMap[*key] = stringValue;
+			} else {
+			    stringValueMap[*key] += " " + stringValue;
+			}
+			stringListValueMap[*key] += stringListValue;
 		    } else {
-			locMap[key].setEtc( TRUE );
+			locMap[*key] = keyLoc;
+			stringValueMap[*key] = stringValue;
+			stringListValueMap[*key] = stringListValue;
 		    }
-		    if ( stringValueMap[key].isEmpty() ) {
-			stringValueMap[key] = stringValue;
-		    } else {
-			stringValueMap[key] += " " + stringValue;
-		    }
-		    stringListValueMap[key] += stringListValue;
-		} else {
-		    locMap[key] = keyLoc;
-		    stringValueMap[key] = stringValue;
-		    stringListValueMap[key] = stringListValue;
+		    ++key;
 		}
 	    }
 	} else {
-	    location.fatal( tr("Bad key syntax") );
+	    location.fatal( tr("Unexpected character '%1' at beginning of line")
+			    .arg(text[i]) );
 	}
     }
 }

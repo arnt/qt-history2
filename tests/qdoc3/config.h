@@ -39,7 +39,7 @@ public:
     QT_STATIC_CONST QString dot;
 
 private:
-    void reset();
+    static bool isMetaKeyChar( QChar ch );
     void load( Location location, const QString& fileName );
     QStringList getFilesHere( const QString& dir, const QString& nameFilter );
 

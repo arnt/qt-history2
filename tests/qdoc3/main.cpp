@@ -139,7 +139,7 @@ static void processQdocFile( const QString& fileName )
     while ( f != formats.end() ) {
 	Generator *generator = Generator::generatorForFormat( *f );
 	if ( generator == 0 )
-	    config.lastLocation().fatal( tr("Unknown documentation format '%1'")
+	    config.lastLocation().fatal( tr("Unknown output format '%1'")
 					 .arg(*f) );
 	generator->generateTree( tree, marker );
 	++f;
