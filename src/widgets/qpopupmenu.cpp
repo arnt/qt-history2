@@ -313,6 +313,7 @@ QPopupMenu::~QPopupMenu()
     delete (QWidget*) QMenuData::d->aWidget;  // tear-off menu
 
     preventAnimation = FALSE;
+    delete d;
 }
 
 
