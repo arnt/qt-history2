@@ -701,9 +701,10 @@ void FormWindow::handleMouseMove( QMouseEvent *e, QWidget *w )
 		    }
 		    checkSelectionsForMove( w );
 		}
-		
+
 		// check whether we would have to reparent the selection and highlight the possible new parent container
-		QWidget* wa = containerAt( e->globalPos(), ( (QWidget*)moving.begin().key() ) );
+		QMapConstIterator<ulong, QPoint> it = moving.begin();
+		QWidget* wa = containerAt( e->globalPos(), ( (QWidget*)it.key() ) );
 		if ( wa  && !isMainContainer( wa ) && !isCentralWidget( wa ) ) {
 		    wa = WidgetFactory::containerOfWidget( wa );
 		    // ok, looks like we moved onto a container
@@ -728,7 +729,7 @@ void FormWindow::handleMouseMove( QMouseEvent *e, QWidget *w )
 			targetContainer->unsetPalette();
 		    targetContainer = 0;
 		}
-		
+
 		// finally move the selected widgets and show/update preview label
 		moveSelectedWidgets( x - p.x(), y - p.y() );
 		sizePreviewLabel->setText( tr( "%1/%2" ).arg( w->pos().x() ).arg( w->pos().y() ) );
@@ -796,7 +797,7 @@ void FormWindow::handleMouseRelease( QMouseEvent *e, QWidget *w )
 
 	    if ( moving.isEmpty() || w->pos() == *moving.find( (ulong)w ) )
 		break;
-	
+
 	    // restore targetContainer
 	    if ( targetContainer ) {
 		if( hadOwnPalette )
@@ -804,21 +805,22 @@ void FormWindow::handleMouseRelease( QMouseEvent *e, QWidget *w )
 		else
 		    targetContainer->unsetPalette();
 	    }
-	
+
 	    // tell property editor to update
 	    if ( propertyWidget && propertyWidget->isWidgetType() && !isMainContainer( propertyWidget ) )
 		emitUpdateProperties( propertyWidget );
 
-	    QWidget *oldParent = ( (QWidget*)moving.begin().key() )->parentWidget();
+	    QMapConstIterator<ulong,QPoint> it = moving.begin();
+	    QWidget *oldParent = ( (QWidget*)it.key() )->parentWidget();
 	    QWidget *newParent = oldParent;
 	    // check whether we have to reparent the selection
-	    QWidget* wa = containerAt( e->globalPos(), ( (QWidget*)moving.begin().key() ) );
+	    QWidget* wa = containerAt( e->globalPos(), ( (QWidget*)it.key() ) );
 	    if ( wa ) {
 		wa = WidgetFactory::containerOfWidget( wa );
 		// ok, looks like we moved onto a container
 
 		// check whether we really have different parents.
-		if ( wa == ( (QWidget*)moving.begin().key() )->parentWidget() )
+		if ( wa == ( (QWidget*)it.key() )->parentWidget() )
 		    goto make_move_command;
 
 		// break layout if necessary
