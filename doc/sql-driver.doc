@@ -49,16 +49,16 @@ drivers are supplied with Qt and other drivers can be added. The
 driver source code is supplied and can be used as a model for \link
 #development writing your own drivers\endlink.
 
-To build a driver plugin you need the client API that is
-shipped with every DBMS (Database Management System). Most
-installation programs also allow you to install "development
-libraries", and these are what you need. These libraries are
-responsible for the low-level communication with the DBMS.
+To build a driver plugin you need the client API that is shipped with
+every Database Management System (DBMS). Most installation programs
+also allow you to install "development libraries", and these are what
+you need. These libraries are responsible for the low-level
+communication with the DBMS.
 
 The currently available drivers shipped with Qt are:
 \list
 \i \link #QMYSQL3 QMYSQL3\endlink - MySQL Driver
-\i \link #QOCI8 QOCI8\endlink - Oracle Call Interface Driver
+\i \link #QOCI8 QOCI8\endlink - Oracle Call Interface Driver, version 8 and 9
 \i \link #QODBC3 QODBC3\endlink - ODBC (Open Database Connectivity) Driver
 \i \link #QPSQL7 QPSQL7\endlink - PostgreSQL v6.x and v7.x Driver
 \i \link #QTDS7 QTDS7\endlink - Sybase Adaptive Server and Microsoft SQL Server Driver
@@ -106,9 +106,10 @@ libraries.
 
 \section3 General information
 
-MySQL 3.x doesn't support SQL transactions by default. There are some backends
-which offer this functionality. Recent versions of the MySQL client
-libraries (>3.23.34) allow you to use transactions on those modified servers.
+MySQL 3.x doesn't support SQL transactions by default. There are some
+backends which offer this functionality. Recent versions of the MySQL
+client libraries (>3.23.34) allow you to use transactions on those
+modified servers.
 
 If you have a recent client library and connect to a transaction-enabled MySQL
 server, a call to the QSqlDriver::hasFeature( QSqlDriver::Transactions ) 
@@ -148,25 +149,28 @@ If you are not using a Microsoft compiler, replace "nmake" with "make" in the
 statement above.
 
 \target QOCI8
-\section2 QOCI8 - Oracle Call Interface
+\section2 QOCI8 - Oracle Call Interface (OCI)
 
 \keyword QOCI8
 
 \section3 General information
 
-The Qt OCI plugin supports both Oracle 8 and Oracle 9. After connecting to the Oracle
-server, the plugin will auto-detect its version and enable features accordingly.
+The Qt OCI plugin supports both Oracle 8 and Oracle 9. After
+connecting to the Oracle server, the plugin will auto-detect the
+database version and enable features accordingly.
 
 \section3 Unicode support
 
-If the Oracle server supports unicode, the OCI plugin will use the Utf8
-encoding to communicate with the server. Oracle 8 only supports fetching
-unicode strings, Oracle 9 supports fetching as well as inserting unicode strings.
+If the Oracle server supports unicode, the OCI plugin will use the
+Utf8 encoding to communicate with the server. Oracle 8 only supports
+fetching unicode strings, Oracle 9 supports fetching as well as
+inserting unicode strings.
 
-\section3 BLOB support
+\section3 BLOB/LOB support
 
-(Binary) Large Objects can be fetched but they consume a lot of memory.
-We recommend using separate queries to fetch only one LOB at a time.
+Binary Large Objects (BLOBs) can be fetched but they consume a lot of
+memory. We recommend using separate queries and fetch only one BLOB at
+a time.
 
 Note that Oracle 9 doesn't support scrollable result sets with LOB columns,
 you have to use a forward only query to select LOB fields (see QSqlQuery::setForwardOnly()).
@@ -222,17 +226,17 @@ If you are not using a Microsoft compiler, replace "nmake" with "make" in the
 statement above.
 
 \target QODBC3
-\section2 QODBC3 - Open Database Connectivity
+\section2 QODBC3 - Open Database Connectivity (ODBC)
 
 \keyword QODBC3
 
 \section3 General information
 
-ODBC (Open Database Connectivity) is a general interface that allows you
-to connect to multiple DBMS using a common interface. The QODBC3 driver
-allows you to connect to an ODBC driver manager and access his datasources.
-Note that you also need to install and configure ODBC drivers for the
-ODBC driver manager that is installed on your system. The QODBC3 plugin
+ODBC is a general interface that allows you to connect to multiple
+DBMS using a common interface. The QODBC3 driver allows you to connect
+to an ODBC driver manager and access the available data sources. Note
+that you also need to install and configure ODBC drivers for the ODBC
+driver manager that is installed on your system. The QODBC3 plugin
 then allows you to use these data sources in your Qt project.
 
 On Windows systems after 95 an ODBC driver manager should be installed
@@ -249,15 +253,24 @@ established and refuses to work if the check fails. If you don't
 like this behaviour, you can remove the \c{#define ODBC_CHECK_DRIVER}
 line from the file \c{qsql_odbc.cpp}. Do this at your own risk!
 
+Note that some DBMSs, like Microsoft Access, does not return the
+primary index for a table through ODBC. You can still use the QODBC3
+driver, but you will have to manage table indices yourself (through
+QSqlCursor::setPrimaryIndex()), otherwise INSERT, UPDATE and DELETE
+operations will fail in data-aware Qt widgets. You will have to
+comment out the \c{#define ODBC_CHECK_DRIVER} line and recompile the
+driver, otherwise you will not be able to connect to a Microsoft
+Access database.
+
 \section3 Unicode support
 
-The QODBC3 Plugin will us the unicode API if UNICODE is defined. On
+The QODBC3 Plugin will use the Unicode API if UNICODE is defined. On
 Windows NT based systems, this is the default. Note that the ODBC
-driver and the DBMS have to support unicode as well.
+driver and the DBMS have to support Unicode as well.
 
-For Oracle 9 ODBC driver (Windows), it is neccessary to check
+For the Oracle 9 ODBC driver (Windows), it is neccessary to check
 "SQL_WCHAR support" in the ODBC driver manager otherwise Oracle
-will convert all unicode strings to local 8 bit.
+will convert all Unicode strings to local 8 bit.
 
 \section3 How to build the plugin on Unix/Linux
 
@@ -296,48 +309,50 @@ statement above.
 
 \section3 General information
 
-The QPSQL7 driver supports both version 6 and 7 of PostgreSQL. We recommend
-compiling the plugin with a recent version of the PostgreSQL Client API (libpq)
-because it is more stable and still downward compatible.
+The QPSQL7 driver supports both version 6 and 7 of PostgreSQL. We
+recommend compiling the plugin with a recent version of the PostgreSQL
+Client API (libpq) because it is more stable and still downward
+compatible.
 
-If you want to link the plugin against the libpq shipped with version 6 we
-recomment a recent version like PostgreSQL 6.5.3, otherwise a connection to a
-version 7 server may not work.
+If you want to link the plugin against the libpq shipped with version
+6 we recomment a recent version like PostgreSQL 6.5.3, otherwise a
+connection to a version 7 server may not work.
 
-The driver auto-detects the server version of PostgreSQL after a connection was
-successful. If the server is too old or the version information cannot be determined
-a warning is issued.
+The driver auto-detects the server version of PostgreSQL after a
+connection was successful. If the server is too old or the version
+information cannot be determined a warning is issued.
 
 For more information about PostgreSQL visit \l http://www.postgresql.org.
 
 \section 3 Unicode support
 
-The QPSQL7 driver automatically detects whether PostgreSQL supports unicode and
-uses it if available. Note that the driver only supports Utf8. If your database
-uses any other encoding, the server has to be compiled with unicode conversion
-support.
+The QPSQL7 driver automatically detects whether PostgreSQL supports
+unicode and uses it if available. Note that the driver only supports
+Utf8. If your database uses any other encoding, the server has to be
+compiled with unicode conversion support.
 
-Unicode support has been introduced in PostgreSQL version 7.1 and only works
-if both the server and the client library have been compiled with multibyte support.
-More information about how to set up a multibyte enabled PostgreSQL server can be
-found in the PostgreSQL Administrator Guide, Chapter 5.
+Unicode support has been introduced in PostgreSQL version 7.1 and only
+works if both the server and the client library have been compiled
+with multibyte support.  More information about how to set up a
+multibyte enabled PostgreSQL server can be found in the PostgreSQL
+Administrator Guide, Chapter 5.
 
 \section3 BLOB support
 
-Binary Large Objects can be fetched but not inserted. Please use the PostgreSQL
-command lo_import to insert binary data into the database.
+Binary Large Objects can be fetched but not inserted. Please use the
+PostgreSQL command lo_import to insert binary data into the database.
 
 \section3 How to build the plugin on Unix/Linux
 
 Just installing "libpq.so" and the corresponding header files is
 unfortunately not sufficient. You have to get the whole source
-distribution and run the configure script once (there is no need
-to build it if you have already installed a binary distribution).
+distribution and run the configure script once (there is no need to
+build it if you have already installed a binary distribution).
 
 Tell qmake where to find the PostgreSQL header files and shared
-libraries (here it is assumed that you extracted the PostgreSQL
-source code in /usr/src/psql and the shared library is installed
-in /usr/lib) and run make:
+libraries (here it is assumed that you extracted the PostgreSQL source
+code in /usr/src/psql and the shared library is installed in /usr/lib)
+and run make:
 
 \code
 cd $QTDIR/plugins/src/sqldrivers/psql
@@ -361,9 +376,10 @@ Under Unix, two libraries are available which support the TDS protocol:
 - Sybase Open Client, available from \l http://www.sybase.com
   Note for Linux users: Get the Open Client RPM from \l http://linux.sybase.com
 
-Regardless of which library you use, the shared object file "libsybdb.so" is needed.
-Set the SYBASE environment variable to point to the directory where you
-installed the client library and execute qmake:
+Regardless of which library you use, the shared object file
+"libsybdb.so" is needed. Set the SYBASE environment variable to point
+to the directory where you installed the client library and execute
+qmake:
 
 \code
 cd $QTDIR/plugins/src/sqldrivers/tds
@@ -390,13 +406,14 @@ Q_USE_SYBASE in %QTDIR%\src\sql\drivers\tds\qsql_tds.cpp.
 \target troubleshooting
 \section1 Troubleshooting
 
-You should always use client libraries that have been compiled with the same
-compiler as you are using for your project. If you cannot get a source distibution
-to compile the client libraries yourself, you have to make sure that the
-pre-compiled library is compatible with your compiler, otherwise you will get
-a lot of "undefined symbols" errors. Some compilers have tools to convert libraries,
-e.g. Borland ships the tool \c{COFF2OMF.EXE} to convert libraries that
-have been generated with Microsoft Visual C++.
+You should always use client libraries that have been compiled with
+the same compiler as you are using for your project. If you cannot get
+a source distibution to compile the client libraries yourself, you
+have to make sure that the pre-compiled library is compatible with
+your compiler, otherwise you will get a lot of "undefined symbols"
+errors. Some compilers have tools to convert libraries, e.g. Borland
+ships the tool \c{COFF2OMF.EXE} to convert libraries that have been
+generated with Microsoft Visual C++.
 
 If the compilation of a plugin succeeds but it cannot be loaded,
 make sure that the following requirements are met:
