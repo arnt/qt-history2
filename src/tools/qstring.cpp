@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#263 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#264 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -12489,7 +12489,7 @@ QString &QString::operator+=( QChar c )
 
 QString &QString::operator+=( char c )
 {
-    setLength(length()+1);
+    Setlength(length()+1);
     d->unicode[length()-1] = c;
     return *this;
 }
@@ -12608,7 +12608,8 @@ QCString QString::local8Bit() const
     return codec
 	    ? codec->fromUnicode(*this)
 	    : QCString(latin1());
-#else
+#endif
+#ifdef _WS_WIN_
     return qt_winQString2MB( *this );
 #endif
 }
@@ -12640,7 +12641,9 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
     return codec
 	    ? codec->toUnicode(local8Bit, len)
 	    : QString::fromLatin1(local8Bit,len);
-#else
+#endif
+// Should this be OS_WIN32?
+#ifdef _WS_WIN_
     if ( len >= 0 ) {
 	QCString s(local8Bit,len+1);
 	return qt_winMB2QString(s);
