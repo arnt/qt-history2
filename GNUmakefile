@@ -87,6 +87,17 @@ distclean clean uiclean mocclean:
 	cd config.tests/unix && $(MAKE) $@
 	cd config.tests/x11 && $(MAKE) $@
 
+#confclean is actually the same as distclean, except qmake is not cleaned..
+confclean:
+	cd tools && $(MAKE) distclean
+	cd src/moc && $(MAKE) distclean
+	cd src && $(MAKE) distclean
+	cd tutorial && $(MAKE) distclean
+	cd plugins/src && $(MAKE) distclean
+	cd examples && $(MAKE) distclean
+	cd config.tests/unix && $(MAKE) distclean
+	cd config.tests/x11 && $(MAKE) distclean
+
 .qmake.cache:
 	@echo
 	@echo '  Qt must first be configured using the "configure" script.'
