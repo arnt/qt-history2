@@ -567,7 +567,7 @@ void QTextEdit::copy()
 {
     if (!d->cursor.hasSelection())
 	return;
-    QRichTextDrag *drag = new QRichTextDrag(d->cursor, this);
+    QRichTextDrag *drag = new QRichTextDrag(d->cursor, 0);
     QApplication::clipboard()->setData(drag);
 }
 
