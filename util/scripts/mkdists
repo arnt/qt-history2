@@ -589,7 +589,7 @@ for plat in mac win x11 qws; do
 	status "*** Packing $edition... *****" "1"
 	if [ "$REL_VERSION" = "0.0.0" ]; then
 	    PLATNAME=`date "+qt-${plat}-${edition}-%d-%m-%y${type}"`
-        else
+	else
 	    PLATNAME=qt-${plat}-${edition}-${REL_VERSION}${type}
 	fi
 	PLATDIR=$DISTDIR/$PLATNAME
@@ -614,6 +614,11 @@ for plat in mac win x11 qws; do
 		[ -d "$PLATDIR/$sql" ] && rm -rf "$PLATDIR/$sql"
 	    done
 	    rm -rf $PLATDIR/doc/*sql*.doc
+	    rm -rf $PLATDIR/tools/designer/plugins/wizards/*sql*
+	    rm -rf $PLATDIR/tools/designer/designer/propertyeditorsql.h
+	    rm -rf $PLATDIR/include/qsql*.h
+	    rm -rf $PLATDIR/include/qdatetimeedit.h
+	    rm -rf $PLATDIR/include/qeditorfactory.h
 	    ;;
 	professional)
 	    #remove sql & table from the main file
@@ -628,7 +633,10 @@ for plat in mac win x11 qws; do
 	    done
 	    rm -rf $PLATDIR/doc/*sql*.doc
 	    rm -rf $PLATDIR/doc/table.doc
-	    #move xml stuff into designer directory TBD
+	    rm -rf $PLATDIR/tools/designer/plugins/wizards/*sql*
+	    rm -rf $PLATDIR/tools/designer/designer/propertyeditorsql.h
+	    rm -rf $PLATDIR/include/qsql*.h
+	    #move xml stuff into designer directory TBD ###
 	    ;;
 	esac
 	rm -rf "$PLATDIR/examples/kiosk"

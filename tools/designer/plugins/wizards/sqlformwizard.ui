@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>670</width>
-            <height>432</height>
+            <width>683</width>
+            <height>430</height>
         </rect>
     </property>
     <property name="caption">
@@ -389,7 +389,7 @@
             <cstring>populatePage</cstring>
         </property>
         <attribute name="title">
-            <string>Autopopulate</string>
+            <string>Select Fields</string>
         </attribute>
         <grid>
             <property name="name">
@@ -787,7 +787,7 @@
                             </sizepolicy>
                         </property>
                         <property name="text">
-                            <string>&lt;big&gt;&lt;b&gt;Autopopulate&lt;/b&gt;&lt;/big&gt;</string>
+                            <string>&lt;big&gt;&lt;b&gt;Select Fields&lt;/b&gt;&lt;/big&gt;</string>
                         </property>
                         <property name="alignment">
                             <set>AlignAuto|AlignCenter</set>
@@ -800,7 +800,7 @@
                             <cstring>checkBoxAutoPopulate</cstring>
                         </property>
                         <property name="text">
-                            <string>&amp;Autopopulate</string>
+                            <string>&amp;Select &amp;Fields</string>
                         </property>
                         <property name="checked">
                             <bool>true</bool>
@@ -1623,7 +1623,7 @@
                 <cstring>unnamed</cstring>
             </property>
             <property name="margin">
-                <number>0</number>
+                <number>11</number>
             </property>
             <property name="spacing">
                 <number>6</number>
@@ -1911,11 +1911,6 @@
                     <cstring>listBoxSortedField</cstring>
                 </property>
             </widget>
-            <widget class="QMultiLineEdit" row="0" column="2" rowspan="1" colspan="3">
-                <property name="name">
-                    <cstring>editFilter</cstring>
-                </property>
-            </widget>
             <widget class="QLayoutWidget" row="0" column="1">
                 <property name="name">
                     <cstring>Layout10</cstring>
@@ -2069,6 +2064,35 @@
                         </property>
                         <property name="toolTip" stdset="0">
                             <string>Change field sort</string>
+                        </property>
+                    </widget>
+                </vbox>
+            </widget>
+            <widget class="QLayoutWidget" row="0" column="2" rowspan="1" colspan="3">
+                <property name="name">
+                    <cstring>Layout13</cstring>
+                </property>
+                <vbox>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <property name="margin">
+                        <number>0</number>
+                    </property>
+                    <property name="spacing">
+                        <number>6</number>
+                    </property>
+                    <widget class="QLabel">
+                        <property name="name">
+                            <cstring>TextLabel1_3</cstring>
+                        </property>
+                        <property name="text">
+                            <string>(a valid WHERE clause)</string>
+                        </property>
+                    </widget>
+                    <widget class="QMultiLineEdit">
+                        <property name="name">
+                            <cstring>editFilter</cstring>
                         </property>
                     </widget>
                 </vbox>
