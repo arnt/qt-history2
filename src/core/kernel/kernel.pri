@@ -8,6 +8,7 @@ HEADERS += \
 	kernel/qcoreevent.h \
 	kernel/qcorevariant.h \
 	kernel/qmetaobject.h \
+	kernel/qmetatype.h \
 	kernel/qobject.h \
 	kernel/qobjectdefs.h \
 	kernel/qprocess.h \
@@ -29,6 +30,7 @@ SOURCES += \
 	kernel/qcoreevent.cpp \
 	kernel/qcorevariant.cpp \
 	kernel/qmetaobject.cpp \
+	kernel/qmetatype.cpp \
 	kernel/qobject.cpp \
 	kernel/qobjectcleanuphandler.cpp \
 	kernel/qprocess.cpp \
