@@ -1,7 +1,7 @@
 /**********************************************************************
 ** Copyright (C) 2000 Trolltech AS.  All rights reserved.
 **
-** This file is part of Qt Designer.
+**1 This file is part of Qt Designer.
 **
 ** This file may be distributed and/or modified under the terms of the
 ** GNU General Public License version 2 as published by the Free Software
@@ -1269,9 +1269,6 @@ void Project::addObject( QObject *o )
     objs.append( o );
     FormFile *ff = new FormFile( "", FALSE, this, "qt_fakewindow" );
     ff->setFileName( "__APPOBJ" + QString( o->name() ) + ".ui" );
-    // if we have no mainwindow, it has to be set later on and the
-    // formwindow needs to get reparented later on into the workspace
-    // too!
     QWidget *parent = MainWindow::self ? MainWindow::self->qWorkspace() : 0;
     FormWindow *fw = new FormWindow( ff, MainWindow::self, parent, "qt_fakewindow" );
     fw->setProject( this );
@@ -1280,20 +1277,18 @@ void Project::addObject( QObject *o )
     if ( QFile::exists( ff->absFileName() ) )
 	Resource::loadExtraSource( fw, ff->absFileName(),
 				   MetaDataBase::languageInterface( language() ), FALSE );
-    // if we have no mainwindow, we have to set it when one gets
-    // created!
     if ( MainWindow::self )
 	fw->setMainWindow( MainWindow::self );
     fw->setProject( this );
     if ( MainWindow::self ) {
 	QApplication::sendPostedEvents( MainWindow::self->qWorkspace(), QEvent::ChildInserted );
-	// if we have no MainWindow, we have to make this connection
-	// at some later point, when it gets created
 	connect( fw, SIGNAL( undoRedoChanged( bool, bool, const QString &, const QString & ) ),
 		 MainWindow::self, SLOT( updateUndoRedo( bool, bool, const QString &, const QString & ) ) );
     }
-    fw->parentWidget()->setFixedSize( 1, 1 );
-    fw->show();
+    if ( fw->parentWidget() ) {
+	fw->parentWidget()->setFixedSize( 1, 1 );
+	fw->show();
+    }
     emit objectAdded( o );
     modified = wasModified;
 }
@@ -1571,16 +1566,16 @@ QObjectList *Project::run()
 	QString lang = language();
 	iiface = 0;
 	interpreterPluginManager->queryInterface( lang, &iiface );
-	if ( iiface && MainWindow::self ) { // ########### do we need to catch that also without a mainwindow?
+	if ( iiface && MainWindow::self ) {
 	    iiface->onShowDebugStep( MainWindow::self,
 				     SLOT( showDebugStep( QObject *, int ) ) );
 	    iiface->onShowStackFrame( MainWindow::self,
 				      SLOT( showStackFrame( QObject *, int ) ) );
-	    iiface->onShowError( MainWindow::self,
-				 SLOT( showErrorMessage( QObject *, int,
-							 const QString & ) ) );
-	    iiface->onFinish( MainWindow::self, SLOT( finishedRun() ) );
 	}
+
+	iiface->onFinish( this, SIGNAL( runFinished() ) );
+	iiface->onShowError( this, SLOT( emitRuntimeError( QObject *, int,
+							   const QString & ) ) );
 
 	if ( iiface )
 	    iiface->init();
@@ -1674,3 +1669,29 @@ QWidget *Project::findRealForm( QWidget *wid )
     return 0;
 }
 
+void Project::designerCreated()
+{
+    for ( FormFile *ff = formfiles.first(); ff; ff = formfiles.next() ) {
+	FormWindow *fw = ff->formWindow();
+	if ( !fw || fw->mainWindow() )
+	    continue;
+	fw->setMainWindow( MainWindow::self );
+	connect( fw, SIGNAL( undoRedoChanged( bool, bool, const QString &,
+					      const QString & ) ),
+		 MainWindow::self, SLOT( updateUndoRedo( bool, bool,
+					 const QString &, const QString & ) ) );
+	fw->reparent( MainWindow::self->qWorkspace(), QPoint( 0, 0 ), FALSE );
+	QApplication::sendPostedEvents( MainWindow::self->qWorkspace(),
+					QEvent::ChildInserted );
+	fw->parentWidget()->setFixedSize( 1, 1 );
+	fw->show();
+    }
+    connect( this, SIGNAL( runFinished() ), MainWindow::self, SLOT( finishedRun() ) );
+}
+
+void Project::emitRuntimeError( QObject *o, int l, const QString &msg )
+{
+    emit runtimeError( msg );
+    if ( MainWindow::self )
+	MainWindow::self->showErrorMessage( o, l, msg );
+}

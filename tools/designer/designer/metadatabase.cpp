@@ -1455,12 +1455,13 @@ bool MetaDataBase::hasEditor( const QString &lang )
     return editorLangList.find( lang ) != editorLangList.end();
 }
 
-void MetaDataBase::setupInterfaceManagers()
+void MetaDataBase::setupInterfaceManagers( const QString &plugDir )
 {
     if ( !languageInterfaceManager ) {
 	languageInterfaceManager =
-	    new QPluginManager<LanguageInterface>( IID_Language, QApplication::libraryPaths(),
-						   MainWindow::self->pluginDirectory() );
+	    new QPluginManager<LanguageInterface>( IID_Language,
+						   QApplication::libraryPaths(),
+						   plugDir );
 
 	langList = languageInterfaceManager->featureList();
 	langList.remove( "C++" );

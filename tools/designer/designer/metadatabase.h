@@ -235,7 +235,7 @@ public:
     static void setEditor( const QStringList &langs );
     static bool hasEditor( const QString &lang );
 
-    static void setupInterfaceManagers();
+    static void setupInterfaceManagers( const QString &plugDir );
     static QStringList languages();
 
     static LanguageInterface *languageInterface( const QString &lang );

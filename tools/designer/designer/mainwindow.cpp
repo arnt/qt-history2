@@ -514,8 +514,6 @@ void MainWindow::runProjectPrecondition()
     oWindow->clearDebug();
     oWindow->showDebugTab();
     previewing = TRUE;
-    connect( this, SIGNAL( runtimeError( const QString & ) ),
-	     currentProject, SIGNAL( runtimeError( const QString & ) ) );
 }
 
 void MainWindow::runProjectPostcondition( QObjectList *l )
@@ -2921,7 +2919,7 @@ void MainWindow::setupPluginManagers()
     templateWizardPluginManager =
 	new QPluginManager<TemplateWizardInterface>( IID_TemplateWizard, QApplication::libraryPaths(), pluginDirectory() );
 
-    MetaDataBase::setupInterfaceManagers();
+    MetaDataBase::setupInterfaceManagers( pluginDirectory() );
     preferencePluginManager =
 	new QPluginManager<PreferenceInterface>( IID_Preference, QApplication::libraryPaths(), pluginDirectory() );
     projectSettingsPluginManager =
@@ -3077,7 +3075,6 @@ void MainWindow::showErrorMessage( QObject *o, int errorLine, const QString &err
 	oWindow->setErrorMessages( l2, l, TRUE, QStringList(), ol );
 	showSourceLine( o, errorLine, Error );
     }
-    emit runtimeError( errorMessage );
 }
 
 void MainWindow::finishedRun()
@@ -3091,9 +3088,6 @@ void MainWindow::finishedRun()
 	    e->editorInterface()->setMode( EditorInterface::Editing );
 	e->clearStackFrame();
     }
-    disconnect( this, SIGNAL( runtimeError( const QString & ) ),
-		currentProject, SIGNAL( runtimeError( const QString & ) ) );
-    emit runFinished();
 }
 
 void MainWindow::enableAll( bool enable )
@@ -3421,7 +3415,7 @@ QString MainWindow::whatsThisFrom( const QString &key )
     return menuHelpFile.mid( start, end - start + 1 );
 }
 
-Project *MainWindow::setSingleProject( const QString &lang, const QString &projectName )
+void MainWindow::setSingleProject( Project *pro )
 {
     if ( eProject ) {
 	Project *pro = eProject;
@@ -3451,24 +3445,15 @@ Project *MainWindow::setSingleProject( const QString &lang, const QString &proje
 
     singleProject = TRUE;
     projects.clear();
-    QAction *a = new QAction( tr( projectName ), tr( projectName ), 0, actionGroupProjects, 0, TRUE );
-    eProject = new Project( QFileInfo( projectName ).absFilePath(), "",
-			    projectSettingsPluginManager, FALSE, lang );
-    eProject->setModified( FALSE );
+    QAction *a = new QAction( tr( pro->name() ), tr( pro->name() ), 0,
+			      actionGroupProjects, 0, TRUE );
+    eProject = pro;
     projects.insert( a, eProject );
     a->setOn( TRUE );
     actionGroupProjects->removeFrom( projectMenu );
     actionGroupProjects->removeFrom( projectToolBar );
     currentProject = eProject;
-
-    if ( !QFile::exists( eProject->makeAbsolute( eProject->fileName() ) ) ) {
-	SourceFile *f = new SourceFile( "main.qs", FALSE, currentProject );
-	f->setText( "// Put all global functions here\n" );
-	MainWindow::self->editSource( f );
-	f->setModified( TRUE );
-    }
-
-    return eProject;
+    currentProject->designerCreated();
 }
 
 void MainWindow::shuttingDown()

@@ -208,6 +208,7 @@ public:
 
     QObjectList *run();
     QWidget *findRealForm( QWidget *wid );
+    void designerCreated();
 
 signals:
     void projectModified();
@@ -218,6 +219,10 @@ signals:
     void objectAdded( QObject * );
     void objectRemoved( QObject * );
     void runtimeError( const QString &message );
+    void runFinished();
+
+private slots:
+    void emitRuntimeError( QObject *, int, const QString & );
 
 private:
     void parse();

@@ -423,7 +423,7 @@ void Workspace::projectDestroyed( QObject* o )
 void Workspace::setCurrentProject( Project *pro )
 {
     if ( project == pro )
-	return;
+ 	return;
     if ( project ) {
 	disconnect( project, SIGNAL( sourceFileAdded(SourceFile*) ), this, SLOT( sourceFileAdded(SourceFile*) ) );
 	disconnect( project, SIGNAL( sourceFileRemoved(SourceFile*) ), this, SLOT( sourceFileRemoved(SourceFile*) ) );
@@ -465,8 +465,9 @@ void Workspace::setCurrentProject( Project *pro )
 	(void) new WorkspaceItem( projectItem, f );
     }
 
-    for ( QObjectListIt objs = project->objects();
-	  objs.current(); ++objs ) {
+    QObjectList l = project->objects();
+    QObjectListIt objs( l );
+    for ( ;objs.current(); ++objs ) {
 	QObject* o = objs.current();
 	(void) new WorkspaceItem( projectItem, o, project );
     }

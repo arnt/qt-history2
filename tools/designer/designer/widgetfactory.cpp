@@ -544,13 +544,13 @@ QLayout *WidgetFactory::createLayout( QWidget *widget, QLayout *layout, LayoutTy
     int margin = 0;
 
     int metaspacing = MetaDataBase::spacing( widget );
-    int metamargin = MetaDataBase::margin( widget ); 
+    int metamargin = MetaDataBase::margin( widget );
 
     if ( widget && !widget->inherits( "QLayoutWidget" ) &&
 	 ( WidgetDatabase::isContainer( WidgetDatabase::idFromClassName( WidgetFactory::classNameOf( widget ) ) ) ||
-	   widget && widget->parentWidget() && widget->parentWidget()->inherits( "FormWindow" ) ) ) 
+	   widget && widget->parentWidget() && widget->parentWidget()->inherits( "FormWindow" ) ) )
 	margin = MainWindow::self->currentLayoutDefaultMargin();
-    
+
     if ( !layout && widget && widget->inherits( "QTabWidget" ) )
 	widget = ((QTabWidget*)widget)->currentPage();
 
@@ -564,7 +564,7 @@ QLayout *WidgetFactory::createLayout( QWidget *widget, QLayout *layout, LayoutTy
 	widget = ((QWidgetStack*)widget)->visibleWidget();
 
     MetaDataBase::addEntry( widget );
-    
+
     QLayout *l = 0;
     int align = 0;
     if ( !layout && widget && widget->inherits( "QGroupBox" ) ) {
@@ -598,7 +598,7 @@ QLayout *WidgetFactory::createLayout( QWidget *widget, QLayout *layout, LayoutTy
 	    case VBox:
 		l = new QVBoxLayout( layout );
 		break;
-	    case Grid: 
+	    case Grid:
 		l = new QDesignerGridLayout( layout );
 		break;
 	    default:
@@ -615,14 +615,14 @@ QLayout *WidgetFactory::createLayout( QWidget *widget, QLayout *layout, LayoutTy
 	    case VBox:
 		l = new QVBoxLayout( widget );
 		break;
-	    case Grid: 
+	    case Grid:
 		l = new QDesignerGridLayout( widget );
 		break;
 	    default:
 		return 0;
 	    }
 	    MetaDataBase::addEntry( l );
-	    if ( widget ) { 
+	    if ( widget ) {
 		MetaDataBase::setMargin( widget, metamargin );
 		MetaDataBase::setSpacing( widget, metaspacing );
 	    } else {
@@ -632,7 +632,7 @@ QLayout *WidgetFactory::createLayout( QWidget *widget, QLayout *layout, LayoutTy
 	}
     }
     l->setAlignment( align );
-    MetaDataBase::addEntry( l ); 
+    MetaDataBase::addEntry( l );
     return l;
 }
 
@@ -1176,7 +1176,7 @@ QString WidgetFactory::defaultSignal( QObject *w )
 
 void WidgetFactory::initChangedProperties( QObject *o )
 {
-    if ( MainWindow::self->currProject() &&
+    if ( MainWindow::self && MainWindow::self->currProject() &&
 	 MainWindow::self->currProject()->fakeFormFor( o ) )
 	return;
     MetaDataBase::setPropertyChanged( o, "name", TRUE );
@@ -1338,7 +1338,7 @@ QVariant WidgetFactory::defaultValue( QObject *w, const QString &propName )
     } else if ( propName == "frameworkCode" ) {
 	return QVariant( TRUE, 0 );
     } else if ( propName == "layoutMargin" || propName == "layoutSpacing" ) {
-	return QVariant( -1 ); 
+	return QVariant( -1 );
     }
 
     return *( *defaultProperties->find( WidgetDatabase::idFromClassName( classNameOf( w ) ) ) ).find( propName );

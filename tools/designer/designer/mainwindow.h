@@ -76,8 +76,6 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
-#undef QMainWindow
-
 public:
     enum LineMode { Error, Step, StackFrame };
 
@@ -166,7 +164,7 @@ public:
     void popupProjectMenu( const QPoint &pos );
     QObject *findRealObject( QObject *o );
 
-    Project *setSingleProject( const QString &lang, const QString &projectName );
+    void setSingleProject( Project *pro );
     bool singleProjectMode() const { return singleProject; }
 
     void showSourceLine( QObject *o, int line, LineMode lm );
@@ -200,8 +198,6 @@ signals:
     void formWindowChanged();
     void projectChanged();
     void editorChanged();
-    void runtimeError( const QString &message );
-    void runFinished();
 
 protected:
     bool eventFilter( QObject *o, QEvent *e );
