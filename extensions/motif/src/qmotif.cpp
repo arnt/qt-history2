@@ -109,7 +109,7 @@ XEvent* QMotif::lastEvent()
 
 QMotifPrivate::QMotifPrivate()
     : appContext(NULL), ownContext(NULL),
-      pending_socknots(0), activate_timers(FALSE), timerid(~0u)
+      pending_socknots(0), activate_timers(false), timerid(~0u)
 {
 }
 
@@ -162,7 +162,7 @@ void QMotifPrivate::unhook()
 
 extern bool qt_try_modal( QWidget *, XEvent * ); // defined in qapplication_x11.cpp
 
-static bool xt_grab = FALSE;
+static bool xt_grab = false;
 static Window xt_grab_focus_window = None;
 
 Boolean qmotif_event_dispatcher( XEvent *event )
@@ -180,12 +180,12 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 	    if (event->type == XFocusOut && event->xfocus.mode == NotifyUngrab) {
 		GDEBUG("Xt: grab ended for 0x%lx (detail %d)",
 		       event->xany.window, event->xfocus.detail);
-		xt_grab = FALSE;
+		xt_grab = false;
 		xt_grab_focus_window = None;
 	    } else if (event->type == DestroyNotify
 		       && event->xany.window == xt_grab_focus_window) {
 		GDEBUG("Xt: grab window destroyed (0x%lx)", xt_grab_focus_window);
-		xt_grab = FALSE;
+		xt_grab = false;
 		xt_grab_focus_window = None;
 	    }
 	}
@@ -203,7 +203,7 @@ Boolean qmotif_event_dispatcher( XEvent *event )
                 && event->xfocus.detail != NotifyPointerRoot)) {
             GDEBUG("Xt: grab started for 0x%lx (detail %d)",
                    event->xany.window, event->xfocus.detail);
-	    xt_grab = TRUE;
+	    xt_grab = true;
 	    xt_grab_focus_window = event->xany.window;
 	}
 
@@ -225,7 +225,7 @@ Boolean qmotif_event_dispatcher( XEvent *event )
  	}
     }
 
-    bool delivered = FALSE;
+    bool delivered = false;
     if (event->xany.display == QX11Info::appDisplay()) {
 	/*
 	  If the mouse has been grabbed for a window that we don't know
@@ -233,13 +233,13 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 	  intercept the event that ends the mouse grab that Xt/Motif
 	  started.
 	*/
-	bool do_deliver = TRUE;
+	bool do_deliver = true;
 	if ( xt_grab && ( event->type == ButtonPress   ||
 			  event->type == ButtonRelease ||
 			  event->type == MotionNotify  ||
 			  event->type == EnterNotify   ||
 			  event->type == LeaveNotify ) )
-	    do_deliver = FALSE;
+	    do_deliver = false;
 
 	last_xevent = event;
 	delivered = do_deliver && ( qApp->x11ProcessEvent( event ) != -1 );
@@ -249,18 +249,18 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 	    case EnterNotify:
 	    case LeaveNotify:
 		event->xcrossing.focus = False;
-		delivered = FALSE;
+		delivered = false;
 		break;
 	    case XKeyPress:
 	    case XKeyRelease:
-		delivered = TRUE;
+		delivered = true;
 		break;
 	    case XFocusIn:
 	    case XFocusOut:
-		delivered = FALSE;
+		delivered = false;
 		break;
 	    default:
-		delivered = FALSE;
+		delivered = false;
 		break;
 	    }
 	}
@@ -448,13 +448,13 @@ void QMotif::appStartingUp()
       we should only initialize the display if the current application
       context does not contain the QApplication display
     */
-    bool display_found = FALSE;
+    bool display_found = false;
     Display **displays;
     Cardinal x, count;
     XtGetDisplays( d->appContext, &displays, &count );
     for ( x = 0; x < count && ! display_found; ++x ) {
 	if ( displays[x] == QX11Info::appDisplay() )
-	    display_found = TRUE;
+	    display_found = true;
     }
     if ( displays )
 	XtFree( (char *) displays );
@@ -642,11 +642,11 @@ void qmotif_timeout_handler( XtPointer, XtIntervalId * )
 	*/
 	QApplication::eventLoop()->activateTimers();
 	QApplication::sendPostedEvents();
-	static_d->activate_timers = FALSE;
+	static_d->activate_timers = false;
 
 	qmotif_keep_alive();
     } else {
-	static_d->activate_timers = TRUE;
+	static_d->activate_timers = true;
     }
 }
 
@@ -689,7 +689,7 @@ bool QMotif::processEvents( ProcessEventsFlags flags )
     if ( ! ( flags & 0x08 ) && d->activate_timers ) {
 	// 0x08 == ExcludeTimers for X11 only
 	nevents += activateTimers();
-	d->activate_timers = FALSE;
+	d->activate_timers = false;
     }
 
     return ( canWait || ( pendingmask != 0 ) || nevents > 0 );

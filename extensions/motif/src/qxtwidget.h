@@ -34,10 +34,10 @@ class QXtWidget : public QWidget {
 				 XSetWindowAttributes* attributes );
 
 public:
-    QXtWidget(const char* name, Widget parent, bool managed=FALSE);
+    QXtWidget(const char* name, Widget parent, bool managed=false);
     QXtWidget(const char* name, WidgetClass widget_class,
 	      QWidget *parent=0, ArgList args=0, Cardinal num_args=0,
-	      bool managed=FALSE);
+	      bool managed=false);
     ~QXtWidget();
 
     Widget xtWidget() const { return xtw; }

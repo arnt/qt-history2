@@ -23,7 +23,7 @@ class CustomDialog : public QMotifDialog
 
 public:
     CustomDialog( Widget parent, const char *name = 0,
-		  bool modal = FALSE, WFlags flags = 0 );
+		  bool modal = false, WFlags flags = 0 );
 };
 
 #endif // DIALOG_H

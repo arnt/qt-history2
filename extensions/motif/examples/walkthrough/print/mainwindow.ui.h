@@ -51,7 +51,7 @@ void AdjustPages(int startpage, int ins)
 void MainWindow::fileNew()
 {
     char buf[128];
-    bool found = FALSE;
+    bool found = false;
     int i = 0;
 
     while(! found) {
@@ -116,7 +116,7 @@ void MainWindow::fileSaveAs()
 void MainWindow::filePrint()
 {
     QPrinter printer( QPrinter::HighResolution );
-    printer.setFullPage(TRUE);
+    printer.setFullPage(true);
     if ( ! printer.setup( this ) ) return;
 
     QPainter p( &printer );
@@ -175,7 +175,7 @@ void MainWindow::filePrint()
 	    break;
 	printer.newPage();
 	page++;
-    } while (TRUE);
+    } while (true);
 
     qApp->restoreOverrideCursor();
 }
@@ -191,7 +191,7 @@ void MainWindow::selProperties()
 {
     if (pages[currentPage] == NULL) return;
 
-    PageEditDialog pedlg( this, "page edit dialog", TRUE );
+    PageEditDialog pedlg( this, "page edit dialog", true );
 
     if (pages[currentPage] -> label != NULL)
 	pedlg.titleEdit->setText( pages[currentPage]->label );

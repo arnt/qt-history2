@@ -70,7 +70,7 @@ void qwidget_realize(
     widgetClassRec.core_class.realize(widget, mask, attributes);
     QXtWidget* qxtw = ((QWidgetRec*)widget)->qwidget.qxtwidget;
     if (XtWindow(widget) != qxtw->winId()) {
-	qxtw->create(XtWindow(widget), FALSE, FALSE);
+	qxtw->create(XtWindow(widget), false, false);
 	reparentChildrenOf(qxtw);
     }
     qxtw->show();
@@ -164,7 +164,7 @@ void QXtWidget::init(const char* name, WidgetClass widget_class,
 		    ArgList args, Cardinal num_args,
 		    bool managed)
 {
-    need_reroot=FALSE;
+    need_reroot=false;
     xtparent = 0;
     if ( parent ) {
 	Q_ASSERT(!qparent);
@@ -192,7 +192,7 @@ void QXtWidget::init(const char* name, WidgetClass widget_class,
 	XSync(qt_xdisplay(), False);    // I want all windows to be created now
 	XReparentWindow(qt_xdisplay(), XtWindow(xtw), qparent->winId(), x(), y());
 	XtSetMappedWhenManaged(xtw, True);
-	need_reroot=TRUE;
+	need_reroot=true;
     }
 
     Arg reqargs[20];
@@ -221,7 +221,7 @@ void QXtWidget::init(const char* name, WidgetClass widget_class,
   The \a name is the object name passed to the QWidget constructor.
   The widget's parent is \a parent.
 
-  If the \a managed parameter is TRUE and \a parent in not null,
+  If the \a managed parameter is true and \a parent in not null,
   XtManageChild it used to manage the child.
 */
 QXtWidget::QXtWidget(const char* name, Widget parent, bool managed)
@@ -250,7 +250,7 @@ QXtWidget::QXtWidget(const char* name, Widget parent, bool managed)
 
   The arguments, \a args, \a num_args are passed on to XtCreateWidget.
 
-  If the \a managed parameter is TRUE and \a parent in not null,
+  If the \a managed parameter is true and \a parent in not null,
   XtManageChild it used to manage the child.
 */
 QXtWidget::QXtWidget(const char* name, WidgetClass widget_class,
@@ -265,7 +265,7 @@ QXtWidget::QXtWidget(const char* name, WidgetClass widget_class,
 	init(name, widget_class, ( (QXtWidget*)parent)->xtw , 0, args, num_args, managed);
     else
 	init(name, widget_class, 0, parent, args, num_args, managed);
-    create(XtWindow(xtw), FALSE, FALSE);
+    create(XtWindow(xtw), false, false);
 }
 
 /*!
@@ -287,7 +287,7 @@ QXtWidget::~QXtWidget()
     }
 
     XtDestroyWidget(xtw);
-    destroy( FALSE, FALSE );
+    destroy( false, false );
 }
 
 /*!
@@ -340,7 +340,7 @@ bool QXtWidget::isActiveWindow() const
     int revert;
     XGetInputFocus( qt_xdisplay(), &win, &revert );
 
-    if ( win == None) return FALSE;
+    if ( win == None) return false;
 
     QWidget *w = find( (WId)win );
     if ( w ) {
@@ -354,11 +354,11 @@ bool QXtWidget::isActiveWindow() const
 	unsigned int nch;
 	while ( XQueryTree(qt_xdisplay(), cursor, &root, &parent, &ch, &nch) ) {
 	    if (ch) XFree( (char*)ch);
-	    if ( parent == win ) return TRUE;
-	    if ( parent == root ) return FALSE;
+	    if ( parent == win ) return true;
+	    if ( parent == root ) return false;
 	    cursor = parent;
 	}
-	return FALSE;
+	return false;
     }
 }
 

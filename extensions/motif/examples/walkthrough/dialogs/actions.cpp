@@ -175,7 +175,7 @@ EditPage(Widget, XtPointer client_data,
   if (pages[currentPage] == NULL) return;
 
   QWidget *toplevel = (QWidget *) client_data;
-  PageEditDialog pedlg( toplevel, "page edit dialog", TRUE );
+  PageEditDialog pedlg( toplevel, "page edit dialog", true );
 
   if (pages[currentPage] -> label != NULL)
       pedlg.titleEdit->setText( pages[currentPage]->label );

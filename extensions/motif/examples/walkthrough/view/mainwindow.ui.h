@@ -182,7 +182,7 @@ void MainWindow::selProperties()
 {
     if (pages[currentPage] == NULL) return;
 
-    PageEditDialog pedlg( this, "page edit dialog", TRUE );
+    PageEditDialog pedlg( this, "page edit dialog", true );
 
     if (pages[currentPage] -> label != NULL)
 	pedlg.titleEdit->setText( pages[currentPage]->label );

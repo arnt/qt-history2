@@ -450,7 +450,7 @@ QMotifDialog::~QMotifDialog()
     // are about to destroy
     XSync(x11Info()->display(), FALSE);
     XSync(QMotif::x11Display(), FALSE);
-    destroy( FALSE );
+    destroy( false );
 }
 
 /*!
@@ -601,7 +601,7 @@ void QMotifDialog::realize( Widget w )
 	}
 	QApplication::syncX();
 
-	create( newid, TRUE, TRUE );
+	create( newid, true, true );
 
 	// restore the window title and icon text
  	if (!wtitle.isEmpty())
@@ -784,6 +784,6 @@ XtGeometryResult qmotif_dialog_geometry_manger( Widget w,
 bool QMotifDialog::event( QEvent* e )
 {
     if ( QMotifWidget::dispatchQEvent( e, this ) )
-	return TRUE;
+	return true;
     return QDialog::event( e );
 }

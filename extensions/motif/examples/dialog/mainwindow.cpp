@@ -107,7 +107,7 @@ MainWindow::MainWindow()
 
 void MainWindow::showMotifDialog()
 {
-    QMotifDialog dialog( this, "custom dialog", TRUE );
+    QMotifDialog dialog( this, "custom dialog", true );
     dialog.setWindowTitle(tr("Custom Motif Dialog"));
 
     Widget form = XmCreateForm( dialog.shell(), "custom motif dialog", NULL, 0 );
@@ -155,6 +155,6 @@ void MainWindow::showMotifDialog()
 void MainWindow::showQtDialog()
 {
     // custom Qt-based dialog using a Motif-based parent
-    CustomDialog customdialog( motifWidget(), "custom dialog", TRUE );
+    CustomDialog customdialog( motifWidget(), "custom dialog", true );
     customdialog.exec();
 }

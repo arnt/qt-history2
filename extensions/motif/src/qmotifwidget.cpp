@@ -391,7 +391,7 @@ QMotifWidget::QMotifWidget(QWidget *parent, WidgetClass widgetclass,
         // the extra data is created
 	wp->createExtra();
     }
-    wp->extra->compress_events = FALSE;
+    wp->extra->compress_events = false;
 }
 
 /*!
@@ -420,7 +420,7 @@ QMotifWidget::~QMotifWidget()
     // are about to destroy
     XSync(x11Info()->display(), FALSE);
     XSync(QMotif::x11Display(), FALSE);
-    destroy( FALSE );
+    destroy( false );
 }
 
 /*!
@@ -520,7 +520,7 @@ void QMotifWidget::realize( Widget w )
 	// re-create this QWidget with the winid from the motif
 	// widget... the geometry will be reset to roughly 1/4 of the
 	// screen, so we need to restore it below
-	create( newid, TRUE, TRUE );
+	create( newid, true, true );
 
 	// restore the window title and icon text
 	if (!wtitle.isEmpty())
@@ -635,7 +635,7 @@ void qmotif_widget_shell_change_managed( Widget w )
 bool QMotifWidget::event( QEvent* e )
 {
     if ( dispatchQEvent( e, this ) )
-	return TRUE;
+	return true;
     return QWidget::event( e );
 }
 
@@ -644,7 +644,7 @@ bool QMotifWidget::event( QEvent* e )
 bool QMotifWidget::eventFilter( QObject *object, QEvent *event )
 {
     if (!d->shell)
-        return FALSE;
+        return false;
 
     switch (event->type()) {
     case QEvent::Reparent:
@@ -738,5 +738,5 @@ bool QMotifWidget::dispatchQEvent( QEvent* e, QWidget* w)
     default:
 	break;
     }
-    return FALSE;
+    return false;
 }
