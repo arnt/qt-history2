@@ -906,7 +906,8 @@ int QObject::startTimer( int interval )
 
 void QObject::killTimer( int id )
 {
-    QApplication::eventLoop()->unregisterTimer(id);
+    if ( QApplication::eventLoop() )
+	QApplication::eventLoop()->unregisterTimer(id);
 }
 
 static void objSearch( QObjectList &result,
