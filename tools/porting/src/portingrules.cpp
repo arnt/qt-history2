@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "rulesfromxml.h"
+#include "portingrules.h"
 #include <QFile>
 #include <iostream>
 #include "logger.h"
