@@ -462,16 +462,16 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
     : QWidget( parent, name, WResizeNoErase )
 {
     d = new QComboBoxData( this );
-    if ( !style().styleHint(QStyle::SH_ComboBox_Popup) ||
-	 style().styleHint(QStyle::SH_GUIStyle) == Qt::MotifStyle) {
-	setUpListBox();
-    } else {
+    if ( style().styleHint(QStyle::SH_ComboBox_Popup) ||
+	 style().styleHint(QStyle::SH_GUIStyle) == Qt::MotifStyle ) {
 	d->setPopupMenu( new QComboBoxPopup( this, "in-combo" ) );
 	d->popup()->setFont( font() );
 	connect( d->popup(), SIGNAL(activated(int)),
 			     SLOT(internalActivate(int)) );
 	connect( d->popup(), SIGNAL(highlighted(int)),
 			     SLOT(internalHighlight(int)) );
+    } else {
+	setUpListBox();
     }
     d->ed                    = 0;
     d->current               = 0;
