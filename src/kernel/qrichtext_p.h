@@ -179,9 +179,9 @@ public:
     QTextString( const QTextString &s );
     virtual ~QTextString();
 
-    QString toString() const;
-    static QString toString( const QMemArray<QTextStringChar> &data );
-    QString toReverseString() const;
+    QString toString( bool newlineHack = FALSE ) const;
+    static QString toString( const QMemArray<QTextStringChar> &data, bool newlineHack = FALSE );
+    QString toReverseString( bool newlineHack = FALSE ) const;
 
     QTextStringChar &at( int i ) const;
     int length() const;
@@ -1965,9 +1965,9 @@ inline QTextStringChar &QTextString::at( int i ) const
     return data[ i ];
 }
 
-inline QString QTextString::toString() const
+inline QString QTextString::toString( bool newlineHack ) const
 {
-    return toString( data );
+    return toString( data, newlineHack );
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

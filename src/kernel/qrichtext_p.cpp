@@ -403,7 +403,7 @@ void QTextFormat::updateStyleFlags()
 	different |= Bold;
 }
 
-QString QTextString::toString( const QMemArray<QTextStringChar> &data )
+QString QTextString::toString( const QMemArray<QTextStringChar> &data, bool newlineHack )
 {
     QString s;
     int l = data.size();
@@ -419,7 +419,7 @@ QString QTextString::toString( const QMemArray<QTextStringChar> &data )
 	// ### workaround so that \n are not drawn, actually this should be
 	// fixed in QFont somewhere (under Windows you get ugly boxes
 	// otherwise)
-	if ( *uc == '\n' )
+	if ( newlineHack && *uc == '\n' )
 	    *uc = 0x20;
 	uc++;
 	c++;
@@ -428,7 +428,7 @@ QString QTextString::toString( const QMemArray<QTextStringChar> &data )
     return s;
 }
 
-QString QTextString::toReverseString() const
+QString QTextString::toReverseString( bool newlineHack ) const
 {
     QString s;
     int l = length();
@@ -444,7 +444,7 @@ QString QTextString::toReverseString() const
 	// ### workaround so that \n are not drawn, actually this should be
 	// fixed in QFont somewhere (under Windows you get ugly boxes
 	// otherwise)
-	if ( *uc == '\n' )
+	if ( newlineHack && *uc == '\n' )
 	    *uc = 0x20;
 	uc++;
 	c--;

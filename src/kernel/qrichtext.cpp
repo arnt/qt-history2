@@ -4093,7 +4093,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
     int tw = 0;
 #endif
 
-    QString qstr = str->toString();
+    QString qstr = str->toString( TRUE );
 
     const int nSels = doc ? doc->numSelections() : 1;
     QMemArray<int> selectionStarts( nSels );
@@ -7402,8 +7402,8 @@ void QTextTable::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch,
 }
 
 int QTextTable::minimumWidth() const
-{ 
-    return (layout ? layout->minimumSize().width() : 0) + 2 * outerborder; 
+{
+    return (layout ? layout->minimumSize().width() : 0) + 2 * outerborder;
 }
 
 void QTextTable::resize( QPainter* p, int nwidth )
@@ -7412,14 +7412,14 @@ void QTextTable::resize( QPainter* p, int nwidth )
 	return;
     if ( nwidth == cachewidth )
 	return;
-    
-    
+
+
     cachewidth = nwidth;
     int w = nwidth;
     painter = p;
 
     format( w );
-    
+
     if ( stretch )
 	nwidth = nwidth * stretch / 100;
 
@@ -7782,7 +7782,7 @@ QSize QTextTableCell::sizeHint() const
 {
     int extra = 2 * ( parent->innerborder + parent->cellpadding);
     int used = richtext->widthUsed() + extra;
-    
+
     if  (stretch_ ) {
 	int w = parent->width * stretch_ / 100 - 2*parent->cellspacing - 2*parent->cellpadding;
 	return QSize( QMIN( w, maxw ), 0 );
