@@ -50,40 +50,9 @@
 #include <ctype.h>
 #include <limits.h>
 
-#ifndef Q_OS_TEMP
-
-#include <accctrl.h>
-#define SECURITY_WIN32
-#include <security.h>
-
-
-typedef DWORD (WINAPI *PtrGetNamedSecurityInfoW)(LPWSTR, SE_OBJECT_TYPE, SECURITY_INFORMATION, PSID*, PSID*, PACL*, PACL*, PSECURITY_DESCRIPTOR*);
-static PtrGetNamedSecurityInfoW ptrGetNamedSecurityInfoW = 0;
-typedef DECLSPEC_IMPORT BOOL (WINAPI *PtrLookupAccountSidW)(LPCWSTR, PSID, LPWSTR, LPDWORD, LPWSTR, LPDWORD, PSID_NAME_USE);
-static PtrLookupAccountSidW ptrLookupAccountSidW = 0;
-typedef DECLSPEC_IMPORT BOOL (WINAPI *PtrAllocateAndInitializeSid)(PSID_IDENTIFIER_AUTHORITY, BYTE, DWORD, DWORD, DWORD, DWORD, DWORD, DWORD, DWORD, DWORD, PSID*);
-static PtrAllocateAndInitializeSid ptrAllocateAndInitializeSid = 0;
-typedef VOID (WINAPI *PtrBuildTrusteeWithSidW)(PTRUSTEE_W, PSID);
-static PtrBuildTrusteeWithSidW ptrBuildTrusteeWithSidW = 0;
-typedef VOID (WINAPI *PtrBuildTrusteeWithNameW)(PTRUSTEE_W, unsigned short*);
-static PtrBuildTrusteeWithNameW ptrBuildTrusteeWithNameW = 0;
-typedef DWORD (WINAPI *PtrGetEffectiveRightsFromAclW)(PACL, PTRUSTEE_W, OUT PACCESS_MASK);
-static PtrGetEffectiveRightsFromAclW ptrGetEffectiveRightsFromAclW = 0;
-typedef DECLSPEC_IMPORT PVOID (WINAPI *PtrFreeSid)(PSID);
-static PtrFreeSid ptrFreeSid = 0;
-
-static TRUSTEE_W currentUserTrusteeW;
-
-#endif
-
 
 static void resolveLibs()
 {
-}
-
-static QString currentDirOfDrive( char ch )
-{
-    return QDir::currentDirPath();
 }
 
 
