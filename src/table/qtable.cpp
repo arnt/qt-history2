@@ -707,7 +707,7 @@ int QTableItem::col() const
 */
 
 /*!
-  Constructs an empty table. 
+  Constructs an empty table.
   Call \l setNumRows() and \l setNumCols() before populating the table.
 
   Performance is boosted by modifying the widget flags so that only part
@@ -749,6 +749,8 @@ QTable::QTable( int numRows, int numCols, QWidget *parent, const char *name )
 void QTable::init( int rows, int cols )
 {
     d = 0;
+    roRows.setAutoDelete( TRUE );
+    roCols.setAutoDelete( TRUE );
     setSorting( FALSE );
 
     viewport()->setFocusProxy( this );
@@ -843,6 +845,26 @@ void QTable::setReadOnly( bool b )
     readOnly = b;
 }
 
+/*! Sets the row \a row to be read-only, if \a ro is TRUE */
+
+void QTable::setRowReadOnly( int row, bool ro )
+{
+    if ( ro )
+	roRows.replace( row, new int( 0 ) );
+    else
+	roRows.remove( row );
+}
+
+/*! Sets the column \a col to be read-only, if \a ro is TRUE */
+
+void QTable::setColumnReadOnly( int col, bool ro )
+{
+    if ( ro )
+	roCols.replace( col, new int( 0 ) );
+    else
+	roCols.remove( col );
+}
+
 /*! Returns whether the table is read-only (not editable) or not. */
 
 bool QTable::isReadOnly() const
@@ -850,8 +872,22 @@ bool QTable::isReadOnly() const
     return readOnly;
 }
 
-/*!  Sets the table's selection mode to \a mode. By default multi-range
-selections (\c Multi) are allowed.
+/*! Returns whether the row \a row is read-only or not. */
+
+bool QTable::isRowReadOnly( int row ) const
+{
+    return (bool)roRows.find( row );
+}
+
+/*! Returns whether the column \a col is read-only or not. */
+
+bool QTable::isColumnReadOnly( int col ) const
+{
+    return (bool)roCols.find( col );
+}
+
+/*!  Sets the table's selection mode to \a mode. By default
+  multi-range selections (\c Multi) are allowed.
 */
 
 void QTable::setSelectionMode( SelectionMode mode )
@@ -1864,10 +1900,23 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 		    return TRUE;
 		if ( ke->key() == Key_BackTab && currentColumn() == 0 )
 		    return TRUE;
-		if ( ke->key() == Key_Tab )
-		    setCurrentCell( currentRow(), QMIN( numCols() - 1, currentColumn() + 1 ) );
-		else // Key_BackTab
+		if ( ke->key() == Key_Tab ) {
+		    int cc  = QMIN( numCols() - 1, currentColumn() + 1 );
+		    while ( cc < numCols() ) {
+			if ( !isColumnReadOnly( cc ) )
+			    break;
+			++cc;
+		    }
+		    setCurrentCell( currentRow(), cc );
+		} else { // Key_BackTab
+		    int cc  = QMAX( 0, currentColumn() - 1 );
+		    while ( cc >= 0 ) {
+			if ( !isColumnReadOnly( cc ) )
+			    break;
+			--cc;
+		    }
 		    setCurrentCell( currentRow(), QMAX( 0, currentColumn() - 1 ) );
+		}
 		itm = item( curRow, curCol );
 		if ( beginEdit( curRow, curCol, FALSE ) )
 		    setEditMode( Editing, curRow, curCol );
@@ -2548,7 +2597,7 @@ void QTable::setNumCols( int c )
 
 QWidget *QTable::createEditor( int row, int col, bool initFromCell ) const
 {
-    if ( isReadOnly() )
+    if ( isReadOnly() || isRowReadOnly( row ) || isColumnSelected( col ) )
 	return 0;
 
     QWidget *e = 0;

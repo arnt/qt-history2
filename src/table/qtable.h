@@ -46,6 +46,7 @@
 #include <qlist.h>
 #include <qguardedptr.h>
 #include <qshared.h>
+#include <qintdict.h>
 #endif // QT_H
 
 
@@ -237,6 +238,8 @@ public:
     QSize sizeHint() const;
 
     bool isReadOnly() const;
+    bool isRowReadOnly( int row ) const;
+    bool isColumnReadOnly( int col ) const;
 
 public slots:
     virtual void setNumRows( int r );
@@ -270,6 +273,8 @@ public slots:
     virtual void setRowMovingEnabled( bool b );
 
     virtual void setReadOnly( bool b );
+    virtual void setRowReadOnly( int row, bool ro );
+    virtual void setColumnReadOnly( int col, bool ro );
 
 protected:
     enum EditMode { NotEditing, Editing, Replacing };
@@ -359,6 +364,8 @@ private:
     SelectionMode selMode;
     int pressedRow, pressedCol;
     QTablePrivate *d;
+    QIntDict<int> roRows;
+    QIntDict<int> roCols;
 
 };
 
