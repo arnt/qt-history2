@@ -23,6 +23,7 @@ QAccessibleRangeControl::QAccessibleRangeControl(QWidget *w, Role role, QString 
 						 QString description, QString help, QString defAction, QString accelerator)
 : QAccessibleWidget(w, role, name, description, QString(), help, SetFocus, defAction, accelerator)
 {
+    addControllingSignal("valueChanged(int)");
 }
 
 /*! \reimp */

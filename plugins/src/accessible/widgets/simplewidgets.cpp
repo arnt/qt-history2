@@ -21,6 +21,10 @@ QAccessibleButton::QAccessibleButton(QWidget *w, Role role, QString description,
 : QAccessibleWidget(w, role, QString(), description)
 {
     Q_ASSERT(button());
+    if (button()->isToggleButton())
+	addControllingSignal("toggled(bool)");
+    else
+	addControllingSignal("clicked()");
 }
 
 /*! Returns the button. */
@@ -207,6 +211,8 @@ int QAccessibleDisplay::relationTo(int child, const QAccessibleInterface *other,
 QAccessibleText::QAccessibleText(QWidget *o, Role role, QString name, QString description, QString help, QString defAction, QString accelerator)
 : QAccessibleWidget(o, role, name, description, QString(), help, SetFocus, defAction, accelerator)
 {
+    addControllingSignal("textChanged(const QString&)");
+    addControllingSignal("returnPressed()");
 }
 
 /*! \reimp */
