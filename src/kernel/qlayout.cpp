@@ -1177,14 +1177,14 @@ static bool checkWidget( QLayout *l, QWidget *w )
 #endif
 	return FALSE;
     }
-    if ( w->parentWidget() != l->mainWidget() ) {
+    if ( w->parentWidget() != l->mainWidget() && l->mainWidget() ) {
 #if defined(QT_CHECK_STATE)
-	if ( w->parentWidget() && l->mainWidget() )
+	if ( w->parentWidget() )
 	    qWarning( "Warning: adding %s/%s (child of %s/%s) to layout for "
 		      "%s/%s", w->className(), w->name(),
 		      w->parentWidget()->className(), w->parentWidget()->name(),
 		      l->mainWidget()->className(), l->mainWidget()->name() );
-	else if (  l->mainWidget() )
+	else 
 	    qWarning( "Warning: adding %s/%s (top-level widget) to layout for"
 		      " %s/%s", w->className(), w->name(),
 		      l->mainWidget()->className(), l->mainWidget()->name() );
