@@ -25,7 +25,7 @@ QDesignerSqlWidget::QDesignerSqlWidget( QWidget *parent, const char *name )
     : QWidget( parent, name )
 {
 }
-    
+
 void QDesignerSqlWidget::prev()
 {
 }
@@ -42,7 +42,11 @@ void QDesignerSqlWidget::last()
 {
 }
 
-void QDesignerSqlWidget::newRecord()
+void QDesignerSqlWidget::insertRecord()
+{
+}
+
+void QDesignerSqlWidget::deleteRecord()
 {
 }
 
@@ -59,7 +63,7 @@ QDesignerSqlDialog::QDesignerSqlDialog( QWidget *parent, const char *name )
     : QDialog( parent, name )
 {
 }
-    
+
 void QDesignerSqlDialog::prev()
 {
 }
@@ -76,7 +80,11 @@ void QDesignerSqlDialog::last()
 {
 }
 
-void QDesignerSqlDialog::newRecord()
+void QDesignerSqlDialog::insertRecord()
+{
+}
+
+void QDesignerSqlDialog::deleteRecord()
 {
 }
 

@@ -26,17 +26,18 @@
 class QDesignerSqlWidget : public QWidget
 {
     Q_OBJECT
-    
+
 public:
     QDesignerSqlWidget( QWidget *parent, const char *name );
-    
+
 public slots:
     void prev();
     void next();
     void first();
     void last();
-    void newRecord(); // ##### Reggie: ?? Dave
-    
+    void insertRecord();
+    void deleteRecord();
+
 protected:
     void paintEvent( QPaintEvent *e );
 
@@ -45,17 +46,18 @@ protected:
 class QDesignerSqlDialog : public QDialog
 {
     Q_OBJECT
-    
+
 public:
     QDesignerSqlDialog( QWidget *parent, const char *name );
-    
+
 public slots:
     void prev();
     void next();
     void first();
     void last();
-    void newRecord(); // ##### Reggie: ?? Dave
-    
+    void insertRecord();
+    void deleteRecord();
+
 protected:
     void paintEvent( QPaintEvent *e );
 
