@@ -85,6 +85,7 @@ another ld run. This is done by setting the -r flag in the .pro file, and the
 LFLAGS settings.
 
 
+
 \title Compiler Settings
 
 \section1 Compile-time Flags
@@ -100,6 +101,38 @@ flag, as in:
 
 Note that when you build under MacOSX 10.2, then the MACOSX_102 flag is automatically included in the make builds.
 
+
+\Building and Configuring Qt/Mac
+
+\section1 Problems building a static configuration
+
+If a static build fails with the following error messages during the designer make phase:
+
+\code
+QWidget::sizeHint() const referenced from libqui expected to be defined in @executable_path/../Frameworks/libqt-mt.3.dylib
+non-virtual thunk [nv:-40] to QWidget::metric(int) const referenced from libqui
+ expected to be defined in @executable_path/../Frameworks/libqt-mt.3.dylib
+\endcode
+
+then ensure that your library path does not have libqui libraries or symbolic links. If you remove these, then the build will continue.
+
+
+\title Macintosh Native API Access
+
+\section1 Accessing the Bundle Path
+
+The Macintosh application is actually a directory (ending with .app). This directory has various other sub-directories and sources. In case you want to place for example the plugin directory inside this bundle, then you need to find out where the bundle resides on the disk. The following code will do this:
+
+\code
+	CFURLRef pluginRef = CFBundleCopyBundleURL(CFBundleGetMainBundle());
+	CFStringRef macPath = CFURLCopyFileSystemPath(pluginRef, 
+                                               kCFURLPOSIXPathStyle);
+	const char *pathPtr = CFStringGetCStringPtr(macPath, 
+                                               CFStringGetSystemEncoding());
+	qDebug("Path = %s", pathPtr);
+\endcode
+
+Do not forget to enclosure this in an #if defined(Q_OS_MACX) macro statement.
 
 
 \title User Interface
