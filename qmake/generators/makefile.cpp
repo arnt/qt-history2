@@ -121,9 +121,11 @@ MakefileGenerator::generateMocList(QString fn_target)
 	total_size_read += have_read);
     close(file);
 
-#define COMP_LEN 8 //strlen("Q_OBJECT")
+#define OBJ_LEN 8 //strlen("Q_OBJECT")
+#define DIS_LEN 10 //strlen("Q_DISPATCH")
     for(int x = 0; x < (total_size_read-COMP_LEN); x++) {
-	if(*(big_buffer+x) == 'Q' && !strncmp(big_buffer+x, "Q_OBJECT", COMP_LEN)) {
+	if(*(big_buffer+x) == 'Q' && 
+	   (!strncmp(big_buffer+x, "Q_OBJECT", OBJ_LEN) || !strncmp(big_buffer+x, "Q_DISPATCH", DIS_LEN))) {
 
 	    int ext_pos = fn_target.findRev('.');
 	    int ext_len = fn_target.length() - ext_pos;
@@ -152,7 +154,8 @@ MakefileGenerator::generateMocList(QString fn_target)
 	    break;
 	}
     }
-#undef COMP_LEN
+#undef OBJ_LEN
+#undef DIS_LEN
     return TRUE;
 }
 
@@ -302,12 +305,13 @@ MakefileGenerator::generateMocList(QString fn_target)
     QString fn_local = Option::fixPathToLocalOS(fn_target);
     QFile file(fn_local);
     const QString stringObj( "Q_OBJECT" );
+    const QString stringDis( "Q_DISPATCH" );
     if ( file.open(IO_ReadOnly) ) {
 	QTextStream t( &file );
 	QString s;
 	while ( !t.eof() ) {
 	    s = t.readLine();
-	    if( s.find(stringObj) != -1 ) {
+	    if( s.find(stringObj) != -1 || s.find(stringDis) != -1) {
 		int ext_pos = fn_target.findRev('.');
 		int ext_len = fn_target.length() - ext_pos;
 		int dir_pos =  fn_target.findRev(Option::dir_sep, ext_pos);
