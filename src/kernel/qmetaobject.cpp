@@ -880,8 +880,14 @@ QStrList QMetaProperty::enumKeys() const
     if ( !ed )
 	return l;
     if ( ed != 0 ) {
-	for( uint i = 0; i < ed->count; ++i )
-	    l.append( ed->items[i].key );
+	for( uint i = 0; i < ed->count; ++i ) {
+	    uint j = 0;
+	    while ( j < i &&
+		    ed->items[j].value != ed->items[i].value )
+		++j;
+	    if ( i == j )
+		l.append( ed->items[i].key );
+	}
     }
     return l;
 }
@@ -900,9 +906,9 @@ int QMetaProperty::keyToValue( const char* key ) const
 	ed = (*meta)->enumerator( t, TRUE );
     if ( !ed )
 	return -1;
-    for ( uint i = ed->count; i > 0; --i ) {
-	if ( !qstrcmp( key, ed->items[i-1].key) )
-	    return ed->items[i-1].value;
+    for ( uint i = 0; i < ed->count; ++i ) {
+	if ( !qstrcmp( key, ed->items[i].key) )
+	    return ed->items[i].value;
     }
     return -1;
 }
@@ -921,9 +927,9 @@ const char* QMetaProperty::valueToKey( int value ) const
 	ed = (*meta)->enumerator( t, TRUE );
     if ( !ed )
 	return 0;
-    for ( uint i = ed->count; i > 0; --i ) {
-	if ( value == ed->items[i-1].value )
-	    return ed->items[i-1].key ;
+    for ( uint i = 0; i < ed->count; ++i ) {
+	if ( value == ed->items[i].value )
+	    return ed->items[i].key ;
     }
     return 0;
 }
