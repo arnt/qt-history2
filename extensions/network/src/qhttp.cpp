@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qhttp.cpp#2 $
+** $Id: //depot/qt/main/extensions/network/src/qhttp.cpp#3 $
 **
 ** Implementation of Network Extension Library
 **
@@ -43,11 +43,6 @@ QHttp::QHttp()
 	     this, SLOT( closed() ) );
     connect( commandSocket, SIGNAL( readyRead() ),
 	     this, SLOT( readyRead() ) );
-
-    connect( &pixmapLoader, SIGNAL( data( const QCString &, QNetworkOperation * ) ),
-	     this, SLOT( newPixmap( const QCString &, QNetworkOperation * ) ) );
-    connect( &pixmapLoader, SIGNAL( finished( QNetworkOperation * ) ),
-	     this, SLOT( savePixmap( QNetworkOperation * ) ) );
 }
 
 QHttp::~QHttp()
@@ -58,8 +53,6 @@ QHttp::~QHttp()
 
 void QHttp::operationPost( QNetworkOperation *op )
 {
-    pixNum = 0;
-    imgMap.clear();
     QString cmd = "POST ";
     cmd += url()->encodedPathAndQuery();
     cmd += "\r\n";
@@ -68,8 +61,6 @@ void QHttp::operationPost( QNetworkOperation *op )
 
 void QHttp::operationGet( QNetworkOperation *op )
 {
-    pixNum = 0;
-    imgMap.clear();
     QString cmd = "GET ";
     cmd += url()->encodedPathAndQuery();
     cmd += "\r\n";
@@ -133,13 +124,7 @@ void QHttp::closed()
 	emit connectionStateChanged( ConClosed, tr( "Connection closed" ) );
 
     connectionReady = FALSE;
-    if ( !imgMap.isEmpty() ) {
-	imgIt = imgMap.begin();
-	currPix = imgIt.key();
-	pixmapLoader = QUrlOperator( *url(), *imgIt );
-	pixmapLoader.get();
-    } else
-	emit finished( operationInProgress() );
+    emit finished( operationInProgress() );
 
 }
 
@@ -148,56 +133,6 @@ void QHttp::readyRead()
     QCString s;
     s.resize( commandSocket->bytesAvailable() );
     commandSocket->readBlock( s.data(), commandSocket->bytesAvailable() );
-
-    int i = 0;
-    i = s.find( "<img", 0 );
-    while ( i != -1 ) {
-	int st = 0, e = 0;
-	st = s.find( "src", i ) + 3;
-	while ( s[ st ] == '=' || s[ st ] == ' ' || s[ st ] == '"' )
-	    ++st;
-	e = st;
-	while ( s[ e ] != ' ' && s[ st ] != '"' )
-	    ++e;
-	QString img = s.mid( st, e - st - 1 );
-
-	QString imgname( "/tmp/pic_%1.%2" );
-	imgname = imgname.arg( ++pixNum ).arg( QFileInfo( img ).extension() );
-	
-	imgMap[ imgname ] = img;
-	s = s.replace( st, img.length(), imgname );
-	
-	i = s.find( "<img", e );
-    }
-
     emit data( s, operationInProgress() );
-    buffer += s;
-}
-
-void QHttp::newPixmap( const QCString &data, QNetworkOperation * )
-{
-    pixBuff += data;
-}
-
-void QHttp::savePixmap( QNetworkOperation * )
-{
-    QFile f( currPix );
-    f.open( IO_WriteOnly );
-    f.writeBlock( pixBuff, pixBuff.length() );
-    f.close();
-
-    pixBuff = "";
-
-    ++imgIt;
-    if ( imgIt == imgMap.end() ) {
-	emit data( '\0', operationInProgress() );
-	emit finished( operationInProgress() );
-	return;
-    }
-
-    currPix = imgIt.key();
-    pixmapLoader = QUrlOperator( *url(), *imgIt );
-    pixmapLoader.get();
-
 }
 

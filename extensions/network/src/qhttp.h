@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qhttp.h#2 $
+** $Id: //depot/qt/main/extensions/network/src/qhttp.h#3 $
 **
 ** Implementation of Network Extension Library
 **
@@ -29,7 +29,6 @@
 #include "qsocket.h"
 #include "qapplication.h"
 #include "qstring.h"
-#include "qmap.h"
 #include "qurlinfo.h"
 #include "qnetworkprotocol.h"
 #include "qurloperator.h"
@@ -49,13 +48,6 @@ protected:
 
     QSocket *commandSocket;
     bool connectionReady, passiveMode;
-    int pixNum;
-    QMap<QString, QString> imgMap;
-    QMap<QString, QString>::Iterator imgIt;
-    bool loadPix;
-    QString currPix;
-    QUrlOperator pixmapLoader;
-    QCString buffer, pixBuff;
 
 private:
     bool checkConnection( QNetworkOperation *op );
@@ -66,8 +58,6 @@ protected slots:
     void connected();
     void closed();
     void readyRead();
-    void newPixmap( const QCString &, QNetworkOperation * );
-    void savePixmap( QNetworkOperation * );
 
 };
 
