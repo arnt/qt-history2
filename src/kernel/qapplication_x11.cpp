@@ -388,6 +388,8 @@ extern Atom qt_xdnd_finished;
 // xdnd selection atom
 extern Atom qt_xdnd_selection;
 
+// gui or non-gui from qapplication.cpp
+extern bool qt_is_gui_used;
 
 // Paint event clipping magic
 extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
@@ -2845,7 +2847,8 @@ int QApplication::exec()
     quit_code = 0;
 
 #if defined(QT_THREAD_SUPPORT)
-    qApp->unlock(FALSE);
+    if (! qt_is_gui_used)
+	qApp->unlock(FALSE);
 #endif
 
     enter_loop();
