@@ -532,7 +532,8 @@ void QWindowsXPStyle::unPolish( QWidget *widget )
     widget->removeEventFilter( this );
     if ( widget->inherits( "QTitleBar" ) && !widget->inherits( "QDockWindowTitleBar" ) ) {
 	SetWindowRgn( widget->winId(), 0, TRUE );
-	if ( ((QTitleBar*)widget)->window() && ((QTitleBar*)widget)->window()->isMinimized() ) {
+	if ( (((QTitleBar*)widget)->window() && ((QTitleBar*)widget)->window()->isMinimized())
+	     || !QString::compare( widget->name(), "_workspacechild_icon_" ) ) {
 	    SetWindowRgn( widget->parentWidget()->winId(), 0, TRUE );
 	}
     } else if ( widget->inherits( "QWorkspaceChild" ) ) {
@@ -543,7 +544,7 @@ void QWindowsXPStyle::unPolish( QWidget *widget )
 	widget->setPaletteBackgroundPixmap( QPixmap() );
     } else if ( widget->inherits( "QTabBar" ) ) {
 	disconnect( widget, SIGNAL(selected(int)), this, SLOT(activeTabChanged()) );
-    }
+    } 
 
     if ( !widget->ownPalette() )
 	 widget->setBackgroundOrigin( QWidget::WidgetOrigin );
@@ -557,7 +558,8 @@ void QWindowsXPStyle::updateRegion( QWidget *widget )
 	return;
 
     if ( widget->inherits( "QTitleBar" ) && !widget->inherits( "QDockWindowTitleBar" ) ) {
-	if ( ((QTitleBar*)widget)->window() && ((QTitleBar*)widget)->window()->isMinimized() ) {
+	if ( (((QTitleBar*)widget)->window() && ((QTitleBar*)widget)->window()->isMinimized()) 
+	     || !QString::compare( widget->name(), "_workspacechild_icon_" ) ) {
 	    XPThemeData theme( widget, 0, "WINDOW", WP_MINCAPTION, CS_ACTIVE, widget->rect() );
 	    theme.setTransparency();
 	    XPThemeData theme2( widget->parentWidget(), 0, "WINDOW", WP_MINCAPTION, CS_ACTIVE, widget->rect() );
