@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#175 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#176 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#175 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#176 $")
 
 
 /*****************************************************************************
@@ -858,13 +858,13 @@ bool QPainter::begin( const QPaintDevice *pd )
 	bg_col = w->backgroundColor();		// use widget bg color
 	ww = vw = w->width();			// default view size
 	wh = vh = w->height();
-#if 0
 	if ( w->testWFlags(WPaintUnclipped) ) { // paint direct on device
+	    setf( NoCache );
+	    updatePen();
 	    updateBrush();
-	    XSetSubwindowMode( w->display(), gc, IncludeInferiors );
-	    XSetSubwindowMode( w->display(), gc_brush, IncludeInferiors );
+	    XSetSubwindowMode( dpy, gc, IncludeInferiors );
+	    XSetSubwindowMode( dpy, gc_brush, IncludeInferiors );
 	}
-#endif
     }
     else if ( dt == PDT_PIXMAP ) {		// device is a pixmap
 	QPixmap *pm = (QPixmap*)pdev;
