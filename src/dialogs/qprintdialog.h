@@ -79,7 +79,7 @@ private slots:
     void fileNameEditChanged( const QString &text );
 
 private:
-    struct QPrintDialogPrivate;
+    class QPrintDialogPrivate;
     QPrintDialogPrivate *d;
 
     QGroupBox * setupDestination();
