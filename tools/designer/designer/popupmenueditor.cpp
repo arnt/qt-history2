@@ -382,7 +382,7 @@ int PopupMenuEditor::clipboardOperation = 0;
 PopupMenuEditorItem * PopupMenuEditor::clipboardItem = 0;
 
 PopupMenuEditor::PopupMenuEditor( FormWindow * fw, QWidget * parent, const char * name )
-    : QWidget( 0, name, WStyle_Customize | WStyle_NoBorderEx ),
+    : QWidget( 0, name, WStyle_Customize | WStyle_NoBorder ),
       formWnd( fw ),
       parentMenu( parent ),
       iconWidth( 0 ),
