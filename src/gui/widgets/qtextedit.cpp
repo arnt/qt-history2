@@ -523,6 +523,23 @@ void QTextEditPrivate::setClipboardSelection()
     QApplication::clipboard()->setData(drag, QClipboard::Selection);
 }
 
+void QTextEditPrivate::ensureVisible(int documentPosition)
+{
+    if (!d->vbar->isVisible())
+        return;
+
+    QTextBlock block = doc->findBlock(documentPosition);
+    QTextLayout *layout = block.layout();
+    QPoint layoutPos = layout->position();
+    const int relativePos = documentPosition - block.position();
+    QTextLine line = layout->findLine(relativePos);
+    if (!line.isValid())
+        return;
+
+    const int y = layoutPos.y() + line.y();
+    d->vbar->setValue(y);
+}
+
 /*!
     \class QTextEdit
     \brief The QTextEdit class provides a widget that is used to edit and display
@@ -1833,6 +1850,29 @@ void QTextEdit::insertHtml(const QString &text)
 {
     QTextDocumentFragment fragment = QTextDocumentFragment::fromHTML(text);
     d->cursor.insertFragment(fragment);
+}
+
+void QTextEdit::scrollToAnchor(const QString &name)
+{
+    if (name.isEmpty())
+        return;
+
+    for (QTextBlock block = d->doc->begin(); block.isValid(); block = block.next()) {
+        QTextCharFormat format = block.charFormat();
+        if (format.isAnchor() && format.anchorName() == name) {
+            d->ensureVisible(block.position());
+            return;
+        }
+
+        for (QTextBlock::Iterator it = block.begin(); !it.atEnd(); ++it) {
+            QTextFragment fragment = it.fragment();
+            format = fragment.charFormat();
+            if (format.isAnchor() && format.anchorName() == name) {
+                d->ensureVisible(fragment.position());
+                return;
+            }
+        }
+    }
 }
 
 /*! \property QTextEdit::tabChangesFocus

@@ -64,6 +64,8 @@ public:
 
     void setClipboardSelection();
 
+    void ensureVisible(int documentPosition);
+
     QTextDocument *doc;
     bool cursorOn;
     QTextCursor cursor;

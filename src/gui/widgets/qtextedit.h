@@ -167,6 +167,8 @@ public slots:
     void insertPlainText(const QString &text);
     void insertHtml(const QString &text);
 
+    void scrollToAnchor(const QString &name);
+
 signals:
     void currentCharFormatChanged(const QTextCharFormat &format);
     void copyAvailable(bool b);
