@@ -162,7 +162,7 @@ public:
     static void removeSlot( QObject *o, const QString &slot );
     static QValueList<Slot> slotList( QObject *o );
     static bool isSlotUsed( QObject *o, const QCString &slot );
-    static bool hasSlot( QObject *o, const QCString &slot );
+    static bool hasSlot( QObject *o, const QCString &slot, bool onlyCustom = FALSE );
     static void changeSlot( QObject *o, const QCString &slot, const QCString &newName );
     static QString languageOfSlot( QObject *o, const QCString &slot );
     static void setSlotList( QObject *o, const QValueList<Slot> &slotList );

@@ -656,7 +656,7 @@ void MetaDataBase::changeSlot( QObject *o, const QCString &slot, const QCString 
     }
 }
 
-bool MetaDataBase::hasSlot( QObject *o, const QCString &slot )
+bool MetaDataBase::hasSlot( QObject *o, const QCString &slot, bool onlyCustom )
 {
     setupDataBase();
     MetaDataBaseRecord *r = db->find( (void*)o );
@@ -666,25 +666,27 @@ bool MetaDataBase::hasSlot( QObject *o, const QCString &slot )
 	return FALSE;
     }
 
-    QStrList slotList = o->metaObject()->slotNames( TRUE );
-    if ( slotList.find( slot ) != -1 )
-	return TRUE;
-
-    if ( o->inherits( "FormWindow" ) ) {
-	o = ( (FormWindow*)o )->mainContainer();
-	slotList = o->metaObject()->slotNames( TRUE );
+    if ( !onlyCustom ) {
+	QStrList slotList = o->metaObject()->slotNames( TRUE );
 	if ( slotList.find( slot ) != -1 )
 	    return TRUE;
-    }
 
-    if ( o->inherits( "CustomWidget" ) ) {
-	MetaDataBase::CustomWidget *w = ( (::CustomWidget*)o )->customWidget();
-	for ( QValueList<MetaDataBase::Slot>::Iterator it = w->lstSlots.begin(); it != w->lstSlots.end(); ++it ) {
-	    QCString s = (*it).slot;
-	    if ( !s.data() )
-		continue;
-	    if ( s == slot )
+	if ( o->inherits( "FormWindow" ) ) {
+	    o = ( (FormWindow*)o )->mainContainer();
+	    slotList = o->metaObject()->slotNames( TRUE );
+	    if ( slotList.find( slot ) != -1 )
 		return TRUE;
+	}
+
+	if ( o->inherits( "CustomWidget" ) ) {
+	    MetaDataBase::CustomWidget *w = ( (::CustomWidget*)o )->customWidget();
+	    for ( QValueList<MetaDataBase::Slot>::Iterator it = w->lstSlots.begin(); it != w->lstSlots.end(); ++it ) {
+		QCString s = (*it).slot;
+		if ( !s.data() )
+		    continue;
+		if ( s == slot )
+		    return TRUE;
+	    }
 	}
     }
 

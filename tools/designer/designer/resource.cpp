@@ -1922,8 +1922,9 @@ void Resource::loadConnections( const QDomElement &e )
 	    if ( slot.returnType.isEmpty() )
 		slot.returnType = "void";
 	    slot.slot = n.firstChild().toText().data();
-	    if ( !MetaDataBase::hasSlot( formwindow, slot.slot ) )
-		MetaDataBase::addSlot( formwindow ? formwindow : toplevel, slot.slot, slot.specifier, slot.access, slot.language, slot.returnType );
+	    if ( !MetaDataBase::hasSlot( formwindow, slot.slot, TRUE ) )
+		MetaDataBase::addSlot( formwindow, slot.slot, slot.specifier,
+				       slot.access, slot.language, slot.returnType );
 	}
 	n = n.nextSibling().toElement();
     }
