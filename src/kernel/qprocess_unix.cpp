@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#23 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -106,11 +106,15 @@ public:
 
 	exitValuesCalculated = FALSE;
 
-	// install a SIGCHLD handler
+	// install a SIGCHLD handler and ignore SIGPIPE
 	if ( proclist == 0 ) {
 	    proclist = new QList<QProcess>;
 
 	    struct sigaction act;
+
+#if defined(QPROCESS_DEBUG)
+	    qDebug( "QProcessPrivate: install a sigchild handler" );
+#endif
 	    act.sa_handler = qt_C_sigchldHnd;
 	    sigemptyset( &(act.sa_mask) );
 	    sigaddset( &(act.sa_mask), SIGCHLD );
@@ -118,11 +122,18 @@ public:
 #if defined(SA_RESTART)
 	    act.sa_flags |= SA_RESTART;
 #endif
-#if defined(QPROCESS_DEBUG)
-	    qDebug( "QProcessPrivate: install a sigchild handler" );
-#endif
-	    if ( sigaction( SIGCHLD, &act, oldact ) != 0 )
+	    if ( sigaction( SIGCHLD, &act, oldactChld ) != 0 )
 		qWarning( "Error installing SIGCHLD handler" );
+
+#if defined(QPROCESS_DEBUG)
+	    qDebug( "QProcessPrivate: install a sigpipe handler (SIG_IGN)" );
+#endif
+	    act.sa_handler = SIG_IGN;
+	    sigemptyset( &(act.sa_mask) );
+	    sigaddset( &(act.sa_mask), SIGPIPE );
+	    act.sa_flags = 0;
+	    if ( sigaction( SIGPIPE, &act, oldactPipe ) != 0 )
+		qWarning( "Error installing SIGPIPE handler" );
 	}
 	proclist->append( d );
     }
@@ -138,11 +149,18 @@ public:
 	    if ( proclist->count() == 0 ) {
 		delete proclist;
 		proclist = 0;
+
 #if defined(QPROCESS_DEBUG)
 		qDebug( "QProcessPrivate: restore old sigchild handler" );
 #endif
-		if ( sigaction( SIGCHLD, oldact, 0 ) != 0 )
+		if ( sigaction( SIGCHLD, oldactChld, 0 ) != 0 )
 		    qWarning( "Error restoring SIGCHLD handler" );
+
+#if defined(QPROCESS_DEBUG)
+		qDebug( "QProcessPrivate: restore old sigpipe handler" );
+#endif
+		if ( sigaction( SIGPIPE, oldactPipe, 0 ) != 0 )
+		    qWarning( "Error restoring SIGPIPE handler" );
 	    }
 	}
 
@@ -207,13 +225,15 @@ public:
     pid_t pid;
     ssize_t stdinBufRead;
     QProcess *d;
-    static struct sigaction *oldact;
+    static struct sigaction *oldactChld;
+    static struct sigaction *oldactPipe;
     static QList<QProcess> *proclist;
 
     bool exitValuesCalculated;
 };
 
-struct sigaction *QProcessPrivate::oldact = 0;
+struct sigaction *QProcessPrivate::oldactChld = 0;
+struct sigaction *QProcessPrivate::oldactPipe = 0;
 QList<QProcess> *QProcessPrivate::proclist = 0;
 
 
