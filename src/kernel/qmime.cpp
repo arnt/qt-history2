@@ -289,6 +289,8 @@ QMimeSource* QMimeSourceFactory::dataInternal(const QString& abs_name, const QMa
 
     if ( !r ) {
 	for ( QMimeSourceFactory *f = QMimeSourceFactory::defaultFactory()->d->factories.first(); f; f = defaultFactory()->d->factories.next() ) {
+	    if ( f == this )
+		continue;
 	    r = (QMimeSource*)f->data( abs_name );
 	    if ( r )
 		return r;
