@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#17 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#18 $
 **
 ** Implementation of QFile class
 **
@@ -15,7 +15,7 @@
 #include <limits.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qfile.cpp#18 $";
 #endif
 
 
@@ -76,7 +76,7 @@ void QFile::init()				// initialize internal data
 
 
 /*----------------------------------------------------------------------------
-  /fn QFile::name()
+  \fn QFile::name()
   Returns the name set by setName().
 
   This is NOT a function that always returns a pure file name (i.e. without
@@ -99,10 +99,10 @@ void QFile::init()				// initialize internal data
   \code
      QFile f;
      QDir  d;
-     d.setCurrent( "/tmp" );
+     d.setCurrent( Q_SEPARATOR "tmp" );
      f.setName( "readme.txt" );
-     d.setCurrent( "/home" );
-     f.open( IO_ReadOnly );		// will open "/home/readme.txt"
+     d.setCurrent( Q_SEPARATOR "home" );
+     f.open( IO_ReadOnly );	   // will open "/home/readme.txt" under UNIX
   \endcode
 
   \sa name(), QFileInfo, QDir
@@ -122,6 +122,7 @@ void QFile::setName( const char *name )
 
 /*----------------------------------------------------------------------------
   Returns TRUE if the file exists, otherwise FALSE.
+
   \sa name()
  ----------------------------------------------------------------------------*/
 
@@ -129,7 +130,7 @@ bool QFile::exists() const
 {
     if ( fn.isEmpty() )
 	return FALSE;
-    return access( fn.data(), F_OK ) == 0;
+    return ACCESS( fn.data(), Q_FILE_OK ) == 0;
 }
 
 /*----------------------------------------------------------------------------
@@ -141,7 +142,7 @@ bool QFile::exists( const char *fileName )
 #if defined(CHECK_NULL)
     ASSERT( fileName != 0 );
 #endif
-    return access( fileName, F_OK ) == 0;
+    return ACCESS( fileName, Q_FILE_OK ) == 0;
 }
 
 
@@ -162,13 +163,13 @@ bool QFile::exists( const char *fileName )
 
   The mode parameter \e m must be a combination of the following flags.
   <ul>
-  <li>IO_Raw</li> specified raw (unbuffered) file access.
-  <li>IO_ReadOnly</li> opens a file in read-only mode.
-  <li>IO_WriteOnly</li> opens a file in write-only mode.
-  <li>IO_ReadWrite</li> opens a file in read/write mode.
-  <li>IO_Append</li> sets the file index to the end of the file.
-  <li>IO_Truncate</li> truncates the file.
-  <li>IO_Translate</li> enables carriage returns and linefeed translation
+  <li>\c IO_Raw specified raw (unbuffered) file access.
+  <li>\c IO_ReadOnly opens a file in read-only mode.
+  <li>\c IO_WriteOnly opens a file in write-only mode.
+  <li>\c IO_ReadWrite opens a file in read/write mode.
+  <li>\c IO_Append sets the file index to the end of the file.
+  <li>\c IO_Truncate truncates the file.
+  <li>\c IO_Translate enables carriage returns and linefeed translation
   for text files under MS-DOS, Window, OS/2 and Macintosh.  Cannot be
   combined with \c IO_Raw.
   <\ul>
@@ -178,7 +179,8 @@ bool QFile::exists( const char *fileName )
 
   Example:
   \code
-    QFile f1( "/tmp/data.bin" );
+    QFile f1( Q_SEPARATOR "tmp" Q_SEPARATOR "data.bin" ); 
+                      // expands to "/tmp/data.bin" under UNIX
     QFile f2( "readme.txt" );
     f1.open( IO_Raw | IO_ReadWrite | IO_Append );
     f2.open( IO_ReadOnly | IO_Translate );
