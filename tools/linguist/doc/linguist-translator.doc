@@ -24,18 +24,18 @@
 <h2><a name="The_1_Minute_Guide_to_Using_Qt_Linguist">
 The One Minute Guide to Using Qt Linguist</a></h2>
 
-<em>Qt Linguist</em> is a tool for adding translations to Qt
+\e {Qt Linguist} is a tool for adding translations to Qt
 applications. It introduces the concept of a translation "context" which
 means a group of phrases that appear together on the screen e.g. in the
 same menu or dialog.
 
-To start, run <em>Qt Linguist</em>, either from the taskbar menu, or by
+To start, run \e {Qt Linguist}, either from the taskbar menu, or by
 double clicking the desktop icon, or type <code>linguist[ENTER]</code>
-at the command line. Once <em>Qt Linguist</em> has started choose
+at the command line. Once \e {Qt Linguist} has started choose
 <em>File|Open</em> from the menu bar and select a \c .ts translation
 source file to work on.
 
-<em>Qt Linguist</em>'s main window is divided into four main areas.
+\e {Qt Linguist}'s main window is divided into four main areas.
 The left hand side contains the Context list, the top right is the
 Source text area, the middle right is the translation area and the
 bottom right is the phrases and guesses area. We'll describe them in
@@ -53,7 +53,7 @@ the end of the session choose <em>File|Save</em> from the menu bar and
 then <em>File|Exit</em> to quit.
 
 <h2><a name="Qt_Linguists_Main_Window">
-<em>Qt Linguist</em>'s Main Window</a></h2>
+\e {Qt Linguist}'s Main Window</a></h2>
 
 <h3><a name="Context_List">Context List</a></h3>
 
@@ -73,7 +73,7 @@ new version.
 
 The contexts are ordered alphabetically. The phrases within each context
 are in the order in which they appear in the source program and this may
-not be the order in which they are shown on screen. 
+not be the order in which they are shown on screen.
 
 The Context List is a dockable window so it can be dragged to another
 position in the main window, or dragged out of the main window to be a
@@ -102,7 +102,7 @@ contains contextual information on a light blue background that the
 programmer has added to assist the translator. If no contextual
 information has been given this section does not appear. The third
 section is labelled 'Translation' and this is where you enter the
-translation of the source text. 
+translation of the source text.
 
 <h3><a name="Phrases_and_Guesses_Area">Phrases and Guesses Area</a></h3>
 
@@ -138,9 +138,9 @@ list, then click the source text in the Source Text area.
 Phrases That Require Multiple Translations Depending on Context</a></h3>
 
 The same phrase may occur in two or more contexts without conflict. Once
-a phrase has been translated in one context, <em>Qt Linguist</em> notes
+a phrase has been translated in one context, \e {Qt Linguist} notes
 that the translation has been made and when the translator reaches a
-later occurrence of the same phrase <em>Qt Linguist</em> will provide
+later occurrence of the same phrase \e {Qt Linguist} will provide
 the previous translation as a possible translation candidate in the
 phrases and guesses area. If the
 previous translation is acceptable just click the <em>Done & Next</em>
@@ -153,14 +153,14 @@ If the same phrase needs to be translated differently within the same
 context the programmer must provide a distinguishing comment for each of
 the phrases concerned. If such comments are used the duplicate phrases
 will appear in the context list. The programmers comments will appear in
-the translation area on a light blue background. 
+the translation area on a light blue background.
 
 <h3><a name="Changing_Keyboard_Accelerators">
 Changing Keyboard Accelerators</a></h3>
 
 A keyboard accelerator is a key combination that when pressed will
 cause an application to perform an action. Keyboard accelerators
-normally come in two forms: Alt key and Ctrl key accelerators. 
+normally come in two forms: Alt key and Ctrl key accelerators.
 
 Alt key accelerators are used for menus and buttons.  The underlining
 signifies that pressing the Alt key with the underlined letter is the
@@ -178,7 +178,7 @@ key, e.g. if the translated phrase does not contain the original
 accelerator letter. Conflicts with other keys, i.e. having two Alt key
 accelerators using the same letter in the same context, must be avoided.
 Note that some Alt key accelerators, usually those on the menu bar, may
-apply in other contexts. 
+apply in other contexts.
 
 Ctrl key accelerators can exist independently of any visual
 control. They are often used to invoke actions in menus that would
@@ -203,7 +203,7 @@ or digit in upper case. As with Alt key accelerators, if the translator
 changes the key it must not conflict with any other Ctrl key
 accelerator.
 
-Later versions of <em>Qt Linguist</em> are expected to help the
+Later versions of \e {Qt Linguist} are expected to help the
 translator avoid accelerator conflicts.
 
 <h3><a name="Dealing_with_Phrases_That_Contain_Variables">
@@ -221,15 +221,15 @@ bearbeitet, wenn. Datei %1 fertig ist.</em> Note that both variables
 are still used but their order has changed. The order in which variables
 appear does not matter; \c %1 will always be replaced by the same text
 at runtime no matter where it appears in the source text or translation
-and similarly \c %2, etc. 
+and similarly \c %2, etc.
 
 <h3><a name="Reusing_Translations">Reusing Translations</a></h3>
 
 If the translated text is similar to the source text, click the
 <em>Start from Source</em> button (press Alt+T) which will copy the
-source text into the translation area. 
+source text into the translation area.
 
-<em>Qt Linguist</em> automatically lists phrases from the open phrase
+\e {Qt Linguist} automatically lists phrases from the open phrase
 books and similar or identical phrases that have already been translated
 in the Phrases and guesses area.
 
@@ -239,13 +239,13 @@ Creating and Using Phrase Books</a></h2>
 <center><img src="../images/phrasebookdialog.png" alt="Phrase Book Dialog">
 <h5>Phrase Book Dialog</h5></center>
 
-A <em>Qt Linguist</em> phrase book is a set of source phrases, target
+A \e {Qt Linguist} phrase book is a set of source phrases, target
 (translated) phrases, and optional definitions. Phrase Books are created
 independently of any application, although typically one phrase book
-will be created per application or family of applications. 
+will be created per application or family of applications.
 
 If the translator reaches an untranslated phrase that is the same as a
-source phrase in the phrase book, <em>Qt Linguist</em> will show the
+source phrase in the phrase book, \e {Qt Linguist} will show the
 phrase book entry in the <em>Relevant phrases</em> panel at the bottom
 right of the main window. Phrases which have translations that conflict
 with those given in the phrase book are marked with a question mark in
@@ -260,13 +260,13 @@ exists, opened. Create a new phrase book by selecting
 <em>Phrase|New Phrase Book</em> from the menu bar. You must enter a
 filename and may change the location of the file if you wish. A newly
 created phrase book is automatically opened. Open an existing phrase
-book by choosing <em>Phrase|Open Phrase Book</em> from the menu bar. 
+book by choosing <em>Phrase|Open Phrase Book</em> from the menu bar.
 
 To add a new phrase click the <em>New Phrase</em> button (or press
 Alt+N) and type in a new source phrase. Press Tab and type in the
 translation. Optionally press Tab and enter a definition -- this is
 useful to distinguish different translations of the same source phrase.
-This process may be repeated as often as necessary. 
+This process may be repeated as often as necessary.
 
 You can delete a phrase by selecting it in the phrases list and clicking
 Remove Phrase.
@@ -283,8 +283,8 @@ target phrase.
 
 <h2><a name="Validation">Validation</a></h2>
 
-<em>Qt Linguist</em> provides three kinds of validation on translated
-phrases. 
+\e {Qt Linguist} provides three kinds of validation on translated
+phrases.
 
 <ol>
 <li><em>Accelerator validation</em> detects translated phrases
@@ -303,7 +303,7 @@ the phrase book.
 Validation may be switched on or off from the menu bar's Validation item
 or using the toolbar buttons. Phrases that fail validation are marked
 with a question mark in the source text pane. If you switch validation
-off and then switch it on later <em>Qt Linguist</em> will recheck all
+off and then switch it on later \e {Qt Linguist} will recheck all
 phrases and mark any that fail validation.
 
 If any phrase in a context is invalid the context itself will be marked
@@ -320,7 +320,7 @@ file but are not used by the application.
 
 <h3><a name="File_Types">File Types</a></h3>
 
-<em>Qt Linguist</em> makes use of three kinds of file:
+\e {Qt Linguist} makes use of three kinds of file:
 
 <ul>
 <li>\c .ts <em>translation source files</em><br>are human-readable XML
@@ -333,7 +333,7 @@ generated by \e lrelease, but can also be generated by <em>Qt
 Linguist</em>.
 <li>\c .qph <em>Qt phrase book files</em><br>are human-readable XML
 files containing standard phrases and their translations. These files
-are created and updated by <em>Qt Linguist</em> and may be used by any
+are created and updated by \e {Qt Linguist} and may be used by any
 number of projects and applications.
 </ul>
 
@@ -360,13 +360,13 @@ number of projects and applications.
     translation source and the translations will be printed.
     <li><em>Recently opened files</em><br>shows the \c .ts files that
     have been opened recently, click one to open it.
-    <li><em>Exit</em><br>quits <em>Qt Linguist</em>.
+    <li><em>Exit</em><br>quits \e {Qt Linguist}.
     </ul>
     <br><br>
 <li><em>Edit</em>
     <ul>
     <li><em>Undo</em><br> undoes the last editing action in the
-    translation pane. 
+    translation pane.
     <li><em>Redo</em><br> redoes the last editing action in the
     translation pane.
     <li><em>Cut</em><br> deletes any highlighted text in the translation
@@ -379,8 +379,8 @@ number of projects and applications.
     translation pane.
     <li><em>Select All</em><br> selects all the text in the translation
     pane ready for copying or deleting.
-    <li><em>Find...</em><br> pops up the 
-    <a href="#The_Find_Dialog">Find dialog</a>. When the dialog pops up 
+    <li><em>Find...</em><br> pops up the
+    <a href="#The_Find_Dialog">Find dialog</a>. When the dialog pops up
     enter the text to be found and click the <em>Find Next</em> button.
     Source phrases, translations and comments may be searched.
     <li><em>Find Next</em><br> finds the next occurrence of the text that
@@ -414,9 +414,9 @@ number of projects and applications.
     matching against translations that are in the current phrase book.
     </ul>
     <br><br>
-<li><em>Phrase</em> (See the section 
+<li><em>Phrase</em> (See the section
 <a href="#Creating_and_Using_Phrase_Books">"Creating and Using Phrase
-Books"</a> for details.) 
+Books"</a> for details.)
     <ul>
     <li><em>New Phrase Book...</em><br> pops up a file save as dialog.
     You must enter a filename to be used for the phrase book and save
@@ -425,10 +425,10 @@ Books"</a> for details.)
     <li><em>Open Phrase Book...</em><br> pops up a file open dialog.
     Find and choose a phrase book to open.
     <li><em>Close Phrase Book</em><br> closes the current phrase book.
-    This will stop any further phrase validation taking place. 
+    This will stop any further phrase validation taking place.
     The same effect can be achieved by switching off phrase validation
     using the Validation menu or the phrase toolbar button.
-    <li><em>Edit Phrase Book...</em><br> pops up the 
+    <li><em>Edit Phrase Book...</em><br> pops up the
     <a href="#The_Phrase_Dialog">phrase book dialog</a> where you can
     add, edit or delete phrases.
     <li><em>Print Phrase Book...</em><br> pops up a print dialog. If
@@ -459,7 +459,7 @@ Books"</a> for details.)
 <dl>
 <dt><img src="../images/fileopen.png"></dt>
 <dd>Pop up the file open dialog to open a new translation source \c .ts
-file.</dd> 
+file.</dd>
 <dt><p><img src="../images/filesave.png"></dt>
 <dd>Save the current translation source \c .ts file.</dd>
 <dt><p><img src="../images/fileprint.png"></dt>
@@ -471,7 +471,7 @@ file.</dd>
 <dt><p><img src="../images/editredo.png"></dt>
 <dd>Redo the last editing action in the translation pane.</dd>
 <dt><p><img src="../images/editcut.png"></dt>
-<dd>Delete any highlighted text in the translation pane and save a copy to 
+<dd>Delete any highlighted text in the translation pane and save a copy to
 the clipboard.</dd>
 <dt><p><img src="../images/editcopy.png"></dt>
 <dd>Copy the highlighted text in the translation pane to the clipboard.</dd>
@@ -511,13 +511,12 @@ Choose <em>Edit|Find</em> from the menu bar or press <em>Ctrl+F</em> to pop up
 the Find dialog. Press <em>F3</em> to repeat the last search. By default the
 source phrases, translations and comments will all be searched and the
 search will be case-insensitive. These settings can be changed by
-checking or unchecking the checkboxes to reflect your preferences. 
+checking or unchecking the checkboxes to reflect your preferences.
 
 <h3><a name="The_Phrase_Dialog">The Phrase Dialog</a></h3>
 
-This dialog is explained in the 
+This dialog is explained in the
 <a href="#Creating_and_Using_Phrase_Books">
 "Creating and Using Phrase Books"</a> section.
 
 */
-

@@ -31,10 +31,9 @@ project file. A typical entry looks like this:
 \walkthrough  tt2/tt2.pro
 \skipto TRANSLATIONS
 \printline TRANSLATIONS
-\printline 
 
 Using a locale within the filename is useful for determining which
-language to load at runtime -- this is explained in 
+language to load at runtime -- this is explained in
 <a href="linguist-programmer.html#Chapter_3_Programmers">Chapter 3: Programmers</a>.
 
 <h2><a name="lupdate">lupdate</a></h2>
@@ -45,13 +44,13 @@ This is a simple command line tool. \e lupdate reads a Qt \c .pro
 project file and produces or updates the \c .ts translation source files
 listed in the project file. The translation files are given to the
 translator who uses <em>Qt Linguist</em> to read the files and insert
-the translations. 
+the translations.
 
 Companies that have their own translators in-house may find it useful
 to run \e lupdate regularly, perhaps monthly, as the application
 develops. This will lead to a fairly low volume of translation work
 spread evenly over the life of the project and will allow the
-translators to support a number of projects simultaneously. 
+translators to support a number of projects simultaneously.
 
 Companies that hire in translators as required may prefer to run \e
 lupdate only a few times in the application's life-cycle, the first time
@@ -93,4 +92,3 @@ source files which are incomplete. Missing translations will be replaced
 with the native language phrases at runtime.
 
 */
-
