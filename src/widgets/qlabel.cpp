@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#100 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#101 $
 **
 ** Implementation of QLabel widget class
 **
@@ -711,7 +711,7 @@ void QLabel::movieUpdated(const QRect& rect)
 	r.moveBy(rect.x(), rect.y());
 	r.setWidth(QMIN(r.width(), rect.width()));
 	r.setHeight(QMIN(r.height(), rect.height()));
-	repaint( r );
+	repaint( r, mov->framePixmap().mask() != 0 );
 	if ( autoMask() )
 	    updateMask();
     }
