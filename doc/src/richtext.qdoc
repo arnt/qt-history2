@@ -384,11 +384,13 @@ although only one will be visible to the user in a \c QTextEdit widget.
 The \c QTextDocument ensures that each cursor writes text correctly and
 does not interfere with any of the others. 
 
+\omit
 \quotefromfile snippets/textdocument-cursors/main.cpp
 \skipto QTextDocument *document
 \printuntil QTextCursor redCursor
 \skipto QTextCursor blueCursor
 \printuntil QTextCursor blueCursor
+\endomit
 
 \section1 Inserting Document Elements
 
