@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbrush.h#3 $
+** $Id: //depot/qt/main/src/kernel/qbrush.h#4 $
 **
 ** Definition of QBrush class
 **
@@ -17,10 +17,11 @@
 #include "qshared.h"
 
 
-enum BrushStyle { NoBrush, SolidBrush,		// brush style
+enum BrushStyle					// brush style
+      { NoBrush, SolidBrush,
 	Pix1Pattern, Pix2Pattern, Pix3Pattern, Pix4Pattern, Pix5Pattern,
 	HorPattern, VerPattern, CrossPattern,
-	BDiagPattern, FDiagPattern, DiagCrossPattern };
+	BDiagPattern, FDiagPattern, DiagCrossPattern, CustomPattern=24 };
 
 
 class QBrush
@@ -29,6 +30,7 @@ friend class QPainter;
 public:
     QBrush();
     QBrush( const QColor &, BrushStyle=SolidBrush );
+    QBrush( const QColor &, QBitMap * );
     QBrush( const QBrush & );
    ~QBrush();
     QBrush &operator=( const QBrush & );
@@ -48,6 +50,7 @@ private:
     struct QBrushData : QShared {		// brush data
 	BrushStyle style;
 	QColor	  color;
+	QBitMap  *bitmap;
 #if defined(_WS_WIN_)
 	HANDLE	  hbrush;
 	HANDLE	  hbmp;
