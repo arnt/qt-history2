@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#100 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#101 $
 **
 ** Implementation of QColor class
 **
@@ -582,7 +582,7 @@ void QColor::setRgb( QRgb rgb )
 /*!
   Returns the name of the color in the format #RRGGBB.
 
-  \sa setNamedColor
+  \sa setNamedColor()
 */
 QString QColor::name() const
 {
