@@ -268,10 +268,12 @@ QMakeProject::parse(QString t, QMap<QString, QStringList> &place)
     if((var == "DEPENDPATH" || var == "INCLUDEPATH") && vals.find(';') != -1) {
 	QRegExp rp("([^;]*);");
 	for(int x = 0; (x = rp.search(vals, 0)) != -1; ) {
+	    qDebug("Founds: '%s'", rp.cap(1).latin1());
 	    vallist.append("\"" + rp.cap(1) + "\"");
 	    vals.remove(x, rp.matchedLength());
 	}
 	if(!vals.isEmpty()) {
+	    qDebug("Founds (last): '%s'", vals.latin1());
 	    vallist.append("\"" + vals + "\"");
 	    vals = "";
 	}

@@ -1728,19 +1728,33 @@ MakefileGenerator::fileFixify(QString &file, const QString &d) const
 	    depth = Option::mkfile::cachefile_depth;
     }
 
+    QChar quote;
+    if((file.left(1) == "'" || file.left(1) == "\"") && file.right(1) == file.left(1)) {
+	quote = file.at(0);
+	file = file.mid(1, file.length() - 2);
+    }
     QString orig_file = file;
     if(!project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH")) { //absoluteify it
 	file = Option::fixPathToTargetOS(file);
-	if(!QDir::isRelativePath(file)) //already absolute
+	if(!QDir::isRelativePath(file)) { //already absolute
+	    if(!quote.isNull()) 
+		file = quote + file + quote;
 	    return FALSE;
+	}
 	QFileInfo fi(file);
-	if(fi.convertToAbs()) //strange
+	if(fi.convertToAbs()) { //strange
+	    if(!quote.isNull()) 
+		file = quote + file + quote;
 	    return FALSE;
+	}
 	file = fi.filePath();
     } else if(!project->isActiveConfig("no_fixpath")) { //relative
 	file = Option::fixPathToTargetOS(file, FALSE);
-	if(QDir::isRelativePath(file))
+	if(QDir::isRelativePath(file)) {
+	    if(!quote.isNull()) 
+		file = quote + file + quote;
 	    return FALSE;
+	}
 	QString match_dir = dir;
 	if(file.left(match_dir.length()) == match_dir &&
 	   file.mid(match_dir.length(), Option::dir_sep.length()) == Option::dir_sep) {
@@ -1769,6 +1783,8 @@ MakefileGenerator::fileFixify(QString &file, const QString &d) const
     } else { //just clean it
 	file = Option::fixPathToTargetOS(file, FALSE);
     }
+    if(!quote.isNull()) 
+	file = quote + file + quote;
     debug_msg(3, "Fixed %s :: to :: %s (%d)", orig_file.latin1(), file.latin1(), depth);
     return TRUE;
 }

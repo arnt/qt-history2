@@ -95,6 +95,7 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
     for(QStringList::Iterator incit = incs.begin(); incit != incs.end(); ++incit) {
 	QString inc = (*incit);
 	inc.replace(QRegExp("\\\\$"), "\\\\");
+	inc.replace(QRegExp("\""), "");
 	t << " -I\"" << inc << "\"";
     }
     t << " -I\"" << specdir() << "\""

@@ -718,8 +718,13 @@ DspMakefileGenerator::init()
     project->variables()["MSVCDSP_CXXFLAGS" ] += project->variables()["QMAKE_CXXFLAGS"];
     project->variables()["MSVCDSP_DEFINES"].append(varGlue("DEFINES","/D ","" " /D ",""));
     project->variables()["MSVCDSP_DEFINES"].append(varGlue("PRL_EXPORT_DEFINES","/D ","" " /D ",""));
-    project->variables()["MSVCDSP_INCPATH"].append(varGlue("INCLUDEPATH","/I \"","\" /I \"","\"") +
-							    " /I \"" + specdir() + "\"");
+    QStringList &incs = project->variables()["INCLUDEPATH"];
+    for(QStringList::Iterator incit = incs.begin(); incit != incs.end(); ++incit) {
+	QString inc = (*incit);
+	inc.replace(QRegExp("\""), "");
+	project->variables()["MSVCDSP_INCPATH"].append("/I \"" + inc + "\"");
+    }
+    project->variables()["MSVCDSP_INCPATH"].append("/I \"" + specdir() + "\"");
     if ( project->isActiveConfig("qt") ) {
 	project->variables()["MSVCDSP_RELDEFS"].append("/D \"QT_NO_DEBUG\"");
     } else {
