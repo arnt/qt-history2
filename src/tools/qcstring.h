@@ -63,7 +63,7 @@ Q_EXPORT void *qmemmove( void *dst, const void *src, uint len );
 Q_EXPORT char *qstrdup( const char * );
 
 Q_EXPORT inline uint cstrlen( const char *str )
-{ return strlen(str); }
+{ return (uint)strlen(str); }
 
 Q_EXPORT inline uint qstrlen( const char *str )
 { return str ? strlen(str) : 0; }
