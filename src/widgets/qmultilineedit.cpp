@@ -2005,7 +2005,7 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *e )
 			  markDragY == numLines() - 1 && markDragX == lineLength( markDragY );
 	popup->setItemEnabled( id[ IdSelectAll ],
 				  (bool)text().length() && !allSelected );
-	
+
 	int r = popup->exec( e->globalPos() );
 	delete popup;
 
@@ -3909,9 +3909,6 @@ void QMultiLineEdit::del()
 /*!
   Sets undo enabled to \a enable.
 
-  Disabling and re-enabling undo's has the effect of clearing the undo and redo
-  stacks.
-
   \sa isUndoEnabled()
 */
 void QMultiLineEdit::setUndoEnabled( bool enable )
@@ -3941,7 +3938,7 @@ bool QMultiLineEdit::isUndoEnabled() const
 
   \sa undoDepth()
  */
-void QMultiLineEdit::setUndoDepth( int depth)
+void QMultiLineEdit::setUndoDepth( int depth )
 {
     d->undodepth = depth;
 }
