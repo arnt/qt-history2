@@ -1541,14 +1541,14 @@ void QWin32PaintEngine::setRenderHint(QPainter::RenderHint hint, bool enable)
         break;
     }
 
-    if (d->usesGdiplus()) {
-        d->gdiplusEngine->setRenderHint(hint, enable);
-        return;
-    }
-
     if (requireGdiplus) {
+        // Turn gdi+ support on or off.
         if (enable && !d->usesGdiplus())
             d->beginGdiplus();
+        else if (!enable && d->usesGdiplus()) {
+            // Additional criteria for turning off missing, such as alpha brush/pen
+            d->endGdiplus();
+        }
         if (d->usesGdiplus())
             d->gdiplusEngine->setRenderHint(hint, enable);
     }
@@ -1569,9 +1569,13 @@ QPainter::RenderHints QWin32PaintEngine::supportedRenderHints() const
 void QWin32PaintEnginePrivate::beginGdiplus()
 {
 #if defined QT_GDIPLUS_SUPPORT
-    qDebug() << "QWin32PaintEnginePrivate::beginGdiplus()";
     if (!qt_gdiplus_support)
         return;
+
+    ModifyWorldTransform(hdc, 0, MWT_IDENTITY);
+    SetGraphicsMode(hdc, GM_COMPATIBLE);
+    SelectClipRgn(hdc, 0);
+
     if (!d->gdiplusEngine)
         d->gdiplusEngine = new QGdiplusPaintEngine(pdev);
     d->gdiplusEngine->begin(pdev, q->state);
@@ -1583,10 +1587,11 @@ void QWin32PaintEnginePrivate::beginGdiplus()
 void QWin32PaintEnginePrivate::endGdiplus()
 {
 #if defined QT_GDIPLUS_SUPPORT
-    qDebug() << "QWin32PaintEnginePrivate::endGdiplus()";
     Q_ASSERT(gdiplusEngine);
     gdiplusEngine->end();
     gdiplusInUse = false;
+
+    q->setDirty(QPaintEngine::AllDirty);
 #endif
 }
 
@@ -1654,8 +1659,8 @@ bool QGdiplusPaintEngine::begin(QPaintDevice *pdev, QPainterState *, bool)
     // Verify the presence of an HDC
     if (pdev->devType() == QInternal::Widget) {
         d->hdc = pdev->handle();
-        QWidget *widget = static_cast<QWidget*>(pdev);
         if (!d->hdc) {
+            QWidget *widget = static_cast<QWidget*>(pdev);
             d->hdc = GetDC(widget->winId());
             d->usesTempDC = true;
         }
@@ -1978,8 +1983,7 @@ void QGdiplusPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QR
             return;
         }
 
-        Bitmap bitmap(pm.width(), pm.height(), image.bytesPerLine(), pf,
-               image.bits());
+        Bitmap bitmap(pm.width(), pm.height(), image.bytesPerLine(), pf, image.bits());
         d->graphics->DrawImage(&bitmap,
                                Rect(r.x(), r.y(), r.width(), r.height()),
                                sr.x(), sr.y(), sr.width(), sr.height(), UnitPixel);
