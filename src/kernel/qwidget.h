@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#133 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#134 $
 **
 ** Definition of QWidget class
 **
@@ -106,8 +106,6 @@ public:
 
     const QPixmap *backgroundPixmap() const;
     virtual void   setBackgroundPixmap( const QPixmap & );
-
-    QBrush backgroundBrush() const;
 
     const QColorGroup &colorGroup() const;
     const QPalette    &palette()    const;

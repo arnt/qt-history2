@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#75 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#76 $
 **
 ** Implementation of QPixmap class
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include "qbuffer.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#75 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpixmap.cpp#76 $");
 
 
 /*!
@@ -285,13 +285,37 @@ QPixmap &QPixmap::operator=( const QImage &image )
   If the background is empty, nothing is done.
 
   The \e ofs point is an offset in the widget.
+
+  The point \a ofs is a point in the widget's coordinate system. The
+  pixmap's top left pixel will be mapped to the point \a ofs in the
+  widget. This is significant if the widget has a background pixmap,
+  otherwise the pixmap will simply be filled with the background color of
+  the widget.
+
+  Example:
+  \code
+  void CuteWidget::paintEvent( QPaintEvent *e )
+  {
+    QRect ur = e->rect();		// rectangle to update
+
+    QPixmap  pix( ur.size() );	       	// Pixmap for double-buffering
+
+    pix.fill( this, ur.topLeft() );	// fill with widget background
+
+    QPainter p( &pix );
+    p.translate( -ur.x(), -ur.y() );	// use widget coordinate system
+                                        // when drawing on pixmap
+    //    ... draw on pixmap ...
+
+    p.end();
+
+    bitBlt( this, ur.topLeft(), &pix );
+  }
+  \endcode
 */
 
 /*!
-  Fills the pixmap with the widget's background color or pixmap.
-  If the background is empty, nothing is done.
-
-  The \e xofs and \e yofs is an offset in the widget.
+  \overload void QPixmap::fill( const QWidget *widget, const QPoint &ofs )
 */
 
 void QPixmap::fill( const QWidget *widget, int xofs, int yofs )
