@@ -16,6 +16,7 @@
 #include "qtextlayout_p.h"
 #include "qtextengine_p.h"
 #include "qfontengine_p.h"
+#include "qwidget_p.h"
 
 #define ds d->state
 #define dgc d->gc
@@ -128,6 +129,14 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
 	    ds->font = widget->font();
 	    ds->pen = widget->palette().color(widget->foregroundRole());
 	    ds->bgBrush = widget->palette().brush(widget->backgroundRole());
+	    const QWidget *wp = widget;
+	    QPoint offset;
+	    while(((QWidgetPrivate*)wp->d_ptr)->isBackgroundInherited()) {
+		offset += wp->pos();
+		wp = wp->parentWidget();
+	    }
+	    ds->bgColor = widget->paletteBackgroundColor();
+	    ds->bgOrigin = -offset;
 	    ds->ww = ds->vw = widget->width();
 	    ds->wh = ds->vh = widget->height();
 	    break;
@@ -246,13 +255,11 @@ QRegion QPainter::clipRegion( CoordinateMode ) const
     return ds->clipRegion;
 }
 
-
 void QPainter::setClipRect( const QRect &rect, CoordinateMode mode ) // ### inline?
 {
     Q_ASSERT(dgc);
     setClipRegion(QRegion(rect), mode);
 }
-
 
 void QPainter::setClipRegion( const QRegion &r, CoordinateMode )
 {
@@ -567,7 +574,7 @@ void QPainter::setBackgroundMode(BGMode mode)
 	return;
     }
     ds->bgMode = mode;
-    if (dgc)
+    if (dgc && dgc->isActive())
 	dgc->updateBackground(ds);
 }
 
@@ -579,7 +586,7 @@ QPainter::BGMode QPainter::backgroundMode() const
 
 void QPainter::setPen(const QColor &color)
 {
-    ds->pen.setColor(color);
+    ds->pen = QPen(color, 0, Qt::SolidLine);
     if (dgc && dgc->isActive())
 	dgc->updatePen(ds);
 }
@@ -629,7 +636,9 @@ const QBrush &QPainter::brush() const
 
 void QPainter::setBackgroundColor(const QColor &color)
 {
-    ds->bgBrush = QBrush(color);
+    ds->bgColor = QBrush(color);
+    if (dgc && dgc->isActive())
+	dgc->updateBackground(ds);
 }
 
 const QColor &QPainter::backgroundColor() const
