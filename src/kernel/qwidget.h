@@ -143,7 +143,7 @@ public:
 
     bool	 isEnabled()	const;
     bool	 isEnabledTo(QWidget*) const;
-    bool	 isEnabledToTLW() const { return isEnabled(); }
+    bool	 isEnabledToTLW() const;
 
 public slots:
     virtual void setEnabled( bool );
@@ -342,7 +342,7 @@ public:
     virtual bool	close( bool alsoDelete );
     bool		isVisible()	const;
     bool		isVisibleTo(QWidget*) const;
-    bool		isVisibleToTLW() const { return isVisible(); } // obsolete
+    bool		isVisibleToTLW() const; // obsolete
     QRect		visibleRect() const;
     bool 		isHidden() const;
     bool		isMinimized() const;
@@ -641,6 +641,9 @@ inline bool QWidget::isDesktop() const
 inline bool QWidget::isEnabled() const
 { return !testWState(WState_Disabled); }
 
+inline bool QWidget::isEnabledToTLW() const
+{ return isEnabled(); }
+
 inline const QRect &QWidget::geometry() const
 { return crect; }
 
@@ -741,6 +744,9 @@ inline bool QWidget::close()
 
 inline bool QWidget::isVisible() const
 { return testWState(WState_Visible); }
+
+inline bool QWidget::isVisibleToTLW() const // obsolete
+{ return isVisible(); }
 
 inline bool QWidget::isHidden() const
 { return testWState(WState_ForceHide); }
