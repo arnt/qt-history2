@@ -416,11 +416,15 @@ uint QTextFormatPrivate::recalcHash() const
     \value FramePadding
     \value Width
     \value Height
+    \value TableColumnConstraints
+    \value TableColumnConstraintValues
+    \value TableCellSpacing
 
     Table cell properties
 
     \value TableCellRowSpan
     \value TableCellColumnSpan
+    \value TableCellBackgroundColor
 
     Image properties
 
@@ -429,6 +433,14 @@ uint QTextFormatPrivate::recalcHash() const
     \value ImageHeight
 
     \value UserProperty
+*/
+
+/*!
+    \enum QTextTableFormat::TableColumnConstraint
+
+    \value FixedLength
+    \value VariableLength
+    \value PercentageLength
 */
 
 /*!
@@ -1552,27 +1564,36 @@ QFont QTextCharFormat::font() const
     \ingroup text
 
     A list is composed of one or more items; each item is a block. A
-    list format is used to specify the characteristics of a list, for
-    example, setStyle() controls the bulleting or numbering of the
-    list items, and setIndent() controls the list's indentation.
+    list format is used to specify the characteristics of a list; for
+    example, setStyle() controls the style of the bullet points and the
+    numbering scheme of the list items, and setIndent() controls the
+    list's indentation.
+
+    \omit
+    ### Mention something about the ordered list items.
+    \endomit
+
+    \sa QTextList
 */
 
 /*!
     \enum QTextListFormat::Style
 
-    \value ListDisc
-    \value ListCircle
-    \value ListSquare
-    \value ListDecimal
-    \value ListLowerAlpha
-    \value ListUpperAlpha
+    This enum describes the symbols used to decorate list items:
+
+    \value ListDisc        a filled circle
+    \value ListCircle      an empty circle
+    \value ListSquare      a filled square
+    \value ListDecimal     decimal values in ascending order
+    \value ListLowerAlpha  lower case Latin characters in alphabetical order
+    \value ListUpperAlpha  upper case Latin characters in alphabetical order
     \omitvalue ListStyleUndefined
 */
 
 /*!
     \fn QTextListFormat::QTextListFormat()
 
-    Constructs a new QTextListFormat.
+    Constructs a new list format object.
 */
 
 
@@ -1587,7 +1608,7 @@ QFont QTextCharFormat::font() const
 /*!
     \fn void QTextListFormat::setStyle(int style)
 
-    Sets the list format's list style to \a style. See \c{Style}.
+    Sets the list format's \a style. See \c{Style} for the available styles.
 
     \sa style()
 */
@@ -1603,9 +1624,9 @@ QFont QTextCharFormat::font() const
 
 
 /*!
-    \fn void QTextListFormat::setIndent(int indent)
+    \fn void QTextListFormat::setIndent(int indentation)
 
-    Sets the list format's indent to \a indent.
+    Sets the list format's \a indentation.
 
     \sa indent()
 */
@@ -1614,7 +1635,7 @@ QFont QTextCharFormat::font() const
 /*!
     \fn int QTextListFormat::indent() const
 
-    Returns the list format's indent.
+    Returns the list format's indentation.
 
     \sa setIndent()
 */
@@ -1753,19 +1774,26 @@ QFont QTextCharFormat::font() const
 
     \ingroup text
 
-    A table comprises one or more rows of one or more columns of
-    cells. Each cell contains a block.
+    A table is a group of cells ordered into rows and columns. Each table
+    contains at least one row and one column. Each cell contains a block.
 
     A QTextTableFormat specifies the characteristics of a table. The
     setColumns() function sets the number of columns; the number of
     rows is automatically derived based on the number of columns and
     the number of cells (blocks) contained in the table.
+
+    \omit
+    ### Mention something about the column constraints and the QTextTable
+    class
+    \endomit
+
+    \sa QTextTable
 */
 
 /*!
     \fn QTextTableFormat::QTextTableFormat()
 
-    Constructs a new QTextTableFormat.
+    Constructs a new table format object.
 */
 
 
@@ -1780,7 +1808,7 @@ QFont QTextCharFormat::font() const
 /*!
     \fn int QTextTableFormat::columns() const
 
-    Returns the table format's number of columns.
+    Returns the number of columns specified by the table format.
 
     \sa setColumns()
 */
@@ -1789,9 +1817,29 @@ QFont QTextCharFormat::font() const
 /*!
     \fn void QTextTableFormat::setColumns(int columns)
 
-    Sets the table format's number of columns to \a columns.
+    Sets the number of \a columns required by the table format.
 
     \sa columns()
+*/
+
+/*!
+    \fn void QTextTableFormat::setTableColumnConstraints(const QList<int> &constraintTypes, const QList<int> &values)
+*/
+
+/*!
+    \fn QList<int> QTextTableFormat::tableColumnConstraintTypes() const
+*/
+
+/*!
+    \fn QList<int> QTextTableFormat::tableColumnConstraintValues() const
+*/
+
+/*!
+    \fn int QTextTableFormat::cellSpacing() const
+*/
+
+/*!
+    \fn void QTextTableFormat::setCellSpacing(int spacing)
 */
 
 

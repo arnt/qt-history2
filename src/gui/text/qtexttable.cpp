@@ -28,24 +28,34 @@
 
     \ingroup text
 
-    The QTextTable::cellAt() functions return a QTextTableCell object
-    for the given cell. A QTextTableCell holds the format() of a cell,
-    its row() and column(), and rowSpan() and columnSpan(), and the
-    firstCursorPosition() and lastCursorPosition() for the cell.
+    Table cells are pieces of document structure that belong to a table.
+    The table orders cells into particular rows and columns; cells can
+    also span multiple columns and rows.
+
+    Cells contain information about their location in a table; you can
+    obtain the row() and column() numbers of a cell, and its rowSpan()
+    and columnSpan(). 
+
+    The format() of a cell describes the default character format of its
+    contents. The firstCursorPosition() and lastCursorPosition() functions
+    are used to obtain the extent of the cell in the document.
+
+    \sa QTextTable QTextTableFormat
 */
 
 /*!
     \fn QTextTableCell::QTextTableCell()
 
-    Constructs an invalid QTextTableCell object.
+    Constructs an invalid table cell.
 
     \sa isValid()
 */
 
 /*!
-    \fn QTextTableCell::QTextTableCell(const QTextTableCell &cell)
+    \fn QTextTableCell::QTextTableCell(const QTextTableCell &other)
 
-    Creates a new QTextTableCell object based on cell \a cell.
+    Copy constructor. Creates a new QTextTableCell object based on the
+    \a other cell.
 */
 
 /*!
@@ -65,7 +75,7 @@ QTextCharFormat QTextTableCell::format() const
 }
 
 /*!
-    Returns the row in the table that contains this cell.
+    Returns the number of the row in the table that contains this cell.
 
     \sa column()
 */
@@ -83,7 +93,7 @@ int QTextTableCell::row() const
 }
 
 /*!
-    Returns the column in the table that contains this cell.
+    Returns the number of the column in the table that contains this cell.
 
     \sa row()
 */
@@ -151,6 +161,8 @@ QTextCursor QTextTableCell::lastCursorPosition() const
 
 /*!
     \internal
+
+    Returns the first valid position in the document occupied by this cell.
 */
 int QTextTableCell::firstPosition() const
 {
@@ -160,6 +172,8 @@ int QTextTableCell::firstPosition() const
 
 /*!
     \internal
+
+    Returns the last valid position in the document occupied by this cell.
 */
 int QTextTableCell::lastPosition() const
 {
@@ -214,7 +228,7 @@ QTextFrame::iterator QTextTableCell::end() const
 /*!
     \fn QTextTableCell::~QTextTableCell()
 
-    Destroys the object.
+    Destroys the table cell.
 */
 
 QTextTablePrivate::~QTextTablePrivate()
@@ -344,18 +358,23 @@ void QTextTablePrivate::update() const
 
     \ingroup text
 
-    Tables can be created using QTextCursor::createTable() and queried
-    with QTextCursor::currentTable().
+    A table is a group of cells ordered into rows and columns. Each table
+    contains at least one row and one column. Each cell contains a block.
+
+    Tables can be created and inserted into a document with the
+    QTextCursor::createTable() function. The table currently being edited by
+    the cursor is found with QTextCursor::currentTable().
 
     A table's size can be changed with resize(), or by using
     insertRows(), insertColumns(), removeRows(), or removeColumns().
     The overall format of the table can be changed with setFormat().
-    Use cellAt() to retrieve a QTextTableCell object that gives the
-    properties of a given cell.
+    Use cellAt() to retrieve table cells.
 
-    The cursor position of table rows in the document is available
-    from rowStart() and rowEnd().
+    The starting and ending positions of table rows can be found by moving
+    a cursor within a table, and using the rowStart() and rowEnd() functions
+    to obtain cursors at the start and end of each row.
 
+    \sa QTextTableFormat
 */
 
 /*! \internal
@@ -366,6 +385,8 @@ QTextTable::QTextTable(QTextDocument *doc)
 }
 
 /*! \internal
+
+Destroys the table.
  */
 QTextTable::~QTextTable()
 {
@@ -373,9 +394,11 @@ QTextTable::~QTextTable()
 
 
 /*!
-    Returns a QTextTableCell object that describes the properties of
-    the specified table cell. The cell is identified by its \a row and
-    \a col.
+    \fn QTextTableCell QTextTable::cellAt(int row, int column) const
+
+    Returns the table cell at the given \a row and \a column in the table.
+
+    \sa columns() rows()
 */
 QTextTableCell QTextTable::cellAt(int row, int col) const
 {
@@ -391,7 +414,8 @@ QTextTableCell QTextTable::cellAt(int row, int col) const
 /*!
     \overload
 
-    The cell is identified by its \a position.
+    Returns the table cell that contains the character at the given \a position
+    in the document.
 */
 QTextTableCell QTextTable::cellAt(int position) const
 {
@@ -414,9 +438,11 @@ QTextTableCell QTextTable::cellAt(int position) const
 }
 
 /*!
+    \fn QTextTableCell QTextTable::cellAt(const QTextCursor &cursor) const
+
     \overload
 
-    The cell is identified by its cursor position, \a c.
+    Returns the table cell containing the given \a cursor.
 */
 QTextTableCell QTextTable::cellAt(const QTextCursor &c) const
 {
@@ -424,9 +450,11 @@ QTextTableCell QTextTable::cellAt(const QTextCursor &c) const
 }
 
 /*!
-    Resizes the table to \a rows rows and \a cols cols.
+    \fn void QTextTable::resize(int rows, int columns)
 
-    \sa insertRows(), insertColumns(), removeRows(), removeColumns()
+    Resizes the table to contain the required number of \a rows and \a columns.
+
+    \sa insertRows() insertColumns() removeRows() removeColumns()
 */
 void QTextTable::resize(int rows, int cols)
 {
@@ -455,9 +483,11 @@ void QTextTable::resize(int rows, int cols)
 }
 
 /*!
-    Inserts \a num rows before row \a pos.
+    \fn void QTextTable::insertRows(int index, int rows)
 
-    \sa resize(), insertColumns(), removeRows(), removeColumns()
+    Inserts a number of \a rows before the row with the specified \a index.
+
+    \sa resize() insertColumns() removeRows() removeColumns()
 */
 void QTextTable::insertRows(int pos, int num)
 {
@@ -514,9 +544,11 @@ void QTextTable::insertRows(int pos, int num)
 }
 
 /*!
-    Inserts \a num colums before column \a pos.
+    \fn void QTextTable::insertColumns(int index, int columns)
 
-    \sa insertRows(), resize(), removeRows(), removeColumns()
+    Inserts a number of \a columns before the column with the specified \a index.
+
+    \sa insertRows() resize() removeRows() removeColumns()
 */
 void QTextTable::insertColumns(int pos, int num)
 {
@@ -567,7 +599,9 @@ void QTextTable::insertColumns(int pos, int num)
 }
 
 /*!
-    Removes \a num rows starting at row \a pos.
+    \fn void QTextTable::removeRows(int index, int rows)
+
+    Removes a number of \a rows starting with the row at the specified \a index.
 
     \sa insertRows(), insertColumns(), resize(), removeColumns()
 */
@@ -611,9 +645,12 @@ void QTextTable::removeRows(int pos, int num)
 }
 
 /*!
-    Removes \a num columns starting at column \a pos.
+    \fn void QTextTable::removeColumns(int index, int columns)
 
-    \sa insertRows(), insertColumns(), removeRows(), resize()
+    Removes a number of \a columns starting with the column at the specified
+    \a index.
+
+    \sa insertRows() insertColumns() removeRows() resize()
 */
 void QTextTable::removeColumns(int pos, int num)
 {
@@ -691,8 +728,10 @@ void QTextTable::mergeCells(const QTextCursor &selection)
 #endif
 
 /*!
-    Returns a QTextCursor pointing to the start of the row that
-    contains cursor position \a c.
+    \fn QTextCursor QTextTable::rowStart(const QTextCursor &cursor) const
+
+    Returns a cursor pointing to the start of the row that contains the
+    given \a cursor.
 
     \sa rowEnd()
 */
@@ -709,8 +748,10 @@ QTextCursor QTextTable::rowStart(const QTextCursor &c) const
 }
 
 /*!
-    Returns a QTextCursor pointing to the end of the row that contains
-    cursor position \a c.
+    \fn QTextCursor QTextTable::rowEnd(const QTextCursor &cursor) const
+
+    Returns a cursor pointing to the end of the row that contains the given
+    \a cursor.
 
     \sa rowStart()
 */
@@ -730,7 +771,7 @@ QTextCursor QTextTable::rowEnd(const QTextCursor &c) const
 /*!
     \fn void QTextTable::setFormat(const QTextTableFormat &format)
 
-    Sets the table's format to \a format.
+    Sets the table's \a format.
 
     \sa format()
 */
