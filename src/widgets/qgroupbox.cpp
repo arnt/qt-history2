@@ -153,10 +153,10 @@ void QGroupBox::setTextSpacer()
 	QFontMetrics fm = fontMetrics();
 	h = fm.height();
 	w = fm.width( str, lenvisible ) + 2*fm.width(QChar(' '));
-	if ( vbox ) {
-	    int m = vbox->margin();
+	if ( layout() ) {
+	    int m = layout()->margin();
 	    // do we have a child layout?
-	    for ( QLayoutIterator it = vbox->iterator(); it.current(); ++it ) {
+	    for ( QLayoutIterator it = layout()->iterator(); it.current(); ++it ) {
 		if ( it.current()->layout() ) {
 		    m += it.current()->layout()->margin();
 		    break;
@@ -197,8 +197,8 @@ void QGroupBox::setTitle( const QString &title )
     }
     calculateFrame();
     setTextSpacer();
-    if ( vbox ) {
-	vbox->activate();
+    if ( layout() ) {
+	layout()->activate();
 	QSize s( size() );
 	QSize ms( minimumSizeHint() );
 	resize( QMAX( s.width(), ms.width() ),
