@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#82 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#83 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#82 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#83 $")
 
 
 /*!
@@ -876,16 +876,16 @@ void QWidget::adjustSize()
   This function returns TRUE if it is able to pass the event over to
   someone, or FALSE if nobody wanted the event.
 
-  \sa QObject::event(), closeEvent(), focusInEvent(), focusOutEvent(),
-  keyPressEvent(), keyReleaseEvent(), mouseDoubleClickEvent(),
-  mouseMoveEvent(), mousePressEvent(), mouseReleaseEvent(),
-  moveEvent(), paintEvent(), resizeEvent(), timerEvent()
+  \sa closeEvent(), focusInEvent(), focusOutEvent(), keyPressEvent(),
+  keyReleaseEvent(), mouseDoubleClickEvent(), mouseMoveEvent(),
+  mousePressEvent(), mouseReleaseEvent(), moveEvent(), paintEvent(),
+  resizeEvent(), QObject::event(), QObject::timerEvent()
 */
 
 bool QWidget::event( QEvent *e )		// receive event(),
 {
     if ( eventFilters ) {			// try filters
-	if ( activate_filters( e ) )		// stopped by a filter
+	if ( activate_filters(e) )		// stopped by a filter
 	    return TRUE;
     }
 
@@ -962,19 +962,6 @@ bool QWidget::event( QEvent *e )		// receive event(),
 	    return FALSE;
     }
     return TRUE;
-}
-
-/*!
-  This event handler can be reimplemented in a subclass to receive
-  timer events for the widget.
-
-  The default implementation does nothing.
-
-  \sa QObject::startTimer(), QObject::killTimer(), event()
-*/
-
-void QWidget::timerEvent( QTimerEvent * )
-{
 }
 
 /*!

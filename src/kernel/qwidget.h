@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#61 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#62 $
 **
 ** Definition of QWidget class
 **
@@ -163,7 +163,6 @@ signals:
 
 protected:
     bool	 event( QEvent * );
-    virtual void timerEvent( QTimerEvent * );
     virtual void mousePressEvent( QMouseEvent * );
     virtual void mouseReleaseEvent( QMouseEvent * );
     virtual void mouseDoubleClickEvent( QMouseEvent * );
