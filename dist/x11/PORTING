@@ -29,10 +29,9 @@ ftp.troll.no.
 			 PORTING INSTRUCTIONS
 
 Create a new file in the configs/ directory, describing the compilation
-requirements for your platform.  Edit qt/Makefile to support the new
-architecture (it just refers to the config file).  Run "make config"
-and thus configure for your platform.  You should not have to modify
-any other Makefiles (but let us know if you do).
+requirements for your platform.  Edit qt/configure to support the new
+architecture.  Run "make clean" and then "configure".  You should not
+have to modify any other Makefiles (but let us know if you do).
 
 Modify qt/src/tools/qglobal.h as required: you need to ensure that
 _OS_whatever_ is defined.  We've done it for many platforms in the
