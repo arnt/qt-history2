@@ -5525,29 +5525,19 @@ static bool read_xpm_string( QByteArray &buf, QIODevice *d,
 	return TRUE;
     }
 
-    if ( buf.size() < 69 )	    //# just an approximation
-	buf.resize( 123 );
-
-    buf[0] = '\0';
+    buf = "";
     int c;
-    int i;
     while ( (c=d->getch()) != EOF && c != '"' ) { }
     if ( c == EOF ) {
 	return FALSE;
     }
-    i = 0;
     while ( (c=d->getch()) != EOF && c != '"' ) {
-	if ( i == (int)buf.size() )
-	    buf.resize( i*2+42 );
-	buf[i++] = c;
+	buf.append(c);
     }
     if ( c == EOF ) {
 	return FALSE;
     }
 
-    if ( i == (int)buf.size() ) // always use a 0 terminator
-	buf.resize( i+1 );
-    buf[i] = '\0';
     return TRUE;
 }
 
@@ -5562,8 +5552,7 @@ static bool read_xpm_string( QByteArray &buf, QIODevice *d,
 static void read_xpm_image_or_array( QImageIO * iio, const char * const * source,
 				     QImage & image)
 {
-    QByteArray buf;
-    buf.resize(200);
+    QByteArray buf(200, 0);
     QIODevice *d = 0;
 
     int i, cpp, ncols, w, h, index = 0;
