@@ -1,15 +1,7 @@
 #
-# $Id: //depot/qt/main/mkspecs/linux-g++#13 $
+# $Id: //depot/qt/main/mkspecs/linux-g++#14 $
 #
 # qmake configuration for linux-g++
-#
-# On the GNU C library the _GNU_SOURCE macro imports the most recent system
-# interfaces. This is the macro of choice to request most current Open Group
-# standards available on the system.
-# Now we shouldn't need to define it unless it is shadowed by macros such as
-# _POSIX_C_SOURCE or _XOPEN_SOURCE. However it seems to be needed to compile
-# with threads on older versions of the GNU C Library.
-# See <features.h> for more details.
 #
 
 MAKEFILE_GENERATOR	= UNIX
@@ -28,7 +20,7 @@ QMAKE_CFLAGS_RELEASE	= -O2
 QMAKE_CFLAGS_DEBUG	= -g
 QMAKE_CFLAGS_SHLIB	= -fPIC
 QMAKE_CFLAGS_YACC	= -Wno-unused -Wno-parentheses
-QMAKE_CFLAGS_THREAD	= -D_REENTRANT -D_GNU_SOURCE
+QMAKE_CFLAGS_THREAD	= -D_REENTRANT
 
 QMAKE_CXX		= g++
 QMAKE_CXXFLAGS		= $$QMAKE_CFLAGS
