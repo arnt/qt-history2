@@ -50,7 +50,7 @@
 #include "qcursor.h"
 #include "qstyle.h"
 #include "qstylefactory.h"
-#include "qcomponentfactory.h"
+#include "qcomponentfactory_p.h"
 #include <stdlib.h>
 
 #if defined(QT_REMOTE_CONTROL)
