@@ -365,7 +365,7 @@ public:
 #endif // Q_WS_WIN
 
 
-class QFontEngineMulti : public QFontEngine
+class Q_GUI_EXPORT QFontEngineMulti : public QFontEngine
 {
 public:
     explicit QFontEngineMulti(int engineCount);
