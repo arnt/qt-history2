@@ -1118,6 +1118,8 @@ HRESULT QAxServerBase::InternalQueryInterface( REFIID iid, void **iface )
 	    *iface = (IProvideClassInfo*)this;
 	else if ( iid == IID_IProvideClassInfo2)
 	    *iface = (IProvideClassInfo2*)this;
+	else if ( iid == IID_IPersist )
+	    *iface = (IPersist*)(IPersistStreamInit*)this;
 	else if ( iid == IID_IPersistStreamInit )
 	    *iface = (IPersistStreamInit*)this;
 	else if ( iid == IID_IPersistStorage )
