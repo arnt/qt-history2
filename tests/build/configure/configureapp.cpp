@@ -43,11 +43,6 @@ ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv 
     tmp = tmp.mid( tmp.findRev( "\\" ) + 1 );
     dictionary[ "QMAKEPATH" ] = tmp;
 
-    if( dictionary[ "QMAKEPATH" ] == QString( "win32-msvc" ) )
-	dictionary[ "MAKE" ] = "nmake";
-    else
-	dictionary[ "MAKE" ] = "make";
-
     allModules = QStringList::split( ' ', "tools kernel widgets dialogs iconview workspace network canvas table xml opengl sql styles" );
     allSqlDrivers = QStringList::split( ' ', "mysql oci odbc psql" );
     allConfigs = QStringList::split( ' ', "minimal small medium large full" );
@@ -197,7 +192,7 @@ bool ConfigureApp::displayHelp()
 	cout << "-static             Build Qt as a static library." << endl;
 	cout << "-thread             Configure Qt with thread support." << endl;
 	cout << "-no-thread        * Configure Qt without thread support." << endl;
-	cout << "-platform           Specify a platform, uses %%QMAKEPATH%% as default." << endl;
+	cout << "-platform           Specify a platform, uses %QMAKEPATH% as default." << endl;
 	cout << "-qconfig            Specify config, available configs:" << endl;
 	for( QStringList::Iterator config = allConfigs.begin(); config != allConfigs.end(); ++config )
 	    cout << "                        " << (*config).latin1() << endl;
@@ -263,6 +258,21 @@ void ConfigureApp::generateOutputVars()
     if( !dictionary[ "QMAKEPATH" ].length() ) {
 	cout << "QMAKEPATH must either be defined as an environment variable, or specified" << endl;
 	cout << "as an argument with -platform" << endl;
+	dictionary[ "HELP" ] = "yes";
+
+	QStringList winPlatforms;
+	QDir mkspecsDir( qtDir + "\\mkspecs" );
+	const QFileInfoList* specsList = mkspecsDir.entryInfoList();
+	QFileInfoListIterator it( *specsList );
+	QFileInfo* fi;
+
+	while( ( fi = it.current() ) ) {
+	    if( fi->fileName().left( 5 ) == "win32" ) {
+		winPlatforms += fi->fileName();
+	    }
+	    ++it;
+	}
+	cout << "Available platforms are: " << winPlatforms.join( ", " ).latin1() << endl;
     }
 }
 
@@ -294,7 +304,7 @@ void ConfigureApp::generateCachefile()
 	    cacheStream << (*var) << endl;
 	}
 	cacheStream << "CONFIG=" << srcConfig.join( " " ) << endl;
-	cacheStream << "MKSPEC=" << dictionary[ "TRG_MKSPEC" ] << endl;
+	cacheStream << "QMAKEPATH=" << dictionary[ "QMAKEPATH" ] << endl;
 	cacheFile.close();
     }
 }
@@ -313,6 +323,11 @@ void ConfigureApp::displayConfig()
 void ConfigureApp::buildQmake()
 {
     if( dictionary[ "BUILD_QMAKE" ] == "yes" ) {
+	if( dictionary[ "QMAKEPATH" ] == QString( "win32-msvc" ) )
+	    dictionary[ "MAKE" ] = "nmake";
+	else
+	    dictionary[ "MAKE" ] = "make";
+
 	// Build qmake
 	cout << "Creating qmake..." << endl;
 	qmakeBuilder.setWorkingDirectory( qtDir + "/qmake" );

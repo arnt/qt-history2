@@ -11,17 +11,19 @@ int main( int argc, char** argv )
 
     app.parseCmdLine();
     app.validateArgs();
+    app.generateOutputVars();
     if( app.displayHelp() )
 	return 0;
-    app.generateOutputVars();
-    app.generateCachefile();
-    app.copyDefsFile();
-    app.displayConfig();
-    app.buildQmake();
+    else {
+	app.generateCachefile();
+	app.copyDefsFile();
+	app.displayConfig();
+	app.buildQmake();
 
-    app.exec();
+	app.exec();
 
-    app.showSummary();
+	app.showSummary();
+    }
 
     return 0;
 }
