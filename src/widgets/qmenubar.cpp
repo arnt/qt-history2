@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#34 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#35 $
 **
 ** Implementation of QMenuBar class
 **
@@ -18,7 +18,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#34 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenubar.cpp#35 $";
 #endif
 
 /*! \class QMenuBar qmenubar.h
@@ -66,13 +66,13 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 {
     initMetaObject();
     isMenuBar = TRUE;
-    setFrameStyle( QFrame::Panel | QFrame::Raised );
-    setLineWidth( motifBarFrame );
     autoaccel = 0;
-    irects = 0;
+    irects    = 0;
     if ( parent )				// filter parent events
 	parent->installEventFilter( this );
     move( 0, 0 );
+    setFrameStyle( QFrame::Panel | QFrame::Raised );
+    setLineWidth( motifBarFrame );
 }
 
 QMenuBar::~QMenuBar()

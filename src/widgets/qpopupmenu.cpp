@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#39 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#40 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#39 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#40 $";
 #endif
 
 
@@ -110,15 +110,15 @@ QPopupMenu::QPopupMenu( QWidget *, const char *name )
 {
     initMetaObject();
     isPopup = TRUE;
+    autoaccel	  = 0;
+    accelDisabled = FALSE;
+    popupActive	  = -1;
+    tabMark	  = 0;
     setNumCols( 1 );				// set number of table columns
     setNumRows( 0 );				// set number of table rows
     clearTableFlags( Tbl_clipCellPainting );	// don't clip when painting tbl
     setFrameStyle( QFrame::Panel | QFrame::Raised );
     setLineWidth( motifPopupFrame );
-    autoaccel	  = 0;
-    accelDisabled = FALSE;
-    popupActive	  = -1;
-    tabMark	  = 0;
 }
 
 /*!
