@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#65 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#66 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#65 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#66 $";
 #endif
 
 
@@ -347,6 +347,7 @@ void QWidget::setBackgroundPixmap( const QPixmap &pm )
 	XSetWindowBackgroundPixmap( dpy, ident, pm.handle() );
 	if ( testFlag(WType_Desktop) )		// save rootinfo later
 	    qt_updated_rootinfo();
+	update();
     }
 }
 
