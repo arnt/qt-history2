@@ -386,7 +386,7 @@ QString QSimpleRichText::anchorAt( const QPoint& pos ) const
     if ( d->cachedWidth < 0 )
 	d->adjustSize();
     QTextCursor c( d->doc );
-    c.place( pos, d->doc->firstParag() );
+    c.place( pos, d->doc->firstParag(), TRUE );
     return c.parag()->at( c.index() )->anchorHref();
 }
 
