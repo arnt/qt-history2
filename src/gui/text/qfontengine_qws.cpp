@@ -13,15 +13,12 @@
 
 #include "qfontengine_p.h"
 #include <private/qunicodetables_p.h>
-#include <qgfxraster_qws.h>
+#include <qwsdisplay_qws.h>
 #include <qvarlengtharray.h>
 #include <private/qpainter_p.h>
 #include "qpaintengine_qws.h"
 #include "qtextengine_p.h"
 #include "qopentype_p.h"
-
-#define GFX(p) static_cast<QWSPaintEngine *>(p)->gfx()
-#include "qgfx_qws.h"
 
 FT_Library QFontEngineFT::ft_library = 0;
 
@@ -168,6 +165,27 @@ void QFontEngineFT::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int
         p->painterState()->painter->map(x, y, &x, &y);
 
     if (textFlags) {
+        int lw = int(lineThickness());
+
+        //### abuse of updatePen()/updateBrush()
+        //### do we need a QPaintEngine::fillRect() ???
+
+        p->updateBrush(p->painterState()->pen.color(), QPoint(0,0));
+        p->updatePen(Qt::NoPen);
+
+        if (textFlags & Qt::TextUnderline)
+            p->drawRect(QRect(x, y+int(underlinePosition()), si.width, lw));
+        if (textFlags & Qt::TextStrikeOut)
+            p->drawRect(QRect(x, y-int(ascent())/3, si.width, lw));
+        if (textFlags & Qt::TextOverline)
+            p->drawRect(QRect(x, y-int(ascent())-1, si.width, lw));
+
+        p->updateBrush(p->painterState()->brush, p->painterState()->bgOrigin);
+        p->updatePen(p->painterState()->pen);
+    }
+
+#if 0 // old code
+    if (textFlags) {
         int lw = qRound(lineThickness());
         GFX(p)->setBrush(p->painterState()->pen.color());
         if (textFlags & Qt::TextUnderline)
@@ -179,6 +197,7 @@ void QFontEngineFT::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int
         GFX(p)->setBrush(p->painterState()->brush);
     }
 
+#endif
     QGlyphLayout *glyphs = si.glyphs;
 
 #ifdef DEBUG_LOCKS
@@ -186,6 +205,7 @@ void QFontEngineFT::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int
 #endif
 
 #if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
+//######## verify that we really need this!!!
     QWSDisplay::grab(); // we need it later, and grab-must-precede-lock
 #endif
 
@@ -193,8 +213,7 @@ void QFontEngineFT::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int
     qDebug("unaccelerated drawText lock");
 #endif
 
-    QGfx *gfx = GFX(p);
-    gfx->setSourcePen();
+    QWSPaintEngine *qpe = static_cast<QWSPaintEngine*>(p);
 
     if (si.right_to_left)
         glyphs += si.num_glyphs - 1;
@@ -203,13 +222,11 @@ void QFontEngineFT::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int
         const QGlyph *glyph = rendered_glyphs[g->glyph];
         Q_ASSERT(glyph);
         int myw = glyph->width;
-        gfx->setAlphaType(glyph->mono ? QGfx::BigEndianMask : QGfx::SeparateAlpha);
-        gfx->setAlphaSource(glyph->data, glyph->pitch);
         int myx = x + qRound(g->offset.x() + glyph->bearingx);
         int myy = y + qRound(g->offset.y() - glyph->bearingy);
 
         if(glyph->width != 0 && glyph->height != 0 && glyph->pitch != 0)
-            gfx->blt(myx,myy,myw,glyph->height,0,0);
+            qpe->alphaPenBlt(glyph->data, glyph->pitch, glyph->mono, myx,myy,myw,glyph->height,0,0);
 
         x += qRound(g->advance.x());
     }
@@ -222,7 +239,6 @@ void QFontEngineFT::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int
 #if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
     QWSDisplay::ungrab();
 #endif
-    gfx->setAlphaType(QGfx::IgnoreAlpha);
 }
 
 glyph_metrics_t QFontEngineFT::boundingBox(const QGlyphLayout *glyphs, int numGlyphs)

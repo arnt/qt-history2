@@ -29,7 +29,6 @@
 #include "qcleanuphandler.h"
 
 #include "qwsdisplay_qws.h"
-#include "qgfx_qws.h"
 #include "qscreen_qws.h"
 #include "qwsmanager_qws.h"
 #include "qwsregionmanager_qws.h"
@@ -662,7 +661,7 @@ void QWidget::repaint(const QRegion& rgn)
     if (!testAttribute(Qt::WA_NoBackground) && !testAttribute(Qt::WA_NoSystemBackground)) {
         QPoint offset;
         QStack<QWidget*> parents;
-        QWidget *w = q;
+        QWidget *w = this;
         while (w->d->isBackgroundInherited()) {
             offset += w->pos();
             w = w->parentWidget();
@@ -670,29 +669,31 @@ void QWidget::repaint(const QRegion& rgn)
         }
 
 #ifndef QT_NO_PALETTE
-        QBrush bg = q->palette().brush(w->d->bg_role);
+        QBrush bg = palette().brush(w->d->bg_role);
 #else
         QBrush bg(red); //##########
 #endif
         QRect rr = rgn.boundingRect();
-        bool was_unclipped = q->testAttribute(Qt::WA_PaintUnclipped);
-        q->setAttribute(Qt::WA_PaintUnclipped, false);
-        QPainter p(q);
+        bool was_unclipped = testAttribute(Qt::WA_PaintUnclipped);
+        setAttribute(Qt::WA_PaintUnclipped, false);
+        QPainter p;
+        p.begin(this);
         if(was_unclipped)
-            q->setAttribute(Qt::WA_PaintUnclipped);
+            setAttribute(Qt::WA_PaintUnclipped);
         p.setClipRegion(rgn);
         if(bg.pixmap())
             p.drawTiledPixmap(rr,*bg.pixmap(), QPoint(rr.x()+(offset.x()%bg.pixmap()->width()),
                                                       rr.y()+(offset.y()%bg.pixmap()->height())));
         else
             p.fillRect(rr, bg.color());
+        p.end();
 
         if (!parents.isEmpty()) {
             w = parents.pop();
             for (;;) {
                 if (w->testAttribute(Qt::WA_ContentsPropagated)) {
-                    QPainter::setRedirected(w, q, offset);
-                    QRect rr = q->rect();
+                    QPainter::setRedirected(w, this, offset);
+                    QRect rr = rect();
                     rr.moveBy(offset);
                     QPaintEvent e(rr);
                     bool was_in_paint_event = w->testWState(Qt::WState_InPaintEvent);
@@ -1635,58 +1636,6 @@ void QWidget::clearMask()
     setMask(QRegion());
 }
 
-#if 1 //def QT_OLD_GFX
-/*!
-    \internal
-*/
-QGfx *QWidget::graphicsContext(bool /*clip_children*/) const
-{
-#ifdef QT_OLD_GFX
-    QGfx * qgfx_qws;
-    qgfx_qws=qwsDisplay()->screenGfx();
-
-    QPoint offset=mapToGlobal(QPoint(0,0));
-    QRegion r; // empty if not visible
-    if (isVisible() && topLevelWidget()->isVisible()) {
-        int rgnIdx = topLevelWidget()->data->alloc_region_index;
-        if (rgnIdx >= 0) {
-            r = clip_children ? paintableRegion() : allocatedRegion();
-            QRegion req;
-            bool changed = false;
-            QWSDisplay::grab();
-            const int *rgnRev = qwsDisplay()->regionManager()->revision(rgnIdx);
-            if (topLevelWidget()->data->alloc_region_revision != *rgnRev) {
-                // The TL region has changed, so we better make sure we're
-                // not writing to any regions we don't own anymore.
-                // We'll get a RegionModified event soon that will get our
-                // regions back in sync again.
-                req = qwsDisplay()->regionManager()->region(rgnIdx);
-                changed = true;
-            }
-            qgfx_qws->setGlobalRegionIndex(rgnIdx);
-            QWSDisplay::ungrab();
-            if (changed) {
-                r &= req;
-            }
-        }
-    }
-    qgfx_qws->setWidgetDeviceRegion(r);
-    qgfx_qws->setOffset(offset.x(),offset.y());
-    // Clip the window decoration for TL windows.
-    // It is possible for these windows to draw on the wm decoration if
-    // they change the clip region.  Bug or feature?
-#ifndef QT_NO_QWS_MANAGER
-    if (d->extra && d->extra->topextra && d->extra->topextra->qwsManager)
-        qgfx_qws->setClipRegion(rect());
-#endif
-
-    return qgfx_qws;
-
-#else
-    return 0; //###########
-#endif
-}
-#endif
 /*!
     \internal
 */

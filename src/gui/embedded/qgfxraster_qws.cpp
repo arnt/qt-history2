@@ -34,6 +34,40 @@ extern bool qws_sw_cursor;
 # endif
 #endif
 
+
+
+
+
+static QGfx * graphicsContext(QImage *img)
+{
+    QGfx * ret=0;
+    if(img->depth()) {
+        int w = qt_screen->mapToDevice(QSize(img->width(),img->height())).width();
+        int h = qt_screen->mapToDevice(QSize(img->width(),img->height())).height();
+        ret=QGfx::createGfx(img->depth(),img->bits(),w,h,img->bytesPerLine());
+    } else {
+        qDebug("Trying to create image for null depth");
+        return 0;
+    }
+    if(img->depth()<=8) {
+        QRgb * tmp=img->colorTable();
+        int nc=img->numColors();
+        if(tmp==0) {
+            static QRgb table[2] = { qRgb(255,255,255), qRgb(0,0,0) };
+            tmp=table;
+            nc=2;
+        }
+        ret->setClut(tmp,nc);
+    }
+    return ret;
+}
+
+
+
+
+
+
+
 // #define QT_QWS_REVERSE_BYTE_ENDIANNESS
 
 /*
@@ -180,7 +214,7 @@ void QScreenCursor::init(SWCursorData *da, bool init)
         for (int i = 0; i < cols; i++)
             imgunder->setColor(i, qt_screen->clut()[i]);
     }
-    gfxunder = (QGfxRasterBase*)imgunder->graphicsContext();
+    gfxunder = (QGfxRasterBase*)graphicsContext(imgunder);
 }
 
 /*!

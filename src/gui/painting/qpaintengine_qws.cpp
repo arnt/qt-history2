@@ -21,6 +21,7 @@
 
 #include "qpixmap.h"
 #include "qgfx_qws.h"
+#include "qscreen_qws.h"
 #include "qregion.h"
 #include "qbitmap.h"
 #include <private/qpaintengine_p.h>
@@ -119,10 +120,6 @@ QWSPaintEngine::~QWSPaintEngine()
 //        qDebug("QWSPaintEngine::~QWSPaintEngine");
 }
 
-QGfx *QWSPaintEngine::gfx()
-{
-    return d->gfx;
-}
 
 
 bool QWSPaintEngine::begin(QPaintDevice *pdev)
@@ -222,6 +219,54 @@ bool QWSPaintEngine::begin(QPaintDevice *pdev)
 
     return true;
 }
+
+
+
+bool QWSPaintEngine::begin(QImage *img)
+{
+    if (isActive()) {                         // already active painting
+        qWarning("QWSPaintEngine::begin: Painter is already active."
+                 "\n\tYou must end() the painter before a second begin()");
+        return true;
+    }
+
+    Q_ASSERT(d->gfx == 0);
+    d->pdev = 0;
+
+    if(!img->depth()) {
+        qWarning("Trying to create image for null depth");
+        return 0;
+    }
+
+    QSize s = qt_screen->mapToDevice(QSize(img->width(),img->height()));
+    d->gfx = QGfx::createGfx(img->depth(), img->bits(), s.width(), s.height() ,img->bytesPerLine());
+    if(img->depth()<=8) {
+        QRgb * tmp=img->colorTable();
+        int nc=img->numColors();
+        if(tmp==0) {
+            static QRgb table[2] = { qRgb(255,255,255), qRgb(0,0,0) };
+            tmp=table;
+            nc=2;
+        }
+        d->gfx->setClut(tmp,nc);
+    }
+
+//    qDebug("QWSPaintEngine::begin(QImage*) %p gfx %p", this, d->gfx);
+    setActive(true);
+
+    // ### SHould be done by QPainter..
+//     updatePen(ps);
+//     updateBrush(ps);
+//     updateClipRegion(ps);
+
+    return true;
+
+
+
+}
+
+
+
 bool QWSPaintEngine::end(){
     setActive(false);
 //    qDebug("QWSPaintEngine::end %p (gfx %p)", this, d->gfx);
@@ -312,7 +357,7 @@ void QWSPaintEngine::drawRect(const QRect &r)
     //############ gfx->setBrushOffset(x-bro.x(), y-bro.y());
 
     int x1, y1, w, h;
-    r.rect(&x1, &y1, &w, &h);
+    r.getRect(&x1, &y1, &w, &h);
 
     if (state->pen.style() != Qt::NoPen) {
         if (state->pen.width() > 1) {
@@ -380,7 +425,7 @@ void QWSPaintEngine::drawPolyInternal(const QPointArray &a, bool close)
 void QWSPaintEngine::drawEllipse(const QRect &r)
 {
     int x, y, w, h;
-    r.rect(&x, &y, &w, &h);
+    r.getRect(&x, &y, &w, &h);
 
     QPointArray a;
 // #ifndef QT_NO_TRANSFORMATIONS
@@ -431,8 +476,8 @@ void QWSPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRe
     //(int x, int y, const QPixmap &pixmap, int sx, int sy, int sw, int sh)
 {
     int x,y,w,h,sx,sy,sw,sh;
-    r.rect(&x, &y, &w, &h);
-    sr.rect(&sx, &sy, &sw, &sh);
+    r.getRect(&x, &y, &w, &h);
+    sr.getRect(&sx, &sy, &sw, &sh);
 
     if ((w != sw || h != sh) && (sx != 0) && (sy != 0))
         qDebug("QWSPaintEngine::drawPixmap offset stretch notimplemented");
@@ -474,4 +519,56 @@ void QWSPaintEngine::cleanup(){
         qDebug("QWSPaintEngine::cleanup");
 }
 
+void QWSPaintEngine::setGlobalRegionIndex(int idx)
+{
+    d->gfx->setGlobalRegionIndex(idx);
+}
+
+void QWSPaintEngine::setWidgetDeviceRegion(const QRegion &r)
+{
+    d->gfx->setWidgetDeviceRegion(r);
+}
+
+void QWSPaintEngine::scroll(int rx,int ry,int w,int h,int sx, int sy)
+{
+    d->gfx->scroll(rx, ry, w, h,sx, sy);
+}
+
+void QWSPaintEngine::fillRect(int rx,int ry,int w,int h, const QBrush &b)
+{
+    //implement me...
+//    d->gfx->setBrush(b); //#### restore //#### brush patterns
+}
+
+
+
+void QWSPaintEngine::blt(const QPaintDevice &src, int rx,int ry,int w,int h, int sx, int sy)
+{
+    d->gfx->setSource(&src);
+    d->gfx->setAlphaType(QGfx::IgnoreAlpha);
+    d->gfx->blt(rx,ry,w,h,sx,sy);
+}
+
+void QWSPaintEngine::blt(const QImage &src, int rx,int ry,int w,int h, int sx, int sy)
+{
+    d->gfx->setSource(&src);
+    d->gfx->setAlphaType(QGfx::IgnoreAlpha);
+    d->gfx->blt(rx,ry,w,h,sx,sy);
+}
+
+void QWSPaintEngine::stretchBlt(const QPaintDevice &src, int rx,int ry,int w,int h, int sw,int sh)
+{
+    d->gfx->setSource(&src);
+    d->gfx->setAlphaType(QGfx::IgnoreAlpha);
+    d->gfx->stretchBlt(rx,ry,w,h,sw,sh);
+}
+
+void QWSPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx,int ry,int w,int h, int sx, int sy)
+{
+    d->gfx->setSourcePen(); //### optimization: do this outside the loop...
+    d->gfx->setAlphaType(mono ? QGfx::BigEndianMask : QGfx::SeparateAlpha);
+    d->gfx->setAlphaSource((uchar*)src, bpl);
+    d->gfx->blt(rx,ry,w,h,sx,sy);
+    d->gfx->setAlphaType(QGfx::IgnoreAlpha); //### outside the loop ?
+}
 

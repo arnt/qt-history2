@@ -20,7 +20,6 @@
 #include "qstring.h" // char*->QString conversion
 #include "qimage.h"
 
-class QGfx;
 class QPixmapPrivate;
 
 #if defined(Q_WS_WIN)
@@ -135,9 +134,6 @@ public:
 #endif
 
 #if defined(Q_WS_QWS)
-#if 1//def QT_OLD_GFX
-    virtual QGfx * graphicsContext(bool clip_children=true) const;
-#endif
     virtual unsigned char * scanLine(int) const;
     virtual int bytesPerLine() const;
     QRgb *clut() const;

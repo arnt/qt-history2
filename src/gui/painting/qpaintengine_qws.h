@@ -17,7 +17,6 @@
 #include "qatomic.h"
 #include "qpaintengine.h"
 
-class QGfx;
 struct QWSPaintEngineData;
 class QWSPaintEnginePrivate;
 class QPainterState;
@@ -32,6 +31,7 @@ public:
     ~QWSPaintEngine();
 
     bool begin(QPaintDevice *pdev);
+    bool begin(QImage *img);
     bool end();
 
     void updatePen(const QPen &pen);
@@ -58,7 +58,20 @@ public:
     static void cleanup();
 
 
-    QGfx *gfx();
+    //#### QGfx/QGfxRaster methods moved directly. Should clean up API.
+#if 1
+    void setGlobalRegionIndex(int idx);
+    void setWidgetDeviceRegion(const QRegion &);
+
+    void scroll(int rx,int ry,int w,int h,int sx, int sy);
+
+    void fillRect(int rx,int ry,int w,int h, const QBrush &b);
+
+     void blt(const QPaintDevice &src, int rx,int ry,int w,int h, int sx, int sy);
+     void blt(const QImage &src, int rx,int ry,int w,int h, int sx, int sy);
+     void stretchBlt(const QPaintDevice &src, int rx,int ry,int w,int h, int sw,int sh);
+    void alphaPenBlt(const void* src, int bpl, bool mono, int rx,int ry,int w,int h, int sx, int sy);
+#endif
 
 protected:
     QWSPaintEngine(QPaintEnginePrivate &dptr);

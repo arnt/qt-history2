@@ -25,7 +25,6 @@
 #include "qregion.h"
 #include "qevent.h"
 #include "qcursor.h"
-#include "qgfx_qws.h"
 #include "qwsdisplay_qws.h"
 #include "qwsregionmanager_qws.h"
 #include "qevent.h"
@@ -395,7 +394,7 @@ void QWSManager::paintEvent(QPaintEvent *)
     QRegion r = d->managed->d->topData()->decor_allocated_region;
     int rgnIdx = d->managed->data->alloc_region_index;
 
-    QGfx *gfx = static_cast<QWSPaintEngine *>(painter.d->engine)->gfx();
+    QWSPaintEngine *pe = static_cast<QWSPaintEngine *>(painter.d->engine);
     if (rgnIdx >= 0) {
         QRegion newRegion;
         bool changed = false;
@@ -405,13 +404,13 @@ void QWSManager::paintEvent(QPaintEvent *)
              newRegion = qt_fbdpy->regionManager()->region(rgnIdx);
              changed = true;
         }
-        gfx->setGlobalRegionIndex(rgnIdx);
+        pe->setGlobalRegionIndex(rgnIdx);
         QWSDisplay::ungrab();
         if (changed) {
             r &= newRegion;
         }
     }
-    gfx->setWidgetDeviceRegion(r);
+    pe->setWidgetDeviceRegion(r);
 
     painter.setClipRegion(dec.region(d->managed, d->managed->rect()));
     dec.paint(&painter, d->managed);

@@ -14,12 +14,10 @@
 #include "qpaintdevice.h"
 #include "qpainter.h"
 #include "qpaintdevicemetrics.h"
-//#include "qimagepaintdevice.h"
 #include "qwidget.h"
 #include "qbitmap.h"
 #include "qapplication.h"
 #include "qwsdisplay_qws.h"
-#include "qgfx_qws.h"
 
 //#### HACK:
 #include "private/qpainter_p.h"
@@ -84,17 +82,3 @@ int QPaintDevice::bytesPerLine() const
 {
     return 0;
 }
-
-
-#if 1//def QT_OLD_GFX
-// We should maybe return an extended-device Gfx by default here
-// at the moment, it appears to return 0.
-/*!
-    \internal
-*/
-QGfx * QPaintDevice::graphicsContext(bool) const
-{
-    //qFatal("QGfx requested for QPaintDevice");
-    return 0;
-}
-#endif

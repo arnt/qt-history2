@@ -21,7 +21,6 @@
 #include "qapplication.h"
 #include "qpainter.h"
 #include "qwsdisplay_qws.h"
-#include "qgfx_qws.h"
 #include "qscreen_qws.h"
 #include "qhash.h"
 #include <stdlib.h>
@@ -451,16 +450,14 @@ QImage QPixmap::convertToImage() const
         else
             image.create(w,h,d,0, mono ? QImage::LittleEndian : QImage::IgnoreEndian);//####### endianness
 
-        QGfx * mygfx=image.graphicsContext();
-        if(mygfx) {
-            mygfx->setSource(this);
-            mygfx->setAlphaType(QGfx::IgnoreAlpha);
-            mygfx->setLineStep(image.bytesPerLine());
-            mygfx->blt(0,0,width(),height(),0,0);
+        QWSPaintEngine *engine=image.paintEngine();
+        if(engine) {
+            engine->begin(&image);
+            engine->blt(*this,0,0,width(),height(),0,0);
+            engine->end();
         } else {
-            qWarning("No image gfx for convertToImage!");
+            qWarning("No image paintengine for convertToImage!");
         }
-        delete mygfx;
         image.setAlphaBuffer(data->hasAlpha);
     }
 
@@ -647,15 +644,9 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
     deref();
     init(w, h, dd, ibm, optim);
 
-    //##### HACK to get to the gfx #####
-    QPaintEngine *p = paintEngine();
+    QWSPaintEngine *p = static_cast<QWSPaintEngine*>(paintEngine());
     p->begin(this);
-    QGfx * mygfx=static_cast<QWSPaintEngine*>(p)->gfx();
-    if (mygfx) {
-        mygfx->setAlphaType(QGfx::IgnoreAlpha);
-        mygfx->setSource(&rimg);
-        mygfx->blt(0,0,data->w,data->h,0,0);
-    }
+    p->blt(rimg, 0,0,data->w,data->h,0,0);
     p->end();
     if (image.hasAlphaBuffer()) {
 #ifndef QT_NO_IMAGE_DITHER_TO_1
@@ -681,9 +672,7 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
     Q_UNUSED(w);
     Q_UNUSED(h);
 
-    //#############################
     QPixmap pm;
-#ifdef QT_OLD_GFX
 
     QWidget *widget = QWidget::find(window);
     if (widget) {
@@ -696,17 +685,13 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
                 h = widget->height() - y;
         }
         pm.resize(w, h);
-        QGfx *gfx=pm.graphicsContext();
-        if (gfx) {
-            gfx->setAlphaType(QGfx::IgnoreAlpha);
-            gfx->setSource(widget);
-            gfx->blt(0,0,w,h,x,y);
-            delete gfx;
+        QWSPaintEngine *pe=static_cast<QWSPaintEngine*>(pm.paintEngine());
+        if (pe) {
+            pe->begin(&pm);
+            pe->blt(*widget,0,0,w,h,x,y);
+            pe->end();
         }
     }
-#else
-#warning "QPixmap::grabWindow"
-#endif
     return pm;
 }
 
@@ -731,8 +716,6 @@ QPixmap QPixmap::xForm(const QMatrix &matrix) const
 
     QMatrix mat(matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), 0., 0.);
 
-//#######################################
-#ifdef QT_OLD_GFX
     if (matrix.m12() == 0.0F && matrix.m21() == 0.0F) {
         if (matrix.m11() == 1.0F && matrix.m22() == 1.0F)
             return *this;                        // identity matrix
@@ -747,12 +730,11 @@ QPixmap QPixmap::xForm(const QMatrix &matrix) const
                  return *this;
 
              QPixmap pm(w, h, depth(), NormalOptim);
-             QGfx * mygfx=pm.graphicsContext();
-             if (mygfx) {
-                 mygfx->setSource(this);
-                 mygfx->setAlphaType(QGfx::IgnoreAlpha);
-                 mygfx->stretchBlt(0,0,w,h,ws,hs);
-                 delete mygfx;
+             QWSPaintEngine *pe=static_cast<QWSPaintEngine*>(pm.paintEngine());
+             if (pe) {
+                 pe->begin(&pm);
+                 pe->stretchBlt(*this,0,0,w,h,ws,hs);
+                 pe->end();
              }
              if (data->mask) {
                  QBitmap bm =
@@ -763,11 +745,7 @@ QPixmap QPixmap::xForm(const QMatrix &matrix) const
              pm.data->hasAlpha = data->hasAlpha;
              return pm;
          }
-    } else
-#else
-#warning "QPixmap::xForm"
-#endif
-    {                                        // rotation or shearing
+    } else {                                        // rotation or shearing
         QPointArray a(QRect(0,0,ws+1,hs+1));
         a = mat.map(a);
         QRect r = a.boundingRect().normalize();
@@ -858,40 +836,6 @@ QPixmap QPixmap::xForm(const QMatrix &matrix) const
 }
 #endif // QT_NO_PIXMAP_TRANSFORMATION
 
-// CALLER DELETES
-/*!
-    \internal
-*/
-#if 1//def QT_OLD_GFX
-QGfx * QPixmap::graphicsContext(bool) const
-{
-#ifdef QT_OLD_GFX
-    if(isNull()) {
-        qDebug("Can't make QGfx for null pixmap\n");
-        return 0;
-    }
-    uchar * mydata;
-    int xoffset,linestep;
-    memorymanager->findPixmap(data->id,data->rw,data->d,&mydata,&xoffset,&linestep);
-
-    QGfx * ret=QGfx::createGfx(depth(), mydata, data->w,data->h, linestep);
-    if(data->d<=8) {
-        if(data->d==1 && !(data->clut)) {
-            data->clut=new QRgb[2];
-            data->clut[0]=qRgb(255,255,255);
-            data->clut[1]=qRgb(0,0,0);
-            data->numcols = 2;
-        }
-        if (data->numcols)
-            ret->setClut(data->clut,data->numcols);
-    }
-    return ret;
-#else
-    qWarning("QPixmap::graphicsContext");
-    return 0; //####
-#endif
-}
-#endif
 /*!
     \internal
 */

@@ -21,7 +21,6 @@
 
 #if defined(Q_WS_QWS)
 class QWSDisplay;
-class QGfx;
 #endif
 
 class QPaintEngine;
@@ -40,9 +39,6 @@ public:
     static QWSDisplay *qwsDisplay();
     virtual unsigned char * scanLine(int) const;
     virtual int bytesPerLine() const;
-#if 1//def QT_OLD_GFX
-    virtual QGfx * graphicsContext(bool clip_children=true) const;
-#endif
 #endif
 
 protected:

@@ -35,7 +35,7 @@
 #include "qdragobject.h"
 
 #ifdef Q_WS_QWS
-#include "qgfx_qws.h"
+#include "qpaintengine_qws.h"
 #include "qscreen_qws.h"
 #endif
 
@@ -6281,31 +6281,18 @@ QImage::Endian qX11BitmapBitOrder()
 
 #ifdef Q_WS_QWS
 /*!
-    \internal
+\internal
+
+####### Caller deletes!!!
+
+
+Should be removed when image and pixmap are unified
 */
-QGfx * QImage::graphicsContext()
+QWSPaintEngine *QImage::paintEngine()
 {
-    QGfx * ret=0;
-    if(depth()) {
-        int w = qt_screen->mapToDevice(QSize(width(),height())).width();
-        int h = qt_screen->mapToDevice(QSize(width(),height())).height();
-        ret=QGfx::createGfx(depth(),bits(),w,h,bytesPerLine());
-    } else {
-        qDebug("Trying to create image for null depth");
-        return 0;
-    }
-    if(depth()<=8) {
-        QRgb * tmp=colorTable();
-        int nc=numColors();
-        if(tmp==0) {
-            static QRgb table[2] = { qRgb(255,255,255), qRgb(0,0,0) };
-            tmp=table;
-            nc=2;
-        }
-        ret->setClut(tmp,nc);
-    }
-    return ret;
+    return new QWSPaintEngine();
 }
+
 
 #endif
 

@@ -28,7 +28,7 @@ class QStringList;
 class QMatrix;
 template <class T> class QList;
 #ifdef Q_WS_QWS
-class QGfx;
+class QWSPaintEngine;
 #endif
 
 class QImageDataMisc; // internal
@@ -110,9 +110,7 @@ public:
     int bytesPerLine() const;
 
 #ifdef Q_WS_QWS
-//#ifdef QT_OLD_GFX
-    QGfx *graphicsContext();
-//#endif
+    QWSPaintEngine *paintEngine();
 #endif
 
     bool create(int width, int height, int depth, int numColors=0,

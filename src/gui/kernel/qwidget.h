@@ -459,9 +459,7 @@ public:
     inline QWidget *childAt(const QPoint &p) const
     { return childAt(p.x(), p.y()); }
 
-#if defined(Q_WS_QWS) //&& defined(QT_OLD_GFX)
-    virtual QGfx *graphicsContext(bool clip_children=true) const;
-#elif defined(Q_WS_X11)
+#if defined(Q_WS_X11)
     const QX11Info &x11Info() const;
     Qt::HANDLE xftPictureHandle() const;
     Qt::HANDLE xftDrawHandle() const;

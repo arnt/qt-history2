@@ -134,7 +134,6 @@ Q_GUI_EXPORT const char *qAppClass();                // get application class
 
 typedef unsigned long  WId;
 struct QWSEvent;
-class QGfx;
 
 #endif // Q_WS_QWS
 
