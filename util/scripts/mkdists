@@ -315,6 +315,7 @@ rm -rf $DISTDIR/qt/tools/designer/plugins/designer_interface_roadmap
 rm -rf $DISTDIR/qt/tools/designer/plugins/extrawidgets
 rm -rf $DISTDIR/qt/tools/designer/plugins/p4
 rm -rf $DISTDIR/qt/tools/designer/plugins/qvim
+rm -rf $DISTDIR/qt/tools/designer/plugins/glade
 # clean tools
 rm -rf $DISTDIR/qt/tools/inspector
 
