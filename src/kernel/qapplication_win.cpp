@@ -1107,7 +1107,7 @@ void QApplication::setMainWidget( QWidget *mainWidget )
 {
     main_widget = mainWidget;			// set main widget
 #if defined (QT_TABLET_SUPPORT )
-    if ( ptrWTOpen ) {
+    if ( ptrWTOpen && main_widget ) {
 	hTab = ptrWTOpen( main_widget->winId(), &lcMine, TRUE );
 #if defined (QT_CHECK_STATE)
 	if ( hTab == NULL )
