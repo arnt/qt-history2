@@ -67,6 +67,79 @@ private:
     int selend;
 };
 
+static QString		lDateSep;
+static QString		lTimeSep;
+static QDateEdit::Order	lOrder = QDateEdit::YMD;
+
+/*!
+\internal
+try to get the order of DMY and the date/time separator from the locale settings
+*/
+static void readLocaleSettings()
+{
+    int dpos, mpos, ypos;
+    lDateSep = "-";
+    lTimeSep = ":";
+    QString d = QDate( 1999, 11, 22 ).toString( Qt::LocalDate );
+    dpos = d.find( "22" );
+    mpos = d.find( "11" );
+    ypos = d.find( "99" );
+    if ( dpos > -1 && mpos > -1 && ypos > -1 ) {
+	// test for DMY, MDY, YMD, YDM
+	if ( dpos < mpos && mpos < ypos ) {
+	    lOrder = QDateEdit::DMY;
+	} else if ( mpos < dpos && dpos < ypos ) {
+	    lOrder = QDateEdit::MDY;
+	} else if ( ypos < mpos && mpos < dpos ) {
+	    lOrder = QDateEdit::YMD;
+	} else if ( ypos < dpos && dpos < mpos ) {
+	    lOrder = QDateEdit::YDM;
+	} else {
+	    // cannot determine the dateformat - use the default
+	    return;
+	}
+
+	// this code needs to change if new formats are added
+	QString sep = d.mid( QMIN( dpos, mpos ) + 2, abs( dpos - mpos ) - 2 );
+	if ( d.contains( sep ) == 2 ) {
+	    lDateSep = sep;
+	}
+    }
+
+    QString t = QTime( 11, 22, 33 ).toString( Qt::LocalDate );
+    dpos = t.find( "11" );
+    mpos = t.find( "22" );
+    ypos = t.find( "33" );
+    // We only allow hhmmss
+    if ( dpos > -1 && dpos < mpos && mpos < ypos ) {
+	QString sep = t.mid( dpos + 2, mpos - dpos - 2 );
+	if ( sep == t.mid( mpos + 2, ypos - mpos - 2 ) ) {
+	    lTimeSep = sep;
+	}
+    }
+}
+
+static QDateEdit::Order localOrder() {
+    if ( lDateSep.isEmpty() ) {
+	readLocaleSettings();
+    }
+    return lOrder;
+}
+
+static QString localDateSep() {
+    if ( lDateSep.isEmpty() ) {
+	readLocaleSettings();
+    }
+    return lDateSep;
+}
+
+static QString localTimeSep() {
+    if ( lTimeSep.isEmpty() ) {
+	readLocaleSettings();
+    }
+    return lTimeSep;
+}
+
 class QDateTimeEditorPrivate
 {
 public:
@@ -74,14 +147,14 @@ public:
 	: frm( TRUE ),
 	  parag( new QTextParag( 0, 0, 0, FALSE ) ),
 	  pm(0),
-	  focusSec(0),
-	  sep("-")
+	  focusSec(0)
     {
 	parag->formatter()->setWrapEnabled( FALSE );
 	cursor = new QTextCursor( 0 );
 	cursor->setParag( parag );
 	pm = new QPixmap;
 	offset = 0;
+	sep = localDateSep();
     }
     ~QDateTimeEditorPrivate()
     {
@@ -586,7 +659,8 @@ public:
   QDateEdit allows the user to edit dates by using the keyboard or the
   arrow keys to increase/decrease date values. The arrow keys can be
   used to move from section to section within the QDateEdit box. Dates
-  appear in year, month, day order by default. It is recommended that
+  appear according the local date/time settings or in year, month, day
+  order if the system doesn't provide this information. It is recommended that
   the QDateEdit be initialised with a date, e.g.
 
     \code
@@ -610,7 +684,9 @@ public:
 
   Terminology: A QDateEdit widget comprises three 'sections', one each
   for the year, month and day. You can change the separator character
-  using QDateTimeEditor::setSeparator().
+  using QDateTimeEditor::setSeparator(), by default the separator will
+  be taken from the systems settings. If that is impossible, it defaults
+  to "-".
 
   \sa QDate QTimeEdit QDateTimeEdit
 */
@@ -678,7 +754,7 @@ void QDateEdit::init()
     d->y = 0;
     d->m = 0;
     d->d = 0;
-    setOrder( YMD );
+    setOrder( localOrder() );
     setFocusSection( 0 );
     d->overwrite = TRUE;
     d->adv = FALSE;
@@ -742,6 +818,26 @@ void QDateEdit::setRange( const QDate& min, const QDate& max )
     if ( max.isValid() )
 	d->max = max;
 }
+
+/*! Sets the separator to \a s.  Note that
+  currently only the first character of \a s is used.
+
+*/
+
+void QDateEdit::setSeparator( const QString& s )
+{
+    d->ed->setSeparator( s );
+}
+
+/*! Returns the separator for the editor.
+
+*/
+
+QString QDateEdit::separator() const
+{
+    return d->ed->separator();
+}
+
 
 /*!
   Enables/disables the push buttons according to the min/max date for
@@ -1417,7 +1513,7 @@ public:
 
   Terminology: A QTimeWidget consists of three sections, one each for the
   hour, minute and second. You can change the separator character using
-  QDateTimeEditor::setSeparator().
+  setSeparator(), by default the separator is read from the system's settings.
 
   \sa QTime QDateEdit QDateTimeEdit
 
@@ -1469,7 +1565,7 @@ void QTimeEdit::init()
     d->ed->appendSection( QNumberSection( 0,0 ) );
     d->ed->appendSection( QNumberSection( 0,0 ) );
     d->ed->appendSection( QNumberSection( 0,0 ) );
-    d->ed->setSeparator( ":" );
+    d->ed->setSeparator( localTimeSep() );
 
     d->h = 0;
     d->m = 0;
@@ -1590,6 +1686,25 @@ void QTimeEdit::setAutoAdvance( bool advance )
 bool QTimeEdit::autoAdvance() const
 {
     return d->adv;
+}
+
+/*! Sets the separator to \a s.  Note that
+  currently only the first character of \a s is used.
+
+*/
+
+void QTimeEdit::setSeparator( const QString& s )
+{
+    d->ed->setSeparator( s );
+}
+
+/*! Returns the separator for the editor.
+
+*/
+
+QString QTimeEdit::separator() const
+{
+    return d->ed->separator();
 }
 
 
@@ -2009,9 +2124,10 @@ public:
   user can be moved automatically when they complete a section using
   setAutoAdvance(). The datetime can be set with setDateTime().
 
-  Dates appear in year, month, day order by default, see
-  QDate::setOrder() to change this. Times appear in the order hours,
-  minutes, seconds using the 24 hour clock.
+  The dateformat is read from the system's locale settings. It is set to
+  year, month, day order if that is not possible. see QDateEdit::setOrder()
+  to change this. Times appear in the order hours, minutes, seconds
+  using the 24 hour clock.
 
   It is recommended that the QDateTimeEdit is initialised with a
   datetime, e.g.

@@ -107,6 +107,8 @@ public:
     virtual void setMaxValue( const QDate& d ) { setRange( minValue(), d ); }
     QDate maxValue() const;
     virtual void setRange( const QDate& min, const QDate& max );
+    QString separator() const;
+    virtual void setSeparator( const QString& s );
 
 signals:
     void valueChanged( const QDate& date );
@@ -165,6 +167,8 @@ public:
     virtual void setMaxValue( const QTime& d ) { setRange( minValue(), d ); }
     QTime maxValue() const;
     virtual void setRange( const QTime& min, const QTime& max );
+    QString separator() const;
+    virtual void setSeparator( const QString& s );
 
 signals:
     void valueChanged( const QTime& time );
