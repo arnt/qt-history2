@@ -2513,7 +2513,10 @@ irix-cc*)
 	QMAKE_VARS="$QMAKE_VARS \"QMAKE_CXXFLAGS+=-LANG:libc_in_namespace_std=off\""
     fi
     ;;
-*) ;;
+*)
+    IRIX_VERSION=-1
+    MIPSPRO_MINOR_VERSION=-1
+    ;;
 esac
 
 # -----------------------------------------------------------------------------
@@ -2600,7 +2603,7 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
 		EXTRA_CFLAGS="$EXTRA_CFLAGS -D${DEF}"
 	    done
         fi
-	if [ "!" -z "$IRIX_VERSION" -a "$MIPSPRO_MINOR_VERSION" -gt "3" \
+	if [ "$MIPSPRO_MINOR_VERSION" -gt "3" \
 	      -a "$IRIX_VERSION" -ge "18" -a "$IRIX_VERSION" -lt "21" ]; then
 	    EXTRA_CFLAGS="$EXTRA_CFLAGS -LANG:libc_in_namespace_std=off"
 	fi
