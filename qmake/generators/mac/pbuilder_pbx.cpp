@@ -1016,9 +1016,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    t << "\t\t\t\t" << "LIBRARY_STYLE = DYNAMIC;" << "\n";
 	}
 	QString lib = project->first("QMAKE_ORIG_TARGET");
-	if (!project->isActiveConfig("frameworklib")) {
+	if (!project->isActiveConfig("frameworklib") && !project->isActiveConfig("staticlib"))
 	    lib.prepend("lib");
-	}
 	t << "\t\t\t\t" << "PRODUCT_NAME = " << lib << ";" << "\n";
     }
     tmp = project->variables()["QMAKE_PBX_VARS"];
@@ -1080,13 +1079,15 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << "\t\t\t" << "productName = " << project->first("QMAKE_ORIG_TARGET") << ";" << "\n";
     } else {
 	QString lib = project->first("QMAKE_ORIG_TARGET");
-	if(!project->isActiveConfig("frameworklib"))
+	if(!project->isActiveConfig("frameworklib") && !project->isActiveConfig("staticlib"))
 	   lib.prepend("lib");
 	t << "\t\t\t" << "name = \"" << lib << "\";" << "\n"
 	  << "\t\t\t" << "productName = " << lib << ";" << "\n";
 	if(ideType() == MAC_XCODE) {
-	    t << "\t\t\t" << "productType = \"com.apple.product-type.library.dynamic\";" << "\n";
-	    //t << "\t\t\t" << "productType = \"com.apple.product-type.library.static\";" << "\n";
+	    if(project->isActiveConfig("staticlib"))
+		t << "\t\t\t" << "productType = \"com.apple.product-type.library.static\";" << "\n";
+	    else
+		t << "\t\t\t" << "productType = \"com.apple.product-type.library.dynamic\";" << "\n";
 	} else {
 	    t << "\t\t\t" << "isa = PBXLibraryTarget;" << "\n";
 	}
