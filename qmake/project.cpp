@@ -947,6 +947,7 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
 	    fprintf(stderr, "#switching file %s(%s) - %s:%d\n", func.latin1(), file.latin1(),
 		    parser.file.latin1(), parser.line_no);
 	debug_msg(1, "Project Parser: %s'ing file %s.", func.latin1(), file.latin1());
+	QString orig_file = file;
 	int di = file.findRev(Option::dir_sep);
 	QDir sunworkshop42workaround = QDir::current();
 	QString oldpwd = sunworkshop42workaround.currentDirPath();
@@ -970,10 +971,10 @@ QMakeProject::doProjectTest(const QString& func, QStringList args, QMap<QString,
 	    r = read(file.latin1(), place);
 	}
 	if(r)
-	    vars["QMAKE_INTERNAL_INCLUDED_FILES"].append(file);
+	    vars["QMAKE_INTERNAL_INCLUDED_FILES"].append(orig_file);
 	else
 	    warn_msg(WarnParser, "%s:%d: Failure to include file %s.",
-		     pi.file.latin1(), pi.line_no, file.latin1());
+		     pi.file.latin1(), pi.line_no, orig_file.latin1());
 	parser = pi;
 	test_status = sc;
 	scope_flag = sf;
@@ -1198,6 +1199,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 			    }
 			}
 		    }
+		    QString orig_file = file;
 		    int di = file.findRev(Option::dir_sep);
 		    QDir sunworkshop42workaround = QDir::current();
 		    QString oldpwd = sunworkshop42workaround.currentDirPath();
@@ -1211,10 +1213,10 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		    bool r = read(file.latin1(), tmp);
 		    if(r) {
 			replacement = tmp[arg_list[1]].join(" ");
-			vars["QMAKE_INTERNAL_INCLUDED_FILES"].append(file);
+			vars["QMAKE_INTERNAL_INCLUDED_FILES"].append(orig_file);
 		    } else {
 			warn_msg(WarnParser, "%s:%d: Failure to include file %s.",
-				 pi.file.latin1(), pi.line_no, file.latin1());
+				 pi.file.latin1(), pi.line_no, orig_file.latin1());
 		    }
 		    parser = pi;
 		    test_status = sc;
