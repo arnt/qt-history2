@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#66 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#67 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -31,6 +31,7 @@
 #include "qradiobutton.h"
 #include "qfocusdata.h"
 #include "qobjectlist.h"
+#include "qdrawutil.h"
 
 /*!
   \class QGroupBox qgroupbox.h
@@ -206,7 +207,6 @@ void QGroupBox::resizeEvent( QResizeEvent *e )
 
 void QGroupBox::paintEvent( QPaintEvent *event )
 {
-    const QColorGroup & g = colorGroup();
     QPainter paint( this );
 
     if ( lenvisible ) {					// draw title
@@ -220,9 +220,9 @@ void QGroupBox::paintEvent( QPaintEvent *event )
 	    x = frameRect().width() - tw - 8;
 	else				// left alignment
 	    x = 8;
-	QRect r( x, 0, tw, h );
-	paint.setPen( g.text() );
-	paint.drawText( r, AlignCenter + ShowPrefix, str, lenvisible );
+	qDrawItem( &paint, style(), x, 0, tw, h, AlignCenter + ShowPrefix, 
+		   colorGroup(), isEnabled(), 0, str, lenvisible, 0 );
+ 	QRect r( x, 0, tw, h );
 	paint.setClipRegion( event->region().subtract( r ) );	// clip everything but title
     }
     drawFrame( &paint );			// draw the frame
