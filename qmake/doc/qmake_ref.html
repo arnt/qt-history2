@@ -8,9 +8,9 @@ Reference Manual - qmake
 <h2>Project Variable Reference</h2>
 
 <p><h3>***Notes***</h3>
-All project files that specify a directory and are interpreted by qmake
+For all project files that specify a directory and are interpreted by qmake
 (DESTDIR, OBJECTS_DIR, MOC_DIR, etc) the directory will be created when qmake
-is called, ie before the 'make' command is specified, this is to assure
+is called, ie before the 'make' command is specified. This is to assure
 portablity.
 
 <h4><a name="ALL_DEPS"></a>ALL_DEPS</h4>
@@ -31,8 +31,9 @@ libraries to link in.
 
 <p>
 You may assign anything to this variable, however some will be recognized
-internally by qmake and have special meaning, they are as follows:
+internally by qmake and have special meaning, they are as follows.
 
+<p>
 These options control the compilation flags:
 <p>
 <table border="0">
@@ -65,7 +66,7 @@ These options control the compilation flags:
 </table>
 
 <p>
-These options defines the application/library type:
+These options define the application/library type:
 <p>
 <table border="0">
   <tr>
@@ -155,7 +156,7 @@ then a minimal makefile will be generated that states what dependancies
 Defines the header files of the project.
 
 <h4><a name="INTERFACES"></a>INTERFACES</h4>
-Defines the .ui (files see the <a href=eh>designer</a>) to be processed
+Defines the .ui files (see the <a href="eh">Designer</a>) to be processed
 through uic before compiling.
 
 <h4><a name="LEXSOURCES"></a>LEXSOURCES</h4>

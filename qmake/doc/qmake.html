@@ -31,11 +31,11 @@ opinion. Our makefile system also had to deal with Qt <a
 href="http://doc.trolltech.com/metaobjects.html">meta object compiler</a>
 (moc) issues. The moc program extracts meta information from C++ files and
 generates a C++ file with data tables etc.  It takes extra work to add
-makefile rules for the moc and wanted to automate this task. 
+makefile rules for the moc and we wanted to automate this task. 
 
 <p> 
-Previously we used qmake for this work, however qmake has been
-introduced to further this ease makefile maintance. Troll Tech had been
+Previously we used tmake for this work, however qmake has been
+introduced to further ease makefile maintance. Trolltech had been
 distributing different build systems, qmake has allowed us to use one
 buildsystem inside and out.
 
@@ -55,25 +55,26 @@ LICENSE file for details.
 
 Here are some examples:<p>
 <strong>Unix Bourne shell:</strong><pre>
-    MKSPEC=linux-g++
+	MKSPEC=linux-g++
 	QTDIR=/usr/local/qt
-    PATH=$PATH:/local/qmake/bin
-    export QTDIR MKSPEC PATH
+	PATH=$PATH:/local/qmake/bin
+	export QTDIR MKSPEC PATH
 </pre>
 
 <strong>Unix C shell:</strong><pre>
 	setenv QTDIR /usr/local/qt
-    setenv QMAKEPATH linux-g++
-    setenv PATH $PATH:/local/qmake/bin
+	setenv QMAKEPATH linux-g++
+	setenv PATH $PATH:/local/qmake/bin
 </pre>
 
 <strong>Microsoft Windows:</strong><pre>
-    set QMAKEPATH=win32-msvc
+	set QMAKEPATH=win32-msvc
 	set QTDIR=c:\qt
-    set PATH=%PATH%;c:\qmake\bin
+	set PATH=%PATH%;c:\qmake\bin
 </pre>
 
-<p> <a name=mkspec_sect></a><h3>MKSPEC</h3>
+<p>
+<a name=mkspec_sect></a><h3>MKSPEC</h3>
 
 <p>
 The MKSPEC variable has the form <em>platform</em>-<em>compiler</em>. qmake
@@ -82,12 +83,12 @@ This configuration file contains compiler options and lists tools and
 libraries.
 
 <p>
-Supported platforms: AIX, Data General, FreeBSD, HPUX, SGI Irix, Linux,
-NetBSD, OpenBSD, OSF1/DEC, SCO, Solaris, SunOS, Ultrix, Unixware and
-Win32.
+Supported platforms: AIX, Data General, FreeBSD, HP-UX, SGI Irix, Linux,
+NetBSD, OpenBSD, Tru64, SCO, Solaris, SunOS, Ultrix, Unixware and Win32.
 
 <p>
 You can find your platform-compiler combination in the <tt>$QTDIR/mkspecs</tt>.
+<p>
 
 <hr>
 <h2>Getting Started</h2>
@@ -485,13 +486,15 @@ information:<pre>
 You may use scopes to (conditionally) assign to variables. There are
 several ways to test for something being "inscope":
 <ul>
-<li>It appears in the CONFIG variable (see the <a href=#config_var>CONFIG</a> section)
-<li>If qmake is in an OS mode (see the -unix/-win32 option in the <a href=#usage>
-    usage</a> section) you may use the OS dependant scope (unix/win32).
-<li>Function testing (see the <a href=#funct_sect>function tests</a>
-section)
+<li>It appears in the CONFIG variable (see the <a href="#config_var">CONFIG</a>
+    section).
+<li>If qmake is in an OS mode (see the -unix/-win32 option in the
+    <a href="#usage"> usage</a> section) you may use the OS dependant
+    scope (unix/win32).
+<li>Function testing (see the <a href="#funct_sect">function tests</a>
+    section).
 <li>If a given compiler is used as the MKSPEC (see the 
-    <a href=#mkspec_sect>MKSPEC</a> section.
+    <a href="#mkspec_sect">MKSPEC</a> section).
 </ul>
 
 <p>

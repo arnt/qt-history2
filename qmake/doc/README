@@ -8,7 +8,6 @@ replacement for tmake on their own projects. This document will outline
 some of the new features of Qmake as well as go over the design as a whole
 for people not familiar with tmake.
 
-
 Qmake is only a language to describe a makefile, and in turn will generate
 a project description as appropriate for your destination platform. This
 means to describe to a project file (as documented below) will output
@@ -28,6 +27,7 @@ such that a suitable makefile can be made, this is where MKSPECS are
 usefull. You can set an environment variable $MKSPECS that contains your
 current platform (ie linux-g++). Qmake will then find a description of your
 platform in $QTDIR/mkspecs/$MKSPECS. 
+
 
 Use
 ---
@@ -49,6 +49,7 @@ Options:
         -mkspec file  Use file as spec
         -d            Increase debug level
 
+
 Language
 --------
 
@@ -58,7 +59,6 @@ you should be able to do most everything you did before Qmake in a tmake
 way (except custom templates are no longer available, if you require this
 you will have to translate to one of the established templates, or continue
 using tmake). Below is an outline of language features, including holdovers from tmake:
-
 
   *Assignments*
 
@@ -77,7 +77,6 @@ can refer to another variable defined in Qmake.
 
 Qmake will then internally use specially defined variables (as described in
 the variables section below) to generate makes files.
-
 
   *Scopes*
 
@@ -123,13 +122,13 @@ functions can be used for this:
 
 Other test functions are:
    count(PIG, 2):message(I only know two pigs..) #if PIG only contains two
-                                                 #values message will be 
+                                                 #values message will be
 						 #shown
-   isEmpty(PIG):message(I know no pigs..) #if PIG is an empty variable the 
-                                          #message will be shown 
+   isEmpty(PIG):message(I know no pigs..) #if PIG is an empty variable the
+                                          #message will be shown
 					  #(same as count(PIG, 0))
 
-Finally you may also block your scopes so you dont' have to continually
+Finally you may also block your scopes so you don't have to continually
 type the same test for example:
 
    contains(tasks, MOW_LAWN):morning {
@@ -147,7 +146,6 @@ the tasks variable then I will put SHARP_BLADE in scope. If SHARP_BLADE is
 not in scope I will warn the user but continue on, and finally I will
 remove MOW_LAWN from my task list.
 
-
   *Cache file*
 
 Qmake has introduced a cache file to prevent mistaken
@@ -155,8 +153,8 @@ misconfiguration. Qmake will never generate a cache file on its own, it is
 the obligation of some outside program to do this, however the syntax is
 controlled and is similar to a standard .pro. You must call this file
 .qmake.cache, you should put it at the top directory of your project, and
-Qmake will later walk backwards in your project heirarchy to find
-it. Currently defined in the .qmake.cache is the following:
+Qmake will later walk backwards in your project hierarchy to find it.
+Currently defined in the .qmake.cache is the following:
 
    MKSPECS : This variable will tell qmake what mkspec was used for the
    previous qmakes, and will prefer to defautly use this spec.
@@ -169,19 +167,16 @@ will silently ignore it and continue on. If however it exists and you want
 to override it, you may use the -nocache option.
 
 
-
-
 Variables
 ---------
 
 Qmake internally will use the same variables tmake did, however all
 internal variables starting with TMAKE_ will now be QMAKE_, though for
 compatability TMAKE_ will be accepted for now and used appropriatly. The
-following documents each variable and its intended purpose:
+following documents each variable and its intended purpose.
 
 For portablity reasons, all directories specified in known variables blow
 will be created upon executing Qmake.
-
 
  *CONFIG*
 
@@ -220,14 +215,14 @@ will be created upon executing Qmake.
    target.path = /usr/local/myapp/bin
    INSTALLS += target
 
-  This allows Qmake to define what files get copied in (usually just $$TARGET, but
-  in the case of libs this will include symlinks created to the shared object). If
-  you specify a target.files or a target.extra (described below) the builtin behaviour
-  will not happen and will be overridden by your targets. You can specify as many INSTALLS
-  as you like to install your whole project.
+  This allows Qmake to define what files get copied in (usually just $$TARGET,
+  but in the case of libs this will include symlinks created to the shared
+  object). If you specify a target.files or a target.extra (described below)
+  the builtin behaviour will not happen and will be overridden by your targets.
+  You can specify as many INSTALLS as you like to install your whole project.
 
-  If .files doesn't allow you enough control you can also use .extra to put literal commands
-  into the makefile like this:
+  If .files doesn't allow you enough control you can also use .extra to put
+  literal commands into the makefile like this:
 
      msgfiles.path = /usr/local/myapp/msgs
      msgfiles.files = ../msgfiles/*.msg
@@ -271,12 +266,9 @@ will be created upon executing Qmake.
 
   This template is usefull for wrapping a bunch of other makefiles into one:
 
-  SUBDIRS     A list of directories to be made
+  SUBDIRS      A list of directories to be made
 
  *MAKEFILE_GENERATOR*
 
   This tells qmake what kind of makefile it is to generate currently these
   map directly to the list of output makefiles above.
-
-
-
