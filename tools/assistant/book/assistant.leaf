@@ -65,13 +65,14 @@ clickable link to the class's documentation.
 In addition to the class documentation some of Qt's modules have
 extensive descriptions, and there are many overview documents which
 describe various aspects of the Qt library; all these are linked from
-the reference documentation home page. There are also numerous example
-programs in $QTDIR/examples and two tutorials.
+the reference documentation home page. There are also two tutorials
+and numerous example programs in the examples subdirectory of the Qt
+distribution.
 
 \chapter The 1 Minute Guide to using Qt Assistant
 
 Under Windows, \QA is available as a menu option on the Qt menu. On
-Unix, run \c{$QTDIR/bin/assistant} from an xterm.
+Unix, run \c{assistant} from an xterm.
 
 When you start up \QA, you will be presented with a standard
 main-window style application, with a menu bar and toolbar. Below
