@@ -666,7 +666,7 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
                   (*(buffer + x) < '0' || *(buffer + x) > '9')) {
             ++x;
             int match = 0;
-            static char *interesting[] = { "OBJECT", "GADGET" };
+            static const char *interesting[] = { "OBJECT", "GADGET" };
             for(int interest = 0, m1, m2; interest < 2; ++interest) {
                 if(interest == 0 && ignore_qobject)
                     continue;

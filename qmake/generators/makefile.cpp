@@ -443,7 +443,7 @@ MakefileGenerator::init()
     //build up a list of compilers
     QList<Compiler> compilers;
     {
-        char *builtins[] = { "OBJECTS", "LEXSOURCES", "YACCSOURCES", "SOURCES", "PRECOMPILED_HEADER", 0 };
+        const char *builtins[] = { "OBJECTS", "LEXSOURCES", "YACCSOURCES", "SOURCES", "PRECOMPILED_HEADER", 0 };
         for(x = 0; builtins[x]; ++x) {
             Compiler compiler;
             compiler.variable_in = builtins[x];

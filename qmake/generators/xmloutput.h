@@ -31,7 +31,7 @@ public:
     enum XMLState {
         Bare,               // Not in tag or attribute
         Tag,                // <tagname attribute1="value"
-        Attribute,          //  attribute2="value">
+        Attribute           //  attribute2="value">
     };
     enum XMLType {
         tNothing,           // No XML output, and not state change

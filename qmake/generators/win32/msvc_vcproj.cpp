@@ -38,7 +38,7 @@ enum DotNET {
     NETUnknown = 0,
     NET2002 = 0x70,
     NET2003 = 0x71,
-    NET2005 = 0x80,
+    NET2005 = 0x80
 };
 
 #ifdef Q_OS_WIN32

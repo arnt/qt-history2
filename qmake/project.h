@@ -81,8 +81,8 @@ class QMakeProject
 public:
     QMakeProject() { init(0, 0); }
     QMakeProject(QMakeProperty *p) { init(p, 0); }
-    QMakeProject(const QMap<QString, QStringList> &vars) { init(0, &vars); }
-    QMakeProject(QMakeProperty *p, const QMap<QString, QStringList> &vars) { init(p, &vars); }
+    QMakeProject(const QMap<QString, QStringList> &nvars) { init(0, &nvars); }
+    QMakeProject(QMakeProperty *p, const QMap<QString, QStringList> &nvars) { init(p, &nvars); }
     ~QMakeProject();
 
     enum { ReadCache=0x01, ReadConf=0x02, ReadCmdLine=0x04, ReadProFile=0x08,
