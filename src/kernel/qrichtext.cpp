@@ -4135,13 +4135,13 @@ void QTextParag::drawLabel( QPainter* p, int x, int y, int w, int h, int base, c
 	break;
     case QStyleSheetItem::ListSquare:
 	{
-	    QRect er( r.right() - size * 2, r.top() + base - fm.boundingRect( 'A' ).height() / 2 - size / 2 - 1, size, size );
+	    QRect er( r.right() - size * 2, r.top() + fm.height() / 2 - size / 2, size, size );
 	    p->fillRect( er , cg.brush( QColorGroup::Foreground ) );
 	}
 	break;
     case QStyleSheetItem::ListCircle:
 	{
-	    QRect er( r.right()-size*2, r.top() + base - fm.boundingRect('A').height()/2 - size/2 - 1, size, size);
+	    QRect er( r.right()-size*2, r.top() + fm.height() / 2 - size / 2, size, size);
 	    p->drawEllipse( er );
 	}
 	break;
@@ -4149,7 +4149,7 @@ void QTextParag::drawLabel( QPainter* p, int x, int y, int w, int h, int base, c
     default:
 	{
 	    p->setBrush( cg.brush( QColorGroup::Foreground ));
-	    QRect er( r.right()-size*2, r.top() + base - fm.boundingRect('A').height()/2 - size/2 - 1, size, size);
+	    QRect er( r.right()-size*2, r.top() + fm.height() / 2 - size / 2, size, size);
 	    p->drawEllipse( er );
 	    p->setBrush( Qt::NoBrush );
 	}
