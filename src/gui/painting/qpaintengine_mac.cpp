@@ -974,13 +974,13 @@ static void qt_mac_color_gradient_function(void *info, const float *in, float *o
 
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintDevice *pdev)
     : QQuickDrawPaintEngine(*(new QCoreGraphicsPaintEnginePrivate), pdev,
-                            PaintEngineFeatures(/*CoordTransform|PenWidthTransform|PixmapTransform|*/PixmapScale|UsesFontEngine|LinearGradients))
+                            PaintEngineFeatures(/*CoordTransform|PenWidthTransform|PixmapTransform|*/PixmapScale|UsesFontEngine|LinearGradients|SolidAlphaFill))
 {
     d->pdev = pdev;
 }
 
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr, QPaintDevice *pdev)
-    : QQuickDrawPaintEngine(dptr, pdev, PaintEngineFeatures(/*CoordTransform|PenWidthTransform|PixmapTransform|*/PixmapScale|UsesFontEngine|LinearGradients))
+    : QQuickDrawPaintEngine(dptr, pdev, PaintEngineFeatures(/*CoordTransform|PenWidthTransform|PixmapTransform|*/PixmapScale|UsesFontEngine|LinearGradients|SolidAlphaFill))
 {
     d->pdev = pdev;
 }
@@ -1112,7 +1112,9 @@ QCoreGraphicsPaintEngine::updatePen(const QPen &pen)
     //color
     const QColor &col = pen.color();
     CGContextSetRGBStrokeColor(d->hd, qt_mac_convert_color_to_cg(col.red()),
-                               qt_mac_convert_color_to_cg(col.green()), qt_mac_convert_color_to_cg(col.blue()), 1.0);
+                               qt_mac_convert_color_to_cg(col.green()),
+                               qt_mac_convert_color_to_cg(col.blue()),
+                               qt_mac_convert_color_to_cg(col.alpha()));
 }
 
 void
@@ -1186,7 +1188,8 @@ QCoreGraphicsPaintEngine::updateBrush(const QBrush &brush, const QPoint &brushOr
         const QColor &col = brush.color();
         CGContextSetRGBFillColor(d->hd, qt_mac_convert_color_to_cg(col.red()),
                                  qt_mac_convert_color_to_cg(col.green()),
-                                 qt_mac_convert_color_to_cg(col.blue()), 1.0);
+                                 qt_mac_convert_color_to_cg(col.blue()),
+                                 qt_mac_convert_color_to_cg(col.alpha()));
     }
 }
 
