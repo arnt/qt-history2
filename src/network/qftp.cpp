@@ -479,7 +479,8 @@ bool QFtpDTP::parseDir( const QString &buffer, const QString &userName, QUrlInfo
     info->setLastModified( QDateTime( date, time ) );
 
     if ( lst[ 7 ].contains( ":" ) ) {
-	if( info->lastModified() > QDateTime::currentDateTime() ) {
+	const int futureTolerance = 600;
+	if( info->lastModified().secsTo( QDateTime::currentDateTime() ) < -futureTolerance ) {
 	    QDateTime dt = info->lastModified();
 	    QDate d = dt.date();
 	    d.setYMD(d.year()-1, d.month(), d.day());
