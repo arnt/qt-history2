@@ -2194,7 +2194,7 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 
     case QWSEvent::Focus:
 	if ( ((QWSFocusEvent*)event)->simpleData.get_focus ) {
-	    if ( widget == desktop() )
+	    if ( widget == (QWidget *)desktop() )
 		return TRUE; // not interesting
 	    if ( inPopupMode() ) // some delayed focus event to ignore
 		break;
@@ -2216,7 +2216,7 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 		    widget->topLevelWidget()->setFocus();
 	    }
 	} else {	// lost focus
-	    if ( widget == desktop() )
+	    if ( widget == (QWidget *)desktop() )
 		return TRUE; // not interesting
 	    if ( focus_widget && !inPopupMode() ) {
 		QETWidget *old = (QETWidget *)active_window;
