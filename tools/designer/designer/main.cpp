@@ -200,10 +200,18 @@ int main( int argc, char *argv[] )
     }
 
     QString fn = QDir::homeDirPath() + "/.designerrc";
+    QRect screen = QApplication::desktop()->screenGeometry();
     if ( QFile::exists( fn ) ) {
 	Config config( fn );
 	config.setGroup( "General" );
 	showSplash = config.readBoolEntry( "SplashScreen", TRUE );
+	config.setGroup( "Geometries" );
+	QRect mainRect;
+	mainRect.setX( config.readNumEntry( "MainwindowX", 0 ) );
+	mainRect.setY( config.readNumEntry( "MainwindowY", 0 ) );
+	mainRect.setWidth( config.readNumEntry( "MainwindowWidth", 500 ) );
+	mainRect.setHeight( config.readNumEntry( "MainwindowHeight", 500 ) );
+	screen = QApplication::desktop()->screenGeometry( QApplication::desktop()->screenNumber( mainRect.center() ) );
     }
 
     QLabel *splash = 0;
@@ -213,8 +221,7 @@ int main( int argc, char *argv[] )
 	splash->setPixmap( splashScreen() );
 	splash->adjustSize();
 	splash->setCaption( "Qt Designer" );
-	QRect r = QApplication::desktop()->screenGeometry();
-	splash->move( r.center() - QPoint( splash->width() / 2, splash->height() / 2 ) );
+	splash->move( screen.center() - QPoint( splash->width() / 2, splash->height() / 2 ) );
 	splash->show();
 	splash->repaint( FALSE );
 	QApplication::flushX();
