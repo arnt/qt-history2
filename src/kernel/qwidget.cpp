@@ -3111,9 +3111,12 @@ void QWidget::setTabOrder( QWidget* first, QWidget *second )
 	// likely to be) preserved.
 	QObjectList l = first->queryList("QWidget");
 	for (int i = l.size()-1; i >= 0; --i) {
-	    fp = static_cast<QWidget*>(l.at(i));
-	    if (fp->focusPolicy() != NoFocus)
-		break;
+	    QWidget * next = static_cast<QWidget*>(l.at(i));
+	    if (next->topLevelWidget() == fp->topLevelWidget()) {
+		fp = next;
+		if (fp->focusPolicy() != NoFocus)
+		    break;
+	    }
 	}
 
 	first = fp;
