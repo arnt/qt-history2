@@ -25,9 +25,77 @@ socket:
     <dt><tt>int depth</tt>
 	<dd>The depth of the screen in bits.
     <dt><tt>int shmid</tt>
-	<dd>The identifier for the memory address of the frame buffer.  In the
-	dummy framebuffer server, this is a shared-memory identifier.
+	<dd>The shared-memory identifier for the memory address of the
+	    frame buffer, or -1 if shared-memory is not used (see next field).
+    <dt><tt>int fbid</tt>
+	<dd>The Linux framebuffer number to use (if shmid is -1),
+	    or -1 if a framebuffer number is not used.
+	    eg. 0 means use <tt>/dev/fb0</tt> as the framebuffer.
 </dl>
+
+<h2>Window Regions</h2>
+<p>
+The most important part of any window system is its handling of
+<em>regions</em>. It is <em>regions</em> that are the window the user
+sees.
+<p>
+The diagram below models a typical window system.
+<p>
+<img src=windows.gif>
+<p>
+First notice that there is a well-defined
+order or "depth" for each window - following the labels alphabetically
+from "a" the deepest to "g" the shallowest.
+The window "a" is the
+display screen or "root window".
+The green windows "b", "c", and "g" are sub-windows of the root window and
+are called "top level windows".
+The yellow windows "f" and "d" are child windows of window "c", and "e"
+is a child window of "d".
+Note that window "d" is positioned so that its bottom portion is clipped
+off by its parent window "c".
+<p>
+In QWS,
+top level windows may all be controlled by
+different processes, while
+child windows are always controlled by the same process as the top level
+window containing them.
+<p>
+Each of the coloured shapes is a window, and for each one there are three
+regions of interest.
+<p>
+<img src=regions.gif>
+<p>
+<dl compact>
+ <dt><b>requestedRegion</b>
+    <dd>This is the region that is the shape of the window.
+	    Non-rectangular windows such as "d" above
+	    are called "shaped windows". QWS makes no distinction
+	    between rectangular and non-rectangular windows.
+ <dt><b>allocatedRegion</b>
+    <dd>This is the requestedRegion intersected with allocatedRegion of
+	    the parent window, minus the requestedRegion of any shallower
+	    sibling windows. It represents the region allocated to a window
+	    and all that windows children.
+ <dt><b>paintableRegion</b>
+    <dd>This is the region which the window is responsible for painting.
+	    It is the allocatedRegion minus the requestedRegion of all
+	    immediate child windows.
+</dl>
+Note that these regions are all relative to the root window, not to the
+parent of the window.
+
+<p>
+In QWS, the server only handles the root and top-level windows, with
+deeper child windows completely handled by the client library. This allows
+operations that do not involve changes to the top-level window regions
+to be faster.
+<p>
+When an application needs to change the region of a child window, it does so
+without interaction with the server. When it needs to change the region of
+a top-level window, it makes a request to the server which then negotiates
+space for the window, possibly by taking space away from windows of other
+applications. This is the <em>window management</em> feature of the server.
 
 <h2>Events to Clients</h2>
 <p>

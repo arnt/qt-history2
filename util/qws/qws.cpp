@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qws/qws.cpp#18 $
+** $Id: //depot/qt/main/util/qws/qws.cpp#23 $
 **
 ** Implementation of Qt/FB central server
 **
@@ -37,12 +37,12 @@
 static int SWIDTH=640;
 static int SHEIGHT=480;
 
-// make a unique window id
-static int get_window_id()
+static int get_object_id()
 {
-    static int win_id = 0;
-    return ++win_id;
+    static int next=1000;
+    return next++;
 }
+
 
 /*********************************************************************
  *
@@ -62,6 +62,15 @@ QWSClient::QWSClient( int socket, int shmid ) :
     header.shmid = shmid;
     header.fbid = shmid < 0 ? 0 : -1; //### always use FB 0
     writeBlock((char*)&header,sizeof(header));
+
+    // Send some objects - client process probably wants some
+    QWSCreationEvent event;
+    event.type = QWSEvent::Creation;
+    for (int i=0; i<10; i++) {
+	event.objectid = get_object_id();
+	writeBlock( (char*)&event, sizeof(event) );
+    }
+
     flush();
 }
 
@@ -80,6 +89,7 @@ void QWSClient::sendMouseEvent(const QPoint& pos, int state)
     event.state=state;
     event.time=timer.elapsed();
     writeBlock((char*)&event,sizeof(event));
+    flush();
 }
 
 void QWSClient::writeRegion( QRegion reg )
@@ -94,11 +104,12 @@ void QWSClient::writeRegion( QRegion reg )
     } rectangle;
     for (uint i=0; i<r.size(); i++) {
 	rectangle.x = r[i].x();
-	rectangle.y = r[i].x();
+	rectangle.y = r[i].y();
 	rectangle.width = r[i].width();
 	rectangle.height = r[i].height();
 	writeBlock( (char*)&rectangle, sizeof(rectangle) );
     }
+    flush();
 }
 
 void QWSClient::sendPropertyNotifyEvent( int property, int state )
@@ -109,6 +120,7 @@ void QWSClient::sendPropertyNotifyEvent( int property, int state )
     event.property = property;
     event.state = state;
     writeBlock( (char*)&event, sizeof( event ) );
+    flush();
 }
 
 void QWSClient::sendPropertyReplyEvent( int property, int len, char *data )
@@ -256,12 +268,6 @@ void QWSServer::sendPropertyNotifyEvent( int property, int state )
 	( *it )->sendPropertyNotifyEvent( property, state );
 }
 
-static int get_object_id()
-{
-    static int next=1000;
-    return next++;
-}
-
 void QWSServer::invokeCreate( QWSCreateCommand *, QWSClient *client )
 {
     qDebug( "QWSServer::invokeCreate" );
@@ -269,6 +275,7 @@ void QWSServer::invokeCreate( QWSCreateCommand *, QWSClient *client )
     event.type = QWSEvent::Creation;
     event.objectid = get_object_id();
     client->writeBlock( (char*)&event, sizeof(event) );
+    client->flush();
 }
 
 void QWSServer::invokeRegion( QWSRegionCommand *cmd, QWSClient *client )
@@ -284,8 +291,11 @@ void QWSServer::invokeRegion( QWSRegionCommand *cmd, QWSClient *client )
 	QWSRegionCommand::Rectangle r = rects[ i ];
 	qDebug( "    rect: %d %d %d %d", r.x, r.y, r.width, r.height );
     }
-    QWSWindow* changingw = findWindow(cmd->simpleData.windowid);
-    if ( !changingw ) return;
+    QWSWindow* changingw = findWindow(cmd->simpleData.windowid, client);
+    if ( !changingw ) {
+	qWarning("Invalue window handle %08x",cmd->simpleData.windowid);
+	return;
+    }
     if ( !changingw->forClient(client) ) {
 	qWarning("Disabled: clients changing other client's window region");
 	return;
@@ -385,21 +395,22 @@ bool QWSWindow::removeAllocation(QRegion r)
     return FALSE;
 }
 
-void QWSServer::newWindow(int id, QWSClient* client)
+QWSWindow* QWSServer::newWindow(int id, QWSClient* client)
 {
     // Make a new window, put it on top.
     QWSWindow* w = new QWSWindow(id,client);
     windows.prepend(w);
+    return w;
 }
 
-QWSWindow* QWSServer::findWindow(int windowid)
+QWSWindow* QWSServer::findWindow(int windowid, QWSClient* client)
 {
     for (uint i=0; i<windows.count(); i++) {
 	QWSWindow* w = windows.at(i);
 	if ( w->winId() == windowid )
 	    return w;
     }
-    return 0;
+    return newWindow(windowid,client);
 }
 
 /*!
@@ -409,6 +420,8 @@ QWSWindow* QWSServer::findWindow(int windowid)
 */
 void QWSServer::setWindowRegion(QWSWindow* changingw, QRegion r)
 {
+    qDebug("setWindowRegion");
+
     QRegion allocation;
     QRegion exposed = changingw->allocation() - r;
     uint windex;
@@ -429,8 +442,9 @@ void QWSServer::setWindowRegion(QWSWindow* changingw, QRegion r)
 	    r -= w->allocation();
 	} else {
 	    r -= w->allocation();
-	    if ( r.isEmpty() )
-		return; // Nothing left for deeper windows
+	    if ( r.isEmpty() ) {
+		break; // Nothing left for deeper windows
+	    }
 	}
     }
 

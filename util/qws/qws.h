@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qws/qws.h#9 $
+** $Id: //depot/qt/main/util/qws/qws.h#13 $
 **
 ** Definition of Qt/FB central server classes
 **
@@ -97,8 +97,8 @@ private:
 
     // Window management
     QList<QWSWindow> windows; // first=topmost
-    void newWindow(int id, QWSClient* client);
-    QWSWindow* findWindow(int windowid);
+    QWSWindow* newWindow(int id, QWSClient* client);
+    QWSWindow* findWindow(int windowid, QWSClient* client);
     void setWindowRegion(QWSWindow*, QRegion r);
     int pending_region_acks;
 };
