@@ -7,7 +7,7 @@ class WindowsXPStyle : public QStyleInterface, public QLibraryInterface
 public:
     WindowsXPStyle();
 
-    QUnknownInterface *queryInterface( const QUuid& );
+    QRESULT queryInterface( const QUuid&, QUnknownInterface ** );
     unsigned long addRef();
     unsigned long release();
 
@@ -29,21 +29,19 @@ WindowsXPStyle::WindowsXPStyle()
 {
 }
 
-QUnknownInterface *WindowsXPStyle::queryInterface( const QUuid &uuid )
+QRESULT WindowsXPStyle::queryInterface( const QUuid &uuid, QUnknownInterface **iface )
 {
-    QUnknownInterface *iface = 0;
     if ( uuid == IID_QUnknownInterface )
-	iface = (QUnknownInterface*)(QStyleInterface*)this;
+	*iface = (QUnknownInterface*)(QStyleInterface*)this;
     else if ( uuid == IID_QFeatureListInterface )
-	iface = (QFeatureListInterface*)this;
+	*iface = (QFeatureListInterface*)this;
     else if ( uuid == IID_QStyleInterface )
-	iface = (QStyleInterface*)this;
+	*iface = (QStyleInterface*)this;
     else if ( uuid == IID_QLibraryInterface )
-	iface = (QLibraryInterface*)this;
+	*iface = (QLibraryInterface*)this;
 
-    if ( iface )
-	iface->addRef();
-    return iface;
+    if ( *iface )
+	(*iface)->addRef();
 }
 
 unsigned long WindowsXPStyle::addRef()

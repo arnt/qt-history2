@@ -7,4 +7,3 @@ SUBDIRS		= motif \
 		  platinum \
 		  compact 
 mac:SUBDIRS   += aqua
-win32:SUBDIRS  += windowsxp

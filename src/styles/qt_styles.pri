@@ -30,9 +30,3 @@ mac {
 	HEADERS +=$$STYLES_H/qaquastyle.h
 	SOURCES +=$$STYLES_CPP/qaquastyle.cpp
 }
-
-!win32:DEFINES += QT_NO_STYLE_WINDOWSXP
-win32 {
-	HEADERS +=$$STYLES_H/qwindowsxpstyle.h
-	SOURCES +=$$STYLES_CPP/qwindowsxpstyle.cpp
-}
