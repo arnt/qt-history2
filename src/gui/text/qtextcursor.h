@@ -84,8 +84,8 @@ public:
 
     void setBlockFormat(const QTextBlockFormat &format);
     QTextBlockFormat blockFormat() const;
-    void applyCharFormatModifier(const QTextCharFormat &modifier) const;
-    void applyBlockFormatModifier(const QTextBlockFormat &modifier) const;
+    void applyCharFormatModifier(const QTextCharFormat &modifier);
+    void applyBlockFormatModifier(const QTextBlockFormat &modifier);
 
     QTextCharFormat charFormat() const;
 

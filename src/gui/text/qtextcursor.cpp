@@ -699,7 +699,7 @@ QTextBlockFormat QTextCursor::blockFormat() const
   Modifies the format of the selection by \a modifier. Does nothing if the cursor
   doesn't have a selection.
 */
-void QTextCursor::applyCharFormatModifier(const QTextCharFormat &modifier) const
+void QTextCursor::applyCharFormatModifier(const QTextCharFormat &modifier)
 {
     if (!d || d->position == d->anchor)
 	return;
@@ -711,15 +711,14 @@ void QTextCursor::applyCharFormatModifier(const QTextCharFormat &modifier) const
 	pos2 = d->position;
     }
 
-    const_cast<QTextPieceTable *>((const QTextPieceTable *)d->pieceTable)
-	->setCharFormat(pos1, pos2-pos1, modifier, QTextPieceTable::MergeFormat);
+    d->pieceTable->setCharFormat(pos1, pos2-pos1, modifier, QTextPieceTable::MergeFormat);
 }
 
 /*!
   Modifies the block format of the current block (or all blocks
   that are contained in the selection) with \a modifier.
 */
-void QTextCursor::applyBlockFormatModifier(const QTextBlockFormat &modifier) const
+void QTextCursor::applyBlockFormatModifier(const QTextBlockFormat &modifier)
 {
     if (!d)
 	return;
@@ -731,8 +730,7 @@ void QTextCursor::applyBlockFormatModifier(const QTextBlockFormat &modifier) con
 	pos2 = d->position;
     }
 
-    const_cast<QTextPieceTable *>((const QTextPieceTable *)d->pieceTable)
-	->setBlockFormat(pos1, pos2-pos1, modifier, QTextPieceTable::MergeFormat);
+    d->pieceTable->setBlockFormat(pos1, pos2-pos1, modifier, QTextPieceTable::MergeFormat);
 }
 
 /*!
