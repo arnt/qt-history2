@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_win.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qfnt_win.cpp#41 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -29,7 +29,7 @@
 
 extern WindowsVersion qt_winver;		// defined in qapp_win.cpp
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_win.cpp#40 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfnt_win.cpp#41 $");
 
 
 static HANDLE stock_sysfont = 0;
@@ -598,9 +598,13 @@ QRect QFontMetrics::boundingRect( const char *str, int len ) const
     TEXTMETRIC *tm = TM;
     GetTextExtentPoint32( hdc(), str, len, &s );
 
-    // To be safer, could check bearings of next-to-end characters too.
     int l = len ? leftBearing(*str) : 0;
     int r = len ? rightBearing(str[len-1]) : 0;
+    // To be safer, check bearings of next-to-end characters too.
+    if (len > 1 )
+	l = QMIN( l, width(*str)+leftBearing(str[1]) );
+    if (len > 1 )
+	r = QMAX( r, rightBearing(str[len-2])-width(str[len-1]) );
 
     return QRect(l, -tm->tmAscent, s.cx+r-l, tm->tmAscent+tm->tmDescent);
 }
