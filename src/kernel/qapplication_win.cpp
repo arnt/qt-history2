@@ -1537,6 +1537,10 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 #endif
 
     case WM_SETTINGCHANGE:
+	// ignore spurious XP message when user logs in again after locking
+	if ( QApplication::desktopSettingsAware() && wParam != SPI_SETWORKAREA )
+	    qt_set_windows_resources();
+	break;
     case WM_SYSCOLORCHANGE:
 	if ( QApplication::desktopSettingsAware() )
 	    qt_set_windows_resources();
