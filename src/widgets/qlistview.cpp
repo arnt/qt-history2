@@ -6478,7 +6478,11 @@ void QListView::selectRange( QListViewItem *from, QListViewItem *to, bool invert
 
 /*!
 
-  Finds the first item with the text \a text in the column \a column.
+  Finds the first list view item that starts with
+  \a text and returns it, or returns 0 of no
+  such item could be found.  If ComparisonFlags are
+  specified in \a compare then these flags are used, otherwise
+  the default is a case-sensitive, exact match search.
 
 */
 

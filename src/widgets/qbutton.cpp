@@ -355,7 +355,8 @@ QTimer *QButton::timer()
 */
 
 /*!
-  Constructs a standard button with a parent widget and a name.
+  Constructs a standard button with the parent \a parent and the
+  name \a name using the widget flags \a f.
 
   If \a parent is a QButtonGroup, this constructor calls
   QButtonGroup::insert().
@@ -425,7 +426,7 @@ QButton::~QButton()
 /*!
   \fn void QButton::toggled( bool on )
   This signal is emitted whenever a toggle button changes status.
-  \e on is TRUE if the button is on, or FALSE if the button is off.
+  \a on is TRUE if the button is on, or FALSE if the button is off.
 
   This may be the result of a user action, toggle() slot activation,
   or because setOn() was called.
@@ -436,7 +437,7 @@ QButton::~QButton()
 /*!
   \fn void QButton::stateChanged( int state )
   This signal is emitted whenever a toggle button changes status.
-  \e state is 2 if the button is on, 1 if it is in the
+  \a state is 2 if the button is on, 1 if it is in the
   \link QCheckBox::setTristate() "no change" state\endlink
   or 0 if the button is off.
 
@@ -579,6 +580,13 @@ void QButton::setDown( bool enable )
     }
 }
 
+/*!
+
+  Sets the toggle state of the button to \a s.
+  \a s can be \c Off, \c NoChange or \c On.
+
+*/
+
 void QButton::setState( ToggleState s )
 {
     if ( !toggleTyp ) {
@@ -607,7 +615,7 @@ void QButton::setState( ToggleState s )
 
 
 /*!
-  Returns TRUE if \e pos is inside the clickable button rectangle, or
+  Returns TRUE if \a pos is inside the clickable button rectangle, or
   FALSE if it is outside.
 
   By default, the clickable area is the entire widget. Subclasses may
@@ -804,10 +812,11 @@ void QButton::mouseMoveEvent( QMouseEvent *e )
 
 
 /*!
-  Handles paint events for buttons.  Small and typically complex
-  buttons (less than 300x100 pixels) are painted double-buffered to
-  reduce flicker. The actually drawing is done in the virtual functions
-  drawButton() and drawButtonLabel().
+  Processes the paint event \a event that is sent to the button.  
+  Small and typically complex buttons (less than 300x100 pixels) 
+  are painted double-buffered to reduce flicker. The actual 
+  drawing is done in the virtual functions - drawButton() 
+  and drawButtonLabel().
 
   \sa drawButton(), drawButtonLabel()
 */
@@ -916,7 +925,7 @@ void QButton::enabledChange( bool e )
 }
 
 
-/*
+/*!
   Toggles the state of a toggle button.
   \sa isOn(), setOn(), toggled(), isToggleButton()
 */
@@ -925,6 +934,13 @@ void QButton::toggle()
     if ( isToggleButton() )
 	 setOn( !isOn() );
 }
+
+/*!
+  Sets the toggle type of the button to \a type.
+
+  \a type can be set to \c SingleShot, \c Toggle and
+  \c TriState.
+*/
 
 void QButton::setToggleType( ToggleType type )
 {

@@ -131,7 +131,9 @@ public:
 
 
 /*!
-  Constructs a status bar with just a size grip.
+  Constructs a status bar with the parent \a parent and the name
+  \a name and with just a size grip.
+
   \sa setSizeGripEnabled()
 */
 QStatusBar::QStatusBar( QWidget * parent, const char *name )
@@ -341,6 +343,8 @@ void QStatusBar::message( const QString &message )
 
 
 /*!
+  \overload
+  
   Hides the normal status indications and displays \a message for \a
   ms milli-seconds or until clear() or another message() is called,
   whichever occurs first.

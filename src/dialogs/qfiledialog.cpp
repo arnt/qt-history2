@@ -3073,6 +3073,8 @@ void QFileDialog::rereadDir()
 
 #include "../kernel/qapplication_p.h"
 
+extern bool qt_resolve_symlinks; // defined in qapplication.cpp
+
 /*!
   This is a convenience static function that will return an existing file
   selected by the user.
@@ -3112,8 +3114,6 @@ void QFileDialog::rereadDir()
 
   \sa getOpenFileNames(), getSaveFileName(), getExistingDirectory()
 */
-
-extern bool qt_resolve_symlinks; // defined in qapplication.cpp
 
 QString QFileDialog::getOpenFileName( const QString & startWith,
 				      const QString& filter,

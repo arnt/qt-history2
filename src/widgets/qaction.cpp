@@ -132,8 +132,10 @@ public:
     QString statustip;
     QString whatsthis;
     int key;
+#ifndef QT_NO_ACCEL
     QAccel* accel;
     int accelid;
+#endif
     uint enabled : 1;
     uint toggleaction :1;
     uint on : 1;
@@ -167,8 +169,10 @@ public:
 QActionPrivate::QActionPrivate()
 {
     iconset = 0;
+#ifndef QT_NO_ACCEL
     accel = 0;
     accelid = 0;
+#endif
     key = 0;
     enabled = 1;
     toggleaction  = 0;
@@ -197,7 +201,9 @@ QActionPrivate::~QActionPrivate()
 	    menu->removeItem( mi->id );
     }
 
+#ifndef QT_NO_ACCEL
     delete accel;
+#endif
     delete iconset;
     delete tipGroup;
 }
@@ -207,8 +213,10 @@ void QActionPrivate::update( Update upd )
     for ( QPtrListIterator<MenuItem> it( menuitems); it.current(); ++it ) {
 	MenuItem* mi = it.current();
 	QString t = menuText();
+#ifndef QT_NO_ACCEL
 	if ( key )
 	    t += '\t' + QAccel::keyToString( key );
+#endif
 	switch ( upd ) {
 	case State:
 	    mi->popup->setItemEnabled( mi->id, enabled );
@@ -274,8 +282,10 @@ QString QActionPrivate::menuText() const
 QString QActionPrivate::toolTip() const
 {
     if ( tooltip.isNull() ) {
+#ifndef QT_NO_ACCEL
 	if ( accel )
 	    return text + " (" + QAccel::keyToString( accel->key( accelid )) + ")";
+#endif
 	return text;
     }
     return tooltip;
@@ -511,8 +521,10 @@ void QAction::setWhatsThis( const QString& whatsThis )
     if ( d->whatsthis == whatsThis )
 	return;
     d->whatsthis = whatsThis;
+#ifndef QT_NO_ACCEL
     if ( !d->whatsthis.isEmpty() && d->accel )
 	d->accel->setWhatsThis( d->accelid, d->whatsthis );
+#endif
     d->update();
 }
 
@@ -538,12 +550,17 @@ QString QAction::whatsThis() const
 void QAction::setAccel( int key )
 {
     d->key = key;
+#ifndef QT_NO_ACCEL
     delete d->accel;
     d->accel = 0;
+#endif
 
-    if ( !key )
+    if ( !key ) {
+	d->update();
 	return;
+    }
 
+#ifndef QT_NO_ACCEL
     QObject* p = parent();
     while ( p && !p->isWidgetType() ) {
 	p = p->parent();
@@ -558,6 +575,7 @@ void QAction::setAccel( int key )
 #if defined(QT_CHECK_STATE)
     else
 	qWarning( "QAction::setAccel()  (%s) requires widget in parent chain.", name( "unnamed" ) );
+#endif
 #endif
     d->update();
 }
@@ -639,8 +657,10 @@ bool QAction::isOn() const
 void QAction::setEnabled( bool enable )
 {
     d->enabled = enable;
+#ifndef QT_NO_ACCEL
     if ( d->accel )
 	d->accel->setEnabled( enable );
+#endif
     d->update( QActionPrivate::State );
 }
 
@@ -1138,7 +1158,7 @@ bool QActionGroup::isExclusive() const
   a combobox with the action's \l QAction::text and \l
   QAction::iconSet properties shown. Non-exclusive groups are
   represented by a tool button showing their \l QAction::iconSet and
-  -- depending on \l QMainWindow::usesText -- text() property. 
+  -- depending on \l QMainWindow::usesText() -- text() property. 
 
   In a popup menu the member actions are displayed in a
   submenu.  
@@ -1612,7 +1632,11 @@ void QActionGroup::addedTo( int index, QPopupMenu *menu, QAction *a )
     Q_UNUSED( a );
 }
 
-/* \reimp */
+/*! \reimp 
+    \overload
+  This function is called from the addTo() function when it created
+  a widget (\a actionWidget) in the \a container.
+*/
 
 void QActionGroup::addedTo( QWidget *actionWidget, QWidget *container )
 {
@@ -1620,7 +1644,12 @@ void QActionGroup::addedTo( QWidget *actionWidget, QWidget *container )
     Q_UNUSED( container );
 }
 
-/* \reimp */
+/*! \reimp 
+    \overload 
+  This function is called from the addTo() function when it created a
+  menu item at the index \a index in the popup menu \a menu.
+
+*/
 
 void QActionGroup::addedTo( int index, QPopupMenu *menu )
 {

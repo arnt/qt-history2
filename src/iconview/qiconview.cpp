@@ -449,7 +449,8 @@ QByteArray QIconDragItem::data() const
 }
 
 /*!
-  Sets the data for the QIconDragItem.
+  Sets the data for the QIconDragItem to the data stored in 
+  the QByteArray \a d.
 */
 
 void QIconDragItem::setData( const QByteArray &d )
@@ -1020,6 +1021,8 @@ void QIconViewItem::setPicture( const QPicture &icon )
 #endif
 
 /*!
+  \overload
+
   Sets \a text as the text of the icon view item. If \a recalc is TRUE,
   the icon view's layout is recalculated. If \a redraw is TRUE (the
   default), the icon view is repainted.
@@ -1042,6 +1045,8 @@ void QIconViewItem::setText( const QString &text, bool recalc, bool redraw )
 }
 
 /*!
+  \overload
+
   Sets \a icon as the item's icon in the icon view. If \a recalc is TRUE, the
   icon view's layout is recalculated. If \a redraw is TRUE (the
   default), the icon view is repainted.
@@ -1417,7 +1422,9 @@ void QIconViewItem::moveBy( int dx, int dy )
 }
 
 /*!
-  \overload void QIconViewItem::move( const QPoint &pnt  )
+  \overload 
+  
+  Moves the item to the point \a pnt.
 */
 
 bool QIconViewItem::move( const QPoint &pnt )
@@ -1426,7 +1433,8 @@ bool QIconViewItem::move( const QPoint &pnt )
 }
 
 /*!
-  \overload void QIconViewItem::moveBy( const QPoint &pnt )
+  \overload
+
 */
 
 void QIconViewItem::moveBy( const QPoint &pnt )
@@ -1981,7 +1989,7 @@ void QIconViewItem::dragLeft()
 {
 }
 
-/*!  Sets the bounding rectangle of the whole item.  This function is
+/*!  Sets the bounding rectangle of the whole item to \a r.  This function is
   provided for subclasses which reimplement calcRect(), so that they
   can set the calculated rectangle. \e{Other use is discouraged.}
 
@@ -1996,7 +2004,7 @@ void QIconViewItem::setItemRect( const QRect &r )
 	view->updateItemContainer( this );
 }
 
-/*!  Sets the bounding rectangle of the item's text.  This function is
+/*!  Sets the bounding rectangle of the item's text to \a r.  This function is
   provided for subclasses which reimplement calcRect(), so that they
   can set the calculated rectangle. \e{Other use is discouraged.}
 
@@ -2010,7 +2018,7 @@ void QIconViewItem::setTextRect( const QRect &r )
 	view->updateItemContainer( this );
 }
 
-/*!  Sets the bounding rectangle of the item's icon.  This function is
+/*!  Sets the bounding rectangle of the item's icon to \a r.  This function is
   provided for subclasses which reimplement calcRect(), so that they
   can set the calculated rectangle. \e{Other use is discouraged.}
 
@@ -2149,13 +2157,13 @@ void QIconViewItem::checkRect()
     Because the internal structure used to store the icon view items is
     linear (a double-linked list), no iterator class is needed to
     iterate over all the items. Instead we iterate by getting the first
-    item from the \e{icon view} and then each subsequent (\l nextItem) from
-    each \e item in turn:
+    item from the \e{icon view} and then each subsequent 
+    (\l QIconViewItem::nextItem()) from each \e item in turn:
 
-  \code
-  for ( QIconViewItem *item = iv->firstItem(); item; item = item->nextItem() )
-    do_something( item );
-  \endcode
+    \code
+	for ( QIconViewItem *item = iv->firstItem(); item; item = item->nextItem() )
+	    do_something( item );
+    \endcode
 
     QIconView supports the drag and drop of items within the QIconView
     itself. It also supports the drag and drop of items out of or into
@@ -2339,7 +2347,7 @@ void QIconViewItem::checkRect()
   in each selection mode.
 */
 
-/*! \fn void  QIconView::selectionChanged( QIconViewItem *item )
+/*! \overload void  QIconView::selectionChanged( QIconViewItem *item )
 
   This signal is emitted when the selection changes. \a item is the
   newly selected item. This signal is emitted only in single selection
@@ -2371,8 +2379,7 @@ void QIconViewItem::checkRect()
   \sa onItem()
 */
 
-/*!
-  \fn void QIconView::itemRenamed (QIconViewItem * item)
+/*! \overload void QIconView::itemRenamed (QIconViewItem * item)
 
   This signal is emitted when \a item has been renamed, usually by
   in-place renaming.
@@ -2427,7 +2434,7 @@ void QIconViewItem::checkRect()
 */
 
 /*!
-  \fn void QIconView::mouseButtonClicked (int button, QIconViewItem * item, const QPoint & pos)
+  \fn void QIconView::mouseButtonClicked (int button, QIconViewItem * item, const QPoint & pos )
 
   This signal is emitted when the user clicks mouse button \a
   button. If \a item is non-null, the cursor is on \a item. If \a item
@@ -2440,8 +2447,7 @@ void QIconViewItem::checkRect()
   \sa mouseButtonPressed() rightButtonClicked() clicked()
 */
 
-/*!
-  \fn void QIconView::clicked ( QIconViewItem * item, const QPoint & pos)
+/*! \overload void QIconView::clicked ( QIconViewItem * item, const QPoint & pos )
 
   This signal is emitted when the user clicks any mouse button. If \a
   item is non-null, the cursor is on \a item. If \a item is null, the
@@ -2454,8 +2460,7 @@ void QIconViewItem::checkRect()
   \sa mouseButtonClicked() rightButtonClicked() pressed()
 */
 
-/*!
-  \fn void QIconView::pressed ( QIconViewItem * item, const QPoint & pos)
+/*! \overload void QIconView::pressed ( QIconViewItem * item, const QPoint & pos )
 
   This signal is emitted when the user presses any mouse button. If \a
   item is non-null, the cursor is on \a item. If \a item is null, the
@@ -2488,8 +2493,19 @@ void QIconViewItem::checkRect()
   \sa mouseButtonPressed() rightButtonPressed() clicked()
 */
 
+/*! 
+  \fn void QIconView::rightButtonPressed( QIconViewItem * item, const QPoint & pos )
+
+  This signal is emitted when the user presses the right mouse button.  If \a
+  item is non-null, the cursor is on \a item.  If \a item is null, the mouse
+  cursor isn't on any item.
+
+  \a pos is the position of the mouse cursor in the global coordinate
+  system (QMouseEvent::globalPos()).
+
 /*!
-  Constructs an empty icon view.
+  Constructs an empty icon view with the parent \a parent and the name \a name, 
+  using the widget flags \a f.
 */
 
 QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
@@ -3201,6 +3217,8 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 }
 
 /*!
+  \overload
+
   Arranges all the items in the grid given by gridX() and gridY().
 
   Even if sorting() is enabled, the items are not sorted by this
@@ -3394,6 +3412,8 @@ QIconViewItem *QIconView::findItem( const QPoint &pos ) const
 }
 
 /*!
+  \overload  
+  
   Returns a pointer to the first item whose text begins with \a text, or
   0 if no such item could be found.
   The \a compare flag customizes the comparison of the items in the view
@@ -4914,9 +4934,10 @@ void QIconView::startDrag()
 #endif
 
 /*!
-  Inserts an item in the icon view's grid. \e{You should never need
-  to call this manually.} Insert QIconViewItems by creating them with a
-  pointer to the QIconView that they are to be inserted into as a
+  Inserts the QIconViewItem \a item in the icon view's grid. 
+  \e{You should never need to call this manually.} Insert 
+  QIconViewItems by creating them with a pointer to the 
+  QIconView that they are to be inserted into as a
   parameter.
 
 */
@@ -4987,8 +5008,10 @@ void QIconView::insertInGrid( QIconViewItem *item )
     }
 }
 
-/*!  Emits a signal to indicate selection changes. \e{You should never
-  need to call this.}
+/*!  Emits a signal to indicate selection changes. \a i is the QIconViewItem
+    that was selected or de-selected.
+    
+     \e{You should never need to call this.}
 */
 
 void QIconView::emitSelectionChanged( QIconViewItem *i )

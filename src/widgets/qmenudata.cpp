@@ -173,10 +173,10 @@ QMenuData::~QMenuData()
 
 
 /*!
-  Virtual function; notifies subclasses about an item that has been changed.
+  Virtual function; notifies subclasses about an item \a id that has been changed.
 */
 
-void QMenuData::updateItem( int )		// reimplemented in subclass
+void QMenuData::updateItem( int /* id */ )	// reimplemented in subclass
 {
 }
 
@@ -228,7 +228,7 @@ uint QMenuData::count() const
 
 
 
-    /*!
+/*!
   Internal function that insert a menu item.  Called by all insert()
   functions.
 */
@@ -314,8 +314,9 @@ void QMenuData::removePopup( QPopupMenu *popup )
   The number of insert functions may look confusing, but they are actually
   quite simple to use.
 
-  This default version inserts a menu item with a text, an accelerator
-  key, an id and an optional index and connects it to an object/slot.
+  This default version inserts a menu item with the text \a text, the accelerator
+  key \a key, an id and an optional index and connects it to the slot \a member in
+  the object \a reciever.
 
   Example:
   \code
@@ -426,9 +427,19 @@ int QMenuData::insertItem( const QPixmap &pixmap,
 
 
 /*!\overload
-  Inserts a menu item with an icon, a pixmap, an accelerator key, an id,
-  and an optional index; connects it to an object/slot. The icon
-  will be displayed to the left of the pixmap in the item.
+  Inserts a menu item with the icon \a icon, and the pixmap \a pixmap
+  The icon will be displayed to the left of the pixmap in the item.
+
+  The accelerator key is set to \a accel and the item is connected it 
+  to the \a member slot in the \a receiver object.
+
+  The menu item is assigned the identifier \a id or an automatically
+  generated identifier if \a id is < 0. The generated identifiers
+  (negative integers) are guaranteed to be unique within the entire
+  application.
+
+  The \a index specifies the position in the menu.  The menu item is
+  appended at the end of the list if \a index is negative.
 
   To look best when being highlighted as menu item, the pixmap should
   provide a mask (see QPixmap::mask()).
@@ -464,9 +475,17 @@ int QMenuData::insertItem( const QString &text, int id, int index )
 }
 
 /*!\overload
-  Inserts a menu item with an icon and a text.  The icon will be
-  displayed to the left of the text in the item. Returns the menu
-  item identifier.
+  
+  Inserts a menu item with the icon \a icon, and the text \a text
+  The icon will be displayed to the left of the text in the item.
+
+  The menu item is assigned the identifier \a id or an automatically
+  generated identifier if \a id is < 0. The generated identifiers
+  (negative integers) are guaranteed to be unique within the entire
+  application.
+
+  The \a index specifies the position in the menu.  The menu item is
+  appended at the end of the list if \a index is negative.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
@@ -496,8 +515,18 @@ int QMenuData::insertItem( const QString &text, QPopupMenu *popup,
 }
 
 /*!\overload
-  Inserts a menu item with an icon, a text and a submenu. The icon
-  will be displayed to the left of the text in the item.
+
+  Inserts a menu item with the icon \a icon, the text \a text 
+  and the submenu \a popup. The icon will be displayed to the 
+  left of the text in the item.
+
+  The menu item is assigned the identifier \a id or an automatically
+  generated identifier if \a id is < 0. The generated identifiers
+  (negative integers) are guaranteed to be unique within the entire
+  application.
+
+  The \a index specifies the position in the menu.  The menu item is
+  appended at the end of the list if \a index is negative.
 
   The \a popup must be deleted by the programmer or by its parent
   widget.  It is not deleted when this menu item is removed or when
@@ -516,7 +545,18 @@ int QMenuData::insertItem( const QIconSet& icon,
 }
 
 /*!\overload
-  Inserts a menu item with a pixmap.  Returns the menu item identifier.
+
+  Inserts a menu item with the the pixmap \a pixmap.
+
+  The menu item is assigned the identifier \a id or an automatically
+  generated identifier if \a id is < 0. The generated identifiers
+  (negative integers) are guaranteed to be unique within the entire
+  application.
+
+  The \a index specifies the position in the menu.  The menu item is
+  appended at the end of the list if \a index is negative.
+  
+  Returns the menu item identifier.
 
   To look best when being highlighted as menu item, the pixmap should
   provide a mask (see QPixmap::mask()).
@@ -530,9 +570,18 @@ int QMenuData::insertItem( const QPixmap &pixmap, int id, int index )
 }
 
 /*!\overload
-  Inserts a menu item with an icon and a pixmap.  The icon will be
-  displayed to the left of the pixmap in the item. Returns the menu
-  item identifier.
+  Inserts a menu item with the icon \a icon, the pixmap \a pixmap 
+  The icon will be displayed to the left of the pixmap in the item.
+
+  The menu item is assigned the identifier \a id or an automatically
+  generated identifier if \a id is < 0. The generated identifiers
+  (negative integers) are guaranteed to be unique within the entire
+  application.
+
+  The \a index specifies the position in the menu.  The menu item is
+  appended at the end of the list if \a index is negative.
+
+  Returns the menu item identifier.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem()
 */
@@ -545,8 +594,15 @@ int QMenuData::insertItem( const QIconSet& icon,
 
 
 /*!\overload
-  Inserts a menu item with a pixmap and a submenu. The icon
-  will be displayed to the left of the pixmap in the item.
+  Inserts a menu item with the pixmap \a pixmap and the submenu \a popup.
+
+  The menu item is assigned the identifier \a id or an automatically
+  generated identifier if \a id is < 0. The generated identifiers
+  (negative integers) are guaranteed to be unique within the entire
+  application.
+
+  The \a index specifies the position in the menu.  The menu item is
+  appended at the end of the list if \a index is negative.
 
   The \a popup must be deleted by the programmer or by its parent
   widget.  It is not deleted when this menu item is removed or when
@@ -565,8 +621,17 @@ int QMenuData::insertItem( const QPixmap &pixmap, QPopupMenu *popup,
 
 
 /*!\overload
-  Inserts a menu item with an icon, a pixmap and a submenu. The icon
-  will be displayed to the left of the pixmap in the item.
+  Inserts a menu item with the icon \a icon, the pixmap \a pixmap 
+  and the submenu \a popup. The icon will be displayed to the left 
+  of the pixmap in the item.
+
+  The menu item is assigned the identifier \a id or an automatically
+  generated identifier if \a id is < 0. The generated identifiers
+  (negative integers) are guaranteed to be unique within the entire
+  application.
+
+  The \a index specifies the position in the menu.  The menu item is
+  appended at the end of the list if \a index is negative.
 
   The \a popup must be deleted by the programmer or by its parent
   widget.  It is not deleted when this menu item is removed or when
@@ -733,7 +798,7 @@ int QMenuData::accel( int id ) const
 }
 
 /*!
-  Defines an accelerator key for the menu item \a id.
+  Sets the accelerator key for the menu item \a id to \a key.
 
   An accelerator key consists of a key code and a combination of the modifiers
   \c SHIFT, \c CTRL, \c ALT or \c UNICODE_ACCEL (OR'ed or added).
@@ -875,8 +940,8 @@ void QMenuData::changeItem( int id, const QString &text )
 }
 
 /*!
-  Changes the pixmap of the menu item \a id. If the item has an icon,
-  the icon remains unchanged.
+  Changes the pixmap of the menu item \a id to the pixmap
+  \a pixmap. If the item has an icon, the icon is unchanged.
   \sa pixmap()
 */
 
@@ -902,7 +967,8 @@ void QMenuData::changeItem( int id, const QPixmap &pixmap )
 }
 
 /*!
-  Changes the icon and text of the menu item \a id.
+  Changes the iconset and text of the menu item \a id 
+  to the iconset \a icon and to the text \a text.
   \sa pixmap()
 */
 
@@ -913,7 +979,10 @@ void QMenuData::changeItem( int id, const QIconSet &icon, const QString &text )
 }
 
 /*!
-  Changes the icon and pixmap of the menu item \a id.
+  \overload
+    
+  Changes the iconset and pixmap of the menu item \a id 
+  to the iconset \a icon and to the pixmap \a pixmap.
   \sa pixmap()
 */
 
@@ -981,7 +1050,9 @@ void QMenuData::setItemEnabled( int id, bool enable )
 
 
 /*!
-  Returns TRUE if the menu item has been checked, otherwise FALSE.
+  Returns TRUE if the menu item with the id \a id has been checked, 
+  otherwise FALSE.
+  
   \sa setItemChecked()
 */
 
@@ -1025,6 +1096,8 @@ QMenuItem *QMenuData::findItem( int id ) const
 
 
 /*!
+  \overload    
+  
   Returns a pointer to the menu item with identifier \a id, or 0 if
   there is no item with such an identifier, and changes \a parent to
   point to the parent of the return value.
@@ -1202,7 +1275,7 @@ void QMenuData::setWhatsThis( int id, const QString& text )
 }
 
 /*!
-  Returns the What's This help text for the specified item \e id or
+  Returns the What's This help text for the specified item \a id or
   QString::null if no text has yet been defined.
 
   \sa setWhatsThis()
@@ -1275,13 +1348,13 @@ QCustomMenuItem::~QCustomMenuItem()
 
 
 /*!
-  Sets the font of the custom menu item.
+  Sets the font of the custom menu item to \a font.
 
   This function is called whenever the font in the popup menu
   changes. For menu items that show their own individual font entry,
   you want to ignore this.
  */
-void QCustomMenuItem::setFont( const QFont&  )
+void QCustomMenuItem::setFont( const QFont& /* font */ )
 {
 }
 

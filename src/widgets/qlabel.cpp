@@ -295,7 +295,7 @@ void QLabel::clear()
   If no pixmap has been set this will return an invalid pixmap.
 
   Setting the pixmap clears any previous content, and resizes the label
-  if \l autoResize is TRUE. The buddy accelerator, if any, is disabled.
+  if \l autoResize() is TRUE. The buddy accelerator, if any, is disabled.
 */
 void QLabel::setPixmap( const QPixmap &pixmap )
 {
@@ -347,7 +347,7 @@ void QLabel::setNum( int num )
 	setText( str );
 }
 
-/*!
+/*! \overload
   Sets the label contents to a plain text containing the printed value
   of \a num.  Does nothing if this is equal to the current contents of
   the label. Any previous content is cleared.
@@ -1211,6 +1211,10 @@ void QLabel::setScaledContents( bool enable )
 }
 
 #endif // QT_NO_IMAGE_SMOOTHSCALE
+
+/*!
+    Sets the font used on the QLabel to the font \a f.
+*/
 
 void QLabel::setFont( const QFont &f )
 {

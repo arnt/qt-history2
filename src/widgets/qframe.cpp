@@ -151,7 +151,7 @@
   Constructs a frame widget with frame style \c NoFrame and a 1-pixel frame
   width.
 
-  The \e parent, \e name and \e f arguments are passed to the QWidget
+  The \a parent, \a name and \a f arguments are passed to the QWidget
   constructor.
 */
 
@@ -191,9 +191,9 @@ static const int wpwidth = 2; // WinPanel lwidth
 */
 
 /*!
-  Sets the frame style to \e style.
+  Sets the frame style to \a style.
 
-  The \e style is the bitwise OR between a frame shape and a frame
+  The \a style is the bitwise OR between a frame shape and a frame
   shadow style.  See the <a href="#picture">illustration</a> in the
   class documentation.
 
@@ -467,7 +467,7 @@ QSize QFrame::sizeHint() const
 }
 
 /*!
-  Handles paint events for the frame.
+  Processes the paint event \a event.
 
   Paints the frame and the contents.
 
@@ -494,7 +494,7 @@ void QFrame::paintEvent( QPaintEvent *event )
 
 
 /*!
-  Handles resize events for the frame.
+  Processes the resize event \e.
 
   Adjusts the frame rectangle for the resized widget.  The frame
   rectangle is elastic, and the surrounding area is static.
@@ -521,8 +521,9 @@ void QFrame::resizeEvent( QResizeEvent *e )
 
 
 /*!
-  Draws the frame using the current frame attributes and color
-  group.  The rectangle inside the frame is not affected.
+  Draws the frame using the painter \a p and the current frame 
+  attributes and color group.  The rectangle inside the frame 
+  is not affected.
 
   This function is virtual, but in general you do not need to
   reimplement it.  If you do, note that the QPainter is already open
@@ -678,7 +679,8 @@ void QFrame::updateMask()
 
 
 /*!
-  Virtual function that draws the mask of the frame's frame.
+  Virtual function that draws the mask of the frame's frame using
+  the painter \a p.
 
   If you reimplemented drawFrame() and your widget should support
   transparency, you probably have to re-implement this function as
@@ -746,7 +748,8 @@ void QFrame::drawFrameMask( QPainter* p )
 }
 
 /*!
-  Virtual function that draws the mask of the frame's contents.
+  Virtual function that draws the mask of the frame's contents using
+  the painter \a p.
 
   If you reimplemented drawContents() and your widget should support
   transparency, you probably have to re-implement this function as

@@ -150,31 +150,41 @@
 */
 
 /*! \property QPushButton::autoDefault
-    \brief Whether the push button is the auto default button
+    \brief whether the push button is the auto default button
 
   If this property is set to TRUE then the push button will be the focused
   item in a dialog when it is first shown.
 */
 
 /*! \property QPushButton::default
-    \brief Whether the push button is the default
+    \brief whether the push button is the default
 
   If this property is set to TRUE then the push button will be pressed if the
   user hits the enter key in a dialog.
 */
 
 /*! \property QPushButton::flat
-    \brief Whether the border is disabled
+    \brief whether the border is disabled
 */
 
 /*! \property QPushButton::iconSet
-    \brief The icon set on the push button
+    \brief the icon set on the push button
 
   This property will return 0 if there is no icon set on the push button
 */
 
+/*! \property QPushButton::on
+    \brief whether the push button is toggled
+
+  This property should only be set for toggle push buttons.
+*/
+
+/*! \property QPushButton::toggleButton
+    \brief whether the button is a toggle button
+*/
+
 /*! \property QPushButton::menuButton
-    \brief Whether the push button has a menu button on it
+    \brief whether the push button has a menu button on it
     \obsolete
 
   If this property is set to TRUE, then a down arrow is drawn on the push
@@ -241,9 +251,8 @@ QPushButton::QPushButton( QWidget *parent, const char *name )
 }
 
 /*!
-  Constructs a push button with a text.
-
-  The \a parent and \a name arguments are sent to the QWidget constructor.
+  Constructs a push button with the parent \a parent and the name \a name
+  with the text \a text.
 */
 
 QPushButton::QPushButton( const QString &text, QWidget *parent,
