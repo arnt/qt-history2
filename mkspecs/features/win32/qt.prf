@@ -42,8 +42,6 @@ for(QCONF, QCONFIG) {
       target_qt:isEqual(TARGET, qlib) {
          warning($$TARGET cannot have a QCONFIG of $$QCONF)
       } else {
-         target_qt:DEFINES *= $$upper(QT_$${QCONF}_WIN_IMPORT)
-         DEFINES *= $$upper(QT_$${QCONF}_LIB)
 	 isEqual(QCONF, compat):!contains(DEFINES, QT_COMPAT):DEFINES *= QT_COMPAT_WARNINGS
          LIBS   += -l$${qlib}
       }
