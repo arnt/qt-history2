@@ -486,7 +486,7 @@ of any signal and slot connections between them.
 
 By default, new forms are opened in editing mode. If \QD is in another mode,
 you can enter editing mode by opening the \key Edit menu and selecting
-\key{Edit Widgets}, or by pressing the \key F2 key.
+\key{Edit Widgets}, or by pressing the \key F3 key.
 
 Objects are added to the form by dragging them from the main toolbox
 and dropping them in the desired location on the form. Once there, they
@@ -703,7 +703,7 @@ so that they will be ready for use when your project is built.
 
 To begin connecting objects, enter connection mode by opening the
 \key Edit menu and selecting \key{Edit Signals/Slots}, or by pressing
-the \key F3 key.
+the \key F4 key.
 All widgets and layout objects on the form can be connected together.
 Spacers just provide spacing hints to layouts, so they cannot be connected
 to other objects.
