@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.cpp#30 $
+** $Id: //depot/qt/main/src/tools/qdatetm.cpp#31 $
 **
 ** Implementation of date and time classes
 **
@@ -29,7 +29,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetm.cpp#30 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdatetm.cpp#31 $";
 #endif
 
 
@@ -253,18 +253,6 @@ bool QDate::setYMD( int y, int m, int d )	// set year, month, day
     jd = greg2jul( y, m, d );
     return TRUE;
 }
-
-/*----------------------------------------------------------------------------
-  Sets the local date given the number of seconds that have passed
-  since 00:00:00 on January 1, 1970, Coordinated Universal Time (UTC).
- ----------------------------------------------------------------------------*/
-
-void QDate::setTime_t( ulong secsSince1Jan1970UTC )
-{
-    tm *t = localtime( (time_t*) &secsSince1Jan1970UTC );
-    jd = greg2jul( t->tm_year + 1900, t->tm_mon + 1, t->tm_mday );
-}
-
 
 /*----------------------------------------------------------------------------
   Returns this date plus \e ndays days.
@@ -542,18 +530,6 @@ bool QTime::setHMS( int h, int m, int s, int ms ) // set time of day
 }
 
 /*----------------------------------------------------------------------------
-  Sets the local time of day given the number of seconds that have passed
-  since 00:00:00 on January 1, 1970, Coordinated Universal Time (UTC).
- ----------------------------------------------------------------------------*/
-
-void QTime::setTime_t( ulong secsSince1Jan1970UTC )
-{
-    tm *t = localtime( (time_t*) &secsSince1Jan1970UTC );
-    ds = MSECS_PER_HOUR*t->tm_hour + MSECS_PER_MIN*t->tm_min +
-	 1000*t->tm_sec;
-}
-
-/*----------------------------------------------------------------------------
   Returns the time plus \e nsecs seconds.
   \sa secsTo()
  ----------------------------------------------------------------------------*/
@@ -802,15 +778,60 @@ QDateTime::QDateTime( const QDate &date, const QTime &time )
 /*----------------------------------------------------------------------------
   Sets the local date and time given the number of seconds that have passed
   since 00:00:00 on January 1, 1970, Coordinated Universal Time (UTC).
+  On systems that do not support timezones this function will behave as if
+  local time were UTC.
  ----------------------------------------------------------------------------*/
 
 void QDateTime::setTime_t( ulong secsSince1Jan1970UTC )
 {
-    tm *tM = localtime( (time_t*) &secsSince1Jan1970UTC );
+    time_t tmp = (time_t) secsSince1Jan1970UTC;
+    tm *tM = localtime( &tmp );
     d.jd = QDate::greg2jul( tM->tm_year + 1900, tM->tm_mon + 1, tM->tm_mday );
     t.ds = MSECS_PER_HOUR*tM->tm_hour + MSECS_PER_MIN*tM->tm_min +
 	    1000*tM->tm_sec;
 }
+
+/* ----------------------------------------------------------------------------
+  Converts the date and time to the number of seconds that have passed
+  since 00:00:00 on January 1, 1970, Coordinated Universal Time (UTC).
+  On systems that do not support timezones this function will behave as if
+  local time were UTC.
+  \warning If the date and time is set to any date before January 1 1970 UTC
+  this function will return 0. 
+
+ \sa setTime_t
+ ----------------------------------------------------------------------------*/
+/*ulong QDateTime::toTime_t() const
+{
+#if 0
+    tm tM;
+    const time_t dummy = 0;
+    tM = *localtime( &dummy );
+    
+    tM.tm_year = d.year() - 1900;
+    tM.tm_mon  = d.month() - 1;
+    tM.tm_mday = d.day();
+    tM.tm_hour = t.hour();
+    tM.tm_min  = t.minute();
+    tM.tm_sec  = t.second();
+    tM.tm_wday = d.dayOfWeek() - 1;
+    tM.tm_yday = d.dayOfYear() - 1;
+
+    return (ulong) mktime( &tM );
+#else
+    if ( d.jd < 2440587 )
+        return 0;
+    long tmp = (d.jd - 2440588)*60*60*24 + t.ds;
+    tm tM;
+    tm = *gmtime( tmp );
+    time_t tmp = mktime( &tm );
+    if ( tmp < 0 && tmp)
+
+    const time_t dummy = 0;
+    
+#endif
+}
+*/
 
 /*----------------------------------------------------------------------------
   Returns the datetime as a string.

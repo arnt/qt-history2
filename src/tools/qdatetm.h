@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.h#12 $
+** $Id: //depot/qt/main/src/tools/qdatetm.h#13 $
 **
 ** Definition of date and time classes
 **
@@ -43,7 +43,6 @@ public:
     QString toString()	 const;
 
     bool   setYMD( int y, int m, int d );
-    void   setTime_t( ulong secsSince1Jan1970UTC );
 
     QDate  addDays( long days )		const;	// add days
     long   daysTo( const QDate & )	const;	// days difference
@@ -92,7 +91,6 @@ public:
     QString toString()	 const;
 
     bool   setHMS( int h, int m, int s, int ms=0 );
-    void   setTime_t( ulong secsSince1Jan1970UTC );
 
     QTime  addSecs( long secs )		const;
     long   secsTo( const QTime & )	const;
