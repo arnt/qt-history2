@@ -48,8 +48,8 @@ See also the list of \l{text.html}{Text Related Classes}.
 
 The structured representation of a text document presents its contents as
 a hierarchy of text blocks, frames, tables, and other objects. These provide
-logical structure to the document and indicate how their contents are
-to be displayed. Generally, frames and tables are used to group other
+a logical structure to the document and describe how their contents will be
+displayed. Generally, frames and tables are used to group other
 structures while text blocks contain the actual textual information.
 
 New elements are created and inserted into the document
@@ -77,8 +77,8 @@ new elements can always be inserted between existing structures.
 
 In this chapter, we look at each of the structural elements
 used in a rich text document, outline their features and uses, and show
-how to examine their contents. We leave the discussion about editing to
-the chapter on \l{richtext-cursor.html}{The QTextCursor Interface}.
+how to examine their contents. Document editing is described in
+\l{richtext-cursor.html}{The QTextCursor Interface}.
 
 \section1 Rich Text Documents
 
@@ -86,7 +86,8 @@ QTextDocument objects contain all the information required to construct
 rich text documents for use with a QTextEdit widget or in a custom editor.
 Although QTextEdit makes it easy to display and edit rich text, and allows
 the underlying document to be edited programmatically, documents can also
-be used independently of any editor widget:
+be used independently of any editor widget. Documents can be created
+directly or extracted from an existing editor:
 
 \code
 QTextDocument *newDocument = new QTextDocument;
@@ -94,7 +95,7 @@ QTextEdit *editor = new QTextEdit;
 QTextDocument *editorDocument = editor->document();
 \endcode
 
-This enables applications to handle multiple rich text documents
+This flexibility enables applications to handle multiple rich text documents
 without the overhead of multiple editor widgets, or requiring documents
 to be stored in some intermediate format.
 
@@ -134,7 +135,7 @@ that group together frames and other elements are subclasses of QTextFrame.
 Text blocks are provided by the QTextBlock class.
 
 Text blocks group together fragments of text with different character formats,
-and are generally used to represent paragraphs in the document. Each block
+and are used to represent paragraphs in the document. Each block
 typically contains a number of text fragments with different styles.
 Fragments are created when text is inserted into the document, and more
 of them are added when the document is edited. The document splits, merges,
@@ -148,7 +149,7 @@ QTextBlock::iterator to traverse the block's internal structure:
 \skipto QTextBlock::iterator
 \printuntil if (fragment.isValid())
 \skipto processFragment(
-\printuntil processFragment(
+\printuntil ...
 \skipto }
 \printuntil }
 \skipto }
@@ -156,7 +157,7 @@ QTextBlock::iterator to traverse the block's internal structure:
 
 Blocks are also used to represent list items. As a result, blocks can
 define their own character formats which contain information about
-block-level decoration, such as the bullet points found alongside
+block-level decoration, such as the type of bullet points used for
 list items. The formatting for the block itself is described by the
 QTextBlockFormat class, and describes properties such as text alignment,
 indentation, and background color.
@@ -186,12 +187,11 @@ to determine which one occurs first in a document.
 
 Frames are provided by the QTextFrame class.
 
-Text frames group together blocks of text and child frames, providing
+Text frames group together blocks of text and child frames, creating
 document structures that are larger than paragraphs. The format of a frame
 specifies how it is rendered and positioned on the page. Frames are
 either inserted into the text flow, or they float on the left or right
 hand side of the page.
-
 Each document contains a root frame that contains all the other document
 elements. As a result, all frames except the root frame have a parent
 frame.
@@ -219,15 +219,14 @@ a document.
 Tables are provided by the QTextTable class.
 
 Tables are collections of cells that are arranged in rows and columns.
-Each cell in a table is a document element in its own right, with its own 
-character format, but they can also contain other elements, such as frames
-and text blocks. Table cells are automatically created when the table is
-constructed, or when extra rows or columns are added, but they can also
-be moved between tables.
+Each table cell is a document element with its own character format, but it
+can also contain other elements, such as frames and text blocks. Table cells
+are automatically created when the table is constructed, or when extra rows
+or columns are added. They can also be moved between tables.
 
 QTextTable is a subclass of QTextFrame, so tables are treated like frames
 in the document structure. For each frame that we encounter in the
-document, we test whether it represents a table, and deal with it in a
+document, we can test whether it represents a table, and deal with it in a
 different way:
 
 \quotefromfile snippets/textdocument-tables/xmlwriter.cpp
@@ -271,9 +270,9 @@ We can refer to each list item by its index in the list:
 
 Since QTextList is a subclass of QTextBlockGroup, it does not group the
 list items as child elements, but instead provides various functions for
-managing them. This means that any text block that is found when
-traversing a document may actually be a list item. We can ensure that
-we identify list items correctly with the following code:
+managing them. This means that any text block we find when traversing a
+document may actually be a list item. We can ensure that list items are
+correctly identified by using the following code:
 
 \quotefromfile snippets/textdocument-listitems/mainwindow.cpp
 \skipto MainWindow::showList()
@@ -290,8 +289,16 @@ we identify list items correctly with the following code:
 \section2 Images
 
 Images in QTextDocument are represented by text fragments that reference
-external images via the resource mechanism
+external images via the resource mechanism. Images are created using the
+cursor interface, and can be modified later by changing the character
+format of the image's text fragment:
 
+\quotefromfile snippets/textdocument-imageformat/main.cpp
+\skipto if (fragment.isValid())
+\printuntil setCharFormat
+
+The fragment that represents the image can be found by iterating over
+the fragments in the text block that contains the image.
 */
 
 /*!
@@ -310,14 +317,14 @@ document editing software. Rich text documents can have multiple cursors
 associated with them, and each of these contains information about their
 position in the document and any selections that they may hold. This
 cursor-based paradigm makes common operations, such as cutting and pasting
-text, simple to implement programatically, yet also allows more complex
-editing operations.
+text, simple to implement programatically, yet it also allows more complex
+editing operations to be performed on the document.
 
 This chapter describes most of the common editing operations that you
 will need to perform using a cursor, from basic insertion of text and
 document elements to more complex manipulation of document structures.
 
-\section1 Cursor-based editing
+\section1 Cursor-Based Editing
 
 At the simplest level, text documents are made up of a string of characters,
 marked up in some way to represent the block structure of the text within the
@@ -334,13 +341,13 @@ can also be directly obtained through the cursor.
 \section2 Using a Cursor
 
 The main use of a cursor is to insert or modify text within a block.
-We can use a text editor's cursor
+We can use a text editor's cursor to do this:
 
 \quotefromfile snippets/textblock-formats/main.cpp
 \skipto QTextEdit *editor
 \printuntil QTextCursor cursor
 
-or we can obtain a cursor directly from a document:
+Alternatively, we can obtain a cursor directly from a document:
 
 \quotefromfile snippets/textdocument-images/main.cpp
 \skipto QTextDocument *document
@@ -354,17 +361,21 @@ into the first (empty) block in the document.
 A series of editing operations can be packaged together so that they can
 be replayed, or undone together in a single action. This is achieved by
 using the \c beginEditBlock() and \c endEditBlock() functions in the
-following way:
+following way, as in the following example where we select the word that
+contains the cursor:
 
+\omit
 \quotefromfile textdocument-selections/mainwindow.cpp
 \skipto void MainWindow::selectWord
 \skipto cursor.beginEditBlock
 \printuntil cursor.endEditBlock
+\endomit
 
 If editing operations are not grouped, the document automatically records
 the individual operations so that they can be undone later. Grouping
-operations into larger packages can make editing more efficient for the
-user, but care has to be taken not to group too many useful operations.
+operations into larger packages can make editing more efficient both for
+the user and for the application, but care has to be taken not to group too
+many useful operations together.
 
 \section2 Multiple Cursors
 
@@ -384,7 +395,7 @@ does not interfere with any of the others.
 QTextCursor provides several functions that can be used to change the
 structure of a rich text document. Generally, these functions allow
 document elements to be created with relevant formatting information,
-and inserted into the document at the cursor's position.
+and they are inserted into the document at the cursor's position.
 
 The first group of functions insert block-level elements, and update the
 cursor position, but they do not return the element that was inserted:
@@ -405,7 +416,7 @@ You can examine the contents of the element that was inserted through the
 cursor interface.
 
 The second group of functions insert elements that provide structure to
-the document, returning the structure that was inserted:
+the document, and return the structure that was inserted:
 
 \list
 \i \l{QTextCursor::insertFrame()}{insertFrame()} inserts a frame into the
@@ -432,8 +443,8 @@ format, or in a custom format that is specified with the text:
 \printuntil emphasisFormat
 
 Once the character format has been used with a cursor, that format becomes
-the current format and will be used for any following text inserted into
-the document with that cursor until another character format is specified.
+the default format for any text inserted with that cursor until another
+character format is specified.
 
 If a cursor is used to insert text without specifying a character format,
 the text will be given the character format used at that position in the
@@ -448,7 +459,7 @@ Text blocks are inserted into the document with the
 \skipto QTextBlockFormat backgroundFormat
 \printuntil cursor.setBlockFormat
 
-
+The cursor is positioned at the start of the new block.
 
 \section2 Frames
 
@@ -492,7 +503,7 @@ available cursor position inside the frame we recorded earlier:
 \printuntil cursor.insertText(...);
 
 The text that we add last is inserted after the child frame in the
-document because each frame is padded with text blocks to ensure that
+document. Since each frame is padded with text blocks, this ensures that
 more elements can always be inserted with a cursor.
 
 \section2 Tables
@@ -512,9 +523,6 @@ the cell spacing used. It can also determine the constraints on each
 column, allowing each of them to have a fixed width, or resize according
 to the available space.
 
-Since cells can contain other document elements, they too can be
-formatted and styled as necessary.
-
 \quotefromfile snippets/textdocument-tables/mainwindow.cpp
 \skipto QTextTableFormat tableFormat;
 \printuntil QTextTable *table
@@ -523,6 +531,9 @@ The columns in the table created above will each take up a certain
 percentage of the available width. Note that the table format is
 optional; if you insert a table without a format, some sensible
 default values will be used for the table's properties.
+
+Since cells can contain other document elements, they too can be
+formatted and styled as necessary.
 
 Text can be added to the table by navigating to each cell with the cursor
 and inserting text.
@@ -550,7 +561,7 @@ way requires a list format to be specified:
 
 The above code first checks whether the cursor is within an existing list
 and, if so, gives the list format for the new list a suitable level of
-indentation. This allows nested lists to be created within increasing
+indentation. This allows nested lists to be created with increasing
 levels of indentation. A more sophisticated implementation would also use
 different kinds of symbol for the bullet points in each level of the list.
 
@@ -566,7 +577,7 @@ created before an image can be inserted:
 \printuntil cursor.insertImage(imageFormat);
 
 The image name refers to an entry in the application's resource file.
-How this name is derived is described in
+The method used to derive this name is described in
 \l{resources.html}{The Qt Resource System}.
 
 */
@@ -580,8 +591,6 @@ How this name is derived is described in
 
 \tableofcontents
 
-\section1 Introduction
-
 There are a number of tasks that are often performed by developers
 when editing and processing text documents using Qt. These include the use
 of display widgets such as \c QTextBrowser and \c QTextEdit, creation of
@@ -591,7 +600,7 @@ This document outlines some of the more common ways of using the rich
 text classes to perform these tasks, showing convenient patterns that can
 be reused in your own applications.
 
-\section2 Using QTextEdit
+\section1 Using QTextEdit
 
 A text editor widget can be constructed and used to display HTML in the
 following way:
@@ -610,7 +619,7 @@ be modified directly by the application:
     QTextDocument *document = editor->document();
 \endcode
 
-The text editor's cursor may be used to edit a document:
+The text editor's cursor may also be used to edit a document:
 
 \code
     QTextCursor cursor = editor->textCursor();
@@ -625,13 +634,13 @@ editor's cursor after we have modified the document:
     editor->setTextCursor(cursor);
 \endcode
 
-\section2 Selecting Text
+\section1 Selecting Text
 
 Text is selected by moving the cursor using operations that are similar to
 those performed by a user in a text editor. To select text between two
 points in the document, we need to position the cursor at the first point
-then move it using a special \l{QTextCursor::MoveMode} with a
-\l{QTextCursor::MoveOperation}.
+then move it using a special mode (\l{QTextCursor::MoveMode}) with a
+move operation (\l{QTextCursor::MoveOperation}).
 When we select the text, we leave the selection anchor at the old cursor
 position just as the user might do by holding down the Shift key when
 selecting text:
@@ -642,9 +651,9 @@ selecting text:
 
 In the above code, a whole word is selected using this method. \c QTextCursor
 provides a number of common move operations for selecting individual
-characters, lines, and whole blocks.
+characters, words, lines, and whole blocks.
 
-\section2 Finding Text
+\section1 Finding Text
 
 \c QTextDocument provides a cursor-based interface for searching, making
 it easy to find and modify text in the style of a text editor. The following
@@ -660,7 +669,7 @@ Note that the cursor does not have to be moved after each search and replace
 operation; it is always positioned at the end of the word that was just
 replaced.
 
-\section2 Printing Documents
+\section1 Printing Documents
 
 QTextEdit is designed for the display of large rich text documents that are
 read on screen, rendering them in the same way as a web browser. As a result,
@@ -672,7 +681,7 @@ allow documents to be printed using the QPrinter class. The following code
 shows how to prepare a document in a QTextEdit for printing with a QPrinter:
 
 \quotefromfile snippets/textdocument-printing/mainwindow.cpp
-\skipto printFile()
+\skipto MainWindow::printFile()
 \skipto QTextDocument
 \printuntil document->print
 
