@@ -59,6 +59,8 @@ public:
     Qt::Orientation orientation;
     QList<QDockWindowLayoutInfo> layout_info;
     QList<QDockWindowLayoutInfo> *save_layout_info;
+    mutable QSize minSize;
+    mutable QSize szHint;
 
     QDockWindowLayout(Qt::DockWindowArea a, Qt::Orientation o);
     ~QDockWindowLayout();

@@ -77,6 +77,8 @@ public:
 
     QSize sizeHint() const;
     QSize minimumSize() const;
+    mutable QSize szHint;
+    mutable QSize minSize;
 
     void invalidate();
 

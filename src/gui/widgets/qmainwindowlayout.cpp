@@ -1245,186 +1245,192 @@ void QMainWindowLayout::addItem(QLayoutItem *)
 
 QSize QMainWindowLayout::sizeHint() const
 {
-    int left = 0, right = 0, top = 0, bottom = 0;
+    if (!szHint.isValid()) {
+        int left = 0, right = 0, top = 0, bottom = 0;
 
-    // layout toolbars
-    for (int line = 0; line < tb_layout_info.size(); ++line) {
-        const ToolBarLineInfo &lineInfo = tb_layout_info.at(line);
-        QSize sz;
-        // need to get the biggest size hint for all tool bars on each line
-        for (int i = 0; i < lineInfo.list.size(); ++i) {
-            const ToolBarLayoutInfo &info = lineInfo.list.at(i);
-            QSize ms = info.item->sizeHint();
+        // layout toolbars
+        for (int line = 0; line < tb_layout_info.size(); ++line) {
+            const ToolBarLineInfo &lineInfo = tb_layout_info.at(line);
+            QSize sz;
+            // need to get the biggest size hint for all tool bars on each line
+            for (int i = 0; i < lineInfo.list.size(); ++i) {
+                const ToolBarLayoutInfo &info = lineInfo.list.at(i);
+                QSize ms = info.item->sizeHint();
 
-            if (((lineInfo.pos == LEFT || lineInfo.pos == RIGHT) && (ms.width() > sz.width()))
-                || (ms.height() > sz.height()))
-                sz = ms;
+                if (((lineInfo.pos == LEFT || lineInfo.pos == RIGHT) && (ms.width() > sz.width()))
+                    || (ms.height() > sz.height()))
+                    sz = ms;
+            }
+            switch (lineInfo.pos) {
+            case LEFT:
+                left += sz.width();
+                break;
+
+            case RIGHT:
+                right += sz.width();
+                break;
+
+            case TOP:
+                top += sz.height();
+                break;
+
+            case BOTTOM:
+                bottom += sz.height();
+                break;
+
+            default:
+                Q_ASSERT_X(false, "QMainWindowLayout", "internal error");
+            }
         }
-        switch (lineInfo.pos) {
-        case LEFT:
-            left += sz.width();
-            break;
 
-        case RIGHT:
-            right += sz.width();
-            break;
+        const QSize szC = layout_info[CENTER].item
+                          ? layout_info[CENTER].item->sizeHint()
+                          : QSize(0, 0),
+                    szL = layout_info[LEFT].item
+                          ? layout_info[LEFT].item->sizeHint()
+                          : QSize(0, 0),
+                    szT = layout_info[TOP].item
+                          ? layout_info[TOP].item->sizeHint()
+                          : QSize(0, 0),
+                    szR = layout_info[RIGHT].item
+                          ? layout_info[RIGHT].item->sizeHint()
+                          : QSize(0, 0),
+                    szB = layout_info[BOTTOM].item
+                          ? layout_info[BOTTOM].item->sizeHint()
+                          : QSize(0, 0);
+        int h1, h2, h3, w1, w2, w3;
 
-        case TOP:
-            top += sz.height();
-            break;
+        w1 = (corners[Qt::TopLeftCorner] == Qt::LeftDockWindowArea ? szL.width() : 0)
+             + szT.width()
+             + (corners[Qt::TopRightCorner] == Qt::RightDockWindowArea ? szR.width() : 0);
+        w2 = szL.width() + szR.width() + szC.width();
+        w3 = (corners[Qt::BottomLeftCorner] == Qt::LeftDockWindowArea ? szL.width() : 0)
+             + szB.width()
+             + (corners[Qt::BottomRightCorner] == Qt::RightDockWindowArea ? szR.width(): 0);
 
-        case BOTTOM:
-            bottom += sz.height();
-            break;
+        h1 = (corners[Qt::TopLeftCorner] == Qt::TopDockWindowArea ? szT.height() : 0)
+             + szL.height()
+             + (corners[Qt::BottomLeftCorner] == Qt::BottomDockWindowArea ? szB.height(): 0);
+        h2 = szT.height() + szB.height() + szC.height();
+        h3 = (corners[Qt::TopRightCorner] == Qt::TopDockWindowArea ? szT.height() : 0)
+             + szR.height()
+             + (corners[Qt::BottomRightCorner] == Qt::BottomDockWindowArea ? szB.height() : 0);
 
-        default:
-            Q_ASSERT_X(false, "QMainWindowLayout", "internal error");
-        }
+        const int ext = QApplication::style()->pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
+        if (layout_info[LEFT].item && !szL.isEmpty())
+            left += ext;
+        if (layout_info[RIGHT].item && !szR.isEmpty())
+            right += ext;
+        if (layout_info[TOP].item && !szT.isEmpty())
+            top += ext;
+        if (layout_info[BOTTOM].item && !szB.isEmpty())
+            bottom += ext;
+
+        VDEBUG("QMainWindowLayout::sizeHint:\n"
+               "    %4dx%4d (l %4d r %4d t %4d b %4d w1 %4d w2 %4d w3 %4d, h1 %4d h2 %4d h3 %4d)",
+               qMax(qMax(w1,w2),w3), qMax(qMax(h1,h2),h3),
+               left, right, top, bottom, w1, w2, w3, h1, h2, h3);
+
+        QSize szSB = statusbar ? statusbar->sizeHint() : QSize(0, 0);
+        szHint = QSize(qMax(szSB.width(), qMax(qMax(w1,w2),w3) + left + right),
+                       szSB.height() + qMax(qMax(h1,h2),h3) + top + bottom);
     }
-
-    const QSize szC = layout_info[CENTER].item
-                      ? layout_info[CENTER].item->sizeHint()
-                      : QSize(0, 0),
-                szL = layout_info[LEFT].item
-                      ? layout_info[LEFT].item->sizeHint()
-                      : QSize(0, 0),
-                szT = layout_info[TOP].item
-                      ? layout_info[TOP].item->sizeHint()
-                      : QSize(0, 0),
-                szR = layout_info[RIGHT].item
-                      ? layout_info[RIGHT].item->sizeHint()
-                      : QSize(0, 0),
-                szB = layout_info[BOTTOM].item
-                      ? layout_info[BOTTOM].item->sizeHint()
-                      : QSize(0, 0);
-    int h1, h2, h3, w1, w2, w3;
-
-    w1 = (corners[Qt::TopLeftCorner] == Qt::LeftDockWindowArea ? szL.width() : 0)
-         + szT.width()
-         + (corners[Qt::TopRightCorner] == Qt::RightDockWindowArea ? szR.width() : 0);
-    w2 = szL.width() + szR.width() + szC.width();
-    w3 = (corners[Qt::BottomLeftCorner] == Qt::LeftDockWindowArea ? szL.width() : 0)
-         + szB.width()
-         + (corners[Qt::BottomRightCorner] == Qt::RightDockWindowArea ? szR.width(): 0);
-
-    h1 = (corners[Qt::TopLeftCorner] == Qt::TopDockWindowArea ? szT.height() : 0)
-         + szL.height()
-         + (corners[Qt::BottomLeftCorner] == Qt::BottomDockWindowArea ? szB.height(): 0);
-    h2 = szT.height() + szB.height() + szC.height();
-    h3 = (corners[Qt::TopRightCorner] == Qt::TopDockWindowArea ? szT.height() : 0)
-         + szR.height()
-         + (corners[Qt::BottomRightCorner] == Qt::BottomDockWindowArea ? szB.height() : 0);
-
-    const int ext = QApplication::style()->pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
-    if (layout_info[LEFT].item && !szL.isEmpty())
-        left += ext;
-    if (layout_info[RIGHT].item && !szR.isEmpty())
-        right += ext;
-    if (layout_info[TOP].item && !szT.isEmpty())
-        top += ext;
-    if (layout_info[BOTTOM].item && !szB.isEmpty())
-        bottom += ext;
-
-    VDEBUG("QMainWindowLayout::sizeHint:\n"
-           "    %4dx%4d (l %4d r %4d t %4d b %4d w1 %4d w2 %4d w3 %4d, h1 %4d h2 %4d h3 %4d)",
-           qMax(qMax(w1,w2),w3), qMax(qMax(h1,h2),h3),
-           left, right, top, bottom, w1, w2, w3, h1, h2, h3);
-
-    QSize szSB = statusbar ? statusbar->sizeHint() : QSize(0, 0);
-    return QSize(qMax(szSB.width(), qMax(qMax(w1,w2),w3) + left + right),
-                 szSB.height() + qMax(qMax(h1,h2),h3) + top + bottom);
+    return szHint;
 }
 
 QSize QMainWindowLayout::minimumSize() const
 {
-    int left = 0, right = 0, top = 0, bottom = 0;
+    if (!minSize.isValid()) {
+        int left = 0, right = 0, top = 0, bottom = 0;
 
-    // layout toolbars
-    for (int line = 0; line < tb_layout_info.size(); ++line) {
-        const ToolBarLineInfo &lineInfo = tb_layout_info.at(line);
-        QSize sz;
-        // need to get the biggest min size for all tool bars on each line
-        for (int i = 0; i < lineInfo.list.size(); ++i) {
-            const ToolBarLayoutInfo &info = lineInfo.list.at(i);
-            QSize ms = info.item->minimumSize();
+        // layout toolbars
+        for (int line = 0; line < tb_layout_info.size(); ++line) {
+            const ToolBarLineInfo &lineInfo = tb_layout_info.at(line);
+            QSize sz;
+            // need to get the biggest min size for all tool bars on each line
+            for (int i = 0; i < lineInfo.list.size(); ++i) {
+                const ToolBarLayoutInfo &info = lineInfo.list.at(i);
+                QSize ms = info.item->minimumSize();
 
-            if (((lineInfo.pos == LEFT || lineInfo.pos == RIGHT) && (ms.width() > sz.width()))
-                || (ms.height() > sz.height()))
-                sz = ms;
+                if (((lineInfo.pos == LEFT || lineInfo.pos == RIGHT) && (ms.width() > sz.width()))
+                    || (ms.height() > sz.height()))
+                    sz = ms;
+            }
+            switch (lineInfo.pos) {
+            case LEFT:
+                left += sz.width();
+                break;
+
+            case RIGHT:
+                right += sz.width();
+                break;
+
+            case TOP:
+                top += sz.height();
+                break;
+
+            case BOTTOM:
+                bottom += sz.height();
+                break;
+
+            default:
+                Q_ASSERT_X(false, "QMainWindowLayout", "internal error");
+            }
         }
-        switch (lineInfo.pos) {
-        case LEFT:
-            left += sz.width();
-            break;
 
-        case RIGHT:
-            right += sz.width();
-            break;
+        const QSize szC = layout_info[CENTER].item
+                          ? layout_info[CENTER].item->minimumSize()
+                          : QSize(0, 0),
+                    szL = layout_info[LEFT].item
+                          ? layout_info[LEFT].item->minimumSize()
+                          : QSize(0, 0),
+                    szT = layout_info[TOP].item
+                          ? layout_info[TOP].item->minimumSize()
+                          : QSize(0, 0),
+                    szR = layout_info[RIGHT].item
+                          ? layout_info[RIGHT].item->minimumSize()
+                          : QSize(0, 0),
+                    szB = layout_info[BOTTOM].item
+                          ? layout_info[BOTTOM].item->minimumSize()
+                          : QSize(0, 0);
+        int h1, h2, h3, w1, w2, w3;
 
-        case TOP:
-            top += sz.height();
-            break;
+        w1 = (corners[Qt::TopLeftCorner] == Qt::LeftDockWindowArea ? szL.width() : 0)
+             + szT.width()
+             + (corners[Qt::TopRightCorner] == Qt::RightDockWindowArea ? szR.width() : 0);
+        w2 = szL.width() + szR.width() + szC.width();
+        w3 = (corners[Qt::BottomLeftCorner] == Qt::LeftDockWindowArea ? szL.width() : 0)
+             + szB.width()
+             + (corners[Qt::BottomRightCorner] == Qt::RightDockWindowArea ? szR.width() : 0);
 
-        case BOTTOM:
-            bottom += sz.height();
-            break;
+        h1 = (corners[Qt::TopLeftCorner] == Qt::TopDockWindowArea ? szT.height() : 0)
+             + szL.height()
+             + (corners[Qt::BottomLeftCorner] == Qt::BottomDockWindowArea ? szB.height() : 0);
+        h2 = szT.height() + szB.height() + szC.height();
+        h3 = (corners[Qt::TopRightCorner] == Qt::TopDockWindowArea ? szT.height() : 0)
+             + szR.height()
+             + (corners[Qt::BottomRightCorner] == Qt::BottomDockWindowArea ? szB.height() : 0);
 
-        default:
-            Q_ASSERT_X(false, "QMainWindowLayout", "internal error");
-        }
+        const int ext = QApplication::style()->pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
+        if (layout_info[LEFT].item && !szL.isEmpty())
+            left += ext;
+        if (layout_info[RIGHT].item && !szR.isEmpty())
+            right += ext;
+        if (layout_info[TOP].item && !szT.isEmpty())
+            top += ext;
+        if (layout_info[BOTTOM].item && !szB.isEmpty())
+            bottom += ext;
+
+        VDEBUG("QMainWindowLayout::minimumSize:\n"
+               "    %4dx%4d (l %4d r %4d t %4d b %4d w1 %4d w2 %4d w3 %4d, h1 %4d h2 %4d h3 %4d)",
+               qMax(qMax(w1,w2),w3), qMax(qMax(h1,h2),h3),
+               left, right, top, bottom, w1, w2, w3, h1, h2, h3);
+
+        QSize szSB = statusbar ? statusbar->minimumSize() : QSize(0, 0);
+        minSize =  QSize(qMax(szSB.width(), qMax(qMax(w1,w2),w3) + left + right),
+                         szSB.height() + qMax(qMax(h1,h2),h3) + top + bottom);
     }
-
-    const QSize szC = layout_info[CENTER].item
-                      ? layout_info[CENTER].item->minimumSize()
-                      : QSize(0, 0),
-                szL = layout_info[LEFT].item
-                      ? layout_info[LEFT].item->minimumSize()
-                      : QSize(0, 0),
-                szT = layout_info[TOP].item
-                      ? layout_info[TOP].item->minimumSize()
-                      : QSize(0, 0),
-                szR = layout_info[RIGHT].item
-                      ? layout_info[RIGHT].item->minimumSize()
-                      : QSize(0, 0),
-                szB = layout_info[BOTTOM].item
-                      ? layout_info[BOTTOM].item->minimumSize()
-                      : QSize(0, 0);
-    int h1, h2, h3, w1, w2, w3;
-
-    w1 = (corners[Qt::TopLeftCorner] == Qt::LeftDockWindowArea ? szL.width() : 0)
-         + szT.width()
-         + (corners[Qt::TopRightCorner] == Qt::RightDockWindowArea ? szR.width() : 0);
-    w2 = szL.width() + szR.width() + szC.width();
-    w3 = (corners[Qt::BottomLeftCorner] == Qt::LeftDockWindowArea ? szL.width() : 0)
-         + szB.width()
-         + (corners[Qt::BottomRightCorner] == Qt::RightDockWindowArea ? szR.width() : 0);
-
-    h1 = (corners[Qt::TopLeftCorner] == Qt::TopDockWindowArea ? szT.height() : 0)
-         + szL.height()
-         + (corners[Qt::BottomLeftCorner] == Qt::BottomDockWindowArea ? szB.height() : 0);
-    h2 = szT.height() + szB.height() + szC.height();
-    h3 = (corners[Qt::TopRightCorner] == Qt::TopDockWindowArea ? szT.height() : 0)
-         + szR.height()
-         + (corners[Qt::BottomRightCorner] == Qt::BottomDockWindowArea ? szB.height() : 0);
-
-    const int ext = QApplication::style()->pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
-    if (layout_info[LEFT].item && !szL.isEmpty())
-        left += ext;
-    if (layout_info[RIGHT].item && !szR.isEmpty())
-        right += ext;
-    if (layout_info[TOP].item && !szT.isEmpty())
-        top += ext;
-    if (layout_info[BOTTOM].item && !szB.isEmpty())
-        bottom += ext;
-
-    VDEBUG("QMainWindowLayout::minimumSize:\n"
-           "    %4dx%4d (l %4d r %4d t %4d b %4d w1 %4d w2 %4d w3 %4d, h1 %4d h2 %4d h3 %4d)",
-           qMax(qMax(w1,w2),w3), qMax(qMax(h1,h2),h3),
-           left, right, top, bottom, w1, w2, w3, h1, h2, h3);
-
-    QSize szSB = statusbar ? statusbar->minimumSize() : QSize(0, 0);
-    return QSize(qMax(szSB.width(), qMax(qMax(w1,w2),w3) + left + right),
-                 szSB.height() + qMax(qMax(h1,h2),h3) + top + bottom);
+    return minSize;
 }
 
 void QMainWindowLayout::relayout(QInternal::RelayoutType type)
@@ -1437,8 +1443,10 @@ void QMainWindowLayout::relayout(QInternal::RelayoutType type)
 
 void QMainWindowLayout::invalidate()
 {
-    if (relayout_type != QInternal::RelayoutDragging)
+    if (relayout_type != QInternal::RelayoutDragging) {
         QLayout::invalidate();
+        minSize = szHint = QSize();
+    }
 }
 
 void QMainWindowLayout::saveLayoutInfo()

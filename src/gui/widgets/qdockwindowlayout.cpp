@@ -340,21 +340,21 @@ void QDockWindowLayout::setGeometry(const QRect &rect)
 	bool need_second_pass = true;
 
 	VDEBUG("  PASS %d", pass);
-	for (x = 0; x < layout_info.count(); ++x) {
-	    const QDockWindowLayoutInfo &info = layout_info.at(x);
+        for (x = 0; x < layout_info.count(); ++x) {
+            const QDockWindowLayoutInfo &info = layout_info.at(x);
 
-	    QLayoutStruct &ls = a[x];
-	    ls.init();
-	    ls.empty = info.item->isEmpty();
+            QLayoutStruct &ls = a[x];
+            ls.init();
+            ls.empty = info.item->isEmpty();
 
             if (ls.empty)
                 continue;
 
-	    if (info.is_sep) {
-		VDEBUG("    separator");
+            if (info.is_sep) {
+                VDEBUG("    separator");
                 ls.sizeHint = ls.minimumSize = ls.maximumSize = separator_extent;
             } else {
-		const QSizePolicy &sp =
+                const QSizePolicy &sp =
                     info.item->widget()
                     ? info.item->widget()->sizePolicy()
                     : QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -398,16 +398,16 @@ void QDockWindowLayout::setGeometry(const QRect &rect)
 		    ls.stretch = ls.sizeHint;
 		}
 
-		// sanity checks
-		ls.sizeHint = qMax(ls.sizeHint, ls.minimumSize);
-		ls.minimumSize = qMin(ls.minimumSize, ls.maximumSize);
+                // sanity checks
+                ls.sizeHint = qMax(ls.sizeHint, ls.minimumSize);
+                ls.minimumSize = qMin(ls.minimumSize, ls.maximumSize);
 
-		VDEBUG("    dockwindow cur %4d min %4d max %4d, hint %4d stretch %4d",
-		       info.cur_size, ls.minimumSize, ls.maximumSize, ls.sizeHint, ls.stretch);
-	    }
-	}
+                VDEBUG("    dockwindow cur %4d min %4d max %4d, hint %4d stretch %4d",
+                       info.cur_size, ls.minimumSize, ls.maximumSize, ls.sizeHint, ls.stretch);
+            }
+        }
 
-	if (!need_second_pass)
+        if (!need_second_pass)
             break;
     }
 
@@ -453,67 +453,75 @@ void QDockWindowLayout::setGeometry(const QRect &rect)
 /*! \reimp */
 QSize QDockWindowLayout::minimumSize() const
 {
-    VDEBUG("QDockWindow::minimumSize");
+    if (!minSize.isValid()) {
+        VDEBUG("QDockWindow::minimumSize");
 
-    int size = 0, perp = 0;
-    const int sep_extent =
-	QApplication::style()->pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
+        int size = 0, perp = 0;
+        const int sep_extent =
+            QApplication::style()->pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
 
-    for (int it = 0; it < layout_info.count(); ++it) {
-	const QDockWindowLayoutInfo &info = layout_info.at(it);
-	int s, p;
-	if (info.is_sep) {
-            s = p = (info.item->widget()->isExplicitlyHidden()) ? 0 : sep_extent;
-	} else {
-	    QSize sz = info.item->minimumSize();
-	    s = pick(orientation, sz);
-	    p = pick_perp(orientation, sz);
-	}
+        for (int it = 0; it < layout_info.count(); ++it) {
+            const QDockWindowLayoutInfo &info = layout_info.at(it);
+            int s, p;
+            if (info.is_sep) {
+                s = p = (info.item->widget()->isExplicitlyHidden()) ? 0 : sep_extent;
+            } else {
+                QSize sz = info.item->minimumSize();
+                s = pick(orientation, sz);
+                p = pick_perp(orientation, sz);
+            }
 
-	VDEBUG("  size %d perp %d", s, p);
-	size += s;
-	perp = qMax(perp, p);
+            VDEBUG("  size %d perp %d", s, p);
+            size += s;
+            perp = qMax(perp, p);
+        }
+
+        VDEBUG("END: size %4d perp %4d", size, perp);
+
+        minSize = (orientation == Qt::Horizontal) ? QSize(size, perp) : QSize(perp, size);
     }
-
-    VDEBUG("END: size %4d perp %4d", size, perp);
-
-    return (orientation == Qt::Horizontal) ? QSize(size, perp) : QSize(perp, size);
+    return minSize;
 }
 
 /*! \reimp */
 QSize QDockWindowLayout::sizeHint() const
 {
-    VDEBUG("QDockWindow::sizeHint");
+    if (!szHint.isValid()) {
+        VDEBUG("QDockWindow::sizeHint");
 
-    int size = 0, perp = 0;
-    const int sep_extent =
-	QApplication::style()->pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
+        int size = 0, perp = 0;
+        const int sep_extent =
+            QApplication::style()->pixelMetric(QStyle::PM_DockWindowSeparatorExtent);
 
-    for (int it = 0; it < layout_info.count(); ++it) {
-	const QDockWindowLayoutInfo &info = layout_info.at(it);
-	int s, p;
-	if (info.is_sep) {
-            s = p = (info.item->widget()->isExplicitlyHidden()) ? 0 : sep_extent;
-	} else {
-	    QSize sz = info.item->sizeHint();
-	    s = pick(orientation, sz);
-	    p = pick_perp(orientation, sz);
-	}
+        for (int it = 0; it < layout_info.count(); ++it) {
+            const QDockWindowLayoutInfo &info = layout_info.at(it);
+            int s, p;
+            if (info.is_sep) {
+                s = p = (info.item->widget()->isExplicitlyHidden()) ? 0 : sep_extent;
+            } else {
+                QSize sz = info.item->sizeHint();
+                s = pick(orientation, sz);
+                p = pick_perp(orientation, sz);
+            }
 
-	VDEBUG("  size %d perp %d", s, p);
-	size += s;
-	perp = qMax(perp, p);
+            VDEBUG("  size %d perp %d", s, p);
+            size += s;
+            perp = qMax(perp, p);
+        }
+
+        VDEBUG("END: size %4d perp %4d", size, perp);
+
+        szHint = (orientation == Qt::Horizontal) ? QSize(size, perp) : QSize(perp, size);
     }
-
-    VDEBUG("END: size %4d perp %4d", size, perp);
-
-    return (orientation == Qt::Horizontal) ? QSize(size, perp) : QSize(perp, size);
+    return szHint;
 }
 
 void QDockWindowLayout::invalidate()
 {
-    if (relayout_type != QInternal::RelayoutDragging)
+    if (relayout_type != QInternal::RelayoutDragging) {
         QLayout::invalidate();
+        minSize = szHint = QSize();
+    }
 }
 
 bool QDockWindowLayout::isEmpty() const
