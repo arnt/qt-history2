@@ -1752,15 +1752,11 @@ QByteArray MetaObjectGenerator::createPrototype(FUNCDESC *funcdesc, ITypeInfo *t
             } else if (ptype.endsWith("**")) {
                 ptype.truncate(ptype.length() - 1);
             }
-            if (ptype.startsWith("const "))
-                type = ptype.mid(6);
-            else
-                type = ptype;
+            type = ptype;
         } else {
-            if (pdesc.wParamFlags & PARAMFLAG_FOUT && ptype.startsWith("const "))
-                prototype += ptype.mid(6);
-            else
-                prototype += ptype;
+            prototype += ptype;
+            if (pdesc.wParamFlags & PARAMFLAG_FOUT && !ptype.endsWith("&"))
+                prototype += "&";
             if (optional)
                 paramName += "=0";
             parameters << paramName;
