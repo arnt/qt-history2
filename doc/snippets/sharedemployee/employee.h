@@ -1,32 +1,27 @@
 #ifndef EMPLOYEE_H
 #define EMPLOYEE_H
 
-#include <qshareddatapointer.h>
+#include <qshareddata.h>
 #include <qstring.h>
 
-struct EmployeeData : public QSharedObject
+class EmployeeData : public QSharedData
 {
+public:
     int id;
-    QString firstName;
-    QString lastName;
+    QString name;
 };
 
 class Employee
 {
 public:
     Employee();
-    Employee(int id, const QString &firstName, const QString &lastName);
-    Employee(const Employee &other);
-
-    Employee &operator=(const Employee &other);
+    Employee(int id, const QString &name);
 
     void setId(int id) { d->id = id; }
-    void setFirstName(const QString &name) { d->firstName = name; }
-    void setLastName(const QString &name) { d->lastName = name; }
+    void setName(const QString &name) { d->name = name; }
 
     int id() const { return d->id; }
-    QString firstName() const { return d->firstName; }
-    QString lastName() const { return d->lastName; }
+    QString name() const { return d->name; }
 
 private:
     QSharedDataPointer<EmployeeData> d;
