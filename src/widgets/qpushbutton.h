@@ -53,7 +53,7 @@ public:
 
     virtual void setGeometry( const QRect & );
 
-    virtual void setToggleButton( bool );
+    virtual void setToggleButton( bool ); //### fjern virtual 3.0
 
     bool	autoDefault()	const	{ return autoDefButton; }
     virtual void setAutoDefault( bool autoDef );

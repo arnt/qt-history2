@@ -78,9 +78,9 @@ public slots:
     virtual void setUsesTextLabel( bool enable );
     virtual void setTextLabel( const QString &, bool = TRUE );
 
-    virtual void setToggleButton( bool enable );
+    virtual void setToggleButton( bool enable ); //### fjern virtual 3.0
 
-    virtual void setOn( bool enable );
+    virtual void setOn( bool enable ); //### fjern virtual 3.0
     void toggle();
 
 protected:

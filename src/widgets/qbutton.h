@@ -52,7 +52,6 @@ public:
 
     bool	isToggleButton() const;
 
-public:
     enum ToggleType { SingleShot, Toggle, Tristate };
     ToggleType	toggleType() const;
 
@@ -61,7 +60,6 @@ public:
 
     bool	isOn() const;
 
-public:
     enum ToggleState { Off, NoChange, On };
     ToggleState	state() const;
 
@@ -71,7 +69,6 @@ public:
     bool	autoRepeat() const;
     virtual void setAutoRepeat( bool );
 
-public:
     bool	isExclusiveToggle() const;
 
     bool	focusNextPrevChild( bool next );
