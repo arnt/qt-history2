@@ -11,8 +11,6 @@
 **
 ****************************************************************************/
 
-// NOT REVISED
-
 // Uncomment the next line to enable the MIT Shared Memory extension
 //
 // WARNING:  This has some problems:

@@ -13,8 +13,6 @@
 
 #define QT_FATAL_ASSERT
 
-// REVISED: brad
-
 #include "qiodevice.h"
 #include "qplatformdefs.h"
 
