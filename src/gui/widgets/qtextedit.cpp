@@ -605,10 +605,169 @@ void QTextEditPrivate::adjustScrollbars()
 
     \ingroup text
 
-    A QTextEdit widget provides 
+    \tableofcontents
 
+    \section1 Introduction and Concepts
 
-    \sa QTextDocument QTextCursor
+    QTextEdit is an advanced WYSIWYG viewer/editor supporting rich
+    text formatting using HTML-style tags. It is optimized to handle
+    large documents and to respond quickly to user input.
+
+    QTextEdit works on paragraphs and characters. A paragraph is a
+    formatted string which is word-wrapped to fit into the width of
+    the widget. By default when reading plain text, one newline
+    signifies a paragraph. A document consists of zero or more
+    paragraphs. The words in the paragraph are aligned in accordance 
+    with the paragraph's alignment. Paragraphs are separated by hard 
+    line breaks. Each character within a paragraph has its own 
+    attributes, for example, font and color.
+
+    QTextEdit can display images, lists and tables. If the text is 
+    too large to view within the text edit's viewport, scrollbars will 
+    appear. The text edit can load both plain text and HTML files (a 
+    subset of HTML 3.2 and 4).
+
+    If you just need to display a small piece of rich text use QLabel.
+
+    Note that we do not intend to add a full-featured web browser
+    widget to Qt (because that would easily double Qt's size and only
+    a few applications would benefit from it). The rich
+    text support in Qt is designed to provide a fast, portable and
+    efficient way to add reasonable online help facilities to
+    applications, and to provide a basis for rich text editors.
+
+    \section1 Using QTextEdit as a Display Widget
+
+    QTextEdit can display a large HTML subset, including tables and
+    images.
+
+    The text is set or replaced using setHtml() which deletes any
+    existing text and replaces it with the text passed in the
+    setHtml() call. If you call setHtml() with legacy HTML, and then 
+    call text(), the text that is returned may have different markup, 
+    but will render the same. The entire text can be deleted with clear().
+
+    Text itself can be inserted using the QTextCursor class or using the
+    convenience functions insertHtml(), insertPlainText(), append() or 
+    paste(). QTextCursor is also able to insert complex objects like tables
+    or lists into the document, and it deals with creating selections
+    and applying changes to selected text.
+
+    By default the text edit wraps words at whitespace to fit within
+    the text edit widget. The setWordWrap() function is used to
+    specify the kind of word wrap you want, or \c NoWrap if you don't
+    want any wrapping. Call setWordWrap() to set a fixed pixel width
+    \c FixedPixelWidth, or character column (e.g. 80 column) \c
+    FixedColumnWidth with the pixels or columns specified with
+    setWrapColumnOrWidth(). If you use word wrap to the widget's width
+    \c WidgetWidth, you can specify whether to break on whitespace or
+    anywhere with setWrapPolicy().
+
+    The find() function can be used to find and select a given string
+    within the text.
+
+    \section2 Read-only key bindings
+
+    When QTextEdit is used read-only the key-bindings are limited to
+    navigation, and text may only be selected with the mouse:
+    \table
+    \header \i Keypresses \i Action
+    \row \i Qt::UpArrow        \i Move one line up
+    \row \i Qt::DownArrow        \i Move one line down
+    \row \i Qt::LeftArrow        \i Move one character left
+    \row \i Qt::RightArrow        \i Move one character right
+    \row \i PageUp        \i Move one (viewport) page up
+    \row \i PageDown        \i Move one (viewport) page down
+    \row \i Home        \i Move to the beginning of the text
+    \row \i End                \i Move to the end of the text
+    \row \i Shift+Wheel
+         \i Scroll the page horizontally (the Wheel is the mouse wheel)
+    \row \i Ctrl+Wheel        \i Zoom the text
+    \endtable
+
+    The text edit may be able to provide some meta-information. For
+    example, the documentTitle() function will return the text from
+    within HTML \c{<title>} tags.
+
+    \section1 Using QTextEdit as an Editor
+
+    All the information about using QTextEdit as a display widget also
+    applies here.
+
+    The current char format's attributes are set with setFontItalic(),
+    setFontBold(), setFontUnderline(), setFontFamily(),
+    setFontPointSize(), setColor() and setCurrentFont(). The current
+    paragraph's alignment is set with setAlignment().
+
+    Selection of text is handled by the QTextCursor class, which provides
+    functionality for creating selections, retrieving the text contents or
+    deleting selections. You can retrieve the object that corresponds with 
+    the user-visible cursor using the cursor() method. If you want to set 
+    a selection in QTextEdit just create one on a QTextCursor object and 
+    then make that cursor the visible cursor using setCursor(). The selection 
+    can be copied to the clipboard with copy(), or cut to the clipboard with 
+    cut(). The entire text can be selected using selectAll().
+
+    When the cursor is moved, the currentCharFormatChanged() signal is 
+    emitted to reflect the new formatting attributes at the new cursor
+    position.
+
+    QTextEdit holds a QTextDocument object which can be retrieved using the
+    document() method. You can also set your own document object using setDocument().
+    QTextDocument emits a textChanged() signal if the text changes and it also
+    provides a isModified() function which will return true if the text has been
+    modified since it was either loaded or since the last call to setModified
+    with false as argument. In addition it provides methods for undo and redo.
+
+    \section2 Editing key bindings
+
+    The list of key-bindings which are implemented for editing:
+    \table
+    \header \i Keypresses \i Action
+    \row \i Backspace \i Delete the character to the left of the cursor
+    \row \i Delete \i Delete the character to the right of the cursor
+    \row \i Ctrl+A \i Move the cursor to the beginning of the line
+    \row \i Ctrl+B \i Move the cursor one character left
+    \row \i Ctrl+C \i Copy the marked text to the clipboard (also
+                      Ctrl+Insert under Windows)
+    \row \i Ctrl+D \i Delete the character to the right of the cursor
+    \row \i Ctrl+E \i Move the cursor to the end of the line
+    \row \i Ctrl+F \i Move the cursor one character right
+    \row \i Ctrl+H \i Delete the character to the left of the cursor
+    \row \i Ctrl+K \i Delete to end of line
+    \row \i Ctrl+N \i Move the cursor one line down
+    \row \i Ctrl+P \i Move the cursor one line up
+    \row \i Ctrl+V \i Paste the clipboard text into line edit
+                      (also Shift+Insert under Windows)
+    \row \i Ctrl+X \i Cut the marked text, copy to clipboard
+                      (also Shift+Delete under Windows)
+    \row \i Ctrl+Z \i Undo the last operation
+    \row \i Ctrl+Y \i Redo the last operation
+    \row \i Qt::LeftArrow            \i Move the cursor one character left
+    \row \i Ctrl+Qt::LeftArrow  \i Move the cursor one word left
+    \row \i Qt::RightArrow            \i Move the cursor one character right
+    \row \i Ctrl+Qt::RightArrow \i Move the cursor one word right
+    \row \i Qt::UpArrow            \i Move the cursor one line up
+    \row \i Ctrl+Qt::UpArrow    \i Move the cursor one word up
+    \row \i Qt::DownArrow            \i Move the cursor one line down
+    \row \i Ctrl+Down Arrow \i Move the cursor one word down
+    \row \i PageUp            \i Move the cursor one page up
+    \row \i PageDown            \i Move the cursor one page down
+    \row \i Home            \i Move the cursor to the beginning of the line
+    \row \i Ctrl+Home            \i Move the cursor to the beginning of the text
+    \row \i End                    \i Move the cursor to the end of the line
+    \row \i Ctrl+End            \i Move the cursor to the end of the text
+    \row \i Shift+Wheel            \i Scroll the page horizontally
+                            (the Wheel is the mouse wheel)
+    \row \i Ctrl+Wheel            \i Zoom the text
+    \endtable
+
+    To select (mark) text hold down the Shift key whilst pressing one
+    of the movement keystrokes, for example, \e{Shift+Right Arrow}
+    will select the character to the right, and \e{Shift+Ctrl+Right
+    Arrow} will select the word to the right, etc.
+
+    \sa QTextDocument QTextCursor document() cursor() setDocument() setCursor()
 
 */
 
@@ -643,6 +802,9 @@ QTextEdit::QTextEdit(QWidget *parent, const char *name)
 #endif
 
 
+/*!
+    Destructor.
+*/
 QTextEdit::~QTextEdit()
 {
 }
@@ -975,6 +1137,11 @@ void QTextEdit::clear()
 }
 
 
+/*!
+    Selects all text.
+
+    \sa copy() cut() cursor()
+ */
 void QTextEdit::selectAll()
 {
     d->cursor.movePosition(QTextCursor::Start);
@@ -1209,6 +1376,10 @@ process:
 
 }
 
+/*!
+    Returns how many pixels high the text edit needs to be to display
+    all the text if the text edit is \a width pixels wide.
+*/
 int QTextEdit::heightForWidth(int width) const
 {
     QAbstractTextDocumentLayout *layout = d->doc->documentLayout();
@@ -1219,6 +1390,8 @@ int QTextEdit::heightForWidth(int width) const
     return height;
 }
 
+/*! \reimp
+*/
 void QTextEdit::resizeEvent(QResizeEvent *)
 {
     QAbstractTextDocumentLayout *layout = d->doc->documentLayout();
@@ -1244,6 +1417,8 @@ void QTextEdit::resizeEvent(QResizeEvent *)
     d->adjustScrollbars();
 }
 
+/*! \reimp
+*/
 void QTextEdit::paintEvent(QPaintEvent *ev)
 {
     QPainter p(d->viewport);
@@ -1265,6 +1440,8 @@ void QTextEdit::paintEvent(QPaintEvent *ev)
     d->doc->documentLayout()->draw(&p, ctx);
 }
 
+/*! \reimp
+*/
 void QTextEdit::mousePressEvent(QMouseEvent *ev)
 {
     if (!(ev->button() & Qt::LeftButton))
@@ -1305,6 +1482,8 @@ void QTextEdit::mousePressEvent(QMouseEvent *ev)
     d->viewport->update();
 }
 
+/*! \reimp
+*/
 void QTextEdit::mouseMoveEvent(QMouseEvent *ev)
 {
     if (!(ev->state() & Qt::LeftButton)
@@ -1329,6 +1508,8 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *ev)
     d->viewport->update();
 }
 
+/*! \reimp
+*/
 void QTextEdit::mouseReleaseEvent(QMouseEvent *ev)
 {
     if (d->mightStartDrag) {
@@ -1356,6 +1537,8 @@ void QTextEdit::mouseReleaseEvent(QMouseEvent *ev)
         d->dragStartTimer.stop();
 }
 
+/*! \reimp
+*/
 void QTextEdit::mouseDoubleClickEvent(QMouseEvent *ev)
 {
     if (ev->button() != Qt::LeftButton) {
@@ -1372,6 +1555,8 @@ void QTextEdit::mouseDoubleClickEvent(QMouseEvent *ev)
     d->trippleClickTimer.start(qApp->doubleClickInterval(), this);
 }
 
+/*! \reimp
+*/
 bool QTextEdit::focusNextPrevChild(bool next)
 {
     Q_UNUSED(next)
@@ -1382,6 +1567,8 @@ bool QTextEdit::focusNextPrevChild(bool next)
 //    return QScrollView::focusNextPrevChild(next);
 }
 
+/*! \reimp
+*/
 void QTextEdit::contextMenuEvent(QContextMenuEvent *ev)
 {
     QMenu *popup = createContextMenu(ev->pos());
@@ -1391,6 +1578,8 @@ void QTextEdit::contextMenuEvent(QContextMenuEvent *ev)
     delete popup;
 }
 
+/*! \reimp
+*/
 void QTextEdit::dragEnterEvent(QDragEnterEvent *ev)
 {
     if (d->readOnly || !QRichTextDrag::canDecode(ev)) {
@@ -1400,6 +1589,8 @@ void QTextEdit::dragEnterEvent(QDragEnterEvent *ev)
     ev->acceptAction();
 }
 
+/*! \reimp
+*/
 void QTextEdit::dragMoveEvent(QDragMoveEvent *ev)
 {
     if (d->readOnly || !QRichTextDrag::canDecode(ev)) {
@@ -1418,6 +1609,8 @@ void QTextEdit::dragMoveEvent(QDragMoveEvent *ev)
     ev->acceptAction();
 }
 
+/*! \reimp
+*/
 void QTextEdit::dropEvent(QDropEvent *ev)
 {
     if (d->readOnly || !QRichTextDrag::canDecode(ev))
@@ -1480,6 +1673,16 @@ QMenu *QTextEdit::createContextMenu(const QPoint &pos)
     return menu;
 }
 
+/*!
+    \property QTextEdit::readOnly
+    \brief whether the text edit is read-only
+
+    In a read-only text edit the user can only navigate through the
+    text and select text; modifying the text is not possible.
+
+    This property's default is false.
+*/
+
 bool QTextEdit::isReadOnly() const
 {
     return d->readOnly;
@@ -1534,11 +1737,6 @@ QTextCharFormat QTextEdit::currentCharFormat() const
     return d->currentCharFormat;
 }
 
-QTextEdit::AutoFormatting QTextEdit::autoFormatting() const
-{
-    return d->autoFormatting;
-}
-
 /*!
     \property QTextEdit::autoFormatting
     \brief the enabled set of auto formatting features
@@ -1550,6 +1748,12 @@ QTextEdit::AutoFormatting QTextEdit::autoFormatting() const
     Currently, the only automatic formatting feature provided is \c
     AutoBulletList; future versions of Qt may offer more.
 */
+
+QTextEdit::AutoFormatting QTextEdit::autoFormatting() const
+{
+    return d->autoFormatting;
+}
+
 void QTextEdit::setAutoFormatting(AutoFormatting features)
 {
     d->autoFormatting = features;
@@ -1587,11 +1791,6 @@ void QTextEdit::insertHtml(const QString &text)
     d->cursor.insertFragment(fragment);
 }
 
-bool QTextEdit::tabChangesFocus() const
-{
-    return d->tabChangesFocus;
-}
-
 /*! \property QTextEdit::tabChangesFocus
   \brief whether TAB changes focus or is accepted as input
 
@@ -1600,6 +1799,11 @@ bool QTextEdit::tabChangesFocus() const
   the focus chain. The default is false.
 
 */
+
+bool QTextEdit::tabChangesFocus() const
+{
+    return d->tabChangesFocus;
+}
 
 void QTextEdit::setTabChangesFocus(bool b)
 {
@@ -1664,7 +1868,7 @@ void QTextEdit::setWrapColumnOrWidth(int w)
 
 /*!
     Finds the next occurrence of the string, \a exp, using the given
-    \a flags. Returns true if \a exp was found and changes the cursor
+    \a options. Returns true if \a exp was found and changes the cursor
     to select the match; otherwise returns false;
 */
 bool QTextEdit::find(const QString &exp, QTextDocument::FindFlags options)
@@ -1676,6 +1880,42 @@ bool QTextEdit::find(const QString &exp, QTextDocument::FindFlags options)
     setCursor(search);
     return true;
 }
+
+/*!
+    \fn void QTextEdit::copyAvailable(bool yes)
+
+    This signal is emitted when text is selected or de-selected in the
+    text edit.
+
+    When text is selected this signal will be emitted with \a yes set
+    to true. If no text has been selected or if the selected text is
+    de-selected this signal is emitted with \a yes set to false.
+
+    If \a yes is true then copy() can be used to copy the selection to
+    the clipboard. If \a yes is false then copy() does nothing.
+
+    \sa selectionChanged()
+*/
+
+/*!
+    \fn void QTextEdit::currentCharFormatChanged(const QTextCharFormat &f)
+
+    This signal is emitted if the current character format has changed, for
+    example caused by a change of the cursor position.
+
+    The new format is \a f.
+
+    \sa setCurrentCharFormat()
+*/
+
+/*!
+    \fn void QTextEdit::selectionChanged()
+
+    This signal is emitted whenever the selection changes.
+
+    \sa copyAvailable()
+*/
+
 
 #ifdef QT_COMPAT
 void QTextEdit::moveCursor(CursorAction action, QTextCursor::MoveMode mode)

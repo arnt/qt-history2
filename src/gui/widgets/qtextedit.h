@@ -47,6 +47,7 @@ class Q_GUI_EXPORT QTextEdit : public QViewport
     Q_PROPERTY(bool undoRedoEnabled READ isUndoRedoEnabled WRITE setUndoRedoEnabled)
     Q_PROPERTY(WordWrap wordWrap READ wordWrap WRITE setWordWrap)
     Q_PROPERTY(int wrapColumnOrWidth READ wrapColumnOrWidth WRITE setWrapColumnOrWidth)
+    Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly)
 public:
     enum WordWrap {
         NoWrap,
@@ -171,7 +172,6 @@ public slots:
 signals:
     void currentCharFormatChanged(const QTextCharFormat &format);
     void copyAvailable(bool b);
-    void modificationChanged(bool m);
     void selectionChanged();
 
 protected:
