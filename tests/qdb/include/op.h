@@ -153,7 +153,11 @@ public:
 	    return 0;
 	QVariant v2 = env->stack()->pop();
 	QVariant v1 = env->stack()->pop();
-	env->stack()->push( bin(v1, v2) );
+	if ( v1.type() == LOCALSQL_NULL_TYPE ||
+	     v2.type() == LOCALSQL_NULL_TYPE )
+	    env->stack()->push( LOCALSQL_NULL );
+	else
+	    env->stack()->push( bin(v1, v2) );
 	return 1;
     }
 
