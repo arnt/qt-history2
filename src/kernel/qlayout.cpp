@@ -1108,6 +1108,8 @@ void QGridLayout::init( int nRows, int nCols )
 {
     setSupportsMargin( TRUE );
     array = new QLayoutArray( nRows, nCols );
+    if(QApplication::reverseLayout())
+	array->setReversed( false, true );
 }
 
 /*!
@@ -2371,7 +2373,7 @@ int QBoxLayout::calcHfw( int w )
  */
 QHBoxLayout::QHBoxLayout( QWidget *parent, int border,
 			  int space, const char *name )
-    : QBoxLayout( parent, LeftToRight, border, space, name )
+    : QBoxLayout( parent, QApplication::reverseLayout() ? RightToLeft : LeftToRight, border, space, name )
 {
 
 }
@@ -2384,7 +2386,7 @@ QHBoxLayout::QHBoxLayout( QWidget *parent, int border,
 
 QHBoxLayout::QHBoxLayout( QLayout *parentLayout, int space,
 			  const char *name )
-    :QBoxLayout( parentLayout, LeftToRight, space, name )
+    :QBoxLayout( parentLayout, QApplication::reverseLayout() ? RightToLeft : LeftToRight, space, name )
 {
 
 }
@@ -2395,7 +2397,7 @@ QHBoxLayout::QHBoxLayout( QLayout *parentLayout, int space,
   layout.
  */
 QHBoxLayout::QHBoxLayout( int space, const char *name )
-    :QBoxLayout( LeftToRight, space, name )
+    :QBoxLayout( QApplication::reverseLayout() ? RightToLeft : LeftToRight, space, name )
 {
 }
 

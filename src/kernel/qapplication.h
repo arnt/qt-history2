@@ -186,6 +186,9 @@ public:
     static void setStartDragDistance( int l );
     static int startDragDistance();
 
+    static void setReverseLayout( bool b );
+    static bool reverseLayout();
+    
     static bool	    isEffectEnabled( Qt::UIEffect );
     static void	    setEffectEnabled( Qt::UIEffect, bool enable = TRUE );
 

@@ -282,6 +282,7 @@ int	  QApplication::wheel_scroll_lines = 3;		// number of lines to scroll
 bool	  qt_is_gui_used;
 static int drag_time = 500;
 static int drag_distance = 4;
+static bool reverse_layout = false;
 QSize     QApplication::app_strut      = QSize( 0,0 ); // no default application strut
 bool	  QApplication::animate_ui	= TRUE;
 bool	  QApplication::animate_menu	= FALSE;
@@ -2813,6 +2814,28 @@ int QApplication::startDragDistance()
 {
     return drag_distance;
 }
+
+/*!
+  If set to true, all dialogs and widgets will be layouted in a mirrored fashion, as required by
+  right to left languages as hebrew and arabic.
+  
+  \sa reverseLayout()
+*/
+void QApplication::setReverseLayout( bool b )
+{
+    reverse_layout = b;
+}
+  
+/*!
+  returns if all dialogs and widgets will be layouted in a mirrored fashion.
+  
+  \sa setReverseLayout()
+*/
+bool QApplication::reverseLayout()
+{
+    return reverse_layout;
+}
+
 
 /*!
   \class QSessionManager qsessionmanager.h
