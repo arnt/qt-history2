@@ -28,23 +28,23 @@
 
     \reentrant
 
-    QSharedDataPointer\<T\> is designed to make it easy to write your
-    own implicitly shared classes. It handles reference counting
-    behind the scenes in a thread-safe manner, ensuring that classes
-    that use it can be \l{reentrant}.
+    QSharedDataPointer\<T\> makes it easier to write your own
+    implicitly shared classes. It handles reference counting behind
+    the scenes in a thread-safe manner, ensuring that classes that use
+    it can be \l{reentrant}.
 
     Implicit sharing is used throughout Qt to combine the memory and
     speed efficiency of pointers with the ease of use of value types.
-    See the \l{Shared Classes} page for details.
+    See the \l{Shared Classes} page for more information.
 
     Let's suppose that you want to make an Employee class implicitly
     shared. The procedure is:
 
     \list
-    \i Define the Employee class with a member variable of type
-       QSharedDataPointer<EmployeeData>.
+    \i Define the Employee class with a single data member variable of
+       type QSharedDataPointer<EmployeeData>.
     \i Define an EmployeeData class that derives from \l QSharedData
-       and that contains all the variables that you normally would
+       and that contains all the variables that you would normally
        put in Employee.
     \endlist
 
@@ -63,34 +63,39 @@
     In this example, the EmployeeData type is a simple class with a
     default constructor and a copy constructor provided by C++. If
     member-per-member copy isn't sufficient for your own data type,
-    you need to implement your own copy constructor.
+    you must implement your own copy constructor.
 
     Let's now see how to implement the Employee constructors:
 
     \quotefile sharedemployee/employee.cpp
 
-    \skipline include
-    \printline ::Employee()
-    \printuntil /^\}/
+    \skipto ::Employee()
+    \printline
+    \printuntil }
 
     In the default constructor, we create an object of type
     EmployeeData and assign it to the \c d pointer using operator=().
 
-    \printline ::Employee(int id
-    \printuntil /^\}/
+    \skipto ::Employee(int
+    \printuntil }
 
     In the constructor that takes an ID and an employee's name, we
     also create an object of type EmployeeData and assign it to the
     \c d pointer.
 
-    This completes the example. We don't need to provide a copy
-    constructor, an assignment operator, or a destructor for
-    Employee. The default implementations provided by C++, which
-    invoke QSharedDataPointer's copy constructor, assignment
-    operator, or destructor, are sufficient. Behind the scenes,
-    QSharedDataPointer automatically increments or decrements the
-    reference count of the shared data object pointed to by \c d, and
-    deletes shared objects when the reference count reaches 0.
+    In this example, we don't need to provide a copy constructor, an
+    assignment operator, or a destructor for Employee. The default
+    implementations provided by C++, which invoke QSharedDataPointer's
+    copy constructor, assignment operator, or destructor, are
+    sufficient. And this is true in general, i.e. for any QSharedData
+    subclass which only stores values (or implicitly shared classes),
+    such as int, double, QString, QStringList, QList\<QWidget*\>, and
+    so on.
+
+    Behind the scenes, QSharedDataPointer automatically increments or
+    decrements the reference count of the shared data object pointed
+    to by \c d, and deletes shared objects when the reference count
+    reaches 0.
 
     \sa QSharedData
 */
@@ -106,7 +111,7 @@
 
     \overload
 
-    This function doesn't call detach().
+    This function does not call detach().
 */
 
 /*! \fn QSharedDataPointer::operator T *()
@@ -120,9 +125,9 @@
 
 /*! \fn QSharedDataPointer::operator const T *() const
 
-    \overload
+    Returns a pointer to the shared object.
 
-    This function doesn't call detach().
+    This function does not call detach().
 */
 
 /*! \fn T * QSharedDataPointer::data()
@@ -138,14 +143,14 @@
 
     \overload
 
-    This function doesn't call detach().
+    This function does not call detach().
 */
 
 /*! \fn const T * QSharedDataPointer::constData() const
 
     Returns a const pointer to the shared object.
 
-    This function doesn't call detach().
+    This function does not call detach().
 
     \sa data()
 */
@@ -193,6 +198,8 @@
 
 /*! \fn QSharedDataPointer &QSharedDataPointer::operator=(T *sharedData)
 
+    \overload
+
     Sets this QSharedDataPointer to point to \a sharedData.
 
     This function automatically increments \a{sharedData}'s reference
@@ -216,5 +223,7 @@
 */
 
 /*! \class QExplicitlySharedDataPointer
+    \brief The QExplicitlySharedDataPointer class is an internal class
+    supporting shared data objects.
     \internal
 */

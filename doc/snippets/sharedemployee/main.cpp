@@ -3,8 +3,8 @@
 int main()
 {
     {
-        Employee e1(10, "Alfonso Berlusconi");
+        Employee e1(10, "Albrecht Dürer");
         Employee e2 = e1;
-        e1.setName("Bill Gates");
+        e1.setName("Hans Holbein");
     }
 }
