@@ -2107,7 +2107,7 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
     if(project->isEmpty("QMAKE_NOFORCE"))
         t <<  " FORCE";
     if(project->isActiveConfig("no_empty_targets"))
-        t << "\t" << "@cd .";
+        t << "\n\t" << "@cd .";
     t << endl << endl;
 
     for(int s = 0; s < targetSuffixes.size(); ++s) {
