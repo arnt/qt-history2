@@ -5,5 +5,8 @@
 TEMPLATE = app
 
 # Input
-HEADERS += qrtformat.h qrtstring.h qtextlayout.h
-SOURCES += qrtformat.cpp qrtstring.cpp test.cpp qtextlayout.cpp
+HEADERS += qrtformat.h qrtstring.h qtextlayout.h \
+	scriptengine.h scriptenginelatin.h scriptenginearabic.h
+
+SOURCES += qrtformat.cpp qrtstring.cpp test.cpp qtextlayout.cpp \
+	scriptenginelatin.cpp scriptenginearabic.cpp

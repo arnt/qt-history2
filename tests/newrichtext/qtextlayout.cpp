@@ -1,5 +1,9 @@
 #include "qtextlayout.h"
 
+#include "scriptengine.h"
+#include "scriptenginelatin.h"
+#include "scriptenginearabic.h"
+
 #include <stdlib.h>
 
 #define BIDI_DEBUG 0//2
@@ -846,7 +850,6 @@ static void bidiItemize( const QString &text, ScriptItemArray &items, QChar::Dir
 
 
 
-
 ScriptItemArray::~ScriptItemArray()
 {
     free( d );
@@ -887,4 +890,34 @@ void ScriptItemArray::resize( int s )
     d = (ScriptItemArrayPrivate *)realloc( d, sizeof( ScriptItemArrayPrivate ) +
 		 sizeof( ScriptItem ) * alloc );
     d->alloc = alloc;
+}
+
+
+CharAttributesArray::~CharAttributesArray()
+{
+    free( d );
+}
+
+
+ScriptEngine **scriptEngines = 0;
+
+
+void CharAttributesArray::attributes( const QString &string, const ScriptItemArray &items, int item )
+{
+    if ( !scriptEngines ) {
+	scriptEngines = (ScriptEngine **) malloc( QFont::NScripts * sizeof( ScriptEngine * ) );
+	scriptEngines[0] = new ScriptEngineLatin;
+	for ( int i = 1; i < QFont::NScripts; i++ )
+	    scriptEngines[i] = scriptEngines[0];
+	scriptEngines[QFont::Arabic] = new ScriptEngineArabic;
+    }
+    const ScriptItem &si = items[item];
+    int from = si.position;
+    item++;
+    int len = ( item < items.size() ? items[item].position : string.length() ) - from;
+
+
+    d = (CharAttributesArrayPrivate *)realloc( d, sizeof(CharAttributes)*len );
+
+    scriptEngines[si.analysis.script]->charAttributes( string, from, len, d->attributes );
 }

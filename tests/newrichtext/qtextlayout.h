@@ -11,9 +11,13 @@ at runtime. If we find uniscribe, use it otherwise use our own engine
 It should have a set of methods that are fine grained enough to do rich
 text processing and a set of simpler methods for plain text.
 
-Some of the ideas are stolen from the Uniscibe API or from Pango.
+Some of the ideas are stolen from the Uniscribe API or from Pango.
 
 */
+
+#ifndef QTEXTLAYOUT_H
+#define QTEXTLAYOUT_H
+
 #include "qrtstring.h"
 #include <qmemarray.h>
 
@@ -42,7 +46,6 @@ struct ScriptItem
 
 struct ScriptItemArrayPrivate
 {
-    unsigned int refCount;
     unsigned int alloc;
     unsigned int size;
     ScriptItem items[1];
@@ -57,7 +60,7 @@ public:
     void itemize( const QRTString & );
     void itemize( const QString & );
 
-    const ScriptItem &operator[] (int i) {
+    const ScriptItem &operator[] (int i) const {
 	return d->items[i];
     }
     void append( const ScriptItem &item ) {
@@ -74,6 +77,9 @@ public:
 	return d->size;
     }
 private:
+    ScriptItemArray( const ScriptItemArray & ) {}
+    ScriptItemArray &operator = ( const ScriptItemArray & ) { return *this; }
+
     void resize( int s );
 
     ScriptItemArrayPrivate *d;
@@ -98,16 +104,35 @@ struct CharAttributes {
     int reserved       :4;
 };
 
-typedef QMemArray<CharAttributes> CharAttributesArray;
+struct CharAttributesArrayPrivate {
+    unsigned int alloc;
+    unsigned int size;
+    CharAttributes attributes[1];
+};
 
-class QTextLayout {
+class CharAttributesArray
+{
+public:
+    CharAttributesArray() : d( 0 ) {}
+    ~CharAttributesArray();
+
+    void attributes( const QString &string, const ScriptItemArray &items, int item );
+    void attributes( const QRTString &string, const ScriptItemArray &items, int item ) {
+	attributes( string.str(), items, item );
+    }
+
+private:
+    CharAttributesArray( const CharAttributesArray & ) {}
+    CharAttributesArray & operator=( const CharAttributesArray & ) { return *this; }
+
+    CharAttributesArrayPrivate *d;
+};
+
+class TextLayout {
 public:
 
     // ScriptShape && ScriptPlace
     static ShapedItem shape( const QRTString &string, const ScriptItemArray &items, int item );
-
-    // ScriptBreak
-    static CharAttributesArray lineBreaks( const QRTString &string, const ScriptItemArray &items, int item, const ShapedItem &shaped );
 
     // corresponds to ScriptLayout in Uniscribe
     static void bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOrder, int *visualPositions );
@@ -122,3 +147,6 @@ public:
 //    static ScriptProperties scriptProperties( int script );
 
 };
+
+
+#endif

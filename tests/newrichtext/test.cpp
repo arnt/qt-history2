@@ -95,8 +95,8 @@ int main( int argc, char **argv )
 #else
 	QTime t;
 	t.start();
+	ScriptItemArray items;
 	for ( int i = 0; i < 1000; i++ ) {
-	    ScriptItemArray items;
 	    items.itemize( string );
 	}
 	qDebug("itemize: %dms", t.elapsed() );
