@@ -152,10 +152,14 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	t << endl << endl;
     }
     if(!project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
+	QString destdir = project->variables()["DESTDIR"].first();
+	if (destdir.isEmpty())
+	    destdir = ".";
+
 	t << "all: " << ofile <<  " " << varGlue("ALL_DEPS",""," "," ") <<  "$(TARGET)" << endl << endl;
 	t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS") << "\n\t"
-	  << "[ -d " << project->variables()["DESTDIR"].first()
-	  << " ] || mkdir -p " << project->variables()["DESTDIR"].first() << "\n\t"
+	  << "[ -d " << destdir
+	  << " ] || mkdir -p " << destdir << "\n\t"
 	  << "$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)" << endl << endl;
     } else if(!project->isActiveConfig("staticlib")) {
 	t << "all: " << ofile << " " << varGlue("ALL_DEPS",""," ","") << " " <<  var("DESTDIR_TARGET") << endl << endl;
