@@ -2413,7 +2413,10 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
                     while (groupLeader && !groupLeader->testWFlags(Qt::WGroupLeader))
                         groupLeader = groupLeader->parentWidget();
                     if (!groupLeader) {
-                        if (! X11->net_supported_list)
+                        QWidget *p = amw->parentWidget();
+                        while (p && p != widget)
+                            p = p->parentWidget();
+                        if (!p || !X11->net_supported_list)
                             amw->raise(); // help broken window managers
                         amw->setActiveWindow();
                     }
