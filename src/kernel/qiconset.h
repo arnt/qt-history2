@@ -73,7 +73,7 @@ public:
     QPixmap pixmap() const;
     bool isGenerated( Size size, Mode mode, State state = Off ) const;
     void clearGenerated();
-    void installIconFactory( QIconFactory *factory, bool autoDelete = FALSE );
+    void installIconFactory( QIconFactory *factory );
 
     bool isNull() const;
 
@@ -97,7 +97,7 @@ private:
     QIconSetPrivate *d;
 };
 
-class Q_EXPORT QIconFactory
+class Q_EXPORT QIconFactory : public QShared
 {
 public:
     QIconFactory();
@@ -105,6 +105,8 @@ public:
 
     virtual QPixmap *createPixmap( const QIconSet& iconSet, QIconSet::Size size,
 				   QIconSet::Mode mode, QIconSet::State state );
+    void setAutoDelete( bool autoDelete ) { autoDel = autoDelete; }
+    bool autoDelete() const { return autoDel; }
 
     static QIconFactory *defaultFactory();
     static void installDefaultFactory( QIconFactory *factory );
@@ -119,6 +121,7 @@ private:
     friend class QIconSetPrivate;
 
     int refCount;
+    uint autoDel : 1;
 };
 
 #endif // QT_NO_ICONSET

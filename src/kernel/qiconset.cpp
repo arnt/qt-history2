@@ -119,9 +119,8 @@ public:
     QIconSetIcon icons[NumSizes][NumModes][NumStates];
     QPixmap defaultPix;
     QIconFactory *factory;
-    bool deleteFactory;
 
-    QIconSetPrivate() : factory( 0 ), deleteFactory( FALSE ) { }
+    QIconSetPrivate() : factory( 0 ) { }
     QIconSetPrivate( const QIconSetPrivate& other ) : QShared() {
 	count = 1;
 	for ( int i = 0; i < NumSizes; i++ ) {
@@ -134,22 +133,20 @@ public:
 	defaultPix = other.defaultPix;
 	factory = other.factory;
 	if ( factory )
-	    factory->refCount++;
-	deleteFactory = other.deleteFactory;
+	    factory->ref();
     }
     ~QIconSetPrivate() {
-	setFactory( 0, FALSE );
+	setFactory( 0 );
     }
 
     QIconSetIcon *icon( const QIconSet *iconSet, QIconSet::Size size,
 			QIconSet::Mode mode, QIconSet::State state );
-    void setFactory( QIconFactory *newFactory, bool newDeleteFactory ) {
+    void setFactory( QIconFactory *newFactory ) {
 	if ( newFactory )
-	    newFactory->refCount++;
-	if ( factory && --factory->refCount == 0 && deleteFactory )
+	    newFactory->ref();
+	if ( factory && factory->deref() && factory->autoDelete() )
 	    delete factory;
 	factory = newFactory;
-	deleteFactory = newDeleteFactory;
     }
 
 #if defined(Q_FULL_TEMPLATE_INSTANTIATION)
@@ -416,7 +413,7 @@ void QIconSet::reset( const QPixmap& pixmap, Size size )
     normalize( size, pixmap.size() );
     setPixmap( pixmap, size, Normal );
     d->defaultPix = pixmap;
-    d->setFactory( 0, FALSE );
+    d->setFactory( 0 );
 }
 
 /*!
@@ -655,17 +652,15 @@ void QIconSet::clearGenerated()
 
 /*!
     Installs \a factory as the icon factory for this iconset. The
-    icon factory is used to generates pixmaps not set by the user. If
-    \a autoDelete is TRUE (the default is FALSE), the QIconSet will
-    take ownership of the \a factory and delete it when appropriate.
+    icon factory is used to generates pixmaps not set by the user.
 
     If no icon factory is installed, QIconFactory::defaultFactory()
     is used.
 */
-void QIconSet::installIconFactory( QIconFactory *factory, bool autoDelete )
+void QIconSet::installIconFactory( QIconFactory *factory )
 {
     detach();
-    d->setFactory( factory, autoDelete );
+    d->setFactory( factory );
 }
 
 /*!
@@ -819,6 +814,9 @@ QPixmap *QIconSet::createDisabled( Size size, State state ) const
   By reimplementing createPixmap(), you can override QIconSet's
   default algorithm for computing pixmaps not supplied by the user.
 
+  Call setAutoDelete(TRUE) if you want the factory to automatically
+  delete itself when it is no longer needed by QIconSet.
+
   \sa QIconSet
 */
 
@@ -826,8 +824,9 @@ QPixmap *QIconSet::createDisabled( Size size, State state ) const
   Constructs an icon factory.
 */
 QIconFactory::QIconFactory()
-    : refCount( 0 )
+    : autoDel( 0 )
 {
+    count = 0;
 }
 
 /*!
@@ -855,6 +854,24 @@ QPixmap *QIconFactory::createPixmap( const QIconSet& /* iconSet */,
 }
 
 /*!
+  \fn void QIconFactory::setAutoDelete( bool autoDelete )
+
+  Sets the icon factory to automatically delete itself when it is no
+  longer referenced by any QIconSet and isn't the default factory. By
+  default auto-deletion is disabled.
+
+  \sa autoDelete(), defaultFactory()
+*/
+
+/*!
+  \fn bool QIconFactory::autoDelete() const
+
+  Returns TRUE if auto-deletion is enabled; otherwise returns FALSE.
+
+  \sa setAutoDelete()
+*/
+
+/*!
   Returns the default icon factory.
 
   \sa installDefaultFactory()
@@ -863,7 +880,8 @@ QIconFactory *QIconFactory::defaultFactory()
 {
     if ( !defaultFac ) {
 	defaultFac = new QIconFactory;
-	defaultFac->refCount = 1;
+	defaultFac->setAutoDelete( TRUE );
+	defaultFac->ref();
 	q_cleanup_icon_factory.set( &defaultFac );
     }
     return defaultFac;
@@ -871,17 +889,14 @@ QIconFactory *QIconFactory::defaultFactory()
 
 /*!
   Replaces the default icon factory with \a factory.
-
-  QIconFactory takes ownership of \a factory, and destroys it when it
-  is no longer needed.
 */
 void QIconFactory::installDefaultFactory( QIconFactory *factory )
 {
     if ( !factory )
 	return;
 
-    factory->refCount++;
-    if ( defaultFac && --defaultFac->refCount == 0 )
+    factory->ref();
+    if ( defaultFac && defaultFac->deref() && defaultFac->autoDelete() )
 	delete defaultFac;
     defaultFac = factory;
     q_cleanup_icon_factory.set( &defaultFac );
