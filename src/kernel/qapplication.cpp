@@ -53,7 +53,7 @@
 #include "qcomponentfactory.h"
 
 #if defined(QT_REMOTE_SUPPORT)
-#include "qremotecontrol_p.h"
+#include <private/qremotecontrol_p.h>
 #endif
 
 #if defined(QT_THREAD_SUPPORT)

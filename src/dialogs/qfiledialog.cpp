@@ -51,7 +51,7 @@
 #include "qtoolbutton.h"
 #include "qmessagebox.h"
 #include "qapplication.h"
-#include "../kernel/qapplication_p.h"
+#include <private/qapplication_p.h>
 #include "qlayout.h"
 #include "qbitmap.h"
 #include "qpopupmenu.h"
@@ -3095,7 +3095,7 @@ void QFileDialog::rereadDir()
   \sa selectedFilter()
 */
 
-#include "../kernel/qapplication_p.h"
+#include <private/qapplication_p.h>
 
 extern bool qt_resolve_symlinks; // defined in qapplication.cpp
 

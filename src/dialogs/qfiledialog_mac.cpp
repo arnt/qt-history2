@@ -3,7 +3,7 @@
 #ifndef QT_NO_FILEDIALOG
 
 #include "qapplication.h"
-#include "../kernel/qapplication_p.h"
+#include <private/qapplication_p.h>
 #include "qt_mac.h"
 #include "qregexp.h"
 #include "qbuffer.h"

@@ -22,5 +22,5 @@
 *****************************************************************************/
 #ifndef QFILEDEF_H
 #define QFILEDEF_H
-#include "qfiledefs_p.h"
+#include <private/qfiledefs_p.h>
 #endif
