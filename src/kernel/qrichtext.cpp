@@ -1720,7 +1720,6 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		
 		    curtag = tags.pop();
 		    curListStyle = listStyles.pop();
-		    curAlignment = alignments.pop();
 		    depth--;
 		}
 
@@ -6771,7 +6770,7 @@ bool QTextTable::enterAt( QTextCursor *c, QTextDocument *&doc, QTextParag *&para
 		lastY = cell->geometry().y();
 	    }
 	    if ( cell->geometry().y() - innerborder <= pos.y() &&
-		 cell->geometry().y() + cell->geometry().height() + innerborder >= pos.y() ) {
+		 cell->geometry().y() + cell->geometry().height() + innerborder + outerborder >= pos.y() ) {
 		currCell.insert( c, i );
 		break;
 	    }
