@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#24 $
+** $Id: //depot/qt/main/src/moc/moc.y#25 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -43,7 +43,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#24 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#25 $";
 #endif
 
 
@@ -491,34 +491,67 @@ void generate();				// generate C++ source code
 
 QString	  fileName;				// file name
 QString   ofileName;				// output file name
+bool	  noInclude = FALSE;			// no #include <filename>
 QString	  className;				// name of parsed class
 QString	  superclassName;			// name of super class
 FuncList  methods;				// method interface (public)
 FuncList  signals;				// signal interface
 FuncList  slots;				// slots interface
 
-FILE  *out = stdout;				// output file
+FILE  *out;					// output file
 
 int yyparse();
 
 
 int main( int argc, char **argv )		// program starts here
 {
-    if ( argc == 4 && !strcmp(argv[2],"-o") ) {
-	ofileName = argv[3];
+    char *error = 0;
+    for ( int n=1; n<argc; n++ ) {
+	QString arg = argv[n];
+	if ( arg[0] == '-' ) {			// option
+	    char *opt = &arg[1];
+	    if ( *opt == 'o' )	{		// output redirection
+		if ( opt[1] == '\0' ) {
+		    if ( !(n < argc-1) ) {
+			error = "Missing output-file name";
+			break;
+		    }
+		    ofileName = argv[++n];
+		}
+		else
+		    ofileName = &arg[2];
+	    }
+	    else
+	    if ( strcmp(opt,"i") == 0 )		// no #include statement
+		noInclude = TRUE;
+	    else
+		error = "Invalid argument";
+	}
+	else {
+	    if ( !fileName.isNull() )		// can handle only one file
+		error = "Too many input files specified";
+	    else
+		fileName = arg.copy();
+	}
+    }
+    if ( fileName.isNull() )
+	error = "No input file specified";
+    if ( argc < 2 || error ) {			// incomplete/wrong args
+	fprintf( stderr, "Quasar meta object compiler\n" );
+	if ( error )
+	    fprintf( stderr, "moc: %s\n", error );
+	fprintf( stderr, "Usage:  moc [-i] [-o output] <header-file>\n" );
+	return 1;
+    }
+    if ( !ofileName.isNull() ) {		// output file specified
 	out = fopen( ofileName, "w" );		// create output file
 	if ( !out ) {
 	    fprintf( stderr, "moc: Cannot create %s", (pcchar)ofileName );
 	    return 1;
 	}
     }
-    else
-    if ( argc != 2 ) {
-	fprintf( stderr, "Quasar meta object compiler\n" );
-	fprintf( stderr, "Usage:  moc <header-file> [-o output]\n" );
-	return 1;
-    }
-    fileName = argv[1];
+    else					// use stdout
+	out = stdout;
     yyin = fopen( fileName, "r" );
     if ( !yyin ) {
 	fprintf( stderr, "moc: %s: No such file\n", (pcchar)fileName );
@@ -655,7 +688,9 @@ void generate()                                 // generate C++ source code
         fprintf( out, hdr3 );
         fprintf( out, hdr4 );
         fprintf( out, "#include <qmetaobj.h>\n" );
-        fprintf( out, "#include \"%s\"\n\n\n", (pcchar)fileName );
+        if ( !noInclude )
+            fprintf( out, "#include \"%s\"\n", (pcchar)fileName );
+	fprintf( out, "\n\n" );
     }
     else
         fprintf( out, "\n\n" );
