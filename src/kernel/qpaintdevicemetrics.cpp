@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.cpp#23 $
 **
 ** Implementation of QPaintDeviceMetrics class
 **
@@ -55,7 +55,7 @@
 
 */
 
-#warning "cannot explain why dpi is necessary - width and widthMM exist"
+//#warning "cannot explain why dpi is necessary - width and widthMM exist"
 
 /*!
   Constructs a metric for the paint device \e pd.

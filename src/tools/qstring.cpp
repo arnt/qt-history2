@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#276 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#277 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -9706,7 +9706,7 @@ make sense of anything.
 </ul>
 */
 
-#warning "Warwick: Please fill in these enum things"
+//#warning "Warwick: Please fill in these enum things"
 
 /*! \enum QChar::Direction
 

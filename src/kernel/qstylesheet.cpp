@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#23 $
 **
 ** Implementation of the QStyleSheet class
 **
@@ -89,7 +89,7 @@ public:
 
 */
 
-#warning "Matthias: Please fill in the Margin doc"
+//#warning "Matthias: Please fill in the Margin doc"
 
 /*! \enum QStyleSheetItem::Margin
 
