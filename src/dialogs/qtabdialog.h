@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#42 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#43 $
 **
 ** Definition of QTabDialog class
 **
@@ -64,19 +64,23 @@ public:
 
     QWidget * currentPage() const;
 
-    void setDefaultButton( const QString &text = tr("Defaults") );
+    void setDefaultButton( const QString &text );
+    void setDefaultButton();
     bool hasDefaultButton() const;
 
-    void setCancelButton( const QString &text = tr("Cancel") );
+    void setCancelButton( const QString &text );
+    void setCancelButton();
     bool hasCancelButton() const;
 
-    void setApplyButton( const QString &text = tr("Apply") );
+    void setApplyButton( const QString &text );
+    void setApplyButton();
     bool hasApplyButton() const;
 
 #if 1 // OBSOLETE
-    void setOKButton( const QString &text = tr("OK") );
+    void setOKButton( const QString &text = "OK" );
 #endif
-    void setOkButton( const QString &text = tr("OK") );
+    void setOkButton( const QString &text );
+    void setOkButton();
     bool hasOkButton() const;
 
 protected:

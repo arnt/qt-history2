@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#83 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#84 $
 **
 ** Implementation of QTabDialog class
 **
@@ -584,6 +584,21 @@ void QTabDialog::setTabEnabled( QWidget* w, bool enable)
     d->tw->setTabEnabled( w, enable );
 }
 
+
+/*!
+  Adds an Apply button  to the dialog.  The button's text is set to \e
+  text.
+
+  When the Apply button is clicked, the applyButtonPressed() signal is emitted,
+  and the current settings in the dialog box should be applied to
+  the application. As opposed to the OK button, the dialog does not close.
+
+  If \a text is a
+  \link QString::operator!() null string\endlink,
+  no button is shown.
+
+  \sa setApplyButton() setCancelButton() defaultButtonPressed()
+*/
 void QTabDialog::setApplyButton( const QString &text )
 {
     if ( !text && d->ab ) {
@@ -603,10 +618,19 @@ void QTabDialog::setApplyButton( const QString &text )
     }
 }
 
+/*!
+  Adds an Apply button to the dialog.  The button's text is set to
+  a localizable "Apply".
+ */
+void QTabDialog::setApplyButton()
+{
+    setDefaultButton( tr("Apply") );
+}
+
 
 /*!
   Adds a Defaults button to the dialog.  The button's text is set to \e
-  text (and defaults to "Defaults").
+  text.
 
   The Defaults button should set the dialog (but not the application)
   back to the application defaults.
@@ -641,8 +665,17 @@ void QTabDialog::setDefaultButton( const QString &text )
 
 
 /*!
+  Adds a Defaults button to the dialog.  The button's text is set to
+  a localizable "Defaults".
+ */
+void QTabDialog::setDefaultButton()
+{
+    setDefaultButton( tr("Defaults") );
+}
+
+/*!
   Adds a Cancel button to the dialog.  The button's text is set to \e
-  text (and defaults to "Cancel").
+  text.
 
   The cancel button should always return the application to the state
   it was in before the tab view popped up, or if the user has clicked
@@ -677,6 +710,17 @@ void QTabDialog::setCancelButton( const QString &text )
 	setSizes();
 	d->cb->show();
     }
+}
+
+
+/*!
+  Adds a Cancel button to the dialog.  The button's text is set to
+  a localizable "Cancel".
+ */
+
+void QTabDialog::setCancelButton()
+{
+    setCancelButton( tr("Cancel") );
 }
 
 
@@ -843,7 +887,7 @@ void QTabDialog::paintEvent( QPaintEvent * )
 
 
 /*!
-  Set the OK button's text to \a text (which defaults to "OK").
+  Set the OK button's text to \a text.
 
   When the OK button is clicked, the applyButtonPressed() signal is emitted,
   and the current settings in the dialog box should be applied to
@@ -874,6 +918,16 @@ void QTabDialog::setOkButton( const QString &text )
 	d->ok->show();
     }
 }
+/*!
+  Adds an OK to the dialog.  The button's text is set to
+  a localizable "OK".
+ */
+
+void QTabDialog::setOkButton()
+{
+    setOkButton( tr("OK") );
+}
+
 
 /*!
   Old version of setOkButton(), provided for backward compatibility.
