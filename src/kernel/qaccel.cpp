@@ -326,8 +326,10 @@ bool QAccelManager::tryAccelEvent( QWidget* w, QKeyEvent* e )
 */
 bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
 {
+#ifndef QT_NO_STATUSBAR
     // Needs to be declared and used here because of "goto doclash"
     QStatusBar* mainStatusBar = 0;
+#endif
 
     // Modifiers can NOT be accelerators...
     if ( e->key() >= Key_Shift &&
@@ -380,22 +382,26 @@ bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
 	pe = QKeyEvent( QEvent::Accel, pe.key(), pe.ascii(), pe.state()&~Qt::ShiftButton, pe.text() );
     } while ( hasShift-- && !matchFound );
 
+#ifndef QT_NO_STATUSBAR
     mainStatusBar = (QStatusBar*) w->topLevelWidget()->child( 0, "QStatusBar" );
+#endif
     if ( n < 0 ) { // no match found
 	currentState = partial.count() ? PartialMatch : NoMatch;
+#ifndef QT_NO_STATUSBAR
 	// Only display message if we are, or were, in a partial match
 	if ( mainStatusBar && (PartialMatch == currentState || intermediate.count() ) ) {
 	    if ( currentState == Qt::PartialMatch ) {
 		mainStatusBar->message( (QString)partial + ", ...", 0 );
 	    } else {
-		mainStatusBar->message( (QString)intermediate +
-					", " +
-					QKeySequence::encodeString( e->key() | translateModifiers(e->state()) ) +
-					" not defined", 2000 );
+		QString message = QAccel::tr("%1, %2 not defined").
+		    arg( (QString)intermediate ).
+		    arg( QKeySequence::encodeString( e->key() | translateModifiers(e->state()) ) );
+		mainStatusBar->message( message, 2000 );
 		// Since we're a NoMatch, reset the clash count
 		clash = -1;
 	    }
 	}
+#endif
 
 	bool eatKey = (PartialMatch == currentState || intermediate.count() );
 	intermediate = partial;
@@ -404,8 +410,10 @@ bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
 	return eatKey;
     } else if ( n == 0 ) { // found exactly one match
 	clash = -1; // reset
+#ifndef QT_NO_STATUSBAR
 	if ( currentState == Qt::PartialMatch && mainStatusBar )
 		mainStatusBar->clear();
+#endif
 	currentState = Qt::NoMatch; // Free sequence keylock
 	intermediate = QKeySequence();
 	lastaccel->activate( lastitem );
@@ -414,26 +422,34 @@ bool QAccelManager::dispatchAccelEvent( QWidget* w, QKeyEvent* e )
     }
 
  doclash: // found more than one match
+#ifndef QT_NO_STATUSBAR
     if ( !mainStatusBar ) // if "goto doclash", we need to get statusbar again.
 	mainStatusBar = (QStatusBar*) w->topLevelWidget()->child( 0, "QStatusBar" );
+#endif
 
+    QString message = QAccel::tr( "Ambiguous \"%1\" not handled" ).arg( (QString)tocheck );
     if ( clash >= 0 && n > clash ) { // pick next  match
 	intermediate = QKeySequence();
 	currentState = Qt::NoMatch; // Free sequence keylock
 	clash++;
+#ifndef QT_NO_STATUSBAR
 	if ( mainStatusBar &&
 	     !lastitem->signal &&
 	     !(lastaccel->parent->receivers( "activatedAmbiguously(int)" )) )
-	    mainStatusBar->message( "Ambiguous \'" + (QString)tocheck + "\' not handled", 2000 );
+	    mainStatusBar->message( message, 2000 );
+	}
+#endif
 	lastaccel->activateAmbiguously( lastitem );
     } else { // start (or wrap) with the first matching
 	intermediate = QKeySequence();
 	currentState = Qt::NoMatch; // Free sequence keylock
 	clash = 0;
+#ifndef QT_NO_STATUSBAR
 	if ( mainStatusBar &&
 	     !firstitem->signal &&
 	     !(firstaccel->parent->receivers( "activatedAmbiguously(int)" )) )
-	    mainStatusBar->message( "Ambiguous \'" + (QString)tocheck + "\' not handled", 2000 );
+	    mainStatusBar->message( message, 2000 );
+#endif
 	firstaccel->activateAmbiguously( firstitem );
     }
     e->accept();
