@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#27 $
+** $Id: //depot/qt/main/src/widgets/qpushbt.cpp#28 $
 **
 ** Implementation of QPushButton class
 **
@@ -17,7 +17,7 @@
 #include "qpmcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbt.cpp#27 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbt.cpp#28 $";
 #endif
 
 
@@ -155,7 +155,7 @@ void QPushButton::setDefault( bool enable )
     int gs = style();
     if ( gs != MacStyle && gs != MotifStyle ) {
 	if ( isVisible() )
-	    paintEvent( 0 );
+	    repaint( FALSE );
     }
     else
 	resizeDefButton( (QPushButton*)this );
@@ -405,6 +405,8 @@ void QPushButton::drawButtonFace( QPainter *paint )
 	x += dt;
 	y += dt;
     }
+    if ( hasFocus() )
+	p->pen().setColor( red );		// TEST!!!
     p->drawText( x+2, y+2, w-4, h-4,
 		 AlignCenter|SingleLine|ShowPrefix, text() );
 }
