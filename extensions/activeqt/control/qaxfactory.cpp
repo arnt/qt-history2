@@ -546,3 +546,59 @@ bool QAxFactory::isService() const
 
     The server is stopped automatically when the main() function returns.
 */
+
+class ActiveObject : public QObject
+{
+public:
+    ActiveObject(QObject *parent, QAxFactory *factory);
+    ~ActiveObject();
+
+    IDispatch *wrapper;
+    DWORD cookie;
+};
+
+ActiveObject::ActiveObject(QObject *parent, QAxFactory *factory)
+: QObject(parent), wrapper(0), cookie(0)
+{
+    QLatin1String key(parent->metaObject()->className());
+    
+    factory->createObjectWrapper(parent, &wrapper);
+    if (wrapper)
+        RegisterActiveObject(wrapper, QUuid(factory->classID(key)), ACTIVEOBJECT_STRONG, &cookie);
+}
+
+ActiveObject::~ActiveObject()
+{
+    if (cookie)
+        RevokeActiveObject(cookie, 0);
+    if (wrapper)
+        wrapper->Release();
+}
+
+/*!
+    Registers the QObject \a object with COM as a running object, and returns true if
+    the registration succeeded, otherwise returns false. The object is unregistered
+    automatically when it is destroyed.
+    
+    This function should only be called if the application has been started by the user 
+    (i.e. not by COM to respond to a request), and only for one object, usually the 
+    toplevel object of the application's object hierarchy.
+    
+    This function does nothing and returns false if the object's class info for 
+    "RegisterObject" is not set to "yes", or if the server is an in-process server.
+*/
+bool QAxFactory::registerActiveObject(QObject *object)
+{
+    if (qstricmp(object->metaObject()->classInfo(object->metaObject()->indexOfClassInfo("RegisterObject")).value(), "yes"))
+        return false;
+
+    if (!QString::fromLocal8Bit(qAxModuleFilename).toLower().endsWith(".exe"))
+	return false;
+
+    ActiveObject *active = new ActiveObject(object, qAxFactory());
+    if (!active->wrapper || !active->cookie) {
+        delete active;
+        return false;
+    }
+    return true;
+}

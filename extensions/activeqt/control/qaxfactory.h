@@ -64,6 +64,8 @@ public:
     static QString serverFilePath();
     static bool startServer(ServerType type = MultipleInstances);
     static bool stopServer();
+
+    static bool registerActiveObject(QObject *object);
     
 private:
     QUuid typelib;
