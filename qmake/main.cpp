@@ -60,7 +60,7 @@ int main(int argc, char **argv)
     QDir sunworkshop42workaround = QDir::current();
     QString oldpwd = sunworkshop42workaround.currentDirPath();
     Option::output_dir = oldpwd; //for now this is the output dir
-    if(!Option::output_dir.right(1) != QString(QChar(QDir::separator())))
+    if(Option::output_dir.right(1) != QString(QChar(QDir::separator())))
 	Option::output_dir += QDir::separator();
     QMakeProject proj;
     int exit_val = 0;
