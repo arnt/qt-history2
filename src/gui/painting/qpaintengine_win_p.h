@@ -92,4 +92,16 @@ public:
     const QPaintDevice        *device;
 };
 
+class QWin32PrinterPaintEnginePrivate : public QWin32PaintEnginePrivate
+{
+public:
+    QWin32PrinterPaintEnginePrivate()
+	: printer(0),
+	  state(0)
+    {
+    }
+    QPrinter *printer;
+    int state;
+};
+
 #endif

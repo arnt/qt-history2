@@ -27,7 +27,7 @@ class QTextEngine;
 class QWin32PaintEngine : public QPaintEngine
 {
 public:
-    QWin32PaintEngine(const QPaintDevice *target);
+    QWin32PaintEngine(const QPaintDevice *target, QWin32PaintEnginePrivate *dptr = 0);
     ~QWin32PaintEngine();
 
     bool begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped=FALSE);
@@ -85,5 +85,16 @@ protected:
 
     QWin32PaintEnginePrivate *d;
 };
+
+#ifndef QT_NO_PRINTER
+class QWin32PrinterPaintEngine : public QWin32PaintEngine
+{
+    QWin32PrinterPaintEngine(const QPaintDevice *target);
+    bool begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped=FALSE);
+    bool end();
+
+    void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr);
+};
+#endif // QT_NO_PRINTER
 
 #endif // QWIN32PAINTENGINE_H
