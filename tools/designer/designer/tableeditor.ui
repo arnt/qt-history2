@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>558</width>
-            <height>371</height>
+            <width>554</width>
+            <height>373</height>
         </rect>
     </property>
     <property name="caption">
@@ -19,6 +19,9 @@
         <bool>true</bool>
     </property>
     <grid>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
         <property name="margin">
             <number>11</number>
         </property>
@@ -54,6 +57,9 @@
                 <cstring>Layout11</cstring>
             </property>
             <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
                 <property name="margin">
                     <number>0</number>
                 </property>
@@ -147,20 +153,15 @@
                     <string>Co&amp;lumns</string>
                 </attribute>
                 <grid>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
                     <property name="margin">
                         <number>11</number>
                     </property>
                     <property name="spacing">
                         <number>6</number>
                     </property>
-                    <widget class="QPushButton" row="1" column="1">
-                        <property name="name">
-                            <cstring>buttonNewColumn</cstring>
-                        </property>
-                        <property name="text">
-                            <string>&amp;New Column</string>
-                        </property>
-                    </widget>
                     <spacer row="4" column="2">
                         <property name="name" stdset="0">
                             <cstring>Spacer3</cstring>
@@ -181,14 +182,6 @@
                     <widget class="QListBox" row="0" column="0" rowspan="6" colspan="1">
                         <property name="name">
                             <cstring>listColumns</cstring>
-                        </property>
-                    </widget>
-                    <widget class="QPushButton" row="2" column="1">
-                        <property name="name">
-                            <cstring>buttonDeleteColumn</cstring>
-                        </property>
-                        <property name="text">
-                            <string>&amp;Delete Column</string>
                         </property>
                     </widget>
                     <spacer row="3" column="1">
@@ -242,11 +235,30 @@
                             <string>&lt;b&gt;Move the selected item down.&lt;/b&gt;&lt;p&gt;The topmost column will be the first column of the list.&lt;/p&gt;</string>
                         </property>
                     </widget>
-                    <widget class="QLayoutWidget" row="0" column="1" rowspan="1" colspan="2">
+                    <widget class="QPushButton" row="1" column="1">
+                        <property name="name">
+                            <cstring>buttonDeleteColumn</cstring>
+                        </property>
+                        <property name="text">
+                            <string>&amp;Delete Column</string>
+                        </property>
+                    </widget>
+                    <widget class="QPushButton" row="0" column="1">
+                        <property name="name">
+                            <cstring>buttonNewColumn</cstring>
+                        </property>
+                        <property name="text">
+                            <string>&amp;New Column</string>
+                        </property>
+                    </widget>
+                    <widget class="QLayoutWidget" row="2" column="1" rowspan="1" colspan="2">
                         <property name="name">
                             <cstring>Layout9</cstring>
                         </property>
                         <grid>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
                             <property name="margin">
                                 <number>0</number>
                             </property>
@@ -304,6 +316,9 @@
                                     <cstring>Layout2</cstring>
                                 </property>
                                 <hbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
                                     <property name="margin">
                                         <number>0</number>
                                     </property>
@@ -391,6 +406,9 @@
                     <string>&amp;Rows</string>
                 </attribute>
                 <grid>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
                     <property name="margin">
                         <number>11</number>
                     </property>
@@ -491,6 +509,9 @@
                             <cstring>Layout7_2</cstring>
                         </property>
                         <grid>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
                             <property name="margin">
                                 <number>0</number>
                             </property>
@@ -524,6 +545,9 @@
                                     <cstring>Layout2_2</cstring>
                                 </property>
                                 <hbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
                                     <property name="margin">
                                         <number>0</number>
                                     </property>
@@ -760,17 +784,17 @@
     <slot access="protected">columnDownClicked()</slot>
 </connections>
 <tabstops>
-    <tabstop>table</tabstop>
-    <tabstop>TabWidget</tabstop>
-    <tabstop>listColumns</tabstop>
     <tabstop>buttonNewColumn</tabstop>
     <tabstop>buttonDeleteColumn</tabstop>
-    <tabstop>buttonColumnUp</tabstop>
-    <tabstop>buttonColumnDown</tabstop>
     <tabstop>editColumnText</tabstop>
     <tabstop>comboFields</tabstop>
     <tabstop>buttonDeleteColPixmap</tabstop>
     <tabstop>buttonChooseColPixmap</tabstop>
+    <tabstop>buttonColumnUp</tabstop>
+    <tabstop>buttonColumnDown</tabstop>
+    <tabstop>table</tabstop>
+    <tabstop>TabWidget</tabstop>
+    <tabstop>listColumns</tabstop>
     <tabstop>editRowText</tabstop>
     <tabstop>buttonDeleteRowPixmap</tabstop>
     <tabstop>buttonChooseRowPixmap</tabstop>
