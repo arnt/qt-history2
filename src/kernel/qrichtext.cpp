@@ -2081,7 +2081,7 @@ void QTextDocument::setRichTextMarginsInternal( QPtrList< QPtrVector<QStyleSheet
 	int m;
 	if (stylesPar->utm > 0 ) {
 	    m = stylesPar->utm-1;
-	    stylesPar->utm = 0; 
+	    stylesPar->utm = 0;
 	} else {
 	    m = item->margin( QStyleSheetItem::MarginTop );
 	}
@@ -2267,7 +2267,7 @@ static QString list_style_to_string( int v )
     }
 }
 
-static inline bool list_is_ordered( int v ) 
+static inline bool list_is_ordered( int v )
 {
     return v == QStyleSheetItem::ListDecimal ||
 	   v == QStyleSheetItem::ListLowerAlpha ||
@@ -2286,7 +2286,7 @@ static QString margin_to_string( QStyleSheetItem* style, int t, int b, int l, in
 	s += QString(!!s?";":"") + "margin-top:" + QString::number( t + style->margin( QStyleSheetItem::MarginTop ) ) + "px";
     if ( b > 0 )
 	s += QString(!!s?";":"") + "margin-bottom:" + QString::number( b + style->margin( QStyleSheetItem::MarginBottom ) ) + "px";
-    if ( !!s ) 
+    if ( !!s )
 	return " style=\"" + s + "\"";
     return QString::null;
 }
@@ -5851,7 +5851,8 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	      ( (wrapAtColumn() == -1 && x + ww > w) || (wrapAtColumn() != -1 && col >= wrapAtColumn()) ) ) ) ) {
 	    if ( wrapAtColumn() != -1 )
 		minw = QMAX( minw, x + ww );
-	    if ( !hadBreakableChar || lastWasHardBreak || lastBreak < 0 ) {
+	    // if a break was forced (no breakable char, hard break or own line custom item), break immediately....
+	    if ( !hadBreakableChar || lastWasHardBreak || lastWasOwnLineCustomItem ) {
 		if ( lineStart ) {
 		    lineStart->baseLine = QMAX( lineStart->baseLine, tmpBaseLine );
 		    h = QMAX( h, tmph );
@@ -5883,7 +5884,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 		col = 0;
 		if ( allowBreakInWords() )
 		    tminw = marg;
-	    } else {
+	    } else { // ... otherwise if we had a breakable char, break there
   		DO_FLOW( lineStart );
 		i = lastBreak;
 		lineStart = formatLine( parag, string, lineStart, firstChar, parag->at( lastBreak ),
