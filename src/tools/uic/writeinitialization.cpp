@@ -284,7 +284,7 @@ void WriteInitialization::accept(DomLayout *node)
         output << option.indent << varName << "->setMargin(" << m_defaultMargin << ");\n";
 
     if (!properties.contains("spacing"))
-        output << option.indent << varName << "->setSpacing(" << m_defaultMargin << ");\n";
+        output << option.indent << varName << "->setSpacing(" << m_defaultSpacing << ");\n";
 
     writeProperties(varName, className, node->elementProperty());
 
@@ -708,7 +708,7 @@ QString WriteInitialization::translate(const QString &text, const QString &class
 
 void WriteInitialization::accept(DomLayoutDefault *node)
 {
-    m_defaultMargin = 6;
+    m_defaultMargin = 6; // ### use globaldefs
     m_defaultSpacing = 11;
 
     if (!node)
