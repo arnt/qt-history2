@@ -342,7 +342,7 @@ void QTableView::paintEvent(QPaintEvent *e)
     }
 
     int colfirst = columnAt(area.left());
-    int collast = columnAt(area.right() - 1);
+    int collast = columnAt(area.right());
 
     if (colfirst == -1)
         colfirst = 0;
@@ -359,7 +359,7 @@ void QTableView::paintEvent(QPaintEvent *e)
     }
 
     int rowfirst = rowAt(area.top());
-    int rowlast = rowAt(area.bottom() - 1);
+    int rowlast = rowAt(area.bottom());
 
     if (rowfirst == -1)
         rowfirst = 0;
