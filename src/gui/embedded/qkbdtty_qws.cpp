@@ -32,46 +32,19 @@
 #include <signal.h>
 #include <termios.h>
 
+#include <qeventloop.h>
+
 #ifdef Q_OS_LINUX
 #include <sys/kd.h>
 #include <sys/vt.h>
 #endif
 
 
-#define VTSWITCHSIG SIGUSR2
+#define VTACQSIG SIGUSR1
+#define VTRELSIG SIGUSR2
 
-static bool vtActive = true;
 static int  vtQws = 0;
 static int  kbdFD = -1;
-
-#if defined(Q_OS_LINUX)
-static void vtSwitchHandler(int /*sig*/)
-{
-    if (vtActive) {
-        qwsServer->enablePainting(false);
-        qt_screen->save();
-        if (ioctl(kbdFD, VT_RELDISP, 1) == 0) {
-            vtActive = false;
-            qwsServer->suspendMouse();
-        }
-        else {
-            qwsServer->enablePainting(true);
-        }
-        usleep(200000);
-    }
-    else {
-        if (ioctl(kbdFD, VT_RELDISP, VT_ACKACQ) == 0) {
-            qwsServer->enablePainting(true);
-            vtActive = true;
-            qt_screen->restore();
-            qwsServer->resumeMouse();
-            qwsServer->refresh();
-        }
-    }
-    signal(VTSWITCHSIG, vtSwitchHandler);
-}
-#endif
-
 
 //===========================================================================
 
@@ -90,6 +63,7 @@ public:
 
 private slots:
     void readKeyboardData();
+    void handleTtySwitch(int);
 
 private:
     QWSPC101KeyboardHandler *handler;
@@ -121,7 +95,7 @@ void QWSTtyKeyboardHandler::processKeyEvent(int unicode, int keycode,
         term = qMax(vtQws - 1, 1);
     else if (ctrl && alt && keycode == Qt::Key_Right)
         term = qMin(vtQws + 1, 10);
-    if (term && !isPress) {
+    if (term && isPress) {
         ioctl(kbdFD, VT_ACTIVATE, term);
         return;
     }
@@ -167,15 +141,18 @@ QWSTtyKbPrivate::QWSTtyKbPrivate(QWSPC101KeyboardHandler *h, const QString &devi
         tcsetattr(kbdFD, TCSANOW, &termdata);
 
 #if defined(Q_OS_LINUX)
-        signal(VTSWITCHSIG, vtSwitchHandler);
+
+        connect(QEventLoop::instance(), SIGNAL(unixSignal(int)), this, SLOT(handleTtySwitch(int)));
+        QEventLoop::instance()->watchUnixSignal(VTACQSIG, true);
+        QEventLoop::instance()->watchUnixSignal(VTRELSIG, true);
 
         struct vt_mode vtMode;
         ioctl(kbdFD, VT_GETMODE, &vtMode);
 
         // let us control VT switching
         vtMode.mode = VT_PROCESS;
-        vtMode.relsig = VTSWITCHSIG;
-        vtMode.acqsig = VTSWITCHSIG;
+        vtMode.relsig = VTRELSIG;
+        vtMode.acqsig = VTACQSIG;
         ioctl(kbdFD, VT_SETMODE, &vtMode);
 
         struct vt_stat vtStat;
@@ -197,6 +174,26 @@ QWSTtyKbPrivate::~QWSTtyKbPrivate()
         tcsetattr(kbdFD, TCSANOW, &origTermData);
         ::close(kbdFD);
         kbdFD = -1;
+    }
+}
+
+void QWSTtyKbPrivate::handleTtySwitch(int sig)
+{
+    if (sig == VTACQSIG) {
+       if (ioctl(kbdFD, VT_RELDISP, VT_ACKACQ) == 0) {
+           qwsServer->enablePainting(true);
+           qt_screen->restore();
+           qwsServer->resumeMouse();
+           qwsServer->refresh();
+       }
+    } else if (sig == VTRELSIG) {
+       qwsServer->enablePainting(false);
+       qt_screen->save();
+       if (ioctl(kbdFD, VT_RELDISP, 1) == 0) {
+           qwsServer->suspendMouse();
+       } else {
+           qwsServer->enablePainting(true);
+       }
     }
 }
 
