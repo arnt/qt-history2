@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 2.27 1998/05/24 03:08:48 agulbra Exp $
+** $Id: misc.doc,v 2.28 1998/05/24 03:43:18 agulbra Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 2.27 1998/05/24 03:08:48 agulbra Exp $";
+static char ident[] = "$Id: misc.doc,v 2.28 1998/05/24 03:43:18 agulbra Exp $";
 #endif
 
 
@@ -385,7 +385,7 @@ books worth buying.  This is just a few GUI/UI books that don't gather
 dust in our shelves.
 
 <p><b>The (Psychology|Design) of Everyday Things</b> by Donald Norman,
-ISBN 0-38526774-6, is a tour de force of human interface design.
+ISBN 0-38526774-6, is one of the classics of human interface design.
 Norman shows how badly something as simple as a kitchen stove can be
 designed, and everyone should read it who will design a dialog box,
 write an error message, or design just about anything else humans are
@@ -411,29 +411,38 @@ chapter</a> on the author's web site.
 <a href="http://www.amazon.com/exec/obidos/ASIN/0070592748/trolltech/t">
 (Read more or buy it.)</a>
 
-<p><b>Macintosh Human Interface Guidelines</b>, second
-edition, ISBN 0-201-62216-5, is worth buying for the <em>don't</em>s
-alone.  Even though you're not writing Macintosh software, avoiding
-most of what it tells you to avoid will produce more easily
-comprehensible software.  Doing what it tells you to <em>do</em>
-helps, too.
+<p><b>Macintosh Human Interface Guidelines</b>, second edition, ISBN
+0-201-62216-5, is worth buying for the <em>don't</em>s alone.  Even
+though you're not writing Macintosh software, avoiding most of what it
+advises against will produce more easily comprehensible software.
+Doing what it tells you to <em>do</em> helps, too.
 <a href="http://www.amazon.com/exec/obidos/ASIN/0201622165/trolltech/t">
 (Read more or buy it.)</a>
+
+This book is now available
+<a href="http://developer.apple.com/techpubs/mac/HIGuidelines/HIGuidelines-2.html">
+on the web</a> and there is a
+<a href="http://developer.apple.com/techpubs/mac/HIGOS8Guide/thig-2.html">Mac
+OS 8 addendum.</a>
 
 <p><b>The Windows Interface Guidelines for Software Design</b>, ISBN
 1-55615-679-0, is perhaps the best guide to how a modern GUI program
 should look.  Skips some of the more elementary stuff from the
 Macintosh one, but covers newer widgets (like tool tips) and says much
-about e.g. dialog layout.  <a
-href="http://www.amazon.com/exec/obidos/ASIN/1556156790/trolltech/t">
+about e.g. dialog layout.
+<a href="http://www.amazon.com/exec/obidos/ASIN/1556156790/trolltech/t">
 (Read more or buy it.)</a>
+
+This book too is available on the web, but has occasionally been
+hidden in an impenetrable maze of javascript.
+<a href="http://www.microsoft.com/win32dev/uiguide/">Try and see.</a>
 
 <p><b>The Icon Book</b> by William Horton, ISBN 0-471-59900-X, is a
 thorough beginner's icon drawing book.  It starts from scratch and
 goes through (I assume) every aspect of icon design.  Some 500
 examples are scattered throughout the text, generally in groups of
-four or five.  <a
-href="http://www.amazon.com/exec/obidos/ASIN/047159900X/trolltech/t">
+four or five.
+<a href="http://www.amazon.com/exec/obidos/ASIN/047159900X/trolltech/t">
 (Read more or buy it.)</a>
 
 <h2><nobr>Buying these books from</nobr>
