@@ -43,15 +43,15 @@
 #endif // QT_H
 
 
-// The following macros are our "extensions" to C++
-// They are used, strictly speaking, only by the moc.
-
 #ifndef QT_NO_TRANSLATION
 #define QT_TR_FUNCTION static QString tr(const char*); \
 		       static QString tr(const char*, const char*);
 #else
 #define QT_TR_FUNCTION // inherit the one from QObject
 #endif
+
+// The following macros are our "extensions" to C++
+// They are used, strictly speaking, only by the moc.
 
 #ifdef QT_MOC_CPP
  #define slots			    slots
