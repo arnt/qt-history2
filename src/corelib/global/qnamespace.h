@@ -1095,7 +1095,7 @@ public:
         AutoConnection,
         DirectConnection,
         QueuedConnection,
-        DirectCompatConnection
+        AutoCompatConnection
     };
 
     enum ShortcutContext {

@@ -266,7 +266,7 @@ public:
     }
     inline QT3_SUPPORT bool connectItem(int id, const QObject *receiver, const char* member) {
         if(QAction *act = findActionForId(id)) {
-            QObject::connect(act, SIGNAL(activated(int)), receiver, member, Qt::DirectCompatConnection);
+            QObject::connect(act, SIGNAL(activated(int)), receiver, member);
             return true;
         }
         return false;

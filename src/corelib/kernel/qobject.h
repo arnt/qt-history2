@@ -153,10 +153,21 @@ public:
 
 
     static bool connect(const QObject *sender, const char *signal,
-                        const QObject *receiver, const char *member,
-                        Qt::ConnectionType = Qt::AutoConnection);
+                        const QObject *receiver, const char *member, Qt::ConnectionType =
+#ifdef QT3_SUPPORT
+                        Qt::AutoCompatConnection
+#else
+                        Qt::AutoConnection
+#endif
+        );
     inline bool connect(const QObject *sender, const char *signal,
-                        const char *member, Qt::ConnectionType type = Qt::AutoConnection) const
+                        const char *member, Qt::ConnectionType type =
+#ifdef QT3_SUPPORT
+                        Qt::AutoCompatConnection
+#else
+                        Qt::AutoConnection
+#endif
+        ) const
         { return connect(sender, signal, this, member, type); }
 
     static bool disconnect(const QObject *sender, const char *signal,

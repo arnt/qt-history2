@@ -1712,8 +1712,8 @@ bool QObject::connect(const QObject *sender, const char *signal,
                       Qt::ConnectionType type)
 {
     bool warnCompat = true;
-    if (type == Qt::DirectCompatConnection) {
-        type = Qt::DirectConnection;
+    if (type == Qt::AutoCompatConnection) {
+        type = Qt::AutoConnection;
         warnCompat = false;
     }
 
