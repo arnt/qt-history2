@@ -336,7 +336,7 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 /*!
     \class QMotif
     \brief The QMotif class provides the basis of the Motif Extension.
-\if defined(commercial_edition)
+\if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
 
