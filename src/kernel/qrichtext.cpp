@@ -2064,8 +2064,8 @@ void QTextDocument::draw( QPainter *p, const QRegion &reg, const QColorGroup &cg
 	return;
 
     if ( paper ) {
-	p->setBrushOrigin( -p->translationX(),
-			   -p->translationY() );
+	p->setBrushOrigin( -(int)p->translationX(),
+			   -(int)p->translationY() );
 	p->fillRect( reg.boundingRect(), *paper );
     }
 
