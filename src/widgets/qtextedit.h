@@ -46,6 +46,10 @@
 #endif // QT_H
 
 #ifndef QT_NO_TEXTEDIT
+// uncomment below to enable optimization mode - also uncomment the
+// optimizedDoAutoScroll() private slot since moc ignores #ifdefs..
+//#define QT_TEXTEDIT_OPTIMIZATION
+
 class QPainter;
 class QTextDocument;
 class QTextCursor;
@@ -65,6 +69,9 @@ class QTextString;
 struct QUndoRedoInfoPrivate;
 class QPopupMenu;
 class QTextEditPrivate;
+#ifdef QT_TEXTEDIT_OPTIMIZATION
+class QTextEditOptimizedPrivate;
+#endif
 
 class Q_EXPORT QTextEdit : public QScrollView
 {
@@ -406,6 +413,27 @@ private:
     void ensureFormatted( QTextParag *p );
     void placeCursor( const QPoint &pos, QTextCursor *c, bool link );
 
+#ifdef QT_TEXTEDIT_OPTIMIZATION    
+    bool checkOptimizedMode();
+    QString optimizedText() const;
+    void optimizedSetText( const QString &str );
+    void optimizedAppend( const QString &str );
+    void optimizedDrawContents( QPainter * p, int cx, int cy, int cw, int ch );
+    void optimizedMousePressEvent( QMouseEvent * e );
+    void optimizedMouseReleaseEvent( QMouseEvent * e );
+    void optimizedMouseMoveEvent( QMouseEvent * e );
+    int  optimizedCharIndex( const QString &str );
+    void optimizedSelectAll();
+    void optimizedRemoveSelection();
+    void optimizedSetSelection( int startLine, int startIdx, int endLine,
+				int endIdx );
+    bool optimizedHasSelection() const;
+    QString optimizedSelectedText() const;
+
+// private slots:
+//     void optimizedDoAutoScroll();
+#endif
+
 private:
     QTextDocument *doc;
     QTextCursor *cursor;
@@ -434,6 +462,10 @@ private:
     bool readonly : 1;
     bool undoEnabled : 1;
     bool overWrite : 1;
+#ifdef QT_TEXTEDIT_OPTIMIZATION    
+    QTextEditOptimizedPrivate *od;
+    bool optimizedMode : 1;
+#endif    
 };
 
 inline QTextDocument *QTextEdit::document() const
