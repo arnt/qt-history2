@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: debug.doc,v 2.7 1999/01/28 15:40:20 warwick Exp $
+** $Id: debug.doc,v 2.8 1999/04/13 05:29:14 warwick Exp $
 **
 ** Qt Debugging Techniques
 **
@@ -147,7 +147,7 @@ Example:
 
 <h2>Common bugs</h2>
 
-There is one bug that is so common that is deserves mention here: If
+There is one bug that is so common that it deserves mention here: If
 you include the Q_OBJECT macro in a class declaration and run the moc,
 but forget to link the moc-generated object code into your executable,
 you will get very confusing error message.
