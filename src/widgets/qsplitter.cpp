@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#6 $
 **
 **  Splitter widget
 **
@@ -22,12 +22,14 @@
 
  */
 
+static int opaqueOldPos = -1; //### there's only one mouse, but this is a bit risky
+
 /*!
   Creates a horizontal splitter.
   */
 
 QSplitter::QSplitter( QWidget *parent, const char *name )
-    :QFrame(parent,name)
+    :QFrame(parent,name,WPaintUnclipped)
 {
      orient = Horizontal;
      init();
@@ -37,7 +39,7 @@ QSplitter::QSplitter( QWidget *parent, const char *name )
   */
 
 QSplitter::QSplitter( Orientation o, QWidget *parent, const char *name )
-    :QFrame(parent,name)
+    :QFrame(parent,name,WPaintUnclipped)
 {
      orient = o;
      init();
@@ -59,6 +61,8 @@ QSplitter::setBorder2( int b )
 void QSplitter::init()
 {
     ratio = -1;
+    fixedWidget = 0;
+    opaque = 0;
 
    setMouseTracking( TRUE );
     moving = 0;
@@ -73,9 +77,10 @@ void QSplitter::init()
   Lets \a w be the left (or top) widget.
  */
 void QSplitter::setFirstWidget( QWidget *w ) {
+    if ( w1 )
+	w1->hide();
     if ( w->parentWidget() != this ) {
-	warning( "QSplitter::setFirstWidget(): (%s) must be child.", name() );
-	return;
+	w->recreate( this, 0, QPoint(0,0) );
     }
     w1 = w;
     if ( w2 == w1 )
@@ -87,9 +92,10 @@ void QSplitter::setFirstWidget( QWidget *w ) {
   Lets \a w be the right (or bottom) widget.
  */
 void QSplitter::setSecondWidget( QWidget *w ) {
+    if ( w2 )
+	w1->hide();
     if ( w->parentWidget() != this ) {
-	warning( "QSplitter::setSecondWidget(): (%s) must be child.", name() );
-	return;
+	w->recreate( this, 0, QPoint(0,0) );
     }
     w2 = w;
     if ( w2 == w1 )
@@ -117,23 +123,29 @@ void QSplitter::setOrientation( Orientation o )
    */
 
 
-QCOORD QSplitter::r2p( int r )
-{
-    return (pick(contentsRect().size()) * r) / 256;
-}
-
-int QSplitter::p2r( QCOORD p )
+QCOORD QSplitter::r2p( int r ) const
 {
     int s = pick(contentsRect().size());
+    if ( fixedWidget ) 
+	return fixedWidget == 1 ? r : s - r;
+    else
+	return ( s * r) / 256;
+}
 
-    return s ? ( p * 256 ) / s : 128;
+int QSplitter::p2r( QCOORD p ) const
+{
+    int s = pick(contentsRect().size());
+    if ( fixedWidget )
+	return fixedWidget == 1 ? p : s - p;
+    else
+	return s ? ( p * 256 ) / s : 128;
 }
 
 
 
 /*!
-  Reimplemented to provide childRemoveEvent() and childInsertEvent()
-  without breaking binary compatibility.
+  Reimplemented to provide childRemoveEvent(), childInsertEvent() and
+  layoutHintEvent()  without breaking binary compatibility.
  */
 bool QSplitter::event( QEvent *e )
 {
@@ -147,7 +159,7 @@ bool QSplitter::event( QEvent *e )
 	return TRUE;
 	break;
     case Event_LayoutHint:
-	doResize();
+	layoutHintEvent( e );
 	return TRUE;
 	break;
     default:
@@ -158,7 +170,6 @@ bool QSplitter::event( QEvent *e )
 void QSplitter::resizeEvent( QResizeEvent * )
 {
     doResize();
-    //recalc(); //####
 }
 
 
@@ -190,9 +201,27 @@ void QSplitter::childInsertEvent( QChildEvent * )
 {
 }
 
+
+
+/*!
+  Tells the splitter that a child widget has changed layout parameters
+*/
+
+void QSplitter::layoutHintEvent( QEvent * )
+{
+    recalc();    
+}
+
+
+
 void QSplitter::mouseReleaseEvent( QMouseEvent * )
 {
     moving = 0;
+    if ( !opaque && opaqueOldPos >= 0 ) {
+	int p = opaqueOldPos;
+	setRubberband( -1 );
+	moveSplitter( p );
+    }
 }
 
 void QSplitter::mousePressEvent( QMouseEvent *m )
@@ -204,7 +233,11 @@ void QSplitter::mousePressEvent( QMouseEvent *m )
 void QSplitter::mouseMoveEvent( QMouseEvent *m )
 {
     if ( moving ) {
-	moveSplitter( pick( m->pos() ) );
+	int p = adjustPos( pick( m->pos() ) );
+	if ( opaque )
+	    moveSplitter( p );
+	else
+	    setRubberband( p );
     } else {
 	if ( hit( m->pos() ) )
 	    setCursor( crossCursor );
@@ -288,29 +321,7 @@ void QSplitter::moveSplitter( QCOORD p )
 {
     if ( !w1 || !w2 )
 	return;
-
-    QWidget *prev = w1;
-    QWidget *w = w2;
-
-    ratio = p2r( p );
-
-
     QRect r = contentsRect();
-
-    QCOORD p0 = pick( r.topLeft() );
-    QCOORD p1 = pick( r.bottomRight() );
-
-    QCOORD min = p0 + 1; //### no zero size widgets
-    min = QMAX( min, p0 + pick( prev->minimumSize() ) );
-    min = QMAX( min, p1 - pick( w->maximumSize() ) );
-
-    QCOORD max = p1 - 1; //### no zero size widgets
-    max = QMIN( max, p1 - pick( w->minimumSize() ) );
-    max = QMIN( max, p0 + pick( prev->maximumSize() ) );
-
-    p -= bord; // measure from prev->right
-    p = QMAX( min, QMIN( p, max - 2*bord ) );
-
     if ( orient == Horizontal ) {
 	w1->setGeometry( r.x(), r.y(), p, r.height() );
 	p += 2*bord;
@@ -323,6 +334,70 @@ void QSplitter::moveSplitter( QCOORD p )
 	repaint( r.x(), p - 2*bord, r.width(), 2*bord );
     }
 }
+
+
+
+
+/*!
+  Returns the legal position of the splitter closest to \a p, and sets the
+  chosen ratio.
+*/
+
+int QSplitter::adjustPos( int p )
+{
+    ratio = p2r( p );
+
+    QRect r = contentsRect();
+
+    QCOORD p0 = pick( r.topLeft() );
+    QCOORD p1 = pick( r.bottomRight() );
+
+    QCOORD min = p0 + 1; //### no zero size widgets
+    min = QMAX( min, p0 + pick( w1->minimumSize() ) );
+    min = QMAX( min, p1 - pick( w2->maximumSize() ) );
+
+    QCOORD max = p1 - 1; //### no zero size widgets
+    max = QMIN( max, p1 - pick( w2->minimumSize() ) );
+    max = QMIN( max, p0 + pick( w1->maximumSize() ) );
+
+    p -= bord; // measure from prev->right
+    p = QMAX( min, QMIN( p, max - 2*bord ) );    
+
+    return p;
+}
+
+
+/*!
+  Shows a rubber band at position \a p. If \a p is negative, the rubber band is removed.
+*/
+
+void QSplitter::setRubberband( int p )
+{
+    QPainter paint( this );
+    paint.setPen( gray );
+    paint.setBrush( gray );
+    paint.setRasterOp( XorROP );
+    QRect r = contentsRect();
+    const int rBord = 3; //###
+
+    if ( orient == Horizontal ) {
+	if ( opaqueOldPos >= 0 )
+	    paint.drawRect( opaqueOldPos + bord - rBord , r.y(), 
+			    2*rBord, r.height() );
+	if ( p >= 0 )
+	    paint.drawRect( p  + bord - rBord, r.y(), 2*rBord, r.height() );
+    } else {
+	if ( opaqueOldPos >= 0 )
+	    paint.drawRect( r.x(), opaqueOldPos + bord - rBord,
+			    r.width(), 2*rBord );
+	if ( p >= 0 )
+	    paint.drawRect( r.x(), p + bord - rBord, r.width(), 2*rBord );
+    }
+    opaqueOldPos = p;
+}
+
+
+
 
 void QSplitter::doResize()
 {
@@ -338,7 +413,7 @@ void QSplitter::doResize()
     QCOORD p = r2p( ratio );
     //         pick(w1->size()) + bord; //current center of splitter.
     int r = ratio;
-    moveSplitter( p );
+    moveSplitter( adjustPos( p ) );
     ratio = r; //resize should not affect the ratio set by the user
 }
 
@@ -380,10 +455,10 @@ void QSplitter::recalc()
     }
     if ( ratio >= 0 ) {
 	int r = ratio;
-	moveSplitter( r2p(ratio) );
+	moveSplitter( adjustPos( r2p(ratio) ) );
 	ratio = r; //keep old ratio
     } else {
-	moveSplitter( pick(size())/2 );
+	moveSplitter( adjustPos( pick(size())/2 ) );
     }
 }
 
@@ -396,11 +471,64 @@ void QSplitter::recalc()
   \a f.  A value of 0.5 means equal space for the two widgets, 
   1.0 means the second widget receives all the space.
 
-  If the widgets have minimum/maximum sizes, the ratio will be adjusted.
+  The user can change the ratio by adjusting  the splitter.
+
+  The widgets' minimum/maximum sizes, if any, have precedence over the ratio.
+
+  \sa setFixed()
 */
 
 void QSplitter::setRatio( float f )
 {
+    fixedWidget = 0;
     ratio = (int)(f*256);
     doResize();
+}
+
+
+
+
+/*!
+  Sets the size of widget number \a w to \a size. \a w must be 1 or 2. 
+  The specified widget will have a fixed size. 
+  The user can change the fixed size by adjusting  the splitter.
+
+  The widgets' minimum/maximum sizes, if any, have precedence over the size
+  set.
+
+  \sa setRatio()
+*/
+
+void QSplitter::setFixed( int w, int size )
+{
+    if ( w > 2 || w < 1 ) {
+#ifdef CHECK_RANGE
+	debug( "QSplitter::setFixed(), unsupported widget number %d "
+	       "(must be 1 or 2).", w );
+#endif	
+	return;
+    }
+    fixedWidget = w;
+    ratio = size;
+    doResize();
+}
+
+
+/*!
+  \fn bool QSplitter::opaqueResize() const 
+  
+  Returns TRUE if opaque resize is on, FALSE otherwise.
+
+  \sa setOpaqueResize()
+*/
+
+/*!
+  Sets opaque resize to \a on. Opaque resize is initially turned off.
+
+  \sa opaqueResize()
+*/
+
+void QSplitter::setOpaqueResize( bool on )
+{
+    opaque = on;
 }

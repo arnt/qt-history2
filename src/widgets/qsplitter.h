@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.h#3 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.h#4 $
 **
 **  Splitter widget
 **
@@ -31,11 +31,17 @@ public:
     Orientation orientation() const { return orient; }
 
     void setRatio( float f );
+    void setFixed( int w, int size );
 
     bool event( QEvent * );
+
+    void setOpaqueResize( bool = TRUE );
+    bool opaqueResize() const { return opaque; }
+
 protected:
     void childInsertEvent( QChildEvent * );
     void childRemoveEvent( QChildEvent * );
+    void layoutHintEvent( QEvent * );
     void leaveEvent( QEvent * );
     void resizeEvent( QResizeEvent * );
     //    void paintEvent( QPaintEvent * );
@@ -48,6 +54,9 @@ protected:
     virtual void drawSplitter( QPainter*, QCOORD x, QCOORD y, 
 			       QCOORD w, QCOORD h );
 
+    int adjustPos( int );
+    void setRubberband( int );
+
     // styleChange
     // frameChange
 
@@ -59,24 +68,28 @@ private:
     int hit( QPoint p );
     void doResize();
 
-    QCOORD pick( const QPoint &p ) 
+
+    QCOORD pick( const QPoint &p ) const
     { return orient == Horizontal ? p.x() : p.y(); }
-    QCOORD pick( const QSize &s )
+    QCOORD pick( const QSize &s ) const
     { return orient == Horizontal ? s.width() : s.height(); }
 
-    QCOORD trans( const QPoint &p ) 
+    QCOORD trans( const QPoint &p ) const
     { return orient == Vertical ? p.x() : p.y(); }
-    QCOORD trans( const QSize &s )
+    QCOORD trans( const QSize &s ) const
     { return orient == Vertical ? s.width() : s.height(); }
 
-    QCOORD r2p( int );
-    int p2r( QCOORD );
+    QCOORD r2p( int ) const;
+    int p2r( QCOORD ) const;
 
     QWidget *w1;
     QWidget *w2;
     int moving;
     int ratio;
+    int fixedWidget;
     void *d;
+    bool opaque;
+
     Orientation orient;
     QCOORD bord; //half border
 };
