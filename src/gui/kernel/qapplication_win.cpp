@@ -606,7 +606,6 @@ void qt_init(QApplicationPrivate *priv, int)
     GdiSetBatchLimit(1);
 #endif
 
-    QWindowsMime::initialize();
     QColormap::initialize();
     QFont::initialize();
     QCursorData::initialize();

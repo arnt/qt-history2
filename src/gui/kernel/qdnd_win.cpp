@@ -706,7 +706,7 @@ QVariant QDropData::retrieveData(const QString &mimeType, QVariant::Type type) c
     QWindowsMime *converter = QWindowsMime::converterToMime(mimeType, currentDataObject);
 
     if (converter) {
-        result = converter->convertToMime(mimeType, type, currentDataObject);
+        result = converter->convertToMime(mimeType, currentDataObject, type);
         // if we just got a bytearray but we wanted more then try to decode
         if (result.type() == QVariant::ByteArray && type != QVariant::ByteArray) {
             QDropData *that = const_cast<QDropData *>(this);

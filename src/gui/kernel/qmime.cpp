@@ -142,6 +142,15 @@ void QMimeData::setUrls(const QList<QUrl> &urls)
 }
 
 /*!
+    Returns true if the object can return a list of urls otherwise returns false.
+*/
+bool QMimeData::hasUrls() const
+{
+    return hasFormat("text/uri-list");
+}
+
+
+/*!
     Returns a plain text representation of the data.
 */
 QString QMimeData::text() const
@@ -161,6 +170,14 @@ void QMimeData::setText(const QString &text)
 {
     Q_D(QMimeData);
     d->setData("text/plain", text);
+}
+
+/*!
+    Returns true if the object can return text otherwise returns false.
+*/
+bool QMimeData::hasText() const
+{
+    return hasFormat("text/plain");
 }
 
 /*!
@@ -187,6 +204,14 @@ void QMimeData::setHtml(const QString &html)
 }
 
 /*!
+    Returns true if the object can return HTML otherwise returns false.
+*/
+bool QMimeData::hasHtml() const
+{
+    return hasFormat("text/html");
+}
+
+/*!
     Returns a pixmap if the data stored in the object is in the correct
     form; otherwise returns a null pixmap.
 */
@@ -209,6 +234,44 @@ void QMimeData::setPixmap(const QPixmap &pixmap)
 }
 
 /*!
+    Returns true if the object can return a pixmap otherwise returns false.
+*/
+bool QMimeData::hasPixmap() const
+{
+    return hasFormat("image/ppm");
+}
+
+/*!
+    Returns a image if the data stored in the object is in the correct
+    form; otherwise returns a null image.
+*/
+QImage QMimeData::image() const
+{
+   // QVariant data = retrieveData("image/ppm", QVariant::Pixmap);
+    //if (data.type() == QVariant::Pixmap)
+     //   return data.toPixmap();
+    // ### try to decode
+    return QImage();
+}
+
+/*!
+    Sets the data in the object to the given \a image.
+*/
+void QMimeData::setImage(const QImage &image)
+{
+    //Q_D(QMimeData);
+    //d->setData("image/ppm", image);
+}
+
+/*!
+    Returns true if the object can return a image otherwise returns false.
+*/
+bool QMimeData::hasImage() const
+{
+    return false; //hasFormat("image/ppm");
+}
+
+/*!
     Returns a color if the data stored in the object represents a color;
     otherwise returns a null color.
 */
@@ -228,6 +291,15 @@ void QMimeData::setColor(const QColor &color)
 {
     Q_D(QMimeData);
     d->setData("application/x-color", color);
+}
+
+
+/*!
+    Returns true if the object can return a color otherwise returns false.
+*/
+bool QMimeData::hasColor() const
+{
+    return hasFormat("application/x-color");
 }
 
 /*!

@@ -78,7 +78,7 @@ QVariant QClipboardWatcher::retrieveData(const QString &mimeType, QVariant::Type
     QWindowsMime *converter = QWindowsMime::converterToMime(mimeType, pDataObj);
 
     if (converter) {
-        result = converter->convertToMime(mimeType, type, pDataObj);
+        result = converter->convertToMime(mimeType, pDataObj, type);
         // if we just got a bytearray but we wanted more then try to decode
         if (result.type() == QVariant::ByteArray && type != QVariant::ByteArray) {
             QClipboardWatcher *that = const_cast<QClipboardWatcher *>(this);

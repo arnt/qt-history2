@@ -27,6 +27,7 @@ class QString;
 class QByteArray;
 class QColor;
 class QPixmap;
+class QImage;
 class QByteArray;
 
 class QMimeDataPrivate;
@@ -40,22 +41,31 @@ public:
 
     QList<QUrl> urls() const;
     void setUrls(const QList<QUrl> &urls);
+    bool hasUrls() const;
 
     QString text() const;
     void setText(const QString &text);
+    bool hasText() const;
 
     QString html() const;
     void setHtml(const QString &html);
+    bool hasHtml() const;
 
     QPixmap pixmap() const;
     void setPixmap(const QPixmap &pixmap);
+    bool hasPixmap() const;
+
+    QImage image() const;
+    void setImage(const QImage &image);
+    bool hasImage() const;
 
     QColor color() const;
     void setColor(const QColor &color);
+    bool hasColor() const;
 
     QByteArray data(const QString &mimetype) const;
     void setData(const QString &mimetype, const QByteArray &data);
-
+    
     virtual bool hasFormat(const QString &mimetype) const;
     virtual QStringList formats() const;
 
@@ -82,14 +92,10 @@ public:
   directly.
 */
 
-#include <objidl.h>
-
 class Q_GUI_EXPORT QWindowsMime {
 public:
     QWindowsMime();
     virtual ~QWindowsMime();
-
-    static int registerMimeType(const QString &mime);
 
     // for converting from Qt
     virtual bool canConvertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData) const = 0;
@@ -97,31 +103,11 @@ public:
     virtual QVector<FORMATETC> formatsForMime(const QString &mimeType, const QMimeData *mimeData) const = 0;
     
     // for converting to Qt
-    virtual bool canConverToMime(const QString &mimeType, struct IDataObject *pDataObj) const = 0;
-    virtual QVariant convertToMime(const QString &mime, QVariant::Type preferredType, struct IDataObject *pDataObj) const = 0;
+    virtual bool canConvertToMime(const QString &mimeType, struct IDataObject *pDataObj) const = 0;
+    virtual QVariant convertToMime(const QString &mimeType, struct IDataObject *pDataObj, QVariant::Type preferredType) const = 0;
     virtual QString mimeForFormat(const FORMATETC &formatetc) const = 0;
-    
-    static void initialize();
-    
-protected:
-    // helpers for using global memory
-    inline int getCf(const FORMATETC &formatetc) const { return formatetc.cfFormat; } 
-    inline FORMATETC setCf(int cf) const 
-    { 
-      FORMATETC formatic;
-      formatic.cfFormat = cf;
-      formatic.dwAspect = DVASPECT_CONTENT;
-      formatic.lindex = -1;
-      formatic.ptd =  NULL;
-      formatic.tymed = TYMED_HGLOBAL;
-      return formatic; 
-    }
-    bool setData(const QByteArray &data, STGMEDIUM * pmedium) const;
-    QByteArray getData(int cf, struct IDataObject * pDataObj) const;
-    bool canGetData(int cf, struct IDataObject * pDataObj) const;
 
 private:
-    
     friend class QClipboardWatcher;
     friend class QDropData;
     friend class QOleDataObject;
@@ -130,6 +116,7 @@ private:
     static QStringList allMimesForFormats(struct IDataObject *pDataObj);
     static QWindowsMime *converterFromMime(const FORMATETC &formatetc, const QMimeData *mimeData);
     static QVector<FORMATETC> allFormatsForMime(const QMimeData *mimeData);
+    static int QWindowsMime::registerMimeType(const QString &mime);
 };
 
 #endif
