@@ -2755,7 +2755,7 @@ EOF
 
     # if you get errors about the length of the command line to awk, change the -l arg
     # to split below
-    split -l 600 .projects.all .projects.all.
+    split -l 200 .projects.all .projects.all.
     for p in .projects.all.*; do
   $AWK -f projects.awk `cat $p`
   [ -f .projects.1.tmp ] && cat .projects.1.tmp >> .projects.1
