@@ -22,30 +22,7 @@
 #include <private/qpainter_p.h>
 
 class QPrinterPrivate;
-
-class QMacPrintEnginePrivate : public QPaintEnginePrivate
-{
-    Q_DECLARE_PUBLIC(QMacPrintEngine)
-public:
-    QPrinter::PrinterMode mode;
-    QPrinter::PrinterState state;
-    QPrinter::Orientation orient;
-    PMPageFormat format;
-    PMPrintSettings settings;
-    PMPrintSession session;
-    PMResolution resolution;
-    QString outputFilename;
-    bool outputToFile;
-    bool fullPage;
-    GWorldPtr qdHandle;
-    QPaintEngine *paintEngine;
-    QMacPrintEnginePrivate() : mode(QPrinter::ScreenResolution), state(QPrinter::Idle),
-                               orient(QPrinter::Portrait), format(0), settings(0), session(0),
-                               qdHandle(0), paintEngine(0) {}
-    void initialize();
-    bool newPage_helper();
-};
-
+class QMacPrintEnginePrivate;
 class QMacPrintEngine : public QPaintEngine, public QPrintEngine
 {
     Q_DECLARE_PRIVATE(QMacPrintEngine)
@@ -147,6 +124,29 @@ private:
     virtual void updateInternal(QPainterState *state, bool updateGC = true);
     friend class QPrintDialog;
     friend class QPageSetupDialog;
+};
+
+class QMacPrintEnginePrivate : public QPaintEnginePrivate
+{
+    Q_DECLARE_PUBLIC(QMacPrintEngine)
+public:
+    QPrinter::PrinterMode mode;
+    QPrinter::PrinterState state;
+    QPrinter::Orientation orient;
+    PMPageFormat format;
+    PMPrintSettings settings;
+    PMPrintSession session;
+    PMResolution resolution;
+    QString outputFilename;
+    bool outputToFile;
+    bool fullPage;
+    GWorldPtr qdHandle;
+    QPaintEngine *paintEngine;
+    QMacPrintEnginePrivate() : mode(QPrinter::ScreenResolution), state(QPrinter::Idle),
+                               orient(QPrinter::Portrait), format(0), settings(0), session(0),
+                               qdHandle(0), paintEngine(0) {}
+    void initialize();
+    bool newPage_helper();
 };
 
 

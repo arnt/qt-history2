@@ -24,84 +24,8 @@
   QuickDraw Private data
  *****************************************************************************/
 class paintevent_item;
-class QQuickDrawPaintEnginePrivate : public QPaintEnginePrivate
-{
-    Q_DECLARE_PUBLIC(QQuickDrawPaintEngine)
-public:
-    QQuickDrawPaintEnginePrivate()
-        : QPaintEnginePrivate()
-    {
-        saved = 0;
-        paintevent = 0;
-        clip.serial = 0;
-        clip.dirty = locked = unclipped = false;
-        clip.pdev = clip.paintable = QRegion();
-        brush_style_pix = 0;
-        offx = offy = 0;
-    }
-
-    struct {
-        QPen pen;
-        QBrush brush;
-        QRegion clip;
-        struct {
-            QPointF origin;
-            Qt::BGMode mode;
-            QBrush brush;
-        } bg;
-    } current;
-
-    int offx, offy;
-    QPixmap *brush_style_pix;
-    uint unclipped : 1, locked : 1;
-    QMacSavedPortInfo *saved;
-    paintevent_item *paintevent;
-
-    struct {
-        QRegion pdev, paintable;
-        uint dirty : 1, serial : 15;
-    } clip;
-};
-
-/*****************************************************************************
-  Private data
- *****************************************************************************/
-class QCoreGraphicsPaintEnginePrivate : public QQuickDrawPaintEnginePrivate
-{
-    Q_DECLARE_PUBLIC(QQuickDrawPaintEngine)
-public:
-    QCoreGraphicsPaintEnginePrivate()
-    {
-        hd = 0;
-        shading = 0;
-    }
-
-    //state info (shared with QD)
-    CGAffineTransform orig_xform;
-
-    //cg structures
-    CGContextRef hd;
-    CGShadingRef shading;
-
-    //internal functions
-    enum { CGStroke=0x01, CGEOFill=0x02, CGFill=0x04 };
-    void drawPath(uchar ops, CGMutablePathRef path = 0);
-    void setClip(const QRegion *rgn=0);
-    CGRect adjustedRect(const QRectF &r);
-    inline void setTransform(const QMatrix *matrix=0)
-    {
-        CGContextConcatCTM(hd, CGAffineTransformInvert(CGContextGetCTM(hd)));
-        CGContextConcatCTM(hd, orig_xform);
-        if(matrix) {
-            CGAffineTransform xform = CGAffineTransformMake(matrix->m11(), matrix->m12(),
-                                                            matrix->m21(), matrix->m22(),
-                                                            matrix->dx(),  matrix->dy());
-            CGContextConcatCTM(hd, xform);
-        }
-        CGContextSetTextMatrix(hd, CGContextGetCTM(hd));
-    }
-};
-
+class QQuickDrawPaintEnginePrivate;
+class QCoreGraphicsPaintEnginePrivate;
 class QQuickDrawPaintEngine : public QPaintEngine
 {
     Q_DECLARE_PRIVATE(QQuickDrawPaintEngine)
@@ -200,5 +124,84 @@ protected:
 private:
     Q_DISABLE_COPY(QCoreGraphicsPaintEngine)
 };
+
+class QQuickDrawPaintEnginePrivate : public QPaintEnginePrivate
+{
+    Q_DECLARE_PUBLIC(QQuickDrawPaintEngine)
+public:
+    QQuickDrawPaintEnginePrivate()
+        : QPaintEnginePrivate()
+    {
+        saved = 0;
+        paintevent = 0;
+        clip.serial = 0;
+        clip.dirty = locked = unclipped = false;
+        clip.pdev = clip.paintable = QRegion();
+        brush_style_pix = 0;
+        offx = offy = 0;
+    }
+
+    struct {
+        QPen pen;
+        QBrush brush;
+        QRegion clip;
+        struct {
+            QPointF origin;
+            Qt::BGMode mode;
+            QBrush brush;
+        } bg;
+    } current;
+
+    int offx, offy;
+    QPixmap *brush_style_pix;
+    uint unclipped : 1, locked : 1;
+    QMacSavedPortInfo *saved;
+    paintevent_item *paintevent;
+
+    struct {
+        QRegion pdev, paintable;
+        uint dirty : 1, serial : 15;
+    } clip;
+};
+
+/*****************************************************************************
+  Private data
+ *****************************************************************************/
+class QCoreGraphicsPaintEnginePrivate : public QQuickDrawPaintEnginePrivate
+{
+    Q_DECLARE_PUBLIC(QQuickDrawPaintEngine)
+public:
+    QCoreGraphicsPaintEnginePrivate()
+    {
+        hd = 0;
+        shading = 0;
+    }
+
+    //state info (shared with QD)
+    CGAffineTransform orig_xform;
+
+    //cg structures
+    CGContextRef hd;
+    CGShadingRef shading;
+
+    //internal functions
+    enum { CGStroke=0x01, CGEOFill=0x02, CGFill=0x04 };
+    void drawPath(uchar ops, CGMutablePathRef path = 0);
+    void setClip(const QRegion *rgn=0);
+    CGRect adjustedRect(const QRectF &r);
+    inline void setTransform(const QMatrix *matrix=0)
+    {
+        CGContextConcatCTM(hd, CGAffineTransformInvert(CGContextGetCTM(hd)));
+        CGContextConcatCTM(hd, orig_xform);
+        if(matrix) {
+            CGAffineTransform xform = CGAffineTransformMake(matrix->m11(), matrix->m12(),
+                                                            matrix->m21(), matrix->m22(),
+                                                            matrix->dx(),  matrix->dy());
+            CGContextConcatCTM(hd, xform);
+        }
+        CGContextSetTextMatrix(hd, CGContextGetCTM(hd));
+    }
+};
+
 
 #endif // QPAINTENGINE_MAC_P_H
