@@ -88,6 +88,7 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
     QString objClass, objName;
     int numItems = 0;
     int numColumns = 0;
+    int numRows = 0;
 
     if ( layouts.contains( e.tagName() ) )
 	return createLayoutImpl( e, parentClass, parent, layout );
@@ -240,20 +241,20 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 		if ( !call.isEmpty() ) {
 		    out << call;
 		    trout << indent << objName << "->header()->setLabel( "
-			  << numColumns << ", " << value << " );\n";
+			  << numColumns++ << ", " << value << " );\n";
 		}
 	    } else if ( objClass ==  "QTable" || objClass == "QDataTable" ) {
-		QString header = ( n.tagName() == "column" ) ?
-				 "horizontalHeader" : "verticalHeader";
+		bool isCols = ( n.tagName() == "column" );
 		call = createTableRowColumnImpl( n, objName, &value );
 		if ( !call.isEmpty() ) {
 		    out << call;
-		    trout << indent << objName << "->" << header << "()->setLabel( "
-			  << numColumns << ", " << value << " );\n";
+		    trout << indent << objName << "->"
+			  << ( isCols ? "horizontalHeader" : "verticalHeader" )
+			  << "()->setLabel( "
+			  << ( isCols ? numColumns++ : numRows++ )
+			  << ", " << value << " );\n";
 		}
 	    }
-	    if ( !call.isEmpty() )
-		numColumns++;
 	}
     }
 
