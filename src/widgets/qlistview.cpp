@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#166 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#167 $
 **
 ** Implementation of QListView widget class
 **
@@ -729,7 +729,10 @@ void QListViewItem::setOpen( bool o )
   object, and whenever the font, GUI style or colors of the list view
   change.
 
-  The default calls widthChanged() and sets the item's height.
+  The default calls widthChanged() and sets the item's height to the
+  height of a single line of text in the list view's font.  (If you
+  use icons, multi-line text etc. you will probably need to call
+  setHeight() yourself or reimplement this.)
 */
 
 void QListViewItem::setup()
@@ -1973,8 +1976,9 @@ void QListView::updateContents()
 
 void QListView::updateGeometries()
 {
+    int th = d->r->totalHeight();
     QSize hs( d->h->sizeHint() );
-    resizeContents( hs.width(), d->r->totalHeight() );
+    resizeContents( hs.width(), th );
     if ( d->h->testWFlags( WState_DoHide ) ) {
 	setMargins( 0, 0, 0, 0 );
     } else {
