@@ -183,10 +183,10 @@ extern void moc_warn( const char *msg );
 				}
 
 <IN_EXPR>"("			{ expLevel++;X; }
-<IN_EXPR>")"			{ expLevel--;Y;if (expLevel == 0)
+<IN_EXPR>")"			{ expLevel--;Y;if (expLevel <= 0)
 					{ X; BEGIN QT_DEF; return ')';} }
 <IN_EXPR>"["			{ expLevel++;X; }
-<IN_EXPR>"]"			{ expLevel--;X;if (expLevel == 0)
+<IN_EXPR>"]"			{ expLevel--;X;if (expLevel <= 0)
 					{ X; BEGIN QT_DEF; return ']';} }
 <IN_EXPR>","			{ if (expLevel == 0)
 					{ X; BEGIN QT_DEF; return ',' ;} }
