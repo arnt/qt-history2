@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.h#4 $
+** $Id: //depot/qt/main/src/kernel/qregion.h#5 $
 **
 ** Definition of QRegion class
 **
@@ -33,7 +33,8 @@ public:
 
     QRegion copy() const;
 
-    bool    isNull()  const;
+    bool    isNull()   const;
+    bool    isEmpty()  const;
 
     bool    contains( const QPoint &p ) const;
     bool    contains( const QRect &r )	const;
