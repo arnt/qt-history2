@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#10 $
 **
 ** Implementation of something useful.
 **
@@ -21,7 +21,7 @@
 #include "qimage.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#9 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#10 $");
 
 
 static QToolButton * threeDeeButton = 0;
@@ -376,16 +376,19 @@ void QToolButton::drawButtonLabel( QPainter * p )
 	if ( usesTextLabel() )
 	    y = y - fh/2 - 2;
 
-	if ( usesBigPixmap() )
+	if ( usesBigPixmap() ) {
+	    QPixmap pm( bigPixmap() );
 	    qDrawItem( p, style(), x, y, 32, 32,
 		       AlignCenter + ShowPrefix,
 		       colorGroup(), isEnabled(),
-		       &bigPixmap(), 0 );
-	else
+		       &pm, 0 );
+	} else {
+	    QPixmap pm( smallPixmap() );
 	    qDrawItem( p, style(), x, y, 16, 16,
 		       AlignCenter + ShowPrefix,
 		       colorGroup(), isEnabled(),
-		       &smallPixmap(), 0 );
+		       &pm, 0 );
+	}
 
 	if ( usesTextLabel() ) {
 	    y += (usesBigPixmap() ? 32 : 16) + 4;
@@ -423,9 +426,7 @@ void QToolButton::leaveEvent( QEvent * e )
 
 
 
-/*!  Returns TRUE if this button should be drawn using raised edges in
-  Windows style.
-
+/*!  Returns TRUE if this button should be drawn using raised edges.
   \sa drawButton() */
 
 bool QToolButton::uses3D() const

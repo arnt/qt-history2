@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#293 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#294 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -85,7 +85,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#293 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#294 $");
 
 
 /*****************************************************************************
@@ -477,7 +477,7 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
     qt_x11_intern_atom( "WM_STATE", &qt_wm_state );
 
     qt_xdnd_setup();
-    
+
     qt_x11_process_intern_atoms();
 
   // Misc. initialization
@@ -1691,7 +1691,7 @@ bool QApplication::processNextEvent( bool canWait )
 	FD_ZERO( &app_readfds );
     }
     FD_SET( app_Xfd, &app_readfds );
-
+    
     int nsel;
     nsel = select( QMAX(app_Xfd,sn_highest)+1,
 		   (void *) (&app_readfds),

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.h#2 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.h#3 $
 **
 ** Definition of something or other
 **
@@ -24,7 +24,7 @@ class QToolBar: public QWidget
 {
     Q_OBJECT
 public:
-    QToolBar( const char * label, 
+    QToolBar( const char * label,
 	      QMainWindow *, QMainWindow::ToolBarDock = QMainWindow::Top,
 	      bool newLine = FALSE, const char * name = 0 );
     QToolBar( QWidget * parent = 0, const char * name = 0 );
