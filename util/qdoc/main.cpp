@@ -28,6 +28,8 @@ int main( int argc, char **argv )
     BookEmitter bookEmitter;
     bookEmitter.start( docEmitter.resolver() );
 
+    warnAboutOmitted();
+
     delete config;
     config = 0;
     return EXIT_SUCCESS;

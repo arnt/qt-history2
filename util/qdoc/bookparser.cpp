@@ -1563,14 +1563,16 @@ void parseBookFile( const QString& filePath, int fmt, const Resolver *resolver )
 
 	    switch ( pass ) {
 	    case 1:
-#if 0
 		if ( (fmt & Html) != 0 )
 		    p = new HtmlSynthetizer( filePath, analyzer, resolver );
-#endif
 		break;
 	    case 2:
+#if 0
 		if ( (fmt & Sgml) != 0 )
 		    p = new SgmlSynthetizer( filePath, analyzer );
+#else
+		;
+#endif
 	    }
 
 	    if ( p != 0 ) {
