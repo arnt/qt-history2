@@ -1,6 +1,7 @@
 #include <QtGui>
 
-#include "charwidget.h"
+#include "characterview.h"
+#include "characterwidget.h"
 #include "mainwindow.h"
 
 MainWindow::MainWindow()
@@ -20,8 +21,8 @@ MainWindow::MainWindow()
     QLabel *styleLabel = new QLabel(tr("Style:"), centralWidget);
     styleCombo = new QComboBox(centralWidget);
 
-    view = new CharView(centralWidget);
-    characterWidget = new CharWidget;
+    view = new CharacterView(centralWidget);
+    characterWidget = new CharacterWidget;
     view->setWidget(characterWidget);
 
     lineEdit = new QLineEdit(centralWidget);

@@ -2,13 +2,14 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QString>
 
 class QClipboard;
 class QComboBox;
 class QLineEdit;
 class QWidgetView;
-class CharView;
-class CharWidget;
+class CharacterView;
+class CharacterWidget;
 
 class MainWindow : public QMainWindow
 {
@@ -25,12 +26,12 @@ public slots:
 private:
     void findFonts();
 
-    CharWidget *characterWidget;
+    CharacterView *view;
+    CharacterWidget *characterWidget;
     QClipboard *clipboard;
     QComboBox *fontCombo;
     QComboBox *styleCombo;
     QLineEdit *lineEdit;
-    CharView *view;
 };
 
 #endif

@@ -1,5 +1,7 @@
-HEADERS     = charwidget.h \
+HEADERS     = characterview.h \
+              characterwidget.h \
               mainwindow.h
-SOURCES     = charwidget.cpp \
+SOURCES     = characterview.cpp \
+              characterwidget.cpp \
               mainwindow.cpp \
               main.cpp
