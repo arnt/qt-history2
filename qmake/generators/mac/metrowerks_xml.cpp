@@ -100,25 +100,28 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 
 	    t << line.left(rep); //output the left side
 	    line = line.right(line.length() - (rep + torep.length())); //now past the variable
-	    if(variable == "CODEWARRIOR_HEADERS" || 
-	       variable == "CODEWARRIOR_SOURCES" || 
-	       variable == "CODEWARRIOR_LIBRARIES") {
+	    if(variable == "CODEWARRIOR_HEADERS" || variable == "CODEWARRIOR_SOURCES" || 
+	       variable == "CODEWARRIOR_LIBRARIES" || variable == "CODEWARRIOR_MOCS" ) {
 		QString arg=variable.right(variable.length() - variable.findRev('_') - 1);
 		if(!project->variables()[arg].isEmpty()) {
 		    QStringList &list = project->variables()[arg];
 		    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
+			QString flag;
+			if(project->isActiveConfig("debug")) {
+			    if((*it).right(Option::h_ext.length()) != Option::h_ext && (*it).right(5) != ".mocs")
+				flag = "Debug";
+			}
 			t << "\t\t\t\t<FILE>" << endl
 			  << "\t\t\t\t\t<PATHTYPE>Name</PATHTYPE>" << endl
 			  << "\t\t\t\t\t<PATH>" << (*it) << "</PATH>" << endl
 			  << "\t\t\t\t\t<PATHFORMAT>MacOS</PATHFORMAT>" << endl
 			  << "\t\t\t\t\t<FILEKIND>Text</FILEKIND>" << endl
-			  << "\t\t\t\t\t<FILEFLAGS></FILEFLAGS>" << endl
+			  << "\t\t\t\t\t<FILEFLAGS>" << flag << "</FILEFLAGS>" << endl
 			  << "\t\t\t\t</FILE>" << endl;
 		    }
 		}
-	    } else if(variable == "CODEWARRIOR_SOURCES_LINKORDER" || 
-		      variable == "CODEWARRIOR_HEADERS_LINKORDER" ||
-		      variable == "CODEWARRIOR_LIBRARIES_LINKORDER" ) {
+	    } else if(variable == "CODEWARRIOR_SOURCES_LINKORDER" || variable == "CODEWARRIOR_HEADERS_LINKORDER" ||
+		      variable == "CODEWARRIOR_LIBRARIES_LINKORDER" || variable == "CODEWARRIOR_MOCS_LINKORDER" ) {
 		QString arg=variable.mid(variable.find('_')+1, variable.findRev('_')-(variable.find('_')+1));
 		if(!project->variables()[arg].isEmpty()) {
 		    QStringList &list = project->variables()[arg];
@@ -130,15 +133,14 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 			  << "\t\t\t\t</FILEREF>" << endl;
 		    }
 		}
-	    } else if(variable == "CODEWARRIOR_HEADERS_GROUP" || 
-		      variable == "CODEWARRIOR_SOURCES_GROUP" ||
-		      variable == "CODEWARRIOR_LIBRARIES_GROUP") {
+	    } else if(variable == "CODEWARRIOR_HEADERS_GROUP" || variable == "CODEWARRIOR_SOURCES_GROUP" ||
+		      variable == "CODEWARRIOR_LIBRARIES_GROUP" || variable == "CODEWARRIOR_MOCS_GROUP" ) {
 		QString arg=variable.mid(variable.find('_')+1, variable.findRev('_')-(variable.find('_')+1));
 		if(!project->variables()[arg].isEmpty()) {
 		    QStringList &list = project->variables()[arg];
 		    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 			t << "\t\t\t\t<FILEREF>" << endl
-			  << "\t\t\t\t\t<TARGETNAME>" << var("TARGET") << "</TARGETNAME>" << endl
+			  << "\t\t\t\t\t<TARGETNAME>" << var("TARGET_STEM") << "</TARGETNAME>" << endl
 			  << "\t\t\t\t\t<PATHTYPE>Name</PATHTYPE>" << endl
 			  << "\t\t\t\t\t<PATH>" << (*it) << "</PATH>" << endl
 			  << "\t\t\t\t\t<PATHFORMAT>MacOS</PATHFORMAT>" << endl
@@ -147,10 +149,22 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 		}
 	    } else if(variable == "CODEWARRIOR_DEPENDPATH" || variable == "CODEWARRIOR_INCLUDEPATH") {
 		QString arg=variable.right(variable.length()-variable.find('_')-1);
-		QStringList list = project->variables()[arg];
+		QStringList list;
 		if(arg == "INCLUDEPATH") {
+		    list = project->variables()[arg];
 		    list << Option::mkfile::qmakespec;
 		    list << Option::output_dir;
+		} else {
+		    QStringList &l = project->variables()[arg];
+		    for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it)
+		    {
+			//apparently tmake used colon separation...
+			QStringList damn = QStringList::split(':', (*val_it));
+			if(!damn.isEmpty())
+			    list += damn;
+			else
+			    list.append((*val_it));
+		    }
 		}
 		if(!list.isEmpty()) {
 		    QString volume;
@@ -171,15 +185,21 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 		    for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 			QString p = (*it);
 			fixEnvVariables(p);
+			if(p.isEmpty())
+			    continue;
 			if(p.right(1) != "/")
 			    p += "/";
 			if(QDir::isRelativePath(p))
 			    p.prepend(Option::output_dir + '/');
-			p = QDir::cleanDirPath(p) + ":";
+			p = QDir::cleanDirPath(p);
+			if(!QFile::exists(p)) 
+			    continue;
+
 			if(!volume.isEmpty())
 			    p.prepend(volume); 
 			p.replace(QRegExp("/"), ":");
-
+			if(p.right(1) != ':')
+			    p += ':';
 			t << "\t\t\t\t\t<SETTING>" << endl
 			  << "\t\t\t\t\t\t<SETTING><NAME>SearchPath</NAME>" << endl
 			  << "\t\t\t\t\t\t\t<SETTING><NAME>Path</NAME>"
