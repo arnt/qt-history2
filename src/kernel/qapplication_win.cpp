@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#349 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#350 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -978,8 +978,10 @@ static QWidget *sn_win	  = 0;			// win msg via this window
 
 static void sn_cleanup()
 {
-    for ( int i=0; i<3; i++ )
+    for ( int i=0; i<3; i++ ) {
 	delete *sn_vec[i];
+	*sn_vec[i] = 0;
+    }
 }
 
 static void sn_init()
@@ -1011,6 +1013,10 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
     }
 
     QSNDict  *dict = *sn_vec[type];
+
+    if ( !dict )
+	return FALSE; // eg. when shutting down
+
     QSockNot *sn;
 
     if ( enable ) {				// enable notifier
