@@ -630,19 +630,29 @@ QSize QLabel::sizeHint() const
 
 QSize QLabel::minimumSizeHint() const
 {
-    QSize s(-1, -1);
+    QSize hint = sizeHint();
+    QSize sz( -1, -1 );
+
+    if (
 #ifndef QT_NO_RICHTEXT
-    if ( doc )
-	s = QSize( d->minimumWidth, -1 );
-    else
+	 !doc &&
 #endif
-	if ( (align & WordBreak) == 0 )
-	    s = sizeHint();
+	 (align & WordBreak) == 0 ) {
+	sz = hint;
+    } else {
+#ifndef QT_NO_RICHTEXT
+	if ( doc )
+	    sz.rwidth() = d->minimumWidth;
+#endif
+	sz.setHeight( heightForWidth(QWIDGETSIZE_MAX) );
+	if ( hint.height() < sz.height() )
+	    sz.rheight() = hint.height();
+    }
     if ( sizePolicy().horData() == QSizePolicy::Ignored )
-	s.rwidth() = -1;
+	sz.rwidth() = -1;
     if ( sizePolicy().verData() == QSizePolicy::Ignored )
-	s.rheight() = -1;
-    return s;
+	sz.rheight() = -1;
+    return sz;
 }
 
 /*!
