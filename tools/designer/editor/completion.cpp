@@ -171,7 +171,7 @@ bool EditorCompletion::eventFilter( QObject *o, QEvent *e )
 	    } else if ( ke->key() == Key_Period ||
 			ke->key() == Key_Greater &&
 			curEditor->textCursor()->index() > 0 &&
-			curEditor->textCursor()->parag()->at( curEditor->textCursor()->index() )->c == '_' ) {
+			curEditor->textCursor()->parag()->at( curEditor->textCursor()->index() - 1 )->c == '_' ) {
 		doObjectCompletion();
 	    } else {
 		if ( !doArgumentHint( ke->text() == "(" ) )
