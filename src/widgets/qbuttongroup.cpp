@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#41 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#42 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -43,7 +43,7 @@
   have some other parent widget.  A button must then be manually inserted
   using the insert() function with an identifer.
   </ol>
-  
+
   By default, the button group's setFont() and setPalette() functions
   do not change the appearance of the buttons, but you can use
   setFontPropagation() and setPalettePropagation() to change that.
@@ -96,7 +96,7 @@ void QButtonGroup::init()
 {
     buttons = new QButtonList;
     CHECK_PTR( buttons );
-    buttons->setAutoDelete( FALSE );
+    buttons->setAutoDelete( TRUE );
     excl_grp = FALSE;
 }
 
