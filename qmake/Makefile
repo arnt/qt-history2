@@ -6,7 +6,7 @@ CFLAGS	    =	/c /Fo$@ \
 		/W3 /nologo /O1 \
 		/I. /Igenerators /Igenerators\unix /Igenerators\win32  /I$(QTDIR)\include /I$(QTDIR)\src\tools \
 		/I$(QTDIR)\mkspecs\win32-msvc \
-		/DQT_NO_CODECS /DQT_LITE_COMPONENT /DQT_NODLL /DQT_NO_STL
+		/DQT_NO_TEXTCODEC  /DQT_LITE_COMPONENT /DQT_NODLL /DQT_NO_STL
 LFLAGS	    =	/DEBUG
 LIBS	    =	ole32.lib
 LINKQMAKE   =	link $(LFLAGS) /OUT:qmake.exe $(OBJS) $(QTOBJS) $(LIBS)
@@ -37,7 +37,7 @@ OBJS=project.obj main.obj makefile.obj unixmake.obj unixmake2.obj borland_bmake.
 #qt code
 QTOBJS=qstring.obj qtextstream.obj qiodevice.obj qglobal.obj qgdict.obj qcstring.obj qdatastream.obj qgarray.obj qbuffer.obj \
 	qglist.obj qptrcollection.obj qfile.obj qfile_win.obj qregexp.obj qgvector.obj qgcache.obj qbitarray.obj \
-	qdir.obj qfileinfo_win.obj qdir_win.obj qfileinfo.obj qdatetime.obj qstringlist.obj qmap.obj qtextcodec.obj
+	qdir.obj qfileinfo_win.obj qdir_win.obj qfileinfo.obj qdatetime.obj qstringlist.obj qmap.obj
 
 
 
@@ -49,12 +49,12 @@ clean::
 	-del $(OBJS) $(QTOBJS) $(ADDCLEAN)
 
 distclean:: clean
-	-del qmake 
+	-del qmake
 
-.c.obj: 
+.c.obj:
 	$(CXX) $(CFLAGS) $<
 
-.cpp.obj: 
+.cpp.obj:
 	$(CXX) $(CFLAGS) $<
 
 qtextstream.obj: $(QTDIR)\src\tools\qtextstream.cpp
