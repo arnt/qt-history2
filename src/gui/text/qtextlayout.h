@@ -130,7 +130,7 @@ public:
         Highlight = -1,
         ImText = -2,
         ImSelection = -3,
-        FocusIndicatorSelection = -4,
+        FocusIndicatorSelection = -4
     };
     class Selection {
         int f;
