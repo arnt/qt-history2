@@ -734,7 +734,8 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    break;
 #if defined(Q_WS_X11)
         case Key_U:
-	    clear();
+	    if ( !d->readonly )
+		clear();
 	    break;
 #endif
 #ifndef QT_NO_CLIPBOARD
