@@ -89,6 +89,8 @@ PNG.  MNG MNG MNG.  !GIF.  Unisys die die die.
 Light-weight KDE stuff (eg. respecting colours, style, etc.)
 QListView *Event() redirection is BAD.  Especially since QScrollView
  already does something similar.
+QPaintEvent should have a region(), and we should use it throughout.
+Change QMultiLineEdit to use QString* much less - use QString instead.
 
 
 ARNT'S THINGS:
