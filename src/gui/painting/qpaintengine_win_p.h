@@ -49,8 +49,8 @@ public:
         hwnd(0),
         hdc(0),
         graphics(0),
+        bitmapDevice(0),
         pen(0),
-        focusRectPen(0),
         brush(0),
         cachedSolidBrush(0),
         usesTempDC(false),
@@ -64,8 +64,8 @@ public:
     HDC hdc;
 
     QtGpGraphics *graphics;
+    QtGpBitmap *bitmapDevice;
     QtGpPen *pen;
-    QtGpPen *focusRectPen;
     QtGpBrush *brush;
 
     QtGpSolidFill *cachedSolidBrush;
