@@ -27,7 +27,6 @@
 #include <qpaintdevicemetrics.h>
 #include <qsimplerichtext.h>
 #include <qcolordialog.h>
-#include <qtextstream.h>
 
 TextEdit::TextEdit( QWidget *parent, const char *name )
     : QMainWindow( parent, name )
@@ -197,11 +196,15 @@ void TextEdit::load( const QString &f )
     doConnections( edit );
     tabWidget->addTab( edit, QFileInfo( f ).fileName() );
 
-    QFile fl(f);
-    fl.open(IO_ReadOnly);
-    QTextStream stream(&fl);
-    stream.setEncoding(QTextStream::UnicodeUTF8);
-    edit->setText(stream.read());
+    if ( !f.contains( "bidi" ) && !f.contains( "utf8" ) ) { // ### hack, Lars please
+	edit->load( f );
+    } else {
+	QFile fl( f );
+	fl.open( IO_ReadOnly );
+	QByteArray array = fl.readAll();
+	QString text = QString::fromUtf8( array.data() );
+	edit->setText( text );
+    }
 
     edit->viewport()->setFocus();
 }
@@ -211,7 +214,7 @@ QTextEdit *TextEdit::currentEditor() const
     if ( tabWidget->currentPage() &&
 	 tabWidget->currentPage()->inherits( "QTextEdit" ) )
 	return (QTextEdit*)tabWidget->currentPage();
-    return 0;	
+    return 0;
 }
 
 void TextEdit::doConnections( QTextEdit *e )
@@ -304,7 +307,7 @@ void TextEdit::fileClose()
 {
     delete currentEditor();
     if ( currentEditor() )
-	currentEditor()->viewport()->setFocus();				
+	currentEditor()->viewport()->setFocus();
 }
 
 void TextEdit::fileExit()
