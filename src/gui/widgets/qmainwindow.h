@@ -50,7 +50,7 @@ public:
     QMenuBar * menuBar() const;
 #endif
     QStatusBar * statusBar() const;
-#ifndef QT_NO_TOOLTIP
+#if 0
     QToolTipGroup * toolTipGroup() const;
 #endif
 
