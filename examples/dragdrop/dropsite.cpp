@@ -46,7 +46,7 @@ void DropSite::dragEnterEvent( QDragEnterEvent *e )
     if ( SecretDrag::canDecode( e )
       || QTextDrag::canDecode( e )
       || QImageDrag::canDecode( e )
-      || QUrlDrag::canDecode( e ) )
+      || QUriDrag::canDecode( e ) )
     {
 	e->accept();
     }
@@ -94,12 +94,12 @@ void DropSite::dropEvent( QDropEvent * e )
     }
 
     QStrList strings;
-    if ( QUrlDrag::decode( e, strings ) ) {
+    if ( QUriDrag::decode( e, strings ) ) {
 	QString m("Full URLs:\n");
 	for (const char* u=strings.first(); u; u=strings.next())
 	    m = m + "   " + u + '\n';
 	QStringList files;
-	if ( QUrlDrag::decodeLocalFiles( e, files ) ) {
+	if ( QUriDrag::decodeLocalFiles( e, files ) ) {
 	    m += "Files:\n";
 	    for (QStringList::Iterator i=files.begin(); i!=files.end(); ++i)
 		m = m + "   " + *i + '\n';
