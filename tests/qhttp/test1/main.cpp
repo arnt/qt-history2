@@ -1,8 +1,8 @@
 #include <qapplication.h>
 #include <qtextstream.h>
 #include <qhttp.h>
-
-#include <stdio.h>
+#include <qurl.h>
+#include <qfile.h>
 
 #include "main.h"
 
@@ -10,8 +10,11 @@
 TestClient::TestClient()
 {
     m_client = new QHttpClient( this );
+
     connect( m_client, SIGNAL(response(const QHttpResponseHeader&,const QByteArray&)),
-	     this, SLOT(reply(const QHttpResponseHeader&, const QByteArray&)) );
+	    this, SLOT(reply(const QHttpResponseHeader&, const QByteArray&)) );
+    connect( m_client, SIGNAL( finished() ),
+	    qApp, SLOT( quit() ) );
 }
 
 void TestClient::get( const QString& host, int port, const QString& path )
@@ -24,45 +27,38 @@ void TestClient::reply( const QHttpResponseHeader& repl, const QByteArray& data 
 {
     qDebug( "Response=%s", repl.toString().latin1() );
 
-    QByteArray tmp = data;
-    tmp.detach();
-    tmp.resize( tmp.size() + 1 );
-    tmp[ tmp.size() - 1 ] = 0;
-    QString str( tmp );
+    QFile file( "data" );
+    file.open( IO_WriteOnly );
+    file.writeBlock( data );
 
-    qDebug( "---- Read %i bytes\n%s", data.size(), str.latin1() );
+    qDebug( "---- Wrote %i bytes to file '%s'\n", data.size(), file.name().latin1() );
 }
 
 int main( int argc, char** argv )
 {
     QApplication app( argc, argv );
 
-    QHttpRequestHeader r1( "GET", "/public/welcome.html" );
-    r1.setValue( "dummy", "myvalue" );
-    r1.setContentType( "text/html" );
-    r1.setContentLength( 167 );
+    if ( argc != 2 )
+    {
+	fprintf( stderr, "Syntax: %s url\n", argv[0] );
+	return 1;
+    }
 
-    qDebug( "Request1=%s", r1.toString().latin1() );
+    QUrl url( argv[1] );
+    if ( !url.isValid() )
+    {
+	fprintf( stderr, "Invalid URL\n" );
+	return 2;
+    }
 
-    QTextStream ts( stdout, IO_WriteOnly );
-    r1.write( ts );
+    if ( url.protocol() != "http" )
+    {
+	fprintf( stderr, "Only the http protocol is supported\n" );
+	return 3;
+    }
 
-    QHttpRequestHeader r2( r1.toString() );
-    qDebug( "Request2=%s", r2.toString().latin1() );
-
-    QHttpResponseHeader a1( 200, "OK" );
-    a1.setValue( "dummy", "myvalue" );
-    a1.setContentType( "text/html" );
-    a1.setContentLength( 167 );
-
-    qDebug( "Response1=%s", a1.toString().latin1() );
-    a1.write( ts );
-
-    QHttpResponseHeader a2( a1.toString() );
-    qDebug( "Response2=%s", a2.toString().latin1() );
-
-    TestClient* t = new TestClient;
-    t->get( "127.0.0.1", 80, "/" );
+    TestClient t;
+    t.get( url.host(), url.port() != -1 ? url.port() : 80, url.path() );
 
     return app.exec();
 }
