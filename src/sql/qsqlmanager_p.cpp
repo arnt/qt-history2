@@ -668,8 +668,12 @@ QDataManager::~QDataManager()
 */
 void QDataManager::handleError( QWidget* parent, const QSqlError& e )
 {
-    QMessageBox::warning ( parent, "Warning", e.driverText() + "\n" + e.databaseText(),
+    if (e.driverText().isEmpty() && e.databaseText().isEmpty()) {
+	QMessageBox::warning ( parent, "Warning", "An error occurred while accessing the database");
+    } else {
+	QMessageBox::warning ( parent, "Warning", e.driverText() + "\n" + e.databaseText(),
 			   0, 0 );
+    }
 }
 
 
