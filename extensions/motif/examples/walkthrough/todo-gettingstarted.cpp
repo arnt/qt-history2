@@ -341,11 +341,11 @@ Save(Widget w, char *i, XmFileSelectionBoxCallbackStruct *i2)
 {
   // XmStringUnparse returns an XtPointer, which is typedef'ed to void*
   // So, we need to cast the XtPointer to a char*
-  char *str;
   // if ((str = XmStringUnparse(i2->value, NULL, XmCHARSET_TEXT,
   //                            XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL))) {
-  if ((str = (char *) XmStringUnparse(i2->value, 0, XmCHARSET_TEXT,
-				      XmCHARSET_TEXT, 0, 0, XmOUTPUT_ALL))) {
+  char *str = (char*)XmStringUnparse(i2->value, 0, XmCHARSET_TEXT,
+				     XmCHARSET_TEXT, 0, 0, XmOUTPUT_ALL);
+  if (str) {
     SaveDB(str);
     XtFree(options.todoFile);
     options.todoFile = str;
@@ -359,11 +359,11 @@ void
 Open(Widget w, char *i, XmFileSelectionBoxCallbackStruct *i2)
 {
   // The same cast as above in Save()
-  char *str;
   // if ((str = XmStringUnparse(i2->value, NULL, XmCHARSET_TEXT,
   //                            XmCHARSET_TEXT, NULL, 0, XmOUTPUT_ALL))) {
-  if ((str = (char *) XmStringUnparse(i2->value, 0, XmCHARSET_TEXT,
-				      XmCHARSET_TEXT, 0, 0, XmOUTPUT_ALL))) {
+  char *str = (char*)XmStringUnparse(i2->value, 0, XmCHARSET_TEXT,
+				     XmCHARSET_TEXT, 0, 0, XmOUTPUT_ALL);
+  if (str) {
     ReadDB(str);
     XtFree(options.todoFile);
     options.todoFile = str;

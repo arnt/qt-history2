@@ -156,7 +156,6 @@ extern "C" {
 
 int main( int argc, char **argv )
 {
-  XtAppContext context;
   Arg args[10];
   int n, i;
   char temppath[256];
@@ -171,8 +170,6 @@ int main( int argc, char **argv )
   QApplication app( argc, argv );
   MainWindow mainwindow;
   app.setMainWidget( &mainwindow );
-
-  context	= integrator.applicationContext();
 
   n = 0;
   XtSetArg(args[n], XmNcurrentPageNumber, 1); n++;

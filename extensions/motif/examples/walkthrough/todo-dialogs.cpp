@@ -158,7 +158,7 @@ main(int argc, char* argv[])
   Widget *file_menu, *edit_menu, *selected_menu, *help_menu, temp;
   // Widget print_widget;
   Cardinal size;
-  XtAppContext context;
+  // XtAppContext context;
   Arg args[10];
   int n, i;
   // XmString tmp;
@@ -175,7 +175,7 @@ main(int argc, char* argv[])
   QMotifWidget toplevel( 0, xmMainWindowWidgetClass,
 			 NULL, 0, "mainw" );
 
-  context	= integrator.applicationContext();
+  // context	= integrator.applicationContext();
   mainw		= toplevel.motifWidget();
   shell		= XtParent( mainw );
   XtGetApplicationResources(shell, (XtPointer) &options,
