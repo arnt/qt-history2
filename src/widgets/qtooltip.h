@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.h#12 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.h#13 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -38,7 +38,6 @@ private:
 class QToolTip
 {
 public:
-    QToolTip( QWidget * );
     QToolTip( QWidget *, QToolTipGroup * = 0 );
 
     static void add( QWidget *, const char * );
@@ -58,8 +57,8 @@ protected:
     void clear();
 
 public:
-    QWidget * parentWidget() { return p; }
-    QToolTipGroup * group() { return g; }
+    QWidget * parentWidget() const { return p; }
+    QToolTipGroup * group() const { return g; }
 
 private:
     QWidget * p;

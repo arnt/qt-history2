@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#14 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -14,7 +14,7 @@
 #include "qlabel.h"
 #include "qpoint.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#13 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtooltip.cpp#14 $");
 
 // magic value meaning an entire widget - if someone tries to insert a
 // tool tip on this part of a widget it will be interpreted as the
@@ -307,6 +307,9 @@ void QTipManager::hideTip()
   or rectangle's function.  It is drawn immediately below the region,
   in a distinctive black on yellow combination.
 
+  QToolTipGroup provides a way for tool tips to display another text
+  elsewhere (most often in a status bar).
+
   At any point in time, QToolTip is either dormant or active.  In
   dormant mode the tips are not shown, and in active mode they are.
   The mode is global, not particular to any one widget.
@@ -323,26 +326,52 @@ void QTipManager::hideTip()
   widget. </ol>
 
   To add a tip to a widget, call the static function QToolTip::add()
-  with the widget and tip as arguments.
+  with the widget and tip as arguments:
+
+  \code
+  QToolTip::add( quitButton, "Leave the application" );
+  \endcode
+
+  This is the simplest and most common use of QToolTip.  The tip will
+  be deleted automatically when \e quitButton is deleted, but you can
+  remove it yourself, too:
+
+  \code
+  QToolTip::remove( quitButton );
+  \endcode
+
+  You can also give the user another text, typically displayed in a
+  status bar, courtesy of QToolTipGroup.  This example assumes that \e
+  g is a <code>QToolTipGroup *</code> and already connected to the
+  appropriate status bar:
+
+  \code
+  QToolTip::add( quitButton, "Leave the application", g,
+                 "Leave the application, without asking for confirmation" );
+  QToolTip::add( closeButton, "Close this window", g,
+                 "Close this window, without asking for confirmation" );
+  \endcode
 
   To add a tip to a fixed rectangle within a widget, call the static
-  function QToolTip::add with the widget, rectangle and tip as
-  arguments.
+  function QToolTip::add() with the widget, rectangle and tip as
+  arguments.  Again, you can supply a QToolTipGroup * and another text
+  if you want.
 
-  Both of the above are one-liners and should cover the vast majority
-  of cases.  The third, most general, API uses a pure virtual function
+  Both of the above are one-liners and cover the vast majority of
+  cases.  The third and most general API uses a pure virtual function
   to decide whether to pop up a tool tip.  This mode can be used to
   implement e.g. tips for text that can move as the user scrolls.
 
   To use this API, you need to subclass QToolTip and reimplement
   maybeTip().  maybeTip() will be called when there's a chance that a
   tip should pop up.  It must decide whether to show a tip, and
-  possibly call add() with the rectangle the tip applies to, and the
-  tip's text.  The tip will disappear once the mouse moves outside the
-  rectangle you supply, and \e not \e reappear - maybeTip() will be
-  called again if the user lets the mouse rest within the same
-  rectangle again.  You can forcibly remove the tip by calling
-  remove() with no arguments.  This is handy if the widget scrolls.
+  possibly call add() with the rectangle the tip applies to, the tip's
+  text and optionally the QToolTipGroup details.  The tip will
+  disappear once the mouse moves outside the rectangle you supply, and
+  \e not \e reappear - maybeTip() will be called again if the user
+  lets the mouse rest within the same rectangle again.  You can
+  forcibly remove the tip by calling remove() with no arguments.  This
+  is handy if the widget scrolls.
 */
 
 
@@ -353,7 +382,7 @@ void QTipManager::hideTip()
   \a parent is widget you want to add dynamic tool tips to and \a
   group is the tool tip group they should belong to, if any.
 
-  \sa maybeHit().
+  \sa maybeTip().
 */
 
 QToolTip::QToolTip( QWidget * parent, QToolTipGroup * group )
@@ -424,7 +453,7 @@ void QToolTip::add( QWidget * widget, const QRect & rect, const char * text )
   group.
 
   \e text is the text shown in the tool tip and \a longText is the
-  text emitted from \a group.  QToolTip make deep copies of both
+  text emitted from \a group.  QToolTip makes deep copies of both
   strings.
 
   Normally, \a longText is shown in a status bar or similar.
@@ -519,3 +548,27 @@ QToolTipGroup::~QToolTipGroup()
     if ( tipManager )
 	tipManager->removeFromGroup( this );
 }
+
+
+/*! \fn QWidget * QToolTip::parentWidget() const
+
+  Returns the widget this QToolTip applies to.
+
+  The tool tip is destroyed automatically when the parent widget is
+  destroyed.
+
+  \sa group()
+*/
+
+
+/*! \fn QToolTipGroup * QToolTip::group() const
+
+  Returns the tool tip group this QToolTip is a member of, of 0 if it
+  isn't a member of any group.
+
+  The tool tip group is the object responsible relaying contact
+  betweeen tool tips and a status bar or something else which can show
+  a longer help text.
+
+  \sa parentWidget() QToolTipGroup
+*/
