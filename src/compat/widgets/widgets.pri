@@ -13,6 +13,7 @@ HEADERS += \
     widgets/qscrollview.h \
     widgets/qscrollview_p.h \
     widgets/q3toolbar.h \
+    widgets/q3frame.h \
     widgets/q3whatsthis.h \
     widgets/qgridview.h \
     widgets/qpopupmenu.h \
@@ -30,8 +31,9 @@ SOURCES += \
     widgets/q3mainwindow.cpp \
     widgets/qscrollview.cpp \
     widgets/q3toolbar.cpp \
+    widgets/q3frame.cpp \
     widgets/q3whatsthis.cpp \
-	widgets/qgridview.cpp \
+    widgets/qgridview.cpp \
     widgets/qrangecontrol.cpp \
     widgets/qspinwidget.cpp \
     widgets/qwidgetstack.cpp

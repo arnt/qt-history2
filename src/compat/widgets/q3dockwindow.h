@@ -16,7 +16,7 @@
 #define Q3DOCKWINDOW_H
 
 #ifndef QT_H
-#include "qframe.h"
+#include "q3frame.h"
 #endif // QT_H
 
 #ifndef QT_NO_MAINWINDOW

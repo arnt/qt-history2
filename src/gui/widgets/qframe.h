@@ -19,8 +19,6 @@
 #include "qwidget.h"
 #endif // QT_H
 
-#ifndef QT_NO_FRAME
-
 class QFramePrivate;
 
 class Q_GUI_EXPORT QFrame : public QWidget
@@ -40,54 +38,56 @@ public:
     QFrame(QWidget* parent = 0, Qt::WFlags f = 0);
     ~QFrame();
 
-    int         frameStyle()    const;
+    int frameStyle()    const;
     void setFrameStyle(int);
 
-    int         frameWidth()    const;
+    int frameWidth()    const;
 
-    QSize       sizeHint() const;
+    QSize sizeHint() const;
 
-    enum Shape { NoFrame  = 0,                  // no frame
-                 Box      = 0x0001,             // rectangular box
-                 Panel    = 0x0002,             // rectangular panel
-                 WinPanel = 0x0003,             // rectangular panel (Windows)
-                 HLine    = 0x0004,             // horizontal line
-                 VLine    = 0x0005,             // vertical line
-                 StyledPanel = 0x0006,          // rectangular panel depending on the GUI style
+    enum Shape {
+        NoFrame  = 0, // no frame
+        Box = 0x0001, // rectangular box
+        Panel = 0x0002, // rectangular panel
+        WinPanel = 0x0003, // rectangular panel (Windows)
+        HLine = 0x0004, // horizontal line
+        VLine = 0x0005, // vertical line
+        StyledPanel = 0x0006, // rectangular panel depending on the GUI style
 
-                 PopupPanel = 0x0007,           // rectangular panel depending on the GUI style
-                 MenuBarPanel = 0x0008,
-                 ToolBarPanel = 0x0009,
-                 LineEditPanel = 0x000a,
-                 TabWidgetPanel = 0x000b,
-                 GroupBoxPanel = 0x000c,
+        PopupPanel = 0x0007, // rectangular panel depending on the GUI style
+        MenuBarPanel = 0x0008,
+        ToolBarPanel = 0x0009,
+        LineEditPanel = 0x000a,
+        TabWidgetPanel = 0x000b,
+        GroupBoxPanel = 0x000c,
 
-
-                 MShape   = 0x000f              // mask for the shape
+        MShape = 0x000f // mask for the shape
     };
-    enum Shadow { Plain    = 0x0010,            // plain line
-                  Raised   = 0x0020,            // raised shadow effect
-                  Sunken   = 0x0030,            // sunken shadow effect
-                  MShadow  = 0x00f0 };          // mask for the shadow
+    enum Shadow {
+        Plain = 0x0010, // plain line
+        Raised = 0x0020, // raised shadow effect
+        Sunken = 0x0030, // sunken shadow effect
+        MShadow = 0x00f0 // mask for the shadow
+    };
 
-    Shape       frameShape()    const;
-    void        setFrameShape(Shape);
-    Shadow      frameShadow()   const;
-    void        setFrameShadow(Shadow);
+    Shape frameShape()    const;
+    void setFrameShape(Shape);
+    Shadow frameShadow()   const;
+    void setFrameShadow(Shadow);
 
-    int         lineWidth()     const;
+    int lineWidth()     const;
     void setLineWidth(int);
 
-    int         midLineWidth()  const;
+    int midLineWidth()  const;
     void setMidLineWidth(int);
 
-    QRect       frameRect()     const;
+    QRect frameRect()     const;
     void setFrameRect(const QRect &);
 
 protected:
     QFrame(QFramePrivate &, QWidget* parent, Qt::WFlags f = 0);
-    void        paintEvent(QPaintEvent *);
-    void        changeEvent(QEvent *);
+    void paintEvent(QPaintEvent *);
+    void changeEvent(QEvent *);
 
     void drawFrame(QPainter *);
 
@@ -102,42 +102,5 @@ public:
     QFrame(QWidget* parent, const char* name, Qt::WFlags f = 0);
 #endif
 };
-
-
-class Q_GUI_EXPORT Q3Frame : public QFrame
-{
-    Q_OBJECT
-    Q_PROPERTY(int margin READ margin WRITE setMargin)
-
-public:
-    Q3Frame(QWidget* parent, const char* name = 0, Qt::WFlags f = 0);
-    ~Q3Frame();
-#ifndef Q_QDOC
-    bool        lineShapesOk()  const { return true; }
-#endif
-
-    int margin() const { return marg; }
-    void setMargin(int);
-
-    QRect contentsRect() const;
-    int frameWidth() const;
-
-protected:
-    void        paintEvent(QPaintEvent *);
-    void        resizeEvent(QResizeEvent *);
-
-    virtual void frameChanged();
-    virtual void drawFrame(QPainter *);
-    virtual void drawContents(QPainter *);
-
-private:
-    int marg;
-#if defined(Q_DISABLE_COPY)
-    Q3Frame(const QFrame &);
-    Q3Frame &operator=(const QFrame &);
-#endif
-};
-
-#endif // QT_NO_FRAME
 
 #endif // QFRAME_H
