@@ -171,10 +171,10 @@ public:
 		    else {
 			mime = QWindowsMime::cfToMime(cf);
 			if ( mime ) {
-			if ( !n )
-				break; // COME FROM HERE
-			n--;
-			mime = 0;
+			    if ( !n )
+				    break; // COME FROM HERE
+			    n--;
+			    mime = 0;
 			}
 		    }
 		}
