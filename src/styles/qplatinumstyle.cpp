@@ -1345,7 +1345,7 @@ QRect QPlatinumStyle::querySubControlMetrics( ComplexControl control,
 	    break;
 	}
     case CC_Slider:
-	{	   
+	{	
 	    const QSlider *slide;
 	    slide = (const QSlider*)widget;
 	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset,
@@ -1367,7 +1367,7 @@ QRect QPlatinumStyle::querySubControlMetrics( ComplexControl control,
 		    rect.setRect( 0, tickOffset,
 				  slide->width(), thickness );
 		else
-		    rect.setRect( tickOffset, 0, thickness, 
+		    rect.setRect( tickOffset, 0, thickness,
 				  slide->width() );
 		break;
 	    default:
@@ -1405,6 +1405,7 @@ int QPlatinumStyle::pixelMetric( PixelMetric metric,
 	break;
     case PM_IndicatorHeight:
 	ret = 13;
+	break;
     case PM_ExclusiveIndicatorHeight:
     case PM_ExclusiveIndicatorWidth:
 	ret = 15;

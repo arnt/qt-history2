@@ -578,17 +578,6 @@ void QCommonStyle::drawControl( ControlElement element,
 
     case CE_CheckBox:
 	{
-	    // many people expect to checkbox to be square, do that here.
-	    QRect ir = r;
-
-	    if (r.width() < r.height()) {
-		ir.setTop(r.top() + (r.height() - r.width()) / 2);
-		ir.setHeight(r.width());
-	    } else if (r.height() < r.width()) {
-		ir.setLeft(r.left() + (r.width() - r.height()) / 2);
-		ir.setWidth(r.height());
-	    }
-
 	    const QCheckBox *checkbox = (const QCheckBox *) widget;
 
 	    if (checkbox->isDown())
@@ -600,7 +589,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	    else if (checkbox->state() == QButton::NoChange)
 		flags |= Style_NoChange;
 
-	    drawPrimitive(PE_Indicator, p, ir, cg, flags, data);
+	    drawPrimitive(PE_Indicator, p, r, cg, flags, data);
 	    break;
 	}
 
@@ -622,17 +611,6 @@ void QCommonStyle::drawControl( ControlElement element,
 
     case CE_RadioButton:
 	{
-	    // many people expect to checkbox to be square, do that here.
-	    QRect ir = r;
-
-	    if (r.width() < r.height()) {
-		ir.setTop(r.top() + (r.height() - r.width()) / 2);
-		ir.setHeight(r.width());
-	    } else if (r.height() < r.width()) {
-		ir.setLeft(r.left() + (r.width() - r.height()) / 2);
-		ir.setWidth(r.height());
-	    }
-
 	    const QRadioButton *radiobutton = (const QRadioButton *) widget;
 
 	    if (radiobutton->isDown())
@@ -642,7 +620,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	    else if (radiobutton->state() == QButton::Off)
 		flags |= Style_Off;
 
-	    drawPrimitive(PE_ExclusiveIndicator, p, ir, cg, flags, data);
+	    drawPrimitive(PE_ExclusiveIndicator, p, r, cg, flags, data);
 	    break;
 	}
 
