@@ -75,12 +75,7 @@ public:
 	while ( !stdinBuf.isEmpty() ) {
 	    delete stdinBuf.dequeue();
 	}
-	if( pipeStdin[1] != 0 )
-	    CloseHandle( pipeStdin[1] );
-	if( pipeStdout[0] != 0 )
-	    CloseHandle( pipeStdout[0] );
-	if( pipeStderr[0] != 0 )
-	    CloseHandle( pipeStderr[0] );
+	closeHandles();
 	stdinBufRead = 0;
 	pipeStdin[0] = 0;
 	pipeStdin[1] = 0;
@@ -91,6 +86,23 @@ public:
 	exitValuesCalculated = FALSE;
 
 	deletePid();
+    }
+    }
+
+    void closeHandles()
+    {
+	if( pipeStdin[1] != 0 ) {
+	    CloseHandle( pipeStdin[1] );
+	    pipeStdin[1] = 0;
+	}
+	if( pipeStdout[0] != 0 ) {
+	    CloseHandle( pipeStdout[0] );
+	    pipeStdout[0] = 0;
+	}
+	if( pipeStderr[0] != 0 ) {
+	    CloseHandle( pipeStderr[0] );
+	    pipeStderr[0] = 0;
+	}
     }
 
     void deletePid()
@@ -423,6 +435,7 @@ bool QProcess::isRunning() const
 	    d->exitValuesCalculated = TRUE;
 	}
 	d->deletePid();
+	d->closeHandles();
 	return FALSE;
     } else {
         return TRUE;
@@ -431,12 +444,18 @@ bool QProcess::isRunning() const
 
 bool QProcess::canReadLineStdout() const
 {
+    if( !d->pipeStdout[0] )
+	return !d->bufStdout.isEmpty();
+
     QProcess *that = (QProcess*)this;
     return that->d->bufStdout.scanNewline( 0 );
 }
 
 bool QProcess::canReadLineStderr() const
 {
+    if( !d->pipeStderr[0] )
+	return !d->bufStderr.isEmpty();
+
     QProcess *that = (QProcess*)this;
     return that->d->bufStderr.scanNewline( 0 );
 }
