@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#36 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#37 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -1010,7 +1010,7 @@ fmt. Reimplement this function in a subclass if you need a custom context.
 
   \sa chooseContext() */
 
-int QGLContext::choosePixelFormat( void *pfd, HANDLE pdc )
+int QGLContext::choosePixelFormat( void *pfd, HDC pdc )
 {
     PIXELFORMATDESCRIPTOR *p = (PIXELFORMATDESCRIPTOR *)pfd;
     memset( p, 0, sizeof(PIXELFORMATDESCRIPTOR) );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.h#14 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.h#15 $
 **
 ** Definition of OpenGL classes for Qt
 **
@@ -42,11 +42,15 @@ const char *qGLVersion();
 #define Q_GLX
 #endif
 #endif
+
 #if defined(Q_WGL)
-#include <windows.h>
+#include <qt_windows.h>
 #endif
+
 #include <GL/gl.h>
 #include <GL/glu.h>
+
+
 
 
 class QPixmap;
@@ -141,7 +145,7 @@ protected:
     virtual void	doneCurrent();
 
 #if defined(Q_WGL)
-    virtual int		choosePixelFormat( void* pfd, HANDLE pdc );
+    virtual int		choosePixelFormat( void* pfd, HDC pdc );
 #elif defined(Q_GLX)
     virtual void*	tryVisual( const QGLFormat& f, int bufDepth = 1 );
     virtual void*	chooseVisual();
@@ -155,9 +159,9 @@ protected:
 
 protected:
 #if defined(Q_WGL)
-    HANDLE		rc;
-    HANDLE		dc;
-    HANDLE		win;
+    HGLRC		rc;
+    HDC			dc;
+    WId			win;
 #elif defined(Q_GLX)
     void*		vi;
     void*		cx;
