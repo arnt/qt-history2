@@ -223,7 +223,9 @@ void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
 	    { kEventClassApplication, kEventAppActivated },
 	    { kEventClassApplication, kEventAppDeactivated },
 
-	    { kEventClassMenu, kEventMenuOpening }
+	    { kEventClassMenu, kEventMenuOpening },
+
+	    { kEventClassCommand, kEventCommandProcess }
 	};
 	InstallEventHandler( GetApplicationEventTarget(),
 			     NewEventHandlerUPP(QApplication::globalEventProcessor),
@@ -1581,6 +1583,14 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		GetEventParameter(event, kEventParamDirectObject, typeMenuRef, NULL, sizeof(mr), NULL, &mr);
 		QMenuBar::macUpdatePopup(mr);
 	    }
+	}
+	break;
+    case kEventClassCommand:
+	if(ekind == kEventCommandProcess) {
+	    HICommand cmd;
+	    GetEventParameter(event, kEventParamDirectObject, typeHICommand, NULL, sizeof(cmd), NULL, &cmd);
+	    if(cmd.commandID == kHICommandQuit) 
+		qApp->closeAllWindows();
 	}
 	break;
     }

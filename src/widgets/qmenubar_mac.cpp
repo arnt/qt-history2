@@ -186,15 +186,6 @@ bool QMenuBar::activate(long msg)
 #define	LoWrd(aLong)	((aLong) & 0xFFFF)
     short id = HiWrd( msg ),  index = LoWrd( msg );
 
-    //This is a bit hacky, it will probably work in most cases, but I doubt it'll work forever FIXME!?
-    int cmd;
-    GetMenuItemCommandID(GetMenuHandle(id), index, (UInt32 *)&cmd);
-    if(cmd > 0) {
-	qApp->closeAllWindows();
-	HiliteMenu(0);
-	return TRUE;
-    }
-
     if(!pdict) {
 	HiliteMenu(0);
 	return FALSE;
