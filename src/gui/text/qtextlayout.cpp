@@ -20,6 +20,7 @@
 #include <qtextformat.h>
 #include <qabstracttextdocumentlayout.h>
 #include "qtextformat_p.h"
+#include <limits.h>
 
 #include "qfontengine_p.h"
 
