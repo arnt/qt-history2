@@ -3,7 +3,7 @@
 ** Definition of QPair class
 **
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2001 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the tools module of the Qt GUI Toolkit.
 **
@@ -32,6 +32,9 @@
 ** not clear to you.
 **
 **********************************************************************/
+
+#ifndef QPAIR_H
+#define QPAIR_H
 
 #ifndef QT_H
 #endif // QT_H
@@ -73,3 +76,5 @@ inline QPair<T1, T2> qMakePair( const T1& x, const T2& y )
 {
     return QPair<T1, T2>( x, y );
 }
+
+#endif
