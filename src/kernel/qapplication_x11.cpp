@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#443 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#444 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -520,8 +520,10 @@ static bool qt_set_desktop_properties()
     QPalette pal;
     QFont font;
     d >> pal >> font;
-    QApplication::setPalette( pal, TRUE );
-    QApplication::setFont( font, TRUE );
+    if ( !QApplication::palette() || pal != *QApplication::palette() )
+	QApplication::setPalette( pal, TRUE );
+    if (!QApplication::font() ||  font != *QApplication::font() )
+	QApplication::setFont( font, TRUE );
     return TRUE;
 }
 
@@ -581,7 +583,8 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
 	QFont font;
 	font.setRawMode( TRUE );
 	font.setFamily( resFont );
-	QApplication::setFont( font, TRUE );
+	if ( !QApplication::font() || font != *QApplication::font() )
+	    QApplication::setFont( font, TRUE );
     }
     if ( button || !resBG.isEmpty() || !resFG.isEmpty() ) {		// set application colors
 	QColor btn;
@@ -625,7 +628,8 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, cons
 	QColorGroup dcg( disabled, btn, btn.light( 125 ), btn.dark(), btn.dark(150),
 			 disabled, Qt::white, Qt::white, bg );
 	QPalette pal( cg, dcg, cg );
-	QApplication::setPalette( pal, TRUE );
+	if ( !QApplication::palette() || pal != *QApplication::palette() )
+	    QApplication::setPalette( pal, TRUE );
     }
 }
 
