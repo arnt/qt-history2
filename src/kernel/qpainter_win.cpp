@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#101 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#102 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -49,7 +49,10 @@ struct QWinFont
 {
     bool	killFont;
     HANDLE	hfont;
-    TEXTMETRIC	tm;
+    union {
+	TEXTMETRICA	a;
+	TEXTMETRICW	w;
+    } tm;
 };
 
 
@@ -360,7 +363,10 @@ void *QPainter::textMetric()
 	return 0;
     if ( winFont == 0 || testf(DirtyFont) )
 	updateFont();
-    return &winFont->tm;
+    if ( qt_winver == WV_NT )
+	return &winFont->tm.w;
+    else
+	return &winFont->tm.a;
 }
 
 
@@ -394,10 +400,17 @@ void QPainter::updateFont()
     }
     winFont->killFont = killFont;
     winFont->hfont = hfont;
-    if ( ownFont )
-	GetTextMetrics( hdc, &winFont->tm );
-    else
-	memcpy( &winFont->tm, cfont.textMetric(), sizeof(TEXTMETRIC) );
+    if ( qt_winver == WV_NT ) {
+	if ( ownFont )
+	    GetTextMetricsW( hdc, &winFont->tm.w );
+	else
+	    memcpy( &winFont->tm.w, cfont.textMetric(), sizeof(TEXTMETRICW) );
+    } else {
+	if ( ownFont )
+	    GetTextMetricsA( hdc, &winFont->tm.a );
+	else
+	    memcpy( &winFont->tm.a, cfont.textMetric(), sizeof(TEXTMETRICA) );
+    }
 }
 
 
@@ -1948,7 +1961,27 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    map( x, y, &x, &y );
     }
 
-    TextOut( hdc, x, y, str, len );
+    if ( qt_winver == WV_NT ) {
+	const QChar* uc = str.unicode();
+	if ( sizeof(WCHAR)==sizeof(QChar) && *((WCHAR*)(&QChar(0,1))) == 0x0100 ) {
+	    // Same endianness of WCHAR
+	    TextOutW( hdc, x, y, (WCHAR*)uc, len );
+	} else if ( len < 256 ) {
+	    WCHAR buf[256];
+	    for ( int i=len; i--; )
+		buf[i] = uc[i].row << 8 | uc[i].cell;
+	    TextOutW( hdc, x, y, buf, len );
+	} else {
+	    WCHAR *buf = new WCHAR[len];
+	    for ( int i=len; i--; )
+		buf[i] = uc[i].row << 8 | uc[i].cell;
+	    TextOutW( hdc, x, y, buf, len );
+	    delete [] buf;
+	}
+    } else {
+	TextOutA( hdc, x, y, str.ascii(), len );
+    }
+
     if ( nat_xf )
 	nativeXForm( FALSE );
 }
