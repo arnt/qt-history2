@@ -36,6 +36,7 @@ public:
     Qt::Alignment alignment;
     uint textVisible : 1;
     QStyleOptionProgressBar getStyleOption() const;
+    inline int bound(int val) const { return qMax(minimum-1, qMin(maximum, val)); }
 };
 
 #define d d_func()
@@ -144,7 +145,7 @@ void QProgressBar::reset()
 */
 void QProgressBar::setMinimum(int minimum)
 {
-    d->minimum = minimum;
+    setRange(minimum, qMax(d->maximum, minimum));
 }
 
 int QProgressBar::minimum() const
@@ -165,7 +166,7 @@ int QProgressBar::minimum() const
 
 void QProgressBar::setMaximum(int maximum)
 {
-    d->maximum = maximum;
+    setRange(qMin(d->minimum, maximum), maximum);
 }
 
 int QProgressBar::maximum() const
@@ -205,12 +206,16 @@ int QProgressBar::value() const
     If \a max is smaller than \a min, \a min becomes the only legal
     value.
 
+    If the current value falls outside the new range, the progressbar is reset
+    with reset().
     \sa minimum maximum
 */
 void QProgressBar::setRange(int minimum, int maximum)
 {
-    setMinimum(minimum);
-    setMaximum(maximum);
+    d->minimum = minimum;
+    d->maximum = qMax(minimum, maximum);
+    if ( d->value <(d->minimum-1) || d->value > d->maximum)
+        reset();
 }
 /*!
     Sets wether the  the current completed percentage
