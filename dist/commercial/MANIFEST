@@ -12,7 +12,7 @@ configs		Platform/compiler configuration files.
 doc		Class documentation outside the source code.
 examples	Qt example programs
 extensions	Qt extensions (OpenGL, Browser Plugin etc.)
-html		Qt documentation in HTML format
+doc		Qt documentation in HTML format
 include		Qt include files
 lib		Place for the Qt library
 man		Qt documentation in manpage format
