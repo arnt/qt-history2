@@ -50,7 +50,7 @@ static CRITICAL_SECTION qAxModuleSection;
 
 bool qax_ownQApp = FALSE;
 
-// in qapplication_win.cpp
+// in qeventloop_win.cpp
 extern Q_EXPORT bool qt_win_use_simple_timers;
 
 STDAPI DllRegisterServer()
