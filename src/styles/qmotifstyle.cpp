@@ -55,6 +55,8 @@
 #include "qsplitter.h"
 #include "qslider.h"
 #include "qcombobox.h"
+#include "qdockwindow.h"
+#include "qdockarea.h"
 #include <limits.h>
 
 
@@ -505,6 +507,73 @@ void QMotifStyle::drawPrimitive( PrimitiveOperation op,
 	p->restore();
 	break; }
 
+    case PO_DockWindowHandle: {
+	
+	p->save();
+	p->translate( r.x(), r.y() );
+
+	QColor dark( cg.dark() );
+	QColor light( cg.light() );
+	unsigned int i;
+	if ( flags & PStyle_Vertical ) {
+	    int w = r.width();
+	    if ( w > 6 ) {
+		if ( flags & PStyle_On )
+		    p->fillRect( 1, 1, w - 2, 9, cg.highlight() );
+		QPointArray a( 2 * ((w-6)/3) );
+
+		int x = 3 + (w%3)/2;
+		p->setPen( dark );
+		p->drawLine( 1, 8, w-2, 8 );
+		for( i=0; 2*i < a.size(); i ++ ) {
+		    a.setPoint( 2*i, x+1+3*i, 6 );
+		    a.setPoint( 2*i+1, x+2+3*i, 3 );
+		}
+		p->drawPoints( a );
+		p->setPen( light );
+		p->drawLine( 1, 9, w-2, 9 );
+		for( i=0; 2*i < a.size(); i++ ) {
+		    a.setPoint( 2*i, x+3*i, 5 );
+		    a.setPoint( 2*i+1, x+1+3*i, 2 );
+		}
+		p->drawPoints( a );
+// 		if ( drawBorder ) {
+// 		    p->setPen( QPen( Qt::darkGray ) );
+// 		    p->drawLine( r.width() - 1, 0,
+// 				 r.width() - 1, tbExtent );
+// 		}
+	    }
+	} else {
+	    int h = r.height();
+	    if ( h > 6 ) {
+		if ( flags & PStyle_On )
+		    p->fillRect( 1, 1, 8, h - 2, cg.highlight() );
+		QPointArray a( 2 * ((h-6)/3) );
+		int y = 3 + (h%3)/2;
+		p->setPen( dark );
+		p->drawLine( 8, 1, 8, h-2 );
+		for( i=0; 2*i < a.size(); i ++ ) {
+		    a.setPoint( 2*i, 5, y+1+3*i );
+		    a.setPoint( 2*i+1, 2, y+2+3*i );
+		}
+		p->drawPoints( a );
+		p->setPen( light );
+		p->drawLine( 9, 1, 9, h-2 );
+		for( i=0; 2*i < a.size(); i++ ) {
+		    a.setPoint( 2*i, 4, y+3*i );
+		    a.setPoint( 2*i+1, 1, y+1+3*i );
+		}
+		p->drawPoints( a );
+// 		if ( drawBorder ) {
+// 		    p->setPen( QPen( Qt::darkGray ) );
+// 		    p->drawLine( 0, r.height() - 1,
+// 				 tbExtent, r.height() - 1 );
+// 		}
+	    }
+	}
+	p->restore();
+    break; }
+    
     default:
 	QCommonStyle::drawPrimitive( op, p, r, cg, flags, data );
 	break;
@@ -1033,6 +1102,10 @@ int QMotifStyle::pixelMetric( PixelMetric metric, const QWidget *widget ) const
 	    ret = sl->height() - pixelMetric( PM_SliderLength, sl ) - 4;
 	break; }
 
+    case PM_DockWindowHandleExtent:
+	ret = 9;
+	break;
+
 //     case PM_SliderMaximumDragDistance:
 //     case PM_ScrollBarMaximumDragDistance: {
 // 	QScrollBar *sb = (QScrollBar*) widget;
@@ -1309,6 +1382,21 @@ QRect QMotifStyle::subRect( SubRect r, const QWidget *widget ) const
 	tr.addCoords( fw, fw, -fw, -fw );
 	get_combo_parameters( tr, ew, awh, ax, ay, sh, dh, sy );
 	rect.setRect(ax-2, ay-2, awh+4, awh+sh+dh+4);
+	break; }
+
+    case SR_DockWindowHandleRect: {
+	if ( !widget || !widget->parent() )
+	    break;
+
+	QDockWindow * dw = (QDockWindow *) widget->parent();
+	if ( !dw->area() || !dw->isCloseEnabled() )
+	    rect.setRect( 0, 0, widget->width(), widget->height() );
+	else {
+	    if ( dw->area()->orientation() == Horizontal )
+		rect.setRect(2, 15, widget->width()-2, widget->height() - 15);
+	    else
+		rect.setRect(0, 2, widget->width() - 15, widget->height() - 2);
+	}
 	break; }
 	
     default:
