@@ -83,7 +83,7 @@ to make it a lot easier to port Qt to new platforms. You can use this
 platform independent build system for your own applications.
 
 
-<h2>The Qt Library</h2>
+\section1 The Qt Library
 
 A large number of new features has been added to Qt 3.0. The following
 list gives an overview of the most important new and changed aspects
@@ -91,7 +91,7 @@ of the Qt library. A full list of every new method follows the
 overview.
 
 
-<h3>Database support</h3>
+\section2 Database support
 
 One of the major new features in Qt 3.0 is the SQL module that
 provides cross-platform access to SQL databases, making database
@@ -122,7 +122,7 @@ between controls visually. Many interactions can be defined purely in
 terms of Qt's signals/slots mechanism directly in Qt Designer.
 
 
-<h3>Component model - plugins</h3>
+\section2 Component model - plugins
 
 The QLibrary class provides a platform independent wrapper for runtime
 loading of shared libraries. Access to the shared libraries uses a
@@ -142,7 +142,7 @@ global database (e.g. the Windows Registry) and to use any registered
 component.
 
 
-<h3>Rich text engine and editor</h3>
+\section2 Rich text engine and editor
 
 The rich text engine originally introduced in Qt 2.0 has been further
 optimized and extended to support editing. It allows editing formatted
@@ -153,7 +153,7 @@ features.  The engine is highly optimized for proccesing and displaying
 large documents quickly and efficiently.
 
 
-<h3>Unicode</h3>
+\section2 Unicode
 
 Apart from the rich text engine, another new feature of Qt 3.0 that
 relates to text handling is the greatly improved Unicode support. Qt
@@ -172,7 +172,7 @@ Latin1, without having to worry about the complexities involved with
 these scripts, as Qt takes care of this automatically.
 
 
-<h3>Docked and Floating Windows</h3>
+\section2 Docked and Floating Windows
 
 Qt 3.0 introduces the concept of Dock Windows and Dock Areas. Dock
 windows are widgets, that can be attached to, and detached from, dock
@@ -190,7 +190,7 @@ of QMainWindow and QToolBar is source compatible with Qt 2.x, so
 existing code which uses these classes will continue to work.
 
 
-<h3>Regular Expressions</h3>
+\section2 Regular Expressions
 
 Qt has always provided regular expression support, but that support
 was pretty much limited to what was required in common GUI control
@@ -200,7 +200,7 @@ Unicode based. The most useful additions are support for parentheses
 (capturing and non-capturing) and backreferences.
 
 
-<h3>Storing application settings</h3>
+\section2 Storing application settings
 
 Most programs will need to store some settings between runs, for
 example, user selected fonts, colors and other preferences, or a list
@@ -211,7 +211,7 @@ C++ types, strings, lists, colors, etc). The class uses the registry
 on the Windows platform and traditional resource files on Unix.
 
 
-<h3>Creating and controlling other processes</h3>
+\section2 Creating and controlling other processes
 
 QProcess is a class that allows you to start other programs from
 within a Qt application in a platform independent manner. It gives you
@@ -219,7 +219,7 @@ full control over the started program, for example you can redirect
 the input and output of console applications.
 
 
-<h3>Accessibility (not part of the beta1 release)</h3>
+\section2 Accessibility
 
 Accessibility means making software usable and accessible to a wide
 range of users, including those with disabilities. In Qt 3.0, most
@@ -235,11 +235,8 @@ the MSAA SDK, which is part of most platform SDKs. With improving
 standardization of accessibility on other platforms, Qt will support
 assistive technologies on other systems, too.
 
-The accessibility API in Qt is not yet stable, which is why we decided
-not to make it a part of the beta1 release.
 
-
-<h3>XML Improvements</h3>
+\section2 XML Improvements
 
 The XML framework introduced in Qt 2.2 has been vastly improved. Qt
 2.2 already supported level 1 of the Document Object Model (DOM), a
@@ -255,7 +252,7 @@ allows the application to start working on the data at a very early
 stage.
 
 
-<h3>SVG support</h3>
+\section2 SVG support
 
 SVG is a W3C standard for "Scalable Vector Graphics". Qt 3.0's XML
 support means that QPicture can optionally generate and import static
@@ -263,7 +260,7 @@ SVG documents. All the SVG features that have an equivalent in
 QPainter are supported.
 
 
-<h3>Multihead support</h3>
+\section2 Multihead support
 
 Many professional applications, such as DTP and CAD software, are able
 to display data on two or more monitors. In Qt 3.0 the QDesktopWidget
@@ -276,7 +273,7 @@ the traditional multi-screen and the newer Xinerama multihead setups
 on X11.
 
 
-<h3>X11 specific enhancements</h3>
+\section2 X11 specific enhancements
 
 Qt 3.0 now complies with the NET WM Specification, recently adopted
 by KDE 2.0.  This allows easy integration and proper execution with
@@ -297,7 +294,7 @@ alpha channel (semi transparency) on the systems that support the
 rendering extension (at the moment XFree 4.0.3 and later).
 
 
-<h3>Printing</h3>
+\section2 Printing
 
 Printing support has been enhanced on all platforms. The QPrinter
 class now supports setting a virtual resolution for the painting
@@ -312,12 +309,12 @@ Support for fonts built into the printer has been enhanced and Qt now
 knows about the most common printer fonts used for Asian languages.
 
 
-<h3>QHttp</h3>
+\section2 QHttp
 
 This class provides a simple interface for HTTP downloads and uploads.
 
 
-<h3>Compatibility with the Standard Template Library (STL)</h3>
+\section2 Compatibility with the Standard Template Library (STL)
 
 Support for the C++ Standard Template Library has been added to the Qt
 Template Library (QTL).  The QTL classes now contain appropriate copy
@@ -327,7 +324,7 @@ been added to QTL template classes which correspond to STL-style
 naming conventions (e.g., push_back()).
 
 
-<h2>Qt Designer</h2>
+\section1 Qt Designer
 
 Qt Designer was a pure dialog editor in Qt 2.2 but has now been
 extended to provide the full functionality of a GUI design tool.
@@ -367,7 +364,7 @@ the feature is provided by a new class, QWidgetFactory in the
 QResource library.
 
 
-<h2>Qt Linguist</h2>
+\section1 Qt Linguist
 
 Qt Linguist is a GUI utility to support translating the user-visible
 text in applications written with Qt. It comes with two command-line
@@ -375,16 +372,16 @@ tools: lupdate and lrelease.
 
 Translation of a Qt application is a three-step process:
 
-<ol>
- <li>Run lupdate to extract user-visible text from the C++ source
+\list
+  \i Run lupdate to extract user-visible text from the C++ source
      code of the Qt application, resulting in a translation source file
      (a *.ts file).
- <li>Provide translations for the source texts in the *.ts file using
+  \i Provide translations for the source texts in the *.ts file using
      Qt Linguist.
- <li>Run lrelease to obtain a light-weight message file (a *.qm file)
+  \i Run lrelease to obtain a light-weight message file (a *.qm file)
      from the *.ts file, which provides very fast lookup for released
      applications.
-</ol>
+\endlist
 
 Qt Linguist is a tool suitable for use by translators. Each
 user-visible (source) text is characterized by the text itself, a
@@ -417,7 +414,7 @@ suggest translations. These translations are marked as unfinished, so
 you can easily find and check them.
 
 
-<h2>Qt Assistant</h2>
+\section1 Qt Assistant
 
 Due to the positive feedback we received about the help system built
 into Qt Designer, we decided to offer this part as a separate
@@ -428,7 +425,7 @@ history and incremental search. Qt Assistant is used by both Qt
 Designer and Qt Linguist for browsing their help documentation.
 
 
-<h2>QMake</h2>
+\section1 QMake
 
 To ease portability we now provide the qmake utility to replace tmake.
 QMake is a C++ version of tmake which offers additional functionallity
