@@ -47,6 +47,8 @@
 #include <QtGui/QDesktopWidget>
 #include <QtGui/QFileDialog>
 #include <QtGui/QMenu>
+#include <QtGui/QHeaderView>
+#include <QtGui/QTreeView>
 #include <QtGui/QMenuBar>
 #include <QtGui/QMessageBox>
 #include <QtGui/QPixmap>
@@ -781,6 +783,22 @@ static void readSizeSettings(const QSettings &settings, const QString &key, QWid
         w->show();
 }
 
+static void readColumnSizeSettings(const QSettings &settings, const QString &key,
+                                   QTreeView *treeView)
+{
+    QList<QCoreVariant> list;
+    QHeaderView *header = treeView->header();
+    if (!header)
+        return;
+    for (int i = 0; i < header->count(); ++i)
+        list.append(header->sectionSizeHint(i));
+
+    list = settings.value(key + "/columnSizes", list).toList();
+    int i = 0;
+    foreach (QCoreVariant v, list)
+        header->resizeSection(i++, v.toInt());
+}
+
 void MainWindow::readSettings()
 {
     QSettings settings;
@@ -804,6 +822,9 @@ void MainWindow::readSettings()
     defaultRect.translate(availG.topRight().x() - (w->sizeHint().width() + 75), 0);
     defaultRect.setSize(w->sizeHint());
     readSizeSettings(settings, settingsString, w, defaultRect);
+    QList<QTreeView *> treeList = qFindChildren<QTreeView *>(core->objectInspector());
+    if (!treeList.isEmpty())
+        readColumnSizeSettings(settings, settingsString, treeList.front());
 
     settingsString = QString::fromUtf8("propertyeditor");
     defaultRect.translate(0,  w->sizeHint().height() + 20);
@@ -812,6 +833,9 @@ void MainWindow::readSettings()
     defaultRect.setWidth(w->sizeHint().width());
     defaultRect.setHeight(w->sizeHint().height() + fm.height() * 16);
     readSizeSettings(settings, settingsString, w, defaultRect);
+    treeList = qFindChildren<QTreeView *>(core->propertyEditor());
+    if (!treeList.isEmpty())
+        readColumnSizeSettings(settings, settingsString, treeList.front());
 }
 
 void MainWindow::saveSettings()
@@ -833,6 +857,18 @@ void MainWindow::saveSettings()
         settings.setValue(it.key() + "/screen", QApplication::desktop()->screenNumber(it.value()));
         settings.setValue(it.key() + "/geometry", geom);
         settings.setValue(it.key() + "/visible", it.value()->isVisible());
+        if (it.key() != "widgetbox") {
+            QList<QTreeView *> list = qFindChildren<QTreeView *>(it.value());
+            if (!list.isEmpty()) {
+                QHeaderView *header = list.front()->header();
+                if (header) {
+                    QList<QCoreVariant> headerSizes;
+                    for (int i = 0; i < header->count(); ++i)
+                        headerSizes.append(header->sectionSize(i));
+                    settings.setValue(it.key() + "/columnSizes", headerSizes);
+                }
+            }
+        }
     }
     m_settingsSaved = true;
 }
