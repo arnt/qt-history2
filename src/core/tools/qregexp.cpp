@@ -3130,10 +3130,10 @@ struct QRegExpPrivate
     QString pattern; // regular-expression or wildcard pattern
     QString rxpattern; // regular-expression pattern
 #ifndef QT_NO_REGEXP_WILDCARD
-    QRegExp::PatternSyntax patternSyntax : 1;
+    QRegExp::PatternSyntax patternSyntax;
 #endif
     bool min : 1;
-    QString::CaseSensitivity cs : 1;
+    QString::CaseSensitivity cs;
 #ifndef QT_NO_REGEXP_CAPTURE
     QString t; // last string passed to QRegExp::search() or searchRev()
     QStringList capturedCache; // what QRegExp::capturedTexts() returned last
