@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#37 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#38 $
 **
 ** Implementation of QButton widget class
 **
@@ -15,7 +15,7 @@
 #include "qpixmap.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#37 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#38 $")
 
 
 /*----------------------------------------------------------------------------
@@ -106,16 +106,15 @@ QButton::~QButton()
   and then released when the mouse cursor is inside the button).
  ----------------------------------------------------------------------------*/
 
-
 /*----------------------------------------------------------------------------
-  \fn bool QButton::isDown() const
-  Returns TRUE of the button is pressed down, the opposite of isUp().
+  \fn void QButton::toggled( bool on )
+  This signal is emitted whenever a toggle button changes status.
+  \e on is TRUE if the button is on, or FALSE if the button is off.
+
+  This may be the result of a user action, toggle() slot activation,
+  or because setOn() was called.
  ----------------------------------------------------------------------------*/
 
-/*----------------------------------------------------------------------------
-  \fn bool QButton::isUp() const
-  Returns TRUE of the button is up, the opposite of isDown().
- ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn const char *QButton::text() const
@@ -221,77 +220,72 @@ void QButton::setAutoResize( bool enable )
 }
 
 
-/*! \fn void QButton::stateChanged( bool )
-
-  This signal is emitted whenever a toggle button changes status.
-  This may be because of a user action, because the press() slot is
-  activated, or because switchOn() or switchOff() are called. */
-
-
-/*! This slot "presses" a toggle button, such that its state is
-  toggled.  This is intended for keyboard accelerators.
-
-  The slot does nothing for other buttons.
-
-  \sa clicked() isOn() switchOn() */
-
-void QButton::press() {
-    if ( !toggleButton() )
-	return;
-
-    if ( isOn() )
-	switchOff();
-    else
-	switchOn();
-}
-
-
 /*----------------------------------------------------------------------------
   \fn bool QButton::isOn() const
-  Returns TRUE if this toggle button has been switched ON, or FALSE
-  if it has been switched OFF.
-  \sa switchOn(), switchOff(), isOn()
+  Returns TRUE if this toggle button is switched on, or FALSE if it is
+  switched off.
+  \sa setOn(), toggleButton()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  Swithes a toggle button ON.  This function should be called only for
-  toggle buttons.
-  \sa switchOff(), isOn()
+  Swithes a toggle button on if \e enable is TRUE or off if \e enable is
+  FALSE.  This function should be called only for toggle buttons.
+  \sa isOn(), toggleButton()
  ----------------------------------------------------------------------------*/
 
-void QButton::switchOn()
+void QButton::setOn( bool enable )
 {
 #if defined(CHECK_STATE)
     if ( !toggleBt )
-	warning( "QButton::switchOn: Only on/off buttons should be switched" );
+	warning( "QButton::setOn: Only toggle buttons may be switched" );
 #endif
+    if ( (bool)buttonOn != enable ) {		// changed state
+	buttonOn = enable;
+	repaint( FALSE );
+	emit toggled( buttonOn );
+    }
+}
+
+#if !defined(OBSOLETE)
+
+bool QButton::isUp() const
+{
+    warning( "QButton::isUp: This function is OBSOLETE\n\t"
+	     "Use !isDown() instead!" );
+    return !isDown();
+}
+
+bool QButton::isOff() const
+{
+    warning( "QButton::isOff: This function is OBSOLETE\n\t"
+	     "Use !isOn() instead!" );
+    return !isOn();
+}
+
+void QButton::switchOn()
+{
+    warning( "QButton::switchOn: This function is OBSOLETE\n\t"
+	     "Use setOn(TRUE) instead!" );
     bool lastOn = buttonOn;
     buttonOn = TRUE;
     if ( !lastOn ) {				// changed state
 	repaint( FALSE );			// redraw
-	emit stateChanged( TRUE );
+	emit toggled( TRUE );
     }
 }
 
-/*----------------------------------------------------------------------------
-  Swithes a toggle button OFF.  This function should be called only for
-  toggle buttons.
-  \sa switchOn(), isOn()
- ----------------------------------------------------------------------------*/
-
 void QButton::switchOff()
 {
-#if defined(CHECK_STATE)
-    if ( !toggleBt )
-	warning( "QButton::switchOff: Only on/off buttons should be switched");
-#endif
+    warning( "QButton::switchOff: This function is OBSOLETE\n\t"
+	     "Use setOn(FALSE) instead!" );
     bool lastOn = buttonOn;
     buttonOn = FALSE;
     if ( lastOn ) {				// changed state
 	repaint( FALSE );			// redraw
-	emit stateChanged( FALSE );
+	emit toggled( FALSE );
     }
 }
+#endif // OBSOLETE
 
 
 /*----------------------------------------------------------------------------
@@ -302,17 +296,20 @@ void QButton::switchOff()
 
 
 /*----------------------------------------------------------------------------
-  Sets the button to become a toggle button if \e toggle is TRUE, or a
-  standard button if \e toggle is FALSE.
+  Makes the button a toggle button if \e enable is TRUE, or a normal button
+  if \e enable is FALSE.
 
-  A button is initially a standard button.
+  Note that this function is protected. It is called from sub-classes
+  to enable the toggle functionality. QCheckBox and QRadioButton are
+  toggle buttons. QPushButton is initially not a toggle button, but
+  QPushButton::setToggleButton() can be called to create toggle buttons.
 
   \sa toggleButton()
  ----------------------------------------------------------------------------*/
 
-void QButton::setToggleButton( bool toggle )
+void QButton::setToggleButton( bool enable )
 {
-    toggleBt = toggle;
+    toggleBt = enable;
 }
 
 
@@ -385,10 +382,10 @@ void QButton::mouseReleaseEvent( QMouseEvent *e)
 	if ( toggleBt )
 	    buttonOn = !buttonOn;
 	repaint( FALSE );
+	if ( toggleBt )
+	    emit toggled( buttonOn );
 	emit released();
 	emit clicked();
-	if ( toggleBt )
-	    emit stateChanged( buttonOn );
     }
     else {
 	repaint( FALSE );
