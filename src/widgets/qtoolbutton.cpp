@@ -467,11 +467,7 @@ void QToolButton::mousePressEvent( QMouseEvent *e )
 	return;
     }
     if ( e->button() == LeftButton && d->delay <= 0 && d->popup && d->instantPopup && !d->popup->isVisible() ) {
-	d->instantPopup = TRUE;
-	repaint( FALSE );
-	popupTimerDone();
-	d->instantPopup = FALSE;
-	repaint( FALSE );
+	openPopup();
 	return;
     }
     d->instantPopup = FALSE;
@@ -505,7 +501,7 @@ bool QToolButton::eventFilter( QObject *o, QEvent *e )
 bool QToolButton::uses3D() const
 {
     return !autoRaise() || ( threeDeeButton == this && isEnabled() ) ||
-	( d->popup && d->popup->isVisible() && d->delay <= 0 );
+	( d->popup && d->popup->isVisible() && d->delay <= 0 ) || d->instantPopup;
 }
 
 
@@ -703,7 +699,7 @@ void QToolButton::setPopup( QPopupMenu* popup )
 }
 
 /*!
-  Returns the associated popup menu or 0 if no popup menu has been
+  Returns the associated popup menu, or 0 if no popup menu has been
   defined.
 
   \sa setPopup()
@@ -711,6 +707,23 @@ void QToolButton::setPopup( QPopupMenu* popup )
 QPopupMenu* QToolButton::popup() const
 {
     return d->popup;
+}
+
+/*!
+  Opens the associated popup menu. If there is no such menu, this
+  function does nothing. This function does not return until the popup
+  menu has been closed by the user.
+*/
+void QToolButton::openPopup()
+{
+    if ( !d->popup )
+	return;
+
+    d->instantPopup = TRUE;
+    repaint( FALSE );
+    popupTimerDone();
+    d->instantPopup = FALSE;
+    repaint( FALSE );
 }
 
 void QToolButton::popupPressed()
@@ -721,46 +734,46 @@ void QToolButton::popupPressed()
 
 void QToolButton::popupTimerDone()
 {
-    if ( d->popup ) {
-	d->popup->installEventFilter( this );
-	d->repeat = autoRepeat();
-	setAutoRepeat( FALSE );
-	bool horizontal = TRUE;
-	bool topLeft = TRUE;
-	if ( parentWidget() && parentWidget()->inherits("QToolBar") ) {
-	    if ( ( (QToolBar*) parentWidget() )->orientation() == Vertical )
-		horizontal = FALSE;
-	}
-	if ( horizontal ) {
-	    if ( topLeft ) {
-		if ( mapToGlobal( QPoint( 0, rect().bottom() ) ).y() + d->popup->sizeHint().height() <= qApp->desktop()->height() )
-		    d->popup->exec( mapToGlobal( rect().bottomLeft() ) );
-		else
-		    d->popup->exec( mapToGlobal( rect().topLeft() - QPoint( 0, d->popup->sizeHint().height() ) ) );
-	    } else {
-		QSize sz( d->popup->sizeHint() );
-		QPoint p = mapToGlobal( rect().topLeft() );
-		p.ry() -= sz.height();
-		d->popup->exec( p );
-	    }
-	}
-	else {
-	    if ( topLeft ) {
-		if ( mapToGlobal( QPoint( rect().right(), 0 ) ).x() + d->popup->sizeHint().width() <= qApp->desktop()->width() )
-		    d->popup->exec( mapToGlobal( rect().topRight() ) );
-		else
-		    d->popup->exec( mapToGlobal( rect().topLeft() - QPoint( d->popup->sizeHint().width(), 0 ) ) );
-	    } else {
-		QSize sz( d->popup->sizeHint() );
-		QPoint p = mapToGlobal( rect().topLeft() );
-		p.rx() -= sz.width();
-		d->popup->exec( p );
-	    }
-	}
-	setDown( FALSE );
-	if ( d->repeat )
-	    setAutoRepeat( TRUE );
+    if ( !d->popup )
+	return;
+
+    d->popup->installEventFilter( this );
+    d->repeat = autoRepeat();
+    setAutoRepeat( FALSE );
+    bool horizontal = TRUE;
+    bool topLeft = TRUE;
+    if ( parentWidget() && parentWidget()->inherits("QToolBar") ) {
+	if ( ( (QToolBar*) parentWidget() )->orientation() == Vertical )
+	    horizontal = FALSE;
     }
+    if ( horizontal ) {
+	if ( topLeft ) {
+	    if ( mapToGlobal( QPoint( 0, rect().bottom() ) ).y() + d->popup->sizeHint().height() <= qApp->desktop()->height() )
+		d->popup->exec( mapToGlobal( rect().bottomLeft() ) );
+	    else
+		d->popup->exec( mapToGlobal( rect().topLeft() - QPoint( 0, d->popup->sizeHint().height() ) ) );
+	} else {
+	    QSize sz( d->popup->sizeHint() );
+	    QPoint p = mapToGlobal( rect().topLeft() );
+	    p.ry() -= sz.height();
+	    d->popup->exec( p );
+	}
+    } else {
+	if ( topLeft ) {
+	    if ( mapToGlobal( QPoint( rect().right(), 0 ) ).x() + d->popup->sizeHint().width() <= qApp->desktop()->width() )
+		d->popup->exec( mapToGlobal( rect().topRight() ) );
+	    else
+		d->popup->exec( mapToGlobal( rect().topLeft() - QPoint( d->popup->sizeHint().width(), 0 ) ) );
+	} else {
+	    QSize sz( d->popup->sizeHint() );
+	    QPoint p = mapToGlobal( rect().topLeft() );
+	    p.rx() -= sz.width();
+	    d->popup->exec( p );
+	}
+    }
+    setDown( FALSE );
+    if ( d->repeat )
+	setAutoRepeat( TRUE );
 }
 
 /*!

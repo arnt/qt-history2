@@ -254,7 +254,7 @@ QString QAccessibleMenuBar::text( Text t, int control ) const
 	    return "Alt + "+tx;
 	break;
     case DefaultAction:
-	return menuBar()->tr("Open");
+	return QMenuBar::tr("Open");
     default:
 	break;
     }

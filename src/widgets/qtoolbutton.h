@@ -98,6 +98,8 @@ public:
     void setPopupDelay( int delay );
     int popupDelay() const;
 
+    void openPopup();
+
     void setAutoRaise( bool enable );
     bool autoRaise() const;
 
