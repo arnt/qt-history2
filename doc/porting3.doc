@@ -56,6 +56,7 @@ for use in your applications.
 To port code from Qt 2.x to Qt 3.x:
 
 \list 1
+
 \i Briefly read the porting notes below to get an idea of what to expect.
 \i Be sure your code compiles and runs well on all your target platforms
    with Qt 2.x.
@@ -66,6 +67,7 @@ To port code from Qt 2.x to Qt 3.x:
 \i If you get stuck, ask on the \link http://qt-interest.trolltech.com/
    qt-interest \endlink mailing list, or Trolltech Technical Support if
    you're a registered licensee.
+
 \endlist
 
 Table of contents:
@@ -427,6 +429,13 @@ QLayoutIterator, \l QSpacerItem and \l QWidgetItem have been moved from \c
 <qabstractlayout.h> to \c <qlayout.h>. The header \c
 <qabstractlayout.h> now includes \c <qlayout.h> for compatibility. It
 might be removed in a future version.
+
+\section1 QMoveEvent
+
+In Qt 2.x, the function QMoveEvent::pos() returned the position of the
+widget in its parent widget, including the window frame. In Qt 3.0,
+it returns the new position of the widget, excluding window frame for
+top level widgets.
 
 \section1 QMultiLineEdit
 

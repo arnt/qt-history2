@@ -317,7 +317,7 @@ QSqlDatabase* QSqlDatabase::addDatabase( const QString& type, const QString& con
 
 /*! Returns a pointer to the database connection named \a
   connectionName.  The database connection must have been previously
-  added with database().  If \a open is TRUE (the default) and the
+  added with addDatabase().  If \a open is TRUE (the default) and the
   database connection is not already open it is opened now.  If no \a
   connectionName is specified the default connection is used. If \a
   connectionName does not exist in the list of databases, 0 is
