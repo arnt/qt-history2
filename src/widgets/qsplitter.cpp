@@ -135,7 +135,7 @@ void QSplitterHandle::setOrientation( Qt::Orientation o )
 {
     orient = o;
 #ifndef QT_NO_CURSOR
-    setCursor( o == QSplitter::Horizontal ? splitHCursor : splitVCursor );
+    setCursor( o == QSplitter::Horizontal ? splitVCursor : splitHCursor );
 #endif
 }
 
