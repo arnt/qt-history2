@@ -550,9 +550,9 @@ QLineEdit *PropertyTextItem::lined()
 
 PropertyTextItem::~PropertyTextItem()
 {
-    delete lin;
+    delete (QLineEdit*)lin;
     lin = 0;
-    delete box;
+    delete (QHBox*)box;
     box = 0;
 }
 
@@ -695,7 +695,7 @@ QComboBox *PropertyBoolItem::combo()
 
 PropertyBoolItem::~PropertyBoolItem()
 {
-    delete comb;
+    delete (QComboBox*)comb;
     comb = 0;
 }
 
@@ -791,7 +791,7 @@ QSpinBox *PropertyIntItem::spinBox()
 
 PropertyIntItem::~PropertyIntItem()
 {
-    delete spinBx;
+    delete (QSpinBox*)spinBx;
     spinBx = 0;
 }
 
@@ -883,7 +883,7 @@ QComboBox *PropertyListItem::combo()
 
 PropertyListItem::~PropertyListItem()
 {
-    delete comb;
+    delete (QComboBox*)comb;
     comb = 0;
 }
 
@@ -1063,7 +1063,7 @@ void PropertyCoordItem::initChildren()
 
 PropertyCoordItem::~PropertyCoordItem()
 {
-    delete lin;
+    delete (QLineEdit*)lin;
     lin = 0;
 }
 
@@ -1165,7 +1165,7 @@ PropertyPixmapItem::PropertyPixmapItem( PropertyList *l, PropertyItem *after, Pr
 }
 PropertyPixmapItem::~PropertyPixmapItem()
 {
-    delete box;
+    delete (QHBox*)box;
 }
 
 void PropertyPixmapItem::showEditor()
@@ -1272,7 +1272,7 @@ void PropertyColorItem::initChildren()
 
 PropertyColorItem::~PropertyColorItem()
 {
-    delete box;
+    delete (QHBox*)box;
 }
 
 void PropertyColorItem::showEditor()
@@ -1404,7 +1404,7 @@ void PropertyFontItem::initChildren()
 
 PropertyFontItem::~PropertyFontItem()
 {
-    delete box;
+    delete (QHBox*)box;
 }
 
 void PropertyFontItem::showEditor()
@@ -1515,7 +1515,7 @@ void PropertySizePolicyItem::initChildren()
 
 PropertySizePolicyItem::~PropertySizePolicyItem()
 {
-    delete lin;
+    delete (QLineEdit*)lin;
 }
 
 void PropertySizePolicyItem::showEditor()
@@ -1581,7 +1581,7 @@ PropertyPaletteItem::PropertyPaletteItem( PropertyList *l, PropertyItem *after, 
 }
 PropertyPaletteItem::~PropertyPaletteItem()
 {
-    delete box;
+    delete (QHBox*)box;
 }
 
 void PropertyPaletteItem::showEditor()
@@ -1729,7 +1729,7 @@ QComboBox *PropertyCursorItem::combo()
 
 PropertyCursorItem::~PropertyCursorItem()
 {
-    delete comb;
+    delete (QComboBox*)comb;
 }
 
 void PropertyCursorItem::showEditor()
