@@ -7,17 +7,14 @@ OUTDIR=$4
 
 # debuggery
 
-if [ "$VERBOSE" = "yes" ]
-then
+if [ "$VERBOSE" = "yes" ]; then
     echo "Testing STL support... ($*)"
 fi
-
 
 # ?
 
 ABSPATH=
-if [ "$SRCDIR" != "$OUTDIR" ]
-then
+if [ "$SRCDIR" != "$OUTDIR" ]; then
     ABSPATH="QMAKE_ABSOLUTE_SOURCE_PATH=$SRCDIR/config.tests/unix"
 fi
 
