@@ -355,6 +355,8 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 
     if ( parentObj ) {				// remove from parent
 	parentObj->removeChild( this );
+	if ( old_winid && testWFlags(WType_TopLevel) ) 
+	    qwsDisplay()->destroyRegion( old_winid );
     }
     if ( parent ) {				// insert into new parent
 	parentObj = parent;			// avoid insertChild warning
@@ -935,10 +937,10 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		    }
 		    p->addDirtyChildRegion( dirtyChildren );
 		} else {
+		    QApplication::postEvent( p, new QPaintEvent(upd, TRUE) );
 		    dirtyChildren.translate( x, y );
 		    dirtyChildren |= upd;
 		    paint_children( p, dirtyChildren );
-		    QApplication::postEvent( p, new QPaintEvent(upd, TRUE) );
 		}
 	    } else {
 		QApplication::postEvent( this, new QPaintEvent(rect(),
@@ -1085,7 +1087,8 @@ void QWidget::erase( int x, int y, int w, int h )
 
 void QWidget::erase( const QRegion& reg )
 {
-    if ( backgroundMode() == NoBackground )
+    //this is experimental, I need to test more, but it seems in unclipped mode erasing shouldn't happen????
+    if ( backgroundMode() == NoBackground || testWFlags(WPaintUnclipped) )
 	return;
 
     int xoff = 0;
@@ -1095,8 +1098,8 @@ void QWidget::erase( const QRegion& reg )
 	yoff = y();
     }
 
-    QArray<QRect> r = reg.rects();
     QPainter p(this);
+    QArray<QRect> r = reg.rects();
     for (uint i=0; i<r.size(); i++) {
 	const QRect& rr = r[(int)i];
 	if ( extra && extra->bg_pix ) {

@@ -472,8 +472,8 @@ bool QPainter::begin( const QPaintDevice *pd )
 	    setf( NoCache );
 	    updatePen();
 	    updateBrush();
-	    //#### Unclipped; the following did not work:
-	    //gfx->setWidgetRegion( QRect( -32768, -32768, 65535, 65535 ) );
+	    //gfx->setWidgetRegion( w->rect() );
+	    gfx->setWidgetRegion( QRect( 0, 0, qt_screen->width(), qt_screen->height() ) );
 	}
 
     } else if ( dt == QInternal::Pixmap ) {		// device is a pixmap
