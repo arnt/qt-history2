@@ -11,6 +11,7 @@
 #include <qsqldatabase.h>
 #include <qdatatable.h>
 #include <qsqlcursor.h>
+#include <qmessagebox.h>
 
 /* Modify the following to match your environment */
 #define DRIVER       "QPSQL7"  /* see the Qt SQL documentation for a list of available drivers */
@@ -46,7 +47,8 @@ int main( int argc, char ** argv )
     db->setHostName( HOST );
 
     if( !db->open() ){
-	qWarning( "Unable to open database: " + db->lastError().databaseText() );
+	QMessageBox::information( 0, "Unable to open database",
+				  db->lastError().databaseText() + "\nPlease read the README file in the sqltable directory for more information.");
 	return 1;
     }
 
