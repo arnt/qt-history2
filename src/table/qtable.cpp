@@ -4857,6 +4857,8 @@ void QTable::sortColumn( int col, bool ascending, bool wholeRows )
 
 void QTable::hideRow( int row )
 {
+    if ( d->hiddenRows.find( row ) )
+	return;
     d->hiddenRows.replace( row, new int( leftHeader->sectionSize( row ) ) );
     leftHeader->resizeSection( row, 0 );
     leftHeader->setResizeEnabled( FALSE, row );
@@ -4870,6 +4872,8 @@ void QTable::hideRow( int row )
 
 void QTable::hideColumn( int col )
 {
+    if ( d->hiddenCols.find( col ) )
+	return;
     d->hiddenCols.replace( col, new int( topHeader->sectionSize( col ) ) );
     topHeader->resizeSection( col, 0 );
     topHeader->setResizeEnabled( FALSE, col );
