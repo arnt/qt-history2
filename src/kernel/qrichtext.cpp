@@ -505,6 +505,8 @@ bool QRichText::parse (QTextParagraph* current, const QStyleSheetItem* curstyle,
 		if ( parse( current, nstyle, dummy, fmt.makeTextFormat(nstyle, attr), doc, pos,
 			    nstyle->whiteSpaceMode() != QStyleSheetItem::WhiteSpaceNormal?
 			    nstyle->whiteSpaceMode() : QStyleSheetItem::WhiteSpaceNormal) ) {
+		    if ( dummy && dummy->next )
+			dummy = 0;
 		    CLOSE_TAG
 		}
 	    }
