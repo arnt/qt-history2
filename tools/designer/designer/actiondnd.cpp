@@ -857,7 +857,14 @@ void QDesignerMenuBar::mouseMoveEvent( QMouseEvent *e )
     QPainter p( &pix, this );
     p.drawText( 2, 0, pix.width(), pix.height(), 0, txt );
     p.end();
-    pix.setMask( pix.createHeuristicMask() );
+
+    QBitmap bm( pix.size() );
+    bm.fill( color0 );
+    p.begin( &bm );
+    p.setPen( color1 );
+    p.drawText( 2, 0, pix.width(), pix.height(), 0, txt );
+    p.end();
+    pix.setMask( bm );
     drag->setPixmap( pix );
     oldPos = itm;
     if ( !drag->drag() ) {
