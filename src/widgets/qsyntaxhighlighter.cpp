@@ -80,30 +80,32 @@ class QSyntaxHighlighterPrivate
 
 /*!
     \class QSyntaxHighlighter qsyntaxhighlighter.h
-
-    \brief QSyntaxHighlighter provides a class to implement syntax
-    highlighters for QTextEdit
+    \brief The QSyntaxHighlighter class is a base class for
+    implementing QTextEdit syntax highlighters.
 
     \ingroup basic
     \ingroup text
 
-    QSyntaxHighlighter provides the API to implement syntax
-    highlighers for QTextEdit. A syntax highligher automatically
-    highlightes parts of the text while the user enters it into a
-    QTextEdit to make the text easier to read. This is very common in
-    programming editors.
+    A syntax highligher automatically highlights parts of the text in
+    a QTextEdit. Syntax highlighters are often used when the user is
+    entering text in a specific format (for example, source code) and
+    help the user to read the text and identify syntax errors.
 
-    To implement a syntax highlighter for QTextEdit you have to
-    subclass QSyntaxHighlighter and reimplement
-    highlighteParagraph(). In this function you highlighte parts of
-    the text.
+    To provide your own syntax highlighting for QTextEdit, you must
+    subclass QSyntaxHighlighter and reimplement highlightParagraph().
 
-    To install your syntax highlighter on a QTextEdit, create it and
-    pass the QTextEdit in the constructor.
+    When you create an instance of your QSyntaxHighlighter subclass,
+    pass it the QTextEdit that you want the syntax highlighting to be
+    applied to. After this your highlightParagraph() function will be
+    called automatically whenever necessary. Use your
+    highlightParagraph() function to apply formatting (e.g. setting
+    the font and color) to the text that is passed to it.
 */
 
-/*! Constructs the QSyntaxHighlighter and installs it on \a
-  textEdit. The ownership is transferred to \a textEdit
+/*!
+    Constructs the QSyntaxHighlighter and installs it on \a textEdit.
+    Ownership of the QSyntaxHighlighter is transferred to the \a
+    textEdit
 */
 
 QSyntaxHighlighter::QSyntaxHighlighter( QTextEdit *textEdit )
@@ -113,44 +115,62 @@ QSyntaxHighlighter::QSyntaxHighlighter( QTextEdit *textEdit )
     textEdit->document()->invalidate();
 }
 
-/*! Destructor. Uninstalls this syntax highlighter from the textEdit() */
+/*!
+    Destructor. Uninstalls this syntax highlighter from the textEdit()
+*/
 
 QSyntaxHighlighter::~QSyntaxHighlighter()
 {
     textEdit()->document()->setPreProcessor( 0 );
 }
 
-/*! \fn int QSyntaxHighlighterInternal::highlightParagraph( const QString &text, int endStateOfLastPara )
+/*!
+    \fn int QSyntaxHighlighter::highlightParagraph( const QString &text, int endStateOfLastPara )
 
-  highlighteParagraph() is called only when necessary by the richtext
-  engine on the paragraphs which changed. All you have to do to is to
-  reimplement this function and parse the paragraph's text (\a text)
-  and highlighte it. You can set colors and fonts on the paragraph
-  using setFormat().
+    This function is called when necessary by the rich text engine,
+    i.e. on paragraphs which have changed.
 
-  If you implement a syntax highlighter where you need to know the end
-  state of the last paragraph, you will need the parameter \a
-  endStateOfLastPara and return the last state of the current
-  paragraph from this function. An example is, if you write e.g. a C++
-  syntax highlighter. You might highlighte strings, but a string can
-  run over multiple paragraphs. In this case, you need to know if the
-  last paragraph ended within the string, so you know that the current
-  paragraph starts with a string and you can highlighte
-  appropriately. In this case you also have to return the state with
-  which the paragraph ends (String in our example) from this function.
+    In your reimplementation you should parse the paragraph's \a text
+    and call setFormat() as often as necessary to apply any font and
+    color changes that you require. Your function must return a value
+    which indicates the paragraph's end state: see below.
 
-  If \a endStateOfLastPara is -2, you are in the first paragraph of
-  the document and you have to start with your initial state of the
-  syntax highlighter.
+    Some syntaxes can have constructs that span paragraphs. For
+    example, a C++ syntax highlighter should be able to cope with
+    \/\* ... \*\/ comments that span paragraphs. To deal with these
+    cases it is necessary to know the end state of the previous
+    paragraph (e.g. "in comment").
 
-  If your syntax highlighter doesn't need to be able to highlighte
-  parts which run over multiple paragraphs, just ignore \a
-  endStateOfLastPara and return 0 from this function.
+    If your syntax does not have paragraph spanning constructs, simply
+    ignore the \a endStateOfLastPara parameter and always return 0.
+
+    Whenever highlightParagraph() is called it is passed a value for
+    \a endStateOfLastPara. For the very first paragraph this value is
+    always -2. For any other paragraph the value is the value returned
+    by the most recent highlightParagraph() call that applied to the
+    preceding paragraph.
+
+    The value you return is up to you. We recommend only returning 0
+    (to signify that this paragraph's syntax highlighting does not
+    affect the following paragraph), or a positive integer (to signify
+    that this paragraph has ended in the middle of a paragraph
+    spanning construct).
+
+    For example, if you're writing a simple C++ syntax highlighter,
+    you might designate 1 to signify "in comment". For a paragraph
+    that ended in the middle of a comment you'd return 1, and for
+    other paragraphs you'd return 0. In your parsing code if \a
+    endStateOfLastPara was 1, you would highlight the text as a C++
+    comment until you reached the closing \*\/.
 */
 
-/*!  Sets the format of the currently processed paragraph to \a font
-  and \a color starting at index \a start, for the \a len following
-  characters.
+/*!
+    This function is applied to the syntax highlighter's current
+    paragraph (the text of which is passed to the highlightParagraph()
+    function).
+
+    The specified \a font and \a color are applied to the character at
+    position \a start and to the \a len following characters.
 */
 
 void QSyntaxHighlighter::setFormat( int start, int len, const QFont &font, const QColor &color )
@@ -189,8 +209,11 @@ void QSyntaxHighlighter::setFormat( int start, int len, const QFont &font )
     f->removeRef();
 }
 
-/*! \fn QTextEdit *QSyntaxHighlighter::textEdit() const
-  Returns the QTextEdit on which this syntax highlighter is installed
+/*!
+    \fn QTextEdit *QSyntaxHighlighter::textEdit() const
+
+    Returns the QTextEdit on which this syntax highlighter is
+    installed
 */
 
 #endif
