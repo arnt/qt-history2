@@ -2565,7 +2565,10 @@ void QTextDocument::draw( QPainter *p, const QRect &rect, const QColorGroup &cg,
 	    continue;
 	}
 	p->translate( 0, y );
-	parag->paint( *p, cg, 0, FALSE );
+	if ( rect.isValid() )
+	    parag->paint( *p, cg, 0, FALSE, rect.x(), rect.y(), rect.width(), rect.height() );
+	else
+	    parag->paint( *p, cg, 0, FALSE );
 	p->translate( 0, -y );
 	parag = parag->next();
     }
