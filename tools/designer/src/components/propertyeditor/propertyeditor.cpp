@@ -98,14 +98,14 @@ IconPropertyEditor::IconPropertyEditor(AbstractFormEditor *core, const QIcon &pm
 
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->setMargin(2);
-    
+
     m_label = new QLabel(tr("<no icon>"), this);
     layout->addWidget(m_label);
     layout->addStretch();
     m_button = new QPushButton(tr("Change..."), this);
     layout->addWidget(m_button);
     connect(m_button, SIGNAL(clicked()), this, SLOT(showDialog()));
-    
+
     setIcon(pm);
 }
 
@@ -287,7 +287,7 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
                 break;
 #endif
             default:
-                qWarning() << "property" << pname << "with type" << value.type() << "not supported yet!";
+                // ### qWarning() << "property" << pname << "with type" << value.type() << "not supported yet!";
                 break;
             } // end switch
         }

@@ -312,47 +312,52 @@ QWidget *FormWindow::findTargetContainer(QWidget *widget) const
 
 void FormWindow::handleMousePressEvent(QWidget *w, QMouseEvent *e)
 {
+    e->accept();
+
+    if (e->buttons() != Qt::LeftButton)
+        return;
+
     checkedSelectionsForMove = false;
 
-        // if the dragged widget is not in a layout, raise it
-    if (!w->parentWidget() || LayoutInfo::layoutType(m_core, w->parentWidget()) == LayoutInfo::NoLayout)
+    bool inLayout = LayoutInfo::layoutType(m_core, w->parentWidget()) != LayoutInfo::NoLayout;
+    // ### && w->parentWidget() is managed?
+
+    // if the dragged widget is not in a layout, raise it
+    if (inLayout == false)
         w->raise();
 
-    if (isMainContainer(w)) { // press was on the formwindow
-        if (e->button() == Qt::LeftButton) { // left button: start rubber selection and show formwindow properties
-            drawRubber = true;
-            if (!(e->modifiers() & (Qt::ControlModifier | Qt::ShiftModifier))) {
-                clearSelection(false);
-                QWidget *opw = m_currentWidget;
-                setCurrentWidget(mainContainer());
-                if (opw)
-                    repaintSelection(opw);
-            }
-            currRect = QRect(0, 0, -1, -1);
-            startRectDraw(e->globalPos(), this, Rubber);
-        }
+    if (isMainContainer(w) == true) { // press was on the formwindow
+        drawRubber = true;
+        currRect = QRect();
+        startRectDraw(e->globalPos(), this, Rubber);
     } else {
         startPos = mapFromGlobal(e->globalPos());
-        bool sel = isWidgetSelected(w);
+        bool selected = isWidgetSelected(w);
 
-        if (e->button() == Qt::LeftButton) {
-            if (e->modifiers() & Qt::ShiftModifier) {
-                // shift-click - toggle selection state of widget
-                selectWidget(w, !sel);
-            } else {
-                if (!sel)
-                    clearSelection(false);
-
-                raiseChildSelections(w);
-                selectWidget(w);
+        if (e->modifiers() & Qt::ShiftModifier) {
+            // shift-click - toggle selection state of widget
+            selectWidget(w, !selected);
+        } else {
+            if (selected == true && inLayout == true) {
+                // select the direct parent
+                selectWidget(w->parentWidget());
             }
+
+            if (selected == false) {
+                clearSelection(false);
+            }
+
+            raiseChildSelections(w);
+            selectWidget(w);
         }
     }
 }
 
 void FormWindow::handleMouseMoveEvent(QWidget *w, QMouseEvent *e)
 {
-    if ((e->buttons() & Qt::LeftButton) != Qt::LeftButton)
+    e->accept();
+
+    if (e->buttons() != Qt::LeftButton)
         return;
 
     QPoint pos = mapFromGlobal(e->globalPos());
@@ -1245,37 +1250,21 @@ void FormWindow::lowerWidgets()
     endCommand();
 }
 
-void FormWindow::handleMouseButtonDblClickEvent(QWidget *w, QMouseEvent * /*e*/)
+void FormWindow::handleMouseButtonDblClickEvent(QWidget *w, QMouseEvent *e)
 {
+    e->accept();
+
     emit activated(w);
-
-/*
-    case TabOrderEditMode:
-        if (!isMainContainer(w)) { // press on a child widget
-            orderedWidgets.clear();
-            orderedWidgets.append(w);
-            QListIterator<QWidget*> it(orderedWidgets);
-            it.toBack();
-            while (it.hasPrevious()) {
-                QWidget *wid = it.previous();
-                int j = stackedWidgets.indexOf(wid);
-                if (j > 0) {
-                    stackedWidgets.removeAt(j);
-                    stackedWidgets.insert(0, wid);
-                }
-            }
-
-            TabOrderCommand *cmd = new TabOrderCommand(this);
-            cmd->init(stackedWidgets);
-            commandHistory()->push(cmd);
-        }
-    break;
-*/
 }
 
 void FormWindow::handleContextMenu(QWidget *w, QContextMenuEvent *e)
 {
     if (!isMainContainer(w)) { // press on a child widget
+        bool selected = isWidgetSelected(w);
+        if (selected == false) {
+            clearSelection(false);
+        }
+
         raiseChildSelections(w); // raise selections and select widget
         selectWidget(w);
 

@@ -131,9 +131,6 @@ void WidgetHandle::setWidget(QWidget *w)
 void WidgetHandle::paintEvent(QPaintEvent *)
 {
     FormWindow *fw = formWindow;
-    if (fw->currentWidget() != widget)
-        return;
-
     AbstractFormWindowManager *m = fw->core()->formWindowManager();
 
     QStylePainter p(this);
@@ -146,7 +143,7 @@ void WidgetHandle::paintEvent(QPaintEvent *)
         option.features = QStyleOptionToolButton::Arrow;
         option.subControls = QStyle::SC_ToolButton;
         p.drawComplexControl(QStyle::CC_ToolButton, option);
-    } else {
+    } else if (fw->currentWidget() != widget) {
         p.setPen(m->activeFormWindow() == fw ? Qt::blue : Qt::red);
         p.drawRect(0, 0, width() - 1, height() - 1);
     }
