@@ -1,0 +1,26 @@
+diff -ur template/library/Makefile linux-static/library/Makefile
+--- template/library/Makefile	Fri Jul  5 19:11:27 1996
++++ linux-static/library/Makefile	Mon Jul  8 00:51:12 1996
+@@ -77,7 +77,7 @@
+ .SUFFIXES: .cpp $(SUFFIXES)
+ 
+ .cpp.o:
+-	$(CC) -I$(INCDIR) -c $(CFLAGS) -fpic $<
++	$(CC) -I$(INCDIR) -c $(CFLAGS) $<
+ 
+ # VERSION - the version number of the shared library, where applicable
+ VERSION=0.9.8
+@@ -88,10 +88,9 @@
+ # the "proper" rules of library numbering.
+ 
+ library: $(OBJECTS) $(METAOBJ)
+-	-rm -f ../../../lib/libqt.so.${VERSION}
+-	$(CC) -shared -Wl,-soname,libqt.so.0 \
+-		-o ../../../lib/libqt.so.${VERSION} \
+-		$(OBJECTS) $(METAOBJ) -lX11 -lgcc -lc
++	ar q libqt.a $(OBJECTS) $(METAOBJ)
++	ranlib libqt.a
++	mv libqt.a ../../../lib
+ 
+ depend:
+ 	makedepend $(SOURCES) 2> /dev/null

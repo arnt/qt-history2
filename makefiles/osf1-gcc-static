@@ -1,0 +1,29 @@
+diff -ur template/Makefile osf1-gcc-static/Makefile
+--- template/Makefile	Fri Jul  5 16:51:13 1996
++++ osf1-gcc-static/Makefile	Sat Jul  6 23:09:23 1996
+@@ -15,7 +15,7 @@
+ 
+ # LFLAGS - the flags the linker needs
+ # NOTE: -L.../lib is prepended by ./propagate so everyone can find libqt
+-LFLAGS = -lqt
++LFLAGS = -lqt -lX11
+ 
+ all: moc library tutorial examples
+ 
+diff -ur template/library/Makefile osf1-gcc-static/library/Makefile
+--- template/library/Makefile	Fri Jul  5 16:51:39 1996
++++ osf1-gcc-static/library/Makefile	Sat Jul  6 23:10:07 1996
+@@ -88,10 +88,9 @@
+ # the "proper" rules of library numbering.
+ 
+ library: $(OBJECTS) $(METAOBJ)
+-	-rm -f ../../lib/libqt.so.${VERSION}
+-	$(CC) -shared -Wl,-soname,libqt.so.0 \
+-		-o ../../../lib/libqt.so.${VERSION} \
+-		$(OBJECTS) $(METAOBJ) -lX11 -lgcc -lc
++	ar q libqt.a $(OBJECTS) $(METAOBJ)
++	ranlib libqt.a
++	mv libqt.a ../../../lib
+ 
+ depend:
+ 	makedepend $(SOURCES) 2> /dev/null
