@@ -1,12 +1,10 @@
 include ( qt.qdoc )
 
 project		= Qt with Extensions
-#headerdirs	+= $QUICK/src/extensions \
-#		   extensions
-#sourcedirs	+= $QUICK/src/extensions \
-#		   extensions
-headerdirs	+= $QTDIR/src/tools
-sourcedirs	+= $QTDIR/src/tools
+headerdirs	+= $QUICK/src/extensions \
+		   extensions
+sourcedirs	+= $QUICK/src/extensions \
+		   extensions
 formats		= ""
 spurious	= ".*"
 outputdir	= output/qt-with-extensions
