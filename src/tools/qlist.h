@@ -111,7 +111,7 @@ public:
 	inline int operator-(Iterator j) const { return i - j.i; }
 	friend class QList;
     };
-    friend class QList<T>::Iterator;
+    friend class Iterator;
 
     class ConstIterator {
     public:
@@ -140,7 +140,7 @@ public:
 	inline int operator-(ConstIterator j) const { return i - j.i; }
 	friend class QList;
     };
-    friend class QList<T>::ConstIterator;
+    friend class ConstIterator;
 
     // stl style
     inline Iterator begin() { detach(); return (Node*) p.begin(); }
