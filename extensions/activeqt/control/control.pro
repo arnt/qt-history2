@@ -5,6 +5,7 @@ CONFIG  += qt warn_off staticlib
 DESTDIR  = $$QT_BUILD_TREE\lib
 
 DEFINES	+= QAX_SERVER
+LIBS    += -luser32 -lole32 -loleaut32 -lgdi32
 
 contains( QT_PRODUCT, qt-internal) {
 	ACTIVEQT_H  = .
