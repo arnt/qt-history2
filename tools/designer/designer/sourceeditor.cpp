@@ -160,11 +160,10 @@ void SourceEditor::setClass( const QString &clss )
 
 void SourceEditor::closeEvent( QCloseEvent *e )
 {
+    e->accept();
     if ( obj->inherits( "FormWindow" ) ) {
 	save();
 	MainWindow::self->updateFunctionList();
-	emit hidden();
-	e->accept();
 	if ( obj && obj->inherits( "FormWindow" ) )
 	    MetaDataBase::setEdited( obj, FALSE );
     } else {
@@ -372,7 +371,3 @@ void SourceEditor::updateTimeStamp()
     }
 }
 
-void SourceEditor::emitHidden()
-{
-    emit hidden();
-}

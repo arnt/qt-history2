@@ -118,8 +118,9 @@ void PixmapCollection::savePixmap( Pixmap &pix )
     if ( rel[0] == '/' ) { // only save if file is outside the project
 	qDebug("had to save pixmap %s", pix.name.latin1() );
 	mkdir();
-	pix.name = unifyName( QFileInfo( pix.absname ).baseName() );
-	pix.pix.save( imageDir() + "/" + pix.name + ".png", "PNG" );
+	pix.name = unifyName( QFileInfo( pix.absname ).baseName() ) + ".png";
+	pix.absname = imageDir() + "/" + pix.name;
+	pix.pix.save( pix.absname, "PNG" );
     }
 }
 
@@ -148,7 +149,7 @@ void PixmapCollection::load( const QString& filename )
     QPixmap pm( absfile );
     if ( pm.isNull() )
 	return;
-    
+
     Pixmap pix;
     pix.name = QFileInfo( absfile ).fileName();
     pix.absname = absfile;

@@ -78,13 +78,10 @@ public:
     void checkTimeStamp();
     void updateTimeStamp();
 
-    void emitHidden();
 
 protected:
     void closeEvent( QCloseEvent *e );
 
-signals:
-    void hidden();
 
 private:
     EditorInterface *iFace;

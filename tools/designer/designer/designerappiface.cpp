@@ -276,9 +276,11 @@ DesignerPixmapCollection *DesignerProjectImpl::pixmapCollection() const
 void DesignerProjectImpl::breakPoints( QMap<QString, QValueList<int> > &bps ) const
 {
     MainWindow::self->saveAllBreakPoints();
-    QPtrList<SourceFile> sources = project->sourceFiles();
-    for ( SourceFile *sf = sources.first(); sf; sf = sources.next() )
-	bps.insert( project->makeRelative( sf->fileName() ) + " <Source-File>", MetaDataBase::breakPoints( sf ) );
+    for ( QPtrListIterator<SourceFile> sources = project->sourceFiles();
+	  sources.current(); ++sources ) {
+	SourceFile* f = sources.current();
+	bps.insert( project->makeRelative( f->fileName() ) + " <Source-File>", MetaDataBase::breakPoints( f ) );
+    }
     QPtrList<FormWindow> forms = project->forms();
     for ( FormWindow *fw = forms.first(); fw; fw = forms.next() )
 	bps.insert( QString( fw->name() ) + " <Form>", MetaDataBase::breakPoints( fw ) );
@@ -286,10 +288,12 @@ void DesignerProjectImpl::breakPoints( QMap<QString, QValueList<int> > &bps ) co
 
 void DesignerProjectImpl::clearAllBreakpoints() const
 {
-    QPtrList<SourceFile> sources = project->sourceFiles();
     QValueList<int> empty;
-    for ( SourceFile *sf = sources.first(); sf; sf = sources.next() )
-	MetaDataBase::setBreakPoints( sf, empty );
+    for ( QPtrListIterator<SourceFile> sources = project->sourceFiles();
+	  sources.current(); ++sources ) {
+	SourceFile* f = sources.current();
+	MetaDataBase::setBreakPoints( f, empty );
+    }
     QPtrList<FormWindow> forms = project->forms();
     for ( FormWindow *fw = forms.first(); fw; fw = forms.next() )
 	MetaDataBase::setBreakPoints( fw, empty );
@@ -626,20 +630,6 @@ QWidget *DesignerFormWindowImpl::form() const
     return formWindow;
 }
 
-void DesignerFormWindowImpl::setListViewIcon( const QPixmap &pix )
-{
-    Workspace * listView = formWindow->mainWindow()->workspace();
-    QListViewItemIterator it( listView );
-    while ( it.current() ) {
-	WorkspaceItem *item = (WorkspaceItem*)it.current();
-	++it;
-	QWidget *itemForm = item->formWindow();
-	if ( itemForm == formWindow ) {
-	    item->setPixmap( 0, pix );
-	    break;
-	}
-    }
-}
 
 void DesignerFormWindowImpl::setCurrentWidget( QWidget * )
 {

@@ -203,6 +203,7 @@ Project::Project( const QString &fn, const QString &pName, QPluginManager<Projec
     setFileName( fn );
     if ( !pName.isEmpty() )
 	proName = pName;
+    sources.setAutoDelete( TRUE );
     modified = FALSE;
 }
 
@@ -488,10 +489,16 @@ void Project::removeUiFile( const QString &f, FormWindow *fw )
     modified = TRUE;
 }
 
-void Project::removeSourceFile( const QString &, SourceFile *sf )
+bool Project::removeSourceFile( SourceFile *sf )
 {
+    if ( !sources.containsRef( sf ) )
+	return FALSE;
+    if ( !sf->close() )
+	return FALSE;
     sources.removeRef( sf );
     modified = TRUE;
+    emit sourceFileRemoved( sf );
+    return TRUE;
 }
 
 void Project::setDatabaseDescription( const QString &db )
@@ -640,6 +647,7 @@ void Project::save()
 	contents += "\n";
     }
 
+    remove_contents( contents, "{SOURCES+=" ); // ### compatibility with early 3.0 betas
     remove_contents( contents, "DBFILE" );
     remove_contents( contents, "LANGUAGE" );
     remove_contents( contents, "TEMPLATE" );
@@ -1109,6 +1117,7 @@ void Project::addSourceFile( SourceFile *sf )
 {
     sources.append( sf );
     modified = TRUE;
+    emit sourceFileAdded( sf );
 }
 
 QPtrList<FormWindow> Project::unnamedForms() const

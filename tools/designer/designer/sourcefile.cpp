@@ -173,10 +173,8 @@ bool SourceFile::closeEvent()
     default:
 	break;
     }
-    if ( ed ) {
+    if ( ed )
 	ed->setModified( FALSE );
-	MainWindow::self->setModified( FALSE, ed );
-    }
     return TRUE;
 }
 
@@ -184,7 +182,7 @@ bool SourceFile::close()
 {
     if ( !ed )
 	return TRUE;
-    ed->close();
+    return ed->close();
 }
 
 Project *SourceFile::project() const

@@ -38,27 +38,28 @@ class SourceEditor;
 class WorkspaceItem : public QListViewItem
 {
 public:
-    enum Type { Parent = 1001, Form, Image, Source };
+    enum Type { ProjectType, FormType, FormUiType, FormSourceType, SourceFileType };
 
-    WorkspaceItem( QListView *parent );
-    WorkspaceItem( QListViewItem *parent, const QString &form, const QString &file, FormWindow *fw );
-    WorkspaceItem( QListViewItem *parent, const QString &file, SourceFile *fl );
-
-    void setFormWindow( FormWindow *fw ) { formwindow = fw; }
-    FormWindow *formWindow() const { return formwindow; }
-
-    SourceFile *sourceFile() const { return sourcefile; }
+    WorkspaceItem( QListView *parent, Project* p );
+    WorkspaceItem( QListViewItem *parent, SourceFile* sf );
 
     void paintCell( QPainter *p, const QColorGroup &cg, int column, int width, int align );
     void updateBackColor();
 
-    void setType( Type t ) { this->t = t; }
     Type type() const { return t; }
-    int rtti() const { return (int)type(); }
+    
+    bool isModified() const;
+    
+    QString text( int ) const;
+    
+    void fillCompletionList( QStringList& completion );
 
+    Project* project;
+    SourceFile* sourceFile;
+    
 private:
-    FormWindow *formwindow;
-    SourceFile *sourcefile;
+    void init();
+    
     QColor backgroundColor();
     QColor backColor;
     Type t;
@@ -70,11 +71,11 @@ class Workspace : public QListView
     Q_OBJECT
 
 public:
-    Workspace( QWidget *parent , MainWindow *mw, Project *pro );
+    Workspace( QWidget *parent , MainWindow *mw );
 
-    void setProject( Project *pro );
-    void addForm( FormWindow *fw );
-    void closed( FormWindow *fw );
+    void setCurrentProject( Project *pro );
+//     void addForm( FormWindow *fw );
+//     void closed( FormWindow *fw );
 
     void contentsDropEvent( QDropEvent *e );
     void contentsDragEnterEvent( QDragEnterEvent *e );
@@ -88,35 +89,38 @@ public:
 	QListView::drawContentsOffset( p, ox, oy, cx, cy, cw, ch );
     }
 
-    void removeFormFromProject( FormWindow *fw );
-    void removeFormFromProject( const QString &file );
-    void removeFormFromProject( QListViewItem *i );
-    void removeSourceFromProject( const QString &file );
-    void removeSourceFromProject( QListViewItem *i );
-    void formNameChanged( FormWindow *fw );
+//     void removeFormFromProject( FormWindow *fw );
+//     void removeFormFromProject( const QString &file );
+//     void removeFormFromProject( QListViewItem *i );
+//     void removeSourceFromProject( const QString &file );
+//     void removeSourceFromProject( QListViewItem *i );
+//     void formNameChanged( FormWindow *fw );
 
     void setBufferEdit( QCompletionEdit *edit );
 
-    void openForm( const QString &filename );
+//     void openForm( const QString &filename );
 
 public slots:
-    void modificationChanged( bool m, QObject *obj );
-    void modificationChanged( bool m, FormWindow *fw ) { modificationChanged( m, (QObject*)fw ); }
-    void fileNameChanged( const QString &s, FormWindow *fw );
+    
+    void update();
+    
     void activeFormChanged( FormWindow *fw );
     void activeEditorChanged( SourceEditor *se );
-    void nameChanged( FormWindow *fw );
 
 protected:
     void closeEvent( QCloseEvent *e );
+    bool eventFilter( QObject *, QEvent * );
 
-signals:
-    void hidden();
 
 private slots:
     void itemClicked( int, QListViewItem *i );
     void rmbClicked( QListViewItem *i );
     void bufferChosen( const QString &buffer );
+    
+    void projectDestroyed( QObject* );
+    
+    void sourceFileAdded( SourceFile* );
+    void sourceFileRemoved( SourceFile* );
 
 private:
     WorkspaceItem *findItem( FormWindow *fw );
@@ -125,11 +129,11 @@ private:
 private:
     MainWindow *mainWindow;
     Project *project;
-    WorkspaceItem *formsParent;
-    WorkspaceItem *imageParent;
-    WorkspaceItem *sourceParent;
+    WorkspaceItem *projectItem;
     QCompletionEdit *bufferEdit;
     bool blockNewForms;
+    void updateBufferEdit();
+    bool completionDirty;
 
 };
 

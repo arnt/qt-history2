@@ -359,8 +359,9 @@ void MainWindow::setupWorkspace()
     QToolTip::add( edit, tr( "Start typing the buffer you want to switch to here (ALT+B)" ) );
     QAccel *a = new QAccel( this );
     a->connectItem( a->insertItem( ALT + Key_B ), edit, SLOT( setFocus() ) );
-    wspace = new Workspace( vbox, this, currentProject );
+    wspace = new Workspace( vbox, this );
     wspace->setBufferEdit( edit );
+    wspace->setCurrentProject( currentProject );
     addToolBar( dw, Qt::Left );
     dw->setWidget( vbox );
 
@@ -502,8 +503,9 @@ QObjectList *MainWindow::runProject()
 			    return 0;
 			}
 		    }
-		    QPtrList<SourceFile> sources = currentProject->sourceFiles();
-		    for ( SourceFile *f = sources.first(); f; f = sources.next() ) {
+		    for ( QPtrListIterator<SourceFile> sources = currentProject->sourceFiles();
+			  sources.current(); ++sources ) {
+			SourceFile* f = sources.current();
 			QStringList error;
 			QValueList<int> line;
 			if ( !piface->check( f->text(), error, line ) && !error.isEmpty() && !error[ 0 ].isEmpty() ) {
@@ -543,8 +545,9 @@ QObjectList *MainWindow::runProject()
 
 	LanguageInterface *liface = MetaDataBase::languageInterface( lang );
 	if ( liface && liface->supports( LanguageInterface::AdditionalFiles ) ) {
-	    QPtrList<SourceFile> sources = currentProject->sourceFiles();
-	    for ( SourceFile *f = sources.first(); f; f = sources.next() ) {
+	    for ( QPtrListIterator<SourceFile> sources = currentProject->sourceFiles();
+		  sources.current(); ++sources ) {
+		SourceFile* f = sources.current();
 		iiface->exec( f, f->text() );
 	    }
 	}
@@ -559,8 +562,9 @@ QObjectList *MainWindow::runProject()
 		iiface->setBreakPoints( fw, bps );
 	}
 
-	QPtrList<SourceFile> files = currentProject->sourceFiles();
-	for ( SourceFile *f = files.first(); f; f = files.next() ) {
+	for ( QPtrListIterator<SourceFile> sources = currentProject->sourceFiles();
+	      sources.current(); ++sources ) {
+	    SourceFile* f = sources.current();
 	    QValueList<int> bps = MetaDataBase::breakPoints( f );
 	    if ( !bps.isEmpty() )
 		iiface->setBreakPoints( f, bps );
@@ -1259,15 +1263,11 @@ void MainWindow::insertFormWindow( FormWindow *fw )
 	     this, SLOT( selectionChanged() ) );
     connect( fw, SIGNAL( undoRedoChanged( bool, bool, const QString &, const QString & ) ),
 	     this, SLOT( updateUndoRedo( bool, bool, const QString &, const QString & ) ) );
-    connect( fw, SIGNAL( fileNameChanged( const QString &, FormWindow * ) ),
-	     workspace(), SLOT( fileNameChanged( const QString &, FormWindow * ) ) );
-    connect( fw, SIGNAL( modificationChanged( bool, FormWindow * ) ),
-	     workspace(), SLOT( modificationChanged( bool, FormWindow * ) ) );
-    connect( fw, SIGNAL( modificationChanged( bool, FormWindow * ) ),
-	     this, SIGNAL( formModified( bool ) ) );
 
     if ( !mblockNewForms ) {
-	workspace()->addForm( fw );
+	
+	//####### TODO Reggie, here we need to create a FormFile
+	//workspace()->addForm( fw );
     } else {
 	fw->setProject( currentProject );
 	currentProject->setFormWindow( fw->fileName(), fw );
@@ -1315,7 +1315,7 @@ bool MainWindow::unregisterClient( FormWindow *w )
 {
     propertyEditor->closed( w );
     objectHierarchy()->closed( w );
-    wspace->closed( w );
+//     wspace->closed( w );###
     if ( w == lastActiveFormWindow )
 	lastActiveFormWindow = 0;
 
@@ -2516,7 +2516,7 @@ void MainWindow::projectSelected( QAction *a )
 	return;
     currentProject = p;
     if ( wspace )
-	wspace->setProject( currentProject );
+	wspace->setCurrentProject( currentProject );
     if ( actionEditPixmapCollection )
 	actionEditPixmapCollection->setEnabled( !currentProject->isDummy() );
 
@@ -2973,7 +2973,7 @@ void MainWindow::setModified( bool b, QWidget *window )
 		fw->commandHistory()->setModified( b );
 		fw->modificationChanged( b );
 	    } else {
-		wspace->modificationChanged( b, w );
+		wspace->update();
 	    }
 	}
 	w = w->parentWidget( TRUE );
@@ -3007,7 +3007,7 @@ void MainWindow::updateFunctionList()
 
 void MainWindow::updateWorkspace()
 {
-    wspace->setProject( currentProject );
+    wspace->setCurrentProject( currentProject );
 }
 
 void MainWindow::showDebugStep( QObject *o, int line )
@@ -3139,8 +3139,9 @@ void MainWindow::showSourceLine( QObject *o, int line, LineMode lm )
     }
 
     if ( o->inherits( "SourceFile" ) ) {
-	QPtrList<SourceFile> sources = currentProject->sourceFiles();
-	for ( SourceFile *f = sources.first(); f; f = sources.next() ) {
+	for ( QPtrListIterator<SourceFile> sources = currentProject->sourceFiles();
+	      sources.current(); ++sources ) {
+	    SourceFile* f = sources.current();
 	    if ( f == o ) {
 		SourceEditor *se = editSource( f );
 		if ( se ) {
@@ -3200,7 +3201,7 @@ void MainWindow::formNameChanged( FormWindow *fw )
 	if ( e->project() == fw->project() )
 	    e->resetContext();
     }
-    wspace->formNameChanged( fw );
+    wspace->update();
 }
 
 void MainWindow::breakPointsChanged()

@@ -94,21 +94,29 @@ static const char* file_xpm[]={
 static QPixmap *folderPixmap = 0;
 static QPixmap *filePixmap = 0;
 
-WorkspaceItem::WorkspaceItem( QListView *parent )
-    : QListViewItem( parent ), formwindow( 0 ), sourcefile( 0 )
+WorkspaceItem::WorkspaceItem( QListView *parent, Project* p )
+    : QListViewItem( parent )
 {
+    init();
+    project = p;
+    t = ProjectType;
+    setPixmap( 0, *folderPixmap );
 }
 
-WorkspaceItem::WorkspaceItem( QListViewItem *parent, const QString &form, const QString &file, FormWindow *fw )
-    : QListViewItem( parent, form, file, "" ), formwindow( fw ), sourcefile( 0 )
+WorkspaceItem::WorkspaceItem( QListViewItem *parent, SourceFile* sf )
+    : QListViewItem( parent )
 {
-    setPixmap( 0, PixmapChooser::loadPixmap( "form.xpm", PixmapChooser::Mini ) );
+    init();
+    sourceFile = sf;
+    t = SourceFileType;
+    setPixmap( 0, *filePixmap );
 }
 
-WorkspaceItem::WorkspaceItem( QListViewItem *parent, const QString &file, SourceFile *fl )
-    : QListViewItem( parent, file ), formwindow( 0 ), sourcefile( fl )
+
+void WorkspaceItem::init()
 {
-    t = Source;
+    project = 0;
+    sourceFile = 0;
 }
 
 void WorkspaceItem::paintCell( QPainter *p, const QColorGroup &cg, int column, int width, int align )
@@ -119,15 +127,11 @@ void WorkspaceItem::paintCell( QPainter *p, const QColorGroup &cg, int column, i
     g.setColor( QColorGroup::Text, Qt::black );
     p->save();
 
-    if ( formWindow() && formWindow()->commandHistory()->isModified() ) {
+    if ( isModified() ) {
 	QFont f = p->font();
 	f.setBold( TRUE );
 	p->setFont( f );
-    } else if ( sourcefile && sourcefile->isModified() ) {
-	QFont f = p->font();
-	f.setBold( TRUE );
-	p->setFont( f );
-    }
+    } 
 
     QListViewItem::paintCell( p, g, column, width, align );
     p->setPen( QPen( cg.dark(), 1 ) );
@@ -143,6 +147,62 @@ void WorkspaceItem::paintCell( QPainter *p, const QColorGroup &cg, int column, i
     p->drawLine( width - 1, 0, width - 1, height() );
     p->restore();
 }
+
+QString WorkspaceItem::text( int column ) const
+{
+    if ( column != 0 )
+	return QListViewItem::text( column );
+    switch( t ) {
+    case ProjectType:
+	if ( project->isDummy() )
+	    return Project::tr("<No Project>" );
+	return project->fileName();
+    case FormType:
+	return "form"; //###
+    case FormUiType:
+	return "form ui"; //###
+    case FormSourceType:
+	return "form source"; //###
+    case SourceFileType:
+	return sourceFile->fileName();
+    }
+    
+    return QString::null; // shut up compiler
+}
+
+void WorkspaceItem::fillCompletionList( QStringList& completion )
+{
+    switch( t ) {
+    case ProjectType:
+	break;
+    case FormType:
+	break; //###
+    case FormUiType:
+	break;//###
+    case FormSourceType:
+	break;	//###
+    case SourceFileType:
+	completion += sourceFile->fileName();
+    }
+}
+
+bool WorkspaceItem::isModified() const 
+{
+    switch( t ) {
+    case ProjectType:
+	return project->isModified();
+    case FormType:
+	return FALSE; //###
+    case FormUiType:
+	return FALSE; //###
+    case FormSourceType:
+	return FALSE;  //###
+    case SourceFileType:
+	return sourceFile->isModified();
+    }
+    return FALSE; // shut up compiler
+}
+
 
 QColor WorkspaceItem::backgroundColor()
 {
@@ -169,10 +229,10 @@ void WorkspaceItem::updateBackColor()
     }
 }
 
-Workspace::Workspace( QWidget *parent, MainWindow *mw, Project *pro )
+Workspace::Workspace( QWidget *parent, MainWindow *mw )
     : QListView( parent, 0, WStyle_Customize | WStyle_NormalBorder | WStyle_Title |
 		 WStyle_Tool | WStyle_MinMax | WStyle_SysMenu ), mainWindow( mw ),
-	project( pro )
+	project( 0 ), completionDirty( FALSE )
 {
     init_colors();
 
@@ -200,63 +260,63 @@ Workspace::Workspace( QWidget *parent, MainWindow *mw, Project *pro )
     viewport()->setAcceptDrops( TRUE );
     setAcceptDrops( TRUE );
     setColumnWidthMode( 1, Manual );
-    setRootIsDecorated( TRUE );
+//     setRootIsDecorated( TRUE );
 
     if ( !folderPixmap ) {
 	folderPixmap = new QPixmap( folder_xpm );
 	filePixmap = new QPixmap( file_xpm );
     }
-
-    LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );
-
-    /*
-      // Images do not make sense here yet until we offer an image editor
-    imageParent = new WorkspaceItem( this );
-    imageParent->setType( WorkspaceItem::Parent );
-    imageParent->setText( 0, tr( "Images" ) );
-    imageParent->setPixmap( 0, *folderPixmap );
-    imageParent->setOpen( TRUE );
-    */
-
-    if ( iface && iface->supports( LanguageInterface::AdditionalFiles ) ) {
-	sourceParent = new WorkspaceItem( this );
-	sourceParent->setType( WorkspaceItem::Parent );
-	sourceParent->setText( 0, tr( "Source Files" ) );
-	sourceParent->setPixmap( 0, *folderPixmap );
-	sourceParent->setOpen( TRUE );
-    }
-
-    formsParent = new WorkspaceItem( this );
-    formsParent->setType( WorkspaceItem::Parent );
-    formsParent->setText( 0, tr( "Forms" ) );
-    formsParent->setPixmap( 0, *folderPixmap );
-    formsParent->setOpen( TRUE );
 }
 
-void Workspace::setProject( Project *pro )
+
+void Workspace::projectDestroyed( QObject* o )
+{
+    if ( o == project ) {
+	project = 0;
+	clear();
+    }
+}
+
+void Workspace::setCurrentProject( Project *pro )
 {
     if ( project == pro )
 	return;
+    if ( project ) {
+	disconnect( project, SIGNAL( sourceFileAdded(SourceFile*) ), this, SLOT( sourceFileAdded(SourceFile*) ) );
+	disconnect( project, SIGNAL( sourceFileRemoved(SourceFile*) ), this, SLOT( sourceFileRemoved(SourceFile*) ) );
+    }
     project = pro;
+    connect( project, SIGNAL( sourceFileAdded(SourceFile*) ), this, SLOT( sourceFileAdded(SourceFile*) ) );
+    connect( project, SIGNAL( sourceFileRemoved(SourceFile*) ), this, SLOT( sourceFileRemoved(SourceFile*) ) );
+    connect( project, SIGNAL( destroyed(QObject*) ), this, SLOT( projectDestroyed(QObject*) ) ); 
     clear();
+    qDebug("Workspace::setCurrentProject %s", pro->projectName().latin1() );
 
-    /*
-      // Images do not make sense here yet until we offer an image editor
-    imageParent = new WorkspaceItem( this );
-    imageParent->setType( WorkspaceItem::Parent );
-    imageParent->setText( 0, tr( "Images" ) );
-    imageParent->setPixmap( 0, *folderPixmap );
-    imageParent->setOpen( TRUE );
-    */
-
-    bufferEdit->clear();
-
+    if ( bufferEdit )
+	bufferEdit->clear()
+;
     LanguageInterface *iface = MetaDataBase::languageInterface( pro->language() );
     QString extension = "xx";
     if ( iface )
 	extension = iface->formCodeExtension();
+    
+    projectItem = new WorkspaceItem( this, project );
+    
+    
+    
+    projectItem->setOpen( TRUE ); 
 
-    if ( iface && iface->supports( LanguageInterface::AdditionalFiles ) ) {
+    for ( QPtrListIterator<SourceFile> sources = project->sourceFiles();
+	  sources.current(); ++sources ) {
+	SourceFile* f = sources.current();
+	(void) new WorkspaceItem( projectItem, f );
+    }
+
+    completionDirty = TRUE;
+    
+    
+    /*    
+   if ( iface && iface->supports( LanguageInterface::AdditionalFiles ) ) {
 	sourceParent = new WorkspaceItem( this );
 	sourceParent->setType( WorkspaceItem::Parent );
 	sourceParent->setText( 0, tr( "Source Files" ) );
@@ -277,12 +337,16 @@ void Workspace::setProject( Project *pro )
 	WorkspaceItem *item = new WorkspaceItem( formsParent, tr( "<unknown>" ), *it, 0 );
 	item->setType( WorkspaceItem::Form );
 	QString className = project->formName( item->text( 1 ) );
-	bufferEdit->addCompletionEntry( item->text( 1 ) );
-	if ( QFile::exists( project->makeAbsolute( item->text( 1 ) + extension ) ) )
-	    bufferEdit->addCompletionEntry( item->text( 1 ) + extension );
+	if ( bufferEdit )
+	    bufferEdit->addCompletionEntry( item->text( 1 ) );
+	if ( QFile::exists( project->makeAbsolute( item->text( 1 ) + extension ) ) ) {
+	    if ( bufferEdit )
+		bufferEdit->addCompletionEntry( item->text( 1 ) + extension );
+	}
 	if ( !className.isEmpty() ) {
 	    item->setText( 0, className );
-	    bufferEdit->addCompletionEntry( className );
+	    if ( bufferEdit )
+		bufferEdit->addCompletionEntry( className );
 	}
     }
 
@@ -300,7 +364,8 @@ void Workspace::setProject( Project *pro )
 		 project->makeAbsolute( ( (FormWindow*)o )->fileName() ) ) {
 		( (WorkspaceItem*)it.current() )->setFormWindow( ( (FormWindow*)o ) );
 		it.current()->setText( 0, o->name() );
-		bufferEdit->addCompletionEntry( o->name() );
+		if ( bufferEdit )
+		    bufferEdit->addCompletionEntry( o->name() );
 	    }
 	    ++it;
 	}
@@ -309,10 +374,12 @@ void Workspace::setProject( Project *pro )
     QPtrList<FormWindow> forms = project->unnamedForms();
     for ( FormWindow *fw = forms.first(); fw; fw = forms.next() ) {
 	WorkspaceItem *item = new WorkspaceItem( formsParent, fw->mainContainer()->name(), "", fw );
-	bufferEdit->addCompletionEntry( fw->mainContainer()->name() );
+	if ( bufferEdit )
+	    bufferEdit->addCompletionEntry( fw->mainContainer()->name() );
 	item->setType( WorkspaceItem::Form );
     }
 
+    */
     /*
       // Images do not make sense here yet until we offer an image editor
     QValueList<PixmapCollection::Pixmap> pixmaps = project->pixmapCollection()->pixmaps();
@@ -329,6 +396,7 @@ void Workspace::setProject( Project *pro )
     }
     */
 
+    /*
     if ( !iface || !iface->supports( LanguageInterface::AdditionalFiles ) )
 	return;
 
@@ -336,134 +404,158 @@ void Workspace::setProject( Project *pro )
     for ( SourceFile *f = sources.first(); f; f = sources.next() ) {
 	WorkspaceItem *fi = new WorkspaceItem( sourceParent, pro->makeRelative( f->fileName() ), f );
 	fi->setPixmap( 0, *filePixmap );
-	bufferEdit->addCompletionEntry( pro->makeRelative( f->fileName() ) );
+	if ( bufferEdit )
+	    bufferEdit->addCompletionEntry( pro->makeRelative( f->fileName() ) );
     }
+    */
 }
 
-void Workspace::addForm( FormWindow *fw )
+
+
+void Workspace::sourceFileAdded( SourceFile* sf )
 {
-    fw->setProject( project );
-    if ( blockNewForms ) {
-	if ( currentItem() ) {
-	    ( (WorkspaceItem*)currentItem() )->setFormWindow( fw );
-	    ( (WorkspaceItem*)currentItem() )->setText( 0, fw->name() );
-	}
-	if ( project ) {
-	    project->setFormWindow( fw->fileName(), fw );
-	    bufferEdit->addCompletionEntry( fw->fileName() );
-	    bufferEdit->addCompletionEntry( fw->name() );
-	}
-	return;
-    }
-
-    QString fn = project->makeRelative( fw->fileName() );
-    if ( project->hasUiFile( fn ) )
-	return;
-    WorkspaceItem *i = new WorkspaceItem( formsParent, fw->name(), fn, 0 );
-    i->setType( WorkspaceItem::Form );
-    i->setFormWindow( fw );
-    bufferEdit->addCompletionEntry( fw->name() );
-    bufferEdit->addCompletionEntry( fw->fileName() );
-    if ( !project )
-	return;
-    project->addUiFile( fn, fw );
+    qDebug("source file added");
+    (void) new WorkspaceItem( projectItem, sf );
 }
 
-void Workspace::removeFormFromProject( QListViewItem *i )
+void Workspace::sourceFileRemoved( SourceFile* sf )
 {
-    if ( ( (WorkspaceItem*)i )->formWindow() ) {
-	if ( !( (WorkspaceItem*)i )->formWindow()->close() )
-	    return;
-    }
-    project->removeUiFile( ( (WorkspaceItem*)i )->text( 1 ), ( (WorkspaceItem*)i )->formWindow() );
-    delete i;
+    delete findItem( sf );
 }
 
-void Workspace::removeFormFromProject( const QString &file )
+
+void Workspace::update()
 {
-    QListViewItemIterator it( this );
-    while ( it.current() ) {
-	if ( it.current()->rtti() == WorkspaceItem::Form ) {
-	    qDebug( "   " + it.current()->text( 1 ) );
-	    if ( it.current()->text( 1 ) == file ) {
-		removeFormFromProject( it.current() );
-		return;
-	    }
-	}
-	++it;
-    }
+    completionDirty = TRUE;
+    // #### rebuild completion list
+    triggerUpdate();
 }
 
-void Workspace::removeSourceFromProject( const QString &file )
-{
-    QListViewItemIterator it( this );
-    while ( it.current() ) {
-	if ( it.current()->rtti() == WorkspaceItem::Source ) {
-	    qDebug( "   " + it.current()->text( 1 ) );
-	    if ( it.current()->text( 0 ) == file ) {
-		removeSourceFromProject( it.current() );
-		return;
-	    }
-	}
-	++it;
-    }
-}
+// void Workspace::addForm( FormWindow *fw )
+// {
+//     fw->setProject( project );
+//     if ( blockNewForms ) {
+// 	if ( currentItem() ) {
+// 	    ( (WorkspaceItem*)currentItem() )->setFormWindow( fw );
+// 	    ( (WorkspaceItem*)currentItem() )->setText( 0, fw->name() );
+// 	}
+// 	if ( project ) {
+// 	    project->setFormWindow( fw->fileName(), fw );
+// 	    bufferEdit->addCompletionEntry( fw->fileName() );
+// 	    bufferEdit->addCompletionEntry( fw->name() );
+// 	}
+// 	return;
+//     }
 
-void Workspace::removeSourceFromProject( QListViewItem *i )
-{
-    SourceFile *sf = ( (WorkspaceItem*)i )->sourceFile();
-    project->removeSourceFile( ( (WorkspaceItem*)i )->text( 0 ), sf );
-    if ( sf->editor() ) {
-	sf->editor()->setModified( FALSE );
-	sf->editor()->close();
-    }
-    delete i;
-}
+//     QString fn = project->makeRelative( fw->fileName() );
+//     if ( project->hasUiFile( fn ) )
+// 	return;
+//     WorkspaceItem *i = new WorkspaceItem( formsParent, fw->name(), fn, 0 );
+//     i->setType( WorkspaceItem::Form );
+//     i->setFormWindow( fw );
+//     bufferEdit->addCompletionEntry( fw->name() );
+//     bufferEdit->addCompletionEntry( fw->fileName() );
+//     if ( !project )
+// 	return;
+//     project->addUiFile( fn, fw );
+// }
 
-void Workspace::removeFormFromProject( FormWindow *fw )
-{
-    WorkspaceItem *i = findItem( fw );
-    if ( i )
-	removeFormFromProject( i );
-}
+// void Workspace::removeFormFromProject( QListViewItem *i )
+// {
+//     if ( ( (WorkspaceItem*)i )->formWindow() ) {
+// 	if ( !( (WorkspaceItem*)i )->formWindow()->close() )
+// 	    return;
+//     }
+//     project->removeUiFile( ( (WorkspaceItem*)i )->text( 1 ), ( (WorkspaceItem*)i )->formWindow() );
+//     delete i;
+// }
 
-void Workspace::modificationChanged( bool, QObject *obj )
-{
-    if ( obj->inherits( "FormWindow" ) ) {
-	WorkspaceItem *i = findItem( (FormWindow*)obj );
-	if ( i )
-	    i->repaint();
-    } else if ( obj->inherits( "SourceEditor" ) ) {
-	WorkspaceItem *i = findItem( (SourceFile*)( (SourceEditor*)obj )->object() );
-	if ( i )
-	    i->repaint();
-    }
-}
+// void Workspace::removeFormFromProject( const QString &file )
+// {
+//     QListViewItemIterator it( this );
+//     while ( it.current() ) {
+// 	if ( it.current()->rtti() == WorkspaceItem::Form ) {
+// 	    qDebug( "   " + it.current()->text( 1 ) );
+// 	    if ( it.current()->text( 1 ) == file ) {
+// 		removeFormFromProject( it.current() );
+// 		return;
+// 	    }
+// 	}
+// 	++it;
+//     }
+// }
 
-void Workspace::fileNameChanged( const QString &fn, FormWindow *fw )
-{
-    QString extension = "xx";
-    LanguageInterface *iface = MetaDataBase::languageInterface( project->language() );
-    if ( iface )
-	extension = iface->formCodeExtension();
+// void Workspace::removeSourceFromProject( const QString &file )
+// {
+//     QListViewItemIterator it( this );
+//     while ( it.current() ) {
+// 	if ( it.current()->rtti() == WorkspaceItem::Source ) {
+// 	    qDebug( "   " + it.current()->text( 1 ) );
+// 	    if ( it.current()->text( 0 ) == file ) {
+// 		removeSourceFromProject( it.current() );
+// 		return;
+// 	    }
+// 	}
+// 	++it;
+//     }
+// }
 
-    QString s = project->makeRelative( fn );
-    WorkspaceItem *i = findItem( fw );
-    if ( !i )
-	return;
-    bufferEdit->removeCompletionEntry( i->text( 1 ) );
-    bufferEdit->removeCompletionEntry( i->text( 1 ) + extension );
-    if ( s.isEmpty() ) {
-	i->setText( 1, tr( "(unnamed)" ) );
-    } else {
-	i->setText( 1, s );
-	bufferEdit->addCompletionEntry( s );
-	if ( QFile::exists( project->makeAbsolute( s + extension ) ) )
-	    bufferEdit->addCompletionEntry( s + extension );
-    }
-    if ( project )
-	project->setFormWindowFileName( fw, s );
-}
+// void Workspace::removeSourceFromProject( QListViewItem *i )
+// {
+//     SourceFile *sf = ( (WorkspaceItem*)i )->sourceFile();
+//     project->removeSourceFile( sf );
+//     if ( sf->editor() ) {
+// 	sf->editor()->setModified( FALSE );
+// 	sf->editor()->close();
+//     }
+//     delete i;
+// }
+
+// void Workspace::removeFormFromProject( FormWindow *fw )
+// {
+//     WorkspaceItem *i = findItem( fw );
+//     if ( i )
+// 	removeFormFromProject( i );
+// }
+
+
+// void Workspace::modificationChanged( bool, QObject *obj )
+// {
+//     if ( obj->inherits( "FormWindow" ) ) {
+// 	WorkspaceItem *i = findItem( (FormWindow*)obj );
+// 	if ( i )
+// 	    i->repaint();
+//     } else if ( obj->inherits( "SourceEditor" ) ) {
+// 	WorkspaceItem *i = findItem( (SourceFile*)( (SourceEditor*)obj )->object() );
+// 	if ( i )
+// 	    i->repaint();
+//     }
+// }
+
+// void Workspace::fileNameChanged( const QString &fn, FormWindow *fw )
+// {
+//     QString extension = "xx";
+//     LanguageInterface *iface = MetaDataBase::languageInterface( project->language() );
+//     if ( iface )
+// 	extension = iface->formCodeExtension();
+
+//     QString s = project->makeRelative( fn );
+//     WorkspaceItem *i = findItem( fw );
+//     if ( !i )
+// 	return;
+//     bufferEdit->removeCompletionEntry( i->text( 1 ) );
+//     bufferEdit->removeCompletionEntry( i->text( 1 ) + extension );
+//     if ( s.isEmpty() ) {
+// 	i->setText( 1, tr( "(unnamed)" ) );
+//     } else {
+// 	i->setText( 1, s );
+// 	bufferEdit->addCompletionEntry( s );
+// 	if ( QFile::exists( project->makeAbsolute( s + extension ) ) )
+// 	    bufferEdit->addCompletionEntry( s + extension );
+//     }
+//     if ( project )
+// 	project->setFormWindowFileName( fw, s );
+// }
 
 void Workspace::activeFormChanged( FormWindow *fw )
 {
@@ -489,20 +581,22 @@ void Workspace::activeEditorChanged( SourceEditor *se )
     }
 }
 
-void Workspace::nameChanged( FormWindow *fw )
-{
-    WorkspaceItem *i = findItem( fw );
-    if ( !i )
-	return;
-    i->setText( 0, fw->name() );
-}
+// void Workspace::nameChanged( FormWindow *fw )
+// {
+//     WorkspaceItem *i = findItem( fw );
+//     if ( !i )
+// 	return;
+//     i->setText( 0, fw->name() );
+// }
 
-WorkspaceItem *Workspace::findItem( FormWindow *fw )
+WorkspaceItem *Workspace::findItem( FormWindow */*fw*/ )
 {
     QListViewItemIterator it( this );
     for ( ; it.current(); ++it ) {
-	if ( ( (WorkspaceItem*)it.current() )->formWindow() == fw )
-	    return (WorkspaceItem*)it.current();
+// 	if ( ( (WorkspaceItem*)it.current() )->formWindow() == fw )
+// 	    return (WorkspaceItem*)it.current();
+	
+	//###
     }
     return 0;
 }
@@ -511,29 +605,27 @@ WorkspaceItem *Workspace::findItem( SourceFile *sf )
 {
     QListViewItemIterator it( this );
     for ( ; it.current(); ++it ) {
-	if ( ( (WorkspaceItem*)it.current() )->sourceFile() == sf )
+	if ( ( (WorkspaceItem*)it.current() )->sourceFile == sf )
 	    return (WorkspaceItem*)it.current();
     }
     return 0;
 }
 
-
-void Workspace::closed( FormWindow *fw )
-{
-    WorkspaceItem *i = findItem( fw );
-    if ( i ) {
-	if ( fw->fileName().isEmpty() ) {
-	    delete i;
-	} else {
-	    i->setFormWindow( 0 );
-	    i->repaint();
-	}
-    }
-}
+// void Workspace::closed( FormWindow *fw )
+// {
+//     WorkspaceItem *i = findItem( fw );
+//     if ( i ) {
+// 	if ( fw->fileName().isEmpty() ) {
+// 	    delete i;
+// 	} else {
+// 	    i->setFormWindow( 0 );
+// 	    i->repaint();
+// 	}
+//     }
+// }
 
 void Workspace::closeEvent( QCloseEvent *e )
 {
-    emit hidden();
     e->accept();
 }
 
@@ -541,6 +633,7 @@ void Workspace::itemClicked( int button, QListViewItem *i )
 {
     if ( !i || button != LeftButton )
 	return;
+    /*
     if ( i->rtti() == WorkspaceItem::Form ) {
 	if ( ( (WorkspaceItem*)i )->formWindow() ) {
 	    ( (WorkspaceItem*)i )->formWindow()->setFocus();
@@ -552,11 +645,17 @@ void Workspace::itemClicked( int button, QListViewItem *i )
     } else if ( i->rtti() == WorkspaceItem::Source ) {
 	mainWindow->editSource( ( (WorkspaceItem*)i )->sourceFile() );
     }
+    */
+    
+    WorkspaceItem* wi = (WorkspaceItem*)i;
+    if ( wi->type() == WorkspaceItem::SourceFileType )
+	mainWindow->editSource( wi->sourceFile );
 }
 
 void Workspace::bufferChosen( const QString &buffer )
 {
-    bufferEdit->setText( "" );
+    if ( bufferEdit )
+	bufferEdit->setText( "" );
     QListViewItemIterator it( this );
     QListViewItem *res = 0;
     QString extension = "xx";
@@ -618,63 +717,87 @@ void Workspace::rmbClicked( QListViewItem *i )
 {
     if ( !i )
 	return;
-
-    if ( i->rtti() == WorkspaceItem::Form || i->text( 0 ) == tr( "Forms" ) ) {
-	QPopupMenu menu( this );
-
-	const int OPEN_FORM = menu.insertItem( tr( "&Open form" ) );
-	int REMOVE_FORM = -2;
-	if ( i->rtti() == WorkspaceItem::Form ) {
-	    menu.insertSeparator();
-	    REMOVE_FORM = menu.insertItem( tr( "&Remove form from project" ) );
-	}
+    QPopupMenu menu( this );
+    WorkspaceItem* wi = (WorkspaceItem*)i;
+    if ( wi->type() == WorkspaceItem::SourceFileType ) {
+ 	const int OPEN_SOURCE = menu.insertItem( tr( "&Open source file..." ) );
+ 	int REMOVE_SOURCE = -2;
+	menu.insertSeparator();
+	REMOVE_SOURCE = menu.insertItem( tr( "&Remove source file from project" ) );
 	int id = menu.exec( QCursor::pos() );
-
 	if ( id == -1 )
 	    return;
-
-	if ( id == REMOVE_FORM ) {
-	    removeFormFromProject( i );
-	} else if ( id == OPEN_FORM ) {
-	    itemClicked( LeftButton, i );
-	}
-    } else if ( i->rtti() == WorkspaceItem::Source || i->text( 0 ) == tr("Source Files") ) {
-	QPopupMenu menu( this );
-
-	const int OPEN_SOURCE = menu.insertItem( tr( "&Open source file..." ) );
-	int REMOVE_SOURCE = -2;
-	if ( i->rtti() == WorkspaceItem::Source ) {
-	    menu.insertSeparator();
-	    REMOVE_SOURCE = menu.insertItem( tr( "&Remove source file from project" ) );
-	}
-	int id = menu.exec( QCursor::pos() );
-
-	if ( id == -1 )
-	    return;
-
-	if ( id == REMOVE_SOURCE ) {
-	    removeSourceFromProject( i );
+	if ( id == REMOVE_SOURCE ) { 
+	    project->removeSourceFile( wi->sourceFile );
 	} else if ( id == OPEN_SOURCE ) {
 	    itemClicked( LeftButton, i );
 	}
     }
+    
+
+//     if ( i->rtti() == WorkspaceItem::Form || i->text( 0 ) == tr( "Forms" ) ) {
+// 	QPopupMenu menu( this );
+
+// 	const int OPEN_FORM = menu.insertItem( tr( "&Open form" ) );
+// 	int REMOVE_FORM = -2;
+// 	if ( i->rtti() == WorkspaceItem::Form ) {
+// 	    menu.insertSeparator();
+// 	    REMOVE_FORM = menu.insertItem( tr( "&Remove form from project" ) );
+// 	}
+// 	int id = menu.exec( QCursor::pos() );
+
+// 	if ( id == -1 )
+// 	    return;
+
+// 	if ( id == REMOVE_FORM ) {
+// 	    removeFormFromProject( i );
+// 	} else if ( id == OPEN_FORM ) {
+// 	    itemClicked( LeftButton, i );
+// 	}
+//     } else if ( i->rtti() == WorkspaceItem::Source || i->text( 0 ) == tr("Source Files") ) {
+// 	QPopupMenu menu( this );
+
+// 	const int OPEN_SOURCE = menu.insertItem( tr( "&Open source file..." ) );
+// 	int REMOVE_SOURCE = -2;
+// 	if ( i->rtti() == WorkspaceItem::Source ) {
+// 	    menu.insertSeparator();
+// 	    REMOVE_SOURCE = menu.insertItem( tr( "&Remove source file from project" ) );
+// 	}
+// 	int id = menu.exec( QCursor::pos() );
+
+// 	if ( id == -1 )
+// 	    return;
+
+// 	if ( id == REMOVE_SOURCE ) {
+// 	    removeSourceFromProject( i );
+// 	} else if ( id == OPEN_SOURCE ) {
+// 	    itemClicked( LeftButton, i );
+// 	}
+//     }
 }
 
-void Workspace::formNameChanged( FormWindow *fw )
+// void Workspace::formNameChanged( FormWindow *fw )
+// {
+//     QListViewItemIterator it( this );
+//     while ( it.current() ) {
+// 	if ( it.current()->rtti() == WorkspaceItem::Form ) {
+// 	    WorkspaceItem *i = (WorkspaceItem*)it.current();
+// 	    if ( i->formWindow() == fw ) {
+// 		bufferEdit->removeCompletionEntry( i->text( 0 ) );
+// 		i->setText( 0, fw->name() );
+// 		bufferEdit->addCompletionEntry( i->text( 0 ) );
+// 		break;
+// 	    }
+// 	}
+// 	++it;
+//     }
+// }
+
+bool Workspace::eventFilter( QObject *o, QEvent * e )
 {
-    QListViewItemIterator it( this );
-    while ( it.current() ) {
-	if ( it.current()->rtti() == WorkspaceItem::Form ) {
-	    WorkspaceItem *i = (WorkspaceItem*)it.current();
-	    if ( i->formWindow() == fw ) {
-		bufferEdit->removeCompletionEntry( i->text( 0 ) );
-		i->setText( 0, fw->name() );
-		bufferEdit->addCompletionEntry( i->text( 0 ) );
-		break;
-	    }
-	}
-	++it;
-    }
+    if ( o ==bufferEdit )
+	updateBufferEdit();
+    return QListView::eventFilter( o, e );
 }
 
 void Workspace::setBufferEdit( QCompletionEdit *edit )
@@ -682,8 +805,25 @@ void Workspace::setBufferEdit( QCompletionEdit *edit )
     bufferEdit = edit;
     connect( bufferEdit, SIGNAL( chosen( const QString & ) ),
 	     this, SLOT( bufferChosen( const QString & ) ) );
+    bufferEdit->installEventFilter( this );
 }
 
+void Workspace::updateBufferEdit()
+{
+    if ( !bufferEdit || !completionDirty )
+	return;
+    completionDirty = FALSE;
+    QStringList completion;
+     QListViewItemIterator it( this );
+     while ( it.current() ) {
+	 ( (WorkspaceItem*)it.current())->fillCompletionList( completion );
+	 ++it;
+     }
+     completion.sort();
+     bufferEdit->setCompletionList( completion );
+}
+
+/*
 void Workspace::openForm( const QString &filename )
 {
     QListViewItemIterator it( this );
@@ -700,3 +840,4 @@ void Workspace::openForm( const QString &filename )
 	++it;
     }
 }
+*/

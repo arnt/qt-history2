@@ -38,6 +38,8 @@
 #include <qobjectlist.h>
 #include <qheader.h>
 #include <qcheckbox.h>
+#include <qpushbutton.h>
+#include <qlabel.h>
 
 static const char* file_xpm[]={
     "16 16 5 1",
@@ -75,6 +77,12 @@ static QPixmap *filePixmap = 0;
 ProjectSettings::ProjectSettings( Project *pro, QWidget* parent,  const char* name, bool modal, WFlags fl )
     : ProjectSettingsBase( parent, name, modal, fl ), project( pro )
 {
+    
+    PushButton5->hide();
+    PushButton4->hide();
+    listInterfaces->hide();
+    TextLabel3->hide();
+    
     if ( !filePixmap )
 	filePixmap = new QPixmap( file_xpm );
     editProjectFile->setFocus();
@@ -155,6 +163,7 @@ void ProjectSettings::okClicked()
 
 void ProjectSettings::removeProject()
 {
+    /*
     QListViewItemIterator it( listInterfaces );
     while ( it.current() ) {
 	QListViewItem *i = it.current();
@@ -175,6 +184,7 @@ void ProjectSettings::removeProject()
     }
 
     fillFilesList();
+    */
 }
 void ProjectSettings::languageChanged( const QString &lang )
 {
@@ -183,6 +193,7 @@ void ProjectSettings::languageChanged( const QString &lang )
 
 void ProjectSettings::addProject()
 {
+    /*
     QString filter = "Qt User-Interface Files (*.ui)";
     QString extensions = ";ui";
     LanguageInterface *iface = MetaDataBase::languageInterface( project->language() );
@@ -197,10 +208,12 @@ void ProjectSettings::addProject()
     }
     MainWindow::self->fileOpen( filter, extensions );
     fillFilesList();
+    */
 }
 
 void ProjectSettings::fillFilesList()
 {
+    /*
     listInterfaces->clear();
     formMap.clear();
     sourceMap.clear();
@@ -229,4 +242,5 @@ void ProjectSettings::fillFilesList()
 	i->setPixmap( 0, *filePixmap );
 	sourceMap.insert( i, f );
     }
+    */
 }

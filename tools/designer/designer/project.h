@@ -99,8 +99,9 @@ private:
 
 #endif
 
-class Project
+class Project : public QObject
 {
+    Q_OBJECT
 public:
     Project( const QString &fn, const QString &pName = QString::null,
 	     QPluginManager<ProjectSettingsInterface> *pm = 0, bool isDummy = FALSE );
@@ -122,7 +123,6 @@ public:
     QStringList uiFiles() const;
     void addUiFile( const QString &f, FormWindow *fw );
     void removeUiFile( const QString &f, FormWindow *fw );
-    void removeSourceFile( const QString &f, SourceFile *sf );
     void setUiFiles( const QStringList &lst );
     void formClosed( FormWindow *fw );
     FormWindow *formWindow( const QString &filename );
@@ -171,8 +171,9 @@ public:
 
     void setActive( bool b );
 
-    QPtrList<SourceFile> sourceFiles() const { return sources; }
+    QPtrListIterator<SourceFile> sourceFiles() const { return QPtrListIterator<SourceFile>(sources); }
     void addSourceFile( SourceFile *sf );
+    bool removeSourceFile( SourceFile *sf );
 
     QPtrList<FormWindow> unnamedForms() const;
     QPtrList<FormWindow> forms() const;
@@ -188,10 +189,15 @@ public:
     QString defines( const QString &platform ) const;
     QString includePath( const QString &platform ) const;
     QString templte() const;
-    
+
     bool isModified() const { return !isDummy() && modified; }
     void setModified( bool b ) { modified = b; }
 
+    
+signals:
+    void sourceFileAdded( SourceFile* );
+    void sourceFileRemoved( SourceFile* );
+    
 private:
     void parse();
     void clear();

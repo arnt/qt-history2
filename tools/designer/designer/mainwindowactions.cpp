@@ -969,7 +969,7 @@ void MainWindow::fileClose()
 	FormWindow* fw = formWindow();
 	if ( !fw )
 	    return; // what about source file #### TODO reggie, we need some more organization in this code
-	workspace()->removeFormFromProject( fw );
+ 	fw->close();
     }
 }
 
@@ -1104,7 +1104,7 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
 		LanguageInterface *iface = MetaDataBase::languageInterface( currentProject->language() );
 		if ( iface && iface->supports( LanguageInterface::AdditionalFiles ) ) {
 		    SourceFile *sf = new SourceFile( currentProject->makeRelative( filename ), FALSE, currentProject );
-		    wspace->setProject( currentProject );
+		    wspace->setCurrentProject( currentProject );
 		    editSource( sf );
 		}
 	    } else if ( extension.isEmpty() ) {
@@ -1167,7 +1167,8 @@ void MainWindow::openFile( const QString &filename, bool validFileName )
 		} else {
 		    blockCheck = TRUE;
 		    // this calls MainWindow::openFile() again
-		    wspace->openForm( currentProject->makeRelative( filename ) );
+		    //wspace->openForm( currentProject->makeRelative( filename ) );
+		    // ##### project should do this
 		    blockCheck = FALSE;
 		    return;
 		}
@@ -1752,7 +1753,7 @@ void MainWindow::editFormSettings()
 void MainWindow::editProjectSettings()
 {
     openProjectSettings( currentProject );
-    wspace->setProject( currentProject );
+    wspace->setCurrentProject( currentProject );
 }
 
 void MainWindow::editPixmapCollection()
@@ -1938,4 +1939,3 @@ void MainWindow::toolsCustomWidget()
     statusBar()->clear();
 }
 
-#include "mainwindowactions.moc"

@@ -189,7 +189,6 @@ struct DesignerFormWindow
     virtual QWidgetList selectedWidgets() const = 0;
     virtual QWidget *currentWidget() const = 0;
     virtual QWidget *form() const = 0;
-    virtual void setListViewIcon( const QPixmap & ) = 0;
     virtual void setCurrentWidget( QWidget * ) = 0;
     virtual QPtrList<QAction> actionList() const = 0;
     virtual QAction *createAction( const QString& text, const QIconSet& icon, const QString& menuText, int accel,
