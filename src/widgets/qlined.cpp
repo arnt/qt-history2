@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#23 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -17,7 +17,7 @@
 #include "qkeycode.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlined.cpp#22 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlined.cpp#23 $";
 #endif
 
 /*!
@@ -127,13 +127,12 @@ void QLineEdit::setText( const char *s )
 }
 
   /*! 
-  Returns a reference to the text currently in the line.  This isn't
-  guaranteed to be valid for very long - it will tend to be, but may
-  become corrupted when the line editor exits, or even when the text in
-  the editor grows beyond a certain limit. If you need to store the text,
-  make a copy of it. This can convienently be done with a QString object:
+  Returns a pointer to the text currently in the line.  
+
+ If you need to store the text, you should make a copy of it. This can
+ convienently be done with a QString object:
   \code
-  QString s = linEd->text();  // makes a copy and stores it in s
+  QString s = linEd->text();  \/ makes a copy and stores it in s
   \endcode
   */
 
@@ -311,8 +310,9 @@ void QLineEdit::timerEvent( QTimerEvent * )
     }
 }
 
-/*!  This even occurs whenever the widget is resized; if necessary it
+/*!  This event occurs whenever the widget is resized; if necessary it
   will move the cursor, scroll the text and repaint. */
+
 void QLineEdit::resizeEvent( QResizeEvent *e )
 {
     if ( inTextFocus ) {
