@@ -16,7 +16,6 @@ SOURCES         = main.cpp \
                     $$QT_SOURCE_TREE/src/tools/qgvector.cpp     \
                     $$QT_SOURCE_TREE/src/tools/qiodevice.cpp    \
                     $$QT_SOURCE_TREE/src/tools/qptrcollection.cpp \
-                    $$QT_SOURCE_TREE/src/tools/qstring.cpp
                     $$QT_SOURCE_TREE/src/tools/qstring.cpp \
 		    $$QT_SOURCE_TREE/src/tools/qstringlist.cpp \
 		    $$QT_SOURCE_TREE/src/tools/qunicodetables.cpp
