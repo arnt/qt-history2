@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qlinedialog.cpp#4 $
+** $Id: //depot/qt/main/src/dialogs/qlinedialog.cpp#5 $
 **
 ** Definition of QFileDialog class
 **
@@ -73,7 +73,7 @@ QLineDialog::QLineDialog( const QString &label, QWidget* parent, const char* nam
     connect( d->lineEdit, SIGNAL( textChanged( const QString & ) ), this, SLOT( textChanged( const QString & ) ) );
     connect( cancel, SIGNAL( clicked() ), this, SLOT( reject() ) );
 
-    resize( sizeHint().width() * 2, sizeHint().height() );
+    resize( QMAX( sizeHint().width(), 400 ), sizeHint().height() );
 
     d->lineEdit->setFocus();
 }
