@@ -319,8 +319,6 @@ public:
     QSize gridSize;
     QListView::Flow flow;
     QListView::Movement movement;
-    QSize iconSize;
-    bool hasLargeIcons() const;
     QListView::ResizeMode resizeMode;
     QListView::LayoutMode layoutMode;
     QListView::ViewMode viewMode;
@@ -333,8 +331,7 @@ public:
         GridSize = 4,
         Flow = 8,
         Movement = 16,
-        IconSize = 32,
-        ResizeMode = 64
+        ResizeMode = 32
     };
 
     uint modeProperties : 8;

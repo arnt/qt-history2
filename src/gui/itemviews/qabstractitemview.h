@@ -38,6 +38,7 @@ class Q_GUI_EXPORT QAbstractItemView : public QViewport
     Q_PROPERTY(QColor evenRowColor READ evenRowColor WRITE setEvenRowColor)
     Q_PROPERTY(SelectionMode selectionMode READ selectionMode WRITE setSelectionMode)
     Q_PROPERTY(SelectionBehavior selectionBehavior READ selectionBehavior WRITE setSelectionBehavior)
+    Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize)
     Q_ENUMS(SelectionMode SelectionBehavior)
     Q_FLAGS(EditTriggers)
 
@@ -111,6 +112,9 @@ public:
 
     void setEvenRowColor(const QColor &even);
     QColor evenRowColor() const;
+    
+    void setIconSize(const QSize &size);
+    QSize iconSize() const;
 
     virtual void keyboardSearch(const QString &search);
     void setKeyboardInputInterval(int msec);

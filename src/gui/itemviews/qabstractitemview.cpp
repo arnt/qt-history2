@@ -776,6 +776,8 @@ bool QAbstractItemView::alternatingRowColors() const
 void QAbstractItemView::setOddRowColor(const QColor &odd)
 {
     d->oddColor = odd;
+    if (isVisible())
+        d->viewport->update();
 }
 
 QColor QAbstractItemView::oddRowColor() const
@@ -791,11 +793,32 @@ QColor QAbstractItemView::oddRowColor() const
 void QAbstractItemView::setEvenRowColor(const QColor &even)
 {
     d->evenColor = even;
+    if (isVisible())
+        d->viewport->update();
 }
 
 QColor QAbstractItemView::evenRowColor() const
 {
     return d->evenColor;
+}
+
+/*!
+    \property QListView::iconSize
+    \brief the size of items
+
+    Setting this property when the view is visible will cause the
+    items to be laid out again.
+*/
+void QAbstractItemView::setIconSize(const QSize &size)
+{
+    d->iconSize = size;
+    if (isVisible())
+        doItemsLayout();
+}
+
+QSize QAbstractItemView::iconSize() const
+{
+    return d->iconSize;
 }
 
 /*!
@@ -1819,8 +1842,12 @@ QStyleOptionViewItem QAbstractItemView::viewOptions() const
     option.font = font();
     option.state = (isEnabled() ? QStyle::State_Enabled : QStyle::State_None);
     option.state |= (state() == EditingState ? QStyle::State_Editing : QStyle::State_None);
-    int icone = style()->pixelMetric(QStyle::PM_SmallIconSize);
-    option.decorationSize = QSize(icone, icone);
+    if (d->iconSize.isValid()) {
+        option.decorationSize = d->iconSize;
+    } else {
+        int pm = style()->pixelMetric(QStyle::PM_SmallIconSize);
+        option.decorationSize = QSize(pm, pm);
+    }
     option.decorationPosition = QStyleOptionViewItem::Left;
     option.decorationAlignment = Qt::AlignCenter;
     option.displayAlignment = Qt::AlignAuto|Qt::AlignVCenter;

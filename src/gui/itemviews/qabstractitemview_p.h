@@ -141,6 +141,8 @@ public:
     QColor oddColor;
     QColor evenColor;
 
+    QSize iconSize;
+
     QRubberBand *dropIndicator;
 };
 
