@@ -15,22 +15,23 @@
 #include "q3toolbar.h"
 #ifndef QT_NO_TOOLBAR
 
-#include "qapplication.h"
-#include "qdesktopwidget.h"
-#include "qevent.h"
 #include "q3mainwindow.h"
-#include "qtooltip.h"
-#include "qcursor.h"
-#include "qlayout.h"
-#include "qframe.h"
-#include "qpainter.h"
-#include "qdrawutil.h"
-#include "qtoolbutton.h"
-#include "qpopupmenu.h"
+#include "qapplication.h"
 #include "qcombobox.h"
-#include "qtimer.h"
-#include "qstyle.h"
+#include "qcursor.h"
+#include "qdesktopwidget.h"
+#include "qdrawutil.h"
+#include "qevent.h"
+#include "qframe.h"
+#include "qlayout.h"
 #include "qmap.h"
+#include "qpainter.h"
+#include "qpopupmenu.h"
+#include "qstyle.h"
+#include "qstyleoption.h"
+#include "qtimer.h"
+#include "qtoolbutton.h"
+#include "qtooltip.h"
 
 static const char * const arrow_v_xpm[] = {
     "7 9 3 1",
@@ -176,13 +177,15 @@ QSize Q3ToolBarSeparator::sizeHint() const
 void Q3ToolBarSeparator::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    QStyle::SFlags flags = QStyle::Style_Default;
+    Q4StyleOption opt(0, Q4StyleOption::Default);
+    opt.rect = rect();
+    opt.palette = palette();
+    if (orientation() == Horizontal)
+        opt.state = QStyle::Style_Horizontal;
+    else
+        opt.state = QStyle::Style_Default;
 
-    if (orientation() == Qt::Horizontal)
-        flags |= QStyle::Style_Horizontal;
-
-    style().drawPrimitive(QStyle::PE_DockWindowSeparator, &p, rect(),
-                           palette(), flags);
+    style().drawPrimitive(QStyle::PE_DockWindowSeparator, &opt, &p, this);
 }
 
 #include "q3toolbar.moc"

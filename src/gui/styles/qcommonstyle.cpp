@@ -132,35 +132,13 @@ static const char * const tree_branch_closed_xpm[] = {
 "#########"};
 
 /*! \reimp */
-void QCommonStyle::drawPrimitive(PrimitiveElement pe,
-                                  QPainter *p,
-                                  const QRect &r,
-                                  const QPalette &pal,
-                                  SFlags flags,
+void QCommonStyle::drawPrimitive(PrimitiveElement ,
+                                  QPainter *,
+                                  const QRect &,
+                                  const QPalette &,
+                                  SFlags ,
                                   const QStyleOption& ) const
 {
-    activePainter = p;
-
-    switch (pe) {
-
-    case PE_DockWindowSeparator: {
-        QPoint p1, p2;
-        if (flags & Style_Horizontal) {
-            p1 = QPoint(r.width()/2, 0);
-            p2 = QPoint(p1.x(), r.height());
-        } else {
-            p1 = QPoint(0, r.height()/2);
-            p2 = QPoint(r.width(), p1.y());
-        }
-        qDrawShadeLine(p, p1, p2, pal, 1, 1, 0);
-        break; }
-
-
-    default:
-        break;
-    }
-
-    activePainter = 0;
 }
 
 /*!
@@ -568,6 +546,17 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, 
             p->restore();
         }
         break;
+    case PE_DockWindowSeparator: {
+        QPoint p1, p2;
+        if (opt->state & Style_Horizontal) {
+            p1 = QPoint(opt->rect.width()/2, 0);
+            p2 = QPoint(p1.x(), opt->rect.height());
+        } else {
+            p1 = QPoint(0, opt->rect.height()/2);
+            p2 = QPoint(opt->rect.width(), p1.y());
+        }
+        qDrawShadeLine(p, p1, p2, opt->palette, 1, 1, 0);
+        break; }
     case PE_SpinBoxPlus:
     case PE_SpinBoxMinus:
         if (const Q4StyleOptionSpinBox *sb = qt_cast<const Q4StyleOptionSpinBox *>(opt)) {
@@ -654,7 +643,6 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, 
             p->fillRect(re, sb->palette.brush(QPalette::Highlight));
             break;
         }
-
     default:
         qWarning("QCommonStyle::drawPrimitive not handled %d", pe);
     }

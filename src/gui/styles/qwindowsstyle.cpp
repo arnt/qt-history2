@@ -253,32 +253,6 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe,
 {
     QRect rr(r);
     switch (pe) {
-    case PE_ButtonCommand:
-        {
-            QBrush fill;
-
-            if (! (flags & Style_Down) && (flags & Style_On))
-                fill = QBrush(pal.light(), Qt::Dense4Pattern);
-            else
-                fill = pal.brush(QPalette::Button);
-
-            if (flags & Style_ButtonDefault && flags & Style_Down) {
-                p->setPen(pal.dark());
-                p->setBrush(fill);
-                p->drawRect(r);
-            } else if (flags & (Style_Raised | Style_Down | Style_On | Style_Sunken))
-                qDrawWinButton(p, r, pal, flags & (Style_Sunken | Style_Down |
-                                                  Style_On), &fill);
-            else
-                p->fillRect(r, fill);
-            break;
-        }
-
-    case PE_ButtonDefault:
-        p->setPen(pal.shadow());
-        p->drawRect(r);
-        break;
-
     case PE_ButtonTool:
         {
             QBrush fill;
@@ -309,288 +283,8 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe,
 
             break;
         }
-
-    case PE_FocusRect:
-    {
-#if defined (Q_WS_WIN) && !defined(QT_GDIPLUS_SUPPORT)
-        {
-            HDC hdc = p->handle();
-            RECT rect = { r.left(), r.top(), r.right()+1, r.bottom()+1 };
-            DrawFocusRect(hdc, &rect);
-        }
-#else
-        p->save();
-        p->setBackgroundMode(Qt::TransparentMode);
-	QColor bg_col = opt.isDefault() ? p->background().color() : opt.color();
-	if (qGray(bg_col.rgb()) < 128)
-	    p->setBrush(QBrush(Qt::white, Qt::Dense4Pattern));
-	else
-	    p->setBrush(QBrush(Qt::black, Qt::Dense4Pattern));
-
-        p->setPen(Qt::NoPen);
-        p->drawRect(r.left(),  r.top(),    r.width(), 1);          // Top
-        p->drawRect(r.left(),  r.bottom(), r.width(), 1);          // Bottom
-        p->drawRect(r.left(),  r.top(),    1,         r.height()); // Left
-        p->drawRect(r.right(), r.top(),    1,         r.height()); // Right
-        p->restore();
-#endif
-        break;
-    }
-
-    case PE_Indicator:
-        {
-            QBrush fill;
-            if (flags & Style_NoChange)
-                fill = QBrush(pal.base(), Qt::Dense4Pattern);
-            else if (flags & Style_Down)
-                fill = pal.button();
-            else if (flags & Style_Enabled)
-                fill = pal.base();
-            else
-                fill = pal.background();
-
-            qDrawWinPanel(p, r, pal, true, &fill);
-
-            if (flags & Style_NoChange)
-                p->setPen(pal.dark());
-            else
-                p->setPen(pal.text());
-        } // FALLTHROUGH
-    case PE_CheckListIndicator:
-        if (pe == PE_CheckListIndicator) { //since we fall through from PE_Indicator
-            if (flags & Style_Enabled)
-                p->setPen(QPen(pal.text(), 1));
-            else
-                p->setPen(QPen(pal.dark(), 1));
-            if (flags & Style_NoChange)
-                p->setBrush(pal.brush(QPalette::Button));
-            p->drawRect(r.x()+1, r.y()+1, 11, 11);
-        }
-        if (! (flags & Style_Off)) {
-            QPointArray a(7*2);
-            int i, xx, yy;
-            xx = rr.x() + 3;
-            yy = rr.y() + 5;
-
-            for (i=0; i<3; i++) {
-                a.setPoint(2*i,   xx, yy);
-                a.setPoint(2*i+1, xx, yy+2);
-                xx++; yy++;
-            }
-
-            yy -= 2;
-            for (i=3; i<7; i++) {
-                a.setPoint(2*i,   xx, yy);
-                a.setPoint(2*i+1, xx, yy+2);
-                xx++; yy--;
-            }
-
-            p->drawLineSegments(a);
-        }
-        break;
-
-    case PE_ExclusiveIndicator:
-        {
-#define QCOORDARRLEN(x) sizeof(x)/(sizeof(QCOORD)*2)
-            static const QCOORD pts1[] = {              // dark lines
-                1,9, 1,8, 0,7, 0,4, 1,3, 1,2, 2,1, 3,1, 4,0, 7,0, 8,1, 9,1 };
-            static const QCOORD pts2[] = {              // black lines
-                2,8, 1,7, 1,4, 2,3, 2,2, 3,2, 4,1, 7,1, 8,2, 9,2 };
-            static const QCOORD pts3[] = {              // background lines
-                2,9, 3,9, 4,10, 7,10, 8,9, 9,9, 9,8, 10,7, 10,4, 9,3 };
-            static const QCOORD pts4[] = {              // white lines
-                2,10, 3,10, 4,11, 7,11, 8,10, 9,10, 10,9, 10,8, 11,7,
-                11,4, 10,3, 10,2 };
-            static const QCOORD pts5[] = {              // inner fill
-                4,2, 7,2, 9,4, 9,7, 7,9, 4,9, 2,7, 2,4 };
-
-            // make sure the indicator is square
-            QRect ir = r;
-
-            if (r.width() < r.height()) {
-                ir.setTop(r.top() + (r.height() - r.width()) / 2);
-                ir.setHeight(r.width());
-            } else if (r.height() < r.width()) {
-                ir.setLeft(r.left() + (r.width() - r.height()) / 2);
-                ir.setWidth(r.height());
-            }
-
-            bool down = flags & Style_Down;
-            bool enabled = flags & Style_Enabled;
-            bool on = flags & Style_On;
-            QPointArray a;
-            a.setPoints(QCOORDARRLEN(pts1), pts1);
-            a.translate(ir.x(), ir.y());
-            p->setPen(pal.dark());
-            p->drawPolyline(a);
-            a.setPoints(QCOORDARRLEN(pts2), pts2);
-            a.translate(ir.x(), ir.y());
-            p->setPen(pal.shadow());
-            p->drawPolyline(a);
-            a.setPoints(QCOORDARRLEN(pts3), pts3);
-            a.translate(ir.x(), ir.y());
-            p->setPen(pal.midlight());
-            p->drawPolyline(a);
-            a.setPoints(QCOORDARRLEN(pts4), pts4);
-            a.translate(ir.x(), ir.y());
-            p->setPen(pal.light());
-            p->drawPolyline(a);
-            a.setPoints(QCOORDARRLEN(pts5), pts5);
-            a.translate(ir.x(), ir.y());
-            QColor fillColor = (down || !enabled) ? pal.button() : pal.base();
-            p->setPen(fillColor);
-            p->setBrush(fillColor) ;
-            p->drawPolygon(a);
-            if (on) {
-                p->setPen(Qt::NoPen);
-                p->setBrush(pal.text());
-                p->drawRect(ir.x() + 5, ir.y() + 4, 2, 4);
-                p->drawRect(ir.x() + 4, ir.y() + 5, 4, 2);
-            }
-            break;
-        }
-
-    case PE_DockWindowResizeHandle:
-        {
-            QPen oldPen = p->pen();
-            p->setPen(pal.light());
-            if (flags & Style_Horizontal) {
-                p->drawLine(r.x(), r.y(), r.width(), r.y());
-                p->setPen(pal.dark());
-                p->drawLine(r.x(), r.bottom() - 1, r.width(), r.bottom() - 1);
-                p->setPen(pal.shadow());
-                p->drawLine(r.x(), r.bottom(), r.width(), r.bottom());
-            } else {
-                p->drawLine(r.x(), r.y(), r.x(), r.height());
-                p->setPen(pal.dark());
-                p->drawLine(r.right()-1, r.y(), r.right()-1, r.height());
-                p->setPen(pal.shadow());
-                p->drawLine(r.right(), r.y(), r.right(), r.height());
-            }
-            p->setPen(oldPen);
-            break;
-        }
-
-    case PE_ScrollBarSubLine:
-        if (use2000style) {
-            if (flags & Style_Down) {
-                p->setPen(pal.dark());
-                p->setBrush(pal.brush(QPalette::Button));
-                p->drawRect(r);
-            } else
-                drawPrimitive(PE_ButtonBevel, p, r, pal, flags | Style_Raised);
-        } else
-            drawPrimitive(PE_ButtonBevel, p, r, pal, (flags & Style_Enabled) |
-                          ((flags & Style_Down) ? Style_Down : Style_Raised));
-
-        drawPrimitive(((flags & Style_Horizontal) ? PE_ArrowLeft : PE_ArrowUp),
-                      p, r, pal, flags);
-        break;
-
-    case PE_ScrollBarAddLine:
-        if (use2000style) {
-            if (flags & Style_Down) {
-                p->setPen(pal.dark());
-                p->setBrush(pal.brush(QPalette::Button));
-                p->drawRect(r);
-            } else
-                drawPrimitive(PE_ButtonBevel, p, r, pal, flags | Style_Raised);
-        } else
-            drawPrimitive(PE_ButtonBevel, p, r, pal, (flags & Style_Enabled) |
-                          ((flags & Style_Down) ? Style_Down : Style_Raised));
-
-        drawPrimitive(((flags & Style_Horizontal) ? PE_ArrowRight : PE_ArrowDown),
-                      p, r, pal, flags);
-        break;
-
-    case PE_ScrollBarAddPage:
-    case PE_ScrollBarSubPage:
-        {
-            QBrush br;
-            QColor c = p->background().color();
-
-            p->setPen(Qt::NoPen);
-            p->setBackgroundMode(Qt::OpaqueMode);
-
-            if (flags & Style_Down) {
-                br = QBrush(pal.shadow(), Qt::Dense4Pattern);
-                p->setBackground(pal.dark());
-                p->setBrush(QBrush(pal.shadow(), Qt::Dense4Pattern));
-            } else {
-                br = (pal.brush(QPalette::Light).pixmap() ?
-                      pal.brush(QPalette::Light) :
-                      QBrush(pal.light(), Qt::Dense4Pattern));
-                p->setBrush(br);
-            }
-            p->drawRect(r);
-            p->setBackground(c);
-            break;
-        }
-
-    case PE_ScrollBarSlider:
-        if (! (flags & Style_Enabled)) {
-            QBrush br = (pal.brush(QPalette::Light).pixmap() ?
-                         pal.brush(QPalette::Light) :
-                         QBrush(pal.light(), Qt::Dense4Pattern));
-            p->setPen(Qt::NoPen);
-            p->setBrush(br);
-            p->setBackgroundMode(Qt::OpaqueMode);
-            p->drawRect(r);
-        } else
-            drawPrimitive(PE_ButtonBevel, p, r, pal, Style_Enabled | Style_Raised);
-        break;
-
     default:
-        if (pe >= PE_ArrowUp && pe <= PE_ArrowLeft) {
-            QPointArray a;
-
-            switch (pe) {
-            case PE_ArrowUp:
-                a.setPoints(7, -4,1, 2,1, -3,0, 1,0, -2,-1, 0,-1, -1,-2);
-                break;
-
-            case PE_ArrowDown:
-                a.setPoints(7, -4,-2, 2,-2, -3,-1, 1,-1, -2,0, 0,0, -1,1);
-                break;
-
-            case PE_ArrowRight:
-                a.setPoints(7, -2,-3, -2,3, -1,-2, -1,2, 0,-1, 0,1, 1,0);
-                break;
-
-            case PE_ArrowLeft:
-                a.setPoints(7, 0,-3, 0,3, -1,-2, -1,2, -2,-1, -2,1, -3,0);
-                break;
-
-            default:
-                break;
-            }
-
-            if (a.isEmpty())
-                return;
-
-            p->save();
-            if (flags & Style_Down)
-                p->translate(pixelMetric(PM_ButtonShiftHorizontal),
-                              pixelMetric(PM_ButtonShiftVertical));
-
-            if (flags & Style_Enabled) {
-                a.translate(r.x() + r.width() / 2, r.y() + r.height() / 2);
-                p->setPen(pal.buttonText());
-                p->drawLineSegments(a, 0, 3);         // draw arrow
-                p->drawPoint(a[6]);
-            } else {
-                a.translate(r.x() + r.width() / 2 + 1, r.y() + r.height() / 2 + 1);
-                p->setPen(pal.light());
-                p->drawLineSegments(a, 0, 3);         // draw arrow
-                p->drawPoint(a[6]);
-                a.translate(-1, -1);
-                p->setPen(pal.mid());
-                p->drawLineSegments(a, 0, 3);         // draw arrow
-                p->drawPoint(a[6]);
-            }
-            p->restore();
-        } else
-            QCommonStyle::drawPrimitive(pe, p, r, pal, flags, opt);
+        QCommonStyle::drawPrimitive(pe, p, r, pal, flags, opt);
     }
 }
 
@@ -2033,6 +1727,26 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
          popupPal.setColor(QPalette::Light, opt->palette.background());
          popupPal.setColor(QPalette::Midlight, opt->palette.light());
          qDrawWinPanel(p, opt->rect, popupPal, opt->state & Style_Sunken);
+        break; }
+    case PE_DockWindowResizeHandle: {
+        QPen oldPen = p->pen();
+        p->setPen(opt->palette.light());
+        if (opt->state & Style_Horizontal) {
+            p->drawLine(opt->rect.x(), opt->rect.y(), opt->rect.width(), opt->rect.y());
+            p->setPen(opt->palette.dark());
+            p->drawLine(opt->rect.x(), opt->rect.bottom() - 1, opt->rect.width(),
+                        opt->rect.bottom() - 1);
+            p->setPen(opt->palette.shadow());
+            p->drawLine(opt->rect.x(), opt->rect.bottom(), opt->rect.width(), opt->rect.bottom());
+        } else {
+            p->drawLine(opt->rect.x(), opt->rect.y(), opt->rect.x(), opt->rect.height());
+            p->setPen(opt->palette.dark());
+            p->drawLine(opt->rect.right() - 1, opt->rect.y(), opt->rect.right() - 1,
+                        opt->rect.height());
+            p->setPen(opt->palette.shadow());
+            p->drawLine(opt->rect.right(), opt->rect.y(), opt->rect.right(), opt->rect.height());
+        }
+        p->setPen(oldPen);
         break; }
     default:
         QCommonStyle::drawPrimitive(pe, opt, p, w);

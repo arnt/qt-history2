@@ -7,6 +7,7 @@
 #include <qevent.h>
 #include <qpainter.h>
 #include <qstyle.h>
+#include <qstyleoption.h>
 
 
 
@@ -82,11 +83,13 @@ void QDockWindowSeparator::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
 
-    uint flags = QStyle::Style_Default;
+    Q4StyleOption opt(0, Q4StyleOption::Default);
+    opt.state = QStyle::Style_Default;
     if (isEnabled())
-	flags |= QStyle::Style_Enabled;
+	opt.state |= QStyle::Style_Enabled;
     if (layout->orientation != Qt::Horizontal)
-	flags |= QStyle::Style_Horizontal;
-
-    style().drawPrimitive(QStyle::PE_DockWindowResizeHandle, &p, rect(), palette(), flags);
+	opt.state |= QStyle::Style_Horizontal;
+    opt.rect = rect();
+    opt.palette = palette();
+    style().drawPrimitive(QStyle::PE_DockWindowResizeHandle, &opt, &p, this);
 }

@@ -216,11 +216,15 @@ void Q3DockWindowResizeHandle::mouseReleaseEvent(QMouseEvent *e)
 void Q3DockWindowResizeHandle::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    style().drawPrimitive(QStyle::PE_DockWindowResizeHandle, &p, rect(), palette(),
-                          (isEnabled() ?
-                           QStyle::Style_Enabled : QStyle::Style_Default) |
-                          (orientation() == Qt::Horizontal ?
-                           QStyle::Style_Horizontal : QStyle::Style_Default));
+    Q4StyleOption opt(0, Q4StyleOption::Default);
+    opt.rect = rect();
+    opt.palette = palette();
+    opt.state = QStyle::Style_Default;
+    if (isEnabled())
+        opt.state |= QStyle::Style_Enabled;
+    if (orientation() == Horizontal)
+        opt.state |= QStyle::Style_Horizontal;
+    style().drawPrimitive(QStyle::PE_DockWindowResizeHandle, &opt, &p, this);
 }
 
 void Q3DockWindowResizeHandle::startLineDraw()

@@ -8,11 +8,12 @@
 #include <qapplication.h>
 #include <qevent.h>
 #include <qlayout.h>
+#include <qmenu.h>
 #include <qpainter.h>
 #include <qrubberband.h>
 #include <qstyle.h>
+#include <qstyleoption.h>
 #include <qtoolbutton.h>
-#include <qmenu.h>
 
 #include <private/qframe_p.h>
 #define d d_func()
@@ -90,15 +91,17 @@ public:
 void QToolBarHandle::paintEvent(QPaintEvent *e)
 {
     QPainter p(this);
-    QStyle::SFlags flags = QStyle::Style_Default;
+    Q4StyleOption opt(0, Q4StyleOption::Default);
+    opt.state = QStyle::Style_Default;
     if (isEnabled())
-	flags |= QStyle::Style_Enabled;
+	opt.state |= QStyle::Style_Enabled;
     QBoxLayout *box = qt_cast<QBoxLayout *>(parentWidget()->layout());
     if (box->direction() == QBoxLayout::LeftToRight || box->direction() == QBoxLayout::RightToLeft)
-	flags |= QStyle::Style_Horizontal;
+	opt.state |= QStyle::Style_Horizontal;
 
-    style().drawPrimitive(QStyle::PE_DockWindowHandle, &p, QStyle::visualRect(rect(), this),
-			  palette(), flags);
+    opt.rect = QStyle::visualRect(rect(), this);
+    opt.palette = palette();
+    style().drawPrimitive(QStyle::PE_DockWindowHandle, &opt, &p, this);
     QWidget::paintEvent(e);
 }
 
