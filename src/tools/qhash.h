@@ -183,7 +183,7 @@ public:
         typedef T *pointer;
         typedef T &reference;
 
-	inline operator QHashData::Node *() const { return i; }
+	inline operator Node *() const { return reinterpret_cast<Node *>(i); }
         inline Iterator() : i(0) { }
 	explicit inline Iterator(void *node) : i(reinterpret_cast<QHashData::Node *>(node)) { }
 
@@ -229,7 +229,7 @@ public:
         typedef T *pointer;
         typedef T &reference;
 
-	inline operator QHashData::Node *() const { return i; }
+	inline operator Node *() const { return reinterpret_cast<Node*>(i); }
         inline ConstIterator() : i(0) { }
 	explicit inline ConstIterator(void *node)
 	    : i(reinterpret_cast<QHashData::Node *>(node)) { }
