@@ -385,8 +385,8 @@ QMakeProject::read(const QString &file, QMap<QString, QStringList> &place)
 	    line = t.readLine().stripWhiteSpace();
 	    int prelen = line.length();
 	    line.replace(QRegExp("#.*$"), ""); // bye comments
-	    if(!line.isEmpty() && line.right(1) == "\\") {
-		line.truncate(line.length() - 1);
+	    if(!line.isEmpty() && line.find(QRegExp("\\ *$")) != -1) {
+		line = line.section("\\", 0, -1);
 		s += line + " ";
 	    } else if(!line.isEmpty() || (line.isEmpty() && !prelen)) {
 		if(s.isEmpty() && line.isEmpty())
