@@ -246,14 +246,12 @@ struct Q_EXPORT QUEnum
 };
 
 inline bool QUType::isEqual( const QUType *t1, const QUType *t2 ) {
-    return t1 == t2 ||
-   t1->uuid() == t2->uuid() ||
-	       !memcmp( t1->uuid(), t2->uuid(), sizeof(QUuid) );
+    return t1 == t2 || t1->uuid() == t2->uuid() ||
+	*(t1->uuid()) == *(t2->uuid());
 }
 
 inline bool QUType::check( QUObject* o, QUType* t ) {
-    return isEqual( o->type, t ) ||
-	t->convertFrom( o, o->type );
+    return isEqual( o->type, t ) || t->convertFrom( o, o->type );
 }
 
 
