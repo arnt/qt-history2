@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#138 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#139 $
 **
 ** Definition of event classes
 **
@@ -180,7 +180,7 @@ protected:
 };
 
 
-
+#ifndef QT_NO_WHEELEVENT
 class Q_EXPORT QWheelEvent : public QEvent
 {
 public:
@@ -208,7 +208,7 @@ protected:
     bool   accpt;
     Orientation o;
 };
-
+#endif
 
 class Q_EXPORT QKeyEvent : public QEvent
 {

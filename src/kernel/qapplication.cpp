@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#498 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#499 $
 **
 ** Implementation of QApplication class
 **
@@ -290,7 +290,9 @@ QWidget	 *QApplication::active_window  = 0;	// toplevel with keyboard focus
 bool	  QApplication::obey_desktop_settings = TRUE;	// use winsys resources
 int	  QApplication::cursor_flash_time = 1000;	// text caret flash time
 int	  QApplication::mouse_double_click_time = 400;	// mouse dbl click limit
+#ifndef QT_NO_WHEELEVENT
 int	  QApplication::wheel_scroll_lines = 3;		// number of lines to scroll
+#endif
 bool	  qt_is_gui_used;
 bool      qt_resolve_symlinks = TRUE;
 QRect qt_maxWindowRect;
@@ -1859,6 +1861,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	    }
 	}
 	break;
+#ifndef QT_NO_WHEELEVENT
     case QEvent::Wheel:
 	{
 	    QWidget* w = (QWidget*)receiver;
@@ -1888,6 +1891,7 @@ bool QApplication::notify( QObject *receiver, QEvent *e )
 	    }
 	}
 	break;
+#endif
     case QEvent::ContextMenu:
 	{
 	    QWidget* w = (QWidget*)receiver;
@@ -2468,9 +2472,11 @@ void QApplication::removePostedEvent( QEvent *  event )
 	    case QEvent::MouseMove:
 		n = "MouseMove";
 		break;
+#ifndef QT_NO_WHEELEVENT
 	    case QEvent::Wheel:
 		n = "Wheel";
 		break;
+#endif
 	    case QEvent::KeyPress:
 		n = "KeyPress";
 		break;

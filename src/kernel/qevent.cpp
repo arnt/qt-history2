@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#169 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#170 $
 **
 ** Implementation of event classes
 **
@@ -438,13 +438,14 @@ Qt::ButtonState QMouseEvent::stateAfter() const
 
   \sa pos(), delta(), state()
 */
+#ifndef QT_NO_WHEELEVENT
 QWheelEvent::QWheelEvent( const QPoint &pos, int delta, int state, Orientation orient )
     : QEvent(Wheel), p(pos), d(delta), s((ushort)state),
       accpt(TRUE), o(orient)
 {
     g = QCursor::pos();
 }
-
+#endif
 /*!
   \fn QWheelEvent::QWheelEvent( const QPoint &pos, const QPoint& globalPos, int delta, int state, Orientation orient = Vertical  )
 

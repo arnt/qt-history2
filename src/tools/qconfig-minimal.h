@@ -74,4 +74,8 @@
 
 #define QT_NO_VARIANT
 
+#define QT_NO_RANGECONTROL
 #define QT_NO_QUUID_STRING
+#define QT_NO_SIGNALMAPPER
+
+#define QT_NO_WHEELEVENT

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_qws.cpp#120 $
+** $Id: //depot/qt/main/src/kernel/qapplication_qws.cpp#121 $
 **
 ** Implementation of Qt/FB startup routines and event handling
 **
@@ -323,7 +323,9 @@ public:
 
     bool translateKeyEvent( const QWSKeyEvent *, bool grab );
     bool translateRegionModifiedEvent( const QWSRegionModifiedEvent * );
+#ifndef QT_NO_WHEELEVENT
     bool translateWheelEvent( int global_x, int global_y, int delta, int state );
+#endif
     void repaintHierarchy(QRegion r);
     void repaintDecoration(QRegion r);
 
@@ -3415,7 +3417,7 @@ int QApplication::doubleClickInterval()
     return mouse_double_click_time;
 }
 
-
+#ifndef QT_NO_WHEELEVENT
 // Need to add some sort of implementation here?
 
 void QApplication::setWheelScrollLines(int)
@@ -3426,6 +3428,7 @@ int QApplication::wheelScrollLines()
 {
     return 0;
 }
+#endif
 
 void QApplication::wakeUpGuiThread()
 {

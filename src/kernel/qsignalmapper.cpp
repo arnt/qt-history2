@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignalmapper.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qsignalmapper.cpp#28 $
 **
 ** Implementation of QSignalMapper class
 **
@@ -36,6 +36,7 @@
 **********************************************************************/
 
 #include "qsignalmapper.h"
+#ifndef QT_NO_SIGNALMAPPER
 #include "qptrdict.h"
 
 struct QSignalMapperRec {
@@ -175,3 +176,4 @@ QSignalMapperRec* QSignalMapper::getRec( const QObject* sender )
 
   \sa setMapping(QString)
 */
+#endif //QT_NO_SIGNALMAPPER

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#372 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#373 $
 **
 ** Definition of QWidget class
 **
@@ -432,7 +432,9 @@ protected:
     virtual void mouseReleaseEvent( QMouseEvent * );
     virtual void mouseDoubleClickEvent( QMouseEvent * );
     virtual void mouseMoveEvent( QMouseEvent * );
+#ifndef QT_NO_WHEELEVENT
     virtual void wheelEvent( QWheelEvent * );
+#endif
     virtual void keyPressEvent( QKeyEvent * );
     virtual void keyReleaseEvent( QKeyEvent * );
     virtual void focusInEvent( QFocusEvent * );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfeatures.h#88 $
+** $Id: //depot/qt/main/src/tools/qfeatures.h#89 $
 **
 ** Global feature selection
 **
@@ -168,7 +168,10 @@
 # define QT_NO_SETTINGS
 #endif
 
-
+/*!
+  QSignalMapper
+*/
+//#define QT_NO_SIGNALMAPPER
 
 // Images
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignalmapper.h#19 $
+** $Id: //depot/qt/main/src/kernel/qsignalmapper.h#20 $
 **
 ** Definition of QSignalMapper class
 **
@@ -41,7 +41,7 @@
 #ifndef QT_H
 #include "qobject.h"
 #endif // QT_H
-
+#ifndef QT_NO_SIGNALMAPPER
 class  QSignalMapperData;
 struct QSignalMapperRec;
 
@@ -71,5 +71,5 @@ private slots:
     void removeMapping();
 };
 
-
+#endif // QT_NO_SIGNALMAPPER
 #endif // QSIGNALMAPPER_H

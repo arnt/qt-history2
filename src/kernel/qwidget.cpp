@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#714 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#715 $
 **
 ** Implementation of QWidget class
 **
@@ -3999,12 +3999,13 @@ bool QWidget::event( QEvent *e )
 	    if ( ! ((QMouseEvent*)e)->isAccepted() )
 		return FALSE;
 	    break;
-
+#ifndef QT_NO_WHEELEVENT
 	case QEvent::Wheel:
 	    wheelEvent( (QWheelEvent*)e );
 	    if ( ! ((QWheelEvent*)e)->isAccepted() )
 		return FALSE;
 	    break;
+#endif
 	case QEvent::KeyPress: {
 	    QKeyEvent *k = (QKeyEvent *)e;
 	    bool res = FALSE;
@@ -4273,7 +4274,7 @@ void QWidget::mouseDoubleClickEvent( QMouseEvent *e )
     mousePressEvent( e );			// try mouse press event
 }
 
-
+#ifndef QT_NO_WHEELEVENT
 /*!
   This event handler can be reimplemented in a subclass to receive
   wheel events for the widget.
@@ -4292,7 +4293,7 @@ void QWidget::wheelEvent( QWheelEvent *e )
 {
     e->ignore();
 }
-
+#endif
 
 /*!
   This event handler can be reimplemented in a subclass to receive key

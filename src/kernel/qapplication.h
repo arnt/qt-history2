@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#234 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#235 $
 **
 ** Definition of QApplication class
 **
@@ -193,10 +193,10 @@ public:
 
     static void      setDoubleClickInterval( int );
     static int       doubleClickInterval();
-
+#ifndef QT_NO_WHEELEVENT
     static void      setWheelScrollLines( int );
     static int       wheelScrollLines();
-
+#endif
     static void	     setGlobalStrut( const QSize & );
     static QSize     globalStrut();
 
