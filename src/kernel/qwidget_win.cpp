@@ -47,8 +47,7 @@
 #endif
 
 #if defined(QT_NON_COMMERCIAL)
-#include "qmessagebox.h"
-#define IDM_ABOUTQT	1
+#include "qnc_win.h"
 #endif
 #if defined(__MINGW32__)
 #include <imm.h>
@@ -417,7 +416,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     }
 
 #if defined(QT_NON_COMMERCIAL)
-    HMENU menu = GetSystemMenu( winId(), FALSE );
+    QT_NC_WIDGET_CREATE
     if ( menu ) {
 #  ifdef Q_OS_TEMP
 	AppendMenuW( menu, MF_SEPARATOR, NULL, NULL );
@@ -721,19 +720,6 @@ void QWidget::unsetCursor()
     }
 }
 
-#if defined(QT_NON_COMMERCIAL)
-static char* ForK( const char *f ) {
-    char *res = new char[strlen(f)+1];
-    int i = 0;
-    while ( f[i] ) {
-	res[i] = f[i] ^ 5;
-	i++;
-    }
-    res[i] = '\0';
-    return res;
-}
-#endif
-
 void QWidget::setCaption( const QString &caption )
 {
     if ( QWidget::caption() == caption )
@@ -744,24 +730,7 @@ void QWidget::setCaption( const QString &caption )
     SetWindowText( winId(), (TCHAR*)qt_winTchar(caption,TRUE) );
 #else
 #if defined(QT_NON_COMMERCIAL)
-    QString cap;
-    char* t = ForK("Qwjiiq`fm");
-    char* q = ForK("Tq");
-    char* f = ForK("^Cw``rdw`X%(%");
-    if ( caption.find( QString(t) ) != -1 && caption.find( QString(q) ) != -1 )
-	cap = caption;
-    else if ( caption.find( QString(q) + " Example" ) != -1 )
-	cap = caption;
-    else if ( parentWidget() && parentWidget()->caption().find( QString(t) ) != -1 && parentWidget()->caption().find( QString(q) ) != -1 )
-	cap = caption;
-    else if ( inherits("QFileDialog") || inherits("QMessageBox") || inherits("QFontDialog") || inherits("QColorDialog") )
-	cap = caption;
-    else
-	cap = QString(f) + caption;
-
-    delete[] t;
-    delete[] q;
-    delete[] f;
+    QT_NC_CAPTION
 #else
     QString cap = caption;
 #endif
@@ -1020,13 +989,7 @@ void QWidget::showWindow()
     }
     else {
 #if defined(QT_NON_COMMERCIAL)
-	if ( isTopLevel() && caption() == QString::null
-	    && ! ( inherits("QFileDialog") || inherits("QMessageBox")
-	    || inherits("QFontDialog") || inherits("QColorDialog") ) ) {
-	    char* f = ForK("^Cw``rdw`X%(%");
-	    setCaption( QString(f) + QString(qApp->name()) );
-	    delete[] f;
-	}
+	QT_NC_SHOW_WINDOW
 #endif
 	int sm = SW_SHOW;
 	if ( isTopLevel() ) {
