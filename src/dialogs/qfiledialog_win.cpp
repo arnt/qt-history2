@@ -481,9 +481,9 @@ static int __stdcall winGetExistDirCallbackProc(HWND hwnd,
 	if (!initDir->isEmpty()) {
 	    TCHAR *dispName = (TCHAR*)qt_winTchar_new(*initDir);
 	    if (qt_winver != QFileDialog::WV_NT)
-		SendMessageA(hwnd, BFFM_SETSELECTION, TRUE, long(dispName));
+		SendMessageA(hwnd, BFFM_SETSELECTION, TRUE, Q_ULONG(dispName));
 	    else
-		SendMessage(hwnd, BFFM_SETSELECTION, TRUE, long(dispName));
+		SendMessage(hwnd, BFFM_SETSELECTION, TRUE, Q_ULONG(dispName));
 	    delete dispName;
 	    dispName = 0;
 	}
@@ -497,7 +497,7 @@ static int __stdcall winGetExistDirCallbackProc(HWND hwnd,
 		SendMessage(hwnd, BFFM_ENABLEOK, 1, 1);
 	    else
 		SendMessage(hwnd, BFFM_ENABLEOK, 0, 0);
-	    SendMessage(hwnd, BFFM_SETSTATUSTEXT, 1, long(path));
+	    SendMessage(hwnd, BFFM_SETSTATUSTEXT, 1, Q_ULONG(path));
 	} else 
 #endif
 	{
@@ -508,7 +508,7 @@ static int __stdcall winGetExistDirCallbackProc(HWND hwnd,
 		SendMessageA(hwnd, BFFM_ENABLEOK, 1, 1);
 	    else
 		SendMessageA(hwnd, BFFM_ENABLEOK, 0, 0);
-	    SendMessageA(hwnd, BFFM_SETSTATUSTEXT, 1, long(path));
+	    SendMessageA(hwnd, BFFM_SETSTATUSTEXT, 1, Q_ULONG(path));
 	}
     }
 #endif
@@ -545,7 +545,7 @@ QString QFileDialog::winGetExistingDirectory(const QString& initialDirectory,
 	bi.pszDisplayName = initPath;
 	bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_STATUSTEXT;
 	bi.lpfn = winGetExistDirCallbackProc;
-	bi.lParam = long(&initDir);
+	bi.lParam = Q_ULONG(&initDir);
 	LPITEMIDLIST pItemIDList = SHBrowseForFolder(&bi);
 	if (pItemIDList) {
 	    SHGetPathFromIDList(pItemIDList, path);
@@ -576,7 +576,7 @@ QString QFileDialog::winGetExistingDirectory(const QString& initialDirectory,
 	bi.pszDisplayName = initPath;
 	bi.ulFlags = BIF_RETURNONLYFSDIRS;
 	bi.lpfn = winGetExistDirCallbackProc;
-	bi.lParam = long(&initDir);
+	bi.lParam = Q_ULONG(&initDir);
 	LPITEMIDLIST pItemIDList = SHBrowseForFolderA(&bi);
 	if (pItemIDList) {
 	    SHGetPathFromIDListA(pItemIDList, path);
