@@ -4271,7 +4271,7 @@ void QTable::saveContents( QPtrVector<QTableItem> &tmp,
     for ( i = 0; i < (int)tmp2.size(); ++i ) {
 	QWidget *w = widgets[ i ];
 	if ( w )
-	    tmp2.insert( i, new TableWidget( w, i % numRows(), i / numCols() ) );
+	    tmp2.insert( i, new TableWidget( w, i / numCols(), i % numCols() ) );
 	else
 	    tmp2.insert( i, 0 );
     }
