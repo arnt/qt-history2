@@ -1746,15 +1746,19 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
     QString selection = QFileDialogPrivate::initialSelection(dir);
 
     // create a native dialog
+    
+    QFileDialogArgs args;
+    args.parent = parent;
+    args.caption = caption;
+    args.directory = qt_working_dir;
+    args.selection = selection;
+    args.filter = filter;
+    args.options = options;
+
     QString result;
 #if defined(Q_WS_WIN)
     if (::qt_cast<QWindowsStyle*>(qApp->style())) {
-        result = qt_win_get_open_file_name(selection,
-                                           filter,
-                                           &qt_working_dir,
-                                           parent,
-                                           caption,
-                                           selectedFilter);
+        result = qt_win_get_open_file_name(args, &qt_working_dir, selectedFilter);
         return result;
     }
 #elif defined(Q_WS_MAC)

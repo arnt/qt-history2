@@ -281,16 +281,13 @@ extern Q_GUI_EXPORT void qt_enter_modal(QWidget*);
 extern Q_GUI_EXPORT void qt_leave_modal(QWidget*);
 extern void qt_win_eatMouseMove();
 
-QString qt_win_get_open_file_name(const QString &initialSelection,
-                                  const QString &filter,
-                                  QString *initialDirectory,
-                                  QWidget *parent,
-                                  const QString &caption,
+QString qt_win_get_open_file_name(const QFileDialogArgs &args,
+                                  QString *initialDirector,
                                   QString *selectedFilter)
 {
     QString result;
 
-    QString isel = initialSelection;
+    QString isel = args.selection;
 
     if (initialDirectory && initialDirectory->left(5) == "file:")
         initialDirectory->remove(0, 5);
@@ -305,7 +302,7 @@ QString qt_win_get_open_file_name(const QString &initialSelection,
     if (!fi.exists())
         *initialDirectory = QDir::homePath();
 
-    QString title = caption;
+    QString title = args.caption;
     if (title.isNull())
         title = QObject::tr("Open");
 
@@ -313,18 +310,18 @@ QString qt_win_get_open_file_name(const QString &initialSelection,
 
     int idx = 0;
     if (selectedFilter) {
-        QStringList filterLst = qt_win_make_filters_list(filter);
+        QStringList filterLst = qt_win_make_filters_list(args.filter);
         idx = filterLst.indexOf(*selectedFilter);
     }
 
-    if (parent) {
+    if (args.parent) {
         QEvent e(QEvent::WindowBlocked);
-        QApplication::sendEvent(parent, &e);
-        qt_enter_modal(parent);
+        QApplication::sendEvent(args.parent, &e);
+        qt_enter_modal(args.parent);
     }
     QT_WA({
         // Use Unicode strings and API
-        OPENFILENAME* ofn = qt_win_make_OFN(parent, isel,
+        OPENFILENAME* ofn = qt_win_make_OFN(args.parent, isel,
                                             *initialDirectory, title,
                                             qt_win_filter(filter),
 					    QFileDialog::ExistingFile);
@@ -337,7 +334,7 @@ QString qt_win_get_open_file_name(const QString &initialSelection,
         qt_win_clean_up_OFN(&ofn);
     } , {
         // Use ANSI strings and API
-        OPENFILENAMEA* ofn = qt_win_make_OFNA(parent, isel,
+        OPENFILENAMEA* ofn = qt_win_make_OFNA(args.parent, isel,
                                               *initialDirectory, title,
                                               qt_win_filter(filter),
 					      QFileDialog::ExistingFile);
@@ -349,10 +346,10 @@ QString qt_win_get_open_file_name(const QString &initialSelection,
         }
         qt_win_clean_up_OFNA(&ofn);
     });
-    if (parent) {
-        qt_leave_modal(parent);
+    if (args.parent) {
+        qt_leave_modal(args.parent);
         QEvent e(QEvent::WindowUnblocked);
-        QApplication::sendEvent(parent, &e);
+        QApplication::sendEvent(args.parent, &e);
     }
 
     qt_win_eatMouseMove();

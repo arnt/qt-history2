@@ -136,4 +136,16 @@ public:
     QToolButton *listMode;
 };
 
+struct QFileDialogArgs
+{
+    QFileDialogArgs() : parent(0) {}
+
+    QWidget *parent;
+    QString caption;
+    QString directory;
+    QString selection;
+    QString filter;
+    QFileDialog::Options options;
+};
+
 #endif // QFILEDIALOG_P_H
