@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#149 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#150 $
 **
 ** Implementation of QFileDialog class
 **
@@ -44,16 +44,12 @@
 #include <time.h>
 #include <ctype.h>
 
-#if defined(_WS_WIN_)
-#if defined(_CC_BOOL_DEF_)
-#undef	bool
-#include <windows.h>
-#define bool int
-#else
-#include <windows.h>
-#endif
+// getlogin()
+#include <unistd.h> 
 
-#endif
+// getpwnam()
+#include <sys/types.h>
+#include <pwd.h>
 
 // see comment near use of this variable
 static const char * egcsWorkaround = "%x  %X";
@@ -1109,7 +1105,24 @@ void QFileDialog::setFilter( const QString & newFilter )
 
 void QFileDialog::setDir( const QString & pathstr )
 {
-    QDir tmp( pathstr );
+    QString d = pathstr;
+
+    if ( d.length() && d[0] == '~' ) {
+	struct passwd *pw;
+	int i;
+
+	i = 0;
+	while( i < (int)d.length() && d[i] != '/' )
+	    i++;
+	QString user;
+	user = ( i == 1 ) ? QString( ::getlogin() ) : d.mid( 1, i-1 );
+	d = d.mid( i, d.length() );
+	pw = ::getpwnam( user );
+	if ( pw )
+	    d.prepend( pw->pw_dir );
+    }
+
+    QDir tmp( d );
     tmp.setFilter( cwd.filter() );
     setDir( tmp );
 }
@@ -1296,69 +1309,6 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
     if ( workingDirectory->isNull() )
 	*workingDirectory = QDir::currentDirPath();
 
-#if defined(_WS_WIN_)
-
-    *workingDirectory = QDir::convertSeparators( *workingDirectory );
-
-    const int maxstrlen = 512;
-    QString file;
-    if ( !initialSelection.isEmpty() )
-	file = QDir::convertSeparators(initialSelection);
-
-    const char all_filter_name[] = "All Files";
-    const char all_filter[] = "*.*";
-    QString win_filter;
-    int total_len = 0;
-    if (!filter.isEmpty()) {
-	win_filter += filter;
-	win_filter += QChar::null;
-	win_filter += filter;
-	win_filter += QChar::null;
-    }
-    win_filter += all_filter_name;
-    win_filter += QChar::null;
-    win_filter += all_filter;
-    win_filter += QChar::null;
-    win_filter += QChar::null;
-
-    TCHAR tcfile[maxstrlen];
-    int l = QMIN(maxstrlen-1,file.length());
-    memcpy(tcfile, qt_winTchar(file,FALSE),sizeof(TCHAR)*l);
-    tcfile[l] = 0;
-
-    TCHAR* filt = (TCHAR*)qt_winTchar_new(win_filter);
-    TCHAR* idir = (TCHAR*)qt_winTchar_new(*workingDirectory);
-
-    if ( parent )
-	parent = parent->topLevelWidget();
-    else
-	parent = qApp->mainWidget();
-
-    OPENFILENAME ofn;
-    memset( &ofn, 0, sizeof(OPENFILENAME) );
-    ofn.lStructSize	= sizeof(OPENFILENAME);
-    ofn.hwndOwner	= parent ? parent->winId() : 0;
-    ofn.lpstrFilter	= filt;
-    ofn.lpstrFile	= tcfile;
-    ofn.nMaxFile	= maxstrlen;
-    ofn.lpstrInitialDir = idir;
-    ofn.lpstrTitle	= (TCHAR*)qt_winTchar("Open",TRUE);
-    ofn.Flags		= (OFN_CREATEPROMPT|OFN_NOCHANGEDIR);
-
-    QString result;
-
-    if ( GetOpenFileName(&ofn) ) {
-	result = file;
-	*workingDirectory = QFileInfo(file).dirPath();
-    }
-
-    delete [] idir;
-    delete [] filt;
-
-    return result;
-
-#else
-
     QFileDialog *dlg = new QFileDialog( *workingDirectory, filter,
 					parent, name, TRUE );
     CHECK_PTR( dlg );
@@ -1373,8 +1323,6 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
     }
     delete dlg;
     return result;
-
-#endif
 }
 
 /*!
@@ -1435,70 +1383,6 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
     if ( workingDirectory->isNull() )
 	*workingDirectory = QDir::currentDirPath();
 
-#if defined(_WS_WIN_)
-
-    *workingDirectory = QDir::convertSeparators( *workingDirectory );
-
-    const int maxstrlen = 256;
-    char *file = new char[maxstrlen];
-    file[0] = '\0';
-    if ( !initialSelection.isEmpty() )
-	qstrncpy( file, QDir::convertSeparators(initialSelection), 255 );
-
-    const char all_filter_name[] = "All Files";
-    const char all_filter[] = "*.*";
-    QString win_filter;
-    int total_len = 0;
-    if (!filter.isEmpty()) {
-	win_filter += filter;
-	win_filter += QChar::null;
-	win_filter += filter;
-	win_filter += QChar::null;
-    }
-    win_filter += all_filter_name;
-    win_filter += QChar::null;
-    win_filter += all_filter;
-    win_filter += QChar::null;
-    win_filter += QChar::null;
-
-    TCHAR tcfile[maxstrlen];
-    int l = QMIN(maxstrlen-1,win_filter.length());
-    memcpy(tcfile, qt_winTchar(win_filter,FALSE),sizeof(TCHAR)*l);
-    tcfile[l] = 0;
-
-    TCHAR* filt = (TCHAR*)qt_winTchar_new(win_filter);
-    TCHAR* idir = (TCHAR*)qt_winTchar_new(*workingDirectory);
-
-    if ( parent )
-	parent = parent->topLevelWidget();
-    else
-	parent = qApp->mainWidget();
-
-    OPENFILENAME ofn;
-    memset( &ofn, 0, sizeof(OPENFILENAME) );
-    ofn.lStructSize	= sizeof(OPENFILENAME);
-    ofn.hwndOwner	= parent ? parent->winId() : 0;
-    ofn.lpstrFilter	= filt;
-    ofn.lpstrFile	= tcfile;
-    ofn.nMaxFile	= maxstrlen;
-    ofn.lpstrInitialDir = idir;
-    ofn.lpstrTitle	= (TCHAR*)qt_winTchar("Save",TRUE);
-    ofn.Flags		= (OFN_CREATEPROMPT|OFN_NOCHANGEDIR);
-
-    QString result;
-
-    if ( GetSaveFileName(&ofn) ) {
-	result = file;
-	*workingDirectory = QFileInfo(file).dirPath();
-    }
-
-    delete [] idir;
-    delete [] filt;
-
-    return result;
-
-#else
-
     QFileDialog *dlg = new QFileDialog( *workingDirectory, filter, parent, name, TRUE );
     CHECK_PTR( dlg );
     dlg->setCaption( "Save As" );
@@ -1511,8 +1395,6 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
     }
     delete dlg;
     return result;
-
-#endif
 }
 
 
