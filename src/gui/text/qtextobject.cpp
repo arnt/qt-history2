@@ -130,20 +130,29 @@ QTextDocumentPrivate *QTextObject::docHandle() const
 
 /*!
     \class QTextBlockGroup
-    \brief The QTextBlockGroup class groups together a list of
-    QTextBlocks within a document.
+    \brief The QTextBlockGroup class provides a container for text blocks within
+    a QTextDocument.
 
-    \l{QTextBlock}s can be inserted with blockInserted() and removed
-    with blockRemoved(). If a block's format is changed
-    blockFormatChanged() is called. The list of blocks in the group is
-    returned by blockList().
+    Block groups can be used to organize blocks of text within a document.
+    They maintain an up-to-date list of the text blocks that belong to
+    them, even when text blocks are being edited.
 
-    The block group maintains an up-to-date list of the blocks which
-    belong to the group even when editing takes place.
+    Each group has a parent document which is specified when the group is
+    constructed.
+
+    Text blocks can be inserted into a group with blockInserted(), and removed
+    with blockRemoved(). If a block's format is changed, blockFormatChanged()
+    is called. 
+
+    The list of blocks in the group is returned by blockList().
+
+    \sa QTextBlock QTextDocument
 */
 
 /*!
-    Creates a new new block group for the document \a doc.
+    \fn QTextBlockGroup::QTextBlockGroup(QTextDocument *document)
+
+    Creates a new new block group for the given \a document.
 
     \warning This function should only be called from
     QTextDocument::createObject().
@@ -193,9 +202,10 @@ void QTextBlockGroup::blockRemoved(const QTextBlock &block)
 }
 
 /*!
-    This function is called whenever the specified \a block of text
-    (which is part of this group), is changed. The base class
-    implementation does nothing.
+    This function is called whenever the specified \a block of text is changed.
+    The text block is a member of this group.
+
+    The base class implementation does nothing.
 */
 void QTextBlockGroup::blockFormatChanged(const QTextBlock &)
 {
@@ -220,6 +230,8 @@ QTextFrameLayoutData::~QTextFrameLayoutData()
 /*!
     \class QTextFrame
     \brief The QTextFrame class represents a frame in a QTextDocument.
+
+    Text frames provide structure for the text in a document.
 
     Each frame in a document consists of a frame start character,
     QChar(0xFDD0), followed by the frame's contents, followed by a
@@ -698,7 +710,7 @@ QTextFrame::iterator QTextFrame::iterator::operator--()
 */
 
 /*!
-    \fn bool QTextBlock::iterator::operator==(const iterator &other)
+    \fn inline bool QTextBlock::iterator::operator==(const iterator &other)
 
     Retuns true if this iterator is the same as the \a other iterator;
     otherwise returns false.
@@ -807,7 +819,7 @@ QTextCharFormat QTextBlock::charFormat() const
 }
 
 /*!
-    Returns the block's plain text.
+    Returns the block's contents as plain text.
 
     \sa length() charFormat() blockFormat()
  */
@@ -959,17 +971,31 @@ QTextBlock::iterator QTextBlock::iterator::operator--()
 /*!
     \class QTextFragment
     \brief The QTextFragment class holds a piece of text in a
-    QTextDocument that has a single QTextCharFormat.
+    QTextDocument with a single QTextCharFormat.
 
-    If the user edits the text in a fragment, for example, makes a
-    word in the middle bold, the fragment will be broken into three
-    separate fragments, the first and third with the same format as
-    before and containing the text before and after the emboldened
-    word, and the second with a bold font and the emboldened word.
+    A text fragment describes a piece of text that is stored with a single
+    character format. Text in which the character format changes can be
+    represented by sequences of text fragments with different formats.
 
-    A text fragment can be queried for its text(), charFormat(),
-    length() and position(), and for whether it contains() a
-    particular position in the document as a whole.
+    If the user edits the text in a fragment and introduces a different
+    character format, the fragment's text will be split at each point where
+    the format changes, and new fragments will be created.
+    For example, changing the style of some text in the middle of a
+    sentence will cause the fragment to be broken into three separate fragments:
+    the first and third with the same format as before, and the second with
+    the new style. The first fragment will contain the text from the beginning
+    of the sentence, the second will contain the text from the middle, and the
+    third takes the text from the end of the sentence.
+
+    \img qtextfragment-split.png
+
+    A fragment's text and character format can be obtained with the text()
+    and charFormat() functions. The length() function gives the length of
+    the text in the fragment. position() gives the position in the document
+    of the start of the fragment. To determine whether the fragment contains
+    a particular position within the document, use the contains() function.
+
+    \sa QTextDocument
 */
 
 /*!
@@ -1084,7 +1110,7 @@ QTextCharFormat QTextFragment::charFormat() const
 }
 
 /*!
-    Returns the text fragment's text.
+    Returns the text fragment's as plain text.
 
     \sa length() charFormat()
 */

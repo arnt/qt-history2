@@ -539,8 +539,6 @@ QTextFrame *QTextDocument::frameAt(int pos) const
 }
 
 /*!
-    \internal
-
     Returns the document's root frame.
 */
 QTextFrame *QTextDocument::rootFrame() const

@@ -499,9 +499,9 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
     \value StartOfLine Move to the start of the current line
     \value StartOfBlock Move to the start of the current block
     \value StartOfWord Move to the start of the current word
-    \value PreviousBlock move to the start of the previous block
-    \value PreviousCharacter move to the previous character
-    \value PreviousWord move to the beginning of the previous word
+    \value PreviousBlock Move to the start of the previous block
+    \value PreviousCharacter Move to the previous character
+    \value PreviousWord Move to the beginning of the previous word
     \value Up move up one line
     \value Left move left one character
     \value WordLeft move left one word
@@ -527,7 +527,7 @@ bool QTextCursorPrivate::movePosition(QTextCursor::MoveOperation op, QTextCursor
     \value KeepAnchor Keeps the anchor where it is.
 
     If the anchor() is kept where it is and the position() is moved,
-    the text in-between will be selected.
+    the text in between will be selected.
 */
 
 /*!
