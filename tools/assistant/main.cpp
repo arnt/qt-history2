@@ -33,6 +33,7 @@
 #include <qmessagebox.h>
 #include <qguardedptr.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 class AssistantSocket : public QSocket
 {
@@ -335,6 +336,7 @@ int main( int argc, char ** argv )
     if ( server ) {
 	as = new AssistantServer();
 	printf("%d\n", as->port() );
+	fflush( stdout );
 	as->connect( as, SIGNAL( showLinkRequest( const QString& ) ),
 		mw, SLOT( showLinkFromClient( const QString& ) ) );
     }
