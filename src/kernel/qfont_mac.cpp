@@ -131,9 +131,7 @@ int QFontMetrics::underlinePos() const
 
 QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 {
-    if(len<1) 
-	len=str.length();
-    return QRect(0,0,len*maxWidth(),height());  // Temporary
+    return QRect( 0,-(ascent()),width(str,len),height());
 }
 
 void QFont::cleanup()
