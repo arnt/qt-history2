@@ -444,6 +444,22 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, 
 }
 #endif // !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
 
+void QX11PaintEnginePrivate::init()
+{
+    dpy = 0;
+    scrn = 0;
+    hd = 0;
+    xft_hd = 0;
+    xinfo = 0;
+    if (!X11->use_xrender) {
+        q->gccaps &= ~(QPaintEngine::AlphaStroke
+                       | QPaintEngine::AlphaFillPolygon
+                       | QPaintEngine::AlphaFill
+                       | QPaintEngine::AlphaPixmap
+                       | QPaintEngine::FillAntialiasing
+                       | QPaintEngine::LineAntialiasing);
+    }
+}
 
 /*
  * QX11PaintEngine members
@@ -463,19 +479,7 @@ QX11PaintEngine::QX11PaintEngine()
 #endif
         )
 {
-    d->dpy = 0;
-    d->scrn = 0;
-    d->hd = 0;
-    d->xft_hd = 0;
-    d->xinfo = 0;
-    if (!X11->use_xrender) {
-        gccaps &= ~AlphaStroke;
-        gccaps &= ~AlphaFillPolygon;
-        gccaps &= ~AlphaFill;
-        gccaps &= ~AlphaPixmap;
-        gccaps &= ~FillAntialiasing;
-        gccaps &= ~LineAntialiasing;
-    }
+    d->init();
 }
 
 QX11PaintEngine::QX11PaintEngine(QX11PaintEnginePrivate &dptr)
@@ -492,30 +496,10 @@ QX11PaintEngine::QX11PaintEngine(QX11PaintEnginePrivate &dptr)
 #endif
         )
 {
-    d->dpy = 0;
-    d->scrn = 0;
-    d->hd = 0;
-    d->xft_hd = 0;
-    d->xinfo = 0;
-    if (!X11->use_xrender) {
-        gccaps &= ~AlphaStroke;
-        gccaps &= ~AlphaFillPolygon;
-        gccaps &= ~AlphaFill;
-        gccaps &= ~AlphaPixmap;
-        gccaps &= ~FillAntialiasing;
-        gccaps &= ~LineAntialiasing;
-    }
+    d->init();
 }
 
 QX11PaintEngine::~QX11PaintEngine()
-{
-}
-
-void QX11PaintEngine::initialize()
-{
-}
-
-void QX11PaintEngine::cleanup()
 {
 }
 

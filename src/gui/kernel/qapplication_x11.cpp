@@ -1562,7 +1562,6 @@ void qt_init(QApplicationPrivate *priv, int,
 #endif
         QFont::initialize();
         QCursorData::initialize();
-        QX11PaintEngine::initialize();
     }
 
     if(qt_is_gui_used) {
@@ -1834,7 +1833,6 @@ void qt_cleanup()
 
     if (qt_is_gui_used) {
         QPixmapCache::clear();
-        QX11PaintEngine::cleanup();
         QCursorData::cleanup();
         QFont::cleanup();
         QColormap::cleanup();

@@ -101,9 +101,6 @@ public:
 
     QPainter::RenderHints supportedRenderHints() const;
 
-    static void initialize();
-    static void cleanup();
-
 protected:
     QX11PaintEngine(QX11PaintEnginePrivate &dptr);
 
@@ -148,6 +145,8 @@ public:
         PenGC,
         BrushGC
     };
+
+    void init();
     void fillPolygon(const QPointF *points, int pointCount, GCMode gcMode,
                      QPaintEngine::PolygonDrawMode mode);
     void strokePolygon(const QPointF *points, int pointCount);
