@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatastream.h#30 $
+** $Id: //depot/qt/main/src/tools/qdatastream.h#31 $
 **
 ** Definition of QDataStream class
 **
@@ -44,6 +44,7 @@ public:
     void	 setDevice( QIODevice * );
     void	 unsetDevice();
 
+    bool	 atEnd() const;
     bool	 eof() const;
 
     enum ByteOrder { BigEndian, LittleEndian };
@@ -101,8 +102,11 @@ private:	// Disabled copy constructor and operator=
 inline QIODevice *QDataStream::device() const
 { return dev; }
 
-inline bool QDataStream::eof() const
+inline bool QDataStream::atEnd() const
 { return dev ? dev->atEnd() : TRUE; }
+
+inline bool QDataStream::eof() const
+{ return atEnd(); }
 
 inline int QDataStream::byteOrder() const
 { return byteorder; }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatastream.cpp#43 $
+** $Id: //depot/qt/main/src/tools/qdatastream.cpp#44 $
 **
 ** Implementation of QDataStream class
 **
@@ -207,6 +207,17 @@ void QDataStream::unsetDevice()
 
 
 /*!
+  \fn bool QDataStream::atEnd() const
+  Returns TRUE if the IO device has reached the end position (end of
+  stream or file) or if there is no IO device set.
+
+  Returns FALSE if the current position of the read/write head of the IO
+  device is somewhere before the end position.
+
+  \sa QIODevice::atEnd()
+*/
+
+/*!\obsolete
   \fn bool QDataStream::eof() const
   Returns TRUE if the IO device has reached the end position (end of
   stream or file) or if there is no IO device set.

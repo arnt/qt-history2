@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#1 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#2 $
 **
 ** Implementation of something useful.
 **
@@ -96,7 +96,7 @@ void QWizardPrivate::Title::paintEvent( QPaintEvent * )
 {
     if ( !w || !d->pages.count() )
 	return;
-    
+
     QPainter p( this );
     p.drawText( 0, fontMetrics().ascent(), d->pages[d->currentPage]->t );
 }
@@ -136,7 +136,7 @@ QWizard::QWizard( QWidget *parent, const char *name, bool modal,
     h->addWidget( d->nextButton );
     h->addSpacing( 12 );
     h->addWidget( d->helpButton );
-    
+
     d->helpButton->setText( tr( "Help" ) );
     d->nextButton->setText( tr( "Next>>" ) );
     d->backButton->setText( tr( "<<Back" ) );
@@ -203,10 +203,11 @@ void QWizard::showPage( QWidget * w )
     if ( i >= 0 ) {
 	setBackEnabled( i > 0 );
 	setNextEnabled( TRUE );
-	d->nextButton->setText( i == count()-1 ? 
+	d->nextButton->setText( i == count()-1 ?
 				tr( "Finish" ) : tr( "Next>>" ) );
 	d->ws->raiseWidget( i );
 	d->currentPage = i;
+	d->title->repaint();
     }
 }
 
