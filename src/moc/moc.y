@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#74 $
+** $Id: //depot/qt/main/src/moc/moc.y#75 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -37,7 +37,7 @@ void yyerror( char *msg );
 #include <stdio.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#74 $");
+RCSTAG("$Id: //depot/qt/main/src/moc/moc.y#75 $");
 
 static QString rmWS( const char * );
 
@@ -562,7 +562,11 @@ slot_area:		  SIGNALS ':'	     { moc_err( "Signals cannot "
 					       moc_warn( "unexpected ':'" );
 					 }
 				      opt_slot_declarations
-
+			| IDENTIFIER	 { BEGIN IN_CLASS;
+					   if ( level != 1 )
+					       moc_warn( "unexpected access"
+							 "specifier" );
+					 }
 			;
 
 opt_signal_declarations:	/* empty */
@@ -1194,7 +1198,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.8 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.9 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
