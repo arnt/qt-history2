@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#39 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#40 $
 **
 ** Definition of QIconView widget class
 **
@@ -120,6 +120,7 @@ struct QIconViewPrivate
     int numDragItems, cachedW, cachedH;
     int maxItemWidth, maxItemTextLength;
     QPoint dragStart;
+    bool drawDragShape;
 };
 
 /*****************************************************************************
@@ -1618,7 +1619,8 @@ void QIconView::clear()
     d->lastItem = 0;
     setCurrentItem( 0 );
     d->tmpCurrentItem = 0;
-
+    d->drawDragShape = FALSE;
+    
     viewport()->repaint( TRUE );
 
     d->cleared = TRUE;
@@ -1913,6 +1915,7 @@ void QIconView::contentsMouseDoubleClickEvent( QMouseEvent *e )
 
 void QIconView::contentsDragEnterEvent( QDragEnterEvent *e )
 {
+    d->drawDragShape = TRUE;
     d->tmpCurrentItem = 0;
     initDrag( e );
     d->oldDragPos = e->pos();
@@ -2426,10 +2429,10 @@ QDragObject *QIconView::dragObject()
 	return 0;
 
     QPoint orig = viewportToContents( viewport()->mapFromGlobal( QCursor::pos() ) );
-    
-    d->dragStart = QPoint( orig.x() - d->currentItem->x(), 
+
+    d->dragStart = QPoint( orig.x() - d->currentItem->x(),
 			   orig.y() - d->currentItem->y() );
-    
+
     QIconDrag *drag = new QIconDrag( viewport() );
     drag->setPixmap( QPixmap( d->currentItem->icon().pixmap( d->mode, QIconSet::Normal ) ),
  		     QPoint( d->currentItem->iconRect().width() / 2, d->currentItem->iconRect().height() / 2 ) );
@@ -2624,6 +2627,11 @@ void QIconView::emitNewSelectionNumber()
 
 void QIconView::drawDragShape( const QPoint &pos )
 {
+    if ( !d->drawDragShape ) {
+	d->drawDragShape = TRUE;
+	return;
+    }
+    
     if ( d->isIconDrag ) {
 	QPainter p;
 	p.begin( viewport() );
