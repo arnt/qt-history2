@@ -431,8 +431,9 @@ void QFtp::closed()
 void QFtp::readyRead()
 {
     QCString s;
-    s.resize( commandSocket->bytesAvailable() );
+    s.resize( commandSocket->bytesAvailable() + 1 );
     commandSocket->readBlock( s.data(), commandSocket->bytesAvailable() );
+    s[ (int)(s.size() - 1) ] = '\0';
 
     if ( !url() )
 	return;
