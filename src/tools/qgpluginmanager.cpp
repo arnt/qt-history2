@@ -1,4 +1,5 @@
 #include "qgpluginmanager.h"
+#ifndef QT_NO_COMPONENT
 #include "qmap.h"
 
 QGPluginManager::QGPluginManager( const QUuid& id, const QString& path, QLibrary::Policy pol, bool cs )
@@ -113,3 +114,4 @@ QStringList QGPluginManager::featureList() const
 
     return list;
 }
+#endif //QT_NO_COMPONENT
