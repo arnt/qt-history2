@@ -317,10 +317,10 @@ static bool write_pbm_image(QIODevice *out, const QImage &sourceImage, const QBy
 
 bool QPpmHandler::canRead() const
 {
-    return canRead(device());
+    return canRead(device(), &subType);
 }
 
-bool QPpmHandler::canRead(QIODevice *device)
+bool QPpmHandler::canRead(QIODevice *device, QByteArray *subType)
 {
     if (!device) {
         qWarning("QPpmHandler::canRead() called with no device");
@@ -348,12 +348,22 @@ bool QPpmHandler::canRead(QIODevice *device)
         device->seek(oldPos);
     }
 
-    return qstrncmp(head, "P1", 2) == 0
-        || qstrncmp(head, "P2", 2) == 0
-        || qstrncmp(head, "P3", 2) == 0
-        || qstrncmp(head, "P4", 2) == 0
-        || qstrncmp(head, "P5", 2) == 0
-        || qstrncmp(head, "P6", 2) == 0;
+    if (head[0] != 'P')
+        return false;
+
+    if (head[1] == '1' || head[1] == '4') {
+        if (subType)
+            *subType = "pbm";
+    } else if (head[1] == '2' || head[1] == '5') {
+        if (subType)
+            *subType = "pgm";
+    } else if (head[1] == '3' || head[1] == '6') {
+        if (subType)
+            *subType = "ppm";
+    } else {
+        return false;
+    }
+    return true;
 }
 
 bool QPpmHandler::read(QImage *image)
@@ -379,10 +389,10 @@ QVariant QPpmHandler::option(ImageOption option) const
 void QPpmHandler::setOption(ImageOption option, const QVariant &value)
 {
     if (option == SubType)
-        subType = value.toByteArray().toUpper();
+        subType = value.toByteArray().toLower();
 }
 
 QByteArray QPpmHandler::name() const
 {
-    return "ppm";
+    return subType.isEmpty() ? "ppm" : subType;
 }

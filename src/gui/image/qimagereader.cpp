@@ -111,19 +111,22 @@ static QImageIOHandler *createReadHandler(QIODevice *device, const QByteArray &f
     QImageIOHandler *handler = 0;
 
     if (format.isEmpty()) {
+        QByteArray subType;
 #ifndef QT_NO_IMAGEIO_PNG
-        if (QPngHandler::canRead(device))
+        if (QPngHandler::canRead(device)) {
             handler = new QPngHandler;
-        else
+        } else
 #endif
-        if (QBmpHandler::canRead(device))
+        if (QBmpHandler::canRead(device)) {
             handler = new QBmpHandler;
-        else if (QXpmHandler::canRead(device))
+        } else if (QXpmHandler::canRead(device)) {
             handler = new QXpmHandler;
-        else if (QPpmHandler::canRead(device))
+        } else if (QPpmHandler::canRead(device, &subType)) {
             handler = new QPpmHandler;
-        else if (QXbmHandler::canRead(device))
+            handler->setOption(QImageIOHandler::SubType, subType);
+        } else if (QXbmHandler::canRead(device)) {
             handler = new QXbmHandler;
+        }
     } else {
 #ifndef QT_NO_IMAGEIO_PNG
         if (form == "png") {

@@ -16,6 +16,7 @@
 
 #include "qimageiohandler.h"
 
+class QByteArray;
 class Q_GUI_EXPORT QPpmHandler : public QImageIOHandler
 {
 public:
@@ -25,14 +26,14 @@ public:
 
     QByteArray name() const;
 
-    static bool canRead(QIODevice *device);
+    static bool canRead(QIODevice *device, QByteArray *subType = 0);
 
     QVariant option(ImageOption option) const;
     void setOption(ImageOption option, const QVariant &value);
     bool supportsOption(ImageOption option) const;
 
 private:
-    QByteArray subType;
+    mutable QByteArray subType;
 };
 
 #endif
