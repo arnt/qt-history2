@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.cpp#58 $
 **
 ** Implementation of asynchronous image/movie loading classes
 **
@@ -355,6 +355,26 @@ int QImageDecoder::decode(const uchar* buffer, int length)
 
 	return consumed;
     }
+}
+
+/*!
+  Returns a QImageFormatType by name. This might be used in cases where
+  the user needs to force data to be interpretted as being in a certain
+  format.  \a name is one of the formats listed by
+  QImageDecoder::inputFormats(). Note that you will still need to supply
+  decodable data to result->decoderFor() before you can begin decoding
+  the data.
+*/
+QImageFormatType* QImageDecoder::format( const char* name )
+{
+    for (QImageFormatType* f = QImageDecoderPrivate::factories->first();
+	f;
+	f = QImageDecoderPrivate::factories->next())
+    {
+	if ( stricmp(name,f->formatName())==0 )
+	    return f;
+    }
+    return 0;
 }
 
 /*!

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#24 $
+** $Id: //depot/qt/main/src/kernel/qasyncimageio.h#25 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -79,6 +79,7 @@ public:
     int decode( const uchar* buffer, int length );
 
     static const char* formatName( const uchar* buffer, int length );
+    static QImageFormatType* format( const char* name ); // direct use - no decode()
 
     static QStrList inputFormats();
     static void registerDecoderFactory( QImageFormatType* );
