@@ -67,7 +67,7 @@ Editor::Editor( QWidget * parent , const char * name )
     edit->insertItem( "To &Lowercase",   this, SLOT(toLower()),   ALT+Key_L );
 #ifndef QT_NO_FONTDIALOG
     edit->insertSeparator();
-    edit->insertItem( "&Select Font" ,	 this, SLOT(font()),     ALT+Key_F );
+    edit->insertItem( "&Select Font" ,	 this, SLOT(font()),     ALT+Key_T );
 #endif
     changed = FALSE;
     e = new QMultiLineEdit( this, "editor" );
