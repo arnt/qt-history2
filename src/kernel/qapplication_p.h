@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of some Qt private functions.
 **
 ** Created : 000228
 **
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -69,7 +69,7 @@ extern Q_EXPORT void qt_leave_modal( QWidget* );
 extern bool qt_is_gui_used;
 extern QClipboard *qt_clipboard;
 
-#if defined (Q_OS_WIN32)
+#if defined (Q_OS_WIN32) || defined (Q_OS_CYGWIN)
 extern Qt::WindowsVersion qt_winver;
 #endif
 

@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of QApplication class
 **
 ** Created : 931107
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the kernel module of the Qt GUI Toolkit.
 **
@@ -240,8 +240,10 @@ public:
 #endif
 #endif
 
-#if defined(Q_WS_WIN)
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
     static WindowsVersion winVersion();
+#endif
+#if defined(Q_WS_WIN)
     void	     winFocus( QWidget *, bool );
     static void	     winMouseButtonUp();
 #endif

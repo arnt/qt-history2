@@ -2431,8 +2431,6 @@ void QApplication::syncX()	{}		// do nothing
 */
 
 /*!
-  \fn WindowsVersion QApplication::winVersion()
-
   Returns the version of the Windows operating system that is running:
 
   \list
@@ -2447,6 +2445,13 @@ void QApplication::syncX()	{}		// do nothing
   Note that this function is implemented for the Windows version
   of Qt only.
 */
+
+#if defined(Q_OS_CYGWIN)
+Qt::WindowsVersion QApplication::winVersion()
+{
+    return qt_winver;
+}
+#endif
 
 #ifndef QT_NO_TRANSLATION
 

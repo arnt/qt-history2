@@ -2100,149 +2100,7 @@ void QDns::connectNotify( const char *signal )
 }
 #endif
 
-#if defined(Q_OS_UNIX)
-
-#if defined(Q_DNS_SYNCHRONOUS)
-void QDns::doSynchronousLookup()
-{
-    if ( t!=None && !l.isEmpty() ) {
-	QValueListIterator<QString> it = n.begin();
-	QValueListIterator<QString> end = n.end();
-	int type;
-	switch( t ) {
-	    case QDns::A:
-		type = 1;
-		break;
-	    case QDns::Aaaa:
-		type = 28;
-		break;
-	    case QDns::Mx:
-		type = 15;
-		break;
-	    case QDns::Srv:
-		type = 33;
-		break;
-	    case QDns::Cname:
-		type = 5;
-		break;
-	    case QDns::Ptr:
-		type = 12;
-		break;
-	    case QDns::Txt:
-		type = 16;
-		break;
-	    default:
-		type = (char)255; // any
-		break;
-	}
-	while( it != end ) {
-	    QString s = *it;
-	    it++;
-	    QByteArray ba( 512 );
-	    int len = res_search( s.latin1(), 1, type, (uchar*)ba.data(), ba.size() );
-	    if ( len > 0 ) {
-		ba.resize( len );
-
-		QDnsQuery * query = new QDnsQuery;
-		query->started = now();
-		query->id = ++::id;
-		query->t = t;
-		query->l = s;
-		QDnsAnswer a( ba, query );
-		a.parse();
-	    } else if ( len == -1 ) {
-		// res_search error
-	    }
-	}
-	emit resultsReady();
-    }
-}
-#endif
-
-static void doResInit()
-{
-    if ( ns )
-	return;
-    ns = new QPtrList<QHostAddress>;
-    ns->setAutoDelete( TRUE );
-    domains = new QStrList( TRUE );
-    domains->setAutoDelete( TRUE );
-
-    res_init();
-    int i;
-    // find the name servers to use
-    for( i=0; i < MAXNS && i < _res.nscount; i++ ) {
-	ns->append( new QHostAddress(
-			     ntohl( _res.nsaddr_list[i].sin_addr.s_addr ) ) );
-    }
-#if defined(MAXDFLSRCH)
-    for( i=0; i < MAXDFLSRCH; i++ )
-	if ( _res.dnsrch[i] && *(_res.dnsrch[i]) )
-	    domains->append( QString::fromLatin1( _res.dnsrch[i] ).lower() );
-#endif
-    if ( *_res.defdname )
-	domains->append( QString::fromLatin1( _res.defdname ).lower() );
-#if defined(SANE_OPERATING_SYSTEM)
-    // never defined, for obvious reasons, but should be
-    res_close();
-#endif
-
-    QFile hosts( QString::fromLatin1( "/etc/hosts" ) );
-    if ( hosts.open( IO_ReadOnly ) ) {
-	// read the /etc/hosts file, creating long-life A and PTR RRs
-	// for the things we find.
-	QTextStream i( &hosts );
-	QString line;
-	while( !i.atEnd() ) {
-	    line = i.readLine().simplifyWhiteSpace().lower();
-	    uint n = 0;
-	    while( n < line.length() && line[(int)n] != '#' )
-		n++;
-	    line.truncate( n );
-	    n = 0;
-	    while( n < line.length() && !line[(int)n].isSpace() )
-		n++;
-	    QString ip = line.left( n );
-	    QHostAddress a;
-	    a.setAddress( ip );
-	    if ( a.isIp4Addr() ) {
-		bool first = TRUE;
-		line = line.mid( n+1 );
-		n = 0;
-		while( n < line.length() && !line[(int)n].isSpace() )
-		    n++;
-		QString hostname = line.left( n );
-		// ### in case of bad syntax, hostname is invalid. do we care?
-		if ( n ) {
-		    QDnsRR * rr = new QDnsRR( hostname );
-		    rr->t = QDns::A;
-		    rr->address = a;
-		    rr->deleteTime = UINT_MAX;
-		    rr->expireTime = UINT_MAX;
-		    rr->current = TRUE;
-		    if ( first ) {
-			first = FALSE;
-			QString arpa;
-			// ### maybe this should go in QHostAddress?
-			arpa.sprintf( "%d.%d.%d.%d.in-addr.arpa",
-				      ( a.ip4Addr() >> 0 ) & 0xff,
-				      ( a.ip4Addr() >> 8 ) & 0xff,
-				      ( a.ip4Addr() >>16 ) & 0xff,
-				      ( a.ip4Addr() >>24 ) & 0xff );
-			QDnsRR * ptr = new QDnsRR( arpa );
-			ptr->t = QDns::Ptr;
-			ptr->target = hostname;
-			ptr->deleteTime = UINT_MAX;
-			ptr->expireTime = UINT_MAX;
-			ptr->current = TRUE;
-		    }
-		}
-	    }
-	}
-    }
-}
-
-#elif defined(Q_OS_WIN32)
+#if defined(Q_OS_WIN32) || defined(Q_OS_CYGWIN)
 
 #if defined(Q_DNS_SYNCHRONOUS)
 void QDns::doSynchronousLookup()
@@ -2443,6 +2301,148 @@ static void doResInit()
 	domains->append( qstrdup( searchList.mid( first, last-first ) ) );
 	first = last+1;
     } while( first < (int)searchList.length() );
+}
+
+#elif defined(Q_OS_UNIX)
+
+#if defined(Q_DNS_SYNCHRONOUS)
+void QDns::doSynchronousLookup()
+{
+    if ( t!=None && !l.isEmpty() ) {
+	QValueListIterator<QString> it = n.begin();
+	QValueListIterator<QString> end = n.end();
+	int type;
+	switch( t ) {
+	    case QDns::A:
+		type = 1;
+		break;
+	    case QDns::Aaaa:
+		type = 28;
+		break;
+	    case QDns::Mx:
+		type = 15;
+		break;
+	    case QDns::Srv:
+		type = 33;
+		break;
+	    case QDns::Cname:
+		type = 5;
+		break;
+	    case QDns::Ptr:
+		type = 12;
+		break;
+	    case QDns::Txt:
+		type = 16;
+		break;
+	    default:
+		type = (char)255; // any
+		break;
+	}
+	while( it != end ) {
+	    QString s = *it;
+	    it++;
+	    QByteArray ba( 512 );
+	    int len = res_search( s.latin1(), 1, type, (uchar*)ba.data(), ba.size() );
+	    if ( len > 0 ) {
+		ba.resize( len );
+
+		QDnsQuery * query = new QDnsQuery;
+		query->started = now();
+		query->id = ++::id;
+		query->t = t;
+		query->l = s;
+		QDnsAnswer a( ba, query );
+		a.parse();
+	    } else if ( len == -1 ) {
+		// res_search error
+	    }
+	}
+	emit resultsReady();
+    }
+}
+#endif
+
+static void doResInit()
+{
+    if ( ns )
+	return;
+    ns = new QPtrList<QHostAddress>;
+    ns->setAutoDelete( TRUE );
+    domains = new QStrList( TRUE );
+    domains->setAutoDelete( TRUE );
+
+    res_init();
+    int i;
+    // find the name servers to use
+    for( i=0; i < MAXNS && i < _res.nscount; i++ ) {
+	ns->append( new QHostAddress(
+			     ntohl( _res.nsaddr_list[i].sin_addr.s_addr ) ) );
+    }
+#if defined(MAXDFLSRCH)
+    for( i=0; i < MAXDFLSRCH; i++ )
+	if ( _res.dnsrch[i] && *(_res.dnsrch[i]) )
+	    domains->append( QString::fromLatin1( _res.dnsrch[i] ).lower() );
+#endif
+    if ( *_res.defdname )
+	domains->append( QString::fromLatin1( _res.defdname ).lower() );
+#if defined(SANE_OPERATING_SYSTEM)
+    // never defined, for obvious reasons, but should be
+    res_close();
+#endif
+
+    QFile hosts( QString::fromLatin1( "/etc/hosts" ) );
+    if ( hosts.open( IO_ReadOnly ) ) {
+	// read the /etc/hosts file, creating long-life A and PTR RRs
+	// for the things we find.
+	QTextStream i( &hosts );
+	QString line;
+	while( !i.atEnd() ) {
+	    line = i.readLine().simplifyWhiteSpace().lower();
+	    uint n = 0;
+	    while( n < line.length() && line[(int)n] != '#' )
+		n++;
+	    line.truncate( n );
+	    n = 0;
+	    while( n < line.length() && !line[(int)n].isSpace() )
+		n++;
+	    QString ip = line.left( n );
+	    QHostAddress a;
+	    a.setAddress( ip );
+	    if ( a.isIp4Addr() ) {
+		bool first = TRUE;
+		line = line.mid( n+1 );
+		n = 0;
+		while( n < line.length() && !line[(int)n].isSpace() )
+		    n++;
+		QString hostname = line.left( n );
+		// ### in case of bad syntax, hostname is invalid. do we care?
+		if ( n ) {
+		    QDnsRR * rr = new QDnsRR( hostname );
+		    rr->t = QDns::A;
+		    rr->address = a;
+		    rr->deleteTime = UINT_MAX;
+		    rr->expireTime = UINT_MAX;
+		    rr->current = TRUE;
+		    if ( first ) {
+			first = FALSE;
+			QString arpa;
+			// ### maybe this should go in QHostAddress?
+			arpa.sprintf( "%d.%d.%d.%d.in-addr.arpa",
+				      ( a.ip4Addr() >> 0 ) & 0xff,
+				      ( a.ip4Addr() >> 8 ) & 0xff,
+				      ( a.ip4Addr() >>16 ) & 0xff,
+				      ( a.ip4Addr() >>24 ) & 0xff );
+			QDnsRR * ptr = new QDnsRR( arpa );
+			ptr->t = QDns::Ptr;
+			ptr->target = hostname;
+			ptr->deleteTime = UINT_MAX;
+			ptr->expireTime = UINT_MAX;
+			ptr->current = TRUE;
+		    }
+		}
+	    }
+	}
+    }
 }
 
 #endif
