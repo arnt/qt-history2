@@ -666,7 +666,7 @@ QDrag::DropAction QDragManager::drag(QDrag *o)
     obj->Release();        // Will delete obj if refcount becomes 0
     src->Release();        // Will delete src if refcount becomes 0
     object = 0;
-    delete o;
+    o->deleteLater();
 
 #ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::DragDropEnd);
