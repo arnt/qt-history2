@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#151 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#152 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#151 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#152 $");
 
 
 /*!
@@ -4184,7 +4184,6 @@ void bitBlt( QImage* dst, int dx, int dy, const QImage* src,
     switch ( dst->depth() ) {
       case 1:
 	{
-debug("EASSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSY!");
 	    uchar* d = dst->scanLine(dy) + dx/8;
 	    uchar* s = src->scanLine(sy) + sx/8;
 	    const int bw = (sw+7)/8;
