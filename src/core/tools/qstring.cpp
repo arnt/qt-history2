@@ -3256,22 +3256,25 @@ QString QString::fromUtf8(const char *str, int maxSize)
 }
 
 /*!
-    Returns a QString initialized with the zero-terminated Unicode
-    string \a unicode (ISO-10646-UCS-2 encoded). If \a unicode is 0,
-    an empty string is created.
+
+    Returns a QString containing the first \a size characters of
+    the zero-terminated Unicode string \a unicode (ISO-10646-UCS-2 
+    encoded). If \a unicode is 0, an empty string is created.  If
+    If \a unicode is shorter than \a size, or if \a size is -1, 
+    \a maxSize is ignored.
 
     QString makes a deep copy of the Unicode data.
 
     \sa ucs2(), setUnicodeCodes()
 */
-QString QString::fromUcs2(const ushort *unicode)
+QString QString::fromUcs2(const ushort *unicode, int size)
 {
     if (!unicode)
         return QString();
     int length = 0;
     while (unicode[length] != 0)
         length++;
-    return QString((const QChar *)unicode, length);
+    return QString((const QChar *)unicode, size <= -1 ? length : qMin(length, size));
 }
 
 /*!
