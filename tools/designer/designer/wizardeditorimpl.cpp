@@ -117,6 +117,8 @@ void WizardEditor::addClicked()
 
 void WizardEditor::removeClicked()
 {
+    if (listBox->count() < 2 ) return;
+
     int index = listBox->currentItem();
 
     // update listbox
@@ -192,12 +194,10 @@ void WizardEditor::itemSelected( int index )
 {
     if ( index < 0 ) return;
 
-    QWidget* page = wizard->page( index );
-
     bool ok = FALSE;
-    QString text = QInputDialog::getText( tr("Page Title"), tr( "New page title" ), QLineEdit::Normal, wizard->title( page ), &ok, this );
+    QString text = QInputDialog::getText( tr("Page Title"), tr( "New page title" ), QLineEdit::Normal, listBox->text( index ), &ok, this );
     if ( ok ) {
-	QString pn( tr( "Rename page %1 of %2" ).arg( page->name() ).arg( wizard->name() ) );
+	QString pn( tr( "Rename page %1 of %2" ).arg( listBox->text( index ) ).arg( wizard->name() ) );
 	RenameWizardPageCommand *cmd = new RenameWizardPageCommand( pn, formwindow, wizard, index, text );
 	commands.append( cmd );
 	listBox->changeItem( text, index );
@@ -211,4 +211,7 @@ void WizardEditor::updateButtons()
     buttonUp->setEnabled( index > 0 );
     buttonDown->setEnabled( index < (int)listBox->count() - 1 );
     buttonRemove->setEnabled( index >= 0 );
+
+    if ( listBox->count() < 2 )
+	buttonRemove->setEnabled( FALSE );
 }
