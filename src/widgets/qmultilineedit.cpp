@@ -1236,7 +1236,7 @@ void QMultiLineEdit::pageDown( bool mark )
 	if ( mark )
 	    newMark( cursorX, cursorY, FALSE );
 	setTopCell( newTopCell );
-    } else { // just move the cursor
+    } else if ( cursorY != (int)contents->count() - 1) { // just move the cursor
 	cursorY = QMIN( cursorY + pageSize, numLines() - 1);
 	cursorX = mapFromView( curXPos, cursorY );
 	if ( mark )
