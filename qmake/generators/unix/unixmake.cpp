@@ -577,8 +577,12 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     QString dst_targ = root + fileFixify(targetdir + target);
     if(!ret.isEmpty())
 	ret += "\n\t";
-    ret += QString(resource ? "-$(COPY_DIR)" : "-$(COPY)") + " \"" +
-	   src_targ + "\" \"" + dst_targ + "\"";
+    if(resource) {
+	ret += "$(DEL_DIR) \"" + dst_targ + "\"" + "\n\t";
+	ret += "-$(COPY_DIR) \"" + src_targ + "\" \"" + dst_targ + "\"";
+    } else {
+	ret += "-$(COPY) \"" + src_targ + "\" \"" + dst_targ + "\"";
+    }
     if(!project->isActiveConfig("debug") && !project->isEmpty("QMAKE_STRIP")) {
 	ret += "\n\t-" + var("QMAKE_STRIP");
 	if(project->first("TEMPLATE") == "lib" && !project->isEmpty("QMAKE_STRIPFLAGS_LIB"))
