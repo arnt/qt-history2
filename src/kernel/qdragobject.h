@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.h#24 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.h#25 $
 **
 ** Definition of QDragObject
 **
@@ -164,6 +164,10 @@ private:
     bool beingCancelled;
     bool restoreCursor;
     bool willDrop;
+
+    QPixmap pm_move;
+    QPixmap pm_copy;
+    QPixmap pm_link;
 };
 
 
