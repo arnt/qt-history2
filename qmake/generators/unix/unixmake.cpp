@@ -406,7 +406,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 		QString dst_link = Option::fixPathToTargetOS(targetdir + link, FALSE);
 		fileFixify(dst_link);
 		fileFixify(dst_targ);
-		ret += "\n\t-ln -sf \"" + dst_targ + "\" \"" + dst_link + "\"";
+		ret += "\n\t-ln -sf \"$(TARGET)\" \"" + dst_link + "\"";
 		if(!uninst.isEmpty())
 		    uninst.append("\n\t");
 		uninst.append("-$(DEL_FILE) \"" + dst_link + "\"");
