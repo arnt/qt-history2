@@ -1085,9 +1085,21 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
     }
 
     Q_ASSERT(pm_dc);
-    Q_ASSERT(GetGraphicsMode(pm_dc) == GM_COMPATIBLE);
 
-    if (pixmap.hasAlphaChannel()) {
+    // sanity check...
+    if (GetGraphicsMode(pm_dc) != GM_COMPATIBLE) {
+        XFORM xform;
+        if (!GetWorldTransform(pm_dc, &xform)) {
+            qSystemWarning("QWin32PaintEngine::drawPixmap, getting source xform failed");
+            return;
+        }
+        if (xform.eM12 != 0 || xform.eM21 != 0) {
+            qWarning("QWin32PaintEngine::drawPixmap, cannot draw pixmap with matrix");
+            return;
+        }
+    }
+
+    if (pixmap.hasAlphaChannel() && mode == Qt::AlphaBlend) {
         BLENDFUNCTION bf = { AC_SRC_OVER,       // BlendOp
                              0,                 // BlendFlags, must be zero
                              255,               // SourceConstantAlpha, we use pr pixel
@@ -1096,10 +1108,10 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
         if (!AlphaBlend(d->hdc, r.x(), r.y(), r.width(), r.height(),
                         pm_dc, sr.x(), sr.y(), sr.width(), sr.height(),
                         bf)) {
-            qSystemWarning("AlphaBlend failed...");
+            qSystemWarning("QWin32PaintEngine::drawPixmap, AlphaBlend failed...");
             return;
         }
-    } else if (mask) {
+    } else if (mask && mode == Qt::AlphaBlend) {
         if (stretch) {
             QImage imageData(pixmap);
             QImage imageMask = imageData.createAlphaMask();

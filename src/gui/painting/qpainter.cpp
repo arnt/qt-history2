@@ -2400,12 +2400,28 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt
         int dx, dy;
         mat.map(0, 0, &dx, &dy);
         d->engine->drawPixmap(QRect(x-dx, y-dy, pmx.width(), pmx.height()), pmx,
-                        QRect(0, 0, pmx.width(), pmx.height()), mode);
-        return;
+                              QRect(0, 0, pmx.width(), pmx.height()), mode);
+    } else {
+        d->engine->drawPixmap(QRect(x, y, w, h), pm, QRect(sx, sy, sw, sh), mode);
     }
 
-    d->engine->drawPixmap(QRect(x, y, w, h), pm, QRect(sx, sy, sw, sh));
-    return;
+    // If we have SourceCopy we copy the mask from the source to the target device if it
+    // is a pixmap also...
+    if (mode == Qt::SourceCopy
+        && d->device->devType() == QInternal::Pixmap
+        && pm.mask()) {
+        QPixmap *p = static_cast<QPixmap *>(d->device);
+        QBitmap bitmap(p->width(), p->height());
+        bitmap.fill(Qt::color0);
+        QPainter pt(&bitmap);
+        pt.setBrush(Qt::color1);
+        pt.setPen(Qt::NoPen);
+        const QBitmap *mask = pm.mask();
+        pt.drawPixmap(r.topLeft(), *mask, sr);
+        pt.end();
+        p->setMask(bitmap);
+    }
+
 }
 
 /*!
