@@ -735,9 +735,6 @@ QString QFontDatabase::styleString( const QFont &f )
 }
 
 
-static QStringList emptyList;
-
-
 /*!
     \class QFontDatabase qfontdatabase.h
     \brief The QFontDatabase class provides information about the fonts available in the underlying window system.
@@ -920,7 +917,7 @@ QStringList QFontDatabase::styles( const QString &family) const
 {
     const QtFontFamily *fam = d->family( family );
     if ( !fam )
-        return emptyList;
+        return QStringList();
 
     return fam->styles();
 }
@@ -1022,9 +1019,6 @@ static const QtFontStyle * getStyle( QFontDatabasePrivate *d,
 }
 
 
-static QValueList<int> emptySizeList;
-
-
 /*!
     Returns a list of the point sizes available for the font that has
     family \a family and style \a style. The list may be empty.
@@ -1042,7 +1036,7 @@ QValueList<int> QFontDatabase::pointSizes( const QString &family,
 
     const QtFontStyle *sty = getStyle( d, family, s);
 
-    return sty ? sty->pointSizes() : emptySizeList;
+    return sty ? sty->pointSizes() : QValueList<int>();
 }
 
 
@@ -1088,7 +1082,7 @@ QValueList<int> QFontDatabase::smoothSizes( const QString &family,
 					    const QString &style)
 {
     const QtFontStyle *sty = getStyle( d, family, style );
-    return sty ? sty->smoothSizes() : emptySizeList;
+    return sty ? sty->smoothSizes() : QValueList<int>();
 }
 
 
