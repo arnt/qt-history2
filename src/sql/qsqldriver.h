@@ -64,6 +64,8 @@ class QM_EXPORT_SQL QSqlDriver : public QObject
     friend class QSqlDatabase;
     Q_OBJECT
 public:
+    enum DriverFeature { Transactions, QuerySize, BLOB };
+
     QSqlDriver( QObject * parent=0, const char * name=0 );
     ~QSqlDriver();
 
@@ -81,9 +83,7 @@ public:
     virtual QString       formatValue( const QSqlField* field, bool trimStrings = FALSE ) const;
     QSqlError	          lastError() const;
 
-    virtual bool          hasTransactionSupport() const = 0;
-    virtual bool          hasQuerySizeSupport() const = 0;
-    virtual bool          canEditBinaryFields() const = 0;
+    virtual bool          feature( DriverFeature f ) const = 0;
     virtual bool          open( const QString & db,
 				const QString & user = QString::null,
 				const QString & password = QString::null,

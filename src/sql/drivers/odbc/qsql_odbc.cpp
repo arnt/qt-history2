@@ -594,31 +594,31 @@ QODBCDriver::~QODBCDriver()
     delete d;
 }
 
-bool QODBCDriver::hasTransactionSupport() const
+bool QODBCDriver::feature( DriverFeature f ) const
 {
-    if ( !d->hDbc )
-	return FALSE;
-    SQLUSMALLINT txn;
-    SQLSMALLINT t;
-    int r = SQLGetInfo( d->hDbc,
+    switch ( f ) {
+    case Transactions: {
+	if ( !d->hDbc )
+	    return FALSE;
+	SQLUSMALLINT txn;
+	SQLSMALLINT t;
+	int r = SQLGetInfo( d->hDbc,
 			(SQLUSMALLINT)SQL_TXN_CAPABLE,
 			&txn,
 			sizeof(txn),
 			&t);
-    if ( r != SQL_SUCCESS || txn == SQL_TC_NONE )
+	if ( r != SQL_SUCCESS || txn == SQL_TC_NONE )
+	    return FALSE;
+	else
+	    return TRUE;
+    }
+    case QuerySize:
 	return FALSE;
-    else
-	return TRUE;
-}
-
-bool QODBCDriver::hasQuerySizeSupport() const
-{
-    return FALSE;
-}
-
-bool QODBCDriver::canEditBinaryFields() const
-{
-    return FALSE;
+    case BLOB:
+	return FALSE;
+    default:
+	return FALSE;
+    }
 }
 
 bool QODBCDriver::open( const QString & db,

@@ -655,7 +655,7 @@ void QDataTable::resizeEvent ( QResizeEvent * e )
 {
     if ( sqlCursor() &&
 	 sqlCursor()->driver() &&
-	 !sqlCursor()->driver()->hasQuerySizeSupport() )
+	 !sqlCursor()->driver()->feature( QSqlDriver::QuerySize ) )
 	loadNextPage();
     QTable::resizeEvent( e );
 }
@@ -1608,7 +1608,7 @@ int QDataTable::fieldAlignment( const QSqlField* /*field*/ )
 void QDataTable::setSize( QSqlCursor* sql )
 {
     // ### what are the connect/disconnect calls doing here!? move to refresh()
-    if ( sql->driver() && sql->driver()->hasQuerySizeSupport() ) {
+    if ( sql->driver() && sql->driver()->feature( QSqlDriver::QuerySize ) ) {
 	setVScrollBarMode( Auto );
 	disconnect( verticalScrollBar(), SIGNAL( valueChanged(int) ),
 		 this, SLOT( loadLine(int) ) );

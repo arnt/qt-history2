@@ -134,26 +134,29 @@ bool QSqlDriver::isOpenError() const
     return ((dbState & DBState_OpenError) == DBState_OpenError);
 }
 
-/*! \fn bool QSqlDriver::hasTransactionSupport() const
+/*! \enum QSqlDriver::DriverFeature
 
-  Returns TRUE if the database supports transactions, FALSE otherwise.
+  This enum contains a list of features a driver may support. Use feature()
+  to query whether a feature is supported or not.
+
+  The currently defined values are:
+
+  \value Transactions  checks whether the driver supports SQL transactions
+  \value QuerySize  checks whether the database is capable of reporting the size
+  of a query. Note that some databases do not support returning the size
+  (i.e. number of rows returned) of a query, in which case QSqlQuery::size() will return -1
+  \value BLOB  checks whether the driver supports Binary Large Object fields
+
+  \sa feature
+
+*/
+
+/*! \fn bool QSqlDriver::feature( DriverFeature f ) const
+
+  Returns TRUE if the driver supports the feature \a f, otherwise FALSE.
+
   Note that some databases need to be open() before this can be
   determined.
-
-*/
-
-/*! \fn bool QSqlDriver::hasQuerySizeSupport() const
-
-  Returns TRUE if the database supports reporting information about
-  the size of a query, FALSE otherwise.	 Note that some databases do
-  not support returning the size (i.e. number of rows returned) of a
-  query, in which case QSql::size() will return -1.
-
-*/
-
-/*! \fn bool QSqlDriver::canEditBinaryFields() const
-
-  Returns TRUE if the database can store binary data, FALSE otherwise.
 
 */
 
@@ -387,7 +390,7 @@ QString QSqlDriver::formatValue( const QSqlField* field, bool trimStrings ) cons
 	    break;
 	}
 	case QVariant::ByteArray : {
-	    if ( canEditBinaryFields() ) {
+	    if ( feature( BLOB ) ) {
 		QByteArray ba = field->value().toByteArray();
 		QString res;
 		static const char hexchars[] = "0123456789abcdef";

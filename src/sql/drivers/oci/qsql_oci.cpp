@@ -865,19 +865,18 @@ QOCIDriver::~QOCIDriver()
     delete d;
 }
 
-bool QOCIDriver::hasTransactionSupport() const
+bool QOCIDriver::feature( DriverFeature f ) const
 {
-    return TRUE;
-}
-
-bool QOCIDriver::hasQuerySizeSupport() const
-{
-    return FALSE;
-}
-
-bool QOCIDriver::canEditBinaryFields() const
-{
-    return TRUE;
+    switch ( f ) {
+    case Transactions:
+	return TRUE;
+    case QuerySize:
+	return FALSE;
+    case BLOB:
+	return TRUE;
+    default:
+	return FALSE;
+    }
 }
 
 bool QOCIDriver::open( const QString & db,

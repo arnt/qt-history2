@@ -405,19 +405,19 @@ PGconn* QPSQLDriver::connection()
     return d->connection;
 }
 
-bool QPSQLDriver::hasTransactionSupport() const
-{
-    return TRUE;
-}
 
-bool QPSQLDriver::hasQuerySizeSupport() const
+bool QPSQLDriver::feature( DriverFeature f ) const
 {
-    return TRUE;
-}
-
-bool QPSQLDriver::canEditBinaryFields() const
-{
-    return FALSE;
+    switch ( f ) {
+    case Transactions:
+	return TRUE;
+    case QuerySize:
+	return TRUE;
+    case BLOB:
+	return FALSE;
+    default:
+	return FALSE;
+    }
 }
 
 static QPSQLDriver::Protocol getPSQLVersion( PGconn* connection )

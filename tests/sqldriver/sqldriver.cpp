@@ -37,7 +37,7 @@ void TestInsert()
 {
     QSqlDatabase* database = QSqlDatabase::database();
     qDebug("Inserting records...");
-    if ( database->driver()->hasTransactionSupport() )
+    if ( database->driver()->feature( QSqlDriver::Transactions ) )
 	database->transaction();
     for ( int i=0; i<TEST_RECS; ++i ) {
 	QSqlQuery r = database->exec( "insert into " + TABLE_NAME + " values (" + QString::number(i) + ",'foo:" + QString::number(i) + "','blarg " + QString::number(i*10) + " blarg'," + QString::number(i*12.345) + ", '18-APR-1972');");
@@ -47,7 +47,7 @@ void TestInsert()
     if ( r.numRowsAffected() != 1)
 	qDebug("ERROR:" + database->lastError().databaseText());
     Q_ASSERT( r.numRowsAffected() == 1);
-    if ( database->driver()->hasTransactionSupport() )
+    if ( database->driver()->feature( QSqlDriver::Transactions ) )
 	database->commit();
     qDebug("Done.");
 }
@@ -87,7 +87,7 @@ void TestSelect()
 	qDebug("...back to first record");
 
 	selRecs.last();
-	if ( database->driver()->hasQuerySizeSupport() && selRecs.at() != selRecs.size()-1 )
+	if ( database->driver()->feature( QSqlDriver::QuerySize ) && selRecs.at() != selRecs.size()-1 )
 	    qDebug("ERROR going to last record.");
 	qDebug("...back to end");
 
@@ -126,12 +126,12 @@ void TestDelete()
 {
     QSqlDatabase* database = QSqlDatabase::database();
     qDebug("Deleting records...");
-    if ( database->driver()->hasTransactionSupport() )
+    if ( database->driver()->feature( QSqlDriver::Transactions ) )
 	database->transaction();
     for ( int i=0; i<TEST_RECS; ++i ) {
 	database->exec( "delete from " + TABLE_NAME + " where id=" + QString::number(i) + ";" );
     }
-    if ( database->driver()->hasTransactionSupport() )
+    if ( database->driver()->feature( QSqlDriver::Transactions ) )
 	database->commit();
     QSqlQuery recCount( "select count(1) from " + TABLE_NAME + ";");
     if ( !recCount.isActive() )
@@ -146,7 +146,7 @@ void TestDelete()
 void TestTrans()
 {
     QSqlDatabase* database = QSqlDatabase::database();
-    if ( database->driver()->hasTransactionSupport() ) {
+    if ( database->driver()->feature( QSqlDriver::Transactions ) ) {
 	qDebug("Testing transaction...");
 	QSqlQuery recsRemaining("select count(1) from " + TABLE_NAME + ";");
 	recsRemaining.next();

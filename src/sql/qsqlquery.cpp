@@ -606,14 +606,14 @@ bool QSqlQuery::last()
     To determine the number of rows affected by a non-SELECT
     statement, use numRowsAffected().
 
-  \sa isActive() numRowsAffected() QSqlDatabase::hasQuerySizeSupport()
+  \sa isActive() numRowsAffected() QSqlDriver::feature()
 
 */
 int QSqlQuery::size() const
 {
     if ( !d->sqlResult )
 	return -1;
-    if ( isActive() && d->sqlResult->driver()->hasQuerySizeSupport() )
+    if ( isActive() && d->sqlResult->driver()->feature( QSqlDriver::QuerySize ) )
 	return d->sqlResult->size();
     return -1;
 }
@@ -623,7 +623,7 @@ int QSqlQuery::size() const
   statements, this value will be the same as size(). If the query is
   not active (isActive() returns FALSE), -1 is returned.
 
-  \sa size() QSqlDatabase::hasQuerySizeSupport()
+  \sa size() QSqlDatabase::feature()
 
 */
 

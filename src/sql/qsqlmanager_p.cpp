@@ -390,7 +390,7 @@ bool QSqlCursorManager::findBuffer( const QSqlIndex& idx, int atHint )
 	}
     }
 
-    if ( !indexEquals && cur->driver()->hasQuerySizeSupport() && cur->sort().count() ) {
+    if ( !indexEquals && cur->driver()->feature( QSqlDriver::QuerySize ) && cur->sort().count() ) {
 #ifdef QT_DEBUG_DATAMANAGER
 	qDebug(" Using binary-like search...");
 #endif

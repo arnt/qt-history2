@@ -474,22 +474,18 @@ QTDSDriver::~QTDSDriver()
     delete d;
 }
 
-bool QTDSDriver::hasTransactionSupport() const
+bool QTDSDriver::feature( DriverFeature f ) const
 {
-    // ### todo, not working yet
-    return FALSE;
-}
-
-bool QTDSDriver::hasQuerySizeSupport() const
-{
-    // unfortunately no QuerySize support...
-    return FALSE;
-}
-
-bool QTDSDriver::canEditBinaryFields() const
-{
-    // not supported yet.
-    return FALSE;
+    switch ( f ) {
+    case Transactions:
+	return FALSE;
+    case QuerySize:
+	return FALSE;
+    case BLOB:
+	return FALSE;
+    default:
+	return FALSE;
+    }
 }
 
 bool QTDSDriver::open( const QString & db,

@@ -269,24 +269,22 @@ QMYSQLDriver::~QMYSQLDriver()
     delete d;
 }
 
-bool QMYSQLDriver::hasTransactionSupport() const
+bool QMYSQLDriver::feature( DriverFeature f ) const
 {
-
+    switch ( f ) {
+    case Transactions:
 #if 0
-    if ( (d->mysql->server_capabilities & CLIENT_TRANSACTIONS) == CLIENT_TRANSACTIONS )
-	return TRUE;
+	if ( (d->mysql->server_capabilities & CLIENT_TRANSACTIONS) == CLIENT_TRANSACTIONS )
+	    return TRUE;
 #endif
-    return FALSE;
-}
-
-bool QMYSQLDriver::hasQuerySizeSupport() const
-{
-    return TRUE;
-}
-
-bool QMYSQLDriver::canEditBinaryFields() const
-{
-    return TRUE;
+	return FALSE;
+    case QuerySize:
+	return TRUE;
+    case BLOB:
+	return TRUE;
+    default:
+	return FALSE;
+    }
 }
 
 bool QMYSQLDriver::open( const QString & db,

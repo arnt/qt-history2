@@ -87,9 +87,7 @@ class QNullDriver : public QSqlDriver
 public:
     QNullDriver(): QSqlDriver(){}
     ~QNullDriver(){}
-    bool    hasTransactionSupport() const { return FALSE;} ;
-    bool    hasQuerySizeSupport() const { return FALSE;} ;
-    bool    canEditBinaryFields() const { return FALSE;} ;
+    bool    feature( DriverFeature /* f */ ) const { return FALSE; } ;
     bool    open( const QString & ,
 		  const QString & ,
 		  const QString & ,
@@ -610,12 +608,12 @@ bool QSqlDatabase::isOpenError() const
 /*! Begins a transaction on the database if the driver supports transactions.
     Returns TRUE if the operation succeeded, FALSE otherwise.
 
-    \sa QSqlDriver::hasTransactionSupport() commit() rollback()
+    \sa QSqlDriver::feature() commit() rollback()
 */
 
 bool QSqlDatabase::transaction()
 {
-   if ( !d->driver->hasTransactionSupport() )
+    if ( !d->driver->feature( QSqlDriver::Transactions ) )
 	return FALSE;
     return d->driver->beginTransaction();
 }
@@ -623,12 +621,12 @@ bool QSqlDatabase::transaction()
 /*! Commits a transaction to the database if the driver supports transactions.
     Returns TRUE if the operation succeeded, FALSE otherwise.
 
-    \sa QSqlDriver::hasTransactionSupport() rollback()
+    \sa QSqlDriver::feature() rollback()
 */
 
 bool QSqlDatabase::commit()
 {
-    if ( !d->driver->hasTransactionSupport() )
+    if ( !d->driver->feature( QSqlDriver::Transactions ) )
 	return FALSE;
     return d->driver->commitTransaction();
 }
@@ -636,12 +634,12 @@ bool QSqlDatabase::commit()
 /*! Rolls a transaction back on the database if the driver supports transactions.
     Returns TRUE if the operation succeeded, FALSE otherwise.
 
-    \sa QSqlDriver::hasTransactionSupport() commit() transaction()
+    \sa QSqlDriver::feature() commit() transaction()
 */
 
 bool QSqlDatabase::rollback()
 {
-    if ( !d->driver->hasTransactionSupport() )
+    if ( !d->driver->feature( QSqlDriver::Transactions ) )
 	return FALSE;
     return d->driver->rollbackTransaction();
 }

@@ -303,7 +303,7 @@ section and use the \l QSqlCursor class covered in
 \section2 Transactions
 
 If the underlying database engine supports transactions
-QSqlDriver::hasTransactionSupport() will return TRUE. You can use
+QSqlDriver::feature( QSqlDriver::Transactions ) will return TRUE. You can use
 QSqlDatabase::transaction() to initiate a transaction, followed by the
 SQL commands you want to execute within the context of the transaction,
 and then either QSqlDatabase::commit() or \l{QSqlDatabase::rollback()}.
@@ -391,7 +391,7 @@ find out:
 
 \code
     QSqlDatabase* defaultDB = QSqlDatabase::database();
-    if ( defaultDB->driver()->hasQuerySizeSupport() ) {
+    if ( defaultDB->driver()->feature( QSqlDriver::QuerySize ) ) {
 	// QSqlQuery::size() supported
     }
     else {
