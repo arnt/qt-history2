@@ -2397,10 +2397,13 @@ if [ "$CFG_STL" = "no" ]; then
 else
     QMAKE_CONFIG="$QMAKE_CONFIG stl"
 fi
+# don't add the link line if we build the image formats as a plugin
 if [ "$CFG_LIBMNG" = "system" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG system-mng"
-    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT+=-lmng\""
-    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT_THREAD+=-lmng\""
+    if [ "$CFG_MNG" = "yes" ]; then
+	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT+=-lmng\""
+	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT_THREAD+=-lmng\""
+    fi
 fi
 if [ "$CFG_MNG" = "no" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG no-mng"
@@ -2409,8 +2412,10 @@ elif [ "$CFG_MNG" = "yes" ]; then
 fi
 if [ "$CFG_LIBJPEG" = "system" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG system-jpeg"
-    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT+=-ljpeg\""
-    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT_THREAD+=-ljpeg\""
+    if [ "$CFG_JPEG" = "yes" ]; then
+	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT+=-ljpeg\""
+	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT_THREAD+=-ljpeg\""
+    fi
 fi
 if [ "$CFG_JPEG" = "no" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG no-jpeg"
@@ -2419,8 +2424,10 @@ elif [ "$CFG_JPEG" = "yes" ]; then
 fi
 if [ "$CFG_LIBPNG" = "system" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG system-png"
-    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT+=-lpng\""
-    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT_THREAD+=-lpng\""
+    if [ "$CFG_PNG" = "yes" ]; then
+	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT+=-lpng\""
+	QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT_THREAD+=-lpng\""
+    fi
 fi
 if [ "$CFG_PNG" = "no" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG no-png"
