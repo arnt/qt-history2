@@ -270,7 +270,7 @@ void FtpMainWindow::slotConnect()
 	 userCombo->currentText().lower() != "anonymous" &&
 	 userCombo->currentText().lower() != "ftp" ) {
 	remoteOperator.setUser( userCombo->currentText() );
-	remoteOperator.setPass( passLined->text() );
+	remoteOperator.setPassword( passLined->text() );
     }
 
     // set the port
@@ -412,7 +412,7 @@ void FtpMainWindow::slotRemoteFinished( QNetworkOperation *op )
 	    remoteOperator = oldRemote;
 	    remoteHostCombo->setEditText( remoteOperator.host() );
 	    remotePathCombo->setEditText( remoteOperator.path() );
-	    passLined->setText( remoteOperator.pass() );
+	    passLined->setText( remoteOperator.password() );
 	    userCombo->setEditText( remoteOperator.user() );
 	    portSpin->setValue( remoteOperator.port() );
 	    remoteOperator.listChildren();
