@@ -530,11 +530,13 @@ bool QGList::removeNode( QLNode *n )
 
 /*!
   Removes the item \a d from the list.	Uses compareItems() to find the item.
+
+  If \a d is 0, removes the current item.
 */
 
 bool QGList::remove( QPtrCollection::Item d )
 {
-    if ( find(d) == -1 )
+    if ( d && find(d) == -1 )
 	return FALSE;
     QLNode *n = unlink();
     if ( !n )
