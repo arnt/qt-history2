@@ -721,13 +721,14 @@ QString QAction::toolTip() const
     \brief the action's status tip
 
     The statusTip is displayed on all status bars that this action's
-    toplevel parent widget provides.
+    toplevel parent widget provides, and is provided as the parameter
+    of the statusMessage() signal.
 
     If no status tip is defined, the action uses the tool tip text.
 
     There is no default statusTip text.
 
-    \sa setStatusTip() setToolTip()
+    \sa setStatusTip() setToolTip() statusMessage()
 */
 //#### Please reimp for QActionGroup!
 //#### For consistency reasons even action groups should show
@@ -757,7 +758,11 @@ QString QAction::statusTip() const
     QStyleSheet for the list of supported tags). There is no default
     "What's This" text.
 
-    \sa QWhatsThis
+    If the whats this text contains a hyperlink the whatsThisClicked() 
+    signal is emitted when the user clicks inside the "What's This?"
+    window.
+
+    \sa QWhatsThis whatsThisClicked()
 */
 void QAction::setWhatsThis( const QString& whatsThis )
 {
@@ -1280,7 +1285,29 @@ void QAction::objectDestroyed()
     \sa activated() setToggleAction() setOn()
 */
 
+/*!
+    \fn void QAction::statusMessage(const QString &text)
 
+    This signal is emitted before \a text is displayed in the 
+    application's statusbar. \a text can be QString::null when the
+    status bar is cleared.
+
+    Connect to this signal to provide additional handling of
+    the status messages.
+
+    \sa QToolTipGroup
+*/
+
+/*!
+    \fn void QAction::whatsThisClicked(const QString &href)
+
+    If the whatsThis property of this action includes a hyperlink
+    this signal is emitted when the user clicks inside the
+    "What's This?" window. \a href is the link the user clicked on,
+    or QString::null if there was no link.
+
+    \sa QWhatsThis
+*/
 
 void QActionGroupPrivate::update( const QActionGroup* that )
 {
