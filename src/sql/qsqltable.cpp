@@ -77,7 +77,7 @@ public:
 
 /*!
   \class QSqlTable qsqltable.h
-  \module database
+  \module sql
 
   \brief A flexible and editable SQL table widget.
 

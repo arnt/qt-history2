@@ -11,6 +11,22 @@
 
 #ifndef QT_NO_SQL
 
+/*!
+  \class QSqlEditorFactory qsqleditorfactory.h
+  \module sql
+  \brief A class used to create editors used in QSqlTable and QSqlForm
+  
+  QSqlEditorFactory is used by QSqlTable and QSqlForm to automatically
+  create appropriate editors for a given QSqlField.
+  
+  If you want to create different editors for fields with the same
+  data type, subclass QSqlEditorFactory and reimplement the createEditor() 
+  function.
+  
+  \sa QSqlTable, QSqlForm
+ */
+
+
 /*!  Constructs a SQL editor factory
 
 */

@@ -14,14 +14,41 @@
 
 /*!
   \class QSqlPropertyMap qsqlform.h
-  \brief Class used for mapping SQL editor values to SQL fields and vice versa
-
   \module sql
+  \brief A class used for mapping editor values to database fields in 
+  QSqlForm and QSqlTable
 
-  This class is used to associate a class with a specific property. This
-  is used on the GUI side of the database module to map SQL field
-  editor data to SQL fields and vice versa.
- */
+  This class is used to map SQL editor class names to the properties
+  used to insert and extract values into and from the editor.
+  
+  For instance, a QLineEdit is used to edit text strings and other
+  data types in QSqlTable and QSqlForm. QLineEdit defines several
+  properties, but it is only the "text" property that is used to
+  insert and extract text into and from the QLineEdit. When QSqlTable
+  wants to edit a field which uses a QLineEdit as its editor, a
+  quick look in this map tells the table to use the "text" property to
+  set/get values from the editor.
+  
+  If you want to use custom editors with your QSqlTable or QSqlForm,
+  you have to install your own QSqlPropertyMap for that table/form.
+  Example:
+  
+  \code
+  MyEditorFactory myFactory;
+  QSqlCursor cursor( "mytable" );
+  QSqlForm form;
+  QSqlPropertyMap myMap;
+  
+  myMap.insert( "MySuperEditor", "content" );
+  form.installPropertyMap( &map );
+  form.installEditorFactory( &myFactory );
+
+  // Generate form, which uses MySuperEditor for special fields
+  form.populate( myWidget, cursor, cursor->updateBuffer() );
+  \endcode
+  
+  \sa QSqlTable, QSqlForm, QSqlEditorFactory
+*/
 
 /*!
   
@@ -39,7 +66,7 @@ QSqlPropertyMap::QSqlPropertyMap()
     propertyMap["QDateEdit"]    = "date";
     propertyMap["QTimeEdit"]    = "time";
     propertyMap["QDateTimeEdit"]= "dateTime";
-    propertyMap["QLabel"]       = "pixmap";  // ### uh....? should be 'text'.
+    propertyMap["QLabel"]       = "text";
 }
 
 /*!
