@@ -210,14 +210,14 @@ static OSStatus qt_mac_create_window(WindowClass wclass, WindowAttributes wattr,
 {
     OSStatus ret;
 
-    if (qMacVersion() >= Qt::MV_PANTHER && wclass != kOverlayWindowClass) {
+    if (wclass != kModalWindowClass) {
+	ret = CreateNewWindow(wclass, wattr, geo, w);
+    } else {
 	Rect null_rect;
 	SetRect(&null_rect, 0, 0, 0, 0);
 	ret = CreateNewWindow(wclass, wattr, &null_rect, w);
 	if (ret == noErr)
 	    SetWindowBounds(*w, kWindowContentRgn, geo);
-    } else {
-	ret = CreateNewWindow(wclass, wattr, geo, w);
     }
     return ret;
 }
@@ -968,7 +968,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	if(d->extra && !d->extra->mask.isNull())
 	   ReshapeCustomWindow((WindowPtr)hd);
 	if(qt_mac_is_macsheet(this))
-	    setWindowTransparency(180);
+	    setWindowOpacity(0.70);
 #if QT_MACOSX_VERSION >= 0x1020
 	else if(qt_mac_is_macdrawer(this))
 	    SetDrawerOffsets((WindowPtr)hd, 0.0, 25.0);
@@ -2536,17 +2536,17 @@ void QWidget::macWidgetChangedWindow()
 {
 }
 
-void QWidget::setWindowTransparency(double level)
+void QWidget::setWindowOpacity(double level)
 {
     if(!isTopLevel())
 	return;
 
     level = QMIN(QMAX(level, 0), 1.0);
-    QMacSavedPortInfo::setAlphaTransparency(this, level);
-    d->topData()->transparency = (uchar)(level*255);
+    QMacSavedPortInfo::setWindowAlpha(this, level);
+    d->topData()->opacity = (uchar)(level * 255);
 }
 
-double QWidget::windowTransparency() const
+double QWidget::windowOpacity() const
 {
-    return isTopLevel() ? ((QWidget*)this)->d->topData()->transparency/255.0 : 0.0;
+    return isTopLevel() ? ((QWidget*)this)->d->topData()->opacity / 255.0 : 0.0;
 }

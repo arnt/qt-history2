@@ -55,7 +55,7 @@ struct QTLWExtra {
     // frame strut
     ulong    fleft, fright, ftop, fbottom;
 #if defined( Q_WS_WIN ) || defined( Q_WS_MAC )
-    uint     transparency : 8;                  // Stores transparencylevel on windows.
+    uint     opacity : 8;			// Stores opacity level on Windows/Mac OS X.
 #endif
 #if defined(Q_WS_WIN)
     ulong savedFlags;				// Save window flags while showing fullscreen

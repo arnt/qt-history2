@@ -507,7 +507,7 @@ void QMacStyle::polish(QWidget* w)
 	QPopupMenu *popup = (QPopupMenu*)w;
 	popup->setMargin(0);
 	popup->setLineWidth(0);
-	w->setWindowTransparency(200);
+	w->setWindowOpacity(200 / 255);
     } else if(w->inherits("QTitleBar")) {
 //	w->font().setPixelSize(10);
 	((QTitleBar*)w)->setAutoRaise(TRUE);
@@ -524,7 +524,7 @@ void QMacStyle::unPolish(QWidget* w)
     }
 #ifdef Q_WS_MAC
     else if(w->inherits("QPopupMenu")) {
-	w->setWindowTransparency(255);
+	w->setWindowOpacity(1.0);
     }
 #endif
 
@@ -1402,7 +1402,6 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
     case CC_TitleBar: {
 	if(!widget)
 	    break;
-	QString dblbuf_key;
 	QTitleBar *tbar = (QTitleBar *) widget;
 	ThemeWindowMetrics twm;
 	memset(&twm, '\0', sizeof(twm));
@@ -1419,6 +1418,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	} else if(tbar->testWFlags(WStyle_SysMenu)) {
 	    twa |= kThemeWindowHasCloseBox;
 	}
+	QString dblbuf_key;
 
 	//AppMan paints outside the given rectangle, so I have to adjust for the height properly!
 	QRect newr = r;
@@ -1453,6 +1453,8 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 		    ((QMacStylePainter *)&pixp)->setport();
 		    DrawThemeWindowFrame(macWinType, qt_glb_mac_rect(newr, &pixp, FALSE), tds,
 					 &twm, twa, NULL, 0);
+
+		    pixp.save();
 		    {
 			RgnHandle rgn = qt_mac_get_rgn();
 			GetThemeWindowRegion(macWinType, qt_glb_mac_rect(newr), tds, &twm, twa, kWindowTitleTextRgn, rgn);
@@ -1468,7 +1470,7 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 		    if(iw)
 			pixp.drawPixmap(x - iw, y, tbar->windowIcon());
 		    pixp.drawText(x, y + p->fontMetrics().ascent(), tbar->visibleText());
-		    pixp.end();
+		    pixp.restore();
 		    p->drawPixmap(r.topLeft(), *pix);
 		    if(!QPixmapCache::insert(pmkey, pix))
 			delete pix;
@@ -1487,19 +1489,16 @@ void QMacStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 	    struct {
 		unsigned int qt_type;
 		ThemeTitleBarWidget mac_type;
-		ThemeWindowAttributes mac_needs;
 	    } types[] = {
-		{ SC_TitleBarCloseButton, kThemeWidgetCloseBox, kThemeWindowHasCloseBox },
-		{ SC_TitleBarMaxButton, kThemeWidgetZoomBox, kThemeWindowHasFullZoom },
-		{ SC_TitleBarMinButton|SC_TitleBarNormalButton, kThemeWidgetCollapseBox, kThemeWindowHasCollapseBox },
-		{ 0, 0, 0 } };
+		{ SC_TitleBarCloseButton, kThemeWidgetCloseBox },
+		{ SC_TitleBarMaxButton, kThemeWidgetZoomBox },
+		{ SC_TitleBarMinButton|SC_TitleBarNormalButton, kThemeWidgetCollapseBox },
+		{ 0, 0 } };
 	    ThemeWindowMetrics tm;
 	    tm.metricSize = sizeof(tm);
 	    const Rect *wm_rect = qt_glb_mac_rect(newr, p, FALSE);
 	    ((QMacStylePainter *)p)->setport();
 	    for(int i = 0; types[i].qt_type; i++) {
-		if(!(twa & types[i].mac_needs))
-		    continue;
 		ThemeDrawState ctrl_tds = wtds;
 		if(qAquaActive(pal) && (subActive & types[i].qt_type))
 		    ctrl_tds = kThemeStatePressed;

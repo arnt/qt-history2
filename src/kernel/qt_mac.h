@@ -193,7 +193,7 @@ public:
     static bool setPaintDevice(QWidget *, bool set_clip=FALSE, bool with_child=TRUE);
     static bool flush(QPaintDevice *);
     static bool flush(QPaintDevice *, QRegion r, bool force=FALSE);
-    static void setAlphaTransparency(QWidget *, float);
+    static void setWindowAlpha(QWidget *, float);
 };
 
 inline bool
@@ -231,7 +231,7 @@ extern "C" {
     extern CGSConnectionRef _CGSDefaultConnection();
 }
 inline void
-QMacSavedPortInfo::setAlphaTransparency(QWidget *w, float l)
+QMacSavedPortInfo::setWindowAlpha(QWidget *w, float l)
 {
     CGSSetWindowAlpha(_CGSDefaultConnection(),
 		      GetNativeWindowFromWindowRef((WindowRef)w->handle()), l);

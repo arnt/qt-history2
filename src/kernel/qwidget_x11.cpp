@@ -2560,13 +2560,13 @@ void QWidgetPrivate::focusInputContext()
 #endif // QT_NO_XIM
 }
 
-void QWidget::setWindowTransparency(double)
+void QWidget::setWindowOpacity(double)
 {
 }
 
-double QWidget::windowTransparency() const
+double QWidget::windowOpacity() const
 {
-    return 0.0;
+    return 1.0;
 }
 
 void QWidgetPrivate::setWindowRole(const char *role)

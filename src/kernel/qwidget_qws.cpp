@@ -1699,11 +1699,11 @@ void QWidget::updateCursor( const QRegion &r ) const
 #endif
 
 
-void QWidget::setWindowTransparency(double)
+void QWidget::setWindowOpacity(double)
 {
 }
 
-double QWidget::windowTransparency() const
+double QWidget::windowOpacity() const
 {
     return 1.0;
 }
