@@ -44,7 +44,7 @@
 #include "qhostaddress.h" // int->QHostAddress conversion
 #endif // QT_H
 
-#if !defined( QT_MODULE_NETWORK ) || defined( QT_LICENSE_PROFESSIONAL )
+#if !defined( QT_MODULE_NETWORK ) || defined( QT_LICENSE_PROFESSIONAL ) || defined( QT_INTERNAL_NETWORK )
 #define QM_EXPORT_NETWORK
 #else
 #define QM_EXPORT_NETWORK Q_EXPORT

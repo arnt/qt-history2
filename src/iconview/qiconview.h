@@ -52,7 +52,11 @@
 
 #ifndef QT_NO_ICONVIEW
 
-#define QM_EXPORT Q_EXPORT
+#if !defined( QT_MODULE_ICONVIEW ) || defined( QT_INTERNAL_ICONVIEW )
+#define QM_EXPORT_ICONVIEW
+#else
+#define QM_EXPORT_ICONVIEW Q_EXPORT
+#endif
 
 class QIconView;
 class QPainter;
@@ -71,7 +75,7 @@ class QIconDragPrivate;
 
 #ifndef QT_NO_DRAGANDDROP
 
-class QM_EXPORT QIconDragItem
+class QM_EXPORT_ICONVIEW QIconDragItem
 {
 public:
     QIconDragItem();
@@ -85,7 +89,7 @@ private:
 
 };
 
-class QM_EXPORT QIconDrag : public QDragObject
+class QM_EXPORT_ICONVIEW QIconDrag : public QDragObject
 {
     Q_OBJECT
 public:
@@ -111,7 +115,7 @@ private:
 class QIconViewToolTip;
 class QIconViewItemPrivate;
 
-class QM_EXPORT QIconViewItem : public Qt
+class QM_EXPORT_ICONVIEW QIconViewItem : public Qt
 {
     friend class QIconView;
     friend class QIconViewToolTip;
@@ -253,7 +257,7 @@ private:
 
 class QIconViewPrivate;          /* don't touch */
 
-class QM_EXPORT QIconView : public QScrollView
+class QM_EXPORT_ICONVIEW QIconView : public QScrollView
 {
     friend class QIconViewItem;
     friend class QIconViewPrivate;
