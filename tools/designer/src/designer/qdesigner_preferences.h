@@ -36,11 +36,12 @@ public:
 private slots:
     void setSettingsDirty();
     void setShowDialog(bool enable);
+    void updateUI(int uimode);
 
 private:
     bool m_dirty;
     bool m_showNewDialog;
-    bool m_useSDI;
+    int m_uiMode;
     QPointer<QWidget> m_prefWidget;
 };
 

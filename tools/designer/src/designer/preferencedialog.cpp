@@ -167,6 +167,7 @@ void PreferenceDialog::accept()
             iface->saveSettings();
     }
     QDialog::accept();
+    emit preferencesChanged();
 }
 
 void PreferenceDialog::preferenceChanged()

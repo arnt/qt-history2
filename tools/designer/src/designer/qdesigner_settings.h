@@ -38,8 +38,8 @@ public:
     void setShowNewFormOnStartup(bool showIt);
     bool showNewFormOnStartup() const;
 
-    void setUseSDInterface(bool useSDI);
-    bool useSDInterface() const;
+    void setUIMode(int mode);
+    int uiMode() const;
 
 private:
     QStringList defaultFormTemplatePaths() const;

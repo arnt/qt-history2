@@ -31,6 +31,9 @@ public:
     PreferenceDialog(AbstractFormEditor *core, QWidget *parent);
     ~PreferenceDialog();
 
+signals:
+    void preferencesChanged();
+
 private slots:
     void accept();
     void reject();

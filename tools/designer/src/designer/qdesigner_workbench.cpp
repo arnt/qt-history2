@@ -51,14 +51,14 @@ QDesignerWorkbench::QDesignerWorkbench()
 {
     initialize();
 
-    switchToTopLevelMode(); // ### Remove: Should be read from the settings
+    setUIMode(UIMode(QDesignerSettings().uiMode()));
 }
 
 QDesignerWorkbench::~QDesignerWorkbench()
 {
 }
 
-QDesignerWorkbench::Mode QDesignerWorkbench::mode() const
+QDesignerWorkbench::UIMode QDesignerWorkbench::mode() const
 {
     return m_mode;
 }
@@ -186,6 +186,8 @@ void QDesignerWorkbench::initialize()
             m_formToolBar->addAction(action);
     }
 
+    m_geometries.clear();
+
 
     emit initialized();
 }
@@ -214,8 +216,10 @@ void QDesignerWorkbench::switchToNeutralMode()
     m_mode = NeutralMode;
 
     m_geometries.clear();
+    m_visibilities.clear();
 
     foreach (QDesignerToolWindow *tw, m_toolWindows) {
+        m_visibilities.insert(tw, tw->isVisible());
         if (tw->isVisible()) {
             // use the actual geometry
             QPoint pos = tw->window()->pos();
@@ -291,12 +295,20 @@ void QDesignerWorkbench::switchToWorkspaceMode()
 
     qDesigner->setMainWindow(mw);
 
+    QDesignerSettings settings;
     foreach (QDesignerToolWindow *tw, m_toolWindows) {
         tw->setParent(magicalParent(), Qt::Tool | Qt::WindowShadeButtonHint | Qt::WindowSystemMenuHint | Qt::WindowTitleHint);
-        QRect g = m_geometries.value(tw, tw->geometryHint());
-        tw->resize(g.size());
-        tw->move(g.topLeft());
-        tw->show();
+        if (m_geometries.isEmpty()) {
+            settings.setGeometryFor(tw, tw->geometryHint());
+            QHeaderView *header = qFindChild<QHeaderView*>(tw);
+            if (header != 0)
+                settings.setHeaderSizesFor(header);
+        } else {
+            QRect g = m_geometries.value(tw, tw->geometryHint());
+            tw->resize(g.size());
+            tw->move(g.topLeft());
+            tw->setVisible(m_visibilities.value(tw, true));
+        }
     }
 
     foreach (QDesignerFormWindow *fw, m_formWindows) {
@@ -349,7 +361,7 @@ void QDesignerWorkbench::switchToTopLevelMode()
             QRect g = m_geometries.value(tw, tw->geometryHint());
             tw->resize(g.size());
             tw->move(g.topLeft());
-            tw->show();
+            tw->setVisible(m_visibilities.value(tw, true));
         }
     }
 
@@ -590,4 +602,13 @@ bool QDesignerWorkbench::handleClose()
 QDesignerActions *QDesignerWorkbench::actionManager() const
 {
     return m_actionManager;
+}
+
+void QDesignerWorkbench::setUIMode(UIMode mode)
+{
+    Q_ASSERT(mode > NeutralMode && mode <= WorkspaceMode);
+    if (mode == WorkspaceMode)
+        switchToWorkspaceMode();
+    else
+        switchToTopLevelMode();
 }

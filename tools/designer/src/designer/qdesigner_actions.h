@@ -104,7 +104,6 @@ public slots:
     void createForm();
 
 private slots:
-    void setWorkbenchVisible(bool visible);
     void openForm();
     void saveForm();
     void saveFormAs();
@@ -117,6 +116,7 @@ private slots:
     void openRecentForm();
     void clearRecentFiles();
     void closeForm();
+    void handlePreferenceChange();
 
 private:
     bool saveFormAs(AbstractFormWindow *fw);

@@ -1,7 +1,5 @@
 /****************************************************************************
 **
-** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
-**
 ** This file is part of the $MODULE$ of the Qt Toolkit.
 **
 ** $LICENSE$
@@ -14,6 +12,7 @@
 #include "qdesigner.h"
 #include "qdesigner_settings.h"
 #include "qdesigner_widgetbox.h"
+#include "qdesigner_workbench.h"
 #include "qdesigner_propertyeditor.h"
 #include "qdesigner_objectinspector.h"
 
@@ -184,12 +183,12 @@ bool QDesignerSettings::showNewFormOnStartup() const
     return value("newFormDialog/ShowOnStartup", true).toBool();
 }
 
-void QDesignerSettings::setUseSDInterface(bool useSDI)
+void QDesignerSettings::setUIMode(int mode)
 {
-    setValue("UI/useSDI", useSDI);
+    setValue("UI/currentMode", mode);
 }
 
-bool QDesignerSettings::useSDInterface() const
+int QDesignerSettings::uiMode() const
 {
-    return value("UI/useSDI", true).toBool();
+    return value("UI/currentMode", QDesignerWorkbench::TopLevelMode).toInt();
 }

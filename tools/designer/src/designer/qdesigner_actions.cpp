@@ -240,10 +240,9 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
 //
 // window actions
 //
-    m_showWorkbenchAction = new QAction(tr("Show &Workbench"), this);
-    m_showWorkbenchAction->setCheckable(true);
-    connect(m_showWorkbenchAction, SIGNAL(checked(bool)), this, SLOT(setWorkbenchVisible(bool)));
-    m_windowActions->addAction(m_showWorkbenchAction);
+    // Fill me in.
+
+
 
 //
 // connections
@@ -367,15 +366,6 @@ void QDesignerActions::editWidgets()
     }
 }
 
-void QDesignerActions::setWorkbenchVisible(bool visible)
-{
-    if (visible) {
-        workbench()->switchToWorkspaceMode();
-    } else {
-        workbench()->switchToTopLevelMode();
-    }
-}
-
 void QDesignerActions::createForm()
 {
     NewForm dlg(workbench(), 0);
@@ -457,9 +447,16 @@ void QDesignerActions::editPreferences()
     if (!m_preferenceDialog) {
         m_preferenceDialog = new PreferenceDialog(core(), core()->topLevel());
         m_preferenceDialog->setAttribute(Qt::WA_DeleteOnClose, true);
+        connect(m_preferenceDialog, SIGNAL(preferencesChanged()), SLOT(handlePreferenceChange()));
     }
     m_preferenceDialog->show();
     m_preferenceDialog->raise();
+}
+
+void QDesignerActions::handlePreferenceChange()
+{
+    int foo = QDesignerSettings().uiMode();
+    m_workbench->setUIMode(QDesignerWorkbench::UIMode(foo));
 }
 
 void QDesignerActions::previewForm()

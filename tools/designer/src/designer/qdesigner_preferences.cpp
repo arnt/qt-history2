@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include "qdesigner_workbench.h"
 #include "qdesigner_preferences.h"
 #include "qdesigner_settings.h"
 
@@ -29,7 +30,7 @@ private slots:
 
 signals:
     void settingsChanged();
-    void uiChanged(bool); // true for SDI, false for MDI
+    void uiChanged(int); // true for SDI, false for MDI
     void newFormChanged(bool);
 
 private:
@@ -46,15 +47,15 @@ DesignerPreferencesWidget::DesignerPreferencesWidget(QWidget *parent)
 
 bool DesignerPreferencesWidget::setupPreferences()
 {
-    disconnect(this, SIGNAL(uiChanged(bool)), this, SIGNAL(settingsChanged()));
+    disconnect(this, SIGNAL(uiChanged(int)), this, SIGNAL(settingsChanged()));
     disconnect(this, SIGNAL(newFormChanged(bool)), this, SIGNAL(settingsChanged()));
     QDesignerSettings settings;
     ui.optShowDialog->setChecked(settings.showNewFormOnStartup());
-    if (settings.useSDInterface())
+    if (settings.uiMode() == QDesignerWorkbench::TopLevelMode)
         ui.optSDI->setChecked(true);
     else
         ui.optMDI->setChecked(true);
-    connect(this, SIGNAL(uiChanged(bool)), this, SIGNAL(settingsChanged()));
+    connect(this, SIGNAL(uiChanged(int)), this, SIGNAL(settingsChanged()));
     connect(this, SIGNAL(newFormChanged(bool)), this, SIGNAL(settingsChanged()));
     return settings.status() != QSettings::NoError;
 }
@@ -66,11 +67,11 @@ void DesignerPreferencesWidget::on_optShowDialog_toggled(bool toggled)
 
 void DesignerPreferencesWidget::on_optSDI_toggled(bool toggled)
 {
-    emit uiChanged(toggled);
+    emit uiChanged(toggled ? QDesignerWorkbench::TopLevelMode : QDesignerWorkbench::WorkspaceMode);
 }
 
 DesignerPreferences::DesignerPreferences(QObject *parent)
-    : PreferenceInterface(parent), m_dirty(false), m_showNewDialog(true), m_useSDI(false)
+    : PreferenceInterface(parent), m_dirty(false), m_showNewDialog(true), m_uiMode(QDesignerWorkbench::TopLevelMode)
 {
 }
 
@@ -83,7 +84,7 @@ QWidget *DesignerPreferences::createPreferenceWidget(QWidget *parent)
     if (!m_prefWidget) {
         m_prefWidget = new DesignerPreferencesWidget(parent);
         connect(m_prefWidget, SIGNAL(settingsChanged()), this, SLOT(setSettingsDirty()));
-        connect(m_prefWidget, SIGNAL(uiChanged(bool)), this, SLOT(updateUI(bool)));
+        connect(m_prefWidget, SIGNAL(uiChanged(int)), this, SLOT(updateUI(int)));
         connect(m_prefWidget, SIGNAL(newFormChanged(bool)), this, SLOT(setShowDialog(bool)));
     }
     return m_prefWidget;
@@ -107,7 +108,8 @@ bool DesignerPreferences::saveSettings()
 {
     QDesignerSettings settings;
     settings.setShowNewFormOnStartup(m_showNewDialog);
-    settings.setUseSDInterface(m_useSDI);
+    settings.setUIMode(m_uiMode);
+    settings.sync();
     return settings.status() == QSettings::NoError;
 }
 
@@ -130,6 +132,11 @@ QString DesignerPreferences::preferenceName() const
 QIcon DesignerPreferences::preferenceIcon() const
 {
     return QIcon();
+}
+
+void DesignerPreferences::updateUI(int uimode)
+{
+    m_uiMode = uimode;
 }
 
 #include "qdesigner_preferences.moc"

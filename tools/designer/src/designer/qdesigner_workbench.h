@@ -46,7 +46,7 @@ class QDesignerWorkbench: public QObject
 {
     Q_OBJECT
 public:
-    enum Mode
+    enum UIMode
     {
         NeutralMode,
         TopLevelMode,
@@ -58,7 +58,7 @@ public:
     QDesignerWorkbench();
     virtual ~QDesignerWorkbench();
 
-    Mode mode() const;
+    UIMode mode() const;
 
     AbstractFormEditor *core() const;
 
@@ -88,7 +88,7 @@ public:
     bool handleClose();
 
 signals:
-    void modeChanged(Mode mode);
+    void modeChanged(UIMode mode);
     void initialized();
 
 public slots:
@@ -96,6 +96,7 @@ public slots:
     void addFormWindow(QDesignerFormWindow *formWindow);
     void removeToolWindow(QDesignerToolWindow *toolWindow);
     void removeFormWindow(QDesignerFormWindow *formWindow);
+    void setUIMode(UIMode mode);
 
 // ### private slots:
     void switchToNeutralMode();
@@ -136,12 +137,13 @@ private:
     QAction *m_topLevelModeAction;
     QAction *m_workspaceModeAction;
 
-    Mode m_mode;
+    UIMode m_mode;
 
     QList<QDesignerToolWindow*> m_toolWindows;
     QList<QDesignerFormWindow*> m_formWindows;
 
     Q3Workspace *m_workspace;
+    QHash<QWidget*, bool> m_visibilities;
     QHash<QWidget*, QRect> m_geometries;
 
     class ToolWindowExtra {};
