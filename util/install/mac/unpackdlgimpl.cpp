@@ -11,6 +11,7 @@
 #include <qapplication.h>
 #include "keyinfo.h"
 #include <unistd.h>
+#include <stdlib.h>
 
 UnpackDlgImpl::UnpackDlgImpl( QString key, QWidget* pParent, const char* pName, WFlags f ) : 
     UnpackDlg( pParent, pName, f )
