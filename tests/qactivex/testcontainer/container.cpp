@@ -119,6 +119,9 @@ public:
 	m_shortnumber = 23;
 	m_longnumber = 12345678;
 */
+	QTime inittimer;
+	inittimer.start();
+
 	object = new QAxObject( control, this, "Test Control" );
 	Q_ASSERT( !object->isNull() );
 	if ( object->isNull() )
@@ -141,12 +144,17 @@ public:
 	    const QMetaData *signal = mo->signal( isig );
 	    Q_ASSERT( connect( this, sigcode + signal->name, object, slotcode + signal->name ) );
 	}
+
+	qDebug( "\nInititialization of %s finished in %dms", control.latin1(), inittimer.elapsed() );
     }
 
     int run()
     {
 	if ( object->isNull() )
 	    return -1;
+
+	QTime runtimer;
+	runtimer.start();
 
 	QVariant containerValue;
 
@@ -327,6 +335,8 @@ public:
 	emit betaPointerSlot( m_beta );
 	VERIFY_EQUAL( object->property( "beta" ), m_beta );
 */
+	
+	qDebug( "\nTest of %s finished with %d errors after %dms\n", object->control().latin1(), errorcount, runtimer.elapsed() );
 	return errorcount;
     }
 
