@@ -138,12 +138,17 @@
   \target extensibility
   \section1 Extensibility
 
-  Extensibility is the ability to show the dialog in two ways: a partial
-  dialog that shows the most commonly used options, and a full dialog
-  that shows all the options. Typically an extensible dialog
-  will initially appear as a partial dialog, but with a "More"
-  button. If the user clicks the "More" button, the full dialog will
-  appear. Extensibility is controlled with setExtension(),
+  Extensibility is the ability to show the dialog in two ways: a
+  partial dialog that shows the most commonly used options, and a full
+  dialog that shows all the options. Typically an extensible dialog
+  will initially appear as a partial dialog, but with a "More" button.
+  If the user clicks the "More" button, the full dialog will appear.
+  The extension widget will be resized to its sizeHint(). If
+  orientation is \c Horizontal the extension widget's height() will be
+  expanded to the height() of the dialog. If the orientation is \c
+  Vertical the extension widget's width() will be expanded to the
+  width() of the dialog.
+  Extensibility is controlled with setExtension(),
   setOrientation() and showExtension().
 
   \target return
