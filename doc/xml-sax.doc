@@ -229,7 +229,6 @@ When changing this behavior using \l QXmlSimpleReader::setFeature()
 note that the combination of both features set to
 FALSE is illegal.
 
-<a name="sax2namespaces"></a>
 <h3><a name="sax2namespaces">Summary</a></h3>
 
 \l QXmlSimpleReader implements the following behavior (the value in 
@@ -248,7 +247,7 @@ Qt implementation:
     <td>TRUE</td>
     <td>FALSE</td>
     <td>Yes</td>
-    <td>Yes <font color="grey">(Unknown)</font></td>
+    <td>Yes <font color="#808080">(Unknown)</font></td>
     <td>Yes</td>
     <td>No</td>
 </tr>
@@ -263,15 +262,15 @@ Qt implementation:
 <tr>
     <td>FALSE</td>
     <td>TRUE</td>
-    <td>No <font color="grey">(Unknown)</font></td>
+    <td>No <font color="#808080">(Unknown)</font></td>
     <td>Yes</td>
-    <td>No <font color="grey">(Unknown)</font></td>
+    <td>No <font color="#808080">(Unknown)</font></td>
     <td>Yes</td>
 </tr>
 <tr>
     <td>FALSE</td>
     <td>FALSE</td>
-    <td colspan=4 align=center><font color="grey">(Illegal)</font></td>
+    <td colspan=4 align=center><font color="#808080">(Illegal)</font></td>
 </table>
  
 
