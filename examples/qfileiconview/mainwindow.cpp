@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/mainwindow.cpp#6 $
+** $Id: //depot/qt/main/examples/qfileiconview/mainwindow.cpp#7 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -88,25 +88,25 @@ void FileMainWindow::setup()
     splitter->setResizeMode( dirlist, QSplitter::KeepSize );
 
     fileview = new QtFileIconView( "/", splitter );
-    fileview->setSelectionMode( QtIconView::StrictMulti );
+    fileview->setSelectionMode( QIconView::StrictMulti );
     fileview->setViewMode( QIconSet::Large );
 
     setCentralWidget( splitter );
 
     QToolBar *toolbar = new QToolBar( this, "toolbar" );
     setRightJustification( TRUE );
-    
+
     (void)new QLabel( tr( " Path: " ), toolbar );
-    
+
     pathCombo = new QComboBox( TRUE, toolbar );
     toolbar->setStretchableWidget( pathCombo );
     connect( pathCombo, SIGNAL( activated( const QString & ) ),
              this, SLOT ( changePath( const QString & ) ) );
-    
+
     toolbar->addSeparator();
-    
+
     QPixmap pix;
-    
+
     pix = QPixmap( cdtoparent_xpm );
 	(void)new QToolButton( pix, "One directory up", QString::null,
                            this, SLOT( cdUp() ), toolbar, "cd up" );
@@ -145,14 +145,14 @@ void FileMainWindow::setPathCombo()
             break;
         }
     }
-    
+
     if ( found )
         pathCombo->setCurrentItem( i );
     else {
         pathCombo->insertItem( dir );
         pathCombo->setCurrentItem( pathCombo->count() - 1 );
     }
-        
+
 }
 
 void FileMainWindow::directoryChanged( const QString &dir )

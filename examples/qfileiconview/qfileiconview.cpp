@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#7 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#8 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -227,7 +227,7 @@ static const char * folder_locked_icon[]={
  *****************************************************************************/
 
 QtFileIconViewItem::QtFileIconViewItem( QtFileIconView *parent, QFileInfo *fi )
-    : QtIconViewItem( parent, fi->fileName(), QIconSet( QPixmap( empty_icon ) ) ), itemFileName( fi->filePath() ),
+    : QIconViewItem( parent, fi->fileName(), QIconSet( QPixmap( empty_icon ) ) ), itemFileName( fi->filePath() ),
       itemFileInfo( *fi ), checkSetText( FALSE ), timer( this )
 {
     if ( itemFileInfo.isDir() )
@@ -273,7 +273,7 @@ QtFileIconViewItem::~QtFileIconViewItem()
 
 void QtFileIconViewItem::setText( const QString &text )
 {
-    QtIconViewItem::setText( text );
+    QIconViewItem::setText( text );
 
     if ( checkSetText ) {
         QDir dir( itemFileInfo.dir() );
@@ -300,7 +300,7 @@ void QtFileIconViewItem::dropped( QDropEvent *e )
         e->ignore();
         return;
     }
-    
+
     QStringList lst;
     QUriDrag::decodeLocalFiles( e, lst );
 
@@ -352,16 +352,16 @@ void QtFileIconViewItem::openFolder()
  *****************************************************************************/
 
 QtFileIconView::QtFileIconView( const QString &dir, QWidget *parent, const char *name )
-    : QtIconView( parent, name ), viewDir( dir ), newFolderNum( 0 )
+    : QIconView( parent, name ), viewDir( dir ), newFolderNum( 0 )
 {
     setRastX( 100 );
     setRastY( 75 );
 
     readDir( viewDir );
 
-    connect( this, SIGNAL( doubleClicked( QtIconViewItem * ) ), this, SLOT( itemDoubleClicked( QtIconViewItem * ) ) );
+    connect( this, SIGNAL( doubleClicked( QIconViewItem * ) ), this, SLOT( itemDoubleClicked( QIconViewItem * ) ) );
     connect( this, SIGNAL( dropped( QDropEvent * ) ), this, SLOT( slotDropped( QDropEvent * ) ) );
-    connect( this, SIGNAL( itemRightClicked( QtIconViewItem * ) ), this, SLOT( slotItemRightClicked( QtIconViewItem * ) ) );
+    connect( this, SIGNAL( itemRightClicked( QIconViewItem * ) ), this, SLOT( slotItemRightClicked( QIconViewItem * ) ) );
     connect( this, SIGNAL( viewportRightClicked() ), this, SLOT( slotViewportRightClicked() ) );
 }
 
@@ -438,7 +438,7 @@ void QtFileIconView::readDir( const QDir &dir )
     viewport()->repaint( TRUE );
 }
 
-void QtFileIconView::itemDoubleClicked( QtIconViewItem *i )
+void QtFileIconView::itemDoubleClicked( QIconViewItem *i )
 {
     QtFileIconViewItem *item = ( QtFileIconViewItem* )i;
 
@@ -478,7 +478,7 @@ void QtFileIconView::keyPressEvent( QKeyEvent *e )
          ( e->state() & ControlButton ) )
         newDirectory();
     else
-        QtIconView::keyPressEvent( e );
+        QIconView::keyPressEvent( e );
 }
 
 void QtFileIconView::slotDropped( QDropEvent *e )
@@ -487,7 +487,7 @@ void QtFileIconView::slotDropped( QDropEvent *e )
         e->ignore();
         return;
     }
-    
+
     QStringList lst;
     QUriDrag::decodeLocalFiles( e, lst );
 
@@ -528,7 +528,7 @@ void QtFileIconView::alignInGrid()
     repaintContents( contentsX(), contentsY(), viewport()->width(), viewport()->height() );
 }
 
-void QtFileIconView::slotItemRightClicked( QtIconViewItem *item )
+void QtFileIconView::slotItemRightClicked( QIconViewItem *item )
 {
     if ( !item )
         return;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qiconview/main.cpp#3 $
+** $Id: //depot/qt/main/examples/qiconview/main.cpp#4 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -8,7 +8,7 @@
 **
 *****************************************************************************/
 
-#include "qiconview.h"
+#include <qiconview.h>
 #include <qapplication.h>
 #include <qdragobject.h>
 #include <qpixmap.h>
@@ -51,13 +51,13 @@ int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
 
-    QtIconView qiconview;
-    qiconview.setSelectionMode( QtIconView::Multi );
+    QIconView qiconview;
+    qiconview.setSelectionMode( QIconView::Multi );
     qiconview.setViewMode( QIconSet::Large );
     qiconview.resize( 600, 480 );
 
     for ( unsigned int i = 0; i < 350; i++ )
-        ( void )new QtIconViewItem( &qiconview, QString( "Item %1" ).arg( i + 1 ) );
+        ( void )new QIconViewItem( &qiconview, QString( "Item %1" ).arg( i + 1 ) );
 
     qiconview.setCaption( "Iconview" );
 

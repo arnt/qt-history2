@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.h#5 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.h#6 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -17,8 +17,7 @@
 #include <qfileinfo.h>
 #include <qdir.h>
 #include <qtimer.h>
-
-#include "../qiconview/qiconview.h"
+#include <qiconview.h>
 
 class QtFileIconView;
 class QDragObject;
@@ -29,7 +28,7 @@ class QDragObject;
  *
  *****************************************************************************/
 
-class QtFileIconViewItem : public QtIconViewItem
+class QtFileIconViewItem : public QIconViewItem
 {
     Q_OBJECT
 
@@ -76,7 +75,7 @@ protected slots:
  *
  *****************************************************************************/
 
-class QtFileIconView : public QtIconView
+class QtFileIconView : public QIconView
 {
     Q_OBJECT
 
@@ -96,7 +95,7 @@ signals:
     void readDirDone();
 
 protected slots:
-    void itemDoubleClicked( QtIconViewItem *i );
+    void itemDoubleClicked( QIconViewItem *i );
     void slotDropped( QDropEvent *e );
 
     void viewLarge();
@@ -104,7 +103,7 @@ protected slots:
     void viewSmall();
     void alignInGrid();
 
-    void slotItemRightClicked( QtIconViewItem *item );
+    void slotItemRightClicked( QIconViewItem *item );
     void slotViewportRightClicked();
 
 protected:
