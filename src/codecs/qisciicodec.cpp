@@ -6,11 +6,6 @@
   \internal
 */
 
-QIsciiCodec::QIsciiCodec(int i)
-: idx(i)
-{
-}
-
 int QIsciiCodec::mibEnum() const
 {
     /* There is no MIBEnum for Iscii */
