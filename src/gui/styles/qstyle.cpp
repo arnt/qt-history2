@@ -404,8 +404,9 @@ QRect QStyle::itemRect(QPainter *painter, const QRect &rect, int alignment, bool
 void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const QPalette &pal,
                       bool enabled, const QString& text, int len, const QColor *penColor) const
 {
+    QRect r = rect.adjusted(0,0,-1,-1);
     int x, y, w, h;
-    rect.getRect(&x, &y, &w, &h);
+    r.getRect(&x, &y, &w, &h);
 
     painter->setPen(penColor ? *penColor : pal.foreground().color());
     if (!text.isEmpty()) {
@@ -504,6 +505,7 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
     \value PE_DockWindowSeparator  Item separator for dock window and
         toolbar contents.
     \value PE_DockWindowResizeHandle  Resize handle for dock windows.
+    \value PE_DockWindowTitle  Dock window title.
 
     \value PE_Splitter  Splitter handle; see also QSplitter.
 

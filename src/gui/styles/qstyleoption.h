@@ -27,8 +27,8 @@ public:
     enum OptionType {
                       // Standard controls
                       SO_Default, SO_FocusRect, SO_Button, SO_Tab, SO_MenuItem,
-                      SO_Frame, SO_ProgressBar, SO_ToolBox, SO_Header, SO_DockWindow,
-                      SO_ListViewItem, SO_ViewItem,
+                      SO_Frame, SO_ProgressBar, SO_ToolBox, SO_Header, SO_Q3DockWindow,
+                      SO_DockWindow, SO_ListViewItem, SO_ViewItem,
 
                       // Complex controls
                       SO_Complex = 0xf000, SO_Slider, SO_SpinBox, SO_ToolButton, SO_ComboBox,
@@ -267,19 +267,37 @@ protected:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QStyleOptionListViewItem::ListViewItemFeatures);
 
+class Q_GUI_EXPORT QStyleOptionQ3DockWindow : public QStyleOption
+{
+public:
+    enum { Type = SO_Q3DockWindow };
+    enum { Version = 1 };
+
+    bool docked;
+    bool closeEnabled;
+
+    QStyleOptionQ3DockWindow();
+
+    QDOC_PROPERTY(bool docked)
+    QDOC_PROPERTY(bool closeEnabled)
+
+protected:
+    QStyleOptionQ3DockWindow(int version);
+};
+
 class Q_GUI_EXPORT QStyleOptionDockWindow : public QStyleOption
 {
 public:
     enum { Type = SO_DockWindow };
     enum { Version = 1 };
 
-    bool docked;
-    bool closeEnabled;
+    QString title;
+    bool moveable;
 
     QStyleOptionDockWindow();
 
-    QDOC_PROPERTY(bool docked)
-    QDOC_PROPERTY(bool closeEnabled)
+    QDOC_PROPERTY(QString title)
+    QDOC_PROPERTY(bool moveable)
 
 protected:
     QStyleOptionDockWindow(int version);

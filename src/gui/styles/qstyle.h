@@ -139,6 +139,7 @@ public:
         PE_DockWindowHandle,
         PE_DockWindowSeparator,
         PE_DockWindowResizeHandle,
+        PE_DockWindowTitle,
 
         PE_Splitter,
 

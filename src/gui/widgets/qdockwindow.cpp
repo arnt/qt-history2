@@ -378,21 +378,18 @@ void QDockWindowTitle::mouseReleaseEvent(QMouseEvent *event)
 void QDockWindowTitle::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    const QPalette &pal = palette();
 
-    if (dockwindow->hasFeature(QDockWindow::DockWindowMovable)) {
-        p.setPen(pal.color(QPalette::Dark));
-        p.drawRect(rect());
+    QStyleOptionDockWindow opt;
+    opt.rect = rect();
+    opt.palette = palette();
+    if (isEnabled()) {
+        opt.state |= QStyle::Style_Enabled;
+        if (underMouse())
+            opt.state |= QStyle::Style_MouseOver;
     }
-
-    if (!dockwindow->windowTitle().isEmpty()) {
-        QRect r = spacer->geometry();
-        const int indent = p.fontMetrics().descent();
-        r.addCoords(indent, 0, -indent, 0);
-
-	style()->drawItem(&p, r, Qt::AlignLeft, pal,
-                         isEnabled(), dockwindow->windowTitle());
-    }
+    opt.title = dockwindow->windowTitle();
+    opt.moveable = dockwindow->hasFeature(QDockWindow::DockWindowMovable);
+    style()->drawPrimitive(QStyle::PE_DockWindowTitle, &opt, &p, this);
 }
 
 void QDockWindowTitle::updateButtons()

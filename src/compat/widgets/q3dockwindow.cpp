@@ -82,7 +82,7 @@ Q3DockWindowResizeHandle::Q3DockWindowResizeHandle(Qt::Orientation o, QWidget *p
 
 QSize Q3DockWindowResizeHandle::sizeHint() const
 {
-    QStyleOptionDockWindow opt;
+    QStyleOptionQ3DockWindow opt;
     opt.init(this);
     if (!dockWindow->area() || dockWindow->area()->orientation() == Qt::Horizontal)
         opt.state |= QStyle::Style_Horizontal;
@@ -384,7 +384,7 @@ void Q3DockWindowHandle::paintEvent(QPaintEvent *e)
     if ((!dockWindow->dockArea || mousePressed) && !opaque)
         return;
     QPainter p(this);
-    QStyleOptionDockWindow opt;
+    QStyleOptionQ3DockWindow opt;
     opt.init(this);
     if (!dockWindow->area() || dockWindow->area()->orientation() == Qt::Horizontal)
         opt.state |= QStyle::Style_Horizontal;

@@ -1044,8 +1044,8 @@ QStyleOptionListView::QStyleOptionListView(int version)
 */
 
 /*!
-    \class QStyleOptionDockWindow
-    \brief The QStyleOptionDockWindow class is used to describe the
+    \class QStyleOptionQ3DockWindow
+    \brief The QStyleOptionQ3DockWindow class is used to describe the
     parameters for drawing various parts of \l Q3DockWindows.
 
     This class is used for drawing the old Q3DockWindow and its
@@ -1053,12 +1053,46 @@ QStyleOptionListView::QStyleOptionListView(int version)
 */
 
 /*!
-    Constructs a QStyleOptionDockWindow. The members variables are
+    Constructs a QStyleOptionQ3DockWindow. The member variables are
+    initialized to default values.
+*/
+
+QStyleOptionQ3DockWindow::QStyleOptionQ3DockWindow()
+    : QStyleOption(Version, SO_Q3DockWindow), docked(false), closeEnabled(false)
+{
+}
+
+/*!
+    \internal
+*/
+QStyleOptionQ3DockWindow::QStyleOptionQ3DockWindow(int version)
+    : QStyleOption(version, SO_Q3DockWindow), docked(false), closeEnabled(false)
+{
+}
+
+/*!
+    \property QStyleOptionQ3DockWindow::docked
+    \brief Indicates that the dock window is currently docked.
+*/
+
+/*!
+    \property QStyleOptionQ3DockWindow::closeEnabled
+    \brief Indicates that the dock window has a close button.
+*/
+
+/*!
+    \class QStyleOptionDockWindow
+    \brief The QStyleOptionDockWindow class is used to describe the
+    parameters for drawing a dock window.
+*/
+
+/*!
+    Constructs a QStyleOptionDockWindow. The member variables are
     initialized to default values.
 */
 
 QStyleOptionDockWindow::QStyleOptionDockWindow()
-    : QStyleOption(Version, SO_DockWindow), docked(false), closeEnabled(false)
+    : QStyleOption(Version, SO_DockWindow), moveable(false)
 {
 }
 
@@ -1066,18 +1100,18 @@ QStyleOptionDockWindow::QStyleOptionDockWindow()
     \internal
 */
 QStyleOptionDockWindow::QStyleOptionDockWindow(int version)
-    : QStyleOption(version, SO_DockWindow), docked(false), closeEnabled(false)
+    : QStyleOption(version, SO_DockWindow), moveable(false)
 {
 }
 
 /*!
-    \property QStyleOptionDockWindow::docked
-    \brief Indicates that the dock window is currently docked.
+    \property QStyleOptionDockWindow::title
+    \brief The title of the dock window
 */
 
 /*!
-    \property QStyleOptionDockWindow::closeEnabled
-    \brief Indicates that the dock window has a close button.
+    \property QStyleOptionDockWindow::moveable
+    \brief Indicates that the dock window is moveable.
 */
 
 /*!

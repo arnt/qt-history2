@@ -556,6 +556,22 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
             qDrawShadePanel(p, frame->rect, frame->palette, false, lw);
         }
         break;
+
+    case PE_DockWindowTitle:
+        if (const QStyleOptionDockWindow *dwOpt = qt_cast<const QStyleOptionDockWindow *>(opt)) {
+            if (dwOpt->moveable) {
+                p->setPen(dwOpt->palette.color(QPalette::Dark));
+                p->drawRect(dwOpt->rect.adjusted(0,0,-1,-1));
+            }
+            if (!dwOpt->title.isEmpty()) {
+                QRect r = dwOpt->rect;
+                const int indent = p->fontMetrics().descent();
+                r.addCoords(indent, 0, -indent, 0);
+                drawItem(p, r, Qt::AlignLeft, dwOpt->palette, dwOpt->state & Style_Enabled,
+                         dwOpt->title);
+            }
+        }
+        break;
     case PE_ToolBarHandle:
         p->save();
         p->translate(opt->rect.x(), opt->rect.y());
@@ -1335,7 +1351,7 @@ QRect QCommonStyle::subRect(SubRect sr, const QStyleOption *opt, const QFontMetr
         }
         break;
     case SR_DockWindowHandleRect:
-        if (const QStyleOptionDockWindow *dw = qt_cast<const QStyleOptionDockWindow *>(opt)) {
+        if (const QStyleOptionQ3DockWindow *dw = qt_cast<const QStyleOptionQ3DockWindow *>(opt)) {
             if (!dw->docked || !dw->closeEnabled)
                 r.setRect(0, 0, dw->rect.width(), dw->rect.height());
             else {
