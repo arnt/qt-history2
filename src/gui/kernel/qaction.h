@@ -174,7 +174,7 @@ public:
     void removeAction(QAction *a);
     QList<QAction*> actions() const;
 
-    QAction *checked() const;
+    QAction *checkedAction() const;
     bool isExclusive() const;
     bool isEnabled() const;
     bool isVisible() const;

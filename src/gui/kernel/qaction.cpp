@@ -88,7 +88,7 @@ QAction::QAction(QActionGroup* parent)
 
 /*!
     Constructs an action with parent \a parent. This will not
-    automatically insert the QAction into the widget \a parent. 
+    automatically insert the QAction into the widget \a parent.
 */
 QAction::QAction(QWidget* parent)
     : QObject(*(new QActionPrivate), parent)
@@ -337,7 +337,7 @@ QAction::~QAction()
   added to the group's list of actions.
 
   A QActionGroup will provide mutual exclusivity as well group
-  behaviour of all contained actions. 
+  behaviour of all contained actions.
 
   \sa QActionGroup, QAction::actionGroup()
 */
@@ -409,7 +409,7 @@ QMenu *QAction::menu() const
     return d->menu;
 }
 
-/*! 
+/*!
   If \a b is true then this action will be considered a separator.
 
   How a separator is reprented depends on the widget this is inserted
@@ -903,7 +903,7 @@ bool QActionGroup::isEnabled() const
 /*!
   Returns the currently checked action in the group, or 0 if none are checked
 */
-QAction *QActionGroup::checked() const
+QAction *QActionGroup::checkedAction() const
 {
     return d->current;
 }
@@ -933,7 +933,7 @@ bool QActionGroup::isVisible() const
     return d->visible;
 }
 
-/*! 
+/*!
   \reimp
 */
 void QActionGroup::childEvent(QChildEvent* e)
@@ -948,7 +948,7 @@ void QActionGroup::childEvent(QChildEvent* e)
     QObject::childEvent(e);
 }
 
-/*! 
+/*!
   \internal
 */
 void QActionGroup::internalDataChanged()
@@ -963,7 +963,7 @@ void QActionGroup::internalDataChanged()
     }
 }
 
-/*! 
+/*!
   \internal
 */
 void QActionGroup::internalTriggered()
@@ -975,7 +975,7 @@ void QActionGroup::internalTriggered()
     emit selected(action);
 }
 
-/*! 
+/*!
   \internal
 */
 void QActionGroup::internalHovered()
