@@ -147,6 +147,8 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate( QDesktopWidget *that )
     } else {
 	rects->resize( 1 );
 	rects->at( 0 ) = that->rect();
+	workrects->resize( 1 );
+	workrects->at( 0 ) = that->rect();
     }
     refcount++;
 }
