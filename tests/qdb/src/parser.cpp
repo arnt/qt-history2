@@ -705,6 +705,7 @@ void Parser::emitExpr( const QVariant& expr, bool group, int trueLab,
 	LocalSQLOp *op = 0;
 	int tableId;
 	QString field;
+	int fieldNo;
 	int resultColumn;
 	int nextCond;
 	int i;
@@ -724,16 +725,16 @@ void Parser::emitExpr( const QVariant& expr, bool group, int trueLab,
 	    resultColumn = (*++v).toInt();
 	    yyProg->append( new PushGroupCount(0, resultColumn) );
 	    break;
-#if notyet // ###
 	case Node_Field:
 	    tableId = (*++v).toInt();
 	    field = (*++v).toString();
-	    if ( group )
-		yyProg->append( new PushGroupValue(tableId, field) );
-	    else
+	    if ( group ) {
+		fieldNo = *yyFields.insert( field, 0 );
+		yyProg->append( new PushGroupValue(0, fieldNo) );
+	    } else {
 		yyProg->append( new PushFieldValue(tableId, field) );
+	    }
 	    break;
-#endif
 	case Node_In:
 	    emitExpr( *++v, group );
 	    yyProg->append( new Push(*++v) );
@@ -843,6 +844,9 @@ void Parser::emitExpr( const QVariant& expr, bool group, int trueLab,
 		break;
 	    case Node_Upper:
 		op = new Upper;
+		break;
+	    default:
+		error( "Internal error: Unknown node type %d", node );
 	    }
 	    yyProg->append( op );
 	}
@@ -2058,6 +2062,7 @@ void Parser::matchSelectStatement()
 	selectColumnNames.append( QString::null );
     } else {
 	while ( TRUE ) {
+	    // ### do better
 	    int start = yyPos;
 	    selectColumns.append( matchScalarExpr() );
 	    int end = yyPos;
