@@ -308,6 +308,8 @@ QPointArray QWMatrix::map( const QPointArray &a ) const
 
   All elements are set to zero, except \e m11 and \e m22 (scaling)
   that are set to 1.
+
+  \sa isIdentity()
 */
 
 void QWMatrix::reset()
@@ -316,6 +318,16 @@ void QWMatrix::reset()
     _m12 = _m21 = _dx = _dy = 0.0;
 }
 
+/*!
+  Returns whether the matrix is the identity matrix.
+
+  \sa reset()
+*/
+bool QWMatrix::isIdentity() const
+{
+    return _m11 == 1.0 && _m22 == 1.0 && _m12 == 0.0 && _m21 == 0.0
+	&& _dx == 0.0 && _dy == 0.0;
+}
 
 /*!
   Moves the coordinate system \e dx along the X-axis and \e dy

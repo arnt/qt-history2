@@ -71,6 +71,7 @@ public:
     QPointArray map( const QPointArray & ) const;
 
     void	reset();
+    bool	isIdentity() const;
 
     QWMatrix   &translate( double dx, double dy );
     QWMatrix   &scale( double sx, double sy );

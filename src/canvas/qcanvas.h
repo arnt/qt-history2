@@ -222,6 +222,8 @@ public:
 	{ return aheight; }
     QSize size() const
 	{ return QSize(awidth,aheight); }
+    QRect rect() const
+	{ return QRect( 0, 0, awidth, aheight ); }
     bool onCanvas( int x, int y ) const
 	{ return x>=0 && y>=0 && x<awidth && y<aheight; }
     bool onCanvas( const QPoint& p ) const
@@ -255,10 +257,12 @@ public:
     QCanvasItemList collisions( const QPointArray& pa, const QCanvasItem* item,
 				bool exact) const;
 
+    void drawArea(const QRect&, QPainter* p, bool double_buffer=FALSE);
+
     // These are for QCanvasView to call
     virtual void addView(QCanvasView*);
     virtual void removeView(QCanvasView*);
-    void drawArea(const QRect&, QPainter* p=0, bool double_buffer=TRUE);
+    void drawCanvasArea(const QRect&, QPainter* p=0, bool double_buffer=TRUE);
     void drawViewArea( QCanvasView* view, QPainter* p, const QRect& r, bool dbuf );
 
     // These are for QCanvasItem to call

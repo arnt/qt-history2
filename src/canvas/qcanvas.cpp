@@ -907,7 +907,7 @@ void QCanvas::drawViewArea( QCanvasView* view, QPainter* p, const QRect& vr, boo
 	twm.translate(-tl.x(),-tl.y());
 	dbp.setWorldMatrix( wm*twm, TRUE );
 	dbp.setClipRect(0,0,vr.width(), vr.height());
-	drawArea(ivr,&dbp,FALSE);
+	drawCanvasArea(ivr,&dbp,FALSE);
 	p->drawPixmap(vr.x()+tl.x(), vr.y()+tl.y(), offscr, 0, 0,
 	    vr.width(), vr.height());
     } else {
@@ -920,7 +920,7 @@ void QCanvas::drawViewArea( QCanvasView* view, QPainter* p, const QRect& vr, boo
 	    p->setClipRect(r);
 	}
 
-	drawArea(ivr,p,FALSE);
+	drawCanvasArea(ivr,p,FALSE);
     }
 }
 
@@ -940,7 +940,7 @@ void QCanvas::update()
 	QRect area(view->contentsX(),view->contentsY(),
 		   view->visibleWidth(),view->visibleHeight());
 	if (area.width()>0 && area.height()>0) {
-	    if ( wm == QWMatrix() /*.isUnity()*/ ) {
+	    if ( wm.isIdentity() ) {
 		clusterizer.add(area);
 	    } else {
 		// r = Visible area of the canvas where there are changes
@@ -1100,7 +1100,7 @@ void QCanvas::drawChanges(const QRect& inarea)
 	    elarea.width()*chunksize,
 	    elarea.height()*chunksize
 	);
-	drawArea(elarea);
+	drawCanvasArea(elarea);
     }
 }
 
@@ -1115,10 +1115,25 @@ void QCanvas::ensureOffScrSize( int osw, int osh )
 }
 
 /*!
-\internal
-Redraw a given area of the QCanvas.
+  Paints all items that are in the area \a clip to \a painter,
+  using double-buffer if \a dbuf is TRUE.
+
+  eg. to print the canvas to a printer:
+
+  \code
+  QPrinter pr;
+  if ( pr.setup() ) {
+    QPainter p(&pr);
+    canvas.drawArea( canvas.rect(), &p );
+  }
+  \endcode
 */
-void QCanvas::drawArea(const QRect& inarea, QPainter* p, bool double_buffer)
+void QCanvas::drawArea(const QRect& clip, QPainter* painter, bool dbuf)
+{
+    if ( painter ) drawCanvasArea( clip, painter, dbuf );
+}
+
+void QCanvas::drawCanvasArea(const QRect& inarea, QPainter* p, bool double_buffer)
 {
     QRect area=inarea.intersect(QRect(0,0,width(),height()));
 
@@ -1194,6 +1209,8 @@ void QCanvas::drawArea(const QRect& inarea, QPainter* p, bool double_buffer)
     trtr -= area.topLeft();
 
     for (QCanvasView* view=d->viewList.first(); view; view=d->viewList.next()) {
+	if ( !view->worldMatrix().isIdentity() )
+	    continue; // Cannot paint those here (see callers).
 	QPainter painter(view->viewport());
 	QPoint tr = view->contentsToViewport(area.topLeft());
 	QPoint nrtr = view->contentsToViewport(QPoint(0,0)); // new translation
@@ -2973,10 +2990,10 @@ void QCanvasView::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 {
     QRect r(cx,cy,cw,ch);
     if (viewing) {
-	if ( d->xform != QWMatrix() ) {
+	if ( !d->xform.isIdentity() ) {
 	    viewing->drawViewArea(this,p,r,FALSE);
 	} else {
-	    viewing->drawArea(r,p,!repaint_from_moving);
+	    viewing->drawCanvasArea(r,p,!repaint_from_moving);
 	}
 	repaint_from_moving = FALSE;
     } else {
