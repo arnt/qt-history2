@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#83 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#84 $
 **
 ** Implementation of QSlider class
 **
@@ -44,22 +44,44 @@ static int sliderStartVal = 0; //##### class member?
   \brief The QSlider widget provides a vertical or horizontal slider.
   \ingroup realwidgets
 
-  A slider is used to let the user control a value within a
-  program-definable range. In contrast to a QScrollBar, the QSlider
-  widget has a constant size slider and no arrow buttons.
+  The slider is the classic widget for controlling a bounded value.
+  It lets the user move a slider along a horizontal or vertical
+  groove, and translates the slider's position into an integer value
+  in the legal range.
 
-  QSlider only offers integer ranges.
+  QSlider inherits QRangeControl, which provides the "integer" side of
+  the slider.  setRange() and value() are likely to be used by
+  practically all slider users; see the \l QRangeControl documentation
+  for information about the many other functions that class provides.
 
-  The recommended thickness of a slider is given by sizeHint().
+  The main functions offered by the slider itself are tickmark and
+  orientation control; you can use setTickmarks() to indicate where
+  you want the tickmarks to be, setTickInterval() to indicate how many
+  of them you want, and setOrientation() to indicate whether the
+  slider is to e horizontal or vertical.
 
-  Tickmarks may be added using setTickmarks().
-
-  A slider has a default focusPolicy() of \a TabFocus.
+  A slider has a default focusPolicy() of \a TabFocus, and a suitable
+  keyboard interface.
 
   <img src=qslider-m.gif> <img src=qslider-w.gif>
 
   \sa QScrollBar QSpinBox
   <a href="guibooks.html#fowler">GUI Design Handbook: Slider</a>
+*/
+
+
+/*! \enum QSlider::TickSetting
+
+  This enum specifies where the tick marks are to be drawn, relative
+  to the slider's groove and the handle the user moves.  The possible
+  values are \c NoMarks (no tickmarks are drawn), \c Above, \c Below,
+  \c Left, \c Right and \c Both.
+
+  \c NoMarks means to not draw any tickmarks; \c Both means to draw
+  tickmarks on both sides of the groove.  \c Above and \c Below mean
+  to draw tickmarks above and below the (horizontal) slider.  \c Left
+  and \c Right mean to draw tickmarks to the left and right of the
+  (vertical) slider.
 */
 
 
@@ -364,11 +386,10 @@ QRect QSlider::sliderRect() const
   the slider supports transparceny.
 
   \sa setAutoMask(), updateMask()
-
 */
-//####### should this one be removed? private? non-virtual?
+
 void QSlider::paintSlider( QPainter *p, const QColorGroup &g, const QRect &r )
-{
+{ //####### should this one be removed? private? non-virtual?
     QBrush fill = g.brush( QColorGroup::Button );
 
     QPoint bo = p->brushOrigin();
@@ -431,12 +452,12 @@ void QSlider::drawWinGroove( QPainter *p, QCOORD c )
   Handles paint events for the slider.
 */
 
-void QSlider::paintEvent( QPaintEvent *e )
+void QSlider::paintEvent( QPaintEvent * )
 {
 
     QPainter p( this );
-    QRect sliderR = sliderRect();
-    QColorGroup g = colorGroup();
+    const QRect & sliderR = sliderRect();
+    const QColorGroup & g = colorGroup();
     {
 	int mid = tickOffset + thickness()/2;
 	if ( ticks & Above )
