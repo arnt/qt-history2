@@ -177,8 +177,8 @@ void TabbedBrowser::init()
 
     QTabBar *tabBar = qFindChild<QTabBar*>(ui.tab);
 
-    int m = (tabBar ? style().pixelMetric(QStyle::PM_TabBarTabVSpace, (QWidget*)tabBar)
-              + style().pixelMetric(QStyle::PM_TabBarBaseHeight, (QWidget*)tabBar) : 0);
+    int m = (tabBar ? style().pixelMetric(QStyle::PM_TabBarTabVSpace)
+              + style().pixelMetric(QStyle::PM_TabBarBaseHeight) : 0);
     int s = ui.tab->height() - m;
 
     // workaround for sgi style
@@ -238,7 +238,7 @@ void TabbedBrowser::transferFocus()
         currentBrowser()->setFocus();
     }
     mainWindow()->setWindowTitle(Config::configuration()->title()
-                             + QLatin1String(" - ") 
+                             + QLatin1String(" - ")
                              + currentBrowser()->documentTitle());
 }
 
