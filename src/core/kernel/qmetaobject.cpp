@@ -1473,11 +1473,11 @@ class QCustomTypeInfo
 public:
     QCustomTypeInfo() : typeName(0), copy(0), destr(0) {}
     void setData(const char *tname, QMetaType::CopyConstructor cp, QMetaType::Destructor de)
-    { delete typeName; typeName = qstrdup(tname); copy = cp; destr = de; }
+    { delete [] typeName; typeName = qstrdup(tname); copy = cp; destr = de; }
     void setData(QMetaType::CopyConstructor cp, QMetaType::Destructor de)
     { copy = cp; destr = de; }
     ~QCustomTypeInfo()
-    { delete typeName; }
+    { delete [] typeName; }
 
     char *typeName;
     QMetaType::CopyConstructor copy;
