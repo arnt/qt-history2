@@ -183,6 +183,7 @@ QFontDialog::QFontDialog( QWidget *parent, const char *name,
 	= new QLabel( d->scriptCombo, tr("Scr&ipt"), this,"encoding label");
     d->scriptAccel->setIndent( 2 );
 
+    d->size = 0;
     d->smoothScalable = FALSE;
 
     connect( d->scriptCombo, SIGNAL(activated(int)),
