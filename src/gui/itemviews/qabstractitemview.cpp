@@ -740,6 +740,10 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
     }
 
     QModelIndex index = itemAt(bottomRight);
+
+    if (state() == Editing && d->currentEditor.first == index)
+        return;
+    
     if (index != currentItem()) {
         if (index.isValid())
             emit onItem(index, e->state());
@@ -761,6 +765,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
         }
         selectionModel()->setCurrentItem(index, QItemSelectionModel::NoUpdate);
     }
+    qDebug("state selecting");
     setState(Selecting);
     setSelection(QRect(topLeft, bottomRight).normalize(),
                  selectionCommand(e->state(), index, e->type()));
