@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#32 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#33 $
 
 $base = "/tmp/striptree-$$";
 $days_stored = 60;
@@ -15,7 +15,7 @@ sub copyandstrip {
     #  all branches and any revisions older than $date (unless that
     #  would leave no head).  Also creates directories.
     #
-    if ( $_ ne "." && $_ ne ".." && $_ ne "Attic" ) {
+    if ( $_ ne "." && $_ ne ".." ) {
 	my $dir = $File::Find::dir;
 	$dir =~ s-/?$-/-;
 	$dir =~ s-^.*/qt/-$base/cvs/qt/-;
@@ -176,7 +176,8 @@ rm -rf makefiles tmake
 rm -rf src/Makefile.win32-dll
 rm -rf src/*.pro
 chmod a+x $base/cvs/qt/bin/*,v
-rsync -avz $skipdocexcl --delete $base/cvs/qt bahamas:/local/lib/cvs
+find $base/cvs/qt -type d -print | xargs -r chmod 1777
+rsync -av $skipdocexcl --delete $base/cvs/qt bahamas:/local/lib/cvs
 ";
 
 close(SH) # We want to wait for the script to complete.
