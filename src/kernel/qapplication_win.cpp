@@ -2460,7 +2460,7 @@ static bool qt_try_modal( QWidget *widget, MSG *msg, int& ret )
 {
     if ( qApp->activePopupWidget() )
 	return TRUE;
-    if ( widget->testWFlags(Qt::WStyle_Tool) )	// allow tool windows
+    if ( widget->testWFlags(Qt::WStyle_Tool) && !widget->inherits( "QDockWindowTitleBar" ) )    // allow tool windows
 	return TRUE;
 
     QWidget *modal=0, *top=QApplication::activeModalWidget();
