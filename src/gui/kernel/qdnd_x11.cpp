@@ -540,6 +540,7 @@ static Bool xdnd_position_scanner(Display *, XEvent *event, XPointer)
 
 void QX11Data::xdndHandlePosition(QWidget * w, const XEvent * xe, bool passive)
 {
+    DEBUG("xdndHandlePosition");
     while (XCheckIfEvent(X11->display, (XEvent *)xe, xdnd_position_scanner, 0))
         ;
 
@@ -582,10 +583,12 @@ static Bool xdnd_status_scanner(Display *, XEvent *event, XPointer)
 
 void QX11Data::xdndHandleStatus(QWidget * w, const XEvent * xe, bool passive)
 {
+    DEBUG("xdndHandleStatus");
     while (XCheckIfEvent(X11->display, (XEvent *)xe, xdnd_status_scanner, 0))
         ;
 
     handle_xdnd_status(w, xe, passive);
+    DEBUG("xdndHandleStatus end");
 }
 
 void QX11Data::xdndHandleLeave(QWidget *w, const XEvent * xe, bool /*passive*/)
@@ -655,6 +658,7 @@ void qt_xdnd_send_leave()
 
 void QX11Data::xdndHandleDrop(QWidget *, const XEvent * xe, bool passive)
 {
+    DEBUG("xdndHandleDrop");
     if (!qt_xdnd_current_widget) {
         qt_xdnd_dragsource_xid = 0;
         return; // sanity
@@ -710,6 +714,7 @@ void QX11Data::xdndHandleDrop(QWidget *, const XEvent * xe, bool passive)
 
 void QX11Data::xdndHandleFinished(QWidget *, const XEvent * xe, bool passive)
 {
+    DEBUG("xdndHandleFinished");
     const unsigned long *l = (const unsigned long *)xe->xclient.data.l;
 
     if (l[0] && (l[0] == qt_xdnd_current_target
@@ -740,7 +745,7 @@ bool QDragManager::eventFilter(QObject * o, QEvent * e)
     if (beingCancelled) {
         if (e->type() == QEvent::KeyRelease && ((QKeyEvent*)e)->key() == Qt::Key_Escape) {
             qApp->removeEventFilter(this);
-            object = 0;
+            Q_ASSERT(object == 0);
             beingCancelled = false;
             eventLoop->exit();
             return true; // block the key release
@@ -758,12 +763,13 @@ bool QDragManager::eventFilter(QObject * o, QEvent * e)
         move(me->globalPos());
         return true;
     } else if (e->type() == QEvent::MouseButtonRelease) {
+        DEBUG("pre drop");
         qApp->removeEventFilter(this);
         if (willDrop)
             drop();
         else
             cancel();
-        object = 0;
+        DEBUG("drop, resetting object");
         beingCancelled = false;
         eventLoop->exit();
         return true;
@@ -774,7 +780,6 @@ bool QDragManager::eventFilter(QObject * o, QEvent * e)
         if (ke->key() == Qt::Key_Escape && e->type() == QEvent::KeyPress) {
             cancel();
             qApp->removeEventFilter(this);
-            object = 0;
             beingCancelled = false;
             eventLoop->exit();
         } else {
@@ -845,12 +850,11 @@ void QDragManager::updateCursor()
 
 void QDragManager::cancel(bool deleteSource)
 {
+    DEBUG("QDragManager::cancel");
+    Q_ASSERT(heartbeat != -1);
     killTimer(heartbeat);
     heartbeat = -1;
-    if (object) {
-        beingCancelled = true;
-        object = 0;
-    }
+    beingCancelled = true;
 
     if (qt_xdnd_current_target)
         qt_xdnd_send_leave();
@@ -862,10 +866,9 @@ void QDragManager::cancel(bool deleteSource)
     }
 #endif
 
-    QDragManager *manager = QDragManager::self();
-    if (deleteSource && manager->object)
-        manager->object->deleteLater();
-    manager->object = 0;
+    if (deleteSource && object)
+        object->deleteLater();
+    object = 0;
     delete xdnd_data.deco;
     xdnd_data.deco = 0;
 
@@ -921,7 +924,7 @@ Window findRealWindow(const QPoint & pos, Window w, int md)
 
 void QDragManager::move(const QPoint & globalPos)
 {
-    DEBUG() << "move enter";
+    DEBUG() << "QDragManager::move enter";
     Q_ASSERT(object != 0);
     int screen = QCursor::x11Screen();
     if ((qt_xdnd_current_screen == -1 && screen != X11->defaultScreen) || (screen != qt_xdnd_current_screen)) {
@@ -1064,12 +1067,13 @@ void QDragManager::move(const QPoint & globalPos)
             updateCursor();
         }
     }
-    DEBUG() << "move leave";
+    DEBUG() << "QDragManager::move leave";
 }
 
 
 void QDragManager::drop()
 {
+    Q_ASSERT(heartbeat != -1);
     killTimer(heartbeat);
     heartbeat = -1;
     if (!qt_xdnd_current_target)
@@ -1271,7 +1275,6 @@ QDrag::DropAction QDragManager::drag(QDrag * o)
 
     willDrop = false;
 
-    object = o;
     updatePixmap();
 
     qApp->installEventFilter(this);
@@ -1306,7 +1309,8 @@ QDrag::DropAction QDragManager::drag(QDrag * o)
 
     delete xdnd_data.deco;
     xdnd_data.deco = 0;
-    killTimer(heartbeat);
+    if (heartbeat != -1)
+        killTimer(heartbeat);
     heartbeat = -1;
     qt_xdnd_current_screen = -1;
     qt_xdnd_dragging = false;
