@@ -1051,7 +1051,7 @@ void QTabDialog::setOKButton( const QString &text )
 /*!  Returns the text in the tab for page \a w.
 */
 
-QString QTabDialog::tabLabel( QWidget * w )
+QString QTabDialog::tabLabel( QWidget * w ) const
 {
     return d->tw->tabLabel( w );
 }

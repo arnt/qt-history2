@@ -30,18 +30,18 @@ class Q_EXPORT QTabDialog : public QDialog
 {
     Q_OBJECT
 public:
-    QTabDialog( QWidget* parent=0, const char* name=0, bool modal=FALSE,
+    QTabDialog( QWidget *parent=0, const char *name=0, bool modal=FALSE,
 		WFlags f=0 );
     ~QTabDialog();
 
     void show();
-    void setFont( const QFont & font );
+    void setFont( const QFont &font );
 
-    void addTab( QWidget *, const QString &);
-    void addTab( QWidget *child, const QIconSet& iconset, const QString &label);
-    void addTab( QWidget *, QTab* );
+    void addTab( QWidget *, const QString & );
+    void addTab( QWidget *child, const QIconSet &iconset, const QString &label);
+    void addTab( QWidget *, QTab * );
 
-    void insertTab( QWidget *, const QString &, int index = -1);
+    void insertTab( QWidget *, const QString &, int index = -1 );
     void insertTab( QWidget *child, const QIconSet& iconset, const QString &label, int index = -1);
     void insertTab( QWidget *, QTab*, int index = -1 );
 
@@ -50,12 +50,12 @@ public:
 
     bool isTabEnabled(  QWidget * ) const;
     void setTabEnabled( QWidget *, bool );
-    bool isTabEnabled( const char* ) const; // compatibility
-    void setTabEnabled( const char*, bool ); // compatibility
+    bool isTabEnabled( const char * ) const; // compatibility
+    void setTabEnabled( const char *, bool ); // compatibility
 
     void showPage( QWidget * );
     void removePage( QWidget * );
-    QString tabLabel( QWidget * );
+    QString tabLabel( QWidget * ) const;
 
     QWidget * currentPage() const;
 
