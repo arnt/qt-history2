@@ -228,7 +228,7 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
     }
     t << "dist:" << "\n\t"
       << "$(ZIP) " << var("QMAKE_ORIG_TARGET") << ".zip " << "$(SOURCES) $(HEADERS) $(DIST) $(FORMS) " 
-      << dist_files.join(" ") << " " << var("TRANSLATIONS") << endl << endl;
+      << dist_files.join(" ") << " " << var("TRANSLATIONS") << " " << var("IMAGES") << endl << endl;
 
     t << "clean:\n"
       << varGlue("OBJECTS","\t-del ","\n\t-del ","")
