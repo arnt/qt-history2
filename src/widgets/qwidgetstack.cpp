@@ -300,6 +300,7 @@ void QWidgetStack::raiseWidget( QWidget *w )
 {
     if ( !w || w == invisible || w->parent() != this || w == topWidget )
 	return;
+
     if ( id(w) == -1 )
 	addWidget( w );
     if ( !isVisible() ) {
@@ -352,6 +353,14 @@ void QWidgetStack::raiseWidget( QWidget *w )
 	    }
 	}
     }
+
+    if ( isVisible() ) {
+	emit aboutToShow( w );
+	int i = id( w );
+	if ( i != -1 )
+	    emit aboutToShow( i );
+    }
+
     topWidget = w;
 
     const QObjectList * c = children();
@@ -362,13 +371,6 @@ void QWidgetStack::raiseWidget( QWidget *w )
 	++it;
 	if ( o->isWidgetType() && o != w && o != invisible )
 	    ((QWidget *)o)->hide();
-    }
-
-    if ( isVisible() ) {
-	emit aboutToShow( w );
-	int i = id( w );
-	if ( i != -1 )
-	    emit aboutToShow( i );
     }
 
     w->setGeometry( invisible->geometry() );
