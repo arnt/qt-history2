@@ -438,8 +438,9 @@ bool write_gif_animation( QIODevice* iod, QImage *images, unsigned int count )
 
 
 
+#include <stdlib.h>
 
-main(int argc, char** argv)
+int main(int argc, char** argv)
 {
     int count = argc - 1;
     QImage image[count];
