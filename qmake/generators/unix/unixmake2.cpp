@@ -219,7 +219,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	t << "TARGETD   = " << var("TARGET") << endl;
     } else if (!project->isActiveConfig("staticlib") && project->variables()["QMAKE_APP_FLAG"].isEmpty()) {
 	t << "TARGETA	= " << var("TARGETA") << endl;
-	if(project->isEmpty("QMAKE_HPUX_SHLIBS")) {
+	if(project->isEmpty("QMAKE_HPUX_SHLIB")) {
 	    t << "TARGETD	= " << var("TARGET_x.y.z") << endl;
 	    t << "TARGET0	= " << var("TARGET_") << endl;
 	    t << "TARGET1	= " << var("TARGET_x") << endl;
