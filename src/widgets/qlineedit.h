@@ -40,9 +40,8 @@
 
 struct QLineEditPrivate;
 
-class QComboBox;
 class QValidator;
-
+class QPopupMenu;
 
 #ifndef QT_H
 #include "qwidget.h"
@@ -164,6 +163,8 @@ protected:
     void repaintArea( int, int ) { update(); }
 #endif
 
+    virtual QPopupMenu *createPopupMenu();
+
 private slots:
     void clipboardChanged();
     void blinkSlot();
@@ -171,7 +172,7 @@ private slots:
     void doDrag();
 #endif
     void dragSlot();
-    
+
 private:
     void init();
     void blinkOn();

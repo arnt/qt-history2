@@ -63,6 +63,8 @@ class QTextEdit;
 class QTextBrowser;
 class QTextString;
 struct QUndoRedoInfoPrivate;
+class QPopupMenu;
+class QTextViewPrivate;
 
 class Q_EXPORT QTextView : public QScrollView
 {
@@ -193,6 +195,7 @@ protected:
     bool focusNextPrevChild( bool next );
     QTextDocument *document() const;
     void setDocument( QTextDocument *doc );
+    virtual QPopupMenu *createPopupMenu();
 
 protected slots:
     virtual void doChangeInterval();
@@ -351,6 +354,7 @@ private:
     int wrapWidth;
     QScrollView::ScrollBarMode setMode;
     QString pressedLink;
+    QTextViewPrivate *d;
 
 };
 

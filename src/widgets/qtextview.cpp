@@ -65,6 +65,12 @@ struct QUndoRedoInfoPrivate
     QTextString text;
 };
 
+class QTextViewPrivate
+{
+public:
+    int id[ 7 ];
+};
+
 static bool block_set_alignment = FALSE;
 
 /*!
@@ -194,10 +200,12 @@ QTextView::~QTextView()
     undoRedoInfo.d = 0;
     delete cursor;
     delete doc;
+    delete d;
 }
 
 void QTextView::init()
 {
+    d = new QTextViewPrivate;
     connect( doc, SIGNAL( minimumWidthChanged( int ) ),
 	     this, SLOT( setRealWidth( int ) ) );
 
@@ -906,46 +914,24 @@ void QTextView::contentsMousePressEvent( QMouseEvent *e )
     pressedLink = QString::null;
 
     if ( !isReadOnly() && e->button() == RightButton ) {
-	QPopupMenu *popup = new QPopupMenu( this );
-	int id[ 7 ];
- 	id[ IdUndo ] = popup->insertItem( tr( "Undo" ) );
- 	id[ IdRedo ] = popup->insertItem( tr( "Redo" ) );
-	popup->insertSeparator();
-#ifndef QT_NO_CLIPBOARD
-	id[ IdCut ] = popup->insertItem( tr( "Cut" ) );
-	id[ IdCopy ] = popup->insertItem( tr( "Copy" ) );
-	id[ IdPaste ] = popup->insertItem( tr( "Paste" ) );
-#endif
-	id[ IdClear ] = popup->insertItem( tr( "Clear" ) );
-	popup->insertSeparator();
-	id[ IdSelectAll ] = popup->insertItem( tr( "Select All" ) );
- 	popup->setItemEnabled( id[ IdUndo ], !isReadOnly() && doc->commands()->isUndoAvailable() );
- 	popup->setItemEnabled( id[ IdRedo ], !isReadOnly() && doc->commands()->isRedoAvailable() );
-#ifndef QT_NO_CLIPBOARD
-	popup->setItemEnabled( id[ IdCut ], !isReadOnly() && doc->hasSelection( QTextDocument::Standard ) );
-	popup->setItemEnabled( id[ IdCopy ], doc->hasSelection( QTextDocument::Standard ) );
-	popup->setItemEnabled( id[ IdPaste ], !isReadOnly() && !QApplication::clipboard()->text().isEmpty() );
-#endif
-	popup->setItemEnabled( id[ IdClear ], !isReadOnly() && !text().isEmpty() );
-	popup->setItemEnabled( id[ IdSelectAll ], (bool)text().length() );
-
+	QPopupMenu *popup = createPopupMenu();
 	int r = popup->exec( e->globalPos() );
 	delete popup;
 
-	if ( r == id[ IdClear ] )
+	if ( r == d->id[ IdClear ] )
 	    clear();
-	else if ( r == id[ IdSelectAll ] )
+	else if ( r == d->id[ IdSelectAll ] )
 	    selectAll();
- 	else if ( r == id[ IdUndo ] )
+ 	else if ( r == d->id[ IdUndo ] )
  	    undo();
- 	else if ( r == id[ IdRedo ] )
+ 	else if ( r == d->id[ IdRedo ] )
  	    redo();
 #ifndef QT_NO_CLIPBOARD
-	else if ( r == id[ IdCut ] )
+	else if ( r == d->id[ IdCut ] )
 	    cut();
-	else if ( r == id[ IdCopy ] )
+	else if ( r == d->id[ IdCopy ] )
 	    copy();
-	else if ( r == id[ IdPaste ] )
+	else if ( r == d->id[ IdPaste ] )
 	    paste();
 #endif
 	return;
@@ -2718,4 +2704,37 @@ bool QTextView::getFormat( int parag, int index, QFont &font, QColor &color )
     font = p->at( index )->format()->font();
     color = p->at( index )->format()->color();
     return TRUE;
+}
+
+/*! This function is called to create the popup menu which is shown
+  when the user clicks on the textview with the right mouse button. If
+  you want to create a custom popup menu, reimplement this function
+  and return the created popup menu. The ownership is transferred to
+  the caller.
+*/
+
+QPopupMenu *QTextView::createPopupMenu()
+{
+    QPopupMenu *popup = new QPopupMenu( this );
+    d->id[ IdUndo ] = popup->insertItem( tr( "Undo" ) );
+    d->id[ IdRedo ] = popup->insertItem( tr( "Redo" ) );
+    popup->insertSeparator();
+#ifndef QT_NO_CLIPBOARD
+    d->id[ IdCut ] = popup->insertItem( tr( "Cut" ) );
+    d->id[ IdCopy ] = popup->insertItem( tr( "Copy" ) );
+    d->id[ IdPaste ] = popup->insertItem( tr( "Paste" ) );
+#endif
+    d->id[ IdClear ] = popup->insertItem( tr( "Clear" ) );
+    popup->insertSeparator();
+    d->id[ IdSelectAll ] = popup->insertItem( tr( "Select All" ) );
+    popup->setItemEnabled( d->id[ IdUndo ], !isReadOnly() && doc->commands()->isUndoAvailable() );
+    popup->setItemEnabled( d->id[ IdRedo ], !isReadOnly() && doc->commands()->isRedoAvailable() );
+#ifndef QT_NO_CLIPBOARD
+    popup->setItemEnabled( d->id[ IdCut ], !isReadOnly() && doc->hasSelection( QTextDocument::Standard ) );
+    popup->setItemEnabled( d->id[ IdCopy ], doc->hasSelection( QTextDocument::Standard ) );
+    popup->setItemEnabled( d->id[ IdPaste ], !isReadOnly() && !QApplication::clipboard()->text().isEmpty() );
+#endif
+    popup->setItemEnabled( d->id[ IdClear ], !isReadOnly() && !text().isEmpty() );
+    popup->setItemEnabled( d->id[ IdSelectAll ], (bool)text().length() );
+    return popup;
 }

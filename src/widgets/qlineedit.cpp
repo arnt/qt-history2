@@ -52,7 +52,6 @@
 #include <ctype.h>
 #include "../kernel/qrichtext_p.h"
 
-
 struct UndoRedoInfo {
     enum Type { Invalid, Insert, Delete, Backspace, RemoveSelected };
     UndoRedoInfo( QTextParag *p ) : type( Invalid ), parag( p ) {
@@ -177,6 +176,7 @@ struct QLineEditPrivate {
     QTimer dragTimer;
     UndoRedoInfo undoRedoInfo;
     QPoint lastMovePos;
+    int id[ 7 ];
 
 };
 
@@ -836,52 +836,25 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
 #ifndef QT_NO_POPUPMENU
     d->undoRedoInfo.clear();
     if ( e->button() == RightButton ) {
-	QGuardedPtr<QPopupMenu> popup = new QPopupMenu( this );
-	int id[ 7 ];
- 	id[ IdUndo ] = popup->insertItem( tr( "Undo" ) );
- 	id[ IdRedo ] = popup->insertItem( tr( "Redo" ) );
-	popup->insertSeparator();
-#ifndef QT_NO_CLIPBOARD
-	id[ IdCut ] = popup->insertItem( tr( "Cut" ) );
-	id[ IdCopy ] = popup->insertItem( tr( "Copy" ) );
-	id[ IdPaste ] = popup->insertItem( tr( "Paste" ) );
-#endif
-	id[ IdClear ] = popup->insertItem( tr( "Clear" ) );
-	popup->insertSeparator();
-	id[ IdSelectAll ] = popup->insertItem( tr( "Select All" ) );
-	bool enableUndo = !d->readonly && d->parag->commands()->isUndoAvailable();
- 	popup->setItemEnabled( id[ IdUndo ], enableUndo );
-	bool enableRedo = !d->readonly && d->parag->commands()->isRedoAvailable();
- 	popup->setItemEnabled( id[ IdRedo ], enableRedo );
-#ifndef QT_NO_CLIPBOARD
-	bool enableCut = !d->readonly && hasMarkedText();
-	popup->setItemEnabled( id[ IdCut ], enableCut );
-	popup->setItemEnabled( id[ IdCopy ], hasMarkedText() );
-	bool enablePaste = !d->readonly && !QApplication::clipboard()->text().isEmpty();
-	popup->setItemEnabled( id[ IdPaste ], enablePaste );
-#endif
-	bool enableClear = !d->readonly && !text().isEmpty();
-	popup->setItemEnabled( id[ IdClear ], enableClear );
-	bool allSelected = (d->parag->selectionStart( 0 ) == 0 && d->parag->selectionEnd( 0 ) == (int)text().length() );
-	popup->setItemEnabled( id[ IdSelectAll ], (bool)text().length() && !allSelected );
 
+	QPopupMenu *popup = createPopupMenu();
 	int r = popup->exec( e->globalPos() );
-	delete (QPopupMenu *) popup;
+	delete popup;
 
-	if ( r == id[ IdClear ] )
+	if ( r == d->id[ IdClear ] )
 	    clear();
-	else if ( r == id[ IdSelectAll ] )
+	else if ( r == d->id[ IdSelectAll ] )
 	    selectAll();
- 	else if ( r == id[ IdUndo ] )
+ 	else if ( r == d->id[ IdUndo ] )
  	    undo();
- 	else if ( r == id[ IdRedo ] )
+ 	else if ( r == d->id[ IdRedo ] )
  	    redo();
 #ifndef QT_NO_CLIPBOARD
-	else if ( r == id[ IdCut ] )
+	else if ( r == d->id[ IdCut ] )
 	    cut();
-	else if ( r == id[ IdCopy ] )
+	else if ( r == d->id[ IdCopy ] )
 	    copy();
-	else if ( r == id[ IdPaste ] )
+	else if ( r == d->id[ IdPaste ] )
 	    paste();
 #endif
 	return;
@@ -1849,6 +1822,46 @@ void QLineEdit::redo()
     d->undoRedoInfo.clear();
     d->parag->redo( d->cursor );
     update();
+}
+
+/*! This function is called to create the popup menu which is shown
+  when the user clicks on the lineedit with the right mouse button. If
+  you want to create a custom popup menu, reimplement this function
+  and return the created popup menu. The ownership is transferred to
+  the caller.
+*/
+
+QPopupMenu *QLineEdit::createPopupMenu()
+{
+    QPopupMenu *popup = new QPopupMenu( this );
+    d->id[ IdUndo ] = popup->insertItem( tr( "Undo" ) );
+    d->id[ IdRedo ] = popup->insertItem( tr( "Redo" ) );
+    popup->insertSeparator();
+#ifndef QT_NO_CLIPBOARD
+    d->id[ IdCut ] = popup->insertItem( tr( "Cut" ) );
+    d->id[ IdCopy ] = popup->insertItem( tr( "Copy" ) );
+    d->id[ IdPaste ] = popup->insertItem( tr( "Paste" ) );
+#endif
+    d->id[ IdClear ] = popup->insertItem( tr( "Clear" ) );
+    popup->insertSeparator();
+    d->id[ IdSelectAll ] = popup->insertItem( tr( "Select All" ) );
+    bool enableUndo = !d->readonly && d->parag->commands()->isUndoAvailable();
+    popup->setItemEnabled( d->id[ IdUndo ], enableUndo );
+    bool enableRedo = !d->readonly && d->parag->commands()->isRedoAvailable();
+    popup->setItemEnabled( d->id[ IdRedo ], enableRedo );
+#ifndef QT_NO_CLIPBOARD
+    bool enableCut = !d->readonly && hasMarkedText();
+    popup->setItemEnabled( d->id[ IdCut ], enableCut );
+    popup->setItemEnabled( d->id[ IdCopy ], hasMarkedText() );
+    bool enablePaste = !d->readonly && !QApplication::clipboard()->text().isEmpty();
+    popup->setItemEnabled( d->id[ IdPaste ], enablePaste );
+#endif
+    bool enableClear = !d->readonly && !text().isEmpty();
+    popup->setItemEnabled( d->id[ IdClear ], enableClear );
+    bool allSelected = (d->parag->selectionStart( 0 ) == 0 && d->parag->selectionEnd( 0 ) == (int)text().length() );
+    popup->setItemEnabled( d->id[ IdSelectAll ], (bool)text().length() && !allSelected );
+
+    return popup;
 }
 
 #endif
