@@ -86,13 +86,15 @@ cups {
 	LIBS += -lcups
 }
 
+#here for compatability, should go away ####
+include($$KERNEL_CPP/qt_compat.pri)
+
 #platforms
 x11:include($$KERNEL_CPP/qt_x11.pri)
 macx-g++:include($$KERNEL_CPP/qt_mac.pri)
+embedded:include($$KERNEL_CPP/qt_qws.pri)
 
 #modules
-include($$KERNEL_CPP/qt_compat.pri)
-include($$KERNEL_CPP/qt_embedded.pri)
 include($$KERNEL_CPP/qt_kernel.pri)
 include($$WIDGETS_CPP/qt_widgets.pri)
 include($$DIALOGS_CPP/qt_dialogs.pri)
@@ -108,4 +110,6 @@ include($$KERNEL_CPP/qt_gfx.pri)
 include($$TOOLS_CPP/qt_tools.pri)
 include($$CODECS_CPP/qt_codecs.pri)
 include($$STYLES_CPP/qt_styles.pri)
+
+#install directives
 include(qt_install.pri)
