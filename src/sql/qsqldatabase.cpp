@@ -624,7 +624,7 @@ QSqlDatabase::~QSqlDatabase()
     Executes a SQL statement (e.g. an \c INSERT, \c UPDATE or \c
     DELETE statement) on the database, and returns a QSqlQuery object.
     Use lastError() to retrieve error information. If \a query is
-    QString::null, an empty, invalid query is returned and lastError()
+    empty, an empty, invalid query is returned and lastError()
     is not affected.
 
     \sa QSqlQuery lastError()
@@ -633,7 +633,7 @@ QSqlDatabase::~QSqlDatabase()
 QSqlQuery QSqlDatabase::exec( const QString & query ) const
 {
     QSqlQuery r = d->driver->createQuery();
-    if ( !query.isNull() ) {
+    if ( !query.isEmpty() ) {
 	r.exec( query );
 	d->driver->setLastError( r.lastError() );
     }

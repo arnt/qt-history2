@@ -17,14 +17,12 @@
 
 #ifndef QT_H
 #include "qobject.h"
-#include "qptrdict.h"
 #include "qstring.h"
 #include "qsqlerror.h"
 #include "qsqlquery.h"
 #include "qsqlfield.h"
 #include "qsqlindex.h"
 #include "qstringlist.h"
-#include "qmap.h"
 #endif // QT_H
 
 #if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )

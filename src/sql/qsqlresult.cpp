@@ -21,7 +21,7 @@
 #ifndef QT_NO_SQL
 
 struct Holder {
-    Holder( const QString& hldr = QString::null, int pos = -1 ): holderName( hldr ), holderPos( pos ) {}
+    Holder( const QString& hldr = QString(), int pos = -1 ): holderName( hldr ), holderPos( pos ) {}
     bool operator==( const Holder& h ) const { return h.holderPos == holderPos && h.holderName == holderName; }
     bool operator!=( const Holder& h ) const { return h.holderPos != holderPos || h.holderName != holderName; }
     QString holderName;
@@ -177,7 +177,7 @@ void QSqlResult::setQuery( const QString& query )
 }
 
 /*!
-    Returns the current SQL query text, or QString::null if there is none.
+    Returns the current SQL query text, or an empty QString if there is none.
 */
 
 QString QSqlResult::lastQuery() const
@@ -471,7 +471,7 @@ bool QSqlResult::exec()
 	int i = 0;
 	int idx = 0;
 	for ( idx = 0; idx < d->values.count(); ++idx ) {
-	    i = query.find( '?', i );
+	    i = query.indexOf( '?', i );
 	    if ( i == -1 )
 		continue;
 	    QVariant var = d->values[ idx ];

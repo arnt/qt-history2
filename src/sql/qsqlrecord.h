@@ -54,8 +54,6 @@ public:
     virtual void         setGenerated( int i, bool generated );
     virtual void         setNull( int i );
     virtual void         setNull( const QString& name );
-    bool                 isNull( int i ); // remove in 4.0
-    bool                 isNull( const QString& name ); // remove in 4.0
     bool                 isNull( int i ) const;
     bool                 isNull( const QString& name ) const;
 
@@ -75,9 +73,9 @@ public:
     virtual void         clear();
     virtual void         clearValues( bool nullify = FALSE );
     int                 count() const;
-    virtual QString      toString( const QString& prefix = QString::null,
+    virtual QString      toString( const QString& prefix = QString(),
 				   const QString& sep = "," ) const;
-    virtual QStringList  toStringList( const QString& prefix = QString::null ) const;
+    virtual QStringList  toStringList( const QString& prefix = QString() ) const;
 
 private:
     QString              createField( int i, const QString& prefix ) const;

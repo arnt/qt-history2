@@ -64,12 +64,12 @@ public:
     ~QDataTable();
 
     virtual void addColumn( const QString& fieldName,
-			    const QString& label = QString::null,
+			    const QString& label = QString(),
 			    int width = -1,
 			    const QIconSet& iconset = QIconSet() );
     virtual void removeColumn( int col );
     virtual void setColumn( int col, const QString& fieldName,
-			    const QString& label = QString::null,
+			    const QString& label = QString(),
 			    int width = -1,
 			    const QIconSet& iconset = QIconSet() );
 

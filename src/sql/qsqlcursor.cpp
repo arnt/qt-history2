@@ -56,11 +56,12 @@ public:
     QSqlQuery*        q;
 };
 
-QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::null )
+QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString() )
 {
     QString str;
     int k = i.count();
-    if( k == 0 ) return QString::null;
+    if( k == 0 )
+	return QString();
     str = " order by " + i.toString( prefix );
     return str;
 }
@@ -220,11 +221,11 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
 */
 
 QSqlCursor::QSqlCursor( const QString & name, bool autopopulate, QSqlDatabase* db )
-    : QSqlRecord(), QSqlQuery( QString::null, db )
+    : QSqlRecord(), QSqlQuery( QString(), db )
 {
     d = new QSqlCursorPrivate( name, db );
     setMode( Writable );
-    if ( !d->nm.isNull() )
+    if ( !d->nm.isEmpty() )
 	setName( d->nm, autopopulate );
 }
 
@@ -360,7 +361,7 @@ QString QSqlCursor::name() const
 QString QSqlCursor::toString( const QString& prefix, const QString& sep ) const
 {
     QString pflist;
-    QString pfix =  prefix.isEmpty() ? QString::null : prefix + ".";
+    QString pfix =  prefix.isEmpty() ? prefix : prefix + ".";
     bool comma = FALSE;
 
     for ( int i = 0; i < count(); ++i ) {
@@ -604,7 +605,7 @@ bool QSqlCursor::select( const QString & filter, const QSqlIndex & sort )
 	d->ftr = filter;
 	str += " where " + filter;
     } else
-	d->ftr = QString::null;
+	d->ftr = QString();
     if ( sort.count() > 0 )
 	str += " order by " + sort.toString( d->nm );
     d->srt = sort;
@@ -648,7 +649,7 @@ bool QSqlCursor::select()
 
 bool QSqlCursor::select( const QSqlIndex& sort )
 {
-    return select( QString::null, sort );
+    return select( QString(), sort );
 }
 
 /*!
@@ -852,7 +853,7 @@ QString QSqlCursor::toString( const QString& prefix, QSqlField* field, const QSt
 {
     QString f;
     if ( field && driver() ) {
-	f = ( prefix.length() > 0 ? prefix + QString(".") : QString::null ) + field->name();
+	f = ( prefix.length() > 0 ? prefix + QString(".") : QString() ) + field->name();
 	f += " " + fieldSep + " ";
 	if ( field->isNull() ) {
 	    f += "NULL";
@@ -1188,7 +1189,7 @@ int QSqlCursor::update( const QString & filter, bool invalidate )
 	return applyPrepared( str, invalidate );
     } else {
 	QString str = "update " + name();
-	str += " set " + toString( &d->editBuffer, QString::null, "=", "," );
+	str += " set " + toString( &d->editBuffer, QString(), "=", "," );
 	if ( filter.length() ) {
 	    str+= " where " + filter;
 	}

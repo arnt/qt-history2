@@ -107,11 +107,11 @@ public:
     ~QOCIDriver();
     bool		hasFeature( DriverFeature f ) const;
     bool                open( const QString & db,
-			      const QString & user = QString::null,
-			      const QString & password = QString::null,
-			      const QString & host = QString::null,
-			      int port = -1,
-			      const QString& connOpts = QString::null );
+			      const QString & user,
+			      const QString & password,
+			      const QString & host,
+			      int port,
+			      const QString& connOpts );
     void	        close();
     QSqlQuery	        createQuery() const;
     QStringList         tables( const QString& user ) const;

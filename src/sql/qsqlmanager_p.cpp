@@ -848,7 +848,7 @@ QSql::Confirm QDataManager::confirmEdit( QWidget* parent, QSql::Op m )
 					qApp->translate( "QSql", "Delete this record?" ),
 					qApp->translate( "QSql", "Yes" ),
 					qApp->translate( "QSql", "No" ),
-					QString::null, 0, 1 );
+					QString(), 0, 1 );
 #else
 	ans = QSql::No;
 #endif // QT_NO_MESSAGEBOX
@@ -900,7 +900,7 @@ QSql::Confirm QDataManager::confirmCancel( QWidget* parent, QSql::Op )
 				       qApp->translate( "QSql", "Cancel your edits?" ),
 				       qApp->translate( "QSql", "Yes" ),
 				       qApp->translate( "QSql", "No" ),
-				       QString::null, 0, 1 ) ) {
+				       QString(), 0, 1 ) ) {
     case 0:
 	return QSql::Yes;
     case 1:

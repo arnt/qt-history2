@@ -47,7 +47,7 @@ class Q_EXPORT QSqlQuery
 {
 public:
     QSqlQuery( QSqlResult * r );
-    QSqlQuery( const QString& query = QString::null, QSqlDatabase* db = 0 );
+    QSqlQuery( const QString& query = QString(), QSqlDatabase* db = 0 );
     Q_EXPLICIT QSqlQuery( QSqlDatabase* db );
     QSqlQuery( const QSqlQuery& other );
     QSqlQuery& operator=( const QSqlQuery& other );

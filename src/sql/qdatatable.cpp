@@ -894,7 +894,7 @@ void QDataTable::endInsert()
     d->editRow = -1;
     d->editCol = -1;
     d->insertRowLast = -1;
-    d->insertHeaderLabelLast = QString::null;
+    d->insertHeaderLabelLast = QString();
     setEditMode( NotEditing, -1, -1 );
     setNumRows( d->insertPreRows );
     d->insertPreRows = -1;
@@ -1256,7 +1256,7 @@ void QDataTable::find( const QString & str, bool caseSensitive, bool backwards )
 	  col = backwards ? currentColumn() - 1 : currentColumn() + 1;
     bool  wrap = TRUE, found = FALSE;
 
-    if( str.isEmpty() || str.isNull() )
+    if( str.isEmpty() )
 	return;
 
     if( !caseSensitive )
@@ -1343,7 +1343,7 @@ void QDataTable::reset()
     d->editRow = -1;
     d->editCol = -1;
     d->insertRowLast = -1;
-    d->insertHeaderLabelLast = QString::null;
+    d->insertHeaderLabelLast = QString();
     d->cancelMode = FALSE;
     d->lastAt = -1;
     d->fld.clear();
@@ -1537,14 +1537,14 @@ int QDataTable::numCols() const
 /*!
     Returns the text in cell \a row, \a col, or an empty string if the
     cell is empty. If the cell's value is NULL then nullText() will be
-    returned. If the cell does not exist then QString::null is
+    returned. If the cell does not exist, an empty QString is
     returned.
 */
 
 QString QDataTable::text ( int row, int col ) const
 {
     if ( !sqlCursor() )
-	return QString::null;
+	return QString();
 
     QString s;
     if ( sqlCursor()->seek( row ) )

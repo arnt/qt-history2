@@ -75,7 +75,7 @@ public:
     QSqlRecord		record( const QSqlQuery& query ) const;
     QSqlRecordInfo	recordInfo( const QString& tablename ) const;
     QSqlRecordInfo	recordInfo( const QSqlQuery& query ) const;
-    QSqlQuery		exec( const QString& query = QString::null ) const;
+    QSqlQuery		exec( const QString& query = QString() ) const;
     QSqlError		lastError() const;
 
     bool		transaction();
@@ -87,7 +87,7 @@ public:
     virtual void	setPassword( const QString& password );
     virtual void	setHostName( const QString& host );
     virtual void	setPort( int p );
-    void 		setConnectOptions( const QString& options = QString::null );
+    void 		setConnectOptions( const QString& options = QString() );
     QString		databaseName() const;
     QString		userName() const;
     QString		password() const;

@@ -37,7 +37,7 @@ public:
 class QM_EXPORT_SQL QSqlField
 {
 public:
-    QSqlField( const QString& fieldName = QString::null, QVariant::Type type = QVariant::Invalid );
+    QSqlField( const QString& fieldName = QString(), QVariant::Type type = QVariant::Invalid );
     QSqlField( const QSqlField& other );
     QSqlField& operator=( const QSqlField& other );
     bool operator==(const QSqlField& other) const;
@@ -87,7 +87,7 @@ struct QSqlFieldInfoPrivate;
 class QM_EXPORT_SQL QSqlFieldInfo
 {
 public:
-    QSqlFieldInfo( const QString& name = QString::null,
+    QSqlFieldInfo( const QString& name = QString(),
 		   QVariant::Type typ = QVariant::Invalid,
 		   int required = -1,
 		   int len = -1,

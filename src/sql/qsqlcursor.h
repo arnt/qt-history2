@@ -36,7 +36,7 @@ class QSqlCursorPrivate;
 class QM_EXPORT_SQL QSqlCursor : public QSqlRecord, public QSqlQuery
 {
 public:
-    QSqlCursor( const QString & name = QString::null, bool autopopulate = TRUE, QSqlDatabase* db = 0 );
+    QSqlCursor( const QString & name = QString(), bool autopopulate = TRUE, QSqlDatabase* db = 0 );
     QSqlCursor( const QSqlCursor & other );
     QSqlCursor& operator=( const QSqlCursor& other );
     ~QSqlCursor();
@@ -97,7 +97,7 @@ public:
     QString		filter() const;
     virtual void	setName( const QString& name, bool autopopulate = TRUE );
     QString		name() const;
-    QString		toString( const QString& prefix = QString::null,
+    QString		toString( const QString& prefix = QString(),
 				const QString& sep = "," ) const;
     bool 		isNull( int i ) const;
     bool 		isNull( const QString& name ) const;

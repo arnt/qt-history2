@@ -92,7 +92,7 @@
 
 QSqlError qMakeError( const QString& err, int type, int errNo = -1 )
 {
-    return QSqlError( "QTDS: " + err, QString::null, type, errNo );
+    return QSqlError( "QTDS: " + err, QString(), type, errNo );
 }
 
 class QTDSClientData: public QSqlClientData
@@ -513,7 +513,7 @@ bool QTDSDriver::open( const QString & db,
     d->dbproc = dbopen( d->login, s.data() );
     if ( !d->dbproc ) {
 	// we have to manually set the error here because the error handler won't fire when no dbproc exists
-	setLastError( QSqlError( QString::null,
+	setLastError( QSqlError( QString(),
 				 qApp->translate( "QSql", "Could not open database connection" ),
 				 QSqlError::Connection ) );
 	setOpenError( TRUE );
@@ -521,7 +521,7 @@ bool QTDSDriver::open( const QString & db,
     }
     s = db.local8Bit();
     if ( dbuse( d->dbproc, s.data() ) == FAIL ) {
-	setLastError( QSqlError( QString::null,
+	setLastError( QSqlError( QString(),
 				 qApp->translate( "QSql", "Could not open database" ),
 				 QSqlError::Connection ) );
 	setOpenError( TRUE );

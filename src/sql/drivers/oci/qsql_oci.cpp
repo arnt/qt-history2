@@ -193,9 +193,7 @@ public:
 	    tmpStorage.removeFirst();
 	    
 	    if ( isNull ) {
-		QVariant v;
-		v.cast( typ );
-		values[ i ] = v;
+		values[ i ] = QVariant(typ);
 		if ( typ != QVariant::ByteArray && typ != QVariant::Int && typ != QVariant::Double )
 		    tmpStorage.removeFirst();
 		continue;
@@ -1218,7 +1216,7 @@ bool QOCIResult::prepare( const QString& query )
 	    qOraWarning( "QOCIResult::prepare: unable to free statement handle:", d );
     }
     cached = FALSE;
-    if ( query.isNull() || query.length() == 0 )
+    if ( query.isEmpty() )
 	return FALSE;
     r = OCIHandleAlloc( (dvoid *) d->env,
 			(dvoid **) &d->sql,

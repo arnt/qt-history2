@@ -37,8 +37,8 @@ public:
 	Transaction,
 	Unknown
     };
-    QSqlError(  const QString& driverText = QString::null,
-		const QString& databaseText = QString::null,
+    QSqlError(  const QString& driverText = QString(),
+		const QString& databaseText = QString(),
 		int type = QSqlError::None,
 		int number = -1 );
     QSqlError( const QSqlError& other );
@@ -54,7 +54,7 @@ public:
     int		number() const;
     virtual void setNumber( int number );
     QString 	text() const;
-    void 	showMessage( const QString& msg = QString::null ) const;
+    void 	showMessage( const QString& msg = QString() ) const;
     
 private:
     QString	driverError;

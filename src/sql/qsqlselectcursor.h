@@ -32,7 +32,7 @@ class QSqlSelectCursorPrivate;
 class QM_EXPORT_SQL QSqlSelectCursor : public QSqlCursor
 {
 public:
-    QSqlSelectCursor( const QString& query = QString::null, QSqlDatabase* db = 0 );
+    QSqlSelectCursor( const QString& query = QString(), QSqlDatabase* db = 0 );
     QSqlSelectCursor( const QSqlSelectCursor& other );
     ~QSqlSelectCursor();
     bool exec( const QString& query );
@@ -62,10 +62,10 @@ protected:
     void setSort( const QSqlIndex& ) {}
     QSqlIndex sort() const { return QSqlIndex(); }
     void setFilter( const QString& ) {}
-    QString filter() const { return QString::null; }
+    QString filter() const { return QString(); }
     void setName( const QString&, bool = TRUE ) {}
-    QString name() const { return QString::null; }
-    QString toString( const QString& = QString::null, const QString& = "," ) const { return QString::null; }
+    QString name() const { return QString(); }
+    QString toString( const QString& = QString(), const QString& = "," ) const { return QString(); }
     bool select( const QString &, const QSqlIndex& = QSqlIndex() );
 
 private:

@@ -59,12 +59,12 @@ public:
     Constructs a read only cursor on database \a db using the query \a query.
  */
 QSqlSelectCursor::QSqlSelectCursor( const QString& query, QSqlDatabase* db )
-    : QSqlCursor( QString::null, FALSE, db )
+    : QSqlCursor( QString(), FALSE, db )
 {
     d = new QSqlSelectCursorPrivate;
     d->query = query;
     QSqlCursor::setMode( ReadOnly );
-    if ( !query.isNull() )
+    if ( !query.isEmpty() )
 	exec( query );
 }
 

@@ -24,6 +24,7 @@
 #include "qsql.h"
 #include "qregexp.h"
 #include "qvector.h"
+#include "qmap.h"
 
 /*!
 \internal
@@ -233,7 +234,7 @@ QSqlQuery::QSqlQuery( const QString& query, QSqlDatabase* db )
 
 QSqlQuery::QSqlQuery( QSqlDatabase* db )
 {
-    init( QString::null, db );
+    init( QString(), db );
 }
 
 /*! \internal
@@ -247,7 +248,7 @@ void QSqlQuery::init( const QString& query, QSqlDatabase* db )
 	database = QSqlDatabase::database( QSqlDatabase::defaultConnection, FALSE );
     if ( database )
 	*this = database->driver()->createQuery();
-    if ( !query.isNull() )
+    if ( !query.isEmpty() )
 	exec( query );
 }
 
@@ -312,13 +313,13 @@ bool QSqlQuery::exec ( const QString& query )
     }
     if ( d->count > 1 )
 	*this = driver()->createQuery();
-    d->sqlResult->setQuery( query.stripWhiteSpace() );
+    d->sqlResult->setQuery( query.trimmed() );
     d->executedQuery = d->sqlResult->lastQuery();
     if ( !driver()->isOpen() || driver()->isOpenError() ) {
 	qWarning("QSqlQuery::exec: database not open" );
 	return FALSE;
     }
-    if ( query.isNull() || query.length() == 0 ) {
+    if ( query.isEmpty() ) {
 	qWarning("QSqlQuery::exec: empty query" );
 	return FALSE;
     }
@@ -372,8 +373,8 @@ int QSqlQuery::at() const
 }
 
 /*!
-    Returns the text of the current query being used, or QString::null
-    if there is no current query text.
+    Returns the text of the current query being used, or an empty
+    QString if there is no current query text.
 
     \sa executedQuery()
 */
@@ -381,7 +382,7 @@ int QSqlQuery::at() const
 QString QSqlQuery::lastQuery() const
 {
     if ( !d->sqlResult )
-	return QString::null;
+	return QString();
     return d->sqlResult->lastQuery();
 }
 

@@ -88,7 +88,7 @@ static QString qWarnODBCHandle(int handleType, SQLHANDLE handle)
 #else
 	return QString::fromLocal8Bit( (const char*)description_ );
 #endif
-    return QString::null;
+    return QString();
 }
 
 static QString qODBCWarn( const QODBCPrivate* odbc)
@@ -194,7 +194,7 @@ static QString qGetStringData( SQLHANDLE hStmt, int column, int colSize, bool& i
 			&lengthIndicator );
 	if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) {
 	    if ( lengthIndicator == SQL_NULL_DATA || lengthIndicator == SQL_NO_TOTAL ) {
-		fieldVal = QString::null;
+		fieldVal = QString();
 		isNull = TRUE;
 		break;
 	    }
@@ -218,7 +218,7 @@ static QString qGetStringData( SQLHANDLE hStmt, int column, int colSize, bool& i
 	    break;
 	} else {
 	    qWarning( "qGetStringData: Error while fetching data (%d)", r );
-	    fieldVal = QString::null;
+	    fieldVal = QString();
 	    break;
 	}
     }

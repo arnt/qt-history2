@@ -41,7 +41,7 @@ class QSqlCursor;
 class QM_EXPORT_SQL QSqlIndex : public QSqlRecord
 {
 public:
-    QSqlIndex( const QString& cursorName = QString::null, const QString& name = QString::null );
+    QSqlIndex( const QString& cursorName = QString(), const QString& name = QString() );
     QSqlIndex( const QSqlIndex& other );
     ~QSqlIndex();
     QSqlIndex&       operator=( const QSqlIndex& other );
@@ -56,10 +56,10 @@ public:
     bool             isDescending( int i ) const;
     virtual void     setDescending( int i, bool desc );
 
-    QString          toString( const QString& prefix = QString::null,
+    QString          toString( const QString& prefix = QString(),
 			       const QString& sep = ",",
 			       bool verbose = TRUE ) const;
-    QStringList      toStringList( const QString& prefix = QString::null,
+    QStringList      toStringList( const QString& prefix = QString(),
 				   bool verbose = TRUE ) const;
 
     static QSqlIndex fromStringList( const QStringList& l, const QSqlCursor* cursor );

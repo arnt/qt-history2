@@ -251,7 +251,7 @@ QVariant  QSqlRecord::value( const QString& name ) const
 
 /*!
     Returns the name of the field at position \a i. If the field does
-    not exist, QString::null is returned.
+    not exist, an empty QString is returned.
 */
 
 QString QSqlRecord::fieldName( int i ) const
@@ -259,7 +259,7 @@ QString QSqlRecord::fieldName( int i ) const
     const QSqlField* f = field( i );
     if ( f )
 	return f->name();
-    return QString::null;
+    return QString();
 }
 
 /*!
@@ -451,29 +451,6 @@ void QSqlRecord::setGenerated( int i, bool generated )
 }
 
 /*!
-    \internal
-    ### Remove in 4.0
-*/
-bool QSqlRecord::isNull( int i )
-{
-    checkDetach();
-    QSqlField* f = field( i );
-    if ( f ) {
-	return f->isNull();
-    }
-    return TRUE;
-}
-
-/*!
-    \internal
-    ### Remove in 4.0
-*/
-bool QSqlRecord::isNull( const QString& name )
-{
-    return isNull( position( name ) );
-}
-
-/*!
     \overload
 
     Returns TRUE if the field \a i is NULL or if there is no field at
@@ -484,10 +461,9 @@ bool QSqlRecord::isNull( const QString& name )
 bool QSqlRecord::isNull( int i ) const
 {
     const QSqlField* f = field( i );
-    if ( f ) {
-	return f->isNull();
-    }
-    return TRUE;
+    if ( !f )
+	return TRUE;
+    return f->isNull();
 }
 
 /*!
@@ -509,9 +485,8 @@ void QSqlRecord::setNull( int i )
 {
     checkDetach();
     QSqlField* f = field( i );
-    if ( f ) {
+    if ( f )
 	f->setNull();
-    }
 }
 
 /*!

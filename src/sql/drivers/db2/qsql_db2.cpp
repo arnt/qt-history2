@@ -15,7 +15,8 @@
 #include "qsql_db2.h"
 #include <qsqlrecord.h>
 #include <qdatetime.h>
-#include <qptrvector.h>
+#include <qvector.h>
+#include <qmap.h>
 #include <private/qinternal_p.h>
 
 #ifndef UNICODE
@@ -40,14 +41,17 @@ class QDB2ResultPrivate
 {
 public:
     QDB2ResultPrivate( const QDB2DriverPrivate* d ): dp( d ), hStmt( 0 )
+    {}
+    ~QDB2ResultPrivate()
     {
-	valueCache.setAutoDelete( TRUE );
+	for ( int i = 0; i < valueCache.count(); ++i )
+	    delete valueCache[ i ];
     }
     
     const QDB2DriverPrivate* dp;
     SQLHANDLE hStmt;
     QSqlRecordInfo recInf;
-    QPtrVector<QVariant> valueCache;
+    QVector<QVariant*> valueCache;
 };
 
 static QString qFromTChar( SQLTCHAR* str )
@@ -87,7 +91,7 @@ static QString qWarnDB2Handle( int handleType, SQLHANDLE handle )
 		       &msgLen );
     if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO )
 	return QString( qFromTChar( description ) );
-    return QString::null;
+    return QString();
 }
 
 static QString qDB2Warn( const QDB2DriverPrivate* d )
@@ -298,7 +302,7 @@ static QString qGetStringData( SQLHANDLE hStmt, int column, int colSize, bool& i
 			&lengthIndicator );
 	if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) {
 	    if ( lengthIndicator == SQL_NULL_DATA || lengthIndicator == SQL_NO_TOTAL ) {
-		fieldVal = QString::null;
+		fieldVal = QString();
 		isNull = TRUE;
 		break;
 	    }
@@ -307,7 +311,7 @@ static QString qGetStringData( SQLHANDLE hStmt, int column, int colSize, bool& i
 	    break;
 	} else {
 	    qWarning( "qGetStringData: Error while fetching data (%d)", r );
-	    fieldVal = QString::null;
+	    fieldVal = QString();
 	    break;
 	}
     }
@@ -737,9 +741,7 @@ bool QDB2Result::exec()
 	    tmpStorage.removeFirst();
 
 	    if ( isNull ) {
-		QVariant v;
-		v.cast( values[ i ].type() );
-		values[ i ] = v;
+		values[ i ] = QVariant( values[ i ].type() );
 		if ( values[ i ].type() != QVariant::ByteArray )
 		    tmpStorage.removeFirst();
 		continue;
