@@ -820,7 +820,7 @@ MakefileGenerator::init()
 		QStringList vpath, &l = v[sources[x]];
 		for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
 		    if(!(*val_it).isEmpty()) {
-			QString file = Option::fixPathToLocalOS((*val_it));
+			QString file = fileFixify((*val_it), QDir::currentDirPath(), Option::output_dir);
 			if(!QFile::exists(file)) {
 			    bool found = FALSE;
 			    if(QDir::isRelativePath(file)) {
@@ -883,7 +883,7 @@ MakefileGenerator::init()
 	    for(x = 0; sources[x] != QString::null; x++) {
 	        QStringList &l = v[sources[x]];
 	        for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
-		    QString fixed_file(fileFixify((*val_it)));
+		    QString fixed_file(fileFixify((*val_it), QDir::currentDirPath(), Option::output_dir));
 		    bool found_cache_moc = FALSE, found_cache_dep = FALSE;
 		    if(read_cache && Option::output.name() != "-" &&
 			    project->isActiveConfig("qmake_cache")) {
