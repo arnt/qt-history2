@@ -57,7 +57,7 @@
 #include <sys/shm.h>
 #endif
 
-#if !defined(Q_OS_FREEBSD) && !defined (QT_NO_QWS_LINUXFB)
+#if !defined(Q_OS_MACX) && !defined(Q_OS_FREEBSD) && !defined (QT_NO_QWS_LINUXFB)
 #include <linux/fb.h>
 #endif
 

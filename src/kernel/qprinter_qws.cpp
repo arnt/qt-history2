@@ -72,9 +72,10 @@
 #define PST_ABORTED	3
 
 
-QPrinter::QPrinter()
+QPrinter::QPrinter( PrinterMode m )
     : QPaintDevice( QInternal::Printer | QInternal::ExternalDevice )
 {
+
     pdrv = 0;
     pid = 0;
     orient = Portrait;
@@ -347,6 +348,17 @@ int QPrinter::metric( int m ) const
 QSize QPrinter::margins() const
 {
     return QSize( 36, 22 );
+}
+
+void QPrinter::setPrinterName( const QString &name )
+{
+    if ( state != 0 ) {
+#if defined(QT_CHECK_STATE)
+        qWarning( "QPrinter::setPrinterName: Cannot do this during printing" );
+#endif
+        return;
+    }
+    printer_name = name;
 }
 
 #endif // QT_NO_PRINTER

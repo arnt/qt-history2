@@ -6,7 +6,6 @@ embedded {
 	HEADERS += $$EMBEDDED_P/qgfxdriverinterface_p.h \
 		    $$EMBEDDED_H/qgfxdriverplugin_qws.h \
 		    $$EMBEDDED_H/qgfxdriverfactory_qws.h \
-		    $$EMBEDDED_H/qgfxlinuxfb_qws.h \
 		    $$EMBEDDED_H/qkbd_qws.h \
 		    $$EMBEDDED_P/qkbddriverinterface_p.h \
 		    $$EMBEDDED_H/qkbddriverplugin_qws.h \
@@ -18,7 +17,6 @@ embedded {
 
 	SOURCES += $$EMBEDDED_CPP/qgfxdriverplugin_qws.cpp \
 		    $$EMBEDDED_CPP/qgfxdriverfactory_qws.cpp \
-		    $$EMBEDDED_CPP/qgfxlinuxfb_qws.cpp \
 		    $$EMBEDDED_CPP/qkbd_qws.cpp \
 		    $$EMBEDDED_CPP/qkbddriverplugin_qws.cpp \
 		    $$EMBEDDED_CPP/qkbddriverfactory_qws.cpp \
@@ -29,6 +27,11 @@ embedded {
 #
 # Graphics drivers
 #
+        linux-* {
+	        HEADERS += $$EMBEDDED_H/qgfxlinuxfb_qws.h 
+		SOURCES += $$EMBEDDED_CPP/qgfxlinuxfb_qws.cpp 
+	} 
+	else:DEFINES += QT_NO_QWS_LINUXFB
 
 	contains( gfx-drivers, qvfb ) {
 		HEADERS += $$EMBEDDED_H/qgfxvfb_qws.h
@@ -42,7 +45,7 @@ embedded {
 	}
 	else:DEFINES += QT_NO_QWS_VNC
 
-	contains( gfx-drivers, vga16 ) {
+	!contains( DEFINES, QT_NO_QWS_LINUXFB):contains( gfx-drivers, vga16 ) {
 		HEADERS += $$EMBEDDED_H/qgfxvga16_qws.h
 		SOURCES += $$EMBEDDED_CPP/qgfxvga16_qws.cpp
 	}

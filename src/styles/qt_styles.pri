@@ -15,6 +15,7 @@ styles {
 	}
 
 	!macx-*:styles -= aqua mac
+	embedded:styles -= aqua mac
 	contains( styles, mac ) {
 		HEADERS +=$$STYLES_H/qmacstyle_mac.h
 		SOURCES +=$$STYLES_CPP/qmacstyle_mac.cpp

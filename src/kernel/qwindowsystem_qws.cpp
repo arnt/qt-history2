@@ -63,14 +63,16 @@
 #include <sys/socket.h>
 #include <sys/ipc.h>
 #include <sys/shm.h>
-#include <sys/sem.h>
+#ifndef Q_OS_MACX
+# include <sys/sem.h>
+#endif
 #include <sys/param.h>
 #include <sys/mount.h>
 #endif
 #include <signal.h>
 #include <fcntl.h>
 
-#ifndef QT_NO_SOUND
+#if !defined( QT_NO_SOUND ) && !defined( Q_OS_MACX )
 #ifdef QT_USE_OLD_QWS_SOUND
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -523,7 +525,7 @@ void QWSClient::sendSelectionRequestEvent( QWSConvertSelectionCommand *cmd, int 
     sendEvent( &event );
 }
 
-#ifndef QT_NO_SOUND
+#if !defined( QT_NO_SOUND ) && !defined( Q_OS_MACX )
 #ifdef QT_USE_OLD_QWS_SOUND
 
 	/*
@@ -928,7 +930,7 @@ QWSServer::QWSServer( int flags, QObject *parent, const char *name ) :
 #ifndef QT_NO_QWS_MULTIPROCESS
 
     if ( !geteuid() ) {
-#if !defined(Q_OS_FREEBSD) && !defined(Q_OS_SOLARIS)
+#if !defined(Q_OS_FREEBSD) && !defined(Q_OS_SOLARIS) && !defined(Q_OS_MACX)
 	if( mount(0,"/var/shm", "shm", 0, 0) ) {
 	    /* This just confuses people with 2.2 kernels
 	    if ( errno != EBUSY )
@@ -967,7 +969,7 @@ QWSServer::QWSServer( int flags, QObject *parent, const char *name ) :
     screenRegion = QRegion( 0, 0, swidth, sheight );
     paintBackground( screenRegion );
 
-#ifndef QT_NO_SOUND
+#if !defined( QT_NO_SOUND ) && !defined( Q_OS_MACX )
     soundserver = new QWSSoundServer(this);
 #endif
 }
@@ -1236,7 +1238,7 @@ void QWSServer::doClient( QWSClient *client )
 	case QWSCommand::GrabKeyboard:
 	    invokeGrabKeyboard( (QWSGrabKeyboardCommand*)cs->command, cs->client );
 	    break;
-#ifndef QT_NO_SOUND
+#if !defined( QT_NO_SOUND ) && !defined( Q_OS_MACX )
 	case QWSCommand::PlaySound:
 	    invokePlaySound( (QWSPlaySoundCommand*)cs->command, cs->client );
 	    break;
@@ -1946,10 +1948,12 @@ void QWSServer::invokeGrabKeyboard( QWSGrabKeyboardCommand *cmd, QWSClient *clie
     }
 }
 
-#ifndef QT_NO_SOUND
+#if !defined( QT_NO_SOUND ) 
 void QWSServer::invokePlaySound( QWSPlaySoundCommand *cmd, QWSClient * )
 {
+#if !defined( Q_OS_MACX )
     soundserver->playFile(cmd->filename);
+#endif
 }
 #endif
 

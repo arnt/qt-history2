@@ -182,6 +182,7 @@ public:
 
 private:
 #ifdef Q_OS_MAC
+    typedef struct FSSpec FSSpec;
     static FSSpec *make_spec(const QString &);
 #endif
     void init();

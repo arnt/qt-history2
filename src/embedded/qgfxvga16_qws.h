@@ -37,10 +37,10 @@
 
 // VGA16 code does not compile on sparc
 #if defined(__sparc__) && !defined(QT_NO_QWS_VGA_16)
-#define QT_NO_QWS_VGA_16
+#define QT_NO_QWS_VGA16
 #endif
 
-#ifndef QT_NO_QWS_VGA_16
+#ifndef QT_NO_QWS_VGA16
 
 class QVga16Screen : public QLinuxFbScreen
 {
@@ -68,7 +68,7 @@ private:
     int shmId;
 };
 
-#endif // QT_NO_QWS_VGA_16
+#endif // QT_NO_QWS_VGA16
 
 #endif // QGFXVGA16_QWS_H
 

@@ -52,7 +52,8 @@ then
     # Qt/Mac
     # ~ the Carbon SDK is present
     PLATFORM_MAC=yes
-elif [ -d $relpath/mkspecs/qws ]
+fi
+if [ -d $relpath/mkspecs/qws ]
 then
     # Qt/Embedded
     # ~ mkspecs/qws is present
@@ -845,6 +846,14 @@ then
 	    XPLATFORM="qws/qnx6-$CFG_EMBEDDED-g++"
 	fi
 	CFG_STL=no ### why?
+	;;
+    Darwin:*)
+	[ -z "$PLATFORM" ] && PLATFORM=qws/macx-generic-g++
+	if [ -z "$XPLATFORM" ]
+	then
+	    [ "$CFG_EMBEDDED" = "auto" ] && CFG_EMBEDDED=generic
+	    XPLATFORM="qws/macx-$CFG_EMBEDDED-g++"
+	fi
 	;;
     FreeBSD:*)
 	[ -z "$PLATFORM" ] && PLATFORM=qws/freebsd-generic-g++

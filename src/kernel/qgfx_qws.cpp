@@ -32,7 +32,9 @@
 #include "qgfx_qws.h"
 
 #include <stdio.h>
-#include <dlfcn.h>
+#ifndef Q_OS_MACX
+# include <dlfcn.h>
+#endif
 #include <sys/types.h>
 #include <dirent.h>
 #include <stdlib.h>

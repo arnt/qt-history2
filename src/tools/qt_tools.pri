@@ -83,7 +83,10 @@ tools {
 		  $$TOOLS_CPP/qsemaphore_unix.cpp \
 		  $$TOOLS_CPP/qwaitcondition_unix.cpp
 
-	mac:SOURCES += $$TOOLS_CPP/qlibrary_mac.cpp $$TOOLS_CPP/qsettings_mac.cpp
+	mac {
+	  SOURCES += $$TOOLS_CPP/qlibrary_mac.cpp 
+	  !embedded:$$TOOLS_CPP/qsettings_mac.cpp
+        }
 	else:unix:SOURCES += $$TOOLS_CPP/qlibrary_unix.cpp
 
 	SOURCES += $$TOOLS_CPP/qbitarray.cpp \

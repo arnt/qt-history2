@@ -105,7 +105,7 @@ bool QFile::open( int m )
 	    else
 		oflags |= QT_OPEN_CREAT;
 	}
-#ifdef Q_WS_MAC9	
+#ifdef Q_OS_MAC9	
 	if ( isTranslated() )
 	    oflags |= O_TEXT;
 	else
@@ -140,7 +140,7 @@ bool QFile::open( int m )
 	    }
 	}
 	qstrcpy( perm2, perm );
-#ifdef Q_WS_MAC9
+#ifdef Q_OS_MAC9
 	if ( isTranslated() )
 	    strcat( perm2, "t" );
 	else

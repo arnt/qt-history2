@@ -46,7 +46,7 @@
 #include "qgfxlinuxfb_qws.h"
 #include "qwindowsystem_qws.h"
 
-#if !defined(Q_OS_FREEBSD) && !defined (QT_NO_QWS_LINUXFB)
+#if !defined(Q_OS_MACX) && !defined(Q_OS_FREEBSD) && !defined (QT_NO_QWS_LINUXFB)
 #include <linux/fb.h>
 
 #ifdef __i386__

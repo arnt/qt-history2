@@ -70,7 +70,7 @@
 #  include <qt_mac.h>
 #endif
 #define QT_AQUA_XPM
-#include "qaquastyle_p.h"
+#include "private/qaquastyle_p.h"
 
 static const int aquaSepHeight         = 10;    // separator height
 static const int aquaItemFrame         = 2;    // menu item frame width

@@ -88,7 +88,9 @@
 #ifdef QT_NO_QSHM
 #include <sys/ipc.h>
 #include <sys/shm.h>
-#include <sys/sem.h>
+#ifndef Q_OS_MACX
+# include <sys/sem.h>
+#endif
 #include <sys/socket.h>
 #else
 #include "qsharedmemory_p.h"

@@ -7,6 +7,7 @@ embedded {
 	LIBS -= -dl
 	KERNEL_P        = kernel
 
+	!mac:HEADERS += $$KERNEL_H/qsoundqss_qws.h 
 	HEADERS += $$STYLES_H/qcompactstyle.h \
 		    $$KERNEL_H/qcopchannel_qws.h \
 		    $$KERNEL_H/qdirectpainter_qws.h \
@@ -17,7 +18,6 @@ embedded {
 		    $$KERNEL_H/qgfxraster_qws.h \
 		    $$KERNEL_H/qlock_qws.h \
 		    $$KERNEL_H/qmemorymanager_qws.h \
-		    $$KERNEL_H/qsoundqss_qws.h \
 		    $$KERNEL_H/qwindowsystem_qws.h \
 		    $$KERNEL_H/qwsbeosdecoration_qws.h \
 		    $$KERNEL_H/qwscommand_qws.h \
@@ -36,7 +36,9 @@ embedded {
 		    $$KERNEL_H/qwsutils_qws.h \
 		    $$KERNEL_H/qwswindowsdecoration_qws.h
 
+	 !mac:SOURCES += $$KERNEL_CPP/qsound_qws.cpp $$KERNEL_CPP/qsoundqss_qws.cpp
          SOURCES +=  $$KERNEL_CPP/qapplication_qws.cpp \
+	            $$KERNEL_CPP/qprinter_qws.cpp \
 		    $$KERNEL_CPP/qclipboard_qws.cpp \
 		    $$KERNEL_CPP/qcolor_qws.cpp \
 		    $$KERNEL_CPP/qcopchannel_qws.cpp \
@@ -56,8 +58,6 @@ embedded {
 		    $$KERNEL_CPP/qpainter_qws.cpp \
 		    $$KERNEL_CPP/qpixmap_qws.cpp \
 		    $$KERNEL_CPP/qregion_qws.cpp \
-		    $$KERNEL_CPP/qsound_qws.cpp \
-		    $$KERNEL_CPP/qsoundqss_qws.cpp \
 		    $$KERNEL_CPP/qwidget_qws.cpp \
 		    $$KERNEL_CPP/qwindowsystem_qws.cpp \
 		    $$KERNEL_CPP/qwsbeosdecoration_qws.cpp \

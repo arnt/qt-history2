@@ -22,6 +22,7 @@
 class QImage;
 class QTimer;
 class QAnimationWriter;
+class QLock;
 struct QVFbHeader;
 
 class QVFbView : public QScrollView
@@ -92,7 +93,7 @@ private:
     int bmax;
     double gred, ggreen, gblue;
     QRgb* gammatable;
-    int lockId;
+    QLock *qwslock;
     QTimer *timer;
     int mouseFd;
     int keyboardFd;

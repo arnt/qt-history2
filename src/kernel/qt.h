@@ -308,7 +308,7 @@
 
 
 #ifdef Q_WS_MAC
-#include <qaquastyle_p.h>
+#include <private/qaquastyle_p.h>
 #include <qmacstyle_mac.h>
 #include <qaquastyle.h>
 #endif // Q_WS_MAC
@@ -326,7 +326,9 @@
 #include <qfontfactoryttf_qws.h>
 #include <qgfx_qws.h>
 #include <qgfxvnc_qws.h>
-#include <qsoundqss_qws.h>
+#if !defined( QT_NO_SOUND ) && !defined( Q_OS_MACX )
+# include <qsoundqss_qws.h>
+#endif
 #include "qwsdisplay_qws.h"
 #include <qgfxraster_qws.h>
 #include <qwssocket_qws.h>

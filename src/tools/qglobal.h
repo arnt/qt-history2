@@ -393,9 +393,7 @@
      WIN16  - unsupported
 */
 
-#if defined( Q_OS_MACX )
-#  define Q_WS_MACX
-#elif defined( Q_OS_MAC9 )
+#if defined( Q_OS_MAC9 )
 #  define Q_WS_MAC9
 #elif defined(Q_OS_MSDOS)
 #  define Q_WS_WIN16
@@ -413,6 +411,8 @@
 #elif defined(Q_OS_UNIX)
 #  ifdef QWS
 #    define Q_WS_QWS
+#  elif defined( Q_OS_MACX )
+#    define Q_WS_MACX
 #  else
 #    define Q_WS_X11
 #  endif
@@ -425,7 +425,7 @@
 #  define Q_WS_WIN
 #endif
 
-#if defined(Q_WS_MAC9) || defined(Q_WS_MACX)
+#if (defined(Q_WS_MAC9) || defined(Q_WS_MACX)) && !defined( Q_WS_QWS ) && !defined( Q_WS_X11 )
 #  define Q_WS_MAC
 #endif
 

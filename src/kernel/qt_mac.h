@@ -30,6 +30,7 @@
 #endif
 #undef OLD_DEBUG
 
+#ifdef Q_WS_MAC
 #include <qwidget.h>
 extern int mac_window_count; //qwidget_mac.cpp
 #ifdef QT_THREAD_SUPPORT
@@ -266,4 +267,5 @@ inline void QMacSavedPortInfo::removingGWorld(const GWorldPtr w)
             (*it)->valid_gworld = FALSE;
     }
 }            
+#endif
 #endif // QT_MAC_H
