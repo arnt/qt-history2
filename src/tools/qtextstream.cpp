@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#81 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#82 $
 **
 ** Implementation of QTextStream class
 **
@@ -481,6 +481,7 @@ QTextStream::~QTextStream()
 {
     if ( owndev )
 	delete dev;
+    delete decoder;
 }
 
 /*!
