@@ -488,7 +488,7 @@ bool QIconDragData::operator==( const QIconDragData &i ) const
   \class QIconDrag qiconview.h
 
   \brief The QIconDrag class is used to support drag and drop operations
-  within an iconview.
+  within a QIconView.
 
   \ingroup draganddrop
 
@@ -496,12 +496,12 @@ bool QIconDragData::operator==( const QIconDragData &i ) const
 
     A QIconDrag object is used to maintain information about the
     positions of dragged items and data associated with the dragged
-    items. Iconviews are able to use this information to paint the
+    items. QIconViews are able to use this information to paint the
     dragged items in the correct positions. Internally QIconDrag stores
     the data associated with drag items in QIconDragItem objects.
 
     If you want to use the extended drag-and-drop functionality of
-    QIconView you create a QIconDrag object in a reimplementation of
+    QIconView create a QIconDrag object in a reimplementation of
     QIconView::dragObject(). Then create a QIconDragItem for each item
     which should be dragged, set the data it represents with
     QIconDragItem::setData(), and add each QIconDragItem to the drag
@@ -517,8 +517,10 @@ bool QIconDragData::operator==( const QIconDragData &i ) const
     The fileiconview example program demonstrates the use of the
     QIconDrag class including subclassing and reimplementing
     dragObject(), format(), encodedData() and canDecode(). See the files
-    qt/examples/fileiconview/qfileiconview.h and
-    qt/examples/fileiconview/qfileiconview.cpp.
+    \c qt/examples/fileiconview/qfileiconview.h and
+    \c qt/examples/fileiconview/qfileiconview.cpp.
+
+    \important QMimeSource::format() 
 */ 
 // ### consider using \dontinclude and friends there
 // ### Not here in the module overview instead... 
@@ -543,7 +545,7 @@ QIconDrag::~QIconDrag()
 }
 
 /*!
-  Append a QIconDragItem, \a i, to the QIconDrag object's list of items.
+  Append the QIconDragItem, \a i, to the QIconDrag object's list of items.
   You must also supply the geometry of the pixmap, \a pr, and of the
   textual caption, \a tr.
 
@@ -594,7 +596,7 @@ QByteArray QIconDrag::encodedData( const char* mime ) const
 
 /*!
   Returns TRUE if \a e can be decoded by the QIconDrag,
-  otherwise FALSE.
+  otherwise return FALSE.
 */
 
 bool QIconDrag::canDecode( QMimeSource* e )
@@ -697,30 +699,35 @@ void QIconDragData::setTextRect( const QRect &r )
 
 /*!
   \class QIconViewItem qiconview.h
-  \brief The QIconViewItem class provides a single item in an icon view.
+  \brief A QIconViewItem encapsulates a single item in a QIconView.
   \module iconview
 
-  It contains an icon and a text, and can display itself in an icon view.
+  A QIconViewItem encapsulates a single item in a QIconView; it contains
+  an icon and a string, and can display itself in a QIconView.
 
-  The simplest way to create an icon view item and insert it into an
-  icon view is to construct it with a pointer to the icon view, a string
-  and an icon:
+  The simplest way to create an QIconViewItem and insert it into a
+  QIconView is to construct the item with a pointer to the icon view, a
+  string and an icon:
 
   \code
-    \/ parent is a pointer to our icon view, pixmap a QPixmap,
-    \/ which we want to use as icon
-    (void) new QIconViewItem( parent,
-			      "This is the text of the item",
-			      pixmap );
+    (void) new QIconViewItem( 
+		    parent,	// A pointer to a QIconView
+		    "This is the text of the item",
+		    pixmap );
   \endcode
+
+  By default the text of an icon view item may not be edited by the user
+  but calling setRenameEnabled(TRUE) will allow the user to perform
+  in-place editing of the item's text.
 
   When the icon view is deleted all items in it are deleted automatically.
 
-  To iterate over all items of an icon view do something like the following:
+  The QIconView::firstItem() and QIconViewItem::nextItem() functions
+  provide a means of iterating over all the items in a QIconView:
 
   \code
     QIconViewItem *item;
-    for ( item = icon view->firstItem(); item; item = item->nextItem() )
+    for ( item = iconView->firstItem(); item; item = item->nextItem() )
       do_something_with( item );
   \endcode
 
@@ -736,7 +743,7 @@ void QIconDragData::setTextRect( const QRect &r )
 */
 
 /*!
-  Constructs an icon view item with no text and a default icon, and
+  Constructs a QIconViewItem with no text and a default icon, and
   inserts it into the icon view \a parent.
 */
 
@@ -749,7 +756,7 @@ QIconViewItem::QIconViewItem( QIconView *parent )
 }
 
 /*!
-  Constructs an icon view item with no text and a default icon, and inserts
+  Constructs a QIconViewItem with no text and a default icon, and inserts
   it into the icon view \a parent after the icon view item \a after.
 */
 
@@ -762,8 +769,8 @@ QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after )
 }
 
 /*!
-  Constructs an icon view item using \a text as text and a default icon,
-  and inserts it into the icon view \a parent.
+  Constructs an icon view item using \a text as the text and a default
+  icon, and inserts it into the icon view \a parent.
 */
 
 QIconViewItem::QIconViewItem( QIconView *parent, const QString &text )
@@ -775,8 +782,9 @@ QIconViewItem::QIconViewItem( QIconView *parent, const QString &text )
 }
 
 /*!
-  Constructs an icon view item using \a text as text and a default icon, and
-  inserts it into the icon view \a parent after the icon view item \a after.
+  Constructs an icon view item using \a text as the text and a default
+  icon, and inserts it into the icon view \a parent after the icon view
+  item \a after.
 */
 
 QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after,
@@ -789,8 +797,8 @@ QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after,
 }
 
 /*!
-  Constructs an icon view item using \a text as text and a \icon as icon,
-  and inserts it into the icon view \a parent.
+  Constructs an icon view item using \a text as the text and a \icon as
+  the icon, and inserts it into the icon view \a parent.
 */
 
 QIconViewItem::QIconViewItem( QIconView *parent, const QString &text,
@@ -803,9 +811,9 @@ QIconViewItem::QIconViewItem( QIconView *parent, const QString &text,
 }
 
 /*!
-  Constructs an icon view item using \a text as text and a \icon as icon,
-  and inserts it into the icon view \a parent after the icon view item \a
-  after.
+  Constructs an icon view item using \a text as the text and \a icon as
+  the icon, and inserts it into the icon view \a parent after the icon
+  view item \a after.
 */
 
 QIconViewItem::QIconViewItem( QIconView *parent, QIconViewItem *after, const QString &text, const QPixmap &icon )
@@ -836,7 +844,8 @@ void QIconViewItem::init( QIconViewItem *after )
 }
 
 /*!
-  Destructs the icon view item and tells the icon view about it.
+  Destroys the icon view item and tells the parent icon view that the
+  item has been destroyed. 
 */
 
 QIconViewItem::~QIconViewItem()
@@ -850,8 +859,8 @@ QIconViewItem::~QIconViewItem()
 }
 
 /*!
-  Sets \a text as text of the icon view item.  This function might be a no-op
-  if you reimplement text().
+  Sets \a text as the text of the icon view item.  This function might
+  be a no-op if you reimplement text().
 
   \sa text()
 */
@@ -880,7 +889,7 @@ void QIconViewItem::setText( const QString &text )
 }
 
 /*!
-  Sets \a k as key of the icon view item. This is used for sorting.
+  Sets \a k as the sort key of the icon view item. 
 
   \sa compareItems()
 */
@@ -894,7 +903,7 @@ void QIconViewItem::setKey( const QString &k )
 }
 
 /*!
-  Sets \a icon as item icon of the icon view item. This function might be
+  Sets \a icon as the item's icon in the icon view. This function might be
   a no-op if you reimplement pixmap().
 
   \sa pixmap()
@@ -923,8 +932,8 @@ void QIconViewItem::setPixmap( const QPixmap &icon )
 }
 
 /*!
-  Sets \a text as text of the icon view item. If \a recalc is TRUE, the
-  icon view's layout is recalculated. If \a redraw is TRUE (the
+  Sets \a text as the text of the icon view item. If \a recalc is TRUE,
+  the icon view's layout is recalculated. If \a redraw is TRUE (the
   default), the icon view is repainted.
 
   \sa text()
@@ -945,7 +954,7 @@ void QIconViewItem::setText( const QString &text, bool recalc, bool redraw )
 }
 
 /*!
-  Sets \a icon as item icon of the icon view item. If \a recalc is TRUE, the
+  Sets \a icon as the item's icon in the icon view. If \a recalc is TRUE, the
   icon view's layout is recalculated. If \a redraw is TRUE (the
   default), the icon view is repainted.
 
@@ -984,9 +993,10 @@ void QIconViewItem::setPixmap( const QPixmap &icon, bool recalc, bool redraw )
 }
 
 /*!
-  If \a allow is TRUE, the user can rename the icon view item by clicking
-  on the text while the item is selected (in-place renaming). If \a
-  allow is FALSE, in-place renaming is not possible.
+  If \a allow is TRUE, the user can rename the icon view item by
+  clicking on the text (or pressing F2) while the item is selected
+  (in-place renaming). If \a allow is FALSE, in-place renaming is not
+  possible. 
 */
 
 void QIconViewItem::setRenameEnabled( bool allow )
@@ -995,9 +1005,10 @@ void QIconViewItem::setRenameEnabled( bool allow )
 }
 
 /*!
-  If \a allow is TRUE, the icon view lets the user to drag the icon view
-  item (inside the icon view and outside of it). if \a allow is FALSE,
-  the item cannot be dragged.
+  If \a allow is TRUE, the icon view permits the user to drag the icon
+  view item either to another position within the icon view or to
+  somewhere outside of it. If \a allow is FALSE, the item cannot be
+  dragged.
 */
 
 void QIconViewItem::setDragEnabled( bool allow )
@@ -1016,7 +1027,7 @@ void QIconViewItem::setDropEnabled( bool allow )
 }
 
 /*!
-  Returns the text of the icon view item. Normally you will set the
+  Returns the text of the icon view item. Normally you set the
   text of the item with setText(), but sometimes it's inconvenient to
   call setText() for each item; so you can subclass QIconViewItem,
   reimplement this function, and return the text of the item. If you do
