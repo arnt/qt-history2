@@ -240,7 +240,19 @@ void VcprojGenerator::initCompilerTool()
     vcProject.Configuration.compiler.ObjectFile = placement ;
     vcProject.Configuration.compiler.PrecompiledHeaderFile = placement + project->first("QMAKE_ORIG_TARGET") + ".pch";
 
-    if ( project->isActiveConfig("release") ){
+    if ( project->isActiveConfig("debug") ){
+	// Debug version
+	vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS"] );
+	vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_DEBUG"] );
+	if ( project->isActiveConfig("thread") ) {
+	    if ( (projectTarget == Application) || (projectTarget == StaticLib) )
+		vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_MT_DBG"] );
+	    else
+		vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_MT_DLLDBG"] );
+	} else {
+	    vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_ST_DBG"] );
+	}
+    } else {
 	// Release version
 	vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS"] );
 	vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_RELEASE"] );
@@ -253,20 +265,6 @@ void VcprojGenerator::initCompilerTool()
 	} else {
 	    vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_ST"] );
 	}
-
-    } else {
-	// Debug version
-	vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS"] );
-	vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_DEBUG"] );
-	if ( project->isActiveConfig("thread") ) {
-	    if ( (projectTarget == Application) || (projectTarget == StaticLib) )
-		vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_MT_DBG"] );
-	    else
-		vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_MT_DLLDBG"] );
-	} else {
-	    vcProject.Configuration.compiler.parseOptions( project->variables()["QMAKE_CXXFLAGS_ST_DBG"] );
-	}
-
     }
 
     // Common for both release and debug
