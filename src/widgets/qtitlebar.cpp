@@ -173,12 +173,16 @@ void QTitleBar::getColors()
 	    irightc = ileftc;
 
 	    BOOL gradient;
+#ifdef _WIN32_WCE
+		SystemParametersInfo( SPI_GETGRADIENTCAPTIONS, 0, &gradient, 0 );
+#else
 #if defined(UNICODE)
 	    if ( qt_winver & Qt::WV_NT_based )
 		SystemParametersInfo( SPI_GETGRADIENTCAPTIONS, 0, &gradient, 0 );
 	    else
 #endif
 		SystemParametersInfoA( SPI_GETGRADIENTCAPTIONS, 0, &gradient, 0 );
+#endif
 
 	    if ( gradient ) {
 		arightc = qt_colorref2qrgb(GetSysColor(COLOR_GRADIENTACTIVECAPTION));

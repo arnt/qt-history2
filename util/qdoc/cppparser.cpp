@@ -45,7 +45,7 @@
   Sets the address of a Doc. That information is used by the emitter
   to emit some index file, and by the Doc itself to know who it is.
 */
-static void setLink( Emitter *emitter, Doc *doc, const QString& link,
+static void setLink( DocEmitter *emitter, Doc *doc, const QString& link,
 		     const QString& text )
 {
     if ( !doc->internal() && !doc->obsolete() )
@@ -610,7 +610,7 @@ static bool matchDeclList( Decl *context )
     return TRUE;
 }
 
-void parseCppHeaderFile( Emitter *emitter, const QString& filePath )
+void parseCppHeaderFile( DocEmitter *emitter, const QString& filePath )
 {
     Location loc( filePath );
     FILE *in = fopen( QFile::encodeName(filePath), "r" );
@@ -637,7 +637,7 @@ void parseCppHeaderFile( Emitter *emitter, const QString& filePath )
   The third part of the file constitutes the C++ source file parser proper.
 */
 
-static void matchDocsAndStuff( Emitter *emitter )
+static void matchDocsAndStuff( DocEmitter *emitter )
 {
     Decl *decl = 0;
 
@@ -891,7 +891,7 @@ static void matchDocsAndStuff( Emitter *emitter )
     }
 }
 
-void parseCppSourceFile( Emitter *emitter, const QString& filePath )
+void parseCppSourceFile( DocEmitter *emitter, const QString& filePath )
 {
     Location loc( filePath );
     FILE *in = fopen( QFile::encodeName(filePath), "r" );

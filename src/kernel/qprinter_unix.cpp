@@ -64,6 +64,20 @@
 #define PST_ERROR       2
 #define PST_ABORTED     3
 
+// Default values for QPrinter members
+
+struct PrinterDefaults {
+    QString printerName;
+    bool outputToFile;
+    QString outputFileName;
+    QPrinter::Orientation orientation;
+    QPrinter::PageSize pageSize;
+    QPrinter::PageOrder pageOrder;
+    QPrinter::ColorMode colorMode;
+    int numCopies;
+};
+
+static PrinterDefaults * globalPrinterDefaults = 0;
 
 /*!
   Constructs a printer paint device.
@@ -181,6 +195,12 @@ void QPrinter::setPrinterName( const QString &name )
     printer_name = name;
 }
 
+static void deleteGlobalPrinterDefaults()
+{
+    delete globalPrinterDefaults;
+    globalPrinterDefaults = 0;
+}
+
 /*!
   Opens a printer setup dialog and asks the user to specify what printer
   to use and miscellaneous printer settings.
@@ -191,7 +211,21 @@ void QPrinter::setPrinterName( const QString &name )
 
 bool QPrinter::setup( QWidget * /*parent*/ )
 {
-    return QPrintDialog::getPrinterSetup( this );
+    bool result = QPrintDialog::getPrinterSetup( this );
+    if ( result ) {
+	if ( !globalPrinterDefaults ) {
+	    globalPrinterDefaults = new PrinterDefaults;
+	    qAddPostRoutine( deleteGlobalPrinterDefaults );
+	}
+	globalPrinterDefaults->printerName = printerName();
+	globalPrinterDefaults->outputToFile = outputToFile();
+	globalPrinterDefaults->outputFileName = outputFileName();
+	globalPrinterDefaults->orientation = orientation();
+	globalPrinterDefaults->pageSize = pageSize();
+	globalPrinterDefaults->pageOrder = pageOrder();
+	globalPrinterDefaults->colorMode = colorMode();
+    }
+    return result;
 }
 
 static void closeAllOpenFds()

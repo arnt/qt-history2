@@ -334,7 +334,7 @@ QStringList QSqlDatabase::drivers()
 #ifndef QT_NO_COMPONENT
     QPluginManager<QSqlDriverFactoryInterface> *plugIns;
     plugIns = new QPluginManager<QSqlDriverFactoryInterface>( IID_QSqlDriverFactory );
-    plugIns->addLibraryPath( QString((char*)getenv( "QTDIR" )) + "/plugins/sqldrivers" );
+
     QStringList paths(QApplication::libraryPaths());
     QStringList::Iterator it = paths.begin();
     while (it != paths.end()) {
@@ -425,8 +425,7 @@ void QSqlDatabase::init( const QString& type, const QString&  )
     if ( !d->driver ) {
 	d->plugIns =
 	    new QPluginManager<QSqlDriverFactoryInterface>( IID_QSqlDriverFactory );
-	d->plugIns->addLibraryPath( QString((char*)getenv( "QTDIR" )) +
-				    "/plugins/sqldrivers" );
+
 	QStringList paths(QApplication::libraryPaths());
 	QStringList::Iterator it = paths.begin();
 	while (it != paths.end()) {

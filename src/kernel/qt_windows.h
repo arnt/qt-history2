@@ -45,6 +45,10 @@
 
 #include <windows.h>
 
+#ifdef _WIN32_WCE
+#include "qfunctions_wce.h"
+#endif
+
 // already defined when compiled with WINVER >= 0x0500
 // and we only use them in WV_2000 and WV_98
 #ifndef SPI_SETMENUANIMATION

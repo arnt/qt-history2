@@ -17,7 +17,7 @@ int main( int argc, char **argv )
 
     ButtonsGroups buttonsgroups;
     buttonsgroups.resize( 500, 250 );
-    buttonsgroups.setCaption( "Examples for Buttons and Groups" );
+    buttonsgroups.setCaption( "Qt Example - Buttongroups" );
     a.setMainWidget( &buttonsgroups );
     buttonsgroups.show();
 

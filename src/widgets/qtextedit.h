@@ -155,6 +155,7 @@ public:
     QRect paragraphRect( int para ) const;
     int paragraphAt( const QPoint &pos ) const;
     int charAt( const QPoint &pos, int *para ) const;
+    int paragraphLength( int para ) const;
 
     QStyleSheet* styleSheet() const;
     QMimeSourceFactory* mimeSourceFactory() const;
@@ -197,6 +198,7 @@ public:
 				     QStyleSheetItem::ListStyle *listStyle,
 				     int *listDepth );
     bool isOverwriteMode() const { return overWrite; }
+    QColor paragraphBackgroundColor( int para ) const;
 
 public slots:
     void setEnabled( bool );
@@ -269,6 +271,9 @@ public slots:
     virtual void insertAt( const QString &text, int para, int index );
     virtual void removeParagraph( int para );
     virtual void insertParagraph( const QString &text, int para );
+
+    virtual void setParagraphBackgroundColor( int para, const QColor &bg );
+    virtual void clearParagraphBackground( int para );
 
 signals:
     void textChanged();

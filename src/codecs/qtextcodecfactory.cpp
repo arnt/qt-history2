@@ -69,10 +69,6 @@ QTextCodecFactoryPrivate::QTextCodecFactoryPrivate()
 						   QString::null,
 						   QLibrary::Delayed, FALSE);
 
-    QString defpath(getenv("QTDIR"));
-    if (! defpath.isNull() && ! defpath.isEmpty())
-	manager->addLibraryPath(defpath + "/plugins/codecs");
-
     QStringList paths(QApplication::libraryPaths());
     QStringList::Iterator it = paths.begin();
     while (it != paths.end()) {

@@ -22,7 +22,7 @@ QString MetaResolver::resolve( const QString& name ) const
     QMap<QString, QString>::ConstIterator g;
 
     if ( f != mfunctions.end() &&
-	 (g = (*f).find(member)) != (*f).end() ) {
+	 (g = (*f).find(member + QString("()"))) != (*f).end() ) {
 	return *g;
     } else if ( cinherits.contains(className) ) {
 	QStringList::ConstIterator s = cinherits[className].begin();

@@ -104,7 +104,7 @@ else
     if [ -f "$relpath/GNUmakefile" ]
     then
 	rm -f $outpath/Makefile
-	cp $relpath/GNUmakefile $outpath/Makefile
+	mv $relpath/GNUmakefile $outpath/Makefile
     fi
 
     touch .test.qt.
@@ -779,10 +779,10 @@ then
 	"
 	;;
      OSF1:*)
-	#PLATFORM=osf1-g++
-	PLATFORM=osf1-cxx
+	#PLATFORM=tru64-g++
+	PLATFORM=tru64-cxx
 	PLATFORM_NOTES="
-	    - Also available for Tru64: osf1-g++
+	    - Also available for Tru64: tru64-g++
 	"
 	;;
      Linux:*)
@@ -1026,7 +1026,7 @@ Installation options:
     -docdir dir ........ Documentation will be installed to dir
 			  (default PREFIX/doc)
     -headerdir dir ..... Headers will be installed to dir
-			  (default PREFIX/headers)
+			  (default PREFIX/include)
 
  The defaults (*) are usually acceptable.  If marked with a plus (+) a test
  for that feature has not been done yet, but will be evaluated later, the
@@ -1218,7 +1218,7 @@ if true #[ '!' -f "$outpath/bin/qmake" ]
 then
     # look for platforms without libdl
     case "$PLATFORM" in
-    macx-*|*bsd-*|osf1-*)
+    macx-*|*bsd-*|tru64-*)
 	LIBDL=no
 	;;
     *)
@@ -1528,7 +1528,15 @@ QMAKE_VARS="$QMAKE_VARS \"QT_PREFIX=${QT_INSTALL_PREFIX}\""
 [ '!' -z "$QT_INSTALL_DOCS" ] && QMAKE_VARS="$QMAKE_VARS \"docs.path=${QT_INSTALL_DOCS}\""
 [ '!' -z "$QT_INSTALL_HEADERS" ] && QMAKE_VARS="$QMAKE_VARS \"headers.path=${QT_INSTALL_HEADERS}\""
 [ '!' -z "$QT_INSTALL_LIBS" ] && QMAKE_VARS="$QMAKE_VARS \"QT_INSTALL_LIBPATH=${QT_INSTALL_LIBS}\""
-[ '!' -z "$QT_INSTALL_BINS" ] && QMAKE_VARS="$QMAKE_VARS \"QT_INSTALL_BINPATH=${QT_INSTALL_BINS}\""
+if [ '!' -z "$QT_INSTALL_BINS" ]; then
+    QMAKE_VARS="$QMAKE_VARS \"QT_INSTALL_BINPATH=${QT_INSTALL_BINS}\""
+else
+    QT_INSTALL_BINS=${QT_INSTALL_PREFIX}/bin
+fi
+
+sed "s,\(INSTALL_BIN_DIR=\).*$,\1${QT_INSTALL_BINS}," Makefile >Makefile.tmp
+mv Makefile.tmp Makefile
+
 
 #do modules.h
 [ -e qmodules.h-hold ] && mv -f qmodules.h-hold $relpath/src/tools/qmodules.h

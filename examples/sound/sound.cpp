@@ -95,6 +95,7 @@ int main(int argc, char** argv)
     QApplication app(argc,argv);
     SoundPlayer sp;
     app.setMainWidget(&sp);
+    sp.setCaption("Qt Example - Sounds");
     sp.show();
     return app.exec();
 }

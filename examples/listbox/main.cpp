@@ -16,7 +16,7 @@ int main( int argc, char **argv )
     QApplication a( argc, argv );
 
     ListBoxDemo t;
-    t.setCaption( "List Box Configuration Example" );
+    t.setCaption( "Qt Example - Listbox" );
     a.setMainWidget( &t );
     t.show();
 

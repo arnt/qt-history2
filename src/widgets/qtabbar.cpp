@@ -374,7 +374,7 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 	flags |= QStyle::CStyle_Selected;
     style().drawControl( QStyle::CE_TabBarTab, p, this, t->rect(),
 			 colorGroup(), flags );
-    
+
     QRect r( t->r );
     p->setFont( font() );
 
@@ -416,11 +416,10 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
 
     QRect tr = r;
     if ( t->id == currentTab() )
-	tr.setBottom( tr.bottom() - 
+	tr.setBottom( tr.bottom() -
 		      style().pixelMetric(QStyle::PM_DefaultFrameWidth, this) );
 
-    style().drawItem( p, tr.x(), tr.y(), tr.width(), tr.height(),
-		      AlignCenter | ShowPrefix, colorGroup(),
+    style().drawItem( p, tr, AlignCenter | ShowPrefix, colorGroup(),
 		      isEnabled() && t->enabled, 0, t->label );
 
     if ( has_focus )
@@ -887,7 +886,7 @@ void QTabBar::focusOutEvent( QFocusEvent * )
 	    flags |= QStyle::CStyle_Selected;
 	    style().drawControl( QStyle::CE_TabBarTab, &p, this, t->rect(),
 				 colorGroup(), flags );
-	    
+
 	    paintLabel( &p, QRect( r.left() + ( r.width() -w ) /2 - 3,
 				   r.top() + ( r.height()-h ) / 2,
 				   w, h ), t, FALSE );

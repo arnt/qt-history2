@@ -73,6 +73,7 @@ int main( int argc, char ** argv )
     Rot13 r;
     r.resize( 400, 400 );
     a.setMainWidget( &r );
+    r.setCaption("Qt Example - ROT13");
     r.show();
     return a.exec();
 }

@@ -165,6 +165,10 @@ public:
 		int cf = 0;
 		QPtrList<QWindowsMime> all = QWindowsMime::all();
 		while (cf = EnumClipboardFormats(cf)) {
+#ifdef _WIN32_WCE
+			if ( cf == CF_TEXT )
+				sawSBText = TRUE;
+#else
 #if defined(UNICODE)
                     if ( qWinVersion() & Qt::WV_NT_based && cf == CF_TEXT ) {
 			sawSBText = TRUE;
@@ -179,6 +183,7 @@ public:
 			    mime = 0;
 			}
 		    }
+#endif
 		}
 		// COME FROM BREAK
 
@@ -429,13 +434,19 @@ bool QClipboard::event( QEvent *e )
     }
     if ( propagate && nextClipboardViewer ) {
 #if defined(UNICODE)
+#ifndef _WIN32_WCE
 	if ( qWinVersion() & Qt::WV_NT_based )
+#endif
 	    SendMessage( nextClipboardViewer, m->message,
 			 m->wParam, m->lParam );
+#ifndef _WIN32_WCE
 	else
 #endif
+#endif
+#ifndef _WIN32_WCE
 	    SendMessageA( nextClipboardViewer, m->message,
 			 m->wParam, m->lParam );
+#endif
     }
 
     return TRUE;

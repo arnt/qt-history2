@@ -503,6 +503,7 @@ int main( int argc, char **argv )
     XFormCenter *xfc = new XFormCenter;
 
     a.setMainWidget( xfc );
+    xfc->setCaption("Qt Example - XForm");
     xfc->show();
     return a.exec();
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1046,7 +1046,7 @@ static void qWinProcessConfigRequests()		// perform requests in queue
     if ( !configRequests )
 	return;
     QWinConfigRequest *r;
-    while ( 1 ) {
+    for ( ;; ) {
 	if ( configRequests->isEmpty() )
 	    break;
 	r = configRequests->dequeue();
@@ -2077,7 +2077,7 @@ static bool qt_try_modal( QWidget *widget, MSG *msg, int& ret )
 	// Does groupLeader have a child in qt_modal_stack?
 	bool unrelated = TRUE;
 	modal = qt_modal_stack->first();
-	while (modal && unrelated) {
+	while ( modal && unrelated ) {
 	    QWidget* p = modal->parentWidget();
 	    while ( p && p != groupLeader && !p->testWFlags( Qt::WGroupLeader) ) {
 		p = p->parentWidget();
@@ -2301,7 +2301,7 @@ static void activateZeroTimers()		// activate full-speed timers
     register TimerInfo *t = 0;
     int n = numZeroTimers;
     while ( n-- ) {
-	while ( TRUE ) {
+	for ( ;; ) {
 	    t = timerVec->at(i++);
 	    if ( t && t->zero )
 		break;

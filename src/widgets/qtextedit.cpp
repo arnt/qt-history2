@@ -2879,6 +2879,17 @@ int QTextEdit::linesOfParagraph( int para ) const
     return p->lines();
 }
 
+/*! Returns the length of the paragraph \a para (number of characters)
+  */
+
+int QTextEdit::paragraphLength( int para ) const
+{
+    QTextParag *p = doc->paragAt( para );
+    if ( !p )
+	return -1;
+    return p->length() - 1;
+}
+
 /*! Returns the number of lines in the text edit.
 
   \warning This function may be slow. Lines change all the time during
@@ -4055,6 +4066,46 @@ int QTextEdit::charAt( const QPoint &pos, int *para ) const
 	return c.index();
     }
     return -1;
+}
+
+/*! Sets the background color of the paragraph \a para to \a bg */
+
+void QTextEdit::setParagraphBackgroundColor( int para, const QColor &bg )
+{
+    QTextParag *p = doc->paragAt( para );
+    if ( !p )
+	return;
+    p->setBackgroundColor( bg );
+    repaintChanged();
+}
+
+/*! Clears the background color of the paragraph \a para, so that the
+  default color is used again.
+*/
+
+void QTextEdit::clearParagraphBackground( int para )
+{
+    QTextParag *p = doc->paragAt( para );
+    if ( !p )
+	return;
+    p->clearBackgroundColor();
+    repaintChanged();
+}
+
+/*! Returns the background color of the paragraph \a para or an
+  invalid color if \a para is out of range or the paragraph has no
+  background set
+*/
+
+QColor QTextEdit::paragraphBackgroundColor( int para ) const
+{
+    QTextParag *p = doc->paragAt( para );
+    if ( !p )
+	return QColor();
+    QColor *c = p->backgroundColor();
+    if ( c )
+	return *c;
+    return QColor();
 }
 
 #endif //QT_NO_TEXTEDIT

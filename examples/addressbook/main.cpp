@@ -18,7 +18,7 @@ int main( int argc, char ** argv )
     QApplication a( argc, argv );
 
     ABMainWindow *mw = new ABMainWindow();
-    mw->setCaption( "Addressbook 1" );
+    mw->setCaption( "Qt Example - Addressbook" );
     a.setMainWidget( mw );
     mw->show();
 

@@ -132,6 +132,7 @@ int main( int argc, char **argv )
     QApplication a( argc, argv );		// application object
     CursorView   v;				// cursor view
     a.setMainWidget( &v );
+    v.setCaption("Qt Example - Cursors");
     v.show();
     return a.exec();
 }

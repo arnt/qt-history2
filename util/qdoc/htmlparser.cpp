@@ -20,15 +20,15 @@
 */
 
 /*
-  The file is parsed directly from the characters its made of.  There is no
-  tokenizer.  The lookahead character is yyCh.  It is fairly fast.
+  The file is parsed directly from the characters its made of. There is no
+  tokenizer. The lookahead character is yyCh. It is fairly fast.
 */
 static QString yyFileName;
 static FILE *yyIn;
 static int yyCh;
 
 /*
-  Returns the string up to (and excluding) the terminator.  Parsing will resume
+  Returns the string up to (and excluding) the terminator. Parsing will resume
   after the terminator.
 
   If the "<!-- eof -->" marker is reached, the result is the same as if EOF was
@@ -59,7 +59,7 @@ static QString getBefore( const QString& terminator )
 }
 
 /*
-  Skips until the terminator is met.  Parsing will resume after the terminator.
+  Skips until the terminator is met. Parsing will resume after the terminator.
   This is essentially the equivalent of calling getBefore() and ignoring the
   result.
 */
@@ -78,10 +78,10 @@ static void skipUntil( const QString& terminator )
 }
 
 /*
-  Parses a class reference HTML file (e.g., qwidget.html).  Such a file has a
+  Parses a class reference HTML file (e.g., qwidget.html). Such a file has a
   very peculiar structure, because it contains many Docs.
 */
-static void parseClass( Emitter *emitter )
+static void parseClass( DocEmitter *emitter )
 {
     skipUntil( QString("<h2>Detailed Description</h2>\n") );
     QString html = getBefore( QString("<hr><h") );
@@ -100,7 +100,9 @@ static void parseClass( Emitter *emitter )
 	    html += getBefore( QString("<h") );
 	}
 
-	int k = html.find( QString("<p>Reimplemented from ") );
+	int k = html.find( QString("<p>Examples:") );
+	if ( k == -1 )
+	    k = html.find( QString("<p>Reimplemented from ") );
 	if ( k == -1 )
 	    k = html.find( QString("<p>Reimplemented in ") );
 
@@ -117,10 +119,10 @@ static void parseClass( Emitter *emitter )
 }
 
 /*
-  Parses a HTML file other than a class reference.  These files correspond to at
+  Parses a HTML file other than a class reference. These files correspond to at
   most one Doc.
 */
-static void parseOther( Emitter *emitter )
+static void parseOther( DocEmitter *emitter )
 {
     QString html = getBefore( QString("%magicwordthatyoushouldavoid") );
     if ( !html.isEmpty() )
@@ -128,11 +130,11 @@ static void parseOther( Emitter *emitter )
 }
 
 /*
-  Parses a HTML file.  Passes control to parseClass() or parseOther() to do the
+  Parses a HTML file. Passes control to parseClass() or parseOther() to do the
   real job, or to neither if the HTML file is a verbatim header file or member
   list.
 */
-void parseHtmlFile( Emitter *emitter, const QString& filePath )
+void parseHtmlFile( DocEmitter *emitter, const QString& filePath )
 {
     yyFileName = filePath.mid( filePath.findRev(QChar('/')) + 1 );
     yyIn = fopen( QFile::encodeName(filePath), "r" );

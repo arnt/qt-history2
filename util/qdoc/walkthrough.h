@@ -66,12 +66,12 @@ public:
 	: totalOccCount( 0 ), shutUp( FALSE ), justIncluded( TRUE ) { }
 
     void includePass1( const QString& fileName, const Resolver *resolver );
-    QString includePass2( const QString& fileName, const Resolver *resolver,
-			  const LinkMap& includeLinkMap,
-			  const LinkMap& walkthroughLinkMap );
+    QString includePass2( const QString& fileName, const Resolver *resolver = 0,
+			  const LinkMap& includeLinkMap = LinkMap(),
+			  const LinkMap& walkthroughLinkMap = LinkMap() );
     void startPass1( const QString& fileName, const Resolver *resolver );
-    void startPass2( const QString& fileName, const Resolver *resolver,
-		     const LinkMap& walkthroughLinkMap );
+    void startPass2( const QString& fileName, const Resolver *resolver = 0,
+		     const LinkMap& walkthroughLinkMap = LinkMap() );
 
     QString printline( const QString& substr, const Location& docLoc );
     QString printto( const QString& substr, const Location& docLoc );

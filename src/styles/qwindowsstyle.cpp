@@ -131,9 +131,13 @@ void QWindowsStyle::drawPrimitive( PrimitiveOperation op,
 	qDrawWinButton(p, r, cg, flags & PStyle_Sunken, &cg.brush(QColorGroup::Button));
 	break;
 
-    case PO_FocusRect:
-	p->drawWinFocusRect(r);
-	break;
+    case PO_FocusRect: {
+	void **sdata = (void **) data;
+	if (sdata)
+	    p->drawWinFocusRect(r, *((const QColor *) sdata[0]));
+	else
+	    p->drawWinFocusRect(r);
+	break; }
 
     case PO_Indicator: {
 #ifndef QT_NO_BUTTON
@@ -1696,7 +1700,9 @@ void QWindowsStyle::drawSubControl( SCFlags subCtrl, QPainter * p,
 
 	if ( cb->hasFocus() && !cb->editable() ) {
 	    QRect re = subRect( SR_ComboBoxFocusRect, cb );
-	    drawPrimitive( PO_FocusRect, p, re, cg );
+	    void *pdata[1];
+	    pdata[0] = (void *) &cg.highlight();
+	    drawPrimitive( PO_FocusRect, p, re, cg, PStyle_FocusAtBorder, pdata);
 	}
 	break; }
 

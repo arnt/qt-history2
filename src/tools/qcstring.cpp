@@ -1203,7 +1203,7 @@ QCString QCString::simplifyWhiteSpace() const
     char *from	= data();
     char *to	= result.data();
     char *first = to;
-    while ( TRUE ) {
+    for ( ;; ) {
 	while ( isspace((uchar) *from) )
 	    from++;
 	while ( *from && !isspace((uchar) *from) )

@@ -121,7 +121,11 @@ static QPtrList<QWindowsRegisteredMimeType> mimetypes;
 */
 int QWindowsMime::registerMimeType(const char *mime)
 {
+#ifdef _WIN32_WCE
+    CLIPFORMAT f = RegisterClipboardFormat((LPCWSTR)qt_winTchar(mime, TRUE));
+#else
     CLIPFORMAT f = RegisterClipboardFormatA(mime);
+#endif
 #ifndef Q_NO_DEBUG
     if ( !f )
 	qSystemWarning( "QWindowsMime: Failed to register clipboard format" );
@@ -616,7 +620,9 @@ QByteArray QWindowsMimeUri::convertFromMime( QByteArray data, const char* mime, 
     char* files = ((char* )d) + d->pFiles;
 
 #if defined(UNICODE)
+#ifndef _WIN32_WCE
     if ( qWinVersion() & Qt::WV_NT_based ) {
+#endif
 	d->fWide = sizeof(TCHAR)>1;
 	TCHAR* f = (TCHAR*)files;
 
@@ -631,8 +637,11 @@ QByteArray QWindowsMimeUri::convertFromMime( QByteArray data, const char* mime, 
 	    *f++ = 0;
 	}
 	*f = 0;
+#ifndef _WIN32_WCE
     } else 
 #endif
+#endif
+#ifndef _WIN32_WCE
     {
 	d->fWide = FALSE;
 	char* f = files;
@@ -649,6 +658,7 @@ QByteArray QWindowsMimeUri::convertFromMime( QByteArray data, const char* mime, 
 	}
 	*f = 0;
     }
+#endif
     return result;
 }
 

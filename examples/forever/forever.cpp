@@ -44,7 +44,7 @@ Forever::Forever( QWidget *parent, const char *name )
 void Forever::updateCaption()
 {
     QString s;
-    s.sprintf( "forever - %d rectangles/second", rectangles );
+    s.sprintf( "Qt Example - Forever - %d rectangles/second", rectangles );
     rectangles = 0;
     setCaption( s );
 }
@@ -89,6 +89,7 @@ int main( int argc, char **argv )
     QApplication a( argc, argv );		// create application object
     Forever always;				// create widget
     a.setMainWidget( &always );			// set as main widget
+    always.setCaption("Qt Example - Forever");
     always.show();				// show widget
     return a.exec();				// run event loop
 }

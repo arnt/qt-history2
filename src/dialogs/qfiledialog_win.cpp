@@ -95,7 +95,11 @@ static QString winFilter( const QString& filter )
     return winfilters;
 }
 
-
+static QString selFilter( const QString& filter, DWORD idx )
+{
+    QStringList filterLst = makeFiltersList( filter );
+    return filterLst[(int)idx - 1];
+}
 
 // Static vars for OFNA funcs:
 static QCString aInitDir;
@@ -228,7 +232,8 @@ QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
 					 const QString &filter,
 					 QString* initialDirectory,
 					 QWidget *parent, const char* /*name*/,
-					 const QString& caption )
+					 const QString& caption,
+					 QString* selectedFilter )
 {
     QString result;
 
@@ -248,14 +253,18 @@ QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
     QString title = caption;
     if ( title.isNull() )
 	title = tr("Open");
-        
+
+    DWORD selFilIdx;        
+    
     if ( qt_winver & WV_DOS_based ) {
 	// Use ANSI strings and API
 	OPENFILENAMEA* ofn = makeOFNA( parent, isel,
 				       *initialDirectory, title,
 				       winFilter(filter), ExistingFile );
-	if ( GetOpenFileNameA( ofn ) )
+	if ( GetOpenFileNameA( ofn ) ) {
 	    result = QString::fromLocal8Bit( ofn->lpstrFile );
+	    selFilIdx = ofn->nFilterIndex;
+	}
 	cleanUpOFNA( &ofn );
     }
     else {
@@ -263,8 +272,10 @@ QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
 	OPENFILENAME* ofn = makeOFN( parent, isel,
 				     *initialDirectory, title,
 				     winFilter(filter), ExistingFile );
-	if ( GetOpenFileName( ofn ) )
+	if ( GetOpenFileName( ofn ) ) {
 	    result = qt_winQString( ofn->lpstrFile );
+	    selFilIdx = ofn->nFilterIndex;
+	}
 	cleanUpOFN( &ofn );
     }
 
@@ -274,6 +285,8 @@ QString QFileDialog::winGetOpenFileName( const QString &initialSelection,
     else {
 	QFileInfo fi( result );
 	*initialDirectory = fi.dirPath();
+	if ( selectedFilter )
+	    *selectedFilter = selFilter( filter, selFilIdx );	
 	return fi.absFilePath();
     }
 }
@@ -283,7 +296,8 @@ QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
 					 const QString &filter,
 					 QString* initialDirectory,
 					 QWidget *parent, const char* /*name*/,
-					 const QString& caption )
+					 const QString& caption,
+					 QString* selectedFilter )
 {
     QString result;
 
@@ -303,14 +317,18 @@ QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
     QString title = caption;
     if ( title.isNull() )
 	title = tr("Save As");
-
+    
+    DWORD selFilIdx;
+    
     if ( qt_winver & WV_DOS_based ) {
 	// Use ANSI strings and API
 	OPENFILENAMEA* ofn = makeOFNA( parent, isel,
 				       *initialDirectory, title,
 				       winFilter(filter), AnyFile );
-	if ( GetSaveFileNameA( ofn ) )
+	if ( GetSaveFileNameA( ofn ) ) {
 	    result = QString::fromLocal8Bit( ofn->lpstrFile );
+	    selFilIdx = ofn->nFilterIndex;
+	}
 	cleanUpOFNA( &ofn );
     }
     else {
@@ -318,8 +336,10 @@ QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
 	OPENFILENAME* ofn = makeOFN( parent, isel,
 				     *initialDirectory, title,
 				     winFilter(filter), AnyFile );
-	if ( GetSaveFileName( ofn ) )
+	if ( GetSaveFileName( ofn ) ) {
 	    result = qt_winQString( ofn->lpstrFile );
+	    selFilIdx = ofn->nFilterIndex;
+	}
 	cleanUpOFN( &ofn );
     }
 
@@ -329,6 +349,8 @@ QString QFileDialog::winGetSaveFileName( const QString &initialSelection,
     else {
 	QFileInfo fi( result );
 	*initialDirectory = fi.dirPath();
+	if ( selectedFilter )
+	    *selectedFilter = selFilter( filter, selFilIdx );	
 	return fi.absFilePath();
     }
 }
@@ -339,7 +361,8 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
 					      QString* initialDirectory,
 					      QWidget *parent,
 					      const char* /*name*/,
-					      const QString& caption )
+					      const QString& caption,
+					      QString* selectedFilter )
 {
     QStringList result;
     QFileInfo fi;
@@ -360,6 +383,8 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
     if ( title.isNull() )
 	title = tr("Open");
 
+    DWORD selFilIdx;
+
     if ( qt_winver & WV_DOS_based ) {
 	// Use ANSI strings and API
 	OPENFILENAMEA* ofn = makeOFNA( parent, QString::null,
@@ -367,6 +392,7 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
 				       winFilter( filter ), ExistingFiles );
 	if ( GetOpenFileNameA( ofn ) ) {
 	    QCString fileOrDir = ofn->lpstrFile;
+	    selFilIdx = ofn->nFilterIndex;
 	    int offset = fileOrDir.length() + 1;
 	    if ( ofn->lpstrFile[offset] == '\0' ) {
 		// Only one file selected; has full path
@@ -397,6 +423,7 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
 				     winFilter( filter ), ExistingFiles );
 	if ( GetOpenFileName( ofn ) ) {
 	    QString fileOrDir = qt_winQString( ofn->lpstrFile );
+	    selFilIdx = ofn->nFilterIndex;
 	    int offset = fileOrDir.length() + 1;
 	    if ( ofn->lpstrFile[offset] == 0 ) {
 		// Only one file selected; has full path
@@ -421,6 +448,8 @@ QStringList QFileDialog::winGetOpenFileNames( const QString &filter,
 	cleanUpOFN( &ofn );
     }
     *initialDirectory = fi.dirPath();
+    if ( !result.isEmpty() && selectedFilter )
+	*selectedFilter = selFilter( filter, selFilIdx );	
     return result;
 }
 

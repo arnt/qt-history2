@@ -304,10 +304,35 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 			&cg.brush(QColorGroup::Button));
 	break;
 
+    case PO_Separator:
+	qDrawShadeLine( p, r.left(), r.top(), r.right(), r.bottom(), cg,
+			flags & PStyle_Sunken, 1, 0);
+	break;
+
     case PO_FocusRect: {
+	void **sdata = (void **) data;
+	const QColor *bg = 0;
+
+	if (sdata)
+	    bg = (const QColor *) sdata[0];
+
 	QPen oldPen = p->pen();
-	p->setPen(cg.dark());
-	p->drawRect(r);
+
+	if (bg) {
+	    int h, s, v;
+	    bg->hsv(&h, &s, &v);
+	    if (v >= 128)
+		p->setPen(Qt::black);
+	    else
+		p->setPen(Qt::white);
+	} else
+	    p->setPen(cg.foreground());
+
+	if (flags & PStyle_FocusAtBorder)
+	    p->drawRect(QRect(r.x() + 1, r.y() + 1, r.width() - 2, r.height() - 2));
+	else
+	    p->drawRect(r);
+
 	p->setPen(oldPen);
 	break; }
 
@@ -651,7 +676,7 @@ void QCommonStyle::drawControl( ControlElement element,
 
 	if (button->hasFocus())
 	    drawPrimitive(PO_FocusRect, p, subRect(SR_PushButtonFocusRect, widget),
-			  cg, flags, data);
+			  cg, flags);
 	break; }
 
     case CE_CheckBox: {
@@ -677,7 +702,7 @@ void QCommonStyle::drawControl( ControlElement element,
 
 	if (checkbox->hasFocus())
 	    drawPrimitive(PO_FocusRect, p, subRect(SR_CheckBoxFocusRect, widget),
-			  cg, flags, data);
+			  cg, flags);
 	break; }
 
     case CE_RadioButton: {
@@ -701,7 +726,7 @@ void QCommonStyle::drawControl( ControlElement element,
 
 	if (radiobutton->hasFocus())
 	    drawPrimitive(PO_FocusRect, p, subRect(SR_RadioButtonFocusRect, widget),
-			  cg, flags, data);
+			  cg, flags);
 	break; }
 
     case CE_TabBarTab: {
@@ -1100,7 +1125,7 @@ void QCommonStyle::drawComplexControl( ComplexControl control,
 	if (toolbutton->hasFocus() && !toolbutton->focusProxy()) {
 	    QRect fr = toolbutton->rect();
 	    fr.addCoords(3, 3, -3, -3);
-	    drawPrimitive(PO_FocusRect, p, fr, cg, PStyle_Default, data);
+	    drawPrimitive(PO_FocusRect, p, fr, cg);
 	}
 
 	break; }

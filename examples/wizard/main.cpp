@@ -16,6 +16,6 @@ int main(int argc,char **argv)
     QApplication a(argc,argv);
 
     Wizard wizard;
-    wizard.setCaption("Wizard Example");
+    wizard.setCaption("Qt Example - Wizard");
     return wizard.exec();
 }

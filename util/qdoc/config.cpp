@@ -142,6 +142,8 @@ Config::Config( int argc, char **argv )
 	    autoh = isYes( singleton(key, val) );
 	} else if ( key == QString("BASE") ) {
 	    bas = val.join( QChar(' ') );
+	} else if ( key == QString("BOOKDIRS") ) {
+	    bookdirs = val;
 	} else if ( key == QString("COMPANY") ) {
 	    co = val.join( QChar(' ') );
 	} else if ( key == QString("DEFINE") ) {

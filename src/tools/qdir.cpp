@@ -1168,7 +1168,11 @@ int qt_cmp_si_sortSpec;
 extern "C" {
 #endif
 
+#ifdef _WIN32_WCE
+int __cdecl qt_cmp_si( const void *n1, const void *n2 )
+#else
 int qt_cmp_si( const void *n1, const void *n2 )
+#endif
 {
     if ( !n1 || !n2 )
 	return 0;

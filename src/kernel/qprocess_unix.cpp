@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QProcess class for Unix
 **
@@ -627,7 +627,7 @@ bool QProcess::start()
 	close( fd[1] );
     if ( fd[0] ) {
 	char buf;
-	while ( TRUE ) {
+	for ( ;; ) {
 	    int n = ::read( fd[0], &buf, 1 );
 	    if ( n==1 ) {
 		// socket was not closed => error

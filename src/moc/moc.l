@@ -82,8 +82,8 @@ long buf_size_total = 0, buf_index = 0;
 #include <stdlib.h>
 
 /* char c,c1; */
-int classPLevel      = 1;  /* Depth of nested curly braces in IN_CLASS*/
-int namespacePLevel  = 1;  /* Depth of nested curly braces in IN_NAMESPACE*/
+int classPLevel      = 1;  /* Depth of nested curly braces in IN_CLASS */
+int namespacePLevel  = 1;  /* Depth of nested curly braces in IN_NAMESPACE */
 int expLevel         = 1;  /* Depth of nested parentheses in IN_EXPR */
 int fctLevel         = 1;  /* Depth of nested parentheses in IN_FCT */
 int templLevel       = 1;  /* Depth of levels in IN_TEMPL_ARGS */
@@ -101,7 +101,11 @@ extern void moc_warn( const char *msg );
 
 %start OUTSIDE QT_DEF IN_CLASS IN_NAMESPACE IN_ENUM IN_EXPR IN_DEF_ARG IN_FCT IN_TEMPL_ARGS GIMME_SEMICOLON SKIP IN_PROPERTY IN_CLASSINFO
 
+ALMOSTSTRING	\"([^"\n\\]|\\(.|\n))*
+STRING		{ALMOSTSTRING}\"
+
 %%
+
 <OUTSIDE>"class"		{ X;
 				  BEGIN QT_DEF;
 				  return CLASS; }
@@ -258,86 +262,49 @@ extern void moc_warn( const char *msg );
 <IN_CLASSINFO>")" { X; return ')'; }
 <IN_CLASSINFO>"," { X; return ','; }
 
-<IN_CLASSINFO>\"[^"]*      { if (yytext[yyleng - 1] == '\\') {
-			      yymore();
-			  }
-			  else {
-			      X;
-			      yylval.string = qstrdup(yytext+1);
-			      input();		/* discard the '"' */
-			      return STRING;
-			 }
+<IN_CLASSINFO>{ALMOSTSTRING} {
+			  X;
+			  yylval.string = qstrdup( yytext + 1 );
+			  input();		/* discard the '"' */
+			  return STRING;
 			}
 
-<OUTSIDE>[_a-zA-Z][_a-zA-Z0-9]*  ;
+<OUTSIDE>[_a-zA-Z][_a-zA-Z0-9]* ;
 <IN_CLASS>[_a-zA-Z][_a-zA-Z0-9]* ;
 <IN_NAMESPACE>[_a-zA-Z][_a-zA-Z0-9]* ;
 
-<OUTSIDE>\"[^"]*	{			/* discard strings */
-			  if (yytext[yyleng - 1] == '\\') {
-			    yymore();
-			  }
-			  else {
-			    Z;
-			    input();		/* discard the '"' */
-			  }
+<OUTSIDE>{STRING} {				/* discard strings */
+			  Z;
 			}
 
-<IN_CLASS>\"[^"]*	{			/* discard strings */
-			  if (yytext[yyleng - 1] == '\\') {
-			    yymore();
-			  }
-			  else {
-			    Z;
-			    input();		/* discard the '"' */
-			  }
+<IN_CLASS>{STRING} {				/* discard strings */
+			  Z;
 			}
 
-<IN_NAMESPACE>\"[^"]*	{			/* discard strings */
-			  if (yytext[yyleng - 1] == '\\') {
-			    yymore();
-			  }
-			  else {
-			    Z;
-			    input();		/* discard the '"' */
-			  }
+<IN_NAMESPACE>{STRING}	{			/* discard strings */
+			  Z;
 			}
 
-<IN_FCT>\"[^"]*		{			/* discard strings */
-			  if (yytext[yyleng - 1] == '\\') {
-			    yymore();
-			  }
-			  else {
-			    Z;
-			    addExpressionString(yytext);
-			    input();		/* discard the '"' */
-			  }
+<IN_FCT>{ALMOSTSTRING} {			/* discard strings */
+			  Z;
+			  addExpressionString( yytext );
+			  input();		/* discard the '"' */
 			}
 
 
-<IN_TEMPL_ARGS>\"[^"]*	  { if (yytext[yyleng - 1] == '\\') {
-			      yymore();
-			  }
-			  else {
-			      X;
-			      addExpressionString(yytext);
-			      input();		/* discard the '"' */
-			      return STRING;
-			 }
+<IN_TEMPL_ARGS>{ALMOSTSTRING} {
+			  X;
+			  addExpressionString( yytext );
+			  input();		/* discard the '"' */
+			  return STRING;
 			}
 
-
-<QT_DEF>\"[^"]*	     { if (yytext[yyleng - 1] == '\\') {
-			      yymore();
-			  }
-			  else {
-			      X;
-			      yylval.string = qstrdup(yytext+1);
-			      input();		/* discard the '"' */
-			      return STRING;
-			 }
+<QT_DEF>{ALMOSTSTRING} {
+			  X;
+			  yylval.string = qstrdup( yytext + 1 );
+			  input();		/* discard the '"' */
+			  return STRING;
 			}
-
 
 <QT_DEF>'.'	     { X;
 			  yylval.char_val = yytext[1];
@@ -512,6 +479,4 @@ extern void moc_warn( const char *msg );
 
 %%
 
-
-
-#endif //MOC_YACC_CODE
+#endif // MOC_YACC_CODE

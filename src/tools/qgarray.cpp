@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QGArray class
 **
@@ -616,7 +616,11 @@ static int cmp_item_size = 0;
 extern "C" {
 #endif
 
+#ifdef _WIN32_WCE
+static int __cdecl cmp_arr( const void *n1, const void *n2 )
+#else
 static int cmp_arr( const void *n1, const void *n2 )
+#endif
 {
     return ( n1 && n2 ) ? memcmp( n1, n2, cmp_item_size )
 			: ( n1 ? 1 : ( n2 ? -1 : 0 ) );

@@ -134,7 +134,9 @@ public:
 	PO_HeaderSection,
 	PO_StatusBarSection,
 	
-	PO_GroupBoxFrame
+	PO_GroupBoxFrame,
+
+	PO_Separator
 
         /*
 	  PO_CheckMark,
@@ -158,10 +160,11 @@ public:
 	PStyle_Vertical =		0x00000040,
 	PStyle_HasFocus =		0x00000080,
 	PStyle_Top =			0x00000100,
-	PStyle_Bottom =			0x00000200
+	PStyle_Bottom =			0x00000200,
+	PStyle_FocusAtBorder =		0x00000400
+
 	/*
 	  PStyle_FocusHighlight=	0x00000001,
-	  PStyle_FocusAtBorder=		0X00000002
 	*/
     };
     typedef uint PFlags;
@@ -437,43 +440,6 @@ public:
 
     // abstract section
 
-    //
-    // the new API still has these
-    //
-    // virtual void polish( QWidget* );
-    // virtual void unPolish( QWidget* );
-    // virtual void polish( QApplication*);
-    // virtual void unPolish( QApplication*);
-    // virtual void polish( QPalette&);
-
-    virtual QRect itemRect( QPainter *p, int x, int y, int w, int h,
-			    int flags, bool enabled,
-			    const QPixmap *pixmap,
-			    const QString& text, int len=-1 ) const;
-    virtual void drawItem( QPainter *p, int x, int y, int w, int h,
-			   int flags, const QColorGroup &g, bool enabled,
-			   const QPixmap *pixmap, const QString& text,
-			   int len=-1, const QColor* penColor = 0 );
-
-    virtual void drawSeparator( QPainter *p, int x1, int y1, int x2, int y2,
-				const QColorGroup &g, bool sunken = TRUE,
-				int lineWidth = 1, int midLineWidth = 0 );
-
-    virtual void drawRect( QPainter *p, int x, int y, int w, int h,
-			   const QColor &, int lineWidth = 1,
-			   const QBrush *fill = 0 );
-
-    virtual void drawRectStrong( QPainter *p, int x, int y, int w, int h,
-				 const QColorGroup &, bool sunken=FALSE,
-				 int lineWidth = 1, int midLineWidth = 0,
-				 const QBrush *fill = 0 );
-
-    // focus
-    virtual void drawFocusRect( QPainter*, const QRect &,
-				const QColorGroup &, const QColor* bg = 0,
-				bool = FALSE ) = 0;
-
-
     // concrete section depending on Qt's widget cluster ( The line is
     // hard to draw sometimes)
 
@@ -519,12 +485,6 @@ public:
     virtual void drawGroupBoxFrame( QPainter *p, int x, int y, int w, int h, const QColorGroup &g, const QGroupBox *gb ) = 0;
 
     virtual void drawSizeGrip( QPainter *p, int x, int y, int w, int h, const QColorGroup &g ) = 0;
-
-    // progressbar
-    virtual int progressChunkWidth() const = 0;
-    virtual void drawProgressBar( QPainter *p, int x, int y, int w, int h, const QColorGroup &g ) = 0;
-    virtual void drawProgressChunk( QPainter *p, int x, int y, int w, int h, const QColorGroup &g ) = 0;
-
 
 protected:
     static const QWidget *contextWidget();

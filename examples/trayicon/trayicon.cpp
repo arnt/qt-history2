@@ -24,9 +24,10 @@ TrayIcon::TrayIcon( QObject *parent, const char *name )
 
   \sa show
 */
-TrayIcon::TrayIcon( const QPixmap &icon, const QString &tooltip, QPopupMenu *popup, QObject *parent, const char *name )
-: QObject(parent, name), pop(popup), pm(icon), tip(tooltip), d(0)
+TrayIcon::TrayIcon( const QImage &icon, const QString &tooltip, QPopupMenu *popup, QObject *parent, const char *name )
+: QObject(parent, name), pop(popup), img(icon), tip(tooltip), d(0)
 {
+    img = img.convertDepth( 32 );
 }
 
 /*!
@@ -60,15 +61,15 @@ QPopupMenu* TrayIcon::popup() const
   \property TrayIcon::icon
   \brief the system tray icon.
 */
-void TrayIcon::setIcon( const QPixmap &icon )
+void TrayIcon::setIcon( const QImage &icon )
 {
-    pm = icon;
+    img = icon.convertDepth( 8 );
     sysUpdateIcon();
 }
 
-QPixmap TrayIcon::icon() const
+QImage TrayIcon::icon() const
 {
-    return pm;
+    return img;
 }
 
 /*!

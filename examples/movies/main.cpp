@@ -241,7 +241,7 @@ int main(int argc, char **argv)
 			  "control-left-click to Step 10,\n"
 			  "right-click to Unpause\n\n"
 			  "Windows may be resized to enlarge movie.", 0, 0, Qt::WDestructiveClose );
-        help->setCaption( "movies - Help" );
+        help->setCaption( "Qt Examples - Movies" );
         help->setIndent( 10 );
         help->show();
     }

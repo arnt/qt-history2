@@ -143,14 +143,6 @@ bool QCheckBox::isTristate() const
     return toggleType() == Tristate;
 }
 
-static int extraWidth( int gs )
-{
-    if ( gs == Qt::MotifStyle )
-	return 8;
-    else
-	return 6;
-}
-
 
 /*!\reimp
 */

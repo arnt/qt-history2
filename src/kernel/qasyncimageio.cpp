@@ -54,9 +54,18 @@ extern void qt_init_image_plugins();
 
   \ingroup images
 
+  The QMovie class, or QLabel::setMovie(), are easy to use and
+  for most situations do what you want with regards animated
+  images.
+
   A QImageConsumer consumes information about changes to the QImage
-  maintained by a QImageDecoder.  It represents a view of the image that
-  the decoder produces.
+  maintained by a QImageDecoder. Think of the QImage as the model or
+  source of the image data, with the QImageConsumer as a view of that
+  data and the QImageDecoder being the controller that orchestrates
+  the relationship between the model and the view.
+
+    You'd use the QImageConsumer class, for example, if you were
+    implementing a web browser with your own image loaders.
 
   \sa QImageDecoder
 */
@@ -153,6 +162,15 @@ extern void qt_init_image_plugins();
   QImageFormatType; the QMovie class can be used for
   all installed incremental image formats. QImageDecoder is
   useful only for creating new ways of feeding data to an QImageConsumer.
+
+  A QImageDecoder is a machine that decodes images. It takes encoded
+  image data via its decode() method and expresses its decoding by
+  supplying information to a QImageConsumer. It implements its
+  decoding by using a QImageFormat created by one of the
+  currently-existing QImageFormatType factory-objects.
+
+    QImageFormatType and QImageFormat are the classes that you might
+    need to implement support for additional image formats.
 
   \legalese
 

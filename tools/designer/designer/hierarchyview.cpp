@@ -678,9 +678,7 @@ HierarchyView::HierarchyView( QWidget *parent )
     addTab( fList, tr( "Source" ) );
 
     if ( !classBrowserInterfaceManager ) {
-	QString dir = getenv( "QTDIR" );
-	dir += "/plugins/designer";
-	classBrowserInterfaceManager = new QPluginManager<ClassBrowserInterface>( IID_ClassBrowser, dir );
+	classBrowserInterfaceManager = new QPluginManager<ClassBrowserInterface>( IID_ClassBrowser );
 	QStringList paths(QApplication::libraryPaths());
 	QStringList::Iterator it = paths.begin();
 	while (it != paths.end()) {

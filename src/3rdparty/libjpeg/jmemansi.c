@@ -26,6 +26,9 @@ extern void free JPP((void *ptr));
 #define SEEK_SET  0		/* if not, assume 0 is correct */
 #endif
 
+#ifdef _WIN32_WCE
+extern FILE *tmpfile( void );
+#endif
 
 /*
  * Memory allocation and freeing are controlled by the regular library

@@ -6,6 +6,7 @@ INCLUDEPATH	= ../../include ../../src/tools
 DEPENDPATH	= ../../include ../../src/tools
 OBJECTS_DIR	= .
 HEADERS		= binarywriter.h \
+		  bookparser.h \
 		  codechunk.h \
 		  codeprocessor.h \
 		  config.h \
@@ -19,11 +20,13 @@ HEADERS		= binarywriter.h \
 		  location.h \
 		  messages.h \
 		  metaresolver.h \
+		  parsehelpers.h \
 		  resolver.h \
 		  stringset.h \
 		  tokenizer.h \
 		  walkthrough.h
 SOURCES		= binarywriter.cpp \
+		  bookparser.cpp \
 		  codechunk.cpp \
 		  codeprocessor.cpp \
 		  config.cpp \
@@ -40,6 +43,7 @@ SOURCES		= binarywriter.cpp \
 		  main.cpp \
 		  messages.cpp \
 		  metaresolver.cpp \
+		  parsehelpers.cpp \
 		  resolver.cpp \
 		  stringset.cpp \
 		  tokenizer.cpp \

@@ -312,12 +312,12 @@ protected:
 		continue;
 	    if ( !( (QDockWindow*)o )->isVisible() )
 		continue;
-	    
-	    QStyle::PFlags flags = QStyle::PStyle_Default;    
+
+	    QStyle::PFlags flags = QStyle::PStyle_Default;
 	    flags |= QStyle::PStyle_Vertical;
 	    if ( i == pressedHandle )
 		flags |= QStyle::PStyle_On;
-    
+
 	    style().drawPrimitive( QStyle::PO_DockWindowHandle, &p,
 				   QRect( x, 0, 30, 10 ), colorGroup(),
 				   flags );
@@ -1390,7 +1390,8 @@ void QMainWindow::paintEvent( QPaintEvent * )
     if ( style() == WindowsStyle && d->mb ) {
 	QPainter p( this );
 	int y = d->mb->height() + 1;
-	style().drawSeparator( &p, 0, y, width(), y, colorGroup() );
+	style().drawPrimitive(QStyle::PO_Separator, &p, QRect(0, y, width(), 1),
+			      colorGroup(), QStyle::PStyle_Sunken);
     }
 }
 
@@ -1975,7 +1976,7 @@ void QMainWindow::menuAboutToShow()
 	}
 
 	empty = TRUE;
-	
+
 	if ( dockWindows == AllDockWindows || dockWindows == OnlyToolBars ) {
 	    for ( o = l->first(); o; o = l->next() ) {
 		QDockWindow *dw = (QDockWindow*)o;

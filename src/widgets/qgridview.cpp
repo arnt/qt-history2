@@ -57,24 +57,24 @@
 
   With ensureCellVisible(), you can ensure a certain cell is
   visible. With rowAt() and columnAt() you can find a cell based on
-  given x- and y-coordinates.
+  the given x- and y-coordinates.
 
-  If you need to watch changes of the grid's dimension (when somebody
-  changes numRows or numCols), reimplement the dimensionChange()
+  If you need to monitor changes to the grid's dimensions (i.e. when
+  numRows or numCols is changed), reimplement the dimensionChange()
   change handler.
 
-  Note: The row,column indices are always given in that order, i.e.,
-  first the vertical (row), then the horizontal (column). This is the
-  opposite order of all pixel operations, which take first the
-  horizontal (x) and then the vertical (y).
+  Note: the row, column indices are always given in the order, row
+  (vertical offset) then column (horizontal offset). This order is the
+  opposite of all pixel operations, which are given in the order x
+  (horizontal offset), y (vertical offset).
 
-  QGridView is a very simply abstract class on top of QScrollView
-  solely for the purpose of simplifying the task of drawing many cells
-  of the same size in a potentially scrollable canvas. If you need
-  rows and columns in different sizes, use a QTable instead. If you
-  need a simple list of items, use a QListBox. If you need hierachical
-  data, use a QListView, and if you need random objects at random
-  positions, consider using either a QIconView or a QCanvas.
+  QGridView is a very simple abstract class based on QScrollView. It
+  is designed to simplify the task of drawing many cells of the same
+  size in a potentially scrollable canvas. If you need rows and
+  columns in different sizes, use a QTable instead. If you need a
+  simple list of items, use a QListBox. If you need to present
+  hierachical data use a QListView, and if you need random objects at
+  random positions, consider using either a QIconView or a QCanvas.
 
 */
 
@@ -82,7 +82,7 @@
 /*!
   Constructs a grid view.
 
-  The \a parent, \a name and \a f arguments are passed to the
+  The \a parent, \a name and widget flag, \a f, arguments are passed to the
   QScrollView constructor.
 */
 QGridView::QGridView( QWidget *parent, const char *name, WFlags f )
@@ -132,7 +132,9 @@ void QGridView::setNumCols( int numCols )
 }
 
 /*! \property QGridView::cellWidth
-  \brief The width of columns in the grid
+  \brief The width of a grid column
+
+  All columns in a grid view have the same width.
 
   \sa cellHeight
 */
@@ -144,7 +146,9 @@ void QGridView::setCellWidth( int cellWidth )
 }
 
 /*! \property QGridView::cellHeight
-  \brief The height of rows in the grid
+  \brief The height of a grid row
+
+  All rows in a grid view have the same height.
 
   \sa cellWidth
 */
@@ -156,7 +160,7 @@ void QGridView::setCellHeight( int cellHeight )
 }
 
 /*!  
-  Returns the geometry of cell (\a row,\a column) in the content's
+  Returns the geometry of cell (\a row, \a column) in the content
   coordinate system.
   
   \sa cellRect()
@@ -169,10 +173,10 @@ QRect QGridView::cellGeometry( int row, int column )
     return r;
 }
 
-/*!  Repaints cell (\a row,\a column).
+/*!  Repaints cell (\a row, \a column).
 
   If \e erase is TRUE, Qt erases the area of the cell before the
-  paintCell() call,
+  paintCell() call; otherwise no erasing takes place.
 
   \sa QWidget::repaint()
  */
@@ -181,7 +185,7 @@ void QGridView::repaintCell( int row, int column, bool erase )
     repaintContents( cellGeometry( row, column ), erase );
 }
 
-/*!  Updates cell (\a row,\a column).
+/*!  Updates cell (\a row, \a column).
 
   \sa QWidget::update()
  */
@@ -191,7 +195,8 @@ void QGridView::updateCell( int row, int column )
 }
 
 /*!
-  Ensure cell (\a row,\a column) is visible.
+  Ensure cell (\a row, \a column) is visible, scrolling the grid view
+  if necessary.
  */
 void QGridView::ensureCellVisible( int row, int column )
 {
@@ -200,7 +205,7 @@ void QGridView::ensureCellVisible( int row, int column )
 }
 
 /*! This function fills the \a cw pixels wide and \a ch pixels high
-  rectangle starting at position \a cx, \a cy with the
+  rectangle starting at position (\a cx, \a cy) with the
   background color using the painter \a p.
 
   paintEmptyArea() is invoked by drawContents() to erase
@@ -271,9 +276,9 @@ void QGridView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 
 /*! \fn void QGridView::dimensionChange( int oldNumRows, int oldNumCols )
 
-  This change handler is called whenever the grid's dimension
-  changes. \a oldNumRows and \a oldNumCols contain the old dimension,
-  numRows() and numCols() reflect the new size.
+  This change handler is called whenever any of the grid's dimensions
+  changes. \a oldNumRows and \a oldNumCols contain the old dimensions,
+  numRows() and numCols() contain the new dimensions.
  */
 void QGridView::dimensionChange( int, int ) {}
 
@@ -298,13 +303,13 @@ void QGridView::dimensionChange( int, int ) {}
 /*!
   \fn void QGridView::paintCell( QPainter *p, int row, int col )
 
-  This pure virtual function is called to paint the single cell at \e
-  (row,col) using \e p, which is open when paintCell() is called and
-  must remain open.
+  This pure virtual function is called to paint the single cell at 
+  (\a row, \a col) using painter \a p. The painter must be open when
+  paintCell() is called and must remain open.
 
   The coordinate system is \link QPainter::translate() translated \endlink
   so that the origin is at the top-left corner of the cell to be
-  painted, i.e., \e cell coordinates.  Do not scale or shear the coordinate
+  painted, i.e. \e cell coordinates.  Do not scale or shear the coordinate
   system (or if you do, restore the transformation matrix before you
   return).
 
@@ -313,7 +318,7 @@ void QGridView::dimensionChange( int, int ) {}
 
   \code
     p->setClipRect( cellRect(), QPainter::ClipPainter );
-    ... // your drawing code
+    //... your drawing code
     p->setClipping( FALSE );
 
  \endcode

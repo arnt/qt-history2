@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QSocket class.
 **
@@ -43,7 +43,9 @@
 #include "qtimer.h"
 
 #include <string.h>
+#ifndef NO_ERRNO_H
 #include <errno.h>
+#endif
 
 
 //#define QSOCKET_DEBUG
@@ -519,7 +521,7 @@ bool QSocket::consumeReadBuf( Q_ULONG nbytes, char *sink )
     qDebug( "QSocket (%s): consumeReadBuf %d bytes", name(), nbytes );
 #endif
     d->rsize -= nbytes;
-    while ( TRUE ) {
+    for ( ;; ) {
 	QByteArray *a = d->rba.first();
 	if ( d->rindex + nbytes >= a->size() ) {
 	    // Here we skip the whole byte array and get the next later
@@ -560,7 +562,7 @@ bool QSocket::consumeWriteBuf( Q_ULONG nbytes )
     qDebug( "QSocket (%s): skipWriteBuf %d bytes", name(), nbytes );
 #endif
     d->wsize -= nbytes;
-    while ( TRUE ) {
+    for ( ;; ) {
 	QByteArray *a = d->wba.first();
 	if ( d->windex + nbytes >= a->size() ) {
 	    nbytes -= a->size() - d->windex;
@@ -591,7 +593,7 @@ bool QSocket::scanNewline( QByteArray *store )
     QByteArray *a = 0;
     char *p;
     int n;
-    while ( TRUE ) {
+    for ( ;; ) {
 	if ( !a ) {
 	    a = d->rba.first();
 	    if ( !a || a->size() == 0 )

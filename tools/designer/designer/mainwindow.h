@@ -387,7 +387,6 @@ private:
     QUnknownInterface *desInterface;
     QStringList recentlyFiles;
     QStringList recentlyProjects;
-    QString pluginDir, libDir;
     OutputWindow *oWindow;
     QValueList<Tab> preferenceTabs;
     QValueList<Tab> projectTabs;

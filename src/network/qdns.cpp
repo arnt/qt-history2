@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QDns class.
 **
@@ -307,7 +307,7 @@ QString QDnsAnswer::readString()
     int p = pp;
     QString r = QString::null;
     Q_UINT8 b;
-    while( TRUE ) {
+    for( ;; ) {
 	b = 128;
 	if ( p >= 0 && p < size )
 	    b = answer[p];
@@ -2178,12 +2178,20 @@ static QString getWindowsRegString( HKEY key, const char *subKey )
     QString s;
     char  buf[512];
     DWORD bsz = sizeof(buf);
+#ifdef _WIN32_WCE
+    int r = RegQueryValueEx( key, (LPCTSTR)qt_winTchar(subKey,TRUE), 0, 0, (LPBYTE)buf, &bsz );
+#else
     int r = RegQueryValueExA( key, subKey, 0, 0, (LPBYTE)buf, &bsz );
+#endif
     if ( r == ERROR_SUCCESS ) {
 	s = buf;
     } else if ( r == ERROR_MORE_DATA ) {
 	char *ptr = new char[bsz+1];
+#ifdef _WIN32_WCE
+	r = RegQueryValueEx( key, (LPCTSTR)qt_winTchar(subKey, TRUE), 0, 0, (LPBYTE)ptr, &bsz );
+#else
 	r = RegQueryValueExA( key, subKey, 0, 0, (LPBYTE)ptr, &bsz );
+#endif
 	if ( r == ERROR_SUCCESS )
 	    s = ptr;
 	delete [] ptr;
@@ -2207,13 +2215,20 @@ static void doResInit()
     HKEY k1, k2;
 
     bool gotNetworkParams = FALSE;
+#ifndef _WIN32_WCE
     if ( QApplication::winVersion() == Qt::WV_98 ||
 	 QApplication::winVersion() == Qt::WV_2000 ||
-	 QApplication::winVersion() == Qt::WV_XP ) {
+	 QApplication::winVersion() == Qt::WV_XP ) 
+#endif
+	{
 	// for 98 and 2000 try the API call GetNetworkParams()
 	HINSTANCE hinstLib = LoadLibraryA( "iphlpapi" );
 	if ( hinstLib != 0 ) {
-	    GNP getNetworkParams = (GNP) GetProcAddress( hinstLib, "GetNetworkParams" );
+#ifdef _WIN32_WCE
+	    GNP getNetworkParams = (GNP) GetProcAddress( hinstLib, L"GetNetworkParams" );
+#else
+		GNP getNetworkParams = (GNP) GetProcAddress( hinstLib, "GetNetworkParams" );
+#endif
 	    if ( getNetworkParams != 0 ) {
 		ULONG l = 0;
 		getNetworkParams( 0, &l );
@@ -2241,22 +2256,36 @@ static void doResInit()
 	    qWarning( "QDns: call GetNetworkParams() was unsuccessful!" );
     }
     if ( !gotNetworkParams ) {
+#ifdef _WIN32_WCE
+	int r = RegOpenKeyEx( HKEY_LOCAL_MACHINE,
+			       L"System\\CurrentControlSet\\Services\\Tcpip\\"
+			       L"Parameters",
+			       0, KEY_READ, &k1 );
+#else
 	// this is for NT
 	int r = RegOpenKeyExA( HKEY_LOCAL_MACHINE,
 			       "System\\CurrentControlSet\\Services\\Tcpip\\"
 			       "Parameters",
 			       0, KEY_READ, &k1 );
+#endif
 	if ( r == ERROR_SUCCESS ) {
 	    domainName = getWindowsRegString( k1, "Domain" );
 	    nameServer = getWindowsRegString( k1, "NameServer" );
 	    searchList = getWindowsRegString( k1, "SearchList" );
 	    separator = ' ';
 	} else {
+#ifdef _WIN32_WCE
+	    int r = RegOpenKeyEx( HKEY_LOCAL_MACHINE,
+				   L"System\\CurrentControlSet\\Services\\VxD\\"
+				   L"MSTCP",
+				   0, KEY_READ, &k2 );
+#else
 	    // this is for 95/98
 	    int r = RegOpenKeyExA( HKEY_LOCAL_MACHINE,
 				   "System\\CurrentControlSet\\Services\\VxD\\"
 				   "MSTCP",
 				   0, KEY_READ, &k2 );
+#endif
 	    if ( r == ERROR_SUCCESS ) {
 		domainName = getWindowsRegString( k2, "Domain" );
 		nameServer = getWindowsRegString( k2, "NameServer" );

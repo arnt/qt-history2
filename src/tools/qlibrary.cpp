@@ -185,12 +185,16 @@ bool QLibraryPrivate::loadLibrary()
     if ( filename.find( ".dll" ) == -1 )
 	filename += ".dll";
 
+#ifdef _WIN32_WCE
+	pHnd = LoadLibraryW( (TCHAR*)qt_winTchar( filename, TRUE) );
+#else
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based )
 	pHnd = LoadLibraryW( (TCHAR*)qt_winTchar( filename, TRUE) );
     else
 #endif
 	pHnd = LoadLibraryA(QFile::encodeName( filename ).data());
+#endif
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
     if ( !pHnd )
 	qSystemWarning( QString("Failed to load library %1!").arg( filename ) );
@@ -219,7 +223,11 @@ void* QLibraryPrivate::resolveSymbol( const char* f )
     if ( !pHnd )
 	return 0;
 
+#ifdef _WIN32_WCE
+    void* address = GetProcAddress( pHnd, (TCHAR*)qt_winTchar( f, TRUE) );
+#else
     void* address = GetProcAddress( pHnd, f );
+#endif
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
     if ( !address )
 	qSystemWarning( QString("Couldn't resolve symbol \"%1\"").arg( f ) );
@@ -399,7 +407,7 @@ bool QLibraryPrivate::loadLibrary()
     pHnd = dlopen( filename.latin1() , RTLD_LAZY );
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
     if ( !pHnd )
-	qWarning( dlerror() );
+	qWarning( "%s", dlerror() );
 #endif
     return pHnd != 0;
 }
@@ -416,7 +424,7 @@ bool QLibraryPrivate::freeLibrary()
     else {
 	const char* error = dlerror();
 	if ( error )
-	    qWarning( error );
+	    qWarning( "%s", error );
     }
 #endif
     return pHnd == 0;
@@ -431,7 +439,7 @@ void* QLibraryPrivate::resolveSymbol( const char* f )
 #if defined(QT_DEBUG) || defined(QT_DEBUG_COMPONENT)
     const char* error = dlerror();
     if ( error )
-	qWarning( error );
+	qWarning( "%s", error );
 #endif
     return address;
 }

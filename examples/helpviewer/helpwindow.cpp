@@ -141,8 +141,8 @@ HelpWindow::HelpWindow( const QString& home_, const QString& _path,
     setDockEnabled( Right, FALSE );
 
     pathCombo->insertItem( home_ );
-
     browser->setFocus();
+
 }
 
 
@@ -159,12 +159,15 @@ void HelpWindow::setForwardAvailable( bool b)
 
 void HelpWindow::textChanged()
 {
-    if ( browser->documentTitle().isNull() )
-	setCaption( browser->context() );
-    else
-	setCaption( browser->documentTitle() ) ;
-
-    selectedURL = caption();
+    if ( browser->documentTitle().isNull() ) {
+	setCaption( "Qt Example - Helpviewer - " + browser->context() );
+	selectedURL = browser->context();
+    }
+    else {
+	setCaption( "Qt Example - Helpviewer - " + browser->documentTitle() ) ;
+	selectedURL = browser->documentTitle();
+    }
+    
     if ( !selectedURL.isEmpty() && pathCombo ) {
 	bool exists = FALSE;
 	int i;

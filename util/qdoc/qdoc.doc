@@ -69,7 +69,6 @@
   \link #functionindex \\functionindex \endlink,
   \link #header \\header \endlink,
   \link #headerfilelist \\headerfilelist \endlink,
-  \link #heading \\heading \endlink,
   \link #i \\i \endlink,
   \link #img \\img \endlink,
   \link #important \\important \endlink,
@@ -93,6 +92,7 @@
   \link #printto \\printto \endlink,
   \link #printuntil \\printuntil \endlink,
   \link #property \\property \endlink,
+  \link #quote \\quote...\\endquote \endlink,
   \link #quotefile \\quotefile \endlink,
   \link #r \\r \endlink,
   \link #reimp \\reimp \endlink,
@@ -642,10 +642,8 @@
    \i \target title
     <b>\\title</b> sets the title of a documentation page, or allows
     you to override it. It is used in conjunction with
-    \link #page \\page \endlink or similar commands. Use
-    \link #heading \\heading \endlink if you need to distinguish
-    between the title (\<title\>...\</title\>) and the heading
-    (\<h1\>...\</h1\>).
+    \link #page \\page \endlink or similar commands. The title is
+    used both for the HTML \<title\> and \<h1\> tags.
 
    \i \target base64
     <b>\\base64</b> embeds binary files
@@ -743,7 +741,8 @@
       calling them "perms". As soon as Pratt's convention is
       established, textbooks of computer science will be somewhat
       shorter (and perhaps less expensive). <u>\\endfootnote</u>
-    *&#47;</pre><!-- D. E. Knuth, TAOCP 1 3rd ed. p. 45 -->
+    *&#47;</pre>
+    \omit D. E. Knuth, TAOCP 1 3rd ed. p. 45 \endomit
     This will be rendered like this:
     <blockquote>
       The properties of permutations are of great importance in
@@ -857,8 +856,7 @@
     #include \<<a href="#fnord">qglobal.h</a>\></pre>
     in the generated documentation.
 
-    Do not confuse this command with \link #heading \\heading \endlink
-    or \link #include \\include \endlink.
+    Do not confuse this command with \link #include \\include \endlink.
 
    \i \target include
     <b>\\include</b> expands to the content of the example file given
@@ -869,6 +867,16 @@
     equivalent HTML version.
 
     Do not confuse this command with \link #header \\header \endlink.
+
+   \i \target quote
+    <b>\\quote ... \\endquote</b> surrounds a block of text that
+    should be typeset as a long quotation, like this:
+    \quote
+    So many people have written so many neat things down the ages, he
+    said, that it behooves us to take every opportunity to pass them
+    on.
+    \endquote
+    \omit D. E. Knuth et al., Mathematical Writing \endomit
 
    \i \target quotefile
     <b>\\quotefile</b> enables use of walkthrough commands
@@ -1482,8 +1490,8 @@
 
   \section1 Joining the qdoc community
 
-  To join Badegakk (the qdoc user group), send your name with your
-  address and a $2.56 check to
+  To join Badegakk (the qdoc user group), send your name and address
+  with a $2.56 check to
   <blockquote>
     Badegakk<br>
     Trolltech AS<br>

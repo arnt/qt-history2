@@ -196,14 +196,14 @@ QString Walkthrough::start( bool include, bool firstPass,
     if ( justIncluded && filePath == fpath ) {
 	/*
 	  It's already started. This happens with '\include' followed
-	  by '\walkthrough'. Restarting would break local links.
+	  by '\quotefile'. Restarting would break local links.
 	*/
 	justIncluded = FALSE;
 	return includeText;
     }
     fpath = filePath;
 
-    shutUp = !firstPass;
+    shutUp = firstPass;
 
     if ( filePath.isEmpty() ) {
 	if ( !shutUp )
@@ -291,7 +291,7 @@ QString Walkthrough::start( bool include, bool firstPass,
     QString walkthroughText = includeText;
 
     /*
-      Local '<a name="...">'s are nice, but not in '\walkthrough's.
+      Local '<a name="...">'s are nice, but not in '\quotefile's.
     */
     if ( include && !firstPass )
 	walkthroughText.replace( aname, QString::null );
@@ -401,7 +401,7 @@ QString Walkthrough::getNextLine( const Location& docLoc )
 
     if ( !shutUp && justIncluded ) {
 	warning( 2, docLoc,
-		 "Command '\\walkthrough' now needed after '\\include'" );
+		 "Command '\\quotefile' now needed after '\\include'" );
 	shutUp = TRUE;
     }
 

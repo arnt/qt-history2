@@ -25,6 +25,7 @@ int main( int argc, char **argv )
     }
     TicTacToe ttt( n );				// create game
     a.setMainWidget( &ttt );
+    ttt.setCaption("Qt Example - TicTac");
     ttt.show();					// show widget
     return a.exec();				// go
 }

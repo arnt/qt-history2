@@ -74,6 +74,10 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate( QDesktopWidget *that )
 	user32hnd = LoadLibraryA( "user32.dll" );
 	if ( !user32hnd )
 	    return;
+#ifdef _WIN32_WCE
+	enumDisplayMonitors = (EnumFunc)GetProcAddress( user32hnd, L"EnumDisplayMonitors" );
+    getMonitorInfo = (InfoFunc)GetProcAddress( user32hnd, L"GetMonitorInfoW" );
+#else
 	enumDisplayMonitors = (EnumFunc)GetProcAddress( user32hnd, "EnumDisplayMonitors" );
 	if ( qt_winver & Qt::WV_NT_based )
 #if defined(UNICODE)
@@ -83,6 +87,7 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate( QDesktopWidget *that )
 #endif
 	else
 	    getMonitorInfo = (InfoFunc)GetProcAddress( user32hnd, "GetMonitorInfoA" );
+#endif
 
 	if ( !enumDisplayMonitors || !getMonitorInfo ) {
 	    for ( int i = 0; i < screenCount; ++i )

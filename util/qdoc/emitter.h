@@ -17,11 +17,21 @@ class DefgroupDoc;
 class ExampleDoc;
 class PageDoc;
 
-class Emitter
+class BookEmitter
 {
 public:
-    Emitter() : resolver( 0 ) { }
+    BookEmitter() { }
 
+    void start( const Resolver *resolver );
+};
+
+class DocEmitter
+{
+public:
+    DocEmitter() : res( 0 ) { }
+
+    void start();
+    Resolver *resolver() const { return res; }
     RootDecl *rootDecl() { return &root; }
     // ### needed?
     Decl *resolveMangled( const QString& fullMangledName ) const
@@ -41,14 +51,14 @@ public:
 
 private:
 #if defined(Q_DISABLE_COPY)
-    Emitter( const Emitter& );
-    Emitter& operator=( const Emitter& );
+    DocEmitter( const DocEmitter& );
+    DocEmitter& operator=( const DocEmitter& );
 #endif
 
     void addHtmlFile( const QString& fileName );
 
     RootDecl root;
-    DeclResolver *resolver;
+    DeclResolver *res;
     QMap<QString, DefgroupDoc *> groupdefs;
     QMap<QString, QMap<QString, Doc *> > groupiemap;
     QValueList<PageDoc *> pages;

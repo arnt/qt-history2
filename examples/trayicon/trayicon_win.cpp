@@ -173,7 +173,6 @@ void TrayIcon::sysInstall()
 	return;
 
     d = new TrayIconPrivate( this );
-    QImage img = pm.convertToImage();
     d->hIcon = CreateIcon( qWinAppInst(), img.width(), img.height(), 1, img.depth(), 0, img.bits() );
 
 #if defined(UNICODE)
@@ -208,7 +207,6 @@ void TrayIcon::sysUpdateIcon()
     if ( d->hIcon )
 	DestroyIcon( d->hIcon );
 
-    QImage img = pm.convertToImage();
     d->hIcon = CreateIcon( qWinAppInst(), img.width(), img.height(), 1, img.depth(), 0, img.bits() );
 
 #if defined(UNICODE)

@@ -8,9 +8,9 @@
 **
 *****************************************************************************/
 
-#include <stdlib.h>
 #include "lifedlg.h"
 #include <qapplication.h>
+#include <stdlib.h>
  
 void usage()
 {
@@ -38,6 +38,7 @@ int main( int argc, char **argv )
 
     LifeDialog *life = new LifeDialog( scale );
     a.setMainWidget( life );
+    life->setCaption("Qt Example - Life");
     life->show();
 
     return a.exec();

@@ -20,30 +20,13 @@
 #include "stringset.h"
 
 static QString parenParen( QString("()") );
-static QString openCaption( "<blockquote><center><b>" );
-static QString closeCaption( "</b></center></blockquote>" );
 
-/*
-  These three macros are used so often that all-upper-case names are
-  undesirable.
-
-  hash() combines a character (the first character of a word) and a
-  length to form a hash value.
-
-  check() and consume() compare variable 'command' with a target
-  string. If they are not equal, break. If they are equal,
-  consume(), unlike check(), removes the '\command' from the text.
-*/
-
-#define hash( ch, len ) ( (ch) | ((len) << 8) )
-#define check( target ) \
-    if ( strcmp(target, command.latin1()) != 0 ) \
-	break;
-#define consume( target ) \
-    check( target ); \
-    consumed = TRUE;
-
+// see also parsehelpers.cpp
 static QString punctuation( ".,:;" );
+
+// see also bookparser.cpp
+static QString openCaption( "<blockquote><center><em>" );
+static QString closeCaption( "</em></center></blockquote>" );
 
 static QString linkBase( const QString& link )
 {
@@ -57,7 +40,8 @@ static QString linkBase( const QString& link )
 // ### speed up
 static bool isCppSym( QChar ch )
 {
-    return isalnum( ch.latin1() ) || ch == QChar( '_' ) || ch == QChar( ':' );
+    return isalnum( (uchar) ch.latin1() ) || ch == QChar( '_' ) ||
+	   ch == QChar( ':' );
 }
 
 static QString what( Doc::Kind kind )
@@ -110,17 +94,18 @@ static QString getEscape( const QString& in, int& pos )
     }
 }
 
-static QString processBackslashes( const QString& str )
+static QString fixBackslashes( const QString& str )
 {
     QString t;
     int i = 0;
 
     while ( i < (int) str.length() ) {
 	QChar ch = str[i++];
-	if ( ch == QChar('\\') )
+	if ( ch == QChar('\\') ) {
 	    t += getEscape( str, i );
-	else
+	} else {
 	    t += ch;
+	}
     }
     return t;
 }
@@ -158,167 +143,6 @@ static bool offsetOK( QMap<QString, int> *offsetMap, int off,
     return ok;
 }
 
-static void skipSpaces( const QString& in, int& pos )
-{
-    while ( pos < (int) in.length() && in[pos].isSpace() &&
-	    in[pos].unicode() != '\n' )
-	pos++;
-}
-
-/*
-  This function is highly magical. It tries to somehow reproduce the
-  old qdoc behavior.
-*/
-static void skipSpacesOrNL( const QString& in, int& pos )
-{
-    int firstNL = -1;
-    while ( pos < (int) in.length() && in[pos].isSpace() ) {
-	QChar ch = in[pos];
-	if ( ch == QChar('\n') ) {
-	    if ( firstNL == -1 ) {
-		firstNL = pos;
-	    } else {
-		pos = firstNL;
-		break;
-	    }
-	}
-	pos++;
-    }
-}
-
-static void skipRestOfLine( const QString& in, int& pos )
-{
-    while ( pos < (int) in.length() && in[pos] != '\n' )
-	pos++;
-}
-
-static QString getWord( const QString& in, int& pos )
-{
-    skipSpaces( in, pos );
-    int begin = pos;
-    while ( pos < (int) in.length() && !in[pos].isSpace()
-	    && in[pos].unicode() != '\\' )
-	pos++;
-    return in.mid( begin, pos - begin );
-}
-
-static QString getRestOfLine( const QString& in, int& pos )
-{
-    skipSpaces( in, pos );
-    int begin = pos;
-    while ( pos < (int) in.length() && in[pos].unicode() != '\n' )
-	pos++;
-
-    QString t = in.mid( begin, pos - begin );
-    skipSpacesOrNL( in, pos );
-    return t;
-}
-
-static QString getRestOfParagraph( const QString& in, int& pos )
-{
-    int numNLsInRow = 0;
-
-    skipSpaces( in, pos );
-    int begin = pos;
-    while ( pos < (int) in.length() && numNLsInRow < 2 ) {
-	QChar ch = in[pos];
-	if ( ch.unicode() == '\n' ) {
-	    numNLsInRow++;
-	} else if ( !ch.isSpace() ) {
-	    if ( numNLsInRow == 1 && ch == QChar('\\') )
-		break;
-	    numNLsInRow = 0;
-	}
-	pos++;
-    }
-
-    QString t = in.mid( begin, pos - begin );
-    skipSpacesOrNL( in, pos );
-    return t;
-}
-
-static QString getPrototype( const QString& in, int& pos )
-{
-    skipSpaces( in, pos );
-    int begin = pos;
-    int level = 0;
-    int ch;
-    while ( pos < (int) in.length() &&
-	    ((ch = in[pos].unicode()) != '\n' || level > 0) )
-    {
-	if ( ch == '(' )
-	    level++;
-	else if ( ch == ')' )
-	    level--;
-	pos++;
-    }
-
-    QString t = in.mid( begin, pos - begin );
-    skipSpaces( in, pos );
-    return t;
-}
-
-static QString getArgument( const QString& in, int& pos )
-{
-    int parenDepth = 0;
-    int bracketDepth = 0;
-
-    skipSpacesOrNL( in, pos );
-    int begin = pos;
-
-    /*
-      Typically, an argument ends at the next white-space. However,
-      braces can be used to group words:
-
-	  {a few words}
-
-      Also, opening and closing parentheses have to match. Thus,
-
-	  printf( "%d\n", x )
-
-      is an argument too, although it contains spaces. Finally,
-      trailing punctuation is not included in an argument, nor is 's.
-    */
-    if ( pos < (int) in.length() && in[pos] == QChar('{') ) {
-	pos++;
-	while ( pos < (int) in.length() && in[pos] != QChar('}') )
-	    pos++;
-	pos++;
-	return in.mid( begin + 1, pos - begin - 2 ).stripWhiteSpace();
-    } else {
-	begin = pos;
-	while ( pos < (int) in.length() ) {
-	    QChar ch = in[pos];
-
-	    switch ( ch.unicode() ) {
-	    case '(':
-		parenDepth++;
-		break;
-	    case ')':
-		parenDepth--;
-		break;
-	    case '[':
-		bracketDepth++;
-		break;
-	    case ']':
-		bracketDepth--;
-	    }
-	    if ( parenDepth < 0 || bracketDepth < 0 || ch == QChar('\\') )
-		break;
-	    if ( ch.isSpace() && parenDepth <= 0 && bracketDepth <= 0 )
-		break;
-	    pos++;
-	}
-
-	if ( pos > begin + 1 && punctuation.find(in[pos - 1]) != -1 )
-	    pos--;
-	if ( pos > begin + 2 && in[pos - 2] == QChar('\'') &&
-	     in[pos - 1] == QChar('s') )
-	    pos -= 2;
-	return in.mid( begin, pos - begin );
-    }
-}
-
 QMap<QString, LinkMap> Doc::includeLinkMaps;
 QMap<QString, LinkMap> Doc::walkthroughLinkMaps;
 QMap<QString, QMap<int, ExampleLocation> > Doc::megaExampleMap;
@@ -328,59 +152,6 @@ StringSet Doc::thruwalkedExamples;
 // QMap<example file, example link>
 QMap<QString, QString> Doc::includedExampleLinks;
 QMap<QString, QString> Doc::thruwalkedExampleLinks;
-
-class OpenedList
-{
-public:
-    enum Kind { Bullet, Arabic, Uppercase, Lowercase };
-
-    OpenedList( Kind k = Bullet, int first = 1 )
-	: kind( k ), nextItem( first ) { }
-
-    QString begin();
-    QString item();
-    QString end();
-
-private:
-    Kind kind;
-    int nextItem;
-};
-
-QString OpenedList::begin()
-{
-    if ( kind == Bullet ) {
-	return QString( "<ul>" );
-    } else {
-	QString ol( "<ol type=" );
-
-	switch ( kind ) {
-	case Arabic:
-	    ol += QChar( '1' );
-	    break;
-	case Uppercase:
-	    ol += QChar( 'A' );
-	    break;
-	default:
-	    ol += QChar( 'a' );
-	}
-
-	if ( nextItem != 1 )
-	    ol += QString( " start=%1" ).arg( nextItem );
-	ol += QChar( '>' );
-	return ol;
-    }
-}
-
-QString OpenedList::item()
-{
-    nextItem++;
-    return QString( "<li>" );
-}
-
-QString OpenedList::end()
-{
-    return QString( kind == Bullet ? "</ul>" : "</ol>" );
-}
 
 /*
   The DocParser class is an internal class that implements the first
@@ -402,9 +173,8 @@ private:
     const Location& location();
     void flushWalkthrough( const Walkthrough& walk, StringSet *included,
 			   StringSet *thruwalked );
-    void setKind( Doc::Kind kind, const QString& thanksToCommand );
-    void setKindHasToBe( Doc::Kind kind, const QString& thanksToCommand );
-    OpenedList openList();
+    void setKind( Doc::Kind kind, const QString& command );
+    void setKindHasToBe( Doc::Kind kind, const QString& command );
 
     Doc::Kind kindIs;
     Doc::Kind kindHasToBe;
@@ -459,11 +229,10 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 
     QString enumPrefix;
     QString title;
-    QString heading;
     QString prototype;
     QString relates;
     QString value;
-    QString altText;
+    QString alt;
     QString x;
 
     StringSet included, thruwalked;
@@ -485,14 +254,15 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     bool inCaption = FALSE;
     int headingBegin = -1;
     bool metNL = FALSE; // never met N.L.
-    int begin, end;
+    int begin;
+    int end;
     int k;
 
     QValueStack<OpenedList> openedLists;
     int prevSectionLevel = 0;
-    int sectionLevel;
+    int sectionLevel = 0;
     QValueList<Section> *toc = 0;
-    int uniqueSection = 1;
+    SectionNumber sectionCounter;
 
     while ( yyPos < yyLen ) {
 	QChar ch = yyIn[yyPos++];
@@ -505,10 +275,11 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	    begin = yyPos;
 	    while ( yyPos < yyLen ) {
 		ch = yyIn[yyPos];
-		if ( isalpha(ch.latin1()) )
+		if ( isalpha((uchar) ch.latin1()) ) {
 		    command += ch;
-		else
+		} else {
 		    break;
+		}
 		yyPos++;
 	    }
 
@@ -532,17 +303,17 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	      last-minute details. See Doc::finalHtml().
 	    */
 
-	    int h = hash( command[0].unicode(), command.length() );
+	    int h = HASH( command[0].unicode(), command.length() );
 	    bool consumed = FALSE;
 
 	    switch ( h ) {
-	    case hash( '\0', 1 ):
-		consume( "" );
+	    case HASH( '\0', 1 ):
+		CONSUME( "" );
 		yyOut += getEscape( yyIn, yyPos );
 		break;
-	    case hash( 'a', 1 ):
-		consume( "a" );
-		arg = processBackslashes( getArgument(yyIn, yyPos) );
+	    case HASH( 'a', 1 ):
+		CONSUME( "a" );
+		arg = fixBackslashes( getArgument(yyIn, yyPos) );
 		if ( arg.isEmpty() ) {
 		    warning( 2, location(),
 			     "Expected variable name after '\\a'" );
@@ -561,14 +332,14 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    setKindHasToBe( Doc::Fn, command );
 		}
 		break;
-	    case hash( 'a', 3 ):
-		consume( "arg" );
+	    case HASH( 'a', 3 ):
+		CONSUME( "arg" );
 		warning( 1, location(),
 			 "Command '\\arg' is not supported, use '\\a'" );
 		break;
-	    case hash( 'b', 3 ):
+	    case HASH( 'b', 3 ):
 		// see also \value
-		consume( "bug" );
+		CONSUME( "bug" );
 		if ( numBugs == 0 ) {
 		    leaveWalkthroughSnippet();
 		    yyOut += QString( "<p>Bugs and limitations:\n<ul>\n" );
@@ -576,8 +347,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		numBugs++;
 		yyOut += QString( "<li>" );
 		break;
-	    case hash( 'b', 4 ):
-		consume( "base" );
+	    case HASH( 'b', 4 ):
+		CONSUME( "base" );
 		base = getWord( yyIn, yyPos ).toInt();
 		if ( base != 64 )
 		    warning( 2, location(), "Base has to be 64" );
@@ -589,30 +360,26 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 			     "Expected file name after '\\base64'" );
 		} else {
 		    yyOut = yyIn.mid( yyPos );
-		    yyPos = yyIn.length();
+		    yyPos = yyLen;
 		    setKind( Doc::Base64, command );
 		}
 		break;
-	    case hash( 'b', 5 ):
-		consume( "brief" );
+	    case HASH( 'b', 5 ):
+		CONSUME( "brief" );
 		skipSpaces( yyIn, yyPos );
 		briefBegin = yyOut.length();
 		briefEnd = INT_MAX;
 		setKindHasToBe( Doc::Class, command );
 		break;
-	    case hash( 'c', 1 ):
-		consume( "c" );
+	    case HASH( 'c', 1 ):
+		CONSUME( "c" );
 		arg = htmlProtect( getArgument(yyIn, yyPos) );
-		if ( arg.isEmpty() ) {
-		    warning( 2, location(), "Expected code chunk after '\\c'" );
-		} else {
-		    yyOut += QString( "<tt>" );
-		    yyOut += arg;
-		    yyOut += QString( "</tt>" );
-		}
+		yyOut += QString( "<tt>" );
+		yyOut += arg;
+		yyOut += QString( "</tt>" );
 		break;
-	    case hash( 'c', 4 ):
-		consume( "code" );
+	    case HASH( 'c', 4 ):
+		CONSUME( "code" );
 		begin = yyPos;
 		end = yyIn.find( QString("\\endcode"), yyPos );
 		if ( end == -1 ) {
@@ -624,8 +391,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    yyPos = end + 8;
 		}
 		break;
-	    case hash( 'c', 5 ):
-		consume( "class" );
+	    case HASH( 'c', 5 ):
+		CONSUME( "class" );
 		className = getWord( yyIn, yyPos );
 		skipRestOfLine( yyIn, yyPos );
 
@@ -638,17 +405,17 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		}
 		prevSectionLevel = 1;
 		break;
-	    case hash( 'c', 7 ):
-		consume( "caption" );
+	    case HASH( 'c', 7 ):
+		CONSUME( "caption" );
 		yyOut += openCaption;
 		inCaption = TRUE;
 		break;
-	    case hash( 'd', 6 ):
-		consume( "define" );
+	    case HASH( 'd', 6 ):
+		CONSUME( "define" );
 		getWord( yyIn, yyPos );
 		break;
-	    case hash( 'd', 8 ):
-		consume( "defgroup" );
+	    case HASH( 'd', 8 ):
+		CONSUME( "defgroup" );
 		groupName = getWord( yyIn, yyPos );
 		skipRestOfLine( yyIn, yyPos );
 
@@ -666,19 +433,15 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    setKind( Doc::Defgroup, command );
 		}
 		break;
-	    case hash( 'e', 1 ):
-		consume( "e" );
-		arg = processBackslashes( getArgument(yyIn, yyPos) );
-		if ( arg.isEmpty() ) {
-		    warning( 2, location(), "Expected word after '\\e'" );
-		} else {
-		    yyOut += QString( "<em>" );
-		    yyOut += arg;
-		    yyOut += QString("</em>" );
-		}
+	    case HASH( 'e', 1 ):
+		CONSUME( "e" );
+		arg = fixBackslashes( getArgument(yyIn, yyPos) );
+		yyOut += QString( "<em>" );
+		yyOut += arg;
+		yyOut += QString("</em>" );
 		break;
-	    case hash( 'e', 4 ):
-		consume( "enum" );
+	    case HASH( 'e', 4 ):
+		CONSUME( "enum" );
 		enumName = getWord( yyIn, yyPos );
 		k = enumName.findRev( QString("::") );
 		if ( k != -1 )
@@ -686,28 +449,26 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		skipRestOfLine( yyIn, yyPos );
 		setKind( Doc::Enum, command );
 		break;
-	    case hash( 'e', 7 ):
-		if ( command.length() != 7 )
-		    break;
-		if ( command[3] == QChar('c') ) {
-		    consume( "endcode" );
+	    case HASH( 'e', 7 ):
+		if ( command[5] == QChar('d') ) {
+		    CONSUME( "endcode" );
 		    warning( 2, location(), "Missing '\\code'" );
 		} else if ( command[5] == QChar('n') ) {
-		    consume( "endlink" );
+		    CONSUME( "endlink" );
 		    // we have found the missing link: Eirik Aavitsland
 		    warning( 2, location(), "Missing '\\link'" );
 		} else if ( command[5] == QChar('o') ) {
-		    consume( "endomit" );
+		    CONSUME( "endomit" );
 		    warning( 2, location(), "Missing '\\omit'" );
 		} else if ( command[5] == QChar('s') ) {
-		    consume( "endlist" );
+		    CONSUME( "endlist" );
 		    if ( openedLists.isEmpty() )
 			warning( 2, location(), "Missing '\\list'" );
 		    else
-			yyOut += openedLists.pop().end();
+			yyOut += openedLists.pop().endHtml();
 		} else {
 #if 1
-		    consume( "example" );
+		    CONSUME( "example" );
 		    warning( 2, location(),
 			     "Command '%s' has been renamed '%s'", "\\example",
 			     "\\file" );
@@ -717,19 +478,24 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 #endif
 		}
 		break;
-	    case hash( 'e', 9 ):
-		consume( "extension" );
+	    case HASH( 'e', 8 ):
+		CONSUME( "endquote" );
+		yyOut += QString( "</blockquote>" );
+		break;
+	    case HASH( 'e', 9 ):
+		CONSUME( "extension" );
 		extName = getWord( yyIn, yyPos );
 		skipRestOfLine( yyIn, yyPos );
 
-		if ( extName.isEmpty() )
+		if ( extName.isEmpty() ) {
 		    warning( 2, location(),
 			     "Expected extension name after '\\extension'" );
-		else
+		} else {
 		    setKindHasToBe( Doc::Class, command );
+		}
 		break;
-	    case hash( 'e', 11 ):
-		consume( "endfootnote" );
+	    case HASH( 'e', 11 ):
+		CONSUME( "endfootnote" );
 		if ( footnoteBegin == -1 ) {
 		    warning( 2, location(), "Missing '\\footnote'" );
 		} else {
@@ -744,31 +510,32 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    footnoteBegin = -1;
 		}
 		break;
-	    case hash( 'f', 2 ):
-		consume( "fn" );
+	    case HASH( 'f', 2 ):
+		CONSUME( "fn" );
 		// see also \overload
 		prototype = getPrototype( yyIn, yyPos );
-		if ( prototype.isEmpty() )
+		if ( prototype.isEmpty() ) {
 		    warning( 2, location(),
 			     "Expected function prototype after '\\fn'" );
-		else
+		} else {
 		    setKind( Doc::Fn, command );
+		}
 		break;
-	    case hash( 'f', 4 ):
-		consume( "file" );
+	    case HASH( 'f', 4 ):
+		CONSUME( "file" );
 		fileName = getWord( yyIn, yyPos );
 		skipRestOfLine( yyIn, yyPos );
 		// ### use page instead of example
 		setKind( Doc::Example, command );
 		break;
-	    case hash( 'f', 8 ):
+	    case HASH( 'f', 8 ):
 		// see also \legalese
-		consume( "footnote" );
+		CONSUME( "footnote" );
 		skipSpaces( yyIn, yyPos );
 		footnoteBegin = yyOut.length();
 		break;
-	    case hash( 'h', 6 ):
-		consume( "header" );
+	    case HASH( 'h', 6 ):
+		CONSUME( "header" );
 		x = getWord( yyIn, yyPos );
 		skipRestOfLine( yyIn, yyPos );
 
@@ -780,48 +547,44 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    setKindHasToBe( Doc::Class, command );
 		}
 		break;
-	    case hash( 'h', 7 ):
-		consume( "heading" );
-		heading = getRestOfLine( yyIn, yyPos ).simplifyWhiteSpace();
-		break;
-	    case hash( 'i', 1 ):
-		consume( "i" );
-		if ( openedLists.isEmpty() )
+	    case HASH( 'i', 1 ):
+		CONSUME( "i" );
+		if ( openedLists.isEmpty() ) {
 		    warning( 2, location(), "Command '\\i' outside '\\list'" );
-		else
-		    yyOut += openedLists.top().item();
+		} else {
+		    yyOut += openedLists.top().itemHtml();
+		}
 		break;
-	    case hash( 'i', 3 ):
-		consume( "img" );
+	    case HASH( 'i', 3 ):
+		CONSUME( "img" );
 		x = getWord( yyIn, yyPos );
-		altText = processBackslashes( getRestOfLine(yyIn, yyPos) );
+		alt = fixBackslashes( getRestOfLine(yyIn, yyPos) );
 		yyOut += QString( "<img align=center src=\"%1\"" ).arg( x );
-		if ( !altText.isEmpty() )
-		    yyOut += QString( " alt=\"%1\"" ).arg( altText );
+		if ( !alt.isEmpty() )
+		    yyOut += QString( " alt=\"%1\"" ).arg( alt );
 		yyOut += QString( "> " );
 		break;
-	    case hash( 'i', 5 ):
-		consume( "index" );
+	    case HASH( 'i', 5 ):
+		CONSUME( "index" );
 		yyOut += QString( "<!-- index %1 -->" )
 			 .arg( getRestOfLine(yyIn, yyPos) );
 		break;
-	    case hash( 'i', 7 ):
-		if ( command.length() != 7 )
-		    break;
+	    case HASH( 'i', 7 ):
 		if ( command[2] == QChar('c') ) {
-		    consume( "include" );
+		    CONSUME( "include" );
 		    x = getWord( yyIn, yyPos );
 		    skipRestOfLine( yyIn, yyPos );
 		    flushWalkthrough( walk, &included, &thruwalked );
 
-		    if ( x.isEmpty() )
+		    if ( x.isEmpty() ) {
 			warning( 2, location(),
 				 "Expected file name after '\\include'" );
-		    else
+		    } else {
 			walk.includePass1( x, Doc::resolver() );
+		    }
 		    yyOut += QString( "\\include " ) + x + QChar( '\n' );
 		} else {
-		    consume( "ingroup" );
+		    CONSUME( "ingroup" );
 		    groupName = getWord( yyIn, yyPos );
 		    skipRestOfLine( yyIn, yyPos );
 
@@ -839,8 +602,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 			groups.insert( groupName );
 		}
 		break;
-	    case hash( 'i', 8 ):
-		consume( "internal" );
+	    case HASH( 'i', 8 ):
+		CONSUME( "internal" );
 		internal = TRUE;
 		if ( config->isInternal() &&
 		     !yyIn.mid(yyPos).stripWhiteSpace().isEmpty() ) {
@@ -851,14 +614,14 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    yyPos = yyLen;
 		}
 		break;
-	    case hash( 'i', 9 ):
-		consume( "important" );
+	    case HASH( 'i', 9 ):
+		CONSUME( "important" );
 		important = getStringList();
 		setKindHasToBe( Doc::Class, command );
 		break;
-	    case hash( 'k', 7 ):
-		consume( "keyword" );
-		x = getRestOfLine( yyIn, yyPos ).simplifyWhiteSpace();
+	    case HASH( 'k', 7 ):
+		CONSUME( "keyword" );
+		x = getRestOfLine( yyIn, yyPos );
 		keywords.insert( x );
 		yyOut += QString( "<!-- index %1 -->" ).arg( x );
 
@@ -872,67 +635,65 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    yyOut += QString( "<a name=\"%1\"></a>" )
 			     .arg( keywordRef(x) );
 		break;
-	    case hash( 'l', 4 ):
-		if ( command.length() != 4 )
-		    break;
+	    case HASH( 'l', 4 ):
 		if ( command[2] == QChar('n') ) {
-		    consume( "link" );
+		    CONSUME( "link" );
 		    begin = yyPos;
 		    end = yyIn.find( QString("\\endlink"), yyPos );
 		    if ( end == -1 ) {
 			warning( 2, location(), "Missing '\\endlink'" );
 		    } else {
 			yyOut += QString( "\\link" );
-			yyOut += processBackslashes( yyIn.mid(begin,
-							      end - begin) );
+			yyOut += fixBackslashes( yyIn.mid(begin, end - begin) );
 			yyOut += QString( "\\endlink" );
 			yyPos = end + 8;
 		    }
 		} else {
-		    consume( "list" );
-		    openedLists.push( openList() );
-		    yyOut += openedLists.top().begin();
+		    CONSUME( "list" );
+		    openedLists.push( openList(location(),
+				      getWord(yyIn, yyPos)) );
+		    yyOut += openedLists.top().beginHtml();
 		}
 		break;
-	    case hash( 'l', 8 ):
-		consume( "legalese" );
+	    case HASH( 'l', 8 ):
+		CONSUME( "legalese" );
 		skipSpaces( yyIn, yyPos );
 		legaleseBegin = yyOut.length();
 		legaleseEnd = INT_MAX;
 		break;
-	    case hash( 'l', 12 ):
-		consume( "legaleselist" );
+	    case HASH( 'l', 12 ):
+		CONSUME( "legaleselist" );
 		yyOut += Doc::htmlLegaleseList();
 		break;
-	    case hash( 'm', 6 ):
-		consume( "module" );
+	    case HASH( 'm', 6 ):
+		CONSUME( "module" );
 		moduleName = getWord( yyIn, yyPos );
 		skipRestOfLine( yyIn, yyPos );
 
-		if ( moduleName.isEmpty() )
+		if ( moduleName.isEmpty() ) {
 		    warning( 2, location(),
 			     "Expected module name after '\\module'" );
-		else
+		} else {
 		    setKindHasToBe( Doc::Class, command );
+		}
 		break;
-	    case hash( 'n', 4 ):
-		consume( "note" );
+	    case HASH( 'n', 4 ):
+		CONSUME( "note" );
 		yyOut += QString( "Note:" );
-		warning( 2, location(), "No such command '%s'", "\\note" );
+		warning( 2, location(), "No such command '\\%s'", "note" );
 		break;
-	    case hash( 'o', 4 ):
-		consume( "omit" );
+	    case HASH( 'o', 4 ):
+		CONSUME( "omit" );
 		end = yyIn.find( QString("\\endomit"), yyPos );
-		if ( end == -1 )
+		if ( end == -1 ) {
 		    yyPos = yyIn.length();
-		else
+		} else {
 		    yyPos = end + 8;
+		}
 		break;
-	    case hash( 'o', 8 ):
-		if ( command.length() != 8 )
-		    break;
+	    case HASH( 'o', 8 ):
 		if ( command[1] == QChar('b') ) {
-		    consume( "obsolete" );
+		    CONSUME( "obsolete" );
 		    obsolete = TRUE;
 		    yyOut += QString( "<b>This %1 is obsolete.</b> It is"
 				      " provided to keep old source working."
@@ -941,7 +702,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 			     .arg( what(kindIs) );
 		    metNL = TRUE;
 		} else {
-		    consume( "overload" );
+		    CONSUME( "overload" );
 		    overloads = TRUE;
 		    yyOut += QString( "This is an overloaded member function, "
 				      "provided for convenience. It behaves "
@@ -955,22 +716,22 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 			setKind( Doc::Fn, command );
 		}
 		break;
-	    case hash( 'p', 4 ):
-		consume( "page" );
+	    case HASH( 'p', 4 ):
+		CONSUME( "page" );
 		fileName = getWord( yyIn, yyPos );
 		skipRestOfLine( yyIn, yyPos );
 		setKind( Doc::Page, command );
 		break;
-	    case hash( 'p', 7 ):
-		consume( "printto" );
+	    case HASH( 'p', 7 ):
+		CONSUME( "printto" );
 		substr = getRestOfLine( yyIn, yyPos );
 		walk.printto( substr, location() );
 		enterWalkthroughSnippet();
 		yyOut += QString( "\\printto " ) + substr + QChar( '\n' );
 		leaveWalkthroughSnippet();
 		break;
-	    case hash( 'p', 8 ):
-		consume( "property" );
+	    case HASH( 'p', 8 ):
+		CONSUME( "property" );
 		propName = getWord( yyIn, yyPos );
 
 		if ( propName.isEmpty() ) {
@@ -989,8 +750,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		}
 		if ( yyIn.mid(yyPos, 6) == QString("\\brief") ) {
 		    yyPos += 6;
-		    brief = getRestOfParagraph( yyIn, yyPos )
-			    .stripWhiteSpace();
+		    brief = getRestOfParagraph( yyIn, yyPos );
 		    if ( !brief.isEmpty() ) {
 			brief[0] = brief[0].lower();
 			if ( brief.right(1) == QChar('.') )
@@ -1004,11 +764,9 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 			    propName.latin1() );
 		}
 		break;
-	    case hash( 'p', 9 ):
-		if ( command.length() != 9 )
-		    break;
+	    case HASH( 'p', 9 ):
 		if ( command[1] == QChar('l') ) {
-		    consume( "plainpage" );
+		    CONSUME( "plainpage" );
 		    fileName = getWord( yyIn, yyPos );
 		    skipRestOfLine( yyIn, yyPos );
 
@@ -1021,7 +779,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 			setKind( Doc::Plainpage, command );
 		    }
 		} else {
-		    consume( "printline" );
+		    CONSUME( "printline" );
 		    substr = getRestOfLine( yyIn, yyPos );
 		    walk.printline( substr, location() );
 		    enterWalkthroughSnippet();
@@ -1029,16 +787,16 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    leaveWalkthroughSnippet();
 		}
 		break;
-	    case hash( 'p', 10 ):
-		consume( "printuntil" );
+	    case HASH( 'p', 10 ):
+		CONSUME( "printuntil" );
 		substr = getRestOfLine( yyIn, yyPos );
 		walk.printuntil( substr, location() );
 		enterWalkthroughSnippet();
 		yyOut += QString( "\\printuntil " ) + substr + QChar( '\n' );
 		leaveWalkthroughSnippet();
 		break;
-	    case hash( 'p', 11 ):
-		consume( "preliminary" );
+	    case HASH( 'p', 11 ):
+		CONSUME( "preliminary" );
 		preliminary = TRUE;
 		if ( kindIs != Doc::Class ) {
 		    // classes are taken care of elsewhere
@@ -1048,9 +806,13 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    metNL = TRUE;
 		}
 		break;
+	    case HASH( 'q', 5 ):
+		CONSUME( "quote" );
+		yyOut += QString( "<blockquote>" );
+		break;
 #if 1 // ###
-	    case hash( 'w', 11 ):
-		consume( "walkthrough" );
+	    case HASH( 'w', 11 ):
+		CONSUME( "walkthrough" );
 #if 0
 		warning( 2, location(), "Command '%s' has been renamed '%s'",
 			 "\\walkthrough", "\\quotefile" );
@@ -1058,29 +820,29 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		command = QString( "quotefile" );
 		// fall through
 #endif
-	    case hash( 'q', 9 ):
-		consume( "quotefile" );
+	    case HASH( 'q', 9 ):
+		CONSUME( "quotefile" );
 		x = getWord( yyIn, yyPos );
 		skipRestOfLine( yyIn, yyPos );
 		if ( x != walk.fileName() )
 		    flushWalkthrough( walk, &included, &thruwalked );
 
-		if ( x.isEmpty() )
+		if ( x.isEmpty() ) {
 		    warning( 2, location(),
 			     "Expected file name after '\\quotefile'" );
-		else
+		} else {
 		    walk.startPass1( x, Doc::resolver() );
-
+		}
 		yyOut += QString( "\\quotefile " ) + x + QChar( '\n' );
 		break;
-	    case hash( 'r', 5 ):
-		consume( "reimp" );
+	    case HASH( 'r', 5 ):
+		CONSUME( "reimp" );
 		yyOut += QString( "Reimplemented for internal reasons; the API"
 				  " is not affected." );
 		internal = TRUE;
 		break;
-	    case hash( 'r', 7 ):
-		consume( "relates" );
+	    case HASH( 'r', 7 ):
+		CONSUME( "relates" );
 		relates = getWord( yyIn, yyPos );
 		skipRestOfLine( yyIn, yyPos );
 
@@ -1088,8 +850,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    warning( 2, location(),
 			     "Expected class name after '\\relates'" );
 		break;
-	    case hash( 's', 2 ):
-		consume( "sa" );
+	    case HASH( 's', 2 ):
+		CONSUME( "sa" );
 		legaleseEnd = yyOut.length();
 		if ( numBugs > 0 ) {
 		    yyOut += QString( "</ul>" );
@@ -1100,14 +862,14 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		if ( !seeAlso.isEmpty() )
 		    yyOut += QString( "\\sa" );
 		break;
-	    case hash( 's', 6 ):
-		consume( "skipto" );
+	    case HASH( 's', 6 ):
+		CONSUME( "skipto" );
 		substr = getRestOfLine( yyIn, yyPos );
 		walk.skipto( substr, location() );
 		yyOut += QString( "\\skipto " ) + substr + QChar( '\n' );
 		break;
-	    case hash( 's', 7 ):
-		consume( "section" );
+	    case HASH( 's', 7 ):
+		CONSUME( "section" );
 		x = getWord( yyIn, yyPos );
 		if ( x.length() != 1 || x[0].unicode() < '1' ||
 		     x[0].unicode() > '4' ) {
@@ -1117,21 +879,18 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		    x = QChar( '1' );
 		}
 		sectionLevel = x[0].unicode() - '0';
-		if ( sectionLevel - prevSectionLevel > 1 ) {
+		if ( sectionLevel - prevSectionLevel > 1 )
 		    warning( 2, location(),
-			     "Unexpected '\\section %d' within '\\section %d'",
+			     "Unexpected '\\section%d' within '\\section%d'",
 			     sectionLevel, prevSectionLevel );
-		}
 
 		{
 		    if ( toc == 0 )
 			toc = new QValueList<Section>;
 		    QValueList<Section> *subsects = toc;
 		    for ( int i = 1; i < sectionLevel; i++ ) {
-			if ( subsects->isEmpty() ) {
-			    // ### should complain here, not up there
+			if ( subsects->isEmpty() )
 			    subsects->push_back( Section() );
-			}
 			subsects = subsects->last().subsections();
 		    }
 		    subsects->push_back( Section() );
@@ -1146,31 +905,31 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 			     "Missing blank line after '\\section'" );
 		headingBegin = yyOut.length();
 		break;
-	    case hash( 's', 8 ):
-		consume( "skipline" );
+	    case HASH( 's', 8 ):
+		CONSUME( "skipline" );
 		substr = getRestOfLine( yyIn, yyPos );
 		walk.skipline( substr, location() );
 		yyOut += QString( "\\skipline " ) + substr + QChar( '\n' );
 		break;
-	    case hash( 's', 9 ):
-		consume( "skipuntil" );
+	    case HASH( 's', 9 ):
+		CONSUME( "skipuntil" );
 		substr = getRestOfLine( yyIn, yyPos );
 		walk.skipuntil( substr, location() );
 		yyOut += QString( "\\skipuntil " ) + substr + QChar( '\n' );
 		break;
-	    case hash( 't', 5 ):
-		consume( "title" );
-		title = getRestOfLine( yyIn, yyPos ).simplifyWhiteSpace();
+	    case HASH( 't', 5 ):
+		CONSUME( "title" );
+		title = getRestOfParagraph( yyIn, yyPos );
 		break;
-	    case hash( 't', 6 ):
-		consume( "target" );
+	    case HASH( 't', 6 ):
+		CONSUME( "target" );
 		yyOut += QString( "<a name=\"" );
 		yyOut += getWord( yyIn, yyPos );
 		yyOut += QString( "\"></a>" );
 		break;
-	    case hash( 'v', 5 ):
+	    case HASH( 'v', 5 ):
 		// see also \bug
-		consume( "value" );
+		CONSUME( "value" );
 		if ( enumName.isEmpty() ) {
 		    warning( 2, location(), "Unexpected command '\\value'" );
 		    break;
@@ -1206,8 +965,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		     yyIn[yyPos + 1].isSpace() )
 		    yyPos += 2;
 		break;
-	    case hash( 'w', 7 ):
-		consume( "warning" );
+	    case HASH( 'w', 7 ):
+		CONSUME( "warning" );
 		yyOut += QString( "<b>Warning:</b>" );
 	    }
 	    if ( !consumed ) {
@@ -1255,13 +1014,10 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 
 			yyOut += QString( "</h%1>\n" )
 				 .arg( prevSectionLevel + 1 );
-			if ( subsects->last().target.isEmpty() ) {
-			    subsects->last().target = QString( "s%1" )
-						      .arg( uniqueSection++ );
-			    yyOut += QString( "<a name=\"%1\"></a>" )
-				     .arg( subsects->last().target );
-			}
-
+			sectionCounter.advance( prevSectionLevel - 1 );
+			subsects->last().number = sectionCounter;
+			yyOut += QString( "<a name=\"%1\"></a>" )
+				 .arg( subsects->last().number.target() );
 			headingBegin = -1;
 		    }
 		    if ( briefEnd == INT_MAX )
@@ -1316,11 +1072,12 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 			 overloads );
 	break;
     case Doc::Class:
-	if ( briefBegin == -1 )
+	if ( briefBegin == -1 ) {
 	    warning( 2, loc, "No '\\brief' in '\\class' doc" );
-	else
+	} else {
 	    brief = yyOut.mid( briefBegin, briefEnd - briefBegin )
 			 .stripWhiteSpace();
+	}
 	sanitize( className );
 	sanitize( extName );
 	sanitize( moduleName );
@@ -1347,7 +1104,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	break;
     case Doc::Page:
 	sanitize( fileName );
-	doc = new PageDoc( loc, yyOut, fileName, title, heading );
+	doc = new PageDoc( loc, yyOut, fileName, title );
 	break;
     case Doc::Base64:
 	sanitize( fileName );
@@ -1359,12 +1116,12 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	break;
     case Doc::Defgroup:
 	sanitize( groupName );
-	doc = new DefgroupDoc( loc, yyOut, groupName, title, heading );
+	doc = new DefgroupDoc( loc, yyOut, groupName, title );
 	break;
     case Doc::Example:
 	yyOut += "\\include ";
 	yyOut += fileName;
-	doc = new ExampleDoc( loc, yyOut, fileName, title, heading );
+	doc = new ExampleDoc( loc, yyOut, fileName, title );
 	break;
     default:
 	doc = new Doc( Doc::Null, loc, yyOut );
@@ -1452,46 +1209,24 @@ void DocParser::flushWalkthrough( const Walkthrough& walk, StringSet *included,
     }
 }
 
-void DocParser::setKind( Doc::Kind kind, const QString& thanksToCommand )
+void DocParser::setKind( Doc::Kind kind, const QString& command )
 {
-    setKindHasToBe( kind, thanksToCommand );
+    setKindHasToBe( kind, command );
     if ( kind == kindIs )
 	warning( 2, location(), "Command '\\%s' is redundant or contradictory",
-		 thanksToCommand.latin1() );
+		 command.latin1() );
     kindIs = kind;
 }
 
-void DocParser::setKindHasToBe( Doc::Kind kind, const QString& thanksToCommand )
+void DocParser::setKindHasToBe( Doc::Kind kind, const QString& command )
 {
     if ( kindHasToBe == Doc::Null ) {
 	kindHasToBe = kind;
-	clueCommand = thanksToCommand;
+	clueCommand = command;
     } else if ( kindHasToBe != kind ) {
 	warning( 3, location(),
 		 "Cannot have both '\\%s' and '\\%s' in same doc",
-		 clueCommand.latin1(), thanksToCommand.latin1() );
-    }
-}
-
-OpenedList DocParser::openList()
-{
-    static QRegExp spec( QString(
-	    "^[ \n\t]*([0-9]*|[A-Za-z])[ \n\t]*\\\\i\\b") );
-
-    if ( spec.search(yyIn.mid(yyPos)) == -1 ) {
-	warning( 2, location(), "Expected '\\i' after '\\list'" );
-	return OpenedList();
-    } else if ( spec.cap(1).isEmpty() ) {
-	return OpenedList();
-    } else {
-	yyPos += spec.matchedLength() - 2;
-	int firstCh = spec.cap(1)[0].unicode();
-	if ( firstCh >= '0' && firstCh <= '9' )
-	    return OpenedList( OpenedList::Arabic, spec.cap(1).toInt() );
-	else if ( firstCh >= 'A' && firstCh <= 'Z' )
-	    return OpenedList( OpenedList::Uppercase, firstCh - 'A' + 1 );
-	else
-	    return OpenedList( OpenedList::Lowercase, firstCh - 'a' + 1 );
+		 clueCommand.latin1(), command.latin1() );
     }
 }
 
@@ -1534,13 +1269,14 @@ QStringList DocParser::getStringList()
 		break;
 	    end = yyPos;
 	}
-	if ( punctuation.find(yyIn[end - 1]) != -1 )
+	if ( punctuation.find(yyIn[end - 1]) != -1 ) {
 	    end--;
-	else if ( yyPos < yyLen && punctuation.find(yyIn[yyLen]) != -1 )
+	} else if ( yyPos < yyLen && punctuation.find(yyIn[yyLen]) != -1 ) {
 	    yyPos++;
+	}
 
 	if ( end > begin )
-	    stringl.append( processBackslashes(yyIn.mid(begin, end - begin)) );
+	    stringl.append( fixBackslashes(yyIn.mid(begin, end - begin)) );
 	skipSpacesOrNL( yyIn, yyPos );
     }
     return stringl;
@@ -1578,10 +1314,11 @@ bool DocParser::valueIsDocumented()
 void DocParser::enterWalkthroughSnippet()
 {
     if ( !yyInWalkthroughSnippet ) {
-	if ( yyOut.right(6) == QString("</pre>") )
+	if ( yyOut.right(6) == QString("</pre>") ) {
 	    yyOut.truncate( yyOut.length() - 6 );
-	else
+	} else {
 	    yyOut += QString( "<pre>" );
+	}
 	yyInWalkthroughSnippet = TRUE;
     }
 }
@@ -1594,8 +1331,8 @@ void DocParser::leaveWalkthroughSnippet()
     // ### put elsewhere
     if ( walkthroughCommands.isEmpty() ) {
 	walkthroughCommands.insert( QString("\\printline") );
-	walkthroughCommands.insert( QString("\\printline") );
-	walkthroughCommands.insert( QString("\\printline") );
+	walkthroughCommands.insert( QString("\\printto") );
+	walkthroughCommands.insert( QString("\\printuntil") );
 	walkthroughCommands.insert( QString("\\skipline") );
 	walkthroughCommands.insert( QString("\\skipto") );
 	walkthroughCommands.insert( QString("\\skipuntil") );
@@ -1656,6 +1393,7 @@ void Doc::setClassList( const QMap<QString, QString>& classList )
 
     // careful with this mega regexp: white space magic below
     QString t( "(?:<(?:a [^>]*|pre)>.*</(?:a|pre)>|"
+	       "<img [^>]*>|"
 	       "(?:Qmagicwordthatyoushouldavoid" );
     QMap<QString, QString>::ConstIterator s = keywordLinks.begin();
     while ( s != keywordLinks.end() ) {
@@ -2123,7 +1861,7 @@ static QString emitTOCSections( const QValueList<Section>& sections )
 	QValueList<Section>::ConstIterator s = sections.begin();
 	while ( s != sections.end() ) {
 	    html += QString( "<li><a href=\"#%1\">%2</a>\n" )
-		    .arg( (*s).target ).arg( (*s).title );
+		    .arg( (*s).number.target() ).arg( (*s).title );
 	    html += emitTOCSections( *(*s).subsections() );
 	    ++s;
 	}
@@ -2310,10 +2048,11 @@ QString Doc::finalHtml() const
 	    begin = yyPos;
 	    while ( yyPos < yyLen ) {
 		ch = yyIn[yyPos];
-		if ( isalnum(ch.latin1()) )
+		if ( isalnum((uchar) ch.latin1()) ) {
 		    command += ch;
-		else
+		} else {
 		    break;
+		}
 		yyPos++;
 	    }
 	    if ( yyPos == begin )
@@ -2324,16 +2063,16 @@ QString Doc::finalHtml() const
 	      other place to do it.
 	    */
 
-	    int h = hash( command[0].unicode(), command.length() );
+	    int h = HASH( command[0].unicode(), command.length() );
 	    bool consumed = FALSE;
 
 	    switch ( h ) {
-	    case hash( 'a', 18 ):
-		consume( "annotatedclasslist" );
+	    case HASH( 'a', 18 ):
+		CONSUME( "annotatedclasslist" );
 		yyOut += htmlAnnotatedClassList();
 		break;
-	    case hash( 'c', 4 ):
-		consume( "code" );
+	    case HASH( 'c', 4 ):
+		CONSUME( "code" );
 		begin = yyPos;
 		end = yyIn.find( QString("\\endcode"), yyPos );
 		if ( end == -1 ) {
@@ -2346,28 +2085,28 @@ QString Doc::finalHtml() const
 		    yyPos = end + 8;
 		}
 		break;
-	    case hash( 'c', 9 ):
-		consume( "classlist" );
+	    case HASH( 'c', 9 ):
+		CONSUME( "classlist" );
 		yyOut += htmlClassList();
 		break;
-	    case hash( 'c', 14 ):
-		consume( "classhierarchy" );
+	    case HASH( 'c', 14 ):
+		CONSUME( "classhierarchy" );
 		yyOut += htmlClassHierarchy();
 		break;
-	    case hash( 'e', 13 ):
-		consume( "extensionlist" );
+	    case HASH( 'e', 13 ):
+		CONSUME( "extensionlist" );
 		yyOut += htmlExtensionList();
 		break;
-	    case hash( 'f', 13 ):
-		consume( "functionindex" );
+	    case HASH( 'f', 13 ):
+		CONSUME( "functionindex" );
 		yyOut += htmlFunctionIndex();
 		break;
-	    case hash( 'h', 14 ):
-		consume( "headerfilelist" );
+	    case HASH( 'h', 14 ):
+		CONSUME( "headerfilelist" );
 		yyOut += htmlHeaderFileList();
 		break;
-	    case hash( 'i', 7 ):
-		consume( "include" );
+	    case HASH( 'i', 7 ):
+		CONSUME( "include" );
 		fileName = getWord( yyIn, yyPos );
 
 		if ( !fileName.isEmpty() ) {
@@ -2378,13 +2117,15 @@ QString Doc::finalHtml() const
 						walkthroughLinkMaps[fileName] );
 		    yyOut += QString( "</pre>" );
 		    dependsOn.insert( walk.filePath() );
+#if 0
 		    if ( yyOut.find(hashHashHash, begin) != -1 )
 			warning( 2, Location(fileName),
 				 "Met '#" "##' in example" );
+#endif
 		}
 		break;
-	    case hash( 'l', 1 ):
-		consume( "l" );
+	    case HASH( 'l', 1 ):
+		CONSUME( "l" );
 		name = getArgument( yyIn, yyPos );
 		ahref = href( name );
 		if ( ahref.length() == name.length() )
@@ -2392,8 +2133,8 @@ QString Doc::finalHtml() const
 			     name.latin1() );
 		yyOut += ahref;
 		break;
-	    case hash( 'l', 4 ):
-		consume( "link" );
+	    case HASH( 'l', 4 ):
+		CONSUME( "link" );
 		link = getArgument( yyIn, yyPos );
 		begin = yyPos;
 		end = yyIn.find( QString("\\endlink"), yyPos );
@@ -2410,23 +2151,23 @@ QString Doc::finalHtml() const
 		    yyPos = end + 8;
 		}
 		break;
-	    case hash( 'p', 7 ):
-		consume( "printto" );
+	    case HASH( 'p', 7 ):
+		CONSUME( "printto" );
 		substr = getRestOfLine( yyIn, yyPos );
 		yyOut += walk.printto( substr, location() );
 		break;
-	    case hash( 'p', 9 ):
-		consume( "printline" );
+	    case HASH( 'p', 9 ):
+		CONSUME( "printline" );
 		substr = getRestOfLine( yyIn, yyPos );
 		yyOut += walk.printline( substr, location() );
 		break;
-	    case hash( 'p', 10 ):
-		consume( "printuntil" );
+	    case HASH( 'p', 10 ):
+		CONSUME( "printuntil" );
 		substr = getRestOfLine( yyIn, yyPos );
 		yyOut += walk.printuntil( substr, location() );
 		break;
-	    case hash( 'q', 9 ):
-		consume( "quotefile" );
+	    case HASH( 'q', 9 ):
+		CONSUME( "quotefile" );
 		fileName = getWord( yyIn, yyPos );
 		skipRestOfLine( yyIn, yyPos );
 
@@ -2437,31 +2178,31 @@ QString Doc::finalHtml() const
 		    /// ### put dependsOn in first pass
 		}
 		break;
-	    case hash( 's', 2 ):
-		consume( "sa" );
+	    case HASH( 's', 2 ):
+		CONSUME( "sa" );
 		yyOut += htmlSeeAlso();
 		break;
-	    case hash( 's', 6 ):
-		consume( "skipto" );
+	    case HASH( 's', 6 ):
+		CONSUME( "skipto" );
 		substr = getRestOfLine( yyIn, yyPos );
 		walk.skipto( substr, location() );
 		break;
-	    case hash( 's', 8 ):
-		consume( "skipline" );
+	    case HASH( 's', 8 ):
+		CONSUME( "skipline" );
 		substr = getRestOfLine( yyIn, yyPos );
 		walk.skipline( substr, location() );
 		break;
-	    case hash( 's', 9 ):
-		consume( "skipuntil" );
+	    case HASH( 's', 9 ):
+		CONSUME( "skipuntil" );
 		substr = getRestOfLine( yyIn, yyPos );
 		walk.skipuntil( substr, location() );
 		break;
-	    case hash( 't', 15 ):
-		consume( "tableofcontents" );
+	    case HASH( 't', 15 ):
+		CONSUME( "tableofcontents" );
 		yyOut += htmlTableOfContents();
 		break;
-	    case hash( 'v', 7 ):
-		consume( "version" );
+	    case HASH( 'v', 7 ):
+		CONSUME( "version" );
 		yyOut += config->version();
 	    }
 	    if ( !consumed ) {
@@ -2545,7 +2286,7 @@ QString Doc::finalHtml() const
       Generate the "Examples:" section. Example file names are put in
       alphabetical order. If we were not careful, the same example
       file could appear twice: once in an '\include' and once in a
-      '\walkthrough'.
+      '\quotefile'.
     */
     QMap<QString, ExampleLocation> alphabetizedExamples;
 
@@ -2755,38 +2496,14 @@ void PropertyDoc::setFunctions( const QString& read, const QString& readRef,
 }
 
 PageLikeDoc::PageLikeDoc( Kind kind, const Location& loc, const QString& html,
-			  const QString& title, const QString& heading )
-    : Doc( kind, loc, html ), ttl( title ), hding( heading )
+			  const QString& title )
+    : Doc( kind, loc, html ), ttl( title )
 {
-}
-
-QString PageLikeDoc::heading() const
-{
-    static QRegExp linkEndlink( QString("\\\\link(.*)\\\\endlink") );
-    int k = linkEndlink.search( hding );
-    if ( k == -1 ) {
-	return hding;
-    } else {
-	QStringList toks = QStringList::split( QChar(' '),
-		linkEndlink.cap(1).stripWhiteSpace() );
-	if ( toks.count() < 2 ) {
-	    warning( 2, location(),
-		     "Bad '\\link ... \\endlink' syntax in '\\heading'" );
-	    return hding;
-	}
-
-	QString name = toks.first();
-	toks.remove( toks.begin() );
-	QString text = toks.join( QChar(' ') );
-	return hding.left( k ) + href( name, text ) +
-	       hding.mid( k + linkEndlink.matchedLength() );
-    }
 }
 
 PageDoc::PageDoc( const Location& loc, const QString& html,
-		  const QString& fileName, const QString& title,
-		  const QString& heading )
-    : PageLikeDoc( Page, loc, html, title, heading )
+		  const QString& fileName, const QString& title )
+    : PageLikeDoc( Page, loc, html, title )
 {
     setName( title );
     setFileName( fileName );
@@ -2817,18 +2534,16 @@ void PlainpageDoc::print( BinaryWriter& out )
 }
 
 DefgroupDoc::DefgroupDoc( const Location& loc, const QString& html,
-			  const QString& groupName, const QString& title,
-			  const QString& heading )
-    : PageLikeDoc( Defgroup, loc, html, title, heading )
+			  const QString& groupName, const QString& title )
+    : PageLikeDoc( Defgroup, loc, html, title )
 {
     setName( groupName );
     setFileName( config->defgroupHref(groupName) );
 }
 
 ExampleDoc::ExampleDoc( const Location& loc, const QString& html,
-			const QString& fileName, const QString& title,
-			const QString& heading )
-    : PageLikeDoc( Example, loc, html, title, heading )
+			const QString& fileName, const QString& title )
+    : PageLikeDoc( Example, loc, html, title )
 {
     setFileName( fileName );
 }

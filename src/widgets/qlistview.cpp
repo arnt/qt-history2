@@ -1878,7 +1878,13 @@ int QListViewItem::width( const QFontMetrics& fm,
 void QListViewItem::paintFocus( QPainter *p, const QColorGroup &cg,
 				const QRect & r )
 {
-    listView()->style().drawPrimitive( QStyle::PO_FocusRect, p, r, cg );
+    void *data[1];
+    data[0] = (void *) (isSelected() ? &cg.highlight() : &cg.base());
+    listView()->style().drawPrimitive( QStyle::PO_FocusRect, p, r, cg,
+				       (isSelected() ?
+					QStyle::PStyle_FocusAtBorder :
+					QStyle::PStyle_Default),
+				       data);
 }
 
 
@@ -1904,8 +1910,8 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 	return;
     QListView *lv = listView();
     if ( lv )
-	lv->style().drawComplexControl( QStyle::CC_ListView, p, lv, QRect( 0, y, w, totalHeight() ), 
-					cg, QStyle::CStyle_Default, 
+	lv->style().drawComplexControl( QStyle::CC_ListView, p, lv, QRect( 0, y, w, totalHeight() ),
+					cg, QStyle::CStyle_Default,
 					QStyle::SC_ListViewBranch | QStyle::SC_ListViewExpand, QStyle::SC_None,
 					this);
 }

@@ -4,6 +4,7 @@
 # Read PORTING for instructions how to port Qt to a new platform.
 
 SHELL=/bin/sh
+INSTALL_BIN_DIR=bin
 
 init: FORCE
 	@$(MAKE) QTDIR=`pwd` all
@@ -24,7 +25,7 @@ all: symlinks src-qmake src-moc sub-src sub-codecs sub-tools \
 	@echo "Enjoy!   - the Trolltech team"
 	@echo
 
-qt.install: all moc-install src-install tools-install
+qt.install: all qmake-install moc-install src-install tools-install
 
 moc-install: src-moc
 	cd src/moc; $(MAKE) install
@@ -34,6 +35,10 @@ src-install: sub-src
 
 tools-install: sub-tools
 	cd tools; $(MAKE) install
+
+qmake-install: src-qmake
+	[ -d $(INSTALL_BIN_DIR) ] || mkdir -p $(INSTALL_BIN_DIR)
+	cp bin/qmake $(INSTALL_BIN_DIR)
 
 src-qmake: symlinks FORCE
 	cd qmake; $(MAKE)

@@ -10,6 +10,7 @@
 #include <qvaluelist.h>
 
 #include "location.h"
+#include "parsehelpers.h"
 #include "stringset.h"
 #include "walkthrough.h"
 
@@ -41,33 +42,6 @@ private:
     bool ininc;
     int ln;
     int uniq;
-};
-
-struct Section
-{
-    QString target;
-    QString title;
-    QValueList<Section> *subs;
-
-    Section() : subs( 0 ) { }
-    Section( const Section& s ) : subs( 0 ) { operator=( s ); }
-    ~Section() { delete subs; }
-
-    Section& operator=( const Section& s ) {
-	target = s.target;
-	title = s.title;
-	if ( subs == 0 )
-	    subs = new QValueList<Section>;
-	*subs = *s.subsections();
-	return *this;
-    }
-
-    QValueList<Section> *subsections() const {
-	if ( subs == 0 )
-	    ((Section *) this)->subs = new QValueList<Section>;
-	return subs;
-    }
-
 };
 
 class DocParser;
@@ -273,23 +247,19 @@ class PageLikeDoc : public Doc
 {
 public:
     PageLikeDoc( Kind kind, const Location& loc, const QString& html,
-		 const QString& title = QString::null,
-		 const QString& heading = QString::null );
+		 const QString& title = QString::null );
 
     const QString& title() const { return ttl; }
-    QString heading() const;
 
 private:
     QString ttl;
-    QString hding;
 };
 
 class PageDoc : public PageLikeDoc
 {
 public:
     PageDoc( const Location& loc, const QString& html,
-	     const QString& fileName, const QString& title,
-	     const QString& heading );
+	     const QString& fileName, const QString& title );
 };
 
 class Base64Doc : public PageLikeDoc
@@ -314,16 +284,14 @@ class DefgroupDoc : public PageLikeDoc
 {
 public:
     DefgroupDoc( const Location& loc, const QString& html,
-		 const QString& groupName, const QString& title,
-		 const QString& heading );
+		 const QString& groupName, const QString& title );
 };
 
 class ExampleDoc : public PageLikeDoc
 {
 public:
     ExampleDoc( const Location& loc, const QString& html,
-		const QString& fileName, const QString& title,
-		const QString& heading );
+		const QString& fileName, const QString& title );
 };
 
 #endif

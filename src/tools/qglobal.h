@@ -51,7 +51,7 @@
 //   MSDOS	- MS-DOS and Windows
 //   OS2	- OS/2
 //   OS2EMX	- XFree86 on OS/2 (not PM)
-//   WIN32	- Win32 (Windows 95/98 and Windows NT)
+//   WIN32	- Win32 (Windows 95/98/ME and Windows NT/2000)
 //   SUN	- SunOS
 //   SOLARIS	- Sun Solaris
 //   HPUX	- HP-UX
@@ -62,9 +62,9 @@
 //   OPENBSD    - OpenBSD
 //   BSDI	- BSD/OS
 //   IRIX	- SGI Irix
-//   OSF	- Tru64 / Digital UNIX
+//   OSF	- Compaq Tru64
 //   UNIXWARE	- SCO UnixWare
-//   SCO	- SCO of some sort
+//   SCO	- SCO OpenServer
 //   AIX	- AIX
 //   HURD	- GNU Hurd
 //   DGUX	- DG/UX
@@ -643,9 +643,11 @@ Q_EXPORT void fatal( const char *, ... )	// print fatal message and exit
 
 #if !defined(QT_CLEAN_NAMESPACE)
 // source compatibility with Qt 2.x
+#ifndef _WIN32_WCE
 #  if !defined(ASSERT)
 #    define ASSERT(x) Q_ASSERT(x)
 #  endif
+#endif // _WIN32_WCE
 #endif // QT_CLEAN_NAMESPACE
 
 

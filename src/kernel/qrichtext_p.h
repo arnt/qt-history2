@@ -1203,6 +1203,10 @@ public:
     void setBreakable( bool b ) { breakable = b; }
     bool isBreakable() const { return breakable; }
 
+    void setBackgroundColor( const QColor &c ) { delete bgcol; bgcol = new QColor( c ); setChanged( TRUE ); }
+    QColor *backgroundColor() const { return bgcol; }
+    void clearBackgroundColor() { delete bgcol; bgcol = 0; setChanged( TRUE ); }
+
 protected:
     virtual void drawLabel( QPainter* p, int x, int y, int w, int h, int base, const QColorGroup& cg );
     virtual void drawParagString( QPainter &painter, const QString &str, int start, int len, int startX,
@@ -1226,6 +1230,7 @@ private:
     bool splittedInside : 1;
     bool lastInFrame : 1;
     bool visible : 1;
+    bool breakable : 1;
     QMap<int, QTextParagSelection> selections;
     int state, id;
     QTextString *str;
@@ -1246,7 +1251,7 @@ private:
     QPainter *pntr;
     QTextCommandHistory *commandHistory;
     int list_val;
-    bool breakable;
+    QColor *bgcol;
 
 };
 

@@ -31,8 +31,11 @@ public:
     void printfMeta( const char *fmt, ... );
     void putsMeta( const char *str );
     void puts( const char *str );
-
+    void putchar( int ch );
     void printFnord();
+
+    void startRecording();
+    QString endRecording();
 
     const QString& fileName() const { return fn; }
 
@@ -43,6 +46,7 @@ private:
 #endif
 
     void flushHead();
+    inline void doputchar( int ch );
 
     FILE *out;
     QString fn;
@@ -51,6 +55,7 @@ private:
     QString sh;
     bool headFlushed;
     bool footFlushed;
+    int recordStart;
 
     static QMap<QString, StringSet> tmap;
     static QString styl;

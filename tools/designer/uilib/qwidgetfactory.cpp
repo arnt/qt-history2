@@ -262,10 +262,8 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
     if ( !functions.isNull() )
 	widgetFactory->loadFunctions( functions );
 
-    QString dir = getenv( "QTDIR" );
-    dir += "/plugins/designer";
     if ( !languageInterfaceManager ) {
-	languageInterfaceManager = new QPluginManager<LanguageInterface>( IID_Language, dir );
+	languageInterfaceManager = new QPluginManager<LanguageInterface>( IID_Language );
 	QStringList paths(QApplication::libraryPaths());
 	QStringList::Iterator it = paths.begin();
 	while (it != paths.end()) {
@@ -276,7 +274,7 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 
     if ( !interpreterInterfaceManager ) {
 	interpreterInterfaceManager =
-	    new QPluginManager<InterpreterInterface>( IID_Interpreter, dir );
+	    new QPluginManager<InterpreterInterface>( IID_Interpreter );
 	QStringList paths(QApplication::libraryPaths());
 	QStringList::Iterator it = paths.begin();
 	while (it != paths.end()) {
@@ -324,7 +322,7 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 #endif
 
 	if ( !eventInterfaceManager ) {
-	    eventInterfaceManager = new QPluginManager<EventInterface>( IID_Event, dir );
+	    eventInterfaceManager = new QPluginManager<EventInterface>( IID_Event );
 
 	    QStringList paths(QApplication::libraryPaths());
 	    QStringList::Iterator it = paths.begin();
@@ -537,9 +535,7 @@ QWidget *QWidgetFactory::createWidget( const QString &className, QWidget *parent
 
     // try to create it using the loaded widget plugins
     if ( !widgetInterfaceManager ) {
-	QString dir = getenv( "QTDIR" );
-	dir += "/plugins/designer";
-	widgetInterfaceManager = new QPluginManager<WidgetInterface>( IID_Widget, dir );
+	widgetInterfaceManager = new QPluginManager<WidgetInterface>( IID_Widget );
 	QStringList paths(QApplication::libraryPaths());
 	QStringList::Iterator it = paths.begin();
 	while (it != paths.end()) {
@@ -1519,10 +1515,8 @@ void QWidgetFactory::loadFunctions( const QDomElement &e )
     QMap<QString, QString> bodies;
     QString s;
     if ( !interpreterInterfaceManager ) {
-	QString dir = getenv( "QTDIR" );
-	dir += "/plugins/designer";
 	interpreterInterfaceManager =
-	    new QPluginManager<InterpreterInterface>( IID_Interpreter, dir );
+	    new QPluginManager<InterpreterInterface>( IID_Interpreter );
 	QStringList paths(QApplication::libraryPaths());
 	QStringList::Iterator it = paths.begin();
 	while ( it != paths.end() ) {

@@ -119,11 +119,6 @@ MainWindow::MainWindow( bool asClient )
     desInterface->addRef();
     inDebugMode = FALSE;
 
-    pluginDir = getenv( "QTDIR" );
-    pluginDir += "/plugins/designer";
-    libDir = getenv( "QTDIR" );
-    libDir += "/lib";
-
     updateSlotsTimer = new QTimer( this );
     connect( updateSlotsTimer, SIGNAL( timeout() ),
 	     this, SLOT( doSlotsChanged() ) );
@@ -533,7 +528,8 @@ QObjectList *MainWindow::runProject()
 		iiface->setBreakPoints( f, bps );
 	}
 
-	iiface->exec( 0, "main" );
+	if ( !forms.isEmpty() )
+	    iiface->exec( 0, "main" );
 
 	for ( QStringList::Iterator it2 = forms.begin(); it2 != forms.end(); ++it2 ) {
 	    QWidget *w = QWidgetFactory::create( currentProject->makeAbsolute( *it2 ) );
@@ -2510,7 +2506,7 @@ void MainWindow::showDialogHelp()
 
 void MainWindow::setupActionManager()
 {
-    actionPluginManager = new QPluginManager<ActionInterface>( IID_Action, pluginDir );
+    actionPluginManager = new QPluginManager<ActionInterface>( IID_Action );
     QStringList paths(QApplication::libraryPaths());
     QStringList::Iterator it = paths.begin();
     while (it != paths.end()) {
@@ -2670,7 +2666,7 @@ TemplateWizardInterface * MainWindow::templateWizardInterface( const QString& cl
 
 void MainWindow::setupPluginManagers()
 {
-    editorPluginManager = new QPluginManager<EditorInterface>( IID_Editor, pluginDir );
+    editorPluginManager = new QPluginManager<EditorInterface>( IID_Editor );
     QStringList paths(QApplication::libraryPaths());
     QStringList::Iterator it = paths.begin();
     while (it != paths.end()) {
@@ -2679,7 +2675,7 @@ void MainWindow::setupPluginManagers()
     }
 
     MetaDataBase::setEditor( editorPluginManager->featureList() );
-    templateWizardPluginManager = new QPluginManager<TemplateWizardInterface>( IID_TemplateWizard, pluginDir );
+    templateWizardPluginManager = new QPluginManager<TemplateWizardInterface>( IID_TemplateWizard );
     it = paths.begin();
     while (it != paths.end()) {
 	templateWizardPluginManager->addLibraryPath(*it + "/designer");
@@ -2687,28 +2683,28 @@ void MainWindow::setupPluginManagers()
     }
 
     MetaDataBase::setupInterfaceManagers();
-    programPluginManager = new QPluginManager<ProgramInterface>( IID_Program, pluginDir );
+    programPluginManager = new QPluginManager<ProgramInterface>( IID_Program );
     it = paths.begin();
     while (it != paths.end()) {
 	programPluginManager->addLibraryPath(*it + "/designer");
 	it++;
     }
 
-    interpreterPluginManager = new QPluginManager<InterpreterInterface>( IID_Interpreter, pluginDir );
+    interpreterPluginManager = new QPluginManager<InterpreterInterface>( IID_Interpreter );
     it = paths.begin();
     while (it != paths.end()) {
 	interpreterPluginManager->addLibraryPath(*it + "/designer");
 	it++;
     }
 
-    preferencePluginManager = new QPluginManager<PreferenceInterface>( IID_Preference, pluginDir );
+    preferencePluginManager = new QPluginManager<PreferenceInterface>( IID_Preference );
     it = paths.begin();
     while (it != paths.end()) {
 	preferencePluginManager->addLibraryPath(*it + "/designer");
 	it++;
     }
 
-    projectSettingsPluginManager = new QPluginManager<ProjectSettingsInterface>( IID_ProjectSettings, pluginDir );
+    projectSettingsPluginManager = new QPluginManager<ProjectSettingsInterface>( IID_ProjectSettings );
     it = paths.begin();
     while (it != paths.end()) {
 	projectSettingsPluginManager->addLibraryPath(*it + "/designer");
@@ -2823,11 +2819,10 @@ void MainWindow::updateFormList()
 
 void MainWindow::showDebugStep( QObject *o, int line )
 {
-    if ( !o || line == -1 ) {
-	for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() )
-	    e->clearStep();
+    for ( SourceEditor *e = sourceEditors.first(); e; e = sourceEditors.next() )
+	e->clearStep();
+    if ( !o || line == -1 )
 	return;
-    }
     showSourceLine( o, line, FALSE );
 }
 

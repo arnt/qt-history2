@@ -4,7 +4,7 @@ isEmpty(target.path):target.path=$$QT_PREFIX/lib
 INSTALLS += target
 
 #headers
-isEmpty(headers.path):headers.path=$$QT_PREFIX/headers
+isEmpty(headers.path):headers.path=$$QT_PREFIX/include
 headers.files = ../include/*.h
 INSTALLS += headers
 

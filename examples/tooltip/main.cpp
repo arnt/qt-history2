@@ -16,7 +16,7 @@ int main( int argc, char ** argv )
     QApplication a( argc, argv );
 
     TellMe mw;
-    mw.setCaption( "Dynamic Tool Tip Demonstration" );
+    mw.setCaption( "Qt Example - Dynamic Tool Tips" );
     a.setMainWidget( &mw );
     mw.show();
     

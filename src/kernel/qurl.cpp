@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QUrl class
 **
@@ -621,7 +621,7 @@ bool QUrl::parse( const QString& url )
     int i = 0;
     QString port;
 
-    while ( TRUE ) {
+    for ( ;; ) {
 	switch ( c ) {
 	case '?':
 	    input = InputQuery;

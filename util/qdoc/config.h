@@ -26,6 +26,7 @@ public:
     const QStringList& docDirList() const { return docdirs; }
     const QStringList& includeDirList() const { return includedirs; }
     const QStringList& exampleDirList() const { return exampledirs; }
+    const QStringList& bookDirList() const { return bookdirs; }
     const QString& outputDir() const { return outputdir; }
 
     const QString& base() const { return bas; }
@@ -63,6 +64,7 @@ private:
     QStringList docdirs;
     QStringList includedirs;
     QStringList exampledirs;
+    QStringList bookdirs;
     QString outputdir;
 
     int maxSim;

@@ -19,6 +19,7 @@ int main( int argc, char **argv )
     QTetrix *tetrix = new QTetrix;
     tetrix->setCaption("Tetrix");
     a.setMainWidget(tetrix);
+    tetrix->setCaption("Qt Example - Tetrix");
     tetrix->show();
     return a.exec();
 }

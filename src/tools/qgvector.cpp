@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QGVector class
 **
@@ -340,7 +340,11 @@ static QGVector *sort_vec=0;			// current sort vector
 extern "C" {
 #endif
 
+#ifdef _WIN32_WCE
+static int _cdecl cmp_vec( const void *n1, const void *n2 )
+#else
 static int cmp_vec( const void *n1, const void *n2 )
+#endif
 {
     return sort_vec->compareItems( *((QPtrCollection::Item*)n1), *((QPtrCollection::Item*)n2) );
 }

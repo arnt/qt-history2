@@ -16,7 +16,7 @@ int main(int argc,char **argv)
     QApplication a(argc,argv);
 
     ProgressBar progressbar;
-    progressbar.setCaption("Example for a ProgressBar");
+    progressbar.setCaption("Qt Example - ProgressBar");
     a.setMainWidget(&progressbar);
     progressbar.show();
 

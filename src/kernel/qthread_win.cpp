@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** QThread class for windows
 **
@@ -39,7 +39,10 @@
 #ifndef _MT
 #define _MT
 #endif
+
+#ifndef _WIN32_WCE
 #include <process.h>
+#endif
 
 #ifdef QT_CHECK_RANGE
 #define QMUTEX_TYPE_NORMAL 0
@@ -97,12 +100,16 @@ public:
 
 QMutexPrivate::QMutexPrivate()
 {
+#ifdef _WIN32_WCE
+	handle = CreateMutex( NULL, FALSE, NULL );
+#else
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based )
 	handle = CreateMutex( NULL, FALSE, NULL );
     else
 #endif
 	handle = CreateMutexA( NULL, FALSE, NULL );
+#endif
 #ifdef QT_CHECK_RANGE
     if ( !handle )
 	qSystemWarning( "Mutex init failure" );
@@ -395,15 +402,21 @@ QWaitConditionPrivate::QWaitConditionPrivate()
 : waitersCount(0)
 {
 #if defined(UNICODE)
+#ifndef _WIN32_WCE
     if ( qWinVersion() & Qt::WV_NT_based ) {
+#endif
 	handle = CreateEvent( NULL, TRUE, FALSE, NULL );
 	single = CreateEvent( NULL, FALSE, FALSE, NULL );
+#ifndef _WIN32_WCE
     } else 
 #endif
+#endif
+#ifndef _WIN32_WCE
     {
 	handle = CreateEventA( NULL, TRUE, FALSE, NULL );
 	single = CreateEventA( NULL, FALSE, FALSE, NULL );
     }
+#endif
 
 #ifdef QT_CHECK_RANGE
     if ( !handle || !single )
@@ -721,13 +734,19 @@ QSemaphore::QSemaphore( int maxcount )
     d = new QSemaphorePrivate;
     d->maxCount = maxcount;
 #if defined(UNICODE)
+#ifndef _WIN32_WCE
     if ( qWinVersion() & Qt::WV_NT_based ) {
+#endif
 	d->handle = CreateSemaphore( NULL, maxcount, maxcount, NULL );
+#ifndef _WIN32_WCE
     } else 
 #endif
+#endif
+#ifndef _WIN32_WCE
     {
 	d->handle = CreateSemaphoreA( NULL, maxcount, maxcount, NULL );
     }
+#endif
 
 #ifdef QT_CHECK_RANGE
     if ( !d->handle )

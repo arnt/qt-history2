@@ -294,18 +294,21 @@ private:
 				       QString* workingDirectory,
 				       QWidget *parent = 0,
 				       const char* name = 0,
-				       const QString& caption = QString::null);
+				       const QString& caption = QString::null,
+				       QString* selectedFilter = 0 );
     static QString winGetSaveFileName( const QString &initialSelection,
 				       const QString &filter,
 				       QString* workingDirectory,
 				       QWidget *parent = 0,
 				       const char* name = 0,
-				       const QString& caption = QString::null);
+				       const QString& caption = QString::null,
+    				       QString* selectedFilter = 0 );
     static QStringList winGetOpenFileNames( const QString &filter,
 					    QString* workingDirectory,
 					    QWidget *parent = 0,
 					    const char* name = 0,
-					    const QString& caption = QString::null);
+					    const QString& caption = QString::null,
+					    QString* selectedFilter = 0 );
     static QString winGetExistingDirectory( const QString &initialDirectory,
 					    QWidget* parent = 0,
 					    const char* name = 0,

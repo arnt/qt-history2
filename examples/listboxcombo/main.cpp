@@ -17,7 +17,7 @@ int main( int argc, char **argv )
 
     ListBoxCombo listboxcombo;
     listboxcombo.resize( 400, 270 );
-    listboxcombo.setCaption( "Examples for Listboxes and Comboboxes" );
+    listboxcombo.setCaption( "Qt Example - Listboxes and Comboboxes" );
     a.setMainWidget( &listboxcombo );
     listboxcombo.show();
 

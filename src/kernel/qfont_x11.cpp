@@ -1136,11 +1136,6 @@ void QFontPrivate::drawText( Display *dpy, int screen, Qt::HANDLE hd, Qt::HANDLE
 	    // fill pixmap with pen color
 	    pm->fill(pen);
 
-	    // byteswap!
-	    unsigned short *tstr;
-
-	    tstr = (unsigned short *) cache->string;
-
 	    if (bgmode != Qt::TransparentMode) {
 		XRenderColor col;
 		col.red = bgcolor.red();
@@ -1154,7 +1149,7 @@ void QFontPrivate::drawText( Display *dpy, int screen, Qt::HANDLE hd, Qt::HANDLE
 	    }
 
 	    XftRenderString16(dpy, pm->x11RenderHandle(), xftfs, rendhd, 0, 0,
-			      x + cache->xoff, y + cache->yoff, tstr, cache->length);
+			      x + cache->xoff, y + cache->yoff, (unsigned short *)cache->string, cache->length);
 
 	} else
 #endif // QT_NO_XFTFREETYPE
@@ -1842,9 +1837,11 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
     float diff;
     if ( *scalable ) {
 	diff = 0.9;	// choose scalable font over >= 0.9 point difference
-	if ( *smoothScalable )
+	if ( *smoothScalable ) {
 	    score |= SizeScore;
-	else {
+	    if ( request.styleStrategy & QFont::PreferOutline || request.styleStrategy & QFont::ForceOutline )
+		diff = 0;
+	} else {
 	    // scaled bitmap fonts look just ugly. Never give them a size score if not PreferMatch
 	    exactmatch = FALSE;
 	    if ( request.styleStrategy & QFont::PreferMatch )
@@ -1871,6 +1868,8 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
 	    diff = (float)pSize;
 	    percentDiff = 100;
 	}
+	if ( diff == 0 && (request.styleStrategy & QFont::PreferOutline || request.styleStrategy & QFont::ForceOutline) )
+	    diff = 0.9;
 
 	if ( percentDiff < 10 && 
 	     (!(request.styleStrategy & QFont::PreferMatch) || request.styleStrategy & QFont::PreferQuality) ) {

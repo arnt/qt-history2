@@ -8,7 +8,6 @@
 **
 *****************************************************************************/
 
-#include <ctype.h>
 #include <qapplication.h>
 #include <qpainter.h>
 #include <qpicture.h>
@@ -16,6 +15,7 @@
 #include <qwidget.h>
 #include <qmessagebox.h>
 #include <qfile.h>
+#include <ctype.h>
 
 
 void paintCar( QPainter *p )			// paint a car
@@ -123,6 +123,7 @@ int main( int argc, char **argv )
     } else {
 	PictureDisplay test( fileName );		// create picture display
 	a.setMainWidget( &test);			// set main widget
+	test.setCaption("Qt Example - Picture");
 	test.show();				// show it
 
 	return a.exec();				// start event loop

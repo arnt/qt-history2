@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QApplication class
 **
@@ -50,6 +50,7 @@
 #include "qclipboard.h"
 #include "qcursor.h"
 #include "qstylefactory.h"
+#include <stdlib.h>
 
 #if defined(QT_THREAD_SUPPORT)
 #include "qthread.h"
@@ -1206,8 +1207,12 @@ QStringList QApplication::libraryPaths()
     if ( !app_libpaths ) {
 	app_libpaths = new QStringList;
 
+	char *qtdir = getenv("QTDIR");
+	if ( qtdir )
+	    app_libpaths->append( QString(qtdir) + "/plugins" );
 #ifdef QT_INSTALL_PREFIX
-	app_libpaths->append(QString(QT_INSTALL_PREFIX) + "/plugins");
+	else
+	    app_libpaths->append( QString(QT_INSTALL_PREFIX) + "/plugins" );
 #endif // QT_INSTALL_PREFIX
     }
     return *app_libpaths;
@@ -1230,50 +1235,38 @@ void QApplication::setLibraryPaths(const QStringList &paths)
 
 /*!
   Append \a path to the end of the library path list.  If \a path is
-  null or already in the path list, the path list is unchanged.
+  empty or already in the path list, the path list is unchanged.
 
   \sa removeLibraryPath(), libraryPaths(), setLibraryPaths()
  */
 void QApplication::addLibraryPath(const QString &path)
 {
-    if (path.isNull()) {
+    if ( path.isEmpty() )
 	return;
-    }
 
-    if ( !app_libpaths ) {
-	app_libpaths = new QStringList;
+    // make sure that library paths is initialized
+    libraryPaths();
 
-#ifdef QT_INSTALL_PREFIX
-	app_libpaths->append(QString(QT_INSTALL_PREFIX) + "/plugins");
-#endif // QT_INSTALL_PREFIX
-    }
-    if (! app_libpaths->contains(path)) {
+    if ( !app_libpaths->contains(path) )
 	app_libpaths->append(path);
-    }
 }
 
 /*!
-  Removes \a path from the library path list.  If \a path is null or not
+  Removes \a path from the library path list.  If \a path is empty or not
   in the path list, the list is unchanged.
 
   \sa addLibraryPath(), libraryPaths(), setLibraryPaths()
 */
 void QApplication::removeLibraryPath(const QString &path)
 {
-    if (path.isNull()) {
+    if ( path.isEmpty() )
 	return;
-    }
 
-    if ( !app_libpaths ) {
-	app_libpaths = new QStringList;
+    // make sure that library paths is initialized
+    libraryPaths();
 
-#ifdef QT_INSTALL_PREFIX
-	app_libpaths->append(QString(QT_INSTALL_PREFIX) + "/plugins");
-#endif // QT_INSTALL_PREFIX
-    }
-    if (! app_libpaths->contains(path)) {
+    if (! app_libpaths->contains(path))
 	app_libpaths->remove(path);
-    }
 }
 #endif //QT_NO_COMPONENT
 
@@ -2306,7 +2299,7 @@ void QApplication::postEvent( QObject *receiver, QEvent *event )
 	 event->type() == QEvent::Move ) {
 	l->first();
 	QPostEvent * cur = 0;
-	while ( TRUE ) {
+	for ( ;; ) {
 	    while ( (cur=l->current()) != 0 &&
 		    ( cur->receiver != receiver ||
 		      cur->event == 0 ||

@@ -108,10 +108,11 @@ public:
 
     QPrinter::PageSize indexToPageSize[QPrinter::NPageSize];
 
-    static void isc( QPrintDialogPrivate * d, const QString & text,
-                     QPrinter::PageSize ps );
 
 };
+
+static void isc( QPrintDialogPrivate * d, const QString & text,
+		 QPrinter::PageSize ps );
 
 
 static void perhapsAddPrinter( QListView * printers, const QString &name,
@@ -725,6 +726,43 @@ QPrintDialog::~QPrintDialog()
     delete d;
 }
 
+/*!
+  This method allows you to specify a global printdialog that will be used 
+  instead of the default one provided by Qt.
+  
+  This is useful, as there are many different printing systems on Unix, and
+  we can not possibly support all of them. Calling this method before using a printer
+  the first time allows you to set up your own printdialog to use.
+  
+  \sa setupPrinters()
+*/
+void QPrintDialog::setGlobalPrintDialog( QPrintDialog *pd )
+{
+    QPrintDialog *oldPd = globalPrintDialog;
+    globalPrintDialog = pd;
+    if ( oldPd )
+	delete oldPd;
+    else
+	qpd_cleanup_globaldialog.add( &globalPrintDialog );
+}
+
+/*!
+  This function is used to be able to specify custom printers in the print dialog.
+  On Unix many different printing systems exist, and we can not possibly cover all
+  of them. In case you have a custom printing system that Qt does not cover (ie. autodetection
+  of available printers fails), you can use this method to specify your own printers.
+  
+  this virtual method should return false if you couldn't setup the printers. In this case Qt will try
+  it's own mechanisms to scan for printers. Returning TRUE means you have set up the list of 
+  printers correctly and Qt does not need to scan for additional printers in the system.
+
+  \sa setGlobalPrintDialog
+*/
+bool QPrintDialog::setupPrinters ( QListView * )
+{
+    return FALSE;
+}
+
 
 QGroupBox * QPrintDialog::setupPrinterSettings()
 {
@@ -792,10 +830,12 @@ QGroupBox * QPrintDialog::setupDestination()
     etcLpDefault = parseCupsOutput( d->printers );
     if ( d->printers->childCount() == 0 ) {
         // we only use other schemes when cups fails.
-        parsePrintcap( d->printers );
-        parseEtcLpMember( d->printers );
-        parseSpoolInterface( d->printers );
-        parseQconfig( d->printers );
+	if ( !setupPrinters( d->printers ) ) {
+	    parsePrintcap( d->printers );
+	    parseEtcLpMember( d->printers );
+	    parseSpoolInterface( d->printers );
+	    parseQconfig( d->printers );
+	}
 
         QFileInfo f;
         f.setFile( QString::fromLatin1("/etc/lp/printers") );
@@ -1020,9 +1060,9 @@ QGroupBox * QPrintDialog::setupOptions()
 }
 
 
-void QPrintDialogPrivate::isc( QPrintDialogPrivate * d,
-			       const QString & text,
-			       QPrinter::PageSize ps )
+void isc( QPrintDialogPrivate * d,
+	  const QString & text,
+	  QPrinter::PageSize ps )
 {
     if ( d && text && ps < QPrinter::NPageSize ) {
         d->sizeCombo->insertItem( text, -1 );
@@ -1063,44 +1103,36 @@ QGroupBox * QPrintDialog::setupPaper()
     for( n=0; n<QPrinter::NPageSize; n++ )
         d->indexToPageSize[n] = QPrinter::A4;
 
-    QPrintDialogPrivate::isc( d, tr( "A0 (841 x 1189 mm)" ), QPrinter::A0 );
-    QPrintDialogPrivate::isc( d, tr( "A1 (594 x 841 mm)" ), QPrinter::A1 );
-    QPrintDialogPrivate::isc( d, tr( "A2 (420 x 594 mm)" ), QPrinter::A2 );
-    QPrintDialogPrivate::isc( d, tr( "A3 (297 x 420 mm)" ), QPrinter::A3 );
-    QPrintDialogPrivate::isc( d, tr( "A4 (210x297 mm, 8.26x11.7 inches)" ),
-                              QPrinter::A4 );
-    QPrintDialogPrivate::isc( d, tr( "A5 (148 x 210 mm)" ), QPrinter::A5 );
-    QPrintDialogPrivate::isc( d, tr( "A6 (105 x 148 mm)" ), QPrinter::A6 );
-    QPrintDialogPrivate::isc( d, tr( "A7 (74 x 105 mm)" ), QPrinter::A7 );
-    QPrintDialogPrivate::isc( d, tr( "A8 (52 x 74 mm)" ), QPrinter::A8 );
-    QPrintDialogPrivate::isc( d, tr( "A9 (37 x 52 mm)" ), QPrinter::A9 );
-    QPrintDialogPrivate::isc( d, tr( "B0 (1000 x 1414 mm)" ), QPrinter::B0 );
-    QPrintDialogPrivate::isc( d, tr( "B1 (707 x 1000 mm)" ), QPrinter::B1 );
-    QPrintDialogPrivate::isc( d, tr( "B2 (500 x 707 mm)" ), QPrinter::B2 );
-    QPrintDialogPrivate::isc( d, tr( "B3 (353 x 500 mm)" ), QPrinter::B3 );
-    QPrintDialogPrivate::isc( d, tr( "B4 (250 x 353 mm)" ), QPrinter::B4 );
-    QPrintDialogPrivate::isc( d, tr( "B5 (176 x 250 mm, 6.93x9.84 inches)" ), QPrinter::B5 );
-    QPrintDialogPrivate::isc( d, tr( "B6 (125 x 176 mm)" ), QPrinter::B6 );
-    QPrintDialogPrivate::isc( d, tr( "B7 (88 x 125 mm)" ), QPrinter::B7 );
-    QPrintDialogPrivate::isc( d, tr( "B8 (62 x 88 mm)" ), QPrinter::B8 );
-    QPrintDialogPrivate::isc( d, tr( "B9 (44 x 62 mm)" ), QPrinter::B9 );
-    QPrintDialogPrivate::isc( d, tr( "B10 (31 x 44 mm)" ), QPrinter::B10 );
-    QPrintDialogPrivate::isc( d, tr( "C5E (163 x 229 mm)" ), QPrinter::C5E );
-    QPrintDialogPrivate::isc( d, tr( "DLE (110 x 220 mm)" ), QPrinter::DLE );
-    QPrintDialogPrivate::isc( d, tr( "Executive (7.5x10 inches, 191x254 mm)" ),
-                              QPrinter::Executive );
-    QPrintDialogPrivate::isc( d, tr( "Folio (210 x 330 mm)" ),
-                              QPrinter::Folio );
-    QPrintDialogPrivate::isc( d, tr( "Ledger (432 x 279 mm)" ),
-                              QPrinter::Ledger );
-    QPrintDialogPrivate::isc( d, tr( "Legal (8.5x14 inches, 216x356 mm)" ),
-                              QPrinter::Legal );
-    QPrintDialogPrivate::isc( d, tr( "Letter (8.5x11 inches, 216x279 mm)" ),
-                              QPrinter::Letter );
-    QPrintDialogPrivate::isc( d, tr( "Tabloid (279 x 432 mm)" ),
-                              QPrinter::Tabloid );
-    QPrintDialogPrivate::isc( d, tr( "US Common #10 Envelope (105 x 241 mm)" ),
-                              QPrinter::Comm10E );
+    isc( d, tr( "A0 (841 x 1189 mm)" ), QPrinter::A0 );
+    isc( d, tr( "A1 (594 x 841 mm)" ), QPrinter::A1 );
+    isc( d, tr( "A2 (420 x 594 mm)" ), QPrinter::A2 );
+    isc( d, tr( "A3 (297 x 420 mm)" ), QPrinter::A3 );
+    isc( d, tr( "A4 (210x297 mm, 8.26x11.7 inches)" ), QPrinter::A4 );
+    isc( d, tr( "A5 (148 x 210 mm)" ), QPrinter::A5 );
+    isc( d, tr( "A6 (105 x 148 mm)" ), QPrinter::A6 );
+    isc( d, tr( "A7 (74 x 105 mm)" ), QPrinter::A7 );
+    isc( d, tr( "A8 (52 x 74 mm)" ), QPrinter::A8 );
+    isc( d, tr( "A9 (37 x 52 mm)" ), QPrinter::A9 );
+    isc( d, tr( "B0 (1000 x 1414 mm)" ), QPrinter::B0 );
+    isc( d, tr( "B1 (707 x 1000 mm)" ), QPrinter::B1 );
+    isc( d, tr( "B2 (500 x 707 mm)" ), QPrinter::B2 );
+    isc( d, tr( "B3 (353 x 500 mm)" ), QPrinter::B3 );
+    isc( d, tr( "B4 (250 x 353 mm)" ), QPrinter::B4 );
+    isc( d, tr( "B5 (176 x 250 mm, 6.93x9.84 inches)" ), QPrinter::B5 );
+    isc( d, tr( "B6 (125 x 176 mm)" ), QPrinter::B6 );
+    isc( d, tr( "B7 (88 x 125 mm)" ), QPrinter::B7 );
+    isc( d, tr( "B8 (62 x 88 mm)" ), QPrinter::B8 );
+    isc( d, tr( "B9 (44 x 62 mm)" ), QPrinter::B9 );
+    isc( d, tr( "B10 (31 x 44 mm)" ), QPrinter::B10 );
+    isc( d, tr( "C5E (163 x 229 mm)" ), QPrinter::C5E );
+    isc( d, tr( "DLE (110 x 220 mm)" ), QPrinter::DLE );
+    isc( d, tr( "Executive (7.5x10 inches, 191x254 mm)" ), QPrinter::Executive );
+    isc( d, tr( "Folio (210 x 330 mm)" ), QPrinter::Folio );
+    isc( d, tr( "Ledger (432 x 279 mm)" ), QPrinter::Ledger );
+    isc( d, tr( "Legal (8.5x14 inches, 216x356 mm)" ), QPrinter::Legal );
+    isc( d, tr( "Letter (8.5x11 inches, 216x279 mm)" ), QPrinter::Letter );
+    isc( d, tr( "Tabloid (279 x 432 mm)" ), QPrinter::Tabloid );
+    isc( d, tr( "US Common #10 Envelope (105 x 241 mm)" ), QPrinter::Comm10E );
 
     connect( d->sizeCombo, SIGNAL( activated( int ) ),
              this, SLOT( paperSizeSelected( int ) ) );
@@ -1128,7 +1160,7 @@ bool QPrintDialog::getPrinterSetup( QPrinter * p )
         qpd_cleanup_globaldialog.add( &globalPrintDialog );
         globalPrintDialog->setPrinter( p, TRUE );
     } else {
-        globalPrintDialog->setPrinter( p, FALSE );
+        globalPrintDialog->setPrinter( p, TRUE );
     }
     bool r = globalPrintDialog->exec() == QDialog::Accepted;
     globalPrintDialog->setPrinter( 0 );

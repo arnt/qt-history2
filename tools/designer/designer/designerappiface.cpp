@@ -187,7 +187,7 @@ void DesignerProjectImpl::removeForm( DesignerFormWindow * )
 
 QString DesignerProjectImpl::fileName() const
 {
-    return QString::null;
+    return project->fileName();
 }
 
 void DesignerProjectImpl::setFileName( const QString & )

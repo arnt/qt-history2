@@ -17,7 +17,7 @@ int main( int argc, char **argv )
 
     CheckLists checklists;
     checklists.resize( 650, 350 );
-    checklists.setCaption( "CheckList Examples" );
+    checklists.setCaption( "Qt Example - CheckLists" );
     a.setMainWidget( &checklists );
     checklists.show();
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of the internal Qt classes dealing with rich text
 **
@@ -321,7 +321,7 @@ QTextCursor *QTextFormatCommand::unexecute( QTextCursor *c )
 
     int idx = startIndex;
     int fIndex = 0;
-    while ( TRUE ) {
+    for ( ;; ) {
 	if ( oldFormats.at( fIndex ).c == '\n' ) {
 	    if ( idx > 0 ) {
 		if ( idx < sp->length() && fIndex > 0 )
@@ -1977,7 +1977,7 @@ bool QTextDocument::setSelectionEnd( int id, QTextCursor *cursor )
     bool hadOldEnd = FALSE;
     bool leftSelection = FALSE;
     sel.swapped = FALSE;
-    while ( TRUE ) {
+    for ( ;; ) {
 	if ( c == start )
 	    hadStart = TRUE;
 	if ( c == end )
@@ -2099,7 +2099,7 @@ bool QTextDocument::removeSelection( int id )
     bool leftSelection = FALSE;
     bool inSelection = FALSE;
     sel.swapped = FALSE;
-    while ( TRUE ) {
+    for ( ;; ) {
 	if ( c.parag() == sel.startCursor.parag() )
 	    hadStart = TRUE;
 	if ( c.parag() == sel.endCursor.parag() )
@@ -2152,7 +2152,7 @@ QString QTextDocument::selectedText( int id ) const
     QString s;
     s += c1.parag()->string()->toString().mid( c1.index() ) + "\n";
     QTextParag *p = c1.parag()->next();
-    while ( p  ) {
+    while ( p ) {
 	int end = p == c2.parag() ? c2.index() : p->length() - 1;
 	if ( p == c2.parag() && p->at( QMAX( 0, end - 1 ) )->isCustom() )
 	    ++end;
@@ -2532,12 +2532,20 @@ void QTextDocument::drawParag( QPainter *p, QTextParag *parag, int cx, int cy, i
     painter->setBrushOrigin( -ir.x(), -ir.y() );
 
     if ( useDoubleBuffer || is_printer( painter ) ) {
-	painter->fillRect( QRect( 0, 0, ir.width(), ir.height() ),
-			   cg.brush( QColorGroup::Base ) );
+	if ( !parag->backgroundColor() )
+	    painter->fillRect( QRect( 0, 0, ir.width(), ir.height() ),
+			       cg.brush( QColorGroup::Base ) );
+	else
+	    painter->fillRect( QRect( 0, 0, ir.width(), ir.height() ),
+			       *parag->backgroundColor() );
     } else {
 	if ( cursor && cursor->parag() == parag ) {
-	    painter->fillRect( QRect( parag->at( cursor->index() )->x, 0, 2, ir.height() ),
-			       cg.brush( QColorGroup::Base ) );
+	    if ( !parag->backgroundColor() )
+		painter->fillRect( QRect( parag->at( cursor->index() )->x, 0, 2, ir.height() ),
+				   cg.brush( QColorGroup::Base ) );
+	    else
+		painter->fillRect( QRect( parag->at( cursor->index() )->x, 0, 2, ir.height() ),
+				   *parag->backgroundColor() );
 	}
     }
 
@@ -2979,8 +2987,8 @@ void QTextString::basicDirection() const
 {
     int pos = 0;
     ((QTextString *)this)->rightToLeft = FALSE;
-    while( pos < length() ) {
-	switch( at(pos).c.direction() )
+    while ( pos < length() ) {
+	switch ( at(pos).c.direction() )
 	{
 	case QChar::DirL:
 	case QChar::DirLRO:
@@ -3137,6 +3145,7 @@ QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool u
       numCustomItems( 0 ), pFormatter( 0 ),
       tArray( 0 ), tabStopWidth( 0 ), eData( 0 ), pntr( 0 )
 {
+    bgcol = 0;
     breakable = TRUE;
     visible = TRUE;
     list_val = -1;
@@ -4439,7 +4448,7 @@ QTextParagLineStart *QTextFormatter::bidiReorderLine( QTextParag *parag, QTextSt
     // fill string with logically ordered chars.
     QTextStringChar *ch = startChar;
     QChar *qch = (QChar *)str.unicode();
-    while( ch <= lastChar ) {
+    while ( ch <= lastChar ) {
 	*qch = ch->c;
 	qch++;
 	ch++;

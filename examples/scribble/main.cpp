@@ -19,7 +19,7 @@ int main( int argc, char **argv )
     Scribble scribble;
 
     scribble.resize( 500, 350 );
-    
+    scribble.setCaption("Qt Example - Scribble");
     a.setMainWidget( &scribble );
     if ( QApplication::desktop()->width() > 550
 	 && QApplication::desktop()->height() > 366 )

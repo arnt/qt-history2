@@ -2,17 +2,72 @@
   emitter.cpp
 */
 
+#include <qdir.h>
 #include <qfile.h>
 #include <qfileinfo.h>
 #include <qtextstream.h>
 
+#include <stdlib.h>
+
 #include "binarywriter.h"
+#include "bookparser.h"
 #include "config.h"
 #include "doc.h"
 #include "emitter.h"
 #include "htmlwriter.h"
 #include "messages.h"
 #include "stringset.h"
+
+// defined in cppparser.cpp
+extern void parseCppHeaderFile( DocEmitter *emitter, const QString& fileName );
+extern void parseCppSourceFile( DocEmitter *emitter, const QString& fileName );
+
+// defined in htmlparser.cpp
+extern void parseHtmlFile( DocEmitter *emitter, const QString& fileName );
+
+static int compareMtime( const void *n1, const void *n2 )
+{
+    if ( n1 == 0 || n2 == 0 )
+	return 0;
+
+    QFileInfo f1( *(QString *) n1 );
+    QFileInfo f2( *(QString *) n2 );
+    if ( f1.lastModified() < f2.lastModified() )
+	return -1;
+    else if ( f1.lastModified() > f2.lastModified() )
+	return 1;
+    else
+	return 0;
+}
+
+static QStringList find( const QString& rootDir, const QString& nameFilter )
+{
+    QStringList result;
+    QStringList fileNames;
+    QStringList::Iterator fn;
+    QDir dir( rootDir );
+
+    dir.setNameFilter( nameFilter );
+    dir.setSorting( QDir::Name );
+    dir.setFilter( QDir::Files );
+    fileNames = dir.entryList();
+    fn = fileNames.begin();
+    while ( fn != fileNames.end() ) {
+	result += dir.filePath( *fn );
+	++fn;
+    }
+
+    dir.setNameFilter( QChar('*') );
+    dir.setFilter( QDir::Dirs );
+    fileNames = dir.entryList();
+    fn = fileNames.begin();
+    while ( fn != fileNames.end() ) {
+	if ( *fn != QChar('.') && *fn != QString("..") )
+	    result += find( dir.filePath(*fn), nameFilter );
+	++fn;
+    }
+    return result;
+}
 
 static QString protect( const QString& str, QChar metaCh )
 {
@@ -53,13 +108,101 @@ static void emitHtmlHeaderFile( const QString& headerFilePath,
     out.putsMeta( "</pre>\n" );
 }
 
-void Emitter::addGroup( DefgroupDoc *doc )
+void BookEmitter::start( const Resolver *resolver )
+{
+    QDir dir( config->outputDir() );
+
+    QStringList::ConstIterator s;
+
+    QStringList bookFiles;
+    s = config->bookDirList().begin();
+    while ( s != config->bookDirList().end() ) {
+	bookFiles += find( *s, QString("*.book") );
+	++s;
+    }
+
+    s = bookFiles.begin();
+    while ( s != bookFiles.end() ) {
+	parseBookFile( *s, Html | Sgml, resolver );
+	++s;
+    }
+}
+
+void DocEmitter::start()
+{
+    QDir dir( config->outputDir() );
+
+    QStringList::ConstIterator s;
+
+    // read the header files in some order
+    QStringList headerFiles;
+    s = config->includeDirList().begin();
+    while ( s != config->includeDirList().end() ) {
+	headerFiles += find( *s, QString("*.h") );
+	++s;
+    }
+    s = headerFiles.begin();
+    while( s != headerFiles.end() ) {
+	parseCppHeaderFile( this, *s );
+	++s;
+    }
+
+    nailDownDecls();
+
+    // then read the .cpp and .doc files, sorted by modification time,
+    // most recent first
+    QStringList sourceFiles;
+    s = config->sourceDirList().begin();
+    while ( s != config->sourceDirList().end() ) {
+	sourceFiles += find( *s, QString("*.cpp") );
+	++s;
+    }
+
+    s = config->docDirList().begin();
+    while ( s != config->docDirList().end() ) {
+	sourceFiles += find( *s, QString("*.doc") );
+	++s;
+    }
+
+    int i = 0;
+    int n = sourceFiles.count();
+    QString *files = new QString[n];
+    s = sourceFiles.begin();
+    while ( s != sourceFiles.end() && i < n ) {
+	files[i++] = *s;
+	++s;
+    }
+    qsort( files, n, sizeof(QString), compareMtime );
+    i = n;
+    while ( i-- > 0 )
+	parseCppSourceFile( this, files[i] );
+    delete[] files;
+    files = 0;
+
+    // finally, pick up old output for the supervisor
+    QStringList outputFiles;
+    if ( config->supervisor() ) {
+	outputFiles = find( config->outputDir(), QString("*.html") );
+	s = outputFiles.begin();
+	while ( s != outputFiles.end() ) {
+	    parseHtmlFile( this, *s );
+	    ++s;
+	}
+    }
+
+    nailDownDocs();
+    emitHtml();
+
+    warnAboutOmitted();
+}
+
+void DocEmitter::addGroup( DefgroupDoc *doc )
 {
     groupdefs.insert( doc->name(), doc );
     addHtmlFile( doc->fileName() );
 }
 
-void Emitter::addGroupie( Doc *groupie )
+void DocEmitter::addGroupie( Doc *groupie )
 {
     StringSet::ConstIterator group = groupie->groups().begin();
     while ( group != groupie->groups().end() ) {
@@ -68,40 +211,40 @@ void Emitter::addGroupie( Doc *groupie )
     }
 }
 
-void Emitter::addPage( PageDoc *doc )
+void DocEmitter::addPage( PageDoc *doc )
 {
     pages.append( doc );
     addHtmlFile( doc->fileName() );
 }
 
-void Emitter::addExample( ExampleDoc *doc )
+void DocEmitter::addExample( ExampleDoc *doc )
 {
     examples.append( doc );
     addHtmlFile( config->verbatimHref(doc->fileName()) );
     eglist.insert( doc->fileName() );
 }
 
-void Emitter::addHtmlChunk( const QString& link, const HtmlChunk& chk )
+void DocEmitter::addHtmlChunk( const QString& link, const HtmlChunk& chk )
 {
     chkmap.insert( link, chk );
 }
 
-void Emitter::addLink( const QString& link, const QString& text )
+void DocEmitter::addLink( const QString& link, const QString& text )
 {
     lmap[text].insert( link );
 }
 
-void Emitter::nailDownDecls()
+void DocEmitter::nailDownDecls()
 {
     root.buildMangledSymbolTables();
     root.buildPlainSymbolTables( FALSE );
     root.fillInDecls();
 
-    resolver = new DeclResolver( &root );
-    Doc::setResolver( resolver );
+    res = new DeclResolver( &root );
+    Doc::setResolver( res );
 }
 
-void Emitter::nailDownDocs()
+void DocEmitter::nailDownDocs()
 {
     root.fillInDocs();
     root.destructSymbolTables();
@@ -188,7 +331,7 @@ void Emitter::nailDownDocs()
     }
 }
 
-void Emitter::emitHtml() const
+void DocEmitter::emitHtml() const
 {
     QString htmlFileName;
 
@@ -196,10 +339,10 @@ void Emitter::emitHtml() const
     HtmlWriter::setPostHeader( config->postHeader() );
     HtmlWriter::setAddress( config->address() );
 
-    resolver->setExampleFileList( eglist );
-    resolver->setHeaderFileList( hlist );
-    resolver->setHtmlFileList( htmllist );
-    resolver->setHtmlChunkMap( chkmap );
+    res->setExampleFileList( eglist );
+    res->setHeaderFileList( hlist );
+    res->setHtmlFileList( htmllist );
+    res->setHtmlChunkMap( chkmap );
 
     Doc::setHeaderFileList( hlist );
     Doc::setClassList( clist );
@@ -235,10 +378,9 @@ void Emitter::emitHtml() const
 	if ( config->generateHtmlFile(htmlFileName) ) {
 	    HtmlWriter out( htmlFileName );
 	    if ( (*ex)->title().isEmpty() )
-		out.setTitle( (*ex)->fileName() + QString(" Example File") );
+		out.setHeading( (*ex)->fileName() + QString(" Example File") );
 	    else
-		out.setTitle( (*ex)->title() );
-	    out.setHeading( (*ex)->heading() );
+		out.setHeading( (*ex)->title() );
 	    (*ex)->printHtml( out );
 	}
 	++ex;
@@ -255,14 +397,14 @@ void Emitter::emitHtml() const
 
 	    if ( config->generateHtmlFile(htmlFileName) &&
 		 (config->isInternal() || !classDecl->internal()) ) {
-		resolver->setCurrentClass( classDecl );
+		res->setCurrentClass( classDecl );
 		HtmlWriter out( htmlFileName );
 		classDecl->printHtmlLong( out );
 	    }
 	}
 	++child;
     }
-    resolver->setCurrentClass( (ClassDecl *) 0 );
+    res->setCurrentClass( (ClassDecl *) 0 );
 
     QMap<QString, DefgroupDoc *>::ConstIterator def = groupdefs.begin();
     QMap<QString, QMap<QString, Doc *> >::ConstIterator groupies =
@@ -301,10 +443,8 @@ void Emitter::emitHtml() const
 
 		if ( config->generateHtmlFile(htmlFileName) ) {
 		    HtmlWriter out( htmlFileName );
-		    out.setTitle( (*def)->title() );
-		    out.setHeading( (*def)->heading() );
+		    out.setHeading( (*def)->title() );
 		    (*def)->printHtml( out );
-		    out.enterFooter();
 		    out.putsMeta( "<p><ul>\n" );
 
 		    c = (*groupies).begin();
@@ -331,8 +471,7 @@ void Emitter::emitHtml() const
 
 	if ( config->generateHtmlFile(htmlFileName) ) {
 	    HtmlWriter out( htmlFileName );
-	    out.setTitle( (*pa)->title() );
-	    out.setHeading( (*pa)->heading() );
+	    out.setHeading( (*pa)->title() );
 	    (*pa)->printHtml( out );
 	}
 	++pa;
@@ -394,7 +533,7 @@ void Emitter::emitHtml() const
     }
 }
 
-void Emitter::addHtmlFile( const QString& fileName )
+void DocEmitter::addHtmlFile( const QString& fileName )
 {
     if ( htmllist.contains(fileName) )
 	warning( 1, "HTML file '%s' overwritten", fileName.latin1() );

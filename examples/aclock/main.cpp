@@ -20,6 +20,7 @@ int main( int argc, char **argv )
 	clock->setAutoMask( TRUE );
     clock->resize( 100, 100 );
     a.setMainWidget( clock );
+    clock->setCaption("Qt Example - Analog Clock");
     clock->show();
     int result = a.exec();
     delete clock;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of date and time classes
 **
@@ -43,7 +43,11 @@
 #include "qregexp.h"
 
 #include <stdio.h>
+#ifndef _WIN32_WCE
 #include <time.h>
+#else
+#include "qfunctions_wce.h"
+#endif
 
 #if defined(Q_OS_WIN32)
 #include <windows.h>

@@ -3,7 +3,7 @@
 
 #ifndef QT_H
 #include <qobject.h>
-#include <qpixmap.h>
+#include <qimage.h>
 #endif // QT_H
 
 class QPopupMenu;
@@ -13,22 +13,22 @@ class TrayIcon : public QObject
     Q_OBJECT
 
     Q_PROPERTY( QString toolTip READ toolTip WRITE setToolTip )
-    Q_PROPERTY( QPixmap icon READ icon WRITE setIcon )
+    Q_PROPERTY( QImage icon READ icon WRITE setIcon )
 
 public:
     TrayIcon( QObject *parent = 0, const char *name = 0 );
-    TrayIcon( const QPixmap &, const QString &, QPopupMenu *popup = 0, QObject *parent = 0, const char *name = 0 );
+    TrayIcon( const QImage &, const QString &, QPopupMenu *popup = 0, QObject *parent = 0, const char *name = 0 );
     ~TrayIcon();
 
 			// Set a popup menu to handle RMB
     void		setPopup( QPopupMenu * );
     QPopupMenu*		popup() const;
 
-    QPixmap		icon() const;
+    QImage		icon() const;
     QString		toolTip() const;
 
 public slots:
-    void		setIcon( const QPixmap &icon );
+    void		setIcon( const QImage &icon );
     void		setToolTip( const QString &tip );
 
     void		show();
@@ -47,7 +47,7 @@ protected:
 
 private:
     QPopupMenu *pop;
-    QPixmap pm;
+    QImage img;
     QString tip;
 
     // system-dependant part

@@ -66,17 +66,17 @@ int main( int argc, char **argv )
 
     QPopupMenu menu2;
     menu2.insertItem( "Test 2" );
-    TrayIcon tray2( QPixmap( (const char**)minimize_xpm ), "Minimize MainWindow", &menu2 );
+    TrayIcon tray2( QImage( (const char**)minimize_xpm ), "Minimize MainWindow", &menu2 );
     QObject::connect(&tray2,SIGNAL(clicked(const QPoint&)),&mw,SLOT(showMinimized()));
 
     QPopupMenu menu;
     menu.insertItem( "Test 1" );
     menu.insertSeparator();
     menu.insertItem( "&Quit", &app, SLOT(quit()) );
-    TrayIcon tray( QPixmap( (const char**)normalize_xpm ), "Show MainWindow", &menu );
+    TrayIcon tray( QImage( (const char**)normalize_xpm ), "Show MainWindow", &menu );
     QObject::connect(&tray,SIGNAL(clicked(const QPoint&)),&mw,SLOT(showNormal()));
 
-    TrayIcon tray3( QPixmap( (const char**)maximize_xpm ), "Maximize MainWindow" );
+    TrayIcon tray3( QImage( (const char**)maximize_xpm ), "Maximize MainWindow" );
     QObject::connect(&tray3,SIGNAL(clicked(const QPoint&)),&mw,SLOT(showMaximized()));
 
     mw.show();

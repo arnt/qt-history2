@@ -146,6 +146,7 @@ void ApplicationWindow::newDoc()
     QColor col = QColorDialog::getColor( white, this );
     return;
     ApplicationWindow *ed = new ApplicationWindow;
+    ed->setCaption("Qt Example - Application");
     ed->show();
 }
 

@@ -120,15 +120,20 @@ QPrinter::QPrinter( PrinterMode m )
     hdevnames = 0;
 
 #if defined(UNICODE)
+#ifndef _WIN32_WCE
     if ( qWinVersion() & Qt::WV_NT_based ) {
+#endif
         PRINTDLG pd;
         memset( &pd, 0, sizeof(PRINTDLG) );
         pd.lStructSize = sizeof(PRINTDLG);
         pd.Flags = PD_RETURNDEFAULT | PD_RETURNDC;
         if ( PrintDlg( &pd ) != 0 )
             readPdlg( &pd );
+#ifndef _WIN32_WCE
     } else 
 #endif
+#endif
+#ifndef _WIN32_WCE
     {
         PRINTDLGA pd;
         memset( &pd, 0, sizeof(PRINTDLGA) );
@@ -137,6 +142,7 @@ QPrinter::QPrinter( PrinterMode m )
         if ( PrintDlgA( &pd ) != 0 )
             readPdlgA( &pd );
     }
+#endif
     switch ( m ) {
         case ScreenResolution:
             res = 96; // ### is this true in all cases?
@@ -331,7 +337,7 @@ static PageSizeNames names[] = {
           { DMPAPER_A2,                 QPrinter::A2 },
           { DMPAPER_A3_TRANSVERSE,      QPrinter::A3 },
           { DMPAPER_A3_EXTRA_TRANSVERSE,        QPrinter::A3 },
-          { 0, QPrinter::A4 }
+          { 0, QPrinter::Custom }
 };
 
 static QPrinter::PageSize mapDevmodePageSize( int s )
@@ -560,7 +566,9 @@ bool QPrinter::setup( QWidget *parent )
 
     // Must handle the -A and -W versions separately; they're incompatible
 #if defined(UNICODE)
+#ifndef _WIN32_WCE
     if ( qWinVersion() & Qt::WV_NT_based ) {
+#endif // _WIN32_WCE
         PRINTDLG pd;
         memset( &pd, 0, sizeof(PRINTDLG) );
         pd.lStructSize = sizeof(PRINTDLG);
@@ -618,8 +626,11 @@ bool QPrinter::setup( QWidget *parent )
             if ( result )                               // get values from dlg
                 readPdlg( &pd );
         }
+#ifndef _WIN32_WCE
     } else 
+#endif // _WIN32_WCE
 #endif
+#ifndef _WIN32_WCE
     {
         // Win95/98 A version; identical to the above!
         PRINTDLGA pd;
@@ -679,6 +690,7 @@ bool QPrinter::setup( QWidget *parent )
                 readPdlgA( &pd );
         }
     }
+#endif // _WIN32_WCE
 
     SetMapMode(hdc, MM_ANISOTROPIC);
     SetWindowExtEx(hdc, res, res, NULL);
@@ -761,15 +773,20 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
                 ok = FALSE;
         }
 #if defined(UNICODE)
+#ifndef _WIN32_WCE
         if ( qWinVersion() & Qt::WV_NT_based ) {
+#endif
             DOCINFO di;
             memset( &di, 0, sizeof(DOCINFO) );
             di.cbSize = sizeof(DOCINFO);
             di.lpszDocName = (TCHAR*)qt_winTchar(doc_name,TRUE);
             if ( ok && StartDoc(hdc, &di) == SP_ERROR )
                 ok = FALSE;
+#ifndef _WIN32_WCE
         } else 
 #endif
+#endif
+#ifndef _WIN32_WCE
 	{
             DOCINFOA di;
             memset( &di, 0, sizeof(DOCINFO) );
@@ -782,6 +799,7 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
             if ( ok && StartDocA(hdc, &di) == SP_ERROR )
                 ok = FALSE;
         }
+#endif
         if ( ok && StartPage(hdc) == SP_ERROR )
             ok = FALSE;
         if ( ok && fullPage() && !viewOffsetDone ) {

@@ -232,7 +232,7 @@ void QWellArray::paintCell( QPainter* p, int row, int col )
 	    p->drawRect( 2, 2, w-4, h-4 );
 	    b = 3;
 	} else if ( hasFocus() ) {
-	    style().drawFocusRect(p, QRect(0,0,w,h), g );
+	    style().drawPrimitive(QStyle::PO_FocusRect, p, QRect(0, 0, w, h), g);
 	}
     }
     paintCellContents( p, row, col, QRect(b, b, w - 2*b, h - 2*b) );

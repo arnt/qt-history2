@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -58,6 +58,7 @@
 #if !defined( QT_NO_COMPONENT ) && !defined( QT_LITE_COMPONENT )
 #include "qcleanuphandler.h"
 #endif
+
 
 /* -------------------------------------------------------------------------
  * unicode information
@@ -15349,7 +15350,9 @@ int QString::localeAwareCompare( const QString& s ) const
 #if defined(Q_WS_WIN)
 #if defined(UNICODE)
     int res;
+#ifndef _WIN32_WCE
     if ( qWinVersion() & Qt::WV_NT_based ) {
+#endif
 	TCHAR* s1 = new TCHAR[ length() + 1 ];
 	wcscpy( s1, (TCHAR*)qt_winTchar( *this, TRUE ) );
 	TCHAR* s2 = (TCHAR*)qt_winTchar( s, TRUE );
@@ -15363,8 +15366,11 @@ int QString::localeAwareCompare( const QString& s ) const
 	default:
 	    return 0;
 	}
+#ifndef _WIN32_WCE
     } else
 #endif
+#endif
+#ifndef _WIN32_WCE
     {
 	int res = CompareStringA( LOCALE_USER_DEFAULT, 0, local8Bit(), length(), s.local8Bit(), s.length() );
 	switch ( res ) {
@@ -15376,6 +15382,7 @@ int QString::localeAwareCompare( const QString& s ) const
 	    return 0;
 	}
     }
+#endif
 #else
     return ucstrcmp( *this, s );
 #endif
@@ -15734,9 +15741,9 @@ QDataStream &operator>>( QDataStream &s, QString &str )
 	    char *oldb = b;
 	    while ( bt-- ) {
 		if ( byteOrder == QDataStream::BigEndian )
-		    *ch++ = (ushort) (((ushort)b[0])<<8) | b[1];
+		    *ch++ = (ushort) (((ushort)b[0])<<8) | (uchar)b[1];
 		else
-		    *ch++ = (ushort) (((ushort)b[1])<<8) | b[0];
+		    *ch++ = (ushort) (((ushort)b[1])<<8) | (uchar)b[0];
 		b += 2;
 	    }
 	    if ( bytes > auto_size )

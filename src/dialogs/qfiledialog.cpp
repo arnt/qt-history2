@@ -79,7 +79,9 @@
 #include "qpainter.h"
 #include "qcleanuphandler.h"
 
+#ifndef _WIN32_WCE
 #include <time.h>
+#endif
 #include <ctype.h>
 #include <stdlib.h>
 
@@ -3169,7 +3171,7 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
 #if defined(Q_WS_WIN)
     if ( qApp->style() == WindowsStyle )
 	return winGetOpenFileName( initialSelection, filter, workingDirectory,
-				   parent, name, caption );
+				   parent, name, caption, selectedFilter );
 #elif defined(Q_WS_MAC)
     if( ( qApp->style().inherits(QMAC_DEFAULT_STYLE) ) )
 	return macGetOpenFileName( initialSelection, filter, workingDirectory,
@@ -3279,7 +3281,7 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
 #if defined(Q_WS_WIN)
     if ( qApp->style() == WindowsStyle )
 	return winGetSaveFileName( initialSelection, filter, workingDirectory,
-				   parent, name, caption );
+				   parent, name, caption, selectedFilter );
 #elif defined(Q_WS_MAC)
     if( ( qApp->style().inherits(QMAC_DEFAULT_STYLE) ) )
 	return macGetSaveFileName( initialSelection, filter, workingDirectory,
@@ -4614,12 +4616,20 @@ static QString getWindowsRegString( HKEY key, const char *subKey )
     QString s;
     char  buf[512];
     DWORD bsz = sizeof(buf);
+#ifdef _WIN32_WCE
+    int r = RegQueryValueEx( key, (LPCTSTR)qt_winTchar(subKey, TRUE), 0, 0, (LPBYTE)buf, &bsz );
+#else
     int r = RegQueryValueExA( key, subKey, 0, 0, (LPBYTE)buf, &bsz );
+#endif
     if ( r == ERROR_SUCCESS ) {
 	s = buf;
     } else if ( r == ERROR_MORE_DATA ) {
 	char *ptr = new char[bsz+1];
+#ifdef _WIN32_WCE
+	r = RegQueryValueEx( key, (LPCTSTR)qt_winTchar(subKey, TRUE), 0, 0, (LPBYTE)ptr, &bsz );
+#else
 	r = RegQueryValueExA( key, subKey, 0, 0, (LPBYTE)ptr, &bsz );
+#endif
 	if ( r == ERROR_SUCCESS )
 	    s = ptr;
 	delete [] ptr;
@@ -4644,19 +4654,32 @@ QWindowsIconProvider::QWindowsIconProvider( QObject *parent, const char *name )
     QString s;
     UINT res;
 
+#ifdef _WIN32_WCE
+    // ---------- get default folder pixmap
+    r = RegOpenKeyEx( HKEY_CLASSES_ROOT, 
+		       L"folder\\DefaultIcon",
+		       0, KEY_READ, &k );
+#else
     // ---------- get default folder pixmap
     r = RegOpenKeyExA( HKEY_CLASSES_ROOT,
 		       "folder\\DefaultIcon",
 		       0, KEY_READ, &k );
+#endif
     if ( r == ERROR_SUCCESS ) {
 	s = getWindowsRegString( k, 0 );
 	RegCloseKey( k );
 
 	QStringList lst = QStringList::split( ",", s );
 
+#ifdef _WIN32_WCE
+	res = (UINT)ExtractIconEx( (LPCTSTR)qt_winTchar( lst[ 0 ].simplifyWhiteSpace(), TRUE ),
+			      lst[ 1 ].simplifyWhiteSpace().toInt(),
+			      0, &si, 1 );
+#else
 	res = ExtractIconExA( lst[ 0 ].simplifyWhiteSpace().latin1(),
 			      lst[ 1 ].simplifyWhiteSpace().toInt(),
 			      0, &si, 1 );
+#endif
 
 	if ( res ) {
 	    defaultFolder.resize( pixw, pixh );
@@ -4674,9 +4697,15 @@ QWindowsIconProvider::QWindowsIconProvider( QObject *parent, const char *name )
 	RegCloseKey( k );
     }
 
+#ifdef _WIN32_WCE
+    //------------------------------- get default file pixmap
+    res = (UINT)ExtractIconEx( L"shell32.dll",
+			     0, 0, &si, 1 );
+#else
     //------------------------------- get default file pixmap
     res = ExtractIconExA( "shell32.dll",
 			     0, 0, &si, 1 );
+#endif
 
     if ( res ) {
 	defaultFile.resize( pixw, pixh );
@@ -4691,9 +4720,15 @@ QWindowsIconProvider::QWindowsIconProvider( QObject *parent, const char *name )
 	defaultFile = *fileIcon;
     }
 
+#ifdef _WIN32_WCE
+    //------------------------------- get default exe pixmap
+    res = (UINT)ExtractIconEx( L"shell32.dll",
+			  2, 0, &si, 1 );
+#else
     //------------------------------- get default exe pixmap
     res = ExtractIconExA( "shell32.dll",
 			  2, 0, &si, 1 );
+#endif
 
     if ( res ) {
 	defaultExe.resize( pixw, pixh );
@@ -4729,9 +4764,15 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 	    return &( *it );
 
 	HKEY k, k2;
+#ifdef _WIN32_WCE
+	int r = RegOpenKeyEx( HKEY_CLASSES_ROOT,
+			       (LPCTSTR)qt_winTchar(ext, TRUE),
+			       0, KEY_READ, &k );
+#else
 	int r = RegOpenKeyExA( HKEY_CLASSES_ROOT,
 			       ext.latin1(),
 			       0, KEY_READ, &k );
+#endif
 	QString s;
 	if ( r == ERROR_SUCCESS ) {
 	    s = getWindowsRegString( k, 0 );
@@ -4742,9 +4783,15 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 	}
 	RegCloseKey( k );
 
+#ifdef _WIN32_WCE
+	r = RegOpenKeyEx( HKEY_CLASSES_ROOT,
+			   (LPCTSTR)qt_winTchar( s + "\\DefaultIcon", TRUE ),
+			   0, KEY_READ, &k2 );
+#else
 	r = RegOpenKeyExA( HKEY_CLASSES_ROOT,
 			   QString( s + "\\DefaultIcon" ).latin1() ,
 			   0, KEY_READ, &k2 );
+#endif
 	if ( r == ERROR_SUCCESS ) {
 	    s = getWindowsRegString( k2, 0 );
 	} else {
@@ -4767,9 +4814,15 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
 	    }
 	}
 
+#ifdef _WIN32_WCE
+	res = (UINT)ExtractIconEx( (LPCTSTR)qt_winTchar(filepath, TRUE),
+			      lst[ 1 ].stripWhiteSpace().toInt(),
+			      NULL, &si, 1 );
+#else
 	res = ExtractIconExA( filepath.latin1(),
 			      lst[ 1 ].stripWhiteSpace().toInt(),
 			      NULL, &si, 1 );
+#endif
 
 	if ( res ) {
 	    pix.resize( pixw, pixh );
@@ -4788,16 +4841,28 @@ const QPixmap * QWindowsIconProvider::pixmap( const QFileInfo &fi )
     } else {
 	HICON si;
 	UINT res;
+#ifdef _WIN32_WCE
+	res = (UINT)ExtractIconEx( (LPCTSTR)qt_winTchar(fi.absFilePath(), TRUE),
+			      -1,
+			      0, 0, 1 );
+#else
 	res = ExtractIconExA( fi.absFilePath().latin1(),
 			      -1,
 			      0, 0, 1 );
+#endif
 
 	if ( res == 0 ) {
 	    return &defaultExe;
 	} else {
+#ifdef _WIN32_WCE
+	    res = (UINT)ExtractIconEx( (LPCTSTR)qt_winTchar(fi.absFilePath(), TRUE),
+				  res - 1,
+				  0, &si, 1 );
+#else
 	    res = ExtractIconExA( fi.absFilePath().latin1(),
 				  res - 1,
 				  0, &si, 1 );
+#endif
 	}
 
 	if ( res ) {
@@ -5123,7 +5188,7 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
 
 #if defined(Q_WS_WIN)
     if ( qApp->style() == WindowsStyle )
-	return winGetOpenFileNames( filter, workingDirectory, parent, name, caption );
+	return winGetOpenFileNames( filter, workingDirectory, parent, name, caption, selectedFilter );
 #elif defined(Q_WS_MAC)
     if( ( qApp->style().inherits(QMAC_DEFAULT_STYLE) ) )
 	return macGetOpenFileNames(filter, workingDirectory, parent, name, caption );

@@ -29,39 +29,55 @@ QSettingsPrivate::QSettingsPrivate()
     paths.append( "" );
 
     long res;
+#ifdef _WIN32_WCE
+	res = RegOpenKeyExW( HKEY_LOCAL_MACHINE, NULL, 0, KEY_ALL_ACCESS, &local );
+#else
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based )
 	res = RegOpenKeyExW( HKEY_LOCAL_MACHINE, NULL, 0, KEY_ALL_ACCESS, &local );
     else
 #endif
 	res = RegOpenKeyExA( HKEY_LOCAL_MACHINE, NULL, 0, KEY_ALL_ACCESS, &local );
+#endif
 
     if ( res != ERROR_SUCCESS ) {
+#ifdef _WIN32_WCE
+	    res = RegOpenKeyExW( HKEY_LOCAL_MACHINE, NULL, 0, KEY_READ, &local );
+#else
 #if defined(UNICODE)
 	if ( qWinVersion() & Qt::WV_NT_based )
 	    res = RegOpenKeyExW( HKEY_LOCAL_MACHINE, NULL, 0, KEY_READ, &local );
 	else
 #endif
 	    res = RegOpenKeyExA( HKEY_LOCAL_MACHINE, NULL, 0, KEY_READ, &local );
+#endif
 
 	if ( res != ERROR_SUCCESS ) {
 	    local = NULL;
 	}
     }
+#ifdef _WIN32_WCE
+	res = RegOpenKeyExW( HKEY_CURRENT_USER, NULL, 0, KEY_ALL_ACCESS, &user );
+#else
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based ) 
 	res = RegOpenKeyExW( HKEY_CURRENT_USER, NULL, 0, KEY_ALL_ACCESS, &user );
     else
 #endif
 	res = RegOpenKeyExA( HKEY_CURRENT_USER, NULL, 0, KEY_ALL_ACCESS, &user );
+#endif
 	
     if ( res != ERROR_SUCCESS ) {
+#ifdef _WIN32_WCE
+	    res = RegOpenKeyExW( HKEY_CURRENT_USER, NULL, 0, KEY_READ, &user );
+#else
 #if defined(UNICODE)
 	if ( qWinVersion() & Qt::WV_NT_based ) 
 	    res = RegOpenKeyExW( HKEY_CURRENT_USER, NULL, 0, KEY_READ, &user );
 	else
 #endif
 	    res = RegOpenKeyExA( HKEY_CURRENT_USER, NULL, 0, KEY_READ, &user );
+#endif
 	if ( res != ERROR_SUCCESS ) {
 	    user = NULL;
 	}
@@ -128,19 +144,25 @@ inline HKEY QSettingsPrivate::openKey( const QString &key, bool create )
 
     if ( local ) {
 #if defined(UNICODE)
+#ifndef _WIN32_WCE
 	if ( qWinVersion() & Qt::WV_NT_based ) {
+#endif
 	    if ( create )
 		res = RegCreateKeyExW( local, (TCHAR*)qt_winTchar( f, TRUE ), 0, (TCHAR*)qt_winTchar( "", TRUE ), REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
 	    else
 		res = RegOpenKeyExW( local, (TCHAR*)qt_winTchar( f, TRUE ), 0, KEY_ALL_ACCESS, &handle );
+#ifndef _WIN32_WCE
 	} else
 #endif
+#endif
+#ifndef _WIN32_WCE
 	{
 	    if ( create )
 		res = RegCreateKeyExA( local, f.local8Bit(), 0, "", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
 	    else
 		res = RegOpenKeyExA( local, f.local8Bit(), 0, KEY_ALL_ACCESS, &handle );
 	}
+#endif
 #if defined(QT_CHECK_STATE)
 	if ( res != ERROR_SUCCESS )
 	    qSystemWarning("Couldn't open folder " + f + " for writing", res );
@@ -148,19 +170,25 @@ inline HKEY QSettingsPrivate::openKey( const QString &key, bool create )
     }
     if ( !handle && user ) {
 #if defined(UNICODE)
+#ifndef _WIN32_WCE
 	if ( qWinVersion() & Qt::WV_NT_based ) {
+#endif
 	    if ( create )
 		res = RegCreateKeyExW( user, (TCHAR*)qt_winTchar( f, TRUE ), 0, (TCHAR*)qt_winTchar( "", TRUE ), REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
 	    else
 		res = RegOpenKeyExW( user, (TCHAR*)qt_winTchar( f, TRUE ), 0, KEY_ALL_ACCESS, &handle );
+#ifndef _WIN32_WCE
 	} else
 #endif
+#endif
+#ifndef _WIN32_WCE
 	{
 	    if ( create )
 		res = RegCreateKeyExA( user, f.local8Bit(), 0, "", REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &handle, NULL );
 	    else
 		res = RegOpenKeyExA( user, f.local8Bit(), 0, KEY_ALL_ACCESS, &handle );
 	}
+#endif
 #if defined(QT_CHECK_STATE)
 	if ( res != ERROR_SUCCESS )
 	    qSystemWarning( "Couldn't open folder " + f + " for writing", res );
@@ -188,12 +216,16 @@ inline bool QSettingsPrivate::writeKey( const QString &key, const QByteArray &va
     if (e == "Default" )
 	e = "";
 
+#ifdef _WIN32_WCE
+	res = RegSetValueExW( handle, (TCHAR*)qt_winTchar( e, TRUE ), 0, type, (const uchar*)value.data(), value.size() );
+#else
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based )
 	res = RegSetValueExW( handle, (TCHAR*)qt_winTchar( e, TRUE ), 0, type, (const uchar*)value.data(), value.size() );
     else
 #endif
 	res = RegSetValueExA( handle, e.local8Bit(), 0, type, (const uchar*)value.data(), value.size() );
+#endif
 
     if ( res != ERROR_SUCCESS ) {
 #if defined(QT_CHECK_STATE)
@@ -219,20 +251,28 @@ inline QByteArray QSettingsPrivate::readKey( const QString &key, bool *ok )
 	if ( e == "Default" )
 	    e = "";
 	if ( user ) {
+#ifdef _WIN32_WCE
+		res = RegOpenKeyExW( user, (TCHAR*)qt_winTchar( f, TRUE ), 0, KEY_READ, &handle );
+#else
 #if defined(UNICODE)
 	    if ( qWinVersion() & Qt::WV_NT_based )
 		res = RegOpenKeyExW( user, (TCHAR*)qt_winTchar( f, TRUE ), 0, KEY_READ, &handle );
 	    else
 #endif
 		res = RegOpenKeyExA( user, f.local8Bit(), 0, KEY_READ, &handle );
+#endif
 
 	    if ( res == ERROR_SUCCESS ) {
+#ifdef _WIN32_WCE
+		    res = RegQueryValueExW( handle, (TCHAR*)qt_winTchar( e, TRUE ), NULL, NULL, NULL, &size );
+#else
 #if defined(UNICODE)
 		if ( qWinVersion() & Qt::WV_NT_based )
 		    res = RegQueryValueExW( handle, (TCHAR*)qt_winTchar( e, TRUE ), NULL, NULL, NULL, &size );
 		else
 #endif
 		    res = RegQueryValueExA( handle, e.local8Bit(), NULL, NULL, NULL, &size );
+#endif
 	    }
 	}
 	if ( size )
@@ -248,20 +288,28 @@ inline QByteArray QSettingsPrivate::readKey( const QString &key, bool *ok )
 	    if ( e == "Default" )
 		e = "";
 
+#ifdef _WIN32_WCE
+		res = RegOpenKeyExW( local, (TCHAR*)qt_winTchar( f, TRUE ), 0, KEY_READ, &handle );
+#else
 #if defined(UNICODE)
 	    if ( qWinVersion() & Qt::WV_NT_based )
 		res = RegOpenKeyExW( local, (TCHAR*)qt_winTchar( f, TRUE ), 0, KEY_READ, &handle );
 	    else
 #endif
 		res = RegOpenKeyExA( local, f, 0, KEY_READ, &handle );
+#endif
 
 	    if ( res == ERROR_SUCCESS ) {
+#ifdef _WIN32_WCE
+		    res = RegQueryValueExW( handle, (TCHAR*)qt_winTchar( e, TRUE ), NULL, NULL, NULL, &size );
+#else
 #if defined(UNICODE)
 		if ( qWinVersion() & Qt::WV_NT_based )
 		    res = RegQueryValueExW( handle, (TCHAR*)qt_winTchar( e, TRUE ), NULL, NULL, NULL, &size );
 		else
 #endif
 		    res = RegQueryValueExA( handle, e.local8Bit(), NULL, NULL, NULL, &size );
+#endif
 	    }
 	    if ( size )
 		break;
@@ -277,12 +325,16 @@ inline QByteArray QSettingsPrivate::readKey( const QString &key, bool *ok )
     }
 
     uchar* data = new uchar[ size ];
+#ifdef _WIN32_WCE
+	RegQueryValueExW( handle, (TCHAR*)qt_winTchar( e, TRUE ), NULL, NULL, data, &size );
+#else
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based )
 	RegQueryValueExW( handle, (TCHAR*)qt_winTchar( e, TRUE ), NULL, NULL, data, &size );
     else
 #endif
 	RegQueryValueExA( handle, e.local8Bit(), NULL, NULL, data, &size );
+#endif
 
     QByteArray result;
     result.setRawData( (const char*)data, size );
@@ -349,7 +401,9 @@ bool QSettings::writeEntry( const QString &key, const QString &value )
 {
     QByteArray array( 0 );
 #if defined(UNICODE)
+#ifndef _WIN32_WCE
     if ( qWinVersion() & Qt::WV_NT_based ) {
+#endif
 	array.resize( value.length() * 2 + 2 );
 	const QChar *data = value.unicode();
 	int i;
@@ -360,12 +414,16 @@ bool QSettings::writeEntry( const QString &key, const QString &value )
 
 	array[ (2*i) ] = 0;
 	array[ (2*i)+1 ] = 0;
+#ifndef _WIN32_WCE
     } else
 #endif
+#endif
+#ifndef _WIN32_WCE
     {
 	array.resize( value.length() );
 	array = value.local8Bit();
     }
+#endif
 
     return d->writeKey( key, array, REG_SZ );
 }
@@ -403,16 +461,22 @@ QString QSettings::readEntry( const QString &key, const QString &def, bool *ok )
     QString result = QString::null;
 
 #if defined(UNICODE)
+#ifndef _WIN32_WCE
     if ( qWinVersion() & Qt::WV_NT_based ) {
+#endif
 	int s = array.size();
 	for ( int i = 0; i < s; i+=2 ) {
 	    QChar c( array[ i ], array[ i+1 ] );
 	    if( !c.isNull() )
 		result+=c;
 	}
+#ifndef _WIN32_WCE
     } else
 #endif
+#endif
+#ifndef _WIN32_WCE
 	result = QString::fromLocal8Bit( array );
+#endif
 
     char *data = array.data();
     array.resetRawData( data, array.size() );
@@ -503,12 +567,16 @@ bool QSettings::removeEntry( const QString &key )
 	return TRUE;
     if ( e == "Default" )
 	e = "";
+#ifdef _WIN32_WCE
+	res = RegDeleteValueW( handle, (TCHAR*)qt_winTchar( e, TRUE ) );
+#else
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based )
 	res = RegDeleteValueW( handle, (TCHAR*)qt_winTchar( e, TRUE ) );
     else
 #endif
 	res = RegDeleteValueA( handle, e.local8Bit() );
+#endif
 
     if ( res != ERROR_SUCCESS && res != ERROR_FILE_NOT_FOUND ) {
 #if defined(QT_CHECK_STATE)
@@ -519,10 +587,19 @@ bool QSettings::removeEntry( const QString &key )
     char vname[1];
     DWORD vnamesz = 1;
     FILETIME lastWrite;
+#ifdef _WIN32_WCE
+    LONG res2 = RegEnumValue( handle, 0, (LPTSTR)qt_winTchar(vname,TRUE), &vnamesz, NULL, NULL, NULL, NULL );
+    LONG res3 = RegEnumKeyEx( handle, 0, (LPTSTR)qt_winTchar(vname,TRUE), &vnamesz, NULL, NULL, NULL, &lastWrite );
+#else
     LONG res2 = RegEnumValueA( handle, 0, vname, &vnamesz, NULL, NULL, NULL, NULL );
-    LONG res3 = RegEnumKeyExA( handle, 0, vname, &vnamesz, NULL, NULL, NULL, &lastWrite ); 
+    LONG res3 = RegEnumKeyExA( handle, 0, vname, &vnamesz, NULL, NULL, NULL, &lastWrite );
+#endif
     if ( res2 == ERROR_NO_MORE_ITEMS && res3 == ERROR_NO_MORE_ITEMS )
+#ifdef _WIN32_WCE
+	RegDeleteKeyW( handle, L"" );
+#else
 	RegDeleteKeyA( handle, "" );
+#endif
     else
 	RegCloseKey( handle );
     return TRUE;
@@ -544,12 +621,16 @@ QStringList QSettings::entryList( const QString &key ) const
 
     DWORD count;
     DWORD maxlen;
+#ifdef _WIN32_WCE
+	RegQueryInfoKeyW( handle, NULL, NULL, NULL, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL );
+#else
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based )
 	RegQueryInfoKeyW( handle, NULL, NULL, NULL, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL );
     else
 #endif
 	RegQueryInfoKeyA( handle, NULL, NULL, NULL, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL );
+#endif
 
     if ( qWinVersion() & Qt::WV_NT_based )
 	maxlen++;
@@ -566,15 +647,21 @@ QStringList QSettings::entryList( const QString &key ) const
     while ( res != ERROR_NO_MORE_ITEMS ) {
 	vnamesz = maxlen;
 #if defined(UNICODE)
+#ifndef _WIN32_WCE
 	if ( qWinVersion() & Qt::WV_NT_based ) {
+#endif
 	    res = RegEnumValueW( handle, index, vnameT, &vnamesz, NULL, NULL, NULL, NULL );
 	    qname = qt_winQString( vnameT );
+#ifndef _WIN32_WCE
 	} else
 #endif
+#endif
+#ifndef _WIN32_WCE
 	{
 	    res = RegEnumValueA( handle, index, vnameA, &vnamesz, NULL, NULL, NULL, NULL );
 	    qname = vnameA;
 	}
+#endif
 	if ( res == ERROR_NO_MORE_ITEMS )
 	    break;
 	if ( qname.isEmpty() )
@@ -607,12 +694,16 @@ QStringList QSettings::subkeyList( const QString &key ) const
 
     DWORD count;
     DWORD maxlen;
+#ifdef _WIN32_WCE
+	RegQueryInfoKeyW( handle, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL, NULL, NULL, NULL );
+#else
 #if defined(UNICODE)
     if ( qWinVersion() & Qt::WV_NT_based )
 	RegQueryInfoKeyW( handle, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL, NULL, NULL, NULL );
     else
 #endif
 	RegQueryInfoKeyA( handle, NULL, NULL, NULL, &count, &maxlen, NULL, NULL, NULL, NULL, NULL, NULL );
+#endif
 
     if ( qWinVersion() & Qt::WV_NT_based )
 	maxlen++;
@@ -630,15 +721,21 @@ QStringList QSettings::subkeyList( const QString &key ) const
     while ( res != ERROR_NO_MORE_ITEMS ) {
 	vnamesz = maxlen;
 #if defined(UNICODE)
+#ifndef _WIN32_WCE
 	if ( qWinVersion() & Qt::WV_NT_based ) {
+#endif
 	    res = RegEnumKeyExW( handle, index, vnameT, &vnamesz, NULL, NULL, NULL, &lastWrite );
 	    qname = qt_winQString( vnameT );
+#ifndef _WIN32_WCE
 	} else
 #endif
+#endif
+#ifndef _WIN32_WCE
 	{
 	    res = RegEnumKeyExA( handle, index, vnameA, &vnamesz, NULL, NULL, NULL, &lastWrite );
 	    qname = vnameA;
 	}
+#endif
 
 	if ( res == ERROR_NO_MORE_ITEMS )
 	    break;

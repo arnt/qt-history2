@@ -11,6 +11,10 @@
 
 #include "zutil.h"
 
+#ifdef _WIN32_WCE
+#include "qfunctions_wce.h"
+#endif
+
 struct internal_state {int dummy;}; /* for buggy compilers */
 
 #ifndef Z_BUFSIZE

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Localization database support.
 **
@@ -110,7 +110,11 @@ extern "C" {
   candidate is big endian (it comes from a .qm file) whereas the target
   endianness depends on the system Qt is running on.
 */
+#ifdef _WIN32_WCE
+static int __cdecl cmp_uint32_little( const void* target, const void* candidate )
+#else
 static int cmp_uint32_little( const void* target, const void* candidate )
+#endif
 {
     const uchar* t = (const uchar*) target;
     const uchar* c = (const uchar*) candidate;
@@ -120,7 +124,11 @@ static int cmp_uint32_little( const void* target, const void* candidate )
 	   : (int) t[0] - (int) c[3];
 }
 
+#ifdef _WIN32_WCE
+static int __cdecl cmp_uint32_big( const void* target, const void* candidate )
+#else
 static int cmp_uint32_big( const void* target, const void* candidate )
+#endif
 {
     const uchar* t = (const uchar*) target;
     const uchar* c = (const uchar*) candidate;
@@ -388,7 +396,7 @@ bool QTranslator::load( const QString & filename, const QString & directory,
     delims = search_delimiters.isNull() ?
 	     QString::fromLatin1("_.") : search_delimiters;
 
-    while( TRUE ) {
+    for ( ;; ) {
 	QFileInfo fi;
 
 	realname = prefix + fname;
@@ -762,7 +770,7 @@ void QTranslator::unsqueeze()
 	return;
 
     QDataStream s( *d->messageArray, IO_ReadOnly );
-    while( TRUE ) {
+    for ( ;; ) {
 	QTranslatorMessage m( s );
 	if ( m.hash() == 0 )
 	    break;
@@ -886,7 +894,7 @@ QTranslatorMessage QTranslator::findMessage( const char* context,
 
 	Q_UINT8 len;
 	char con[256];
-	while(TRUE) {
+	for ( ;; ) {
 	    t >> len;
 	    if ( len == 0 )
 		return QTranslatorMessage();
@@ -1031,7 +1039,7 @@ QTranslatorMessage::QTranslatorMessage( QDataStream & stream )
     char tag;
     Q_UINT8 obs1;
 
-    while( TRUE ) {
+    for ( ;; ) {
 	tag = 0;
 	if ( !stream.atEnd() )
 	    stream.readRawBytes( &tag, 1 );

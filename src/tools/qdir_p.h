@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Definition of some private QDir functions.
 **
@@ -62,7 +62,11 @@ extern int qt_cmp_si_sortSpec;
 extern "C" {
 #endif
 
+#ifdef _WIN32_WCE
+extern int __cdecl qt_cmp_si( const void *, const void * );
+#else
 extern int qt_cmp_si( const void *, const void * );
+#endif
 
 #if defined(Q_C_CALLBACKS)
 }

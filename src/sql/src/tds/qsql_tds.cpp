@@ -573,7 +573,7 @@ int QTDSResult::numRowsAffected()
 ///////////////////////////////////////////////////////////////////
 
 QTDSDriver::QTDSDriver( QObject * parent, const char * name )
-    : QSqlDriver(parent,name ? name : "QTDS")
+    : QSqlDriver(parent,name ? name : "QTDS"), inTransaction( FALSE )
 {
     init();
     dberrhandle( (QERRHANDLE)qTdsErrHandler );
@@ -600,7 +600,8 @@ QTDSDriver::~QTDSDriver()
 
 bool QTDSDriver::hasTransactionSupport() const
 {
-    return TRUE;
+    // ### todo, not working yet
+    return FALSE;
 }
 
 bool QTDSDriver::hasQuerySizeSupport() const
@@ -712,6 +713,8 @@ QSqlQuery QTDSDriver::createQuery() const
 
 bool QTDSDriver::beginTransaction()
 {
+    return FALSE;
+/*
     if ( !isOpen() ) {
 #ifdef QT_CHECK_RANGE
 	qWarning( "QTDSDriver::beginTransaction: Database not open" );
@@ -730,11 +733,15 @@ bool QTDSDriver::beginTransaction()
     }
     while( dbresults( d->dbproc ) == NO_MORE_RESULTS ) {}
     dbfreebuf( d->dbproc );
+    inTransaction = TRUE;
     return TRUE;
+*/
 }
 
 bool QTDSDriver::commitTransaction()
 {
+    return FALSE;
+/*
     if ( !isOpen() ) {
 #ifdef QT_CHECK_RANGE
 	qWarning( "QTDSDriver::commitTransaction: Database not open" );
@@ -753,11 +760,15 @@ bool QTDSDriver::commitTransaction()
     }
     while( dbresults( d->dbproc ) == NO_MORE_RESULTS ) {}
     dbfreebuf( d->dbproc );
+    inTransaction = FALSE;
     return TRUE;
+*/
 }
 
 bool QTDSDriver::rollbackTransaction()
 {
+    return FALSE;
+/*
     if ( !isOpen() ) {
 #ifdef QT_CHECK_RANGE
 	qWarning( "QTDSDriver::rollbackTransaction: Database not open" );
@@ -776,7 +787,9 @@ bool QTDSDriver::rollbackTransaction()
     }
     while( dbresults( d->dbproc ) == NO_MORE_RESULTS ) {}
     dbfreebuf( d->dbproc );
+    inTransaction = FALSE;
     return TRUE;
+*/
 }
 
 QSqlRecord QTDSDriver::record( const QSqlQuery& query ) const

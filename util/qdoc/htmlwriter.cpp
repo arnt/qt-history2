@@ -16,11 +16,29 @@ QString HtmlWriter::styl;
 QString HtmlWriter::posth;
 QString HtmlWriter::addr;
 
+inline void HtmlWriter::doputchar( int ch )
+{ 
+    switch ( ch ) {
+    case '&':
+	fputs( "&amp;", out );
+	break;
+    case '<':
+	fputs( "&lt;", out );
+	break;
+    case '>':
+	fputs( "&gt;", out );
+	break;
+    default:
+	putc( ch, out );
+    }
+}
+
 HtmlWriter::HtmlWriter( const QString& fileName )
-    : fn( fileName ), headFlushed( FALSE ), footFlushed( FALSE )
+    : fn( fileName ), headFlushed( FALSE ), footFlushed( FALSE ),
+      recordStart( 0 )
 {
     QString file = config->outputDir() + QChar( '/' ) + fileName;
-    out = fopen( QFile::encodeName(file), "w" );
+    out = fopen( QFile::encodeName(file), "w+" );
     if ( out == 0 ) {
 	syswarning( "Cannot open '%s' for writing HTML", file.latin1() );
 	return;
@@ -63,7 +81,7 @@ void HtmlWriter::printfMeta( const char *fmt, ... )
 
 void HtmlWriter::putsMeta( const char *str )
 {
-    if ( out == 0 )
+    if ( out == 0 || str == 0 )
 	return;
     flushHead();
 
@@ -72,32 +90,48 @@ void HtmlWriter::putsMeta( const char *str )
 
 void HtmlWriter::puts( const char *str )
 {
-    if ( out == 0 )
+    if ( out == 0 || str == 0 )
 	return;
     flushHead();
 
     char ch;
-    while ( (ch = *str++) != '\0' ) {
-	switch ( ch ) {
-	case '&':
-	    fputs( "&amp;", out );
-	    break;
-	case '<':
-	    fputs( "&lt;", out );
-	    break;
-	case '>':
-	    fputs( "&gt;", out );
-	    break;
-	default:
-	    putc( ch, out );
-	}
-    }
+    while ( (ch = *str++) != '\0' )
+	doputchar( ch );
+}
+
+void HtmlWriter::putchar( int ch )
+{
+    if ( out == 0 )
+	return;
+    flushHead();
+
+    doputchar( ch );
 }
 
 void HtmlWriter::printFnord()
 {
     putsMeta( "<a href=\"http://www.kbuxton.com/discordia/fnord.html\">"
 	      "fnord</a>" );
+}
+
+void HtmlWriter::startRecording()
+{
+    flushHead();
+    recordStart = (int) ftell( out );
+}
+
+QString HtmlWriter::endRecording()
+{
+    int n = (int) ftell(out) - recordStart;
+    char *buf = new char[n + 1];
+    QString r;
+
+    fseek( out, (long) recordStart, SEEK_SET );
+    fread( (void *) buf, 1, n, out );
+    buf[n] = '\0';
+    r = QString::fromLatin1( buf );
+    delete[] buf;
+    return r;
 }
 
 void HtmlWriter::flushHead()
@@ -108,8 +142,6 @@ void HtmlWriter::flushHead()
 
     if ( t.isEmpty() && !h.isEmpty() )
 	t = h;
-    else if ( h.isEmpty() && !t.isEmpty() )
-	h = t;
 
     putsMeta( "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0"
 	      " Transitional//EN\">\n" );
@@ -132,17 +164,14 @@ void HtmlWriter::flushHead()
     if ( !posth.isEmpty() )
 	putsMeta( posth.latin1() );
 
-    putsMeta( "<h1 align=center>" );
-
-    if ( h.isEmpty() )
-	puts( fn );
-    else
+    if ( !h.isEmpty() ) {
+	putsMeta( "<h1 align=center>" );
 	putsMeta( h.latin1() );
-
-    if ( !sh.isEmpty() ) {
-	putsMeta( "<br><small>" );
-	putsMeta( sh.latin1() );
-	putsMeta( "</small>" );
+	if ( !sh.isEmpty() ) {
+	    putsMeta( "<br><small>" );
+	    putsMeta( sh.latin1() );
+	    putsMeta( "</small>" );
+	}
+	putsMeta( "</h1>\n\n" );
     }
-    putsMeta( "</h1>\n\n" );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QIconView widget class
 **
@@ -280,7 +280,11 @@ public:
 extern "C" {
 #endif
 
+#ifdef _WIN32_WCE
+static int _cdecl cmpIconViewItems( const void *n1, const void *n2 )
+#else
 static int cmpIconViewItems( const void *n1, const void *n2 )
+#endif
 {
     if ( !n1 || !n2 )
 	return 0;
@@ -1943,14 +1947,25 @@ void QIconViewItem::paintFocus( QPainter *p, const QColorGroup &cg )
     if ( !view )
 	return;
 
-    view->style().drawFocusRect( p, QRect( textRect( FALSE ).x(), textRect( FALSE ).y(),
-					   textRect( FALSE ).width(), textRect( FALSE ).height() ),
-				 cg, isSelected() ? &cg.highlight() : &cg.base(), isSelected() );
+    void *data[1];
+    data[0] = (void *) (isSelected() ? &cg.highlight() : &cg.base());
+    view->style().drawPrimitive(QStyle::PO_FocusRect, p,
+				QRect( textRect( FALSE ).x(), textRect( FALSE ).y(),
+				       textRect( FALSE ).width(),
+				       textRect( FALSE ).height() ), cg,
+				(isSelected() ?
+				 QStyle::PStyle_FocusAtBorder :
+				 QStyle::PStyle_Default),
+				data);
+
     if ( this != view->d->currentItem ) {
-	view->style().drawFocusRect( p, QRect( pixmapRect( FALSE ).x(), pixmapRect( FALSE ).y(),
-					       pixmapRect( FALSE ).width(),
-					       pixmapRect( FALSE ).height() ),
-				     cg, &cg.base(), FALSE );
+	data[0] = (void *) &cg.base();
+	view->style().drawPrimitive(QStyle::PO_FocusRect, p,
+				    QRect( pixmapRect( FALSE ).x(),
+					   pixmapRect( FALSE ).y(),
+					   pixmapRect( FALSE ).width(),
+					   pixmapRect( FALSE ).height() ),
+				    cg, QStyle::PStyle_Default, data);
     }
 }
 
@@ -4910,8 +4925,13 @@ void QIconView::drawRubber( QPainter *p )
 
     QPoint pnt( d->rubber->x(), d->rubber->y() );
     pnt = contentsToViewport( pnt );
-    style().drawFocusRect( p, QRect( pnt.x(), pnt.y(), d->rubber->width(), d->rubber->height() ),
-			   colorGroup(), &colorGroup().base() );
+
+    void *data[1];
+    data[0] = (void *) &colorGroup().base();
+    style().drawPrimitive(QStyle::PO_FocusRect, p,
+			  QRect( pnt.x(), pnt.y(),
+				 d->rubber->width(), d->rubber->height() ),
+			  colorGroup(), QStyle::PStyle_Default, data);
 }
 
 /*!  Returns the QDragObject that should be used for
@@ -5107,6 +5127,9 @@ void QIconView::drawDragShapes( const QPoint &pos )
 	return;
     }
 
+    void *data[1];
+    data[0] = (void *) &colorGroup().base();
+
     if ( d->isIconDrag ) {
 	QPainter p;
 	p.begin( viewport() );
@@ -5122,8 +5145,11 @@ void QIconView::drawDragShapes( const QPoint &pos )
 	    ir.moveBy( pos.x(), pos.y() );
 	    if ( !ir.intersects( QRect( contentsX(), contentsY(), visibleWidth(), visibleHeight() ) ) )
 		continue;
-	    style().drawFocusRect( &p, ir, colorGroup(), &colorGroup().base() );
-	    style().drawFocusRect( &p, tr, colorGroup(), &colorGroup().base() );
+
+	    style().drawPrimitive(QStyle::PO_FocusRect, &p, ir, colorGroup(),
+				  QStyle::PStyle_Default, data);
+	    style().drawPrimitive(QStyle::PO_FocusRect, &p, tr, colorGroup(),
+				  QStyle::PStyle_Default, data);
 	}
 
 	p.end();
@@ -5135,7 +5161,8 @@ void QIconView::drawDragShapes( const QPoint &pos )
 
 	for ( int i = 0; i < d->numDragItems; ++i ) {
 	    QRect r( pos.x() + i * 40, pos.y(), 35, 35 );
-	    style().drawFocusRect( &p, r, colorGroup(), &colorGroup().base() );
+	    style().drawPrimitive(QStyle::PO_FocusRect, &p, r, colorGroup(),
+				  QStyle::PStyle_Default, data);
 	}
 
 	p.end();

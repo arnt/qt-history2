@@ -44,7 +44,7 @@ int main(int argc, char** argv)
 
     qApp->setMainWidget(&m);
 
-    
+    m.setCaption("Qt Example - Canvas");
     if ( QApplication::desktop()->width() > m.width() + 10
 	 && QApplication::desktop()->height() > m.height() +30 )
 	m.show();

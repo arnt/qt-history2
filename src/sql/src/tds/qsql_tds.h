@@ -100,6 +100,7 @@ protected:
     bool		rollbackTransaction();
 private:
     void		init();
+    bool                inTransaction;
     QTDSPrivate*	d;
     QString             dbName;
     QString             hostName;

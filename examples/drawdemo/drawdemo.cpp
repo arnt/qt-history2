@@ -268,7 +268,7 @@ void DrawView::drawIt( QPainter *p )
 void DrawView::printIt()
 {
     if ( printer->setup( this ) ) {
-        QPainter paint( printer );
+	QPainter paint( printer );
         drawIt( &paint );
     }
 }
@@ -305,6 +305,7 @@ int main( int argc, char **argv )
     QApplication app( argc, argv );
     DrawView   draw;
     app.setMainWidget( &draw );
+    draw.setCaption("Qt Example - Drawdemo");
     draw.show();
     return app.exec();
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QDir class
 **
@@ -330,16 +330,6 @@ bool QDir::readDirEntries( const QString &nameFilter,
 			   int filterSpec, int sortSpec )
 {
     int i;
-    if ( !fList ) {
-	fList  = new QStringList;
-	Q_CHECK_PTR( fList );
-	fiList = new QFileInfoList;
-	Q_CHECK_PTR( fiList );
-	fiList->setAutoDelete( TRUE );
-    } else {
-	fList->clear();
-	fiList->clear();
-    }
 
     QStringList filters = qt_makeFilterList( nameFilter );
 
@@ -408,7 +398,15 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	return FALSE;
     }
 
-    while ( TRUE ) {
+    if ( !fiList ) {
+	fiList = new QFileInfoList;
+	Q_CHECK_PTR( fiList );
+	fiList->setAutoDelete( TRUE );
+    } else {
+	fiList->clear();
+    }
+
+    for ( ;; ) {
 	if ( first )
 	    first = FALSE;
 	else {
@@ -476,31 +474,38 @@ bool QDir::readDirEntries( const QString &nameFilter,
 #undef	IS_SYSTEM
 #undef	FF_ERROR
 
-	// Sort...
-	QDirSortItem* si= new QDirSortItem[fiList->count()];
-	QFileInfo* itm;
-	i=0;
-	for (itm = fiList->first(); itm; itm = fiList->next())
-	    si[i++].item = itm;
-	qt_cmp_si_sortSpec = sortSpec;
-	qsort( si, i, sizeof(si[0]), qt_cmp_si );
-	// put them back in the list
-	fiList->setAutoDelete( FALSE );
-	fiList->clear();
-	int j;
-	for ( j=0; j<i; j++ ) {
-	    fiList->append( si[j].item );
-	    fList->append( si[j].item->fileName() );
-	}
-	delete [] si;
-	fiList->setAutoDelete( TRUE );
+    if ( !fList ) {
+	fList  = new QStringList;
+	Q_CHECK_PTR( fList );
+    } else {
+	fList->clear();
+    }
 
-	if ( filterSpec == (FilterSpec)filtS && sortSpec == (SortSpec)sortS &&
-	     nameFilter == nameFilt )
-	    dirty = FALSE;
-	else
-	    dirty = TRUE;
-	return TRUE;
+    // Sort...
+    QDirSortItem* si= new QDirSortItem[fiList->count()];
+    QFileInfo* itm;
+    i=0;
+    for (itm = fiList->first(); itm; itm = fiList->next())
+	si[i++].item = itm;
+    qt_cmp_si_sortSpec = sortSpec;
+    qsort( si, i, sizeof(si[0]), qt_cmp_si );
+    // put them back in the list
+    fiList->setAutoDelete( FALSE );
+    fiList->clear();
+    int j;
+    for ( j=0; j<i; j++ ) {
+	fiList->append( si[j].item );
+	fList->append( si[j].item->fileName() );
+    }
+    delete [] si;
+    fiList->setAutoDelete( TRUE );
+
+    if ( filterSpec == (FilterSpec)filtS && sortSpec == (SortSpec)sortS &&
+	 nameFilter == nameFilt )
+	dirty = FALSE;
+    else
+	dirty = TRUE;
+    return TRUE;
 }
 
 

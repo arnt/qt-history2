@@ -335,10 +335,12 @@ QString processCodeHtml( const QString& code, const Resolver *res,
 	    QString x = memberX.cap( 1 );
 	    int xpos = memberX.pos( 1 );
 
-	    QString newX = metaRes.href( c.key() + gulbrandsen + x, x );
+	    QString newX = metaRes.href( c.key() + gulbrandsen + x + parenParen,
+					 x );
 	    if ( newX.length() == x.length() ) {
-		if ( localLinks && !mfunctions[c.key()].contains(x) ) {
-		    mfunctions[c.key()].insert( x,
+		if ( localLinks &&
+		     !mfunctions[c.key()].contains(x + parenParen) ) {
+		    mfunctions[c.key()].insert( x + parenParen,
 						QString("#f%1").arg(funique) );
 		    QString aname =
 			    QString( "<a name=\"f%1\"></a>" ).arg( funique );
@@ -423,7 +425,7 @@ QString processCodeHtml( const QString& code, const Resolver *res,
 
 	QStringList::ConstIterator s = types[x].begin();
 	while ( s != types[x].end() ) {
-	    QString newY = metaRes.href( *s + gulbrandsen + y, y );
+	    QString newY = metaRes.href( *s + gulbrandsen + y + parenParen, y );
 	    if ( newY.length() != y.length() ) {
 		t.replace( ypos, y.length(), newY );
 		k += newY.length() - y.length();
@@ -443,7 +445,7 @@ QString processCodeHtml( const QString& code, const Resolver *res,
 	QString y = xIsStaticZOfY.cap( 2 );
 	QString z = xIsStaticZOfY.cap( 3 );
 
-	QString newZ = metaRes.href( x, z );
+	QString newZ = metaRes.href( x + parenParen, z );
 	if ( newZ.length() != z.length() )
 	    t.replace( k + xIsStaticZOfY.matchedLength() - z.length(),
 		       z.length(), newZ );
@@ -478,9 +480,9 @@ QString processCodeHtml( const QString& code, const Resolver *res,
 	    classAtOffset.remove( classAtOffset.begin() );
 	}
 
-	QString newY = metaRes.href( y );
+	QString newY = metaRes.href( y + parenParen, y );
 	if ( newY.length() == y.length() && !curClass.isEmpty() )
-	    newY = metaRes.href( curClass + gulbrandsen + y, y );
+	    newY = metaRes.href( curClass + gulbrandsen + y + parenParen, y );
 
 	if ( newY.length() != y.length() )
 	    t.replace( k + x.length(), y.length(), newY );

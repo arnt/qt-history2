@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -51,6 +51,9 @@
 #include "qimageformatinterface.h"
 #include "qwmatrix.h"
 #include "qapplication.h"
+#ifdef _WIN32_WCE
+#include "qfunctions_wce.h"
+#endif
 #include <stdlib.h>
 #include <ctype.h>
 
@@ -3803,8 +3806,8 @@ void QImageIO::setStatus( int status )
 
   It is not necessary to specify a format before reading an image.
   If no format has been set, Qt guesses the image format before reading
-  it.  If a format is set but the image has another (valid) format,
-  the image will not be read.
+  it.  If a format is set the image will only be read if it has that
+  format.
 
   \sa read(), write(), format()
 */
@@ -3856,6 +3859,9 @@ int QImageIO::quality() const
 /*!
   Sets the quality of the written image to \a q, related to the
   compression ratio.
+
+    \a q must be in the range 0..100.  Specify 0 to obtain small
+    compressed files, 100 for large uncompressed files
 
   \sa quality() QImage::save()
 */
@@ -3946,7 +3952,7 @@ const char *QImageIO::imageFormat( QIODevice *d )
     if ( rdlen != buflen )
 	return 0;
 
-    strcpy( buf2, buf );
+    strncpy( buf2, buf, buflen );
 
     const char* format = 0;
     for ( int n = 0; n < rdlen; n++ )
@@ -4725,7 +4731,7 @@ static int read_pbm_int( QIODevice *d )
     bool  digit;
     const int buflen = 100;
     char  buf[buflen];
-    while ( TRUE ) {
+    for ( ;; ) {
 	if ( (c=d->getch()) == EOF )		// end of file
 	    break;
 	digit = isdigit( (uchar) c );
@@ -5128,7 +5134,7 @@ static void read_xbm_image( QImageIO *iio )
     if ( w <= 0 || w > 32767 || h <= 0 || h > 32767 )
 	return;					// format error
 
-    while ( TRUE ) {				// scan for data
+    for ( ;; ) {				// scan for data
 	if ( d->readLine(buf, buflen) <= 0 )	// end of file
 	    return;
 	if ( strstr(buf,"0x") != 0 )		// does line contain data?
@@ -5958,9 +5964,6 @@ QValueList<QImageTextKeyLang> QImage::textList() const
     the PNG specification\endlink.  \a s can be any text.  \a lang should
     specify the language code (see 
     \link ftp://ftp.isi.edu/in-notes/1766 RFC 1766\endlink) or 0.
-
-    Note that no QImageIO handlers currently read or write this
-    data.  In an upcoming Qt version, PNG I/O will do so.
 */
 void QImage::setText(const char* key, const char* lang, const QString& s)
 {

@@ -307,7 +307,7 @@ int main( int argc, char ** argv )
 {
     QApplication a( argc, argv );
     MenuExample m;
-
+    m.setCaption("Qt Examples - Menus");
     a.setMainWidget( &m );
     m.show();
     return a.exec();

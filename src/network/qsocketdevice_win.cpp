@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QSocketDevice class.
 **
@@ -34,7 +34,9 @@
 #include <string.h>
 #include <windows.h>
 #include <winsock.h>
+#ifndef NO_ERRNO_H
 #include <errno.h>
+#endif
 
 
 #if defined(SOCKLEN_T)

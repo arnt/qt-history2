@@ -46,6 +46,7 @@
 
 class QGroupBox;
 class QPrintDialogPrivate;
+class QListView;
 
 class Q_EXPORT QPrintDialog : public QDialog
 {
@@ -55,12 +56,15 @@ public:
     ~QPrintDialog();
 
     static bool getPrinterSetup( QPrinter * );
-
+    static void setGlobalPrintDialog( QPrintDialog * );
+    
     void setPrinter( QPrinter *, bool = FALSE );
     QPrinter * printer() const;
 
     void addButton( QPushButton *but );
 
+    virtual bool setupPrinters ( QListView *printers );
+    
 private slots:
     void browseClicked();
     void okClicked();

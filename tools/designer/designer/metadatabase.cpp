@@ -1351,10 +1351,8 @@ QMap<QString, QString> MetaDataBase::functionBodies( QObject *o )
 
 void MetaDataBase::setupInterfaceManagers()
 {
-    QString dir = getenv( "QTDIR" );
-    dir += "/plugins/designer";
     if ( !eventInterfaceManager ) {
-	eventInterfaceManager = new QPluginManager<EventInterface>( IID_Event, dir );
+	eventInterfaceManager = new QPluginManager<EventInterface>( IID_Event );
 
 	QStringList paths(QApplication::libraryPaths());
 	QStringList::Iterator it = paths.begin();
@@ -1365,7 +1363,7 @@ void MetaDataBase::setupInterfaceManagers()
 
     }
     if ( !languageInterfaceManager ) {
-	languageInterfaceManager = new QPluginManager<LanguageInterface>( IID_Language, dir );
+	languageInterfaceManager = new QPluginManager<LanguageInterface>( IID_Language );
 	QStringList paths(QApplication::libraryPaths());
 	QStringList::Iterator it = paths.begin();
 	while (it != paths.end()) {

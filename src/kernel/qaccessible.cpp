@@ -419,14 +419,10 @@ QRESULT QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInter
 	    qAccessibleManager = new QPluginManager<QAccessibleFactoryInterface>( IID_QAccessibleFactory );
 	    qAddPostRoutine( cleanup );
 
-	    QString defpath(getenv("QTDIR"));
-	    if (! defpath.isNull() && ! defpath.isEmpty())
-		qAccessibleManager->addLibraryPath(defpath + "/plugins");
-
 	    QStringList paths(QApplication::libraryPaths());
 	    QStringList::Iterator it = paths.begin();
 	    while (it != paths.end()) {
-		qAccessibleManager->addLibraryPath(*it + "/codecs");
+		qAccessibleManager->addLibraryPath(*it );
 		it++;
 	    }
 	}

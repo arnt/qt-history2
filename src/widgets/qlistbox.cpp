@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QListBox widget class
 **
@@ -3705,7 +3705,11 @@ void QListBox::paintCell( QPainter * p, int row, int col )
     if ( d->current == i && hasFocus() && !i->custom_highlight ) {
 	if ( numColumns() > 1 )
 	    cw = i->width( this );
-	style().drawPrimitive( QStyle::PO_FocusRect, p, QRect( 0, 0, cw, ch ), g );
+
+	void *data[1];
+	data[0] = (void *) (i->selected() ? &g.highlight() : &g.base());
+	style().drawPrimitive( QStyle::PO_FocusRect, p, QRect( 0, 0, cw, ch ), g,
+			       QStyle::PStyle_FocusAtBorder, data);
     }
 
     p->restore();
@@ -3988,7 +3992,8 @@ void QListBox::drawRubber()
 	return;
     QPainter p( viewport() );
     p.setRasterOp( NotROP );
-    style().drawPrimitive( QStyle::PO_FocusRect, &p, d->rubber->normalize(), colorGroup() );
+    style().drawPrimitive( QStyle::PO_FocusRect, &p, d->rubber->normalize(),
+			   colorGroup() );
     p.end();
 }
 
@@ -4068,7 +4073,11 @@ QListBoxItem *QListBox::firstItem() const
 extern "C" {
 #endif
 
+#ifdef _WIN32_WCE
+static int _cdecl cmpListBoxItems( const void *n1, const void *n2 )
+#else
 static int cmpListBoxItems( const void *n1, const void *n2 )
+#endif
 {
     if ( !n1 || !n2 )
 	return 0;
