@@ -2632,17 +2632,24 @@ void qt_format_text( const QFont& font, const QRect &r,
 		    QFont nf( font );
 		    int lastPos = 0;
 		    int i = parStr.find( '&' );
-		    while ( i != -1 ) {
-			QString part( parStr.mid( lastPos, i - lastPos ) );
-			painter->drawText( xoff, yoff, part );
-			++i;
-			if ( !noaccel )
-			    painter->setFont( uf );
-			xoff += fm.width( part );
-			painter->drawText( xoff, yoff, QString( parStr[ i ] ) );
-			xoff += fm.charWidth( parStr, i );
-			lastPos = i + 1;
-			painter->setFont( nf );
+		    while ( i != -1 && i < parStr.length() - 1 ) {
+			if ( i == (int)parStr.length() - 1 || parStr[ i + 1 ] != '&' ) {
+			    QString part( parStr.mid( lastPos, i - lastPos ) );
+			    painter->drawText( xoff, yoff, part );
+			    ++i;
+			    if ( !noaccel )
+				painter->setFont( uf );
+			    xoff += fm.width( part );
+			    painter->drawText( xoff, yoff, QString( parStr[ i ] ) );
+			    xoff += fm.charWidth( parStr, i );
+			    lastPos = i + 1;
+			    painter->setFont( nf );
+			} else if ( parStr[ i + 1 ] == '&' ) {
+			    parStr.remove( i, 1 );
+			    i++;
+			    while ( i < (int)parStr.length() && parStr[ i ] == '&' )
+				++i;
+			}
 			i = parStr.find( '&', i );
 		    }
 		    if ( lastPos < (int)parStr.length() )
