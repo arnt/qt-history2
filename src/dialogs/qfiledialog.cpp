@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#327 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#328 $
 **
 ** Implementation of QFileDialog class
 **
@@ -76,13 +76,14 @@ static QFileIconProvider * fileIconProvider = 0;
 
 /* XPM */
 static const char* open_xpm[]={
-    "16 13 6 1",
+    "16 15 6 1",
     ". c None",
     "b c #ffff00",
     "d c #000000",
     "* c #999999",
     "c c #cccccc",
     "a c #ffffff",
+    "................",
     "...*****........",
     "..*aaaaa*.......",
     ".*abcbcba******.",
@@ -95,16 +96,72 @@ static const char* open_xpm[]={
     ".*acbcbcbcbcbd*d",
     "..*acbcbcbcbb*dd",
     "..*************d",
-    "...ddddddddddddd"};
+    "...ddddddddddddd",
+    "................"};
+
+/* XPM */
+static const char*link_xpm[]={
+    "15 15 10 1",
+    "h c #808080",
+    "g c #a0a0a0",
+    "d c #000000",
+    "b c #ffff00",
+    "f c #303030",
+    "# c #999999",
+    "a c #cccccc",
+    "e c #585858",
+    "c c #ffffff",
+    ". c None",
+    "...............",
+    "..#####........",
+    ".#ababa#.......",
+    "#abababa######.",
+    "#cccccccccccc#d",
+    "#cbababababab#d",
+    "#cabababababa#d",
+    "#cbababdddddddd",
+    "#cababadccccccd",
+    "#cbababdcececcd",
+    "#cababadcefdfcd",
+    "#cbababdccgdhcd",
+    "#######dccchccd",
+    ".dddddddddddddd",
+    "..............."};
+
+/* XPM */
+static const char* file_xpm[]={
+    "13 15 5 1",
+    ". c #7f7f7f",
+    "# c None",
+    "c c #000000",
+    "b c #bfbfbf",
+    "a c #ffffff",
+    "..........###",
+    ".aaaaaaaab.##",
+    ".aaaaaaaaba.#",
+    ".aaaaaaaacccc",
+    ".aaaaaaaaaabc",
+    ".aaaaaaaaaabc",
+    ".aaaaaaaaaabc",
+    ".aaaaaaaaaabc",
+    ".aaaaaaaaaabc",
+    ".aaaaaaaaaabc",
+    ".aaaaaaaaaabc",
+    ".aaaaaaaaaabc",
+    ".aaaaaaaaaabc",
+    ".bbbbbbbbbbbc",
+    "ccccccccccccc"};
+
 /* XPM */
 static const char* closed_xpm[]={
-    "15 13 6 1",
+    "15 15 6 1",
     ". c None",
     "b c #ffff00",
     "d c #000000",
     "* c #999999",
     "a c #cccccc",
     "c c #ffffff",
+    "...............",
     "..*****........",
     ".*ababa*.......",
     "*abababa******.",
@@ -117,7 +174,8 @@ static const char* closed_xpm[]={
     "*cabababababa*d",
     "*cbababababab*d",
     "**************d",
-    ".dddddddddddddd"};
+    ".dddddddddddddd",
+    "..............."};
 
 
 /* XPM */
@@ -244,6 +302,8 @@ static QPixmap * multiColumnListViewIcon = 0;
 static QPixmap * cdToParentIcon = 0;
 static QPixmap * newFolderIcon = 0;
 static QPixmap * fifteenTransparentPixels = 0;
+static QPixmap * symLinkIcon = 0;
+static QPixmap * fileIcon = 0;
 static QString * workingDirectory = 0;
 static bool bShowHiddenFiles = FALSE;
 static int sortFilesBy = (int)QDir::Name;
@@ -273,6 +333,10 @@ static void cleanup() {
     previewContentsViewIcon = 0;
     delete previewInfoViewIcon;
     previewInfoViewIcon = 0;
+    delete symLinkIcon;
+    symLinkIcon = 0;
+    delete fileIcon;
+    fileIcon = 0;
 }
 
 
@@ -281,6 +345,8 @@ static void makeVariables() {
 	qAddPostRoutine( cleanup );
 	workingDirectory = new QString;
 	openFolderIcon = new QPixmap(open_xpm);
+	symLinkIcon = new QPixmap(link_xpm);
+	fileIcon = new QPixmap(file_xpm);
 	closedFolderIcon = new QPixmap(closed_xpm);
 	detailViewIcon = new QPixmap(detailedview_xpm);
 	multiColumnListViewIcon = new QPixmap(mclistview_xpm);
@@ -1319,8 +1385,12 @@ const QPixmap * QFileDialogPrivate::File::pixmap( int column ) const
 	return 0;
     else if ( fileIconProvider )
 	return fileIconProvider->pixmap( info );
+    else if ( info.isSymLink() )
+	return symLinkIcon;
     else if ( info.isDir() )
 	return closedFolderIcon;
+    else if ( info.isFile() )
+	return fileIcon;
     else
 	return fifteenTransparentPixels;
 }
@@ -1389,9 +1459,9 @@ const QPixmap *QFileDialogPrivate::MCItem::pixmap() const
 int QFileDialogPrivate::MCItem::height( const QListBox * lb ) const
 {
     if ( pixmap() )
-	return QMAX( lb->fontMetrics().height(), pixmap()->height()) + 4;
+	return QMAX( lb->fontMetrics().height(), pixmap()->height()) + 2;
 
-    return lb->fontMetrics().height() + 4;
+    return lb->fontMetrics().height() + 2;
 }
 
 
@@ -1418,15 +1488,15 @@ void QFileDialogPrivate::MCItem::paint( QPainter * ptr )
     int h;
 
     if ( pixmap() )
-	h = QMAX( fm.height(), pixmap()->height()) + 4;
+	h = QMAX( fm.height(), pixmap()->height()) + 2;
     else
-	h = fm.height() + 4;
+	h = fm.height() + 2;
 
     const QPixmap * pm = pixmap();
     if ( pm )
-	ptr->drawPixmap( ( h - pm->height() ) / 2, 4, *pm );
+	ptr->drawPixmap( 2, 1, *pm );
 
-    ptr->drawText( pm ? pm->width() + 8 : 22, (h - fm.height())/2+fm.ascent()-1,
+    ptr->drawText( pm ? pm->width() + 4 : 22, h - fm.descent() - 2,
 		   text() );
 }
 
