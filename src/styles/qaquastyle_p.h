@@ -43,6 +43,13 @@
 #include <qptrlist.h>
 #include <qpushbutton.h>
 #include <qprogressbar.h>
+#include <qapplication.h>
+#ifdef Q_WS_MAC
+#  include <qt_mac.h>
+#endif
+
+
+QCString p2qstring(const unsigned char *c); //qglobal.cpp
 
 class QAquaFocusWidget : public QWidget
 {
@@ -99,6 +106,40 @@ static inline bool qAquaActive( const QColorGroup & g )
     else
         return TRUE;
 }
+
+/* 
+  Setup the font appropriatly on the Mac
+*/
+static inline void qAquaPolishFont( QWidget *w )
+{
+#ifdef Q_WS_MAC
+    if( !w->ownFont() && w->font() == qApp->font() ) {
+	bool set_font = TRUE;
+	short key = kThemeApplicationFont;
+	if(w->inherits("QPushButton"))
+	    key = kThemePushButtonFont;
+	else if(w->inherits("QListView") || w->inherits("QListBox"))
+	    key = kThemeViewsFont;
+	else if(w->inherits("QPopupMenu"))
+	    key = kThemeMenuItemFont;
+	else if(w->inherits("QLabel"))
+	    key = kThemeLabelFont;
+	else
+	    set_font = FALSE;
+	if(set_font) {
+	    Str255 f_name;
+	    SInt16 f_size;
+	    Style f_style;
+	    GetThemeFont(key, smSystemScript, f_name, &f_size, &f_style);
+	    w->setFont(QFont(p2qstring(f_name), f_size,
+			     (f_style & ::bold) ? QFont::Bold : QFont::Normal,
+			     (bool)(f_style & ::italic)));
+	}
+    }
+#else
+    Q_UNUSED(w);
+#endif
+}    
 
 #ifdef QT_AQUA_XPM
 #include <qpixmapcache.h>

@@ -219,6 +219,8 @@ void QMacStyle::polish( QWidget* w )
 	layout->setSpacing( 0 );
 	layout->setMargin( 0 );
     }
+
+    qAquaPolishFont(w);
 }
 
 void QMacStyle::unPolish( QWidget* w )
@@ -743,6 +745,8 @@ void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		tds |= kThemeStatePressedDown;
 	    else if(subActive == SC_SpinWidgetUp)
 		tds |= kThemeStatePressedUp;
+	    if(sw->isUpEnabled() || sw->isDownEnabled())
+		tds &= ~kThemeStateInactive;
 	    ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
 	    QRect updown = sw->upRect() | sw->downRect();
 	    if(sw->backgroundPixmap())

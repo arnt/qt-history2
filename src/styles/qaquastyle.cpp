@@ -61,8 +61,6 @@
 #include "private/qtitlebar_p.h"
 #include "private/qinternal_p.h"
 #include "qpopupmenu.h"
-#define QT_AQUA_XPM
-#include "qaquastyle_p.h"
 #include "qguardedptr.h"
 #include "qlineedit.h"
 #include "qcombobox.h"
@@ -70,6 +68,8 @@
 #  include <string.h>
 #  include <qt_mac.h>
 #endif
+#define QT_AQUA_XPM
+#include "qaquastyle_p.h"
 
 static const int aquaSepHeight         = 10;    // separator height
 static const int aquaItemFrame         = 2;    // menu item frame width
@@ -82,7 +82,6 @@ static const int aquaRightBorder       = 12;   // right border on aqua
 static const int aquaCheckMarkWidth    = 12;   // checkmarks width on aqua
 static QColor qt_mac_highlight_color = QColor( 0xC2, 0xC2, 0xC2 ); //color of highlighted text
 static bool qt_mac_scrollbar_arrows_together = FALSE; //whether scroll arrows go together
-QCString p2qstring(const unsigned char *c); //qglobal.cpp
 
 QAquaFocusWidget::QAquaFocusWidget( )
     : QWidget( NULL, "magicFocusWidget", WResizeNoErase | WRepaintNoErase ), d( NULL )
@@ -530,31 +529,7 @@ void QAquaStyle::polish( QWidget * w )
 	w->installEventFilter( this );
     }
 
-#ifdef Q_WS_MAC
-    if( !w->ownFont() && w->font() == qApp->font() ) {
-	bool set_font = TRUE;
-	short key = kThemeApplicationFont;
-	if(w->inherits("QPushButton"))
-	    key = kThemePushButtonFont;
-	else if(w->inherits("QListView") || w->inherits("QListBox"))
-	    key = kThemeViewsFont;
-	else if(w->inherits("QPopupMenu"))
-	    key = kThemeMenuItemFont;
-	else if(w->inherits("QLabel"))
-	    key = kThemeLabelFont;
-	else
-	    set_font = FALSE;
-	if(set_font) {
-	    Str255 f_name;
-	    SInt16 f_size;
-	    Style f_style;
-	    GetThemeFont(key, smSystemScript, f_name, &f_size, &f_style);
-	    w->setFont(QFont(p2qstring(f_name), f_size,
-			     (f_style & ::bold) ? QFont::Bold : QFont::Normal,
-			     (bool)(f_style & ::italic)));
-	}
-    }
-#endif
+    qAquaPolishFont(w);
     if( w->inherits("QTitleBar") ) {
 	w->font().setPixelSize(10);
 	((QTitleBar*)w)->setAutoRaise(TRUE);

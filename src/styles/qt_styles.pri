@@ -19,6 +19,12 @@ styles {
 		HEADERS +=$$STYLES_H/qmacstyle_mac.h
 		SOURCES +=$$STYLES_CPP/qmacstyle_mac.cpp
 
+		#at the moment we require aqua
+		!contains( styles, aqua ) {
+			message( mac requires aqua )
+			styles += aqua
+		}
+		#we inherit from windows..
 		!contains( styles, windows ) {
 			message( mac requires windows )
 			styles += windows
