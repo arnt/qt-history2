@@ -203,6 +203,9 @@ protected:
 	    QMCPI  *mcpi;   // if mcp == TRUE
 	} hbm_or_mcpi;
 	uchar *realAlphaBits;
+#ifdef Q_OS_TEMP
+	uchar* ppvBits; // Pointer to DIBSection bits
+#endif
 #elif defined(Q_WS_X11)
 	void   *ximage;
 	void   *maskgc;

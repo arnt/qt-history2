@@ -56,6 +56,9 @@ extern "C" {
 #define SendMessageA		SendMessage
 #define calloc			_calloc
 
+#if !defined(NO_ERRNO_H) && defined(POCKET_PC)
+#define NO_ERRNO_H
+#endif
 
 // Environment ------------------------------------------------------
 char *getenv(const char *env);
@@ -184,6 +187,8 @@ BOOL GetViewportOrgEx( HDC hdc, LPPOINT lpPoint );
 BOOL GetViewportExtEx( HDC hdc, LPSIZE lpSize );
 BOOL GetWindowOrgEx( HDC hdc, LPPOINT lpPoint );
 BOOL GetWindowExtEx( HDC hdc, LPSIZE lpSize );
+
+UINT GetDIBColorTable( HDC hdc, DIBSECTION &ds, UINT uStartIndex, UINT cEntries, RGBQUAD *pColors );
 
 
 // Other stuff ------------------------------------------------------

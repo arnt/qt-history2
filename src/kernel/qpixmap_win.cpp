@@ -137,7 +137,6 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     data->bitmap = bitmap;
     data->ser_no = ++serial;
     data->optim	 = optim;
-    data->realAlphaBits = 0;
 
     bool make_null = w == 0 || h == 0;		// create null pixmap
     if ( d == 1 )				// monocrome pixmap
@@ -160,10 +159,38 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 	if ( allocCell() >= 0 )			// successful
 	    return;
     }
+
+#ifndef Q_OS_TEMP
     if ( data->d == dd )			// compatible bitmap
 	DATA_HBM = CreateCompatibleBitmap( qt_display_dc(), w, h );
     else					// monocrome bitmap
 	DATA_HBM = CreateBitmap( w, h, 1, 1, 0 );
+#else
+	// WinCE must use DIBSections instead of Compatible Bitmaps
+	// so it's possible to get the colortable at a later point.
+	int   ncols           = dd <= 8 ? 1<<dd : 0;
+        int   bmi_data_len    = sizeof(BITMAPINFO) + sizeof(RGBQUAD)*ncols;
+	char *bmi_data        = new char[bmi_data_len];
+	memset( bmi_data, 0, bmi_data_len );
+	BITMAPINFO       *bmi = (BITMAPINFO*)bmi_data;
+	BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi_data;
+	bmh->biSize	      = sizeof(BITMAPINFOHEADER);
+	bmh->biWidth	      = w;
+	bmh->biHeight	      = -h; // top-down bitmap
+	bmh->biPlanes	      = 1;
+	bmh->biBitCount	      = dd;
+	bmh->biCompression    = BI_RGB;
+	bmh->biSizeImage      = 0;
+	bmh->biClrUsed	      = ncols;
+	bmh->biClrImportant   = 0;
+	DATA_HBM = CreateDIBSection( qt_display_dc(), 
+				     bmi,
+				     dd > 8 ? DIB_RGB_COLORS : DIB_PAL_COLORS,
+				     (void**)&(data->ppvBits),
+				     NULL, 
+				     0 );
+#endif
+
     if ( !DATA_HBM ) {
 	data->w = 0;
 	data->h = 0;
@@ -389,9 +416,17 @@ QImage QPixmap::convertToImage() const
 
     int	w = width();
     int	h = height();
+    const QBitmap *m = data->realAlphaBits ? 0 : mask();
+
+#ifdef Q_OS_TEMP
+    DIBSECTION      ds;
+    DWORD dwSize = GetObject( DATA_HBM, sizeof(DIBSECTION), &ds );
+    Q_ASSERT( dwSize == sizeof(ds) ); // Failing means HBitmap
+    int d = ds.dsBmih.biBitCount;
+    int ncols = ds.dsBmih.biClrUsed;
+#else
     int	d = depth();
     int	ncols = 2;
-    const QBitmap *m = data->realAlphaBits ? 0 : mask();
 
     if ( d > 1 && d <= 8 || d == 1 && m ) {	// set to nearest valid depth
 	d = 8;					//   2..7 ==> 8
@@ -400,11 +435,14 @@ QImage QPixmap::convertToImage() const
 	d = 32;					//   > 8  ==> 32
 	ncols = 0;
     }
+#endif
+
 
     QImage image( w, h, d, ncols, QImage::BigEndian );
-#ifndef Q_OS_TEMP
     if ( data->realAlphaBits ) {
+#ifndef Q_OS_TEMP
 	GdiFlush();
+#endif
 	memcpy( image.bits(), data->realAlphaBits, image.numBytes() );
 	image.setAlphaBuffer( TRUE );
 
@@ -436,7 +474,6 @@ QImage QPixmap::convertToImage() const
 	}
 	return image;
     }
-#endif
 
     int	  bmi_data_len = sizeof(BITMAPINFO)+sizeof(RGBQUAD)*ncols;
     char *bmi_data = new char[bmi_data_len];
@@ -453,27 +490,30 @@ QImage QPixmap::convertToImage() const
     bmh->biClrUsed	  = ncols;
     bmh->biClrImportant	  = 0;
     QRgb *coltbl = (QRgb*)(bmi_data + sizeof(BITMAPINFOHEADER));
-
+#ifdef Q_OS_TEMP
+    memcpy( image.bits(), data->ppvBits, image.numBytes() );
+    GetDIBColorTable( hdc, ds, 0, ncols, (RGBQUAD*)coltbl );
+#else
     bool mcp = data->mcp;
     if ( mcp )					// disable multi cell
 	((QPixmap*)this)->freeCell();
-#ifndef Q_OS_TEMP
+
     GetDIBits( qt_display_dc(), DATA_HBM, 0, h, image.bits(), bmi, DIB_RGB_COLORS );
-#endif
 
     if ( mcp )
 	((QPixmap*)this)->allocCell();
+#endif
 
     for ( int i=0; i<ncols; i++ ) {		// copy color table
 	RGBQUAD *r = (RGBQUAD*)&coltbl[i];
 	if ( m )
 	    image.setColor( i, qRgba(r->rgbRed,
-				r->rgbGreen,
-				r->rgbBlue,255) );
+			       r->rgbGreen,
+			       r->rgbBlue,255) );
 	else
 	    image.setColor( i, qRgb(r->rgbRed,
-				r->rgbGreen,
-				r->rgbBlue) );
+			       r->rgbGreen,
+			       r->rgbBlue) );
     }
 
     if ( m ) {
@@ -710,14 +750,14 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    StretchDIBits( dc, 0, sy, w, h, 0, 0, w, h,
 			   image.bits(), bmi, DIB_RGB_COLORS, SRCCOPY );
 #else
-	void *ppvBits;
-	HDC hdcSrc = CreateCompatibleDC( dc );
-	HBITMAP hBitmap = CreateDIBSection( hdcSrc, bmi, DIB_RGB_COLORS, &ppvBits, NULL, 0 );
-	memcpy( ppvBits, image.bits(), image.numBytes() );
+	DeleteObject( DATA_HBM );
+	HDC hdcSrc = handle();
+	HBITMAP hBitmap = CreateDIBSection( hdcSrc, bmi, DIB_RGB_COLORS, (void**)&(data->ppvBits), NULL, 0 );
+	memcpy( data->ppvBits, image.bits(), image.numBytes() );
+	// Cannot use the return value of SelectObject, as it's a
+	// true HBITMAP, and not a DIBSelection with a HBITMAP handle
 	SelectObject( hdcSrc, hBitmap );
-	BitBlt( dc, 0, sy, w, h, hdcSrc, 0, 0, SRCCOPY );
-	DeleteObject( hBitmap );
-	DeleteDC( hdcSrc );
+	DATA_HBM = hBitmap;
 #endif
     }
 
@@ -879,8 +919,8 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     bool mcp = data->mcp;
     if ( mcp )
 	((QPixmap*)this)->freeCell();
-#ifndef Q_OS_TEMP
     int result;
+#ifndef Q_OS_TEMP
     if ( data->realAlphaBits ) {
 	GdiFlush();
 	memcpy( sptr, data->realAlphaBits, sbpl*hs );
@@ -889,8 +929,15 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	result = GetDIBits( qt_display_dc(), DATA_HBM, 0, hs, sptr, bmi, DIB_RGB_COLORS );
     }
 #else
-    int result = 0;
+    if ( data->realAlphaBits ) {
+	memcpy( sptr, data->realAlphaBits, sbpl*hs );
+	result = 1;
+    } else {
+        memcpy( sptr, data->ppvBits, sbpl*hs );
+	result = 1;
+    }
 #endif
+
     if ( mcp )
 	((QPixmap*)this)->allocCell();
 
@@ -948,21 +995,22 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     bmh->biWidth  = w;
     bmh->biHeight = -h;
     bmh->biSizeImage = dbytes;
-#ifndef Q_OS_TEMP
-    if ( data->realAlphaBits )
+    if ( data->realAlphaBits ) {
 	pm.initAlphaPixmap( dptr, dbytes, bmi );
-    else
+    } else {
+#ifndef Q_OS_TEMP
 	SetDIBitsToDevice( pm_dc, 0, pm_sy, w, h, 0, 0, 0, h, dptr, bmi, DIB_RGB_COLORS );
 #else
-    void *ppvBits;
-    HDC hdcSrc = CreateCompatibleDC( pm.handle() );
-    HBITMAP hBitmap = CreateDIBSection( hdcSrc, bmi, DIB_RGB_COLORS, &ppvBits, NULL, 0 );
-    memcpy( ppvBits, dptr, dbytes );
-    SelectObject( hdcSrc, hBitmap );
-    BitBlt( pm.handle(), 0, 0, w, h, hdcSrc, 0, 0, SRCCOPY );
-    DeleteObject( hBitmap );
-    DeleteDC( hdcSrc );
+	DeleteObject( pm.DATA_HBM );
+	HDC hdcSrc = pm.handle();
+	HBITMAP hBitmap = CreateDIBSection( hdcSrc, bmi, DIB_RGB_COLORS, (void**)&(data->ppvBits), NULL, 0 );
+	memcpy( data->ppvBits, dptr, dbytes );
+	// Cannot use the return value of SelectObject, as it's a
+	// true HBITMAP, and not a DIBSelection with a HBITMAP handle
+	SelectObject( hdcSrc, hBitmap );
+	pm.DATA_HBM = hBitmap;
 #endif
+    }
     delete [] bmi_data;
     delete [] dptr;
     if ( data->mask ) {
@@ -1355,6 +1403,8 @@ Q_EXPORT void copyBlt( QPixmap *dst, int dx, int dy,
 
 #ifndef Q_OS_TEMP
 	    GetDIBits( qt_display_dc(), dst->DATA_HBM, 0, dst->height(), pm.data->realAlphaBits, bmi, DIB_RGB_COLORS );
+#else
+	    memcpy( pm.data->ppvBits, dst->data->ppvBits, bmh->biSizeImage );
 #endif
 	    *dst = pm;
 	}
