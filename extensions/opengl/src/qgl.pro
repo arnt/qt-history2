@@ -6,4 +6,4 @@ MOC_DIR     =   .
 TARGET      =	qgl
 DESTINCDIR  =   ../../../include
 DESTDIR	    =   ../../../lib
-VERSION     =	0.9
+VERSION     =	1.0
