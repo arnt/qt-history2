@@ -189,26 +189,24 @@ template <class Value>
 Q_INLINE_TEMPLATES void qHeapSortPushDown( Value* heap, int first, int last )
 {
     int r = first;
-    while( r <= last/2 ) {
-	// Node r has only one child ?
-	if ( last == 2*r ) {
-	    // Need for swapping ?
-	    if ( heap[r] > heap[ 2*r ] )
-		qSwap( heap[r], heap[ 2*r ] );
-	    // That's it ...
+    while ( r <= last / 2 ) {
+	if ( last == 2 * r ) {
+	    // node r has only one child
+	    if ( heap[2 * r] < heap[r] )
+		qSwap( heap[r], heap[2 * r] );
 	    r = last;
-	} else { // Node has two children
-	    if ( heap[r] > heap[ 2*r ] && heap[ 2*r ] <= heap[ 2*r+1 ] ) {
-		// Swap with left child
-		qSwap( heap[r], heap[ 2*r ] );
+	} else {
+	    // node r has two children
+	    if ( heap[2 * r] < heap[r] && !(heap[2 * r + 1] < heap[2 * r]) ) {
+		// swap with left child
+		qSwap( heap[r], heap[2 * r] );
 		r *= 2;
-	    } else if ( heap[r] > heap[ 2*r+1 ] &&
-			heap[ 2*r+1 ] < heap[ 2*r ] ) {
-		// Swap with right child
-		qSwap( heap[r], heap[ 2*r+1 ] );
-		r = 2*r+1;
+	    } else if ( heap[2 * r + 1] < heap[r]
+			&& heap[2 * r + 1] < heap[2 * r] ) {
+		// swap with right child
+		qSwap( heap[r], heap[2 * r + 1] );
+		r = 2 * r + 1;
 	    } else {
-		// We are done
 		r = last;
 	    }
 	}
@@ -221,15 +219,15 @@ Q_INLINE_TEMPLATES void qHeapSortHelper( InputIterator b, InputIterator e, Value
 {
     // Create the heap
     InputIterator insert = b;
-    Value* realheap = new Value[ n ];
+    Value* realheap = new Value[n];
     // Wow, what a fake. But I want the heap to be indexed as 1...n
     Value* heap = realheap - 1;
     int size = 0;
     for( ; insert != e; ++insert ) {
 	heap[++size] = *insert;
 	int i = size;
-	while( i > 1 && heap[i] < heap[ i / 2 ] ) {
-	    qSwap( heap[i], heap[ i / 2 ] );
+	while( i > 1 && heap[i] < heap[i / 2] ) {
+	    qSwap( heap[i], heap[i / 2] );
 	    i /= 2;
 	}
     }
