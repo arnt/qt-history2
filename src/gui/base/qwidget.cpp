@@ -882,7 +882,7 @@ void QWidgetPrivate::createTLExtra()
     if ( !extra->topextra ) {
 	QTLWExtra* x = extra->topextra = new QTLWExtra;
 #if defined( Q_WS_WIN ) || defined( Q_WS_MAC )
-	x->opacity = 1;
+	x->opacity = 255;
 #endif
 #ifndef QT_NO_WIDGET_TOPEXTRA
 	x->icon = 0;
