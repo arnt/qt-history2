@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#10 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#11 $
 **
 ** Definition of QIconView widget class
 **
@@ -140,7 +140,6 @@ protected:
     virtual void calcRect();
     virtual void paintItem( QPainter *p );
     virtual void paintFocus( QPainter *p );
-    virtual void makeActiveIcon();
     virtual void dropped( QDropEvent *e );
     virtual void breakLines( const QString text, QStringList &lst, int width );
     virtual void dragEntered();
@@ -176,7 +175,7 @@ class QIconView : public QScrollView
 
     Q_OBJECT
 
-	public:
+public:
     enum SelectionMode {
 	Single = 0,
 	Multi,
