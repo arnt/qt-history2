@@ -825,7 +825,7 @@ class TreeNode : public Node
     ChildrenMap children;
 
 public:
-    ~TreeNode() { removeElements(); }
+    virtual ~TreeNode() { removeElements(); }
 
     int pathIndex(const QString &filepath) {
         int Windex = filepath.indexOf("\\");
@@ -876,7 +876,7 @@ class FlatNode : public Node
     ChildrenMapFlat children;
 
 public:
-    ~FlatNode() { removeElements(); }
+    virtual ~FlatNode() { removeElements(); }
 
     int pathIndex(const QString &filepath) {
         int Windex = filepath.lastIndexOf("\\");
