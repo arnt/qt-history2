@@ -3,14 +3,16 @@
 
 #include <qglobal.h>
 
-#ifdef _OS_UNIX_
+#ifdef UNIX
 #include <pthread.h>
 #endif
 
 class QMutex {
 
-#ifdef _OS_UNIX_
-pthread_mutex_t mymutex;
+#ifdef UNIX
+  pthread_mutex_t mymutex;
+#else
+#warning Eek,no mutex!
 #endif
 
 public:

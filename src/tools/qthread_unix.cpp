@@ -2,6 +2,7 @@
 #include <pthread.h>
 #include <stdio.h>
 #include <errno.h>
+#include <string.h>
 
 QMutex::QMutex()
 {
@@ -23,7 +24,7 @@ void QMutex::lock()
 {
   int ret=pthread_mutex_lock(&mymutex);
   if(ret) {
-    printf("Mutex lock failure\n",strerror(ret));
+    printf("Mutex lock failure %s\n",strerror(ret));
   }
 }
 
@@ -31,7 +32,7 @@ void QMutex::unlock()
 {
   int ret=pthread_mutex_unlock(&mymutex);
   if(ret) {
-    printf("Mutex unlock failure\n",strerror(ret));
+    printf("Mutex unlock failure %s\n",strerror(ret));
   }   
 }
 
