@@ -250,7 +250,7 @@ public:
     void appendSection( const QNumberSection& sec )
     {
 	sections.append( sec );
-	
+
     }
     void clearSections()
     {
@@ -358,7 +358,7 @@ public:
 
     void resize( const QSize& size ) { sz = size; }
 
-    int mapSection( int sec ) 
+    int mapSection( int sec )
     {
 	return sections[sec].index();
     }
@@ -779,7 +779,7 @@ protected:
 	Q_ASSERT( editor );
 	if ( !editor )
 	    return;
-	
+
 	int section = editor->sectionAt( e->pos() );
 	editor->setFocusSection( section );
 
@@ -2228,8 +2228,8 @@ QString QTimeEdit::sectionText( int sec )
 	txt = QString::number( d->s );
 	break;
     case 3:
-	txt = d->h < 12 ? ( lAM ? *lAM : "AM" )
-			: ( lPM ? *lPM : "PM" );
+	txt = d->h < 12 ? ( lAM ? *lAM : QString::fromLatin1( "AM" ) )
+	                : ( lPM ? *lPM : QString::fromLatin1( "PM" ) );
 	break;
     default:
 	break;
@@ -2413,7 +2413,9 @@ QSize QTimeEdit::sizeHint() const
     int fw = style().pixelMetric( QStyle::PM_DefaultFrameWidth, this );
     int h = fm.lineSpacing() + 2;
     int w = 2 + fm.width( '9' ) * 6 + fm.width( d->ed->separator() ) * 2 +
-	d->controls->upRect().width() + fw * 4 + ((d->display&AMPM) ? fm.width( lAM? *lAM : "AM" ) + 4 : 0 );
+	d->controls->upRect().width() + fw * 4 +
+	    ((d->display&AMPM) ? fm.width( lAM? *lAM : QString::fromLatin1( "AM" ) ) +
+	     4 : 0 );
 
     return QSize( w, QMAX(h + fw * 2,20) ).expandedTo( QApplication::globalStrut() );
 }
