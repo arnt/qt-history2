@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#70 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#71 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#70 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#71 $";
 #endif
 
 
@@ -448,7 +448,7 @@ void QWidget::grabMouse()
     }
 }
 
-/*! Grabs the mouse intput and change the cursor shape.
+/*! Grabs the mouse intput and changes the cursor shape.
 
   The cursor will assume shape \e cursor (for as long as the mouse focus is
   grabbed) and the widget will continue getting mouse events until
