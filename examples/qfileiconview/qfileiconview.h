@@ -88,8 +88,7 @@ class QtFileIconView : public QIconView
     Q_OBJECT
 
 public:
-    QtFileIconView( const QString &dir, bool isdesktop = FALSE,
-                    QWidget *parent = 0, const char *name = 0 );
+    QtFileIconView( const QString &dir, QWidget *parent = 0, const char *name = 0 );
 
     enum ViewMode { Large, Small };
 
@@ -135,18 +134,11 @@ protected:
     void initDragEnter( QDropEvent *e );
 
     virtual void keyPressEvent( QKeyEvent *e );
-    virtual void drawBackground( QPainter *p, const QRect &r );
-    static void makeGradient( QPixmap &pmCrop, const QColor &_color1,
-                              const QColor &_color2, int _xSize, int _ySize );
-
-    void resizeContents( int, int );
 
     QDir viewDir;
     int newFolderNum;
-    bool isDesktop;
     QSize sz;
     QPixmap pix;
-    bool makeNewGradient;
     ViewMode vm;
 
 };

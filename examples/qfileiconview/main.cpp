@@ -18,23 +18,10 @@ int main( int argc, char **argv )
 {
     QApplication a( argc, argv );
 
-    if ( argc == 2 && QString( "-desktop" ) == argv[1] ) {
-	QtFileIconView fiv( QString::null, TRUE );
-	a.setMainWidget( &fiv );
-	fiv.setFrameStyle( QFrame::NoFrame );
-	fiv.setCaption( "desktop" );
-	fiv.setSelectionMode( QIconView::Extended );
-	fiv.viewport()->setBackgroundMode( QWidget::NoBackground );
-	fiv.setItemTextBackground( Qt::lightGray );
-	fiv.setDirectory( "/" );
-	fiv.showMaximized();
-	return a.exec();
-    } else {
-	FileMainWindow mw;
-	mw.resize( 680, 480 );
-	a.setMainWidget( &mw );
-	mw.fileView()->setDirectory( "/" );
-	mw.show();
-	return a.exec();
-    }
+    FileMainWindow mw;
+    mw.resize( 680, 480 );
+    a.setMainWidget( &mw );
+    mw.fileView()->setDirectory( "/" );
+    mw.show();
+    return a.exec();
 }

@@ -85,7 +85,7 @@ void FileMainWindow::setup()
     root->setOpen( TRUE );
     splitter->setResizeMode( dirlist, QSplitter::KeepSize );
 
-    fileview = new QtFileIconView( "/", FALSE, splitter );
+    fileview = new QtFileIconView( "/", splitter );
     fileview->setSelectionMode( QIconView::Extended );
 
     setCentralWidget( splitter );
