@@ -219,9 +219,6 @@ network/ftpclient
 network/httpd
     An extremely simple HTTP daemon built using QServerSocket.
 
-network/infoprotocol
-    A more complex client/server example.
-
 network/mail
     A simple mail client that can send email using the QSocket class.
 
