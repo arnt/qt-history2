@@ -140,9 +140,62 @@ int QMotifPlusStyle::buttonMargin() const
   \reimp
 */
 
-void QMotifPlusStyle::polish(QPalette &pal)
+void QMotifPlusStyle::polish(QPalette &)
 {
-    singleton->oldpalette = pal;
+
+}
+
+
+/*!
+  \reimp
+*/
+void QMotifPlusStyle::polish(QWidget *widget)
+{
+    if (widget->inherits("QFrame") &&
+        ((QFrame *) widget)->frameStyle() == QFrame::Panel)
+        ((QFrame *) widget)->setFrameStyle(QFrame::WinPanel);
+
+#ifndef QT_NO_MENUBAR
+    if (widget->inherits("QMenuBar") &&
+        ((QMenuBar *) widget)->frameStyle() != QFrame::NoFrame)
+        ((QMenuBar *) widget)->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
+#endif
+
+    if (widget->inherits("QToolBar"))
+        widget->layout()->setMargin(2);
+
+    if (useHoveringHighlight) {
+        if (widget->inherits("QButton") ||
+            widget->inherits("QComboBox"))
+            widget->installEventFilter(this);
+
+        if (widget->inherits("QScrollBar") ||
+            widget->inherits("QSlider")) {
+            widget->setMouseTracking(TRUE);
+            widget->installEventFilter(this);
+        }
+    }
+
+    QMotifStyle::polish(widget);
+}
+
+
+/*!
+  \reimp
+*/
+void QMotifPlusStyle::unPolish(QWidget *widget)
+{
+    widget->removeEventFilter(this);
+    QMotifStyle::unPolish(widget);
+}
+
+
+/*!
+  \reimp
+*/
+void QMotifPlusStyle::polish(QApplication *app)
+{
+    QPalette pal = app->palette();
 
     QColor bg = pal.color(QPalette::Active, QColorGroup::Background);
 
@@ -228,87 +281,36 @@ void QMotifPlusStyle::polish(QPalette &pal)
         pal.setDisabled(disabled);
     }
 
-    {
-        QColor prelight;
+    singleton->oldpalette = pal;
 
-        if ( (bg.red() + bg.green() + bg.blue()) / 3 > 128)
-            prelight = pal.color(QPalette::Active,
-                                 QColorGroup::Background).light(110);
-        else
-            prelight = pal.color(QPalette::Active,
-                                 QColorGroup::Background).light(120);
+    QColor prelight;
 
-        QColorGroup active2(pal.color(QPalette::Active,
-                                      QColorGroup::Foreground), // foreground
-                            prelight,                           // button
-                            prelight.light(),                   // light
-                            prelight.dark(156),                 // dark
-                            prelight.dark(110),                 // mid
-                            pal.color(QPalette::Active,
-                                      QColorGroup::Text),       // text
-                            pal.color(QPalette::Active,
-                                      QColorGroup::BrightText), // bright text
-                            pal.color(QPalette::Active,
-                                      QColorGroup::Base),       // base
-                            prelight);                          // background
+    if ( (bg.red() + bg.green() + bg.blue()) / 3 > 128)
+	prelight = pal.color(QPalette::Active,
+			     QColorGroup::Background).light(110);
+    else
+	prelight = pal.color(QPalette::Active,
+			     QColorGroup::Background).light(120);
 
-        singleton->prelight_palette = pal;
-        singleton->prelight_palette.setActive(active2);
-        singleton->prelight_palette.setInactive(active2);
-    }
-}
+    QColorGroup active2(pal.color(QPalette::Active,
+				  QColorGroup::Foreground), // foreground
+			prelight,                           // button
+			prelight.light(),                   // light
+			prelight.dark(156),                 // dark
+			prelight.dark(110),                 // mid
+			pal.color(QPalette::Active,
+				  QColorGroup::Text),       // text
+			pal.color(QPalette::Active,
+				  QColorGroup::BrightText), // bright text
+			pal.color(QPalette::Active,
+				  QColorGroup::Base),       // base
+			prelight);                          // background
 
+    singleton->prelight_palette = pal;
+    singleton->prelight_palette.setActive(active2);
+    singleton->prelight_palette.setInactive(active2);
 
-/*!
-  \reimp
-*/
-void QMotifPlusStyle::polish(QWidget *widget)
-{
-    if (widget->inherits("QFrame") &&
-        ((QFrame *) widget)->frameStyle() == QFrame::Panel)
-        ((QFrame *) widget)->setFrameStyle(QFrame::WinPanel);
-
-#ifndef QT_NO_MENUBAR
-    if (widget->inherits("QMenuBar") &&
-        ((QMenuBar *) widget)->frameStyle() != QFrame::NoFrame)
-        ((QMenuBar *) widget)->setFrameStyle(QFrame::StyledPanel | QFrame::Raised);
-#endif
-
-    if (widget->inherits("QToolBar"))
-        widget->layout()->setMargin(2);
-
-    if (useHoveringHighlight) {
-        if (widget->inherits("QButton") ||
-            widget->inherits("QComboBox"))
-            widget->installEventFilter(this);
-
-        if (widget->inherits("QScrollBar") ||
-            widget->inherits("QSlider")) {
-            widget->setMouseTracking(TRUE);
-            widget->installEventFilter(this);
-        }
-    }
-
-    QMotifStyle::polish(widget);
-}
-
-
-/*!
-  \reimp
-*/
-void QMotifPlusStyle::unPolish(QWidget *widget)
-{
-    widget->removeEventFilter(this);
-    QMotifStyle::unPolish(widget);
-}
-
-
-/*!
-  \reimp
-*/
-void QMotifPlusStyle::polish(QApplication *)
-{
-
+    app->setPalette(pal);
 }
 
 
