@@ -111,7 +111,7 @@ public:
 private:
     pointer growAndCopy( size_t n, pointer s, pointer f );
 
-    QValueVectorPrivate& operator=( const QValueVectorPrivate<T>& x );
+    QValueVectorPrivate<T>& operator=( const QValueVectorPrivate<T>& x );
 
 };
 
