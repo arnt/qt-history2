@@ -3159,13 +3159,13 @@ QString QString::rightJustify( uint width, QChar fill, bool truncate ) const
 
 QString QString::lower() const
 {
-    QString s( *this );
     int l = length();
     if ( l ) {
-	register QChar *p = s.d->unicode;
+	register QChar *p = d->unicode;
 	if ( p ) {
 	    while ( l ) {
 		if ( *p != ::lower(*p) ) {
+		    QString s( *this );
 		    s.real_detach();
 		    p = s.d->unicode + ( p - d->unicode );
 		    while ( l ) {
@@ -3173,14 +3173,14 @@ QString QString::lower() const
 			l--;
 			p++;
 		    }
-		    break;
+		    return s;
 		}
 		l--;
 		p++;
 	    }
 	}
     }
-    return s;
+    return *this;
 }
 
 /*!
@@ -3196,13 +3196,13 @@ QString QString::lower() const
 
 QString QString::upper() const
 {
-    QString s( *this );
     int l = length();
     if ( l ) {
-	register QChar *p = s.d->unicode;
+	register QChar *p = d->unicode;
 	if ( p ) {
 	    while ( l ) {
 		if ( *p != ::upper(*p) ) {
+		    QString s( *this );
 		    s.real_detach();
 		    p = s.d->unicode + ( p - d->unicode );
 		    while ( l ) {
@@ -3210,14 +3210,14 @@ QString QString::upper() const
 			l--;
 			p++;
 		    }
-		    break;
+		    return s;
 		}
 		l--;
 		p++;
 	    }
 	}
     }
-    return s;
+    return *this;
 }
 
 
