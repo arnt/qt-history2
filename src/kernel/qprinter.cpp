@@ -420,6 +420,12 @@ static QPrinter::PageSize makepagesize( QPrinter::PageSize ps,
 
 void QPrinter::setPageSize( PageSize newPageSize )
 {
+    if ( newPageSize > NPageSize ) {
+#if defined(CHECK_STATE)
+	qWarning("QPrinter::SetPageSize: illegal page size %d", newPageSize );
+#endif
+	return;
+    }
     page_size = makepagesize( newPageSize, pageOrder(), colorMode() );
 }
 
