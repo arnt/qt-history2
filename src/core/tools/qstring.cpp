@@ -3902,8 +3902,25 @@ ushort QString::toUShort(bool *ok, int base) const
 
 double QString::toDouble(bool *ok) const
 {
-    QLocale locale(QLocale::C);
-    return locale.d->stringToDouble(*this, ok);
+    // Try the default locale
+    bool my_ok;
+    QLocale def_locale;
+    double result = def_locale.d->stringToDouble(*this, &my_ok);
+    if (my_ok) {
+    	if (ok != 0)
+	    *ok = true;
+	return result;
+    }
+    
+    // If the default was not "C", try the "C" locale
+    if (def_locale.language() == QLocale::C) {
+    	if (ok != 0)
+	    *ok = false;
+	return 0.0;
+    }
+    
+    QLocale c_locale(QLocale::C);
+    return c_locale.d->stringToDouble(*this, ok);
 }
 
 /*!

@@ -72,6 +72,11 @@
 #   include <ieeefp.h>
 #endif
 
+#if defined (Q_OS_OSF)
+#   define INFINITY DBL_INFINITY
+#   define NAN DBL_QNAN
+#endif
+
 enum {
     LittleEndian,
     BigEndian
@@ -2698,6 +2703,13 @@ QString QLocale::toString(double i, char f, int prec) const
 
 QLocale QLocale::system()
 {
+#ifdef Q_OS_UNIX
+    const char *s = getenv("LC_NUMERIC");
+    if (s == 0)
+        s = getenv("LC_ALL");
+    if (s != 0)
+        return QLocale(s);
+#endif
     return QLocale(QLocalePrivate::systemLocaleName());
 }
 
