@@ -2585,6 +2585,7 @@ void QTextEdit::insert( const QString &text, uint insertionFlags )
 
 void QTextEdit::insertAt( const QString &text, int para, int index )
 {
+    removeSelection( QTextDocument::Standard );
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if ( d->optimMode )
 	return;
