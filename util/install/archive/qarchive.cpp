@@ -5,8 +5,6 @@
 #include <qapplication.h>
 #include <zlib/zlib.h>
 
-extern QApplication* qApp;
-
 QArchive::QArchive( const QString& archivePath )
 {
     setPath( archivePath );
@@ -34,7 +32,7 @@ bool QArchive::open( int mode )
     case IO_ReadOnly:
 	// Fallthrough intentional
     case IO_WriteOnly:
-	if( arcFile.open( mode ) )
+	if( arcFile.open( mode ) ) 
 	    return true;
 	break;
     }
@@ -43,7 +41,7 @@ bool QArchive::open( int mode )
 
 void QArchive::close()
 {
-    if( arcFile.isOpen() )
+    if( arcFile.isOpen() ) 
 	arcFile.close();
 }
 
@@ -84,7 +82,8 @@ bool QArchive::writeFile( const QString& fileName, const QString& localPath )
 
 		continueCompressing = true;
 		while( continueCompressing ) {
-		    qApp->processEvents();
+		    if(qApp)
+			qApp->processEvents();
 		    continueCompressing = ( deflate( &ztream, Z_FINISH ) == Z_OK );
 		    if( !ztream.avail_out ) {
 			if( !outBuffer.resize( outBuffer.size() + bufferSize ) )

@@ -14,6 +14,7 @@ public:
     void setVerbosity( int verbosity );
     bool open( int mode );
     void close();
+    bool isOpen() { return arcFile.isOpen(); }
 
     bool setDirectory( const QString& dirName );
     bool writeFile( const QString& fileName, const QString& localPath = QString::null );
@@ -25,6 +26,7 @@ private:
 
     int bufferSize;
     int verbosityMode;
+    int opened;
 signals:
     void operationFeedback( const QString& );
 
