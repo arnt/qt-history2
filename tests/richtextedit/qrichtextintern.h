@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#15 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#16 $
 **
 ** Internal rich text classes
 **
@@ -27,6 +27,8 @@
 #include "qstylesheet.h"
 #include "qapplication.h"
 #include "qmime.h"
+#include "qabstractlayout.h"
+#include "qlayout.h"
 #include "qformatstuff.h"
 
 
@@ -108,6 +110,12 @@ public:
 	:paper( p ), linkColor( lc ), linkUnderline( lu )
     {
     };
+    QtTextOptions( const QtTextOptions& other )
+    {
+	paper = other.paper;
+	linkColor = other.linkColor;
+	linkUnderline = other.linkUnderline;
+    }
     const QBrush* paper;
     QColor linkColor;
     bool linkUnderline;
@@ -228,6 +236,7 @@ public:
 
     virtual void realize( QPainter* ) { width = 0; }
 
+    virtual bool noErase() const { return FALSE; };
     virtual bool expandsHorizontally() const { return FALSE; }
     virtual void resize( QPainter*, int nwidth ){ width = nwidth; };
     int width;
@@ -248,20 +257,77 @@ private:
     QPixmap pm;
 };
 
-class QtTextInText: public QtTextCustomItem
+class QtTextTable;
+class QtTextTableCell : public QLayoutItem
 {
 public:
-    QtTextInText(const QMap<QString, QString> &attr, const QtTextCharFormat& fmt, const QString& context,
-		 const QMimeSourceFactory &factory, const QtStyleSheet *sheet, const QString& doc, int& pos );
-    ~QtTextInText();
+    QtTextTableCell(QtTextTable* table,
+      int row, int column, 		
+      const QMap<QString, QString> &attr, 
+      const QStyleSheetItem* style, 
+      const QtTextCharFormat& fmt, const QString& context,
+      const QMimeSourceFactory &factory, const QtStyleSheet *sheet, const QString& doc, int& pos );
+    ~QtTextTableCell();
+    QSize sizeHint() const ;
+    QSize minimumSize() const ;
+    QSize maximumSize() const ;
+    QSizePolicy::ExpandData expanding() const;
+    bool isEmpty() const;
+    void setGeometry( const QRect& ) ;
+    QRect geometry() const;
+
+    bool hasHeightForWidth() const;
+    int heightForWidth( int ) const;
+
+    void realize();
+
+    int row() const { return row_; }
+    int column() const { return col_; }
+    int rowspan() const { return rowspan_; }
+    int colspan() const { return colspan_; }
+
+    void draw( int x, int y,
+	       int ox, int oy, int cx, int cy, int cw, int ch,
+	       QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to);
+private:
+
+    QPainter* painter() const;
+    QRect geom;
+    QtTextTable* parent;
+    QtRichText* richtext;
+    QBrush* background;
+    int row_;
+    int col_;
+    int rowspan_;
+    int colspan_;
+    int maxw;
+    int minw;
+};
+
+class QtTextTable: public QtTextCustomItem
+{
+public:
+    QtTextTable(const QMap<QString, QString> &attr);
+    ~QtTextTable();
     void realize( QPainter* );
     void draw(QPainter* p, int x, int y,
 	      int ox, int oy, int cx, int cy, int cw, int ch,
 	      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to);
-    
+
+    bool noErase() const { return TRUE; };
+    bool expandsHorizontally() const { return TRUE; }
+    void resize( QPainter*, int nwidth );
+
 private:
-    QtRichText* richtext;
+    QGridLayout* layout;
+    QList<QtTextTableCell> cells;
+
+    friend class QtTextTableCell;
+    void addCell( QtTextTableCell* cell );
+    QPainter* painter;
+    int cachewidth;
 };
+
 
 class QtTextHorizontalLine : public QtTextCustomItem
 {
@@ -308,8 +374,8 @@ class QtTextCursor {
     void makeLineLayout( QPainter* p, const QFontMetrics& fm );
     bool gotoNextLine( QPainter* p, const QFontMetrics& fm );
     void gotoLineStart( QPainter* p, const QFontMetrics& fm );
-    void drawLine( QPainter* p, int ox, int oy, 
-		   int cx, int cy, int cw, int ch, 
+    void drawLine( QPainter* p, int ox, int oy,
+		   int cx, int cy, int cw, int ch,
 		   QRegion& backgroundRegion,
 		   const QColorGroup& cg, const QtTextOptions& to );
     void drawLabel( QPainter* p, QtTextParagraph* par, int x, int y, int w, int h, int ox, int oy,
@@ -386,28 +452,29 @@ class QtRichText : public QtTextParagraph
 {
 public:
     QtRichText( const QString &doc, const QFont& fnt = QApplication::font(),
-	       const QString& context = QString::null,
-	       int margin = 8, const QMimeSourceFactory* factory = 0, const QtStyleSheet* sheet = 0 );
-    QtRichText( const QString &doc, int& pos, const QtTextCharFormat& fmt,
-	       const QString& context = QString::null,
-	       int margin = 8, const QMimeSourceFactory* factory = 0, const QtStyleSheet* sheet = 0 );
+		const QString& context = QString::null,
+		int margin = 8, const QMimeSourceFactory* factory = 0, const QtStyleSheet* sheet = 0 );
+    QtRichText( const QMap<QString, QString> &attr, const QString &doc, int& pos, 
+		const QStyleSheetItem* style, const QtTextCharFormat& fmt,
+		const QString& context = QString::null,
+		int margin = 8, const QMimeSourceFactory* factory = 0, const QtStyleSheet* sheet = 0 );
     ~QtRichText();
 
     bool isValid() const;
 
     QString context() const;
     void dump();
-    
+
     void draw(QPainter* p, int x, int y,
 	      int ox, int oy, int cx, int cy, int cw, int ch,
 	      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to);
-    
+
     void doLayout( QPainter* p, int nwidth );
 
 
 
 private:
-    void init( const QString& doc, int& pos, int margin = 8 );
+    void init( const QString& doc, int& pos );
 
     bool parse (QtTextParagraph* current, const QStyleSheetItem* cursty, QtTextParagraph* dummy,
 		QtTextCharFormat fmt, const QString& doc, int& pos);
@@ -415,6 +482,7 @@ private:
     bool eat(const QString& doc, int& pos, QChar c);
     bool lookAhead(const QString& doc, int& pos, QChar c);
     QString parseOpenTag(const QString& doc, int& pos, QMap<QString, QString> &attr, bool& emptyTag);
+    QString parseCloseTag( const QString& doc, int& pos );
     bool eatCloseTag(const QString& doc, int& pos, const QString& open);
     QChar parseHTMLSpecialChar(const QString& doc, int& pos);
     QString parseWord(const QString& doc, int& pos, bool insideTag = FALSE, bool lower = FALSE);
@@ -424,9 +492,12 @@ private:
     bool valid;
     QString contxt;
     const QtStyleSheet* sheet_;
-    const QMimeSourceFactory* factory_;
     QStyleSheetItem* base;
-    QStyleSheetItem* nullstyle;
+    const QMimeSourceFactory* factory_;
+    const QStyleSheetItem* nullstyle;
+
+    QtTextCustomItem* parseTable( const QMap<QString, QString> &attr, const QtTextCharFormat &fmt, const QString &doc, int& pos );
+
 
 };
 

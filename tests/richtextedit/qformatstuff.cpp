@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#18 $
+** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.cpp#19 $
 **
 ** Definition of the QtTextView class
 **
@@ -102,34 +102,36 @@ int QtTextCharFormat::removeRef()
 
 QtTextCharFormat QtTextCharFormat::makeTextFormat( const QStyleSheetItem *style,
 						   const QMap<QString,QString>& attr,
-						   QtTextCustomItem*  item )
+						   QtTextCustomItem*  item ) const
 {
     QtTextCharFormat format(*this);
     format.custom = item;
     bool changed = FALSE;
-    if ( style->isAnchor() ) {
-	format.anchor_href = attr["href"];
-	format.anchor_name = attr["name"];
-	changed = TRUE;
-    }
+    if ( style ) {
+	if ( style->isAnchor() ) {
+	    format.anchor_href = attr["href"];
+	    format.anchor_name = attr["name"];
+	    changed = TRUE;
+	}
 
-    if ( style->fontWeight() != QStyleSheetItem::Undefined )
-        format.font_.setWeight( style->fontWeight() );
-    if ( style->fontSize() != QStyleSheetItem::Undefined )
-        format.font_.setPointSize( style->fontSize() );
-    else if ( style->logicalFontSize() != QStyleSheetItem::Undefined )
-        style->styleSheet()->scaleFont( format.font_, style->logicalFontSize() );
-    else if ( style->logicalFontSizeStep() != QStyleSheetItem::Undefined )
-        style->styleSheet()->scaleFont( format.font_,
-                                       logicalFontSize + style->logicalFontSizeStep() );
-    if ( !style->fontFamily().isEmpty() )
-        format.font_.setFamily( style->fontFamily() );
-    if ( style->color().isValid() )
-        format.color_ = style->color();
-    if ( style->definesFontItalic() )
-        format.font_.setItalic( style->fontItalic() );
-    if ( style->definesFontUnderline() )
-        format.font_.setUnderline( style->fontUnderline() );
+	if ( style->fontWeight() != QStyleSheetItem::Undefined )
+	    format.font_.setWeight( style->fontWeight() );
+	if ( style->fontSize() != QStyleSheetItem::Undefined )
+	    format.font_.setPointSize( style->fontSize() );
+	else if ( style->logicalFontSize() != QStyleSheetItem::Undefined )
+	    style->styleSheet()->scaleFont( format.font_, style->logicalFontSize() );
+	else if ( style->logicalFontSizeStep() != QStyleSheetItem::Undefined )
+	    style->styleSheet()->scaleFont( format.font_,
+			    logicalFontSize + style->logicalFontSizeStep() );
+	if ( !style->fontFamily().isEmpty() )
+	    format.font_.setFamily( style->fontFamily() );
+	if ( style->color().isValid() )
+	    format.color_ = style->color();
+	if ( style->definesFontItalic() )
+	    format.font_.setItalic( style->fontItalic() );
+	if ( style->definesFontUnderline() )
+	    format.font_.setUnderline( style->fontUnderline() );
+    }
 
     if ( item || font_ != format.font_ || changed || color_ != format.color_) // slight performance improvement
 	format.createKey();
@@ -167,7 +169,7 @@ QtTextCharFormat* QtTextFormatCollection::registerFormat( const QtTextCharFormat
 	    return lastRegisterFormat;
         }
     }
-    
+
     if ( format.isAnchor() ) {
 	// fancy speed optimization: do _not_ share any anchors to keep the map smaller
 	// see unregisterFormat()
@@ -205,12 +207,12 @@ void QtTextFormatCollection::unregisterFormat( const QtTextCharFormat &format )
 	}
 	return;
     }
-    
+
     if ( format.parent == this )
 	f = ( QtTextCharFormat*)&format;
-    else 
+    else
 	f = cKey[ format.key ];
-    
+
     if ( f ) {
 	int ref = f->removeRef();
 	if ( ref <= 0 ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#15 $
+** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#16 $
 **
 ** Implementation of the QtTextView class
 **
@@ -535,7 +535,7 @@ void QtTextView::drawContentsOffset(QPainter* p, int ox, int oy,
     p->setClipping( FALSE );
 
 
-     int pagesize = 500;
+    const int pagesize = 100000;
 
      for (int page = cy / pagesize; page <= (cy+ch) / pagesize; ++page ) {
 	
@@ -586,14 +586,16 @@ void QtTextView::resizeEvent( QResizeEvent* e )
     flow->x = 0;
     delete d->fcresize;
     d->fcresize = new QtTextCursor( richText() );
-    d->fcresize->initFlow( flow, viewport()->width() );
+
+    QSize vsorg( viewportSize( 0, verticalScrollBar()->isVisible()?height():0 ) );
+    d->fcresize->initFlow( flow, vsorg.width() );
     {
 	QPainter p( viewport() );
 	d->fcresize->initParagraph( &p, &richText() );
-	d->fcresize->doLayout( &p, viewport()->height() + contentsY() );
+	d->fcresize->doLayout( &p, vsorg.height() + contentsY() );
     }
     QSize vs( viewportSize( flow->widthUsed, flow->height ) );
-    if ( !verticalScrollBar()->isVisible() && vs.width() != viewport()->width() ) {
+    if ( vs.width() != vsorg.width() ) {
 	// we'll get a vertical scrollbar, it seems. Once again
 	d->fcresize->initFlow( flow, vs.width() );
 	{
@@ -604,7 +606,6 @@ void QtTextView::resizeEvent( QResizeEvent* e )
     }
     setContentsPos( 0, 0 );
     resizeContents( flow->widthUsed-1, flow->height );
-    qDebug("contents %d %d ", flow->widthUsed, flow->height );
     d->resizeTimer->start( 0, TRUE );
     viewport()->repaint( FALSE );
 }

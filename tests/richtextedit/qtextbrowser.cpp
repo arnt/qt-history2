@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qtextbrowser.cpp#3 $
+** $Id: //depot/qt/main/tests/richtextedit/qtextbrowser.cpp#4 $
 **
 ** Implementation of the QtTextView class
 **
@@ -203,7 +203,7 @@ void QtTextBrowser::setSource(const QString& name)
 
     if ( isVisible() )
 	qApp->restoreOverrideCursor();
-    
+
 
     QValueStack<int> stack;
     stack.push( 1 );
@@ -211,7 +211,7 @@ void QtTextBrowser::setSource(const QString& name)
     stack.push( 3 );
     while ( !stack.isEmpty() )
 	printf("pop item %d\n", stack.pop() );
-    
+
     for ( QValueStack<QString>::Iterator s = d->stack.begin(); s != d->stack.end(); ++s ) {
 	qDebug("%s", (*s).latin1() );
     }
@@ -402,13 +402,19 @@ QtTextCharFormat QtTextBrowser::formatAt(const QPoint& pos)
 			tc.right( &p );
 		    if ( geom.left() + tc.currentx > realPos.x() )
 			tc.left( &p );
-		    return *(tc.currentFormat());
+		    format = *(tc.currentFormat());
+		    goto out;
 		}
 	    }
 	    while ( tc.gotoNextLine( &p, fm ) );
 	}
 	b = b->nextInDocument();
     };
+    
+ out:
+    if ( format.customItem() ) {
+	//#### TODO: check custom item for format
+    }
     return format;
 }
 

@@ -11,6 +11,17 @@ int main( int argc, char* argv[]  )
     // Ignore any bodytext in <head>...</head>:
     QStyleSheetItem* style = new QStyleSheetItem( QStyleSheet::defaultSheet(), "head" );
     style->setDisplayMode(QStyleSheetItem::DisplayNone);
+
+    style = new QStyleSheetItem( QStyleSheet::defaultSheet(), "td" );
+    style->setContexts("tr");
+    style = new QStyleSheetItem( QStyleSheet::defaultSheet(), "th" );
+    style->setFontWeight( QFont::Bold );
+    style->setAlignment( Qt::AlignCenter );
+    style->setContexts("tr");
+    style = new QStyleSheetItem( QStyleSheet::defaultSheet(), "tr" );
+    style->setContexts("table");
+
+
     // Many HTML files omit the </p> or </li>, so we add this for efficiency:
     QStyleSheet::defaultSheet()->item("p")->setSelfNesting( FALSE );
     QStyleSheet::defaultSheet()->item("i")->setSelfNesting( FALSE );

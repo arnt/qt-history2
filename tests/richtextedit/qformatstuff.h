@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.h#13 $
+** $Id: //depot/qt/main/tests/richtextedit/qformatstuff.h#14 $
 **
 ** Definition of the QtTextView class
 **
@@ -49,16 +49,16 @@ public:
     virtual ~QtTextCharFormat();
 
     QtTextCharFormat makeTextFormat( const QStyleSheetItem *style, const QMap<QString,QString>& attr,
-				     QtTextCustomItem* item = 0);
+				     QtTextCustomItem* item = 0) const;
 
     QColor color() const;
     QFont font() const;
     QString anchorHref() const;
     QString anchorName() const;
-    
+
     bool isAnchor() const;
-    
-    
+
+
 
     QtTextCharFormat formatWithoutCustom();
 
