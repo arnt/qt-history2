@@ -1498,7 +1498,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
     bool result = TRUE;
     long filterRes = 0;
     QEvent::Type evt_type = QEvent::None;
-    QETWidget *widget;
+    QETWidget *widget = 0;
 
 #if defined (QT_TABLET_SUPPORT)
 	// there is no need to process pakcets from tablet unless
@@ -1607,8 +1607,11 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
     case WM_SYSCOLORCHANGE:
 	if ( qApp->type() == QApplication::Tty )
 	    break;
-	if ( QApplication::desktopSettingsAware() )
-	    qt_set_windows_resources();
+	if ( QApplication::desktopSettingsAware() ) {
+	    widget = (QETWidget*)QWidget::find( hwnd );
+	    if ( widget && !widget->parentWidget() )
+		qt_set_windows_resources();
+	}
 	break;
 
     case WM_LBUTTONDOWN:
@@ -1637,7 +1640,8 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	break;
     }
 
-    widget = (QETWidget*)QWidget::find( hwnd );
+    if ( !widget )
+	widget = (QETWidget*)QWidget::find( hwnd );
     if ( !widget )				// don't know this widget
 	goto do_default;
 
