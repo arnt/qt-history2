@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#28 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#29 $
 **
 ** Implementation of QGArray class
 **
@@ -27,7 +27,7 @@
 #include "qstring.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#28 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#29 $")
 
 
 #if !defined(CHECK_MEMORY)
@@ -628,20 +628,10 @@ int QGArray::contains( const char *d, uint sz ) const
 }
 
 /*----------------------------------------------------------------------------
+  \fn char *QGArray::at( uint index ) const
   \internal
   Returns a pointer to the byte at offset \e index in the array.
  ----------------------------------------------------------------------------*/
-
-char *QGArray::at( uint index ) const
-{
-    if ( index >= shd->len ) {
-#if defined(CHECK_RANGE)
-	warning( "QGArray::operator[]: Absolute index %d out of range", index);
-#endif
-	index = 0;				// try to recover
-    }
-    return &shd->data[index];
-}
 
 /*----------------------------------------------------------------------------
   \internal
@@ -678,3 +668,16 @@ bool QGArray::setExpand( uint index, const char *d, uint sz )
   \internal
   Deletes the shared array block.
  ----------------------------------------------------------------------------*/
+
+
+/*----------------------------------------------------------------------------
+  \internal
+  Prints a warning message if at() or [] is given a bad index.
+ ----------------------------------------------------------------------------*/
+
+void QGArray::msg_index( uint index )
+{
+#if defined(CHECK_RANGE)
+    warning( "QGArray::at: Absolute index %d out of range", index );
+#endif
+}
