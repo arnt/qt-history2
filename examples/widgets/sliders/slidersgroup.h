@@ -26,9 +26,9 @@ public slots:
     void invertKeyBindings(bool invert);
 
 private:
-    QDial *dial;
-    QScrollBar *scrollBar;
     QSlider *slider;
+    QScrollBar *scrollBar;
+    QDial *dial;
 };
 
 #endif

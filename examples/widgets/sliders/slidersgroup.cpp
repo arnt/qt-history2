@@ -20,6 +20,7 @@ SlidersGroup::SlidersGroup(Qt::Orientation orientation, const QString &title,
 
     connect(slider, SIGNAL(valueChanged(int)), scrollBar, SLOT(setValue(int)));
     connect(scrollBar, SIGNAL(valueChanged(int)), dial, SLOT(setValue(int)));
+    connect(dial, SIGNAL(valueChanged(int)), slider, SLOT(setValue(int)));
     connect(dial, SIGNAL(valueChanged(int)), this, SIGNAL(valueChanged(int)));
 
     QBoxLayout::Direction direction;
