@@ -259,7 +259,8 @@ bool QScreenCursor::supportsAlphaCursor()
 void QScreenCursor::hide()
 {
     if (data->enable) {
-        restoreUnder(data->bound);
+        if (restoreUnder(data->bound))
+            QWSDisplay::ungrab();
         delete gfx;
         gfx = 0;
         data->enable = false;
@@ -277,6 +278,8 @@ void QScreenCursor::hide()
 void QScreenCursor::show()
 {
     if (!data->enable) {
+        if (qws_sw_cursor)
+            QWSDisplay::grab(true);
         data->enable = true;
         gfx = (QGfxRasterBase*)qt_screen->screenGfx();
         gfx->setClipRect(0, 0, qt_screen->width(), qt_screen->height());
