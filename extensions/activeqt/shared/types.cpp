@@ -226,7 +226,7 @@ bool QVariantToVARIANT(const QVariant &var, VARIANT &arg, const QString &type, b
 {
     QVariant qvar = var;
     // "type" is the expected type, so coerce if necessary
-    QVariant::Type proptype = type ? QVariant::nameToType(type.latin1()) : QVariant::Invalid;
+    QVariant::Type proptype = (!type.isEmpty()) ? QVariant::nameToType(type.latin1()) : QVariant::Invalid;
     if ( proptype != QVariant::Invalid && proptype != qvar.type() ) {
 	if ( qvar.canCast( proptype ) )
 	    qvar.cast( proptype );
@@ -885,7 +885,7 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const QString &hint )
 	break;
     }
 
-    QVariant::Type proptype = hint ? QVariant::nameToType(hint.latin1()) : QVariant::Invalid;
+    QVariant::Type proptype = (!hint.isEmpty()) ? QVariant::nameToType(hint.latin1()) : QVariant::Invalid;
     if ( proptype != QVariant::Invalid && var.type() != proptype ) {
 	if ( var.canCast( proptype ) ) {
 	    var.cast( proptype );
