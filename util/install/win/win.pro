@@ -40,11 +40,13 @@ INCLUDEPATH	+= $(QTDIR)/src/3rdparty $(QTDIR)/util/install/archive
 win32:RC_FILE	= install.rc
 
 #CONFIG += eval
+#CONFIG += eval-cd
 
 unix:LIBS		+= -L$(QTDIR)/util/install/archive -larq
 win32:LIBS		+= ../archive/arq.lib
 INCLUDEPATH		+= ../keygen
 
+eval-cd:CONFIG += eval
 eval {
     !exists($(QTEVAL)/src) {
 	error(You must set the QTEVAL environment variable to the directory where you checked out //depot/qteval/main in order to be able to build the evaluation version of install.)
@@ -53,4 +55,7 @@ eval {
     win32:RC_FILE	= install-eval.rc
     SOURCES		+= $(QTEVAL)/src/check-and-patch.cpp
     INCLUDEPATH		+= $(QTEVAL)/src
+}
+eval-cd {
+    DEFINES		+= EVAL_CD
 }

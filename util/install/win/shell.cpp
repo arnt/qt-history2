@@ -310,6 +310,24 @@ HRESULT WinShell::createShortcut( QString folderName, bool common, QString short
 }
 #endif
 
+#if defined(Q_OS_WIN32)
+void WinShell::createInternetShortcut( QString folderName, bool common, QString shortcutName, QString url )
+{
+    // Add .url to shortcut name if needed
+    if( shortcutName.right( 4 ) != ".url" )
+	shortcutName += ".url";
+
+    // ### maybe we should use some Microsoft API instead (IShellLink, e.g.)?
+    QDir dir( folderName );
+    QFile f( dir.filePath( shortcutName ) );
+    if ( f.open( IO_WriteOnly | IO_Translate ) ) {
+	QTextStream ts( &f );
+	ts  << "[InternetShortcut]" << endl
+	    << "URL=" << url;
+    }
+}
+#endif
+
 bool WinShell::createDir( QString fullPath )
 {
     QStringList hierarchy = QStringList::split( QString( "\\" ), fullPath );

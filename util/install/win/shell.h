@@ -27,6 +27,7 @@ public:
 
 #if defined(Q_OS_WIN32)
     HRESULT createShortcut( QString folderName, bool common, QString shortcutName, QString target, QString description = QString::null, QString arguments = QString::null, QString wrkDir = QString::null );
+    void createInternetShortcut( QString folderName, bool common, QString shortcutName, QString url );
 #endif
 
     static QPixmap* getOpenFolderImage();
