@@ -35,6 +35,7 @@ QSqlPropertyMap::QSqlPropertyMap()
     propertyMap["QComboBox"]    = "currentItem";
     propertyMap["QDateEdit"]    = "date";
     propertyMap["QTimeEdit"]    = "time";
+    propertyMap["QDateTimeEdit"]= "dateTime";    
     propertyMap["QLabel"]       = "pixmap";
 }
 
@@ -542,10 +543,10 @@ void QSqlForm::next()
 
   Move to the previous record in the associated view.
 */
-void QSqlForm::previous()
+void QSqlForm::prev()
 {
     if( v ){
-        v->previous();
+        v->prev();
 	if( v->at() == QSqlResult::BeforeFirst ){
 	    v->first();
 	}
@@ -627,7 +628,7 @@ void QSqlForm::populate( QWidget * widget, QSqlCursor * view, uint columns )
     //    QEditorFactory * f = (factory == 0) ? QEditorFactory::defaultFactory() :
     //	                                  factory;
     QEditorFactory* f = 0;
-    
+
     QWidget * editor;
     QLabel * label;
     QVBoxLayout * vb = new QVBoxLayout( widget );

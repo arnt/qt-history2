@@ -30,7 +30,7 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
 }
 
 /*!
-  Constructs a view on database \a db.  If \a autopopulate is TRUE, the \a name of the view
+  Constructs a cursor on database \a db.  If \a autopopulate is TRUE, the \a name of the cursor
   must correspond to an existing table or view name in the database so that field information
   can be automatically created..
 
@@ -46,7 +46,7 @@ QSqlCursor::QSqlCursor( const QString & name, bool autopopulate, QSqlDatabase* d
 }
 
 /*!
-  Constructs a copy of view \a s.
+  Constructs a copy of cursor \a s.
 
 */
 
@@ -68,7 +68,7 @@ QSqlCursor::~QSqlCursor()
 }
 
 /*!
-  Sets the view equal to \a s.
+  Sets the cursor equal to \a s.
 
 */
 
@@ -106,7 +106,7 @@ QString QSqlCursor::filter() const
     return d->ftr;
 }
 
-/*!  Sets the name of the view to \a name.  If autopopulate is TRUE,
+/*!  Sets the name of the cursor to \a name.  If autopopulate is TRUE,
   the \a name must correspond to a valid table or view name in the
   database.
 
@@ -115,12 +115,12 @@ void QSqlCursor::setName( const QString& name, bool autopopulate )
 {
     d->nm = name;
     if ( autopopulate ) {
-	*this = driver()->fields( name );
+	*this = driver()->record( name );
 	d->priIndx = driver()->primaryIndex( name );
     }
 }
 
-/*!  Returns the name of the view.
+/*!  Returns the name of the cursor.
 
 */
 
@@ -138,9 +138,9 @@ QSqlRecord & QSqlCursor::operator=( const QSqlRecord & list )
     return QSqlRecord::operator=( list );
 }
 
-/*!  Returns the primary index associated with the view, or an empty
+/*!  Returns the primary index associated with the cursor, or an empty
   index if there is no primary index.  If \a prime is TRUE, the index
-  fields are set with the current value of the view fields they
+  fields are set with the current value of the cursor fields they
   correspond to.
 
 */
@@ -156,20 +156,20 @@ QSqlIndex QSqlCursor::primaryIndex( bool prime ) const
     return d->priIndx;
 }
 
-/*!  Sets the primary index associated with the view.  Note that this
+/*!  Sets the primary index associated with the cursor.  Note that this
   index must be able to identify a unique record within the underlying
   table or view.
 
 */
 
-void QSqlCursor::setPrimaryIndex( QSqlIndex idx )
+void QSqlCursor::setPrimaryIndex( const QSqlIndex& idx )
 {
     d->priIndx = idx;
 }
 
 /*!  Returns an index compromised of \a fieldNames, or an empty index if
   the field names do not exist. The index is returned with all field
-  values primed with the values of the view fields they correspond to.
+  values primed with the values of the cursor fields they correspond to.
 
 */
 
@@ -189,7 +189,7 @@ QSqlIndex QSqlCursor::index( const QStringList& fieldNames ) const
 
 /*!  Returns an index compromised of a single \a fieldName, or an empty index if
   the field name does not exist. The index is returned with the field
-  value primed with the value of the view field it corresponds to.
+  value primed with the value of the cursor field it corresponds to.
 
 */
 
@@ -212,7 +212,7 @@ QSqlIndex QSqlCursor::index( const char* fieldName ) const
 }
 
 /*!
-  Selects all fields in the rowset.  The order in which the data is returned
+  Selects all fields in the cursor.  The order in which the data is returned
   is database-specific.
 
 */
@@ -223,7 +223,7 @@ bool QSqlCursor::select()
 }
 
 /*!
-  Selects all fields in the rowset.  The data is returned in the order specified
+  Selects all fields in the cursor.  The data is returned in the order specified
   by the index \a sort.
 
 */
@@ -234,21 +234,21 @@ bool QSqlCursor::select( const QSqlIndex& sort )
 }
 
 /*!
-  Selects all fields in the rowset matching the filter criteria \a filter.  The
+  Selects all fields in the cursor matching the filter criteria \a filter.  The
   data is returned in the order specified by the index \a sort.  Note that the
   \a filter string will be placed in the generated WHERE clause, but should not
   include the 'WHERE' keyword.  As a special case, using "*" as the filter string
   will retrieve all records.  For example:
 
   \code
-  QSqlCursor myRowset(db, "MyTable");
-  myRowset.select("deptID=10"); // select everything in department 10
+  QSqlCursor myCursor(db, "MyTable");
+  myCursor.select("deptID=10"); // select everything in department 10
   ...
-  myRowset.select("*"); // select all records in rowset
+  myCursor.select("*"); // select all records in cursor
   ...
-  myRowset.select("deptID>10");  // select other departments
+  myCursor.select("deptID>10");  // select other departments
   ...
-  myRowset.select(); // select all records again
+  myCursor.select(); // select all records again
   \endcode
 
 */
@@ -271,17 +271,17 @@ bool QSqlCursor::select( const QString & filter, const QSqlIndex & sort )
 }
 
 /*!
-  Selects all fields in the rowset matching the filter index \a filter.  The
+  Selects all fields in the cursor matching the filter index \a filter.  The
   data is returned in the order specified by the index \a sort.  Note that the
-  \a filter index fields that are in the rowset will use the current value of the rowset
+  \a filter index fields that are in the cursor will use the current value of the cursor
   data fields when generating the WHERE clause.  This method is useful, for example,
   for retrieving data based upon a table's primary index:
 
   \code
-  QSqlCursor myRowset(db, "MyTable");
+  QSqlCursor myCursor(db, "MyTable");
   QSqlIndex pk = db->primaryIndex("MyTable");
-  myRowset["id"] = 10;
-  myRowset.select( pk ); // generates "select ... from MyTable where id=10;"
+  myCursor["id"] = 10;
+  myCursor.select( pk ); // generates "select ... from MyTable where id=10;"
   ...
   \endcode
 
@@ -292,7 +292,7 @@ bool QSqlCursor::select( const QSqlIndex & filter, const QSqlIndex & sort )
 }
 
 /*!
-  Sets the view mode to \a mode.  This value can be an OR'ed
+  Sets the cursor mode to \a mode.  This value can be an OR'ed
   combination of SQL modes.  The available modes are: <ul> <li>
   SQL_ReadOnly <li> SQL_Insert <li> SQL_Update <li> SQL_Delete <li>
   SQL_Writeable </ul>
@@ -300,12 +300,12 @@ bool QSqlCursor::select( const QSqlIndex & filter, const QSqlIndex & sort )
   For example,
 
   \code
-  QSqlCursor view( "emp" );
-  view.setMode( SQL_Writeable ); // allow insert/update/delete
+  QSqlCursor cursor( "emp" );
+  cursor.setMode( SQL_Writeable ); // allow insert/update/delete
   ...
-  view.setMode( SQL_Insert | SQL_Update ); // allow inserts and updates
+  cursor.setMode( SQL_Insert | SQL_Update ); // allow inserts and updates
   ...
-  view.setMode( SQL_ReadOnly ); // no inserts/updates/deletes allowed
+  cursor.setMode( SQL_ReadOnly ); // no inserts/updates/deletes allowed
   \endcode
 */
 
@@ -315,7 +315,7 @@ void QSqlCursor::setMode( int mode )
 }
 
 /*
-   Returns the current view mode.
+   Returns the current cursor mode.
 
    \sa setMode
 */
@@ -326,7 +326,7 @@ int QSqlCursor::mode() const
 }
 
 /*
-   Returns TRUE if the view is read-only, FALSE otherwise.
+   Returns TRUE if the cursor is read-only, FALSE otherwise.
 
    \sa setMode
 */
@@ -337,7 +337,7 @@ bool QSqlCursor::isReadOnly() const
 }
 
 /*
-   Returns TRUE if the view will perform inserts, FALSE otherwise.
+   Returns TRUE if the cursor will perform inserts, FALSE otherwise.
 
    \sa setMode
 */
@@ -349,7 +349,7 @@ bool QSqlCursor::canInsert() const
 
 
 /*
-   Returns TRUE if the view will perform updates, FALSE otherwise.
+   Returns TRUE if the cursor will perform updates, FALSE otherwise.
 
    \sa setMode
 */
@@ -360,7 +360,7 @@ bool QSqlCursor::canUpdate() const
 }
 
 /*
-   Returns TRUE if the view will perform updates, FALSE otherwise.
+   Returns TRUE if the cursor will perform updates, FALSE otherwise.
 
    \sa setMode
 */
@@ -407,9 +407,9 @@ QString QSqlCursor::fieldEqualsValue( const QString& prefix, const QString& fiel
     return filter;
 }
 
-/*!  Inserts the current contents of the view record buffer into the
-  database, if the view allows inserts.  If \a invalidate is TRUE, the
-  current view can no longer be navigated (i.e., any prior select
+/*!  Inserts the current contents of the cursor record buffer into the
+  database, if the cursor allows inserts.  If \a invalidate is TRUE, the
+  current cursor can no longer be navigated (i.e., any prior select
   statements will no longer be active or valid).  Returns the number
   of rows affected by the insert.  For error information, use
   lastError().
@@ -439,7 +439,7 @@ int QSqlCursor::insert( bool invalidate )
 /*!  Updates the database with the current contents of the record
   buffer, using the specified \a filter.  Only records which meet the
   filter criteria are updated, otherwise all records in the table are
-  updated.  If \a invalidate is TRUE, the current view can no longer
+  updated.  If \a invalidate is TRUE, the current cursor can no longer
   be navigated (i.e., any prior select statements will no longer be
   active or valid). Returns the number of records which were updated.
   For error information, use lastError().
@@ -463,8 +463,8 @@ int QSqlCursor::update( const QString & filter, bool invalidate )
 /*!  Updates the database with the current contents of the record
   buffer, using the filter index \a filter.  Only records which meet
   the filter criteria specified by the index are updated.  If no index
-  is specified, the primary index of the underlying rowset is used.
-  If \a invalidate is TRUE, the current view can no longer be
+  is specified, the primary index of the underlying cursor is used.
+  If \a invalidate is TRUE, the current cursor can no longer be
   navigated (i.e., any prior select statements will no longer be
   active or valid). Returns the number of records which were
   updated. For error information, use lastError().  For example:
@@ -472,10 +472,10 @@ int QSqlCursor::update( const QString & filter, bool invalidate )
   \code
   QSqlDatabase* db;
   ...
-  QSqlCursor empView ( db, "Employee" );
-  empView["id"] = 10;  // set the primary index field
-  empView["firstName"] = "Dave";
-  empView.update();  // update an employee name using primary index
+  QSqlCursor empCursor ( db, "Employee" );
+  empCursor["id"] = 10;  // set the primary index field
+  empCursor["firstName"] = "Dave";
+  empCursor.update();  // update an employee name using primary index
   \endcode
 
 */
@@ -485,10 +485,10 @@ int QSqlCursor::update( const QSqlIndex & filter, bool invalidate )
     return update( fieldEqualsValue( "", "and", filter ), invalidate );
 }
 
-/*!  Deletes the record from the view using the filter \a filter.
+/*!  Deletes the record from the cursor using the filter \a filter.
   Only records which meet the filter criteria specified by the index
   are deleted.  Returns the number of records which were updated. If
-  \a invalidate is TRUE, the current view can no longer be navigated
+  \a invalidate is TRUE, the current cursor can no longer be navigated
   (i.e., any prior select statements will no longer be active or
   valid). For error information, use lastError().
 
@@ -507,11 +507,11 @@ int QSqlCursor::del( const QString & filter, bool invalidate )
     return apply( str, invalidate );
 }
 
-/*!  Deletes the record from the view using the filter index \a
+/*!  Deletes the record from the cursor using the filter index \a
   filter.  Only records which meet the filter criteria specified by
   the index are updated.  If no index is specified, the primary index
-  of the underlying rowset is used.  If \a invalidate is TRUE, the
-  current view can no longer be navigated (i.e., any prior select
+  of the underlying cursor is used.  If \a invalidate is TRUE, the
+  current cursor can no longer be navigated (i.e., any prior select
   statements will no longer be active or valid). Returns the number of
   records which were deleted.  For error information, use lastError().
   For example:
@@ -533,17 +533,17 @@ int QSqlCursor::apply( const QString& q, bool invalidate )
     if ( invalidate ) {
 	exec( q );
 	d->lastAt = QSqlResult::BeforeFirst;
-	ar = affectedRows();
+	ar = numRowsAffected();
     } else {
-	QSqlQuery sql( driver()->createResult() );
+	QSqlQuery sql( driver()->createQuery() );
 	sql.exec( q );
-	ar = sql.affectedRows();
+	ar = sql.numRowsAffected();
     }
     return ar;
 }
 
 /*!
-  Executes the SQL query \a str.  Returns TRUE of the rowset is active,
+  Executes the SQL query \a str.  Returns TRUE of the cursor is active,
   otherwise returns FALSE.
 
 */
@@ -579,7 +579,7 @@ void QSqlCursor::sync()
 		QSqlRecord::setValue( i, calculateField( i ) );
 	    else {
 		QSqlRecord::setValue( i, QSqlQuery::value(i) );
-		QSqlRecord::field( i )->setIsNull( QSqlQuery::isNull( i ) );
+		QSqlRecord::field( i )->setNull( QSqlQuery::isNull( i ) );
 	    }
 	}
     }
@@ -589,7 +589,7 @@ void QSqlCursor::sync()
   \reimpl
 */
 
-void QSqlCursor::postSeek()
+void QSqlCursor::afterSeek()
 {
     sync();
 }

@@ -4,7 +4,8 @@
 #include <qstring.h>
 #include <qsqldatabase.h>
 #include <qsqlfield.h>
-#include <qsqlview.h>
+#include <qsqlrecord.h>
+#include <qsqlcursor.h>
 
 #include "masterchildwindow.h"
 
@@ -15,12 +16,12 @@ public:
     MainWindow ( QWidget * parent=0, const char * name=0, WFlags f=0 );
     ~MainWindow();
 public slots:
-    void newMasterSelection( const QSqlFieldList* fields );
+    void newMasterSelection( const QSqlRecord* fields );
 protected:
     void reloadChildTable( int masterIdx );
 private:
-    QSqlView masterView;
-    QSqlView childView;
+    QSqlCursor master;
+    QSqlCursor child;
 };
 
 #endif

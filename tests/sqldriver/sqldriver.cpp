@@ -1,9 +1,8 @@
 #include <qstring.h>
-#include <qsql.h>
 #include <qsqlfield.h>
 #include <qsqldatabase.h>
 #include <qsqldriver.h>
-#include <qsqlview.h>
+#include <qsqlcursor.h>
 #include <qapplication.h>
 #include <stdio.h>
 
@@ -20,13 +19,13 @@ void TestCreateTable()
 		    "field2 varchar(200),"
 		    "field3 decimal(15,2),"
 		    "field4 date);");
-    QSqlDatabase* db = QSqlConnection::database();
+    QSqlDatabase* db = QSqlDatabase::database();
     qDebug("Creating sample table...");
     db->exec( stmt );
     if ( db->lastError().type() != QSqlError::None  )
 	qDebug("ERROR:" + db->lastError().databaseText());
     qDebug("Table field list:" );
-    QSqlFieldList fl = QSqlConnection::database()->fields( TABLE_NAME );
+    QSqlRecord fl = QSqlDatabase::database()->record( TABLE_NAME );
     for ( uint i = 0; i <fl.count(); ++i )
 	qDebug( fl.field(i)->name() + (fl.field(i)->isPrimaryIndex() ? QString(" primary index") : QString::null ) );
     qDebug("Done.");
@@ -34,19 +33,19 @@ void TestCreateTable()
 
 void TestInsert()
 {
-    QSqlDatabase* database = QSqlConnection::database();
+    QSqlDatabase* database = QSqlDatabase::database();
     qDebug("Inserting records...");
-    if ( database->hasTransactionSupport() )
+    if ( database->driver()->hasTransactionSupport() )
 	database->transaction();
     for ( int i=0; i<TEST_RECS; ++i ) {
-	int r = database->exec( "insert into " + TABLE_NAME + " values (" + QString::number(i) + ",'foo:" + QString::number(i) + "','blarg " + QString::number(i*10) + " blarg'," + QString::number(i*12.345) + ", '18-APR-1972');");
-	ASSERT( r == 1 );
+	QSqlQuery r = database->exec( "insert into " + TABLE_NAME + " values (" + QString::number(i) + ",'foo:" + QString::number(i) + "','blarg " + QString::number(i*10) + " blarg'," + QString::number(i*12.345) + ", '18-APR-1972');");
+	ASSERT( r.numRowsAffected() == 1 );
     }
-    int r = database->exec( "insert into " + TABLE_NAME + " values (9999,NULL,'should have nulls',NULL,NULL);");
-    if ( r != 1)
+    QSqlQuery r = database->exec( "insert into " + TABLE_NAME + " values (9999,NULL,'should have nulls',NULL,NULL);");
+    if ( r.numRowsAffected() != 1)
 	qDebug("ERROR:" + database->lastError().databaseText());
-    ASSERT( r == 1);
-    if ( database->hasTransactionSupport() )
+    ASSERT( r.numRowsAffected() == 1);
+    if ( database->driver()->hasTransactionSupport() )
 	database->commit();
     qDebug("Done.");
 }
@@ -54,21 +53,21 @@ void TestInsert()
 void TestSelect()
 {
     qDebug("Selecting records...");
-    QSqlDatabase* database = QSqlConnection::database();
-    QSql recCount( "select count(1) from " + TABLE_NAME + ";");
+    QSqlDatabase* database = QSqlDatabase::database();
+    QSqlQuery recCount( "select count(1) from " + TABLE_NAME + ";");
     if ( !recCount.isActive() )
-	qDebug("Query (" + recCount.query() + ") failed:" + recCount.lastError().databaseText());
+	qDebug("Query (" + recCount.lastQuery() + ") failed:" + recCount.lastError().databaseText());
     if ( recCount.next() )
 	qDebug("Number of records (should be " + QString::number(TEST_RECS) + "+1):" + recCount.value(0).toString() );
     else
 	qDebug("FAILED counting records: " + recCount.lastError().databaseText());
 
     QString selQuery( "select * from " + TABLE_NAME + ";" );
-    QSql selRecs( selQuery );
+    QSqlQuery selRecs( selQuery );
     if ( !selRecs.isActive() )
-	qDebug("Query (" + selRecs.query() + ") failed:" + selRecs.lastError().databaseText());
+	qDebug("Query (" + selRecs.lastQuery() + ") failed:" + selRecs.lastError().databaseText());
 
-    qDebug("Random selection test..." + selRecs.query() );
+    qDebug("Random selection test..." + selRecs.lastQuery() );
     for ( int i=0; i<TEST_RECS; ++i ){
 	while ( selRecs.next() )
 	    ; // go to end
@@ -76,7 +75,7 @@ void TestSelect()
 	    qDebug("ERROR going to end of query.");
 	qDebug("...after going to end");
 
-	while( selRecs.previous() )
+	while( selRecs.prev() )
 	    ; // back to beginning
 	qDebug("...after going back to beginning");
 
@@ -101,40 +100,40 @@ void TestSelect()
 	qDebug("...to the middle");
 
 	// change the query to something else
-	selRecs.setQuery( "update " + TABLE_NAME + " set id=1 where id=1;");
+	selRecs.exec( "update " + TABLE_NAME + " set id=1 where id=1;");
 	qDebug("...after changed query");
 
 	// now change it back
-	selRecs.setQuery( selQuery );
+	selRecs.exec( selQuery );
 	qDebug("...after restoring original query");
     }
-    qDebug("Testing custom view...");
-    QSqlView v( TABLE_NAME, FALSE );
+    qDebug("Testing custom cursor...");
+    QSqlCursor v( TABLE_NAME, FALSE );
     QSqlField f1("field1", 1, QVariant::String );
-    v.append( &f1 );
+    v.append( f1 );
     QSqlField f2("field3", 2, QVariant::Double );
-    v.append( &f2 );
+    v.append( f2 );
     v.select();
     while ( v.next() )
 	;
-    
+
     qDebug("Done.");
 }
 
 void TestDelete()
 {
-    QSqlDatabase* database = QSqlConnection::database();
+    QSqlDatabase* database = QSqlDatabase::database();
     qDebug("Deleting records...");
-    if ( database->hasTransactionSupport() )
+    if ( database->driver()->hasTransactionSupport() )
 	database->transaction();
     for ( int i=0; i<TEST_RECS; ++i ) {
 	database->exec( "delete from " + TABLE_NAME + " where id=" + QString::number(i) + ";" );
     }
-    if ( database->hasTransactionSupport() )
+    if ( database->driver()->hasTransactionSupport() )
 	database->commit();
-    QSql recCount( "select count(1) from " + TABLE_NAME + ";");
+    QSqlQuery recCount( "select count(1) from " + TABLE_NAME + ";");
     if ( !recCount.isActive() )
-	qDebug("Query (" + recCount.query() + ") failed:" + recCount.lastError().databaseText());
+	qDebug("Query (" + recCount.lastQuery() + ") failed:" + recCount.lastError().databaseText());
     if ( recCount.next() )
 	qDebug("After delete, number of records (should be 1):" + recCount.value(0).toString() );
     else
@@ -144,17 +143,25 @@ void TestDelete()
 
 void TestTrans()
 {
-    QSqlDatabase* database = QSqlConnection::database();
-    if ( database->hasTransactionSupport() ) {
+    QSqlDatabase* database = QSqlDatabase::database();
+    if ( database->driver()->hasTransactionSupport() ) {
 	qDebug("Testing transaction...");
+	QSqlQuery recsRemaining("select count(1) from " + TABLE_NAME + ";");
+	recsRemaining.next();
+	qDebug("Records in table:" + recsRemaining.value(0).toString() );
+	
 	database->transaction();
 	for ( int i=0; i<TEST_RECS; ++i ) {
 	    database->exec( "insert into " + TABLE_NAME + " (id) values (" + QString::number(i) + ");");
 	}
-	if ( database->rollback() )
+	if ( database->rollback() ) {
 	    qDebug("Transaction successful.");
+	    QSqlQuery recsRemaining("select count(1) from " + TABLE_NAME + ";");
+	    recsRemaining.next();
+    	    qDebug("Records remaining in table:" + recsRemaining.value(0).toString() );
+	}
 	else {
-	    QSql recsRemaining("select count(1) from " + TABLE_NAME + ";");
+	    QSqlQuery recsRemaining("select count(1) from " + TABLE_NAME + ";");
 	    recsRemaining.next();
     	    qDebug("ERROR in Transaction.  Records remaining in table:" + recsRemaining.value(0).toString() );
     	}
@@ -170,11 +177,13 @@ int main( int argc, char** argv )
     qDebug("++++++++++++++");
 
     qDebug("Creating connection...");
-    QSqlConnection::addDatabase( qApp->argv()[1],
-				 qApp->argv()[2],
-				 qApp->argv()[3],
-				 qApp->argv()[4],
-				 qApp->argv()[5]);
+    QSqlDatabase* db = QSqlDatabase::addDatabase( qApp->argv()[1] );
+    db->setDatabaseName( qApp->argv()[2] );
+    db->setUserName( qApp->argv()[3] );
+    db->setPassword( qApp->argv()[4] );
+    db->setHostName( qApp->argv()[5] );
+    db->open();
+    
     qDebug("++++++++++++++");
     TestCreateTable();
     qDebug("++++++++++++++");
@@ -186,9 +195,9 @@ int main( int argc, char** argv )
     qDebug("++++++++++++++");
     TestTrans();
     qDebug("++++++++++++++");
-
+    
     qDebug("Dropping sample table...");
-    QSqlConnection::database()->exec( "drop table " + TABLE_NAME + ";" );
+    //    db->exec( "drop table " + TABLE_NAME + ";" );
     qDebug("++++++++++++++");
     qDebug("Done.");
     return 0;

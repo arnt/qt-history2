@@ -85,7 +85,8 @@ QVariant QSqlField::value() const
 void QSqlField::setValue( const QVariant& value )
 {
     val = value;
-    setIsNull( FALSE );
+    if ( val.type() != QVariant::Invalid )
+	setNull( FALSE );
 }
 
 /*! \fn void QSqlField::clear()
@@ -135,12 +136,20 @@ void QSqlField::clear()
   Returns TRUE if the field is read only, otherwise FALSE.
 */
 
-/*! \fn void QSqlField::setIsNull( bool n )
-  Sets the null flag of the field to \a null.
+/*! \fn void QSqlField::setNull( bool n )
+  Sets the null flag of the field to \a n.
 */
 
 /*! \fn bool QSqlField::isNull() const
   Returns TRUE if the field is currently null, otherwise FALSE.
+*/
+
+/*! \fn void QSqlField::setVisible( bool visible )
+  Sets the visible flag of the field to \a visible.
+*/
+
+/*! \fn bool QSqlField::isVisible() const
+  Returns TRUE if the field is visible when used in a GUI, otherwise FALSE.
 */
 
 /*! \fn void QSqlField::setPrimaryIndex( bool primaryIndex )

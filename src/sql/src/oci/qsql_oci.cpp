@@ -13,12 +13,13 @@ class QOCIPrivate
 {
 public:
     QOCIPrivate()
-	: env(0), err(0), svc(0), sql(0)
+	: env(0), err(0), svc(0), sql(0), transaction( FALSE )
     {}
     OCIEnv           *env;
     OCIError         *err;
     OCISvcCtx        *svc;
     OCIStmt          *sql;
+    bool             transaction;
 };
 
 struct OraFieldInfo
@@ -244,6 +245,40 @@ OraFieldInfo qMakeOraField( const QOCIPrivate* p, OCIParam* param )
 
     return ofi;
 }
+
+//QString qFormatOraDate( const QDate& date )
+//{
+//     QString datestring;
+//     OCIDate ocidate;
+//     ub4 buflen = 100;
+//     text* buf = new text[buflen];
+//     OCIDateSetTime( &ocidate, 0, 0, 0 );
+//     OCIDateSetDate( &ocidate, date.year(), date.month(), date.day() );
+//     uword invalid;
+//     sword dc = OCIDateCheck( err, &ocidate, &invalid) != OCI_SUCCESS;
+//     if ( dc == OCI_ERROR ) {
+// 	delete buf;
+// 	return datestring;
+//     }
+//     int r = OCIDateToText ( err,
+// 			    &ocidate,
+// 			    (text*)0,
+// 			    0,
+// 			    (text*)0,
+// 			    0,
+// 			    &buflen,
+// 			    buf );
+//     if ( r == OCI_ERROR ) {
+// #ifdef CHECK_RANGE
+// 	qWarning( "QOCIDriver: unable to format date" );
+// #endif
+// 	delete buf;
+// 	return datestring;
+//     }
+//     datestring = QString( (char*)buf );
+//     delete buf;
+//     return datestring;
+//}
 
 class QOCIResultPrivate
 {
@@ -529,7 +564,7 @@ bool QOCIResult::reset ( const QString& query )
     	r = OCIStmtExecute( d->svc, d->sql, d->err, 1,0,
 				(CONST OCISnapshot *) NULL,
 				(OCISnapshot *) NULL,
-				OCI_COMMIT_ON_SUCCESS  );
+				d->transaction ? OCI_DEFAULT : OCI_COMMIT_ON_SUCCESS  );
 	if ( r != 0 ) {
 #ifdef CHECK_RANGE
 	    qWarning( qOraWarn( d ) );
@@ -649,7 +684,7 @@ int QOCIResult::size()
     return -1;
 }
 
-int QOCIResult::affectedRows()
+int QOCIResult::numRowsAffected()
 {
     int rowCount;
     OCIAttrGet( d->sql,
@@ -755,17 +790,18 @@ void QOCIDriver::cleanup()
     }
 }
 
-QSqlQuery QOCIDriver::createResult() const
+QSqlQuery QOCIDriver::createQuery() const
 {
     return QSqlQuery( new QOCIResult( this, d ) );
 }
 
 bool QOCIDriver::beginTransaction()
 {
+    d->transaction = TRUE;
     int r = OCITransStart ( d->svc,
 			    d->err,
-			    60,
-			    OCI_TRANS_NEW );
+			    2,
+			    OCI_TRANS_READWRITE );
     if ( r == OCI_ERROR ) {
 #ifdef CHECK_RANGE
 	qWarning( "QOCIDriver::beginTransaction: " + QString::number(r) + qOraWarn( d ) );
@@ -777,9 +813,10 @@ bool QOCIDriver::beginTransaction()
 
 bool QOCIDriver::commitTransaction()
 {
+    d->transaction = FALSE;
     int r = OCITransCommit ( d->svc,
 			     d->err,
-			     OCI_DEFAULT );
+			     0 );
     if ( r == OCI_ERROR ) {
 #ifdef CHECK_RANGE
 	qWarning( "QOCIDriver::commitTransaction: " + qOraWarn( d ) );
@@ -791,12 +828,13 @@ bool QOCIDriver::commitTransaction()
 
 bool QOCIDriver::rollbackTransaction()
 {
+    d->transaction = FALSE;    
     int r = OCITransRollback ( d->svc,
 			       d->err,
-			       OCI_DEFAULT );
+			       0 );
     if ( r == OCI_ERROR ) {
 #ifdef CHECK_RANGE
-	qWarning( "QOCIDriver::commitTransaction: " + qOraWarn( d ) );
+	qWarning( "QOCIDriver::rollbackTransaction: " + qOraWarn( d ) );
 #endif
 	return FALSE;
     }
@@ -805,7 +843,7 @@ bool QOCIDriver::rollbackTransaction()
 
 QStringList QOCIDriver::tables( const QString& ) const
 {
-    QSqlQuery t = createResult();
+    QSqlQuery t = createQuery();
     t.exec( "select table_name from user_tables;" );
     QStringList tl;
     while ( t.next() )
@@ -813,9 +851,9 @@ QStringList QOCIDriver::tables( const QString& ) const
     return tl;
 }
 
-QSqlRecord QOCIDriver::fields( const QString& tablename ) const
+QSqlRecord QOCIDriver::record( const QString& tablename ) const
 {
-    QSqlQuery t = createResult();
+    QSqlQuery t = createQuery();
     QString stmt ("select column_name, data_type, data_length, data_precision, data_scale "
 		  "from user_tab_columns "
 		  "where table_name='%1';" );
@@ -823,12 +861,11 @@ QSqlRecord QOCIDriver::fields( const QString& tablename ) const
     QSqlRecord fil;
     while ( t.next() ) {
 	QString dt = t.value(1).toString();
-	//	QVariant::Type ty = qDecodeOCIType( dt, t.value(1).toInt(), t.value(2).toInt(), t.value(3).toInt() );
-	QVariant::Type ty = QVariant::String;
+	QVariant::Type ty = qDecodeOCIType( dt, t.value(1).toInt(), t.value(2).toInt(), t.value(3).toInt() );
 	QSqlField f( t.value(0).toString(), t.at(), ty );
 	fil.append( f );
     }
-    QSqlQuery t2 = createResult();
+    QSqlQuery t2 = createQuery();
     QString stmt2("select b.column_name "
 		  "from user_constraints a, user_tab_columns b, user_ind_columns c "
 		  "where a.constraint_type='P' "
@@ -842,7 +879,7 @@ QSqlRecord QOCIDriver::fields( const QString& tablename ) const
     return fil;
 }
 
-QSqlRecord QOCIDriver::fields( const QSqlQuery& query ) const
+QSqlRecord QOCIDriver::record( const QSqlQuery& query ) const
 {
     QSqlRecord fil;
     if ( !query.isActive() )
@@ -856,7 +893,7 @@ QSqlRecord QOCIDriver::fields( const QSqlQuery& query ) const
 
 QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
 {
-    QSqlQuery t = createResult();
+    QSqlQuery t = createQuery();
     QString stmt ("select b.column_name, b.data_type "
 		  "from user_constraints a, user_tab_columns b, user_ind_columns c "
 		  "where a.constraint_type='P' "
@@ -877,34 +914,34 @@ QSqlIndex QOCIDriver::primaryIndex( const QString& tablename ) const
 QString QOCIDriver::formatValue( const QSqlField* field ) const
 {
     switch ( field->type() ) {
+    case QVariant::DateTime: {	
+	QDateTime datetime = field->value().toDateTime();
+	QString datestring;
+	if ( datetime.isValid() ) {
+	    datestring = "TO_DATE('" + QString::number(datetime.date().year()) + "-" + \
+				 QString::number(datetime.date().month()) + "-" + \
+				 QString::number(datetime.date().day()) + " " + \
+				 QString::number(datetime.time().hour()) + ":" + \
+				 QString::number(datetime.time().minute()) + ":" + \
+				 QString::number(datetime.time().second()) + "',"
+				 "'YYYY-MM-DD HH24:MI:SS')";
+	} else {
+	    datestring = "NULL";
+	}
+	return datestring;
+	break;
+    }
     case QVariant::Date: {
 	QDate date = field->value().toDate();
 	QString datestring;
-	OCIDate ocidate;
-	ub4 buflen = 100;
-	text* buf = new text[buflen];
-	OCIDateSetTime( &ocidate, 0, 0, 0 );
-	OCIDateSetDate( &ocidate, date.year(), date.month(), date.day() );
-	uword invalid;
-	sword dc = OCIDateCheck( d->err, &ocidate, &invalid) != OCI_SUCCESS;
-	if ( dc == OCI_ERROR )
-	    return datestring;
-	int r = OCIDateToText ( d->err,
-				&ocidate,
-				(text*)0,
-				0,
-				(text*)0,
-				0,
-				&buflen,
-				buf );
-	if ( r == OCI_ERROR ) {
-#ifdef CHECK_RANGE
-	    qWarning( "QOCIDriver::: " + qOraWarn( d ) );
-#endif
-	    return datestring;
+	if ( date.isValid() ) {
+	    datestring = "TO_DATE('" + QString::number(date.year()) + "-" + \
+				 QString::number(date.month()) + "-" + \
+				 QString::number(date.day()) + "',"
+				 "'YYYY-MM-DD')";
+	} else {
+	    datestring = "NULL";
 	}
-	datestring = QString( (char*)buf );
-	delete buf;
 	return datestring;
 	break;
     }

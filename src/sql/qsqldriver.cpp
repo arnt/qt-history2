@@ -55,23 +55,9 @@ QSqlDriver::~QSqlDriver()
 
 */
 
-/*! Executes the SQL query \a sqlquery (i.e., a SELECT statement) on the database, and returns
-    the result to the caller.
-
-    \sa exec(), createResult()
-
-*/
-
-QSqlQuery QSqlDriver::query( const QString & sqlquery ) const
-{
-    QSqlQuery r = createResult();
-    r.exec( sqlquery );
-    return r;
-}
-
-/*! \fn QSqlQuery QSqlDriver::createResult() const
+/*! \fn QSqlQuery QSqlDriver::createQuery() const
     Creates an empty SQL result on the database.  Derived classes must override this method
-    and return a QSqlQuery object to the caller.
+    and return a QSqlQuery object appropriate for their database to the caller.
 
 */
 
@@ -270,21 +256,21 @@ QSqlIndex QSqlDriver::primaryIndex( const QString&  ) const
 /*!
   Returns a list of fields for table \a tablename.  If no
   such table exists, an empty list is returned.  The default
-  implementation returns an empty list.
+  implementation returns an empty record.
 
 */
 
-QSqlRecord QSqlDriver::fields( const QString&  ) const
+QSqlRecord QSqlDriver::record( const QString&  ) const
 {
     return QSqlRecord();
 }
 
 /*!  Returns a list of fields for the SQL \a query. The default
-implementation returns an empty list.
+implementation returns an empty record.
 
 */
 
-QSqlRecord QSqlDriver::fields( const QSqlQuery& ) const
+QSqlRecord QSqlDriver::record( const QSqlQuery& ) const
 {
    return QSqlRecord();
 }

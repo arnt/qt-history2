@@ -25,28 +25,29 @@ public:
     QSqlTable ( QWidget * parent = 0, const char * name = 0 );
     ~QSqlTable();
 
-    void         setNullText( const QString& nullText );
-    QString      nullText() const;
-    void         setTrueText( const QString& trueText );
-    QString      trueText() const;
-    void         setFalseText( const QString& falseText );
-    QString      falseText() const;
-    void         setConfirmEdits( bool confirm );
-    bool         confirmEdits() const;
-    void         setConfirmCancels( bool confirm );
-    bool         confirmCancels() const;
-    void         setAutoDelete( bool enable );
-    
+
     void         addColumn( const QSqlField* field );
     void         removeColumn( uint col );
     void         setColumn( uint col, const QSqlField* field );
     void         addColumns( const QSqlRecord& fieldList );
 
-    void         setView( QSqlCursor* view = 0, bool autoPopulate = TRUE );
-    QSqlCursor*  view() const;
-
-    void         setReadOnly( bool b );
+    QString      nullText() const;
+    QString      trueText() const;
+    QString      falseText() const;
+    bool         confirmEdits() const;
+    bool         confirmCancels() const;
     bool         isReadOnly() const;
+
+    virtual void setCursor( QSqlCursor* cursor = 0, bool autoPopulate = TRUE );
+    virtual void setNullText( const QString& nullText );
+    virtual void setTrueText( const QString& trueText );
+    virtual void setFalseText( const QString& falseText );
+    virtual void setConfirmEdits( bool confirm );
+    virtual void setConfirmCancels( bool confirm );
+    virtual void setAutoDelete( bool enable );
+    virtual void setReadOnly( bool b );
+
+    QSqlCursor*  cursor() const;
 
     void         sortColumn ( int col, bool ascending = TRUE,
 			      bool wholeRows = FALSE );
@@ -59,7 +60,7 @@ public:
     void         installPropertyMap( QSqlPropertyMap* m );
 
 signals:
-    void         currentChanged( const QSqlRecord* fields );
+    void         currentChanged( const QSqlRecord* record );
 
 public slots:
     void 	 find( const QString & str, bool caseSensitive,
@@ -71,7 +72,7 @@ protected slots:
     virtual void deleteCurrent();
 
 protected:
-    friend class QSqlTablePrivate;     
+    friend class QSqlTablePrivate;
     enum Confirm {
 	Yes = 0,
 	No = 1,
@@ -91,9 +92,9 @@ protected:
 
     virtual bool beginInsert();
     virtual QWidget* beginUpdate ( int row, int col, bool replace );
-    virtual bool primeInsert( QSqlCursor* view );
-    virtual bool primeUpdate( QSqlCursor* view );
-    virtual bool primeDelete( QSqlCursor* view );
+    virtual bool primeInsert( QSqlCursor* cursor );
+    virtual bool primeUpdate( QSqlCursor* cursor );
+    virtual bool primeDelete( QSqlCursor* cursor );
 
     bool         eventFilter( QObject *o, QEvent *e );
     void         resizeEvent ( QResizeEvent * );
@@ -126,7 +127,7 @@ private slots:
 
 private:
     QWidget*     beginEdit ( int row, int col, bool replace );
-    void         refresh( QSqlCursor* view, QSqlIndex idx = QSqlIndex() );
+    void         refresh( QSqlCursor* cursor, QSqlIndex idx = QSqlIndex() );
     void         setNumCols ( int r );
     void         updateRow( int row );
     void         endInsert();

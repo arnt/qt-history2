@@ -13,7 +13,7 @@
 
 
 /*!
-  Constructs an empty field list.
+  Constructs an empty record.
 
 */
 
@@ -50,7 +50,7 @@ QSqlRecord::~QSqlRecord()
 
 
 /*!
-  Returns a reference to the field located at position \a i in the list.
+  Returns a reference to the field located at position \a i in the record.
   It is up to you to check wether this item really exists.
 
 */
@@ -61,7 +61,7 @@ QVariant& QSqlRecord::operator[]( int i )
 }
 
 /*!
-  Returns a reference to the field named \a name in the list.
+  Returns a reference to the field named \a name in the record.
   It is up to you to check wether this item really exists.
 
 */
@@ -72,7 +72,7 @@ QVariant& QSqlRecord::operator[]( const QString& name )
 }
 
 /*!
-  Returns the value of the field located at position \a i in the list.
+  Returns the value of the field located at position \a i in the record.
   It is up to you to check wether this item really exists.
 
 */
@@ -83,7 +83,7 @@ QVariant  QSqlRecord::value( int i )
 }
 
 /*!
-  Returns the value of the field named \a name in the list.
+  Returns the value of the field named \a name in the record.
   It is up to you to check wether this item really exists.
 
 */
@@ -94,7 +94,7 @@ QVariant  QSqlRecord::value( const QString& name )
 }
 
 /*!
-  Returns the position of the field named \a name within the list,
+  Returns the position of the field named \a name within the record,
   or -1 if it cannot be found.
 
 */
@@ -130,7 +130,7 @@ const QSqlField* QSqlRecord::field( const QString& name ) const
 
 
 /*!
-  Appends a copy of the field \a field to the end of the list of fields.
+  Appends a copy of the field \a field to the end of the record.
 
 */
 
@@ -140,7 +140,7 @@ void QSqlRecord::append( const QSqlField& field )
 }
 
 /*!
-  Prepends a copy of \a field to the beginning of the list.
+  Prepends a copy of \a field to the beginning of the record.
 
 */
 
@@ -151,7 +151,7 @@ void QSqlRecord::prepend( const QSqlField& field )
 }
 
 /*!  Inserts a copy of \a field before \a pos.  If \a pos does not
-  exist, it is appended to the end of the list.
+  exist, it is appended to the end of the record.
 
 */
 
@@ -171,7 +171,7 @@ void QSqlRecord::remove( int pos )
 }
 
 /*!
-  Removes all fields from the list.
+  Removes all fields from the record.
 
 */
 
@@ -181,7 +181,7 @@ void QSqlRecord::clear()
 }
 
 /*!
-  Clears the value of all fields in the list.
+  Clears the value of all fields in the record.
 
 */
 
@@ -215,7 +215,7 @@ QString QSqlRecord::toString( const QString& prefix ) const
 
 
 /*!
-  Returns the number of fields in the list.
+  Returns the number of fields in the record.
 
 */
 

@@ -35,7 +35,7 @@ QSqlResultShared::~QSqlResultShared()
 
     <ul>
     <li>next()
-    <li>previous()
+    <li>prev()
     <li>first()
     <li>last()
     <li>seek()
@@ -103,7 +103,7 @@ QSqlQuery::QSqlQuery( const QString& query, QSqlDatabase* db )
     QSqlDatabase* database = db;
     if ( !database )
 	database = QSqlDatabase::database();
-    *this = database->driver()->createResult();
+    *this = database->driver()->createQuery();
     if ( !query.isNull() )
 	exec( query );
 }
@@ -145,14 +145,14 @@ bool QSqlQuery::isNull( int field ) const
 
     If this operation fails, the QSqlQuery object is reset to an inactive state.
 
-    \sa isActive(), isValid(), next(), previous(), first(), last()
+    \sa isActive(), isValid(), next(), prev(), first(), last()
 
 */
 
 bool QSqlQuery::exec ( const QString& query )
 {
     if ( d->count > 1 )
-	*this = driver()->createResult();
+	*this = driver()->createQuery();
     d->sqlResult->setActive( FALSE );
     d->sqlResult->setAt( QSqlResult::BeforeFirst );
     d->sqlResult->setQuery( query.stripWhiteSpace() );
@@ -168,7 +168,7 @@ bool QSqlQuery::exec ( const QString& query )
     QVariant() if it cannot be determined.
     Note that the result must be active and positioned on a valid record.
 
-    \sa previous(), next(), first(), last(), seek(), isActive(), isValid()
+    \sa prev(), next(), first(), last(), seek(), isActive(), isValid()
 
 */
 
@@ -217,7 +217,7 @@ const QSqlDriver* QSqlQuery::driver() const
 
 const QSqlResult* QSqlQuery::result() const
 {
-    return d->sqlResult;    
+    return d->sqlResult;
 }
 
 /*! Positions the result to a random index \a i.  If \a relative is TRUE,
@@ -242,14 +242,14 @@ const QSqlResult* QSqlQuery::result() const
 */
 bool QSqlQuery::seek( int i, bool relative )
 {
-    preSeek();
+    beforeSeek();
     checkDetach();
     if ( isActive() ) {
         int actualIdx;
 	if ( !relative ) { // random seek
 	    if ( i < 0 ) {
 		d->sqlResult->setAt( QSqlResult::BeforeFirst );
-		postSeek();
+		afterSeek();
 		return FALSE;
 	    }
 	    actualIdx = i;
@@ -260,7 +260,7 @@ bool QSqlQuery::seek( int i, bool relative )
 		    if ( i > 0 )
 		    	actualIdx = i;
 		    else {
-			postSeek();
+			afterSeek();
 			return FALSE;
 		    }
 		    break;
@@ -268,14 +268,14 @@ bool QSqlQuery::seek( int i, bool relative )
 		    if ( i < 0 )
 		    	actualIdx = i;
 		    else {
-			postSeek();
+			afterSeek();
 			return FALSE;
 		    }
 		    break;
 		default:
 		    if ( ( at() + i ) < 0  ) {
 		    	d->sqlResult->setAt( QSqlResult::BeforeFirst );
-			postSeek();
+			afterSeek();
 			return FALSE;
 		    }
 		    actualIdx = i;
@@ -286,26 +286,26 @@ bool QSqlQuery::seek( int i, bool relative )
 	if ( actualIdx == ( at() + 1 ) ) {
 	    if ( !d->sqlResult->fetchNext() ) {
 	    	d->sqlResult->setAt( QSqlResult::AfterLast );
-		postSeek();
+		afterSeek();
 		return FALSE;
 	    }
 	}
 	if ( actualIdx == ( at() - 1 ) ) {
-	    if ( !d->sqlResult->fetchPrevious() ) {
+	    if ( !d->sqlResult->fetchPrev() ) {
 	    	d->sqlResult->setAt( QSqlResult::BeforeFirst );
-		postSeek();
+		afterSeek();
 		return FALSE;
 	    }
 	}
 	if ( !d->sqlResult->fetch( actualIdx ) ) {
 	    d->sqlResult->setAt( QSqlResult::AfterLast );
-	    postSeek();
+	    afterSeek();
 	    return FALSE;
 	}
-	postSeek();
+	afterSeek();
 	return TRUE;
     } else {
-	postSeek();
+	afterSeek();
 	return FALSE;
     }
 }
@@ -326,29 +326,29 @@ bool QSqlQuery::seek( int i, bool relative )
 
 bool QSqlQuery::next()
 {
-    preSeek();
+    beforeSeek();
     checkDetach();
     bool b = FALSE;
     if ( isActive() ) {
 	switch ( at() ) {
 	    case QSqlResult::BeforeFirst:
 		b = d->sqlResult->fetchFirst();
-		postSeek();
+		afterSeek();
 	    	return b;
 	    case QSqlResult::AfterLast:
-		postSeek();
+		afterSeek();
 		return FALSE;
 	    default:
 		if ( !d->sqlResult->fetchNext() ) {
 		    d->sqlResult->setAt( QSqlResult::AfterLast );
-		    postSeek();
+		    afterSeek();
 		    return FALSE;
 		}
-		postSeek();
+		afterSeek();
         	return TRUE;
 	}
     }
-    postSeek();
+    afterSeek();
     return FALSE;
 }
 
@@ -366,31 +366,31 @@ bool QSqlQuery::next()
 
 */
 
-bool QSqlQuery::previous()
+bool QSqlQuery::prev()
 {
-    preSeek();
+    beforeSeek();
     checkDetach();
     bool b = FALSE;
     if ( isActive() ) {
 	switch ( at() ) {
 	    case QSqlResult::BeforeFirst:
-		postSeek();
+		afterSeek();
 		return FALSE;
 	    case QSqlResult::AfterLast:
 		b = d->sqlResult->fetchLast();
-		postSeek();
+		afterSeek();
 		return b;
 	    default:
-		if ( !d->sqlResult->fetchPrevious() ) {
+		if ( !d->sqlResult->fetchPrev() ) {
 		    d->sqlResult->setAt( QSqlResult::BeforeFirst );
-		    postSeek();
+		    afterSeek();
 		    return FALSE;
 		}
-		postSeek();
+		afterSeek();
         	return TRUE;
 	}
     }
-    postSeek();
+    afterSeek();
     return FALSE;
 }
 
@@ -401,15 +401,15 @@ bool QSqlQuery::previous()
 
 bool QSqlQuery::first()
 {
-    preSeek();
+    beforeSeek();
     checkDetach();
     bool b = FALSE;
     if ( isActive() ) {
 	b = d->sqlResult->fetchFirst();
-	postSeek();
+	afterSeek();
 	return b;
     }
-    postSeek();
+    afterSeek();
     return FALSE;
 }
 
@@ -420,12 +420,12 @@ bool QSqlQuery::first()
 
 bool QSqlQuery::last()
 {
-    preSeek();
+    beforeSeek();
     checkDetach();
     bool b = FALSE;
     if ( isActive() ) {
 	b = d->sqlResult->fetchLast();
-	postSeek();
+	afterSeek();
 	return b;
     }
     return FALSE;
@@ -435,9 +435,9 @@ bool QSqlQuery::last()
   or the database does not support reporting information about query
   sizes.  Note that for non-SELECT statements, size() will return -1.
   To determine the number of rows affected by a non-SELECT statement,
-  use affectedRows().
+  use numRowsAffected().
 
-  \sa affectedRows() QSqlDatabase
+  \sa numRowsAffected() QSqlDatabase
 
 */
 int QSqlQuery::size() const
@@ -456,9 +456,9 @@ int QSqlQuery::size() const
 
 */
 
-int QSqlQuery::affectedRows() const
+int QSqlQuery::numRowsAffected() const
 {
-    return d->sqlResult->affectedRows();
+    return d->sqlResult->numRowsAffected();
 }
 
 /*!
@@ -513,7 +513,7 @@ bool QSqlQuery::checkDetach()
 {
     if ( d->count > 1 ) {
 	QString sql = d->sqlResult->lastQuery();
-	*this = driver()->createResult();
+	*this = driver()->createQuery();
 	exec( sql );
 	return TRUE;
     }
@@ -526,7 +526,7 @@ bool QSqlQuery::checkDetach()
 
 */
 
-void QSqlQuery::preSeek()
+void QSqlQuery::beforeSeek()
 {
 
 }
@@ -536,7 +536,7 @@ void QSqlQuery::preSeek()
   moved.  The default implentation does nothing.
 */
 
-void QSqlQuery::postSeek()
+void QSqlQuery::afterSeek()
 {
 
 }

@@ -23,8 +23,8 @@ protected:
     bool 	reset ( const QString& query );
     QVariant 	data( int field );
     bool	isNull( int field );
-    int                 size();
-    int                 affectedRows();
+    int         size();
+    int         numRowsAffected();
 private:
     QODBCPrivate* 	d;
     typedef QMap<int,QVariant> FieldCache;
@@ -43,10 +43,10 @@ public:
 			      const QString & password = QString::null,
 			      const QString & host = QString::null );
     void 	        close();
-    QSqlQuery 	        createResult() const;
+    QSqlQuery 	        createQuery() const;
     QStringList         tables( const QString& user ) const;
     QSqlRecord          fields( const QString& tablename ) const;
-    QSqlRecord          fields( const QSqlQuery& query ) const;            
+    QSqlRecord          fields( const QSqlQuery& query ) const;
     QSqlIndex           primaryIndex( const QString& tablename ) const;
 protected:
     bool                beginTransaction();

@@ -12,9 +12,10 @@
 
 class QSqlDriver;
 class QSql;
-struct QSqlResultShared;
 class QSqlResultInfo;
 class QSqlResultPrivate;
+struct QSqlResultShared;
+
 class Q_EXPORT QSqlResult
 {
 friend class QSqlQuery;
@@ -38,17 +39,17 @@ protected:
     virtual void    setActive( bool a );
     virtual void    setLastError( const QSqlError& e );
     virtual void    setQuery( const QString& query );
-    virtual void    setSelect( bool s );    
+    virtual void    setSelect( bool s );
     virtual QVariant data( int i ) = 0;
     virtual bool    isNull( int i ) = 0;
     virtual bool    reset ( const QString& sqlquery ) = 0;
     virtual bool    fetch( int i ) = 0;
     virtual bool    fetchNext();
-    virtual bool    fetchPrevious();
+    virtual bool    fetchPrev();
     virtual bool    fetchFirst() = 0;
     virtual bool    fetchLast() = 0;
     virtual int     size() = 0;
-    virtual int     affectedRows() = 0;
+    virtual int     numRowsAffected() = 0;
 private:
     QSqlResultPrivate* d;
     QSqlResult( const QSqlResult & );

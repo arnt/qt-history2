@@ -196,7 +196,7 @@ int QMySQLResult::size()
     return (int)mysql_num_rows( d->result );
 }
 
-int QMySQLResult::affectedRows()
+int QMySQLResult::numRowsAffected()
 {
     return (int)mysql_affected_rows( d->mysql );
 }
@@ -262,7 +262,7 @@ void QMySQLDriver::close()
     }
 }
 
-QSqlQuery QMySQLDriver::createResult() const
+QSqlQuery QMySQLDriver::createQuery() const
 {
     return QSqlQuery(new QMySQLResult( this ) );
 }
@@ -288,7 +288,7 @@ QStringList QMySQLDriver::tables( const QString& ) const
 QSqlIndex QMySQLDriver::primaryIndex( const QString& tablename ) const
 {
     QSqlIndex idx;
-    QSqlQuery i = createResult();
+    QSqlQuery i = createQuery();
     QString stmt( "show index from %1;" );
     i.exec( stmt.arg( tablename ) );
     while ( i.isActive() && i.next() ) {
@@ -305,7 +305,7 @@ QSqlRecord QMySQLDriver::fields( const QString& tablename ) const
 {
     QSqlRecord fil;
     QString fieldStmt( "show columns from %1;");
-    QSqlQuery i = createResult();
+    QSqlQuery i = createQuery();
     i.exec( fieldStmt.arg( tablename ) );
     while ( i.isActive() && i.next() ) {
 	QSqlField f ( i.value(0).toString() , i.at(), qDecodeMYSQLType(i.value(1).toInt()) );
@@ -332,7 +332,7 @@ QSqlRecord QMySQLDriver::fields( const QSqlQuery& query ) const
 		count++;
 	    }
 	}
-	mysql_field_seek( p->result, 0 );	
+	mysql_field_seek( p->result, 0 );
     }
     return fil;
 }

@@ -1,75 +1,73 @@
 #include <qapplication.h>
 #include <qsqldatabase.h>
-#include <qsqlview.h>
+#include <qsqlcursor.h>
 #include "mainwindow.h"
 
 int main( int argc, char **argv )
 {
     QApplication a(argc,argv);
-    QSqlConnection::addDatabase( qApp->argv()[1],
-				 qApp->argv()[2],
-				 qApp->argv()[3],
-				 qApp->argv()[4],
-				 qApp->argv()[5]);
-    QSqlDatabase* db = QSqlConnection::database();
+    QSqlDatabase* db = QSqlDatabase::addDatabase( qApp->argv()[1] );
+    db->setDatabaseName( qApp->argv()[2] );
+    db->setUserName( qApp->argv()[3] );
+    db->setPassword( qApp->argv()[4] );
+    db->setHostName( qApp->argv()[5] );
+    db->open();
 
-    // create sample tables
+    /* create sample tables */
     db->exec("create table qsql_master "
 	     "(id numeric(10) primary key,"
 	     "name char(30));");
-    QSqlView masterView( "qsql_master" );
-    masterView.setMode( SQL_Writable );
-    masterView["id"] = 1;
-    masterView["name"] = "Trolltech";
-    masterView.insert();
-    masterView["id"] = 2;
-    masterView["name"] = "ACME";
-    masterView.insert();
-    masterView["id"] = 3;
-    masterView["name"] = "MS";
-    masterView.insert();
+    QSqlCursor master( "qsql_master" );
+    master["id"] = 1;
+    master["name"] = "Trolltech";
+    master.insert();
+    master["id"] = 2;
+    master["name"] = "ACME";
+    master.insert();
+    master["id"] = 3;
+    master["name"] = "MS";
+    master.insert();
 
     db->exec("create table qsql_child "
 	     "(id numeric(10) primary key,"
 	     "masterid numeric(10),"
 	     "name char(30));");
-    QSqlView childView( "qsql_child" );
-    childView.setMode( SQL_Writable );
-    childView["id"] = 1;
-    childView["masterid"] = 1;
-    childView["name"] = "db";
-    childView.insert();
+    QSqlCursor child( "qsql_child" );
+    child["id"] = 1;
+    child["masterid"] = 1;
+    child["name"] = "db";
+    child.insert();
 
-    childView["id"] = 2;
-    childView["masterid"] = 1;
-    childView["name"] = "trond";
-    childView.insert();
+    child["id"] = 2;
+    child["masterid"] = 1;
+    child["name"] = "trond";
+    child.insert();
 
-    childView["id"] = 3;
-    childView["masterid"] = 2;
-    childView["name"] = "roadrunner";
-    childView.insert();
+    child["id"] = 3;
+    child["masterid"] = 2;
+    child["name"] = "roadrunner";
+    child.insert();
 
-    childView["id"] = 4;
-    childView["masterid"] = 2;
-    childView["name"] = "coyote";
-    childView.insert();
+    child["id"] = 4;
+    child["masterid"] = 2;
+    child["name"] = "coyote";
+    child.insert();
 
-    childView["id"] = 5;
-    childView["masterid"] = 2;
-    childView["name"] = "chicken";
-    childView.insert();
+    child["id"] = 5;
+    child["masterid"] = 2;
+    child["name"] = "chicken";
+    child.insert();
 
 
-    childView["id"] = 6;
-    childView["masterid"] = 3;
-    childView["name"] = "bill";
-    childView.insert();
+    child["id"] = 6;
+    child["masterid"] = 3;
+    child["name"] = "bill";
+    child.insert();
 
-    childView["id"] = 7;
-    childView["masterid"] = 3;
-    childView["name"] = "steve";
-    childView.insert();
+    child["id"] = 7;
+    child["masterid"] = 3;
+    child["name"] = "steve";
+    child.insert();
 
 
     MainWindow* w = new MainWindow();
@@ -77,7 +75,7 @@ int main( int argc, char **argv )
     w->show();
     int x = a.exec();
 
-    // clean up
+    /* clean up */
     db->exec( "drop table qsql_child;");
     db->exec( "drop table qsql_master;");
 

@@ -31,34 +31,38 @@ public:
     QSqlQuery( QSqlResult * r );
     QSqlQuery( const QString& query = QString::null, QSqlDatabase* db = 0 );
     QSqlQuery( const QSqlQuery& other );
+    QSqlQuery&          operator=( const QSqlQuery& other );    
     virtual ~QSqlQuery();
-    QSqlQuery&            operator=( const QSqlQuery& other );
-    bool             isValid() const;
-    bool             isActive() const;
-    bool	     isNull( int field ) const;
-    int              at() const;
-    QString          lastQuery() const;
-    bool	     exec ( const QString& query );
-    virtual QVariant value( int i );
-    bool	     seek( int i, bool relative = FALSE );
-    bool    	     next();
-    bool    	     previous();
-    bool    	     first();
-    bool    	     last();
-    int              size() const;
-    int              affectedRows() const;
-    QSqlError	     lastError() const;
-    bool             isSelect() const;
+
+    bool                isValid() const;
+    bool                isActive() const;
+    bool	        isNull( int field ) const;
+    int                 at() const;
+    QString             lastQuery() const;
+    int                 numRowsAffected() const;
+    QSqlError	        lastError() const;
+    bool                isSelect() const;
+    int                 size() const;    
     const QSqlDriver*   driver() const;
     const QSqlResult*   result() const;
+    
+    virtual bool	exec ( const QString& query );
+    virtual QVariant    value( int i );
+    
+    virtual bool	seek( int i, bool relative = FALSE );
+    virtual bool        next();
+    virtual bool        prev();
+    virtual bool        first();
+    virtual bool        last();
+    
 protected:
-    virtual void     preSeek();
-    virtual void     postSeek();
+    virtual void        beforeSeek();
+    virtual void        afterSeek();
 
 private:
-    void             deref();
-    bool             checkDetach();
-    QSqlResultShared* d;
+    void                deref();
+    bool                checkDetach();
+    QSqlResultShared*   d;
 };
 
 

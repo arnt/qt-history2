@@ -1,20 +1,20 @@
 #include "mainwindow.h"
-#include <qsqlview.h>
 #include <qsqltable.h>
+#include <qstringlist.h>
 
 MainWindow::MainWindow ( QWidget * parent, const char * name, WFlags f )
     : MasterChildWindowBase(parent, name, f),
-      masterView( "qsql_master" ),
-      childView( "qsql_child" )
+      master( "qsql_master" ),
+      child( "qsql_child" )
 {
-    masterView.select();
+    master.select();
     masterTable->setSorting( TRUE );
     childTable->setSorting( TRUE );
-    masterTable->setView( &masterView );
-    childView.field("masterid")->setIsVisible( FALSE );    
+    masterTable->setCursor( &master );
+    child.field("masterid")->setVisible( FALSE );
     reloadChildTable( 1 );
-    connect( masterTable, SIGNAL( currentChanged(const QSqlFieldList*)),
-	     SLOT( newMasterSelection(const QSqlFieldList*)));
+    connect( masterTable, SIGNAL( currentChanged(const QSqlRecord*)),
+	     SLOT( newMasterSelection(const QSqlRecord*)));
 }
 
 MainWindow::~MainWindow()
@@ -22,7 +22,7 @@ MainWindow::~MainWindow()
 
 }
 
-void MainWindow::newMasterSelection( const QSqlFieldList* fields )
+void MainWindow::newMasterSelection( const QSqlRecord* fields )
 {
     int idx = fields->field( "id" )->value().toInt();
     reloadChildTable( idx );
@@ -30,7 +30,7 @@ void MainWindow::newMasterSelection( const QSqlFieldList* fields )
 
 void MainWindow::reloadChildTable( int masterIdx )
 {
-    childView.select( "masterId = " + QString::number( masterIdx ) );
-    childTable->setView( &childView );
+    child.select( "masterid=" + QString::number(masterIdx) );
+    childTable->setCursor( &child );
 }
 

@@ -33,11 +33,11 @@ public:
     QString            displayLabel() const { return label; }
     void               setReadOnly( bool readOnly ) { ro = readOnly; }
     bool               isReadOnly() const { return ro; }
-    void               setIsNull( bool n ) { nul = n; }
+    void               setNull( bool n ) { nul = n; }
     bool               isNull() const { return nul; }
     void               setPrimaryIndex( bool primaryIndex ) { pIdx = primaryIndex; }
     bool               isPrimaryIndex() const { return pIdx; }
-    void               setIsVisible( bool visible ) { iv = visible; }
+    void               setVisible( bool visible ) { iv = visible; }
     bool               isVisible() const { return iv; }
     void               setCalculated( bool calculated ) { cf = calculated; }
     bool               isCalculated() const { return cf; }

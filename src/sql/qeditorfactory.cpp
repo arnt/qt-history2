@@ -1,9 +1,10 @@
-#include <qcleanuphandler.h>
-#include <qwidget.h>
-#include <qlabel.h>
-#include <qlineedit.h>
-#include <qspinbox.h>
-#include <qcombobox.h>
+#include "qcleanuphandler.h"
+#include "qwidget.h"
+#include "qlabel.h"
+#include "qlineedit.h"
+#include "qspinbox.h"
+#include "qcombobox.h"
+#include "qlayout.h"
 
 #include "qeditorfactory.h"
 #include "qdatetimeedit.h"
@@ -79,8 +80,10 @@ QWidget * QEditorFactory::createEditor( QWidget * parent, const QVariant & v )
 	case QVariant::Time:
 	    w = new QTimeEdit( parent );
 	    break;
-	case QVariant::DateTime:	    
-	    break;
+    case QVariant::DateTime: {
+	w = new QDateTimeEdit( parent );
+	break;
+    }
 	case QVariant::Pixmap:
 	    w = new QLabel( parent );
 	    break;

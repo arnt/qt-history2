@@ -80,8 +80,9 @@ int QSqlResult::at() const
 }
 
 
-/*! Returns TRUE if the result is positioned on a valid record (that is, the
-    result is not positioned before the first or after the last record).
+/*! Returns TRUE if the result is positioned on a valid record (that
+    is, the result is not positioned before the first or after the
+    last record).
 
 */
 
@@ -100,8 +101,8 @@ bool QSqlResult::isActive() const
     return d->active;
 }
 
-/*! Protected method provided for derived classes to set the internal result
-    index to \a at.
+/*! Protected method provided for derived classes to set the internal
+    result index to \a at.
 
     \sa at()
 
@@ -141,8 +142,8 @@ const QSqlDriver* QSqlResult::driver() const
 }
 
 
-/*! Protected method provided for derived classes to set the internal active
-    state to the value of \a a.
+/*! Protected method provided for derived classes to set the internal
+    active state to the value of \a a.
 
   \sa isActive()
 
@@ -153,8 +154,8 @@ void QSqlResult::setActive( bool a )
     d->active = a;
 }
 
-/*! Protected method provided for derived classes to set the last error
-    to the value of \a e.
+/*! Protected method provided for derived classes to set the last
+    error to the value of \a e.
 
     \sa lastError()
 
@@ -179,61 +180,71 @@ QSqlError QSqlResult::lastError() const
     Returns the size of the result.
 */
 
-/*! \fn int QSqlResult::affectedRows()
-    Returns the number of affected rows in the result.
+/*! \fn int QSqlResult::numRowsAffected() 
+  
+  Returns the number of rows affected by the last query sent to the
+  result.
 */
 
 /*! \fn QVariant QSqlResult::data( int i )
 
-    Returns the data for field \a i (zero-based) as a QVariant.  This method is only called if the
-    result is in an active state and is positioned on a valid record and the field
-    \a i is non-negative.  Derived classes must reimplement this method and return
-    the value of field \a i, or QVariant() if it cannot be determined.
+    Returns the data for field \a i (zero-based) as a QVariant.  This
+    method is only called if the result is in an active state and is
+    positioned on a valid record and the field \a i is non-negative.
+    Derived classes must reimplement this method and return the value
+    of field \a i, or QVariant() if it cannot be determined.
 
 */
 
 /*! \fn  bool QSqlResult::reset ( const QString& query )
 
-    Sets the result to use the SQL statement \a query for subsequent data retrieval.
-    Derived classes must reimplement this method and apply the \a query to the database.
-    This method is called only after the result is set to an inactive state and is
-    positioned before the first record of the new result.  Derived classes should return
-    TRUE if the query was successful and ready to be used, FALSE otherwise.
+    Sets the result to use the SQL statement \a query for subsequent
+    data retrieval.  Derived classes must reimplement this method and
+    apply the \a query to the database.  This method is called only
+    after the result is set to an inactive state and is positioned
+    before the first record of the new result.  Derived classes should
+    return TRUE if the query was successful and ready to be used,
+    FALSE otherwise.
 
 */
 
 /*! \fn bool QSqlResult::fetch( int i )
 
-    Positions the result to a random index \a i.  This method is only called
-    if the result is in an active state.  Derived classes must override this
-    method and position the result to the index \a i, and call setAt() with
-    an appropriate value.    Return TRUE to indicate success, FALSE for failure.
+    Positions the result to a random index \a i.  This method is only
+    called if the result is in an active state.  Derived classes must
+    override this method and position the result to the index \a i,
+    and call setAt() with an appropriate value.  Return TRUE to
+    indicate success, FALSE for failure.
 
 */
 
 /*! \fn bool QSqlResult::fetchFirst()
 
-    Positions the result to the first record in the result.  This methods is only
-    called if the result is in an active state.  Derived classes must override this
-    method and position the result to the first record, and call setAt() with an
-    appropriate value.  Return TRUE to indicate success, FALSE for failure.
+    Positions the result to the first record in the result.  This
+    methods is only called if the result is in an active state.
+    Derived classes must override this method and position the result
+    to the first record, and call setAt() with an appropriate value.
+    Return TRUE to indicate success, FALSE for failure.
 
 */
 
 /*! \fn bool QSqlResult::fetchLast()
 
-    Positions the result to the last record in the result.  This methods is only
-    called if the result is in an active state.  Derived classes must override this
-    method and position the result to the last record, and call setAt() with an
-    appropriate value.  Return TRUE to indicate success, FALSE for failure.
+    Positions the result to the last record in the result.  This
+    methods is only called if the result is in an active state.
+    Derived classes must override this method and position the result
+    to the last record, and call setAt() with an appropriate value.
+    Return TRUE to indicate success, FALSE for failure.
 
 */
 
-/*! Positions the result to the next available record in the result.  This methods is only
-    called if the result is in an active state.  The default implementation calls fetch() with
-    the next index.  Derived classes can override this method and position the result to the next
-    record in some other way, and call setAt() with an appropriate value.  Return TRUE to indicate success,
-    FALSE for failure.
+/*! Positions the result to the next available record in the result.
+    This methods is only called if the result is in an active state.
+    The default implementation calls fetch() with the next index.
+    Derived classes can override this method and position the result
+    to the next record in some other way, and call setAt() with an
+    appropriate value.  Return TRUE to indicate success, FALSE for
+    failure.
 
 */
 
@@ -242,15 +253,17 @@ bool QSqlResult::fetchNext()
     return fetch( at() + 1 );
 }
 
-/*! Positions the result to the previous available record in the result.  This methods is only
-    called if the result is in an active state.  The default implementation calls fetch() with
-    the previous index.  Derived classes can override this method and position the result to the next
-    record in some other way, and call setAt() with an appropriate value.  Return TRUE to indicate success,
-    FALSE for failure.
+/*! Positions the result to the previous available record in the
+    result.  This methods is only called if the result is in an active
+    state.  The default implementation calls fetch() with the previous
+    index.  Derived classes can override this method and position the
+    result to the next record in some other way, and call setAt() with
+    an appropriate value.  Return TRUE to indicate success, FALSE for
+    failure.
 
 */
 
-bool QSqlResult::fetchPrevious()
+bool QSqlResult::fetchPrev()
 {
     return fetch( at() - 1 );
 }

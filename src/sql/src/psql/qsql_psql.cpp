@@ -116,7 +116,7 @@ bool qIsPrimaryIndex( const QSqlDriver* driver, const QString& tablename, const 
 		  "and c2.oid=a.attrelid "
 		  "and (x.indexrelid=c2.oid "
 		  "and a.attrelid=c2.oid);");
-    QSqlQuery pIdxs = driver->createResult();
+    QSqlQuery pIdxs = driver->createQuery();
     pIdxs.exec( pIdx.arg( tablename ).arg( fieldname ) );
     if ( pIdxs.next() )
 	ispIdx = pIdxs.value(0).toInt();
@@ -133,7 +133,7 @@ QSqlField qMakeField( const QSqlDriver* driver, const QString& tablename, const 
 		   "and c.oid= a.attrelid "
 		   "and a.atttypid = t.oid "
 		   "and (a.attnum > 0);");
-    QSqlQuery fi = driver->createResult();
+    QSqlQuery fi = driver->createQuery();
     fi.exec( stmt.arg( tablename ).arg( fieldname ) );
     if ( fi.next() ) {
 	QSqlField f( fieldname, 0, qDecodePSQLType( fi.value(0).toInt()) );
@@ -401,7 +401,7 @@ int QPSQLResult::size()
     return currentSize;
 }
 
-int QPSQLResult::affectedRows()
+int QPSQLResult::numRowsAffected()
 {
     return QString( PQcmdTuples( d->result ) ).toInt();
 }
@@ -470,7 +470,7 @@ void QPSQLDriver::close()
     }
 }
 
-QSqlQuery QPSQLDriver::createResult() const
+QSqlQuery QPSQLDriver::createQuery() const
 {
     return QSqlQuery( new QPSQLResult( this, d ) );
 }
@@ -513,7 +513,7 @@ bool QPSQLDriver::rollbackTransaction()
 
 QStringList QPSQLDriver::tables( const QString& user ) const
 {
-    QSqlQuery t = createResult();
+    QSqlQuery t = createQuery();
     QString stmt( "select relname from pg_class, pg_user "
 		  "where usename like '%1'"
 		  "and relkind = 'r' "
@@ -529,7 +529,7 @@ QStringList QPSQLDriver::tables( const QString& user ) const
 QSqlIndex QPSQLDriver::primaryIndex( const QString& tablename ) const
 {
     QSqlIndex idx;
-    QSqlQuery i = createResult();
+    QSqlQuery i = createQuery();
     QString stmt( "select a.attname from pg_attribute a, pg_class c1,"
 		  "pg_class c2, pg_index i where c1.relname = '%1' "
 		  "and c1.oid = i.indrelid and i.indexrelid = c2.oid "
@@ -553,7 +553,7 @@ QSqlRecord QPSQLDriver::fields( const QString& tablename ) const
 		   "and c.oid= a.attrelid "
 		   "and a.atttypid = t.oid "
 		   "and (a.attnum > 0);");
-    QSqlQuery fi = createResult();
+    QSqlQuery fi = createQuery();
     fi.exec( stmt.arg( tablename ) );
     while ( fi.next() ) {
 	QSqlField f = qMakeField( this, tablename, fi.value(0).toString() );

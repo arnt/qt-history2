@@ -154,9 +154,9 @@ protected:
     bool	fetchFirst() { return FALSE; }
     bool	fetchLast() { return FALSE; }
     bool	isNull( int ) {return FALSE; }
-    QSqlRecord   fields() {return QSqlRecord();}
+    QSqlRecord   record() {return QSqlRecord();}
     int             size()  {return 0;}
-    int             affectedRows() {return 0;}
+    int             numRowsAffected() {return 0;}
 };
 
 class QNullDriver : public QSqlDriver
@@ -171,7 +171,7 @@ public:
 				return FALSE;
 			}
     void    close() {}
-    QSqlQuery createResult() const { return QSqlQuery( new QNullResult(this) ); }
+    QSqlQuery createQuery() const { return QSqlQuery( new QNullResult(this) ); }
 };
 
 class QSqlDatabasePrivate
@@ -283,30 +283,22 @@ QSqlDatabase::~QSqlDatabase()
     delete d;
 }
 
-/*! Sends the query \a sqlquery to the database and returns a QSql
-    object for accessing the result data.
-
-    \sa QSql
-*/
-
-QSqlQuery QSqlDatabase::query( const QString & sqlquery ) const
-{
-    return d->driver->query( sqlquery );
-}
-
 /*! Executes an SQL statement (i.e., INSERT, UPDATE, DELETE statement)
-    on the database, and returns the number of affected rows.  Use
-    lastError() to recover error information.
+    on the database, and returns a QSqlQuery object.  Use lastError()
+    to recover error information. If \a query is QString::null, an
+    empty, invalid query is returned and lastError() is not affected.
 
-    \sa query(), createResult()
+    \sa QSqlQuery lastError()
 */
 
-int QSqlDatabase::exec( const QString & sql ) const
+QSqlQuery QSqlDatabase::exec( const QString & query ) const
 {
-    QSqlQuery r = d->driver->createResult();
-    r.exec( sql );
-    d->driver->setLastError( r.lastError() );
-    return r.affectedRows();
+    QSqlQuery r = d->driver->createQuery();
+    if ( !query.isNull() ) {
+	r.exec( query );
+	d->driver->setLastError( r.lastError() );
+    }
+    return r;
 }
 
 /*! Opens the database using the current connection values .  Returns
@@ -347,16 +339,6 @@ void QSqlDatabase::close()
     d->driver->close();
 }
 
-/*! Creates an uninitialized QSqlQuery result object which can be used to send
-    queries to the database.
-
-*/
-
-QSqlQuery QSqlDatabase::createResult() const
-{
-    return d->driver->createResult();
-}
-
 /*! Returns TRUE if the database is currently opened, otherwise FALSE is returned.
 
 */
@@ -374,16 +356,6 @@ bool QSqlDatabase::isOpen() const
 bool QSqlDatabase::isOpenError() const
 {
     return d->driver->isOpenError();
-}
-
-/*! Returns TRUE if the database has support for transactions, otherwise FALSE is
-    returned.
-
-*/
-
-bool QSqlDatabase::hasTransactionSupport() const
-{
-    return d->driver->hasTransactionSupport();
 }
 
 /*! Begins a transaction on the database if the driver supports transactions.
@@ -548,21 +520,21 @@ QSqlIndex QSqlDatabase::primaryIndex( const QString& tablename ) const
 
 */
 
-QSqlRecord QSqlDatabase::fields( const QString& tablename ) const
+QSqlRecord QSqlDatabase::record( const QString& tablename ) const
 {
-    return d->driver->fields( tablename );
+    return d->driver->record( tablename );
 }
 
 
 /*!
-  Returns a list of fields used in the SQL \a query. 
+  Returns a list of fields used in the SQL \a query.
 
 */
 
-QSqlRecord QSqlDatabase::fields( const QSqlQuery& query ) const
+QSqlRecord QSqlDatabase::record( const QSqlQuery& query ) const
 {
-    return d->driver->fields( query );
+    return d->driver->record( query );
 }
-    
+
 
 #endif // QT_NO_SQL

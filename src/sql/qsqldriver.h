@@ -21,7 +21,7 @@ class Q_EXPORT QSqlDriver : public QObject
 public:
     QSqlDriver( QObject * parent=0, const char * name=0 );
     ~QSqlDriver();
-    virtual QSqlQuery     query( const QString & sqlquery ) const;
+
     bool 	          isOpen() const;
     bool 	          isOpenError() const;
 
@@ -30,8 +30,8 @@ public:
     virtual bool          rollbackTransaction();
     virtual QStringList   tables( const QString& user ) const;
     virtual QSqlIndex     primaryIndex( const QString& tablename ) const;
-    virtual QSqlRecord    fields( const QString& tablename ) const;
-    virtual QSqlRecord    fields( const QSqlQuery& query ) const;
+    virtual QSqlRecord    record( const QString& tablename ) const;
+    virtual QSqlRecord    record( const QSqlQuery& query ) const;
     virtual QString       nullText() const;
     virtual QString       formatValue( const QSqlField* field ) const;
     QSqlError	          lastError() const;
@@ -44,13 +44,14 @@ public:
 				const QString & password = QString::null,
 				const QString & host = QString::null ) = 0;
     virtual void          close() = 0;
-    virtual QSqlQuery     createResult() const = 0;
+    virtual QSqlQuery     createQuery() const = 0;
+
 protected:
-    void 	          setOpen( bool o );
-    void 	          setOpenError( bool e );
-    void	          setTransactionSupport( bool t );
-    void                  setQuerySizeSupport( bool s );
-    void	          setLastError( const QSqlError& e );
+    virtual void          setOpen( bool o );
+    virtual void          setOpenError( bool e );
+    virtual void	  setTransactionSupport( bool t );
+    virtual void          setQuerySizeSupport( bool s );
+    virtual void	  setLastError( const QSqlError& e );
 private:
     int 	          dbState;
     bool 	          hasTrans;

@@ -1,7 +1,7 @@
 #include "qapplication.h"
 #include "qsqltable.h"
 #include "qsqldriver.h"
-#include "qsqleditorfactory.h"
+#include "qeditorfactory.h"
 #include "qsqlform.h"
 #include "qlayout.h"
 #include "qpopupmenu.h"
@@ -9,12 +9,12 @@
 
 #ifndef QT_NO_SQL
 
-void qt_debug_buffer( const QString& msg, QSqlCursor* view )
+void qt_debug_buffer( const QString& msg, QSqlCursor* cursor )
 {
     qDebug("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
     qDebug(msg);
-    for ( uint j = 0; j < view->count(); ++j ) {
-	qDebug(view->field(j)->name() + " type:" + QString(view->field(j)->value().typeName()) + " value:" + view->field(j)->value().toString() );
+    for ( uint j = 0; j < cursor->count(); ++j ) {
+	qDebug(cursor->field(j)->name() + " type:" + QString(cursor->field(j)->value().typeName()) + " value:" + cursor->field(j)->value().toString() );
     }
 }
 
@@ -34,7 +34,7 @@ public:
 	  ro(TRUE),
 	  editorFactory(0),
 	  propertyMap(0),
-	  view(0),
+	  cursor(0),
 	  mode( QSqlTable::None ),
 	  editRow(-1),
 	  editCol(-1),
@@ -58,7 +58,7 @@ public:
     QSqlPropertyMap* propertyMap;
     QString trueTxt;
     QString falseTxt;
-    QSqlCursor* view;
+    QSqlCursor* cursor;
     QSqlTable::Mode mode;
     int editRow;
     int editCol;
@@ -122,7 +122,7 @@ QSqlTable::QSqlTable ( QWidget * parent, const char * name )
 QSqlTable::~QSqlTable()
 {
     if ( d->autoDelete )
-	delete d->view;
+	delete d->cursor;
     delete d;
 }
 
@@ -130,7 +130,7 @@ QSqlTable::~QSqlTable()
 /*!
 
   Adds \a field as the next column to be diplayed.  By default, fields
-  which are not visible and fields which are part of a table's primary
+  which are not visible and fields which are part of a cursor's primary
   index are not displayed.
 
   \sa QSqlField
@@ -194,10 +194,10 @@ void QSqlTable::setColumn( uint col, const QSqlField* field )
 
 /*!
 
-  Sets the table's readonly flag to \a b.  Note that if the underlying view cannot
+  Sets the table's readonly flag to \a b.  Note that if the underlying cursor cannot
   be edited, this function will have no effect.
 
-  \sa setView()
+  \sa setCursor()
 
 */
 
@@ -348,7 +348,7 @@ bool QSqlTable::eventFilter( QObject *o, QEvent *e )
 void QSqlTable::resizeEvent ( QResizeEvent * e )
 {
 
-    if ( d->view && !d->view->driver()->hasQuerySizeSupport() )
+    if ( d->cursor && !d->cursor->driver()->hasQuerySizeSupport() )
 	loadNextPage();
     QTable::resizeEvent( e );
 }
@@ -364,20 +364,20 @@ void QSqlTable::contentsMousePressEvent( QMouseEvent* e )
     if ( d->mode != QSqlTable::None ) {
 	endEdit( d->editRow, d->editCol, TRUE, FALSE );
     }
-    if ( !d->view ) {
+    if ( !d->cursor ) {
 	QTable::contentsMousePressEvent( e );
 	return;
     }
     if ( e->button() == RightButton && d->mode == QSqlTable::None ) {
-	qt_debug_buffer("mouse", d->view );
+	qt_debug_buffer("mouse", d->cursor );
 	QPopupMenu *popup = new QPopupMenu( this );
 	int id[ 3 ];
 	id[ IdInsert ] = popup->insertItem( tr( "Insert" ) );
 	id[ IdUpdate ] = popup->insertItem( tr( "Update" ) );
 	id[ IdDelete ] = popup->insertItem( tr( "Delete" ) );
-	popup->setItemEnabled( id[ IdInsert ], !isReadOnly() && d->view->canInsert() );
-	popup->setItemEnabled( id[ IdUpdate ], !isReadOnly() && currentRow()>-1 && d->view->canUpdate() );
-	popup->setItemEnabled( id[ IdDelete ], !isReadOnly() && currentRow()>-1 && d->view->canDelete() );
+	popup->setItemEnabled( id[ IdInsert ], !isReadOnly() && d->cursor->canInsert() );
+	popup->setItemEnabled( id[ IdUpdate ], !isReadOnly() && currentRow()>-1 && d->cursor->canUpdate() );
+	popup->setItemEnabled( id[ IdDelete ], !isReadOnly() && currentRow()>-1 && d->cursor->canDelete() );
 	int r = popup->exec( e->globalPos() );
 	delete popup;
 	if ( r == id[ IdInsert ] )
@@ -406,7 +406,7 @@ QWidget* QSqlTable::beginEdit ( int row, int col, bool replace )
 {
     d->editRow = -1;
     d->editCol = -1;
-    if ( !d->view )
+    if ( !d->cursor )
 	return 0;
     //    qDebug("beginEdit row:" + QString::number(row) + " col:" + QString::number(col));
     //    qDebug("continuousEdit:" + QString::number(d->continuousEdit));
@@ -458,7 +458,7 @@ void QSqlTable::endEdit( int row, int col, bool accept, bool )
 	setEditMode( NotEditing, -1, -1 );
     }
     if ( d->mode == QSqlTable::None ) {
-	//	qDebug("QSqlTable::endEdit: done, setting focud to viewport");
+	//	qDebug("QSqlTable::endEdit: done, setting focus to viewport");
 	viewport()->setFocus();
     }
     updateCell( row, col );
@@ -505,9 +505,8 @@ void QSqlTable::endUpdate()
 
 bool QSqlTable::beginInsert()
 {
-    qt_debug_buffer("beginInsert: start, VIEW", d->view);
-    QSqlCursor* vw = d->view;
-    if ( !vw || isReadOnly() || ! numCols() )
+    qt_debug_buffer("beginInsert: start, CURSOR", d->cursor);
+    if ( !d->cursor || isReadOnly() || ! numCols() )
 	return FALSE;
     int i = 0;
     int row = currentRow();
@@ -517,9 +516,9 @@ bool QSqlTable::beginInsert()
     setNumRows( d->insertPreRows + 1 );
     ensureCellVisible( row, 0 );
     setCurrentCell( row, 0 );
-    qt_debug_buffer("beginInsert: before creating edit buffer, VIEW", d->view);
+    qt_debug_buffer("beginInsert: before creating edit buffer, CURSOR", d->cursor);
     d->editBuffer.clear();
-    d->editBuffer = *vw;
+    d->editBuffer = *d->cursor;
     d->editBuffer.detach();
     d->editBuffer.clearValues();
     qt_debug_buffer("beginInsert: after creating edit buffer", &d->editBuffer);
@@ -555,19 +554,19 @@ bool QSqlTable::beginInsert()
 QWidget* QSqlTable::beginUpdate ( int row, int col, bool replace )
 {
     //    qDebug("QSqlTable::beginUpdate");
-    if ( !d->view || isReadOnly() )
+    if ( !d->cursor || isReadOnly() )
 	return 0;
     ensureCellVisible( row, col );
     setCurrentSelection( row, col );
     d->mode = QSqlTable::Update;
     d->editBuffer.clear();
-    d->editBuffer = *d->view;
+    d->editBuffer = *d->cursor;
     d->editBuffer.detach();
     return QTable::beginEdit( row, col, replace );
 }
 
-/*!  Protected virtual method which is called to "prime" the fields of
-  a view before an insert is performed.  This can be used, for
+/*!  Protected virtual method which is called to "prime" the record of
+  a cursor before an insert is performed.  This can be used, for
   example, to prime any auto-numbering or unique index fields.
   This method should return TRUE if the "prime" was successful and the
   insert should continue.  Returning FALSE will prevent the insert from
@@ -581,9 +580,9 @@ bool QSqlTable::primeInsert( QSqlCursor* )
     return TRUE;
 }
 
-/*!  For an editable table, issues an insert on the current view using
+/*!  For an editable table, issues an insert on the current cursor using
   the values of the currently edited "insert" row.  If there is no
-  current view or there is no current "insert" row, nothing happens.
+  current cursor or there is no current "insert" row, nothing happens.
   Returns TRUE if the insert succeeded, otherwise FALSE.
 
   \sa primeFields
@@ -614,7 +613,7 @@ void QSqlTable::insertCurrent()
 	QSqlIndex idx = d->editBuffer.primaryIndex( TRUE );
 	endInsert();
 	setEditMode( NotEditing, -1, -1 );
-	refresh( d->view, idx );
+	refresh( d->cursor, idx );
 	setCurrentCell( currentRow(), currentColumn() );
 	break;
     }
@@ -636,8 +635,8 @@ void QSqlTable::updateRow( int row )
 	updateCell( row, i );
 }
 
-/*!  Protected virtual method which is called to "prime" the fields of
-  a view before an update is performed.  This method should return
+/*!  Protected virtual method which is called to "prime" the record of
+  a cursor before an update is performed.  This method should return
   TRUE if the "prime" was successful and the update should continue.
   Returning FALSE will prevent the update from proceeding.  The
   default implementation returns TRUE.
@@ -651,12 +650,12 @@ bool QSqlTable::primeUpdate( QSqlCursor* )
 }
 
 
-/*!  For an editable table, issues an update on the current view's
+/*!  For an editable table, issues an update on the current cursor's
   primary index using the values of the edited selected row.  If
-  there is no current view or there is no current selection, nothing
+  there is no current cursor or there is no current selection, nothing
   happens.  Returns TRUE if the update succeeded, otherwise FALSE.
 
-  For this method to succeed, the underlying view must have a valid
+  For this method to succeed, the underlying cursor must have a valid
   primary index to ensure that a unique record is updated within the
   database.
 
@@ -695,7 +694,7 @@ void QSqlTable::updateCurrent()
 	    handleError( d->editBuffer.lastError() );
 	QSqlIndex idx = d->editBuffer.primaryIndex( TRUE );
 	endUpdate();
-	refresh( d->view, idx );
+	refresh( d->cursor, idx );
 	setCurrentSelection( currentRow(), currentColumn() );
 	break;
     }
@@ -712,8 +711,8 @@ void QSqlTable::updateCurrent()
     return;
 }
 
-/*!  Protected virtual method which is called to "prime" the fields of
-  a view before a delete is performed.  This method should return
+/*!  Protected virtual method which is called to "prime" the record of
+  a cursor before a delete is performed.  This method should return
   TRUE if the "prime" was successful and the delete should continue.
   Returning FALSE will prevent the delete from proceeding.  The
   default implementation returns TRUE.
@@ -726,12 +725,12 @@ bool QSqlTable::primeDelete( QSqlCursor* )
     return TRUE;
 }
 
-/*!  For an editable table, issues a delete on the current view's
+/*!  For an editable table, issues a delete on the current cursor's
   primary index using the values of the currently selected row.  If
-  there is no current view or there is no current selection, nothing
+  there is no current cursor or there is no current selection, nothing
   happens.  Returns TRUE if the delete succeeded, otherwise FALSE.
 
-  For this method to succeed, the underlying view must have a valid
+  For this method to succeed, the underlying cursor must have a valid
   primary index to ensure that a unique record is deleted within the
   database.
 
@@ -739,18 +738,17 @@ bool QSqlTable::primeDelete( QSqlCursor* )
 
 void QSqlTable::deleteCurrent()
 {
-    QSqlCursor* vw = d->view;
-    if ( !vw || isReadOnly() )
+    if ( !d->cursor || isReadOnly() )
 	return;
-    if ( vw->primaryIndex().count() == 0 ) {
+    if ( d->cursor->primaryIndex().count() == 0 ) {
 #ifdef CHECK_RANGE
-	qWarning("QSqlTable::deleteCurrent: no primary index " + vw->name() );
+	qWarning("QSqlTable::deleteCurrent: no primary index " + d->cursor->name() );
 #endif
 	return;
     }
-    if ( !vw->canDelete() )
+    if ( !d->cursor->canDelete() )
 	return;
-    if ( !vw->seek( currentRow() ) )
+    if ( !d->cursor->seek( currentRow() ) )
 	return;
     int b = 0;
     int conf = Yes;
@@ -758,14 +756,14 @@ void QSqlTable::deleteCurrent()
 	conf = confirmEdit( QSqlTable::Delete );
     switch ( conf ) {
     case Yes:
-	if ( !primeDelete( vw ) )
+	if ( !primeDelete( d->cursor ) )
 	    return;
 	QApplication::setOverrideCursor( Qt::waitCursor );
-	b = vw->del( vw->primaryIndex() );
+	b = d->cursor->del( d->cursor->primaryIndex() );
 	QApplication::restoreOverrideCursor();
 	if ( !b )
 	    handleError( d->editBuffer.lastError() );
-	refresh( vw );
+	refresh( d->cursor );
 	setCurrentSelection( currentRow(), currentColumn() );
 	updateRow( currentRow() );
 	break;
@@ -826,23 +824,23 @@ QSqlTable::Confirm  QSqlTable::confirmCancel( QSqlTable::Mode )
     return conf;
 }
 
-/*!  Refreshes the \a view.  A "select" is issued on the \a view using
-  the view's current filter and current sort.  The table is resized to
-  accomodate the view size, if possible.  If \a idx is specified, the
+/*!  Refreshes the \a cursor.  A "select" is issued on the \a cursor using
+  the cursor's current filter and current sort.  The table is resized to
+  accomodate the cursor size, if possible.  If \a idx is specified, the
   table selects the first record matching the value of the index.
 
   \sa QSql
 */
 
-void QSqlTable::refresh( QSqlCursor* view, QSqlIndex idx )
+void QSqlTable::refresh( QSqlCursor* cursor, QSqlIndex idx )
 {
     bool seekPrimary = (idx.count() ? TRUE : FALSE );
     QSqlIndex pi;
     if ( seekPrimary )
 	pi = idx;
     QApplication::setOverrideCursor( Qt::waitCursor );
-    view->select( view->filter(), view->sort() );
-    setSize( view );
+    cursor->select( cursor->filter(), cursor->sort() );
+    setSize( cursor );
     if ( seekPrimary ) {
 	// ###
 	bool indexEquals = FALSE;
@@ -852,10 +850,10 @@ void QSqlTable::refresh( QSqlCursor* view, QSqlIndex idx )
 	int pageSize = (int)( height() * 2 / 20 );
 	int endIdx = startIdx + pageSize;
 	for ( int j = startIdx; j <= endIdx; ++j ) {
-	    if ( view->seek( j ) ) {
+	    if ( cursor->seek( j ) ) {
 		for ( uint i = 0; i < pi.count(); ++i ) {
 		    const QString fn( pi.field(i)->name() );
-		    if ( pi.field(i)->value() == view->value( fn ) )
+		    if ( pi.field(i)->value() == cursor->value( fn ) )
 			indexEquals = TRUE;
 		    else {
 			indexEquals = FALSE;
@@ -868,15 +866,15 @@ void QSqlTable::refresh( QSqlCursor* view, QSqlIndex idx )
 	}
 
 	if ( indexEquals )
-	    setCurrentCell( view->at(), currentColumn() );
+	    setCurrentCell( cursor->at(), currentColumn() );
 	else {
 	    /* give up, use brute force */
-	    view->first();
+	    cursor->first();
 	    for ( ;; ) {
 		indexEquals = FALSE;
 		for ( uint i = 0; i < pi.count(); ++i ) {
 		    const QString fn( pi.field(i)->name() );
-		    if ( pi.field(i)->value() == view->value( fn ) )
+		    if ( pi.field(i)->value() == cursor->value( fn ) )
 			indexEquals = TRUE;
 		    else {
 			indexEquals = FALSE;
@@ -884,10 +882,10 @@ void QSqlTable::refresh( QSqlCursor* view, QSqlIndex idx )
 		    }
 		}
 		if ( indexEquals ) {
-		    setCurrentCell( view->at(), currentColumn() );
+		    setCurrentCell( cursor->at(), currentColumn() );
 		    break;
 		}
-		if ( !view->next() )
+		if ( !cursor->next() )
 		    break;
 	    }
 	}
@@ -907,7 +905,7 @@ void QSqlTable::find( const QString & str, bool caseSensitive,
     // ### Searching backwards is not implemented yet.
     Q_UNUSED( backwards );
 
-    QSqlCursor * rset = d->view;
+    QSqlCursor * rset = d->cursor;
     if ( !rset )
 	return;
     unsigned int  row = currentRow(), startRow = row,
@@ -958,7 +956,7 @@ void QSqlTable::find( const QString & str, bool caseSensitive,
   Resets the table so that it displays no data.  This is called
   internally before displaying a new query.
 
-  \sa setSql() setView()
+  \sa setSql() setCursor()
 
 */
 
@@ -979,7 +977,7 @@ void QSqlTable::reset()
     verticalScrollBar()->setValue(0);
     setNumRows(0);
     setNumCols(0);
-    d->view = 0;
+    d->cursor = 0;
     d->haveAllRows = FALSE;
     d->continuousEdit = FALSE;
     d->colIndex.clear();
@@ -1121,12 +1119,10 @@ void QSqlTable::setNumCols ( int r )
 
 QString QSqlTable::text ( int row, int col ) const
 {
-    //qDebug("QSqlTable::text ( int row, int col ) const");
-    QSqlCursor* sql = d->view;
-    if ( !sql )
+    if ( !d->cursor )
 	return QString::null;
-    if ( sql->seek( row ) )
-	return sql->value( indexOf( col ) ).toString();
+    if ( d->cursor->seek( row ) )
+	return d->cursor->value( indexOf( col ) ).toString();
     return QString::null;
 }
 
@@ -1139,15 +1135,12 @@ QString QSqlTable::text ( int row, int col ) const
 
 QVariant QSqlTable::value ( int row, int col ) const
 {
-    //qDebug("QSqlTable::value ( int row, int col ) const");
-    QSqlCursor* sql = d->view;
-    if ( !sql )
+    if ( !d->cursor )
 	return QVariant();
-    if ( sql->seek( row ) )
-	return sql->value( indexOf( col ) );
+    if ( d->cursor->seek( row ) )
+	return d->cursor->value( indexOf( col ) );
     return QVariant();
 }
-
 
 /*!
 
@@ -1159,8 +1152,7 @@ void QSqlTable::loadNextPage()
 {
     if ( d->haveAllRows )
 	return;
-    QSqlCursor* sql = d->view;
-    if ( !sql )
+    if ( !d->cursor )
 	return;
     int pageSize = 0;
     int lookAhead = 0;
@@ -1172,7 +1164,7 @@ void QSqlTable::loadNextPage()
     int endIdx = startIdx + pageSize + lookAhead;
     if ( endIdx < numRows() || endIdx < 0 )
 	return;
-    while ( endIdx > 0 && !sql->seek( endIdx ) )
+    while ( endIdx > 0 && !d->cursor->seek( endIdx ) )
 	endIdx--;
     if ( endIdx != ( startIdx + pageSize + lookAhead ) )
 	d->haveAllRows = TRUE;
@@ -1202,16 +1194,15 @@ void QSqlTable::sortColumn ( int col, bool ascending,
 			      bool  )
 {
     if ( sorting() ) {
-	QSqlCursor* rset = d->view;
-	if ( !rset )
+	if ( !d->cursor )
 	    return;
-	QSqlIndex lastSort = rset->sort();
+	QSqlIndex lastSort = d->cursor->sort();
 	QSqlIndex newSort( lastSort.tableName() );
-	newSort.append( *rset->field( indexOf( col ) ) );
+	newSort.append( *d->cursor->field( indexOf( col ) ) );
 	newSort.setDescending( 0, !ascending );
 	horizontalHeader()->setSortIndicator( col, ascending );
 	QApplication::setOverrideCursor( Qt::waitCursor );
-	rset->select( rset->filter(), newSort );
+	d->cursor->select( d->cursor->filter(), newSort );
 	QApplication::restoreOverrideCursor();
 	viewport()->repaint( FALSE );
     }
@@ -1226,12 +1217,11 @@ void QSqlTable::sortColumn ( int col, bool ascending,
 void QSqlTable::columnClicked ( int col )
 {
     if ( sorting() ) {
-	QSqlCursor* rset = d->view;
-	if ( !rset )
+	if ( !d->cursor )
 	    return;
-	QSqlIndex lastSort = rset->sort();
+	QSqlIndex lastSort = d->cursor->sort();
 	bool asc = TRUE;
-	if ( lastSort.count() && lastSort.field( 0 )->name() == rset->field( indexOf( col ) )->name() )
+	if ( lastSort.count() && lastSort.field( 0 )->name() == d->cursor->field( indexOf( col ) )->name() )
 	    asc = lastSort.isDescending( 0 );
 	sortColumn( col, asc );
     }
@@ -1242,9 +1232,9 @@ void QSqlTable::columnClicked ( int col )
   \reimpl
 
   This function is reimplemented to render the cell at \a row, \a col
-  with the value of the corresponding view field.  Depending on the
+  with the value of the corresponding cursor field.  Depending on the
   current edit mode of the table, paintField() is called for the
-  appropriate view field.
+  appropriate cursor field.
 
   \sa QSql::isNull()
 */
@@ -1254,7 +1244,7 @@ void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
 {
     //    //qDebug("QSqlTable::paintCell");
     QTable::paintCell(p,row,col,cr,selected);  // empty cell
-    if ( !d->view )
+    if ( !d->cursor )
 	return;
     if ( d->mode != QSqlTable::None ) {
 	if ( row == d->editRow ) {
@@ -1263,18 +1253,18 @@ void QSqlTable::paintCell( QPainter * p, int row, int col, const QRect & cr,
 	    paintField( p, d->editBuffer.field( indexOf( col ) ), cr, selected );
 	} else if ( row > d->editRow && d->mode == QSqlTable::Insert ) {
 	    //	    //qDebug("trying to paint row:" + QString::number(row));
-	    if ( d->view->seek( row - 1 ) )
-		paintField( p, d->view->field( indexOf( col ) ), cr, selected );
+	    if ( d->cursor->seek( row - 1 ) )
+		paintField( p, d->cursor->field( indexOf( col ) ), cr, selected );
 	} else {
 	    //	    qDebug("seeking in update mode");
-	    if ( d->view->seek( row ) )
-		paintField( p, d->view->field( indexOf( col ) ), cr, selected );
+	    if ( d->cursor->seek( row ) )
+		paintField( p, d->cursor->field( indexOf( col ) ), cr, selected );
 	}
     }
     else {
 	//	qDebug("paint SEEKing row:" + QString::number(row));
-	if ( d->view->seek( row ) )
-	    paintField( p, d->view->field( indexOf( col ) ), cr, selected );
+	if ( d->cursor->seek( row ) )
+	    paintField( p, d->cursor->field( indexOf( col ) ), cr, selected );
     }
 }
 
@@ -1332,7 +1322,6 @@ void QSqlTable::addColumns( const QSqlRecord& fieldList )
 	addColumn( fieldList.field(j) );
 }
 
-
 /*!
 
   If the \a sql driver supports query sizes, the number of rows in the
@@ -1358,27 +1347,27 @@ void QSqlTable::setSize( const QSqlCursor* sql )
 
 /*!
 
-  Displays the \a view in the table.  If autopopulate is TRUE, columns
-  are automatically created based upon the fields in the \a view.  If
-  the \a view is read only, the table becomes read only.  The table
-  adopts the view's driver's definition representin NULL values as
-  strings.
+  Displays the \a cursor in the table.  If autopopulate is TRUE,
+  columns are automatically created based upon the fields in the \a
+  cursor record.  If the \a cursor is read only, the table becomes
+  read only.  The table adopts the cursor's driver's definition
+  representin NULL values as strings.
 
   \sa isReadOnly() setReadOnly() QSqlDriver::nullText()
 
 */
 
-void QSqlTable::setView( QSqlCursor* view, bool autoPopulate )
+void QSqlTable::setCursor( QSqlCursor* cursor, bool autoPopulate )
 {
     setUpdatesEnabled( FALSE );
     reset();
-    if ( view ) {
-	d->view = view;
+    if ( cursor ) {
+	d->cursor = cursor;
 	if ( autoPopulate )
-	    addColumns( *d->view );
-	setSize( d->view );
-	setReadOnly( d->view->isReadOnly() );
-	setNullText(d->view->driver()->nullText() );
+	    addColumns( *d->cursor );
+	setSize( d->cursor );
+	setReadOnly( d->cursor->isReadOnly() );
+	setNullText(d->cursor->driver()->nullText() );
     }
     setUpdatesEnabled( TRUE );
 }
@@ -1387,7 +1376,7 @@ void QSqlTable::setView( QSqlCursor* view, bool autoPopulate )
 /*!
 
   Protected virtual function which is called when an error has
-  occurred on the current view().  The default implementation displays
+  occurred on the current cursor().  The default implementation displays
   a warning message to the user with information about the error.
 
 */
@@ -1398,14 +1387,14 @@ void QSqlTable::handleError( const QSqlError& e )
 
 /*!
 
-  Returns a pointer to the view associated with the table, or 0 if
-  there is no current view.
+  Returns a pointer to the cursor associated with the table, or 0 if
+  there is no current cursor.
 
 */
 
-QSqlCursor* QSqlTable::view() const
+QSqlCursor* QSqlTable::cursor() const
 {
-    return d->view;
+    return d->cursor;
 }
 
 /*!
@@ -1476,8 +1465,8 @@ void QSqlTable::takeItem ( QTableItem * )
 
 void QSqlTable::refresh( QSqlIndex idx )
 {
-    if ( d->view )
-	refresh( d->view, idx );
+    if ( d->cursor )
+	refresh( d->cursor, idx );
 }
 
 /*!
@@ -1518,13 +1507,6 @@ void QSqlTable::installPropertyMap( QSqlPropertyMap* m )
     }
 }
 
-// void QSqlTable::setCurrentCell( int row, int col )
-// {
-//     qDebug("setCurrentCell");
-//     if ( !d->insertMode && !d->updateMode )
-// 	QTable::setCurrentCell( row, col );
-// }
-
 /*!
 
   \internal
@@ -1533,32 +1515,29 @@ void QSqlTable::installPropertyMap( QSqlPropertyMap* m )
 
 void QSqlTable::setCurrentSelection( int row, int )
 {
-    if ( !d->view )
+    if ( !d->cursor )
 	return;
-    if ( !d->view->seek( row ) )
+    if ( !d->cursor->seek( row ) )
 	return;
-    // ###
-    //    QSqlRecord fil = d->view->fields();
-    //    emit currentChanged( &fil );
+    emit currentChanged( d->cursor );
 }
 
 /*!
 
-  Returns a list of the currently selected fields, or an empty list if there is no current selection.
+  Returns the currently selected record, or an empty record if there
+  is no current selection.
 
 */
 
 QSqlRecord QSqlTable::currentFieldSelection() const
 {
     QSqlRecord fil;
-    QSqlCursor* sql = d->view;
-    if ( !sql || currentRow() < 0 )
+    if ( !d->cursor || currentRow() < 0 )
 	return fil;
     int row = currentRow();
-    if ( !sql->seek( row ) )
+    if ( !d->cursor->seek( row ) )
 	return fil;
-    // ###
-    //    fil = sql->fields();
+    fil = *d->cursor;
     return fil;
 }
 

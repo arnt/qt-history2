@@ -23,7 +23,7 @@ protected:
     bool		isNull( int field );
     bool 		reset ( const QString& query );
     int                 size();
-    int                 affectedRows();
+    int                 numRowsAffected();
 private:
     int			currentSize;
     QPSQLPrivate* 	d;
@@ -40,7 +40,7 @@ public:
 			const QString & password = QString::null,
 			const QString & host = QString::null );
     void 		close();
-    QSqlQuery		createResult() const;
+    QSqlQuery		createQuery() const;
     QStringList         tables( const QString& user ) const;
     QSqlIndex           primaryIndex( const QString& tablename ) const;
     QSqlRecord          fields( const QString& tablename ) const;

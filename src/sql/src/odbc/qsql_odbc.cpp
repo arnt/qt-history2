@@ -689,7 +689,7 @@ int QODBCResult::size()
 //     return size;
 }
 
-int QODBCResult::affectedRows()
+int QODBCResult::numRowsAffected()
 {
     SQLINTEGER affectedRowCount(0);
     SQLRETURN r = SQLRowCount( d->hStmt, &affectedRowCount);
@@ -843,7 +843,7 @@ void QODBCDriver::cleanup()
     }
 }
 
-QSqlQuery QODBCDriver::createResult() const
+QSqlQuery QODBCDriver::createQuery() const
 {
     return QSqlQuery( new QODBCResult( this, d ) );
 }
