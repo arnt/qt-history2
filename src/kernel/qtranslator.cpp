@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#27 $
 **
 ** Localization database support.
 **
@@ -11,6 +11,7 @@
 
 #include "qtranslator.h"
 #include "qfileinfo.h"
+#include "qtextcodec.h"
 
 #if defined(UNIX)
 #define QT_USE_MMAP
@@ -91,7 +92,14 @@ public:
 	Message(): h(0) {}
 	Message( QDataStream & );
 
-	void setInput( const char * ni ) { i = QString::fromLatin1( ni ); }
+	void setInput( const char * ni )
+	{
+	    QTextCodec* codec = qApp ? qApp->defaultCodec() : 0;
+	    if ( codec )
+		i = codec->toUnicode( ni );
+	    else
+		i = QString::fromLatin1( ni );
+	}
 	QString input() const { return i; }
 
 	void setOutput( const QString & newOutput ) { o = newOutput; }
@@ -100,7 +108,17 @@ public:
 	void setScope( const QString & newScope ) { s = newScope; }
 	QString scope() const { return s; }
 
-	uint hash() { if ( !h ) h = ::hash( i ); return h; }
+	uint hash()
+	{
+	    if ( !h ) {
+		QTextCodec* codec = qApp ? qApp->defaultCodec() : 0;
+		if ( codec )
+		    h = ::hash( codec->fromUnicode(i) );
+		else
+		    h = ::hash( i.latin1() );
+	    }
+	    return h;
+	}
 
 	void write( QTranslator::SaveMode, QDataStream & );
 
