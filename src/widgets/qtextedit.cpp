@@ -84,7 +84,7 @@ class QTextEditPrivate
 public:
     QTextEditPrivate()
 	:preeditStart(-1),preeditLength(-1),ensureCursorVisibleInShowEvent(FALSE),
-	 allowTabs(FALSE),
+	 allowTabs(TRUE),
 	 clipboard_mode( QClipboard::Clipboard )
 #ifdef QT_TEXTEDIT_OPTIMIZATION
 	, od(0), optimMode( FALSE)
@@ -2578,6 +2578,9 @@ bool QTextEdit::eventFilter( QObject *o, QEvent *e )
 	    drawCursor( TRUE );
 	    updateMicroFocusHint();
 	} else if ( e->type() == QEvent::FocusOut ) {
+	    if ( ((QFocusEvent*)e)->reason() != QFocusEvent::ActiveWindow
+		 && ((QFocusEvent*)e)->reason() != QFocusEvent::Popup )
+		selectAll( FALSE );
 	    blinkTimer->stop();
 	    drawCursor( FALSE );
 	}
