@@ -430,7 +430,7 @@ bool QWin32PaintEngine::end()
     d->noNativeXform = false;
     d->advancedMode = false;
     d->penStyle = Qt::SolidLine;
-    d->brushStyle = Qt::Brushstyle;
+    d->brushStyle = Qt::SolidPattern;
     d->txop = QPainter::TxNone;
 
     setActive(false);
