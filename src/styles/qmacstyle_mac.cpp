@@ -1685,6 +1685,10 @@ QRect QMacStyle::querySubControlMetrics(ComplexControl control,
 	ttdi.kind = kThemeMediumSlider;
 	if(qt_aqua_size_constrain(w) == QAquaSizeSmall)
 	    ttdi.kind = kThemeSmallSlider;
+#ifdef MACOSX_102
+	if(w->hasFocus())
+	    ttdi.attributes |= kThemeTrackHasFocus;
+#endif
 	ttdi.bounds = *qt_glb_mac_rect(w->rect());
 	ttdi.min = sldr->minValue();
 	ttdi.max = sldr->maxValue();
@@ -1712,13 +1716,14 @@ QRect QMacStyle::querySubControlMetrics(ComplexControl control,
 	    Rect mrect;
 	    GetThemeTrackBounds(&ttdi, &mrect);
 	    return QRect(mrect.left, mrect.top,
-			mrect.right - mrect.left, mrect.bottom - mrect.top);
-	    break; }
+			 mrect.right - mrect.left, mrect.bottom - mrect.top); }
 	case SC_SliderHandle: {
 	    QRegion rgn;
 	    GetThemeTrackThumbRgn(&ttdi, rgn.handle(TRUE));
-	    return rgn.boundingRect();
-	    break; }
+	    QRect ret = rgn.boundingRect();
+	    ret.setWidth(ret.width() + 1);
+	    ret.setHeight(ret.height() + 1);
+	    return ret; }
 	default:
 	    break;
 	}
