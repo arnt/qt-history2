@@ -61,7 +61,7 @@
 This is basically a QLabel and a "show this message again" checkbox which
 remembers what not to show.
 
-There are two ways to use this class: 
+There are two ways to use this class:
 \list 1
 \i For production applications. In this context the class can be used to
 display messages which you don't need the user to see more than once. To use
@@ -105,7 +105,7 @@ void jump( QtMsgType t, const char * m )
 }
 
 
-/*!  Constructs and installs an error handler window. 
+/*!  Constructs and installs an error handler window.
     The parent \a parent and name \a name are passed on to the QDialog
     constructor.
 */
@@ -158,16 +158,12 @@ QErrorMessage::~QErrorMessage()
 
 void QErrorMessage::done( int a )
 {
-    printf( "irgh %d", a );
     if ( again->isChecked() == FALSE )
 	doNotShow->insert( errors->text(), (int*)42 );
-    if ( nextPending() ) {
-	printf( "urgh %d", a );
+    if ( nextPending() )
 	return;
-    } else {
-	printf( "argh %d", a );
+    else
 	QDialog::done( a );
-    }
 }
 
 
@@ -179,7 +175,7 @@ isn't one already.
 QErrorMessage * QErrorMessage::qtHandler()
 {
     if ( !qtMessageHandler ) {
-	qtMessageHandler 
+	qtMessageHandler
 	    = new QErrorMessage( 0, "automatic qInstallMsgHandler handler" );
 	qInstallMsgHandler( jump );
     }
@@ -194,9 +190,7 @@ bool QErrorMessage::nextPending()
     bool status = FALSE;
     while ( ! pending->isEmpty() ) {
 	QString p = *pending->begin();
-	printf( "e %d", pending->count() );
 	pending->remove( pending->begin() );
-	printf( "f %d", pending->count() );
 	if ( !doNotShow->find( p ) ) {
 	    errors->setText( p );
 	    status = TRUE;
@@ -209,7 +203,7 @@ bool QErrorMessage::nextPending()
 
 /*! Shows message \a m and returns immediately.  If the user has requested
   that \a m not be shown, this function does nothing.
-  
+
   Normally, \a m is shown at once, but if there are pending messages,
   \a m is queued for later display.
 */
