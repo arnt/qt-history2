@@ -482,7 +482,6 @@ static void qt_show_system_menu( QWidget* tlw)
     EnableMenuItem( menu, SC_SIZE, maximized?disabled:enabled);
     EnableMenuItem( menu, SC_MOVE, maximized?disabled:enabled);
     EnableMenuItem( menu, SC_CLOSE, enabled);
-    EnableMenuItem( menu, SC_MINIMIZE, enabled);
 #endif
 
 #undef enabled
