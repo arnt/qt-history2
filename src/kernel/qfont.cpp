@@ -1411,7 +1411,7 @@ bool QFont::fromString(const QString &descrip)
     }
 
     setFamily(l[0]);
-    if ( count > 1 )
+    if ( count > 1 && l[1].toDouble() > 0.0 )
 	setPointSizeFloat(l[1].toDouble());
     if ( count == 9 ) {
 	setStyleHint((StyleHint) l[2].toInt());
@@ -1422,7 +1422,8 @@ bool QFont::fromString(const QString &descrip)
 	setFixedPitch(l[7].toInt());
 	setRawMode(l[8].toInt());
     } else if ( count == 10 ) {
-	setPixelSize(l[2].toInt());
+	if ( l[2].toInt() > 0 )
+	    setPixelSize( l[2].toInt() );
 	setStyleHint((StyleHint) l[3].toInt());
 	setWeight(l[4].toInt());
 	setItalic(l[5].toInt());
