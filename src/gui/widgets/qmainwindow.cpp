@@ -363,6 +363,18 @@ void QMainWindow::addDockWindow(Qt::DockWindowArea area, QDockWindow *dockwindow
         break;
     }
     extendDockWindowArea(area, dockwindow, orientation);
+
+#ifdef Q_WS_MAC     //drawer support
+    extern bool qt_mac_is_macdrawer(const QWidget *); //qwidget_mac.cpp
+    if (qt_mac_is_macdrawer(dockwindow)) {
+        extern bool qt_mac_set_drawer_preferred_edge(QWidget *, Qt::DockWindowArea); //qwidget_mac.cpp
+        qt_mac_set_drawer_preferred_edge(dockwindow, area);
+        if (dockwindow->isVisible()) {
+            dockwindow->hide();
+            dockwindow->show();
+        }
+    }
+#endif
 }
 
 void QMainWindow::extendDockWindowArea(Qt::DockWindowArea area, QDockWindow *dockwindow,
