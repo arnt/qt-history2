@@ -281,14 +281,18 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
 
 QPopupMenu::~QPopupMenu()
 {
-    hidePopups();
-
-    if ( syncMenu == this ) {
+    if ( syncMenu == this && qApp ) {
 	qApp->exit_loop();
 	syncMenu = 0;
     }
+
     if(d->scroll.scrolltimer)
 	delete d->scroll.scrolltimer;
+
+    if ( isVisible() ) {
+        parentMenu = 0;
+        hidePopups();
+    }
 
     delete (QPopupMenu*) QMenuData::d->aPopup;  // tear-off menu
 
