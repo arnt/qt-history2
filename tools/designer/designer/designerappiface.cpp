@@ -660,12 +660,12 @@ bool DesignerFormWindowImpl::isWidgetSelected( QWidget * ) const
 
 QWidgetList DesignerFormWindowImpl::selectedWidgets() const
 {
-    return QWidgetList();
+    return formWindow->selectedWidgets();
 }
 
 QWidget *DesignerFormWindowImpl::currentWidget() const
 {
-    return 0;
+    return formWindow->currentWidget();
 }
 
 QWidget *DesignerFormWindowImpl::form() const
