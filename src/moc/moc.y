@@ -683,10 +683,8 @@ obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
 			  opt_property	{ BEGIN IN_CLASS; }
 			| ENUM_IN_CLASS { BEGIN QT_DEF; }
 			  enum_in_class_tail { BEGIN IN_CLASS;}
-			| class_key_in_class { BEGIN QT_DEF; }
-			  IDENTIFIER { BEGIN IN_EAT; eatLevel=0;}
+			| class_key_in_class { BEGIN IN_EAT; eatLevel=0;}
 			  ';' { BEGIN IN_CLASS; }
-
 			;
 slot_area:		  SIGNALS ':'	{ moc_err( "Signals cannot "
 						 "have access specifiers" ); }
@@ -958,7 +956,6 @@ enumerator:		  IDENTIFIER { if ( tmpAccessPerm == _PUBLIC) tmpEnum->append( $1 )
 class_key_in_class:	  CLASS_IN_CLASS { $$ = "class"; }
 			| STRUCT_IN_CLASS { $$ = "struct"; }
 			;
-
 
 %%
 
