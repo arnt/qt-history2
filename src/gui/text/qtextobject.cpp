@@ -241,29 +241,40 @@ QTextFrameLayoutData::~QTextFrameLayoutData()
 
     \ingroup text
 
-    Text frames provide structure for the text in a document.
+    Text frames provide structure for the text in a document. They are used
+    as generic containers for other document elements.
 
+    \omit
     Each frame in a document consists of a frame start character,
     QChar(0xFDD0), followed by the frame's contents, followed by a
     frame end character, QChar(0xFDD1). The character formats of the
     start and end character contain a reference to the frame object's
     objectIndex.
+    \endomit
 
-    Frames can be used to create hierarchical documents. Each document
-    has a root frame (QTextDocument::rootFrame()), and each frame
-    (except for the root frame), has a parentFrame() and a (possibly
-    empty) list of child frames. In addition to containing
-    childFrames(), a frame can also contain \l{QTextBlock}s.
-    A frame also has a format (setFormat(), format()). The positions
-    in a frame are available from firstCursorPosition() and
-    lastCursorPosition(), and the frame's position in the document
-    from firstPosition() and lastPosition().
+    Frames can be used to create hierarchical structures in rich text documents.
+    Each document has a root frame (QTextDocument::rootFrame()), and each frame
+    beneath the root frame has a parent frame and a (possibly empty) list of
+    child frames. The parent frame can be found with parentFrame(), and the
+    childFrames() function provides a list of child frames.
+
+    Each frame contains at least one text block to enable text cursors to
+    insert new document elements within. As a result, the QTextFrame::iterator
+    class is used to traverse both the blocks and child frames within a given
+    frame. The first and last child elements in the frame can be found with
+    begin() and end().
+
+    A frame also has a format which can be set with setFormat() and read with
+    format(). Text cursors can be obtained that point to the first and last
+    valid cursor positions within a frame; use the firstCursorPosition() and
+    lastCursorPosition() functions for this. The frame's extent in the
+    document can be found with firstPosition() and lastPosition().
 
     Frames are usually created using QTextCursor::insertFrame().
 
-    You can iterate over frame's contents using the
-    QTextFrame::iterator class: this provides read-only access to a
-    frame's list of blocks and child frames.
+    You can iterate over a frame's contents using the
+    QTextFrame::iterator class: this provides read-only access to its
+    internal list of text blocks and child frames.
 
     \sa QTextCursor QTextDocument
 */
@@ -285,14 +296,14 @@ QTextFrameLayoutData::~QTextFrameLayoutData()
 /*!
     \fn bool QTextFrame::iterator::operator==(const iterator &other) const
 
-    Retuns true if this iterator is the same as the \a other iterator;
+    Retuns true if the iterator is the same as the \a other iterator;
     otherwise returns false.
 */
 
 /*!
     \fn bool QTextFrame::iterator::operator!=(const iterator &other) const
 
-    Retuns true if this iterator is different from the \a other iterator;
+    Retuns true if the iterator is different from the \a other iterator;
     otherwise returns false.
 */
 
@@ -300,15 +311,14 @@ QTextFrameLayoutData::~QTextFrameLayoutData()
     \fn QTextFrame::iterator QTextFrame::iterator::operator++(int)
 
     The postfix ++ operator (\c{i++}) advances the iterator to the
-    next item in the text frame and returns an iterator to the old text
-    frame.
+    next item in the text frame, and returns an iterator to the old item.
 */
 
 /*!
     \fn QTextFrame::iterator QTextFrame::iterator::operator--(int)
 
-    The postfix -- operator (\c{i--}) makes the preceding text frame current
-    and returns an iterator to the old text frame.
+    The postfix -- operator (\c{i--}) makes the preceding item in the
+    current frame, and returns an iterator to the old item.
 */
 
 /*!
@@ -343,7 +353,7 @@ QTextFrame::QTextFrame(QTextDocument *doc)
 
 // ### DOC: What does this do to child frames?
 /*!
-    Destroys this frame and removes it from the document's layout.
+    Destroys the frame, and removes it from the document's layout.
 */
 QTextFrame::~QTextFrame()
 {
@@ -363,7 +373,7 @@ QTextFrame::QTextFrame(QTextFramePrivate &p, QTextDocument *doc)
 }
 
 /*!
-    Returns a (possibly empty) list of this frame's child frames.
+    Returns a (possibly empty) list of the frame's child frames.
 
     \sa parentFrame()
 */
@@ -373,10 +383,10 @@ QList<QTextFrame *> QTextFrame::childFrames()
 }
 
 /*!
-    Returns this frame's parent frame (which will be 0 if this frame
-    is the QTextDocument::rootFrame()).
+    Returns the frame's parent frame. If the frame is the root frame of a
+    document, this will return 0.
 
-    \sa childFrames()
+    \sa childFrames() QTextDocument::rootFrame()
 */
 QTextFrame *QTextFrame::parentFrame()
 {
@@ -526,7 +536,7 @@ void QTextFramePrivate::remove_me()
 */
 
 /*!
-    Returns an iterator pointing to the first child frame inside this frame.
+    Returns an iterator pointing to the first document element inside the frame.
 
     \sa end()
 */
@@ -539,7 +549,7 @@ QTextFrame::iterator QTextFrame::begin() const
 }
 
 /*!
-    Returns an iterator pointing to the last child frame inside this frame.
+    Returns an iterator pointing to the last document element inside the frame.
 
     \sa begin()
 */
@@ -587,7 +597,7 @@ QTextFrame::iterator::iterator(const iterator &o)
 }
 
 /*!
-    Returns the current frame the iterator points to or 0 if the
+    Returns the current frame pointed to by the iterator, or 0 if the
     iterator currently points to a block.
 
     \sa currentBlock()

@@ -603,7 +603,7 @@ void QTextCursorPrivate::setBlockCharFormat(const QTextCharFormat &format, QText
     Functions such as movePosition() and deleteChar() limit cursor
     movement to these valid positions.
 
-    \sa \l{rich-text.html}{Rich Text Processing}
+    \sa \link rich-text.html Rich Text Processing\endlink
 
 */
 
