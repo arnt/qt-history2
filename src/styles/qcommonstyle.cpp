@@ -1711,18 +1711,14 @@ void QCommonStyle::drawComplexControlMask( ComplexControl control,
 QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 					    const QWidget *widget,
 					    SubControl sc,
-					    const QStyleOption& opt ) const
+					    const QStyleOption &opt ) const
 {
-
-    QRect rect;
-
 #if defined(QT_CHECK_STATE)
     if (! widget) {
 	qWarning("QCommonStyle::querySubControlMetrics: widget parameter cannot be zero!");
-	return rect;
+	return QRect();
     }
 #endif
-
 
     switch ( control ) {
     case CC_SpinWidget: {
@@ -1740,23 +1736,17 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	rx = x - fw;
 	switch ( sc ) {
 	case SC_SpinWidgetUp:
-	    rect.setRect(x, y, bs.width(), bs.height());
-	    break;
+	    return QRect(x, y, bs.width(), bs.height());
 	case SC_SpinWidgetDown:
-	    rect.setRect(x, y + bs.height(), bs.width(), bs.height());
-	    break;
+	    return QRect(x, y + bs.height(), bs.width(), bs.height());
 	case SC_SpinWidgetButtonField:
-	    rect.setRect(x, y, bs.width(), widget->height() - 2*fw);
-	    break;
+	    return QRect(x, y, bs.width(), widget->height() - 2*fw);
 	case SC_SpinWidgetEditField:
-	    rect.setRect(lx, fw, rx, widget->height() - 2*fw);
-	    break;
+	    return QRect(lx, fw, rx, widget->height() - 2*fw);
 	case SC_SpinWidgetFrame:
-	    rect = widget->rect();
-	default:
-	    break;
+	    return widget->rect();
+	default: break;
 	}
-
 	break; }
 
     case CC_ComboBox: {
@@ -1766,21 +1756,16 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 
 	switch ( sc ) {
 	case SC_ComboBoxFrame:
-	    rect = widget->rect();
-	    break;
+	    return widget->rect();
 	case SC_ComboBoxArrow:
-	    rect.setRect(xpos, y+2, 16, he-4);
-	    break;
+	    return QRect(xpos, y+2, 16, he-4);
 	case SC_ComboBoxEditField:
-	    rect.setRect(x+3, y+3, wi-6-16, he-6);
-	    break;
+	    return QRect(x+3, y+3, wi-6-16, he-6);
 	case SC_ComboBoxListBoxPopup:
-	    rect = opt.rect();
+	    return opt.rect();
 	    break;
-	default:
-	    break;
+	default: break;
 	}
-
 	break; }
 
 #ifndef QT_NO_SCROLLBAR
@@ -1809,193 +1794,151 @@ QRect QCommonStyle::querySubControlMetrics( ComplexControl control,
 	    sliderlen = maxlen;
 
 	switch (sc) {
-	case SC_ScrollBarSubLine:
-	    // top/left button
-	    rect.setRect(0, 0, sbextent, sbextent);
-	    break;
+	case SC_ScrollBarSubLine:	    // top/left button
+	    return QRect(0, 0, sbextent, sbextent);
 
-	case SC_ScrollBarAddLine:
-	    // bottom/right button
+	case SC_ScrollBarAddLine:	    // bottom/right button
 	    if (scrollbar->orientation() == Qt::Horizontal)
-		rect.setRect(scrollbar->width() - sbextent, 0, sbextent, sbextent);
-	    else
-		rect.setRect(0, scrollbar->height() - sbextent, sbextent, sbextent);
-	    break;
+		return QRect(scrollbar->width() - sbextent, 0, sbextent, sbextent);
+	    return QRect(0, scrollbar->height() - sbextent, sbextent, sbextent);
 
-	case SC_ScrollBarSubPage:
-	    // between top/left button and slider
+	case SC_ScrollBarSubPage:	    // between top/left button and slider
 	    if (scrollbar->orientation() == Qt::Horizontal)
-		rect.setRect(sbextent, 0, sliderstart - sbextent, sbextent);
-	    else
-		rect.setRect(0, sbextent, sbextent, sliderstart - sbextent);
-	    break;
+		return QRect(sbextent, 0, sliderstart - sbextent, sbextent);
+	    return QRect(0, sbextent, sbextent, sliderstart - sbextent);
 
-	case SC_ScrollBarAddPage:
-	    // between bottom/right button and slider
+	case SC_ScrollBarAddPage:	    // between bottom/right button and slider
 	    if (scrollbar->orientation() == Qt::Horizontal)
-		rect.setRect(sliderstart + sliderlen, 0,
+		return QRect(sliderstart + sliderlen, 0,
 			     maxlen - sliderstart - sliderlen + sbextent, sbextent);
-	    else
-		rect.setRect(0, sliderstart + sliderlen,
-			     sbextent, maxlen - sliderstart - sliderlen + sbextent);
-	    break;
+	    return QRect(0, sliderstart + sliderlen,
+			 sbextent, maxlen - sliderstart - sliderlen + sbextent);
 
 	case SC_ScrollBarGroove:
 	    if (scrollbar->orientation() == Qt::Horizontal)
-		rect.setRect(sbextent, 0, scrollbar->width() - sbextent * 2,
+		return QRect(sbextent, 0, scrollbar->width() - sbextent * 2,
 			     scrollbar->height());
-	    else
-		rect.setRect(0, sbextent, scrollbar->width(),
-			     scrollbar->height() - sbextent * 2);
-	    break;
+	    return QRect(0, sbextent, scrollbar->width(),
+			 scrollbar->height() - sbextent * 2);
 
 	case SC_ScrollBarSlider:
 	    if (scrollbar->orientation() == Qt::Horizontal)
-		rect.setRect(sliderstart, 0, sliderlen, sbextent);
-	    else
-		rect.setRect(0, sliderstart, sbextent, sliderlen);
+		return QRect(sliderstart, 0, sliderlen, sbextent);
+	    return QRect(0, sliderstart, sbextent, sliderlen);
 
-	    break;
-
-	default:
-	    break;
+	default: break;
 	}
 
 	break; }
 #endif // QT_NO_SCROLLBAR
 
 #ifndef QT_NO_SLIDER
-    case CC_Slider:
-	{
+    case CC_Slider: {
 	    const QSlider * sl = (const QSlider *) widget;
 	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
 	    int thickness = pixelMetric( PM_SliderControlThickness, sl );
 
 	    switch ( sc ) {
-	    case SC_SliderHandle:
-		{
+	    case SC_SliderHandle: {
 		    int sliderPos = 0;
 		    int len   = pixelMetric( PM_SliderLength, sl );
 
 		    sliderPos = sl->sliderStart();
 
 		    if ( sl->orientation() == Horizontal )
-			rect.setRect( sliderPos, tickOffset, len, thickness );
-		    else
-			rect.setRect( tickOffset, sliderPos, thickness, len );
-		    break;
-		}
-
-	    case SC_SliderGroove:
-		{
-		    if ( sl->orientation() == Horizontal )
-			rect.setRect( 0, tickOffset, sl->width(), thickness );
-		    else
-			rect.setRect( tickOffset, 0, thickness, sl->height() );
-		    break;
-		}
+			return QRect( sliderPos, tickOffset, len, thickness );
+		    return QRect( tickOffset, sliderPos, thickness, len ); }
+	    case SC_SliderGroove: {
+		if ( sl->orientation() == Horizontal )
+		    return QRect( 0, tickOffset, sl->width(), thickness );
+		return QRect( tickOffset, 0, thickness, sl->height() );	}
 
 	    default:
 		break;
 	    }
-
-	    break;
-	}
+	    break; }
 #endif // QT_NO_SLIDER
 
 #if !defined(QT_NO_TOOLBUTTON) && !defined(QT_NO_POPUPMENU)
-    case CC_ToolButton:
-	{
+    case CC_ToolButton: {
 	    const QToolButton *toolbutton = (const QToolButton *) widget;
 	    int mbi = pixelMetric(PM_MenuButtonIndicator, widget);
 
-	    rect = toolbutton->rect();
-
+	    QRect rect = toolbutton->rect();
 	    switch (sc) {
 	    case SC_ToolButton:
 		if (toolbutton->popup() && ! toolbutton->popupDelay())
 		    rect.addCoords(0, 0, -mbi, 0);
-		break;
+		return rect;
 
 	    case SC_ToolButtonMenu:
 		if (toolbutton->popup() && ! toolbutton->popupDelay())
 		    rect.addCoords(rect.width() - mbi, 0, 0, 0);
-		break;
+		return rect;
 
-	    default:
-		break;
+	    default: break;
 	    }
 	    break;
 	}
 #endif // QT_NO_TOOLBUTTON && QT_NO_POPUPMENU
 
 #ifndef QT_NO_TITLEBAR
-    case CC_TitleBar:
-	{
+    case CC_TitleBar: {
 	    const QTitleBar *titlebar = (const QTitleBar *) widget;
 	    const int controlTop = 2;
 	    const int controlHeight = widget->height() - controlTop * 2;
 
 	    switch (sc) {
-	    case SC_TitleBarLabel:
-		{
-		    const QTitleBar *titlebar = (QTitleBar*)widget;
-		    QRect ir( 0, 0, titlebar->width(), titlebar->height() );
-		    if ( titlebar->testWFlags( WStyle_Tool ) ) {
-			if ( titlebar->testWFlags( WStyle_SysMenu ) )
-			    ir.addCoords( 0, 0, -controlHeight-3, 0 );
-			if ( titlebar->testWFlags( WStyle_MinMax ) )
-			    ir.addCoords( 0, 0, -controlHeight-2, 0 );
-		    } else {
-			if ( titlebar->testWFlags( WStyle_SysMenu ) )
-			    ir.addCoords( controlHeight+3, 0, -controlHeight-3, 0 );
-			if ( titlebar->testWFlags( WStyle_Minimize ) )
-			    ir.addCoords( 0, 0, -controlHeight-2, 0 );
-			if ( titlebar->testWFlags( WStyle_Maximize ) )
-			    ir.addCoords( 0, 0, -controlHeight-2, 0 );
-		    }
-		    rect = ir;
+	    case SC_TitleBarLabel: {
+		const QTitleBar *titlebar = (QTitleBar*)widget;
+		QRect ir( 0, 0, titlebar->width(), titlebar->height() );
+		if ( titlebar->testWFlags( WStyle_Tool ) ) {
+		    if ( titlebar->testWFlags( WStyle_SysMenu ) )
+			ir.addCoords( 0, 0, -controlHeight-3, 0 );
+		    if ( titlebar->testWFlags( WStyle_MinMax ) )
+			ir.addCoords( 0, 0, -controlHeight-2, 0 );
+		} else {
+		    if ( titlebar->testWFlags( WStyle_SysMenu ) )
+			ir.addCoords( controlHeight+3, 0, -controlHeight-3, 0 );
+		    if ( titlebar->testWFlags( WStyle_Minimize ) )
+			ir.addCoords( 0, 0, -controlHeight-2, 0 );
+		    if ( titlebar->testWFlags( WStyle_Maximize ) )
+			ir.addCoords( 0, 0, -controlHeight-2, 0 );
 		}
-		break;
+		return ir; }
 
 	    case SC_TitleBarCloseButton:
-		rect.setRect( titlebar->width() - ( controlHeight + controlTop ), controlTop, controlHeight, controlHeight );
-		break;
+		return QRect( titlebar->width() - ( controlHeight + controlTop ), 
+			      controlTop, controlHeight, controlHeight );
 
 	    case SC_TitleBarMaxButton:
 	    case SC_TitleBarShadeButton:
 	    case SC_TitleBarUnshadeButton:
-		rect.setRect( titlebar->width() - ( ( controlHeight + controlTop ) * 2 ), controlTop, controlHeight, controlHeight );
-		break;
+		return QRect( titlebar->width() - ( ( controlHeight + controlTop ) * 2 ), 
+			      controlTop, controlHeight, controlHeight );
 
 	    case SC_TitleBarMinButton:
-	    case SC_TitleBarNormalButton:
-		{
-		    int offset = controlHeight + controlTop;
-		    if ( !titlebar->testWFlags( WStyle_Maximize ) )
-			offset *= 2;
-		    else
-			offset *= 3;
-		    rect.setRect( titlebar->width() - offset, controlTop, controlHeight, controlHeight );
-		}
-		break;
+	    case SC_TitleBarNormalButton: {
+		int offset = controlHeight + controlTop;
+		if ( !titlebar->testWFlags( WStyle_Maximize ) )
+		    offset *= 2;
+		else
+		    offset *= 3;
+		return QRect( titlebar->width() - offset, controlTop, controlHeight, controlHeight );
+	    }
 
 	    case SC_TitleBarSysMenu:
-		rect.setRect( 3, controlTop, controlHeight, controlHeight);
-		break;
+		return QRect( 3, controlTop, controlHeight, controlHeight);
 
-	    default:
-		break;
+	    default: break;
 	    }
-	    break;
-	}
+	    break; }
 #endif //QT_NO_TITLEBAR
 
     default:
 	break;
     }
-
-    return rect;
+    return QRect();
 }
 
 

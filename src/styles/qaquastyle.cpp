@@ -1751,18 +1751,18 @@ QRect QAquaStyle::querySubControlMetrics(ComplexControl control,
     QRect rect;
     switch(control) {
     case CC_ComboBox: {
-	rect = QWindowsStyle::querySubControlMetrics(control, w, sc, opt);
+	QRect rect = QWindowsStyle::querySubControlMetrics(control, w, sc, opt);
 	if(sc == SC_ComboBoxEditField)
 	    rect.setWidth(rect.width() - 5);
-	break; }
+	return rect; }
 
     case CC_TitleBar: {
 	if(sc & SC_TitleBarCloseButton) {
-	    rect = QRect(6, 2, 11, 12);
+	    return QRect(6, 2, 11, 12);
 	} else if(sc & SC_TitleBarMinButton) {
-	    rect = QRect(23, 2, 11, 12);
+	    return QRect(23, 2, 11, 12);
 	} else if(sc & SC_TitleBarMaxButton) {
-	    rect = QRect(42, 2, 11, 12);
+	    return QRect(42, 2, 11, 12);
 	} else if(sc & SC_TitleBarLabel) {
 	    QTitleBar *tb = (QTitleBar *)w;
 	    int wd = 0;
@@ -1772,16 +1772,16 @@ QRect QAquaStyle::querySubControlMetrics(ComplexControl control,
 		wd = 17;
 	    if(tb->icon())
 		wd += tb->icon()->width() + 3;
-	    rect = QRect(wd, 0, w->width() - wd, 16);
+	    return QRect(wd, 0, w->width() - wd, 16);
 	} else if(sc & SC_TitleBarSysMenu) {
-	    rect = QRect(-666, -666, 10, 10); //ugh
+	    return QRect(-666, -666, 10, 10); //ugh
 	}
 	break; }
 
 #ifndef QT_NO_SCROLLBAR
     case CC_ScrollBar: {
 	if(!w)
-	    break;
+	    return QRect();
 	QScrollBar *scr = (QScrollBar *)w;
 	int sbextent = pixelMetric(PM_ScrollBarExtent, scr);
 	int maxlen = ((scr->orientation() == Qt::Horizontal) ?
@@ -1807,81 +1807,55 @@ QRect QAquaStyle::querySubControlMetrics(ComplexControl control,
 	    switch(sc) {
 	    case SC_ScrollBarAddLine:
 		if(scr->orientation() == Horizontal)
-		    rect.setRect(scr->width() - 17, 0, 17, 15);
-		else
-		    rect.setRect(0, scr->height() - 17, 16, 17);
-		break;
+		    return QRect(scr->width() - 17, 0, 17, 15);
+		return QRect(0, scr->height() - 17, 16, 17);
 	    case SC_ScrollBarSubLine:
 		if(scr->orientation() == Horizontal)
-		    rect.setRect(scr->width() - (22 + 17), 0, 22, 15);
-		else
-		    rect.setRect(0, scr->height() - (20 + 17), 16, 20);
-		break;
+		    return QRect(scr->width() - (22 + 17), 0, 22, 15);
+		return QRect(0, scr->height() - (20 + 17), 16, 20);
 	    case SC_ScrollBarSlider:
 		if (scr->orientation() == Qt::Horizontal)
-		    rect.setRect(sliderStart, 0, sliderlen, sbextent);
-		else
-		    rect.setRect(0, sliderStart, sbextent, sliderlen);
-		break;
-	    case SC_ScrollBarGroove: {
+		    return QRect(sliderStart, 0, sliderlen, sbextent);
+		return QRect(0, sliderStart, sbextent, sliderlen);
+	    case SC_ScrollBarGroove:
 		if(scr->orientation() == Horizontal)
-		    rect.setRect(6, 0, scr->width() - 38, scr->height());
-		else
-		    rect.setRect(0, 5, scr->width(), scr->height() - 37);
-		break;
-	    }
-  	    case SC_ScrollBarSubPage:
-		// between top/left button and slider
+		    return QRect(6, 0, scr->width() - 38, scr->height());
+		return QRect(0, 5, scr->width(), scr->height() - 37);
+  	    case SC_ScrollBarSubPage: 		// between top/left button and slider
 		if (scr->orientation() == Qt::Horizontal)
-		    rect.setRect(0, 0, sliderStart, sbextent);
-		else
-		    rect.setRect(0, 0, sbextent, sliderStart);
+		    return QRect(0, 0, sliderStart, sbextent);
+		return QRect(0, 0, sbextent, sliderStart);
 		break;
-	    case SC_ScrollBarAddPage:
-		// between bottom/right button and slider
+	    case SC_ScrollBarAddPage:		// between bottom/right button and slider
 		if (scr->orientation() == Qt::Horizontal)
-		    rect.setRect(sliderStart + sliderlen, 0,
+		    return QRect(sliderStart + sliderlen, 0,
 				 maxlen - sliderStart - sliderlen, sbextent);
-		else
-		    rect.setRect(0, sliderStart + sliderlen,
-				 sbextent, maxlen - sliderStart - sliderlen);
-		break;
-	    default:
-		rect = QWindowsStyle::querySubControlMetrics(control, w, sc, opt);
+		return QRect(0, sliderStart + sliderlen, sbextent, maxlen - sliderStart - sliderlen );
+	    default: break;
 	    }
 	} else {
 	    switch(sc) {
 	    case SC_ScrollBarAddLine:
 		if(scr->orientation() == Horizontal)
-		    rect.setRect(scr->width() - 26, 0, 26, 14);
-		else
-		    rect.setRect(0, scr->height() - 26, 14, 26);
-		break;
+		    return QRect(scr->width() - 26, 0, 26, 14);
+		return QRect(0, scr->height() - 26, 14, 26);
 	    case SC_ScrollBarSubLine:
 		if(scr->orientation() == Horizontal)
-		    rect.setRect(0, 0, 26, 14);
-		else
-		    rect.setRect(0, 0, 14, 26);
-		break;
+		    return QRect(0, 0, 26, 14);
+		return QRect(0, 0, 14, 26);
 	    case SC_ScrollBarGroove:
 		if (scr->orientation() == Qt::Horizontal)
-		    rect.setRect(16, 0, scr->width() - 32, scr->height());
-		else
-		    rect.setRect(0, 15, scr->width(), scr->height() - 31);
+		    return QRect(16, 0, scr->width() - 32, scr->height());
+		return QRect(0, 15, scr->width(), scr->height() - 31);
 		break;
-	    default:
-		rect = QWindowsStyle::querySubControlMetrics(control, w, sc, opt);
+	    default: break;
 	    }
 	}
-
 	break; }
 #endif
-
-    default:
-	rect = QWindowsStyle::querySubControlMetrics(control, w, sc, opt);
-	break;
+    default: break;
     }
-    return rect;
+    return QWindowsStyle::querySubControlMetrics( control, w, sc, opt);
 }
 
 /*!

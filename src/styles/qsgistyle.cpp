@@ -1420,50 +1420,35 @@ QRect QSGIStyle::querySubControlMetrics( ComplexControl control,
 					   SubControl sub,
 					   const QStyleOption& opt ) const
 {
-    QRect rect;
-
     switch ( control ) {
     case CC_ComboBox:
 	switch ( sub ) {
 	case SC_ComboBoxFrame:
-	    rect = widget->rect();
-	    break;
+	    return widget->rect();
 
-	case SC_ComboBoxArrow:
-	    {
-		int ew, awh, sh, dh, ax, ay, sy;
-		int fw = pixelMetric( PM_DefaultFrameWidth, widget );
-		QRect cr = widget->rect();
-		cr.addCoords( fw, fw, -fw, -fw );
-		get_combo_parameters( cr, ew, awh, ax, ay, sh, dh, sy );
-		rect.setRect( ax, ay, awh, awh );
-	    }
-	    break;
+	case SC_ComboBoxArrow: {
+	    int ew, awh, sh, dh, ax, ay, sy;
+	    int fw = pixelMetric( PM_DefaultFrameWidth, widget );
+	    QRect cr = widget->rect();
+	    cr.addCoords( fw, fw, -fw, -fw );
+	    get_combo_parameters( cr, ew, awh, ax, ay, sh, dh, sy );
+	    return QRect( ax, ay, awh, awh ); }
 
-	case SC_ComboBoxEditField:
-	    {
-		int fw = pixelMetric( PM_DefaultFrameWidth, widget );
-		rect = widget->rect();
-		rect.addCoords( fw, fw, -fw, -fw );
-		int ew = get_combo_extra_width( rect.height() );
-
- 		rect.addCoords( 1, 1, -1-ew, -1 );
-	    }
-	    break;
+	case SC_ComboBoxEditField: {
+	    int fw = pixelMetric( PM_DefaultFrameWidth, widget );
+	    QRect rect = widget->rect();
+	    rect.addCoords( fw, fw, -fw, -fw );
+	    int ew = get_combo_extra_width( rect.height() );
+	    rect.addCoords( 1, 1, -1-ew, -1 );
+	    return rect; }
 
 	default:
 	    break;
 	}
 	break;
-
-    case CC_ScrollBar:
-	return QCommonStyle::querySubControlMetrics( control, widget, sub, opt );
-
-    default:
-	return QMotifStyle::querySubControlMetrics( control, widget, sub, opt );
+    default: break; 
     }
-
-    return rect;
+    return QMotifStyle::querySubControlMetrics( control, widget, sub, opt );
 }
 
 #endif // QT_NO_STYLE_SGI

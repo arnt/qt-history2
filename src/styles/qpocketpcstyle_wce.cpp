@@ -1218,16 +1218,12 @@ QRect QPocketPCStyle::querySubControlMetrics( ComplexControl control,
 					    SubControl sc,
 					    const QStyleOption& opt ) const
 {
-    QRect rect;
-
 #if defined(QT_CHECK_STATE)
     if (! widget) {
 	qWarning("QCommonStyle::querySubControlMetrics: widget parameter cannot be zero!");
-	return rect;
+	return QRect();
     }
 #endif
-
-
     switch ( control ) {
 #ifndef QT_NO_SCROLLBAR
     case CC_ScrollBar: {
@@ -1287,21 +1283,13 @@ QRect QPocketPCStyle::querySubControlMetrics( ComplexControl control,
 	}
 
 	// rotate the rectangle if it is vertical or not
+	QRect rect;
 	if (scrollbar->orientation() == Qt::Horizontal)
 	    rect.setCoords(x1, 0, x2, height);
 	else
 	    rect.setCoords(0, x1, height, x2);
-
-	break; }
+	return rect; }
 #endif // QT_NO_SCROLLBAR
-
-
-
-
-
-
-
-
 
     case CC_SpinWidget: {
 	int fw = pixelMetric( PM_SpinBoxFrameWidth, widget);
@@ -1318,23 +1306,18 @@ QRect QPocketPCStyle::querySubControlMetrics( ComplexControl control,
 	rx = x - fw;
 	switch ( sc ) {
 	case SC_SpinWidgetUp:
-	    rect.setRect(x, y, bs.width(), bs.height());
-	    break;
+	    return QRect(x, y, bs.width(), bs.height());
 	case SC_SpinWidgetDown:
-	    rect.setRect(x, y + bs.height(), bs.width(), bs.height());
-	    break;
+	    return QRect(x, y + bs.height(), bs.width(), bs.height());
 	case SC_SpinWidgetButtonField:
-	    rect.setRect(x, y, bs.width(), widget->height() - 2*fw);
-	    break;
+	    return QRect(x, y, bs.width(), widget->height() - 2*fw);
 	case SC_SpinWidgetEditField:
-	    rect.setRect(lx, fw, rx, widget->height() - 2*fw);
-	    break;
+	    return QRect(lx, fw, rx, widget->height() - 2*fw);
 	case SC_SpinWidgetFrame:
 	    return widget->rect();
 	default:
 	    break;
 	}
-
 	break; }
 
     case CC_ComboBox: {
@@ -1344,169 +1327,141 @@ QRect QPocketPCStyle::querySubControlMetrics( ComplexControl control,
 
 	switch ( sc ) {
 	case SC_ComboBoxFrame:
-	    rect = widget->rect();
+	    return widget->rect();
 	    break;
 	case SC_ComboBoxArrow:
-	    rect.setRect(xpos, y+2, 16, he-4);
-	    break;
+	    return QRect(xpos, y+2, 16, he-4);
 	case SC_ComboBoxEditField:
-	    rect.setRect(x+3, y+3, wi-6-16, he-6);
-	    break;
+	    return QRect(x+3, y+3, wi-6-16, he-6);
 	default:
 	    break;
 	}
-
 	break; }
 
 
 #ifndef QT_NO_SLIDER
-    case CC_Slider:
-	{
+    case CC_Slider: {
+	const QSlider * sl = (const QSlider *) widget;
+	int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
+	int thickness = pixelMetric( PM_SliderControlThickness, sl );
+
+	switch ( sc ) {
+	case SC_SliderHandle: {
 	    const QSlider * sl = (const QSlider *) widget;
+	    int sliderPos = 0;
 	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
-	    int thickness = pixelMetric( PM_SliderControlThickness, sl );
+	    int thickness  = pixelMetric( PM_SliderControlThickness, sl );
+	    int len   = pixelMetric( PM_SliderLength, sl );
 
-	    switch ( sc ) {
-	    case SC_SliderHandle:
-		{
-		    const QSlider * sl = (const QSlider *) widget;
-		    int sliderPos = 0;
-		    int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
-		    int thickness  = pixelMetric( PM_SliderControlThickness, sl );
-		    int len   = pixelMetric( PM_SliderLength, sl );
+	    if ( !opt.isDefault() )
+		sliderPos = sl->sliderStart();
 
-		    if ( !opt.isDefault() )
-			sliderPos = sl->sliderStart();
+	    if ( sl->orientation() == Horizontal )
+		return QRect( sliderPos, tickOffset, len, thickness );
+	    return QRect( tickOffset, sliderPos, thickness, len );
+	    break; }
 
-		    if ( sl->orientation() == Horizontal )
-			rect.setRect( sliderPos, tickOffset, len, thickness );
-		    else
-			rect.setRect( tickOffset, sliderPos, thickness, len );
-		    break;
-		}
+	case SC_SliderGroove: {
+	    int x, y, wi, he;
 
-	    case SC_SliderGroove:
-		{
-		    int x, y, wi, he;
-
-		    if ( sl->orientation() == Horizontal ) {
-			x = 0;
-			y = tickOffset;
-			wi = sl->width();
-			he = thickness;
-		    } else {
-			x = tickOffset;
-			y = 0;
-			wi = thickness;
-			he = sl->height();
-		    }
-
-		    rect.setRect(x, y, wi, he);
-		    break;
-		}
-
-	    default:
-		break;
+	    if ( sl->orientation() == Horizontal ) {
+		x = 0;
+		y = tickOffset;
+		wi = sl->width();
+		he = thickness;
+	    } else {
+		x = tickOffset;
+		y = 0;
+		wi = thickness;
+		he = sl->height();
 	    }
-
+	    return QRect(x, y, wi, he);
+	    break; }
+	default:
 	    break;
 	}
+
+	break;
+    }
 #endif // QT_NO_SLIDER
 
 #ifndef QT_NO_TOOLBUTTON
-    case CC_ToolButton:
-	{
-	    const QToolButton *toolbutton = (const QToolButton *) widget;
-	    int mbi = pixelMetric(PM_MenuButtonIndicator, widget);
+    case CC_ToolButton:	{
+	const QToolButton *toolbutton = (const QToolButton *) widget;
+	int mbi = pixelMetric(PM_MenuButtonIndicator, widget);
 
-	    rect = toolbutton->rect();
+	QRect rect = toolbutton->rect();
+	switch (sc) {
+	case SC_ToolButton:
+	    if (toolbutton->popup() && ! toolbutton->popupDelay())
+		rect.addCoords(0, 0, -mbi, 0);
+	    return rect;
 
-	    switch (sc) {
-	    case SC_ToolButton:
-		if (toolbutton->popup() && ! toolbutton->popupDelay())
-		    rect.addCoords(0, 0, -mbi, 0);
-		break;
+	case SC_ToolButtonMenu:
+	    if (toolbutton->popup() && ! toolbutton->popupDelay())
+		rect.addCoords(rect.width() - mbi, 0, 0, 0);
+	    return rect;
 
-	    case SC_ToolButtonMenu:
-		if (toolbutton->popup() && ! toolbutton->popupDelay())
-		    rect.addCoords(rect.width() - mbi, 0, 0, 0);
-		break;
-
-	    default:
-		break;
-	    }
-	    break;
+	default: break;
 	}
+	break; }
 #endif // QT_NO_TOOLBUTTON
 
 #ifndef QT_NO_TITLEBAR
-    case CC_TitleBar:
-	{
-	    const QTitleBar *titlebar = (const QTitleBar *) widget;
+    case CC_TitleBar: {
+	const QTitleBar *titlebar = (const QTitleBar *) widget;
 
-	    switch (sc) {
-	    case SC_TitleBarLabel:
-		{
-		    const QTitleBar *titlebar = (QTitleBar*)widget;
-		    QRect ir( 0, 0, titlebar->width(), titlebar->height() );
-		    if( titlebar->window() ) {
-			if ( titlebar->window()->testWFlags( WStyle_Tool ) ) {
-			    if ( titlebar->window()->testWFlags( WStyle_SysMenu ) )
-				ir.addCoords( 0, 0, -TITLEBAR_CONTROL_WIDTH-TITLEBAR_SEPARATION-2, 0 );
-			    if ( titlebar->window()->testWFlags( WStyle_MinMax ) )
-				ir.addCoords( 0, 0, -TITLEBAR_CONTROL_WIDTH-2, 0 );
-			} else {
-			    if ( titlebar->window()->testWFlags( WStyle_SysMenu ) )
-				ir.addCoords( TITLEBAR_SEPARATION+TITLEBAR_CONTROL_WIDTH+2, 0,
-					     -TITLEBAR_CONTROL_WIDTH-TITLEBAR_SEPARATION-2, 0 );
-			    if ( titlebar->window()->testWFlags( WStyle_Minimize ) )
-				ir.addCoords( 0, 0, -2*TITLEBAR_CONTROL_WIDTH-2, 0 );
-			    else if ( titlebar->window()->testWFlags( WStyle_Maximize ) )
-				ir.addCoords( 0, 0, -TITLEBAR_CONTROL_WIDTH-2, 0 );
-			}
-		    }
-		    rect = ir;
+	switch (sc) {
+	case SC_TitleBarLabel: {
+	    const QTitleBar *titlebar = (QTitleBar*)widget;
+	    QRect ir( 0, 0, titlebar->width(), titlebar->height() );
+	    if( titlebar->window() ) {
+		if ( titlebar->window()->testWFlags( WStyle_Tool ) ) {
+		    if ( titlebar->window()->testWFlags( WStyle_SysMenu ) )
+			ir.addCoords( 0, 0, -TITLEBAR_CONTROL_WIDTH-TITLEBAR_SEPARATION-2, 0 );
+		    if ( titlebar->window()->testWFlags( WStyle_MinMax ) )
+			ir.addCoords( 0, 0, -TITLEBAR_CONTROL_WIDTH-2, 0 );
+		} else {
+		    if ( titlebar->window()->testWFlags( WStyle_SysMenu ) )
+			ir.addCoords( TITLEBAR_SEPARATION+TITLEBAR_CONTROL_WIDTH+2, 0,
+				      -TITLEBAR_CONTROL_WIDTH-TITLEBAR_SEPARATION-2, 0 );
+		    if ( titlebar->window()->testWFlags( WStyle_Minimize ) )
+			ir.addCoords( 0, 0, -2*TITLEBAR_CONTROL_WIDTH-2, 0 );
+		    else if ( titlebar->window()->testWFlags( WStyle_Maximize ) )
+			ir.addCoords( 0, 0, -TITLEBAR_CONTROL_WIDTH-2, 0 );
 		}
-		break;
-
-	    case SC_TitleBarCloseButton:
-		rect.setRect(titlebar->width()-(TITLEBAR_CONTROL_WIDTH +
-						TITLEBAR_SEPARATION), 2,
-			     TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
-		break;
-
-	    case SC_TitleBarMaxButton:
-	    case SC_TitleBarShadeButton:
-	    case SC_TitleBarUnshadeButton:
-		rect.setRect(titlebar->width()-((TITLEBAR_CONTROL_HEIGHT +
-						 TITLEBAR_SEPARATION) * 2), 2,
-			     TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
-		break;
-
-	    case SC_TitleBarMinButton:
-	    case SC_TitleBarNormalButton:
-		rect.setRect(titlebar->width()-((TITLEBAR_CONTROL_HEIGHT +
-						 TITLEBAR_SEPARATION) * 3), 2,
-			     TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
-		break;
-
-	    case SC_TitleBarSysMenu:
-		rect.setRect(2 + TITLEBAR_SEPARATION, 2, TITLEBAR_CONTROL_WIDTH,
-			     TITLEBAR_CONTROL_HEIGHT);
-		break;
-
-	    default:
-		break;
 	    }
+	    return ir; }
+
+	case SC_TitleBarCloseButton:
+	    return QRect(titlebar->width()-(TITLEBAR_CONTROL_WIDTH + TITLEBAR_SEPARATION), 2,
+			 TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
+
+	case SC_TitleBarMaxButton:
+	case SC_TitleBarShadeButton:
+	case SC_TitleBarUnshadeButton:
+	    return QRect(titlebar->width()-((TITLEBAR_CONTROL_HEIGHT + TITLEBAR_SEPARATION) * 2), 2,
+			 TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
+
+	case SC_TitleBarMinButton:
+	case SC_TitleBarNormalButton:
+	    return QRect(titlebar->width()-((TITLEBAR_CONTROL_HEIGHT + TITLEBAR_SEPARATION) * 3), 2,
+			 TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
+
+	case SC_TitleBarSysMenu:
+	    return QRect(2 + TITLEBAR_SEPARATION, 2, TITLEBAR_CONTROL_WIDTH, TITLEBAR_CONTROL_HEIGHT);
+
+	default:
 	    break;
 	}
+	break;
+    }
 #endif //QT_NO_TITLEBAR
 
     default:
 	break;
     }
-
-    return rect;
+    return QWindowsStyle::querySubControlMetrics( control, w, sc, opt);
 }
 
 

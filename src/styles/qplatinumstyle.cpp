@@ -1320,149 +1320,106 @@ QRect QPlatinumStyle::querySubControlMetrics( ComplexControl control,
 					      SubControl sc,
 					      const QStyleOption& opt ) const
 {
-    QRect rect;
     switch( control ) {
-    case CC_ComboBox:
 #ifndef QT_NO_COMBOBOX
+    case CC_ComboBox:
 	const QComboBox *cb;
 	cb = (const QComboBox *)widget;
 	switch( sc ) {
-	case SC_ComboBoxArrow:
-	    {
-		rect = cb->rect();
-		int xx,
-		    yy,
-		    ww,
-		    hh;
-
-		if( QApplication::reverseLayout() )
-		    xx = rect.x();
-		else
-		    xx = rect.x() + rect.width() - 20;
-		yy = rect.y();
-		ww = 20;
-		hh = rect.height();
-		rect.setRect( xx, yy, ww, hh );
-		break;
-	    }
+	case SC_ComboBoxArrow: {
+	    QRect ir = cb->rect();
+	    int xx;
+	    if( QApplication::reverseLayout() )
+		xx = ir.x();
+	    else
+		xx = ir.x() + ir.width() - 20;
+	    return QRect( xx, ir.y(), 20, ir.height()); }
 	default:
-	    rect = QWindowsStyle::querySubControlMetrics( control, widget, sc,
-							  opt );
 	    break;
 	}
+	break; 
 #endif
-	break;
-    case CC_ScrollBar:
-	{
 #ifndef QT_NO_SCROLLBAR
-	    const QScrollBar *sb;
-	    sb = (const QScrollBar *)widget;
-	    int sliderStart = sb->sliderStart();
-	    int sbextent = pixelMetric( PM_ScrollBarExtent, widget );
-	    int maxlen = ((sb->orientation() == Qt::Horizontal) ?
-			  sb->width() : sb->height()) - ( sbextent * 2 );
+    case CC_ScrollBar: {
+	const QScrollBar *sb;
+	sb = (const QScrollBar *)widget;
+	int sliderStart = sb->sliderStart();
+	int sbextent = pixelMetric( PM_ScrollBarExtent, widget );
+	int maxlen = ((sb->orientation() == Qt::Horizontal) ?
+		      sb->width() : sb->height()) - ( sbextent * 2 );
 
-	    int sliderlen;
+	int sliderlen;
 
-	    // calculate length
-	    if ( sb->maxValue() != sb->minValue() ) {
-		uint range = sb->maxValue() - sb->minValue();
-		sliderlen = ( sb->pageStep() * maxlen ) /
-			    ( range + sb->pageStep() );
+	// calculate length
+	if ( sb->maxValue() != sb->minValue() ) {
+	    uint range = sb->maxValue() - sb->minValue();
+	    sliderlen = ( sb->pageStep() * maxlen ) /
+			( range + sb->pageStep() );
 
-		int slidermin = pixelMetric( PM_ScrollBarSliderMin, widget );
-		if ( sliderlen < slidermin || range > INT_MAX / 2 )
-		    sliderlen = slidermin;
-		if ( sliderlen > maxlen )
-		    sliderlen = maxlen;
-	    } else
+	    int slidermin = pixelMetric( PM_ScrollBarSliderMin, widget );
+	    if ( sliderlen < slidermin || range > INT_MAX / 2 )
+		sliderlen = slidermin;
+	    if ( sliderlen > maxlen )
 		sliderlen = maxlen;
+	} else {
+	    sliderlen = maxlen;
+	}
 
-
-	    switch ( sc ) {
-	    case SC_ScrollBarSubLine:
-		if ( sb->orientation() == Qt::Horizontal )
-		    rect.setRect( sb->width() - 2 * sbextent, 0,
-				  sbextent, sbextent );
-		else
-		    rect.setRect( 0, sb->height() - 2 * sbextent,
-				  sbextent, sbextent );
-		break;
-	    case SC_ScrollBarAddLine:
-		if ( sb->orientation() == Qt::Horizontal )
-		    rect.setRect( sb->width() - sbextent, 0, sbextent,
-				  sbextent);
-		else
-		    rect.setRect(0, sb->height() - sbextent, sbextent,
-				 sbextent);
-		break;
-	    case SC_ScrollBarSubPage:
-		if ( sb->orientation() == Qt::Horizontal )
-		    rect.setRect( 1, 0, sliderStart, sbextent );
-		else
-		    rect.setRect( 0, 1, sbextent, sliderStart );
-		break;
-	    case SC_ScrollBarAddPage:
-		if ( sb->orientation() == Qt::Horizontal )
-		    rect.setRect( sliderStart + sliderlen, 0,
-				  maxlen - sliderStart
-				  - sliderlen, sbextent );
-		else
-		    rect.setRect( 0, sliderStart + sliderlen,
-				  sbextent, maxlen - sliderStart - sliderlen );
-		break;
-	    case SC_ScrollBarGroove:
-		if ( sb->orientation() == Qt::Horizontal )
-		    rect.setRect( 1, 0, sb->width() - sbextent * 2,
-				  sb->height() );
-		else
-		    rect.setRect( 0, 1, sb->width(),
-				  sb->height() - sbextent * 2 );
-		break;
-	    default:
-		rect = QWindowsStyle::querySubControlMetrics( control, widget,
-							      sc, opt );
-		break;
-	    }
-#endif
+	switch ( sc ) {
+	case SC_ScrollBarSubLine:
+	    if ( sb->orientation() == Qt::Horizontal )
+		return QRect( sb->width() - 2 * sbextent, 0, sbextent, sbextent );
+	    return QRect( 0, sb->height() - 2 * sbextent, sbextent, sbextent );
+	case SC_ScrollBarAddLine:
+	    if ( sb->orientation() == Qt::Horizontal )
+		return QRect( sb->width() - sbextent, 0, sbextent, sbextent);
+	    return QRect(0, sb->height() - sbextent, sbextent, sbextent);
+	case SC_ScrollBarSubPage:
+	    if ( sb->orientation() == Qt::Horizontal )
+		return QRect( 1, 0, sliderStart, sbextent );
+	    return QRect( 0, 1, sbextent, sliderStart );
+	case SC_ScrollBarAddPage:
+	    if ( sb->orientation() == Qt::Horizontal )
+		return QRect( sliderStart + sliderlen, 0, maxlen - sliderStart - sliderlen, sbextent );
+	    return QRect( 0, sliderStart + sliderlen, sbextent, maxlen - sliderStart - sliderlen );
+	case SC_ScrollBarGroove:
+	    if ( sb->orientation() == Qt::Horizontal )
+		return QRect( 1, 0, sb->width() - sbextent * 2, sb->height() );
+	    return QRect( 0, 1, sb->width(), sb->height() - sbextent * 2 );
+	    break;
+	default:
 	    break;
 	}
-    case CC_Slider:
-	{
+	break; }
+#endif
 #ifndef QT_NO_SLIDER
-	    const QSlider *slider = (const QSlider *) widget;
-	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset, widget);
-	    int thickness = pixelMetric( PM_SliderControlThickness, widget);
-	    int mid = thickness / 2;
-	    int ticks = slider->tickmarks();
-	    int len = pixelMetric( PM_SliderLength, widget );
+    case CC_Slider: {
 
-	    switch ( sc ) {
-	    case SC_SliderGroove:
-		if ( ticks & QSlider::Above )
-		    mid += len / 8;
-		if ( ticks & QSlider::Below )
-		    mid -= len / 8;
-		if ( slider->orientation() == QSlider::Horizontal )
-		    rect.setRect( 0, tickOffset,
-				  slider->width(), thickness );
-		else
-		    rect.setRect( tickOffset, 0, thickness, slider->height() );
-		break;
-	    default:
-		rect = QWindowsStyle::querySubControlMetrics( control, widget,
-							      sc, opt );
-		break;
-	    }
-#endif
+	const QSlider *slider = (const QSlider *) widget;
+	int tickOffset = pixelMetric( PM_SliderTickmarkOffset, widget);
+	int thickness = pixelMetric( PM_SliderControlThickness, widget);
+	int mid = thickness / 2;
+	int ticks = slider->tickmarks();
+	int len = pixelMetric( PM_SliderLength, widget );
+
+	switch ( sc ) {
+	case SC_SliderGroove:
+	    if ( ticks & QSlider::Above )
+		mid += len / 8;
+	    if ( ticks & QSlider::Below )
+		mid -= len / 8;
+	    if ( slider->orientation() == QSlider::Horizontal )
+		return QRect( 0, tickOffset, slider->width(), thickness );
+	    return QRect( tickOffset, 0, thickness, slider->height() );
+	default:
 	    break;
 	}
+	break; }
+#endif
     default:
-	rect = QWindowsStyle::querySubControlMetrics( control, widget,
-						      sc, opt );
 	break;
     }
-    return rect;
+    return QWindowsStyle::querySubControlMetrics( control, widget, sc, opt );
 }
 
 

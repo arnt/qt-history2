@@ -1388,11 +1388,8 @@ QRect QMotifPlusStyle::querySubControlMetrics(ComplexControl control,
 					      SubControl subcontrol,
 					      const QStyleOption& opt) const
 {
-    QRect rect;
-
     switch (control) {
-    case CC_SpinWidget:
-	{
+    case CC_SpinWidget: {
 	    int fw = pixelMetric( PM_SpinBoxFrameWidth, 0 );
 	    QSize bs;
 	    bs.setHeight( (widget->height() + 1)/2 );
@@ -1408,110 +1405,75 @@ QRect QMotifPlusStyle::querySubControlMetrics(ComplexControl control,
 	    h = bs.height() * 2;
 
 	    switch ( subcontrol ) {
-	    case SC_SpinWidgetUp:
-		rect.setRect(x, y, bs.width(), bs.height());
-		rect.addCoords(1, 0, 0, -1);
-		break;
+	    case SC_SpinWidgetUp: 
+		return QRect(x + 1, y, bs.width(), bs.height() - 1);
 	    case SC_SpinWidgetDown:
-		rect.setRect(x, y + bs.height(), bs.width(), bs.height());
-		rect.addCoords(1, 1, 0, 0);
-		break;
+		return QRect(x + 1, y + bs.height() + 1, bs.width(), bs.height());
 	    case SC_SpinWidgetButtonField:
-		rect.setRect(x, y, bs.width(), h - 2*fw);
-		break;
+		return QRect(x, y, bs.width(), h - 2*fw);
 	    case SC_SpinWidgetEditField:
-		rect.setRect(lx, fw, rx, h - 2*fw);
-		break;
+		return QRect(lx, fw, rx, h - 2*fw);
 	    case SC_SpinWidgetFrame:
-		rect.setRect( widget->x(), widget->y(),
-			      widget->width() - bs.width(), h);
+		return QRect( widget->x(), widget->y(), widget->width() - bs.width(), h);
 	    default:
 		break;
 	    }
-	    break;
-	}
+	    break; }
 
-    case CC_ComboBox:
-	{
 #ifndef QT_NO_COMBOBOX
-	    const QComboBox *combobox = (const QComboBox *) widget;
-
-	    if (combobox->editable()) {
-		int space = (combobox->height() - 13) / 2;
-
-		switch (subcontrol) {
-		case SC_ComboBoxEditField:
-		    rect = widget->rect();
-		    rect.setWidth(rect.width() - 13 - space * 2);
-		    rect.addCoords(3, 3, -3, -3);
-		    break;
-
-		case SC_ComboBoxArrow:
-		    rect.setRect(combobox->width() - 13 - space * 2, 0,
-				 13 + space * 2, combobox->height());
-		    break;
-
-		default:
-		    // shouldn't get here
-		    break;
-		}
-
-	    } else {
-		int space = (combobox->height() - 7) / 2;
-
-		switch (subcontrol) {
-		case SC_ComboBoxEditField:
-		    rect = widget->rect();
-		    rect.addCoords(3, 3, -3, -3);
-		    break;
-
-		case SC_ComboBoxArrow:
-		    // 12 wide, 7 tall
-		    rect.setRect(combobox->width() - 12 - space,
-				 space, 12, 7);
-		    break;
-
-		default:
-		    // shouldn't get here
-		    break;
-		}
+    case CC_ComboBox: {
+	const QComboBox *combobox = (const QComboBox *) widget;
+	if (combobox->editable()) {
+	    int space = (combobox->height() - 13) / 2;
+	    switch (subcontrol) {
+	    case SC_ComboBoxEditField: {
+		QRect rect = widget->rect();
+		rect.setWidth(rect.width() - 13 - space * 2);
+		rect.addCoords(3, 3, -3, -3);
+		return rect; }
+	    case SC_ComboBoxArrow:
+		return QRect(combobox->width() - 13 - space * 2, 0,
+			     13 + space * 2, combobox->height());
+	    default: break;		// shouldn't get here
 	    }
-#endif
-	    break;
-	}
 
-    case CC_Slider:
-	{
+	} else {
+	    int space = (combobox->height() - 7) / 2;
+	    switch (subcontrol) {
+	    case SC_ComboBoxEditField: {
+		QRect rect = widget->rect();
+		rect.addCoords(3, 3, -3, -3);
+		return rect; }
+	    case SC_ComboBoxArrow:		// 12 wide, 7 tall
+		return QRect(combobox->width() - 12 - space, space, 12, 7);
+	    default: break;		// shouldn't get here
+	    }
+	}
+	return QRect(); }
+#endif
+
 #ifndef QT_NO_SLIDER
-	    if (subcontrol == SC_SliderHandle) {
-		const QSlider *slider = (const QSlider *) widget;
-		int tickOffset  = pixelMetric( PM_SliderTickmarkOffset, widget );
-		int thickness   = pixelMetric( PM_SliderControlThickness, widget );
-		int len         = pixelMetric( PM_SliderLength, widget ) + 2;
-		int sliderPos   = slider->sliderStart();
-		int motifBorder = 2;
+    case CC_Slider: {
 
-		if ( slider->orientation() == Horizontal )
-		    rect.setRect( sliderPos + motifBorder,
-				  tickOffset + motifBorder, len,
-				  thickness - 2*motifBorder );
-		else
-		    rect.setRect( tickOffset + motifBorder,
-				  sliderPos + motifBorder,
-				  thickness - 2*motifBorder, len);
-	    } else
-		rect = QMotifStyle::querySubControlMetrics(control, widget,
-							   subcontrol, opt);
-#endif
-	    break;
+	if (subcontrol == SC_SliderHandle) {
+	    const QSlider *slider = (const QSlider *) widget;
+	    int tickOffset  = pixelMetric( PM_SliderTickmarkOffset, widget );
+	    int thickness   = pixelMetric( PM_SliderControlThickness, widget );
+	    int len         = pixelMetric( PM_SliderLength, widget ) + 2;
+	    int sliderPos   = slider->sliderStart();
+	    int motifBorder = 2;
+
+	    if ( slider->orientation() == Horizontal )
+		return QRect( sliderPos + motifBorder, tickOffset + motifBorder, len,
+			      thickness - 2*motifBorder );
+	    return QRect( tickOffset + motifBorder, sliderPos + motifBorder,
+			  thickness - 2*motifBorder, len);
 	}
-
-    default:
-	rect = QMotifStyle::querySubControlMetrics(control, widget, subcontrol, opt);
-	break;
+	break; }
+#endif
+    default: break;
     }
-
-    return rect;
+    return QMotifStyle::querySubControlMetrics(control, widget, subcontrol, opt);
 }
 
 

@@ -1543,194 +1543,157 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 					   SubControl sc,
 					   const QStyleOption& opt ) const
 {
-    QRect rect;
-
     switch ( control ) {
-    case CC_SpinWidget:
-	{
-	    if ( !widget )
-		break;
-	    int fw = pixelMetric( PM_SpinBoxFrameWidth, 0 );
-	    QSize bs;
-	    bs.setHeight( widget->height()/2 );
-	    if ( bs.height() < 8 )
-		bs.setHeight( 8 );
-	    bs.setWidth( QMIN( bs.height() * 8 / 5, widget->width() / 4 ) ); // 1.6 -approximate golden mean
-	    bs = bs.expandedTo( QApplication::globalStrut() );
-	    int y = 0;
-	    int x, lx, rx;
-	    x = widget->width() - y - bs.width();
-	    lx = fw;
-	    rx = x - fw * 2;
-
-	    switch ( sc ) {
-	    case SC_SpinWidgetUp:
-		rect.setRect(x, y, bs.width(), bs.height());
-		break;
-	    case SC_SpinWidgetDown:
-		rect.setRect(x, y + bs.height(), bs.width(), bs.height());
-		break;
-	    case SC_SpinWidgetButtonField:
-		rect.setRect(x, y, bs.width(), widget->height() - 2*fw);
-		break;
-	    case SC_SpinWidgetEditField:
-		rect.setRect(lx, fw, rx, widget->height() - 2*fw);
-		break;
-	    case SC_SpinWidgetFrame:
-		rect.setRect( widget->x(), widget->y(),
-			      widget->width() - bs.width(), widget->height() );
-	    default:
-		break;
-	    }
-	    break;
-	}
-
-    case CC_Slider:
-	{
-#ifndef QT_NO_SLIDER
-	    if (sc == SC_SliderHandle) {
-		const QSlider * sl = (const QSlider *) widget;
-		int tickOffset  = pixelMetric( PM_SliderTickmarkOffset, sl );
-		int thickness   = pixelMetric( PM_SliderControlThickness, sl );
-		int sliderPos   = sl->sliderStart();
-		int len         = pixelMetric( PM_SliderLength, sl );
-		int motifBorder = 3;
-
-		if ( sl->orientation() == Horizontal )
-		    rect.setRect( sliderPos + motifBorder,
-				  tickOffset + motifBorder, len,
-				  thickness - 2*motifBorder );
-		else
-		    rect.setRect( tickOffset + motifBorder,
-				  sliderPos + motifBorder,
-				  thickness - 2*motifBorder, len );
-	    } else
-		rect = QCommonStyle::querySubControlMetrics(control, widget, sc, opt);
-#endif
-	    break;
-	}
-
-    case CC_ScrollBar:
-	{
-#ifndef QT_NO_SCROLLBAR
-	    if (! widget)
-		break;
-
-	    const QScrollBar *scrollbar = (const QScrollBar *) widget;
-	    int sliderstart = scrollbar->sliderStart();
-	    int sbextent = pixelMetric(PM_ScrollBarExtent, widget);
-	    int fw = pixelMetric(PM_DefaultFrameWidth, widget);
-	    int buttonw = sbextent - (fw * 2);
-	    int maxlen = ((scrollbar->orientation() == Qt::Horizontal) ?
-			  scrollbar->width() : scrollbar->height()) -
-			 (buttonw * 2) - (fw * 2);
-	    int sliderlen;
-
-	    // calculate slider length
-	    if (scrollbar->maxValue() != scrollbar->minValue()) {
-		uint range = scrollbar->maxValue() - scrollbar->minValue();
-		sliderlen = (scrollbar->pageStep() * maxlen) /
-			    (range + scrollbar->pageStep());
-
-		if ( sliderlen < 9 || range > INT_MAX/2 )
-		    sliderlen = 9;
-		if ( sliderlen > maxlen )
-		    sliderlen = maxlen;
-	    } else
-		sliderlen = maxlen;
-
-	    switch (sc) {
-	    case SC_ScrollBarSubLine:
-		// top/left button
-		rect.setRect(fw, fw, buttonw, buttonw);
-		break;
-
-	    case SC_ScrollBarAddLine:
-		// bottom/right button
-		if (scrollbar->orientation() == Qt::Horizontal)
-		    rect.setRect(scrollbar->width() - sbextent + fw, fw,
-				 buttonw, buttonw);
-		else
-		    rect.setRect(fw, scrollbar->height() - sbextent + fw,
-				 buttonw, buttonw);
-		break;
-
-	    case SC_ScrollBarSubPage:
-		if (scrollbar->orientation() == Qt::Horizontal)
-		    rect.setRect(buttonw + fw, fw, sliderstart - buttonw - fw, buttonw);
-		else
-		    rect.setRect(fw, buttonw + fw, buttonw, sliderstart - buttonw - fw);
-		break;
-
- 	    case SC_ScrollBarAddPage:
- 		if (scrollbar->orientation() == Qt::Horizontal)
- 		    rect.setRect(sliderstart + sliderlen, fw,
-				 maxlen - sliderstart - sliderlen + buttonw + fw,
-				 buttonw);
- 		else
- 		    rect.setRect(fw, sliderstart + sliderlen, buttonw,
-				 maxlen - sliderstart - sliderlen + buttonw + fw);
- 		break;
-
-	    case SC_ScrollBarGroove:
-		if (scrollbar->orientation() == Qt::Horizontal)
-		    rect.setRect(buttonw + fw, fw, maxlen, buttonw);
-		else
-		    rect.setRect(fw, buttonw + fw, buttonw, maxlen);
- 		break;
-
- 	    case SC_ScrollBarSlider:
- 		if (scrollbar->orientation() == Qt::Horizontal)
- 		    rect.setRect(sliderstart, fw, sliderlen, buttonw);
- 		else
- 		    rect.setRect(fw, sliderstart, buttonw, sliderlen);
- 		break;
-
-	    default:
-		break;
-	    }
-#endif
-	    break;
-	}
-
-    case CC_ComboBox:
-#ifndef QT_NO_COMBOBOX
+    case CC_SpinWidget: {
+	if ( !widget )
+	    return QRect();
+	int fw = pixelMetric( PM_SpinBoxFrameWidth, 0 );
+	QSize bs;
+	bs.setHeight( widget->height()/2 );
+	if ( bs.height() < 8 )
+	    bs.setHeight( 8 );
+	bs.setWidth( QMIN( bs.height() * 8 / 5, widget->width() / 4 ) ); // 1.6 -approximate golden mean
+	bs = bs.expandedTo( QApplication::globalStrut() );
+	int y = 0;
+	int x, lx, rx;
+	x = widget->width() - y - bs.width();
+	lx = fw;
+	rx = x - fw * 2;
 	switch ( sc ) {
-	case SC_ComboBoxArrow:
-	    {
-		const QComboBox * cb = (const QComboBox *) widget;
-		int ew, awh, sh, dh, ax, ay, sy;
-		int fw = pixelMetric( PM_DefaultFrameWidth, cb );
-		QRect cr = cb->rect();
-		cr.addCoords( fw, fw, -fw, -fw );
-		get_combo_parameters( cr, ew, awh, ax, ay, sh, dh, sy );
-		rect.setRect( ax, ay, awh, awh );
-		break;
-	    }
+	case SC_SpinWidgetUp:
+	    return QRect(x, y, bs.width(), bs.height());
+	case SC_SpinWidgetDown:
+	    return QRect(x, y + bs.height(), bs.width(), bs.height());
+	case SC_SpinWidgetButtonField:
+	    return QRect(x, y, bs.width(), widget->height() - 2*fw);
+	case SC_SpinWidgetEditField:
+	    return QRect(lx, fw, rx, widget->height() - 2*fw);
+	case SC_SpinWidgetFrame:
+	    return QRect( widget->x(), widget->y(),
+			  widget->width() - bs.width(), widget->height() );
+	default:
+	    break;
+	}
+	break; }
 
-	case SC_ComboBoxEditField:
-	    {
-		const QComboBox * cb = (const QComboBox *) widget;
-		int fw = pixelMetric( PM_DefaultFrameWidth, cb );
-		rect = cb->rect();
-		rect.addCoords( fw, fw, -fw, -fw );
-		int ew = get_combo_extra_width( rect.height(), rect.width() );
+#ifndef QT_NO_SLIDER
+    case CC_Slider: {
+	if (sc == SC_SliderHandle) {
+	    const QSlider * sl = (const QSlider *) widget;
+	    int tickOffset  = pixelMetric( PM_SliderTickmarkOffset, sl );
+	    int thickness   = pixelMetric( PM_SliderControlThickness, sl );
+	    int sliderPos   = sl->sliderStart();
+	    int len         = pixelMetric( PM_SliderLength, sl );
+	    int motifBorder = 3;
 
- 		rect.addCoords( 1, 1, -1-ew, -1 );
-		break;
-	    }
+	    if ( sl->orientation() == Horizontal )
+		return QRect( sliderPos + motifBorder, tickOffset + motifBorder, len,
+			      thickness - 2*motifBorder );
+	    return QRect( tickOffset + motifBorder, sliderPos + motifBorder,
+			  thickness - 2*motifBorder, len );
+	}
+	break; }
+#endif
+
+#ifndef QT_NO_SCROLLBAR
+    case CC_ScrollBar: {
+	if (! widget)
+	    return QRect();
+
+	const QScrollBar *scrollbar = (const QScrollBar *) widget;
+	int sliderstart = scrollbar->sliderStart();
+	int sbextent = pixelMetric(PM_ScrollBarExtent, widget);
+	int fw = pixelMetric(PM_DefaultFrameWidth, widget);
+	int buttonw = sbextent - (fw * 2);
+	int maxlen = ((scrollbar->orientation() == Qt::Horizontal) ?
+		      scrollbar->width() : scrollbar->height()) -
+		     (buttonw * 2) - (fw * 2);
+	int sliderlen;
+
+	// calculate slider length
+	if (scrollbar->maxValue() != scrollbar->minValue()) {
+	    uint range = scrollbar->maxValue() - scrollbar->minValue();
+	    sliderlen = (scrollbar->pageStep() * maxlen) /
+			(range + scrollbar->pageStep());
+
+	    if ( sliderlen < 9 || range > INT_MAX/2 )
+		sliderlen = 9;
+	    if ( sliderlen > maxlen )
+		sliderlen = maxlen;
+	} else
+	    sliderlen = maxlen;
+
+	switch (sc) {
+	case SC_ScrollBarSubLine:
+	    // top/left button
+	    return QRect(fw, fw, buttonw, buttonw);
+
+	case SC_ScrollBarAddLine:
+	    // bottom/right button
+	    if (scrollbar->orientation() == Qt::Horizontal)
+		return QRect(scrollbar->width() - sbextent + fw, fw,
+			     buttonw, buttonw);
+	    return QRect(fw, scrollbar->height() - sbextent + fw,
+			     buttonw, buttonw);
+
+	case SC_ScrollBarSubPage:
+	    if (scrollbar->orientation() == Qt::Horizontal)
+		return QRect(buttonw + fw, fw, sliderstart - buttonw - fw, buttonw);
+	    return QRect(fw, buttonw + fw, buttonw, sliderstart - buttonw - fw);
+
+	case SC_ScrollBarAddPage:
+	    if (scrollbar->orientation() == Qt::Horizontal)
+		return QRect(sliderstart + sliderlen, fw,
+			     maxlen - sliderstart - sliderlen + buttonw + fw, buttonw);
+	    return QRect(fw, sliderstart + sliderlen, buttonw,
+			 maxlen - sliderstart - sliderlen + buttonw + fw);
+
+	case SC_ScrollBarGroove:
+	    if (scrollbar->orientation() == Qt::Horizontal)
+		return QRect(buttonw + fw, fw, maxlen, buttonw);
+	    return QRect(fw, buttonw + fw, buttonw, maxlen);
+
+	case SC_ScrollBarSlider:
+	    if (scrollbar->orientation() == Qt::Horizontal)
+		return QRect(sliderstart, fw, sliderlen, buttonw);
+	    return QRect(fw, sliderstart, buttonw, sliderlen);
 
 	default:
 	    break;
 	}
+	break; }
 #endif
+
+#ifndef QT_NO_COMBOBOX
+    case CC_ComboBox:
+
+	switch ( sc ) {
+	case SC_ComboBoxArrow: {
+	    const QComboBox * cb = (const QComboBox *) widget;
+	    int ew, awh, sh, dh, ax, ay, sy;
+	    int fw = pixelMetric( PM_DefaultFrameWidth, cb );
+	    QRect cr = cb->rect();
+	    cr.addCoords( fw, fw, -fw, -fw );
+	    get_combo_parameters( cr, ew, awh, ax, ay, sh, dh, sy );
+	    return QRect( ax, ay, awh, awh ); }
+
+	case SC_ComboBoxEditField: {
+	    const QComboBox * cb = (const QComboBox *) widget;
+	    int fw = pixelMetric( PM_DefaultFrameWidth, cb );
+	    QRect rect = cb->rect();
+	    rect.addCoords( fw, fw, -fw, -fw );
+	    int ew = get_combo_extra_width( rect.height(), rect.width() );
+	    rect.addCoords( 1, 1, -1-ew, -1 );
+	    return rect; }
+
+	default:
+	    break;
+	}
 	break;
-
-    default:
-	return QCommonStyle::querySubControlMetrics( control, widget, sc, opt );
+#endif
+    default: break;
     }
-
-    return rect;
+    return QCommonStyle::querySubControlMetrics( control, widget, sc, opt );
 }
 
 /*!\reimp
