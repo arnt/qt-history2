@@ -42,7 +42,6 @@
 #include "qwidget.h"
 #include "qbitmap.h"
 #include "qpixmapcache.h"
-#include "qintdict.h"
 #include "qtextcodec.h"
 #include "qpaintdevicemetrics.h"
 
@@ -574,42 +573,6 @@ void QPainter::destroy()
 
 }
 
-typedef QIntDict<QPaintDevice> QPaintDeviceDict;
-static QPaintDeviceDict *pdev_dict = 0;
-
-/*!
-    Redirects all paint commands for a paint device, \a pdev, to
-    another paint device, \a replacement, unless \a replacement is 0.
-    If \a replacement is 0, the redirection for \a pdev is removed.
-
-    In general, you'll probably find calling QPixmap::grabWidget() or
-    QPixmap::grabWindow() is an easier solution.
-*/
-
-void QPainter::redirect( QPaintDevice *pdev, QPaintDevice *replacement )
-{
-    if ( pdev_dict == 0 ) {
-        if ( replacement == 0 )
-            return;
-        pdev_dict = new QPaintDeviceDict;
-        Q_CHECK_PTR( pdev_dict );
-    }
-#if defined(QT_CHECK_NULL)
-    if ( pdev == 0 )
-        qWarning( "QPainter::redirect: The pdev argument cannot be 0" );
-#endif
-    if ( replacement ) {
-        pdev_dict->insert( (long)pdev, replacement );
-    } else {
-        pdev_dict->remove( (long)pdev );
-        if ( pdev_dict->count() == 0 ) {
-            delete pdev_dict;
-            pdev_dict = 0;
-        }
-    }
-}
-
-
 void QPainter::init()
 {
     d = 0;
@@ -1045,16 +1008,12 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
     QPixmap::x11SetDefaultScreen( pd->x11Screen() );
 
     const QWidget *copyFrom = 0;
-    if ( pdev_dict ) {                          // redirected paint device?
-        pdev = pdev_dict->find( (long)pd );
-        if ( pdev ) {
-            if ( pd->devType() == QInternal::Widget )
-                copyFrom = (const QWidget *)pd; // copy widget settings
-        } else {
-            pdev = (QPaintDevice *)pd;
-        }
+    pdev = redirect( (QPaintDevice*)pd );
+    if ( pdev ) {				    // redirected paint device?
+	if ( pd->devType() == QInternal::Widget )
+	    copyFrom = (const QWidget *)pd;	    // copy widget settings
     } else {
-        pdev = (QPaintDevice *)pd;
+	pdev = (QPaintDevice*)pd;
     }
 
     if ( pdev->isExtDev() && pdev->paintingActive() ) {

@@ -34,7 +34,6 @@
 #include "qpaintdevicemetrics.h"
 #include "qpixmapcache.h"
 #include "qptrlist.h"
-#include "qintdict.h"
 #include "qprinter.h"
 #include <stdlib.h>
 #include <math.h>
@@ -306,35 +305,6 @@ void QPainter::destroy()
 {
 
 }
-
-
-typedef QIntDict<QPaintDevice> QPaintDeviceDict;
-QPaintDeviceDict *pdev_dict = 0;
-
-
-void QPainter::redirect( QPaintDevice *pdev, QPaintDevice *replacement )
-{
-    if ( pdev_dict == 0 ) {
-	if ( replacement == 0 )
-	    return;
-	pdev_dict = new QPaintDeviceDict;
-	Q_CHECK_PTR( pdev_dict );
-    }
-#if defined(QT_CHECK_NULL)
-    if ( pdev == 0 )
-	qWarning( "QPainter::redirect: The pdev argument cannot be 0" );
-#endif
-    if ( replacement ) {
-	pdev_dict->insert( (long)pdev, replacement );
-    } else {
-	pdev_dict->remove( (long)pdev );
-	if ( pdev_dict->count() == 0 ) {
-	    delete pdev_dict;
-	    pdev_dict = 0;
-	}
-    }
-}
-
 
 void QPainter::init()
 {
@@ -651,17 +621,13 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipped )
 	return FALSE;
     }
 
-    QWidget *copyFrom = 0;
-    if ( pdev_dict ) {				// redirected paint device?
-	pdev = pdev_dict->find( (long)pd );
-	if ( pdev ) {
-	    if ( pd->devType() == QInternal::Widget )
-		copyFrom = (QWidget *)pd;	// copy widget settings
-	} else {
-	    pdev = (QPaintDevice *)pd;
-	}
+    const QWidget *copyFrom = 0;
+    pdev = redirect( (QPaintDevice*)pd );
+    if ( pdev ) {				    // redirected paint device?
+	if ( pd->devType() == QInternal::Widget )
+	    copyFrom = (const QWidget *)pd;	    // copy widget settings
     } else {
-	pdev = (QPaintDevice *)pd;
+	pdev = (QPaintDevice*)pd;
     }
 
     if ( pdev->isExtDev() && pdev->paintingActive() ) {		// somebody else is already painting

@@ -1192,11 +1192,10 @@ void QWidget::erase( int x, int y, int w, int h )
 
     HDC lhdc;
     bool tmphdc;
-    extern QIntDict<QPaintDevice> *pdev_dict;
 
-    if( pdev_dict && pdev_dict->find( (long) (QPaintDevice*)this ) ) {
+    if( QPainter::redirect( this ) ) {
 	tmphdc = FALSE;
-	lhdc = pdev_dict->find( (long) (QPaintDevice*) this )->handle();
+	lhdc = QPainter::redirect( this )->handle();
 	Q_ASSERT( lhdc );
     } else if ( !hdc ) {
 	tmphdc = TRUE;
@@ -1227,11 +1226,10 @@ void QWidget::erase( const QRegion& rgn )
 
     HDC lhdc;
     bool tmphdc;
-    extern QIntDict<QPaintDevice> *pdev_dict;
 
-    if( pdev_dict && pdev_dict->find( (long) (QPaintDevice*)this ) ) {
+    if( QPainter::redirect( this ) ) {
 	tmphdc = FALSE;
-	lhdc = pdev_dict->find( (long) (QPaintDevice*) this )->handle();
+	lhdc = QPainter::redirect( this )->handle();
 	Q_ASSERT( lhdc );
     } else if ( !hdc ) {
 	tmphdc = TRUE;

@@ -32,7 +32,6 @@
 #include "qbitmap.h"
 #include "qpixmapcache.h"
 #include "qptrlist.h"
-#include "qintdict.h"
 #include "qfontdata_p.h"
 #include "qtextcodec.h"
 #include "qpaintdevicemetrics.h"
@@ -85,8 +84,6 @@ QPainter *qt_mac_current_painter = 0;
 bool qt_recreate_root_win(); //qwidget_mac.cpp
 static void drawTile(QPainter *, int, int, int, int, const QPixmap &, int, int);
 QPoint posInWindow(QWidget *w);
-typedef QIntDict<QPaintDevice> QPaintDeviceDict;
-static QPaintDeviceDict *pdev_dict = 0;
 QRegion make_region(RgnHandle handle);
 void unclippedBitBlt(QPaintDevice *dst, int dx, int dy,
 		     const QPaintDevice *src, int sx, int sy, int sw, int sh,
@@ -180,29 +177,6 @@ void QPainter::initialize()
 
 void QPainter::cleanup()
 {
-}
-
-void QPainter::redirect(QPaintDevice *pdev, QPaintDevice *replacement)
-{
-    if(pdev_dict == 0) {
-	if(replacement == 0)
-	    return;
-	pdev_dict = new QPaintDeviceDict;
-	Q_CHECK_PTR(pdev_dict);
-    }
-#if defined(QT_CHECK_NULL)
-    if(pdev == 0)
-	qWarning("Qt: QPainter::redirect: The pdev argument cannot be 0");
-#endif
-    if(replacement) {
-	pdev_dict->insert((long)pdev, replacement);
-    } else {
-	pdev_dict->remove((long)pdev);
-	if(pdev_dict->count() == 0) {
-	    delete pdev_dict;
-	    pdev_dict = 0;
-	}
-    }
 }
 
 void QPainter::destroy()
@@ -438,17 +412,13 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipp)
     //save the gworld now, we'll reset it in end()
     d->saved = new QMacSavedPortInfo;
 
-    QWidget *copyFrom = 0;
-    if(pdev_dict) {                          // redirected paint device?
-	pdev = pdev_dict->find((long)pd);
-	if(pdev) {
-	    if(pd->devType() == QInternal::Widget)
-		copyFrom = (QWidget *)pd;       // copy widget settings
-	} else {
-	    pdev = (QPaintDevice *)pd;
-	}
+    const QWidget *copyFrom = 0;
+    pdev = redirect( (QPaintDevice*)pd );
+    if ( pdev ) {				    // redirected paint device?
+	if ( pd->devType() == QInternal::Widget )
+	    copyFrom = (const QWidget *)pd;	    // copy widget settings
     } else {
-	pdev = (QPaintDevice *)pd;
+	pdev = (QPaintDevice*)pd;
     }
 
     if(pdev->isExtDev() && pdev->paintingActive()) {

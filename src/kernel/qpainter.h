@@ -80,6 +80,7 @@ public:
 #endif
 
     static void redirect( QPaintDevice *pdev, QPaintDevice *replacement );
+    static QPaintDevice *redirect( QPaintDevice *pdev );
 
     bool	isActive() const;
 

@@ -39,6 +39,7 @@
 #include "qpainter_p.h"
 #include "qbitmap.h"
 #include "qptrstack.h"
+#include "qptrdict.h"
 #include "qdatastream.h"
 #include "qwidget.h"
 #include "qimage.h"
@@ -816,6 +817,49 @@ void QPainter::restore()
     block_ext = FALSE;
 }
 
+typedef QPtrDict<QPaintDevice> QPaintDeviceDict;
+static QPaintDeviceDict *pdev_dict = 0;
+
+/*!
+    Redirects all paint commands for a paint device, \a pdev, to
+    another paint device, \a replacement, unless \a replacement is 0.
+    If \a replacement is 0, the redirection for \a pdev is removed.
+
+    In general, you'll probably find calling QPixmap::grabWidget() or
+    QPixmap::grabWindow() is an easier solution.
+*/
+
+void QPainter::redirect( QPaintDevice *pdev, QPaintDevice *replacement )
+{
+    if ( pdev_dict == 0 ) {
+        if ( replacement == 0 )
+            return;
+        pdev_dict = new QPaintDeviceDict;
+        Q_CHECK_PTR( pdev_dict );
+    }
+#if defined(QT_CHECK_NULL)
+    if ( pdev == 0 )
+        qWarning( "QPainter::redirect: The pdev argument cannot be 0" );
+#endif
+    if ( replacement ) {
+        pdev_dict->insert( pdev, replacement );
+    } else {
+        pdev_dict->remove( pdev );
+        if ( pdev_dict->count() == 0 ) {
+            delete pdev_dict;
+            pdev_dict = 0;
+        }
+    }
+}
+
+/*!
+    \internal
+    Returns the replacement for \a pdev, or 0 if there is no replacement.
+*/
+QPaintDevice *QPainter::redirect( QPaintDevice *pdev )
+{
+    return pdev_dict ? pdev_dict->find( pdev ) : 0;
+}
 
 /*!
     Returns the font metrics for the painter, if the painter is
