@@ -565,7 +565,7 @@ void QUrl::setEncodedPathAndQuery( const QString& path )
 
 QString QUrl::path() const
 {
-    return d->path;
+    return QDir::cleanDirPath( d->path );
 }
 
 QString QUrl::path( int trailing ) const
