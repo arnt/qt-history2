@@ -24,7 +24,7 @@ class QMenuPrivate;
 class Q4MenuBarPrivate;
 
 #ifndef QT_USE_NEW_MENU_SYSTEM
-//# define QT_USE_NEW_MENU_SYSTEM
+# define QT_USE_NEW_MENU_SYSTEM
 #endif
 
 class Q_GUI_EXPORT QMenu : public QWidget
@@ -504,8 +504,13 @@ protected:
 private slots:
     void internalShortcutActivated(int);
 
+protected:
+    void setLeftWidget(QWidget *);
+    void setRightWidget(QWidget *);
+
 private:
     friend class QMenu;
+    friend class QWorkspacePrivate;
     friend class QMenuPrivate;
 
 #ifdef QT_COMPAT

@@ -131,7 +131,7 @@ class Q4MenuBarPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(Q4MenuBar);
 public:
-    Q4MenuBarPrivate() : itemsDirty(0), itemsWidth(0), shortcuts(0), currentAction(0), mouseDown(0),
+    Q4MenuBarPrivate() : itemsDirty(0), itemsWidth(0), itemsStart(-1), shortcuts(0), currentAction(0), mouseDown(0),
                          closePopupMode(0), defaultPopDown(1), popupState(0), keyboardState(0), altPressed(0)
 #ifdef Q_WS_MAC
                          , mac_menubar(0)
@@ -148,12 +148,12 @@ public:
 
     //item calculations
     uint itemsDirty : 1;
-    int itemsWidth;
+    int itemsWidth, itemsStart;
 #ifndef QT_NO_ACCEL
     QAccel *shortcuts;
 #endif
     QList<QMenuAction*> actionItems;
-    QList<QMenuAction*> calcActionRects(int width) const;
+    QList<QMenuAction*> calcActionRects(int width, int start) const;
     QRect actionRect(QMenuAction *) const;
     void updateActions();
 
@@ -175,6 +175,9 @@ public:
 
     //firing of events
     void activateAction(QAction *, QAction::ActionEvent);
+
+    //extra widgets in the menubar
+    QPointer<QWidget> leftWidget, rightWidget;
 
 #ifdef Q_WS_MAC
     //mac menubar binding

@@ -21,6 +21,7 @@
 
 #ifndef QT_NO_WORKSPACE
 
+class QAction;
 class QWorkspaceChild;
 class QShowEvent;
 class QWorkspacePrivate;
@@ -28,6 +29,7 @@ class QWorkspacePrivate;
 class Q_GUI_EXPORT QWorkspace : public QWidget
 {
     Q_OBJECT
+    Q_DECLARE_PRIVATE(QWorkspace);
     Q_PROPERTY(bool scrollBarsEnabled READ scrollBarsEnabled WRITE setScrollBarsEnabled)
 
 public:
@@ -57,7 +59,7 @@ public slots:
     void closeActiveWindow();
     void closeAllWindows();
     void activateNextWindow();
-    void activatePrevWindow();
+    void activatePreviousWindow();
 
 protected:
     void changeEvent(QEvent *);
@@ -70,37 +72,16 @@ protected:
     void wheelEvent(QWheelEvent *e);
 #endif
 
-private slots:
-    void normalizeActiveWindow();
-    void minimizeActiveWindow();
-    void showOperationMenu();
-    void popupOperationMenu(const QPoint&);
-    void operationMenuActivated(int);
-    void operationMenuAboutToShow();
-    void toolMenuAboutToShow();
-    void activatePreviousWindow(); // ### remove in Qt 4.0
-    void scrollBarChanged();
-
 private:
-    void init();
-    void insertIcon(QWidget* w);
-    void removeIcon(QWidget* w);
-    void place(QWidget*);
-
-    QWorkspaceChild* findChild(QWidget* w);
-    void showMaximizeControls();
-    void hideMaximizeControls();
-    void activateWindow(QWidget* w, bool change_focus = true);
-    void showWindow(QWidget* w);
-    void maximizeWindow(QWidget* w);
-    void minimizeWindow(QWidget* w);
-    void normalizeWindow(QWidget* w);
-
-    QRect updateWorkspace();
-
-    QWorkspacePrivate* d;
-    friend class QWorkspacePrivate;
     friend class QWorkspaceChild;
+    Q_PRIVATE_SLOT(void normalizeActiveWindow());
+    Q_PRIVATE_SLOT(void minimizeActiveWindow());
+    Q_PRIVATE_SLOT(void showOperationMenu());
+    Q_PRIVATE_SLOT(void popupOperationMenu(const QPoint&));
+    Q_PRIVATE_SLOT(void operationMenuActivated(QAction *));
+    Q_PRIVATE_SLOT(void operationMenuAboutToShow());
+    Q_PRIVATE_SLOT(void toolMenuAboutToShow());
+    Q_PRIVATE_SLOT(void scrollBarChanged());
 
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

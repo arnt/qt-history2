@@ -16,8 +16,10 @@
 #include "qstyle.h"
 #include "qevent.h"
 #include "qtimer.h"
+#include "qlayout.h"
 #include "qpainter.h"
 #include "qtoolbar.h"
+#include "qmainwindow.h"
 #include "qapplication.h"
 #include "qdesktopwidget.h"
 #if defined(QT_ACCESSIBILITY_SUPPORT)
@@ -1330,17 +1332,37 @@ QMenuAction *Q4MenuBarPrivate::actionAt(QPoint p) const
 
 void Q4MenuBarPrivate::updateActions()
 {
-    int q_width = q->width()-(q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q)*2);
-    if(!itemsDirty && itemsWidth == q_width)
+    if(!itemsDirty)
         return;
+    int q_width = q->width()-(q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q)*2),
+        q_start = -1;
+    if(d->leftWidget || d->rightWidget) {
+        int vmargin = q->style().pixelMetric(QStyle::PM_MenuBarVMargin, q) + q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q), 
+            hmargin = q->style().pixelMetric(QStyle::PM_MenuBarHMargin, q);
+        if(d->leftWidget && d->leftWidget->isVisible()) {
+            QSize sz = d->leftWidget->sizeHint();
+            q_width -= sz.width();
+            d->leftWidget->setGeometry(QRect(QPoint(hmargin, vmargin), sz));
+        }
+        if(d->rightWidget && d->rightWidget->isVisible()) {
+            QSize sz = d->rightWidget->sizeHint();
+            q_width -= sz.width();
+            q_start = sz.width();
+            d->rightWidget->setGeometry(QRect(QPoint(q->width()-sz.width()-hmargin, vmargin), sz));
+        }
+    }
+    if(itemsWidth == q_width && q_start == itemsStart)
+        return;
+
 #ifdef Q_WS_MAC
     if(d->mac_menubar) {//nothing to see here folks, move along..
         itemsDirty = 0;
         return;
     }
 #endif
-    actionItems = calcActionRects(q_width);
+    actionItems = calcActionRects(q_width, q_start);
     itemsWidth = q_width;
+    itemsStart = q_start;
 #ifndef QT_NO_ACCEL
     if(itemsDirty) {
         delete shortcuts;
@@ -1354,6 +1376,18 @@ void Q4MenuBarPrivate::updateActions()
     }
 #endif
     itemsDirty = 0;
+
+#ifndef QT_NO_MAINWINDOW
+    QMainWindow *mw = qt_cast<QMainWindow*>(q->parent());
+    if(mw) {
+        mw->triggerLayout();
+        mw->update();
+    }
+#endif
+#ifndef QT_NO_LAYOUT
+    if(q->parentWidget() && q->parentWidget()->layout())
+        q->parentWidget()->layout()->activate();
+#endif
 }
 
 QRect Q4MenuBarPrivate::actionRect(QMenuAction *act) const
@@ -1433,9 +1467,9 @@ void Q4MenuBarPrivate::setCurrentAction(QMenuAction *action, bool popup, bool ac
     }
 }
 
-QList<QMenuAction*> Q4MenuBarPrivate::calcActionRects(int max_width) const
+QList<QMenuAction*> Q4MenuBarPrivate::calcActionRects(int max_width, int start) const
 {
-    if(!itemsDirty && itemsWidth == max_width)
+    if(!itemsDirty && itemsWidth == max_width && itemsStart == start)
         return actionItems;
     QList<QMenuAction*> ret;
     int max_item_height = 0, separator = -1, separator_start = 0, separator_len = 0;
@@ -1484,9 +1518,9 @@ QList<QMenuAction*> Q4MenuBarPrivate::calcActionRects(int max_width) const
     //calculate position
     const int hmargin = q->style().pixelMetric(QStyle::PM_MenuBarVMargin, q), 
               vmargin = q->style().pixelMetric(QStyle::PM_MenuBarVMargin, q);
-    int x = hmargin, y = vmargin;
-    const bool reverse = QApplication::reverseLayout();
     const int itemSpacing = q->style().pixelMetric(QStyle::PM_MenuBarItemSpacing, q);
+    const bool reverse = QApplication::reverseLayout();
+    int x = start == -1 ? hmargin : start + itemSpacing, y = vmargin;
     for(int i = 0; i != ret.count(); i++) {
         QMenuAction *item = ret.at(i);
         //resize
@@ -1958,38 +1992,54 @@ QRect Q4MenuBar::actionGeometry(QAction *act) const
     return QRect();
 }
 
-QSize Q4MenuBar::sizeHint() const
-{
-    ensurePolished();
-    QSize s(0, 0);
-    const_cast<Q4MenuBar*>(this)->d->updateActions();
-    for(int i = 0; i < d->actionItems.count(); ++i) {
-        QRect actionRect(d->actionItems[i]->rect);
-        if(actionRect.right() > s.width())
-            s.setWidth(actionRect.right());
-        if(actionRect.bottom() > s.height())
-            s.setHeight(actionRect.bottom());
-    }
-    if(const int fw = q->style().pixelMetric(QStyle::PM_MenuFrameWidth, q)) {
-        s.setWidth(s.width()+(fw*2));
-        s.setHeight(s.height()+(fw*2));
-    }
-    s.setWidth(s.width()+q->style().pixelMetric(QStyle::PM_MenuBarHMargin, q));
-    s.setHeight(s.height()+q->style().pixelMetric(QStyle::PM_MenuBarVMargin, q));
-    return (style().sizeFromContents(QStyle::CT_MenuBar, this, s.expandedTo(QApplication::globalStrut())));
-}
-
 QSize Q4MenuBar::minimumSizeHint() const
 { 
     return sizeHint(); 
 }
 
+QSize Q4MenuBar::sizeHint() const
+{
+    ensurePolished();
+    QSize ret(0, 0);
+    QList<QMenuAction*> actions = d->calcActionRects(width()-(style().pixelMetric(QStyle::PM_MenuBarFrameWidth, this)*2), 0);
+    for(int i = 0; i < actions.count(); ++i) {
+        QRect actionRect(actions[i]->rect);
+        if(actionRect.right() > ret.width())
+            ret.setWidth(actionRect.right());
+        if(actionRect.bottom() > ret.height())
+            ret.setHeight(actionRect.bottom());
+    }
+    if(const int fw = style().pixelMetric(QStyle::PM_MenuFrameWidth, this)) {
+        ret.setWidth(ret.width()+(fw*2));
+        ret.setHeight(ret.height()+(fw*2));
+    }
+    if(d->leftWidget) {
+        QSize sz = d->leftWidget->sizeHint();
+        ret.setWidth(ret.width() + sz.width());
+        if(sz.height() > ret.height())
+            ret.setHeight(sz.height());
+    }
+    if(d->rightWidget) {
+        QSize sz = d->rightWidget->sizeHint();
+        ret.setWidth(ret.width() + sz.width());
+        if(sz.height() > ret.height())
+            ret.setHeight(sz.height());
+    }
+    ret.setWidth(ret.width()+q->style().pixelMetric(QStyle::PM_MenuBarHMargin, q));
+    ret.setHeight(ret.height()+q->style().pixelMetric(QStyle::PM_MenuBarVMargin, q));
+    return (style().sizeFromContents(QStyle::CT_MenuBar, this, ret.expandedTo(QApplication::globalStrut())));
+}
+
 int Q4MenuBar::heightForWidth(int max_width) const
 {
-    QList<QMenuAction*> actions = d->calcActionRects(max_width);
+    QList<QMenuAction*> actions = d->calcActionRects(max_width, 0);
     int height = 0;
     for(int i = 0; i < actions.count(); ++i)
         height = qMax(height, actions[i]->rect.bottom());
+    if(d->leftWidget) 
+        height = qMax(d->leftWidget->sizeHint().height(), height);
+    if(d->rightWidget) 
+        height = qMax(d->rightWidget->sizeHint().height(), height);
     height += (q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q)*2) + q->style().pixelMetric(QStyle::PM_MenuBarVMargin, q);
     return style().sizeFromContents(QStyle::CT_MenuBar, this, QSize(0, height)).height(); //not pretty..
 }
@@ -2008,6 +2058,29 @@ void Q4MenuBar::internalShortcutActivated(int id)
 #endif
 }
 
+void Q4MenuBar::setLeftWidget(QWidget *w)
+{
+    d->itemsDirty = true;
+    if((d->leftWidget = w)) 
+        d->leftWidget->setParent(this);
+    d->updateActions();
+}
+
+void Q4MenuBar::setRightWidget(QWidget *w)
+{
+    d->itemsDirty = true;
+    if((d->rightWidget = w)) 
+        d->rightWidget->setParent(this);
+    d->updateActions();
+}
+
+
+
+
+
+
+
+/* compat code */
 #ifdef QT_COMPAT
 int Q4MenuBar::frameWidth() const
 {
