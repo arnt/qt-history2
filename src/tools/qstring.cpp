@@ -12837,8 +12837,8 @@ void QString::setLength( uint newLen )
     // fullName == First name is 'Joe', last name is 'Bloggs'
   \endcode
 
-  This function will return a string that replaces the lowest occurence of
-  \c %i (i being a positive integer starting from one) with \a a.
+  This function will return a string that replaces the lowest occurrence of
+  \c %i (\c i being '1' or '2' or ... or '9') with \a a.
 
   The \a fieldwidth value specifies the minimum amount of space that
   \a a is padded to.  A positive value will produce right-aligned text,
@@ -14111,7 +14111,7 @@ QString &QString::replace( uint index, uint len, const QChar* s, uint slen )
   character; if -2, at the next to last character and so on.  (See
   findRev() for searching from the end of the string).
 
-  Returns the position of the first occurence of \a rx or -1 if \a rx was not found.
+  Returns the position of the first occurrence of \a rx or -1 if \a rx was not found.
 
   This function does not set QRegExp::matchedLength(),
   QRegExp::capturedTexts() and friends. Use QRegExp::search() if you need to access
@@ -14136,7 +14136,7 @@ int QString::find( const QRegExp &rx, int index ) const
   position \a index and searching backwards. If the index is -1,
   the search starts at the last character, if it is -2, at the next
   to last character and so on.  (See findRev() for searching from
-  the end of the string).
+  the end of the string.)
 
   Returns the position of \a rx or -1 if \a rx could not be found.
 
@@ -14156,8 +14156,8 @@ int QString::findRev( const QRegExp &rx, int index ) const
 
   Returns the number of times the regexp occurs in the string.
 
-  This function counts overlapping occurences, so in the example below, there are four
-  instances of "ana" or "ama".
+  This function counts overlapping occurrences, so in the example
+  below, there are four instances of "ana" or "ama".
 
   \code
     QString str = "banana and panama";
