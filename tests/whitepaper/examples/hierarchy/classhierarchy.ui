@@ -1,0 +1,273 @@
+<!DOCTYPE UI><UI version="3.0" stdsetdef="1">
+<class>ClassHierarchy</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>ClassHierarchy</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>472</width>
+            <height>269</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Class Hierarchy</string>
+    </property>
+    <vbox>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <property name="margin">
+            <number>11</number>
+        </property>
+        <property name="spacing">
+            <number>11</number>
+        </property>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>Layout10</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
+                    <number>0</number>
+                </property>
+                <property name="spacing">
+                    <number>11</number>
+                </property>
+                <widget class="QListView">
+                    <column>
+                        <property name="text">
+                            <string>Class</string>
+                        </property>
+                        <property name="clickable">
+                            <bool>true</bool>
+                        </property>
+                        <property name="resizeable">
+                            <bool>true</bool>
+                        </property>
+                    </column>
+                    <column>
+                        <property name="text">
+                            <string>Source file</string>
+                        </property>
+                        <property name="clickable">
+                            <bool>true</bool>
+                        </property>
+                        <property name="resizeable">
+                            <bool>true</bool>
+                        </property>
+                    </column>
+                    <property name="name">
+                        <cstring>hierarchyView</cstring>
+                    </property>
+                    <property name="allColumnsShowFocus">
+                        <bool>true</bool>
+                    </property>
+                    <property name="rootIsDecorated">
+                        <bool>true</bool>
+                    </property>
+                    <property name="resizeMode">
+                        <enum>AllColumns</enum>
+                    </property>
+                </widget>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>Layout9</cstring>
+                    </property>
+                    <vbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <property name="margin">
+                            <number>0</number>
+                        </property>
+                        <property name="spacing">
+                            <number>6</number>
+                        </property>
+                        <widget class="QGroupBox">
+                            <property name="name">
+                                <cstring>languageGroupBox</cstring>
+                            </property>
+                            <property name="title">
+                                <string>&amp;Language</string>
+                            </property>
+                            <vbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <property name="margin">
+                                    <number>11</number>
+                                </property>
+                                <property name="spacing">
+                                    <number>6</number>
+                                </property>
+                                <widget class="QComboBox">
+                                    <item>
+                                        <property name="text">
+                                            <string>C++</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>Java</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>Python</string>
+                                        </property>
+                                    </item>
+                                    <property name="name">
+                                        <cstring>languageCombo</cstring>
+                                    </property>
+                                </widget>
+                            </vbox>
+                        </widget>
+                        <widget class="QGroupBox">
+                            <property name="name">
+                                <cstring>searchPathsGroupBox</cstring>
+                            </property>
+                            <property name="title">
+                                <string>&amp;Search Paths</string>
+                            </property>
+                            <vbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <property name="margin">
+                                    <number>11</number>
+                                </property>
+                                <property name="spacing">
+                                    <number>6</number>
+                                </property>
+                                <widget class="QListBox">
+                                    <property name="name">
+                                        <cstring>searchPathBox</cstring>
+                                    </property>
+                                    <property name="sizePolicy">
+                                        <sizepolicy>
+                                            <hsizetype>7</hsizetype>
+                                            <vsizetype>7</vsizetype>
+                                            <horstretch>0</horstretch>
+                                            <verstretch>0</verstretch>
+                                        </sizepolicy>
+                                    </property>
+                                </widget>
+                                <widget class="QPushButton">
+                                    <property name="name">
+                                        <cstring>addSearchPathButton</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>&amp;Add Search Path</string>
+                                    </property>
+                                </widget>
+                                <widget class="QPushButton">
+                                    <property name="name">
+                                        <cstring>removeSearchPathButton</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>&amp;Remove Search Path</string>
+                                    </property>
+                                </widget>
+                            </vbox>
+                        </widget>
+                    </vbox>
+                </widget>
+            </hbox>
+        </widget>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>Layout8</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
+                    <number>0</number>
+                </property>
+                <property name="spacing">
+                    <number>6</number>
+                </property>
+                <spacer>
+                    <property name="name" stdset="0">
+                        <cstring>Spacer2</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>20</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>updateButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Update</string>
+                    </property>
+                    <property name="default">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>closeButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Close</string>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+    </vbox>
+</widget>
+<connections>
+    <connection>
+        <sender>updateButton</sender>
+        <signal>clicked()</signal>
+        <receiver>ClassHierarchy</receiver>
+        <slot>updateHierarchy()</slot>
+    </connection>
+    <connection>
+        <sender>addSearchPathButton</sender>
+        <signal>clicked()</signal>
+        <receiver>ClassHierarchy</receiver>
+        <slot>addSearchPath()</slot>
+    </connection>
+    <connection>
+        <sender>removeSearchPathButton</sender>
+        <signal>clicked()</signal>
+        <receiver>ClassHierarchy</receiver>
+        <slot>removeSearchPath()</slot>
+    </connection>
+    <connection>
+        <sender>closeButton</sender>
+        <signal>clicked()</signal>
+        <receiver>ClassHierarchy</receiver>
+        <slot>close()</slot>
+    </connection>
+</connections>
+<includes>
+    <include location="local" impldecl="in implementation">classhierarchy.ui.h</include>
+</includes>
+<slots>
+    <slot>addSearchPath()</slot>
+    <slot>removeSearchPath()</slot>
+    <slot>updateHierarchy()</slot>
+    <slot>populateLevel( const QMap&lt;QString, QStringList&gt; &amp; derivedClassMap, const QString &amp; baseClass, QListViewItem * parentItem ) const</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>
