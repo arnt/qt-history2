@@ -44,8 +44,8 @@
 #include <qwidgetstack.h>
 #include <qprogressbar.h>
 #include <qsplitter.h>
-#include <qlistview.h>
-#include <qheader.h>
+#include <q3listview.h>
+#include <q3header.h>
 #include <qtextbrowser.h>
 #include <qfiledialog.h>
 #include <qaccel.h>
@@ -68,6 +68,8 @@
 #include "../application/filesave.xpm"
 #include "../application/fileprint.xpm"
 
+
+using namespace Qt;
 
 class MyWhatsThis : public Q3WhatsThis
 {
@@ -168,7 +170,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
 
     connect( textStylePopup, SIGNAL(activated(int)),
 	     this, SLOT(popupSelected(int)) );
-
+#if 1
     // Create an analog and a digital clock
     AnalogClock  *aclock = new AnalogClock( central );
     aclock->setAutoMask( TRUE );
@@ -184,7 +186,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     // make tool tips for both of them
     QToolTip::add( aclock, "custom widget: analog clock" );
     QToolTip::add( dclock, "custom widget: digital clock" );
-
+#endif
     // Create a push button.
     QPushButton *pb;
     pb = new QPushButton( "&Push button 1", central, "button1" );
@@ -205,6 +207,11 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
 				  QMessageBox::Ok + QMessageBox::Default );
     }
 
+
+    (void) new QMovie( MOVIEFILENAME );
+
+
+#if 0
     // Create a label containing a QMovie
     movie = QMovie( MOVIEFILENAME );
     movielabel = new QLabel( central, "label0" );
@@ -218,7 +225,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     QToolTip::add( movielabel, "movie" );
     QWhatsThis::add( movielabel, "This is a <b>QLabel</b> "
 		     "that contains a QMovie." );
-
+#endif
     // Create a group of check boxes
     bg = new Q3ButtonGroup( central );
     bg->setTitle( "Check Boxes" );
@@ -291,14 +298,14 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     grid->addLayout( vbox, 2, 1 );
 
     // Create a slider
-    QSlider *sb = new QSlider( QSlider::Horizontal, central );
+    QSlider *sb = new QSlider( Qt::Horizontal, central );
     sb->setMinimum( 0 );
     sb->setMaximumWidth( 300 );
     sb->setPageStep( 30 );
     sb->setSliderPosition( 100 );
     sb->setTickmarks( QSlider::Below );
     sb->setTickInterval( 10 );
-    sb->setFocusPolicy( QWidget::TabFocus );
+    sb->setFocusPolicy( Qt::TabFocus );
     vbox->addWidget( sb );
 
     connect( sb, SIGNAL(valueChanged(int)), SLOT(sliderValueChanged(int)) );
@@ -320,13 +327,13 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
 
     // Create an editable combo box
     QComboBox *edCombo = new QComboBox( TRUE, central, "edComboBox" );
-    QListBox *edComboLst = new QListBox(this);
-    edCombo->setListBox(edComboLst);
-    edComboLst->insertItem( "Permutable" );
-    edComboLst->insertItem( "Malleable" );
-    edComboLst->insertItem( "Adaptable" );
-    edComboLst->insertItem( "Alterable" );
-    edComboLst->insertItem( "Inconstant" );
+    // QListBox *edComboLst = new QListBox(this);
+    //edCombo->setListBox(edComboLst);
+    edCombo->insertItem( "Permutable" );
+    edCombo->insertItem( "Malleable" );
+    edCombo->insertItem( "Adaptable" );
+    edCombo->insertItem( "Alterable" );
+    edCombo->insertItem( "Inconstant" );
     vbox->addWidget( edCombo );
     connect( edCombo, SIGNAL(activated(const QString&)),
 	     this, SLOT(edComboBoxItemActivated(const QString&)) );
@@ -415,33 +422,33 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     QSplitter *split = new QSplitter( Vertical, central, "splitter" );
     split->setOpaqueResize( TRUE );
     topLayout->addWidget( split, 1 );
-    QListView *lv = new MyListView( split );
+    Q3ListView *lv = new MyListView( split );
     connect(lv, SIGNAL(selectionChanged() ),
 	    this, SLOT( selectionChanged() ) );
-    connect(lv, SIGNAL(selectionChanged(QListViewItem*) ),
-	    this, SLOT( selectionChanged(QListViewItem*) ) );
-    connect(lv, SIGNAL(clicked(QListViewItem*) ),
-	    this, SLOT( clicked(QListViewItem*) ) );
-    connect(lv, SIGNAL(mySelectionChanged(QListViewItem*) ),
-	    this, SLOT( mySelectionChanged(QListViewItem*) ) );
+    connect(lv, SIGNAL(selectionChanged(Q3ListViewItem*) ),
+	    this, SLOT( selectionChanged(Q3ListViewItem*) ) );
+    connect(lv, SIGNAL(clicked(Q3ListViewItem*) ),
+	    this, SLOT( clicked(Q3ListViewItem*) ) );
+    connect(lv, SIGNAL(mySelectionChanged(Q3ListViewItem*) ),
+	    this, SLOT( mySelectionChanged(Q3ListViewItem*) ) );
     lv->addColumn( "One" );
     lv->addColumn( "Two" );
     lv->setAllColumnsShowFocus( TRUE );
 
-    QListViewItem *lvi=  new QListViewItem( lv, "Text", "Text" );
-    lvi=  new QListViewItem( lv, "Text", "Other Text" );
-    lvi=  new QListViewItem( lv, "Text", "More Text" );
-    lvi=  new QListViewItem( lv, "Text", "Extra Text" );
+    Q3ListViewItem *lvi=  new Q3ListViewItem( lv, "Text", "Text" );
+    lvi=  new Q3ListViewItem( lv, "Text", "Other Text" );
+    lvi=  new Q3ListViewItem( lv, "Text", "More Text" );
+    lvi=  new Q3ListViewItem( lv, "Text", "Extra Text" );
     lvi->setOpen(TRUE);
-    (void)new QListViewItem( lvi, "SubText", "Additional Text" );
-    lvi=  new QListViewItem( lvi, "SubText", "Side Text" );
-    lvi=  new QListViewItem( lvi, "SubSubText", "Complimentary Text" );
+    (void)new Q3ListViewItem( lvi, "SubText", "Additional Text" );
+    lvi=  new Q3ListViewItem( lvi, "SubText", "Side Text" );
+    lvi=  new Q3ListViewItem( lvi, "SubSubText", "Complimentary Text" );
 
     QToolTip::add( lv, "list view" );
-    QWhatsThis::add( lv, "This is a <b>QListView</b>, you can display lists "
+    QWhatsThis::add( lv, "This is a <b>Q3ListView</b>, you can display lists "
 		     "(or outline lists) of multiple-column data in it." );
 
-    lv = new QListView( split );
+    lv = new Q3ListView( split );
     lv->addColumn( "Choices" );
     (void) new QCheckListItem( lv, "Onion", QCheckListItem::CheckBox );
     (void) new QCheckListItem( lv, "Artichoke", QCheckListItem::CheckBox );
@@ -460,7 +467,7 @@ WidgetView::WidgetView( QWidget *parent, const char *name )
     (void) new QCheckListItem( lit, "Jarlsberg", QCheckListItem::RadioButton );
 
     QToolTip::add( lv, "list view" );
-    QWhatsThis::add( lv, "This is also a <b>QListView</b>, with "
+    QWhatsThis::add( lv, "This is also a <b>Q3ListView</b>, with "
 		     "interactive items." );
 
     QTextBrowser *browser =  new QTextBrowser( split );
@@ -514,6 +521,7 @@ void WidgetView::movieUpdate( const QRect& )
 
 void WidgetView::movieStatus( int s )
 {
+#if 1
     switch ( s ) {
       case QMovie::SourceEmpty:
       case QMovie::UnrecognizedFormat:
@@ -527,6 +535,7 @@ void WidgetView::movieStatus( int s )
 	if ( movielabel->movie() )	 	// for flicker-free animation:
 	    movielabel->setAttribute(WA_NoSystemBackground, true);
     }
+#endif
 }
 
 
@@ -643,8 +652,8 @@ bool WidgetView::eventFilter( QObject *obj, QEvent *event )
     static bool identify_now = TRUE;
     if ( event->type() == QEvent::MouseButtonPress && identify_now ) {
 	QMouseEvent *e = (QMouseEvent*)event;
-	if ( e->button() == QMouseEvent::RightButton &&
-	     (e->state() & QMouseEvent::ControlButton) != 0 ){
+	if ( e->button() == Qt::RightButton &&
+	     (e->state() & Qt::ControlButton) != 0 ){
 	    QString str = "The clicked widget is a\n";
 	    str += obj->className();
 	    str += "\nThe widget's name is\n";
@@ -677,17 +686,17 @@ void WidgetView::selectionChanged()
 {
     //qDebug("selectionChanged");
 }
-void WidgetView::selectionChanged( QListViewItem* /*item*/)
+void WidgetView::selectionChanged( Q3ListViewItem* /*item*/)
 {
     //qDebug("selectionChanged %p", item );
 }
 
-void WidgetView::clicked( QListViewItem* /*item*/ )
+void WidgetView::clicked( Q3ListViewItem* /*item*/ )
 {
     //qDebug("clicked %p", item );
 }
 
-void WidgetView::mySelectionChanged( QListViewItem* /*item*/ )
+void WidgetView::mySelectionChanged( Q3ListViewItem* /*item*/ )
 {
     //qDebug("mySelectionChanged %p", item );
 }

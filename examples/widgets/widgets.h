@@ -17,7 +17,7 @@
 
 #include <qmainwindow.h>
 #include <qmovie.h>
-#include <qlistview.h>
+#include <q3listview.h>
 class QLabel;
 class QCheckBox;
 class QProgressBar;
@@ -26,12 +26,12 @@ class Q3ButtonGroup;
 class QMultiLineEdit;
 class QPopupMenu;
 
-class MyListView : public QListView
+class MyListView : public Q3ListView
 {
     Q_OBJECT
 public:
     MyListView( QWidget * parent = 0, const char *name = 0 )
-	: QListView( parent, name ), selected(0)
+	: Q3ListView( parent, name ), selected(0)
     {}
     ~MyListView()
     {}
@@ -40,11 +40,11 @@ protected:
     void contentsMousePressEvent( QMouseEvent * e )
     {
 	selected = selectedItem();
-	QListView::contentsMousePressEvent( e );
+	Q3ListView::contentsMousePressEvent( e );
     }
     void contentsMouseReleaseEvent( QMouseEvent * e )
     {
-	QListView::contentsMouseReleaseEvent( e );
+	Q3ListView::contentsMouseReleaseEvent( e );
 	if ( selectedItem() != selected ) {
 	    emit mySelectionChanged( selectedItem() );
 	    emit mySelectionChanged();
@@ -53,10 +53,10 @@ protected:
 
 signals:
     void mySelectionChanged();
-    void mySelectionChanged( QListViewItem* );
+    void mySelectionChanged( Q3ListViewItem* );
 
 private:
-    QListViewItem* selected;
+    Q3ListViewItem* selected;
 
 };
 //
@@ -72,9 +72,9 @@ public:
 public slots:
     void	setStatus(const QString&);
     void selectionChanged();
-    void selectionChanged( QListViewItem* );
-    void clicked( QListViewItem* );
-    void mySelectionChanged( QListViewItem* );
+    void selectionChanged( Q3ListViewItem* );
+    void clicked( Q3ListViewItem* );
+    void mySelectionChanged( Q3ListViewItem* );
 
 protected slots:
    virtual void button1Clicked();
