@@ -32,7 +32,7 @@ GLObjectWindow::GLObjectWindow(QWidget* parent)
 
     // Create a menu bar
     QMenuBar *m = new QMenuBar( this );
-    m->addMenu("&File", file );
+    m->addMenu(file)->setText("&File");
 
     // Create a nice frame to put around the OpenGL widget
     QFrame* f = new QFrame(this);
@@ -46,19 +46,19 @@ GLObjectWindow::GLObjectWindow(QWidget* parent)
     QSlider* x = new QSlider(Qt::Vertical, this);
     x->setMaximum(360);
     x->setPageStep(60);
-    x->setTickmarks( QSlider::Left );
+    x->setTickmarks( QSlider::TickMarksLeft );
     QObject::connect( x, SIGNAL(valueChanged(int)),c,SLOT(setXRotation(int)) );
 
     QSlider* y = new QSlider(Qt::Vertical, this);
     y->setMaximum(360);
     y->setPageStep(60);
-    y->setTickmarks( QSlider::Left );
+    y->setTickmarks( QSlider::TickMarksLeft );
     QObject::connect( y, SIGNAL(valueChanged(int)),c,SLOT(setYRotation(int)) );
 
     QSlider* z = new QSlider(Qt::Vertical, this);
     z->setMaximum(360);
     z->setPageStep(60);
-    z->setTickmarks( QSlider::Left );
+    z->setTickmarks( QSlider::TickMarksLeft );
     QObject::connect( z, SIGNAL(valueChanged(int)),c,SLOT(setZRotation(int)) );
 
     // Now that we have all the widgets, put them into a nice layout
