@@ -340,31 +340,64 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 */
 
 /*!
-  \fn void QStyle::drawPrimitive ( PrimitiveOperation op, QPainter *p, const QRect &r, const QColorGroup &cg, PFlags flags = PStyle_Default, void **data = 0 ) const
+  \fn void QStyle::drawPrimitive ( PrimitiveOperation op, QPainter *p, const QRect &r, const QColorGroup &cg, PFlags flags = PStyle_Default, void **data = 0 ) const;
 
-  Draws the style primitive \a op using the painter \a p in the
-  rect \a r.  Colors are used from the color group \cg.
+  Draws the style PrimitiveOperation \a op using the painter \a p in the
+  area \a r.  Colors are used from the color group \a cg.
 
-  The \a flags argument is used to control how the primitive is drawn.  Multiple
-  flags can be used.
+  The \a flags argument is used to control how the PrimitiveOperation is drawn.
+  Multiple flags can be used.
 
   For example, a pressed button would be drawn with the flags \e PStyle_Enabled and
   \e PStyle_Down.
 
-  The \a data argument can be used to control how various primitives are drawn.
-  Note that \a data can be zero even for primitives that make use of extra data.
-  When data is non-zero, the data is used as folows:
+  The \a data argument can be used to control how various PrimitiveOperations are drawn.
+  Note that \a data can be zero even for PrimitiveOperationss that make use of extra
+  data. When data is non-zero, the data is used as follows:
 
-  \list
-    \i \e PO_FocusRect  data[0] - const QColor * - pointer to the color the on
-       which focus rect is being drawn. It is used to determine the color for the
-       focus indicator.  For example, when drawing focus on highlighted
-       QListViewItem, data[0] should be the highlight color.  This allows the style
-       to use a light color for the focus rect if drawing on a dark background.
-    \i \e PO_Panel, \e PO_PanelPopup, \e PO_PanelMenuBar, \e PO_PanelDockWindow
-       data[0] should be a pointer to an integer ( int * ).  This integer is the
-       line width when drawing the panel.
-  \endlist
+  <p align=center>
+  <table cellpadding=2 cellspacing=2 border=0>
+    <tr bgcolor=#e5e5e5>
+      <td valign=top width=30%><b>PO_FocusRect</td>
+      <td valign=top width=20%>data[0]</td>
+      <td valign=top width=20%>const QColor *</td>
+      <td valign=top width=30%>pointer to the background color the on which focus rect is
+          being drawn </td>
+    </tr>
+    <tr bgcolor=#ffffff>
+      <td valign=top><b>PO_Panel, PO_PanelPopup, PO_PanelMenuBar, PO_PanelDockWindow</b>
+      </td>
+      <td valign=top>data[0]</td>
+      <td valign=top>int *</td>
+      <td valign=top>line width for drawing the panel.</td>
+    </tr>
+    <tr bgcolor=#e5e5e5>
+      <td valign=top><b>PO_GroupBoxFrame</b></td>
+      <td valign=top>data[0]</td>
+      <td valign=top>int *</td>
+      <td valign=top>frame shape for the group box.  See the documentation for QFrame
+          for more details.</td>
+    </tr>
+    <tr bgcolor=#e5e5e5>
+      <td valign=top></td>
+      <td valign=top>data[1]</td>
+      <td valign=top>int *</td>
+      <td valign=top>frame shadow for the group box.</td>
+    </tr>
+    <tr bgcolor=#e5e5e5>
+      <td valign=top></td>
+      <td valign=top>data[2]</td>
+      <td valign=top>int *</td>
+      <td valign=top>line width for the group box.</td>
+    </tr>
+    <tr bgcolor=#e5e5e5>
+      <td valign=top></td>
+      <td valign=top>data[3]</td>
+      <td valign=top>int *</td>
+      <td valign=top>mid-line width for the group box.</td>
+    </tr>
+  </table>
+  </p>
 
   For all other PrimitiveOperations, \a data is unused.
 
@@ -409,7 +442,10 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 /*!
   \enum QStyle::ControlElementFlags
 
-
+  This enum represents flags for drawing ControlElements.  Not all controls use all
+  of these flags.  Note that these flags can have different meaning for different
+  controls.  For an explanation of the relationship of various controls and flags,
+  as well as the different meanings of the flags, see the Style overview.
 
   \value CStyle_Default
   \value CStyle_Selected
@@ -417,12 +453,81 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
   \value CStyle_Active
 */
 
-/*
-  \fn void QStyle::drawControl( ControlElement element, QPainter *p, const QWidget *widget, const QRect &r, const QColorGroup &cg, CFlags how = CStyle_Default, void **data = 0 ) const;
+/*!
+  \fn void QStyle::drawControl ( ControlElement element, QPainter *p, const QWidget *widget, const QRect &r, const QColorGroup &cg, CFlags how = CStyle_Default, void **data = 0 ) const;
+
+  Draws the ControlElement \a element using the painter \a p in the area \a r.  Colors
+  are used from the color group \a cg.
+
+  The \a how argument is used to control how the ControlElement is drawn.  Multiple
+  flags can be used.
+
+  The \a widget argument is a pointer to a widget.  The widget can be cast to the
+  appropriate type based on the value of \a element:
+
+  \list
+    \i \e CE_PushButton, \e CE_PushButtonLabel  \a widget can be cast to a QPushButton.
+    \i \e CE_CheckBox, \e CE_CheckBoxLabel  \a widget can be cast to a QCheckBox.
+    \i \e CE_RadioButton, \e CE_RadioButtonLabel  \a widget can be cast to a
+       QRadioButton.
+    \i \e CE_TabBarTab, CE_TabBarLabel  \a widget can be cast to a QTabBar.
+    \i \e CE_ProgressBarGroove, \e CE_ProgressBarContents, \e CE_ProgressBarLabel
+       \a widget can be cast to a QProgressBar.
+    \i \e CE_PopupMenuItem  \a widget can be cast to a QPopupMenu.
+    \i \e CE_MenuBarItem  \a widget can be cast to a QMenuBar.
+  \endlist
+
+  The \a data argument can be used to pass extra information required when drawing
+  the ControlElement.  Note that \a data can be zero even for ControlElements that make
+  use of the extra data.  When data is non-zero, the data is used as follows:
+
+  <p align=center>
+  <table cellpadding=2 cellspacing=2 border=0 width=100%>
+    <tr bgcolor=#e5e5e5>
+      <td valign=top width=30%><b>CE_TabBarLabel</b></td>
+      <td valign=top width=20%>data[0]</td>
+      <td valign=top width=20%>QTab *</td>
+      <td valign=top width=30%>pointer to the QTab being drawn.</td>
+    </tr>
+    <tr bgcolor=#ffffff>
+      <td valign=top><b>CE_PopupMenuItem</b></td>
+      <td valign=top>data[0]</td>
+      <td valign=top>QMenuItem *</td>
+      <td valign=top>pointer to the menu item being drawn.</td>
+    </tr>
+    <tr bgcolor=#ffffff>
+      <td valign=top></td>
+      <td valign=top>data[1]</td>
+      <td valign=top>int *</td>
+      <td valign=top>width of the tab column where key accelerators are drawn.</td>
+    </tr>
+    <tr bgcolor=#ffffff>
+      <td valign=top></td>
+      <td valign=top>data[2]</td>
+      <td valign=top>int *</td>
+      <td valign=top>maximum width of the check column where checkmarks and iconsets
+          are drawn.</td>
+    </tr>
+    <tr bgcolor=#e5e5e5>
+      <td valign=top><b>CE_MenuBarItem</b></td>
+      <td valign=top>data[0]</td>
+      <td valign=top>QMenuItem *</td>
+      <td valign=top>pointer to the menu item being drawn.</td>
+    </tr>
+  </table>
+  </p>
+
+  \sa ControlElement, ControlElementFlags
 */
 
 /*!
   \fn void QStyle::drawControlMask( ControlElement element, QPainter *p, const QWidget *widget, const QRect &r, void **data = 0 ) const;
+
+  Draw a bitmask for the ControlElement \a element using the painter \a p in the
+  area \r.  See the documentation for drawControl() for an explanation on use
+  of the \a data argument.
+
+  \sa drawControl(), ControlElement
 */
 
 /*!
@@ -453,6 +558,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
 /*!
   \fn QRect QStyle::subRect( SubRect r, const QWidget *widget ) const;
+
+  document me!
 */
 
 /*!
@@ -517,18 +624,26 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
 /*!
   \fn void QStyle::drawComplexControl( ComplexControl control, QPainter *p, const QWidget *widget, const QRect &r, const QColorGroup &cg, CFlags flags = CStyle_Default, SCFlags sub = SC_All, SCFlags subActive = SC_None, void **data = 0 ) const;
+
+  document me!
 */
 
 /*!
   \fn void QStyle::drawComplexControlMask( ComplexControl control, QPainter *p, const QWidget *widget, const QRect &r, void **data = 0 ) const;
+
+  document me!
 */
 
 /*!
   \fn QRect QStyle::querySubControlMetrics( ComplexControl control, const QWidget *widget, SubControl sc, void **data = 0 ) const;
+
+  document me!
 */
 
 /*!
   \fn SubControl QStyle::querySubControl( ComplexControl control, const QWidget *widget, const QPoint &pos, void **data = 0 ) const;
+
+  document me!
 */
 
 /*!
@@ -587,6 +702,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
 /*!
   \fn int QStyle::pixelMetric( PixelMetric metric, const QWidget *widget = 0 ) const;
+
+  document me!
 */
 
 /*!
@@ -606,6 +723,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
 /*!
   \fn QSize QStyle::sizeFromContents( ContentsType contents, const QWidget *widget, const QSize &contentsSize, void **data = 0 ) const;
+
+  document me!
 */
 
 /*!
@@ -622,6 +741,8 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
 /*!
   \fn int QStyle::styleHint( StyleHint stylehint, const QWidget *widget = 0, void ***returnData = 0 ) const;
+
+  document me!
 */
 
 /*!
@@ -639,14 +760,20 @@ void QStyle::drawItem( QPainter *p, const QRect &r,
 
 /*!
   \fn QPixmap QStyle::stylePixmap( StylePixmap stylepixmap, const QWidget *widget = 0, void **data = 0 ) const;
+
+  document me!
 */
 
 /*!
   \fn QRect QStyle::visualRect( const QRect &logical, const QWidget *w );
+
+  document me!
 */
 
 /*!
   \fn QRect QStyle::visualRect( const QRect &logical, const QRect &bounding );
+
+  document me!
 */
 
 
