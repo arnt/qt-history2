@@ -6351,15 +6351,15 @@ bool qt_xForm_helper(const QMatrix &trueMat, int xoffset, int type, int depth,
                      uchar *sptr, int sbpl, int sWidth, int sHeight
     )
 {
-    int m11 = qRound(trueMat.m11()*65536.0);
-    int m12 = qRound(trueMat.m12()*65536.0);
-    int m21 = qRound(trueMat.m21()*65536.0);
-    int m22 = qRound(trueMat.m22()*65536.0);
+    int m11 = int(trueMat.m11()*65536.0 + 1.);
+    int m12 = int(trueMat.m12()*65536.0 + 1.);
+    int m21 = int(trueMat.m21()*65536.0 + 1.);
+    int m22 = int(trueMat.m22()*65536.0 + 1.);
     int dx  = qRound(trueMat.dx() *65536.0);
     int dy  = qRound(trueMat.dy() *65536.0);
 
-    int m21ydx = dx + (xoffset<<16) + QABS(m11)/2;
-    int m22ydy = dy + QABS(m22)/2;
+    int m21ydx = dx + (xoffset<<16);
+    int m22ydy = dy;
     uint trigx;
     uint trigy;
     uint maxws = sWidth<<16;
