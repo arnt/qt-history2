@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.h#6 $
+** $Id: //depot/qt/main/src/kernel/qapplication.h#7 $
 **
 ** Definition of QApplication class
 **
@@ -16,9 +16,8 @@
 #include "qwidget.h"
 
 
-#if !defined(NO_APPNOTIFY)
-#define USE_APPNOTIFY				// undefine for faster events
-#endif
+extern int qMain( int, char ** );		// user-supplied main function
+extern QApplication *qApp;			// global application object
 
 
 class QApplication				// application class
@@ -31,15 +30,19 @@ public:
     static GUIStyle style()	{ return appStyle; }
     static void	    setStyle( GUIStyle );
 
-    int	     	 exec( QWidget *mainWidget );	// start event handing
-    static void  quit( int retcode = 0 );	// quit application
+    int		 exec( QWidget *mainWidget );	// start event handing
+    static void	 quit( int retcode = 0 );	// quit application
+
+    static bool	 sendEvent( QObject *object, QEvent *event )
+	{ return qApp->notify( object, event ); }
+    static bool	 postEvent( QObject *object, QEvent *event );
 
     static QWidget *desktop();			// get desktop widget
-    QWidget 	*mainWidget() const { return main_widget; }
+    QWidget	*mainWidget() const { return main_widget; }
 
     virtual bool notify( QObject *, QEvent * ); // send event to object
 
-    static void  cleanup();			// cleanup application
+    static void	 cleanup();			// cleanup application
 
 protected:
     static QWidget *main_widget;		// main application widget
@@ -60,28 +63,6 @@ public:
     virtual bool x11EventFilter( XEvent * );	// X11 event filter
 #endif
 };
-
-
-extern int qMain( int, char ** );		// user-supplied main function
-
-extern QApplication *qApp;			// global application object
-
-
-#if defined(USE_APPNOTIFY)
-
-inline bool SEND_EVENT( QObject *obj, QEvent *evt )
-{						// send event to object
-    return qApp->notify(obj,evt);		// via qApp
-}
-
-#else
-
-inline bool SEND_EVENT( QObject *obj, QEvent *evt )
-{						// send event to object
-    return obj->event( evt );			// directly
-}
-
-#endif // USE_APPNOTIFY
 
 
 #endif // QAPP_H

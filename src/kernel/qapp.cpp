@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#4 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidget.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapp.cpp#4 $";
 #endif
 
 
@@ -51,12 +51,6 @@ QApplication::~QApplication()
 }
 
 
-void QApplication::setStyle( GUIStyle s )	// set application GUI style
-{
-    appStyle = s;
-}
-
-
 void QApplication::cleanup()			// cleanup application
 {
     if ( !qApp ) {				// only if qApp deleted
@@ -65,6 +59,12 @@ void QApplication::cleanup()			// cleanup application
 	QWidget::destroyMapper();		// destroy widget mapper
 	delete objectDict;			// delete object dictionary
     }
+}
+
+
+void QApplication::setStyle( GUIStyle s )	// set application GUI style
+{
+    appStyle = s;
 }
 
 
