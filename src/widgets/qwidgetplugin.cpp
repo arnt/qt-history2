@@ -116,7 +116,7 @@ QRESULT QWidgetPluginPrivate::queryInterface( const QUuid &iid, QUnknownInterfac
 
   Returns the list of widget keys this plugin supports.
 
-  These keys are usually the class names of the custom widgets that are
+  These keys must be the class names of the custom widgets that are
   implemented in the plugin.
 
   \sa create()
@@ -125,7 +125,7 @@ QRESULT QWidgetPluginPrivate::queryInterface( const QUuid &iid, QUnknownInterfac
 /*! \fn QWidget *QWidgetPlugin::create( const QString &, QWidget *, const char * )
 
   Creates and returns a QWidget object for the widget key \a key. The
-  widget key is usually the class name of the required widget. The
+  widget key is the class name of the required widget. The
   \a name and \a parent arguments are passed to the custom widget's
   constructor.
 
@@ -217,7 +217,7 @@ QWidgetPlugin::~QWidgetPlugin()
 }
 
 /*!
-    Returns the group (toolbar name) that the custom widget called \a
+    Returns the group (toolbar name) that the custom widget of class \a
     key should be part of when \e{Qt Designer} loads it.
 
     The default implementation returns a null string.
@@ -229,7 +229,7 @@ QString QWidgetPlugin::group( const QString & ) const
 
 /*!
     Returns the iconset that \e{Qt Designer} should use to represent
-    the custom widget called \a key in the toolbar.
+    the custom widget of class \a key in the toolbar.
 
     The default implementation returns an null iconset.
 */
@@ -240,7 +240,7 @@ QIconSet QWidgetPlugin::iconSet( const QString & ) const
 
 /*!
     Returns the name of the include file that \e{Qt Designer} and \c
-    uic should use to include the custom widget called \a key in
+    uic should use to include the custom widget of class \a key in
     generated code.
 
     The default implementation returns a null string.
@@ -252,7 +252,7 @@ QString QWidgetPlugin::includeFile( const QString & ) const
 
 /*!
     Returns the text of the tooltip that \e{Qt Designer} should use
-    for the custom widget called \a key's toolbar button.
+    for the custom widget of class \a key's toolbar button.
 
     The default implementation returns a null string.
 */
@@ -264,7 +264,7 @@ QString QWidgetPlugin::toolTip( const QString & ) const
 /*!
     Returns the text of the whatsThis text that \e{Qt Designer} should
     use when the user requests whatsThis help for the custom widget
-    called \a key.
+    of class \a key.
 
     The default implementation returns a null string.
 */
@@ -274,7 +274,7 @@ QString QWidgetPlugin::whatsThis( const QString & ) const
 }
 
 /*!
-    Returns TRUE if the custom widget called \a key can contain other
+    Returns TRUE if the custom widget of class \a key can contain other
     widgets, e.g. like QFrame; otherwise returns FALSE.
 
     The default implementation returns FALSE.
