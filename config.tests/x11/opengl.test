@@ -5,12 +5,17 @@ XCONFIG=$1/qmake.conf
 THREAD=$2
 VERBOSE=$3
 
+
+# debuggery
+
 if [ "$VERBOSE" = "yes" ]
 then
     echo "OpenGL auto-detection..."
 fi
 
-#check for lib
+
+# check for lib
+
 LIBS=`sed -n -e '/^QMAKE_LIBS_OPENGL[	 ]*=/ { s/[^=]*=[	 ]*//; s/-l/ /g; p; }' $XCONFIG`
 GLDIRS=`sed -n -e '/^QMAKE_LIBDIR_OPENGL[	 ]*=/ { s/[^=]*=[	 ]*//; p; }' $XCONFIG`
 XDIRS=`sed -n -e '/^QMAKE_LIBDIR_X11[	 ]*=/ { s/[^=]*=[	 ]*//; p; }' $XCONFIG`
@@ -66,7 +71,9 @@ do
     fi
 done
 
-#check for headers
+
+# check for headers
+
 if [ "$OPENGL" = "yes" ]
 then
     INCS="GL/gl.h GL/glu.h"
@@ -100,6 +107,9 @@ then
 	fi
     done
 fi
+
+
+# done
 
 if [ "$OPENGL" != "yes" ]
 then

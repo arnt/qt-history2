@@ -1,27 +1,91 @@
 #!/bin/sh
 
-#check for lib
+
+XFREETYPE=yes
+XCONFIG=$1/qmake.conf
+VERBOSE=$2
+
+
+# debuggery
+
+if [ "$VERBOSE" = "yes" ]
+then
+    echo "XftFreeType auto-detection..."
+fi
+
+
+# check for lib
+
 XDIRS=`sed -n -e '/^QMAKE_LIBDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-L/ /g; p; }' $1/qmake.conf`
 LIBDIRS="$XDIRS /usr/lib /lib"
 F=
 for LIBDIR in $LIBDIRS
 do
     FOUND_LIB=`ls $LIBDIR/libXft.* 2>/dev/null`
-    if [ ! -z "$FOUND_LIB" ] 
+    if [ ! -z "$FOUND_LIB" ]
     then
 	F=yes
+	if [ "$VERBOSE" = "yes" ]
+	then
+	    echo "  Found XftFreeType lib in $LIBDIR"
+	fi
 	break
     fi
 done
-[ -z "$F" ] && exit 0
+if [ -z "$F" ]
+then
+    XFREETYPE=no
+    if [ "$VERBOSE" = "yes" ]
+    then
+	echo "  Could not find XftFreeType lib anywhere in $LIBDIRS"
+    fi
+fi
+    
 
-#check for headers
-INC="X11/Xft/XftFreetype.h"
-XDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $1/qmake.conf`
-INCDIRS="$XDIRS /usr/include /include"
-F=
-for INCDIR in $INCDIRS
-do
-    [ -f $INCDIR/$INC ] && exit 1
-done
-exit 0
+# check for headers
+
+if [ "$XFREETYPE" = "yes" ]
+then
+    INC="X11/Xft/XftFreetype.h"
+    XDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; s/-I/ /g; p; }' $1/qmake.conf`
+    INCDIRS="$XDIRS /usr/include /include"
+    F=
+    for INCDIR in $INCDIRS
+    do
+	if [ -f $INCDIR/$INC ]
+	then
+	    F=yes
+	    if [ "$VERBOSE" = "yes" ]
+	    then
+		echo "  Found $INC in $INCDIR"
+	    fi
+	    break
+	fi
+    done
+    if [ -z "$F" ]
+    then
+	XFREETYPE=no
+	if [ "$VERBOSE" = "yes" ]
+	then
+	    echo "  Could not find $INC anywhere in $INCDIRS"
+	fi
+    fi
+fi
+
+
+# done
+
+if [ "$XFREETYPE" != "yes" ]
+then
+    if [ "$VERBOSE" = "yes" ]
+    then
+	echo "XftFreeType disabled."
+    fi
+    exit 0
+else
+    if [ "$VERBOSE" = "yes" ]
+    then
+	echo "XftFreeType enabled."
+    fi
+    exit 1
+fi

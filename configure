@@ -833,26 +833,26 @@ then
    if [ $XRENDER = auto ]
    then
        XRENDER=yes
-       $x11tests/xrender.test $XQMAKESPEC && XRENDER=no && XFTFREETYPE=no
+       $x11tests/xrender.test $XQMAKESPEC $VERBOSE && XRENDER=no && XFTFREETYPE=no
    fi
    # Auto-detect XftFreeType support
    if [ $XRENDER = yes ] && [ $XFTFREETYPE = auto ]
    then
        XFTFREETYPE=yes
-       $x11tests/xfreetype.test $XQMAKESPEC && XFTFREETYPE=no
+       $x11tests/xfreetype.test $XQMAKESPEC $VERBOSE && XFTFREETYPE=no
    fi
    # Auto-detect session management support
    if [ $SM = auto ]
    then
        SM=yes
-       $x11tests/sm.test $XQMAKESPEC && SM=no
+       $x11tests/sm.test $XQMAKESPEC $VERBOSE && SM=no
    fi
 
    # Auto-detect Xinerama support
    if [ $XINERAMA = auto ]
    then
        XINERAMA=yes
-       $x11tests/xinerama.test $XQMAKESPEC && XINERAMA=no
+       $x11tests/xinerama.test $XQMAKESPEC $VERBOSE && XINERAMA=no
    fi
 fi
 
