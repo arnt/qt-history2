@@ -242,7 +242,7 @@ QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )
 	       (modal ? (f|WShowModal) : f) | WType_Dialog ),
       rescode(0), in_loop(0)
 {
-    if (!name)
+    if (name)
 	setObjectName(name);
 }
 
