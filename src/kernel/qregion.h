@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.h#32 $
+** $Id: //depot/qt/main/src/kernel/qregion.h#33 $
 **
 ** Definition of QRegion class
 **
@@ -61,6 +61,9 @@ public:
     QRegion xor( const QRegion & )	const;
 #endif
     QRegion eor( const QRegion & )	const;
+
+    QRect   boundingRect() const;
+    QArray<QRect> getRects() const;
 
     bool    operator==( const QRegion & )  const;
     bool    operator!=( const QRegion &r ) const

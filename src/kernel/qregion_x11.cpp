@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#29 $
 **
 ** Implementation of QRegion class for X11
 **
@@ -17,7 +17,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_x11.cpp#28 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_x11.cpp#29 $");
 
 
 static QRegion *empty_region = 0;
@@ -299,6 +299,54 @@ QRegion QRegion::eor( const QRegion &r ) const
     XXorRegion( data->rgn, r.data->rgn, result.data->rgn );
     result.cmd( QRGN_XOR, 0, this, &r );
     return result;
+}
+
+
+/*!
+  Returns the bounding rectange of this region.
+  An empty region gives a \link QRect::isNull() null\endlink
+  rectangle.
+*/
+
+QRect QRegion::boundingRect() const
+{
+    XRectangle r;
+    XClipBox( data->rgn, &r );
+    return QRect( r.x, r.y, r.width, r.height );
+}
+
+
+/*
+  This is how X represents regions internally.
+*/
+
+struct BOX {
+    short x1, x2, y1, y2;
+};
+
+struct _XRegion {
+    long size;
+    long numRects;
+    BOX *rects;
+    BOX  extents;
+};
+
+
+/*!
+  Returns an array of the rectangles that make up the region.
+  The rectangles are non-overlapping. The region is formed by
+  the union of all these rectangles.
+*/
+
+QArray<QRect> QRegion::getRects() const
+{
+    QArray<QRect> a( data->rgn->numRects );
+    BOX *r = data->rgn->rects;
+    for ( int i=0; i<(int)a.size(); i++ ) {
+	a[i] = QRect( r->x1, r->y1, r->x2-r->x1, r->y2-r->y1 );
+	r++;
+    }
+    return a;
 }
 
 
