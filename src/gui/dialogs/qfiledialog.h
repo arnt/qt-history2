@@ -37,6 +37,7 @@ public:
     ~QFileDialog();
 
     void setDirectory(const QDir &directory);
+    inline void setDirectory(const QString &directory) { setDirectory(QDir(directory)); }
     QDir directory() const;
 
     void selectFile(const QString &filename);
