@@ -12,13 +12,22 @@
 class QLogViewPrivate
 {
 public:
-    QLogViewPrivate() : mousePressed( FALSE ), len( 0 ), numLines( 0 ) {}
+    QLogViewPrivate() : mousePressed( FALSE ), len( 0 ), numLines( 0 ) 
+    {
+	selStart.line = selStart.index = -1;
+	selEnd.line = selEnd.index = -1;
+    }
     ~QLogViewPrivate() {}
+    QPoint oldCoord;
     bool mousePressed;
+    int anchorX;
     int len;
     int numLines;
-    QPoint selectionStart;
-    QPoint selectionEnd;
+    struct selection {
+	int line;
+	int index;
+    };
+    selection selStart, selEnd;
     QMap< int, QString > lines;
 };
 
@@ -57,6 +66,9 @@ QLogView::~QLogView()
 void QLogView::init()
 {
     d =  new QLogViewPrivate;
+    d->oldCoord.setX( 0 );
+    d->oldCoord.setY( 0 );
+    d->anchorX = 0;
     viewport()->setBackgroundMode( PaletteBase );
 }
 
@@ -147,20 +159,21 @@ int QLogView::length()
 
 /*! \reimp
 */
-void QLogView::drawContents( QPainter * p, int clipx, int clipy, int clipw, int cliph )
+void QLogView::drawContents( QPainter * p, int clipx, int clipy, int clipw,
+			     int cliph )
 {
     QFontMetrics fm( font() );
     int startLine = clipy / fm.lineSpacing();
-    int nlines = (cliph / fm.lineSpacing()) + 2;
+    int nLines = (cliph / fm.lineSpacing()) + 2 ;
     
     if ( startLine >= d->numLines )
 	return;
-    if ( (startLine + nlines) > d->numLines )
-	nlines = d->numLines - startLine;
+    if ( (startLine + nLines) > d->numLines )
+	nLines = d->numLines - startLine;
     
     int i = 0;
     QString str;
-    for ( i = startLine; i < (startLine + nlines); i++ )
+    for ( i = startLine; i < (startLine + nLines); i++ )
 	str.append( d->lines[ i ] + "\n" );
     
     QTextDocument * doc = new QTextDocument( 0 );
@@ -168,14 +181,95 @@ void QLogView::drawContents( QPainter * p, int clipx, int clipy, int clipw, int 
     doc->setFormatter( new QTextFormatterBreakWords ); // deleted by QTextDoc
     doc->formatter()->setWrapEnabled( FALSE );
 
+    QTextCursor c1( doc );
+    QTextCursor c2( doc );
+    int selStart = d->selStart.line;
+    int idxStart = d->selStart.index;
+    int selEnd = d->selEnd.line;
+    int idxEnd = d->selEnd.index;
+    if ( selEnd < selStart ) {
+	selStart = d->selEnd.line;
+	idxStart = d->selEnd.index;
+	selEnd = d->selStart.line;
+	idxEnd = d->selStart.index;
+    }
+    int endLine = startLine + nLines;
+    // find start parag and index for selection
+    if ( selStart != -1 && selEnd != -1 ) {
+	if ( startLine <= selStart && endLine >= selEnd )
+	{
+	    // case 1: area to paint covers entire selection
+	    int paragS = selStart - startLine;
+	    int paragE = selEnd - selStart;
+	    QTextParag * parag = doc->firstParag();
+	    while ( parag && paragS-- )
+		parag = parag->next();
+	    c1.setParag( parag );
+	    c1.setIndex( idxStart );
+	    while ( parag && paragE-- )
+		parag = parag->next();
+	    c2.setParag( parag );
+	    c2.setIndex( idxEnd );
+	    doc->setSelectionStart( QTextDocument::Standard, &c1 );
+	    doc->setSelectionEnd( QTextDocument::Standard, &c2 );
+	} else if ( startLine > selStart && endLine < selEnd )
+	{
+	    // case 2: area to paint is all part of the selection
+	    doc->selectAll( QTextDocument::Standard );
+	} else if ( startLine > selStart && endLine >= selEnd &&
+		    startLine <= selEnd )
+	{
+	    qWarning("case 3");
+	    // case 3: area to paint starts inside a selection, ends past it
+	    c1.setParag( doc->firstParag() );
+	    c1.setIndex( 0 );
+	    int paragE = selEnd - startLine;
+	    QTextParag * parag = doc->firstParag();
+	    while ( parag && paragE-- )
+		parag = parag->next();
+	    qWarning("len: %d - paragE: %d - %d,%d - %d,%d", parag?parag->string()->toString().length(): -1, selEnd-startLine, startLine, endLine, selStart, selEnd);
+	    c2.setParag( parag );
+	    c2.setIndex( idxEnd );
+	    doc->setSelectionStart( QTextDocument::Standard, &c1 );
+	    doc->setSelectionEnd( QTextDocument::Standard, &c2 );
+	} else if ( startLine <= selStart && endLine < selEnd &&
+		    endLine > selStart )
+	{
+	    // case 4: area to paint starts before a selection, ends inside it
+	    int paragS = selStart - startLine;
+	    QTextParag * parag = doc->firstParag();
+	    while ( parag && paragS-- )
+		parag = parag->next();
+	    c1.setParag( parag );
+	    c1.setIndex( idxStart );
+	    c2.setParag( doc->lastParag() );
+	    c2.setIndex( doc->lastParag()->string()->toString().length() - 1 );
+	    
+	    doc->setSelectionStart( QTextDocument::Standard, &c1 );
+	    doc->setSelectionEnd( QTextDocument::Standard, &c2 );
+	}
+    }
+    
+//     static int pp = 0;
+//     QBrush br;
+//     if ( !pp ) {
+// 	pp = 1;
+// 	br = red;
+//     } else {
+// 	pp = 0;
+// 	br = green;
+//     }
+//     QColorGroup col = colorGroup();
+//     col.setBrush( QColorGroup::Base, br );
+    
     // have to align the painter so that partly visible lines are
     // drawn at the correct position within the area that needs to be
     // painted
-    QRect r( 0, 0, clipw, cliph + (clipy % fm.lineSpacing()) );
-    p->translate( 0, clipy - (clipy % fm.lineSpacing()) );
-    doc->draw( p, r, colorGroup() );
-    p->translate( 0, -(clipy - (clipy % fm.lineSpacing())) );
-
+    int offset = clipy % fm.lineSpacing() + 2;
+    QRect r( clipx, 0, clipw, cliph + offset );
+    p->translate( 0, clipy - offset );
+    doc->draw( p, r.x(), r.y(), r.width(), r.height(), colorGroup() );
+    p->translate( 0, -(clipy - offset) );
     delete doc;
 }
 
@@ -190,20 +284,103 @@ void QLogView::fontChange( const QFont & )
 
 void QLogView::contentsMousePressEvent( QMouseEvent * e )
 {
+    if ( e->button() != LeftButton )
+	return;
+    
+    QFontMetrics fm( font() );
     d->mousePressed = TRUE;
-    d->selectionStart = e->pos();
+    d->selStart.line = e->y() / fm.lineSpacing();
+    QString str = d->lines[ d->selStart.line ];
+    if ( e->x() > fm.width( str ) ) {
+	d->selStart.index = str.length();
+    } else {
+	int i = 0;
+	while ( i < str.length() ) {
+	    if ( fm.width( str.right( i + 1 ) ) < e->x() )
+		i++;
+	    else
+		break;
+	}
+	d->selStart.index = i;
+    }
+    d->selEnd.line = d->selStart.line;
+    d->selEnd.index = d->selStart.index;
+    d->anchorX = e->x();
+    repaintContents( FALSE );
 }
 
 void QLogView::contentsMouseReleaseEvent( QMouseEvent * e )
 {
-    d->mousePressed = TRUE;
+    QFontMetrics fm( font() );
+    d->mousePressed = FALSE;
+    d->selEnd.line = e->y() / fm.lineSpacing();
+    QString str = d->lines[ d->selEnd.line ];
+    if ( e->x() > fm.width( str ) ) {
+	d->selEnd.index = str.length();
+    } else {
+	int i = 0;
+	int dd, dist = 10000000;
+	int curpos = str.length();
+	while ( i < str.length() ) {
+	    if ( fm.width( str.right( i + 1 ) ) < e->x() )
+		i++;
+	    else
+		break;
+	}
+	d->selEnd.index = i;
+    }
+    if ( d->selEnd.line < d->selStart.line ) {
+	int tmp = d->selStart.line;
+	d->selStart.line = d->selEnd.line;
+	d->selEnd.line = tmp;
+	tmp = d->selStart.index;
+	d->selStart.index = d->selEnd.index;
+	d->selEnd.index = tmp;
+    }
+    repaintContents( FALSE );
 }
 
 void QLogView::contentsMouseMoveEvent( QMouseEvent * e )
 {
+    QFontMetrics fm( font() );
     if ( d->mousePressed ) {
-	QPainter p( viewport() );
-	p.drawLine( d->selectionStart.x(), d->selectionStart.y(),
-		    e->pos().x(), e->pos().y() );
+	d->selEnd.line = e->y() / fm.lineSpacing();
+	if ( d->selEnd.line < 0 )
+	    d->selEnd.line = 0;
+	QString str = d->lines[ d->selEnd.line ];
+	if ( e->x() > fm.width( str ) ) {
+	    d->selEnd.index = str.length();
+	} else {
+	    int i = 0;
+	    int dd, dist = 10000000;
+	    int curpos = 0;
+	    while ( i < str.length() ) {
+		dd = fm.width( str.right( i ) ) - e->x();
+		if ( QABS(dd) < dist || dist == dd ) {
+		    dist = QABS(dd);
+		    if ( e->x() >= fm.width( str.right( i ) ) ) {
+			if ( d->anchorX > e->x() )
+			    curpos = i;
+			else
+			    curpos = i + 1;
+		    }
+		}
+		i++;
+ 	    }
+	    d->selEnd.index = curpos;
+	}
+	// calc height of rect that needs redrawing
+	int y;
+	int h = QABS(e->y() - d->oldCoord.y()) + fm.lineSpacing() * 4;
+	h = h - (h % fm.lineSpacing());
+	if ( d->oldCoord.y() < e->y() )
+	    y = d->oldCoord.y() - fm.lineSpacing() * 2;
+	else
+	    y = e->y() - fm.lineSpacing() * 2;
+	if ( y < 0 )
+	    y = 0;
+	qWarning("rep: (%d, %d) - (%d, %d)", 0, y, width(), h );
+	repaintContents( 0, y, width(), h, FALSE ); 
+	d->oldCoord = e->pos();
     }
 }
