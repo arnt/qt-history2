@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#18 $
 **
 ** Implementation of event classes
 **
@@ -13,7 +13,7 @@
 #include "qevent.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qevent.cpp#18 $";
 #endif
 
 
@@ -91,51 +91,51 @@ void QEvent::peErrMsg()				// posted event error message
 }
 
 
-/*----------------------------------------------------------------------------  
-  \class QEvent qevent.h
+/*----------------------------------------------------------------------------   \class QEvent qevent.h
   \brief The QEvent class is base class of all
   event classes. Event objects contain event parameters.
 
   \ingroup event
 
-  The main event loop of Qt fetches native window system events from the event
-  queue, translates the events to Qt events and sends those translated
-  events to application objects.
+  The \link QApplication::exec() main event loop\endlink of Qt fetches
+  native window system events from the event queue, translates them
+  to Qt events and sends the translated events to application objects.
 
   Generally, events come from the underlying window system, but it is also
-  possible to manually send events through the QApplication class
-  (see QApplication::sendEvent() and QApplication::postEvent()).
+  possible to manually send events through the QApplication class using
+  QApplication::sendEvent() and QApplication::postEvent().
 
   Only classes that inherit QObject and reimplement the virtual
   QObject::event() function may receive events.
 
   The QWidget class reimplements the event() function to
-  dispatch the event to an appropriate virtual function (event handler) on
+  dispatch an event to an appropriate event handler (virtual function) on
   basis of the event type.
 
   QWidget::keyPressEvent() and QWidget::mouseMoveEvent() are examples of
   widget event handlers.
 
-  The basic QEvent contains only an event type parameter. Subclasses of
+  The basic QEvent contains only an event type parameter.  Subclasses of
   QEvent contain additional parameters that descripe the particular event.
-
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn QEvent::QEvent( int type )
-  Contructs an event object with a \e type. The file qevent.h has a list of
+  Contructs an event object with a \e type. The file qevent.h lists
   all event types.
  ----------------------------------------------------------------------------*/
 
-/*! \fn QEvent::~QEvent()
-
-  Deletes the event, and reports and error if the event has been \link
-  QApplication::postEvent() posted \endlink. */
+/*----------------------------------------------------------------------------
+  \fn QEvent::~QEvent()
+  Destroys the event.  Reports an error if the event has been
+  \link QApplication::postEvent() posted\endlink.
+ ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn int QEvent::type() const
   Returns the event type.
  ----------------------------------------------------------------------------*/
+
 
 /*----------------------------------------------------------------------------
   \class QTimerEvent qevent.h
@@ -150,9 +150,12 @@ void QEvent::peErrMsg()				// posted event error message
   If the interval is zero, the event will be sent on every iteration
   of the event loop.
 
-  The virtual function QWidget::timerEvent() receives timer events.
+  The QTimer class provides one-shot timers and timer events signals.
 
-  \sa QObject::startTimer() and QObject::killTimer(). */
+  The event handler QWidget::timerEvent() receives timer events.
+
+  \sa QObject::startTimer(), QObject::killTimer(), QObject::killTimers()
+ ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn QTimerEvent::QTimerEvent( int timerId )
@@ -172,9 +175,26 @@ void QEvent::peErrMsg()				// posted event error message
 
   \ingroup event
 
-  The virtual functions QWidget::mousePressEvent(),
-  QWidget::mouseReleaseEvent(), QWidget::mouseDoubleClickEvent() and
-  QWidget::mouseMoveEvent() receive mouse events.
+  Mouse events occur when a mouse button is pressed or released inside a
+  widget, or when the mouse cursor is moved.
+  Mouse move events will only occur unless \link QWidget::setMouseTracking()
+  mouse tracking\endlink has been enabled.
+
+  Qt make an automatic mouse grab when a mouse button is pressed inside a
+  widget, and the widget will continue to receive mouse events until the
+  last mouse button is released.
+
+  The QWidget::disable() function disables mouse and keyboard events for a
+  widget, and QWidget::enable() enables mouse and keyboard events.
+
+  The QCursor widget has static functions for reading and setting the
+  position of the mouse cursor.
+
+  The event handlers QWidget::mousePressEvent(), QWidget::mouseReleaseEvent(),
+  QWidget::mouseDoubleClickEvent() and QWidget::mouseMoveEvent() receive
+  mouse events.
+
+  \sa QWidget::setMouseTracking(), QWidget::grabMouse()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -221,11 +241,20 @@ void QEvent::peErrMsg()				// posted event error message
 
   \ingroup event
 
-  Key events contain a special accept flag which tells whether the receiver
-  wants the key.
+  Key events occur when a key is pressed or released when a widget has
+  keyboard input focus.
 
-  The virtual functions QWidget::keyPressEvent() and QWidget::keyReleaseEvent()
+  A key event contain a special accept flag which tells whether the receiver
+  wants the key.  You should answer QKeyEvent::ignore() if the key press
+  or release is not handled by your widget.
+
+  The QWidget::disable() function disables mouse and keyboard events for a
+  widget, and QWidget::enable() enables mouse and keyboard events.
+
+  The event handlers QWidget::keyPressEvent() and QWidget::keyReleaseEvent()
   receive key events.
+
+  \sa QFocusEvent, QWidget::grabKeyboard()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -238,15 +267,13 @@ void QEvent::peErrMsg()				// posted event error message
   may be the result of a compose sequence or keyboard macro).
 
   The accept flag is set to TRUE.
-
-  \todo explain accept flag
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn int QKeyEvent::key() const
   Returns the code if the key that was pressed or released.
 
-  The header file qkeycode.h lists the possible keybord codes.  These codes
+  The header file qkeycode.h lists the possible keyboard codes.  These codes
   are independent of the underlying window system.
 
   Key code 0 means that the event is not a result of a known key (e.g. it
@@ -305,10 +332,10 @@ void QEvent::peErrMsg()				// posted event error message
 
   Focus events are sent to widgets when the keyboard input focus changes.
 
-  The virtual functions QWidget::focusInEvent() and QWidget::focusOutEvent()
+  The event handlers QWidget::focusInEvent() and QWidget::focusOutEvent()
   receive focus events.
 
-  \sa QWidget::setFocus()
+  \sa QWidget::setFocus(), QWidget::setAcceptFocus()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -319,6 +346,17 @@ void QEvent::peErrMsg()				// posted event error message
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
+  \fn bool QFocusEvent::gotFocus() const
+  Returns TRUE if the widget received the text input focus.
+ ----------------------------------------------------------------------------*/
+
+/*----------------------------------------------------------------------------
+  \fn bool QFocusEvent::lostFocus() const
+  Returns TRUE if the widget lost the text input focus.
+ ----------------------------------------------------------------------------*/
+
+
+/*----------------------------------------------------------------------------
   \class QPaintEvent qevent.h
   \brief The QPaintEvent class contains event parameters for paint events.
 
@@ -327,7 +365,7 @@ void QEvent::peErrMsg()				// posted event error message
   Paint events are sent to widgets that need to update themselves, for instance
   when a part of a widget is exposed because an overlying widget is moved away.
 
-  The virtual function QWidget::paintEvent() receives paint events.
+  The event handler QWidget::paintEvent() receives paint events.
 
   \sa QWidget::update(), QWidget::repaint()
  ----------------------------------------------------------------------------*/
@@ -352,9 +390,9 @@ void QEvent::peErrMsg()				// posted event error message
   Move events are sent to widgets that have been moved to a new position
   relative to their parent.
 
-  The virtual function QWidget::moveEvent() receives move events.
+  The event handler QWidget::moveEvent() receives move events.
 
-  \sa QWidget::move(), QWidget::setGeometry().
+  \sa QWidget::move(), QWidget::setGeometry()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -382,9 +420,9 @@ void QEvent::peErrMsg()				// posted event error message
 
   Resize events are sent to widgets that have been resized.
 
-  The virtual function QWidget::resizeEvent() receives resize events.
+  The event handler QWidget::resizeEvent() receives resize events.
 
-  \sa QWidget::resize() and QWidget::setGeometry().
+  \sa QWidget::resize(), QWidget::setGeometry()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
@@ -414,9 +452,24 @@ void QEvent::peErrMsg()				// posted event error message
   by choosing "close" from a window menu.
 
   Close events contain a special accept flag which tells whether the receiver
-  wants the widget to be closed.
+  wants the widget to be closed.  When a widget is closed, it is normally
+  deleted.  This is true for all widgets except the
+  \link QApplication::setMainWidget() main widget\endlink.
 
-  The virtual function QWidget::closeEvent() receives close events.
+  The event handler QWidget::closeEvent() receives close events.
+
+  The default implementation of this event handler accepts the close event.
+  If you do not want your widget to be closed and deleted, you should
+  reimplement this event handler.
+
+  Alternatively, you can hide you widget but not delete it:
+  \code
+    void MyWidget::closeEvent( QCloseEvent *e )
+    {
+	e->ignore();				// do NOT delete this widget
+	hide();					// hide it instead
+    }
+  \endcode
 
   \sa QWidget::close()
  ----------------------------------------------------------------------------*/
@@ -429,7 +482,6 @@ void QEvent::peErrMsg()				// posted event error message
 /*----------------------------------------------------------------------------
   \fn bool QCloseEvent::isAccepted() const
   Returns TRUE if the receiver of the event has agreed to close the widget.
-
   \sa accept(), ignore()
  ----------------------------------------------------------------------------*/
 
@@ -441,6 +493,9 @@ void QEvent::peErrMsg()				// posted event error message
   to close the widget.
 
   The accept flag is set by default.
+
+  \warning If you choose to accept in QWidget::closeEvent(),
+  the widget will be deleted.
 
   \sa ignore()
  ----------------------------------------------------------------------------*/
