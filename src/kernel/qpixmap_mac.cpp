@@ -649,6 +649,7 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
 {
     static int serial = 0;
     
+    hd = 0;
     data = new QPixmapData;
     Q_CHECK_PTR( data );
     memset( data, 0, sizeof(QPixmapData) );
@@ -659,17 +660,22 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     data->ser_no=++serial;
     data->optim=optim;
 
-    data->d = d;
-    
-    hd=0;
-    if(w > 1024 || h > 1024) 
+    int dd = 32; //magic number? 32 seems to be default?
+    bool make_null = w == 0 || h == 0;		// create null pixmap
+    if ( d == 1 )				// monocrome pixmap
+	data->d = 1;
+    else if ( d < 0 || d == dd )		// def depth pixmap
+	data->d = dd;
+    if ( make_null || w < 0 || h < 0 || data->d == 0 ) {
+	hd = 0;
+#if defined(QT_CHECK_RANGE)
+	if ( !make_null )
+	    qWarning( "QPixmap: Invalid pixmap parameters" );
+#endif
 	return;
-    if(w<1 || h<1) 
-	return;
+    }
 
-    if(d<1) 
-	d=defaultDepth();
-    if(w==0 && h==0) 
+    if(w<1 || h<1) 
 	return;
     data->w=w;
     data->h=h;
