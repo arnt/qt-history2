@@ -1348,7 +1348,7 @@ bool QTable::isReadOnly() const
 
 bool QTable::isRowReadOnly( int row ) const
 {
-    return (bool)roRows.find( row );
+    return (roRows.find( row ) != 0);
 }
 
 /*! Returns whether the column \a col is read-only or not.
@@ -1361,7 +1361,7 @@ bool QTable::isRowReadOnly( int row ) const
 
 bool QTable::isColumnReadOnly( int col ) const
 {
-    return (bool)roCols.find( col );
+    return (roCols.find( col ) != 0);
 }
 
 /*! Sets the table's selection mode to \a mode. By default
