@@ -3024,16 +3024,6 @@ void QWidget::setFocus()
 	focusInputContext();
 #endif
 
-	if ( prev != this ) {
-	    if ( prev ) {
-		QFocusEvent out( QEvent::FocusOut );
-		QApplication::sendEvent( prev, &out );
-		prev->resetInputContext();
-	    }
-
-	    QFocusEvent in( QEvent::FocusIn );
-	    QApplication::sendEvent( this, &in );
-	}
 #if defined(Q_WS_WIN)
 	if ( !topLevelWidget()->isPopup() )
 	    SetFocus( winId() );
@@ -3045,6 +3035,18 @@ void QWidget::setFocus()
 #if defined(Q_WS_WIN)
 	}
 #endif
+
+	if ( prev != this ) {
+	    if ( prev ) {
+		prev->resetInputContext();
+		QFocusEvent out( QEvent::FocusOut );
+		QApplication::sendEvent( prev, &out );
+	    }
+	    if ( qApp->focus_widget == this ) {
+		QFocusEvent in( QEvent::FocusIn );
+		QApplication::sendEvent( this, &in );
+	    }
+	}
     }
 }
 
