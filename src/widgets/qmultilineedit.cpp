@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#30 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#31 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -2050,7 +2050,7 @@ void QMultiLineEdit::updateCellWidth()
 	}
 	break;
       case Password: {
-	    int l = 0;
+	    uint l = 0;
 	    while ( s ) {
 		l = QMAX(l, s ? s->length() : 0);
 		s = contents->next();
