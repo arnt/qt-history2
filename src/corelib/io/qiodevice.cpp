@@ -375,10 +375,10 @@ bool QIODevice::isTextModeEnabled() const
 }
 
 /*!
-    Returns true is the device is open; otherwise returns false. A
+    Returns true if the device is open; otherwise returns false. A
     device is open if it can be read from and/or written to. By
     default, this function returns false if openMode() returns
-    NotOpen.
+    \c NotOpen.
 
     \sa openMode() OpenMode
 */
@@ -473,8 +473,9 @@ bool QIODevice::flush()
 
 /*!
     For random-access devices, this function returns the position that
-    data is written to or read from. For sequential devices, which
-    have no concept of a current position, 0 is returned.
+    data is written to or read from. For sequential devices or closed
+    devices, where there is no concept of a "current position", 0 is
+    returned.
 
     \sa isSequential(), seek()
 */
@@ -484,8 +485,11 @@ qint64 QIODevice::pos() const
 }
 
 /*!
-    For random-access devices, this function returns the size of the
-    device. For sequential devices, bytesAvailable() is returned.
+    For open random-access devices, this function returns the size of the
+    device. For open sequential devices, bytesAvailable() is returned.
+
+    If the device is closed, the size returned will not reflect the actual
+    size of the device.
 */
 qint64 QIODevice::size() const
 {
