@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#2 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -14,21 +14,17 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qgroupbox.cpp#1 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qgroupbox.cpp#2 $";
 #endif
 
 
 QGroupBox::QGroupBox( QWidget *parent, const char *name )
 	: QFrame( parent, name )
 {
+    initMetaObject();
     align = AlignCenter;
     setFrame( QFrame::Box | QFrame::Plain );
-}
-
-QGroupBox::QGroupBox( const char *title, QWidget *parent, const char *name )
-	: QFrame( parent, name ), str(title)
-{
-    align = AlignCenter;
+    setFrameWidth( 1 );
 }
 
 
@@ -57,8 +53,8 @@ void QGroupBox::paintEvent( QPaintEvent * )	// overrides QFrame::paintEvent
     QPainter paint;
     paint.begin( this );
     if ( len == 0 )				// no title
-	setFrameRect( QRect(0,0,0,0) );
-    else {					// set up region etc. for title
+	setFrameRect( QRect(0,0,0,0) );		//  then use client rect
+    else {					// set up region for title
 	QFontMetrics fm = paint.fontMetrics();
 	int h = fm.height();
 	while ( len ) {
@@ -68,24 +64,24 @@ void QGroupBox::paintEvent( QPaintEvent * )	// overrides QFrame::paintEvent
 	    len--;
 	}
 	if ( len ) {
-	    r.setTop( h/2 );
-	    setFrameRect( r );
+	    r.setTop( h/2 );			// frame rect should be
+	    setFrameRect( r );			//   smaller than client rect
 	    int x;
 	    if ( align & AlignCenter )		// center alignment
 		x = r.width()/2;
 	    else if ( align & AlignRight )	// right alignment
-		x = r.width() - tw - 5;
+		x = r.width() - tw - 8;
 	    else				// |eft alignment
-		x = 5;
+		x = 8;
 	    r.setRect( x, 0, tw, h );
 	    QRegion rgn_all( cr );
 	    QRegion rgn_title( r );
 	    rgn_all = rgn_all.subtract( rgn_title );
-	    paint.setClipRegion( rgn_all );
+	    paint.setClipRegion( rgn_all );	// clip everything but title
 	}
     }
-    drawFrame( &paint );
-    if ( tw ) {
+    drawFrame( &paint );			// draw the frame
+    if ( tw ) {					// draw the title
 	paint.setClipping( FALSE );
 	paint.drawText( r, AlignCenter | AlignVCenter, str, len );
     }
