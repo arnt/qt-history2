@@ -455,6 +455,19 @@ void QTreeModel::emitRowsInserted(QTreeWidgetItem *item)
 */
 
 /*!
+    \fn QAbstractItemModel::ItemFlags QTreeWidgetItem::flags() const
+*/
+
+/*!
+    \fn void QTreeWidgetItem::setFlags(QAbstractItemModel::ItemFlags flags)
+
+    Sets the \a flags for this item. These determine whether the item can be
+    selected, modified
+
+
+*/
+
+/*!
     \fn QString QTreeWidgetItem::text(int column) const
 
     Returns the text in the specified \column.
@@ -475,7 +488,7 @@ void QTreeModel::emitRowsInserted(QTreeWidgetItem *item)
 */
 
 /*!
-    \fn void setIcon(int column, const QIconSet &icon)
+    \fn void QTreeWidgetItem::setIcon(int column, const QIconSet &icon)
 */
 
 /*!
@@ -584,8 +597,8 @@ void QTreeModel::emitRowsInserted(QTreeWidgetItem *item)
 
 
 /*!
-  Constructs a tree widget item. The item must be inserted
-  into a tree view.
+  \internal
+  Constructs a tree widget item. The item must be inserted into a tree view.
 
   \sa QTreeModel::append() QTreeWidget::append()
 */
@@ -863,16 +876,33 @@ void QTreeWidget::setColumnCount(int columns)
     d->model()->setColumnCount(columns);
 }
 
+/*!
+    Returns the item used for the tree widget's header.
+
+    \sa setHeaderItem()
+*/
+
 QTreeWidgetItem *QTreeWidget::headerItem()
 {
     return d->model()->header;
 }
+
+/*!
+    Sets the header \a item for the tree widget. The contents of each of the
+    header's columns are supplied by the labels from each of the columns in the
+    item.
+
+    \sa headerItem()
+*/
 
 void QTreeWidget::setHeaderItem(QTreeWidgetItem *item)
 {
     delete d->model()->header;
     d->model()->header = item;
 }
+
+/*!
+*/
 
 QTreeWidgetItem *QTreeWidget::currentItem() const
 {
@@ -905,6 +935,9 @@ bool QTreeWidgetItem::isSelected() const
     return view->isSelected(this);
 }
 
+/*!
+*/
+
 void QTreeWidgetItem::setSelected(bool select)
 {
     view->setSelected(this, select);
@@ -935,7 +968,8 @@ bool QTreeWidget::isSelected(const QTreeWidgetItem *item) const
 }
 
 /*!
-  ###
+  If \a select is true, the given \a item is selected; otherwise it is
+  deselected.
 */
 
 void QTreeWidget::setSelected(const QTreeWidgetItem *item, bool select)
@@ -958,7 +992,7 @@ QList<QTreeWidgetItem*> QTreeWidget::selectedItems() const
 }
 
 /*!
-  ###
+  Clears the tree widget by removing all of its items.
 */
 
 void QTreeWidget::clear()
