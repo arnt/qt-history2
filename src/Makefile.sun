@@ -4,12 +4,21 @@
 
 include Makefile
 
+#CDBGFLAGS	= -g -pto
 CFLAGS		= -O2 -pto
-CDBGFLAGS	= -g -pto
-CSTATICFLAGS	=
-CSHAREDFLAGS	= -pic
-CC		= CC
+CDBGFLAGS	= -g
+CSTATICFLAGS	= -pto -ptv -xar
 MAKE		= gmake
+
+CC		= CC
+# if CC = gcc
+#CSHAREDFLAGS	= -pic
+#BIND		= -shared
+# else if CC = CC
+#BIND		= -Bdynamic
+BIND		= -G -xar
+CSHAREDFLAGS	= -PIC
+
 
 sun:	sunshared
 
@@ -26,11 +35,11 @@ sunstaticdbg:
 sunshared:
 	${MAKE} lib "CC=$(CC)" "CFLAGS=$(CFLAGS) $(CSHAREDFLAGS)" "OBJDIR=obj/shared"
 	/bin/rm -f $(SHAREDTARGET)
-	$(CC) -shared -o $(SHAREDTARGET) obj/shared/*/*.o -lX11 -lc
+	$(CC) $(BIND) -o $(SHAREDTARGET) obj/shared/*/*.o -lX11 -lc -lsocket
 
 sunshareddbg:
 	${MAKE} lib "CC=$(CC)" "CFLAGS=$(CDBGFLAGS) $(CSHAREDFLAGS)" "OBJDIR=obj/shareddbg"
 	/bin/rm -f $(SHAREDTARGET)
-	$(CC) -shared -o $(SHAREDTARGET) obj/shareddbg/*/*.o -lX11 -lc
+	$(CC) $(BIND) -o $(SHAREDTARGET) obj/shareddbg/*/*.o -lX11 -lc -lsocket
 
 purify: sunstatic
