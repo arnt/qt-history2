@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#196 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#197 $
 **
 ** Definition of QWidget class
 **
@@ -162,6 +162,7 @@ public:
 
     const QCursor      &cursor() const;
     virtual void	setCursor( const QCursor & );
+    virtual void	unsetCursor();
 
     QString		caption() const;
     const QPixmap      *icon() const;

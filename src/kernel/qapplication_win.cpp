@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#229 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#230 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -667,10 +667,10 @@ void QApplication::restoreOverrideCursor()
   Internal function called from QWidget::setCursor()
 */
 
-void qt_set_cursor( QWidget *w, QCursor *c )
+void qt_set_cursor( QWidget *w, const QCursor& c )
 {
     if ( w->winId() == curWin )			// set immediately
-	SetCursor( c->handle() );
+	SetCursor( c.handle() );
 }
 
 
@@ -1441,12 +1441,12 @@ static bool qt_try_modal( QWidget *widget, MSG *msg )
 	block_event = TRUE;
     }
 
-    if ( top->parentWidget() == 0 && 
+    if ( top->parentWidget() == 0 &&
 	 (block_event || msg->message == WM_ACTIVATE )){
 	top->raise();
 	block_event = TRUE;
-    }   
-    
+    }
+
     return !block_event;
 }
 
@@ -2154,7 +2154,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 	s += (char)msg.wParam;
 	k0 = sendKeyEvent( QEvent::KeyPress, 0, msg.wParam, state, grab, s );
 	k1 = sendKeyEvent( QEvent::KeyRelease, 0, msg.wParam, state, grab, s );
-    } 
+    }
     else if ( msg.message == WM_IME_CHAR ) {
 	debug("IME"); //###
 	// input method characters not found by our look-ahead
@@ -2178,7 +2178,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 	    if ( PeekMessage(&wm_char, 0, charType, charType, PM_REMOVE) ) {
 		// Found a XXX_CHAR
 		uch = QChar(wm_char.wParam & 0xff, (wm_char.wParam>>8) & 0xff);
-		if ( t == WM_SYSKEYDOWN && !uch.row && 
+		if ( t == WM_SYSKEYDOWN && !uch.row &&
 		     isalpha(uch.cell) && (msg.lParam & KF_ALTDOWN) ) {
 		    // (See doc of WM_SYSCHAR)
     		    uch = QChar((char)tolower(uch.cell)); //Alt-letter
@@ -2213,7 +2213,7 @@ bool QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 		k0 = sendKeyEvent( QEvent::KeyPress, code, a,
 				   state, grab, text );
 	    }
-	    
+	
 	    if ( state == QMouseEvent::AltButton ) {
 		// Special handling of global Windows hotkeys
 		switch ( code ) {

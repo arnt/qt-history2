@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#324 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#325 $
 **
 ** Implementation of QWidget class
 **
@@ -2046,15 +2046,19 @@ void QWidget::fontChange( const QFont & )
 
 
 /*!
-  Returns the widget cursor.
-  \sa setCursor()
+  Returns the widget cursor. If no cursor has been set the parent
+  widget's cursor is returned.
+  \sa setCursor(), unsetCursor();
 */
 
 const QCursor &QWidget::cursor() const
 {
-    return extra && extra->curs
-	? *extra->curs
-	: arrowCursor;
+    if ( testWFlags( WState_OwnCursor) != 0 )
+	return (extra && extra->curs)
+	    ? *extra->curs
+	    : arrowCursor;
+    else 
+	return isTopLevel()?arrowCursor:parentWidget()->cursor();
 }
 
 

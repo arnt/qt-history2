@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#302 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#303 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -588,19 +588,46 @@ void QWidget::setBackgroundEmpty()
     setCursor( ibeamCursor );
   \endcode
 
-  \sa cursor(), QApplication::setOverrideCursor()
+  \sa cursor(), unsetCursor(), QApplication::setOverrideCursor()
 */
 
 void QWidget::setCursor( const QCursor &cursor )
 {
+    if ( cursor.handle() == arrowCursor.handle()
+	 && (!extra || !extra->curs) ) {
+	setWFlags( WState_OwnCursor );
+	return;
+    }
+    setWFlags( WState_OwnCursor );
     createExtra();
     extra->curs = new QCursor(cursor);
     QCursor *oc = QApplication::overrideCursor();
     XDefineCursor( dpy, winid, oc ? oc->handle() : cursor.handle() );
-    setWFlags( WState_OwnCursor );
     XFlush( dpy );
 }
 
+
+/*!
+  Unset the cursor for this widget. The widget will use the cursor of
+  its parent from now on.
+  
+  This functions does nothing for toplevel windows.
+
+  \sa cursor(), setCursor(), QApplication::setOverrideCursor()
+ */
+
+void QWidget::unsetCursor()
+{
+    if ( !isTopLevel() ) {
+	if (extra ) {
+	    delete extra->curs;
+	    extra->curs = 0;
+	}
+	clearWFlags( WState_OwnCursor );
+	XDefineCursor( dpy, winid, None );
+	XFlush( dpy );
+    }
+}
 
 /*!
   Sets the window caption (title).

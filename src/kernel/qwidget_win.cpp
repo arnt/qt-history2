@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#159 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#160 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -127,20 +127,21 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	topLevel = FALSE; // #### needed for some IE plugins??
     } else if ( popup ) {
 	style = WS_POPUP;
-	exsty = WS_EX_TOOLWINDOW;
-    } else if ( modal ) {
-	exsty = WS_EX_TOOLWINDOW;
-    } else if ( topLevel && !desktop ) {
+    } 
+    else if (topLevel && !desktop ) {
 	if ( testWFlags(WStyle_Customize) ) {
 	    if ( testWFlags(WStyle_NormalBorder|WStyle_DialogBorder) == 0 ) {
 		style = WS_POPUP;		// no border
 	    } else {
-		style = 0;
+		style = WS_OVERLAPPED;
 	    }
 	} else {
-	    style = WS_OVERLAPPEDWINDOW;
-	    setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_SysMenu |
-		       WStyle_MinMax );
+	    style = WS_OVERLAPPED;
+	    if (testWFlags(WStyle_DialogBorder) )
+		setWFlags( WStyle_DialogBorder | WStyle_Title | WStyle_SysMenu );
+	    else
+		setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_SysMenu |
+			   WStyle_MinMax );
 	}
     }
     if ( !desktop ) {
@@ -148,8 +149,8 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	if ( topLevel ) {
 	    if ( testWFlags(WStyle_NormalBorder) )
 		style |= WS_THICKFRAME;
-	    else if ( testWFlags(WStyle_DialogBorder) )
-		style |= WS_POPUP | WS_DLGFRAME;
+	    else if ( testWFlags(WStyle_DialogBorder) ) 
+		style |= WS_THICKFRAME;
 	    if ( testWFlags(WStyle_Title) )
 		style |= WS_CAPTION;
 	    if ( testWFlags(WStyle_SysMenu) )
@@ -251,8 +252,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	ClientToScreen( id, &pt );
 	crect = QRect( QPoint(pt.x+cr.left,  pt.y+cr.top),
 		       QPoint(pt.x+cr.right, pt.y+cr.bottom) );
-	if ( initializeWindow )
-	    setCursor( arrowCursor );		// default cursor
     }
 
     setWFlags( WState_Created );		// accept move/resize events
@@ -438,16 +437,31 @@ void QWidget::setBackgroundEmpty()
 }
 
 
-extern void qt_set_cursor( QWidget *, QCursor * ); // qapplication_win.cpp
+extern void qt_set_cursor( QWidget *, const QCursor & ); // qapplication_win.cpp
 
 void QWidget::setCursor( const QCursor &cursor )
 {
-    ((QCursor*)&cursor)->handle();
-    if ( !extra && cursor.handle() == arrowCursor.handle() )
-        return;
+    if ( cursor.handle() == arrowCursor.handle()
+	 && (!extra || !extra->curs) ) {
+	setWFlags( WState_OwnCursor );
+	return;
+    }
     createExtra();
     extra->curs = new QCursor(cursor);
-    qt_set_cursor( this, extra->curs );
+    setWFlags( WState_OwnCursor );
+    qt_set_cursor( this, QWidget::cursor() );
+}
+
+void QWidget::unsetCursor()
+{
+    if ( !isTopLevel() ) {
+	if (extra ) {
+	    delete extra->curs;
+	    extra->curs = 0;
+	}
+	clearWFlags( WState_OwnCursor );
+	qt_set_cursor( this, cursor() );
+    }
 }
 
 
