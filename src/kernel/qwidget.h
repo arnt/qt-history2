@@ -885,6 +885,9 @@ struct Q_EXPORT QTLWExtra {
     uint     ussize : 1;                        // User defined size
     void    *xic;				// XIM Input Context
 #endif
+#if defined(Q_WS_MAC)
+    WindowGroupRef group;
+#endif
 #if defined(Q_WS_QWS) && !defined ( QT_NO_QWS_MANAGER )
     QRegion decor_allocated_region;		// decoration allocated region
     QWSManager *qwsManager;

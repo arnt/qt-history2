@@ -1567,6 +1567,7 @@ void QWidget::deleteSysExtra()
 
 void QWidget::createTLSysExtra()
 {
+    extra->topextra->group = NULL;
 }
 
 void QWidget::deleteTLSysExtra()
