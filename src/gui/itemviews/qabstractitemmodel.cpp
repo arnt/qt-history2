@@ -37,6 +37,7 @@ QPersistentModelIndexData *QPersistentModelIndexData::create(const QModelIndex &
     }
     if (d == &QPersistentModelIndexData::shared_null) {
         d = new QPersistentModelIndexData();
+        d->model = model;
         d->index = index;
         persistentIndexes->append(d);
     }
@@ -46,7 +47,7 @@ QPersistentModelIndexData *QPersistentModelIndexData::create(const QModelIndex &
 void QPersistentModelIndexData::destroy(QPersistentModelIndexData *data)
 {
     if (data && data != &QPersistentModelIndexData::shared_null) {
-        QAbstractItemModel *model = const_cast<QAbstractItemModel*>(data->index.model());
+        QAbstractItemModel *model = const_cast<QAbstractItemModel*>(data->model);
         // a valid persistent model index with a null model pointer can only happen if the model was destroyed
         if (model)
             model->d_func()->persistentIndexes.removeAll(data);
@@ -614,6 +615,7 @@ QAbstractItemModel::~QAbstractItemModel()
     for (; it != d->persistentIndexes.end(); ++it) {
         Q_ASSERT((*it) != &QPersistentModelIndexData::shared_null);
         (*it)->index = QModelIndex::Null;
+        (*it)->model = 0;
     }
 }
 
