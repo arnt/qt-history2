@@ -122,7 +122,7 @@ QWidget *QItemDelegate::createEditor(StartEditAction action, QWidget *parent,
 {
     if (item.type() != QModelIndex::View)
         return 0;
-    if (action & (NoAction | EditKeyPressed | AnyKeyPressed | DoubleClicked)
+    if (action & (EditKeyPressed | AnyKeyPressed | DoubleClicked | AlwaysEdit)
         || (options.focus && editType(item) == WidgetWhenCurrent)) {
         QLineEdit *lineEdit = new QLineEdit(parent);
         lineEdit->setFrame(false);

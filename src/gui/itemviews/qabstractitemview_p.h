@@ -15,7 +15,8 @@ public:
     void init();
 
     inline bool shouldEdit(QAbstractItemDelegate::StartEditAction action, const QModelIndex &index)
-        { return model->isEditable(index) && (action & startEditActions) && state != QAbstractItemView::Editing; }
+        { return model->isEditable(index) && (state != QAbstractItemView::Editing)
+                 && ((action == QAbstractItemDelegate::AlwaysEdit) || (action & startEditActions)); }
 
     QWidget *createEditor(QAbstractItemDelegate::StartEditAction action, QEvent *event, const QModelIndex &index);
     QWidget *persistentEditor(const QModelIndex &index) const;
@@ -28,15 +29,11 @@ public:
     QItemSelectionModel *selectionModel;
     int selectionMode, selectionBehavior;
     QRubberBand *rubberBand;
- //    QVector<int> sorting;
-//     int sortColumn;
 
     // #### this datastructur is far to inefficient. We need a faster
     // #### way to associate data with an item and look it up.
-    // use QHash<QGenericModelItenPtr, QWidget*>
     QList<QPair<QModelIndex, QWidget*> > persistentEditors;
 
-    bool layoutLock; // FIXME: this is because the layout will trigger resize events
     QModelIndex pressedItem;
     Qt::ButtonState pressedState;
     QPoint pressedPosition;

@@ -57,7 +57,7 @@ public:
 
     void clearSelections();
     void setSelectionModel(QItemSelectionModel *selectionModel);
-    QItemSelectionModel* selectionModel() const;
+    QItemSelectionModel *selectionModel() const;
     void setSelectionMode(int mode);
     int selectionMode() const;
     void setSelectionBehavior(int behavior);

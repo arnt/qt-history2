@@ -33,11 +33,9 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         selectionModel(0),
         selectionMode(QAbstractItemView::Extended),
         selectionBehavior(QAbstractItemView::SelectItems),
-        layoutLock(false),
         state(QAbstractItemView::NoState),
-        startEditActions(QAbstractItemDelegate::NoAction|
-                         QAbstractItemDelegate::DoubleClicked|
-                         QAbstractItemDelegate::EditKeyPressed),
+        startEditActions(QAbstractItemDelegate::DoubleClicked
+                         |QAbstractItemDelegate::EditKeyPressed),
         inputInterval(400)
 {
 }
@@ -232,7 +230,7 @@ void QAbstractItemView::edit(const QModelIndex &index)
 {
     if (!index.isValid())
         qWarning("edit: index was invalid");
-    if (!startEdit(index, QAbstractItemDelegate::NoAction, 0))
+    if (!startEdit(index, QAbstractItemDelegate::AlwaysEdit, 0))
         qWarning("edit: editing failed");
 }
 
@@ -249,14 +247,23 @@ int QAbstractItemView::startEditActions() const
 bool QAbstractItemView::event(QEvent *e)
 {
     switch (e->type()) {
-    case QEvent::ToolTip:
-        QToolTip::showText(QPoint(0, 0), "tooltip", this);
-        return true;
-    case QEvent::WhatsThis:
-        QWhatsThis::showText(QPoint(0, 0), "what's this", this);
-        return true;
-//     case QEvent::StatusTip:
-//         return true;
+    case QEvent::ToolTip: {
+        QPoint pos = QPoint(0, 0); // FIXME: get mouse pos
+        QModelIndex index = itemAt(pos);
+        QString tooltip = model()->data(index, QAbstractItemModel::ToolTip).toString();
+        QToolTip::showText(pos, tooltip, this);
+        return true; }
+    case QEvent::WhatsThis: {
+        QPoint pos = QPoint(0, 0); // FIXME: get mouse pos
+        QModelIndex index = itemAt(pos);
+        QString whatsthis = model()->data(index, QAbstractItemModel::ToolTip).toString();
+        QWhatsThis::showText(pos, whatsthis, this);
+        return true; }
+//     case QEvent::StatusTip: {
+//         QPoint pos = QPoint(0, 0); // FIXME: get mouse pos
+//         QModelIndex index = itemAt(pos);
+//        QString statustip = model()->data(index, QAbstractItemModel::ToolTip).toString();
+//         return true; }
     default:
         break;
     }
@@ -754,12 +761,8 @@ void QAbstractItemView::currentChanged(const QModelIndex &old, const QModelIndex
 
 void QAbstractItemView::startItemsLayout()
 {
-//     if (!d->layoutLock) {
-//         d->layoutLock = true;
-        while (!doItemsLayout(100))
+    while (!doItemsLayout(100))
             qApp->processEvents();
-//         d->layoutLock = false;
-//     }
 }
 
 bool QAbstractItemView::doItemsLayout(int)

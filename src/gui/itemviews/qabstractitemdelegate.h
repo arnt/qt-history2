@@ -66,12 +66,13 @@ public:
     };
 
     enum StartEditAction {
-        NoAction = 1,
-        CurrentChanged = 2,
-        DoubleClicked = 4,
-        SelectedClicked = 8,
-        EditKeyPressed = 16,
-        AnyKeyPressed = 32
+        NeverEdit = 0,
+        CurrentChanged = 1,
+        DoubleClicked = 2,
+        SelectedClicked = 4,
+        EditKeyPressed = 8,
+        AnyKeyPressed = 16,
+        AlwaysEdit = 32
     };
 
     enum EndEditAction {
