@@ -65,10 +65,12 @@ public:
     QPluginManager( const QUuid& id, const QStringList& paths = QString::null, const QString &suffix = QString::null, bool cs = TRUE )
 	: QGPluginManager( id, cs )
     {
+#ifdef QT_SHARED
 	for ( QStringList::ConstIterator it = paths.begin(); it != paths.end(); ++it ) {
 	    QString path = *it;
 	    addLibraryPath( path + suffix );
 	}
+#endif
     }
 
     QPluginManager( const QUuid &id, const QString &file, bool cs = TRUE )
@@ -79,7 +81,9 @@ public:
 
     QLibrary* addLibrary( const QString& file )
     {
+#ifdef QT_SHARED
 	if ( file.isEmpty() )
+#endif
 	    return 0;
 
 	QComLibrary *plugin = (QComLibrary*)libDict[file];
