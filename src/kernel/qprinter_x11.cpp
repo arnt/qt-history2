@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#27 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -19,8 +19,11 @@
 #if !defined(_OS_WIN32_)
 #include <unistd.h>
 #endif
+#if defined(_OS_OS2EMX_)
+#include <process.h>
+#endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#26 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#27 $");
 
 
 /*****************************************************************************
@@ -170,6 +173,11 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 #if defined(_OS_WIN32_)
 		    // Not implemented
 		    //	 lpr needs -Sserver argument
+#elif defined(_OS_OS2EMX_)
+		    if ( spawnlp(P_NOWAIT,print_prog.data(), print_prog.data(),
+				 pr.data(), output->name(), 0) == -1 ) {
+			;			// couldn't exec, ignored
+		    }
 #else
 		    if ( fork() == 0 ) {	// child process
 			if ( execlp(print_prog.data(), print_prog.data(),

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#82 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#83 $
 **
 ** Global type declarations and definitions
 **
@@ -19,6 +19,7 @@
 //   MAC	- Macintosh
 //   MSDOS	- MS-DOS and Windows
 //   OS2	- OS/2
+//   OS2EMX	- XFree86 on OS/2 (not PM)
 //   WIN32	- Win32 (Windows 95 and Windows NT)
 //   SUN	- SunOS
 //   SOLARIS	- Sun Solaris
@@ -40,7 +41,11 @@
 #elif defined(MSDOS) || defined(_MSDOS) || defined(__MSDOS__)
 #define _OS_MSDOS_
 #elif defined(OS2) || defined(_OS2) || defined(__OS2__)
+#if defined(__EMX__)
+#define _OS_OS2EMX_
+#else
 #define _OS_OS2_
+#endif
 #elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
 #define _OS_WIN32_
 #elif defined(sun) || defined(__sun) || defined(__sun__)

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfiledef.h#16 $
+** $Id: //depot/qt/main/src/tools/qfiledef.h#17 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -114,7 +114,11 @@
 # define READ		::read
 # define WRITE		::write
 # define ACCESS		::access
-# define GETCWD		::getcwd
+# if defined(_OS_OS2EMX_)
+#  define GETCWD	::getcwd2
+# else
+#  define GETCWD	::getcwd
+# endif
 # define MKDIR		::mkdir
 # define RMDIR		::rmdir
 # define OPEN_RDONLY	O_RDONLY

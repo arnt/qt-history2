@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#29 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#30 $
 **
 ** Implementation of QDir class
 **
@@ -23,8 +23,12 @@
 #include <windows.h>
 #endif
 #endif
+#if defined(_OS_OS2EMX_)
+#include <ctype.h>
+#define chdir _chdir2
+#endif
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#29 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qdir.cpp#30 $");
 
 
 #if defined(_OS_FATFS_)
@@ -1095,6 +1099,10 @@ QString QDir::rootDirPath()
 {
 #if defined(_OS_FATFS_)
     QString d( "c:/" );
+#elif defined(_OS_OS2EMX_)
+    char dir[4];
+    _abspath( dir, "/", _MAX_PATH );
+    QString d( dir );
 #elif defined(UNIX)
     QString d( "/" );
 #else
@@ -1186,7 +1194,7 @@ bool QDir::isRelativePath( const char *path )
     int len = strlen( path );
     if ( len == 0 )
 	return TRUE;
-#if defined(_OS_FATFS_)
+#if defined(_OS_FATFS_) || defined(_OS_OS2EMX_)
     int i = 0;
     if ( isalpha(path[0]) && path[1] == ':' )		// drive, e.g. a:
 	i = 2;
@@ -1445,7 +1453,11 @@ bool QDir::readDirEntries( const QString &nameFilter,
 
 #elif defined(UNIX)
 
+#if defined(_OS_OS2EMX_)
+    QRegExp   wc( nameFilter, FALSE, TRUE );	// wild card, case insensitive
+#else
     QRegExp   wc( nameFilter, TRUE, TRUE );	// wild card, case sensitive
+#endif
     QFileInfo fi;
     DIR	     *dir;
     dirent   *file;

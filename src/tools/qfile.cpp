@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#43 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#44 $
 **
 ** Implementation of QFile class
 **
@@ -12,7 +12,7 @@
 #include "qfile.h"
 #include "qfiledef.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#43 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qfile.cpp#44 $");
 
 
 /*!
@@ -596,8 +596,9 @@ int QFile::writeBlock( const char *p, uint len )
 	    index = LSEEK( fd, 0, SEEK_CUR );
 	else
 	    index = fseek( fh, 0, SEEK_CUR );
-    } else
+    } else {
 	index += nwritten;
+    }
     if ( index > length )			// update file length
 	length = index;
     return nwritten;
