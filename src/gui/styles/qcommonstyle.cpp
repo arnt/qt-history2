@@ -704,7 +704,9 @@ void QCommonStyle::drawControl(ControlElement element,
                 ir.moveBy(pixelMetric(PM_ButtonShiftHorizontal, widget),
                           pixelMetric(PM_ButtonShiftVertical, widget));
             }
-
+            // ### Please add another rect for QPushButton/AbstractButton that
+            // takes care of this.  This is not the correct way to draw this
+            // arrow, talk to TWS if you don't agree/want help.
             if (button->isMenuButton()) {
                 int mbi = pixelMetric(PM_MenuButtonIndicator, widget);
                 QRect ar(ir.right() - mbi, ir.y() + 2, mbi - 4, ir.height() - 4);
