@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#84 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#85 $
 **
 ** Definition of QStyle class
 **
@@ -242,8 +242,7 @@ public:
 				     CFlags flags = CStyle_Default,
 				     SCFlags sub = SC_None,
 				     SCFlags subActive = SC_None,
-				     void* data = 0
-				     );
+				     void* data = 0 );
 
     virtual QRect querySubControlMetrics( ComplexControl control,
 					  QWidget* w,
