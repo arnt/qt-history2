@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#18 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,20 +18,8 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#17 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#18 $";
 #endif
-
-#include "qstring.h"
-
-
-class QGhostString : public QString		// internal class
-{
-public:
-    QGhostString( const char *str )
-	{ assign( (char*)str, strlen(str) ); }
-   ~QGhostString()
-	{ p->data = 0; }
-};
 
 
 declare(QListM, QLBItem);
