@@ -195,10 +195,14 @@
     signal is interesting to two different objects you just connect the
     signal to slots in both objects.
 
-    When a signal is emitted, the slots connected to it are executed
-    immediately, just like a normal function call. The signal/slot
-    mechanism is totally independent of any GUI event loop. The
-    \c{emit} will return when all slots have returned.
+    When a signal is emitted, the slots connected to it are usually
+    executed immediately, just like a normal function call. When this
+    happens, the signals and slots mechanism is totally independent of
+    any GUI event loop. Execution of the code following the \c emit
+    statement will occur once all slots have returned. The situation is
+    slightly different when using \l{Qt::ConnectionType}{queued
+    connections}; in such a case, the code following the \c emit keyword
+    will continue immediately, and the slots will be executed later.
 
     If several slots are connected to one signal, the slots will be
     executed one after the other, in an arbitrary order, when the signal
@@ -208,7 +212,7 @@
     and must not be implemented in the \c .cpp file. They can never have
     return types (i.e. use \c void).
 
-    A note about arguments. Our experience shows that signals and slots
+    A note about arguments: Our experience shows that signals and slots
     are more reusable if they do not use special types. If
     QScrollBar::valueChanged() were to use a special type such as the
     hypothetical QScrollBar::Range, it could only be connected to
