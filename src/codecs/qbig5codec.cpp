@@ -3412,7 +3412,7 @@ typedef struct {
     ushort used;  /* bitmask of used entries */
 } Summary16;
 
-/* UCS4 to big5hkscs convert table */
+/* ISO-10646-UCS-4 to big5hkscs convert table */
 static const uchar big5hkscs_to_charset[24908][2] = {
     {0x21,0x00}, {0xA2,0x46}, {0xA2,0x47}, {0xA2,0x44},
     {0x7C,0x00}, {0xA1,0xB1}, {0xC6,0xD8}, {0x63,0x00},

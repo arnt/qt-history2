@@ -891,7 +891,7 @@ bool QTextStream::ts_getbuf( QChar* buf, uint len, uchar end_flags, uint *l )
 	    }
 	    if(used_len)
 		d->cacheReadBuf.free(used_len);
-	} else { // UCS-2 or UTF-16
+	} else { // ISO-10646-UCS-2 or UTF-16
 	    int used_len = 0;
 	    for(uint i = 0; rnum < len && i+1 < buffer_len; i+=2) {
 		QChar next_c;

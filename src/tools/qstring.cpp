@@ -2561,8 +2561,8 @@ QString QString::fromUtf8( const char* utf8, int len )
 }
 
 /*!
-  Constructs a string that is a deep copy of \a str, interpreted as a
-  UCS2 encoded, zero terminated, Unicode string.
+  Constructs a string that is a deep copy of \a str, interpreted as an
+  ISO-10646-UCS-2 encoded, zero terminated, Unicode string.
 
   If \a str is 0, then a null string is created.
 
