@@ -7,7 +7,7 @@ FORMS		= sqlformwizard.ui mainwindowwizard.ui
 sql {
 	HEADERS		+= sqlformwizardimpl.h
 	SOURCES		+= sqlformwizardimpl.cpp
-	QCONFIG += sql
+	QT += sql
 }
 DESTDIR		= ../../../../plugins/designer
 

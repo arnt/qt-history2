@@ -3,7 +3,7 @@ TARGET	 = openglax
 
 CONFIG	+= qt warn_off release activeqt
 
-QCONFIG += opengl
+QT += opengl
 
 HEADERS	 = glbox.h \
 	   globjwin.h

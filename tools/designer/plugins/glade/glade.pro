@@ -8,7 +8,7 @@ include( ../../../../src/qt_professional.pri )
 TARGET		= gladeplugin
 INCLUDEPATH	+= ../../interfaces
 
-QCONFIG += xml
+QT += xml
 
 target.path += $$plugins.path/designer
 INSTALLS 	+= target

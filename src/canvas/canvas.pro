@@ -6,7 +6,7 @@ TARGET = qcanvas
 DEFINES += QT_BUILD_CANVAS_LIB
 
 include(../qbase.pri)
-QCONFIG = core gui
+QT = core gui
 
 canvas {
 	HEADERS += qcanvas.h

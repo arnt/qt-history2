@@ -7,7 +7,7 @@ DESTDIR		= ../../../../plugins/designer
 include( ../../../../src/qt_professional.pri )
 TARGET		= dlgplugin
 INCLUDEPATH	+= ../../interfaces
-QCONFIG += xml
+QT += xml
 
 target.path += $$plugins.path/designer
 INSTALLS 	+= target

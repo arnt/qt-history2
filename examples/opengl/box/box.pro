@@ -2,7 +2,7 @@ TEMPLATE	= app
 TARGET		= box
 
 CONFIG		+= qt opengl warn_on release
-QCONFIG         += opengl
+QT         += opengl
 DEPENDPATH	= ../include
 
 QTDIR_build:REQUIRES        = opengl

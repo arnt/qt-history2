@@ -7,7 +7,7 @@ SOURCES		= main.cpp \
 		  ../shared/proparser.cpp
 
 !xml:DEFINES 	+= QT_INTERNAL_XML
-else:QCONFIG += xml
+else:QT += xml
 include( ../../../src/qt_professional.pri )
 
 TARGET		= lrelease

@@ -4,7 +4,7 @@ TARGET = qnetwork
 DEFINES += QT_BUILD_NETWORK_LIB
 
 include(../qbase.pri)
-QCONFIG = core 
+QT = core 
 
 # Qt network module
 

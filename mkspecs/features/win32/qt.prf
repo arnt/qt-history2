@@ -27,7 +27,7 @@ target_qt {
         } 
     }
 }
-for(QCONF, QCONFIG) {
+for(QCONF, QT) {
     qlib =
     isEqual(QCONF, gui):qlib = qt
     else:isEqual(QCONF, network):qlib = qnetwork
@@ -37,10 +37,10 @@ for(QCONF, QCONFIG) {
     else:isEqual(QCONF, core):qlib = qcore
     else:isEqual(QCONF, canvas):qlib = qcanvas
     else:isEqual(QCONF, compat):qlib = q3compat
-    else:message("Unknown QCONFIG: $$qlib):qlib =
+    else:message("Unknown QT: $$qlib):qlib =
     !isEmpty(qlib) {
         target_qt:isEqual(TARGET, qlib) {
-            warning($$TARGET cannot have a QCONFIG of $$QCONF)
+            warning($$TARGET cannot have a QT of $$QCONF)
         } else {
 	    isEqual(QCONF, compat) {
 	        QTDIR_build:warning(***USE of $$upper($${QCONF}) inside of QTDIR!**)

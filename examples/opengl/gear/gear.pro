@@ -2,7 +2,7 @@ TEMPLATE	= app
 TARGET		= gear
 
 CONFIG		+= qt opengl warn_on release
-QCONFIG         += opengl
+QT         += opengl
 !mac:unix:LIBS  += -lm
 DEPENDPATH	= ../include
 

@@ -5,7 +5,7 @@ TARGET = qopengl
 
 include(../qbase.pri)
 
-QCONFIG = core gui
+QT = core gui
 !win32:!embedded:!mac:CONFIG	   += x11 x11inc
 
 DEFINES += QT_BUILD_OPENGL_LIB

@@ -1,4 +1,4 @@
 CONFIG 	+= qt debug
-QCONFIG += xml
+QT += xml
 TARGET 	= svg
 SOURCES = main.cpp

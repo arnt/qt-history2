@@ -9,7 +9,7 @@ unix:LIBS	+= -lm
 INCLUDEPATH	+= .
 DEPENDPATH	= ../../include
 
-QCONFIG += compat
+QT += compat
 DEFINES += QT_COMPAT_WARNINGS
 
 QTDIR_build:REQUIRES	= full-config nocrosscompiler
@@ -54,7 +54,7 @@ canvas {
 		  qasteroids/view.cpp \
 		  qasteroids/ledmeter.cpp
 
-    QCONFIG     += canvas
+    QT     += canvas
 }
 
 opengl {
@@ -86,13 +86,13 @@ opengl {
     FORMS 	+=opengl/printpreview.ui \
 		  opengl/gllandscapeviewer.ui
 
-    QCONFIG     += opengl
+    QT     += opengl
 }
 
 sql {
     FORMS 	+=sql/connect.ui \
 		  sql/sqlex.ui
-    QCONFIG	+= sql
+    QT	+= sql
 
     HEADERS	+= sql/sqlsyntaxhighlighter.h
     SOURCES	+= sql/sqlsyntaxhighlighter.cpp

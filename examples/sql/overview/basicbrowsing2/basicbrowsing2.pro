@@ -1,6 +1,6 @@
 TEMPLATE	= app
 
-QCONFIG += sql
+QT += sql
 CONFIG		+= qt warn_on release
 DEPENDPATH	= ../../../include
 

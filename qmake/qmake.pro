@@ -40,7 +40,7 @@ SOURCES+=qchar.cpp qstring.cpp qtextstream.cpp \
          qstringmatcher.cpp qbytearraymatcher.cpp
 
 exists($$QT_BUILD_TREE/src/core/global/qconfig.cpp) {  #qconfig.cpp
-    DEFINES += HAVE_QCONFIG_CPP
+    DEFINES += HAVE_QT_CPP
     SOURCES += $$QT_BUILD_TREE/src/core/global/qconfig.cpp
 }
 

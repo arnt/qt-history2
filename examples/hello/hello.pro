@@ -2,7 +2,7 @@ TEMPLATE	= app
 TARGET		= hello
 
 CONFIG		+= qt warn_on release
-QCONFIG         += compat
+QT         += compat
 DEPENDPATH	= ../../include
 
 QTDIR_build:REQUIRES=

@@ -2,7 +2,7 @@
 
 REQUIRES = !qt_one_lib
 TARGET		= qsql
-QCONFIG = core
+QT = core
 
 CONFIG -= opengl x11sm
 

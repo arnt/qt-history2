@@ -2,7 +2,7 @@ TEMPLATE = lib
 
 CONFIG  += plugin console
 CONFIG  -= opengl x11sm
-QCONFIG  = core sql
+QT  = core sql
 DESTDIR  = $$QT_BUILD_TREE/plugins/sqldrivers
 
 target.path     += $$plugins.path/sqldrivers

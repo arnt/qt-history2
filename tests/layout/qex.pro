@@ -3,4 +3,4 @@ CONFIG      +=	qt warn_on release
 HEADERS     =	
 SOURCES     =	qex.cpp
 TARGET	    =	qex
-QCONFIG         += compat
+QT         += compat

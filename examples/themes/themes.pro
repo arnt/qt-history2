@@ -2,7 +2,7 @@ TEMPLATE	= app
 TARGET		= themes
 
 CONFIG		+= qt warn_on release no_batch
-QCONFIG         += compat
+QT         += compat
 DEPENDPATH	= ../../include
 
 QTDIR_build:REQUIRES	= full-config

@@ -2,7 +2,7 @@
 
 REQUIRES = !qt_one_lib
 TARGET		= q3compat
-QCONFIG         = core gui network sql
+QT         = core gui network sql
 
 DEFINES += QT_BUILD_COMPAT_LIB 
 

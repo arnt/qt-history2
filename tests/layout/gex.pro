@@ -3,4 +3,4 @@ CONFIG      +=	qt warn_on release
 HEADERS     =	
 SOURCES     =	gex.cpp
 TARGET	    =	gex
-QCONFIG         += compat
+QT         += compat

@@ -1,6 +1,6 @@
 TEMPLATE	= app
 CONFIG		+= qt warn_on release
-QCONFIG         += compat
+QT         += compat
 HEADERS		= cannon.h \
 		  lcdrange.h
 SOURCES		= cannon.cpp \

@@ -1,6 +1,6 @@
 TEMPLATE	= subdirs
 
-QCONFIG		+= sql
+QT		+= sql
 CONFIG 		+= ordered
 
 QTDIR_build:REQUIRES 	= full-config

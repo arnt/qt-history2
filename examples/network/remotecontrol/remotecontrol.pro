@@ -1,7 +1,7 @@
 TEMPLATE	= app
 TARGET		= remotecontrol
 
-QCONFIG         += network
+QT         += network
 CONFIG		+= qt warn_on release
 
 QTDIR_build:REQUIRES        = network full-config nocrosscompiler

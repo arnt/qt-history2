@@ -19,7 +19,7 @@ SOURCES	= main.cpp uic.cpp form.cpp object.cpp \
 #SOURCES +=	  ../shared/ui2uib.cpp \
 #		  ../shared/uib.cpp
 
-QCONFIG += xml
+QT += xml
 include( ../../../src/qt_professional.pri )
 
 DEFINES += QT_COMPAT_WARNINGS

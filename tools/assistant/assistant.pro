@@ -3,7 +3,7 @@ LANGUAGE = C++
 TARGET	 = assistant
 
 CONFIG	+= qt warn_off
-QCONFIG += compat
+QT += compat
 
 PROJECTNAME	= Assistant
 DESTDIR		= ../../bin
@@ -30,9 +30,9 @@ HEADERS	+= helpwindow.h \
 DEFINES += QT_KEYWORDS
 #DEFINES +=  QT_PALMTOPCENTER_DOCS
 !network:DEFINES	+= QT_INTERNAL_NETWORK
-else:QCONFIG += network
+else:QT += network
 !xml: DEFINES		+= QT_INTERNAL_XML
-else:QCONFIG += xml
+else:QT += xml
 include( ../../src/qt_professional.pri )
 
 win32:RC_FILE = assistant.rc

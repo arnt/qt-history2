@@ -1,6 +1,6 @@
 TEMPLATE = app
 
-QCONFIG += network
+QT += network
 LIBS    += -lqassistantclient
 
 QTDIR_build:REQUIRES = full-config table

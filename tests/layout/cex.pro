@@ -3,4 +3,4 @@ CONFIG      +=	qt warn_on release
 HEADERS     =	
 SOURCES     =	cex.cpp
 TARGET	    =	cex
-QCONFIG         += compat
+QT         += compat

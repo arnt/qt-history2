@@ -29,9 +29,9 @@ TRANSLATIONS	= linguist_de.ts \
 		  linguist_fr.ts
 
 DEFINES	+= QT_KEYWORDS
-QCONFIG += compat
+QT += compat
 !xml:DEFINES	+= QT_INTERNAL_XML
-else:QCONFIG += xml
+else:QT += xml
 include( ../../../src/qt_professional.pri )
 
 DESTDIR		= ../../../bin

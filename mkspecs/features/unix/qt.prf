@@ -8,7 +8,7 @@ INCLUDEPATH = $$QMAKE_INCDIR_QT $$INCLUDEPATH
 
 !isEmpty(QMAKE_RTLDIR_QT):QMAKE_LIBDIR += $$QMAKE_RTLDIR_QT
 QMAKE_LIBDIR += $$QMAKE_LIBDIR_QT
-for(QCONF, QCONFIG) {
+for(QCONF, QT) {
    qlib =
    isEqual(QCONF, gui):qlib = qt
    else:isEqual(QCONF, network):qlib = qnetwork
@@ -18,10 +18,10 @@ for(QCONF, QCONFIG) {
    else:isEqual(QCONF, core):qlib = qcore
    else:isEqual(QCONF, canvas):qlib = qcanvas
    else:isEqual(QCONF, compat):qlib = q3compat
-   else:message("Unknown QCONFIG: $$qlib):qlib =
+   else:message("Unknown QT: $$qlib):qlib =
    !isEmpty(qlib) {
       target_qt:isEqual(TARGET, qlib) {
-         warning($$TARGET cannot have a QCONFIG of $$QCONF)
+         warning($$TARGET cannot have a QT of $$QCONF)
       } else {
          DEFINES *= $$upper(QT_$${QCONF}_LIB)
 	 isEqual(QCONF, compat) {

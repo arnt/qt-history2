@@ -2,7 +2,7 @@ TEMPLATE	= app
 TARGET		= canvas
 
 CONFIG		+= qt warn_on release
-QCONFIG         += canvas compat
+QT         += canvas compat
 DEPENDPATH	= ../../include
 
 QTDIR_build:REQUIRES	= canvas full-config

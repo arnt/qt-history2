@@ -2,7 +2,7 @@ TEMPLATE	= app
 TARGET		= widgets
 
 CONFIG		+= qt warn_on release
-QCONFIG         += compat
+QT         += compat
 DEPENDPATH	= ../../include
 INCLUDEPATH	+= ../aclock ../dclock
 

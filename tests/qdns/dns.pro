@@ -4,4 +4,4 @@ HEADERS		=
 SOURCES		= dns.cpp
 INTERFACES	= 
 TARGET		= dns
-QCONFIG         += network
+QT         += network

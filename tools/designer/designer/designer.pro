@@ -11,9 +11,9 @@ TARGET	= designercore
 
 DEFINES	+= DESIGNER QT_KEYWORDS
 !xml:DEFINES += QT_INTERNAL_XML
-else:QCONFIG += xml
-QCONFIG += compat
-network:QCONFIG += network
+else:QT += xml
+QT += compat
+network:QT += network
 !iconview:DEFINES += QT_INTERNAL_ICONVIEW
 !table:DEFINES += QT_INTERNAL_TABLE
 table:win32-msvc:DEFINES+=QM_TEMPLATE_EXTERN_TABLE=extern
@@ -412,7 +412,7 @@ sql {
 	SOURCES  += database.cpp dbconnectionimpl.cpp dbconnectionsimpl.cpp
 	HEADERS += database.h dbconnectionimpl.h dbconnectionsimpl.h
 	FORMS += dbconnections.ui dbconnection.ui dbconnectioneditor.ui
-	QCONFIG += sql
+	QT += sql
 }
 
 table {

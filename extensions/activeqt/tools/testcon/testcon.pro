@@ -1,7 +1,7 @@
 TEMPLATE = app
 
 CONFIG	+= qt warn_off
-QCONFIG += compat
+QT += compat
 
 QMAKE_LIBS_QT_ENTRY = 
 LIBS	+= -lqaxserver -lqaxcontainer

@@ -11,7 +11,7 @@ HEADERS         += $$QT_SOURCE_TREE/include/qassistantclient.h
 
 
 !network:DEFINES += QT_INTERNAL_NETWORK
-else:QCONFIG += network
+else:QT += network
 include( ../../../src/qt_professional.pri )
 
 DESTDIR		= ../../../lib

@@ -1,6 +1,6 @@
 TEMPLATE = app
 CONFIG -= moc
-QCONFIG =
+QT =
 INCLUDEPATH += .
 
 # Input

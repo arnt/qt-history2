@@ -3,7 +3,7 @@ DEFINES += QT_BUILD_GUI_LIB
 
 include(../qbase.pri)
 
-QCONFIG = core 
+QT = core 
 !win32:!embedded:!mac:CONFIG	   += x11 x11inc
 
 !cups:DEFINES += QT_NO_CUPS
