@@ -308,12 +308,12 @@ do
 	;;
     #Qt plugin options
     -no-*-*|-plugin-*-*|-qt-*-*)
-	VAR=`echo $1 | sed "s,^-\([^-]*\).*,\1,"`
-	VAL=`echo $1 | sed "s,^-[^-]*-\(.*\),\1,"`
+	VAR=`echo $1 | sed "s,^-[^-]*-\(.*\),\1,"`
+	VAL=`echo $1 | sed "s,^-\([^-]*\).*,\1,"`
 	;;
     #Qt style no options
     -no-*)
-	VAR=`echo $1 | sed "s,^-no-(.*\),\1,"`
+	VAR=`echo $1 | sed "s,^-no-\(.*\),\1,"`
 	VAL=no
 	;;
     #Qt style yes options
@@ -514,6 +514,7 @@ do
         fi
 	;;
     gif)
+	[ "$VAL" = "qt" ] && VAL=yes
 	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
 	    CFG_GIF="$VAL"
 	else
@@ -564,7 +565,7 @@ do
 	fi
 	;;
     zlib)
-	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ] || [ "$VAL" = "system" ]; then
 	    CFG_ZLIB="$VAL"
 	else
 	    UNKNOWN_OPT=yes
