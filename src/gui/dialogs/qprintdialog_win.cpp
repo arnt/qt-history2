@@ -75,6 +75,8 @@ int QPrintDialog::exec()
         parent = qApp->activeWindow();
 
     if (parent) {
+	QEvent e(QEvent::WindowBlocked);
+	QApplication::sendEvent(parent, &e);
         QApplicationPrivate::enterModal(parent);
     }
 
@@ -129,6 +131,8 @@ int QPrintDialog::exec()
 
     if (parent) {
         QApplicationPrivate::leaveModal(parent);
+        QEvent e(QEvent::WindowUnblocked);
+        QApplication::sendEvent(parent, &e);
     }
 
     qt_win_eatMouseMove();
