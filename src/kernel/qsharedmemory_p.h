@@ -43,10 +43,10 @@
 #if !defined(QT_QSHM_H)
 #define QT_QSHM_H
 
-#if !defined(QT_NO_QSHM)
-
-
 #include <qstring.h>
+
+#if !defined (QT_QWS_NO_SHM)
+
 #include <sys/types.h>
 #include <sys/ipc.h>
 
