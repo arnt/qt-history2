@@ -28,6 +28,9 @@ targets:
 showdirs:
 	@echo $(SUBDIRS)
 
+showfiles:
+	@echo README Makefile
+
 depend:
 	set -e; for i in $(SUBDIRS); do $(MAKE) -C $$i depend; done
 
@@ -37,5 +40,4 @@ clean:
 fixmessage: clean
 	co -l t{?,??}/*.{h,cpp}
 	perl fixmessage t{?,??}/*.{h,cpp}
-	ci -u '-mautomaticall changed commend header' t{?,??}/*.{h,cpp}
-
+	ci -u '-mautomatically changed comment header' t{?,??}/*.{h,cpp}
