@@ -22,6 +22,8 @@ SOURCES	= main.cpp uic.cpp form.cpp object.cpp \
 else:QCONFIG += xml
 include( ../../../src/qt_professional.pri )
 
+DEFINES += QT_COMPAT_WARNINGS
+
 TARGET		= uic
 INCLUDEPATH	+= ../shared
 DEFINES 	+= UIC
