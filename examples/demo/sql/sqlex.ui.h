@@ -56,8 +56,6 @@ void SqlEx::init()
 {
     hsplit->setResizeMode( lv, QSplitter::KeepSize );
     vsplit->setResizeMode( gb, QSplitter::KeepSize );
-    lv->setRootIsDecorated( TRUE );    
-    Frame7->hide();
 }
 
 void SqlEx::dbConnect()
@@ -73,7 +71,6 @@ void SqlEx::dbConnect()
     db->setPort( conDiag->portSpinBox->value() );
     if ( !db->open( conDiag->editUsername->text(), conDiag->editPassword->text() ) )
 	showError( db->lastError(), this );
-    Frame7->show();
     lbl->setText( "Double-Click on a table-name to view the contents" );
     lv->clear();
     
