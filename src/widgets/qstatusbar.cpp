@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#4 $
+** $Id: //depot/qt/main/src/widgets/qstatusbar.cpp#5 $
 **
 ** Implementation of QStatusBar class
 **
@@ -18,7 +18,7 @@
 #include "qdrawutl.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qstatusbar.cpp#4 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qstatusbar.cpp#5 $");
 
 
 /*! \class QStatusBar qstatusbar.h
@@ -144,7 +144,8 @@ QStatusBar::QStatusBar( QWidget * parent, const char * name )
 {
     d = new QStatusBarPrivate;
     d->box = 0;
-    d->resizer = new QStatusBarPrivate::ResizeLines( this );
+    d->resizer = 0;     // EE 060498 04:20
+    //    d->resizer = new QStatusBarPrivate::ResizeLines( this );
     d->timer = 0;
     reformat();
 }
@@ -244,10 +245,10 @@ void QStatusBar::reformat()
     if ( space == 1 )
 	l->addStretch( 1 );
     l->addSpacing( 2 );
-    QBoxLayout * vproxy = new QBoxLayout( QBoxLayout::Down );
-    l->addLayout( vproxy );
-    vproxy->addStretch( 1 );
-    vproxy->addWidget( d->resizer, 0 );
+    //    QBoxLayout * vproxy = new QBoxLayout( QBoxLayout::Down );
+    //    l->addLayout( vproxy );
+    //    vproxy->addStretch( 1 );   // EE 060498 04:20
+    //    vproxy->addWidget( d->resizer, 0 );
     d->box->activate();
 }
 

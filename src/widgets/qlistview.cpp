@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#89 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#90 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#89 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#90 $");
 
 
 const int Unsorted = 32767;
@@ -1915,6 +1915,21 @@ void QListView::mousePressEvent( QMouseEvent * e )
 {
     if ( !e )
 	return;
+
+    if ( e->button() == RightButton ) {
+	QListViewItem * i;
+	if ( viewport()->rect().contains( e->pos() ) )
+	    i = itemAt( e->pos() );
+	else
+	    i = d->currentSelected;
+
+	if ( i ) {
+	    int c = d->h->mapToLogical( d->h->cellAt( e->pos().x() ) );
+	    emit rightButtonPressed( i, viewport()->mapToGlobal( e->pos() ),
+				     c );
+	}
+	return;
+    }
 
     if ( e->button() != LeftButton )
 	return;
