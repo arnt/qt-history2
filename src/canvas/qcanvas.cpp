@@ -459,7 +459,8 @@ QMouseEvent etc.) and layout management (QGridLayout etc.).
 A canvas consists of a background, a number of canvas items organized by
 x, y and z coordinates, and a foreground. A canvas item's z coordinate
 may be treated as a layer number -- canvas items with higher z
-coordinate will appear in front of canvas items with lower z coordinate.
+coordinate will appear in front of canvas items with a lower z
+coordinate.
 
 The background is white by default, but can be set to a different color
 using setBackgroundColor(), or to a repeated pixmap using
@@ -473,19 +474,28 @@ of these is setBackgroundPixmap(); some others are resize(), size(),
 width() and height(). \l QCanvasView is the widget used to display a
 canvas on the screen.
 
-Canvas items are movable objects that inherit QCanvasItem. Each canvas
-item has a position on the canvas (x, y coordinates) and a height (z
-coordinate), all of which are held as floating-point numbers. It's
-possible for a canvas item to be outside the canvas (for example
-QCanvasItem::x() is greater than width()).  When a canvas item is off
-the canvas, onCanvas() returns FALSE and the canvas disregards the item.
-(Canvas items off the canvas do not slow down any common opererations on
-the canvas.)
+Canvas items are added to a canvas by constructing them and passing the
+canvas to the canvas item's constructor. An item can be moved to a
+different canvas using QCanvasItem::setCanvas().
+
+Canvas items are movable (and in the case of QCanvasSprites, animated)
+objects that inherit QCanvasItem. Each canvas item has a position on the
+canvas (x, y coordinates) and a height (z coordinate), all of which are
+held as floating-point numbers. Moving canvas items also have x and y
+velocities. It's possible for a canvas item to be outside the canvas
+(for example QCanvasItem::x() is greater than width()).  When a canvas
+item is off the canvas, onCanvas() returns FALSE and the canvas
+disregards the item. (Canvas items off the canvas do not slow down any
+common opererations on the canvas.)
 
 Canvas items can be moved with QCanvasItem::move(). The advance()
-function moves all animated canvas items and setAdvancePeriod() makes
-QCanvas move them by itself on a periodic basis. To detect collisions
-use one of the collisions() functions.
+function moves all QCanvasItem::animated() canvas items and
+setAdvancePeriod() makes QCanvas move them by itself on a periodic
+basis. In the context of the QCanvas classes to `animate' a canvas item
+is to set it in motion, i.e. using QCanvasItem::setVelocity(). Animation
+of a canvas item itself, i.e. items which change over time, is achieved
+with the QCanvasSprite class, or your subclasses of QCanvasSprite. To
+detect collisions use one of the collisions() functions.
 
 The changed parts of the canvas are redrawn (if they are visible in a
 canvas view) whenever update() is called. You can either call update()
@@ -494,9 +504,9 @@ periodic updates using setUpdatePeriod(). If you have moving objects on
 the canvas, you need to call advance() every time the objects should
 move one step further. Periodic calls to advance() can be forced using
 setAdvancePeriod(). The advance() function will call
-QCanvasItem::advance() on every item that is flagged as \link
-QCanvasItem::animated animated \endlink and trigger an update of the
-affected areas afterwards.
+QCanvasItem::advance() on every item that is QCanvasItem::animated() and
+trigger an update of the affected areas afterwards. (A canvas item that
+is `animated' is simply a canvas item that is in motion.)
 
 QCanvas organizes its canvas items into \e chunks - areas on the canvas
 that are used to speed up most operations.  Many operations start by
@@ -831,7 +841,7 @@ void QCanvas::addItem(QCanvasItem* item)
 /*!
 \internal
 This method adds the item \a item to the list of QCanvasItem objects
-to be animated. The QCanvasItem class calls this.
+to be moved. The QCanvasItem class calls this.
 */
 void QCanvas::addAnimation(QCanvasItem* item)
 {
@@ -841,7 +851,7 @@ void QCanvas::addAnimation(QCanvasItem* item)
 /*!
 \internal
 This method adds the item \a item  to the list of QCanvasItem objects
-which are no longer to be animated. The QCanvasItem class calls this.
+which are no longer to be moved. The QCanvasItem class calls this.
 */
 void QCanvas::removeAnimation(QCanvasItem* item)
 {
@@ -925,19 +935,20 @@ void QCanvas::setUpdatePeriod(int ms)
     }
 }
 
-/*!  Advances the animation of items on the canvas and refreshes all
-  changes to all views of the canvas.
+/*!  Moves all QCanvasItem::animated() canvas items on the canvas and
+ refreshes all changes to all views of the canvas. (An `animated' item
+ is an item that is in motion, see setVelocity().)
 
   The advance is done in two phases.  In phase 0, the
-  QCanvasItem:advance() function of each animated canvas item is called
-  with paramater 0. Then all canvas items are called again, with
-  parameter 1. In phase 0, the items should not change position, merely
-  examine other items on the canvas for which special processing is
-  required, such as collisions between items. In phase 1, all items
-  should change positions, ignoring any other items on the canvas.  This
-  two-phase approach allows for considerations of "fairness", though no
-  QCanvasItem subclasses supplied with Qt do anything interesting in
-  phase 0.
+  QCanvasItem::advance() function of each QCanvasItem::animated() canvas
+  item is called with paramater 0. Then all these canvas items are
+  called again, with parameter 1. In phase 0, the canvas items should
+  not change position, merely examine other items on the canvas for
+  which special processing is required, such as collisions between
+  items. In phase 1, all canvas items should change positions, ignoring
+  any other items on the canvas.  This two-phase approach allows for
+  considerations of "fairness", though no QCanvasItem subclasses
+  supplied with Qt do anything interesting in phase 0.
 
   The canvas can be configured to call this function periodically with
   setAdvancePeriod().
@@ -1704,35 +1715,74 @@ class QCanvasItemExtra {
 
 A variety of subclasses provide immediately usable behaviour; this class
 is a pure abstract superclass providing the behaviour that is shared
-among all the concrete item classes. QCanvasItem is not intended for
-direct subclassing.  It is much easier to subclass one of its
+among all the concrete canvas item classes. QCanvasItem is not intended
+for direct subclassing.  It is much easier to subclass one of its
 subclasses, e.g. QCanvasPolygonalItem (the commonest base class),
 QCanvasRectangle, QCanvasSprite, QCanvasEllipse or QCanvasText.
 
+Canvas items are added to a canvas by constructing them and passing the
+canvas to the canvas item's constructor. An item can be moved to a
+different canvas using setCanvas().
+
 A QCanvasItem object can be moved in the x(), y() and z() dimensions
-using functions such as move(), moveBy(), setX(), x() and many
-others. It has a size given by boundingRect().  The item can move or
-change appearance automatically, using setAnimated() and
+using functions such as move(), moveBy(), setX(), setY() and setZ(). A
+canvas item can be set in motion, `animated', using setAnimated() and
+given a velocity in the x and y directions with setXVelocity() and
+setYVelocity() -- the same effect can be achieved by calling
 setVelocity(). Use the collidesWith() function to see if the canvas item
-will collide and use collisions() to see what collisions have occurred.
+will collide on the \e next advance(1) and use collisions() to see what
+collisions have occurred.
 
-It has the visibility functions like those in QWidget, including
-show() and isVisible(), as well as some that are provided without
-meaning, for subclasses to use as they please: setEnabled(),
-setActive() and setSelected().
+Use QCanvasSprite or your own subclass of QCanvasSprite to create canvas
+items which are animated, i.e. which change over time.
 
-Finally, the rtti() function is used for identifying subclasses of
-QCanvasItem, and the canvas() returns a pointer to the canvas on which
-the item lives.
+The size of a canvas item is given by boundingRect(). Use
+boundingRectAdvanced() to see what the size of the canvas item will be
+\e after the next advance(1) call. 
 
-An item, by default, has no speed, no size, is not animated and has no
-velocity. The subclasses provided in Qt do not change these defaults
-except where explicitly noted.
+The rtti() function is used for identifying subclasses of QCanvasItem.
+The canvas() function returns a pointer to the canvas which contains the
+canvas item.
+
+QCanvasItem provides the show() and visible() functions like those in
+QWidget. 
+
+QCanvasItem also provides the setEnabled(), setActive() and
+setSelected() functions; these functions set the relevant boolean and
+cause a repaint but the boolean values they set are not used in
+QCanvasItem. You can make use of these booleans in your subclasses.
+
+By default canvas items have no velocity, no size and are not in motion.
+The subclasses provided in Qt do not change these defaults except where
+noted.
 
 */
 
 /*!
-Constructs a QCanvasItem on \a canvas.
+    \enum QCanvasItem::RttiValues
+    
+    This enum is used to name the different types of canvas item.
+
+    \value Rtti_Item Canvas item abstract base class
+    \value Rtti_Ellipse
+    \value Rtti_Line
+    \value Rtti_Polygon
+    \value Rtti_PolygonalItem
+    \value Rtti_Rectangle
+    \value Rtti_Spline
+    \value Rtti_Sprite
+    \value Rtti_Text
+
+*/
+
+/*!
+    \fn void QCanvasItem::update()
+
+    Call this function to repaint the canvas's changed chunks.
+*/
+
+/*!
+Constructs a QCanvasItem on canvas \a canvas.
 
 \sa setCanvas()
 */
@@ -1751,7 +1801,7 @@ QCanvasItem::QCanvasItem(QCanvas* canvas) :
 }
 
 /*!
-Destroys the QCanvasItem and removes it from its cavas.
+Destroys the QCanvasItem and removes it from its canvas.
 */
 QCanvasItem::~QCanvasItem()
 {
@@ -1771,45 +1821,45 @@ QCanvasItemExtra& QCanvasItem::extra()
 
 /*! \fn double QCanvasItem::x() const
 
-  Returns the horizontal position of the item.  Note that subclasses
-  often have an origin other than the top-left corner.
+  Returns the horizontal position of the canvas item.  Note that
+  subclasses often have an origin other than the top-left corner.
 */
 
 /*! \fn double QCanvasItem::y() const
 
-  Returns the vertical position of the item.  Note that subclasses
-  often have an origin other than the top-left corner.
+  Returns the vertical position of the canvas item.  Note that
+  subclasses often have an origin other than the top-left corner.
 */
 
 /*! \fn double QCanvasItem::z() const
 
-  Returns the z index of the item, which is used for visual order:
-  higher-z items obscure lower-z ones.
+  Returns the z index of the canvas item, which is used for visual
+  order: higher-z items obscure (are in front of) lower-z items.
 */
 
 /*! \fn void QCanvasItem::setX(double x)
 
-  Moves the item so that its X-position is \a x.
+  Moves the canvas item so that its x-position is \a x.
   \sa x(), move()
 */
 
 /*! \fn void QCanvasItem::setY(double y)
 
-  Moves the item so that its Y-position is \a y.
+  Moves the canvas item so that its y-position is \a y.
   \sa y(), move()
 */
 
 /*! \fn void QCanvasItem::setZ(double z)
 
-  Sets the z index of the item to \a z.  Higher-z items obscure lower-z
-  ones.
+  Sets the z index of the canvas item to \a z.  Higher-z items obscure
+  (are in front of) lower-z items.
 
   \sa z(), move()
 */
 
 
-/*! This virtual function moves the item from its current position by
-  (\a dx, \a dy).
+/*! Moves the canvas item relative to its current position
+ by (\a dx, \a dy).
 */
 void QCanvasItem::moveBy( double dx, double dy )
 {
@@ -1822,8 +1872,7 @@ void QCanvasItem::moveBy( double dx, double dy )
 }
 
 
-/*!  Moves the item to (\a x, \a y) by calling the moveBy() virtual
-  function.
+/*!  Moves the canvas item to the absolute position (\a x, \a y).
 */
 void QCanvasItem::move( double x, double y )
 {
@@ -1831,7 +1880,8 @@ void QCanvasItem::move( double x, double y )
 }
 
 
-/*! Returns TRUE is the item is animated.
+/*! Returns TRUE is the canvas item is in motion; otherwise
+ returns FALSE.
 
   \sa setVelocity(), setAnimated()
 */
@@ -1840,8 +1890,9 @@ bool QCanvasItem::animated() const
     return (bool)ani;
 }
 
-/*!  Sets the item to be animated if \a y is TRUE, or not if \a y is
-  FALSE.
+/*!  Sets the canvas item to be in motion if \a y is TRUE, or
+ not if \a y is FALSE. The speed and direction of the motion is set with
+ setVelocity(), or setXVelocity() and setYVelocity().
 
   \sa advance(), QCanvas::advance()
 */
@@ -1859,16 +1910,17 @@ void QCanvasItem::setAnimated(bool y)
 
 /*! \fn void QCanvasItem::setXVelocity( double vx )
 
-  Sets the horizontal component of the item's velocity to \a vx.
+  Sets the horizontal component of the canvas item's velocity to \a vx.
 */
 
 /*! \fn void QCanvasItem::setYVelocity( double vy )
 
-  Sets the vertical component of the item's velocity to \a vy.
+  Sets the vertical component of the canvas item's velocity to \a vy.
 */
 
-/*! Sets the item to be animated and moving by \a vx and \a vy pixels
-  in the horizontal and vertical directions respectively.
+/*! Sets the canvas item to be in motion, moving
+ by \a vx and \a vy pixels in the horizontal and vertical directions
+ respectively.
 
   \sa advance().
 */
@@ -1883,7 +1935,7 @@ void QCanvasItem::setVelocity( double vx, double vy)
 }
 
 /*!
-  Returns the horizontal component of the velocity of the item.
+  Returns the horizontal velocity component of the canvas item.
 */
 double QCanvasItem::xVelocity() const
 {
@@ -1891,21 +1943,22 @@ double QCanvasItem::xVelocity() const
 }
 
 /*!
-  Returns the vertical component of the velocity of the item.
+  Returns the vertical velocity component of the canvas item.
 */
 double QCanvasItem::yVelocity() const
 {
     return ext ? ext->vy : 0;
 }
 
-/*!  Advances the animation of the item.  The default implementation
-  moves the item by the preset velocity if \a phase is 1, and does
-  nothing if \a phase is 0.
+/*!  The default implementation moves the canvas item, if it is
+ animated(), by the preset velocity if \a phase is 1, and does nothing
+ if \a phase is 0. 
 
-  Note that if you reimplement this function, you may not change the
-  canvas in any way, add other items, or remove items.
+  Note that if you reimplement this function, the reimplementation may
+  not change the canvas in any way, for example it may not add or remove
+  items.
 
-  \sa QCanvas::advance()
+  \sa QCanvas::advance() setVelocity()
 */
 void QCanvasItem::advance(int phase)
 {
@@ -1916,10 +1969,10 @@ void QCanvasItem::advance(int phase)
 /*!
 \fn void QCanvasItem::draw(QPainter& painter)
 
-This abstract virtual function draws the item using \a painter.
+This abstract virtual function draws the canvas item using \a painter.
 */
 
-/*! Sets the QCanvas upon which the QCanvasItem is to be drawn to \a c.
+/*! Sets the QCanvas upon which the canvas item is to be drawn to \a c.
 
 \sa canvas()
 */
@@ -1942,7 +1995,7 @@ void QCanvasItem::setCanvas(QCanvas* c)
 /*!
   \fn QCanvas* QCanvasItem::canvas() const
 
-  Returns the canvas containing the item.
+  Returns the canvas containing the canvas item.
 */
 
 /*! Shorthand for setVisible(TRUE). */
@@ -1957,9 +2010,9 @@ void QCanvasItem::hide()
     setVisible(FALSE);
 }
 
-/*!  Makes the items visible if \a yes is TRUE, or invisible if \a yes
-  is FALSE.  The change takes effect when QCanvas::update() is next
-  called.
+/*!  Makes the canvas item visible if \a yes is TRUE, or invisible if \a
+ yes is FALSE.  The change takes effect when QCanvas::update() is next
+ called.
 */
 void QCanvasItem::setVisible(bool yes)
 {
@@ -1975,27 +2028,29 @@ void QCanvasItem::setVisible(bool yes)
 }
 /*! \fn bool QCanvasItem::visible() const
 
-  Returns TRUE if the QCanvasItem is visible.  This does \e not mean
-  the QCanvasItem is currently in a view, merely that if a view is
-  showing the area where the QCanvasItem is, and the item is not
-  obscured by items at a higher z, and the view is not obscured by
-  overlying windows, it would be visible.
+  Returns TRUE if the canvas item is visible otherwise returns FALSE.  
+  
+  Note that in this context TRUE does \e not mean that the canvas item
+  is currently in a view, merely that if a view is showing the area
+  where the canvas item is positioned, and the item is not obscured by
+  items with higher z values, and the view is not obscured by overlaying
+  windows, it would be visible.
 
   \sa setVisible(), z()
 */
 
 /*! \fn bool QCanvasItem::selected() const
 
-  Returns TRUE if the QCanvasItem is selected.
+  Returns TRUE if the canvas item is selected; otherwise returns FALSE.
 */
 
 /*! Sets the selected flag of the item to \a yes and causes it to be
   redrawn when QCanvas::update() is next called.
 
-  The behavior of QCanvas, QCanvasItem or the built-in QCanvasItem
-  subclasses is not affected by this value.  setSelected() is supplied
-  because many applications need it, but it is up to the application
-  to define its exact meaning.
+  The QCanvas, QCanvasItem and the Qt-supplied QCanvasItem subclasses do
+  not make use of this value.  The setSelected() function is supplied
+  because many applications need it, but it is up to you how you use the
+  selected() value. 
 */
 void QCanvasItem::setSelected(bool yes)
 {
@@ -2007,16 +2062,16 @@ void QCanvasItem::setSelected(bool yes)
 
 /*!
   \fn bool QCanvasItem::enabled() const
-  Returns TRUE if the QCanvasItem is enabled.
+  Returns TRUE if the QCanvasItem is enabled; otherwise returns FALSE.
 */
 
 /*!  Sets the enabled flag of the item to \a yes and causes it to be
   redrawn when QCanvas::update() is next called.
 
-  The behavior of QCanvas, QCanvasItem or the built-in QCanvasItem
-  subclasses is not affected by this value.  setEnabled() is supplied
-  because many applications need it, but it is up to the application
-  to define its exact meaning.
+  The QCanvas, QCanvasItem and the Qt-supplied QCanvasItem subclasses do
+  not make use of this value.  The setEnabled() function is supplied
+  because many applications need it, but it is up to you how you use the
+  selected() value. 
 */
 void QCanvasItem::setEnabled(bool yes)
 {
@@ -2028,16 +2083,16 @@ void QCanvasItem::setEnabled(bool yes)
 
 /*!
   \fn bool QCanvasItem::active() const
-  Returns TRUE if the QCanvasItem is active.
+  Returns TRUE if the QCanvasItem is active; otherwise returns FALSE.
 */
 
 /*!  Sets the active flag of the item to \a yes and causes it to be
   redrawn when QCanvas::update() is next called.
 
-  The behavior of QCanvas, QCanvasItem or the built-in QCanvasItem
-  subclasses is not affected by this value.  setActive() is supplied
-  because many applications need it, but it is up to the application
-  to define its exact meaning.
+  The QCanvas, QCanvasItem and the Qt-supplied QCanvasItem subclasses do
+  not make use of this value.  The setActive() function is supplied
+  because many applications need it, but it is up to you how you use the
+  selected() value. 
 */
 void QCanvasItem::setActive(bool yes)
 {
@@ -2202,8 +2257,9 @@ static bool collision_double_dispatch( const QCanvasSprite* s1,
 /*!
   \fn bool QCanvasItem::collidesWith( const QCanvasItem* other ) const
 
-  Returns TRUE if the item will collide with the \a other item \e after they
-  have moved by their current velocities.
+  Returns TRUE if the canvas item will collide with the \a other item \e
+  after they have moved by their current velocities; otherwise returns
+  FALSE.
 
   \sa collisions()
 */
@@ -2211,16 +2267,13 @@ static bool collision_double_dispatch( const QCanvasSprite* s1,
 
 /*!
   \class QCanvasSprite qcanvas.h
-  \brief The QCanvasSprite class provides an animated moving pixmap on a QCanvas.
+  \brief The QCanvasSprite class provides a moving canvas item on a QCanvas.
   \module canvas
 
-  A "sprite" is usually an image object that moves around independently of
-  foreground and background.  Since on a QCanvas, everything moves around
-  independently of the foreground and background, a QCanvasSprite
-  is just a image whose API makes it simpler to use animation and a
-  hot spot.
+  A canvas sprite is an image object (a canvas item) that moves
+  around independently of the foreground and background on a QCanvas.  
 
-  QCanvasSprite draws very fast, at the cost of some memory.
+  QCanvasSprite draws very quickly, at the cost of some memory.
 */
 
 
@@ -2233,9 +2286,9 @@ bool QCanvasSprite::collidesWith( const QCanvasItem* i ) const
 }
 
 /*!
-  Returns TRUE if the item collides with any of the given items. The
-  parameters are all the same object, this is just a type resolution
-  trick.
+  Returns TRUE if the canvas item collides with any of the given items.
+  The parameters, \a s, \a p, \a r, \a e and \a t, are all the same
+  object, this is just a type resolution trick.
 */
 bool QCanvasSprite::collidesWith( const QCanvasSprite* s,
 				  const QCanvasPolygonalItem* p,
@@ -2316,32 +2369,34 @@ bool QCanvasText::collidesWith(  const QCanvasSprite* s,
 }
 
 /*!
-  Returns the list of items that this item collides with.
+  Returns the list of canvas items that this canvas item has collided
+  with.
 
   A collision is generally defined as pixels of one item drawing on the
   pixels of another item, but not all subclasses are so precise. Also,
-  since pixelwise collision detection can be slow, this function
+  since pixel-wise collision detection can be slow, this function
   works in either exact or inexact mode, according to the \a exact
   parameter.
 
-  In exact mode, items returned have been accurately tested to collide
-  with the item.
+  If \a exact is TRUE, the canvas items returned have been accurately
+  tested for collision with the canvas item.
 
-  In inexact mode, the items returned are only \e near the item and
-  should be tested using collidesWith() if they are interesting collision
-  candidates. By using this, you can ignore some items for which collisions
-  are not interesting.
+  If \a exact is FALSE, the canvas items returned are \e near the canvas
+  item. You can test the canvas items returned using collidesWith() if
+  any are interesting collision candidates. By using this approach, you
+  can ignore some canvas items for which collisions are not relevant.
 
-  The returned list is just a list of QCanvasItems, but often you will need
-  to cast the items to more useful types. The safe way to do that is to
-  use rtti() before casting. This provides some of the functionality of
-  standard C++ dynamic cast operation even on compilers where that is not
-  available.
+  The returned list is a list of QCanvasItems, but often you will need
+  to cast the items to their subclass types. The safe way to do this is
+  to use rtti() before casting. This provides some of the functionality
+  of the standard C++ dynamic cast operation even on compilers where
+  dynamic casts are not available.
 
-  Note that while a QCanvasItem may be `on' a QCanvas even if it's
-  coordinates place it far off the edge of the area of the QCanvas,
-  collision detection only works for parts of an item
-  that are within the area of the canvas.
+    Note that a canvas item may be `on' a canvas, e.g. it was created
+    with the canvas as parameter, even though its coordinates place it
+    beyond the edge of the canvas's area. Collision detection only works
+    for canvas items which are wholly or partly within the canvas's
+    area.
 */
 QCanvasItemList QCanvasItem::collisions(bool exact) const
 {
@@ -2349,8 +2404,9 @@ QCanvasItemList QCanvasItem::collisions(bool exact) const
 }
 
 /*!
-  Returns a list of items which intersect with the point \a p,
-  sorted from shallowest to deepest.
+  Returns a list of canvas items that intersect with the point \a p.
+  The list is ordered by z coordinates, from highest z coordinate
+  (front-most item) to lowest z coordinate (rear-most item). 
 */
 QCanvasItemList QCanvas::collisions(const QPoint& p) const
 {
@@ -2360,8 +2416,9 @@ QCanvasItemList QCanvas::collisions(const QPoint& p) const
 /*!
   \overload
 
-  Returns a list of items which intersect with the rectangle \a r,
-  sorted from shallowest to deepest.
+  Returns a list of items which intersect with the rectangle \a r.
+  The list is ordered by z coordinates, from highest z coordinate
+  (front-most item) to lowest z coordinate (rear-most item). 
 */
 QCanvasItemList QCanvas::collisions(const QRect& r) const
 {
@@ -2376,11 +2433,10 @@ QCanvasItemList QCanvas::collisions(const QRect& r) const
 /*!
   \overload
 
-  Returns a list of items which intersect with the chunks listed
-  in \a chunklist, excluding \a item.  If \a exact is TRUE, only
-  only those which actually QCanvasItem::collidesWith() \a item
-  are returned, otherwise items are included just for being in the
-  chunks.
+  Returns a list of canvas items which intersect with the chunks listed
+  in \a chunklist, excluding \a item.  If \a exact is TRUE, only only
+  those which actually QCanvasItem::collidesWith() \a item are returned,
+  otherwise canvas items are included just for being in the chunks.
 
   This is a utility function mainly used to implement the simpler
   QCanvasItem::collisions() function.
@@ -2452,14 +2508,14 @@ void QCanvasItem::changeChunks()
 /*!
   \fn QRect QCanvasItem::boundingRect() const
 
-  Returns the bounding rectangle of pixels that the item covers.
+  Returns the bounding rectangle in pixels that the canvas item covers.
 
   \sa boundingRectAdvanced()
 */
 
 /*!
-  Returns the bounding rectangle of pixels that the item \e will cover
-  after advance(1) is called.
+  Returns the bounding rectangle of pixels that the canvas item \e will
+  cover after advance(1) is called.
 
   \sa boundingRect()
 */
@@ -2588,8 +2644,8 @@ QCanvasPixmap::~QCanvasPixmap()
   \module canvas
 
   This class is used by QCanvasSprite to hold an array of pixmaps. It
-  is used to implement animated sprites, each pixmap in the array
-  holding one frame.
+  is used to implement animated sprites, images that change over time,
+  each pixmap in the array holding one frame.
 */
 
 /*!  Constructs an invalid array.  You will need to call readPixmaps()
@@ -4462,18 +4518,18 @@ void QCanvasText::removeFromChunks()
 
 
 /*!
-Returns 0.
+Returns 0 (QCanvasItem::Rtti_Item).
 
 Although often frowned upon by purists, Run Time
-Type Identification is very useful in this case, as it allows
+Type Identification is very useful in these classes as it allows
 a QCanvas to be an efficient indexed storage mechanism.
 
-Make your derived classes return their own values for rtti(), and you
+Make your derived classes return their own values for rtti(), so that you
 can distinguish between objects returned by QCanvas::at().  You should
 use values greater than 1000 to allow for extensions to this class.
 
-However, it is important not to overuse this facility, as
-it damages extensibility.  For example, once you have identified
+Overuse of this functionality can
+it damage extensibility.  For example, once you have identified
 a base class of a QCanvasItem found by QCanvas::at(), cast it
 to that type and call meaningful methods rather than acting
 upon the object based on its rtti value.
@@ -4495,49 +4551,49 @@ For example:
 int QCanvasItem::rtti() const { return Rtti_Item; }
 
 /*!
-Returns 1.
+Returns 1 (QCanvasItem::Rtti_Sprite).
 
 \sa QCanvasItem::rtti()
 */
 int QCanvasSprite::rtti() const { return Rtti_Sprite; }
 
 /*!
-Returns 2.
+Returns 2 (QCanvasItem::Rtti_PolygonalItem).
 
 \sa QCanvasItem::rtti()
 */
 int QCanvasPolygonalItem::rtti() const { return Rtti_PolygonalItem; }
 
 /*!
-Returns 3.
+Returns 3 (QCanvasItem::Rtti_Text).
 
 \sa QCanvasItem::rtti()
 */
 int QCanvasText::rtti() const { return Rtti_Text; }
 
 /*!
-Returns 4.
+Returns 4 (QCanvasItem::Rtti_Polygon).
 
 \sa QCanvasItem::rtti()
 */
 int QCanvasPolygon::rtti() const { return Rtti_Polygon; }
 
 /*!
-Returns 5.
+Returns 5 (QCanvasItem::Rtti_Rectangle).
 
 \sa QCanvasItem::rtti()
 */
 int QCanvasRectangle::rtti() const { return Rtti_Rectangle; }
 
 /*!
-Returns 6.
+Returns 6 (QCanvasItem::Rtti_Ellipse).
 
 \sa QCanvasItem::rtti()
 */
 int QCanvasEllipse::rtti() const { return Rtti_Ellipse; }
 
 /*!
-Returns 7.
+Returns 7 (QCanvasItem::Rtti_Line).
 
 \sa QCanvasItem::rtti()
 */
@@ -4545,7 +4601,7 @@ int QCanvasLine::rtti() const { return Rtti_Line; }
 
 
 /*!
-Returns 8.
+Returns 8 (QCanvasItem::Rtti_Spline).
 
 \sa QCanvasItem::rtti()
 */

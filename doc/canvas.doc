@@ -39,10 +39,12 @@
 
 The canvas module provides a highly optimized 2D graphic area called \l
 QCanvas. The canvas can contain an arbitrary number of \link QCanvasItem
-QCanvasItems \endlink. Items can have an arbitrary shape, size and
+QCanvasItems \endlink. Canvas items can have an arbitrary shape, size and
 content, can be freely moved around in the canvas, and can be checked
-for collisions. (If you're interested in 3D graphics see Qt's 
-<a href="opengl.html">OpenGL module</a>.)
+for collisions. Canvas items can be set to move across the canvas
+automatically and animated canvas items are supported with QCanvasSprite.
+(If you require 3D graphics see Qt's <a
+href="opengl.html">OpenGL module</a>.)
 
 The canvas module uses a document/view model. The \l QCanvasView class
 is used to show a particular view of a canvas. Multiple views can operate
@@ -53,7 +55,7 @@ features such as zooming.
 <center><a href="qcanvas.html">
 <img src="qcanvas.png" alt="Screenshot of a canvas"></a></center>
 
-Qt provides a number of predefined \l QCanvas items as listed below. 
+Qt provides a number of predefined \l QCanvas items as listed below.
 <table>
 <tr>
 <td valign="top">\l QCanvasItem </td>
@@ -95,9 +97,8 @@ Rotated rectangles can be drawn using \l QCanvasPolygon.</td>
 </tr>
 </table>
 
- Additionally, the two classes, \l QCanvasPixmap and \l
- QCanvasPixmapArray are used by \l QCanvasSprite to show animated and
- moving pixmaps on the canvas.
+The two classes, \l QCanvasPixmap and \l QCanvasPixmapArray are used by
+\l QCanvasSprite to show animated and moving pixmaps on the canvas.
 
 More specialized items can be created by inheriting from one of the
 canvas item classes. It is easiest to inherit from one of
