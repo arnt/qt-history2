@@ -1,5 +1,379 @@
+static const char * const check_list_controller_xpm[] = {
+"16 16 4 1",
+"        c None",
+".        c #000000000000",
+"X        c #FFFFFFFF0000",
+"o        c #C71BC30BC71B",
+"                ",
+"                ",
+" ..........     ",
+" .XXXXXXXX.     ",
+" .XXXXXXXX.oo   ",
+" .XXXXXXXX.oo   ",
+" .XXXXXXXX.oo   ",
+" .XXXXXXXX.oo   ",
+" .XXXXXXXX.oo   ",
+" .XXXXXXXX.oo   ",
+" .XXXXXXXX.oo   ",
+" ..........oo   ",
+"   oooooooooo   ",
+"   oooooooooo   ",
+"                ",
+"                "};
+
+static const char * const tree_branch_open_xpm[] = {
+"9 9 2 1",
+"  c None",
+"# c #000000",
+"#########",
+"#       #",
+"# ##### #",
+"#  ###  #",
+"#  ###  #",
+"#   #   #",
+"#   #   #",
+"#       #",
+"#########"};
+
+static const char * const tree_branch_closed_xpm[] = {
+"9 9 2 1",
+"  c None",
+"# c #000000",
+"#########",
+"#       #",
+"# #     #",
+"# ###   #",
+"# ##### #",
+"# ###   #",
+"# #     #",
+"#       #",
+"#########"};
+
+static const char * const tb_extension_arrow_v_xpm[] = {
+    "5 8 3 1",
+    "            c None",
+    ".            c #000000",
+    "+            c none",
+    ".+++.",
+    "..+..",
+    "+...+",
+    "++.++",
+    ".+++.",
+    "..+..",
+    "+...+",
+    "++.++"
+};
+
+static const char * const tb_extension_arrow_h_xpm[] = {
+    "8 5 3 1",
+    "            c None",
+    ".            c #000000",
+    "+            c none",
+    "..++..++",
+    "+..++..+",
+    "++..++..",
+    "+..++..+",
+    "..++..++",
+};
+
+static const char * const filedialog_start_xpm[]={
+    "16 15 8 1",
+    "a c #cec6bd",
+    "# c #000000",
+    "e c #ffff00",
+    "b c #999999",
+    "f c #cccccc",
+    "d c #dcdcdc",
+    "c c #ffffff",
+    ". c None",
+    ".....######aaaaa",
+    "...bb#cccc##aaaa",
+    "..bcc#cccc#d#aaa",
+    ".bcef#cccc#dd#aa",
+    ".bcfe#cccc#####a",
+    ".bcef#ccccccccc#",
+    "bbbbbbbbbbbbccc#",
+    "bccccccccccbbcc#",
+    "bcefefefefee#bc#",
+    ".bcefefefefef#c#",
+    ".bcfefefefefe#c#",
+    "..bcfefefefeeb##",
+    "..bbbbbbbbbbbbb#",
+    "...#############",
+    "................"};
+
+static const char * const filedialog_end_xpm[]={
+    "16 15 9 1",
+    "d c #a0a0a0",
+    "c c #c3c3c3",
+    "# c #cec6bd",
+    ". c #000000",
+    "f c #ffff00",
+    "e c #999999",
+    "g c #cccccc",
+    "b c #ffffff",
+    "a c None",
+    "......####aaaaaa",
+    ".bbbb..###aaaaaa",
+    ".bbbb.c.##aaaaaa",
+    ".bbbb....ddeeeea",
+    ".bbbbbbb.bbbbbe.",
+    ".bbbbbbb.bcfgfe.",
+    "eeeeeeeeeeeeefe.",
+    "ebbbbbbbbbbeege.",
+    "ebfgfgfgfgff.ee.",
+    "aebfgfgfgfgfg.e.",
+    "aebgfgfgfgfgf.e.",
+    "aaebgfgfgfgffe..",
+    "aaeeeeeeeeeeeee.",
+    "aaa.............",
+    "aaaaaaaaaaaaaaaa"};
+
+static const char* const filedialog_toparent_xpm[]={
+    "15 13 3 1",
+    ". c None",
+    "* c #000000",
+    "a c #ffff99",
+    "..*****........",
+    ".*aaaaa*.......",
+    "***************",
+    "*aaaaaaaaaaaaa*",
+    "*aaaa*aaaaaaaa*",
+    "*aaa***aaaaaaa*",
+    "*aa*****aaaaaa*",
+    "*aaaa*aaaaaaaa*",
+    "*aaaa*aaaaaaaa*",
+    "*aaaa******aaa*",
+    "*aaaaaaaaaaaaa*",
+    "*aaaaaaaaaaaaa*",
+    "***************"};
+
+static const char* const filedialog_newfolder_xpm[] = {
+    "15 14 4 1",
+    "        c None",
+    ".        c #000000",
+    "+        c #FFFF00",
+    "@        c #FFFFFF",
+    "          .    ",
+    "               ",
+    "          .    ",
+    "       .     . ",
+    "  ....  . . .  ",
+    " .+@+@.  . .   ",
+    "..........  . .",
+    ".@+@+@+@+@..   ",
+    ".+@+@+@+@+. .  ",
+    ".@+@+@+@+@.  . ",
+    ".+@+@+@+@+.    ",
+    ".@+@+@+@+@.    ",
+    ".+@+@+@+@+.    ",
+    "...........    "};
+
+static const char* const filedialog_detailedview_xpm[]={
+    "14 11 3 1",
+    ". c None",
+    "* c #000000",
+    "a c #000099",
+    ".****.***.***.",
+    "..............",
+    "aaaaaaaaaaaaaa",
+    "..............",
+    ".****.***.***.",
+    "..............",
+    ".****.***.***.",
+    "..............",
+    ".****.***.***.",
+    "..............",
+    ".****.***.***."};
+
+static const char* const filedialog_previewinfoview_xpm[]={
+    "13 13 4 1",
+    ". c #00007f",
+    "a c black",
+    "# c #cec6bd",
+    "b c #000000",
+    "..#####aaaaaa",
+    ".#.#bb#a#####",
+    "...####a#bbb#",
+    "#######a#####",
+    "#######a#bb##",
+    "..#####a#####",
+    ".#.#bb#a#bbb#",
+    "...####a#####",
+    "#######a#bb##",
+    "#######a#####",
+    "..#####a#bbb#",
+    ".#.#bb#a#####",
+    "...####aaaaaa"};
+
+static const char* const filedialog_previewcontentsview_xpm[]={
+    "14 13 5 1",
+    ". c #00007f",
+    "a c black",
+    "c c #7f007f",
+    "# c #cec6bd",
+    "b c #000000",
+    "..#####aaaaaaa",
+    ".#.#bb#a#####a",
+    "...####a#ccc#a",
+    "#######a#ccc#a",
+    "#######a#####a",
+    "..#####a#bbb#a",
+    ".#.#bb#a#####a",
+    "...####a#bbb#a",
+    "#######a#####a",
+    "#######a#bbb#a",
+    "..#####a#####a",
+    ".#.#bb#a#####a",
+    "...####aaaaaaa"};
+
+static const char* const filedialog_mclistview_xpm[]={
+    "15 11 4 1",
+    "* c None",
+    "b c #000000",
+    ". c #000099",
+    "a c #ffffff",
+    "...*****...****",
+    ".a.*bbb*.a.*bbb",
+    "...*****...****",
+    "***************",
+    "...*****...****",
+    ".a.*bbb*.a.*bbb",
+    "...*****...****",
+    "***************",
+    "...*****...****",
+    ".a.*bbb*.a.*bbb",
+    "...*****...****"};
+
+static const char * const filedialog_back_xpm [] = {
+    "13 11 3 1",
+    "a c #00ffff",
+    "# c #000000",
+    ". c None",
+    ".....#.......",
+    "....##.......",
+    "...#a#.......",
+    "..#aa########",
+    ".#aaaaaaaaaa#",
+    "#aaaaaaaaaaa#",
+    ".#aaaaaaaaaa#",
+    "..#aa########",
+    "...#a#.......",
+    "....##.......",
+    ".....#......."};
+
 /* XPM */
-static const char *const commonstyle_cdr16_xpm[]={
+static const char * const dir_link_xpm[]={
+    "16 16 10 1",
+    "h c #808080",
+    "g c #a0a0a0",
+    "d c #000000",
+    "b c #ffff00",
+    "f c #303030",
+    "# c #999999",
+    "a c #cccccc",
+    "e c #585858",
+    "c c #ffffff",
+    ". c None",
+    "................",
+    "................",
+    "..#####.........",
+    ".#ababa#........",
+    "#abababa######..",
+    "#cccccccccccc#d.",
+    "#cbababababab#d.",
+    "#cabababababa#d.",
+    "#cbababdddddddd.",
+    "#cababadccccccd.",
+    "#cbababdcececcd.",
+    "#cababadcefdfcd.",
+    "#cbababdccgdhcd.",
+    "#######dccchccd.",
+    ".dddddddddddddd.",
+    "................"};
+/* XPM */
+static const char* const file_xpm[]={
+    "16 16 5 1",
+    ". c #7f7f7f",
+    "# c None",
+    "c c #000000",
+    "b c #bfbfbf",
+    "a c #ffffff",
+    "################",
+    "..........######",
+    ".aaaaaaaab.#####",
+    ".aaaaaaaaba.####",
+    ".aaaaaaaacccc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".bbbbbbbbbbbc###",
+    "ccccccccccccc###"};
+/* XPM */
+static const char * const file_link_xpm[]={
+    "16 16 10 1",
+    "h c #808080",
+    "g c #a0a0a0",
+    "d c #c3c3c3",
+    ". c #7f7f7f",
+    "c c #000000",
+    "b c #bfbfbf",
+    "f c #303030",
+    "e c #585858",
+    "a c #ffffff",
+    "# c None",
+    "################",
+    "..........######",
+    ".aaaaaaaab.#####",
+    ".aaaaaaaaba.####",
+    ".aaaaaaaacccc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaabc###",
+    ".aaaaaaaaaadc###",
+    ".aaaaaaaaaadc###",
+    ".aaaacccccccc###",
+    ".aaaacaaaaaac###",
+    ".aaaacaeaeaac###",
+    ".aaaacaefcfac###",
+    ".aaaacaagchac###",
+    ".ddddcaaahaac###",
+    "ccccccccccccc###"};
+
+/* XPM */
+static char * drive_hd_xpm[] = {
+"16 16 7 1",
+"# c #000000",
+"a c #008000",
+"h c #808080",
+"g c #c0c0c0",
+"b c #00ff00",
+"* c #ffffff",
+". c None",
+"................",
+"................",
+"................",
+"................",
+"..hhhhhhhhhhhhh.",
+".hggggggggggggh#",
+"h************gh#",
+"hgggggggggbaggh#",
+"hgggggggggggggh#",
+"hghhhhhhhhhhggh#",
+"hg**********ggh#",
+"hhhhhhhhhhhhhh#.",
+".#############..",
+"................",
+"................",
+"................"};
+
+/* XPM */
+static const char * const commonstyle_cdr16_xpm[]={
 "16 16 152 2",
 "Qt c None",
 ".# c #000000",
@@ -169,9 +543,8 @@ static const char *const commonstyle_cdr16_xpm[]={
 "QtQt.maa#3.Bajakadalamanao.mQtQt",
 "QtQtQt.dapaq#jarasatauav.dQtQtQt",
 "QtQtQtQt.#.a.b.c.c.b.a.#QtQtQtQt"};
-
 /* XPM */
-static const char *const commonstyle_cdr32_xpm[]={
+static const char * const commonstyle_cdr32_xpm[]={
 "32 32 433 2",
 "Qt c None",
 ".# c #000000",
@@ -638,9 +1011,8 @@ static const char *const commonstyle_cdr32_xpm[]={
 "QtQtQtQtQtQtQtQt.f.gd#eKeLeMeNeOePeQeReSeTeU.g.fQtQtQtQtQtQtQtQt",
 "QtQtQtQtQtQtQtQtQtQt.#.a.b.c.d.e.e.d.c.b.a.#QtQtQtQtQtQtQtQtQtQt",
 "QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt"};
-
 /* XPM */
-static const char *const commonstyle_computer16_xpm[]={
+static const char * const commonstyle_computer16_xpm[]={
 "16 16 194 2",
 ".f c None",
 "Qt c #000000",
@@ -852,9 +1224,8 @@ static const char *const commonstyle_computer16_xpm[]={
 "aP.c.baQaRaSaTaUaVaWaXaRaRaYaZa0",
 ".f.f.faPa1a2a3a4a5a6a7a1.c.ba8.#",
 ".f.f.f.fa9.b.c.c.ab.b#.G.f.f.f.f"};
-
 /* XPM */
-static const char *const commonstyle_computer32_xpm[]={
+static const char * const commonstyle_computer32_xpm[]={
 "32 32 559 2",
 "Qt c None",
 "gy c #000000",
@@ -1447,9 +1818,8 @@ static const char *const commonstyle_computer32_xpm[]={
 "QtQtQtQtQtgz.fgAgBgCgsgDgEgEgEgEgEgFgGgHgI.d.c.agJ.JQtQtQtQtQtQt",
 "QtQtQtQtQtQtQtgKeNgLgMgNgOgPgQgR.e.ceCgJ.JQtQtQtQtQtQtQtQtQtQtQt",
 "QtQtQtQtQtQtQtQtgS.b.e.e.ceC.#bkQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt"};
-
 /* XPM */
-static const char *const commonstyle_desktop16_xpm[]={
+static const char * const commonstyle_desktop16_xpm[]={
 "16 16 174 2",
 "Qt c None",
 "aM c #000000",
@@ -1641,9 +2011,8 @@ static const char *const commonstyle_desktop16_xpm[]={
 "QtaqarasatauavawaxayazaAaBaCQtQt",
 ".#aDaEaFaGaHaIaJaKaLaMQtQtQtQtQt",
 "Qt.aaNaOaPaAaQaRQtQtQtQtQtQtQtQt"};
-
 /* XPM */
-static const char *const commonstyle_desktop32_xpm[]={
+static const char * const commonstyle_desktop32_xpm[]={
 "35 34 191 2",
 "Qt c None",
 ".# c None",
@@ -1870,9 +2239,8 @@ static const char *const commonstyle_desktop32_xpm[]={
 "a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8",
 "a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8",
 "a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8a8"};
-
 /* XPM */
-static const char *const commonstyle_dirclosed16_xpm[]={
+static const char * const commonstyle_dirclosed16_xpm[]={
 "16 16 182 2",
 "Qt c None",
 "aI c #000000",
@@ -2072,9 +2440,8 @@ static const char *const commonstyle_dirclosed16_xpm[]={
 "#gayazaAaBaCaDaEaFaGaHaIQtQtQtQt",
 "aJaKaLaMaNaOaPaQaRaSQtQtQtQtQtQt",
 "aTaUaVaWaVaXaYaZQtQtQtQtQtQtQtQt"};
-
 /* XPM */
-static const char *const commonstyle_dirclosed32_xpm[]={
+static const char * const commonstyle_dirclosed32_xpm[]={
 "32 32 373 2",
 "Qt c None",
 ".# c #000000",
@@ -2481,9 +2848,8 @@ static const char *const commonstyle_dirclosed32_xpm[]={
 "QtdCdDdEdFc5dGbAdHdIc7c8dJdKQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
 "QtQtdLdMdNdOdPdQdRdSdTdUQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
 "QtQtdVdhdWc7.bcmdXdYQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt"};
-
 /* XPM */
-static const char *const commonstyle_diropen16_xpm[]={
+static const char * const commonstyle_diropen16_xpm[]={
 "16 16 197 2",
 "Qt c None",
 ".D c #000000",
@@ -2698,9 +3064,8 @@ static const char *const commonstyle_diropen16_xpm[]={
 "aPaQaRaSaTaUaVaWaXaYQtQtQtQtQtQt",
 "aZa0a1a2a3a4a5a6a7QtQtQtQtQtQtQt",
 "a8a9b.b#babbbcQtQtQtQtQtQtQtQtQt"};
-
 /* XPM */
-static const char *const commonstyle_diropen32_xpm[]={
+static const char * const commonstyle_diropen32_xpm[]={
 "32 32 451 2",
 "Qt c None",
 ".# c #000000",
@@ -3185,9 +3550,8 @@ static const char *const commonstyle_diropen32_xpm[]={
 "QteZ#Ie0e1e2e3e4e5e6.7QtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
 "QtQte7e8e9f.ahf#.icpQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt",
 "QtQt.9dvfadvdweYQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt"};
-
 /* XPM */
-static const char *const commonstyle_dvd16_xpm[]={
+static const char * const commonstyle_dvd16_xpm[]={
 "16 16 200 2",
 "Qt c None",
 "bf c #000000",
@@ -3405,9 +3769,8 @@ static const char *const commonstyle_dvd16_xpm[]={
 "azaaaAaBaCaDaEaaaFaGaHaIaJaKaLaM",
 "aNaOaPaQaRaSaTaUaVaWaXaYaZa0a1a2",
 "a3a4a5a6a7a8a9b.b#babbbcbdbebfQt"};
-
 /* XPM */
-static const char *const commonstyle_dvd_xpm[]={
+static const char * const commonstyle_dvd32_xpm[]={
 "32 32 460 2",
 "Qt c None",
 "eT c #000000",
@@ -3901,378 +4264,3 @@ static const char *const commonstyle_dvd_xpm[]={
 "dHe5e5e5e5e5e6d7e7e8.#.ae9f.dyf#fafbeyfcfdfee5e5e5e6d7e7e8QtQtQt",
 "QtfffffffffffgQtQtQtQtQtQtdIfhe5dQQtQtfifffffffffffgQtQtQtQtQtQt",
 "QtQtQtQtQtQtQtQtQtQtQtQtQtfjdIfjQtQtQtQtQtQtQtQtQtQtQtQtQtQtQtQt"};
-
-static const char * const check_list_controller_xpm[] = {
-"16 16 4 1",
-"        c None",
-".        c #000000000000",
-"X        c #FFFFFFFF0000",
-"o        c #C71BC30BC71B",
-"                ",
-"                ",
-" ..........     ",
-" .XXXXXXXX.     ",
-" .XXXXXXXX.oo   ",
-" .XXXXXXXX.oo   ",
-" .XXXXXXXX.oo   ",
-" .XXXXXXXX.oo   ",
-" .XXXXXXXX.oo   ",
-" .XXXXXXXX.oo   ",
-" .XXXXXXXX.oo   ",
-" ..........oo   ",
-"   oooooooooo   ",
-"   oooooooooo   ",
-"                ",
-"                "};
-
-static const char * const tree_branch_open_xpm[] = {
-"9 9 2 1",
-"  c None",
-"# c #000000",
-"#########",
-"#       #",
-"# ##### #",
-"#  ###  #",
-"#  ###  #",
-"#   #   #",
-"#   #   #",
-"#       #",
-"#########"};
-
-static const char * const tree_branch_closed_xpm[] = {
-"9 9 2 1",
-"  c None",
-"# c #000000",
-"#########",
-"#       #",
-"# #     #",
-"# ###   #",
-"# ##### #",
-"# ###   #",
-"# #     #",
-"#       #",
-"#########"};
-
-static const char * const tb_extension_arrow_v_xpm[] = {
-    "5 8 3 1",
-    "            c None",
-    ".            c #000000",
-    "+            c none",
-    ".+++.",
-    "..+..",
-    "+...+",
-    "++.++",
-    ".+++.",
-    "..+..",
-    "+...+",
-    "++.++"
-};
-
-static const char * const tb_extension_arrow_h_xpm[] = {
-    "8 5 3 1",
-    "            c None",
-    ".            c #000000",
-    "+            c none",
-    "..++..++",
-    "+..++..+",
-    "++..++..",
-    "+..++..+",
-    "..++..++",
-};
-
-static const char * const filedialog_start_xpm[]={
-    "16 15 8 1",
-    "a c #cec6bd",
-    "# c #000000",
-    "e c #ffff00",
-    "b c #999999",
-    "f c #cccccc",
-    "d c #dcdcdc",
-    "c c #ffffff",
-    ". c None",
-    ".....######aaaaa",
-    "...bb#cccc##aaaa",
-    "..bcc#cccc#d#aaa",
-    ".bcef#cccc#dd#aa",
-    ".bcfe#cccc#####a",
-    ".bcef#ccccccccc#",
-    "bbbbbbbbbbbbccc#",
-    "bccccccccccbbcc#",
-    "bcefefefefee#bc#",
-    ".bcefefefefef#c#",
-    ".bcfefefefefe#c#",
-    "..bcfefefefeeb##",
-    "..bbbbbbbbbbbbb#",
-    "...#############",
-    "................"};
-
-static const char * const filedialog_end_xpm[]={
-    "16 15 9 1",
-    "d c #a0a0a0",
-    "c c #c3c3c3",
-    "# c #cec6bd",
-    ". c #000000",
-    "f c #ffff00",
-    "e c #999999",
-    "g c #cccccc",
-    "b c #ffffff",
-    "a c None",
-    "......####aaaaaa",
-    ".bbbb..###aaaaaa",
-    ".bbbb.c.##aaaaaa",
-    ".bbbb....ddeeeea",
-    ".bbbbbbb.bbbbbe.",
-    ".bbbbbbb.bcfgfe.",
-    "eeeeeeeeeeeeefe.",
-    "ebbbbbbbbbbeege.",
-    "ebfgfgfgfgff.ee.",
-    "aebfgfgfgfgfg.e.",
-    "aebgfgfgfgfgf.e.",
-    "aaebgfgfgfgffe..",
-    "aaeeeeeeeeeeeee.",
-    "aaa.............",
-    "aaaaaaaaaaaaaaaa"};
-
-static const char* const filedialog_toparent_xpm[]={
-    "15 13 3 1",
-    ". c None",
-    "* c #000000",
-    "a c #ffff99",
-    "..*****........",
-    ".*aaaaa*.......",
-    "***************",
-    "*aaaaaaaaaaaaa*",
-    "*aaaa*aaaaaaaa*",
-    "*aaa***aaaaaaa*",
-    "*aa*****aaaaaa*",
-    "*aaaa*aaaaaaaa*",
-    "*aaaa*aaaaaaaa*",
-    "*aaaa******aaa*",
-    "*aaaaaaaaaaaaa*",
-    "*aaaaaaaaaaaaa*",
-    "***************"};
-
-static const char* const filedialog_newfolder_xpm[] = {
-    "15 14 4 1",
-    "        c None",
-    ".        c #000000",
-    "+        c #FFFF00",
-    "@        c #FFFFFF",
-    "          .    ",
-    "               ",
-    "          .    ",
-    "       .     . ",
-    "  ....  . . .  ",
-    " .+@+@.  . .   ",
-    "..........  . .",
-    ".@+@+@+@+@..   ",
-    ".+@+@+@+@+. .  ",
-    ".@+@+@+@+@.  . ",
-    ".+@+@+@+@+.    ",
-    ".@+@+@+@+@.    ",
-    ".+@+@+@+@+.    ",
-    "...........    "};
-
-static const char* const filedialog_detailedview_xpm[]={
-    "14 11 3 1",
-    ". c None",
-    "* c #000000",
-    "a c #000099",
-    ".****.***.***.",
-    "..............",
-    "aaaaaaaaaaaaaa",
-    "..............",
-    ".****.***.***.",
-    "..............",
-    ".****.***.***.",
-    "..............",
-    ".****.***.***.",
-    "..............",
-    ".****.***.***."};
-
-static const char* const filedialog_previewinfoview_xpm[]={
-    "13 13 4 1",
-    ". c #00007f",
-    "a c black",
-    "# c #cec6bd",
-    "b c #000000",
-    "..#####aaaaaa",
-    ".#.#bb#a#####",
-    "...####a#bbb#",
-    "#######a#####",
-    "#######a#bb##",
-    "..#####a#####",
-    ".#.#bb#a#bbb#",
-    "...####a#####",
-    "#######a#bb##",
-    "#######a#####",
-    "..#####a#bbb#",
-    ".#.#bb#a#####",
-    "...####aaaaaa"};
-
-static const char* const filedialog_previewcontentsview_xpm[]={
-    "14 13 5 1",
-    ". c #00007f",
-    "a c black",
-    "c c #7f007f",
-    "# c #cec6bd",
-    "b c #000000",
-    "..#####aaaaaaa",
-    ".#.#bb#a#####a",
-    "...####a#ccc#a",
-    "#######a#ccc#a",
-    "#######a#####a",
-    "..#####a#bbb#a",
-    ".#.#bb#a#####a",
-    "...####a#bbb#a",
-    "#######a#####a",
-    "#######a#bbb#a",
-    "..#####a#####a",
-    ".#.#bb#a#####a",
-    "...####aaaaaaa"};
-
-static const char* const filedialog_mclistview_xpm[]={
-    "15 11 4 1",
-    "* c None",
-    "b c #000000",
-    ". c #000099",
-    "a c #ffffff",
-    "...*****...****",
-    ".a.*bbb*.a.*bbb",
-    "...*****...****",
-    "***************",
-    "...*****...****",
-    ".a.*bbb*.a.*bbb",
-    "...*****...****",
-    "***************",
-    "...*****...****",
-    ".a.*bbb*.a.*bbb",
-    "...*****...****"};
-
-static const char * const filedialog_back_xpm [] = {
-    "13 11 3 1",
-    "a c #00ffff",
-    "# c #000000",
-    ". c None",
-    ".....#.......",
-    "....##.......",
-    "...#a#.......",
-    "..#aa########",
-    ".#aaaaaaaaaa#",
-    "#aaaaaaaaaaa#",
-    ".#aaaaaaaaaa#",
-    "..#aa########",
-    "...#a#.......",
-    "....##.......",
-    ".....#......."};
-
-/* XPM */
-static const char * const dir_link_xpm[]={
-    "16 16 10 1",
-    "h c #808080",
-    "g c #a0a0a0",
-    "d c #000000",
-    "b c #ffff00",
-    "f c #303030",
-    "# c #999999",
-    "a c #cccccc",
-    "e c #585858",
-    "c c #ffffff",
-    ". c None",
-    "................",
-    "................",
-    "..#####.........",
-    ".#ababa#........",
-    "#abababa######..",
-    "#cccccccccccc#d.",
-    "#cbababababab#d.",
-    "#cabababababa#d.",
-    "#cbababdddddddd.",
-    "#cababadccccccd.",
-    "#cbababdcececcd.",
-    "#cababadcefdfcd.",
-    "#cbababdccgdhcd.",
-    "#######dccchccd.",
-    ".dddddddddddddd.",
-    "................"};
-/* XPM */
-static const char* const file_xpm[]={
-    "16 16 5 1",
-    ". c #7f7f7f",
-    "# c None",
-    "c c #000000",
-    "b c #bfbfbf",
-    "a c #ffffff",
-    "################",
-    "..........######",
-    ".aaaaaaaab.#####",
-    ".aaaaaaaaba.####",
-    ".aaaaaaaacccc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".bbbbbbbbbbbc###",
-    "ccccccccccccc###"};
-/* XPM */
-static const char * const file_link_xpm[]={
-    "16 16 10 1",
-    "h c #808080",
-    "g c #a0a0a0",
-    "d c #c3c3c3",
-    ". c #7f7f7f",
-    "c c #000000",
-    "b c #bfbfbf",
-    "f c #303030",
-    "e c #585858",
-    "a c #ffffff",
-    "# c None",
-    "################",
-    "..........######",
-    ".aaaaaaaab.#####",
-    ".aaaaaaaaba.####",
-    ".aaaaaaaacccc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaabc###",
-    ".aaaaaaaaaadc###",
-    ".aaaaaaaaaadc###",
-    ".aaaacccccccc###",
-    ".aaaacaaaaaac###",
-    ".aaaacaeaeaac###",
-    ".aaaacaefcfac###",
-    ".aaaacaagchac###",
-    ".ddddcaaahaac###",
-    "ccccccccccccc###"};
-
-/* XPM */
-static char * drive_hd_xpm[] = {
-"16 16 7 1",
-"# c #000000",
-"a c #008000",
-"h c #808080",
-"g c #c0c0c0",
-"b c #00ff00",
-"* c #ffffff",
-". c None",
-"................",
-"................",
-"................",
-"................",
-"..hhhhhhhhhhhhh.",
-".hggggggggggggh#",
-"h************gh#",
-"hgggggggggbaggh#",
-"hgggggggggggggh#",
-"hghhhhhhhhhhggh#",
-"hg**********ggh#",
-"hhhhhhhhhhhhhh#.",
-".#############..",
-"................",
-"................",
-"................"};
-
