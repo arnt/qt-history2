@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.cpp#93 $
+** $Id: //depot/qt/main/src/tools/qfile.cpp#94 $
 **
 ** Implementation of QFile class
 **
@@ -573,12 +573,12 @@ void QFile::close()
     if ( isOpen() ) {				// file is not open
 	if ( fh ) {					// buffered file
 	    if ( ext_f )
-		fflush( fh );			// cannot close
+		ok = fflush( fh ) != -1;		// cannot close
 	    else
 		ok = fclose( fh ) != -1;
 	} else {					// raw file
 	    if ( ext_f )
-		;					// cannot close
+		ok = TRUE;			// cannot close
 	    else
 		ok = CLOSE( fd ) != -1;
 	}
