@@ -4,7 +4,7 @@
 # QTDIR=`pwd` export QTDIR
 
 touch .test.$$
-if [ '!' -f ${QTDIR}/.stuff.$$ ];
+if [ '!' -f ${QTDIR}/.test.$$ ];
 then
     echo
     echo
@@ -12,7 +12,6 @@ then
     echo '   Please read INSTALL'
     echo
     echo
-    rm .test.$$
     exit 1
 fi
 rm .test.$$
