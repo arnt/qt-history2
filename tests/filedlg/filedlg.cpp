@@ -14,6 +14,7 @@
 #include <qcombobox.h>
 #include <qpixmap.h>
 #include <qtoolbutton.h>
+#include <qmultilineedit.h>
 
 /* XPM */
 static const char *fileopen[] = {
@@ -36,7 +37,7 @@ static const char *fileopen[] = {
     ".b.#########.aaa",
     "..#########.aaaa",
     "...........aaaaa"
-};                                                                              
+};
 
 Main::Main(QWidget* parent, const char* name, int f) :
     QWidget(parent, name, f)
@@ -173,9 +174,9 @@ class MyFileDialog : public QFileDialog
 public:
     MyFileDialog() : QFileDialog() {
  	addWidgets( 0, new QCheckBox( "Open Read-Only", this ), 0 );
-	addWidgets( new QLabel( "Choose Something", this ), 
-		    new QComboBox( TRUE, this ), 
-		    new QPushButton( "Press Me", this ) );
+ 	addWidgets( new QLabel( "Choose Something", this ),
+ 		    new QComboBox( TRUE, this ),
+ 		    new QPushButton( "Press Me", this ) );
 	QPixmap p( fileopen );
 	QToolButton *b = new QToolButton( this );
 	b->setIconSet( p );
@@ -183,6 +184,7 @@ public:
 	b = new QToolButton( this );
 	b->setIconSet( p );
 	addToolButton( b, FALSE );
+	addLeftWidget( new QMultiLineEdit( this ) );
     };
 };
 

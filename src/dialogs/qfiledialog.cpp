@@ -772,7 +772,7 @@ struct QFileDialogPrivate {
     QLabel * typeL;
 
     QVBoxLayout * topLevelLayout;
-    QHBoxLayout *buttonLayout;
+    QHBoxLayout *buttonLayout, *leftLayout, *rightLayout;
     QList<QHBoxLayout> extraWidgetsLayouts;
     QList<QLabel> extraLabels;
     QList<QWidget> extraWidgets;
@@ -2260,7 +2260,10 @@ void QFileDialog::init()
     d->stack->raiseWidget( d->moreFiles );
     d->mcView->setOn( TRUE );
 
-    d->topLevelLayout = new QVBoxLayout( this, 5 );
+    QHBoxLayout *lay = new QHBoxLayout( this );
+    lay->setMargin( 5 );
+    d->leftLayout = new QHBoxLayout( lay, 5 );
+    d->topLevelLayout = new QVBoxLayout( lay, 5 );
     d->extraWidgetsLayouts.setAutoDelete( FALSE );
     d->extraLabels.setAutoDelete( FALSE );
     d->extraWidgets.setAutoDelete( FALSE );
@@ -2291,7 +2294,7 @@ void QFileDialog::init()
     h->addWidget( d->previewContents );
 
     d->topLevelLayout->addWidget( d->splitter );
-	
+    
     h = new QHBoxLayout();
     d->topLevelLayout->addLayout( h );
     h->addWidget( d->fileL );
@@ -2305,6 +2308,8 @@ void QFileDialog::init()
     h->addWidget( d->types );
     h->addSpacing( 15 );
     h->addWidget( cancelB );
+
+    d->rightLayout = new QHBoxLayout( lay, 5 );
 
     updateGeometries();
 
@@ -3833,7 +3838,7 @@ void QFileDialog::addWidgets( QLabel * l, QWidget * w, QPushButton * b )
 }
 
 /*!
-  Adds a the button \a b to the row of tool buttons on the top of the 
+  Adds a the button \a b to the row of tool buttons on the top of the
   filedialog. The button is appended at the end (right) of
   this row. If \a separator is TRUE, a small space is inserted between the
   last button of the row and the new button \a b.
@@ -3852,6 +3857,30 @@ void QFileDialog::addToolButton( QButton *b, bool separator )
     if ( separator )
 	d->buttonLayout->addSpacing( 8 );
     d->buttonLayout->addWidget( b );
+
+    updateGeometries();
+}
+
+void QFileDialog::addLeftWidget( QWidget *w )
+{
+    if ( !w )
+	return;
+    d->geometryDirty = TRUE;
+
+    d->leftLayout->addWidget( w );
+    d->leftLayout->addSpacing( 5 );
+
+    updateGeometries();
+}
+
+void QFileDialog::addRightWidget( QWidget *w )
+{
+    if ( !w )
+	return;
+    d->geometryDirty = TRUE;
+    
+    d->rightLayout->addSpacing( 5 );
+    d->rightLayout->addWidget( w );
 
     updateGeometries();
 }
