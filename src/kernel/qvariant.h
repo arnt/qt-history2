@@ -174,7 +174,8 @@ public:
     bool cast( Type );
 
     bool isValid() const;
-
+    bool isNull() const;
+    
     void clear();
 
     const QString toString() const;
@@ -281,7 +282,8 @@ private:
 
         void clear();
 
-        Type typ;
+        uint typ : 30;
+	uint is_null : 1;
         union
         {
 	    uint u;
@@ -307,7 +309,7 @@ public:
 
 inline QVariant::Type QVariant::type() const
 {
-    return d->typ;
+    return (Type) d->typ;
 }
 
 inline bool QVariant::isValid() const

@@ -114,6 +114,7 @@ QVariant::Private::Private()
     qv_count++;
 #endif
     typ = QVariant::Invalid;
+    is_null = TRUE;
 }
 
 QVariant::Private::Private( Private* d )
@@ -244,6 +245,7 @@ QVariant::Private::Private( Private* d )
 	}
 
     typ = d->typ;
+    is_null = d->is_null;
 }
 
 QVariant::Private::~Private()
@@ -361,6 +363,7 @@ void QVariant::Private::clear()
 	}
 
     typ = QVariant::Invalid;
+    is_null = TRUE;
 }
 
 /*!
@@ -430,6 +433,14 @@ void QVariant::Private::clear()
     arbitrarily complex data structures of arbitrary types. This is
     very powerful and versatile, but may prove less memory and speed
     efficient than storing specific types in standard data structures.
+    
+    QVariant also supports the notion of NULL values, where you have a
+    defined type with no value set.
+    \code
+    QVariant x, y( QString() ), z( QString("") );
+    x.asInt();
+    // x.isNull() == TRUE, y.isNull() == TRUE, z.isNull() == FALSE
+    \endcode
 
     See the \link collection.html Collection Classes\endlink.
 */
@@ -571,6 +582,7 @@ QVariant::QVariant( const QStringList& val )
     d = new Private;
     d->typ = StringList;
     d->value.ptr = new QStringList( val );
+    d->is_null = FALSE;
 }
 #endif // QT_NO_STRINGLIST
 
@@ -583,6 +595,7 @@ QVariant::QVariant( const QMap<QString,QVariant>& val )
     d = new Private;
     d->typ = Map;
     d->value.ptr = new QMap<QString,QVariant>( val );
+    d->is_null = FALSE;
 }
 #endif
 /*!
@@ -593,6 +606,7 @@ QVariant::QVariant( const QFont& val )
     d = new Private;
     d->typ = Font;
     d->value.ptr = new QFont( val );
+    d->is_null = FALSE;
 }
 
 /*!
@@ -628,6 +642,7 @@ QVariant::QVariant( const QBrush& val )
     d = new Private;
     d->typ = Brush;
     d->value.ptr = new QBrush( val );
+    d->is_null = FALSE;
 }
 
 /*!
@@ -668,6 +683,7 @@ QVariant::QVariant( const QColor& val )
     d = new Private;
     d->typ = Color;
     d->value.ptr = new QColor( val );
+    d->is_null = FALSE;
 }
 
 #ifndef QT_NO_PALETTE
@@ -679,6 +695,7 @@ QVariant::QVariant( const QPalette& val )
     d = new Private;
     d->typ = Palette;
     d->value.ptr = new QPalette( val );
+    d->is_null = FALSE;
 }
 
 /*!
@@ -689,6 +706,7 @@ QVariant::QVariant( const QColorGroup& val )
     d = new Private;
     d->typ = ColorGroup;
     d->value.ptr = new QColorGroup( val );
+    d->is_null = FALSE;
 }
 #endif //QT_NO_PALETTE
 #ifndef QT_NO_ICONSET
@@ -732,6 +750,7 @@ QVariant::QVariant( const QCursor& val )
     d = new Private;
     d->typ = Cursor;
     d->value.ptr = new QCursor( val );
+    d->is_null = FALSE;
 }
 
 /*!
@@ -808,6 +827,7 @@ QVariant::QVariant( const QKeySequence& val )
     d = new Private;
     d->typ = KeySequence;
     d->value.ptr = new QKeySequence( val );
+    d->is_null = FALSE;
 }
 
 #endif
@@ -830,6 +850,7 @@ QVariant::QVariant( int val )
     d = new Private;
     d->typ = Int;
     d->value.i = val;
+    d->is_null = FALSE;
 }
 
 /*!
@@ -840,6 +861,7 @@ QVariant::QVariant( uint val )
     d = new Private;
     d->typ = UInt;
     d->value.u = val;
+    d->is_null = FALSE;
 }
 
 /*!
@@ -852,6 +874,7 @@ QVariant::QVariant( bool val, int )
     d = new Private;
     d->typ = Bool;
     d->value.b = val;
+    d->is_null = FALSE;
 }
 
 
@@ -863,6 +886,7 @@ QVariant::QVariant( double val )
     d = new Private;
     d->typ = Double;
     d->value.d = val;
+    d->is_null = FALSE;
 }
 
 #ifndef QT_NO_TEMPLATE_VARIANT
@@ -874,6 +898,7 @@ QVariant::QVariant( const QValueList<QVariant>& val )
     d = new Private;
     d->typ = List;
     d->value.ptr = new QValueList<QVariant>( val );
+    d->is_null = FALSE;
 }
 #endif
 
@@ -885,6 +910,7 @@ QVariant::QVariant( QSizePolicy val )
     d = new Private;
     d->typ = SizePolicy;
     d->value.ptr = new QSizePolicy( val );
+    d->is_null = FALSE;
 }
 
 /*!
@@ -927,7 +953,7 @@ void QVariant::detach()
 */
 const char* QVariant::typeName() const
 {
-    return typeToName( d->typ );
+    return typeToName( (Type) d->typ );
 }
 
 /*!
@@ -2975,6 +3001,7 @@ void* QVariant::rawAccess( void* ptr, Type typ, bool deepCopy )
 	clear();
 	d->typ = typ;
 	d->value.ptr = ptr;
+	d->is_null = FALSE;
 	if ( deepCopy ) {
 	    QVariant::Private* p = new Private( d );
 	    d->typ = Invalid;
@@ -2992,4 +3019,90 @@ void* QVariant::rawAccess( void* ptr, Type typ, bool deepCopy )
     return ret;
 }
 
+/*!
+  Returns TRUE if this is a NULL variant, FALSE otherwise.
+*/
+bool QVariant::isNull() const
+{
+    switch( d->typ )
+	{
+	case QVariant::Bitmap:
+	    return ((QBitmap*) d->value.ptr)->isNull();
+    	    break;
+	case QVariant::Region:
+	    return ((QRegion*) d->value.ptr)->isNull();
+	    break;
+	case QVariant::PointArray:
+	    return ((QPointArray*) d->value.ptr)->isNull();
+	    break;
+	case QVariant::String:
+	    return ((QString*) d->value.ptr)->isNull();
+	    break;
+	case QVariant::CString:
+	    return ((QCString*) d->value.ptr)->isNull();
+	    break;
+	case QVariant::Pixmap:
+	    return ((QPixmap*) d->value.ptr)->isNull();
+	    break;
+	case QVariant::Image:
+	    return ((QImage*) d->value.ptr)->isNull();
+	    break;
+	case QVariant::Point:
+	    return ((QPoint*) d->value.ptr)->isNull();
+	    break;
+	case QVariant::Rect:
+	    return ((QRect*) d->value.ptr)->isNull();
+	    break;
+	case QVariant::Size:
+	    return ((QSize*) d->value.ptr)->isNull();
+	    break;
+#ifndef QT_NO_ICONSET
+	case QVariant::IconSet:
+	    return ((QIconSet*) d->value.ptr)->isNull();
+	    break;
+#endif
+	case QVariant::Date:
+	    return ((QDate*) d->value.ptr)->isNull();
+	    break;
+	case QVariant::Time:
+	    return ((QTime*) d->value.ptr)->isNull();
+	    break;
+	case QVariant::DateTime:
+	    return ((QDateTime*) d->value.ptr)->isNull();
+	    break;
+	case QVariant::ByteArray:
+	    return ((QByteArray*) d->value.ptr)->isNull();
+	    break;
+	case QVariant::BitArray:
+	    return ((QBitArray*) d->value.ptr)->isNull();
+	    break;
+	case QVariant::Cursor:
+#ifndef QT_NO_STRINGLIST
+	case QVariant::StringList:
+#endif //QT_NO_STRINGLIST
+	case QVariant::Font:
+	case QVariant::Brush:
+	case QVariant::Color:
+#ifndef QT_NO_PALETTE
+	case QVariant::Palette:
+	case QVariant::ColorGroup:
+#endif
+#ifndef QT_NO_TEMPLATE_VARIANT
+	case QVariant::Map:
+	case QVariant::List:
+#endif
+	case QVariant::SizePolicy:
+#ifndef QT_NO_ACCEL
+	case QVariant::KeySequence:
+#endif
+	case QVariant::Pen:
+	case QVariant::Invalid:
+	case QVariant::Int:
+	case QVariant::UInt:
+	case QVariant::Bool:
+	case QVariant::Double:
+	    break;
+	}
+    return d->is_null;
+}
 #endif //QT_NO_VARIANT
