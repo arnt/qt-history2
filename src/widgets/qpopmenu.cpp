@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#15 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -20,7 +20,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#14 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#15 $";
 #endif
 
 
@@ -271,7 +271,6 @@ void QPopupMenu::updateSize()			// update popup size params
     bool hasSubMenu = FALSE;
     int cellh = fm.ascent() + motifItemVMargin + 2*motifItemFrame;
     int tab_width = 0;
-    debug( "updateSize()" );	// !!! DEBUG
     while ( (mi=it.current()) ) {
 	int w = 0;
 	if ( mi->popup() )
@@ -392,9 +391,15 @@ void QPopupMenu::paintCell( QPainter *p, long row, long col )
     else					// incognito frame
 	p->drawShadePanel( 0, 0, cellw, cellh, normalColor, normalColor,
 			   motifItemFrame );
-    if ( mi->image() )				// draw image
+    if ( mi->image() ) {			// draw image
+	QImage *image = mi->image();
+	if ( image->depth() == 1 )
+	    p->setBackgroundMode( OpaqueMode );
 	p->drawPixMap( motifItemFrame + motifItemHMargin, motifItemFrame,
-		       *mi->image() );
+		       *image );
+	if ( image->depth() == 1 )
+	    p->setBackgroundMode( TransparentMode );
+    }
     else if ( mi->string() ) {			// draw text
 	const char *s = mi->string();
 	const char *t = strchr( s, '\t' );
