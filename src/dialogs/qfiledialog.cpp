@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#334 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#335 $
 **
 ** Implementation of QFileDialog class
 **
@@ -458,7 +458,7 @@ struct QFileDialogPrivate {
 
     bool ignoreNextKeyPress;
     QProgressDialog *progressDia;
-
+    
 };
 
 QFileDialogPrivate::~QFileDialogPrivate()
