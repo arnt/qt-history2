@@ -90,10 +90,10 @@
 #  else
 #    define Q_OS_OS2
 #  endif
-#elif defined(WIN64) || defined(_WIN64) || defined(__WIN64__)
+#elif !defined(SAG_COM) && (defined(WIN64) || defined(_WIN64) || defined(__WIN64__))
 #  define Q_OS_WIN32
 #  define Q_OS_WIN64
-#elif defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
+#elif !defined(SAG_COM) && (defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__))
 #  define Q_OS_WIN32
 #elif defined(__MWERKS__) && defined(__INTEL__)
 #  define Q_OS_WIN32
@@ -218,7 +218,7 @@
 /* proper support of bool for _MSC_VER >= 1100 */
 #  define Q_CANNOT_DELETE_CONSTANT
 #  if _MSC_VER >= 1300 // Visual C++.Net
-#    define Q_BROKEN_TEMPLATE_INLINE
+#    define Q_NO_TEMPLATE_EXPORT
 #  endif
 #elif defined(__BORLANDC__) || defined(__TURBOC__)
 #  define Q_CC_BOR

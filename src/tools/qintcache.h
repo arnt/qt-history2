@@ -71,12 +71,7 @@ public:
 		{ return (type *)QGCache::find_other( (const char*)k); }
     void  statistics() const { QGCache::statistics(); }
 private:
-	void  deleteItem( Item d )
-#if defined(Q_BROKEN_TEMPLATE_INLINE)
-	{ if ( del_item ) delete (type *)d; }
-#else
-		;
-#endif
+	void  deleteItem( Item d );
 };
 
 #if !defined(Q_BROKEN_TEMPLATE_SPECIALIZATION)
@@ -85,12 +80,10 @@ template<> inline void QIntCache<void>::deleteItem( QPtrCollection::Item )
 }
 #endif
 
-#if !defined(Q_BROKEN_TEMPLATE_INLINE)
 template<class type> inline void QIntCache<type>::deleteItem( QPtrCollection::Item d )
 {
     if ( del_item ) delete (type *)d;
 }
-#endif
 
 template<class type> class Q_EXPORT QIntCacheIterator : public QGCacheIterator
 {
