@@ -892,7 +892,6 @@ STDMETHODIMP CCommands::QMsDevGenerateQtProject()
 				CString sourceFile = " \\\n\t\t" + filepath + filename + ".cpp";
 				int sourceFound = file.Find( sourceFile );
 				if ( sourceFound != -1 ) {
-				    //::MessageBox( 0, file, "SOURCES deleted", MB_OK );
 				    file.Delete( sourceFound, sourceFile.GetLength() );
 				    filelists.SetAt( "SOURCES", file );
 				}
@@ -901,7 +900,6 @@ STDMETHODIMP CCommands::QMsDevGenerateQtProject()
 				CString headerFile = " \\\n\t\t" + filepath + filename + ".h";
 				int headerFound = file.Find( headerFile );
 				if ( headerFound != -1 ) {
-				    //::MessageBox( 0, file, "HEADERS deleted", MB_OK );
 				    file.Delete( headerFound, headerFile.GetLength() );
 				    filelists.SetAt( "HEADERS", file );
 				}
@@ -912,7 +910,6 @@ STDMETHODIMP CCommands::QMsDevGenerateQtProject()
 			    filelists.Lookup( group, temp );
 			    temp += " \\\n\t\t" + filepath + filename + "." + fileext;
 			    filelists.SetAt( group, temp );
-			    //::MessageBox( 0, temp, "Listing "+group, MB_OK );
 			}
 		    }
 		}
