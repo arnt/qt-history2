@@ -575,6 +575,13 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 
     QWMatrix mat = trueMatrix( matrix, ws, hs ); // true matrix
 
+    // calculate new width and height
+    QPointArray a( QRect(0,0,ws,hs) );
+    a = mat.map( a );
+    QRect r = a.boundingRect().normalize();
+    w = r.width();
+    h = r.height();
+
     if ( matrix.m12() == 0.0F  && matrix.m21() == 0.0F &&
 	 matrix.m11() >= 0.0F  && matrix.m22() >= 0.0F &&
 	 depth() == defaultDepth() // ### stretchBlt limitation
@@ -582,11 +589,6 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     {
 	if ( mat.m11() == 1.0F && mat.m22() == 1.0F )
 	    return *this;			// identity matrix
-
-	h = qRound( mat.m22()*hs );
-	w = qRound( mat.m11()*ws );
-	h = QABS( h );
-	w = QABS( w );
 
 	if(w==0 || h==0) {
 	    return *this;
@@ -608,12 +610,6 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	}
 	return pm;
 
-    } else {					// rotation or shearing
-	QPointArray a( QRect(0,0,ws,hs) );
-	a = mat.map( a );
-	QRect r = a.boundingRect().normalize();
-	w = r.width();
-	h = r.height();
     }
     bool invertible;
     mat = mat.invert( &invertible );		// invert matrix
