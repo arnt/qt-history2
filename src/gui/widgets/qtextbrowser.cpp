@@ -271,7 +271,7 @@ void QTextBrowser::setSource(const QString& name)
             }
         }
 
-        d->currentURL = source;
+        d->currentURL = name; // the full one including anchor
         doSetText = true;
     }
     d->forceLoadOnSourceChange = false;
