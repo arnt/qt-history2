@@ -46,7 +46,7 @@ TableEditor::TableEditor(const QString &tableName, QWidget *parent)
 void TableEditor::submit()
 {
     model->database().transaction();
-    if (model->submitChanges()) {
+    if (model->submitAll()) {
         model->database().commit();
     } else {
         model->database().rollback();
