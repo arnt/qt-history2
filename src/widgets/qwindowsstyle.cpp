@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qwindowsstyle.cpp#18 $
 **
 ** Implementation of Windows-like style class
 **
@@ -427,7 +427,7 @@ QWindowsStyle::drawPushButton( QPushButton* btn, QPainter *p)
     if ( btn->isMenuButton() ) {
 	int dx = (y2-y1) / 3;
 	drawArrow( p, DownArrow, FALSE,
-		    x2 - dx, y1, dx, y2 - y1,
+		    x1+dx, y1+2, dx, y2-y1-3,
 		    g, btn->isEnabled() );
     }
 

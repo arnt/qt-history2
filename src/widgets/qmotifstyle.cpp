@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#21 $
+** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#22 $
 **
 ** Implementation of Motif-like style class
 **
@@ -453,9 +453,9 @@ QMotifStyle::drawPushButton( QPushButton* btn, QPainter *p)
 	
 
     if ( btn->isMenuButton() ) {
-	int dx = (y1-y2-4)/3;
+	int dx = (y2-y1-4)/3;
 	drawArrow( p, DownArrow, FALSE,
-		   x2 - dx, dx, y1, y2 - y1,
+		   x1+dx, y1+dx+2, dx, y2-y1,
 		   g, btn->isEnabled() );
     }
 

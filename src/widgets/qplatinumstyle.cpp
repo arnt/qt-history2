@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qplatinumstyle.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qplatinumstyle.cpp#8 $
 **
 ** Implementation of Platinum-like style class
 **
@@ -464,9 +464,9 @@ QPlatinumStyle::drawPushButton( QPushButton* btn, QPainter *p)
 	
 
     if ( btn->isMenuButton() ) {
-	int dx = (y1-y2-4)/3;
+	int dx = (y2-y1-4)/3;
 	drawArrow( p, DownArrow, FALSE,
-		   x2 - dx, dx, y1, y2 - y1,
+		   x1+dx, y1+3, dx, y2-y1-5,
 		   g, btn->isEnabled() );
     }
 
