@@ -1,3 +1,40 @@
+/****************************************************************************
+** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#27 $
+**
+** Implementation of the QDockArea class
+**
+** Created : 001010
+**
+** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+**
+** This file is part of the workspace module of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Trolltech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition licenses may use this
+** file in accordance with the Qt Commercial License Agreement provided
+** with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
+**
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
+
 #include "qdockarea.h"
 
 #include <qsplitter.h>
@@ -399,7 +436,7 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
     QPoint pos = mapFromGlobal( p );
     QRect lr = *lines.at( lineOf( dockWidgetIndex ) );
     if ( dockWidgetIndex != -1 ) {
-	if ( lineStarts.find( w ) != -1 && 
+	if ( lineStarts.find( w ) != -1 &&
 	     ( dockWidgetIndex < (int)dockWidgets->count() - 1 && lineStarts.find( dockWidgets->at( dockWidgetIndex + 1 ) ) != -1 ||
 	       dockWidgetIndex == (int)dockWidgets->count() - 1 ) )
 	    wasAloneInLine = TRUE;
@@ -523,7 +560,7 @@ void QDockArea::moveDockWidget( QDockWidget *w, const QPoint &p, const QRect &r,
 #endif
 		// if we insert it just before a widget which has a new line, transfer the newline to the docking widget
 		// but not if we didn't only mave a widget in its line which was alone in the line before
-		if ( !( wasAloneInLine && lr.contains( pos ) ) 
+		if ( !( wasAloneInLine && lr.contains( pos ) )
 		     && index >= 0 && index < (int)dockWidgets->count() &&
 		     dockWidgets->at( index )->newLine() && lineOf( index ) == dockLine ) {
 #if defined(QDOCKAREA_DEBUG)
