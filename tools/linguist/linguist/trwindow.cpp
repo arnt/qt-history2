@@ -1783,6 +1783,7 @@ void TrWindow::showNewScope( QListViewItem *item )
 	    tmp->updateTranslationText();
 	}
 	
+	slv->viewport()->setUpdatesEnabled( upe );
 	slv->setUpdatesEnabled( upe );
 	if( upe )
 	    slv->triggerUpdate();
