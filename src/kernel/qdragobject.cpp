@@ -694,6 +694,9 @@ bool QTextDrag::canDecode( const QMimeSource* e )
 */
 bool QTextDrag::decode( const QMimeSource* e, QString& str, QCString& subtype )
 {
+    if(!e)
+	return FALSE;
+
     const char* mime;
     for (int i=0; (mime = e->format(i)); i++) {
 	if ( 0==qstrnicmp(mime,"text/",5) ) {
