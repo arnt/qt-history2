@@ -48,6 +48,7 @@
 #include "qpaintdevicemetrics.h"
 #include "qpaintdevice.h"
 #include "qt_mac.h"
+#include <qstack.h>
 
 const int TxNone=0;
 const int TxTranslate=1;
@@ -68,55 +69,47 @@ void unclippedBitBlt( QPaintDevice *dst, int dx, int dy,
 
 /* paintevent magic to provide Windows semantics on MAC
  */
-static QRegion* paintEventClipRegion = 0;
-static QPaintDevice* paintEventDevice = 0;
-static int recursive_calls = 0;
+class paintevent_item
+{
+    QPaintDevice* dev;
+    QRegion clipRegion;
+public:
+    paintevent_item(QPaintDevice *d, QRegion r) : dev(d), clipRegion(r) { }
+    inline int operator==( QPaintDevice *rhs ) const { return rhs == dev; }
+    inline QPaintDevice *device() const { return dev; }
+    inline QRegion region() const { return clipRegion; }
+};
+QStack<paintevent_item> paintevents;
 
 void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region)
 {
-    if(paintEventClipRegion) {
-	if(dev == paintEventDevice ) 
-	    recursive_calls++;
-#if 0 //this can and will happen, so don't warn for now
-	else
-	    warning("Whoa, two set_paintevent_clippings on different widgets!?!");
-#endif
-	return;
-    }
-
-    if ( !paintEventClipRegion )
-	paintEventClipRegion = new QRegion;
-    *paintEventClipRegion = region;
+    QRegion r = region;
     if(dev->devType() == QInternal::Widget) {
 	QWidget *w = (QWidget *)dev;
 	QPoint mp(posInWindow(w));
-	paintEventClipRegion->translate(mp.x(), mp.y());
+	r.translate(mp.x(), mp.y());
 
 	QRegion wclip = w->clippedRegion();
 	if(!wclip.isNull())
-	    *paintEventClipRegion &= wclip;
+	    r &= wclip;
+#if 0
+	qDebug("Pushing %s %s", w->name(), w->className());
+#endif
     }
-    paintEventDevice = dev;
+    paintevents.push(new paintevent_item(dev, r));
 }
 
-void qt_clear_paintevent_clipping(QPaintDevice *dev)
+void qt_clear_paintevent_clipping( QPaintDevice *dev )
 {
-    if(!dev)
-	return;
-
-
-    if(dev != paintEventDevice) {
-//	warning("qt_clear_paintevent_clipping unmatched."); //this can and will happen, so don't warn for now
+    if(paintevents.isEmpty() || !((*paintevents.current()) == dev)) {
+	qDebug("Whoa, now that is messed up!");
 	return;
     }
-
-    if(recursive_calls) {
-	recursive_calls--;
-	return;
-    }
-    delete paintEventClipRegion;
-    paintEventClipRegion = 0;
-    paintEventDevice = 0;
+#if 0
+    if(dev->devType() == QInternal::Widget)
+	qDebug("Popping %s %s", ((QWidget *)dev)->name(), ((QWidget *)dev)->className());
+#endif
+    delete paintevents.pop();
 }
 
 void QPainter::initialize()
@@ -348,8 +341,8 @@ bool QPainter::begin( const QPaintDevice *pd )
         ww = vw = w->width();                   // default view size
         wh = vh = w->height();
 	if(!w->isVisible()); //leave the clipped reg empty if its not visible, this is hacky FIXME!!!
-	else if(paintEventDevice == pdev) {
-	    clippedreg = *paintEventClipRegion;
+	else if(!paintevents.isEmpty() && (*paintevents.current()) == pdev) {
+	    clippedreg = paintevents.current()->region();
 	}
         else if ( w->testWFlags(WPaintUnclipped) ) { // paint direct on device
             setf( NoCache );
@@ -1543,10 +1536,3 @@ QPoint QPainter::pos() const
 }
 
 
-#if 0 //this is good for debugging and not much else, do not leave this in production
-GWorldPtr cgworld;
-GDHandle cghandle;
-GetGWorld(&cgworld, &cghandle);
-QRegion rup(dx+dstoffx,dy+dstoffy,dx+sw+dstoffx,dy+sh+dstoffy);
-QDFlushPortBuffer(cgworld, (RgnHandle)rup.handle());
-#endif
