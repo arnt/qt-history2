@@ -83,7 +83,7 @@ QPoint posInWindow(QWidget *w)
 
 // Paint event clipping magic
 extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
-extern void qt_clear_paintevent_clipping();
+extern void qt_clear_paintevent_clipping( QPaintDevice *dev );
 
 WId parentw, destroyw = 0;
 WId myactive = 0;
@@ -260,7 +260,7 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	    QPoint mp(posInWindow(this));
 	    Rect r;
 	    SetRect( &r, mp.x(), mp.y(), mp.x()+width(), mp.y()+height() );
-	    InvalWindowRect( (WindowRef)topLevelWidget()->winId(), &r );
+	    InvalWindowRect( (WindowRef)mytop->winId(), &r );
 	}
     }
     if ( parent ) {				// insert into new parent
@@ -534,13 +534,13 @@ void QWidget::repaint( int x, int y, int w, int h, bool erase )
 void QWidget::repaint( const QRegion &reg , bool erase )
 {
     if ( !testWState(WState_BlockUpdates) && testWState(WState_Visible) && isVisible() ) {
+	qt_set_paintevent_clipping( this, reg );
 	if ( erase )
 	    this->erase(reg);
 
-	qt_set_paintevent_clipping( this, reg );
 	QPaintEvent e( reg );
 	QApplication::sendEvent( this, &e );
-	qt_clear_paintevent_clipping();
+	qt_clear_paintevent_clipping( this );
     }
 }
 
@@ -712,7 +712,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	if( isMove || isResize ) {
 	    Rect r;
 	    SetRect( &r, oldmp.x(), oldmp.y(), oldmp.x()+olds.width(), oldmp.y()+olds.height() );
-	    InvalWindowRect( (WindowRef)topLevelWidget()->winId(), &r );
+	    InvalWindowRect( (WindowRef)mytop->winId(), &r );
 	}
     } else {
 	if ( isMove ) 
@@ -724,6 +724,11 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 
 void QWidget::setMinimumSize( int minw, int minh)
 {
+    //I'm not happy to be doing this, but apparently this helps (ie on a mainwindow, so the
+    //status bar doesn't fall of the bottom) this might need a FIXME!!!
+    minw+=10;
+    minh+=10;
+
 #if defined(QT_CHECK_RANGE)
     if ( minw < 0 || minh < 0 )
 	qWarning("QWidget::setMinimumSize: The smallest allowed size is (0,0)");
@@ -807,7 +812,7 @@ void QWidget::erase( const QRegion& reg )
     qt_set_paintevent_clipping( this, reg );
     QPainter p;
     p.begin(this);
-    p.setClipRegion(reg);
+//    p.setClipRegion(reg);
     if ( extra && extra->bg_pix ) {
 	if ( !extra->bg_pix->isNull() ) {
 	    QPoint point(xoff%extra->bg_pix->width(), yoff%extra->bg_pix->height());
@@ -817,7 +822,7 @@ void QWidget::erase( const QRegion& reg )
 	p.fillRect(rr, bg_col);
     }
     p.end();
-    qt_clear_paintevent_clipping();
+    qt_clear_paintevent_clipping( this );
 }
 
 

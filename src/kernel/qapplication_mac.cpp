@@ -108,7 +108,7 @@ void qt_mac_destroy_widget(QWidget *w)
 
 // Paint event clipping magic
 extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
-extern void qt_clear_paintevent_clipping();
+extern void qt_clear_paintevent_clipping(QPaintDevice *dev);
 
 static QGuardedPtr<QWidget>* activeBeforePopup = 0; // focus handling with popups
 static QWidget     *popupButtonFocus = 0;
@@ -1226,7 +1226,7 @@ int QApplication::macProcessEvent(MSG * m)
 	    BeginUpdate((WindowPtr)widget->handle());
 	    qt_set_paintevent_clipping( widget, QRegion( 0, 0, widget->width(), widget->height() ));
 	    widget->propagateUpdates( 0, 0, widget->width(), widget->height() );
-	    qt_clear_paintevent_clipping();
+	    qt_clear_paintevent_clipping( widget );
 	    EndUpdate((WindowPtr)widget->handle());
 	}
     } else if(er->what == keyDown) {

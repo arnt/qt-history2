@@ -70,12 +70,17 @@ void unclippedBitBlt( QPaintDevice *dst, int dx, int dy,
  */
 static QRegion* paintEventClipRegion = 0;
 static QPaintDevice* paintEventDevice = 0;
+static int recursive_calls = 0;
 
 void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region)
 {
     if(paintEventClipRegion) {
-	if(dev != paintEventDevice )
+	if(dev == paintEventDevice ) 
+	    recursive_calls++;
+#if 0 //this can and will happen, so don't warn for now
+	else
 	    warning("Whoa, two set_paintevent_clippings on different widgets!?!");
+#endif
 	return;
     }
 
@@ -94,8 +99,21 @@ void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region)
     paintEventDevice = dev;
 }
 
-void qt_clear_paintevent_clipping()
+void qt_clear_paintevent_clipping(QPaintDevice *dev)
 {
+    if(!dev)
+	return;
+
+
+    if(dev != paintEventDevice) {
+//	warning("qt_clear_paintevent_clipping unmatched."); //this can and will happen, so don't warn for now
+	return;
+    }
+
+    if(recursive_calls) {
+	recursive_calls--;
+	return;
+    }
     delete paintEventClipRegion;
     paintEventClipRegion = 0;
     paintEventDevice = 0;
