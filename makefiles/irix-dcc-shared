@@ -12,7 +12,6 @@ diff -ur template/Makefile irix-dcc-shared/Makefile
  LFLAGS	= -lqt
  
  all: library tutorial examples
-Only in irix-dcc-shared: Makefile.orig
 diff -ur template/examples/xshape/Makefile irix-dcc-shared/examples/xshape/Makefile
 --- template/examples/xshape/Makefile	Sat Aug 17 18:00:13 1996
 +++ irix-dcc-shared/examples/xshape/Makefile	Mon Sep  2 00:49:47 1996
@@ -27,7 +26,6 @@ diff -ur template/examples/xshape/Makefile irix-dcc-shared/examples/xshape/Makef
  
  ####### Build rules
  
-Only in irix-dcc-shared/examples/xshape: Makefile.orig
 diff -ur template/library/Makefile irix-dcc-shared/library/Makefile
 --- template/library/Makefile	Mon Sep  2 00:49:17 1996
 +++ irix-dcc-shared/library/Makefile	Mon Sep  2 00:54:11 1996
@@ -49,7 +47,6 @@ diff -ur template/library/Makefile irix-dcc-shared/library/Makefile
  
  # For maximum compatibility with old versions of make, we generate
  # a separate rule for each meta object source file.
-Only in irix-dcc-shared/library: Makefile.orig
 diff -ur template/moc/Makefile irix-dcc-shared/moc/Makefile
 --- template/moc/Makefile	Mon Sep  2 00:48:45 1996
 +++ irix-dcc-shared/moc/Makefile	Mon Sep  2 00:50:46 1996
@@ -62,12 +59,3 @@ diff -ur template/moc/Makefile irix-dcc-shared/moc/Makefile
  
  depend:
  	makedepend -I$(INCDIR) $(SOURCES) 2> /dev/null
-@@ -75,7 +75,7 @@
- ####### Compile the .cpp files
- 
- moc_gen.o: moc_gen.cpp
--	$(CC) -c $(CFLAGS) -Wno-unused -I$(INCDIR) $? -o $@
-+	$(CC) -c -O2 -fullwarn -woff 3262,3203 -I$(INCDIR) $? -o $@
- 
- qbuffer.o: ../library/qbuffer.cpp
- 	$(CC) -c $(CFLAGS) -I$(INCDIR) $? -o $@
