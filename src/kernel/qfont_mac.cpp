@@ -296,8 +296,9 @@ void QFontPrivate::load(QFont::Script script)
 
     if(QFontEngine *e = QFontCache::instance->findEngine(key)) {
 	Q_ASSERT(e->type() == QFontEngine::Mac);
-	engine = (QFontEngineMac*)engineData->engine = e;
-	engine->ref();
+	e->ref();
+	engineData->engine = e;
+	engine = (QFontEngineMac*)e;
 	return; // the font info and fontdef should already be filled
     }
 
