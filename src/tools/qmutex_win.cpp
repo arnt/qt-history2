@@ -118,6 +118,7 @@ bool QRecursiveMutexPrivate::locked()
 #endif
 	return FALSE;
     case WAIT_OBJECT_0:
+	ReleaseMutex( handle );
 	return FALSE;
     case WAIT_FAILED:
 #ifdef QT_CHECK_RANGE
