@@ -2031,12 +2031,12 @@ void QPainter::drawPath(const QPainterPath &path)
                            QPainterPrivate::StrokeDraw, d->engine->emulationSpecifier);
         } else {
             QList<QPolygonF> polys;
-            if (d->state->txop > QPainterPrivate::TxTranslate) {
+            if (!(d->engine->emulationSpecifier & QPaintEngine::CoordTransform)
+                  && d->state->txop > QPainterPrivate::TxTranslate) {
                 polys = path.toSubpathPolygons(d->state->matrix);
                 d->updateInvMatrix();
-                for (int i=0; i<polys.size(); ++i) {
+                for (int i=0; i<polys.size(); ++i)
                     polys[i] = polys.at(i) * d->invMatrix;
-                }
             } else {
                 polys = path.toSubpathPolygons(convertMatrix);
             }
