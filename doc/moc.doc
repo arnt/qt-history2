@@ -343,7 +343,7 @@ The following example shows one wrong and two correct slot definitions.
 
 (For those interested in C++ internals: The cause of this problem is
 that a slot is internally represented as a function pointer, and
-invoked on a QObject pointer. )
+invoked on a QObject pointer.)
 
 
 <h4>Function pointers can not be arguments to signals or slots</h4>
