@@ -48,6 +48,7 @@
 #include <qwhatsthis.h>
 #include <qsettings.h>
 #include <qfontdialog.h>
+#include <qheader.h>
 
 #include <qdockarea.h>
 #include <qdockwindow.h>
@@ -493,7 +494,7 @@ TrWindow::TrWindow()
     setIcon( QPixmap(logo_xpm) );
 
     setupImageDict();
-    
+
     // Set up the Scope dock window
     QDockWindow * dwScope = new QDockWindow( QDockWindow::InDock, this,
 					     "scope");
@@ -505,7 +506,7 @@ TrWindow::TrWindow()
     lv = new QListView( dwScope, "scope list view" );
     lv->setShowSortIndicator( TRUE );
     lv->setAllColumnsShowFocus( TRUE );
-    lv->setFullSize( TRUE, 1 );
+    lv->header()->setStretchEnabled( TRUE, 1 );
     lv->addColumn( tr("Done"), 40 );
     lv->addColumn( tr("Scope") );
     lv->addColumn( tr("Items"), 55 );
@@ -514,13 +515,13 @@ TrWindow::TrWindow()
     lv->setSorting( 0 );
     lv->setHScrollBarMode( QScrollView::AlwaysOff );
     dwScope->setWidget( lv );
-    
+
     messageIsShown = FALSE;
     me = new MessageEditor( &tor, this, "message editor" );
     setCentralWidget( me );
     slv = me->sourceTextList();
     plv = me->phraseList();
-    
+
     setupMenuBar();
     setupToolBars();
     progress = new QLabel( statusBar(), "progress" );
@@ -676,7 +677,7 @@ void TrWindow::openFile( const QString& name )
 	    numFinished = 0;
 	    numNonobsolete = 0;
 	    numMessages = 0;
-	    
+	
 	    TML all = tor.messages();
 	    TML::Iterator it;
 	    QDict<ContextLVI> contexts( 1009 );
@@ -691,12 +692,12 @@ void TrWindow::openFile( const QString& name )
 		if ( (*it).sourceText()[0] == '\0' ) {
 		    c->appendToComment( tor.toUnicode((*it).comment()) );
 		} else {
-		    MessageLVI * tmp = new MessageLVI( slv, 
+		    MessageLVI * tmp = new MessageLVI( slv,
 					   (*it),
  					   tor.toUnicode((*it).sourceText()),
  					   tor.toUnicode((*it).comment()), c );
-		    tmp->setDanger( danger(tmp->sourceText(), 
-					   tmp->translation()) && 
+		    tmp->setDanger( danger(tmp->sourceText(),
+					   tmp->translation()) &&
 		                           tmp->message().type() == MetaTranslatorMessage::Finished );
  		    c->instantiateMessageItem( slv, tmp );
 
@@ -727,7 +728,7 @@ void TrWindow::openFile( const QString& name )
 	    me->showNothing();
 	    finishedAndNextAct->setEnabled( FALSE );
 	    messageIsShown = FALSE;
-	    statusBar()->message( 
+	    statusBar()->message(
 		tr("%1 source phrase(s) loaded.").arg(numMessages),
 		MessageMS );
 
@@ -736,7 +737,7 @@ void TrWindow::openFile( const QString& name )
 	    foundOffset = 0;
 	    findAct->setEnabled( TRUE );
 	    findAgainAct->setEnabled( FALSE );
-	    addRecentlyOpenedFile( name, recentFiles ); 
+	    addRecentlyOpenedFile( name, recentFiles );
 	} else {
 	    statusBar()->clear();
 	    QMessageBox::warning( this, tr("Qt Linguist"),
@@ -888,7 +889,7 @@ void TrWindow::findAgain()
     QListViewItem * j = foundScope;
     QListViewItem * k = indexToItem( slv, foundItem );
     QListViewItem * oldScope = lv->currentItem();
-    
+
 #if 1
     /*
       As long as we don't implement highlighting of the text in the QTextView,
@@ -899,7 +900,7 @@ void TrWindow::findAgain()
 #else
     foundOffset++;
 #endif
-    
+
     slv->setUpdatesEnabled( FALSE );
     do {
 	// Iterate through every item in all scopes
@@ -972,21 +973,21 @@ int TrWindow::itemToIndex( QListView * view, QListViewItem * item )
 {
     int no = 0;
     QListViewItem * tmp;
-    
+
     if( view && item ){
 	if( (tmp = view->firstChild()) != 0 )
 	    do {
 		no++;
 		tmp = tmp->nextSibling();
 	    } while( tmp && (tmp != item) );
-    }    
+    }
     return no;
 }
 
 QListViewItem * TrWindow::indexToItem( QListView * view, int index )
 {
     QListViewItem * item = 0;
-    
+
     if( view && (index > 0) ){
 	item = view->firstChild();
 	while( item && (index-- > 0) )
@@ -995,7 +996,7 @@ QListViewItem * TrWindow::indexToItem( QListView * view, int index )
     return item;
 }
 
-bool TrWindow::searchItem( const QString & searchWhat,  QListViewItem * j, 
+bool TrWindow::searchItem( const QString & searchWhat,  QListViewItem * j,
 			   QListViewItem * k )
 {
     if ( (findWhere & foundWhere) != 0 ) {
@@ -1188,7 +1189,7 @@ bool TrWindow::maybeSave()
 				  .arg(filename),
 				  QMessageBox::Yes | QMessageBox::Default,
 				  QMessageBox::No,
-				  QMessageBox::Cancel ) ) 
+				  QMessageBox::Cancel ) )
 	{
 	    case QMessageBox::Cancel:
 		return FALSE;
@@ -1232,7 +1233,7 @@ void TrWindow::updateCaption()
 void TrWindow::showNewScope( QListViewItem *item )
 {
     static ContextLVI * oldContext = 0;
-    
+
     if( item != 0 ) {
       	ContextLVI * c = (ContextLVI *) item;
 	bool upe = slv->isUpdatesEnabled();	
@@ -1292,7 +1293,7 @@ void TrWindow::updateTranslation( const QString& translation )
 	if ( stripped != m->translation() ) {
 	    bool dngr;
 	    m->setTranslation( stripped );
-	    if ( m->finished() && 
+	    if ( m->finished() &&
 		 (dngr = danger( m->sourceText(), m->translation(), TRUE )) ) {
 		m->setDanger( dngr );
 		m->setFinished( FALSE );
@@ -1335,7 +1336,7 @@ void TrWindow::doneAndNext()
 {
     MessageLVI * m = (MessageLVI *) slv->currentItem();
     bool dngr = FALSE;
-    
+
     if ( !m ) return;
     dngr = danger( m->sourceText(), m->translation(), TRUE );
     if ( !dngr ) {
@@ -1415,7 +1416,7 @@ void TrWindow::nextUnfinished()
     } else {
 	setCurrentMessageItem( mItem );
     }
-    
+
     MessageLVI * m = (MessageLVI *) mItem;
     MessageLVI * n;
     ContextLVI * p = (ContextLVI *) cItem;
@@ -1454,8 +1455,8 @@ void TrWindow::nextUnfinished()
 	}
 	q = (ContextLVI *) q->nextSibling();
     } while ( q != p );
-    
-    
+
+
     // If no Unfinished message is left, the user has finished the job.  We
     // congratulate on a job well done with this ringing bell.
     statusBar()->message( tr("No untranslated phrases left."), MessageMS );
@@ -1510,7 +1511,7 @@ void TrWindow::prevUnfinished()
     } else {
 	setCurrentMessageItem( mItem );
     }
-    
+
     MessageLVI * m = (MessageLVI *) mItem;
     MessageLVI * n;
     ContextLVI * p = (ContextLVI *) cItem;
@@ -1547,7 +1548,7 @@ void TrWindow::prevUnfinished()
 	    }
 	}
     } while ( q != 0 );
-    
+
     statusBar()->message( tr("No untranslated phrases left."), MessageMS );
     qApp->beep();
 }
@@ -1563,7 +1564,7 @@ void TrWindow::prev()
 	if ( !cItem ) return;
 	setCurrentContextItem( cItem );
     }
-    
+
     if ( !mItem ) {
 	mItem = lastChild( slv );
 	if ( !mItem ) return;
@@ -1594,12 +1595,12 @@ void TrWindow::next()
 	if ( !cItem ) return;
 	setCurrentContextItem( cItem );
     }
-    
+
     if ( !mItem ) {
 	mItem = slv->firstChild();
 	if ( !mItem ) return;
 	setCurrentMessageItem( mItem );
-    } else { 
+    } else {
 	if ( (tmp = mItem->nextSibling()) != 0 ) {
 	    setCurrentMessageItem( tmp );
 	    return;
@@ -1643,7 +1644,7 @@ void TrWindow::revalidate()
 	}
 	c = (ContextLVI *) c->nextSibling();
     }
-    
+
     if ( oldScope ){
 	showNewScope( oldScope );
 	QListViewItem * tmp = indexToItem( slv, oldItemNo );
@@ -1676,7 +1677,7 @@ void TrWindow::setupImageDict()
 	pxObsolete->loadFromData( em->data, em->size );
 	em = imageDict->find( QString("symbols/check_danger.xpm") );
 	pxDanger->loadFromData( em->data, em->size );
-    
+
 	QBitmap onMask( check_on_mask_width, check_on_mask_height,
 			check_on_mask_bits, TRUE );
 	QBitmap offMask( check_off_mask_width, check_off_mask_height,
@@ -1734,9 +1735,9 @@ void TrWindow::setupMenuBar()
     // File menu
     openAct = new Action( filep, tr("&Open..."), this, SLOT(open()),
 			  QAccel::stringToKey(tr("Ctrl+O")) );
-    
+
     filep->insertSeparator();
-    
+
     saveAct = new Action( filep, tr("&Save"), this, SLOT(save()),
 			  QAccel::stringToKey(tr("Ctrl+S")) );
     saveAsAct = new Action( filep, tr("Save &As..."), this, SLOT(saveAs()) );
@@ -1744,18 +1745,18 @@ void TrWindow::setupMenuBar()
     filep->insertSeparator();
     printAct = new Action( filep, tr("&Print..."), this, SLOT(print()),
 			   QAccel::stringToKey(tr("Ctrl+P")) );
-    
+
     filep->insertSeparator();
-    
+
     recentFilesMenu = new QPopupMenu( this );
     filep->insertItem( tr("Re&cently opened files"), recentFilesMenu );
     connect( recentFilesMenu, SIGNAL(aboutToShow()), this,
 	     SLOT(setupRecentFilesMenu()) );
     connect( recentFilesMenu, SIGNAL(activated( int )), this,
 	     SLOT(recentFileActivated( int )) );
-		       
+		
     filep->insertSeparator();
-    
+
     exitAct = new Action( filep, tr("E&xit"), this, SLOT(exitApp()),
 			  QAccel::stringToKey(tr("Ctrl+Q")) );
     // Edit menu
@@ -1789,7 +1790,7 @@ void TrWindow::setupMenuBar()
     findAgainAct = new Action( editp, tr("Find &Next"),
 			  this, SLOT(findAgain()), Key_F3 );
     findAgainAct->setEnabled( FALSE );
-    
+
     // Translation menu
     startFromSourceAct = new Action( translationp, tr("&Start From Source"),
 				     me, SLOT(startFromSource()), CTRL+Key_T );
@@ -1810,7 +1811,7 @@ void TrWindow::setupMenuBar()
 			  this, SLOT(next()), CTRL+SHIFT+Key_L );
     finishedAndNextAct = new Action( translationp, tr("&Done And Next"),
 				     this, SLOT(doneAndNext()), CTRL+Key_N );
-    
+
     // Phrasebook menu
     newPhraseBookAct = new Action( phrasep, tr("&New Phrase Book..."),
 				   this, SLOT(newPhraseBook()) );
@@ -1911,7 +1912,7 @@ void TrWindow::setupMenuBar()
     aboutQtAct->setWhatsThis( tr("Display information about the Qt toolkit by"
 				 " Trolltech.") );
     whatsThisAct->setWhatsThis( tr("Enter What's This? mode.") );
-    
+
     startFromSourceAct->setWhatsThis( tr("Copies the source text into"
 					 " the translation field.") );
     guessAct->setWhatsThis( tr("Copies a guess translation into the"
@@ -1961,7 +1962,7 @@ void TrWindow::setupToolBars()
 					"search.xpm" );
     finishedAndNextAct->addToToolbar( translationst, tr("Done And Next"),
 				      "search.xpm" );
-    
+
     acceleratorsAct->addToToolbar( validationt, tr("Accelerators"),
 				   "accel.xpm" );
     endingPunctuationAct->addToToolbar( validationt, tr("Punctuation"),
@@ -2142,8 +2143,8 @@ void TrWindow::readConfig()
 {
     QString   keybase("/Qt Linguist/3.0/");
     QSettings config;
-    
-    config.insertSearchPath( QSettings::Windows, "/Trolltech" );    
+
+    config.insertSearchPath( QSettings::Windows, "/Trolltech" );
 
     recentFiles = config.readListEntry( keybase + "RecentlyOpenedFiles", ',' );
     QRect r( pos(), size() );
@@ -2166,9 +2167,9 @@ void TrWindow::readConfig()
     place = config.readNumEntry( keybase + "Geometry/ScopewindowInDock" );
     r.setX( config.readNumEntry( keybase + "Geometry/ScopewindowX" ) );
     r.setY( config.readNumEntry( keybase + "Geometry/ScopewindowY" ) );
-    r.setWidth( config.readNumEntry( keybase + 
+    r.setWidth( config.readNumEntry( keybase +
 				     "Geometry/ScopewindowWidth" ) );
-    r.setHeight( config.readNumEntry( keybase + 
+    r.setHeight( config.readNumEntry( keybase +
 				      "Geometry/ScopewindowHeight" ) );
     if ( place == QDockWindow::OutsideDock )
 	dw->undock();
@@ -2178,9 +2179,9 @@ void TrWindow::readConfig()
     place = config.readNumEntry( keybase + "Geometry/ScopewindowInDock" );
     r.setX( config.readNumEntry( keybase + "Geometry/SourcewindowX" ) );
     r.setY( config.readNumEntry( keybase + "Geometry/SourcewindowY" ) );
-    r.setWidth( config.readNumEntry( keybase + 
+    r.setWidth( config.readNumEntry( keybase +
 				     "Geometry/SourcewindowWidth" ) );
-    r.setHeight( config.readNumEntry( keybase + 
+    r.setHeight( config.readNumEntry( keybase +
 				      "Geometry/SourcewindowHeight" ) );
     if ( place == QDockWindow::OutsideDock )
 	dw->undock();
@@ -2190,15 +2191,15 @@ void TrWindow::readConfig()
     place = config.readNumEntry( keybase + "Geometry/PhrasewindowInDock" );
     r.setX( config.readNumEntry( keybase + "Geometry/PhrasewindowX" ) );
     r.setY( config.readNumEntry( keybase + "Geometry/PhrasewindowY" ) );
-    r.setWidth( config.readNumEntry( keybase + 
+    r.setWidth( config.readNumEntry( keybase +
 				     "Geometry/PhrasewindowWidth" ) );
-    r.setHeight( config.readNumEntry( keybase + 
+    r.setHeight( config.readNumEntry( keybase +
 				      "Geometry/PhrasewindowHeight" ) );
     if ( place == QDockWindow::OutsideDock )
 	dw->undock();
     dw->setGeometry( r );
     QApplication::sendPostedEvents();
-//     
+//
 //     QString fn = QDir::homeDirPath() + "/.linguistrc" + "tb2";
 //     QFile f( fn );
 //     if ( f.open( IO_ReadOnly ) ) {
@@ -2206,16 +2207,16 @@ void TrWindow::readConfig()
 // 	ts >> *this;
 // 	f.close();
 //     }
-    
+
 }
 
 void TrWindow::writeConfig()
 {
     QString   keybase("/Qt Linguist/3.0/");
     QSettings config;
-    
-    
-    config.insertSearchPath( QSettings::Windows, "/Trolltech" );    
+
+
+    config.insertSearchPath( QSettings::Windows, "/Trolltech" );
     config.writeEntry( keybase + "RecentlyOpenedFiles", recentFiles, ',' );
     config.writeEntry( keybase + "Geometry/MainwindowX", x() );
     config.writeEntry( keybase + "Geometry/MainwindowY", y() );
@@ -2230,7 +2231,7 @@ void TrWindow::writeConfig()
     config.writeEntry( keybase + "Geometry/ScopewindowHeight", dw->height() );
 
     dw =(QDockWindow *) slv->parent();
-    config.writeEntry( keybase + "Geometry/SourcewindowInDock", 
+    config.writeEntry( keybase + "Geometry/SourcewindowInDock",
 		       dw->place() );
     config.writeEntry( keybase + "Geometry/SourcewindowX", dw->geometry().x() );
     config.writeEntry( keybase + "Geometry/SourcewindowY", dw->geometry().y() );
@@ -2238,13 +2239,13 @@ void TrWindow::writeConfig()
     config.writeEntry( keybase + "Geometry/SourcewindowHeight", dw->height() );
 
     dw =(QDockWindow *) plv->parent()->parent();
-    config.writeEntry( keybase + "Geometry/PhrasewindowInDock", 
+    config.writeEntry( keybase + "Geometry/PhrasewindowInDock",
 		       dw->place() );
     config.writeEntry( keybase + "Geometry/PhrasewindowX", dw->geometry().x() );
     config.writeEntry( keybase + "Geometry/PhrasewindowY", dw->geometry().y() );
     config.writeEntry( keybase + "Geometry/PhrasewindowWidth", dw->width() );
     config.writeEntry( keybase + "Geometry/PhrasewindowHeight", dw->height() );
-    
+
 //     QString fn = QDir::homeDirPath() + "/.linguistrc" + "tb2";
 //     QFile f( fn );
 //     if ( f.open( IO_WriteOnly ) ) {
@@ -2260,11 +2261,11 @@ void TrWindow::setupRecentFilesMenu()
     recentFilesMenu->clear();
     int id = 0;
     QStringList::Iterator it = recentFiles.begin();
-    for ( ; it != recentFiles.end(); ++it ) 
+    for ( ; it != recentFiles.end(); ++it )
     {
 	recentFilesMenu->insertItem( *it, id );
 	id++;
-    }    
+    }
 }
 
 void TrWindow::recentFileActivated( int id )

@@ -2163,7 +2163,7 @@ void QFileDialog::init()
     files->addColumn( tr("Type") );
     files->addColumn( tr("Date") );
     files->addColumn( tr("Attributes") );
-    files->header()->setFullSize( TRUE, 0 );
+    files->header()->setStretchEnabled( TRUE, 0 );
 
     files->setMinimumSize( 50, 25 + 2*fm.lineSpacing() );
 

@@ -131,9 +131,9 @@ HelpDialog::HelpDialog( QWidget *parent, MainWindow *h, QTextBrowser *v )
     bookmarksInserted = FALSE;
     editIndex->installEventFilter( this );
     listBookmarks->header()->hide();
-    listBookmarks->header()->setFullSize( TRUE );
+    listBookmarks->header()->setStretchEnabled( TRUE );
     listContents->header()->hide();
-    listContents->header()->setFullSize( TRUE );
+    listContents->header()->setStretchEnabled( TRUE );
     framePrepare->hide();
     setupTitleMap();
 }
@@ -148,7 +148,7 @@ void HelpDialog::loadIndexFile()
     framePrepare->show();
     qApp->processEvents();
     QProgressBar *bar = progressPrepare;
-    bar->setTotalSteps( QFileInfo( documentationPath + "/index" ).size() + 
+    bar->setTotalSteps( QFileInfo( documentationPath + "/index" ).size() +
 	                QFileInfo( linguistDocPath + "/index" ).size() );
     bar->setProgress( 0 );
 
@@ -529,7 +529,7 @@ void HelpDialog::insertContents()
 
     HelpNavigationContentsItem *lastItem = 0;
     HelpNavigationContentsItem *lastGroup = 0;
-    
+
     QValueList<MyString>* lst = new QValueList<MyString>;
     for ( QMap<QString, QString>::Iterator it = titleMap.begin(); it != titleMap.end(); ++it ) {
 	QString s = *it + " | " + it.key();

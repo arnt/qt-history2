@@ -1558,7 +1558,7 @@ void QHeader::resizeEvent( QResizeEvent *e )
 
 /*!
   \fn void QHeader::adjustHeaderSize()
-  Adjusts the header size to fit as good as possible, if fullSize()
+  Adjusts the header size to fit as good as possible, if isStretchEnabled()
   is TRUE.
 */
 
@@ -1618,7 +1618,7 @@ void QHeader::calculatePositions()
   adjusted equally.
 */
 
-void QHeader::setFullSize( bool b, int section )
+void QHeader::setStretchEnabled( bool b, int section )
 {
     if ( b )
 	d->fullSize = section;
@@ -1630,10 +1630,10 @@ void QHeader::setFullSize( bool b, int section )
 /*! Returns whether the header sections always cover the full width of
   the header by automatically adjusted all sections.
 
-  \sa setFullSize()
+  \sa setStretchEnabled()
 */
 
-bool QHeader::fullSize() const
+bool QHeader::isStretchEnabled() const
 {
     return d->fullSize == -1;
 }
@@ -1641,10 +1641,10 @@ bool QHeader::fullSize() const
 /*! Returns whether the header sections always cover the full width of
   the header by automatically adjusting the section \a section.
 
-  \sa setFullSize()
+  \sa setStretchEnabled()
 */
 
-bool QHeader::fullSize( int section ) const
+bool QHeader::isStretchEnabled( int section ) const
 {
     return d->fullSize == section;
 }

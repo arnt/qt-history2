@@ -71,7 +71,7 @@ ProjectSettings::ProjectSettings( Project *pro, QWidget* parent,  const char* na
     }
 
 
-    listInterfaces->header()->setFullSize( TRUE );
+    listInterfaces->header()->setStretchEnabled( TRUE );
 
     editDatabaseFile->setText( pro->databaseDescription() );
     editImageFile->setText( pro->imageFile() );

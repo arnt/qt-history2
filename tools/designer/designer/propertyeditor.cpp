@@ -2231,7 +2231,7 @@ PropertyList::PropertyList( PropertyEditor *e )
     : QListView( e ), editor( e )
 {
     header()->setMovingEnabled( FALSE );
-    header()->setFullSize( TRUE );
+    header()->setStretchEnabled( TRUE );
     setResizePolicy( QScrollView::Manual );
     viewport()->setAcceptDrops( true );
     viewport()->installEventFilter( this );

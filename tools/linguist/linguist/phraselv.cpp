@@ -22,6 +22,7 @@
 
 #include <qregexp.h>
 #include <qwhatsthis.h>
+#include <qheader.h>
 
 #include "phraselv.h"
 
@@ -104,7 +105,7 @@ PhraseLV::PhraseLV( QWidget *parent, const char *name )
     setColumnText( PhraseLVI::SourceText, tr("Source phrase") );
     setColumnText( PhraseLVI::TargetText, tr("Target phrase") );
     setColumnText( PhraseLVI::DefinitionText, tr("Definition") );
-    setFullSize( TRUE, -1 );
+    header()->setStretchEnabled( TRUE, -1 );
     what = new WhatPhrase( this );
 }
 

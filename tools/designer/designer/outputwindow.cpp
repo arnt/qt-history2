@@ -33,7 +33,7 @@ void OutputWindow::setupError()
     addTab( errorView, tr( "Error Messages" ) );
     errorView->addColumn( tr( "Message" ) );
     errorView->addColumn( tr( "Line" ) );
-    errorView->header()->setFullSize( TRUE );
+    errorView->header()->setStretchEnabled( TRUE );
     errorView->setAllColumnsShowFocus( TRUE );
 }
 

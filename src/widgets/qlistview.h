@@ -140,7 +140,7 @@ public:
 
     QListViewItem * itemAbove();
     QListViewItem * itemBelow();
-    
+
     int itemPos() const;
 
     QListView *listView() const;
@@ -231,6 +231,7 @@ class Q_EXPORT QListView: public QScrollView
 
     Q_OBJECT
     Q_ENUMS( SelectionMode )
+    Q_ENUMS( ResizeMode )
     Q_PROPERTY( int columns READ columns )
     Q_PROPERTY( bool multiSelection READ isMultiSelection WRITE setMultiSelection DESIGNABLE false )
     Q_PROPERTY( SelectionMode selectionMode READ selectionMode WRITE setSelectionMode )
@@ -240,7 +241,7 @@ class Q_EXPORT QListView: public QScrollView
     Q_PROPERTY( int itemMargin READ itemMargin WRITE setItemMargin )
     Q_PROPERTY( bool rootIsDecorated READ rootIsDecorated WRITE setRootIsDecorated )
     Q_PROPERTY( bool showToolTips READ showToolTips WRITE setShowToolTips )
-    Q_PROPERTY( bool fullSize READ fullSize WRITE setFullSize )
+    Q_PROPERTY( ResizeMode resizeMode READ resizeMode WRITE setResizeMode )
 
 public:
     QListView( QWidget * parent = 0, const char *name = 0, WFlags f = 0 );
@@ -327,10 +328,9 @@ public:
     virtual void setShowToolTips( bool b );
     bool showToolTips() const;
 
-    virtual void setFullSize( bool b, int section );
-    void setFullSize( bool b ) { setFullSize( b, -1 ); }
-    bool fullSize() const;
-    bool fullSize( int section ) const;
+    enum ResizeMode { NoColumn, AllColumns, LastColumn };
+    virtual void setResizeMode( ResizeMode m );
+    ResizeMode resizeMode() const;
 
     QListViewItem * findItem( const QString& text, int column, ComparisonFlags compare ) const;
 

@@ -225,6 +225,7 @@ struct QListViewPrivate
     bool updateHeader;
     int pressedColumn;
     bool fullRepaintOnComlumnChange;
+    QListView::ResizeMode resizeMode;
 
 };
 
@@ -2081,7 +2082,22 @@ void QListViewPrivate::Root::setup()
   is a list view where the user can look but not touch.
 */
 
-/*!
+/*! \enum QListView::ResizeMode
+
+  This enum descrives the way, the header adjustes in resize events to
+  the width of the listview.
+
+  \value NoColumn The columns do not get resized in resize events.
+
+  \value AllColumns All columns are resized equally to fit the width
+  of the listview
+
+  \value LastColumn The last columns is resized to fit the with of the
+  listview
+
+*/
+
+  /*!
   \class QListView qlistview.h
   \brief The QListView class implements a list/tree view.
   \ingroup advanced
@@ -2275,6 +2291,7 @@ void QListView::init()
     d->toolTip = new QListViewToolTip( viewport(), this );
     d->updateHeader = FALSE;
     d->fullRepaintOnComlumnChange = FALSE;
+    d->resizeMode = NoColumn;
 
     setMouseTracking( TRUE );
     viewport()->setMouseTracking( TRUE );
@@ -2364,53 +2381,32 @@ bool QListView::showToolTips() const
     return d->toolTips;
 }
 
-/*! If \b is TRUE the section \a section of the listview
-  header always adjusts on resize events, so that the full width is
-  covered by sections of the header. If \a section is -1, all sections
-  are adjusted equally.
+/*! Specifies whether all, none or the last column should be resized
+  to fit the full width of the listview.
 
-  \sa fullSize()
+  \sa resizeMode(), QHeader, header()
 */
 
-void QListView::setFullSize( bool b, int section )
+void QListView::setResizeMode( ResizeMode m )
 {
-    header()->setFullSize( b, section );
+    d->resizeMode = m;
+    if ( m == NoColumn )
+	header()->setStretchEnabled( FALSE );
+    else if ( m == AllColumns )
+	header()->setStretchEnabled( TRUE );
+    else
+	header()->setStretchEnabled( TRUE, header()->count() - 1 );
 }
 
-/*! \fn void QListView::setFullSize( bool b )
+/*! Returns whether and how the listview's header resizes to fit the
+whole with of the listview.
 
-  \overload
-
-  If \a b is TRUE all sections are adjusted equally.
-
-  \sa fullSize()
+  \sa setResizeMode()
 */
 
-/*! Returns whether the listview's header sections always cover the
-  full width of the header.
-
-  If this is TRUE all sections are automatically adjusted.
-
-  \sa setFullSize()
-*/
-
-bool QListView::fullSize() const
+QListView::ResizeMode QListView::resizeMode() const
 {
-    return header()->fullSize();
-}
-
-/*! \overload
-
-  Returns whether the listview's header sections always cover the
-  full width of the header by automatically adjusting the section \a
-  section.
-
-  \sa setFullSize()
-*/
-
-bool QListView::fullSize( int section ) const
-{
-    return header()->fullSize( section );
+    return d->resizeMode;
 }
 
 /*!
@@ -5050,7 +5046,7 @@ void QListView::widthChanged( const QListViewItem* item, int c )
 		    indent += treeStepSize();
 		w += indent;
 	    }
-	    if ( w > columnWidth( col ) && !d->h->fullSize() ) {
+	    if ( w > columnWidth( col ) && !d->h->isStretchEnabled() ) {
 		d->updateHeader = TRUE;
 		setColumnWidth( col, w );
 	    }
@@ -6467,7 +6463,7 @@ QString	QListView::typeDescription() const
 
 /*!
 
-  Finds the first item with the text \a text in the column \a column.  
+  Finds the first item with the text \a text in the column \a column.
 
 */
 
@@ -6475,18 +6471,18 @@ QListViewItem *QListView::findItem( const QString& text, int column, ComparisonF
 {
     if ( text.isEmpty() )
 	return 0;
-    
+
     if ( compare == CaseSensitive || compare == 0 )
         compare |= ExactMatch;
-    
+
     QString itmtxt;
     QString comtxt = text;
     if ( ! (compare & CaseSensitive ) )
         comtxt = text.lower();
-    
+
     QListViewItem *item = d->focusItem;
     QListViewItemIterator it( item );
-    
+
     if ( item ) {
         for ( ; it.current(); ++it ) {
             item = it.current();
@@ -6494,22 +6490,22 @@ QListViewItem *QListView::findItem( const QString& text, int column, ComparisonF
                 itmtxt = item->text( column ).lower();
 	    else
 		itmtxt = item->text( column );
-	    
+	
             if ( compare & ExactMatch ) {
-                if ( itmtxt == comtxt ) 
+                if ( itmtxt == comtxt )
                     return item;
             }
-            
+
             if ( compare & BeginsWith ) {
                 if ( itmtxt.startsWith( comtxt ) )
                     return item;
             }
-            
+
             if ( compare & EndsWith ) {
                 if ( itmtxt.right( comtxt.length() ) == comtxt )
                     return item;
             }
-            
+
             if ( compare & Contains ) {
                 if ( itmtxt.contains( comtxt, (compare & CaseSensitive) ) )
                     return item;
@@ -6518,29 +6514,29 @@ QListViewItem *QListView::findItem( const QString& text, int column, ComparisonF
 	
 	item = firstChild();
 	QListViewItemIterator it( item );
-        
+
         for ( ; it.current() && d->focusItem; ++it ) {
             item = it.current();
 	    if ( ! (compare & CaseSensitive) )
                 itmtxt = item->text( column ).lower();
 	    else
 		itmtxt = item->text( column );
-	    
+	
             if ( compare & ExactMatch ) {
-                if ( itmtxt == comtxt ) 
+                if ( itmtxt == comtxt )
                     return item;
             }
-            
+
             if ( compare & BeginsWith ) {
                 if ( itmtxt.startsWith( comtxt ) )
                     return item;
             }
-            
+
             if ( compare & EndsWith ) {
                 if ( itmtxt.right( comtxt.length() ) == comtxt )
                     return item;
             }
-            
+
             if ( compare & Contains ) {
                 if ( itmtxt.contains( comtxt, (compare & CaseSensitive) ) )
                     return item;

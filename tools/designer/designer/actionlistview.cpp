@@ -25,7 +25,7 @@
 ActionListView::ActionListView( QWidget *parent, const char *name )
     : QListView( parent, name )
 {
-    header()->setFullSize( TRUE );
+    header()->setStretchEnabled( TRUE );
     setRootIsDecorated( TRUE );
     setSorting( -1 );
     connect( this, SIGNAL( contextMenu( QListViewItem *, const QPoint &, int ) ),

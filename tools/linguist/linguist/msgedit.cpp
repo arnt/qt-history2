@@ -32,6 +32,7 @@
 #include <qwhatsthis.h>
 #include <qvbox.h>
 #include <qmainwindow.h>
+#include <qheader.h>
 
 #include <qdockarea.h>
 #include <qdockwindow.h>
@@ -203,7 +204,7 @@ EditorPage::EditorPage( QWidget * parent, const char * name )
     fnt.setBold( TRUE );
     srcTextLbl->setFont( fnt );
     transLbl->setFont( fnt );
-    
+
     srcText = new QTextView( this, "source text view" );
     srcText->setFrameStyle( QFrame::NoFrame );
     srcText->setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding,
@@ -214,8 +215,8 @@ EditorPage::EditorPage( QWidget * parent, const char * name )
     p = srcText->palette();
     p.setColor( QPalette::Disabled, QColorGroup::Base, p.active().base() );
     srcText->setPalette( p );
-    connect( srcText, SIGNAL(textChanged()), SLOT(handleSourceChanges()) );    
-    
+    connect( srcText, SIGNAL(textChanged()), SLOT(handleSourceChanges()) );
+
     cmtText = new QTextView( this, "comment/context view" );
     cmtText->setFrameStyle( QFrame::NoFrame );
     cmtText->setSizePolicy( QSizePolicy( QSizePolicy::MinimumExpanding,
@@ -242,11 +243,11 @@ EditorPage::EditorPage( QWidget * parent, const char * name )
     translationMed->setWordWrap( QTextView::WidgetWidth );
     translationMed->setTextFormat( QTextView::PlainText );
     p = translationMed->palette();
-    p.setColor( QPalette::Disabled, QColorGroup::Base, p.active().base() );    
+    p.setColor( QPalette::Disabled, QColorGroup::Base, p.active().base() );
     translationMed->setPalette( p );
     connect( translationMed, SIGNAL(textChanged()),
 	     SLOT(handleTranslationChanges()) );
-    
+
     pageCurl = new PageCurl( this, "page curl" );
 
     // Focus
@@ -281,19 +282,19 @@ void EditorPage::layoutWidgets()
     int margin = 6;
     int space  = 2;
     int w = width();
-    
+
     pageCurl->move( width() - pageCurl->width(), 0 );
-    
-    QFontMetrics fm( srcTextLbl->font() );    
+
+    QFontMetrics fm( srcTextLbl->font() );
     srcTextLbl->move( margin, margin );
     srcTextLbl->resize( fm.width( srcTextLbl->text() ), srcTextLbl->height() );
-    
+
     srcText->move( margin, srcTextLbl->y() + srcTextLbl->height() + space );
     srcText->resize( w - margin*2, srcText->height() );
 
     cmtText->move( margin, srcText->y() + srcText->height() + space );
     cmtText->resize( w - margin*2, cmtText->height() );
-    
+
     if( cmtText->isHidden() )
 	transLbl->move( margin, srcText->y() + srcText->height() + space );
     else
@@ -313,7 +314,7 @@ void EditorPage::layoutWidgets()
 
     if( !cmtText->isHidden() )
 	totHeight += cmtText->height() + space;
-        
+
      if( height() != totHeight )
 	 emit pageHeightUpdated( totHeight );
 }
@@ -362,14 +363,14 @@ void EditorPage::calculateFieldHeight( QTextView * field )
 void EditorPage::fontChange( const QFont & )
 {
     QFont fnt = font();
-    
+
     fnt.setBold( TRUE );
     QFontMetrics fm( fnt );
     srcTextLbl->setFont( fnt );
     srcTextLbl->resize( fm.width( srcTextLbl->text() ), srcTextLbl->height() );
     transLbl->setFont( fnt );
     transLbl->resize( fm.width( transLbl->text() ), transLbl->height() );
-    update();    
+    update();
 }
 
 
@@ -384,7 +385,7 @@ MessageEditor::MessageEditor( MetaTranslator * t, QWidget * parent,
       tor( t )
 {
     v = new QVBoxLayout( this );
-    topDock = new QDockArea( Qt::Horizontal, QDockArea::Normal, this, 
+    topDock = new QDockArea( Qt::Horizontal, QDockArea::Normal, this,
 			     "top dock area" );
     topDock->setMinimumHeight( 10 );
     topDock->setSizePolicy( QSizePolicy( QSizePolicy::Minimum,
@@ -413,15 +414,15 @@ MessageEditor::MessageEditor( MetaTranslator * t, QWidget * parent,
     srcTextList->addColumn( tr("Source text") );
     srcTextList->setColumnWidthMode( 1, QListView::Maximum );
     srcTextList->setColumnAlignment( 0, Qt::AlignCenter );
-    srcTextList->setFullSize( TRUE, 1 );
+    srcTextList->header()->setStretchEnabled( TRUE, 1 );
     srcTextList->setMinimumSize( QSize( 50, 50 ) );
     srcTextList->setHScrollBarMode( QScrollView::AlwaysOff );
     topDockWnd->setWidget( srcTextList );
-    
+
     sv = new QScrollView( this, "scroll view" );
     sv->setHScrollBarMode( QScrollView::AlwaysOff );
     sv->viewport()->setBackgroundMode( PaletteBackground );
-    
+
     editorPage = new EditorPage( sv, "editor page" );
     connect( editorPage, SIGNAL(pageHeightUpdated(int)),
 	     SLOT(updatePageHeight(int)) );
@@ -470,11 +471,11 @@ MessageEditor::MessageEditor( MetaTranslator * t, QWidget * parent,
     v->addWidget( bottomDock );
 
     // Signals
-    connect( editorPage->pageCurl, SIGNAL(nextPage()), 
+    connect( editorPage->pageCurl, SIGNAL(nextPage()),
 	     SIGNAL(nextUnfinished()) );
-    connect( editorPage->pageCurl, SIGNAL(prevPage()), 
+    connect( editorPage->pageCurl, SIGNAL(prevPage()),
 	     SIGNAL(prevUnfinished()) );
-    
+
     connect( editorPage->translationMed, SIGNAL(textChanged()),
 	     this, SLOT(emitTranslationChanged()) );
     connect( editorPage->translationMed, SIGNAL(textChanged()),
@@ -600,17 +601,17 @@ void MessageEditor::showMessage( const QString& text,
 
     editorPage->srcText->setText( QString("<p>") + richText( text ) +
 				  QString("</p>") );
-   
+
     if ( !fullContext.isEmpty() && !comment.isEmpty() )
-	editorPage->cmtText->setText( richText(fullContext.simplifyWhiteSpace()) + 
+	editorPage->cmtText->setText( richText(fullContext.simplifyWhiteSpace()) +
 				      "\n" + richText(comment.simplifyWhiteSpace()) );
     else if ( !fullContext.isEmpty() && comment.isEmpty() )
 	editorPage->cmtText->setText(richText(fullContext.simplifyWhiteSpace() ) );
     else if ( fullContext.isEmpty() && !comment.isEmpty() )
 	editorPage->cmtText->setText( richText(comment.simplifyWhiteSpace() ) );
-    else 
+    else
 	editorPage->cmtText->setText( "" );
-    
+
     setTranslation( translation, FALSE);
     setFinished( type != MetaTranslatorMessage::Unfinished );
     QValueList<Phrase>::ConstIterator p;
@@ -623,7 +624,7 @@ void MessageEditor::showMessage( const QString& text,
 // 						       MaxCandidates );
 //     QValueList<Candidate>::Iterator it = cl.begin();
 //     while ( it != cl.end() ) {
-// 	(void) new QListViewItem( phraseLv, (*it).source , 
+// 	(void) new QListViewItem( phraseLv, (*it).source ,
 // 				  (*it).target, "Guess" );
 // 	++it;
 //     }
@@ -652,7 +653,7 @@ void MessageEditor::setEditionEnabled( bool enabled )
     editorPage->transLbl->setEnabled( enabled );
     editorPage->translationMed->setReadOnly( !enabled );
     editorPage->translationMed->setEnabled( enabled );
-    
+
     phraseLbl->setEnabled( enabled );
     phraseLv->setEnabled( enabled );
     updateCanPaste();

@@ -57,7 +57,7 @@ class Q_EXPORT QHeader : public QWidget
     Q_PROPERTY( int count READ count )
     Q_PROPERTY( int offset READ offset WRITE setOffset )
     Q_PROPERTY( bool moving READ isMovingEnabled WRITE setMovingEnabled )
-    Q_PROPERTY( bool fullSize READ fullSize WRITE setFullSize )
+    Q_PROPERTY( bool stretching READ isStretchEnabled WRITE setStretchEnabled )
 
 public:
     QHeader( QWidget *parent=0, const char *name=0 );
@@ -80,9 +80,13 @@ public:
     virtual void setClickEnabled( bool, int section = -1 );
     virtual void setResizeEnabled( bool, int section = -1 );
     virtual void setMovingEnabled( bool );
+    virtual void setStretchEnabled( bool b, int section );
+    void setStretchEnabled( bool b ) { setStretchEnabled( b, -1 ); }
     bool isClickEnabled( int section = -1 ) const;
     bool isResizeEnabled( int section = -1 ) const;
     bool isMovingEnabled() const;
+    bool isStretchEnabled() const;
+    bool isStretchEnabled( int section ) const;
 
     void 	resizeSection( int section, int s );
     int		sectionSize( int section ) const;
@@ -110,10 +114,6 @@ public:
     virtual void moveCell( int, int); // obsolete, do not use
 
     void 	setSortIndicator( int section, bool increasing = TRUE );
-    virtual void setFullSize( bool b, int section );
-    void setFullSize( bool b ) { setFullSize( b, -1 ); }
-    bool fullSize() const;
-    bool fullSize( int section ) const;
     void adjustHeaderSize() { adjustHeaderSize( -1 ); }
 
 public slots:

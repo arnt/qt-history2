@@ -160,7 +160,7 @@ HierarchyList::HierarchyList( QWidget *parent, FormWindow *fw, bool doConnects )
     : QListView( parent ), formWindow( fw )
 {
     header()->setMovingEnabled( FALSE );
-    header()->setFullSize( TRUE );
+    header()->setStretchEnabled( TRUE );
     normalMenu = 0;
     tabWidgetMenu = 0;
     addColumn( tr( "Name" ) );

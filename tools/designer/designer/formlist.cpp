@@ -145,7 +145,7 @@ FormList::FormList( QWidget *parent, MainWindow *mw, Project *pro )
 	project( pro )
 {
     header()->setMovingEnabled( FALSE );
-    header()->setFullSize( TRUE );
+    header()->setStretchEnabled( TRUE );
     header()->hide();
     setSorting( -1 );
     setResizePolicy( QScrollView::Manual );
