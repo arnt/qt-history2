@@ -56,7 +56,7 @@ class Q_EXPORT QDateTimeEditBase : public QFrame
     Q_OBJECT
 public:
     QDateTimeEditBase( QWidget * parent = 0,
-		       const char * name = "QDateTimeEditBase" );
+                       const char * name = "QDateTimeEditBase" );
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
@@ -64,9 +64,9 @@ public slots:
     void stepUp();
     void stepDown();
 
-signals: 
+signals:
     void valueChanged();
-    
+
 protected:
     void init();
     bool eventFilter( QObject *, QEvent * );
@@ -78,6 +78,7 @@ protected:
     QNumEditPrivate    * ed[3];
     QDateTimeEditLabelPrivate * sep[2];
     QString lastValid[3];
+    QString separator;
 };
 
 
@@ -92,13 +93,15 @@ public:
     QDate   date() const;
     void    setOrder( const QString & order );
     QString order() const;
+    void    setDateSeparator( const QString & separator );
+    QString dateSeparator() const;
 
 signals:
     void valueChanged( const QDate& );
 
 protected slots:
     void someValueChanged();
-    
+
 protected:
     void init();
     void fixup();
@@ -116,8 +119,10 @@ class Q_EXPORT QTimeEdit : public QDateTimeEditBase
 public:
     QTimeEdit( QWidget * parent = 0, const char * name = 0 );
     QTimeEdit( const QTime & d, QWidget * parent = 0, const char * name = 0 );
-    void  setTime( const QTime & t );
-    QTime time() const;
+    void    setTime( const QTime & t );
+    QTime   time() const;
+    void    setTimeSeparator( const QString & separator );
+    QString timeSeparator() const;
 
 signals:
     void valueChanged( const QTime& );
@@ -142,6 +147,12 @@ public:
     QSize sizeHint() const;
     void  setDateTime( const QDateTime & dt );
     QDateTime dateTime() const;
+
+    void    setTimeSeparator( const QString & separator );
+    QString timeSeparator() const;
+    void    setDateSeparator( const QString & separator );
+    QString dateSeparator() const;
+
 
 signals:
     void valueChanged( const QDateTime& );
