@@ -7,30 +7,35 @@
 #include "qstring.h"
 #include "qdatetime.h"
 #include "qlineedit.h"
+#include "qframe.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
 
-class ArrowButton;
 class NumEdit;
 class QLabel;
 
-class Q_EXPORT QDateTimeEditBase : public QWidget
+class Q_EXPORT QDateTimeEditBase : public QFrame
 {
     Q_OBJECT
 public:
     QDateTimeEditBase( QWidget * parent = 0, const char * name = 0 );
-
+    
 protected:
+    virtual void fixup() = 0;
+
     bool eventFilter( QObject *, QEvent * );
-
-    NumEdit     * e[3];
+    void updateArrows();
+    void layoutWidgets( int digits );
+    
+    QToolButton * up, * down;
+    NumEdit     * ed[3];
     QLabel      * sep[2];
-    ArrowButton * up, * down;
-
+    QString lastValid[3];
+    
 protected slots:
-    void increase();
-    void decrease();
+    void stepUp();
+    void stepDown();
     void moveFocus();
 };
 
@@ -45,6 +50,7 @@ public:
     QDate date() const;
 
 protected:
+    void fixup();
     void resizeEvent( QResizeEvent * );
 };
 
@@ -58,6 +64,7 @@ public:
     QTime time() const;
 
 protected:
+    void fixup();
     void resizeEvent( QResizeEvent * );
 };
 
