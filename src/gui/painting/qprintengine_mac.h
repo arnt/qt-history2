@@ -90,5 +90,7 @@ public:
     bool newPage();
     bool abort();
     int metric( int ) const;
+private:
+    friend class QPrintDialogMac;
 };
 #endif

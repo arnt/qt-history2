@@ -16,6 +16,8 @@
 
 #if defined Q_WS_WIN
 #  include "qprintdialog_win.h"
+#elif defined Q_WS_MAC
+#  include "qprintdialog_mac.h"
 #else
 #  include "qprintdialog_unix.h"
 #endif
@@ -45,6 +47,8 @@ int QPrintDialog::exec()
     if (!d->platformDialog) {
 #if defined (Q_WS_WIN)
         d->platformDialog = new QPrintDialogWin(d->printer, parentWidget());
+#elif defined (Q_WS_MAC)
+        d->platformDialog = new QPrintDialogMac(d->printer, parentWidget());
 #else
         d->platformDialog = new QPrintDialogUnix(d->printer, parentWidget());
 #endif

@@ -23,7 +23,11 @@ win32: {
 }
 win32:LIBS += shell32.lib 	# the filedialog needs this library
 
-unix:{
+mac: {
+	SOURCES += dialogs/qprintdialog_mac.cpp
+	HEADERS += dialogs/qprintdialog_mac.h
+}
+else unix:{
 	SOURCES += dialogs/qprintdialog_unix.cpp
 	HEADERS += dialogs/qprintdialog_unix.h
 }
