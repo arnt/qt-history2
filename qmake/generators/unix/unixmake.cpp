@@ -81,7 +81,7 @@ UnixMakefileGenerator::init()
     bool is_qt = (project->first("TARGET") == "qt" || project->first("TARGET") == "qte" ||
 		  project->first("TARGET") == "qt-mt" || project->first("TARGET") == "qte-mt");
     bool extern_libs = !project->isEmpty("QMAKE_APP_FLAG") ||
-		       (!project->isEmpty("QMAKE_LIB_FLAG") && 
+		       (!project->isEmpty("QMAKE_LIB_FLAG") &&
 			project->isActiveConfig("dll")) || is_qt;
     if ( (!project->isEmpty("QMAKE_LIB_FLAG") && !project->isActiveConfig("staticlib") ) ||
 	 (project->isActiveConfig("qt") &&  project->isActiveConfig( "plugin" ) )) {
@@ -105,30 +105,30 @@ UnixMakefileGenerator::init()
 	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_RELEASE"];
 	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_RELEASE"];
     }
-    if(!project->isEmpty("QMAKE_INCREMENTAL")) 
+    if(!project->isEmpty("QMAKE_INCREMENTAL"))
 	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_INCREMENTAL"];
-    else if(!project->isEmpty("QMAKE_LFLAGS_PREBIND") && 
-	    !project->variables()["QMAKE_LIB_FLAG"].isEmpty() && 
+    else if(!project->isEmpty("QMAKE_LFLAGS_PREBIND") &&
+	    !project->variables()["QMAKE_LIB_FLAG"].isEmpty() &&
 	    project->isActiveConfig("dll"))
 	project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_PREBIND"];
-    if(!project->isEmpty("QMAKE_INCDIR")) 
+    if(!project->isEmpty("QMAKE_INCDIR"))
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR"];
-    if(!project->isEmpty("QMAKE_LIBDIR")) 
-	project->variables()["QMAKE_LIBDIR_FLAGS"] += project->variables()["QMAKE_LIBDIR"];
+    if(!project->isEmpty("QMAKE_LIBDIR"))
+	project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue( "QMAKE_LIBDIR", " -L", " -L", "" );
     if ( extern_libs && (project->isActiveConfig("qt") || project->isActiveConfig("opengl")) ) {
-	if(configs.findIndex("x11lib") == -1) 
+	if(configs.findIndex("x11lib") == -1)
 	    configs.append("x11lib");
 	if ( project->isActiveConfig("opengl") && configs.findIndex("x11inc") == -1 )
 	    configs.append("x11inc");
     }
     if ( project->isActiveConfig("x11") ) {
-	if(configs.findIndex("x11lib") == -1) 
+	if(configs.findIndex("x11lib") == -1)
 	    configs.append("x11lib");
-	if(configs.findIndex("x11inc") == -1) 
+	if(configs.findIndex("x11inc") == -1)
 	    configs.append("x11inc");
     }
     if ( project->isActiveConfig("qt") ) {
-	if ( project->isActiveConfig("accessibility" ) ) 
+	if ( project->isActiveConfig("accessibility" ) )
 	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_ACCESSIBILITY_SUPPORT");
 	if ( project->isActiveConfig("tablet") )
 	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_TABLET_SUPPORT");
@@ -146,9 +146,9 @@ UnixMakefileGenerator::init()
 		project->variables()["QMAKE_LIBDIR_FLAGS"].append("-L" +
 								  project->first("QMAKE_LIBDIR_QT"));
 	    }
-	    if (project->isActiveConfig("thread") && !project->isEmpty("QMAKE_LIBS_QT_THREAD")) 
+	    if (project->isActiveConfig("thread") && !project->isEmpty("QMAKE_LIBS_QT_THREAD"))
 		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_THREAD"];
-	    else 
+	    else
 		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT"];
 	}
     }
@@ -171,7 +171,7 @@ UnixMakefileGenerator::init()
 	}
 	if ( is_qt )
 	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL_QT"];
-	else 
+	else
 	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL"];
     }
     project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
@@ -182,7 +182,7 @@ UnixMakefileGenerator::init()
     if ( project->isActiveConfig("x11inc") )
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_X11"];
     if ( project->isActiveConfig("x11lib") ) {
-	if(!project->isEmpty("QMAKE_LIBDIR_X11")) 
+	if(!project->isEmpty("QMAKE_LIBDIR_X11"))
 	    project->variables()["QMAKE_LIBDIR_FLAGS"].append("-L" + project->first("QMAKE_LIBDIR_X11"));
 	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_X11"];
     }
@@ -217,25 +217,25 @@ UnixMakefileGenerator::init()
 	if(!project->isEmpty("QMAKE_APP_FLAG")) {
 	    if(project->isEmpty("DESTDIR"))
 		project->values("DESTDIR").append("");
-	    project->variables()["DESTDIR"].first() += project->variables()["TARGET"].first() + 
+	    project->variables()["DESTDIR"].first() += project->variables()["TARGET"].first() +
 						       ".app/Contents/MacOS/";
 	    project->variables()["QMAKE_PKGINFO"].append(project->first("DESTDIR") + "../PkgInfo");
 	    project->variables()["ALL_DEPS"] += project->first("QMAKE_PKGINFO");
 
-	    QString plist = specdir() + QDir::separator() + "Info.plist." + 
+	    QString plist = specdir() + QDir::separator() + "Info.plist." +
 			    project->first("TEMPLATE");
 	    if(QFile::exists(Option::fixPathToLocalOS(plist))) {
 		project->variables()["QMAKE_INFO_PLIST"].append(plist);
-		project->variables()["QMAKE_INFO_PLIST_OUT"].append(project->first("DESTDIR") + 
+		project->variables()["QMAKE_INFO_PLIST_OUT"].append(project->first("DESTDIR") +
 								    "../Info.plist");
 		project->variables()["ALL_DEPS"] += project->first("QMAKE_INFO_PLIST_OUT");
-		if(!project->isEmpty("RC_FILE")) 
+		if(!project->isEmpty("RC_FILE"))
 		    project->variables()["ALL_DEPS"] += project->first("DESTDIR") +
 							"../Resources/application.icns";
 	    }
 	}
     }
-    
+
     init2();
     project->variables()["QMAKE_INTERNAL_PRL_LIBS"] << "QMAKE_LIBDIR_FLAGS" << "QMAKE_LIBS";
 }
@@ -289,7 +289,7 @@ UnixMakefileGenerator::processPrlFiles()
 		    if(opt.left(2) == "-L") {
 			QString r = opt.right(opt.length() - 2), l = r;
 			fixEnvVariables(l);
-			libdirs.append(new MakefileDependDir(r.replace(QRegExp("\""),""), 
+			libdirs.append(new MakefileDependDir(r.replace(QRegExp("\""),""),
 							     l.replace(QRegExp("\""),"")));
 		    } else if(opt.left(2) == "-l") {
 			QString lib = opt.right(opt.length() - 2), prl;
@@ -299,7 +299,7 @@ UnixMakefileGenerator::processPrlFiles()
 				if(prl.left(mdd->local_dir.length()) == mdd->local_dir)
 				    prl.replace(0, mdd->local_dir.length(), mdd->real_dir);
 				QRegExp reg("^.*lib(" + lib + "[^.]*)\\..*$");
-				if(reg.exactMatch(prl)) 
+				if(reg.exactMatch(prl))
 				    prl = "-l" + reg.cap(1);
 				opt = prl;
 				ret = TRUE;
@@ -310,7 +310,7 @@ UnixMakefileGenerator::processPrlFiles()
 			l_out.append(opt);
 			++it;
 			opt = (*it);
-			QString prl = "/System/Library/Frameworks/" + opt + 
+			QString prl = "/System/Library/Frameworks/" + opt +
 				      ".framework/" + opt + Option::prl_ext;
 			if(processPrlFile(prl))
 			    ret = TRUE;
@@ -352,7 +352,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     if(project->first("TEMPLATE") == "app") {
 	target = "$(QMAKE_TARGET)";
 	if(project->isActiveConfig("resource_fork") && !project->isActiveConfig("console")) {
-	    destdir += "../../../";	    
+	    destdir += "../../../";
 	    target += ".app";
 	    resource = TRUE;
 	}
@@ -384,7 +384,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     fileFixify(dst_targ);
     if(!ret.isEmpty())
 	ret += "\n\t";
-    ret += QString(resource ? "-$(COPY_DIR)" : "-$(COPY)") + " \"" + 
+    ret += QString(resource ? "-$(COPY_DIR)" : "-$(COPY)") + " \"" +
 	   src_targ + "\" \"" + dst_targ + "\"";
     if(!project->isEmpty("QMAKE_STRIP")) {
 	ret += "\n\t-" + var("QMAKE_STRIP");
@@ -401,9 +401,9 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	uninst.append("-$(DEL_FILE) \"" + dst_targ + "\"");
     if(!links.isEmpty()) {
 	for(QStringList::Iterator it = links.begin(); it != links.end(); it++) {
-	    if(Option::target_mode == Option::TARG_WIN_MODE || 
+	    if(Option::target_mode == Option::TARG_WIN_MODE ||
 	       Option::target_mode == Option::TARG_MAC9_MODE) {
-	    } else if(Option::target_mode == Option::TARG_UNIX_MODE || 
+	    } else if(Option::target_mode == Option::TARG_UNIX_MODE ||
 		      Option::target_mode == Option::TARG_MACX_MODE) {
 		QString link = Option::fixPathToTargetOS(destdir + (*it), FALSE);
 		int lslash = link.findRev(Option::dir_sep);
