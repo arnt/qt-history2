@@ -72,7 +72,7 @@ QString Uic::fixString( const QString &str )
 QString Uic::trcall( const QString& sourceText, const QString& comment )
 {
     if ( sourceText.isEmpty() && comment.isEmpty() )
-	return "\"\"";
+	return "QString::null";
 
     QString t = trmacro;
     if ( t.isNull() ) {
