@@ -16,7 +16,7 @@
 
 #if defined (Q_OS_WIN32)
 #include <qt_windows.h>
-#include <qapplication.h>
+#include <qcoreapplication.h>
 #endif
 #include <qcorevariant.h>
 #include <qdatetime.h>
