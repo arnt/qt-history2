@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#116 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#117 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -17,9 +17,11 @@
 #include "qdrawutl.h"
 #include "qscrbar.h"				// qDrawArrow
 #include "qapp.h"
+#include "qbitmap.h"
+#include "qpmcache.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#116 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#117 $");
 
 
 // Motif style parameters
@@ -1005,8 +1007,8 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
     bool act	  = row == actItem;
     bool dis	  = (selfItem && !selfItem->isEnabled()) || !mi->isEnabled();
     QColorGroup itemg = dis ? palette().disabled()
-			    : act ? palette().active()
-			          : palette().normal();
+			: act ? palette().active()
+			: palette().normal();
 
     if ( !mi->isDirty() )
 	return;
@@ -1029,13 +1031,11 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 		QBrush b( g.mid() );
 		qDrawShadePanel( p, cm, cm, cellw-2*cm, cellh-2*cm,
 				 g, TRUE, 1, &b );
-	    } else {
-		if ( gs == WindowsStyle || 
-		     mi->pixmap() && mi->text() ) {
-		    QBrush b( g.background() );
-		    qDrawShadePanel( p, cm, cm, cellw-2*cm, cellh-2*cm,
-				     g, TRUE, 1, &b );
-		}
+	    } else if ( gs == WindowsStyle || 
+			mi->pixmap() && mi->text() ) {
+		QBrush b( g.background() );
+		qDrawShadePanel( p, cm, cm, cellw-2*cm, cellh-2*cm,
+				 g, TRUE, 1, &b );
 	    }
 	} else if ( !act ) {
 	    qDrawPlainRect( p, cm, cm, cellw-2*cm, cellh-2*cm, 
@@ -1062,10 +1062,28 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	    QRect cr( cm, cm, cellw-2*cm, cellh-2*cm );
 	    QRect pmr( 0, 0, pixw, pixh );
 	    pmr.moveCenter( cr.center() );
-	    p->drawPixmap( pmr.topLeft(), *pixmap );
+	    if ( style() == WindowsStyle && dis ) {
+		QString k;
+		k.sprintf( "$qt-drawitem-%x", pixmap->serialNumber() );
+		QPixmap * mask = QPixmapCache::find(k);
+		if ( !mask ) {
+		    mask = new QPixmap( pixmap->createHeuristicMask() );
+		    mask->setMask( *((QBitmap*)mask) );
+		    QPixmapCache::insert( k, mask );
+		}
+		p->setPen( itemg.light() );
+		p->drawPixmap( pmr.left()+1, pmr.top()+1, *mask );
+	    }
+		p->setPen( itemg.text() );
+		p->drawPixmap( pmr.topLeft(), *mask );
+	    } else {
+		p->setPen( itemg.text() );
+		p->drawPixmap( pmr.topLeft(), *pixmap );
+	    }
 	    if ( gs == WindowsStyle ) {
 		p->fillRect( cellw + 1, 0, rw - cellw - 1, cellh, 
-			     (act && !dis) ? QApplication::winStyleHighlightColor() : g.background());
+			     act ? QApplication::winStyleHighlightColor()
+			     : g.background());
 	    }
 	    return;
 	}
@@ -1076,10 +1094,12 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	if ( gs == WindowsStyle ) {
 	    if ( mi->isChecked() )
 		p->fillRect( cellw + 1, 0, rw - cellw - 1, cellh, 
-			     (act && !dis) ? QApplication::winStyleHighlightColor() : g.background() );
+			     act ? QApplication::winStyleHighlightColor()
+			     : g.background() );
 	    else
 		p->fillRect( 0, 0, rw, cellh, 
-			     (act && !dis) ? QApplication::winStyleHighlightColor() : g.background() );
+			     act ? QApplication::winStyleHighlightColor()
+			     : g.background() );
 	} else if ( gs == MotifStyle ) {
 	    if ( act && !dis )			// active item frame
 		qDrawShadePanel( p, 0, 0, rw, cellh, g, FALSE, pw );
@@ -1099,7 +1119,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
     }
 
     if ( gs == WindowsStyle )
-	p->setPen( (act && !dis) ? white : g.text() );
+	p->setPen( act ? white : g.text() );
     else
 	p->setPen( g.text() );
 
@@ -1116,7 +1136,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	int m = motifItemVMargin;
 	const int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
 	if ( t ) {				// draw text before tab
-	    if ( gs == WindowsStyle && dis ) {
+	    if ( gs == WindowsStyle && dis && !act ) {
 		p->setPen( g.light() );
 		p->drawText( x+1, m+1, cellw, cellh-2*m, text_flags,
 			     s, (int)((long)t-(long)s) );
@@ -1127,7 +1147,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 	    s = t + 1;
 	    x = tabMark();
 	}
-	if ( gs == WindowsStyle && dis ) {
+	if ( gs == WindowsStyle && dis && !act ) {
 	    p->setPen( g.light() );
 	    p->drawText( x+1, m+1, cellw, cellh-2*m, text_flags, s );
 	    p->setPen( discol );
@@ -1155,8 +1175,8 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
 		    row == actItem && gs == MotifStyle && mi->isEnabled(),
 		    cellw - motifArrowHMargin - dim,  cellh/2-dim/2,
 		    dim, dim, g,
-		    gs == MotifStyle && mi->isEnabled()
-		    || gs == WindowsStyle && (mi->isEnabled() || row == actItem ) );
+		    gs == MotifStyle && mi->isEnabled() ||
+		    gs == WindowsStyle && (mi->isEnabled() || row == actItem));
     }
     mi->setDirty( FALSE );
 }
