@@ -109,7 +109,8 @@ struct QLineEditPrivate {
 	dragEnabled( TRUE ),
 	preeditStart(-1),
 	preeditLength(-1),
-	txtBuffer( "" )
+	txtBuffer( "" ),
+	passwordChar( '*' )
     {
 	parag->formatter()->setWrapEnabled( FALSE );
 	cursor = new QTextCursor( 0 );
@@ -135,7 +136,7 @@ struct QLineEditPrivate {
 		res = QString::fromLatin1("");
 		break;
 	    case QLineEdit::Password:
-		res.fill( '*', parag->length() -1);
+		res.fill( passwordChar, parag->length() -1);
 		break;
 	}
 	return res;
@@ -211,6 +212,8 @@ struct QLineEditPrivate {
     bool dragEnabled;
     int preeditStart, preeditLength;
     QString txtBuffer;  // semi-persistant storage for text()
+    QChar passwordChar;
+    
 };
 
 QPixmap* QLineEditPrivate::pm = 0;
@@ -367,6 +370,15 @@ QLineEdit::~QLineEdit()
     delete d;
 }
 
+void QLineEdit::setPasswordChar( QChar c )
+{
+    d->passwordChar = c;
+}
+
+QChar QLineEdit::passwordChar() const
+{
+    return d->passwordChar;
+}
 
 /*! Contains initialization common to both constructors. */
 

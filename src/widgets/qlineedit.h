@@ -118,6 +118,7 @@ public:
     bool hasSelectedText() const;
     QString selectedText() const;
     bool getSelection( int *start, int *end );
+
     bool isUndoAvailable() const;
     bool isRedoAvailable() const;
 
@@ -125,6 +126,10 @@ public:
     bool hasMarkedText() const { return hasSelectedText(); }
     QString markedText() const { return selectedText(); }
 #endif
+
+    void 	setPasswordChar( QChar c );
+    QChar 	passwordChar() const;
+
     bool dragEnabled() const;
     int characterAt( int xpos, QChar *chr ) const;
 
