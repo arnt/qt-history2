@@ -54,6 +54,9 @@ class QVariant;
 class QMetaProperty;
 class QPostEventList;
 class QObjectPrivate;
+#ifndef QT_NO_USERDATA
+class QObjectUserData;
+#endif
 struct QUObject;
 
 class Q_EXPORT QObject: public Qt
@@ -134,6 +137,12 @@ public:
 #endif
 #endif //QT_NO_TRANSLATION
 
+#ifndef QT_NO_USERDATA
+    static uint registerUserData();
+    void setUserData( uint id, QObjectUserData* data);
+    QObjectUserData* userData( uint id ) const;
+#endif // QT_NO_USERDATA    
+
 signals:
     void	 destroyed();
     void	 destroyed( QObject* obj );
@@ -201,6 +210,14 @@ private:	// Disabled copy constructor and operator=
     QObject &operator=( const QObject & );
 #endif
 };
+
+
+#ifndef QT_NO_USERDATA
+class Q_EXPORT QObjectUserData {
+public:
+    virtual ~QObjectUserData();
+};
+#endif
 
 
 inline bool QObject::connect( const QObject *sender, const char *signal,

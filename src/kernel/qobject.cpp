@@ -51,13 +51,20 @@
 #include "qcursor.h"
 #include "qdatetime.h"
 #include <private/qucom_p.h>
+#include "qptrvector.h"
 
 #include <ctype.h>
 
-class QObjectPrivate
-{
+#ifndef QT_NO_USERDATA
+class QObjectPrivate : public QPtrVector<QObjectUserData> 
+{   
+public: 
+    QObjectPrivate( uint s ) : QPtrVector<QObjectUserData>(s){ setAutoDelete( TRUE ); }
 };
-
+#else
+class QObjectPrivate {
+}
+#endif
 
 /*! \class Qt qnamespace.h
 
@@ -438,6 +445,9 @@ QObject::~QObject()
 	}
 	delete childObjects;
     }
+    
+    if ( d )
+	delete d;
 }
 
 
@@ -2255,4 +2265,41 @@ QVariant QObject::property( const char *name ) const
 }
 
 #endif // QT_NO_PROPERTIES
+
+#ifndef QT_NO_USERDATA
+/*!\internal
+ */
+uint QObject::registerUserData()
+{
+    static int user_data_registration = 0;
+    return user_data_registration++;
+}
+
+/*!\internal
+ */
+QObjectUserData::~QObjectUserData()
+{
+}
+
+/*!\internal
+ */
+void QObject::setUserData( uint id, QObjectUserData* data)
+{
+    if ( !d )
+	d = new QObjectPrivate( id+1 );
+    if ( id >= d->size() )
+	d->resize( id+1 );
+    d->insert( id, data );
+}
+
+/*!\internal
+ */
+QObjectUserData* QObject::userData( uint id ) const
+{
+    if ( d && id < d->size() )
+	return d->at( id );
+    return 0;
+}
+
+#endif // QT_NO_USERDATA
 
