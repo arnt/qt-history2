@@ -201,6 +201,24 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
 	t << endl << endl;
     }
 
+    // user defined targets
+    QStringList &qut = project->variables()["QMAKE_EXTRA_WIN_TARGETS"];
+    for(QStringList::Iterator it = qut.begin(); it != qut.end(); ++it) {
+	QString targ = var((*it) + ".target"),
+		 cmd = var((*it) + ".commands"), deps;
+	if(targ.isEmpty())
+	    targ = (*it);
+	QStringList &deplist = project->variables()[(*it) + ".depends"];
+	for(QStringList::Iterator dep_it = deplist.begin(); dep_it != deplist.end(); ++dep_it) {
+	    QString dep = var((*dep_it) + ".target");
+	    if(dep.isEmpty())
+		dep = (*dep_it);
+	    deps += " " + dep;
+	}
+	t << "\n\n" << targ << ":" << deps << "\n\t"
+	  << cmd;
+    }
+
     if(project->variables()["QMAKE_NOFORCE"].isEmpty())
 	t << "FORCE:" << endl << endl;
 }

@@ -920,6 +920,11 @@ struct SubDir
 void
 UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 {
+    // blasted includes
+    QStringList &qeui = project->variables()["QMAKE_EXTRA_UNIX_INCLUDES"];
+    for(QStringList::Iterator qeui_it = qeui.begin(); qeui_it != qeui.end(); ++qeui_it)
+	t << "include " << (*qeui_it) << endl;
+
     QPtrList<SubDir> subdirs;
     {
 	QStringList subdirs_in = project->variables()["SUBDIRS"];
@@ -1043,6 +1048,23 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 	    t << "$(MAKE) -f " << (*it)->makefile << " $@; $(DEL_FILE) " << (*it)->makefile << "; ) || true";
 	}
 	t << endl << endl;
+    }
+    // user defined targets
+    QStringList &qut = project->variables()["QMAKE_EXTRA_UNIX_TARGETS"];
+    for(QStringList::Iterator qut_it = qut.begin(); qut_it != qut.end(); ++qut_it) {
+	QString targ = var((*qut_it) + ".target"),
+		 cmd = var((*qut_it) + ".commands"), deps;
+	if(targ.isEmpty())
+	    targ = (*qut_it);
+	QStringList &deplist = project->variables()[(*qut_it) + ".depends"];
+	for(QStringList::Iterator dep_it = deplist.begin(); dep_it != deplist.end(); ++dep_it) {
+	    QString dep = var((*dep_it) + ".target");
+	    if(dep.isEmpty())
+		dep = (*dep_it);
+	    deps += " " + dep;
+	}
+	t << targ << ":" << deps << "\n\t"
+	  << cmd << endl << endl;
     }
     t <<"FORCE:" << endl << endl;
 }
