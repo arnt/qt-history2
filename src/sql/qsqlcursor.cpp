@@ -55,11 +55,11 @@ public:
     ~QSqlCursorPrivate(){}
 
     int               lastAt;
-    QString           nm;
-    QSqlIndex         srt;
-    QString           ftr;
-    int               md;
-    QSqlIndex         priIndx;
+    QString           nm;         //name
+    QSqlIndex         srt;        //sort
+    QString           ftr;        //filter
+    int               md;         //mode
+    QSqlIndex         priIndx;    //primary index
     QSqlRecord        editBuffer;
     QSqlRecordInfo    infoBuffer;
 };
@@ -708,6 +708,8 @@ void QSqlCursor::setCalculated( const QString& name, bool calculated )
     if ( pos < 0 )
 	return;
     d->infoBuffer[ pos ].setCalculated( calculated );
+    if ( calculated )
+	setGenerated( pos, FALSE );
 }
 
 /*! Returns TRUE if the field \a name is calculated, otherwise FALSE is
