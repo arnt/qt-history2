@@ -2173,12 +2173,47 @@ int QFontMetrics::width( const QString &str, int len ) const
 	len = str.length();
     if (len == 0)
 	return 0;
-    if ( len == 1 )
-	return width( *str.unicode() );
 
-    QTextEngine layout( str, d );
-    layout.itemize( QTextEngine::WidthOnly );
-    return layout.width( 0, len );
+    int pos = 0;
+    int width = 0;
+#ifndef Q_WS_MAC
+    const QChar *ch = str.unicode();
+
+    while ( pos < len && ch->unicode() < QFontEngineData::widthCacheSize ) {
+	unsigned short uc = ch->unicode();
+	if ( d->engineData && d->engineData->widthCache[ uc ] )
+	    width += d->engineData->widthCache[ uc ];
+	else if ( ::category( *ch ) != QChar::Mark_NonSpacing ) {
+	    QFont::Script script;
+	    SCRIPT_FOR_CHAR( script, *ch );
+
+	    QFontEngine *engine = d->engineForScript( script );
+#ifdef QT_CHECK_STATE
+	    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
+	    glyph_t glyphs[8];
+	    advance_t advances[8];
+	    int nglyphs = 7;
+	    engine->stringToCMap( ch, 1, glyphs, advances, &nglyphs );
+
+	    // ### can nglyphs != 1 happen at all? Not currently I think
+	    if ( uc < QFontEngineData::widthCacheSize && advances[0] < 0x100 )
+		d->engineData->widthCache[ uc ] = advances[0];
+	    width += advances[0];
+	}
+	++pos;
+	++ch;
+    }
+    if ( pos < len ) {
+#endif
+	QTextEngine layout( str, d );
+	layout.itemize( QTextEngine::WidthOnly );
+	width += layout.width( pos, len-pos );
+#ifndef Q_WS_MAC
+    }
+#endif
+    return width;
 }
 #endif
 
