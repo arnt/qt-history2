@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qtextbrowser.cpp#2 $
+** $Id: //depot/qt/main/tests/richtextedit/qtextbrowser.cpp#3 $
 **
 ** Implementation of the QtTextView class
 **
@@ -30,7 +30,7 @@
 #include "qlayout.h"
 #include "qpainter.h"
 
-#include "qstack.h"
+#include "qvaluestack.h"
 #include "stdio.h"
 #include "qfile.h"
 #include "qtextstream.h"
@@ -87,8 +87,8 @@ public:
     QString buttonDown;
     QString highlight;
     QPoint lastClick;
-    QStack<QString> stack;
-    QStack<QString> forwardStack;
+    QValueStack<QString> stack;
+    QValueStack<QString> forwardStack;
     QString home;
     QString curmain;
 };
@@ -191,9 +191,9 @@ void QtTextBrowser::setSource(const QString& name)
     if ( !d->home )
 	d->home = url;
 
-    if ( d->stack.isEmpty() || *d->stack.top() != url) {
+    if ( d->stack.isEmpty() || d->stack.top() != url) {
 	emit backwardAvailable( !d->stack.isEmpty() );
-	d->stack.push(new QString( url ) );
+	d->stack.push( url );
     }
 
     if ( !mark.isEmpty() )
@@ -203,6 +203,19 @@ void QtTextBrowser::setSource(const QString& name)
 
     if ( isVisible() )
 	qApp->restoreOverrideCursor();
+    
+
+    QValueStack<int> stack;
+    stack.push( 1 );
+    stack.push( 2 );
+    stack.push( 3 );
+    while ( !stack.isEmpty() )
+	printf("pop item %d\n", stack.pop() );
+    
+    for ( QValueStack<QString>::Iterator s = d->stack.begin(); s != d->stack.end(); ++s ) {
+	qDebug("%s", (*s).latin1() );
+    }
+
 }
 
 /*!
@@ -216,7 +229,7 @@ QString QtTextBrowser::source() const
     if ( d->stack.isEmpty() )
 	return QString::null;
     else
-	return *d->stack.top();
+	return d->stack.top();
 }
 
 
@@ -269,9 +282,7 @@ void QtTextBrowser::backward()
     if ( d->stack.count() <= 1)
 	return;
     d->forwardStack.push( d->stack.pop() );
-    QString* ps = d->stack.pop();
-    setSource( *ps );
-    delete ps;
+    setSource( d->stack.pop() );
     emit forwardAvailable( TRUE );
 }
 
@@ -285,9 +296,7 @@ void QtTextBrowser::forward()
 {
     if ( d->forwardStack.isEmpty() )
 	return;
-    QString* ps = d->forwardStack.pop();
-    setSource( *ps );
-    delete ps;
+    setSource( d->forwardStack.pop() );
     emit forwardAvailable( !d->forwardStack.isEmpty() );
 }
 
@@ -372,12 +381,11 @@ QtTextCharFormat QtTextBrowser::formatAt(const QPoint& pos)
     QPoint realPos( contentsX() + pos.x(), contentsY() + pos.y() );
     QPainter p( viewport() );
     QFontMetrics fm( p.fontMetrics() );
-    int viewId = richText().viewId( this );
-    QtTextCursor tc( richText(), viewId );
+    QtTextCursor tc( richText() );
     tc.gotoParagraph( &p, &richText() );
     QtTextParagraph* b = tc.paragraph;
     while ( b && tc.referenceTop() <= contentsY() + visibleWidth() ) {
-	if ( b && b->dirty[viewId] ) {
+	if ( b && b->dirty ){
 	    tc.initParagraph( &p, b );
 	    tc.doLayout( &p, tc.referenceBottom() );
 	}
@@ -503,15 +511,14 @@ void QtTextBrowser::scrollToAnchor(const QString& name)
     qDebug("scroll to anchor %s", name.latin1() );
     QPainter p( viewport() );
     QFontMetrics fm( p.fontMetrics() );
-    int viewId = richText().viewId( this );
-    QtTextCursor tc( richText(), viewId );
+    QtTextCursor tc( richText() );
     tc.gotoParagraph( &p, &richText() );
     tc.makeLineLayout( &p, fm );
     tc.gotoLineStart( &p, fm );
     do {
 	if ( !tc.currentFormat()->anchorName().isEmpty() )
 	if ( tc.currentFormat()->anchorName() == name ) {
-	    resizeContents( viewport()->width(), richText().flow( viewId)->height );
+	    resizeContents( viewport()->width(), richText().flow()->height );
 	    setContentsPos( contentsX(), tc.lineGeometry().top() );
 	    return;
 	}

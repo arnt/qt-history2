@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#13 $
+** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#14 $
 **
 ** Implementation of the QtTextView class
 **
@@ -88,7 +88,6 @@ class QtTextViewData
 public:
     QStyleSheet* sheet_;
     QtRichText* doc_;
-    int viewId;
     QMimeSourceFactory* factory_;
     QString original_txt;
     QString txt;
@@ -152,7 +151,6 @@ void QtTextView::init()
     setHScrollBarMode( QScrollView::Auto );
 
     d->doc_ = 0;
-    d->viewId = 0;
     d->sheet_ = 0;
     d->factory_ = 0;
     d->txt = QString::fromLatin1("<p></p>");
@@ -193,7 +191,6 @@ void QtTextView::setText( const QString& text, const QString& context)
 {
     delete d->doc_;
     d->doc_ = 0;
-    d->viewId = 0;
 
     d->original_txt = text;
     d->contxt = context;
@@ -213,18 +210,18 @@ void QtTextView::setText( const QString& text, const QString& context)
 
 
     if ( isVisible() ) {
-	QtTextFlow* flow = richText().flow(d->viewId);
+	QtTextFlow* flow = richText().flow();
 	flow->x = 0;
 	delete d->fcresize;
-	d->fcresize = new QtTextCursor( richText(), d->viewId );
+	d->fcresize = new QtTextCursor( richText() );
 	d->fcresize->initFlow( flow, viewportSize(0,0).width() );
 	{
 	    QPainter p( viewport() );
 	    d->fcresize->initParagraph( &p, &richText() );
-	    d->fcresize->doLayout( &p, viewport()->height() + contentsY() );
+	    d->fcresize->doLayout( &p, viewport()->height() );
 	}
 	QSize vs( viewportSize( flow->widthUsed, flow->height ) );
-	if ( !verticalScrollBar()->isVisible() && vs.width() != viewportSize(0,0).width() ) { 
+	if ( vs.width() != viewportSize(0,0).width() ) {
 	    // we'll get a vertical scrollbar, it seems. Once again
 	    d->fcresize->initFlow( flow, vs.width() );
 	    {
@@ -234,24 +231,12 @@ void QtTextView::setText( const QString& text, const QString& context)
 	    }
 	}
 	setContentsPos( 0, 0 );
-	resizeContents( flow->widthUsed, flow->height );
+	resizeContents( flow->widthUsed-1, flow->height );
 	d->resizeTimer->start( 0, TRUE );
 	viewport()->repaint( FALSE );
     }
     setContentsPos( 0, 0 );
 
-}
-
-void QtTextView::setView( QtTextView* other )
-{
-    delete d->doc_;
-    d->doc_ =  &other->richText();
-    qDebug("set view %p", d->doc_ );
-    d->viewId = d->doc_->registerView( this );
-    qDebug("register view %d (%p)", d->viewId, this );
-
-    d->original_txt = other->d->original_txt;
-    d->contxt = other->d->contxt;
 }
 
 
@@ -283,9 +268,6 @@ void QtTextView::createRichText()
 
     d->doc_ = new QtRichText( d->txt, viewport()->font(), d->contxt,
 			     8, mimeSourceFactory(), (QtStyleSheet*)styleSheet() );
-    qDebug("create rich text for %p = %p", this, d->doc_ );
-    d->viewId = d->doc_->registerView( this );
-    qDebug("register view %d (%p)", d->viewId, this );
     if (d->doc_->attributes().contains("bgcolor")){
 	QColor  col ( d->doc_->attributes()["bgcolor"].latin1() );
 	if ( col.isValid() )
@@ -513,7 +495,7 @@ void QtTextView::drawContentsOffset(QPainter* p, int ox, int oy,
 {
     QRegion r(cx-ox, cy-oy, cw, ch);
 
-    QtTextCursor tc( richText(), d->viewId );
+    QtTextCursor tc( richText() );
     tc.gotoParagraph( p, &richText() );
     QtTextParagraph* b = tc.paragraph;
 
@@ -521,7 +503,7 @@ void QtTextView::drawContentsOffset(QPainter* p, int ox, int oy,
     QFontMetrics fm( p->fontMetrics() );
     while ( b && tc.referenceTop() <= cy + ch ) {
 	// this doesn't belong here...
-	if ( b && b->dirty[ d->viewId ] ) {
+	if ( b && b->dirty ) {
 	    tc.initParagraph( p, b );
 	    tc.doLayout( p, tc.referenceBottom() );
 	}
@@ -533,7 +515,7 @@ void QtTextView::drawContentsOffset(QPainter* p, int ox, int oy,
 		tc.makeLineLayout( p, fm );
 		QRect geom( tc.lineGeometry() );
 		if ( geom.bottom() > cy && geom.top() < cy+ch )
-		    tc.drawLine( p, ox, oy, r, paperColorGroup(), QtTextOptions(&paper() ) );
+		    tc.drawLine( p, ox, oy, cx, cy, cw, ch, r, paperColorGroup(), QtTextOptions(&paper() ) );
 	    }
 	    while ( tc.gotoNextLine( p, fm ) );
 	}
@@ -576,7 +558,7 @@ void QtTextView::doResize()
     QPainter p( viewport() );
     if ( !d->fcresize->doLayout( &p, d->fcresize->referenceBottom() + 1000 ) )
 	d->resizeTimer->start( 0, TRUE );
-    QtTextFlow* flow = richText().flow( d->viewId );
+    QtTextFlow* flow = richText().flow();
     resizeContents( flow->widthUsed-1, flow->height );
 }
 
@@ -586,7 +568,7 @@ void QtTextView::doResize()
 void QtTextView::paragraphChanged( QtTextParagraph* b)
 {
     QPainter p( viewport() );
-    QtTextCursor tc( richText(), d->viewId );
+    QtTextCursor tc( richText() );
     tc.gotoParagraph( &p, b );
     tc.updateParagraph( &p );
 }
@@ -597,11 +579,11 @@ void QtTextView::paragraphChanged( QtTextParagraph* b)
 void QtTextView::resizeEvent( QResizeEvent* e )
 {
     QScrollView::resizeEvent( e );
-    richText().invalidateLayout( d->viewId );
-    QtTextFlow* flow = richText().flow(d->viewId);
+    richText().invalidateLayout();
+    QtTextFlow* flow = richText().flow();
     flow->x = 0;
     delete d->fcresize;
-    d->fcresize = new QtTextCursor( richText(), d->viewId );
+    d->fcresize = new QtTextCursor( richText() );
     d->fcresize->initFlow( flow, viewport()->width() );
     {
 	QPainter p( viewport() );
@@ -609,7 +591,7 @@ void QtTextView::resizeEvent( QResizeEvent* e )
 	d->fcresize->doLayout( &p, viewport()->height() + contentsY() );
     }
     QSize vs( viewportSize( flow->widthUsed, flow->height ) );
-    if ( !verticalScrollBar()->isVisible() && vs.width() != viewport()->width() ) { 
+    if ( !verticalScrollBar()->isVisible() && vs.width() != viewport()->width() ) {
 	// we'll get a vertical scrollbar, it seems. Once again
 	d->fcresize->initFlow( flow, vs.width() );
 	{
@@ -620,6 +602,7 @@ void QtTextView::resizeEvent( QResizeEvent* e )
     }
     setContentsPos( 0, 0 );
     resizeContents( flow->widthUsed-1, flow->height );
+    qDebug("contents %d %d ", flow->widthUsed, flow->height );
     d->resizeTimer->start( 0, TRUE );
     viewport()->repaint( FALSE );
 }
@@ -752,15 +735,9 @@ void QtTextEdit::setText( const QString& text, const QString& context  )
 {
     QtTextView::setText( text, context );
     delete d->cursor;
-    d->cursor = new QtTextCursor( richText(), richText().viewId( this ) );
+    d->cursor = new QtTextCursor( richText() );
 }
 
-void QtTextEdit::setView( QtTextView* other )
-{
-    QtTextView::setView( other );
-    delete d->cursor;
-    d->cursor = new QtTextCursor( richText(), richText().viewId( this ) );
-}
 
 /*!
   Make a tree dump

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#14 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#15 $
 **
 ** Internal rich text classes
 **
@@ -29,7 +29,6 @@
 #include "qmime.h"
 #include "qformatstuff.h"
 
-#define MAXVIEWS 5
 
 class QtRichText;
 class QtTextCustomItem;
@@ -145,12 +144,11 @@ public:
 	return attributes_;
     }
 
-    int y[MAXVIEWS];
-    int height[MAXVIEWS];
-    bool dirty[MAXVIEWS];
-    QtTextFlow* flows[MAXVIEWS];
+    int y;
+    int height;
+    bool dirty;
 
-    QtTextFlow* flow( int view );
+    QtTextFlow* flow();
 
     inline int margin(QStyleSheetItem::Margin m) const
     {
@@ -207,11 +205,13 @@ public:
 	return parent?parent->alignment():QStyleSheetItem::AlignLeft;
     }
 
-    void invalidateLayout( int view );
+    void invalidateLayout();
 
 
 private:
     void init();
+protected:
+    QtTextFlow* flow_;
 };
 
 
@@ -219,15 +219,17 @@ class QtTextCustomItem : public Qt
 {
 public:
     QtTextCustomItem()
-	: width(0), height(0)
+	: width(-1), height(0)
     {}
     virtual ~QtTextCustomItem() {}
     virtual void draw(QPainter* p, int x, int y,
 		      int ox, int oy, int cx, int cy, int cw, int ch,
 		      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to) = 0;
 
+    virtual void realize( QPainter* ) { width = 0; }
+
     virtual bool expandsHorizontally() const { return FALSE; }
-    virtual void resize( int nwidth ){ width = nwidth; };
+    virtual void resize( QPainter*, int nwidth ){ width = nwidth; };
     int width;
     int height;
 };
@@ -246,6 +248,21 @@ private:
     QPixmap pm;
 };
 
+class QtTextInText: public QtTextCustomItem
+{
+public:
+    QtTextInText(const QMap<QString, QString> &attr, const QtTextCharFormat& fmt, const QString& context,
+		 const QMimeSourceFactory &factory, const QtStyleSheet *sheet, const QString& doc, int& pos );
+    ~QtTextInText();
+    void realize( QPainter* );
+    void draw(QPainter* p, int x, int y,
+	      int ox, int oy, int cx, int cy, int cw, int ch,
+	      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to);
+    
+private:
+    QtRichText* richtext;
+};
+
 class QtTextHorizontalLine : public QtTextCustomItem
 {
 public:
@@ -254,18 +271,16 @@ public:
     void draw(QPainter* p, int x, int y,
 	      int ox, int oy, int cx, int cy, int cw, int ch,
 	      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to);
-    
+
     bool expandsHorizontally() const { return TRUE; }
 private:
 };
 
 class QtTextCursor {
  public:
-    QtTextCursor(QtRichText& document, int view);
+    QtTextCursor(QtRichText& document );
     ~QtTextCursor();
 
-
-    int viewId;
 
     QtTextParagraph* paragraph;
     QtTextFlow* flow;
@@ -293,7 +308,8 @@ class QtTextCursor {
     void makeLineLayout( QPainter* p, const QFontMetrics& fm );
     bool gotoNextLine( QPainter* p, const QFontMetrics& fm );
     void gotoLineStart( QPainter* p, const QFontMetrics& fm );
-    void drawLine( QPainter* p, int ox, int oy,
+    void drawLine( QPainter* p, int ox, int oy, 
+		   int cx, int cy, int cw, int ch, 
 		   QRegion& backgroundRegion,
 		   const QColorGroup& cg, const QtTextOptions& to );
     void drawLabel( QPainter* p, QtTextParagraph* par, int x, int y, int w, int h, int ox, int oy,
@@ -372,23 +388,26 @@ public:
     QtRichText( const QString &doc, const QFont& fnt = QApplication::font(),
 	       const QString& context = QString::null,
 	       int margin = 8, const QMimeSourceFactory* factory = 0, const QtStyleSheet* sheet = 0 );
+    QtRichText( const QString &doc, int& pos, const QtTextCharFormat& fmt,
+	       const QString& context = QString::null,
+	       int margin = 8, const QMimeSourceFactory* factory = 0, const QtStyleSheet* sheet = 0 );
     ~QtRichText();
 
     bool isValid() const;
 
     QString context() const;
     void dump();
+    
+    void draw(QPainter* p, int x, int y,
+	      int ox, int oy, int cx, int cy, int cw, int ch,
+	      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to);
+    
+    void doLayout( QPainter* p, int nwidth );
 
-    int registerView( QtTextView* v );
-    int viewId( QtTextView* v );
-    QtTextView* view( int id );
 
-    void updateViews( QtTextParagraph* b, int excludeView );
 
 private:
-    QtTextView* views[MAXVIEWS];
-    int nviews;
-    void init( const QString& doc, const QFont& fnt, int margin = 8 );
+    void init( const QString& doc, int& pos, int margin = 8 );
 
     bool parse (QtTextParagraph* current, const QStyleSheetItem* cursty, QtTextParagraph* dummy,
 		QtTextCharFormat fmt, const QString& doc, int& pos);

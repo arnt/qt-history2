@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#19 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#20 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -166,7 +166,8 @@ QtRichText::QtRichText( const QString &doc, const QFont& font,
     // for access during parsing only
     sheet_ = sheet? sheet : (QtStyleSheet*)QtStyleSheet::defaultSheet();
 
-    init( doc, font, margin );
+    int pos = 0;
+    init( doc, pos, margin );
 
     // clear references that are no longer needed
     factory_ = 0;
@@ -174,16 +175,36 @@ QtRichText::QtRichText( const QString &doc, const QFont& font,
 }
 
 
-void QtRichText::init( const QString& doc, const QFont& font, int margin )
+// constructor for nested text in text (tables, etc. Not yet finished.
+QtRichText::QtRichText( const QString &doc, int& pos, const QtTextCharFormat& fmt,
+		      const QString& context,
+		      int margin,  const QMimeSourceFactory* factory, const QtStyleSheet* sheet  )
+    :QtTextParagraph( 0, new QtTextFormatCollection(),
+	    QtTextCharFormat( fmt ),
+	    (base = new QStyleSheetItem( 0, QString::fromLatin1(""))) )
 {
-    int i;
-    for (i = 0; i < MAXVIEWS; i++)
-	views[i] = 0;
-    for (i = 0; i < MAXVIEWS; i++)
-	flows[i] = new QtTextFlow();
-    nviews = 0;
+    contxt = context;
+
+    // for access during parsing only
+    factory_ = factory? factory : QMimeSourceFactory::defaultFactory();
+    // for access during parsing only
+    sheet_ = sheet? sheet : (QtStyleSheet*)QtStyleSheet::defaultSheet();
+
+    init( doc, pos, margin );
+
+    // clear references that are no longer needed
+    factory_ = 0;
+    sheet_ = 0;
+}
+
+
+void QtRichText::init( const QString& doc, int& pos, int margin )
+{
+    if ( !flow_ )
+	flow_ = new QtTextFlow();
 
     //set up base style
+    QFont font( format.font() );
     base->setDisplayMode(QStyleSheetItem::DisplayInline);
     base->setFontFamily( font.family() );
     base->setFontItalic( font.italic() );
@@ -196,8 +217,6 @@ void QtRichText::init( const QString& doc, const QFont& font, int margin )
     nullstyle = new QStyleSheetItem( (QtStyleSheet*)sheet_, QString::fromLatin1(""));
 
     valid = TRUE;
-    int pos = 0;
-
     QTime before = QTime::currentTime();
     parse(this, base, 0, format, doc, pos);
     qDebug("parse time used: %d", ( before.msecsTo( QTime::currentTime() ) ) );
@@ -205,42 +224,10 @@ void QtRichText::init( const QString& doc, const QFont& font, int margin )
 
 QtRichText::~QtRichText()
 {
-    for (int i = 0; i < MAXVIEWS; i++)
-	delete flows[i];
     delete base;
 }
 
 
-int QtRichText::registerView( QtTextView* v )
-{
-    //###### make dynamic
-    views[nviews++] = v;
-    return nviews-1;
-}
-
-int QtRichText::viewId( QtTextView* v )
-{
-    for ( int i = 0; i < MAXVIEWS; i++ ) {
-	if (  views[i] == v )
-	    return i;
-    }
-    return -1;
-}
-
-
-QtTextView* QtRichText::view( int id )
-{
-    return views[id];
-}
-
-
-void QtRichText::updateViews( QtTextParagraph* b, int excludeView )
-{
-    for ( int i = 0; i < nviews; i++ ) {
-	if ( i != excludeView )
-	    views[i]->paragraphChanged( b );
-    }
-}
 
 void QtRichText::dump()
 {
@@ -330,18 +317,35 @@ bool QtRichText::parse (QtTextParagraph* current, const QStyleSheetItem* curstyl
 			eatSpace(doc, pos);
 		}
 	    }
+	    else if ( tagname == "table" ) {
+		QtTextCharFormat nfmt( fmt.makeTextFormat( nstyle, attr ) );
+		custom = new QtTextInText( attr, nfmt, contxt, *factory_, sheet_, doc, pos );
+		(dummy?dummy:current)->text.append( "", fmt.makeTextFormat( nstyle, attr, custom )  );
+		(void) eatSpace(doc, pos);
+		int recoverPos = pos;
+		valid = (hasPrefix(doc, pos, QChar('<'))
+			 && hasPrefix(doc, pos+1, QChar('/'))
+			 && eatCloseTag(doc, pos, tagname) );
+		// sloppy mode, warning was done in eatCloseTag
+		if (!valid) {
+		    pos = recoverPos;
+		    valid = TRUE;
+		    return TRUE;
+		}
+	    }
 	    else if (nstyle->displayMode() == QStyleSheetItem::DisplayBlock
 		|| nstyle->displayMode() == QStyleSheetItem::DisplayListItem
 		|| nstyle->displayMode() == QStyleSheetItem::DisplayNone
 		) {
-		if ( !current->text.isEmpty() ) {
+		QtTextParagraph* subparagraph = new QtTextParagraph( current, formats, fmt.makeTextFormat(nstyle,attr), nstyle, attr );
+		if ( !current->text.isEmpty() || subparagraph->flow() != flow_ ) {
 		    dummy = new QtTextParagraph( current, formats, fmt, nullstyle );
 		    dummy->text = current->text;
 		    dummy->text.append( "*", fmt );
 		    current->text.clear();
 		    current->child = dummy;
+		    qDebug("create dummy 1");
 		}
-		QtTextParagraph* subparagraph = new QtTextParagraph( current, formats, fmt.makeTextFormat(nstyle,attr), nstyle, attr );
 		
 		bool recover = FALSE;
 		if (parse( subparagraph, nstyle, 0, subparagraph->format, doc, pos) ) {
@@ -396,22 +400,22 @@ bool QtRichText::parse (QtTextParagraph* current, const QStyleSheetItem* curstyl
 			valid = TRUE;
 			return TRUE;
 		    }
-		    if (!valid)
-			return TRUE;
 		}
 	    }
 	}
 	else { // plain text
 	    if ( current->child && !dummy ) {
 		dummy = new QtTextParagraph( current, formats, fmt,  nullstyle );
-		    QtTextParagraph* it = current->child;
-		    while ( it->next )
-			it = it->next;
-		    it->next = dummy;
-		    dummy->prev = it;
+		qDebug("create dummy 2(%d)", current->text.isEmpty());
+		QtTextParagraph* it = current->child;
+		while ( it->next )
+		    it = it->next;
+		it->next = dummy;
+		dummy->prev = it;
 	    }
  	    QString word = parsePlainText( doc, pos, pre, TRUE );
  	    if (valid){
+		qDebug("append word (%d)%s", dummy != 0, word.ascii() );
 		(dummy?dummy:current)->text.append( word, fmt );
 		if (!pre && (doc.unicode())[pos] == '<')
 		    (void) eatSpace(doc, pos);
@@ -839,6 +843,39 @@ bool QtRichText::eatCloseTag(const QString& doc, int& pos, const QString& open)
 
 
 
+// convenience function
+void QtRichText::draw(QPainter* p, int x, int y,
+		      int ox, int oy, int cx, int cy, int cw, int ch,
+		      QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to)
+{
+   QtTextCursor tc( *this );
+   QtTextParagraph* b = this;
+   QFontMetrics fm( p->fontMetrics() );
+   while ( b ) {
+       tc.gotoParagraph( p, b );
+       do {
+	   tc.makeLineLayout( p, fm );
+	   QRect geom( tc.lineGeometry() );
+	   if ( geom.bottom()+y > cy && geom.top()+y < cy+ch )
+	       tc.drawLine( p, ox-x, oy-y, cx-x, cy-y, cw, ch, backgroundRegion, cg, to );
+       }
+       while ( tc.gotoNextLine( p, fm ) );
+       b = tc.paragraph->nextInDocument();
+   }
+}
+
+
+// convenience function
+void QtRichText::doLayout( QPainter* p, int nwidth ) {
+    flow()->x = 0;
+    QtTextCursor fc( *this );
+    fc.initFlow( flow(), nwidth );
+    fc.initParagraph( p, this );
+    fc.doLayout( p );
+}
+    
+
+
 QtStyleSheet::QtStyleSheet( QObject *parent, const char *name )
     : QStyleSheet( parent, name )
 {
@@ -872,13 +909,13 @@ QtTextCustomItem* QtStyleSheet::tagEx( const QString& name,
 }
 
 
-void QtTextParagraph::invalidateLayout( int view )
+void QtTextParagraph::invalidateLayout()
 {
-    dirty[view] = TRUE;	
+    dirty = TRUE;	
     QtTextParagraph* b = child;
     while ( b ) {
-	b->dirty[view] = TRUE;
-	b->invalidateLayout( view );
+	b->dirty = TRUE;
+	b->invalidateLayout();
 	b = b->next;
     }
 }
@@ -952,20 +989,18 @@ void QtTextParagraph::init()
     bool multicol = style->name() == "multicol";
 
     child = next = prev = 0;
-    for (int i = 0; i < MAXVIEWS; i++) {
-	height[i] = y[i] = 0;
-	dirty[i] = TRUE;
-	if ( multicol ) {
-	    QString s ( attributes_["cols"] );
-	    bool ok;
-	    int n = s.toInt( &ok );
-	    if ( !ok || n < 1 )
-		n = 2;
-	    flows[i] = new QtTextFlow( parent?parent->flow(i):0, n );
-	}
-	else
-	    flows[i] = 0;
+    height = y = 0;
+    dirty = TRUE;
+    if ( multicol ) {
+	QString s ( attributes_["cols"] );
+	bool ok;
+	int n = s.toInt( &ok );
+	if ( !ok || n < 1 )
+	    n = 2;
+	flow_ = new QtTextFlow( parent?parent->flow():0, n );
     }
+    else
+	flow_ = 0;
 }
 
 QtTextParagraph::~QtTextParagraph()
@@ -977,6 +1012,7 @@ QtTextParagraph::~QtTextParagraph()
 	child = child->next;
 	delete tmp;
     }
+    delete flow_;
 }
 
 QtTextParagraph* QtTextParagraph::nextInDocument()
@@ -1012,14 +1048,14 @@ QtTextParagraph* QtTextParagraph::prevInDocument()
 
 
 //####TODO slow
-QtTextFlow* QtTextParagraph::flow( int view )
+QtTextFlow* QtTextParagraph::flow()
 {
-    if ( flows[ view ] )
-	return flows[view];
+    if ( flow_ )
+	return flow_;
 //     else if ( prev )
 // 	return prev->flow( view );
     else if ( parent )
-	return parent->flow( view );
+	return parent->flow();
     return 0; // should not happen
 }
 
@@ -1155,9 +1191,8 @@ QtTextRichString& QtTextRichString::operator=( const QtTextRichString &other )
 }
 
 
-QtTextCursor::QtTextCursor(QtRichText& document, int view)
+QtTextCursor::QtTextCursor(QtRichText& document )
 {
-    viewId = view;
     doc = &document;
     paragraph = doc;
     first = y_ = width = widthUsed = height = base = fill = 0;
@@ -1192,11 +1227,10 @@ void QtTextCursor::initFlow( QtTextFlow* frm, int w )
  */
 void QtTextCursor::initParagraph( QPainter* p, QtTextParagraph* b )
 {
-	b->y[viewId] = y_;
-	b->height[viewId] = 0;
-	//	b->flows[viewId] = flow;
-	while ( b->child ) {
-	    b->child->y[viewId] = b->y[viewId];
+	b->y = y_;
+	b->height = 0;
+	while ( b->child  ) {
+	    b->child->y = b->y;
 	    b = b->child;
 	}
 	gotoParagraph( p, b );
@@ -1211,7 +1245,7 @@ void QtTextCursor::gotoParagraph( QPainter* p, QtTextParagraph* b )
     }
 
     paragraph = b;
-    flow = paragraph->flow( viewId );
+    flow = paragraph->flow();
     if ( paragraph->text.isEmpty() )
 	paragraph->text.append( " ", paragraph->format );
 	
@@ -1219,7 +1253,7 @@ void QtTextCursor::gotoParagraph( QPainter* p, QtTextParagraph* b )
     last = first - 1;
 
 
-    y_ =  b->y[viewId];
+    y_ =  b->y;
     int m =  b->topMargin();
     if ( adjustFlowMode )
 	flow->adjustFlow( y_, widthUsed, m ) ;
@@ -1272,8 +1306,8 @@ bool QtTextCursor::gotoNextLine( QPainter* p, const QFontMetrics& fm )
 		flow->countFlow( y_, widthUsed, m );
 	    y_ += m;
 	}
-	paragraph->height[viewId] = y() - paragraph->y[viewId]; //####
-	paragraph->dirty[viewId] = FALSE;
+	paragraph->height = y() - paragraph->y; //####
+	paragraph->dirty = FALSE;
 	return FALSE;
     }
     current++;
@@ -1312,8 +1346,8 @@ void QtTextCursor::updateCharFormat( QPainter* p, const QFontMetrics& fm )
 
 
 void QtTextCursor::drawLabel( QPainter* p, QtTextParagraph* par, int x, int y, int w, int h, int ox, int oy,
-	   QRegion& backgroundRegion,
-	   const QColorGroup& cg, const QtTextOptions& to )
+			      QRegion& /*backgroundRegion*/,
+			      const QColorGroup& cg, const QtTextOptions& /*to*/ )
 {
     if ( !par->parent )
 	return;
@@ -1380,6 +1414,7 @@ void QtTextCursor::drawLabel( QPainter* p, QtTextParagraph* par, int x, int y, i
 }
 
 void QtTextCursor::drawLine( QPainter* p, int ox, int oy,
+		   int cx, int cy, int cw, int ch, 
 		    QRegion& backgroundRegion,
 		    const QColorGroup& cg, const QtTextOptions& to )
 {
@@ -1439,7 +1474,7 @@ void QtTextCursor::drawLine( QPainter* p, int ox, int oy,
 	if ( format->customItem() ) {
 	    int h = format->customItem()->height;
 	    format->customItem()->draw(p, gx+currentx, gy+base-h, ox, oy,
-				       0, 0, 0, 0, backgroundRegion, cg, to );
+				       cx, cy, cw, ch, backgroundRegion, cg, to );
 	}
 	else {
 	    c = paragraph->text.charAt( current );
@@ -1478,7 +1513,7 @@ bool QtTextCursor::rightOneItem( QPainter* p )
     if ( atEnd() ) {
 	QtTextParagraph* next = paragraph->nextInDocument();
 	if ( next ) {
-	    if ( next->dirty[ viewId ] ) {
+	    if ( next->dirty ) {
 		qDebug("rightOneItem: dirty, make layout**************");
 		doLayout( p );
 	    }
@@ -1613,12 +1648,11 @@ void QtTextCursor::insert( QPainter* p, const QString& text )
     }
     //update( p );
     updateParagraph( p );
-    doc->updateViews( paragraph, viewId );
 }
 
 void QtTextCursor::updateParagraph( QPainter* p )
 {
-     int ph = paragraph->height[viewId];
+     int ph = paragraph->height;
 
      QtTextCursor store ( *this );
      QFontMetrics fm( p->fontMetrics() );
@@ -1630,29 +1664,29 @@ void QtTextCursor::updateParagraph( QPainter* p )
 
 
 
-     if ( TRUE && ph != paragraph->height[viewId] ) { //## TODO optimize again
+     if ( TRUE && ph != paragraph->height ) { //## TODO optimize again
 	 // not sufficient.
 	 if ( paragraph->nextInDocument() )
-	     paragraph->nextInDocument()->invalidateLayout( viewId );
+	     paragraph->nextInDocument()->invalidateLayout();
      }
 
     p->end();
 
-    //##### bad design, use signal slots etc.
-    doc->view(viewId)->repaintContents(doc->view(viewId)->contentsX(),
-				       doc->view(viewId)->contentsY(),
-				       doc->view(viewId)->visibleWidth(),
-				       doc->view(viewId)->visibleHeight() , FALSE);
+//     //##### bad design, use signal slots etc.
+//     doc->view(viewId)->repaintContents(doc->view(viewId)->contentsX(),
+// 				       doc->view(viewId)->contentsY(),
+// 				       doc->view(viewId)->visibleWidth(),
+// 				       doc->view(viewId)->visibleHeight() , FALSE);
 
-    return;
-    if ( ph == paragraph->height[viewId] )
-	doc->view(viewId)->repaintContents( 0,
-				   paragraph->y[viewId], doc->view(viewId)->contentsWidth(),
-				   paragraph->height[viewId], FALSE );
-    else
-	doc->view(viewId)->repaintContents( 0,
-				   paragraph->y[viewId], doc->view(viewId)->contentsWidth(),
-				   doc->view(viewId)->viewport()->height(), FALSE );
+//     return;
+//     if ( ph == paragraph->height )
+// 	doc->view(viewId)->repaintContents( 0,
+// 				   paragraph->y, doc->view(viewId)->contentsWidth(),
+// 				   paragraph->height, FALSE );
+//     else
+// 	doc->view(viewId)->repaintContents( 0,
+// 				   paragraph->y, doc->view(viewId)->contentsWidth(),
+// 				   doc->view(viewId)->viewport()->height(), FALSE );
 
 }
 
@@ -1666,8 +1700,10 @@ void QtTextCursor::gotoNextItem( QPainter* p, const QFontMetrics& fm )
     QtTextCustomItem* custom = item->format->customItem();
 //     updateCharFormat( p, fm ); // optimize again
     if ( custom ) {
+	if ( custom->width < 0 )
+	    custom->realize( p );
 	if ( width >= 0 && custom->expandsHorizontally() )
-	    custom->resize( width - currentx - rmargin + fm.minRightBearing() - fm.width(' ' ) );
+	    custom->resize( p, width - currentx - rmargin + fm.minRightBearing() - fm.width(' ' ) );
 	currentx += custom->width;
     }
     else {
@@ -1818,15 +1854,15 @@ bool QtTextCursor::doLayout( QPainter* p, int ymax, QtTextFlow* backFlow )
     QtTextParagraph* b = paragraph;
     gotoParagraph( p, b );
     QtTextFlow* oldFlow = flow;
-    while ( b && b->flow( viewId ) != backFlow && ( ymax < 0 || y_ < ymax ) ) {
+    while ( b && b->flow() != backFlow && ( ymax < 0 || y_ < ymax ) ) {
 	do {
 	    makeLineLayout( p, fm );
 	}
 	while ( gotoNextLine( p, fm ) );
 	b = b->nextInDocument();
-	if ( b && b->flow( viewId ) != backFlow ) {
+	if ( b && b->flow() != backFlow ) {
 	    initParagraph( p, b );
-	    while ( b && b->flow( viewId ) != backFlow && oldFlow != flow ) { // a new flow, do it completely
+	    while ( b && b->flow() != backFlow && oldFlow != flow ) { // a new flow, do it completely
 		{
 		    flow->initialize( oldFlow->availableWidth( y_ ) );
 		    flow->x = 0;
@@ -1854,10 +1890,10 @@ bool QtTextCursor::doLayout( QPainter* p, int ymax, QtTextFlow* backFlow )
 		    y_ = flow->y + flow->height + 1;
 		    b = other.paragraph->nextInDocument();
 		}
-		if ( b && b->flow( viewId ) != backFlow)
+		if ( b && b->flow() != backFlow)
 		    initParagraph( p, b );
 	    }
-	    paragraph->dirty[viewId] = FALSE;
+	    paragraph->dirty = FALSE;
 	}
     };
     return b == 0;
@@ -1904,7 +1940,7 @@ int QtTextCursor::referenceTop()
 int QtTextCursor::referenceBottom()
 {
     if ( !flow->parent )
-	return lineGeometry().top() + paragraph->height[viewId];
+	return lineGeometry().top() + paragraph->height;
     else {
 	QtTextFlow* f = flow;
 	while ( f->parent->parent ) {
@@ -1990,18 +2026,6 @@ void QtTextFlow::adjustFlow( int  &yp, int w, int h, bool pages )
     if ( w > widthUsed )
 	widthUsed = w;
 
-    if ( ncols > 1 ) {
-   	if ( yp+h < colheight * ncols && yp % colheight  + h > colheight )
-   	    yp = (yp/colheight)*colheight + colheight;
-	if ( colheight  ) {
-	    if ( yp - ncols * colheight + colheight > height)
-		height = yp -  ncols * colheight + colheight;
-	}
-    } else {
-	if ( yp + h > height )
-	    height = yp + h;
-    }
-
 
     if ( pages ) { // check pages
 	int tx, ty;
@@ -2012,6 +2036,18 @@ void QtTextFlow::adjustFlow( int  &yp, int w, int h, bool pages )
  	else
 	    if ( yinpage + h > pagesize - 2 )
 	    yp += ( pagesize - yinpage ) + 2;
+    }
+
+    if ( ncols > 1 ) {
+   	if ( yp+h < colheight * ncols && yp % colheight  + h > colheight )
+   	    yp = (yp/colheight)*colheight + colheight;
+	if ( colheight  ) {
+	    if ( yp + h - ncols * colheight + colheight > height)
+		height = yp + h -  ncols * colheight + colheight;
+	}
+    } else {
+	if ( yp + h > height )
+	    height = yp + h;
     }
 
     height = QMAX( colheight, height );
@@ -2031,3 +2067,34 @@ void QtTextFlow::countFlow( int yp, int w, int h, bool pages )
 
 }
 
+
+QtTextInText::QtTextInText(const QMap<QString, QString> &attr, const QtTextCharFormat& fmt, const QString& context,
+	     const QMimeSourceFactory &factory, const QtStyleSheet *sheet, const QString& doc, int& pos )
+{
+    
+    richtext = new QtRichText( doc, pos, 
+			       fmt, context, 4, &factory, sheet );
+}
+
+QtTextInText::~QtTextInText()
+{
+    delete richtext;
+}
+
+void QtTextInText::realize( QPainter* p)
+{
+    richtext->doLayout(p, 200 );
+    
+    QtTextFlow* flow = richtext->flow();
+    
+    width = flow->widthUsed;
+    height = flow->height;
+}
+
+void QtTextInText::draw(QPainter* p, int x, int y,
+			int ox, int oy, int cx, int cy, int cw, int ch,
+			QRegion& backgroundRegion, const QColorGroup& cg, const QtTextOptions& to)
+{
+    richtext->draw(p, x, y, ox, oy, cx, cy, cw, ch, backgroundRegion, cg, to );
+    p->drawRect( x-ox, y-oy, width, height );
+}
