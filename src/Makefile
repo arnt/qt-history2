@@ -99,7 +99,7 @@ showdirs:
 	@echo $(DIRS)
 
 showfiles showheaders showsources showbeta:
-	set -e ; for d in $(DIRS); do $(MAKE) -C $$d $@ ; done
+	@set -e ; for a in $(DIRS) ; do $(MAKE) -s -C $$a $@ | fmt -1 | sed 's-^-'$${a}/- ; done
 
 dodepend:
 	$(MAKE) include
