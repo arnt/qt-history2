@@ -416,37 +416,52 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
 {
     Q_Q(QProcess);
 
-    HANDLE pipe = (processChannel == QProcess::StandardOutput)
-             ? standardReadPipe[0] : errorReadPipe[0];
-
     QTime start;
     start.start();
 
     int nextSleep = SLEEPMIN;
-    for (;;) {
-        DWORD bytesAvail = 0;
-        if (PeekNamedPipe(pipe, 0, 0, 0, &bytesAvail, 0) == 0 || bytesAvail != 0)
-            return true;
+    forever {
 
-        nextSleep = qMin(qMin(nextSleep, SLEEPMAX), msecs - start.elapsed());
-        if (nextSleep <= 0)
-            break;
-        Sleep(nextSleep);
-        nextSleep *= 2;
-
-        // try to empty the other buffer, if somthing is read rest the sleep time,
+        // try to empty the other buffer, if somthing is read reset the sleep time,
         // there may be more data soon
-        if (processChannel != QProcess::StandardOutput) {
-            if (bytesAvailableFromStdout()) {
+        if (processChannel == QProcess::StandardOutput) {
+            if (bytesAvailableFromStdout() != 0) {
                 canReadStandardOutput();
-                nextSleep = qMin(SLEEPMIN, msecs);
+                return true;
             }
-        } else {
-            if (bytesAvailableFromStderr()) {
+            if (bytesAvailableFromStderr() != 0) {
                 canReadStandardError();
                 nextSleep = qMin(SLEEPMIN, msecs);
+            } else {
+                nextSleep = qMin(qMin(nextSleep, SLEEPMAX), msecs - start.elapsed());
             }
+        } else {
+            if (bytesAvailableFromStderr() != 0) {
+                canReadStandardOutput();
+                return true;
+            }
+            if (bytesAvailableFromStdout() != 0) {
+                canReadStandardError();
+                nextSleep = qMin(SLEEPMIN, msecs);
+            } else {
+                nextSleep = qMin(qMin(nextSleep, SLEEPMAX), msecs - start.elapsed());
+            }      
         }
+
+        if (msecs <= start.elapsed())
+            break;
+
+        nextSleep = qMax(nextSleep, 0);
+
+        // instead of just slepping lets wait on the handle that way if it dies we 
+        // will atleast get that fast.
+        if (WaitForSingleObject(pid->hProcess, nextSleep) == WAIT_OBJECT_0) {
+            bool ret = processChannel == QProcess::StandardOutput ? bytesAvailableFromStdout() != 0
+                                                              : bytesAvailableFromStderr() != 0;
+            processDied();
+            return ret;
+        }
+        nextSleep *= 2;
     }
 
     processError = QProcess::Timedout;
@@ -474,7 +489,7 @@ bool QProcessPrivate::waitForFinished(int msecs)
     // so stopping a potential dead lock
 
     int nextSleep = qMin(SLEEPMIN, msecs);
-    for (;;) {
+    forever {
         if (WaitForSingleObject(pid->hProcess, nextSleep) == WAIT_OBJECT_0) {
             processDied();
             return true;
