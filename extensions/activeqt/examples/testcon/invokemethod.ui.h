@@ -18,16 +18,22 @@ void InvokeMethod::invoke()
     
     setValue();
     QCString method = comboMethods->currentText();
-    QVariant var[8];
-    int p = 0;
+    QValueList<QVariant> vars;
     QListViewItemIterator it( listParameters );
     while ( it.current() ) {
 	QListViewItem *parameter = it.current();
 	++it;
-	var[p] = parameter->text(2);
-	++p;
+	vars << parameter->text(2);
     }
-    QVariant result = activex->dynamicCall( method, var[0], var[1], var[2], var[3], var[4], var[5], var[6], var[7] );
+    QVariant result = activex->dynamicCall( method, vars );
+    it = QListViewItemIterator( listParameters );
+    int v = 0;
+    while ( it.current() ) {
+	QListViewItem *parameter = it.current();
+	++it;
+	parameter->setText( 2, vars[v++].toString() );
+    }
+
     QString resString = result.toString();
     QString resType = result.typeName();
     editReturn->setText( resType + " " + resString );
@@ -44,14 +50,17 @@ void InvokeMethod::methodSelected( const QString &method )
     const QUMethod *slot = data ? data->method : 0;
     if ( !slot )
 	return;
-    
+
     for ( int p = 0; p < slot->count; ++p ) {
 	const QUParameter *param = slot->parameters + p;
-	if ( !param || (param->inOut == QUParameter::Out ) )
+	if ( !param )
 	    continue;
-	QListViewItem *item = new QListViewItem( listParameters );
-	QString pname = param->name ? param->name : "<unnamed>";
-	item->setText( 0, pname );
+	QListViewItem *item = 0;
+	if ( param->inOut != QUParameter::Out ) {
+	    item = new QListViewItem( listParameters );
+	    QString pname = param->name ? param->name : "<unnamed>";
+	    item->setText( 0, pname );
+	}
 	QString ptype;
 	if ( !param->type ) {
 	    ptype = "<unknown type>";
@@ -63,7 +72,11 @@ void InvokeMethod::methodSelected( const QString &method )
 	} else {
 	    ptype = param->type->desc();
 	}
-	item->setText( 1, ptype );
+	if ( !item ) {
+	    editReturn->setText( ptype );
+	} else {
+	    item->setText( 1, ptype );
+	}
     }
     if ( slot->count ) {
 	listParameters->setCurrentItem( listParameters->firstChild() );
