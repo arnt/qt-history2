@@ -746,6 +746,10 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
     QPixmap pm;
     QWidget *widget = QWidget::find( window );
     if ( widget ) {
+	if(w == -1)
+	    w = widget->width() - x;
+	if(h == -1)
+	    h = widget->height() - y;
 	pm = QPixmap(w, h, 32);
 	bitBlt(&pm, 0, 0, widget, x, y, w, h);
     }
