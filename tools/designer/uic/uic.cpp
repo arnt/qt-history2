@@ -130,6 +130,8 @@ Uic::Uic( const QString &fn, const char *outputFn, QTextStream &outStream,
 
     stdsetdef = toBool( doc.firstChild().toElement().attribute("stdsetdef") );
 
+    if ( doc.firstChild().isNull() || doc.firstChild().firstChild().isNull() )
+	return;
     QDomElement e = doc.firstChild().firstChild().toElement();
     QDomElement widget;
     while ( !e.isNull() ) {
