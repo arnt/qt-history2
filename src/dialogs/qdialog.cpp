@@ -633,6 +633,9 @@ void QDialog::adjustPositionInternal( QWidget*w, bool useRelPos)
 	int w, h;
 	QWidget * current = it.current();
 	++it;
+        if ( ! current->isVisible() )
+            continue;
+
 	w = current->geometry().x() - current->x();
 	h = current->geometry().y() - current->y();
 
