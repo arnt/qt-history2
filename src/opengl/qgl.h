@@ -38,17 +38,15 @@
 #ifndef QGL_H
 #define QGL_H
 
+#ifndef QT_H
+#include <qwidget.h>
+#endif // QT_H
 
 #if !defined(QT_CLEAN_NAMESPACE)
 #define QGL_VERSION	450
 #define QGL_VERSION_STR	"4.5"
 #define qGLVersion() qVersion()
 #endif
-
-
-#ifndef QT_H
-#include <qwidget.h>
-#endif // QT_H
 
 #if !(defined(Q_WGL) || defined(Q_GLX))
 #if defined(Q_OS_WIN32)
@@ -139,14 +137,17 @@ public:
     static bool		hasOpenGL();
     static bool		hasOpenGLOverlays();
 
-    friend bool		operator==( const QGLFormat&, const QGLFormat& );
-    friend bool		operator!=( const QGLFormat&, const QGLFormat& );
+    friend Q_EXPORT bool operator==( const QGLFormat&, const QGLFormat& );
+    friend Q_EXPORT bool operator!=( const QGLFormat&, const QGLFormat& );
     
 private:
     uint opts;
     int pln;
 };
 
+
+Q_EXPORT bool operator==( const QGLFormat&, const QGLFormat& );
+Q_EXPORT bool operator!=( const QGLFormat&, const QGLFormat& );
 
 
 class Q_EXPORT QGLContext : public QGL
