@@ -842,15 +842,16 @@ void QAction::addedTo( int index, QPopupMenu *menu )
 void QAction::showStatusText( const QString& text )
 {
 #ifndef QT_NO_STATUSBAR
-    QObject* par;
-    if ( ( par = parent() ) && par->inherits( "QActionGroup" ) )
-	par = par->parent();
-    if ( !par || !par->isWidgetType() )
-	return;
+    QObject* par = parent();
+    QObject* lpar = 0;
     QStatusBar *bar = 0;
-    bar = (QStatusBar*)( (QWidget*)par )->topLevelWidget()->child( 0, "QStatusBar", FALSE );
-    if ( !bar ) {
-	QObjectList *l = ( (QWidget*)par )->topLevelWidget()->queryList( "QStatusBar" );
+    while ( par && !bar ) {
+	lpar = par;
+	bar = (QStatusBar*)par->child( 0, "QStatusBar", FALSE );
+	par = par->parent();
+    }
+    if ( !bar && lpar ) {
+	QObjectList *l = lpar->queryList( "QStatusBar" );
 	if ( !l )
 	    return;
 	// #### hopefully the last one is the one of the mainwindow...
