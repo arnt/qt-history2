@@ -403,25 +403,17 @@
   (space and end of string aren't non-word boundaries), but it would
   match in "t<u>on</u>ne".
 
-  \i <b>(?=\e E)</b> Positive lookahead. This assertion is true
-  if the expression matches at this point in the regexp. This assertion
-  does not match any characters. For example,
-  <b>^#define\s+(\w+)(?=MAX)</b> will match strings which begin with
-  '#define' followed by at least one whitespace followed by at least
-  one word character followed by 'MAX'. The first set of parentheses
-  will capture the word character(s) matched. This regexp will not
-  match '#define DEBUG' but will match '#define <u>INT</u>MAX
-  32767'.
+  \i <b>(?=\e E)</b> Positive lookahead. This assertion is true if
+  the expression matches at this point in the regexp. For example,
+  <b>const(?=\\s+char)</b> matches 'const' whenever it is followed by
+  'char', as in 'static <u>const</u> char *'. (Compare with
+  <b>const\\s+char</b>, which matches 'static <u>const char</u> *'.)
 
   \i <b>(?!\e E)</b> Negative lookahead. This assertion is true
-  if the expression does not match at this point in the regexp. This
-  assertion does not match any characters. For example,
-  <b>^#define\s+(\w+)\s*$</b> will match strings which begin with
-  '#define' followed by at least one whitespace followed by at least
-  one word character optionally followed by whitespace. This regexp
-  will match define's that exist but have no value, i.e. it will not
-  match '#define INTMAX 32767' but it will match '#define <u>DEBUG</u>'.
-
+  if the expression does not match at this point in the regexp. For
+  example, <b>const(?!\\s+char)</b> matches 'const' \e except when
+  it is followed by 'char'.
+  
   \endlist
 
   \target wildcard-matching
