@@ -89,6 +89,10 @@ QVariant::Type qDecodePSQLType( int t )
 	type = QVariant::Time;
 	break;
     case TIMESTAMPOID   :
+#ifdef DATETIMEOID
+    // Postgres 6.x datetime workaround
+    case DATETIMEOID    :
+#endif
 	type = QVariant::DateTime;
 	break;
     case POINTOID       :
@@ -690,15 +694,16 @@ QString QPSQLDriver::formatValue( const QSqlField* field,
     if ( field->isNull() ) {
 	r = nullText();
     } else if ( field->type() == QVariant::DateTime ) {
-	if ( field->value().toDateTime().isValid() ){
+	if ( field->value().toDateTime().isValid() ) {
 	    QDate dt = field->value().toDateTime().date();
 	    QTime tm = field->value().toDateTime().time();
 	    r = "'" + QString::number(dt.year()) + "-" +
 		QString::number(dt.month()) + "-" +
 		QString::number(dt.day()) + " " +
 		tm.toString() + "'";
-	} else
+	} else {
 	    r = nullText();
+	}
     } else if ( field->type() == QVariant::Bool ) {
 	if ( field->value().toBool() )
 	    r = "TRUE";
