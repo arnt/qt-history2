@@ -1,4 +1,4 @@
-Z/****************************************************************************
+/****************************************************************************
 ** $Id$
 **
 ** Implementation of QToolBox widget class
@@ -34,7 +34,6 @@ Z/****************************************************************************
 ** not clear to you.
 **
 **********************************************************************/
-
 #include "qtoolbox.h"
 
 #ifndef QT_NO_TOOLBOX
@@ -46,7 +45,7 @@ Z/****************************************************************************
 #include <qstyle.h>
 #include <qapplication.h>
 #include <qlayout.h>
-#include <qvaluelist.h>
+#include <qlist.h>
 #include <qtooltip.h>
 #include <qeventloop.h>
 #include <qdatetime.h>
@@ -110,7 +109,7 @@ public:
 	    return widget == other.widget;
 	}
     };
-    typedef QValueList<Page> PageList;
+    typedef QList<Page> PageList;
 
     inline QToolBoxPrivate()
 	: currentPage( 0 )
@@ -141,7 +140,7 @@ QToolBoxPrivate::Page *QToolBoxPrivate::page( QWidget *widget )
 QToolBoxPrivate::Page *QToolBoxPrivate::page( int index )
 {
     if (index >= 0 && index < pageList.size() )
-	return &*pageList.at(index);
+	return &pageList[index];
     return 0;
 }
 
@@ -369,7 +368,7 @@ int QToolBox::insertItem( int index, QWidget *item, const QIconSet &iconSet,
 	if ( index == 0 )
 	    setCurrentIndex( index );
     } else {
-	d->pageList.insert( d->pageList.at(index), c );
+	d->pageList.insert( index, c );
 	relayout();
 	if (d->currentPage) {
 	    QWidget *current = d->currentPage->widget;
@@ -523,7 +522,7 @@ QWidget *QToolBox::item( int index ) const
 {
     if ( index < 0 || index >= (int) d->pageList.size() )
 	return 0;
-    return (*d->pageList.at( index )).widget;
+    return d->pageList.at(index).widget;
 }
 
 /*!

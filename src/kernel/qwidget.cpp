@@ -5511,9 +5511,6 @@ void  QWidget::reparent( QWidget *parent, const QPoint & p,
 
     \sa showNormal(), showMaximized(), show(), hide(), isVisible()
 */
-#if (QT_VERSION-0 >= 0x040000)
-#error "QWidget::showFullScreen() should be virtual (see change #16156)"
-#endif
 
 #ifdef Q_OS_TEMP
 #define SHFS_HIDETASKBAR            0x0002
