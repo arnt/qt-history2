@@ -108,7 +108,7 @@ int qFieldSize( const QOCIPrivate* p, ub4 i )
 			p->err );
 #ifdef CHECK_RANGE
 	if ( r != 0 )
-	    qWarning( "qMakeField: " + qOraWarn( p ) );
+	    qWarning( "qFieldSize: " + qOraWarn( p ) );
 #endif
 //         r = OCIAttrGet( (dvoid*) param,
 // 			OCI_DTYPE_PARAM,
@@ -126,7 +126,7 @@ int qFieldSize( const QOCIPrivate* p, ub4 i )
 // 	    colLength = 0;
 
     }
-    qDebug("field length:" + QString::number(colLength));
+    //    qDebug("field length:" + QString::number(colLength));
     return colLength;
 }
 
@@ -752,7 +752,7 @@ QSqlFieldList QOCIDriver::fields( const QString& tablename ) const
 		  "and b.column_name = c.column_name "
 		  "and b.table_name = a.table_name;");
     t.setQuery( stmt2.arg( tablename.upper() ) );
-    while ( t.next() ) 
+    while ( t.next() )
 	fil.field( t.value(0).toString() )->setPrimaryIndex( TRUE );
     return fil;
 }
