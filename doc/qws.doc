@@ -9,8 +9,8 @@ to be modified for other platforms.
 <h3>  Unpack the archive if you have not done so already:</h3>
 <pre>
 	cd &lt;anywhere&gt;
-	gunzip qt-qws-<i>version</i>.tar.gz    # uncompress the archive
-	tar xf qt-qws-<i>version</i>.tar       # unpack it
+	gunzip qt-embedded-<i>version</i>-commercial.tar.gz    # uncompress the archive
+	tar xf qt-embedded-<i>version</i>-commercial.tar       # unpack it
 </pre>
 
   This document assumes that the archive is installed as <tt>~/qt-<i>version</i></tt>.
