@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#44 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xos.h>
 #include <X11/cursorfont.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#43 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcursor_x11.cpp#44 $");
 
 
 /*****************************************************************************
@@ -360,6 +360,13 @@ QPoint QCursor::pos()
 
 void QCursor::setPos( int x, int y )
 {
+    // Need to check, since some X servers generate null mouse move
+    // events, causing looping in applications which call setPos() on
+    // every mouse move event.
+    //
+    if (pos() == QPoint(x,y))
+	return;
+
     XWarpPointer( qt_xdisplay(), None, qt_xrootwin(), 0, 0, 0, 0, x, y );
 }
 
