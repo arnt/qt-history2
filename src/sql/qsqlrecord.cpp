@@ -212,9 +212,9 @@ QString QSqlRecord::toString( const QString& prefix ) const
     QString pfix =  prefix.isNull() ? QString::null : prefix + ".";
     for ( uint i = 0; i < count(); ++i ){
 	if ( !field(i)->isCalculated() ) {
-	    pflist += pfix + field( i )->name();
-	    if( i != (count() - 1) )
+	    if( i > 0 )
 		pflist += ", ";
+	    pflist += pfix + field( i )->name();
 	}
     }
     return pflist;
