@@ -1794,9 +1794,11 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
             continue;
 
         if(flags & SubTargetOrdered) {
-            for(int target = 0; target < targets.size()-1; ++target) {
-                t << targets.at(target+1)->target << "-" << suffix << ": "
-                  << targets.at(target  )->target << "-" << suffix
+            for(int target = 0; target < targets.size(); ++target) {
+                t << targets.at(target)->target << "-" << suffix << "-ordered: ";
+                if(target)
+                    t << targets.at(target-1)->target << "-" << suffix << "-ordered ";
+                t << targets.at(target)->target << "-" << suffix
                   << "\n";
             }
         }
@@ -1804,6 +1806,8 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
         t << suffix << ":";
         for(int target = 0; target < targets.size(); ++target) {
             QString targetRule = targets.at(target)->target + "-" + suffix;
+            if(flags & SubTargetOrdered)
+                targetRule += "-ordered";
             t << " " << targetRule;
         }
         t << endl;
