@@ -241,7 +241,7 @@ bool QFile::open( int m )
 	if ( (st.st_mode & S_IFMT) != S_IFREG ) {
 	    // non-seekable
 	    setType( IO_Sequential );
-	    length = INT_MAX;
+	    length = LONG_LONG_MAX;
 	    ioIndex = 0;
 	} else {
 	    length = st.st_size;
@@ -253,7 +253,7 @@ bool QFile::open( int m )
 		if ( c != -1 ) {
 		    ungetch(c);
 		    setType( IO_Sequential );
-		    length = INT_MAX;
+		    length = LONG_LONG_MAX;
 		    ioIndex = 0;
 		}
 		resetStatus();
@@ -319,7 +319,7 @@ bool QFile::open( int m, FILE *f )
     if ( (st.st_mode & S_IFMT) != S_IFREG || f == stdin ) { //stdin is non seekable
 	// non-seekable
 	setType( IO_Sequential );
-	length = INT_MAX;
+	length = LONG_LONG_MAX;
 	ioIndex = 0;
     } else {
 	length = st.st_size;
@@ -330,7 +330,7 @@ bool QFile::open( int m, FILE *f )
 	    if ( c != -1 ) {
 		ungetch(c);
 		setType( IO_Sequential );
-		length = INT_MAX;
+		length = LONG_LONG_MAX;
 		ioIndex = 0;
 	    }
 	    resetStatus();
@@ -353,7 +353,7 @@ bool QFile::open( int m, FILE *f )
   functions.
 
   \warning If \a f is one of 0 (stdin), 1 (stdout) or 2 (stderr), you may not
-  be able to seek. size() is set to \c INT_MAX (in limits.h).
+  be able to seek. size() is set to \c LONG_LONG_MAX (in limits.h).
 
   \sa close()
 */
@@ -376,7 +376,7 @@ bool QFile::open( int m, int f )
     if ( (st.st_mode & S_IFMT) != S_IFREG || f == 0 ) { // stdin is not seekable...
 	// non-seekable
 	setType( IO_Sequential );
-	length = INT_MAX;
+	length = LONG_LONG_MAX;
 	ioIndex = 0;
     } else {
 	length = st.st_size;
@@ -387,7 +387,7 @@ bool QFile::open( int m, int f )
 	    if ( c != -1 ) {
 		ungetch(c);
 		setType( IO_Sequential );
-		length = INT_MAX;
+		length = LONG_LONG_MAX;
 		ioIndex = 0;
 	    }
 	    resetStatus();
