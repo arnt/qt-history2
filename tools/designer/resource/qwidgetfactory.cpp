@@ -251,21 +251,14 @@ QWidget *QWidgetFactory::create( QIODevice *dev, QObject *connector, QWidget *pa
 	}
 #endif
 
-	if ( !eventInterfaceManager ) {
-	    QString dir = getenv( "QTDIR" );
-	    dir += "/plugins";
+	QString dir = getenv( "QTDIR" );
+	dir += "/plugins";
+	if ( !eventInterfaceManager )
 	    eventInterfaceManager = new QInterfaceManager<EventInterface>( IID_EventInterface, dir, "*.dll; *.so" );
-	}
-	if ( !interpreterInterfaceManager ) {
-	    QString dir = getenv( "QTDIR" );
-	    dir += "/plugins";
+	if ( !interpreterInterfaceManager )
 	    interpreterInterfaceManager = new QInterfaceManager<InterpreterInterface>( IID_InterpreterInterface, dir, "*.dll; *.so" );
-	}
-	if ( !languageInterfaceManager ) {
-	    QString dir = getenv( "QTDIR" );
-	    dir += "/plugins";
+	if ( !languageInterfaceManager )
 	    languageInterfaceManager = new QInterfaceManager<LanguageInterface>( IID_LanguageInterface, dir, "*.dll; *.so" );
-	}
 
 	if ( eventInterfaceManager && interpreterInterfaceManager && languageInterfaceManager ) {
 	    QStringList langs = languageInterfaceManager->featureList();
