@@ -73,15 +73,14 @@ bool Parser::parse( const QString& commands, LocalSQLEnvironment *env )
     yyProg = env->program();
     yyNextLabel = -1;
     yyOK = TRUE;
-    yyNeedIndex[Nonunique].clear();
-    yyNeedIndex[Unique].clear();
+    for ( int i = 0; i < 4; i++ )
+	yyNeedIndex[i >> 1][i & 0x1].clear();
     yyOpenedTableMap.clear();
     yyAliasTableMap.clear();
     yyActiveTableMap.clear();
     yyActiveTableIds.clear();
     yyLookedUpColumnMap.clear();
-    yyFields.clear();
-    yyNumAggregateOccs = 0;
+    yyNumAggregateOccs = 0; // ### variable needed?
 
     matchSql();
     return yyOK;
@@ -111,12 +110,22 @@ enum { Tok_Eoi, Tok_Equal, Tok_NotEq, Tok_LessThan, Tok_GreaterThan,
        Tok_view, Tok_where, Tok_with, Tok_work };
 
 enum { Node_Abs, Node_Add, Node_And, Node_Avg, Node_Ceil, Node_Count,
-       Node_Divide, Node_Eq, Node_Field, Node_Floor, Node_GreaterEq,
-       Node_In, Node_Length, Node_LessThan, Node_Like, Node_Lower,
-       Node_Max, Node_Min, Node_Mod, Node_Multiply, Node_Not,
-       Node_NotEq, Node_Or, Node_Power, Node_Replace, Node_Sign,
-       Node_Soundex, Node_Star, Node_Substring, Node_Subtract,
-       Node_Sum, Node_Translate, Node_Upper };
+       Node_Divide, Node_Eq, Node_Floor, Node_GreaterEq, Node_In,
+       Node_Length, Node_LessThan, Node_Like, Node_Lower, Node_Max,
+       Node_Min, Node_Mod, Node_Multiply, Node_Not, Node_NotEq,
+       Node_Or, Node_Power, Node_Replace, Node_ResolvedField,
+       Node_ResultColumnNo, Node_Sign, Node_Soundex, Node_Star,
+       Node_Substring, Node_Subtract, Node_Sum, Node_Translate,
+       Node_UnresolvedField, Node_Upper };
+
+static QVariant resolvedField( int tableId, const QString& fieldName )
+{
+    QValueList<QVariant> f;
+    f.append( (int) Node_ResolvedField );
+    f.append( tableId );
+    f.append( fieldName );
+    return f;
+}
 
 #define HASH( first, omitted, last ) \
     ( ((((first) << 5) | (omitted)) << 7) | (last) )
@@ -126,7 +135,9 @@ enum { Node_Abs, Node_Add, Node_And, Node_Avg, Node_Ceil, Node_Count,
 
 void Parser::startTokenizer( const QString& in )
 {
+    static QRegExp comment( QString("--[^\n]*") );
     yyIn = in;
+    yyIn.replace( comment, QString::null );
     yyPos = 0;
     yyCurPos = 0;
     yyLexLen = 0;
@@ -530,14 +541,7 @@ int Parser::getToken()
 	    case ',':
 		return Tok_Comma;
 	    case '-':
-		if ( yyCh == '-' ) {
-		    do {
-			readChar();
-		    } while ( yyCh != '\n' );
-		} else {
-		    return Tok_Minus;
-		}
-		break;
+		return Tok_Minus;
 	    case '/':
 		return Tok_Div;
 	    case ':':
@@ -573,13 +577,27 @@ int Parser::getToken()
     return Tok_Eoi;
 }
 
-void Parser::lookupNames( QVariant *expr )
+int Parser::resolveTableId( const QString& tableName )
+{
+    QMap<QString, int>::ConstIterator id = yyAliasTableMap.find( tableName );
+    if ( id == yyAliasTableMap.end() )
+	id = yyActiveTableMap.find( tableName );
+    if ( id == yyActiveTableMap.end() ) {
+	error( "Cannot use table '%s' in this statement", tableName.latin1() );
+	return -1;
+    }
+    return *id;
+}
+
+void Parser::resolveFieldNames( QVariant *expr )
 {
     if ( expr->type() == QVariant::List ) {
 	QValueList<QVariant>::Iterator v = expr->asList().begin();
 	int node = (*v).toInt();
 
-	if ( node == Node_Field ) {
+	if ( node == Node_UnresolvedField ) {
+	    *v = (int) Node_ResolvedField;
+
 	    QValueList<QVariant>::Iterator updateMe = ++v;
 	    QString tableName = (*updateMe).toString();
 	    QString columnName = (*++v).toString();
@@ -608,36 +626,81 @@ void Parser::lookupNames( QVariant *expr )
 		    *updateMe = *id;
 		}
 	    } else {
-		id = yyAliasTableMap.find( tableName );
-		if ( id == yyAliasTableMap.end() )
-		    id = yyActiveTableMap.find( tableName );
-		if ( id == yyActiveTableMap.end() ) {
-		    error( "Table '%s' cannot be used in this statement",
-			   tableName.latin1() );
-		    id = yyAliasTableMap.insert( tableName, 666 );
-		}
-		*updateMe = *id;
+		*updateMe = resolveTableId( tableName );
 	    }
 	} else {
 	    ++v;
 	    while ( v != expr->asList().end() ) {
-		lookupNames( &*v );
+		resolveFieldNames( &*v );
 		++v;
 	    }
 	}
     }
 }
 
-void Parser::lookupNames( QValueList<QVariant> *exprs )
+void Parser::resolveFieldNames( QValueList<QVariant> *exprs )
 {
     QValueList<QVariant>::Iterator e = exprs->begin();
     while ( e != exprs->end() ) {
-	lookupNames( &*e );
+	resolveFieldNames( &*e );
 	++e;
     }
 }
 
-QVariant Parser::exprTypeInfo( const QVariant& expr )
+void Parser::resolveResultColumnNos( QVariant *expr,
+	const QMap<QString, QMap<int, int> >& resultColumnNos )
+{
+    if ( expr->type() == QVariant::List ) {
+	QValueList<QVariant>::Iterator v = expr->asList().begin();
+	int node = (*v).toInt();
+
+	if ( node == Node_ResolvedField ) {
+	    int no = columnNo( *expr, resultColumnNos );
+	    expr->asList().clear();
+	    expr->asList().append( (int) Node_ResultColumnNo );
+	    expr->asList().append( no );
+	} else {
+	    ++v;
+	    while ( v != expr->asList().end() ) {
+		resolveResultColumnNos( &*v, resultColumnNos );
+		++v;
+	    }
+	}
+    }
+}
+
+void Parser::resolveResultColumnNos( QValueList<QVariant> *exprs,
+	const QMap<QString, QMap<int, int> >& resultColumnNos )
+{
+    QValueList<QVariant>::Iterator e = exprs->begin();
+    while ( e != exprs->end() ) {
+	resolveResultColumnNos( &*e, resultColumnNos );
+	++e;
+    }
+}
+
+void Parser::computeUsedFields( const QVariant& expr,
+				QMap<int, QStringList> *usedFields )
+{
+    if ( expr.type() == QVariant::List ) {
+	QValueList<QVariant>::ConstIterator v = expr.listBegin();
+	int node = (*v).toInt();
+
+	if ( node == Node_ResolvedField ) {
+	    int id = (*++v).toInt();
+	    QString field = (*++v).toString();
+	    if ( (*usedFields)[id].contains(field) == 0 )
+		(*usedFields)[id].append( field );
+	} else {
+	    while ( v != expr.listEnd() ) {
+		computeUsedFields( *v, usedFields );
+		++v;
+	    }
+	}
+    }
+}
+
+QVariant Parser::exprType( const QVariant& expr )
 {
     if ( expr.type() == QVariant::List ) {
 	QValueList<QVariant>::ConstIterator v = expr.listBegin();
@@ -679,10 +742,11 @@ QVariant Parser::exprTypeInfo( const QVariant& expr )
 	case Node_Max:
 	case Node_Min:
 	case Node_Sum:
+	    // type of sum(X) is type of X
 	    return expr.toList()[1];
 	case Node_Count:
 	    return (int) QVariant::Double;
-	case Node_Field:
+	case Node_ResolvedField:
 	    return expr;
 	default:
 	    return (int) QVariant::Invalid;
@@ -692,8 +756,7 @@ QVariant Parser::exprTypeInfo( const QVariant& expr )
     }
 }
 
-void Parser::emitExpr( const QVariant& expr, bool group, int trueLab,
-		       int falseLab )
+void Parser::emitExpr( const QVariant& expr, int trueLab, int falseLab )
 {
     /*
       An expression is an atom or a list. A list has the operator as
@@ -711,73 +774,69 @@ void Parser::emitExpr( const QVariant& expr, bool group, int trueLab,
 	int i;
 
 	switch ( node ) {
-	case Node_Avg:
-	    resultColumn = (*++v).toInt();
+    	case Node_Avg:
+	    resultColumn = (*++v).toList()[1].toInt();
 	    yyProg->append( new PushGroupAvg(0, resultColumn) );
 	    break;
 	case Node_And:
 	    nextCond = yyNextLabel--;
-	    emitExpr( *++v, group, nextCond, falseLab );
+	    emitExpr( *++v, nextCond, falseLab );
 	    yyProg->appendLabel( nextCond );
-	    emitExpr( *++v, group, trueLab, falseLab );
+	    emitExpr( *++v, trueLab, falseLab );
 	    break;
 	case Node_Count:
-	    resultColumn = (*++v).toInt();
+	    resultColumn = (*++v).toList()[1].toInt();
 	    yyProg->append( new PushGroupCount(0, resultColumn) );
 	    break;
-	case Node_Field:
-	    tableId = (*++v).toInt();
-	    field = (*++v).toString();
-	    if ( group ) {
-		fieldNo = *yyFields.insert( field, 0 );
-		yyProg->append( new PushGroupValue(0, fieldNo) );
-	    } else {
-		yyProg->append( new PushFieldValue(tableId, field) );
-	    }
-	    break;
 	case Node_In:
-	    emitExpr( *++v, group );
+	    emitExpr( *++v );
 	    yyProg->append( new Push(*++v) );
 	    yyProg->append( new In(trueLab, falseLab) );
 	    break;
 	case Node_Like:
-	    emitExpr( *++v, group );
+	    emitExpr( *++v );
 	    yyProg->append( new Like((*++v).toString(), trueLab, falseLab) );
 	    break;
 	case Node_Max:
-	    resultColumn = (*++v).toInt();
+	    resultColumn = (*++v).toList()[1].toInt();
 	    yyProg->append( new PushGroupMax(0, resultColumn) );
 	    break;
 	case Node_Min:
-	    resultColumn = (*++v).toInt();
+	    resultColumn = (*++v).toList()[1].toInt();
 	    yyProg->append( new PushGroupMin(0, resultColumn) );
 	    break;
 	case Node_Not:
-	    emitExpr( *++v, group, falseLab, trueLab );
+	    emitExpr( *++v, falseLab, trueLab );
 	    break;
 	case Node_Or:
 	    nextCond = yyNextLabel--;
-	    emitExpr( *++v, group, trueLab, nextCond );
+	    emitExpr( *++v, trueLab, nextCond );
 	    yyProg->appendLabel( nextCond );
-	    emitExpr( *++v, group, trueLab, falseLab );
+	    emitExpr( *++v, trueLab, falseLab );
+	    break;
+	case Node_ResolvedField:
+	    tableId = (*++v).toInt();
+	    field = (*++v).toString();
+	    yyProg->append( new PushFieldValue(tableId, field) );
+	    break;
+	case Node_ResultColumnNo:
+	    fieldNo = (*++v).toInt();
+	    yyProg->append( new PushGroupValue(0, fieldNo) );
 	    break;
 	case Node_Star:
 	    for ( i = 0; i < (int) yyActiveTableIds.count(); i++ ) {
 		tableId = yyActiveTableIds[i];
-		if ( group )
-		    error( "Invalid use of '*'" );
-		else
-		    yyProg->append( new PushStarValue(tableId) );
+		yyProg->append( new PushStarValue(tableId) );
 	    }
 	    break;
 	case Node_Sum:
-	    resultColumn = (*++v).toInt();
+	    resultColumn = (*++v).toList()[1].toInt();
 	    yyProg->append( new PushGroupSum(0, resultColumn) );
 	    break;
 	default:
 	    ++v;
 	    while ( v != expr.listEnd() ) {
-		emitExpr( *v, group );
+		emitExpr( *v );
 		++v;
 	    }
 
@@ -862,12 +921,12 @@ void Parser::emitWhere( QVariant *cond, QValueList<QVariant> *constants,
     QValueList<QVariant> optimizableConstants;
     QValueList<QVariant> unoptimizableConstants;
 
-    lookupNames( cond );
+    resolveFieldNames( cond );
 
     // ### this could be done earlier and better
     QValueList<QVariant>::Iterator c = constants->begin();
     while ( c != constants->end() ) {
-	lookupNames( &*c );
+	resolveFieldNames( &*c );
 	int tableId = (*c).asList()[1].asList()[1].toInt();
 	if ( tableId < 0 )
 	    unoptimizableConstants.append( *c );
@@ -892,12 +951,10 @@ void Parser::emitWhereLoop( const QVariant& cond,
 
     QValueList<QVariant>::ConstIterator c = selectColumns.begin();
     while ( c != selectColumns.end() ) {
-	if ( (*c).type() == QVariant::List ) {
-	    int node = (*c).toList()[0].toInt();
-	    if ( node != Node_Field ) {
-		allColumnsAreSimple = FALSE;
-		break;
-	    }
+	if ( (*c).type() == QVariant::List &&
+	     (*c).toList()[0].toInt() != Node_ResolvedField ) {
+	    allColumnsAreSimple = FALSE;
+	    break;
 	}
 	++c;
     }
@@ -922,7 +979,7 @@ void Parser::emitWhereLoop( const QVariant& cond,
 	if ( saving && !needLoop ) {
 	    yyProg->append( new PushSeparator );
 	    emitConstants( constantsForLevel );
-	    emitFieldDescs( selectColumns, selectColumnNames );
+	    emitFieldDescs( selectColumnNames, selectColumns );
 	    yyProg->append( new MakeList );
 	    yyProg->append( new RangeSave(tableId, 0) );
 	} else {
@@ -936,7 +993,7 @@ void Parser::emitWhereLoop( const QVariant& cond,
 	int end = yyNextLabel--;
 
 	if ( saving && level == 0 ) {
-	    emitFieldDescs( selectColumns, selectColumnNames );
+	    emitFieldDescs( selectColumnNames, selectColumns );
 	    yyProg->append( new CreateResult(0) );
 	}
 
@@ -946,13 +1003,15 @@ void Parser::emitWhereLoop( const QVariant& cond,
 	if ( level == lastLevel ) {
 	    if ( saving ) {
 		int save = yyNextLabel--;
-		emitExpr( cond, FALSE, save, next );
+		emitExpr( cond, save, next );
 		yyProg->appendLabel( save );
-		emitExprList( selectColumns, FALSE );
+		emitExprList( selectColumns );
 		yyProg->append( new SaveResult(0) );
 	    } else {
 		int unmark = yyNextLabel--;
-		emitExpr( cond, FALSE, next, unmark );
+		emitExpr( cond, next, unmark );
+		if ( !cond.isValid() )
+		    yyProg->append( new Goto(next) );
 		yyProg->appendLabel( unmark );
 		yyProg->append( new Unmark(tableId) );
 	    }
@@ -965,12 +1024,12 @@ void Parser::emitWhereLoop( const QVariant& cond,
     }
 }
 
-void Parser::emitExprList( const QValueList<QVariant>& exprs, bool group )
+void Parser::emitExprList( const QValueList<QVariant>& exprs )
 {
     yyProg->append( new PushSeparator );
     QValueList<QVariant>::ConstIterator e = exprs.begin();
     while ( e != exprs.end() ) {
-	emitExpr( *e, group );
+	emitExpr( *e );
 	++e;
     }
     yyProg->append( new MakeList );
@@ -995,46 +1054,41 @@ void Parser::emitConstants( const QValueList<QVariant>& constants )
     yyProg->append( new MakeList );
 }
 
-void Parser::emitFieldDesc( const QVariant& column, const QString& columnName )
+void Parser::emitFieldDesc( const QString& columnName, const QVariant& column )
 {
     yyProg->append( new PushSeparator );
     QVariant borrowFrom;
     int i;
 
     if ( column.type() == QVariant::List &&
-	 column.toList()[0].toInt() == Tok_Aster ) {
+	 column.toList()[0].toInt() == Node_Star ) {
 	for ( i = 0; i < (int) yyActiveTableIds.count(); i++ ) {
 	    int tableId = yyActiveTableIds[i];
 	    yyProg->append( new PushStarDesc(tableId) );
 	}
     } else {
 	yyProg->append( new Push(columnName) );
-	borrowFrom = exprTypeInfo( column );
+	borrowFrom = exprType( column );
 	if ( borrowFrom.type() == QVariant::List ) {
 	    int id = borrowFrom.asList()[1].toInt();
 	    QString name = borrowFrom.asList()[2].toString();
-	    yyProg->append( new PushTypeInfo(id, name) );
+	    yyProg->append( new PushFieldType(id, name) );
 	} else {
 	    yyProg->append( new Push(borrowFrom.toInt()) );
-	    yyProg->append( new Push(0) );
-	    yyProg->append( new Push(0) );
 	}
     }
     yyProg->append( new MakeList );
 }
 
-void Parser::emitFieldDescs( const QValueList<QVariant>& columns,
-			     const QStringList& columnNames )
+void Parser::emitFieldDescs( const QStringList& columnNames,
+			     const QValueList<QVariant>& columns )
 {
-    QValueList<QVariant>::ConstIterator col = columns.begin();
     QStringList::ConstIterator nam = columnNames.begin();
+    QValueList<QVariant>::ConstIterator col = columns.begin();
 
     yyProg->append( new PushSeparator );
-    while ( col != columns.end() ) {
-	emitFieldDesc( *col, *nam );
-	++col;
-	++nam;
-    }
+    while ( nam != columnNames.end() )
+	emitFieldDesc( *nam++, *col++ );
     yyProg->append( new MakeList );
 }
 
@@ -1066,7 +1120,8 @@ void Parser::closeAllTables()
     yyOpenedTableMap.clear();
 }
 
-void Parser::createIndex( int tableId, const QStringList& columns, bool unique )
+void Parser::createIndex( int tableId, const QStringList& columns, bool unique,
+			  bool notNull )
 {
     QStringList::ConstIterator col = columns.begin();
 
@@ -1076,7 +1131,7 @@ void Parser::createIndex( int tableId, const QStringList& columns, bool unique )
 	++col;
     }
     yyProg->append( new MakeList );
-    yyProg->append( new CreateIndex(tableId, unique, FALSE /* ###jasmin */ ) );
+    yyProg->append( new CreateIndex(tableId, unique, notNull) );
 }
 
 void Parser::pourConstantsIntoCondition( QVariant *cond,
@@ -1099,6 +1154,33 @@ void Parser::pourConstantsIntoCondition( QVariant *cond,
 	++c;
     }
     constants->clear();
+}
+
+int Parser::columnNo( const QVariant& column,
+		      const QMap<QString, QMap<int, int> >& resultColumnNos )
+{
+    int tableId = column.toList()[1].toInt();
+    QString fieldName = column.toList()[2].toString();
+
+    QMap<QString, QMap<int, int> >::ConstIterator d =
+	    resultColumnNos.find( fieldName );
+
+    if ( d == resultColumnNos.end() ) {
+	error( "Cannot use field '%s' here", fieldName.latin1() );
+	return -1;
+    } else {
+	QMap<int, int>::ConstIterator e;
+	if ( tableId < 0 ) {
+	    e = (*d).begin(); // (*d).count() == 1
+	} else {
+	    e = (*d).find( tableId );
+	    if ( e == (*d).end() ) {
+		error( "Cannot use field '%s' here", fieldName.latin1() );
+		return -1;
+	    }
+	}
+	return *e;
+    }
 }
 
 void Parser::matchOrInsert( int target, const QString& targetStr )
@@ -1151,7 +1233,7 @@ QVariant Parser::matchColumnRef()
     }
 
     QValueList<QVariant> expr;
-    expr.append( (int) Node_Field );
+    expr.append( (int) Node_UnresolvedField );
     expr.append( tableName );
     expr.append( columnName );
     return expr;
@@ -1165,10 +1247,10 @@ QVariant Parser::matchAggregateArgument()
     if ( yyTok == Tok_Aster ) {
 	yyTok = getToken();
     } else {
-	matchScalarExpr();
+	arg = matchColumnRef();
     }
     matchOrInsert( Tok_RightParen, "')'" );
-    return QVariant(); // #####
+    return arg;
 }
 
 void Parser::matchFunctionArguments( int numArguments,
@@ -1734,7 +1816,7 @@ void Parser::matchTableConstraintDef()
 	warning( "'foreign key' clause unsupported (will still create an"
 		 " index)" );
 	matchOrInsert( Tok_LeftParen, "'('" );
-	yyNeedIndex[Nonunique].append( matchColumnList() );
+	yyNeedIndex[NotUnique][Null].append( matchColumnList() );
 	matchOrInsert( Tok_RightParen, "')'" );
 	matchOrInsert( Tok_references, "'references'" );
 	matchTable();
@@ -1750,13 +1832,13 @@ void Parser::matchTableConstraintDef()
 	warning( "'primary key' clause unsupported (will still create an"
 		 " index)" );
 	matchOrInsert( Tok_LeftParen, "'('" );
-	yyNeedIndex[Unique].append( matchColumnList() );
+	yyNeedIndex[Unique][NotNull].append( matchColumnList() );
 	matchOrInsert( Tok_RightParen, "')'" );
 	break;
     case Tok_unique:
 	yyTok = getToken();
 	matchOrInsert( Tok_LeftParen, "'('" );
-	yyNeedIndex[Unique].append( matchColumnList() );
+	yyNeedIndex[Unique][Null].append( matchColumnList() );
 	matchOrInsert( Tok_RightParen, "')'" );
 	break;
     default:
@@ -1785,7 +1867,7 @@ void Parser::matchColumnDefOptions( const QString& column )
 	    matchOrSkip( Tok_key, "'key'" );
 	    warning( "'foreign key' clause unsupported (will still create an"
 		     " index)" );
-	    yyNeedIndex[Nonunique].append( column );
+	    yyNeedIndex[NotUnique][Null].append( column );
 	    break;
 	case Tok_not:
 	    yyTok = getToken();
@@ -1797,7 +1879,7 @@ void Parser::matchColumnDefOptions( const QString& column )
 	    matchOrInsert( Tok_key, "'key'" );
 	    warning( "'primary key' clause unsupported (will still create an"
 		     " index)" );
-	    yyNeedIndex[Unique].append( column );
+	    yyNeedIndex[Unique][NotNull].append( column );
 	    break;
 	case Tok_references:
 	    yyTok = getToken();
@@ -1811,7 +1893,7 @@ void Parser::matchColumnDefOptions( const QString& column )
 	    break;
 	case Tok_unique:
 	    yyTok = getToken();
-	    yyNeedIndex[Unique].append( column );
+	    yyNeedIndex[Unique][Null].append( column );
 	    break;
 	default:
 	    return;
@@ -1828,6 +1910,7 @@ void Parser::matchBaseTableElement()
 	yyProg->append( new Push(column) );
 	yyTok = getToken();
 	matchDataType();
+	yyProg->append( new Push(TRUE) ); // ###
 	yyProg->append( new MakeList );
 
 	matchColumnDefOptions( column );
@@ -1873,7 +1956,7 @@ void Parser::matchCreateStatement()
 	tableId = activateTable( matchTable() );
 
 	matchOrInsert( Tok_LeftParen, "'('" );
-	createIndex( tableId, matchColumnList(), unique );
+	createIndex( tableId, matchColumnList(), unique, TRUE ); // TRUE? ###
 	matchOrInsert( Tok_RightParen, "')'" );
 	break;
     case Tok_table:
@@ -1886,9 +1969,12 @@ void Parser::matchCreateStatement()
 
 	tableId = activateTable( table );
 	for ( int i = 0; i < 2; i++ ) {
-	    while ( !yyNeedIndex[i].isEmpty() ) {
-		createIndex( tableId, yyNeedIndex[i].first(), i == Unique );
-		yyNeedIndex[i].remove( yyNeedIndex[i].begin() );
+	    for ( int j = 0; j < 2; j++ ) {
+		while ( !yyNeedIndex[i][j].isEmpty() ) {
+		    createIndex( tableId, yyNeedIndex[i][j].first(),
+				 i == Unique, i == NotNull );
+		    yyNeedIndex[i][j].remove( yyNeedIndex[i][j].begin() );
+		}
 	    }
 	}
 	break;
@@ -1927,7 +2013,7 @@ void Parser::matchInsertExpr()
 	error( "Null not supported yet" );
     } else {
 	QVariant expr = matchScalarExpr();
-	lookupNames( &expr );
+	resolveFieldNames( &expr );
 	emitExpr( expr );
     }
 }
@@ -2016,7 +2102,7 @@ void Parser::matchOrderByClause()
 
 	switch ( yyTok ) {
 	case Tok_IntNum:
-	    column.asList().append( (int) Node_Field );
+	    column.asList().append( (int) Node_UnresolvedField );
 	    column.asList().append( QString::null );
 	    column.asList().append( yyNum - 1 ); // FORTRAN vs. C
 	    yyTok = getToken();
@@ -2030,7 +2116,7 @@ void Parser::matchOrderByClause()
 	}
 
 	yyProg->append( new PushSeparator );
-	lookupNames( &column );
+	resolveFieldNames( &column );
 	emitExpr( column );
 
 	switch ( yyTok ) {
@@ -2055,15 +2141,10 @@ void Parser::matchSelectStatement()
 {
     QValueList<QVariant> selectColumns;
     QStringList selectColumnNames;
-    QValueList<QVariant> auxColumns;
-    QStringList auxColumnNames;
     QValueList<QVariant> groupByColumns;
     QVariant whereCond;
     QValueList<QVariant> whereConstants;
     QVariant havingCond;
-
-    yyFields.clear();
-    yyNumAggregateOccs = 0;
 
     yyTok = getToken();
     if ( yyTok == Tok_Aster ) {
@@ -2074,12 +2155,11 @@ void Parser::matchSelectStatement()
 	selectColumnNames.append( QString::null );
     } else {
 	while ( TRUE ) {
-	    // ### do better
 	    int start = yyPos;
 	    selectColumns.append( matchScalarExpr() );
-	    int end = yyPos;
-	    selectColumnNames.append( yyIn.mid(start, end - start)
-				      .stripWhiteSpace() );
+	    QString columnName = yyIn.mid( start, yyPos - start )
+				     .simplifyWhiteSpace();
+	    selectColumnNames.append( columnName );
 
 	    if ( yyTok != Tok_Comma )
 		break;
@@ -2088,12 +2168,12 @@ void Parser::matchSelectStatement()
     }
 
     matchFromClause();
-    lookupNames( &selectColumns );
+    resolveFieldNames( &selectColumns );
 
     whereCond = matchOptWhereClause( &whereConstants );
 
     groupByColumns = matchOptGroupByClause();
-    lookupNames( &groupByColumns );
+    resolveFieldNames( &groupByColumns );
 
     havingCond = matchOptHavingClause();
 
@@ -2111,38 +2191,116 @@ void Parser::matchSelectStatement()
 	matchOrderByClause();
 
     if ( groupByColumns.isEmpty() && yyNumAggregateOccs == 0 ) {
+	/*
+	  This is the common, easy case where one pass is enough. We
+	  read from the tables and generate a result.
+	*/
 	emitWhere( &whereCond, &whereConstants, selectColumns,
 		   selectColumnNames );
     } else {
-	QString *farray = new QString[yyFields.count() + 1];
-	QMap<QString, int>::ConstIterator f = yyFields.begin();
-	while ( f != yyFields.end() ) {
-	    farray[*f] = f.key();
+	/*
+	  This is the general case where two passes are needed. The
+	  first pass is a select of all the fields we will need later
+	  and generates an intermediate result. That result is used to
+	  create another result in the second pass.
+	*/
+
+	/*
+	  First, let's find out what columns we need for the select.
+	  Things can get very tricky when multi-table queries are
+	  made and table names are omitted and have to be resolved at
+	  run time. The column 'id' may also appear as 'author.id',
+	  for example.
+	*/
+	// QMap<table-id, field-names>
+	QMap<int, QStringList> usedFields;
+	// QMap<table-id, field-name>
+	QMap<int, QString> usedDynamicFields;
+	// QMap<field-name, QMap<table-id, column>
+	QMap<QString, QMap<int, int> > resultColumnNos;
+	QValueList<QVariant> auxColumns;
+	QStringList auxColumnNames;
+	int n = 0;
+
+	computeUsedFields( selectColumns, &usedFields );
+	computeUsedFields( whereCond, &usedFields );
+	computeUsedFields( groupByColumns, &usedFields );
+	// computeUsedFields( havingCond, &usedFields );
+
+	QMap<int, QStringList>::Iterator f = usedFields.begin();
+	while ( f != usedFields.end() ) {
+	    QStringList::Iterator g = (*f).begin();
+	    while ( g != (*f).end() ) {
+		if ( f.key() < 0 ) {
+		    usedDynamicFields.insert( f.key(), *g );
+		} else {
+		    resultColumnNos[*g].insert( f.key(), n );
+		    auxColumns.append( resolvedField(n, *g) );
+		    auxColumnNames.append( QString("#%1").arg(n) );
+		    n++;
+		}
+		++g;
+	    }
 	    ++f;
 	}
-	for ( int i = 0; i < (int) yyFields.count(); i++ ) {
-	    auxColumns.append( farray[i] );
-	    auxColumnNames.append( QString("aux%1").arg(i) );
-	}
-	delete farray;
 
+	/*
+	  Check pertinence of dynamic fields. For example, 'id'
+	  (dynamic) and 'author.id' (static) either refer to the same
+	  field or the same table, or 'id' is ambiguous (say, with
+	  'publisher.id').
+	*/
+	QMap<int, QString>::Iterator s = usedDynamicFields.begin();
+	while ( s != usedDynamicFields.end() ) {
+	    switch ( resultColumnNos[*s].count() ) {
+	    case 0:
+		resultColumnNos[*s].insert( s.key(), n );
+		auxColumns.append( resolvedField(n, *s) );
+		auxColumnNames.append( QString("#%1").arg(n) );
+		n++;
+		break;
+	    case 1:
+		break;
+	    default:
+		error( "Field '%s' is ambiguous", (*s).latin1() );
+	    }
+	    ++s;
+	}
+
+	/*
+	  Do the select.
+	*/
 	emitWhere( &whereCond, &whereConstants, auxColumns, auxColumnNames );
 
+	/*
+	  Second pass.
+	*/
 	int next = yyNextLabel--;
 	int save = yyNextLabel--;
 	int end = yyNextLabel--;
 
-	emitFieldDescs( selectColumns, selectColumnNames );
+	emitFieldDescs( selectColumnNames, selectColumns );
 	yyProg->append( new CreateResult(1) );
 
-//	emitFieldDescs( groupByColumns );
+	yyProg->append( new PushSeparator );
+	QValueList<QVariant>::Iterator c = groupByColumns.begin();
+	while ( c != groupByColumns.end() ) {
+	    yyProg->append( new Push(columnNo(*c, resultColumnNos)) );
+	    ++c;
+	}
+	yyProg->append( new MakeList );
 	yyProg->append( new MakeGroupSet(1, 0) );
 	yyProg->appendLabel( next );
 	yyProg->append( new NextGroupSet(0, end) );
 
-	emitExpr( havingCond, TRUE, save, next );
-	yyProg->appendLabel( save );
-	emitExprList( selectColumns, TRUE );
+	resolveResultColumnNos( &havingCond, resultColumnNos );
+	if ( havingCond.isValid() ) {
+	    emitExpr( havingCond, save, next );
+	    yyProg->appendLabel( save );
+	}
+
+	resolveResultColumnNos( &selectColumns, resultColumnNos );
+	emitExprList( selectColumns );
 	yyProg->append( new SaveResult(1) );
 
 	yyProg->append( new Goto(next) );
@@ -2168,7 +2326,7 @@ void Parser::matchUpdateStatement()
 	    // ###
 	} else {
 	    right = matchScalarExpr();
-	    lookupNames( &right );
+	    resolveFieldNames( &right );
 	}
 	assignments.insert( left, right );
 

@@ -399,18 +399,36 @@ public:
     Like( const QString& wildcard, int trueLab, int falseLab )
 	: Op( QString::null, trueLab, falseLab )
     {
-	static QString metas( "$()*+.?[\\]^{|}" );
 	QString regexp;
 
 	for ( int i = 0; i < (int) wildcard.length(); i++ ) {
-	    QString ch = wildcard[i];
-	    if ( ch == QChar('_') )
-		ch = QChar( '.' );
-	    else if ( ch == QChar('%') )
-		ch = QString( ".*" );
-	    else if ( metas.find(ch) >= 0 )
-		ch.prepend( QChar('\\') );
-	    regexp += ch;
+	    QChar ch = wildcard[i];
+	    switch ( ch.unicode() ) {
+	    case '_':
+		regexp += QChar( '.' );
+		break;
+	    case '%':
+		regexp += QString( ".*" );
+		break;
+	    case '$':
+	    case '(':
+	    case ')':
+	    case '*':
+	    case '+':
+	    case '.':
+	    case '?':
+	    case '[':
+	    case '\\':
+	    case ']':
+	    case '^':
+	    case '{':
+	    case '|':
+	    case '}':
+		regexp += QChar( '\\' );
+		// fall through
+	    default:
+		regexp += ch;
+	    }
 	}
 	p1 = regexp;
     }
@@ -538,12 +556,12 @@ public:
 	  This is not really Soundex, but some vendor seems to
 	  implement it that way.
 	*/
-	QString str = env->stack()->pop().toString().upper();
-	str.replace( QRegExp("[^a-zA-Z]"), QString::null );
+	QString str = env->stack()->pop().toString().lower();
+	str.replace( QRegExp(QString("[^a-z]")), QString::null );
 	QString x;
 
 	if ( str.length() > 0 ) {
-	    x = str[0];
+	    x = str[0].upper();
 	    int i = 1;
 	    while ( i < (int) str.length() && (int) x.length() < 4 ) {
 		int code = 0;
@@ -590,6 +608,7 @@ public:
 		}
 		if ( code != 0 && code != x[x.length() - 1].cell() - '0' )
 		    x += QChar( code + '0' );
+		i++;
 	    }
 	    while ( x.length() < 4 )
 		x += QChar( '0' );

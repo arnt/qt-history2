@@ -182,29 +182,33 @@ private:
     int readExponent();
     int getToken();
 
-    enum { Nonunique, Unique };
+    enum { NotUnique, Unique };
+    enum { NotNull, Null };
 
     int yyTok;
     LocalSQLEnvironment *yyEnv;
     LocalSQLProgram *yyProg;
     int yyNextLabel;
     bool yyOK;
-    QValueList<QStringList> yyNeedIndex[2];
+    QValueList<QStringList> yyNeedIndex[2][2];
     QMap<QString, int> yyOpenedTableMap;
     QMap<QString, int> yyAliasTableMap;
     QMap<QString, int> yyActiveTableMap;
     QValueList<int> yyActiveTableIds;
     QMap<QString, int> yyLookedUpColumnMap;
+    int yyNumAggregateOccs; // ### needed
 
-    QMap<QString, int> yyFields;
-    int yyNumColumnOccs;
-    int yyNumAggregateOccs;
-
-    void lookupNames( QVariant *expr );
-    void lookupNames( QValueList<QVariant> *exprs );
-    QVariant exprTypeInfo( const QVariant& expr );
-    void emitExpr( const QVariant& expr, bool group = FALSE, int trueLab = 0,
-		   int falseLab = 0 );
+    int resolveTableId( const QString& tableName );
+    void resolveFieldNames( QVariant *expr );
+    void resolveFieldNames( QValueList<QVariant> *exprs );
+    void resolveResultColumnNos( QVariant *expr, 
+	    const QMap<QString, QMap<int, int> >& fieldColumnNos );
+    void resolveResultColumnNos( QValueList<QVariant> *exprs,
+	    const QMap<QString, QMap<int, int> >& fieldColumnNos );
+    void computeUsedFields( const QVariant& expr,
+			    QMap<int, QStringList> *usedFields );
+    QVariant exprType( const QVariant& expr );
+    void emitExpr( const QVariant& expr, int trueLab = 0, int falseLab = 0 );
     void emitWhere( QVariant *cond, QValueList<QVariant> *constants,
 		    const QValueList<QVariant>& selectColumns =
 		    QValueList<QVariant>(),
@@ -213,17 +217,20 @@ private:
 			const QValueList<QVariant>& constants,
 			const QValueList<QVariant>& selectColumns,
 			const QStringList& selectColumnNames, int level = 0 );
-    void emitExprList( const QValueList<QVariant>& exprs, bool group = FALSE );
+    void emitExprList( const QValueList<QVariant>& exprs );
     void emitConstants( const QValueList<QVariant>& constants );
-    void emitFieldDesc( const QVariant& column, const QString& columnName );
-    void emitFieldDescs( const QValueList<QVariant>& columns,
-			 const QStringList& columnNames );
+    void emitFieldDesc( const QString& columnName, const QVariant& column );
+    void emitFieldDescs( const QStringList& columnNames,
+			 const QValueList<QVariant>& columns );
     int activateTable( const QString& tableName );
     void deactivateTables();
     void closeAllTables();
-    void createIndex( int tableId, const QStringList& columns, bool unique );
+    void createIndex( int tableId, const QStringList& columns, bool unique,
+		      bool notNull );
     void pourConstantsIntoCondition( QVariant *cond,
 				     QValueList<QVariant> *constants );
+    int columnNo( const QVariant& column,
+		  const QMap<QString, QMap<int, int> >& fieldColumnNos );
 
     void matchOrInsert( int target, const QString& targetStr );
     void matchOrSkip( int target, const QString& targetStr );
