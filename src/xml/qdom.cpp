@@ -2541,8 +2541,11 @@ QDomNamedNodeMapPrivate* QDomNamedNodeMapPrivate::clone(QDomNodePrivate* p)
     m->appendToParent = appendToParent;
 
     QHash<QString, QDomNodePrivate*>::const_iterator it = map.constBegin();
-    for (; it != map.constEnd(); ++it)
-        m->setNamedItem((*it)->cloneNode());
+    for (; it != map.constEnd(); ++it) {
+        QDomNodePrivate *new_node = (*it)->cloneNode();
+        new_node->setParent(p);
+        m->setNamedItem(new_node);
+    }
 
     // we are no longer interested in ownership
     --m->ref;
