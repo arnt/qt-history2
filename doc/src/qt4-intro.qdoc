@@ -20,7 +20,7 @@ porting.html Porting Guide \endlink and the porting tools that will
 help you with the process once the Qt 4 final release is imminent.
 
 What you \e{can} do is write new small programs to experience what
-the next generation of Qt programming with be like. In particular,
+the next generation of Qt programming will be like. In particular,
 there are five new technologies that we hope you will try out and
 give us feedback on. All are new to Qt, written specifically for Qt
 4:
