@@ -398,8 +398,8 @@ int QDate::daysInYear() const
 }
 
 /*!
-    Returns the week number (1 to 53), and stores the year in \a
-    *yearNumber unless \a yearNumber is null (the default).
+    Returns the week number (1 to 53), and stores the year in
+    *\a{yearNumber} unless \a yearNumber is null (the default).
 
     Returns 0 if the date is invalid.
 
@@ -407,7 +407,7 @@ int QDate::daysInYear() const
     Thursday of a year is always in week 1 of that year. Most years
     have 52 weeks, but some have 53.
 
-    \a *yearNumber is not always the same as year(). For example, 1
+    *\a{yearNumber} is not always the same as year(). For example, 1
     January 2000 has week number 52 in the year 1999, and 31 December
     2002 has week number 1 in the year 2003.
 
@@ -431,7 +431,7 @@ int QDate::daysInYear() const
     \sa isValid()
 */
 
-int QDate::weekNumber( int *yearNumber ) const
+int QDate::weekNumber(int *yearNumber) const
 {
     if ( !isValid() )
 	return 0;
@@ -784,8 +784,8 @@ QString QDate::toString( Qt::DateFormat f ) const
     20<sup><small>th</small></sup> July 1969):
     \table
     \header \i Format \i Result
-    \row \i dd.MM.yyyy	  \i11 20.07.1969
-    \row \i ddd MMMM d yy \i11 Sun July 20 69
+    \row \i dd.MM.yyyy	  \i 20.07.1969
+    \row \i ddd MMMM d yy \i Sun July 20 69
     \endtable
 
     If the date is an invalid date, then QString::null will be returned.
@@ -1426,8 +1426,8 @@ QString QTime::toString( Qt::DateFormat f ) const
 
     \table
     \header \i Format \i Result
-    \row \i hh:mm:ss.zzz    \i11 14:13:09.042
-    \row \i h:m:s ap	    \i11 2:13:9 pm
+    \row \i hh:mm:ss.zzz    \i 14:13:09.042
+    \row \i h:m:s ap	    \i 2:13:9 pm
     \endtable
 
     If the time is an invalid time, then QString::null will be returned.
@@ -2163,10 +2163,10 @@ QString QDateTime::toString( Qt::DateFormat f ) const
 
     \table
     \header \i Format \i Result
-    \row \i dd.MM.yyyy	    \i11 21.05.2001
-    \row \i ddd MMMM d yy   \i11 Tue May 21 01
-    \row \i hh:mm:ss.zzz    \i11 14:13:09.042
-    \row \i h:m:s ap	    \i11 2:13:9 pm
+    \row \i dd.MM.yyyy	    \i 21.05.2001
+    \row \i ddd MMMM d yy   \i Tue May 21 01
+    \row \i hh:mm:ss.zzz    \i 14:13:09.042
+    \row \i h:m:s ap	    \i 2:13:9 pm
     \endtable
 
     If the datetime is an invalid datetime, then QString::null will be returned.

@@ -193,7 +193,7 @@ QLinkedListData QLinkedListData::shared_null = {
     \sa operator<<(), prepend(), insert()
 */
 
-/*! \fn void QLinkedList::prepend(const T &)
+/*! \fn void QLinkedList::prepend(const T &value)
 
     Inserts \a value at the beginning of the list.
 
@@ -309,7 +309,7 @@ QLinkedListData QLinkedListData::shared_null = {
     \sa insert()
 */
 
-/*! \fn QLinkedList::iterator QLinkedList::erase(iterator first, iterator last)
+/*! \fn QLinkedList::iterator QLinkedList::erase(iterator begin, iterator end)
 
     \overload
 
@@ -612,6 +612,31 @@ QLinkedListData QLinkedListData::shared_null = {
     \internal
 */
 
+/*! \typedef QLinkedList::iterator::iterator_category
+
+    \internal
+*/
+
+/*! \typedef QLinkedList::iterator::difference_type
+
+    \internal
+*/
+
+/*! \typedef QLinkedList::iterator::value_type
+
+    \internal
+*/
+
+/*! \typedef QLinkedList::iterator::pointer
+
+    \internal
+*/
+
+/*! \typedef QLinkedList::iterator::reference
+
+    \internal
+*/
+
 /*! \fn QLinkedList::iterator::iterator(const iterator &other)
 
     Constructs a copy of \a other.
@@ -793,6 +818,31 @@ QLinkedListData QLinkedListData::shared_null = {
     \internal
 */
 
+/*! \typedef QLinkedList::const_iterator::iterator_category
+
+    \internal
+*/
+
+/*! \typedef QLinkedList::const_iterator::difference_type
+
+    \internal
+*/
+
+/*! \typedef QLinkedList::const_iterator::value_type
+
+    \internal
+*/
+
+/*! \typedef QLinkedList::const_iterator::pointer
+
+    \internal
+*/
+
+/*! \typedef QLinkedList::const_iterator::reference
+
+    \internal
+*/
+
 /*! \fn QLinkedList::const_iterator::const_iterator(const const_iterator &other)
 
     Constructs a copy of \a other.
@@ -904,7 +954,7 @@ QLinkedListData QLinkedListData::shared_null = {
     \sa operator+=(), operator-()
 */
 
-/*! \fn template <class T> QDataStream &operator<<(QDataStream &out, const QLinkedList<T> &list)
+/*! \fn QDataStream &operator<<(QDataStream &out, const QLinkedList<T> &list)
     \relates QLinkedList
 
     Writes the linked list \a list to stream \a out.
@@ -915,7 +965,7 @@ QLinkedListData QLinkedListData::shared_null = {
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
-/*! \fn template <class T> QDataStream &operator>>(QDataStream &in, QLinkedList<T> &list)
+/*! \fn QDataStream &operator>>(QDataStream &in, QLinkedList<T> &list)
     \relates QLinkedList
 
     Reads a linked list from stream \a in into \a list.

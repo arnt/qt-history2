@@ -464,6 +464,12 @@ QBitArray operator^(const QBitArray &a1, const QBitArray &a2)
 */
 
 /*!
+    \fn bool QBitRef::operator!() const
+
+    \internal
+*/
+
+/*!
     \fn QBitRef& QBitRef::operator= (const QBitRef& v)
 
     Sets the value referenced by the QBitRef to that referenced by

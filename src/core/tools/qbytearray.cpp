@@ -58,7 +58,7 @@ char *qstrdup( const char *src )
 
     A safe strcpy() function.
 
-    Copies all characters up to and including the '\0' from \a src
+    Copies all characters up to and including the '\\0' from \a src
     into \a dst and returns a pointer to \a dst.
 */
 
@@ -68,8 +68,8 @@ char *qstrdup( const char *src )
     A safe strncpy() function.
 
     Copies at most \a len bytes from \a src (stopping at \a len or the
-    terminating '\0' whichever comes first) into \a dst and returns a
-    pointer to \a dst. Guarantees that \a dst is '\0'-terminated. If
+    terminating '\\0' whichever comes first) into \a dst and returns a
+    pointer to \a dst. Guarantees that \a dst is '\\0'-terminated. If
     \a src or \a dst is 0, returns 0 immediately.
 
     \sa qstrcpy()
@@ -92,7 +92,7 @@ char *qstrncpy( char *dst, const char *src, uint len )
 
     A safe strlen function.
 
-    Returns the number of characters that precede the terminating '\0'.
+    Returns the number of characters that precede the terminating '\\0'.
     or 0 if \a str is 0.
 */
 
@@ -450,7 +450,7 @@ QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_emp
 
     It is useful for manipulating memory areas with custom data.
     QByteArrays are implicitly shared, and they are always
-    \c{\0}-terminated.
+    '\\0'-terminated.
 */
 
 /*!
@@ -479,12 +479,6 @@ QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_emp
 
 /*!
     \fn bool QByteArray::isEmpty() const
-
-    Returns true if this byte array is empty; otherwise returns false.
-*/
-
-/*!
-    \fn bool QByteArray::operator!() const
 
     Returns true if this byte array is empty; otherwise returns false.
 */
@@ -1948,8 +1942,8 @@ bool QByteArray::isNull() const { return d == &shared_null; }
 
     Returns 0 if the conversion fails.
 
-    If \a ok is not 0: if a conversion error occurs, \a *ok is set to
-    FALSE; otherwise \a *ok is set to TRUE.
+    If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
+    FALSE; otherwise *\a{ok} is set to TRUE.
 
     \sa number()
 */
@@ -1976,8 +1970,8 @@ Q_LLONG QByteArray::toLongLong(bool *ok, int base) const
 
     Returns 0 if the conversion fails.
 
-    If \a ok is not 0: if a conversion error occurs, \a *ok is set to
-    FALSE; otherwise \a *ok is set to TRUE.
+    If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
+    FALSE; otherwise *\a{ok} is set to TRUE.
 
     \sa number()
 */
@@ -2004,8 +1998,8 @@ Q_ULLONG QByteArray::toULongLong(bool *ok, int base) const
 
     Returns 0 if the conversion fails.
 
-    If \a ok is not 0: if a conversion error occurs, \a *ok is set to
-    FALSE; otherwise \a *ok is set to TRUE.
+    If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
+    FALSE; otherwise *\a{ok} is set to TRUE.
 
     \sa number()
 */
@@ -2031,8 +2025,8 @@ long QByteArray::toLong(bool *ok, int base) const
 
     Returns 0 if the conversion fails.
 
-    If \a ok is not 0: if a conversion error occurs, \a *ok is set to
-    FALSE; otherwise \a *ok is set to TRUE.
+    If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
+    FALSE; otherwise *\a{ok} is set to TRUE.
 
     \sa number()
 */
@@ -2058,8 +2052,8 @@ ulong QByteArray::toULong(bool *ok, int base) const
 
     Returns 0 if the conversion fails.
 
-    If \a ok is not 0: if a conversion error occurs, \a *ok is set to
-    FALSE; otherwise \a *ok is set to TRUE.
+    If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
+    FALSE; otherwise *\a{ok} is set to TRUE.
 
     \code
 	QByteArray str("FF");
@@ -2092,8 +2086,8 @@ int QByteArray::toInt(bool *ok, int base) const
 
     Returns 0 if the conversion fails.
 
-    If \a ok is not 0: if a conversion error occurs, \a *ok is set to
-    FALSE; otherwise \a *ok is set to TRUE.
+    If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
+    FALSE; otherwise *\a{ok} is set to TRUE.
 
     \sa number()
 */
@@ -2119,8 +2113,8 @@ uint QByteArray::toUInt(bool *ok, int base) const
 
     Returns 0 if the conversion fails.
 
-    If \a ok is not 0: if a conversion error occurs, \a *ok is set to
-    FALSE; otherwise \a *ok is set to TRUE.
+    If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
+    FALSE; otherwise *\a{ok} is set to TRUE.
 
     \sa number()
 */
@@ -2146,8 +2140,8 @@ short QByteArray::toShort(bool *ok, int base) const
 
     Returns 0 if the conversion fails.
 
-    If \a ok is not 0: if a conversion error occurs, \a *ok is set to
-    FALSE; otherwise \a *ok is set to TRUE.
+    If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
+    FALSE; otherwise *\a{ok} is set to TRUE.
 
     \sa number()
 */
@@ -2169,8 +2163,8 @@ ushort QByteArray::toUShort(bool *ok, int base) const
 
     Returns 0.0 if the conversion fails.
 
-    If \a ok is not 0: if a conversion error occurs, \a *ok is set to
-    false; otherwise \a *ok is set to true.
+    If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
+    false; otherwise *\a{ok} is set to true.
 
     \code
 	QByteArray string("1234.56");
@@ -2190,8 +2184,8 @@ double QByteArray::toDouble(bool *ok) const
 
     Returns 0.0 if the conversion fails.
 
-    If \a ok is not 0: if a conversion error occurs, \a *ok is set to
-    false; otherwise \a *ok is set to true.
+    If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
+    false; otherwise *\a{ok} is set to true.
 
     \sa number()
 */

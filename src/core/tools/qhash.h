@@ -39,7 +39,7 @@ inline uint qHash(Q_ULLONG key)
     }
 }
 inline uint qHash(Q_LLONG key) { return qHash((Q_ULLONG)key); }
-
+inline uint qHash(QChar key) { return qHash(key.unicode()); }
 Q_CORE_EXPORT uint qHash(const QByteArray &key);
 Q_CORE_EXPORT uint qHash(const QString &key);
 

@@ -428,10 +428,10 @@ void QHashData::free()
 
     Here's a list of the C++ and Qt types that can serve as keys in a
     QHash: any integer type (char, unsigned long, etc.), any pointer
-    type, QString, and QByteArray. For all of these, \c <qhash.h>
-    defines a qHash() function that computes an adequate hash value.
-    If you want to use other types as the key, make sure that you
-    provide operator==() and a qHash() implementation.
+    type, QChar, QString, and QByteArray. For all of these, \c
+    <qhash.h> defines a qHash() function that computes an adequate
+    hash value. If you want to use other types as the key, make sure
+    that you provide operator==() and a qHash() implementation.
 
     Example:
     \code
@@ -879,22 +879,13 @@ void QHashData::free()
     \sa insert(), values()
 */
 
-/*! \fn QHash<Key, T> &QHash::operator+=(const QHash<Key, T> &other)
+/*! \fn QHash<Key, T> &QHash::merge(const QHash<Key, T> &other)
 
     Inserts all the items in the \a other hash into this hash. If a
     key is common to both hashes, the resulting hash will contain the
     key multiple times.
 
-    \sa operator+=(), insertMulti()
-*/
-
-/*! \fn QHash<Key, T> QHash::operator+(const QHash<Key, T> &other) const
-
-    Returns a hash that contains all the items in this hash in
-    addition to all the items in \a other. If a key is common to both
-    hashes, the resulting hash will contain the key multiple times.
-
-    \sa operator+(), insertMulti()
+    \sa insertMulti()
 */
 
 /*! \typedef QHash::Iterator
@@ -1026,6 +1017,31 @@ void QHashData::free()
 */
 
 /*! \fn QHash::iterator::operator Node *() const
+
+    \internal
+*/
+
+/*! \typedef QHash::iterator::difference_type
+
+    \internal
+*/
+
+/*! \typedef QHash::iterator::iterator_category
+
+    \internal
+*/
+
+/*! \typedef QHash::iterator::pointer
+
+    \internal
+*/
+
+/*! \typedef QHash::iterator::reference
+
+    \internal
+*/
+
+/*! \typedef QHash::iterator::value_type
 
     \internal
 */
@@ -1224,6 +1240,31 @@ void QHashData::free()
 */
 
 /*! \fn QHash::const_iterator::operator Node *() const
+
+    \internal
+*/
+
+/*! \typedef QHash::const_iterator::difference_type
+
+    \internal
+*/
+
+/*! \typedef QHash::const_iterator::iterator_category
+
+    \internal
+*/
+
+/*! \typedef QHash::const_iterator::pointer
+
+    \internal
+*/
+
+/*! \typedef QHash::const_iterator::reference
+
+    \internal
+*/
+
+/*! \typedef QHash::const_iterator::value_type
 
     \internal
 */
@@ -1432,6 +1473,12 @@ void QHashData::free()
     \overload
 */
 
+/*! \fn uint qHash(QChar key)
+    \relates QHash
+
+    \overload
+*/
+
 /*! \fn uint qHash(const QByteArray &key)
     \relates QHash
 
@@ -1444,19 +1491,13 @@ void QHashData::free()
     \overload
 */
 
-/*! \fn template <class T> uint qHash(const T *key)
+/*! \fn uint qHash(const T *key)
     \relates QHash
 
     \overload
 */
 
-/*! \fn template <class T> uint qHash(T *key)
-    \relates QHash
-
-    \overload
-*/
-
-/*! \fn template <class Key, class T> QDataStream &operator<<(QDataStream &out, const QHash<Key, T>& hash)
+/*! \fn QDataStream &operator<<(QDataStream &out, const QHash<Key, T>& hash)
     \relates QHash
 
     Writes the hash \a hash to stream \a out.
@@ -1467,7 +1508,7 @@ void QHashData::free()
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
-/*! \fn template <class Key, class T> QDataStream &operator>>(QDataStream &in, QHash<Key, T> &hash)
+/*! \fn QDataStream &operator>>(QDataStream &in, QHash<Key, T> &hash)
     \relates QHash
 
     Reads a hash from stream \a in into \a hash.

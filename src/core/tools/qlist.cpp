@@ -988,6 +988,31 @@ void **QListData::erase(void **xi)
     \sa QList::const_iterator, QListMutableIterator
 */
 
+/*! \typedef QList::iterator::iterator_category
+
+    \internal
+*/
+
+/*! \typedef QList::iterator::difference_type
+
+    \internal
+*/
+
+/*! \typedef QList::iterator::value_type
+
+    \internal
+*/
+
+/*! \typedef QList::iterator::pointer
+
+    \internal
+*/
+
+/*! \typedef QList::iterator::reference
+
+    \internal
+*/
+
 /*! \fn QList::iterator::iterator()
 
     Constructs an unitialized iterator.
@@ -1007,7 +1032,7 @@ void **QListData::erase(void **xi)
     Constructs a copy of \a other.
 */
 
-/*! \fn T &QList::iterator::operator*()
+/*! \fn T &QList::iterator::operator*() const
 
     Returns a modifiable reference to the current item.
 
@@ -1020,7 +1045,7 @@ void **QListData::erase(void **xi)
     \endcode
 */
 
-/*! \fn T &QList::iterator::operator[](int j)
+/*! \fn T &QList::iterator::operator[](int j) const
 
     Returns a modifiable reference to the item at position *this +
     \a{j}.
@@ -1190,6 +1215,31 @@ void **QListData::erase(void **xi)
     it before using it.
 */
 
+/*! \typedef QList::const_iterator::iterator_category
+
+    \internal
+*/
+
+/*! \typedef QList::const_iterator::difference_type
+
+    \internal
+*/
+
+/*! \typedef QList::const_iterator::value_type
+
+    \internal
+*/
+
+/*! \typedef QList::const_iterator::pointer
+
+    \internal
+*/
+
+/*! \typedef QList::const_iterator::reference
+
+    \internal
+*/
+
 /*! \fn QList::const_iterator::const_iterator(Node *node)
 
     \internal
@@ -1312,7 +1362,7 @@ void **QListData::erase(void **xi)
     other and the item pointed to by this iterator.
 */
 
-/*! \fn template <class T> QDataStream &operator<<(QDataStream &out, const QList<T> &list)
+/*! \fn QDataStream &operator<<(QDataStream &out, const QList<T> &list)
     \relates QList
 
     Writes the list \a list to stream \a out.
@@ -1323,7 +1373,7 @@ void **QListData::erase(void **xi)
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
-/*! \fn template <class T> QDataStream &operator>>(QDataStream &in, QList<T> &list)
+/*! \fn QDataStream &operator>>(QDataStream &in, QList<T> &list)
     \relates QList
 
     Reads a list from stream \a in into \a list.

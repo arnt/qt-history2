@@ -382,6 +382,14 @@ void QMapData::dump()
     \sa operator=()
 */
 
+/*! \fn QMap::QMap(const std::map<Key, T> & other)
+
+    Constructs a copy of \a other.
+
+    This function is only available if Qt is configured with STL
+    compabitility enabled.
+*/
+
 /*! \fn QMap::~QMap()
 
     Destroys the map. References to the values in the map and all
@@ -391,6 +399,14 @@ void QMapData::dump()
 /*! \fn QMap<Key, T> &QMap::operator=(const QMap<Key, T> &other)
 
     Assigns \a other to this map and returns a reference to this map.
+*/
+
+/*! \fn QMap<Key, T> &QMap::operator=(const typename std::map<Key,T> &other)
+
+    Constructs a copy of \a other.
+
+    This function is only available if Qt is configured with STL
+    compabitility enabled.
 */
 
 /*! \fn bool QMap::operator==(const QMap<Key, T> &other) const
@@ -574,8 +590,8 @@ void QMapData::dump()
 
     \overload
 
-    Returns a list containing all the values associated with a
-    given key, from the most recently inserted to the least recently
+    Returns a list containing all the values associated with key
+    \a key, from the most recently inserted to the least recently
     inserted one.
 
     \sa count(), insertMulti()
@@ -834,7 +850,32 @@ void QMapData::dump()
     \sa QMap::const_iterator, QMapMutableIterator
 */
 
-/*! \fn QMap::iterator::operator Node *() const
+/*! \fn QMap::iterator::operator QMapData::Node *() const
+
+    \internal
+*/
+
+/*! \typedef QMap::iterator::difference_type
+
+    \internal
+*/
+
+/*! \typedef QMap::iterator::iterator_category
+
+    \internal
+*/
+
+/*! \typedef QMap::iterator::pointer
+
+    \internal
+*/
+
+/*! \typedef QMap::iterator::reference
+
+    \internal
+*/
+
+/*! \typedef QMap::iterator::value_type
 
     \internal
 */
@@ -848,7 +889,7 @@ void QMapData::dump()
     value to it before using it.
 */
 
-/*! \fn QMap::iterator::iterator(void *node)
+/*! \fn QMap::iterator::iterator(QMapData::Node *node)
 
     \internal
 */
@@ -1030,7 +1071,32 @@ void QMapData::dump()
     \sa QMap::iterator, QMapIterator
 */
 
-/*! \fn QMap::const_iterator::operator Node *() const
+/*! \fn QMap::const_iterator::operator QMapData::Node *() const
+
+    \internal
+*/
+
+/*! \typedef QMap::const_iterator::difference_type
+
+    \internal
+*/
+
+/*! \typedef QMap::const_iterator::iterator_category
+
+    \internal
+*/
+
+/*! \typedef QMap::const_iterator::pointer
+
+    \internal
+*/
+
+/*! \typedef QMap::const_iterator::reference
+
+    \internal
+*/
+
+/*! \typedef QMap::const_iterator::value_type
 
     \internal
 */
@@ -1044,7 +1110,7 @@ void QMapData::dump()
     value to it before using it.
 */
 
-/*! \fn QMap::const_iterator::const_iterator(void *node)
+/*! \fn QMap::const_iterator::const_iterator(QMapData::Node *node)
 
     \internal
 */
@@ -1173,7 +1239,7 @@ void QMapData::dump()
     \sa operator+=(), operator-()
 */
 
-/*! \fn template <class Key, class T> QDataStream &operator<<(QDataStream &out, const QMap<Key, T> &map)
+/*! \fn QDataStream &operator<<(QDataStream &out, const QMap<Key, T> &map)
     \relates QMap
 
     Writes the map \a map to stream \a out.
@@ -1184,7 +1250,7 @@ void QMapData::dump()
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
-/*! \fn template <class Key, class T> QDataStream &operator>>(QDataStream &in, QMap<Key, T> &map)
+/*! \fn QDataStream &operator>>(QDataStream &in, QMap<Key, T> &map)
     \relates QMap
 
     Reads a map from stream \a in into \a map.

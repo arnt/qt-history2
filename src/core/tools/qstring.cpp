@@ -2346,9 +2346,9 @@ QString qt_winMB2QString( const char* mb, int mblen )
 #endif // Q_OS_WIN32
 
 /*!
-    Returns the Unicode string decoded from the first \a len
+    Returns the Unicode string decoded from the first \a size
     bytes of \a local8Bit, ignoring the rest of \a local8Bit. If
-    \a len is -1 then the length of \a local8Bit is used. If \a len is
+    \a size is -1 then the length of \a local8Bit is used. If \a size is
     bigger than the length of \a local8Bit then it will use the length
     of \a local8Bit.
 
@@ -2386,9 +2386,9 @@ QString QString::fromLocal8Bit( const char* local8Bit, int size )
 }
 
 /*!
-    Returns the Unicode string decoded from the first \a len
-    characters of \a ascii, ignoring the rest of \a ascii. If \a len
-    is -1 then the length of \a ascii is used. If \a len is bigger
+    Returns the Unicode string decoded from the first \a size
+    characters of \a ascii, ignoring the rest of \a ascii. If \a size
+    is -1 then the length of \a ascii is used. If \a size is bigger
     than the length of \a ascii then it will use the length of \a
     ascii.
 
@@ -2396,7 +2396,7 @@ QString QString::fromLocal8Bit( const char* local8Bit, int size )
     it is used to convert Unicode to 8-bit char. Otherwise, this function
     does the same as fromLatin1().
 
-    This is the same as the QString(const char*) constructor, but you
+    This is the same as the QString(const char *) constructor, but you
     can make that constructor invisible if you compile with the define
     \c QT_NO_CAST_FROM_ASCII, in which case you can explicitly create a
     QString from 8-bit ASCII text using this function.
@@ -2424,9 +2424,9 @@ QString QString::fromAscii( const char* ascii, int size )
 
 
 /*!
-    Returns the Unicode string decoded from the first \a len
-    bytes of \a utf8, ignoring the rest of \a utf8. If \a len is
-    -1 then the length of \a utf8 is used. If \a len is bigger than
+    Returns the Unicode string decoded from the first \a size
+    bytes of \a utf8, ignoring the rest of \a utf8. If \a size is
+    -1 then the length of \a utf8 is used. If \a size is bigger than
     the length of \a utf8 then it will use the length of \a utf8.
 
     \code
@@ -3666,8 +3666,8 @@ QString &QString::sprintf( const char* cformat, ... )
 
     Returns 0 if the conversion fails.
 
-    If \a ok is not 0: if a conversion error occurs, \a *ok is set to
-    FALSE; otherwise \a *ok is set to TRUE.
+    If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
+    FALSE; otherwise *\a{ok} is set to TRUE.
 
     \sa number()
 */
@@ -3695,8 +3695,8 @@ Q_LLONG QString::toLongLong(bool *ok, int base) const
 
     Returns 0 if the conversion fails.
 
-    If \a ok is not 0: if a conversion error occurs, \a *ok is set to
-    FALSE; otherwise \a *ok is set to TRUE.
+    If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
+    FALSE; otherwise *\a{ok} is set to TRUE.
 
     \sa number()
 */
@@ -3724,8 +3724,8 @@ Q_ULLONG QString::toULongLong(bool *ok, int base) const
 
     Returns 0 if the conversion fails.
 
-    If \a ok is not 0: if a conversion error occurs, \a *ok is set to
-    FALSE; otherwise \a *ok is set to TRUE.
+    If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
+    FALSE; otherwise *\a{ok} is set to TRUE.
 
     \sa number()
 */
@@ -3751,8 +3751,8 @@ long QString::toLong(bool *ok, int base) const
 
     Returns 0 if the conversion fails.
 
-    If \a ok is not 0: if a conversion error occurs, \a *ok is set to
-    FALSE; otherwise \a *ok is set to TRUE.
+    If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
+    FALSE; otherwise *\a{ok} is set to TRUE.
 
     \sa number()
 */
@@ -3778,8 +3778,8 @@ ulong QString::toULong(bool *ok, int base) const
 
     Returns 0 if the conversion fails.
 
-    If \a ok is not 0: if a conversion error occurs, \a *ok is set to
-    FALSE; otherwise \a *ok is set to TRUE.
+    If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
+    FALSE; otherwise *\a{ok} is set to TRUE.
 
     \code
 	QString str("FF");
@@ -3812,8 +3812,8 @@ int QString::toInt(bool *ok, int base) const
 
     Returns 0 if the conversion fails.
 
-    If \a ok is not 0: if a conversion error occurs, \a *ok is set to
-    FALSE; otherwise \a *ok is set to TRUE.
+    If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
+    FALSE; otherwise *\a{ok} is set to TRUE.
 
     \sa number()
 */
@@ -3839,8 +3839,8 @@ uint QString::toUInt(bool *ok, int base) const
 
     Returns 0 if the conversion fails.
 
-    If \a ok is not 0: if a conversion error occurs, \a *ok is set to
-    FALSE; otherwise \a *ok is set to TRUE.
+    If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
+    FALSE; otherwise *\a{ok} is set to TRUE.
 
     \sa number()
 */
@@ -3866,8 +3866,8 @@ short QString::toShort(bool *ok, int base) const
 
     Returns 0 if the conversion fails.
 
-    If \a ok is not 0: if a conversion error occurs, \a *ok is set to
-    FALSE; otherwise \a *ok is set to TRUE.
+    If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
+    FALSE; otherwise *\a{ok} is set to TRUE.
 
     \sa number()
 */
@@ -3889,8 +3889,8 @@ ushort QString::toUShort(bool *ok, int base) const
 
     Returns 0.0 if the conversion fails.
 
-    If \a ok is not 0: if a conversion error occurs, \a *ok is set to
-    false; otherwise \a *ok is set to true.
+    If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
+    false; otherwise *\a{ok} is set to true.
 
     \code
 	QString string("1234.56");
@@ -3928,8 +3928,8 @@ double QString::toDouble(bool *ok) const
 
     Returns 0.0 if the conversion fails.
 
-    If \a ok is not 0: if a conversion error occurs, \a *ok is set to
-    false; otherwise \a *ok is set to true.
+    If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
+    false; otherwise *\a{ok} is set to true.
 
     \sa number()
 */
@@ -4279,8 +4279,21 @@ QStringList QString::split(const QChar &sep) const
     For example, if you split the string "a::b:c" on QRegExp(":"),
     split() returns the list ["a", "", "b", "c"].
 
-    If \a sep does not match anywhere in \a str, split() returns a
-    single-element list.
+    If \a sep does not match anywhere in the string, split() returns
+    a single-element list.
+
+    If you don't want empty entries in the list, call
+    remove(QString()) on the returned QStringList.
+
+    Example:
+    \code
+	QString str = "1,2,,6,9";
+        QStringList list = str.split(QRegExp("[,;]"));
+        // list: [ "1", "2", "", "6", "9" ]
+
+        list.remove(QString());
+        // list: [ "1", "2", "6", "9" ]
+    \endcode
 
     \sa join(), section()
 */
@@ -4497,7 +4510,6 @@ QString QString::arg(const QString& a, int fieldWidth) const
 
     return replaceArgEscapes(*this, d, fieldWidth, a, a);
 }
-
 
 /*!
     \fn QString QString::arg(const QString& a1, const QString& a2) const

@@ -236,7 +236,7 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     \sa operator!=()
 */
 
-/*! \fn bool QVector::operator!=(const QVector &v) const
+/*! \fn bool QVector::operator!=(const QVector &other) const
 
     Returns true if \a other is not equal to this vector; otherwise
     returns false.
@@ -395,7 +395,7 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
 
     \overload
 
-    Same as at().
+    Same as at(\a i).
 */
 
 /*! \fn void QVector::append(const T &value)
@@ -872,7 +872,7 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     \internal
 */
 
-/*! \fn template <class T> QDataStream &operator<<(QDataStream &out, const QVector<T> &vector)
+/*! \fn QDataStream &operator<<(QDataStream &out, const QVector<T> &vector)
     \relates QVector
 
     Writes the vector \a vector to stream \a out.
@@ -882,7 +882,7 @@ int QVectorData::grow(int size, int sizeofT, bool excessive)
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
-/*! \fn template <class T> QDataStream &operator>>(QDataStream &in, QVector<T> &vector)
+/*! \fn QDataStream &operator>>(QDataStream &in, QVector<T> &vector)
     \relates QVector
 
     Reads a vector from stream \a in into \a vector.

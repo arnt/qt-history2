@@ -321,12 +321,6 @@ QChar::QChar(uchar c)
 
 
 /*!
-    \fn bool QChar::operator!() const
-
-    Synonym for isNull().
-*/
-
-/*!
     \fn bool QChar::isNull() const
 
     Returns TRUE if the character is the Unicode character 0x0000
@@ -671,26 +665,6 @@ QChar QChar::fromAscii(char c)
 */
 
 /*!
-    \fn bool operator==(char ch, QChar c)
-
-    \overload
-    \relates QChar
-
-    Returns TRUE if \a c is the ASCII/Latin1 character \a ch;
-    otherwise returns FALSE.
-*/
-
-/*!
-    \fn bool operator==(QChar c, char ch)
-
-    \overload
-    \relates QChar
-
-    Returns TRUE if \a c is the ASCII/Latin1 character \a ch;
-    otherwise returns FALSE.
-*/
-
-/*!
     \fn int operator!=(QChar c1, QChar c2)
 
     \relates QChar
@@ -700,54 +674,12 @@ QChar QChar::fromAscii(char c)
 */
 
 /*!
-    \fn int operator!=(char ch, QChar c)
-
-    \overload
-    \relates QChar
-
-    Returns TRUE if \a c is not the ASCII/Latin1 character \a ch;
-    otherwise returns FALSE.
-*/
-
-/*!
-    \fn int operator!=(QChar c, char ch)
-
-    \overload
-    \relates QChar
-
-    Returns TRUE if \a c is not the ASCII/Latin1 character \a ch;
-    otherwise returns FALSE.
-*/
-
-/*!
     \fn int operator<=(QChar c1, QChar c2)
 
     \relates QChar
 
     Returns TRUE if the numeric Unicode value of \a c1 is less than
     that of \a c2, or they are the same Unicode character; otherwise
-    returns FALSE.
-*/
-
-/*!
-    \fn int operator<=(QChar c, char ch)
-
-    \overload
-    \relates QChar
-
-    Returns TRUE if the numeric Unicode value of \a c is less than or
-    equal to that of the ASCII/Latin1 character \a ch; otherwise
-    returns FALSE.
-*/
-
-/*!
-    \fn int operator<=(char ch, QChar c)
-
-    \overload
-    \relates QChar
-
-    Returns TRUE if the numeric Unicode value of the ASCII/Latin1
-    character \a ch is less than or equal to that of \a c; otherwise
     returns FALSE.
 */
 
@@ -762,28 +694,6 @@ QChar QChar::fromAscii(char c)
 */
 
 /*!
-    \fn int operator>=(QChar c, char ch)
-
-    \overload
-    \relates QChar
-
-    Returns TRUE if the numeric Unicode value of \a c is greater than
-    or equal to that of the ASCII/Latin1 character \a ch; otherwise
-    returns FALSE.
-*/
-
-/*!
-    \fn int operator>=(char ch, QChar c)
-
-    \overload
-    \relates QChar
-
-    Returns TRUE if the numeric Unicode value of the ASCII/Latin1
-    character \a ch is greater than or equal to that of \a c;
-    otherwise returns FALSE.
-*/
-
-/*!
     \fn int operator<(QChar c1, QChar c2)
 
     \relates QChar
@@ -793,52 +703,10 @@ QChar QChar::fromAscii(char c)
 */
 
 /*!
-    \fn int operator<(QChar c, char ch)
-
-    \overload
-    \relates QChar
-
-    Returns TRUE if the numeric Unicode value of \a c is less than that
-    of the ASCII/Latin1 character \a ch; otherwise returns FALSE.
-*/
-
-/*!
-    \fn int operator<(char ch, QChar c)
-
-    \overload
-    \relates QChar
-
-    Returns TRUE if the numeric Unicode value of the ASCII/Latin1
-    character \a ch is less than that of \a c; otherwise returns
-    FALSE.
-*/
-
-/*!
     \fn int operator>(QChar c1, QChar c2)
 
     \relates QChar
 
     Returns TRUE if the numeric Unicode value of \a c1 is greater than
     that of \a c2; otherwise returns FALSE.
-*/
-
-/*!
-    \fn int operator>(QChar c, char ch)
-
-    \overload
-    \relates QChar
-
-    Returns TRUE if the numeric Unicode value of \a c is greater than
-    that of the ASCII/Latin1 character \a ch; otherwise returns FALSE.
-*/
-
-/*!
-    \fn int operator>(char ch, QChar c)
-
-    \overload
-    \relates QChar
-
-    Returns TRUE if the numeric Unicode value of the ASCII/Latin1
-    character \a ch is greater than that of \a c; otherwise returns
-    FALSE.
 */
