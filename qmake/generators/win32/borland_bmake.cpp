@@ -91,7 +91,8 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
 	inc.replace(QRegExp("\\\\*$"), "");
 	t << " -I\"" << inc << "\"";
     }
-    t << endl;
+    t << " -I\"" << Option::fixPathToTargetOS(Option::mkfile::qmakespec) << "\""
+      << endl;
 
     if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {
 	t << "LINK	=	" << var("QMAKE_LINK") << endl;
