@@ -711,10 +711,12 @@ int QTableItem::col() const
 /*!
   Constructs a table of 10 * 10 cells.
 
-  Performance is boosted by modifying the widget flags so that only part of
-  the QTableItem children is redrawn.  This may be unsuitable for custom
-  QTableItem classes, in which case the widget flags should be reset using
-  QWidget::setWFlags().
+  Performance is boosted by modifying the widget flags so that only part
+  of the QTableItem children is redrawn.  This may be unsuitable for custom
+  QTableItem classes, in which case \c WNorthWestGravity and \c WRepaintNoErase
+  should be cleared.
+
+  \sa QWidget::clearWFlags() Qt::WidgetFlags
 */
 
 QTable::QTable( QWidget *parent, const char *name )

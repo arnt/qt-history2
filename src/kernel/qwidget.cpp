@@ -684,9 +684,6 @@ same group.
 				  WStyle_Customize | WStyle_NoBorder |
 				  WStyle_Tool );
   \endcode
-
-  The widget flags are defined in qnamespace.h (which is included by
-  qwidget.h).
 */
 
 QWidget::QWidget( QWidget *parent, const char *name, WFlags f )

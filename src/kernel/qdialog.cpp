@@ -132,11 +132,13 @@ public:
 
   The widget flags \a f are sent to the QWidget constructor, as usual.
 
-  If you e.g. don't want a What"s this button in the titlebar of the dialog,
+  If you e.g. don't want a What's this button in the titlebar of the dialog,
   pass WStyle_Customize | WStyle_NormalBorder | WStyle_Title | WStyle_SysMenu
   here.
 
   We recommend always passing a parent.
+
+  \sa QWidget::setWFlags Qt::WidgetFlags
 */
 
 QDialog::QDialog( QWidget *parent, const char *name, bool modal, WFlags f )
@@ -443,7 +445,7 @@ void QDialog::show()
 	    extrah = QMAX( extrah, h );
 	}
 	delete list;
-
+	
 	// sanity check for decoration frames. With embedding, we
 	// might get extraordinary values
 	if ( extraw >= 10 || extrah >= 40 )

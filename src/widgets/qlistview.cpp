@@ -1757,11 +1757,13 @@ void QListViewPrivate::Root::setup()
 /*!
   Constructs a new empty list view, with \a parent as a parent and \a name
   as object name.
-  
-  Performance is boosted by modifying the widget flags \a f so that only part
-  of the QListViewItem children is redrawn.  This may be unsuitable for custom
-  QListViewItem classes, in which case the widget flags should be reset using
-  QWidget::setWFlags().
+
+  Performance is boosted by modifying the widget flags \a f so that only
+  part of the QListViewItem children is redrawn.  This may be unsuitable
+  for custom QListViewItem classes, in which case \c WNorthWestGravity and
+  \c WRepaintNoErase should be cleared.
+
+  \sa QWidget::clearWFlags() Qt::WidgetFlags
 */
 QListView::QListView( QWidget * parent, const char *name, WFlags f )
     : QScrollView( parent, name, f | WNorthWestGravity | WRepaintNoErase )
