@@ -540,6 +540,8 @@ QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l)
         return QTextStreamPrivate::TS_END_OF_OUTPUT;
     }
 
+    const int leaveEnd = (end_flags & TS_MOD_CONSUME) ? 0 : 1;
+
     //just read directly from the string (optimization)
     if (sourceType == QTextStreamPrivate::String) {
         const int remaining = str->length()-(strOff/sizeof(QChar));
@@ -551,7 +553,7 @@ QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l)
                 strOff += i * sizeof(QChar);
                 return QTextStreamPrivate::TS_END_OF_INPUT;
             } else if(int end = ts_end(data+i, remaining - i, end_flags)) {
-                i += end - 1;
+                i += end - leaveEnd;
                 if(l)
                     *l = i;
                 strOff += i * sizeof(QChar);
@@ -567,7 +569,6 @@ QTextStreamPrivate::ts_getbuf(QChar *out, int len, uchar end_flags, uint *l)
     }
 
     //read from the device
-    const int leaveEnd = (end_flags & TS_MOD_CONSUME) ? 0 : 1;
     QTextStreamPrivate::GetBufEnd ret = QTextStreamPrivate::TS_END_UNKNOWN;
     int rnum = 0;   // the number of QChars really read
 
@@ -2511,7 +2512,7 @@ bool QTextStream::atEnd() const
 {
     Q_D(const QTextStream);
     //just append directly onto the string (optimization)
-    if (d->sourceType == QTextStreamPrivate::String)
+    if (d->sourceType == QTextStreamPrivate::String) 
         return d->strOff == (d->str->length()*sizeof(QChar));
     //device
     return ((!d->dev || d->dev->atEnd()) && d->ungetcBuf.isEmpty());
