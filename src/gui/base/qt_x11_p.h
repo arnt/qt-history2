@@ -121,6 +121,9 @@ extern "C" {
 #  include <X11/extensions/Xrender.h>
 // #define QT_NO_XFTFREETYPE
 #  ifndef QT_NO_XFTFREETYPE
+//   This hacks around the freetype poeple putting an #error into freetype.h in 2.1.7, making
+//   it impossible to use an updated freetype with older Xft header files.
+#    include <ft2build.h>
 #    ifdef QT_USE_XFT2_HEADER
 #      include <X11/Xft/Xft2.h>
 #    else
