@@ -1034,19 +1034,20 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
 	ofile = ofile.right(ofile.length() - ofile.findRev(Option::dir_sep) -1);
     ofile = Option::fixPathToTargetOS(ofile);
 
-    QString qmake = build_args();
     QString pfile = project->projectFile();
-    fileFixify(pfile);
-    if(!ofile.isEmpty()) {
-	t << ofile << ": " << pfile << " ";
-	if(Option::mkfile::do_cache)
-	    t << Option::mkfile::cachefile << " ";
-	t << project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"].join(" \\\n\t\t") << "\n\t"
-	  << qmake <<endl;
+    if(pfile != "-") {
+	QString qmake = build_args();
+	fileFixify(pfile);
+	if(!ofile.isEmpty()) {
+	    t << ofile << ": " << pfile << " ";
+	    if(Option::mkfile::do_cache)
+		t << Option::mkfile::cachefile << " ";
+	    t << project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"].join(" \\\n\t\t") << "\n\t"
+	      << qmake <<endl;
+	}
+	t << "qmake: " << "\n\t"
+	  << "@" << qmake << endl << endl;
     }
-    t << "qmake: " << "\n\t"
-      << "@" << qmake << endl << endl;
-
     return TRUE;
 }
 
