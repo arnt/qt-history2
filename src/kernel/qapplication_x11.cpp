@@ -3336,7 +3336,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	break;
 
     case XFocusIn: {				// got focus
-	if ( widget == desktop() )
+	if ( widget == (QWidget*)desktop() )
 	    break;
 	if ( inPopupMode() ) // some delayed focus event to ignore
 	    break;
@@ -3353,7 +3353,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
     break;
 
     case XFocusOut:				// lost focus
-	if ( widget == desktop() )
+	if ( widget == (QWidget*)desktop() )
 	    break;
 	if ( !widget->isTopLevel() )
 	    break;
