@@ -1292,7 +1292,7 @@ void QTextView::contentsMouseDoubleClickEvent( QMouseEvent * )
 
 void QTextView::contentsDragEnterEvent( QDragEnterEvent *e )
 {
-    if ( !QTextDrag::canDecode( e ) ) {
+    if ( isReadOnly() || !QTextDrag::canDecode( e ) ) {
         e->ignore();
         return;
     }
@@ -1304,7 +1304,7 @@ void QTextView::contentsDragEnterEvent( QDragEnterEvent *e )
 
 void QTextView::contentsDragMoveEvent( QDragMoveEvent *e )
 {
-    if ( !QTextDrag::canDecode( e ) ) {
+    if ( isReadOnly() || !QTextDrag::canDecode( e ) ) {
         e->ignore();
         return;
     }
