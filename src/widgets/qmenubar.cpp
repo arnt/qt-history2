@@ -970,7 +970,7 @@ void QMenuBar::drawContents( QPainter *p )
 	    if ( i == actItem )
 		flags |= QStyle::PStyle_On;
 	    if ( actItemDown )
-		flags |= QStyle::PStyle_Sunken;
+		flags |= QStyle::PStyle_Down;
 	    if ( hasFocus() || hasmouse || popupvisible )
 		flags |= QStyle::PStyle_HasFocus;
 
