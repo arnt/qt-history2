@@ -304,7 +304,7 @@ bool HelpNavigation::eventFilter( QObject * o, QEvent * e )
 	    return TRUE;
 	} else if ( ke->key() == Key_Down ) {
 	    int i = indexList->currentItem();
-	    if ( ++i < indexList->count() ) {
+	    if ( ++i < int(indexList->count()) ) {
 		indexList->setCurrentItem( i );
 		indexEdit->blockSignals( TRUE );
 		indexEdit->setText( indexList->currentText() );

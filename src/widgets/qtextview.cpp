@@ -483,7 +483,7 @@ const QBrush& QTextView::paper()
 void QTextView::drawContentsOffset(QPainter* p, int ox, int oy,
 				 int cx, int cy, int cw, int ch)
 {
-    QTextOptions to(&paper() );
+    QTextOptions to(&paper(), d->paplinkcol, d->linkunderline );
     to.offsetx = ox;
     to.offsety = oy;
 

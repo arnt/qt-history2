@@ -54,6 +54,8 @@ class QSimpleRichTextData
 {
 public:
     QRichText* doc;
+    QColor linkColor;
+    bool linkUnderline;
 };
 
 /*!
@@ -84,23 +86,31 @@ QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
 				  const QString& context, const QStyleSheet* sheet)
 {
     d  = new QSimpleRichTextData;
+    d->linkColor = Qt::blue;
+    d->linkUnderline = TRUE;
     d->doc = new QRichText( text, fnt, context, 0, 0, sheet );
 }
 
 
-/*!  
-  Another, more complex constructor for QSimpleRichText that takes
-  an additional mime source factory \a factory and a vertical break
-  parameter \a verticalBreak.
+/*!  Another, more complex constructor for QSimpleRichText that takes
+  an additional mime source factory \a factory, a vertical break
+  parameter \a verticalBreak, a link color \a linkColor and a bool \a
+  linkUnderline.
+  
+  The constructor is useful to create a QSimpleRichText object
+  suitable for printing.
   
  */
 QSimpleRichText::QSimpleRichText( const QString& text, const QFont& fnt,
 		 const QString& context,
-		 const QStyleSheet* sheet, const QMimeSourceFactory* factory, int verticalBreak )
+				  const QStyleSheet* sheet, const QMimeSourceFactory* factory, int verticalBreak,
+				  const QColor& linkColor, bool linkUnderline )
 {
     d  = new QSimpleRichTextData;
     d->doc = new QRichText( text, fnt, context, 0, factory, sheet );
     d->doc->flow()->pagesize = verticalBreak;
+    d->linkColor = linkColor;
+    d->linkUnderline = linkUnderline;
 }
 
 
@@ -195,7 +205,8 @@ void QSimpleRichText::draw( QPainter* p,  int x, int y, const QRegion& clipRegio
     QRect r = clipRegion.boundingRect();
     QRegion bg = clipRegion;
 
-    d->doc->draw(p, x, y, 0, 0, r.x(), r.y(), r.width(), r.height(), bg, cg, QTextOptions( paper ) );
+    d->doc->draw(p, x, y, 0, 0, r.x(), r.y(), r.width(), r.height(), bg, cg, 
+		 QTextOptions( paper, d->linkColor, d->linkUnderline ) );
     if (paper) {
 	p->setClipRegion(bg);
 	if ( paper->pixmap() )
