@@ -3645,10 +3645,11 @@ void QPSPrintEngine::updateBrush(const QBrush &brush, const QPointF &/*origin*/)
     if (d->cbrush.style() == Qt::NoBrush)
         d->pageStream << "NB\n";
     else if (brush.style() == Qt::LinearGradientPattern) {
-        d->pageStream << POINT(brush.gradientStart())
-                      << POINT(brush.gradientStop())
-                      << color(brush.color())
-                      << color(brush.gradientColor()) << " SetLinGrad\n";
+        const QLinearGradient *lg = static_cast<const QLinearGradient *>(brush.gradient());
+        d->pageStream << POINT(lg->start())
+                      << POINT(lg->finalStop())
+                      << color(lg->stops().first().second)
+                      << color(lg->stops().last().second) << " SetLinGrad\n";
     } else {
         d->pageStream << (int)d->cbrush.style() << ' '
                       << color(d->cbrush.color()) << "BR\n";
