@@ -540,6 +540,17 @@ static bool cast(const QCoreVariant::Private *d, QVariant::Type t,
         }
         break;
     }
+    case QVariant::Pixmap:
+        if (d->type == QVariant::Image) {
+            *static_cast<QPixmap *>(result) = *v_cast<QImage>(d);
+            return true;
+        }
+        break;
+    case QVariant::Image:
+        if (d->type == QVariant::Pixmap) {
+            *static_cast<QImage *>(result) = v_cast<QPixmap>(d)->toImage();
+        }
+        break;
 #ifndef QT_NO_ACCEL
     case QVariant::Int:
         if (d->type == QVariant::KeySequence) {
