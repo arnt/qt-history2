@@ -87,17 +87,9 @@ typedef unsigned int useconds_t;
 extern "C" int usleep(useconds_t);
 #endif
 
-#if defined(_XOPEN_UNIX)
-// Even though XPG4v2 is specified sockets use socklen_t not size_t because
-// size_t breaks 64-bit platforms and Solaris 7 is a 64-bit platform. In the
-// end both socklen_t and size_t are correct because socklen_t is typedef'ed
-// to size_t except of course in 64-bit mode.
-// What about Solaris 2.6 which is not a 64-bit platform?
+// On 64-bit platforms (Solaris 7 and better) sockets consistently use
+// socklen_t in 64-bit mode.
 #define QT_SOCKLEN_T socklen_t
-#else
-// Solaris 2.5.1.
-#define QT_SOCKLEN_T int
-#endif
 
 #define QT_NREAD	I_NREAD
 

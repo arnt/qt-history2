@@ -75,7 +75,7 @@
 // on Reliant 5.45 and if __LP64__ is defined:
 // - socket functions use 'int'
 // - if _SOCKLEN_T is defined 'socklen_t' is typedef'ed to 'unsigned int'
-//   which seems wrong so let's always use 'int'!
+//   which seems wrong so let's always use 'int' instead!
 #define QT_SOCKLEN_T int
 
 #define QT_NREAD	I_NREAD

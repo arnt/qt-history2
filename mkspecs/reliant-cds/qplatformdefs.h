@@ -74,8 +74,8 @@
 
 // on Reliant 5.45 and if __LP64__ is not defined:
 // - socket functions use 'size_t'
-// - if _SOCKLEN_T is defined 'socklen_t' is typedef'ed to 'size_t' 
-#if defined(_XOPEN_SOURCE_EXTENDED) || (_XOPEN_SOURCE-0 >= 500)
+// - if _SOCKLEN_T is defined 'socklen_t' is typedef'ed to 'size_t'
+#if defined(_SOCKLEN_T)
 #  define QT_SOCKLEN_T socklen_t
 #else
 #  define QT_SOCKLEN_T size_t
