@@ -1274,13 +1274,19 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
         break;
     case CE_TabBarTab:
         if (const QStyleOptionTab *tab = qt_cast<const QStyleOptionTab *>(opt)) {
-            if (tab->shape == QTabBar::TriangularAbove || tab->shape == QTabBar::TriangularBelow) {
-                QBrush oldBrush = p->brush();
-                QPen oldPen = p->pen();
-                // triangular, above or below
-                int y;
-                int x;
-                QPolygon a(10);
+            QBrush oldBrush = p->brush();
+            QPen oldPen = p->pen();
+            if (tab->state & Style_Selected)
+                p->setBrush(tab->palette.base());
+            else
+                p->setBrush(tab->palette.background());
+            p->setPen(tab->palette.foreground().color());            
+            int y;
+            int x;
+            QPolygon a(10);            
+            switch (tab->shape) {
+            case QTabBar::TriangularAbove:
+            case QTabBar::TriangularBelow: {
                 a.setPoint(0, 0, -1);
                 a.setPoint(1, 0, 0);
                 y = tab->rect.height() - 2;
@@ -1294,24 +1300,38 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 int right = tab->rect.width() - 1;
                 for (i = 0; i < 5; ++i)
                     a.setPoint(9 - i, right - a.point(i).x(), a.point(i).y());
-
                 if (tab->shape == QTabBar::TriangularNorth)
                     for (i = 0; i < 10; ++i)
                         a.setPoint(i, a.point(i).x(), tab->rect.height() - 1 - a.point(i).y());
 
                 a.translate(tab->rect.left(), tab->rect.top());
-
-                if (tab->state & Style_Selected)
-                    p->setBrush(tab->palette.base());
-                else
-                    p->setBrush(tab->palette.background());
-                p->setPen(tab->palette.foreground().color());
                 p->drawPolygon(a);
-                p->setPen(oldPen);
-                p->setBrush(oldBrush);
-            } else {
-                p->drawRect(tab->rect);
+                break; }
+            case QTabBar::TriangularEast:
+            case QTabBar::TriangularWest: {
+                a.setPoint(0, -1, 0);
+                a.setPoint(1, 0, 0);
+                x = tab->rect.width() - 2;
+                y = x / 3;
+                a.setPoint(2, x - 1, y++);
+                ++y;
+                a.setPoint(3, x++, y++);
+                a.setPoint(4, x, y);
+                int i;
+                int bottom = tab->rect.height() - 1;
+                for (i = 0; i < 5; ++i)
+                    a.setPoint(9 - i, a.point(i).x(), bottom - a.point(i).y());
+                if (tab->shape == QTabBar::TriangularWest)
+                    for (i = 0; i < 10; ++i)
+                        a.setPoint(i, tab->rect.width() - 1 - a.point(i).x(), a.point(i).y());
+                a.translate(tab->rect.left(), tab->rect.top());
+                p->drawPolygon(a);
+                break; }
+            default:
+                break;
             }
+            p->setPen(oldPen);
+            p->setBrush(oldBrush);
         }
         break;
     case CE_TabBarLabel:
@@ -1325,7 +1345,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
             if (verticalTabs) {
                 p->save();
                 int newX, newY, newRot;
-                if (tab->shape == QTabBar::RoundedEast || tab->shape == QTabBar::TriangularWest) {
+                if (tab->shape == QTabBar::RoundedEast || tab->shape == QTabBar::TriangularEast) {
                     newX = tr.width();
                     newY = tr.y();
                     newRot = 90;
