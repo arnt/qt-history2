@@ -1527,8 +1527,7 @@ void QLineEdit::setAlignment( int flag )
 {
     if ( flag == AlignCenter )
 	flag = AlignHCenter;
-    if ( flag == d->parag->alignment() ||
-	 (flag & ~Qt::AlignHorizontal_Mask) != 0 )
+    if ( flag == d->parag->alignment() )
 	return;
     d->parag->setAlignment( flag );
     d->parag->invalidate( 0 );
