@@ -2208,13 +2208,14 @@ void QMetaObject::activate(QObject * const obj, int signal_index, void **argv)
         c.receiver->d->currentSender = obj;
 
         QObject * const receiver = c.receiver;
+        int member = c.member;
         locker.unlock();
 
 #if defined(QT_NO_EXCEPTIONS)
-        receiver->qt_metacall(InvokeMetaMember, c.member, argv);
+        receiver->qt_metacall(InvokeMetaMember, member, argv);
 #else
         try {
-            receiver->qt_metacall(InvokeMetaMember, c.member, argv);
+            receiver->qt_metacall(InvokeMetaMember, member, argv);
         } catch (...) {
             locker.relock();
             if (c.receiver)
