@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgeom.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qgeom.cpp#16 $
 **
-**  Studies in Geometry Management
+**  Geometry Management
 **
 **  Created:  960416
 **
@@ -11,7 +11,7 @@
 #include "qgeom.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#15 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#16 $");
 
 
 
@@ -42,15 +42,15 @@ static inline QBasicManager::Direction perp( QBasicManager::Direction dir )
 
 
 /*!
-  Creates a new QBoxLayout with direction \e d and main widget \e
-  parent.  \e parent may not be 0.
+  Creates a new QBoxLayout with direction \a d and main widget \a
+  parent.  \a parent may not be 0.
 
-  \e border is the number of pixels between the edge of the widget and
-  the managed children.	 \e autoBorder is the default number of pixels
-  between adjacent managed children.  If \e autoBorder is -1 the value
-  of \e border is used.
+  \a border is the number of pixels between the edge of the widget and
+  the managed children.	 \a autoBorder is the default number of pixels
+  between adjacent managed children.  If \a autoBorder is -1 the value
+  of \a border is used.
 
-  \e name is passed to the QObject constructor.
+  \a name is the internal object name
 
   \sa direction()
 */
@@ -124,7 +124,7 @@ void QBoxLayout::freeze( int w, int h )
 
 /*!
   \internal
-  Constructs a new box with direction \e d, within \e parent.
+  Constructs a new box with direction \a d, within \a parent.
 */
 QBoxLayout::QBoxLayout(	 QBoxLayout *parent, QBasicManager::Direction d,
 			 const char *name )
@@ -143,7 +143,7 @@ QBoxLayout::QBoxLayout(	 QBoxLayout *parent, QBasicManager::Direction d,
 
 
 /*!
-  Adds a non-stretchable space with size \e size.  QBoxLayout gives
+  Adds a non-stretchable space with size \a size.  QBoxLayout gives
   default border and spacing. This function adds additional space.
 
   \sa addStretch
@@ -156,7 +156,7 @@ void QBoxLayout::addSpacing( int size )
 
 /*!
   Adds a stretchable space with zero minimum size
-  and stretch factor \e stretch.
+  and stretch factor \a stretch.
 
   \sa addSpacing
 */
@@ -170,7 +170,7 @@ void QBoxLayout::addStretch( int stretch )
 
 /*!
   Limits the perpendicular dimension of the box (e.g. height if the
-  box is LeftToRight) to a minimum of \e size. Other constraints may
+  box is LeftToRight) to a minimum of \a size. Other constraints may
   increase the limit.
 
   \sa addMaxStrut()
@@ -183,7 +183,7 @@ void QBoxLayout::addStrut( int size )
 
 /*
   Limits the perpendicular dimension of the box (e.g. height if
-  the box is LeftToRight) to a maximum of \e size. Other constraints
+  the box is LeftToRight) to a maximum of \a size. Other constraints
   may decrease the limit.
 
   \sa addMinStrut()
@@ -195,8 +195,8 @@ void QBox::addMaxStrut( int size)
 */
 
 /*!
-  Adds \e widget to the box, with stretch factor \e stretch and
-  alignment \e a.
+  Adds \a widget to the box, with stretch factor \a stretch and
+  alignment \a a.
 
   The stretch factor applies only in the \link direction() direction
   \endlink of the QBoxLayout, and is relative to the other boxes and
@@ -281,8 +281,8 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, alignment a )
 }
 
 /*!
-  Creates a new box and adds it, with serial stretch factor \e stretch.
-  and \link addWidget alignment \endlink \e a. Returns a pointer to the new
+  Creates a new box and adds it, with serial stretch factor \a stretch.
+  and \link addWidget alignment \endlink \a a. Returns a pointer to the new
   box.
 
   \sa addWidget(), addSpacing()
@@ -339,3 +339,145 @@ void QBoxLayout::addB( QBoxLayout * b,	int stretch )
 	bm->QBasicManager::add( serChain, b->parChain, stretch );
     }
 }
+
+
+
+/*!
+  \class QGridLayout qgeom.h
+
+  \brief The QGridLayout class specifies child widget geometry.
+
+  Contents are arranged in a fixed grid. If you need a more flexible layout,
+  see the QBoxLayout class.
+*/
+
+
+
+/*!
+  Constructs a new QGridLayout with \a nRows, nCols columns
+   and main widget \a  parent.  \a parent may not be 0.
+
+  \a border is the number of pixels between the edge of the widget and
+  the managed children.	 \a autoBorder is the default number of pixels
+  between adjacent managed children.  If \a autoBorder is -1 the value
+  of \a border is used.
+
+  \a name is the internal object name.
+
+
+*/
+
+QGridLayout::QGridLayout( QWidget *parent, int nRows, int nCols, int border ,
+			  int autoBorder , const char *name )
+    : QObject( parent, name )
+{
+    bm = new QBasicManager( parent, name );
+
+    if ( autoBorder < 0 )
+	defBorder = border;
+    else
+	defBorder = autoBorder;
+    bm->setBorder( border );
+
+    horChain = bm->newSerChain( QBasicManager::LeftToRight );
+    verChain = bm->newSerChain( QBasicManager::Down );
+    bm->add( bm->xChain(), horChain );
+    bm->add( bm->yChain(), verChain );
+
+    rows = new QArray<QChain*> ( nRows );
+    cols = new QArray<QChain*> ( nCols );
+
+
+    int i;
+    for ( i = 0; i< nRows; i++ ) {
+	if ( i != 0 )
+	    bm->addSpacing( verChain, defBorder, 0, defBorder );
+	(*rows)[i] = bm->newParChain( QBasicManager::Down );
+	bm->add( verChain, (*rows)[i] );
+    }
+
+    for ( i = 0; i< nCols; i++ ) {
+	if ( i != 0 )
+	    bm->addSpacing( horChain, defBorder, 0, defBorder );
+	(*cols)[i] = bm->newParChain( QBasicManager::LeftToRight );
+	bm->add( horChain, (*cols)[i] );
+    }
+}
+
+/*!
+
+  Adds the widget \a w to the cell grid at \a row, \a col. Alignment is
+  specified by \a align which takes the same arguments as QLabel::setAlignment().
+
+  Note that widgets take all the space they can get; alignment has no effect unless
+  you have set QWidget::maximumSize().
+
+*/
+void QGridLayout::addWidget( QWidget *w, int row, int col, int align )
+{
+    addMultiCellWidget( w, row, row, col, col, align );
+}
+
+/*!
+
+  Adds the widget \a w to the cell grid, spanning multiple rows/columns.
+
+  Note that multicell widgets do not define the columns/rows they
+  span.  Each column must contain at least one widget that does not
+  span multiple columns. Likewise, each row must contain one widget
+  that does not span multiple rows. If your layout does not satisfy this,
+  consider using the QBoxLayout class instead.
+
+  Alignment is specified by \a align which takes the same arguments as
+  QLabel::setAlignment(), alignment has no effect unless you have set
+  QWidget::maximumSize().
+
+*/
+void QGridLayout::addMultiCellWidget( QWidget *w, int fromRow, int toRow, 
+					int fromCol, int toCol, int align  )
+{
+    int col = fromCol;
+
+    const int hFlags = AlignHCenter | AlignLeft | AlignRight;
+    const int vFlags = AlignVCenter | AlignTop | AlignBottom;
+
+
+    int a = align & hFlags;
+
+    QChain *c;
+    if ( a || fromCol != toCol ) {
+	c = bm->newSerChain( QBasicManager::LeftToRight );
+	if ( fromCol == toCol )
+	    bm->add( (*cols)[ fromCol ], c );
+	else
+	    bm->addBranch( horChain, c, fromCol*2, toCol*2 );
+    }
+    else
+	c =  (*cols)[ col ];
+
+    if ( a ) {
+	if ( a & (AlignHCenter|AlignLeft) )
+	    bm->addSpacing( c, 0 );
+	bm->addWidget( c, w );
+	if ( a & (AlignHCenter|AlignRight) )
+	    bm->addSpacing( c, 0 );
+    } else
+	bm->addWidget( c, w );
+
+
+    int row = fromRow;
+    if ( fromRow != toRow )
+	warning( "multi row not implemented" );
+    a = align & vFlags;
+    if ( a ) {
+	QChain *c = bm->newSerChain( QBasicManager::Down );
+	bm->add( (*rows)[ row ], c );
+	if ( a & (AlignVCenter|AlignTop) )
+	    bm->addSpacing( c, 0 );
+	bm->addWidget( c, w );
+	if ( a & (AlignVCenter|AlignBottom) )
+	    bm->addSpacing( c, 0 );
+    } else
+	bm->addWidget( (*rows)[ row ], w );
+}
+

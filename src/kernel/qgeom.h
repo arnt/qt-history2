@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgeom.h#12 $
+** $Id: //depot/qt/main/src/kernel/qgeom.h#13 $
 **
 **  Geometry Management
 **
@@ -57,6 +57,42 @@ private:	// Disabled copy constructor and operator=
     QBoxLayout( const QBoxLayout & ) {}
     QBoxLayout &operator=( const QBoxLayout & ) { return *this; }
 
+};
+
+
+
+class QGridLayout : public QObject
+{
+public:
+    QGridLayout( QWidget *parent, int nRows, int nCols, int border=0,
+		 int autoBorder = -1, const char *name=0 );
+    int defaultBorder() const { return defBorder; }
+
+    bool doIt() { return bm->doIt(); }
+    void freeze( int w, int h );
+    void freeze() { freeze( 0, 0 ); }
+
+    void addWidget( QWidget *, int row, int col, int align = 0 );
+    void addMultiCellWidget( QWidget *, int fromRow, int toRow, 
+			       int fromCol, int toCol, int align = 0 );
+
+    //void setStretch( int stretch = 0, int col );
+    //void addStrut( int size, int col);
+
+private:
+
+    QBasicManager * bm;
+    int defBorder;
+
+    QArray<QChain*> *rows;
+    QArray<QChain*> *cols;
+
+    QChain *horChain;
+    QChain *verChain;
+
+private:	// Disabled copy constructor and operator=
+    QGridLayout( const QGridLayout & ) {}
+    QGridLayout &operator=( const QGridLayout & ) { return *this; }
 };
 
 #endif

@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbasic.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qbasic.cpp#20 $
 **
-**  Studies in Geometry Management
+**  Geometry Management
 **
 **  Created:  960406
 **
@@ -13,7 +13,7 @@
 #include "qlist.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#19 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#20 $");
 
 
 
@@ -22,8 +22,8 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#19 $");
   \brief The QBasicManager class provides one-dimensional geometry management.
 
   This class is intended for those who write geometry managers and
-  graphical designers.	It is not for the faint of heart. The
-  QBoxLayout class is available for normal application programming.
+  graphical designers.	<strong>It is not for the faint of heart. </strong>
+  The QBoxLayout class is available for normal application programming.
 
   Each dimension (horizontal and vertical) is handled independently. Widgets
   are organized in chains, which can be parallel or serial.
@@ -97,6 +97,11 @@ public:
 	    return FALSE;
     }
 
+    virtual bool addBranch( QChain*, int, int )
+    {
+	return FALSE;
+    }
+
     virtual int maxSize() = 0;
     virtual int minSize() = 0;
     int stretch() { return sstretch; }
@@ -167,7 +172,6 @@ private:
     QWidget * widget;
 
 };
-
 class QParChain : public QChain
 {
 public:
@@ -198,6 +202,13 @@ private:
     int maxMin();
 };
 
+
+struct QBranchData {
+    int from;
+    int to;
+    QChain *chain;
+};
+
 class QSerChain : public QChain
 {
 public:
@@ -206,11 +217,10 @@ public:
     ~QSerChain();
 
     bool addC( QChain *s );
+    bool addBranch( QChain*, int, int );
 
     void recalc();
-
     void distribute( wDict &, int, int);
-
     int maxSize() { return maxsize; }
     int minSize() { return minsize; }
 
@@ -219,10 +229,12 @@ private:
     int minsize;
 
     QList<QChain> chain;
+    QList<QBranchData> branches;
     int sumMax();
     int sumMin();
     int sumStretch();
 };
+
 
 
 QParChain::~QParChain()
@@ -241,13 +253,34 @@ void QParChain::distribute( wDict & wd, int pos, int space )
     }
 }
 
-
 QSerChain::~QSerChain()
 {
     int i;
     for ( i = 0; i < (int)chain.count(); i++ ) {
 	delete chain.at(i);
     }
+    for ( i = 0; i < (int)branches.count(); i++ ) {
+	delete branches.at(i);
+    }
+}
+
+//### possible bug if RightToLeft or Up
+bool QSerChain::addBranch( QChain *b, int from, int to )
+{
+    if ( from < 0 || to < from || from >= (int)chain.count() ) {
+	warning( "QBasicManager: Invalid anchor for branch" );
+	return FALSE;
+    }
+    if ( horz( direction() ) != horz( b->direction() ) ) {
+	warning( "QBasicManager: branch 90 degrees off" );
+	return FALSE;
+    }
+    QBranchData *d = new QBranchData;
+    d->chain = b;
+    d->from = from;
+    d->to = to;
+    branches.append( d );
+    return TRUE;
 }
 
 
@@ -267,16 +300,16 @@ void QSerChain::distribute( wDict & wd, int pos, int space )
 	available = 0;
     int sf = sumStretch();
 
-    QArray<int> size( chain.count() );
+    QArray<int> sizes( chain.count() );
     int i;
     for ( i = 0; i < (int)chain.count(); i++ )
-	size[i] = 0;
+	sizes[i] = 0;
     bool doAgain = TRUE;
     int numChains = chain.count();
     while ( doAgain && numChains ) {
 	doAgain = FALSE;
 	for ( i = 0; i < (int)chain.count(); i++ ) {
-	    if ( size[i] == chain.at(i)->maxSize() )
+	    if ( sizes[i] == chain.at(i)->maxSize() )
 		continue;
 	    int siz = chain.at(i)->minSize();
 	    if ( sf )
@@ -284,29 +317,36 @@ void QSerChain::distribute( wDict & wd, int pos, int space )
 	    else
 		siz += available  / numChains;
 	    if ( siz >= chain.at(i)->maxSize() ) {
-		size[i] = chain.at(i)->maxSize();
-		available -= ( size[i] - chain.at(i)->minSize() );
+		sizes[i] = chain.at(i)->maxSize();
+		available -= ( sizes[i] - chain.at(i)->minSize() );
 		sf -= chain.at(i)->stretch();
 		numChains--;
 		doAgain = TRUE;
 		break;
 	    }
-	    size[i] = siz;
+	    sizes[i] = siz;
 	}
     }
+    QArray<int> places( chain.count() );
     if ( backwards )
 	pos += space;
     for ( i = 0; i < (int)chain.count(); i++ ) {
 	if ( backwards ) {
-	    pos -= size[i];
-	    chain.at(i)->distribute( wd, pos, size[i] );
+	    pos -= sizes[i];
+	    places[i] = pos;
+	    chain.at(i)->distribute( wd, pos, sizes[i] );
 	} else {
-	    chain.at(i)->distribute( wd, pos, size[i] );
-	    pos += size[i];
+	    places[i] = pos;
+	    chain.at(i)->distribute( wd, pos, sizes[i] );
+	    pos += sizes[i];
 	}
-
     }
-
+    for ( i = 0; i < (int)branches.count(); i++ ) {
+	QBranchData *b = branches.at( i );
+	int from = places[ b->from ];
+	int to = places[ b->to ] + sizes[ b->to ];
+	branches.at(i)->chain->distribute( wd, from, to - from  );
+    }
 }
 
 void QParChain::recalc()
@@ -342,8 +382,11 @@ int QParChain::minMax()
 
 void QSerChain::recalc()
 {
-    for ( int i = 0; i < (int)chain.count(); i ++ )
+    int i;
+    for ( i = 0; i < (int)chain.count(); i ++ )
 	chain.at(i)->recalc();
+    for ( i = 0; i < (int)branches.count(); i ++ )
+	branches.at(i)->chain->recalc();
     minsize = sumMin();
     maxsize = sumMax();
 }
@@ -379,16 +422,26 @@ int QSerChain::sumMax()
 
 bool QSerChain::addC( QChain *s )
 {
-     if ( horz( s->direction() ) != horz( direction() ) )
+    if ( horz( s->direction() ) != horz( direction() ) ) {
+	if ( horz( direction() ) )
+	    warning("QBasicManager:Cannot add vertical chain to horizontal serial chain");
+	else
+	    warning("QBasicManager:Cannot add horizontal chain to vertical serial chain");
 	return FALSE;
+    }
     chain.append( s );
     return TRUE;
 }
 
 bool QParChain::addC( QChain *s )
 {
-     if ( horz( s->direction() ) != horz( direction() ) )
+    if ( horz( s->direction() ) != horz( direction() ) ) {
+	if ( horz( direction() ) )
+	    warning("QBasicManager:Cannot add vertical chain to horizontal parallel chain");
+	else
+	    warning("QBasicManager:Cannot add horizontal chain to vertical parallel chain");
 	return FALSE;
+    }
     chain.append( s );
     return TRUE;
 }
@@ -600,4 +653,29 @@ void QBasicManager::resizeAll()
 	    w->widget->setGeometry( w->geom );
 	delete w;
     }
+}
+
+
+/*!
+
+  Adds \a branch to \a destination as a branch going from \a fromIndex
+  to \a toIndex. A branch is a chain that is anchored at two locations
+  in a serial chain. The branch does not influence the main chain;
+  if the branch's minimum size is greater than the minimum distance
+  between the anchors, things will look ugly.
+
+  The branch goes from the beginning of the item at \a fromIndex to the
+  end of the item at \a toIndex. Note: remember to count spacing when
+  calculating indices.
+  
+  \warning This feature is new and not comprehensively tested.
+*/
+
+bool QBasicManager::addBranch( QChain *destination, QChain *branch,
+			       int fromIndex, int toIndex )
+{
+    bool success = destination->addBranch( branch, fromIndex, toIndex );
+    if ( ! success )
+	warning( "QBasicManager: Couldn't add branch" );
+    return success;
 }

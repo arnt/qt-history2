@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbasic.h#11 $
+** $Id: //depot/qt/main/src/kernel/qbasic.h#12 $
 **
 **   Geometry Management
 **
@@ -36,6 +36,9 @@ public:
     bool add( QChain *destination, QChain *source, int stretch = 0 );
     bool addWidget( QChain *, QWidget *, int stretch = 0 );
     bool addSpacing( QChain *, int minSize, int stretch = 0, int maxSize = unlimited );
+
+    bool addBranch( QChain *destination, QChain *branch, int fromIndex,
+		    int toIndex );
 
     bool doIt();
 
