@@ -1,6 +1,8 @@
-/*! \page algorithms.html
+/*! \headerfile <qalgorithms.h>
 
     \title Generic Algorithms
+
+    \brief The <qalgorithms.h> header file provides generic template-based algorithms.
 
     Qt provides a number of global template functions in \c
     <qalgorithm.h> that work on containers and perform well-know
@@ -19,8 +21,6 @@
     dozens of algorithms. Qt concentrates on the basic, most
     important ones, but doesn't attempt beyond that to duplicate
     functionality that is already provided by the C++ standard.
-
-    \section1 Overview
 
     Most algorithms take \l {STL-style iterators} as parameters. The
     algorithms are generic in the sense that they aren't bound to a
@@ -186,8 +186,8 @@
     \sa {container classes}
 */
 
-/*! \fn template <class InputIterator, class OutputIterator> \
-	OutputIterator qCopy(InputIterator begin1, InputIterator end1, OutputIterator begin2)
+/*! \fn OutputIterator qCopy(InputIterator begin1, InputIterator end1, OutputIterator begin2)
+    \relates <qalgorithms.h>
 
     Copies the items from range [\a begin1, \a end1) to range [\a
     begin2, ...), in the order in which they appear.
@@ -213,8 +213,8 @@
     \sa qCopyBackward(), {input iterators}, {output iterators}
 */
 
-/*! \fn template <class BiIterator1, class BiIterator2> \
-	BiIterator2 qCopyBackward(BiIterator1 begin1, BiIterator1 end1, BiIterator2 end2)
+/*! \fn BiIterator2 qCopyBackward(BiIterator1 begin1, BiIterator1 end1, BiIterator2 end2)
+    \relates <qalgorithms.h>
 
     Copies the items from range [\a begin1, \a end1) to range [...,
     \a end2).
@@ -236,8 +236,8 @@
     \sa qCopy(), {bidirectional iterators}
 */
 
-/*! \fn template <class InputIterator1, class InputIterator2> \
-	bool qEqual(InputIterator1 begin1, InputIterator1 end1, InputIterator2 begin2)
+/*! \fn bool qEqual(InputIterator1 begin1, InputIterator1 end1, InputIterator2 begin2)
+    \relates <qalgorithms.h>
 
     Compares the items in the range [begin1, end1) with the items in
     the range [begin2, ...). Returns true if all the items compare
@@ -267,8 +267,8 @@
     \sa {input iterators}
 */
 
-/*! \fn template <class ForwardIterator, class T> \
-	void qFill(ForwardIterator begin, ForwardIterator end, const T &value)
+/*! \fn void qFill(ForwardIterator begin, ForwardIterator end, const T &value)
+    \relates <qalgorithms.h>
 
     Fills the range [\a begin, \a end) with \a value.
 
@@ -287,8 +287,8 @@
     \sa qCopy(), {forward iterators}
 */
 
-/*! \fn template <class InputIterator, class T> \
-	InputIterator qFind(InputIterator begin, InputIterator end, const T &value)
+/*! \fn InputIterator qFind(InputIterator begin, InputIterator end, const T &value)
+    \relates <qalgorithms.h>
 
     Returns an iterator to the first occurrence of \a value in a
     container in the range [\a begin, \a end). Returns \a end if \a
@@ -318,8 +318,8 @@
     \sa qBinaryFind(), {input iterators}
 */
 
-/*! \fn template <class InputIterator, class T, class Size> \
-	void qCount(InputIterator begin, InputIterator end, const T &value, Size &n)
+/*! \fn void qCount(InputIterator begin, InputIterator end, const T &value, Size &n)
+    \relates <qalgorithms.h>
 
     Sets \a n to the number of occurrences of \a value in the range
     [\a begin, \a end).
@@ -344,8 +344,8 @@
     \sa {input iterators}
 */
 
-/*! \fn template <class T> \
-	void qSwap(T &var1, T &var2)
+/*! \fn void qSwap(T &var1, T &var2)
+    \relates <qalgorithms.h>
 
     Exchanges the values of variables \a var1 and \a var2.
 
@@ -359,8 +359,8 @@
     \endcode
 */
 
-/*! \fn template <class BiIterator> \
-	void qBubbleSort(BiIterator begin, BiIterator end)
+/*! \fn void qBubbleSort(BiIterator begin, BiIterator end)
+    \relates <qalgorithms.h>
 
     Sorts the items in range [\a begin, \a end) in ascending order
     using the bubble sort algorithm.
@@ -385,30 +385,30 @@
     \sa qHeapSort(), {bidirectional iterators}
 */
 
-/*! \fn template <class Container> \
-	void qBubbleSort(Container &c)
+/*! \fn void qBubbleSort(Container &c)
+    \relates <qalgorithms.h>
 
     \overload
 
     This is the same as qBubbleSort(\a{c}.begin(), \a{c}.end());
 */
 
-/*! \fn template <class Value> \
-	void qHeapSortPushDown(Value *heap, int first, int end)
+/*! \fn void qHeapSortPushDown(Value *heap, int first, int end)
+    \relates <qalgorithms.h>
 
-    \private
+    \internal
     Used by qHeapSort().
 */
 
-/*! \fn template <class BiIterator, class Value> \
-	void qHeapSortHelper(BiIterator begin, BiIterator end, Value, uint n)
+/*! \fn void qHeapSortHelper(BiIterator begin, BiIterator end, Value, uint n)
+    \relates <qalgorithms.h>
 
-    \private
+    \internal
     Used by qHeapSort().
 */
 
-/*! \fn template <class BiIterator> \
-	void qHeapSort(BiIterator begin, BiIterator end)
+/*! \fn void qHeapSort(BiIterator begin, BiIterator end)
+    \relates <qalgorithms.h>
 
     Sorts the items in range [\a begin, \a end) in ascending order
     using the heap sort algorithm.
@@ -431,16 +431,16 @@
     \sa qHeapSort(), {bidirectional iterators}
 */
 
-/*! \fn template <class Container> \
-	void qHeapSort(Container &c)
+/*! \fn void qHeapSort(Container &c)
+    \relates <qalgorithms.h>
 
     \overload
 
     This is the same as qHeapSort(\a{c}.begin(), \a{c}.end());
 */
 
-/*! \fn template <class RandomAccessIterator, class T> \
-	RandomAccessIterator qLowerBound(RandomAccessIterator begin, RandomAccessIterator end, const T &value)
+/*! \fn RandomAccessIterator qLowerBound(RandomAccessIterator begin, RandomAccessIterator end, const T &value)
+    \relates <qalgorithms.h>
 
     Performs a binary search of the range [\a begin, \a end) and
     returns the position of the first ocurrence of \a value. If no
@@ -489,8 +489,8 @@
     \sa qUpperBound(), qBinaryFind()
 */
 
-/*! \fn template <class RandomAccessIterator, class T> \
-	RandomAccessIterator qUpperBound(RandomAccessIterator begin, RandomAccessIterator end, const T &value)
+/*! \fn RandomAccessIterator qUpperBound(RandomAccessIterator begin, RandomAccessIterator end, const T &value)
+    \relates <qalgorithms.h>
 
     Performs a binary search of the range [\a begin, \a end) and
     returns the position of the next-to-last occurrence of \a value.
@@ -539,8 +539,8 @@
     \sa qLowerBound(), qBinaryFind()
 */
 
-/*! \fn template <class RandomAccessIterator, class T> \
-	RandomAccessIterator qBinaryFind(RandomAccessIterator begin, RandomAccessIterator end, const T &value)
+/*! \fn RandomAccessIterator qBinaryFind(RandomAccessIterator begin, RandomAccessIterator end, const T &value)
+    \relates <qalgorithms.h>
 
     Performs a binary search of the range [\a begin, \a end) and
     returns the position of an occurrence of \a value. If there are
@@ -571,8 +571,8 @@
     \sa qLowerBound(), qUpperBound(), {random access iterators}
 */
 
-/*! \fn template <class ForwardIterator> \
-	void qDeleteAll(ForwardIterator begin, ForwardIterator end)
+/*! \fn void qDeleteAll(ForwardIterator begin, ForwardIterator end)
+    \relates <qalgorithms.h>
 
     Deletes all the items in the range [\a begin, \a end) using the
     C++ \c delete operator. The item type must be a pointer type (for
@@ -595,16 +595,16 @@
     \sa {forward iterators}
 */
 
-/*! \fn template <class Container> \
-	void qDeleteAll(const Container &c)
+/*! \fn void qDeleteAll(const Container &c)
+    \relates <qalgorithms.h>
 
     \overload
 
     This is the same as qDeleteAll(\a{c}.begin(), \a{c}.end()).
 */
 
-/*! \fn template <class Container> \
-	QBackInsertIterator<Container> qBackInserter(Container &c)
+/*! \fn QBackInsertIterator<Container> qBackInserter(Container &c)
+    \relates <qalgorithms.h>
 
     \obsolete
 */
