@@ -232,11 +232,11 @@ void PropertyItem::paintCell( QPainter *p, const QColorGroup &cg, int column, in
 }
 
 void PropertyItem::paintBranches( QPainter * p, const QColorGroup & cg,
-				  int w, int y, int h, GUIStyle s )
+				  int w, int y, int h )
 {
     QColorGroup g( cg );
     g.setColor( QColorGroup::Base, backgroundColor() );
-    QListViewItem::paintBranches( p, g, w, y, h, s );
+    QListViewItem::paintBranches( p, g, w, y, h );
 }
 
 void PropertyItem::paintFocus( QPainter *p, const QColorGroup &cg, const QRect &r )

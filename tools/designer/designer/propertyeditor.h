@@ -52,7 +52,7 @@ public:
 
     void paintCell( QPainter *p, const QColorGroup &cg, int column, int width, int align );
     void paintBranches( QPainter * p, const QColorGroup & cg,
-			int w, int y, int h, GUIStyle s );
+			int w, int y, int h );
     void paintFocus( QPainter *p, const QColorGroup &cg, const QRect &r );
 
     virtual bool hasSubItems() const;
