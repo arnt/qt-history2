@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetm.h#17 $
+** $Id: //depot/qt/main/src/tools/qdatetm.h#18 $
 **
 ** Definition of date and time classes
 **
@@ -34,7 +34,7 @@ public:
     int	   day()	 const;			// 1..31
     int	   dayOfWeek()	 const;			// 1..7 (monday==1)
     int	   dayOfYear()	 const;			// 1..365
-    int	   daysInMonth() const;			// 1..31
+    int	   daysInMonth() const;			// 28..31
     int	   daysInYear()	 const;			// 365 or 366
 
     virtual const char *monthName( int month ) const;
