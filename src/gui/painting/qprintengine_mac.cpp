@@ -313,7 +313,7 @@ QRect QMacPrintEngine::paperRect() const
     PMRect macrect;
     if (PMGetAdjustedPaperRect(d->format, &macrect) == noErr) {
         r.setCoords((int)macrect.left, (int)macrect.top, (int)macrect.right, (int)macrect.bottom);
-        r.moveBy(-r.x(), -r.y());
+        r.translate(-r.x(), -r.y());
     }
 
     return r;
@@ -326,7 +326,7 @@ QRect QMacPrintEngine::pageRect() const
     if (PMGetAdjustedPageRect(d->format, &macrect) == noErr
         && PMGetAdjustedPaperRect(d->format, &macpaper) == noErr) {
         r.setCoords(int(macrect.left), int(macrect.top), int(macrect.right), int(macrect.bottom));
-        r.moveBy(int(-macpaper.left), int(-macpaper.top));
+        r.translate(int(-macpaper.left), int(-macpaper.top));
     }
     return r;
 }

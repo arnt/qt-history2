@@ -1691,10 +1691,10 @@ void QWidgetPrivate::setWSGeometry()
             xrect &= parentWRect;
             wrect = xrect;
             //translate from parent's to my Qt coord sys
-            wrect.moveBy(-data.crect.topLeft());
+            wrect.translate(-data.crect.topLeft());
         }
         //translate from parent's Qt coords to parent's X coords
-        xrect.moveBy(-parentWRect.topLeft());
+        xrect.translate(-parentWRect.topLeft());
 
     } else {
         // parent is not clipped, we may or may not have to clip
@@ -1706,10 +1706,10 @@ void QWidgetPrivate::setWSGeometry()
             // children
 
             QRect vrect = xrect & q->parentWidget()->rect();
-            vrect.moveBy(-data.crect.topLeft()); //the part of me that's visible through parent, in my Qt coords
+            vrect.translate(-data.crect.topLeft()); //the part of me that's visible through parent, in my Qt coords
             if (data.wrect.contains(vrect)) {
                 xrect = data.wrect;
-                xrect.moveBy(data.crect.topLeft());
+                xrect.translate(data.crect.topLeft());
                 HIRect bounds = CGRectMake(xrect.x(), xrect.y(),
                                            xrect.width(), xrect.height());
                 HIViewSetFrame((HIViewRef)q->winId(), &bounds);
@@ -1721,7 +1721,7 @@ void QWidgetPrivate::setWSGeometry()
             // we are too big, and must clip
             xrect &=wrectRange;
             wrect = xrect;
-            wrect.moveBy(-data.crect.topLeft());
+            wrect.translate(-data.crect.topLeft());
             //parent's X coord system is equal to parent's Qt coord
             //sys, so we don't need to map xrect.
         }
