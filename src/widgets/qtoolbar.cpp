@@ -334,14 +334,12 @@ bool QToolBar::event( QEvent * e )
     //after the event filters have dealt with it:
     if ( e->type() == QEvent::ChildInserted ) {
 	QObject * child = ((QChildEvent*)e)->child();
-	if ( child && child->isWidgetType() &&
-	     child->parent() == this && !child->inherits( "QPopupMenu" ) &&
-	     qstrcmp( "qt_dockwidget_internal", child->name() ) != 0 )
+	if ( child && child->isWidgetType() && !((QWidget*)child)->isTopLevel() &&
+	     child->parent() == this && qstrcmp( "qt_dockwidget_internal", child->name() ) != 0 ) {
 	    boxLayout()->addWidget( (QWidget*)child );
-	if ( isVisible() && child && child->isWidgetType() &&
-	     child->parent() == this && !child->inherits( "QPopupMenu" ) &&
-	     qstrcmp( "qt_dockwidget_internal", child->name() ) != 0 )
-	    ( (QWidget*)child )->show();
+	    if ( isVisibleTo(0) )
+		( (QWidget*)child )->show();
+	}
 	if ( child && child->isWidgetType() && ((QWidget*)child) == sw )
 	    boxLayout()->setStretchFactor( (QWidget*)child, 1 );
     }
