@@ -2281,7 +2281,7 @@ GC qt_xget_readonly_gc( int scrn, bool monochrome )	// get read-only GC
     if ( scrn < 0 || scrn >= screenCount ) {
 	qDebug("invalid screen %d %d", scrn, screenCount );
 	QWidget* bla = 0;
-	bla->setName("hallo");
+	bla->setName("hello");
     }
     GC gc;
     if ( monochrome ) {
@@ -2305,7 +2305,7 @@ GC qt_xget_temp_gc( int scrn, bool monochrome )		// get temporary GC
     if ( scrn < 0 || scrn >= screenCount ) {
 	qDebug("invalid screen (tmp) %d %d", scrn, screenCount );
 	QWidget* bla = 0;
-	bla->setName("hallo");
+	bla->setName("hello");
     }
     GC gc;
     if ( monochrome ) {

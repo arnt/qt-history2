@@ -204,17 +204,20 @@ Our application requires more menu items and toolbar buttons
 
 	    \index Adding!Pixmaps
 \index Pixmaps!Adding
-The \Property iconSet property is used to set an icon which will
-	    appear to the left of the action's name in any menu you
-	    associate the action with. The \Property iconSet is also used for the
-	    toolbar button if you associate the action with a toolbar.
-	    Click the ellipsis button (\Key {...}) to invoke the
-	    \Dialog {Edit Pixmap Collection} dialog. The pixmap we require
-	    is not in the default collection. Click the \Button Add
-	    button and a file dialog will appear. The icons we require
-	    are in the Qt examples directory, \File qt/examples/textedit/.
-	    Navigate to the textedit directory and select the
-	    \File textbold.xpm file. Click the new textbold icon in the
+	    The \Property iconSet property is used to set an icon
+	    which will appear to the left of the action's name in any
+	    menu you associate the action with. The \Property iconSet
+	    is also used for the toolbar button if you associate the
+	    action with a toolbar. Click the ellipsis button (\Key
+	    {...}) to invoke the \Dialog {Edit Pixmap Collection}
+	    dialog. The ellipsis button appears when you click in the
+	    Value part of the Properties list by a \Property pixmap or
+	    \Property iconSet property. The pixmap we require is not
+	    in the default collection. Click the \Button Add button
+	    and a file dialog will appear. The icons we require are in
+	    the Qt examples directory, \File qt/examples/textedit/.
+	    Navigate to the textedit directory and select the \File
+	    textbold.xpm file. Click the new textbold icon in the
 	    pixmap collection then click \OK.
 
 	    \i

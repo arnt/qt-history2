@@ -139,10 +139,11 @@ invoke the \Dialog {Edit Custom Widgets} dialog.
 	\Button Open. It will now appear as the header file.
 
     \i
-
 	If you have a pixmap that you want to use to identify your
 	widget on the toolbar click the ellipsis button
-	to the right of Pixmap.
+	to the right of Pixmap property. (The ellipsis button appears
+	when you click in the Value part of the Properties list by a
+	\Property pixmap or \Property iconSet property.)
 
 	In our example we have the file
 	\File qt/tools/designer/examples/vcr/play.xpm which we'll use

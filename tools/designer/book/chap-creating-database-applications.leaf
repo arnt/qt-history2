@@ -675,9 +675,11 @@ Databases often have pairs of tables that are related. For
 
 	    \i
 
-	    \e Optionally click the Pixmap ellipsis
-	    (\Button {...}) button to choose a pixmap to be
-	    displayed to the left of the column's label.
+	    \e Optionally click the Pixmap ellipsis (\Button {...})
+	    button to choose a pixmap to be displayed to the left of
+	    the column's label. (The ellipsis button appears when you
+	    click in the Value part of the Properties list by a
+	    \Property pixmap or \Property iconSet property.)
 
 	\endlist
 

@@ -52,9 +52,9 @@
   \ingroup mainclasses
 
   The class itself is abstract. Two subclasses, \l QIntValidator and
-  \l QDoubleValidator, provide rudimentary numeric-range checking,
+  \l QDoubleValidator, provide basic numeric-range checking,
   and \l QRegExpValidator provides general checking using a custom
-  regular expression (\l QRegExp).
+  regular expression.
 
   If the built-in validators aren't sufficient, you can subclass
   QValidator. The class has two virtual functions: validate()
@@ -68,7 +68,7 @@
   \e clearly invalid.  \c Intermediate is less obvious - the concept
   of validity is slippery when the string is incomplete (still being
   edited).  QValidator defines \c Intermediate as the property of a
-  string that is neither clearly invalid or acceptable as a final
+  string that is neither clearly invalid nor acceptable as a final
   result.  \c Acceptable means that the string is acceptable as a
   final result.  One might say that any string that is a plausible
   intermediate state during entry of an \c Acceptable string is \c
@@ -97,10 +97,10 @@
 
   fixup() is provided for validators that can repair some or all user
   errors.  The default does nothing.  QLineEdit, for example, will
-  call fixup() if the user presses Return and the content is not
+  call fixup() if the user presses Enter and the content is not
   currently valid, in case fixup() can do magic.  This allows some \c
   Invalid strings to be made \c Acceptable, too, spoiling the muddy
-  definition above even more.
+  definition even more.
 
   QValidator is typically used with QLineEdit, QSpinBox and QComboBox.
 */
@@ -116,7 +116,8 @@
   \value Intermediate  the string is a plausible intermediate value
   during editing.
 
-  \value Acceptable  the string is acceptable as a final result.
+  \value Acceptable  the string is acceptable as a final result, i.e.
+  it is valid.
 
   The state \c Valid has been renamed \c Intermediate.  The old name
   confused too many people and is now obsolete.
@@ -152,7 +153,7 @@ QValidator::~QValidator()
   according to this validator's rules, \c Intermediate if it is likely that a
   little more editing will make the input acceptable (e.g. the user
   types '4' into a widget which accepts integers between 10 and 99) and
-  \c Acceptable if the input is completely acceptable.
+  \c Acceptable if the input is valid.
 
   The function can change \a input and \a pos (the cursor position) if
   it wants to.
@@ -162,16 +163,17 @@ QValidator::~QValidator()
 /*!
   \fn void QValidator::fixup( QString & input ) const
 
-  Attempts to change \a input to be valid according to this validator's
-  rules.  Need not result in a valid string - callers of this function
-  must re-test afterwards; the default does nothing.
+  This function attempts to change \a input to be valid according to
+  this validator's rules. It need not result in a valid string -
+  callers of this function must re-test afterwards; the default does
+  nothing.
 
   Reimplementations of this function can change \a input even if they
   do not produce a valid string.  For example, an ISBN validator might
   want to delete every character except digits and "-", even if the
-  result is not a valid ISBN; a last-name validator might want to
+  result is not a valid ISBN; a surname validator might want to
   remove whitespace from the start and end of the string, even if the
-  resulting string is not in the list of known last names.
+  resulting string is not in the list of accepted surnames.
 */
 
 void QValidator::fixup( QString & ) const

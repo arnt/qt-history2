@@ -53,7 +53,7 @@
   Library\endlink.
 
   QValueList<T> defines a template instance to create
-  a list of values that all have the class T. Please note that
+  a list of values that all have the class T. Note that
   QValueList does not store pointers to the
   members of the list; it holds a copy of every member. This is why these
   kinds of classes are called "value based"; QPtrList and QDict are
@@ -88,61 +88,55 @@
 
   Example:
   \code
-    #include <qvaluelist.h>
-    #include <qstring.h>
-    #include <stdio.h>
+class Employee
+{
+public:
+    Employee(): sn(0) {}
+    Employee( const QString& forename, const QString& surname, int salary )
+	: fn(forename), sn(surname), sal(salary)
+    {}
 
-    class Employee
-    {
-    public:
-	Employee(): s(0) {}
-	Employee( const QString& name, int salary )
-	    : n(name), s(salary)
-	{}
+    QString forename() const { return fn; }
+    QString surname() const { return sn; }
+    int salary() const { return sal; }
+    void setSalary( int salary ) { sal = salary; }
+private:
+    QString fn;
+    QString sn;
+    int sal;
+};
 
-	QString     name()   const	 	{ return n; }
-	int	    salary() const	 	{ return s; }
-	void	    setSalary( int salary )	{ s = salary; }
-    private:
-	QString     n;
-	int         s;
-    };
+    typedef QValueList<Employee> EmployeeList;
+    EmployeeList list;
 
-    int main()
-    {
-	typedef QValueList<Employee> EmployeeList;
-	EmployeeList list;		// list of Employee
+    list.push_back( Employee("John", "Doe", 50000) );
+    list.push_back( Employee("Jane", "Williams", 80000) );
+    list.push_back( Employee("Tom", "Jones", 60000) );
 
-	list.push_back( Employee("Bill", 50000) );
-	list.push_back( Employee("Steve",80000) );
-	list.push_back( Employee("Ron",  60000) );
+    Employee mary( "Mary", "Hawthorne", 90000 );
+    list.push_back( mary );
+    mary.setSalary( 100000 );
 
-	Employee joe( "Joe", 50000 );
-	list.push_back( joe );
-	joe.setSalary( 4000 );
-	
-	EmployeeList::iterator it;
-	for( it = list.begin(); it != list.end(); ++it )
-	    printf( "%s earns %d\n", (*it).name().latin1(), (*it).salary().latin1() );
+    EmployeeList::iterator it;
+    for ( it = list.begin(); it != list.end(); ++it )
+	cout << (*it).surname().latin1() << ", " <<
+		(*it).forename().latin1() << " earns " <<
+		(*it).salary() << endl;
 
-	return 0;
-    }
+    // Output:
+    // Doe, John earns 50000
+    // Williams, Jane earns 80000
+    // Hawthorne, Mary earns 90000
+    // Jones, Tom earns 60000
   \endcode
 
-  Program output:
-  \code
-	Bill earns 50000
-	Steve earns 80000
-	Ron earns 60000
-	Joe earns 50000
-  \endcode
 
-  Notice that the latest changes to Joe's salary did not affect the value
-  in the list because the list created a copy of Joe's entry.
+  Notice that the latest changes to Mary's salary did not affect the
+  value in the list because the list created a copy of Mary's entry.
 
   There are several ways to find items in the list.  The begin() and
   end() functions return iterators to the beginning and end of the
-  list.  The advantage of getting an iterator is that you can now move
+  list.  The advantage of getting an iterator is that you can move
   forward or backward from this position by incrementing/decrementing
   the iterator.  The iterator returned by end() points to the element
   which is one past the last element in the container. The
@@ -168,10 +162,11 @@
   If some member of the list is removed, only iterators pointing to
   the removed member become invalid. Inserting into the list does not
   invalidate any iterator. For convenience, the function back() returns
-  a reference to the last element in the list, and front() one for
-  the first.  If the list is empty(), both back() and front() have
-  undefined behavior (your application will crash or do unpredictable
-  things).  Use back() and front() with caution, for example:
+  a reference to the last element in the list, and front() returns a
+  reference to the the first element.  If the list is empty(), both
+  back() and front() have undefined behavior (your application will
+  crash or do unpredictable things).  Use back() and front() with
+  caution, for example:
 
 \code
     QValueList<int> list;
@@ -198,13 +193,13 @@
   QValueList is shared implicitly, which means it can be copied in
   constant time. If multiple QValueList instances share the same data
   and one needs to modify its contents, this modifying instance makes
-  a copy and modifies its private copy; it thus does not affect the
+  a copy and modifies its private copy; therefore it not affect the
   other instances.  This is often called "copy on write".  If a
   QValueList is being used in a multi-threaded program, you must
   protect all access to the list.  See QMutex.
 
   There are several ways to insert elements into the list.  The
-  push_front() and push_back() functions insert elements into the
+  push_front() and push_back() functions insert elements at the
   beginning and the end of the list respectively.  The insert()
   function comes in several flavors and can be used to add one or more
   elements at specific positions within the list.
@@ -214,7 +209,7 @@
   specific element from the list.  The remove() function will find and
   remove elements according to a specific element value.
 
-  Lists can be also sorted with the sort() function, or it can be
+  Lists can be also sorted with the sort() function, or can be
   sorted using the \link qtl.html Qt Template Library\endlink.  For
   example with qHeapSort():
 
@@ -260,12 +255,13 @@
 
 /*!
   \fn QValueList::QValueList( const QValueList<T>& l )
+
   Constructs a copy of \a l.
 
-  This operation costs O(1) time because QValueList is shared
+  This operation takes O(1) time because QValueList is shared
   implicitly.
 
-  The first modification to a list does however take O(n) time.
+  The first modification to a list will take O(n) time.
 */
 
 /*! \fn QValueList::QValueList( const std::list<T>& l )
@@ -278,7 +274,7 @@
   Destroys the list. References to the values in the list and all
   iterators of this list become invalidated. Note that it is
   impossible for an iterator to check whether or not it is valid -
-  QValueList is highly tuned for performance, not error checking.
+  QValueList is highly tuned for performance, not for error checking.
 */
 
 /*! \enum  QValueListIterator::NodePtr
@@ -296,17 +292,20 @@
 
 /*!
   \fn bool QValueList::operator== ( const QValueList<T>& l ) const
+
   Compares both lists.
 
   Returns TRUE if this list and \a l are equal; otherwise returns FALSE.
 */
 
 /*! \overload bool QValueList::operator== ( const std::list<T>& l ) const
+
   Returns TRUE if this list and \a l are equal; otherwise returns FALSE.
 */
 
 /*!
   \fn QValueList<T>& QValueList::operator= ( const QValueList<T>& l )
+
   Assigns \a l to this list and returns a reference to this list.
 
   All iterators of the current list become invalidated by this operation.
@@ -315,6 +314,7 @@
 */
 
 /*! \overload QValueList<T>& QValueList::operator= ( const std::list<T>& l )
+
   Assigns the contents of \a l to the list.
 
   All iterators of the current list become invalidated by this operation.
@@ -322,6 +322,7 @@
 
 /*!
   \fn bool QValueList::operator!= ( const QValueList<T>& l ) const
+
   Compares both lists.
 
   Returns TRUE if this list and \a l are unequal; otherwise returns FALSE.
@@ -329,6 +330,7 @@
 
 /*!
   \fn iterator QValueList::insert( iterator it, const T& x )
+
   Inserts the value \a x in front of the iterator \a it.
 
   Returns an iterator pointing at the inserted item.
@@ -347,6 +349,7 @@
 
 /*!
   \fn void QValueList::clear()
+
   Removes all items from the list.
 
   \sa remove()
@@ -354,6 +357,7 @@
 
 /*!
   \overload iterator QValueList::begin()
+
   Returns an iterator pointing to the first element in the list. This
   iterator equals end() if the list is empty.
   \sa first(), end()
@@ -361,6 +365,7 @@
 
 /*!
   \fn const_iterator QValueList::begin() const
+
   Returns an iterator pointing to the first element in the list. This
   iterator equals end() if the list is empty.
   \sa first(), end()
@@ -368,6 +373,7 @@
 
 /*!
   \fn iterator QValueList::end()
+
   Returns an iterator pointing behind the last element in the list. This
   iterator equals begin() if the list is empty.
 
@@ -376,6 +382,7 @@
 
 /*!
     \overload const_iterator QValueList::end() const
+
   Returns an iterator pointing behind the last element in the list. This
   iterator equals begin() if the list is empty.
 
@@ -384,6 +391,7 @@
 
 /*!
   \fn QDataStream& operator>>( QDataStream& s, QValueList<T>& l )
+
   \relates QValueList
   Reads a list, \a l, from the stream \a s. The type T stored in the
   list must implement the streaming operator, too.
@@ -391,28 +399,34 @@
 
 /*!
   \overload QDataStream& operator<<( QDataStream& s, const QValueList<T>& l )
+
   \relates QValueList
   Writes a list, \a l, to the stream \a s. The type T stored in the
   list must implement the streaming operator, too.
 */
 
 /*! \fn size_type QValueList::size() const
+
   Returns the number of elements in the list.
 */
 
 /*! \fn bool QValueList::empty() const
-  Returns TRUE if and only if the list's size is zero.
+
+  Returns TRUE if the list's size is zero; otherwise returns FALSE.
 */
 
 /*! \fn void QValueList::push_front( const T& x )
+
   Inserts \a x at the beginning of the list.
 */
  
 /*! \fn void QValueList::push_back( const T& x )
+
   Inserts \a x at the end of the list.
 */
 
 /*! \fn iterator QValueList::erase( iterator pos )
+
   Deletes the element pointed to by \a pos from the list.  No
   iterators other than \a pos or other iterators pointing at the same
   element as \a pos are invalidated.  Returns an iterator to the next
@@ -420,51 +434,60 @@
 */
 
 /*! \overload iterator QValueList::erase( iterator first, iterator last ) 
+
   Deletes all elements from \a first to \a last (not including \a
   last).  No iterators are invalidated, except those pointing to the
   removed elements themselves.  Returns \a last.
 */
 
 /*! \fn reference QValueList::front()
+
   Returns a reference to the first element.  If the list contains no
   first element (i.e. empty() returns TRUE), the return value is
   undefined.
 */
 
 /*! \overload const_reference QValueList::front() const
+
   Returns a reference to the first element.  If the list contains no
   first element (i.e. empty() returns TRUE), the return value is
   undefined.
 */
 
 /*! \fn reference QValueList::back()
+
   Returns a reference to the last element.  If the list contains no
   last element (i.e. empty() returns TRUE), the return value is
   undefined.
 */
 
 /*! \overload const_reference QValueList::back() const
+
   Returns a reference to the last element.  If the list contains no
   last element (i.e. empty() returns TRUE), the return value is
   undefined.
 */
 
 /*! \fn void QValueList::pop_front()
+
   Removes the first element.  If there is no first element, this
   operation is undefined.
 */
 
 /*! \fn void QValueList::pop_back() 
+
   Removes the last element.  If there is no last element, this
   operation is undefined.
 */
 
 /*! \overload void QValueList::insert( iterator pos, size_type n, const T& x )
-  Inserts \a n copies of \a x before \a pos.
+
+  Inserts \a n copies of \a x before position \a pos.
 */
 
 /*!
   \fn void QValueList::detach()
+
   If the list does not share its data with another QValueList instance, nothing
   happens. Otherwise the function creates a new copy of this data and detaches
   from the shared one. This function is called whenever the list is modified.
@@ -482,31 +505,32 @@
 /*!
   \fn const T& QValueList::operator[] ( size_type i ) const
 
-  \warning This function is a linear search and can be
+  \warning This function uses a linear search and can be
   extremely slow for large lists.  QValueList is not optimized for
-  random element access.  Use a different container instead, such as
-  QValueVector.
+  random element access. If you need random access use a different
+  container, such as QValueVector.
 
   Returns a const reference to the item with index \a i in the list.
-  It is up to you to check whether this item really exists. You can do that easily
-  with the count() function. However this operator does not check whether \a i
-  is in range and will deliver undefined results if it does not exist.
+  It is up to you to check whether this item really exists. You can do
+  that easily with the count() function. However this operator does
+  not check whether \a i is in range and will deliver undefined
+  results if it does not exist.
 */
 
 /*!
   \overload T& QValueList::operator[] ( size_type i )
 
-  \warning This function is a linear search and can be
+  \warning This function uses a linear search and can be
   extremely slow for large lists.  QValueList is not optimized for
-  random element access.  Use a different container instead, such as
-  QValueVector.
+  random element access. If you need random access use a different
+  container, such as QValueVector.
 
-  Returns a reference to the item with index \a i in the list.
-  It is up to you to check whether this item really exists. You can do that easily
-  with the count() function. However this operator does not check whether \a i
-  is in range and will deliver undefined results if it does not exist.
-  In contrast to the const operator[], you may manipulate the value returned by this
-  operator.
+  Returns a reference to the item with index \a i in the list. It is
+  up to you to check whether this item really exists. You can do that
+  easily with the count() function. However this operator does not
+  check whether \a i is in range and will deliver undefined results if
+  it does not exist. In contrast to the const operator[], you may
+  manipulate the value returned by this operator.
 */
 
 /*!
@@ -519,10 +543,10 @@
 /*!
   \fn const_iterator QValueList::at( size_type i ) const
 
-  \warning This function is a linear search and can be
+  \warning This function uses a linear search and can be
   extremely slow for large lists.  QValueList is not optimized for
-  random element access.  Use a different container instead, such as
-  QValueVector.
+  random element access. If you need random access use a different
+  container, such as QValueVector.
 
   Returns an iterator pointing to the item at position \a i in the list, or
   end() if the index is out of range.
@@ -769,36 +793,40 @@
 
   The QValueListIterator class is an iterator for QValueList
   instantiations.  You can create the appropriate iterator type by
-  using the \c iterator typedef provided by QValueList.  For example:
-
-  \include qtl/qvaluelistiterator.cpp
-
-  Program output:
-  \code
-    Bill earns 50000
-    Steve earns 80000
-    Ron earns 60000
-    Joe earns 50000
-  \endcode
+  using the \c iterator typedef provided by QValueList.  
 
   The only way to access the elements in a QValueList is to use an
   iterator.
 
+    Example (see QValueList for the complete code):
+    \code
+    EmployeeList::iterator it;
+    for ( it = list.begin(); it != list.end(); ++it )
+	cout << (*it).surname().latin1() << ", " <<
+		(*it).forename().latin1() << " earns " <<
+		(*it).salary() << endl;
+
+    // Output:
+    // Doe, John earns 50000
+    // Williams, Jane earns 80000
+    // Hawthorne, Mary earns 90000
+    // Jones, Tom earns 60000
+    \endcode
+
   QValueList is highly optimized for performance and memory usage.
-  This means you have to be careful with what you are
-  doing. QValueList does not know about all its iterators
-  and the iterators don't know to which list they belong. That makes
-  things very fast, but if you're not careful, you can get spectacular
-  bugs.  Always make sure iterators are valid before dereferencing
-  them or using them as parameters to generic algorithms in the STL or
-  the \link qtl.html QTL\endlink.
+  This means that you must be careful: QValueList does not know about
+  all its iterators and the iterators don't know to which list they
+  belong. This makes things very fast, but if you're not careful, you
+  can get spectacular bugs.  Always make sure iterators are valid
+  before dereferencing them or using them as parameters to generic
+  algorithms in the STL or the \link qtl.html QTL\endlink.
 
   Using an invalid iterator is undefined (your application will
   probably crash).
 
   For every Iterator there is a ConstIterator. When accessing a
   QValueList in a const environment or if the reference or pointer to
-  the list is itself const, then you have to use the
+  the list is itself const, then you must use the
   ConstIterator. Its semantics are the same as the Iterator, but it
   returns only const references.
 
@@ -846,6 +874,7 @@
 
 /*!
   \fn T& QValueListIterator::operator*()
+
   Asterisk operator. Returns a reference to the current iterator item.
 */
 
@@ -857,6 +886,7 @@
 
 /*!
   \fn QValueListIterator<T>& QValueListIterator::operator++()
+
   Prefix ++ makes the succeeding item current and returns
   an iterator pointing to the new current item.
   The iterator cannot check whether it reached the end of the list. Incrementing
@@ -865,6 +895,7 @@
 
 /*!
   \overload QValueListIterator<T> QValueListIterator::operator++(int)
+
   Postfix ++ makes the succeeding item current and returns
   an iterator pointing to the new current item.
   The iterator cannot check whether it reached the end of the list. Incrementing
@@ -873,6 +904,7 @@
 
 /*!
   \fn QValueListIterator<T>& QValueListIterator::operator--()
+
   Prefix -- makes the previous item current and returns
   an iterator pointing to the new current item.
   The iterator cannot check whether it reached the beginning of the list. Decrementing
@@ -881,6 +913,7 @@
 
 /*!
   \overload QValueListIterator<T> QValueListIterator::operator--(int)
+
   Postfix -- makes the previous item current and returns
   an iterator pointing to the new current item.
   The iterator cannot check whether it reached the beginning of the list. Decrementing
@@ -889,12 +922,14 @@
 
 /*!
   \fn bool QValueListIterator::operator==( const QValueListIterator<T>& it ) const
+
   Compares this iterator and \a it and returns TRUE if they point to
   the same item; otherwise returns FALSE.
 */
 
 /*!
   \fn bool QValueListIterator::operator!=( const QValueListIterator<T>& it ) const
+
   Compares this iterator and \a it and returns TRUE if they point to
   different items; otherwise returns FALSE.
 */
@@ -913,7 +948,7 @@
 
   In contrast to QValueListIterator, this class is used to iterate over a const
   list. It does not allow modification of the values of the list since
-  this would break const semantics.
+  that would break const semantics.
 
   You can create the appropriate const iterator type by using the \c
   const_iterator typedef provided by QValueList. 
@@ -940,6 +975,7 @@
 
 /*!
   \fn QValueListConstIterator::QValueListConstIterator()
+
   Creates un uninitialized iterator.
 */
 
@@ -958,6 +994,7 @@
 
 /*!
   \fn QValueListConstIterator::QValueListConstIterator( const QValueListIterator<T>& it )
+
   Constructs a copy of the iterator \a it.
 */
 
@@ -977,11 +1014,13 @@
 
 /*!
   \fn const T& QValueListConstIterator::operator*() const
+
   Asterisk operator. Returns a reference to the current iterator item.
 */
 
 /*!
   \fn QValueListConstIterator<T>& QValueListConstIterator::operator++()
+
   Prefix ++ makes the succeeding item current and returns
   an iterator pointing to the new current item.
   The iterator cannot check whether it reached the end of the list. Incrementing
@@ -990,6 +1029,7 @@
 
 /*!
   \overload QValueListConstIterator<T> QValueListConstIterator::operator++(int)
+
   Postfix ++ makes the succeeding item current and returns an iterator
   pointing to the new current item. The iterator cannot check whether
   it reached the end of the list. Incrementing the iterator as

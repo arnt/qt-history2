@@ -1772,7 +1772,7 @@ QDomNode QDomNode::parentNode() const
   \code
   <body>
    <h1>Heading</h1>
-   <p>Hallo <b>you</b></p>
+   <p>Hello <b>you</b></p>
   </body>
   \endcode
   Then the list of child nodes for the "body"-element will contain the node

@@ -38,13 +38,15 @@ dialog. Any pixmaps already in the project are shown in the icon view.
 You can add additional pixmaps by clicking \Button Add which will pop
 up a file dialog through which you can choose a pixmap.
 
-If you create a widget which has an \Property iconSet or \Property pixmap
-property you can click the ellipsis button next to the pixmap to invoke
-the \Dialog {Edit Pixmap Collection} dialog through which you can select a
-pixmap for the widget. Some widgets can hold multiple pixmaps, for
-example a list box can hold both pixmaps and text. The list box's value
-editor can be used to add pixmaps as required. (This is described in
-\l {ListBox and ComboBox}.)
+If you create a widget which has an \Property iconSet or \Property
+pixmap property you can click the ellipsis button to invoke the
+\Dialog {Edit Pixmap Collection} dialog through which you can select a
+pixmap for the widget. The ellipsis button appears when you click in
+the Value part of the Properties list by a \Property pixmap or
+\Property iconSet property. Some widgets can hold multiple pixmaps,
+for example a list box can hold both pixmaps and text. The list box's
+value editor can be used to add pixmaps as required. (This is
+described in \l {ListBox and ComboBox}.)
 
 If you really want to store pixmaps in a particular form rather than in
 \index images.cpp
