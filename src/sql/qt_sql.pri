@@ -27,7 +27,7 @@ sql {
 		    $$SQL_P/qsqlmanager_p.h \
 		    $$SQL_H/qdatatable.h \
 		    $$SQL_H/qdataview.h \
-		    $$SQL_H/qdatabrowser.h \ 
+		    $$SQL_H/qdatabrowser.h \
 		    $$SQL_H/qsqlselectcursor.h 
 
 	SOURCES     += $$SQL_CPP/qsqlquery.cpp \
@@ -49,9 +49,10 @@ sql {
 		    $$SQL_CPP/qdataview.cpp \
 		    $$SQL_CPP/qdatabrowser.cpp \
 		    $$SQL_CPP/qsqlselectcursor.cpp
+#		    $$SQL_CPP/drivers/cache/qsqlcachedresult.cpp
 
 	contains(sql-drivers, all ) {
-		sql-driver += psql mysql odbc oci tds db2 sqlite
+		sql-driver += psql mysql odbc oci tds db2 sqlite ibase
 	}			
 
 	contains(sql-drivers, psql) {
@@ -180,16 +181,69 @@ sql {
 		}
 	}
 
-        contains(sql-drivers, sqlite) {
-                HEADERS += $$SQL_CPP/drivers/sqlite/qsql_sqlite.h
-                SOURCES += $$SQL_CPP/drivers/sqlite/qsql_sqlite.cpp
-                DEFINES += QT_SQL_SQLITE
+	contains(sql-drivers, ibase) {
+                HEADERS += $$SQL_CPP/drivers/ibase/qsql_ibase.h
+                SOURCES += $$SQL_CPP/drivers/ibase/qsql_ibase.cpp
+                DEFINES += QT_SQL_IBASE
                 unix {
-                        LIBS += -lsqlite
+                        LIBS *= -lgds
                 }
                 win32 {
-                        LIBS += sqlite.lib
+			!win32-borland:LIBS *= gds32_ms.lib
+			win32-borland:LIBS  += gds32.lib
                 }
+	}
+
+        contains(sql-drivers, sqlite) {
+	    !contains( LIBS, .*sqlite.* ) {
+
+                INCLUDEPATH += $$SQL_CPP/../3rdparty/sqlite/
+
+                HEADERS += ../3rdparty/sqlite/btree.h \
+                ../3rdparty/sqlite/config.h \
+                ../3rdparty/sqlite/hash.h \
+                ../3rdparty/sqlite/opcodes.h \
+                ../3rdparty/sqlite/os.h \
+                ../3rdparty/sqlite/pager.h \
+                ../3rdparty/sqlite/parse.h \
+                ../3rdparty/sqlite/sqlite.h \
+                ../3rdparty/sqlite/sqliteInt.h \
+                ../3rdparty/sqlite/vdbe.h
+
+                SOURCES += ../3rdparty/sqlite/attach.c \
+                ../3rdparty/sqlite/auth.c \
+                ../3rdparty/sqlite/btree.c \
+                ../3rdparty/sqlite/btree_rb.c \
+                ../3rdparty/sqlite/build.c \
+                ../3rdparty/sqlite/copy.c \
+                ../3rdparty/sqlite/delete.c \
+                ../3rdparty/sqlite/expr.c \
+                ../3rdparty/sqlite/func.c \
+                ../3rdparty/sqlite/hash.c \
+                ../3rdparty/sqlite/insert.c \
+                ../3rdparty/sqlite/main.c \
+                ../3rdparty/sqlite/opcodes.c \
+                ../3rdparty/sqlite/os.c \
+                ../3rdparty/sqlite/pager.c \
+                ../3rdparty/sqlite/parse.c \
+                ../3rdparty/sqlite/pragma.c \
+                ../3rdparty/sqlite/printf.c \
+                ../3rdparty/sqlite/random.c \
+                ../3rdparty/sqlite/select.c \
+                ../3rdparty/sqlite/shell.c \
+                ../3rdparty/sqlite/table.c \
+                ../3rdparty/sqlite/tokenize.c \
+                ../3rdparty/sqlite/trigger.c \
+                ../3rdparty/sqlite/update.c \
+                ../3rdparty/sqlite/util.c \
+                ../3rdparty/sqlite/vacuum.c \
+                ../3rdparty/sqlite/vdbe.c \
+                ../3rdparty/sqlite/where.c
+	    }
+
+            HEADERS += $$SQL_CPP/drivers/sqlite/qsql_sqlite.h
+            SOURCES += $$SQL_CPP/drivers/sqlite/qsql_sqlite.cpp
+            DEFINES += QT_SQL_SQLITE
         }
 }
 

@@ -698,25 +698,22 @@ void QDataBrowser::update()
     QSql::Confirm conf = QSql::Yes;
     switch ( d->dat.mode() ){
     case QSql::Insert:
-	if ( autoEdit() ) {
-	    if ( confirmInsert() )
-		conf = confirmEdit( QSql::Insert );
-	    switch ( conf ) {
+	if ( confirmInsert() )
+	    conf = confirmEdit( QSql::Insert );		
+	switch ( conf ) {
 	    case QSql::Yes:
 		if ( insertCurrent() )
 		    d->dat.setMode( QSql::Update );
-		break;
+	    break;
 	    case QSql::No:
 		d->dat.setMode( QSql::Update );
-		cur->editBuffer( TRUE );
-		readFields();
-		break;
-	    case QSql::Cancel:
-		break;
-	    }
-	} else
+	    cur->editBuffer( TRUE );
 	    readFields();
-	break;
+	    break;
+	    case QSql::Cancel:
+	    break;
+	}
+    break;
     default:
 	d->dat.setMode( QSql::Update );
 	if ( confirmUpdate() )
