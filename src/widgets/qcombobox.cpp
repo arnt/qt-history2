@@ -199,7 +199,7 @@ public:
 struct QComboData
 {
     QComboData( QComboBox *cb ): usingLBox( FALSE ), pop( 0 ), lBox( 0 ), combo( cb )
-    { multipleInsertion = TRUE; }
+    { duplicatesEnabled = TRUE; }
     ~QComboData()
     {
 	delete pop;
@@ -230,7 +230,7 @@ struct QComboData
     bool	useCompletion;
     bool	completeNow;
     int		completeAt;
-    bool multipleInsertion;
+    bool duplicatesEnabled;
 
     QLineEdit * ed;  // /bin/ed rules!
 private:
@@ -448,21 +448,21 @@ QComboBox::~QComboBox()
   insertItem() and similar.
 */
 
-void QComboBox::setEnableMultipleInsertion( bool enable )
+void QComboBox::setDuplicatesEnabled( bool enable )
 {
-   d->multipleInsertion = enable;
+   d->duplicatesEnabled = enable;
 }
 
 /*!
   Returns TRUE if the same text can be inserted multiple times
   into the list of the combobox, else FALSE.
 
-  \sa setEnableMultipleInsertion();
+  \sa setDuplicatesEnabled();
 */
 
-bool QComboBox::enableMultipleInsertion() const
+bool QComboBox::duplicatesEnabled() const
 {
-    return d->multipleInsertion;
+    return d->duplicatesEnabled;
 }
 
 /* #### this may have to move to styleChange
@@ -1816,7 +1816,7 @@ void QComboBox::returnPressed()
 	removeItem( count() - 1 );
 
     bool doInsert = TRUE;
-    if ( !d->multipleInsertion ) {
+    if ( !d->duplicatesEnabled ) {
 	for ( int i = 0; i < count(); ++i ) {
 	    if ( s == text( i ) ) {
 		doInsert = FALSE;

@@ -326,7 +326,7 @@ public:
     virtual void setCurrentItem( QIconViewItem *item );
     virtual void setSelected( QIconViewItem *item, bool s, bool cb = FALSE );
 
-    unsigned int count() const;
+    uint count() const;
 
 public:
     virtual void showEvent( QShowEvent * );
@@ -373,8 +373,8 @@ public:
     bool sorting() const;
     bool sortDirection() const;
 
-    virtual void setEnableMoveItems( bool b );
-    bool enableMoveItems() const;
+    virtual void setItemsMovable( bool b );
+    bool itemsMovable() const;
     virtual void setWordWrapIconText( bool b );
     bool wordWrapIconText() const;
 

@@ -2054,7 +2054,7 @@ void QFileDialog::init()
     connect( cancelB, SIGNAL(clicked()), this, SLOT(cancelClicked()) );
 
     d->paths = new QComboBox( TRUE, this, "directory history/editor" );
-    d->paths->setEnableMultipleInsertion( FALSE );
+    d->paths->setDuplicatesEnabled( FALSE );
     d->paths->setInsertionPolicy( QComboBox::NoInsertion );
     const QFileInfoList * rootDrives = QDir::drives();
     QFileInfoListIterator it( *rootDrives );
@@ -2076,7 +2076,7 @@ void QFileDialog::init()
 
     d->geometryDirty = TRUE;
     d->types = new QComboBox( TRUE, this, "file types" );
-    d->types->setEnableMultipleInsertion( FALSE );
+    d->types->setDuplicatesEnabled( FALSE );
     connect( d->types, SIGNAL(activated(const QString&)),
 	     this, SLOT(setFilter(const QString&)) );
 

@@ -2403,7 +2403,7 @@ void QIconView::setSelected( QIconViewItem *item, bool s, bool cb )
   Returns the number of inserted items.
 */
 
-unsigned int QIconView::count() const
+uint QIconView::count() const
 {
     return d->count;
 }
@@ -3235,7 +3235,7 @@ int QIconView::maxItemTextLength() const
   if \a b is FALSE, the user is not allowed to do that.
 */
 
-void QIconView::setEnableMoveItems( bool b )
+void QIconView::setItemsMovable( bool b )
 {
     d->rearrangeEnabled = b;
 }
@@ -3244,10 +3244,10 @@ void QIconView::setEnableMoveItems( bool b )
   Returns TRUE, if the user is allowed to move items around
   in the iconview, else FALSE;
 
-  \sa QIconView::setEnableMoveItems()
+  \sa QIconView::setItemsMovable()
 */
 
-bool QIconView::enableMoveItems() const
+bool QIconView::itemsMovable() const
 {
     return d->rearrangeEnabled;
 }

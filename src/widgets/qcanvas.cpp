@@ -2281,7 +2281,7 @@ void QCanvasPixmapArray::setImage(int i, QCanvasPixmap* p)
 }
 
 /*!
-\fn int QCanvasPixmapArray::count() const
+\fn uint QCanvasPixmapArray::count() const
 Returns the length of the array.
 */
 

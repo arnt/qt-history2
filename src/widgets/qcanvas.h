@@ -321,7 +321,7 @@ public:
 
     QCanvasPixmap* image(int i) const { return img[i]; }
     void setImage(int i, QCanvasPixmap* p);
-    int count() const { return framecount; }
+    uint count() const { return (uint)framecount; }
 
 private:
     bool readPixmaps(const QString& datafilenamepattern, int framecount, bool maskonly);
