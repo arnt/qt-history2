@@ -242,8 +242,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     }
     bg_col=pal.normal().background();
     if(!parentWidget()) {
+	printf("Toplevel %d\n",id);
 	setWinId(id);
     } else {
+	printf("Non-toplevel %d\n",id);
 	winid=id;
     }
 
