@@ -332,14 +332,18 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     if(t != "target")
 	return QString();
 
+    bool resource = project->first("TEMPLATE") == "app" &&
+		    project->isActiveConfig("resource_fork") && 
+		    !project->isActiveConfig("console");
     QStringList &uninst = project->variables()[t + ".uninstall"];
     QString ret, destdir=project->first("DESTDIR");
+    if(resource)
+	destdir += "../../../";
     if(!destdir.isEmpty() && destdir.right(1) != Option::dir_sep)
 	destdir += Option::dir_sep;
     QString targetdir = Option::fixPathToTargetOS(project->first("target.path"), FALSE);
     if(targetdir.right(1) != Option::dir_sep)
 	targetdir += Option::dir_sep;
-
     if(project->isActiveConfig("create_prl") && project->first("TEMPLATE") == "lib") {
 	QString dst_prl = project->first("QMAKE_INTERNAL_PRL_FILE");
 	int slsh = dst_prl.findRev('/');
@@ -352,10 +356,11 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	uninst.append("-$(DEL_FILE) \"" + dst_prl + "\"");
     }
 
-    QString target="$(TARGET)";
     QStringList links;
+    QString target="$(TARGET)";
     if(project->first("TEMPLATE") == "app") {
-	target = "$(QMAKE_TARGET)";
+	if(resource) 
+	    target += ".app";
     } else if(!project->isActiveConfig("staticlib")) {
 	if(project->isActiveConfig("plugin")) {
 	} else if ( !project->isEmpty("QMAKE_HPUX_SHLIB") ) {
@@ -369,14 +374,25 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     if(!destdir.isEmpty())
 	src_targ = Option::fixPathToTargetOS(destdir + target, FALSE);
     QString dst_targ = Option::fixPathToTargetOS(targetdir + target, FALSE);
+    fileFixify(src_targ);
+    fileFixify(dst_targ);
     if(!ret.isEmpty())
 	ret += "\n\t";
-    ret += QString("-$(COPY) \"") + src_targ + "\" \"" + dst_targ + "\"";
-    if(!project->isEmpty("QMAKE_STRIP"))
-	ret += "\n\t-" + var("QMAKE_STRIP") + " \"" + dst_targ + "\"";
+    ret += QString(resource ? "-$(COPY)" : "$(COPY_DIR)") + " \"" + 
+	   src_targ + "\" \"" + dst_targ + "\"";
+    if(!project->isEmpty("QMAKE_STRIP")) {
+	ret += "\n\t-" + var("QMAKE_STRIP");
+	if(resource)
+	    ret = " \"" + dst_targ + "/Contents/MacOS/$(QMAKE_TARGET)";
+	else
+	    ret += " \"" + dst_targ + "\"";
+    }
     if(!uninst.isEmpty())
 	uninst.append("\n\t");
-    uninst.append("-$(DEL_FILE) \"" + dst_targ + "\"");
+    if(resource)
+	uninst.append("-$(DEL_FILE) -r \"" + dst_targ + "\"");
+    else
+	uninst.append("-$(DEL_FILE) \"" + dst_targ + "\"");
     if(!links.isEmpty()) {
 	for(QStringList::Iterator it = links.begin(); it != links.end(); it++) {
 	    if(Option::target_mode == Option::TARG_WIN_MODE || 
@@ -388,6 +404,8 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 		if(lslash != -1)
 		    link = link.right(link.length() - (lslash + 1));
 		QString dst_link = Option::fixPathToTargetOS(targetdir + link, FALSE);
+		fileFixify(dst_link);
+		fileFixify(dst_targ);
 		ret += "\n\t-ln -sf \"" + dst_targ + "\" \"" + dst_link + "\"";
 		if(!uninst.isEmpty())
 		    uninst.append("\n\t");
