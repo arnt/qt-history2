@@ -3375,6 +3375,10 @@ QByteArray QLocalePrivate::numberToCLocale(const QString &num,
             result.append('.');
         else if (c == group())
             result.append(',');
+        // In several languages group() is the char 0xA0, which looks like a space.
+        // People use a regular space instead of it and complain it doesn't work.
+        else if (group().unicode() == 0xA0 && c.unicode() == ' ')
+            result.append(',');
         else if (c == exponential() || c == exponential().toUpper())
             result.append('e');
         else if (c == list())
