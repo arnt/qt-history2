@@ -1782,16 +1782,16 @@ void QDockWindow::updateSplitterVisibility( bool visible )
 }
 
 /*! \reimp */
-bool QDockWindow::eventFilter( QObject *o, QEvent *e )
+bool QDockWindow::eventFilter( QObject *, QEvent *e )
 {
-    if ( e->type() == QEvent::KeyPress && 
-	( horHandle->mousePressed || 
-	  verHandle->mousePressed || 
+    if ( e->type() == QEvent::KeyPress &&
+	( horHandle->mousePressed ||
+	  verHandle->mousePressed ||
 	  titleBar->mousePressed ) ) {
 	QKeyEvent *ke = (QKeyEvent*)e;
 	if ( ke->key() == Key_Escape ) {
-	    horHandle->mousePressed = 
-		verHandle->mousePressed = 
+	    horHandle->mousePressed =
+		verHandle->mousePressed =
 		    titleBar->mousePressed = FALSE;
 	    endRectDraw( !opaque );
 	    qApp->removeEventFilter( this );
