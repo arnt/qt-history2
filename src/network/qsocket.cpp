@@ -65,8 +65,8 @@ public:
     QSocketNotifier    *rsn, *wsn;		// socket notifiers
     QPtrList<QByteArray> rba, wba;		// list of read/write bufs
     QHostAddress	addr;			// connection address
-    Q_ULONG		rsize, wsize;		// read/write total buf size
-    Q_ULONG		rindex, windex;		// read/write index
+    QIODevice::Offset	rsize, wsize;		// read/write total buf size
+    QIODevice::Offset	rindex, windex;		// read/write index
 #ifndef QT_NO_DNS
     QDns	       *dns;
 #endif
