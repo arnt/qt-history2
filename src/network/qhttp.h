@@ -206,15 +206,10 @@ public:
 
     int setHost(const QString &hostname, Q_UINT16 port=80 );
 
-#if 0
     int get( const QString& path, QIODevice* to=0 );
-
-    int post( const QString& path, const QByteArray& data, QIODevice* to=0 );
     int post( const QString& path, QIODevice* data, QIODevice* to=0  );
-
+    int post( const QString& path, const QByteArray& data, QIODevice* to=0 );
     int head( const QString& path );
-#endif
-
     int request( const QHttpRequestHeader &header, QIODevice *device=0, QIODevice *to=0 );
     int request( const QHttpRequestHeader &header, const QByteArray &data, QIODevice *to=0 );
 
@@ -276,6 +271,7 @@ private:
     friend class QHttpNormalRequest;
     friend class QHttpSetHostRequest;
     friend class QHttpCloseRequest;
+    friend class QHttpPGHRequest;
 };
 
 #endif

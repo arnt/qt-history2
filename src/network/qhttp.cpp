@@ -155,8 +155,10 @@ public:
     bool hasRequestHeader();
     QHttpRequestHeader requestHeader();
 
-private:
+protected:
     QHttpRequestHeader header;
+
+private:
     union {
 	QByteArray *ba;
 	QIODevice *dev;
@@ -203,6 +205,39 @@ bool QHttpNormalRequest::hasRequestHeader()
 QHttpRequestHeader QHttpNormalRequest::requestHeader()
 {
     return header;
+}
+
+/****************************************************
+ *
+ * QHttpPGHRequest
+ * (like a QHttpNormalRequest, but for the convenience
+ * functions put(), get() and head() -- i.e. set the
+ * host header field correctly before sending the
+ * command)
+ *
+ ****************************************************/
+
+class QHttpPGHRequest : public QHttpNormalRequest
+{
+public:
+    QHttpPGHRequest( const QHttpRequestHeader &h, QIODevice *d, QIODevice *t ) :
+	QHttpNormalRequest( h, d, t )
+    { }
+
+    QHttpPGHRequest( const QHttpRequestHeader &h, QByteArray *d, QIODevice *t ) :
+	QHttpNormalRequest( h, d, t )
+    { }
+
+    ~QHttpPGHRequest()
+    { }
+
+    void start( QHttp * );
+};
+
+void QHttpPGHRequest::start( QHttp *http )
+{
+    header.setValue( "Host", http->d->hostname );
+    QHttpNormalRequest::start( http );
 }
 
 /****************************************************
@@ -1416,6 +1451,84 @@ int QHttp::setHost(const QString &hostname, Q_UINT16 port )
 }
 
 /*!
+    Sends a get request for \a path to the server set by setHost() or as
+    specified in the constructor.
+
+    If the IO device \a to is not 0, the content data of the response is
+    written to it. Otherwise the readyRead() signal is emitted every time new
+    content data is available to read.
+
+    This function returns immediately and does not wait for the request to
+    finish; it is rather append to the queue of pending requests. It returns a
+    unique identifier. When the request is really started to be executed, the
+    requestStarted() signal is emitted and when it is finished, the
+    requestFinished() signal is emitted.
+
+    \sa setHost() post() head() request() requestStarted() requestFinished() done()
+*/
+int QHttp::get( const QString& path, QIODevice* to=0 )
+{
+    QHttpRequestHeader header( "GET", path );
+    header.setValue( "Connection", "Keep-Alive" );
+    return addRequest( new QHttpPGHRequest( header, (QIODevice*)0, to ) );
+}
+
+/*!
+    Sends a post request for \a path to the server set by setHost() or as
+    specified in the constructor.
+
+    The content data is read from the device \a data. If \a data is 0, no
+    content data is used.
+
+    If the IO device \a to is not 0, the content data of the response is
+    written to it. Otherwise the readyRead() signal is emitted every time new
+    content data is available to read.
+
+    This function returns immediately and does not wait for the request to
+    finish; it is rather append to the queue of pending requests. It returns a
+    unique identifier. When the request is really started to be executed, the
+    requestStarted() signal is emitted and when it is finished, the
+    requestFinished() signal is emitted.
+
+    \sa setHost() get() head() request() requestStarted() requestFinished() done()
+*/
+int QHttp::post( const QString& path, QIODevice* data, QIODevice* to=0  )
+{
+    QHttpRequestHeader header( "POST", path );
+    header.setValue( "Connection", "Keep-Alive" );
+    return addRequest( new QHttpPGHRequest( header, data, to ) );
+}
+
+/*! \overload
+    \a data is used as the content data of the HTTP request.
+*/
+int QHttp::post( const QString& path, const QByteArray& data, QIODevice* to=0 )
+{
+    QHttpRequestHeader header( "POST", path );
+    header.setValue( "Connection", "Keep-Alive" );
+    return addRequest( new QHttpPGHRequest( header, new QByteArray(data), to ) );
+}
+
+/*!
+    Sends a head request for \a path to the server set by setHost() or as
+    specified in the constructor.
+
+    This function returns immediately and does not wait for the request to
+    finish; it is rather append to the queue of pending requests. It returns a
+    unique identifier. When the request is really started to be executed, the
+    requestStarted() signal is emitted and when it is finished, the
+    requestFinished() signal is emitted.
+
+    \sa setHost() get() post() request() requestStarted() requestFinished() done()
+*/
+int QHttp::head( const QString& path )
+{
+    QHttpRequestHeader header( "GET", path );
+    header.setValue( "Connection", "Keep-Alive" );
+    return addRequest( new QHttpPGHRequest( header, (QIODevice*)0, 0 ) );
+}
+
+/*!
     Sends a request to the server set by setHost() or as specified in the
     constructor. Uses the \a header as the HTTP request header. You are
     responsible for setting up a header that is appropriate for your request.
@@ -1433,7 +1546,7 @@ int QHttp::setHost(const QString &hostname, Q_UINT16 port )
     requestStarted() signal is emitted and when it is finished, the
     requestFinished() signal is emitted.
 
-    \sa setHost() requestStarted() requestFinished() done()
+    \sa setHost() get() post() head() requestStarted() requestFinished() done()
 */
 int QHttp::request( const QHttpRequestHeader &header, QIODevice *data, QIODevice *to )
 {
