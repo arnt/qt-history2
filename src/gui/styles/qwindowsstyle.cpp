@@ -2004,7 +2004,7 @@ QSize QWindowsStyle::sizeFromContents(ContentsType ct, const QStyleOption *opt, 
             sz = QCommonStyle::sizeFromContents(ct, opt, csz, fm, widget);
             if ((mi->menuItemType != QStyleOptionMenuItem::Separator
                  && mi->menuItemType != QStyleOptionMenuItem::Q3Custom) && !mi->icon.isNull())
-                 sz.setHeight(qMax(csz.height(),
+                 sz.setHeight(qMax(sz.height(),
                               mi->icon.pixmap(QIconSet::Small, QIconSet::Normal).height()
                               + 2 * windowsItemFrame));
             bool checkable = mi->checkState != QStyleOptionMenuItem::NotCheckable;
