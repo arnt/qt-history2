@@ -620,6 +620,7 @@ QSqlRecord QTDSDriver::record( const QString& tablename ) const
     if ( !isOpen() )
 	return fil;
     QSqlQuery t = createQuery();
+    t.setForwardOnly( TRUE );
     QString stmt ( "select name,type from syscolumns where id = (select id from sysobjects where name = '%1')" );
     t.exec( stmt.arg( tablename ) );
     while ( t.next() ) {
@@ -653,6 +654,7 @@ QSqlRecordInfo QTDSDriver::recordInfo( const QString& tablename ) const
     if ( !isOpen() )
 		return info;
     QSqlQuery t = createQuery();
+    t.setForwardOnly( TRUE );
     QString stmt ( "select name, type, length, prec from syscolumns "
 		   "where id = (select id from sysobjects where name = '%1')" );
     t.exec( stmt.arg( tablename ) );
@@ -676,6 +678,7 @@ QStringList QTDSDriver::tables( const QString& /*user*/ ) const
 	return list;
 
     QSqlQuery t = createQuery();
+    t.setForwardOnly( TRUE );
     t.exec( "select name from sysobjects where type='U'" );
     while ( t.next() ) {
 	list.append( t.value(0).toString().stripWhiteSpace() );
@@ -710,6 +713,7 @@ QSqlIndex QTDSDriver::primaryIndex( const QString& tablename ) const
 	return QSqlIndex();
 
     QSqlQuery t = createQuery();
+    t.setForwardOnly( TRUE );
     t.exec( QString( "sp_helpindex '%1'" ).arg( tablename ) );
     if ( t.next() ) {
 	QStringList fNames = QStringList::split( ',', t.value(2).toString().stripWhiteSpace(), FALSE );
