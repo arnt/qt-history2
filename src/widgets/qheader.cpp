@@ -1,12 +1,11 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#11 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#12 $
 **
 **  Table header
 **
 **  Created:  961105
 **
-** Copyright (C) 1996-1997 by Troll Tech AS.  All rights reserved.
-**
+** Copyright (C) 1996-1997 by Troll Tech AS.	 All rights reserved.
 *****************************************************************************/
 #include "qheader.h"
 
@@ -80,7 +79,7 @@ static unsigned char vsplitm_bits[] = {
 
 
 /*!
-  \class QHeader qheader.h
+  \class QHeader QHeader.h
   \brief The QHeader widget class provides a table header.
 
   This is a table heading of the type used in a list view. It gives
@@ -102,7 +101,7 @@ static unsigned char vsplitm_bits[] = {
 */
 
 QHeader::QHeader( QWidget *parent, const char *name )
-    : QWidget( parent, name )
+    : QTableView( parent, name )
 {
     orient = Horizontal;
     init( 0 );
@@ -116,7 +115,7 @@ QHeader::QHeader( QWidget *parent, const char *name )
 */
 
 QHeader::QHeader( int n,  QWidget *parent, const char *name )
-    : QWidget( parent, name )
+    : QTableView( parent, name )
 {
     orient = Horizontal;
     init( n );
@@ -130,7 +129,7 @@ QHeader::~QHeader()
 }
 
 /*!
-  \fn void QHeader::sectionClicked (int) 
+  \fn void QHeader::sectionClicked (int logical) 
   
   This signal is emitted when a part of the header is clicked. In a
   list view, this signal would typically be connected to a slot which sorts
@@ -150,39 +149,20 @@ QHeader::~QHeader()
   \fn void QHeader::moved (int from, int to) 
 
   This signal is emitted when the user has moved column \a from to 
-  position \a to. This signal is typically connected to a slot which 
-  is similar to the following:
-
-  \code
-       //payload is an array containing the column data
-       void MyTable::moveCol( int fromIdx, int toIdx )
-       {
-	   if ( fromIdx == toIdx )
-	       return;
-	   MyType tmp = payload[fromIdx];
-	   if ( fromIdx < toIdx ) {
-	       for ( int i = fromIdx; i < toIdx - 1; i++ ) {
-		   payload[i] = payload[i+1];
-	       }
-	       payload[toIdx-1] = tmp;
-	   } else {
-	       for ( int i = fromIdx; i > toIdx ; i-- ) {
-		   payload[i] = payload[i-1];
-	       }
-	       payload[toIdx] = tmp;
-	   }
-	   // redisplay logic goes here
-	   // and probably a repaint
-       }      
-
-  \endcode
+  position \a to. 
   */
 
 /*!
-  \fn int QHeader::cellSize( int i ) const
-
-  Returns the size in pixels of section \a i of the header.
+  Returns the size in pixels of section \a i of the header. \a i is the
+  actual index.
   */
+
+int QHeader::cellSize( int i ) const
+{
+    int s = pSize( i );  
+    return s;
+}
+
 
 /*!
   \fn int QHeader::count() const
@@ -224,35 +204,53 @@ void QHeader::init( int n )
 {
     if ( !hSplitCur )
 	hSplitCur = new QCursor( QBitmap( hsplit_width, hsplit_height, hsplit_bits, TRUE),
-				QBitmap( hsplit_width, hsplit_height, hsplitm_bits, TRUE)
-				);
+				 QBitmap( hsplit_width, hsplit_height, hsplitm_bits, TRUE)
+				 );
     if ( !vSplitCur )
 	vSplitCur = new QCursor( QBitmap( vsplit_width, vsplit_height, vsplit_bits, TRUE),
-				QBitmap( vsplit_width, vsplit_height, vsplitm_bits, TRUE)
-				);
-    state = None;
+				 QBitmap( vsplit_width, vsplit_height, vsplitm_bits, TRUE)
+				 );
+    state = Idle;
 
-    places.resize(n+1);
-    recalc();
+    sizes.resize(n+1);
     labels.resize(n+1);
-    for ( int i = 0; i < n ; i ++ )
+    a2l.resize(n+1);
+    l2a.resize(n+1);
+    for ( int i = 0; i < n ; i ++ ) {
 	labels[i] = "Uninitialized";
+	sizes[i] = 88;
+	a2l[i] = i;
+	l2a[i] = i;
+    }
+    setFrameStyle( QFrame::NoFrame );
+
+    if ( orient == Horizontal ) {
+	setCellWidth( 0 );
+	setCellHeight( height() );
+	setNumCols( n );
+	setNumRows( 1 );
+    } else {
+	setCellWidth( width() );
+	setCellHeight( 0 );
+	setNumCols( 1 );
+	setNumRows( n );
+    }
+    //################
     labels[n] = 0; 
+    sizes[n] = 0;
+    a2l[n] = 0;
+    l2a[n] = 0;
+    //#############
     setMouseTracking( TRUE );
     trackingIsOn = FALSE;
 }
 
-void QHeader::recalc()
+/*void QHeader::recalc()
 {
-    int i;
-    int n = count();
-    if ( n <= 0 ) return;
-    int w = orient == Horizontal ? width() : height();
-    for ( i = 0; i < n; i ++ )
-	places[i] = i*w/n;
-    places[n] = w;
+    warning( "recalc must die!" );
+    return;
 }
-
+*/
 
 /*!
   Sets the header orientation.  The \e orientation must be
@@ -342,14 +340,14 @@ void QHeader::unMarkLine( int idx )
 }
 
 /*!
-  Returns the index of the section at position \a c, or -1 if outside.
+  Returns the actual index of the section at position \a c, or -1 if outside.
  */
 int QHeader::pos2idx( int c )
 {
-    int i = 0;
-    while ( i < (int) count() - 1 && c > pPos( i + 1 ) )
-	i++;
-    return i;
+    if ( orient == Horizontal )
+	return findCol( c );
+    else
+	return findRow( c );
 }
 
 /*!
@@ -375,107 +373,83 @@ void QHeader::moveAround( int fromIdx, int toIdx )
     if ( fromIdx == toIdx )
 	return;
     debug( "moving from %d to %d", fromIdx, toIdx );
-    QArray<QCOORD> sizes( count() );
     int i;
-    for ( i = 0; i < count(); i++ )
-	sizes[i] = pSize( i );
-    const char *p = labels[fromIdx];
-    int s = sizes[fromIdx];
+
+    int idx = a2l[fromIdx];
+    //    const char *p = labels[fromIdx];
+    //    int s = sizes[fromIdx];
     if ( fromIdx < toIdx ) {
 	for ( i = fromIdx; i < toIdx - 1; i++ ) {
-	    sizes[i] = sizes[i+1];
-	    labels[i] = labels[i+1];
+	    //    sizes[i] = sizes[i+1];
+	    //    labels[i] = labels[i+1];
+	    int t;
+	    a2l[i] = t = a2l[i+1];
+	    l2a[t] = t;
 	}
-	sizes[toIdx-1] = s;
-	labels[toIdx-1] = p;
+	//	sizes[toIdx-1] = s;
+	//	labels[toIdx-1] = p;
+	a2l[toIdx-1] = idx;
+	l2a[idx] = toIdx-1;
     } else {
 	for ( i = fromIdx; i > toIdx ; i-- ) {
-	    sizes[i] = sizes[i-1];
-	    labels[i] = labels[i-1];
+	    //	    sizes[i] = sizes[i-1];
+	    //	    labels[i] = labels[i-1];
+	    int t;
+	    a2l[i] = t = a2l[i-1];
+	    l2a[t] = t;
 	}
-	sizes[toIdx] = s;
-	labels[toIdx] = p;
+	//	sizes[toIdx] = s;
+	//	labels[toIdx] = p;
+	a2l[toIdx] = idx;
+	l2a[idx] = toIdx;
     }
-    int place = 0;
-    for ( i = 0; i < count(); i++ ) {
-	places[i] = place;
-	place += sizes[i];
-    }
-    places[ count() ] = orient == Horizontal? width() : height();
 }
 
-void QHeader::paintEvent( QPaintEvent *event )
+/*!
+  sets up the painter
+*/
+
+void QHeader::setupPainter( QPainter *p )
 {
-    QPainter p;
-    p.begin( this );
+    p->setPen( colorGroup().text() );
+    p->setFont( font() );
+}
 
-    if ( event )
-	p.setClipRect( event->rect() );
 
-    QColorGroup g = colorGroup();
-    QRect r( 0, 0, width(), height() );
-    switch ( style() ) {
-    case WindowsStyle:
-	{
-	    for ( int i = 0; i < (int) count(); i++ ) {
-		bool down = (i==handleIdx) && ( state == Pressed || state == Moving );
-		qDrawWinButton( &p, sRect(i), g, down );
-	    }
-	    break;
-	}
-    default:
-    case MotifStyle:
-	{
-	    qDrawShadePanel( &p, r, g, FALSE, 2 );
-	    for ( int i = 1; i < (int) count(); i++ ) {
-		if ( orient == Horizontal ) {
-		    int x = pPos( i );
-		    p.setPen( g.dark() );
-		    p.drawLine( x,  r.top()+1, x, r.bottom() );
-		    p.setPen( g.light() );
-		    p.drawLine( x+1,  r.top(), x+1, r.bottom() - 1 );
-		} else {
-		    int y = pPos( i );
-		    p.setPen( g.dark() );
-		    p.drawLine( r.left()+1, y, r.right(), y );
-		    p.setPen( g.light() );
-		    p.drawLine( r.left(), y+1, r.right() - 1, y+1 );
-		}
-	    }
-	    if ( state == Pressed || state == Moving ) {
-		if ( orient == Horizontal ) {
-		    QRect q( pPos( handleIdx ) + 1, r.top()+1, 
-			     pSize( handleIdx ), r.height()-2 );
-		    qDrawShadePanel( &p, q, g, TRUE, 2 );
-		} else {
-		    QRect q( r.left()+1, pPos( handleIdx ) + 1, 
-			     r.width()-2, pSize( handleIdx ) );
-		    qDrawShadePanel( &p, q, g, TRUE, 2 );
-		}
-	    }
-	    break;
-	}
+/*!
+  paints a section of the header
+*/
+
+void QHeader::paintCell( QPainter *p, int row, int col )
+{
+    int i = ( orient == Horizontal ) ? col : row;
+    int size = pSize( i );
+    bool down = (i==handleIdx) && ( state == Pressed || state == Moving );
+    //    debug( "i = %d, handleIdx= %d, down = %d ",i ,handleIdx, down );
+
+    QRect fr( 0, 0, orient == Horizontal ?  size : width(),
+	      orient == Horizontal ?  height() : size );
+
+    if ( style() == WindowsStyle )
+	qDrawWinButton( p, fr, colorGroup(), down );
+    else
+	qDrawShadePanel( p, fr, colorGroup(), down );
+
+    const char *s = labels[mapToLogical(i)];
+    int d = 0;
+    if ( style() == WindowsStyle  &&
+	 i==handleIdx && ( state == Pressed || state == Moving ) )
+	d = 1;
+    QRect r( 4+d, 2+d, size - 6, height() - 4 ); //#####
+
+    if ( 0 && orient == Vertical ) { // we can't do that...
+	QWMatrix m;       
+	m.rotate( 90 );
+	m.translate( 0, -width() ); //###########  
+	p->setWorldMatrix( m );  
     }
-    p.setPen( g.text() );
-
-    for ( int i = 0; i < (int) count(); i++ ) {
-	const char *s = labels[i];
-	int d = 0;
-	if ( style() == WindowsStyle  &&
-	     i==handleIdx && ( state == Pressed || state == Moving ) )
-	    d = 1;
-	QRect r( pPos(i)+4+d, 2+d, pSize(i) - 6, 
-		 orient == Horizontal ?  height() - 4 : width() - 4 );
-
-	if ( orient == Vertical ) {
-	    QWMatrix m;       
-	    m.rotate( 90 );
-	    m.translate( 0, -width() ); //###########  
-	    p.setWorldMatrix( m );  
-	}
-	p.drawText ( r, AlignLeft| AlignVCenter|SingleLine, s );
-    }
-    p.end();
+    p->drawText ( r, AlignLeft| AlignVCenter|SingleLine, s );
+    
 }
 
 void QHeader::mousePressEvent( QMouseEvent *m )
@@ -483,8 +457,8 @@ void QHeader::mousePressEvent( QMouseEvent *m )
     handleIdx = 0;
     int c = orient == Horizontal ? m->pos().x() : m->pos().y();
     int i = 0;
-    while ( i < (int) count() ) { 
-	if ( i+1 < count() &&  pPos(i+1) - MINSIZE/2 < c && 
+    while ( i <= (int) count() ) { 
+	if ( i+1 <= count() &&  pPos(i+1) - MINSIZE/2 < c && 
 	     c < pPos(i+1) + MINSIZE/2 ) {
 	    handleIdx = i+1;
 	    state = Sliding;
@@ -504,7 +478,7 @@ void QHeader::mousePressEvent( QMouseEvent *m )
 void QHeader::mouseReleaseEvent( QMouseEvent *m )
 {
     State oldState = state;
-    state = None;
+    state = Idle;
     switch ( oldState ) {
     case Pressed:
 	repaint(sRect( handleIdx ));
@@ -513,7 +487,7 @@ void QHeader::mouseReleaseEvent( QMouseEvent *m )
 	break;
     case Sliding:
 	// setCursor( arrowCursor ); // We're probably still there...
-	emit sizeChange();
+	emit sizeChange( 0, 0 ); //##########
 	break;
     case Moving: {
 	setCursor( arrowCursor );
@@ -529,7 +503,7 @@ void QHeader::mouseReleaseEvent( QMouseEvent *m )
 	break;
     }
     default:
-	debug("no state");
+	debug("QHeader::mouseReleaseEvent() no state");
 	break;
     }
 }
@@ -537,10 +511,10 @@ void QHeader::mouseReleaseEvent( QMouseEvent *m )
 void QHeader::mouseMoveEvent( QMouseEvent *m )
 {
     int s = orient == Horizontal ? m->pos().x() : m->pos().y();
-    if ( state == None ) {
+    if ( state == Idle ) {
 	bool hit = FALSE;
 	int i = 0;
-	while ( i < (int) count() ) { 
+	while ( i <= (int) count() ) { 
 	    if ( i && pPos(i) - MINSIZE/2 < s && s < pPos(i) + MINSIZE/2 ) {
 		hit = TRUE;
 		if ( orient == Horizontal )
@@ -555,8 +529,8 @@ void QHeader::mouseMoveEvent( QMouseEvent *m )
 	    setCursor( arrowCursor );
     } else {
 	switch ( state ) {
-	case None:
-	    debug( "No state" );
+	case Idle:
+	    debug( "QHeader::mouseMoveEvent() Idle state" );
 	    break;
 	case Pressed:
 	    if ( QABS( s - clickPos ) > 4 ) {
@@ -573,9 +547,9 @@ void QHeader::mouseMoveEvent( QMouseEvent *m )
 
 		int oldPos = pPos( handleIdx );
 		int delta = s - oldPos;
-		for ( int i = handleIdx; i < (int) count(); i++ )
-		    places[i] += delta;
-
+		sizes[mapToLogical(handleIdx - 1)] += delta;
+		repaint(); //###################################
+		/*
 		int us, uw;
 		if ( oldPos < s ) {
 		    us = oldPos;
@@ -596,6 +570,9 @@ void QHeader::mouseMoveEvent( QMouseEvent *m )
 		    bitBlt( this, 0, s, this, 0, oldPos );
 		    repaint( 0, us, width(), uw ); 
 		}
+		*/
+		if ( tracking() )
+		    emit sizeChange( handleIdx - 1, pSize( handleIdx - 1 ) );
 	    }
 	    break;
 	case Moving: {
@@ -621,7 +598,7 @@ void QHeader::mouseMoveEvent( QMouseEvent *m )
 }
 
 /*!
-  Returns the rectangle covered by section \a i.
+  Returns the rectangle covered by actual section \a i.
 */
 
 QRect QHeader::sRect( int i )
@@ -633,14 +610,17 @@ QRect QHeader::sRect( int i )
 }
 
 /*!
-  Sets the text on section \a i to \a s. If the section does not exist,
+  Sets the text on logical section \a i to \a s. If the section does not exist,
   nothing happens.
 */
 
-void QHeader::setLabel( int i, const char *s )
+void QHeader::setLabel( int i, const char *s, int size )
 {
-    if ( i >= 0 && i < count() )
+    if ( i >= 0 && i < count() ) {
 	labels[i] = s;
+	if ( size )
+	    sizes[i] = size;
+    }
     repaint();
 }
 
@@ -649,14 +629,22 @@ void QHeader::setLabel( int i, const char *s )
   Adds a new section, with label text \a s. Returns the index.
 */
 
-int QHeader::addLabel( const char *s )
+int QHeader::addLabel( const char *s, int size )
 {
-    int n = count() + 1;
+    int n = count() + 1; //###########
     labels.resize( n + 1 );
     labels[n-1] = s;
-    places.resize( n + 1 );
-    recalc();
-    repaint();
+    sizes.resize( n + 1 );
+    sizes[n-1] = size ? size : 88; //###
+    a2l.resize( n + 1 );
+    a2l[n-1] = n-1;
+    l2a[n-1] = n-1;
+    //    recalc();
+    if ( orient == Horizontal )
+	setNumCols( n );
+    else
+	setNumRows( n );
+    repaint(); //####
     return n - 1;
 }
 
@@ -667,7 +655,7 @@ int QHeader::addLabel( const char *s )
 
 void QHeader::resizeEvent( QResizeEvent * )
 {
-    recalc();
+    setCellHeight( height() ); //######
 }
 
 /*!
@@ -676,8 +664,109 @@ void QHeader::resizeEvent( QResizeEvent * )
 */
 QSize QHeader::sizeHint() const
 {
+    QFontMetrics fm( font() );
     if ( orient == Horizontal )
-	return QSize( width(), fontMetrics().lineSpacing() + 7 );
+	return QSize( width(), fm.lineSpacing() + 6 );
     else
-	return QSize( fontMetrics().lineSpacing() + 7, height() );
+	return QSize( fm.lineSpacing() + 6, height() );
+}
+
+
+/*!
+  Scrolls the header such that \a x becomes the leftmost (or uppermost
+  for vertical headers) visible pixel.
+*/
+
+void QHeader::setOffset( int x )
+{
+    if ( orient == Horizontal )
+	setXOffset( x );
+    else
+	setYOffset( x );
+}
+
+
+
+/*!
+  Returns the position of actual division line \a i. May return a position 
+  outside the widget.
+ */
+int QHeader::pPos( int i ) const 
+{ 
+    int r = 0;
+    bool ok;
+    if ( orient == Horizontal )
+	ok = colXPos( i, &r );
+    else
+	ok = rowYPos( i, &r );
+    if ( !ok ) {
+	r = 0;
+	for ( int j = 0; j < i; j++ ) 
+	    r += pSize( j );
+	r -= offset();
+    }
+    return r;
+}
+
+
+/*!
+  Returns the size of actual section \a i.
+ */
+int QHeader::pSize( int i ) const 
+{
+    return sizes[mapToLogical(i)];
+}
+
+
+
+/*!
+  int QHeader::offset() const
+  Returns the leftmost (or uppermost for vertical headers) visible pixel.
+ */
+
+
+int QHeader::offset() const
+{
+     if ( orient == Horizontal )
+	return xOffset();
+    else
+	return yOffset();
+}
+
+
+int QHeader::cellHeight( int row )
+{
+    if ( orient == Vertical )
+	return pSize( row );
+    else
+	return QTableView::cellHeight();
+}
+
+
+int QHeader::cellWidth( int col )
+{
+    if ( orient == Horizontal )
+	return pSize( col );
+    else
+	return QTableView::cellWidth();
+}
+
+
+/*!
+  Translates from actual indexes to logical indexes
+*/
+
+int QHeader::mapToLogical( int a ) const
+{
+    return a2l[ a ];
+}
+
+
+/*!
+  Translates from logical indexes to actual indexes
+*/
+
+int QHeader::mapToActual( int l ) const
+{
+    return l2a[ l ];
 }
