@@ -90,7 +90,8 @@ private:
     void saveTabOrder( QTextStream &ts, int indent );
     void saveColorGroup( QTextStream &ts, int indent, const QColorGroup &cg );
     void saveColor( QTextStream &ts, int indent, const QColor &c );
-    void saveMetaInfo( QTextStream &ts, int indent );
+    void saveMetaInfoBefore( QTextStream &ts, int indent );
+    void saveMetaInfoAfter( QTextStream &ts, int indent );
     void savePixmap( const QPixmap &p, QTextStream &ts, int indent, const QString &tagname = "pixmap" );
     void saveActions( const QPtrList<QAction> &actions, QTextStream &ts, int indent );
     void saveChildActions( QAction *a, QTextStream &ts, int indent );
@@ -98,7 +99,7 @@ private:
     void saveMenuBar( QMainWindow *mw, QTextStream &ts, int indent );
     void saveFormCode();
 
-    QObject *createObject( const QDomElement &e, QWidget *parent, QLayout* layout = 0, const QString& className = QString::null );
+    QObject *createObject( const QDomElement &e, QWidget *parent, QLayout* layout = 0 );
     QWidget *createSpacer( const QDomElement &e, QWidget *parent, QLayout *layout, Qt::Orientation o );
     void createItem( const QDomElement &e, QWidget *widget, QListViewItem *i = 0 );
     void createColumn( const QDomElement &e, QWidget *widget );

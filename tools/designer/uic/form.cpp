@@ -933,22 +933,39 @@ void Uic::createFormImpl( const QDomElement &e )
     }
 
     // actions, toolbars, menubar
-    out << endl;
+    bool needEndl = FALSE;
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
-	if ( n.tagName()  == "actions" )
+	if ( n.tagName()  == "actions" ) {
+	    if ( !needEndl )
+		out << endl << indent << "// actions" << endl;
 	    createActionImpl( n.firstChild().toElement(), "this" );
+	    needEndl = TRUE;
+	}
     }
-    out << endl;
+    if ( needEndl )
+	out << endl;
+    needEndl = FALSE;
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
-	if ( n.tagName() == "toolbars" )
+	if ( n.tagName() == "toolbars" ) {
+	    if ( !needEndl )
+		out << endl << indent << "// toolbars" << endl;
 	    createToolbarImpl( n, objClass, objName );
+	    needEndl = TRUE;
+	}
     }
-    out << endl;
+    if ( needEndl )
+	out << endl;
+    needEndl = FALSE;
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
-	if ( n.tagName() == "menubar" )
+	if ( n.tagName() == "menubar" ) {
+	    if ( !needEndl )
+		out << endl << indent << "// menubar" << endl;
 	    createMenuBarImpl( n, objClass, objName );
+	    needEndl = TRUE;
+	}
     }
-    out << endl;
+    if ( needEndl )
+	out << endl;
 
     for ( n = e; !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName()  == "connections" ) {
