@@ -40,7 +40,7 @@ public:
     QLineEditPrivate()
         : cursor(0), cursorTimer(0), frame(1),
           cursorVisible(0), separator(0), readOnly(0),
-          direction(QChar::DirON), dragEnabled(1), contextMenuEnabled(1), alignment(0),
+          dragEnabled(1), contextMenuEnabled(1), alignment(Qt::AlignLeading),
           echoMode(0), textDirty(0), selDirty(0), validInput(1),
           ascent(0), maxLength(32767), hscroll(0), lastCursorPos(-1), maskData(0),
           modifiedState(0), undoState(0), selstart(0), selend(0)
@@ -61,10 +61,10 @@ public:
     uint cursorVisible : 1;
     uint separator : 1;
     uint readOnly : 1;
-    uint direction : 5;
+    uint direction : 1;
     uint dragEnabled : 1;
     uint contextMenuEnabled : 1;
-    uint alignment : 3;
+    uint alignment : 5;
     uint echoMode : 2;
     uint textDirty : 1;
     uint selDirty : 1;
@@ -131,7 +131,7 @@ public:
     inline bool isRedoAvailable() const { return !readOnly && undoState < (int)history.size(); }
 
     // bidi
-    inline bool isRightToLeft() const { return direction==QChar::DirON?q_func()->isRightToLeft():(direction==QChar::DirR); }
+    inline bool isRightToLeft() const { return (direction == Qt::RightToLeft); }
 
     // selection
     int selstart, selend;
@@ -166,7 +166,6 @@ public:
     void setText(const QString& txt, int pos = -1);
     int xToPosInternal( int x, QTextLine::CursorPosition ) const;
     int xToPos(int x, QTextLine::CursorPosition = QTextLine::CursorBetweenCharacters) const;
-    inline int visualAlignment() const { return alignment ? alignment : int(isRightToLeft() ? Qt::AlignRight : Qt::AlignLeft); }
     QRect cursorRect() const;
 
 #ifndef QT_NO_DRAGANDDROP

@@ -585,11 +585,8 @@ bool QLineEdit::validateAndSet(const QString &newText, int newPos,
     \property QLineEdit::alignment
     \brief the alignment of the line edit
 
-    Possible Values are \c Qt::AlignAuto, \c Qt::AlignLeft, \c
-    Qt::AlignRight and \c Qt::AlignHCenter.
-
-    Attempting to set the alignment to an illegal flag combination
-    does nothing.
+    Only horizontal alignments are allowed in here, Qt::AlignJustify
+    will map to Qt::AlignLeft.
 
     \sa Qt::Alignment
 */
@@ -599,9 +596,9 @@ Qt::Alignment QLineEdit::alignment() const
     return QFlag(d->alignment);
 }
 
-void QLineEdit::setAlignment(Qt::Alignment flag)
+void QLineEdit::setAlignment(Qt::Alignment alignment)
 {
-    d->alignment = flag & 0x7;
+    d->alignment = alignment & Qt::AlignHorizontal_Mask;
     update();
 }
 
@@ -1478,7 +1475,7 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
             break;
         case Qt::Key_Right:
         case Qt::Key_Left:
-            if (d->isRightToLeft() == (e->key() == Qt::Key_Right)) {
+            if ((d->direction == Qt::RightToLeft) == (e->key() == Qt::Key_Right)) {
 #ifndef Q_WS_MAC
                 if (echoMode() == Normal)
                     cursorWordBackward(e->modifiers() & Qt::ShiftModifier);
@@ -1516,7 +1513,7 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
             break;
         case Qt::Key_Left:
         case Qt::Key_Right: {
-            int step =  (d->isRightToLeft() == (e->key() == Qt::Key_Right)) ? -1 : 1;
+            int step =  ((d->direction == Qt::RightToLeft) == (e->key() == Qt::Key_Right)) ? -1 : 1;
 #ifdef Q_WS_MAC
             if (e->modifiers() & Qt::AltModifier) {
                 if (step < 0)
@@ -1596,7 +1593,7 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
         }
     }
     if (e->key() == Qt::Key_Direction_L || e->key() == Qt::Key_Direction_R) {
-        d->direction = (e->key() == Qt::Key_Direction_L) ? QChar::DirL : QChar::DirR;
+        d->direction = (e->key() == Qt::Key_Direction_L) ? Qt::LeftToRight : Qt::RightToLeft;
         d->updateTextLayout();
         update();
         unknown = false;
@@ -1812,7 +1809,9 @@ void QLineEdit::paintEvent(QPaintEvent *)
 
     int widthUsed = qRound(line.textWidth()) + 1 + minRB;
     if ((minLB + widthUsed) <=  lineRect.width()) {
-        switch (d->visualAlignment()) {
+        Qt::Alignment va = QStyle::visualAlignment(Qt::LayoutDirection(d->direction), QFlag(d->alignment));
+        va &= ~(Qt::AlignAbsolute|Qt::AlignVertical_Mask);
+        switch (va) {
         case Qt::AlignRight:
             d->hscroll = widthUsed - lineRect.width() + 1;
             break;
@@ -1820,6 +1819,7 @@ void QLineEdit::paintEvent(QPaintEvent *)
             d->hscroll = (widthUsed - lineRect.width()) / 2;
             break;
         default:
+            // Left
             d->hscroll = 0;
             break;
         }
@@ -2040,6 +2040,7 @@ void QLineEditPrivate::clipboardChanged()
 
 void QLineEditPrivate::init(const QString& txt)
 {
+    direction = q->layoutDirection();
 #ifndef QT_NO_CURSOR
     q->setCursor(readOnly ? Qt::ArrowCursor : Qt::IBeamCursor);
 #endif
@@ -2091,10 +2092,7 @@ void QLineEditPrivate::updateTextLayout()
     }
     textLayout.setFont(q->font());
     textLayout.setText(str);
-    QChar::Direction dir = (QChar::Direction)direction;
-    if (dir == QChar::DirON)
-        dir = q->layoutDirection() == Qt::LeftToRight ? QChar::DirL : QChar::DirR;
-    textLayout.setDirection(dir);
+    textLayout.setDirection(Qt::LayoutDirection(direction));
     textLayout.setLayoutMode(QTextLayout::SingleLine);
 
     textLayout.beginLayout();

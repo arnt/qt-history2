@@ -24,6 +24,7 @@
 #include "qstring.h"
 #include <private/qunicodetables_p.h>
 #include "qtextdocument_p.h"
+#include <qapplication.h>
 #include <stdlib.h>
 
 
@@ -111,33 +112,6 @@ struct BidiControl {
     unsigned char unused : 1;
     unsigned char level : 6;
 };
-
-static QChar::Direction basicDirection(const QString &str)
-{
-    int len = str.length();
-    int pos = 0;
-    const QChar *uc = str.unicode() + pos;
-    while(pos < len) {
-        switch(direction(*uc))
-        {
-        case QChar::DirL:
-        case QChar::DirLRO:
-        case QChar::DirLRE:
-            return QChar::DirL;
-        case QChar::DirR:
-        case QChar::DirAL:
-        case QChar::DirRLO:
-        case QChar::DirRLE:
-            return QChar::DirR;
-        default:
-            break;
-        }
-        ++pos;
-        ++uc;
-    }
-    return QChar::DirL;
-}
-
 
 static void qAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl &control, QChar::Direction dir)
 {
@@ -845,7 +819,7 @@ static void init(QTextEngine *e)
         resolveUsp10();
 #endif
 
-    e->direction = QChar::DirON;
+    e->direction = QApplication::layoutDirection();
     e->itemization_mode = 0;
 
     e->pal = 0;
@@ -987,10 +961,7 @@ void QTextEngine::itemize() const
         return;
 
     if (!(itemization_mode & QTextLayout::NoBidi)) {
-        QChar::Direction d = direction;
-        if (d == QChar::DirON)
-            d = basicDirection(layoutData->string);
-        bidiItemize(const_cast<QTextEngine *>(this), d == QChar::DirR, itemization_mode);
+        bidiItemize(const_cast<QTextEngine *>(this), (direction == Qt::RightToLeft), itemization_mode);
     } else {
         BidiControl control(false);
         if (itemization_mode & QTextLayout::SingleLine)

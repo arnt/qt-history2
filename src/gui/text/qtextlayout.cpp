@@ -756,7 +756,7 @@ int QTextLayout::maximumWidth() const
 
     Sets the \a direction of the text flow in the layout.
 */
-void QTextLayout::setDirection(QChar::Direction dir)
+void QTextLayout::setDirection(Qt::LayoutDirection dir)
 {
     d->direction = dir;
 }

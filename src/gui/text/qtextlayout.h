@@ -113,7 +113,7 @@ public:
         MultiLine = 0,
         NoBidi = 0x1,
         SingleLine = 0x2,
-        NoGlyphCache = 0x4000
+        NoGlyphCache = 0x2000
     };
     Q_DECLARE_FLAGS(LayoutMode, LayoutModeFlags)
 
@@ -151,7 +151,7 @@ public:
     int minimumWidth() const;
     int maximumWidth() const;
 
-    void setDirection(QChar::Direction);
+    void setDirection(Qt::LayoutDirection direction);
 private:
     QTextLayout(QTextEngine *e) : d(e) {}
     /* disable copy and assignment */

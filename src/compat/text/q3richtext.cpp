@@ -3826,7 +3826,7 @@ void Q3TextString::checkBidi() const
     // determines the properties we need for layouting
     QTextEngine textEngine;
     textEngine.setText(toString());
-    textEngine.direction = (QChar::Direction)dir;
+    textEngine.direction = (dir == QChar::DirR) ? Qt::RightToLeft : Qt::LeftToRight;
     textEngine.setMode(QTextLayout::SingleLine);
     textEngine.itemize();
     const QCharAttributes *ca = textEngine.attributes() + length-1;
@@ -3861,7 +3861,7 @@ void Q3TextString::checkBidi() const
     } else if (dir == QChar::DirL) {
         that->rightToLeft = false;
     } else {
-        that->rightToLeft = (textEngine.direction == QChar::DirR);
+        that->rightToLeft = (textEngine.direction == Qt::RightToLeft);
     }
 }
 
