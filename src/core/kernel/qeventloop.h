@@ -24,7 +24,7 @@ class QTimer;
 //#define Q_WIN_EVENT_NOTIFIER
 #ifdef Q_WIN_EVENT_NOTIFIER
 class QWinEventNotifier;
-#endif 
+#endif
 
 class QEventLoopPrivate;
 
@@ -91,12 +91,18 @@ public:
     virtual bool winEventFilter(void *message, long *result);
 #endif
 
+#ifdef Q_OS_UNIX
+    void watchUnixSignal(int, bool);
+#endif
     ProcessEventHandler setProcessEventHandler(ProcessEventHandler handler);
     EventFilter setEventFilter(EventFilter filter);
 
 signals:
     void awake();
     void aboutToBlock();
+#ifdef Q_OS_UNIX
+    void unixSignal(int);
+#endif
 
 protected:
     virtual void appStartingUp();

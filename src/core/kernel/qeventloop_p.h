@@ -126,6 +126,8 @@ public:
     QList<QSockNot*> sn_pending_list;
 
 #if defined(Q_OS_UNIX)
+    void handleSignals();
+
     int eventloopSelect(uint, timeval *);
     int thread_pipe[2];
 

@@ -22,6 +22,8 @@
 #include <stdlib.h>
 #include <errno.h>
 
+#include <signal.h>
+
 #define d d_func()
 #define q q_func()
 
@@ -257,6 +259,42 @@ bool QEventLoop::unregisterTimers(QObject *obj)
 
     return true;
 }
+
+/*****************************************************************************
+ UNIX signal handling
+ *****************************************************************************/
+
+static sig_atomic_t signal_received;
+static sig_atomic_t signals_fired[NSIG];
+
+static void signalHandler(int sig)
+{
+    signals_fired[sig] = 1;
+    signal_received = 1;
+}
+
+void QEventLoop::watchUnixSignal(int sig, bool watch)
+{
+    if (sig < NSIG) {
+        struct sigaction sa;
+        sigemptyset(&(sa.sa_mask));
+        sa.sa_flags = 0;
+        sa.sa_handler = watch ? signalHandler : SIG_DFL;
+        sigaction(sig, &sa, 0);
+    }
+}
+
+
+void QEventLoopPrivate::handleSignals()
+{
+    for (int i=0; i < NSIG; ++i) {
+        if (signals_fired[i]) {
+            signals_fired[i]=0;
+            emit q->unixSignal(i);
+        }
+    }
+}
+
 
 /*****************************************************************************
  Socket notifier type
@@ -557,6 +595,10 @@ int QEventLoopPrivate::eventloopSelect(uint flags, timeval *t)
 
     int nsel;
     do {
+        while (signal_received) {
+            signal_received=0;
+            d->handleSignals();
+        }
         nsel = select(highest + 1,
                       &sn_vec[0].select_fds,
                       &sn_vec[1].select_fds,
