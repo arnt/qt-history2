@@ -845,6 +845,27 @@ bool QLineEdit::isModified() const
 bool QLineEdit::edited() const { return d->modified; }
 void QLineEdit::setEdited( bool on ) { d->modified = on; }
 
+/*! \property QLineEdit::hasMarkedText \obsolete use hasSelectedText instead. */
+
+/*!
+    \property QLineEdit::hasSelectedText
+    \brief whether there is any text selected
+
+    hasSelectedText() returns TRUE if some or all of the text has been
+    selected by the user (e.g. by clicking and dragging); otherwise
+    returns FALSE.
+
+    \sa selectedText()
+*/
+
+
+bool QLineEdit::hasSelectedText() const
+{
+    return d->hasSelectedText();
+}
+
+/*! \property QLineEdit::markedText \obsolete use selectedText instead. */
+
 /*!
     \property QLineEdit::selectedText
     \brief the selected text
@@ -854,11 +875,6 @@ void QLineEdit::setEdited( bool on ) { d->modified = on; }
 
     \sa hasSelectedText()
 */
-
-bool QLineEdit::hasSelectedText() const
-{
-    return d->hasSelectedText();
-}
 
 QString QLineEdit::selectedText() const
 {
@@ -966,8 +982,8 @@ bool QLineEdit::hasAcceptableInput() const
 
 
 /*!
-    \property QLineEdit::mask
-    \brief The validation mask.
+    \property QLineEdit::inputMask
+    \brief The validation input mask
 
     If no mask is set, mask() returns QString::null.
 
