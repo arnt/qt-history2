@@ -642,8 +642,8 @@ bool QSqlDatabase::rollback()
 
 /*! \property QSqlDatabase::databaseName
 
-  \brief the name of the database
-
+  \brief the name of the database or the TNS Service Name 
+	for the QOCI8 (Oracle) driver. 
 */
 
 void QSqlDatabase::setDatabaseName( const QString& name )

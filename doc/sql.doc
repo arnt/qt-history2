@@ -215,7 +215,9 @@ database connection and will be used by the Qt SQL classes if no
 other database is specified. 
 
 Second we call setDatabaseName(), setUserName(), setPassword() and
-setHostName() to initialize the connection information.
+setHostName() to initialize the connection information. Note that
+for the QOCI8 (Oracle) driver the TNS Service Name has to be passed
+to setDatbaseName().
 
 Third we call open() to open the database and give us access to the
 data. If this call fails it will return FALSE; error information can
