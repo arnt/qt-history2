@@ -699,10 +699,12 @@ void QComboBox::removeItem( int index )
 	currentChanged();
     }
     else {
-       if (d->current < cnt - 1)
-           setCurrentItem( d->current );
-       else
-           setCurrentItem( d->current - 1 );
+        if ( !d->ed ) {
+            if (d->current < cnt - 1)
+                setCurrentItem( d->current );
+            else
+                setCurrentItem( d->current - 1 );
+        }
     }
 
 }
