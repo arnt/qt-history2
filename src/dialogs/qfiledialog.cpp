@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#235 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#236 $
 **
 ** Implementation of QFileDialog class
 **
@@ -2109,7 +2109,7 @@ QString QFileDialog::getOpenFileName( const QStringList &filters, const QString 
 
 #if defined(_WS_WIN_)
     if ( qApp->style() == WindowsStyle )
-        return winGetOpenFileName( initialSelection, filter.count() > 0 ? filter.first() : QString::null, workingDirectory,
+        return winGetOpenFileName( initialSelection, filters.count() > 0 ? filters.first() : QString::null, workingDirectory,
                                    parent, name );
 #endif
 
@@ -2243,7 +2243,7 @@ QString QFileDialog::getSaveFileName( const QStringList &filters,
 
 #if defined(_WS_WIN_)
     if ( qApp->style() == WindowsStyle )
-        return winGetSaveFileName( initialSelection, filter.count() > 0 ? filter.first() : QString::null, workingDirectory,
+        return winGetSaveFileName( initialSelection, filters.count() > 0 ? filters.first() : QString::null, workingDirectory,
                                    parent, name );
 #endif
 
