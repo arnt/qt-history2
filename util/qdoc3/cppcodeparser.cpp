@@ -14,20 +14,25 @@
 /* qmake ignore Q_OBJECT */
 
 #define COMMAND_CLASS                   Doc::alias("class")
+#define COMMAND_CONTENTSLINK            Doc::alias("contentspage")
 #define COMMAND_ENUM                    Doc::alias("enum")
 #define COMMAND_EXAMPLE                 Doc::alias("example")
 #define COMMAND_FILE                    Doc::alias("file")
 #define COMMAND_FN                      Doc::alias("fn")
 #define COMMAND_GROUP                   Doc::alias("group")
 #define COMMAND_HEADERFILE              Doc::alias("headerfile")
+#define COMMAND_INDEXLINK               Doc::alias("indexpage")
 #define COMMAND_INHEADERFILE            Doc::alias("inheaderfile")
 #define COMMAND_MODULE                  Doc::alias("module")
 #define COMMAND_NAMESPACE               Doc::alias("namespace")
 #define COMMAND_OVERLOAD                Doc::alias("overload")
+#define COMMAND_NEXTLINK                Doc::alias("nextpage")
 #define COMMAND_PAGE                    Doc::alias("page")
+#define COMMAND_PREVIOUSLINK            Doc::alias("previouspage")
 #define COMMAND_PROPERTY                Doc::alias("property")
 #define COMMAND_REIMP                   Doc::alias("reimp")
 #define COMMAND_RELATES                 Doc::alias("relates")
+#define COMMAND_STARTLINK               Doc::alias("startpage")
 #define COMMAND_TYPEDEF                 Doc::alias("typedef")
 
 CppCodeParser::CppCodeParser()
@@ -236,7 +241,8 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
 Set<QString> CppCodeParser::otherMetaCommands()
 {
     return commonMetaCommands() << COMMAND_INHEADERFILE << COMMAND_OVERLOAD << COMMAND_REIMP
-				<< COMMAND_RELATES;
+				<< COMMAND_RELATES << COMMAND_CONTENTSLINK << COMMAND_NEXTLINK
+                                << COMMAND_PREVIOUSLINK << COMMAND_INDEXLINK << COMMAND_STARTLINK;
 }
 
 void CppCodeParser::processOtherMetaCommand( const Doc& doc,
@@ -282,6 +288,56 @@ void CppCodeParser::processOtherMetaCommand( const Doc& doc,
 	} else {
 	    node->setRelates(pseudoParent);
         }
+    } else if (command == COMMAND_CONTENTSLINK) {
+        int spaceAt = arg.indexOf(" ");
+        QString desc;
+        QString link;
+        if (spaceAt != -1) {
+            link = arg.left(spaceAt).trimmed();
+            desc = arg.mid(spaceAt).trimmed();
+        } else
+            link = arg.trimmed();
+        node->setLink(Node::ContentsLink, link, desc);
+    } else if (command == COMMAND_NEXTLINK) {
+        int spaceAt = arg.indexOf(" ");
+        QString desc;
+        QString link;
+        if (spaceAt != -1) {
+            link = arg.left(spaceAt).trimmed();
+            desc = arg.mid(spaceAt).trimmed();
+        } else
+            link = arg.trimmed();
+        node->setLink(Node::NextLink, link, desc);
+    } else if (command == COMMAND_PREVIOUSLINK) {
+        int spaceAt = arg.indexOf(" ");
+        QString desc;
+        QString link;
+        if (spaceAt != -1) {
+            link = arg.left(spaceAt).trimmed();
+            desc = arg.mid(spaceAt).trimmed();
+        } else
+            link = arg.trimmed();
+        node->setLink(Node::PreviousLink, link, desc);
+    } else if (command == COMMAND_INDEXLINK) {
+        int spaceAt = arg.indexOf(" ");
+        QString desc;
+        QString link;
+        if (spaceAt != -1) {
+            link = arg.left(spaceAt).trimmed();
+            desc = arg.mid(spaceAt).trimmed();
+        } else
+            link = arg.trimmed();
+        node->setLink(Node::IndexLink, link, desc);
+    } else if (command == COMMAND_STARTLINK) {
+        int spaceAt = arg.indexOf(" ");
+        QString desc;
+        QString link;
+        if (spaceAt != -1) {
+            link = arg.left(spaceAt).trimmed();
+            desc = arg.mid(spaceAt).trimmed();
+        } else
+            link = arg.trimmed();
+        node->setLink(Node::StartLink, link, desc);
     } else {
 	processCommonMetaCommand( doc.location(), command, arg, node, tre );
     }

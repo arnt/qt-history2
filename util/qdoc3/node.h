@@ -6,6 +6,7 @@
 #define NODE_H
 
 #include <qmap.h>
+#include <qpair.h>
 #include <qstringlist.h>
 
 #include "codechunk.h"
@@ -21,6 +22,9 @@ public:
     enum Access { Public, Protected, Private };
     enum Status { Compat, Obsolete, Deprecated, Preliminary, Commendable, Main }; // don't reorder
     enum ThreadSafeness { UnspecifiedSafeness, NonReentrant, Reentrant, ThreadSafe };
+    enum LinkTypes { StartLink, NextLink, PreviousLink,
+                     ContentsLink, IndexLink /*, GlossaryLink, CopyrightLink,
+                     ChapterLink, SectionLink, SubsectionLink, AppendixLink*/ };
 
     virtual ~Node();
 
@@ -30,12 +34,14 @@ public:
     void setStatus( Status status ) { sta = status; }
     void setThreadSafeness(ThreadSafeness safeness) { saf = safeness; }
     void setRelates(InnerNode *pseudoParent);
+    void setLink(LinkTypes linkType, const QString &link, const QString &desc);
 
     virtual bool isInnerNode() const = 0;
     Type type() const { return typ; }
     InnerNode *parent() const { return par; }
     InnerNode *relates() const { return rel; }
     const QString& name() const { return nam; }
+    QMap<LinkTypes,QPair<QString,QString> > links() const { return linkMap; }
 
     Access access() const { return acc; }
     const Location& location() const { return loc; }
@@ -58,6 +64,7 @@ private:
     QString nam;
     Location loc;
     Doc d;
+    QMap<LinkTypes,QPair<QString,QString> > linkMap;
 };
 
 class FunctionNode;
