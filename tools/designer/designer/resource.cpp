@@ -2680,7 +2680,8 @@ void Resource::loadExtraSource( FormWindow *formwindow, const QString &currFileN
     }
     formwindow->formFile()->setCode( code );
 
-    MetaDataBase::setupConnections( formwindow, connections );
+    if ( !MainWindow::self->currProject()->isCpp() )
+	MetaDataBase::setupConnections( formwindow, connections );
 
     for ( QValueList<LanguageInterface::Function>::Iterator fit = functions.begin();
 	  fit != functions.end(); ++fit ) {
