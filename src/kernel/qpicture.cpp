@@ -232,7 +232,8 @@ bool QPicture::save( const QString &fileName )
   Replays the picture using \e painter, and returns TRUE if successful or
   FALSE if the internal picture data is inconsistent.
 
-  This function does exactly the same as QPainter::drawPicture().
+  This function does exactly the same as QPainter::drawPicture() with
+  (\a x, \a y) = (0, 0).
 */
 
 bool QPicture::play( QPainter *painter )
@@ -842,14 +843,39 @@ QPicture QPicture::copy() const
  *****************************************************************************/
 
 /*!
-  Replays the picture \e pic.
+  Replays the picture \a pic translated by ( \a x, \a y ).
 
-  This function does exactly the same as QPicture::play().
+  This function does exactly the same as QPicture::play() when called with
+  (\a x, \a y) = (0, 0).
+*/
+
+void QPainter::drawPicture( int x, int y, const QPicture &pic )
+{
+    save();
+    translate( x, y );
+    ((QPicture*)&pic)->play( (QPainter*)this );
+    restore();
+}
+
+/*!
+  \overload void QPainter::drawPicture( const QPoint &p, const QPicture &pic )
+*/
+
+void QPainter::drawPicture( const QPoint &p, const QPicture &pic )
+{
+    drawPicture( p.x(), p.y(), pic );
+}
+
+/*!
+  \obsolete
+
+  Use one of the other QPainter::drawPicture() functions with a (0, 0)
+  offset instead.
 */
 
 void QPainter::drawPicture( const QPicture &pic )
 {
-    ((QPicture*)&pic)->play( (QPainter*)this );
+    drawPicture( 0, 0, pic );
 }
 
 /*!

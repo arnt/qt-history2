@@ -222,6 +222,8 @@ public:
     void	drawTiledPixmap( const QRect &, const QPixmap & );
 #ifndef QT_NO_PICTURE
     void	drawPicture( const QPicture & );
+    void	drawPicture( int x, int y, const QPicture & );
+    void	drawPicture( const QPoint &, const QPicture & );
 #endif
 
     void	fillRect( int x, int y, int w, int h, const QBrush & );
