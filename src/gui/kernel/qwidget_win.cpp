@@ -1787,10 +1787,8 @@ void QWidget::clearMask()
 
 void QWidgetPrivate::updateFrameStrut() const
 {
-    QWidget *that = (QWidget *) this;
-
     if (!q->isVisible() || q->isDesktop()) {
-        that->data->fstrut_dirty = q->isVisible();
+        q->data->fstrut_dirty = q->isVisible();
         return;
     }
 
@@ -1803,16 +1801,16 @@ void QWidgetPrivate::updateFrameStrut() const
     pt.y = 0;
 
     ClientToScreen(q->winId(), &pt);
-    that->data->crect = QRect(QPoint(pt.x, pt.y),
+    q->data->crect = QRect(QPoint(pt.x, pt.y),
                          QPoint(pt.x + cr.right, pt.y + cr.bottom));
 
-    QTLWExtra *top = that->d->topData();
+    QTLWExtra *top = topData();
     top->ftop = data.crect.top() - fr.top;
     top->fleft = data.crect.left() - fr.left;
     top->fbottom = fr.bottom - data.crect.bottom();
     top->fright = fr.right - data.crect.right();
 
-    that->data->fstrut_dirty = false;
+    q->data->fstrut_dirty = false;
 }
 
 void QWidget::setWindowOpacity(qReal level)
