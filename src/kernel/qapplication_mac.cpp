@@ -2184,7 +2184,13 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 void QApplication::flush()
 {
     sendPostedEvents();
-    // #### Sam, do that
+    if(QWidgetList *list   = qApp->topLevelWidgets()) {
+	for ( QWidget     *widget = list->first(); widget; widget = list->next() ) {
+	    if ( !widget->isHidden() && !widget->isDesktop())
+		QDFlushPortBuffer(GetWindowPort((WindowPtr)widget->handle()),NULL);
+	}
+	delete list;
+    }
 }
 
 #if 0
