@@ -209,6 +209,9 @@ main.obj: main.cpp project.h
 option.obj: option.cpp option.h
 	$(CXX) $(CXXFLAGS) option.cpp
 
+property.obj: property.cpp project.h option.h
+	$(CXX) $(CXXFLAGS) property.cpp
+
 projectgenerator.obj: generators/projectgenerator.cpp
 	$(CXX) $(CXXFLAGS) generators/projectgenerator.cpp
 
