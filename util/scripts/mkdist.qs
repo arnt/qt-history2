@@ -53,7 +53,6 @@ var checkoutRemove = [ new RegExp("^tests"),
 		       new RegExp("^pics"),
 		       new RegExp("^bin/syncqt.bat"),
 		       new RegExp("^extensions"),
-		       new RegExp("^tools/designer"),
 		       new RegExp("^tools/lsqrc"),
 		       new RegExp("^tools/makeqpf"),
 		       new RegExp("^tools/mergetr"),
@@ -198,6 +197,7 @@ moduleMap["sql module"]                  = new RegExp("(^src/sql|^src/plugins/sq
 moduleMap["tools applications"]          = new RegExp("^src/tools");
 moduleMap["window classes"]              = new RegExp("^src/winmain");
 moduleMap["xml module"]                  = new RegExp("^src/xml");
+moduleMap["designer application"]        = new RegExp("^tools/designer");
 moduleMap["assistant application"]       = new RegExp("^tools/assistant");
 moduleMap["linguist application"]        = new RegExp("^tools/linguist");
 moduleMap["qtconfig application"]        = new RegExp("^tools/qtconfig");
@@ -585,6 +585,8 @@ function compile(platform, edition, platformName)
     execute(["ssh", login, "rm -rf", platformName + "*"]);
     execute(["ssh", login, "rm -rf", "buildbinary" + platform + "*"]);
     execute(["ssh", login, "rm -rf", "installscript" + platform + "*"]);
+    execute(["ssh", login, "rm -rf", "write*.nsh"]);
+    execute(["ssh", login, "rm -rf", "checkqtlicense.ini"]);
 
     if (platform == "win" && options["zip"]) {
 	// copy zip package to host
@@ -640,6 +642,9 @@ function compile(platform, edition, platformName)
 
 	// replace tags and copy over the install script
 	var installScript = p4Copy(p4BranchPath + "/util/scripts","installscriptwin.nsi", p4Label);
+	var installWriteEnv = p4Copy(p4BranchPath + "/util/scripts","writeEnvStr.nsh", p4Label);
+	var installWritePath = p4Copy(p4BranchPath + "/util/scripts","writePathStr.nsh", p4Label);
+	var installCheckLicense = p4Copy(p4BranchPath + "/util/scripts","checkqtlicense.ini", p4Label);
 	execute(["ssh", login, "cygpath", "-w", "`pwd`/" + platformName + "clean"]);
 	var windowsPath = Process.stdout.split("\n")[0];
 	var extraTags = new Array();
@@ -647,6 +652,9 @@ function compile(platform, edition, platformName)
 	var scriptFile = new File(installScript);
 	replaceTags(scriptFile.path, ["installscriptwin.nsi"], platform, edition, platformName, extraTags);
 	execute(["scp", installScript, login + ":."]);
+	execute(["scp", installWriteEnv, login + ":."]);
+	execute(["scp", installWritePath, login + ":."]);
+	execute(["scp", installCheckLicense, login + ":."]);
 
 	// run the install script and create compiler
 	execute(["ssh", login, "cmd", "/c", "makensis.exe", "installscriptwin.nsi"]);
@@ -663,6 +671,8 @@ function compile(platform, edition, platformName)
     execute(["ssh", login, "rm -rf", platformName + "*"]);
     execute(["ssh", login, "rm -rf", "buildbinary" + platform + "*"]);
     execute(["ssh", login, "rm -rf", "installscript" + platform + "*"]);
+    execute(["ssh", login, "rm -rf", "write*.nsh"]);
+    execute(["ssh", login, "rm -rf", "checkqtlicense.ini"]);
 }
 
 /************************************************************
