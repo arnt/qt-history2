@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarray.h#2 $
+** $Id: //depot/qt/main/src/tools/qbitarray.h#3 $
 **
 ** Definition of QBitArray class
 **
@@ -49,7 +49,7 @@ public:
     QBitArray &operator=( const QBitArray &a )	// shallow copy
 	{ return (QBitArray&)assign( a ); }
 
-    uint    size() const { return isNull() ? 0 : (uint)(*((UINT32)data())); }
+    uint    size() const { return isNull() ? 0 : (uint)(*((UINT32*)data())); }
     bool    resize( uint size );		// resize bit array
 
     bool    fill( bool v, int size = -1 );	// fill bit array with value
