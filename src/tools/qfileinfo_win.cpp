@@ -246,6 +246,7 @@ QString QFileInfo::dirPath( bool absPath ) const
 	s = absFilePath();
     else
 	s = fn;
+    s += '/';
     int pos = s.findRev( '/' );
     if ( pos == -1 ) {
 	if ( s[ 2 ] == '/' )
