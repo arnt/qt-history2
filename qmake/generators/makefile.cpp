@@ -303,6 +303,10 @@ MakefileGenerator::generateMocList(QString fn_target)
 bool
 MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
 {
+    int pos;
+    int end;
+    int l;
+    QChar term;
     QStringList &fndeps = depends[fn];
     if(!fndeps.isEmpty())
 	return TRUE;
@@ -313,16 +317,36 @@ MakefileGenerator::generateDependancies(QStringList &dirs, QString fn)
 	QTextStream t( &file );
 	QString s, inc;
 	while ( !t.eof() ) {
-	    s = t.readLine().stripWhiteSpace();
-	    if(s.left(9) == "#include ")
-		inc = s.mid(10, s.length() - 11);
-	    else
+	    s = t.readLine();
+	    pos = s.find( "#include" );
+	    if ( pos == -1 )
 		continue;
 
+	    // find the name of the header
+	    l = s.length();
+	    pos += 8; // go to character after '#include'
+	    while ( pos < l ) {
+		if ( s[pos] == '<' ) {
+		    term = '>';
+		    break;
+		} else if ( s[pos] == '"' ) {
+		    term = '"';
+		    break;
+		}
+		pos++;
+	    }
+	    pos++;
+	    if ( pos >= l )
+		continue;
+	    end = s.find( term, pos );
+	    if ( end == -1 )
+		continue;
+	    inc = s.mid( pos, end-pos );
+
 	    QString fqn;
-	    if(QFile::exists(inc))
+	    if( QFile::exists(inc) )
 		fqn = inc;
-	    else if(QDir::isRelativePath(inc)) {
+	    else if( QDir::isRelativePath(inc) ) {
 		bool found=false;
 		for(QStringList::Iterator it = dirs.begin(); !found && it != dirs.end(); ++it) {
 		    found = QFile::exists((fqn = ((*it) + QDir::separator() + inc)));
