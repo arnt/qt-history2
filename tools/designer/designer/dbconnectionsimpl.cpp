@@ -78,7 +78,9 @@ void DatabaseConnection::doConnect()
 	    // ### error handling
 	    delete conn;
 	}
-    } else { // sync
+    } else { // sync // ### should this do something else?
+	Project::DatabaseConnection *conn = project->databaseConnection( listConnections->currentText() );
+	conn->connect();
     }
 }
 
