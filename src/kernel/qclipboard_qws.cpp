@@ -234,4 +234,33 @@ void QClipboard::setData( QMimeSource* src )
 }
 #endif
 
+bool QClipboard::supportsSelection() const
+{
+    return FALSE;
+}
+
+
+bool QClipboard::ownsSelection() const
+{
+    return FALSE;
+}
+
+
+bool QClipboard::ownsClipboard() const
+{
+    qWarning("QClipboard::ownsClipboard: UNIMPLEMENTED!");
+    return FALSE;
+}
+
+
+void QClipboard::setSelectionMode(bool)
+{
+}
+
+
+bool QClipboard::selectionModeEnabled() const
+{
+    return FALSE;
+}
+
 #endif // QT_NO_CLIPBOARD
