@@ -68,6 +68,7 @@
 #include "qcategorywidget.h"
 #include "startdialogimpl.h"
 #include "designerappiface.h"
+#include "connectiondialog.h"
 
 static const char * whatsthis_image[] = {
     "16 16 3 1",
@@ -1805,8 +1806,12 @@ void MainWindow::editConnections()
 	return;
 
     statusBar()->message( tr( "Edit the current form's connections..." ) );
-    ConnectionViewer dlg( this, formWindow() );
+    ConnectionDialog dlg( this );
     dlg.exec();
+
+//     ConnectionViewer dlg( this, formWindow() );
+//     dlg.exec();
+
     statusBar()->clear();
 }
 

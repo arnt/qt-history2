@@ -27,6 +27,7 @@
 #include "resource.h"
 #include "layout.h"
 #include "connectioneditorimpl.h"
+#include "connectiondialog.h"
 #include <widgetdatabase.h>
 #include "pixmapchooser.h"
 #include "orderindicator.h"
@@ -2108,9 +2109,16 @@ void FormWindow::editConnections()
     if ( !connectSender || !connectReceiver )
 	return;
     mainWindow()->statusBar()->clear();
-    ConnectionEditor editor( mainwindow, connectSender, connectReceiver, this );
+
+    ConnectionDialog dlg( mainwindow );
     mainWindow()->statusBar()->message( tr( "Edit connections...") );
-    editor.exec();
+    dlg.addConnection( connectSender, connectReceiver, QString::null, QString::null );
+    dlg.exec();
+
+//     ConnectionEditor editor( mainwindow, connectSender, connectReceiver, this );
+//     mainWindow()->statusBar()->message( tr( "Edit connections...") );
+//     editor.exec();
+
     mainWindow()->statusBar()->clear();
     if ( !toolFixed )
 	mainwindow->resetTool();
