@@ -2117,8 +2117,11 @@ void QWidget::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 
     if (testWFlags(Qt::WType_Desktop))
         return;
-    clearWState(Qt::WState_Maximized);
-    clearWState(Qt::WState_FullScreen);
+    if (!qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_VERT))
+        && !qt_net_supports(ATOM(_NET_WM_STATE_MAXIMIZED_HORZ)))
+        clearWState(Qt::WState_Maximized);
+    if (!qt_net_supports(ATOM(_NET_WM_STATE_FULLSCREEN)))
+        clearWState(Qt::WState_FullScreen);
     if (d->extra) {                                // any size restrictions?
         w = qMin(w,d->extra->maxw);
         h = qMin(h,d->extra->maxh);
