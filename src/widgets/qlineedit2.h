@@ -77,6 +77,7 @@ class Q_EXPORT QLineEdit : public QFrame
 public:
     QLineEdit( QWidget* parent, const char* name=0 );
     QLineEdit( const QString &, QWidget* parent, const char* name=0 );
+    QLineEdit( const QString &, const QString &, QWidget* parent, const char* name=0 );
     ~QLineEdit();
 
     QString text() const;
@@ -214,6 +215,14 @@ private:
     void updateSelection();
     void removeSelectedText();
     void delOrBackspace( bool backspace );
+    // mask functions
+    void parseMaskFields( const QString & );
+    int nextSeparator( uint pos );
+    int nextSeparator( uint pos, QChar sep );
+    int nextBlank( uint pos );
+    bool isValidInput( QChar key, QChar mask );
+    QString maskString( uint pos, const QString &str );
+    QString clearString( uint pos, uint len );
 
     QLineEditPrivate * d;
 

@@ -90,6 +90,20 @@ struct UndoRedoInfo {
     QTextParagraph *parag;
 };
 
+struct MaskInputData {
+    enum Casemode { None, Upper, Lower };
+    MaskInputData() {};
+    MaskInputData ( QChar c, bool s, MaskInputData::Casemode cm )
+	: maskChar( c ), separator( s ),  caseMode( cm ) {
+	//qDebug(QString("maskinput: ") + maskChar + " s: " + QString::number(separator) + " case: " + QString::number(caseMode));
+    };
+
+    QChar maskChar; // either the separator char or the inputmask
+    bool separator;
+    Casemode caseMode;
+
+};
+
 struct QLineEditPrivate {
     QLineEditPrivate( QLineEdit * l ):
 	readonly( FALSE ),
@@ -220,11 +234,18 @@ struct QLineEditPrivate {
 #endif
     QTimer trippleClickTimer;
     QPoint trippleClickPoint;
+    // needed for the mask part
+    QString maskFields;
+    QString mask;
+    QString initString;
+    bool saveLiteral;
+    QChar blank;
+    QValueList<MaskInputData> maskList;
 };
 
 
-/*!
-    \class QLineEdit qlineedit.h
+/* IGNORE!
+    \class QLineEdit
 
     \brief The QLineEdit widget is a one-line text editor.
 
@@ -306,7 +327,7 @@ struct QLineEditPrivate {
 */
 
 
-/*!
+/* IGNORE!
     \enum QLineEdit::EchoMode
 
     This enum type describes how a line edit should display its
@@ -324,14 +345,14 @@ struct QLineEditPrivate {
 */
 
 
-/*!
+/* IGNORE!
     \fn void QLineEdit::textChanged( const QString& )
 
     This signal is emitted whenever the text changes. The argument is
     the new text.
 */
 
-/*!
+/* IGNORE!
     \fn void QLineEdit::selectionChanged()
 
     This signal is emitted whenever the selection changes.
@@ -339,7 +360,7 @@ struct QLineEditPrivate {
     \sa hasSelectedText(), selectedText()
 */
 
-/*!
+/* IGNORE!
     Constructs a line edit with no text.
 
     The maximum text length is set to 32767 characters.
@@ -356,7 +377,7 @@ QLineEdit::QLineEdit( QWidget *parent, const char *name )
 }
 
 
-/*!
+/* IGNORE!
     Constructs a line edit containing the text \a contents.
 
     The cursor position is set to the end of the line and the maximum
@@ -376,8 +397,21 @@ QLineEdit::QLineEdit( const QString & contents,
     setText( contents );
 }
 
-
 /*!
+  Constructs a  line edit with an input \a mask and the text \a contents.
+
+  The cursor position is set to the first non-separator according to the mask and the maximum
+  text length is the the length of the mask (including the separators).
+*/
+QLineEdit::QLineEdit( const QString & mask, const QString & contents,
+	   QWidget* parent, const char* name=0 ) : QFrame( parent, name, WRepaintNoErase )
+{
+    init();
+    parseMaskFields( mask );
+//    setText( contents );
+}
+
+/* IGNORE!
     Destroys the line edit.
 */
 
@@ -386,7 +420,7 @@ QLineEdit::~QLineEdit()
     delete d;
 }
 
-/*!
+/* IGNORE!
     \internal
 
     Sets the password character to \a c.
@@ -399,7 +433,7 @@ void QLineEdit::setPasswordChar( QChar c )
     d->passwordChar = c;
 }
 
-/*!
+/* IGNORE!
     \internal
 
     Returns the password character.
@@ -468,7 +502,7 @@ void QLineEdit::setText( const QString &text )
 }
 
 
-/*!
+/* IGNORE!
     Selects all the text (i.e. highlights it) and moves the cursor to
     the end. This is useful when a default value has been inserted
     because if the user types before clicking on the widget, the
@@ -489,7 +523,7 @@ void QLineEdit::selectAll()
 
 
 
-/*!
+/* IGNORE!
     De-selects all text (i.e. removes highlighting) and leaves the
     cursor at the current position.
 
@@ -504,7 +538,7 @@ void QLineEdit::deselect()
 }
 
 
-/*!
+/* IGNORE!
     \property QLineEdit::text
     \brief the line edit's text
 
@@ -527,7 +561,7 @@ QString QLineEdit::text() const
 
 
 
-/*!
+/* IGNORE!
     \property QLineEdit::displayText
     \brief the displayed text
 
@@ -546,7 +580,7 @@ QString QLineEdit::displayText() const
 
 
 
-/*!
+/* IGNORE!
     \obsolete
     \property QLineEdit::hasMarkedText
     \brief whether part of the text has been selected by the user (e.g.
@@ -555,7 +589,7 @@ QString QLineEdit::displayText() const
   \sa selectedText()
 */
 
-/*!
+/* IGNORE!
     \property QLineEdit::hasSelectedText
     \brief whether there is any text selected
 
@@ -576,7 +610,7 @@ bool QLineEdit::hasSelectedText() const
 	d->parag->selectionStart( QTextDocument::Standard ) != d->parag->selectionEnd( QTextDocument::Standard );
 }
 
-/*!
+/* IGNORE!
     \obsolete
     \property QLineEdit::markedText
     \brief the text selected by the user (e.g. by clicking and
@@ -585,7 +619,7 @@ bool QLineEdit::hasSelectedText() const
   \sa hasSelectedText()
 */
 
-/*!
+/* IGNORE!
     \property QLineEdit::selectedText
     \brief the selected text
 
@@ -601,7 +635,7 @@ QString QLineEdit::selectedText() const
     return d->parag->string()->toString().mid( d->parag->selectionStart( 0 ), d->parag->selectionEnd( 0 ) - d->parag->selectionStart( 0 ) );
 }
 
-/*!
+/* IGNORE!
     \property QLineEdit::maxLength
     \brief the maximum permitted length of the text
 
@@ -625,7 +659,7 @@ void QLineEdit::setMaxLength( int m )
     update();
 }
 
-/*!
+/* IGNORE!
     \fn void  QLineEdit::returnPressed()
 
     This signal is emitted when the Return or Enter key is pressed.
@@ -635,7 +669,7 @@ void QLineEdit::setMaxLength( int m )
 */
 
 
-/*!
+/* IGNORE!
     Converts key press event \a e into a line edit action.
 
     If Return or Enter is pressed and the current text is valid (or
@@ -876,7 +910,7 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 }
 
 
-/*! \reimp
+/* IGNORE! \reimp
  */
 void QLineEdit::imStartEvent( QIMEvent *e )
 {
@@ -896,7 +930,7 @@ void QLineEdit::imStartEvent( QIMEvent *e )
 }
 
 
-/*! \reimp
+/* IGNORE! \reimp
  */
 void QLineEdit::imComposeEvent( QIMEvent *e )
 {
@@ -930,7 +964,7 @@ void QLineEdit::imComposeEvent( QIMEvent *e )
 }
 
 
-/*! \reimp
+/* IGNORE! \reimp
  */
 void QLineEdit::imEndEvent( QIMEvent *e )
 {
@@ -952,7 +986,7 @@ void QLineEdit::imEndEvent( QIMEvent *e )
 }
 
 
-/*!\reimp
+/* IGNORE!\reimp
 */
 
 void QLineEdit::focusInEvent( QFocusEvent * e)
@@ -967,7 +1001,7 @@ void QLineEdit::focusInEvent( QFocusEvent * e)
 }
 
 
-/*!\reimp
+/* IGNORE!\reimp
 */
 
 void QLineEdit::focusOutEvent( QFocusEvent * e )
@@ -982,7 +1016,7 @@ void QLineEdit::focusOutEvent( QFocusEvent * e )
     update();
 }
 
-/*!\reimp
+/* IGNORE!\reimp
 */
 
 void QLineEdit::drawContents( QPainter *painter )
@@ -1048,7 +1082,7 @@ void QLineEdit::drawContents( QPainter *painter )
 }
 
 
-/*!\reimp
+/* IGNORE!\reimp
 */
 
 void QLineEdit::resizeEvent( QResizeEvent *e )
@@ -1057,7 +1091,7 @@ void QLineEdit::resizeEvent( QResizeEvent *e )
 }
 
 
-/*! \reimp
+/* IGNORE! \reimp
 */
 bool QLineEdit::event( QEvent * e )
 {
@@ -1127,7 +1161,7 @@ static bool inSelection( int x, QTextParagraph *p )
 	     x <= p->at( p->selectionEnd( QTextDocument::Standard ) )->x );
 }
 
-/*! \reimp
+/* IGNORE! \reimp
 */
 void QLineEdit::mousePressEvent( QMouseEvent *e )
 {
@@ -1211,7 +1245,7 @@ void QLineEdit::doDrag()
 
 #endif // QT_NO_DRAGANDDROP
 
-/*!\reimp
+/* IGNORE!\reimp
 */
 void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 {
@@ -1269,7 +1303,7 @@ void QLineEdit::dragSlot()
 	d->dragTimer.start( 100, TRUE );
 }
 
-/*!\reimp
+/* IGNORE!\reimp
 */
 void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 {
@@ -1327,7 +1361,7 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 }
 
 
-/*!\reimp
+/* IGNORE!\reimp
 */
 void QLineEdit::mouseDoubleClickEvent( QMouseEvent *e )
 {
@@ -1344,7 +1378,7 @@ void QLineEdit::mouseDoubleClickEvent( QMouseEvent *e )
 
 	d->parag->setSelection( QTextDocument::Standard, c1.index(), c2.index() );
 	*d->cursor = c2;
-	
+
 	d->trippleClickTimer.start( qApp->doubleClickInterval(), TRUE );
 	d->trippleClickPoint = e->globalPos();
     }
@@ -1361,7 +1395,7 @@ void QLineEdit::mouseDoubleClickEvent( QMouseEvent *e )
     update();
 }
 
-/*!\reimp
+/* IGNORE!\reimp
 */
 void QLineEdit::contextMenuEvent( QContextMenuEvent* e )
 {
@@ -1404,7 +1438,7 @@ void QLineEdit::popupActivated( int r )
 }
 
 
-/*!
+/* IGNORE!
   \obsolete
   \fn void QLineEdit::cursorRight( bool, int )
 
@@ -1413,7 +1447,7 @@ void QLineEdit::popupActivated( int r )
   \sa cursorForward()
 */
 
-/*!
+/* IGNORE!
   \obsolete
   \fn void QLineEdit::cursorLeft( bool, int )
   For compatibilty with older applications only. Use cursorBackward()
@@ -1421,7 +1455,7 @@ void QLineEdit::popupActivated( int r )
   \sa cursorBackward()
 */
 
-/*!
+/* IGNORE!
     Moves the cursor back \a steps characters. If \a mark is TRUE each
     character moved over is added to the selection; if \a mark is
     FALSE the selection is cleared.
@@ -1433,7 +1467,7 @@ void QLineEdit::cursorBackward( bool mark, int steps )
     cursorForward( mark, -steps );
 }
 
-/*!
+/* IGNORE!
     Moves the cursor forward \a steps characters. If \a mark is TRUE
     each character moved over is added to the selection; if \a mark is
     FALSE the selection is cleared.
@@ -1444,11 +1478,23 @@ void QLineEdit::cursorBackward( bool mark, int steps )
 void QLineEdit::cursorForward( bool mark, int steps )
 {
     if( steps > 0 )
-	while( steps-- )
+	while( steps-- ) {
 	    d->cursor->gotoNextLetter();
+	    if ( !d->mask.isEmpty() )
+		while ( d->maskList[ d->cursor->index() ].separator ) {
+		    d->cursor->gotoNextLetter();
+		    if ( d->cursor->atParagEnd() ) break;
+		}
+	}
     else
-	while( steps++ )
+	while( steps++ ) {
 	    d->cursor->gotoPreviousLetter();
+	    if ( !d->mask.isEmpty() )
+		while ( d->maskList[ d->cursor->index() ].separator ) {
+		    d->cursor->gotoPreviousLetter();
+		    if ( d->cursor->atParagStart() ) break;
+		}
+	}
     if ( mark )
 	updateSelection();
     else {
@@ -1460,7 +1506,7 @@ void QLineEdit::cursorForward( bool mark, int steps )
     update();
 }
 
-/*!
+/* IGNORE!
     Deletes the character to the left of the text cursor and moves the
     cursor one position to the left. If any text has been selected by
     the user (e.g. by clicking and dragging), the cursor will be put
@@ -1474,7 +1520,7 @@ void QLineEdit::backspace()
     delOrBackspace( TRUE );
 }
 
-/*!
+/* IGNORE!
     Deletes the character to the right of the text cursor. If any text
     has been selected by the user (e.g. by clicking and dragging), the
     cursor will be put at the beginning of the selected text and the
@@ -1488,7 +1534,7 @@ void QLineEdit::del()
     delOrBackspace( FALSE );
 }
 
-/*!
+/* IGNORE!
     Moves the text cursor to the beginning of the line. If \a mark is
     TRUE, text is selected towards the first position; otherwise, any
     selected text is unselected if the cursor is moved.
@@ -1510,7 +1556,7 @@ void QLineEdit::home( bool mark )
     update();
 }
 
-/*!
+/* IGNORE!
     Moves the text cursor to the end of the line. If \a mark is TRUE,
     text is selected towards the last position; otherwise, any
     selected text is unselected if the cursor is moved.
@@ -1534,7 +1580,7 @@ void QLineEdit::end( bool mark )
 
 #ifndef QT_NO_CLIPBOARD
 
-/*!
+/* IGNORE!
     Copies the selected text to the clipboard, if there is any, and if
     echoMode() is \c Normal.
 
@@ -1552,7 +1598,7 @@ void QLineEdit::copy() const
     }
 }
 
-/*!
+/* IGNORE!
     Inserts the clipboard's text at the cursor position, deleting any
     selected text.
 
@@ -1568,7 +1614,7 @@ void QLineEdit::paste()
     deselect();
 }
 
-/*!
+/* IGNORE!
     Copies the selected text to the clipboard and deletes it, if there
     is any, and if echoMode() is \c Normal.
 
@@ -1604,7 +1650,7 @@ void QLineEdit::setAlignment( int flag )
     update();
 }
 
-/*!
+/* IGNORE!
     \property QLineEdit::alignment
     \brief the alignment of the line edit
 
@@ -1642,7 +1688,7 @@ void QLineEdit::setFrame( bool enable )
 }
 
 
-/*!
+/* IGNORE!
     \property QLineEdit::frame
     \brief whether the line edit draws itself with a frame
 
@@ -1666,7 +1712,7 @@ void QLineEdit::setEchoMode( EchoMode mode )
 }
 
 
-/*!
+/* IGNORE!
     \property QLineEdit::echoMode
     \brief the line edit's echo mode
 
@@ -1685,7 +1731,7 @@ QLineEdit::EchoMode QLineEdit::echoMode() const
 }
 
 
-/*!
+/* IGNORE!
     \property QLineEdit::readOnly
     \brief whether the line edit is read only.
 
@@ -1711,7 +1757,7 @@ bool QLineEdit::isReadOnly() const
     return d->readonly;
 }
 
-/*!
+/* IGNORE!
     Returns a recommended size for the widget.
 
     The width returned, in pixels, is usually enough for about 15 to
@@ -1730,7 +1776,7 @@ QSize QLineEdit::sizeHint() const
 
 
 
-/*!
+/* IGNORE!
     Returns a minimum size for the line edit.
 
     The width returned is enough for at least one character.
@@ -1746,7 +1792,7 @@ QSize QLineEdit::minimumSizeHint() const
 }
 
 
-/*!
+/* IGNORE!
     Sets this line edit to only accept input that the validator, \a v,
     will accept. This allows you to place any arbitrary constraints on
     the text which may be entered.
@@ -1769,7 +1815,7 @@ void QLineEdit::setValidator( const QValidator * v )
 	         this, SLOT( clearValidator() ) );
 }
 
-/*!
+/* IGNORE!
     Returns a pointer to the current input validator, or 0 if no
     validator has been set.
 
@@ -1782,7 +1828,7 @@ const QValidator * QLineEdit::validator() const
 }
 
 
-/*!
+/* IGNORE!
     This slot is equivalent to setValidator( 0 ).
 */
 
@@ -1793,7 +1839,7 @@ void QLineEdit::clearValidator()
 
 #ifndef QT_NO_DRAGANDDROP
 
-/*! \reimp
+/* IGNORE! \reimp
 */
 void QLineEdit::dragEnterEvent( QDragEnterEvent *e )
 {
@@ -1804,7 +1850,7 @@ void QLineEdit::dragEnterEvent( QDragEnterEvent *e )
     d->cursorOn = TRUE;
 }
 
-/*! \reimp
+/* IGNORE! \reimp
 */
 void QLineEdit::dragLeaveEvent( QDragLeaveEvent * )
 {
@@ -1812,7 +1858,7 @@ void QLineEdit::dragLeaveEvent( QDragLeaveEvent * )
     update();
 }
 
-/*!\reimp
+/* IGNORE!\reimp
 */
 
 void QLineEdit::dragMoveEvent( QDragMoveEvent *e )
@@ -1826,7 +1872,7 @@ void QLineEdit::dragMoveEvent( QDragMoveEvent *e )
     update();
 }
 
-/*!\reimp
+/* IGNORE!\reimp
 */
 void QLineEdit::dropEvent( QDropEvent *e )
 {
@@ -1880,7 +1926,7 @@ void QLineEdit::blinkSlot()
 
 
 
-/*!
+/* IGNORE!
     Validates and perhaps sets this line edit to contain \a newText
     with the cursor at position \a newPos, with selected text from \a
     newMarkAnchor to \a newMarkDrag. Returns TRUE if it changes the
@@ -1900,7 +1946,13 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 	if ( t[(int)i] < ' ' )  // unprintable/linefeed becomes space
 	    t[(int)i] = ' ';
     }
+
     t.truncate( maxLength() );
+
+//     if ( !d->mask.isEmpty() ) {
+// 	t.truncate( d->maskList.count() );
+//     } else
+// 	t.truncate( maxLength() );
 
     QString old = this->text();
 
@@ -1940,7 +1992,7 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 }
 
 
-/*!
+/* IGNORE!
     Removes any selected text, inserts \a newText, and validates the
     result. If it is valid, it sets it as the new contents of the line
     edit.
@@ -1948,6 +2000,8 @@ bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 void QLineEdit::insert( const QString &newText )
 {
     QString t( newText );
+    if ( !d->mask.isEmpty() )
+	t = maskString( d->cursor->index(), newText );
     if ( t.isEmpty() && !hasSelectedText() )
 	return;
 
@@ -1965,7 +2019,11 @@ void QLineEdit::insert( const QString &newText )
 	d->checkUndoRedoInfo( UndoRedoInfo::RemoveSelected );
 	d->undoRedoInfo.index = start;
 	d->undoRedoInfo.text = t1.mid( start, len );
-	t1.remove( start, len );
+	if ( !d->mask.isEmpty() ) {
+	    QString empty = clearString( start, len );
+	    t1.replace( start, empty.length(), empty );
+	} else
+	    t1.remove( start, len );
 	cp1 = start;
     }
 
@@ -1973,7 +2031,11 @@ void QLineEdit::insert( const QString &newText )
     d->undoRedoInfo.index = cp1;
 
     QString t2 = t1;
-    t2.insert( cp1, t );
+    if ( !d->mask.isEmpty() )
+	t2.replace( cp1, t.length(), t );
+    else
+	t2.insert( cp1, t );
+
     int cp2 = QMIN( cp1 + t.length(), (uint)maxLength() );
 
     d->ed = TRUE;
@@ -1997,7 +2059,7 @@ void QLineEdit::insert( const QString &newText )
 }
 
 
-/*!
+/* IGNORE!
   \obsolete
   \fn void QLineEdit::repaintArea( int from, int to )
   Repaints all characters from \a from to \a to. If cursorPos is
@@ -2005,7 +2067,7 @@ void QLineEdit::insert( const QString &newText )
 */
 
 
-/*! \reimp */
+/* IGNORE! \reimp */
 
 void QLineEdit::setFont( const QFont & f )
 {
@@ -2013,7 +2075,7 @@ void QLineEdit::setFont( const QFont & f )
 }
 
 
-/*!
+/* IGNORE!
     Clears the contents of the editor. This is equivalent to setText("").
 */
 
@@ -2023,7 +2085,7 @@ void QLineEdit::clear()
 }
 
 
-/*!
+/* IGNORE!
     Sets the selected area of this line edit to start at position \a
     start and be \a length characters long.
 
@@ -2046,7 +2108,7 @@ void QLineEdit::setCursorPosition( int newPos )
 }
 
 
-/*!
+/* IGNORE!
     \property QLineEdit::cursorPosition
     \brief the current cursor position for this line edit
 
@@ -2059,7 +2121,7 @@ int QLineEdit::cursorPosition() const
 }
 
 
-/*! \reimp */
+/* IGNORE! \reimp */
 
 void QLineEdit::setPalette( const QPalette & p )
 {
@@ -2073,7 +2135,7 @@ void QLineEdit::setEdited( bool on )
 }
 
 
-/*!
+/* IGNORE!
     \property QLineEdit::edited
     \brief whether the line edit has been edited
 
@@ -2095,7 +2157,7 @@ bool QLineEdit::edited() const
     return d->ed;
 }
 
-/*!
+/* IGNORE!
     Moves the cursor one word forward. If \a mark is TRUE, the word is
     also selected.
 
@@ -2116,7 +2178,7 @@ void QLineEdit::cursorWordForward( bool mark )
 }
 
 
-/*!
+/* IGNORE!
     Moves the cursor one word backward. If \a mark is TRUE, the word
     is also selected.
 
@@ -2240,7 +2302,7 @@ void QLineEdit::removeSelectedText()
 }
 
 
-/*!
+/* IGNORE!
     Undoes the last operation.
 */
 
@@ -2255,7 +2317,7 @@ void QLineEdit::undo()
 }
 
 
-/*!
+/* IGNORE!
     Redoes the last operation.
 */
 
@@ -2269,7 +2331,7 @@ void QLineEdit::redo()
     update();
 }
 
-/*!
+/* IGNORE!
     This function is called to create the popup menu which is shown
     when the user clicks on the line edit with the right mouse button.
     If you want to create a custom popup menu, reimplement this
@@ -2324,7 +2386,7 @@ void QLineEdit::setDragEnabled( bool b )
     d->dragEnabled = b;
 }
 
-/*!
+/* IGNORE!
     \property QLineEdit::dragEnabled
     \brief whether the lineedit starts a drag if the user presses and
     moves the mouse on some selected text
@@ -2335,7 +2397,7 @@ bool QLineEdit::dragEnabled() const
     return d->dragEnabled;
 }
 
-/*!
+/* IGNORE!
     This function sets \a *start to the position in the text where
     the selection starts and \a *end to the position where the
     selection ends. Returns TRUE if both \a start and \a end are not 0
@@ -2355,7 +2417,7 @@ bool QLineEdit::getSelection( int *start, int *end )
     return TRUE;
 }
 
-/*! \reimp */
+/* IGNORE! \reimp */
 void QLineEdit::windowActivationChange( bool )
 {
     if ( !isVisible() )
@@ -2365,7 +2427,7 @@ void QLineEdit::windowActivationChange( bool )
 	update();
 }
 
-/*!
+/* IGNORE!
     Returns the index position of the character which is at \a xpos
     (in logical coordinates from the left). If \a chr is not 0, \a
     *chr is populated with the character at this position.
@@ -2382,7 +2444,7 @@ int QLineEdit::characterAt( int xpos, QChar *chr ) const
     return c.index();
 }
 
-/*!
+/* IGNORE!
     \property QLineEdit::undoAvailable
     \brief whether undo is available
 */
@@ -2391,7 +2453,7 @@ bool QLineEdit::isUndoAvailable() const
     return d->parag->commands()->isUndoAvailable();
 }
 
-/*!
+/* IGNORE!
     \property QLineEdit::redoAvailable
     \brief whether redo is available
 */
@@ -2456,6 +2518,183 @@ void QLineEdit::delOrBackspace( bool backspace )
 	    }
 	}
     }
+}
+
+/* parses the maskfields, sets the mask, if to save literals and the space/blank character */
+void QLineEdit::parseMaskFields( const QString &maskFields ) {
+    d->maskFields = maskFields;
+
+    d->mask =  d->maskFields.section( ';', 0, 0 );
+    d->saveLiteral =  (bool)d->maskFields.section( ';', 1, 1 ).toInt();
+    d->blank = d->maskFields.section( ';', 2, 2 ).at(0);
+    if ( d->blank == 0 )
+	d->blank = ' ';
+
+//     qDebug("mask: " + d->mask + " lit: " +
+// 	   QString::number( d->saveLiteral ) +
+// 	   " blank: '" + QString( d->blank ) + "'");
+
+    MaskInputData::Casemode m = MaskInputData::None;
+    QChar c = 0;
+    QChar p = 0;
+    bool s;
+    bool escape = FALSE;
+    for ( uint i = 0; i < d->mask.length(); i++ ) {
+	c = d->mask.at(i);
+
+
+	if ( escape ) {
+	    s = TRUE;
+	    d->maskList.append( MaskInputData(c, TRUE, m));
+	    escape = FALSE;
+	} else if ( ( c == '<' ) || ( c == '>' ) ) {
+	    switch ( c ) {
+	    case '<':
+		m = MaskInputData::Lower;
+		break;
+	    case '>':
+		if ( p == '<' )
+		    m = MaskInputData::None;
+		else
+		    m = MaskInputData::Upper;
+		break;
+	    }
+	} else {
+	    switch ( c ) {
+	    case 'L':
+	    case 'l':
+	    case 'A':
+	    case 'a':
+	    case 'C':
+	    case 'c':
+	    case '0':
+	    case '9':
+	    case '#':
+		s = FALSE;
+		break;
+	    case '\\':
+		escape = TRUE;
+	    default:
+		s = TRUE;
+		break;
+	    }
+
+	    if ( !escape )
+		d->maskList.append( MaskInputData(c, s, m));
+	}
+	p = c;
+    }
+    setMaxLength( d->maskList.count() );
+
+    d->initString = "";
+    for ( uint i=0; i < d->maskList.count(); i++) {
+	if ( d->maskList[ i ].separator ) d->initString.append( d->maskList[ i ].maskChar );
+	else d->initString.append( d->blank );
+    }
+    setText( d->initString );
+    if ( nextBlank( 0 ) != -1 )
+	setCursorPosition( nextBlank( 0 ) );
+    else setCursorPosition( 0 );
+}
+
+
+/* finds position of next separator (inclusive) */
+int QLineEdit::nextSeparator( uint pos )
+{
+    if (pos >= d->maskList.count()) return -1;
+    for ( uint i=pos; i < d->maskList.count(); i++) {
+	if ( d->maskList[ i ].separator ) return i;
+    }
+    return -1;
+}
+
+/* finds position of next separator of the specified char  */
+int QLineEdit::nextSeparator( uint pos, QChar sep )
+{
+    if ( pos >= d->maskList.count() ) return -1;
+    pos = nextSeparator( pos );
+    if ( pos == -1 ) return -1;
+
+    if ( d->maskList[ pos ].maskChar == sep ) return pos;
+    else return nextSeparator( pos + 1, sep );
+}
+
+/* finds position of next blank (inclusive) */
+int QLineEdit::nextBlank( uint pos )
+{
+    if (pos >= d->maskList.count())
+	return -1;
+    for ( uint i=pos; i < d->maskList.count(); i++) {
+	if ( !d->maskList[ i ].separator ) return i;
+    }
+    return -1;
+}
+
+/* checks if the key is valid compared to the mask */
+bool QLineEdit::isValidInput(QChar key, QChar mask)
+{
+    switch ( mask ) {
+    case 'L':
+    case 'l':
+	if ( key.isLetter() )
+	    return TRUE;
+	break;
+    case '0':
+    case '9':
+	if ( key.isNumber() )
+	    return TRUE;
+	break;
+    case 'A':
+    case 'a':
+	if ( key.isLetterOrNumber() )
+	    return TRUE;
+	break;
+    case 'C':
+    case 'c':
+	if ( key.isPrint() )
+	    return true;
+	break;
+    case '#':
+	if ( ( key.isNumber() ) || ( key == '+' ) || ( key == '-' ) )
+	    return true;
+	break;
+    default:
+	break;
+    }
+    return FALSE;
+}
+
+QString QLineEdit::maskString( uint pos, const QString &str ) {
+    if (pos >= d->maskList.count()) return "";
+
+    uint strIndex = 0;
+    QString s = "";
+    for ( uint i=pos; i<d->maskList.count(); i++) {
+	if ( strIndex < str.length() ) {
+	    if ( d->maskList[i].separator )
+		s += d->maskList[i].maskChar;
+	    else {
+		s += str[strIndex];
+		strIndex++;
+	    }
+	} else
+	    break;
+    }
+    return s;
+}
+
+QString QLineEdit::clearString( uint pos, uint len ) {
+    if (pos >= d->maskList.count()) return "";
+
+    QString s = "";
+    uint end = QMIN( d->maskList.count(), pos + len );
+    for ( uint i=pos; i<end; i++ )
+	if ( d->maskList[i].separator )
+	    s += d->maskList[i].maskChar;
+	else
+	    s += d->blank;
+
+    return s;
 }
 
 #endif
