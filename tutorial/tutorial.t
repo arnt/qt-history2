@@ -71,4 +71,7 @@ clean:
     }
 #$}
 
+Makefile: tutorial.t tutorial.pro
+	$(TMAKE) tutorial.pro -o Makefile
+
 #$ $text = "FORCE:" if $is_unix;

@@ -1,20 +1,9 @@
-####### This section was automatically generated from
-#######    /home/hanord/qt/tutorial/Makefile for building on
-#######     on Tue Apr  1 19:27:47 MET DST 1997
-
-INCDIR = $(QTDIR)/include
-CFLAGS =  -O2 -fno-strength-reduce -Wall -W
-LIBCFLAGS = -fPIC
-YACCCFLAGS = -Wno-unused -Wno-parentheses
-LFLAGS = -L$(QTDIR)/lib -lqt
-CC = gcc
-MOC = moc
-SHELL =	/bin/sh
-
-####### End of automatically generated section
-#
 # $Source: /tmp/cvs/qt/tutorial/Makefile,v $
 #
+
+####### Tools
+
+TMAKE	=	tmake
 
 ####### Directories
 
@@ -37,19 +26,22 @@ SUBDIRS =	t1 \
 
 all: $(SUBDIRS)
 
-$(SUBDIRS): FORCE
-	cd $@; $(MAKE)
-
 showdirs:
 	@echo $(SUBDIRS)
+
+$(SUBDIRS): FORCE
+	cd $@; $(MAKE)
 
 galore:
 	for a in */* ; do [ -f $$a -a -x $$a ] && ( cd `dirname $$a` ; ../$$a & ) ; done
 
 tmake:
-	for i in $(SUBDIRS); do ( cd $$i ; tmake $$i.pro -o $$i.mak ) ; done
+	for i in $(SUBDIRS); do ( cd $$i ; $(TMAKE) $$i.pro -o Makefile ) ; done
 
 clean:
 	for i in $(SUBDIRS); do ( cd $$i ; $(MAKE) clean ) ; done
+
+Makefile: tutorial.t tutorial.pro
+	$(TMAKE) tutorial.pro -o Makefile
 
 FORCE:
