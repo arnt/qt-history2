@@ -546,14 +546,14 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 		t << "\t" << "-$(DEL_FILE) " << var("DESTDIR") << "$(TARGET)" << "\n"
 		  << "\t" << "-$(MOVE) $(TARGET) " << var("DESTDIR") << "\n";
 	} else {
-	    int cnt = 0, max_files = project->first("QMAKE_MAX_FILES_PER_AR").toInt();
+	    int max_files = project->first("QMAKE_MAX_FILES_PER_AR").toInt();
 	    QStringList objs = project->variables()["OBJECTS"] + project->variables()["OBJMOC"],
 			libs = project->variables()["QMAKE_AR_SUBLIBS"];
 	    libs.prepend("$(TARGET)");
 	    for(QStringList::Iterator libit = libs.begin(), objit = objs.begin(); 
 		libit != libs.end(); ++libit) {
 		QStringList build;
-		for(cnt = 0; cnt < max_files && objit != objs.end(); ++objit, cnt++) 
+		for(int cnt = 0; cnt < max_files && objit != objs.end(); ++objit, cnt++) 
 		    build << (*objit);
 		QString ar;
 		if((*libit) == "$(TARGET)") {
