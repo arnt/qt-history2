@@ -190,7 +190,7 @@ QModelIndexList QItemSelectionRange::items(const QAbstractItemModel *model) cons
             for (int row = t; row <= b; ++row) {
                 index = model->index(row, column, parent());
                 if (model->flags(index) & QAbstractItemModel::ItemIsSelectable)
-                    indexes.append(index); //###does not specify Type
+                    indexes.append(index);
             }
         }
     }
@@ -271,10 +271,9 @@ void QItemSelection::select(const QModelIndex &topLeft, const QModelIndex &botto
     if (model->parent(topLeft) != model->parent(bottomRight) ||
         !topLeft.isValid() || !bottomRight.isValid())
         return;
-    append(QItemSelectionRange(
-               model->parent(bottomRight),
-               topLeft.row(), topLeft.column(),
-               bottomRight.row(), bottomRight.column()));
+    append(QItemSelectionRange(model->parent(bottomRight),
+                               topLeft.row(), topLeft.column(),
+                               bottomRight.row(), bottomRight.column()));
 }
 
 /*!
