@@ -96,6 +96,9 @@ void QAccessible::updateAccessibility( QObject *o, int who, Event reason )
 	} );
     }
 
+    if ( !isActive() )
+	return;
+
     typedef void (WINAPI *PtrNotifyWinEvent)(DWORD, HWND, LONG, LONG );
     
     static PtrNotifyWinEvent ptrNotifyWinEvent = 0;
