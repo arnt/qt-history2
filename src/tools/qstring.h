@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#26 $
+** $Id: //depot/qt/main/src/tools/qstring.h#27 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
@@ -29,8 +29,6 @@ void *qmemmove( void *dst, const void *src, uint len );
 #endif
 
 char *qstrdup( const char * );
-#undef	strdup
-#define strdup qstrdup
 
 inline uint cstrlen( const char *str )
 { return strlen(str); }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#15 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#16 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -17,7 +17,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgdict.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgdict.cpp#16 $";
 #endif
 
 
@@ -193,7 +193,7 @@ GCI QGDict::look( const char *key, GCI d, int op )
     CHECK_PTR( node );
     if ( !node )				// no memory
 	return 0;
-    node->setKey( (char *)(copyk ? strdup(key) : key) );
+    node->setKey( (char *)(copyk ? qstrdup(key) : key) );
     node->setData( newItem(d) );
 #if defined(CHECK_NULL)
     if ( node->getData() == 0 )

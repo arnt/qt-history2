@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#43 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#44 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -20,7 +20,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#43 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qstring.cpp#44 $";
 #endif
 
 
@@ -59,14 +59,12 @@ void *qmemmove( void *dst, const void *src, uint len )
 }
 
 /*----------------------------------------------------------------------------
-  \fn char *strdup( const char *str )
   \relates QString
 
-  A safe strdup() function that overrides the one defined by the C library,
-  if the C library has one.
+  Returns a duplicate string.
 
-  Allocates space for a copy of \e str, copies it, and returns a pointer to
-  the copy.
+  Allocates space for a copy of \e str (using \c new), copies it, and returns
+  a pointer to the copy.
   If \e src is null, it immediately returns 0.
  ----------------------------------------------------------------------------*/
 

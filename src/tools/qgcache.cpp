@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgcache.cpp#15 $
+** $Id: //depot/qt/main/src/tools/qgcache.cpp#16 $
 **
 ** Implementation of QGCache and QGCacheIterator classes
 **
@@ -16,7 +16,7 @@
 #include "qstring.h"				/* used for statistics */
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgcache.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgcache.cpp#16 $";
 #endif
 
 
@@ -184,7 +184,7 @@ bool QGCache::insert( const char *key, GCI data, long cost, int priority )
     lruList->insertCosts += cost;
 #endif
     if ( copyK )
-	key = strdup( key );
+	key = qstrdup( key );
     QCacheItem *ci = new QCacheItem( key, newItem(data), cost,
 				     (short)priority );
     CHECK_PTR( ci );

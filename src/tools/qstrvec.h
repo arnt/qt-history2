@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstrvec.h#3 $
+** $Id: //depot/qt/main/src/tools/qstrvec.h#4 $
 **
 ** Definition of QStrVec and QStrIVec classes
 **
@@ -30,7 +30,7 @@ public:
     QStrVec( uint size, bool deepc = TRUE ) : QVectorM(char)(size) {dc=deepc;}
    ~QStrVec()  { clear(); }
 private:
-    GCI	 newItem( GCI d )	{ return dc ? strdup( (char*)d ) : d; }
+    GCI	 newItem( GCI d )	{ return dc ? qstrdup( (char*)d ) : d; }
     void deleteItem( GCI d )	{ if ( dc ) delete[] (char*)d; }
     int	 compareItems( GCI s1, GCI s2 )
 				{ return strcmp((char*)s1,(char*)s2); }
