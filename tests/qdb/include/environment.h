@@ -54,6 +54,8 @@ struct localsql {
     typedef QMap< QVariant, QValueList<int> > ColumnKey;
     /*! The stack. */
     typedef QValueStack<QVariant> Stack;
+    /*! A group set for an ordered result set */
+    typedef QValueList<int> GroupSet;
 };
 
 class LocalSQLEnvironment;
@@ -115,6 +117,10 @@ struct LocalSQLResultSet : public LocalSQLDataSet
     virtual bool prev() = 0;
     /*! Returns the current record buffer, which matched the structer set by setHeader() */
     virtual Record& currentRecord() = 0;
+    /*! Sets the group set for the result */
+    virtual bool setGroupSet( const QVariant& v ) = 0;
+    /*! Returns the group set for the result */
+    virtual GroupSet& groupSet() = 0;
 };
 
 /*! \struct FileDriver

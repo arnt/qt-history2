@@ -121,6 +121,8 @@ public:
     bool field( uint i, QVariant& v );
     bool field( const QString& name, QVariant& v );
     QValueList<QVariant::Type> columnTypes() const;
+    bool setGroupSet( const QVariant& v );
+    GroupSet& groupSet();
 
 private:
     class Header;
@@ -137,6 +139,7 @@ private:
 	Valid = 0
     };
     Pos pos;
+    GroupSet group;
 };
 
 class Parser : public LocalSQLParser

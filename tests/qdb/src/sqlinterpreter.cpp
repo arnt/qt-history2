@@ -723,3 +723,63 @@ bool ResultSet::sort( const List& index )
     pos = BeforeFirst;
     return TRUE;
 }
+
+bool ResultSet::setGroupSet( const QVariant& v )
+{
+    group.clear();
+    if ( !head ) {
+	env->setLastError( "Internal error: No header defined" );
+	return FALSE;
+    }
+    if ( !data.count() || data.count() ==1 )
+	return TRUE;
+    List groupByFields = v.toList();
+    if ( !groupByFields.count() ) {
+	env->setLastError( "Internal error: No group fields defined" );
+	return FALSE;
+    }
+    List sortList;
+    uint i = 0;
+    for ( ; i < groupByFields.count(); ++i ) {
+	List fieldDescription;
+	fieldDescription.append( head->fields[groupByFields[i].toInt()].name );
+	fieldDescription.append( head->fields[groupByFields[i].toInt()].type );
+	fieldDescription.append( QVariant() );
+	fieldDescription.append( QVariant() );
+	QVariant sort = QVariant( FALSE, 1 ); /*bool*/
+	List sortDescription;
+	sortDescription.append( fieldDescription );
+	sortDescription.append( sort );
+	sortList.append( sortDescription );
+    }
+    if ( !sort( sortList ) )
+	return FALSE;
+    /* create groupset on sorted result*/
+    uint count = 0;
+    if ( first() ) {
+	Record last = currentRecord();
+	do {
+	    Record& cur = currentRecord();
+	    /* check if the group by fields have changed */
+	    bool changed = FALSE;
+	    for ( i = 0; i < groupByFields.count(); ++i ) {
+		if ( last[groupByFields[i].toInt()] != cur[groupByFields[i].toInt()] ) {
+		    changed = TRUE;
+		    break;
+		}
+	    }
+	    if ( changed ) {
+		group.append( count );
+		count = 0;
+		last = cur;
+	    }
+	    ++count;
+	} while ( next() );
+    }
+    return TRUE;
+}
+
+localsql::GroupSet& ResultSet::groupSet()
+{
+    return group;
+}

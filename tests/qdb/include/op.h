@@ -1037,4 +1037,35 @@ public:
 };
 
 
+/* Pop the top of the stack (which must be a list, see MakeList) and
+   use it as a list of fields with which to group the result set
+   identified by 'resultid' which is identified by 'id' (see
+   CreateResult).  A 'group set' is created which wil be identified by
+   'id'.
+
+   The 'list' which is popped from the top of the stack must be of the form:
+
+   field number in the result (int)
+   field number in the result (int)
+   field number in the result (int)
+   ...
+
+   Note that the result will be sorted as a result of this op.
+
+*/
+
+class MakeGroupSet : public Op
+{
+public:
+    MakeGroupSet( int resultid, int id )
+	: Op( resultid, id ) {}
+    QString name() const { return "makegroupset"; }
+    int exec( LocalSQLEnvironment* env )
+    {
+	return env->resultSet( p1.toInt() )->setGroupSet( env->stack()->pop().toList() );
+    }
+};
+
+
+
 #endif
