@@ -1,0 +1,64 @@
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook V3.1//EN">
+<chapter>
+<title>Compiling &amp; Building a Qt Application</title>
+
+<sect1 id="creatingmaincpp">
+<title>Creating main.cpp </title>
+<para>
+
+</para>
+</sect1>
+
+<sect1 id="introducingqmake">
+<title>Introducing qmake </title>
+
+    <sect2 id="addingvaluestotheprofile">
+    <title>Adding Values to the .pro File </title>
+    <para>
+
+    </para>
+
+    </sect2>
+
+    <sect2 id="generatingamakefile">
+    <title>Generating a Makefile </title>
+    <para>
+
+    </para>
+    </sect2>
+</sect1>
+
+
+<sect1 id="makingamprunningtheapplication">
+<title>Making &amp; Running the Application </title>
+<para>
+
+</para>
+</sect1>
+
+<sect1 id="subclassingtokeeptheguiseparate">
+<title>Subclassing to Keep the GUI Separate </title>
+
+    <sect2 id="creatingaformsubclass">
+    <title>Creating a Form Subclass </title>
+    <para>
+
+    </para>
+    </sect2>
+
+    <sect2 id="updatingtheprofile">
+    <title>Updating the .pro File </title>
+    <para>
+
+    </para>
+    </sect2>
+</sect1>
+
+<sect1 id="creatingdynamicdialogsfromuifiles">
+<title>Creating Dynamic Dialogs from .ui Files </title>
+<para>
+
+</para>
+</sect1>
+</chapter>
+

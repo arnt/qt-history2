@@ -1,0 +1,50 @@
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook V3.1//EN">
+<chapter>
+<title>Using Qt's Advanced Widgets</title>
+
+<sect1 id="listbox">
+<title>ListBox </title>
+<para>
+
+</para>
+</sect1>
+
+
+<sect1 id="combobox">
+<title>ComboBox </title>
+<para>
+
+</para>
+</sect1>
+
+<sect1 id="listviewtreeview">
+<title>ListView (Tree View) </title>
+<para>
+
+</para>
+</sect1>
+
+
+<sect1 id="textedit">
+<title>TextEdit </title>
+<para>
+This widget is a multi-line editor (replacing <classname>QMultiLineEdit</classname>),
+which can also display rich text.
+</para>
+</sect1>
+
+<sect1 id="table">
+<title>Table </title>
+<para>
+
+</para>
+</sect1>
+
+
+<sect1 id="iconview">
+<title>IconView </title>
+<para>
+
+</para>
+</sect1>
+</chapter>

@@ -1,0 +1,34 @@
+<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook V3.1//EN">
+<chapter>
+<title>Customizing &amp; Integrating Qt Designer</title>
+
+<sect1 id="customizingqtdesigner">
+<title>Customizing Qt Designer </title>
+<para>
+
+</para>
+
+<para>
+Cross reference the plugins chapter.
+</para>
+</sect1>
+
+
+<sect1 id="integratingqtdesignerwithothertools">
+<title>Integrating Qt Designer with Other Tools </title>
+
+<sect2 id="creatingmakefileswithoutqmake">
+<title>Creating Makefiles without qmake </title>
+<para>
+Dealing with \cmd[uic] and dependencies.
+</para>
+</sect2>
+
+<sect2 id="integratingqtdesignerwithanide">
+<title>Integrating Qt Designer with an IDE </title>
+<para>
+For example, integrating Designer with Visual Studio.
+</para>
+</sect2>
+</sect1>
+</chapter>
