@@ -69,6 +69,7 @@ int mac_window_count = 0;
 /*****************************************************************************
   Externals
  *****************************************************************************/
+QString cfstring2qstring(CFStringRef); //qglobal.cpp
 void qt_mac_command_set_enabled(UInt32, bool); //qapplication_mac.cpp
 void qt_mac_unicode_reset_input(QWidget *); //qapplication_mac.cpp
 void qt_mac_unicode_init(QWidget *); //qapplication_mac.cpp
@@ -788,7 +789,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	    ChangeWindowAttributes((WindowRef)id, 0, kWindowHideOnSuspendAttribute |
 				   kWindowNoActivatesAttribute);
 #ifdef Q_WS_MACX
-	if(!grp && dialog && !parentWidget())
+	if(!grp && dialog && !parentWidget() && !testWFlags(WShowModal))
 	    grp = GetWindowGroupOfClass(kDocumentWindowClass);
 	if(testWFlags(WStyle_StaysOnTop)) {
 	    createTLExtra();
@@ -801,6 +802,22 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	} else if(grp) {
 	    SetWindowGroup((WindowPtr)id, grp);
 	}
+#ifdef DEBUG_WINDOW_CREATE
+	if(WindowGroupRef grpf = GetWindowGroup((WindowPtr)id)) {
+	    CFStringRef cfname;
+	    CopyWindowGroupName(grpf, &cfname);
+	    SInt32 lvl;
+	    GetWindowGroupLevel(grpf, &lvl);
+	    const char *from = "Default";
+	    if(extra && extra->topextra && grpf == extra->topextra->group)
+		from = "Created";
+	    else if(grpf == grp)
+		from = "Copied";
+	    qDebug("With window group '%s' [%p] @ %d: %s", cfstring2qstring(cfname).latin1(), grpf, (int)lvl, from);
+	} else {
+	    qDebug("No window group!!!");
+	}
+#endif
 #endif
 #if 0
 	//We cannot use a window content paint proc because it causes problems on 10.2 (it
