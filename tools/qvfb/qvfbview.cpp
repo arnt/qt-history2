@@ -114,7 +114,7 @@ QVFbView::QVFbView( int display_id, int w, int h, int d, QWidget *parent,
     hdr->depth = actualdepth;
     hdr->linestep = bpl;
     hdr->numcols = 0;
-    hdr->dataoffset = 1024;
+    hdr->dataoffset = sizeof( QVFbHeader );
     hdr->update = QRect();
 
     resizeContents( w, h );
