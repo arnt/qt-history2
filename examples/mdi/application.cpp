@@ -238,7 +238,8 @@ void ApplicationWindow::windowsMenuActivated( int id )
 {
     QWidget* w = ws->windowList().at( id );
     if ( w )
-	w->setFocus();
+	w->showNormal();
+    w->setFocus();
 }
 
 MDIWindow::MDIWindow( QWidget* parent, const char* name, int wflags )
