@@ -41,7 +41,7 @@ src-qmake: symlinks FORCE
 src-moc: src-qmake FORCE
 	cd src/moc; $(MAKE)
 
-sub-tools: sub-codecs FORCE
+sub-tools: sub-src FORCE
 	cd tools; $(MAKE)
 
 symlinks: .qmake.cache
