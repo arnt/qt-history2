@@ -51,8 +51,6 @@ public:
     bool isReadOnly() const;
     virtual void clear();
     QVariant::Type type() const;
-    virtual void setBinary(bool binary);
-    bool isBinary() const;
 
 private:
     QSqlFieldPrivate* d;
