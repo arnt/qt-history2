@@ -58,13 +58,13 @@ public:
 
     void start(const QString &program, const QStringList &arguments = QStringList(), OpenMode mode = ReadWrite);
 
-    ProcessChannelMode inputChannelMode() const;
-    void setInputChannelMode(ProcessChannelMode mode);
+    ProcessChannelMode readChannelMode() const;
+    void setReadChannelMode(ProcessChannelMode mode);
 
-    ProcessChannel inputChannel() const;
-    void setInputChannel(ProcessChannel channel);
+    ProcessChannel readChannel() const;
+    void setReadChannel(ProcessChannel channel);
 
-    void closeInputChannel(ProcessChannel channel);
+    void closeReadChannel(ProcessChannel channel);
     void closeOutputChannel();
 
     QString workingDirectory() const;
