@@ -133,692 +133,689 @@ public:
     const QByteArray & normilized();
 };
 
-class UrlParser {
-public:
-    // inline for speed
-    inline bool _char(char **ptr, char expected)
-    {
-        if (*((*ptr)) == expected) {
-            ++(*ptr);
-            return true;
-        }
-
-        return false;
-    }
-
-    inline bool _HEXDIG(char **ptr, char *dig)
-    {
-        char *ptrBackup = *ptr;
-        char ch = *((*ptr)++);
-        if ((ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f') || (ch >= 'A' && ch <= 'F')) {
-            *dig = ch;
-            return true;
-        }
-
-        *ptr = ptrBackup;
-        return false;
-    }
-
-    // pct-encoded = "%" HEXDIG HEXDIG
-    inline bool _pctEncoded(char **ptr, char pct[])
-    {
-        char *ptrBackup = *ptr;
-        if (!_char(ptr, '%')) return false;
-
-        char hex1, hex2;
-        if (!_HEXDIG(ptr, &hex1)) { *ptr = ptrBackup; return false; }
-        if (!_HEXDIG(ptr, &hex2)) { *ptr = ptrBackup; return false; }
-
-        pct[0] = '%';
-        pct[1] = hex1;
-        pct[2] = hex2;
-        pct[3] = '\0';
-
+// inline for speed
+static bool QT_FASTCALL _char(char **ptr, char expected)
+{
+    if (*((*ptr)) == expected) {
+        ++(*ptr);
         return true;
     }
 
-    // gen-delims  = ":" / "/" / "?" / "#" / "[" / "]" / "@"
-    inline bool _genDelims(char **ptr, char *c)
-    {
-        char *ptrBackup = *ptr;
-        char ch = *((*ptr)++);
-        switch (ch) {
-        case ':': case '/': case '?': case '#':
-        case '[': case ']': case '@':
-            *c = ch;
-            return true;
-        default:
-            *ptr = ptrBackup;
-            return false;
-        }
+    return false;
+}
+
+static bool QT_FASTCALL _HEXDIG(char **ptr, char *dig)
+{
+    char *ptrBackup = *ptr;
+    char ch = *((*ptr)++);
+    if ((ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f') || (ch >= 'A' && ch <= 'F')) {
+        *dig = ch;
+        return true;
     }
 
-    // sub-delims  = "!" / "$" / "&" / "'" / "(" / ")"
-    //             / "*" / "+" / "," / ";" / "="
-    inline bool _subDelims(char **ptr, char *c)
-    {
-        char *ptrBackup = *ptr;
-        char ch = *((*ptr)++);
-        switch (ch) {
-        case '!': case '$': case '&': case '\'':
-        case '(': case ')': case '*': case '+':
-        case ',': case ';': case '=':
-            *c = ch;
-            return true;
-        default:
-            *ptr = ptrBackup;
-            return false;
-        }
+    *ptr = ptrBackup;
+    return false;
+}
+
+// pct-encoded = "%" HEXDIG HEXDIG
+static bool QT_FASTCALL _pctEncoded(char **ptr, char pct[])
+{
+    char *ptrBackup = *ptr;
+    if (!_char(ptr, '%')) return false;
+
+    char hex1, hex2;
+    if (!_HEXDIG(ptr, &hex1)) { *ptr = ptrBackup; return false; }
+    if (!_HEXDIG(ptr, &hex2)) { *ptr = ptrBackup; return false; }
+
+    pct[0] = '%';
+    pct[1] = hex1;
+    pct[2] = hex2;
+    pct[3] = '\0';
+
+    return true;
+}
+
+// gen-delims  = ":" / "/" / "?" / "#" / "[" / "]" / "@"
+static bool QT_FASTCALL _genDelims(char **ptr, char *c)
+{
+    char *ptrBackup = *ptr;
+    char ch = *((*ptr)++);
+    switch (ch) {
+    case ':': case '/': case '?': case '#':
+    case '[': case ']': case '@':
+        *c = ch;
+        return true;
+    default:
+        *ptr = ptrBackup;
+        return false;
+    }
+}
+
+// sub-delims  = "!" / "$" / "&" / "'" / "(" / ")"
+//             / "*" / "+" / "," / ";" / "="
+static bool QT_FASTCALL _subDelims(char **ptr, char *c)
+{
+    char *ptrBackup = *ptr;
+    char ch = *((*ptr)++);
+    switch (ch) {
+    case '!': case '$': case '&': case '\'':
+    case '(': case ')': case '*': case '+':
+    case ',': case ';': case '=':
+        *c = ch;
+        return true;
+    default:
+        *ptr = ptrBackup;
+        return false;
+    }
+}
+
+static bool QT_FASTCALL _ALPHA_(char **ptr, char *c)
+{
+    char *ptrBackup = *ptr;
+    char ch = *((*ptr)++);
+    if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')) {
+        *c = ch;
+        return true;
     }
 
-    inline bool _ALPHA_(char **ptr, char *c)
-    {
-        char *ptrBackup = *ptr;
-        char ch = *((*ptr)++);
+    *ptr = ptrBackup;
+    return false;
+}
+
+static bool QT_FASTCALL _DIGIT_(char **ptr, char *c)
+{
+    char *ptrBackup = *ptr;
+    char ch = *((*ptr)++);
+    if (ch >= '0' && ch <= '9') {
+        *c = ch;
+        return true;
+    }
+
+    *ptr = ptrBackup;
+    return false;
+}
+
+// unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
+static bool QT_FASTCALL _unreserved(char **ptr, char *c)
+{
+    if (_ALPHA_(ptr, c) || _DIGIT_(ptr, c))
+        return true;
+
+    char *ptrBackup = *ptr;
+    char ch = *((*ptr)++);
+    switch (ch) {
+    case '-': case '.': case '_': case '~':
+        *c = ch;
+        return true;
+    default:
+        *ptr = ptrBackup;
+        return false;
+    }
+}
+
+// scheme      = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
+static bool QT_FASTCALL _scheme(char **ptr, QByteArray *scheme)
+{
+    bool first = true;
+
+    for (;;) {
+        char ch = *(*ptr);
         if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')) {
-            *c = ch;
-            return true;
+            *scheme += ch;
+        } else if (!first && ((ch >= '0' && ch <= '9') || ch == '+' || ch == '-' || ch == '.')) {
+            *scheme += ch;
+        } else {
+            break;
         }
 
+        (*ptr)++;
+        first = false;
+    }
+
+    return true;
+}
+
+// IPvFuture  = "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" )
+static bool QT_FASTCALL _IPvFuture(char **ptr, QByteArray *host)
+{
+    char *ptrBackup = *ptr;
+    char ch = *((*ptr)++);
+    if (ch != 'v') {
         *ptr = ptrBackup;
         return false;
     }
 
-    inline bool _DIGIT_(char **ptr, char *c)
-    {
-        char *ptrBackup = *ptr;
-        char ch = *((*ptr)++);
-        if (ch >= '0' && ch <= '9') {
-            *c = ch;
-            return true;
-        }
+    *host += ch;
 
+    if (!_HEXDIG(ptr, &ch)) {
         *ptr = ptrBackup;
         return false;
     }
 
-    // unreserved  = ALPHA / DIGIT / "-" / "." / "_" / "~"
-    inline bool _unreserved(char **ptr, char *c)
-    {
-        if (_ALPHA_(ptr, c) || _DIGIT_(ptr, c))
-            return true;
+    *host += ch;
 
-        char *ptrBackup = *ptr;
-        char ch = *((*ptr)++);
-        switch (ch) {
-        case '-': case '.': case '_': case '~':
-            *c = ch;
-            return true;
-        default:
-            *ptr = ptrBackup;
-            return false;
-        }
+    while (_HEXDIG(ptr, &ch))
+        *host += ch;
+
+    if (*((*ptr)++) != '.') {
+        *ptr = ptrBackup;
+        return false;
     }
 
-    // scheme      = ALPHA *( ALPHA / DIGIT / "+" / "-" / "." )
-    bool _scheme(char **ptr, QByteArray *scheme)
-    {
-        bool first = true;
+    if (!_unreserved(ptr, &ch) && !_subDelims(ptr, &ch) && (ch = *((*ptr)++)) != ':') {
+        *ptr = ptrBackup;
+        return false;
+    }
 
-        for (;;) {
-            char ch = *(*ptr);
-            if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z')) {
-                *scheme += ch;
-            } else if (!first && ((ch >= '0' && ch <= '9') || ch == '+' || ch == '-' || ch == '.')) {
-                *scheme += ch;
-            } else {
-                break;
-            }
+    *host += ch;
 
-            (*ptr)++;
-            first = false;
-        }
+    while (_unreserved(ptr, &ch) || _subDelims(ptr, &ch) || (ch = *((*ptr)++)) == ':')
+        *host += ch;
 
+    return true;
+}
+
+// h16         = 1*4HEXDIG
+//             ; 16 bits of address represented in hexadecimal
+static bool QT_FASTCALL _h16(char **ptr, QByteArray *c)
+{
+    char ch;
+    if (!_HEXDIG(ptr, &ch))
+        return false;
+    *c += ch;
+
+    for (int i = 0; i < 3; ++i) {
+        if (!_HEXDIG(ptr, &ch))
+            break;
+        *c += ch;
+    }
+
+    return true;
+}
+
+// dec-octet   = DIGIT                 ; 0-9
+//             / %x31-39 DIGIT         ; 10-99
+//             / "1" 2DIGIT            ; 100-199
+//             / "2" %x30-34 DIGIT     ; 200-249
+//             / "25" %x30-35          ; 250-255
+static bool QT_FASTCALL _decOctet(char **ptr, QByteArray *octet)
+{
+    char *ptrBackup = *ptr;
+    char c1 = *((*ptr)++);
+    if (c1 < '0' || c1 > '9') {
+        *ptr = ptrBackup;
+        return false;
+    }
+
+    *octet += c1;
+
+    if (c1 == '0')
+        return true;
+
+    char c2 = *((*ptr)++);
+    if (c2 < '0' || c2 > '9') {
+        *ptr = ptrBackup;
         return true;
     }
 
-    // IPvFuture  = "v" 1*HEXDIG "." 1*( unreserved / sub-delims / ":" )
-    bool _IPvFuture(char **ptr, QByteArray *host)
-    {
-        char *ptrBackup = *ptr;
-        char ch = *((*ptr)++);
-        if (ch != 'v') {
-            *ptr = ptrBackup;
-            return false;
-        }
+    *octet += c2;
 
-        *host += ch;
+    char c3 = *((*ptr)++);
+    if (c3 < '0' || c3 > '9') {
+        *ptr = ptrBackup;
+        return true;
+    }
 
-        if (!_HEXDIG(ptr, &ch)) {
-            *ptr = ptrBackup;
-            return false;
-        }
+    *octet += c3;
 
-        *host += ch;
+    // If there is a three digit number larger than 255, reject the
+    // whole token.
+    if (c1 > '2' || c2 > '5' || c3 > '5') {
+        *ptr = ptrBackup;
+        return false;
+    }
 
-        while (_HEXDIG(ptr, &ch))
-            *host += ch;
+    return true;
+}
 
+// IPv4address = dec-octet "." dec-octet "." dec-octet "." dec-octet
+static bool QT_FASTCALL _IPv4Address(char **ptr, QByteArray *c)
+{
+    char *ptrBackup = *ptr;
+    QByteArray tmp1; tmp1.reserve(32);
+
+    if (!_decOctet(ptr, &tmp1))
+        return false;
+
+    *c += tmp1;
+
+    for (int i = 0; i < 3; ++i) {
         if (*((*ptr)++) != '.') {
             *ptr = ptrBackup;
             return false;
         }
 
-        if (!_unreserved(ptr, &ch) && !_subDelims(ptr, &ch) && (ch = *((*ptr)++)) != ':') {
-            *ptr = ptrBackup;
-            return false;
-        }
+        *c += '.';
 
-        *host += ch;
-
-        while (_unreserved(ptr, &ch) || _subDelims(ptr, &ch) || (ch = *((*ptr)++)) == ':')
-            *host += ch;
-
-        return true;
-    }
-
-    // h16         = 1*4HEXDIG
-    //             ; 16 bits of address represented in hexadecimal
-    bool _h16(char **ptr, QByteArray *c)
-    {
-        char ch;
-        if (!_HEXDIG(ptr, &ch))
-            return false;
-        *c += ch;
-
-        for (int i = 0; i < 3; ++i) {
-            if (!_HEXDIG(ptr, &ch))
-                break;
-            *c += ch;
-        }
-
-        return true;
-    }
-
-    // dec-octet   = DIGIT                 ; 0-9
-    //             / %x31-39 DIGIT         ; 10-99
-    //             / "1" 2DIGIT            ; 100-199
-    //             / "2" %x30-34 DIGIT     ; 200-249
-    //             / "25" %x30-35          ; 250-255
-    bool _decOctet(char **ptr, QByteArray *octet)
-    {
-        char *ptrBackup = *ptr;
-        char c1 = *((*ptr)++);
-        if (c1 < '0' || c1 > '9') {
-            *ptr = ptrBackup;
-            return false;
-        }
-
-        *octet += c1;
-
-        if (c1 == '0')
-            return true;
-
-        char c2 = *((*ptr)++);
-        if (c2 < '0' || c2 > '9') {
-            *ptr = ptrBackup;
-            return true;
-        }
-
-        *octet += c2;
-
-        char c3 = *((*ptr)++);
-        if (c3 < '0' || c3 > '9') {
-            *ptr = ptrBackup;
-            return true;
-        }
-
-        *octet += c3;
-
-        // If there is a three digit number larger than 255, reject the
-        // whole token.
-        if (c1 > '2' || c2 > '5' || c3 > '5') {
-            *ptr = ptrBackup;
-            return false;
-        }
-
-        return true;
-    }
-
-    // IPv4address = dec-octet "." dec-octet "." dec-octet "." dec-octet
-    bool _IPv4Address(char **ptr, QByteArray *c)
-    {
-        char *ptrBackup = *ptr;
-        QByteArray tmp1; tmp1.reserve(32);
-
+        tmp1.truncate(0);
         if (!_decOctet(ptr, &tmp1))
             return false;
 
         *c += tmp1;
+    }
 
-        for (int i = 0; i < 3; ++i) {
-            if (*((*ptr)++) != '.') {
-                *ptr = ptrBackup;
-                return false;
-            }
+    return true;
+}
 
-            *c += '.';
-
-            tmp1.truncate(0);
-            if (!_decOctet(ptr, &tmp1))
-                return false;
-
-            *c += tmp1;
-        }
-
+// ls32        = ( h16 ":" h16 ) / IPv4address
+//             ; least-significant 32 bits of address
+static bool QT_FASTCALL _ls32(char **ptr, QByteArray *c)
+{
+    char *ptrBackup = *ptr;
+    QByteArray tmp1;
+    QByteArray tmp2;
+    if (_h16(ptr, &tmp1) && _char(ptr, ':') && _h16(ptr, &tmp2)) {
+        *c = tmp1;
+        *c += ':';
+        *c += tmp2;
         return true;
     }
 
-    // ls32        = ( h16 ":" h16 ) / IPv4address
-    //             ; least-significant 32 bits of address
-    bool _ls32(char **ptr, QByteArray *c)
-    {
-        char *ptrBackup = *ptr;
-        QByteArray tmp1;
-        QByteArray tmp2;
-        if (_h16(ptr, &tmp1) && _char(ptr, ':') && _h16(ptr, &tmp2)) {
-            *c = tmp1;
-            *c += ':';
-            *c += tmp2;
-            return true;
+    *ptr = ptrBackup;
+    return _IPv4Address(ptr, c);
+}
+
+// IPv6address =                            6( h16 ":" ) ls32
+//             /                       "::" 5( h16 ":" ) ls32
+//             / [               h16 ] "::" 4( h16 ":" ) ls32
+//             / [ *1( h16 ":" ) h16 ] "::" 3( h16 ":" ) ls32
+//             / [ *2( h16 ":" ) h16 ] "::" 2( h16 ":" ) ls32
+//             / [ *3( h16 ":" ) h16 ] "::"    h16 ":"   ls32
+//             / [ *4( h16 ":" ) h16 ] "::"              ls32
+//             / [ *5( h16 ":" ) h16 ] "::"              h16
+//             / [ *6( h16 ":" ) h16 ] "::"
+static bool QT_FASTCALL _IPv6Address(char **ptr, QByteArray *host)
+{
+    (void)host;
+
+    char *ptrBackup = *ptr;
+
+    QByteArray tmp1;
+    if (_h16(ptr, &tmp1)) {
+        // 6( h16 ":" ) ls32
+        // [ h16 ] "::" 4( h16 ":" ) ls32
+        // [ *1( h16 ":" ) h16 ] "::" 3( h16 ":" ) ls32
+        // [ *2( h16 ":" ) h16 ] "::" 2( h16 ":" ) ls32
+        // [ *3( h16 ":" ) h16 ] "::"    h16 ":"   ls32
+        // [ *4( h16 ":" ) h16 ] "::"              ls32
+        // [ *5( h16 ":" ) h16 ] "::"              h16
+        // [ *6( h16 ":" ) h16 ] "::"
+    } else {
+        // "::" 5( h16 ":" ) ls32
+        if (!(_char(ptr, ':') && _char(ptr, ':'))) {
+            *ptr = ptrBackup;
+            return false;
         }
 
+    }
+
+    return false;
+}
+
+// IP-literal = "[" ( IPv6address / IPvFuture  ) "]"
+static bool QT_FASTCALL _IPLiteral(char **ptr, QByteArray *host)
+{
+    char *ptrBackup = *ptr;
+    if (!_char(ptr, '['))
+        return false;
+
+    *host += '[';
+
+    if (!_IPv6Address(ptr, host) && !_IPvFuture(ptr, host)) {
         *ptr = ptrBackup;
-        return _IPv4Address(ptr, c);
+        return false;
     }
 
-    // IPv6address =                            6( h16 ":" ) ls32
-    //             /                       "::" 5( h16 ":" ) ls32
-    //             / [               h16 ] "::" 4( h16 ":" ) ls32
-    //             / [ *1( h16 ":" ) h16 ] "::" 3( h16 ":" ) ls32
-    //             / [ *2( h16 ":" ) h16 ] "::" 2( h16 ":" ) ls32
-    //             / [ *3( h16 ":" ) h16 ] "::"    h16 ":"   ls32
-    //             / [ *4( h16 ":" ) h16 ] "::"              ls32
-    //             / [ *5( h16 ":" ) h16 ] "::"              h16
-    //             / [ *6( h16 ":" ) h16 ] "::"
-    bool _IPv6Address(char **ptr, QByteArray *host)
-    {
-        (void)host;
+    if (!_char(ptr, ']')) {
+        *ptr = ptrBackup;
+        return false;
+    }
 
-        char *ptrBackup = *ptr;
+    *host += ']';
 
-        QByteArray tmp1;
-        if (_h16(ptr, &tmp1)) {
-            // 6( h16 ":" ) ls32
-            // [ h16 ] "::" 4( h16 ":" ) ls32
-            // [ *1( h16 ":" ) h16 ] "::" 3( h16 ":" ) ls32
-            // [ *2( h16 ":" ) h16 ] "::" 2( h16 ":" ) ls32
-            // [ *3( h16 ":" ) h16 ] "::"    h16 ":"   ls32
-            // [ *4( h16 ":" ) h16 ] "::"              ls32
-            // [ *5( h16 ":" ) h16 ] "::"              h16
-            // [ *6( h16 ":" ) h16 ] "::"
+    return true;
+}
+
+// reg-name    = 0*255( unreserved / pct-encoded / sub-delims )
+static bool QT_FASTCALL _regName(char **ptr, QByteArray *host)
+{
+    char pctTmp[4];
+    for (int i = 0; i < 255; ++i) {
+        char ch;
+        if (!_unreserved(ptr, &ch) && !_subDelims(ptr, &ch)) {
+            if (!_pctEncoded(ptr, pctTmp))
+                break;
+            *host += pctTmp;
         } else {
-            // "::" 5( h16 ":" ) ls32
-            if (!(_char(ptr, ':') && _char(ptr, ':'))) {
-                *ptr = ptrBackup;
-                return false;
-            }
-
+            *host += ch;
         }
-
-        return false;
     }
 
-    // IP-literal = "[" ( IPv6address / IPvFuture  ) "]"
-    bool _IPLiteral(char **ptr, QByteArray *host)
-    {
-        char *ptrBackup = *ptr;
-        if (!_char(ptr, '['))
-            return false;
+    return true;
+}
 
-        *host += '[';
+// host        = IP-literal / IPv4address / reg-name
+static bool QT_FASTCALL _host(char **ptr, QByteArray *host)
+{
+    return (_IPLiteral(ptr, host) || _IPv4Address(ptr, host) || _regName(ptr, host));
+}
 
-        if (!_IPv6Address(ptr, host) && !_IPvFuture(ptr, host)) {
-            *ptr = ptrBackup;
-            return false;
-        }
-
-        if (!_char(ptr, ']')) {
-            *ptr = ptrBackup;
-            return false;
-        }
-
-        *host += ']';
-
-        return true;
-    }
-
-    // reg-name    = 0*255( unreserved / pct-encoded / sub-delims )
-    bool _regName(char **ptr, QByteArray *host)
-    {
-        char pctTmp[4];
-        for (int i = 0; i < 255; ++i) {
-            char ch;
-            if (!_unreserved(ptr, &ch) && !_subDelims(ptr, &ch)) {
-                if (!_pctEncoded(ptr, pctTmp))
-                    break;
-                *host += pctTmp;
-            } else {
-                *host += ch;
-            }
-        }
-
-        return true;
-    }
-
-    // host        = IP-literal / IPv4address / reg-name
-    bool _host(char **ptr, QByteArray *host)
-    {
-        return (_IPLiteral(ptr, host) || _IPv4Address(ptr, host) || _regName(ptr, host));
-    }
-
-    // userinfo    = *( unreserved / pct-encoded / sub-delims / ":" )
-    bool _userInfo(char **ptr, QByteArray *userInfo)
-    {
-        for (;;) {
-            char ch;
-            if (_unreserved(ptr, &ch) || _subDelims(ptr, &ch)) {
-                *userInfo += ch;
-            } else {
-                char pctTmp[4];
-                if (_pctEncoded(ptr, pctTmp)) {
-                    *userInfo += pctTmp;
-                } else if (_char(ptr, ':')) {
-                    *userInfo += ':';
-                } else {
-                    break;
-                }
-            }
-        }
-
-        return true;
-    }
-
-    // port        = *DIGIT
-    bool _port(char **ptr, int *port)
-    {
-        bool first = true;
-
-        for (;;) {
-            char *ptrBackup = *ptr;
-            char ch = *((*ptr)++);
-            if (ch < '0' || ch > '9') {
-                *ptr = ptrBackup;
-                return true;
-            }
-
-            if (first) {
-                first = false;
-                *port = 0;
-            }
-
-            *port *= 10;
-            *port += ch - '0';
-        }
-
-        return true;
-    }
-
-    // authority   = [ userinfo "@" ] host [ ":" port ]
-    bool _authority(char **ptr, QByteArray *userInfo, QByteArray *host, int *port)
-    {
-        char *ptrBackup = *ptr;
-        if (_userInfo(ptr, userInfo)) {
-            if (*((*ptr)++) != '@') {
-                *ptr = ptrBackup;
-                userInfo->clear();
-                // fall through
-            }
-        }
-
-        if (!_host(ptr, host)) {
-            *ptr = ptrBackup;
-            return false;
-        }
-
-        char *ptrBackup2 = *ptr;
-        if (*((*ptr)++) != ':') {
-            *ptr = ptrBackup2;
-            return true;
-        }
-
-        if (!_port(ptr, port)) {
-            *ptr = ptrBackup2;
-            return false;
-        }
-
-        return true;
-    }
-
-    // pchar         = unreserved / pct-encoded / sub-delims / ":" / "@"
-    inline bool _pchar(char **ptr, char pc[])
-    {
-        char c = *(*ptr);
-
-        switch (c) {
-        case '!': case '$': case '&': case '\'': case '(': case ')': case '*':
-        case '+': case ',': case ';': case '=': case ':': case '@':
-        case '-': case '.': case '_': case '~':
-            pc[0] = c;
-            pc[1] = '\0';
-            ++(*ptr);
-            return true;
-        default:
-            break;
-        };
-
-        if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')) {
-            pc[0] = c;
-            pc[1] = '\0';
-            ++(*ptr);
-            return true;
-        }
-
-        if (_pctEncoded(ptr, pc))
-            return true;
-
-        return false;
-    }
-
-    // segment       = *pchar
-    bool _segment(char **ptr, QByteArray *segment)
-    {
-        for (;;) {
+// userinfo    = *( unreserved / pct-encoded / sub-delims / ":" )
+static bool QT_FASTCALL _userInfo(char **ptr, QByteArray *userInfo)
+{
+    for (;;) {
+        char ch;
+        if (_unreserved(ptr, &ch) || _subDelims(ptr, &ch)) {
+            *userInfo += ch;
+        } else {
             char pctTmp[4];
-            if (!_pchar(ptr, pctTmp))
-                break;
-
-            *segment += pctTmp;
-        }
-
-        return true;
-    }
-
-    // segment       = *pchar
-    bool _segmentNZ(char **ptr, QByteArray *segment)
-    {
-        char pctTmp[4];
-        if (!_pchar(ptr, pctTmp))
-            return false;
-
-        *segment += pctTmp;
-
-        for (;;) {
-            if (!_pchar(ptr, pctTmp))
-                break;
-
-            *segment += pctTmp;
-        }
-
-        return true;
-    }
-
-    // path-abempty  = *( "/" segment )
-    bool _pathAbEmpty(char **ptr, QByteArray *path)
-    {
-        for (;;) {
-            char *ptrBackup = *ptr;
-            if (*((*ptr)++) != '/') {
-                *ptr = ptrBackup;
+            if (_pctEncoded(ptr, pctTmp)) {
+                *userInfo += pctTmp;
+            } else if (_char(ptr, ':')) {
+                *userInfo += ':';
+            } else {
                 break;
             }
-
-            *path += '/';
-
-            char pctTmp[4];
-            if (_pchar(ptr, pctTmp)) {
-                *path += pctTmp;
-                while (_pchar(ptr, pctTmp))
-                    *path += pctTmp;
-            }
         }
-
-        return true;
     }
 
-    // path-abs      = "/" [ segment-nz *( "/" segment ) ]
-    bool _pathAbs(char **ptr, QByteArray *path)
-    {
+    return true;
+}
+
+// port        = *DIGIT
+static bool QT_FASTCALL _port(char **ptr, int *port)
+{
+    bool first = true;
+
+    for (;;) {
         char *ptrBackup = *ptr;
         char ch = *((*ptr)++);
-        if (ch != '/') {
+        if (ch < '0' || ch > '9') {
             *ptr = ptrBackup;
-            return false;
+            return true;
+        }
+
+        if (first) {
+            first = false;
+            *port = 0;
+        }
+
+        *port *= 10;
+        *port += ch - '0';
+    }
+
+    return true;
+}
+
+// authority   = [ userinfo "@" ] host [ ":" port ]
+static bool QT_FASTCALL _authority(char **ptr, QByteArray *userInfo, QByteArray *host, int *port)
+{
+    char *ptrBackup = *ptr;
+    if (_userInfo(ptr, userInfo)) {
+        if (*((*ptr)++) != '@') {
+            *ptr = ptrBackup;
+            userInfo->clear();
+            // fall through
+        }
+    }
+
+    if (!_host(ptr, host)) {
+        *ptr = ptrBackup;
+        return false;
+    }
+
+    char *ptrBackup2 = *ptr;
+    if (*((*ptr)++) != ':') {
+        *ptr = ptrBackup2;
+        return true;
+    }
+
+    if (!_port(ptr, port)) {
+        *ptr = ptrBackup2;
+        return false;
+    }
+
+    return true;
+}
+
+// pchar         = unreserved / pct-encoded / sub-delims / ":" / "@"
+static bool QT_FASTCALL _pchar(char **ptr, char pc[])
+{
+    char c = *(*ptr);
+
+    switch (c) {
+    case '!': case '$': case '&': case '\'': case '(': case ')': case '*':
+    case '+': case ',': case ';': case '=': case ':': case '@':
+    case '-': case '.': case '_': case '~':
+        pc[0] = c;
+        pc[1] = '\0';
+        ++(*ptr);
+        return true;
+    default:
+        break;
+    };
+
+    if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9')) {
+        pc[0] = c;
+        pc[1] = '\0';
+        ++(*ptr);
+        return true;
+    }
+
+    if (_pctEncoded(ptr, pc))
+        return true;
+
+    return false;
+}
+
+// segment       = *pchar
+static bool QT_FASTCALL _segment(char **ptr, QByteArray *segment)
+{
+    for (;;) {
+        char pctTmp[4];
+        if (!_pchar(ptr, pctTmp))
+            break;
+
+        *segment += pctTmp;
+    }
+
+    return true;
+}
+
+// segment       = *pchar
+static bool QT_FASTCALL _segmentNZ(char **ptr, QByteArray *segment)
+{
+    char pctTmp[4];
+    if (!_pchar(ptr, pctTmp))
+        return false;
+
+    *segment += pctTmp;
+
+    for (;;) {
+        if (!_pchar(ptr, pctTmp))
+            break;
+
+        *segment += pctTmp;
+    }
+
+    return true;
+}
+
+// path-abempty  = *( "/" segment )
+static bool QT_FASTCALL _pathAbEmpty(char **ptr, QByteArray *path)
+{
+    for (;;) {
+        char *ptrBackup = *ptr;
+        if (*((*ptr)++) != '/') {
+            *ptr = ptrBackup;
+            break;
         }
 
         *path += '/';
 
-        // we might be able to unnest this to gain some performance.
-        QByteArray tmp;
-        if (!_segmentNZ(ptr, &tmp))
-            return true;
-
-        *path += tmp;
-
-        for (;;) {
-            char *ptrBackup2 = *ptr;
-            if (*((*ptr)++) != '/') {
-                *ptr = ptrBackup2;
-                break;
-            }
-
-            // we might be able to unnest this to gain some
-            // performance.
-            QByteArray segment;
-            if (!_segment(ptr, &segment)) {
-                *ptr = ptrBackup2;
-                break;
-            }
-
-            *path += '/';
-            *path += segment;
+        char pctTmp[4];
+        if (_pchar(ptr, pctTmp)) {
+            *path += pctTmp;
+            while (_pchar(ptr, pctTmp))
+                *path += pctTmp;
         }
-
-        return true;
     }
 
-    // path-rootless = segment-nz *( "/" segment )
-    bool _pathRootless(char **ptr, QByteArray *path)
-    {
+    return true;
+}
+
+// path-abs      = "/" [ segment-nz *( "/" segment ) ]
+static bool QT_FASTCALL _pathAbs(char **ptr, QByteArray *path)
+{
+    char *ptrBackup = *ptr;
+    char ch = *((*ptr)++);
+    if (ch != '/') {
+        *ptr = ptrBackup;
+        return false;
+    }
+
+    *path += '/';
+
+    // we might be able to unnest this to gain some performance.
+    QByteArray tmp;
+    if (!_segmentNZ(ptr, &tmp))
+        return true;
+
+    *path += tmp;
+
+    for (;;) {
+        char *ptrBackup2 = *ptr;
+        if (*((*ptr)++) != '/') {
+            *ptr = ptrBackup2;
+            break;
+        }
+
+        // we might be able to unnest this to gain some
+        // performance.
+        QByteArray segment;
+        if (!_segment(ptr, &segment)) {
+            *ptr = ptrBackup2;
+            break;
+        }
+
+        *path += '/';
+        *path += segment;
+    }
+
+    return true;
+}
+
+// path-rootless = segment-nz *( "/" segment )
+static bool QT_FASTCALL _pathRootless(char **ptr, QByteArray *path)
+{
+    // we might be able to unnest this to gain some performance.
+    QByteArray segment;
+    if (!_segmentNZ(ptr, &segment))
+        return false;
+
+    *path += segment;
+
+    for (;;) {
+        char *ptrBackup2 = *ptr;
+        if (*((*ptr)++) != '/') {
+            *ptr = ptrBackup2;
+            break;
+        }
+
         // we might be able to unnest this to gain some performance.
         QByteArray segment;
-        if (!_segmentNZ(ptr, &segment))
-            return false;
+        if (!_segment(ptr, &segment)) {
+            *ptr = ptrBackup2;
+            break;
+        }
 
+        *path += '/';
         *path += segment;
-
-        for (;;) {
-            char *ptrBackup2 = *ptr;
-            if (*((*ptr)++) != '/') {
-                *ptr = ptrBackup2;
-                break;
-            }
-
-            // we might be able to unnest this to gain some performance.
-            QByteArray segment;
-            if (!_segment(ptr, &segment)) {
-                *ptr = ptrBackup2;
-                break;
-            }
-
-            *path += '/';
-            *path += segment;
-        }
-
-        return true;
     }
 
-    // path-empty    = 0<pchar>
-    bool _pathEmpty(char **, QByteArray *path)
-    {
-        path->truncate(0);
-        return true;
-    }
+    return true;
+}
 
-    // hier-part   = "//" authority path-abempty
-    //             / path-abs
-    //             / path-rootless
-    //             / path-empty
-    bool _hierPart(char **ptr, QByteArray *userInfo, QByteArray *host, int *port, QByteArray *path)
-    {
-        char *ptrBackup = *ptr;
-        if (*((*ptr)++) == '/' && *((*ptr)++) == '/') {
-            if (!_authority(ptr, userInfo, host, port)) { *ptr = ptrBackup; return false; }
-            if (!_pathAbEmpty(ptr, path)) { *ptr = ptrBackup; return false; }
-            return true;
+// path-empty    = 0<pchar>
+static bool QT_FASTCALL _pathEmpty(char **, QByteArray *path)
+{
+    path->truncate(0);
+    return true;
+}
+
+// hier-part   = "//" authority path-abempty
+//             / path-abs
+//             / path-rootless
+//             / path-empty
+static bool QT_FASTCALL _hierPart(char **ptr, QByteArray *userInfo, QByteArray *host, int *port, QByteArray *path)
+{
+    char *ptrBackup = *ptr;
+    if (*((*ptr)++) == '/' && *((*ptr)++) == '/') {
+        if (!_authority(ptr, userInfo, host, port)) { *ptr = ptrBackup; return false; }
+        if (!_pathAbEmpty(ptr, path)) { *ptr = ptrBackup; return false; }
+        return true;
+    } else {
+        *ptr = ptrBackup;
+        return (_pathAbs(ptr, path) || _pathRootless(ptr, path) || _pathEmpty(ptr, path));
+    }
+}
+
+// query       = *( pchar / "/" / "?" )
+static bool QT_FASTCALL _query(char **ptr, QByteArray *query)
+{
+    for (;;) {
+        char tmp[4];
+        if (_pchar(ptr, tmp)) {
+            *query += tmp;
         } else {
-            *ptr = ptrBackup;
-            return (_pathAbs(ptr, path) || _pathRootless(ptr, path) || _pathEmpty(ptr, path));
-        }
-    }
-
-    // query       = *( pchar / "/" / "?" )
-    bool _query(char **ptr, QByteArray *query)
-    {
-        for (;;) {
-            char tmp[4];
-            if (_pchar(ptr, tmp)) {
-                *query += tmp;
-            } else {
-                char *ptrBackup = *ptr;
-                char ch = *((*ptr)++);
-                if (ch == '/' || ch == '?')
-                    *query += ch;
-                else {
-                    *ptr = ptrBackup;
-                    break;
-                }
+            char *ptrBackup = *ptr;
+            char ch = *((*ptr)++);
+            if (ch == '/' || ch == '?')
+                *query += ch;
+            else {
+                *ptr = ptrBackup;
+                break;
             }
         }
-
-        return true;
     }
 
-    // fragment    = *( pchar / "/" / "?" )
-    bool _fragment(char **ptr, QByteArray *fragment)
-    {
-        for (;;) {
-            char tmp[4];
-            if (_pchar(ptr, tmp)) {
-                *fragment += tmp;
-            } else {
-                char *ptrBackup = *ptr;
-                char ch = *((*ptr)++);
+    return true;
+}
 
-                // exception: allow several '#' characters within a
-                // fragment.
-                if (ch == '/' || ch == '?' || ch == '#')
-                    *fragment += ch;
-                else {
-                    *ptr = ptrBackup;
-                    break;
-                }
+// fragment    = *( pchar / "/" / "?" )
+static bool QT_FASTCALL _fragment(char **ptr, QByteArray *fragment)
+{
+    for (;;) {
+        char tmp[4];
+        if (_pchar(ptr, tmp)) {
+            *fragment += tmp;
+        } else {
+            char *ptrBackup = *ptr;
+            char ch = *((*ptr)++);
+
+            // exception: allow several '#' characters within a
+            // fragment.
+            if (ch == '/' || ch == '?' || ch == '#')
+                *fragment += ch;
+            else {
+                *ptr = ptrBackup;
+                break;
             }
         }
-
-        return true;
     }
-};
+
+    return true;
+}
 
 QUrlPrivate::QUrlPrivate()
 {
@@ -1057,8 +1054,6 @@ void QUrlPrivate::parse(ParseOptions parseOptions) const
         return;
     }
 
-    UrlParser parser;
-
     QByteArray __scheme; __scheme.reserve(8);
     QByteArray __userInfo; __userInfo.reserve(32);
     QByteArray __host; __host.reserve(32);
@@ -1077,7 +1072,7 @@ void QUrlPrivate::parse(ParseOptions parseOptions) const
 
     // optional scheme
     char *ptrBackup = *ptr;
-    if (parser._scheme(ptr, &__scheme)) {
+    if (_scheme(ptr, &__scheme)) {
         char ch = *((*ptr)++);
         if (ch != ':') {
             *ptr = ptrBackup;
@@ -1086,7 +1081,7 @@ void QUrlPrivate::parse(ParseOptions parseOptions) const
     }
 
     // hierpart, fails on syntax error
-    if (!parser._hierPart(ptr, &__userInfo, &__host, &__port, &__path)) {
+    if (!_hierPart(ptr, &__userInfo, &__host, &__port, &__path)) {
         that->isValid = false;
         that->isValidated = true;
         that->isParsed = true;
@@ -1095,12 +1090,12 @@ void QUrlPrivate::parse(ParseOptions parseOptions) const
 
     // optional query
     char ch = *((*ptr)++);
-    if (ch == '?' && parser._query(ptr, &__query))
+    if (ch == '?' && _query(ptr, &__query))
         ch = *((*ptr)++);
 
     // optional fragment
     if (ch == '#') {
-        (void) parser._fragment(ptr, &__fragment);
+        (void) _fragment(ptr, &__fragment);
     } else if (ch != '\0') {
         that->isValid = false;
         that->isValidated = true;
@@ -1225,7 +1220,7 @@ const QByteArray & QUrlPrivate::normilized()
 	tmp.host = tmp.host.toLower();
 	if (!tmp.scheme.isEmpty()) // relative test
 	    tmp.path = QUrlPrivate::removeDotsFromPath(tmp.path);
-	
+
 	int qLen = tmp.query.length();
 	for (int i=0; i<qLen; i++) {
 	    if (tmp.query.at(i) == '%' && qLen - i > 2) {
