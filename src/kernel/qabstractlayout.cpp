@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#19 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -323,7 +323,8 @@ QSizePolicy::ExpandData QSpacerItem::expanding() const
 
 QSizePolicy::ExpandData QWidgetItem::expanding() const
 {
-    return wid->sizePolicy().expanding();
+    return wid->layout() ? wid->layout()->expanding() 
+	: wid->sizePolicy().expanding();
 }
 
 /*!
@@ -557,11 +558,11 @@ QWidget * QLayout::mainWidget()
 
 
 
-/*!  
-  Constructs a new child QLayout, and places it inside 
+/*!
+  Constructs a new child QLayout, and places it inside
   \a parentLayout, using the default placement defined by
   addItem().
-  
+
   If \a autoBorder is -1, this QLayout inherits \a parentLayout's
   defaultBorder(), otherwise \a autoBorder is used.
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#79 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#80 $
 **
 ** Implementation of layout classes
 **
@@ -839,8 +839,8 @@ QGridLayout::QGridLayout( QWidget *parent, int nRows, int nCols, int border ,
 
 
 
-/*!  
-  Constructs a new grid that is placed inside \a parentLayout, 
+/*!
+  Constructs a new grid that is placed inside \a parentLayout,
   with \a nRows rows and \a  nCols columns,
   If \a autoBorder is -1, this QGridLayout will inherits its parent's
   defaultBorder(), otherwise \a autoBorder is used.
@@ -849,7 +849,7 @@ QGridLayout::QGridLayout( QWidget *parent, int nRows, int nCols, int border ,
   rules.
 */
 
-QGridLayout::QGridLayout( QLayout *parentLayout, int nRows, int nCols, 
+QGridLayout::QGridLayout( QLayout *parentLayout, int nRows, int nCols,
   int autoBorder, const char *name )
     : QLayout( parentLayout, autoBorder, name )
 {
@@ -1318,10 +1318,10 @@ QBoxLayout::QBoxLayout( QWidget *parent, Direction d,
 
 
 
-/*!  
+/*!
   Creates a new QBoxLayout with direction \a d and inserts it into
   \a parentLayout.
-  
+
 */
 
 QBoxLayout::QBoxLayout( QLayout *parentLayout, Direction d, int autoBorder,
@@ -1579,15 +1579,15 @@ QHBoxLayout::QHBoxLayout( QWidget *parent, int border,
 
 
 
-/*!  
+/*!
   Creates a new horizontal box and adds it to \a parentLayout.
 */
 
-QHBoxLayout::QHBoxLayout( QLayout *parentLayout, int autoBorder, 
+QHBoxLayout::QHBoxLayout( QLayout *parentLayout, int autoBorder,
 			  const char *name )
     :QBoxLayout( parentLayout, LeftToRight, autoBorder, name )
 {
-    
+
 }
 
 
@@ -1643,15 +1643,15 @@ QVBoxLayout::QVBoxLayout( QWidget *parent, int border,
 }
 
 
-/*!  
+/*!
   Creates a new vertical box and adds it to \a parentLayout.
 */
 
-QVBoxLayout::QVBoxLayout( QLayout *parentLayout, int autoBorder, 
+QVBoxLayout::QVBoxLayout( QLayout *parentLayout, int autoBorder,
 			  const char *name )
     :QBoxLayout( parentLayout, TopToBottom, autoBorder, name )
 {
-    
+
 }
 
 /*!
