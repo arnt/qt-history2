@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#138 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#139 $
 **
 ** Definition of QIconView widget class
 **
@@ -4431,9 +4431,13 @@ void QIconView::sortItems( bool ascending )
     viewport()->repaint( FALSE );
 }
 
+/*!
+  \reimp
+*/
+
 QSize QIconView::sizeHint() const
 {
-    // should be mutable
+    // ##### should be mutable
     ( (QIconView*)this )->orderItemsInGrid();
 
     int w = 100;
