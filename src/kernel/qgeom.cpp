@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgeom.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qgeom.cpp#9 $
 **
 **  Studies in Geometry Management
 **
@@ -12,7 +12,7 @@
 #include "qgeom.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#8 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#9 $")
 
 
 
@@ -260,8 +260,7 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, alignment a )
 
   \sa addWidget(), addSpacing()
   */
-QBoxLayout *QBoxLayout::addNewBox( QBasicManager::Direction d, int stretch
-				      /*alignment a*/ )
+QBoxLayout *QBoxLayout::addNewBox( QBasicManager::Direction d, int stretch )
 {
     if ( !pristine && defaultBorder() )
 	bm->addSpacing( serChain, defaultBorder(), 0, defaultBorder() ); 
