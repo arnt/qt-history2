@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#18 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#17 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#18 $")
 
 
 const int sbDim = 16;
@@ -221,7 +221,7 @@ void QTableView::show()
  ----------------------------------------------------------------------------*/
 
 void QTableView::repaint( const QRect &r, bool erase )
-{						// repaint table
+{
     if ( !isVisible() )				// ignore if not visible
 	return;
     QPaintEvent e( r );
@@ -664,6 +664,7 @@ int QTableView::totalHeight()
   \fn ulong QTableView::tableFlags() const
 
   Returns the union of the table flags that are currently set.
+
   \sa setTableFlags(), clearTableFlags(), testTableFlags()
  ----------------------------------------------------------------------------*/
 
@@ -672,6 +673,7 @@ int QTableView::totalHeight()
 
   Returns TRUE if any of the table flags in \e f are currently set,
   otherwise FALSE.
+
   \sa setTableFlags(), clearTableFlags(), tableFlags()
  ----------------------------------------------------------------------------*/
 
@@ -1572,10 +1574,11 @@ int QTableView::findRawCol( int xPos, int *cellMaxX, int *cellMinX ,
 /*----------------------------------------------------------------------------
   Returns the index of the row at position \e yPos.
   Returns -1 if \e yPos is outside the valid range.
+
   \sa findCol(), rowYPos()
  ----------------------------------------------------------------------------*/
 
-int QTableView::findRow( int yPos ) const	// find row from y position
+int QTableView::findRow( int yPos ) const
 {
     int cellMaxY;
     int row = findRawRow( yPos, &cellMaxY );
@@ -1590,10 +1593,11 @@ int QTableView::findRow( int yPos ) const	// find row from y position
 /*----------------------------------------------------------------------------
   Returns the index of the column at position \e xPos.
   Returns -1 if \e xPos is outside the valid range.
+
   \sa findRow(), colXPos()
  ----------------------------------------------------------------------------*/
 
-int QTableView::findCol( int xPos ) const	// find col from x position
+int QTableView::findCol( int xPos ) const
 {
     int cellMaxX;
     int col = findRawCol( xPos, &cellMaxX );
@@ -1611,6 +1615,7 @@ int QTableView::findCol( int xPos ) const	// find col from x position
   Returns TRUE and stores the result in \e *yPos if the row is
   visible.  Returns FALSE and does not modify \e *yPos if \e row is
   invisible or invalid, or if \e yPos is 0.
+
   \sa colXPos(), findRow()
  ----------------------------------------------------------------------------*/
 
@@ -1649,6 +1654,7 @@ bool QTableView::rowYPos( int row, int *yPos ) const
   Returns TRUE and stores the result in \e *xPos if the column is
   visible.  Returns FALSE and does not modify \e *xPos if \e is
   invisible or invalid, or if \e xPos is 0.
+
   \sa rowYPos(), findCol()
  ----------------------------------------------------------------------------*/
 
@@ -2100,9 +2106,11 @@ int QTableView::maxYOffset()
 
 /*----------------------------------------------------------------------------
   Returns the idex of the last column which may be at the left edge
-  of the view.  Depending on the \link setTableFlags
-  Tbl_scrollLastHCell\endlink flag, this may or may not be the last
-  column.
+  of the view.
+
+  Depending on the \link setTableFlags Tbl_scrollLastHCell\endlink flag,
+  this may or may not be the last column.
+
   \sa maxXOffset(), maxRowOffset()
  ----------------------------------------------------------------------------*/
 
@@ -2124,8 +2132,11 @@ int QTableView::maxColOffset()
 
 /*----------------------------------------------------------------------------
   Returns the index of the last row which may be at the top edge of
-  the view.  Depending on the \link setTableFlags Tbl_scrollLastVCell
-  \endlink flag, this may or may not be the last row.
+  the view.
+
+  Depending on the \link setTableFlags Tbl_scrollLastVCell\endlink flag,
+  this may or may not be the last row.
+
   \sa maxYOffset(), maxColOffset()
  ----------------------------------------------------------------------------*/
 
