@@ -939,13 +939,13 @@ void QFontPrivate::load()
 
 void QFont::initialize()
 {
-    if(!QFontPrivate::fontCache)
+    if(!QFontPrivate::fontCache) 
 	QFontPrivate::fontCache = new QFontCache();
     Q_CHECK_PTR(QFontPrivate::fontCache);
 #if defined( QMAC_FONT_ANTIALIAS ) && !defined( QMAC_FONT_ATSUI )
     SwapQDTextFlags(kQDUseCGTextMetrics | kQDUseCGTextRendering);
 #endif
-
+    
     if(qApp) {
 	Str255 f_name;
 	SInt16 f_size;
