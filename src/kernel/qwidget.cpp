@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#16 $
 **
 ** Implementation of QWidget class
 **
@@ -20,7 +20,7 @@
 #include "qcolor.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#16 $";
 #endif
 
 
@@ -34,7 +34,7 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#15 $";
 // handle.
 //
 // The widget mapper is created and destroyed by the main application routines
-// in the file qapp_xxx.C.
+// in the file qapp_xxx.cpp.
 //
 
 #include "qintdict.h"
@@ -311,7 +311,7 @@ bool QWidget::close( bool forceKill )		// close widget
 bool QWidget::event( QEvent *e )		// receive event
 {
     if ( eventFilters ) {			// pass through event filters
-	if ( activate_filters( e ) )		// eaten by some filter
+	if ( activate_filters( e ) )		// stopped by a filter
 	    return TRUE;
     }
     switch ( e->type() ) {
