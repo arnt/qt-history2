@@ -52,13 +52,13 @@ private:
 
     inline void resetErrors() {
         errorStatus = QIODevice::UnspecifiedError;
-        errorString = QString::null;
+        errorString.clear();
     }
     inline void setError(QIODevice::Status status, int errorCode) {
         errorStatus = status;
         errorString = qt_errorstr(errorCode);
     }
-    inline void setError(QIODevice::Status status, QString error=QString::null) {
+    inline void setError(QIODevice::Status status, QString error = QString()) {
         errorStatus = status;
         errorString = error;
     }
