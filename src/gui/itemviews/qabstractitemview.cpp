@@ -1104,7 +1104,9 @@ bool QAbstractItemView::edit(const QModelIndex &index,
     if (!editor)
         return false;
 
-    if (event && event->type() == QEvent::KeyPress && d->beginEditActions & AnyKeyPressed)
+    if (event && event->type() == QEvent::KeyPress
+        && d->beginEditActions & AnyKeyPressed
+        && action & AnyKeyPressed)
         QApplication::sendEvent(editor, event);
     d->state = Editing;
     editor->show();
