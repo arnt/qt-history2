@@ -979,7 +979,7 @@
 
     The QAxContainer library is static, so there is no need to redistribute
     any additional files when using this module. Note however that the
-    the ActiveX server binaries you are using might not be installed on the
+    ActiveX server binaries you are using might not be installed on the
     target system, so you have to ship them with your package and register
     them during the installation process of your application.
 
