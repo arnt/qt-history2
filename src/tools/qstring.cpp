@@ -11942,9 +11942,13 @@ QString QString::visual(int index, int len)
 // IMPORTANT! If you change these, make sure you also change the
 // "delete unicode" statement in ~QStringData() in qstring.h correspondingly!
 
+#ifdef __ARMEL__
 #define QT_ALLOC_QCHAR_VEC( N ) new QChar[ N ]
 #define QT_DELETE_QCHAR_VEC( P ) delete[] P
-
+#else
+#define QT_ALLOC_QCHAR_VEC( N ) (QChar*) new char[ 2*( N ) ]
+#define QT_DELETE_QCHAR_VEC( P ) delete[] ((char*)( P ))
+#endif
 
 /*!
   This utility function converts the 8-bit string
@@ -14323,7 +14327,7 @@ QCString QString::local8Bit() const
 {
 #ifdef QT_NO_TEXTCODEC
     return latin1();
-#else    
+#else
 #ifdef _WS_X11_
     static QTextCodec* codec = QTextCodec::codecForLocale();
     return codec
@@ -14342,7 +14346,7 @@ QCString QString::local8Bit() const
 #ifdef _WS_QWS_
     return utf8(); // ##### if there is ANY 8 bit format supported?
 #endif
-#endif    
+#endif
 }
 
 /*!
@@ -14359,7 +14363,7 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
 {
 #ifdef QT_NO_TEXTCODEC
     return fromLatin1( local8Bit, len );
-#else    
+#else
 
     if ( !local8Bit )
 	return QString::null;
@@ -14388,7 +14392,7 @@ QString QString::fromLocal8Bit(const char* local8Bit, int len)
 #ifdef _WS_QWS_
     return fromUtf8(local8Bit,len);
 #endif
-#endif // QT_NO_TEXTCODEC    
+#endif // QT_NO_TEXTCODEC
 }
 
 /*!

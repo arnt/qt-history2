@@ -250,8 +250,15 @@ struct Q_EXPORT QStringData : public QShared {
 	unicode(0), ascii(0), len(0), maxl(0), dirtyascii(0) { ref(); }
     QStringData(QChar *u, uint l, uint m) :
 	unicode(u), ascii(0), len(l), maxl(m), dirtyascii(0) { }
+
+#ifdef __ARMEL__
     ~QStringData() { if ( unicode ) delete[] unicode;
                      if ( ascii ) delete[] ascii; }
+#else
+    ~QStringData() { if ( unicode ) delete[] ((char*)unicode);
+                     if ( ascii ) delete[] ascii; }
+#endif
+
     void deleteSelf();
     QChar *unicode;
     char *ascii;
