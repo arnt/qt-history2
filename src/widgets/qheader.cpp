@@ -393,7 +393,7 @@ void QHeader::init( int n )
     offs = 0;
     if( reverse() )
 	offs = d->lastPos - width();
-    handleIdx = -1;
+    handleIdx = 0;
 
     setMouseTracking( TRUE );
     trackingIsOn = FALSE;
@@ -587,15 +587,13 @@ void QHeader::mouseReleaseEvent( QMouseEvent *e )
 	return;
     State oldState = state;
     state = Idle;
-    int oldHandleIdx = handleIdx;
-    handleIdx = -1;
     switch ( oldState ) {
     case Pressed: {
-	int section = d->i2s[oldHandleIdx];
-	repaint(sRect( oldHandleIdx ), FALSE);
+	int section = d->i2s[handleIdx];
+	repaint(sRect( handleIdx ), FALSE);
 	emit released( section );
-	if ( sRect( oldHandleIdx ).contains( e->pos() ) ) {
-	    emit sectionClicked( oldHandleIdx );
+	if ( sRect( handleIdx ).contains( e->pos() ) ) {
+	    emit sectionClicked( handleIdx );
 	    emit clicked( section );
 	}
 	} break;
@@ -604,24 +602,24 @@ void QHeader::mouseReleaseEvent( QMouseEvent *e )
 	c += offset();
 	if( reverse() )
 	    c = d->lastPos - c;
-	handleColumnResize( oldHandleIdx, c, TRUE );
+	handleColumnResize( handleIdx, c, TRUE );
     } break;
     case Moving: {
 #ifndef QT_NO_CURSOR
 	unsetCursor();
 #endif
-	int section = d->i2s[oldHandleIdx];
-	if ( oldHandleIdx != moveToIdx && moveToIdx != -1 ) {
+	int section = d->i2s[handleIdx];
+	if ( handleIdx != moveToIdx && moveToIdx != -1 ) {
 	    moveSection( section, moveToIdx );
 	    repaint(); // a bit overkill, but removes the handle as well
-	    emit moved( oldHandleIdx, moveToIdx );
-	    emit indexChange( section, oldHandleIdx, moveToIdx );
+	    emit moved( handleIdx, moveToIdx );
+	    emit indexChange( section, handleIdx, moveToIdx );
 	    emit released( section );
 	} else {
-	    repaint(sRect( oldHandleIdx ), FALSE );
-	    if ( sRect( oldHandleIdx).contains( e->pos() ) ) {
+	    repaint(sRect( handleIdx ), FALSE );
+	    if ( sRect( handleIdx).contains( e->pos() ) ) {
 		emit released( section );
-		emit sectionClicked( oldHandleIdx );
+		emit sectionClicked( handleIdx );
 		emit clicked( section );
 	    }
 	}
@@ -1270,7 +1268,6 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 	style().drawPrimitive( QStyle::PO_HeaderSection, p, QRect(fr.x(), fr.y(), fr.width(), fr.height()),
 			       colorGroup(), flags );
     } else {
-	// ##### should be somhow styled in 3.0
 	if ( orientation() == Horizontal ) {
 	    p->save();
 
@@ -1365,9 +1362,8 @@ void QHeader::paintSectionLabel( QPainter *p, int index, const QRect& fr )
     if ( d->sortColumn == section && pw + tw + arrowWidth + 2 < fr.width() ) {
 	if( reverse() )
 	    tw = fr.width() - tw - arrowWidth;
-	style().drawPrimitive( d->sortDirection ? QStyle::PO_ArrowDown : QStyle::PO_ArrowUp,
-			       p, QRect(fr.x() + pw + tw, 4, arrowWidth, arrowHeight),
-			       colorGroup());
+	style().drawPrimitive( QStyle::PO_HeaderArrow, p, QRect(fr.x() + pw + tw, 4, arrowWidth, arrowHeight),
+			       colorGroup(), d->sortDirection ? QStyle::PStyle_Down : QStyle::PStyle_Up);
     }
 }
 

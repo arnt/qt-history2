@@ -383,6 +383,12 @@ void QAquaStyle::drawPrimitive( PrimitiveOperation op,
 				   void **data ) const
 {
     switch( op ) {
+    case PO_HeaderArrow:
+	if(flags & PStyle_Up)
+	    drawPrimitive(PO_ArrowUp, p, QRect(r.x(), r.y()+2, r.width(), r.height()-4), cg, 0, data);
+	else
+	    drawPrimitive(PO_ArrowDown, p, QRect(r.x(), r.y()+2, r.width(), r.height()-4), cg, 0, data);
+	break;
     case PO_ArrowUp:
     case PO_ArrowDown:
     case PO_ArrowRight:

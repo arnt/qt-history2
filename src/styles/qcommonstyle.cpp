@@ -117,6 +117,30 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 				  void **data ) const
 {
     switch (op) {
+    case PO_HeaderArrow: 
+	p->save();
+	if ( flags & PStyle_Down ) {
+	    QPointArray pa( 3 );
+	    p->setPen( cg.light() );
+	    p->drawLine( r.x() + r.width(), r.y(), r.x() + r.width() / 2, r.height() );
+	    p->setPen( cg.dark() );
+	    pa.setPoint( 0, r.x() + r.width() / 2, r.height() );
+	    pa.setPoint( 1, r.x(), r.y() );
+	    pa.setPoint( 2, r.x() + r.width(), r.y() );
+	    p->drawPolyline( pa );
+	} else {
+	    QPointArray pa( 3 );
+	    p->setPen( cg.light() );
+	    pa.setPoint( 0, r.x(), r.height() );
+	    pa.setPoint( 1, r.x() + r.width(), r.height() );
+	    pa.setPoint( 2, r.x() + r.width() / 2, r.y() );
+	    p->drawPolyline( pa );
+	    p->setPen( cg.dark() );
+	    p->drawLine( r.x(), r.height(), r.x() + r.width() / 2, r.y() );
+	}
+	p->restore();
+	break; 
+
     case PO_StatusBarSection:
 	qDrawShadeRect( p, r, cg, TRUE, 1, 0, 0 );
 	break;

@@ -121,6 +121,7 @@ public:
 	PO_TabBarBase,
 
 	PO_HeaderSection,
+	PO_HeaderArrow,
 	PO_StatusBarSection,
 
 	PO_GroupBoxFrame,
@@ -158,7 +159,8 @@ public:
 	PStyle_Bottom =			0x00000800,
 	PStyle_FocusAtBorder =		0x00001000,
 	PStyle_AutoRaise =		0x00002000,
-	PStyle_MouseOver =		0x00004000
+	PStyle_MouseOver =		0x00004000,
+	PStyle_Up =                     0x00008000
 
 	/*
 	  PStyle_FocusHighlight=	0x00000001,
