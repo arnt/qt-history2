@@ -20,12 +20,10 @@
 #include <qiconset.h>
 #include <qaction.h>
 
-class QMenuPrivate;
-class Q4MenuBarPrivate;
-
 #ifndef QT_USE_NEW_MENU_SYSTEM
 # define QT_USE_NEW_MENU_SYSTEM
 #endif
+class QMenuPrivate;
 
 class Q_GUI_EXPORT QMenu : public QWidget
 {
@@ -39,7 +37,7 @@ public:
     QMenu(QWidget *parent = 0);
     ~QMenu();
 
-    void     addAction(QAction *action) { QWidget::addAction(action); }
+    using QWidget::addAction;
     QAction *addAction(const QString &text);
     QAction *addAction(const QIconSet &icon, const QString &text);
     QAction *addAction(const QString &text, const QObject *receiver, const char* member);
@@ -59,7 +57,7 @@ public:
     bool isCheckable() const;
 
     QAction *activeAction() const;
-    
+
     void popup(const QPoint &pos, QAction *at=0);
     QAction *exec();
     QAction *exec(const QPoint &pos, QAction *at=0);
@@ -67,175 +65,11 @@ public:
 
     QSize sizeHint() const;
 
-    QRect actionGeometry(QAction *) const; 
+    QRect actionGeometry(QAction *) const;
     QAction *actionAtPos(const QPoint &, bool ignoreSeparator = true) const;
 
 #ifdef Q_WS_MAC
     MenuRef macMenu(MenuRef merge=0);
-#endif
-
-#ifdef QT_COMPAT
-    //menudata
-    inline QT_COMPAT uint count() const { return actions().count(); }
-    inline QT_COMPAT int insertItem(const QString &text, const QObject *receiver, const char* member,
-                                    const QKeySequence& accel = 0, int id = -1, int index = -1) {
-        return insertAny(0, &text, receiver, member, &accel, 0, id, index);
-    }
-    inline QT_COMPAT int insertItem(const QIconSet& icon, const QString &text,
-                                    const QObject *receiver, const char* member,
-                                    const QKeySequence& accel = 0, int id = -1, int index = -1) {
-        return insertAny(&icon, &text, receiver, member, &accel, 0, id, index);
-    }
-    inline QT_COMPAT int insertItem(const QPixmap &pixmap, const QObject *receiver, const char* member,
-                                    const QKeySequence& accel = 0, int id = -1, int index = -1) {
-        QIconSet icon(pixmap);
-        return insertAny(&icon, 0, receiver, member, &accel, 0, id, index);
-    }
-    inline QT_COMPAT int insertItem(const QIconSet& icon, const QPixmap &, const QObject *receiver, 
-                                    const char* member, const QKeySequence& accel = 0, int id = -1, int index = -1) {
-        qWarning("QMenu: There is no Icon & Pixmap!");
-        return insertAny(&icon, 0, receiver, member, &accel, 0, id, index);
-    }
-    inline QT_COMPAT int insertItem(const QString &text, int id=-1, int index=-1) {
-        return insertAny(0, &text, 0, 0, 0, 0, id, index);
-    }
-    inline QT_COMPAT int insertItem(const QIconSet& icon, const QString &text, int id=-1, int index=-1) {
-        return insertAny(&icon, &text, 0, 0, 0, 0, id, index);
-    }
-    inline QT_COMPAT int insertItem(const QString &text, QMenu *popup, int id=-1, int index=-1) {
-        return insertAny(0, &text, 0, 0, 0, popup, id, index);
-    }
-    inline QT_COMPAT int insertItem(const QIconSet& icon, const QString &text, QMenu *popup, int id=-1, int index=-1) {
-        return insertAny(&icon, &text, 0, 0, 0, popup, id, index); 
-    }
-    inline QT_COMPAT int insertItem(const QPixmap &pixmap, int id=-1, int index=-1) {
-        QIconSet icon(pixmap);
-        return insertAny(&icon, 0, 0, 0, 0, 0, id, index);
-    }
-    inline QT_COMPAT int insertItem(const QIconSet& icon, const QPixmap &, int id=-1, int index=-1) {
-        qWarning("QMenu: There is no Icon & Pixmap!");
-        return insertAny(&icon, 0, 0, 0, 0, 0, id, index);
-    }
-    inline QT_COMPAT int insertItem(const QPixmap &pixmap, QMenu *popup, int id=-1, int index=-1) {
-        QIconSet icon(pixmap);
-        return insertAny(&icon, 0, 0, 0, 0, popup, id, index);
-    }
-    inline QT_COMPAT int insertItem(const QIconSet& icon, const QPixmap &, QMenu *popup,
-                                    int id=-1, int index=-1) {
-        qWarning("QMenu: There is no Icon & Pixmap!");
-        return insertAny(&icon, 0, 0, 0, 0, popup, id, index);
-    }
-    inline int insertAny(const QIconSet *icon, const QString *text, const QObject *receiver, const char *member,
-                                   const QKeySequence *accel, const QMenu *popup, int id, int index) {
-        verifyPlatformCanCastPointerToInt();
-        if(id != -1)
-            qWarning("QMenu: id cannot be passed into insertItem!");
-        QAction *act = new QAction;
-        if(icon)
-            act->setIcon(*icon);
-        if(text)
-            act->setText(*text);
-        if(popup)
-            act->setMenu(const_cast<QMenu*>(popup));
-        if(accel)
-            act->setAccel(*accel);
-        if(receiver && member)
-            QObject::connect(act, SIGNAL(triggered()), receiver, member);
-        if(index == -1)
-            addAction(act);
-        else
-            insertAction(act, findActionForIndex(index+1));
-        return (int)act;
-    }
-    inline QT_COMPAT int insertSeparator(int index=-1) {
-        verifyPlatformCanCastPointerToInt();
-        QAction *act = new QAction;
-        act->setSeparator(true);
-        if(index == -1)
-            addAction(act);
-        else
-            insertAction(act, findActionForIndex(index+1));
-        return (int)act;
-    }
-    inline QT_COMPAT void removeItem(int id) { removeAction(findActionForId(id)); }
-    inline QT_COMPAT void removeItemAt(int index) { removeAction(findActionForIndex(index)); }
-#ifndef QT_NO_ACCEL
-    inline QT_COMPAT QKeySequence accel(int id) const { return findActionForId(id)->accel(); }
-    inline QT_COMPAT void setAccel(const QKeySequence& key, int id) { findActionForId(id)->setAccel(key); }
-#endif
-    inline QT_COMPAT QIconSet iconSet(int id) const { return findActionForId(id)->icon(); }
-    inline QT_COMPAT QString text(int id) const { return findActionForId(id)->text(); }
-    inline QT_COMPAT QPixmap pixmap(int id) const { return findActionForId(id)->icon().pixmap(); }
-    inline QT_COMPAT void setWhatsThis(int id, const QString &w) { findActionForId(id)->setWhatsThis(w); }
-    inline QT_COMPAT QString whatsThis(int id) const { return findActionForId(id)->whatsThis(); }
-
-    inline QT_COMPAT void changeItem(int id, const QString &text) { findActionForId(id)->setText(text); }
-    inline QT_COMPAT void changeItem(int id, const QPixmap &pixmap) { findActionForId(id)->setIcon(QIconSet(pixmap)); }
-    inline QT_COMPAT void changeItem(int id, const QIconSet &icon, const QString &text) { 
-        QAction *act = findActionForId(id);
-        act->setIcon(icon);
-        act->setText(text);
-    }
-    inline QT_COMPAT void changeItem(int id, const QIconSet &icon, const QPixmap &) {
-        qWarning("QMenu: There is no Icon & Pixmap!");
-        findActionForId(id)->setIcon(icon);
-    }
-    inline QT_COMPAT bool isItemActive(int id) const { return findActionForId(id) == activeAction(); }
-    inline QT_COMPAT bool isItemEnabled(int id) const { return findActionForId(id)->isEnabled(); }
-    inline QT_COMPAT void setItemEnabled(int id, bool enable) { findActionForId(id)->setEnabled(enable); }
-    inline QT_COMPAT bool isItemChecked(int id) const { return findActionForId(id)->isChecked(); }
-    inline QT_COMPAT void setItemChecked(int id, bool check) { findActionForId(id)->setCheckable(check); }
-    inline QT_COMPAT bool isItemVisible(int id) const { return findActionForId(id)->isVisible(); }
-    inline QT_COMPAT void setItemVisible(int id, bool visible) { findActionForId(id)->setVisible(visible); }
-    inline QT_COMPAT QRect itemGeometry(int index) { 
-        verifyPlatformCanCastPointerToInt();
-        return actionGeometry(findActionForIndex(index)); 
-    }
-    inline QT_COMPAT int itemAtPos(const QPoint &p, bool ignoreSeparator = true) { 
-        verifyPlatformCanCastPointerToInt();
-        return (int)actionAtPos(p, ignoreSeparator); 
-    }
-
-    inline QT_COMPAT int indexOf(int id) const { return actions().indexOf(findActionForId(id)); }
-    inline QT_COMPAT int idAt(int index) const { 
-        verifyPlatformCanCastPointerToInt();
-        return (int)findActionForIndex(index);
-    }
-    inline QT_COMPAT void activateItemAt(int index) {
-        verifyPlatformCanCastPointerToInt();
-        if(QAction *ret = findActionForIndex(index))
-            ret->activate(QAction::Trigger);
-    }
-    inline QT_COMPAT bool connectItem(int id, const QObject *receiver, const char* member) {
-        QObject::connect(findActionForId(id), SIGNAL(triggered()), receiver, member);
-        return true;
-    }
-    inline QT_COMPAT bool disconnectItem(int id,const QObject *receiver, const char* member) {
-        QObject::disconnect(findActionForId(id), SIGNAL(triggered()), receiver, member);
-        return true;
-    }
-    inline QT_COMPAT QAction *findItem(int id) const { 
-        verifyPlatformCanCastPointerToInt();
-        return (QAction*)id;
-    }
-
-    //frame
-    QT_COMPAT int frameWidth() const;
-
-    //popupmenu
-    inline QT_COMPAT void popup(const QPoint & pos, int indexAtPoint) { popup(pos, findActionForIndex(indexAtPoint)); }
-    inline QT_COMPAT int exec(const QPoint & pos, int indexAtPoint) { 
-        verifyPlatformCanCastPointerToInt();
-        return (int)exec(pos, findActionForIndex(indexAtPoint)); 
-    }
-    inline QT_COMPAT int insertTearOffHandle(int id=-1, int index=-1) {
-        if(id != -1)
-            qWarning("QMenu: id cannot be passed into insertTearOffHandle!");
-        if(index != -1)
-            qFatal("QMenu: index cannot be passed into insertTearOffHandle!");
-        setTearOffEnabled(true);
-        return 0;
-    }
 #endif
 
 signals:
@@ -243,16 +77,6 @@ signals:
     void highlighted(QAction *action);
 
 protected:
-#ifdef QT_COMPAT
-    inline QT_COMPAT int columns() const { return columnCount(); }
-    inline QT_COMPAT int itemHeight(int index) { 
-        return actionGeometry(findActionForIndex(index)).height(); 
-    }
-    inline QT_COMPAT int itemHeight(QAction *act) { 
-        return actionGeometry(act).height(); 
-    }
-#endif
-
     int columnCount() const;
     void changeEvent(QEvent *);
     void keyPressEvent(QKeyEvent *);
@@ -270,68 +94,8 @@ private slots:
     void internalSetSloppyAction();
     void internalDelayedPopup();
 
-private:
-    friend class Q4MenuBar;
-    friend class Q4MenuBarPrivate;
-    friend class QTornOffMenu;
-
 #ifdef QT_COMPAT
-    inline void verifyPlatformCanCastPointerToInt() const {
-        if(sizeof(QAction*) > sizeof(int)) 
-            qFatal("QMenu: This platform cannot safely handle the compat functions"
-                   "due to the size of a pointer. Please rewrite to use the new QMenu code.");
-    }
-    inline QAction *findActionForId(int id) const {
-        verifyPlatformCanCastPointerToInt();
-        return (QAction*)id;
-    }
-    inline QAction *findActionForIndex(int index) const {
-        if(index == -1)
-            return 0;
-        else if(QAction *ret = actions()[index])
-            return ret;
-        qFatal("QMenu: %d is bigger than the allowed (%d)", index, actions().size());
-        return 0;
-    }
-#endif
-
-#ifdef Q_WS_MAC
-    friend bool qt_mac_activate_action(MenuRef, uint, QAction::ActionEvent, bool);
-#endif
-#if defined(Q_DISABLE_COPY)  // Disabled copy constructor and operator=
-    QMenu(const QMenu &);
-    QMenu &operator=(const QMenu &);
-#endif
-};
-
-class Q_GUI_EXPORT Q4MenuBar : public QWidget
-{
-    Q_OBJECT
-    Q_DECLARE_PRIVATE(Q4MenuBar);
-    Q_PROPERTY(bool defaultUp READ isDefaultUp WRITE setDefaultUp)
-
 public:
-    Q4MenuBar(QWidget *parent = 0);
-    ~Q4MenuBar();
-
-    QAction *addMenu(const QString &title, QMenu *menu);
-    QAction *insertMenu(QAction *before, const QString &title, QMenu *menu);
-
-    void clear();
-
-    QAction *activeAction() const;
-
-    void setDefaultUp(bool);
-    bool isDefaultUp() const;
-
-    QSize sizeHint() const;
-    QSize minimumSizeHint() const;
-    int heightForWidth(int) const;
-
-    QRect actionGeometry(QAction *) const; 
-    QAction *actionAtPos(const QPoint &) const;
-
-#ifdef QT_COMPAT
     //menudata
     inline QT_COMPAT uint count() const { return actions().count(); }
     inline QT_COMPAT int insertItem(const QString &text, const QObject *receiver, const char* member,
@@ -348,11 +112,6 @@ public:
         QIconSet icon(pixmap);
         return insertAny(&icon, 0, receiver, member, &accel, 0, id, index);
     }
-    inline QT_COMPAT int insertItem(const QIconSet& icon, const QPixmap &, const QObject *receiver, 
-                                    const char* member, const QKeySequence& accel = 0, int id = -1, int index = -1) {
-        qWarning("QMenuBar: There is no Icon & Pixmap!");
-        return insertAny(&icon, 0, receiver, member, &accel, 0, id, index);
-    }
     inline QT_COMPAT int insertItem(const QString &text, int id=-1, int index=-1) {
         return insertAny(0, &text, 0, 0, 0, 0, id, index);
     }
@@ -363,55 +122,17 @@ public:
         return insertAny(0, &text, 0, 0, 0, popup, id, index);
     }
     inline QT_COMPAT int insertItem(const QIconSet& icon, const QString &text, QMenu *popup, int id=-1, int index=-1) {
-        return insertAny(&icon, &text, 0, 0, 0, popup, id, index); 
+        return insertAny(&icon, &text, 0, 0, 0, popup, id, index);
     }
     inline QT_COMPAT int insertItem(const QPixmap &pixmap, int id=-1, int index=-1) {
         QIconSet icon(pixmap);
-        return insertAny(&icon, 0, 0, 0, 0, 0, id, index);
-    }
-    inline QT_COMPAT int insertItem(const QIconSet& icon, const QPixmap &, int id=-1, int index=-1) {
-        qWarning("QMenuBar: There is no Icon & Pixmap!");
         return insertAny(&icon, 0, 0, 0, 0, 0, id, index);
     }
     inline QT_COMPAT int insertItem(const QPixmap &pixmap, QMenu *popup, int id=-1, int index=-1) {
         QIconSet icon(pixmap);
         return insertAny(&icon, 0, 0, 0, 0, popup, id, index);
     }
-    inline QT_COMPAT int insertItem(const QIconSet& icon, const QPixmap &, QMenu *popup,
-                                    int id=-1, int index=-1) {
-        qWarning("QMenuBar: There is no Icon & Pixmap!");
-        return insertAny(&icon, 0, 0, 0, 0, popup, id, index);
-    }
-    inline int insertAny(const QIconSet *icon, const QString *text, const QObject *receiver, const char *member,
-                                   const QKeySequence * /* accel */, const QMenu *popup, int id, int index) {
-        verifyPlatformCanCastPointerToInt();
-        if(id != -1)
-            qWarning("QMenuBar: id cannot be passed into insertItem!");
-        QAction *act = new QAction;
-        if(icon)
-            act->setIcon(*icon);
-        if(text)
-            act->setText(*text);
-        if(popup)
-            act->setMenu(const_cast<QMenu*>(popup));
-        if(receiver && member)
-            QObject::connect(act, SIGNAL(triggered()), receiver, member);
-        if(index == -1)
-            addAction(act);
-        else
-            insertAction(act, findActionForIndex(index+1));
-        return (int)act;
-    }
-    inline QT_COMPAT int insertSeparator(int index=-1) {
-        verifyPlatformCanCastPointerToInt();
-        QAction *act = new QAction;
-        act->setSeparator(true);
-        if(index == -1)
-            addAction(act);
-        else
-            insertAction(act, findActionForIndex(index+1));
-        return (int)act;
-    }
+    QT_COMPAT int insertSeparator(int index=-1);
     inline QT_COMPAT void removeItem(int id) { removeAction(findActionForId(id)); }
     inline QT_COMPAT void removeItemAt(int index) { removeAction(findActionForIndex(index)); }
 #ifndef QT_NO_ACCEL
@@ -426,14 +147,10 @@ public:
 
     inline QT_COMPAT void changeItem(int id, const QString &text) { findActionForId(id)->setText(text); }
     inline QT_COMPAT void changeItem(int id, const QPixmap &pixmap) { findActionForId(id)->setIcon(QIconSet(pixmap)); }
-    inline QT_COMPAT void changeItem(int id, const QIconSet &icon, const QString &text) { 
+    inline QT_COMPAT void changeItem(int id, const QIconSet &icon, const QString &text) {
         QAction *act = findActionForId(id);
         act->setIcon(icon);
         act->setText(text);
-    }
-    inline QT_COMPAT void changeItem(int id, const QIconSet &icon, const QPixmap &) {
-        qWarning("QMenuBar: There is no Icon & Pixmap!");
-        findActionForId(id)->setIcon(icon);
     }
     inline QT_COMPAT bool isItemActive(int id) const { return findActionForId(id) == activeAction(); }
     inline QT_COMPAT bool isItemEnabled(int id) const { return findActionForId(id)->isEnabled(); }
@@ -442,21 +159,18 @@ public:
     inline QT_COMPAT void setItemChecked(int id, bool check) { findActionForId(id)->setCheckable(check); }
     inline QT_COMPAT bool isItemVisible(int id) const { return findActionForId(id)->isVisible(); }
     inline QT_COMPAT void setItemVisible(int id, bool visible) { findActionForId(id)->setVisible(visible); }
-    inline QT_COMPAT QRect itemRect(int index) { 
-        verifyPlatformCanCastPointerToInt();
-        return actionGeometry(findActionForIndex(index)); 
+    inline QT_COMPAT QRect itemGeometry(int index) {
+        return actionGeometry(findActionForIndex(index));
     }
-    inline QT_COMPAT int itemAtPos(const QPoint &p) { 
-        verifyPlatformCanCastPointerToInt();
-        return (int)actionAtPos(p); 
+    inline QT_COMPAT int itemAtPos(const QPoint &p, bool ignoreSeparator = true) {
+        return actionAtPos(p, ignoreSeparator)->id();
     }
+
     inline QT_COMPAT int indexOf(int id) const { return actions().indexOf(findActionForId(id)); }
-    inline QT_COMPAT int idAt(int index) const { 
-        verifyPlatformCanCastPointerToInt();
-        return (int)actions()[index];
+    inline QT_COMPAT int idAt(int index) const {
+        return findActionForIndex(index)->id();
     }
     inline QT_COMPAT void activateItemAt(int index) {
-        verifyPlatformCanCastPointerToInt();
         if(QAction *ret = findActionForIndex(index))
             ret->activate(QAction::Trigger);
     }
@@ -468,79 +182,53 @@ public:
         QObject::disconnect(findActionForId(id), SIGNAL(triggered()), receiver, member);
         return true;
     }
-    inline QT_COMPAT QAction *findItem(int id) const { 
-        verifyPlatformCanCastPointerToInt();
-        return (QAction*)id;
+    inline QT_COMPAT QAction *findItem(int id) const {
+        return findActionForId(id);
     }
 
     //frame
     QT_COMPAT int frameWidth() const;
-#endif
 
-#ifdef Q_WS_MAC
-    MenuRef macMenu();
-#endif
-
-signals:
-    void activated(QAction *action);
-    void highlighted(QAction *action);
-
-protected:
-    void contextMenuEvent(QContextMenuEvent *);
-    void changeEvent(QEvent *);
-    void keyPressEvent(QKeyEvent *);
-    void mouseReleaseEvent(QMouseEvent *);
-    void mousePressEvent(QMouseEvent *);
-    void mouseMoveEvent(QMouseEvent *);
-    void leaveEvent(QEvent *);
-    void paintEvent(QPaintEvent *);
-    void resizeEvent(QResizeEvent *);
-    void actionEvent(QActionEvent *);
-    void focusOutEvent(QFocusEvent *);
-    void focusInEvent(QFocusEvent *);
-    bool eventFilter(QObject *, QEvent *);
-    bool event(QEvent *);
-
-private slots:
-    void internalShortcutActivated(int);
+    //popupmenu
+    inline QT_COMPAT void popup(const QPoint & pos, int indexAtPoint) { popup(pos, findActionForIndex(indexAtPoint)); }
+    inline QT_COMPAT int exec(const QPoint & pos, int indexAtPoint) {
+        QAction *a = exec(pos, findActionForIndex(indexAtPoint));
+        return a ? a->id() : 0;
+    }
+    inline QT_COMPAT int insertTearOffHandle(int = 0, int = 0) {
+        setTearOffEnabled(true);
+        return -1;
+    }
 
 protected:
-    void setLeftWidget(QWidget *);
-    void setRightWidget(QWidget *);
+    inline QT_COMPAT int columns() const { return columnCount(); }
+    inline QT_COMPAT int itemHeight(int index) {
+        return actionGeometry(findActionForIndex(index)).height();
+    }
+    inline QT_COMPAT int itemHeight(QAction *act) {
+        return actionGeometry(act).height();
+    }
 
 private:
-    friend class QMenu;
-    friend class QWorkspacePrivate;
-    friend class QMenuPrivate;
-
-#ifdef QT_COMPAT
-    inline void verifyPlatformCanCastPointerToInt() const {
-        if(sizeof(QAction*) > sizeof(int)) 
-            qFatal("QMenuBar: This platform cannot safely handle the compat functions"
-                   "due to the size of a pointer. Please rewrite to use the new QMenu/QMenuBar code.");
-    }
-    inline QAction *findActionForId(int id) const {
-        verifyPlatformCanCastPointerToInt();
-        return (QAction*)id;
-    }
+    int insertAny(const QIconSet *icon, const QString *text, const QObject *receiver, const char *member,
+                  const QKeySequence *accel, const QMenu *popup, int id, int index);
+    QAction *findActionForId(int id) const;
     inline QAction *findActionForIndex(int index) const {
-        if(index == -1)
-            return 0;
-        else if(QAction *ret = actions()[index])
-            return ret;
-        qFatal("QMenuBar: %d is bigger than the allowed (%d)", index, actions().size());
-        return 0;
+        return actions().value(index, 0);
     }
 #endif
 
+private:
+    friend class Q4MenuBar;
+    friend class Q4MenuBarPrivate;
+    friend class QTornOffMenu;
+
 #ifdef Q_WS_MAC
-    friend class QApplication;
-    static bool macUpdateMenuBar();
     friend bool qt_mac_activate_action(MenuRef, uint, QAction::ActionEvent, bool);
 #endif
 #if defined(Q_DISABLE_COPY)  // Disabled copy constructor and operator=
-    Q4MenuBar(const Q4MenuBar &);
-    Q4MenuBar &operator=(const Q4MenuBar &);
+    QMenu(const QMenu &);
+    QMenu &operator=(const QMenu &);
 #endif
 };
 

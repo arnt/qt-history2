@@ -5,6 +5,7 @@
 #include <qbasictimer.h>
 #include <qdatetime.h>
 #include <qaccel.h>
+#include <qmenubar.h>
 
 class QTornOffMenu;
 

@@ -92,6 +92,7 @@ SOURCES += widgets/qbuttongroup.cpp \
         widgets/qmenu.cpp \
 	widgets/q3menubar.cpp \
 	widgets/q3menudata.cpp \
+	widgets/qmenubar.cpp \
 	widgets/q3popupmenu.cpp \
 	widgets/qprogressbar.cpp \
 	widgets/qpushbutton.cpp \
