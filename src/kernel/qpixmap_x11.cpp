@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#135 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#136 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -164,6 +164,18 @@ static int highest_bit( uint v )
     for ( i=31; ((b & v) == 0) && i>=0;	 i-- )
 	b >>= 1;
     return i;
+}
+
+static int lowest_bit( uint v )
+{
+    // returns position of lowest set bit in 'v' as an integer (0-31), or -1
+ 
+    int i;  unsigned long lb;
+ 
+    lb = 1;
+    for (i=0; ((v & lb) == 0) && i<32;  i++, lb<<=1);
+    if (i==32) return -1;
+    else return i;
 }
 
 static uint n_bits( uint v )
@@ -1089,6 +1101,9 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	int   red_shift	  = highest_bit( red_mask )   - 7;
 	int   green_shift = highest_bit( green_mask ) - 7;
 	int   blue_shift  = highest_bit( blue_mask )  - 7;
+	uint  rbits = highest_bit(red_mask) - lowest_bit(red_mask) + 1;
+	uint  gbits = highest_bit(green_mask) - lowest_bit(green_mask) + 1;
+	uint  bbits = highest_bit(blue_mask) - lowest_bit(blue_mask) + 1;
 	int   r, g, b;
 
 	if ( d8 ) {				// setup pixel translation
@@ -1115,6 +1130,53 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	if ( bppc > 8 && xi->byte_order == LSBFirst )
 	    bppc++;
 
+	bool dither_tc =
+		// Want it
+		(conversion_flags & DitherMode_Mask) != AvoidDither &&
+		// Need it
+		bppc < 24 && !d8 &&
+		// Contiguous bits?
+		n_bits(red_mask) == rbits &&
+		n_bits(green_mask) == gbits &&
+		n_bits(blue_mask) == bbits;
+
+	static bool init=FALSE;
+	static int D[16][16];
+	if ( dither_tc && !init ) {
+	    // I also contributed this code to XV - WWA.
+	    /*
+	    The dither matrix, D, is obtained with this formula:
+
+	    D2 = [ 0 2 ]
+	       [ 3 1 ]
+
+
+	    D2*n = [ 4*Dn       4*Dn+2*Un ]
+		 [ 4*Dn+3*Un  4*Dn+1*Un ]
+	    */
+	    int n,i,j;
+	    init=1;
+
+	    /* Set D2 */
+	    D[0][0]=0;
+	    D[1][0]=2;
+	    D[0][1]=3;
+	    D[1][1]=1;
+
+	    /* Expand using recursive definition given above */
+	    for (n=2; n<16; n*=2) {
+		for (i=0; i<n; i++) {
+		    for (j=0; j<n; j++) {
+		        D[i][j]*=4;
+		        D[i+n][j]=D[i][j]+2;
+		        D[i][j+n]=D[i][j]+3;
+		        D[i+n][j+n]=D[i][j]+1;
+		    }
+		}
+	    }
+	    init=TRUE;
+	}
+
 	for ( int y=0; y<h; y++ ) {
 	    QRgb *p;
 	    src = image.scanLine( y );
@@ -1127,9 +1189,28 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 		    r = qRed  ( *p );
 		    g = qGreen( *p );
 		    b = qBlue ( *p++ );
-		    r = red_shift   > 0 ? r << red_shift   : r >> -red_shift;
-		    g = green_shift > 0 ? g << green_shift : g >> -green_shift;
-		    b = blue_shift  > 0 ? b << blue_shift  : b >> -blue_shift;
+
+		    if ( dither_tc ) {
+			// Dither truecolor
+			int thres = D[x%16][y%16];
+			if ( r <= (255-(1<<(8-rbits))) && ((r<<rbits) & 255)
+				> thres)
+			    r += (1<<(8-rbits));
+			if ( g <= (255-(1<<(8-gbits))) && ((g<<gbits) & 255)
+				> thres)
+			    g += (1<<(8-gbits));
+			if ( b <= (255-(1<<(8-bbits))) && ((b<<bbits) & 255)
+				> thres)
+			    b += (1<<(8-bbits));
+		    }
+
+		    r = red_shift   > 0
+			? r << red_shift   : r >> -red_shift;
+		    g = green_shift > 0
+			? g << green_shift : g >> -green_shift;
+		    b = blue_shift  > 0
+			? b << blue_shift  : b >> -blue_shift;
+
 		    pixel = (b & blue_mask)|(g & green_mask) | (r & red_mask);
 		}
 		switch ( bppc ) {
