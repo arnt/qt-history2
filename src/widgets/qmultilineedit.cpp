@@ -47,6 +47,7 @@
 #include "qpopupmenu.h"
 #include "qtimer.h"
 #include "qdict.h"
+#include "qcleanuphandler.h"
 
 #include <ctype.h>
 
@@ -615,17 +616,13 @@ QMultiLineEdit::~QMultiLineEdit()
 
 static QPixmap *buffer = 0;
 
-static void cleanupMLBuffer()
-{
-    delete buffer;
-    buffer = 0;
-}
+QCleanUpHandler<QPixmap> qmle_cleanup_buffer;
 
 static QPixmap *getCacheBuffer( QSize sz )
 {
     if ( !buffer ) {
-	qAddPostRoutine( cleanupMLBuffer );
 	buffer = new QPixmap;
+	qmle_cleanup_buffer.addCleanUp( buffer );
     }
 
     if ( buffer->width() < sz.width() || buffer->height() < sz.height() )
