@@ -1309,7 +1309,7 @@ private:
         QByteArray proto = replacePrototype(prototype);
         
         Method &slot = slot_list[proto];
-        slot.type = type;
+        slot.type = replaceType(type);
         slot.parameters = parameters;
         slot.flags = flags;
         if (proto != prototype)
@@ -2901,7 +2901,7 @@ bool QAxBase::dynamicCallHelper(const QByteArray &name, void *inout, QList<QVari
     int varc = vars.count();
     
     QByteArray function = name;
-    VARIANT staticarg;
+    VARIANT staticarg[QAX_NUM_PARAMS];
     VARIANT *arg = 0;
     VARIANTARG *res = (VARIANTARG*)inout;
     
@@ -3001,7 +3001,8 @@ bool QAxBase::dynamicCallHelper(const QByteArray &name, void *inout, QList<QVari
         }
     }
     if (varc) {
-        arg = varc == 1 ? &staticarg : new VARIANT[varc];
+        varc = qMin(varc, d->metaobj->numParameter(name));
+        arg = varc <= QAX_NUM_PARAMS ? staticarg : new VARIANT[varc];
         for (int i = 0; i < varc; ++i) {
             QVariant var(vars.at(i));
             VariantInit(arg + (varc - i - 1));
@@ -3068,7 +3069,7 @@ bool QAxBase::dynamicCallHelper(const QByteArray &name, void *inout, QList<QVari
     // clean up
     for (int i = 0; i < varc; ++i)
         clearVARIANT(params.rgvarg+i);
-    if (arg && arg != &staticarg)
+    if (arg && arg != staticarg)
         delete[] arg;
     
     return checkHRESULT(hres, &excepinfo, this, function, varc-argerr-1);
