@@ -1080,6 +1080,10 @@ void QNPInstance::getURLNotify(const char* url, const char* window, void*data)
 {
 #ifdef Q_WS_WIN // Only on Windows?
     NPN_GetURLNotify( pi->npp, url, window, data );
+#else
+    Q_UNUSED( url );
+    Q_UNUSED( window );
+    Q_UNUSED( data );
 #endif
 }
 
@@ -1154,8 +1158,8 @@ void QNPInstance::notifyURL(const char*, Reason, void*)
 }
 
 /*!
-    Returns the value of the \a{i}-th argument. 
-    
+    Returns the value of the \a{i}-th argument.
+
     \as argc(), arg()
 */
 const char* QNPInstance::argv(int i) const
