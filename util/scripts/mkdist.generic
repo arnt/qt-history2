@@ -134,11 +134,12 @@ if [ "${platform}" = "win" ]; then
   cd ${DISTDIR}/qt/src
   echo "Generating moc output..." >&2
   cd kernel
-  make moc
+  # hardkodete moc-regler i Makefile er et herk
+  make -k moc || /bin/true
   cd ../widgets
-  make moc
+  make -k moc || /bin/true
   cd ../dialogs
-  make moc
+  make -k moc || /bin/true
   cd ..
   echo "Moving source and include files..." >&2
   rm -f ../include/*
