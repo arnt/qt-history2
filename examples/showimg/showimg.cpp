@@ -227,7 +227,7 @@ void ImageViewer::setMenuItemFlags()
 void ImageViewer::updateStatus()
 {
     if ( pm.size() == QSize( 0, 0 ) ) {
-	if ( filename )
+	if ( !filename.isEmpty() )
 	    status->setText("Could not load image");
 	else
 	    status->setText("No image - select Open from File menu.");
@@ -341,11 +341,11 @@ void ImageViewer::openFile()
   Returns TRUE if the image was successfully loaded.
 */
 
-bool ImageViewer::loadImage( const char *fileName )
+bool ImageViewer::loadImage( const QString& fileName )
 {
     filename = fileName;
     bool ok = FALSE;
-    if ( filename ) {
+    if ( !filename.isEmpty() ) {
 	QApplication::setOverrideCursor( waitCursor ); // this might take time
 	ok = image.load(filename, 0);
 	pickx = -1;

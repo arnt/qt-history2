@@ -25,7 +25,7 @@ class ImageViewer : public QWidget
 public:
     ImageViewer( QWidget *parent=0, const char *name=0, int wFlags=0 );
     ~ImageViewer();
-    bool	loadImage( const char *fileName );
+    bool	loadImage( const QString& );
 protected:
     void	paintEvent( QPaintEvent * );
     void	resizeEvent( QResizeEvent * );
@@ -40,7 +40,7 @@ private:
     bool	useColorContext() const;
     int		alloc_context;
     bool	convertEvent( QMouseEvent* e, int& x, int& y );
-    const char* filename;
+    QString     filename;
     QImage	image;			// the loaded image
     QPixmap	pm;			// the converted pixmap
     QPixmap	pmScaled;		// the scaled pixmap
