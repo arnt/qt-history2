@@ -964,12 +964,16 @@ void QTextStream::ts_putc( QChar c )
 	    doUnicodeHeader = FALSE;
 	    ts_putc( QChar::byteOrderMark );
 	}
+
+	// ###
 	if ( littleEndian ) {
-	    dev->putch( c.cell() );
-	    dev->putch( c.row() );
+	    dev->writeBlock( (char*)&c, sizeof(QChar) );
+	} else if ( !littleEndian ) {
+	    dev->putch(c.row());
+	    dev->putch(c.cell());
 	} else {
-	    dev->putch( c.row() );
-	    dev->putch( c.cell() );
+	    dev->putch(c.cell());
+	    dev->putch(c.row());
 	}
     }
 }
