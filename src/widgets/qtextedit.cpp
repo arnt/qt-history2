@@ -2591,9 +2591,6 @@ bool QTextEdit::eventFilter( QObject *o, QEvent *e )
 	    drawCursor( TRUE );
 	    updateMicroFocusHint();
 	} else if ( e->type() == QEvent::FocusOut ) {
-	    if ( ((QFocusEvent*)e)->reason() != QFocusEvent::ActiveWindow
-		 && ((QFocusEvent*)e)->reason() != QFocusEvent::Popup )
-		selectAll( FALSE );
 	    blinkTimer->stop();
 	    drawCursor( FALSE );
 	}
