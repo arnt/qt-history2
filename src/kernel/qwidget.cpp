@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#155 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#156 $
 **
 ** Implementation of QWidget class
 **
@@ -19,7 +19,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#155 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#156 $");
 
 
 /*!
@@ -1703,11 +1703,6 @@ bool QWidget::close( bool forceKill )
   equal to or greater than 0), otherwise sets the size to the children
   rectangle (the union of all child widget geometries).
 
-  adjustSize() makes sure that a paint event is delivered; this may
-  lead to superfluous paint events now and then, but also ensures that
-  you you get a paint event after 1000% of the adjustSize() calls
-  rather than 99%.
-
   \sa sizeHint(), childrenRect()
 */
 
@@ -1715,10 +1710,7 @@ void QWidget::adjustSize()
 {
     QSize s = sizeHint();
     if ( s.isValid() ) {
-	if ( s != size() )
-	    resize( s );
-	else
-	    repaint();
+	resize( s );
 	return;
     }
     QRect r = childrenRect();			// get children rectangle
