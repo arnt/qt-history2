@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#95 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#96 $
 **
 ** Implementation of QTextStream class
 **
@@ -495,10 +495,13 @@ QTextStream::~QTextStream()
 }
 
 /*!
-  \fn void QTextStream::eatWhiteSpace()
-
   Equivalent to *this << ws.
 */
+void QTextStream::eatWhiteSpace()
+{
+    ts_ungetc( eat_ws() );
+}
+
 
 /*!
   \fn Encoding QTextStream::encoding() const
@@ -632,7 +635,6 @@ bool QTextStream::ts_isspace( QChar c )
 
 void QTextStream::ts_ungetc( QChar c )
 {
-    debug( "QTextStream::ts_ungetc" );
     if ( mapper ) {
 	ungetcBuf = c;
     } else if ( latin1 ) {
@@ -795,7 +797,7 @@ void QTextStream::unsetDevice()
 /*!\fn bool QTextStream::eof() const
 
   \obsolete
-  
+
   Returns TRUE if the IO device has reached the end position (end of
   stream or file) or if there is no IO device set.
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.h#53 $
+** $Id: //depot/qt/main/src/tools/qtextstream.h#54 $
 **
 ** Definition of QTextStream class
 **
@@ -90,7 +90,7 @@ public:
 
     QString	readLine();
     QString	read();
-    void	eatWhiteSpace() { eat_ws(); }
+    void	eatWhiteSpace();
 
     enum {
 	skipws	  = 0x0001,			// skip whitespace on input

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#15 $
 **
 ** Implementation of QML classes
 **
@@ -668,11 +668,11 @@ public:
 		ncols =  attr["cols"]->toInt();
 	    ncols = QMAX( 1, ncols);
 	}
-    
+
     ~QMLMulticol()
 	{
 	}
-    
+
     int numberOfColumns() const
 	{
 	    return ncols;
@@ -831,7 +831,7 @@ void QMLStyleSheet::init()
 
     style = new QMLStyle( this, "qml" );
     style->setDisplayMode( QMLStyle::DisplayBlock );
-    style->setMargin( QMLStyle::MarginAll, 8 );
+    style->setMargin( QMLStyle::MarginAll, 4 );
 
     style = new QMLStyle( this, "a" );
     style->setColor( Qt::blue );
@@ -980,7 +980,7 @@ QMLNode* QMLStyleSheet::tag( const QString& name,
 	result->c = '\n';
 	return result;
     }
-    else if (style->name() == "multicol") 
+    else if (style->name() == "multicol")
 	return new QMLMulticol( style, attr );
 
     // process containers
@@ -2717,9 +2717,7 @@ void QMLProvider::setImage(const QString& name, const QPixmap& pm)
 */
 QPixmap QMLProvider::image(const QString &name) const
 {
-    debug("qmlprovider: look for image %s", name.ascii());
     QPixmap* p = images[name];
-    debug("lookup done");
     if (p)
 	return *p;
     else {
@@ -2742,9 +2740,7 @@ void QMLProvider::setDocument(const QString &name, const QString& doc)
 */
 QString QMLProvider::document(const QString &name) const
 {
-    debug("qmlprovider: look for document %s", name.ascii());
     QString* s = documents[name];
-    debug("lookup done");
     if (s)
 	return *s;
     {
