@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#84 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#85 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -101,7 +101,7 @@ inline const char* QFontInternal::key() const
 
 inline HDC QFontInternal::dc() const
 {
-    if ( qt_winver == WV_NT )
+    if ( qt_winver == Qt::WV_NT )
 	return hdc;
     ASSERT( shared_dc != 0 && hfont != 0 );
     if ( shared_dc_font != hfont ) {
@@ -140,7 +140,7 @@ inline int QFontInternal::lineWidth() const
 
 void QFontInternal::reset()
 {
-    if ( qt_winver == WV_NT ) {
+    if ( qt_winver == Qt::WV_NT ) {
 	if ( hdc ) {				// one DC per font (Win NT)
 	    SelectObject( hdc, systemFont() );
 	    if ( !stockFont )
@@ -342,11 +342,11 @@ void QFont::load() const
 	}
     }
     if ( !d->fin->font() ) {			// font not loaded
-	if ( qt_winver == WV_NT )
+	if ( qt_winver == Qt::WV_NT )
 	    d->fin->hdc = GetDC(0);
 	d->fin->hfont = create( &d->fin->stockFont, 0 );
 	SelectObject( d->fin->dc(), d->fin->hfont );
-	if ( qt_winver == WV_NT ) {
+	if ( qt_winver == Qt::WV_NT ) {
 	    GetTextMetricsW( d->fin->dc(), &d->fin->tm.w );
 	} else {
 	    GetTextMetricsA( d->fin->dc(), &d->fin->tm.a );
@@ -369,7 +369,7 @@ HFONT QFont::create( bool *stockFont, HDC hdc ) const
     QString fam = QFont::substitute( d->req.family );
     if ( d->req.rawMode ) {			// will choose a stock font
 	int f, deffnt;
-	if ( qt_winver == WV_NT || qt_winver == WV_32s )
+	if ( qt_winver == Qt::WV_NT || qt_winver == Qt::WV_32s )
 	    deffnt = SYSTEM_FONT;		// Windows NT or Win32s
 	else
 	    deffnt = DEFAULT_GUI_FONT;		// Windows 95
@@ -485,7 +485,7 @@ void *QFont::textMetric() const
 	ASSERT( d->fin && d->fin->font() );
 #endif
     }
-    if ( qt_winver == WV_NT )
+    if ( qt_winver == Qt::WV_NT )
 	return d->fin->textMetricW();
     else
 	return d->fin->textMetricA();
@@ -510,7 +510,7 @@ void *QFontMetrics::textMetric() const
 {
     if ( painter ) {
 	return painter->textMetric();
-    } else if ( qt_winver == WV_NT ) {
+    } else if ( qt_winver == Qt::WV_NT ) {
 	return fin->textMetricW();
     } else {
 	return fin->textMetricA();
@@ -523,7 +523,7 @@ void *QFontMetrics::textMetric() const
 #undef  TMW
 #define TMA (painter ? (TEXTMETRICA*)painter->textMetric() : fin->textMetricA())
 #define TMW (painter ? (TEXTMETRICW*)painter->textMetric() : fin->textMetricW())
-#define TM(F) ( qt_winver == WV_NT ? TMW->F : TMA->F )
+#define TM(F) ( qt_winver == Qt::WV_NT ? TMW->F : TMA->F )
 #define TMX TMA // Initial metrix align
 
 
@@ -540,7 +540,7 @@ int QFontMetrics::descent() const
 
 bool QFontMetrics::inFont(QChar ch) const
 {
-    if ( qt_winver == WV_NT ) {
+    if ( qt_winver == Qt::WV_NT ) {
 	TEXTMETRICW *f = TMW;
 	uint ch16 = ch.cell+256*ch.row;
 	return ch16 >= f->tmFirstChar
@@ -558,7 +558,7 @@ bool QFontMetrics::inFont(QChar ch) const
 int QFontMetrics::leftBearing(QChar ch) const
 {
     if (TM(tmPitchAndFamily) & TMPF_TRUETYPE ) {
-	if ( qt_winver == WV_NT ) {
+	if ( qt_winver == Qt::WV_NT ) {
 	    uint ch16 = ch.cell+256*ch.row;
 	    ABC abc;
 	    GetCharABCWidthsW(hdc(),ch16,ch16,&abc);
@@ -571,7 +571,7 @@ int QFontMetrics::leftBearing(QChar ch) const
 	    return abc.abcA;
 	}
     } else {
-	if ( qt_winver == WV_NT ) {
+	if ( qt_winver == Qt::WV_NT ) {
 	    uint ch16 = ch.cell+256*ch.row;
 	    ABCFLOAT abc;
 	    GetCharABCWidthsFloatW(hdc(),ch16,ch16,&abc);
@@ -586,7 +586,7 @@ int QFontMetrics::leftBearing(QChar ch) const
 int QFontMetrics::rightBearing(QChar ch) const
 {
     if (TM(tmPitchAndFamily) & TMPF_TRUETYPE ) {
-	if ( qt_winver == WV_NT ) {
+	if ( qt_winver == Qt::WV_NT ) {
 	    uint ch16 = ch.cell+256*ch.row;
 	    ABC abc;
 	    GetCharABCWidthsW(hdc(),ch16,ch16,&abc);
@@ -599,7 +599,7 @@ int QFontMetrics::rightBearing(QChar ch) const
 	    return abc.abcC;
 	}
     } else {
-	if ( qt_winver == WV_NT ) {
+	if ( qt_winver == Qt::WV_NT ) {
 	    uint ch16 = ch.cell+256*ch.row;
 	    ABCFLOAT abc;
 	    GetCharABCWidthsFloatW(hdc(),ch16,ch16,&abc);
@@ -635,7 +635,7 @@ int QFontMetrics::minRightBearing() const
 	if (TM(tmPitchAndFamily) & TMPF_TRUETYPE ) {
 	    ABC *abc;
 	    int n;
-	    if ( qt_winver == WV_NT ) {
+	    if ( qt_winver == Qt::WV_NT ) {
 		TEXTMETRICW *tm = TMW;
 		n = tm->tmLastChar - tm->tmFirstChar+1;
 		abc = new ABC[n];
@@ -654,7 +654,7 @@ int QFontMetrics::minRightBearing() const
 	    }
 	    delete [] abc;
 	} else {
-	    if ( qt_winver == WV_NT ) {
+	    if ( qt_winver == Qt::WV_NT ) {
 		TEXTMETRICW *tm = TMW;
 		int n = tm->tmLastChar - tm->tmFirstChar+1;
 		ABCFLOAT *abc = new ABCFLOAT[n];
