@@ -111,6 +111,11 @@ QPtrDict<void> unhandled_dialogs;             //all unhandled dialogs (ie mac fi
 static bool qt_closed_popup = FALSE;
 EventRef qt_replay_event = NULL;
 
+#define QMAC_CAN_WAIT_FOREVER // idle handling
+#ifdef QMAC_CAN_WAIT_FOREVER 
+static EventLoopTimerRef mac_idle_timer = NULL;
+#endif
+
 void qt_mac_destroy_widget(QWidget *w)
 {
     if(qt_button_down == w)
@@ -246,7 +251,11 @@ void qt_init( int* /* argcptr */, char **argv, QApplication::Type )
 			     NewEventHandlerUPP(QApplication::globalEventProcessor),
 			     GetEventTypeCount(events), events,
 			     (void *)qApp, NULL);
-
+#ifdef QMAC_CAN_WAIT_FOREVER
+	InstallEventLoopTimer(GetMainEventLoop(), 3.0, 3.0, 
+			      NewEventLoopTimerUPP(QApplication::qt_idle_timer_callbk), 
+			      (void *)qApp, &mac_idle_timer);
+#endif
     }
 }
 
@@ -522,6 +531,10 @@ int qStartTimer( int interval, QObject *obj )
 	initTimers();
     TimerInfo *t = new TimerInfo;		// create timer
     Q_CHECK_PTR( t );
+#ifdef QMAC_CAN_WAIT_FOREVER //disable null timer cruft
+    if(!interval)
+	interval = 1;
+#endif
     if(interval == 0) {
 	t->mac_timer = NULL;
 	timeval tv;
@@ -772,54 +785,9 @@ bool qt_set_socket_handler( int, int, QObject *, bool )
 //#warning "need to implement sockets on mac9"
 #endif
 
-
-bool QApplication::processNextEvent( bool  )
+QMAC_PASCAL void 
+QApplication::qt_idle_timer_callbk(EventLoopTimerRef, void *)
 {
-    int	   nevents = 0;
-
-#if defined(QT_THREAD_SUPPORT)
-    qApp->lock();
-#endif
-
-    if(qt_is_gui_used) {
-	sendPostedEvents();
-
-	/* this gives QD a chance to flush buffers, I don't like doing it! FIXME!! */
-	EventRecord ev;
-	EventAvail(everyEvent, &ev);
-
-	if(qt_replay_event) {	//ick
-	    EventRef ev = qt_replay_event;
-	    qt_replay_event = NULL;
-	    SendEventToApplication(ev);
-	    ReleaseEvent(ev);
-	}
-
-	EventRef event;
-	OSStatus ret;
-	do {
-#ifdef Q_WS_MAC9
-#define QMAC_EVENT_WAIT 0.01
-#else
-#define QMAC_EVENT_WAIT kEventDurationNoWait
-#endif
-	    ret = ReceiveNextEvent( 0, 0, QMAC_EVENT_WAIT, TRUE, &event );
-#undef QMAC_EVENT_WAIT
-	    //try to send null timers..
-	    activateNullTimers();
-
-	    if(ret == eventLoopTimedOutErr || ret == eventLoopQuitErr)
-		break;
-
-	    ret = SendEventToApplication(event);
-	    ReleaseEvent(event);
-	    if(ret != noErr)
-		break;
-	    nevents++;
-	} while(1);
-	sendPostedEvents();
-    }
-
 #ifdef QMAC_QMENUBAR_NATIVE
     QMenuBar::macUpdateMenuBar();
 #endif
@@ -832,13 +800,7 @@ bool QApplication::processNextEvent( bool  )
     }
 #endif
 
-    if ( quit_now || app_exit_loop ) {
-#if defined(QT_THREAD_SUPPORT)
-	qApp->unlock( FALSE );
-#endif
-	return FALSE;
-    }
-    sendPostedEvents();
+    QApplication::sendPostedEvents();
 
     if ( qt_preselect_handler ) {
 	QVFuncList::Iterator end = qt_preselect_handler->end();
@@ -881,24 +843,84 @@ bool QApplication::processNextEvent( bool  )
     if ( nsel == -1 ) {
 	if ( errno == EINTR || errno == EAGAIN ) {
 	    errno = 0;
-#if defined(QT_THREAD_SUPPORT)
-	    qApp->unlock( FALSE );
-#endif
-	    return (nevents > 0);
-	} else {
-	    ; // select error
-	}
+	} 
     } else if ( nsel > 0 && sn_highest >= 0 ) {
-	nevents += sn_activate();
+	sn_activate();
     }
 #else
 //#warning "need to implement sockets on mac9"
+#endif
+}
+
+bool QApplication::processNextEvent( bool canWait )
+{
+    int	   nevents = 0;
+
+#if defined(QT_THREAD_SUPPORT)
+    qApp->lock();
+#endif
+
+    if(qt_is_gui_used) {
+	sendPostedEvents();
+
+	/* this gives QD a chance to flush buffers, I don't like doing it! FIXME!! */
+	EventRecord ev;
+	EventAvail(everyEvent, &ev);
+
+	if(qt_replay_event) {	//ick
+	    EventRef ev = qt_replay_event;
+	    qt_replay_event = NULL;
+	    SendEventToApplication(ev);
+	    ReleaseEvent(ev);
+	}
+
+	EventRef event;
+	OSStatus ret;
+	//canWait = FALSE;
+	do {
+#ifdef Q_WS_MAC9
+#define QMAC_EVENT_NOWAIT 0.01
+#else
+#define QMAC_EVENT_NOWAIT kEventDurationNoWait
+#endif
+	    //try to send null timers..
+	    activateNullTimers();
+
+#ifdef QMAC_CAN_WAIT_FOREVER
+	    ret = ReceiveNextEvent( 0, 0, canWait ? kEventDurationForever : QMAC_EVENT_NOWAIT, 
+				    TRUE, &event );
+#else
+	    ret = ReceiveNextEvent( 0, 0, QMAC_EVENT_NOWAIT, TRUE, &event );
+#endif
+#undef QMAC_EVENT_WAIT
+
+	    if(ret == eventLoopTimedOutErr || ret == eventLoopQuitErr)
+		break;
+
+	    ret = SendEventToApplication(event);
+	    ReleaseEvent(event);
+	    if(ret != noErr)
+		break;
+	    nevents++;
+	} while(1);
+	sendPostedEvents();
+    }
+
+    if( quit_now || app_exit_loop ) {
+#if defined(QT_THREAD_SUPPORT)
+	qApp->unlock( FALSE );
+#endif
+	return FALSE;
+    }
+
+#ifndef QMAC_CAN_WAIT_FOREVER
+    qt_idle_timer_callbk(NULL, this);
 #endif
 
 #if defined(QT_THREAD_SUPPORT)
     qApp->unlock( FALSE );
 #endif
-    return (nevents > 0);
+    return nevents > 0;
 }
 
 /* key maps */
@@ -1431,7 +1453,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	case kEventMouseDown:
 	    if(button == QMouseEvent::LeftButton && !mac_trap_context) {
 		remove_context_timer = FALSE;
-		InstallEventLoopTimer(GetMainEventLoop(), .250, 0, 
+		InstallEventLoopTimer(GetMainEventLoop(), 1.0, 0, 
 				      NewEventLoopTimerUPP(qt_trap_context_mouse), app, 
 				      &mac_trap_context);
 	    }
