@@ -1551,6 +1551,38 @@ static void ins_text_bitmap( const QString &key, QBitmap *bm )
 #endif
 #endif // QT_NO_TRANSFORMATIONS
 
+void qt_draw_transformed_rect( QPainter *p,  int x, int y, int w,  int h, bool fill )
+{
+    QPointArray points(5);
+    int xp = x,  yp = y;
+    p->map( xp, yp, &xp, &yp );
+    points[0] = QPoint( xp,  yp );
+    xp = x + w; yp = y;
+    p->map( xp, yp, &xp, &yp );
+    points[1] = QPoint( xp,  yp );
+    xp = x + w; yp = y + h;
+    p->map( xp, yp, &xp, &yp );
+    points[2] = QPoint( xp,  yp );
+    xp = x; yp = y + h;
+    p->map( xp, yp, &xp, &yp );
+    points[3] = QPoint( xp,  yp );
+    points[4] = points[0];
+
+    if ( fill )
+	p->gfx->drawPolygon(points, FALSE, 0, 4);
+    else
+	p->gfx->drawPolyline(points,0, 5);
+}
+
+void qt_draw_background( QPainter *p,
+			 int x, int y, int w,  int h )
+{
+    p->gfx->setPen( QPen::NoPen );
+    p->gfx->setBrush( QBrush(p->backgroundColor()) );
+    qt_draw_transformed_rect( p, x, y, w, h, TRUE);
+    p->gfx->setBrush( p->cbrush );
+    p->gfx->setPen( p->cpen );
+}
 
 void QPainter::drawText( int x, int y, const QString &str, int len,
 			 QPainter::TextDirection dir )
@@ -1649,12 +1681,8 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len,
     if ( cfont.d->overline ) textFlags |= Qt::Overline;
     if ( cfont.d->strikeOut ) textFlags |= Qt::StrikeOut;
 
-    if ( bg_mode == OpaqueMode ) {		// opaque: fill background
-	// ######### transform background
-	gfx->setBrush( QBrush(backgroundColor()) );
-	gfx->fillRect( x, y-ascent, right-left, ascent+descent );
-	gfx->setBrush( cbrush );
-    }
+    if ( bg_mode == OpaqueMode )
+	qt_draw_background( this, x, y-ascent, right-left, ascent+descent);
 
     for ( int i = start; i < end; i++ ) {
 	QTextItem ti;
