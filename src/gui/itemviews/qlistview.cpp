@@ -580,13 +580,14 @@ void QListView::resizeContents(int width, int height)
 /*!
   \reimp
 */
-void QListView::rowsInserted(const QModelIndex &parent, int, int)
+void QListView::rowsInserted(const QModelIndex &parent, int start, int end)
 {
     // FIXME: if the parent is above root() in the tree, nothing will happen
     if (parent == root() && isVisible())
         doItemsLayout();
     else
         d->doDelayedItemsLayout();
+    QAbstractItemView::rowsInserted(parent, start, end);
 }
 
 /*!
@@ -633,8 +634,8 @@ void QListView::timerEvent(QTimerEvent *e)
 {
     if (e->timerId() == d->layoutTimer) {
         killTimer(d->layoutTimer);
-        d->layoutTimer = 0;
-        doItemsLayout();
+        doItemsLayout(); // showing the scrollbars will trigger a resize event,
+        d->layoutTimer = 0; // so let the timer id be non-zero untill after the layout is done
     }
     QAbstractItemView::timerEvent(e);
 }
