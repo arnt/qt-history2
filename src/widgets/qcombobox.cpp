@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#31 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#32 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -19,7 +19,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#31 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#32 $")
 
 /*!
   \class QComboBox qcombo.h
@@ -359,7 +359,6 @@ void QComboBox::setCurrentItem( int index )
     if ( index == d->current )
 	return;
     if ( !checkIndex( "setCurrentItem", count(), index ) ) {
-	debug( "obj = %s", name() );
 	return;
     }
     d->current = index;
