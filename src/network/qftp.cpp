@@ -1814,7 +1814,7 @@ QFtp::Command QFtp::currentCommand() const
 
     \sa get() put()
 */
-QIODevice* QFtp::currentDevice()
+QIODevice* QFtp::currentDevice() const
 {
     QFtpPrivate *d = ::d( this );
     QFtpCommand *c = d->pending.getFirst();

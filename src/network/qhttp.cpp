@@ -1520,7 +1520,7 @@ QHttpRequestHeader QHttp::currentRequest() const
 
     \sa currentDestinationDevice() post() request()
 */
-QIODevice* QHttp::currentSourceDevice()
+QIODevice* QHttp::currentSourceDevice() const
 {
     QHttpRequest *r = d->pending.getFirst();
     if ( !r )
@@ -1538,7 +1538,7 @@ QIODevice* QHttp::currentSourceDevice()
 
     \sa currentDestinationDevice() get() post() request()
 */
-QIODevice* QHttp::currentDestinationDevice()
+QIODevice* QHttp::currentDestinationDevice() const
 {
     QHttpRequest *r = d->pending.getFirst();
     if ( !r )
