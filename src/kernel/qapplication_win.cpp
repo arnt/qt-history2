@@ -3813,14 +3813,13 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
     globalPos.rx() = LOWORD ( msg.lParam );
     globalPos.ry() = HIWORD ( msg.lParam );
 
-    QWidget* w = QApplication::widgetAt( globalPos, TRUE );
-    if ( !w)
-	w = this;
 
-    int ret = 0;
-    MSG msg2 = msg;
-    if ( !qt_try_modal( w, &msg2, ret ) )
-	w = qApp->focusWidget();
+    // if there is a widget under the mouse and it is not shadowed 
+    // by modality, we send the event to it first
+    int ret = 0;    
+    QWidget* w = QApplication::widgetAt( globalPos, TRUE );
+    if ( !w || !qt_try_modal( w, (MSG*)&msg, ret ) )
+	w = this; 
 
     while ( w->focusProxy() )
 	w = w->focusProxy();
