@@ -732,6 +732,8 @@ bool QClipboard::event( QEvent *e )
 		    XChangeProperty ( dpy, req->requestor, property, xa_targets, 32,
 				      PropModeReplace, (uchar *) data.data(), n );
 		    evt.xselection.property = property;
+		    if ( multi )
+			delete multi;
 		} else {
 		    bool already_done = FALSE;
 		    if ( target == XA_STRING) {
