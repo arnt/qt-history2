@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qarray.doc,v 1.1 1995/12/15 16:44:14 hanord Exp $
+** $Id: qarray.doc,v 1.2 1995/12/15 16:54:29 hanord Exp $
 **
 ** QArray class documentation
 **
@@ -137,8 +137,8 @@
   Constructs an array that is a shallow copy of \e a.
  ----------------------------------------------------------------------------*/
 
-/*----------------------------------------------------------------------------
-  \fn QArray::~QArray()
-  Dereferences the array data and deletes it if this was the last
-  reference.
- ----------------------------------------------------------------------------*/
+// 
+//  \fn QArray::~QArray()
+//  Dereferences the array data and deletes it if this was the last
+//  reference.
+// 
