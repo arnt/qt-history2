@@ -1,11 +1,13 @@
 <!DOCTYPE UI><UI version="3.0" stdsetdef="1">
 <class>InspectorBase</class>
-<include location="local" impldecl="in implementation">qregexp.h</include>
-<include location="local" impldecl="in implementation">qcomponentinterface.h</include>
-<include location="local" impldecl="in implementation">qlibrary.h</include>
-<include location="local" impldecl="in implementation">qfiledialog.h</include>
-<include location="local" impldecl="in implementation">quuiddefs.h</include>
+<include location="local" impldecl="in implementation">qsettings.h</include>
 <include location="local" impldecl="in implementation">cppparser.h</include>
+<include location="local" impldecl="in implementation">quuiddefs.h</include>
+<include location="local" impldecl="in implementation">qfiledialog.h</include>
+<include location="local" impldecl="in implementation">qlibrary.h</include>
+<include location="local" impldecl="in implementation">qcomponentinterface.h</include>
+<include location="local" impldecl="in implementation">qregexp.h</include>
+<variable>QStringList headerFiles</variable>
 <widget class="QMainWindow">
     <property name="name">
         <cstring>InspectorBase</cstring>
@@ -14,8 +16,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>716</width>
-            <height>627</height>
+            <width>704</width>
+            <height>608</height>
         </rect>
     </property>
     <property name="caption">
@@ -348,14 +350,23 @@
     <slot access="protected" language="C++">inameChanged( const QString &amp;name )</slot>
     <slot access="protected" language="C++">interfaceSelected( QListViewItem *item )</slot>
     <slot access="protected" language="C++">iuuidChanged( const QString &amp;uuid )</slot>
+    <slot access="public" language="C++">parseHeader( const QString &amp;file )</slot>
     <slot access="public" language="C++">testInterfaces( QListViewItem *fileItem )</slot>
 </connections>
 <functions>
     <function name="init()" >{
+    QSettings config;
+    bool ok;
+    QStringList files = config.readListEntry( "/Trolltech/Inspector/Headers", ';', &amp;ok );
+    if ( ok ) {
+	for ( QStringList::Iterator file = files.begin(); file != files.end(); ++file )
+	    parseHeader( *file );
+    }
     interfaceList-&gt;setCurrentItem( 0 );    
 }</function>
     <function name="destroy()" >{
-    
+    QSettings config;
+    config.writeEntry( "/Trolltech/Inspector/Headers", headerFiles, ';' );    
 }</function>
     <function name="fileExit()" >{
     close();
@@ -397,27 +408,7 @@
     
     QStringList::Iterator file = files.begin();
     while ( file != files.end() ) {
-	QMap&lt;QString, Interface&gt; map;
-	parseHeaderFile( *file, &amp;map );
-	
-	QMap&lt;QString, Interface&gt;::Iterator it = map.begin();
-	while ( it != map.end() ) {
-	    Interface iface = *it;
-	    ++it;
-	    
-	    QListViewItem *item = new QListViewItem( interfaceList, iface.name(), iface.uuid() );
-	    QStringList functions = iface.functionList();
-	    QStringList::Iterator function = functions.begin();
-	    while ( function != functions.end() ) {
-		QString f = *function;
-		f.replace( QRegExp( "\\\t" ), " " );
-		QListViewItem *fitem = new QListViewItem( item, f );
-		fitem-&gt;setSelectable( FALSE );
-		++function;
-	    }
-	    interfaceList-&gt;setCurrentItem( item );
-	    interfaceSelected( item );
-	}
+	parseHeader( *file );
 	++file;
     }
 }</function>
@@ -461,6 +452,32 @@
     if ( item )
 	item-&gt;setText( 1, uuid );
 }</function>
+    <function name="parseHeader(const QString&amp;)" >{
+    if ( !QFile::exists( file ) )
+	return;
+    
+    headerFiles &lt;&lt; file; 
+    QMap&lt;QString, Interface&gt; map; 
+    parseHeaderFile( file, &amp;map ); 
+    QMap&lt;QString, Interface&gt;::Iterator it = map.begin(); 
+    while ( it != map.end() ) { 
+	Interface iface = *it; 
+	++it; 
+	
+	QListViewItem *item = new QListViewItem( interfaceList, iface.name(), iface.uuid() ); 
+	QStringList functions = iface.functionList(); 
+	QStringList::Iterator function = functions.begin(); 
+	while ( function != functions.end() ) { 
+	    QString f = *function; 
+	    f.replace( QRegExp( "\\\t" ), " " ); 
+	    QListViewItem *fitem = new QListViewItem( item, f ); 
+	    fitem-&gt;setSelectable( FALSE ); 
+	    ++function; 
+	} 
+	interfaceList-&gt;setCurrentItem( item ); 
+	interfaceSelected( item ); 
+    }    
+}</function>
     <function name="testInterfaces(QListViewItem*)" >{
     if ( !fileItem )
 	return;
@@ -473,7 +490,7 @@
 	while ( iidIt.current() ) { 
 	    QListViewItem *iidItem = iidIt.current(); 
 	    ++iidIt; 
-	    QUnknownInterface *iface = library-&gt;queryInterface( QUuid::fromString( iidItem-&gt;text( 1 ) ) ); 
+	    QUnknownInterface *iface = library-&gt;queryInterface( QUuid( iidItem-&gt;text( 1 ) ) ); 
 	    if ( iface ) { 
 		hasInterface = TRUE; 
 		iface-&gt;release(); 
