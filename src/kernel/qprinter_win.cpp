@@ -862,7 +862,13 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
         if ( ok && StartPage(hdc) == SP_ERROR )
             ok = FALSE;
         if ( ok && fullPage() && !viewOffsetDone ) {
-            QSize margs = margins();
+	    if ( qWinVersion() & Qt::WV_DOS_based ) {
+		// StartPage destroys DC on Win95/98
+		SetMapMode(hdc, MM_ANISOTROPIC);
+		SetWindowExtEx(hdc, res, res, NULL);
+		SetViewportExtEx(hdc, GetDeviceCaps(hdc, LOGPIXELSX), GetDeviceCaps(hdc, LOGPIXELSY), NULL);
+            }
+	    QSize margs = margins();
 
             OffsetViewportOrgEx( hdc, -margs.width(), -margs.height(), 0 );
             //### CS097 viewOffsetDone = TRUE;
