@@ -13,10 +13,11 @@
 #include <qobject.h>
 #include <qprocess.h>
 #include <qvbox.h>
-#include <qtextview.h>
+#include <qtextedit.h>
 #include <qpushbutton.h>
 #include <qapplication.h>
 #include <qmessagebox.h>
+#include <qscrollbar.h>
 
 #include <stdlib.h>
 
@@ -34,14 +35,15 @@ public slots:
 
 private:
     QProcess *proc;
-    QTextView *output;
+    QTextEdit *output;
     QPushButton *quitButton;
 };
 
 UicManager::UicManager()
 {
     // Layout
-    output = new QTextView( this );
+    output = new QTextEdit( this );
+    output->setReadOnly(true);
     quitButton = new QPushButton( tr("Quit"), this );
     connect( quitButton, SIGNAL(clicked()),
 	    qApp, SLOT(quit()) );
@@ -82,7 +84,8 @@ void UicManager::readFromStdout()
 
 void UicManager::scrollToTop()
 {
-    output->setContentsPos( 0, 0 );
+    output->verticalScrollBar()->setValue(0);
+    output->horizontalScrollBar()->setValue(0);
 }
 
 int main( int argc, char **argv )
