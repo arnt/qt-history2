@@ -60,7 +60,6 @@ public:
 	ps_stack = 0;
 	wm_stack = 0;
 	gc = gc_brush = 0;
-	pdev = 0;
 	dpy  = 0;
 	// 	    txop = txinv = 0;
 	penRef = brushRef = 0;
@@ -96,7 +95,6 @@ public:
     void *ps_stack;
     void *wm_stack;
     uint clip_serial;
-    QPaintDevice *pdev; // tmp - Q4PaintDevice
     QX11Info *xinfo;
 };
 

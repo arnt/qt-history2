@@ -43,7 +43,6 @@ public:
 	offx = offy = 0;
     }
 
-    QPaintDevice *pdev;
     struct {
 	QPen pen;
 	QBrush brush;
@@ -80,7 +79,6 @@ public:
     QCoreGraphicsPaintEnginePrivate()
     {
 	hd = 0;
-	pdev = 0;
 	unclipped = 0;
 	offx = offy = 0;
     }
@@ -97,7 +95,6 @@ public:
 
     CGContextRef hd;
     uint unclipped : 1;
-    QPaintDevice *pdev;
 };
 
 #endif /* __QPAINTENGINE_MAC_P_H__ */

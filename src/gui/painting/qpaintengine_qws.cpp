@@ -89,9 +89,8 @@ class QWSPaintEnginePrivate : public QPaintEnginePrivate
 {
     Q_DECLARE_PUBLIC(QWSPaintEngine);
 public:
-    QWSPaintEnginePrivate() :gfx(0), pdev(0) {}
+    QWSPaintEnginePrivate() :gfx(0) {}
     QGfx *gfx;
-    QPaintDevice *pdev;
 };
 
 #define d d_func()
