@@ -1,7 +1,7 @@
 #ifndef QSQLRESULT_H
 #define QSQLRESULT_H
 
-#if defined(QT_SQL_SUPPORT)
+//#if !defined(Q_NO_SQL)
 
 #include <qstring.h>
 #include <qvariant.h>
@@ -50,5 +50,5 @@ private:
     QSqlResult &operator=( const QSqlResult & );
 };
 
-#endif
+//#endif
 #endif

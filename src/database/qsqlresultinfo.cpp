@@ -2,8 +2,8 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-/*!
-  \class QSqlResultInfo qsql_base.h
+/*! \class QSqlResultInfo qsqlresultinfo.h
+  
   \brief QSqlResultInfo provides result-specific SQL information
 
   \module database

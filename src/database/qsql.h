@@ -1,7 +1,7 @@
 #ifndef QSQL_H
 #define QSQL_H
 
-#if defined(QT_SQL_SUPPORT)
+//#if !defined(Q_NO_SQL)
 
 #include <qstring.h>
 #include <qvaluelist.h>
@@ -70,5 +70,5 @@ private:
     QSqlResultShared* d;
 };
 
-#endif
+//#endif
 #endif

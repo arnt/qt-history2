@@ -1,7 +1,7 @@
 #ifndef QSQLDRIVER_H
 #define QSQLDRIVER_H
 
-#if defined(QT_SQL_SUPPORT)
+//#if !defined(Q_NO_SQL)
 
 #include <qobject.h>
 #include <qstring.h>
@@ -47,5 +47,5 @@ private:
 #endif
 };
 
-#endif
+//#endif
 #endif

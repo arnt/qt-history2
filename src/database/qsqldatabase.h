@@ -1,7 +1,7 @@
 #ifndef QSQLDATABASE_H
 #define QSQLDATABASE_H
 
-#if defined(QT_SQL_SUPPORT)
+//#if !defined(Q_NO_SQL)
 
 #include <qobject.h>
 #include <qstring.h>
@@ -78,5 +78,5 @@ private:
     QSqlDatabasePrivate* d;
 };
 
-#endif
+//#endif
 #endif

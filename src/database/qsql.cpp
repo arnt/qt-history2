@@ -8,8 +8,8 @@ QSqlResultShared::~QSqlResultShared()
 	delete sqlResult;
 }
 
-/*!
-    \class QSql qsql.h
+/*! \class QSql qsql.h
+  
     \brief Class used for executing and manipulating SQL queries.
 
     \module database

@@ -1,7 +1,7 @@
 #ifndef QSQLRESULTINFO_H
 #define QSQLRESULTINFO_H
 
-#if defined(QT_SQL_SUPPORT)
+//#if !defined(Q_NO_SQL)
 
 #include <qstring.h>
 #include <qvaluelist.h>
@@ -45,5 +45,5 @@ private:
     QSqlFieldInfoList fieldList;
 };
 
-#endif
+//#endif
 #endif
