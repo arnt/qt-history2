@@ -56,14 +56,14 @@ void QTableViewPrivate::updateVerticalScrollbar()
     }
 
     // set page step size
-    q->verticalScrollBar()->setPageStep(height);
+    q->verticalScrollBar()->setPageStep(height); // FIXME: wrong
 
     // set the scroller range
     int y = height;
-    int r = count;
+    int r = verticalHeader->logicalIndexAt(height) + 1;
+    int max = (count - r) * factor;
     while (y > 0 && r > 0)
         y -= verticalHeader->sectionSize(--r);
-    int max = r * factor;
 
     if (y < 0) { // if the last item starts above the viewport, we have to backtrack
         int backtracking = factor * -y;
@@ -88,14 +88,14 @@ void QTableViewPrivate::updateHorizontalScrollbar()
     }
 
     // set page step size
-    q->horizontalScrollBar()->setPageStep(width);
+    q->horizontalScrollBar()->setPageStep(width); // FIXME: wrong
 
     // set the scroller range
     int x = width;
-    int c = count;
+    int c = horizontalHeader->logicalIndexAt(width) + 1;
+    int max = (count - c) * factor;
     while (x > 0 && c > 0)
         x -= horizontalHeader->sectionSize(--c);
-    int max = c * factor;
 
     if (x < 0) { // if the last item starts left of the viewport, we have to backtrack
         int backtracking = factor * -x;

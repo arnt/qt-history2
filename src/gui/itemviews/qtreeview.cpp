@@ -1372,11 +1372,11 @@ void QTreeViewPrivate::updateVerticalScrollbar()
     }
 
     // set page step size
-    q->verticalScrollBar()->setPageStep(height);
+    q->verticalScrollBar()->setPageStep(height); // FIXME: wrong
 
     // set the scroller range
     int y = height;
-    int i = itemCount;
+    int i = itemCount; // FIXME: wrong
     while (y > 0 && i > 0)
         y -= this->height(--i);
     int max = i * factor;
@@ -1404,14 +1404,14 @@ void  QTreeViewPrivate::updateHorizontalScrollbar()
     }
 
     // set page step size
-    q->horizontalScrollBar()->setPageStep(width);
+    q->horizontalScrollBar()->setPageStep(width); // FIXME: wrong
 
     // set the scroller range
     int x = width;
-    int c = count;
+    int c = header->logicalIndexAt(width) + 1;
+    int max = (count - c) * factor;
     while (x > 0 && c > 0)
         x -= header->sectionSize(--c);
-    int max = c * factor;
 
     if (x < 0) { // if the first item starts left of the viewport, we have to backtrack
         int backtracking = factor * -x;
