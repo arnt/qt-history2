@@ -855,7 +855,7 @@ static void cast(const QCoreVariant::Private *d, QCoreVariant::Type t, void *res
         break;
 
     default:
-        Q_ASSERT(0);
+        ; // do nothing
     }
 }
 
@@ -1775,7 +1775,7 @@ uint QCoreVariant::toUInt(bool *ok) const
     bool c = canCast(UInt);
     if (ok)
         *ok = c;
-    uint res = 0;
+    uint res = 0u;
     if (c)
         handler->cast(&d, UInt, &res, ok);
 
