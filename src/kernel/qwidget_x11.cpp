@@ -1493,15 +1493,20 @@ void QWidget::lower()
 
 /*!
   Places the widget under \a w in the parent widget's stack.
-  
+
   To make this work, the widget itself and \a w have to be siblings.
 
   \sa raise(), lower()
 */
 void QWidget::stackUnder( QWidget* w)
 {
-    if ( !w || isTopLevel() || parentWidget() != w->parentWidget() )
+    QWidget *p = parentWidget();
+    if ( !w || isTopLevel() || p != w->parentWidget() || this == w )
 	return;
+    if ( p && p->childObjects && p->childObjects->findRef(w) >= 0 && p->childObjects->findRef(this) >= 0 ) {
+	p->childObjects->take();
+	p->childObjects->insert( p->childObjects->findRef(w), this );
+    }
     Window stack[2];
     stack[0] = w->winId();;
     stack[1] = winId();
