@@ -360,8 +360,13 @@ QLineEdit::QLineEdit( const QString& text, QWidget* parent, const char* name )
 QLineEdit::QLineEdit( const QString& text, const QString &inputMask, QWidget* parent, const char* name )
     : QFrame( parent, name), d(new QLineEditPrivate( this ))
 {
-    d->init( text );
     d->parseInputMask( inputMask );
+    if ( d->maskData ) {
+	QString ms = d->maskString( 0, text );
+	d->init( ms + d->clearString( ms.length(), d->maxLength - ms.length() ) );
+    } else {
+	d->init( text );
+    }
 }
 
 /*!
@@ -2374,7 +2379,8 @@ void QLineEditPrivate::parseInputMask( const QString &maskFields )
 	    maxLength++;
 	    continue;
 	}
-	if ( c != '\\' && c != '<' && c != '>' &&
+	if ( c != '\\' && c != '!' &&
+	     c != '<' && c != '>' &&
 	     c != '{' && c != '}' &&
 	     c != '[' && c != ']' )
 	    maxLength++;
@@ -2385,7 +2391,6 @@ void QLineEditPrivate::parseInputMask( const QString &maskFields )
 
     MaskInputData::Casemode m = MaskInputData::NoCaseMode;
     c = 0;
-    QChar p = 0;
     bool s;
     bool escape = FALSE;
     int index = 0;
@@ -2398,28 +2403,30 @@ void QLineEditPrivate::parseInputMask( const QString &maskFields )
 	    maskData[ index ].caseMode = m;
 	    index++;
 	    escape = FALSE;
-	} else if ( c == '<' || c == '>' ) {
+	} else if ( c == '<' || c == '>' || c == '!') {
 	    switch ( c ) {
 	    case '<':
 		m = MaskInputData::Lower;
 		break;
 	    case '>':
-		if ( p == '<' )
-		    m = MaskInputData::NoCaseMode;
-		else
-		    m = MaskInputData::Upper;
+		m = MaskInputData::Upper;
+		break;
+	    case '!':
+		m = MaskInputData::NoCaseMode;
 		break;
 	    }
 	} else if ( c != '{' && c != '}' && c != '[' && c != ']' ) {
 	    switch ( c ) {
-	    case 'L':
-	    case 'l':
 	    case 'A':
 	    case 'a':
-	    case 'C':
-	    case 'c':
-	    case '0':
+	    case 'N':
+	    case 'n':
+	    case 'X':
+	    case 'x':
 	    case '9':
+	    case '0':
+	    case 'D':
+	    case 'd':
 	    case '#':
 		s = FALSE;
 		break;
@@ -2437,7 +2444,6 @@ void QLineEditPrivate::parseInputMask( const QString &maskFields )
 		index++;
 	    }
 	}
-	p = c;
     }
     q->setText( clearString( 0, maxLength ) );
 }
@@ -2447,36 +2453,44 @@ void QLineEditPrivate::parseInputMask( const QString &maskFields )
 bool QLineEditPrivate::isValidInput( QChar key, QChar mask ) const
 {
     switch ( mask ) {
-    case 'L':
+    case 'A':
 	if ( key.isLetter() && key != blank )
 	    return TRUE;
 	break;
-    case 'l':
+    case 'a':
 	if ( key.isLetter() || key == blank )
 	    return TRUE;
 	break;
-    case '0':
-	if ( key.isNumber() && key != blank )
-	    return TRUE;
-	break;
-    case '9':
-	if ( key.isNumber() || key == blank )
-	    return TRUE;
-	break;
-    case 'A':
+    case 'N':
 	if ( key.isLetterOrNumber() && key != blank )
 	    return TRUE;
 	break;
-    case 'a':
+    case 'n':
 	if ( key.isLetterOrNumber() || key == blank )
 	    return TRUE;
 	break;
-    case 'C':
+    case 'X':
 	if ( key.isPrint() && key != blank )
 	    return TRUE;
 	break;
-    case 'c':
+    case 'x':
 	if ( key.isPrint() || key == blank )
+	    return TRUE;
+	break;
+    case '9':
+	if ( key.isNumber() && key != blank )
+	    return TRUE;
+	break;
+    case '0':
+	if ( key.isNumber() || key == blank )
+	    return TRUE;
+	break;
+    case 'D':
+	if ( key.isNumber() && key.digitValue() > 0 && key != blank )
+	    return TRUE;
+	break;
+    case 'd':
+	if ( (key.isNumber() && key.digitValue() > 0) || key == blank )
 	    return TRUE;
 	break;
     case '#':
