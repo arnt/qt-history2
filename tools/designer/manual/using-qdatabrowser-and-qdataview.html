@@ -246,7 +246,7 @@ CLASS="LITERAL"
 		cost less than 50 (of some currency, e.g. dollars), we
 		would enter <TT
 CLASS="LITERAL"
->price &#60; 50</TT
+>price &lt; 50</TT
 >. We will leave the
 		filter empty. The Available Fields list box lists all
 		the fields. The Sort By list box lists the fields that
@@ -390,7 +390,7 @@ CLASS="CLASSNAME"
 ><UL
 ><LI
 ><P
->&#13;		<TT
+>		<TT
 CLASS="FUNCTION"
 >insert()</TT
 >, <TT
@@ -404,7 +404,7 @@ CLASS="FUNCTION"
 ></LI
 ><LI
 ><P
->&#13;		<TT
+>		<TT
 CLASS="FUNCTION"
 >first()</TT
 >, <TT
@@ -422,7 +422,7 @@ CLASS="FUNCTION"
 ></LI
 ><LI
 ><P
->&#13;		<TT
+>		<TT
 CLASS="FUNCTION"
 >refresh()</TT
 > to refresh the cursor from the database;
@@ -430,7 +430,7 @@ CLASS="FUNCTION"
 ></LI
 ><LI
 ><P
->&#13;		<TT
+>		<TT
 CLASS="FUNCTION"
 >readFields()</TT
 > to read data from the cursor's edit
@@ -443,7 +443,7 @@ CLASS="FUNCTION"
 ></LI
 ><LI
 ><P
->&#13;		<TT
+>		<TT
 CLASS="FUNCTION"
 >clearValues()</TT
 > to clear the form's values.
@@ -469,7 +469,7 @@ CLASS="CLASSNAME"
 ><UL
 ><LI
 ><P
->&#13;		<TT
+>		<TT
 CLASS="LITERAL"
 >INSERT</TT
 > is initiated by pressing the Insert button. The
@@ -511,7 +511,7 @@ CLASS="LITERAL"
 ></LI
 ><LI
 ><P
->&#13;		<TT
+>		<TT
 CLASS="LITERAL"
 >UPDATE</TT
 > is automatically initiated whenever the user
@@ -539,7 +539,7 @@ CLASS="LITERAL"
 ></LI
 ><LI
 ><P
->&#13;		<TT
+>		<TT
 CLASS="LITERAL"
 >DELETE</TT
 > is achieved by pressing the Delete button.
@@ -900,7 +900,7 @@ CLASS="EMPHASIS"
 TYPE="1"
 ><LI
 ><P
->&#13;	First we'll add the new widgets. Click the BookDataBrowser and
+>	First we'll add the new widgets. Click the BookDataBrowser and
 	click the <SPAN
 CLASS="GUIBUTTON"
 >Break Layout</SPAN
@@ -923,7 +923,7 @@ CLASS="GUIBUTTON"
 ></LI
 ><LI
 ><P
->&#13;	Now we'll lay out the dialog. Shift+Click the Author label and
+>	Now we'll lay out the dialog. Shift+Click the Author label and
 	the ComboBox then click the <SPAN
 CLASS="GUIBUTTON"
 >Lay Out Horizontally</SPAN
@@ -937,23 +937,22 @@ CLASS="GUIBUTTON"
 ></LI
 ></OL
 >
-
 	</P
 ><P
->&#13;	We need to write some code so that the ComboBox will be
+>	We need to write some code so that the ComboBox will be
 	populated with author names and scroll to the current book's
 	author. We also need to ensure that we put the author's id into
 	the book table's authorid field when a book record is inserted
 	or updated. We'll ensure the code is executed at the right time
 	by putting it in slots and connecting signals to our slots.
-	</P
-><P
+
+	<P
 ></P
 ><OL
 TYPE="1"
 ><LI
 ><P
->&#13;	Create two new slots called <TT
+>	Create two new slots called <TT
 CLASS="FUNCTION"
 >beforeUpdateBook(QSqlRecord
 	*buffer)</TT
@@ -974,7 +973,7 @@ CLASS="GUIBUTTON"
 ></LI
 ><LI
 ><P
->&#13;	When the user navigates through the dialog, each time they move
+>	When the user navigates through the dialog, each time they move
 	to a new record, a <TT
 CLASS="FUNCTION"
 >primeUpdate()</TT
@@ -996,7 +995,7 @@ CLASS="FUNCTION"
 	populated.
 	</P
 ><P
->&#13;	Click the BookDataBrowser and drag the mouse to the form;
+>	Click the BookDataBrowser and drag the mouse to the form;
 	release the mouse and the Edit Connections dialog will appear.
 	Connect the <TT
 CLASS="FUNCTION"
@@ -1024,7 +1023,7 @@ CLASS="FUNCTION"
 ></LI
 ><LI
 ><P
->&#13;	All that remains is to write the underlying code. All the
+>	All that remains is to write the underlying code. All the
 	code snippets are taken from
 	<TT
 CLASS="FILENAME"
@@ -1036,7 +1035,7 @@ CLASS="FILENAME"
 TYPE="1"
 ><LI
 ><P
->&#13;	    We start with
+>	    We start with
 	    the <TT
 CLASS="FUNCTION"
 >init()</TT
@@ -1070,7 +1069,7 @@ CLASS="EMPHASIS"
 ></LI
 ><LI
 ><P
->&#13;	    We next write the code which will be executed just before a
+>	    We next write the code which will be executed just before a
 	    record is updated (or inserted) in the database.
 <TABLE
 BORDER="0"
@@ -1103,7 +1102,7 @@ CLASS="EMPHASIS"
 ></LI
 ><LI
 ><P
->&#13;	    As the user navigates through the records we ensure
+>	    As the user navigates through the records we ensure
 	    that the ComboBox reflects the current author.  
 <TABLE
 BORDER="0"
@@ -1158,8 +1157,10 @@ CLASS="EMPHASIS"
 	</P
 ></LI
 ></OL
+>
+    </P
 ><P
->&#13;    If the author name has changed or been deleted the query will
+>    If the author name has changed or been deleted the query will
     fail and no author id will be inserted into the buffer causing the <TT
 CLASS="LITERAL"
 >INSERT</TT
@@ -1209,7 +1210,7 @@ CLASS="GUIMENUITEM"
 ></LI
 ><LI
 ><P
->&#13;	    We now record the author id's in the <TT
+>	    We now record the author id's in the <TT
 CLASS="FUNCTION"
 >init()</TT
 > function.
@@ -1246,7 +1247,7 @@ CLASS="CLASSNAME"
 ></LI
 ><LI
 ><P
->&#13;	    Instead of looking up the author's id in the database we
+>	    Instead of looking up the author's id in the database we
 	    look it up in the <TT
 CLASS="CLASSNAME"
 >QMap</TT
@@ -1276,7 +1277,7 @@ CLASS="EMPHASIS"
 ></LI
 ><LI
 ><P
->&#13;	    We use a single function for storing author id's and
+>	    We use a single function for storing author id's and
 	    returning them so that we can use a static data structure.
 <TABLE
 BORDER="0"
@@ -1312,7 +1313,7 @@ CLASS="CLASSNAME"
 >
     </P
 ><P
->&#13;Another approach which is especially useful if the same foreign key
+>Another approach which is especially useful if the same foreign key
 lookups are required in different parts of the application is to
 subclass a cursor and use this for our lookups. This is described in the
 <A
@@ -1324,7 +1325,7 @@ documentation</A
 <TT
 CLASS="CLASSNAME"
 >QSqlCursor</TT
->.&#13;</P
+>.</P
 ><P
 >The 'book' example demonstrates the basic techniques needed for SQL
 programming with Qt. Additional information on the Qt SQL classes,

@@ -1193,17 +1193,17 @@ CLASS="EMPHASIS"
 >QUnknownInterface</I
 > **iface )
 {
-    if ( uuid == IID_QUnknownInterface )
+    if ( uuid == IID_QUnknown )
         *iface = (<I
 CLASS="EMPHASIS"
 >QUnknownInterface</I
 >*)this;
-    else if ( uuid == IID_QFeatureListInterface )
+    else if ( uuid == IID_QFeatureList )
         *iface = (<I
 CLASS="EMPHASIS"
 >QFeatureListInterface</I
 >*)this;
-    else if ( uuid == IID_WidgetInterface )
+    else if ( uuid == IID_Widget )
         *iface = (WidgetInterface*)this;
 
     if ( *iface )

@@ -15,7 +15,7 @@ TITLE="Integrating Qt Designer with Visual Studio "
 HREF="integratingqtdesignerwithothertools.html"><LINK
 REL="NEXT"
 TITLE="Menus And Toolbars"
-HREF="c2639.html"></HEAD
+HREF="c2640.html"></HEAD
 ><BODY
 CLASS="SECT1"
 ><DIV
@@ -50,7 +50,7 @@ WIDTH="10%"
 ALIGN="right"
 VALIGN="bottom"
 ><A
-HREF="c2639.html"
+HREF="c2640.html"
 >Next</A
 ></TD
 ></TR
@@ -144,10 +144,10 @@ format due to differences between the two tools; these are listed below:
 ><UL
 ><LI
 ><P
->&#13;    Layout spacing and margins
+>    Layout spacing and margins
     </P
 ><P
->&#13;    If the <TT
+>    If the <TT
 CLASS="FILENAME"
 >.dlg</TT
 > file layouts use the Qt Architect defaults for
@@ -161,10 +161,10 @@ CLASS="EMPHASIS"
 ></LI
 ><LI
 ><P
->&#13;    Layout stretches and spacings
+>    Layout stretches and spacings
     </P
 ><P
->&#13;    Qt Architect gives access to more features of Qt's layout
+>    Qt Architect gives access to more features of Qt's layout
     system than <I
 CLASS="EMPHASIS"
 >Qt Designer</I
@@ -174,36 +174,36 @@ CLASS="FILENAME"
 >.dlg</TT
 > files that use these
     features, but sometimes the resizing will be far from perfect. 
-    The solution typically involves changing the
+    The solution typically involves setting the
     "sizePolicy" properties of some widgets and inserting or
     deleting spacers.
     </P
 ></LI
 ><LI
 ><P
->&#13;    Widget names and variable names
+>    Widget names and variable names
     </P
 ><P
->&#13;    Widgets in <TT
+>    Widgets in <TT
 CLASS="FILENAME"
 >.dlg</TT
 > files may have two names: a unique name used
-    within Qt Architect (see the "Name" in the "Widget" tab of the
+    within Qt Architect (the "Name" in the "Widget" tab of the
     "Widget Properties" dialog), and an optional name used in the
-    generated C++ code (see the "Variable Name" in the "Mapping" tab
-    of the "Widget Properties" dialog). <I
+    generated C++ code (the "Variable Name" in the "Mapping" tab of
+    the "Widget Properties" dialog). <I
 CLASS="EMPHASIS"
 >Qt Designer</I
-> will only
-    recognize the former which it will use as the "name" property.
+> will only recognize the
+    former which it will use as the "name" property.
     </P
 ></LI
 ><LI
 ><P
->&#13;    Mixing managed and unmanaged widgets
+>    Mixing managed and unmanaged widgets
     </P
 ><P
->&#13;    Qt Architect allows a widget to have some child widgets managed by a
+>    Qt Architect allows a widget to have some child widgets managed by a
     layout and other child widgets with fixed positions. When presented
     with a <TT
 CLASS="FILENAME"
@@ -217,10 +217,10 @@ CLASS="EMPHASIS"
 ></LI
 ><LI
 ><P
->&#13;    Pixmaps
+>    Pixmaps
     </P
 ><P
->&#13;    <I
+>    <I
 CLASS="EMPHASIS"
 >Qt Designer</I
 > ignores pixmaps specified in <TT
@@ -262,8 +262,8 @@ CLASS="EMPHASIS"
 > has been tested with Glade files up to version 0.6.0 and
 might work with later versions as well.</P
 ><P
->Although Glade does not target Qt, the layout system and the
-widget set of GTK+ are similar to that of Qt, so the filter will retain
+>Although Glade does not target Qt, the layout system and the widget
+set of GTK+ are similar to those of Qt, so the filter will retain
 most of the information in the <TT
 CLASS="FILENAME"
 >.glade</TT
@@ -279,7 +279,7 @@ as listed below:
 >    Ampersands (&amp;) in labels
     </P
 ><P
->    Qt displays an ampersand ("&amp;") when a <TT
+>    Qt displays an ampersand when a <TT
 CLASS="CLASSNAME"
 >QLabel</TT
 > has no buddy.
@@ -316,7 +316,7 @@ CLASS="CLASSNAME"
 ></LI
 ><LI
 ><P
->    Qt sometimes has no equivalent for a GTK+ or GNOME widget
+>    GTK+ or GNOME widget with no Qt equivalent
     </P
 ><P
 >    Qt has equivalents for most GTK+ widgets, but Glade also
@@ -403,7 +403,7 @@ CLASS="EMPHASIS"
 >    GNOME standard icons
     </P
 ><P
->    GNOME provides a rich set of standard icons. <I
+>    GNOME provides a large set of standard icons. <I
 CLASS="EMPHASIS"
 >Qt Designer</I
 > will
@@ -413,26 +413,29 @@ CLASS="EMPHASIS"
 ></LI
 ><LI
 ><P
->    The packer layout
+>    Packer layout
     </P
 ><P
->    GTK+ provides a class called GtkPacker that provides for
-    exotic layouts; Qt has no equivalent layout. <I
+>    GTK+ provides a class called GtkPacker that provides for exotic
+    layouts; Qt provides no <TT
+CLASS="CLASSNAME"
+>QPackerLayout</TT
+> and never will. <I
 CLASS="EMPHASIS"
 >Qt Designer</I
 >
     will treat packer layouts as if they were vertical layouts and
-    you will probably have to change them to whatever combination
-    of layouts produces the right effect.
+    you will probably have to change them to whatever combination of
+    layouts that produces the right effect.
     </P
 ></LI
 ><LI
 ><P
->    Text is sometimes justified incorrectly after conversion
+>    Incorrectly-justified text after conversion
     </P
 ><P
->    This is a known problem, but it seems to be a bug in Glade.
-    The solution is to set the "hAlign" property manually.
+>    The "hAlign" property is sometimes set wrongly, in which case you
+    have to change it manually. It is caused by a quirk in Glade.
     </P
 ></LI
 ></UL
@@ -470,7 +473,7 @@ WIDTH="33%"
 ALIGN="right"
 VALIGN="top"
 ><A
-HREF="c2639.html"
+HREF="c2640.html"
 >Next</A
 ></TD
 ></TR
