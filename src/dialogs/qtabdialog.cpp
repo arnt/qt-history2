@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#75 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.cpp#76 $
 **
 ** Implementation of QTabDialog class
 **
@@ -174,10 +174,7 @@
 
 struct QTabPrivate
 {
-    QTabPrivate()
-	: tabs(0), stack(0),
-	  ok(0), cb(0), db(0), ab(0),
-	  tll(0) {}
+    QTabPrivate();
 
     QTabBar * tabs;
     QWidgetStack * stack;
@@ -189,6 +186,12 @@ struct QTabPrivate
 
     QBoxLayout * tll;
 };
+
+QTabPrivate::QTabPrivate()
+	: tabs(0), stack(0),
+	  ok(0), cb(0), db(0), ab(0),
+	  tll(0)
+{}
 
 /*!
   Constructs a QTabDialog with only an Ok button.
