@@ -1144,7 +1144,7 @@ void QWorkspace::showMaximizeControls()
 	}
 	if ( d->active->windowWidget() && !!d->active->windowWidget()->windowIcon() ) {
 	    QPixmap pm(d->active->windowWidget()->windowIcon());
-	    int iconSize = d->maxtools->size().height();
+	    int iconSize = d->maxcontrols->size().height();
 	    if(pm.width() > iconSize || pm.height() > iconSize) {
 		QImage im;
 		im = pm;
