@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#11 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#12 $
 **
 ** Implementation of QFileDialog class
 **
@@ -68,9 +68,9 @@ struct QUrlPrivate
   Mention that URL has some restrictions regarding the path
   encoding. URL works intern with the decoded path and
   and encoded query. For example in
-  <pre>
+
   http://localhost/cgi-bin/test%20me.pl?cmd=Hello%20you
-  </pre>
+
   would result in a decoded path "/cgi-bin/test me.pl"
   and in the encoded query "cmd=Hello%20you".
   Since path is internally always encoded you may NOT use
@@ -1271,7 +1271,14 @@ void QUrl::decode( QString& url )
 }
 
 /*!
-  #### todo
+  Starts listing a directory. The signal start() is emitted, before the 
+  first entry is listed, and after the last one finished() is emitted. 
+  If an error occures, the signal error() with an error code and an error 
+  message is emitted.
+  
+  You can rely on the parameters \a filterSpec and \a sortSpec only when
+  working on the local filesystem, this may not be supported when using
+  a newtwork protocol.
 */
 
 void QUrl::listEntries( int filterSpec = QDir::DefaultFilter,
@@ -1281,7 +1288,14 @@ void QUrl::listEntries( int filterSpec = QDir::DefaultFilter,
 }
 
 /*!
-  #### todo
+  Starts listing a directory. The signal start() is emitted, before the 
+  first entry is listed, and after the last one finished() is emitted. 
+  If an error occures, the signal error() with an error code and an error 
+  message is emitted.
+  
+  You can rely on the parameters \nameFilter \a filterSpec and \a sortSpec 
+  only when working on the local filesystem, this may not be supported when 
+  using a newtwork protocol.
 */
 
 void QUrl::listEntries( const QString &nameFilter, int filterSpec = QDir::DefaultFilter,
@@ -1326,7 +1340,11 @@ void QUrl::listEntries( const QString &nameFilter, int filterSpec = QDir::Defaul
 }
 
 /*!
-  #### todo
+  Tries to create a directory with the name \a dirname.
+  If it has been successful an entry() signal with the
+  new entry is emitted and the createdDirectory() with
+  the information about the new entry is emitted too.
+  Else the error() signal is emitted.
 */
 
 void QUrl::mkdir( const QString &dirname )
@@ -1351,7 +1369,10 @@ void QUrl::mkdir( const QString &dirname )
 }
 
 /*!
-  #### todo
+  Tries to remove the file \a filename.
+  If it has been successful the signal removed() with
+  the \a filename is emitted.
+  Else the error() signal is emitted.
 */
 
 void QUrl::remove( const QString &filename )
@@ -1371,7 +1392,10 @@ void QUrl::remove( const QString &filename )
 }
 
 /*!
-  #### todo
+  Tries to rename the file \a oldname by \a newname.
+  If it has been successful the signal itemChanged() with
+  the old and new name of the file is emitted.
+  Else the error() signal is emitted.
 */
 
 void QUrl::rename( const QString &oldname, const QString &newname )
@@ -1387,7 +1411,7 @@ void QUrl::rename( const QString &oldname, const QString &newname )
 }
 
 /*!
-  #### todo
+  Copies the file \a from to \a to on the local filesystem.
 */
 
 void QUrl::copy( const QString &from, const QString &to )
@@ -1432,7 +1456,8 @@ void QUrl::copy( const QString &from, const QString &to )
 }
 
 /*!
-  #### todo
+  Copies \a files to the directory \a dest. If \a move is TRUE,
+  the files are moved and not copied.
 */
 
 void QUrl::copy( const QStringList &files, const QString &dest, bool move )
@@ -1443,7 +1468,7 @@ void QUrl::copy( const QStringList &files, const QString &dest, bool move )
 	    de.remove( 0, QString( "file:" ).length() );
 	QStringList::ConstIterator it = files.begin();
 	for ( ; it != files.end(); ++it ) {
-	    if ( TRUE /*isFile*/) {
+	    if ( QFileInfo( *it ) ) {
 		copy( *it, de + "/" + QFileInfo( *it ).fileName() );
 		if ( move )
 		    QFile::remove( *it );
