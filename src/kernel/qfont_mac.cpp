@@ -298,6 +298,7 @@ inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *
         valueSizes[arr] = sizeof(Boolean);
         Boolean italicBool = d->request.italic ? true : false;
         values[arr] = &italicBool;
+	arr++;
         tags[arr] = kATSUQDBoldfaceTag;
         valueSizes[arr] = sizeof(Boolean);
         Boolean boldBool = ((d->request.weight == QFont::Bold) ? true : false);
