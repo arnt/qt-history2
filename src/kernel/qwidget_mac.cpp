@@ -76,7 +76,7 @@ QPoint posInWindow(QWidget *w)
 
 static void paint_children(QWidget * p,QRegion r, bool now=FALSE, bool force_erase=TRUE)
 {
-    if(!p || r.isEmpty())
+    if(!p || r.isEmpty() || !p->isVisible())
 	return;
 
     if(QObjectList * childObjects=(QObjectList*)p->children()) {
@@ -87,7 +87,7 @@ static void paint_children(QWidget * p,QRegion r, bool now=FALSE, bool force_era
 		if ( w->topLevelWidget() == p->topLevelWidget() && w->isVisible() ) {
 		    QRegion wr = QRegion(w->geometry()) & r;
 		    if ( !wr.isEmpty() ) {
-			r -= wr;
+			r -= wr; //take that from the parent!
 			wr.translate( -w->x(), -w->y() );
 			paint_children(w, wr, now, force_erase);
 		    }
@@ -96,7 +96,7 @@ static void paint_children(QWidget * p,QRegion r, bool now=FALSE, bool force_era
 	}
     }
 
-    if(!r.isEmpty() && p->isVisible()) {
+    if(!r.isEmpty()) {
 	bool painted = FALSE, erase = force_erase || !p->testWFlags(QWidget::WRepaintNoErase);
 	if(now) {
 	    /* this is stupid, probably should just post, I need to ask mathias! FIXME */
