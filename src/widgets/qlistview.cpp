@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#174 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#175 $
 **
 ** Implementation of QListView widget class
 **
@@ -2609,11 +2609,23 @@ void QListView::keyPressEvent( QKeyEvent * e )
 	d->currentPrefix.truncate( 0 );
 	e->accept();
 	break;
+    case Key_Plus:
+	if (  !i->isOpen() && (i->isExpandable() || i->childCount()) )
+	    setOpen( i, TRUE );
+	d->currentPrefix.truncate( 0 );
+	e->accept();
+	break;
     case Key_Right:
 	if ( i->isOpen() && i->childItem )
 	    i = i->childItem;
 	else if (  !i->isOpen() && (i->isExpandable() || i->childCount()) )
 	    setOpen( i, TRUE );
+	d->currentPrefix.truncate( 0 );
+	e->accept();
+	break;
+    case Key_Minus:
+	if ( i->isOpen() )
+	    setOpen( i, FALSE );
 	d->currentPrefix.truncate( 0 );
 	e->accept();
 	break;
