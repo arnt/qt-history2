@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.h#49 $
+** $Id: //depot/qt/main/src/kernel/qregion.h#50 $
 **
 ** Definition of QRegion class
 **
@@ -58,25 +58,6 @@ public:
     QRegion unite( const QRegion & )	const;
     QRegion intersect( const QRegion &) const;
     QRegion subtract( const QRegion & ) const;
-
-// Work around clash with the ANSI C++ keyword "xor".
-//
-// Use of QRegion::xor() is deprecated - you should use QRegion::eor().
-// Calls to QRegion::xor() will work for now, but give a warning.
-//
-// If possible, compile the Qt library without this ANSI C++ feature enabled,
-// thus including both the old xor() and new eor() in the library, so old
-// binaries will continue to work (with the warning).
-//
-// We also hide the xor() function if there is a #define for xor, in
-// case someone is using #define xor ^ to work around deficiencies in
-// their compiler that cause problems with some other header files.
-//
-#ifndef QT_NO_COMPAT
-#if !(defined(__STRICT_ANSI__) && defined(_CC_GNU_)) && !defined(_CC_EDG_) && !defined(_CC_HP_) && !defined(_CC_HP_ACC_) && !defined(_CC_USLC_) && !defined(_CC_MWERKS_) && !defined(xor)
-    QRegion xor( const QRegion & )	const;
-#endif
-#endif
     QRegion eor( const QRegion & )	const;
 
     QRect   boundingRect() const;
