@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#96 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#97 $
 **
 ** Implementation of QTableView class
 **
@@ -1395,7 +1395,7 @@ void QTableView::paintEvent( QPaintEvent *e )
   The scroll bars are moved and cells repainted as necessary.
 */
 
-void QTableView::resizeEvent( QResizeEvent * )
+void QTableView::resizeEvent( QResizeEvent *e )
 {
     bool update = autoUpdate();
     setAutoUpdate( FALSE );
@@ -2098,7 +2098,7 @@ void QTableView::updateScrollBars( uint f )
 	if ( !hScrollBar->isVisible() )
 	    hScrollBar->show();
     }
-
+ 
     if ( testTableFlags(Tbl_vScrollBar) && (sbDirty & verMask) != 0 ) {
 	if ( sbDirty & verGeometry )
 	    vScrollBar->setGeometry( width() - sbDim, 0,
