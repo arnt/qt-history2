@@ -307,8 +307,8 @@ bool QShortcutMap::tryShortcutEvent(QWidget *w, QKeyEvent *e)
     case QKeySequence::NoMatch:
         return e->isAccepted();
     case QKeySequence::ExactMatch:
-        dispatchEvent();
         resetState();
+        dispatchEvent();
     default:
 	break;
     }
@@ -552,13 +552,13 @@ QVector<const QShortcutEntry*> QShortcutMap::matches() const
 */
 void QShortcutMap::dispatchEvent()
 {
-    if (!d->identicals.size()
-        || d->currentState != QKeySequence::ExactMatch)
+    if (!d->identicals.size())
         return;
 
-    if (d->prevSequence != d->currentSequence) {
+    const QKeySequence &curKey = d->identicals.at(0)->keyseq;
+    if (d->prevSequence != curKey) {
         d->ambigCount = 0;
-        d->prevSequence = d->currentSequence;
+        d->prevSequence = curKey;
     }
     // Find next
     const QShortcutEntry *current = 0, *next = 0;
@@ -584,10 +584,10 @@ void QShortcutMap::dispatchEvent()
 #if defined(Debug_QShortcutMap)
     qDebug().nospace()
         << "QShortcutMap::dispatchEvent(): Sending QShortcutEvent(\""
-        << (QString)d->currentSequence << "\", " << next->id << ", "
+        << (QString)curKey << "\", " << next->id << ", "
         << (bool)(enabledShortcuts>1) << ") to object(" << sendTo << ")";
 #endif
-    QShortcutEvent se(d->currentSequence, next->id, enabledShortcuts>1);
+    QShortcutEvent se(curKey, next->id, enabledShortcuts>1);
     QApplication::sendEvent(const_cast<QObject*>(sendTo), &se);
 }
 
