@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnpsupport.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qnpsupport.cpp#4 $
 **
 ** Low-level support for Netscape Plugins.
 ** This has to go in the dynamic library, because otherwise it may
@@ -18,7 +18,7 @@
 #include <X11/Xos.h>
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qnpsupport.cpp#3 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qnpsupport.cpp#4 $");
 
 
 void            qt_reset_color_avail();       // defined in qcol_x11.cpp
@@ -35,12 +35,12 @@ void		(*qt_np_leave_cb)(XLeaveWindowEvent*) = 0;
 
 typedef void (*IntervalSetter)(int);
 
-struct ISList {
-    ISList(IntervalSetter is, ISList* n) : setter(is), next(n) { }
+struct QISList {
+    QISList(IntervalSetter is, QISList* n) : setter(is), next(n) { }
     IntervalSetter setter;
-    ISList *next;
+    QISList *next;
 };
-ISList* islist=0;
+static QISList* islist=0;
 
 void qt_np_set_timer( int interval )
 {
@@ -52,15 +52,15 @@ void qt_np_set_timer( int interval )
 
 void qt_np_add_timer_setter( IntervalSetter is )
 {
-    islist = new ISList(is, islist);
+    islist = new QISList(is, islist);
 }
 
 void qt_np_remove_timer_setter( IntervalSetter is )
 {
-    ISList** cursor = &islist;
+    QISList** cursor = &islist;
     while (*cursor) {
 	if ((*cursor)->setter == is) {
-	    ISList* n = (*cursor)->next;
+	    QISList* n = (*cursor)->next;
 	    delete *cursor;
 	    *cursor = n;
 	    return;
@@ -73,12 +73,12 @@ void qt_np_remove_timer_setter( IntervalSetter is )
 
 typedef void (*SameAsXtTimerCallbackProc)(void*,void*);
 
-struct CBList {
-    CBList(SameAsXtTimerCallbackProc cb, CBList* n) : callback(cb), next(n) { }
+struct QCBList {
+    QCBList(SameAsXtTimerCallbackProc cb, QCBList* n) : callback(cb), next(n) { }
     SameAsXtTimerCallbackProc callback;
-    CBList *next;
+    QCBList *next;
 };
-CBList* cblist=0;
+static QCBList* cblist=0;
 
 void qt_np_timeout( void* p, void* id )
 {
@@ -90,15 +90,15 @@ void qt_np_timeout( void* p, void* id )
 
 void qt_np_add_timeoutcb( SameAsXtTimerCallbackProc cb )
 {
-    cblist = new CBList(cb, cblist);
+    cblist = new QCBList(cb, cblist);
 }
 
 void qt_np_remove_timeoutcb( SameAsXtTimerCallbackProc cb )
 {
-    CBList** cursor = &cblist;
+    QCBList** cursor = &cblist;
     while (*cursor) {
 	if ((*cursor)->callback == cb) {
-	    CBList* n = (*cursor)->next;
+	    QCBList* n = (*cursor)->next;
 	    delete *cursor;
 	    *cursor = n;
 	    return;
@@ -143,12 +143,12 @@ int qt_event_handler( XEvent* event )
 
 typedef void (*ForeignEventProc)(XEvent*);
 
-struct FEPList {
-    FEPList(ForeignEventProc fep, FEPList* n) : callback(fep), next(n) { }
+struct QFEPList {
+    QFEPList(ForeignEventProc fep, QFEPList* n) : callback(fep), next(n) { }
     ForeignEventProc callback;
-    FEPList *next;
+    QFEPList *next;
 };
-FEPList* feplist=0;
+static QFEPList* feplist=0;
 
 void qt_np_process_foreign_event(XEvent* event)
 {
@@ -160,15 +160,15 @@ void qt_np_process_foreign_event(XEvent* event)
 
 void qt_np_add_event_proc( ForeignEventProc fep )
 {
-    feplist = new FEPList(fep, feplist);
+    feplist = new QFEPList(fep, feplist);
 }
 
 void qt_np_remove_event_proc( ForeignEventProc fep )
 {
-    FEPList** cursor = &feplist;
+    QFEPList** cursor = &feplist;
     while (*cursor) {
 	if ((*cursor)->callback == fep) {
-	    FEPList* n = (*cursor)->next;
+	    QFEPList* n = (*cursor)->next;
 	    delete *cursor;
 	    *cursor = n;
 	    return;

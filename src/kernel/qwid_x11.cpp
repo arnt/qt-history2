@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#202 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#203 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#202 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#203 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -49,7 +49,7 @@ static QWidget *keyboardGrb = 0;
 #error "Make create and destroy virtual, remove the old functions."
 #endif
 
-extern Atom q_wm_delete_window;			// defined in qapp_x11.cpp
+extern Atom qt_wm_delete_window;		// defined in qapp_x11.cpp
 
 const uint stdWidgetEventMask =			// X event mask
 	KeyPressMask | KeyReleaseMask |
@@ -254,7 +254,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	XResizeWindow( dpy, id, crect.width(), crect.height() );
 	XStoreName( dpy, id, title );
 	Atom protocols[1];
-	protocols[0] = q_wm_delete_window;	// support del window protocol
+	protocols[0] = qt_wm_delete_window;	// support del window protocol
 	XSetWMProtocols( dpy, id, protocols, 1 );
     }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#250 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#251 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -59,7 +59,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#250 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#251 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -101,9 +101,9 @@ static GC	app_gc_tmp	= 0;		// temporary GC
 static GC	app_gc_ro_m	= 0;		// read-only GC (monochrome)
 static GC	app_gc_tmp_m	= 0;		// temporary GC (monochrome)
 static QWidget *desktopWidget	= 0;		// root window widget
-Atom		q_wm_protocols;			// window manager protocols
-Atom		q_wm_delete_window;		// delete window protocol
-Atom		q_qt_scrolldone;		// scroll synchronization
+static Atom	qt_wm_protocols;		// window manager protocols
+Atom		qt_wm_delete_window;		// delete window protocol
+static Atom	qt_qt_scrolldone;		// scroll synchronization
 
 static Window	mouseActWindow	     = 0;	// window where mouse is
 static int	mouseButtonPressed   = 0;	// last mouse button pressed
