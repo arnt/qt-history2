@@ -24,6 +24,7 @@
 
 #ifdef Q_Q4PAINTER
 #include "qx11gc.h"
+#include "q4painter_p.h"
 #define QPaintDevice QX11GC
 #endif
 
@@ -115,8 +116,7 @@ QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *, int len, glyph_t
     }
     return NoError;
 }
-#include "qx11gc_p.h"
-#include "q4painter_p.h"
+
 void QFontEngineBox::draw( QPainter *p, int x, int y, const QTextEngine *, const QScriptItem *si, int textFlags )
 {
     Display *dpy = QPaintDevice::x11AppDisplay();
@@ -142,9 +142,9 @@ void QFontEngineBox::draw( QPainter *p, int x, int y, const QTextEngine *, const
 
 #ifdef Q_Q4PAINTER
     if ( p->d->txop > QPainter::TxTranslate ) {
-#else    
+#else
     if ( p->txop > QPainter::TxTranslate ) {
-#endif	
+#endif
 	int xp = x;
 	int yp = _size + 2;
 	int s = _size - 3;
@@ -155,9 +155,9 @@ void QFontEngineBox::draw( QPainter *p, int x, int y, const QTextEngine *, const
     } else {
 #ifdef Q_Q4PAINTER
 	if ( p->d->txop == QPainter::TxTranslate )
-#else    
+#else
 	if ( p->txop == QPainter::TxTranslate )
-#endif	    
+#endif
 	    p->map( x, y, &x, &y );
 	XRectangle _rects[32];
 	XRectangle *rects = _rects;
@@ -439,9 +439,9 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
     Qt::HANDLE font_id = _fs->fid;
 #ifdef Q_Q4PAINTER
     if ( p->d->txop > QPainter::TxTranslate ) {
-#else    
+#else
     if ( p->txop > QPainter::TxTranslate ) {
-#endif	
+#endif
 	bool degenerate = QABS( p->m11()*p->m22() - p->m12()*p->m21() ) < 0.01;
 	if ( !degenerate && xlfd_transformations != XlfdTrUnsupported ) {
 	    // need a transformed font from the server
@@ -537,9 +537,9 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
             int tx=-bbox.x(), ty=-bbox.y();    // text position
 #ifdef Q_Q4PAINTER
             QWMatrix mat1 = p->d->matrix;
-#else    
+#else
             QWMatrix mat1 = p->xmat;
-#endif	    
+#endif
 	    if ( aw == 0 || ah == 0 )
 		return;
 	    double rx = (double)w / (double)aw;
@@ -587,9 +587,9 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const QTextEngine *engine
 	transform = TRUE;
 #ifdef Q_Q4PAINTER
     } else if ( p->d->txop == QPainter::TxTranslate ) {
-#else    
+#else
     } else if ( p->txop == QPainter::TxTranslate ) {
-#endif	
+#endif
 	p->map( x, y, &x, &y );
     }
 
@@ -1609,16 +1609,16 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
     bool transform = FALSE;
 #ifdef Q_Q4PAINTER
     if ( p->d->txop >= QPainter::TxScale ) {
-#else    
+#else
     if ( p->txop >= QPainter::TxScale ) {
-#endif	
+#endif
 	if (! (_face->face_flags & FT_FACE_FLAG_SCALABLE)) {
 	    Qt::HANDLE hd = p->device()->handle();
 #ifdef Q_Q4PAINTER
 	    GC gc = static_cast<QX11GC *>(p->device()->gc())->d->gc;
 #else
 	    GC gc = p->gc;
-#endif	    
+#endif
 
 	    // font doesn't support transformations, need to do it by hand
             QRect bbox( 0, 0, si->width, si->ascent + si->descent + 1 );
@@ -1627,9 +1627,9 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
             int tx=-bbox.x(), ty=-bbox.y();    // text position
 #ifdef Q_Q4PAINTER
             QWMatrix mat1 = p->d->matrix;
-#else	    
+#else
             QWMatrix mat1 = p->xmat;
-#endif	    
+#endif
 	    if ( aw == 0 || ah == 0 )
 		return;
 	    double rx = (double)w / (double)aw;
@@ -1732,7 +1732,7 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 	transform = TRUE;
 #ifdef Q_Q4PAINTER
     } else if ( p->d->txop == QPainter::TxTranslate ) {
-#else    
+#else
     } else if ( p->txop == QPainter::TxTranslate ) {
 #endif
 	p->map( x, y, &x, &y );
@@ -1744,15 +1744,15 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const QTextEngine *engine,
 
 #ifdef Q_Q4PAINTER
     const QColor &pen = static_cast<QX11GC *>(p->device()->gc())->d->cpen.color();
-#else    
+#else
     const QColor &pen = p->cpen.color();
-#endif    
+#endif
 
 #ifdef Q_Q4PAINTER
     XftDraw *draw = ((Q_HackPaintDevice *)p->device())->xftDrawHandle();
-#else    
+#else
     XftDraw *draw = ((Q_HackPaintDevice *)p->pdev)->xftDrawHandle();
-#endif    
+#endif
 
     XftColor col;
     col.color.red = pen.red () | pen.red() << 8;
