@@ -3,6 +3,7 @@ with their version number removed from the directory name (for version
 information, see the README files in the directories).  The following
 have been removed:
  
+    libjpeg - some source files, images, Makefiles, manual pages
     libpng/contrib - a collection of examples and test-suite
     zlib/contrib - a collection of non-zlib code
     zlib/msdos   - Zlib for a platform never supported by Qt ;-)
