@@ -48,8 +48,6 @@ private:
     QPushButton *finishButton;
     QHBoxLayout *buttonLayout;
     QVBoxLayout *mainLayout;
-
-    friend class WizardPage;
 };
 
 #endif

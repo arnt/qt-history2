@@ -77,11 +77,10 @@ void Wizard::nextButtonClicked()
 void Wizard::completeStateChanged()
 {
     WizardPage *currentPage = history.last();
-    if (currentPage->isLastPage()) {
+    if (currentPage->isLastPage())
         finishButton->setEnabled(currentPage->isComplete());
-    } else {
+    else
         nextButton->setEnabled(currentPage->isComplete());
-    }
 }
 
 void Wizard::switchPage(WizardPage *oldPage)

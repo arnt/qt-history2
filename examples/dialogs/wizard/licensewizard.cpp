@@ -13,7 +13,7 @@ LicenseWizard::LicenseWizard(QWidget *parent)
 
     setFirstPage(titlePage);
 
-    setWindowTitle("Wizard");
+    setWindowTitle(tr("Wizard"));
     resize(480, 200);
 }
 
