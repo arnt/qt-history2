@@ -1084,7 +1084,7 @@ void QTextEdit::indent()
 bool QTextEdit::focusNextPrevChild( bool n )
 {
     if ( !isReadOnly() || !linksEnabled() )
-	return TRUE;
+	return FALSE;
     bool b = doc->focusNextPrevChild( n );
     if ( b ) {
 	repaintChanged();
