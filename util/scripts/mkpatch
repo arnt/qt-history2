@@ -4,10 +4,10 @@
 # script. After that you have the new versions and the patches in the
 # directory.
 
-OLD_VERSION="3.1.1"
-NEW_VERSION="3.1.2"
+OLD_VERSION="3.2.1"
+NEW_VERSION="3.2.2"
 
-PLATFORMS="embedded-commercial embedded-free win-commercial x11-commercial x11-free"
+PLATFORMS="embedded-commercial embedded-free embedded-academic win-commercial win-academic x11-commercial x11-free x11-academic"
 
 rm *.bz2
 
