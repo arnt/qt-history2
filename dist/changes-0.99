@@ -1,0 +1,27 @@
+Here is a list of (major) changes in Qt from 0.98 to 0.99.
+As usual, we fixed some bugs and improved the documentation.
+
+
+*************** Changes that might affect runtime behavior *****************
+
+none
+
+*************** Changes that might generate compile errors *****************
+**************           when compiling old code           *****************
+
+none
+
+*************** Type changes that might generate warnings: *****************
+
+none
+
+*****************         Obsoleted functions         **********************
+
+none
+
+***************** All other changes from 0.96 to 0.98 **********************
+
+QPrinter:
+---------
+
+The X11 version now supports landscape printing and different paper sizes.
