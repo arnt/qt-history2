@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#59 $
+** $Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#60 $
 **
 ** Implementation of QMessageBox class
 **
@@ -16,7 +16,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#59 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmessagebox.cpp#60 $");
 
 
 // Message box icons, from page 210 of the Windows style guide.
@@ -340,7 +340,7 @@ QMessageBox::QMessageBox( QWidget *parent, const char *name )
   <li> \c QMessageBox::NoIcon
   <li> \c QMessageBox::Information
   <li> \c QMessageBox::Warning
-  <li> \c QMessageBox::Critical 
+  <li> \c QMessageBox::Critical
   </ul>
 
   Each button can have one of the following values:
@@ -356,7 +356,7 @@ QMessageBox::QMessageBox( QWidget *parent, const char *name )
 
   One of the buttons can be combined with the \c QMessageBox::Default flag
   to make a default button.
-  
+
   One of the buttons can be combined with the \c QMessageBox::Escape flag
   to make an escape option.  Hitting the Esc key on the keyboard has
   the same effect as clicking this button with the mouse.
@@ -416,7 +416,7 @@ void QMessageBox::init( int button0, int button1, int button2 )
 
     if ( (button2 && !button1) || (button1 && !button0) ) {
 #if defined(CHECK_RANGE)
-	::warning( "QMessageBox: Inconsistent button parameters" ); 
+	::warning( "QMessageBox: Inconsistent button parameters" );
 #endif
 	button0 = button1 = button2 = 0;
     }
@@ -553,7 +553,7 @@ void QMessageBox::setText( const char *text )
   <li> \c QMessageBox::NoIcon
   <li> \c QMessageBox::Information
   <li> \c QMessageBox::Warning
-  <li> \c QMessageBox::Critical 
+  <li> \c QMessageBox::Critical
   </ul>
 
   \sa setIcon(), iconPixmap()
@@ -572,7 +572,7 @@ QMessageBox::Icon QMessageBox::icon() const
   <li> \c QMessageBox::NoIcon
   <li> \c QMessageBox::Information
   <li> \c QMessageBox::Warning
-  <li> \c QMessageBox::Critical 
+  <li> \c QMessageBox::Critical
   </ul>
 
   The actual pixmap used for displaying the icon depends on the current
@@ -612,7 +612,7 @@ QPixmap QMessageBox::standardIcon( Icon icon, GUIStyle style )
 	    break;
 	default:
 	    icon_size = 0;
-	    icon_data = 0;	    
+	    icon_data = 0;	
     }
     QPixmap pm;
     if ( icon_size ) {
@@ -979,7 +979,7 @@ void QMessageBox::about( QWidget *parent, const char *caption,
 {
     QMessageBox *mb = new QMessageBox( caption, text,
 				       Information,
-				       Ok + Default, 0, 0, 
+				       Ok + Default, 0, 0,
 				       parent, "simple about box" );
     CHECK_PTR( mb );
     QPixmap i;
@@ -1015,7 +1015,7 @@ void QMessageBox::setStyle( GUIStyle s )
 static int textBox( QWidget *parent, QMessageBox::Icon severity,
 		    const char *caption, const char *text,
 		    const char *button0Text,
-		    const char *button1Text, 
+		    const char *button1Text,
 		    const char *button2Text,
 		    int defaultButtonNumber,
 		    int escapeButtonNumber )
@@ -1057,7 +1057,7 @@ static int textBox( QWidget *parent, QMessageBox::Icon severity,
   \a button0Text is the text of the first button and must be present,
   \a button1Text is the text of the second button and is optional, and
   \a button2Text is the text of the third button and is optional.  \a
-  defaultbuttonNumber (0-2) is the index if the default button;
+  defaultbuttonNumber (0-2) is the index of the default button;
   pressing Return or Enter is the same as clicking the default button.
   It defaults to 0 (the first button).  \a escapeButtonNumber is the
   index of the Escape button; pressing Escape is the same as clicking
@@ -1075,7 +1075,7 @@ static int textBox( QWidget *parent, QMessageBox::Icon severity,
 int QMessageBox::information( QWidget *parent, const char *caption,
 			      const char *text,
 			      const char *button0Text,
-			      const char *button1Text, 
+			      const char *button1Text,
 			      const char *button2Text,
 			      int defaultButtonNumber,
 			      int escapeButtonNumber )
@@ -1094,7 +1094,7 @@ int QMessageBox::information( QWidget *parent, const char *caption,
   \a button0Text is the text of the first button and must be present,
   \a button1Text is the text of the second button and is optional, and
   \a button2Text is the text of the third button and is optional.  \a
-  defaultbuttonNumber (0-2) is the index if the default button;
+  defaultbuttonNumber (0-2) is the index of the default button;
   pressing Return or Enter is the same as clicking the default button.
   It defaults to 0 (the first button).  \a escapeButtonNumber is the
   index of the Escape button; pressing Escape is the same as clicking
@@ -1112,7 +1112,7 @@ int QMessageBox::information( QWidget *parent, const char *caption,
 int QMessageBox::warning( QWidget *parent, const char *caption,
 				 const char *text,
 				 const char *button0Text,
-				 const char *button1Text, 
+				 const char *button1Text,
 				 const char *button2Text,
 				 int defaultButtonNumber,
 				 int escapeButtonNumber )
@@ -1131,7 +1131,7 @@ int QMessageBox::warning( QWidget *parent, const char *caption,
   \a button0Text is the text of the first button and must be present,
   \a button1Text is the text of the second button and is optional, and
   \a button2Text is the text of the third button and is optional.  \a
-  defaultbuttonNumber (0-2) is the index if the default button;
+  defaultbuttonNumber (0-2) is the index of the default button;
   pressing Return or Enter is the same as clicking the default button.
   It defaults to 0 (the first button).  \a escapeButtonNumber is the
   index of the Escape button; pressing Escape is the same as clicking
@@ -1149,7 +1149,7 @@ int QMessageBox::warning( QWidget *parent, const char *caption,
 int QMessageBox::critical( QWidget *parent, const char *caption,
 				  const char *text,
 				  const char *button0Text,
-				  const char *button1Text, 
+				  const char *button1Text,
 				  const char *button2Text,
 				  int defaultButtonNumber,
 				  int escapeButtonNumber )
