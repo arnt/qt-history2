@@ -5,6 +5,7 @@
 #include "qstring.h"
 #include "qcom.h"
 #include "qrect.h"
+#include "qguardedptr.h"
 #endif // QT_H
 
 #if defined(QT_ACCESSIBILITY_SUPPORT)
@@ -12,7 +13,7 @@
 class QObject;
 struct QAccessibleInterface;
 
-class Q_EXPORT QAccessible
+class Q_EXPORT QAccessible : public Qt
 {
 public:
     enum Event {
@@ -200,6 +201,12 @@ struct Q_EXPORT QAccessibleInterface : public QAccessible, public QUnknownInterf
 */
 };
 
+#if defined(Q_TEMPLATEDLL)
+// MOC_SKIP_BEGIN
+template class Q_EXPORT QGuardedPtr<QObject>;
+// MOC_SKIP_END
+#endif
+
 class Q_EXPORT QAccessibleObject : public QAccessibleInterface
 {
 public:
@@ -214,7 +221,7 @@ public:
 
 private:
     ulong ref;
-    QObject *object_;
+    QGuardedPtr<QObject> object_;
 };
 
 #endif //QT_ACCESSIBILITY_SUPPORT
