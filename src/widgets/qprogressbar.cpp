@@ -156,6 +156,11 @@ void QProgressBar::reset()
 void QProgressBar::setTotalSteps( int totalSteps )
 {
     total_steps = totalSteps;
+
+    // Current progress is invalid if larger than total
+    if ( total_steps < progress_val )
+	progress_val = -1;
+
     if ( isVisible() &&
 	 ( setIndicator(progress_str, progress_val, total_steps) || !total_steps ) )
 	repaint( FALSE );
@@ -283,7 +288,7 @@ void QProgressBar::initFrame()
 	ia.setColor( QColorGroup::Highlight, pal.active().highlight() );
 	pal.setInactive( ia );
 	setPalette( pal );
-    }  
+    }
 
     setFrameStyle(QFrame::NoFrame);
 }

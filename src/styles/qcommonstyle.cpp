@@ -849,7 +849,7 @@ void QCommonStyle::drawControl( ControlElement element,
 		p->drawLine(x, r.y() + 1, x, r.height() - 2);
 	    } else {
 		const int unit_width = pixelMetric(PM_ProgressBarChunkWidth, widget);
-		int u = (r.width() - 4) / unit_width;
+		int u   = (r.width()+unit_width/3) / unit_width;
 		int p_v = progressbar->progress();
 		int t_s = progressbar->totalSteps();
 
@@ -859,7 +859,9 @@ void QCommonStyle::drawControl( ControlElement element,
 		    t_s /= u;
 		}
 
-		int nu = ( u * p_v + t_s / 2 ) / t_s;
+		// nu < tnu, if last chunk is only a partial chunk
+		int tnu, nu;
+		tnu = nu = ( u * p_v + t_s / 2 ) / t_s;
 		if (nu * unit_width > r.width() - 4)
 		    nu--;
 
@@ -873,6 +875,19 @@ void QCommonStyle::drawControl( ControlElement element,
 				   QRect( x0+x, r.y(), unit_width, r.height() ),
 				   cg, Style_Default, opt );
 		    x += reverse ? -unit_width: unit_width;
+		}
+
+		// Draw the last partial chunk to fill up the progressbar entirely
+		if (nu < tnu) {
+		    int pixels_left = r.width() - (nu*unit_width) - 4;
+		    if (!reverse)
+			drawPrimitive( PE_ProgressBarChunk, p,
+				       QRect( x0+x, r.y(), pixels_left, r.height() ),
+				       cg, Style_Default, opt );
+		    else
+			drawPrimitive( PE_ProgressBarChunk, p,
+				       QRect( x0+x+unit_width-pixels_left, r.y(), pixels_left, r.height() ),
+				       cg, Style_Default, opt );
 		}
 	    }
 	}
