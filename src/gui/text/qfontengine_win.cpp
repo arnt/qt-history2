@@ -65,7 +65,7 @@ QFontEngine::~QFontEngine()
     // make sure we aren't by accident still selected
     SelectObject(shared_dc, systemFont());
     // for Uniscribe
-    if (ScriptFreeCache)
+    if (ScriptFreeCache && script_cache)
         ScriptFreeCache(&script_cache);
 }
 

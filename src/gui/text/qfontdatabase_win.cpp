@@ -578,31 +578,58 @@ void QFontPrivate::initFontInfo()
 #endif
 
 
-static const char **tryFonts= 0;
-
-static const char *jp_tryFonts [] = {
+static const char *other_tryFonts[] = {
     "Arial",
     "MS Mincho",
+    "Batang",
     "SimSun",
+    "MingLiU",
+    "Arial Unicode MS",
+    0
+};
+
+static const char *jp_tryFonts [] = {
+    "MS Mincho",
+    "Arial",
+    "Batang",
+    "SimSun",
+    "MingLiU",
     "Arial Unicode MS",
     0
 };
 
 static const char *ch_CN_tryFonts [] = {
-    "Arial",
     "SimSun",
+    "Arial",
+    "MingLiU",
+    "Batang",
     "MS Mincho",
     "Arial Unicode MS",
     0
 };
 
 static const char *ch_TW_tryFonts [] = {
+    "MingLiU",
     "Arial",
+    "SimSun",
+    "Batang",
+    "MS Mincho",
+    "Arial Unicode MS",
+    0
+};
+
+static const char *kr_tryFonts[] = {
+    "Batang",
+    "Arial",
+    "MingLiU",
     "SimSun",
     "MS Mincho",
     "Arial Unicode MS",
     0
 };
+
+static const char **tryFonts = 0;
+
 
 static inline HFONT systemFont()
 {
@@ -832,8 +859,13 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
 	    	    tryFonts = ch_CN_tryFonts;
 	        break;
 	    case LANG_JAPANESE:
-	    default:
 	    	tryFonts = jp_tryFonts;
+                break;
+            case LANG_KOREAN:
+                tryFonts = kr_tryFonts;
+                break;
+	    default:
+                tryFonts = other_tryFonts;
 	        break;
 	    }
         }
