@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#25 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#26 $
 **
 ** Implementation of QLabel widget class
 **
@@ -15,7 +15,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#25 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#26 $";
 #endif
 
 
@@ -42,7 +42,7 @@ static char ident[] = "$Id: //depot/qt/main/src/widgets/qlabel.cpp#25 $";
   Example of use:
   \code
     QLabel *label = new QLabel;
-    label->setFrame( QFrame::Panel | QFrame::Sunken );
+    label->setFrameStyle( QFrame::Panel | QFrame::Sunken );
     label->setText( "first line\nsecond line" );
     label->setAlignment( AlignBottom | AlignRight );
   \endcode
