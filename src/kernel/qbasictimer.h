@@ -16,8 +16,10 @@
 #define QBASICTIMER_H
 
 #ifndef QT_H
-#include "qobject.h"
-#endif // QT_H
+#include "qglobal.h"
+#endif
+
+class QObject;
 
 class Q_CORE_EXPORT QBasicTimer
 {

@@ -1231,7 +1231,7 @@ QByteArray QStoredDrag::encodedData(const char* m) const
 
     Note that URIs are always in escaped UTF8 encoding.
 */
-QUriDrag::QUriDrag( QList<QByteArray> uris,
+QUriDrag::QUriDrag( const QList<QByteArray> &uris,
 	    QWidget * dragSource, const char * name ) :
     QStoredDrag( "text/uri-list", dragSource, name )
 {

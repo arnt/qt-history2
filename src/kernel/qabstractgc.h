@@ -16,7 +16,6 @@
 #define QABSTRACTGC_H
 
 #include "qnamespace.h"
-#include "qrect.h"
 #include "qpointarray.h"
 
 #include "qpainter.h"

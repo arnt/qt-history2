@@ -22,6 +22,7 @@
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
+#include "qevent.h"
 #include <limits.h>
 
 /*!
@@ -291,7 +292,7 @@ void QProgressBar::initFrame()
 */
 void QProgressBar::changeEvent( QEvent *ev )
 {
-    if(ev->type() == QEvent::StyleChange) 
+    if(ev->type() == QEvent::StyleChange)
 	initFrame();
     QFrame::changeEvent(ev);
 }

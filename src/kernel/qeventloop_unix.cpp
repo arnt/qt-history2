@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <sys/types.h>
+#include "qsocketnotifier.h"
 #define d d_func()
 #define q q_func()
 

@@ -17,7 +17,6 @@
 
 #ifndef QT_H
 #include "qpoint.h"
-#include "qshared.h"
 #endif // QT_H
 
 /*

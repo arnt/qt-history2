@@ -17,6 +17,7 @@
 
 #ifndef QT_H
 #include "qbasictimer.h" // conceptual inheritance
+#include "qobject.h"
 #endif // QT_H
 
 

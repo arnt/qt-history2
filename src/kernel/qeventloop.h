@@ -15,7 +15,6 @@
 
 #ifndef QT_H
 #include "qobject.h"
-#include "qsocketnotifier.h"
 #endif // QT_H
 
 class QApplication;

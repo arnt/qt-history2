@@ -23,11 +23,16 @@ class QImageDragData;
 
 #ifndef QT_H
 #include "qobject.h"
-#include "qimage.h"
-#include "qlist.h"
 #include "qcolor.h"
 #include "qmime.h"
+# ifndef QT_INCLUDE_COMPAT
+#  include "qimage.h"
+#  include "qlist.h"
+# endif
 #endif // QT_H
+
+class QImage;
+template <class T> class QList;
 
 #ifndef QT_NO_MIME
 
@@ -146,7 +151,7 @@ class Q_GUI_EXPORT QUriDrag: public QStoredDrag {
     Q_OBJECT
 
 public:
-    QUriDrag( QList<QByteArray> uris, QWidget * dragSource = 0, const char * name = 0 );
+    QUriDrag( const QList<QByteArray> &uris, QWidget * dragSource = 0, const char * name = 0 );
     QUriDrag( QWidget * dragSource = 0, const char * name = 0 );
     ~QUriDrag();
 

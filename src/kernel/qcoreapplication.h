@@ -17,8 +17,12 @@
 
 #ifndef QT_H
 #include <qobject.h>
-#include <qstringlist.h>
+#include <qcoreevent.h>
 #endif // QT_H
+
+#ifdef QT_INCLUDE_COMPAT
+#include <qstringlist.h>
+#endif
 
 #ifdef Q_WS_WIN32
 # include <qwindowdefs_win.h>
@@ -29,6 +33,7 @@ class QTextCodec;
 class QTranslator;
 class QEventLoop;
 class QPostEventList;
+class QStringList;
 
 class Q_CORE_EXPORT QCoreApplication : public QObject
 {
@@ -116,7 +121,7 @@ protected:
     bool event(QEvent *);
 
     virtual bool compressEvent(QEvent *, QObject *receiver, QPostEventList *);
-    
+
 private:
     void init();
     static bool      sendSpontaneousEvent( QObject *receiver, QEvent *event );

@@ -18,6 +18,7 @@
 #include "qmap.h"
 #include "qthreadstorage.h"
 #include "qthread.h"
+#include "qsocketnotifier.h"
 
 #include "qeventloop_p.h"
 #include <private/qmutexpool_p.h>

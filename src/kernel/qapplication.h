@@ -16,8 +16,6 @@
 #define QAPPLICATION_H
 
 #ifndef QT_H
-#include "qpalette.h"
-#include "qstringlist.h"
 #include "qcoreapplication.h"
 #include "qpoint.h"
 #include "qsize.h"
@@ -26,6 +24,7 @@
 #endif
 #ifdef QT_COMPAT
 # include "qwidget.h"
+# include "qpalette.h"
 #endif
 #endif // QT_H
 

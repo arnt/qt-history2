@@ -17,8 +17,11 @@
 
 #ifndef QT_H
 #include "qobject.h"
-#include "qkeysequence.h"
 #endif // QT_H
+
+#if defined(QT_COMPAT) || defined(QT_INCLUDE_COMPAT)
+#include "qkeysequence.h"
+#endif
 
 #ifndef QT_NO_ACCEL
 

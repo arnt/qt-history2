@@ -15,6 +15,7 @@
 #include "qeventloop.h"
 #include "qcoreapplication.h"
 #include "qhash.h"
+#include "qsocketnotifier.h"
 #include <private/qinputcontext_p.h>
 #define d d_func()
 #define q q_func()
