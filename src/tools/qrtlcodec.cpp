@@ -251,7 +251,7 @@ static void reverse(QString &str, unsigned int a, unsigned int b,
 
 /*!
   Since hebrew (aswell as arabic) are written from left to right,
-  but iso8859-6/8 assumes visual ordering (as opposed to the
+  but iso8859-8 assumes visual ordering (as opposed to the
   logical ordering of Unicode, we have to reverse the order of the
   input string to get it into logical order.
 
@@ -330,7 +330,7 @@ QCString QHebrewCodec::fromUnicode(const QString& uc, int& len_in_out) const
     } else {
 	QString tmp = uc;
 	tmp.truncate(l);
-	QString vis = tmp.visual();
+	QString vis = tmp; // ########   .visual();
 
 	for (int i=0; i<l; i++) {
 	    const QChar ch = vis[i];
@@ -411,86 +411,6 @@ int QHebrewCodec::heuristicContentMatch(const char* chars, int len) const
     int score = 0;
     for (int i=0; i<len; i++) {
 	if(c[i] > 0x80 && heb_to_unicode[c[i] - 0x80] != 0xFFFD)
-	    score++;
-	else
-	    return -1;
-    }
-    return score;
-}
-
-// -------------------------------------------------------------------------
-
-int QArabicCodec::mibEnum() const
-{
-    return 9;
-}
-
-const char* QArabicCodec::name() const
-{
-    return "ISO 8859-6";
-}
-
-/*!
-  \sa QHebrewCodec::toUnicode()
-  */
-QString QArabicCodec::toUnicode(const char* chars, int len) const
-{
-    return QHebrewCodec::toUnicode(chars, len, arab_to_unicode);
-}
-
-bool QArabicCodec::to8bit(const QChar ch, QCString *rstr) const
-{
-    bool converted = TRUE;
-
-    if( ch.isMark() ) return TRUE; // ignore marks for conversion
-
-    if ( ch.row() ) {
-	if ( ch.row() == 0x06 ) {
-	    if ( ch.cell() > 0x5f )
-		converted = FALSE;
-	    else
-		*rstr += unicode_to_arab_06[ch.cell()];
-	} else {
-	    converted = FALSE;
-	}
-    } else {
-	if ( ch.cell() < 0x80 )
-	    *rstr += ch.cell();
-	else if( ch.cell() == 0xA0 )
-	    *rstr += (char)0xA0;
-	else if( ch.cell() == 0xA4 )
-	    *rstr += (char)0xA4;
-	else if( ch.cell() == 0xAd )
-	    *rstr += (char)0xAd;
-	else
-	    converted = FALSE;
-    }
-
-    if(converted) return TRUE;
-
-    // couldn't convert the char... lets try its decomposition
-    QString d = ch.decomposition();
-    if(d.isNull())
-	return FALSE;
-
-    int l = d.length();
-    for (int i=0; i<l; i++) {
-	const QChar ch = d[i];
-
-	if(to8bit(ch, rstr))
-	    converted = TRUE;
-    }
-
-    return converted;
-}
-
-int QArabicCodec::heuristicContentMatch(const char* chars, int len) const
-{
-    const unsigned char * c = (const unsigned char *)chars;
-
-    int score = 0;
-    for (int i=0; i<len; i++) {
-	if(c[i] > 0x80 && arab_to_unicode[c[i] - 0x80] != 0xFFFD)
 	    score++;
 	else
 	    return -1;

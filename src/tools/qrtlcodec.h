@@ -42,19 +42,6 @@ protected:
 
 };
 
-class Q_EXPORT QArabicCodec : public QHebrewCodec {
-public:
-    virtual int mibEnum() const;
-    const char* name() const;
-
-    QString toUnicode(const char* chars, int len) const;
-
-    int heuristicContentMatch(const char* chars, int len) const;
-
-protected:
-    virtual bool to8bit(const QChar ch, QCString *str) const; 
-};
-
 #endif
 
 #endif

@@ -521,10 +521,8 @@ public:
 #ifndef QT_NO_DATASTREAM
     friend Q_EXPORT QDataStream &operator>>( QDataStream &, QString & );
 #endif
-    // new functions for BiDi
+
     void compose();
-    QChar::Direction basicDirection();
-    QString visual(int index = 0, int len = -1);
 
 #ifndef QT_NO_COMPAT
     const char* data() const { return latin1(); }
