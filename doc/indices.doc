@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: indices.doc,v 1.15 1996/09/18 15:10:18 agulbra Exp $
+** $Id: indices.doc,v 1.16 1996/09/19 15:57:16 hanord Exp $
 **
 ** Miscellaneous index pages
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: indices.doc,v 1.15 1996/09/18 15:10:18 agulbra Exp $";
+static char ident[] = "$Id: indices.doc,v 1.16 1996/09/19 15:57:16 hanord Exp $";
 #endif
 
 /*! \page index.html
@@ -47,7 +47,7 @@ Tutorial and other documentation:
 Some additional information:
 <ul>
 <li><a href="faq.html">FAQ</a>
-<li><a href="troll.html">Troll Tech contact information</a>
+<li><a href="troll.html">Contact Troll Tech</a>
 <li><a href="license.html">License statement for Qt</a>
 </ul>
 

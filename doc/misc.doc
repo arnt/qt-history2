@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: misc.doc,v 1.28 1996/09/19 12:09:40 hanord Exp $
+** $Id: misc.doc,v 1.29 1996/09/19 15:57:17 hanord Exp $
 **
 ** Miscellaneous documentation that doesn't fit anywhere else
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: misc.doc,v 1.28 1996/09/19 12:09:40 hanord Exp $";
+static char ident[] = "$Id: misc.doc,v 1.29 1996/09/19 15:57:17 hanord Exp $";
 #endif
 
 
@@ -323,28 +323,45 @@ to the license.)
 
 /*! \page troll.html
 
-<title>Troll Tech Contact Information</title>
-</head><body bgcolor=white>
+<html><head><title>Troll Tech Contact Information</title>
+</head>
+<body bgcolor=white>
 
-<h1 align=center>Contact Information for Troll Tech</h1>
+<h1 align=center>
+<img src="letter.gif" align=right width=48 height=48>
+Contact Troll Tech
+</h1>
 
-<h2 align=center>Snail mail</h2>
+<h2>Regular Mail</h2>
 
-Troll Tech<br>
+Troll Tech AS<br>
 Postboks 6133 Etterstad<br>
 N-0602 Oslo<br>
-Norway<br>
+NORWAY<br>
 
 <p>
+
 Fax: +47 22 64 69 49.
 
-<h2 align=center>Electronically</h2>
+<h2>Electronically</h2>
 
-E-mail: <a href="mailto:info@troll.no">info@troll.no</a> for general
-enquiries, <a href="mailto:www@troll.no">www@troll.no</a> for comments
-about our WWW pages, or <a
-href="mailto:qt-bugs@troll.no">qt-bugs@troll.no</a> for Qt bug reports
-and other Qt-related mail. */
+We can be reached via the following e-mail addresses:
+<ul>
+<li>General inquiries: <a href="mailto:info@troll.no">info@troll.no</a>.
+<li>Sales questions: <a href="mailto:sales@troll.no">sales@troll.no</a>.
+<li>Comments about our web pages: <a href="mailto:www@troll.no">www@troll.no</a>.
+<li>Qt bug reports and other Qt-related mail: <a href="mailto:qt-bugs@troll.no">qt-bugs@troll.no</a>.
+</ul>
+
+<p>
+There is a mailing list for Qt users.  Send a message containing the
+single word "subscribe" to <a
+href="mailto:qt-interest-request@nvg.unit.no">qt-interest-request@nvg.unit.no</a>
+to join the list.  You will receive a receipt from the list server within
+a few minutes.
+
+*/
+
 
 /*! \page qt.html
 
