@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.cpp#9 $
 **
 ** Implementation of QFileDialog class
 **
@@ -36,6 +36,26 @@ struct QUrlOperatorPrivate
     QString nameFilter;
     QDir dir;
 };
+
+/*!
+  \class QUrlOperator qurloperator.h
+
+  This class operates on hirachical filesystems (or sort of)
+  using URLs. It's API allows do all common operations on it
+  (listing childeren, removing children, renaimg, etc.). But
+  the class itself contains no functionality for that. It uses
+  the functionality of registered network protocols. This means,
+  depending of the protocol of the URL, it uses an fitting
+  network protocol class for the operations. In detail, each of
+  the operation methodes creates an QNetworkOperation object
+  which describes the operation and puts it into the operation
+  queue of the network protocol.
+  If no fitting protocol could be found (is not registered),
+  the url operator emits errors. Also not each protocol supports
+  each operation - but the error  handling deals with this problem.
+
+  \sa QNetworkProtocol::QNetworkProtocol()
+*/
 
 /*!
   \fn void QUrlOperator::newChild( const QUrlInfo &i, QNetworkOperation *op )
@@ -192,28 +212,8 @@ struct QUrlOperatorPrivate
 */
 
 /*!
-  \class QUrlOperator qurloperator.h
-
-  This class operates on hirachical filesystems (or sort of)
-  using URLs. It's API allows do all common operations on it
-  (listing childeren, removing children, renaimg, etc.). But
-  the class itself contains no functionality for that. It uses
-  the functionality of registered network protocols. This means,
-  depending of the protocol of the URL, it uses an fitting
-  network protocol class for the operations. In detail, each of
-  the operation methodes creates an QNetworkOperation object
-  which describes the operation and puts it into the operation
-  queue of the network protocol.
-  If no fitting protocol could be found (is not registered),
-  the url operator emits errors. Also not each protocol supports
-  each operation - but the error  handling deals with this problem.
-
-  \sa QNetworkProtocol::QNetworkProtocol()
-*/
-
-/*!
   \reimp
- */
+*/
 
 QUrlOperator::QUrlOperator()
     : QUrl()
@@ -225,7 +225,7 @@ QUrlOperator::QUrlOperator()
 
 /*!
   \reimp
- */
+*/
 
 QUrlOperator::QUrlOperator( const QString &url )
     : QUrl( url )
@@ -238,7 +238,7 @@ QUrlOperator::QUrlOperator( const QString &url )
 
 /*!
   Copy constructor.
- */
+*/
 
 QUrlOperator::QUrlOperator( const QUrlOperator& url )
     : QObject(), QUrl( url )
@@ -251,7 +251,7 @@ QUrlOperator::QUrlOperator( const QUrlOperator& url )
 
 /*!
   \reimp
- */
+*/
 
 QUrlOperator::QUrlOperator( const QUrlOperator& url, const QString& relUrl_ )
     : QUrl( url, relUrl_ )
@@ -263,7 +263,7 @@ QUrlOperator::QUrlOperator( const QUrlOperator& url, const QString& relUrl_ )
 
 /*!
   Destructor.
- */
+*/
 
 QUrlOperator::~QUrlOperator()
 {
