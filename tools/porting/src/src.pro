@@ -2,7 +2,8 @@ TEMPLATE = app
 CONFIG -= moc
 CONFIG += console
 DEPENDPATH += .
-TARGET =../../../bin/qt3to4
+TARGET =qt3to4
+DESTDIR = ../../../bin
 
 HEADERS +=  replacetoken.h            \
             tokenreplacements.h       \

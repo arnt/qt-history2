@@ -16,7 +16,7 @@
 
 #include "tokenreplacements.h"
 #include "textreplacement.h"
-#include <lexer.h>
+#include "lexer.h"
 #include <QList>
 #include <QMultiMap>
 
