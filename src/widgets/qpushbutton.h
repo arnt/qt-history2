@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.h#47 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.h#48 $
 **
 ** Definition of QPushButton class
 **
@@ -34,19 +34,10 @@
 class Q_EXPORT QPushButton : public QButton
 {
     Q_OBJECT
+    Q_BUILDER( "A simple button", "qpushbutton.xpm", DefaultInspector )
 public:
     QPushButton( QWidget *parent, const char *name=0 );
     QPushButton( const QString &text, QWidget *parent, const char* name=0 );
-
-    virtual void	setToggleButton( bool );
-
-    bool	autoDefault()	const	{ return autoDefButton; }
-    virtual void	setAutoDefault( bool autoDef );
-    bool	isDefault()	const	{ return defButton; }
-    virtual void	setDefault( bool def );
-
-    virtual void	setIsMenuButton( bool );
-    bool	isMenuButton() const;
 
     QSize	sizeHint() const;
     QSizePolicy sizePolicy() const;
@@ -58,8 +49,23 @@ public:
     virtual void	setGeometry( int x, int y, int w, int h );
     virtual void	setGeometry( const QRect & );
 
+q_properties:
+    virtual void	setToggleButton( bool );
+
+    bool	autoDefault()	const	{ return autoDefButton; }
+    virtual void	setAutoDefault( bool autoDef );
+    bool	isDefault()	const	{ return defButton; }
+    virtual void	setDefault( bool def );
+
+    virtual void	setIsMenuButton( bool );
+    bool	isMenuButton() const;
+
 public slots:
+#ifdef Q_PROPS
+    virtual void	setOn( bool ) q_prop;
+#else
     virtual void	setOn( bool );
+#endif
     void	toggle();
 
 protected:

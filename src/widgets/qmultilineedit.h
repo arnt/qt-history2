@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#3 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.h#4 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -72,13 +72,19 @@ q_properties:
     QString text() const;
 
 public slots:
-    void       clear();
+#ifdef Q_PROPS
     virtual void       setText( const QString &) q_prop;
+    virtual void       setReadOnly( bool ) q_prop;
+    virtual void       setOverwriteMode( bool ) q_prop;
+#else
+    virtual void       setText( const QString &);
+    virtual void       setReadOnly( bool );
+    virtual void       setOverwriteMode( bool );
+#endif
+    void       clear();
     void       append( const QString &);
     void       deselect();
     void       selectAll();
-    virtual void       setReadOnly( bool ) q_prop;
-    virtual void       setOverwriteMode( bool ) q_prop;
     void       paste();
     void       copyText();
     void       cut();
