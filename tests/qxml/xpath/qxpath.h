@@ -1,5 +1,4 @@
 #include "qdom.h"
-#include "qvaluelist.h"
 
 class QXPathStep;
 class QXPathPrivate;
@@ -8,13 +7,12 @@ class Q_EXPORT QXPath
 {
 public:
     QXPath();
-    QXPath( const QString& path );
+    QXPath( const QString& expr );
     virtual ~QXPath();
 
-    virtual void setPath( const QString& p );
-    QString path() const;
+    virtual void setExpression( const QString& expr );
+    QString expression() const;
     bool isValid() const;
-    bool isAbsolutePath() const;
 
     enum Axis {
 	Child,
@@ -28,7 +26,7 @@ public:
 	Attribute,
 	Namespace,
 	Self,
-	DescendentOrSelf,
+	DescendantOrSelf,
 	AncestorOrSelf
     };
 
@@ -37,8 +35,6 @@ protected:
 
 private:
     QXPathPrivate *d;
-    bool absPath;
-    QValueList<QXPathStep> steps;
 };
 
 
