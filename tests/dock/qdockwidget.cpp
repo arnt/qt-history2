@@ -272,7 +272,6 @@ void QDockWidget::handleMoveOutsideDock( const QPoint &pos, const QPoint &gp )
     if ( !w || !w->inherits( "QDockArea" ) ) {
 	if ( startOrientation != Horizontal )
 	    swapRect( currRect, Horizontal, startOffset );
-	emit orientationChanged( orientation() == Horizontal ? Vertical : Horizontal );
 	unclippedPainter->setPen( QPen( gray, 3 ) );
 	unclippedPainter->drawRect( currRect );
 	state = OutsideDock;
@@ -286,7 +285,6 @@ void QDockWidget::handleMoveOutsideDock( const QPoint &pos, const QPoint &gp )
     unclippedPainter->setPen( QPen( gray, 1 ) );
     unclippedPainter->drawRect( currRect );
     tmpDockArea = area;
-    emit orientationChanged( orientation() == Horizontal ? Vertical : Horizontal );
 }
 
 void QDockWidget::updateGui()
@@ -339,6 +337,7 @@ void QDockWidget::updatePosition( const QPoint &globalPos )
     }
     curPlace = state;
     updateGui();
+    emit orientationChanged( orientation() );
 }
 
 void QDockWidget::setWidget( QWidget *w )
