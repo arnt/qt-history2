@@ -378,6 +378,7 @@ QFSFileEngine::fileName(FileName file) const
                 ret += QLatin1Char('/');
             ret += d->file;
         }
+        ret = QDir::cleanPath(ret);
         if(file == AbsolutePathName) {
             int slash = ret.lastIndexOf(QLatin1Char('/'));
             if(slash == -1)
