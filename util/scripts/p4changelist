@@ -1,0 +1,26 @@
+#!/bin/sh
+
+if [ -z $1 ]
+then
+	echo "usage: $0 number"
+	echo "  to show the last 'number' changes"
+	exit -1
+fi
+
+
+function separator
+{
+	echo
+	echo
+	echo "________________________________________________________________________________________________"
+	echo
+	echo
+}
+
+for i in  `p4 changes -m $1 ... | cut -f 2 -d ' ' | sort` 
+do
+	separator
+	p4 describe -du $i
+done
+
+separator
