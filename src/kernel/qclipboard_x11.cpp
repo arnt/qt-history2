@@ -968,7 +968,7 @@ const char* QClipboardWatcher::format( int n ) const
 		target[i + 4] = unsorted_target[i];
 	}
 
-	for (i = 0; i < size; ++i) {
+	for (i = 0; i < size + 4; ++i) {
 	    if ( target[i] == 0 ) continue;
 
 	    if ( target[i] == XA_PIXMAP )
