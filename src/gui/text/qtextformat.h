@@ -47,6 +47,7 @@ public:
 	BlockFirstLineMargin = 0x1034,
 	BlockIndent = 0x1040,
 	BlockNonBreakableLines = 0x1050,
+	BlockBackgroundColor = 0x1060,
 
 	// character properties
     	FontFamily = 0x2000,
@@ -60,7 +61,6 @@ public:
 	FontFixedPitch = 0x2008,
 
 	Color = 0x2010,
-	BackgroundColor = 0x2011,
 
 	IsAnchor = 0x2020,
 	AnchorHref = 0x2021,
@@ -208,11 +208,6 @@ public:
     QColor color() const
     { if (hasProperty(Color)) return QColor(intProperty(Color)); else return QColor(); }
 
-    void setBackgroundColor(const QColor &color)
-    { setProperty(BackgroundColor, int(color.rgb())); }
-    QColor backgroundColor() const
-    { if (hasProperty(BackgroundColor)) return QColor(intProperty(BackgroundColor)); else return QColor(); }
-
     void setAnchor(bool anchor)
     { setProperty(IsAnchor, anchor); }
     bool isAnchor() const
@@ -313,6 +308,11 @@ public:
     { setProperty(BlockNonBreakableLines, b); }
     bool nonBreakableLines() const
     { return boolProperty(BlockNonBreakableLines); }
+
+    void setBackgroundColor(const QColor &color)
+    { setProperty(BlockBackgroundColor, int(color.rgb())); }
+    QColor backgroundColor() const
+    { if (hasProperty(BlockBackgroundColor)) return QColor(intProperty(BlockBackgroundColor)); else return QColor(); }
 };
 
 class Q_GUI_EXPORT QTextListFormat : public QTextFormat
