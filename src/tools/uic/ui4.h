@@ -1819,8 +1819,8 @@ inline void DomUI::read(const QDomElement &node)
 {
     if (node.hasAttribute(QLatin1String("version")))
         setAttributeVersion(node.attribute(QLatin1String("version")));
-    if (node.hasAttribute(QLatin1String("stdSetDef")))
-        setAttributeStdSetDef(node.attribute(QLatin1String("stdSetDef")).toInt());
+    if (node.hasAttribute(QLatin1String("stdsetdef")))
+        setAttributeStdSetDef(node.attribute(QLatin1String("stdsetdef")).toInt());
 
     for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
         if (!n.isElement())
@@ -1837,7 +1837,7 @@ inline void DomUI::read(const QDomElement &node)
             setElementComment(e.text());
             continue;
         }
-        if (tag == QLatin1String("exportMacro")) {
+        if (tag == QLatin1String("exportmacro")) {
             DomString *v = new DomString();
             v->read(e);
             setElementExportMacro(v);
@@ -1853,29 +1853,29 @@ inline void DomUI::read(const QDomElement &node)
             setElementWidget(v);
             continue;
         }
-        if (tag == QLatin1String("layoutDefault")) {
+        if (tag == QLatin1String("layoutdefault")) {
             DomLayoutDefault *v = new DomLayoutDefault();
             v->read(e);
             setElementLayoutDefault(v);
             continue;
         }
-        if (tag == QLatin1String("layoutFunction")) {
+        if (tag == QLatin1String("layoutfunction")) {
             DomLayoutFunction *v = new DomLayoutFunction();
             v->read(e);
             setElementLayoutFunction(v);
             continue;
         }
-        if (tag == QLatin1String("pixmapFunction")) {
+        if (tag == QLatin1String("pixmapfunction")) {
             setElementPixmapFunction(e.text());
             continue;
         }
-        if (tag == QLatin1String("customWidgets")) {
+        if (tag == QLatin1String("customwidgets")) {
             DomCustomWidgets *v = new DomCustomWidgets();
             v->read(e);
             setElementCustomWidgets(v);
             continue;
         }
-        if (tag == QLatin1String("tabStops")) {
+        if (tag == QLatin1String("tabstops")) {
             DomTabStops *v = new DomTabStops();
             v->read(e);
             setElementTabStops(v);
@@ -1914,7 +1914,7 @@ inline QDomElement DomUI::write(QDomDocument &doc, const QString &tagName)
         e.setAttribute(QLatin1String("version"), attributeVersion());
 
     if (hasAttributeStdSetDef())
-        e.setAttribute(QLatin1String("stdSetDef"), attributeStdSetDef());
+        e.setAttribute(QLatin1String("stdsetdef"), attributeStdSetDef());
 
     if (m_author != 0)
         e.appendChild(m_author->write(doc, QLatin1String("author")));
@@ -1924,7 +1924,7 @@ inline QDomElement DomUI::write(QDomDocument &doc, const QString &tagName)
     e.appendChild(child);
 
     if (m_exportMacro != 0)
-        e.appendChild(m_exportMacro->write(doc, QLatin1String("exportMacro")));
+        e.appendChild(m_exportMacro->write(doc, QLatin1String("exportmacro")));
 
     child = doc.createElement(QLatin1String("class"));
     child.appendChild(doc.createTextNode(m_class));
@@ -1934,20 +1934,20 @@ inline QDomElement DomUI::write(QDomDocument &doc, const QString &tagName)
         e.appendChild(m_widget->write(doc, QLatin1String("widget")));
 
     if (m_layoutDefault != 0)
-        e.appendChild(m_layoutDefault->write(doc, QLatin1String("layoutDefault")));
+        e.appendChild(m_layoutDefault->write(doc, QLatin1String("layoutdefault")));
 
     if (m_layoutFunction != 0)
-        e.appendChild(m_layoutFunction->write(doc, QLatin1String("layoutFunction")));
+        e.appendChild(m_layoutFunction->write(doc, QLatin1String("layoutfunction")));
 
-    child = doc.createElement(QLatin1String("pixmapFunction"));
+    child = doc.createElement(QLatin1String("pixmapfunction"));
     child.appendChild(doc.createTextNode(m_pixmapFunction));
     e.appendChild(child);
 
     if (m_customWidgets != 0)
-        e.appendChild(m_customWidgets->write(doc, QLatin1String("customWidgets")));
+        e.appendChild(m_customWidgets->write(doc, QLatin1String("customwidgets")));
 
     if (m_tabStops != 0)
-        e.appendChild(m_tabStops->write(doc, QLatin1String("tabStops")));
+        e.appendChild(m_tabStops->write(doc, QLatin1String("tabstops")));
 
     if (m_images != 0)
         e.appendChild(m_images->write(doc, QLatin1String("images")));
@@ -2041,6 +2041,8 @@ inline void DomUI::setElementResources(DomResources* a)
 
 inline void DomIncludes::clear(bool clear_all)
 {
+    for (int i = 0; i < m_include.size(); ++i)
+        delete m_include[i];
     m_include.clear();
 
     if (clear_all) {
@@ -2055,6 +2057,8 @@ inline DomIncludes::DomIncludes()
 
 inline DomIncludes::~DomIncludes()
 {
+    for (int i = 0; i < m_include.size(); ++i)
+        delete m_include[i];
     m_include.clear();
 }
 
@@ -2157,6 +2161,8 @@ inline QDomElement DomInclude::write(QDomDocument &doc, const QString &tagName)
 
 inline void DomResources::clear(bool clear_all)
 {
+    for (int i = 0; i < m_include.size(); ++i)
+        delete m_include[i];
     m_include.clear();
 
     if (clear_all) {
@@ -2173,6 +2179,8 @@ inline DomResources::DomResources()
 
 inline DomResources::~DomResources()
 {
+    for (int i = 0; i < m_include.size(); ++i)
+        delete m_include[i];
     m_include.clear();
 }
 
@@ -2273,9 +2281,17 @@ inline QDomElement DomResource::write(QDomDocument &doc, const QString &tagName)
 
 inline void DomActionGroup::clear(bool clear_all)
 {
+    for (int i = 0; i < m_action.size(); ++i)
+        delete m_action[i];
     m_action.clear();
+    for (int i = 0; i < m_actionGroup.size(); ++i)
+        delete m_actionGroup[i];
     m_actionGroup.clear();
+    for (int i = 0; i < m_property.size(); ++i)
+        delete m_property[i];
     m_property.clear();
+    for (int i = 0; i < m_attribute.size(); ++i)
+        delete m_attribute[i];
     m_attribute.clear();
 
     if (clear_all) {
@@ -2292,9 +2308,17 @@ inline DomActionGroup::DomActionGroup()
 
 inline DomActionGroup::~DomActionGroup()
 {
+    for (int i = 0; i < m_action.size(); ++i)
+        delete m_action[i];
     m_action.clear();
+    for (int i = 0; i < m_actionGroup.size(); ++i)
+        delete m_actionGroup[i];
     m_actionGroup.clear();
+    for (int i = 0; i < m_property.size(); ++i)
+        delete m_property[i];
     m_property.clear();
+    for (int i = 0; i < m_attribute.size(); ++i)
+        delete m_attribute[i];
     m_attribute.clear();
 }
 
@@ -2314,7 +2338,7 @@ inline void DomActionGroup::read(const QDomElement &node)
             m_action.append(v);
             continue;
         }
-        if (tag == QLatin1String("actionGroup")) {
+        if (tag == QLatin1String("actiongroup")) {
             DomActionGroup *v = new DomActionGroup();
             v->read(e);
             m_actionGroup.append(v);
@@ -2353,7 +2377,7 @@ inline QDomElement DomActionGroup::write(QDomDocument &doc, const QString &tagNa
     }
     for (int i = 0; i < m_actionGroup.size(); ++i) {
         DomActionGroup* v = m_actionGroup[i];
-        QDomNode child = v->write(doc, QLatin1String("actionGroup"));
+        QDomNode child = v->write(doc, QLatin1String("actiongroup"));
         e.appendChild(child);
     }
     for (int i = 0; i < m_property.size(); ++i) {
@@ -2394,7 +2418,11 @@ inline void DomActionGroup::setElementAttribute(const QList<DomProperty*>& a)
 
 inline void DomAction::clear(bool clear_all)
 {
+    for (int i = 0; i < m_property.size(); ++i)
+        delete m_property[i];
     m_property.clear();
+    for (int i = 0; i < m_attribute.size(); ++i)
+        delete m_attribute[i];
     m_attribute.clear();
 
     if (clear_all) {
@@ -2413,7 +2441,11 @@ inline DomAction::DomAction()
 
 inline DomAction::~DomAction()
 {
+    for (int i = 0; i < m_property.size(); ++i)
+        delete m_property[i];
     m_property.clear();
+    for (int i = 0; i < m_attribute.size(); ++i)
+        delete m_attribute[i];
     m_attribute.clear();
 }
 
@@ -2535,6 +2567,8 @@ inline QDomElement DomActionRef::write(QDomDocument &doc, const QString &tagName
 
 inline void DomImages::clear(bool clear_all)
 {
+    for (int i = 0; i < m_image.size(); ++i)
+        delete m_image[i];
     m_image.clear();
 
     if (clear_all) {
@@ -2549,6 +2583,8 @@ inline DomImages::DomImages()
 
 inline DomImages::~DomImages()
 {
+    for (int i = 0; i < m_image.size(); ++i)
+        delete m_image[i];
     m_image.clear();
 }
 
@@ -2721,6 +2757,8 @@ inline QDomElement DomImageData::write(QDomDocument &doc, const QString &tagName
 
 inline void DomCustomWidgets::clear(bool clear_all)
 {
+    for (int i = 0; i < m_customWidget.size(); ++i)
+        delete m_customWidget[i];
     m_customWidget.clear();
 
     if (clear_all) {
@@ -2735,6 +2773,8 @@ inline DomCustomWidgets::DomCustomWidgets()
 
 inline DomCustomWidgets::~DomCustomWidgets()
 {
+    for (int i = 0; i < m_customWidget.size(); ++i)
+        delete m_customWidget[i];
     m_customWidget.clear();
 }
 
@@ -2746,7 +2786,7 @@ inline void DomCustomWidgets::read(const QDomElement &node)
             continue;
         QDomElement e = n.toElement();
         QString tag = e.tagName();
-        if (tag == QLatin1String("customWidget")) {
+        if (tag == QLatin1String("customwidget")) {
             DomCustomWidget *v = new DomCustomWidget();
             v->read(e);
             m_customWidget.append(v);
@@ -2765,7 +2805,7 @@ inline QDomElement DomCustomWidgets::write(QDomDocument &doc, const QString &tag
 
     for (int i = 0; i < m_customWidget.size(); ++i) {
         DomCustomWidget* v = m_customWidget[i];
-        QDomNode child = v->write(doc, QLatin1String("customWidget"));
+        QDomNode child = v->write(doc, QLatin1String("customwidget"));
         e.appendChild(child);
     }
     if (!m_text.isEmpty())
@@ -2889,7 +2929,7 @@ inline void DomCustomWidget::read(const QDomElement &node)
             setElementHeader(v);
             continue;
         }
-        if (tag == QLatin1String("sizeHint")) {
+        if (tag == QLatin1String("sizehint")) {
             DomSize *v = new DomSize();
             v->read(e);
             setElementSizeHint(v);
@@ -2899,7 +2939,7 @@ inline void DomCustomWidget::read(const QDomElement &node)
             setElementContainer(e.text().toInt());
             continue;
         }
-        if (tag == QLatin1String("sizePolicy")) {
+        if (tag == QLatin1String("sizepolicy")) {
             DomSizePolicyData *v = new DomSizePolicyData();
             v->read(e);
             setElementSizePolicy(v);
@@ -2940,14 +2980,14 @@ inline QDomElement DomCustomWidget::write(QDomDocument &doc, const QString &tagN
         e.appendChild(m_header->write(doc, QLatin1String("header")));
 
     if (m_sizeHint != 0)
-        e.appendChild(m_sizeHint->write(doc, QLatin1String("sizeHint")));
+        e.appendChild(m_sizeHint->write(doc, QLatin1String("sizehint")));
 
     child = doc.createElement(QLatin1String("container"));
     child.appendChild(doc.createTextNode(QString::number(m_container)));
     e.appendChild(child);
 
     if (m_sizePolicy != 0)
-        e.appendChild(m_sizePolicy->write(doc, QLatin1String("sizePolicy")));
+        e.appendChild(m_sizePolicy->write(doc, QLatin1String("sizepolicy")));
 
     if (m_pixmap != 0)
         e.appendChild(m_pixmap->write(doc, QLatin1String("pixmap")));
@@ -3008,6 +3048,8 @@ inline void DomCustomWidget::setElementProperties(DomProperties* a)
 
 inline void DomProperties::clear(bool clear_all)
 {
+    for (int i = 0; i < m_property.size(); ++i)
+        delete m_property[i];
     m_property.clear();
 
     if (clear_all) {
@@ -3022,6 +3064,8 @@ inline DomProperties::DomProperties()
 
 inline DomProperties::~DomProperties()
 {
+    for (int i = 0; i < m_property.size(); ++i)
+        delete m_property[i];
     m_property.clear();
 }
 
@@ -3144,11 +3188,11 @@ inline void DomSizePolicyData::read(const QDomElement &node)
             continue;
         QDomElement e = n.toElement();
         QString tag = e.tagName();
-        if (tag == QLatin1String("horData")) {
+        if (tag == QLatin1String("hordata")) {
             setElementHorData(e.text().toInt());
             continue;
         }
-        if (tag == QLatin1String("verData")) {
+        if (tag == QLatin1String("verdata")) {
             setElementVerData(e.text().toInt());
             continue;
         }
@@ -3163,11 +3207,11 @@ inline QDomElement DomSizePolicyData::write(QDomDocument &doc, const QString &ta
 
     QDomElement child;
 
-    child = doc.createElement(QLatin1String("horData"));
+    child = doc.createElement(QLatin1String("hordata"));
     child.appendChild(doc.createTextNode(QString::number(m_horData)));
     e.appendChild(child);
 
-    child = doc.createElement(QLatin1String("verData"));
+    child = doc.createElement(QLatin1String("verdata"));
     child.appendChild(doc.createTextNode(QString::number(m_verData)));
     e.appendChild(child);
 
@@ -3305,6 +3349,8 @@ inline QDomElement DomLayoutFunction::write(QDomDocument &doc, const QString &ta
 
 inline void DomTabStops::clear(bool clear_all)
 {
+    for (int i = 0; i < m_tabStop.size(); ++i)
+        delete m_tabStop[i];
     m_tabStop.clear();
 
     if (clear_all) {
@@ -3319,6 +3365,8 @@ inline DomTabStops::DomTabStops()
 
 inline DomTabStops::~DomTabStops()
 {
+    for (int i = 0; i < m_tabStop.size(); ++i)
+        delete m_tabStop[i];
     m_tabStop.clear();
 }
 
@@ -3330,7 +3378,7 @@ inline void DomTabStops::read(const QDomElement &node)
             continue;
         QDomElement e = n.toElement();
         QString tag = e.tagName();
-        if (tag == QLatin1String("tabStop")) {
+        if (tag == QLatin1String("tabstop")) {
             m_tabStop.append(e.text());
             continue;
         }
@@ -3363,8 +3411,14 @@ inline void DomTabStops::setElementTabStop(const QStringList& a)
 
 inline void DomLayout::clear(bool clear_all)
 {
+    for (int i = 0; i < m_property.size(); ++i)
+        delete m_property[i];
     m_property.clear();
+    for (int i = 0; i < m_attribute.size(); ++i)
+        delete m_attribute[i];
     m_attribute.clear();
+    for (int i = 0; i < m_item.size(); ++i)
+        delete m_item[i];
     m_item.clear();
 
     if (clear_all) {
@@ -3381,8 +3435,14 @@ inline DomLayout::DomLayout()
 
 inline DomLayout::~DomLayout()
 {
+    for (int i = 0; i < m_property.size(); ++i)
+        delete m_property[i];
     m_property.clear();
+    for (int i = 0; i < m_attribute.size(); ++i)
+        delete m_attribute[i];
     m_attribute.clear();
+    for (int i = 0; i < m_item.size(); ++i)
+        delete m_item[i];
     m_item.clear();
 }
 
@@ -3519,10 +3579,10 @@ inline void DomLayoutItem::read(const QDomElement &node)
         setAttributeRow(node.attribute(QLatin1String("row")).toInt());
     if (node.hasAttribute(QLatin1String("column")))
         setAttributeColumn(node.attribute(QLatin1String("column")).toInt());
-    if (node.hasAttribute(QLatin1String("rowSpan")))
-        setAttributeRowSpan(node.attribute(QLatin1String("rowSpan")).toInt());
-    if (node.hasAttribute(QLatin1String("colSpan")))
-        setAttributeColSpan(node.attribute(QLatin1String("colSpan")).toInt());
+    if (node.hasAttribute(QLatin1String("rowspan")))
+        setAttributeRowSpan(node.attribute(QLatin1String("rowspan")).toInt());
+    if (node.hasAttribute(QLatin1String("colspan")))
+        setAttributeColSpan(node.attribute(QLatin1String("colspan")).toInt());
 
     for (QDomNode n = node.firstChild(); !n.isNull(); n = n.nextSibling()) {
         if (!n.isElement())
@@ -3565,10 +3625,10 @@ inline QDomElement DomLayoutItem::write(QDomDocument &doc, const QString &tagNam
         e.setAttribute(QLatin1String("column"), attributeColumn());
 
     if (hasAttributeRowSpan())
-        e.setAttribute(QLatin1String("rowSpan"), attributeRowSpan());
+        e.setAttribute(QLatin1String("rowspan"), attributeRowSpan());
 
     if (hasAttributeColSpan())
-        e.setAttribute(QLatin1String("colSpan"), attributeColSpan());
+        e.setAttribute(QLatin1String("colspan"), attributeColSpan());
 
     switch(kind()) {
         case Widget: {
@@ -3627,6 +3687,8 @@ inline void DomLayoutItem::setElementSpacer(DomSpacer* a)
 
 inline void DomRow::clear(bool clear_all)
 {
+    for (int i = 0; i < m_property.size(); ++i)
+        delete m_property[i];
     m_property.clear();
 
     if (clear_all) {
@@ -3641,6 +3703,8 @@ inline DomRow::DomRow()
 
 inline DomRow::~DomRow()
 {
+    for (int i = 0; i < m_property.size(); ++i)
+        delete m_property[i];
     m_property.clear();
 }
 
@@ -3687,6 +3751,8 @@ inline void DomRow::setElementProperty(const QList<DomProperty*>& a)
 
 inline void DomColumn::clear(bool clear_all)
 {
+    for (int i = 0; i < m_property.size(); ++i)
+        delete m_property[i];
     m_property.clear();
 
     if (clear_all) {
@@ -3701,6 +3767,8 @@ inline DomColumn::DomColumn()
 
 inline DomColumn::~DomColumn()
 {
+    for (int i = 0; i < m_property.size(); ++i)
+        delete m_property[i];
     m_property.clear();
 }
 
@@ -3747,7 +3815,11 @@ inline void DomColumn::setElementProperty(const QList<DomProperty*>& a)
 
 inline void DomItem::clear(bool clear_all)
 {
+    for (int i = 0; i < m_property.size(); ++i)
+        delete m_property[i];
     m_property.clear();
+    for (int i = 0; i < m_item.size(); ++i)
+        delete m_item[i];
     m_item.clear();
 
     if (clear_all) {
@@ -3762,7 +3834,11 @@ inline DomItem::DomItem()
 
 inline DomItem::~DomItem()
 {
+    for (int i = 0; i < m_property.size(); ++i)
+        delete m_property[i];
     m_property.clear();
+    for (int i = 0; i < m_item.size(); ++i)
+        delete m_item[i];
     m_item.clear();
 }
 
@@ -3825,16 +3901,38 @@ inline void DomItem::setElementItem(const QList<DomItem*>& a)
 
 inline void DomWidget::clear(bool clear_all)
 {
+    for (int i = 0; i < m_class.size(); ++i)
+        delete m_class[i];
     m_class.clear();
+    for (int i = 0; i < m_property.size(); ++i)
+        delete m_property[i];
     m_property.clear();
+    for (int i = 0; i < m_attribute.size(); ++i)
+        delete m_attribute[i];
     m_attribute.clear();
+    for (int i = 0; i < m_row.size(); ++i)
+        delete m_row[i];
     m_row.clear();
+    for (int i = 0; i < m_column.size(); ++i)
+        delete m_column[i];
     m_column.clear();
+    for (int i = 0; i < m_item.size(); ++i)
+        delete m_item[i];
     m_item.clear();
+    for (int i = 0; i < m_layout.size(); ++i)
+        delete m_layout[i];
     m_layout.clear();
+    for (int i = 0; i < m_widget.size(); ++i)
+        delete m_widget[i];
     m_widget.clear();
+    for (int i = 0; i < m_action.size(); ++i)
+        delete m_action[i];
     m_action.clear();
+    for (int i = 0; i < m_actionGroup.size(); ++i)
+        delete m_actionGroup[i];
     m_actionGroup.clear();
+    for (int i = 0; i < m_addAction.size(); ++i)
+        delete m_addAction[i];
     m_addAction.clear();
 
     if (clear_all) {
@@ -3853,16 +3951,38 @@ inline DomWidget::DomWidget()
 
 inline DomWidget::~DomWidget()
 {
+    for (int i = 0; i < m_class.size(); ++i)
+        delete m_class[i];
     m_class.clear();
+    for (int i = 0; i < m_property.size(); ++i)
+        delete m_property[i];
     m_property.clear();
+    for (int i = 0; i < m_attribute.size(); ++i)
+        delete m_attribute[i];
     m_attribute.clear();
+    for (int i = 0; i < m_row.size(); ++i)
+        delete m_row[i];
     m_row.clear();
+    for (int i = 0; i < m_column.size(); ++i)
+        delete m_column[i];
     m_column.clear();
+    for (int i = 0; i < m_item.size(); ++i)
+        delete m_item[i];
     m_item.clear();
+    for (int i = 0; i < m_layout.size(); ++i)
+        delete m_layout[i];
     m_layout.clear();
+    for (int i = 0; i < m_widget.size(); ++i)
+        delete m_widget[i];
     m_widget.clear();
+    for (int i = 0; i < m_action.size(); ++i)
+        delete m_action[i];
     m_action.clear();
+    for (int i = 0; i < m_actionGroup.size(); ++i)
+        delete m_actionGroup[i];
     m_actionGroup.clear();
+    for (int i = 0; i < m_addAction.size(); ++i)
+        delete m_addAction[i];
     m_addAction.clear();
 }
 
@@ -3930,13 +4050,13 @@ inline void DomWidget::read(const QDomElement &node)
             m_action.append(v);
             continue;
         }
-        if (tag == QLatin1String("actionGroup")) {
+        if (tag == QLatin1String("actiongroup")) {
             DomActionGroup *v = new DomActionGroup();
             v->read(e);
             m_actionGroup.append(v);
             continue;
         }
-        if (tag == QLatin1String("addAction")) {
+        if (tag == QLatin1String("addaction")) {
             DomActionRef *v = new DomActionRef();
             v->read(e);
             m_addAction.append(v);
@@ -4006,12 +4126,12 @@ inline QDomElement DomWidget::write(QDomDocument &doc, const QString &tagName)
     }
     for (int i = 0; i < m_actionGroup.size(); ++i) {
         DomActionGroup* v = m_actionGroup[i];
-        QDomNode child = v->write(doc, QLatin1String("actionGroup"));
+        QDomNode child = v->write(doc, QLatin1String("actiongroup"));
         e.appendChild(child);
     }
     for (int i = 0; i < m_addAction.size(); ++i) {
         DomActionRef* v = m_addAction[i];
-        QDomNode child = v->write(doc, QLatin1String("addAction"));
+        QDomNode child = v->write(doc, QLatin1String("addaction"));
         e.appendChild(child);
     }
     if (!m_text.isEmpty())
@@ -4077,6 +4197,8 @@ inline void DomWidget::setElementAddAction(const QList<DomActionRef*>& a)
 
 inline void DomSpacer::clear(bool clear_all)
 {
+    for (int i = 0; i < m_property.size(); ++i)
+        delete m_property[i];
     m_property.clear();
 
     if (clear_all) {
@@ -4093,6 +4215,8 @@ inline DomSpacer::DomSpacer()
 
 inline DomSpacer::~DomSpacer()
 {
+    for (int i = 0; i < m_property.size(); ++i)
+        delete m_property[i];
     m_property.clear();
 }
 
@@ -4231,6 +4355,8 @@ inline void DomColor::setElementBlue(int a)
 
 inline void DomColorGroup::clear(bool clear_all)
 {
+    for (int i = 0; i < m_color.size(); ++i)
+        delete m_color[i];
     m_color.clear();
 
     if (clear_all) {
@@ -4245,6 +4371,8 @@ inline DomColorGroup::DomColorGroup()
 
 inline DomColorGroup::~DomColorGroup()
 {
+    for (int i = 0; i < m_color.size(); ++i)
+        delete m_color[i];
     m_color.clear();
 }
 
@@ -4429,7 +4557,7 @@ inline void DomFont::read(const QDomElement &node)
             setElementFamily(e.text());
             continue;
         }
-        if (tag == QLatin1String("pointSize")) {
+        if (tag == QLatin1String("pointsize")) {
             setElementPointSize(e.text().toInt());
             continue;
         }
@@ -4449,7 +4577,7 @@ inline void DomFont::read(const QDomElement &node)
             setElementUnderline((e.text() == QLatin1String("true") ? true : false));
             continue;
         }
-        if (tag == QLatin1String("strikeOut")) {
+        if (tag == QLatin1String("strikeout")) {
             setElementStrikeOut((e.text() == QLatin1String("true") ? true : false));
             continue;
         }
@@ -4468,7 +4596,7 @@ inline QDomElement DomFont::write(QDomDocument &doc, const QString &tagName)
     child.appendChild(doc.createTextNode(m_family));
     e.appendChild(child);
 
-    child = doc.createElement(QLatin1String("pointSize"));
+    child = doc.createElement(QLatin1String("pointsize"));
     child.appendChild(doc.createTextNode(QString::number(m_pointSize)));
     e.appendChild(child);
 
@@ -4488,7 +4616,7 @@ inline QDomElement DomFont::write(QDomDocument &doc, const QString &tagName)
     child.appendChild(doc.createTextNode((m_underline ? QLatin1String("true") : QLatin1String("false"))));
     e.appendChild(child);
 
-    child = doc.createElement(QLatin1String("strikeOut"));
+    child = doc.createElement(QLatin1String("strikeout"));
     child.appendChild(doc.createTextNode((m_strikeOut ? QLatin1String("true") : QLatin1String("false"))));
     e.appendChild(child);
 
@@ -4740,19 +4868,19 @@ inline void DomSizePolicy::read(const QDomElement &node)
             continue;
         QDomElement e = n.toElement();
         QString tag = e.tagName();
-        if (tag == QLatin1String("hSizeType")) {
+        if (tag == QLatin1String("hsizetype")) {
             setElementHSizeType(e.text().toInt());
             continue;
         }
-        if (tag == QLatin1String("vSizeType")) {
+        if (tag == QLatin1String("vsizetype")) {
             setElementVSizeType(e.text().toInt());
             continue;
         }
-        if (tag == QLatin1String("horStretch")) {
+        if (tag == QLatin1String("horstretch")) {
             setElementHorStretch(e.text().toInt());
             continue;
         }
-        if (tag == QLatin1String("verStretch")) {
+        if (tag == QLatin1String("verstretch")) {
             setElementVerStretch(e.text().toInt());
             continue;
         }
@@ -4767,19 +4895,19 @@ inline QDomElement DomSizePolicy::write(QDomDocument &doc, const QString &tagNam
 
     QDomElement child;
 
-    child = doc.createElement(QLatin1String("hSizeType"));
+    child = doc.createElement(QLatin1String("hsizetype"));
     child.appendChild(doc.createTextNode(QString::number(m_hSizeType)));
     e.appendChild(child);
 
-    child = doc.createElement(QLatin1String("vSizeType"));
+    child = doc.createElement(QLatin1String("vsizetype"));
     child.appendChild(doc.createTextNode(QString::number(m_vSizeType)));
     e.appendChild(child);
 
-    child = doc.createElement(QLatin1String("horStretch"));
+    child = doc.createElement(QLatin1String("horstretch"));
     child.appendChild(doc.createTextNode(QString::number(m_horStretch)));
     e.appendChild(child);
 
-    child = doc.createElement(QLatin1String("verStretch"));
+    child = doc.createElement(QLatin1String("verstretch"));
     child.appendChild(doc.createTextNode(QString::number(m_verStretch)));
     e.appendChild(child);
 
@@ -5189,6 +5317,8 @@ inline void DomDateTime::setElementDay(int a)
 
 inline void DomStringList::clear(bool clear_all)
 {
+    for (int i = 0; i < m_string.size(); ++i)
+        delete m_string[i];
     m_string.clear();
 
     if (clear_all) {
@@ -5203,6 +5333,8 @@ inline DomStringList::DomStringList()
 
 inline DomStringList::~DomStringList()
 {
+    for (int i = 0; i < m_string.size(); ++i)
+        delete m_string[i];
     m_string.clear();
 }
 
@@ -5470,7 +5602,7 @@ inline void DomProperty::read(const QDomElement &node)
             setElementFont(v);
             continue;
         }
-        if (tag == QLatin1String("iconSet")) {
+        if (tag == QLatin1String("iconset")) {
             DomResourcePixmap *v = new DomResourcePixmap();
             v->read(e);
             setElementIconSet(v);
@@ -5504,7 +5636,7 @@ inline void DomProperty::read(const QDomElement &node)
             setElementSet(e.text());
             continue;
         }
-        if (tag == QLatin1String("sizePolicy")) {
+        if (tag == QLatin1String("sizepolicy")) {
             DomSizePolicy *v = new DomSizePolicy();
             v->read(e);
             setElementSizePolicy(v);
@@ -5522,7 +5654,7 @@ inline void DomProperty::read(const QDomElement &node)
             setElementString(v);
             continue;
         }
-        if (tag == QLatin1String("stringList")) {
+        if (tag == QLatin1String("stringlist")) {
             DomStringList *v = new DomStringList();
             v->read(e);
             setElementStringList(v);
@@ -5544,7 +5676,7 @@ inline void DomProperty::read(const QDomElement &node)
             setElementTime(v);
             continue;
         }
-        if (tag == QLatin1String("dateTime")) {
+        if (tag == QLatin1String("datetime")) {
             DomDateTime *v = new DomDateTime();
             v->read(e);
             setElementDateTime(v);
@@ -5615,7 +5747,7 @@ inline QDomElement DomProperty::write(QDomDocument &doc, const QString &tagName)
         case IconSet: {
             DomResourcePixmap* v = elementIconSet();
             if (v != 0) {
-                QDomElement child = v->write(doc, QLatin1String("iconSet"));
+                QDomElement child = v->write(doc, QLatin1String("iconset"));
                 e.appendChild(child);
             }
             break;
@@ -5662,7 +5794,7 @@ inline QDomElement DomProperty::write(QDomDocument &doc, const QString &tagName)
         case SizePolicy: {
             DomSizePolicy* v = elementSizePolicy();
             if (v != 0) {
-                QDomElement child = v->write(doc, QLatin1String("sizePolicy"));
+                QDomElement child = v->write(doc, QLatin1String("sizepolicy"));
                 e.appendChild(child);
             }
             break;
@@ -5686,7 +5818,7 @@ inline QDomElement DomProperty::write(QDomDocument &doc, const QString &tagName)
         case StringList: {
             DomStringList* v = elementStringList();
             if (v != 0) {
-                QDomElement child = v->write(doc, QLatin1String("stringList"));
+                QDomElement child = v->write(doc, QLatin1String("stringlist"));
                 e.appendChild(child);
             }
             break;
@@ -5717,7 +5849,7 @@ inline QDomElement DomProperty::write(QDomDocument &doc, const QString &tagName)
         case DateTime: {
             DomDateTime* v = elementDateTime();
             if (v != 0) {
-                QDomElement child = v->write(doc, QLatin1String("dateTime"));
+                QDomElement child = v->write(doc, QLatin1String("datetime"));
                 e.appendChild(child);
             }
             break;
