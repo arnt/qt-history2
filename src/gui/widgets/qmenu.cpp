@@ -1783,6 +1783,8 @@ void QMenu::compatHighlighted(QAction *act)
 
 int QMenu::findIdForAction(QAction *act) const
 {
+    if(!act)
+        return -1;
     return reinterpret_cast<QMenuItem*>(act)->id();
 }
 #endif
