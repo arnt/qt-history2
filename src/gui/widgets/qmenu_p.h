@@ -56,7 +56,7 @@ public:
     QRect actionRect(QAction *) const;
     mutable QMap<QAction*, QRect> actionRects;
     mutable QList<QAction*> actionList;
-    void calcActionRects() const;
+    void calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAction*> &actionList) const;
     void updateActions();
     uint ncols : 4; //4 bits is probably plenty
 

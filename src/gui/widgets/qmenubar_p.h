@@ -44,7 +44,7 @@ public:
     QVector<int> shortcutIndexMap;
     mutable QMap<QAction*, QRect> actionRects;
     mutable QList<QAction*> actionList;
-    void calcActionRects(int width, int start) const;
+    void calcActionRects(int max_width, int start, QMap<QAction*, QRect> &actionRects, QList<QAction*> &actionList) const;
     QRect actionRect(QAction *) const;
     void updateActions();
 

@@ -74,7 +74,7 @@ void QMenuBarPrivate::updateActions()
         return;
     }
 #endif
-    calcActionRects(q_width, q_start);
+    calcActionRects(q_width, q_start, actionRects, actionList);
     itemsWidth = q_width;
     itemsStart = q_start;
     currentAction = 0;
@@ -163,10 +163,13 @@ void QMenuBarPrivate::setCurrentAction(QAction *action, bool popup, bool activat
     }
 }
 
-void QMenuBarPrivate::calcActionRects(int max_width, int start) const
+void QMenuBarPrivate::calcActionRects(int max_width, int start, QMap<QAction*, QRect> &actionRects, QList<QAction*> &actionList) const
 {
-    if(!itemsDirty && itemsWidth == max_width && itemsStart == start)
+    if(!itemsDirty && itemsWidth == max_width && itemsStart == start) {
+        actionRects = d->actionRects;
+        actionList = d->actionList;
         return;
+    }
     actionRects.clear();
     actionList.clear();
     int max_item_height = 0, separator = -1, separator_start = 0, separator_len = 0;
@@ -1037,9 +1040,11 @@ QSize QMenuBar::sizeHint() const
     ensurePolished();
     QSize ret(0, 0);
     if(as_gui_menubar) {
-        d->calcActionRects(width()-(style().pixelMetric(QStyle::PM_MenuBarFrameWidth, this)*2), 0);
-        for (QMap<QAction*, QRect>::const_iterator i = d->actionRects.begin();
-             i != d->actionRects.constEnd(); ++i) {
+        QMap<QAction*, QRect> actionRects;
+        QList<QAction*> actionList;
+        d->calcActionRects(width()-(style().pixelMetric(QStyle::PM_MenuBarFrameWidth, this)*2), 0, actionRects, actionList);
+        for (QMap<QAction*, QRect>::const_iterator i = actionRects.begin();
+             i != actionRects.constEnd(); ++i) {
             QRect actionRect(i.value());
             if(actionRect.right() > ret.width())
                 ret.setWidth(actionRect.right());
@@ -1094,9 +1099,11 @@ int QMenuBar::heightForWidth(int max_width) const
 
     int height = 0;
     if(as_gui_menubar) {
-        d->calcActionRects(max_width, 0);
-        for (QMap<QAction*, QRect>::const_iterator i = d->actionRects.begin();
-             i != d->actionRects.constEnd(); ++i)
+        QMap<QAction*, QRect> actionRects;
+        QList<QAction*> actionList;
+        d->calcActionRects(max_width, 0, actionRects, actionList);
+        for (QMap<QAction*, QRect>::const_iterator i = actionRects.begin();
+             i != actionRects.constEnd(); ++i)
             height = qMax(height, i.value().bottom());
         height += (q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, q)*2) + q->style().pixelMetric(QStyle::PM_MenuBarVMargin, q);
     }

@@ -77,10 +77,13 @@ public:
 };
 #include "qmenu.moc"
 
-void QMenuPrivate::calcActionRects() const
+void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAction*> &actionList) const
 {
-    if(!itemsDirty)
+    if(!itemsDirty) {
+        actionRects = d->actionRects;
+        actionList = d->actionList;
         return;
+    }
 
     actionRects.clear();
     actionList.clear();
@@ -190,7 +193,7 @@ void QMenuPrivate::updateActions()
     if(!itemsDirty)
         return;
     sloppyAction = 0;
-    calcActionRects();
+    calcActionRects(actionRects, actionList);
     ncols = 1;
     if(!scroll) {
         for(int i = 0, last_left = 0; i < actionList.count(); i++) {
@@ -1019,7 +1022,9 @@ QRect QMenu::actionGeometry(QAction *act) const
 QSize QMenu::sizeHint() const
 {
     ensurePolished();
-    d->calcActionRects();
+    QMap<QAction*, QRect> actionRects;
+    QList<QAction*> actionList;
+    d->calcActionRects(actionRects, actionList);
     QRect r;
     for (QMap<QAction*, QRect>::const_iterator i = d->actionRects.begin();
          i != d->actionRects.constEnd(); ++i)
