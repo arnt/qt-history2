@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#17 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#18 $
 #
 # this is a massive hack, written very quickly
 #
@@ -233,7 +233,7 @@ sub storeclass {
 
     $def =~ s/\s+/ /g;
     $def =~ s/Q_OBJECT//;
-    $def =~ s/\{.*?\}/;/gs;
+    $def =~ s/(\)\s*\b(?:const\s*))\{.*?\}/$1;/gs;
     $def =~ s/;\s*$//s;
 
     $members{$url} = $def;
@@ -270,7 +270,7 @@ sub readh {
 
     $h = getfile($filename);
     print "header file: ", $filename, "\n" if ($debug);
-    $h =~ s/\x22([^\\\x22]|\\.)*\x22//g; # \x22 is "
+#   $h =~ s/\x22([^\\\x22]|\\.)*\x22//g; # \x22 is "
 
 # { is \x7b and } is \x7d
     while ($h =~ m-\nclass\s+
@@ -291,7 +291,7 @@ sub readc {
     print "code file: ", $filename, "\n" if ($debug);
 
 # eliminate all the string constants
-    $c =~ s/\x22([^\\\x22]|\\.)*\x22//g; # \x22 is "
+#   $c =~ s/\x22([^\\\x22]|\\.)*\x22//g; # \x22 is "
 
     study $c;
 
