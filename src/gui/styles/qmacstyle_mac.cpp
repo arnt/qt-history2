@@ -2139,9 +2139,9 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             } else {
                 bdi.kind = kThemeBevelButton;
                 if (p->font().bold())
-                    flags |= QStyle::State_Sunken;
+                    flags |= QStyle::State_On;
                 else
-                    flags &= ~QStyle::State_Sunken;
+                    flags &= ~QStyle::State_On;
             }
 
             if (flags & QStyle::State_Active) {
@@ -2167,8 +2167,8 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                 bdi.value = kThemeButtonOn;
                 if (flags & QStyle::State_Up)
                     bdi.adornment = kThemeAdornmentHeaderButtonSortUp;
-            } else {
-                ir.setRight(ir.right() + 50);
+            } else if (bdi.kind == kThemeListHeaderButton) {
+                ir.setRight(ir.right() + 50); // Hide the direction for the list view.
             }
 
             if (flags & QStyle::State_HasFocus && QMacStyle::focusRectPolicy(w) != QMacStyle::FocusDisabled)
@@ -3753,9 +3753,9 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
             } else {
                 bkind = kThemeBevelButton;
                 if (p->font().bold())
-                    flags |= QStyle::State_Sunken;
+                    flags |= QStyle::State_On;
                 else
-                    flags &= ~QStyle::State_Sunken;
+                    flags &= ~QStyle::State_On;
             }
             ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
             if (flags & QStyle::State_HasFocus
@@ -3781,7 +3781,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                 info.value = kThemeButtonOn;
                 if (flags & QStyle::State_Up)
                     info.adornment |= kThemeAdornmentHeaderButtonSortUp;
-            } else {
+            } else if (bkind == kThemeListHeaderButton) {
                 ir.setRight(ir.right() + 50);
             }
             if (scaleHeader) {
