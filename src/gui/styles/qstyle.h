@@ -683,6 +683,7 @@ public:
         SP_TitleBarNormalButton,
         SP_TitleBarShadeButton,
         SP_TitleBarUnshadeButton,
+        SP_TitleBarContextHelpButton,
         SP_DockWindowCloseButton,
         SP_MessageBoxInformation,
         SP_MessageBoxWarning,

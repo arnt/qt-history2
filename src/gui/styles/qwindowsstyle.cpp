@@ -404,6 +404,22 @@ static const char * const qt_normalizeup_xpm[] = {
 "............",
 "............"};
 
+static const char * const qt_help_xpm[] = {
+"12 12 2 1",
+". c None",
+"# c #000000",
+"............",
+"............",
+"...######...",
+"..##....##..",
+".......##...",
+"......##....",
+".....##.....",
+".....##.....",
+"............",
+".....##.....",
+"............",
+"............"};
 
 static const char * const qt_shade_xpm[] = {
 "12 12 2 1",
@@ -928,6 +944,8 @@ QPixmap QWindowsStyle::standardPixmap(StandardPixmap standardPixmap, const QStyl
         return QPixmap((const char **)qt_maximize_xpm);
     case SP_TitleBarCloseButton:
         return QPixmap((const char **)qt_close_xpm);
+    case SP_TitleBarContextHelpButton:
+        return QPixmap((const char **)qt_help_xpm);
     case SP_DockWindowCloseButton:
         return QPixmap((const char **)dock_window_close_xpm);
     case SP_MessageBoxInformation:
