@@ -1645,6 +1645,8 @@ void QTextEditPrivate::paint(QPainter *p, QPaintEvent *e)
     QAbstractTextDocumentLayout::PaintContext ctx;
     if (cursorOn && q->isEnabled())
         ctx.cursorPosition = cursor.position();
+    if (!dndFeedbackCursor.isNull())
+        ctx.cursorPosition = dndFeedbackCursor.position();
     if (cursor.hasSelection()) {
         QAbstractTextDocumentLayout::Selection selection;
         selection.cursor = cursor;
@@ -1655,15 +1657,6 @@ void QTextEditPrivate::paint(QPainter *p, QPaintEvent *e)
     ctx.clip = r;
 
     doc->documentLayout()->draw(p, ctx);
-
-    if (!dndFeedbackCursor.isNull()) {
-        QTextFrame *frame = dndFeedbackCursor.currentFrame();
-        QTextBlock block = dndFeedbackCursor.block();
-        const QPointF frameOffset = doc->documentLayout()->frameBoundingRect(frame).topLeft();
-
-        const int pos = dndFeedbackCursor.position() - block.position();
-        block.layout()->drawCursor(p, frameOffset, pos);
-    }
 }
 
 /*! \reimp
