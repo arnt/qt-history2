@@ -817,7 +817,7 @@ void QFDProgressDialog::setWriteLabel( const QString &s )
  *
  ************************************************************************/
 
-#if !defined(_CC_SUN_) // Work around bug 4328291/4325168 (SunPro 5.0/6.0 EA)
+#if !defined(_CC_SUN_) // Work around bug 4328291/4325168 (Sun WorkShop 5.0)
 inline
 #endif
 int sun4325168Workaround( QCollection::Item n1, QCollection::Item n2 ) {
@@ -3370,6 +3370,13 @@ void QFileDialog::detailViewSelectionChanged()
     nameEdit->setText( str );
     nameEdit->setCursorPosition( str.length() );
     okB->setEnabled( TRUE );
+    if ( d->preview && d->preview->isVisible() && files->currentItem() ) {
+	QUrl u = QUrl( d->url, ((QFileDialogPrivate::File*)files->currentItem())->info.name() );
+	if ( d->infoPreviewer )
+	    d->infoPreviewer->previewUrl( u );
+	if ( d->contentsPreviewer )
+	    d->contentsPreviewer->previewUrl( u );
+    }
 }
 
 void QFileDialog::listBoxSelectionChanged()
@@ -3396,6 +3403,15 @@ void QFileDialog::listBoxSelectionChanged()
     nameEdit->setText( str );
     nameEdit->setCursorPosition( str.length() );
     okB->setEnabled( TRUE );
+    if ( d->preview && d->preview->isVisible() && d->moreFiles->item( d->moreFiles->currentItem() ) ) {
+	QUrl u = QUrl( d->url, 
+		       ( (QFileDialogPrivate::File*)( (QFileDialogPrivate::MCItem*)d->
+						      moreFiles->item( d->moreFiles->currentItem() ) )->i )->info.name() );
+	if ( d->infoPreviewer )
+	    d->infoPreviewer->previewUrl( u );
+	if ( d->contentsPreviewer )
+	    d->contentsPreviewer->previewUrl( u );
+    }
 }
 
 /*! \overload */
