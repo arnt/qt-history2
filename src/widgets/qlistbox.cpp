@@ -3954,9 +3954,11 @@ void QListBox::resizeEvent( QResizeEvent *e )
     if ( d->resizeTimer->isActive() )
 	d->resizeTimer->stop();
     if ( d->rowMode == FixedNumber && d->columnMode == FixedNumber ) {
+	bool currentItemVisible = itemVisible( currentItem() );
 	doLayout();
 	QScrollView::resizeEvent( e );
-	ensureCurrentVisible();
+	if ( currentItemVisible )
+	    ensureCurrentVisible();
 	if ( d->current )
 	    viewport()->repaint( itemRect( d->current ), FALSE );
     } else if ( ( d->columnMode == FitToWidth || d->rowMode == FitToHeight ) && !(isVisible()) ) {
