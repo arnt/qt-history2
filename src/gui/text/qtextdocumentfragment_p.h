@@ -113,7 +113,7 @@ public:
 private:
     bool closeTag(int i);
 
-    void scanTable(int tableNodeIdx, Table *table);
+    bool scanTable(int tableNodeIdx, Table *table);
 
     void appendBlock(const QTextBlockFormat &format, QTextCharFormat charFmt = QTextCharFormat(), const QChar &separator = QChar::ParagraphSeparator);
     void appendText(QString text, QTextCharFormat format);

@@ -452,13 +452,11 @@ void QTextHTMLImporter::import()
 
             listReferences.append(d->formatCollection.createObjectIndex(listFmt));
         } else if (node->id == Html_table) {
-            QTextTableFormat fmt;
-            fmt.setBorder(node->tableBorder);
             Table t;
-            t.tableIndex = d->formatCollection.createObjectIndex(fmt);
+            if (scanTable(i, &t)) {
             tables.append(t);
-            scanTable(i, &tables[tables.size() - 1]);
             hasBlock = false;
+            }
             continue;
         } else if (node->id == Html_tr) {
             Q_ASSERT(!tables.isEmpty());
@@ -629,13 +627,14 @@ bool QTextHTMLImporter::closeTag(int i)
     return blockTagClosed;
 }
 
-void QTextHTMLImporter::scanTable(int tableNodeIdx, Table *table)
+bool QTextHTMLImporter::scanTable(int tableNodeIdx, Table *table)
 {
     table->columns = 0;
 
     QList<int> constraintTypes;
     QList<int> constraintValues;
 
+    int cellCount = 0;
     bool inFirstRow = true;
     int effectiveRow = 0;
     foreach (int row, at(tableNodeIdx).children) {
@@ -644,6 +643,8 @@ void QTextHTMLImporter::scanTable(int tableNodeIdx, Table *table)
 
             foreach (int cell, at(row).children)
                 if (at(cell).isTableCell) {
+                    ++cellCount;
+
                     const QTextHtmlParserNode &c = at(cell);
                     colsInRow += c.tableCellColSpan;
 
@@ -671,10 +672,15 @@ void QTextHTMLImporter::scanTable(int tableNodeIdx, Table *table)
         }
     }
 
-    QTextTableFormat fmt = d->formatCollection.objectFormat(table->tableIndex).toTableFormat();
+    if (cellCount == 0)
+        return false;
+
+    QTextTableFormat fmt;
+    fmt.setBorder(at(tableNodeIdx).tableBorder);
     fmt.setColumns(table->columns);
     fmt.setTableColumConstraints(constraintTypes, constraintValues);
-    d->formatCollection.setObjectFormat(table->tableIndex, fmt);
+    table->tableIndex = d->formatCollection.createObjectIndex(fmt);
+    return true;
 }
 
 void QTextHTMLImporter::appendBlock(const QTextBlockFormat &format, QTextCharFormat charFmt, const QChar &separator)
