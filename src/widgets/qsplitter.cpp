@@ -792,7 +792,7 @@ int QSplitter::adjustPos( int pos, int id, int *farMin, int *min, int *max,
     } else {
 	int delta = *min - pos;
 	int width = *min - *farMin;
-	
+
 	if ( delta > width / 2 && delta >= QMIN(Threshold, width) ) {
 	    return *farMin;
 	} else {
@@ -1200,8 +1200,10 @@ QValueList<int> QSplitter::sizes() const
     QValueList<int> list;
     QSplitterLayoutStruct *s = d->list.first();
     while ( s ) {
-	if ( !s->isSplitter )
-	    list.append( s->getSizer(orient) );
+	if ( !s->isSplitter ) {
+	    QCOORD sz = (s->wid->x() < 0 || s->wid->y() < 0) ? 0 : s->getSizer(orient);
+	    list.append( sz );
+	}
 	s = d->list.next();
     }
     return list;
