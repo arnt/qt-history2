@@ -2,7 +2,7 @@
 
 #include <qapplication.h>
 #include <qevent.h>
-#include <qheader.h>
+#include <q3header.h>
 #include <qtabbar.h>
 #include <qcombobox.h>
 #include <qlineedit.h>
@@ -31,10 +31,10 @@ QAccessibleHeader::QAccessibleHeader(QWidget *w)
     addControllingSignal("clicked(int)");
 }
 
-/*! Returns the QHeader. */
-QHeader *QAccessibleHeader::header() const
+/*! Returns the Q3Header. */
+Q3Header *QAccessibleHeader::header() const
 {
-    return qt_cast<QHeader*>(object());
+    return qt_cast<Q3Header*>(object());
 }
 
 /*! \reimp */
