@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#38 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -28,6 +28,7 @@
 #include "qobjectdict.h"
 #include "qimage.h"
 #include "qbuffer.h"
+#include <ctype.h>
 
 
 // both a struct for storing stuff in and a wrapper to avoid polluting
@@ -557,11 +558,18 @@ bool QUrlDrag::canDecode( QDragMoveEvent* e )
     return e->provides( "url/url" );
 }
 
+/*!
+  Decodes URLs from \a e, placing the result in \a l (which is first cleared).
+
+  Returns TRUE if the event contained a valid list of URLs.
+*/
 bool QUrlDrag::decode( QDropEvent* e, QStrList& l )
 {
     QByteArray payload = e->data( "url/url" );
     if ( payload.size() ) {
 	e->accept();
+	l.clear();
+	l.setAutoDelete(TRUE);
 	uint c=0;
 	char* d = payload.data();
 	while (c < payload.size()) {
@@ -571,6 +579,7 @@ bool QUrlDrag::decode( QDropEvent* e, QStrList& l )
 	    char* s;
 	    if ( c < payload.size() ) {
 	        s = qstrdup(d+f);
+		c++;
 	    } else {
 		s = new char[c-f+1];
 		memcpy(s,d+f,c-f);
@@ -581,5 +590,72 @@ bool QUrlDrag::decode( QDropEvent* e, QStrList& l )
 	return TRUE;
     }
     return FALSE;
+}
+
+static
+int htod(int h)
+{
+    if (isdigit(h)) return h-'0';
+    return tolower(h)-'a';
+}
+
+/*!
+  Returns the name of a local file equivalent to \a url,
+  or a null string if \a url is not a local file.
+*/
+QString QUrlDrag::urlToLocalFile(const char* url)
+{
+    QString result;
+
+    if ( url && 0==qstrnicmp(url,"file:/",6) ) {
+	url += 6;
+	if ( url[0] != '/' || url[1] == '/' ) {
+	    // It is local.
+	    while (*url) {
+		switch (*url) {
+		  case '|': result += ':';
+		    break;
+		  case '+': result += ' ';
+		    break;
+		  case '%': {
+			int ch = url[1];
+			if ( ch && url[2] ) {
+			    ch = htod(ch)*16 + htod(url[2]);
+			    result += ch;
+			}
+		    }
+		    break;
+		  default:
+		    result += *url;
+		}
+		++url;
+	    }
+	}
+    }
+
+    return result;
+}
+
+/*!
+  Decodes URLs from \a e, converts them to local files if they refer to
+  local files, and places them in \a l (which is first cleared).
+
+  Returns TRUE if the event contained a valid list of URLs.
+  The list will be empty if no URLs were local files.
+*/
+bool QUrlDrag::decodeLocalFiles( QDropEvent* e, QStrList& l )
+{
+    QStrList u;
+    if ( !decode( e, u ) )
+	return FALSE;
+
+    l.clear();
+    l.setAutoDelete(TRUE);
+    for (const char* s=u.first(); s; s=u.next()) {
+	QString lf = urlToLocalFile(s);
+	if ( !lf.isNull() )
+	    l.append( qstrdup(lf) );
+    }
+    return TRUE;
 }
 

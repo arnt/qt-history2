@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#23 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -30,6 +30,7 @@
 #include "qmessagebox.h"
 
 #include <windows.h>
+#include <shlobj.h>
 #include <ole2.h>          
 
 extern bool qt_read_dib( QDataStream&, QImage& ); // qimage.cpp
@@ -377,6 +378,22 @@ public:
     }
 };
 
+static const char* protocol = "file:/";
+static int protocol_len = 6;
+
+static
+int dtoh(int d) // NOT SAFE, only use internally
+{
+    return "0123456789abcdef"[d];
+}
+
+static
+int htod(int h)
+{
+    if (isdigit(h)) return h-'0';
+    return tolower(h)-'a';
+}
+
 class QWindowsMimeUrl : public QWindowsMime {
 public:
     int countCf()
@@ -409,7 +426,7 @@ public:
 
     bool canConvert( const char* mime, int cf )
     {
-	return cf == CF_DHDROP && qstricmp(mime,"url/url");
+	return cf == CF_HDROP && 0==qstricmp(mime,"url/url");
     }
 
     QByteArray convertToMime( QByteArray data, const char* mime, int cf )
@@ -417,7 +434,69 @@ public:
 	if ( qstricmp(mime,"url/url")!=0 || cf != CF_HDROP )  // Sanity
 	    return QByteArray();
 
-	// XXX
+	LPDROPFILES hdrop = (LPDROPFILES)data.data();
+	const char* files = (const char*)data.data() + hdrop->pFiles;
+	const char* end = (const char*)data.data() + data.size();
+	const ushort* filesw = (const ushort*)(data.data() + hdrop->pFiles);
+	int i=0;
+	int size=0;
+	bool wide = hdrop->fWide;
+	while (
+	    // until double-NUL
+	    wide ? filesw[i] || filesw[i+1]
+	         : files[i] || files[i+1]
+	) {
+	    char ch = wide ? filesw[i] : files[i];
+	    if ( !ch )
+		size+=protocol_len+1;
+	    else if ( ch == '+' || ch == '%' ) // ### more
+		size+=3;
+	    else
+		size++;
+	    i++;
+	    if ( (wide ? (const char*)(filesw+i) : files+i) >= end )
+		return QByteArray(); // Bad Data
+	}
+	if (i)
+	    size += protocol_len;
+
+	QByteArray result(size);
+
+	char* out = result.data();
+
+	if ( size ) {
+	    memcpy(out, protocol, protocol_len);
+	    out += protocol_len;
+	}
+
+	i = 0;
+	while (
+	    // until double-NUL
+	    wide ? filesw[i] || filesw[i+1]
+	         : files[i] || files[i+1]
+	) {
+	    char ch = wide ? filesw[i] : files[i];
+	    if ( !ch ) {
+		*out++ = ch;
+		memcpy(out, protocol, protocol_len);
+		out += protocol_len;
+	    } else if ( ch == '+' || ch == '%' ) {
+		// special. ### more
+		*out++ = '%';
+		*out++ = dtoh(ch/16);
+		*out++ = dtoh(ch%16);
+	    } else if ( ch == ' ' ) {
+		*out++ = '+';
+	    } else if ( ch == ':' ) {
+		*out++ = '|';
+	    } else {
+		*out++ = ch;
+	    }
+	    i++;
+	    ASSERT( result.data()+size >= out );
+	}
+
+	return result;
     }
 
     QByteArray convertFromMime( QByteArray data, const char* mime, int cf )
@@ -425,7 +504,89 @@ public:
 	if ( qstricmp(mime,"url/url")!=0 || cf != CF_HDROP )  // Sanity
 	    return QByteArray();
 
-	// XXX
+	DROPFILES hdrop;
+	hdrop.pFiles = sizeof(hdrop);
+	GetCursorPos(&hdrop.pt); // try
+	hdrop.fNC = TRUE;
+	hdrop.fWide = FALSE;
+
+	const char* urls = (const char*)data.data();
+	int size=0;
+	bool expectprotocol=TRUE;
+	bool ignore=FALSE;
+	uint i=0;
+
+	while (i < data.size()) {
+	    if ( expectprotocol ) {
+		if ( 0!=qstrncmp( protocol, urls+i, protocol_len ) ) {
+		    ignore = TRUE;
+		} else {
+		    i += protocol_len;
+		    if ( urls[i] == '/' && urls[i+1] != '/' ) {
+			// Host specified!
+			ignore = TRUE;
+		    }
+		}
+		expectprotocol = FALSE;
+	    }
+	    if ( !urls[i] ) {
+		expectprotocol = TRUE;
+	    } else if ( urls[i] == '%' && urls[i+1] && urls[i+2] ) {
+		i+=2;
+	    }
+	    if ( !ignore )
+		size++;
+	    i++;
+	}
+
+	size += sizeof(hdrop);
+	size += 2; // double-NUL
+	QByteArray result(size);
+
+	char* out = result.data();
+
+	memcpy(out, &hdrop, sizeof(hdrop));
+	out += sizeof(hdrop);
+
+	expectprotocol=TRUE;
+	ignore=FALSE;
+	i=0;
+	while (i < data.size()) {
+	    if ( expectprotocol ) {
+		if ( 0!=qstrncmp( protocol, urls+i, protocol_len ) ) {
+		    ignore = TRUE;
+		} else {
+		    i += protocol_len;
+		    if ( urls[i] == '/' && urls[i+1] != '/' ) {
+			// Host specified!
+			ignore = TRUE;
+		    }
+		}
+		expectprotocol = FALSE;
+	    }
+	    if ( urls[i] == '%' && urls[i+1] && urls[i+2] ) {
+		*out++ = htod(urls[i+1])*16 + htod(urls[i+2]);
+	    } else {
+		if ( !urls[i] )
+		    expectprotocol = TRUE;
+		if (!ignore) {
+		    if ( urls[i] == '+' )
+			*out++ = ' ';
+		    else if ( urls[i] == '|' )
+			*out++ = ':';
+		    else
+			*out++ = urls[i];
+		}
+	    }
+	    i++;
+	}
+	// double-NUL
+	*out++ = 0;
+	*out++ = 0;
+
+	ASSERT( result.data()+size == out );
+
+	return result;
     }
 };
 
@@ -444,6 +605,7 @@ void qt_init_windows_mime()
     if ( mimes.isEmpty() ) {
 	new QWindowsMimeImage;
 	new QWindowsMimeText;
+	new QWindowsMimeUrl;
 	new QWindowsMimeAnyMime;
 	qAddPostRoutine(cleanup_mimes);
     }
