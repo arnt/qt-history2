@@ -464,7 +464,7 @@ bool QtFileIconDrag::decode( QMimeSource *e, QStringList &uris )
  *****************************************************************************/
 
 QtFileIconViewItem::QtFileIconViewItem( QtFileIconView *parent, QFileInfo *fi )
-    // set parent 0 => don't align in grid yet, as aour metrics is not correct yet
+    // set parent 0 => don't arrange in grid yet, as aour metrics is not correct yet
     : QIconViewItem( 0, fi->fileName() ), itemFileName( fi->filePath() ),
       itemFileInfo( fi ), checkSetText( FALSE ), timer( this )
 {
@@ -489,7 +489,7 @@ QtFileIconViewItem::QtFileIconViewItem( QtFileIconView *parent, QFileInfo *fi )
     connect( &timer, SIGNAL( timeout() ),
 	     this, SLOT( openFolder() ) );
 
-    // now do init stuff, to align in grid and so on
+    // now do init stuff, to arrange in grid and so on
     init();
 }
 
@@ -665,7 +665,7 @@ QtFileIconView::QtFileIconView( const QString &dir, QWidget *parent, const char 
     setHScrollBarMode( AlwaysOff );
     setVScrollBarMode( Auto );
 
-    setAligning( TRUE );
+    setAutoArrange( TRUE );
     setSorting( TRUE );
 }
 
@@ -683,7 +683,7 @@ void QtFileIconView::setDirectory( const QDir &dir )
 
 void QtFileIconView::newDirectory()
 {
-    setAligning( FALSE );
+    setAutoArrange( FALSE );
     selectAll( FALSE );
     if ( viewDir.mkdir( QString( "New Folder %1" ).arg( ++newFolderNum ) ) ) {
 	QFileInfo *fi = new QFileInfo( viewDir, QString( "New Folder %1" ).arg( newFolderNum ) );
@@ -698,7 +698,7 @@ void QtFileIconView::newDirectory()
 	qApp->processEvents();
 	item->rename();
     }
-    setAligning( TRUE );
+    setAutoArrange( TRUE );
 }
 
 QDir QtFileIconView::currentDir()
@@ -846,14 +846,14 @@ void QtFileIconView::flowEast()
 {
     setHScrollBarMode( AlwaysOff );
     setVScrollBarMode( Auto );
-    setAlignMode( East );
+    setArrangement( LeftToRight );
 }
 
 void QtFileIconView::flowSouth()
 {
     setVScrollBarMode( AlwaysOff );
     setHScrollBarMode( Auto );
-    setAlignMode( South );
+    setArrangement( TopToBottom );
 }
 
 void QtFileIconView::sortAscending()
@@ -881,22 +881,22 @@ void QtFileIconView::slotRightPressed( QIconViewItem *item )
     if ( !item ) { // right pressed on viewport
 	QPopupMenu menu( this );
 
-	menu.insertItem( "&Large View", this, SLOT( viewLarge() ) );
-	menu.insertItem( "&Small View", this, SLOT( viewSmall() ) );
+	menu.insertItem( "&Large view", this, SLOT( viewLarge() ) );
+	menu.insertItem( "&Small view", this, SLOT( viewSmall() ) );
 	menu.insertSeparator();
 	menu.insertItem( "Text at the &bottom", this, SLOT( viewBottom() ) );
 	menu.insertItem( "Text at the &right", this, SLOT( viewRight() ) );
 	menu.insertSeparator();
-	menu.insertItem( "Items flow to the &East", this, SLOT( flowEast() ) );
-	menu.insertItem( "Items flow to the &South", this, SLOT( flowSouth() ) );
+	menu.insertItem( "Arrange l&eft to right", this, SLOT( flowEast() ) );
+	menu.insertItem( "Arrange t&op to bottom", this, SLOT( flowSouth() ) );
 	menu.insertSeparator();
-	menu.insertItem( "&Truncate Item Text", this, SLOT( itemTextTruncate() ) );
-	menu.insertItem( "&Wordwrap Item Text", this, SLOT( itemTextWordWrap() ) );
+	menu.insertItem( "&Truncate item text", this, SLOT( itemTextTruncate() ) );
+	menu.insertItem( "&Wordwrap item text", this, SLOT( itemTextWordWrap() ) );
 	menu.insertSeparator();
-	menu.insertItem( "Align Items in &Grid", this, SLOT( alignItemsInGrid() ) );
+	menu.insertItem( "Arrange items in &grid", this, SLOT( arrangeItemsInGrid() ) );
 	menu.insertSeparator();
-	menu.insertItem( "Sort &Ascending", this, SLOT( sortAscending() ) );
-	menu.insertItem( "Sort &Descending", this, SLOT( sortDescending() ) );
+	menu.insertItem( "Sort &ascending", this, SLOT( sortAscending() ) );
+	menu.insertItem( "Sort &descending", this, SLOT( sortDescending() ) );
 
 	menu.setMouseTracking( TRUE );
 	menu.exec( QCursor::pos() );
@@ -950,5 +950,5 @@ void QtFileIconView::setViewMode( ViewMode m )
     for ( ; item; item = (QtFileIconViewItem*)item->nextItem() )
 	item->viewModeChanged( vm );
 
-    alignItemsInGrid();
+    arrangeItemsInGrid();
 }

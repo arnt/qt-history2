@@ -121,8 +121,8 @@ protected slots:
     void itemTextWordWrap();
     void sortAscending();
     void sortDescending();
-    void alignItemsInGrid() {
-	QIconView::alignItemsInGrid( TRUE );
+    void arrangeItemsInGrid() {
+	QIconView::arrangeItemsInGrid( TRUE );
     }
 
     void slotRightPressed( QIconViewItem *item );

@@ -121,7 +121,7 @@ struct QIconViewPrivate
     bool cleared, dropped, clearing;
     int dragItems;
     QPoint oldDragPos;
-    QIconView::AlignMode alignMode;
+    QIconView::Arrangement arrangement;
     QIconView::ResizeMode resizeMode;
     QSize oldSize;
     QValueList<QIconDragItem> iconDragData;
@@ -1658,10 +1658,10 @@ void QIconViewItem::calcTmpText()
   The QIconView provides a widget which can contain lots of iconview items which can
   be selected, dragged and so on.
 
-  Items can be inserted in a grid and can flow from top to bottom (South) or from
-  left to right (East). The text can be either displayed at the bottom of the icons
+  Items can be inserted in a grid and can flow from top to bottom (TopToBottom) or from
+  left to right (LeftToRight). The text can be either displayed at the bottom of the icons
   or the the right of the icons. Items can also be inserted in a sorted order. There
-  are also methods to re-align and re-sort the items after they have been inserted.
+  are also methods to re-arrange and re-sort the items after they have been inserted.
 
   There is a variety of selection modes, described in the
   QIconView::SelectionMode documentation. The default is
@@ -1808,14 +1808,14 @@ void QIconViewItem::calcTmpText()
   is for a iconview where the user can look but not touch.
 */
 
-/*! \enum QIconView::AlignMode
+/*! \enum QIconView::Arrangement
 
    This enum type descides in which direction the items, which do not fit onto the
    screen anymore flow.
 
    <ul>
-   <li> \c East - Items, which don't fit onto the view, go further down (you get a vertical scrollbar)
-   <li> \c South - Items, which don't fit onto the view, go further right (you get a horizontal scrollbar)
+   <li> \c LeftToRight - Items, which don't fit onto the view, go further down (you get a vertical scrollbar)
+   <li> \c TopToBottom - Items, which don't fit onto the view, go further right (you get a horizontal scrollbar)
    </ul>
 */
 
@@ -1974,7 +1974,7 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     d->rastX = d->rastY = -1;
     d->spacing = 5;
     d->cleared = FALSE;
-    d->alignMode = East;
+    d->arrangement = LeftToRight;
     d->resizeMode = Fixed;
     d->dropped = FALSE;
     d->adjustTimer = new QTimer( this );
@@ -2190,13 +2190,13 @@ void QIconView::slotUpdate()
 
 	    w = QMAX( w, item->x() + item->width() );
 	    h = QMAX( h, item->y() + item->height() );
-	    if ( d->alignMode == East )
+	    if ( d->arrangement == LeftToRight )
 		h = QMAX( h, y );
 	
 	    item = item->next;
 	}
 
-	if ( d->lastItem && d->alignMode == South ) {
+	if ( d->lastItem && d->arrangement == TopToBottom ) {
 	    item = d->lastItem;
 	    int x = item->x();
 	    while ( item && item->x() >= x ) {
@@ -2209,7 +2209,7 @@ void QIconView::slotUpdate()
 	w = QMAX( QMAX( d->cachedW, w ), d->lastItem->x() + d->lastItem->width() );
 	h = QMAX( QMAX( d->cachedH, h ), d->lastItem->y() + d->lastItem->height() );
 
-	if ( d->alignMode == South )
+	if ( d->arrangement == TopToBottom )
 	    w += d->spacing;
 	else
 	    h += d->spacing;
@@ -2594,11 +2594,11 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 }
 
 /*!
-  Align all items in the grid. For the grid the specified
+  Arranges all items in the grid. For the grid the specified
   values, given by QIconView::setGridX() and QIconView::setGridY()
   are used.
   Even if QIconView::sorting() is enabled, the items are not resorted
-  in this method. If you want to sort and re-align all items, use
+  in this method. If you want to sort and re-arrange all items, use
   iconview->sort( iconview->sortDirection() );
 
   If \a update is TRUE, the viewport is repainted.
@@ -2606,7 +2606,7 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
   \sa QIconView::setGridX(), QIconView::setGridY(), QIconView::sort()
 */
 
-void QIconView::alignItemsInGrid( bool update )
+void QIconView::arrangeItemsInGrid( bool update )
 {
     if ( !d->firstItem || !d->lastItem )
 	return;
@@ -2620,7 +2620,7 @@ void QIconView::alignItemsInGrid( bool update )
 	item = makeRowLayout( item, y );
 	w = QMAX( w, item->x() + item->width() );
 	h = QMAX( h, item->y() + item->height() );
-	if ( d->alignMode == East )
+	if ( d->arrangement == LeftToRight )
 	    h = QMAX( h, y );
 	
 	if ( !item || !item->next )
@@ -2629,7 +2629,7 @@ void QIconView::alignItemsInGrid( bool update )
 	item = item->next;
     }
 
-    if ( d->lastItem && d->alignMode == South ) {
+    if ( d->lastItem && d->arrangement == TopToBottom ) {
 	item = d->lastItem;
 	int x = item->x();
 	while ( item && item->x() >= x ) {
@@ -2643,7 +2643,7 @@ void QIconView::alignItemsInGrid( bool update )
     w = QMAX( QMAX( d->cachedW, w ), d->lastItem->x() + d->lastItem->width() );
     h = QMAX( QMAX( d->cachedH, h ), d->lastItem->y() + d->lastItem->height() );
 
-    if ( d->alignMode == South )
+    if ( d->arrangement == TopToBottom )
 	w += d->spacing;
     else
 	h += d->spacing;
@@ -2658,7 +2658,7 @@ void QIconView::alignItemsInGrid( bool update )
 }
 
 /*!
-  Aligns all items in the \a grid; If the grid is invalid
+  Arranges all items in the \a grid; If the grid is invalid
   (see QSize::isValid(), an invalid size is created when using
   the default constructor of QSize())
   the best fitting grid is calculated first and used then.
@@ -2667,7 +2667,7 @@ void QIconView::alignItemsInGrid( bool update )
 
 */
 
-void QIconView::alignItemsInGrid( const QSize &grid, bool update )
+void QIconView::arrangeItemsInGrid( const QSize &grid, bool update )
 {
     d->containerUpdateLocked = TRUE;
     QSize grid_( grid );
@@ -2725,7 +2725,7 @@ void QIconView::showEvent( QShowEvent * )
 {
     if ( d->dirty ) {
 	resizeContents( viewport()->width(), viewport()->height() );
-	alignItemsInGrid( FALSE );
+	arrangeItemsInGrid( FALSE );
     }
     QScrollView::show();
 }
@@ -3010,7 +3010,7 @@ void QIconView::clear()
 
 /*!
   Sets the horizontal grid to \a rx.  If \a rx is -1, there is no
-  horizontal grid used for aligning items.
+  horizontal grid used for arranging items.
 */
 
 void QIconView::setGridX( int rx )
@@ -3020,7 +3020,7 @@ void QIconView::setGridX( int rx )
 
 /*!
   Sets the vertical grid to \a ry.  If \a ry is -1, there is no
-  vertical grid used for aligning items.
+  vertical grid used for arranging items.
 */
 
 void QIconView::setGridY( int ry )
@@ -3086,7 +3086,7 @@ void QIconView::setItemTextPos( ItemTextPos pos )
 	item->calcRect();
     }
 
-    alignItemsInGrid( TRUE );
+    arrangeItemsInGrid( TRUE );
 }
 
 /*!
@@ -3124,35 +3124,35 @@ QBrush QIconView::itemTextBackground() const
 }
 
 /*!
-  Sets the alignment mode of the iconview to \a am. This can be
-  <li> East (Items, which don't fit onto the view, go further down (you get a
+  Sets the arrangement mode of the iconview to \a am. This can be
+  <li> LeftToRight (Items, which don't fit onto the view, go further down (you get a
   vertical scrollbar)
-  <li> South (Items, which don't fit onto the view, go further right (you get a
+  <li> TopToBottom (Items, which don't fit onto the view, go further right (you get a
   horizontal scrollbar)
 */
 
-void QIconView::setAlignMode( AlignMode am )
+void QIconView::setArrangement( Arrangement am )
 {
-    if ( d->alignMode == am )
+    if ( d->arrangement == am )
 	return;
 
-    d->alignMode = am;
+    d->arrangement = am;
 
     viewport()->setUpdatesEnabled( FALSE );
     resizeContents( viewport()->width(), viewport()->height() );
     viewport()->setUpdatesEnabled( TRUE );
-    alignItemsInGrid( TRUE );
+    arrangeItemsInGrid( TRUE );
 }
 
 /*!
-  Returns the alignment mode of the iconview.
+  Returns the arrangement mode of the iconview.
 
-  \sa QIconView::setAlignMode()
+  \sa QIconView::setArrangement()
 */
 
-QIconView::AlignMode QIconView::alignMode() const
+QIconView::Arrangement QIconView::arrangement() const
 {
-    return d->alignMode;
+    return d->arrangement;
 }
 
 /*!
@@ -3250,7 +3250,7 @@ bool QIconView::enableMoveItems() const
 }
 
 /*!
-  If \a b is TRUE, all items are re-aligned in the grid if a new one is
+  If \a b is TRUE, all items are re-arranged in the grid if a new one is
   inserted. Else, the best fitting place for the new item is searched and
   the other ones are not touched.
 
@@ -3259,19 +3259,19 @@ bool QIconView::enableMoveItems() const
   gets visible.
 */
 
-void QIconView::setAligning( bool b )
+void QIconView::setAutoArrange( bool b )
 {
     d->reorderItemsWhenInsert = b;
 }
 
 /*!
-  Returns TRUE if all items are re-aligned in the grid if a new one is
+  Returns TRUE if all items are re-arranged in the grid if a new one is
   inserted, else FALSE.
 
-  \sa QIconView::setAligning()
+  \sa QIconView::setAutoArrange()
 */
 
-bool QIconView::aligning() const
+bool QIconView::autoArrange() const
 {
     return d->reorderItemsWhenInsert;
 }
@@ -3280,10 +3280,10 @@ bool QIconView::aligning() const
   If \a sort is TRUE, new items are inserted sorted. The sort
   direction is specified using \a ascending.
 
-  Inserting items sorted only works when re-aligning items is
-  set to TRUE as well (using QIconView::setAligning()).
+  Inserting items sorted only works when re-arranging items is
+  set to TRUE as well (using QIconView::setAutoArrange()).
 
-  \sa QIconView::setAligning(), QIconView::aligning()
+  \sa QIconView::setAutoArrange(), QIconView::autoArrange()
 */
 
 void QIconView::setSorting( bool sort, bool ascending )
@@ -3306,9 +3306,9 @@ bool QIconView::sorting() const
 /*!
   Returns TRUE if the sort dorection for inserting new items is ascending,
   FALSE means descending. This sort dircction has only a meaning if re-sorting
-  and re-aligning of new inserted items is enabled.
+  and re-arranging of new inserted items is enabled.
 
-  \sa QIconView::setSorting(), QIconView::setAligning()
+  \sa QIconView::setSorting(), QIconView::setAutoArrange()
 */
 
 bool QIconView::sortDirection() const
@@ -3341,7 +3341,7 @@ void QIconView::setWordWrapIconText( bool b )
 	item->wordWrapDirty = TRUE;
 	item->calcRect();
     }
-    alignItemsInGrid( TRUE );
+    arrangeItemsInGrid( TRUE );
 }
 
 /*!
@@ -3734,7 +3734,7 @@ void QIconView::resizeEvent( QResizeEvent* e )
 	if ( d->resizeEvents > 2 )
 	    d->adjustTimer->start( 100, TRUE );
 	else
-	    alignItemsInGrid( FALSE );
+	    arrangeItemsInGrid( FALSE );
     }
 }
 
@@ -3747,7 +3747,7 @@ void QIconView::adjustItems()
     d->adjustTimer->stop();
     if ( d->resizeMode == Adjust ) {
 	if ( size() != d->oldSize )
-	    alignItemsInGrid( TRUE );
+	    arrangeItemsInGrid( TRUE );
     }
 }
 
@@ -3804,7 +3804,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
     case Key_Right: {	
 	d->currInputString = QString::null;
 	QIconViewItem *item;
-	if ( d->alignMode == East ) {
+	if ( d->arrangement == LeftToRight ) {
 	    if ( !d->currentItem->next )
 		return;
 
@@ -3847,7 +3847,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
     case Key_Left: {
 	d->currInputString = QString::null;
 	QIconViewItem *item;
-	if ( d->alignMode == East ) {
+	if ( d->arrangement == LeftToRight ) {
 	    if ( !d->currentItem->prev )
 		return;
 
@@ -3902,7 +3902,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	d->currInputString = QString::null;
 	QIconViewItem *item;
 	
-	if ( d->alignMode == East ) {
+	if ( d->arrangement == LeftToRight ) {
 	    item = d->firstItem;
 	    QRect r( d->currentItem->x(), 0, d->currentItem->width(), contentsHeight() );
 	    for ( ; item; item = item->next ) {
@@ -3946,7 +3946,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	d->currInputString = QString::null;
 	QIconViewItem *item;
 	
-	if ( d->alignMode == East ) {
+	if ( d->arrangement == LeftToRight ) {
 	    item = d->lastItem;
 	    QRect r( d->currentItem->x(), 0, d->currentItem->width(), contentsHeight() );
 	    for ( ; item; item = item->prev ) {
@@ -3989,14 +3989,14 @@ void QIconView::keyPressEvent( QKeyEvent *e )
     case Key_Next: {
 	d->currInputString = QString::null;
 	QRect r;
-	if ( d->alignMode == East )
+	if ( d->arrangement == LeftToRight )
 	    r = QRect( 0, d->currentItem->y() + visibleHeight(), contentsWidth(), visibleHeight() );
 	else
 	    r = QRect( d->currentItem->x() + visibleWidth(), 0, visibleWidth(), contentsHeight() );
 	QIconViewItem *item = d->currentItem;
 	QIconViewItem *ni = findFirstVisibleItem( r  );
 	if ( !ni ) {
-	    if ( d->alignMode == East )
+	    if ( d->arrangement == LeftToRight )
 		r = QRect( 0, d->currentItem->y() + d->currentItem->height(), contentsWidth(), contentsHeight() );
 	    else
 		r = QRect( d->currentItem->x() + d->currentItem->width(), 0, contentsWidth(), contentsHeight() );
@@ -4017,14 +4017,14 @@ void QIconView::keyPressEvent( QKeyEvent *e )
     case Key_Prior: {
 	d->currInputString = QString::null;
 	QRect r;
-	if ( d->alignMode == East )
+	if ( d->arrangement == LeftToRight )
 	    r = QRect( 0, d->currentItem->y() - visibleHeight(), contentsWidth(), visibleHeight() );
 	else
 	    r = QRect( d->currentItem->x() - visibleWidth(), 0, visibleWidth(), contentsHeight() );
 	QIconViewItem *item = d->currentItem;
 	QIconViewItem *ni = findFirstVisibleItem( r  );
 	if ( !ni ) {
-	    if ( d->alignMode == East )
+	    if ( d->arrangement == LeftToRight )
 		r = QRect( 0, 0, contentsWidth(), d->currentItem->y() );
 	    else
 		r = QRect( 0, 0, d->currentItem->x(), contentsHeight() );
@@ -4453,8 +4453,8 @@ void QIconView::findItemByName( const QString &text )
 }
 
 /*!
-  Layouts a row of icons (in AlignMode == South this is a column). Starts
-  layouting with the item \a begin. \a y is the starting coordinate.
+  Lays out a row of icons (in Arrangement == TopToBottom this is a column). Starts
+  laying out with the item \a begin. \a y is the starting coordinate.
   Returns the last item of the row and sets the new starting coordinate to \a y.
 */
 
@@ -4462,7 +4462,7 @@ QIconViewItem *QIconView::makeRowLayout( QIconViewItem *begin, int &y )
 {
     QIconViewItem *end = 0;
 	
-    if ( d->alignMode == East ) {
+    if ( d->arrangement == LeftToRight ) {
 	
 	if ( d->rastX == -1 ) {
 	    // first calculate the row height
@@ -4675,7 +4675,7 @@ static int cmpIconViewItems( const void *n1, const void *n2 )
 }
 
 /*!
-  Sorts the items of the listview and re-aligns them afterwards.
+  Sorts the items of the listview and re-arranges them afterwards.
   If \a ascending is TRUE, the items
   are sorted in increasing order, else in decreasing order. For sorting
   QIconViewItem::compare() is used. The default sort direction is set to
@@ -4736,7 +4736,7 @@ void QIconView::sort( bool ascending )
 
     delete [] items;
 
-    alignItemsInGrid( TRUE );
+    arrangeItemsInGrid( TRUE );
 }
 
 /*!
@@ -4748,7 +4748,7 @@ QSize QIconView::sizeHint() const
     if ( d->dirty && d->firstSizeHint ) {
 	( (QIconView*)this )->resizeContents( QMAX( 400, contentsWidth() ),
 					      QMAX( 400, contentsHeight() ) );
-	( (QIconView*)this )->alignItemsInGrid( FALSE );
+	( (QIconView*)this )->arrangeItemsInGrid( FALSE );
 	d->firstSizeHint = FALSE;
     }
 
@@ -4845,7 +4845,7 @@ void QIconView::appendItemContainer()
 {
     QSize s;
     // #### We have to find out which value is best here
-    if ( d->alignMode == East )
+    if ( d->arrangement == LeftToRight )
 	s = QSize( INT_MAX - 1, RECT_EXTENSION );
     else
 	s = QSize( RECT_EXTENSION, INT_MAX - 1 );
@@ -4854,7 +4854,7 @@ void QIconView::appendItemContainer()
 	d->firstContainer = new QIconViewPrivate::ItemContainer( 0, 0, QRect( QPoint( 0, 0 ), s ) );
 	d->lastContainer = d->firstContainer;
     } else {
-	if ( d->alignMode == East )
+	if ( d->arrangement == LeftToRight )
 	    d->lastContainer = new QIconViewPrivate::ItemContainer(
 		d->lastContainer, 0, QRect( d->lastContainer->rect.bottomLeft(), s ) );
 	else
@@ -4866,7 +4866,7 @@ void QIconView::appendItemContainer()
 /*!
   \internal
   Rebuilds the whole internal data structure. This is done when
-  most certainly all items change their geometry (e.g. in alignItemsInGrid()), because
+  most certainly all items change their geometry (e.g. in arrangeItemsInGrid()), because
   calling this is then more efiicient than calling updateItemContainer() for each
   item
 */
@@ -4903,7 +4903,7 @@ void QIconView::rebuildContainers()
 	    item = item->next;
 	    c = c->p;
 	} else {
-	    if ( d->alignMode == East ) {
+	    if ( d->arrangement == LeftToRight ) {
 		if ( item->y() < c->rect.y() && c->p ) {
 		    c = c->p;
 		    continue;

@@ -266,9 +266,9 @@ public:
 	Extended,
 	NoSelection
     };
-    enum AlignMode {
-	East = 0,
-	South
+    enum Arrangement {
+	LeftToRight = 0,
+	TopToBottom
     };
     enum ResizeMode {
 	Fixed = 0,
@@ -326,16 +326,16 @@ public:
     ItemTextPos itemTextPos() const;
     virtual void setItemTextBackground( const QBrush &b );
     QBrush itemTextBackground() const;
-    virtual void setAlignMode( AlignMode am );
-    AlignMode alignMode() const;
+    virtual void setArrangement( Arrangement am );
+    Arrangement arrangement() const;
     virtual void setResizeMode( ResizeMode am );
     ResizeMode resizeMode() const;
     virtual void setMaxItemWidth( int w );
     int maxItemWidth() const;
     virtual void setMaxItemTextLength( int w );
     int maxItemTextLength() const;
-    void setAligning( bool b );
-    bool aligning() const;
+    void setAutoArrange( bool b );
+    bool autoArrange() const;
 
     void setSorting( bool sort, bool ascending = TRUE );
     bool sorting() const;
@@ -358,8 +358,8 @@ public:
     virtual void setPalette( const QPalette & );
 
 public slots:
-    virtual void alignItemsInGrid( const QSize &grid, bool update = TRUE );
-    virtual void alignItemsInGrid( bool update = TRUE );
+    virtual void arrangeItemsInGrid( const QSize &grid, bool update = TRUE );
+    virtual void arrangeItemsInGrid( bool update = TRUE );
     virtual void setContentsPos( int x, int y );
     virtual void updateContents();
 
