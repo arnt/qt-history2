@@ -648,11 +648,11 @@ public:
     inline QT_COMPAT void iconify() { showMinimized(); }
     inline QT_COMPAT void constPolish() const { ensurePolished(); }
     inline QT_COMPAT void reparent(QWidget *parent, Qt::WFlags f, const QPoint &p, bool showIt=false)
-    { setParent(parent, f); move(p); if (showIt) show(); }
+    { setParent(parent, f); setGeometry(p.x(),p.y(),width(),height()); if (showIt) show(); }
     inline QT_COMPAT void reparent(QWidget *parent, const QPoint &p, bool showIt=false)
-    { setParent(parent, getWFlags() & ~Qt::WType_Mask); move(p); if (showIt) show(); }
+    { setParent(parent, getWFlags() & ~Qt::WType_Mask); setGeometry(p.x(),p.y(),width(),height()); if (showIt) show(); }
     inline QT_COMPAT void recreate(QWidget *parent, Qt::WFlags f, const QPoint & p, bool showIt=false)
-    { setParent(parent, f); move(p); if (showIt) show(); }
+    { setParent(parent, f); setGeometry(p.x(),p.y(),width(),height()); if (showIt) show(); }
     inline QT_COMPAT bool hasMouse() const { return testAttribute(Qt::WA_UnderMouse); }
 #ifndef QT_NO_CURSOR
     inline QT_COMPAT bool ownCursor() const { return testAttribute(Qt::WA_SetCursor); }
