@@ -99,6 +99,8 @@ static struct {
     { Qt::Key_CapsLock,	QT_TRANSLATE_NOOP( "QAccel", "CapsLock" ) },
     { Qt::Key_NumLock,	QT_TRANSLATE_NOOP( "QAccel", "NumLock" ) },
     { Qt::Key_ScrollLock,	QT_TRANSLATE_NOOP( "QAccel", "ScrollLock" ) },
+    { Qt::Key_Menu,	QT_TRANSLATE_NOOP( "QAccel", "Menu" ) },
+    { Qt::Key_Help,	QT_TRANSLATE_NOOP( "QAccel", "Help" ) },
     { 0, 0 }
 };
 
