@@ -2375,7 +2375,8 @@ QFileDialog::QFileDialog( const QString& dirName, const QString & filter,
     init();
     d->mode = ExistingFile;
     rereadDir();
-    if ( !dirName.isEmpty() && QDir( dirName ).exists() )
+    QUrlOperator u( dirName );
+    if ( !dirName.isEmpty() && ( !u.isLocalFile() || QDir( dirName ).exists() ) )
 	setSelection( dirName );
     else if ( workingDirectory && !workingDirectory->isEmpty() )
 	setDir( *workingDirectory );
