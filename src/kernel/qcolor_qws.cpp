@@ -59,7 +59,7 @@ void QColor::cleanup()
 static inline int match(QRgb a,QRgb b)
 {
     int ret;
-     
+
 #ifndef QT_NO_QWS_DEPTH_8
     int h1,s1,v1;
     int h2,s2,v2;
@@ -151,10 +151,12 @@ uint QColor::alloc()
     } else if(depth==8) {
 	// #### just a hack
 #ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
-	return pix=qGray(r,g,b);	
+	return pix=qGray(r,g,b);
 #else
-	return pix = (r + 25) / 51 * 36 + (g + 25) / 51 * 6 + (b + 25) / 51;
+	//	return pix = (r + 25) / 51 * 36 + (g + 25) / 51 * 6 + (b + 25) / 51;
 //	return pix = closestMatch( r, g, b );
+	pix=qt_screen->alloc(r,g,b);
+	return pix;
 #endif
     } else if(depth==1) {
 	// #### just a hack

@@ -101,6 +101,8 @@ public:
     virtual void save();
     virtual void restore();
 
+    virtual void set(unsigned int,unsigned int,unsigned int,unsigned int);
+
     int width() const { return w; }
     int height() const { return h; }
     int depth() const { return d; }
@@ -112,6 +114,8 @@ public:
     virtual int screenSize();
     virtual int totalSize();
 
+    virtual int alloc(unsigned int,unsigned int,unsigned int);
+
     QRgb * clut() { return screenclut; }
     int numCols() { return screencols; }
 
@@ -119,6 +123,8 @@ protected:
 
     QRgb screenclut[256];
     int screencols;
+
+    bool initted;
 
     uchar * data;
     int w;
@@ -241,6 +247,7 @@ public:
 
 protected:
     bool is_screen_gfx;
+    
 };
 
 // This lives in loadable modules

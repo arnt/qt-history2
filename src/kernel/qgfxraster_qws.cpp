@@ -1708,14 +1708,14 @@ void QGfxRaster<depth,type>::buildSourceClut(QRgb * cols,int numcols)
     // Copy clut
     for(loopc=0;loopc<numcols;loopc++)
 	srcclut[loopc] = cols[loopc];
-
+    
     if(depth<=8) {
 	// Now look for matches
 	for(loopc=0;loopc<numcols;loopc++) {
 	    int r = qRed(srcclut[loopc]);
 	    int g = qGreen(srcclut[loopc]);
 	    int b = qBlue(srcclut[loopc]);
-	    transclut[loopc] = GFX_8BPP_PIXEL(r,g,b);
+	    transclut[loopc] = qt_screen->alloc(r,g,b);
 	}
     }
 }
@@ -2299,7 +2299,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		myptr=l+x1;
 		calcPacking(myptr-x1,x1,x2,frontadd,backadd,count);
 		myptr=l+x2;
-		
+
 		QuadByte dput;
 		fun=(unsigned char *)&dput;
 
@@ -2356,16 +2356,18 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 #endif
 	    }
 	} else {
+
 	    // Probably not worth trying to pack writes if there's a mask
 	    // colour, at least not yet
 	    int count=( x2-x1+1 );
+
 	    if(reverse) {
 		unsigned short int gv = srccol;
 		while( count-- ) {
 		    if(srctype==SourceImage)
 			gv=get_value_8( srcdepth, &srcdata, TRUE);
 		    bool masked=TRUE;
-		    GET_MASKED(TRUE);  //### does not work in reverse!!!
+		    GET_MASKED(TRUE);  //### does not work in reverse!!
 		    if(masked) {
 			myptr--;
 		    } else {
@@ -2382,7 +2384,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		    if(masked) {
 			myptr++;
 		    } else {
-			*( myptr++ )=gv;
+			*( myptr++ )=gv;    //gv;
 		    }
 		}
 	    }
@@ -2531,7 +2533,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	    r = (srcval & 0xff0000) >> 16;
 	    g = (srcval & 0xff00) >> 8;
 	    b = srcval & 0xff;
-	
+
 	    unsigned char * tmp=(unsigned char *)&alphabuf[loopc];
 	    if(av==255) {
 	      // Do nothing - we already have source values in r,g,b
@@ -2742,7 +2744,7 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	unsigned char * avp=alphas;
 
 	unsigned char * tempptr=myptr;
-	
+
         for(loopc=0;loopc<w;loopc++) {
 	    int val = *tempptr++;
 #ifndef QT_NO_QWS_DEPTH_8GRAYSCALE
@@ -3008,7 +3010,7 @@ void QGfxRaster<depth,type>::drawRect( int rx,int ry,int w,int h )
 		*(sp+6)=pixel;
 		*(sp+7)=pixel;
 	    }
-	
+
 	    int add=linestep();
 	    add-=(frontadd+(count * 8)+backadd);
 
@@ -3325,6 +3327,7 @@ void QGfxRaster<depth,type>::blt( int rx,int ry,int w,int h )
 
     unsigned char* l = scanLine(ry);
     for (; j!=tj; j+=dj,ry+=dry,l+=dl) {
+	l=scanLine(ry);
 	bool plot=inClip(rx,ry,&cr);
 	int x=rx;
 	for (;;) {
@@ -3550,6 +3553,7 @@ extern bool qws_smoothfonts;
 
 QScreen::QScreen()
 {
+    initted=false;
 }
 
 QScreen::~QScreen()
@@ -3631,6 +3635,8 @@ bool QScreen::connect()
     printf( "\033[9;0]" );
     fflush( stdout );
 
+    initted=true;
+    
     return TRUE;
 }
 
@@ -3732,15 +3738,22 @@ bool QScreen::initCard()
 		}
 	    }
 	}
+	// Fill in rest with 0
+	for ( int loopc=0; loopc<40; loopc++ ) {
+	    screenclut[idx]=0;
+	    idx++;
+	}
 	screencols=idx;
 #endif
-	ioctl(fd,FBIOPUTCMAP,&cmap);
+	//ioctl(fd,FBIOPUTCMAP,&cmap);
 	free(cmap.red);
 	free(cmap.green);
 	free(cmap.blue);
 	free(cmap.transp);
     }
 
+    initted=true;
+    
     return true;
 }
 
@@ -3785,6 +3798,60 @@ int QScreen::screenSize()
 int QScreen::totalSize()
 {
     return mapsize;
+}
+
+int QScreen::alloc(unsigned int r,unsigned int g,unsigned int b)
+{
+    // First we look to see if we have an exact match
+    QRgb myrgb=qRgb(r,g,b);
+    int pos= (r + 25) / 51 * 36 + (g + 25) / 51 * 6 + (b + 25) / 51;
+    if(screenclut[pos]==myrgb || !initted) {
+	return pos;
+    }
+    
+    // Now look for a free slot - 0 means a free slot since a 'real' 0
+    // would match in the colour cube
+
+    int ret=-1;
+    
+    for(int loopc=216;loopc<256;loopc++) {
+	if(screenclut[loopc]==myrgb) {
+	    return loopc;
+	}
+	if(screenclut[loopc]==0) {
+	    screenclut[loopc]=myrgb;
+	    set(loopc,r,g,b);
+	    return loopc;
+	}
+    }
+    
+    // No free slots, look for closest match in whole palette
+ 
+    unsigned int hold=0xfffff;
+    unsigned int tmp;
+    
+    int h1,s1,v1;
+    int h2,s2,v2;    
+
+    if(ret==-1) {
+	for(int loopc=0;loopc<256;loopc++) {
+	    h1=qRed(screenclut[loopc]);
+	    s1=qGreen(screenclut[loopc]);
+	    v1=qBlue(screenclut[loopc]);
+	    h2=r;
+	    s2=g;
+	    v2=b;
+	    tmp=abs(h1-h2);
+	    tmp+=abs(s1-s2);
+	    tmp+=abs(v1-v2);
+	
+	    if(tmp<hold) {
+		hold=tmp;
+		ret=loopc;
+	    }
+	}
+    }
+    return ret;
 }
 
 // The end_of_location parameter is unusual: it's the address AFTER the cursor data.
@@ -3858,12 +3925,36 @@ void QScreen::restore()
 	    cmap.blue[loopc] = qBlue( screenclut[loopc] ) << 8;
 	    cmap.transp[loopc] = 0;
 	}
-	ioctl(fd,FBIOPUTCMAP,&cmap);
+	//ioctl(fd,FBIOPUTCMAP,&cmap);
 	free(cmap.red);
 	free(cmap.green);
 	free(cmap.blue);
 	free(cmap.transp);
     }
+}
+
+void QScreen::set(unsigned int i,unsigned int r,unsigned int g,unsigned int b)
+{
+    fb_cmap cmap;
+    cmap.start=i;
+    cmap.len=1;
+    cmap.red=(unsigned short int *)
+	     malloc(sizeof(unsigned short int)*256);
+    cmap.green=(unsigned short int *)
+	       malloc(sizeof(unsigned short int)*256);
+    cmap.blue=(unsigned short int *)
+	      malloc(sizeof(unsigned short int)*256);
+    cmap.transp=(unsigned short int *)
+		malloc(sizeof(unsigned short int)*256);
+    cmap.red[0]=r << 8;
+    cmap.green[0]=g << 8;
+    cmap.blue[0]=b << 8;
+    cmap.transp[0]=0;
+    ioctl(fd,FBIOPUTCMAP,&cmap);
+    free(cmap.red);
+    free(cmap.green);
+    free(cmap.blue);
+    free(cmap.transp);
 }
 
 QGfx * QScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linestep)
