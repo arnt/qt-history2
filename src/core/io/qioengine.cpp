@@ -231,7 +231,9 @@ uchar *QIOEngine::map(QIODevice::Offset /*offset*/, Q_LONG /*len*/)
 }
 
 /*!
-   Unmap previously mapped file contents from memory.
+   \fn void QIOEngine::unmap(uchar *data)
+
+   Unmap previously mapped file \a data from memory.
 
    \sa map
  */
@@ -243,9 +245,11 @@ void QIOEngine::unmap(uchar * /*data*/)
 /*! 
     \fn QIOEngine::Type QIOEngine::type() const
 
-    Return your IO type, this can be used as simple RTTI information.
+    Returns the I/O type. This can be used as simple RTTI information.
 
     This virtual function must be reimplemented by all subclasses.
+
+    \sa QIOEngine::Type
  */
 
 /*!
@@ -349,3 +353,19 @@ void QIOEngine::unmap(uchar * /*data*/)
 
     This virtual function must be reimplemented by all subclasses.
  */
+
+/*!
+    \enum QIOEngine::Type
+
+    This enum defines the type of device in use:
+
+    \value File      The device represents a file.
+    \value Resource  The device represents a resource.
+    \value Socket    The device represents a socket.
+    \value String    The device represents a string.
+
+    User-defined devices must define types within the following range:
+
+    \value User      First available user-defined device.
+    \value MaxUser   Last available user-defined device.
+*/
