@@ -2107,7 +2107,7 @@ void QTextDocument::drawParag( QPainter *p, QTextParag *parag, int cx, int cy, i
 		     ( parag->rect().x() + parag->rect().width() ),
 		     parag->rect().height(), cg.brush( QColorGroup::Base ) );
     }
-
+    
     parag->document()->nextDoubleBuffered = FALSE;
 }	
 
@@ -2854,7 +2854,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	}
 
 	//if something (format, etc.) changed, draw what we have so far
-	if ( ( align & Qt::AlignJustify ) == Qt::AlignJustify ||
+	if ( buffer.length() > 0 && buffer[ (int)buffer.length() - 1 ].isSpace() ||
 	     lastDirection != chr->rightToLeft || chr->rightToLeft ||
 	     lastY != cy || chr->format() != lastFormat || buffer == "\t" || chr->c == '\t' ||
 	     selectionChange || chr->isCustom ) {

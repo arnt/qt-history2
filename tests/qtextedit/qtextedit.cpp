@@ -232,7 +232,7 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 	break;
     default: {
 	    if ( e->text().length() && !( e->state() & AltButton ) &&
-		 ( !e->ascii() || e->ascii() >= 32 ) || 
+		 ( !e->ascii() || e->ascii() >= 32 ) ||
 		 ( e->text() == "\t" && !( e->state() & ControlButton ) ) ) {
 		clearUndoRedoInfo = FALSE;
 		if ( e->key() == Key_Tab ) {
@@ -804,7 +804,7 @@ void QTextEdit::formatMore()
 void QTextEdit::doResize()
 {	
     resizeContents( width() - verticalScrollBar()->width(), contentsHeight() );
-    doc->setWidth( visibleWidth() - 4 );
+    doc->setWidth( visibleWidth() );
     doc->invalidate();
     viewport()->repaint( FALSE );
     lastFormatted = doc->firstParag();
