@@ -1141,8 +1141,32 @@ void QTreeWidgetPrivate::emitItemChanged(const QModelIndex &topLeft, const QMode
   flexible approach involves combining a QTreeView with a standard item model.
   This allows the storage of data to be separated from its representation.
 
-  In its simplest form, a tree widget can be constructed and populated in
-  the following way:
+  In its simplest form, a tree widget can be constructed in the following way:
+
+  \quotefile snippets/qtreewidget-using/mainwindow.h
+  \skipto QTreeWidget *
+  \printuntil QTreeWidget *
+  \quotefile snippets/qtreewidget-using/mainwindow.cpp
+  \skipto treeWidget = new
+  \printuntil treeWidget = new
+
+  Before items can be added to the tree widget, the number of columns must
+  be set with setColumnCount(). This allows each item to have one or more
+  labels or other decorations. The number of columns in use can be found
+  with the columnCount() function.
+
+  The tree can have a header that contains a section for each column in
+  the widget. It is easiest to set up the labels for each section by
+  supplying a list of strings with setHeaderLabels(), but a custom header
+  can be constructed with a QTreeWidgetItem and inserted into the tree
+  with the setHeaderItem() function.
+
+  The items in the tree can be sorted by column according to a predefined
+  sort order. If sorting is enabled, the user can sort the items by clicking
+  on a column header. Sorting can be enabled or disabled by calling
+  setSortingEnabled(). The isSortingEnabled() function indicates whether
+  sorting is enabled.
+
 
 
   \sa \link model-view-programming.html Model/View Programming\endlink QTreeWidgetItem
