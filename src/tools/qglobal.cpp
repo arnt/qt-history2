@@ -713,23 +713,19 @@ void qSystemWarning( const char* msg, int code )
 */
 
 
-//
-// The Q_CHECK_PTR macro calls this function to check if an allocation went ok.
-//
-#if (QT_VERSION-0 >= 0x040000)
-#if defined(Q_CC_GNU)
-#warning "Change Q_CHECK_PTR to '{if ((p)==0) qt_check_pointer(__FILE__,__LINE__);}'"
-#warning "No need for qt_check_pointer() to return a value - make it void!"
-#endif
-#endif
-bool qt_check_pointer( bool c, const char *n, int l )
+/*
+  The Q_CHECK_PTR macro calls this function if an allocation check
+  fails.
+*/
+void qt_check_pointer(const char *n, int l)
 {
-    if ( c )
-	qWarning( "In file %s, line %d: Out of memory", n, l );
-    return TRUE;
+    qWarning( "In file %s, line %d: Out of memory", n, l );
 }
 
-void q_assert(const char *assertion, const char *file, int line)
+/*
+  The Q_ASSERT macro calls this this function when the test fails.
+*/
+void qt_assert(const char *assertion, const char *file, int line)
 {
     qFatal("ASSERT: \"%s\" in file %s, line %d", assertion, file, line);
 }

@@ -662,16 +662,6 @@ inline int qRound( double d )
 // Size-dependent types (architechture-dependent byte order)
 //
 
-#if !defined(QT_CLEAN_NAMESPACE)
-// source compatibility with Qt 1.x
-typedef signed char		INT8;		// 8 bit signed
-typedef unsigned char		UINT8;		// 8 bit unsigned
-typedef short			INT16;		// 16 bit signed
-typedef unsigned short		UINT16;		// 16 bit unsigned
-typedef int			INT32;		// 32 bit signed
-typedef unsigned int		UINT32;		// 32 bit unsigned
-#endif
-
 typedef signed char		Q_INT8;		// 8 bit signed
 typedef unsigned char		Q_UINT8;	// 8 bit unsigned
 typedef short			Q_INT16;	// 16 bit signed
@@ -952,69 +942,28 @@ Q_EXPORT void qFatal( const char *, ... )	// print fatal message and exit
 
 Q_EXPORT void qSystemWarning( const char *, int code = -1 );
 
-#if !defined(QT_CLEAN_NAMESPACE) 		// compatibility with Qt 1
-
-Q_EXPORT void debug( const char *, ... )	// print debug message
-#if defined(Q_CC_GNU) && !defined(__INSURE__)
-    __attribute__ ((format (printf, 1, 2)))
-#endif
-;
-
-Q_EXPORT void warning( const char *, ... )	// print warning message
-#if defined(Q_CC_GNU) && !defined(__INSURE__)
-    __attribute__ ((format (printf, 1, 2)))
-#endif
-;
-
-Q_EXPORT void fatal( const char *, ... )	// print fatal message and exit
-#if defined(Q_CC_GNU) && !defined(__INSURE__)
-    __attribute__ ((format (printf, 1, 2)))
-#endif
-;
-
-#endif // QT_CLEAN_NAMESPACE
-
-void q_assert(const char *assertion, const char *file, int line);
+Q_EXPORT void qt_assert(const char *assertion, const char *file, int line);
 
 #if !defined(Q_ASSERT)
 #  if defined(QT_CHECK_STATE) && !defined(NDEBUG)
-#    define Q_ASSERT(x)  ((x) ? (void)0 : q_assert(#x,__FILE__,__LINE__))
+#    define Q_ASSERT(x)  {if(!(x))qt_assert(#x,__FILE__,__LINE__);}
 #  else
 #    define Q_ASSERT(x)
 #  endif
 #endif
 
-#if !defined(QT_NO_COMPAT)			// compatibility with Qt 2
-#  if !defined(ASSERT)
-#    if !defined(Q_OS_TEMP)
-#      define ASSERT(x) Q_ASSERT(x)
-#    endif
-#  endif
-#endif // QT_NO_COMPAT
-
-
-Q_EXPORT bool qt_check_pointer( bool c, const char *, int );
+Q_EXPORT void qt_check_pointer(const char *, int);
 
 #if defined(QT_CHECK_NULL)
-#  define Q_CHECK_PTR(p) (qt_check_pointer((p)==0,__FILE__,__LINE__))
+#  define Q_CHECK_PTR(p) {if(!(p))qt_check_pointer(__FILE__,__LINE__);}
 #else
 #  define Q_CHECK_PTR(p)
 #endif
-
-#if !defined(QT_NO_COMPAT)			// compatibility with Qt 2
-#  if !defined(CHECK_PTR)
-#    define CHECK_PTR(x) Q_CHECK_PTR(x)
-#  endif
-#endif // QT_NO_COMPAT
 
 enum QtMsgType { QtDebugMsg, QtWarningMsg, QtFatalMsg };
 
 typedef void (*QtMsgHandler)(QtMsgType, const char *);
 Q_EXPORT QtMsgHandler qInstallMsgHandler( QtMsgHandler );
-
-#if !defined(QT_NO_COMPAT)			// compatibility with Qt 2
-typedef QtMsgHandler msg_handler;
-#endif // QT_NO_COMPAT
 
 Q_EXPORT void qSuppressObsoleteWarnings( bool = TRUE );
 
