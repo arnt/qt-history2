@@ -94,7 +94,7 @@
 #  define Q_NORMAL_MUTEX_TYPE PTHREAD_MUTEX_ERRORCHECK
 #  define Q_RECURSIVE_MUTEX_TYPE PTHREAD_MUTEX_RECURSIVE
 #elif defined(Q_OS_SOLARIS)
-// Solaris 2.7 and later - we use the native Solaris threads implementation
+// Solaris 7 and later - we use the native Solaris threads implementation
 #  undef  Q_HAS_RECURSIVE_MUTEX
 #  undef  Q_USE_PTHREAD_MUTEX_SETKIND
 #  undef  Q_NORMAL_MUTEX_TYPE

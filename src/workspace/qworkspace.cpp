@@ -874,7 +874,7 @@ void QWorkspace::showMaximizeControls()
 	    pm.fill( white );
 	    d->maxtools->setPixmap( pm );
 	}
-	QWorkspaceChildTitleButton* maxtools = d->maxtools; // g++ 2.7.2.3 bug
+	QWorkspaceChildTitleButton* maxtools = d->maxtools;
 	d->menuId = b->insertItem( maxtools, -1, 0 );
     }
 #endif

@@ -663,7 +663,7 @@ bool QAction::addTo( QWidget* w )
 	} else {
 	    QActionPrivate::MenuItem* mi = new QActionPrivate::MenuItem;
 	    mi->popup = (QPopupMenu*) w;
-	    QIconSet* diconset = d->iconset; // stupid GCC 2.7.x compiler
+	    QIconSet* diconset = d->iconset;
 	    if ( diconset )
 		mi->id = mi->popup->insertItem( *diconset, QString::fromLatin1("") );
 	    else
