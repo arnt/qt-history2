@@ -159,6 +159,7 @@ WinShell::WinShell()
     windowsFolderName = QString::null;
 
 #if defined(Q_OS_WIN32)
+    resolveLibs();
     if( ptrSHGetPathFromIDListW && int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
 	ushort buffer[MAX_PATH];
 	if( SUCCEEDED( hr = SHGetSpecialFolderLocation( NULL, CSIDL_PROGRAMS, &item ) ) ) {
