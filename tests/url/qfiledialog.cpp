@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#7 $
+** $Id: //depot/qt/main/tests/url/qfiledialog.cpp#8 $
 **
 ** Implementation of QFileDialog class
 **
@@ -953,52 +953,49 @@ void QFileListBox::doDragScroll()
 
 bool QFileListBox::acceptDrop( const QPoint &pnt, QWidget *source )
 {
-    // #### todo
-//     QListBoxItem *item = itemAt( pnt );
-//     if ( !item || item && !itemRect( item ).contains( pnt ) ) {
-// 	if ( source == viewport() && startDragDir == filedialog->dirPath() )
-// 	    return FALSE;
-// 	return TRUE;
-//     }
+    QListBoxItem *item = itemAt( pnt );
+    if ( !item || item && !itemRect( item ).contains( pnt ) ) {
+	if ( source == viewport() && startDragDir == filedialog->dirPath() )
+	    return FALSE;
+	return TRUE;
+    }
 
-//     QString filename = filedialog->dirPath() + "/" + item->text();
-//     QFileInfo fi( filename );
+    QUrlInfo fi( filedialog->d->url, item->text() );
 
-//     if ( fi.isDir() && itemRect( item ).contains( pnt ) )
-// 	return TRUE;
-//     return FALSE;
+    if ( fi.isDir() && itemRect( item ).contains( pnt ) )
+	return TRUE;
+    return FALSE;
 }
 
 void QFileListBox::setCurrentDropItem( const QPoint &pnt )
 {
-    // #### todo
-//     changeDirTimer->stop();
+    changeDirTimer->stop();
 
-//     QListBoxItem *item = itemAt( pnt );
-//     if ( pnt == QPoint( -1, -1 ) )
-// 	item = 0;
-//     if ( item && !QFileInfo( filedialog->dirPath() + "/" + item->text() ).isDir() )
-// 	item = 0;
+    QListBoxItem *item = itemAt( pnt );
+    if ( pnt == QPoint( -1, -1 ) )
+	item = 0;
+    if ( item && !QUrlInfo( filedialog->d->url, item->text() ).isDir() )
+	item = 0;
 
-//     if ( item && !itemRect( item ).contains( pnt ) )
-// 	item = 0;
+    if ( item && !itemRect( item ).contains( pnt ) )
+	item = 0;
 
-//     QPainter p;
-//     p.begin( viewport() );
-//     p.setRasterOp( NotROP );
-//     p.setPen( Qt::black );
-//     p.setBrush( Qt::NoBrush );
+    QPainter p;
+    p.begin( viewport() );
+    p.setRasterOp( NotROP );
+    p.setPen( Qt::black );
+    p.setBrush( Qt::NoBrush );
 
-//     if ( currDropItem )
-// 	style().drawFocusRect( &p, itemRect( currDropItem ), colorGroup() );
+    if ( currDropItem )
+	style().drawFocusRect( &p, itemRect( currDropItem ), colorGroup() );
 
-//     if ( item )
-// 	style().drawFocusRect( &p, itemRect( item ), colorGroup() );
+    if ( item )
+	style().drawFocusRect( &p, itemRect( item ), colorGroup() );
 
-//     p.end();
+    p.end();
 
-//     currDropItem = item;
-//     changeDirTimer->start( 750 );
+    currDropItem = item;
+    changeDirTimer->start( 750 );
 }
 
 void QFileListBox::changeDirDuringDrag()
@@ -1335,51 +1332,49 @@ void QFileListView::doDragScroll()
 
 bool QFileListView::acceptDrop( const QPoint &pnt, QWidget *source )
 {
-    // #### todo
-//     QListViewItem *item = itemAt( pnt );
-//     if ( !item || item && !itemRect( item ).contains( pnt ) ) {
-// 	if ( source == viewport() && startDragDir == filedialog->dirPath() )
-// 	    return FALSE;
-// 	return TRUE;
-//     }
+    QListViewItem *item = itemAt( pnt );
+    if ( !item || item && !itemRect( item ).contains( pnt ) ) {
+	if ( source == viewport() && startDragDir == filedialog->dirPath() )
+	    return FALSE;
+	return TRUE;
+    }
 
-//     QString filename = filedialog->dirPath() + "/" + item->text( 0 );
-//     QFileInfo fi( filename );
+    QUrlInfo fi( filedialog->d->url, item->text( 0 ) );
 
-//     if ( fi.isDir() && itemRect( item ).contains( pnt ) )
-// 	return TRUE;
-//     return FALSE;
+    if ( fi.isDir() && itemRect( item ).contains( pnt ) )
+	return TRUE;
+    return FALSE;
 }
 
 void QFileListView::setCurrentDropItem( const QPoint &pnt )
 {
-//     changeDirTimer->stop();
+    changeDirTimer->stop();
 
-//     QListViewItem *item = itemAt( pnt );
-//     if ( pnt == QPoint( -1, -1 ) )
-// 	item = 0;
-//     if ( item && !QFileInfo( filedialog->dirPath() + "/" + item->text( 0 ) ).isDir() )
-// 	item = 0;
+    QListViewItem *item = itemAt( pnt );
+    if ( pnt == QPoint( -1, -1 ) )
+	item = 0;
+    if ( item && !QUrlInfo( filedialog->d->url, item->text( 0 ) ).isDir() )
+	item = 0;
 
-//     if ( item && !itemRect( item ).contains( pnt ) )
-// 	item = 0;
+    if ( item && !itemRect( item ).contains( pnt ) )
+	item = 0;
 
-//     QPainter p;
-//     p.begin( viewport() );
-//     p.setRasterOp( NotROP );
-//     p.setPen( Qt::black );
-//     p.setBrush( Qt::NoBrush );
+    QPainter p;
+    p.begin( viewport() );
+    p.setRasterOp( NotROP );
+    p.setPen( Qt::black );
+    p.setBrush( Qt::NoBrush );
 
-//     if ( currDropItem )
-// 	style().drawFocusRect( &p, itemRect( currDropItem ), colorGroup() );
+    if ( currDropItem )
+	style().drawFocusRect( &p, itemRect( currDropItem ), colorGroup() );
 
-//     if ( item )
-// 	style().drawFocusRect( &p, itemRect( item ), colorGroup() );
+    if ( item )
+	style().drawFocusRect( &p, itemRect( item ), colorGroup() );
 
-//     p.end();
+    p.end();
 
-//     currDropItem = item;
-//     changeDirTimer->start( 750 );
+    currDropItem = item;
+    changeDirTimer->start( 750 );
 }
 
 void QFileListView::changeDirDuringDrag()
