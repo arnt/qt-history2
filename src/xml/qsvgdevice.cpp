@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#36 $
+** $Id: //depot/qt/main/src/xml/qsvgdevice.cpp#37 $
 **
 ** Implementation of the QSvgDevice class
 **
@@ -629,6 +629,26 @@ bool QSvgDevice::play( const QDomNode &node )
 	    }
 	    break;
 	case ImageElement:
+	    {
+		x1 = lenToInt( attr, "x" );
+		y1 = lenToInt( attr, "y" );
+		w = lenToInt( attr, "width" );
+		h = lenToInt( attr, "height" );
+		QString href = attr.namedItem( "xlink:href" ).nodeValue();
+		// ### catch references to embedded .svg files
+		QPixmap pix;
+		if ( !pix.load( href ) ) {
+		    qWarning( "QSvgDevice::play: Couldn't load image "+href );
+		    break;
+		}
+		if ( pix.width() == w && pix.height() == h ) {
+		    pt->drawPixmap( x1, y1, pix );
+		} else {
+		    QImage img = pix.convertToImage();
+		    pt->drawImage( x1, y1, img.smoothScale( w, h ) );
+		}
+	    }
+	    break;
 	case InvalidElement:
 	    qWarning( "QSvgDevice::play: unknown element type " +
 		      child.nodeName() );
