@@ -268,6 +268,7 @@ void QHeaderWidgetPrivate::emitClicked(int section, Qt::ButtonState state)
 
 void QHeaderWidgetPrivate::emitItemChanged(Qt::Orientation orientation, int first, int last)
 {
+    Q_UNUSED(orientation);
     if (first == left) // this should always be true
         emit q->itemChanged(model()->item(first));
     else
