@@ -1712,9 +1712,11 @@ static void do_size_hints( QWidget* widget, QWExtra *x )
 	    s.min_width  = x->minw;
 	    s.min_height = x->minh;
 	}
-	s.flags |= PMaxSize;		// add maximum size hints
-	s.max_width  = x->maxw;
-	s.max_height = x->maxh;
+	if ( x->maxw < QWIDGETSIZE_MAX || x->maxh < QWIDGETSIZE_MAX ) {
+	    s.flags |= PMaxSize;		// add maximum size hints
+	    s.max_width  = x->maxw;
+	    s.max_height = x->maxh;
+	}
 	if ( x->topextra &&
 	   (x->topextra->incw > 0 || x->topextra->inch > 0) )
 	{					// add resize increment hints
