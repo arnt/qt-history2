@@ -111,6 +111,15 @@ static bool matchTemplateAngles( CodeChunk *type = 0 )
     return matches;
 }
 
+static bool matchNamespace()
+{
+    yyTok = getToken();
+    while ( yyTok != Tok_Eoi && yyTok != Tok_LeftBrace &&
+	    yyTok != Tok_RightBrace && yyTok != Tok_Semicolon )
+	yyTok = getToken();
+    return match( Tok_LeftBrace );
+}
+
 static bool matchTemplateHeader()
 {
     yyTok = getToken();
@@ -560,6 +569,10 @@ static bool matchDeclList( Decl *context )
 	case Tok_struct:
 	case Tok_union:
 	    matchClassDecl( context );
+	    break;
+	case Tok_namespace:
+	    if ( matchNamespace() )
+		matchDeclList( context );
 	    break;
 	case Tok_template:
 	    matchTemplateHeader();
