@@ -2318,10 +2318,14 @@ void QTextEdit::formatMore()
 	    lastBottom = -1;
     }
 
-    if ( bottom > contentsHeight() )
+    if ( bottom > contentsHeight() ) {
 	resizeContents( contentsWidth(), QMAX( doc->height(), bottom ) );
-    else if ( lastBottom != -1 && lastBottom < contentsHeight() )
+    } else if ( lastBottom != -1 && lastBottom < contentsHeight() ) {
 	resizeContents( contentsWidth(), QMAX( doc->height(), lastBottom ) );
+	if ( contentsHeight() < visibleHeight() )
+	    updateContents( 0, contentsHeight(), visibleWidth(),
+			    visibleHeight() - contentsHeight() );
+    }
 
     if ( lastFormatted )
 	formatTimer->start( interval, TRUE );
