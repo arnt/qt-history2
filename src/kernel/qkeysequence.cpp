@@ -49,26 +49,27 @@
 #endif
 
 /*!
-  \class QKeySequence qkeysequence.h
-  \brief The QKeySequence class encapsulates a key sequence as used by accelerators.
+    \class QKeySequence qkeysequence.h
+    \brief The QKeySequence class encapsulates a key sequence as used
+    by accelerators.
 
-  \ingroup misc
+    \ingroup misc
 
-  A key sequence consists of a keyboard code, optionally combined with
-  modifiers, e.g. \c SHIFT, \c CTRL, \c ALT or \c UNICODE_ACCEL.  For
-  example, \c{CTRL + Key_P} might be a sequence used as a shortcut for
-  printing a document. The key codes are listed in \c{qnamespace.h}.
-  As an alternative, use \c UNICODE_ACCEL with the unicode code point
-  of the character. For example, \c{UNICODE_ACCEL + 'A'} gives the
-  same key sequence as \c Key_A.
+    A key sequence consists of a keyboard code, optionally combined
+    with modifiers, e.g. \c SHIFT, \c CTRL, \c ALT or \c
+    UNICODE_ACCEL. For example, \c{CTRL + Key_P} might be a sequence
+    used as a shortcut for printing a document. The key codes are
+    listed in \c{qnamespace.h}. As an alternative, use \c
+    UNICODE_ACCEL with the unicode code point of the character. For
+    example, \c{UNICODE_ACCEL + 'A'} gives the same key sequence as \c
+    Key_A.
 
-   Key sequences can be constructed either from an integer key code,
-   or from a human readable translatable string.  A key sequence can
-   be cast to a QString to obtain a human readable translated
-   version of the sequence. Translations are done in the "QAccel"
-   scope.
+    Key sequences can be constructed either from an integer key code,
+    or from a human readable translatable string. A key sequence can
+    be cast to a QString to obtain a human readable translated version
+    of the sequence. Translations are done in the "QAccel" scope.
 
-   \sa QAccel
+    \sa QAccel
 */
 
 static struct {
@@ -110,8 +111,8 @@ public:
 
 
 /*!
-  Constructs an empty key sequence.
- */
+    Constructs an empty key sequence.
+*/
 QKeySequence::QKeySequence()
 {
     d = new QKeySequencePrivate;
@@ -120,32 +121,33 @@ QKeySequence::QKeySequence()
 /*!
   Constructs a key sequence from the keycode \a key.
 
-  The key codes are listed in \c{qnamespace.h} and can be combined with
-  modifiers, e.g. with \c SHIFT, \c CTRL, \c ALT or \c UNICODE_ACCEL.
- */
+  The key codes are listed in \c{qnamespace.h} and can be combined
+  with modifiers, e.g. with \c SHIFT, \c CTRL, \c ALT or \c
+  UNICODE_ACCEL.
+*/
 QKeySequence::QKeySequence( int key )
 {
     d = new QKeySequencePrivate( key  );
 }
 
 /*!
-  Creates a key sequence from the string \a key.  For example "Ctrl+O"
-  gives CTRL+UNICODE_ACCEL+'O'.  The strings "Ctrl", "Shift" and "Alt"
-  are recognized, as well as their translated equivalents in the
-  "QAccel" scope (using QObject::tr()).
+    Creates a key sequence from the string \a key. For example
+    "Ctrl+O" gives CTRL+UNICODE_ACCEL+'O'. The strings "Ctrl", "Shift"
+    and "Alt" are recognized, as well as their translated equivalents
+    in the "QAccel" scope (using QObject::tr()).
 
-  This contructor is typically used with \link QObject::tr() tr
-  \endlink(), so that accelerator keys can be replaced in
-  translations:
+    This contructor is typically used with \link QObject::tr() tr
+    \endlink(), so that accelerator keys can be replaced in
+    translations:
 
-  \code
-    QPopupMenu *file = new QPopupMenu( this );
-    file->insertItem( tr("&Open..."), this, SLOT(open()),
-		      QKeySequence( tr("Ctrl+O", "File|Open") ) );
-  \endcode
+    \code
+	QPopupMenu *file = new QPopupMenu( this );
+	file->insertItem( tr("&Open..."), this, SLOT(open()),
+			  QKeySequence( tr("Ctrl+O", "File|Open") ) );
+    \endcode
 
-  Note the \c "File|Open" translator comment. It is by no means
-  necessary, but it provides some context for the human translator.
+    Note the \c "File|Open" translator comment. It is by no means
+    necessary, but it provides some context for the human translator.
 */
 
 QKeySequence::QKeySequence( const QString& key )
@@ -205,16 +207,17 @@ done:
 }
 
 /*!
-  Copy constructor. Makes a copy of \a keysequence.
- */
+    Copy constructor. Makes a copy of \a keysequence.
+*/
 QKeySequence::QKeySequence( const QKeySequence& keysequence )
 {
     d = keysequence.d;
     d->ref();
 }
 
-/*!  Destroys the key sequence.
- */
+/*!
+    Destroys the key sequence.
+*/
 QKeySequence::~QKeySequence()
 {
     if ( d->deref() ) {
@@ -223,8 +226,8 @@ QKeySequence::~QKeySequence()
 }
 
 /*!
-  Assignment operator. Assigns \a keysequence to this object.
- */
+    Assignment operator. Assigns \a keysequence to this object.
+*/
 QKeySequence &QKeySequence::operator=( const QKeySequence & keysequence )
 {
     keysequence.d->ref();
@@ -236,21 +239,20 @@ QKeySequence &QKeySequence::operator=( const QKeySequence & keysequence )
 
 
 /*!
-  For backward compatibility: returns the keycode as integer.
+    For backward compatibility: returns the keycode as an integer.
 
-  If QKeySequence ever supports more than one keycode, this function
-  will return the first one.
- */
+    If QKeySequence ever supports more than one keycode, this function
+    will return the first one.
+*/
 QKeySequence::operator int () const
 {
     return d->key;
 }
 
 /*!
-   Creates an accelerator string for the key sequence.
-   For instance CTRL+Key_O gives "Ctrl+O".  The strings, "Ctrl",
-   "Shift", etc. are translated (using QObject::tr()) in the "QAccel"
-   scope.
+    Creates an accelerator string for the key sequence. For example,
+    CTRL+Key_O gives "Ctrl+O". The strings, "Ctrl", "Shift", etc. are
+    translated (using QObject::tr()) in the "QAccel" scope.
 */
 QKeySequence::operator QString() const
 {
@@ -311,18 +313,18 @@ QKeySequence::operator QString() const
 
 
 /*!
-  Returns TRUE if \a keysequence is equal to this key sequence;
-  otherwise returns FALSE.
- */
+    Returns TRUE if \a keysequence is equal to this key sequence;
+    otherwise returns FALSE.
+*/
 bool QKeySequence::operator==( const QKeySequence& keysequence ) const
 {
     return d->key == keysequence.d->key;
 }
 
 /*!
-  Returns TRUE if \a keysequence is not equal to this key sequence;
-  otherwise returns FALSE.
- */
+    Returns TRUE if \a keysequence is not equal to this key sequence;
+    otherwise returns FALSE.
+*/
 bool QKeySequence::operator!= ( const QKeySequence& keysequence ) const
 {
     return d->key != keysequence.d->key;
@@ -335,10 +337,11 @@ bool QKeySequence::operator!= ( const QKeySequence& keysequence ) const
  *****************************************************************************/
 #if !defined(QT_NO_DATASTREAM) && !defined(QT_NO_IMAGEIO)
 /*!
-  \relates QKeySequence
-  Writes the key sequence \a keysequence to the stream \a s.
+    \relates QKeySequence
 
-  \link datastreamformat.html Format of the QDataStream operators \endlink
+    Writes the key sequence \a keysequence to the stream \a s.
+
+    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator<<( QDataStream &s, const QKeySequence &keysequence )
@@ -350,8 +353,12 @@ QDataStream &operator<<( QDataStream &s, const QKeySequence &keysequence )
 }
 
 /*!
-  \relates QKeySequence
-  Reads a key sequence from the stream \a s into the key sequence \a keysequence.
+    \relates QKeySequence
+
+    Reads a key sequence from the stream \a s into the key sequence \a
+    keysequence.
+
+    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
 
 QDataStream &operator>>( QDataStream &s, QKeySequence &keysequence )

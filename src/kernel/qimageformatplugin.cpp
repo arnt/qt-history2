@@ -3,35 +3,39 @@
 #include "qimageformatinterface_p.h"
 #include "qimage.h"
 
-/*!   \class QImageFormatPlugin qimageformatplugin.h
-  \brief The QImageFormatPlugin class provides an abstract base for custom image format plugins.
-  \ingroup plugins
+/*!
+    \class QImageFormatPlugin qimageformatplugin.h
+    \brief The QImageFormatPlugin class provides an abstract base for custom image format plugins.
 
-  The image format  plugin is a simple plugin interface that makes it easy to
-  create custom image formats that can be used transparently by
-  applications.
+    \ingroup plugins
 
-  Writing an image format plugin is achieved by subclassing this
-  base class, reimplementing the pure virtual functions keys() and
-  installIOHandler(), and exporting the class with the Q_EXPORT_PLUGIN
-  macro.  See the \link plugins-howto.html Plugins
-  documentation\endlink for details.
+    The image format plugin is a simple plugin interface that makes
+    it easy to create custom image formats that can be used
+    transparently by applications.
+
+    Writing an image format plugin is achieved by subclassing this
+    base class, reimplementing the pure virtual functions keys() and
+    installIOHandler(), and exporting the class with the
+    Q_EXPORT_PLUGIN macro.  See the \link plugins-howto.html Plugins
+    documentation\endlink for details.
 */
 
-/*! \fn QStringList QImageFormatPlugin::keys() const
+/*!
+    \fn QStringList QImageFormatPlugin::keys() const
 
-  Returns the list of image formats this plugin supports.
+    Returns the list of image formats this plugin supports.
 
-  \sa installIOHandler()
+    \sa installIOHandler()
 */
 
 
-/*! \fn  bool QImageFormatPlugin::installIOHandler( const QString &format )
+/*!
+    \fn  bool QImageFormatPlugin::installIOHandler( const QString &format )
 
-  Installs a QImageIO image I/O handler for the image format \a
-  format.
+    Installs a QImageIO image I/O handler for the image format \a
+    format.
 
-  \sa keys()
+    \sa keys()
 */
 
 class QImageFormatPluginPrivate : public QImageFormatInterface
@@ -100,8 +104,8 @@ QRESULT QImageFormatPluginPrivate::installIOHandler( const QString &format )
 }
 
 /*!
-  Constructs an image format plugin. This is invoked automatically by
-  the Q_EXPORT_PLUGIN macro.
+    Constructs an image format plugin. This is invoked automatically
+    by the Q_EXPORT_PLUGIN macro.
 */
 QImageFormatPlugin::QImageFormatPlugin()
     : QGPlugin( d = new QImageFormatPluginPrivate( this ) )
@@ -109,11 +113,10 @@ QImageFormatPlugin::QImageFormatPlugin()
 }
 
 /*!
-  Destroys the image format plugin.
+    Destroys the image format plugin.
 
-  You never have to call this explicitly. Qt destroys a plugin
-  automatically when it is no longer used.
-
+    You never have to call this explicitly. Qt destroys a plugin
+    automatically when it is no longer used.
 */
 QImageFormatPlugin::~QImageFormatPlugin()
 {
