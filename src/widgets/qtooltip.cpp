@@ -153,15 +153,13 @@ QTipManager::~QTipManager()
 	qApp->removeEventFilter( tipManager );
 
     if ( tips ) {
-	QHash<QWidget*,QTipManager::Tip*>::Iterator it = tips->begin();
-	QTipManager::Tip *t, *n;
-	QWidget *k;
-	while ( (t = it.value()) != 0 ) {
-	    k = it.key();
-	    ++it;
+	for(QHash<QWidget*,QTipManager::Tip*>::Iterator it = tips->begin(); it != tips->end(); ) {
+	    QTipManager::Tip *t = it.value();
+	    QWidget *k = it.key();
+	    ++it; //advance before the take()
 	    tips->take( k );
 	    while ( t ) {
-		n = t->next;
+		QTipManager::Tip *n = t->next;
 		delete t;
 		t = n;
 	    }
@@ -728,7 +726,7 @@ QFont QToolTip::font()
 
 void QToolTip::setFont( const QFont &font )
 {
-    QApplication::setFont( font, TRUE, "QTipLabel" );
+    QApplication::setFont( font, "QTipLabel" );
 }
 
 
@@ -753,7 +751,7 @@ QPalette QToolTip::palette()
 
 void QToolTip::setPalette( const QPalette &palette )
 {
-    QApplication::setPalette( palette, TRUE, "QTipLabel" );
+    QApplication::setPalette( palette, "QTipLabel" );
 }
 
 /*!
