@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#75 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#76 $
 **
 ** Implementation of QDialog class
 **
@@ -391,8 +391,7 @@ void QDialog::show()
 
 void QDialog::hide()
 {
-    bool ex = testWState(WState_Visible) && testWFlags(WType_Modal)
-		&& !testWState(WState_ForceHide);
+    bool ex = testWState(WState_Visible) && testWFlags(WType_Modal);
     QWidget::hide();
     if ( ex )
 	qApp->exit_loop();
