@@ -1526,6 +1526,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
     int pos = 0;
     QValueStack<Tag> tags;
     QValueStack<QStyleSheetItem::ListStyle> listStyles;
+    QValueStack<int> alignments;
     Tag curtag( "", sheet_->item("") );
     curtag.format = *formatCollection()->defaultFormat();
     bool space = FALSE;
@@ -1534,6 +1535,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
     int depth = 0;
     bool hasNewPar = TRUE;
     QStyleSheetItem::ListStyle curListStyle = QStyleSheetItem::ListDisc;
+    int curAlignment = 0;
     QString lastClose;
     while ( pos < int( doc.length() ) ) {
 	if (hasPrefix(doc, pos, '<' ) ){
@@ -1556,6 +1558,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			    break;
 			curtag = tags.pop();
 			curListStyle = listStyles.pop();
+			curAlignment = alignments.pop();
 			depth--;
 		    }
 		    curListStyle = chooseListStyle( nstyle, attr, curListStyle );
@@ -1601,6 +1604,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		} else if ( !emptyTag ) {
 		    tags.push( curtag );
 		    listStyles.push( curListStyle );
+		    alignments.push( curAlignment );
 		    if ( nstyle ) {
 			// ignore whitespace for inline elements if there was already one
 			if ( nstyle->whiteSpaceMode() == QStyleSheetItem::WhiteSpaceNormal
@@ -1611,6 +1615,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			if ( nstyle == curtag.style && !nstyle->selfNesting() ) {
 			    (void) tags.pop();
 			    curListStyle = listStyles.pop();
+			    curAlignment = alignments.pop();
 			}
 
 			if ( curtag.style->displayMode() == QStyleSheetItem::DisplayListItem )
@@ -1634,6 +1639,8 @@ void QTextDocument::setRichTextInternal( const QString &text )
 				curpar->setStyleSheetItems( vec );
 			    }
 			}
+			if ( curtag.style->alignment() != QStyleSheetItem::Undefined )
+			    curAlignment = curtag.style->alignment();
 			
 			curtag.style = nstyle;
 			curtag.wsm = nstyle->whiteSpaceMode();
@@ -1666,15 +1673,16 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    }
 		
 		    if ( attr.contains( "align" ) &&
-			 ( curtag.name == "p" || curtag.name == "li" || curtag.name[ 0 ] == 'h' ) ) {
+			 ( curtag.name == "p" || curtag.name == "div" || curtag.name == "li" || curtag.name[ 0 ] == 'h' ) ) {
 			QString align = attr["align"];
 			if ( align == "center" )
-			    curpar->setAlignment( Qt::AlignCenter );
+			    curAlignment = Qt::AlignCenter;
 			else if ( align == "right" )
-			    curpar->setAlignment( Qt::AlignRight );
+			    curAlignment = Qt::AlignRight;
 			else if ( align == "justify" )
-			    curpar->setAlignment( Qt::AlignJustify );
+			    curAlignment = Qt::AlignJustify;
 		    }
+		    curpar->setAlignment( curAlignment );
 		    depth++;
 		}
 	    } else {
@@ -1703,9 +1711,10 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    }
 		    if ( tags.isEmpty() )
 			break;
-		    curtag = tags.pop();
 		
+		    curtag = tags.pop();
 		    curListStyle = listStyles.pop();
+		    
 		    depth--;
 		}
 
@@ -1726,13 +1735,15 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		    NEWPAR;
 		}
 		if ( popIt ) {
-		    if ( !tags.isEmpty() )
+		    if ( !tags.isEmpty() ) {
 			curtag = tags.pop();
+		    }
 		} else {
 		    if ( !curtagtmp.name.isEmpty() )
 			curtag = curtagtmp;
 		}
 		curListStyle = listStyles.pop();
+		curAlignment = alignments.pop();
 	    }
 	} else {
 	    // normal contents
@@ -3310,7 +3321,7 @@ QTextStringChar *QTextStringChar::clone() const
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 QTextParag::QTextParag( QTextDocument *d, QTextParag *pr, QTextParag *nx, bool updateIds )
-    : invalid( 0 ), p( pr ), n( nx ), doc( d ), align( -1 ), numSubParag( -1 ),
+    : invalid( 0 ), p( pr ), n( nx ), doc( d ), align( 0 ), numSubParag( -1 ),
       tm( -1 ), bm( -1 ), lm( -1 ), rm( -1 ), flm( -1 ), tc( 0 ),
       numCustomItems( 0 ), pFormatter( 0 ),
       tArray( 0 ), tabStopWidth( 0 ), eData( 0 ), pntr( 0 )
@@ -6449,7 +6460,7 @@ QTextTable::QTextTable( QTextDocument *p, const QMap<QString, QString> & attr  )
 	    border = attr["border"].toInt();
     }
     us_b = border;
-    
+
     innerborder = us_ib = border ? 1 : 0;
 
     if ( border ) {
@@ -6963,7 +6974,7 @@ QTextTableCell::QTextTableCell( QTextTable* table,
     if ( attr.contains("bgcolor") ) {
 	background = new QBrush(QColor( attr["bgcolor"] ));
     }
-    
+
 
     hasFixedWidth = FALSE;
     if ( attr.contains("width") ) {
@@ -7105,7 +7116,7 @@ QPainter* QTextTableCell::painter() const
     return parent->painter;
 }
 
-int QTextTableCell::verticalAlignmentOffset() const 
+int QTextTableCell::verticalAlignmentOffset() const
 {
     if ( (align & Qt::AlignVCenter ) == Qt::AlignVCenter )
 	return ( geom.height() - richtext->height() ) / 2;

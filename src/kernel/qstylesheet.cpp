@@ -1078,7 +1078,7 @@ void QStyleSheet::init()
     style->setFontFamily( QString::fromLatin1("courier") );
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
     style->setWhiteSpaceMode(QStyleSheetItem::WhiteSpacePre);
-    
+
     style = new QStyleSheetItem( this, QString::fromLatin1("blockquote") );
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
     style->setMargin(QStyleSheetItem::MarginHorizontal, 40 );
@@ -1086,7 +1086,7 @@ void QStyleSheet::init()
      style = new QStyleSheetItem( this, QString::fromLatin1("head") );
      style->setDisplayMode(QStyleSheetItem::DisplayNone);
      style = new QStyleSheetItem( this, QString::fromLatin1("div") );
-     style->setDisplayMode(QStyleSheetItem::DisplayInline ); // #### set this to DisplayBlock after the parser in the new engine has been fixed for div
+     style->setDisplayMode(QStyleSheetItem::DisplayBlock) ;
      style = new QStyleSheetItem( this, QString::fromLatin1("dl") );
      style->setDisplayMode(QStyleSheetItem::DisplayBlock);
      style = new QStyleSheetItem( this, QString::fromLatin1("dt") );
