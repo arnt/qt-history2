@@ -42,10 +42,10 @@ namespace QText
         WhiteSpaceModeUndefined = -1
     };
 
-    bool mightBeRichText(const QString&);
-    QString escape(const QString& plain);
-
-    QString convertFromPlainText(const QString &plain, WhiteSpaceMode mode = WhiteSpacePre);
+    Q_GUI_EXPORT bool mightBeRichText(const QString&);
+    Q_GUI_EXPORT QString escape(const QString& plain);
+    Q_GUI_EXPORT QString convertFromPlainText(const QString &plain,
+                                              WhiteSpaceMode mode = WhiteSpacePre);
 }
 
 class Q_GUI_EXPORT QAbstractUndoItem

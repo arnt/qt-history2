@@ -32,7 +32,7 @@ class Q3TextDocument;
 template<class Key, class T> class QMap;
 class QStyleSheetItemData;
 
-class Q_GUI_EXPORT QStyleSheetItem
+class Q_COMPAT_EXPORT QStyleSheetItem
 {
 public:
     QStyleSheetItem(QStyleSheet* parent, const QString& name);
@@ -163,7 +163,7 @@ private:
 class Q3TextCustomItem;
 #endif
 
-class Q_GUI_EXPORT QStyleSheet : public QObject
+class Q_COMPAT_EXPORT QStyleSheet : public QObject
 {
     Q_OBJECT
 public:
@@ -181,7 +181,7 @@ public:
 
     static QString escape(const QString&);
     static QString convertFromPlainText(const QString&,
-                                         QStyleSheetItem::WhiteSpaceMode mode = QStyleSheetItem::WhiteSpacePre);
+                                        QStyleSheetItem::WhiteSpaceMode mode = QStyleSheetItem::WhiteSpacePre);
     static bool mightBeRichText(const QString&);
 
     virtual void scaleFont(QFont& font, int logicalSize) const;
