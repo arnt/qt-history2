@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#215 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#216 $
 **
 ** Implementation of QWidget class
 **
@@ -29,7 +29,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#215 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#216 $");
 
 
 /*!
@@ -276,6 +276,9 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#215 $");
 
   <li> keyPressEvent() - called whenever a key is pressed, and again
   when a key has been held down long enough for it to auto-repeat.
+  Note that the Tab and shift-Tab keys are only passed to the widget
+  if they are not used by the focus-change mechanisms.  To force those
+  keys to be processed by your widget, you must override QWidget::event().
 
   <li> focusInEvent() - called when the widget gains keyboard focus
   (assuming you have called setFocusPolicy(), of course). Well
@@ -300,6 +303,9 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#215 $");
   while it is held down if the key is auto-repeating.  In that case
   the widget receives a key release event and immediately a key press
   event for every repeat.
+  Note that the Tab and shift-Tab keys are only passed to the widget
+  if they are not used by the focus-change mechanisms.  To force those
+  keys to be processed by your widget, you must override QWidget::event().
 
   <li> enterEvent() - called when the mouse enters the widget's screen
   space.  (This excludes screen space owned by any children of the
@@ -317,7 +323,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#215 $");
 
   There are also some \e really obscure events.  They are listed in
   qevent.h and you need to reimplement event() to handle them.  The
-  default implementation of event() handles TAB and shift-TAB (to move
+  default implementation of event() handles Tab and shift-Tab (to move
   the keyboard focus), and passes on every other event to one of the
   more specialized handlers above.
 
@@ -1905,7 +1911,7 @@ bool QWidget::hasFocus() const
 
   setFocus() gives focus to a widget regardless of its focus policy.
   However, QWidget::focusWidget() (which determines where
-  Tab/Shift-Tab) moves from) is changed only if the widget accepts
+  Tab/shift-Tab) moves from) is changed only if the widget accepts
   focus.  This can be used to implement "hidden focus"; see
   focusNextPrevChild() for details.
 
@@ -1997,7 +2003,7 @@ void QWidget::clearFocus()
 
 /*!
   Finds a new widget to give the keyboard focus to, as appropriate for
-  Tab/Shift-Tab, and returns TRUE if is can find a new widget and
+  Tab/shift-Tab, and returns TRUE if is can find a new widget and
   FALSE if it can't,
 
   If \a next is true, this function searches "forwards", if \a next is
@@ -2680,9 +2686,9 @@ QSize QWidget::sizeHint() const
   of the specialized event handlers.
 
   Key press/release events are treated differently from other events.
-  event() checks for TAB and shift-TAB and tries to move the focus
+  event() checks for Tab and shift-Tab and tries to move the focus
   appropriately.  If there is no widget to move the focus to (or the
-  key press is not TAB or shift-TAB), event() calls keyPressEvent().
+  key press is not Tab or shift-Tab), event() calls keyPressEvent().
 
   This function returns TRUE if it is able to pass the event over to
   someone, or FALSE if nobody wanted the event.
