@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#123 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#124 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#123 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#124 $");
 
 
 /*!
@@ -1353,9 +1353,18 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	    }
 	    break;
 	case Event_KeyPress:
-	    if ( ((QKeyEvent *)event)->key() == Key_Escape ) {
+	    switch( ((QKeyEvent *)event)->key() ) {
+	    case Key_Escape:
 		popDownListBox();
+		((QKeyEvent*)event)->accept();
 		return TRUE;
+	    case Key_Enter:
+	    case Key_Return:
+		// magic hack to work around QDialog's enter handling
+		((QKeyEvent*)event)->accept();
+		return FALSE;
+	    default:
+		break;
 	    }
 	default:
 	    break;
@@ -1627,7 +1636,7 @@ QListBox * QComboBox::listBox() const
   with history.  For example you can connect the combo's activated()
   signal to clearEdit() in order to present the user with a new, empty
   line as soon as return is pressed.
-  
+
   \sa setEditText()
 */
 
@@ -1641,11 +1650,11 @@ void QComboBox::clearEdit()
 /*!  Sets the text in the embedded line edit to \a newText without
   changing the combo's contents.  Does nothing if the combo isn't
   editable.
-  
+
   This is useful e.g. for providing a good starting point for the
   user's editing and entering the change in the combo only when the
   user presses enter.
-  
+
   \sa clearEditText() insertItem()
 */
 
