@@ -417,19 +417,10 @@
    such as template specialization nevertheless */
 #  elif defined(__sgi)
 #    define Q_CC_MIPS
-#    if defined(_MIPS_SIM) && (_MIPS_SIM == _ABIO32) /* o32 ABI */
-#      define Q_TYPENAME
-#      define Q_BROKEN_TEMPLATE_SPECIALIZATION
-#      define Q_NO_EXPLICIT_KEYWORD
-#      define Q_OUTOFLINE_TEMPLATE inline
-#    elif defined(_COMPILER_VERSION) && (_COMPILER_VERSION < 730) /* 7.2 */
-#      define Q_TYPENAME
-#      define Q_BROKEN_TEMPLATE_SPECIALIZATION
-#    endif
 #    define Q_NO_USING_KEYWORD /* ### check "using" status */
 #    if defined(_COMPILER_VERSION) && (_COMPILER_VERSION >= 740)
 #      define Q_OUTOFLINE_TEMPLATE inline
-#      pragma set woff 3624,3625, 3649 /* turn off some harmless warnings */
+#      pragma set woff 3624,3625,3649 /* turn off some harmless warnings */
 #    endif
 #  endif
 
