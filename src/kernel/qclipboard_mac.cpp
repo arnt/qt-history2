@@ -179,15 +179,14 @@ QByteArray QClipboardWatcher::encodedData(const char* mime) const
 	    if(GetScrapFlavorSize(scrap, flav, &flavorsize) == noErr) {
 		char *buffer = (char *)malloc(flavorsize);
 		GetScrapFlavorData(scrap, flav, &flavorsize, buffer);
-		QByteArray r, tr;
-		r.setRawData(buffer, flavorsize);
+		QConstByteArray r(buffer, flavorsize);
+                QByteArray tr;
 		{
 		    QList<QByteArray> lst;
 		    lst.append(r);
 		    tr = c->convertToMime(lst, mime, flav);
 		}
 		tr.detach();
-		r.resetRawData(buffer, flavorsize);
 		free(buffer);
 		return tr;
 	    }

@@ -570,7 +570,6 @@ QList<QByteArray> QMacMimeImage::convertFromMime(QByteArray data, const char* mi
     if(qstrnicmp(mime,"image/",6) || flav != kScrapFlavorTypePicture)
 	return ret;
     QPixmap px;
-    QByteArray ar;
     {
 	QImage img;
 	img.loadFromData((unsigned char*)data.data(),data.size());
@@ -590,7 +589,7 @@ QList<QByteArray> QMacMimeImage::convertFromMime(QByteArray data, const char* mi
     ClosePicture();
     int size = GetHandleSize((Handle)pic);
     HLock((Handle)pic);
-    ar.setRawData((char *)*pic, size);
+    QConstByteArray ar(reinterpret_cast<char *>(*pic), size);
     HUnlock((Handle)pic);
     ret.append(ar);
     return ret;

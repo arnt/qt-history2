@@ -181,10 +181,9 @@ QByteArray QDropEvent::encodedData(const char *mime) const
 		    return QByteArray();
 		}
 		if(GetFlavorDataSize(current_dropobj, ref, flav, &flavorsize) == noErr) {
-		    char *buffer = (char *)malloc(flavorsize);
+		    char *buffer = static_cast<char *>(malloc(flavorsize));
 		    GetFlavorData(current_dropobj, ref, flav, buffer, &flavorsize, 0);
-		    QByteArray r;
-		    r.setRawData(buffer, flavorsize);
+		    QConstByteArray r(buffer, flavorsize);
 		    arrs.append(r);
 		}
 	    }
