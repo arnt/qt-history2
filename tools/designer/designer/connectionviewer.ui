@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>705</width>
-            <height>315</height>
+            <height>317</height>
         </rect>
     </property>
     <property stdset="1">
@@ -76,21 +76,19 @@
                         <cstring>Horizontal Spacing2</cstring>
                     </property>
                     <property stdset="1">
-                        <name>geometry</name>
-                        <rect>
-                            <x>87</x>
-                            <y>5</y>
-                            <width>509</width>
-                            <height>20</height>
-                        </rect>
-                    </property>
-                    <property stdset="1">
                         <name>orientation</name>
                         <enum>Horizontal</enum>
                     </property>
                     <property stdset="1">
                         <name>sizeType</name>
                         <enum>Expanding</enum>
+                    </property>
+                    <property>
+                        <name>sizeHint</name>
+                        <size>
+                            <width>20</width>
+                            <height>20</height>
+                        </size>
                     </property>
                 </spacer>
                 <widget>
@@ -214,21 +212,19 @@
                 <cstring>Vertical Spacing1</cstring>
             </property>
             <property stdset="1">
-                <name>geometry</name>
-                <rect>
-                    <x>635</x>
-                    <y>79</y>
-                    <width>20</width>
-                    <height>189</height>
-                </rect>
-            </property>
-            <property stdset="1">
                 <name>orientation</name>
                 <enum>Vertical</enum>
             </property>
             <property stdset="1">
                 <name>sizeType</name>
                 <enum>Expanding</enum>
+            </property>
+            <property>
+                <name>sizeHint</name>
+                <size>
+                    <width>20</width>
+                    <height>20</height>
+                </size>
             </property>
         </spacer>
         <widget row="1"  column="1" >

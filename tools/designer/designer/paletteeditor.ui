@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>651</width>
-            <height>418</height>
+            <height>420</height>
         </rect>
     </property>
     <property stdset="1">
@@ -64,6 +64,10 @@
             </property>
             <widget>
                 <class>QWidget</class>
+                <property stdset="1">
+                    <name>name</name>
+                    <cstring>Widget13</cstring>
+                </property>
                 <attribute>
                     <name>title</name>
                     <string>Ac&amp;tive</string>
@@ -163,21 +167,19 @@
                                     <cstring>Horizontal Spacing1</cstring>
                                 </property>
                                 <property stdset="1">
-                                    <name>geometry</name>
-                                    <rect>
-                                        <x>11</x>
-                                        <y>20</y>
-                                        <width>207</width>
-                                        <height>20</height>
-                                    </rect>
-                                </property>
-                                <property stdset="1">
                                     <name>orientation</name>
                                     <enum>Horizontal</enum>
                                 </property>
                                 <property stdset="1">
                                     <name>sizeType</name>
                                     <enum>Expanding</enum>
+                                </property>
+                                <property>
+                                    <name>sizeHint</name>
+                                    <size>
+                                        <width>20</width>
+                                        <height>20</height>
+                                    </size>
                                 </property>
                             </spacer>
                             <widget row="2"  column="0"  rowspan="1"  colspan="3" >
@@ -362,21 +364,19 @@
                                             <cstring>Horizontal Spacing1</cstring>
                                         </property>
                                         <property stdset="1">
-                                            <name>geometry</name>
-                                            <rect>
-                                                <x>1</x>
-                                                <y>3</y>
-                                                <width>162</width>
-                                                <height>20</height>
-                                            </rect>
-                                        </property>
-                                        <property stdset="1">
                                             <name>orientation</name>
                                             <enum>Horizontal</enum>
                                         </property>
                                         <property stdset="1">
                                             <name>sizeType</name>
                                             <enum>Expanding</enum>
+                                        </property>
+                                        <property>
+                                            <name>sizeHint</name>
+                                            <size>
+                                                <width>20</width>
+                                                <height>20</height>
+                                            </size>
                                         </property>
                                     </spacer>
                                     <widget>
@@ -577,21 +577,19 @@
                                             <cstring>Horizontal Spacing1</cstring>
                                         </property>
                                         <property stdset="1">
-                                            <name>geometry</name>
-                                            <rect>
-                                                <x>1</x>
-                                                <y>3</y>
-                                                <width>20</width>
-                                                <height>20</height>
-                                            </rect>
-                                        </property>
-                                        <property stdset="1">
                                             <name>orientation</name>
                                             <enum>Horizontal</enum>
                                         </property>
                                         <property stdset="1">
                                             <name>sizeType</name>
                                             <enum>Expanding</enum>
+                                        </property>
+                                        <property>
+                                            <name>sizeHint</name>
+                                            <size>
+                                                <width>20</width>
+                                                <height>20</height>
+                                            </size>
                                         </property>
                                     </spacer>
                                     <widget>
@@ -792,15 +790,6 @@
                                     <cstring>Horizontal Spacing1</cstring>
                                 </property>
                                 <property stdset="1">
-                                    <name>geometry</name>
-                                    <rect>
-                                        <x>174</x>
-                                        <y>21</y>
-                                        <width>176</width>
-                                        <height>20</height>
-                                    </rect>
-                                </property>
-                                <property stdset="1">
                                     <name>orientation</name>
                                     <enum>Horizontal</enum>
                                 </property>
@@ -818,6 +807,13 @@
                                 <property stdset="1">
                                     <name>focusPolicy</name>
                                     <enum>NoFocus</enum>
+                                </property>
+                                <property>
+                                    <name>sizeHint</name>
+                                    <size>
+                                        <width>20</width>
+                                        <height>20</height>
+                                    </size>
                                 </property>
                                 <property>
                                     <name>scale</name>
@@ -988,6 +984,10 @@
             </widget>
             <widget>
                 <class>QWidget</class>
+                <property stdset="1">
+                    <name>name</name>
+                    <cstring>Widget14</cstring>
+                </property>
                 <attribute>
                     <name>title</name>
                     <string>&amp;Inactive</string>
@@ -1070,21 +1070,19 @@
                                     <cstring>Horizontal Spacing1</cstring>
                                 </property>
                                 <property stdset="1">
-                                    <name>geometry</name>
-                                    <rect>
-                                        <x>11</x>
-                                        <y>20</y>
-                                        <width>207</width>
-                                        <height>20</height>
-                                    </rect>
-                                </property>
-                                <property stdset="1">
                                     <name>orientation</name>
                                     <enum>Horizontal</enum>
                                 </property>
                                 <property stdset="1">
                                     <name>sizeType</name>
                                     <enum>Expanding</enum>
+                                </property>
+                                <property>
+                                    <name>sizeHint</name>
+                                    <size>
+                                        <width>20</width>
+                                        <height>20</height>
+                                    </size>
                                 </property>
                             </spacer>
                             <widget row="0"  column="1" >
@@ -1310,21 +1308,19 @@
                                             <cstring>Horizontal Spacing2</cstring>
                                         </property>
                                         <property stdset="1">
-                                            <name>geometry</name>
-                                            <rect>
-                                                <x>1</x>
-                                                <y>3</y>
-                                                <width>20</width>
-                                                <height>20</height>
-                                            </rect>
-                                        </property>
-                                        <property stdset="1">
                                             <name>orientation</name>
                                             <enum>Horizontal</enum>
                                         </property>
                                         <property stdset="1">
                                             <name>sizeType</name>
                                             <enum>Expanding</enum>
+                                        </property>
+                                        <property>
+                                            <name>sizeHint</name>
+                                            <size>
+                                                <width>20</width>
+                                                <height>20</height>
+                                            </size>
                                         </property>
                                     </spacer>
                                     <widget>
@@ -1567,21 +1563,19 @@
                                             <cstring>Horizontal Spacing2</cstring>
                                         </property>
                                         <property stdset="1">
-                                            <name>geometry</name>
-                                            <rect>
-                                                <x>1</x>
-                                                <y>3</y>
-                                                <width>162</width>
-                                                <height>20</height>
-                                            </rect>
-                                        </property>
-                                        <property stdset="1">
                                             <name>orientation</name>
                                             <enum>Horizontal</enum>
                                         </property>
                                         <property stdset="1">
                                             <name>sizeType</name>
                                             <enum>Expanding</enum>
+                                        </property>
+                                        <property>
+                                            <name>sizeHint</name>
+                                            <size>
+                                                <width>20</width>
+                                                <height>20</height>
+                                            </size>
                                         </property>
                                     </spacer>
                                     <widget>
@@ -1651,6 +1645,10 @@
             </widget>
             <widget>
                 <class>QWidget</class>
+                <property stdset="1">
+                    <name>name</name>
+                    <cstring>Widget15</cstring>
+                </property>
                 <attribute>
                     <name>title</name>
                     <string>&amp;Disabled</string>
@@ -1733,21 +1731,19 @@
                                     <cstring>Horizontal Spacing1</cstring>
                                 </property>
                                 <property stdset="1">
-                                    <name>geometry</name>
-                                    <rect>
-                                        <x>11</x>
-                                        <y>20</y>
-                                        <width>207</width>
-                                        <height>20</height>
-                                    </rect>
-                                </property>
-                                <property stdset="1">
                                     <name>orientation</name>
                                     <enum>Horizontal</enum>
                                 </property>
                                 <property stdset="1">
                                     <name>sizeType</name>
                                     <enum>Expanding</enum>
+                                </property>
+                                <property>
+                                    <name>sizeHint</name>
+                                    <size>
+                                        <width>20</width>
+                                        <height>20</height>
+                                    </size>
                                 </property>
                             </spacer>
                             <widget row="0"  column="1" >
@@ -1963,21 +1959,19 @@
                                             <cstring>Horizontal Spacing3</cstring>
                                         </property>
                                         <property stdset="1">
-                                            <name>geometry</name>
-                                            <rect>
-                                                <x>1</x>
-                                                <y>3</y>
-                                                <width>20</width>
-                                                <height>20</height>
-                                            </rect>
-                                        </property>
-                                        <property stdset="1">
                                             <name>orientation</name>
                                             <enum>Horizontal</enum>
                                         </property>
                                         <property stdset="1">
                                             <name>sizeType</name>
                                             <enum>Expanding</enum>
+                                        </property>
+                                        <property>
+                                            <name>sizeHint</name>
+                                            <size>
+                                                <width>20</width>
+                                                <height>20</height>
+                                            </size>
                                         </property>
                                     </spacer>
                                     <widget>
@@ -2220,21 +2214,19 @@
                                             <cstring>Horizontal Spacing3</cstring>
                                         </property>
                                         <property stdset="1">
-                                            <name>geometry</name>
-                                            <rect>
-                                                <x>1</x>
-                                                <y>3</y>
-                                                <width>162</width>
-                                                <height>20</height>
-                                            </rect>
-                                        </property>
-                                        <property stdset="1">
                                             <name>orientation</name>
                                             <enum>Horizontal</enum>
                                         </property>
                                         <property stdset="1">
                                             <name>sizeType</name>
                                             <enum>Expanding</enum>
+                                        </property>
+                                        <property>
+                                            <name>sizeHint</name>
+                                            <size>
+                                                <width>20</width>
+                                                <height>20</height>
+                                            </size>
                                         </property>
                                     </spacer>
                                     <widget>
@@ -2339,21 +2331,19 @@
                         <cstring>Horizontal Spacing11</cstring>
                     </property>
                     <property stdset="1">
-                        <name>geometry</name>
-                        <rect>
-                            <x>87</x>
-                            <y>5</y>
-                            <width>283</width>
-                            <height>20</height>
-                        </rect>
-                    </property>
-                    <property stdset="1">
                         <name>orientation</name>
                         <enum>Horizontal</enum>
                     </property>
                     <property stdset="1">
                         <name>sizeType</name>
                         <enum>Expanding</enum>
+                    </property>
+                    <property>
+                        <name>sizeHint</name>
+                        <size>
+                            <width>20</width>
+                            <height>20</height>
+                        </size>
                     </property>
                 </spacer>
                 <widget>
@@ -2455,6 +2445,7 @@
         <pixmap>image3</pixmap>
         <slot access="public">previousWidget()</slot>
         <slot access="public">nextWidget()</slot>
+        <property type="String">property</property>
     </customwidget>
 </customwidgets>
 <images>

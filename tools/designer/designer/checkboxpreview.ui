@@ -12,7 +12,7 @@
             <x>0</x>
             <y>0</y>
             <width>265</width>
-            <height>125</height>
+            <height>127</height>
         </rect>
     </property>
     <property stdset="1">
@@ -194,21 +194,19 @@
                 <cstring>Vertical Spacing1</cstring>
             </property>
             <property stdset="1">
-                <name>geometry</name>
-                <rect>
-                    <x>60</x>
-                    <y>97</y>
-                    <width>20</width>
-                    <height>29</height>
-                </rect>
-            </property>
-            <property stdset="1">
                 <name>orientation</name>
                 <enum>Vertical</enum>
             </property>
             <property stdset="1">
                 <name>sizeType</name>
                 <enum>Expanding</enum>
+            </property>
+            <property>
+                <name>sizeHint</name>
+                <size>
+                    <width>20</width>
+                    <height>20</height>
+                </size>
             </property>
         </spacer>
         <spacer row="0"  column="0" >
@@ -217,21 +215,19 @@
                 <cstring>Vertical Spacing1</cstring>
             </property>
             <property stdset="1">
-                <name>geometry</name>
-                <rect>
-                    <x>55</x>
-                    <y>2</y>
-                    <width>31</width>
-                    <height>16</height>
-                </rect>
-            </property>
-            <property stdset="1">
                 <name>orientation</name>
                 <enum>Vertical</enum>
             </property>
             <property stdset="1">
                 <name>sizeType</name>
                 <enum>Fixed</enum>
+            </property>
+            <property>
+                <name>sizeHint</name>
+                <size>
+                    <width>31</width>
+                    <height>16</height>
+                </size>
             </property>
         </spacer>
     </grid>
