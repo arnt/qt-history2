@@ -1175,7 +1175,7 @@ QWidget *QCheckTableItem::createEditor() const
     ( (QCheckTableItem*)this )->cb = new QCheckBox( table()->viewport() );
     cb->setChecked( checked );
     cb->setText( text() );
-    cb->setBackgroundMode( table()->viewport()->backgroundMode() );
+    cb->setBackgroundColor( table()->viewport()->backgroundColor() );
     QObject::connect( cb, SIGNAL( toggled( bool ) ), table(), SLOT( doValueChanged() ) );
     return cb;
 }
@@ -1199,17 +1199,21 @@ void QCheckTableItem::paint( QPainter *p, const QColorGroup &cg,
 		 selected ? cg.brush( QColorGroup::Highlight )
 			  : table()->viewport()->backgroundBrush() );
 
-//     int w = cr.width();
-//     int h = cr.height();
-//     QSize sz = table()->style().indicatorSize();
-//     table()->style().drawIndicator( p, 0, ( h - sz.height() ) / 2, sz.width(), sz.height(), cg, checked ? QButton::On : QButton::Off, FALSE, TRUE );
-//     int x = sz.width() + 6;
-//     w = w - x;
-//     if ( selected )
-// 	p->setPen( cg.highlightedText() );
-//     else
-// 	p->setPen( cg.text() );
-//     p->drawText( x, 0, w, h, wordWrap() ? ( alignment() | WordBreak ) : alignment(), text() );
+    int w = cr.width();
+    int h = cr.height();
+    QSize sz = QSize( 13, 13 ); // ##########
+    QColorGroup c( cg );
+    c.setBrush( QColorGroup::Background, c.brush( QColorGroup::Base ) );
+    table()->style().drawPrimitive( QStyle::PO_Indicator, p,
+				    QRect( 0, ( cr.height() - sz.height() ) / 2, sz.width(), sz.height() ), c,
+				    isChecked() ? QStyle::PStyle_On : QStyle::PStyle_Off );
+    int x = sz.width() + 6;
+    w = w - x;
+    if ( selected )
+	p->setPen( cg.highlightedText() );
+    else
+	p->setPen( cg.text() );
+    p->drawText( x, 0, w, h, wordWrap() ? ( alignment() | WordBreak ) : alignment(), text() );
 }
 
 /*!
