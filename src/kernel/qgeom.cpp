@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgeom.cpp#18 $
+** $Id: //depot/qt/main/src/kernel/qgeom.cpp#19 $
 **
 **  Geometry Management
 **
@@ -11,15 +11,17 @@
 #include "qgeom.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#18 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgeom.cpp#19 $");
 
 
 
 /*!
   \class QLayout qgeom.h
   \brief QLayout is the base class of geometry specifiers.
-
-*/
+  
+  This is an abstract base class. Various layout managers inherit
+  from this one.
+  */
 
 
 
@@ -772,3 +774,13 @@ void QGridLayout::setColStretch( int col, int stretch )
 }
 
 
+
+/*!  
+  \fn QChain *QGridLayout::mainVerticalChain()
+  This function to returns the main vertical chain.
+*/
+
+/*!  
+  \fn QChain *QGridLayout::mainHorizontalChain()
+  This function to returns the main horizontal chain.
+*/
