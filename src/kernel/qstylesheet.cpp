@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#30 $
 **
 ** Implementation of the QStyleSheet class
 **
@@ -963,6 +963,26 @@ void QStyleSheet::init()
     style = new QStyleSheetItem( this, QString::fromLatin1("blockquote") );
     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
     style->setMargin(QStyleSheetItem::MarginAll, 8 );
+    
+    
+     style = new QStyleSheetItem(this, "head");
+     style->setDisplayMode(QStyleSheetItem::DisplayNone);
+     // Implement definition lists:
+     style = new QStyleSheetItem(this, "dl");
+     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
+     style = new QStyleSheetItem(this, "dt");
+     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
+     style->setContexts("dl");
+     style = new QStyleSheetItem(this, "dd");
+     style->setDisplayMode(QStyleSheetItem::DisplayBlock);
+     style->setMargin(QStyleSheetItem::MarginLeft, 30);
+     style->setContexts("dt");
+     // Implement underlined text:
+     style = new QStyleSheetItem(this, "u");
+     style->setFontUnderline(true);
+     // Implement no-break: XXX apparently doesn't work!!!
+     style = new QStyleSheetItem(this, "nobr");
+     style->setWhiteSpaceMode(QStyleSheetItem::WhiteSpacePre);
 }
 
 

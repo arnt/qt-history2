@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#105 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#106 $
 **
 ** Implementation of QMenuData class
 **
@@ -589,7 +589,7 @@ int QMenuData::insertItem( const QIconSet& icon,
   If the widget is focus enabled, it will get focus when the user
   traverses the popup menu with the arrow keys. It's up to the widget
   to provide the possibility to put the focus back on the menu again
-  by calling focusNextPrevChild() respectively. Futhermore should the
+  by calling QWidget::focusNextPrevChild() respectively. Futhermore should the
   embedded widget close the menu when the user made a selection.
   This can be done safely by calling
   \code
