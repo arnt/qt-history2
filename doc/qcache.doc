@@ -8,7 +8,7 @@
     \mainclass
     \reentrant
 
-    QCache\<Key, T\> defines a cache that store objects of type T
+    QCache\<Key, T\> defines a cache that stores objects of type T
     associated with keys of type Key. For example, here's the
     definition of a cache that stores objects of type Employee
     associated with an integer key:
@@ -30,13 +30,13 @@
     The advantage of using QCache over some other key-based data
     structure (such as QMap or QHash) is that QCache automatically
     takes ownership of the items that are inserted into the cache and
-    deletes them to make place for new items, if necessary. When
+    deletes them to make room for new items, if necessary. When
     inserting an item into the cache, you can specify a \e{cost},
-    which should be grossly proportional to the amount of memory
-    taken by the item. When the sum of all items' costs (totalCost())
-    exceeds the cache's limit (maxCost()), QCache starts deleting
-    items in the cache to stay under the limit, starting with less
-    recently accessed items.
+    which should bear some approximate relationship to the amount of
+    memory taken by the item. When the sum of all items' costs
+    (totalCost()) exceeds the cache's limit (maxCost()), QCache starts
+    deleting items in the cache to keep under the limit, starting with
+    less recently accessed items.
 
     By default, QCache's maxCost() is 100. You can specify a
     different value in the QCache constructor:
@@ -48,15 +48,16 @@
     Each time you call insert(), you can specify a cost as third
     argument (after the key and a pointer to the object to insert).
     After the call, the inserted item is owned by the QCache, which
-    may delete it at any time to make place for other item.
+    may delete it at any time to make room for other items.
 
     To look up items in the cache, use find() or operator[](). This
     function looks up an item by its key, and returns either a
     pointer to the cached object (which is owned by the cache) or 0.
 
-    If you want to remove an item from the cache for a certain key,
+    If you want to remove an item from the cache for a particular key,
     call remove(). This will also delete the item. If you want to
-    remove an item from the cache without deleting it, call take().
+    remove an item from the cache without the QCache deleting it, use
+    take().
 
     \sa QHash, QMap
 */
@@ -69,7 +70,7 @@
 
 /*! \fn QCache::~QCache()
 
-    Destroys the cache. Deletes all items from the cache.
+    Destroys the cache. Deletes all the items in the cache.
 */
 
 /*! \fn int QCache::maxCost() const
@@ -91,7 +92,7 @@
 /*! \fn int QCache::totalCost() const
 
     Returns the total cost of the items in the cache. This value is
-    never larger than maxCost().
+    always \<= maxCost().
 
     \sa setMaxCost()
 */
@@ -110,7 +111,7 @@
 
 /*! \fn bool QCache::isEmpty() const
 
-    Returns true if the cache contains no item; otherwise
+    Returns true if the cache contains no items; otherwise
     returns false.
 
     \sa size()
@@ -118,7 +119,7 @@
 
 /*! \fn void QCache::clear();
 
-    Removes all items from the cache.
+    Deletes all the items in the cache.
 
     \sa remove(), take()
 */
@@ -127,10 +128,10 @@
 
     Inserts the item \a data into the cache with key \a key and
     associated cost \a cost. Any item with the same key already in
-    the cache will be removed.
+    the cache will be deleted.
 
     After this call, the object pointed to by \a data is owned by the
-    QCache and can be deleted at any time.
+    QCache and may be deleted at any time.
 
     \sa take(), remove()
 */
@@ -140,7 +141,7 @@
     Returns the item associated with key \a key, or 0 if the key does
     not exist in the cache.
 
-    \warning The returned object is owned by QCache and can be
+    \warning The returned object is owned by QCache and may be
     deleted at any time.
 
     \sa take(), remove()
@@ -161,13 +162,13 @@
 
     This is the same as find().
 
-    \warning The returned object is owned by QCache and can be
+    \warning The returned object is owned by QCache and may be
     deleted at any time.
 */
 
 /*! \fn bool QCache::remove(const Key &key)
 
-    Removes any item associated with key \a key. Returns true if the
+    Deletes the item associated with key \a key. Returns true if the
     item was found in the cache; otherwise returns false.
 
     \sa take(), clear()
@@ -178,6 +179,9 @@
     Takes the item associated with key \a key out of the cache
     without deleting it. Returns a pointer to the item taken out, or
     0 if the key does not exist in the cache.
+
+    If an item pointer is returned, ownership of the item is passed to
+    the caller.
 
     \sa remove()
 */
