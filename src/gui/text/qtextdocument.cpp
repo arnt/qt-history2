@@ -408,7 +408,7 @@ QString QTextDocument::documentTitle() const
 
     \sa html()
 */
-QString QTextDocument::plainText() const
+QString QTextDocument::toPlainText() const
 {
     Q_D(const QTextDocument);
     QString txt = d->plainText();
@@ -430,19 +430,6 @@ void QTextDocument::setPlainText(const QString &text)
     setUndoRedoEnabled(false);
     cursor.insertFragment(fragment);
     setUndoRedoEnabled(true);
-}
-
-
-/*!
-    Returns the document in HTML format. The conversion may not be
-    perfect, especially for complex documents, due to the limitations
-    of HTML.
-*/
-QString QTextDocument::html() const
-{
-    // ###########
-    qWarning("QTextDocument::html() not implemented, returning plain text");
-    return plainText();
 }
 
 /*!
@@ -740,6 +727,11 @@ QTextHtmlExporter::QTextHtmlExporter(const QTextDocument *_doc)
     defaultFont = doc->documentLayout()->defaultFont();
 }
 
+/*!
+    Returns the document in HTML format. The conversion may not be
+    perfect, especially for complex documents, due to the limitations
+    of HTML.
+*/
 QString QTextHtmlExporter::toHtml()
 {
     // ### title

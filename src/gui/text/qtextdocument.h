@@ -88,10 +88,10 @@ public:
 
     QString documentTitle() const;
 
-    QString html() const;
+    QString toHtml() const;
     void setHtml(const QString &html);
 
-    QString plainText() const;
+    QString toPlainText() const;
     void setPlainText(const QString &text);
 
     enum FindFlag
@@ -122,8 +122,6 @@ public:
     QTextBlock end() const;
 
     bool isModified() const;
-
-    QString toHtml() const;
 
 signals:
     void contentsChanged();

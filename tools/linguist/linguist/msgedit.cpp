@@ -152,7 +152,7 @@ void SourceTextEdit::copySelection()
         }
     }
 
-    QApplication::clipboard()->setText(td.plainText());
+    QApplication::clipboard()->setText(td.toPlainText());
 }
 
 QMenu *SourceTextEdit::createPopupMenu(const QPoint &/*pos*/)
@@ -324,7 +324,7 @@ EditorPage::EditorPage(QWidget *parent, const char *name)
 */
 void EditorPage::updateCommentField()
 {
-    if(cmtText->plainText().isEmpty())
+    if(cmtText->toPlainText().isEmpty())
         cmtText->hide();
     else
         cmtText->show();
@@ -739,7 +739,7 @@ void MessageEditor::selectAll()
 
 void MessageEditor::emitTranslationChanged()
 {
-    emit translationChanged(editorPage->transText->plainText());
+    emit translationChanged(editorPage->transText->toPlainText());
 }
 
 void MessageEditor::guessActivated(int key)
@@ -761,21 +761,21 @@ void MessageEditor::insertPhraseInTranslation(const QModelIndex &index, Qt::Mous
 {
     if (button == Qt::LeftButton && !editorPage->transText->isReadOnly()) {
         editorPage->transText->textCursor().insertText(phrMdl->phrase(index).target());
-        emit translationChanged(editorPage->transText->plainText());
+        emit translationChanged(editorPage->transText->toPlainText());
     }
 }
 
 void MessageEditor::insertPhraseInTranslationAndLeave(const QModelIndex &index)
 {
     editorPage->transText->textCursor().insertText(phrMdl->phrase(index).target());
-    emit translationChanged(editorPage->transText->plainText());
+    emit translationChanged(editorPage->transText->toPlainText());
     editorPage->transText->setFocus();
 }
 
 void MessageEditor::updateButtons()
 {
     bool overwrite = (!editorPage->transText->isReadOnly() &&
-             (editorPage->transText->plainText().trimmed().isEmpty() ||
+             (editorPage->transText->toPlainText().trimmed().isEmpty() ||
               mayOverwriteTranslation));
     mayOverwriteTranslation = false;
     emit updateActions(overwrite);

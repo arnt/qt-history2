@@ -267,7 +267,7 @@ void MainWindow::saveFile(const QString &fileName)
 
     QTextStream out(&file);
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    out << textEdit->plainText();
+    out << textEdit->toPlainText();
     QApplication::restoreOverrideCursor();
 
     setCurrentFile(fileName);

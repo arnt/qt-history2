@@ -1285,9 +1285,9 @@ void QTextEdit::setPlainText(const QString &text)
 
     \sa setPlainText
  */
-QString QTextEdit::plainText() const
+QString QTextEdit::toPlainText() const
 {
-    return d->doc->plainText();
+    return d->doc->toPlainText();
 }
 
 /*!
@@ -2321,7 +2321,7 @@ void QTextEdit::setText(const QString &text)
 QString QTextEdit::text() const
 {
     // ########## richtext case
-    return document()->plainText();
+    return document()->toPlainText();
 }
 
 

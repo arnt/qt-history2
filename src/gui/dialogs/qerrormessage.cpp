@@ -194,7 +194,7 @@ QErrorMessage::~QErrorMessage()
 void QErrorMessage::done(int a)
 {
     if (!d->again->isChecked())
-        d->doNotShow.insert(d->errors->plainText(), 0);
+        d->doNotShow.insert(d->errors->toPlainText(), 0);
     if (!d->nextPending()) {
         QDialog::done(a);
         if (this == qtMessageHandler && metFatal)

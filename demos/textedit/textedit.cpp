@@ -298,7 +298,7 @@ void TextEdit::fileSave()
         if (!file.open(QFile::WriteOnly))
             return;
         QTextStream ts(&file);
-        ts << currentEditor->document()->plainText();
+        ts << currentEditor->document()->toPlainText();
     }
 }
 

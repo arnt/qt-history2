@@ -68,7 +68,7 @@ BrowserWidget::~BrowserWidget()
 void BrowserWidget::exec()
 {
     QSqlQueryModel *model = new QSqlQueryModel(view);
-    model->setQuery(QSqlQuery(edit->plainText(), dbc->currentDatabase()));
+    model->setQuery(QSqlQuery(edit->toPlainText(), dbc->currentDatabase()));
     view->setModel(model);
 
     if (model->lastError().type() != QSqlError::NoError)

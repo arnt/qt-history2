@@ -130,7 +130,7 @@ public:
 
     bool find(const QString &exp, QTextDocument::FindFlags options);
 
-    QString plainText() const;
+    QString toPlainText() const;
 
     void append(const QString &text);
 
