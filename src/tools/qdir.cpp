@@ -94,8 +94,10 @@ enum { CaseSensitiveFS = false };
     Windows the list will usually contain "C:/", and possibly "D:/",
     etc.
 
-    If you need the path in a form suitable for the underlying
-    operating system use convertSeparators().
+    It is easiest to work with "/" separators in Qt code. If you need
+    to present a path to the user or need a path in a form suitable
+    for a function in the underlying operating system use
+    convertSeparators().
 
     Examples:
 
