@@ -42,6 +42,7 @@
 #include "qmap.h"
 #include "qarray.h"
 #include "qlist.h"
+#include "qvbox.h"
 
 #include <stdlib.h>
 #include <math.h>
@@ -248,7 +249,7 @@ void QIconViewItemLineEdit::keyPressEvent( QKeyEvent *e )
 	w = totalWidth();
 	h = totalHeight();
 	QSize s( size() );
-	resize( w, h );
+	parentWidget()->resize( w + 6, h + 6 );
 	if ( s != QSize( w, h ) ) {
 	    item->calcRect( text() );
 	    item->repaint();
@@ -1302,14 +1303,18 @@ bool QIconViewItem::acceptDrop( const QMimeSource * ) const
 void QIconViewItem::rename()
 {
     oldRect = rect();
-    renameBox = new QIconViewItemLineEdit( itemText, view->viewport(), this );
-    renameBox->resize( textRect().width() + view->d->fm->width( ' ' ), textRect().height() );
-    view->addChild( renameBox, textRect( FALSE ).x(), textRect( FALSE ).y() );
-    renameBox->setFrameStyle( QFrame::Plain | QFrame::Box );
-    renameBox->setLineWidth( 1 );
+    QVBox *box = new QVBox( view->viewport() );
+    renameBox = new QIconViewItemLineEdit( itemText, box, this );
+    box->setFrameStyle( QFrame::Plain | QFrame::Box );
+    box->setMargin( 2 );
+    box->setBackgroundMode( QWidget::PaletteBase );
+    box->resize( textRect().width() + view->d->fm->width( ' ' ) + 6, textRect().height() + 6 );
+    view->addChild( box, textRect( FALSE ).x() - 3, textRect( FALSE ).y() - 3 );
+    renameBox->setFrameStyle( QFrame::NoFrame );
+    renameBox->setLineWidth( 0 );
     renameBox->selectAll();
     renameBox->setFocus();
-    renameBox->show();
+    box->show();
     view->viewport()->setFocusProxy( renameBox );
     connect( renameBox, SIGNAL( returnPressed() ),
 	     this, SLOT( renameItem() ) );
@@ -1384,7 +1389,7 @@ void QIconViewItem::removeRenameBox()
     if ( !renameBox )
 	return;
 
-    delete renameBox;
+    delete renameBox->parentWidget();
     renameBox = 0;
     view->viewport()->setFocusProxy( view );
     view->setFocus();
