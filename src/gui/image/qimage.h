@@ -123,11 +123,11 @@ public:
     QImage convertBitOrder(Endian) const;
 
 #ifndef QT_NO_IMAGE_SMOOTHSCALE
-    QImage smoothScale(int w, int h, Qt::ScaleMode mode = Qt::ScaleFree) const;
+    inline QImage smoothScale(int w, int h, Qt::ScaleMode mode = Qt::ScaleFree) const;
     QImage smoothScale(const QSize& s, Qt::ScaleMode mode = Qt::ScaleFree) const;
 #endif
 #ifndef QT_NO_IMAGE_TRANSFORMATION
-    QImage scale(int w, int h, Qt::ScaleMode mode = Qt::ScaleFree) const;
+    inline QImage scale(int w, int h, Qt::ScaleMode mode = Qt::ScaleFree) const;
     QImage scale(const QSize &s, Qt::ScaleMode mode = Qt::ScaleFree) const;
     QImage scaleWidth(int w) const;
     QImage scaleHeight(int h) const;
@@ -217,6 +217,21 @@ inline QImage QImage::copy(int x, int y, int w, int h, int conversion_flags) con
 {
     return copy(QRect(x, y, w, h), conversion_flags);
 }
+
+#ifndef QT_NO_IMAGE_SMOOTHSCALE
+inline QImage QImage::smoothScale(int w, int h, Qt::ScaleMode mode) const
+{
+    return smoothScale(QSize(w, h), mode);
+}
+#endif
+
+#ifndef QT_NO_IMAGE_TRANSFORMATION
+inline QImage QImage::scale(int w, int h, Qt::ScaleMode mode) const
+{
+    return scale(QSize(w, h), mode);
+}
+#endif
+
 
 inline QImage::Endian QImage::systemBitOrder()
 {

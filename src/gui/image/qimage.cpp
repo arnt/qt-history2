@@ -2627,6 +2627,8 @@ void pnmscale(const QImage& src, QImage& dst)
 
 #ifndef QT_NO_IMAGE_SMOOTHSCALE
 /*!
+  \fn QImage QImage::smoothScale(int w, int h, Qt::ScaleMode mode) const
+
     Returns a smoothly scaled copy of the image. The returned image
     has a size of width \a w by height \a h pixels if \a mode is \c
     Qt::ScaleFree. The modes \c Qt::ScaleMin and \c Qt::ScaleMax may be used to
@@ -2661,13 +2663,7 @@ void pnmscale(const QImage& src, QImage& dst)
 
     \sa scale() mirror()
 */
-QImage QImage::smoothScale(int w, int h, Qt::ScaleMode mode) const
-{
-    return smoothScale(QSize(w, h), mode);
-}
-#endif
 
-#ifndef QT_NO_IMAGE_SMOOTHSCALE
 /*!
     \overload
 
@@ -2701,6 +2697,8 @@ QImage QImage::smoothScale(const QSize& s, Qt::ScaleMode mode) const
 #endif
 
 /*!
+  \fn QImage QImage::scale(int w, int h, Qt::ScaleMode mode) const
+
     Returns a copy of the image scaled to a rectangle of width \a w
     and height \a h according to the Qt::ScaleMode \a mode.
 
@@ -2723,12 +2721,6 @@ QImage QImage::smoothScale(const QSize& s, Qt::ScaleMode mode) const
 
     \sa scaleWidth() scaleHeight() smoothScale() xForm()
 */
-#ifndef QT_NO_IMAGE_TRANSFORMATION
-QImage QImage::scale(int w, int h, Qt::ScaleMode mode) const
-{
-    return scale(QSize(w, h), mode);
-}
-#endif
 
 /*!
     \overload
