@@ -43,7 +43,7 @@ isEmpty(QT_PRODUCT)|contains(QT_PRODUCT, qt-internal) {
 
 unix:SOURCES	+= ../tools/qfile_unix.cpp ../tools/qdir_unix.cpp ../tools/qfileinfo_unix.cpp
 win32:SOURCES	+= ../tools/qfile_win.cpp ../tools/qdir_win.cpp ../tools/qfileinfo_win.cpp
-macx:LIBS	+= -framework Carbon
+macx:LIBS	+= -framework CoreServices
 
 target.path=$$bins.path
 INSTALLS += target
