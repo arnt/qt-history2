@@ -1365,7 +1365,7 @@ void QIconViewItem::calcRect( const QString &text_ )
     int bearing = - view->d->minLeftBearing - view->d->minRightBearing;
     QRect r( view->d->fm->boundingRect( 0, 0, iconView()->maxItemWidth() -
 			       ( iconView()->itemTextPos() == QIconView::Bottom ? 0 :
-			       iconRect().width() ) - bearing,
+				 iconRect().width() ) - bearing,
 			       0xFFFFFFFF, Qt::AlignCenter | Qt::WordBreak, t ) );
     tw = r.width() + bearing;
     th = r.height();
@@ -1987,7 +1987,9 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     d->resizeEvents = 0;
     d->itemTextBrush = Qt::NoBrush;
     d->drawAllBack = TRUE;
-    d->fm = new QFontMetrics( fontMetrics() );
+    QFont fo( font() );
+    fo.setItalic( TRUE );
+    d->fm = new QFontMetrics( fo );
     d->minLeftBearing = d->fm->minLeftBearing();
     d->minRightBearing = d->fm->minRightBearing();
     d->singleClick = FALSE;
@@ -2023,7 +2025,9 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
 void QIconView::styleChange( QStyle& old )
 {
     QScrollView::styleChange( old );
-    *d->fm = fontMetrics();
+    QFont fo( font() );
+    fo.setItalic( TRUE );
+    *d->fm = QFontMetrics( fo );
     d->minLeftBearing = d->fm->minLeftBearing();
     d->minRightBearing = d->fm->minRightBearing();
 }
@@ -2035,7 +2039,9 @@ void QIconView::styleChange( QStyle& old )
 void QIconView::setFont( const QFont & f )
 {
     QScrollView::setFont( f );
-    *d->fm = fontMetrics();
+    QFont fo( font() );
+    fo.setItalic( TRUE );
+    *d->fm = QFontMetrics( fo );
     d->minLeftBearing = d->fm->minLeftBearing();
     d->minRightBearing = d->fm->minRightBearing();
 }
@@ -2047,7 +2053,9 @@ void QIconView::setFont( const QFont & f )
 void QIconView::setPalette( const QPalette & p )
 {
     QScrollView::setPalette( p );
-    *d->fm = fontMetrics();
+    QFont fo( font() );
+    fo.setItalic( TRUE );
+    *d->fm = QFontMetrics( fo );
     d->minLeftBearing = d->fm->minLeftBearing();
     d->minRightBearing = d->fm->minRightBearing();
 }
