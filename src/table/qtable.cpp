@@ -2753,8 +2753,13 @@ void QTable::paintCell( QPainter* p, int row, int col,
 #else
     const QColorGroup &cg = colorGroup();
 #endif
+    
+    QTableItem *itm = item( row, col );
+    QColorGroup cg2( cg );
+    if ( itm && !itm->isEnabled() )
+	cg2 = palette().disabled();
 
-    paintCell( p, row, col, cr, selected, cg );
+    paintCell( p, row, col, cr, selected, cg2 );
 }
 
 /*!
@@ -2807,10 +2812,7 @@ void QTable::paintCell( QPainter *p, int row, int col,
     QTableItem *itm = item( row, col );
     if ( itm ) {
 	p->save();
-	QColorGroup cg2( cg );
-	if ( !itm->isEnabled() )
-	    cg2 = palette().disabled();
-	itm->paint( p, cg2, cr, selected );
+	itm->paint( p, cg, cr, selected );
 	p->restore();
     } else {
 	p->fillRect( 0, 0, w, h, selected ? cg.brush( QColorGroup::Highlight ) : cg.brush( QColorGroup::Base ) );
