@@ -44,7 +44,7 @@ template<class type>
 class QPtrListStdIterator : public QGListStdIterator
 {
 public:
-    QPtrListStdIterator( QLNode* n ): QGListStdIterator(n){}
+    inline QPtrListStdIterator( QLNode* n ): QGListStdIterator(n){}
     type *operator*() { return node ? (type *)node->getData() : 0; }
     inline QPtrListStdIterator<type> operator++()
     { return node = next(); return *this; }
