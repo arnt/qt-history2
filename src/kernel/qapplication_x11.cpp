@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#583 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#584 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -273,7 +273,7 @@ long QScrollInProgress::serial=0;
 static QList<QScrollInProgress> *sip_list = 0;
 
 
-// stuff in tq_xdnd.cpp
+// stuff in qt_xdnd.cpp
 // setup
 extern void qt_xdnd_setup();
 // x event handling
@@ -285,6 +285,9 @@ extern void qt_handle_xdnd_drop( QWidget *, const XEvent *, bool );
 extern void qt_handle_xdnd_finished( QWidget *, const XEvent *, bool );
 extern void qt_xdnd_handle_selection_request( const XSelectionRequestEvent * );
 extern bool qt_xdnd_handle_badwindow();
+
+extern void qt_motifdnd_handle_msg( QWidget *, const XEvent *, bool );
+
 // client message atoms
 extern Atom qt_xdnd_enter;
 extern Atom qt_xdnd_position;
@@ -370,8 +373,7 @@ void QApplication::close_xim()
     QWidgetList *list= qApp->topLevelWidgets();
     QWidgetListIt it(*list);
     while(it.current()) {
-	if ( it.current()->extra && it.current()->extra->topextra )
-	    it.current()->extra->topextra->xic=0;
+	it.current()->topData()->xic=0;
 	++it;
     }
     delete list;
@@ -2217,7 +2219,10 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 	    QApplication::sendEvent( widget, &kev );
 	    return 1;
 	}
+    } else {
+	qt_motifdnd_handle_msg( widget, event, passive_only );
     }
+
     return 0;
 }
 
@@ -2295,8 +2300,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    }
 	} else if ( widget ) { // widget properties
 	    if ( event->xproperty.atom == qt_wm_state ) {
-		widget->createTLExtra();
-		widget->extra->topextra->wmstate = 1;
+		widget->topData()->wmstate = 1;
 		if ( qt_deferred_map_contains( widget ) ) {
 		    qt_deferred_map_take( widget );
 		    XMapWindow( appDpy, widget->winId() );
@@ -2311,14 +2315,13 @@ int QApplication::x11ProcessEvent( XEvent* event )
 					 FALSE, XA_CARDINAL, &type, &format,
 					 &length, &after, &data ) == Success ) {
 		    if (data ) {
-			widget->createTLExtra();
-			widget->extra->topextra->embedded = ((long*)data[0])?1:0;
+			widget->topData()->embedded = ((long*)data[0])?1:0;
 			XFree( data );
-			if ( widget->extra->topextra->embedded ) {
+			if ( widget->topData()->embedded ) {
 			    // we support tab focus, inform the embedding widget about it
 			    XClientMessageEvent client_message;
 			    client_message.type = ClientMessage;
-			    client_message.window = widget->extra->topextra->parentWinId;
+			    client_message.window = widget->topData()->parentWinId;
 			    client_message.format = 32;
 			    client_message.message_type = qt_embedded_window_support_tab_focus;
 			    XSendEvent( appDpy, client_message.window, FALSE, NoEventMask,
@@ -2413,14 +2416,12 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	// 	    break;
 	QWidget* old_active_window = active_window;
 	active_window = widget->topLevelWidget();
-	if (active_window && active_window->extra &&
-	    active_window->extra->topextra &&
-	    active_window->extra->topextra->embedded) {
+	if (active_window && active_window->topData()->embedded ) {
 	    // we are embedded. Refuse focus, the out app will send us
 	    // qew_focus_in if that shall be necessary
 	    ((XEvent*)event)->xfocus.window
-		= active_window->extra->topextra->parentWinId;
-	    XSendEvent( appDpy, active_window->extra->topextra->parentWinId,
+		= active_window->topData()->parentWinId;
+	    XSendEvent( appDpy, active_window->topData()->parentWinId,
 			NoEventMask, FALSE, (XEvent*)event);
 	    active_window = old_active_window;
 	    return TRUE;
@@ -2468,8 +2469,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     case UnmapNotify:			// window hidden
 	if ( widget->isVisible() && widget->isTopLevel() ) {
-	    if ( widget->extra && widget->extra->topextra
-		 && ( widget->extra->topextra->wmstate || widget->extra->topextra->embedded ) ) {
+	    if ( widget->topData()->wmstate || widget->topData()->embedded ) {
 		widget->clearWState( WState_Visible );
 		widget->clearWState( WState_Withdrawn );
 		QHideEvent e( TRUE );
@@ -2483,9 +2483,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	if ( !widget->isVisible() )  {
 	    if ( widget->testWState( WState_Withdrawn ) ) {
 		// this cannot happen in normal applications but might happen with embedding
-		if ( widget->isTopLevel() &&
-		     widget->extra->topextra &&
-		     widget->extra->topextra->embedded)
+		if ( widget->isTopLevel() && widget->topData()->embedded )
 		    widget->show();
 	    }
 	    else {
@@ -2510,9 +2508,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	    ;	// skip old reparent events
 	if ( event->xreparent.parent == appRootWin ) {
 
-	    QTLWExtra*  x = widget->extra? widget->extra->topextra : 0;
-	    if ( x )
-		x->parentWinId = appRootWin;
+	    if ( widget->isTopLevel() )
+		widget->topData()->parentWinId = appRootWin;
 	}
 	else if (!QWidget::find((WId)event->xreparent.parent) )
 	    {
@@ -2565,12 +2562,11 @@ int QApplication::x11ProcessEvent( XEvent* event )
 				  a.height + 2*a.border_width);
 		}
 
-		widget->createTLExtra();
 		widget->fpos = frect.topLeft();
-		widget->extra->topextra->fsize = frect.size();
+		widget->topData()->fsize = frect.size();
 
 		// store the parent. Useful for many things, embedding for instance.
-		widget->extra->topextra->parentWinId = parent;
+		widget->topData()->parentWinId = parent;
 	    }
 	break;
 
@@ -3311,10 +3307,10 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 			w->setFocus();
 			// inform parent in case we are an embedded window
 			QWidget* active_window = topLevelWidget();
-			if (active_window && active_window->extra->topextra->embedded) {
+			if (active_window && active_window->topData()->embedded) {
 			  XClientMessageEvent client_message;
 			  client_message.type = ClientMessage;
-			  client_message.window = active_window->extra->topextra->parentWinId;
+			  client_message.window = active_window->topData()->parentWinId;
 			  client_message.format = 32;
 			  client_message.message_type = qt_embedded_window_take_focus;
 			  XSendEvent( appDpy, client_message.window, FALSE, NoEventMask,
@@ -3364,12 +3360,11 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 
 			QWidget* tlw = topLevelWidget();
 
-			if ( tlw && tlw->extra && tlw->extra->topextra &&
-			     tlw->extra->topextra->embedded ) {
+			if ( tlw && tlw->topData()->embedded ) {
 			    XEvent ev;
 			    memset( &ev, 0, sizeof(ev) );
 			    ev.xclient.type = ClientMessage;
-			    ev.xclient.window = tlw->extra->topextra->parentWinId;
+			    ev.xclient.window = tlw->topData()->parentWinId;
 			    ev.xclient.message_type = qt_wheel_event;
 			    ev.xclient.format = 32;
 			    ev.xclient.data.l[0] = globalPos.x();
@@ -3667,11 +3662,7 @@ bool QETWidget::translateKeyEventInternal( const XEvent *event, int& count,
     if ( type == QEvent::KeyPress ) {
 	bool mb=FALSE;
 	if ( qt_xim ) {
-	    QTLWExtra*  xd = tlw->extraData()?tlw->extraData()->topextra:0;
-	    if ( !xd ) {
-		tlw->createTLExtra();
-		xd = tlw->extraData()->topextra;
-	    }
+	    QTLWExtra*  xd = tlw->topData();
 	    if ( xd->xic ) {
 		mb=TRUE;
 		count = XmbLookupString( (XIC)(xd->xic), &((XEvent*)event)->xkey,
@@ -3790,10 +3781,9 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     Display *dpy = x11Display();
     QWidget *tlw = topLevelWidget();
 
-    if ( !grab && tlw && tlw->extra && tlw->extra->topextra &&
-	 tlw->extra->topextra->embedded ) {
-	((XEvent*)event)->xkey.window = tlw->extra->topextra->parentWinId;
-	XSendEvent( dpy, tlw->extra->topextra->parentWinId, NoEventMask,
+    if ( !grab && tlw && tlw->topData()->embedded ) {
+	((XEvent*)event)->xkey.window = tlw->topData()->parentWinId;
+	XSendEvent( dpy, tlw->topData()->parentWinId, NoEventMask,
 		    FALSE, (XEvent*)event );
 	return TRUE;
     }
@@ -4152,9 +4142,8 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
     int y = event->xconfigure.y;
 
     if (event->xconfigure.send_event ||
-	( extra && extra->topextra &&
-	  ( extra->topextra->parentWinId == None ||
-	    extra->topextra->parentWinId == appRootWin ) ) ) {
+	( topData()->parentWinId == None ||
+	  topData()->parentWinId == appRootWin ) ) {
 	// nothing to do, x and y is correct
     } else {
 	Display *dpy = x11Display();
@@ -4243,12 +4232,11 @@ void QETWidget::embeddedWindowTabFocus( bool next )
 {
     QWidget* tlw = topLevelWidget();
 
-    if ( tlw && tlw->extra && tlw->extra->topextra &&
-	 tlw->extra->topextra->embedded ) {
+    if ( tlw && tlw->topData()->embedded ) {
 	XEvent ev;
 	memset( &ev, 0, sizeof(ev) );
 	ev.xclient.type = ClientMessage;
-	ev.xclient.window = tlw->extra->topextra->parentWinId;
+	ev.xclient.window = tlw->topData()->parentWinId;
 	ev.xclient.message_type = qt_embedded_window_tab_focus;
 	ev.xclient.format = 32;
 	ev.xclient.data.l[0] = next;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#483 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#484 $
 **
 ** Implementation of QWidget class
 **
@@ -850,23 +850,38 @@ QWExtra *QWidget::extraData()
     return extra;
 }
 
+
+/*!
+  \internal
+  Returns a pointer to the block of extra toplevel widget data.
+  
+  This data is guaranteed to exist for toplevel widgets.
+*/
+
+QTLWExtra *QWidget::topData()
+{
+    createTLExtra();
+    return extra->topextra;
+}
+
 void QWidget::createTLExtra()
 {
     if ( !extra )
 	createExtra();
     if ( !extra->topextra ) {
-	extra->topextra = new QTLWExtra;
-	extra->topextra->icon = 0;
-	extra->topextra->focusData = 0;
-	extra->topextra->fsize = crect.size();
-	extra->topextra->incw = extra->topextra->inch = 0;
-	extra->topextra->basew = extra->topextra->baseh = 0;
-	extra->topextra->iconic = 0;
+	QTLWExtra* x = extra->topextra = new QTLWExtra;
+	x->icon = 0;
+	x->focusData = 0;
+	x->fsize = crect.size();
+	x->incw = x->inch = 0;
+	x->basew = x->baseh = 0;
+	x->iconic = 0;
 #if defined(_WS_X11_)
-	extra->topextra->normalGeometry = QRect(0,0,-1,-1);
-	extra->topextra->embedded = 0;
-	extra->topextra->parentWinId = 0;
-	extra->topextra->wmstate = 0;
+	x->normalGeometry = QRect(0,0,-1,-1);
+	x->embedded = 0;
+	x->parentWinId = 0;
+	x->wmstate = 0;
+	x->dnd = 0;
 #endif
 	createTLSysExtra();
     }
@@ -4395,8 +4410,8 @@ void QWidget::setStyle( QStyle *style )
 
 /*!
   A convenience version of reparent that does not take widget
-  flags as argument. 
-  
+  flags as argument.
+
   Calls reparent(\a parent, getWFlags()&~WType_Mask, \a p, \a showit )
 */
 void  QWidget::reparent( QWidget *parent, const QPoint & p,

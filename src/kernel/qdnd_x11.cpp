@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#104 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#105 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -173,6 +173,13 @@ QIntDict<QByteArray> * qt_xdnd_target_data = 0;
 // first drag object, or 0
 QDragObject * qt_xdnd_source_object = 0;
 
+// Motif dnd
+extern void qt_motifdnd_enable( QWidget *, bool );
+extern QByteArray qt_motifdnd_obtain_data();
+
+bool qt_motifdnd_active = FALSE;
+
+
 // Shift/Ctrl handling, and final drop status
 static QDragObject::DragMode drag_mode;
 static QDropEvent::Action global_requested_action = QDropEvent::Copy;
@@ -251,7 +258,15 @@ QShapedPixmapWidget * qt_xdnd_deco = 0;
 
 static QWidget* desktop_proxy = 0;
 
-bool qt_xdnd_enable( QWidget* w, bool on )
+class QExtraWidget : public QWidget
+{
+public:
+    QWExtra* extraData() { return QWidget::extraData(); }
+    QTLWExtra* topData() { return QWidget::topData(); }
+};
+
+
+static bool qt_xdnd_enable( QWidget* w, bool on )
 {
     if ( on ) {
 	QWidget * xdnd_widget = 0;
@@ -449,19 +464,13 @@ static QWidget * find_child( QWidget * tlw, QPoint & p )
 }
 
 
-class QExtraWidget : public QWidget
-{
-public:
-    QWExtra* getExtra() { return extraData(); }
-};
-
 static bool checkEmbedded(QWidget* w, const XEvent* xe)
 {
     if (!w)
 	return FALSE;
 
     if (current_embedding_widget != 0 && current_embedding_widget != w) {
-	qt_xdnd_current_target = ((QExtraWidget*)current_embedding_widget)->getExtra()->xDndProxy;
+	qt_xdnd_current_target = ((QExtraWidget*)current_embedding_widget)->extraData()->xDndProxy;
 	qt_xdnd_current_proxy_target = qt_xdnd_current_target;
 	qt_xdnd_send_leave();
 	qt_xdnd_current_target = 0;
@@ -469,7 +478,7 @@ static bool checkEmbedded(QWidget* w, const XEvent* xe)
 	current_embedding_widget = 0;
     }
 
-    QWExtra* extra = ((QExtraWidget*)w)->getExtra();
+    QWExtra* extra = ((QExtraWidget*)w)->extraData();
     if ( extra && extra->xDndProxy != 0 ) {
 	
 	if (current_embedding_widget != w) {
@@ -495,6 +504,8 @@ void qt_handle_xdnd_enter( QWidget *, const XEvent * xe, bool /*passive*/ )
     //if ( !w->neveHadAChildWithDropEventsOn() )
 	//return; // haven't been set up for dnd
 
+    qt_motifdnd_active = FALSE;
+    
     last_enter_event.xclient = xe->xclient;
 
     qt_xdnd_target_answerwas = FALSE;
@@ -509,7 +520,7 @@ void qt_handle_xdnd_enter( QWidget *, const XEvent * xe, bool /*passive*/ )
 
     int j = 0;
     if ( l[1] & 1 ) {
-	// get the types from XdndTypeList 
+	// get the types from XdndTypeList
 	Atom   type = None;
 	int f;
 	unsigned long n, a;
@@ -1296,7 +1307,7 @@ bool qt_xdnd_handle_badwindow()
 */
 
 
-/*! \fn void QDropEvent::accept (bool y=TRUE) 
+/*! \fn void QDropEvent::accept (bool y=TRUE)
   \reimp
 
   \warning To accept or reject the drop, call acceptAction(), not this
@@ -1311,8 +1322,8 @@ bool qt_xdnd_handle_badwindow()
 */
 
 
-/*! \fn void QDropEvent::setPoint (const QPoint & np) 
-  
+/*! \fn void QDropEvent::setPoint (const QPoint & np)
+
   Sets the drop to happen at \a np.
 */ // ### here too - what coordinate system?
 
@@ -1325,6 +1336,13 @@ bool qt_xdnd_handle_badwindow()
 
 bool QDropEvent::provides( const char *mimeType ) const
 {
+    if ( qt_motifdnd_active ) {
+	if ( 0 == qstrnicmp( mimeType, "text/", 5 ) )
+	    return TRUE;
+	else
+	    return FALSE;
+    } 
+    
     int n=0;
     const char* f;
     do {
@@ -1446,6 +1464,26 @@ static QByteArray qt_xdnd_obtain_data( const char *format )
     return result;
 }
 
+
+/*
+  Enable drag and drop for widget w by installing the proper
+  properties on w's toplevel widget.
+*/
+bool qt_dnd_enable( QWidget* w, bool on )
+{
+    w = w->topLevelWidget();
+
+    if ( on ) {
+	if ( ( (QExtraWidget*)w)->topData()->dnd )
+	    return TRUE; // been there, done that
+	((QExtraWidget*)w)->topData()->dnd  = 1;
+    }
+    
+    qt_motifdnd_enable( w, on );
+    return qt_xdnd_enable( w, on );
+}
+
+
 /*!
   \class QDropEvent qevent.h
 
@@ -1482,6 +1520,8 @@ static QByteArray qt_xdnd_obtain_data( const char *format )
 
 QByteArray QDropEvent::encodedData( const char *format ) const
 {
+    if ( qt_motifdnd_active )
+	return qt_motifdnd_obtain_data();
     return qt_xdnd_obtain_data( format );
 }
 
@@ -1498,6 +1538,15 @@ QByteArray QDropEvent::encodedData( const char *format ) const
 
 const char* QDropEvent::format( int n ) const
 {
+    if ( qt_motifdnd_active ) {
+	if ( n == 0 )
+	    return "text/plain";
+	else if ( n == 1 )
+	    return "text/uri-list";
+	else
+	    return 0;
+    }
+
     int i = 0;
     while( i<n && qt_xdnd_types[i] )
 	i++;

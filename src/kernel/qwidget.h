@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#243 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#244 $
 **
 ** Definition of QWidget class
 **
@@ -41,6 +41,7 @@
 
 class QLayout;
 struct QWExtra;
+struct QTLWExtra;
 class QFocusData;
 class QStyle;
 class QDomElement;
@@ -389,6 +390,7 @@ protected:
     virtual bool focusNextPrevChild( bool next );
 
     QWExtra	*extraData();
+    QTLWExtra	*topData();
     QFocusData	*focusData();
 
     virtual void setKeyCompression(bool);
@@ -644,7 +646,11 @@ struct QTLWExtra {
     WId	     parentWinId;			// parent window Id (valid after reparenting)
     uint     embedded : 1;			// window is embedded in another Qt application
     uint     wmstate: 2;			// wmstate trigger
+    uint     dnd : 1; 				// DND properties installed
     void    *xic;				// XIM Input Context
+#endif
+#if defined(_WS_WIN_)
+    HICON    winIcon;				// internal Windows icon
 #endif
 };
 
@@ -659,7 +665,6 @@ struct QWExtra {
     QCursor *curs;
     QTLWExtra *topextra;			// only useful for TLWs
 #if defined(_WS_WIN_)
-    HICON    winIcon;				// internal Windows icon
     QOleDropTarget *dropTarget;			// drop target
 #endif
 #if defined(_WS_X11_)

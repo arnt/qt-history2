@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#236 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#237 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -529,10 +529,9 @@ void QWidget::unsetCursor()
 
 void QWidget::setCaption( const QString &caption )
 {
-    if ( extra && extra->topextra && extra->topextra->caption == caption )
+    if ( QWidget::caption() == caption )
 	return; // for less flicker
-    createExtra();
-    extra->topextra->caption = caption;
+    topData()->caption = caption;
     if ( qt_winver == WV_NT )
 	SetWindowText( winId(), (TCHAR*)qt_winTchar(caption,TRUE) );
     else
@@ -564,15 +563,12 @@ HBITMAP qt_createIconMask( const QBitmap &bitmap )
 
 void QWidget::setIcon( const QPixmap &pixmap )
 {
-    if ( extra && extra->topextra ) {
-	delete extra->topextra->icon;
-	extra->topextra->icon = 0;
-	if ( extra->winIcon ) {
-	    DestroyIcon( extra->winIcon );
-	    extra->winIcon = 0;
-	}
-    } else {
-	createTLExtra();
+    QTLWExtra* x = topData();
+    delete x->icon;
+    x->icon = 0;
+    if ( x->winIcon ) {
+	DestroyIcon( x->winIcon );
+	x->winIcon = 0;
     }
     if ( !pixmap.isNull() ) {			// valid icon
 	QPixmap pm( pixmap.size(), pixmap.depth(), QPixmap::NormalOptim );
@@ -589,14 +585,14 @@ void QWidget::setIcon( const QPixmap &pixmap )
 	ii.fIcon    = TRUE;
 	ii.hbmMask  = im;
 	ii.hbmColor = pm.hbm();
-	extra->topextra->icon = new QPixmap( pixmap );
-	extra->winIcon = CreateIconIndirect( &ii );
+	x->icon = new QPixmap( pixmap );
+	x->winIcon = CreateIconIndirect( &ii );
 	DeleteObject( im );
     }
     SendMessageA( winId(), WM_SETICON, 0, /* ICON_SMALL */
-		 (long)extra->winIcon );
+		  (long)x->winIcon );
     SendMessageA( winId(), WM_SETICON, 1, /* ICON_BIG */
-		 (long)extra->winIcon );
+		  (long)x->winIcon );
 
     QCustomEvent e( QEvent::IconChange, 0 );
     QApplication::sendEvent( this, &e );
@@ -605,8 +601,7 @@ void QWidget::setIcon( const QPixmap &pixmap )
 
 void QWidget::setIconText( const QString &iconText )
 {
-    createTLExtra();
-    extra->topextra->iconText = iconText;
+    topData()->iconText = iconText;
 }
 
 
@@ -1096,23 +1091,23 @@ int QWidget::metric( int m ) const
 
 void QWidget::createSysExtra()
 {
-    extra->winIcon = 0;
     extra->dropTarget = 0;
 }
 
 void QWidget::deleteSysExtra()
 {
-    if ( extra->winIcon )
-	DestroyIcon( extra->winIcon );
     setAcceptDrops( FALSE );
 }
 
 void QWidget::createTLSysExtra()
 {
+    extra->topextra->winIcon = 0;
 }
 
 void QWidget::deleteTLSysExtra()
 {
+    if ( extra->topextra->winIcon )
+	DestroyIcon( extra->winIcon );
 }
 
 

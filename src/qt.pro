@@ -260,6 +260,7 @@ unix:SOURCES    = kernel/qapplication_x11.cpp \
 		  kernel/qcolor_x11.cpp \
 		  kernel/qcursor_x11.cpp \
 		  kernel/qdnd_x11.cpp \
+		  kernel/qmotifdnd_x11.cpp \
 		  kernel/qfont_x11.cpp \
 		  kernel/qpixmap_x11.cpp \
 		  kernel/qprinter_x11.cpp \

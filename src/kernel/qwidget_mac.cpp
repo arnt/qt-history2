@@ -176,7 +176,7 @@ void make_top(QWidget * widg,int & x,int & y)
   //yfoo=oggy.top;
   xfoo=0;
   yfoo=0;
- 
+
   if(!widg || !widg->parentWidget())
     return;
   //printf("Top %d %d\n",xfoo,yfoo);
@@ -230,7 +230,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     sh=768;
   }
 
-  bg_col = pal.normal().background(); 
+  bg_col = pal.normal().background();
 
   if ( modal || popup || desktop ) {          // these are top-level, too
     topLevel = TRUE;
@@ -366,7 +366,7 @@ void QWidget::update( int x, int y, int w, int h )
     make_top(this,x1,y1);
     make_top(this,x2,y2);
     SetRect(&r,x1,y1,x2,y2);
-    InvalRect(&r);    
+    InvalRect(&r);
   }
 }
 
@@ -383,7 +383,7 @@ void QWidget::setBackgroundColorDirect( const QColor &color )
   //printf("  %d %d %d\n",color.red(),color.green(),color.blue());
 
   /*
-  if(!parentWidget()) {  
+  if(!parentWidget()) {
     WCTabPtr wtp=new WinCTab;
     WCTabHandle * wth=new WCTabHandle;
     PtrToHand((const void *)wtp,(char ***)wth,(unsigned long)sizeof(WinCTab));
@@ -436,7 +436,7 @@ void QWidget::erase( int x, int y, int w, int h )
       p.begin(this);
       p.drawTiledPixmap(x,y,w,h,*bg_pix,0,0);
       p.end();
-    } 
+    }
   } else {
     // nothing
   }
@@ -710,7 +710,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
             QApplication::postEvent( this,
                                      new QResizeEvent( r.size(), olds ) );
     }
-    
+
     if(parentWidget()) {
       mac_pre=0;
       redraw_children(parentWidget());
@@ -811,6 +811,9 @@ void QWidget::lower()
 void QWidget::setCaption( const QString &caption )
 {
   //printf("QWidget::setCaption %s %d\n",__FILE__,__LINE__);
+  if ( QWidget::caption() == caption )
+      return; // for less flicker
+  topData()->caption = caption;
   if(!parentWidget()) {
     const char * b=caption.ascii();
     //printf("  %s\n",b);
@@ -1094,7 +1097,7 @@ void QWidget::fixport()
   y1=yy;
   x2=x1+width();
   y2=y1+height();
-  
+
   if(x1<0)
     x1=0;
   if(y1<0)
@@ -1103,7 +1106,7 @@ void QWidget::fixport()
     x2=super_parent->width();
   if(y2>(super_parent->height()-yy))
     y2=super_parent->height();
-  
+
   // This is buggy and probably needs to do clever recursive things
   // It mostly works for now though, and the redraw/update code makes
   // sure things are drawn in Z order so there's just some flickering
@@ -1182,10 +1185,10 @@ void QWidget::fixport()
         SectRgn(morergn,myclip,myclip);
       }
     }
-    
+
     // Now chop siblings
     // First item in list is top of Z order
-    
+
     const QObjectList * foo=parentWidget()->children();
     QObjectListIt it(*foo);
     QObject * bar;
@@ -1205,12 +1208,12 @@ void QWidget::fixport()
           OpenRgn();
           FrameRect(&r);
           CloseRgn(morergn);
-          DiffRgn(myclip,morergn,myclip);        
+          DiffRgn(myclip,morergn,myclip);
 	}
       }
       bar=++it;
     }
-  }  
+  }
 
   SectRgn(myclip,grr,myclip);
   //if(ignorecliprgn==false) {

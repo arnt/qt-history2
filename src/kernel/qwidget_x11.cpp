@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#408 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#409 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -56,7 +56,7 @@ extern XIMStyle qt_xim_style;
 extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
 extern void qt_clear_paintevent_clipping();
 
-extern bool qt_xdnd_enable( QWidget* w, bool on );
+extern bool qt_dnd_enable( QWidget* w, bool on );
 extern bool qt_nograb();
 
 extern void qt_deferred_map_add( QWidget* ); // defined in qapplication_x11.const
@@ -228,8 +228,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 				   &wsa );
 	}
 	setWinId( id );				// set widget id/handle + hd
-	if ( parentw == root_win )
-	    qt_xdnd_enable( this, TRUE );
     }
 
     if ( topLevel && !(desktop || popup) ) {
@@ -407,7 +405,7 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 	    qApp->closePopup( this );
 	if ( testWFlags(WType_Desktop) ) {
 	    if ( acceptDrops() )
-		qt_xdnd_enable( this, FALSE );
+		qt_dnd_enable( this, FALSE );
 	} else {
 	    if ( destroyWindow )
 		qt_XDestroyWindow( this, x11Display(), winid );
@@ -453,7 +451,10 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	oldcurs = cursor();
 	unsetCursor();
     }
-    
+    bool accept_drops = acceptDrops();
+    if ( accept_drops )
+	setAcceptDrops( FALSE ); // dnd unregister (we will register again below)
+
     WId old_winid = winid;
     if ( testWFlags(WType_Desktop) )
 	old_winid = 0;
@@ -520,6 +521,9 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
  	    fd->focusWidgets.append( this );
     }
 
+    if ( accept_drops )
+	setAcceptDrops( TRUE );
+    
     QCustomEvent e( QEvent::Reparent, 0 );
     QApplication::sendEvent( this, &e );
 
@@ -824,10 +828,9 @@ qstring_to_xtp( const QString& s )
 
 void QWidget::setCaption( const QString &caption )
 {
-    if ( extra && extra->topextra && extra->topextra->caption == caption )
+    if ( QWidget::caption() == caption )
 	return; // for less flicker
-    createTLExtra();
-    extra->topextra->caption = caption;
+    topData()->caption = caption;
     XSetWMName( x11Display(), winId(), qstring_to_xtp(caption) );
     QCustomEvent e( QEvent::CaptionChange, 0 );
     QApplication::sendEvent( this, &e );
@@ -1219,10 +1222,7 @@ void QWidget::repaint( const QRegion& reg, bool erase )
 
 void QWidget::showWindow()
 {
-    if ( isTopLevel() &&
-	 extra &&
-	 extra->topextra &&
-	 extra->topextra->wmstate == 2)
+    if ( isTopLevel() && topData()->wmstate == 2 ) 
 	qt_deferred_map_add( this );
     else
 	XMapWindow( x11Display(), winId() );
@@ -1240,8 +1240,8 @@ void QWidget::hideWindow()
     if ( isTopLevel() ) {
 	qt_deferred_map_take( this );
 	XWithdrawWindow( x11Display(), winId(), x11Screen() );
-	if ( extra && extra->topextra && extra->topextra->wmstate ) // wm_state supported
-	    extra->topextra->wmstate = 2; // waiting for wm_state change before next showWindow
+	if ( topData()->wmstate ) // wm_state supported
+	    topData()->wmstate = 2; // waiting for wm_state change before next showWindow
     }
     else
 	XUnmapWindow( x11Display(), winId() );
@@ -1296,10 +1296,9 @@ void QWidget::showMaximized()
 	int scr = x11Screen();
 	int sw = DisplayWidth(dpy,scr);
 	int sh = DisplayHeight(dpy,scr);
-	createTLExtra();
-	if ( extra->topextra->normalGeometry.width() < 0 )
-	    extra->topextra->normalGeometry = geometry();
-	if ( !extra->topextra->parentWinId ) {
+	if ( topData()->normalGeometry.width() < 0 )
+	    topData()->normalGeometry = geometry();
+	if ( !topData()->parentWinId ) {
 	    setGeometry(0, 0, sw, sh );
 	    show();
 	    XEvent ev;
@@ -1328,13 +1327,11 @@ void QWidget::showMaximized()
 void QWidget::showNormal()
 {
     if ( testWFlags(WType_TopLevel) ) {
-	if ( extra && extra->topextra ) {
-	    QRect r = extra->topextra->normalGeometry;
-	    if ( r.width() >= 0 ) {
-		// the widget has been maximized
-		extra->topextra->normalGeometry = QRect(0,0,-1,-1);
-		setGeometry( r );
-	    }
+	QRect r = topData()->normalGeometry;
+	if ( r.width() >= 0 ) {
+	    // the widget has been maximized
+	    topData()->normalGeometry = QRect(0,0,-1,-1);
+	    setGeometry( r );
 	}
     }
     show();
@@ -1595,8 +1592,7 @@ void QWidget::setMaximumSize( int maxw, int maxh )
 
 void QWidget::setSizeIncrement( int w, int h )
 {
-    createTLExtra();
-    QTLWExtra* x = extra->topextra;
+    QTLWExtra* x = topData();
     if ( x->incw == w && x->inch == h )
 	return;
     x->incw = w;
@@ -1622,7 +1618,7 @@ void QWidget::setSizeIncrement( int w, int h )
 void QWidget::setBaseSize( int basew, int baseh )
 {
     createTLExtra();
-    QTLWExtra* x = extra->topextra;
+    QTLWExtra* x = topData();
     if ( x->basew == basew && x->baseh == baseh )
 	return;
     x->basew = basew;
@@ -1959,7 +1955,7 @@ bool QWidget::acceptDrops() const
 void QWidget::setAcceptDrops( bool on )
 {
     if ( testWState(WState_DND) != on ) {
-	if ( qt_xdnd_enable( this, on ) ) {
+	if ( qt_dnd_enable( this, on ) ) {
 	    if ( on )
 		setWState(WState_DND);
 	    else
