@@ -111,14 +111,14 @@ QString QTextBrowserPrivate::findFile(const QString &name) const
 
     QTextBrowser provides backward() and forward() slots which you can
     use to implement Back and Forward buttons. The home() slot sets
-    the text to the very first document displayed. The linkClicked()
-    signal is emitted when the user clicks a link.
+    the text to the very first document displayed. The anchorClicked()
+    signal is emitted when the user clicks an anchor.
 
     If you want to provide your users with editable rich text use
     QTextEdit. If you want a text browser without hypertext navigation
     use QTextEdit, and use QTextEdit::setReadOnly() to disable
     editing. If you just need to display a small piece of rich text
-    use QSimpleRichText or QLabel.
+    use QLabel.
 */
 
 /*!
@@ -134,14 +134,6 @@ QString QTextBrowserPrivate::findFile(const QString &name) const
 /*!
     \property QTextBrowser::undoRedoEnabled
     \brief whether the text browser supports undo/redo operations
-*/
-
-/*!
-    \property QTextBrowser::searchPaths
-    \brief the search paths used by the text browser to find supporting
-    content
-
-    QTextBrowser uses this list to locate images and documents.
 */
 
 void QTextBrowserPrivate::init()
@@ -188,7 +180,7 @@ QTextBrowser::~QTextBrowser()
     \property QTextBrowser::source
     \brief the name of the displayed document.
 
-    This is a an empty string if no document is displayed or if the
+    This is a an invalid url if no document is displayed or if the
     source is unknown.
 
     When setting this property QTextBrowser tries to find a document
@@ -201,7 +193,7 @@ QTextBrowser::~QTextBrowser()
     document is displayed as a popup rather than as new document in
     the browser window itself. Otherwise, the document is displayed
     normally in the text browser with the text set to the contents of
-    the named document with setText().
+    the named document with setHtml().
 */
 QUrl QTextBrowser::source() const
 {
@@ -211,6 +203,14 @@ QUrl QTextBrowser::source() const
     else
         return d->stack.top();
 }
+
+/*!
+    \property QTextBrowser::searchPaths
+    \brief the search paths used by the text browser to find supporting
+    content
+
+    QTextBrowser uses this list to locate images and documents.
+*/
 
 QStringList QTextBrowser::searchPaths() const
 {
@@ -271,6 +271,7 @@ void QTextBrowser::setSource(const QUrl &url)
         d->currentURL = url;
         doSetText = true;
     }
+
     d->forceLoadOnSourceChange = false;
 
     if (!d->home.isValid())
@@ -324,7 +325,7 @@ void QTextBrowser::setSource(const QUrl &url)
 /*!
     \fn void QTextBrowser::sourceChanged(const QUrl &src)
 
-    This signal is emitted when the mime source has changed, \a src
+    This signal is emitted when the source has changed, \a src
     being the new source.
 
     Source changes happen both programmatically when calling
@@ -332,18 +333,25 @@ void QTextBrowser::setSource(const QUrl &url)
     clicks on links or presses the equivalent key sequences.
 */
 
-/*!  \fn void QTextBrowser::highlighted (const QUrl &link)
+/*!  \fn void QTextBrowser::highlighted(const QUrl &link)
 
     This signal is emitted when the user has selected but not
-    activated a link in the document. \a link is the value of the \c
-    href i.e. the name of the target document.
+    activated a link in the document.
 */
+
+/*!  \fn void QTextBrowser::highlighted(const QString &link)
+     \overload
+
+     Convenience signal that allows connecting to a slot
+     that takes just a QString, like for example QStatusBar's
+     message().
+*/
+
 
 /*!
     \fn void QTextBrowser::anchorClicked(const QUrl &link)
 
-    This signal is emitted when the user clicks an anchor. The \a link is
-    the value of the \c href i.e. the name of the target document.
+    This signal is emitted when the user clicks an anchor.
 */
 
 /*!
@@ -438,6 +446,7 @@ void QTextBrowser::mouseMoveEvent(QMouseEvent *ev)
 
         QUrl url = QUrl(d->currentURL).resolved(anchor);
         emit highlighted(url);
+        // convenience to ease connecting to QStatusBar::message(const QString &)
         emit highlighted(url.toString());
     }
 
