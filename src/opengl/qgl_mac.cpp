@@ -15,9 +15,20 @@
 #include "qgl.h"
 
 #if defined(Q_WS_MAC)
-#include <AGL/agl.h>
-#include <AGL/aglRenderers.h>
-#include <OpenGL/gl.h>
+#ifdef qDebug
+#    undef qDebug
+#    include <AGL/agl.h>
+#    include <AGL/aglRenderers.h>
+#    include <OpenGL/gl.h>
+#    ifdef QT_NO_DEBUG 
+#        define qDebug qt_noop(),1?(void)0:qDebug
+#    endif
+#else
+#    include <AGL/agl.h>
+#    include <AGL/aglRenderers.h>
+#    include <OpenGL/gl.h>
+#endif
+
 
 #include <private/qfontdata_p.h>
 #include <private/qfontengine_p.h>

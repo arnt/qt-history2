@@ -59,7 +59,15 @@
 #include <langinfo.h>
 #endif
 #if !defined( QWS ) && defined( Q_OS_MAC )
-#include <Carbon/Carbon.h>
+#    ifdef qDebug
+#        undef qDebug
+#        include <Carbon/Carbon.h>
+#        ifdef QT_NO_DEBUG 
+#            define qDebug qt_noop(),1?(void)0:qDebug
+#        endif
+#    else
+#        include <Carbon/Carbon.h>
+#    endif
 #endif
 
 static QList<QTextCodec*> *all = 0;

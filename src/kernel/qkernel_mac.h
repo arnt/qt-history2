@@ -24,7 +24,16 @@
 #ifndef __IMAGECAPTURE__
 #define __IMAGECAPTURE__
 #endif
-#include <Carbon/Carbon.h>
+#ifdef qDebug
+#    undef qDebug
+#    include <Carbon/Carbon.h>
+#    ifdef QT_NO_DEBUG 
+#        define qDebug qt_noop(),1?(void)0:qDebug
+#    endif
+#else
+#    include <Carbon/Carbon.h>
+#endif
+
 #include <QuickTime/Movies.h>
 #undef QT_BUILD_KEY
 
