@@ -1257,6 +1257,7 @@ QAction *QMenuBar::findActionForId(int id) const
 
 int QMenuBar::findIdForAction(QAction *act) const
 {
+    Q_ASSERT(act);
     return act->d->id;
 }
 #endif

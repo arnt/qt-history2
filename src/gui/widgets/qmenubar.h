@@ -201,7 +201,9 @@ public:
             act->setVisible(visible); }
     inline QT_COMPAT int indexOf(int id) const { return actions().indexOf(findActionForId(id)); }
     inline QT_COMPAT int idAt(int index) const {
-        return findIdForAction(actions().value(index));
+        return index >= 0 && index < actions().size()
+                        ? findIdForAction(actions().at(index))
+                        : -1;
     }
     inline QT_COMPAT void activateItemAt(int index) {
         if(QAction *ret = actions().value(index))
