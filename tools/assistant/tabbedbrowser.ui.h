@@ -148,6 +148,12 @@ void TabbedBrowser::init()
 	      + style().pixelMetric(QStyle::PM_TabBarBaseHeight, (QWidget*)tabBar) : 0);
     int s = tab->height() - m;
 
+    // workaround for sgi style
+    QPalette pal = palette();
+    pal.setColor(QPalette::Active, QColorGroup::Button, pal.active().background());
+    pal.setColor(QPalette::Disabled, QColorGroup::Button, pal.disabled().background());
+    pal.setColor(QPalette::Inactive, QColorGroup::Button, pal.inactive().background());
+
     QToolButton *newTabButton = new QToolButton(this);
     tab->setCornerWidget(newTabButton, Qt::TopLeft);
     newTabButton->setCursor(arrowCursor);
@@ -158,6 +164,7 @@ void TabbedBrowser::init()
     QToolTip::add(newTabButton, tr("Add page"));
 
     QToolButton *closeTabButton = new QToolButton(this);
+    closeTabButton->setPalette(pal);
     tab->setCornerWidget(closeTabButton, Qt::TopRight);
     closeTabButton->setCursor(arrowCursor);
     closeTabButton->setAutoRaise(true);
