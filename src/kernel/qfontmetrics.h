@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontmetrics.h#13 $
+** $Id: //depot/qt/main/src/kernel/qfontmetrics.h#14 $
 **
 ** Definition of QFontMetrics class
 **
@@ -16,32 +16,34 @@
 #include "qfont.h"
 #include "qrect.h"
 
+
 class QFontMetrics
 {
 public:
     QFontMetrics( const QFont & );
 
-    int			ascent()	const;
-    int			descent()	const;
-    int			height()	const;
-    int			leading()	const;
-    int			lineSpacing()	const;
+    int		ascent()	const;
+    int		descent()	const;
+    int		height()	const;
+    int		leading()	const;
+    int		lineSpacing()	const;
 
-    int			width( const char *, int len = -1 ) const;
-    int			width( char ) const;
-    QRect		boundingRect(  const char *, int len = -1 ) const;
-    QRect		boundingRect(  char ) const;
-    int			maxWidth() const;
+    int		width( const char *, int len = -1 ) const;
+    int		width( char )	const;
+    QRect	boundingRect( const char *, int len = -1 ) const;
+    QRect	boundingRect( char ) const;
+    int		maxWidth()	const;
 
-    int			underlinePos()	const;
-    int			strikeOutPos()	const;
-    int			lineWidth()	const;
+    int		underlinePos()	const;
+    int		strikeOutPos()	const;
+    int		lineWidth()	const;
 
-    void		setFont( const QFont & );
-    const QFont	       &font() const;
+    const QFont &font()		const	{ return f; }
+    void	setFont( const QFont & );
+
 private:
-    QFont f;
+    QFont	f;
 };
 
-#endif // QFONTMET_H
 
+#endif // QFONTMET_H

@@ -1,10 +1,10 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontinf.h#2 $
+** $Id: //depot/qt/main/src/kernel/qfontinf.h#3 $
 **
 ** Definition of QFontInfo class
 **
 ** Author  : Eirik Eng
-** Created : 940131
+** Created : 950131
 **
 ** Copyright (C) 1995 by Troll Tech AS.	 All rights reserved.
 **
@@ -30,14 +30,16 @@ public:
     bool		fixedPitch()	const;
     QFont::StyleHint	styleHint()	const;
     QFont::CharSet	charSet()	const;
-    bool		exactMatch()	const;
     bool		rawMode()	const;
 
+    bool		exactMatch()	const;
+
+    const QFont	       &font()		const	{ return f; }
     void		setFont( const QFont & );
-    const QFont	       &font() const;
+
 private:
-    void  updateData();
-    QFont f;
+    void		updateData();
+    QFont		f;
 };
 
 

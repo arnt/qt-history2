@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#22 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#23 $
 **
 ** Definition of QFont class
 **
@@ -62,8 +62,8 @@ public:
 
     bool	exactMatch()	const;
 
-    bool	operator==( const QFont &f ) const;
-    bool	operator!=( const QFont &f ) const;
+    bool	operator==( const QFont & ) const;
+    bool	operator!=( const QFont & ) const;
 
     HANDLE	handle() const;
 
@@ -74,7 +74,7 @@ public:
     static void cacheStatistics();
 
 protected:
-    bool	dirty() const;
+    bool	dirty()			const;
 
     QString	defaultFamily()		const;
     QString	lastResortFamily()	const;
@@ -84,9 +84,9 @@ protected:
 private:
     QFont( QFontData * );
     QFont( bool );
+    void	init();
     void	detach();
     void	updateFontInfo() const;
-    void	init();
     void	loadFont() const;
 
     friend class QFontMetrics;
@@ -95,7 +95,7 @@ private:
     friend QDataStream &operator<<( QDataStream &, const QFont & );
     friend QDataStream &operator>>( QDataStream &, QFont & );
 
-    QFontData	*d;				// internal font data
+    QFontData	 *d;				// internal font data
     static QFont *defFont;
 };
 
