@@ -55,10 +55,10 @@ macro @XmlNode		{ @Node paint { @XMLColour } }
 0.75 @Scale 90d @Rotate @IncludeGraphic { combobox.eps.gz }
 }
 @Place 
-    x { 26.375c }
-    y { 11.5c }
+    x { 21.50c }
+    y { 1.0c }
 {
-1.5 @Scale 90d @Rotate
+1.5 @Scale 180d @Rotate
 { 0.75 1.0 } @Scale @F { info@trolltech.com }
 }
 @Place 
@@ -77,9 +77,9 @@ widest possible darkgrey @Colour{mark}et.
 }
 @Place
     x { 27.75c }
-    y { 12.35c }
+    y { 13.25c }
 {
-90d @Rotate 2.2 @Scale { www.trolltech.com   @CDot   doc.trolltech.com }
+90d @Rotate 1.8 @Scale @B { www.trolltech.com   @CDot   doc.trolltech.com }
 }
 @Place 
     x { 15.00c }
