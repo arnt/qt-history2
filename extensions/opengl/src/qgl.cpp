@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#39 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.cpp#40 $
 **
 ** Implementation of OpenGL classes for Qt
 **
@@ -24,6 +24,7 @@
 #include "qgl.h"
 #include <qpixmap.h>
 #include <qpaintdevicemetrics.h>
+#include <qapplication.h>
 
 #if defined(Q_GLX)
 #include <qintdict.h>
@@ -43,6 +44,10 @@
 #if defined(_CC_MSVC_)
 #pragma warning(disable:4355) // 'this' : used in base member initializer list
 #endif
+
+
+static QGLFormat* qgl_default_format = 0;
+static QGLFormat* qgl_default_overlay_format = 0;
 
 
 /*!
@@ -98,7 +103,9 @@ const char *qGLVersion()
   <li> \link setAccum() Accumulation buffer.\endlink
   <li> \link setStencil() Stencil buffer.\endlink
   <li> \link setStereo() Stereo buffers.\endlink
-  <li> \link setDirectRendering() Direct rendering..\endlink
+  <li> \link setDirectRendering() Direct rendering.\endlink
+  <li> \link setOverlay() Presence of an overlay.\endlink
+  <li> \link setPlane() The plane of an overlay format.\endlink
   </ul>
 
   You create and tell a QGLFormat object what rendering options
@@ -124,22 +131,21 @@ const char *qGLVersion()
   your QGLWidget subclass:
   \code
     QGLFormat f;
-    f.setDoubleBuffer( FALSE );
-    f.setDirectRendering( FALSE );
+    f.setDoubleBuffer( FALSE );                 // I want single buffer
+    f.setDirectRendering( FALSE );              // I want software rendering
     MyGLWidget* myWidget = new MyGLWidget( f, ... );
   \endcode
 
-  You can even set the format for an already existing QGLWidget:
+  After the widget has been created, you can test which of the
+  requested features the system was able to provide:
   \code
-    MyGLWidget *w;
-      ...
     QGLFormat f;
-    f.setAlpha( TRUE );
+    f.setOverlay( TRUE );
     f.setStereo( TRUE );
-    w->setFormat( f );
+    MyGLWidget* myWidget = new MyGLWidget( f, ... );
     if ( !w->format().stereo() ) {
         // ok, goggles off
-        if ( !w->format().alpha() ) {
+        if ( !w->format().hasOverlay() ) {
             qFatal( "Cool hardware wanted" );
         }
     }
@@ -160,12 +166,15 @@ const char *qGLVersion()
   <li> \link setStencil() Stencil buffer:\endlink Disabled.
   <li> \link setStereo() Stereo:\endlink Disabled.
   <li> \link setDirectRendering() Direct rendering:\endlink Enabled.
+  <li> \link setOverlay() Overlay:\endlink Disabled.
+  <li> \link setPlane() Plane:\endlink 0 (i.e. normal plane).
   </ul>
 */
 
 QGLFormat::QGLFormat()
 {
     opts = DoubleBuffer | DepthBuffer | Rgba | DirectRendering;
+    pln = 0;
 }
 
 
@@ -199,12 +208,13 @@ QGLFormat::QGLFormat()
   \sa defaultFormat(), setOption()
 */
 
-QGLFormat::QGLFormat( int options )
+QGLFormat::QGLFormat( int options, int plane )
 {
     uint newOpts = options;
     opts = defaultFormat().opts;
     opts |= ( newOpts & 0xffff );
     opts &= ~( newOpts >> 16 );
+    pln = plane;
 }
 
 
@@ -424,6 +434,60 @@ void QGLFormat::setDirectRendering( bool enable )
 
 
 /*!
+  \fn bool QGLFormat::hasOverlay() const
+
+  Returns TRUE if overlay plane is enabled, otherwise FALSE.
+
+  Overlay is disabled by default.
+
+  \sa setOverlay()
+*/
+
+/*!
+  Enables an overlay plane if \a enable is TRUE; otherwise disables it.
+
+  Enabling the overlay plane will cause QGLWidget to create an
+  additional context in an overlay plane. See the QGLWidget
+  documentation for further information.
+
+  \sa hasOverlay()
+*/
+
+void QGLFormat::setOverlay( bool enable )
+{
+    setOption( enable ? HasOverlay : NoOverlay );
+}
+
+/*!
+  Returns the plane of this format. Default for normal formats is 0,
+  which means the normal plane; default for overlay formats is 1,
+  which is the first overlay plane.
+
+  \sa setPlane()
+*/
+int QGLFormat::plane() const
+{
+    return pln;
+}
+
+/*!
+  Sets the requested plane. 0 is the normal plane, 1 is the first
+  overlay plane, 2 is the second overlay plane, etc., and -1, -2,
+  etc. are underlay planes.
+
+  Note that, in contrast to the other format specifications, the plane
+  specifications will be matched exactly. Thus, if you specify a plane
+  that the underlying OpenGL system cannot provide, an \link
+  QGLWidget::isValid() invalid\endlink QGLWidget will be created.
+
+  \sa plane()
+*/
+void QGLFormat::setPlane( int plane )
+{
+    pln = plane;
+}
+
+/*!
   Sets the option \a opt.
 
   \sa testOption()
@@ -470,12 +534,16 @@ bool QGLFormat::hasOpenGL()
 }
 
 
-static QGLFormat *default_format = 0;
+
+
+
 
 static void cleanupGLFormat()
 {
-    delete default_format;
-    default_format = 0;
+    delete qgl_default_format;
+    qgl_default_format = 0;
+    delete qgl_default_overlay_format;
+    qgl_default_overlay_format = 0;
 }
 
 
@@ -492,11 +560,11 @@ static void cleanupGLFormat()
 
 QGLFormat QGLFormat::defaultFormat()
 {
-    if ( !default_format ) {
-	default_format = new QGLFormat;
+    if ( !qgl_default_format ) {
+	qgl_default_format = new QGLFormat;
 	qAddPostRoutine( cleanupGLFormat );
     }
-    return *default_format;
+    return *qgl_default_format;
 }
 
 /*!
@@ -515,11 +583,90 @@ QGLFormat QGLFormat::defaultFormat()
 
 void QGLFormat::setDefaultFormat( const QGLFormat &f )
 {
-    if ( !default_format ) {
-	default_format = new QGLFormat;
+    if ( !qgl_default_format ) {
+	qgl_default_format = new QGLFormat;
 	qAddPostRoutine( cleanupGLFormat );
     }
-    *default_format = f;
+    *qgl_default_format = f;
+}
+
+
+/*!
+  Returns the default QGLFormat for overlay contexts. 
+
+  The factory default overlay format is:
+  <ul>
+  <li> \link setDoubleBuffer() Double buffer:\endlink Disabled.
+  <li> \link setDepth() Depth buffer:\endlink Disabled.
+  <li> \link setRgba() RGBA:\endlink Disabled (i.e. color index enabled).
+  <li> \link setAlpha() Alpha channel:\endlink Disabled.
+  <li> \link setAccum() Accumulator buffer:\endlink Disabled.
+  <li> \link setStencil() Stencil buffer:\endlink Disabled.
+  <li> \link setStereo() Stereo:\endlink Disabled.
+  <li> \link setDirectRendering() Direct rendering:\endlink Enabled.
+  <li> \link setOverlay() Overlay:\endlink Disabled.
+  <li> \link setPlane() Plane:\endlink 1 (i.e. first overlay plane).
+  </ul>
+
+  \sa setDefaultFormat()
+*/
+
+QGLFormat QGLFormat::defaultOverlayFormat()
+{
+    if ( !qgl_default_overlay_format ) {
+	qgl_default_overlay_format = new QGLFormat;
+	qgl_default_overlay_format->opts = DirectRendering;
+	qgl_default_overlay_format->pln = 1;
+	qAddPostRoutine( cleanupGLFormat );
+    }
+    return *qgl_default_overlay_format;
+}
+
+/*!
+  Sets a new default QGLFormat for overlay contexts. This format is
+  used whenever a QGLWidget is created with a format with hasOverlay()
+  enabled.
+
+  For example, to get a double buffered overlay contexts (if
+  available), the code can do:
+
+  \code
+    QGLFormat f = QGLFormat::defaultOverlayFormat();
+    f.setDoubleBuffer( TRUE );
+    QGLFormat::setDefaultOverlayFormat( f );
+  \endcode
+
+  As ususal, you can test after the widget creation whether the
+  underlying OpenGL system was able to provide the requested
+  specification:
+
+  \code
+    // (...continued from above)
+    MyGLWidget* myWidget = new MyGLWidget( QGLFormat( QGL::HasOverlay ), ... );
+    if ( myWidget->format().hasOverlay() ) {
+      // Yes, we got an overlay, let's check _its_ format:
+      QGLContext* olContext = myWidget->overlayContext();
+      if ( olContext->format().doubleBuffer() )
+         ; // yes, we got a double buffered overlay
+      else
+         ; // no, only single buffered overlays were available
+    }
+  \endcode
+
+  \sa defaultOverlayFormat()
+*/
+
+void QGLFormat::setDefaultOverlayFormat( const QGLFormat &f )
+{
+    if ( !qgl_default_overlay_format ) {
+	qgl_default_overlay_format = new QGLFormat;
+	qAddPostRoutine( cleanupGLFormat );
+    }
+    *qgl_default_overlay_format = f;
+    // Make sure the user doesn't request that the overlays themselves
+    // have overlays, since it is unlikely that the system supports
+    // infinitely many planes...
+    qgl_default_overlay_format->setOverlay( FALSE );
 }
 
 
@@ -529,7 +676,7 @@ void QGLFormat::setDefaultFormat( const QGLFormat &f )
 
 bool operator==( const QGLFormat& a, const QGLFormat& b )
 {
-    return a.opts == b.opts;
+    return (a.opts == b.opts) && (a.pln == b.pln);
 }
 
 
@@ -554,17 +701,24 @@ bool operator!=( const QGLFormat& a, const QGLFormat& b )
 */
 
 struct CMapEntry {
-    CMapEntry( Colormap m, bool a ) : cmap(m), alloc(a) {}
+    CMapEntry();
    ~CMapEntry();
-    Colormap cmap;
-    bool     alloc;
+    Colormap		cmap;
+    bool		alloc;
+    XStandardColormap	scmap;
 };
+
+CMapEntry::CMapEntry()
+{
+    cmap = 0;
+    alloc = FALSE;
+    scmap.colormap = 0;
+}
 
 CMapEntry::~CMapEntry()
 {
     if ( alloc )
 	XFreeColormap( QPaintDevice::x11AppDisplay(), cmap );
-    // (Assumes that the widgets' x11Display == x11AppDisplay )
 }
 
 static bool		    cmap_init = FALSE;
@@ -594,13 +748,18 @@ static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
     if ( x )					// found colormap for visual
 	return x->cmap;
 
-    Colormap cmap = 0;
-    bool alloc = FALSE;
+    x = new CMapEntry();
+
     XStandardColormap *c;
     int n, i;
 
-    if ( vi->visual==DefaultVisual(dpy,vi->screen) )
-	return DefaultColormap( dpy, vi->screen );
+    //debug( "Choosing cmap for vID %0x", vi->visualid );
+
+    if ( vi->visualid == 
+	 XVisualIDFromVisual( (Visual*)QPaintDevice::x11AppVisual() ) ) {
+	//debug( "Using x11AppColormap" );
+	return QPaintDevice::x11AppColormap();
+    }
 
     if ( mesa_gl ) {				// we're using MesaGL
 	Atom hp_cmaps = XInternAtom( dpy, "_HP_RGB_SMOOTH_MAP_LIST", TRUE );
@@ -608,9 +767,13 @@ static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
 	    if ( XGetRGBColormaps(dpy,RootWindow(dpy,vi->screen),&c,&n,
 				  hp_cmaps) ) {
 		i = 0;
-		while ( i < n && cmap == 0 ) {
-		    if ( c[i].visualid == vi->visual->visualid )
-			cmap = c[i].colormap;
+		while ( i < n && x->cmap == 0 ) {
+		    if ( c[i].visualid == vi->visual->visualid ) {
+			x->cmap = c[i].colormap;
+			x->scmap = c[i];
+			//debug( "Using HP_RGB scmap" );
+
+		    }
 		    i++;
 		}
 		XFree( (char *)c );
@@ -618,15 +781,19 @@ static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
 	}
     }
 #if !defined(_OS_SOLARIS_)
-    if ( !cmap ) {
+    if ( !x->cmap ) {
 	if ( XmuLookupStandardColormap(dpy,vi->screen,vi->visualid,vi->depth,
 				       XA_RGB_DEFAULT_MAP,FALSE,TRUE) ) {
 	    if ( XGetRGBColormaps(dpy,RootWindow(dpy,vi->screen),&c,&n,
 				  XA_RGB_DEFAULT_MAP) ) {
 		i = 0;
-		while ( i < n && cmap == 0 ) {
-		    if ( c[i].visualid == vi->visualid )
-			cmap = c[i].colormap;
+		while ( i < n && x->cmap == 0 ) {
+		    if ( c[i].visualid == vi->visualid ) {
+			x->cmap = c[i].colormap;
+			x->scmap = c[i];
+			//debug( "Using RGB_DEFAULT scmap" );
+
+		    }
 		    i++;
 		}
 		XFree( (char *)c );
@@ -634,14 +801,16 @@ static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
 	}
     }
 #endif
-    if ( !cmap ) {				// no shared cmap found
-	cmap = XCreateColormap( dpy, RootWindow(dpy,vi->screen), vi->visual,
-				AllocNone );
-	alloc = TRUE;
+    if ( !x->cmap ) {				// no shared cmap found
+	x->cmap = XCreateColormap( dpy, RootWindow(dpy,vi->screen), vi->visual,
+				   AllocNone );
+	x->alloc = TRUE;
+	//debug( "Allocating cmap" );
+
     }
-    x = new CMapEntry( cmap, alloc );		// associate cmap with visualid
-    cmap_dict->insert( (long)vi->visualid, x );
-    return cmap;
+
+    cmap_dict->insert( (long)vi->visualid, x ); // associate cmap with visualid
+    return x->cmap;
 }
 
 #endif // Q_GLX
@@ -651,6 +820,7 @@ static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
   QGLContext implementation
  *****************************************************************************/
 
+QGLContext* QGLContext::currentCtx = 0;
 
 /*!
   \class QGLContext qgl.h
@@ -804,6 +974,35 @@ void QGLContext::setFormat( const QGLFormat &format )
 
   \sa initialized()
 */
+
+/*!
+  \fn void const QGLContext* QGLContext::currentContext()
+
+  Returns the current context, i.e. the context to which any OpenGL
+  commands will currently be directed to. Returns 0 if no context is
+  current.
+
+  \sa makeCurrent()
+*/
+
+/*!
+  \fn QColor QGLContext::overlayTransparentColor() const
+
+  If this context is a valid context in an overlay plane, returns the
+  plane's transparent color. Otherwise returns an \link
+  QColor::isValid() invalid \endlink color.
+
+  The returned color's \link QColor::pixel() pixel \endlink value is
+  the index of the transparent color in the colormap of the overlay
+  plane. The color's RGB values are meaningless, of course.
+
+  The returned QColor object will generally only work as expected when
+  passed as the argument to QGLWidget::qglColor() or
+  QGLWidget::qglClearColor(). Under certain circumstances it can also
+  be used to draw transparent graphics with a QPainter; see the
+  "overlay_x11" example for details.
+*/
+
 
 /*!
   Creates the GL context. Returns TRUE if it was successful in
@@ -1066,7 +1265,6 @@ void QGLContext::reset()
 }
 
 
-static QGLContext *currentContext = 0;
 
 //
 // NOTE: In a multi-threaded environment, each thread has a current
@@ -1076,10 +1274,10 @@ static QGLContext *currentContext = 0;
 
 void QGLContext::makeCurrent()
 {
-    if ( currentContext ) {
-	if ( currentContext == this )		// already current
+    if ( currentCtx ) {
+	if ( currentCtx == this )		// already current
 	    return;
-	currentContext->doneCurrent();
+	currentCtx->doneCurrent();
     }
     if ( !valid || !dc )
 	return;
@@ -1089,15 +1287,15 @@ void QGLContext::makeCurrent()
     }
     if ( !wglMakeCurrent( dc, rc ) )
 	qwglError( "QGLContext::makeCurrent()", "wglMakeCurrent" );
-    currentContext = this;
+    currentCtx = this;
 }
 
 
 void QGLContext::doneCurrent()
 {
-    if ( currentContext != this )
+    if ( currentCtx != this )
 	return;
-    currentContext = 0;
+    currentCtx = 0;
     wglMakeCurrent( dc, 0 );
 }
 
@@ -1107,6 +1305,22 @@ void QGLContext::swapBuffers()
     if ( dc && glFormat.doubleBuffer() )
 	SwapBuffers( dc );
 }
+
+QColor QGLContext::overlayTransparentColor() const
+{
+    warning( "QGLContext::overlayTransparentColor() not implemented for Windows" );
+    return QColor();
+}
+
+
+uint QGLContext::colorIndex( const QColor& c ) const
+{
+    if ( isValid() ) {
+	return c.pixel();		// Assumes standard pallette
+    }
+    return 0;
+}
+
 
 #endif // Q_WGL
 
@@ -1143,6 +1357,8 @@ bool QGLContext::chooseContext( const QGLContext* shareContext )
 	    return FALSE;	//# Chickening out already...
     }
     int res;
+    glXGetConfig( disp, (XVisualInfo*)vi, GLX_LEVEL, &res );
+    glFormat.setPlane( res );
     glXGetConfig( disp, (XVisualInfo*)vi, GLX_DOUBLEBUFFER, &res );
     glFormat.setDoubleBuffer( res );
     glXGetConfig( disp, (XVisualInfo*)vi, GLX_DEPTH_SIZE, &res );
@@ -1281,7 +1497,7 @@ void *QGLContext::tryVisual( const QGLFormat& f, int bufDepth )
     int spec[40];
     int i = 0;
     spec[i++] = GLX_LEVEL;
-    spec[i++] = 0;
+    spec[i++] = f.plane();
     if ( f.doubleBuffer() )
 	spec[i++] = GLX_DOUBLEBUFFER;
     if ( f.depth() ) {
@@ -1352,7 +1568,7 @@ void QGLContext::reset()
 void QGLContext::makeCurrent()
 {
     if ( !valid ) {
-#if defined(CHECK_NULL)
+#if defined(CHECK_STATE)
 	qWarning("QGLContext::makeCurrent(): Cannot make invalid context current.");
 #endif
 	return;
@@ -1372,11 +1588,14 @@ void QGLContext::makeCurrent()
     if ( !ok )
 	qWarning("QGLContext::makeCurrent(): Failed.");
 #endif
+    if ( ok )
+	currentCtx = this;
 }
 
 void QGLContext::doneCurrent()
 {
     glXMakeCurrent( paintDevice->x11Display(), 0, 0 );
+    currentCtx = 0;
 }
 
 
@@ -1389,8 +1608,136 @@ void QGLContext::swapBuffers()
 			((QWidget *)paintDevice)->winId() );
 }
 
+
+struct TransColor
+{
+    VisualID	vis;
+    long	color;
+};
+
+static QArray<TransColor> trans_colors;
+static int trans_colors_init = FALSE;
+
+
+static void find_trans_colors()
+{
+    struct OverlayProp {
+	long  visual;
+	long  type;
+	long  value;
+	long  layer;
+    };
+
+    trans_colors_init = TRUE;
+
+    Display* appDisplay = QPaintDevice::x11AppDisplay();
+    QWidget* rootWin = QApplication::desktop();
+    if ( !rootWin )
+	return;					// Should not happen
+    Atom overlayVisualsAtom = XInternAtom( appDisplay,
+					   "SERVER_OVERLAY_VISUALS", True );
+    if ( overlayVisualsAtom == None )
+	return;					// Server has no overlays
+
+    Atom actualType;
+    int actualFormat;
+    ulong nItems;
+    ulong bytesAfter;
+    OverlayProp* overlayProps = 0;
+    int res = XGetWindowProperty( appDisplay, rootWin->winId(),
+				  overlayVisualsAtom, 0, 10000, False, 
+				  overlayVisualsAtom, &actualType, 
+				  &actualFormat, &nItems, &bytesAfter,
+				  (uchar**)&overlayProps );
+
+    if ( res != Success || actualType != overlayVisualsAtom
+	 || actualFormat != 32 || nItems < 4 || !overlayProps )
+	return;					// Error reading property
+	
+    int numProps = nItems / 4;
+    trans_colors.resize( numProps );
+    int j = 0;
+    for ( int i = 0; i < numProps; i++ ) {
+	if ( overlayProps[i].type == 1 ) {
+	    trans_colors[j].vis = (VisualID)overlayProps[i].visual;
+	    trans_colors[j].color = (int)overlayProps[i].value;
+	    j++;
+	}
+    }
+    XFree( overlayProps );
+    trans_colors.truncate( j );
+}
+
+QColor QGLContext::overlayTransparentColor() const
+{
+    if ( isValid() ) {
+	if ( !trans_colors_init )
+	    find_trans_colors();
+    
+	VisualID myVisualId = ((XVisualInfo*)vi)->visualid;
+	for ( int i = 0; i < trans_colors.size(); i++ ) {
+	    if ( trans_colors[i].vis == myVisualId )
+		return QColor( qRgb( 1, 2, 3 ), trans_colors[i].color );
+	}
+    }
+    return QColor();		// Invalid color
+}
+
+
+/*!
+  \internal
+
+  Finds a colormap index for the color c, in ColorIndex mode. Used by
+  qglColor() and qglClearColor().
+*/
+
+uint QGLContext::colorIndex( const QColor& c ) const
+{
+    if ( isValid() ) {
+	if ( format().plane()
+	     && c.pixel() == overlayTransparentColor().pixel() )
+	    return c.pixel();			// Special; don't look-up
+	if ( ((XVisualInfo*)vi)->visualid == 
+	     XVisualIDFromVisual( (Visual*)QPaintDevice::x11AppVisual() ) )
+	    return c.pixel();		// We're using QColor's cmap
+
+	CMapEntry *x = cmap_dict->find( (long)((XVisualInfo*)vi)->visualid );
+	if ( x && !x->alloc) {		// It's a standard colormap
+	    int rf = (int)(((float)c.red() * (x->scmap.red_max+1))/256.0);
+	    int gf = (int)(((float)c.green() * (x->scmap.green_max+1))/256.0);
+	    int bf = (int)(((float)c.blue() * (x->scmap.blue_max+1))/256.0);
+	    uint p = x->scmap.base_pixel 
+		     + ( rf * x->scmap.red_mult )
+		     + ( gf * x->scmap.green_mult )
+		     + ( bf * x->scmap.blue_mult );
+	    return p;
+	}
+	else
+	    return c.pixel(); // ### wrong; should really ask QColor to alloc
+    }
+    return 0;
+}
+
+
 #endif // Q_GLX
 
+
+
+/*!
+  Returns TRUE if the window system supports OpenGL overlays,
+  otherwise FALSE.
+*/
+
+bool QGLFormat::hasOpenGLOverlays()
+{
+#if defined(Q_GLX)
+    if ( !trans_colors_init )
+	find_trans_colors();
+    return trans_colors.size() > 0;
+#else
+    return FALSE;		// Not supported yet
+#endif
+}
 
 
 /*****************************************************************************
@@ -1489,6 +1836,35 @@ void QGLContext::swapBuffers()
 
   You can achieve sharing of OpenGL display lists between QGLWidgets,
   see the documentation of the QGLWidget constructors for details.
+
+  <b>About Overlays:</b> The QGLWidget can create a GL overlay context
+  in addition to the normal context, if overlays are supported by the
+  underlying system. 
+
+  If you want to use overlays, you specify it in the \link QGLFormat
+  format\endlink. (Note: Overlay must be requested in the format
+  passed to the QGLWidget constructor; it cannot be added later with
+  setFormat() or setContext()). Your GL widget should also implement
+  some or all of these virtual methods:
+
+  <ul>
+  <li> paintOverlayGL()
+  <li> resizeOverlayGL()
+  <li> initializeOverlayGL()
+  </ul>
+
+  These methods work in the same way as the normal paintGL() &
+  al. functions, only that they will be called when with the overlay
+  context made current. You can explicitly make the overlay context
+  current by using makeOverlayCurrent(), and you can access the
+  overlay context directly (e.g. to ask for its transparent color) by
+  calling overlayContext().
+
+  Note: QGLWidget overlay support is currently implemented only for
+  the X11 window system. On X servers where the default visual is in
+  an overlay plane, non-GL Qt windows can also be used for overlays;
+  see the "overlay_x11" example program for details.
+
 */
 
 
@@ -1518,16 +1894,9 @@ void QGLContext::swapBuffers()
 
 QGLWidget::QGLWidget( QWidget *parent, const char *name,
 		      const QGLWidget* shareWidget, WFlags f )
-    : QWidget(parent, name, f)
+    : QWidget( parent, name, f )
 {
-    glcx = 0;
-    autoSwap = TRUE;
-    if ( shareWidget )
-	setContext( new QGLContext( QGLFormat::defaultFormat(), this ),
-		    shareWidget->context() );
-    else
-	setContext( new QGLContext( QGLFormat::defaultFormat(), this ) );
-    setBackgroundMode( NoBackground );
+    init( QGLFormat::defaultFormat(), shareWidget );
 }
 
 
@@ -1563,7 +1932,14 @@ QGLWidget::QGLWidget( QWidget *parent, const char *name,
 QGLWidget::QGLWidget( const QGLFormat &format, QWidget *parent,
 		      const char *name, const QGLWidget* shareWidget,
 		      WFlags f )
-    : QWidget(parent, name, f)
+    : QWidget( parent, name, f )
+{
+    init( format, shareWidget );
+}
+
+
+
+void QGLWidget::init( const QGLFormat& format, const QGLWidget* shareWidget )
 {
     glcx = 0;
     autoSwap = TRUE;
@@ -1572,8 +1948,29 @@ QGLWidget::QGLWidget( const QGLFormat &format, QWidget *parent,
     else
 	setContext( new QGLContext( format, this ) );
     setBackgroundMode( NoBackground );
+    
+#if defined(Q_GLX)
+    if ( format.hasOverlay() ) {
+	QCString olwName( name() );
+	olwName += "-QGL_internal_overlay_widget";
+	olw = new QGLOverlayWidget( QGLFormat::defaultOverlayFormat(), 
+				    this, olwName );
+	if ( olw->isValid() ) {
+	    olw->setAutoBufferSwap( FALSE );
+	    olw->setGeometry( rect() );
+	    olw->setFocusProxy( this );
+	}
+	else {
+	    delete olw;
+	    olw = 0;
+	    glcx->glFormat.setOverlay( FALSE );
+	}
+    }
+    else {
+	olw = 0;
+    }
+#endif
 }
-
 
 /*!
   Destroys the widget.
@@ -1690,6 +2087,44 @@ void QGLWidget::swapBuffers()
 
 
 /*!
+  Returns the overlay context of this widget, or 0 if this widget has
+  no overlay.
+
+  \sa context()
+*/
+
+const QGLContext* QGLWidget::overlayContext() const
+{
+#if defined(Q_GLX)
+    if ( olw )
+	return olw->context();
+    else
+	return 0;
+#else
+    return 0;
+#endif
+}
+
+
+/*!
+  Makes the overlay context of this widget current. Use this if you
+  need to issue OpenGL commands to the overlay context outside of
+  initializeOverlayGL(), resizeOverlayGL() and paintOverlayGL().
+
+  Does nothing if this widget has no overlay.
+
+  \sa makeCurrent()
+*/
+
+void QGLWidget::makeOverlayCurrent()
+{
+#if defined(Q_GLX)
+    if ( olw )
+	olw->makeCurrent();
+#endif
+}
+
+/*!
   Sets a new format for this widget.
 
   If the underlying OpenGL/Window system cannot satisfy all the
@@ -1717,7 +2152,7 @@ void QGLWidget::setFormat( const QGLFormat &format )
 
 /*!
   \fn const QGLContext *QGLWidget::context() const
-  Returns the current context.
+  Returns the context of this widget.
   \sa setContext()
 */
 
@@ -1763,7 +2198,6 @@ void QGLWidget::setContext( QGLContext *context,
 
     if ( glcx )
 	glcx->doneCurrent();
-
     QGLContext* oldcx = glcx;
     glcx = context;
 
@@ -1864,6 +2298,21 @@ void QGLWidget::updateGL()
     glDraw();
 }
 
+
+/*!
+  Updates the widget's overlay (if any). Will cause the virtual
+  function paintOverlayGL() to be executed, initializing first as
+  necessary.
+*/
+
+void QGLWidget::updateOverlayGL()
+{
+#if defined(Q_GLX)
+    if ( olw )
+	olw->updateGL();
+#endif
+}
+
 /*!
   This virtual function is called one time before the first call to
   paintGL() or resizeGL(), and then one time whenever the widget has
@@ -1909,9 +2358,60 @@ void QGLWidget::resizeGL( int, int )
 
 
 
+/*!
+  This virtual function is used in the same manner as initializeGL(),
+  only for the widget's overlay context instead of the widget's main
+  context. That is, initializeOverlayGL() is called one time before
+  the first call to paintOverlayGL() or resizeOverlayGL(). Reimplement
+  it in a subclass.
+
+  This function should take care of setting any required OpenGL
+  context rendering flags, defining display lists, etc., for the
+  overlay context.
+
+  There is no need to call makeOverlayCurrent() because this has already
+  been done when this function is called.
+*/
+
+void QGLWidget::initializeOverlayGL()
+{
+}
+
 
 /*!
-  Handles paint events. Will cause the virtual paintGL() fucntion to
+  This virtual function is used in the same manner as paintGL(), only
+  for the widget's overlay context instead of the widget's main
+  context. That is, paintOverlayGL() is called whenever the widget's
+  overlay needs to be painted.  Reimplement it in a subclass.
+
+  There is no need to call makeOverlayCurrentCurrent() because this
+  has already been done when this function is called.
+*/
+
+void QGLWidget::paintOverlayGL()
+{
+}
+
+
+/*!
+  This virtual function is used in the same manner as paintGL(), only
+  for the widget's overlay context instead of the widget's main
+  context. That is, resizeOverlayGL() is called whenever the widget
+  has been resized. Reimplement it in a subclass.
+
+  There is no need to call makeOverlayCurrentCurrent() because
+  this has already been done when this function is called.
+*/
+
+void QGLWidget::resizeOverlayGL( int, int )
+{
+}
+
+
+
+
+/*!
+  Handles paint events. Will cause the virtual paintGL() function to
   be called, initializing first as necessary.
 */
 
@@ -1934,6 +2434,10 @@ void QGLWidget::resizeEvent( QResizeEvent * )
     glXWaitX();
 #endif
     resizeGL( width(), height() );
+#if defined(Q_GLX)
+    if ( olw )
+	olw->setGeometry( rect() );
+#endif
 }
 
 
@@ -1955,6 +2459,8 @@ void QGLWidget::resizeEvent( QResizeEvent * )
   If \a useContext is TRUE, this method will try to be more efficient
   by using the existing GL context to render the pixmap. The default
   is FALSE. Use only if you know what you are doing.
+
+  Any overlay is not rendered to the pixmap.
 
   \bug May give unexpected results if the depth of the GL rendering
   context is different from the depth of the desktop.
@@ -2061,37 +2567,103 @@ void QGLWidget::glDraw()
 /*!
   Convenience function for specifying a drawing color to OpenGL. Calls
   glColor3 (in RGBA mode) or glIndex (in color-index mode) with the
-  color \a c.
+  color \a c. Applies to the current GL context.
 
-  \sa qglClearColor(), QColor
+  \sa qglClearColor(), QGLContext::currentContext(), QColor
 */
 
-void QGLWidget::qglColor( const QColor& c )
+void QGLWidget::qglColor( const QColor& c ) const
 {
-    makeCurrent();
-    if ( format().rgba() )
-	glColor3ub( c.red(), c.green(), c.blue() );
-    else
-	glIndexi( c.pixel() );
+    const QGLContext* ctx = QGLContext::currentContext();
+    if ( ctx ) {
+	if ( ctx->format().rgba() )
+	    glColor3ub( c.red(), c.green(), c.blue() );
+	else
+	    glIndexi( ctx->colorIndex( c ) );
+    }
 }
 
 /*!
   Convenience function for specifying the clearing color to
   OpenGL. Calls glClearColor (in RGBA mode) or glClearIndex (in
-  color-index mode) with the color \a c.
+  color-index mode) with the color \a c. Applies to the current GL
+  context.
 
-  \sa qglColor(), QColor
+  \sa qglColor(), QGLContext::currentContext(), QColor
 */
 
-void QGLWidget::qglClearColor( const QColor& c )
+void QGLWidget::qglClearColor( const QColor& c ) const
 {
-    makeCurrent();
-    if ( format().rgba() )
-	glClearColor( (GLfloat)c.red() / 255.0, (GLfloat)c.green() / 255.0,
-		      (GLfloat)c.blue() / 255.0, (GLfloat) 0.0 );
-    else
-	glClearIndex( c.pixel() );
+    const QGLContext* ctx = QGLContext::currentContext();
+    if ( ctx ) {
+	if ( ctx->format().rgba() )
+	    glClearColor( (GLfloat)c.red() / 255.0, (GLfloat)c.green() / 255.0,
+			  (GLfloat)c.blue() / 255.0, (GLfloat) 0.0 );
+	else 
+	    glClearIndex( ctx->colorIndex( c ) );
+    }
 }
+
+
+#if defined(Q_GLX)
+
+/*****************************************************************************
+  QGLOverlayWidget (Internal overlay class for X11)
+ *****************************************************************************/
+
+QGLOverlayWidget::QGLOverlayWidget( const QGLFormat& format, QGLWidget* parent,
+				    const char* name )
+    : QGLWidget( format, parent, name )
+{
+    realWidget = parent;
+}
+
+
+void QGLOverlayWidget::initializeGL()
+{
+    QColor transparentColor = context()->overlayTransparentColor();
+    if ( transparentColor.isValid() )
+	qglClearColor( transparentColor );
+    else
+	qWarning( "QGLOverlayWidget::initializeGL(): Could not get transparent color" );
+    realWidget->initializeOverlayGL();
+}
+
+
+void QGLOverlayWidget::resizeGL( int w, int h )
+{
+    glViewport( 0, 0, w, h );
+    realWidget->resizeOverlayGL( w, h );
+}
+
+
+void QGLOverlayWidget::paintGL()
+{
+    realWidget->paintOverlayGL();
+}
+
+
+void QGLOverlayWidget::mousePressEvent( QMouseEvent* e )
+{
+    QApplication::sendEvent( realWidget, e );
+}
+
+void QGLOverlayWidget::mouseMoveEvent( QMouseEvent* e )
+{
+    QApplication::sendEvent( realWidget, e );
+}
+
+void QGLOverlayWidget::mouseReleaseEvent( QMouseEvent* e )
+{
+    QApplication::sendEvent( realWidget, e );
+}
+
+void QGLOverlayWidget::mouseDoubleClickEvent( QMouseEvent* e )
+{
+    QApplication::sendEvent( realWidget, e );
+}
+
+#endif
 
 /*****************************************************************************
   QGL classes overview documentation.

@@ -7,8 +7,16 @@ much image rendering time. For more information, consult the highly
 recommended book "OpenGL Programming for the X Window System" (Mark
 Kilgard, Addison Wesley Developers Press 1996).
 
+-----------------------------------------------------------------------
+UPDATE: From version 5.0 onwards, the Qt OpenGL Extension includes
+direct support for use of OpenGL overlays. For many uses of overlays,
+this makes the technique described below redundant. See the 'overlay'
+example program. The following is a discussion on how to use non-QGL
+widgets in overlay planes.
+-----------------------------------------------------------------------
+
 In the typical case, X11 overlays can easily be used together with the
-current version (1.x) of Qt and the Qt OpenGL Extension. The following
+current version of Qt and the Qt OpenGL Extension. The following
 requirements apply:
 
 1) Your X server and graphics card/HW must support overlays (of
@@ -57,18 +65,6 @@ Note: To use this technique, you must not use the "ManyColor" or
 the normal Qt widgets to use a TrueColor visual, which will typically
 be in the main plane, not in the overlay plane as desired.
 
-
-Limitations:
-------------
-
-There is yet no straightforward way to force a QGLWidget to use an
-overlay visual, so if you want to use OpenGL instead of QPainter for
-drawing your annotations (as well as the main image), you will have to
-make a derived class from QGLContext and override the visual-selecting
-method, or use the GLX calls directly as you would do in a non-Qt
-application.
-
-We are working to remove this limitation in a future Qt version.
 
 
 About X11 visuals:

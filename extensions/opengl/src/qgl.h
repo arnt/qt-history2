@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/opengl/src/qgl.h#16 $
+** $Id: //depot/qt/main/extensions/opengl/src/qgl.h#17 $
 **
 ** Definition of OpenGL classes for Qt
 **
@@ -25,8 +25,8 @@
 #define QGL_H
 
 
-#define QGL_VERSION	410
-#define QGL_VERSION_STR	"4.1"
+#define QGL_VERSION	500
+#define QGL_VERSION_STR	"5.0b"
 
 const char *qGLVersion();
 
@@ -54,6 +54,9 @@ const char *qGLVersion();
 
 
 class QPixmap;
+#if defined(Q_GLX)
+class QGLOverlayWidget;
+#endif
 
 // Namespace class:
 class QGL
@@ -68,6 +71,7 @@ public:
 	StencilBuffer		= 0x0020,
 	StereoBuffers		= 0x0040,
 	DirectRendering		= 0x0080,
+	HasOverlay		= 0x0100,
 	SingleBuffer            = DoubleBuffer  << 16,
 	NoDepthBuffer           = DepthBuffer   << 16,
 	ColorIndex              = Rgba          << 16,
@@ -75,7 +79,8 @@ public:
 	NoAccumBuffer           = AccumBuffer   << 16,
 	NoStencilBuffer         = StencilBuffer << 16,
 	NoStereoBuffers         = StereoBuffers << 16,
-	IndirectRendering       = DirectRendering << 16
+	IndirectRendering       = DirectRendering << 16,
+	NoOverlay       	= HasOverlay << 16
     };
 };
 
@@ -85,7 +90,7 @@ class QGLFormat : public QGL
 {
 public:
     QGLFormat();
-    QGLFormat( int options );
+    QGLFormat( int options, int plane = 0 );
 
     bool    		doubleBuffer() const;
     void    		setDoubleBuffer( bool enable );
@@ -103,6 +108,11 @@ public:
     void    		setStereo( bool enable );
     bool    		directRendering() const;
     void    		setDirectRendering( bool enable );
+    bool    		hasOverlay() const;
+    void    		setOverlay( bool enable );
+
+    int			plane() const;
+    void		setPlane( int plane );
 
     void		setOption( FormatOption opt );
     bool		testOption( FormatOption opt ) const;
@@ -110,13 +120,18 @@ public:
     static QGLFormat	defaultFormat();
     static void		setDefaultFormat( const QGLFormat& f );
 
+    static QGLFormat	defaultOverlayFormat();
+    static void		setDefaultOverlayFormat( const QGLFormat& f );
+
     static bool		hasOpenGL();
+    static bool		hasOpenGLOverlays();
 
     friend bool		operator==( const QGLFormat&, const QGLFormat& );
     friend bool		operator!=( const QGLFormat&, const QGLFormat& );
     
 private:
     uint opts;
+    int pln;
 };
 
 
@@ -140,10 +155,14 @@ public:
 
     QPaintDevice*	device() const;
 
+    QColor		overlayTransparentColor() const;
+
+    static const QGLContext*	currentContext();
+
 protected:
     virtual bool	chooseContext( const QGLContext* shareContext = 0 );
     virtual void	doneCurrent();
-
+    
 #if defined(Q_WGL)
     virtual int		choosePixelFormat( void* pfd, HDC pdc );
 #elif defined(Q_GLX)
@@ -157,6 +176,8 @@ protected:
     bool		initialized() const;
     void		setInitialized( bool on );
 
+    uint		colorIndex( const QColor& c ) const;
+
 protected:
 #if defined(Q_WGL)
     HGLRC		rc;
@@ -169,15 +190,15 @@ protected:
 #endif
 
     QGLFormat		glFormat;
-    
+
 private:
     bool		valid;
     bool		sharing;
     bool		initDone;
     bool		crWin;
     QPaintDevice*	paintDevice;
+    static QGLContext*	currentCtx;
 
-private:
     friend class QGLWidget;
     
 private:	// Disabled copy constructor and operator=
@@ -185,6 +206,8 @@ private:	// Disabled copy constructor and operator=
     QGLContext( const QGLContext& ) {}
     QGLContext&		operator=( const QGLContext& ) { return *this; }
 };
+
+
 
 
 class QGLWidget : public QWidget, public QGL
@@ -197,8 +220,8 @@ public:
 	       const QGLWidget* shareWidget = 0, WFlags f=0 );
    ~QGLWidget();
 
-    void		qglColor( const QColor& c );
-    void		qglClearColor( const QColor& c );
+    void		qglColor( const QColor& c ) const;
+    void		qglClearColor( const QColor& c ) const;
 
     bool		isValid() const;
     bool		isSharing() const;
@@ -218,13 +241,21 @@ public:
     virtual QPixmap	renderPixmap( int w = 0, int h = 0,
 				      bool useContext = FALSE );
 
+    virtual void	makeOverlayCurrent();
+    const QGLContext*	overlayContext() const;
+
 public slots:
     virtual void	updateGL();
+    virtual void	updateOverlayGL();
 
 protected:
     virtual void	initializeGL();
-    virtual void	paintGL();
     virtual void	resizeGL( int w, int h );
+    virtual void	paintGL();
+
+    virtual void	initializeOverlayGL();
+    virtual void	resizeOverlayGL( int w, int h );
+    virtual void	paintOverlayGL();
 
     void		setAutoBufferSwap( bool on );
     bool		autoBufferSwap() const;
@@ -236,8 +267,14 @@ protected:
     virtual void	glDraw();
     
 private:
+    void		init( const QGLFormat& format,
+			      const QGLWidget* shareWidget );
     QGLContext*		glcx;
     bool		autoSwap;
+#if defined(Q_GLX)
+    QGLOverlayWidget*	olw;
+    friend class QGLOverlayWidget;
+#endif;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
@@ -246,6 +283,37 @@ private:	// Disabled copy constructor and operator=
 #endif
 };
 
+
+#if defined(Q_GLX)
+// Internal overlay class for X11
+class QGLOverlayWidget : public QGLWidget
+{
+    Q_OBJECT
+public:
+    QGLOverlayWidget( const QGLFormat& format, QGLWidget* parent, 
+		      const char* name=0 );
+    
+protected:
+    void		initializeGL();
+    void		paintGL();
+    void		resizeGL( int w, int h );
+
+    void		mousePressEvent( QMouseEvent* e );
+    void		mouseMoveEvent( QMouseEvent* e );
+    void		mouseReleaseEvent( QMouseEvent* e );
+    void		mouseDoubleClickEvent( QMouseEvent* e );
+
+private:
+    QGLWidget*		realWidget;
+
+private:	// Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
+    QGLOverlayWidget( const QGLOverlayWidget& );
+    QGLOverlayWidget&	operator=( const QGLOverlayWidget& );
+#endif
+};
+
+#endif
 
 //
 // QGLFormat inline functions
@@ -289,6 +357,11 @@ inline bool QGLFormat::stereo() const
 inline bool QGLFormat::directRendering() const
 {
     return testOption( DirectRendering );
+}
+
+inline bool QGLFormat::hasOverlay() const
+{
+    return testOption( HasOverlay );
 }
 
 //
@@ -338,6 +411,11 @@ inline bool QGLContext::initialized() const
 inline void QGLContext::setInitialized( bool on )
 {
     initDone = on;
+}
+
+inline const QGLContext* QGLContext::currentContext()
+{
+    return currentCtx;
 }
 
 //

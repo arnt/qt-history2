@@ -1,4 +1,23 @@
 
+Changes from version 4.10 to version 5.00 (Qt ???)
+--------------------------------------------------
+
+Added support for GL overlays (currently only implemented on X11).
+Added the 'overlay' example program to show the use of the new API
+fucntions.
+
+The convenience functions qglColor and qglClearColor will no longer
+make the widget's GL context current when called; it is the
+application's responsibility to do a makeCurrent() /
+makeOverlayCurrent() before using them outside of the
+initialize/resize/paint[Overlay]GL functions.
+
+Added static QGLContext::currentContext() function.
+
+Improved color handling ( with qglColor/qglClearColor ) in color-index
+mode on non-default X11 visuals.
+
+
 Changes from version 4.00 to version 4.10 (Qt 2.0)
 --------------------------------------------------
 

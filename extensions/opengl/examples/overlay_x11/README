@@ -1,6 +1,14 @@
 
+-----------------------------------------------------------------------
+UPDATE: From version 5.0 onwards, the Qt OpenGL Extension includes
+direct support for use of OpenGL overlays. For many uses of overlays,
+this makes the technique described below redundant. See the 'overlay'
+example program. The following is a discussion on how to use non-QGL
+widgets in overlay planes.
+-----------------------------------------------------------------------
+
 Overlayrubber: An example program showing how to use Qt and Qt OpenGL
-Extension with X11 overlays.
+Extension with X11 overlay visuals.
 
 (Background information for this example can be found in the file
  README.X11-OVERLAYS)
