@@ -20,6 +20,8 @@
 #include "QtGui/qfont.h"
 #include "QtCore/qdatastream.h"
 
+#include "QtGui/qvariant.h"
+
 #define QTE_PIPE "QtEmbedded-%1"
 
 class QRect;
@@ -104,7 +106,11 @@ struct QWSCommand : QWSProtocolItem
         ResetIM,
         SetIMInfo,
         IMMouse,
-        PositionCursor
+        PositionCursor,
+
+
+        IMUpdate,
+        IMResponse
     };
     static QWSCommand *factory(int type);
 };
@@ -484,7 +490,7 @@ struct QWSQCopSendCommand : public QWSCommand
         channel = QString(cd,simpleData.clen); cd += simpleData.clen;
         message = QString(cd,simpleData.mlen);
         d += simpleData.clen*sizeof(QChar) + simpleData.mlen*sizeof(QChar);
-        data = QByteArray(d, simpleData.dlen);
+        data = QByteArray::fromRawData(d, simpleData.dlen);
     }
 
     void setMessage(const QString &c, const QString &m,
@@ -521,6 +527,8 @@ struct QWSQCopSendCommand : public QWSCommand
 
 
 #ifndef QT_NO_QWS_IM
+
+//goes away
 struct QWSSetIMInfoCommand : public QWSCommand
 {
     QWSSetIMInfoCommand() :
@@ -552,6 +560,31 @@ struct QWSIMMouseCommand : public QWSCommand
     } simpleData;
 };
 
+
+struct QWSIMResponseCommand : public QWSCommand
+{
+    QWSIMResponseCommand() :
+        QWSCommand(QWSCommand::IMResponse,
+                    sizeof(simpleData), reinterpret_cast<char *>(&simpleData)) {}
+
+    void setData(const char *d, int len, bool allocateMem) {
+        QWSCommand::setData(d, len, allocateMem);
+
+        QByteArray tmp = QByteArray::fromRawData(d, len);
+        QDataStream s(tmp);
+        s >> result;
+    }
+
+    struct SimpleData {
+        int windowid;
+        int property;
+    } simpleData;
+
+    QVariant result;
+};
+
+
+//turns into QWSUpdateIMCommand: update/focus/reset/...
 struct QWSResetIMCommand : public QWSCommand
 {
     QWSResetIMCommand() :
@@ -563,6 +596,8 @@ struct QWSResetIMCommand : public QWSCommand
     } simpleData;
 };
 
+
+//goes away
 struct QWSSetIMFontCommand : public QWSCommand
 {
     QWSSetIMFontCommand() :
@@ -572,7 +607,7 @@ struct QWSSetIMFontCommand : public QWSCommand
     void setData(const char *d, int len, bool allocateMem) {
         QWSCommand::setData(d, len, allocateMem);
 
-        QByteArray tmp(d, len);
+        QByteArray tmp = QByteArray::fromRawData(d, len);
         QDataStream s(tmp);
         s >> font;
     }

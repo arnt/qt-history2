@@ -39,6 +39,9 @@ struct QWSEvent : QWSProtocolItem {
         QCopMessage,
         WindowOperation,
         IMEvent,
+
+        IMQuery,
+        IMInit,
         NEvent
     };
 
@@ -225,12 +228,12 @@ struct QWSQCopMessageEvent : QWSEvent {
 
     void setData(const char *d, int len, bool allocateMem = true) {
         QWSEvent::setData(d, len, allocateMem);
-        char* p = reinterpret_cast<char*>( rawDataPtr);
-        channel = QByteArray(p, simpleData.lchannel);
+        char* p = rawDataPtr;
+        channel = QByteArray::fromRawData(p, simpleData.lchannel);
         p += simpleData.lchannel;
-        message = QByteArray(p, simpleData.lmessage);
+        message = QByteArray::fromRawData(p, simpleData.lmessage);
         p += simpleData.lmessage;
-        data = QByteArray(p, simpleData.ldata);
+        data = QByteArray::fromRawData(p, simpleData.ldata);
     }
 
     struct SimpleData {
@@ -259,25 +262,38 @@ struct QWSWindowOperationEvent : QWSEvent {
 };
 
 #ifndef QT_NO_QWS_IM
+
+
 struct QWSIMEvent : QWSEvent {
     QWSIMEvent()
-        : QWSEvent(IMEvent, sizeof(simpleData), reinterpret_cast<char*>(&simpleData)) { }
+        : QWSEvent(IMEvent, sizeof(simpleData), reinterpret_cast<char*>(&simpleData))
+   { memset(reinterpret_cast<char*>(&simpleData),0,sizeof(simpleData)); }
 
     struct SimpleData {
         int window;
-        int type;
-        int cpos;
-        int selLen;
-        int textLen;
+        int replaceFrom;
+        int replaceLength;
     } simpleData;
 
     void setData(const char *d, int len, bool allocateMem = true) {
         QWSEvent::setData(d, len, allocateMem);
-        text = reinterpret_cast<QChar*>(rawDataPtr);
+        streamingData = QByteArray::fromRawData(rawDataPtr, len);
     }
-
-    QChar *text;
+    QByteArray streamingData;
 };
+
+struct QWSIMQueryEvent : QWSEvent {
+    QWSIMQueryEvent()
+        : QWSEvent(QWSEvent::IMQuery, sizeof(simpleData),
+              reinterpret_cast<char*>(&simpleData)) {}
+
+    struct SimpleData {
+        int window;
+        int property;
+    } simpleData;
+
+};
+
 #endif
 
 #endif // QWSEVENT_QWS_H

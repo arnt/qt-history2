@@ -35,6 +35,7 @@
 #include "qpen.h"
 #include "qdesktopwidget.h"
 #include "qevent.h"
+#include "qinputcontext.h"
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -68,6 +69,8 @@
 
 #include "qkbddriverfactory_qws.h"
 #include "qmousedriverfactory_qws.h"
+
+#include <qbuffer.h>
 
 //#include <qdebug.h>
 
@@ -1545,6 +1548,10 @@ bool QWSServer::isCursorVisible()
 
 #ifndef QT_NO_QWS_IM
 
+
+//### qt 3 support:
+
+
 /*!
     This function sends an input method event to the server. The
     current state is passed in \a state and the current text in \a
@@ -1556,29 +1563,51 @@ void QWSServer::sendIMEvent(IMState state, const QString& txt, int cpos, int sel
     QWSIMEvent event;
 
     QWSWindow *win = keyboardGrabber ? keyboardGrabber :
-        qwsServer->focusw;
+                     qwsServer->focusw;
 
     if (current_IM_State == InputMethodCompose && current_IM_win)
         win = current_IM_win;
 
     event.simpleData.window = win ? win->winId() : 0;
-    event.simpleData.type = state;
-    event.simpleData.cpos = cpos;
-    event.simpleData.selLen = selLen;
-    event.simpleData.textLen = txt.length();
+    event.simpleData.replaceFrom = 0;
+    event.simpleData.replaceLength = 0;
 
-    char * tmp=(char *)txt.unicode();
-    event.setData(tmp, event.simpleData.textLen*2);
+    QString pre = (state == InputMethodEnd) ? QString() : txt;
+    QString com = (state == InputMethodEnd) ? txt : QString();
+
+    QBuffer buffer;
+    buffer.open(QIODevice::WriteOnly);
+    QDataStream out(&buffer);
+
+    out << pre;
+    out << com;
+
+    if (state != InputMethodEnd) {
+        if (cpos > 0)
+            out << int(QInputMethodEvent::TextFormat) << 0 <<cpos << QVariant(int(QInputContext::PreeditFormat));
+
+        if (selLen)
+            out << int(QInputMethodEvent::TextFormat) << cpos << selLen << QVariant(int(QInputContext::SelectionFormat));
+        if (cpos + selLen < txt.length())
+            out << int(QInputMethodEvent::TextFormat) << cpos + selLen << txt.length() - cpos - selLen
+                << QVariant(int(QInputContext::PreeditFormat));
+
+        out << int(QInputMethodEvent::Cursor) << cpos << 0 << QVariant();
+    }
+
+    event.setData(buffer.data(), buffer.size());
 
     QWSClient *serverClient = qwsServer->clientMap[-1];
     if (serverClient)
-       serverClient->sendEvent(&event);
+        serverClient->sendEvent(&event);
     if (win && win->client() && win->client() != serverClient)
-       win->client()->sendEvent(&event);
+        win->client()->sendEvent(&event);
 
     current_IM_State = state;
     current_IM_win = win;
 }
+
+//### qt 3 support:
 
 /*!  Asks for the marked text of the current input widget. If there is
   a current input widget, and it has marked text, and it supports the
@@ -1587,27 +1616,26 @@ void QWSServer::sendIMEvent(IMState state, const QString& txt, int cpos, int sel
 */
 void QWSServer::requestMarkedText()
 {
+#if 0
+
+//###implement IM Query
+
     if (!qwsServer)
         return;
-    qwsServer->manager()->addProperty(0, QT_QWS_PROPERTY_MARKEDTEXT);
 
-    QWSIMEvent event;
+    QWSIMQueryEvent event;
     QWSWindow *win = keyboardGrabber ? keyboardGrabber :
         qwsServer->focusw;
 
     event.simpleData.window = win ? win->winId() : 0;
-    event.simpleData.type = IMMarkedText;
-    event.simpleData.cpos = 0;
-    event.simpleData.selLen = 0;
-    event.simpleData.textLen = 0;
-    event.setData(0, 0);
+    event.simpleData.property = Qt::ImCurrentSelection;
 
     QWSClient *serverClient = qwsServer->clientMap[-1];
     if (serverClient)
        serverClient->sendEvent(&event);
     if (win && win->client() && win->client() != serverClient)
        win->client()->sendEvent(&event);
-
+#endif
 }
 
 /*!

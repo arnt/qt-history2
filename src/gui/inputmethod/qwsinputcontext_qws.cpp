@@ -5,6 +5,10 @@
 #include "qevent.h"
 #include "qtextformat.h"
 
+#include <qbuffer.h>
+
+#include <qdebug.h>
+
 #ifndef QT_NO_QWS_IM
 
 static QWidget* activeWidget = 0;
@@ -98,38 +102,50 @@ bool QWSInputContext::translateIMEvent(QWidget *w, const QWSIMEvent *e)
     if (!qic)
         return false;
 
-    QString txt(e->text, e->simpleData.textLen);
-    if (e->simpleData.type == QWSServer::InputMethodCompose) {
-        const int cpos = qMax(0, qMin(e->simpleData.cpos, int(txt.length())));
-        const int selLen = qMin(e->simpleData.selLen, int(txt.length())-cpos);
+    QString preedit;
+    QString commit;
+    QList<QInputMethodEvent::Attribute> attrs;
 
-        QList<QInputMethodEvent::Attribute> attrs;
-        if (cpos > 0)
-            attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, 0, cpos,
-                                                  qic->standardFormat(QInputContext::PreeditFormat));
-        if (selLen)
-            attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat, cpos, selLen,
-                                                  qic->standardFormat(QInputContext::SelectionFormat));
-        if (cpos + selLen < txt.length())
-            attrs << QInputMethodEvent::Attribute(QInputMethodEvent::TextFormat,
-                                                  cpos + selLen, txt.length() - cpos - selLen,
-                                                  qic->standardFormat(QInputContext::PreeditFormat));
+    QDataStream stream(e->streamingData);
 
-        attrs << QInputMethodEvent::Attribute(QInputMethodEvent::Cursor,
-                                              cpos, 0, QVariant());
+    stream >> preedit;
+    stream >> commit;
 
-        QInputMethodEvent ime(txt, attrs);
-        qt_sendSpontaneousEvent(w, &ime);
-        if (txt.length() > 0)
-            ::activeWidget = w;
-        else
-            ::activeWidget = 0;
-    } else if (e->simpleData.type == QWSServer::InputMethodEnd) {
-        QInputMethodEvent ime;
-        ime.setCommitString(txt);
-        qt_sendSpontaneousEvent(::activeWidget ? ::activeWidget : w, &ime);
-        ::activeWidget = 0;
+    while (!stream.atEnd()) {
+        int type = -1;
+        int start = -1;
+        int length = -1;
+        QVariant data;
+        stream >> type >> start >> length >> data;
+        if (stream.status() != QDataStream::Ok) {
+            qWarning("corrupted QWSIMEvent");
+            //qic->reset(); //???
+            return false;
+        }
+        if (type == QInputMethodEvent::TextFormat)
+            data = QVariant(qic->standardFormat(static_cast<QInputContext::StandardFormat>(data.toInt())));
+        attrs << QInputMethodEvent::Attribute(static_cast<QInputMethodEvent::AttributeType>(type), start, length, data);
     }
+
+    qDebug() << "preedit" << preedit << "len" << preedit.length() <<"commit" << commit << "len" << commit.length()
+             << "n attr" << attrs.count();
+
+
+
+    QInputMethodEvent ime(preedit, attrs);
+    if (!commit.isEmpty() || e->simpleData.replaceLength > 0)
+        ime.setCommitString(commit, e->simpleData.replaceFrom, e->simpleData.replaceLength);
+
+    if (preedit.isEmpty() && ::activeWidget)
+        w = ::activeWidget;
+
+    qt_sendSpontaneousEvent(w, &ime);
+
+    if (preedit.isEmpty())
+        ::activeWidget = 0;
+    else
+        ::activeWidget = w;
+
     return true;
 }
 
