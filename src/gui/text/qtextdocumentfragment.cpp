@@ -63,24 +63,25 @@ void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
     int defaultBlockFormat = formats->indexForFormat(cursor.blockFormat());
     int defaultCharFormat = formats->indexForFormat(cursor.charFormat());
 
-    Q_FOREACH(const TextFragment &f, fragments) {
-            int blockFormatIdx = -2;
-            if (f.blockFormat >= 0)
-                blockFormatIdx = formatIndexMap.value(f.blockFormat, -1);
-            else if (f.blockFormat == -1)
-                blockFormatIdx = defaultBlockFormat;
-            int formatIdx;
-            if (f.charFormat != -1)
-                formatIdx = formatIndexMap.value(f.charFormat, -1);
-            else
-                formatIdx = defaultCharFormat;
+    for (int i = 0; i < fragments.count(); ++i) {
+        const TextFragment &f = fragments.at(i);
+        int blockFormatIdx = -2;
+        if (f.blockFormat >= 0)
+            blockFormatIdx = formatIndexMap.value(f.blockFormat, -1);
+        else if (f.blockFormat == -1)
+            blockFormatIdx = defaultBlockFormat;
+        int formatIdx;
+        if (f.charFormat != -1)
+            formatIdx = formatIndexMap.value(f.charFormat, -1);
+        else
+            formatIdx = defaultCharFormat;
 
-            QString text = QString::fromRawData(localBuffer.constData() + f.position, f.size);
+        QString text = QString::fromRawData(localBuffer.constData() + f.position, f.size);
 
-            if (blockFormatIdx == -2)
-                destPieceTable->insert(cursor.position(), text, formatIdx);
-            else
-                destPieceTable->insertBlock(text.at(0), cursor.position(), blockFormatIdx, formatIdx);
+        if (blockFormatIdx == -2)
+            destPieceTable->insert(cursor.position(), text, formatIdx);
+        else
+            destPieceTable->insertBlock(text.at(0), cursor.position(), blockFormatIdx, formatIdx);
     }
 
     // ### UNDO
