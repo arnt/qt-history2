@@ -494,7 +494,10 @@ void Q3SocketDevice::setError( Error err )
 /*! \fn Q3SocketDevice::readBlock(char *data, Q_ULONG maxlen)
 
     Reads \a maxlen bytes from the socket into \a data and returns the
-    number of bytes read. Returns -1 if an error occurred.
+    number of bytes read. Returns -1 if an error occurred. Returning 0
+    is not an error. For Stream sockets, 0 is returned when the remote
+    host closes the connection. For Datagram sockets, 0 is a valid
+    datagram size.
 */
 
 /*! \fn Q3SocketDevice::writeBlock(const char *data, Q_ULONG len)
