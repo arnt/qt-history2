@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcol_win.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qcol_win.cpp#4 $
 **
 ** Implementation of QColor class for Windows + NT
 **
@@ -15,7 +15,7 @@
 #include <windows.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcol_win.cpp#3 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcol_win.cpp#4 $";
 #endif
 
 
@@ -134,6 +134,7 @@ QColor::~QColor()
 bool QColor::alloc()				// allocate color
 {
     rgb &= RGB_MASK;
+    pix = rgb;
     return TRUE;
 }
 
