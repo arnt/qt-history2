@@ -29,7 +29,7 @@ public:
 
     void release(int n = 1);
 
-    int value() const;
+    int available() const;
 
 private:
     Q_DISABLE_COPY(QSemaphore)

@@ -1,0 +1,45 @@
+/*!
+    \example threads/semaphores
+    \title Semaphores Example
+
+    The Semaphores example shows how to use a QSemaphore to control
+    access to a circular buffer shared by a producer thread and a
+    consumer thread.
+
+    The producer writes data to the buffer until it reaches the end
+    of the buffer, at which point it restarts from the beginning,
+    overwriting existing data. The consumer thread reands the data as
+    it is produced.
+
+    Semaphores make it possible to have a higher level of concurrency
+    than mutexes. If accesses to the buffer were guarded by a QMutex,
+    the consumer thread couldn't access the buffer at the same time
+    as the producer thread. Yet, there is no harm in having both
+    threads working on \e{different parts} of the buffer at the same
+    time. We'll see how QSemaphore solves this problem.
+
+    The example consists of two classes: \c Producer and \c Customer.
+    Both inherit from QThread.
+
+    \section1 Global Variables
+
+    \quotefromfile threads/semaphores/semaphores.cpp
+    \skipto const int DataSize
+    \printuntil usedSpace;
+
+    \section1 Producer Class
+
+    \printline class Producer
+    \printuntil /^\}$/
+
+    \section1 Consumer Class
+
+    \printline class Producer
+    \printuntil /^\}$/
+
+    \section1 The main() Function
+
+    \printline int main(
+    \printuntil /^\}$/
+
+*/

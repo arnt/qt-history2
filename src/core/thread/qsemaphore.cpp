@@ -17,61 +17,82 @@
 #include "qwaitcondition.h"
 
 /*!
-    \class QSemaphore qsemaphore.h
+    \class QSemaphore
     \threadsafe
-    \brief The QSemaphore class provides a robust integer semaphore.
+    \brief The QSemaphore class provides a general counting semaphore.
 
     \ingroup thread
     \ingroup environment
     \mainclass
 
-    A QSemaphore can be used to serialize thread execution, in a
-    similar way to a QMutex. A semaphore differs from a mutex, in
-    that a semaphore can be accessed by more than one thread at a
-    time.
+    A semaphore is a generalization of a mutex. While a mutex can
+    only be locked once, it's possible to acquire a semaphore
+    multiple times. Semaphores are typically used to protect a
+    certain number of identical resources.
 
-    For example, suppose we have an application that stores data in a
-    large tree structure. The application creates 10 threads
-    (commonly called a thread pool) to perform searches on the tree.
-    When the application searches the tree for some piece of data, it
-    uses one thread per base node to do the searching. A semaphore
-    could be used to make sure that two threads don't try to search
-    the same branch of the tree at the same time.
+    Semaphores support two fundamental operations, acquire() and
+    release():
+
+    \list
+    \o acquire(\e{n}) tries to acquire \e n resources. If there aren't
+       that many resources available, the call will block until this
+       is the case.
+    \o release(\e{n}) releases \e n resources.
+    \endlist
+
+    There's also a tryAcquire() function that returns immediately if
+    it cannot acquire the resources, and an available() function that
+    returns the number of available resources at any time.
+
+    Example:
+
+    \code
+        QSemaphore sem(5);      // sem.available() == 5
+
+        sem.acquire(3);         // sem.available() == 2
+        sem.acquire(2);         // sem.available() == 0
+        sem.release(5);         // sem.available() == 5
+        sem.release(5);         // sem.available() == 10
+
+        sem.tryAcquire(1);      // sem.available() == 9, returns true
+        sem.tryAcquire(250);    // sem.available() == 9, returns false
+    \endcode
+
+    A typical application of semaphores is for controlling access to
+    a circular buffer shared by a producer thread and a consumer
+    thread. The \l{threads/semaphores}{Semaphores} example shows how
+    to use QSemaphore to solve that problem.
 
     A non-computing example of a semaphore would be dining at a
-    restaurant. A semaphore is initialized to have a maximum count
-    equal to the number of chairs in the restaurant. As people
-    arrive, they want a seat. As seats are filled, the semaphore is
-    accessed, once per person. As people leave, the access is
-    released, allowing more people to enter. If a party of 10 people
-    want to be seated, but there are only 9 seats, those 10 people
-    will wait, but a party of 4 people would be seated (taking the
-    available seats to 5, making the party of 10 people wait longer).
+    restaurant. A semaphore is initialized with the number of chairs
+    in the restaurant. As people arrive, they want a seat. As seats
+    are filled, available() is decremented. As people leave, the
+    available() is incremented, allowing more people to enter. If a
+    party of 10 people want to be seated, but there are only 9 seats,
+    those 10 people will wait, but a party of 4 people would be
+    seated (taking the available seats to 5, making the party of 10
+    people wait longer).
 
-    When a semaphore is created it is given a number which is the
-    maximum number of concurrent accesses it will permit. This amount
-    may be changed using operator++(), operator--(), operator+=() and
-    operator-=(). The number of accesses allowed is retrieved with
-    available(), and the total number with total(). Note that the
-    incrementing functions will block if there aren't enough available
-    accesses. Use tryAccess() if you want to acquire accesses without
-    blocking.
+    \sa QMutex, QWaitCondition
 */
 
 class QSemaphorePrivate {
 public:
     inline QSemaphorePrivate(int n)
-        : mutex(false), value(n)
+        : mutex(false), avail(n)
     { }
 
     QMutex mutex;
     QWaitCondition cond;
 
-    int value;
+    int avail;
 };
 
 /*!
-    Creates a new semaphore, initialize its value to \a n.
+    Creates a new semaphore and initializes the number of resources
+    it guards to \a n (by default, 0).
+
+    \sa release(), available()
 */
 QSemaphore::QSemaphore(int n)
 {
@@ -89,52 +110,77 @@ QSemaphore::~QSemaphore()
 { delete d; }
 
 /*!
-    Try to get access to the semaphore. If \l available() \< \a n,
-    this call will block until it can get all the accesses it wants,
-    i.e.  until available() \>= \a n.
+    Tries to acquire \c n resources guarded by the semaphore. If \a n
+    > available(), this call will block until enough resources are
+    available.
+
+    \sa release(), available(), tryAcquire()
 */
 void QSemaphore::acquire(int n)
 {
     Q_ASSERT_X(n >= 0, "QSemaphore::acquire", "parameter 'n' must be non-negative");
     QMutexLocker locker(&d->mutex);
-    while (n > d->value)
+    while (n > d->avail)
         d->cond.wait(locker.mutex());
-    d->value -= n;
+    d->avail -= n;
 }
 
 /*!
-    Release \a n accesses to the semaphore.
+    Releases \a n resources guarded by the semaphore.
+
+    This function can be used to "create" resources as well. For
+    example:
+
+    \code
+        QSemaphore sem(5);      // a semaphore that guards 5 resources
+        sem.acquire(5);         // acquire all 5 resources
+        sem.release(5);         // release the 5 resources
+        sem.release(10);        // "create" 10 new resources
+    \endcode
+
+    \sa acquire(), available()
 */
 void QSemaphore::release(int n)
 {
     Q_ASSERT_X(n >= 0, "QSemaphore::release", "parameter 'n' must be non-negative");
     QMutexLocker locker(&d->mutex);
-    d->value += n;
+    d->avail += n;
     d->cond.wakeAll();
 }
 
 /*!
-    Returns the number of accesses currently available to the
-    semaphore.
+    Returns the number of resources currently available to the
+    semaphore. This number can never be negative.
+
+    \sa acquire(), release()
 */
-int QSemaphore::value() const
+int QSemaphore::available() const
 {
     QMutexLocker locker(&d->mutex);
-    return d->value;
+    return d->avail;
 }
 
 /*!
-    Try to get access to the semaphore. If \l available() \< \a n,
-    this function will return false immediately. If \l available() \>=
-    \a n, this function will take \a n accesses and return true. This
-    function does \e not block.
+    Try to acquire \c n resources guarded by the semaphore and
+    returns true on success. If available() < \a n, this call
+    immediately returns false without acquiring any resources.
+
+    Example:
+
+    \code
+        QSemaphore sem(5);      // sem.available() == 5
+        sem.tryAcquire(250);    // sem.available() == 5, returns false
+        sem.tryAcquire(3);      // sem.available() == 2, returns true
+    \endcode
+
+    \sa acquire()
 */
 bool QSemaphore::tryAcquire(int n)
 {
     Q_ASSERT_X(n >= 0, "QSemaphore::tryAcquire", "parameter 'n' must be non-negative");
     QMutexLocker locker(&d->mutex);
-    if (n > d->value)
+    if (n > d->avail)
         return false;
-    d->value -= n;
+    d->avail -= n;
     return true;
 }

@@ -79,7 +79,8 @@
     \section1 Thread Examples
 
     \list
-    \o \l{thread/mandelbrot}{Mandelbrot}\raisedaster
+    \o \l{threads/mandelbrot}{Mandelbrot}\raisedaster
+    \o \l{threads/semaphores}{Semaphores}
     \endlist
 
     \section1 Network Examples
