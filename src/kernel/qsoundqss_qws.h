@@ -34,8 +34,8 @@
 #define QSOUNDQSS_QWS_H
 
 #ifndef QT_H
-#include <qserversocket.h>
-#include <qsocket.h>
+#include "qserversocket.h"
+#include "qsocket.h"
 #endif // QT_H
 
 #ifndef QT_NO_SOUND

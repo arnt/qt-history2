@@ -39,7 +39,7 @@
 #define QGL_H
 
 #ifndef QT_H
-#include <qwidget.h>
+#include "qwidget.h"
 #include "qglcolormap.h"
 #endif // QT_H
 
@@ -59,7 +59,7 @@ QM_EXPORT_OPENGL inline const char *qGLVersion() {
 #endif
 
 #if defined(Q_WS_WIN)
-# include <qt_windows.h>
+# include "qt_windows.h"
 #endif
 
 #if defined(Q_WS_MAC)

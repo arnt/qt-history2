@@ -37,7 +37,7 @@
 #define QCLEANUPHANDLER_H
 
 #ifndef QT_H
-#include <qptrlist.h>
+#include "qptrlist.h"
 #endif // QT_H
 
 template<class Type>

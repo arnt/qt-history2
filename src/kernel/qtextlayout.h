@@ -1,8 +1,8 @@
 #ifndef QTEXTLAYOUT_H
 #define QTEXTLAYOUT_H
 
-#include <qstring.h>
-#include <qnamespace.h>
+#include "qstring.h"
+#include "qnamespace.h"
 
 class QTextEngine;
 class QFont;

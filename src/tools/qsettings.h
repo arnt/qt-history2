@@ -39,8 +39,8 @@
 #define QSETTINGS_H
 
 #ifndef QT_H
-#include <qdatetime.h>
-#include <qstringlist.h>
+#include "qdatetime.h"
+#include "qstringlist.h"
 #endif // QT_H
 
 #ifndef QT_NO_SETTINGS

@@ -114,5 +114,5 @@ public:
 #endif
 
 #define Q_DEFINED_QMEMARRAY
-#include <qwinexport.h>
+#include "qwinexport.h"
 #endif // QARRAY_H

@@ -45,7 +45,7 @@
 
 #ifndef QT_NO_STYLE_INTERLACE
 
-#include <qpalette.h>
+#include "qpalette.h"
 
 class Q_EXPORT QInterlaceStyle : public QMotifStyle
 {

@@ -37,8 +37,8 @@
 #include "qwscommand_qws.h"
 #include "qwsutils_qws.h"
 
-#include <qapplication.h>
-#include <qpointarray.h>
+#include "qapplication.h"
+#include "qpointarray.h"
 
 #include <unistd.h>
 #include <stdlib.h>
@@ -49,7 +49,7 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#include <qgfx_qws.h>
+#include "qgfx_qws.h"
 
 #ifdef Q_OS_QNX6
 

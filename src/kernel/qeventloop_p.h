@@ -55,7 +55,7 @@
 class QSocketNotifier;
 
 #if defined(Q_OS_UNIX) || defined (Q_WS_WIN)
-#include <qptrlist.h>
+#include "qptrlist.h"
 #endif // Q_OS_UNIX || Q_WS_WIN
 
 #if defined(Q_OS_UNIX)

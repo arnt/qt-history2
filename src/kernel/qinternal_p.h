@@ -50,8 +50,8 @@
 //
 //
 #ifndef QT_H
-#include <qnamespace.h>
-#include <qrect.h>
+#include "qnamespace.h"
+#include "qrect.h"
 #endif // QT_H
 
 class QWidget;

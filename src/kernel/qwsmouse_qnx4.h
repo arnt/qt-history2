@@ -40,9 +40,9 @@
 #include "qwsutils_qws.h"
 #include "qwsmouse_qws.h"
 
-#include <qapplication.h>
-#include <qpointarray.h>
-#include <qgfx_qws.h>
+#include "qapplication.h"
+#include "qpointarray.h"
+#include "qgfx_qws.h"
 
 
 #ifndef QQNX4MOUSEHANDLERPRIVATEIMPL

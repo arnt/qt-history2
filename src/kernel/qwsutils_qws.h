@@ -34,7 +34,7 @@
 #define QWSUTILS_QWS_H
 
 #ifndef QT_H
-#include <qwssocket_qws.h>
+#include "qwssocket_qws.h"
 #endif // QT_H
 
 /********************************************************************

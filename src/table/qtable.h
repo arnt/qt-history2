@@ -38,16 +38,16 @@
 #define QTABLE_H
 
 #ifndef QT_H
-#include <qscrollview.h>
-#include <qpixmap.h>
-#include <qptrvector.h>
-#include <qheader.h>
-#include <qmemarray.h>
-#include <qptrlist.h>
-#include <qguardedptr.h>
-#include <qshared.h>
-#include <qintdict.h>
-#include <qstringlist.h>
+#include "qscrollview.h"
+#include "qpixmap.h"
+#include "qptrvector.h"
+#include "qheader.h"
+#include "qmemarray.h"
+#include "qptrlist.h"
+#include "qguardedptr.h"
+#include "qshared.h"
+#include "qintdict.h"
+#include "qstringlist.h"
 #endif // QT_H
 
 

@@ -38,7 +38,7 @@
 #ifndef QJPEGIO_H
 #define QJPEGIO_H
 
-#include <qglobal.h>
+#include "qglobal.h"
 
 #ifndef QT_NO_IMAGEIO_JPEG
 

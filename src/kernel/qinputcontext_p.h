@@ -49,7 +49,7 @@
 //
 //
 
-#include <qglobal.h>
+#include "qglobal.h"
 
 class QKeyEvent;
 class QWidget;
@@ -64,7 +64,7 @@ class QString;
 #endif
 
 #ifdef Q_WS_WIN
-#include <qt_windows.h>
+#include "qt_windows.h"
 #endif
 
 #ifdef Q_WS_QWS

@@ -34,11 +34,11 @@
 #define QWINDOWSYSTEM_QWS_H
 
 #ifndef QT_H
-#include <qwssocket_qws.h>
-#include <qmap.h>
-#include <qdatetime.h>
-#include <qptrlist.h>
-#include <qimage.h>
+#include "qwssocket_qws.h"
+#include "qmap.h"
+#include "qdatetime.h"
+#include "qptrlist.h"
+#include "qimage.h"
 
 #include "qwsproperty_qws.h"
 #include "qwscommand_qws.h"

@@ -39,15 +39,15 @@
 #define QICONVIEW_H
 
 #ifndef QT_H
-#include <qscrollview.h>
-#include <qstring.h>
-#include <qrect.h>
-#include <qpoint.h>
-#include <qsize.h>
-#include <qfont.h> // QString->QFont conversion
-#include <qdragobject.h>
-#include <qbitmap.h>
-#include <qpicture.h>
+#include "qscrollview.h"
+#include "qstring.h"
+#include "qrect.h"
+#include "qpoint.h"
+#include "qsize.h"
+#include "qfont.h" // QString->QFont conversion
+#include "qdragobject.h"
+#include "qbitmap.h"
+#include "qpicture.h"
 #endif // QT_H
 
 #ifndef QT_NO_ICONVIEW

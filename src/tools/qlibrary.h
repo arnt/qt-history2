@@ -39,7 +39,7 @@
 #define QLIBRARY_H
 
 #ifndef QT_H
-#include <qstring.h>
+#include "qstring.h"
 #endif // QT_H
 
 #ifndef QT_NO_LIBRARY

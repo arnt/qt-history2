@@ -35,10 +35,10 @@
 #include "qwsutils_qws.h"
 #include "qgfx_qws.h"
  
-#include <qapplication.h>
-#include <qsocketnotifier.h>
-#include <qnamespace.h>
-#include <qtimer.h>
+#include "qapplication.h"
+#include "qsocketnotifier.h"
+#include "qnamespace.h"
+#include "qtimer.h"
  
 #include <stdlib.h>
 #include <stdio.h>
@@ -56,7 +56,7 @@
 #define QWSQNX6KB_H
 
 #include <sys/dcmd_input.h> 
-#include <qkeyboard_qws.h>
+#include "qkeyboard_qws.h"
 
 class QWSQnx6KeyboardHandler : public QWSKeyboardHandler
 {

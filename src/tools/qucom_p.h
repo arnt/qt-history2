@@ -51,7 +51,7 @@
 //
 
 #ifndef QT_H
-#include <qstring.h>
+#include "qstring.h"
 #include "quuid.h"
 #endif // QT_H
 

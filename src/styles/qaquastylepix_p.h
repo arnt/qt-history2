@@ -47,7 +47,7 @@
 #ifndef QT_NO_STYLE_AQUA
 
 #ifndef QT_H
-# include <qpixmapcache.h>
+# include "qpixmapcache.h"
 #endif // QT_H
 
 enum AquaMode {

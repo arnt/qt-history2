@@ -1,9 +1,9 @@
 #ifndef QTEXTENGINE_P_H
 #define QTEXTENGINE_P_H
 
-#include <qglobal.h>
-#include <qstring.h>
-#include <qnamespace.h>
+#include "qglobal.h"
+#include "qstring.h"
+#include "qnamespace.h"
 #include <private/qfontdata_p.h>
 
 #include <stdlib.h>

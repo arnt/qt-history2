@@ -22,6 +22,6 @@
 *****************************************************************************/
 #ifndef QOBJCOLL_H
 #define QOBJCOLL_H
-#include <qobjectlist.h>
-#include <qobjectdict.h>
+#include "qobjectlist.h"
+#include "qobjectdict.h"
 #endif

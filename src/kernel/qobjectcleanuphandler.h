@@ -37,7 +37,7 @@
 #define QOBJECTCLEANUPHANDLER_H
 
 #ifndef QT_H
-#include <qobject.h>
+#include "qobject.h"
 #endif // QT_H
 
 class QObjectList;

@@ -39,9 +39,9 @@
 #define QFONTDATA_P_H
 
 #ifndef QT_H
-#include <qcache.h>
-#include <qobject.h>
-#include <qpaintdevice.h>
+#include "qcache.h"
+#include "qobject.h"
+#include "qpaintdevice.h"
 #endif // QT_H
 #include <limits.h>
 
@@ -60,10 +60,10 @@
 class QPaintDevice;
 
 #ifdef Q_WS_WIN
-#include <qt_windows.h>
+#include "qt_windows.h"
 #endif
 
-#include <qfont.h>
+#include "qfont.h"
 
 // font description
 struct QFontDef {

@@ -49,12 +49,12 @@
 //
 
 #ifndef QT_H
-#include <qstring.h>
-#include <qpointarray.h>
-#include <qfont.h>
-#include <qpainter.h>
-#include <qptrlist.h>
-#include <qshared.h>
+#include "qstring.h"
+#include "qpointarray.h"
+#include "qfont.h"
+#include "qpainter.h"
+#include "qptrlist.h"
+#include "qshared.h"
 #endif // QT_H
 
 #ifndef QT_NO_COMPLEXTEXT

@@ -21,7 +21,7 @@ enum IndicFeatures {
 };
 
 #ifdef Q_WS_X11
-#include <qt_x11.h>
+#include "qt_x11.h"
 
 #ifndef QT_NO_XFTFREETYPE
 #include <freetype/freetype.h>

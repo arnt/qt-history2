@@ -45,8 +45,8 @@
 //
 
 #ifndef QT_H
-# include <qstyle.h>
-# include <qwidget.h>
+# include "qstyle.h"
+# include "qwidget.h"
 #endif // QT_H
 
 class QAquaFocusWidget : public QWidget

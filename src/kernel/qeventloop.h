@@ -36,8 +36,8 @@
 #ifndef QEVENTLOOP_H
 #define QEVENTLOOP_H
 
-#include <qobject.h>
-#include <qsocketnotifier.h>
+#include "qobject.h"
+#include "qsocketnotifier.h"
 
 class QEventLoopPrivate;
 class QSocketNotifier;

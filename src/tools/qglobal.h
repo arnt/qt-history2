@@ -717,17 +717,17 @@ class QDataStream;
 
 #if !defined(QT_MOC)
 #if defined(QCONFIG_LOCAL)
-#include <qconfig-local.h>
+#include "qconfig-local.h"
 #elif defined(QCONFIG_MINIMAL)
-#include <qconfig-minimal.h>
+#include "qconfig-minimal.h"
 #elif defined(QCONFIG_SMALL)
-#include <qconfig-small.h>
+#include "qconfig-small.h"
 #elif defined(QCONFIG_MEDIUM)
-#include <qconfig-medium.h>
+#include "qconfig-medium.h"
 #elif defined(QCONFIG_LARGE)
-#include <qconfig-large.h>
+#include "qconfig-large.h"
 #else // everything...
-#include <qconfig.h>
+#include "qconfig.h"
 #endif
 #endif
 
@@ -790,7 +790,7 @@ class QDataStream;
 #endif
 
 #ifndef QT_H
-#include <qfeatures.h>
+#include "qfeatures.h"
 #endif // QT_H
 
 

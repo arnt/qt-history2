@@ -73,11 +73,11 @@
 #undef OLD_DEBUG
 
 #ifdef Q_WS_MAC
-#include <qpainter.h>
-#include <qwidget.h>
+#include "qpainter.h"
+#include "qwidget.h"
 extern int mac_window_count; //qwidget_mac.cpp
 #ifdef QT_THREAD_SUPPORT
-#include <qthread.h>
+#include "qthread.h"
 extern QMutex *qt_mac_port_mutex; //qapplication_mac.cpp
 #endif
 
@@ -201,8 +201,8 @@ public:
 };
 
 
-#include <qptrlist.h>
-#include <qpaintdevice.h>
+#include "qptrlist.h"
+#include "qpaintdevice.h"
 extern QPaintDevice *qt_mac_safe_pdev; //qapplication_mac.cpp
 extern QPainter *qt_mac_current_painter; //qpainter_mac.cpp
 class QMacSavedPortInfo

@@ -33,11 +33,11 @@
 
 #include <display.h>
 #include <disputil.h>
-#include <qgfxraster_qws.h>
-#include <qgfx_qws.h>
-#include <qpolygonscanner.h>
-#include <qpen.h>
-#include <qstring.h>
+#include "qgfxraster_qws.h"
+#include "qgfx_qws.h"
+#include "qpolygonscanner.h"
+#include "qpen.h"
+#include "qstring.h"
 
 // QnxFb Gfx class
 template <const int depth, const int type>
