@@ -152,7 +152,6 @@ static void qAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl
     for (int i = start; i <= stop; i++) {
         unsigned short uc = text[i].unicode();
         int s = QUnicodeTables::script(text[i]);
-        QChar::Category category = ::category(uc);
         if (uc == QChar::ObjectReplacementCharacter || uc == QChar::LineSeparator) {
             item.analysis.bidiLevel = level % 2 ? level-1 : level;
             item.analysis.script = QUnicodeTables::Common;
@@ -164,8 +163,8 @@ static void qAppendItems(QTextEngine *engine, int &start, int &stop, BidiControl
             item.isTab = true;
             item.analysis.bidiLevel = control.baseLevel();
             s = -1;
-        } else if (s != script && (category != QChar::Mark_NonSpacing || script == -1)) {
-            item.analysis.script = s;
+        } else if (s != script && (s != QUnicodeTables::Inherited || script == -1)) {
+            item.analysis.script = s == QUnicodeTables::Inherited ? QUnicodeTables::Common : s;
             item.analysis.bidiLevel = level;
         } else {
             continue;

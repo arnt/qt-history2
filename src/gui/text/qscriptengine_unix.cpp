@@ -17,6 +17,8 @@
 //
 // ------------------------------------------------------------------------------------------------------------------
 
+#include <qdebug.h>
+
 // #### stil missing: identify invalid character combinations
 static bool hebrew_shape(QShaperItem *item)
 {
@@ -1456,6 +1458,8 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
         }
 
     }
+
+    int nglyphs = item->num_glyphs;
     if (!item->font->stringToCMap((const QChar *)reordered.data(), len, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
         return false;
 
@@ -1600,6 +1604,7 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
 
         openType->applyGPOSFeatures();
 
+        item->num_glyphs = nglyphs;
         if (!openType->appendTo(item, false))
             return false;
 
@@ -1660,6 +1665,8 @@ static int indic_nextSyllableBoundary(int script, const QString &s, int start, i
             newState = state;
  	    if (state == Halant && uc[pos].unicode() == 0x200d /* ZWJ */)
   		break;
+            // the control character should be the last char in the item
+            ++pos;
             goto finish;
         case Consonant:
 	    if (state == Halant && (script != QUnicodeTables::Sinhala || uc[pos-1].unicode() == 0x200d /* ZWJ */))
@@ -1963,8 +1970,10 @@ static bool tibetan_shape_syllable(QOpenType *openType, QShaperItem *item, bool 
         str = (QChar *)reordered.data();
     }
 
+    int nglyphs = item->num_glyphs;
     if (!item->font->stringToCMap(str, len, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
         return false;
+
     for (i = 0; i < item->length; i++) {
         item->glyphs[i].attributes.mark = false;
         item->glyphs[i].attributes.clusterStart = false;
@@ -1994,6 +2003,7 @@ static bool tibetan_shape_syllable(QOpenType *openType, QShaperItem *item, bool 
         openType->applyGSUBFeature(FT_MAKE_TAG('b', 'l', 'w', 's'));
         openType->applyGPOSFeatures();
 
+        item->num_glyphs = nglyphs;
         return openType->appendTo(item, false);
     }
 #endif
@@ -2427,6 +2437,7 @@ static bool khmer_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
     }
 
     KHDEBUG("after shaping: len=%d", len);
+    int nglyphs = item->num_glyphs;
     if (!item->font->stringToCMap((QChar *)reordered, len, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
         return false;
     for (i = 0; i < len; i++) {
@@ -2479,6 +2490,7 @@ static bool khmer_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
 
         openType->applyGPOSFeatures();
 
+        item->num_glyphs = nglyphs;
         return openType->appendTo(item, false);
     }
 #endif
@@ -2702,6 +2714,7 @@ static bool hangul_shape_syllable(QOpenType *openType, QShaperItem *item)
         len = 1;
     }
 
+    int nglyphs = item->num_glyphs;
     if (!item->font->stringToCMap(ch, len, item->glyphs, &item->num_glyphs, QFlag(item->flags)))
         return false;
     for (i = 0; i < len; i++) {
@@ -2735,6 +2748,7 @@ static bool hangul_shape_syllable(QOpenType *openType, QShaperItem *item)
             openType->applyGSUBFeature(*f++);
         openType->applyGPOSFeatures();
 
+        item->num_glyphs = nglyphs;
         return openType->appendTo(item, false);
 
     }

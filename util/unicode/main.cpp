@@ -880,7 +880,8 @@ QByteArray createScriptEnumDeclaration()
         "Telugu",
         "Thaana",
         "Thai",
-        "Tibetan"
+        "Tibetan",
+        "Inherited"
     };
     const int specialScriptsCount = sizeof(specialScripts) / sizeof(const char *);
 
@@ -912,7 +913,7 @@ QByteArray createScriptEnumDeclaration()
         declaration += ",\n    ";
         declaration += scriptName;
     }
-    declaration += ",\n    ScriptCount";
+    declaration += ",\n    ScriptCount = Inherited";
 
     // output the ones that are an alias for 'Common'
     for (int i = 1; i < scriptNames.size(); ++i) {
