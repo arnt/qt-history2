@@ -147,7 +147,7 @@ QSqlField::QSqlField(const QString& fieldName,
               QCoreVariant::Type type)
 {
     d = new QSqlFieldPrivate(fieldName, type);
-    val.cast(type);
+    val = QCoreVariant(type);
 }
 
 /*!
