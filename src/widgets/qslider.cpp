@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#16 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#17 $
 **
 ** Implementation of QSlider class
 **
@@ -15,7 +15,7 @@
 #include "qtimer.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#16 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#17 $");
 
 static const int motifBorder = 2;
 static const int motifLength = 30;
@@ -306,25 +306,27 @@ void QSlider::setOrientation( Orientation orientation )
   */
 QRect QSlider::sliderRect() const
 {
+    QRect r;
     switch ( style() ) {
     case WindowsStyle:
 	if (orient == Horizontal )
-	    return QRect ( sliderPos, tickOffset, 
-			   winLength, winThickness  );
+	    r.setRect( sliderPos, tickOffset, 
+		       winLength, winThickness  );
 	else
-	    return QRect ( tickOffset, sliderPos,
-			   winThickness, winLength  );
+	    r.setRect ( tickOffset, sliderPos,
+			winThickness, winLength  );
 	break;
     default:
     case MotifStyle:
 	if (orient == Horizontal )
-	    return QRect ( sliderPos + motifBorder, tickOffset + motifBorder, 
-			   motifLength, motifThickness - 2 * motifBorder );
+	    r.setRect ( sliderPos + motifBorder, tickOffset + motifBorder, 
+			motifLength, motifThickness - 2 * motifBorder );
 	else
-	    return QRect ( tickOffset + motifBorder, sliderPos + motifBorder, 
-			   motifThickness - 2 * motifBorder, motifLength );
+	    r.setRect ( tickOffset + motifBorder, sliderPos + motifBorder, 
+			motifThickness - 2 * motifBorder, motifLength );
 	break;
     }
+    return r;
 }
 
 /*!
