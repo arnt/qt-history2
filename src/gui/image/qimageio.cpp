@@ -417,7 +417,7 @@ void QImageIO::setFileName(const QString &fileName)
     d->device = new QFile(fileName);
     if (!d->device->open(QIODevice::ReadWrite)) {
         if (!d->device->open(QIODevice::ReadOnly)) {
-            qWarning("QImageIO::QImageIO(), unable to open %s: %s",
+            qWarning("QImageIO::QImageIO(), unable to open \"%s\": %s",
                      fileName.toLatin1().constData(), d->device->errorString().toLatin1().constData());
         }
     }
@@ -607,6 +607,11 @@ bool QImageIO::load()
 {
     if (!d->device) {
         qWarning("QImageIO::load() called with no device");
+        return false;
+    }
+
+    if (!d->device->isOpen()) {
+        qWarning("QImageIO::load() called with closed device");
         return false;
     }
 
