@@ -2777,7 +2777,7 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	// draw bullet list items
 	if ( !didListLabel && line == 0 && style() && style()->displayMode() == QStyleSheetItem::DisplayListItem ) {
 	    didListLabel = TRUE;
-	    drawLabel( &painter, leftMargin(), cy, 0, 0, baseLine, cg );
+	    drawLabel( &painter, chr->x, cy, 0, 0, baseLine, cg );
 	}
 
 	// check for cursor mark
