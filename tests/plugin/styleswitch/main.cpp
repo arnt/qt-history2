@@ -141,7 +141,7 @@ QAction* TestComponent::create( const QString& actionname, QObject* parent )
 	ag->setUsesDropDown( TRUE );
 	ag->setExclusive( TRUE );
 
-	QStringList list = QStyleFactory::styles();
+	QStringList list = QStyleFactory::keys();
 	list.sort();
 
 	if ( !styleMapper ) {
