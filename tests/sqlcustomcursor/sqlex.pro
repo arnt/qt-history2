@@ -1,6 +1,6 @@
 TEMPLATE	= app
 CONFIG		+= qt warn_on debug 
-HEADERS		= sqlex.h
-SOURCES		= main.cpp sqlex.cpp 
+SOURCES		= main.cpp 
+INTERFACES      = sqlex.ui
 TARGET		= sqlex
 REQUIRES	= full-config
