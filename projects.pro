@@ -12,7 +12,13 @@ SUBDIRS += $$QT_PROJECTS
 
 unix {
   confclean.depends += clean
-  confclean.commands += $(DEL_FILE) .qmake.cache
+  confclean.commands += $(DEL_FILE) .qmake.cache \
+			&& (cd config.tests/unix/stl && $(MAKE) distclean) \
+			&& (cd config.tests/unix/endian && $(MAKE) distclean) \
+			&& (cd config.tests/unix/ipv6 && $(MAKE) distclean) \
+			&& (cd config.tests/unix/largefile && $(MAKE) distclean) \
+			&& (cd config.tests/unix/ptrsize && $(MAKE) distclean) \
+			&& (cd config.tests/x11/notype && $(MAKE) distclean)
   QMAKE_EXTRA_UNIX_TARGETS += confclean
 }
 CONFIG -= qt
