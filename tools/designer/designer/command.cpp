@@ -2307,7 +2307,7 @@ RenameMenuCommand::RenameMenuCommand( const QString &n,
     oldName = item->menuText();
 }
 
-QString RenameMenuCommand::mangle( QString name )
+QString RenameMenuCommand::makeLegal( const QString &str )
 {
     return ( name.remove( "." ).remove( "," ).remove( "&" ).replace( '-', '_' ).replace( ' ', '_' ) +
 	     "Menu" );
@@ -2315,23 +2315,21 @@ QString RenameMenuCommand::mangle( QString name )
 
 void RenameMenuCommand::execute()
 {
-    MetaDataBase::removeEntry( item->menu() );
+    MetaDataBase::removeEntry( item );
     item->setMenuText( newName );
-    QString s = newName;
-    PopupMenuEditor *popup = item->menu();
-    popup->setName( mangle( newName ) );
-    MetaDataBase::addEntry( item->menu() );
+    QString legal = makeLegal( newName );
+    formWindow()->unify( item, legal, FALSE );
+    item->setName( legal );
+    MetaDataBase::addEntry( item );
     formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }
 
 void RenameMenuCommand::unexecute()
 {
-    MetaDataBase::removeEntry( item->menu() );
+    MetaDataBase::removeEntry( item );
     item->setMenuText( oldName );
-    // FIXME: setName to old name ?
-    PopupMenuEditor *popup = item->menu();
-    popup->setName( mangle( oldName ) );
-    MetaDataBase::addEntry( item->menu() );
+    item->setName( oldName );
+    MetaDataBase::addEntry( item );
     formWindow()->mainWindow()->objectHierarchy()->rebuild();
 }
 
