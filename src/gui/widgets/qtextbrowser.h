@@ -19,7 +19,6 @@
 #endif // QT_H
 
 class QTextBrowserPrivate;
-class QTextDocumentLoader;
 
 class QTextBrowser : public QTextEdit
                       , public QTextDocumentLoaderInterface // ### temporary

@@ -11,17 +11,15 @@
 **
 ****************************************************************************/
 
-#include "q4textbrowser.h"
-#include <private/qtextedit_p.h>
+#include "qtextbrowser.h"
+#include "qtextedit_p.h"
 #include <qstack.h>
-#include <qevent.h>
 #include <qapplication.h>
 #include <qdebug.h>
 #include <qabstracttextdocumentlayout.h>
 #include <qurl.h>
-#include <qdesktopwidget.h>
-#include <private/qtextdocumentlayout_p.h>
-#include <private/qtexthtmlparser_p.h>
+#include "private/qtextdocumentlayout_p.h"
+#include "private/qtexthtmlparser_p.h"
 #include <qtextcodec.h>
 #include <qpainter.h>
 #include <qdir.h>
