@@ -1340,7 +1340,7 @@ QString QComplexText::bidiReorderString( const QString &str, QChar::Direction /*
     return visual;
 }
 
-inline QTextRun::QTextRun(int _start, int _stop, QBidiContext *context, QChar::Direction dir) {
+QTextRun::QTextRun(int _start, int _stop, QBidiContext *context, QChar::Direction dir) {
     start = _start;
     stop = _stop;
     if(dir == QChar::DirON) dir = context->dir;
