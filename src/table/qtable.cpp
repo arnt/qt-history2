@@ -3403,15 +3403,16 @@ void QTable::contentsMousePressEventEx( QMouseEvent* e )
 	setCurrentCell( tmpRow, tmpCol, FALSE );
     } else {
 	setCurrentCell( tmpRow, tmpCol, FALSE );
-	if ( item( tmpRow, tmpCol ) &&
-	     item( tmpRow, tmpCol )->editType() == QTableItem::WhenCurrent ) {
-	    d->redirectMouseEvent = TRUE;
+	QTableItem *itm = item( tmpRow, tmpCol );
+	if ( itm && itm->editType() == QTableItem::WhenCurrent ) {
 	    QWidget *w = cellWidget( tmpRow, tmpCol );
-	    if ( w ) {
+	    if ( w &&
+		 ( w->inherits( "QComboBox" ) || w->inherits( "QButton" ) ) ) {
 		QMouseEvent ev( e->type(), w->mapFromGlobal( e->globalPos() ),
 				e->globalPos(), e->button(), e->state() );
 		QApplication::sendPostedEvents( w, 0 );
 		QApplication::sendEvent( w, &ev );
+		d->redirectMouseEvent = TRUE;
 	    }
 	}
 	if ( isSelected( tmpRow, tmpCol, FALSE ) ) {
