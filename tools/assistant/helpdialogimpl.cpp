@@ -1111,6 +1111,7 @@ void HelpDialog::showResultPage( int page )
     viewer->sync();
     viewer->setCursor( arrowCursor );
 
+    viewer->viewport()->setUpdatesEnabled( FALSE );
     int minPar = INT_MAX;
     int minIndex = INT_MAX;
     QStringList::ConstIterator it = terms.begin();
@@ -1128,5 +1129,7 @@ void HelpDialog::showResultPage( int page )
 	}
     }
     viewer->blockScrolling( FALSE );
+    viewer->viewport()->setUpdatesEnabled( TRUE );
     viewer->setCursorPosition( minPar, minIndex );
+    viewer->updateContents();
 }
