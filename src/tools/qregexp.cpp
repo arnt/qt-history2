@@ -1364,7 +1364,7 @@ void QRegExpEngine::addPlusTransitions(const QVector<int> &from, const QVector<i
 		st->reenter = new QMap<int, int>;
 	    for (int j = 0; j < (int) to.size(); j++) {
 		if (!st->reenter->contains(to[j]) &&
-		     !qBinarySearch(oldOuts, to[j]))
+		     qBinaryFind(oldOuts.begin(), oldOuts.end(), to[j]) == oldOuts.end())
 		    st->reenter->insert(to[j], atom);
 	    }
 	}

@@ -262,12 +262,6 @@ RandomAccessIterator qLowerBound(RandomAccessIterator b, RandomAccessIterator e,
     return b;
 }
 
-template <class Container, class T>
-typename Container::const_iterator qLowerBound(const Container &c, const T &value)
-{
-    return qLowerBound(c.begin(), c.end(), value);
-}
-
 template <class RandomAccessIterator, class T>
 RandomAccessIterator qUpperBound(RandomAccessIterator b, RandomAccessIterator e, const T &value)
 {
@@ -288,19 +282,13 @@ RandomAccessIterator qUpperBound(RandomAccessIterator b, RandomAccessIterator e,
     return b;
 }
 
-template <class Container, class T>
-typename Container::const_iterator qUpperBound(const Container &c, const T &value)
-{
-    return qUpperBound(c.begin(), c.end(), value);
-}
-
 template <class RandomAccessIterator, class T>
-bool qBinarySearch(RandomAccessIterator b, RandomAccessIterator e, const T &value)
+RandomAccessIterator qBinaryFind(RandomAccessIterator b, RandomAccessIterator e, const T &value)
 {
     int l = 0;
     int r = e - b - 1;
     if (r <= 0)
-	return false;
+	return e;
     int i = (l + r + 1) / 2;
     while (r != l) {
 	if (value < b[i])
@@ -309,13 +297,10 @@ bool qBinarySearch(RandomAccessIterator b, RandomAccessIterator e, const T &valu
 	    l = i;
 	i = (l + r + 1) / 2;
     }
-    return !(b[i] < value) && !(value < b[i]);
-}
-
-template <class Container, class T>
-bool qBinarySearch(const Container &c, const T &value)
-{
-    return qBinarySearch(c.begin(), c.end(), value);
+    if (b[i] < value || value < b[i])
+	return e;
+    else
+	return b + i;
 }
 
 template <class ForwardIterator>
