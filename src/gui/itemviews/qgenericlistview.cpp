@@ -237,6 +237,7 @@ void BinTree<T>::init(const QRect &area, int depth, typename BinTree::Node::Type
 QGenericListView::QGenericListView(QAbstractItemModel *model, QWidget *parent)
     : QAbstractItemView(*new QGenericListViewPrivate, model, parent)
 {
+    d->viewport->setAcceptDrops(true);
 }
 
 QGenericListView::QGenericListView(QGenericListViewPrivate &dd, QAbstractItemModel *model, QWidget *parent)
@@ -837,7 +838,7 @@ void QGenericListView::doStaticLayout(const QRect &bounds, int first, int last)
             hint = delegate->sizeHint(fontMetrics, options, item);
             dx = (gw ? gw : hint.width());
 
-            if (wrap && (x + spacing + dx >= w))
+            if (wrap && (x + spacing/* + dx*/ >= w))
                 d->createStaticRow(x, y, dy, layoutWraps, i, bounds, spacing, delta);
 
             d->xposVector.push_back(x);
@@ -858,7 +859,7 @@ void QGenericListView::doStaticLayout(const QRect &bounds, int first, int last)
             hint = delegate->sizeHint(fontMetrics, options, item);
             dy = (gh ? gh : hint.height());
 
-            if (wrap && (y + spacing + dy >= h))
+            if (wrap && (y + spacing/* + dy*/ >= h))
                 d->createStaticColumn(x, y, dx, layoutWraps, i, bounds, spacing, delta);
 
             d->yposVector.push_back(y);

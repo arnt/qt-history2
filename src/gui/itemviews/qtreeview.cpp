@@ -111,7 +111,6 @@ QTreeViewItem *QTreeModel::item(const QModelIndex &index) const
     return static_cast<QTreeViewItem *>(index.data());
 }
 
-// ### why isn't item const?
 QModelIndex QTreeModel::index(QTreeViewItem *item) const
 {
     if (!item)
@@ -127,14 +126,18 @@ QModelIndex QTreeModel::index(int row, int column, const QModelIndex &parent,
     int r = tree.count();
     if (row < 0 || row >= r || column < 0 || column >= c)
         return QModelIndex();
-    if (!parent.isValid() && row < r) {// toplevel
-        QTreeViewItem *itm = const_cast<QTreeModel*>(this)->tree[row]; // FIXME
-        return QModelIndex(row, column, itm, type);
+    if (!parent.isValid()) {// toplevel
+        QTreeViewItem *itm = const_cast<QTreeModel*>(this)->tree.at(row);
+        if (itm)
+            return QModelIndex(row, column, itm, type);
+        return QModelIndex();
     }
     QTreeViewItem *parentItem = item(parent);
     if (parentItem && row < parentItem->childCount()) {
-        QTreeViewItem *itm = static_cast<QTreeViewItem *>(parentItem->child(row)); // FIXME
-        return QModelIndex(row, column, itm, type);
+        QTreeViewItem *itm = static_cast<QTreeViewItem *>(parentItem->child(row));
+        if (itm)
+            return QModelIndex(row, column, itm, type);
+        return QModelIndex();
     }
     return QModelIndex();
 }

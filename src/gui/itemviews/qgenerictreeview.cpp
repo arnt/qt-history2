@@ -529,18 +529,20 @@ void QGenericTreeView::contentsChanged(const QModelIndex &topLeft, const QModelI
 
 void QGenericTreeView::contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
-    if (topLeft.isValid() && bottomRight.isValid())
+    if (topLeft.isValid() && bottomRight.isValid() && isVisible())
         d->relayout(model()->parent(topLeft));
 }
 
 void QGenericTreeView::contentsRemoved(const QModelIndex &parent, const QModelIndex &, const QModelIndex &)
 {
-    d->relayout(parent);
+    if (isVisible())
+        d->relayout(parent);
 }
 
 void QGenericTreeView::columnCountChanged(int, int)
 {
-    updateGeometries();
+    if (isVisible())
+        updateGeometries();
 }
 
 void QGenericTreeView::startItemsLayout()
@@ -590,6 +592,7 @@ void QGenericTreeView::updateGeometries()
     int item = d->items.count();
     if (h <= 0 || item <= 0) // if we have no viewport or no rows, there is nothing to do
         return;
+    QModelIndex index = model()->index(0, 0, 0);
     QSize def = itemDelegate()->sizeHint(fontMetrics(), options, model()->index(0, 0, 0));
     verticalScrollBar()->setPageStep(h / def.height() * verticalFactor());
     while (h > 0 && item > 0)
@@ -602,6 +605,8 @@ void QGenericTreeView::updateGeometries()
 
     int w = viewport()->width();
     int col = model()->columnCount(0);
+    if (w <= 0 || col <= 0) // if we have no viewport or no columns, there is nothing to do
+        return;
     horizontalScrollBar()->setPageStep(w / def.width() * horizontalFactor());
     while (w > 0 && col > 0)
         w -= d->header->sectionSize(--col);
