@@ -793,13 +793,8 @@ void QWidget::update( int x, int y, int w, int h )
 	if ( h < 0 )
 	    h = crect.height() - y;
 	if ( w && h ) {
-#if 0
 	    QRegion r(x, y, w, h);
 	    qt_event_request_updates(this, r);
-#else
-	    QPoint p(posInWindow(this));
-	    qt_dirty_wndw_rgn("update",this, mac_rect(QRect(p.x() + x, p.y() + y, w, h)));
-#endif
 	}
     }
 }
@@ -1299,9 +1294,6 @@ void QWidget::erase( const QRegion& reg )
     } else {
 	p.fillRect(rr, bg_col);
     }
-#if 0
-    p.flush();
-#endif
     p.end();
 }
 
@@ -1527,12 +1519,13 @@ void QWidget::propagateUpdates()
     QRegion rgn(false);
     GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, (RgnHandle)rgn.handle());
     if(!rgn.isEmpty()) {
-	rgn.translate(-topLevelWidget()->geometry().x(), -topLevelWidget()->geometry().y());
-	debug_wndw_rgn("*****propagatUpdates", topLevelWidget(), rgn);
+	rgns.translate(-topLevelWidget()->geometry().x(), 
+			    -topLevelWidget()->geometry().y());
+	debug_wndw_rgn("*****propagatUpdates", topLevelWidget(), rgn );
 	BeginUpdate((WindowPtr)hd);
 	qt_paint_children( this, rgn );
 	EndUpdate((WindowPtr)hd);
-	QMacSavedPortInfo::flush(this, rgn, TRUE);
+//	QMacSavedPortInfo::flush(this, rgn, TRUE);
     }
 }
 
