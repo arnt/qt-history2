@@ -57,7 +57,7 @@
 #include "qbuffer.h"
 #include "qtextcodec.h"
 #include "qvaluelist.h"
-#include "qt_x11.h"
+#include "qt_x11_p.h"
 #include "qapplication_p.h"
 
 

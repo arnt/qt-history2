@@ -40,7 +40,7 @@
 #include "qbuffer.h"
 #include "qimage.h"
 #include "qbitmap.h"
-#include "qt_x11.h"
+#include "qt_x11_p.h"
 
 #include <stdlib.h>
 

@@ -41,7 +41,7 @@
 #include "qpaintdevice.h"
 #include "qapplication.h"
 #include "qapplication_p.h"
-#include "qt_x11.h"
+#include "qt_x11_p.h"
 
 // NOT REVISED
 

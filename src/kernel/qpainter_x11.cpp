@@ -45,7 +45,7 @@
 #include "qtextcodec.h"
 #include "qpaintdevicemetrics.h"
 
-#include "qt_x11.h"
+#include "qt_x11_p.h"
 
 #include "qtextlayout_p.h"
 #include "qfontdata_p.h"

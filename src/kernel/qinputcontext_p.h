@@ -60,7 +60,7 @@ class QString;
 #ifdef Q_WS_X11
 #include "qarray.h"
 #include "qwindowdefs.h"
-#include "qt_x11.h"
+#include "qt_x11_p.h"
 #endif
 
 #ifdef Q_WS_WIN

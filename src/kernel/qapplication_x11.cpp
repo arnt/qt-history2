@@ -94,7 +94,7 @@
 # include "qfile.h"
 #endif
 
-#include "qt_x11.h"
+#include "qt_x11_p.h"
 
 #if !defined(QT_NO_XFTFREETYPE)
 // XFree86 4.0.3 implementation is missing XftInitFtLibrary forward

@@ -22,7 +22,7 @@
  * PERFORMANCE OF THIS SOFTWARE.
  */
 
-#include "qt_x11.h"
+#include "qt_x11_p.h"
 
 #if !defined(QT_NO_XFTFREETYPE) && !defined(QT_XFT2)
 

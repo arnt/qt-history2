@@ -50,7 +50,7 @@
 #include "qobjectlist.h"
 #include "qcursor.h"
 
-#include "qt_x11.h"
+#include "qt_x11_p.h"
 
 // conflict resolution
 

@@ -38,7 +38,7 @@
 #include "qapplication.h"
 #include "qbitarray.h"
 #include "qcolor_p.h"
-#include "qt_x11.h"
+#include "qt_x11_p.h"
 
 #if defined(QT_THREAD_SUPPORT)
 #  include "qmutex.h"

@@ -37,7 +37,7 @@
 
 #include <qplatformdefs.h>
 
-#include "qt_x11.h"
+#include "qt_x11_p.h"
 
 #include <ctype.h>
 #include <stdlib.h>

@@ -70,7 +70,7 @@ in doc/dnd.doc, where the documentation system can see it. */
 #ifndef QT_NO_DRAGANDDROP
 
 #include "qwidget.h"
-#include "qt_x11.h"
+#include "qt_x11_p.h"
 
 #include <stdlib.h>
 

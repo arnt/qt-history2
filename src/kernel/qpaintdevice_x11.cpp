@@ -41,7 +41,7 @@
 #include "qwidget.h"
 #include "qbitmap.h"
 #include "qapplication.h"
-#include "qt_x11.h"
+#include "qt_x11_p.h"
 
 
 /*!

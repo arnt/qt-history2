@@ -41,7 +41,7 @@
 #include "qapplication.h"
 #include "qdatastream.h"
 #include "qnamespace.h"
-#include "qt_x11.h"
+#include "qt_x11_p.h"
 #include <X11/cursorfont.h>
 
 #ifndef QT_NO_XCURSOR

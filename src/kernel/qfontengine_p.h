@@ -243,7 +243,7 @@ private:
 #endif
 
 #ifdef Q_WS_X11
-#include "qt_x11.h"
+#include "qt_x11_p.h"
 
 
 struct TransformedFont

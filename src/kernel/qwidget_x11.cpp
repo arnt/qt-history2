@@ -46,7 +46,7 @@
 #include "qtextcodec.h"
 #include "qdatetime.h"
 #include "qcursor.h"
-#include "qt_x11.h"
+#include "qt_x11_p.h"
 #include <stdlib.h>
 
 // NOT REVISED

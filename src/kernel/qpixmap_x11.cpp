@@ -58,7 +58,7 @@
 #include "qimage.h"
 #include "qwmatrix.h"
 #include "qapplication.h"
-#include "qt_x11.h"
+#include "qt_x11_p.h"
 
 #include <stdlib.h>
 

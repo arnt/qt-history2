@@ -44,7 +44,7 @@
 #include "qstyle.h"
 
 #if defined(Q_WS_X11)
-#include "qt_x11.h"
+#include "qt_x11_p.h"
 extern Atom qt_sizegrip;			// defined in qapplication_x11.cpp
 #elif defined (Q_WS_WIN )
 #include "qobjectlist.h"
