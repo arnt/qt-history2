@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#30 $
 **
 ** Implementation of QNetworkProtocol class
 **
@@ -34,8 +34,9 @@ struct QNetworkProtocolPrivate
     QUrlOperator *url;
     QQueue< QNetworkOperation > operationQueue;
     QNetworkOperation *opInProgress;
-    QTimer *opStartTimer;
-    QCString data;
+    QTimer *opStartTimer, *removeTimer;
+    int removeInterval;
+    bool autoDelete;
 };
 
 // NOT REVISED
@@ -168,25 +169,6 @@ struct QNetworkProtocolPrivate
 */
 
 /*!
-  \fn void QNetworkProtocol::copyProgress( int step, int total, QNetworkOperation *op )
-
-  When copying a file this signal is emitted during the progress. You
-  get the source and destinations usung the first two argumes of \op,
-  this means with op->arg1() and op->arg2(). \a step is the progress
-  (always <= \a total) or -1, if copying just started. \a total is the
-  number of steps needed to copy the file.
-
-  This signal can be used to show the progress when copying files.
-
-  \a op is the pointer to the operation object, which contains all infos
-  of the operation, including the state and so on.
-
-  When a protocol emits this signal, QNetworkProtocol is smart enough
-  to let the QUrlOperator, which is used by the network protocol, emit
-  its corresponding signal.
-*/
-
-/*!
   \fn void QNetworkProtocol::connectionStateChanged( int state, const QString &data )
 
   This signal is emitted whenever the state of the connection of
@@ -241,12 +223,6 @@ struct QNetworkProtocolPrivate
 */
 
 /*!
-  \fn void QNetworkProtocol::emitCopyProgress( int step, int total, QNetworkOperation * )
-
-  Emits the signal copyProgress( int, int, QNetworkOperation * ).
-*/
-
-/*!
   Constructor of the network protocol baseclass. Does some initialization
   and connecting of signals and slots.
 */
@@ -258,14 +234,17 @@ QNetworkProtocol::QNetworkProtocol()
     d->url = 0;
     d->opInProgress = 0;
     d->opStartTimer = new QTimer( this );
+    d->removeTimer = new QTimer( this );
     d->operationQueue.setAutoDelete( FALSE );
+    d->autoDelete = FALSE;
+    d->removeInterval = 10000;
     connect( d->opStartTimer, SIGNAL( timeout() ),
 	     this, SLOT( startOps() ) );
+    connect( d->removeTimer, SIGNAL( timeout() ),
+	     this, SLOT( removeMe() ) );
 
     connect( this, SIGNAL( data( const QCString &, QNetworkOperation * ) ),
 	     this, SLOT( emitData( const QCString &, QNetworkOperation * ) ) );
-    connect( this, SIGNAL( data( const QCString &, QNetworkOperation * ) ),
-	     this, SLOT( gotNewData( const QCString &, QNetworkOperation * ) ) );
     connect( this, SIGNAL( finished( QNetworkOperation * ) ),
 	     this, SLOT( emitFinished( QNetworkOperation * ) ) );
     connect( this, SIGNAL( start( QNetworkOperation * ) ),
@@ -278,8 +257,6 @@ QNetworkProtocol::QNetworkProtocol()
 	     this, SLOT( emitRemoved( QNetworkOperation * ) ) );
     connect( this, SIGNAL( itemChanged( QNetworkOperation * ) ),
 	     this, SLOT( emitItemChanged( QNetworkOperation * ) ) );
-    connect( this, SIGNAL( copyProgress( int, int, QNetworkOperation * ) ),
-	     this, SLOT( emitCopyProgress( int, int, QNetworkOperation * ) ) );
 
     connect( this, SIGNAL( finished( QNetworkOperation * ) ),
 	     this, SLOT( processNextOperation( QNetworkOperation * ) ) );
@@ -459,39 +436,6 @@ const QNetworkOperation *QNetworkProtocol::rename( const QString &on, const QStr
 }
 
 /*!
-  Copies the file \a from to \a to. If \a move is true,
-  the file is moved (copied and removed). During the copy-process
-  copyProgress( int, int, QNetworkOperation * ) is emitted.
-
-  Also at the end finished( QNetworkOperation * ) (on success or failure) is emitted,
-  so check the state of the network operation object to see if the
-  operation was successful or not.
-
-  This operation is not processed immediately, but an operation
-  object is created and added to the operation queue. The
-  operation is then processed as soon as possible. But this
-  methode returns immediately.
-*/
-
-const QNetworkOperation *QNetworkProtocol::copy( const QString &from, const QString &to, bool move )
-{
-    QString file = QUrl( from ).fileName();
-    file.prepend( "/" );
-    QNetworkOperation *res = new QNetworkOperation( QNetworkProtocol::OpGet,
-						    from, QString::null, QString::null );
-    addOperation( res );
-    QNetworkOperation *p = new QNetworkOperation( QNetworkProtocol::OpPut, to + file,
-						  QString::null, QString::null );
-    addOperation( p );
-    if ( move ) {
-	QNetworkOperation *m = new QNetworkOperation( QNetworkProtocol::OpRemove, from,
-						      QString::null, QString::null );
-	addOperation( m );
-    }
-    return res;
-}
-
-/*!
   For processing operations the newtork protocol baseclass calls this
   methode quite often. This should be reimplemented by new
   network protocols. The should return TRUE, if the connection
@@ -630,9 +574,6 @@ void QNetworkProtocol::processOperation( QNetworkOperation *op )
     case OpRename:
 	operationRename( op );
 	break;
-    case OpCopy: case OpMove:
-	operationCopy( op );
-	break;
     case OpGet:
 	operationGet( op );
 	break;
@@ -684,16 +625,6 @@ void QNetworkProtocol::operationRename( QNetworkOperation * )
 
 /*!
   When implemeting a new newtork protocol this methode should
-  be reimplemented, if the protocol supports copying data (e.g. files)
-  and this methode should then process this operation.
-*/
-
-void QNetworkProtocol::operationCopy( QNetworkOperation * )
-{
-}
-
-/*!
-  When implemeting a new newtork protocol this methode should
   be reimplemented, if the protocol supports getting data and
   process this operation.
 */
@@ -721,20 +652,19 @@ void QNetworkProtocol::operationPut( QNetworkOperation * )
 
 void QNetworkProtocol::processNextOperation( QNetworkOperation *old )
 {
+    d->removeTimer->stop();
+
     if ( old )
 	delete old;
 
     if ( d->operationQueue.isEmpty() ) {
 	d->opInProgress = 0;
+	if ( d->autoDelete )
+	    d->removeTimer->start( d->removeInterval, TRUE );
 	return;
     }
 
     QNetworkOperation *op = d->operationQueue.head();
-
-    if ( op && op->operation() == OpPut && !d->data.isEmpty() ) {
-	op->setArg2( QString::fromLatin1( d->data ) );
-	d->data = "";
-    }
 
     d->opInProgress = 0;
 
@@ -786,17 +716,45 @@ void QNetworkProtocol::clearOperationQueue()
     d->operationQueue.clear();
 }
 
+/*!
+  Because it's sometimes hard to care about removing network protocol
+  instances, QNetworkProtocol provides an autodelete meachnism. If
+  you set \a b to TRUE, this network protocol instance gets removed
+  after it has been \a i milliseconds inactive (this means \a i ms after
+  the last operation has been processed).
+  If you set \a b to FALSE, the autodelete mechanism is switched off.
+
+  NOTE: If you switch on autodeleting, the QNetworkProtocol also
+  deletes its QUrlOperator!
+*/
+
+void QNetworkProtocol::setAutoDelete( bool b, int i )
+{
+    d->autoDelete = b;
+    d->removeInterval = i;
+}
+
+/*!
+  Returns TRUE, of autodeleting is enabled, else FALSE.
+  
+  \sa QNetworkProtocol::setAutoDelete()
+*/
+
+bool QNetworkProtocol::autoDelete() const
+{
+    return d->autoDelete;
+}
 
 /*!
   \internal
 */
 
-void QNetworkProtocol::gotNewData( const QCString &data, QNetworkOperation * )
+void QNetworkProtocol::removeMe()
 {
-    d->data += data;
+    delete url();
+    if ( d->autoDelete )
+	delete this;
 }
-
-
 
 struct QNetworkOperationPrivate
 {

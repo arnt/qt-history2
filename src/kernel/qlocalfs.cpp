@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlocalfs.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qlocalfs.cpp#5 $
 **
 ** Implementation of QLocalFs class
 **
@@ -167,11 +167,11 @@ void QLocalFs::operationGet( QNetworkOperation *op )
 	QString msg = tr( "Could not open\n%1" ).arg( from );
 	op->setState( StFailed );
 	op->setProtocolDetail( msg );
-	op->setErrorCode( ErrCopy );
+	op->setErrorCode( ErrGet );
 	emit finished( op );
 	return;
     }
-    
+
     QTextStream ts( &f );
     QCString s = ts.read().latin1();
     emit data( s, op );
@@ -182,17 +182,17 @@ void QLocalFs::operationGet( QNetworkOperation *op )
 void QLocalFs::operationPut( QNetworkOperation *op )
 {
     QString to = QUrl( op->arg1() ).path();
-    
+
     QFile f( to );
     if ( !f.open( IO_WriteOnly ) ) {
 	QString msg = tr( "Could not write\n%1" ).arg( to );
 	op->setState( StFailed );
 	op->setProtocolDetail( msg );
-	op->setErrorCode( ErrCopy );
+	op->setErrorCode( ErrPut );
 	emit finished( op );
 	return;
     }
-    
+
     QTextStream ts( &f );
     ts << op->arg2().latin1();
     op->setState( StDone );

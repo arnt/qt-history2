@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#20 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#21 $
 **
 ** Implementation of QNetworkProtocol class
 **
@@ -80,8 +80,6 @@ public:
 	OpRename = 8,
 	OpGet = 32,
 	OpPut = 64,
-	OpCopy = OpGet | OpPut,
-	OpMove = OpCopy | OpRemove
     };
 
     enum ConnectionState {
@@ -102,7 +100,8 @@ public:
 	ErrCreateDir = -8,
 	ErrRemove = -9,
 	ErrRename = -10,
-	ErrCopy = -11
+	ErrPut = -11,
+	ErrGet = -12
     };
 
     QNetworkProtocol();
@@ -110,11 +109,13 @@ public:
 
     virtual void setUrl( QUrlOperator *u );
 
+    virtual void setAutoDelete( bool b, int i = 10000 );
+    bool autoDelete() const;
+    
     virtual const QNetworkOperation *listChildren();
     virtual const QNetworkOperation *mkdir( const QString &dirname );
     virtual const QNetworkOperation *remove( const QString &filename );
     virtual const QNetworkOperation *rename( const QString &oldname, const QString &newname );
-    virtual const QNetworkOperation *copy( const QString &from, const QString &to, bool move );
     virtual const QNetworkOperation *get();
     virtual const QNetworkOperation *put( const QCString &data );
 
@@ -139,7 +140,6 @@ signals:
     void createdDirectory( const QUrlInfo &, QNetworkOperation *res );
     void removed( QNetworkOperation *res );
     void itemChanged( QNetworkOperation *res );
-    void copyProgress( int step, int total, QNetworkOperation *res );
 
 protected:
     virtual void processOperation( QNetworkOperation *op );
@@ -147,7 +147,6 @@ protected:
     virtual void operationMkDir( QNetworkOperation *op );
     virtual void operationRemove( QNetworkOperation *op );
     virtual void operationRename( QNetworkOperation *op );
-    virtual void operationCopy( QNetworkOperation *op );
     virtual void operationGet( QNetworkOperation *op );
     virtual void operationPut( QNetworkOperation *op );
     virtual bool checkConnection( QNetworkOperation *op );
@@ -158,7 +157,6 @@ private:
 private slots:
     void processNextOperation( QNetworkOperation *old );
     void startOps();
-    void gotNewData( const QCString &data, QNetworkOperation *op );
 
     void emitNewChild( const QUrlInfo &, QNetworkOperation *res );
     void emitFinished( QNetworkOperation *res );
@@ -167,8 +165,8 @@ private slots:
     void emitRemoved( QNetworkOperation *res );
     void emitItemChanged( QNetworkOperation *res );
     void emitData( const QCString &, QNetworkOperation *res );
-    void emitCopyProgress( int step, int total, QNetworkOperation *res );
-
+    void removeMe();
+    
 };
 
 inline void QNetworkProtocol::emitNewChild( const QUrlInfo &i, QNetworkOperation *res )
@@ -212,13 +210,6 @@ inline void QNetworkProtocol::emitData( const QCString &d, QNetworkOperation *re
     if ( url() )
 	url()->emitData( d, res );
 }
-
-inline void QNetworkProtocol::emitCopyProgress( int step, int total, QNetworkOperation *res )
-{
-    if ( url() )
-	url()->emitCopyProgress( step, total, res );
-}
-
 
 struct QNetworkOperationPrivate;
 class QNetworkOperation
