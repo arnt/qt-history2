@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#69 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#70 $
 **
 ** Implementation of QDialog class
 **
@@ -265,7 +265,7 @@ void QDialog::keyPressEvent( QKeyEvent *e )
 	    QObjectListIt it( *list );
 	    QPushButton *pb;
 	    while ( (pb = (QPushButton*)it.current()) ) {
-		if ( pb->isVisible() && pb->isDefault() ) {
+		if ( pb->isVisibleToTLW() && pb->isDefault() ) {
 		    delete list;
 		    if ( pb->isEnabled() ) {
 			emit pb->clicked();

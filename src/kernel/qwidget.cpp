@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#339 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#340 $
 **
 ** Implementation of QWidget class
 **
@@ -2135,11 +2135,8 @@ void QWidget::setFocus()
     if ( !isEnabled() )
 	return;
 
-    QWidget* w = focusProxy();
-    if (w) {
-	while ( w->focusProxy() )
-	    w = w->focusProxy();
-	w->setFocus();
+    if ( focusProxy() ) {
+	focusProxy()->setFocus();
 	return;
     }
 
@@ -2201,14 +2198,11 @@ void QWidget::setFocus()
 
 void QWidget::clearFocus()
 {
-    QWidget* w = focusProxy();
-    while ( w && w->focusProxy() )
-	w = w->focusProxy();
-    if ( w ) {
-	w->clearFocus();
+    if ( focusProxy() ) {
+	focusProxy()->clearFocus();
 	return;
     } else {
-	w = qApp->focusWidget();
+	QWidget* w = qApp->focusWidget();
 	if ( w && w->focusWidget() == this ) {
 	    // clear active focus
 	    qApp->focus_widget = 0;
