@@ -67,10 +67,6 @@ void QFontEngine::getCMap()
 {
 }
 
-void QFontEngine::getGlyphIndexes( const QChar *ch, int numChars, glyph_t *glyphs ) const
-{
-}
-
 
 // non Uniscribe engine
 
