@@ -5858,17 +5858,6 @@ QTextFormat *QTextFormatCollection::format( QTextFormat *f )
 	return lastFormat;
     }
 
-#if 0 // #### disabled, because if this format is not in the
- // formatcollection, it doesn't get the painter through
- // QTextFormatCollection::setPainter() which breaks printing on
- // windows
-    if ( f->isAnchor() ) {
-	lastFormat = createFormat( *f );
-	lastFormat->collection = 0;
-	return lastFormat;
-    }
-#endif
-
     QTextFormat *fm = cKey.find( f->key() );
     if ( fm ) {
 #ifdef DEBUG_COLLECTION
