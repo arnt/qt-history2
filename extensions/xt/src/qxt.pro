@@ -1,5 +1,5 @@
 TEMPLATE    =   lib
-CONFIG      =	qt debug staticlib
+CONFIG      =	qt debug staticlib x11
 HEADERS     =   ../../../include/qxt.h
 SOURCES     =   qxt.cpp
 MOC_DIR     =   .
