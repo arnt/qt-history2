@@ -30,7 +30,7 @@
 #include "mainwindow.h"
 
 SourceFile::SourceFile( const QString &fn, bool temp, Project *p )
-    : filename( fn ), ed( 0 ), fileNameTemp( temp ), timeStamp( this, fn ), pro( p )
+    : filename( fn ), ed( 0 ), fileNameTemp( temp ), timeStamp( this, p->makeAbsolute( fn ) ), pro( p )
 {
     load();
     iface = 0;
@@ -85,8 +85,9 @@ bool SourceFile::saveAs()
     if ( fn.isEmpty() )
 	return FALSE;
     fileNameTemp = FALSE;
-    filename = fn;
-    timeStamp.setFileName( filename );
+    filename = pro->makeRelative( fn );
+    pro->setModified( TRUE );
+    timeStamp.setFileName( pro->makeAbsolute( filename ) );
     if ( ed )
 	ed->setCaption( tr( "Edit %1" ).arg( filename ) );
     save();
