@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/application/application.cpp#2 $
+** $Id: //depot/qt/main/examples/application/application.cpp#3 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -29,7 +29,7 @@
 #include <qpainter.h>
 #include <qpaintdevicemetrics.h>
 #include <qwhatsthis.h>
-#include <qml.h>
+#include <qmime.h>
 
 #include "filesave.xpm"
 #include "fileopen.xpm"
@@ -79,7 +79,7 @@ ApplicationWindow::ApplicationWindow()
     (void)QWhatsThis::whatsThisButton( fileTools );
 
     QWhatsThis::add( fileOpen, fileOpenText );
-    QMLProvider::defaultProvider()->setImage( "fileopen", openIcon ); // used by fileOpenText, see above
+    QMimeSourceFactory::defaultFactory()->setPixmap( "fileopen", openIcon ); // used by fileOpenText, see above
     QWhatsThis::add( fileSave, fileSaveText );
     QWhatsThis::add( filePrint, filePrintText );
 

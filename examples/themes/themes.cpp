@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/themes/themes.cpp#1 $
+** $Id: //depot/qt/main/examples/themes/themes.cpp#2 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -13,7 +13,7 @@
 #include "metal.h"
 
 #include "../buttons_groups/buttons_groups.h"
-#include "../linedits/linedits.h"
+#include "../lineedits/lineedits.h"
 #include "../listbox_combo/listbox_combo.h"
 #include "../checklists/checklists.h"
 #include "../progressbar/progressbar.h"

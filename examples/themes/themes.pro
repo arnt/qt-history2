@@ -2,7 +2,7 @@ TEMPLATE	= app
 CONFIG		= qt warn_on release
 HEADERS		= themes.h \
 		  ../buttons_groups/buttons_groups.h \
-		  ../linedits/linedits.h \
+		  ../lineedits/lineedits.h \
 		  ../listbox_combo/listbox_combo.h \
 		  ../checklists/checklists.h \
 		  ../progressbar/progressbar.h \
@@ -14,7 +14,7 @@ HEADERS		= themes.h \
 SOURCES		= themes.cpp \
 		  main.cpp \
 		  ../buttons_groups/buttons_groups.cpp \
-		  ../linedits/linedits.cpp \
+		  ../lineedits/lineedits.cpp \
 		  ../listbox_combo/listbox_combo.cpp \
 		  ../checklists/checklists.cpp \
 		  ../progressbar/progressbar.cpp \

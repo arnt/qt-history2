@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qbrowser/helpwindow.cpp#1 $
+** $Id: //depot/qt/main/examples/qbrowser/helpwindow.cpp#2 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -25,7 +25,7 @@ HelpWindow::HelpWindow( const QString& home_, const QString& path, QWidget* pare
 {
 
     browser = new QTextBrowser( this );
-    browser->provider()->setPath( path );
+    browser->mimeSourceFactory()->setFilePath( path );
     browser->setFrameStyle( QFrame::Panel | QFrame::Sunken );
     connect( browser, SIGNAL( textChanged() ),
 	     this, SLOT( textChanged() ) );
@@ -33,7 +33,7 @@ HelpWindow::HelpWindow( const QString& home_, const QString& path, QWidget* pare
     setCentralWidget( browser );
 
     if ( !home_.isEmpty() )
-	browser->setDocument( home_ );
+	browser->setText( home_ );
 
     connect( browser, SIGNAL( highlighted( const QString&) ),
 	     statusBar(), SLOT( message( const QString&)) );
@@ -127,7 +127,7 @@ void HelpWindow::setupSlideshow( const QString& file)
 	while ( !t.atEnd() ) {
 	    QString line = t.readLine();
 	    if ( !line.isEmpty() && line[0] != '#') {
-		browser->setDocument( line );
+		browser->setText( line );
 		n++;
 	    }
 	}

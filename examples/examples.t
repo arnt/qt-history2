@@ -36,7 +36,7 @@ showdirs:
 
 #${
     if ( $is_unix ) {
-	$text = "\$(SUBDIRS): FORCE\n\tcd \$@; \$(MAKE)";
+	$text = "\$(SUBDIRS): FORCE\n\tcd \$@ && \$(MAKE)";
     } else {
 	$text = "targets:\n";
 	@t = split(/\s+/,$project{"SUBDIRS"});
@@ -63,7 +63,7 @@ galore:
 tmake:
 #${
     if ( $is_unix ) {
-	$text = "\t" . 'for i in $(SUBDIRS); do ( cd $$i ; $(TMAKE) $$i.pro -o Makefile ) ; done';
+	$text = "\t" . 'for i in $(SUBDIRS); do ( cd $$i  && $(TMAKE) $$i.pro -o Makefile ) ; done';
     } else {
 	@t = split(/\s+/,$project{"SUBDIRS"});
 	foreach $d ( @t ) {
@@ -76,7 +76,7 @@ tmake:
 clean:
 #${
     if ( $is_unix ) {
-	$text = "\t" . 'for i in $(SUBDIRS); do ( cd $$i ; $(MAKE) clean ) ; done';
+	$text = "\t" . 'for i in $(SUBDIRS); do ( cd $$i  && $(MAKE) clean ) ; done';
     } else {
 	@t = split(/\s+/,$project{"SUBDIRS"});
 	foreach $d ( @t ) {

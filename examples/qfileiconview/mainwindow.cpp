@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/mainwindow.cpp#1 $
+** $Id: //depot/qt/main/examples/qfileiconview/mainwindow.cpp#2 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -10,7 +10,7 @@
 
 #include "mainwindow.h"
 #include "qfileiconview.h"
-#include "../../simple/dirview/dirview.h"
+#include "../dirview/dirview.h"
 
 #include <qsplitter.h>
 

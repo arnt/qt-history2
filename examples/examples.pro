@@ -16,7 +16,7 @@ SUBDIRS     =	aclock \
 		i18n \
 		layout \
 		life \
-		linedits \
+		lineedits \
 		listbox_combo \
 		listviews \
 		menu \

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.h#1 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.h#2 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -18,7 +18,7 @@
 #include <qdir.h>
 #include <qtimer.h>
 
-#include "../../simple/qiconview/qiconview.h"
+#include "../qiconview/qiconview.h"
 
 class QtFileIconView;
 class QDragObject;
