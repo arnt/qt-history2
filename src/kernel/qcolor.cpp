@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qcolor.cpp#57 $
 **
 ** Implementation of QColor class
 **
@@ -12,7 +12,7 @@
 #include "qcolor.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#56 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qcolor.cpp#57 $");
 
 
 /*!
@@ -76,7 +76,7 @@ const QColor color1	( 0x00000000, COLOR1_PIX );
 const QColor black	(   0,	 0,   0 );
 const QColor white	( 255, 255, 255 );
 const QColor darkGray	( 128, 128, 128 );
-const QColor gray	( 160, 160, 160 );
+const QColor gray	( 160, 160, 164 );
 const QColor lightGray	( 192, 192, 192 );
 const QColor red	( 255,	 0,   0 );
 const QColor green	(   0, 255,   0 );
@@ -125,7 +125,7 @@ void QColor::initglobals()
     ((QColor*)(&::black))	->setRgb(   0,	 0,   0 );
     ((QColor*)(&::white))	->setRgb( 255, 255, 255 );
     ((QColor*)(&::darkGray))	->setRgb( 128, 128, 128 );
-    ((QColor*)(&::gray))	->setRgb( 160, 160, 160 );
+    ((QColor*)(&::gray))	->setRgb( 160, 160, 164 );
     ((QColor*)(&::lightGray))	->setRgb( 192, 192, 192 );
     ((QColor*)(&::red))		->setRgb( 255,	 0,   0 );
     ((QColor*)(&::green))	->setRgb(   0, 255,   0 );
