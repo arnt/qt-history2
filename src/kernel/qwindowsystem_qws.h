@@ -70,8 +70,8 @@ public:
     const QString &name() const { return rgnName; }
     const QString &caption() const { return rgnCaption; }
     QWSClient* client() const { return c; }
-    QRegion requested() const { return requested_region; }
-    QRegion allocation() const { return allocated_region; }
+    QRegion requestedRegion() const { return requested_region; }
+    QRegion allocatedRegion() const { return allocated_region; }
     bool isVisible() const { return !requested_region.isEmpty(); }
     bool isPartiallyObscured() const { return requested_region!=allocated_region; }
     bool isFullyObscured() const { return allocated_region.isEmpty(); }
@@ -117,6 +117,10 @@ private:
     QRegion exposed;
     int last_focus_time;
     QWSWindowData *d;
+#ifndef QT_NO_COMPAT
+    inline QRegion requested() const { return requested_region; }
+    inline QRegion allocation() const { return allocated_region; }
+#endif
 };
 
 #ifndef QT_NO_SOUND
@@ -186,7 +190,7 @@ public:
     void sendIMEvent( IMState state, const QString& txt, int cpos, int selLen );
 #endif
 
-#ifndef QT_NO_QWS_KEYBOARD    
+#ifndef QT_NO_QWS_KEYBOARD
     typedef struct KeyMap {
 	int  key_code;
 	ushort unicode;
@@ -206,12 +210,12 @@ public:
     class KeyboardFilter
     {
     public:
-	virtual bool filter(int unicode, int keycode, int modifiers, 
+	virtual bool filter(int unicode, int keycode, int modifiers,
 			    bool isPress, bool autoRepeat)=0;
     };
-
-    static void setKeyboardFilter( KeyboardFilter *f );
-#endif    
+    static void addKeyboardFilter(KeyboardFilter *f);
+    static void removeKeyboardFilter();
+#endif
 #ifndef QT_NO_QWS_IM
     static void setCurrentInputMethod( QWSInputMethod *im );
     static void resetInputMethod();
@@ -263,7 +267,7 @@ public:
 	return &propertyManager;
     }
 #endif
-    
+
     static QPoint mousePosition;
 
     static void startup( int flags );
@@ -287,7 +291,7 @@ signals:
     void newChannel( const QString& channel);
     void removedChannel(const QString& channel);
 
-#endif    
+#endif
 private:
 #ifndef QT_NO_COP
     static void sendQCopEvent( QWSClient *c, const QCString &ch,
@@ -304,7 +308,7 @@ private:
 #ifndef QT_NO_QWS_IM
     void set_micro_focus( const QWSSetMicroFocusCommand * );
     void reset_im( const QWSResetIMCommand * );
-    static void sendKeyEventUnfiltered(int unicode, int keycode, 
+    static void sendKeyEventUnfiltered(int unicode, int keycode,
 				       int modifiers, bool isPress,
 				       bool autoRepeat);
 
@@ -351,7 +355,7 @@ private:
 				QWSClient *client );
     void invokeQCopSend( QWSQCopSendCommand *cmd, QWSClient *client );
 #endif
-    void invokeRepaintRegion( QWSRepaintRegionCommand *cmd, 
+    void invokeRepaintRegion( QWSRepaintRegionCommand *cmd,
 			      QWSClient *client );
 #ifndef QT_NO_QWS_IM
         void invokeSetMicroFocus( const QWSSetMicroFocusCommand *cmd,
@@ -463,6 +467,10 @@ private:
     int microX;
     int microY;
 #endif
+#ifndef QT_NO_COMPAT
+    static inline void setKeyboardFilter(KeyboardFilter *f)
+	{ if (f) addKeyboardFilter(f); else removeKeyboardFilter(); }
+#endif
 };
 
 extern QWSServer *qwsServer; //there can be only one
@@ -474,14 +482,14 @@ extern QWSServer *qwsServer; //there can be only one
     public:
 	QWSInputMethod();
 	virtual ~QWSInputMethod();
-	virtual bool filter(int unicode, int keycode, int modifiers, 
+	virtual bool filter(int unicode, int keycode, int modifiers,
 			    bool isPress, bool autoRepeat)=0;
 	virtual void reset();
 	virtual void setMicroFocus( int x, int y );
 	virtual void setFont( const QFont& );
     protected:
 	void sendIMEvent( QWSServer::IMState, const QString& txt, int cpos, int selLen = 0 );
-	//void sendKeyEvent( int unicode, int keycode, int modifiers, 
+	//void sendKeyEvent( int unicode, int keycode, int modifiers,
 	//		    bool isPress, bool autoRepeat);
     };
 
