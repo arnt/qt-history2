@@ -179,6 +179,11 @@ QSize DemoViewer::sizeHint() const
 
 void DemoViewer::itemSelected()
 {
+    if(viewSourceButton->isChecked()) {
+        openSource(true);
+        return;
+    }
+
     QString name = listWidget->model()->data(listWidget->selectionModel()->currentIndex()).toString();
 
     Q_ASSERT(!name.isEmpty());
@@ -263,10 +268,12 @@ void DemoViewer::openSource(bool on)
         QList<QString> keywords;
         keywords << "for " << "if " << "switch " << " int " << "#include " << "const"
                  << "void " << "uint " << "case " << "double " << "#define " << "static"
-                 << "#ifndef" << "#else" << "#endif" << "#ifdef" << "break" << "default";
+                 << "#ifndef" << "#else" << "#endif" << "#ifdef" << "break" << "default"
+                 << "return";
         for (int i = 0; i < keywords.size(); ++i)
-            contents.replace(keywords.at(i), QLatin1String("<font color=blue><b>")
-                             + keywords.at(i) + QLatin1String("</b></font>"));
+            contents.replace(QRegExp("(\\s)" + keywords.at(i) + "(\\s)"), 
+                             QLatin1String("\\1<font color=blue><b>")
+                             + keywords.at(i) + QLatin1String("</b></font>\\2"));
         contents.replace("(int ", "(<font color=blue><b>int </b></font>");
 
         QString html = "<pre>" + contents + "</pre>";
