@@ -2427,7 +2427,7 @@ QString qt_winMB2QString( const char* mb, int mblen )
 
 /*!
     Returns the Unicode string decoded from the first \a len
-    characters of \a local8Bit, ignoring the rest of \a local8Bit. If
+    bytes of \a local8Bit, ignoring the rest of \a local8Bit. If
     \a len is -1 then the length of \a local8Bit is used. If \a len is
     bigger than the length of \a local8Bit then it will use the length
     of \a local8Bit.
@@ -2505,7 +2505,7 @@ QString QString::fromAscii( const char* ascii, int len )
 
 /*!
     Returns the Unicode string decoded from the first \a len
-    characters of \a utf8, ignoring the rest of \a utf8. If \a len is
+    bytes of \a utf8, ignoring the rest of \a utf8. If \a len is
     -1 then the length of \a utf8 is used. If \a len is bigger than
     the length of \a utf8 then it will use the length of \a utf8.
 
