@@ -1172,73 +1172,72 @@ static QString *qt_style_override = 0;
 QStyle& QApplication::style()
 {
 #ifndef QT_NO_STYLE
-    if ( qt_is_gui_used ) {
-	if ( !app_style ) {
-#if defined(Q_WS_X11)
-	    if(!qt_style_override)
-		x11_initialize_style(); // run-time search for default style
-#endif
+    if ( app_style )
+	return *app_style;
+    if ( !qt_is_gui_used )
+	qFatal( "No style available in non-gui applications!" );
 
-	    // Compile-time search for default style
-	    //
-	    QString style;
-	    if ( qt_style_override ) {
-		style = *qt_style_override;
-		delete qt_style_override;
-		qt_style_override = 0;
-	    } else {
+#if defined(Q_WS_X11)
+    if(!qt_style_override)
+	x11_initialize_style(); // run-time search for default style
+#endif
+    if ( !app_style ) {
+	// Compile-time search for default style
+	//
+	QString style;
+	if ( qt_style_override ) {
+	    style = *qt_style_override;
+	    delete qt_style_override;
+	    qt_style_override = 0;
+	} else {
 #  if defined(Q_WS_WIN) && defined(Q_OS_TEMP)
-		style = "PocketPC";
+	    style = "PocketPC";
 #elif defined(Q_WS_WIN)
-		if ( qWinVersion() == WV_XP )
-		    style = "WindowsXP";
-		else
-		    style = "Windows";		// default styles for Windows
+	    if ( qWinVersion() == WV_XP )
+		style = "WindowsXP";
+	    else
+		style = "Windows";		// default styles for Windows
 #elif defined(Q_WS_X11) && defined(Q_OS_SOLARIS)
-		style = "CDE";			// default style for X11 on Solaris
+	    style = "CDE";			// default style for X11 on Solaris
 #elif defined(Q_WS_X11) && defined(Q_OS_IRIX)
-		style = "SGI";			// default style for X11 on IRIX
+	    style = "SGI";			// default style for X11 on IRIX
 #elif defined(Q_WS_X11)
 		style = "Motif";		// default style for X11
 #elif defined(Q_WS_MAC)
 		style = "Macintosh";		// default style for all Mac's
 #elif defined(Q_WS_QWS)
-		style = "Compact";		// default style for small devices
+	    style = "Compact";		// default style for small devices
 #endif
-	    }
-	    app_style = QStyleFactory::create( style );
-	    if ( !app_style &&		// platform default style not available, try alternatives
-		!(app_style = QStyleFactory::create( "Windows" ) ) &&
-		!(app_style = QStyleFactory::create( "Platinum" ) ) &&
-		!(app_style = QStyleFactory::create( "MotifPlus" ) ) &&
-		!(app_style = QStyleFactory::create( "Motif" ) ) &&
-		!(app_style = QStyleFactory::create( "CDE" ) ) &&
-		!(app_style = QStyleFactory::create( "Aqua" ) ) &&
-		!(app_style = QStyleFactory::create( "SGI" ) ) &&
-		!(app_style = QStyleFactory::create( "Compact" ) ) &&
-		!(app_style = QStyleFactory::create( QStyleFactory::keys()[0]  ) ) )
-		qFatal( "No %s style available!", style.latin1() );
-
-	    QPalette app_pal_copy ( *app_pal );
-	    app_style->polish( *app_pal );
-	    
-	    if ( is_app_running && !is_app_closing && (*app_pal != app_pal_copy) ) {
-		QEvent e( QEvent::ApplicationPaletteChange );
-		QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
-		register QWidget *w;
-		while ( (w=it.current()) ) {		// for all widgets...
-		    ++it;
-		    sendEvent( w, &e );
-		}
-	    }
-
-	    app_style->polish( qApp );
 	}
-    } else {
-	qFatal( "No style available in non-gui applications!" );
+	app_style = QStyleFactory::create( style );
+	if ( !app_style &&		// platform default style not available, try alternatives
+	     !(app_style = QStyleFactory::create( "Windows" ) ) &&
+	     !(app_style = QStyleFactory::create( "Platinum" ) ) &&
+	     !(app_style = QStyleFactory::create( "MotifPlus" ) ) &&
+	     !(app_style = QStyleFactory::create( "Motif" ) ) &&
+	     !(app_style = QStyleFactory::create( "CDE" ) ) &&
+	     !(app_style = QStyleFactory::create( "Aqua" ) ) &&
+	     !(app_style = QStyleFactory::create( "SGI" ) ) &&
+	     !(app_style = QStyleFactory::create( "Compact" ) ) &&
+	     !(app_style = QStyleFactory::create( QStyleFactory::keys()[0]  ) ) )
+	    qFatal( "No %s style available!", style.latin1() );
     }
-#endif
 
+    QPalette app_pal_copy ( *app_pal );
+    app_style->polish( *app_pal );
+	
+    if ( is_app_running && !is_app_closing && (*app_pal != app_pal_copy) ) {
+	QEvent e( QEvent::ApplicationPaletteChange );
+	QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );
+	register QWidget *w;
+	while ( (w=it.current()) ) {		// for all widgets...
+	    ++it;
+	    sendEvent( w, &e );
+	}
+    }
+
+    app_style->polish( qApp );
+#endif
     return *app_style;
 }
 
@@ -1627,10 +1626,10 @@ QPalette QApplication::palette(const QWidget* w)
   informWidgets is TRUE, then existing widgets are informed about the
   change and may adjust themselves to the new application
   setting. If \a informWidgets is FALSE, the change only affects newly
-  created widgets. 
-  
-  If \a className is passed, the change applies only to widgets that 
-  inherit \a className (as reported by QObject::inherits()). If 
+  created widgets.
+
+  If \a className is passed, the change applies only to widgets that
+  inherit \a className (as reported by QObject::inherits()). If
   \a className is left 0, the change affects all widgets, thus overriding
   any previously set class specific palettes.
 
@@ -3293,6 +3292,75 @@ bool QApplication::desktopSettingsAware()
 {
     return obey_desktop_settings;
 }
+
+>>>> ORIGINAL qapplication.cpp#43
+
+/*!
+  This function enters the main event loop (recursively). Do not call
+  it unless you really know what you are doing.
+
+  \sa exit_loop(), loopLevel()
+*/
+
+int QApplication::enter_loop()
+{
+#if defined( QT_THREAD_SUPPORT )
+    static bool mustUnlock = TRUE;
+    if ( mustUnlock && qt_is_gui_used ) {
+	mustUnlock = FALSE;
+	qApp->unlock(FALSE);
+    }
+#endif
+
+    loop_level++;
+
+    bool old_app_exit_loop = app_exit_loop;
+    app_exit_loop = FALSE;
+
+    while ( !app_exit_loop ) {
+	processNextEvent( TRUE );
+    }
+
+    app_exit_loop = old_app_exit_loop || quit_now;
+
+    if ( loop_level <= 1 ) {
+	quit_now = FALSE;
+	emit aboutToQuit();
+
+	// send deferred deletes
+	sendPostedEvents( 0, QEvent::DeferredDelete );
+    }
+
+    loop_level--;
+
+    return 0;
+}
+
+
+/*!
+  This function exits from a recursive call to the main event loop.
+  Do not call it unless you are an expert.
+
+  \sa enter_loop(), loopLevel()
+*/
+
+void QApplication::exit_loop()
+{
+    app_exit_loop = TRUE;
+}
+
+
+/*!
+  Returns the current loop level.
+
+  \sa enter_loop(), exit_loop()
+*/
+
+int QApplication::loopLevel() const
+{
+    return loop_level;
+}
+
 
 /*! \fn void QApplication::lock()
 

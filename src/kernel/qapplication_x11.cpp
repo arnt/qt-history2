@@ -2290,11 +2290,9 @@ void QApplication::x11_initialize_style()
 				 False, AnyPropertyType, &type, &format,
 				 &length, &after, &data ) == Success
 	     && length ) {
-#if 0
 #ifndef QT_NO_STYLE_MOTIFPLUS
 	    // default to MotifPlus with hovering
-	    app_style = new QMotifPlusStyle( TRUE );
-#endif
+	    app_style = QStyleFactory::create("motifplus" );
 #endif
 	    if ( data )
 		XFree( (char *)data );
