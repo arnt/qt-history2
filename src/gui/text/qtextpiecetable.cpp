@@ -279,14 +279,18 @@ void QTextPieceTable::remove(int pos, int length, UndoCommand::Operation op)
     split(pos);
     split(pos+length);
 
-    uint b = blocks.findNode(pos+1);
-    uint be = blocks.findNode(pos+length);
-    while (b != be) {
-        int k = blocks.position(b);
+    uint b = blocks.findNode(pos);
+    int k;
+    while (1) {
+        k = blocks.position(b) + blocks.size(b);
+        if (k > pos + length)
+            break;
+        split(k-1);
         split(k);
-        split(k+1);
         b = blocks.next(b);
-    }
+        if (!b)
+            break;
+    };
 
     uint x = fragments.findNode(pos);
     uint end = fragments.findNode(pos+length);
@@ -695,7 +699,7 @@ QString QTextPieceTable::plainText() const
 
 int QTextPieceTable::nextCursorPosition(int position, QTextLayout::CursorMode mode) const
 {
-    if (position == length())
+    if (position == length()-1)
         return position;
 
     QTextBlockIterator it = blocksFind(position);
@@ -709,7 +713,7 @@ int QTextPieceTable::nextCursorPosition(int position, QTextLayout::CursorMode mo
 
 int QTextPieceTable::previousCursorPosition(int position, QTextLayout::CursorMode mode) const
 {
-    if (position == 1)
+    if (position == 0)
         return position;
 
     QTextBlockIterator it = blocksFind(position);
