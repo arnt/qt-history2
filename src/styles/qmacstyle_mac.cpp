@@ -514,9 +514,9 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	    else
 		info.state = kThemeStateUnavailableInactive;
 	}
-	if(flags & Style_Sunken)
-	    info.value = kThemeButtonMixed;
-	if((flags & Style_Up))
+	if(flags & Style_Sunken) 
+	    info.value = kThemeButtonOn;
+	if((flags & Style_Up)) 
 	    info.adornment |= kThemeAdornmentHeaderButtonSortUp;
 	((QMacPainter *)p)->setport();
 	DrawThemeButton(qt_glb_mac_rect(r, p), kThemeListHeaderButton,
