@@ -723,6 +723,12 @@ public:
 	AutoText
     };
 
+    // Documented in qtextedit.cpp
+    enum AnchorAttribute {
+	AnchorName,
+	AnchorHref
+    };
+
     // Documented in qmainwindow.cpp
     enum Dock {
 	DockUnmanaged,

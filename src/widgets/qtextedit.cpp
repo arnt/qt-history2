@@ -457,6 +457,17 @@ static bool block_set_alignment = FALSE;
   \value MovePgDown  Moves the cursor one page down
 */
 
+/*!
+  \enum Qt::AnchorAttribute
+
+  An anchor has one or more of the following attributes:
+
+  \value AnchorName the name attribute of the anchor. This attribute is
+  used when scrolling to an anchor in the document.
+
+  \value AnchorHref the href attribute of the anchor. This attribute is
+  used when a link is clicked to determine what content to load.
+*/
 
 /*!
   \property QTextEdit::overwriteMode
@@ -4072,16 +4083,39 @@ void QTextEdit::scrollToAnchor( const QString& name )
     } while( cursor.parag() != last || !cursor.atParagEnd()  );
 }
 
-/*! If there is an anchor at position \a pos (in contents
-  coordinates), its name is returned, otherwise an empty string is
+#if QT_VERSION < 400
+
+/*! \overload
+  If there is an anchor at position \a pos (in contents
+  coordinates), its href is returned, otherwise an empty string is
+  returned.
+*/
+QString QTextEdit::anchorAt( const QPoint& pos ) 
+{
+    anchorAt(pos, AnchorHref);
+}
+#else
+#error "funciton anchorAt(const QPoint& pos) should be merged into function anchorAt(const QPoint& pos, AnchorAttribute attr) for Qt 4.x"
+#endif
+
+/*! If there is an anchor at position \a pos (in contents coordinates), 
+  the text for attribute \a attr is returned, otherwise an empty string is
   returned.
 */
 
-QString QTextEdit::anchorAt( const QPoint& pos )
+QString QTextEdit::anchorAt( const QPoint& pos, AnchorAttribute attr )
 {
     QTextCursor c( doc );
     placeCursor( pos, &c );
-    return c.parag()->at( c.index() )->anchorHref();
+    switch(attr) {
+	case AnchorName:
+	    return c.parag()->at( c.index() )->anchorName();
+	case AnchorHref:
+	    return c.parag()->at( c.index() )->anchorHref();
+    }
+    // incase the compiler is really dumb about determining if a function
+    // returns something :)
+    return QString::null;
 }
 
 void QTextEdit::documentWidthChanged( int w )

@@ -243,6 +243,7 @@ public:
     int tabStopWidth() const;
 
     QString anchorAt( const QPoint& pos );
+    QString anchorAt( const QPoint& pos, AnchorAttribute a );
 
     QSize sizeHint() const;
 
