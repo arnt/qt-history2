@@ -46,7 +46,6 @@
 #include <fcntl.h>
 #include <errno.h>
 
-#undef QT_NO_QWS_SHADOWFB
 #ifdef Q_CC_EDG_
 // Hacky workaround for KCC/linux include files.
 // Fine! But could you please explain what actually happens here?
