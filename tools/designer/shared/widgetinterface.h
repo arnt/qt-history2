@@ -1,5 +1,5 @@
-#ifndef QWIDGETINTERFACE_H
-#define QWIDGETINTERFACE_H
+#ifndef WIDGETINTERFACE_H
+#define WIDGETINTERFACE_H
 
 #include <qcomponentinterface.h>
 #include <qiconset.h>
@@ -9,7 +9,7 @@ class QWidget;
 class WidgetInterface : public QUnknownInterface
 {
 public:
-    WidgetInterface( QUnknownInterface *parent = 0, const char *name = 0 ) 
+    WidgetInterface( QUnknownInterface *parent = 0, const char *name = 0 )
 	: QUnknownInterface( parent, name ) {}
 
     virtual QStringList featureList() const = 0;
@@ -27,4 +27,4 @@ public:
     QString interfaceId() const { return createId( QUnknownInterface::interfaceId(), "WidgetInterface" ); }
 };
 
-#endif //QWIDGETINTERFACE_H
+#endif
