@@ -95,7 +95,7 @@ public:
     QSqlQuery createQuery() const { return QSqlQuery( new QNullResult(this) ); }
 };
 
-typedef QHash<QString, const QSqlDriverCreatorBase*> QDriverDict;
+typedef QHash<QString, QSqlDriverCreatorBase*> QDriverDict;
 
 class QSqlDatabaseManager : public QObject
 {
@@ -481,7 +481,7 @@ QStringList QSqlDatabase::drivers()
     \warning The framework takes ownership of the \a creator pointer,
     so it should not be deleted.
 */
-void QSqlDatabase::registerSqlDriver( const QString& name, const QSqlDriverCreatorBase* creator )
+void QSqlDatabase::registerSqlDriver( const QString& name, QSqlDriverCreatorBase* creator )
 {
     delete QSqlDatabaseManager::driverDict().take( name );
     if ( creator )

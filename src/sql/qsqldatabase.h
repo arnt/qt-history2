@@ -116,7 +116,7 @@ public:
     static void          removeDatabase( QSqlDatabase* db );
     static bool          contains( const QString& connectionName = defaultConnection );
     static QStringList   drivers();
-    static void          registerSqlDriver( const QString& name, const QSqlDriverCreatorBase* creator ); // ### 4.0: creator should not be const
+    static void          registerSqlDriver( const QString& name, QSqlDriverCreatorBase* creator );
     static bool 	 isDriverAvailable( const QString& name );
 
 protected:
