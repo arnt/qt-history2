@@ -426,12 +426,12 @@ void QHeader::moveCell( int fromIdx, int toIdx )
 /*!
   \reimp
 */
-void QHeader::mousePressEvent( QMouseEvent *m )
+void QHeader::mousePressEvent( QMouseEvent *e )
 {
-    if ( m->button() != LeftButton )
+    if ( e->button() != LeftButton )
 	return;
     handleIdx = 0;
-    int c = orient == Horizontal ? m->pos().x() : m->pos().y();
+    int c = orient == Horizontal ? e->pos().x() : e->pos().y();
 
     int i = cellAt( c );
     if ( i < 0 )
@@ -460,20 +460,20 @@ void QHeader::mousePressEvent( QMouseEvent *m )
 /*!
   \reimp
 */
-void QHeader::mouseReleaseEvent( QMouseEvent *m )
+void QHeader::mouseReleaseEvent( QMouseEvent *e )
 {
-    if ( m->button() != LeftButton )
+    if ( e->button() != LeftButton )
 	return;
     State oldState = state;
     state = Idle;
     switch ( oldState ) {
     case Pressed:
 	repaint(sRect( handleIdx ));
-	if ( sRect( handleIdx ).contains( m->pos() ) )
+	if ( sRect( handleIdx ).contains( e->pos() ) )
 	    emit sectionClicked( handleIdx );
 	break;
     case Sliding: {
-	int s = orient == Horizontal ? m->pos().x() : m->pos().y();
+	int s = orient == Horizontal ? e->pos().x() : e->pos().y();
 	// unsetCursor(); // We're probably still there...
 	handleColumnResize( handleIdx, s, TRUE );
 	} break;
@@ -484,7 +484,7 @@ void QHeader::mouseReleaseEvent( QMouseEvent *m )
 	    emit moved( handleIdx, moveToIdx );
 	    repaint();
 	} else {
-	    if ( sRect( handleIdx).contains( m->pos() ) )
+	    if ( sRect( handleIdx).contains( e->pos() ) )
 		emit sectionClicked( handleIdx );
 	    repaint(sRect( handleIdx ));
 	}
@@ -502,12 +502,12 @@ void QHeader::mouseReleaseEvent( QMouseEvent *m )
 /*!
   \reimp
 */
-void QHeader::mouseMoveEvent( QMouseEvent *m )
+void QHeader::mouseMoveEvent( QMouseEvent *e )
 {
     int i, p;
     bool hit;
 
-    int s = orient == Horizontal ? m->pos().x() : m->pos().y();
+    int s = orient == Horizontal ? e->pos().x() : e->pos().y();
     switch( state ) {
     case Idle:
 	i = cellAt( s );

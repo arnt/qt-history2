@@ -23,6 +23,10 @@
 **
 *****************************************************************************/
 
+// qmainwindow.h before qmenubar.h because of GCC-2.7.2.3 compatibility
+// ### could be reorganised by discarding INCLUDE_MENUITEM_DEF and put
+// the relevant declarations in a private header?
+#include "qmainwindow.h"
 #define	 INCLUDE_MENUITEM_DEF
 #include "qmenubar.h"
 #include "qaccel.h"
@@ -30,7 +34,6 @@
 #include "qdrawutil.h"
 #include "qapplication.h"
 #include "qguardedptr.h"
-#include "qmainwindow.h"
 #include "qlayout.h"
 #include <ctype.h>
 

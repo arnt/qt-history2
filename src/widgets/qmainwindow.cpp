@@ -25,12 +25,12 @@
 
 #include "qmainwindow.h"
 
-#include "qlist.h"
 #include "qtimer.h"
 #include "qlayout.h"
 #include "qobjectlist.h"
 #include "qobjectdict.h"
 #include "qapplication.h"
+#include "qlist.h"
 #include "qmap.h"
 
 #include "qpainter.h"

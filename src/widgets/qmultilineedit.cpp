@@ -1891,18 +1891,33 @@ void QMultiLineEdit::end( bool mark )
   Handles mouse press events.
 */
 
-void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
+void QMultiLineEdit::mousePressEvent( QMouseEvent *e )
 {
     stopAutoScroll();
 
-    if ( m->button() == RightButton ) {
-	d->popup->setItemEnabled( d->id[ 0 ], !d->undoList.isEmpty() );
-	d->popup->setItemEnabled( d->id[ 1 ], !d->redoList.isEmpty() );
-	d->popup->setItemEnabled( d->id[ 2 ], !isReadOnly() && hasMarkedText() );
-	d->popup->setItemEnabled( d->id[ 3 ], hasMarkedText() );
-	d->popup->setItemEnabled( d->id[ 4 ], !isReadOnly() && (bool)QApplication::clipboard()->text().length() );
-	d->popup->setItemEnabled( d->id[ 5 ], !isReadOnly() && (bool)text().length() );
-	int id = d->popup->exec( m->globalPos() );
+    if ( e->button() == RightButton ) {
+        int id;
+	bool enable;
+        id = d->id[ 0 ];
+	enable = !d->undoList.isEmpty();
+	d->popup->setItemEnabled( id, enable );
+        id = d->id[ 1 ];
+	enable = !d->redoList.isEmpty();
+	d->popup->setItemEnabled( id, enable );
+        id = d->id[ 2 ];
+	enable = !isReadOnly() && hasMarkedText();
+	d->popup->setItemEnabled( id, enable );
+        id = d->id[ 3 ];
+	enable = hasMarkedText();
+	d->popup->setItemEnabled( id, enable );
+        id = d->id[ 4 ];
+	enable = !isReadOnly() && (bool)QApplication::clipboard()->text().length();
+	d->popup->setItemEnabled( id, enable );
+        id = d->id[ 5 ];
+	enable = !isReadOnly() && (bool)text().length();
+	d->popup->setItemEnabled( id, enable );
+
+	id = d->popup->exec( e->globalPos() );
 	if ( id == d->id[ 0 ] )
 	    undo();
 	else if ( id == d->id[ 1 ] )
@@ -1921,13 +1936,13 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 	return;
     }
 
-    if ( m->button() != MidButton && m->button() != LeftButton)
+    if ( e->button() != MidButton && e->button() != LeftButton)
 	return;
 
     int newX, newY;
-    pixelPosToCursorPos( m->pos(), &newX, &newY );
+    pixelPosToCursorPos( e->pos(), &newX, &newY );
 
-    if ( m->state() & ShiftButton ) {
+    if ( e->state() & ShiftButton ) {
 	wordMark = FALSE;
 	dragMarking    = TRUE;
 	setCursorPosition( newY, newX, TRUE);
@@ -1937,7 +1952,7 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
     if (
 	inMark(newX, newY)		// Click on highlighted text
 	&& echoMode() == Normal		// No DnD of passwords, etc.
-	&& m->pos().y() < totalHeight() // Click past the end is not dragging
+	&& e->pos().y() < totalHeight() // Click past the end is not dragging
 	)
 	{
 	    // The user might be trying to drag
@@ -1946,7 +1961,7 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 	} else {
 	    wordMark = FALSE;
 	    dragMarking    = TRUE;
-	    setCursorPixelPosition(m->pos());
+	    setCursorPixelPosition(e->pos());
 	}
 }
 

@@ -28,13 +28,13 @@
 
 #ifndef QT_H
 #include "qwidget.h"
-#include "qlist.h"
 #endif // QT_H
 
 class QMenuBar;
 class QToolBar;
 class QStatusBar;
 class QToolTipGroup;
+template <class T> class QList;
 
 class QMainWindowPrivate;
 
