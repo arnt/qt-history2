@@ -2411,9 +2411,9 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 
 	    QWidget *w = cellWidget( r, c );
 	    QRect cg( cellGeometry( r, c ) );
-	    if ( w && w->geometry() != QRect( contentsToViewport( cg.topLeft() ), cg.size() ) ) {
+	    if ( w && w->geometry() != QRect( contentsToViewport( cg.topLeft() ), cg.size() - QSize( 1, 1 ) ) ) {
 		moveChild( w, colp, rowp );
-		w->resize( cg.size() );
+		w->resize( cg.size() - QSize( 1, 1 ) );
 	    }
 	}
     }
