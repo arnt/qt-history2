@@ -9,6 +9,9 @@
 	QPSPrinter*;
 	Q*RegExpEngine::*;
 	Q*SvgDevice::*;
+	QRenameEdit::*;
+	QRollEffect::*;
+	QSVChildRec::*;
 	QUnicodeTables::*;
 	QFontDef::*;
 	QFontStruct::*;
