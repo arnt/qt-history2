@@ -129,7 +129,7 @@ buttons.
 
 The dialog's widgets and layouts are created with the following code:
 
-\quotefile countries.cpp
+\quotefile countries/countries.cpp
 \skipuntil setCaption
 \printto }
 
