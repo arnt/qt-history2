@@ -515,6 +515,14 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
     QPixmap pm;
     QWidget *widget = QWidget::find( window );
     if ( widget ) {
+	if ( w <= 0 || h <= 0 ) {
+	    if ( w == 0 || h == 0 )
+		return pm;
+	    if ( w < 0 )
+		w = widget->width() - x;
+	    if ( h < 0 )
+		h = widget->height() - y;
+	}
 	pm.resize(w, h);
 	QGfx *gfx=pm.graphicsContext();
 	gfx->setAlphaType(QGfx::IgnoreAlpha);
