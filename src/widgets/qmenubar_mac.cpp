@@ -247,7 +247,7 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 			if ( (k & Qt::SHIFT) == Qt::SHIFT ) 
 			    mod |= kMenuShiftModifier;
 			char keycode = (char) (k & (~(Qt::SHIFT | Qt::CTRL | Qt::ALT)));
-			if(toupper(keycode) >= 'A' && toupper(keycode) <= 'Z') {
+			if(keycode & 0xFF) {
 			    SetMenuItemModifiers(ret, id, mod);
 			    SetItemCmd(ret, id, keycode );
 			}
@@ -350,7 +350,7 @@ bool QMenuBar::activate(MenuRef menu, short idx, bool highlight)
 	MenuCommand cmd;
 	GetMenuItemCommandID(mpb->macpopup, idx, &cmd);
 	if(highlight) {
-	    if(mpb->qpopup->isItemEnabled(cmd))
+	    if(mpb->qpopup->isItemEnabled(cmd)) 
 		mpb->qpopup->hilitSig(cmd);
 	} else {
 	    mpb->qpopup->activateItemAt(mpb->qpopup->indexOf(cmd));
@@ -465,6 +465,7 @@ void QMenuBar::macUpdateMenuBar()
 	    first = TRUE;
 	    if(!w || (!w->testWFlags(WStyle_Tool) && !w->testWFlags(WType_Popup)) ) {
 		ClearMenuBar();
+
 		InvalMenuBar();
 	    }
 	} 

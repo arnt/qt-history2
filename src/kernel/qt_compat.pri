@@ -21,3 +21,7 @@ mac {
      }
 } 
 
+attic {
+	SOURCES += attic/qttableview.cpp
+	HEADERS += attic/qttableview.h
+}

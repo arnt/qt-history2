@@ -1962,9 +1962,10 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	int modifiers = get_modifiers(modif);
 	UInt32 keyc;
 	GetEventParameter(event, kEventParamKeyCode, typeUInt32, NULL, sizeof(keyc), NULL, &keyc);
+	//map it into qt keys
 	UInt32 state = 0L;
 	char chr = KeyTranslate((void *)GetScriptManagerVariable(smUnicodeScript), 
-		   (modif & shiftKey) | keyc, &state);
+		   (modif & (shiftKey|rightShiftKey)) | keyc, &state);
 	if(!chr)
 	    break;
 	int mychar=get_key(chr, keyc);
@@ -1972,6 +1973,15 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	if(!c)
 	    c = QTextCodec::codecForName("Apple Roman");
        	QString mystr = c->toUnicode(&chr, 1);
+	//now get the real ascii value
+	UInt32 tmp_mod = 0L;
+	if(modifiers & Qt::ShiftButton)
+	    tmp_mod |= shiftKey;
+	if(modifiers & Qt::ControlButton)
+	    tmp_mod |= controlKey;
+	chr = KeyTranslate((void *)GetScriptManagerVariable(smUnicodeScript), 
+			   tmp_mod | keyc, &state);
+
 	QEvent::Type etype = (ekind == kEventRawKeyUp) ? QEvent::KeyRelease : QEvent::KeyPress;
 	if( mac_keyboard_grabber )
 	    widget = mac_keyboard_grabber;
@@ -2022,7 +2032,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    handled_event = TRUE;
 		    break;
 		}
-		if(modifiers & (Qt::ControlButton | Qt::AltButton)) {
+		if(modifiers & Qt::AltButton) {
 		    mystr = QString();
 		    chr = 0;
 		} 
