@@ -15,6 +15,7 @@
 #include <qplatformdefs.h>
 
 #include <qdatetime.h>
+#include <qpaintdevicemetrics.h>
 #include <qpaintdevice.h>
 
 #include "qt_x11_p.h"
@@ -1323,7 +1324,11 @@ QFontEngine *loadEngine( QFont::Script script,
 	    scale = (double)size_value/(double)MAXFONTSIZE;
 	    size_value = MAXFONTSIZE;
 	}
-	size_value *= 72.0 / QPaintDevice::x11AppDpiY( fp->screen );
+
+	if ( fp->paintdevice )
+	    size_value *= 72. / QPaintDeviceMetrics( fp->paintdevice ).logicalDpiY();
+	else if (QPaintDevice::x11AppDpiY( fp->screen ) != 75)
+	    size_value *= 72. / QPaintDevice::x11AppDpiY( fp->screen );
 
 	XftPatternAddDouble( pattern, XFT_SIZE, size_value );
 
