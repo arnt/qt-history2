@@ -6081,6 +6081,11 @@ const QPixmap *QWidget::icon() const
     widget unclipped. Children of this widget or other widgets in
     front of it do not clip the area the painter can paint on.
 
+    \value WA_PaintOutsidePaintEvent Makes it possible to open a
+    painter on a widget and paint on it outside of a paint
+    event. Using this flag is not portable, since it will not work on
+    Mac OS X. It does work on X11/Win/Embedded.
+
     \value WA_WindowModified Indicates that the window is marked as
     modified. On some platforms this will mean nothing, on others
     (including Mac OS X and Windows) the window will take a modified
