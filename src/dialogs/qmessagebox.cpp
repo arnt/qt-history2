@@ -153,7 +153,6 @@ static const char* const critical_xpm[]={
 ".........aa********aaaaa........",
 "...........aaaaaaaaaaa..........",
 ".............aaaaaaa............"};
-#define QT_END_TEXT qt_dialog_default_key
 
 
 // the Qt logo, for aboutQt
@@ -581,12 +580,25 @@ QMessageBox::~QMessageBox()
 }
 
 
+static QString * translatedTextAboutQt = 0;
+
 void QMessageBox::init( int button0, int button1, int button2 )
 {
+    if ( !translatedTextAboutQt ) {
+	translatedTextAboutQt = new QString;
+	*translatedTextAboutQt
+	    = tr( "<h3>About Qt</h3>"
+		  "<p>This program uses Qt version %1, a multiplatform C++ "
+		  "GUI toolkit from Troll Tech. Qt provides single-source "
+		  "portability across Windows 95/98/NT/2000, Linux, Solaris, "
+		  "HP-UX and many other versions of Unix with X11.</p>"
+		  "<p>See <tt>http://www.trolltech.com/qt/</tt> for more "
+		  "information.</p>" ).arg( QT_VERSION_STR );
+    }
     label = new QLabel( this, "text" );
     CHECK_PTR( label );
     label->setAlignment( AlignLeft );
-
+    
     if ( (button2 && !button1) || (button1 && !button0) ) {
 #if defined(CHECK_RANGE)
 	qWarning( "QMessageBox: Inconsistent button parameters" );
@@ -1318,14 +1330,6 @@ int QMessageBox::critical( QWidget *parent, const QString &caption,
 }
 
 
-static const char *textAboutQt =
-"<h3>About Qt</h3><p>This program uses Qt version " QT_VERSION_STR ", a "
-"multiplatform C++ GUI toolkit from Troll Tech. "
-"Qt provides single-source portability across Windows 95/98/NT/2000, "
-"Linux, Solaris, HP-UX and many other versions of Unix with X11.</p>"
-"<p>See <tt>http://www.trolltech.com/qt/</tt> for more information.</p>";
-void QT_END_TEXT() { QMessageBox::aboutQt(0,"E" "g" "g"); }
-
 
 /*!
   Displays a simple message box about Qt, with window caption \a
@@ -1343,7 +1347,7 @@ void QMessageBox::aboutQt( QWidget *parent, const QString &caption )
 	c = "About Qt";
     QMessageBox *mb = new QMessageBox( parent, "about qt" );
     mb->setCaption( caption.isNull()?QString::fromLatin1("About Qt"):caption );
-    mb->setText( qApp->translate( "QMessageBox", textAboutQt ) );
+    mb->setText( *translatedTextAboutQt );
     QPixmap pm;
     QImage logo( (const char **)qtlogo_xpm);
     if ( qGray(mb->palette().active().text().rgb()) >

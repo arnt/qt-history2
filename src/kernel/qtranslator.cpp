@@ -250,9 +250,9 @@ void QTranslatorPrivate::Message::write( QTranslator::SaveMode m,
 
 // NOT REVISED
 /*! \class QTranslator qtranslator.h
-  
+
   \brief The QTranslator class provides internationalization support for text output.
-  
+
   \ingroup environment
 
   The class is conceptually very simple: An object of this class
@@ -759,3 +759,25 @@ QString QTranslator::find( const char* scope, const char* message ) const
 }
 
 
+
+
+/*  Returns a list of the inputs in the translator.  This function is
+somewhat slow; since it's seldom called it's optimized for simplicity
+and small size, not speed.
+*/
+QValueList<QTranslatorInputItem> QTranslator::inputKeys() const
+{
+    QValueList<QTranslatorInputItem> result;
+
+    ((QTranslator *)this)->unsqueeze();
+    d->messages->first();
+    QTranslatorPrivate::Message * m;
+    while( (m=d->messages->current()) != 0 ) {
+	QTranslatorInputItem i;
+	i.scope = m->scope();
+	i.key = m->input();
+	result.append( i );
+	d->messages->next();
+    }
+    return result;
+}

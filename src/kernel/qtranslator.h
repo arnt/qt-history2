@@ -36,6 +36,12 @@
 class QTranslatorPrivate;
 
 
+struct QTranslatorInputItem {
+    QCString scope;
+    QCString key;
+};
+
+
 class Q_EXPORT QTranslator: public QObject
 {
     Q_OBJECT
@@ -62,6 +68,8 @@ public:
 
     void squeeze();
     void unsqueeze();
+
+    QValueList<QTranslatorInputItem> inputKeys() const;
 
 private:
     QTranslatorPrivate * d;
