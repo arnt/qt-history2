@@ -1467,7 +1467,7 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 	    QMacBlockingFunction block;
 	    DragWindow((WindowPtr)widget->handle(), *pt, 0);
 	}
-	QPoint np, op(widget->crect.x(), widget->crect.y());
+	QPoint np, op(widget->data->crect.x(), widget->data->crect.y());
 	{
 	    QMacSavedPortInfo savedInfo(widget);
 	    Point p = { 0, 0 };
@@ -1475,7 +1475,7 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 	    np = QPoint(p.h, p.v);
 	}
 	if(np != op) {
-	    widget->crect = QRect(np, widget->crect.size());
+	    widget->data->crect = QRect(np, widget->data->crect.size());
 	    QMoveEvent qme(np, op);
 	}
 	break; }
@@ -2493,11 +2493,11 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    GetEventParameter(event, kEventParamCurrentBounds, typeQDRectangle, 0,
 			      sizeof(nr), 0, &nr);
 	    if((flags & kWindowBoundsChangeOriginChanged)) {
-		int ox = widget->crect.x(), oy = widget->crect.y();
+		int ox = widget->data->crect.x(), oy = widget->data->crect.y();
 		int nx = nr.left, ny = nr.top;
 		if(nx != ox ||  ny != oy) {
-		    widget->crect.setRect(nx, ny, widget->width(), widget->height());
-		    QMoveEvent qme(widget->crect.topLeft(), QPoint(ox, oy));
+		    widget->data->crect.setRect(nx, ny, widget->width(), widget->height());
+		    QMoveEvent qme(widget->data->crect.topLeft(), QPoint(ox, oy));
 		    QApplication::sendSpontaneousEvent(widget, &qme);
 		}
 	    }

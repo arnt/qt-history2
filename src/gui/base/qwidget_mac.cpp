@@ -765,11 +765,11 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 
     if(desktop) {                            // desktop widget
 	dialog = popup = false;                  // force these flags off
-	crect.setRect(0, 0, sw, sh);
+	data->crect.setRect(0, 0, sw, sh);
     } else if(topLevel) {                    // calc pos/size from screen
-	crect.setRect(sw/4, 3*sh/10, sw/2, 4*sh/10);
+	data->crect.setRect(sw/4, 3*sh/10, sw/2, 4*sh/10);
     } else {                                    // child widget
-	crect.setRect(0, 0, 100, 30);
+	data->crect.setRect(0, 0, 100, 30);
     }
 
     if(window) {				// override the old window
@@ -793,7 +793,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	own_id = 1; //I created it, I own it
 
 	Rect r;
-	SetRect(&r, crect.left(), crect.top(), crect.left(), crect.top());
+	SetRect(&r, data->crect.left(), data->crect.top(), data->crect.left(), data->crect.top());
 	WindowClass wclass = kSheetWindowClass;
 	if(popup || testWFlags(WStyle_Tool))
 	    wclass = kModalWindowClass;
@@ -983,7 +983,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 #endif
 	if(testWFlags(WType_Popup) || testWFlags(WStyle_Tool))
 	    SetWindowModality((WindowPtr)id, kWindowModalityNone, NULL);
-	fstrut_dirty = TRUE; // when we create a toplevel widget, the frame strut should be dirty
+	data->fstrut_dirty = TRUE; // when we create a toplevel widget, the frame strut should be dirty
 	hd = (void *)id;
 	if(!mac_window_count++)
 	    QMacSavedPortInfo::setPaintDevice(this);
@@ -1003,7 +1003,7 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
 	id = serial_id;
 	hd = topLevelWidget()->hd;
 	macWidgetChangedWindow();
-	fstrut_dirty = false; // non-toplevel widgets don't have a frame, so no need to update the strut
+	data->fstrut_dirty = false; // non-toplevel widgets don't have a frame, so no need to update the strut
 	setWinId(id);
     }
 
@@ -1098,7 +1098,7 @@ void QWidget::reparent_helper(QWidget *parent, WFlags f, const QPoint &p, bool s
     FocusPolicy fp = focusPolicy();
     QSize    s	    = size();
     QString capt = windowTitle();
-    widget_flags = f;
+    data->widget_flags = f;
     clearWState(WState_Created | WState_Visible | WState_Hidden | WState_ExplicitShowHide);
     create();
     if(isTopLevel() || (!parent || parent->isVisible()))
@@ -1419,9 +1419,9 @@ void QWidget::update(int x, int y, int w, int h)
 {
     if(!testWState(WState_BlockUpdates) && isVisible() && !clippedRegion().isEmpty()) {
 	if(w < 0)
-	    w = crect.width()  - x;
+	    w = data->crect.width()  - x;
 	if(h < 0)
-	    h = crect.height() - y;
+	    h = data->crect.height() - y;
 	if(w && h) {
 	    QRegion r(x, y, w, h);
 	    qt_event_request_updates(this, r);
@@ -1447,7 +1447,7 @@ void QWidget::repaint(const QRegion &rgn)
     if (testWState(WState_InPaintEvent))
 	qWarning("QWidget::repaint: recursive repaint detected.");
 
-    if ( (widget_state & (WState_Visible|WState_BlockUpdates)) != WState_Visible )
+    if ( (data->widget_state & (WState_Visible|WState_BlockUpdates)) != WState_Visible )
 	return;
 
     if (rgn.isEmpty())
@@ -1533,7 +1533,7 @@ void QWidget::showWindow()
 		move(qMax(avail.left(), movex), qMax(avail.top() + 2, movey));
 	}
     }
-    fstrut_dirty = true;
+    data->fstrut_dirty = true;
     dirtyClippedRegion(true);
     if(isTopLevel()) {
 	SizeWindow((WindowPtr)hd, width(), height(), true);
@@ -1620,7 +1620,7 @@ void QWidget::setWindowState(uint newstate)
 	if ((oldstate & WindowMaximized) != (newstate & WindowMaximized)) {
 	    if(newstate & WindowMaximized) {
 		Rect bounds;
-		fstrut_dirty = TRUE;
+		data->fstrut_dirty = TRUE;
 		QDesktopWidget *dsk = QApplication::desktop();
 		QRect avail = dsk->availableGeometry(dsk->screenNumber(this));
 		SetRect(&bounds, avail.x(), avail.y(), avail.x() + avail.width(), avail.y() + avail.height());
@@ -1633,7 +1633,7 @@ void QWidget::setWindowState(uint newstate)
 		if(QTLWExtra *tlextra = d->topData()) {
 		    if(tlextra->normalGeometry.width() < 0)
 			tlextra->normalGeometry = geometry();
-		    if(fstrut_dirty)
+		    if(data->fstrut_dirty)
 			updateFrameStrut();
 		    bounds.left += tlextra->fleft;
 		    bounds.top += tlextra->ftop;
@@ -1651,7 +1651,7 @@ void QWidget::setWindowState(uint newstate)
 		    ZoomWindow((WindowPtr)hd, inZoomOut, FALSE);
 		    qt_dirty_wndw_rgn("showMaxim",this, mac_rect(rect()));
 
-		    crect = nrect;
+		    data->crect = nrect;
 		    if(isVisible()) {
 			dirtyClippedRegion(TRUE);
 			//issue a resize
@@ -1671,13 +1671,13 @@ void QWidget::setWindowState(uint newstate)
 	}
     }
 
-    widget_state &= ~(WState_Minimized | WState_Maximized | WState_FullScreen);
+    data->widget_state &= ~(WState_Minimized | WState_Maximized | WState_FullScreen);
     if (newstate & WindowMinimized)
-	widget_state |= WState_Minimized;
+	data->widget_state |= WState_Minimized;
     if (newstate & WindowMaximized)
-	widget_state |= WState_Maximized;
+	data->widget_state |= WState_Maximized;
     if (newstate & WindowFullScreen)
-	widget_state |= WState_FullScreen;
+	data->widget_state |= WState_FullScreen;
 
     if (needShow)
 	show();
@@ -1816,14 +1816,14 @@ void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
     if(visible) {
 	oldregion = clippedRegion(false);
 	dirtyClippedRegion(false);
-	crect = QRect(x, y, w, h);
+	data->crect = QRect(x, y, w, h);
 	dirtyClippedRegion(true);
     } else {
-	crect = QRect(x, y, w, h);
+	data->crect = QRect(x, y, w, h);
     }
 
     bool isResize = (olds != size());
-    if(isTopLevel() && winid && own_id) {
+    if(isTopLevel() && data->winid && own_id) {
 	if(isResize && isMaximized())
 	    clearWState(WState_Maximized);
 	if (isResize)
@@ -2028,7 +2028,7 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
 	    QObject *obj = chldrn.at(i);
 	    if(obj->isWidgetType()) {
 		QWidget *w = (QWidget*)obj;
-		w->crect = QRect(w->pos() + pd, w->size());
+		w->data->crect = QRect(w->pos() + pd, w->size());
 		moved.append(w);
 	    }
 	}
@@ -2069,7 +2069,7 @@ int QWidget::metric(int m) const
     case QPaintDeviceMetrics::PdmWidth:
     {
 	if(!isTopLevel())
-	    return crect.width();
+	    return data->crect.width();
 	Rect windowBounds;
 	GetPortBounds(GetWindowPort(((WindowPtr)hd)), &windowBounds);
 	return windowBounds.right;
@@ -2078,7 +2078,7 @@ int QWidget::metric(int m) const
     case QPaintDeviceMetrics::PdmHeight:
     {
 	if(!isTopLevel())
-	    return crect.height();
+	    return data->crect.height();
 	Rect windowBounds;
 	GetPortBounds(GetWindowPort(((WindowPtr)hd)), &windowBounds);
 	return windowBounds.bottom;
@@ -2131,11 +2131,11 @@ bool QWidget::acceptDrops() const
 void QWidget::updateFrameStrut() const
 {
     QWidget *that = (QWidget *) this; //mutable
-    if(!fstrut_dirty) {
-	that->fstrut_dirty = isVisible();
+    if(!data->fstrut_dirty) {
+	that->data->fstrut_dirty = isVisible();
 	return;
     }
-    that->fstrut_dirty = false;
+    that->data->fstrut_dirty = false;
     QTLWExtra *top = that->d->topData();
     top->fleft = top->fright = top->ftop = top->fbottom = 0;
     if(!isDesktop() && isTopLevel()) {
@@ -2254,7 +2254,7 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 {
     if(qApp->closingDown())
 	return;
-    if(dirty_myself && !wasDeleted) {
+    if(dirty_myself && !d->wasDeleted) {
 	//dirty myself
 	{
 	    setRegionDirty(false);
@@ -2264,7 +2264,7 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 	QObjectList chldrn = queryList();
 	for(int i = 0; i < chldrn.size(); i++) {
 	    QObject *obj = chldrn.at(i);
-	    if(obj->isWidgetType() && !obj->wasDeleted) {
+	    if(obj->isWidgetType() && !obj->d->wasDeleted) {
 		QWidget *w = (QWidget *)obj;
 		if(!w->isTopLevel() && w->isVisible())
 		    w->setRegionDirty(true);
@@ -2289,7 +2289,7 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
     QWidget *last = this, *w, *parent=parentWidget();
     int px = myp.x() - x(), py = myp.y() - y();
     for(QWidget *widg = parent; widg; last = widg, widg = widg->parentWidget()) {
-	if(widg->wasDeleted) //no point in dirting
+	if(widg->d->wasDeleted) //no point in dirting
 	    continue;
 	myr = myr.intersect(QRect(px, py, widg->width(), widg->height()));
 	widg->setRegionDirty(false);
@@ -2301,7 +2301,7 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 	    QObject *obj = chldrn.at(i);
 	    if(obj == last)
 		break;
-	    if(obj->isWidgetType() && !obj->wasDeleted) {
+	    if(obj->isWidgetType() && !obj->d->wasDeleted) {
 		w = (QWidget *)obj;
 		if(!w->isTopLevel() && w->isVisible()) {
 		    QPoint wp(px + w->x(), py + w->y());
@@ -2310,7 +2310,7 @@ void QWidget::dirtyClippedRegion(bool dirty_myself)
 			QObjectList chldrn2 = w->queryList();
 			for(int i2 = 0; i2 < chldrn2.size(); i2++) {
 			    QObject *obj2 = chldrn2.at(i2);
-			    if(obj2->isWidgetType() && !obj2->wasDeleted) {
+			    if(obj2->isWidgetType() && !obj2->d->wasDeleted) {
 				QWidget *w = (QWidget *)obj2;
 				/* this relies on something that may change in the future
 				   if hd for all sub widgets != toplevel widget's hd, then
@@ -2373,7 +2373,7 @@ Qt::HANDLE QWidget::macCGHandle(bool do_children) const
 */
 QRegion QWidget::clippedRegion(bool do_children)
 {
-    if(wasDeleted || !isVisible() || qApp->closingDown() || qApp->startingUp())
+    if(d->wasDeleted || !isVisible() || qApp->closingDown() || qApp->startingUp())
 	return QRegion();
 
     d->createExtra();
@@ -2457,7 +2457,7 @@ QRegion QWidget::clippedRegion(bool do_children)
 	    QObjectList chldrn = children();
 	    for(int i = 0; i < chldrn.size(); i++) {
 		QObject *obj = chldrn.at(i);
-		if(obj->isWidgetType() && !obj->wasDeleted) {
+		if(obj->isWidgetType() && !obj->d->wasDeleted) {
 		    QWidget *cw = (QWidget *)obj;
 		    if(cw->isVisible() && !cw->isTopLevel() && sr.intersects(cw->geometry())) {
 			QRegion childrgn(cw->x(), cw->y(), cw->width(), cw->height());
@@ -2493,7 +2493,7 @@ QRegion QWidget::clippedRegion(bool do_children)
 		QObject *obj = siblngs.at(i);
 		if(obj == this) //I don't care about people behind me
 		    break;
-		if(obj->isWidgetType() && !obj->wasDeleted) {
+		if(obj->isWidgetType() && !obj->d->wasDeleted) {
 		    QWidget *sw = (QWidget *)obj;
 		    tmp = posInWindow(sw);
 		    QRect sr(tmp.x(), tmp.y(), sw->width(), sw->height());
