@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#26 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#27 $
 **
 ** Definition of QIconView widget class
 **
@@ -2107,7 +2107,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	QIconViewItem *item;
 	
 	if ( d->alignMode == East ) {
-	    QIconViewItem *item = d->firstItem;
+	    item = d->firstItem;
 	    QRect r( d->currentItem->x(), 0, d->currentItem->width(), contentsHeight() );
 	    for ( ; item; item = item->next ) {
 		if ( item->y() > d->currentItem->y() && r.intersects( item->rect() ) ) {
