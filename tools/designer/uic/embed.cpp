@@ -57,7 +57,7 @@ QString convertToCIdentifier( const char *s )
 
 static void embedData( QTextStream& out, const uchar* input, int nbytes )
 {
-    static char hexdigits[] = "0123456789abcdef";
+    static const char hexdigits[] = "0123456789abcdef";
     QString s;
     for ( int i=0; i<nbytes; i++ ) {
 	if ( (i%14) == 0 ) {
