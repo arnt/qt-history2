@@ -1718,7 +1718,7 @@ inline QTextFormat::QTextFormat( const QStyleSheetItem *style )
     leftBearing = fm.minLeftBearing();
     rightBearing = fm.minRightBearing();
     hei = fm.height();
-    asc = fm.ascent() + fm.leading();
+    asc = fm.ascent();
     dsc = fm.descent();
     missp = FALSE;
     memset( widths, 0, 256 );
@@ -1737,7 +1737,7 @@ inline QTextFormat::QTextFormat( const QFont &f, const QColor &c )
     leftBearing = fm.minLeftBearing();
     rightBearing = fm.minRightBearing();
     hei = fm.height();
-    asc = fm.ascent() + fm.leading();
+    asc = fm.ascent();
     dsc = fm.descent();
     missp = FALSE;
     memset( widths, 0, 256 );
@@ -1804,7 +1804,7 @@ inline void QTextFormat::update()
     leftBearing = fm.minLeftBearing();
     rightBearing = fm.minRightBearing();
     hei = fm.height();
-    asc = fm.ascent() + fm.leading();
+    asc = fm.ascent();
     dsc = fm.descent();
     memset( widths, 0, 256 );
     generateKey();
@@ -1855,7 +1855,7 @@ inline int QTextFormat::ascent() const
     if ( !painter || !painter->isActive() )
 	return asc;
     painter->setFont( fn );
-    return painter->fontMetrics().ascent() + painter->fontMetrics().leading();
+    return painter->fontMetrics().ascent();
 }
 
 inline int QTextFormat::descent() const
