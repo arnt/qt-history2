@@ -122,7 +122,7 @@
     but too few parameters were provided.
 
     \section3 Error calling IDispatch member: Type mismatch in 
-    parameter \c n
+    parameter n
 
     A \c dynamicCall() failed - the function prototype was correct,
     but the paramter at index \c n was of the wrong type and could 
