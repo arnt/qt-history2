@@ -537,12 +537,6 @@ MakefileGenerator::init()
 	v["OBJECTS"] += (v["UICOBJECTS"] = createObjectList("UICDECLS"));
     }
 
-#if 1
-//this is defined for now because moc would have to change to get this done properly, I will
-//revisit this once the build process soldifies, FIXME
-#define MOC_YACC_LEX_HACKS
-#endif
-
     //lex files
     {
 	QStringList &impls = v["LEXIMPLS"];
@@ -551,13 +545,11 @@ MakefileGenerator::init()
 	    QFileInfo fi((*it));
 	    QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext;
 	    impls.append(impl);
-#ifndef MOC_YACC_LEX_HACKS
-	    v["SOURCES"].append(impl);
-#endif
+	    if( ! project->isActiveConfig("lex_included"))
+		v["SOURCES"].append(impl);
 	}
-#ifndef MOC_YACC_LEX_HACKS
-	v["OBJECTS"] += (v["LEXOBJECTS"] = createObjectList("LEXIMPLS"));
-#endif
+	if( ! project->isActiveConfig("lex_included"))
+	    v["OBJECTS"] += (v["LEXOBJECTS"] = createObjectList("LEXIMPLS"));
     }
     //yacc files
     {
@@ -572,11 +564,11 @@ MakefileGenerator::init()
 	    v["SOURCES"].append(impl);
 	    depends[impl].append(decl);
 
-#ifdef MOC_YACC_LEX_HACKS
-	    QString leximpl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext;
-	    if(v["LEXIMPLS"].findIndex(leximpl) != -1)
-		depends[impl].append(leximpl);
-#endif
+	    if( project->isActiveConfig("lex_included")) {
+		QString leximpl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext;
+		if(v["LEXIMPLS"].findIndex(leximpl) != -1)
+		    depends[impl].append(leximpl);
+	    }
 	}
 	v["OBJECTS"] += (v["YACCOBJECTS"] = createObjectList("YACCIMPLS"));
     }
