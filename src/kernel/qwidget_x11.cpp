@@ -1885,11 +1885,12 @@ void QWidget::stackUnder( QWidget* w)
   a negative position.
 */
 
-// ### this should be set to NorthEast for reversed layout!
-int qt_widget_tlw_gravity = NorthWestGravity;
+int qt_widget_tlw_gravity = -1;
 
 static void do_size_hints( QWidget* widget, QWExtra *x )
 {
+    if (qt_widget_tlw_gravity == -1)
+	qt_widget_tlw_gravity = QApplication::reverseLayout() ? NorthEastGravity: NorthWestGravity;
     XSizeHints s;
     s.flags = 0;
     if ( x ) {
@@ -1926,8 +1927,8 @@ static void do_size_hints( QWidget* widget, QWExtra *x )
     }
     s.flags |= PWinGravity;
     s.win_gravity = qt_widget_tlw_gravity;	// usually NorthWest
-    // ### should this be set to NE for right to left languages.
-    qt_widget_tlw_gravity = NorthWestGravity;	// reset in case it was set
+    // reset in case it was set
+    qt_widget_tlw_gravity = QApplication::reverseLayout() ? NorthEastGravity: NorthWestGravity;
     XSetWMNormalHints( widget->x11Display(), widget->winId(), &s );
 }
 
