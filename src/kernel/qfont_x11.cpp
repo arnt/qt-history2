@@ -1788,7 +1788,7 @@ QCString QFontPrivate::bestMatch( const char *pattern, int *score,
 	    if ( request.pointSize != -1 )
 		pSize = request.pointSize / 10;
 	    else
-		pSize = ( (request.pixelSize * QPaintDevice::x11AppDpiY()) / 72. + 0.5 );
+		pSize = int( (request.pixelSize * QPaintDevice::x11AppDpiY()) / 72. + 0.5 );
 	    if ( bestScalable.smooth ) {
 		// X will scale the font accordingly
 		resx  = QPaintDevice::x11AppDpiX();
@@ -1896,7 +1896,7 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
 	if ( request.pointSize != -1 )
 	    reqPSize = request.pointSize / 10;
 	else
-	    reqPSize = ( (request.pixelSize * QPaintDevice::x11AppDpiY()) / 72. + 0.5 );
+	    reqPSize = int( (request.pixelSize * QPaintDevice::x11AppDpiY()) / 72. + 0.5 );
 	
 	if ( reqPSize != 0 ) {
 	    diff = (float)QABS(pSize - reqPSize);
