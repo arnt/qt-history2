@@ -91,7 +91,9 @@ void PictureDisplay::paintEvent( QPaintEvent * )
 
 void PictureDisplay::keyPressEvent( QKeyEvent *k )
 {
-    switch ( tolower(k->ascii()) ) {
+    if (k->text().isEmpty())
+        return;
+    switch ( k->text().toLower().toAscii()[0] ) {
 	case 'r':				// reload
 	    pict->load( name );
 	    update();
@@ -126,7 +128,7 @@ int main( int argc, char **argv )
     } else {
 	PictureDisplay test( fileName );	// create picture display
 	a.setMainWidget( &test);		// set main widget
-	test.setCaption("Qt Example - Picture");
+	test.setWindowTitle("Qt Example - Picture");
 	test.show();				// show it
 
 	return a.exec();			// start event loop
