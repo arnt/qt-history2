@@ -971,13 +971,13 @@ void QWidget::setAcceptDrops( bool on )
 	// Turn on.
 	topLevelWidget()->createExtra();
 	QWExtra *extra = topLevelWidget()->extraData();
-	qt_macdnd_register( this, extra );
+	qt_macdnd_register( topLevelWidget(), extra );
 	macDropEnabled = true;
     } else {
 	// Turn off.
 	macDropEnabled = false;
 	QWExtra *extra = topLevelWidget()->extraData();
-	qt_macdnd_unregister( this, extra );
+	qt_macdnd_unregister( topLevelWidget(), extra );
     }
 }
 

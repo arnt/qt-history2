@@ -875,7 +875,7 @@ bool QApplication::processNextEvent( bool canWait )
 	GetNextEvent(everyEvent, &event);
 	nevents++;
 	if(macProcessEvent( (MSG *)(&event) ) == 1)
-	  return TRUE;
+	    return TRUE;
 
       } while(EventAvail(everyEvent, &event));
      } while(EventAvail(everyEvent, &event));
