@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#328 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#329 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -678,7 +678,16 @@ const char* qt_reg_winclass( int flags )	// register window class
 	wc.cbClsExtra	= 0;
 	wc.cbWndExtra	= 0;
 	wc.hInstance	= (HINSTANCE)qWinAppInst();
-	wc.hIcon	= icon ? LoadIcon(0,IDI_APPLICATION) : 0;
+	if ( icon ) {
+	    TCHAR* irc = (TCHAR*)qt_winTchar( QString::fromLatin1("IDI_ICON1"),
+					      TRUE );
+	    wc.hIcon = LoadIcon( appInst, irc );
+	    if ( !wc.hIcon )
+		wc.hIcon = LoadIcon( 0, IDI_APPLICATION );
+	}
+	else {
+	    wc.hIcon = 0;
+	}
 	wc.hCursor	= 0;
 	wc.hbrBackground= 0;
 	wc.lpszMenuName	= 0;
@@ -691,7 +700,14 @@ const char* qt_reg_winclass( int flags )	// register window class
 	wc.cbClsExtra	= 0;
 	wc.cbWndExtra	= 0;
 	wc.hInstance	= (HINSTANCE)qWinAppInst();
-	wc.hIcon	= icon ? LoadIconA(0,(char*)IDI_APPLICATION) : 0;
+	if ( icon ) {
+	    wc.hIcon = LoadIconA( appInst, (char*)"IDI_ICON1" );
+	    if ( !wc.hIcon )
+		wc.hIcon = LoadIconA( 0, (char*)IDI_APPLICATION );
+	}
+	else {
+	    wc.hIcon = 0;
+	}
 	wc.hCursor	= 0;
 	wc.hbrBackground= 0;
 	wc.lpszMenuName	= 0;
