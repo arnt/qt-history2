@@ -381,7 +381,7 @@ inline void QPainter::drawPixmap(const QPoint &p, const QPixmap &pm, bool imask)
 {
     drawPixmap(QRect(p.x(), p.y(), -1, -1),
                pm,
-               QRect(0, 0, pm.width(), pm.height())), imask;
+               QRect(0, 0, pm.width(), pm.height()), imask);
 }
 
 inline void QPainter::eraseRect(const QRect &r)
