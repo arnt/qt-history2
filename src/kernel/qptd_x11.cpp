@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#28 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#27 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#28 $";
 #endif
 
 
@@ -128,10 +128,8 @@ Returns the window system handle of the paint device (OS/2 PM only).
 Returns the window system handle of the paint device (X-Windows only).
 */
 
-/*!
-\fn Display *display() const
-Returns a pointer to the X display (X-Windows only).
-*/
+/*! \fn Display *QPaintDevice::display() const
+  Returns a pointer to the X display (X-Windows only). */
 
 
 /*!
