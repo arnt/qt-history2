@@ -14,12 +14,9 @@
 
 // ### 4.0: examine Q_EXPORT's below. The respective symbols had all
 // been in use (e.g. in the KDE wm ) before the introduction of a version
-// map. One might want to turn some of them into propert public API and
+// map. One might want to turn some of them into proper public API and
 // provide a proper alternative for others. See also the exports in
 // qapplication_win.cpp which suggest a unification.
-
-// ### needed for solaris-g++
-#define QT_CLEAN_NAMESPACE
 
 #include "qplatformdefs.h"
 
