@@ -389,6 +389,7 @@ fi
 echo "Compile flags: $QT_CXX $I_FLAGS"
 echo "Link flags:    $QT_LIBS"
 echo "GIF supports:  $GIF"
+echo
 echo Creating makefiles...
 
 for a in `find . -name Makefile.in -print | sort` ; do
