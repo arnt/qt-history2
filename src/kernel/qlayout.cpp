@@ -746,9 +746,9 @@ void QGridLayoutData::distribute( QRect r, int spacing )
 	int w = colData[box->col].size;
 	int h = rData[box->row].size;
 	if ( hReversed )
-	    x = r.left() + r.right() - x - w;
+	    x = r.left() + r.right() - x - w + 1;
 	if ( vReversed )
-	    y = r.top() + r.bottom() - y - h;
+	    y = r.top() + r.bottom() - y - h + 1;
 	box->setGeometry( QRect( x, y, w, h ) );
     }
     if ( multi ) {
@@ -772,9 +772,9 @@ void QGridLayoutData::distribute( QRect r, int spacing )
 	    int h = y2p - y;
 	    // this code is copied from above:
 	    if ( hReversed )
-		x = r.left() + r.right() - x - w;
+		x = r.left() + r.right() - x - w + 1;
 	    if ( vReversed )
-		y = r.top() + r.bottom() - y - h;
+		y = r.top() + r.bottom() - y - h + 1;
 	    box->setGeometry( QRect( x, y, w, h ) );
 	}
     }
@@ -1771,7 +1771,7 @@ void QBoxLayout::setGeometry( const QRect &r )
 		break;
 	    case RightToLeft:
 		box->item->setGeometry( QRect(s.left() + s.right()
-					      - a[i].pos - a[i].size, s.y(),
+					      - a[i].pos - a[i].size + 1, s.y(),
 					      a[i].size, s.height()) );
 		break;
 	    case TopToBottom:
@@ -1780,7 +1780,7 @@ void QBoxLayout::setGeometry( const QRect &r )
 		break;
 	    case BottomToTop:
 		box->item->setGeometry( QRect(s.x(), s.top() + s.bottom()
-					      - a[i].pos - a[i].size,
+					      - a[i].pos - a[i].size + 1,
 					      s.width(), a[i].size) );
 	    }
 	}
