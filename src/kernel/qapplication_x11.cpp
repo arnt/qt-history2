@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#550 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#551 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2272,8 +2272,8 @@ int QApplication::x11ProcessEvent( XEvent* event )
     case GraphicsExpose:
     case Expose:				// paint event
 	if ( widget->testWState(WState_ForceHide) ) {
-	    widget->setWState( WState_Visible );
-	    widget->hide();
+	  //widget->setWState( WState_Visible );
+	  //widget->hide();
 	} else {
 	    widget->translatePaintEvent( event );
 	}
@@ -2353,11 +2353,17 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	
     case MapNotify:				// window shown
 	if ( !widget->isVisible() )  {
-	    widget->setWState( WState_Visible );
-	    widget->clearWState( WState_Withdrawn );
-	    widget->sendShowEventsToChildren( TRUE );
-	    QShowEvent e( TRUE );
-	    QApplication::sendEvent( widget, &e );
+	    if ( widget->testWState( WState_Withdrawn ) ) {
+		// this cannot happen in normal applications but might happen with embedding
+		widget->show();
+	    }
+	    else {
+		widget->setWState( WState_Visible );
+		widget->clearWState( WState_Withdrawn );
+		widget->sendShowEventsToChildren( TRUE );
+		QShowEvent e( TRUE );
+		QApplication::sendEvent( widget, &e );
+	    }
 	}
 	break;
 
