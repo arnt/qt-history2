@@ -3066,7 +3066,8 @@ int QListView::columnWidth( int c ) const
 
 void QListView::setColumnWidthMode( int c, WidthMode mode )
 {
-    d->column[c]->wmode = mode;
+    if ( c < d->h->count() )
+         d->column[c]->wmode = mode;
 }
 
 
@@ -3077,7 +3078,10 @@ void QListView::setColumnWidthMode( int c, WidthMode mode )
 
 QListView::WidthMode QListView::columnWidthMode( int c ) const
 {
-    return d->column[c]->wmode;
+    if ( c < d->h->count() )
+        return d->column[c]->wmode;
+    else
+        return Manual;
 }
 
 
