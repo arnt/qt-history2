@@ -594,6 +594,12 @@ bool QTitleBar::isActive() const
     return d->act;
 }
 
+bool QTitleBar::usesActiveColor() const
+{
+    return ( isActive() && isActiveWindow() ) ||
+	   ( !window() && topLevelWidget()->isActiveWindow() );
+}
+
 QString QTitleBar::visibleText() const
 {
     return d->cuttext;
@@ -610,9 +616,11 @@ bool QTitleBar::event( QEvent* e )
 	readColors();
 	return TRUE;
     } else if ( e->type() == QEvent::WindowActivate ) {
-	setActive( TRUE );
+	setActive( d->act );
     } else if ( e->type() == QEvent::WindowDeactivate ) {
+	bool wasActive = d->act;
 	setActive( FALSE );
+	d->act = wasActive;
     }
 
     return QWidget::event( e );
