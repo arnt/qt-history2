@@ -29,13 +29,13 @@ class TextEdit : public QMainWindow
     Q_OBJECT
 
 public:
-    TextEdit( QWidget *parent = 0, const char *name = 0 );
+    TextEdit(QWidget *parent = 0);
 
 private:
     void setupFileActions();
     void setupEditActions();
     void setupTextActions();
-    void load( const QString &f );
+    void load(const QString &f);
 
 private slots:
     void fileNew();
@@ -49,20 +49,20 @@ private slots:
     void textBold();
     void textUnderline();
     void textItalic();
-    void textFamily( const QString &f );
-    void textSize( const QString &p );
-    void textStyle( int s );
+    void textFamily(const QString &f);
+    void textSize(const QString &p);
+    void textStyle(int s);
     void textColor();
-    void textAlign( QAction *a );
+    void textAlign(QAction *a);
 
     void editorChanged();
 
     void currentCharFormatChanged(const QTextCharFormat &format);
 
 private:
-    void fontChanged( const QFont &f );
-    void colorChanged( const QColor &c );
-    void alignmentChanged( Qt::Alignment a );
+    void fontChanged(const QFont &f);
+    void colorChanged(const QColor &c);
+    void alignmentChanged(Qt::Alignment a);
 
     QTextEdit *createNewEditor(const QString &title = QString::null);
 
@@ -79,9 +79,6 @@ private:
         *actionCut,
         *actionCopy,
         *actionPaste;
-
-    QMenu *editMenu;
-    QToolBar *editToolBar;
 
     QComboBox *comboStyle,
 	*comboFont,

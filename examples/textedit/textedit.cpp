@@ -41,90 +41,93 @@
 #include <qtexttable.h>
 #include <private/qtextdocumentlayout_p.h>
 
-TextEdit::TextEdit( QWidget *parent, const char *name )
-    : QMainWindow( parent, name )
+TextEdit::TextEdit(QWidget *parent)
+    : QMainWindow(parent)
 {
     setupFileActions();
     setupEditActions();
     setupTextActions();
 
-    tabWidget = new QTabWidget( this );
-    connect( tabWidget, SIGNAL( currentChanged( int ) ),
-	     this, SLOT( editorChanged() ) );
-    setCentralWidget( tabWidget );
+    tabWidget = new QTabWidget(this);
+    connect( tabWidget, SIGNAL(currentChanged(int)),
+	     this, SLOT(editorChanged()));
+    setCentralWidget(tabWidget);
 
-    if ( qApp->argc() == 1 ) {
-	load( "example.html" );
+    if (qApp->argc() == 1) {
+	load("example.html");
     } else {
-	for ( int i = 1; i < qApp->argc(); ++i )
-	    load( qApp->argv()[ i ] );
+	for (int i = 1; i < qApp->argc(); ++i)
+	    load(qApp->argv()[i]);
     }
 }
 
 void TextEdit::setupFileActions()
 {
-    QToolBar *tb = new QToolBar( this );
-    tb->setLabel( "File Actions" );
-    QPopupMenu *menu = new QPopupMenu( this );
-    menuBar()->addMenu( tr( "&File" ), menu );
+    QToolBar *tb = new QToolBar(this);
+    tb->setLabel("File Actions");
+    QMenu *menu = new QMenu(this);
+    menuBar()->addMenu(tr("&File"), menu);
 
     QAction *a;
-    a = new QAction( QPixmap::fromMimeSource( "filenew.xpm" ), tr( "&New..." ), CTRL + Key_N, this );
-    connect( a, SIGNAL( triggered() ), this, SLOT( fileNew() ) );
+
+    a = new QAction(QPixmap::fromMimeSource("filenew.xpm"), tr("&New..."), CTRL + Key_N, this);
+    connect(a, SIGNAL(triggered()), this, SLOT(fileNew()));
     tb->addAction(a);
     menu->addAction(a);
-    a = new QAction( QPixmap::fromMimeSource( "fileopen.xpm" ), tr( "&Open..." ), CTRL + Key_O, this );
-    connect( a, SIGNAL( triggered() ), this, SLOT( fileOpen() ) );
+
+    a = new QAction(QPixmap::fromMimeSource("fileopen.xpm"), tr("&Open..."), CTRL + Key_O, this);
+    connect(a, SIGNAL(triggered()), this, SLOT(fileOpen()));
     tb->addAction(a);
+    menu->addAction(a);
+
+    menu->addSeparator();
+
+    a = new QAction(QPixmap::fromMimeSource("filesave.xpm"), tr("&Save..."), CTRL + Key_S, this);
+    connect(a, SIGNAL(triggered()), this, SLOT(fileSave()));
+    tb->addAction(a);
+    menu->addAction(a);
+
+    a = new QAction(tr("Save &As..."), 0, this);
+    connect(a, SIGNAL(triggered()), this, SLOT(fileSaveAs()));
     menu->addAction(a);
     menu->addSeparator();
-    a = new QAction( QPixmap::fromMimeSource( "filesave.xpm" ), tr( "&Save..." ), CTRL + Key_S, this );
-    connect( a, SIGNAL( triggered() ), this, SLOT( fileSave() ) );
+
+    a = new QAction(QPixmap::fromMimeSource("fileprint.xpm"), tr("&Print..."), CTRL + Key_P, this);
+    connect(a, SIGNAL(triggered()), this, SLOT(filePrint()));
     tb->addAction(a);
     menu->addAction(a);
-    a = new QAction( tr( "Save &As..." ), 0, this );
-    connect( a, SIGNAL( triggered() ), this, SLOT( fileSaveAs() ) );
+
+    a = new QAction(tr("&Close"), 0, this);
+    connect(a, SIGNAL(triggered()), this, SLOT(fileClose()));
     menu->addAction(a);
-    menu->addSeparator();
-    a = new QAction( QPixmap::fromMimeSource( "fileprint.xpm" ), tr( "&Print..." ), CTRL + Key_P, this );
-    connect( a, SIGNAL( triggered() ), this, SLOT( filePrint() ) );
-    tb->addAction(a);
-    menu->addAction(a);
-    a = new QAction( tr( "&Close" ), 0, this );
-    connect( a, SIGNAL( triggered() ), this, SLOT( fileClose() ) );
-    menu->addAction(a);
-    a = new QAction( tr( "E&xit" ), CTRL + Key_Q, this );
-    connect( a, SIGNAL( triggered() ), this, SLOT( fileExit() ) );
+
+    a = new QAction(tr("E&xit"), CTRL + Key_Q, this);
+    connect(a, SIGNAL(triggered()), this, SLOT(fileExit()));
     menu->addAction(a);
 }
 
 void TextEdit::setupEditActions()
 {
-    editToolBar = new QToolBar( this );
-    editToolBar->setLabel( "Edit Actions" );
-    editMenu = new QPopupMenu( this );
-    menuBar()->addMenu( tr( "&Edit" ), editMenu );
-
-    QToolBar *tb = new QToolBar( this );
-    tb->setLabel( "Edit Actions" );
-    QPopupMenu *menu = new QPopupMenu( this );
+    QToolBar *tb = new QToolBar(this);
+    tb->setLabel("Edit Actions");
+    QMenu *menu = new QMenu( this );
     menuBar()->addMenu( tr( "&Edit" ), menu );
 
     QAction *a;
-    a = actionUndo = new QAction( QPixmap::fromMimeSource( "editundo.xpm" ), tr( "&Undo" ), CTRL + Key_Z, this );
+    a = actionUndo = new QAction(QPixmap::fromMimeSource("editundo.xpm"), tr("&Undo"), CTRL + Key_Z, this);
     tb->addAction(a);
     menu->addAction(a);
-    a = actionRedo = new QAction( QPixmap::fromMimeSource( "editredo.xpm" ), tr( "&Redo" ), CTRL + Key_Y, this );
+    a = actionRedo = new QAction(QPixmap::fromMimeSource("editredo.xpm"), tr("&Redo"), CTRL + Key_Y, this);
     tb->addAction(a);
     menu->addAction(a);
     menu->addSeparator();
-    a = actionCut = new QAction( QPixmap::fromMimeSource( "editcut.xpm" ), tr( "Cu&t" ), CTRL + Key_X, this );
+    a = actionCut = new QAction(QPixmap::fromMimeSource("editcut.xpm"), tr("Cu&t"), CTRL + Key_X, this);
     tb->addAction(a);
     menu->addAction(a);
-    a = actionCopy = new QAction( QPixmap::fromMimeSource( "editcopy.xpm" ), tr( "&Copy" ), CTRL + Key_C, this );
+    a = actionCopy = new QAction(QPixmap::fromMimeSource("editcopy.xpm"), tr("&Copy"), CTRL + Key_C, this);
     tb->addAction(a);
     menu->addAction(a);
-    a = actionPaste = new QAction( QPixmap::fromMimeSource( "editpaste.xpm" ), tr( "&Paste" ), CTRL + Key_V, this );
+    a = actionPaste = new QAction(QPixmap::fromMimeSource("editpaste.xpm"), tr("&Paste"), CTRL + Key_V, this);
     tb->addAction(a);
     menu->addAction(a);
 }
