@@ -29,6 +29,12 @@
 #endif // NO_ERROR_H
 #include <qdebug.h>
 
+#ifdef QT_NO_DEBUG
+#  define QLIBRARY_AS_DEBUG false
+#else
+#  define QLIBRARY_AS_DEBUG true
+#endif
+
 /*!
     \class QLibrary
     \reentrant
@@ -180,7 +186,7 @@ static int qt_tokenize(const char *s, ulong s_len, ulong *advance,
 /*
   returns true if the string s was correctly parsed, false otherwise.
 */
-static bool qt_parse_pattern(const char *s, uint *version, QByteArray *key)
+static bool qt_parse_pattern(const char *s, uint *version, bool *debug, QByteArray *key)
 {
     bool ret = true;
 
@@ -210,6 +216,8 @@ static bool qt_parse_pattern(const char *s, uint *version, QByteArray *key)
                 ret = false;
                 break;
             }
+        } else if (qstrncmp("debug", pinfo.results[0], pinfo.lengths[0]) == 0) {
+            *debug = qstrncmp("true", pinfo.results[1], pinfo.lengths[1]) == 0;
         } else if (qstrncmp("buildkey", pinfo.results[0],
                               pinfo.lengths[0]) == 0){
             // save buildkey
@@ -274,7 +282,7 @@ static long qt_find_pattern(const char *s, ulong s_len,
                 information could not be read.
   Returns  true if version/key information is present and successfully read.
 */
-static bool qt_unix_query(const QString &library, uint *version, QByteArray *key)
+static bool qt_unix_query(const QString &library, uint *version, bool *debug, QByteArray *key)
 {
     QFile file(library);
     if (! file.open(IO_ReadOnly)) {
@@ -313,9 +321,8 @@ static bool qt_unix_query(const QString &library, uint *version, QByteArray *key
     long pos = qt_find_pattern(filedata, fdlen, pattern, plen);
 
     bool ret = false;
-    if (pos >= 0) {
-        ret = qt_parse_pattern(filedata + pos, version, key);
-    }
+    if (pos >= 0) 
+        ret = qt_parse_pattern(filedata + pos, version, debug, key);
 
 #ifdef USE_MMAP
     if (mapaddr != MAP_FAILED && munmap(mapaddr, maplen) != 0) {
@@ -409,28 +416,31 @@ bool QLibraryPrivate::isPlugin()
     if (pluginState != MightBeAPlugin)
         return pluginState == IsAPlugin;
 
+    bool debug = !QLIBRARY_AS_DEBUG;
     QByteArray key;
     bool success = false;
 
     QFileInfo fileinfo(fileName);
     lastModified  = fileinfo.lastModified().toString(Qt::ISODate);
-    QString regkey = QString::fromLatin1("Qt Plugin Cache %1.%2/%3")
+    QString regkey = QString::fromLatin1("Qt Plugin Cache %1.%2.%3/%4")
                      .arg((QT_VERSION & 0xff0000) >> 16)
                      .arg((QT_VERSION & 0xff00) >> 8)
+                     .arg(QLIBRARY_AS_DEBUG ? "debug" : "false")
                      .arg(fileName);
     QStringList reg;
 
     QCoreSettings settings(Qt::UserScope, QLatin1String("trolltech.com"));
     reg = settings.value(regkey).toStringList();
-    if (reg.count() == 3 &&lastModified == reg[2]) {
+    if (reg.count() == 4 &&lastModified == reg[3]) {
         qt_version = reg[0].toUInt(0, 16);
-        key = reg[1].latin1();
+        debug = (bool)reg[1].toInt();
+        key = reg[2].latin1();
         success = qt_version != 0;
     } else {
 #if defined(Q_OS_UNIX)
         if (!pHnd) {
             // use unix shortcut to avoid loading the library
-            success = qt_unix_query(fileName, &qt_version, &key);
+            success = qt_unix_query(fileName, &qt_version, &debug, &key);
         } else
 #endif
         {
@@ -446,7 +456,7 @@ bool QLibraryPrivate::isPlugin()
                 (QtPluginQueryVerificationDataFn) resolve("qt_plugin_query_verification_data");
 
             if (!qtPluginQueryVerificationDataFn
-                || !qt_parse_pattern(qtPluginQueryVerificationDataFn(), &qt_version, &key)) {
+                || !qt_parse_pattern(qtPluginQueryVerificationDataFn(), &qt_version, &debug, &key)) {
                 qt_version = 0;
                 key = "unknown";
                 if (temporary_load)
@@ -458,6 +468,7 @@ bool QLibraryPrivate::isPlugin()
 
         QStringList queried;
         queried << QString::number(qt_version,16)
+                << QString::number((int)debug)
                 << QLatin1String(key)
                 << lastModified;
         settings.setValue(regkey, queried);
@@ -471,21 +482,22 @@ bool QLibraryPrivate::isPlugin()
     pluginState = IsNotAPlugin; // be pessimistic
 
     bool warn = true;
-    if ((qt_version > QT_VERSION) ||
+    if ((qt_version > QT_VERSION) || (debug != QLIBRARY_AS_DEBUG) ||
                 ((QT_VERSION & 0xff0000) > (qt_version & 0xff0000))) {
         if (warn)
             qWarning("In %s:\n"
-                      "  Plugin uses incompatible Qt library (%d.%d.%d)",
-                      (const char*) QFile::encodeName(fileName),
-                      (qt_version&0xff0000) >> 16, (qt_version&0xff00) >> 8, qt_version&0xff);
+                     "  Plugin uses incompatible Qt library (%d.%d.%d) [%s]",
+                     (const char*) QFile::encodeName(fileName),
+                     (qt_version&0xff0000) >> 16, (qt_version&0xff00) >> 8, qt_version&0xff,
+                     debug ? "debug" : "release");
     } else if (key != QT_BUILD_KEY) {
         if (warn)
             qWarning("In %s:\n"
-                      "  Plugin uses incompatible Qt library\n"
-                      "  expected build key \"%s\", got \"%s\"",
-                      (const char*) QFile::encodeName(fileName),
-                      QT_BUILD_KEY,
-                      key.isEmpty() ? "<null>" : (const char *) key);
+                     "  Plugin uses incompatible Qt library\n"
+                     "  expected build key \"%s\", got \"%s\"",
+                     (const char*) QFile::encodeName(fileName),
+                     QT_BUILD_KEY,
+                     key.isEmpty() ? "<null>" : (const char *) key);
     } else {
         pluginState = IsAPlugin;
     }

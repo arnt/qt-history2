@@ -26,12 +26,21 @@
 #endif
 
 // NOTE: if you change pattern, you MUST change the pattern in
-// qpluginloader.cpp as well.  changing the pattern will break all
+// qlibrary.cpp as well.  changing the pattern will break all
 // backwards compatibility as well (no old plugins will be loaded).
+#ifdef QPLUGIN_DEBUG_STR
+#  undef QPLUGIN_DEBUG_STR
+#endif
+#ifdef QT_NO_DEBUG
+#  define QPLUGIN_DEBUG_STR "false"
+#else
+#  define QPLUGIN_DEBUG_STR "true"
+#endif
 #define Q_PLUGIN_VERIFICATION_DATA \
   static const char *qt_plugin_verification_data = \
     "pattern=""QT_PLUGIN_VERIFICATION_DATA""\n" \
     "version="QT_VERSION_STR"\n" \
+    "debug="QPLUGIN_DEBUG_STR"\n" \
     "buildkey="QT_BUILD_KEY"\0";
 
 #define Q_PLUGIN_INSTANCE(IMPLEMENTATION) \
