@@ -220,6 +220,7 @@ Atom		qt_wm_client_leader	= 0;
 Atom		qt_window_role		= 0;
 Atom		qt_sm_client_id		= 0;
 Atom		qt_xa_motif_wm_hints	= 0;
+Atom		qt_cde_running		= 0;
 Atom		qt_kwin_running	= 0;
 Atom		qt_kwm_running	= 0;
 Atom		qt_gbackground_properties	= 0;
@@ -850,7 +851,6 @@ bool QApplication::x11_apply_settings()
 			 QColor(strlist[i]));
     }
 
-
     // workaround for KDE 3.0, which messes up the buttonText value of
     // the disabled palette in QSettings
     if ( pal.disabled().buttonText() == pal.active().buttonText() ) {
@@ -1089,7 +1089,7 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 
 	    if ( mine ) {
 		if ( !font && key == "systemfont")
-		    sysFont = value.copy();
+		    sysFont = value.left( value.findRev(':') ).copy();
 		if ( !font && key == "font")
 		    resFont = value.copy();
 		else if  ( !fg &&  key == "foreground" )
@@ -1116,8 +1116,31 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	QFont fnt;
 	fnt.setRawName( resFont );
 
-	if ( fnt != QApplication::font() )
+	// the font we get may actually be an alias for another font,
+	// so we reset the application font to the real font info.
+	if ( ! fnt.exactMatch() ) {
+	    QFontInfo fontinfo( fnt );
+	    fnt.setFamily( fontinfo.family() );
+	    fnt.setRawMode( fontinfo.rawMode() );
+
+	    if ( ! fnt.rawMode() ) {
+		fnt.setItalic( fontinfo.italic() );
+		fnt.setWeight( fontinfo.weight() );
+		fnt.setUnderline( fontinfo.underline() );
+		fnt.setStrikeOut( fontinfo.strikeOut() );
+		fnt.setStyleHint( fontinfo.styleHint() );
+
+		if ( fnt.pointSize() <= 0 && fnt.pixelSize() <= 0 )
+		    // size is all wrong... fix it
+		    fnt.setPointSize( (int) ( ( fontinfo.pixelSize() * 72. /
+						(float) QPaintDevice::x11AppDpiY() ) +
+					      0.5 ) );
+	    }
+	}
+
+	if ( fnt != QApplication::font() ) {
 	    QApplication::setFont( fnt, TRUE );
+	}
     }
 
 
@@ -1756,6 +1779,7 @@ void qt_init_internal( int *argcptr, char **argv,
 	qt_x11_intern_atom( "_QT_SIZEGRIP", &qt_sizegrip );
 	qt_x11_intern_atom( "_NET_WM_CONTEXT_HELP", &qt_net_wm_context_help );
 	qt_x11_intern_atom( "_MOTIF_WM_HINTS", &qt_xa_motif_wm_hints );
+	qt_x11_intern_atom( "DTWM_IS_RUNNING", &qt_cde_running );
 	qt_x11_intern_atom( "KWIN_RUNNING", &qt_kwin_running );
 	qt_x11_intern_atom( "KWM_RUNNING", &qt_kwm_running );
 	qt_x11_intern_atom( "GNOME_BACKGROUND_PROPERTIES", &qt_gbackground_properties );
@@ -1949,13 +1973,7 @@ void qt_init_internal( int *argcptr, char **argv,
 	    (int) ( ( ( QPaintDevice::x11AppDpiY() >= 95 ? 17. : 12. ) *
 		      72. / (float) QPaintDevice::x11AppDpiY() ) + 0.5 );
 
-	QFont f(
-#if defined(Q_OS_SOLARIS) || defined(Q_OS_HPUX)
-		"Interface System",
-#else
-		"Helvetica",
-#endif // Q_OS_SOLARIS
-		ptsz );
+	QFont f( "Helvetica", ptsz );
 	QApplication::setFont( f );
 
 	qt_set_x11_resources( appFont, appFGCol, appBGCol, appBTNCol);
@@ -2121,39 +2139,42 @@ void QApplication::x11_initialize_style()
     int format;
     unsigned long length, after;
     uchar *data;
-#ifndef QT_NO_STYLE_WINDOWS
-    if ( !app_style
-	 && XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow(), qt_kwin_running, 0, 1,
-			     False, AnyPropertyType, &type, &format,
-			     &length, &after, &data ) == Success
-	 && length ) {
+    if ( !app_style &&
+	 XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow(), qt_kwin_running,
+			     0, 1, False, AnyPropertyType, &type, &format, &length,
+			     &after, &data ) == Success && length ) {
 	if ( data ) XFree( (char *)data );
-	// kwin is there. check if KDE's styles are available, otherwise use windows style
+	// kwin is there. check if KDE's styles are available,
+	// otherwise use windows style
 	if ( (app_style = QStyleFactory::create("highcolor") ) == 0 )
 	    app_style = QStyleFactory::create("windows");
     }
-    if ( !app_style
-	 && XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow(), qt_kwm_running, 0, 1,
-			     False, AnyPropertyType, &type, &format,
-			     &length, &after, &data ) == Success
-	 && length ) {
+    if ( !app_style &&
+	 XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow(), qt_kwm_running,
+			     0, 1, False, AnyPropertyType, &type, &format, &length,
+			     &after, &data ) == Success && length ) {
+	qDebug( "kwm is running (KDE 1.x)" );
 	if ( data ) XFree( (char *)data );
-	// kwm is there, looks like KDE1
 	app_style = QStyleFactory::create("windows");
     }
-#endif
-#ifndef QT_NO_STYLE_MOTIFPLUS
+    if ( !app_style &&
+	 XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow(), qt_cde_running,
+			     0, 1, False, AnyPropertyType, &type, &format, &length,
+			     &after, &data ) == Success && length ) {
+	// DTWM is running, meaning most likely CDE is running...
+	if ( data ) XFree( (char *) data );
+	app_style = QStyleFactory::create( "cde" );
+    }
     // maybe another desktop?
-    if ( !app_style
-	 && XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow(), qt_gbackground_properties, 0, 1,
-			     False, AnyPropertyType, &type, &format,
-			     &length, &after, &data ) == Success
-	 && length ) {
+    if ( !app_style &&
+	 XGetWindowProperty( appDpy, QPaintDevice::x11AppRootWindow(),
+			     qt_gbackground_properties, 0, 1, False, AnyPropertyType,
+			     &type, &format, &length, &after, &data ) == Success &&
+	 length ) {
 	if ( data ) XFree( (char *)data );
 	// default to MotifPlus with hovering
 	app_style = QStyleFactory::create("motifplus" );
     }
-#endif
 }
 #endif
 
