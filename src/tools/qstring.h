@@ -581,8 +581,7 @@ public:
 
 private:
     class CoMatrix;
-
-    QString( int size, bool dummy );            // allocate size incl. \0
+    QString( int size, bool /*dummy*/ );	// allocate size incl. \0
 
     void deref();
     void real_detach();
@@ -641,8 +640,8 @@ public:
     bool isDigit() const { return s.constref(p).isDigit(); }
 
     int digitValue() const { return s.constref(p).digitValue(); }
-    QChar lower() { return s.constref(p).lower(); }
-    QChar upper() { return s.constref(p).upper(); }
+    QChar lower() const { return s.constref(p).lower(); }
+    QChar upper() const { return s.constref(p).upper(); }
 
     QChar::Category category() const { return s.constref(p).category(); }
     QChar::Direction direction() const { return s.constref(p).direction(); }
