@@ -68,6 +68,9 @@ public:
     inline FormWindow *formWindow() const
     { return m_formWindow; }
 
+    inline int currentIndex() const
+    { return m_currentIndex; }
+
     int findItemAt(const QPoint &pos) const;
     QRect itemInfo(int index) const;
     int indexOf(QWidget *widget) const;
@@ -93,6 +96,7 @@ private:
     QPointer<QWidget> m_indicatorTop;
     QPointer<QWidget> m_indicatorRight;
     QPointer<QWidget> m_indicatorBottom;
+    int m_currentIndex;
 };
 
 class QT_FORMEDITOR_EXPORT QLayoutWidget : public QWidget

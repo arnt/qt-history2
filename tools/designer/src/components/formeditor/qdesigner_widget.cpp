@@ -15,25 +15,25 @@
 #include "qdesigner_stackedbox.h"
 #include "formwindow.h"
 #include "command.h"
-#include "qtundo.h"
 #include "layout.h"
 
 #include <abstractformeditor.h>
 #include <abstractwidgetfactory.h>
 #include <propertysheet.h>
 #include <qextensionmanager.h>
+#include <qtundo.h>
 
-#include <qpair.h>
-#include <qbitmap.h>
-#include <qpixmapcache.h>
-#include <qtabbar.h>
-#include <qtoolbutton.h>
-#include <qpainter.h>
+#include <QBitmap>
+#include <QPixmapCache>
+#include <QToolButton>
+#include <QPainter>
+#include <QApplication>
+#include <QLayout>
+#include <QAction>
+#include <QMessageBox>
+
 #include <qevent.h>
-#include <qapplication.h>
-#include <qlayout.h>
-#include <qaction.h>
-#include <qmessagebox.h>
+#include <qpair.h>
 #include <qdebug.h>
 
 static void paintGrid(QWidget *widget, AbstractFormWindow *formWindow, QPaintEvent *e, bool needFrame = false)
@@ -94,7 +94,7 @@ void QDesignerLabel::updateBuddy()
 QDesignerWidget::QDesignerWidget(FormWindow* formWindow, QWidget *parent)
     : QWidget(parent), m_formWindow(formWindow)
 {
-    need_frame = true; // ### qt_cast<QDesignerStackedWidget*>(parent) != 0;
+    need_frame = true;
 }
 
 QDesignerWidget::~QDesignerWidget()
@@ -133,6 +133,7 @@ void QLayoutSupport::adjustIndicator(const QPoint &pos, int index)
         return;
     }
 
+    m_currentIndex = index;
     QLayoutItem *item = layout()->itemAt(index);
     QRect g = item->geometry();
 
@@ -446,7 +447,10 @@ void QLayoutWidget::setLayoutSpacing(int layoutSpacing)
 
 // ---- QLayoutSupport ----
 QLayoutSupport::QLayoutSupport(FormWindow *formWindow, QWidget *widget, QObject *parent)
-    : QObject(parent), m_formWindow(formWindow), m_widget(widget)
+    : QObject(parent),
+      m_formWindow(formWindow),
+      m_widget(widget),
+      m_currentIndex(-1)
 {
     QPalette p;
     p.setColor(QPalette::Background, Qt::red);
@@ -512,7 +516,7 @@ void QLayoutSupport::removeWidget(QWidget *widget)
         if (QGridLayout *grid = qt_cast<QGridLayout*>(layout())) {
             int row, column, rowspan, colspan;
             grid->getItemPosition(index, &row, &column, &rowspan, &colspan);
-            QSpacerItem *spacer = new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Minimum);
+            QSpacerItem *spacer = new QSpacerItem(20, 20);
             grid->addItem(spacer, row, column, rowspan, colspan);
         }
     }
@@ -560,7 +564,7 @@ void QLayoutSupport::insertWidget(QWidget *widget)
         case LayoutInfo::Grid: {
             QGridLayout *gridLayout = qt_cast<QGridLayout*>(layout());
             QPoint pos = widget->pos();
-            int index = findItemAt(pos);
+            int index = currentIndex() != -1 ? currentIndex() : findItemAt(pos);
             if (index != -1) {
                 QLayoutItem *item = gridLayout->itemAt(index);
                 if (item && item->spacerItem()) {
@@ -574,7 +578,7 @@ void QLayoutSupport::insertWidget(QWidget *widget)
             }
 
             QMessageBox::information(m_widget, tr("Information"), tr("not implemented yet!"));
-            widget->setParent(m_widget->parentWidget());
+            widget->setParent(formWindow()->mainContainer());
         } break;
 
         default:
@@ -625,7 +629,7 @@ void QLayoutSupport::createEmptyCells(QGridLayout *gridLayout)
         QLayoutItem *item = it.value();
 
         if (!item || !item->widget())
-            gridLayout->addItem(new QSpacerItem(0,0), cell.first, cell.second);
+            gridLayout->addItem(new QSpacerItem(20, 20), cell.first, cell.second);
     }
 }
 
@@ -695,7 +699,15 @@ int QLayoutSupport::findItemAt(const QPoint &pos) const
 
     int index = 0;
     while (QLayoutItem *item = layout()->itemAt(index)) {
-        if (item->geometry().contains(pos))
+        QRect g = item->geometry();
+
+        int spacing = layout()->spacing();
+        int margin = layout()->margin();
+
+        g.setBottomRight(g.bottomRight() + QPoint(spacing, spacing));
+        // ### use the spacer
+
+        if (g.contains(pos))
             return index;
 
         ++index;
@@ -727,7 +739,6 @@ void QLayoutSupport::rebuildGridLayout(QGridLayout *&gridLayout, const QHash<QLa
 
     AbstractFormEditor *core = formWindow()->core();
     LayoutInfo::deleteLayout(core, m_widget);
-    delete gridLayout;
     gridLayout = (QGridLayout*) core->widgetFactory()->createLayout(m_widget, 0, LayoutInfo::Grid);
 
     QHashIterator<QLayoutItem*, QRect> it(infos);
