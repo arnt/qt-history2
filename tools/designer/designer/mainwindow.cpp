@@ -162,6 +162,7 @@ MainWindow::MainWindow( bool asClient, bool single, const QString &plgDir )
     desInterface = new DesignerInterfaceImpl( this );
     desInterface->addRef();
     inDebugMode = FALSE;
+    savePluginPaths = FALSE;
 
     updateFunctionsTimer = new QTimer( this );
     connect( updateFunctionsTimer, SIGNAL( timeout() ),
@@ -2125,6 +2126,11 @@ void MainWindow::writeConfig()
     config.insertSearchPath( QSettings::Windows, "/Trolltech" );
 
     QString keybase = DesignerApplication::settingsKey();
+
+    if (savePluginPaths) {
+	QStringList pluginPaths = QApplication::libraryPaths();
+	config.writeEntry( keybase + "PluginPaths", pluginPaths );
+    }
     config.writeEntry( keybase + "RestoreWorkspace", restoreConfig );
     config.writeEntry( keybase + "SplashScreen", splashScreen );
     config.writeEntry( keybase + "ShowStartDialog", shStartDialog );

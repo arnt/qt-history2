@@ -45,6 +45,7 @@
 #include <qspinbox.h>
 #include <qinputdialog.h>
 #include <qdatetimeedit.h>
+#include <qtextedit.h>
 
 #include "defs.h"
 #include "project.h"
@@ -1852,15 +1853,15 @@ void MainWindow::editPreferences()
     connect( dia->helpButton, SIGNAL( clicked() ), MainWindow::self, SLOT( showDialogHelp() ) );
     dia->buttonColor->setEditor( StyledButton::ColorEditor );
     dia->buttonPixmap->setEditor( StyledButton::PixmapEditor );
-    dia->checkBoxShowGrid->setChecked( sGrid );
-    dia->checkBoxGrid->setChecked( snGrid );
+    dia->groupBoxGrid->setChecked( sGrid );
+    dia->checkBoxSnapGrid->setChecked( snGrid );
     dia->spinGridX->setValue( grid().x() );
     dia->spinGridY->setValue( grid().y() );
     dia->checkBoxWorkspace->setChecked( restoreConfig );
-    dia->checkBoxBigIcons->setChecked( usesBigPixmaps() );
-    dia->checkBoxBigIcons->hide(); // ##### disabled for now
     dia->checkBoxTextLabels->setChecked( usesTextLabel() );
     dia->buttonColor->setColor( qworkspace->backgroundColor() );
+    QString pluginPaths = QApplication::libraryPaths().join(",");
+    dia->textEditPluginPaths->setText(pluginPaths);
     if ( qworkspace->backgroundPixmap() )
 	dia->buttonPixmap->setPixmap( *qworkspace->backgroundPixmap() );
     if ( backPix )
@@ -1892,13 +1893,18 @@ void MainWindow::editPreferences()
     }
 
     if ( dia->exec() == QDialog::Accepted ) {
-	setSnapGrid( dia->checkBoxGrid->isChecked() );
-	setShowGrid( dia->checkBoxShowGrid->isChecked() );
+	setSnapGrid( dia->checkBoxSnapGrid->isChecked() );
+	setShowGrid( dia->groupBoxGrid->isChecked() );
 	setGrid( QPoint( dia->spinGridX->value(),
 			 dia->spinGridY->value() ) );
 	restoreConfig = dia->checkBoxWorkspace->isChecked();
-	setUsesBigPixmaps( FALSE /*dia->checkBoxBigIcons->isChecked()*/ ); // ### disable for now
 	setUsesTextLabel( dia->checkBoxTextLabels->isChecked() );
+	if (dia->textEditPluginPaths->isModified()) {
+	    pluginPaths = dia->textEditPluginPaths->text();
+	    QApplication::setLibraryPaths(QStringList::split(",", pluginPaths));
+	    savePluginPaths = TRUE;
+	}
+
 	if ( dia->radioPixmap->isChecked() && dia->buttonPixmap->pixmap() ) {
 	    qworkspace->setBackgroundPixmap( *dia->buttonPixmap->pixmap() );
 	    backPix = TRUE;

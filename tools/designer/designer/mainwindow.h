@@ -446,6 +446,7 @@ private:
     int toolsMenuId, toolsMenuIndex;
     uint guiStuffVisible : 1;
     uint editorsReadOnly : 1;
+    uint savePluginPaths : 1;
     QAssistantClient *assistant;
     bool shStartDialog;
     QString pluginDir;
