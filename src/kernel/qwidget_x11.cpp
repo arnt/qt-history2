@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#384 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#385 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -421,7 +421,7 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
   parent (\a p).
 
   If \a showIt is TRUE, show() is called once the widget has been
-  reparent.
+  reparented.
 
   If the new parent widget is in a different top-level widget, the
   reparented widget and its children are appended to the end of the
