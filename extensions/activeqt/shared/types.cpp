@@ -171,74 +171,90 @@ DATE QDateTimeToDATE( const QDateTime &dt )
     return vtime;
 }
 
+/*
+    Converts \a var to \a arg, and tries to coerce \a arg to \a type.
+
+    Used by 
+    QAxServerBase:
+    - IDispatch::Invoke( PROPERTYGET )
+    - IPersistPropertyBag::Save
+
+    QAxBase
+    - QAxBase::qt_property( PropertySet )
+    - QAxBase::internalInvoke( properties )
+    - IPropertyBag::Read.
+*/
 void QVariantToVARIANT( const QVariant &var, VARIANT &arg, const char *type )
 {
     arg.vt = VT_EMPTY;
 
-    switch ( var.type() ) {
+    QVariant qvar = var;
+    // "type" is the expected type, so coerce if necessary
+    QVariant::Type proptype = type ? QVariant::nameToType( type ) : QVariant::Invalid;
+    if ( proptype != QVariant::Invalid && proptype != qvar.type() ) {
+	if ( qvar.canCast( proptype ) )
+	    qvar.cast( proptype );
+    }
+
+    switch ( qvar.type() ) {
     case QVariant::String:
 	arg.vt = VT_BSTR;
-	arg.bstrVal = QStringToBSTR( var.toString() );
+	arg.bstrVal = QStringToBSTR( qvar.toString() );
 	break;
     case QVariant::Int:
-	if( !qstrcmp( type, "bool" ) ) {
-	    arg.vt = VT_BOOL;
-	    arg.boolVal = var.toBool();
-	    break;
-	}
 	arg.vt = VT_I4;
-	arg.lVal = var.toInt();
+	arg.lVal = qvar.toInt();
 	break;
     case QVariant::UInt:
 	arg.vt = VT_UI4;
-	arg.ulVal = var.toUInt();
+	arg.ulVal = qvar.toUInt();
 	break;
     case QVariant::Bool:
 	arg.vt = VT_BOOL;
-	arg.boolVal = var.toBool();
+	arg.boolVal = qvar.toBool();
 	break;
     case QVariant::Double:
 	arg.vt = VT_R8;
-	arg.dblVal = var.toDouble();
+	arg.dblVal = qvar.toDouble();
 	break;
     case QVariant::CString:
 	arg.vt = VT_BSTR;
-	arg.bstrVal = QStringToBSTR( var.toCString() );
+	arg.bstrVal = QStringToBSTR( qvar.toCString() );
 	break;
     case QVariant::Date:
     case QVariant::Time:
     case QVariant::DateTime:
 	arg.vt = VT_DATE;
-	arg.date = QDateTimeToDATE( var.toDateTime() );
+	arg.date = QDateTimeToDATE( qvar.toDateTime() );
 	break;
     case QVariant::Color:
 	arg.vt = VT_COLOR;
-	arg.ulVal = QColorToOLEColor( var.toColor() );
+	arg.ulVal = QColorToOLEColor( qvar.toColor() );
 	break;
     case QVariant::Font:
 	arg.vt = VT_DISPATCH;
-	arg.pdispVal = QFontToIFont( var.toFont() );
+	arg.pdispVal = QFontToIFont( qvar.toFont() );
 	break;
 
     case QVariant::Pixmap:
 	arg.vt = VT_DISPATCH;
-	arg.pdispVal = QPixmapToIPicture( var.toPixmap() );
+	arg.pdispVal = QPixmapToIPicture( qvar.toPixmap() );
 	break;
 
     case QVariant::List:
 	{
 	    arg.vt = VT_ARRAY|VT_VARIANT;
-	    const QValueList<QVariant> list = var.toList();
+	    const QValueList<QVariant> list = qvar.toList();
 	    const int count = list.count();
 
 	    arg.parray = SafeArrayCreateVector( VT_VARIANT, 0, list.count() );
 	    QValueList<QVariant>::ConstIterator it = list.begin();
 	    LONG index = 0;
 	    while ( it != list.end() ) {
-		QVariant qvar = *it;
+		QVariant varelem = *it;
 		++it;
 		VARIANT var;
-		QVariantToVARIANT( qvar, var, qvar.typeName() );
+		QVariantToVARIANT( varelem, var, varelem.typeName() );
 		SafeArrayPutElement( arg.parray, &index, &var );
 		++index;
 	    }
@@ -250,9 +266,63 @@ void QVariantToVARIANT( const QVariant &var, VARIANT &arg, const char *type )
     }
 }
 
+static inline bool enumValue( const QString &string, const QUEnum *uEnum, int &value )
+{
+    bool isInt = FALSE;
+    value = string.toInt( &isInt );
+    if ( isInt )
+	return TRUE;
+    else for ( uint eItem = 0; eItem<uEnum->count; ++eItem ) {
+	if ( uEnum->items[eItem].key == string ) {
+	    value = uEnum->items[eItem].value;
+	    return TRUE;
+	}
+    }
+    return FALSE;
+}
+
+/*
+    Converts \a var to \a res, and tries to coerce \a res to the type of \a param.
+
+    Used by:
+    QAxBase
+    - QAxBase::internalInvoke( for slots )
+*/
+void QVariantToVARIANT( const QVariant &var, VARIANT &res, const QUParameter *param )
+{
+    QUObject obj;
+    obj.type = &static_QUType_Null;
+
+    if ( !QUType::isEqual( &static_QUType_QVariant, param->type ) ) {
+	if ( param->type->canConvertFrom( &obj, &static_QUType_QVariant ) ) {
+	    param->type->convertFrom( &obj, &static_QUType_QVariant );
+	} else if ( ( var.type() == QVariant::String || var.type() == QVariant::CString ) 
+		    && QUType::isEqual( param->type, &static_QUType_enum ) ) {
+	    int value;
+	    if ( enumValue( var.toString(), (const QUEnum *)param->typeExtra, value ) )
+		static_QUType_enum.set( &obj, value );
+	}
+    }
+
+    if ( obj.type == &static_QUType_Null )
+	static_QUType_QVariant.set( &obj, var );
+
+    QUObjectToVARIANT( &obj, res, param );
+    obj.type->clear( &obj );
+}
+
+/*!
+    Converts \a arg to \a obj, and tries to coerce \a obj to the type of \a param.
+
+    Used by
+    - QAxServerBase::Invoke( methods )
+    - QAxServerBase::qt_emit
+
+    - QAxBase::qt_invoke( return value and out-parameters )
+    - QAxEventSink::Invoke
+*/
 void VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *param )
 {
-    QUType *preset = obj->type;
     if ( arg.vt & VT_BYREF ) {
 	VARTYPE vt2 = arg.vt & ~VT_BYREF;
 	switch ( vt2 ) {
@@ -332,6 +402,7 @@ void VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
 	break;
     }
 
+    QUType *preset = obj->type;
     if ( !QUType::isEqual(preset, &static_QUType_Null ) && !QUType::isEqual( preset, obj->type ) ) {
 #ifndef QT_NO_DEBUG
 	if ( !preset->canConvertFrom( obj, obj->type ) ) {
@@ -344,6 +415,20 @@ void VARIANTToQUObject( const VARIANT &arg, QUObject *obj, const QUParameter *pa
     }
 }
 
+/*!
+    Returns \a arg as a QVariant of type \a hint.
+
+    Used by:
+    QAxBase
+    - QAxBase::qt_property( PropertyGet )
+    - QAxBase::internalInvoke( update out parameters )
+    - QAxBase::dynamicCall( return value )
+    - IPropertyBag::Write
+
+    QAxServerBase::
+    - IDispatch::Invoke( PropertyPut )
+    - IPersistPropertyBag::Load
+*/
 QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
 {
     QVariant var;
@@ -374,10 +459,7 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
     case VT_R8:
 	var = arg.dblVal;
 	break;
-    case VT_CY: // __int64 -> int ###
-	var = (int)arg.cyVal.Hi;
-	break;
-    case VT_DATE: // DATE -> QDateTime
+    case VT_DATE:
 	var = DATEToQDateTime( arg.date );
 	break;
     case VT_BOOL:
@@ -461,53 +543,27 @@ QVariant VARIANTToQVariant( const VARIANT &arg, const char *hint )
     default:
 	break;
     }
+
+    QVariant::Type proptype = hint ? QVariant::nameToType( hint ) : QVariant::Invalid;
+    if ( proptype != QVariant::Invalid && var.type() != proptype ) {
+	if ( var.canCast( proptype ) )
+	    var.cast( proptype );
+    }
     return var;
 }
 
-static inline bool enumValue( const QString &string, const QUEnum *uEnum, int &value )
-{
-    bool isInt = FALSE;
-    value = string.toInt( &isInt );
-    if ( isInt )
-	return TRUE;
-    else for ( uint eItem = 0; eItem<uEnum->count; ++eItem ) {
-	if ( uEnum->items[eItem].key == string ) {
-	    value = uEnum->items[eItem].value;
-	    return TRUE;
-	}
-    }
-    return FALSE;
-}
+/*!
+    Converts \a var to \a obj, and tries to coerce \a obj to the type of \a param.
 
-void QVariantToVARIANT( const QVariant &var, VARIANT &res, const QUParameter *param )
-{
-    QUObject obj;
-    obj.type = &static_QUType_Null;
-
-    QUType *preset = param->type;
-    if ( !QUType::isEqual( &static_QUType_QVariant, preset ) ) {
-	if ( !preset->canConvertFrom( &obj, &static_QUType_QVariant ) ) {
-	    if ( param->typeExtra && ( var.type() == QVariant::String || var.type() == QVariant::CString )
-		&& QUType::isEqual( preset, &static_QUType_enum ) ) {
-		int value;
-		if ( enumValue( var.toString(), (const QUEnum *)param->typeExtra, value ) )
-		    static_QUType_enum.set( &obj, value );
-	    }
-	} else {
-	    preset->convertFrom( &obj, &static_QUType_QVariant );
-	}
-    }
-
-    if ( obj.type == &static_QUType_Null )
-	static_QUType_QVariant.set( &obj, var );
-
-    QUObjectToVARIANT( &obj, res, param );
-    obj.type->clear( &obj );
-}
-
+    Used by
+    QAxBase:
+    - QAxEventSink::OnChanged
+*/
 void QVariantToQUObject( const QVariant &var, QUObject &obj, const QUParameter *param )
 {
-    switch ( var.type() ) {
+    if ( QUType::isEqual( param->type, &static_QUType_QVariant ) ) {
+	static_QUType_QVariant.set( &obj, var );
+    } else switch ( var.type() ) {
     case QVariant::String:
 	static_QUType_QString.set( &obj, var.toString() );
 	break;
@@ -549,31 +605,41 @@ void QVariantToQUObject( const QVariant &var, QUObject &obj, const QUParameter *
 	break;
     default:
 	return;
-	break;
     }
 
-    QUType *preset = param->type;
-    if ( !QUType::isEqual( preset, obj.type ) ) {
-	if ( !preset->canConvertFrom( &obj, obj.type ) ) {
-	    if ( param->typeExtra && ( var.type() == QVariant::String || var.type() == QVariant::CString )
-		&& QUType::isEqual( param->type, &static_QUType_enum ) ) {
-		const QUEnum *enumType = (const QUEnum *)param->typeExtra;
-		int value;
-		if ( enumValue( var.toString(), enumType, value ) )
-		    static_QUType_enum.set( &obj, value );
-	    }
-#ifndef QT_NO_DEBUG
-	    else if ( QUType::isEqual( preset, &static_QUType_ptr ) )
-		qWarning( "QVariant does not support pointer types" );
-	    else
-		qWarning( "Can't coerce QVariant to requested type (%s to %s)", obj.type->desc(), preset->desc() );
-#endif
-	} else {
-	    preset->convertFrom( &obj, obj.type );
+    if ( !QUType::isEqual( param->type, obj.type ) ) {
+	if ( param->type->canConvertFrom( &obj, obj.type ) ) {
+	    param->type->convertFrom( &obj, obj.type );
+	} else if ( ( var.type() == QVariant::String || var.type() == QVariant::CString )
+		    && QUType::isEqual( param->type, &static_QUType_enum ) ) {
+	    int value;
+	    if ( enumValue( var.toString(), (const QUEnum *)param->typeExtra, value ) )
+		static_QUType_enum.set( &obj, value );
 	}
+#ifndef QT_NO_DEBUG
+	else {
+	    const char *type = param->type->desc();
+	    if ( QUType::isEqual( param->type, &static_QUType_ptr ) )
+		type = (const char*)param->typeExtra;
+	    qWarning( "Can't coerce QVariant to requested type (%s to %s)", var.typeName(), type );
+	}
+#endif
     }
 }
 
+/*!
+    Converts \a obj to \a arg, and tries to coerce \a var to the type of \a param.
+
+    Used by
+    QVariantToVariant
+
+    QAxServerBase:
+    - qt_emit
+    - IDispatch::Invoke( update references in method )
+
+    QAxBase:
+    - QAxBase::qt_invoke
+*/
 void QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 {
     bool byref = param && ( param->inOut & QUParameter::Out );
@@ -616,7 +682,10 @@ void QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 		arg.pbstrVal = new BSTR(QStringToBSTR( value.toString() ) );
 	    }
 	} else {
-	    QVariantToVARIANT( value, arg, param );
+	    const char *type = param->type->desc();
+	    if ( QUType::isEqual( param->type, &static_QUType_ptr ) )
+		type = (const char*)param->typeExtra;
+	    QVariantToVARIANT( value, arg, type );
 	}
     } else if ( QUType::isEqual( obj->type, &static_QUType_ptr ) && param ) {
 	const char *type = (const char*)param->typeExtra;
