@@ -906,9 +906,9 @@ void WriteInitialization::initializeSqlDataTable(DomWidget *w)
     output << option.indent << option.indent << varName << "->setSqlCursor(";
 
     if (connection == QLatin1String("(default)")) {
-        output << "new QSqlCursor(" << fixString(table) << "), false);\n";
+        output << "new QSqlCursor(" << fixString(table) << "), false, true);\n";
     } else {
-        output << "new QSqlCursor(" << fixString(table) << "), false, " << connection << "Connection" << ");\n";
+        output << "new QSqlCursor(" << fixString(table) << ", true, " << connection << "Connection" << "), false, true);\n";
     }
     output << option.indent << option.indent << varName << "->refresh(QDataTable::RefreshAll);\n";
     output << option.indent << "}\n";
