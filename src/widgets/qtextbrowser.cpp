@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextbrowser.cpp#60 $
+** $Id: //depot/qt/main/src/widgets/qtextbrowser.cpp#61 $
 **
-** Implementation of the QTextView class
+** Implementation of the QTextBrowser class
 **
 ** Created : 990101
 **
@@ -62,22 +62,23 @@
   \ingroup advanced
   \ingroup helpsystem
 
-  This class extends QTextView, adding some navigation functionality so
-  that users can follow links in hypertext documents. The contents of
-  QTextView is set with setText(), but QTextBrowser has an additional
-  function, setSource(), which makes it possible to set the text to a
-  named document. The name is looked up in the text view's mime source
-  factory. If a document name ends with an anchor (for example, "\c
-  #anchor"), the text browser automatically scrolls to that position
-  (using scrollToAnchor()). When the user clicks on a hyperlink, the
-  browser will call setSource() itself, with the link's \c href value as
+  This class extends QTextEdit (in read-only mode), adding some
+  navigation functionality so that users can follow links in hypertext
+  documents. The contents of QTextEdit is set with setText(), but
+  QTextBrowser has an additional function, setSource(), which makes it
+  possible to set the text to a named document. The name is looked up
+  in the text view's mime source factory. If a document name ends with
+  an anchor (for example, "\c #anchor"), the text browser
+  automatically scrolls to that position (using
+  scrollToAnchor()). When the user clicks on a hyperlink, the browser
+  will call setSource() itself, with the link's \c href value as
   argument.
 
   QTextBrowser provides backward() and forward() slots which you can use
   to implement Back and Forward buttons. The home() slot sets the text
   to the very first document displayed.
 
-  By using QTextView::setMimeSourceFactory() you can provide your own
+  By using QTextEdit::setMimeSourceFactory() you can provide your own
   subclass of QMimeSourceFactory. This makes it possible to access
   data from anywhere, for example from a network or from a
   database. See QMimeSourceFactory::data() for details.
@@ -91,8 +92,9 @@
   This is to ensure that the factory is able to resolve the document names.
 
     If you want to provide your users with editable rich text use
-    QTextEdit. If you want a text browser without hypertext navigation use
-    QTextView. If you just need to display a small piece of rich text
+    QTextEdit. If you want a text browser without hypertext navigation
+    use QTextEdit, and use QTextEdit::setReadOnly() to disable
+    editing. If you just need to display a small piece of rich text
     use QSimpleRichText or QLabel.
 
   <img src=qtextbrowser-m.png> <img src=qtextbrowser-w.png>
