@@ -1671,22 +1671,14 @@ Qt::DockWindowAreas QMainWindowLayout::locateDockWindow(QDockWindow *dockwindow,
         areasForMousePosition(layout_info[4].item->geometry(), p,
                               (dockwindow->features() & QDockWindow::DockWindowFloatable));
 
-    switch (areas) {
-    case (Qt::LeftDockWindowArea | Qt::TopDockWindowArea):
+    if (areas == (Qt::LeftDockWindowArea | Qt::TopDockWindowArea))
         areas = corners[Qt::TopLeftCorner];
-        break;
-    case (Qt::LeftDockWindowArea | Qt::BottomDockWindowArea):
+    else if (areas == (Qt::LeftDockWindowArea | Qt::BottomDockWindowArea))
         areas = corners[Qt::BottomLeftCorner];
-        break;
-    case (Qt::RightDockWindowArea | Qt::TopDockWindowArea):
+    else if (areas == (Qt::RightDockWindowArea | Qt::TopDockWindowArea))
         areas = corners[Qt::TopRightCorner];
-        break;
-    case (Qt::RightDockWindowArea | Qt::BottomDockWindowArea):
+    else if (areas == (Qt::RightDockWindowArea | Qt::BottomDockWindowArea))
         areas = corners[Qt::BottomRightCorner];
-        break;
-    default:
-        break;
-    }
 
     VDEBUG() << "  result:" << areas;
     return areas;
