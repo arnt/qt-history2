@@ -4191,7 +4191,7 @@ void QTextEdit::scrollToAnchor( const QString& name )
     } while( cursor.parag() != last || !cursor.atParagEnd()  );
 }
 
-#if (QT_VERSION-0 >= 400)
+#if (QT_VERSION-0 >= 0x040000)
 #error "function anchorAt(const QPoint& pos) should be merged into function anchorAt(const QPoint& pos, AnchorAttribute attr)"
 #endif
 
