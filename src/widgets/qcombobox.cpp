@@ -1669,7 +1669,7 @@ int QComboBox::completionIndex( const QString & prefix,
 	current = text( i );
 	if ( current.length() >= match.length() ) {
 	    current.truncate( match.length() );
-	    if ( current == match || current.lower() == match )
+	    if ( current.lower() == match.lower() )
 		return i;
 	}
 	i++;
