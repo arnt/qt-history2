@@ -306,7 +306,7 @@ Win32MakefileGenerator::findLibraries(const QString &where)
 		if(file.endsWith(".lib")) {
 		    file = file.left(file.length() - 4);
 		    if(!file.at(file.length()-1).isNumber()) {
-			for(MakefileDependDir *mdd = dirs.first(); mdd; mdd = dirs.next() ) {
+			for(MakefileDependDir *mdd = lib_dirs.first(); mdd; mdd = lib_dirs.next() ) {
 			    QString lib_tmpl(mdd->real_dir + file + "%1" + ".lib");
 			    int ver = findHighestVersion(mdd->local_dir, file);
 			    if(ver != -1) {
