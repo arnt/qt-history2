@@ -33,23 +33,7 @@ public:
     QTreeWidgetItem(QTreeWidgetItem *parent);
     virtual ~QTreeWidgetItem();
 
-    inline const QTreeWidgetItem *parent() const { return par; }
-    inline const QTreeWidgetItem *child(int index) const { return children.at(index); }
-    inline QTreeWidgetItem *child(int index) { return children.at(index); }
-    inline int childCount() const { return children.count(); }
-
-    inline int columnCount() const { return columns; }
-    void setColumnCount(int count);
-
-    inline bool isEditable() const { return editable; }
-    inline bool isSelectable() const { return selectable; }
-    inline void setEditable(bool enable) { editable = enable; }
-    inline void setSelectable(bool enable) { selectable = enable; }
-
-    inline bool operator ==(const QTreeWidgetItem &other) const
-        { return par == other.par && children == other.children; }
-    inline bool operator !=(const QTreeWidgetItem &other) const { return !operator==(other); }
-
+    // additional roles used in these items
     enum Role {
         FontRole = 33,
         BackgroundColorRole = 34,
@@ -83,6 +67,24 @@ public:
     
     virtual QVariant data(int column, int role) const;
     virtual void setData(int column, int role, const QVariant &value);
+
+    // other functions
+    inline const QTreeWidgetItem *parent() const { return par; }
+    inline const QTreeWidgetItem *child(int index) const { return children.at(index); }
+    inline QTreeWidgetItem *child(int index) { return children.at(index); }
+    inline int childCount() const { return children.count(); }
+
+    inline int columnCount() const { return columns; }
+    void setColumnCount(int count);
+
+    inline bool isEditable() const { return editable; }
+    inline void setEditable(bool enable) { editable = enable; }
+    inline bool isSelectable() const { return selectable; }
+    inline void setSelectable(bool enable) { selectable = enable; }
+
+    inline bool operator ==(const QTreeWidgetItem &other) const
+        { return par == other.par && children == other.children; }
+    inline bool operator !=(const QTreeWidgetItem &other) const { return !operator==(other); }
 
 protected:
     QTreeWidgetItem();
