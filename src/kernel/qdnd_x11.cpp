@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#32 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -273,30 +273,33 @@ void qt_handle_xdnd_position( QWidget *w, const XEvent * xe )
 
     QRect answerRect( c->mapToGlobal( p ), QSize( 1,1 ) );
 
+    QDragMoveEvent me( p );
+
     if ( qt_xdnd_current_widget != c ) {
 	if ( qt_xdnd_current_widget ) {
 	    QDragLeaveEvent e;
 	    QApplication::sendEvent( qt_xdnd_current_widget, &e );
 	}
 	QDragEnterEvent de( p );
-	de.ignore( c->rect() );
 	QApplication::sendEvent( c, &de );
 	if ( de.isAccepted() )
-	    response.data.l[1] = 1; // yess!!!!
-	answerRect = QRect( c->mapToGlobal( de.answerRect().topLeft() ),
-			    de.answerRect().size() );
+	    me.accept( de.answerRect() );
+	else
+	    me.ignore( de.answerRect() );
     }
 
     qt_xdnd_current_widget = c;
     qt_xdnd_current_position = p;
     qt_xdnd_target_current_time = l[3]; // will be 0 for xdnd1
 
-    QDragMoveEvent me( p );
     QApplication::sendEvent( c, &me );
     if ( me.isAccepted() )
 	response.data.l[1] = 1; // yess!!!!
-    answerRect= QRect( c->mapToGlobal( me.answerRect().topLeft() ),
-		       me.answerRect().size() );
+    else
+	response.data.l[0] = 0;
+    answerRect = me.answerRect().intersect( c->rect() );
+    answerRect = QRect( c->mapToGlobal( answerRect.topLeft() ),
+			answerRect.size() );
 
     if ( answerRect.width() < 0 )
 	answerRect.setWidth( 0 );
@@ -535,8 +538,8 @@ void QDragManager::cancel()
 
 void QDragManager::move( const QPoint & globalPos )
 {
-    if ( qt_xdnd_source_sameanswer.contains( globalPos ) && 
-	 qt_xdnd_source_sameanswer.isValid() && 
+    if ( qt_xdnd_source_sameanswer.contains( globalPos ) &&
+	 qt_xdnd_source_sameanswer.isValid() &&
 	 !qt_xdnd_source_sameanswer.isEmpty() ) // ### probably unnecessary
 	return;
 
@@ -743,8 +746,6 @@ void qt_xdnd_handle_selection_request( const XSelectionRequestEvent * req )
 static QByteArray qt_xdnd_obtain_data( const char * format )
 {
     QByteArray result;
-
-    debug( "want <%s>", format );
 
     if ( qt_xdnd_dragsource_xid && qt_xdnd_source_object &&
 	 QWidget::find( qt_xdnd_dragsource_xid ) ) {
