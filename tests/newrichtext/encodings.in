@@ -27,24 +27,24 @@ iso8859-6 82 Arabic
 iso8859-8 85 Hebrew
 #
 # China, Mainland
-gb18030-0 -114 Han,Bopomofo
-gb18030.2000-0 -113 Han
-gbk-0 -113 Han
-gb2312.*-0 57 Han
+gb18030-0 -114 Han_SimplifiedChinese,Bopomofo
+gb18030.2000-0 -113 Han_SimplifiedChinese
+gbk-0 -113 Han_SimplifiedChinese
+gb2312.*-0 57 Han_SimplifiedChinese
 #
 # Japan
 jisx0201*-0 15 KatakanaHalfWidth
-jisx0208*-0 63 Hiragana,Katakana,Han
+jisx0208*-0 63 Hiragana,Katakana,Han_Japanese
 #
 # Korea
 ksc5601.1987-0 36 Hangul
 #
 # Hong Kong
-big5hkscs-0 -2101 Han
-hkscs-1 -2101 Han
+big5hkscs-0 -2101 Han_TraditionalChinsese
+hkscs-1 -2101 Han_TraditionalChinese
 #
 # Taiwan
-big5*-* -2026 Han
+big5*-* -2026 Han_TraditionalChinese
 #
 # Tamil
 tscii-* 2028 Tamil
