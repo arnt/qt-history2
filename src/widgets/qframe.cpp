@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#80 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#81 $
 **
 ** Implementation of QFrame widget class
 **
@@ -155,7 +155,7 @@ QFrame::QFrame( QWidget *parent, const char *name, WFlags f,
   level with the surrounding screen, but the border itself may be
   raised or sunken.
   <li> \c Panel draws a rectangular panel that can be raised or sunken.
-  <li> \c StyledPanel draws a rectangular panel with a look depending on 
+  <li> \c StyledPanel draws a rectangular panel with a look depending on
   the current GUI style.  It can be raised or sunken.
   <li> \c WinPanel draws a rectangular panel that can be raised or sunken.
   Specifying this shape sets the line width to 2 pixels.  WinPanel provides
@@ -316,6 +316,7 @@ void QFrame::updateFrameWidth()
 	break;
 
     case Panel:
+    case StyledPanel:
 	switch ( style ) {
 	case Plain:
 	case Raised:
