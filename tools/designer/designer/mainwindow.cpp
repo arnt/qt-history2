@@ -2447,7 +2447,10 @@ void MainWindow::projectSelected( QAction *a )
 {
     if ( currentProject )
 	currentProject->setActive( FALSE );
-    currentProject = *projects.find( a );
+    Project *p = *projects.find( a );
+    if ( currentProject == p )
+	return;
+    currentProject = p;
     if ( formList )
 	formList->setProject( currentProject );
     if ( actionEditPixmapCollection )
