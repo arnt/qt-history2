@@ -744,6 +744,7 @@ void QPainter::drawPolyInternal( const QPointArray &a, bool close )
 	    QRegion newclip(offa);
 	    if(clipon && !clip.isNull())
 		newclip &= clip;
+	    newclip.translate(-offx, -offy);
 	    setClipRegion(newclip);
 
 	    //draw the brush
@@ -963,6 +964,7 @@ void QPainter::drawRect( int x, int y, int w, int h )
 	    QRegion newclip(qr);
 	    if(clipon && !clip.isNull())
 		newclip &= clip;
+	    newclip.translate(-offx, -offy);
 	    setClipRegion(newclip);
 
 	    //turn off translation flags
@@ -984,7 +986,6 @@ void QPainter::drawRect( int x, int y, int w, int h )
 		setClipRegion(clip);
 	    else
 		setClipping(FALSE);
-
 	}
     }
 
@@ -1186,6 +1187,7 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
 	    QRegion newclip(qr, QRegion::Ellipse);
 	    if(clipon && !clip.isNull())
 		newclip &= clip;
+	    newclip.translate(-offx, -offy);
 	    setClipRegion(newclip);
 
 	    //turn off translation flags
