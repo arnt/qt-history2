@@ -1252,7 +1252,7 @@ Installation options:
     -headerdir dir ..... Headers will be installed to dir
 			  (default PREFIX/include)
 
- Configure options:
+Configure options:
 
  The defaults (*) are usually acceptable.  If marked with a plus (+) a test
  for that feature has not been done yet, but will be evaluated later, the
