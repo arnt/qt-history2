@@ -374,7 +374,7 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 			break;
 		}
 		
-		if ( cursor->parag()->type() != QTextEditParag::BulletList && 
+		if ( cursor->parag()->type() != QTextEditParag::BulletList &&
 		     cursor->index() == 0 && ( e->text() == "-" || e->text() == "*" ) ) {
 		    setParagType( (int)QTextEditParag::BulletList );
 		} else {
@@ -768,6 +768,22 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * )
 	repaintChanged();
     }
     updateCurrentFormat();
+}
+
+void QTextEdit::contentsMouseDoubleClickEvent( QMouseEvent *e )
+{
+    QTextEditCursor c1 = *cursor;
+    QTextEditCursor c2 = *cursor;
+    c1.gotoWordLeft();
+    c2.gotoWordRight();
+    
+    doc->setSelectionStart( QTextEditDocument::Standard, &c1 );
+    doc->setSelectionEnd( QTextEditDocument::Standard, &c2 );
+    
+    *cursor = c2;
+    
+    repaintChanged();
+    
 }
 
 void QTextEdit::doAutoScroll()

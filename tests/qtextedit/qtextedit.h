@@ -64,6 +64,7 @@ protected:
     void contentsMousePressEvent( QMouseEvent *e );
     void contentsMouseMoveEvent( QMouseEvent *e );
     void contentsMouseReleaseEvent( QMouseEvent *e );
+    void contentsMouseDoubleClickEvent( QMouseEvent *e );
     bool eventFilter( QObject *o, QEvent *e );
     bool focusNextPrevChild( bool next );
 
