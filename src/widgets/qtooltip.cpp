@@ -592,8 +592,7 @@ QString QTipManager::find( QWidget *w, const QPoint& pos )
 
   The tip is a short, single line of text reminding the user of the widget's
   or rectangle's function.  It is drawn immediately below the region
-  in a distinctive black-on-yellow combination.  In Motif style, Qt's
-  tool tips look much like Motif's but feel more like Windows 95 tool tips.
+  in a distinctive black-on-yellow combination.
 
   QToolTipGroup provides a way for tool tips to display another text
   elsewhere (most often in a status bar).
