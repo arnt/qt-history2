@@ -245,7 +245,7 @@ void PropertyItem::paintFocus( QPainter *p, const QColorGroup &cg, const QRect &
     int lw = 1;
     void *data[1];
     data[0] = &lw;
-    QApplication::style().drawPrimitive(QStyle::PO_Panel, p, r, cg,
+    QApplication::style().drawPrimitive(QStyle::PE_Panel, p, r, cg,
 					QStyle::PStyle_Sunken, data);
     p->restore();
 }

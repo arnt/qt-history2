@@ -100,7 +100,7 @@ void QDesignerToolBarSeparator::paintEvent( QPaintEvent * )
     else
 	flags |= QStyle::PStyle_Vertical;
 
-    style().drawPrimitive( QStyle::PO_DockWindowSeparator, &p, rect(),
+    style().drawPrimitive( QStyle::PE_DockWindowSeparator, &p, rect(),
 			   colorGroup(), flags );
 }
 
