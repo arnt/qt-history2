@@ -257,7 +257,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	QString odir;
 	if(!project->variables()["OBJECTS_DIR"].isEmpty())
 	    odir = project->first("OBJECTS_DIR");
-	t << "###### Dependancies" << endl << endl;
+	t << "###### Dependencies" << endl << endl;
 	t << odir << ".deps/%.d: %.cpp\n\t"
 	  << "@echo Creating depend for $<" << "\n\t"
 	  << "@test -d $(@D) || mkdir -p $(@D)" << "\n\t"
@@ -588,7 +588,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
     if(!project->isActiveConfig("no_mocdepend")) {
 	//this is an implicity depend on moc, so it will be built if necesary, however
-	//moc itself shouldn't have this dependancy - this is a little kludgy but it is
+	//moc itself shouldn't have this dependency - this is a little kludgy but it is
 	//better than the alternative for now.
 	QString moc = project->first("QMAKE_MOC"), target = project->first("TARGET");
 	fixEnvVariables(target);
