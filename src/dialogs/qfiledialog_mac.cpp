@@ -75,11 +75,11 @@ static QList<qt_mac_filter_name*> makeFiltersList(const QString &filter)
     if(f.isEmpty())
 	return QList<qt_mac_filter_name*>();
     QString sep(";;");
-    int i = f.find(sep, 0);
+    int i = f.indexOf(sep, 0);
     if(i == -1) {
 	sep = "\n";
-	if(f.find(sep, 0) != -1)
-	    i = f.find(sep, 0);
+	if(f.indexOf(sep, 0) != -1)
+	    i = f.indexOf(sep, 0);
     }
 
     QList<qt_mac_filter_name*> ret;
@@ -136,7 +136,7 @@ static QMAC_PASCAL Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
 	}
 	FSRefMakePath(&ref, str_buffer, 1024);
 	file = QString::fromUtf8((const char *)str_buffer);
-	int slsh = file.findRev('/');
+	int slsh = file.lastIndexOf('/');
 	if(slsh != -1) 
 	    file = file.right(file.length() - slsh - 1);
     }
