@@ -33,7 +33,8 @@
     QVarLengthArray is an attempt to work around this gap in the C++
     language. It allocates a certain number of elements on the stack,
     and if you resize the array to a larger size, it automatically
-    uses the heap instead.
+    uses the heap instead. Stack allocation has the advantage that
+    it is much faster than heap allocation.
 
     Example:
     \code
@@ -71,9 +72,9 @@
        overhead.
     \endlist
 
-    QVector (or QList) is the right class for most applications, but
-    if you need to write highly optimized code, QVarLengthArray may be
-    appropriate.
+    \warning QVector (or QList) is the right class for most
+    applications, but if you need to write highly optimized code,
+    QVarLengthArray may be appropriate.
 
     \sa QVector, QList, QLinkedList
 */
