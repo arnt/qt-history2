@@ -283,7 +283,7 @@ void QVariant::Private::clear()
     Constructs an invalid variant.
 */
 
-QVariant::Private QVariant::shared_invalid = { Q_ATOMIC_INIT(1), Invalid, true, 0 };
+QVariant::Private QVariant::shared_invalid = { Q_ATOMIC_INIT(1), Invalid, true, {0} };
 
 QVariant::QVariant()
     :d(&shared_invalid)
@@ -3123,6 +3123,12 @@ QVariant::Private *QVariant::constructPrivate(Type type)
     case Cursor:
 	x->value.ptr = new QCursor;
 	break;
+    case LongLong:
+	x->value.ll = Q_LLONG(0);
+	break;
+    case ULongLong:
+	x->value.ull = Q_ULLONG(0);
+	break;	
     default:
 	Q_ASSERT( 0 );
     }
