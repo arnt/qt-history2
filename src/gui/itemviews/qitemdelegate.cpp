@@ -139,7 +139,7 @@ void QItemDelegate::paint(QPainter *painter,
     value = model->data(index, QAbstractItemModel::DecorationRole);
     QPixmap pixmap;
     QRect pixmapRect;
-    if (value.isValid()) {
+    if (value.isValid() && !value.isNull()) {
         pixmap = decoration(opt, value);
         pixmapRect = QRect(0, 0, opt.decorationSize.width(), opt.decorationSize.height());
     }
