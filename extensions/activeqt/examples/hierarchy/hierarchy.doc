@@ -53,54 +53,60 @@ CODEBASE=http://www.trolltech.com/demos/hierarchy.cab>
 
   \quotefile hierarchy/objects.h
   \skipto class QParentWidget
-
+  \printuntil };
   The \c QParentWidget class provides slots to create a widget
   with a name, and to return a pointer to a named widget.
-  \printuntil };
 
   \quotefile hierarchy/objects.cpp
   \skipto QParentWidget::QParentWidget
+  \printto ::createSubWidget
   The constructor of QParentWidget creates a vertical box layout.
   New child widgets are automatically added to the layout.
-  \printto ::createSubWidget
+
+  \printto ::subWidget
   The \c createSubWidget slot creates a new \c QSubWidget with
   the name provided in the parameter, and sets the label to that
   name. The widget is also shown explicitly.
-  \printto ::subWidget
+
+  \printto ::sizeHint
   The \c subWidget slot uses the \c QObject::child() function and
   returns the first child of type \c QSubWidget that has the requested
   name.
-  \printto ::sizeHint
   
   \quotefile hierarchy/objects.h
   \skipto class QSubWidget :
+   \printuntil };
   The \c QSubWidget class has a single string-property \c label,
   and implements the paintEvent to draw the label.
-   \printuntil };
 
   \quotefile hierarchy/objects.cpp
   \skipto QSubWidget::QSubWidget
-  The implementation of the QSubWidget class is self-explanatory.
   \printuntil .drawText
   \printuntil }
+  The implementation of the QSubWidget class is self-explanatory.
 
   \quotefile hierarchy/main.cpp
   \skipto class ActiveQtFactory
+  \printto create(
   The \c ActiveQtFactory class implements a QAxFactory. It returns
   the class names of all supported types, \c QParentWidget and
   \c QSubWidget, from the \c featureList() reimplementation.
-  \printto create(
+
+  \printto classID
   The factory can however only create objects of the \c QParentWidget
   type directly - objects of subtypes can only be created through the
   interface of \c QParentWidget objects.
-  \printto classID
+
+  \printto exposeToSuperClass
   COM however requires the IDs for the interfaces of the sub types as
   well to be able to marshal calls correctly.
-  \printto exposeToSuperClass
+
+  \printuntil };
   Objects of the \c QSubWidget type should not expose the full 
   functionality of e.g. QWidget. Only those properties and slots
   explicitly declared in the type are accessible.
-  \printuntil };
+
+  \printuntil QAXFACTORY_EXPORT
   The factory is then exported using the \c QAXFACTORY_EXPORT
   macro.
 

@@ -58,7 +58,6 @@ CODEBASE=http://www.trolltech.com/demos/wrapperax.cab>
     \ingroup qaxserver-examples
   \title Standard Qt widgets as ActiveX controls (in-process)
 
-
   The ActiveX controls in this example are the standard button
   classes QPushButton, QCheckBox and QRadioButton as provided by 
   Qt.
@@ -68,15 +67,14 @@ CODEBASE=http://www.trolltech.com/demos/wrapperax.cab>
   macro.
 
   \quotefile wrapper/main.cpp 
+  \skipto class
+  \printuntil };
   The factory implementation returns the list of supported controls,
   creates controls on request and provides information about the unique
   IDs of the COM classes and interfaces for each control.
-  \skipto class
-  \printuntil };
-  The factory is exported using the QAXFACTORY_EXPORT macro
-  \printuntil QAXFACTORY_EXPORT
-  The implementation of \c main is just a dummy, but required for the linker.
+
   \printuntil }
+  The factory is exported using the QAXFACTORY_EXPORT macro
 
   To build the example you must first build the \link qaxserver.html
   QAxServer \endlink library. Then run qmake and your make tool in 

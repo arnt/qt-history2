@@ -53,42 +53,44 @@ Line width: <input type="edit" ID="widthEdit" value = "1">
   ActiveX controls in a single in process ActiveX server, and the use of
   the QAXFACTORY_EXPORT macro.
 
-  The first control draws a filled rectangle. The fill color is exposed
-  as a property.
   \quotefile multiple/ax1.h
   \skipto class
   \printuntil };
+  The first control draws a filled rectangle. The fill color is exposed
+  as a property.
 
-  The second control draws a circle. The linewith is exposed as a property.
   \quotefile multiple/ax2.h
   \skipto class
   \printuntil };
+  The second control draws a circle. The linewith is exposed as a property.
 
   The controls are provided by an implementation of the QAxFactory.
   \quotefile multiple/main.cpp
   \skipto class
-
+  \printto QStringList
   The constructor just propagates the identifiers for the type library and the
   application to the QAxFactory.
-  \printto QStringList
-  The featureList implementation returns the class names of the controls.
+
   \printto QWidget*
+  The featureList implementation returns the class names of the controls.
+
+  \printto exposeToSuperClass
   The implementations of the factory functions return the value for the requested 
   key.
-  \printto exposeToSuperClass
+
+  \printto hasStockEvents
   The \c exposeToSuperClass implementations returns the key for the "QAxWidget2", and
   calls the default implementation otherwise. The QAxWidget2 control will not expose
   properties or methods of any parent class, while QAxWidget1 exposes all properties,
   signals and slots of QWidget and QObject, too.
-  \printto hasStockEvents
+
+  \printuntil };
   The \c hasStockEvents implementation returns TRUE for the "QAxWidget2", and FALSE
   otherwise. The QAxWidget2 control will fire OLE stock events when the user interacts
   with the control.
-  \printuntil };
 
-  The factory is exported from the server using the QAXFACTORY_EXPORT macro.
-  The implementation of \c main is just a dummy, but required for the linker.
   \printuntil }
+  The factory is exported from the server using the QAXFACTORY_EXPORT macro.
 
   To build the example you must first build the \link qaxserver.html
   QAxServer \endlink library. Then run qmake and your make tool in 
