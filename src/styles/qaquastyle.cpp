@@ -10857,6 +10857,7 @@ static const char * const aqua_spinbtn_up_off_xpm[] = {
 #include "qslider.h"
 #include "qwmatrix.h"
 #include "qprogressbar.h"
+#include "qlistview.h"
 #include <limits.h>
 #include "../widgets/qtitlebar_p.h"
 #define INCLUDE_MENUITEM_DEF
@@ -13419,6 +13420,31 @@ QAquaStyle::titleBarPointOver( const QTitleBar*tb, const QPoint& pos )
 	    return TitleMinButton;
     }
     return TitleLabel;
+}
+
+/*!
+ \reimp
+ */
+void
+QAquaStyle::drawListViewItem( QPainter *p, int, int y, int w, int, const QColorGroup & cg,
+			       QListViewItem *child, uint ctrls)
+{
+    int bx = w / 2, linebot = y + child->height()/2;
+    if(ctrls & ListViewExpand) {
+	p->setPen( cg.text() );
+	QPointArray a;
+	if ( child->isOpen() )
+	    a.setPoints( 3, bx-2, linebot-2,
+			 bx, linebot+2,
+			 bx+2, linebot-2 ); //RightArrow
+	else
+	    a.setPoints( 3, bx-2, linebot-2,
+			 bx+2, linebot,
+			 bx-2, linebot+2 ); //DownArrow
+	p->setBrush( cg.text() );
+	p->drawPolygon( a );
+	p->setBrush( NoBrush );
+    }
 }
 
 #endif
