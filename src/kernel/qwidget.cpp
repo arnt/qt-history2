@@ -511,8 +511,12 @@ inline bool QWidgetMapper::remove( WId id )
 
 static QFont qt_naturalWidgetFont( QWidget* w ) {
     QFont naturalfont = QApplication::font( w );
-    if ( !w->isTopLevel() && naturalfont.isCopyOf( QApplication::font() ) )
-	naturalfont = w->parentWidget()->font();
+    if ( ! w->isTopLevel() ) {
+	if ( ! naturalfont.isCopyOf( QApplication::font() ) )
+	    naturalfont = w->parentWidget()->font().resolve( naturalfont );
+	else
+	    naturalfont = w->parentWidget()->font();
+    }
     return naturalfont;
 }
 
@@ -821,7 +825,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
 #ifndef QT_NO_PALETTE
     pal = isTopLevel() ? QApplication::palette() : parentWidget()->palette();
 #endif
-    if ( !isTopLevel() )
+    if ( ! isTopLevel() )
 	fnt = parentWidget()->font();
 #if defined(Q_WS_X11)
     fnt.x11SetScreen( x11Screen() );
@@ -2655,6 +2659,9 @@ void QWidget::setPalette( const QPalette &palette )
 
 void QWidget::unsetPalette()
 {
+    if ( ! own_palette ) return;
+
+    // reset the palette
     setPalette( qt_naturalWidgetPalette( this ) );
     own_palette = FALSE;
 }
@@ -2735,6 +2742,9 @@ void QWidget::setFont( const QFont &font )
 
 void QWidget::unsetFont()
 {
+    if ( ! own_font ) return;
+
+    // reset the font
     setFont( qt_naturalWidgetFont( this ) );
     own_font = FALSE;
 }
@@ -3942,11 +3952,17 @@ void QWidget::polish()
     }
 #endif
     if ( !testWState(WState_Polished) ) {
-	if ( !own_font && !QApplication::font( this ).isCopyOf( QApplication::font() ) )
+	if ( ! own_font &&
+	     ! QApplication::font( this ).isCopyOf( QApplication::font() ) ) {
+	    own_font = TRUE;
 	    unsetFont();
+	}
 #ifndef QT_NO_PALETTE
-	if ( !own_palette && !QApplication::palette( this ).isCopyOf( QApplication::palette() ) )
+	if ( ! own_palette &&
+	     ! QApplication::palette( this ).isCopyOf( QApplication::palette() ) ) {
+	    own_palette = TRUE;
 	    unsetPalette();
+	}
 #endif
 	setWState(WState_Polished);
 	qApp->polish( this );
@@ -4535,10 +4551,12 @@ bool QWidget::event( QEvent *e )
 		break;
 	    // fall through
 	case QEvent::ApplicationFontChange:
-	    if ( own_font )
-		setFont( fnt.resolve( qt_naturalWidgetFont( this ) ) );
-	    else
+	    if ( ! own_font ) {
+		own_font = TRUE;
 		unsetFont();
+	    } else {
+		setFont( fnt.resolve( qt_naturalWidgetFont( this ) ) );
+	    }
 	    break;
 
 #ifndef QT_NO_PALETTE
@@ -4547,8 +4565,10 @@ bool QWidget::event( QEvent *e )
 		break;
 	    // fall through
 	case QEvent::ApplicationPaletteChange:
-	    if ( !own_palette && !isDesktop() )
+	    if ( !own_palette && !isDesktop() ) {
+		own_palette = TRUE;
 		unsetPalette();
+	    }
 # if defined(Q_WS_QWS) && !defined (QT_NO_QWS_MANAGER)
 	    if ( isTopLevel() && topData()->qwsManager ) {
 		QRegion r( topData()->qwsManager->region() );
@@ -5623,13 +5643,17 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     reparentSys( parent, f, p, showIt );
     QEvent e( QEvent::Reparent );
     QApplication::sendEvent( this, &e );
-    if ( own_font )
-	setFont( fnt.resolve( qt_naturalWidgetFont( this ) ) );
-    else if (!sameFont )
+    if ( ! own_font && ! sameFont ) {
+	own_font = TRUE;
 	unsetFont();
+    } else {
+	setFont( fnt.resolve( qt_naturalWidgetFont( this ) ) );
+    }
 #ifndef QT_NO_PALETTE
-    if ( !own_palette && !samePalette )
+    if ( !own_palette && !samePalette ) {
+	own_palette = TRUE;
 	unsetPalette();
+    }
 #endif
 }
 
