@@ -3507,7 +3507,7 @@ void QCanvasSpline::recalcPoly()
 	ctrl[1] = bez[i+1];
 	ctrl[2] = bez[i+2];
 	if ( cl )
-	    ctrl[3] = bez[(i+3)%bez.count()];
+	    ctrl[3] = bez[(i+3)%(int)bez.count()];
 	else
 	    ctrl[3] = bez[i+3];
 	QPointArray *seg = new QPointArray(ctrl.cubicBezier());
