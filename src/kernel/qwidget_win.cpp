@@ -1410,8 +1410,8 @@ void QWidget::setGeometry_helper( int x, int y, int w, int h, bool isMove )
 		fr.setBottom( fr.bottom() + ( y + h - 1 ) - crect.bottom() );
 	    }
 	    MoveWindow( winId(), fr.x(), fr.y(), fr.width(), fr.height(), TRUE );
-	} else {
 	    crect.setRect( x, y, w, h );
+	} else {
 	    MoveWindow( winId(), x, y, w, h, TRUE );
 	    crect.setRect( x, y, w, h );
 	}
