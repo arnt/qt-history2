@@ -3931,7 +3931,7 @@ void QFileDialog::keyPressEvent( QKeyEvent * ke )
 	ke->ignore();
 	if ( d->paths->hasFocus() ) {
 	    ke->accept();
-	    if ( d->url == d->paths->currentText() )
+	    if ( d->url == QUrl(d->paths->currentText()) )
 		nameEdit->setFocus();
 	} else if ( d->types->hasFocus() ) {
 	    ke->accept();

@@ -1090,7 +1090,7 @@ void QMainWindow::moveToolBar( QToolBar *toolBar, ToolBarDock edge, QToolBar *re
 
 void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge )
 {
-    moveToolBar( toolBar, edge, 0, TRUE );
+    moveToolBar( toolBar, edge, (QToolBar*)0, TRUE );
 }
 
 /*!
@@ -1132,7 +1132,7 @@ void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge, bool nl, in
     if ( nl && tt )
 	tt->nl = nl;
     if ( !dl ) {
-	moveToolBar( toolBar, edge, 0, TRUE );
+	moveToolBar( toolBar, edge, (QToolBar*)0, TRUE );
     } else {
 	QMainWindowPrivate::ToolBar *tb = 0;
 	if ( index >= (int)dl->count() )
@@ -1140,7 +1140,7 @@ void QMainWindow::moveToolBar( QToolBar * toolBar, ToolBarDock edge, bool nl, in
 	else
 	    tb = dl->at( index );
 	if ( !tb )
-	    moveToolBar( toolBar, edge, 0, TRUE );
+	    moveToolBar( toolBar, edge, (QToolBar*)0, TRUE );
 	else
 	    moveToolBar( toolBar, edge, tb->t, FALSE );
     }

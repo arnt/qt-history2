@@ -45,10 +45,19 @@
 // this stuff is copied from qapp_x11.cpp
 
 extern void qt_x11_intern_atom( const char *, Atom * );
+
+#if defined(Q_C_CALLBACKS)
+extern "C" {
+#endif
+
 extern void qt_ignore_badwindow();
 extern bool qt_badwindow();
 extern void qt_enter_modal( QWidget *widget );
 extern void qt_leave_modal( QWidget *widget );
+
+#if defined(Q_C_CALLBACKS)
+}
+#endif
 
 extern Window qt_x11_findClientWindow( Window, Atom, bool );
 extern Atom qt_wm_state;

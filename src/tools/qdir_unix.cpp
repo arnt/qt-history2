@@ -37,7 +37,15 @@ extern QStringList qt_makeFilterList( const QString &filter );
 
 extern int qt_cmp_si_sortSpec;
 
+#if defined(Q_C_CALLBACKS)
+extern "C" {
+#endif
+
 extern int qt_cmp_si( const void *, const void * );
+
+#if defined(Q_C_CALLBACKS)
+}
+#endif
 
 void QDir::slashify( QString& )
 {

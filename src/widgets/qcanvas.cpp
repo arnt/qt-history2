@@ -1746,7 +1746,7 @@ static bool collision_double_dispatch(
 	// d
 	QPointArray pa1 = p1->areaPointsAdvanced();
 	QPointArray pa2 = p2 ? p2->areaPointsAdvanced()
-		       : i2->boundingRectAdvanced();
+		       : QPointArray(i2->boundingRectAdvanced());
 	bool col= !(QRegion(pa1) & QRegion(pa2,TRUE)).isEmpty();
 
 	return col;
