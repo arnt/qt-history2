@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qmlined.cpp#8 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -14,6 +14,8 @@
 #include "qpainter.h"
 #include "qscrbar.h"
 #include "qkeycode.h"
+#include "qclipbrd.h"
+#include "qapp.h"
 
 /*!
   \class QMultiLineEdit qmlined.h
@@ -303,6 +305,8 @@ void QMultiLineEdit::setText( const char * )
   <dt> Control-F <dd> Move the cursor one character rightwards
   <dt> Control-H <dd> Delete the character to the left of the cursor
   <dt> Control-K <dd> Delete to end of line
+  <dt> Control-N <dd> Move the cursor one line downwards
+  <dt> Control-P <dd> Move the cursor one line upwards
   <dt> Control-V <dd> Paste the clipboard text into line edit.
   <dt> Control-X <dd> Cut the marked text, copy to clipboard.
   </dl>
@@ -386,36 +390,15 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	case Key_K:
 	    killLine();
 	    break;
-	case Key_V:/* {			// paste
-		      QString t = QApplication::clipboard()->text();
-		      if ( !t.isEmpty() ) {
-		      int i = t.find( '\n' );	// no multiline text
-		      if ( i >= 0 )
-		      t.truncate( i );
-		      uchar *p = (uchar *) t.data();
-		      while ( *p ) {		// unprintable becomes space
-		      if ( *p < 32 )
-		      *p = 32;
-		      p++;
-		      }
-		      if ( hasMarkedText() ) {
-		      tbuf.remove( minMark(), maxMark() - minMark() );
-		      cursorPos = minMark();
-		      if ( cursorPos < offset )
-		      offset = cursorPos;
-		      }
-		      int tlen = t.length();
-		      int blen = tbuf.length();
-		      if ( tlen+blen >= maxLen ) {
-		      if ( blen >= maxLen )
-		      break;
-		      t.truncate( maxLen-tlen );
-		      }
-		      tbuf.insert( cursorPos, t );
-		      cursorRight( FALSE, tlen );
-		      emit textChanged( tbuf.data() );
-		      }
-		      }*/
+	case Key_N:
+	    cursorDown( e->state() & ShiftButton );
+	    break;
+	case Key_P:
+	    cursorUp( e->state() & ShiftButton );
+	    break;
+	case Key_V:
+	    paste();
+	    break;
 	case Key_X:
 	    if ( hasMarkedText() ) {
 		//copyText();
@@ -671,12 +654,11 @@ void QMultiLineEdit::cursorLeft( bool mark, int steps )
 	    }
 	    updateCell( oldY, 0 );
 	}
-	//###scrolling &c
+	startTimer( blinkTime );
 	updateCell( cursorY, 0 );
     }
     curXPos = 0;
     makeVisible();
-    startTimer( blinkTime );
 }
 
 /*!
@@ -710,12 +692,11 @@ void QMultiLineEdit::cursorRight( bool mark, int steps )
 	    }
 	    updateCell( oldY, 0 );
 	}
-	//###scrolling &c
 	updateCell( cursorY, 0 );
+	startTimer( blinkTime );
     }
     curXPos = 0;
     makeVisible();
-    startTimer( blinkTime );
 }
 
 /*!
@@ -963,6 +944,8 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
 	cursorY = newY;
 	updateCell( oldY, 0 );
     }
+    if ( m->button() ==  MidButton )
+	paste();
     updateCell( cursorY, 0 );
 }
 
@@ -1065,4 +1048,63 @@ void QMultiLineEdit::setBottomCell( int row )
     int rowY = cellHeight() * row;
     int newYPos = rowY +  cellHeight() - viewHeight();
     setYOffset( QMAX( newYPos, 0 ) );
+}
+
+
+/*!
+
+*/
+
+void QMultiLineEdit::paste()
+{
+    //debug( "paste" );
+    QString t = QApplication::clipboard()->text();
+    if ( !t.isEmpty() ) {
+
+	/*
+	  if ( hasMarkedText() ) {
+	  tbuf.remove( minMark(), maxMark() - minMark() );
+	  cursorPos = minMark();
+	  if ( cursorPos < offset )
+	  offset = cursorPos;
+	  }
+	  */
+	QString *s = getString( cursorY );
+	ASSERT( s );
+	/* #################
+	uchar *p = (uchar *) t.data();
+	while ( *p ) {		// unprintable becomes space
+	    if ( *p < 32 )
+		*p = 32;
+	    p++;
+	}
+	*/
+
+	int from = 0;
+
+	int to = t.find( '\n' );
+	if ( to < 0 ) { //just one line
+	    s->insert( cursorX, t );
+	    int w = textWidth( s );
+	    setCellWidth( QMAX( cellWidth(), w ) );
+	} else { //multiline
+	       QString newString = s->mid( cursorX, s->length() );
+	       s->remove( cursorX, s->length() );
+	       *s += t.left( to );
+	       cursorY++;
+	       from = to + 1;
+	       while ( (to = t.find( '\n', from )) > 0 ) {
+		   insert( t.mid( from, to - from ), cursorY++ );
+		   from = to + 1;
+	       }
+	       int lastLen = t.length() - from;
+	       newString.prepend( t.right( lastLen ) );
+	       insert( newString, cursorY );
+	       cursorX = lastLen;
+
+	       updateCellWidth();
+	}
+	curXPos = 0;
+    }
+
 }
