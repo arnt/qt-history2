@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#30 $
 **
 ** Implementation of QPainter class
 **
@@ -22,7 +22,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#29 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#30 $";
 #endif
 
 
@@ -495,7 +495,11 @@ void QPainter::setViewport( const QRect &r )
 }
 
 /*!
-Synonymous to setViewport(QRect).
+Clips graphics to the rectangle defined by \e x,\e y,\e w and \e h.
+
+Clipping is automatically enabled.
+
+\sa setClipRegion().
 */
 
 void QPainter::setClipRect( int x, int y, int w, int h )

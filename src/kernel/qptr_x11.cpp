@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#86 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#87 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,7 +25,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#86 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#87 $";
 #endif
 
 
@@ -1837,11 +1837,7 @@ void QPainter::setClipping( bool enable )	// set clipping
 
 
 /*!
-Clips graphics to the rectangle \e rect.
-
-Clipping is automatically enabled.
-
-\sa setClipRegion().
+Synonymous to setClipRect(x,y,w,h).
 */
 
 void QPainter::setClipRect( const QRect &rect )	// set clip rectangle
