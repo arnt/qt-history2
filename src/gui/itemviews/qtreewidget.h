@@ -37,10 +37,20 @@ public:
     enum Role {
         FontRole = 33,
         BackgroundColorRole = 34,
-        TextColorRole = 35
+        TextColorRole = 35,
+        CheckRole = 36
     };
 
-    // these functions are intended to be reimplemented
+    enum CheckedState {
+        Unchecked = 0,
+        PartiallyChecked = 1,
+        Checked = 2
+    };
+
+    // these functions are intended to be reimplemented    
+    virtual CheckedState checkedState() const;
+    virtual void setCheckedState(CheckedState state);
+
     virtual QString text(int column) const;
     virtual void setText(int column, const QString &text);
     
@@ -81,6 +91,8 @@ public:
     inline void setEditable(bool enable) { editable = enable; }
     inline bool isSelectable() const { return selectable; }
     inline void setSelectable(bool enable) { selectable = enable; }
+    inline bool isCheckable() const { return checkable; }
+    inline void setCheckable(bool enable) { checkable = enable; }
 
     inline bool operator ==(const QTreeWidgetItem &other) const
         { return par == other.par && children == other.children; }
@@ -108,6 +120,7 @@ private:
     int columns;
     uint editable : 1;
     uint selectable : 1;
+    uint checkable : 1;
 };
 
 class QTreeWidgetPrivate;

@@ -449,21 +449,17 @@ void QTreeModel::emitRowsInserted(QTreeWidgetItem *item)
 class QTreeItemDelegate : public QItemDelegate
 {
 public:
-    QTreeItemDelegate(QTreeModel *model, QTreeView *view);
+    QTreeItemDelegate(QTreeView *view);
     ~QTreeItemDelegate();
 
     void paint(QPainter *painter, const QStyleOptionViewItem &option,
                const QAbstractItemModel *model, const QModelIndex &index) const;
     QSize sizeHint(const QFontMetrics &fontMetrics, const QStyleOptionViewItem &option,
                    const QAbstractItemModel *model, const QModelIndex &index) const;
-
-protected:
-    QTreeModel *treeModel;
-    QTreeView *treeView;
 };
 
-QTreeItemDelegate::QTreeItemDelegate(QTreeModel *model, QTreeView *view)
-    : QItemDelegate(view), treeModel(model), treeView(view)
+QTreeItemDelegate::QTreeItemDelegate(QTreeView *view)
+    : QItemDelegate(view)
 {
 }
 
@@ -475,18 +471,21 @@ void QTreeItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
                               const QAbstractItemModel *model, const QModelIndex &index) const
 {
     int column = index.column();
-    QTreeWidgetItem *item = treeModel->item(index);
-    QFont oldFont = painter->font();
-    painter->setFont(item->font(column));
-    QColor backgroundColor = item->backgroundColor(column);
-    if (backgroundColor.isValid())
-        painter->fillRect(option.rect, backgroundColor);
-    QColor textColor = item->textColor(column);
     QStyleOptionViewItem opt = option;
-    if (textColor.isValid())
-        opt.palette.setColor(QPalette::Text, textColor);
+    // set font
+    QVariant value = model->data(index, QTreeWidgetItem::FontRole);
+    if (value.isValid())
+        opt.font = value.toFont();
+    // set text color
+    value = model->data(index, QTreeWidgetItem::TextColorRole);
+    if (value.isValid() && value.toColor().isValid())
+        opt.palette.setColor(QPalette::Text, value.toColor());
+    // draw the background color
+    value = model->data(index, QTreeWidgetItem::BackgroundColorRole);
+    if (value.isValid() && value.toColor().isValid())
+        painter->fillRect(option.rect, value.toColor());
+    // draw the item
     QItemDelegate::paint(painter, opt, model, index);
-    painter->setFont(oldFont);
 }
 
 QSize QTreeItemDelegate::sizeHint(const QFontMetrics &fontMetrics,
@@ -494,9 +493,13 @@ QSize QTreeItemDelegate::sizeHint(const QFontMetrics &fontMetrics,
                                   const QAbstractItemModel *model,
                                   const QModelIndex &index) const
 {
-    QTreeWidgetItem *item = treeModel->item(index);
-    QFontMetrics fm(item->font(index.column()));
-    return QItemDelegate::sizeHint(fm, option, model, index);
+    QVariant value = model->data(index, QTreeWidgetItem::FontRole);
+    QFont fnt;
+    if (value.isValid())
+        fnt = value.toFont();
+    else
+        fnt = option.font;
+    return QItemDelegate::sizeHint(QFontMetrics(fnt), option, model, index);
 }
 
 // QTreeWidgetItem
@@ -686,6 +689,16 @@ void QTreeWidgetItem::setColumnCount(int count)
 {
     columns = count;
     values.resize(count);
+}
+
+QTreeWidgetItem::CheckedState QTreeWidgetItem::checkedState() const
+{
+    return static_cast<CheckedState>(retrieve(0, CheckRole).toInt());
+}
+
+void QTreeWidgetItem::setCheckedState(CheckedState state)
+{
+    store(0, CheckRole, static_cast<int>(state));
 }
 
 /*!
@@ -1009,10 +1022,8 @@ public:
 QTreeWidget::QTreeWidget(QWidget *parent)
     : QTreeView(*new QTreeViewPrivate(), parent)
 {
-    QTreeModel *treeModel = new QTreeModel(0, this);
-    QTreeItemDelegate *treeDelegate = new QTreeItemDelegate(treeModel, this);
-    setModel(treeModel);
-    setItemDelegate(treeDelegate);
+    setModel(new QTreeModel(0, this));
+    setItemDelegate(new QTreeItemDelegate(this));
 }
 
 /*!
