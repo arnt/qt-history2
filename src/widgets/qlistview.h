@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#7 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#8 $
 **
 ** Definition of 
 **
@@ -28,8 +28,6 @@ public:
     QListViewItem( QListViewItem * parent );
     QListViewItem( QListView * parent, const char * firstLabel, ... );
     QListViewItem( QListViewItem * parent, const char * firstLabel, ... );
-    //    QListViewItem( QListViewItem * parent,
-    //		   const QPixmap, const char * firstLabel, ... );
     virtual ~QListViewItem();
 
     virtual void insertItem( QListViewItem * );
@@ -49,10 +47,13 @@ public:
     bool isOpen() const { return open && childCount>0; } // ###
     virtual void setOpen( bool );
 
+    virtual void setSelected( bool );
+    bool isSelected() const { return selected; }
+
     virtual void paintCell( QPainter *,  const QColorGroup & cg,
 			    int column, int width ) const;
-    virtual void paintTreeBranches( QPainter * p, const QColorGroup & cg,
-				    int w, int y, int h, GUIStyle s ) const;
+    virtual void paintBranches( QPainter * p, const QColorGroup & cg,
+				int w, int y, int h, GUIStyle s ) const;
 
     const QListViewItem * firstChild() const { return childItem; }
     const QListViewItem * nextSibling() const { return siblingItem; }
@@ -67,14 +68,15 @@ private:
     int ownHeight;
     int maybeTotalHeight;
     int childCount;
-    bool open;
+
+    uint open : 1;
+    uint selected : 1;
 
     QListViewItem * parentItem;
     QListViewItem * siblingItem;
     QListViewItem * childItem;
 
     QStrList * columnTexts;
-    QPixmap * icon;
 
     friend QListView;
 };
@@ -98,6 +100,17 @@ public:
     void show();
     void setFont( const QFont & );
 
+    QListViewItem * itemAt( QPoint screenPos ) const;
+    QRect itemRect( QListViewItem * ) const;
+
+    virtual void setMultiSelection( bool enable );
+    bool isMultiSelection() const;
+    virtual void setSelected( QListViewItem *, bool );
+    bool isSelected( QListViewItem * ) const;
+
+    virtual void setHighlightedItem( QListViewItem * );
+    QListViewItem * hightlightedItem() const;
+
 public slots:
     void triggerUpdate();
 
@@ -106,14 +119,26 @@ signals:
 
 protected:
     bool eventFilter( QObject * o, QEvent * );
+
+    void mousePressEvent( QMouseEvent * e );
+    void mouseReleaseEvent( QMouseEvent * e );
+    void mouseMoveEvent( QMouseEvent * e );
+
+    void focusInEvent( QFocusEvent * e );
+    void focusOutEvent( QFocusEvent * e );
+
+    void keyPressEvent( QKeyEvent *e );
+
     void drawContentsOffset( QPainter *, int ox, int oy,
 			     int cx, int cy, int cw, int ch );
-
+    
 protected slots:
     void updateContents();
 
 private:
     void doStyleChange( QListViewItem * );
+    void buildDrawableList() const;
+
     QListViewPrivate * d;
 };
 

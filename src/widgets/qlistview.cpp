@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#18 $
 **
 ** Implementation of something useful
 **
@@ -14,12 +14,13 @@
 #include "qheader.h"
 #include "qpainter.h"
 #include "qstack.h"
+#include "qlist.h"
 #include "qstrlist.h"
 #include "qpixmap.h"
 
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#17 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#18 $");
 
 
 struct QListViewPrivate
@@ -37,22 +38,36 @@ struct QListViewPrivate
 	QListView * lv;
     };
 
-    // a drawable item, for the stack used in drawContentsOffset()
-    struct PendingItem {
-	PendingItem( int level, int ypos, const QListViewItem * item)
+    // for the stack used in drawContentsOffset()
+    struct Pending {
+	Pending( int level, int ypos, QListViewItem * item)
 	    : l(level), y(ypos), i(item) {};
 
-	int l;
+	int l; // top pixel in this item, in list view coordinates
+	int y; // level of this item in the tree
+	QListViewItem * i; // the item itself
+    };
+
+    // to remember what's on screen
+    struct DrawableItem {
+	DrawableItem( Pending * pi ) { y=pi->y; l=pi->l; i=pi->i; };
 	int y;
-	const QListViewItem * i;
+	int l;
+	QListViewItem * i;
     };
 
     // private variables used in QListView
     QHeader * h;
     Root * r;
 
+    QListViewItem * currentSelected;
+
     QTimer * timer;
     int levelWidth;
+
+    QList<DrawableItem> * drawables;
+
+    bool multi;
 };
 
 
@@ -145,7 +160,6 @@ void QListViewItem::init()
     siblingItem = childItem = 0;
 
     columnTexts = 0;
-    icon = 0;
 }
 
 
@@ -320,6 +334,17 @@ void QListViewItem::setOpen( bool o )
 }
 
 
+/*!  Sets this item to be selected \a s is TRUE, and to not be
+  selected if \a o is FALSE.  Doesn't repaint anything in either case.
+
+  \sa ownHeight() totalHeight() */
+
+void QListViewItem::setSelected( bool s )
+{
+    selected = s ? 1 : 0;
+}
+
+
 /*!  Returns the total height of this object, including any visible
   children.  This height is recomputed lazily and cached for as long
   as possible.
@@ -374,6 +399,8 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 
     int r = 2;
 
+    QPixmap * icon = 0; // ### temporary! to be replaced with an array
+
     if ( icon && !column ) {
 	p->drawPixmap( 0, (height()-icon->height())/2, *icon );
 	r += icon->width();
@@ -404,8 +431,8 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
   called; this function must draw on \e all of the pixels.
 */
 
-void QListViewItem::paintTreeBranches( QPainter * p, const QColorGroup & cg,
-				       int w, int y, int h, GUIStyle s ) const
+void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
+				   int w, int y, int h, GUIStyle s ) const
 {
     p->fillRect( 0, 0, w, h, cg.base() );
 
@@ -562,6 +589,9 @@ QListView::QListView( QWidget * parent, const char * name )
     d->levelWidth = 0;
     d->r = 0;
     d->h = new QHeader( this, "list view header" );
+    d->currentSelected = 0;
+    d->drawables = 0;
+    d->multi = 0;
 
     connect( d->timer, SIGNAL(timeout()),
 	     this, SLOT(updateContents()) );
@@ -594,7 +624,7 @@ QListView::~QListView()
 
 
 /*!  Calls QListViewItem::paintCell() and/or
-  QListViewItem::paintTreeBranches() for all list view items that
+  QListViewItem::paintBranches() for all list view items that
   require repainting.  See the documentation for those functions for
   details.
 */
@@ -602,9 +632,10 @@ QListView::~QListView()
 void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 				    int cx, int cy, int cw, int ch )
 {
-    QStack<QListViewPrivate::PendingItem> stack;
+    if ( !d->drawables || d->drawables->isEmpty() )
+	buildDrawableList();
 
-    stack.push( new QListViewPrivate::PendingItem( 0, 0, d->r ) );
+    QListIterator<QListViewPrivate::DrawableItem> it( *(d->drawables) );
 
     QRect r;
     int l;
@@ -612,10 +643,10 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
     l = 0;
     fx = -1;
     int tx = -1;
-    struct QListViewPrivate::PendingItem * current;
+    struct QListViewPrivate::DrawableItem * current;
 
-    while ( !stack.isEmpty() ) {
-	current = stack.pop();
+    while ( (current = it.current()) != 0 ) {
+	++it;
 
 	int ih = current->i->height();
 	int ith = current->i->totalHeight();
@@ -658,7 +689,8 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
                     r.setRight( cx + cw + ox - 1 );
 		if ( i==0 && current->l > 0 )
 		    r.setLeft( r.left() + (current->l-1) * treeStepSize() );
-                p->save();
+		
+		p->save();
                 p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
                 p->translate( r.left(), r.top() );
 		current->i->paintCell( p, colorGroup(),
@@ -669,67 +701,39 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	    }
 	}
 
-	// push younger sibling of current on the stack?
-	if ( current->y + ith < cy+ch && current->i->nextSibling() )
-	    stack.push( new QListViewPrivate::PendingItem( current->l,
-							   current->y + ith,
-							   current->i->nextSibling() ) );
+	if ( tx < 0 )
+	    tx = d->h->cellPos( d->h->mapToActual( 0 ) );
 
 	// do any children of current need to be painted?
 	if ( current->i->isOpen() &&
 	     current->y + ith > cy &&
-	     current->y + ih < cy + ch ) {
-	    // perhaps even a branch?
-	    if ( tx < 0 )
-		tx = d->h->cellPos( d->h->mapToActual( 0 ) );
-		
-	    if ( tx < cx + cw &&
-		 tx + current->l * treeStepSize() > cx ) {
-		// compute the clip rectangle the safe way
+	     current->y + ih < cy + ch && 
+	     tx < cx + cw &&
+	     tx + current->l * treeStepSize() > cx ) {
+	    // compute the clip rectangle the safe way
 
-		int rtop = current->y + ih;
-		int rbottom = current->y + ith;
-		int rleft = tx + (current->l-1)*treeStepSize();
-		int rright = rleft + treeStepSize();
+	    int rtop = current->y + ih;
+	    int rbottom = current->y + ith;
+	    int rleft = tx + (current->l-1)*treeStepSize();
+	    int rright = rleft + treeStepSize();
 
-		int crtop = QMAX( rtop, cy );
-		int crbottom = QMIN( rbottom, cy+ch );
-		int crleft = QMAX( rleft, cx );
-		int crright = QMIN( rright, cx+cw );
+	    int crtop = QMAX( rtop, cy );
+	    int crbottom = QMIN( rbottom, cy+ch );
+	    int crleft = QMAX( rleft, cx );
+	    int crright = QMIN( rright, cx+cw );
 
-		r.setRect( crleft+ox, crtop+oy, 
-			   crright-crleft, crbottom-crtop );
+	    r.setRect( crleft+ox, crtop+oy, 
+		       crright-crleft, crbottom-crtop );
 
-		if ( r.isValid() ) {
-		    p->save();
-		    p->setClipRect( r );
-		    p->translate( rleft+ox, crtop+oy );
-		    current->i->paintTreeBranches( p, colorGroup(),
-						      treeStepSize(), 
-						      rtop - crtop,
-						      r.height(), style() );
-		    p->restore();
-		}
+	    if ( r.isValid() ) {
+		p->save();
+		p->setClipRect( r );
+		p->translate( rleft+ox, crtop+oy );
+		current->i->paintBranches( p, colorGroup(), treeStepSize(),
+					   rtop - crtop, r.height(), style() );
+		p->restore();
 	    }
-
-	    const QListViewItem * c = current->i->firstChild();
-	    int y = current->y + ih;
-
-	    // skip past some of the children quickly... not strictly
-	    // necessary but it probably helps
-	    while ( c && y + c->totalHeight() <= cy ) {
-		y += c->totalHeight();
-		c = c->nextSibling();
-	    }
-
-	    // push one child on the stack, if there is at least one
-	    // needing to be painted
-	    if ( c && y < cy+ch )
-		stack.push( new QListViewPrivate::PendingItem( current->l + 1,
-							       y, c ) );
 	}
-
-	delete current;
     }
 
     if ( d->r->totalHeight() < cy + ch ) {
@@ -740,6 +744,78 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		     colorGroup().base() );
     }
 }
+
+
+/*! Rebuild the lis of drawable QListViewItems.  This function is
+  const so that const functions can call it without requiring
+  d->drawables to be mutable */
+
+void QListView::buildDrawableList() const
+{
+    QStack<QListViewPrivate::Pending> stack;
+    stack.push( new QListViewPrivate::Pending( 0, 0, d->r ) );
+
+    // could mess with cy and ch in order to speed up vertical
+    // scrolling
+    int cy = viewY();
+    int ch = viewHeight();
+
+    struct QListViewPrivate::Pending * cur;
+
+    // used to work around lack of support for mutable
+    QList<QListViewPrivate::DrawableItem> * dl;
+
+    if ( d->drawables ) {
+	dl = ((QListView *)this)->d->drawables;
+	dl->clear();
+    } else {
+	dl = new QList<QListViewPrivate::DrawableItem>;
+	dl->setAutoDelete( TRUE );
+	((QListView *)this)->d->drawables = dl;
+    }
+
+    while ( !stack.isEmpty() ) {
+	cur = stack.pop();
+
+	int ih = cur->i->height();
+	int ith = cur->i->totalHeight();
+
+	// is this item, or its branch symbol, inside the viewport?
+	if ( cur->y + ith >= cy && cur->y < cy + ch )
+	    dl->append( new QListViewPrivate::DrawableItem(cur));
+
+	// push younger sibling of cur on the stack?
+	if ( cur->y + ith < cy+ch && cur->i->siblingItem )
+	    stack.push( new QListViewPrivate::Pending(cur->l,
+						      cur->y + ith,
+						      cur->i->siblingItem));
+
+	// do any children of cur need to be painted?
+	if ( cur->i->isOpen() &&
+	     cur->y + ith > cy &&
+	     cur->y + ih < cy + ch ) {
+
+	    QListViewItem * c = cur->i->childItem;
+	    int y = cur->y + ih;
+
+	    // skip past some of the children quickly... not strictly
+	    // necessary but it probably helps
+	    while ( c && y + c->totalHeight() <= cy ) {
+		y += c->totalHeight();
+		c = c->siblingItem;
+	    }
+
+	    // push one child on the stack, if there is at least one
+	    // needing to be painted
+	    if ( c && y < cy+ch )
+		stack.push( new QListViewPrivate::Pending( cur->l + 1,
+							       y, c ) );
+	}
+
+	delete cur;
+    }
+}
+
 
 
 
@@ -860,21 +936,31 @@ void QListView::triggerUpdate()
 
 bool QListView::eventFilter( QObject * o, QEvent * e )
 {
-    if ( o == viewport() && e ) {
-	switch( e->type() ) {
-	case Event_MouseButtonPress:
-	case Event_MouseMove:
-	case Event_MouseButtonRelease:
-	    
-	case Event_FocusIn:
-	    // fall through
-	case Event_FocusOut:
-	    
-	    break;
-	default:
-	    // nothing
-	    break;
-	}
+    if ( o != viewport() || !e )
+	return QScrollView::eventFilter( o, e );
+
+    QMouseEvent * me = (QMouseEvent *)e;
+    QFocusEvent * fe = (QFocusEvent *)e;
+
+    switch( e->type() ) {
+    case Event_MouseButtonPress:
+	mousePressEvent( me );
+	break;
+    case Event_MouseMove:
+	mouseMoveEvent( me );
+	break;
+    case Event_MouseButtonRelease:
+	mouseReleaseEvent( me );
+	break;
+    case Event_FocusIn:
+	focusInEvent( fe );
+	break;
+    case Event_FocusOut:
+	focusOutEvent( fe );
+	break;
+    default:
+	// nothing
+	break;
     }
     return QScrollView::eventFilter( o, e );
 }
@@ -973,4 +1059,253 @@ void QListView::doStyleChange( QListViewItem *item )
 	doStyleChange( it );
 	it = (QListViewItem*)it->nextSibling();
     }
+}
+
+
+/*!  Processes mouse move events on behalf of the viewed widget;
+  eventFilter() calls this function.  Note that the coordinates in \a
+  e is in the coordinate system of viewport(). */
+
+void QListView::mousePressEvent( QMouseEvent * e )
+{
+    if ( !e )
+	return;
+
+    QListViewItem * i = itemAt( e->pos() );
+    if ( !i )
+	return;
+
+    i->setSelected( isMultiSelection() ? !i->isSelected() : TRUE );
+    setHighlightedItem( i );
+
+    return;
+}
+
+
+/*!  Processes mouse move events on behalf of the viewed widget;
+  eventFilter() calls this function.  Note that the coordinates in \a
+  e is in the coordinate system of viewport(). */
+
+void QListView::mouseReleaseEvent( QMouseEvent * e )
+{
+    if ( !e )
+	return;
+
+    QListViewItem * i = itemAt( e->pos() );
+    if ( !i )
+	return;
+
+    i->setSelected( hightlightedItem() 
+		    ? hightlightedItem()->isSelected()
+		    : TRUE );
+    setHighlightedItem( i );
+    return;
+}
+
+
+/*!  Processes mouse move events on behalf of the viewed widget;
+  eventFilter() calls this function.  Note that the coordinates in \a
+  e is in the coordinate system of viewport(). */
+
+void QListView::mouseMoveEvent( QMouseEvent * e )
+{
+    if ( !e )
+	return;
+
+    QListViewItem * i = itemAt( e->pos() );
+    if ( !i )
+	return;
+
+    i->setSelected( hightlightedItem() 
+		    ? hightlightedItem()->isSelected() 
+		    : TRUE );
+    setHighlightedItem( i );
+    return;
+}
+
+
+/*!
+
+*/
+
+void QListView::focusInEvent( QFocusEvent * )
+{
+    return;
+}
+
+
+/*!
+
+*/
+
+void QListView::focusOutEvent( QFocusEvent * )
+{
+    return;
+}
+
+
+/*!
+
+*/
+
+void QListView::keyPressEvent( QKeyEvent * )
+{
+    return;
+}
+
+
+/*!  Returns a pointer to the QListViewItem at \a screenPos.  Note
+  that \a screenPos is in the coordinate system of viewport(), not in
+  the listview's own, much larger, coordinate system.
+
+  itemAt() returns 0 if there is no such item.
+*/
+
+QListViewItem * QListView::itemAt( QPoint screenPos ) const
+{
+    if ( !d->drawables || d->drawables->isEmpty() )
+	buildDrawableList();
+
+    QListViewPrivate::DrawableItem * c = d->drawables->first();
+    int p = -viewY();
+    int g = screenPos.y();
+
+    while( c && c->i && p + c->i->height() < g ) {
+	p += c->i->height();
+	c = d->drawables->next();
+    }
+    return c ? c->i : 0;
+}
+
+
+/*!  Sets the list view to multi-selection mode if \a enable is TRUE,
+  and to single-selection mode if \a enable is FALSE.
+
+  \sa isMultiSelection()
+*/
+
+void QListView::setMultiSelection( bool enable )
+{
+    d->multi = enable ? TRUE : FALSE;
+}
+
+
+/*!  Returns TRUE if this list view is in multi-selection mode and
+  FALSE if it is in single-selection mode.
+
+  \sa setMultiSelection()
+*/
+
+bool QListView::isMultiSelection() const
+{
+    return d->multi;
+}
+
+
+/*!  Sets \a item to be selected if \a selected is TRUE, and to be not
+  selected if \a selected is FALSE.
+
+  If the list view is in single-selection mode and \a selected is
+  TRUE, the present selected item is unselected.  Unlike
+  QListViewItem::setSelected(), this function updates the list view as
+  necessary.
+
+  \sa isSelected() setMultiSelection() isMultiSelection()
+*/
+
+void QListView::setSelected( QListViewItem * item, bool selected )
+{
+    if ( !item || item->isSelected() == selected )
+	return;
+
+    if ( selected && !isMultiSelection() && d->currentSelected ) {
+	d->currentSelected->setSelected( FALSE );
+	
+    }
+
+    if ( item->isSelected() != selected ) {
+	item->setSelected( selected );
+
+    }
+}
+
+
+/*!  Returns i->isSelected().
+
+  Provided only because QListView provides setSelected() and I like
+  completeness.
+*/
+
+bool QListView::isSelected( QListViewItem * i ) const
+{
+    return i ? i->isSelected() : FALSE;
+}
+
+
+/*!  Sets \a i to be the current highlighted item.  This highlighted
+  item is used for keyboard navigation and focus indication; it
+  doesn't mean anything else.
+
+  \sa highlightedItem()
+*/
+
+void QListView::setHighlightedItem( QListViewItem * i )
+{
+    if ( d->currentSelected && d->currentSelected != i )
+	repaint( itemRect( d->currentSelected ) );
+    d->currentSelected = i;
+    if ( i )
+	repaint( itemRect( i ) );
+}
+
+
+/*!
+
+*/
+
+QListViewItem * QListView::hightlightedItem() const
+{
+    return d ? d->currentSelected : 0;
+}
+
+
+/*!  Returns the rectangle on the screen \a i occupies in
+  viewport()'s coordinates, or an invalid rectangle if \a i is not
+  currently visible.
+
+  The rectangle returned does not include any children of the
+  rectangle (ie. it uses QListViewItem::height() rather than
+  QListViewItem::totalHeight()).  If you want the rectangle including
+  children, you can use something like this code:
+
+  \code
+    QRect r( listView->itemRect( item ) );
+    r.setHeight( (QCOORD)(QMIN( item->totalHeight(),
+				listView->viewHeight() - r.y() ) ) )
+  \endcode
+
+  Note the way it avoids too-high rectangles.  totalHeight() can be
+  much larger than the window system's coordinate system allows.
+
+  itemRect() is comparatively slow.  It's best to call it only for
+  items that are probably on-screen.
+*/
+
+QRect QListView::itemRect( QListViewItem * i ) const
+{
+    if ( !d->drawables || d->drawables->isEmpty() )
+	buildDrawableList();
+
+    QListViewPrivate::DrawableItem * c = d->drawables->first();
+
+    while( c && c->i && c->i != i )
+	c = d->drawables->next();
+
+    if ( c && c->i ) {
+	QRect r( 0, c->y - viewY(), d->h->width(), i->height() );
+	if ( r.intersects( QRect( 0, 0, viewWidth(), viewHeight() ) ) )
+	    return r;
+    }
+
+    return QRect( 0, 0, -1, -1 );
 }
