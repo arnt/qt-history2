@@ -21,6 +21,7 @@ class QTextListFormat;
 class QSize;
 class QRect;
 class QPainter;
+class QPrinter;
 class QAbstractTextDocumentLayout;
 class QPoint;
 class QTextCursor;

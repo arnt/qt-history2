@@ -22,6 +22,7 @@
 #include <qvarlengtharray.h>
 #include <qtextcodec.h>
 #include "qtexthtmlparser_p.h"
+#include "qpainter.h"
 #include "qprinter.h"
 #include "qpaintdevicemetrics.h"
 
@@ -465,7 +466,7 @@ void QTextDocument::setHtml(const QString &html)
     \value FindWholeWords Makes find match only complete words.
 */
 
-static bool findInBlock(const QTextBlock &block, const QString &text, const QString &expression, int offset, 
+static bool findInBlock(const QTextBlock &block, const QString &text, const QString &expression, int offset,
                         QTextDocument::FindFlags options, QTextDocument::FindDirection direction, QTextCursor &cursor)
 {
     const Qt::CaseSensitivity cs = (options & QTextDocument::FindCaseSensitively) ? Qt::CaseSensitive : Qt::CaseInsensitive;
