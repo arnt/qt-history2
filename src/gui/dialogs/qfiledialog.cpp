@@ -1410,6 +1410,7 @@ void QFileDialogPrivate::setup(const QString &directory,
     QWidget::setTabOrder(cancelButton, lookIn);
 
     // last init
+    q->resize(530, 340);
     fileName->setFocus();
 }
 
