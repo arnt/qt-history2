@@ -19,7 +19,7 @@ public: \
     inline C##Iterator(const C<T> &container) \
     :c(container), i(c.constBegin()) {} \
     inline void operator=(const C<T> &container) \
-    { c = b.c; i = c.constBegin(); } \
+    { c = container.c; i = c.constBegin(); } \
     inline void toFront() { i = c.constBegin(); } \
     inline void toBack() { i = c.constEnd(); } \
     inline bool hasNext() const { return i != c.end(); } \
@@ -29,10 +29,10 @@ public: \
     inline const T &prev() { return *--i; } \
     inline const T &peekPrev() const { ConstIterator p = i; return *--p; } \
     inline bool findNext(const T &t) \
-    { while (c && (n=i) != c->constEnd()) if (*i++ == t) return true; return false; } \
+    { while (c && i != c->constEnd()) if (*i++ == t) return true; return false; } \
     inline bool findPrev(const T &t) \
-    { while (c&&i!=c->constBegin()) if (*(n=--i) == t) return true; \
-      n=c->constEnd(); return false;  } \
+    { while (c && i!=c->constBegin()) if (*(--i) == t) return true; \
+      return false;  } \
 }; \
 \
 template <class T> \
