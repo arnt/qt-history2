@@ -268,14 +268,14 @@ int QPrinter::metric( int m ) const
     {
 	PMRect r;
 	if(PMGetAdjustedPaperRect(pformat, &r) == noErr)
-	    val = (int)(r.right - r.left) / 72;
+	    val = (int)(r.right - r.left);
 	break;
     }
     case QPaintDeviceMetrics::PdmHeight:
     {
 	PMRect r;
 	if(PMGetAdjustedPaperRect(pformat, &r) == noErr)
-	    val = (int)(r.bottom - r.top) / 72;
+	    val = (int)(r.bottom - r.top);;
 	break;
     }
     case QPaintDeviceMetrics::PdmDpiY:
