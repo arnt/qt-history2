@@ -67,7 +67,8 @@ public:
     QLineEdit *vi;
 };
 
-/*!  Constructs an empty range control widget.
+/*!  Constructs an empty range control widget with parent \a parent
+    called \a name.
 
 */
 
@@ -186,7 +187,7 @@ void QSpinWidget::stepDown()
 
 
 /*!
-
+    The event is passed in \a e.
 */
 
 void QSpinWidget::mouseReleaseEvent( QMouseEvent *e )
@@ -210,7 +211,7 @@ void QSpinWidget::mouseReleaseEvent( QMouseEvent *e )
 
 
 /*!
-
+    The event is passed in \a e.
 */
 
 void QSpinWidget::mouseMoveEvent( QMouseEvent *e )
@@ -244,7 +245,7 @@ void QSpinWidget::mouseMoveEvent( QMouseEvent *e )
 
 
 /*!
-
+    The event is passed in \a e.
 */
 
 void QSpinWidget::wheelEvent( QWheelEvent *e )
@@ -306,7 +307,7 @@ void QSpinWidget::paintEvent( QPaintEvent * )
 
 
 /*!
-
+    The previous style is passed in \a old.
 */
 
 void QSpinWidget::styleChange( QStyle& old )
@@ -360,7 +361,7 @@ void QSpinWidget::updateDisplay()
 
 
 /*!
-
+    The previous enabled state is passed in \a old.
 */
 
 void QSpinWidget::enableChanged( bool )
@@ -372,7 +373,7 @@ void QSpinWidget::enableChanged( bool )
 
 
 /*!
-
+    Sets up-enabled to \a on.
 */
 
 void QSpinWidget::setUpEnabled( bool on )
@@ -414,7 +415,7 @@ bool QSpinWidget::isDownEnabled() const
 }
 
 /*!
-
+    Sets the button symbol to \a bs.
 */
 
 void QSpinWidget::setButtonSymbols( ButtonSymbols bs )

@@ -38,7 +38,6 @@
 #include "qhgroupbox.h"
 #ifndef QT_NO_HGROUPBOX
 
-// NOT REVISED
 /*!
   \class QHGroupBox qhgroupbox.h
 
@@ -54,7 +53,7 @@
 /*!
   Constructs a horizontal group box with no title.
 
-  The \e parent and \e name arguments are passed to the QWidget constructor.
+  The \a parent and \a name arguments are passed to the QWidget constructor.
 */
 QHGroupBox::QHGroupBox( QWidget *parent, const char *name )
     : QGroupBox( 1, Vertical /* sic! */, parent, name )
@@ -62,9 +61,9 @@ QHGroupBox::QHGroupBox( QWidget *parent, const char *name )
 }
 
 /*!
-  Constructs a horizontal group box with a title.
+  Constructs a horizontal group box with the title \a title.
 
-  The \e parent and \e name arguments are passed to the QWidget constructor.
+  The \a parent and \a name arguments are passed to the QWidget constructor.
 */
 
 QHGroupBox::QHGroupBox( const QString &title, QWidget *parent,

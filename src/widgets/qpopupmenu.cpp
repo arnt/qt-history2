@@ -231,7 +231,7 @@ public:
 
 static QPopupMenu* active_popup_menu = 0;
 /*!
-  Constructs a popup menu with a parent and a widget name.
+  Constructs a popup menu with a parent \a parent called \a name.
 
   Although a popup menu is always a top-level widget, if a parent is
   passed the popup menu will be deleted when that parent is destroyed
@@ -1145,6 +1145,7 @@ int QPopupMenu::itemHeight( int row ) const
 }
 
 /*!
+    \overload
   Calculates the height in pixels of the item \a mi.
  */
 int QPopupMenu::itemHeight( QMenuItem *mi ) const
@@ -1212,7 +1213,7 @@ void QPopupMenu::drawItem( QPainter* p, int tab_, QMenuItem* mi,
 
 
 /*!
-  Draws all menu items.
+  Draws all menu items using painter \a p.
 */
 void QPopupMenu::drawContents( QPainter* p )
 {
@@ -1825,7 +1826,9 @@ void QPopupMenu::updateRow( int row )
 }
 
 
-/*!  Executes this popup synchronously.
+/*!  
+    \overload
+    Executes this popup synchronously.
 
   Opens the popup menu so that the item number \a indexAtPoint will be
   at the specified \e global position \a pos.  To translate a widget's
@@ -1984,7 +1987,8 @@ QSize QPopupMenu::sizeHint() const
 
 
 /*!
-  Returns the id of the item at \e pos, or -1 if there is no item
+    \overload
+  Returns the id of the item at \a pos, or -1 if there is no item
   there or if it is a separator item.
  */
 int QPopupMenu::idAt( const QPoint& pos ) const

@@ -403,7 +403,8 @@ QListViewItem::QListViewItem( QListViewItem * parent, QListViewItem * after )
 
 
 /*! Constructs a new list view item in the QListView \a parent,
-  \a parent, with up to eight constant strings \a label1, \a label2, ...,
+  \a parent, with up to eight constant strings \a label1, \a label2,
+  \a label3, \a label4, \a label5, \a label6, \a label7 and
   \a label8 defining its column contents.
 
   \walkthrough xml/tagreader-with-features/structureparser.h
@@ -449,8 +450,9 @@ QListViewItem::QListViewItem( QListView * parent,
 
 
 /*!  Constructs a new list view item as a child of the QListViewItem
-  \a parent with optional constant strings \a label1, \a label2, ...,
-  \a label8 as column contents.
+  \a parent with optional constant strings \a label1, \a label2, \a
+  label3, \a label4, \a label5, \a label6, \a label7 and \a label8 as
+  column contents.
 
   \walkthrough xml/tagreader-with-features/structureparser.cpp
   \skipto QListViewItem * element
@@ -490,7 +492,8 @@ QListViewItem::QListViewItem( QListViewItem * parent,
 
 /*!  Constructs a new list view item in the QListView \a parent
   that is included after item \a after and can contain up to
-  eight column texts \a label1, \a label2, ...,\a label8.
+  eight column texts \a label1, \a label2, \a label3, \a label4, \a
+  label5, \a label6, \a label7 and\a label8.
 
   Note that the order is changed according to QListViewItem::key()
   unless the list view's sorting is disabled using
@@ -526,8 +529,9 @@ QListViewItem::QListViewItem( QListView * parent, QListViewItem * after,
 
 /*!  Constructs a new list view item as a child of the QListViewItem
   \a parent. It is inserted after item \a after and
-  may contain up to eight strings \a label1, \a label2, ...,\a label8
-  as column entries.
+  may contain up to eight strings \a label1, \a label2, \a label3, \a
+  label4, \a label5, \a label6, \a label7 and \a label8 as column
+  entries.
 
   Note that the order is changed according to QListViewItem::key()
   unless the list view's sorting is disabled using
@@ -2373,8 +2377,9 @@ QListView::~QListView()
 
 /*! Calls QListViewItem::paintCell() and/or
   QListViewItem::paintBranches() for all list view items that
-  require repainting in the \a cw pixels wide and
-  \a ch pixels high bounding rectangle starting at position \a cx, \a cy.
+  require repainting in the \a cw pixels wide and \a ch pixels high
+  bounding rectangle starting at position \a cx, \a cy with offset \a
+  ox, \a oy.
 
   For doing this, the painter \a p is used.
 
@@ -3271,8 +3276,8 @@ void QListView::triggerUpdate()
 }
 
 
-/*! Redirects the event \a e for the viewport to mousePressEvent(),
-  keyPressEvent() and friends.
+/*! Redirects the event \a e relating to object \a o, for the viewport to
+ mousePressEvent(), keyPressEvent() and friends.
 */
 
 bool QListView::eventFilter( QObject * o, QEvent * e )
@@ -6498,11 +6503,10 @@ void QListView::selectRange( QListViewItem *from, QListViewItem *to, bool invert
 
 /*!
 
-  Finds the first list view item that starts with
-  \a text and returns it, or returns 0 of no
-  such item could be found.  If ComparisonFlags are
-  specified in \a compare then these flags are used, otherwise
-  the default is a case-sensitive, exact match search.
+  Finds the first list view item in column \a column, that starts with
+  \a text and returns it, or returns 0 of no such item could be found.
+  If ComparisonFlags are specified in \a compare then these flags are
+  used, otherwise the default is a case-sensitive, exact match search.
 
 */
 

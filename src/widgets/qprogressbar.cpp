@@ -69,7 +69,7 @@
 
   The total number of steps is set to 100 by default.
 
-  \e parent, \e name and \e f are sent to the QFrame::QFrame()
+  \a parent, \a name and \a f are sent to the QFrame::QFrame()
   constructor.
 
   \sa setTotalSteps()
@@ -99,7 +99,7 @@ QProgressBar::QProgressBar( QWidget *parent, const char *name, WFlags f )
   examining the first file, call setProgress(0); call setProgress(50) after examining
   the last file .
 
-  \e parent, \e name and \e f are sent to the QFrame::QFrame()
+  \a parent, \a name and \a f are sent to the QFrame::QFrame()
   constructor.
 
   \sa setTotalSteps(), setProgress()
@@ -280,14 +280,16 @@ void QProgressBar::styleChange( QStyle& old )
   This method is called to generate the text displayed in the center of
   the progress bar.
 
-  The progress may be negative, indicating that the bar is in the "reset" state
-  before any progress is set.
+  The \a progress may be negative, indicating that the bar is in the
+  "reset" state before any progress is set. 
 
   The default implementation is the percentage of completion or blank in the
-  reset state.
+  reset state. The percentage is calculated based on the \a progress
+  and \a totalSteps. You can set the \a indicator text if you wish.
 
-  To allow efficient repainting of the progress bar, this method should return FALSE if the string is unchanged from the
-  last call to the method, .
+  To allow efficient repainting of the progress bar, this method
+  should return FALSE if the string is unchanged from the last call to
+  the function.
 */
 
 bool QProgressBar::setIndicator( QString & indicator, int progress,

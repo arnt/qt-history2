@@ -1274,6 +1274,11 @@ QContextMenuEvent::QContextMenuEvent( Reason reason, const QPoint &pos, int stat
   selected. This string has to be accepted as the final text the user
   entered, and the intermediate composition string should be cleared.
   These events are delivered to \l QWidget::imEndEvent().
+
+    If the user clicks another widget, taking the focus out of the
+    widget where the compose is taking place the IMEndEvent will be
+    sent and the string it holds will be the result of the composition
+    up to that point (which could be an empty string).
 */
 
 /*!

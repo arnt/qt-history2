@@ -230,7 +230,8 @@ static QSize minSize( const QWidget *w )
 }
 
 /*!
-  Constructs a horizontal splitter.
+  Constructs a horizontal splitter with parent \a parent called \a
+  name.
 */
 
 QSplitter::QSplitter( QWidget *parent, const char *name )
@@ -242,7 +243,8 @@ QSplitter::QSplitter( QWidget *parent, const char *name )
 
 
 /*!
-  Constructs a splitter with orientation \a o.
+  Constructs a splitter with orientation \a o with parent \a parent
+  called \a name.
 */
 
 QSplitter::QSplitter( Orientation o, QWidget *parent, const char *name )
@@ -366,6 +368,7 @@ QSplitterLayoutStruct *QSplitter::addWidget( QWidget *w, bool first )
 
 /*!
   Tells the splitter that a child widget has been inserted/removed.
+  The event is passed in \a c.
 */
 
 void QSplitter::childEvent( QChildEvent *c )

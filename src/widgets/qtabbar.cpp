@@ -160,7 +160,7 @@ struct QTabPrivate {
 
 
 /*!
-  Constructs a new, empty tab bar.
+  Constructs a new, empty tab bar with parent \a parent called \a name.
 */
 
 QTabBar::QTabBar( QWidget * parent, const char *name )
@@ -427,7 +427,7 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
 /*!
   Repaints the tab row.  All the painting is done by paint();
   paintEvent() only decides which tabs need painting and in what
-  order.
+  order. The event is passed in \a e.
 
   \sa paint()
 */
@@ -583,7 +583,9 @@ void QTabBar::setCurrentTab( int id )
 }
 
 
-/*! Raises \a tab and emits the selected() signal unless the tab was
+/*! 
+    \overload
+    Raises \a tab and emits the selected() signal unless the tab was
   already current.
 
   \sa currentTab() selected()

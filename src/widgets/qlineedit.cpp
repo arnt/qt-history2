@@ -293,7 +293,7 @@ QPixmap* QLineEditPrivate::pm = 0;
 
   The maximum text length is set to 32767 characters.
 
-  The \e parent and \e name arguments are sent to the QWidget constructor.
+  The \a parent and \a name arguments are sent to the QWidget constructor.
 
   \sa setText(), setMaxLength()
 */
@@ -311,7 +311,7 @@ QLineEdit::QLineEdit( QWidget *parent, const char *name )
   The cursor position is set to the end of the line and the maximum text
   length to 32767 characters.
 
-  The \e parent and \e name arguments are sent to the QWidget constructor.
+  The \a parent and \a name arguments are sent to the QWidget constructor.
 
   \sa text(), setMaxLength()
 */
@@ -536,7 +536,7 @@ void QLineEdit::setMaxLength( int m )
 
 
 /*!
-  Converts a key press into a line edit action.
+  Converts key press event \a e into a line edit action.
 
   If Return or Enter is pressed and the current text is valid (or can be
   \link QValidator::fixup() made valid\endlink by the validator),

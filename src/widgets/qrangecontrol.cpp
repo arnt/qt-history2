@@ -177,7 +177,7 @@ QRangeControl::~QRangeControl()
 */
 
 /*!
-  Sets the range controls value to \e value and forces it to be within
+  Sets the range controls value to \a value and forces it to be within
   the legal range.
 
   Calls the virtual valueChange() function if the new value is
@@ -196,12 +196,12 @@ void QRangeControl::setValue( int value )
 }
 
 /*!
-  Sets the range control value directly without calling valueChange().
+  Sets the range control \a value directly without calling valueChange().
 
-  Forces the new value to be within the legal range.
+  Forces the new \a value to be within the legal range.
 
   You will find few situations in which you have to call this function.
-  However, if you want to change the range controls value inside
+  However, if you want to change the range control's value inside
   the overloaded method valueChange(), setValue() would call the
   function valueChange() again. To avoid this recursion you must use
   directSetValue() instead.
@@ -333,7 +333,7 @@ void QRangeControl::setMaxValue( int maxVal )
 }
 
 /*!
-  Sets the range min value to \e minValue and the max value to \e
+  Sets the range min value to \a minValue and the max value to \a
   maxValue.
 
   Calls the virtual rangeChange() function if one or both of the new
@@ -387,7 +387,7 @@ void QRangeControl::setRange( int minValue, int maxValue )
 */
 
 /*!
-  Sets the range line step to \e lineStep and page step to \e pageStep.
+  Sets the range line step to \a lineStep and page step to \a pageStep.
 
   Calls the virtual stepChange() function if the new line step and/or
   page step are different from the previous settings.

@@ -77,7 +77,7 @@ QHBox::QHBox( QWidget *parent, const char *name, WFlags f )
   This constructor is provided for the QVBox class. You should never need
   to use it directly.
 
-  The parent, name and widget flags, \a f, are passed to the QFrame
+  The \a parent, \a name and widget flags, \a f, are passed to the QFrame
   constructor.
 */
 

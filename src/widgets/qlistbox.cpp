@@ -389,7 +389,7 @@ void QListBoxText::paint( QPainter *painter )
 }
 
 /*!
-  Returns the height of a line of text.
+  Returns the height of a line of text in list box \a lb.
 
   \sa paint(), width()
 */
@@ -401,7 +401,7 @@ int QListBoxText::height( const QListBox* lb ) const
 }
 
 /*!
-  Returns the width of this line.
+  Returns the width of this line in list box \a lb.
 
   \sa paint(), height()
 */
@@ -535,7 +535,7 @@ void QListBoxPixmap::paint( QPainter *painter )
 }
 
 /*!
-  Returns the height of the pixmap.
+  Returns the height of the pixmap in list box \a lb.
 
   \sa paint(), width()
 */
@@ -551,7 +551,7 @@ int QListBoxPixmap::height( const QListBox* lb ) const
 }
 
 /*!
-  Returns the width of the pixmap plus some margin.
+  Returns the width of the pixmap plus some margin in list box \a lb.
 
   \sa paint(), height()
 */
@@ -3651,8 +3651,11 @@ void QListBox::adjustItems()
 }
 
 
-/*!  Provided for compatibility with the old QListBox.	We recommend
-using QListBoxItem::paint() */
+/*!  Provided for compatibility with the old QListBox.	
+    We recommend using QListBoxItem::paint() 
+
+    Repaints the cell at \a row, \a col using painter \a p.
+*/
 
 void QListBox::paintCell( QPainter * p, int row, int col )
 {

@@ -93,7 +93,8 @@ class QMultiLineEditData
 
 
 /*!
-  Constructs a new, empty, QMultiLineEdit.
+  Constructs a new, empty, QMultiLineEdit with parent \a parent called
+  \a name.
 */
 
 QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
@@ -158,9 +159,9 @@ QMultiLineEdit::~QMultiLineEdit()
 }
 
 /*!
-  If there is marked text, sets \a line1, \a col1, \a line2 and \a col2
-  to the start and end of the marked region and returns TRUE. Returns
-  FALSE if there is no marked text.
+  If there is selected text, sets \a line1, \a col1, \a line2 and \a col2
+  to the start and end of the selected region and returns TRUE. Returns
+  FALSE if there is no selected text.
  */
 bool QMultiLineEdit::getMarkedRegion( int *line1, int *col1,
 				      int *line2, int *col2 ) const
@@ -182,7 +183,7 @@ bool QMultiLineEdit::getMarkedRegion( int *line1, int *col1,
 
 
 /*!
-  Returns TRUE if there is marked text.
+  Returns TRUE if there is selected text.
 */
 
 bool QMultiLineEdit::hasMarkedText() const
@@ -192,7 +193,7 @@ bool QMultiLineEdit::hasMarkedText() const
 
 
 /*!
-  Returns a copy of the marked text.
+  Returns a copy of the selected text.
 */
 
 QString QMultiLineEdit::markedText() const
@@ -202,7 +203,7 @@ QString QMultiLineEdit::markedText() const
 
 /*!
   Moves the cursor one page down.  If \a mark is TRUE, the text
-  is marked.
+  is selected.
 */
 
 void QMultiLineEdit::pageDown( bool mark )
@@ -213,7 +214,7 @@ void QMultiLineEdit::pageDown( bool mark )
 
 /*!
   Moves the cursor one page up.  If \a mark is TRUE, the text
-  is marked.
+  is selected.
 */
 
 void QMultiLineEdit::pageUp( bool mark )
@@ -266,9 +267,9 @@ void QMultiLineEdit::newLine()
 
 
 /*!  Deletes the character on the left side of the text cursor and
-  moves the cursor one position to the left. If a text has been marked
+  moves the cursor one position to the left. If a text has been selected
   by the user (e.g. by clicking and dragging) the cursor is put at the
-  beginning of the marked text and the marked text is removed.  \sa
+  beginning of the selected text and the selected text is removed.  \sa
   del()
 */
 
@@ -288,8 +289,8 @@ void QMultiLineEdit::backspace()
 
 
 /*!  Moves the text cursor to the left end of the line. If \a mark is
-  TRUE, text is marked toward the first position. If it is FALSE and the
-  cursor is moved, all marked text is unmarked.
+  TRUE, text is selected toward the first position. If it is FALSE and the
+  cursor is moved, all selected text is unselected.
 
   \sa end()
 */
@@ -300,8 +301,8 @@ void QMultiLineEdit::home( bool mark )
 }
 
 /*!  Moves the text cursor to the right end of the line. If \a mark is
-  TRUE, text is marked toward the last position.  If it is FALSE and the
-  cursor is moved, all marked text is unmarked.
+  TRUE, text is selected toward the last position.  If it is FALSE and the
+  cursor is moved, all selected text is unselected.
 
   \sa home()
 */
@@ -340,10 +341,10 @@ QPoint QMultiLineEdit::cursorPoint() const
 /*!  \property QMultiLineEdit::alignment
   \brief The editor's paragraph alignment
 
-  Sets the alignment to \a flag, which must be \c AlignLeft, \c
+  Sets the alignment to flag, which must be \c AlignLeft, \c
   AlignHCenter or \c AlignRight.
 
-  If \a flag is an illegal flag nothing happens.
+  If flag is an illegal flag nothing happens.
 
   \sa Qt::AlignmentFlags
 */
@@ -384,7 +385,7 @@ bool QMultiLineEdit::edited() const
 }
 
 /*!  Moves the cursor one word to the right.  If \a mark is TRUE, the text
-  is marked.
+  is selected.
 
   \sa cursorWordBackward()
 */
@@ -394,7 +395,7 @@ void QMultiLineEdit::cursorWordForward( bool mark )
 }
 
 /*!  Moves the cursor one word to the left.  If \a mark is TRUE, the
-  text is marked.
+  text is selected.
 
   \sa cursorWordForward()
 */
@@ -403,9 +404,10 @@ void QMultiLineEdit::cursorWordBackward( bool mark )
     moveCursor( MoveWordBackward, mark );
 }
 
-/*!  Inserts \a s at paragraph number \a line, after character
+/*!  Inserts string \a s at paragraph number \a line, after character
   number \a col in the paragraph.  If \a s contains newline
   characters, new lines are inserted.
+  If \a mark is TRUE the inserted string will be selected.
 
   The cursor position is adjusted.
  */
@@ -429,7 +431,8 @@ void QMultiLineEdit::killLine()
 }
 
 /*!  Moves the cursor one character to the left. If \a mark is TRUE,
-  the text is marked.
+  the text is selected.
+  The \a wrap parameter is currently ignored.
 
   \sa cursorRight() cursorUp() cursorDown()
 */
@@ -440,7 +443,8 @@ void QMultiLineEdit::cursorLeft( bool mark, bool )
 }
 
 /*!  Moves the cursor one character to the right.  If \a mark is TRUE,
-  the text is marked.
+  the text is selected.
+  The \a wrap parameter is currently ignored.
 
   \sa cursorLeft() cursorUp() cursorDown()
 */
@@ -451,7 +455,7 @@ void QMultiLineEdit::cursorRight( bool mark, bool )
 }
 
 /*!  Moves the cursor up one line.  If \a mark is TRUE, the text is
-  marked.
+  selected.
 
   \sa cursorDown() cursorLeft() cursorRight()
 */
@@ -463,7 +467,7 @@ void QMultiLineEdit::cursorUp( bool mark )
 
 /*!
   Moves the cursor one line down.  If \a mark is TRUE, the text
-  is marked.
+  is selected.
   \sa cursorUp() cursorLeft() cursorRight()
 */
 

@@ -64,7 +64,7 @@ QHButtonGroup::QHButtonGroup( QWidget *parent, const char *name )
 }
 
 /*!
-  Constructs a horizontal button group with a title.
+  Constructs a horizontal button group with the title \a title.
 
   The \a parent and \a name arguments are passed to the QWidget constructor.
 */

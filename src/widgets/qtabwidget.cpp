@@ -186,6 +186,8 @@ QTabWidget::QTabWidget( QWidget *parent, const char *name, WFlags f )
 
 /*!
   \overload
+  Constructs a tabbed widget with parent \a parent, name \a name,
+  and widget flags \a f.
 */
 QTabWidget::QTabWidget( QWidget *parent, const char *name )
     : QWidget( parent, name )
@@ -250,10 +252,11 @@ void QTabWidget::addTab( QWidget *child, const QString &label)
 
 
 /*!
+    \overload
   Adds another tab and page to the tab view.
 
   This function is the same as addTab(), but with an additional
-  iconset.
+  \a iconset.
  */
 void QTabWidget::addTab( QWidget *child, const QIconSet& iconset, const QString &label)
 {
@@ -318,10 +321,11 @@ void QTabWidget::insertTab( QWidget *child, const QString &label, int index)
 
 
 /*!
+    \overload
   Inserts another tab and page to the tab view.
 
   This function is the same as insertTab(), but with an additional
-  iconset.
+  \a iconset.
  */
 void QTabWidget::insertTab( QWidget *child, const QIconSet& iconset, const QString &label, int index )
 {
@@ -333,10 +337,14 @@ void QTabWidget::insertTab( QWidget *child, const QIconSet& iconset, const QStri
 }
 
 /*!
+    \overload
   This is a lower-level method for inserting tabs, similar to the other
   insertTab() method.  It is useful if you are using setTabBar() to set a
   QTabBar subclass with an overridden QTabBar::paint() routine for a
   subclass of QTab.
+  The \a child is the new page, \a tab is the tab to put the \a child
+  on and \a index is the position in the tab bar that this page should
+  occupy.
 */
 void QTabWidget::insertTab( QWidget *child, QTab* tab, int index)
 {
@@ -350,7 +358,7 @@ void QTabWidget::insertTab( QWidget *child, QTab* tab, int index)
 
 
 /*!
-  Defines a new label for the tab of page \a w.
+  Defines a new \a label for the tab of page \a w.
  */
 void QTabWidget::changeTab( QWidget *w, const QString &label)
 {
@@ -377,6 +385,7 @@ void QTabWidget::changeTab( QWidget *w, const QString &label)
 }
 
 /*!
+    \overload
   Defines a new \a iconset and a new \a label for the tab of page \a w.
  */
 void QTabWidget::changeTab( QWidget *w, const QIconSet& iconset, const QString &label)
@@ -531,7 +540,7 @@ void QTabWidget::setCurrentPage( int index )
 
 
 /*!
-  Returns the index of page \w, or -1 if the widget cannot be
+  Returns the index of page \a w, or -1 if the widget cannot be
   found.
  */
 int QTabWidget::indexOf( QWidget* w ) const
@@ -550,7 +559,7 @@ void QTabWidget::resizeEvent( QResizeEvent *e )
 }
 
 /*!
-  Replaces the QTabBar heading the dialog by the given tab bar.
+  Replaces the QTabBar heading the dialog by the tab bar \a tb.
   Note that this must be called \e before any tabs have been added,
   or the behavior is undefined.
   \sa tabBar()

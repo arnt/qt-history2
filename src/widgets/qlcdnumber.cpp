@@ -403,6 +403,7 @@ void QLCDNumber::setNumDigits( int numDigits )
 
 
 /*!
+    \overload
   Returns TRUE if \a num is too big to be displayed in its entirety;
   otherwise returns FALSE.
   \sa display(), numDigits(), smallDecimalPoint()
@@ -471,6 +472,10 @@ double QLCDNumber::value() const
     return val;
 }
 
+/*!
+    \overload
+    Displays the number \a num.
+*/
 void QLCDNumber::display( double num )
 {
     val = num;
@@ -498,6 +503,12 @@ int QLCDNumber::intValue() const
 }
 
 
+//### Why duplicate code? What's wrong with:
+// void QLCDNumber::display( int num ) { display((double)num)); }
+/*!
+    \overload
+    Displays the number \a num.
+*/
 void QLCDNumber::display( int num )
 {
     val = (double)num;
@@ -511,7 +522,9 @@ void QLCDNumber::display( int num )
 
 
 /*!
-  \overload void QLCDNumber::display( const QString& s )
+  \overload
+
+  Displays the number represented by the string \a s.
 
   This version of the function disregards mode() and smallDecimalPoint().
 

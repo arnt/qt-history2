@@ -98,7 +98,7 @@ static const int margin = 2; // to right of text
 /*!
   Constructs a radio button with no text.
 
-  The \e parent and \e name arguments are sent to the QWidget constructor.
+  The \a parent and \a name arguments are sent to the QWidget constructor.
 */
 
 QRadioButton::QRadioButton( QWidget *parent, const char *name )
@@ -108,9 +108,9 @@ QRadioButton::QRadioButton( QWidget *parent, const char *name )
 }
 
 /*!
-  Constructs a radio button with a text.
+  Constructs a radio button with the text \a text.
 
-  The \e parent and \e name arguments are sent to the QWidget constructor.
+  The \a parent and \a name arguments are sent to the QWidget constructor.
 */
 
 QRadioButton::QRadioButton( const QString &text, QWidget *parent,

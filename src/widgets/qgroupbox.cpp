@@ -98,7 +98,7 @@ QGroupBox::QGroupBox( QWidget *parent, const char *name )
 }
 
 /*!
-  Constructs a group box with a title.
+  Constructs a group box with the title \a title.
 
   The \a parent and \a name arguments are passed to the QWidget constructor.
 
@@ -245,9 +245,9 @@ void QGroupBox::setTitle( const QString &title )
   \brief the alignment of the group box title.
 
   The title is always placed on the upper frame line; however,
-  the horizontal alignment can be specified by the \a alignment parameter.
+  the horizontal alignment can be specified by the alignment parameter.
 
-  The \a alignment is one of the following flags:
+  The alignment is one of the following flags:
   \list
   \i \c AlignAuto aligns the title accroding to the language, usually left.
   \i \c AlignLeft aligns the title text to the left.

@@ -790,7 +790,9 @@ void QHideToolTip::maybeTip( const QPoint &pos )
 
 */
 
-/*!  Constructs an empty main window. */
+/*!  Constructs an empty main window. The \a parent, \a name and
+    widget flags \a f, are passed to the QWidget constructor.
+*/
 
 QMainWindow::QMainWindow( QWidget * parent, const char * name, WFlags f )
     : QWidget( parent, name, f )
@@ -1433,7 +1435,7 @@ bool QMainWindow::eventFilter( QObject* o, QEvent *e )
 
 
 /*!
-  Monitors events to ensure the layout is updated.
+  Monitors events, recieved in \a e, to ensure the layout is updated.
 */
 void QMainWindow::childEvent( QChildEvent* e)
 {

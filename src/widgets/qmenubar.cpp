@@ -176,7 +176,7 @@ static const int motifItemVMargin	= 4;	// menu item ver text margin
 
 
 /*!
-  Constructs a menu bar with a \e parent and a \e name.
+  Constructs a menu bar with a \a parent and a \a name.
 */
 QMenuBar::QMenuBar( QWidget *parent, const char *name )
     : QFrame( parent, name, WResizeNoErase | WRepaintNoErase )
@@ -862,10 +862,10 @@ int QMenuBar::calculateRects( int max_width )
 
 /*!
   Returns the height that the menu would resize itself to if its parent
-  (and hence itself) resized to the given width.  This can be useful for
-  simple layout tasks in which the height of the menu bar is needed after
-  items have been inserted.  See examples/showimg/showimg.cpp for an
-  example of the usage.
+  (and hence itself) resized to the given \a max_width.  This can be
+  useful for simple layout tasks in which the height of the menu bar
+  is needed after items have been inserted.  See
+  examples/showimg/showimg.cpp for an example of the usage.
 */
 int QMenuBar::heightForWidth(int max_width) const
 {
@@ -876,7 +876,7 @@ int QMenuBar::heightForWidth(int max_width) const
 
 /*!
   \internal
-  Return the bounding rectangle for the menu item at position \e index.
+  Return the bounding rectangle for the menu item at position \a index.
 */
 
 QRect QMenuBar::itemRect( int index )
@@ -887,7 +887,7 @@ QRect QMenuBar::itemRect( int index )
 
 /*!
   \internal
-  Return the item at \e pos, or -1 if there is no item there or if
+  Return the item at \a pos, or -1 if there is no item there or if
   it is a separator item.
 */
 
@@ -930,6 +930,7 @@ QMenuBar::Separator QMenuBar::separator() const
 
 /*!
   Called from QFrame::paintEvent().
+  Draws the menu bar contents using painter \a p.
 */
 
 void QMenuBar::drawContents( QPainter *p )

@@ -380,9 +380,10 @@ int QMenuData::insertItem( const QString &text,
 }
 
 /*!\overload
-  Inserts a menu item with an icon, a text, an accelerator key, an id,
-  and an optional index; connects it to an object/slot. The icon
-  will be displayed to the left of the text in the item.
+  Inserts a menu item with the given \a icon and \a text, and with
+  accelerator key, \a accel, id \a id, and an optional \a index. The
+  menu item is connected it to the \a receiver's \a member slot. The
+  icon will be displayed to the left of the text in the item.
 
   \sa removeItem(), changeItem(), setAccel(), connectItem(), QAccel,
   qnamespace.h
@@ -401,8 +402,10 @@ int QMenuData::insertItem( const QIconSet& icon,
 }
 
 /*!\overload
-  Inserts a menu item with a pixmap, an accelerator key, an id and an
-  optional index; connects it to an object/slot.
+  Inserts a menu item with the given \a pixmap, accelerator key, \a
+  accel, id \a id, and an optional \a index. The menu item is
+  connected it to the \a receiver's \a member slot. The icon will be
+  displayed to the left of the text in the item.
 
   To look best when being highlighted as menu item, the pixmap should
   provide a mask (see QPixmap::mask()).
@@ -910,8 +913,8 @@ QPixmap *QMenuData::pixmap( int id ) const
 */
 
 /*!
-  Changes the text of the menu item \a id. If the item has an icon,
-  the icon remains unchanged.
+  Changes the text of the menu item \a id to \a text. If the item has
+  an icon, the icon remains unchanged.
   \sa text()
 */
 
@@ -934,6 +937,7 @@ void QMenuData::changeItem( int id, const QString &text )
 }
 
 /*!
+    \overload
   Changes the pixmap of the menu item \a id to the pixmap
   \a pixmap. If the item has an icon, the icon is unchanged.
   \sa pixmap()
@@ -961,6 +965,7 @@ void QMenuData::changeItem( int id, const QPixmap &pixmap )
 }
 
 /*!
+    \overload
   Changes the iconset and text of the menu item \a id
   to the iconset \a icon and to the text \a text.
   \sa pixmap()
@@ -1224,7 +1229,8 @@ int QMenuData::itemParameter( int id ) const
 
 
 /*!
-  Connects a menu item to a receiver and a slot or signal.
+  Connects the menu item with id \a id to a \a receiver and the slot
+  or signal in \a member.
 
   The receiver's slot/signal is activated when the menu item is activated.
 
@@ -1247,7 +1253,8 @@ bool QMenuData::connectItem( int id, const QObject *receiver,
 
 
 /*!
-  Disconnects a receiver/member from a menu item.
+  Disconnects the \a{receiver}'s \a member from the menu item with id
+  \a id.
 
   All connections are removed when the menu data object is destroyed.
 
@@ -1388,8 +1395,8 @@ bool QCustomMenuItem::isSeparator() const
 
   Paints this item. When this function is invoked, the painter \a p is
   set to the right font and the right foreground color suitable for a
-  menu item text. The item is active if \a act is TRUE and
-  enabled if \a enabled is TRUE. The geometry values \a x,
+  menu item text using color group \a cg. The item is active if \a act
+  is TRUE and enabled if \a enabled is TRUE. The geometry values \a x,
   \a y, \a w and \a h specify where to draw the item.
 
   Do not draw any background, this has already been done by the popup

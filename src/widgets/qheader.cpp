@@ -808,6 +808,7 @@ QRect QHeader::sectionRect( int section ) const
 }
 
 /*!
+    \overload
   Sets the icon for section \a section to \a iconset and the text to \a s.
   The section's width is set to \a size, unless size is negative in
   which case the size is calculated taking account of the size of the text.
@@ -875,6 +876,7 @@ QIconSet *QHeader::iconSet( int section ) const
 
 
 /*!
+    \overload
   Adds a new section with iconset \a iconset and label text \a
   s. Returns the index position where the section was added (at the
   right for horizontal headers, at the bottom for vertical headers).
@@ -1240,7 +1242,7 @@ void QHeader::setClickEnabled( bool enable, int section )
 
 /*!
   Paints the section at position \a index, inside rectangle \a fr (which
-  uses widget coordinates).
+  uses widget coordinates) using painter \a p.
 
   Calls paintSectionLabel().
 */
@@ -1311,7 +1313,7 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 
 /*!
   Paints the label of the section at position \a index, inside rectangle
-  \a fr (which uses widget coordinates).
+  \a fr (which uses widget coordinates) using painter \a p.
 
   Called by paintSection()
 */
@@ -1744,6 +1746,7 @@ bool QHeader::isStretchEnabled() const
 }
 
 /*!
+    \overload
     Returns TRUE if section \a section will resize to take up the full
     width (or height) of the header; otherwise returns FALSE. If at
     least one section has stretch enabled the sections will always take

@@ -105,7 +105,7 @@ static int sliderStartVal = 0; //##### class member?
 /*!
   Constructs a vertical slider.
 
-  The \e parent and \e name arguments are sent to the QWidget constructor.
+  The \a parent and \a name arguments are sent to the QWidget constructor.
 */
 
 QSlider::QSlider( QWidget *parent, const char *name )
@@ -118,9 +118,9 @@ QSlider::QSlider( QWidget *parent, const char *name )
 /*!
   Constructs a slider.
 
-  The \e orientation must be QSlider::Vertical or QSlider::Horizontal.
+  The \a orientation must be QSlider::Vertical or QSlider::Horizontal.
 
-  The \e parent and \e name arguments are sent to the QWidget constructor.
+  The \a parent and \a name arguments are sent to the QWidget constructor.
 */
 
 QSlider::QSlider( Orientation orientation, QWidget *parent, const char *name )
@@ -138,7 +138,7 @@ QSlider::QSlider( Orientation orientation, QWidget *parent, const char *name )
   If \a orientation is Vertical the slider is vertical and if it is
   Horizontal the slider is horizontal.
 
-  The \e parent and \e name arguments are sent to the QWidget constructor.
+  The \a parent and \a name arguments are sent to the QWidget constructor.
 */
 
 QSlider::QSlider( int minValue, int maxValue, int pageStep,
@@ -208,7 +208,7 @@ void QSlider::setTracking( bool enable )
 /*!
   \fn void QSlider::valueChanged( int value )
   This signal is emitted when the slider value is changed, with the
-  new slider value as an argument.
+  new slider \a value as an argument.
 */
 
 /*!
@@ -219,7 +219,7 @@ void QSlider::setTracking( bool enable )
 /*!
   \fn void QSlider::sliderMoved( int value )
   This signal is emitted when the slider is dragged, with the
-  new slider value as an argument.
+  new slider \a value as an argument.
 */
 
 /*!
@@ -304,7 +304,8 @@ void QSlider::resizeEvent( QResizeEvent * )
 /*!
   Reimplements the virtual function QWidget::setPalette().
 
-  Sets the background color to the mid color for Motif style sliders.
+  Sets the background color to the mid color for Motif style sliders
+  using palette \a p.
 */
 
 void QSlider::setPalette( const QPalette &p )
