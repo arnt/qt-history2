@@ -1,6 +1,8 @@
 #!/usr/bin/perl -w
+#./exports.pl -name QtCore -o exports $QTDIR/src/core -symbol Q_CORE_EXPORT -I$QTDIR/include/QtCore/ -I$QTDIR/mkspecs/default -I$QTDIR/src/core/.moc/debug-shared
 
 use strict;
+use File::Basename;
 
 my $EXPORT_OUT = "-"; #output
 my @EXPORT_INPUTS; #files to read (or directories)
@@ -16,6 +18,7 @@ sub showHelp {
     print "    to the current configuration. Therefore the default is to use the heuristic.\n";
     print "\n";
     print "-help               This help.\n";
+    print "-o <output>         Writes data to output, defaults to standard out\n";
     print "-symbol <symbol>    Uses symbol as the exact exported symbol (ie, Q_GUI_EXPORT)\n";
     print "-D<define>          If -symbol is used define is passed onto the preprocessor.\n";
     print "-I<include>         If -symbol is used include is added to the include path.\n";
@@ -68,10 +71,12 @@ my %GLOBALS=();
 sub find_exports {
     my $ret = 0;
     my ($file) = @_;
+    return if(!($file =~ /\.(h|cpp)$/) || basename($file) =~ /^moc_/);
+    return if($file =~ /_(win|wce)\.(h|cpp)$/ || basename($file) eq "qt_windows.h"); #no windows fu
 
     my $parsable = "";
     if($EXPORT_PREPROCESS) {
-        if(!open(F, "c++ -E -D${EXPORT_SYMBOL}=${EXPORT_SYMBOL} $EXPORT_CPP_ARGS $file |")) {
+        if(!open(F, "g++ -E -D${EXPORT_SYMBOL}=${EXPORT_SYMBOL} $EXPORT_CPP_ARGS $file |")) {
 	    print "Could not open $file in the preprocessor!\n";
 	    return 0;
         }
@@ -94,7 +99,7 @@ sub find_exports {
 		$line = 0;
 	    }
 	}
-	$line =~ s,(\"[^\"]*\")?//.*$,,; #remove c++ comments
+	$line =~ s,("(\\"|[^"])*")?//.*$,, unless($EXPORT_PREPROCESS); #remove c++ comments
 	$parsable .= $line if($line);
     }
     close(F);
@@ -111,11 +116,22 @@ sub find_exports {
 		    last;
 		}
 	    }
-	} elsif($character eq "/" && substr($parsable, $i+1, 1) eq "*") { #I parse like this for greedy reasons
+	} elsif(!$EXPORT_PREPROCESS && $character eq "/" && substr($parsable, $i+1, 1) eq "*") { #I parse like this for greedy reasons
 	    for($i+=2; $i < length($parsable); $i++) {
 		my $end = substr($parsable, $i, 2);
 		if($end eq "*/") {
 		    $last_definition = $i+2;
+		    $i++;
+		    last;
+		}
+	    }
+        } elsif($character eq "\"" || $character eq "'") {
+	    for($i+=1; $i < length($parsable); $i++) {
+		my $end = substr($parsable, $i, 1);
+		if($end eq "\\") {
+                    $i++;
+		} elsif($end eq $character) {
+		    $last_definition = $i+1;
 		    $i++;
 		    last;
 		}
@@ -159,7 +175,7 @@ sub find_exports {
 		#print "1) hmm $symbol *********** $1 -- $2 -- $3 -- $definition [$file]\n";
 		$GLOBALS{$symbol} = "$file" unless(!length "$symbol" || defined $GLOBALS{$symbol});
 	    } else {
-		print "dammit $definition\n";
+		print "$file: dammit $definition\n";
 	    }
 	}
     }
@@ -183,7 +199,7 @@ sub find_files {
 	    my $p = "$dir/$_";
 	    if(-d "$p") {
 		find_files("$p");
-	    } elsif($p =~ /\.(h|cpp)$/) {
+	    } else {
 		find_exports("$p");
 	    }
 	}
