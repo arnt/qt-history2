@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.h#18 $
+** $Id: //depot/qt/main/src/tools/qgvector.h#19 $
 **
 ** Definition of QGVector class
 **
@@ -67,12 +67,15 @@ protected:
     uint  containsRef( GCI ) const;		// get number of exact matches
     uint  contains( GCI ) const;		// get number of equal matches
 
-    GCI	  at( uint index ) const
-#if defined(CHECK_RANGE) || defined(QGVECTOR_CPP)
-	;					// safe (impl. in qgvector.cpp)
-#else
-	{ return vec[index]; }			// fast
+    GCI	  at( uint index ) const		// return indexed item
+    {
+#if defined(CHECK_RANGE)
+	if ( index >= len )
+	    warningIndexRange( index );
 #endif
+	return vec[index];
+    }
+
     bool insertExpand( uint index, GCI );	// insert, expand if necessary
 
     void toList( QGList * ) const;		// put items in list
@@ -84,6 +87,8 @@ private:
     GCI	 *vec;
     uint  len;
     uint  numItems;
+
+    static void warningIndexRange( uint );
 };
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.cpp#27 $
+** $Id: //depot/qt/main/src/tools/qgvector.cpp#28 $
 **
 ** Implementation of QGVector class
 **
@@ -372,17 +372,6 @@ uint QGVector::contains( GCI d ) const		// get number of equal matches
 }
 
 
-GCI QGVector::at( uint index ) const		// checked indexing
-{
-    if ( index >= len ) {
-#if defined(CHECK_RANGE)
-	warning( "QGVector::operator[]: Index %d out of range", index );
-#endif
-	index = 0;
-    }
-    return vec[index];
-}
-
 bool QGVector::insertExpand( uint index, GCI d )// insert and grow if necessary
 {
     if ( index >= len ) {
@@ -402,6 +391,15 @@ void QGVector::toList( QGList *list ) const	// store items in list
 	    list->append( vec[i] );
     }
 }
+
+
+void QGVector::warningIndexRange( uint i )
+{
+#if defined(DEBUG)
+    warning( "QGVector::operator[]: Index %d out of range", i );
+#endif
+}
+
 
 /*****************************************************************************
   QGVector stream functions
