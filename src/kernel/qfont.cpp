@@ -1472,7 +1472,7 @@ QRect QFontMetrics::boundingRect( QChar ch ) const
 
   If \a len is negative (default value), the whole string is used.
 
-  The \a flags argument is
+  The \a flgs argument is
   the bitwise OR of the following flags:  <ul>
   <li> \c AlignLeft aligns to the left border.
   <li> \c AlignRight aligns to the right border.
@@ -1493,7 +1493,7 @@ QRect QFontMetrics::boundingRect( QChar ch ) const
   If several of the horizontal or several of the vertical alignment flags
   are set, the resulting alignment is undefined.
 
-  These flags are defined in the Qt namespace.
+  These flags are defined in qnamespace.h.
 
   If \c ExpandTabs is set in \a flgs, then:
   if \a tabarray is non.zero, it specifies a 0-terminated sequence
