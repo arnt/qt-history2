@@ -83,7 +83,7 @@
   Several functions let you change the appearance of a QMainWindow
   globally: <ul>
   <li> setRightJustification() determines whether QMainWindow
-  should ensure that the toolbars fill the available space 
+  should ensure that the toolbars fill the available space
   (see also QToolBar::setStretchable()),
   <li>  setUsesBigPixmaps() determines whether QToolButton (and other
   classes) should draw small or large pixmaps (see QIconSet for more
@@ -91,6 +91,7 @@
   <li> setUsesTextLabel() determines whether the toolbar buttons (and
   other classes), should display a textlabel in addition to pixmaps (see
   QToolButton for more about that).
+  </ul>
 
   Toolbars can be dragged by the user into each enabled docking area
   and inside each docking area to change the order of the toolbars
