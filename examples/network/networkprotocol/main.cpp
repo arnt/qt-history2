@@ -11,7 +11,7 @@
 ****************************************************************************/
 
 #include <qapplication.h>
-#include <qnetwork.h>
+#include <qnetworkprotocol.h>
 
 #include "nntp.h"
 #include "view.h"

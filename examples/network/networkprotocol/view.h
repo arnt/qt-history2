@@ -32,7 +32,7 @@ private slots:
 
 private:
     QMultiLineEdit *fileView;
-    QUrlOperator op;
+    Q3UrlOperator op;
     
     QString getOpenFileName();
 };

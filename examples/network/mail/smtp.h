@@ -18,7 +18,7 @@
 
 class QSocket;
 class QTextStream;
-class QDns;
+class Q3Dns;
 
 class Smtp : public QObject
 {
@@ -55,7 +55,7 @@ private:
     QTextStream * t;
     int state;
     QString response;
-    QDns * mxLookup;
+    Q3Dns * mxLookup;
 };
 
 #endif

@@ -14,7 +14,7 @@
 
 #include <qtextstream.h>
 #include <qsocket.h>
-#include <qdns.h>
+#include <q3dns.h>
 #include <qtimer.h>
 #include <qapplication.h>
 #include <qmessagebox.h>
@@ -31,7 +31,7 @@ Smtp::Smtp( const QString &from, const QString &to,
     connect ( socket, SIGNAL( connected() ),
 	      this, SLOT( connected() ) );
 
-    mxLookup = new QDns( to.mid( to.find( '@' )+1 ), QDns::Mx );
+    mxLookup = new Q3Dns( to.mid( to.find( '@' )+1 ), Q3Dns::Mx );
     connect( mxLookup, SIGNAL(resultsReady()),
 	     this, SLOT(dnsLookupHelper()) );
 
@@ -60,7 +60,7 @@ Smtp::~Smtp()
 
 void Smtp::dnsLookupHelper()
 {
-    QValueList<QDns::MailServer> s = mxLookup->mailServers();
+    QValueList<Q3Dns::MailServer> s = mxLookup->mailServers();
     if ( s.isEmpty() ) {
 	if ( !mxLookup->isWorking() )
 	    emit status( tr( "Error in MX record lookup" ) );

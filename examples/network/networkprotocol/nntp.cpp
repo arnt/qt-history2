@@ -67,7 +67,7 @@ void Nntp::operationGet( QNetworkOperation *op )
 {
     // get the dirPath of the URL (this is our news group)
     // and the filename (which is the article we want to read)
-    QUrl u( op->arg( 0 ) );
+    Q3Url u( op->arg( 0 ) );
     QString dirPath = u.dirPath(), file = u.fileName();
     dirPath = dirPath.replace( "/", "" );
 
@@ -199,11 +199,11 @@ void Nntp::parseGroups()
 	    continue;
 	}
 
-	// parse the line and create a QUrlInfo object
+	// parse the line and create a Q3UrlInfo object
 	// which describes the child (group or article)
 	bool tab = s.find( '\t' ) != -1;
 	QString group = s.mid( 0, s.find( tab ? '\t' : ' ' ) );
-	QUrlInfo inf;
+	Q3UrlInfo inf;
 	inf.setName( group );
 	QString path = url()->path();
 	inf.setDir( path.isEmpty() || path == "/" );
