@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QSQLFORM_H
-#define QSQLFORM_H
+#ifndef Q3SQLFORM_H
+#define Q3SQLFORM_H
 
 #include "qobject.h"
 #include "qmap.h"

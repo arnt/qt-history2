@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QEDITORFACTORY_H
-#define QEDITORFACTORY_H
+#ifndef Q3EDITORFACTORY_H
+#define Q3EDITORFACTORY_H
 
 #include "qobject.h"
 #include "qvariant.h"

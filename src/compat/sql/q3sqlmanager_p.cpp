@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qsqlmanager_p.h"
+#include "q3sqlmanager_p.h"
 
 #ifndef QT_NO_SQL
 

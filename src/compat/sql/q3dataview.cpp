@@ -15,7 +15,7 @@
 
 #ifndef QT_NO_SQL_VIEW_WIDGETS
 
-#include "private/qsqlmanager_p.h"
+#include "private/q3sqlmanager_p.h"
 
 class Q3DataViewPrivate
 {

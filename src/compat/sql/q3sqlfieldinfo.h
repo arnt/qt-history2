@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QSQLFIELDINFO_H
-#define QSQLFIELDINFO_H
+#ifndef Q3SQLFIELDINFO_H
+#define Q3SQLFIELDINFO_H
 
 #ifndef QT_NO_SQL
 

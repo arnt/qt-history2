@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QSQLSELECTCURSOR_H
-#define QSQLSELECTCURSOR_H
+#ifndef Q3SQLSELECTCURSOR_H
+#define Q3SQLSELECTCURSOR_H
 
 #include "q3sqlcursor.h"
 

@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QSQLRECORDINFO_H
-#define QSQLRECORDINFO_H
+#ifndef Q3SQLRECORDINFO_H
+#define Q3SQLRECORDINFO_H
 
 #include "qglobal.h"
 

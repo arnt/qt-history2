@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QDATATABLE_H
-#define QDATATABLE_H
+#ifndef Q3DATATABLE_H
+#define Q3DATATABLE_H
 
 #include "qstring.h"
 #include "qvariant.h"

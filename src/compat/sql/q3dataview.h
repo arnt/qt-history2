@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QDATAVIEW_H
-#define QDATAVIEW_H
+#ifndef Q3DATAVIEW_H
+#define Q3DATAVIEW_H
 
 #include "qwidget.h"
 

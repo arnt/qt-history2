@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QSQLPROPERTYMAP_H
-#define QSQLPROPERTYMAP_H
+#ifndef Q3SQLPROPERTYMAP_H
+#define Q3SQLPROPERTYMAP_H
 
 #include "qvariant.h"
 #include "qstring.h"

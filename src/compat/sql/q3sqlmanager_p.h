@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QSQLMANAGER_P_H
-#define QSQLMANAGER_P_H
+#ifndef Q3SQLMANAGER_P_H
+#define Q3SQLMANAGER_P_H
 
 //
 //  W A R N I N G

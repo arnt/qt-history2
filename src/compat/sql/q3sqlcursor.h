@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QSQLCURSOR_H
-#define QSQLCURSOR_H
+#ifndef Q3SQLCURSOR_H
+#define Q3SQLCURSOR_H
 
 #include "qcorevariant.h"
 #include "qsqldatabase.h"

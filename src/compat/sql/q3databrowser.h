@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QDATABROWSER_H
-#define QDATABROWSER_H
+#ifndef Q3DATABROWSER_H
+#define Q3DATABROWSER_H
 
 #include "qwidget.h"
 #include "qstring.h"

@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QSQLEDITORFACTORY_H
-#define QSQLEDITORFACTORY_H
+#ifndef Q3SQLEDITORFACTORY_H
+#define Q3SQLEDITORFACTORY_H
 
 #include "q3editorfactory.h"
 
