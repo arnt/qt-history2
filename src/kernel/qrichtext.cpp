@@ -3251,10 +3251,10 @@ int QTextString::width( int idx ) const
 	     // complex text. We need some hacks to get the right metric here
 	     QString str;
 	     int pos = 0;
-	     if( idx > 3 )
-		 pos = idx - 3;
+	     if( idx > 4 )
+		 pos = idx - 4;
 	     int off = idx - pos;
-	     int end = QMIN( length(), idx + 3 );
+	     int end = QMIN( length(), idx + 4 );
 	     while ( pos < end ) {
 		 str += at(pos).c;
 		 pos++;
@@ -4045,8 +4045,10 @@ void QTextParag::drawParagString( QPainter &painter, const QString &s, int start
 	    painter.setPen ( Qt::red );
 	    painter.drawLine( startX, lastY, startX, lastY + baseLine );
 	    painter.drawLine( startX, lastY + baseLine/2, startX + 10, lastY + baseLine/2 );
-	    QConstString cstr( str.unicode() + start, len );
-	    int w = painter.fontMetrics().width( cstr.string() );
+	    int w = 0;
+	    int i = 0;
+	    while( i < len ) 
+		w += painter.fontMetrics().charWidth( str, start + i++ );
 	    painter.setPen ( Qt::blue );
 	    painter.drawLine( startX + w - 1, lastY, startX + w - 1, lastY + baseLine );
 	    painter.drawLine( startX + w - 1, lastY + baseLine/2, startX + w - 1 - 10, lastY + baseLine/2 );
@@ -4735,7 +4737,7 @@ QTextParagLineStart *QTextFormatter::bidiReorderLine( QTextParag *parag, QTextSt
 	r = runs->next();
     }
 
-    line->w = xmax;
+    line->w = xmax + 10;
     QTextParagLineStart *ls = new QTextParagLineStart( control->context, control->status );
     delete control;
     delete runs;
