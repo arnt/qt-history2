@@ -1,50 +1,23 @@
-#include <qpair.h>
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #include "qstandarditemmodel.h"
-#include <qdebug.h>
+#include <qpair.h>
+#include <qvector.h>
 
-class  ModelItem {
-public:
-    ModelItem() {};
-    QVariant value(int role)
-        {
-            for (int i=0; i<roles.count(); ++i)
-                if (roles.at(i).first == role)
-                    return roles.at(i).second;
-            return QVariant::Invalid;
-        }
-    void setValue(int role, QVariant value)
-        {
-            for (int i=0; i<roles.count(); ++i)
-                if (roles.at(i).first == role) {
-                    roles[i].second = value;
-                    return;
-                }
-            roles.append(QPair<int, QVariant>(role, value));
-            return;
-        }
-
-private:
-    QVector<QPair<int, QVariant> > roles;
-};
-
-class ModelRow {
-public:
-    ModelRow(ModelRow *parent) : p(parent), childrenColumns(0) {}
-    ~ModelRow()
-        {
-            for (int i=0; i<items.count(); ++i)
-                delete items.at(i);
-            items.clear();
-            for (int i=0; i<childrenRows.count(); ++i)
-                delete childrenRows.at(i);
-            childrenRows.clear();
-        }
-
-    ModelRow *p;
-    QVector<ModelItem*> items;
-    int childrenColumns;
-    QVector<ModelRow*> childrenRows;
-};
+#include <private/qstandarditemmodel_p.h>
+#define d d_func()
+#define q q_func()
 
 
 /*!
@@ -68,8 +41,8 @@ public:
 /*!
     Creates an empty model with no rows or columns.
 */
-QStandardItemModel::QStandardItemModel(QObject *parent) : QAbstractItemModel(parent),
-                                                              topLevelColumns(0)
+QStandardItemModel::QStandardItemModel(QObject *parent)
+    : QAbstractItemModel(*new QStandardItemModelPrivate(0, 0), parent)
 {
     // nothing
 }
@@ -77,7 +50,8 @@ QStandardItemModel::QStandardItemModel(QObject *parent) : QAbstractItemModel(par
 /*!
     Creates a model with \a rows number of rows and \a columns number of columns.
 */
-QStandardItemModel::QStandardItemModel(int rows, int columns, QObject *parent) : QAbstractItemModel(parent), topLevelRows(rows), topLevelColumns(columns)
+QStandardItemModel::QStandardItemModel(int rows, int columns, QObject *parent)
+    : QAbstractItemModel(*new QStandardItemModelPrivate(rows, columns), parent)
 {
     // nothing
 }
@@ -88,9 +62,9 @@ QStandardItemModel::QStandardItemModel(int rows, int columns, QObject *parent) :
 */
 QStandardItemModel::~QStandardItemModel()
 {
-    for (int i=0; i<topLevelRows.count(); ++i)
-        delete topLevelRows.at(i);
-    topLevelRows.clear();
+    for (int i=0; i<d->topLevelRows.count(); ++i)
+        delete d->topLevelRows.at(i);
+    d->topLevelRows.clear();
 }
 
 /*!
@@ -100,7 +74,7 @@ QModelIndex QStandardItemModel::index(int row, int column, const QModelIndex &pa
 {
     if (hasIndex(row, column, parent)) {
         if (parent.isValid()) {
-            ModelRow *parentRow = containedRow(parent, false);
+            ModelRow *parentRow = d->containedRow(parent, false);
             return createIndex(row, column, parentRow);
         } else {
             return createIndex(row, column, 0);
@@ -117,7 +91,7 @@ QModelIndex QStandardItemModel::parent(const QModelIndex &child) const
     if (child.isValid() && child.data()) {
         ModelRow *parentRow = static_cast<ModelRow*>(child.data());
         ModelRow *grandParentRow = parentRow ? parentRow->p : 0;
-        QVector<ModelRow*> grandParentChildren = topLevelRows;
+        QVector<ModelRow*> grandParentChildren = d->topLevelRows;
         if (grandParentRow)
             grandParentChildren = grandParentRow->childrenRows;
         // ### slow, use ptr trick
@@ -134,11 +108,11 @@ QModelIndex QStandardItemModel::parent(const QModelIndex &child) const
 */
 int QStandardItemModel::rowCount(const QModelIndex &parent) const
 {
-    ModelRow *modelRow = containedRow(parent, false);
+    ModelRow *modelRow = d->containedRow(parent, false);
     if (modelRow)
         return modelRow->childrenRows.count();
 
-    return topLevelRows.count();
+    return d->topLevelRows.count();
 }
 
 /*!
@@ -147,11 +121,11 @@ int QStandardItemModel::rowCount(const QModelIndex &parent) const
 */
 int QStandardItemModel::columnCount(const QModelIndex &parent) const
 {
-    ModelRow *modelRow = containedRow(parent, false);
+    ModelRow *modelRow = d->containedRow(parent, false);
     if (modelRow)
         return modelRow->childrenColumns;
 
-    return topLevelColumns;
+    return d->topLevelColumns;
 }
 
 /*!
@@ -161,7 +135,7 @@ int QStandardItemModel::columnCount(const QModelIndex &parent) const
 bool QStandardItemModel::hasChildren(const QModelIndex &parent) const
 {
     if (parent.isValid()) {
-        ModelRow *modelRow = containedRow(parent, false);
+        ModelRow *modelRow = d->containedRow(parent, false);
         if (modelRow)
             return modelRow->childrenRows.count() && modelRow->childrenColumns;
     }
@@ -175,7 +149,7 @@ QVariant QStandardItemModel::data(const QModelIndex &index, int role) const
 {
     role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
     if (index.isValid()) {
-        ModelRow *modelRow = containedRow(index, false);
+        ModelRow *modelRow = d->containedRow(index, false);
         if (modelRow && modelRow->items.count() > index.column()) {
             ModelItem *item = modelRow->items.at(index.column());
             if (item)
@@ -192,7 +166,7 @@ bool QStandardItemModel::setData(const QModelIndex &index, int role, const QVari
 {
     role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
     if (index.isValid()) {
-        ModelRow *modelRow = containedRow(index, true);
+        ModelRow *modelRow = d->containedRow(index, true);
         int count = modelRow->items.count();
         // make room for enough items
         if (count <= index.column())
@@ -223,8 +197,8 @@ bool QStandardItemModel::insertRows(int row, const QModelIndex &parent, int coun
     if (count < 1 || row < 0 || row > rowCount(parent))
         return false;
 
-    QVector<ModelRow*> &rows = (parent.isValid()) ? containedRow(parent, true)->childrenRows
-                               : topLevelRows;
+    QVector<ModelRow*> &rows = (parent.isValid()) ? d->containedRow(parent, true)->childrenRows
+                               : d->topLevelRows;
     rows.insert(row, count, 0);
     emit rowsInserted(parent, row, row + count - 1);
     return true;
@@ -249,14 +223,14 @@ bool QStandardItemModel::insertColumns(int column, const QModelIndex &parent, in
     if (count < 0 || column < 0 || column > columnCount(parent))
         return false;
 
-    QVector<ModelRow*> *rows = &topLevelRows;
+    QVector<ModelRow*> *rows = &d->topLevelRows;
     // update the column counters
     if (parent.isValid()) {
-        ModelRow *modelRow = containedRow(parent, true);
+        ModelRow *modelRow = d->containedRow(parent, true);
         modelRow->childrenColumns += count;
         rows = &modelRow->childrenRows;
     } else {
-        topLevelColumns += count;
+        d->topLevelColumns += count;
     }
 
     // update any item vectors if needed
@@ -287,8 +261,8 @@ bool QStandardItemModel::removeRows(int row, const QModelIndex &parent, int coun
 
     emit rowsAboutToBeRemoved(parent, row, row + count - 1);
 
-    QVector<ModelRow*> &rows = (parent.isValid()) ? containedRow(parent, false)->childrenRows
-                               : topLevelRows;
+    QVector<ModelRow*> &rows = (parent.isValid()) ? d->containedRow(parent, false)->childrenRows
+                               : d->topLevelRows;
     // delete ModelRows
     for (int i=row; i<(row+count); ++i)
         delete rows.at(i);
@@ -313,14 +287,14 @@ bool QStandardItemModel::removeColumns(int column, const QModelIndex &parent, in
 
     emit columnsAboutToBeRemoved(parent, column, column + count - 1);
 
-    QVector<ModelRow*> *rows = &topLevelRows;
+    QVector<ModelRow*> *rows = &d->topLevelRows;
     // update the column counters
     if (parent.isValid()) {
-        ModelRow *modelRow = containedRow(parent, true);
+        ModelRow *modelRow = d->containedRow(parent, true);
         modelRow->childrenColumns -= count;
         rows = &modelRow->childrenRows;
     } else {
-        topLevelColumns -= count;
+        d->topLevelColumns -= count;
     }
 
     // iterate over all child rows and remove if needed
@@ -354,7 +328,8 @@ QAbstractItemModel::ItemFlags QStandardItemModel::flags(const QModelIndex &index
 /*!
     \internal
 */
-ModelRow *QStandardItemModel::containedRow(const QModelIndex &index, bool createIfMissing) const
+ModelRow *QStandardItemModelPrivate::containedRow(const QModelIndex &index,
+                                                  bool createIfMissing) const
 {
     if (!index.isValid())
         return 0;

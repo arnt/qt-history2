@@ -21,7 +21,8 @@ HEADERS += \
 	itemviews/qtreewidget.h \
 	itemviews/qproxymodel.h \
 	itemviews/qitemeditorfactory.h \
-	itemviews/qstandarditemmodel.h
+	itemviews/qstandarditemmodel.h \
+	itemviews/qstandarditemmodel_p.h
 
 SOURCES += \
 	itemviews/qabstractitemview.cpp \

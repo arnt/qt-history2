@@ -1,19 +1,28 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #ifndef QSTANDARDITEMMODEL_H
 #define QSTANDARDITEMMODEL_H
 
-#include <qvariant.h>
-#include <qvector.h>
-#include <qdebug.h>
 #include <qabstractitemmodel.h>
 
-class ModelItem;
-class ModelRow;
+class QStandardItemModelPrivate;
 
 class QStandardItemModel : public QAbstractItemModel
 {
 public:
-    QStandardItemModel(int rows, int columns, QObject *parent = 0);
     QStandardItemModel(QObject *parent = 0);
+    QStandardItemModel(int rows, int columns, QObject *parent = 0);
     ~QStandardItemModel();
 
     QModelIndex index(int row, int column, const QModelIndex &parent) const;
@@ -35,10 +44,7 @@ public:
     QAbstractItemModel::ItemFlags flags(const QModelIndex &index) const;
 
 private:
-    ModelRow *containedRow(const QModelIndex &index, bool createIfMissing) const;
-
-    QVector<ModelRow*> topLevelRows;
-    int topLevelColumns;
+    Q_DECLARE_PRIVATE(QStandardItemModel)
 };
 
 #endif //QSTANDARDITEMMODEL_H
