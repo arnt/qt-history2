@@ -636,7 +636,7 @@ void QWin32PaintEngine::drawEllipse(const QRectF &r)
     if (d->nocolBrush)
         SetTextColor(d->hdc, d->bColor);
     if (w == 1 && h == 1)
-        drawPoint(r.topLeft());
+        drawPoint(QPointF(r.x(), r.y()));
     else
         Ellipse(d->hdc, r.x(), r.y(), r.x()+w, r.y()+h);
     if (d->nocolBrush)
@@ -2371,7 +2371,7 @@ void QGdiplusPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
         QRegion rgn(*bitmap);
         QPainter *p = painter();
         p->save();
-        p->translate(r.top(), r.left());
+        p->translate(r.x(), r.y());
         p->setClipRegion(QRegion(*bitmap));
         p->fillRect(0, 0, r.width(), r.height(), p->pen().color());
         p->restore();

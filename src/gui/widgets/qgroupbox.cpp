@@ -252,7 +252,7 @@ void QGroupBox::paintEvent(QPaintEvent *event)
         QRect r(x, 0, tw, h);
         int va = style().styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, &opt, this);
         if(va & Qt::AlignTop)
-            r.moveBy(0, -fm.descent());
+            r.translate(0, -fm.descent());
         QColor pen((QRgb) style().styleHint(QStyle::SH_GroupBox_TextLabelColor, &opt, this));
         if (!style().styleHint(QStyle::SH_UnderlineShortcut, &opt, this))
             va |= Qt::TextHideMnemonic;

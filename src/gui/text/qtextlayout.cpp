@@ -724,7 +724,7 @@ QRect QTextLayout::boundingRect() const
 QRect QTextLayout::rect() const
 {
     QRect r = boundingRect();
-    r.moveBy(d->position);
+    r.translate(d->position);
     return r;
 }
 
@@ -796,7 +796,7 @@ static void drawSelection(QPainter *p, QPalette *pal, QTextLayout::SelectionType
     }
     p->fillRect(rect.toRect(), bg);
     if (type == QTextLayout::ImText)
-        p->drawLine(rect.bottomLeft().toPoint(), rect.bottomRight().toPoint());
+        p->drawLine(rect.x(), rect.y(), rect.x() + rect.width(), rect.y() + rect.height());
     if (text.isValid())
         p->setPen(text);
     line.draw(p, pos.x(), pos.y(), selectionIdx);
@@ -856,10 +856,10 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
                     continue;
 
                 if (s.from() + s.length() > from && s.from() < from+length) {
-                    QRectF highlight = QRectF(QPointF(position.x() + l.cursorToX(qMax(s.from(), from)),
-                                                     position.y() + sl.y),
-                                         QPointF(position.x() + l.cursorToX(qMin(s.from() + s.length(), from+length)),
-                                                     position.y() + (sl.y + sl.height()))).normalize();
+                    QRectF highlight = QRectF(position.x() + l.cursorToX(qMax(s.from(), from)),
+                                              position.y() + sl.y,
+                                              l.cursorToX(qMin(s.from() + s.length(), from+length)),
+                                              (sl.y + sl.height())).normalize();
                     drawSelection(p, d->pal, (QTextLayout::SelectionType)s.type(), highlight, l, position, j);
                 }
             }

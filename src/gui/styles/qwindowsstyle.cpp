@@ -1607,7 +1607,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     qDrawShadeRect(p, mbi->rect.x(), mbi->rect.y(), mbi->rect.width(),
                                    mbi->rect.height(), mbi->palette, active && down, 1, 0, &b);
                 if (active && down) {
-                    newMbi.rect.moveBy(pixelMetric(PM_ButtonShiftHorizontal, mbi, widget),
+                    newMbi.rect.translate(pixelMetric(PM_ButtonShiftHorizontal, mbi, widget),
                                        pixelMetric(PM_ButtonShiftVertical, mbi, widget));
                     p->setBrushOrigin(p->brushOrigin() - QPoint(1, 1));
                 }

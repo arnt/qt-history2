@@ -1200,7 +1200,7 @@ void QPixmap::fill( const QWidget *widget, const QPoint &offset )
         if (w->testAttribute(Qt::WA_ContentsPropagated)) {
             QPainter::setRedirected(w, this, offs);
             QRect rr = widget->d->clipRect();
-            rr.moveBy(offs);
+            rr.translate(offs);
             QPaintEvent e(rr);
             QApplication::sendEvent(w, &e);
             QPainter::restoreRedirected(w);

@@ -429,23 +429,23 @@ void QItemDelegate::doLayout(const QStyleOptionViewItem &option, QRect *pixmapRe
         case QStyleOptionViewItem::Left: {
             if (QApplication::reverseLayout()) {
                 decoration.setRect(x + w - pixmapRect->width(), y, pixmapRect->width(), h);
-                w = hint ? textRect->width() : w - pixmapRect->width(); 
+                w = hint ? textRect->width() : w - pixmapRect->width();
                 display.setRect(x, y, w, h);
                 break;
             }
             decoration.setRect(x, y, pixmapRect->width(), h);
-            w = hint ? textRect->width() : w - pixmapRect->width(); 
+            w = hint ? textRect->width() : w - pixmapRect->width();
             display.setRect(x + pixmapRect->width(), y, w, h);
             break;}
         case QStyleOptionViewItem::Right: {
             if (QApplication::reverseLayout()) {
                 decoration.setRect(x, y, pixmapRect->width(), h);
-                w = hint ? textRect->width() : w - pixmapRect->width(); 
+                w = hint ? textRect->width() : w - pixmapRect->width();
                 display.setRect(x + pixmapRect->width(), y, w, h);
                 break;
             }
             decoration.setRect(x + w - pixmapRect->width(), y, pixmapRect->width(), h);
-            w = hint ? textRect->width() : w - pixmapRect->width(); 
+            w = hint ? textRect->width() : w - pixmapRect->width();
             display.setRect(x, y, w, h);
             break;}
         default:
@@ -487,7 +487,7 @@ void QItemDelegate::doAlignment(const QRect &boundingRect, int alignment, QRect 
         break;
     case Qt::AlignJustify:
     case Qt::AlignHCenter:
-        rect->moveBy(boundingRect.center().x() - rect->center().x(), 0);
+        rect->translate(boundingRect.center().x() - rect->center().x(), 0);
         break;
     default:
         break;
@@ -501,7 +501,7 @@ void QItemDelegate::doAlignment(const QRect &boundingRect, int alignment, QRect 
         rect->moveBottom(boundingRect.bottom());
         return;
     case Qt::AlignVCenter:
-        rect->moveBy(0, boundingRect.center().y() - rect->center().y());
+        rect->translate(0, boundingRect.center().y() - rect->center().y());
         return;
     default:
         return;

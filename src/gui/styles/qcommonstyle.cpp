@@ -718,7 +718,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                                   ir.y() + ir.height() / 2 - pixh / 2, pixmap);
                 else
                     p->drawPixmap(ir.x() + 2, ir.y() + ir.height() / 2 - pixh / 2, pixmap);
-                ir.moveBy(pixw + 4, 0);
+                ir.translate(pixw + 4, 0);
                 ir.setWidth(ir.width() - (pixw + 4));
                 // left-align text if there is
                 if (!btn->text.isEmpty())
@@ -923,7 +923,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 default:
                     return;
                 }
-                rect.moveBy(shiftX, shiftY);
+                rect.translate(shiftX, shiftY);
                 QStyleOption arrowOpt(0);
                 arrowOpt.rect = rect;
                 arrowOpt.palette = tb->palette;
@@ -937,7 +937,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                     int alignment = Qt::AlignCenter | Qt::TextShowMnemonic;
                     if (!styleHint(SH_UnderlineShortcut, opt, widget))
                         alignment |= Qt::TextHideMnemonic;
-                    rect.moveBy(shiftX, shiftY);
+                    rect.translate(shiftX, shiftY);
                     drawItem(p, rect, alignment, tb->palette,
                              opt->state & Style_Enabled, tb->text, -1, &btext);
                 } else {
@@ -968,7 +968,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                             int fh = p->fontMetrics().height();
                             pr.addCoords(0, 1, 0, -fh - 3);
                             tr.addCoords(0, pr.bottom(), 0, -3);
-                            pr.moveBy(shiftX, shiftY);
+                            pr.translate(shiftX, shiftY);
                             drawItem(p, pr, Qt::AlignCenter, tb->palette,
                                      mode != QIcon::Disabled
                                      || !tb->icon.isGenerated(size, mode, state), pm);
@@ -976,18 +976,18 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                         } else {
                             pr.setWidth(pm.width() + 8);
                             tr.addCoords(pr.right(), 0, 0, 0);
-                            pr.moveBy(shiftX, shiftY);
+                            pr.translate(shiftX, shiftY);
                             drawItem(p, pr, Qt::AlignCenter, tb->palette,
                                       mode != QIcon::Disabled
                                       || !tb->icon.isGenerated(size, mode, state), pm);
                             alignment |= Qt::AlignLeft | Qt::AlignVCenter;
                         }
-                        tr.moveBy(shiftX, shiftY);
+                        tr.translate(shiftX, shiftY);
                         drawItem(p, tr, alignment, tb->palette,
                                   tb->state & Style_Enabled, QPixmap(), tb->text,
                                   tb->text.length(), &btext);
                     } else {
-                        rect.moveBy(shiftX, shiftY);
+                        rect.translate(shiftX, shiftY);
                         drawItem(p, rect, Qt::AlignCenter, tb->palette,
                                   mode != QIcon::Disabled
                                   || !tb->icon.isGenerated(size, mode, state), pm);

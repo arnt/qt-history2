@@ -183,7 +183,7 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
             x += max_column_width + hmargin;
             y = vmargin;
         }
-        rect.moveBy(x, y);                        //move
+        rect.translate(x, y);                        //move
         rect.setWidth(max_column_width); //uniform width
         y += rect.height();
     }
@@ -212,11 +212,11 @@ QRect QMenuPrivate::actionRect(QAction *act) const
 {
     QRect ret = actionRects.value(act);
     if(scroll)
-        ret.moveBy(0, scroll->scrollOffset);
+        ret.translate(0, scroll->scrollOffset);
     if(tearoff)
-        ret.moveBy(0, q->style().pixelMetric(QStyle::PM_MenuTearoffHeight, 0, q));
+        ret.translate(0, q->style().pixelMetric(QStyle::PM_MenuTearoffHeight, 0, q));
     const int fw = q->style().pixelMetric(QStyle::PM_MenuFrameWidth, 0, q);
-    ret.moveBy(fw+leftmargin, fw+topmargin);
+    ret.translate(fw+leftmargin, fw+topmargin);
     return ret;
 }
 
@@ -517,7 +517,7 @@ bool QMenuPrivate::mouseEventTaken(QMouseEvent *e)
     if(tearoff) { //let the tear off thingie "steal" the event..
         QRect tearRect(0, 0, q->width(), q->style().pixelMetric(QStyle::PM_MenuTearoffHeight, 0, q));
         if(scroll && scroll->scrollFlags & QMenuPrivate::QMenuScroller::ScrollUp)
-            tearRect.moveBy(0, q->style().pixelMetric(QStyle::PM_MenuScrollerHeight, 0, q));
+            tearRect.translate(0, q->style().pixelMetric(QStyle::PM_MenuScrollerHeight, 0, q));
         q->update(tearRect);
         if(tearRect.contains(pos)) {
             setCurrentAction(0);
@@ -1461,7 +1461,7 @@ void QMenu::paintEvent(QPaintEvent *e)
         menuOpt.rect.setRect(fw, fw, width() - (fw * 2),
                              style().pixelMetric(QStyle::PM_MenuTearoffHeight, 0, this));
         if (d->scroll && d->scroll->scrollFlags & QMenuPrivate::QMenuScroller::ScrollUp)
-            menuOpt.rect.moveBy(0, style().pixelMetric(QStyle::PM_MenuScrollerHeight, 0, this));
+            menuOpt.rect.translate(0, style().pixelMetric(QStyle::PM_MenuScrollerHeight, 0, this));
         emptyArea -= QRegion(menuOpt.rect);
         p.setClipRect(menuOpt.rect);
         menuOpt.state = QStyle::Style_None;
@@ -1814,7 +1814,7 @@ void QMenu::keyPressEvent(QKeyEvent *e)
     }
 
     if(!key_consumed) {                                // send to menu bar
-        if((!e->modifiers() || e->modifiers() == Qt::AltModifier || e->modifiers() == Qt::ShiftModifier) && 
+        if((!e->modifiers() || e->modifiers() == Qt::AltModifier || e->modifiers() == Qt::ShiftModifier) &&
            e->text().length()==1) {
             int clashCount = 0;
             QAction *first = 0, *currentSelected = 0, *firstAfterCurrent = 0;

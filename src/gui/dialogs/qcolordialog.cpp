@@ -799,7 +799,7 @@ void QColorPicker::setCol(int h, int s)
     QRect r(colPt(), QSize(20,20));
     hue = nhue; sat = nsat;
     r = r.unite(QRect(colPt(), QSize(20,20)));
-    r.moveBy(contentsRect().x()-9, contentsRect().y()-9);
+    r.translate(contentsRect().x()-9, contentsRect().y()-9);
     //    update(r);
     repaint(r);
 }

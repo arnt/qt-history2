@@ -122,18 +122,18 @@ static inline void positionCluster(QShaperItem *item, int gfrom,  int glast)
         case QChar::Combining_BelowLeft:
             p += QPointF(0, offset);
         case QChar::Combining_BelowLeftAttached:
-            p += attachmentRect.bottomLeft() - markRect.topLeft();
+            p += QPointF(0, attachmentRect.height());
             break;
         case QChar::Combining_Below:
             p += QPointF(0, offset);
         case QChar::Combining_BelowAttached:
-            p += attachmentRect.bottomLeft() - markRect.topLeft();
+            p += QPointF(0, attachmentRect.height());
             p += QPointF((attachmentRect.width() - markRect.width())/2 , 0);
             break;
             case QChar::Combining_BelowRight:
             p += QPointF(0, offset);
         case QChar::Combining_BelowRightAttached:
-            p += attachmentRect.bottomRight() - markRect.topRight();
+            p += QPointF(0, attachmentRect.height());
             break;
             case QChar::Combining_Left:
             p += QPointF(-offset, 0);
@@ -148,18 +148,18 @@ static inline void positionCluster(QShaperItem *item, int gfrom,  int glast)
         case QChar::Combining_AboveLeft:
             p += QPointF(0, -offset);
         case QChar::Combining_AboveLeftAttached:
-            p += attachmentRect.topLeft() - markRect.bottomLeft();
+            p += QPointF(0, attachmentRect.height());
             break;
             case QChar::Combining_Above:
             p += QPointF(0, -offset);
         case QChar::Combining_AboveAttached:
-            p += attachmentRect.topLeft() - markRect.bottomLeft();
+            p += QPointF(0, attachmentRect.height());
             p += QPointF((attachmentRect.width() - markRect.width())/2 , 0);
             break;
             case QChar::Combining_AboveRight:
             p += QPointF(0, -offset);
         case QChar::Combining_AboveRightAttached:
-            p += attachmentRect.topRight() - markRect.bottomRight();
+            p += QPointF(0, attachmentRect.height());
             break;
 
         case QChar::Combining_IotaSubscript:
@@ -167,7 +167,7 @@ static inline void positionCluster(QShaperItem *item, int gfrom,  int glast)
                 break;
         }
 //         qDebug("char=%x combiningClass = %d offset=%d/%d", mark, cmb, p.x(), p.y());
-        markRect.moveBy(p.x(), p.y());
+        markRect.translate(p.x(), p.y());
         attachmentRect |= markRect;
         lastCmb = cmb;
         if (rightToLeft) {

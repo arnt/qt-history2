@@ -94,11 +94,11 @@
 QPolygon::QPolygon(const QRectF &r)
 {
     reserve(5);
-    append(r.topLeft());
-    append(r.topRight());
-    append(r.bottomRight());
-    append(r.bottomLeft());
-    append(r.topLeft());
+    append(QPointF(r.x(), r.y()));
+    append(QPointF(r.x() + r.width(), r.y()));
+    append(QPointF(r.x() + r.width(), r.y() + r.height()));
+    append(QPointF(r.x(), r.y() + r.width()));
+    append(QPointF(r.x(), r.y()));
 }
 
 
@@ -161,7 +161,7 @@ QRectF QPolygon::boundingRect() const
             maxy = pd->y();
         ++pd;
     }
-    return QRectF(QPointF(minx,miny), QPointF(maxx,maxy));
+    return QRectF(minx,miny, maxx - minx, maxy - miny);
 }
 
 /*!

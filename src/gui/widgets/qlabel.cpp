@@ -788,7 +788,7 @@ void QLabel::paintEvent(QPaintEvent *)
             context.palette = palette();
             context.palette.setColor(QPalette::Text, context.palette.light().color());
             QRect r = cr;
-            r.moveBy(-cr.x()-1, -cr.y()-yo-1);
+            r.translate(-cr.x()-1, -cr.y()-yo-1);
             paint.save();
             paint.translate(cr.x()+1, cr.y()+yo+1);
             paint.setClipRect(r);
@@ -804,7 +804,7 @@ void QLabel::paintEvent(QPaintEvent *)
         if (foregroundRole() != QPalette::Text && isEnabled())
             context.palette.setColor(QPalette::Foreground, context.palette.color(foregroundRole()));
         QRect r = cr;
-        r.moveBy(-cr.x(), -cr.y()-yo);
+        r.translate(-cr.x(), -cr.y()-yo);
         paint.save();
         paint.translate(cr.x(), cr.y()+yo);
         paint.setClipRect(r);
@@ -961,7 +961,7 @@ void QLabel::movieUpdated(const QRect& rect)
         QRect r = contentsRect();
         r = style().itemRect(0, r, d->align, isEnabled(), mov->framePixmap(),
                               QString::null);
-        r.moveBy(rect.x(), rect.y());
+        r.translate(rect.x(), rect.y());
         r.setWidth(qMin(r.width(), rect.width()));
         r.setHeight(qMin(r.height(), rect.height()));
         repaint(r);

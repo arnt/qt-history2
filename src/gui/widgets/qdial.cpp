@@ -181,7 +181,7 @@ void QDialPrivate::repaintScreen(const QRect &cr)
         br.setHeight(br.height() + 2);
         if (d->showNotches) {
             int r = qMin(width, height) / 2;
-            br.moveBy(-r / 6, - r / 6);
+            br.translate(-r / 6, - r / 6);
             br.setWidth(br.width() + r / 3);
             br.setHeight(br.height() + r / 3);
         }
@@ -472,8 +472,8 @@ void QDial::paintEvent(QPaintEvent *e)
 
 void QDial::mousePressEvent(QMouseEvent *e)
 {
-    if (d->maximum == d->minimum || 
-        (e->button() != Qt::LeftButton)  || 
+    if (d->maximum == d->minimum ||
+        (e->button() != Qt::LeftButton)  ||
         (e->buttons() ^ e->button())) {
         e->ignore();
         return;

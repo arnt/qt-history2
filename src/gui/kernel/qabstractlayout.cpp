@@ -919,7 +919,7 @@ void QLayout::widgetEvent(QEvent *e)
             int mbh = menuBarHeightForWidth(d->menubar, r->size().width());
             QWidget *mw = parentWidget();
             QRect rect = mw->testAttribute(Qt::WA_LayoutOnEntireRect)?mw->rect():mw->contentsRect();
-            rect.rTop() += mbh; //goes away when menubar isn't magic anymore
+            rect.setTop(rect.top() + mbh); //goes away when menubar isn't magic anymore
             setGeometry(rect);
         } else {
             activate();
@@ -1317,7 +1317,7 @@ bool QLayout::activate()
     mbh = menuBarHeightForWidth(d->menubar, s.width());
 #endif
     QRect rect = mw->testAttribute(Qt::WA_LayoutOnEntireRect)?mw->rect():mw->contentsRect();
-    rect.rTop() += mbh;
+    rect.setTop(rect.top() + mbh);
     setGeometry(rect);
     if (d->frozen) {
         // will trigger resize

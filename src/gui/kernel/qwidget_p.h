@@ -255,8 +255,8 @@ public:
     void setWSGeometry();
     inline QPoint mapToWS(const QPoint &p) const { return p - data.wrect.topLeft(); }
     inline QPoint mapFromWS(const QPoint &p) const { return p + data.wrect.topLeft(); }
-    inline QRect mapToWS(const QRect &r) const { QRect rr(r); rr.moveBy(-data.wrect.topLeft()); return rr; }
-    inline QRect mapFromWS(const QRect &r) const { QRect rr(r); rr.moveBy(data.wrect.topLeft()); return rr; }
+    inline QRect mapToWS(const QRect &r) const { QRect rr(r); rr.translate(-data.wrect.topLeft()); return rr; }
+    inline QRect mapFromWS(const QRect &r) const { QRect rr(r); rr.translate(data.wrect.topLeft()); return rr; }
 #endif
 
     mutable const QMetaObject *polished;

@@ -1588,8 +1588,8 @@ QRect QStyle::visualRect(const QRect &logicalRect, const QWidget *widget)
         return logicalRect;
     QRect boundingRect = widget->rect();
     QRect rect = logicalRect;
-    rect.moveBy(2 * (boundingRect.right() - logicalRect.right()) +
-                logicalRect.width() - boundingRect.width(), 0);
+    rect.translate(2 * (boundingRect.right() - logicalRect.right()) +
+                   logicalRect.width() - boundingRect.width(), 0);
     return rect;
 }
 
@@ -1610,8 +1610,8 @@ QRect QStyle::visualRect(const QRect &logicalRect, const QRect &boundingRect)
     if (!QApplication::reverseLayout())
         return logicalRect;
     QRect rect = logicalRect;
-    rect.moveBy(2 * (boundingRect.right() - logicalRect.right()) +
-                logicalRect.width() - boundingRect.width(), 0);
+    rect.translate(2 * (boundingRect.right() - logicalRect.right()) +
+                   logicalRect.width() - boundingRect.width(), 0);
     return rect;
 }
 

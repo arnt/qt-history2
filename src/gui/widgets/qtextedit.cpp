@@ -496,7 +496,7 @@ void QTextEditPrivate::update(const QRect &contentsRect)
     if (r.isEmpty())
         return;
 
-    r.moveBy(-xOffset, -yOffset);
+    r.translate(-xOffset, -yOffset);
     viewport->update(r);
 }
 
@@ -589,7 +589,7 @@ QRect QTextEditPrivate::cursorRect() const
 {
     QTextFrame *frame = d->cursor.currentFrame();
     QRect r = d->cursor.block().layout()->rect();
-    r.moveBy(d->doc->documentLayout()->frameBoundingRect(frame).topLeft());
+    r.translate(d->doc->documentLayout()->frameBoundingRect(frame).topLeft());
     return r;
 }
 
@@ -1516,7 +1516,7 @@ void QTextEdit::paintEvent(QPaintEvent *ev)
     p.translate(-xOffset, -yOffset);
 
     QRect r = ev->rect();
-    r.moveBy(xOffset, yOffset);
+    r.translate(xOffset, yOffset);
     p.setClipRect(r);
 
     QAbstractTextDocumentLayout::PaintContext ctx;

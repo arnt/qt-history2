@@ -361,22 +361,22 @@ QRectF QMatrix::mapRect(const QRectF &rect) const
     } else {
         double x0, y0;
         double x, y;
-        MAPDOUBLE(rect.left(), rect.top(), x0, y0);
+        MAPDOUBLE(rect.x(), rect.y(), x0, y0);
         double xmin = x0;
         double ymin = y0;
         double xmax = x0;
         double ymax = y0;
-        MAPDOUBLE(rect.right(), rect.top(), x, y);
+        MAPDOUBLE(rect.x() + rect.width(), rect.y(), x, y);
         xmin = qMin(xmin, x);
         ymin = qMin(ymin, y);
         xmax = qMax(xmax, x);
         ymax = qMax(ymax, y);
-        MAPDOUBLE(rect.right(), rect.bottom(), x, y);
+        MAPDOUBLE(rect.x() + rect.width(), rect.y() + rect.width(), x, y);
         xmin = qMin(xmin, x);
         ymin = qMin(ymin, y);
         xmax = qMax(xmax, x);
         ymax = qMax(ymax, y);
-        MAPDOUBLE(rect.left(), rect.bottom(), x, y);
+        MAPDOUBLE(rect.x(), rect.y() + rect.height(), x, y);
         xmin = qMin(xmin, x);
         ymin = qMin(ymin, y);
         xmax = qMax(xmax, x);

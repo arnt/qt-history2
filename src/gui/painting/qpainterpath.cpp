@@ -538,13 +538,13 @@ void QPainterPath::arcTo(const QRectF &rect, float startAngle, float sweepLength
 void QPainterPath::addRect(const QRectF &r)
 {
     if (d->isClosed())
-        moveTo(r.topLeft());
+        moveTo(r.x(), r.y());
     else
-        lineTo(r.topLeft());
-    lineTo(r.topRight());
-    lineTo(r.bottomRight());
-    lineTo(r.bottomLeft());
-    lineTo(r.topLeft());
+        lineTo(r.x(), r.y());
+    lineTo(r.x() + r.width(), r.y());
+    lineTo(r.x() + r.width(), r.y() + r.height());
+    lineTo(r.x(), r.y() + r.width());
+    lineTo(r.x(), r.y());
 }
 
 /*!

@@ -161,6 +161,7 @@ void QPicturePaintEngine::updateMatrix(const QMatrix &matrix)
 
 void QPicturePaintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperation op)
 {
+    Q_UNUSED(op);
     int pos;
     SERIALIZE_CMD(PdcSetClipRegion);
     d->s << region << Q_INT8(0);
@@ -214,7 +215,7 @@ void QPicturePaintEngine::drawLine(const QLineF &line)
     int pos;
     SERIALIZE_CMD(PdcDrawLine);
     d->s << line.start() << line.end();
-    writeCmdLength(pos, QRectF(line.start(), line.end()).normalize(), true);
+    writeCmdLength(pos, QRectF(line.startX(), line.startY(), line.vx(), line.vy()).normalize(), true);
 }
 
 void QPicturePaintEngine::drawRect(const QRectF &r)
@@ -230,7 +231,7 @@ void QPicturePaintEngine::drawPoint(const QPointF &p)
     int pos;
     SERIALIZE_CMD(PdcDrawPoint);
     d->s << p;
-    writeCmdLength(pos, QRectF(p,p), true);
+    writeCmdLength(pos, QRectF(p,QSizeF(1, 1)), true);
 }
 
 void QPicturePaintEngine::drawEllipse(const QRectF &r)

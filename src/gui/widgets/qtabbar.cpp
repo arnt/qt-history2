@@ -555,7 +555,7 @@ QRect QTabBar::tabRect(int index) const
         if (d->layoutDirty)
             const_cast<QTabBarPrivate*>(d)->layoutTabs();
         QRect r = tab->rect;
-        r.moveBy(-d->scrollOffset, 0);
+        r.translate(-d->scrollOffset, 0);
         return QStyle::visualRect(r, this);
     }
     return QRect();

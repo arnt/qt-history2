@@ -1875,7 +1875,7 @@ void QPainter::drawRect(const QRectF &r)
     if (emulationSpecifier) {
         if (emulationSpecifier == QPaintEngine::CoordTransform
             && d->state->txop == QPainterPrivate::TxTranslate) {
-            rect.moveBy(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
+            rect.translate(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
         } else {
             d->draw_helper(&rect,
                            Qt::OddEvenFill, // Not used.
@@ -1915,7 +1915,7 @@ void QPainter::drawRectangle(const QRectF &r)
     if (emulationSpecifier) {
         if (emulationSpecifier == QPaintEngine::CoordTransform
             && d->state->txop == QPainterPrivate::TxTranslate) {
-            rect.moveBy(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
+            rect.translate(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
         } else {
             d->draw_helper(&rect,
                            Qt::OddEvenFill, // Not used.
@@ -1950,7 +1950,7 @@ void QPainter::drawRectangles(const QList<QRectF> &rects)
     if (d->state->txop == QPainterPrivate::TxTranslate
         && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
         for (int i=0; i<rects.size(); ++i)
-            rectangles[i].moveBy(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
+            rectangles[i].translate(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
     } else if (d->engine->emulationSpecifier) {
         for (int i=0; i<rects.size(); ++i)
             drawRectangle(rects.at(i));
@@ -2423,7 +2423,7 @@ void QPainter::drawEllipse(const QRectF &r)
     if (d->engine->emulationSpecifier) {
         if (d->engine->emulationSpecifier == QPaintEngine::CoordTransform
             && d->state->txop == QPainterPrivate::TxTranslate) {
-            rect.moveBy(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
+            rect.translate(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
         } else {
             d->draw_helper(&rect, Qt::OddEvenFill, QPainterPrivate::EllipseShape,
                            QPainterPrivate::StrokeAndFillDraw);
@@ -2455,7 +2455,7 @@ void QPainter::drawOval(const QRectF &r)
     if (d->engine->emulationSpecifier) {
         if (d->engine->emulationSpecifier == QPaintEngine::CoordTransform
             && d->state->txop == QPainterPrivate::TxTranslate) {
-            rect.moveBy(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
+            rect.translate(QPointF(d->state->matrix.dx(), d->state->matrix.dy()));
         } else {
             d->draw_helper(&rect, Qt::OddEvenFill, QPainterPrivate::EllipseShape,
                            QPainterPrivate::StrokeAndFillDraw);
@@ -3406,7 +3406,7 @@ void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPo
             p.end();
             pm.setMask(mask);
         }
-        drawPixmap(r.topLeft(), pm);
+        drawPixmap(r.x(), r.y(), pm);
         return;
     }
 

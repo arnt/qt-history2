@@ -589,7 +589,7 @@ void QListView::scrollContentsBy(int dx, int dy)
     if (d->draggedItems.isEmpty())
         return;
     QRect rect = d->draggedItemsRect();
-    rect.moveBy(dx, dy);
+    rect.translate(dx, dy);
     d->viewport->repaint(rect);
 }
 
@@ -703,14 +703,14 @@ void QListView::dragMoveEvent(QDragMoveEvent *e)
     // get old dragged items rect
     QRect itemsRect = d->itemsRect(d->draggedItems);
     QRect oldRect = itemsRect;
-    oldRect.moveBy(d->draggedItemsDelta());
+    oldRect.translate(d->draggedItemsDelta());
 
     // update position
     d->draggedItemsPos = pos;
 
     // get new items rect
     QRect newRect = itemsRect;
-    newRect.moveBy(d->draggedItemsDelta());
+    newRect.translate(d->draggedItemsDelta());
 
     d->viewport->repaint(oldRect|newRect);
 
@@ -826,7 +826,7 @@ void QListView::paintEvent(QPaintEvent *e)
     QPainter painter(d->viewport);
     QRect area = e->rect();
     painter.fillRect(area, option.palette.base());
-    area.moveBy(horizontalScrollBar()->value(), verticalScrollBar()->value());
+    area.translate(horizontalScrollBar()->value(), verticalScrollBar()->value());
 
     // fill the intersectVector
     if (d->movement == Static)
@@ -912,7 +912,7 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction, 
     switch (cursorAction) {
     case MoveLeft:
         while (d->intersectVector.isEmpty()) {
-            rect.moveBy(-rect.width() - 1, 0);
+            rect.translate(-rect.width() - 1, 0);
             if (rect.right() <= 0)
                 return current;
             if (rect.left() < 0)
@@ -925,7 +925,7 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction, 
         return d->closestIndex(pos, d->intersectVector);
     case MoveRight:
         while (d->intersectVector.isEmpty()) {
-            rect.moveBy(rect.width() + 1, 0);
+            rect.translate(rect.width() + 1, 0);
             if (rect.left() >= contents.width())
                 return current;
             if (rect.right() > contents.width())
@@ -942,7 +942,7 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction, 
             rect.moveTop(rect.height() - 1);
     case MoveUp:
         while (d->intersectVector.isEmpty()) {
-            rect.moveBy(0, -rect.height() - 1);
+            rect.translate(0, -rect.height() - 1);
             if (rect.bottom() <= 0)
                 return current;
             if (rect.top() < 0)
@@ -959,7 +959,7 @@ QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction, 
             rect.moveBottom(contents.height() - rect.height() - 1);
     case MoveDown:
         while (d->intersectVector.isEmpty()) {
-            rect.moveBy(0, rect.height() + 1);
+            rect.translate(0, rect.height() + 1);
             if (rect.top() >= contents.height())
                 return current;
             if (rect.bottom() > contents.height())
@@ -1732,7 +1732,7 @@ QPoint QListViewPrivate::draggedItemsDelta() const
 QRect QListViewPrivate::draggedItemsRect() const
 {
     QRect rect = itemsRect(draggedItems);
-    rect.moveBy(draggedItemsDelta());
+    rect.translate(draggedItemsDelta());
     return rect;
 }
 

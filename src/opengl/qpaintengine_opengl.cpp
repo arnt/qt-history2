@@ -423,6 +423,7 @@ void QOpenGLPaintEngine::updateMatrix(const QMatrix &mtx)
 
 void QOpenGLPaintEngine::updateClipRegion(const QRegion &rgn, Qt::ClipOperation op)
 {
+    Q_UNUSED(op);
     bool clip = !rgn.isEmpty();
     bool useStencilBuffer = dgl->format().stencil();
     bool useDepthBuffer = dgl->format().depth() && !useStencilBuffer;
@@ -786,8 +787,10 @@ static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush)
     glShadeModel(GL_SMOOTH);
     glDisable(GL_DEPTH_TEST);
 
-    gstart -= rect.topLeft().toPoint();
-    gstop -= rect.topLeft().toPoint();
+    QPoint goff = QPoint(qRound(rect.x()), qRound(rect.y()));
+
+    gstart -= goff;
+    gstop -= goff;
 
     QColor gcol1 = brush.color();
     QColor gcol2 = brush.gradientColor();

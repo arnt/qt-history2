@@ -536,9 +536,38 @@ void QRect::moveCenter(const QPoint &p)
     y2 = y1 + h;
 }
 
-
 /*!
   \fn void QRect::moveBy(int dx, int dy)
+
+  \obsolete
+
+  \sa QRect::translate()
+*/
+
+/*!
+  \fn void QRect::moveBy(const QPoint &)
+
+  \obsolete
+
+  \sa QRect::translate()
+*/
+
+/*!
+  \fn void QRect::moveTo(int x, int y)
+
+  Moves the top left corner of the rectangle to \a x and \a y, without
+  changing the rectangles size.
+*/
+
+/*!
+  \fn void QRect::moveTo(const QPoint &pt)
+
+  Moves the top left corner of the rectangle to \a pt, without
+  changing the rectangles size.
+*/
+
+/*!
+  \fn void QRect::translate(int dx, int dy)
 
     Moves the rectangle \a dx along the x axis and \a dy along the y
     axis, relative to the current position. Positive values move the
@@ -549,7 +578,7 @@ void QRect::moveCenter(const QPoint &p)
 
 
 /*!
-    \fn void QRect::moveBy(const QPoint &p)
+    \fn void QRect::translate(const QPoint &p)
 
     \overload
 
@@ -969,11 +998,7 @@ QDebug operator<<(QDebug dbg, const QRect &r) {
     Returns true if the rectangle is a null rectangle; otherwise
     returns false.
 
-    A null rectangle has both the width and the height set to 0, so that
-    right() == left() - 1 and bottom() == top() - 1.
-
-    Note that if right() == left() and bottom() == top() then the
-    rectangle has a width of 1 and a height of 1.
+    A null rectangle has both the width and the height set to 0.
 
     A null rectangle is also empty and invalid.
 
@@ -985,7 +1010,7 @@ QDebug operator<<(QDebug dbg, const QRect &r) {
 
     Returns true if the rectangle is empty; otherwise returns false.
 
-    An empty rectangle has a left() \> right() or top() \> bottom().
+    An empty rectangle has a width() \<= 0 or height() \<= 0.
 
     An empty rectangle is not valid. \c{isEmpty() == !isValid()}
 
@@ -997,7 +1022,7 @@ QDebug operator<<(QDebug dbg, const QRect &r) {
 
     Returns true if the rectangle is valid; otherwise returns false.
 
-    A valid rectangle has a left() \<= right() and top() \<= bottom().
+    A valid rectangle has a width() \> 0 and height() \> 0.
 
     Note that non-trivial operations like intersections are not defined
     for invalid rectangles.
@@ -1012,8 +1037,8 @@ QDebug operator<<(QDebug dbg, const QRect &r) {
     Returns a normalized rectangle; i.e. a rectangle that has a
     non-negative width and height.
 
-    It swaps left and right if left() \> right(), and swaps top and
-    bottom if top() \> bottom().
+    It swaps left and right if width() \< 0, and swaps top and
+    bottom if height() \< 0.
 
     \sa isValid()
 */
@@ -1032,71 +1057,6 @@ QRectF QRectF::normalize() const
     return r;
 }
 
-
-/*!
-    \fn float QRectF::left() const
-
-    Returns the x-coordinate at the left edge of the rectangle. Identical to x().
-
-    \sa setLeft(), right(), topLeft(), bottomLeft()
-*/
-
-/*!
-    \fn float QRectF::top() const
-
-    Returns the y-coordinate at the top edge of the rectangle. Identical to y().
-
-    \sa setTop(), bottom(), topLeft(), topRight()
-*/
-
-/*!
-    \fn float QRectF::right() const
-
-    Returns the x-coordinate at the right edge of the rectangle.
-
-    \sa setRight() left() topRight() bottomRight()
-*/
-
-/*!
-    \fn float QRectF::bottom() const
-
-    Returns the y-coordinate at the bottom edge of the rectangle.
-
-    \sa setBottom(), top(), bottomLeft(), bottomRight()
-*/
-
-/*!
-    \fn float &QRectF::rLeft()
-
-    Returns a reference to the x-coordinate at the left edge of the rectangle.
-
-    \sa rTop() rWidth() rHeight()
-*/
-
-/*!
-    \fn float &QRectF::rTop()
-
-    Returns a reference to the y-coordinate at the top edge of the rectangle.
-
-    \sa rLeft() rWidth() rHeight()
-*/
-
-/*!
-    \fn float &QRectF::rWidth()
-
-    Returns a reference to the width of the rectangle.
-
-    \sa rLeft() rTop() rHeight()
-*/
-
-/*!
-    \fn float &QRectF::rHeight()
-
-    Returns a reference to the height of the rectangle.
-
-    \sa rLeft() rTop() rWidth()
-*/
-
 /*!
     \fn float QRectF::x() const
 
@@ -1113,140 +1073,6 @@ QRectF QRectF::normalize() const
     Identical to top().
 
     \sa top() x() setY()
-*/
-
-/*!
-    \fn void QRectF::setLeft(float x)
-
-    Sets the x-coordinate of the rectangle's left edge to \a x. The rectangle's
-    width may change, but its right edge is not moved.
-
-    Identical to setX().
-
-    \sa left() setTop() setWidth()
-*/
-
-/*!
-    \fn void QRectF::setTop(float y)
-
-    Sets the y-coordinate of the rectangle's top edge to \a y.
-    The rectangle's height may change, but its bottom edge is not moved.
-
-    Identical to setY().
-
-    \sa top() setBottom() setHeight()
-*/
-
-/*!
-    \fn void QRectF::setRight(float x)
-
-    Sets the x-coordinate of the rectangle's right edge to \a x. The rectangle's
-    width may change, but its left edge is not moved.
-
-    \sa right() setLeft() setWidth()
-*/
-
-/*!
-    \fn void QRectF::setBottom(float y)
-
-    Sets the y-coordinate of the rectangle's bottom edge to \a y.
-    The rectangle's height may change, but its top edge is not moved.
-
-    \sa bottom() setTop() setHeight()
-*/
-
-/*!
-    \fn void QRectF::setX(float x)
-
-    Sets the x-coordinate of the rectangle's left edge to \a x. The rectangle's
-    width may change, but its right edge is not moved.
-
-    Identical to setLeft().
-
-    \sa x() setY()
-*/
-
-/*!
-    \fn void QRectF::setY(float y)
-
-    Sets the y-coordinate of the rectangle's top edge to \a y.
-    The rectangle's height may change, but its bottom edge is not moved.
-
-    Identical to setTop().
-
-    \sa y() setX()
-*/
-
-/*!
-    \fn void QRectF::setTopLeft(const QPointF &point)
-
-    Sets the position of the rectangle's top-left corner to lie at the given
-    \a point. The size of the rectangle may change. The rectangle's bottom
-    and right edges are not moved.
-
-    \sa topLeft() moveTopLeft() setBottomRight() setTopRight() setBottomLeft()
-*/
-
-/*!
-    \fn void QRectF::setBottomRight(const QPointF &point)
-
-    Sets the position of the rectangle's bottom-right corner to lie at the given
-    \a point. The size of the rectangle may change. The rectangle's top and
-    left edges are not moved.
-
-    \sa bottomRight() moveBottomRight() setTopLeft() setTopRight() setBottomLeft()
-*/
-
-/*!
-    \fn void QRectF::setTopRight(const QPointF &point)
-
-    Sets the position of the rectangle's top-right corner to lie at the given
-    \a point. The size of the rectangle may change. The rectangle's bottom
-    and left edges are not moved.
-
-    \sa topRight() moveTopRight() setTopLeft() setBottomRight() setBottomLeft()
-*/
-
-/*!
-    \fn void QRectF::setBottomLeft(const QPointF &point)
-
-    Sets the position of the rectangle's bottom-left corner to lie at the given
-    \a point. The size of the rectangle may change. The rectangle's top and
-    right edges are not moved.
-
-    \sa bottomLeft() moveBottomLeft() setTopLeft() setBottomRight() setTopRight()
-*/
-
-/*!
-    \fn QPointF QRectF::topLeft() const
-
-    Returns the top-left position of the rectangle.
-
-    \sa setTopLeft(), moveTopLeft(), bottomRight(), left(), top()
-*/
-
-/*!
-    \fn QPointF QRectF::bottomRight() const
-
-    Returns the bottom-right position of the rectangle.
-
-    \sa setBottomRight(), moveBottomRight(), topLeft(), right(), bottom()
-*/
-
-/*!
-    \fn QPointF QRectF::topRight() const
-
-    Returns the top-right position of the rectangle.
-
-    \sa setTopRight(), moveTopRight(), bottomLeft(), top(), right()
-*/
-
-/*!
-    \fn QPointF QRectF::bottomLeft() const
-
-    Returns the bottom-left position of the rectangle.
-
-    \sa setBottomLeft(), moveBottomLeft(), topRight(), bottom(), left()
 */
 
 /*!
@@ -1292,121 +1118,38 @@ QRectF QRectF::normalize() const
 
 */
 
+
 /*!
-    \fn void QRectF::moveLeft(float x)
+  \fn void QRectF::moveTo(float x, float y)
 
-    Moves the rectangle so that the x-coordinate of its left edge is at \a x.
-    The size of the rectangle is unchanged.
-
-    \sa left(), setLeft(), moveTop(), moveRight(), moveBottom()
+  Moves the top left corner of the rectangle to \a x and \a y, without
+  changing the rectangles size.
 */
 
 /*!
-    \fn void QRectF::moveTop(float y)
+  \fn void QRectF::moveTo(const QPointF &pt)
 
-    Moves the rectangle so that the y-coordinate of its top edge is at \a y.
-    The size of the rectangle is unchanged.
-
-    \sa top(), setTop(), moveLeft(), moveRight(), moveBottom()
+  Moves the top left corner of the rectangle to \a pt, without
+  changing the rectangles size.
 */
 
-
 /*!
-  \fn void QRectF::moveRight(float x)
-
-    Moves the rectangle so that the x-coordinate of its right edge is at \a x.
-    The size of the rectangle is unchanged.
-
-    \sa right(), setRight(), moveLeft(), moveTop(), moveBottom()
-*/
-
-
-/*!
-    \fn void QRectF::moveBottom(float y)
-
-    Moves the rectangle so that the y-coordinate of its bottom edge is at \a y.
-    The size of the rectangle is unchanged.
-
-    \sa bottom() setBottom() moveLeft() moveTop() moveRight()
-*/
-
-
-/*!
-    \fn void QRectF::moveTopLeft(const QPointF &point)
-
-    Moves the rectangle so that the position of its top-left corner
-    lies at the given \a point. The size of the rectangle is unchanged.
-
-    \sa topLeft() setTopLeft() moveBottomRight() moveTopRight() moveBottomLeft()
-*/
-
-
-/*!
-    \fn void QRectF::moveBottomRight(const QPointF &point)
-
-    Moves the rectangle so that the position of its bottom-right corner
-    lies at the given \a point. The size of the rectangle is unchanged.
-
-    \sa bottomRight() setBottomRight() moveTopLeft() moveTopRight() moveBottomLeft()
-*/
-
-
-/*!
-    \fn void QRectF::moveTopRight(const QPointF &point)
-
-    Moves the rectangle so that the position of its top-right corner
-    lies at the given \a point. The size of the rectangle is unchanged.
-
-    \sa topRight() setTopRight() moveTopLeft() moveBottomRight() moveBottomLeft()
-*/
-
-
-/*!
-    \fn void QRectF::moveBottomLeft(const QPointF &point)
-
-    Moves the rectangle so that the position of its bottom-left corner
-    lies at the given \a point. The size of the rectangle is unchanged.
-
-    \sa bottomLeft() setBottomLeft() moveTopLeft() moveBottomRight() moveTopRight()
-*/
-
-
-
-/*!
-    Moves the rectangle so that the position of its center point lies at the
-    point specified by \a p. The size of the rectangle is unchanged.
-
-    \sa center() moveTopLeft() moveBottomRight() moveTopRight() moveBottomLeft()
-*/
-
-void QRectF::moveCenter(const QPointF &p)
-{
-    xp = p.x() - w/2;
-    yp = p.y() - h/2;
-}
-
-
-/*!
-    \fn void QRectF::moveBy(float dx, float dy)
+    \fn void QRectF::translate(float dx, float dy)
 
     Moves the rectangle \a dx along the x axis and \a dy along the y
     axis, relative to the current position. Positive values move the
     rectangle to the right and downwards.
-
-    \sa moveTopLeft()
 */
 
 
 /*!
-    \fn void QRectF::moveBy(const QPointF &p)
+    \fn void QRectF::translate(const QPointF &p)
 
     \overload
 
     Moves the rectangle \a{p}\e{.x()} along the x axis and
     \a{p}\e{.y()} along the y axis, relative to the current position.
     Positive values move the rectangle to the right and downwards.
-
-    \sa moveTopLeft()
 */
 
 
@@ -1673,7 +1416,7 @@ bool QRectF::intersects(const QRectF &r) const
 
 QDataStream &operator<<(QDataStream &s, const QRectF &r)
 {
-    s << r.left() << r.top() << r.width() << r.height();
+    s << r.x() << r.y() << r.width() << r.height();
     return s;
 }
 

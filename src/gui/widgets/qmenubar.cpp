@@ -98,7 +98,7 @@ QRect QMenuBarPrivate::actionRect(QAction *act) const
 {
     QRect ret = actionRects.value(act);
     const int fw = q->style().pixelMetric(QStyle::PM_MenuBarFrameWidth, 0, q);
-    ret.moveBy(fw, fw);
+    ret.translate(fw, fw);
     return QStyle::visualRect(ret, q);
 }
 
@@ -760,7 +760,7 @@ void QMenuBar::keyPressEvent(QKeyEvent *e)
     }
 
     if(!key_consumed &&
-       (!e->modifiers() || 
+       (!e->modifiers() ||
         (e->modifiers()&(Qt::MetaModifier|Qt::AltModifier))) && e->text().length()==1 && !d->popupState) {
         int clashCount = 0;
         QAction *first = 0, *currentSelected = 0, *firstAfterCurrent = 0;
