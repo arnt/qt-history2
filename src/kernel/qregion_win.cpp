@@ -396,7 +396,7 @@ QMemArray<QRect> QRegion::rects() const
     a = QMemArray<QRect>( rd->rdh.nCount );
     RECT *r = (RECT*)rd->Buffer;
     for ( int i=0; i<(int)a.size(); i++ ) {
-	a[i].setCoords( r->left, r->top, r->right, r->bottom);
+	a[i].setCoords( r->left, r->top, r->right-1, r->bottom-1);
 	r++;
     }
 
