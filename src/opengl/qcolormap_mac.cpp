@@ -46,7 +46,7 @@ public:
     QColormapPrivate() { 
 	valid  = FALSE; 
 	size   = 0;
-	widget = 0;
+	topLevelWidget = 0;
     }
     
     ~QColormapPrivate() {
