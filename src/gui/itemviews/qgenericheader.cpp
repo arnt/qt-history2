@@ -104,7 +104,9 @@ void QGenericHeader::setOffset(int o)
 
 int QGenericHeader::size() const
 {
-    return d->sections.at(count()).position;
+    if (d->sections.count())
+        return d->sections.at(count()).position;
+    return 0;
 }
 
 QSize QGenericHeader::sizeHint() const
@@ -725,8 +727,8 @@ QRect QGenericHeader::selectionViewportRect(const QItemSelection &selection) con
             if (rangeRight > right)
                 right = rangeRight;
         }
-        int leftPos = sectionPosition(left);
-        int rightPos = sectionPosition(right) + sectionSize(right);
+        int leftPos = sectionPosition(left) - d->offset;
+        int rightPos = sectionPosition(right) + sectionSize(right) - d->offset;
         return QRect(leftPos, 0, rightPos - leftPos, height());
     }
     // orientation() == Vertical
@@ -746,8 +748,8 @@ QRect QGenericHeader::selectionViewportRect(const QItemSelection &selection) con
         if (rangeBottom > bottom)
             bottom = rangeBottom;
     }
-    int topPos = sectionPosition(top);
-    int bottomPos = sectionPosition(bottom) + sectionSize(bottom);
+    int topPos = sectionPosition(top) - d->offset;
+    int bottomPos = sectionPosition(bottom) + sectionSize(bottom) - d->offset;
     return QRect(0, topPos, width(), bottomPos - topPos);
 }
 
