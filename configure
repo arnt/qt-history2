@@ -887,7 +887,7 @@ while [ "$#" -gt 0 ]; do
 	    elif [ "$VAR" = "sql" ]; then
 		ERROR=yes
 		for d in $CFG_SQL_AVAILABLE; do
-		    if [ "$VAL" == "$d" ]; then
+		    if [ "$VAL" = "$d" ]; then
 			ERROR=no
 			break
 		    fi
