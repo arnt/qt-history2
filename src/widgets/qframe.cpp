@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#50 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#51 $
 **
 ** Implementation of QFrame widget class
 **
@@ -14,7 +14,7 @@
 #include "qdrawutl.h"
 #include "qframe.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#50 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#51 $");
 
 
 /*!
@@ -238,7 +238,33 @@ void QFrame::setLineWidth( int w )
 
 void QFrame::setMidLineWidth( int w )
 {
-    mwidth = (short)w;
+    mwidth = (short) ( w & 0x00ff | mwidth & 0xff00 );
+    updateFrameWidth();
+}
+
+
+
+/*!
+  \fn int QFrame::margin() const
+  Returns the width of the margin. The margin is the distance between the
+  innermost pixel of the frame and the outermost pixel of contentsRect().
+  It is included in frameWidth().
+
+  The margin is filled according to backgroundMode().
+
+  The default value is 0.
+
+  \sa setMargin(), lineWidth(), frameWidth()
+*/
+
+/*!
+  Sets the width of the margin to \e w.
+  \sa margin(), setLineWidth()
+*/
+
+void QFrame::setMargin( int w )
+{
+    mwidth = (short) ( ((w & 0xff) << 8) | mwidth & 0x00ff );
     updateFrameWidth();
 }
 
@@ -268,7 +294,7 @@ void QFrame::updateFrameWidth()
 		    break;
 		case Raised:
 		case Sunken:
-		    fwidth = (short)(lwidth*2 + mwidth);
+		    fwidth = (short)(lwidth*2 + midLineWidth() );
 		    break;
 	    }
 	    break;
@@ -301,7 +327,7 @@ void QFrame::updateFrameWidth()
 		    break;
 		case Raised:
 		case Sunken:
-		    fwidth = (short)(lwidth*2 + mwidth);
+		    fwidth = (short)(lwidth*2 + midLineWidth());
 		    break;
 	    }
 	    break;
@@ -309,6 +335,8 @@ void QFrame::updateFrameWidth()
 
     if ( fwidth == -1 )				// invalid style
 	fwidth = 0;
+
+    fwidth += margin();
 
     frameChanged();
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.h#21 $
+** $Id: //depot/qt/main/src/widgets/qframe.h#22 $
 **
 ** Definition of QFrame widget class
 **
@@ -43,6 +43,9 @@ public:
 
     int		lineWidth()	const;
     void	setLineWidth( int );
+
+    int		margin()	const;
+    void	setMargin( int );
 
     int		midLineWidth()	const;
     void	setMidLineWidth( int );
@@ -92,7 +95,10 @@ inline int QFrame::lineWidth() const
 { return lwidth; }
 
 inline int QFrame::midLineWidth() const
-{ return mwidth; }
+{ return mwidth & 0x00ff; }
+
+inline int QFrame::margin() const
+{ return ((int)mwidth) >> 8; }
 
 inline int QFrame::frameWidth() const
 { return fwidth; }
