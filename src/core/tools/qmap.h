@@ -645,8 +645,8 @@ Q_OUTOFLINE_TEMPLATE bool QMap<Key, T>::operator==(const QMap<Key, T> &other) co
     if (d == other.d)
 	return true;
 
-    iterator it1 = begin();
-    iterator it2 = other.begin();
+    const_iterator it1 = begin();
+    const_iterator it2 = other.begin();
 
     while (it1 != end()) {
 	if (!(it1.value() == it2.value()) || it1.key() < it2.key() || it2.key() < it1.key())
