@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#24 $
 **
 ** Implementation of something useful
 **
@@ -22,7 +22,7 @@
 
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#23 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#24 $");
 
 
 struct QListViewPrivate
@@ -1369,6 +1369,10 @@ void QListView::keyPressEvent( QKeyEvent * e )
     ensureVisible( viewport()->width()/2 - contentsX(), y );
 
     i = itemAt( QPoint( 0, y ) );
+    if ( !i ) {
+	warning("QListViewItem::keyPressEvent() no item at %d", y );
+	return;
+    }
     if ( !isMultiSelection() && i != d->currentSelected ) {
 	if ( d->currentSelected )
 	    d->currentSelected->setSelected( FALSE );
