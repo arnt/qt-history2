@@ -16,53 +16,53 @@
 
 #define GET_PROP(ucs4) (uc_properties + GET_PROP_INDEX(ucs4))
 
-QChar::Category QUnicodeTables::category(uint ucs4)
+Q_CORE_EXPORT QChar::Category QUnicodeTables::category(uint ucs4)
 {
     return (QChar::Category) GET_PROP(ucs4)->category;
 }
 
-unsigned char QUnicodeTables::combiningClass(uint ucs4)
+Q_CORE_EXPORT unsigned char QUnicodeTables::combiningClass(uint ucs4)
 {
     return (unsigned char) GET_PROP(ucs4)->combiningClass;
 }
 
-QChar::Direction QUnicodeTables::direction(uint ucs4)
+Q_CORE_EXPORT QChar::Direction QUnicodeTables::direction(uint ucs4)
 {
     return (QChar::Direction) GET_PROP(ucs4)->direction;
 }
 
-QChar::Joining QUnicodeTables::joining(uint ucs4)
+Q_CORE_EXPORT QChar::Joining QUnicodeTables::joining(uint ucs4)
 {
     return (QChar::Joining) GET_PROP(ucs4)->joining;
 }
 
-QChar::UnicodeVersion QUnicodeTables::unicodeVersion(uint ucs4)
+Q_CORE_EXPORT QChar::UnicodeVersion QUnicodeTables::unicodeVersion(uint ucs4)
 {
     return (QChar::UnicodeVersion) GET_PROP(ucs4)->unicode_version;
 }
 
-int QUnicodeTables::digitValue(uint ucs4)
+Q_CORE_EXPORT int QUnicodeTables::digitValue(uint ucs4)
 {
     int val = GET_PROP(ucs4)->digit_value;
     return val == 0xf ? -1 : val;
 }
 
-bool QUnicodeTables::mirrored(uint ucs4)
+Q_CORE_EXPORT bool QUnicodeTables::mirrored(uint ucs4)
 {
     return GET_PROP(ucs4)->mirrorDiff != 0;
 }
 
-int QUnicodeTables::mirroredChar(uint ucs4)
+Q_CORE_EXPORT int QUnicodeTables::mirroredChar(uint ucs4)
 {
     return ucs4 + GET_PROP(ucs4)->mirrorDiff;
 }
 
-QUnicodeTables::LineBreakClass QUnicodeTables::lineBreakClass(uint ucs4)
+Q_CORE_EXPORT QUnicodeTables::LineBreakClass QUnicodeTables::lineBreakClass(uint ucs4)
 {
     return (QUnicodeTables::LineBreakClass) GET_PROP(ucs4)->line_break_class;
 }
 
-int QUnicodeTables::upper(uint ucs4)
+Q_CORE_EXPORT int QUnicodeTables::upper(uint ucs4)
 {
     const UC_Properties *p = GET_PROP(ucs4);
     if (p->category == QChar::Letter_Lowercase)
@@ -70,7 +70,7 @@ int QUnicodeTables::upper(uint ucs4)
     return ucs4;
 }
 
-int QUnicodeTables::lower(uint ucs4)
+Q_CORE_EXPORT int QUnicodeTables::lower(uint ucs4)
 {
     const UC_Properties *p = GET_PROP(ucs4);
     if (p->category == QChar::Letter_Uppercase || p->category == QChar::Letter_Titlecase)
