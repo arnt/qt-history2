@@ -1,4 +1,4 @@
-/**********************************************************************
+o/**********************************************************************
 ** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Configuration.
@@ -287,6 +287,9 @@ MainWindow::MainWindow()
     else if (QApplication::isEffectEnabled(UI_AnimateTooltip))
 	tooltipeffect->setCurrentItem(1);
 
+    if ( QApplication::isEffectEnabled( UI_AnimateToolBox ) )
+	toolboxeffect->setCurrentItem( 1 );
+
     QSize globalStrut = QApplication::globalStrut();
     strutwidth->setValue(globalStrut.width());
     strutheight->setValue(globalStrut.height());
@@ -468,6 +471,10 @@ void MainWindow::fileSave()
 	    switch (tooltipeffect->currentItem()) {
 	    case 1: effects << "animatetooltip"; break;
 	    case 2: effects << "fadetooltip"; break;
+	    }
+
+	    switch ( toolboxeffect->currentItem() ) {
+	    case 1: effects << "animatetoolbox"; break;
 	    }
 	} else
 	    effects << "none";
