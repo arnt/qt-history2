@@ -317,21 +317,22 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
     long net_winstates[4] = { 0, 0, 0, 0 };
     int curr_winstate = 0;
 
+    struct {
+        ulong flags, functions, decorations;
+        long input_mode;
+        ulong status;
+    } mwmhints;
+
+    mwmhints.flags = mwmhints.functions = mwmhints.decorations = 0l;
+    mwmhints.input_mode = 0l;
+    mwmhints.status = 0l;
+
     if (topLevel && ! (desktop || popup)) {
 	ulong wsa_mask = 0;
 	if (testWFlags(WStyle_Customize)) {
 	    if (testWFlags(WStyle_NoBorder)) {
-		struct {
-		    ulong flags, functions, decorations;
-		    long input_mode;
-		    ulong status;
-		} hints;
-
-		hints.decorations = 0;
-		hints.flags = (1L << 1); // MWM_HINTS_DECORATIONS
-		XChangeProperty(dpy, id, qt_xa_motif_wm_hints,
-				qt_xa_motif_wm_hints, 32, PropModeReplace,
-				(unsigned char *) &hints, 5);
+		mwmhints.decorations = 0;
+		mwmhints.flags |= (1L << 1); // MWM_HINTS_DECORATIONS
 
 		// override netwm type - quick and easy for KDE noborder
 		net_wintypes[curr_wintype++] = qt_net_wm_window_type_override;
@@ -349,12 +350,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 		      WStyle_SysMenu | WStyle_ContextHelp);
 
 	    // dialog netwm type
-	    // ### ENABLE ME AFTER KDE 2.1 RELASE - waiting for bug fix in
-	    // kwin to propogate
-	    // net_wintypes[curr_wintype++] = qt_net_wm_window_type_dialog;
-
-	    if (testWFlags(WShowModal))
-		net_winstates[curr_winstate++] = qt_net_wm_state_modal;
+            net_wintypes[curr_wintype++] = qt_net_wm_window_type_dialog;
 	} else {
 	    setWFlags(WStyle_NormalBorder | WStyle_Title |
 		      WStyle_MinMax | WStyle_SysMenu);
@@ -373,7 +369,14 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	if (testWFlags(WStyle_StaysOnTop))
 	    net_winstates[curr_winstate++] = qt_net_wm_state_stays_on_top;
 
-	if ( testWFlags( WX11BypassWM ) ) {
+        if (testWFlags(WShowModal)) {
+            mwmhints.input_mode = 3; // MWM_INPUT_FULL_APPLICATION_MODAL
+            mwmhints.flags |= (1L << 2); // MWM_HINTS_INPUT_MODE
+
+            net_winstates[curr_winstate++] = qt_net_wm_state_modal;
+        }
+
+        if ( testWFlags( WX11BypassWM ) ) {
 	    wsa.override_redirect = True;
 	    wsa_mask |= CWOverrideRedirect;
 	}
@@ -449,6 +452,12 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    protocols[n++] = qt_net_wm_context_help;
 	XSetWMProtocols( dpy, id, protocols, n );
 
+        // set mwm hints
+        if ( mwmhints.flags != 0l )
+            XChangeProperty(dpy, id, qt_xa_motif_wm_hints, qt_xa_motif_wm_hints, 32,
+                            PropModeReplace, (unsigned char *) &mwmhints, 5);
+
+
 	// set _NET_WM_WINDOW_TYPE
 	if (curr_wintype > 0)
 	    XChangeProperty(dpy, id, qt_net_wm_window_type, XA_ATOM, 32, PropModeReplace,
@@ -473,9 +482,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 			     qt_sm_client_id, XA_STRING, 8, PropModeReplace,
 			     (unsigned char *)session.data(), session.length() );
 	}
-    } else
+    } else {
 	// non-toplevel widgets don't have a frame, so no need to update the strut
 	fstrut_dirty = 0;
+    }
 
     if ( initializeWindow ) {
 	// don't erase when resizing
