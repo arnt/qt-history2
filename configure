@@ -739,8 +739,12 @@ fi
 rm -f .test.qt.
 
 # let's also test that $QTDIR/bin is in the PATH
-if ! echo "$PATH" | grep $QTDIR/bin >/dev/null
+if echo "$PATH" | grep $QTDIR/bin >/dev/null
 then
+    # do something to prevent the shell from giving us an error about an
+    # empty then block
+    true
+else
     echo '   The environment variable $PATH is not set correctly. It should'
     echo '   include $QTDIR/bin.'
     echo
@@ -1141,7 +1145,7 @@ then
 fi
 
 # now look at the configs and figure out what platform we are config'd for
-[ ! -z "`grep QMAKE_LIBS_X11 $XQMAKESPEC/qmake.conf | awk '{print $3;}'`" ] && PLATFORM_X11=yes
+[ '!' -z "`grep QMAKE_LIBS_X11 $XQMAKESPEC/qmake.conf | awk '{print $3;}'`" ] && PLATFORM_X11=yes
 ### echo "$XQMAKESPEC" | grep mkspecs/qws >/dev/null 2>&1 && PLATFORM_QWS=yes
 
 # find default thread option for target
@@ -1969,7 +1973,7 @@ minimal|small|medium|large|full)
     ;;
 *)
     # not known to be sufficient for anything
-    if [ ! -f $relpath/src/tools/qconfig-$CFG_QCONFIG.h ]
+    if [ '!' -f $relpath/src/tools/qconfig-$CFG_QCONFIG.h ]
     then
 	echo >&2 "No such configuration: $CFG_QCONFIG"
 	OPT_HELP=yes
@@ -2341,7 +2345,7 @@ then
 fi
 
 [ "$OPT_CONCURRENT" != "0" ] && echo "Concurrent .......... $OPT_CONCURRENT"
-[ "$CFG_INCREMENTAL" = "yes" ] && [ ! -z "$INCREMENTAL" ] && echo "Incremental ......... $INCREMENTAL"
+[ "$CFG_INCREMENTAL" = "yes" ] && [ '!' -z "$INCREMENTAL" ] && echo "Incremental ......... $INCREMENTAL"
 echo "Configuration ....... $QMAKE_CONFIG"
 echo "Remote support ...... $CFG_REMOTE"
 echo "STL support ......... $CFG_STL"
