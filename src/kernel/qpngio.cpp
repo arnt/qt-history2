@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpngio.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qpngio.cpp#32 $
 **
 ** Implementation of PNG QImage IOHandler
 **
@@ -971,6 +971,9 @@ int QPNGFormat::user_chunk(png_structp png, png_infop,
 	if ( length >= 4 ) {
 	    char compression_flag = *data++;
 	    char compression_method = *data++;
+	    if ( compression_flag == compression_method ) {
+		// fool the compiler into thinking they're used
+	    }
 	    const char* lang = (const char*)data;
 	    if ( !skip(length,data) ) return 0;
 	    // const char* keyword_utf8 = (const char*)data;
