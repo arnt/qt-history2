@@ -29,14 +29,14 @@ function separator
 
 function changesMaximum
 {
-    export CHANGES=`p4 changes -i -m "$1" ... | cut -f 2 -d ' ' | sort`
+    export CHANGES=`p4 changes -i -m "$1" ... | cut -f 2 -d ' ' | sort -g`
 }
 
 function changesLabel
 {
     TMPFILE=tmp_p4changelist_tmp
     p4 changes -i "...@$1" > $TMPFILE
-    export CHANGES=`p4 changes -i ... | diff $TMPFILE - | grep Change | cut -f 3 -d ' ' | sort`
+    export CHANGES=`p4 changes -i ... | diff $TMPFILE - | grep Change | cut -f 3 -d ' ' | sort -g`
     rm $TMPFILE
 }
 
