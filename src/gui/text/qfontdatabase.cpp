@@ -490,7 +490,7 @@ static const int scriptForWritingSystem[] = {
 };
 
 
-#if defined(Q_WS_X11) && !defined(QT_NO_XFT)
+#if defined Q_WS_QWS || (defined(Q_WS_X11) && !defined(QT_NO_XFT))
 static inline bool requiresOpenType(int writingSystem)
 {
     return ((writingSystem >= QFontDatabase::Syriac && writingSystem <= QFontDatabase::Sinhala)

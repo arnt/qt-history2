@@ -25,7 +25,7 @@ static void addFont(QFontDatabasePrivate *db, const char *family, int weight, bo
     QtFontFamily *f = db->family(familyname, true);
     //### get lang info from freetype
     for (int ws = 1; ws < QFontDatabase::WritingSystemsCount; ++ws)
-        family->writingSystems[ws] = QtFontFamily::Supported;
+        f->writingSystems[ws] = QtFontFamily::Supported;
     QtFontFoundry *foundry = f->foundry(foundryname, true);
     QtFontStyle *style = foundry->style(styleKey,  true);
     style->smoothScalable = (pixelSize == 0);
@@ -120,7 +120,7 @@ static void initializeDb()
         QtFontFamily *f = db->family(familyname, true);
         for (int ws = 1; ws < QFontDatabase::WritingSystemsCount; ++ws) {
             if (!requiresOpenType(ws))
-                family->writingSystems[ws] = QtFontFamily::Supported;
+                f->writingSystems[ws] = QtFontFamily::Supported;
         }
         QtFontFoundry *foundry = f->foundry("qt", true);
         QtFontStyle::Key styleKey;
