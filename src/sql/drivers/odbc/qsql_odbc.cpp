@@ -770,7 +770,9 @@ bool QODBCPrivate::checkDriver() const
 	}
 #endif
 	if ( sup == SQL_FALSE ) {
-	    qDebug( "QODBCDriver::checkDriver: Warning - Driver doesn't support some non-critical functions" );
+#ifdef QT_CHECK_RANGE
+	    qWarning( "QODBCDriver::checkDriver: Warning - Driver doesn't support some non-critical functions" );
+#endif
 	    return TRUE;
 	}
     }
