@@ -758,7 +758,10 @@ QRegion QPainter::clipRegion() const
         qWarning("QPainter::clipRegion(), painter not active");
         return QRegion();
     }
-    return (d->state->clipRegionMatrix * d->state->matrix.invert()) * d->state->clipRegion;
+    if (d->state->txop > TxNone)
+	return (d->state->clipRegionMatrix * d->state->matrix.invert()) * d->state->clipRegion;
+    else
+	return d->state->clipRegion;
 }
 
 /*!

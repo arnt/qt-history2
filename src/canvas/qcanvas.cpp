@@ -1116,7 +1116,10 @@ void QCanvas::drawViewArea(QCanvasView* view, QPainter* p, const QRect& vr, bool
     } else {
         QRect r = vr; r.moveBy(tl.x(),tl.y()); // move to untransformed co-ords
         if (!all.contains(ivr)) {
-            QRegion inside = p->clipRegion() & r;
+	    p->setWorldXForm(false);
+            QRegion inside = p->clipRegion();
+	    inside &= r;
+	    p->setWorldXForm(true);
 	    //QRegion outside = p->clipRegion() - r;
  	    //p->setClipRegion(outside);
 	    //p->fillRect(outside.boundingRect(),Qt::red);
@@ -3609,7 +3612,7 @@ void QCanvasView::cMoving(int x, int y)
 */
 void QCanvasView::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 {
-    QRect r(cx,cy,cw,ch);
+    QRect r(cx,cy,cw+1,ch+1);
     if (viewing) {
 	if (d->update_outside_paintevent)
 	    viewing->drawCanvasArea(r);
