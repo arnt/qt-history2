@@ -31,7 +31,7 @@ public:
 
     QPointer<QActionGroup> group;
     QString text;
-    QString menuText;
+    QString iconText;
     QIconSet *icons;
     QString tooltip;
     QString statustip;

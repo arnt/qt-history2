@@ -35,7 +35,7 @@ class Q_GUI_EXPORT QAction : public QObject
     Q_PROPERTY(bool enabled READ isEnabled WRITE setEnabled)
     Q_PROPERTY(QIconSet icon READ icon WRITE setIcon)
     Q_PROPERTY(QString text READ text WRITE setText)
-    Q_PROPERTY(QString menuText READ menuText WRITE setMenuText)
+    Q_PROPERTY(QString iconText READ iconText WRITE setIconText)
     Q_PROPERTY(QString toolTip READ toolTip WRITE setToolTip)
     Q_PROPERTY(QString statusTip READ statusTip WRITE setStatusTip)
     Q_PROPERTY(QString whatsThis READ whatsThis WRITE setWhatsThis)
@@ -45,13 +45,13 @@ class Q_GUI_EXPORT QAction : public QObject
 
 public:
     QAction(QObject* parent = 0);
-    QAction(const QString &menuText, QObject* parent=0);
-    QAction(const QIconSet &icon, const QString &menuText, QObject* parent=0);
+    QAction(const QString &text, QObject* parent=0);
+    QAction(const QIconSet &icon, const QString &text, QObject* parent=0);
 
 #ifdef QT_COMPAT
     QT_COMPAT_CONSTRUCTOR QAction(QObject* parent, const char* name);
-    QT_COMPAT_CONSTRUCTOR QAction(const QString &menuText, const QKeySequence &shortcut, QObject* parent, const char* name);
-    QT_COMPAT_CONSTRUCTOR QAction(const QIconSet &icon, const QString &menuText, const QKeySequence &shortcut,
+    QT_COMPAT_CONSTRUCTOR QAction(const QString &text, const QKeySequence &shortcut, QObject* parent, const char* name);
+    QT_COMPAT_CONSTRUCTOR QAction(const QIconSet &icon, const QString &text, const QKeySequence &shortcut,
                                   QObject* parent, const char* name);
 #endif
     ~QAction();
@@ -64,8 +64,8 @@ public:
     void setText(const QString &text);
     QString text() const;
 
-    void setMenuText(const QString &text);
-    QString menuText() const;
+    void setIconText(const QString &text);
+    QString iconText() const;
 
     void setToolTip(const QString &tip);
     QString toolTip() const;
@@ -101,6 +101,8 @@ public:
     bool showStatusText(QWidget *widget=0);
 
 #ifdef QT_COMPAT
+    inline QT_COMPAT void setMenuText(const QString &text) { setText(text); }
+    inline QT_COMPAT QString menuText() const { return text(); }
     inline QT_COMPAT bool isOn() const { return isChecked(); }
     inline QT_COMPAT void setOn(bool b) { setChecked(b); }
     inline QT_COMPAT bool isToggleAction() const { return isCheckable(); }

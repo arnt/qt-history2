@@ -116,7 +116,7 @@ QList<QMenuAction*> QMenuPrivate::calcActionRects() const
         if(action->isSeparator()) {
             sz = QSize(2, 2);
         } else {
-            QString s = action->menuText();
+            QString s = action->text();
             int t = s.indexOf('\t');
             if(t != -1) {
                 const_cast<QMenuPrivate *>(this)->tabWidth =
@@ -329,11 +329,11 @@ QAction *QMenu::menuAction() const
 
   \brief The title of the menu
 
-  This is equivalent to the QAction::menuText property of the menuAction().
+  This is equivalent to the QAction::text property of the menuAction().
 */
 QString QMenu::title() const
 {
-    return d->menuAction->menuText();
+    return d->menuAction->text();
 }
 
 void QMenu::setTitle(const QString &text)
@@ -582,7 +582,7 @@ QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
     else
         opt.menuItemType = QStyleOptionMenuItem::Normal;
     opt.icon = action->icon();
-    QString textAndAccel = action->menuText();
+    QString textAndAccel = action->text();
     if (textAndAccel.indexOf('\t') == -1) {
         QKeySequence seq = action->shortcut();
         if(!seq.isEmpty())
@@ -1664,7 +1664,7 @@ void QMenu::keyPressEvent(QKeyEvent *e)
                 QChar c = e->text().at(0).toUpper();
                 for(int i = 0; i < d->actionItems.size(); ++i) {
                     register QMenuAction *act = d->actionItems.at(i);
-                    QKeySequence sequence = QKeySequence::mnemonic(act->action->menuText());
+                    QKeySequence sequence = QKeySequence::mnemonic(act->action->text());
                     int key = sequence[0] & 0xffff;
                     if(key == c.unicode()) {
                         clashCount++;
