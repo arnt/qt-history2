@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#10 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#11 $
 **
 ** Implementation of QDir class
 **
@@ -17,7 +17,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdir.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdir.cpp#11 $";
 #endif
 
 
@@ -117,7 +117,7 @@ static void convertSeparators( char * )
 	d.setSorting( QDir::Size | QDir::Reversed );
 
 	const QFileInfoList *list = d.entryInfoList();
-	QFileInfoIterator it( *list );		// create list iterator
+	QFileInfoListIterator it( *list );	// create list iterator
 	QFileInfo *fi;				// pointer for traversing
 
 	printf( "     BYTES FILENAME\n" );	// print header
