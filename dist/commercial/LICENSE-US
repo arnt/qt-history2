@@ -1,146 +1,53 @@
 Qt COMMERCIAL LICENSE AGREEMENT
 FOR PROFESSIONAL AND ENTERPRISE EDITIONS
-25 July, 2001
+Version 2.2
 
 
-IMPORTANT-READ CAREFULLY: This Trolltech End-User License Agreement
-("EULA") is a legal agreement between you (either an individual or a
-legal entity) and Trolltech Incorporated ("TTI") for the Trolltech
-software product(s) accompanying this EULA, which include(s) computer
-software and may include "online" or electronic documentation,
-associated media, and printed materials ("Licensed Product").
 
-The Licensed Product is protected by copyright laws and international
-copyright treaties, as well as other intellectual property laws and
-treaties. The Licensed Product is licensed, not sold.
+IMPORTANT-READ CAREFULLY: : This Trolltech End-User License Agreement
+("Agreement") is a legal agreement between you (either an individual or a legal entity) ("Licensee") and Trolltech Incorporated ("Trolltech") for the Trolltech software product(s) accompanying this Agreement, which include(s) computer software and may include "online" or electronic documentation, associated media, and printed materials, including the source code, example programs and the documentation ("Licensed Software").
 
-Some of the files in the Licensed Product have been grouped into
+The Licensed Software is protected by copyright laws and international copyright treaties, as well as other intellectual property laws and treaties. The Licensed Software is licensed, not sold.
+
+Some of the files in the Licensed Software have been grouped into
 Modules. These files contain specific notices defining the Module of
-which they are a part. The Modules licensed to you are specified in
-the license certificate ("License Certificate") accompanying the
-Licensed Product.  The terms of the License Certificate are considered
-part of the EULA.  In the event of inconsistency or conflict between
-the language of this EULA and the License Certificate, the provisions
-of this EULA shall govern.
+which they are a part. The Modules licensed to Licensee are specified in the license certificate ("License Certificate") accompanying the
+Licensed Software. The terms of the License Certificate are considered part of the Agreement. In the event of inconsistency or conflict between the language of this Agreement and the License Certificate, the provisions of this Agreement shall govern.
+ 
+By installing, copying, or otherwise using the Licensed Software, Licensee agrees to be bound by the terms of this Agreement. If Licensee does not agree to the terms of this Agreement, Licensee may not install, copy, or otherwise use the Licensed Software; Licensee may, however, return it to Licensee's place of purchase for a full refund. In addition, by installing, copying, or otherwise using any updates or other components of the Licensed Software that Licensee receives separately as part of the Licensed Software ("Updates"), Licensee agrees to be bound by any additional license terms that accompany such Updates. If Licensee does not agree to the additional
+license terms that accompany such Updates, Licensee may not install, copy, or otherwise use such Updates.
 
-By installing, copying, or otherwise using the Licensed Product, you
-agree to be bound by the terms of this EULA. If you do not agree to
-the terms of this EULA, do not install, copy, or otherwise use the
-Licensed Product; you may, however, return it to your place of
-purchase for a full refund. In addition, by installing, copying, or
-otherwise using any updates or other components of the Licensed
-Product that you receive separately as part of the Licensed Product
-("Updates"), you agree to be bound by any additional license terms
-that accompany such Updates. If you do not agree to the additional
-license terms that accompany such Updates, you may not install, copy,
-or otherwise use such Updates.
+Upon Licensee's acceptance of the terms and conditions of this Agreement, Trolltech grants Licensee the right to use the Licensed Software in the manner provided below.
 
-Upon your acceptance of the terms and conditions of this EULA, TTI
-grants you the right to use the Licensed Product in the manner
-provided below.
-
-TTI grants to you as an individual a personal, nonexclusive,
-nontransferable license to make and use copies of the Licensed Product
-for the sole purposes of designing, developing, and testing your
-software product(s) ("Applications"). You may install copies of the
-Licensed Product on an unlimited number of computers provided that you
-are the only individual using the Licensed Product. If you are an
-entity, TTI grants you the right to designate one, and only one,
-individual within your organization who shall have the sole right to
-use the Licensed Product in the manner provided above.  You may at any
+Trolltech grants to Licensee as an individual a personal, nonexclusive, non-transferable license to make and use copies of the Licensed Software for the sole purposes of designing, developing, and testing Licensee's software product(s) ("Applications"). Licensee may install copies of the Licensed Software on an unlimited number of computers provided that Licensee is the only individual using the Licensed Software. If Licensee is an entity, Trolltech grants Licensee the right to designate one, and only one, individual within Licensee's organization who shall have the sole right to use the Licensed Software in the manner provided above. Licensee may at any
 time, but not more frequently that once every six (6) months,
-designate another individual to replace the current designated user by
-notifying TTI, so long as there is no more than one designated user at
-any given time.
+designate another individual to replace the current designated user by notifying Trolltech, so long as there is no more than one designated user at any given time.
+
+Implementation of all or part of the Licensed Software may require licenses under third party intellectual property rights, including without limitation, patent rights. Trolltech is not responsible and shall not be held responsible in any manner for identifying or failing to identify any or all such third party intellectual property rights.
 
 
-GENERAL TERMS THAT APPLY TO APPLICATIONS AND REDISTRIBUTABLES TTI
-grants you a nonexclusive, royalty-free right to reproduce and
-distribute the object code form of any portion of the Licensed Product
-("Redistributables") for execution on any operating system of a type
-listed in the License Certificate ("Platforms"). Copies of
-Redistributables may only be distributed with and for the sole purpose
-of executing Applications permitted under this License Agreement that
-you have created using the Licensed Product.  Under no circumstances
-may any copies of Redistributables be distributed separately.
+GENERAL TERMS THAT APPLY TO APPLICATIONS AND REDISTRIBUTABLES
+Trolltech grants Licensee a nonexclusive, royalty-free right to reproduce and distribute the object code form of any portion of the Licensed Software ("Redistributables") for execution on any operating system of a type listed in the License Certificate ("Platforms"). Copies of Redistributables may only be distributed with and for the sole purpose of executing Applications permitted under this Agreement that Licensee has created using the Licensed Software.  Under no circumstances may any copies of Redistributables be distributed separately.
 
-The license granted in this EULA for you to create your own
-Applications and distribute them and the Redistributables (if any) to
-your customers is subject to all of the following conditions: (i) all
-copies of the Applications you create must bear a valid copyright
-notice, either your own or the copyright notice that appears on the
-Licensed Product; (ii) you may not remove or alter any copyright,
-trademark or other proprietary rights notice contained in any portion
-of the Licensed Product; (iii) Redistributables, if any, shall be
-licensed to your customer "as is" (TTI MAKES NO WARRANTIES OR
-REPRESENTATIONS VIS-A-VIS YOUR CUSTOMER WITH RESPECT TO
-REDISTRIBUTABLES, AND TTI EXPRESSLY DISCLAIMS ANY AND ALL WARRANTIES
-VIS-A-VIS YOUR CUSTOMER, WHETHER EXPRESS OR IMPLIED, ORAL OR WRITTEN,
-INCLUDING, BUT NOT LIMITED TO ANY IMPLIED WARRANTY OF MERCHANTABILITY
-OR FITNESS FOR ANY PARTICULAR PURPOSE, WHETHER OR NOT TTI KNOWS, HAS
-REASON TO KNOW, HAS BEEN ADVISED OR IS OTHERWISE AWARE OF SUCH
-PURPOSE); (iv) you will indemnify and hold TTI, its related companies
-and its suppliers, harmless from and against any claims or liabilities
-arising out of the use, reproduction or distribution of your
-Applications; (v) your Applications must be written using a licensed,
-registered copy of the Licensed Product; (vi) your Applications must
-add primary and substantial functionality to the Licensed Product;
-(vii) your Applications may not pass on functionality which in any way
-makes it possible for others to create Applications with the Software;
-(viii) your Applications may not compete with the Licensed Product;
-(ix)) you may not use TTI's or any of its suppliers' names, logos, or
-trademarks to market your programs, except to state that your program
-was written using the Licensed Product.
+The license granted in this Agreement for Licensee to create Applications and distribute them and the Redistributables (if any) to Licensee's customers is subject to all of the following conditions: (i) all copies of the Applications Licensee creates must bear a valid copyright notice, either Licensee's own or the copyright notice that appears on the Licensed Software; (ii) Licensee may not remove or alter any copyright, trademark or other proprietary rights notice contained in any portion of the Licensed Software; (iii) Redistributables, if any, shall be licensed to Licensee's customer "as is"; (TROLLTECH MAKES NO WARRANTIES OR REPRESENTATIONS VIS-A-VIS LICENSEE'S CUSTOMER WITH RESPECT TO REDISTRIBUTABLES, AND TROLLTECH EXPRESSLY DISCLAIMS ANY AND ALL WARRANTIES VIS-A-VIS LICENSEE'S CUSTOMER, WHETHER EXPRESS OR IMPLIED, ORAL OR WRITTEN, INCLUDING, BUT NOT LIMITED TO ANY IMPLIED WARRANTY OF MERCHANTABILITY OR FITNESS FOR ANY PARTICULAR PURPOSE, WHETHER OR NOT TROLLTECH KNOWS, HAS REASON TO KNOW, HAS BEEN ADVISED OR IS OTHERWISE AWARE OF SUCH PURPOSE); (iv) Licensee will indemnify and hold Trolltech, its related companies and its suppliers, harmless from and against any claims or liabilities arising out of the use, reproduction or distribution of Applications; (v) the parts of the Applications that are developed using the Licensed Software must be developed using a licensed, registered copy of the Licensed Software; (vi) notwithstanding point (v) above, if all or parts of the Applications have been developed using the Qt Free Edition of the Licensed Software Licensee may use and distribute the Applications under the terms of this Agreement if these parts of the Applications have been made available to the general public under terms that are allowed under the Qt Free Edition license. In addition these parts must have been and be available under these same terms on a publicly available ftp or web site on the Internet in the state they were in when Licensee acquired the rights to use this Agreement. If Licensee did not have the intellectual property rights to these parts of the Applications when Licensee acquired the rights to use this Agreement, these parts of the Applications must have been and be available as described above in the state they were in when Licensee acquired these intellectual property rights; (vii) Applications must be developed using a licensed, registered copy of the Licensed Software; (viii) Applications must add primary and substantial functionality to the Licensed Software; (ix) Applications may not pass on functionality which in any way makes it possible for others to create software with the Licensed Software; (x) Applications may not compete with the Licensed Software; (xi) Licensee may not use Trolltech's or any of its suppliers' names, logos, or trademarks to market Application, except to state that Application was developed using the Licensed Software.
+
+
 
 
 WARRANTY DISCLAIMER
-THE LICENSED PRODUCT IS LICENSED TO YOU "AS IS".  TO THE MAXIMUM
-EXTENT PERMITTED BY APPLICABLE LAW, TTI ON BEHALF OF ITSELF AND ITS
-SUPPLIERS, DISCLAIMS ALL WARRANTIES AND CONDITIONS, EITHER EXPRESS OR
-IMPLIED, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF
-MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE AND
-NON-INFRINGEMENT WITH REGARD TO THE LICENSED PRODUCT.  THIS WARRANTY
-DISCLAIMER NOTWITHSTANDING, YOU MAY HAVE SPECIFIC LEGAL RIGHTS WHICH
-MAY VARY FROM STATE/JURISDICTION TO STATE/JURISDICTION.
+THE LICENSED SOFTWARE IS LICENSED TO LICENSEE "AS IS". TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, TROLLTECH ON BEHALF OF ITSELF AND ITS SUPPLIERS, DISCLAIMS ALL WARRANTIES AND CONDITIONS, EITHER EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE AND NON-INFRINGEMENT WITH REGARD TO THE LICENSED SOFTWARE.  THIS WARRANTY DISCLAIMER NOTWITHSTANDING, LICENSEE MAY HAVE SPECIFIC LEGAL RIGHTS WHICH MAY VARY FROM STATE/JURISDICTION TO STATE/JURISDICTION.
 
 
 LIMITATION OF LIABILITY
-IF, TTI'S WARRANTY DISCLAIMER NOTWITHSTANDING, TTI IS HELD LIABLE TO
-YOU, WHETHER IN CONTRACT, TORT OR ANY OTHER LEGAL THEORY, BASED ON THE
-LICENSED PRODUCT, TTI'S ENTIRE LIABILITY TO YOU AND YOUR EXCLUSIVE
-REMEDY SHALL BE, AT TTI'S OPTION, EITHER (A) RETURN OF THE PRICE YOU
-PAID FOR THE LICENSED PRODUCT, OR (B) REPAIR OR REPLACEMENT OF THE
-LICENSED PRODUCT, PROVIDED YOU RETURN TO TTI ALL COPIES OF THE
-LICENSED PRODUCT AS ORIGINALLY DELIVERED TO YOU.  TTI SHALL NOT UNDER
-ANY CIRCUMSTANCES BE LIABLE TO YOU BASED ON FAILURE OF THE LICENSED
-PRODUCT IF THE FAILURE RESULTED FROM ACCIDENT, ABUSE OR
-MISAPPLICATION, NOR SHALL TTI UNDER ANY CIRCUMSTANCES BE LIABLE FOR
-SPECIAL DAMAGES, PUNITIVE OR EXEMPLARY DAMAGES, DAMAGES FOR LOSS OF
-PROFITS OR INTERRUPTION OF BUSINESS OR FOR LOSS OR CORRUPTION OF DATA.
-ANY AWARD OF DAMAGES FROM TTI TO YOU SHALL NOT EXCEED THE TOTAL AMOUNT
-YOU HAVE PAID TO TTI IN CONNECTION WITH THIS EULA.
+IF, TROLLTECH'S WARRANTY DISCLAIMER NOTWITHSTANDING, TROLLTECH IS HELD LIABLE TO LICENSEE, WHETHER IN CONTRACT, TORT OR ANY OTHER LEGAL THEORY, BASED ON THE LICENSED SOFTWARE, TROLLTECH'S ENTIRE LIABILITY TO LICENSEE AND LICENSEE'S EXCLUSIVE REMEDY SHALL BE, AT TROLLTECH'S OPTION, EITHER (A) RETURN OF THE PRICE LICENSEE PAID FOR THE LICENSED SOFTWARE, OR (B) REPAIR OR REPLACEMENT OF THE LICENSED SOFTWARE, PROVIDED LICENSEE RETURNS TO TROLLTECH ALL COPIES OF THE LICENSED SOFTWARE AS ORIGINALLY DELIVERED TO LICENSEE. TROLLTECH SHALL NOT UNDER ANY CIRCUMSTANCES BE LIABLE TO LICENSEE BASED ON FAILURE OF THE LICENSED SOFTWARE IF THE FAILURE RESULTED FROM ACCIDENT, ABUSE OR MISAPPLICATION, NOR SHALL TROLLTECH UNDER ANY  CIRCUMSTANCES BE LIABLE FOR SPECIAL DAMAGES, PUNITIVE OR EXEMPLARY DAMAGES, DAMAGES FOR LOSS OF PROFITS OR INTERRUPTION OF BUSINESS OR FOR LOSS OR CORRUPTION OF DATA. ANY AWARD OF DAMAGES FROM TROLLTECH TO LICENSEE SHALL NOT EXCEED THE TOTAL AMOUNT LICENSEE HAS PAID TO TROLLTECH IN CONNECTION WITH THIS AGREEMENT.
 
 
 SUPPORT AND UPDATES
-You will receive email based, software developer support and access to
-Updates to the Licensed Product for one year from the date of initial
-delivery, in accordance with TTI support policies and procedures.
-Such policies and procedures may be changed from time to time.
+Licensee will be eligible to receive email based software developer support and access to Updates to the Licensed Software for a period not to exceed one year from the date of initial delivery, in accordance with Trolltech's then current policies and procedures, if any. Such policies and procedures may be changed from time to time.
 
 
 GENERAL PROVISIONS
-This EULA may only be modified in writing signed by you and an
-authorized officer of TTI. All terms of any purchase order or other
-ordering document shall be superseded by this EULA.  If any provision
-of the EULA is found void or unenforceable, the remainder will remain
-valid and enforceable according to its terms.  If any remedy provided
-is determined to have failed for its essential purpose, all
-limitations of liability and exclusions of damages set forth in this
-EULA shall remain in effect.
+This Agreement may only be modified in writing signed by authorized representatives of Licensee and Trolltech. All terms of any purchase order or other ordering document shall be superseded by this Agreement.  If any provision of the Agreement is found void or unenforceable, the remainder will remain valid and enforceable according to its terms.  If any remedy provided is determined to have failed for its essential purpose, all limitations of liability and exclusions of damages set forth in this Agreement shall remain in effect.
 
-This EULA shall be construed, interpreted and governed by the laws of
-the State of California, U.S.A.  The EULA gives you specific legal
-rights; you may have others, which vary from state to state and from
-country to country.  TTI reserves all rights not specifically granted
-in this EULA.
+This Agreement shall be construed, interpreted and governed by the laws of the State of California, USA. Any action or proceeding arising from or relating to this Agreement shall be brought in a federal court in the Northern District of California or in the State Court in Santa Clara County, California, and each party irrevocably submits to the personal jurisdiction of any such court in any such action or proceeding. The Agreement gives Licensee specific legal rights; Licensee may have others, which vary from state to state and from country to country.  Trolltech reserves all rights not specifically granted in this Agreement.
 
