@@ -49,6 +49,7 @@ struct QUrlOperatorPrivate
     QStringList waitingCopies;
     QString waitingCopiesDest;
     bool waitingCopiesMove;
+    QList< QNetworkOperation > oldOps;
 };
 
 // NOT REVISED
@@ -226,6 +227,7 @@ QUrlOperator::QUrlOperator()
     : QUrl()
 {
     d = new QUrlOperatorPrivate;
+    d->oldOps.setAutoDelete( FALSE );
     d->networkProtocol = 0;
     d->nameFilter = "*";
     d->currPut = 0;
@@ -239,6 +241,7 @@ QUrlOperator::QUrlOperator( const QString &url )
     : QUrl( url )
 {
     d = new QUrlOperatorPrivate;
+    d->oldOps.setAutoDelete( FALSE );
     d->networkProtocol = 0;
     getNetworkProtocol();
     d->nameFilter = "*";
@@ -254,6 +257,7 @@ QUrlOperator::QUrlOperator( const QUrlOperator& url )
 {
     d = new QUrlOperatorPrivate;
     *d = *url.d;
+    d->oldOps.setAutoDelete( FALSE );
     d->networkProtocol = 0;
     getNetworkProtocol();
     d->nameFilter = "*";
@@ -270,6 +274,7 @@ QUrlOperator::QUrlOperator( const QUrlOperator& url, const QString& relUrl_ )
     d = new QUrlOperatorPrivate;
     if ( relUrl_ == "." )
 	*d = *url.d;
+    d->oldOps.setAutoDelete( FALSE );
     d->networkProtocol = 0;
     getNetworkProtocol();
     d->currPut = 0;
@@ -286,6 +291,10 @@ QUrlOperator::~QUrlOperator()
 
     if ( d->networkProtocol )
 	delete d->networkProtocol;
+    while ( d->oldOps.first() ) {
+	d->oldOps.first()->free();
+	d->oldOps.removeFirst();
+    }
     delete d;
     d->currPut = 0;
     d = 0;
@@ -332,7 +341,7 @@ const QNetworkOperation *QUrlOperator::listChildren()
 	res->setProtocolDetail( msg );
 	res->setErrorCode( (int)QNetworkProtocol::ErrUnsupported );
 	emit finished( res );
-	delete res;
+	deleteOperation( res );
     }
 
     return 0;
@@ -380,7 +389,7 @@ const QNetworkOperation *QUrlOperator::mkdir( const QString &dirname )
 	res->setProtocolDetail( msg );
 	res->setErrorCode( (int)QNetworkProtocol::ErrUnsupported );
 	emit finished( res );
-	delete res;
+	deleteOperation( res );
     }
 
     return 0;
@@ -425,7 +434,7 @@ const QNetworkOperation *QUrlOperator::remove( const QString &filename )
 	res->setProtocolDetail( msg );
 	res->setErrorCode( (int)QNetworkProtocol::ErrUnsupported );
 	emit finished( res );
-	delete res;
+	deleteOperation( res );
     }
 
     return 0;
@@ -471,7 +480,7 @@ const QNetworkOperation *QUrlOperator::rename( const QString &oldname, const QSt
 	res->setProtocolDetail( msg );
 	res->setErrorCode( (int)QNetworkProtocol::ErrUnsupported );
 	emit finished( res );
-	delete res;
+	deleteOperation( res );
     }
 
     return 0;
@@ -507,7 +516,7 @@ QList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QString 
 #ifdef QURLOPERATOR_DEBUG
     qDebug( "QUrlOperator: copy %s %s %d", from.latin1(), to.latin1(), move );
 #endif
-    
+
     QList<QNetworkOperation> ops;
     ops.setAutoDelete( FALSE );
 
@@ -582,7 +591,7 @@ QList<QNetworkOperation> QUrlOperator::copy( const QString &from, const QString 
 	res->setProtocolDetail( msg );
 	res->setErrorCode( (int)QNetworkProtocol::ErrUnsupported );
 	emit finished( res );
-	delete res;
+	deleteOperation( res );
     }
 
     return ops;
@@ -721,7 +730,7 @@ const QNetworkOperation *QUrlOperator::get( const QString &location )
 	res->setProtocolDetail( msg );
 	res->setErrorCode( (int)QNetworkProtocol::ErrUnsupported );
 	emit finished( res );
-	delete res;
+	deleteOperation( res );
     }
 
     return 0;
@@ -790,7 +799,7 @@ const QNetworkOperation *QUrlOperator::put( const QByteArray &data, const QStrin
 	res->setProtocolDetail( msg );
 	res->setErrorCode( (int)QNetworkProtocol::ErrUnsupported );
 	emit finished( res );
-	delete res;
+	deleteOperation( res );
     }
 
     return 0;
@@ -935,6 +944,7 @@ QUrlOperator& QUrlOperator::operator=( const QUrlOperator &url )
 
     *d = *url.d;
 
+    d->oldOps.setAutoDelete( FALSE );
     d->getOpPutOpMap = getOpPutOpMap;
     d->getOpPutProtMap = getOpPutProtMap;
     d->getOpGetProtMap = getOpGetProtMap;
@@ -952,6 +962,7 @@ QUrlOperator& QUrlOperator::operator=( const QString &url )
 {
     deleteNetworkProtocol();
     QUrl::operator=( url );
+    d->oldOps.setAutoDelete( FALSE );
     getNetworkProtocol();
     return *this;
 }
@@ -1014,7 +1025,7 @@ void QUrlOperator::continueCopy( QNetworkOperation *op )
 #ifdef QURLOPERATOR_DEBUG
     qDebug( "QUrlOperator: continue copy (get finished, put will start)" );
 #endif
-    
+
     QNetworkOperation *put = d->getOpPutOpMap[ (void*)op ];
     QNetworkProtocol *gProt = d->getOpGetProtMap[ (void*)op ];
     QNetworkProtocol *pProt = d->getOpPutProtMap[ (void*)op ];
@@ -1048,7 +1059,7 @@ void QUrlOperator::finishedCopy()
 #ifdef QURLOPERATOR_DEBUG
     qDebug( "QUrlOperator: finished copy (finished putting)" );
 #endif
-    
+
     d->currPut = 0;
     if ( d->waitingCopies.isEmpty() )
 	return;
@@ -1088,4 +1099,14 @@ void QUrlOperator::stop()
 	d->networkProtocol->stop();
     deleteNetworkProtocol();
     getNetworkProtocol();
+}
+
+/*!
+  \internal
+*/
+
+void QUrlOperator::deleteOperation( QNetworkOperation *op )
+{
+    if ( op )
+	d->oldOps.append( op );
 }

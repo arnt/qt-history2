@@ -44,6 +44,7 @@ struct QNetworkProtocolPrivate
     QTimer *opStartTimer, *removeTimer;
     int removeInterval;
     bool autoDelete;
+    QList< QNetworkOperation > oldOps;
 };
 
 // NOT REVISED
@@ -302,6 +303,7 @@ QNetworkProtocol::QNetworkProtocol()
     d->operationQueue.setAutoDelete( FALSE );
     d->autoDelete = FALSE;
     d->removeInterval = 10000;
+    d->oldOps.setAutoDelete( FALSE );
     connect( d->opStartTimer, SIGNAL( timeout() ),
 	     this, SLOT( startOps() ) );
     connect( d->removeTimer, SIGNAL( timeout() ),
@@ -352,6 +354,10 @@ QNetworkProtocol::~QNetworkProtocol()
     while ( d->operationQueue.head() ) {
 	d->operationQueue.head()->free();
 	d->operationQueue.dequeue();
+    }
+    while ( d->oldOps.first() ) {
+	d->oldOps.first()->free();
+	d->oldOps.removeFirst();
     }
     delete d->opStartTimer;
     d->opStartTimer = 0;
@@ -712,8 +718,8 @@ void QNetworkProtocol::processNextOperation( QNetworkOperation *old )
     d->removeTimer->stop();
 
     if ( old )
-	old->free();
-
+	d->oldOps.append( old );
+    
     if ( d->operationQueue.isEmpty() ) {
 	d->opInProgress = 0;
 	if ( d->autoDelete )
@@ -1095,7 +1101,7 @@ QByteArray& QNetworkOperation::raw( int num ) const
   If this method is called the QNetworkOperation deletes itself after it has been
   1 sec unused, which means for 1 second no method of the QNetworkOperation
   has been accessed.
-  
+
   Because QNetworkOperation pointers are passed around a lot the QNetworkProtocol
   can't delete these at the correct time. So, if a QNetworkProtocol doesn't need an operation
   anymore and calles this method, so that it gets deleted correctly.

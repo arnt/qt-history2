@@ -71,7 +71,7 @@ public:
     QUrlOperator& operator=( const QString &url );
 
     virtual void stop();
-    
+
 signals:
     void newChild( const QUrlInfo &, QNetworkOperation *res );
     void finished( QNetworkOperation *res );
@@ -99,6 +99,8 @@ private slots:
     void addEntry( const QUrlInfo &i );
 
 private:
+    void deleteOperation( QNetworkOperation *op );
+    
     QUrlOperatorPrivate *d;
 
 };
