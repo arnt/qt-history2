@@ -65,7 +65,7 @@ void QFontDatabase::createDatabase()
             weightString = "Light";
         } else if ( weight <= QFont::Normal ) {
             weight = QFont::Normal;
-            weightString = "Regular";
+            weightString = "Normal";
         } else if ( weight <= QFont::DemiBold ) {
             weight = QFont::DemiBold;
             weightString = "DemiBold";
