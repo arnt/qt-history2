@@ -2248,7 +2248,7 @@ bool QGLWidget::autoBufferSwap() const
 /*! \internal */
 static QSingleCleanupHandler<QOpenGLPaintEngine> qt_paintengine_cleanup_handler;
 static QOpenGLPaintEngine *qt_widget_paintengine = 0;
-QPaintEngine *QGLWidget::engine() const
+QPaintEngine *QGLWidget::paintEngine() const
 {
     if (!qt_widget_paintengine) {
         qt_widget_paintengine = new QOpenGLPaintEngine(const_cast<QGLWidget*>(this));

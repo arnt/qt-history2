@@ -287,7 +287,7 @@ public:
                      const QFont & fnt = QFont(), int listBase = 2000);
     void renderText(double x, double y, double z, const QString & str,
                      const QFont & fnt = QFont(), int listBase = 2000);
-    QPaintEngine *engine() const;
+    QPaintEngine *paintEngine() const;
 
 public slots:
     virtual void updateGL();

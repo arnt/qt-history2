@@ -790,7 +790,7 @@ IconRef qt_mac_create_iconref(const QPixmap &px)
             { 0, 0, 0, 0, false } };
         for(int i = 0; images[i].mac_type; i++) {
             const QPixmap *in_pix = NULL;
-            if(images[i].mask) 
+            if(images[i].mask)
                 in_pix = px.mask();
             else if(!px.isNull())
                 in_pix = &px;
@@ -872,7 +872,7 @@ CGImageRef qt_mac_create_cgimage(const QPixmap &px, bool imask)
                 for(int yy=0; yy<h; yy++) {
                     arow = (long*)(((char*)aptr) + (yy * abpr));
                     drow = addr + (yy * bpl);
-                    for(int xx=0;xx<w;xx++) 
+                    for(int xx=0;xx<w;xx++)
                         *(drow + (xx*4)) = 255-(*(arow + xx) & 0xFF);
                 }
             } else if(const QBitmap *mask = px.mask()) {
@@ -902,7 +902,7 @@ CGImageRef qt_mac_create_cgimage(const QPixmap &px, bool imask)
 }
 
 /*! \internal */
-QPaintEngine *QPixmap::engine() const
+QPaintEngine *QPixmap::paintEngine() const
 {
     if (!data->paintEngine) {
 #if !defined(QMAC_NO_COREGRAPHICS)

@@ -1144,7 +1144,7 @@ bool QPicturePrivate::checkFormat()
 }
 
 /*! \internal */
-QPaintEngine *QPicture::engine() const
+QPaintEngine *QPicture::paintEngine() const
 {
     if (!d->paintEngine)
         const_cast<QPicture*>(this)->d->paintEngine = new QPicturePaintEngine;

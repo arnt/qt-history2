@@ -138,7 +138,7 @@ public:
     virtual Qt::HANDLE      macCGHandle() const;
 #endif
 
-    QPaintEngine *engine() const;
+    QPaintEngine *paintEngine() const;
 
 protected:
     int         metric(int) const;
@@ -152,7 +152,7 @@ private:
 #if defined(Q_WS_X11) || defined(Q_WS_QWS)
     int         pid;
 #endif
-    QPaintEngine *paintEngine;
+    QPaintEngine *ptEngine;
 #if defined(Q_WS_MAC)
     friend class QPrinterPrivate;
     PMPageFormat pformat;

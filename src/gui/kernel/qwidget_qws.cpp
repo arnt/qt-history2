@@ -1759,7 +1759,7 @@ double QWidget::windowOpacity() const
 /*! \internal */
 static QSingleCleanupHandler<QWSPaintEngine> qt_paintengine_cleanup_handler;
 static QWSPaintEngine *qt_widget_paintengine = 0;
-QPaintEngine *QWidget::engine() const
+QPaintEngine *QWidget::paintEngine() const
 {
     if (!qt_widget_paintengine) {
         qt_widget_paintengine = new QQWSPaintEngine(const_cast<QWidget*>(this));

@@ -1940,7 +1940,7 @@ double QWidget::windowOpacity() const
 
 static QSingleCleanupHandler<QWin32PaintEngine> qt_paintengine_cleanup_handler;
 static QWin32PaintEngine *qt_widget_paintengine = 0;
-QPaintEngine *QWidget::engine() const
+QPaintEngine *QWidget::paintEngine() const
 {
     if (!qt_widget_paintengine) {
         qt_widget_paintengine = new QWin32PaintEngine(const_cast<QWidget*>(this));

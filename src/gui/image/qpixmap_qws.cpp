@@ -962,7 +962,7 @@ Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
     dst->data->hasAlpha = src->data->hasAlpha;
 }
 
-QPaintEngine *QPixmap::engine() const
+QPaintEngine *QPixmap::paintEngine() const
 {
     if (!data->paintEngine)
         data->paintEngine = new QWSPaintEngine(const_cast<QPixmap *>(this));

@@ -1522,7 +1522,7 @@ void QSvgDevice::applyTransform(QDomElement *e) const
     e->setAttribute("transform", s);
 }
 
-QPaintEngine *QSvgDevice::engine() const
+QPaintEngine *QSvgDevice::paintEngine() const
 {
     Q_ASSERT(!"QSvgDevice::engine() not implemented!");
     return 0;

@@ -60,7 +60,7 @@ public:
 #elif defined(Q_WS_QWS)
     virtual Qt::HANDLE handle() const;
 #endif
-    virtual QPaintEngine *engine() const = 0;
+    virtual QPaintEngine *paintEngine() const = 0;
 
 #if defined(Q_WS_QWS)
     static QWSDisplay *qwsDisplay();

@@ -226,7 +226,7 @@ QPrinter::QPrinter(PrinterMode m)
     doc_name = "document1";
     hdevmode  = 0;
     hdevnames = 0;
-    paintEngine = 0;
+    ptEngine = 0;
 
     switch (m) {
     case ScreenResolution:
@@ -1750,12 +1750,12 @@ void QPrinter::reinit()
 }
 
 
-QPaintEngine *QPrinter::engine() const
+QPaintEngine *QPrinter::paintEngine() const
 {
-//     if (!paintEngine)
-//         ((QPrinter *) this)->paintEngine = new QWin32PaintEngine(this);
+//     if (!ptEngine)
+//         ((QPrinter *) this)->ptEngine = new QWin32PaintEngine(this);
 //     return 0;
-    Q_ASSERT(!"QPrinter::engine() not implemented!");
+    qFatal("QPrinter::paintEngine() not implemented!");
     return 0;
 }
 

@@ -65,7 +65,7 @@ public:
     QRect boundingRect() const;
     void setBoundingRect(const QRect &r);
 
-    QPaintEngine *engine() const;
+    QPaintEngine *paintEngine() const;
 
 protected:
     virtual int         metric(int) const;

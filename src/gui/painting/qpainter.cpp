@@ -246,7 +246,7 @@ void qt_fill_linear_gradient(const QRect &r, QPixmap *pixmap, const QBrush &brus
 */
 
 /*!
-    \fn QPaintEngine *QPaintDevice::engine() const
+    \fn QPaintEngine *QPaintDevice::paintEngine() const
 
     \internal
 */
@@ -496,7 +496,7 @@ bool QPainter::begin(QPaintDevice *pd, bool unclipped)
 
     d->state->bgOrigin -= d->redirection_offset;
     d->device = pd;
-    d->engine = pd->engine();
+    d->engine = pd->paintEngine();
 
     if (!d->engine) {
         qWarning("QPainter::begin(), paintdevice returned engine == 0, type: %d\n", pd->devType());

@@ -2056,7 +2056,7 @@ Q_GUI_EXPORT void copyBlt(QPixmap *dst, int dx, int dy,
 #endif // QT_NO_XFT
 }
 
-QPaintEngine *QPixmap::engine() const
+QPaintEngine *QPixmap::paintEngine() const
 {
     if (!data->paintEngine)
         data->paintEngine = new QX11PaintEngine(const_cast<QPixmap*>(this));

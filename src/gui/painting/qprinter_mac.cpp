@@ -94,7 +94,7 @@ QPrinterPaintEngine::end()
 
 QPrinter::QPrinter(PrinterMode m)
     : QPaintDevice(QInternal::Printer | QInternal::ExternalDevice),
-      paintEngine(0)
+      ptEngine(0)
 {
     d = new QPrinterPrivate;
     if(PMCreateSession(&psession) != noErr)
@@ -568,9 +568,9 @@ void QPrinter::margins(uint *top, uint *left, uint *bottom, uint *right) const
         qt_get_margins(pformat, right, top, left, bottom);
 }
 
-QPaintEngine *QPrinter::engine() const
+QPaintEngine *QPrinter::paintEngine() const
 {
-    if (!paintEngine) {
+    if (!ptEngine) {
         QPaintEngine *wr = 0;
 #if !defined(QMAC_NO_COREGRAPHICS)
         if(!getenv("QT_MAC_USE_QUICKDRAW"))
@@ -578,7 +578,7 @@ QPaintEngine *QPrinter::engine() const
 #endif
         if(!wr)
             wr = new QQuickDrawPaintEngine(const_cast<QPrinter *>(this));
-        const_cast<QPrinter *>(this)->paintEngine = new QPrinterPaintEngine(const_cast<QPrinter *>(this), wr);
+        const_cast<QPrinter *>(this)->ptEngine = new QPrinterPaintEngine(const_cast<QPrinter *>(this), wr);
     }
     return 0;
 }

@@ -159,7 +159,7 @@ public:
     QX11Info *x11Info() const;
 #endif
 
-    QPaintEngine *engine() const;
+    QPaintEngine *paintEngine() const;
 
     inline bool operator!() const { return isNull(); }
     inline operator QImage() const { return convertToImage(); }

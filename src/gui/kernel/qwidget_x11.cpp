@@ -2754,7 +2754,7 @@ void QWidgetPrivate::setWindowRole(const char *role)
 
 static QSingleCleanupHandler<QX11PaintEngine> qt_paintengine_cleanup_handler;
 static QX11PaintEngine *qt_widget_paintengine = 0;
-QPaintEngine *QWidget::engine() const
+QPaintEngine *QWidget::paintEngine() const
 {
     if (!qt_widget_paintengine) {
         qt_widget_paintengine = new QX11PaintEngine(const_cast<QWidget *>(this));

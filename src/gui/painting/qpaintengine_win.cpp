@@ -1914,7 +1914,7 @@ QGdiplusPaintEngine::~QGdiplusPaintEngine()
  */
 bool QGdiplusPaintEngine::begin(QPaintDevice *pdev, QPainterState *, bool)
 {
-    Q_ASSERT(d->pdev == pdev);
+    d->pdev = pdev;
     // Verify the presence of an HDC
     if (pdev->devType() == QInternal::Widget) {
         d->hdc = pdev->handle();

@@ -62,7 +62,7 @@ public:
     static QStringList outputFormatList();
 #endif
 
-    QPaintEngine *engine() const;
+    QPaintEngine *paintEngine() const;
 
 protected:
     QPicture(QPicturePrivate &data);
