@@ -7,43 +7,6 @@
 static const CFStringRef hostNames[2] = { kCFPreferencesCurrentHost, kCFPreferencesAnyHost };
 static const int numHostNames = 2;
 
-QString
-qt_mac_get_global_setting(QString key, QString ret=QString::null, QString file=QString::null)
-{
-    if(file.isNull())
-        file = ".GlobalPreferences";
-    QCFString k(key), id(file);
-    if(QCFType<CFPropertyListRef> r = CFPreferencesCopyValue(k, id, kCFPreferencesCurrentUser,
-                kCFPreferencesAnyHost)) {
-        CFTypeID typeID = CFGetTypeID(r);
-        if(typeID == CFStringGetTypeID()) {
-            ret = QCFString::toQString(static_cast<CFStringRef>(static_cast<CFPropertyListRef>(r)));
-        } else if(typeID == CFBooleanGetTypeID()) {
-            ret = CFEqual(static_cast<CFBooleanRef>(static_cast<CFPropertyListRef>(r)),
-                    kCFBooleanTrue) ? "TRUE" : "FALSE";
-        } else if(typeID == CFNumberGetTypeID()) {
-            CFNumberRef number = static_cast<CFNumberRef>(static_cast<CFPropertyListRef>(r));
-            CFNumberType numType = CFNumberGetType(number);
-            switch (numType) {
-                case kCFNumberFloatType: {
-                                             float fnum;
-                                             if (CFNumberGetValue(number, kCFNumberFloatType, &fnum))
-                                                 ret = QString::number(fnum);
-                                             break; }
-                default: {
-                             int inum;
-                             if (CFNumberGetValue(number, kCFNumberIntType, &inum))
-                                 ret = QString::number(inum);
-                             break; }
-            }
-        } else {
-            qWarning("qt-internal::QSettings, %s: unknown CFType %d", key.latin1(),
-                    (int)CFGetTypeID(r));
-        }
-    }
-    return ret;
-}
-
 /*
     On the Mac, it is more natural to use '.' as the key separator
     than '/'. Therefore, it makes sense to replace '/' with '.' and

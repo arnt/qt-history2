@@ -141,7 +141,6 @@ extern WindowPtr qt_mac_window_for(const QWidget*); //qwidget_mac.cpp
 extern QWidget *qt_mac_find_window(WindowPtr); //qwidget_mac.cpp
 extern void qt_mac_set_cursor(const QCursor *, const Point *); //qcursor_mac.cpp
 extern bool qt_mac_is_macsheet(const QWidget *); //qwidget_mac.cpp
-extern QString qt_mac_get_global_setting(QString key, QString val, QString file=QString::null); //qsettings_mac.cpp
 extern QString pstring2qstring(const unsigned char *); //qglobal.cpp
 extern void qt_mac_command_set_enabled(MenuRef, UInt32, bool); //qmenu_mac.cpp
 
@@ -304,22 +303,19 @@ void qt_mac_update_os_settings()
             needToPolish = false;
         }
     }
-    { //focus mode
-        /* First worked as of 10.2.3 */
-        bool ok;
-        int i = qt_mac_get_global_setting("AppleKeyboardUIMode", "0").toInt(&ok);
-        qt_tab_all_widgets = !ok || (i & 0x2);
-    }
-    { //paging mode
-        /* First worked as of 10.2.3 */
-        QString paging = qt_mac_get_global_setting("AppleScrollerPagingBehavior", "FALSE");
-        qt_scrollbar_jump_to_pos = (paging == "TRUE");
-    }
-    { //collapse
-        /* First worked as of 10.3.3 */
-	QString collapse = qt_mac_get_global_setting("AppleMiniaturizeOnDoubleClick", "TRUE");
-	qt_mac_collapse_on_dblclick = (collapse == "TRUE");
-    }
+    //focus mode
+    /* First worked as of 10.2.3 */
+    QCoreSettings appleSettings(QLatin1String("apple.com"));
+    QCoreVariant appleValue = appleSettings.value(QLatin1String("AppleKeyboardUIMode"), 0);
+    qt_tab_all_widgets = (appleValue.toInt() & 0x2);
+    //paging mode
+    /* First worked as of 10.2.3 */
+    appleValue = appleSettings.value(QLatin1String("AppleScrollerPagingBehavior"), false);
+    qt_scrollbar_jump_to_pos = appleValue.toBool();
+    //collapse
+    /* First worked as of 10.3.3 */
+    appleValue = appleSettings.value(QLatin1String("AppleMiniaturizeOnDoubleClick"), true);
+    qt_mac_collapse_on_dblclick = appleValue.toBool();
 
 #ifdef DEBUG_PLATFORM_SETTINGS
     qDebug("qt_mac_update_os_settings *********************************************************************");
@@ -2668,11 +2664,10 @@ void QApplication::setDoubleClickInterval(int ms)
 int QApplication::doubleClickInterval()
 {
     if(!qt_mac_dblclick.use_qt_time_limit) { //get it from the system
-        bool ok;
+        QCoreSettings appleSettings(QLatin1String("apple.com"));
         /* First worked as of 10.3.3 */
-        float dci = qt_mac_get_global_setting("com.apple.mouse.doubleClickThreshold", "0.5").toFloat(&ok);
-        if (ok)
-            return int(dci * 1000);
+        double dci = appleSettings.value(QLatin1String("com.apple.mouse.doubleClickThreshold"), 0.5).toDouble();
+        return int(dci * 1000);
     }
     return mouse_double_click_time;
 }
@@ -2686,12 +2681,11 @@ void QApplication::setWheelScrollLines(int n)
 int QApplication::wheelScrollLines()
 {
     if(!qt_mac_use_qt_scroller_lines) {
-        bool ok;
         /* First worked as of 10.3.3 */
-        float scroll = qt_mac_get_global_setting("com.apple.scrollwheel.scaling",
-                                                 QString::number(wheel_scroll_lines)).toFloat(&ok);
-        if (ok)
-            return scroll ? int(3 * scroll) : 1;
+        QCoreSettings appleSettings(QLatin1String("apple.com"));
+        double scroll = appleSettings.value(QLatin1String("com.apple.scrollwheel.scaling"),
+                                           (wheel_scroll_lines)).toDouble();
+        return scroll ? int(3 * scroll) : 1;
     }
     return wheel_scroll_lines;
 }
@@ -2796,7 +2790,7 @@ bool QApplicationPrivate::qt_mac_apply_settings()
     if(qt_is_gui_used) {
         QString str;
         QStringList strlist;
-        int i, num;
+        int num;
 
         // read new palette
         QPalette pal = settings.value(QLatin1String("Palette"),
@@ -2821,18 +2815,15 @@ bool QApplicationPrivate::qt_mac_apply_settings()
             stylename = QLatin1String("default");
         }
 
-        num =
-            settings.value(QLatin1String("doubleClickInterval"),
+        num = settings.value(QLatin1String("doubleClickInterval"),
                             QApplication::doubleClickInterval()).toInt();
         QApplication::setDoubleClickInterval(num);
 
-        num =
-            settings.value(QLatin1String("cursorFlashTime"),
+        num = settings.value(QLatin1String("cursorFlashTime"),
                             QApplication::cursorFlashTime()).toInt();
         QApplication::setCursorFlashTime(num);
 
-        num =
-            settings.value(QLatin1String("wheelScrollLines"),
+        num = settings.value(QLatin1String("wheelScrollLines"),
                             QApplication::wheelScrollLines()).toInt();
         QApplication::setWheelScrollLines(num);
 
