@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanagr.h#1 $
+** $Id: //depot/qt/main/src/kernel/qgmanagr.h#2 $
 **
 **   Geometry Management
 **
@@ -66,6 +66,7 @@ private:
     QChain *yC;
     QWidget *main;
     QWidget *menuBar;
+    int	    menuBarHeight;
     QGManagerData *extraData;
     bool frozen;
 

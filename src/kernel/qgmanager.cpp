@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#3 $
 **
 **  Geometry Management
 **
@@ -13,7 +13,7 @@
 #include "qlist.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#2 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#3 $");
 
 
 
@@ -645,14 +645,14 @@ bool QGManager::activate()
     yC->recalc();
     xC->recalc();
     
-    int mbh = menuBar ? menuBar->height() + 3 : 0;
+    menuBarHeight = menuBar ? menuBar->height() : 0;
 
-    int ys = yC->minSize() + 2*border + mbh;
+    int ys = yC->minSize() + 2*border + menuBarHeight + 3;
     int xs = xC->minSize() + 2*border;
 
     main->setMinimumSize( xs, ys );
 
-    ys = yC->maxSize() + 2*border + mbh;
+    ys = yC->maxSize() + 2*border + menuBarHeight;
     if ( ys > QGManager::unlimited )
 	ys = QGManager::unlimited;
     xs = xC->maxSize() + 2*border;
@@ -699,10 +699,20 @@ void QGManager::resizeAll()
     QSize max = main->maximumSize();
     QSize min = main->minimumSize();
 
+    int mbh = menuBar ? menuBar->height() : 0;
+
+    if ( mbh != menuBarHeight ) {
+	int ombh = menuBarHeight;
+	menuBarHeight = mbh;
+	main->setMinimumSize( min.width(), min.height() + mbh - ombh );
+	if ( max.height() < unlimited )
+	    main->setMaximumSize( max.width(), max.height() + mbh - ombh );
+    }
+
     // size may not be set yet
     int ww = QMAX( min.width(), QMIN( main->width(), max.width() ) );
     int hh = QMAX( min.height(), QMIN( main->height(), max.height() ) );
-    int mbh = menuBar ? menuBar->height() : 0;
+
     
     xC->distribute( lookupTable, border, ww - 2*border );
     yC->distribute( lookupTable, mbh + border, hh - 2*border - mbh );

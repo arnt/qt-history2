@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#154 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#155 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#154 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#155 $");
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -1108,11 +1108,17 @@ void QWidget::setMinimumSize( int w, int h )
     createExtra();
     extra->minw = w;
     extra->minh = h;
-    int minw = QMIN(w,crect.width());
-    int minh = QMIN(h,crect.height());
-    if ( isVisible() && (minw < w || minh < h) ) {
-	resize( minw, minh );
-    } else if ( testWFlags(WType_TopLevel) ) {
+    int cw = crect.width();
+    int ch = crect.height();
+    if ( isVisible() ) {
+	if ( cw < w && ch < h )
+	    resize( w, h );
+	else if ( cw < w )
+	    resize( w, ch );
+	else if ( ch < h )
+	    resize( cw, h );
+    } 
+    if ( testWFlags(WType_TopLevel) ) {
 	XSizeHints size_hints;
 	size_hints.flags = 0;
 	do_size_hints( dpy, winid, extra, &size_hints );
@@ -1142,11 +1148,17 @@ void QWidget::setMaximumSize( int w, int h )
     createExtra();
     extra->maxw = w;
     extra->maxh = h;
-    int maxw = QMAX(w,crect.width());
-    int maxh = QMAX(h,crect.height());
-    if ( isVisible() && (maxw > w || maxh > h) ) {
-	resize( maxw, maxh );
-    } else if ( testWFlags(WType_TopLevel) ) {
+    int cw = crect.width();
+    int ch = crect.height();
+    if ( isVisible() ) {
+	if ( cw > w && ch > h )
+	    resize( w, h );
+	else if ( cw > w )
+	    resize( w, ch );
+	else if ( ch > h )
+	    resize( cw, h );
+    } 
+    if ( testWFlags(WType_TopLevel) ) {
 	XSizeHints size_hints;
 	size_hints.flags = 0;
 	do_size_hints( dpy, winid, extra, &size_hints );
