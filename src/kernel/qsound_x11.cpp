@@ -101,8 +101,11 @@ static AuServerHash *inprogress=0;
 
 void QAuServerNAS::soundDestroyed(QObject *o)
 {
-    if (inprogress)
-	inprogress->remove(static_cast<QSound *>(o));
+    if (inprogress) {
+	QSound *so = static_cast<QSound *>(o);
+	while (inprogress->remove(so))
+	    ; // Loop while remove returns TRUE
+    }
 }
 
 void QAuServerNAS::play(const QString& filename)
