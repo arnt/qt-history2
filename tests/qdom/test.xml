@@ -1,7 +1,0 @@
-<?xml version="1.0"?>
-<!DOCTYPE test [ <!ENTITY torben "Torben Weis &lt;weis@kde.org&gt;"> ]>
-<test>
- <Person sex="male">weis
-	<Name>Mail an &torben; haha </Name>
- </Person>
-</test>

@@ -1,8 +1,0 @@
-<?xml version='1.0'?>
-<!DOCTYPE test2>
-<test2>
-<tag1>
-<tag2 attr1='0 &lt;&amp; 1'>
-</tag2>
-</tag1>
-</test2>
