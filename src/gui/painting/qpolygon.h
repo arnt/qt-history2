@@ -16,6 +16,7 @@
 
 #include "qvector.h"
 #include "qpoint.h"
+#include "qrect.h"
 
 class QPointArray;
 

@@ -37,7 +37,7 @@
 #include <performance.h>
 #else
 #define PM_INIT
-#define PM_MEASURE
+#define PM_MEASURE(x)
 #define PM_DISPLAY
 #endif
 
@@ -494,6 +494,7 @@ QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
 }
 #endif
 
+#ifdef QPP_DEBUG
 static void qt_path_debug_subpath(const QPainterSubpath &sp)
 {
     printf("SUBPATH: start=(%.2f,%.2f), current=(%.2f,%.2f)\n",
@@ -515,6 +516,7 @@ static void qt_path_debug_subpath(const QPainterSubpath &sp)
         }
     }
 }
+#endif
 
 #define QT_PATH_NO_JOIN Qt::PenJoinStyle(0xffff)
 
