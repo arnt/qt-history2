@@ -131,6 +131,13 @@ standard text covering SQL databases is <em>An Introduction to Database
 Systems (7th ed.)</em> by C. J. Date, ISBN 0201385902.
 </blockquote>
 
+Whilst this module overview presents the classes from a purely
+programmatic point of view the <em>Qt Designer</em> manual's "Data Aware
+Widgets" chapter takes a higher-level approach. The manual and its
+examples demonstrate how to drilldown from one table to another, how to
+\c UPDATE, \c DELETE and \c INSERT records in both QSqlTables and
+QSqlDialogs and how to deal with foreign key lookups.
+
 The SQL classes are divided into three layers:
 
 <em>User Interface Layer.</em> These classes provide data-aware
@@ -235,10 +242,9 @@ identifier distinguishing the connection.
 \dontinclude sql/overview/create_connections/main.cpp
 \skipto include
 \printline include
-\printuntil return true 
+\printuntil return TRUE 
 \printline
-<h5 align="center">From \l sql/overview/create_connections/main.cpp 
-</h5>
+<h5 align="center">From \l sql/overview/create_connections/main.cpp </h5>
 
 In the example above we have moved the connections into their own
 function, create_connections(), and added some basic error handling. The
@@ -649,9 +655,11 @@ e.g.
 
 Data-Aware Widgets provide a simple yet powerful means of connecting
 databases to Qt user interfaces. The easiest way of creating and
-manipulating data-aware widgets is with <em>Qt Designer</em>. However,
-for those who prefer a purely programmatic approach the following
-examples and explanations provide the introduction you need. 
+manipulating data-aware widgets is with <em>Qt Designer</em>. 
+For those who prefer a purely programmatic approach the following
+examples and explanations provide an introduction. Note that the "Data
+Aware Widgets" chapter of the <em>Qt Designer</em> manual and its
+accompanying examples provides additional information.
 
 <h2><a name="Data-Aware_Tables">Data-Aware Tables</a></h2> 
 
@@ -675,11 +683,6 @@ create columns based on the cursor. autoPopulate does not affect the
 loading of data into the table; that is achieved by the refresh()
 function.
 
-Although the example above demonstrates how simple it is to link a
-database cursor to a \l QSqlTable widget, in a real application we would
-want to specify the order in which the columns appear and the label
-each column is given.
-
 \dontinclude sql/overview/table2/main.cpp
 \skipto staffCursor
 \printline staffCursor
@@ -687,14 +690,10 @@ each column is given.
 <h5 align="center">From \l sql/overview/table2/main.cpp
 </h5>
 
-Once we've created the cursor we set up the alignment for columns which
-should not be left aligned. (In fact QSqlTable aligns numbers right by
-default anyway.)
-
-Once we've set up alignments we create an empty \l QSqlTable.  We make
-the table our main widget and then we manually add the columns we want
-in the order we wish them to appear. For each column we specify the
-field name and optionally a display label. 
+We create an empty \l QSqlTable which we make into our main widget and
+then we manually add the columns we want in the order we wish them to
+appear. For each column we specify the field name and optionally a
+display label. 
 
 We have also opted to sort the rows in the table; this could also have
 been achieved by applying the sort to the cursor itself.
@@ -728,18 +727,16 @@ include \c qsqldatabase.h and \c qsqlcursor.h as usual, but we now add
 \c qsqlform.h.
 
 The form will be presented as a dialog so we subclass \l QDialog with
-our own FormDialog class. In FormDialog's constructor we create some
-labels to show the forename and surname. We use a \l QLineEdit for the
-salary so that the user can change it. All the widgets are laid out with
-a grid.
+our own FormDialog class. We use a \l QLineEdit for the salary so that
+the user can change it. All the widgets are laid out with a grid.
 
 We create a cursor on the staff table, select all records and move to
 the first record.
 
-Now we create a \l QSqlForm object. For each widget that we wish to make
+Now we create a \l QSqlForm object and set the QSqlForm's record buffer
+to the cursor's update buffer. For each widget that we wish to make
 data-aware we insert a pointer to the widget and the associated field
-name into the \l QSqlForm. Finally we set the QSqlForm's record buffer
-to the cursor's update buffer and call readFields() to populate the
+name into the \l QSqlForm. Finally we call readFields() to populate the
 widgets with data from the database via the cursor's buffer.
 
 <h3><a name="Editing_a_Record">Editing a Record</a></h3>
@@ -754,7 +751,7 @@ differences.
 <h5 align="center">From \l sql/overview/form2/main.h
 </h5>
 
-The slotSave slot will be used for a button that the user can press to
+The save slot will be used for a button that the user can press to
 confirm their update. We also hold pointers to the \l QSqlCursor and \l
 QSqlForm since they will need to be accessed outside the constructor.
 
@@ -785,11 +782,12 @@ We create the \l QSqlCursor dynamically, create a \l QSqlIndex object
 and then execute a select() using the index. We then move to the first
 record in the result set.
 
-\skipto buffer
-\printline buffer
+\skipto new QSqlForm
+\printline 
+\printline 
 
-We get a pointer to the cursor's update buffer by calling primeUpdate().
-This buffer is populated with the current record's data. 
+We create a new QSqlForm object and set it's record buffer to the
+cursor's update buffer.
 
 \skipto insert
 \printline insert
@@ -808,8 +806,8 @@ constructor. We don't have to worry about the widgets or QSqlForm since
 they are children of the form and will be deleted by Qt at the right
 time.
 
-\skipto Save
-\printline Save
+\skipto save
+\printline save
 \printuntil }
 
 Finally we add the save functionality for when the user presses the save
@@ -820,7 +818,7 @@ this point the cursor is no longer positioned at a valid record so we
 reissue the select() call using our \l QSqlIndex and move to the first
 record.
 
-Listing of \l sql/overview/form2/main.cpp
+Link to \l sql/overview/form2/main.cpp
 
 <h2><a name="Custom_Editor_Widgets">Custom Editor Widgets</a></h2> 
 
@@ -841,7 +839,7 @@ will only cover the differences here. The full source is in
 
 We've created a simple subclass of QLineEdit and added a property,
 upperLine, which will hold an uppercase version of the text. We also
-created a slot, slotChanged.
+created a slot, changed.
 
 \skipto propMap
 \printline propMap
@@ -855,13 +853,13 @@ our FormDialog's private data.
 \printuntil }
 
 In the CustomEdit constructor we use the QLineEdit constructor and add a
-connection between the textChanged signal and our own slotChanged slot.
+connection between the textChanged signal and our own changed slot.
 
-\skipto slotChanged
-\printline slotChanged
+\skipto changed
+\printline changed
 \printuntil }
 
-The slotChanged() slot calls our setUpperLine() function.
+The changed() slot calls our setUpperLine() function.
 
 \skipto setUpperLine
 \printline setUpperLine
@@ -991,13 +989,13 @@ create a cursor, add the fields and their display labels to a QSqlTable,
 call refresh() to load the data and call show() to show the widget.
 
 Unfortunately this example is unsatisfactory. It is tedious to set the
-table name and any custom display characteristics, (e.g. non-default
-alignments and display labels) for the fields every time we need a cursor
-over this table. And it would be far better if we displayed the name of
-the product rather than its pricesid. Since we know the price of the
-product and the quantity we could also show the product cost and the
-cost of each invoiceitem. Finally it would be good if we could default
-some of the values when the user adds a new record. 
+table name and any custom characteristics for the fields every time we
+need a cursor over this table. And it would be far better if we
+displayed the name of the product rather than its pricesid. Since we
+know the price of the product and the quantity we could also show the
+product cost and the cost of each invoiceitem. Finally it would be
+useful (or even essential for primary keys) if we could default some of
+the values when the user adds a new record. 
 
 \dontinclude sql/overview/subclass2/main.h
 \skipto InvoiceItem
@@ -1017,10 +1015,8 @@ We have created a separate header file and subclassed QSqlCursor.
 </h5>
 
 In our class's constructor we call the QSqlCursor constructor with the
-name of the table and set the custom display characteristics of the
-fields. Although we can set the display label in the addColumn() call
-setting them in our custom cursor means that they will be correctly set
-automatically whenever the custom cursor is used.
+name of the table. We don't have any other characteristics to add at this
+stage.
 
 \skipto InvoiceItemCursor
 \printline InvoiceItemCursor
@@ -1028,8 +1024,7 @@ automatically whenever the custom cursor is used.
 Whenever we require a cursor over the invoiceitem table we can create an
 InvoiceItemCursor instead of a generic QSqlCursor. 
 
-This has taken care of the display characteristics, but we still need to
-show the product name rather than the pricesid.
+We still need to show the product name rather than the pricesid.
 
 \dontinclude sql/overview/subclass3/main.h
 \skipto protected
@@ -1039,7 +1034,7 @@ show the product name rather than the pricesid.
 </h5>
 
 The change in the header file is minimal: we simply add the signature of
-the calculateField() function since we will be overriding it.
+the calculateField() function since we will be reimplementing it.
 
 \dontinclude sql/overview/subclass3/main.cpp
 \skipto InvoiceItem
@@ -1049,21 +1044,18 @@ the calculateField() function since we will be overriding it.
 <h5 align="center">From \l sql/overview/subclass3/main.cpp
 </h5>
 
-We have changed the InvoiceItemCursor constructor. We no longer set a
-display label for the pricesid since we won't actually show that field.
-Instead we create a new QSqlField called productname and append this to the
-InvoiceItemCursor's set of fields. We call setDisplayLabel() on
-productname and identify it as a calculated field by calling
-setCalculated(). The first argument to setCalculated() is the field
+We have changed the InvoiceItemCursor constructor. We now create a new
+QSqlField called productname and append this to the InvoiceItemCursor's
+set of fields. We call setCalculated() on productname to identify it as
+a calculated field. The first argument to setCalculated() is the field
 name, the second a bool which if TRUE signifies that calculateField()
 must be called to get the field's value.
 
 \skipto addColumn
 \printline addColumn
 
-We use the single argument form of addColumn() passing just the
-field name; all the characteristics we want, e.g. display name and
-alignment will be copied from the cursor automatically.
+We add our new fields with addColumn() which adds them to the form and
+sets their display names.
 
 We have to define our own calculateField() function. In our example
 database the pricesid in the invoiceitem table is a foreign key into the
@@ -1085,9 +1077,8 @@ function require some simple expansion. We'll look at each in turn.
 </h5>
 
 We create two extra fields, price and cost, and append them to the
-cursor's set of fields. Both have their display labels and alignment set
-and both are registered as calculated fields with calls to
-setCalculated().
+cursor's set of fields. Both are registered as calculated fields with
+calls to setCalculated().
 
 \skipto InvoiceItem
 \printline InvoiceItem
@@ -1134,7 +1125,6 @@ using the invoiceitem_seq. We default the value of the paiddate field to
 today's date and default the quantity to 1. Finally we return a pointer
 to the buffer. The rest of the code is unchanged from the previous
 version.
-
 
 <h2><a name="Appendix_1_Tables">Appendix 1: The Example Tables</a></h2> 
 
