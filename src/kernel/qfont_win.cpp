@@ -279,16 +279,16 @@ void QFontPrivate::initFontInfo()
     lineWidth = 1;
     actual = request;				// most settings are equal
 #ifdef UNICODE
-#ifndef Q_OS_TEMP
+#  ifndef Q_OS_TEMP
     if ( qt_winver & Qt::WV_NT_based ) {
-#endif
+#  endif
 	TCHAR n[64];
 	GetTextFaceW( fin->dc(), 64, n );
 	actual.family = qt_winQString(n);
 	actual.fixedPitch = !(fin->textMetricW()->tmPitchAndFamily & TMPF_FIXED_PITCH);
-#ifndef Q_OS_TEMP
+#  ifndef Q_OS_TEMP
     } else 
-#endif
+#  endif
 #endif
 #ifndef Q_OS_TEMP
     {
@@ -344,11 +344,11 @@ void QFontPrivate::load()
 #ifdef Q_OS_TEMP
 	res = GetTextMetricsW( fin->dc(), &fin->tm.w );
 #else
-#ifdef UNICODE
+#  ifdef UNICODE
 	if ( qt_winver & Qt::WV_NT_based )
 	    res = GetTextMetricsW( fin->dc(), &fin->tm.w );
 	else
-#endif
+#  endif
 	    res = GetTextMetricsA( fin->dc(), &fin->tm.a );
 #endif
 #ifndef Q_NO_DEBUG
@@ -454,6 +454,9 @@ HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool compatMode )
 	else
 	    lf.lfHeight = - request.pixelSize;
     }
+#ifdef Q_OS_TEMP
+    lf.lfHeight		+= 3;
+#endif
     lf.lfWidth		= 0;
     lf.lfEscapement	= 0;
     lf.lfOrientation	= 0;
@@ -493,7 +496,7 @@ HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool compatMode )
     }
     lf.lfCharSet	= cs;
 #else
-	lf.lfCharSet	= DEFAULT_CHARSET;
+    lf.lfCharSet	= DEFAULT_CHARSET;
 #endif
 
     int strat = OUT_DEFAULT_PRECIS;
@@ -538,15 +541,15 @@ HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool compatMode )
     HFONT hfont;
 
 #ifdef UNICODE
-#ifndef Q_OS_TEMP
+#  ifndef Q_OS_TEMP
     if ( qt_winver & Qt::WV_NT_based ) {
-#endif
+#  endif
 	memcpy(lf.lfFaceName,qt_winTchar( fam, TRUE ),
 	    sizeof(TCHAR)*QMIN(fam.length()+1,32));  // 32 = Windows hard-coded
 	hfont = CreateFontIndirect( &lf );
-#ifndef Q_OS_TEMP
+#  ifndef Q_OS_TEMP
     } else 
-#endif
+#  endif
 #endif
 #ifndef Q_OS_TEMP
     {
@@ -615,19 +618,17 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
 static inline TCHAR* tchar(const QChar *uc, int len)
 {
 #ifdef UNICODE
-
-#if defined(QT_WIN32BYTESWAP)
+#  if defined(QT_WIN32BYTESWAP)
     TCHAR *buf = new TCHAR[len];
     for ( int i = 0; i < len; i++ ) {
         buf[i] = uc->row() << 8 | uc->cell();
 	uc++;
     }
     return buf;
-#else
+#  else
     Q_UNUSED(len)
     return (TCHAR *)uc;
-#endif
-
+#  endif
 #else
     TCHAR *buf = new TCHAR[len];
     for ( int i = 0; i < len; i++ ) {
@@ -751,11 +752,11 @@ void *QFont::textMetric() const
 #ifdef Q_OS_TEMP
 	return d->fin->textMetricW();
 #else
-#ifdef UNICODE
+#  ifdef UNICODE
     if ( qt_winver & Qt::WV_NT_based )
 	return d->fin->textMetricW();
     else
-#endif
+#  endif
 	return d->fin->textMetricA();
 #endif
 }
@@ -773,10 +774,10 @@ void *QFontMetrics::textMetric() const
     } else
 	return d->fin->textMetricW();
 #else
-#ifdef UNICODE
+#  ifdef UNICODE
     } else if ( qt_winver & Qt::WV_NT_based ) {
 	return d->fin->textMetricW();
-#endif
+#  endif
     } else {
 	return d->fin->textMetricA();
     }
@@ -810,17 +811,17 @@ int QFontMetrics::descent() const
 bool QFontMetrics::inFont(QChar ch) const
 {
 #ifdef UNICODE
-#ifndef Q_OS_TEMP
+#  ifndef Q_OS_TEMP
     if ( qt_winver & Qt::WV_NT_based ) {
-#endif
+#  endif
 	TEXTMETRICW *f = TMW;
 	WCHAR ch16 = ch.unicode();
 	if( ch16 < f->tmFirstChar || ch16 > f->tmLastChar )
 	    return FALSE;
 	return !d->boundingRect( ch ).isEmpty();
-#ifndef Q_OS_TEMP
+#  ifndef Q_OS_TEMP
     } else
-#endif
+#  endif
 #endif
 #ifndef Q_OS_TEMP
     {
@@ -841,12 +842,12 @@ int QFontMetrics::leftBearing(QChar ch) const
 #else
     if (TM(tmPitchAndFamily) & TMPF_TRUETYPE ) {
 	ABC abc;
-#if defined(UNICODE)
+#  if defined(UNICODE)
 	if ( qt_winver & Qt::WV_NT_based ) {
 	    uint ch16 = ch.unicode();
 	    GetCharABCWidths(hdc(),ch16,ch16,&abc);
 	} else 
-#endif
+#  endif
 	{
 	    uint ch8;
 	    if ( ch.row() || ch.cell() > 125 ) {
@@ -861,14 +862,14 @@ int QFontMetrics::leftBearing(QChar ch) const
 	}
 	return abc.abcA;
     } else {
-#ifdef UNICODE
+#  ifdef UNICODE
 	if ( qt_winver & Qt::WV_NT_based ) {
 	    uint ch16 = ch.unicode();
 	    ABCFLOAT abc;
 	    GetCharABCWidthsFloat(hdc(),ch16,ch16,&abc);
 	    return int(abc.abcfA);
 	} else
-#endif
+#  endif
 	{
 	    return 0;
 	}
@@ -885,13 +886,13 @@ int QFontMetrics::rightBearing(QChar ch) const
 #else
     if (TM(tmPitchAndFamily) & TMPF_TRUETYPE ) {
 	ABC abc;
-#if defined(UNICODE)
+#  if defined(UNICODE)
 	if ( qt_winver & Qt::WV_NT_based ) {
 	    uint ch16 = ch.unicode();
 	    GetCharABCWidths(hdc(),ch16,ch16,&abc);
 	    return abc.abcC;
 	} else 
-#endif
+#  endif
 	{
 	    uint ch8;
 	    if ( ch.row() || ch.cell() > 125 ) {
@@ -906,14 +907,14 @@ int QFontMetrics::rightBearing(QChar ch) const
 	}
 	return abc.abcC;
     } else {
-#if defined(UNICODE)
+#  if defined(UNICODE)
 	if ( qt_winver & Qt::WV_NT_based ) {
 	    uint ch16 = ch.unicode();
 	    ABCFLOAT abc;
 	    GetCharABCWidthsFloat(hdc(),ch16,ch16,&abc);
 	    return int(abc.abcfA);
 	} else 
-#endif
+#  endif
 	{
 	    return -TMX->tmOverhang;
 	}
@@ -994,7 +995,7 @@ int QFontMetrics::minRightBearing() const
 	if (TM(tmPitchAndFamily) & TMPF_TRUETYPE ) {
 	    ABC *abc = 0;
 	    int n;
-#if defined(UNICODE)
+#  if defined(UNICODE)
 	    if ( qt_winver & Qt::WV_NT_based ) {
 		TEXTMETRIC *tm = TMW;
 		n = tm->tmLastChar - tm->tmFirstChar+1;
@@ -1006,7 +1007,7 @@ int QFontMetrics::minRightBearing() const
 		    mr = get_min_right_bearing( this );
 		}
 	    } else 
-#endif
+#  endif
 	    {
 		TEXTMETRICA *tm = TMA;
 		n = tm->tmLastChar - tm->tmFirstChar+1;
