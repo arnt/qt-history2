@@ -325,7 +325,6 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 
     case PE_SpinWidgetUp:
     case PE_SpinWidgetDown: {
-	p->save();
 	int fw = pixelMetric( PM_DefaultFrameWidth, 0 );
 	QRect br;
 	br.setRect( r.x() + fw, r.y() + fw, r.width() - fw*2,
@@ -354,6 +353,7 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 	    bsx = pixelMetric(PM_ButtonShiftHorizontal);
 	    bsy = pixelMetric(PM_ButtonShiftVertical);
 	}
+	p->save();
 	p->translate( sx + bsx, sy + bsy );
 	p->setPen( pal.buttonText() );
 	p->setBrush( pal.buttonText() );
