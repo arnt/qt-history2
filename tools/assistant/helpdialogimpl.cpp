@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -229,8 +229,8 @@ void HelpDialog::initialize()
     bookPixmap = new QPixmap( book_xpm );
     QMimeSourceFactory *mime = QMimeSourceFactory::defaultFactory();
     mime->setExtensionType( "html", "text/html;charset=UTF-8" );
-    QSettings settings;
 #ifdef QT_PALMTOPCENTER_DOCS
+    QSettings settings;
     settings.insertSearchPath( QSettings::Unix,
 			   QDir::homeDirPath() + "/.palmtopcenter/" );
 
