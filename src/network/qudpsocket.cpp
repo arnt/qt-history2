@@ -259,7 +259,7 @@ Q_LONGLONG QUdpSocket::writeDatagram(const char *data, Q_LONGLONG size, const QH
     If \a maxSize is too small, the rest of the datagram will be
     lost. To avoid loss of data, call pendingDatagramSize() to
     determine the size of the pending datagram before attempting to
-    read it.
+    read it. If \a maxSize is 0, the datagram will be discarded.
 
     \sa writeDatagram(), hasPendingDatagrams(), pendingDatagramSize()
 */
