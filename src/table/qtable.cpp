@@ -1305,6 +1305,7 @@ int QCheckTableItem::rtti() const
 
     \target headers
     \section1 Headers
+
     QTable supports a header column, e.g. to display row numbers, and a
     header row, e.g to display column titles. To set row or column
     labels use QHeader::setLabel() on the pointers returned by
@@ -1316,6 +1317,7 @@ int QCheckTableItem::rtti() const
 
     \target columnsrows
     \section1 Rows and Columns
+
     Row and column sizes are set with setRowHeight() and
     setColumnWidth().  If you want a row high enough to show the tallest
     item in its entirety, use adjustRow(). Similarly, to make a column
@@ -1355,6 +1357,7 @@ int QCheckTableItem::rtti() const
 
     \target cells
     \section1 Cells
+
     All of a QTable's cells are empty when the table is constructed.
 
     There are two approaches to populating the table's cells. The first
@@ -1413,6 +1416,7 @@ int QCheckTableItem::rtti() const
 
     \target bigtables
     \section2 Large tables
+
     For large, sparse, tables using QTableItems or other widgets is
     inefficient. The solution is to \e draw the cell as it should appear
     and to create and destroy cell editors on demand.
