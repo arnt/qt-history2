@@ -75,7 +75,7 @@
 #define QT_SIGNAL_ARGS		int
 #define QT_SIGNAL_IGNORE	SIG_IGN
 
-#if __FreeBSD_version < 400000
+#if !defined(__DragonFly__) && __FreeBSD_version < 400000
 // FreeBSD 1.0 - 3.5.1
 #  define QT_SOCKLEN_T		int
 #else
