@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#332 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#333 $
 **
 ** Implementation of QWidget class
 **
@@ -322,7 +322,7 @@
   <li> focusOutEvent() - called when the widget loses keyboard
   focus.
   </ul>
-  
+
   Some widgets will need to reimplement some more obscure event
   handlers, too: <ul>
 
@@ -340,7 +340,7 @@
   only passed to the widget if they are not used by the focus-change
   mechanisms.  To force those keys to be processed by your widget, you
   must override QWidget::event().
-  
+
   <li> wheelEvent() -- called whenever the user turns the mouse wheel
   while the widget has the focus.
 
@@ -1866,6 +1866,8 @@ void QWidget::setFont( const QFont &font )
     QFont old = QWidget::font();
     fnt = font;
     fnt.handle();				// force load font
+    if (!fontState)
+	fontState = 1; // indicate initialized
     fontChange( old );
     PropagationMode m = fontPropagation();
     if ( m != NoChildren && children() ) {
