@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#31 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#32 $
 **
 ** Implementation of QListBox widget class
 **
@@ -18,7 +18,7 @@
 #include "qpixmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#31 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qlistbox.cpp#32 $";
 #endif
 
 
@@ -782,6 +782,28 @@ int QListBox::cellHeight( int index )
     }
 }
 
+
+/*----------------------------------------------------------------------------
+  Returns the standard item height (in pixels), or -1 if the list box has
+  variable item height.
+ ----------------------------------------------------------------------------*/
+
+int QListBox::itemHeight() const
+{
+    return stringsOnly ? ((QListBox*)this)->cellHeight( 0 ) : -1;
+}
+
+
+/*----------------------------------------------------------------------------
+  Returns the height (in pixels) of item at \e index.
+ ----------------------------------------------------------------------------*/
+
+int QListBox::itemHeight( int index ) const
+{
+    return ((QListBox*)this)->cellHeight( index );
+}
+
+
 /*----------------------------------------------------------------------------
   This virtual function returns 0 in QListBox and must
   be reimplemented by subclasses that use other types.
@@ -789,8 +811,8 @@ int QListBox::cellHeight( int index )
 
 int QListBox::itemHeight( QLBItem * )
 {
-    warning("QListBox::itemHeight: You must reimplement itemHeight() when you"
-	    " use item types different from LBI_String and LBI_Pixmap");
+    warning( "QListBox::itemHeight: You must reimplement itemHeight() when you"
+	     " use item types different from LBI_String and LBI_Pixmap" );
     return 0;
 }
 
@@ -801,8 +823,8 @@ int QListBox::itemHeight( QLBItem * )
 
 int QListBox::itemWidth( QLBItem * )
 {
-    warning("QListBox::itemWidth: You must reimplement itemWidth() when you"
-	    " use item types different from LBI_String and LBI_Pixmap");
+    warning( "QListBox::itemWidth: You must reimplement itemWidth() when you"
+	     " use item types different from LBI_String and LBI_Pixmap" );
     return 0;
 }
 
