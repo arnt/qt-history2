@@ -1872,8 +1872,9 @@ QRect QMacStyle::querySubControlMetrics(ComplexControl control,
 	switch(sc) {
 	case SC_ScrollBarGroove: {
 	    Rect mrect;
-	    GetThemeTrackBounds(&ttdi, &mrect);
-	    return QRect(mrect.left, mrect.top, mrect.right - mrect.left, mrect.bottom - mrect.top); }
+	    GetThemeTrackDragRect(&ttdi, &mrect);
+	    return QRect(mrect.left, mrect.top, mrect.right - mrect.left, mrect.bottom - mrect.top);
+	    break; }
 	case SC_ScrollBarSlider: {
 	    Rect r;
 	    RgnHandle rgn = qt_mac_get_rgn();
