@@ -1221,14 +1221,24 @@ void QPainter::drawRect(const QRect &r)
 
     if (d->state->brush.style() == Qt::LinearGradientPattern
         && !d->engine->hasFeature(QPaintEngine::LinearGradients)) {
-        save();
-        setClipRect(r);
+        bool doRestore = true;
+        if (r.x() == 0 && r.y() == 0
+            && r.width() == d->device->metric(QPaintDeviceMetrics::PdmWidth)
+            && r.height() == d->device->metric(QPaintDeviceMetrics::PdmHeight)) {
+            doRestore = false;
+        } else {
+            save();
+            setClipRect(r);
+        }
         qt_fill_linear_gradient(r, this, d->state->brush);
         if (d->state->pen.style() != Qt::NoPen) {
-            setBrush(Qt::NoBrush);
+            QBrush oldBrush = d->state->brush;
+            setBrush(NoBrush);
             drawRect(r);
+            setBrush(oldBrush);
         }
-        restore();
+        if (doRestore)
+            restore();
         return;
     }
 
