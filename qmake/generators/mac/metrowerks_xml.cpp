@@ -208,13 +208,16 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 		    }
 		}
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
-		    QString p = (*it), v, recursive = "false";
+		    QString p = (*it), v, recursive = "false", framework = "false";
 		    if(p.left(11) == "recursive--") {
 			p = p.right(p.length() - 11);
 			recursive = "true";
-		    }
+		    } 
 		    if(!fixifyToMacPath(p, v))
 			continue;
+		    if(p == project->first("QMAKE_FRAMEWORKDIR")) 
+			framework = "true";
+
 		    t << "\t\t\t\t\t<SETTING>" << endl
 		      << "\t\t\t\t\t\t<SETTING><NAME>SearchPath</NAME>" << endl
 		      << "\t\t\t\t\t\t\t<SETTING><NAME>Path</NAME>"
@@ -223,6 +226,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 		      << "\t\t\t\t\t\t\t<SETTING><NAME>PathRoot</NAME><VALUE>" << v << "</VALUE></SETTING>" << endl
 		      << "\t\t\t\t\t\t</SETTING>" << endl
 		      << "\t\t\t\t\t\t<SETTING><NAME>Recursive</NAME><VALUE>" << recursive << "</VALUE></SETTING>" << endl
+		      << "\t\t\t\t\t\t<SETTING><NAME>FrameworkPath</NAME><VALUE>" << framework << "</VALUE></SETTING>" << endl
 		      << "\t\t\t\t\t\t<SETTING><NAME>HostFlags</NAME><VALUE>All</VALUE></SETTING>" << endl
 		      << "\t\t\t\t\t</SETTING>" << endl;
 		}
@@ -237,6 +241,11 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 		    else
 			t << "SharedLibrary";
 		}
+	    } else if(variables == "FILETYPE") {
+		if(project->first("TEMPLATE") == "lib")
+			t << "MYDL";
+		else
+			t << "APPL";
 	    } else if(variable == "CODEWARRIOR_QTDIR") {
 		t << getenv("QTDIR");
 	    } else {
@@ -354,10 +363,9 @@ MetrowerksMakefileGenerator::init()
 	    if(s != -1) {
 		QString dir = (*val_it).left(s);
 		(*val_it) = (*val_it).right((*val_it).length() - s - 1);
-
-		bool add_in = TRUE;
 		QString tmpd=dir, tmpv;
 		if(fixifyToMacPath(tmpd, tmpv)) {
+		    bool add_in = TRUE;
 		    QString deps[] = { QString("DEPENDPATH"), 
 				     QString("INCLUDEPATH"), QString::null }, 
 				     dd, dv;
@@ -367,16 +375,16 @@ MetrowerksMakefileGenerator::init()
 			    val_it2 != l2.end(); ++val_it2) {
 			    QString dd= (*val_it2), dv;
 			    if(!fixifyToMacPath(dd, dv)) 
-				break;
+				continue;
 			    if(dd == tmpd && tmpv == dv) {
 				add_in = FALSE;
 				break;
 			    }
 			}
 		    }
+		    if(add_in) 
+			project->variables()["INCLUDEPATH"].append(dir);
 		}
-		if(add_in) 
-		    project->variables()["INCLUDEPATH"].append(dir);
 	    }
 	}
     }
@@ -403,7 +411,7 @@ MetrowerksMakefileGenerator::init()
 
 	    if(project->isEmpty("QMAKE_FRAMEWORKDIR"))
 		project->variables()["QMAKE_FRAMEWORKDIR"].append("/System/Library/Frameworks/");
-	    QString dir = "recursive--" + project->first("QMAKE_FRAMEWORKDIR");
+	    QString dir = project->first("QMAKE_FRAMEWORKDIR");
 	    if(project->variables()["DEPENDPATH"].findIndex(dir) == -1 &&
 	       project->variables()["INCLUDEPATH"].findIndex(dir) == -1)
 		project->variables()["INCLUDEPATH"].append(dir);

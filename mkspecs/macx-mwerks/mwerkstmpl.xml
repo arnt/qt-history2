@@ -76,6 +76,14 @@
                     </SETTING>
                 </SETTING>
                 <SETTING><NAME>SystemSearchPaths</NAME>
+                   <SETTING>
+                      <SETTING><NAME>SearchPath</NAME>
+                        <SETTING><NAME>Path</NAME><VALUE>:MacOS X Support:Libraries:Runtime:Libs:</VALUE></SETTING>
+                        <SETTING><NAME>PathFormat</NAME><VALUE>MacOS</VALUE></SETTING>
+                        <SETTING><NAME>PathRoot</NAME><VALUE>CodeWarrior</VALUE></SETTING>
+                      </SETTING>
+                      <SETTING><NAME>HostFlags</NAME><VALUE>All</VALUE></SETTING>
+                   </SETTING>
 $$CODEWARRIOR_INCLUDEPATH
 $$CODEWARRIOR_DEPENDPATH
                 </SETTING>
@@ -480,7 +488,7 @@ $$CODEWARRIOR_DEPENDPATH
                 <SETTING><NAME>MWMerge_MacOS_projectType</NAME><VALUE>$$CODEWARRIOR_TEMPLATE</VALUE></SETTING>
                 <SETTING><NAME>MWMerge_MacOS_outputName</NAME><VALUE>Merge Out</VALUE></SETTING>
                 <SETTING><NAME>MWMerge_MacOS_outputCreator</NAME><VALUE>CUTE</VALUE></SETTING>
-                <SETTING><NAME>MWMerge_MacOS_outputType</NAME><VALUE>APPL</VALUE></SETTING>
+                <SETTING><NAME>MWMerge_MacOS_outputType</NAME><VALUE>$$FILETYPEL</VALUE></SETTING>
                 <SETTING><NAME>MWMerge_MacOS_suppressWarning</NAME><VALUE>$$CODEWARRIOR_WARNING</VALUE></SETTING>
                 <SETTING><NAME>MWMerge_MacOS_copyFragments</NAME><VALUE>1</VALUE></SETTING>
                 <SETTING><NAME>MWMerge_MacOS_copyResources</NAME><VALUE>1</VALUE></SETTING>
@@ -638,7 +646,7 @@ $$CODEWARRIOR_DEPENDPATH
                 <SETTING><NAME>MWProject_MachO_type</NAME><VALUE>$$CODEWARRIOR_TEMPLATE</VALUE></SETTING>
                 <SETTING><NAME>MWProject_MachO_outfile</NAME><VALUE>$$TARGET</VALUE></SETTING>
                 <SETTING><NAME>MWProject_MachO_filecreator</NAME><VALUE>CUTE</VALUE></SETTING>
-                <SETTING><NAME>MWProject_MachO_filetype</NAME><VALUE>APPL</VALUE></SETTING>
+                <SETTING><NAME>MWProject_MachO_filetype</NAME><VALUE>$$FILETYPE</VALUE></SETTING>
                 <SETTING><NAME>MWProject_MachO_stacksize</NAME><VALUE>64</VALUE></SETTING>
                 <SETTING><NAME>MWProject_MachO_stackaddress</NAME><VALUE>0</VALUE></SETTING>
                 <SETTING><NAME>MWProject_MachO_flatrsrc</NAME><VALUE>0</VALUE></SETTING>
@@ -665,7 +673,7 @@ $$CODEWARRIOR_DEPENDPATH
                 <SETTING><NAME>MWProject_PPC_type</NAME><VALUE>$$CODEWARRIOR_TEMPLATE</VALUE></SETTING>
                 <SETTING><NAME>MWProject_PPC_outfile</NAME><VALUE>$$TARGET</VALUE></SETTING>
                 <SETTING><NAME>MWProject_PPC_filecreator</NAME><VALUE>CUTE</VALUE></SETTING>
-                <SETTING><NAME>MWProject_PPC_filetype</NAME><VALUE>APPL</VALUE></SETTING>
+                <SETTING><NAME>MWProject_PPC_filetype</NAME><VALUE>$$FILTYPE</VALUE></SETTING>
                 <SETTING><NAME>MWProject_PPC_size</NAME><VALUE>800</VALUE></SETTING>
                 <SETTING><NAME>MWProject_PPC_minsize</NAME><VALUE>600</VALUE></SETTING>
                 <SETTING><NAME>MWProject_PPC_stacksize</NAME><VALUE>64</VALUE></SETTING>
@@ -712,7 +720,7 @@ $$CODEWARRIOR_DEPENDPATH
                 $$CODEWARRIOR_HEADERS
                 <FILE>
                     <PATHTYPE>Name</PATHTYPE>
-                    <PATH>MW_Runtime.a</PATH>
+                    <PATH>MSL_Runtime_Mach-O.a</PATH>
                     <PATHFORMAT>MacOS</PATHFORMAT>
                     <FILEKIND>Library</FILEKIND>
                     <FILEFLAGS>Debug</FILEFLAGS>
@@ -725,7 +733,7 @@ $$CODEWARRIOR_DEPENDPATH
                 $$CODEWARRIOR_HEADERS_LINKORDER
                 <FILEREF>
                    <PATHTYPE>Name</PATHTYPE>
-                   <PATH>MW_Runtime.a</PATH>
+                   <PATH>MSL_Runtime_Mach-O.a</PATH>
                    <PATHFORMAT>MacOS</PATHFORMAT>
                 </FILEREF>
             </LINKORDER>
@@ -750,7 +758,7 @@ $$CODEWARRIOR_DEPENDPATH
             <FILEREF>
                 <TARGETNAME>$$TARGET_STEM</TARGETNAME>
                 <PATHTYPE>Name</PATHTYPE>
-                <PATH>MW_Runtime.a</PATH>
+                <PATH>MSL_Runtime_Mach-O.a</PATH>
                 <PATHFORMAT>MacOS</PATHFORMAT>
             </FILEREF>
         </GROUP>
