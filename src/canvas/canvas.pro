@@ -1,5 +1,5 @@
-TARGET = QtCanvas
-iconview/.
+TARGET          = QtCanvas
+QPRO_PWD        = $$PWD
 include(../qbase.pri)
 
 DEFINES += QT_BUILD_CANVAS_LIB
