@@ -29,6 +29,13 @@
     problems, comparison with other widgets that can serve some of the
     same roles as this one, etc.
 
+    \target Gamma
+    \bold{\l{http://www.amazon.com/exec/obidos/ASIN/0201633612/103-8144203-3273444}
+    {Design Patterns - Elements of Reusable Object-Oriented Software}}
+    by Gamma, Helm, Johnson, and Vlissides, ISBN 0-201-63361-2, provides
+    more information on the Model-View-Controller (MVC) paradigm, explaining
+    MVC and its sub-patterns in detail.
+
     \bold{\l{http://www.amazon.com/exec/obidos/ASIN/0201622165/trolltech/t}{Macintosh
     Human Interface Guidelines}}, Second Edition, ISBN
     0-201-62216-5, is worth buying for the \e {don't}s alone. Even
