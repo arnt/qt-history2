@@ -16,7 +16,7 @@
 //  MatchDialog class
 //
 MatchDialog::MatchDialog( QSqlRecord* buf, Mode mode, QWidget * parent,
-			  const char * name )
+                          const char * name )
     : MatchDialogBase( parent, name, TRUE ),
       matchRecord( buf ),
       mMode( mode )
@@ -24,47 +24,46 @@ MatchDialog::MatchDialog( QSqlRecord* buf, Mode mode, QWidget * parent,
     QString op, title;
     switch ( mMode ) {
     case Insert:
-	title = "Insert match result";
-	op = "&Insert";
-	break;
+        title = "Insert match result";
+        op = "&Insert";
+        break;
     case Update:
-	title = "Update match result";
-	op = "&Update";
-	break;
+        title = "Update match result";
+        op = "&Update";
+        break;
     case Delete:
-	title = "Delete match result";
-	op = "&Delete";
-	break;
+        title = "Delete match result";
+        op = "&Delete";
+        break;
     }
 
     setCaption( title );
     titleLabel->setText( title );
     actionButton->setText( op );
-    
+
     form = new QSqlForm( this, "matchform" );
     QSqlPropertyMap * pm = new QSqlPropertyMap();
-    
+
     pm->insert( "TeamPicker", "teamid" );
     form->installPropertyMap( pm );
 
-    form->insert( winnerTeam, buf->field("winnerid") );
-    form->insert( loserTeam, buf->field("loserid") );
-    form->insert( winnerWins, buf->field("winnerwins") );
-    form->insert( loserWins, buf->field("loserwins") );
-    form->insert( date, buf->field("date") );
-    
+    form->insert( winnerTeam, "winnerid" );
+    form->insert( loserTeam, "loserid" );
+    form->insert( winnerWins, "winnerwins" );
+    form->insert( loserWins, "loserwins" );
+    form->insert( date, "date" );
+    form->setRecord( buf );
     form->readFields();
     updateSets();
-
     // If we're in delete mode - disable editing
     if( mode == Delete ){
-	uint i = 0;
-	QWidget * w;
+        uint i = 0;
+        QWidget * w;
 
-	while( (w = form->widget( i++ )) != 0 )
-	    w->setEnabled( FALSE );
+        while( (w = form->widget( i++ )) != 0 )
+            w->setEnabled( FALSE );
     }
-    
+
     connect( winnerWins, SIGNAL( valueChanged(int) ), SLOT( updateSets() ) );
     connect( loserWins, SIGNAL( valueChanged(int) ), SLOT( updateSets() ) );
     connect( actionButton, SIGNAL( clicked() ), SLOT( execute() ) );

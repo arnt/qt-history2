@@ -93,12 +93,12 @@ void PingpongFrontEnd::init()
     // Set up the initial match table
     matchView.select( matchView.index( "date" ) );
     matchTable->setCursor( &matchView, FALSE);
-    matchTable->addColumn( matchView.field( "date" ) );
-    matchTable->addColumn( matchView.field( "winner" ) );
-    matchTable->addColumn( matchView.field( "winnerwins" ) );
-    matchTable->addColumn( matchView.field( "loser" ) );
-    matchTable->addColumn( matchView.field( "loserwins" ) );
-    matchTable->addColumn( matchView.field( "sets" ) );
+    matchTable->addColumn( "date" );
+    matchTable->addColumn( "winner" );
+    matchTable->addColumn( "winnerwins" );
+    matchTable->addColumn( "loser" );
+    matchTable->addColumn( "loserwins" );
+    matchTable->addColumn( "sets" );
     matchTable->setSorting( TRUE );
     matchTable->setReadOnly( TRUE );
     matchTable->refresh();
@@ -125,6 +125,7 @@ void PingpongFrontEnd::updateMatch()
     matchCursor.setValue( "id", r.value( "id" ) );
     matchCursor.select( matchCursor.primaryIndex(), matchCursor.primaryIndex() );
     if ( matchCursor.next() ) {
+        matchCursor.primeUpdate();
         MatchDialog dlg( matchCursor.editBuffer(), MatchDialog::Update, this );
         if( dlg.exec() == QDialog::Accepted ){
             matchCursor.update();
@@ -144,6 +145,7 @@ void PingpongFrontEnd::deleteMatch()
     matchCursor.setValue( "id", r.value( "id" ) );
     matchCursor.select( matchCursor.primaryIndex(), matchCursor.primaryIndex() );
     if ( matchCursor.next() ) {
+        matchCursor.primeUpdate();
         MatchDialog dlg( matchCursor.editBuffer(), MatchDialog::Delete, this );
         if( dlg.exec() == QDialog::Accepted ){
             matchCursor.del();
