@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#17 $
 **
 ** Implementation of QPixmap class
 **
@@ -15,7 +15,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#16 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#17 $";
 #endif
 
 
@@ -118,7 +118,7 @@ bool QPixmap::load( const char *fileName, const char *format )
     if ( io.read() ) {
 	detach();
 	QImage im = io.image();
-	convertFromImage( &im );
+	convertFromImage( im );
 	return TRUE;
     }
     return FALSE;
@@ -137,8 +137,7 @@ bool QPixmap::save( const char *fileName, const char *format ) const
     if ( isNull() )
 	return FALSE;				// nothing to save
     QImageIO io;
-    QImage   im;
-    convertToImage( &im );
+    QImage   im = convertToImage();
     io.setImage( im );
     io.setFileName( fileName );
     io.setFormat( format );
@@ -151,8 +150,7 @@ bool QPixmap::save( const char *fileName, const char *format ) const
 QDataStream &operator<<( QDataStream &s, const QPixmap &pixmap )
 {
     QImageIO io;
-    QImage   im;
-    pixmap.convertToImage( &im );
+    QImage   im = pixmap.convertToImage();
     io.setImage( im );
     io.setIODevice( s.device() );
     io.setFormat( "BMP" );
@@ -170,6 +168,6 @@ QDataStream &operator>>( QDataStream &s, QPixmap &pixmap )
     io.setFormat( "BMP" );
     io.read();
     im = io.image();
-    pixmap.convertFromImage( &im );
+    pixmap.convertFromImage( im );
     return s;
 }

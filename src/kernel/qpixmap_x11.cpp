@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#10 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#11 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#10 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#11 $";
 #endif
 
 
@@ -277,9 +277,7 @@ Returns a reference to the pixmap.
 
 QPixmap &QPixmap::operator=( const QImage &im )
 {
-    QPixmap pm;
-    pm.convertFromImage( &im );
-    *this = pm;
+    convertFromImage( im );
     return *this;
 }
 
@@ -411,25 +409,26 @@ long QPixmap::metric( int m ) const		// get metric information
 
 
 /*!
-Converts the pixmap to an image and returns TRUE if successful.
+Converts the pixmap to an image. Returns a null image if the operation failed.
 
-If the pixmap has 1 bit depth, \e image will also get 1 bit depth.
-
-If the pixmap has 2-8 bits depth, \e image gets 8 bit depth.
-
-If the pixmap has greater than 8 bits depth, \e image gets 24 bits.
+If the pixmap has 1 bit depth, the returned image will also get 1 bit
+depth.<br>
+If the pixmap has 2-8 bits depth, the returned image gets 8 bit depth.<br>
+If the pixmap has greater than 8 bits depth, the returned image gets
+24 bits depth.<br>
 
 \bug Does not support 2 or 4 bit display hardware. This function needs
 to be tested on different types of X servers.
 */
 
-bool QPixmap::convertToImage( QImage *image ) const
-{						// get image data from pixmap
+QImage QPixmap::convertToImage() const
+{
+    QImage image;
     if ( isNull() ) {
 #if defined(CHECK_NULL)
 	warning( "QPixmap::convertToImage: Cannot convert null pixmap" );
 #endif
-	return FALSE;
+	return image;
     }
 
     int	    scr	   = qt_xscreen();
@@ -464,9 +463,9 @@ bool QPixmap::convertToImage( QImage *image ) const
 	bitOrder = xi->bitmap_bit_order == LSBFirst ?
 	    QImage::LittleEndian : QImage::BigEndian;
     }
-    image->create( w, h, d, 0, bitOrder );
-    if ( image->isNull() )			// could not create image
-	return FALSE;
+    image.create( w, h, d, 0, bitOrder );
+    if ( image.isNull() )			// could not create image
+	return image;
 
     if ( trucol ) {				// truecolor
 	uint red_mask	 = visual->red_mask;
@@ -477,7 +476,7 @@ bool QPixmap::convertToImage( QImage *image ) const
 	int  blue_shift	 = highest_bit( blue_mask )  - 7;
 	int  r, g, b;
 
-	uchar *dst = image->bits();
+	uchar *dst = image.bits();
 	uchar *src;
 	ulong  pixel;
 	int    bppc = xi->bits_per_pixel;
@@ -541,9 +540,9 @@ bool QPixmap::convertToImage( QImage *image ) const
     }
     else if ( xi->bits_per_pixel == d ) {	// compatible depth
 	char *xidata = xi->data;		// copy each scanline
-	int bpl = image->bytesPerLine();
+	int bpl = image.bytesPerLine();
 	for ( int y=0; y<h; y++ ) {
-	    memcpy( image->scanline(y), xidata, bpl );
+	    memcpy( image.scanline(y), xidata, bpl );
 	    xidata += xi->bytes_per_line;
 	}
     }
@@ -553,13 +552,14 @@ bool QPixmap::convertToImage( QImage *image ) const
 	warning( "QPixmap::convertToImage: DISPLAY NOT SUPPORTED (BPP=%d)",
 		 xi->bits_per_pixel );
 #endif
-	return FALSE;
+	image.reset();
+	return image;
     }
 
     if ( mono ) {				// bitmap
-	image->setNumColors( 2 );
-	image->setColor( 0, QRGB(255,255,255) );
-	image->setColor( 1, QRGB(0,0,0) );
+	image.setNumColors( 2 );
+	image.setColor( 0, QRGB(255,255,255) );
+	image.setColor( 1, QRGB(0,0,0) );
     }
     else if ( !trucol ) {			// pixmap with colormap
 	register uchar *p;
@@ -568,7 +568,7 @@ bool QPixmap::convertToImage( QImage *image ) const
 	int    ncols, i;
 	memset( use, 0, 256 );
 	memset( pix, 0, 256 );
-	p = image->bits();  i = image->numBytes();
+	p = image.bits();  i = image.numBytes();
 	while ( i-- )				// what pixels are used?
 	    use[*p++] = 1;
 	ncols = 0;
@@ -576,7 +576,7 @@ bool QPixmap::convertToImage( QImage *image ) const
 	    if ( use[i] )
 		pix[i] = ncols++;
 	}
-	p = image->bits();  i = image->numBytes();
+	p = image.bits();  i = image.numBytes();
 	while ( i-- )				// translate pixels
 	    *p++ = pix[*p];
 
@@ -587,14 +587,14 @@ bool QPixmap::convertToImage( QImage *image ) const
 	    carr[i].pixel = i;
 	XQueryColors( dpy, cmap, carr, ncells );// get default colormap
 
-	image->setNumColors( ncols );		// create color table
+	image.setNumColors( ncols );		// create color table
 	int j = 0;
 	for ( i=0; i<256; i++ ) {		// translate pixels
 	    if ( use[i] ) {
-		image->setColor( j++,
-				 QRGB( (carr[i].red   >> 8) & 255,
-				       (carr[i].green >> 8) & 255,
-				       (carr[i].blue  >> 8) & 255 ) );
+		image.setColor( j++,
+				QRGB( (carr[i].red   >> 8) & 255,
+				      (carr[i].green >> 8) & 255,
+				      (carr[i].blue  >> 8) & 255 ) );
 	    }
 	}
 	delete carr;
@@ -605,7 +605,7 @@ bool QPixmap::convertToImage( QImage *image ) const
     }
     else
 	XDestroyImage( xi );
-    return TRUE;
+    return image;
 }
 
 
@@ -623,25 +623,24 @@ algorithm.
 to be tested on different types of X servers.
 */
 
-bool QPixmap::convertFromImage( const QImage *image )
+bool QPixmap::convertFromImage( const QImage &img )
 {
-    if ( !image || image->isNull() ) {
+    if ( img.isNull() ) {
 #if defined(CHECK_NULL)
 	warning( "QPixmap::convertFromImage: Cannot set null image" );
 #endif
 	return FALSE;
     }
     detach();					// detach other references
-    QImage tmp_image;
-    int w   = image->width();
-    int h   = image->height();
-    int d   = image->depth();
+    QImage  image = img;
+    int w   = image.width();
+    int h   = image.height();
+    int d   = image.depth();
     int scr = qt_xscreen();
     int dd  = DefaultDepth(dpy,scr);
 
     if ( (dd == 1 || data->bitmap) && d > 1 ) {	// force to bitmap
-	tmp_image = image->convertDepth( 1 );	// dither
-	image = &tmp_image;
+	image = image.convertDepth( 1 );	// dither
 	d = 1;
     }
 
@@ -650,12 +649,12 @@ bool QPixmap::convertFromImage( const QImage *image )
 	    XFreePixmap( dpy, hd );
 	char *bits;
 	uchar *flipped_bits;
-	if ( image->bitOrder() == QImage::BigEndian ) {
-	    flipped_bits = flip_bits( image->bits(), image->numBytes() );
+	if ( image.bitOrder() == QImage::BigEndian ) {
+	    flipped_bits = flip_bits( image.bits(), image.numBytes() );
 	    bits = (char *)flipped_bits;
 	}
 	else {
-	    bits = (char *)image->bits();
+	    bits = (char *)image.bits();
 	    flipped_bits = 0;
 	}
 	hd = XCreateBitmapFromData( dpy, DefaultRootWindow(dpy), bits, w, h );
@@ -674,7 +673,7 @@ bool QPixmap::convertFromImage( const QImage *image )
     Visual *visual = DefaultVisual(dpy,scr);
     XImage *xi	   = 0;
     bool    trucol = visual->c_class == TrueColor;
-    int	    nbytes = image->numBytes();
+    int	    nbytes = image.numBytes();
     uchar  *newbits;
     register uchar *p;
 
@@ -690,10 +689,10 @@ bool QPixmap::convertFromImage( const QImage *image )
 	int   r, g, b;
 
 	if ( d8 ) {				// setup pixel translation
-	    for ( int i=0; i<image->numColors(); i++ ) {
-		r = QRED  (image->color(i));
-		g = QGREEN(image->color(i));
-		b = QBLUE (image->color(i));
+	    for ( int i=0; i<image.numColors(); i++ ) {
+		r = QRED  (image.color(i));
+		g = QGREEN(image.color(i));
+		b = QBLUE (image.color(i));
 		r = red_shift	> 0 ? r << red_shift   : r >> -red_shift;
 		g = green_shift > 0 ? g << green_shift : g >> -green_shift;
 		b = blue_shift	> 0 ? b << blue_shift  : b >> -blue_shift;
@@ -704,7 +703,7 @@ bool QPixmap::convertFromImage( const QImage *image )
 	xi = XCreateImage( dpy, visual, dd, ZPixmap, 0, 0, w, h, 32, 0 );
 	CHECK_PTR( xi );
 	newbits = (uchar *)malloc( xi->bytes_per_line*h );
-	uchar *src = image->bits();
+	uchar *src = image.bits();
 	uchar *dst;
 	ulong  pixel;
 	int    bppc = xi->bits_per_pixel;
@@ -767,10 +766,9 @@ bool QPixmap::convertFromImage( const QImage *image )
     }
 
     if ( d == 24 && !trucol ) {			// convert to 8 bit
-	tmp_image = image->convertDepth( 8 );
-	d = 8;					//   then process 8 bit image
-	image = &tmp_image;
-	nbytes = image->numBytes();		// recalc image size
+	image = image.convertDepth( 8 );
+	d = 8;
+	nbytes = image.numBytes();		// recalc image size
     }
 
     if ( d == 8 && !trucol ) {			// 8 bit pixmap
@@ -780,7 +778,7 @@ bool QPixmap::convertFromImage( const QImage *image )
 	if ( !newbits )				// no memory
 	    return FALSE;
 	p = newbits;
-	memcpy( p, image->bits(), nbytes );	// copy image data into newbits
+	memcpy( p, image.bits(), nbytes );	// copy image data into newbits
 	memset( pop, 0, sizeof(long)*256 );	// reset popularity array
 	for ( i=0; i<nbytes; i++ )		// compute popularity
 	    pop[*p++]++;
@@ -800,8 +798,8 @@ bool QPixmap::convertFromImage( const QImage *image )
 	for ( i=0; i<256; i++ )			// compute number of colors
 	    if ( pop[i] > 0 )
 		ncols++;
-	if ( ncols > image->numColors() )	// shouldn't happen
-	    ncols = image->numColors();
+	if ( ncols > image.numColors() )	// shouldn't happen
+	    ncols = image.numColors();
 
 	PIX *pixarr	   = new PIX[ncols];	// pixel array
 	PIX *pixarr_sorted = new PIX[ncols];	// pixel array (sorted)
@@ -812,9 +810,9 @@ bool QPixmap::convertFromImage( const QImage *image )
 	j = 0;
 	for ( i=0; i<256; i++ ) {		// init pixel array
 	    if ( pop[i] > 0 ) {
-		px->r = QRED  ( image->color(i) );
-		px->g = QGREEN( image->color(i) );
-		px->b = QBLUE ( image->color(i) );
+		px->r = QRED  ( image.color(i) );
+		px->g = QGREEN( image.color(i) );
+		px->b = QBLUE ( image.color(i) );
 		px->use = pop[i];
 		if ( pop[i] > maxpop ) {	// select most popular entry
 		    maxpop = pop[i];
@@ -984,7 +982,7 @@ static inline int d2i_round( double d )		// double -> int, rounded
 /*!
 Transforms the pixmap using \e matrix, and returns the transformed pixmap.
 
-Qt uses this function to implemented rotated text on window systems that
+Qt uses this function to implement rotated text on window systems that
 do not support such complex features.
 
 Example of how to manually draw a rotated text at (100,200) in a widget:

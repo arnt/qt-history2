@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#8 $
 **
 ** Implementation of QBitmap class
 **
@@ -13,7 +13,7 @@
 #include "qbitmap.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qbitmap.cpp#7 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qbitmap.cpp#8 $";
 #endif
 
 
@@ -94,9 +94,7 @@ Dithering will be performed if the image has a depth > 1.
 
 QBitmap &QBitmap::operator=( const QImage &im )
 {
-    QBitmap bm;
-    bm.convertFromImage( &im );
-    *this = bm;
+    convertFromImage( im );
     return *this;
 }
 

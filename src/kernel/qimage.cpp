@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#25 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -21,7 +21,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#24 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qimage.cpp#25 $";
 #endif
 
 /*!
@@ -215,9 +215,7 @@ Makes a call to QPixmap::convertToImage().
 
 QImage &QImage::operator=( const QPixmap &pixmap )
 {
-    QImage nullImage;
-    *this = nullImage;
-    pixmap.convertToImage( this );
+    *this = pixmap.convertToImage();
     return *this;
 }
 
@@ -1382,7 +1380,7 @@ bool QImageIO::read()				// read image data
     QImageHandler *h;
 
     if ( iodev ) {				// read from io device
-	// ok
+        // ok, already open
     }
     else if ( !fname.isEmpty() ) {		// read from file
 	file.setFileName( fname );
