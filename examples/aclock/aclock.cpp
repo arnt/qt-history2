@@ -26,6 +26,17 @@ AnalogClock::AnalogClock( QWidget *parent, const char *name )
     internalTimer->start( 5000 );		// emit signal every 5 seconds
 }
 
+void AnalogClock::mousePressEvent( QMouseEvent *e )
+{
+    //    if ( e->button() == LeftButton )
+	clickPos = e->pos();
+}
+
+void AnalogClock::mouseMoveEvent( QMouseEvent *e )
+{
+    //    if ( e->state() & LeftButton )
+	move( e->globalPos() - clickPos );
+}
 
 void AnalogClock::setTime( const QTime & t )
 {

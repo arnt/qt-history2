@@ -28,12 +28,15 @@ public slots:
 protected:
     void updateMask();
     void paintEvent( QPaintEvent *);
+    void mousePressEvent( QMouseEvent *);
+    void mouseMoveEvent( QMouseEvent *);
     
 private slots:
     void drawClock( QPainter* );
     void	timeout();
 
 private:
+    QPoint clickPos;
     QTime	time;
 };
 
