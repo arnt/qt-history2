@@ -1,6 +1,6 @@
 #include <private/qdrawhelper_p.h>
 
-#if 1//def __x86__
+#if 0//def __x86__
 #include "qdrawhelper_x86.cpp"
 #else
 void qInitAsm(DrawHelper *) {}
