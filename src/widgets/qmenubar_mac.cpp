@@ -850,10 +850,10 @@ bool QMenuBar::macUpdatePopup(MenuRef mr)
 	    HiliteMenu(0);
 	}
     } else if (mr == activeMenuBar->mac_d->apple_menu && activeMenuBar->mac_d->commands) {
-	QHash<int, MacPrivate::CommandBinding>::const_iterator it 
+	QHash<int, MacPrivate::CommandBinding*>::const_iterator it 
 						    = activeMenuBar->mac_d->commands->constBegin();
 	for (; it != activeMenuBar->mac_d->commands->constEnd(); ++it) {
-	    MacPrivate::CommandBinding *cb = it.value();
+	    const MacPrivate::CommandBinding *cb = it.value();
 	    qt_mac_command_set_enabled(it.key(),
 				       cb->qpopup->isItemEnabled(cb->qpopup->idAt(cb->index)));
 	}
