@@ -821,28 +821,31 @@ IconRef qt_mac_create_iconref(const QPixmap &px)
 		in_pix = px.mask();
 	    else
 		in_pix = &px;
-	    if(in_pix) {
+
+            const int x_rows = images[i].width * (images[i].depth/8), y_rows = images[i].height;
+            Handle hdl = NewHandle(x_rows*y_rows);
+            if(in_pix) {
 		//make the image
 		QImage im;
 		im = *in_pix;
 		im = im.smoothScale(images[i].width, images[i].height).convertDepth(images[i].depth);
-		//convert to Handle
-		int x_rows = im.width() * (images[i].depth/8), y_rows = im.height();
-		Handle hdl = NewHandle(x_rows*y_rows);
+		//set handle bits
 		if(images[i].mac_type == kThumbnail8BitMask) {
 		    for(int y = 0, h = 0; y < im.height(); y++) {
 			for(int x = 0; x < im.width(); x++)
 			    *((*hdl)+(h++)) = im.pixel(x, y) ? 0 : 255;
 		    }
 		} else {
-		    for(int y = 0; y < y_rows; y++)
+		    for(int y = 0; y < y_rows; y++) 
 			memcpy((*hdl)+(y*x_rows), im.scanLine(y), x_rows);
 		}
-		OSStatus set = SetIconFamilyData(iconFamily, images[i].mac_type, hdl);
-		if(set != noErr)
-		    qWarning("%s: %d -- Something went very wrong!! %ld", __FILE__, __LINE__, set);
-		DisposeHandle(hdl);
-	    }
+	    } else {
+                memset((*hdl), 0xFF, x_rows*y_rows);
+            }
+            OSStatus set = SetIconFamilyData(iconFamily, images[i].mac_type, hdl);
+            if(set != noErr)
+                qWarning("%s: %d -- Something went very wrong!! %ld", __FILE__, __LINE__, set);
+            DisposeHandle(hdl);
 	}
     }
 
