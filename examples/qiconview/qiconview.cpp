@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qiconview/qiconview.cpp#6 $
+** $Id: //depot/qt/main/examples/qiconview/qiconview.cpp#7 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -614,7 +614,7 @@ void QtIconViewItem::makeActiveIcon()
 {
 }
 
-void QtIconViewItem::dropped( QMimeSource * )
+void QtIconViewItem::dropped( QDropEvent * )
 {
 }
 
@@ -930,7 +930,7 @@ void QtIconView::doAutoScroll()
 void QtIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 {
     p->fillRect( cx, cy, cw, ch, colorGroup().base() );
-    
+
     if ( !d->firstItem )
         return;
 
@@ -1279,6 +1279,7 @@ void QtIconView::contentsDropEvent( QDropEvent *e )
             repaintContents( oldw, 0, contentsWidth() - oldw, contentsHeight() );
             repaintContents( 0, oldh, contentsWidth(), contentsHeight() - oldh );
         }
+        e->accept();
     } else if ( !i && e->source() != viewport() || d->cleared )
         emit dropped( e );
     else if ( i )

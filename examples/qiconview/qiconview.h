@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qiconview/qiconview.h#3 $
+** $Id: //depot/qt/main/examples/qiconview/qiconview.h#4 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -169,7 +169,7 @@ protected:
     virtual void paintItem( QPainter *p );
     virtual void paintFocus( QPainter *p );
     virtual void makeActiveIcon();
-    virtual void dropped( QMimeSource *mime );
+    virtual void dropped( QDropEvent *e );
     virtual void breakLines( const QString text, QStringList &lst, int width );
     virtual void dragEntered();
     virtual void dragLeft();
@@ -250,7 +250,7 @@ public:
     virtual int spacing();
 
 signals:
-    void dropped( QMimeSource *mime );
+    void dropped( QDropEvent *e );
     void moved();
     void doubleClicked( QtIconViewItem *item );
     void itemRightClicked( QtIconViewItem *item );
@@ -259,7 +259,7 @@ signals:
     void selectionChanged( int numItems );
     void currentChanged();
     void currentChanged( QtIconViewItem *item );
-    
+
 protected slots:
     virtual void doAutoScroll();
 
@@ -283,7 +283,7 @@ protected:
 
     void emitSelectionChanged();
     void emitNewSelectionNumber();
-    
+
     QtIconViewPrivate *d;
 
 };
