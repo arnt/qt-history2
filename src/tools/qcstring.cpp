@@ -433,34 +433,36 @@ QCString::QCString( int size )
 
 QCString::QCString( const char *str )
 {
-    duplicate( str, qstrlen(str)+1 );
+    duplicate( str, qstrlen(str) + 1 );
 }
 
 
 /*!
   Constructs a string that is a deep copy of \e str, that is no more
-  than \a maxlen bytes long including the '\0'-terminator.
+  than \a maxsize bytes long including the '\0'-terminator.
 
   Example:
   \code
-    QCString str("helloworld",6); // Assigns "hello" to str.
+    QCString str( "helloworld", 6 ); // Assigns "hello" to str.
   \endcode
 
-  If \a str contains a 0 byte within the first \a maxlen bytes, the
+  If \a str contains a 0 byte within the first \a maxsize bytes, the
   resulting QCString will be terminated by the 0.  If \a str is 0 a
   null string is created.
 
   \sa isNull()
 */
 
-QCString::QCString( const char *str, uint maxlen )
+QCString::QCString( const char *str, uint maxsize )
 {
-    uint len; // index of last nul character
-    // cannot use memchr - we need the *index*, not void*
-    for (len=0; len<maxlen-1; len++) {
-	if (!str[len]) break;
+    if ( str == 0 )
+	return;
+    uint len; // index of first '\0'
+    for ( len = 0; len < maxsize - 1; len++ ) {
+	if ( str[len] == '\0' )
+	    break;
     }
-    QByteArray::resize( len+1 );
+    QByteArray::resize( len + 1 );
     memcpy( data(), str, len );
     data()[len] = 0;
 }
