@@ -432,32 +432,6 @@ void QGenericComboBox::currentChanged(const QModelIndex &old, const QModelIndex 
     emit activated(currentItem());
 }
 
-void QGenericComboBox::contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
-{
-    QAbstractItemView::contentsChanged(topLeft, bottomRight);
-    qDebug(QString("contentsChanged tl: %1 %2, br: %3,%4, has %5")
-           .arg(topLeft.row()).arg(topLeft.column())
-           .arg(bottomRight.row()).arg(bottomRight.column())
-           .arg(model()->parent(topLeft).isValid() ? " parent" : " no parent").latin1());
-}
-
-void QGenericComboBox::contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight){
-    QAbstractItemView::contentsInserted(topLeft, bottomRight);
-    qDebug(QString("contentsInserted tl: %1 %2, br: %3,%4, has %5")
-           .arg(topLeft.row()).arg(topLeft.column())
-           .arg(bottomRight.row()).arg(bottomRight.column())
-           .arg(model()->parent(topLeft).isValid() ? " parent" : " no parent").latin1());
-}
-
-void QGenericComboBox::contentsRemoved(const QModelIndex &topLeft, const QModelIndex &bottomRight)
-{
-    QAbstractItemView::contentsRemoved(topLeft, bottomRight);
-    qDebug(QString("contentsRemoved tl: %1 %2, br: %3,%4, has %5")
-           .arg(topLeft.row()).arg(topLeft.column())
-           .arg(bottomRight.row()).arg(bottomRight.column())
-           .arg(model()->parent(topLeft).isValid() ? " parent" : " no parent").latin1());
-}
-
 int QGenericComboBox::horizontalOffset() const
 {
     return 0;

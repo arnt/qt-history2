@@ -634,14 +634,14 @@ void QGenericTreeView::contentsChanged()
     QAbstractItemView::contentsChanged(QModelIndex(), QModelIndex());
 }
 
-void QGenericTreeView::contentsInserted(const QModelIndex &topLeft, const QModelIndex &)
+void QGenericTreeView::rowsInserted(const QModelIndex &parent, int, int)
 {
-    d->relayout(model()->parent(topLeft));
+    d->relayout(parent);
 }
 
-void QGenericTreeView::contentsRemoved(const QModelIndex &topLeft, const QModelIndex &)
+void QGenericTreeView::rowsRemoved(const QModelIndex &parent, int, int)
 {
-    d->relayout(model()->parent(topLeft));
+    d->relayout(parent);
 }
 
 void QGenericTreeView::columnCountChanged(int, int)

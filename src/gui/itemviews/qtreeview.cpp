@@ -37,7 +37,7 @@ public:
 
 protected:
     void append(QTreeViewItem *item);
-    void emitContentsInserted(QTreeViewItem *item);
+    void emitRowsInserted(QTreeViewItem *item);
 
 private:
     int c;
@@ -84,14 +84,13 @@ void QTreeModel::setColumnCount(int columns)
         return;
     int _c = c;
     c = columns;
+    if (c < _c)
+        emit columnsRemoved(QModelIndex(), c - 1, _c - 1);
     topHeader.setColumnCount(c);
     for (int i = _c; i < c; ++i)
         topHeader.setText(i, QString::number(i));
-    int r = rowCount(QModelIndex());
     if (c > _c)
-        emit contentsInserted(index(0, _c - 1), index(r - 1, c - 1));
-    else
-        emit contentsRemoved(index(0, c - 1), index(r - 1, _c - 1));
+        emit columnsInserted(QModelIndex(), _c - 1, c - 1);
 }
 
 /*!
@@ -328,22 +327,19 @@ bool QTreeModel::isEditable(const QModelIndex &) const
 
 void QTreeModel::append(QTreeViewItem *item)
 {
-    tree.push_back(item);
     int r = tree.count();
-    QModelIndex topLeft = index(r - 1, 0);
-    QModelIndex bottomRight = index(r - 1, c - 1);
-    emit contentsInserted(topLeft, bottomRight);
+    tree.push_back(item);
+    emit rowsInserted(QModelIndex(), r, r);
 }
 
 /*!
 */
 
-void QTreeModel::emitContentsInserted(QTreeViewItem *item)
+void QTreeModel::emitRowsInserted(QTreeViewItem *item)
 {
-    QModelIndex topLeft = index(item);
-    QModelIndex parentIndex = parent(topLeft);
-    QModelIndex bottomRight = index(topLeft.row(), columnCount(parentIndex) - 1, parentIndex);
-    emit contentsInserted(topLeft, bottomRight);
+    QModelIndex idx = index(item);
+    QModelIndex parentIndex = parent(idx);
+    emit rowsInserted(parentIndex, idx.row(), idx.row());
 }
 
 // QTreeViewItem
@@ -393,7 +389,7 @@ QTreeViewItem::QTreeViewItem(QTreeViewItem *parent)
     if (parent)
         parent->children.push_back(this);
     QTreeModel *model = ::qt_cast<QTreeModel*>(view->model());
-    model->emitContentsInserted(this);
+    model->emitRowsInserted(this);
 }
 
 /*!

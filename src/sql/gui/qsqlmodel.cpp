@@ -43,7 +43,7 @@ void QSqlModelPrivate::prefetch(int limit)
         atEnd = true; // this is the end.
     }
     if (bottom.row() > oldBottom.row())
-        emit q->contentsInserted(oldBottom, bottom);
+        emit q->rowsInserted(QModelIndex(), oldBottom.row(), bottom.row());
 }
 
 QSqlModel::QSqlModel(QObject *parent)
@@ -144,7 +144,7 @@ void QSqlModel::setQuery(const QSqlQuery &query)
     d->colOffsets.resize(d->rec.count());
     memset(d->colOffsets.data(), 0, d->colOffsets.size() * sizeof(int));
     if (d->bottom.isValid())
-        emit contentsRemoved(index(0, 0), d->bottom);
+        emit rowsRemoved(QModelIndex(), 0, d->bottom.row());
     if (!query.isActive() || query.isForwardOnly()) {
         d->atEnd = true;
         d->bottom = QModelIndex();
@@ -161,7 +161,7 @@ void QSqlModel::setQuery(const QSqlQuery &query)
     } else {
         d->bottom = createIndex(0, d->rec.count() - 1);
     }
-    emit contentsInserted(index(0, 0), d->bottom);
+    emit rowsInserted(QModelIndex(), 0, d->bottom.row());
 }
 
 /*!
@@ -272,7 +272,7 @@ bool QSqlModel::insertColumn(int column, const QModelIndex &parent, int count)
         for (int i = column + 1; i < d->colOffsets.count(); ++i)
             ++d->colOffsets[i];
     }
-    emit contentsInserted(createIndex(0, column), createIndex(rowCount(), column + count));
+    emit columnsInserted(parent, column, column + count - 1);
     return true;
 }
 
@@ -299,7 +299,7 @@ bool QSqlModel::removeColumn(int column, const QModelIndex &parent, int count)
         d->rec.remove(column);
     for (i = column; i < d->colOffsets.count(); ++i)
         d->colOffsets[i] -= count;
-    emit contentsRemoved(createIndex(0, column), createIndex(rowCount(), column + count));
+    emit columnsRemoved(parent, column, column + count - 1);
     return true;
 }
 

@@ -74,20 +74,19 @@ void QTableModel::setRowCount(int rows)
     int s = rows * c;
     r = rows;
 
+    int top = qMax(r - 1, 0);
+    int bottom = qMax(r - 1, 0);
+
+    if (r < _r)
+        emit rowsRemoved(QModelIndex(), top, bottom);
+
     table.resize(s); // FIXME: this will destroy the layout
     leftHeader.resize(r);
     for (int j = _r; j < r; ++j)
         leftHeader[j].setText(QString::number(j));
 
-    int top = qMax(r - 1, 0);
-    int bottom = qMax(r - 1, 0);
-    int right = qMax(c - 1, 0);
-    QModelIndex topLeft = index(top, 0);
-    QModelIndex bottomRight = index(bottom, right);
-    if (r > _r)
-        emit contentsInserted(topLeft, bottomRight);
-    else
-        emit contentsRemoved(topLeft, bottomRight);
+    if (r >= _r)
+        emit rowsInserted(QModelIndex(), top, bottom);
 }
 
 void QTableModel::setColumnCount(int columns)
@@ -98,20 +97,19 @@ void QTableModel::setColumnCount(int columns)
     int s = r * columns;
     c = columns;
 
+    int left = qMax(_c - 1, 0);
+    int right = qMax(c - 1, 0);
+
+    if (c < _c)
+        emit columnsRemoved(QModelIndex(), left, right);
+
     table.resize(s); // FIXME: this will destroy the layout
     topHeader.resize(c);
     for (int j = _c; j < c; ++j)
         topHeader[j].setText(QString::number(j));
 
-    int left = qMax(_c - 1, 0);
-    int bottom = qMax(r - 1, 0);
-    int right = qMax(c - 1, 0);
-    QModelIndex topLeft = index(0, left, QModelIndex());
-    QModelIndex bottomRight = index(bottom, right, QModelIndex());
-    if (c > _c)
-        emit contentsInserted(topLeft, bottomRight);
-    else
-        emit contentsRemoved(topLeft, bottomRight);
+    if (c >= _c)
+        emit columnsInserted(QModelIndex(), left, right);
 }
 
 bool QTableModel::insertRows(int, const QModelIndex &, int)

@@ -166,13 +166,13 @@ public:
 
     virtual QModelIndexList match(const QModelIndex &start, int role, const QVariant &value,
                                   int hits = 1, MatchFlags flags = MatchDefault) const;
-public slots:
-    virtual void fetchMore();
 
 signals:
     void contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-    void contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-    void contentsRemoved(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    void rowsInserted(const QModelIndex &parent, int start, int end);
+    void rowsRemoved(const QModelIndex &parent, int start, int end);
+    void columnsInserted(const QModelIndex &parent, int start, int end);
+    void columnsRemoved(const QModelIndex &parent, int start, int end);
 
 protected:
     QAbstractItemModel(QAbstractItemModelPrivate &dd, QObject *parent);

@@ -619,11 +619,11 @@ bool QSqlTableModel::insertRow(int row, const QModelIndex &parent, int count)
     emit primeInsert(row, d->editBuffer);
 #define UGLY_WORKAROUND
 #ifdef UGLY_WORKAROUND
-    emit contentsRemoved(createIndex(row, 0), bottomRight());
-    emit contentsInserted(createIndex(row, 0), createIndex(rowCount() + 1, columnCount() - 1));
+    emit rowsRemoved(parent, row, bottomRight().row());
+    emit rowsInserted(parent, row, rowCount() + 1);
 #else
     // broken atm
-    emit contentsInserted(createIndex(row, 0), createIndex(row, columnCount() - 1));
+    emit rowsInserted(parent, row, row);
 #endif
     return true;
 }

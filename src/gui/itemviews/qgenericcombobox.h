@@ -70,10 +70,6 @@ protected slots:
     void updateCurrentEditor();
     void currentChanged(const QModelIndex &old, const QModelIndex &current);
 
-    void contentsChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-    void contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-    void contentsRemoved(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-
 protected:
     QGenericComboBox(QGenericComboBoxPrivate &dd, QAbstractItemModel *model, QWidget *parent = 0);
 

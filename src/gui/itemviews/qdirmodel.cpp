@@ -662,7 +662,7 @@ bool QDirModel::decode(QDropEvent *e, const QModelIndex &parent)
     QStringList files;
     if (!QUriDrag::decodeLocalFiles(e, files))
         return false;
-    emit contentsRemoved(topLeft(parent), bottomRight(parent));
+    emit rowsRemoved(parent, 0, rowCount(parent) - 1);
     bool success = true;
     QString to = path(parent) + QDir::separator();
     QStringList::const_iterator it = files.begin();
@@ -688,7 +688,7 @@ bool QDirModel::decode(QDropEvent *e, const QModelIndex &parent)
     else
         d->tree = d->children(0);
     d->restorePersistentIndexes();
-    emit contentsInserted(topLeft(parent), bottomRight(parent));
+    emit rowsInserted(parent, 0, rowCount(parent) - 1);
     return success;
 }
 
@@ -732,13 +732,14 @@ QFileIconProvider *QDirModel::iconProvider() const
 
 void QDirModel::setNameFilters(const QStringList &filters)
 {
+    QModelIndex parent;
     // FIXME: this will rebuild the entire structure of the qdirmodel
     d->savePersistentIndexes();
-    emit contentsRemoved(topLeft(), bottomRight());
+    emit rowsRemoved(parent, 0, rowCount(parent) - 1);
     d->root.setNameFilters(filters);
     d->tree = d->children(0); // clear model
     d->restorePersistentIndexes();
-    emit contentsInserted(topLeft(), bottomRight());
+    emit rowsRemoved(parent, 0, rowCount(parent) - 1);
 }
 
 /*!
@@ -780,12 +781,13 @@ QDir::FilterSpec QDirModel::filter() const
 
 void QDirModel::setSorting(int spec)
 {
+    QModelIndex parent;
     d->savePersistentIndexes();
-    emit contentsRemoved(topLeft(), bottomRight());
+    emit rowsRemoved(parent, 0, rowCount(parent) - 1);
     d->root.setSorting(spec);
     d->tree = d->children(0);
     d->restorePersistentIndexes();
-    emit contentsInserted(topLeft(), bottomRight());
+    emit rowsInserted(parent, 0, rowCount(parent) - 1);
 }
 
 /*!
@@ -806,10 +808,10 @@ QDir::SortSpec QDirModel::sorting() const
 void QDirModel::refresh(const QModelIndex &parent)
 {
     d->savePersistentIndexes();
-    emit contentsRemoved(topLeft(parent), bottomRight(parent));
+    emit rowsRemoved(parent, 0, rowCount(parent) - 1);
     d->refresh(static_cast<QDirModelPrivate::QDirNode*>(parent.data()));
     d->restorePersistentIndexes();
-    emit contentsInserted(topLeft(), bottomRight());
+    emit rowsInserted(parent, 0, rowCount(parent) - 1);
 }
 
 /*!
@@ -935,7 +937,7 @@ QModelIndex QDirModel::mkdir(const QModelIndex &parent, const QString &name)
     }
     d->restorePersistentIndexes();
     QModelIndex i = index(r, 0, parent); // return an invalid index
-    emit contentsInserted(i, i); // causes clear that triggers selectionChanged that calls repaint on the old items
+    emit rowsInserted(parent, r, 1);
     return i;
 }
 
@@ -958,7 +960,7 @@ bool QDirModel::rmdir(const QModelIndex &index)
         qWarning("rmdir: the node is not a directory");
         return false;
     }
-    emit contentsRemoved(index, index); // always emit before the change
+    emit rowsRemoved(par, index.row(), 1);
     d->savePersistentIndexes();
     QString path = n->info.absFilePath();
     if (!n->info.dir().rmdir(path)) {
@@ -992,7 +994,7 @@ bool QDirModel::remove(const QModelIndex &index)
         qWarning("remove: the node is a directory");
         return false;
     }
-    emit contentsRemoved(index, index); // always emit before the change
+    emit rowsRemoved(par, index.row(), 1);
     d->savePersistentIndexes();
     QDirModelPrivate::QDirNode *p = d->parent(n);
     QDir dir = p ? p->info.dir() : d->root;

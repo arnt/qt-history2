@@ -461,23 +461,41 @@ QAbstractItemModel::~QAbstractItemModel()
 */
 
 /*!
-    \fn void QAbstractItemModel::contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight)
+    \fn void QAbstractItemModel::rowsInserted(const QModelIndex &parent, int start, int end)
 
-    This signal is emitted when rows or columns have been inserted
-    into the model. The new items are those between \a topLeft and \a
-    bottomRight inclusive.
+    This signal is emitted when rows have been inserted
+    into the model. The new items are those between \a start and \a end inclusive.
 
-    \sa insertRow() insertColumn()
+    \sa insertRows()
 */
 
 /*!
-    \fn void QAbstractItemModel::contentsRemoved(const QModelIndex &topLeft, const QModelIndex &bottomRight)
+    \fn void QAbstractItemModel::rowsRemoved(const QModelIndex &parent, int start, int end)
 
-    This signal is emitted just before rows or columns are removed
-    from the model. The removed items are those between \a topLeft and
-    \a bottomRight inclusive.
+    This signal is emitted just before rows are removed
+    from the model. The removed items are those between \a start and
+    \a end inclusive.
 
-    \sa removeRow() removeColumn()
+    \sa removeRows()
+*/
+
+/*!
+    \fn void QAbstractItemModel::columnssInserted(const QModelIndex &parent, int start, int end)
+
+    This signal is emitted when columnss have been inserted
+    into the model. The new items are those between \a start and \a end inclusive.
+
+    \sa insertColumns()
+*/
+
+/*!
+    \fn void QAbstractItemModel::columnsRemoved(const QModelIndex &parent, int start, int end)
+
+    This signal is emitted just before columns are removed
+    from the model. The removed items are those between \a start and
+    \a end inclusive.
+
+    \sa removeRows()
 */
 
 /*!
@@ -529,15 +547,6 @@ QModelIndex QAbstractItemModel::parent(const QModelIndex &) const
 bool QAbstractItemModel::hasChildren(const QModelIndex &parent) const
 {
     return (rowCount(parent) > 0) && (columnCount(parent) > 0);
-}
-
-
-/*!
-    \internal
-*/
-void QAbstractItemModel::fetchMore()
-{
-    // do nothing
 }
 
 /*!

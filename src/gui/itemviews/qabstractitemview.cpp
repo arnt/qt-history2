@@ -58,10 +58,10 @@ void QAbstractItemViewPrivate::init()
 
     QObject::connect(model, SIGNAL(contentsChanged(QModelIndex,QModelIndex)),
                      q, SLOT(contentsChanged(QModelIndex,QModelIndex)));
-    QObject::connect(model, SIGNAL(contentsInserted(QModelIndex,QModelIndex)),
-                     q, SLOT(contentsInserted(QModelIndex,QModelIndex)));
-    QObject::connect(model, SIGNAL(contentsRemoved(QModelIndex,QModelIndex)),
-                     q, SLOT(contentsRemoved(QModelIndex,QModelIndex)));
+    QObject::connect(model, SIGNAL(rowsInserted(const QModelIndex&,int,int)),
+                     q, SLOT(rowsInserted(const QModelIndex&,int,int)));
+    QObject::connect(model, SIGNAL(rowsRemoved(const QModelIndex&,int,int)),
+                     q, SLOT(rowsInserted(const QModelIndex&,int,int)));
 
     q->setHorizontalFactor(256);
     q->setVerticalFactor(256);
@@ -107,7 +107,8 @@ void QAbstractItemViewPrivate::init()
     setCurrentItem(), and common signals such as clicked(),
     doubleClicked(), returnPressed(), spacePressed(), and
     deletePressed(). Many protected slots are also provided, including
-    contentsChanged(), contentsInserted(), contentsRemoved(),
+    contentsChanged(), rowsInserted(), rowsRemoved(),
+    columnsInserted(), columnsRemoved(),
     selectionChanged(), and currentChanged().
 
     The ``root'' item is returned by root(), and the current item by
@@ -1260,6 +1261,7 @@ int QAbstractItemView::keyboardInputInterval() const
 }
 
 /*!
+  ### this is a slot, not a signal
     This signal is emitted if items are changed in the model. The
     changed items are those from \a topLeft to \a bottomRight
     inclusive. If just one item is changed \a topLeft == \a
@@ -1279,26 +1281,12 @@ void QAbstractItemView::contentsChanged(const QModelIndex &topLeft, const QModel
         doItemsLayout();
 }
 
-/*!
-    This signal is emitted if new items are inserted into the model.
-    The new items are those from \a topLeft to \a bottomRight
-    inclusive.
-
-    The base class implementation does nothing.
-*/
-void QAbstractItemView::contentsInserted(const QModelIndex &, const QModelIndex &)
+void QAbstractItemView::rowsInserted(const QModelIndex &, int, int)
 {
     // do nothing
 }
 
-/*!
-    This signal is emitted if items are removed from the model. The
-    removed items are those from \a topLeft to \a bottomRight
-    inclusive.
-
-    The base class implementation does nothing.
-*/
-void QAbstractItemView::contentsRemoved(const QModelIndex &, const QModelIndex &)
+void QAbstractItemView::rowsRemoved(const QModelIndex &, int, int)
 {
     // do nothing
 }

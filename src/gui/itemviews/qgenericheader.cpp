@@ -91,10 +91,34 @@ QGenericHeader::QGenericHeader(QAbstractItemModel *model, Qt::Orientation o, QWi
     setMouseTracking(true);
     setFocusPolicy(Qt::NoFocus);
 
+#if 1
     if (d->orientation == Qt::Horizontal)
         initializeSections(0, model->columnCount() - 1);
     else
         initializeSections(0, model->rowCount() - 1);
+#else
+    QObject::disconnect(model, SIGNAL(rowsInserted(const QModelIndex&, int, int)),
+                        this, SLOT(rowsInserted(const QModelIndex&, int, int)));
+    QObject::disconnect(model, SIGNAL(columnsInserted(const QModelIndex&, int, int)),
+                        this, SLOT(columnsInserted(const QModelIndex&, int, int)));
+    QObject::disconnect(model, SIGNAL(rowsRemoved(const QModelIndex&, int, int)),
+                        this, SLOT(rowsInserted(const QModelIndex&, int, int)));
+    QObject::disconnect(model, SIGNAL(columnsRemoved(const QModelIndex&, int, int)),
+                        this, SLOT(columnsInserted(const QModelIndex&, int, int)));
+    if (d->orientation == Qt::Horizontal) {
+        initializeSections(0, model->columnCount() - 1);
+        QObject::connect(model, SIGNAL(columnsInserted(const QModelIndex&, int, int)),
+                         this, SLOT(sectionsInserted(const QModelIndex&, int, int)));
+        QObject::connect(model, SIGNAL(columnsRemoved(const QModelIndex&, int, int)),
+                         this, SLOT(sectionsRemoved(const QModelIndex&, int, int)));
+    } else {
+        initializeSections(0, model->rowCount() - 1);
+        QObject::connect(model, SIGNAL(rowsInserted(const QModelIndex&, int, int)),
+                         this, SLOT(sectionsInserted(const QModelIndex&, int, int)));
+        QObject::connect(model, SIGNAL(rowsRemoved(const QModelIndex&, int, int)),
+                         this, SLOT(sectionsRemoved(const QModelIndex&, int, int)));
+    }
+#endif
 }
 
 QGenericHeader::~QGenericHeader()
@@ -336,7 +360,7 @@ void QGenericHeader::initializeSections(int start, int end)
     d->sections.resize(end + 1);
     if (oldCount >= count()) {
         d->viewport->update();
-        emit sectionCountChanged(start, end);
+        emit sectionCountChanged(oldCount, count());
         return;
     }
 
@@ -401,24 +425,21 @@ void QGenericHeader::initializeSections(int start, int end)
     d->viewport->update();
 }
 
-void QGenericHeader::contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight)
+void QGenericHeader::sectionsInserted(const QModelIndex &parent, int start, int end)
 {
-    if (topLeft.isValid() && bottomRight.isValid()) {
-        QModelIndex parent = model()->parent(topLeft);
-        if (d->orientation == Qt::Horizontal)
-            initializeSections(topLeft.column(), bottomRight.column());
-        else
-            initializeSections(topLeft.row(), bottomRight.row());
-    }
+    if (parent != root())
+        return; // we only handle changes in the top level
+    initializeSections(start, end);
 }
 
-void QGenericHeader::contentsRemoved(const QModelIndex &topLeft, const QModelIndex &)
+void QGenericHeader::sectionsRemoved(const QModelIndex &parent, int start, int)
 {
-    QModelIndex parent = model()->parent(topLeft);
+    if (parent != root())
+        return; // we only handle changes in the top level
     if (d->orientation == Qt::Horizontal)
-        initializeSections(topLeft.column(), model()->columnCount(parent) - 1);
+        initializeSections(start, d->model->columnCount(root()));
     else
-        initializeSections(topLeft.row(), model()->rowCount(parent) - 1);
+        initializeSections(start, d->model->rowCount(root()));
 }
 
 void QGenericHeader::ensureItemVisible(const QModelIndex &)

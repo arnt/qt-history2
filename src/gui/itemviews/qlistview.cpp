@@ -107,8 +107,8 @@ bool QListModel::isEditable(const QModelIndex &index) const
 void QListModel::append(const QListViewItem &item)
 {
     lst.append(item);
-    QModelIndex idx = createIndex(lst.count() - 1, 0);
-    emit contentsInserted(idx, idx);
+    int row = lst.count() - 1;
+    emit rowsInserted(QModelIndex(), row, row);
 }
 
 bool QListViewItem::operator ==(const QListViewItem &other) const

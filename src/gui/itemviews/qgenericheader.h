@@ -81,8 +81,8 @@ protected slots:
     void resizeSections();
 
 protected:
-    void contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight);
-    void contentsRemoved(const QModelIndex &topLeft, const QModelIndex &bottomRight);
+    void sectionsInserted(const QModelIndex &parent, int start, int end);
+    void sectionsRemoved(const QModelIndex &parent, int start, int end);    
     void initializeSections(int start, int end);
 
     void paintEvent(QPaintEvent *e);
