@@ -18,8 +18,8 @@
     \ingroup objectmodel
     \mainclass
 
-    A guarded pointer, QPointer\<T\>, behaves like a normal C++
-    pointer \c{T*}, except that it is automatically set to 0 when the
+    A guarded pointer, QPointer<T>, behaves like a normal C++
+    pointer \c{T *}, except that it is automatically set to 0 when the
     referenced object is destroyed (unlike normal C++ pointers, which
     become "dangling pointers" in such cases). \c T must be a
     subclass of QObject.
@@ -30,25 +30,22 @@
     test the pointer for validity.
 
     Example:
-    \code
-    QPointer<QLabel> label = new QLabel(0, "label");
-    label->setText("I like guarded pointers");
 
-    delete (QLabel*) label; // simulate somebody destroying the label
+    \quotefromfile snippets/pointer/pointer.cpp
+    \skipto QPointer<QLabel> label
+    \printuntil setText(
+    \dots
+    \printline if (label)
+    \printline show()
 
-    if (label)
-        label->show();
-    else
-        qDebug("The label has been destroyed");
-    \endcode
-
-    The program will output \c{The label has been destroyed} rather
-    than dereferencing an invalid address in \c label->show().
+    If the QLabel is deleted in the meantime, the \c label variable
+    will hold 0 instead of an invalid address, and the last line will
+    never be executed.
 
     The functions and operators available with a QPointer are the
     same as those available with a normal unguarded pointer, except
-    the pointer arithmetic operators (++, --, -, and +), which are
-    normally used only with arrays of objects.
+    the pointer arithmetic operators (\c{+}, \c{-}, \c{++}, and
+    \c{--}), which are normally used only with arrays of objects.
 
     Use QPointers like normal pointers and you will not need to read
     this class documentation.
@@ -59,16 +56,18 @@
     operator!=(), or test for 0 with isNull(). You can dereference
     them using either the \c *x or the \c x->member notation.
 
-    A guarded pointer will automatically cast to a T*, so you can
+    A guarded pointer will automatically cast to a \c T *, so you can
     freely mix guarded and unguarded pointers. This means that if you
     have a QPointer<QWidget>, you can pass it to a function that
-    requires a QWidget*. For this reason, it is of little value to
+    requires a QWidget *. For this reason, it is of little value to
     declare functions to take a QPointer as a parameter; just use
     normal pointers. Use a QPointer when you are storing a pointer
     over time.
 
-    Note that class \c T \e must inherit QObject, or a
-    compilation or link error will result.
+    Note that class \c T must inherit QObject, or a compilation or
+    link error will result.
+
+    \sa QObject
 */
 
 /*!
