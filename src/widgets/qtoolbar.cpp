@@ -803,8 +803,14 @@ void QToolBar::emulateButtonClicked()
 	( (QToolButton*)d->button )->popup()->exec( QCursor::pos() );
     } else if ( d->button->isToggleButton() ) {
 	d->button->setOn( !d->button->isOn() );
+	emit d->button->pressed();
+	emit d->button->released();
 	emit d->button->clicked();
+	if ( d->button->inherits( "QWhatsThisButton" ) )
+	    d->button->setOn( FALSE );
     } else {
+	emit d->button->pressed();
+	emit d->button->released();
 	emit d->button->clicked();
     }
     d->button = 0;

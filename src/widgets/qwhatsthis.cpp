@@ -96,22 +96,24 @@
   \sa QToolTip
 */
 
+// a special button
+class QWhatsThisButton: public QToolButton
+{
+    Q_OBJECT
+    
+public:
+    QWhatsThisButton( QWidget * parent, const char * name );
+    ~QWhatsThisButton();
+
+public slots:
+    void mouseReleased();
+
+};
+
 class QWhatsThisPrivate: public QObject
 {
     Q_OBJECT
 public:
-    // a special button
-    struct Button: public QToolButton
-    {
-	Button( QWidget * parent, const char * name );
-	~Button();
-
-	// reimplemented because of QButton's lack of virtuals
-	void mouseReleaseEvent( QMouseEvent * );
-
-	// reimplemented because, well, because I'm evil.
-	const char *className() const;
-    };
 
     // an item for storing texts
     struct WhatsThisItem: public QShared
@@ -147,7 +149,7 @@ public:
     QWidget * whatsThat;
     QPtrDict<WhatsThisItem> * dict;
     QPtrDict<QWidget> * tlw;
-    QPtrDict<Button> * buttons;
+    QPtrDict<QWhatsThisButton> * buttons;
     State state;
 
     QCursor * cursor;
@@ -229,7 +231,7 @@ static unsigned char cursor_mask_bits[] = {
 
 
 // the button class
-QWhatsThisPrivate::Button::Button( QWidget * parent, const char * name )
+QWhatsThisButton::QWhatsThisButton( QWidget * parent, const char * name )
     : QToolButton( parent, name )
 {
     QPixmap p( button_image );
@@ -239,31 +241,26 @@ QWhatsThisPrivate::Button::Button( QWidget * parent, const char * name )
     setFocusPolicy( NoFocus );
     setTextLabel( tr( "What's this?" ) );
     wt->buttons->insert( (void *)this, this );
+    connect( this, SIGNAL( released() ),
+	     this, SLOT( mouseReleased() ) );
 }
 
 
-QWhatsThisPrivate::Button::~Button()
+QWhatsThisButton::~QWhatsThisButton()
 {
     if ( wt && wt->buttons )
 	wt->buttons->take( (void *)this );
 }
 
 
-void QWhatsThisPrivate::Button::mouseReleaseEvent( QMouseEvent * e )
+void QWhatsThisButton::mouseReleased()
 {
-    QToolButton::mouseReleaseEvent( e );
-    if ( wt->state == Inactive && isOn() ) {
-	setUpWhatsThis();
+    if ( wt->state == QWhatsThisPrivate::Inactive && isOn() ) {
+	QWhatsThisPrivate::setUpWhatsThis();
 	QApplication::setOverrideCursor( *wt->cursor, FALSE );
-	wt->state = Waiting;
+	wt->state = QWhatsThisPrivate::Waiting;
 	qApp->installEventFilter( wt );
     }
-}
-
-
-const char *QWhatsThisPrivate::Button::className() const
-{
-    return "QWhatsThisPrivate::Button";
 }
 
 
@@ -276,7 +273,7 @@ QWhatsThisPrivate::QWhatsThisPrivate()
     dict = new QPtrDict<QWhatsThisPrivate::WhatsThisItem>;
     tlw = new QPtrDict<QWidget>;
     wt = this;
-    buttons = new QPtrDict<Button>;
+    buttons = new QPtrDict<QWhatsThisButton>;
     state = Inactive;
     cursor = new QCursor( QBitmap( cursor_bits_width, cursor_bits_height,
 				   cursor_bits_bits, TRUE ),
@@ -417,8 +414,8 @@ void QWhatsThisPrivate::tearDownWhatsThis()
 void QWhatsThisPrivate::leaveWhatsThisMode()
 {
     if ( state == Waiting ) {
-	QPtrDictIterator<Button> it( *(wt->buttons) );
-	Button * b;
+	QPtrDictIterator<QWhatsThisButton> it( *(wt->buttons) );
+	QWhatsThisButton * b;
 	while( (b=it.current()) != 0 ) {
 	    ++it;
 	    b->setOn( FALSE );
@@ -652,8 +649,8 @@ QString QWhatsThis::textFor( QWidget * widget, const QPoint& pos)
 QToolButton * QWhatsThis::whatsThisButton( QWidget * parent )
 {
     QWhatsThisPrivate::setUpWhatsThis();
-    return new QWhatsThisPrivate::Button( parent,
-					  "automatic what's this? button" );
+    return new QWhatsThisButton( parent,
+				 "automatic what's this? button" );
 }
 
 
