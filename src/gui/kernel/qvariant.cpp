@@ -521,6 +521,12 @@ static bool cast(const QCoreVariant::Private *d, QVariant::Type t,
                  void *result, bool *ok)
 {
     switch (t) {
+    case QVariant::ByteArray:
+        if (d->type == QVariant::Color) {
+            *static_cast<QByteArray *>(result) = v_cast<QColor>(d)->name().toLatin1();
+            return true;
+        }
+        break;
     case QVariant::String: {
         QString *str = static_cast<QString *>(result);
         switch (d->type) {
@@ -569,6 +575,10 @@ static bool cast(const QCoreVariant::Private *d, QVariant::Type t,
     case QVariant::Color:
         if (d->type == QVariant::String) {
             static_cast<QColor *>(result)->setNamedColor(*v_cast<QString>(d));
+            return true;
+        } else if (d->type == QVariant::ByteArray) {
+            static_cast<QColor *>(result)->setNamedColor(QString::fromLatin1(
+                                *v_cast<QByteArray>(d)));
             return true;
         }
         break;
