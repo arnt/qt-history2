@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qml.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qml.cpp#13 $
 **
 ** Implementation of QML classes
 **
@@ -2872,14 +2872,14 @@ bool QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
 	    QDict<QString> attr;
 	    attr.setAutoDelete( TRUE );
 	    QString tagname = parseOpenTag(doc, pos, attr);
-	    
+	
 	    QString curname = current->style->name();
 	    if ( (tagname == "p" && curname == "p") || (tagname == "li" && curname == "p" )
 		 || (tagname == "li" && curname == "li" ) ) {
 		pos = beforePos;
 		return FALSE;
 	    }
-	    
+	
 	    QMLNode* tag = sheet_->tag(tagname, attr, *provider_);
 	    if (tag->isContainer ) {
 		sep = eatSpace(doc, pos);
@@ -2907,14 +2907,14 @@ bool QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
 		    bool ctagUnknown = ctag->style->name().isEmpty() ;
 		    if ( ctagUnknown || ctag->isBox )
 			eatSpace(doc, pos); // no whitespace within an unknown container or box
-		    
+		
 		    if (parse(ctag, 0, doc, pos) ) {
 			sep |= eatSpace(doc, pos);
 			int recoverPos = pos;
 			valid = (hasPrefix(doc, pos, QChar('<'))
 				 && hasPrefix(doc, pos+1, QChar('/'))
 				 && eatCloseTag(doc, pos, tagname) );
-			    
+			
 			// sloppy mode ###
 			if (!valid) {
 			    pos = recoverPos;
@@ -2922,7 +2922,7 @@ bool QMLDocument::parse (QMLContainer* current, QMLNode* lastChild, const QStrin
 			    return TRUE;
 			}
 			
-			if (!valid) 
+			if (!valid)
 			    return TRUE;
 		    }
 		    if ( ctagUnknown || ctag->isBox ) // no whitespace between unknown containers or boxes
@@ -3151,6 +3151,7 @@ bool QMLDocument::eatCloseTag(const QString& doc, int& pos, const QString& open)
     QString tag = parseWord(doc, pos, TRUE, TRUE);
     eatSpace(doc, pos);
     eat(doc, pos, '>');
+    valid = TRUE;     // sloppy:
     valid &= tag == open;
     return valid;
 }
@@ -4041,9 +4042,9 @@ void QMLBrowser::setDocument(const QString& name)
 	url += "#";
 	url += mark;
     }
-    
+
     QString path = provider()->path();
-    
+
     if ( d->curmain != main ) {
 	d->curmain = main;
 	QString doc = provider()->document( main );
