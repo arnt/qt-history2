@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#272 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#273 $
 **
 ** Implementation of QListBox widget class
 **
@@ -52,9 +52,7 @@ public:
 	scrollTimer( 0 ), updateTimer( 0 ), visibleTimer( 0 ),
 	selectionMode( QListBox::Single ),
 	count( 0 ),
-	ignoreMoves( FALSE ),
-	minWidth( 0 ),
-	minHeight( 0 )
+	ignoreMoves( FALSE )
     {}
     ~QListBoxPrivate();
 
@@ -93,11 +91,6 @@ public:
     int count;
 
     bool ignoreMoves;
-
-
-    // used for the sizeHint
-    int minWidth;
-    int minHeight;
 };
 
 
@@ -1797,14 +1790,27 @@ void QListBox::emitChangedSignal( bool lazy ) {
 }
 
 
-/*!
-  Returns something...
-*/
+/*! \reimp */
+
 QSize QListBox::sizeHint() const
 {
     doLayout();
-    return QSize( d->minWidth + 2*frameWidth() + verticalScrollBar()->width(),
-		  d->minHeight + 2*frameWidth() );
+
+    int i=0;
+    while( i < 10 &&
+	   i < (int)d->columnPos.size()-1 &&
+	   d->columnPos[i] < 200 )
+	i++;
+    int x = d->columnPos[i];
+
+    i = 0;
+    while( i < 10 &&
+	   i < (int)d->rowPos.size()-1 &&
+	   d->rowPos[i] < 200 )
+	i++;
+    int y = d->rowPos[i];
+
+    return QSize( QMAX( 40, x ), QMAX( 40, y ) );
 }
 
 
@@ -2049,17 +2055,16 @@ void QListBox::doLayout() const
     }
 
     d->layoutDirty = FALSE;
-    d->minWidth = d->columnPos[numColumns()];
-    d->minHeight = d->rowPos[numRows()];
-    QSize s( viewportSize( d->minWidth, d->minHeight ) );
-    int w = QMAX( d->minWidth, s.width() );
-    int h = QMAX( d->minHeight, s.height() );
+    int w = d->columnPos[d->columnPos.size()-1];
+    int h = d->rowPos[d->rowPos.size()-1];
+    QSize s( viewportSize( w, h ) );
+    w = QMAX( w, s.width() );
+    h = QMAX( h, s.height() );
 
     // extend the column for simple single-column listboxes
     if ( columnMode() == FixedNumber && d->numColumns == 1 &&
 	 d->columnPos[1] < w )
 	d->columnPos[1] = w;
-
     ((QListBox *)this)->resizeContents( w, h );
 }
 
@@ -2741,6 +2746,7 @@ void QListBox::showEvent( QShowEvent * )
     d->mousePressRow = -1;
     d->mousePressColumn = -1;
     d->mustPaintAll = FALSE;
+    d->layoutDirty = TRUE;
     ensureCurrentVisible();
 }
 

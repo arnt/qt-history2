@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.h#92 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.h#93 $
 **
 ** Definition of QListBox widget class
 **
@@ -77,7 +77,6 @@ public:
 
     int currentItem() const;
     virtual void setCurrentItem( int index );
-    virtual void ensureCurrentVisible();
     virtual void setCurrentItem( QListBoxItem * );
     void centerCurrentItem() { ensureCurrentVisible(); }
     int topItem() const;
@@ -163,6 +162,7 @@ public:
     QRect itemRect( QListBoxItem *item ) const;
 
 public slots:
+    virtual void ensureCurrentVisible();
     virtual void clearSelection();
 
 signals:
