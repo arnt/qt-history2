@@ -538,14 +538,10 @@ void QMimeSourceFactory::setPixmap( const QString& abs_name, const QPixmap& pixm
   Passing 0 for data removes previously stored data.
 */
 void QMimeSourceFactory::setData( const QString& abs_name, QMimeSource* data )
-{
-{
-    if ( d->stored.contains(abs_name) )
+{ 
+    if ( d->stored.contains(abs_name) ) 
 	delete d->stored[abs_name];
-    if ( data )
-	d->stored.replace(abs_name,data);
-    else
-	d->stored.remove(abs_name);
+    d->stored.replace(abs_name,data); 
 }
 
 /*! Convenience function. Gets the data associated with the absolute
@@ -591,10 +587,15 @@ QImage QMimeSourceFactory::image( const QString &abs_name ) const
 
     \sa setDefaultFactory()
 */
-QMimeSourceFactory* QMimeSourceFactory::defaultFactory() { if
-    (!defaultfactory) { defaultfactory = new QMimeSourceFactory();
-	qmime_cleanup_factory.set( &defaultfactory ); } return
-	    defaultfactory; }
+QMimeSourceFactory* QMimeSourceFactory::defaultFactory() 
+{ 
+    if (!defaultfactory) 
+    { 
+	defaultfactory = new QMimeSourceFactory();
+	qmime_cleanup_factory.set( &defaultfactory ); 
+    } 
+    return defaultfactory; 
+}
 
 /*!
     Sets the default \a factory, destroying any previously set mime
