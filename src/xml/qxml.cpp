@@ -419,7 +419,7 @@ QString QXmlNamespaceSupport::prefix(const QString& uri) const
     QMap<QString, QString>::ConstIterator itc, it = d->ns.begin();
     while ((itc=it) != d->ns.end()) {
         ++it;
-        if (*itc == uri && !itc.key().isEmpty())
+        if (itc.data() == uri && !itc.key().isEmpty())
             return itc.key();
     }
     return "";
@@ -556,7 +556,7 @@ QStringList QXmlNamespaceSupport::prefixes(const QString& uri) const
     QMap<QString, QString>::ConstIterator itc, it = d->ns.begin();
     while ((itc=it) != d->ns.end()) {
         ++it;
-        if (*itc == uri && !itc.key().isEmpty())
+        if (itc.data() == uri && !itc.key().isEmpty())
             list.append(itc.key());
     }
     return list;
@@ -1484,14 +1484,14 @@ QString QXmlInputSource::fromRawData(const QByteArray &data, bool beginning)
 */
 
 /*!
-    \fn bool QXmlErrorHandler::fatalError(const QXmlParseException& exception)
+\fn bool QXmlErrorHandler::fatalError(const QXmlParseException& exception)
 
-    A reader must use this function to report a non-recoverable error.
-    Details of the error are stored in \a exception.
+A reader must use this function to report a non-recoverable error.
+Details of the error are stored in \a exception.
 
-    If this function returns true the reader might try to go on
-    parsing and reporting further errors; but no regular parsing
-    events are reported.
+If this function returns true the reader might try to go on
+parsing and reporting further errors, but no regular parsing
+events are reported.
 */
 
 /*!
@@ -1871,27 +1871,78 @@ QString QXmlInputSource::fromRawData(const QByteArray &data, bool beginning)
     \module XML
     \ingroup xml-tools
 
-    Very often we are only interested in parts of the things that the
-    reader reports. This class implements a default behaviour for the
-    handler classes (i.e. most of the time do nothing). Usually this
-    is the class you subclass for implementing your own customized
-    handler.
+    This class gathers together the features of
+    the specialized handler classes, making it a convenient
+    starting point when implementing custom handlers for
+    subclasses of QXmlReader, particularly QXmlSimpleReader.
+    The virtual functions from each of the base classes are
+    reimplemented in this class, providing sensible default behavior
+    for many common cases. By subclassing this class, and
+    overriding these functions, you can concentrate
+    on implementing the parts of the handler relevant to your
+    application.
+
+    The XML reader being used needs to be informed about the
+    handler to use for handling different kinds of events during
+    parsing. This means that, although QXmlDefaultHandler
+    provides default implementations of functions inherited from
+    all its base classes, we may still use specialized handlers for
+    particular kinds of events.
+
+    For example, QXmlDefaultHandler subclasses both
+    QXmlContentHandler and QXmlErrorHandler, so by subclassing
+    it we can supply the same handler to both of the following
+    reader functions:
+
+    \quotefile ../doc/snippets/xml/rsslisting/rsslisting.cpp
+    \skipto xmlReader.setContentHandler
+    \printuntil setErrorHandler(handler);
+
+    Since the reader will inform the handler of parsing errors, it is
+    necessary to reimplement QXmlErrorHandler::fatalError() if, for
+    example we want to stop parsing when such an error occurs:
+
+    \quotefile ../doc/snippets/xml/rsslisting/handler.cpp
+    \skipto bool Handler::fatalError
+    \printuntil }
+
+    The above function returns false, so parsing is stopped if
+    a fatal error is encountered. To continue to use the same reader,
+    it is necessary to create a new handler instance, and set up the
+    reader to use it in the manner described above.
+
+    It is useful to examine some of the functions inherited by
+    QXmlDefaultHandler, and consider why they might be
+    reimplemented in a custom handler.
+    Custom handlers will typically reimplement
+    QXmlContentHandler::startDocument() to prepare the handler for
+    new content. Document elements and the text within them can be
+    processed by reimplementing QXmlContentHandler::startElement(),
+    QXmlContentHandler::endElement(), and
+    QXmlContentHandler::characters().
+    You may want to reimplement QXmlContentHandler::endDocument()
+    to perform validation on the content once the document has been
+    read completely.
+
+    See the qt/examples/xml/rsslisting example for more information
+    on creating a custom handler.
 
     See also the \link xml.html#sax2Intro Introduction to SAX2\endlink.
 
     \sa QXmlDTDHandler QXmlDeclHandler QXmlContentHandler QXmlEntityResolver
     QXmlErrorHandler QXmlLexicalHandler
+
 */
 
 /*!
     \fn QXmlDefaultHandler::QXmlDefaultHandler()
 
-    Constructor.
+    Constructs a handler for use with subclasses of QXmlReader.
 */
 /*!
     \fn QXmlDefaultHandler::~QXmlDefaultHandler()
 
-    Destructor.
+    Destroys the handler.
 */
 
 /*!
@@ -2546,7 +2597,7 @@ private:
     \class QXmlSimpleReader
     \reentrant
     \brief The QXmlSimpleReader class provides an implementation of a
-    simple XML reader (parser).
+    simple XML parser.
 \if defined(commercial)
     It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
 \endif
@@ -2560,32 +2611,56 @@ private:
     entities, and can report the namespaces of elements to a content
     handler.
 
-    The parser can be set up to take input that can be read in a single
-    pass, using the parse() function with a single argument:
+    The simplest pattern of use for this class is to create a reader
+    instance, define an input source, specify the handlers to be used
+    by the reader, and begin parsing.
 
-    \code
-    QXmlSimpleReader reader;
-    QFile *file = new QFile("bookmarks.xml");
-    QXmlInputSource *source = new QXmlInputSource(file);
+    For example, we may use a QFile instance to supply input. We create
+    a reader, and define an input source to be used by the reader:
 
-    bool ok = reader.parse(source);
-    \endcode
+    \quotefile ../doc/snippets/xml/simpleparse/main.cpp
+    \skipto QXmlSimpleReader
+    \printuntil (file);
+
+    A handler allows us to perform actions when the reader encounters
+    certain items of content, or if errors in the input are found. The reader
+    needs to be told which handler to use for each type of event. For
+    many common applications, we can create a custom handler by
+    subclassing QXmlDefaultHandler, and use this to handle both errors
+    and content-related events:
+
+    \quotefile ../doc/snippets/xml/simpleparse/main.cpp
+    \skipto Handler *handler
+    \printuntil setErrorHandler(handler);
+
+    It is important to tell the reader about any custom handlers that you
+    are using if you wish to override the default behavior. The reader
+    will fall back on the default behavior if you fail to do so.
+
+    The reader can be set up to take input that can be read in a single
+    pass, using the parse() function with a single argument: that specifies
+    the input source:
+
+    \quotefile ../doc/snippets/xml/simpleparse/main.cpp
+    \skipto bool ok
+    \printuntil endl;
+
+    If not all the input is immediately available, data can be
+    fed to the parser in pieces by supplying a second argument to parse(),
+    and making subsequent calls to parseContinue() until all the
+    necessary data has been processed. This incremental approach to
+    parsing is suitable for applications that retrieve information over
+    a network, and is covered in the
+    \link ../doc/snippets/xml/rdflisting rdflisting\endlink example.
 
     Features of the reader can be set with setFeature(), and properties can
     be set with setProperty(). For example, the following code could be
     used to enable reporting of namespace prefixes to the content handler:
 
     \code
-    QXmlSimpleReader reader;
-
-    reader.setFeature("http://xml.org/sax/features/namespace-prefixes",
-                       true);
+    xmlReader.setFeature("http://xml.org/sax/features/namespace-prefixes",
+                         true);
     \endcode
-
-    Alternatively, if not all the input is immediately available, data can be
-    fed to the parser in pieces by supplying a second argument to parse(),
-    and making subsequent calls to parseContinue() until all the
-    necessary data has been processed.
 
 */
 
@@ -4883,13 +4958,13 @@ bool QXmlSimpleReader::parsePEReference()
                     it = d->parameterEntities.find(ref());
                     if (it != d->parameterEntities.end()) {
                         skipIt = false;
-                        xmlRefString = *it;
+                        xmlRefString = it.data();
                     } else if (entityRes) {
                         QMap<QString,QXmlSimpleReaderPrivate::ExternParameterEntity>::Iterator it2;
                         it2 = d->externParameterEntities.find(ref());
                         QXmlInputSource *ret = 0;
                         if (it2 != d->externParameterEntities.end()) {
-                            if (!entityRes->resolveEntity((*it2).publicId, (*it2).systemId, ret)) {
+                            if (!entityRes->resolveEntity(it2.data().publicId, it2.data().systemId, ret)) {
                                 delete ret;
                                 reportParseError(entityRes->errorString());
                                 return false;
@@ -7102,13 +7177,13 @@ bool QXmlSimpleReader::processReference()
             switch (d->parseReference_context) {
                 case InContent:
                     // Included
-                    if (!insertXmlRef(*it, reference, false))
+                    if (!insertXmlRef(it.data(), reference, false))
                         return false;
                     d->parseReference_charDataRead = false;
                     break;
                 case InAttributeValue:
                     // Included in literal
-                    if (!insertXmlRef(*it, reference, true))
+                    if (!insertXmlRef(it.data(), reference, true))
                         return false;
                     d->parseReference_charDataRead = false;
                     break;
@@ -7160,7 +7235,7 @@ bool QXmlSimpleReader::processReference()
                             bool skipIt = true;
                             if (entityRes) {
                                 QXmlInputSource *ret = 0;
-                                if (!entityRes->resolveEntity((*itExtern).publicId, (*itExtern).systemId, ret)) {
+                                if (!entityRes->resolveEntity(itExtern.data().publicId, itExtern.data().systemId, ret)) {
                                     delete ret;
                                     reportParseError(entityRes->errorString());
                                     return false;
