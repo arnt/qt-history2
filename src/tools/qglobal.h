@@ -372,12 +372,16 @@
 #    define Q_CC_COMEAU
 #    define Q_C_CALLBACKS
 
-/* Using the `using' keyword avoids KAI C++ warnings */
+/* The `using' keyword was introduced to avoid KAI C++ warnings
+   but it's now causing KAI C++ errors instead. The standard is
+   unclear about the use of this keyword, and in practice every
+   compiler is using its own set of rules. Forget it. */
 #  elif defined(__KCC)
 #    define Q_CC_KAI
 #    if !defined(_EXCEPTIONS)
 #      define Q_NO_EXCEPTIONS
 #    endif
+#    define Q_NO_USING_KEYWORD
 
 /* Using the `using' keyword avoids Intel C++ warnings */
 #  elif defined(__INTEL_COMPILER)
@@ -1078,7 +1082,5 @@ Q_EXPORT const char *qInstallPathData();
 #    pragma warn -ccc
 #    pragma warn -rch
 #    pragma warn -sig
-#  elif defined(Q_CC_MWERKS)
-#    pragma warn_possunwant off
 #  endif
 #endif
