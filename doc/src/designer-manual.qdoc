@@ -77,7 +77,7 @@ that they will look and feel exactly as you intended.
    \endraw
    \i
    \raw HTML
-   <a href="designer-using-a-component.html#sec.2">TheSingleInheritanceApproach</a>
+   <a href="designer-using-a-component.html#sec.2">The Single Inheritance Approach</a>
    \endraw
    \i
    \raw HTML
@@ -87,6 +87,16 @@ that they will look and feel exactly as you intended.
    \raw HTML
    <a href="designer-using-a-component.html#sec.4">Automatic Connections</a>
    \endraw
+  \list
+    \i
+    \raw HTML
+    <a href="designer-using-a-component.html#sec.4.1">A Dialog Without Auto-Connect</a>
+    \endraw
+    \i
+    \raw HTML
+    <a href="designer-using-a-component.html#sec.4.2">A Dialog With Auto-Connect</a>
+    \endraw
+  \endlist
  \endlist
 \i \l{designer-editing-mode.html}{Form Editing Mode}
  \list
@@ -766,6 +776,9 @@ slots because we did not need to perform any processing on the
 contents of the dialog. If we want to process the information entered
 by the user before accepting it, we need to connect the clicked()
 signal from the \key OK button to a custom slot in our dialog.
+We will first show an example of the dialog in which the slot is
+connected by hand then compare it with a dialog that uses automatic
+connection.
 
 \target ADialogWithoutAutoConnect
 \section2 A Dialog Without Auto-Connect
@@ -785,6 +798,10 @@ the \key Cancel button's clicked() signal to the dialog's reject() slot:
 
 \quotefromfile snippets/designer/noautoconnection/imagedialog.cpp
 \skipto ImageDialog::ImageDialog
+\printuntil /^\{/
+\skipto ...
+\printuntil ...
+\skipto connect(okButton
 \printuntil /^\}/
 
 We connect the \key OK button's clicked() signal to the dialog's
