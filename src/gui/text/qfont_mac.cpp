@@ -191,17 +191,23 @@ void QFontPrivate::load(QFont::Script script)
         // previous versions
         family_list << QApplication::font().defaultFamily();
         for(QStringList::ConstIterator it = family_list.begin(); it !=  family_list.end(); ++it) {
-            if(ATSFontRef fontref = ATSFontFindFromName(qstring2cfstring((*it)), kATSOptionFlagsDefault)) {
+            CFStringRef cfstr = qstring2cfstring(*it);
+            if(ATSFontRef fontref = ATSFontFindFromName(cfstr, kATSOptionFlagsDefault)) {
                 CFStringRef actualName;
                 if(ATSFontGetName(fontref, kATSOptionFlagsDefault, &actualName) == noErr) {
                     if(cfstring2qstring(actualName) == (*it)) {
+                        // We're leaving, so clean here too.
+                        CFRelease(cfstr);
+                        CFRelease(actualName);
                         engine->fontref = fontref;
                         break;
                     }
+                    CFRelease(actualName);
                 }
                 if(!engine->fontref) //just take one if it isn't set yet
                     engine->fontref = fontref;
             }
+            CFRelease(cfstr);
         }
     }
     { //fill in the engine's font definition
@@ -213,8 +219,10 @@ void QFontPrivate::load(QFont::Script script)
         {
             CFStringRef actualName;
             Q_ASSERT(engine->type() == QFontEngine::Mac);
-            if(ATSFontGetName(engine->fontref, kATSOptionFlagsDefault, &actualName) == noErr)
+            if(ATSFontGetName(engine->fontref, kATSOptionFlagsDefault, &actualName) == noErr) {
                 engine->fontDef.family = cfstring2qstring(actualName);
+                CFRelease(actualName);
+            }
         }
     }
     QFontCache::instance->insertEngine(key, engine);
