@@ -18,6 +18,7 @@ INCLUDEPATH	+= ../shared ../../../src/3rdparty/zlib/
 DESTDIR		= ../../../lib
 VERSION		= 1.0.0
 DEFINES		+= RESOURCE
+unix:system-zlib:LIBS += -lz
 
 unix {
 	target.path=$$QT_INSTALL_LIBPATH
