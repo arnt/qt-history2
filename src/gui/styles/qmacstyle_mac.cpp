@@ -2473,7 +2473,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                                           &titleRegion2);
                     HIShapeGetBounds(titleRegion2, &titleRect);
                     if (titleRect.size.width != 1)
-                        iw = titlebar->icon.width();
+                        iw = titlebar->icon.pixmap().width();
                 }
                 if (!titlebar->text.isEmpty()) {
                     p->save();
@@ -2489,7 +2489,7 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                     else
                         x += br.width() / 2 - p->fontMetrics().width(titlebar->text) / 2;
                     if (iw)
-                        p->drawPixmap(x - iw, y, titlebar->icon);
+                        p->drawPixmap(x - iw, y, titlebar->icon.pixmap());
                     p->drawText(x, y + p->fontMetrics().ascent(), titlebar->text);
                     p->restore();
                 }
@@ -4114,7 +4114,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
                 GetThemeWindowRegion(QtWinType, qt_glb_mac_rect(newr), tds, &twm, twa,
                                      kWindowTitleProxyIconRgn, rgn);
                 if (!EmptyRgn(rgn))
-                    iw = tbar->icon.width();
+                    iw = tbar->icon.pixmap().width();
                 qt_mac_dispose_rgn(rgn);
             }
             if (!tbar->text.isEmpty()) {
@@ -4148,7 +4148,7 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
                     else
                         x += (br.width() / 2) - (p->fontMetrics().width(tbar->text) / 2);
                     if (iw)
-                        pixp.drawPixmap(x - iw, y, tbar->icon);
+                        pixp.drawPixmap(x - iw, y, tbar->icon.pixmap());
                     pixp.drawText(x, y + p->fontMetrics().ascent(), tbar->text);
                     pixp.restore();
                     p->drawPixmap(tbar->rect.topLeft(), pix);
