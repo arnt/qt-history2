@@ -576,14 +576,13 @@ QFSFileEnginePrivate::doStat() const
         if (file.length() == 2 && file.at(1) == ':')
             statName += '\\';
 
-        int r;
         if(d->fd != -1) {
-            could_stat = (QT_FSTAT(d->fd, &st) != 0);
+            could_stat = !QT_FSTAT(d->fd, &st);
         } else {
             QT_WA({
-                could_stat = (QT_TSTAT((TCHAR*)statName.utf16(), (QT_STATBUF4TSTAT*)&st) != 0);
+                could_stat = !QT_TSTAT((TCHAR*)statName.utf16(), (QT_STATBUF4TSTAT*)&st);
             } , {
-                could_stat = (QT_STAT(QFSFileEnginePrivate::win95Name(statName), &st) != 0);
+                could_stat = !QT_STAT(QFSFileEnginePrivate::win95Name(statName), &st);
             });
         }
 	if (could_stat) {
@@ -618,11 +617,10 @@ QFSFileEnginePrivate::doStat() const
 		memset(&st,0,sizeof(st));
 		st.st_mode = QT_STAT_DIR;
 		st.st_nlink = 1;
-		r = 0;
+		could_stat = true;;
 	    }
 	}
 	SetErrorMode(oldmode);
-        return !r;
     }
     return could_stat;
 }
