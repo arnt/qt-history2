@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintd.h#36 $
+** $Id: //depot/qt/main/src/kernel/qpaintd.h#37 $
 **
 ** Definition of QPaintDevice class
 **
@@ -117,10 +117,10 @@ inline Display *QPaintDevice::x11Display() const { return 0; }
 
 inline void bitBlt( QPaintDevice *dst, const QPoint &dp,
 		    const QPaintDevice *src, const QRect &sr =QRect(0,0,-1,-1),
-		    RasterOp rop = CopyROP )
+		    RasterOp rop=CopyROP, bool ignoreMask=FALSE )
 {
     bitBlt( dst, dp.x(), dp.y(), src, sr.x(), sr.y(), sr.width(), sr.height(),
-	    rop );
+	    rop, ignoreMask );
 }
 
 
