@@ -49,6 +49,18 @@ public:
     inline QDebug &operator<<(const QString & t) { d->ts << t; return maybeSpace(); }
     inline QDebug &operator<<(const QByteArray & t) { d->ts << t; return maybeSpace(); }
     inline QDebug &operator<<(void * t) { d->ts << t; return maybeSpace(); }
+    template <class T>
+    inline QDebug &operator<<(const QList<T> &list)
+    {
+	(*this) << '(';
+	for (Q_TYPENAME QList<T>::size_type i = 0; i < list.count(); ++i) {
+	    if (i)
+		(*this) << ',';
+	    (*this) << list.at(i);
+	}
+	(*this) << ')';
+	return *this;
+    }
 
     inline QDebug &operator<<(QTSFUNC f)
 	{ d->ts << f; return *this; }
