@@ -114,16 +114,6 @@ QRegion::QRegion()
     data->ref();
 }
 
-QRegion::QRegion(RgnHandle rgn)
-{
-    data = new QRegionData;
-    Q_CHECK_PTR(data);
-    data->is_null = FALSE;
-    data->is_rect = FALSE;
-    data->rgn = qt_mac_get_rgn();
-    CopyRgn(rgn, data->rgn);
-}    
-
 void 
 QRegion::rectifyRegion()
 {
@@ -145,17 +135,12 @@ QRegion::rectifyRegion()
     }
 }
 
-void 
-*QRegion::handle(bool require_rgn) const
+RgnHandle
+QRegion::handle(bool require_rgn) const
 {
-    if(require_rgn) {
-	if(data->is_rect)
-	    ((QRegion *)this)->rectifyRegion();
-	return (void *)data->rgn;
-    }
-    if(data->is_rect)
-	return (void *)&data->rect;
-    return (void *)data->rgn;
+    if(require_rgn && data->is_rect) 
+	((QRegion *)this)->rectifyRegion();
+    return data->is_rect ? NULL : data->rgn;
 }
 
 QRegion::QRegion( bool is_null )

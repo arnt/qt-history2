@@ -127,7 +127,7 @@ inline bool QMacSavedPortInfo::flush(QPaintDevice *pdev, const QRegion &r, bool 
     } else if( pdev->devType() == QInternal::Pixmap || pdev->devType() == QInternal::Printer) {
 	toFlush = (GWorldPtr)pdev->handle();
     }
-    QDFlushPortBuffer(toFlush, (!r.data->is_rect || force) ? (RgnHandle)r.handle(force) : NULL);
+    QDFlushPortBuffer(toFlush, r.handle(force));
 #endif
     return TRUE;
 }
@@ -142,11 +142,11 @@ inline bool QMacSavedPortInfo::setClipRegion(const QRect &rect)
 
 inline bool QMacSavedPortInfo::setClipRegion(const QRegion &r)
 {
-    if(r.data->is_null)
+    if(r.isNull())
 	return setClipRegion(QRect());
-    else if(r.data->is_rect)
-	return setClipRegion(r.data->rect);
-    SetClip((RgnHandle)r.handle());
+    else if(!r.handle())
+	return setClipRegion(r.boundingRect());
+    SetClip(r.handle());
     return TRUE;
 }
 

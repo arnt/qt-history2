@@ -95,7 +95,7 @@ public:
 #elif defined(Q_WS_X11)
     Region  handle() const { return data->rgn; }
 #elif defined(Q_WS_MAC)
-    void *  handle(bool require_rgn=FALSE) const;
+    RgnHandle handle(bool require_rgn=FALSE) const;
 #elif defined(Q_WS_QWS)
     // QGfx_QWS needs this for region drawing
     void * handle() const { return data->rgn; }
@@ -113,12 +113,6 @@ private:
     QRegion winCombine( const QRegion &, int ) const;
 #endif
 #if defined(Q_WS_MAC)
-    friend class QMacSavedPortInfo;
-    friend class QWidget;
-    friend void qt_dirty_wndw_rgn_internal(const QWidget *p, const QRegion &r);
-    friend QMAC_PASCAL long qt_wdef(short, WindowRef, short, long);
-    friend QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef, RgnHandle,RgnHandle, void *);
-    QRegion(const RgnHandle);
     void rectifyRegion();
 #endif
     void    exec( const QByteArray &, int ver = 0 );

@@ -335,7 +335,7 @@ bool QDragManager::drag( QDragObject *o, QDragObject::DragMode )
 #if defined( Q_WS_MACX ) 
     QRegion dragRegion(boundsPoint.h, boundsPoint.v, pix.width(), pix.height());
     QRegion r(0, 0, pix.width(), pix.height());
-    SetDragImage(theDrag, GetGWorldPixMap((GWorldPtr)pix.handle()), (RgnHandle)r.handle(TRUE), boundsPoint, 0);
+    SetDragImage(theDrag, GetGWorldPixMap((GWorldPtr)pix.handle()), r.handle(TRUE), boundsPoint, 0);
 #else
     QBitmap pixbits;
     pixbits = pix;
@@ -351,7 +351,7 @@ bool QDragManager::drag( QDragObject *o, QDragObject::DragMode )
     qt_mac_tracking_handler( kDragTrackingEnterWindow, (WindowPtr)widget->hd,
 			     (void *)widget->extraData()->macDndExtra, theDrag );
     //now let the mac take control..
-    result = TrackDrag( theDrag, &fakeEvent, (RgnHandle)dragRegion.handle(TRUE) ); 
+    result = TrackDrag( theDrag, &fakeEvent, dragRegion.handle(TRUE) ); 
     DisposeDrag( theDrag );
     qt_mac_in_drag = FALSE;
     return result == noErr;

@@ -137,11 +137,11 @@ static inline void qt_dirty_wndw_rgn_internal(const QWidget *p, const Rect *r)
 }
 inline void qt_dirty_wndw_rgn_internal(const QWidget *p, const QRegion &r)
 {
-    if(r.data->is_rect) {
-	qt_dirty_wndw_rgn_internal(p, mac_rect(r.data->rect));
+    if(!r.handle()) {
+	qt_dirty_wndw_rgn_internal(p, mac_rect(r.boundingRect()));
 	return;
     }
-    InvalWindowRgn((WindowPtr)p->handle(), (RgnHandle)r.handle());
+    InvalWindowRgn((WindowPtr)p->handle(), r.handle());
     qt_event_request_updates();
 }
 
@@ -303,7 +303,7 @@ QMAC_PASCAL long qt_wdef(short, WindowRef window, short message, long param)
 		else
 		    cr = QRegion(widget->rect());
 		cr.translate(widget->x(), widget->y());
-		CopyRgn((RgnHandle)cr.handle(TRUE), s->winRgn);
+		CopyRgn(cr.handle(TRUE), s->winRgn);
 	    }
 	    break; }
 	default:
@@ -331,7 +331,8 @@ QMAC_PASCAL OSStatus qt_erase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn
 	   9, however macosx is not calling this with the proper region, as
 	   some of the area (usually offscreen) isn't actually processed
 	   here even though it is dirty, so for now this is mac9 only */
-	QRegion reg(rgn);
+	QRegion reg;
+	CopyRgn(rgn, reg.handle(TRUE)); 
 	{ //lookup the x and y, don't use qwidget because this callback can be called before its updated
 	    Point px = { 0, 0 };
 	    QMacSavedPortInfo si(widget);
@@ -1274,7 +1275,8 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		    RgnHandle r = qt_mac_get_rgn();
 		    GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, r);
 		    if(!EmptyRgn(r)) {
-			QRegion dirty(r); //the dirty region
+			QRegion dirty; //the dirty region
+			CopyRgn(r, dirty.handle(TRUE));
 			dirty.translate(-topLevelWidget()->geometry().x(), 
 					-topLevelWidget()->geometry().y());
 			if(isMove && !isTopLevel()) //need to be in new coords
@@ -1304,7 +1306,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		    Rect newr; SetRect(&newr,nx, ny, nx + ow, ny + oh);
 		    int ox = px + oldp.x(), oy = py + oldp.y(); //old
 		    Rect oldr; SetRect(&oldr, ox, oy, ox+ow, oy+oh);
-		    SetClip((RgnHandle)bltregion.handle(TRUE));
+		    SetClip(bltregion.handle(TRUE));
 		    //actually copy some pixels now
 		    GrafPtr wport = GetWindowPort((WindowPtr)handle());
 		    LockPortBits(wport);
@@ -1506,8 +1508,8 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
     }
 
     QPoint p(posInWindow(this));
-    QRegion update_rgn(false);
-    GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, (RgnHandle)update_rgn.handle());
+    QRegion update_rgn;
+    GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, update_rgn.handle(TRUE));
     update_rgn.translate(-topLevelWidget()->geometry().x(), -topLevelWidget()->geometry().y());
     QRegion copied(clippedRegion() - update_rgn);
     copied.translate( -p.x(), -p.y() );
@@ -1677,8 +1679,8 @@ void QWidget::propagateUpdates()
 #ifdef QMAC_NO_QUARTZ
     QMacSavedPortInfo savedInfo(this);
 #endif
-    QRegion rgn(false);
-    GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, (RgnHandle)rgn.handle());
+    QRegion rgn;
+    GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, rgn.handle(TRUE));
     if(!rgn.isEmpty()) {
 	rgn.translate(-topLevelWidget()->geometry().x(),
 			    -topLevelWidget()->geometry().y());
@@ -1862,7 +1864,7 @@ QRegion QWidget::clippedRegion(bool do_children)
 	    RgnHandle r = qt_mac_get_rgn();
 	    GetWindowRegion((WindowPtr)hd, kWindowContentRgn, r);
 	    if(!EmptyRgn(r)) {
-		contents = QRegion(r);
+		CopyRgn(r, contents.handle(TRUE));
 		contents.translate(-geometry().x(), -geometry().y());
 	    }
 	    qt_mac_dispose_rgn(r);
