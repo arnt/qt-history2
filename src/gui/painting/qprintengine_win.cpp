@@ -238,6 +238,10 @@ bool QWin32PrintEngine::begin(QPaintDevice *dev)
 //     }
     Q_ASSERT(d->hdc);
 
+    // Assign the FILE: to get the query...
+    if (d->fileName.isEmpty())
+        d->fileName = d->port;
+
 //     QT_WA({
 	DOCINFO di;
 	memset(&di, 0, sizeof(DOCINFO));

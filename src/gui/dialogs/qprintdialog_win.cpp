@@ -128,7 +128,7 @@ int QPrintDialogWin::exec()
             d->toPage = d->maxPage;
         }
 
-        d->ep->printToFile = pd.Flags & PD_PRINTTOFILE;
+        d->ep->printToFile = (pd.Flags & PD_PRINTTOFILE) != 0;
 
         if (pd.hDevNames) {
             DEVNAMES *dn = (DEVNAMES*) GlobalLock(pd.hDevNames);
