@@ -888,6 +888,10 @@ QMakeProject::read(uchar cmd)
                     else
                         cache_depth++;
                 }
+            } else {
+                QString abs_cache = QFileInfo(Option::mkfile::cachefile).absoluteDir().path();
+                if(Option::output_dir.startsWith(abs_cache)) 
+                    cache_depth = Option::output_dir.mid(abs_cache.length()).count('/');
             }
             if(!qmake_cache.isEmpty()) {
                 if(read(qmake_cache, cache)) {
