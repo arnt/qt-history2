@@ -30,6 +30,11 @@ static int compress_level = -1;
 static int compress_threshold = 70;
 static QString resource_root;
 
+struct RCCFileInfo {
+    QString name;
+    QFileInfo fileinfo;
+};
+
 bool
 processResourceFile(const QString &resource, QTextStream &out, QStringList *created)
 {
@@ -50,7 +55,7 @@ processResourceFile(const QString &resource, QTextStream &out, QStringList *crea
     for(QDomElement child = root.firstChild().toElement(); !child.isNull();
         child = child.nextSibling().toElement()) {
         if(child.tagName() == QLatin1String("qresource")) {
-            QFileInfoList files;
+            QList<RCCFileInfo> files;
             QLocale lang(QLocale::C);
             QString prefix = child.attribute("prefix");
             if(child.hasAttribute("lang"))
@@ -58,6 +63,9 @@ processResourceFile(const QString &resource, QTextStream &out, QStringList *crea
             for(QDomNode res = child.firstChild(); !res.isNull(); res = res.nextSibling()) {
                 if(res.toElement().tagName() == QLatin1String("file")) {
                     QFileInfo file(res.firstChild().toText().data());
+                    QString name;
+                    if(res.toElement().hasAttribute("name")) 
+                        name = res.toElement().attribute("name").section('/', -1);
                     if(!file.exists() || file.isDir()) {
                         QDir dir;
                         if(!file.exists())
@@ -68,20 +76,27 @@ processResourceFile(const QString &resource, QTextStream &out, QStringList *crea
                         for(int subFile = 0; subFile < subFiles.count(); subFile++) {
                             if(subFiles[subFile].fileName() == "." || subFiles[subFile].fileName() == "..")
                                 continue;
-                            files.append(subFiles[subFile]);
+                            RCCFileInfo res;
+                            res.name += (name.isNull() ? dir.dirName() : name) 
+                                        + "/" + subFiles[subFile].fileName();
+                            res.fileinfo = subFiles[subFile];
+                            files.append(res);
                         }
                     } else {
-                        files.append(file);
+                        RCCFileInfo res;
+                        res.name = name.isNull() ? file.fileName() : name;
+                        res.fileinfo = QFileInfo(file);
+                        files.append(res);
                     }
                 }
             }
             for(int file = 0; file < files.count(); file++) {
-                if(files[file].isDir()) { //do we want to get recursive?
+                if(files[file].fileinfo.isDir()) { //do we want to get recursive?
                     continue;
                 }
 
                 //process this resource
-                QFile inputQFile(files[file].filePath());
+                QFile inputQFile(files[file].fileinfo.filePath());
                 if (!inputQFile.open(IO_ReadOnly)) {
                     qWarning("Could not open file '%s'", inputQFile.fileName().latin1());
                     continue;
@@ -103,7 +118,7 @@ processResourceFile(const QString &resource, QTextStream &out, QStringList *crea
                 //header
                 const QString location = QDir::cleanPath(resource_root + "/" +
                                                          prefix + "/" +
-                                                         inputQFile.fileName());
+                                                         files[file].name);
                 QByteArray resource_name;
                 {
                     const QChar *data = location.unicode();
