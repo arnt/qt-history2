@@ -505,6 +505,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             writeYaccSrc(mkt, "YACCSOURCES");
             writeLexSrc(mkt, "LEXSOURCES");
             writeImageSrc(mkt, "QMAKE_IMAGE_COLLECTION");
+            writeExtraTargets(mkt);
+            writeExtraCompilerTargets(mkt);
             mkf.close();
         }
         mkfile = fileFixify(mkfile, QDir::currentDirPath());

@@ -231,17 +231,15 @@ void MingwMakefileGenerator::writeObjMocPart(QTextStream &t)
     Win32MakefileGenerator::writeObjMocPart(t);
 }
 
-void MingwMakefileGenerator::writeBuildRulesPart(QTextStream &t, const QString &extraCompilerDeps)
+void MingwMakefileGenerator::writeBuildRulesPart(QTextStream &t)
 {
     t << "all: " << fileFixify(Option::output.name()) << " " << varGlue("ALL_DEPS"," "," "," ") << " $(TARGET)" << endl << endl;
-    t << "$(TARGET): " << var("PRE_TARGETDEPS") << " $(UICDECLS) $(OBJECTS) $(OBJMOC) "
-      << extraCompilerDeps << var("POST_TARGETDEPS");
+    t << "$(TARGET): " << var("PRE_TARGETDEPS") << " $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("POST_TARGETDEPS");
     if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {
         t << "\n\t" << "$(LINK) $(LFLAGS) -o $(TARGET) " << objectsLinkLine << " " << objmocLinkLine << " $(LIBS)";
     } else {
         t << "\n\t" << "$(LIB) $(TARGET) " << objectsLinkLine << " " << objmocLinkLine;
     }
-    t << extraCompilerDeps;
 }
 
 void MingwMakefileGenerator::writeRcFilePart(QTextStream &t)

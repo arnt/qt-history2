@@ -53,6 +53,9 @@ protected:
     void writeSubDirs(QTextStream &t);
     void writeMakeQmake(QTextStream &t);
     void writeExtraVariables(QTextStream &t);
+    void writeExtraTargets(QTextStream &t);
+    void writeExtraCompilerTargets(QTextStream &t);
+    void writeExtraCompilerVariables(QTextStream &t);
 
     struct SubTarget
     {
@@ -107,6 +110,8 @@ protected:
     QString valGlue(const QStringList &varList, const QString &before, const QString &glue, const QString &after);
     QString valList(const QStringList &varList);
 
+    QString replaceExtraCompilerVariables(const QString &, const QString &, const QString &);
+
     QString filePrefixRoot(const QString &, const QString &);
     enum FileFixifyType { FileFixifyAbsolute, FileFixifyRelative, FileFixifyDefault };
     QString fileFixify(const QString& file, const QString &out_dir=QString::null,
@@ -142,9 +147,6 @@ inline QString MakefileGenerator::defaultInstall(const QString &)
 
 inline bool MakefileGenerator::findLibraries()
 { return true; }
-
-inline QString MakefileGenerator::findDependency(const QString &)
-{ return QString(""); }
 
 inline MakefileGenerator::~MakefileGenerator()
 { }

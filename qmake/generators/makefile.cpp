@@ -508,6 +508,32 @@ MakefileGenerator::init()
         }
     }
 
+    QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
+    for(QStringList::Iterator it = quc.begin(); it != quc.end(); ++it) {
+        QString tmp_out = project->variables()[(*it) + ".output"].first();
+        if(tmp_out.isEmpty())
+            continue;
+        QStringList &tmp = project->variables()[(*it) + ".input"];
+        for(QStringList::Iterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
+            QStringList &inputs = project->variables()[(*it2)];
+            for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
+                if((*input).isEmpty())
+                    continue;
+                if(QFile::exists((*input)))
+                    (*input) = fileFixify((*input));
+                QFileInfo fi(Option::fixPathToLocalOS((*input)));
+                QString in = Option::fixPathToTargetOS((*input), false), out = tmp_out;
+                out = replaceExtraCompilerVariables(out, (*input), out);
+
+                if(project->variables().contains((*it) + ".variable_out")) {
+                    project->variables()[project->variables().value((*it) + ".variable_out").first()] += out;
+                } else if(project->variables()[(*it) + ".CONFIG"].indexOf("no_link") == -1) {
+                    project->variables()["OBJECTS"] += out; //auto link it in
+                }
+            }
+        }
+    }
+
     //extra depends
     if(!project->isEmpty("DEPENDS")) {
         QStringList &l = v["DEPENDS"];
@@ -1375,6 +1401,111 @@ MakefileGenerator::createMocFileName(const QString &file)
     return ret;
 }
 
+QString 
+MakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QString &in, const QString &out)
+{
+    QString ret = var;
+    QFileInfo fi(Option::fixPathToLocalOS(in));
+    ret.replace("${QMAKE_FILE_BASE}", fi.baseName());
+    ret.replace("${QMAKE_FILE_NAME}", fi.fileName());
+    ret.replace("${QMAKE_FILE_OUT}", out);
+    return ret;
+}
+
+void 
+MakefileGenerator::writeExtraTargets(QTextStream &t)
+{
+    QStringList &qut = project->variables()["QMAKE_EXTRA_TARGETS"];
+    for(QStringList::Iterator it = qut.begin(); it != qut.end(); ++it) {
+        QString targ = var((*it) + ".target"),
+                 cmd = var((*it) + ".commands"), deps;
+        if(targ.isEmpty())
+            targ = (*it);
+        QStringList &deplist = project->variables()[(*it) + ".depends"];
+        for(QStringList::Iterator dep_it = deplist.begin(); dep_it != deplist.end(); ++dep_it) {
+            QString dep = var((*dep_it) + ".target");
+            if(dep.isEmpty())
+                dep = (*dep_it);
+            deps += " " + dep;
+        }
+        if(!project->variables()["QMAKE_NOFORCE"].isEmpty() &&
+           project->variables()[(*it) + ".CONFIG"].indexOf("phony") != -1)
+            deps += QString(" ") + "FORCE";
+        t << targ << ":" << deps << "\n\t"
+          << cmd << endl << endl;
+    }
+}
+
+void 
+MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
+{
+    QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
+    for(QStringList::Iterator it = quc.begin(); it != quc.end(); ++it) {
+        QString tmp_out = project->variables()[(*it) + ".output"].first();
+        QString tmp_cmd = project->variables()[(*it) + ".commands"].join(" ");
+        QString tmp_dep = project->variables()[(*it) + ".depends"].join(" ");
+        QString tmp_dep_cmd = project->variables()[(*it) + ".depend_command"].join(" ");
+        QStringList &vars = project->variables()[(*it) + ".variables"];
+        if(tmp_out.isEmpty() || tmp_cmd.isEmpty())
+            continue;
+        QStringList &tmp = project->variables()[(*it) + ".input"];
+        for(QStringList::Iterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
+            QStringList &inputs = project->variables()[(*it2)];
+            for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
+                QString in = Option::fixPathToTargetOS((*input), false), deps;
+                if(!tmp_dep.isEmpty())
+                    deps = " " + tmp_dep;
+                QString out = replaceExtraCompilerVariables(tmp_out, (*input), out);
+                QString cmd = replaceExtraCompilerVariables(tmp_cmd, (*input), out);
+                for(QStringList::Iterator it3 = vars.begin(); it3 != vars.end(); ++it3)
+                    cmd.replace("$(" + (*it3) + ")", "$(QMAKE_COMP_" + (*it3)+")");
+                if(!tmp_dep_cmd.isEmpty() && doDepends()) {
+                    char buff[256];
+                    QString dep_cmd = replaceExtraCompilerVariables(tmp_dep_cmd, (*input), out);
+                    if(FILE *proc = QT_POPEN(dep_cmd.latin1(), "r")) {
+                        while(!feof(proc)) {
+                            int read_in = fread(buff, 1, 255, proc);
+                            if(!read_in)
+                                break;
+                            int l = 0;
+                            for(int i = 0; i < read_in; i++) {
+                                if(buff[i] == '\n' || buff[i] == ' ') {
+                                    deps += " " + QByteArray(buff+l, (i - l) + 1);
+                                    l = i;
+                                }
+                            }
+                        }
+                        fclose(proc);
+                    }
+                }
+                deps = replaceExtraCompilerVariables(deps, (*input), out);
+                t << out << ": " << in << deps << "\n\t"
+                  << cmd << endl << endl;
+            }
+        }
+    }
+}
+
+void
+MakefileGenerator::writeExtraCompilerVariables(QTextStream &t)
+{
+    bool first = true;
+    QStringList &comps = project->variables()["QMAKE_EXTRA_COMPILERS"];
+    for(QStringList::Iterator compit = comps.begin(); compit != comps.end(); ++compit) {
+        QStringList &vars = project->variables()[(*compit) + ".variables"];
+        for(QStringList::Iterator varit = vars.begin(); varit != vars.end(); ++varit) {
+            if(first) {
+                t << "\n####### Custom Compiler Variables" << endl;
+                first = false;
+            }
+            t << "QMAKE_COMP_" << (*varit) << " = " 
+              << valList(project->variables()[(*varit)]) << endl;
+        }
+    }
+    if(!first)
+        t << endl;
+}
+
 void
 MakefileGenerator::writeExtraVariables(QTextStream &t)
 {
@@ -2045,6 +2176,37 @@ QMakeLocalFileName MakefileGenerator::findFileForDep(const QMakeLocalFileName &f
         depHeuristics.insert(file.real(), ret);
     }
     return ret;
+}
+
+QString
+MakefileGenerator::findDependency(const QString &dep)
+{
+    //check in our extra targets
+    QStringList &qut = project->variables()["QMAKE_EXTRA_TARGETS"];
+    for(QStringList::Iterator it = qut.begin(); it != qut.end(); ++it) {
+        QString targ = var((*it) + ".target");
+        if(targ.isEmpty())
+            targ = (*it);
+        if(targ.endsWith(dep))
+            return targ;
+    }
+    //check in our extra compilers
+    QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
+    for(QStringList::Iterator it = quc.begin(); it != quc.end(); ++it) {
+        QString tmp_out = project->variables()[(*it) + ".output"].first();
+        if(tmp_out.isEmpty())
+            continue;
+        QStringList &tmp = project->variables()[(*it) + ".input"];
+        for(QStringList::Iterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
+            QStringList &inputs = project->variables()[(*it2)];
+            for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
+                QString out = replaceExtraCompilerVariables(out, (*input), tmp_out);
+                if(out.endsWith(dep))
+                    return out;
+            }
+        }
+    }
+    return QString("");
 }
 
 QStringList

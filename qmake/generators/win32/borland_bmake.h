@@ -21,7 +21,7 @@ class BorlandMakefileGenerator : public Win32MakefileGenerator
 {
     bool init_flag;
     void writeBorlandParts(QTextStream &);
-    void writeBuildRulesPart(QTextStream &t, const QString &extraCompilerDeps);
+    void writeBuildRulesPart(QTextStream &t);
     void writeCleanParts(QTextStream &t);
     bool writeMakefile(QTextStream &);
     void init();

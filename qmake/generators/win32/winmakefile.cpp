@@ -56,43 +56,6 @@ Win32MakefileGenerator::findHighestVersion(const QString &d, const QString &stem
     return biggest;
 }
 
-QString
-Win32MakefileGenerator::findDependency(const QString &dep)
-{
-    {
-        QStringList &qut = project->variables()["QMAKE_EXTRA_TARGETS"];
-        for(QStringList::Iterator it = qut.begin(); it != qut.end(); ++it) {
-            QString targ = var((*it) + ".target");
-            if(targ.isEmpty())
-                targ = (*it);
-            if(targ.endsWith(dep))
-                return targ;
-        }
-    }
-    {
-        QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
-        for(QStringList::Iterator it = quc.begin(); it != quc.end(); ++it) {
-            QString tmp_out = project->variables()[(*it) + ".output"].first();
-            QString tmp_cmd = project->variables()[(*it) + ".commands"].join(" ");
-            if(tmp_out.isEmpty() || tmp_cmd.isEmpty())
-                continue;
-            QStringList &tmp = project->variables()[(*it) + ".input"];
-            for(QStringList::Iterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
-                QStringList &inputs = project->variables()[(*it2)];
-                for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
-                    QString out = tmp_out;
-                    QFileInfo fi(Option::fixPathToLocalOS((*input)));
-                    out.replace("${QMAKE_FILE_BASE}", fi.baseName());
-                    out.replace("${QMAKE_FILE_NAME}", fi.fileName());
-                    if(out.endsWith(dep))
-                        return out;
-                }
-            }
-        }
-    }
-    return MakefileGenerator::findDependency(dep);
-}
-
 bool
 Win32MakefileGenerator::findLibraries(const QString &where)
 {
@@ -260,7 +223,6 @@ void Win32MakefileGenerator::processVars()
     fixTargetExt();
     processLibsVar();
     processRcFileVar();
-    processExtraWinCompilersVar();
     processFileTagsVar();
     processMocConfig();
     processQtConfig();
@@ -318,29 +280,6 @@ void Win32MakefileGenerator::processRcFileVar()
     }
     if(!project->variables()["RES_FILE"].isEmpty())
         project->variables()["QMAKE_LIBS"] += project->variables()["RES_FILE"];
-}
-
-void Win32MakefileGenerator::processExtraWinCompilersVar()
-{
-    QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
-    for(QStringList::Iterator it = quc.begin(); it != quc.end(); ++it) {
-        QString tmp_out = project->variables()[(*it) + ".output"].first();
-        if(tmp_out.isEmpty())
-            continue;
-        QStringList &tmp = project->variables()[(*it) + ".input"];
-        for(QStringList::Iterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
-            QStringList &inputs = project->variables()[(*it2)];
-            for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
-                QFileInfo fi(Option::fixPathToLocalOS((*input)));
-                QString in = Option::fixPathToTargetOS((*input), false),
-                    out = tmp_out;
-                out.replace("${QMAKE_FILE_BASE}", fi.baseName());
-                out.replace("${QMAKE_FILE_NAME}", fi.fileName());
-                if(project->variables()[(*it) + ".CONFIG"].indexOf("no_link") == -1)
-                    project->variables()["OBJCOMP"] += out;
-            }
-        }
-    }
 }
 
 void Win32MakefileGenerator::processQtConfig()
@@ -484,12 +423,13 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
     t << "SRCMOC        = " << varList("SRCMOC") << endl;
 
     writeObjMocPart(t);
-    QString extraCompilerDeps = writeObjCompParts(t);
+    writeExtraCompilerVariables(t);
+    writeExtraVariables(t);
 
     t << "DIST          = " << varList("DISTFILES") << endl;
     t << "TARGET        = ";
     if(!project->variables()["DESTDIR"].isEmpty())
-        t << varGlue("TARGET",project->first("DESTDIR"),"",project->first("TARGET_EXT"));
+        t << varGlue("TARGET", project->first("DESTDIR"),"",project->first("TARGET_EXT"));
     else
         t << project->variables()["TARGET"].value(0) << project->variables()["TARGET_EXT"].value(0);
     t << endl << endl;
@@ -498,7 +438,7 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
     writeImplicitRulesPart(t);
 
     t << "####### Build rules" << endl << endl;
-    writeBuildRulesPart(t, extraCompilerDeps);
+    writeBuildRulesPart(t);
 
     if (!project->variables()["QMAKE_POST_LINK"].isEmpty())
         t << "\t" <<var("QMAKE_POST_LINK") << endl;
@@ -537,80 +477,9 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
       << dist_files.join(" ") << " " << var("TRANSLATIONS") << " " << var("IMAGES") << endl << endl;
 
     writeCleanParts(t);
-
-    QStringList::Iterator it;
-    QStringList &qut = project->variables()["QMAKE_EXTRA_TARGETS"];
-    for(it = qut.begin(); it != qut.end(); ++it) {
-        QString targ = var((*it) + ".target"),
-                 cmd = var((*it) + ".commands"), deps;
-        if(targ.isEmpty())
-            targ = (*it);
-        QStringList &deplist = project->variables()[(*it) + ".depends"];
-        for(QStringList::Iterator dep_it = deplist.begin(); dep_it != deplist.end(); ++dep_it) {
-            QString dep = var((*dep_it) + ".target");
-            if(dep.isEmpty())
-                dep = (*dep_it);
-            deps += " " + dep;
-        }
-        if(!project->variables()["QMAKE_NOFORCE"].isEmpty() &&
-           project->variables()[(*it) + ".CONFIG"].indexOf("phony") != -1)
-            deps += QString(" ") + "FORCE";
-        t << "\n\n" << targ << ":" << deps << "\n\t"
-          << cmd;
-    }
+    writeExtraTargets(t);
+    writeExtraCompilerTargets(t);
     t << endl << endl;
-
-    QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
-    for(it = quc.begin(); it != quc.end(); ++it) {
-        QString tmp_out = project->variables()[(*it) + ".output"].first();
-        QString tmp_cmd = project->variables()[(*it) + ".commands"].join(" ");
-        QString tmp_dep = project->variables()[(*it) + ".depends"].join(" ");
-        QStringList &vars = project->variables()[(*it) + ".variables"];
-        if(tmp_out.isEmpty() || tmp_cmd.isEmpty())
-            continue;
-        QStringList &tmp = project->variables()[(*it) + ".input"];
-        for(QStringList::Iterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
-            QStringList &inputs = project->variables()[(*it2)];
-            for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
-                QFileInfo fi(Option::fixPathToLocalOS((*input)));
-                QString in = Option::fixPathToTargetOS((*input), false),
-                       out = tmp_out, cmd = tmp_cmd, deps;
-                out.replace("${QMAKE_FILE_BASE}", fi.baseName());
-                out.replace("${QMAKE_FILE_NAME}", fi.fileName());
-                cmd.replace("${QMAKE_FILE_BASE}", fi.baseName());
-                cmd.replace("${QMAKE_FILE_OUT}", out);
-                cmd.replace("${QMAKE_FILE_NAME}", fi.fileName());
-                for(QStringList::Iterator it3 = vars.begin(); it3 != vars.end(); ++it3)
-                    cmd.replace("$(" + (*it3) + ")", "$(QMAKE_COMP_" + (*it3)+")");
-                if(!tmp_dep.isEmpty()) {
-                    char buff[256];
-                    QString dep_cmd = tmp_dep;
-                    dep_cmd.replace("${QMAKE_FILE_NAME}", fi.fileName());
-                    if(FILE *proc = QT_POPEN(dep_cmd.latin1(), "r")) {
-                        while(!feof(proc)) {
-                            int read_in = fread(buff, 1, 255, proc);
-                            if(!read_in)
-                                break;
-                            int l = 0;
-                            for(int i = 0; i < read_in; i++) {
-                                if(buff[i] == '\n' || buff[i] == ' ') {
-                                    char old = buff[i + 1];
-                                    buff[i + 1] = '\0';
-                                    deps += " " + QString::fromLatin1(buff + l);
-                                    l = i;
-                                    buff[i + 1] = old;
-                                }
-                            }
-                        }
-                        fclose(proc);
-                    }
-                }
-                t << out << ": " << in << deps << "\n\t"
-                  << cmd << endl << endl;
-            }
-        }
-    }
-    t << endl;
 }
 
 void Win32MakefileGenerator::writeLibsPart(QTextStream &t)
@@ -648,28 +517,6 @@ void Win32MakefileGenerator::writeObjMocPart(QTextStream &t)
     t << "OBJMOC        = " << varList("OBJMOC") << endl;
 }
 
-QString Win32MakefileGenerator::writeObjCompParts(QTextStream &t)
-{
-    // Might not need this function
-    QString extraCompilerDeps;
-
-    if(!project->isEmpty("QMAKE_EXTRA_COMPILERS")) {
-        t << "OBJCOMP       = " << varList("OBJCOMP") << endl;
-        extraCompilerDeps += " $(OBJCOMP) ";
-
-        QStringList &comps = project->variables()["QMAKE_EXTRA_COMPILERS"];
-        for(QStringList::Iterator compit = comps.begin(); compit != comps.end(); ++compit) {
-            QStringList &vars = project->variables()[(*compit) + ".variables"];
-            for(QStringList::Iterator varit = vars.begin(); varit != vars.end(); ++varit) {
-                QStringList vals = project->variables()[(*varit)];
-                if(!vals.isEmpty())
-                    t << "QMAKE_COMP_" << (*varit) << " = " << valList(vals) << endl;
-            }
-        }
-    }
-    return extraCompilerDeps;
-}
-
 void Win32MakefileGenerator::writeImplicitRulesPart(QTextStream &t)
 {
     t << ".SUFFIXES: .c";
@@ -682,7 +529,7 @@ void Win32MakefileGenerator::writeImplicitRulesPart(QTextStream &t)
     t << ".c" << Option::obj_ext << ":\n\t" << var("QMAKE_RUN_CC_IMP") << endl << endl;
 }
 
-void Win32MakefileGenerator::writeBuildRulesPart(QTextStream &, const QString &)
+void Win32MakefileGenerator::writeBuildRulesPart(QTextStream &)
 {
 }
 

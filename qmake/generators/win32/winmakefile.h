@@ -32,7 +32,6 @@ public:
     ~Win32MakefileGenerator();
 protected:
     virtual QString defaultInstall(const QString &);
-    virtual QString writeObjCompParts(QTextStream &t);
     virtual void writeCleanParts(QTextStream &t);
     virtual void writeStandardParts(QTextStream &t);
     virtual void writeLibDirPart(QTextStream &t);
@@ -40,12 +39,12 @@ protected:
     virtual void writeObjectsPart(QTextStream &t);
     virtual void writeObjMocPart(QTextStream &t);
     virtual void writeImplicitRulesPart(QTextStream &t);
-    virtual void writeBuildRulesPart(QTextStream &, const QString &);
+    virtual void writeBuildRulesPart(QTextStream &);
+
     virtual void writeRcFilePart(QTextStream &t);
 
     int findHighestVersion(const QString &dir, const QString &stem);
     bool findLibraries(const QString &);
-    QString findDependency(const QString &);
     virtual bool findLibraries();
 
     virtual void processMocConfig();
@@ -54,7 +53,6 @@ protected:
     virtual void processLibsVar();
     virtual void fixTargetExt();
     virtual void processRcFileVar();
-    virtual void processExtraWinCompilersVar();
     virtual void processQtConfig();
     virtual void processDllConfig();
     virtual void processFileTagsVar();

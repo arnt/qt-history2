@@ -42,7 +42,6 @@ protected:
     virtual void processPrlFiles();
 
     virtual bool findLibraries();
-    virtual QString findDependency(const QString &);
     virtual QStringList &findDependencies(const QString &);
     virtual void init();
 

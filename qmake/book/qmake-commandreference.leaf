@@ -2112,7 +2112,7 @@ for generic new compilers (or even preprocessors).
 \code
 new_moc.output  = moc_${QMAKE_FILE_BASE}.cpp
 new_moc.commands = moc ${QMAKE_FILE_NAME} -o ${QMAKE_FILE_OUT}
-new_moc.depends = g++ -E -M ${QMAKE_FILE_NAME} | sed "s,^.*: ,,"
+new_moc.depend_command = g++ -E -M ${QMAKE_FILE_NAME} | sed "s,^.*: ,,"
 new_moc.input = NEW_HEADERS
 QMAKE_EXTRA_UNIX_COMPILERS += new_moc
 \endcode
@@ -2121,7 +2121,7 @@ With this you can create a new moc for qmake, the commands will be
 executed over all arguments given to a NEW_HEADERS variable (from the
 input variable), and write to output (and automatically hand this
 filename to the compiler to be linked into your target). Additionally
-qmake will execute depends to generate dependency information and
+qmake will execute depend_command to generate dependency information and
 place this in the project as well.
 
 These commands can easily be placed into a cache file, and subsequent

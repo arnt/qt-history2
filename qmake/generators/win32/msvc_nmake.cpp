@@ -29,11 +29,9 @@ NmakeMakefileGenerator::writeMakefile(QTextStream &t)
 {
     writeHeader(t);
     if(!project->variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty()) {
-        { //write extra target names..
-            QStringList &qut = project->variables()["QMAKE_EXTRA_TARGETS"];
-            for(QStringList::ConstIterator it = qut.begin(); it != qut.end(); ++it)
-                t << *it << " ";
-        }
+        QStringList &qut = project->variables()["QMAKE_EXTRA_TARGETS"];
+        for(QStringList::ConstIterator it = qut.begin(); it != qut.end(); ++it)
+            t << *it << " ";
         t << "all clean:" << "\n\t"
           << "@echo \"Some of the required modules ("
           << var("QMAKE_FAILED_REQUIREMENTS") << ") are not available.\"" << "\n\t"
@@ -236,12 +234,11 @@ void NmakeMakefileGenerator::writeImplicitRulesPart(QTextStream &t)
 
 }
 
-void NmakeMakefileGenerator::writeBuildRulesPart(QTextStream &t, const QString &extraCompilerDeps)
+void NmakeMakefileGenerator::writeBuildRulesPart(QTextStream &t)
 {
     t << "first: all" << endl;
     t << "all: " << fileFixify(Option::output.name()) << " " << varGlue("ALL_DEPS"," "," "," ") << "$(TARGET)" << endl << endl;
-    t << "$(TARGET): " << var("PRE_TARGETDEPS") << " $(UICDECLS) $(OBJECTS) $(OBJMOC) "
-      << extraCompilerDeps << var("POST_TARGETDEPS");
+    t << "$(TARGET): " << var("PRE_TARGETDEPS") << " $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("POST_TARGETDEPS");
     if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {
         t << "\n\t" << "$(LINK) $(LFLAGS) /OUT:$(TARGET) @<< " << "\n\t  "
           << "$(OBJECTS) $(OBJMOC) $(LIBS)";
@@ -249,6 +246,5 @@ void NmakeMakefileGenerator::writeBuildRulesPart(QTextStream &t, const QString &
         t << "\n\t" << "$(LIB) /OUT:$(TARGET) @<<" << "\n\t  "
           << "$(OBJECTS) $(OBJMOC)";
     }
-    t << extraCompilerDeps;
     t << endl << "<<" << endl;
 }

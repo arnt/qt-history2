@@ -28,7 +28,7 @@ private:
     bool writeMakefile(QTextStream &);
     void writeObjectsPart(QTextStream &t);
     void writeObjMocPart(QTextStream &t);
-    void writeBuildRulesPart(QTextStream &t, const QString &extraCompilerDeps);
+    void writeBuildRulesPart(QTextStream &t);
     void writeRcFilePart(QTextStream &t);
     void init();
 

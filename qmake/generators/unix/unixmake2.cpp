@@ -52,11 +52,9 @@ UnixMakefileGenerator::writeMakefile(QTextStream &t)
     writeHeader(t);
     if(!project->variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty()) {
         t << "QMAKE    = "        << (project->isEmpty("QMAKE_QMAKE") ? QString("qmake") : var("QMAKE_QMAKE")) << endl;
-        { //write extra target names
-            QStringList &qut = project->variables()["QMAKE_EXTRA_TARGETS"];
-            for(QStringList::ConstIterator it = qut.begin(); it != qut.end(); ++it)
-                t << *it << " ";
-        }
+        QStringList &qut = project->variables()["QMAKE_EXTRA_TARGETS"];
+        for(QStringList::ConstIterator it = qut.begin(); it != qut.end(); ++it)
+            t << *it << " ";
         t << "first all clean install distclean mocables uninstall uicables:" << "\n\t"
           << "@echo \"Some of the required modules ("
           << var("QMAKE_FAILED_REQUIREMENTS") << ") are not available.\"" << "\n\t"
@@ -214,20 +212,6 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     }
     if(do_incremental && !moc_incremental && !src_incremental)
         do_incremental = false;
-    if(!project->isEmpty("QMAKE_EXTRA_COMPILERS")) {
-        t << "OBJCOMP       = " << varList("OBJCOMP") << endl;
-        target_deps += " $(OBJCOMP)";
-
-        QStringList &comps = project->variables()["QMAKE_EXTRA_COMPILERS"];
-        for(QStringList::Iterator compit = comps.begin(); compit != comps.end(); ++compit) {
-            QStringList &vars = project->variables()[(*compit) + ".variables"];
-            for(QStringList::Iterator varit = vars.begin(); varit != vars.end(); ++varit) {
-                QStringList vals = project->variables()[(*varit)];
-                if(!vals.isEmpty())
-                    t << "QMAKE_COMP_" << (*varit) << " = " << valList(vals) << endl;
-            }
-        }
-    }
     t << "DIST          = " << valList(fileFixify(project->variables()["DISTFILES"])) << endl;
     t << "QMAKE_TARGET  = " << var("QMAKE_ORIG_TARGET") << endl;
     t << "DESTDIR       = " << var("DESTDIR") << endl;
@@ -248,6 +232,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
             t << "TARGET0       = " << var("TARGET_") << endl;
         }
     }
+    writeExtraCompilerVariables(t);
     writeExtraVariables(t);
     t << endl;
 
@@ -865,73 +850,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
           << "$(DEL_FILE) " << outdir << "allmoc.h" << endl << endl;
     }
 
-    // user defined targets
-    QStringList &qut = project->variables()["QMAKE_EXTRA_TARGETS"];
-    for(it = qut.begin(); it != qut.end(); ++it) {
-        QString targ = var((*it) + ".target"),
-                 cmd = var((*it) + ".commands"), deps;
-        if(targ.isEmpty())
-            targ = (*it);
-        QStringList &deplist = project->variables()[(*it) + ".depends"];
-        for(QStringList::Iterator dep_it = deplist.begin(); dep_it != deplist.end(); ++dep_it) {
-            QString dep = var((*dep_it) + ".target");
-            if(dep.isEmpty())
-                dep = (*dep_it);
-            deps += " " + dep;
-        }
-        if(project->variables()[(*it) + ".CONFIG"].indexOf("phony") != -1)
-            deps += QString(" ") + "FORCE";
-        t << targ << ":" << deps << "\n\t"
-          << cmd << endl << endl;
-    }
-    // user defined compilers
-    QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
-    for(it = quc.begin(); it != quc.end(); ++it) {
-        QString tmp_out = project->variables()[(*it) + ".output"].first();
-        QString tmp_cmd = project->variables()[(*it) + ".commands"].join(" ");
-        QString tmp_dep = project->variables()[(*it) + ".depends"].join(" ");
-        QStringList &vars = project->variables()[(*it) + ".variables"];
-        if(tmp_out.isEmpty() || tmp_cmd.isEmpty())
-            continue;
-        QStringList &tmp = project->variables()[(*it) + ".input"];
-        for(QStringList::Iterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
-            QStringList &inputs = project->variables()[(*it2)];
-            for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
-                QFileInfo fi(Option::fixPathToLocalOS((*input)));
-                QString in = Option::fixPathToTargetOS((*input), false),
-                       out = tmp_out, cmd = tmp_cmd, deps;
-                out.replace("${QMAKE_FILE_BASE}", fi.baseName());
-                out.replace("${QMAKE_FILE_NAME}", fi.fileName());
-                cmd.replace("${QMAKE_FILE_BASE}", fi.baseName());
-                cmd.replace("${QMAKE_FILE_OUT}", out);
-                cmd.replace("${QMAKE_FILE_NAME}", fi.fileName());
-                for(QStringList::Iterator it3 = vars.begin(); it3 != vars.end(); ++it3)
-                    cmd.replace("$(" + (*it3) + ")", "$(QMAKE_COMP_" + (*it3)+")");
-                if(!tmp_dep.isEmpty()) {
-                    char buff[256];
-                    QString dep_cmd = tmp_dep;
-                    dep_cmd.replace("${QMAKE_FILE_NAME}", fi.fileName());
-                    if(FILE *proc = QT_POPEN(dep_cmd.latin1(), "r")) {
-                        while(!feof(proc)) {
-                            int read_in = fread(buff, 1, 255, proc);
-                            if(!read_in)
-                                break;
-                            int l = 0;
-                            for(int i = 0; i < read_in; i++) {
-                                if(buff[i] == '\n' || buff[i] == ' ') {
-                                    deps += " " + QByteArray(buff+l, (i - l) + 1);
-                                    l = i;
-                                }
-                            }
-                        }
-                        fclose(proc);
-                    }
-                }
-                t << out << ": " << in << deps << "\n\t"
-                  << cmd << endl << endl;
-            }
-        }
-    }
+    writeExtraTargets(t);
+    writeExtraCompilerTargets(t);
     t <<"FORCE:" << endl << endl;
 }
 
@@ -1132,25 +1052,6 @@ void UnixMakefileGenerator::init2()
                 rpath_destdir = Option::fixPathToTargetOS(rpath_destdir, false);
             }
             project->variables()["QMAKE_LFLAGS"] += project->first("QMAKE_LFLAGS_RPATH") + rpath_destdir;
-        }
-    }
-    QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
-    for(QStringList::Iterator it = quc.begin(); it != quc.end(); ++it) {
-        QString tmp_out = project->variables()[(*it) + ".output"].first();
-        if(tmp_out.isEmpty())
-            continue;
-        QStringList &tmp = project->variables()[(*it) + ".input"];
-        for(QStringList::Iterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
-            QStringList &inputs = project->variables()[(*it2)];
-            for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
-                QFileInfo fi(Option::fixPathToLocalOS((*input)));
-                QString in = Option::fixPathToTargetOS((*input), false),
-                       out = tmp_out;
-                out.replace("${QMAKE_FILE_BASE}", fi.baseName());
-                out.replace("${QMAKE_FILE_NAME}", fi.fileName());
-                if(project->variables()[(*it) + ".CONFIG"].indexOf("no_link") == -1)
-                    project->variables()["OBJCOMP"] += out;
-            }
         }
     }
 }
