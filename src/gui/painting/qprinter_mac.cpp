@@ -363,18 +363,15 @@ bool QPrinter::printSetup(QWidget *)
 {
     if(!psession && PMCreateSession(&psession) != noErr)
         return false;
-    if(::qt_cast<QMacStyle *>(&qApp->style())) {
-        Boolean ret;
-        QMacBlockingFunction block;
-        //setup
-        if(!prepare(&psettings))
-            return false;
-        if(!outputToFile() && PMSessionPrintDialog(psession, psettings, pformat, &ret) != noErr || !ret)
-            return false;
-        interpret(&psettings);
-        return true;
-    }
-    return false;
+    Boolean ret;
+    QMacBlockingFunction block;
+    //setup
+    if(!prepare(&psettings))
+        return false;
+    if(!outputToFile() && PMSessionPrintDialog(psession, psettings, pformat, &ret) != noErr || !ret )
+        return false;
+    interpret(&psettings);
+    return true;
 }
 
 // shows the native mac page setup dialog
@@ -385,18 +382,15 @@ bool QPrinter::pageSetup(QWidget *)
 {
     if(!psession && PMCreateSession(&psession) != noErr)
         return false;
-    if(::qt_cast<QMacStyle *>(&qApp->style())) {
-        Boolean ret;
-        QMacBlockingFunction block;
-        //page format
-        if(!prepare(&pformat))
-            return false;
-        if(PMSessionPageSetupDialog(psession, pformat, &ret) != noErr || !ret)
-            return false;
-        interpret(&pformat);
-        return true;
-    }
-    return false;
+    Boolean ret;
+    QMacBlockingFunction block;
+    //page format
+    if(!prepare(&pformat))
+        return false;
+    if(PMSessionPageSetupDialog(psession, pformat, &ret) != noErr || !ret)
+        return false;
+    interpret(&pformat);
+    return true;
 }
 
 bool
