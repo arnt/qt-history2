@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qjpunicode.cpp#1 $
+** $Id: //depot/qt/main/src/tools/qjpunicode.cpp#2 $
 **
 ** Implementation of QJpUnicode class
 **
@@ -61,7 +61,7 @@
 
 #define	STRICT
 
-#define	IsLatin(c)	(((c) >= 0x00) && ((c) <= 0x7f))
+#define	IsLatin(c)	(/*((c) >= 0x00) &&*/ ((c) <= 0x7f))
 #define	IsKana(c)	(((c) >= 0xa1) && ((c) <= 0xdf))
 #define	IsJisChar(c)	(((c) >= 0x21) && ((c) <= 0x7e))
 #define	IsSjisChar1(c)	((((c) >= 0x81) && ((c) <= 0x9f)) ||	\
