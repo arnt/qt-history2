@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#395 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#396 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -630,6 +630,7 @@ XFontSet xic_fontset(void* qfs, int pt)
 }
 #endif
 
+
 void QWidget::setFontSys()
 {
 #ifndef NO_XIM
@@ -859,7 +860,7 @@ void QWidget::setIcon( const QPixmap &pixmap )
 	h->flags = 0;
     }
     h->icon_pixmap = icon_pixmap;
-    h->icon_mask   = mask_pixmap;
+    h->icon_mask = mask_pixmap;
     h->flags |= IconPixmapHint | IconMaskHint;
     XSetWMHints( x11Display(), winId(), h );
     if ( got_hints )
@@ -893,13 +894,13 @@ void QWidget::setMouseTracking( bool enable )
 	clearWState( WState_MouseTracking );
     if ( testWFlags(WType_Desktop) ) {		// desktop widget?
 	QWidget* main_desktop = find( winId() );
-	if ( main_desktop->testWFlags(WPaintDesktop) )	// get desktop paint events
+	if ( main_desktop->testWFlags(WPaintDesktop) )
 	    XSelectInput( x11Display(), winId(),
-			  stdDesktopEventMask|ExposureMask );
+			  stdDesktopEventMask | ExposureMask );
 	else
 	    XSelectInput( x11Display(), winId(), stdDesktopEventMask );
     } else {
-	XSelectInput( x11Display(), winId(),	// specify events
+	XSelectInput( x11Display(), winId(),
 		      m | stdWidgetEventMask );
     }
 }
@@ -927,8 +928,9 @@ void QWidget::grabMouse()
 	if ( mouseGrb )
 	    mouseGrb->releaseMouse();
 	XGrabPointer( x11Display(), winId(), TRUE,
-		      (uint)(ButtonPressMask | ButtonReleaseMask |
-		             PointerMotionMask | EnterWindowMask | LeaveWindowMask),
+		      (uint)( ButtonPressMask | ButtonReleaseMask |
+			      PointerMotionMask | EnterWindowMask |
+			      LeaveWindowMask ),
 		      GrabModeAsync, GrabModeAsync,
 		      None, None, CurrentTime );
 	mouseGrb = this;
