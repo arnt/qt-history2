@@ -53,6 +53,9 @@
 #include "qaccessible.h"
 #endif
 
+static const int DefaultAutoRepeatDelay  = 300;
+static const int DefaultAutoRepeatPeriod = 100;
+
 class QButtonData
 {
 public:
@@ -63,8 +66,8 @@ public:
 #ifndef QT_NO_ACCEL
 	a = 0;
 #endif
-	repeatDelay = 300;
-	repeatPeriod = 100;
+	repeatDelay = DefaultAutoRepeatDelay;
+	repeatPeriod = DefaultAutoRepeatDelay;
     }
 #ifndef QT_NO_BUTTONGROUP
     QButtonGroup *group;
@@ -570,22 +573,28 @@ void QButton::setAutoRepeat( bool enable )
 
 void QButton::setAutoRepeatDelay( int delay )
 {
+    ensureData();
     d->repeatDelay = delay;
 }
 
 void QButton::setAutoRepeatPeriod( int period )
 {
+    ensureData();
     d->repeatPeriod = period;
 }
 
 int QButton::autoRepeatDelay() const
 {
-    return d->repeatDelay;
+    if ( d )
+	return d->repeatDelay;
+    return DefaultAutoRepeatDelay;
 }
 
 int QButton::autoRepeatPeriod() const
 {
-    return d->repeatPeriod;
+    if ( d )
+	return d->repeatPeriod;
+    return DefaultAutoRepeatPeriod;
 }
 
 /*!
