@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#132 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#133 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -1165,21 +1165,24 @@ QString QFont::key() const
 {
     if ( d->req.rawMode )
 	return d->req.family.lower();
-    QString s;
-    char t[5];
-    hex4( d->req.pointSize, t );
-    s += QString::fromLatin1(t);
-    s += d->req.family.lower();
-    hex2( get_font_bits( d->req ), t );
-    s += QString::fromLatin1(t);
-    hex2( d->req.weight, t );
-    s += QString::fromLatin1(t);
-    hex2( d->req.hintSetByUser ? (int)d->req.styleHint : (int)QFont::AnyStyle,
-	  t );
-    s += QString::fromLatin1(t);
-    hex2( d->req.charSet, t );
-    s += QString::fromLatin1(t);
-    return s;
+    QString family = d->req.family.lower();
+    int len = family.length()*2 +
+	2 +  // point size
+	1 +  // font bits
+	1 +  // weight
+	1 +  // hint
+	1;   // char set
+    QByteArray buf(len);
+    uchar *p = (uchar *)buf.data();
+    memcpy( (char *)p, (char *)family.unicode(), family.length()*2 );
+    p += family.length()*2;
+    *((Q_UINT16*)p) = d->req.pointSize;
+    p += 2;
+    *p++ = get_font_bits( d->req );
+    *p++ = d->req.weight;
+    *p++ = d->req.hintSetByUser ? (int)d->req.styleHint : (int)QFont::AnyStyle;
+    *p   = d->req.charSet;
+    return QString( (QChar*)buf.data(), buf.size()/2 );
 }
 
 
