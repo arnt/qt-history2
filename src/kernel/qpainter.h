@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#13 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#14 $
 **
 ** Definition of QPainter class
 **
@@ -34,6 +34,7 @@ class QPainter					// painter class
 friend class QFont;
 friend class QPen;
 friend class QBrush;
+friend class QIntPainter;
 public:
     QPainter();
    ~QPainter();
@@ -195,7 +196,8 @@ private:
     void	updateXForm();			// update internal xform params
 
     enum { IsActive=0x01, DirtyFont=0x02, DirtyPen=0x04, DirtyBrush=0x08,
-	   VxF=0x10, WxF=0x20, ClipOn=0x40, ExtDev=0x80, SafePolygon=0x100 };
+	   VxF=0x10, WxF=0x20, ClipOn=0x40, ExtDev=0x80, SafePolygon=0x100,
+           IsStartingUp=0x200 };
     ushort	flags;				// painter flags
     bool	testf( ushort b ) const	{ return (flags&b)!=0; }
     void	setf( ushort b )	{ flags |= b; }
