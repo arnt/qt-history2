@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#39 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#40 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -566,21 +566,23 @@ void QSpinBox::resizeEvent( QResizeEvent* )
 /*!
   Handles wheel events for the spinbox.
 */
-void QSpinBox::wheelEvent( QWheelEvent * e){
+void QSpinBox::wheelEvent( QWheelEvent * e )
+{
     static float offset = 0;
     static QSpinBox* offset_owner = 0;
-    if (offset_owner != this){
+    if (offset_owner != this) {
 	offset_owner = this;
 	offset = 0;
     }
     e->accept();
     offset += -e->delta()/120;
-    if (QABS(offset)<1)
+    if (QABS(offset) < 1)
 	return;
+    int ioff = int(offset);
     int i;
-    for (i=0;i<QABS(int(offset));i++)
-	offset>0?stepDown():stepUp();
-    offset -= int(offset);
+    for (i=0; i<QABS(ioff); i++)
+	offset > 0 ? stepDown() : stepUp();
+    offset -= ioff;
 }
 
 

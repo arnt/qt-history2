@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#112 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#113 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -1596,7 +1596,7 @@ uint Q2String::toUInt( bool *ok ) const
 double Q2String::toDouble( bool *ok ) const
 {
     char *end;
-    const char *a = ascii();
+    char *a = ascii();
     double val = strtod( a ? a : "", &end );
     if ( ok )
 	*ok = ( a && *a && ( end == 0 || *end == '\0' ) );

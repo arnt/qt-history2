@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#115 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#116 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -1053,7 +1053,12 @@ void QWidget::setAcceptDrops( bool on )
 
 void QWidget::setMask(const QRegion& region)
 {
-    // ##### May need align with/off titlebar.
-    HRGN = CopyRegion(region.handle()); // Since SetWindowRegion takes ownership.
-    SetWindowRegion( winId(), region.handle());
+    // Since SetWindowRegion takes ownership, and we need to translate,
+    // we take a copy.
+    HRGN wr = CreateRectRgn(0,0,1,1);
+    CombineRgn(wr, region.handle(), 0, RGN_COPY);
+    RECT cr;
+    GetClientRect( winId(), &cr );
+    OffsetRgn(wr, crect.x()-frect.x(), crect.y()-frect.y());
+    SetWindowRgn( winId(), wr, TRUE );
 }

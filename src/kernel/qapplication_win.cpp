@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#157 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#158 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1169,7 +1169,7 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 	    else
 		brush = CreateSolidBrush( widget->backgroundColor().pixel() );
 	    HBRUSH oldBrush = SelectObject( hdc, brush );
-	    PatBlt( hdc, 0, 0, rect.right, rect.bottom, PATCOPY );
+	    PatBlt( hdc, 0,0, rect.right, rect.bottom, PATCOPY );
 	    SelectObject( hdc, oldBrush );
 	    DeleteObject( brush );
 	    if ( QColor::hPal() ) {

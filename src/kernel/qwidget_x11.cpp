@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#251 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#252 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1735,8 +1735,10 @@ bool QWidget::acceptDrops() const
 }
 
 /*!
-  Causes only the parts of the window which overlap \a region
-  to be visible.
+  Causes only the parts of the widget which overlap \a region
+  to be visible.  If the region includes pixels outside the
+  rect() of the widget, window system controls in that area
+  may or may not be visible, depending on the platform.
 
   Note that this effect can be slow if the region is particularly
   complex.
