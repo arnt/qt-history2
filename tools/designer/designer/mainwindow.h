@@ -393,6 +393,7 @@ private:
     Project *eProject;
     bool inDebugMode;
     QObjectList debuggingForms;
+    QString lastOpenFilter, lastSaveFilter;
 
 };
 

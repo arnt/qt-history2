@@ -1102,7 +1102,7 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension )
 
 	QString filters = filterlist.join( ";;" );
 
-	filename = QFileDialog::getOpenFileName( QString::null, filters, this );
+	filename = QFileDialog::getOpenFileName( QString::null, filters, this, 0, QString::null, &lastOpenFilter );
 	if ( !filename.isEmpty() ) {
 	    QFileInfo fi( filename );
 
@@ -1230,8 +1230,8 @@ bool MainWindow::fileSaveAs()
     FormWindow *fw = formWindow();
 
     QString filename = QFileDialog::getSaveFileName( QString::null, tr( "Qt User-Interface Files (*.ui)" ) + ";;" +
-								tr( "All Files (*)" ), this );
-
+						     tr( "All Files (*)" ), this, 0, QString::null,
+						     &lastSaveFilter );
     if ( filename.isEmpty() )
 	return FALSE;
     QFileInfo fi( filename );
