@@ -688,13 +688,16 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 	    dd=32;
     }
 
+    // for drivers that do not accelerate alpha blt
+    Optimization optim = partialalpha ? NoOptim : defOptim;
+
     QImage rimg = qt_screen->mapToDevice( image );
 
     // detach other references and re-init()
     bool ibm = isQBitmap();
     detach();
     deref();
-    init( w, h, dd, ibm, defOptim );
+    init( w, h, dd, ibm, optim );
 
     QGfx * mygfx=graphicsContext();
     if ( mygfx ) {

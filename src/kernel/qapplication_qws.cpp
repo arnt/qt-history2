@@ -333,6 +333,8 @@ public:
     ~Data()
     {
 	delete rgnMan; rgnMan = 0;
+	extern void qws_freePixmapData();
+	qws_freePixmapData();
 	delete memorymanager; memorymanager = 0;
 	qt_screen->disconnect();
 	delete qt_screen; qt_screen = 0;
