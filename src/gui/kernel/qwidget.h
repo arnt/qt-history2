@@ -395,7 +395,7 @@ public slots:
 public:
     void stackUnder(QWidget*);
     void move(int x, int y);
-    inline void move(const QPoint &);
+    void move(const QPoint &);
     void resize(int w, int h);
     void resize(const QSize &);
     void setGeometry(int x, int y, int w, int h);
