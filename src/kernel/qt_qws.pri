@@ -38,7 +38,6 @@ embedded {
 
 	 !mac:SOURCES += $$KERNEL_CPP/qsound_qws.cpp $$KERNEL_CPP/qsoundqss_qws.cpp
          SOURCES +=  $$KERNEL_CPP/qapplication_qws.cpp \
-	            $$KERNEL_CPP/qprinter_qws.cpp \
 		    $$KERNEL_CPP/qclipboard_qws.cpp \
 		    $$KERNEL_CPP/qcolor_qws.cpp \
 		    $$KERNEL_CPP/qcopchannel_qws.cpp \
