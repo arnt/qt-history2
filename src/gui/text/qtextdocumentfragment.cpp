@@ -22,6 +22,9 @@ QTextFormatCollectionState::QTextFormatCollectionState(const QTextFormatCollecti
 {
     for (int i = 0; i < formatIndices.size(); ++i) {
         const int formatIdx = formatIndices[i];
+        if (formatIdx == -1)
+            continue;
+
         QTextFormat format = collection->format(formatIdx);
 
         QTextFormatGroup *group = format.group();
@@ -89,9 +92,9 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
     QTextPieceTable::FragmentIterator fragIt = pieceTable->find(pos);
 
     while (pos < endPos) {
-        const QTextFragment *frag = fragIt.value();
+        const QTextFragment * const frag = fragIt.value();
 
-        const QChar *fragText = originalText.constData() + frag->stringPosition;
+        const QChar * const fragText = originalText.constData() + frag->stringPosition;
 
         int inFragmentOffset = qMax(0, pos - fragIt.position());
         int charsToCopy = qMin(int(frag->size - inFragmentOffset), endPos - pos);
@@ -100,8 +103,6 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
         // need to create a new block. it's a loop actually as the fragment
         // may be larger than only one block
         while (charsToCopy > charsLeftInCurrentBlock) {
-            usedFormats.append(frag->format);
-
             appendText(QString::fromRawData(fragText + inFragmentOffset, charsLeftInCurrentBlock), frag->format);
 
             pos += charsLeftInCurrentBlock;
@@ -118,8 +119,10 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
             const int blockFormat = pieceTable->formatCollection()->indexForFormat(currentBlock.blockFormat());
             const int charFormat = pieceTable->formatCollection()->indexForFormat(currentBlock.charFormat());
 
-            usedFormats.append(blockFormat);
-            usedFormats.append(charFormat);
+            int idx = usedFormats.size();
+            usedFormats.resize(idx + 2);
+            usedFormats[idx++] = blockFormat;
+            usedFormats[idx] = charFormat;
 
             appendBlock(blockFormat, charFormat);
 
@@ -138,8 +141,10 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
             const int blockFormat = pieceTable->formatCollection()->indexForFormat(currentBlock.blockFormat());
             const int charFormat = pieceTable->formatCollection()->indexForFormat(currentBlock.charFormat());
 
-            usedFormats.append(blockFormat);
-            usedFormats.append(charFormat);
+            int idx =  usedFormats.size();
+            usedFormats.resize(idx + 2);
+            usedFormats[idx++] = blockFormat;
+            usedFormats[idx] = charFormat;
 
             appendBlock(blockFormat, charFormat);
 
@@ -508,17 +513,18 @@ void QTextHTMLImporter::import()
 
     QVarLengthArray<int> usedFormats;
 
+    int idx = 0;
+
     Q_FOREACH(const QTextDocumentFragmentPrivate::Block &b, d->blocks) {
 
-        if (b.blockFormat != -1)
-            usedFormats.append(b.blockFormat);
+        int idx = usedFormats.size();
+        usedFormats.resize(usedFormats.size() + 2 + b.fragments.size());
 
-        if (b.charFormat != -1)
-            usedFormats.append(b.charFormat);
+        usedFormats[idx++] = b.blockFormat;
+        usedFormats[idx++] = b.charFormat;
 
         Q_FOREACH(const QTextDocumentFragmentPrivate::TextFragment &f, b.fragments)
-            if (f.format != -1)
-                usedFormats.append(f.format);
+            usedFormats[idx++] = f.format;
     }
 
     d->formats = QTextFormatCollectionState(&formats, usedFormats);
