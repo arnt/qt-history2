@@ -910,8 +910,14 @@ void HelpDialog::setupFullTextIndex()
 
     QMap<QString, QString>::ConstIterator it = titleMap.begin();
     QStringList documentList;
-    for (; it != titleMap.end(); ++it)
-        documentList << it.key();
+    QString doc;
+    for (; it != titleMap.end(); ++it) {
+        doc = it.key();
+        int i = doc.find('#');
+        if (i>-1)
+            doc = doc.left(i);
+        documentList << doc;
+    }
 
     QString pname = Config::configuration()->profileName();
     fullTextIndex = new Index(documentList, QDir::homePath()); // ### Is this correct ?
