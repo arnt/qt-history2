@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#385 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#386 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -717,6 +717,7 @@ void QPainter::updatePen()
     */
     int dot = cpen.width();                     // width of a dot
     int fudge = 1;
+    bool allow_zero_lw = TRUE;
     if ( dot <= 1 ) {
         dot = 3;
         fudge = 2;
@@ -731,11 +732,13 @@ void QPainter::updatePen()
             dashes[0] = fudge * 3 * dot;
             dashes[1] = fudge * dot;
             dash_len = 2;
+	    allow_zero_lw = FALSE;
             break;
         case DotLine:
             dashes[0] = dot;
             dashes[1] = dot;
             dash_len = 2;
+	    allow_zero_lw = FALSE;
             break;
         case DashDotLine:
             dashes[0] = 3 * dot;
@@ -743,6 +746,7 @@ void QPainter::updatePen()
             dashes[2] = dot;
             dashes[3] = fudge * dot;
             dash_len = 4;
+	    allow_zero_lw = FALSE;
             break;
         case DashDotDotLine:
             dashes[0] = 3 * dot;
@@ -752,6 +756,7 @@ void QPainter::updatePen()
             dashes[4] = dot;
             dashes[5] = dot;
             dash_len = 6;
+	    allow_zero_lw = FALSE;
     }
     Q_ASSERT( dash_len <= (int) sizeof(dashes) );
 
@@ -787,7 +792,9 @@ void QPainter::updatePen()
         XSetDashes( dpy, gc, 0, dashes, dash_len );
         s = bg_mode == TransparentMode ? LineOnOffDash : LineDoubleDash;
     }
-    XSetLineAttributes( dpy, gc, cpen.width(), s, cp, jn );
+    XSetLineAttributes( dpy, gc,
+			(! allow_zero_lw && cpen.width() == 0) ? 1 : cpen.width(),
+			s, cp, jn );
 }
 
 
@@ -1810,7 +1817,7 @@ void QPainter::drawWinFocusRect( int x, int y, int w, int h,
         fix_neg_rect( &x, &y, &w, &h );
     }
     XSetDashes( dpy, gc, 0, winfocus_line, 2 );
-    XSetLineAttributes( dpy, gc, 0, LineOnOffDash, CapButt, JoinMiter );
+    XSetLineAttributes( dpy, gc, 1, LineOnOffDash, CapButt, JoinMiter );
 
     XDrawRectangle( dpy, hd, gc, x, y, w-1, h-1 );
     XSetLineAttributes( dpy, gc, 0, LineSolid, CapButt, JoinMiter );
