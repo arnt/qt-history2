@@ -104,7 +104,9 @@ static struct {
     EventTime last_time;
     bool active, use_qt_time_limit;
 } qt_mac_dblclick = { 0, 0, -2, 0, 0 };
+#if defined(QT_TABLET_SUPPORT)
 static int tablet_button_state = 0;
+#endif
 static int mouse_button_state = 0;
 static int keyboard_modifiers_state = 0;
 static bool	app_do_modal	= FALSE;	// modal mode
