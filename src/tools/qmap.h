@@ -23,7 +23,7 @@ struct Q_CORE_EXPORT QMapData
 #endif
 	Node *forward[1];
     };
-    enum { LastLevel = 11 };
+    enum { LastLevel = 11, Sparseness = 3 };
 
 #ifndef QT_NO_QMAP_BACKWARD_ITERATORS
     Node *backward;
@@ -33,18 +33,28 @@ struct Q_CORE_EXPORT QMapData
     int topLevel;
     int size;
     uint randomBits;
+    bool insertInOrder;
 
     static QMapData *createData();
-    void freeData(int offset);
+    void continueFreeData(int offset);
     Node *node_create(Node *update[], int offset);
     void node_delete(Node *update[], int offset, Node *node);
-#if defined(QT_DEBUG)
+#ifndef QT_NO_DEBUG
     uint adjust_ptr(Node *node);
     void dump();
 #endif
 
     static QMapData shared_null;
 };
+
+#ifndef QT_NO_DATASTREAM
+class QDataStream;
+
+template <class Key, class T> class QMap;
+
+template <class Key, class T>
+QDataStream &operator>>(QDataStream &out, QMap<Key, T> &map);
+#endif
 
 template <class Key, class T>
 class QMap
@@ -57,7 +67,7 @@ class QMap
 #endif
         QMapData::Node *forward[1];
     };
-    struct NodeOffset
+    struct Payload
     {
 	Key key;
         T value;
@@ -67,9 +77,8 @@ class QMap
         QMapData::Node *e;
     };
 
-    static inline int offset() { return sizeof(NodeOffset); }
     static inline Node *concrete(const QMapData::Node *node) {
-	return (Node *)((char *)node - offset());
+	return (Node *)((char *)node - sizeof(Payload));
     }
 
 public:
@@ -242,6 +251,10 @@ private:
     QMapData::Node *mutableFindNode(QMapData::Node *update[], const Key &key);
     QMapData::Node *node_create(QMapData *d, QMapData::Node *update[], const Key &key,
 				const T &value);
+
+#if !defined(QT_NO_DATASTREAM) && !defined(QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION)
+    friend QDataStream &operator>> <>(QDataStream &out, QMap<Key, T> &map);
+#endif
 };
 
 template <class Key, class T>
@@ -267,7 +280,7 @@ template <class Key, class T>
 Q_INLINE_TEMPLATE typename QMapData::Node *
 QMap<Key, T>::node_create(QMapData *d, QMapData::Node *update[], const Key &key, const T &value)
 {
-    QMapData::Node *abstractNode = d->node_create(update, offset());
+    QMapData::Node *abstractNode = d->node_create(update, sizeof(Payload));
     Node *concreteNode = concrete(abstractNode);
     new (&concreteNode->key) Key(key);
     new (&concreteNode->value) T(value);
@@ -405,16 +418,34 @@ Q_INLINE_TEMPLATE typename QMap<Key, T>::Iterator QMap<Key, T>::insertMulti(cons
 }
 
 template <class Key, class T>
+Q_INLINE_TEMPLATE typename QMap<Key, T>::ConstIterator QMap<Key, T>::find(const Key &key) const
+{
+    return ConstIterator(findNode(key));
+}
+
+template <class Key, class T>
+Q_INLINE_TEMPLATE typename QMap<Key, T>::Iterator QMap<Key, T>::find(const Key &key)
+{
+    detach();
+    return Iterator(findNode(key));
+}
+
+template <class Key, class T>
 Q_OUTOFLINE_TEMPLATE void QMap<Key, T>::freeData(QMapData *d)
 {
-    QMapData::Node *e = (QMapData::Node *)d;
-    QMapData::Node *cur = e->forward[0];
-    while (cur != e) {
-	concrete(cur)->key.~Key();
-	concrete(cur)->value.~T();
-	cur = cur->forward[0];
+    if (QTypeInfo<Key>::isComplex || QTypeInfo<T>::isComplex) {
+        QMapData::Node *e = (QMapData::Node *)d;
+        QMapData::Node *cur = e;
+        QMapData::Node *next = cur->forward[0];
+        while (next != e) {
+	    cur = next;
+            next = cur->forward[0];
+	    Node *concreteNode = concrete(cur);
+	    concreteNode->key.~Key();
+	    concreteNode->value.~T();
+        }
     }
-    d->freeData(offset()); // ### this is probably stupid
+    d->continueFreeData(sizeof(Payload));
 }
 
 template <class Key, class T>
@@ -441,32 +472,42 @@ Q_OUTOFLINE_TEMPLATE int QMap<Key, T>::remove(const Key &key)
 	    deleteNext = (next != e && !(concrete(cur)->key < concrete(next)->key));
 	    concrete(cur)->key.~Key();
 	    concrete(cur)->value.~T();
-	    d->node_delete(update, offset(), cur);
+	    d->node_delete(update, sizeof(Payload), cur);
 	} while (deleteNext);
     }
     return oldSize - d->size;
 }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATE typename QMap<Key, T>::Iterator QMap<Key, T>::erase(Iterator it)
+Q_OUTOFLINE_TEMPLATE typename QMap<Key, T>::Iterator QMap<Key, T>::erase(Iterator it)
 {
-    Iterator n = it;
-    ++n;
-    remove(it.key()); // ### wrong implementation
-    return n;
-}
+    QMapData::Node *update[QMapData::LastLevel + 1];
+    QMapData::Node *cur = e;
+    QMapData::Node *next = e;
 
-template <class Key, class T>
-Q_INLINE_TEMPLATE typename QMap<Key, T>::ConstIterator QMap<Key, T>::find(const Key &key) const
-{
-    return ConstIterator(findNode(key));
-}
+    for (int i = d->topLevel; i >= 0; i--) {
+	while ((next = cur->forward[i]) != e && concrete(next)->key < it.key())
+	    cur = next;
+	update[i] = cur;
+    }
 
-template <class Key, class T>
-Q_INLINE_TEMPLATE typename QMap<Key, T>::Iterator QMap<Key, T>::find(const Key &key)
-{
-    detach();
-    return Iterator(findNode(key));
+    while (next != e) {
+	cur = next;
+	next = cur->forward[0];
+	if (cur == it) {
+	    concrete(cur)->key.~Key();
+	    concrete(cur)->value.~T();
+	    d->node_delete(update, sizeof(Payload), cur);
+            return Iterator(next);
+	}
+
+        for (int i = 0; i <= d->topLevel; ++i) {
+	    if (update[i]->forward[i] != cur)
+		break;
+	    update[i] = cur;
+        }
+    }
+    return end();
 }
 
 template <class Key, class T>
@@ -475,13 +516,16 @@ Q_OUTOFLINE_TEMPLATE void QMap<Key, T>::detach_helper()
     union { QMapData *d; QMapData::Node *e; } x;
     x.d = QMapData::createData();
     if (d->size) {
+	x.d->insertInOrder = true;
 	QMapData::Node *update[QMapData::LastLevel + 1];
 	QMapData::Node *cur = e->forward[0];
 	update[0] = x.e;
 	while (cur != e) {
-	    node_create(x.d, update, concrete(cur)->key, concrete(cur)->value);
+	    Node *concreteNode = concrete(cur);
+	    node_create(x.d, update, concreteNode->key, concreteNode->value);
 	    cur = cur->forward[0];
 	}
+	x.d->insertInOrder = false;
     }
     x.d = qAtomicSetPtr(&d, x.d);
     if (!--x.d->ref)
@@ -489,8 +533,8 @@ Q_OUTOFLINE_TEMPLATE void QMap<Key, T>::detach_helper()
 }
 
 template <class Key, class T>
-Q_OUTOFLINE_TEMPLATE QMapData::Node *
-QMap<Key, T>::mutableFindNode(QMapData::Node *update[], const Key &key)
+Q_OUTOFLINE_TEMPLATE QMapData::Node *QMap<Key, T>::mutableFindNode(QMapData::Node *update[],
+								   const Key &key)
 {
     QMapData::Node *cur = e;
     QMapData::Node *next = e;
@@ -550,22 +594,19 @@ template <class Key, class T>
 Q_OUTOFLINE_TEMPLATE QMap<Key, T>::QMap(const std::map<Key, T> &other)
 {
     d = QMapData::createData();
+    d->insertInOrder = true;
     typename std::map<Key,T>::const_iterator it = other.end();
     while (it != other.begin()) {
 	--it;
 	insert((*it).first, (*it).second);
     }
+    d->insertInOrder = false;
 }
 
 template <class Key, class T>
-Q_OUTOFLINE_TEMPLATE QMap<Key,T> &QMap<Key,T>::operator=(const std::map<Key,T> &other)
+Q_INLINE_TEMPLATE QMap<Key, T> &QMap<Key, T>::operator=(const typename std::map<Key,T> &other)
 {
-    clear();
-    typename std::map<Key,T>::const_iterator it = other.end();
-    while (it != other.begin()) {
-	--it;
-	insert((*it).first, (*it).second);
-    }
+    *this = QMap(other);
     return *this;
 }
 #endif

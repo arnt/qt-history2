@@ -2,9 +2,9 @@
 
 QMapData QMapData::shared_null = {
 #ifndef QT_NO_QMAP_BACKWARD_ITERATORS
-    0,
+    (Node *)&shared_null,
 #endif
-    { (Node *)&shared_null, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, Q_ATOMIC_INIT(1), -1, 0, 0
+    { (Node *)&shared_null, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }, Q_ATOMIC_INIT(1), 0, 0, 0, false
 };
 
 QMapData *QMapData::createData()
@@ -19,10 +19,11 @@ QMapData *QMapData::createData()
     d->topLevel = 0;
     d->size = 0;
     d->randomBits = 0;
+    d->insertInOrder = false;
     return d;
 }
 
-void QMapData::freeData(int offset)
+void QMapData::continueFreeData(int offset)
 {
     Node *e = (Node *)this;
     Node *cur = forward[0];
@@ -38,15 +39,15 @@ void QMapData::freeData(int offset)
 QMapData::Node *QMapData::node_create(Node *update[], int offset)
 {
     int level = 0;
-    uint mask = 0x3;
+    uint mask = (1 << Sparseness) - 1;
 
     while ((randomBits & mask) == mask && level < LastLevel) {
 	++level;
-	mask <<= 2;
+	mask <<= Sparseness;
     }
 
     ++randomBits;
-    if (level == 3)
+    if (level == 3 && !insertInOrder)
 	randomBits = qRand();
 
     if (level > topLevel) {
@@ -88,7 +89,7 @@ void QMapData::node_delete(Node *update[], int offset, Node *node)
     qFree((char *)node - offset);
 }
 
-#if defined(QT_DEBUG)
+#ifndef QT_NO_DEBUG
 #include <qstring.h>
 #include <qvector.h>
 
@@ -132,6 +133,7 @@ void QMapData::dump()
 	for (int i = 0; i <= level; ++i) {
             str.sprintf("-> [%.8x] -", adjust_ptr(node->forward[i]));
 	    output[i] += str;
+	    update[i] = node->forward[i];
         }
         for (int j = level + 1; j <= topLevel; ++j)
 	    output[j] += "---------------";
