@@ -133,7 +133,7 @@ static int getToken()
     // why "+ 2"? try putting some qDebug()'s and see
     yyPos = yyCurPos + 2;
 
-    for (;;) {
+    for ( ;; ) {
 	/*
 	  See if the previous token is interesting. If it isn't, we
 	  will loop anyway an go to the token before the previous
@@ -298,7 +298,8 @@ static int getToken()
 			    metAster = FALSE;
 			readChar();
 		    }
-		    return Tok_Comment;
+		    break;
+		    // return Tok_Comment;
 		} else {
 		    return Tok_Something;
 		}
@@ -491,7 +492,7 @@ static QString matchDataType()
       This code is really hard to follow... sorry. The loop matches
       Alpha::Beta::Gamma::...::Omega.
     */
-    for (;;) {
+    for ( ;; ) {
 	bool virgin = TRUE;
 
 	prependToType( &type, matchTemplateAngles() );
@@ -572,7 +573,7 @@ static CppFunction matchFunctionPrototype( bool stripParamNames )
     yyTok = getToken();
 
     if ( yyTok != Tok_LeftParen ) {
-	for (;;) {
+	for ( ;; ) {
 	    QString brackets = matchArrayBrackets();
 	    QString name;
 	    if ( yyTok == Tok_Ident ) {
@@ -602,7 +603,7 @@ static CppFunction matchFunctionPrototype( bool stripParamNames )
     }
     yyTok = getToken();
 
-    for (;;) {
+    for ( ;; ) {
 	scopedName.prepend( matchTemplateAngles() );
 
 	if ( yyTok != Tok_Ident ) {
@@ -723,7 +724,7 @@ static void matchTranslationUnit( QValueList<CppFunction> *flist )
     int endBody = -1;
     int startBody;
 
-    for (;;) {
+    for ( ;; ) {
 	if ( endBody == -1 )
 	    endBody = yyPos;
 
