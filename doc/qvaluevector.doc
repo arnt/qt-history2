@@ -185,11 +185,10 @@
 
   The iterators provided by vector are random access iterators,
   therefore you can use them with many generic algorithms, for
-  example, algorithms provided by the STL or the <a
-  href="qtl.h">QTL\endlink.  
+  example, algorithms provided by the STL or the \link qtl.html QTL\endlink.  
 
   Another way to find an element in the vector is by using the
-  std::find() or \link qtl.h#qFind qFind()\endlink
+  std::find() or \link qtl.html#qFind qFind()\endlink
   algorithms.  For example:
 
 \code

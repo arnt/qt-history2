@@ -802,10 +802,11 @@ void QDockWindowTitleBar::mouseDoubleClickEvent( QMouseEvent * )
   or 0 if the dock window is floating.
 */
 
-/*! \fn QDockWindow::Place QDockWindow::place() const
+/*! \property QDockWindow::place
+    \brief whether the dock window is in a dock area
 
-  Returns the current place of the dock window. This is either \c InDock
-  or \c OutsideDock.
+  The place() function returns the current place of the dock window.
+  This is either \c InDock or \c OutsideDock.
 
   \sa QDockArea::moveDockWindow(), QDockArea::removeDockWindow(),
   QMainWindow::moveDockWindow(), QMainWindow::removeDockWindow()

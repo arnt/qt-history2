@@ -578,7 +578,7 @@ void QTableItem::paint( QPainter *p, const QColorGroup &cg,
   reimplement setContentFromEditor(), and may need to reimplement
   sizeHint().
 
-    \walkthrough statistics/statistics.cpp
+    \quotefile table/statistics/statistics.cpp
     \skipto createEditor
     \printto }
 
@@ -601,7 +601,7 @@ QWidget *QTableItem::createEditor() const
   If you reimplement createEditor() and return something that is not a
   QLineEdit you will almost certainly have to reimplement this function.
 
-    \walkthrough statistics/statistics.cpp
+    \quotefile table/statistics/statistics.cpp
     \skipto setContentFromEditor
     \printto }
 
@@ -919,14 +919,14 @@ bool QTableItem::isEnabled() const
 
   To populate a table cell with a QComboTableItem use QTable::setItem():
 
-  \walkthrough table/small-table-demo/main.cpp
+  \quotefile table/small-table-demo/main.cpp
   \skipto comboEntries
   \printuntil four
   \skipto for
-  \printuntil TRUE
+  \printuntil FALSE
   \skipto setItem
   \printuntil }
-  (Code from \link small-table-demo-example.html
+  (From \link small-table-demo-example.html
   table/small-table-demo/main.cpp \endlink).
 
   QComboTableItems may be deleted with QTable::clearCell().
@@ -1152,7 +1152,7 @@ int QComboTableItem::rtti() const
 
   To populate a table cell with a QCheckTableItem use QTable::setItem():
 
-  \walkthrough table/small-table-demo/main.cpp
+  \quotefile table/small-table-demo/main.cpp
   \skipto for ( int j
   \printuntil Check me
   (Code from \link small-table-demo-example.html
@@ -1384,7 +1384,7 @@ int QCheckTableItem::rtti() const
     behave just like the combobox or checkbox widgets but consume far
     less memory.
 
-    \walkthrough table/small-table-demo/main.cpp
+    \quotefile table/small-table-demo/main.cpp
     \skipto int j
     \printuntil QCheckTableItem
     In the example above we create a column of QCheckTableItems and
@@ -1515,7 +1515,7 @@ int QCheckTableItem::rtti() const
   \value SingleRow The user may select one row at once (there is
   always the row of the current item selected)
 
-  \value Multiple The user may select multiple rows
+  \value MultiRow The user may select multiple rows
 */
 
 /*! \enum QTable::FocusStyle
@@ -1821,7 +1821,8 @@ void QTable::setSelectionMode( SelectionMode mode )
     }
 }
 
-/*! Returns the current selection mode.
+/*! \property QTable::selectionMode
+    \brief the current selection mode
 
   \sa SelectionMode setSelectionMode()
 */
@@ -1831,8 +1832,13 @@ QTable::SelectionMode QTable::selectionMode() const
     return selMode;
 }
 
-/*! Specifies the way the current cell (focus cell) is drawn. The
-  default is SpreadSheet. */
+/*! \property QTable::focusStyle
+    \brief how the current (focus) cell is drawn
+
+ The default style is \c SpreadSheet.
+
+    \sa QTable::FocusStyle
+*/
 
 void QTable::setFocusStyle( FocusStyle fs )
 {
@@ -1852,7 +1858,7 @@ QTable::FocusStyle QTable::focusStyle() const
     This header contains the column labels.
 
   To modify a column label use QHeader::setLabel(), e.g.
-  \walkthrough statistics/statistics.cpp
+  \quotefile table/statistics/statistics.cpp
   \skipto horizontalHeader
   \printline
 
@@ -2514,7 +2520,7 @@ void QTable::setText( int row, int col, const QString &text )
     with an EditType of \c OnTyping, otherwise the existing table item's
     pixmap (if any) is replaced with \a pix.
 
-  \walkthrough table/small-table-demo/main.cpp
+  \quotefile table/small-table-demo/main.cpp
   \skipto QImage
   \printuntil setPixmap
 

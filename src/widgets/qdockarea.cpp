@@ -449,7 +449,8 @@ int QDockAreaLayout::widthForHeight( int h ) const
   need to create your own dock areas we suggest that you create a subclass of
   QWidget and add your QDockAreas to your subclass.
 
-  <a name="lines"><i>Lines</i>. QDockArea uses the concept of lines. A line
+  \target lines
+  \e Lines. QDockArea uses the concept of lines. A line
   is a horizontal region which may contain dock windows side-by-side. A dock
   area may have room for more than one line. When dock windows are docked into
   a dock area they are usually added at the right hand side of the top-most
@@ -490,15 +491,14 @@ int QDockAreaLayout::widthForHeight( int h ) const
 
 */
 
-/*! \fn Orientation QDockArea::orientation() const
+/*! \property QDockArea::handlePosition
+    \brief where the dock window splitter handle is placed in the dock
+    area
+*/
 
-  Returns the orientation of the dock area.
- */
-
-/*! \fn HandlePosition QDockArea::handlePosition() const
-
-  Returns the handlePosition of the dock area.
- */
+/*! \property QDockArea::orientation
+    \brief the dock area's orientation
+*/
 
 /*!
   \enum QDockArea::HandlePosition
@@ -896,17 +896,17 @@ void QDockArea::invalidNextOffset( QDockWindow *dw )
 	dw->setOffset( 0 );
 }
 
-/*! Returns the number of dock windows in the dock area.
- */
-
+/*! \property QDockArea::count
+    \brief the number of dock windows in the dock area
+*/
 int QDockArea::count() const
 {
     return dockWindows->count();
 }
 
-/*! Returns TRUE if the dock area does not contain any dock windows;
-    otherwise returns FALSE.
- */
+/*! \property QDockArea::empty
+    \brief whether the dock area is empty
+*/
 
 bool QDockArea::isEmpty() const
 {
