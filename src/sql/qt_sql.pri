@@ -93,6 +93,9 @@ sql {
 		unix {
 			LIBS += -lclntsh
 		}
+		win32 {
+			LIBS += oci.lib
+		}
 	}
 
 }
