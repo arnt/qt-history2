@@ -553,7 +553,7 @@ void QWSPcMouseHandlerPrivate::openDevices()
 	if ( fd >= 0 ) {
 	    sub[nsub++] = new QWSPcMouseSubHandler_intellimouse(fd);
 	    notify(fd);
-	    qDebug( "/dev/input/mice fd %d #%d", fd, nsub-1 );
+	    //qDebug( "/dev/input/mice fd %d #%d", fd, nsub-1 );
 	}
 
 	char fn[] = "/dev/ttyS?";
