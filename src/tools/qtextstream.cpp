@@ -1687,10 +1687,10 @@ QString QTextStream::readLine()
     while(1) {
 	bool sr = ts_getbuf(buf, buf_size, TS_EOL, &l);
 	result.append(QString(buf, l));
-	ts_getbuf(NULL, getstr_tmp_size, TS_MOD_NOT|TS_EOL);
 	if(sr)
 	    break;
     }
+    ts_getbuf(NULL, getstr_tmp_size, TS_MOD_NOT|TS_EOL);
     return result;
 }
 
