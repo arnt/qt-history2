@@ -29,6 +29,7 @@
 class QTestControl : public QWidget, public QAxBindable
 {
     Q_OBJECT
+    Q_ENUMS( Alpha )
     Q_PROPERTY( QString unicode READ unicode WRITE setUnicode )
     Q_PROPERTY( QCString text READ text WRITE setText )
     Q_PROPERTY( bool boolval READ boolval WRITE setBoolval )
@@ -42,6 +43,7 @@ class QTestControl : public QWidget, public QAxBindable
     Q_PROPERTY( QFont font READ font WRITE setFont )
     Q_PROPERTY( QPixmap pixmap READ pixmap WRITE setPixmap )
     Q_PROPERTY( QValueList list READ list WRITE setList )
+    Q_PROPERTY( Alpha beta READ beta WRITE setBeta )
     
 //  QVariant does not support short or long
 //    Q_PROPERTY( short shortnumber READ shortnumber WRITE setShortnumber )
@@ -53,6 +55,15 @@ public:
     {
 	// members not initiliazed on purpose
     }
+
+    enum Alpha {
+	AlphaA = 0,
+	AlphaB,
+	AlphaC,
+	AlphaD,
+	AlphaE,
+	AlphaF
+    };
 
     QString unicode() const { PROP(unicode) }
     void setUnicode( const QString &unicode ){ SET_PROP(unicode) }
@@ -92,6 +103,9 @@ public:
 
     QValueList<QVariant> list() const { PROP(list) }
     void setList( QValueList<QVariant> list ) { SET_PROP(list) }
+
+    Alpha beta() const { PROP(beta) }
+    void setBeta( Alpha beta ) { SET_PROP(beta) }
 
 /*
     short shortnumber() const { PROP(shortnumber) }
@@ -166,6 +180,11 @@ public slots:
     QValueList<QVariant> getAndSetListSlot( QValueList<QVariant>& list ) { GET_AND_SET(list, QValueList<QVariant>) }
     QValueList<QVariant> emitListRefSignal() { EMIT_REF(list, QValueList<QVariant>) }
 
+    Alpha getBetaSlot() const { GET_PROP_SLOT(beta) }
+    void setBetaSlot( Alpha beta ) { SET_PROP_SLOT(beta) }
+    Alpha getAndSetBetaSlot( Alpha& beta ) { GET_AND_SET(beta, Alpha) }
+    Alpha emitBetaRefSignal() { EMIT_REF(beta, Alpha) }
+
 /*
     short getShortnumberSlot() const { GET_PROP_SLOT(shortnumber) }
     void setShortnumberSlot( short shortnumber ) { SET_PROP_SLOT(shortnumber) }
@@ -217,6 +236,9 @@ signals:
     void listChanged( const QValueList<QVariant>& );
     void listRefSignal( QValueList<QVariant>& );
 
+    void betaChanged( Alpha );
+    void betaRefSignal( Alpha& );
+
 /*
     void shortnumberChanged( short );
     void shortnumberRefSignal( short& );
@@ -238,6 +260,7 @@ private:
     QFont m_font;
     QPixmap m_pixmap;
     QValueList<QVariant> m_list;
+    Alpha m_beta;
 
 /*
     short m_shortnumber;

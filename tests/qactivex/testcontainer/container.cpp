@@ -62,6 +62,7 @@ static inline QString constRefify( const QString& type )
 class QTestContainer : public QObject
 {
     Q_OBJECT
+    Q_ENUMS( Alpha )
     Q_PROPERTY( QString unicode READ unicode WRITE setUnicode )
     Q_PROPERTY( QString text READ text WRITE setText )
     Q_PROPERTY( bool boolval READ boolval WRITE setBoolval )
@@ -75,12 +76,23 @@ class QTestContainer : public QObject
     Q_PROPERTY( QFont font READ font WRITE setFont )
     Q_PROPERTY( QPixmap pixmap READ pixmap WRITE setPixmap )
     Q_PROPERTY( QValueList list READ list WRITE setList )
+    Q_PROPERTY( Alpha beta READ beta WRITE setBeta )
 
 /*
     Q_PROPERTY( short shortnumber READ shortnumber WRITE setShortnumber )
     Q_PROPERTY( long longnumber READ longnumber WRITE setLongnumber )
 */
 public:
+    enum Alpha {
+	AlphaA = 0,
+	AlphaB,
+	AlphaC,
+	AlphaD,
+	AlphaE,
+	AlphaF
+    };
+
+
     QTestContainer( const QString &control )
 	: QObject( 0, "Test Container" )
     {
@@ -98,6 +110,7 @@ public:
 	m_pixmap = QPixmap( 100, 100 );
 	m_pixmap.fill( red );
 	m_list << QString("Foo") << 13 << 2.5;
+	m_beta = AlphaC;
 
 /*
 	m_shortnumber = 23;
@@ -146,26 +159,30 @@ public:
 
 	    qDebug( "\nTesting property %s of type %s", prop->name(), prop->type() );
 	    QVariant defvalue;
-	    QVariant::Type proptype = QVariant::nameToType( prop->type() );
-	    defvalue.cast( proptype );
-	    switch( defvalue.type() ) {
-	    case QVariant::Color:
-		defvalue = green;
-		break;
-	    case QVariant::Font:
-		defvalue = QFont( "Arial", 10 );
-		break;
-	    case QVariant::Pixmap:
-		{
-		    QPixmap pm( 5, 5 );
-		    pm.fill( green );
-		    defvalue = pm;
+	    if ( !prop->isEnumType() ) {
+		QVariant::Type proptype = QVariant::nameToType( prop->type() );
+		defvalue.cast( proptype );
+		switch( defvalue.type() ) {
+		case QVariant::Color:
+		    defvalue = green;
+		    break;
+		case QVariant::Font:
+		    defvalue = QFont( "Arial", 10 );
+		    break;
+		case QVariant::Pixmap:
+		    {
+			QPixmap pm( 5, 5 );
+			pm.fill( green );
+			defvalue = pm;
+		    }
+		    break;
+		default:
+		    break;
 		}
-		break;
-	    default:
-		break;
+		Q_ASSERT( defvalue.type() == proptype );
+	    } else {
+		defvalue.cast( QVariant::Int );
 	    }
-	    Q_ASSERT( defvalue.type() == proptype );
 
 	    // Get container's value
 	    containerValue = property( prop->name() );
@@ -319,6 +336,9 @@ public:
     QValueList<QVariant> list() const { PROP(list) }
     void setList( QValueList<QVariant> list ) { SET_PROP(list) }
 
+    Alpha beta() const { PROP(beta) }
+    void setBeta( Alpha beta ) { SET_PROP(beta) }
+
 /*
     void setShortnumber( short shortnumber ) { m_shortnumber = shortnumber; }
     short shortnumber() const { return m_shortnumber; }
@@ -369,6 +389,9 @@ public slots:
     void listChanged( const QValueList<QVariant> &list ) { m_list = list; }
     void listRefSignal( QValueList<QVariant> &list ) { list = m_list; }
 
+    void betaChanged( Alpha beta ) { m_beta = beta; }
+    void betaRefSignal( Alpha &beta ) { beta = m_beta; }
+
 /*
     void shortnumberChanged( short shortnumber ) { m_shortnumber = shortnumber; }
     void shortnumberRefSignal( short &shortnumber ) { shortnumber = m_shortnumber; }
@@ -396,6 +419,7 @@ private:
     QFont m_font;
     QPixmap m_pixmap;
     QValueList<QVariant> m_list;
+    Alpha m_beta;
 
 /*
     short m_shortnumber;
