@@ -1550,7 +1550,7 @@ nach
     </message>
     <message>
         <source>Restore Down</source>
-        <translation type='unfinished'>Herunterklappen</translation>
+        <translation>Wiederherstellen</translation>
     </message>
     <message>
         <source>Close</source>
@@ -1558,7 +1558,7 @@ nach
     </message>
     <message>
         <source>Sh&amp;ade</source>
-        <translation type='unfinished'></translation>
+        <translation type='unfinished'>Nach oben rollen</translation>
     </message>
     <message>
         <source>%1 - [%2]</source>
@@ -1566,7 +1566,7 @@ nach
     </message>
     <message>
         <source>&amp;Unshade</source>
-        <translation type='unfinished'></translation>
+        <translation type='unfinished'>Herunterklappen</translation>
     </message>
 </context>
 <context>
