@@ -18,13 +18,15 @@ int main( int argc, char **argv )
     {
         QPainter p;
         p.begin( &prt );
-	//	p.setPen( red );
-	//	p.save();
+	p.setPen( red );
+	p.save();
 	p.drawRect( 10, 10, 100, 100 );
-	//	p.rotate( -90 );
+#if 0	
 	p.drawPixmap( 10, 10, pix );
+	p.rotate( -90 );
 	p.drawImage( 300, 10, img );
-	//	p.restore();
+#endif	
+	p.restore();
         p.end();
     }
     return 0;
