@@ -50,7 +50,7 @@ class Q_EXPORT QComboBox : public QWidget
     Q_PROPERTY( int, "maxCount", maxCount, setMaxCount )
     Q_PROPERTY( Policy, "insertionPolicy", insertionPolicy, setInsertionPolicy )
     Q_PROPERTY( bool, "autoCompletion", autoCompletion, setAutoCompletion )
-    Q_PROPERTY( bool, "multipleInsertion", enableMultipleInsertion, setEnableMultipleInsertion )
+    Q_PROPERTY( bool, "duplicatesEnabled", duplicatesEnabled, setDuplicatesEnabled )
 	
 public:
     QComboBox( QWidget *parent=0, const char *name=0 );
