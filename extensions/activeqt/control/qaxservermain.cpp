@@ -18,8 +18,6 @@
 
 #include <qt_windows.h>
 
-
-extern bool qAxIsServer;
 extern HANDLE qAxInstance;
 extern char qAxModuleFilename[MAX_PATH];
 extern void qAxInit();
@@ -57,7 +55,7 @@ EXTERN_C int WINAPI WinMain(HINSTANCE hInstance,
     QStringList cmds = QStringList::split( " ", cmdLine );
     int nRet = 0;
     bool run = TRUE;
-    bool runServer = TRUE;
+    bool runServer = FALSE;
     for ( QStringList::Iterator it = cmds.begin(); it != cmds.end(); ++it ) {
 	QString cmd = (*it).lower();
 	if ( cmd == "-activex" || cmd == "/activex" ) {
