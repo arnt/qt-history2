@@ -2008,7 +2008,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl control,
                                      QPalette::Active : QPalette::Inactive,
                                      QPalette::HighlightedText));
                 p->drawText(ir.x()+2, ir.y(), ir.width(), ir.height(),
-                            AlignAuto | AlignVCenter | SingleLine, titlebar->visibleText());
+                            AlignAuto | AlignVCenter | SingleLine, titlebar->windowTitle());
             }
             if (sub & SC_TitleBarSysMenu) {
                 theme.rec = visualRect(querySubControlMetrics(CC_TitleBar, w, SC_TitleBarSysMenu), w);
