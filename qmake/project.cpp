@@ -355,11 +355,8 @@ QMakeProject::read(QString project, QString pwd)
 
 	/* parse mkspec */
 	if(Option::mkfile::qmakespec.isNull() || Option::mkfile::qmakespec.isEmpty()) {
-	    if(!getenv("QMAKESPEC")) {
-		fprintf(stderr, "QMAKESPEC has not been set, so configuration cannot be deduced.\n");
-		return FALSE;
-	    }
-	    Option::mkfile::qmakespec = getenv("QMAKESPEC");
+	    fprintf(stderr, "QMAKESPEC has not been set, so configuration cannot be deduced.\n");
+	    return FALSE;
 	}
 	if(QDir::isRelativePath(Option::mkfile::qmakespec)) {
 	    if(!getenv("QTDIR")) {

@@ -243,6 +243,8 @@ Option::parseCommandLine(int argc, char **argv)
     if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE) {
 	if(Option::mkfile::cachefile.isNull() || Option::mkfile::cachefile.isEmpty())
 	    Option::mkfile::cachefile = ".qmake.cache";
+	if(Option::mkfile::qmakespec.isNull() || Option::mkfile::qmakespec.isEmpty())
+	    Option::mkfile::qmakespec = getenv("QMAKESPEC");
 
 	//try REALLY hard to do it for them, lazy..
 	if(!Option::mkfile::project_files.count()) {
