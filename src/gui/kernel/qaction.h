@@ -50,19 +50,32 @@ class Q_GUI_EXPORT QAction : public QObject
 public:
     QAction(QActionGroup* parent);
     QAction(QWidget* parent=0);
-    QAction(const QString& text, QMenu *menu, QWidget* parent=0);
-    QAction(const QString& text, QWidget* parent=0);
-    QAction(const QIconSet& icon, const QString& text, QWidget* parent=0);
-    QAction(const QString& text, QMenu *menu, QActionGroup* parent);
-    QAction(const QString& text, QActionGroup* parent);
-    QAction(const QIconSet& icon, const QString& text, QActionGroup* parent);
+    QAction(const QString &text, QMenu *menu, QWidget* parent=0);
+    QAction(const QString &text, QWidget* parent=0);
+    QAction(const QIconSet &icon, const QString &text, QWidget* parent=0);
+    QAction(const QString &text, QMenu *menu, QActionGroup* parent);
+    QAction(const QString &text, QActionGroup* parent);
+    QAction(const QIconSet &icon, const QString &text, QActionGroup* parent);
 #ifndef QT_NO_ACCEL
-    QAction(const QString& text, QKeySequence accel, QWidget* parent=0);
-    QAction(const QIconSet& icon, const QString& text, QKeySequence accel,
+    QAction(const QString &text, const QKeySequence &accel, QWidget* parent=0);
+    QAction(const QIconSet &icon, const QString &text, const QKeySequence &accel,
               QWidget* parent=0);
-    QAction(const QString& text, QKeySequence accel, QActionGroup* parent);
-    QAction(const QIconSet& icon, const QString& text, QKeySequence accel,
+    QAction(const QString &text, const QKeySequence &accel, QActionGroup* parent);
+    QAction(const QIconSet &icon, const QString &text, const QKeySequence &accel,
               QActionGroup* parent);
+#endif
+
+#ifdef QT_COMPAT
+    QAction(QWidget* parent, const char* name);
+    QAction(QActionGroup* parent, const char* name);
+#ifndef QT_NO_ACCEL
+    QAction(const QString &menuText, const QKeySequence &accel, QWidget* parent, const char* name);
+    QAction(const QIconSet &icon, const QString &menuText, const QKeySequence &accel,
+            QWidget* parent, const char* name);
+    QAction(const QString &menuText, const QKeySequence &accel, QActionGroup* parent, const char* name);
+    QAction(const QIconSet &icon, const QString &menuText, const QKeySequence &accel,
+            QActionGroup* parent, const char* name);
+#endif
 #endif
     ~QAction();
 
@@ -83,7 +96,7 @@ public:
     void setSeparator(bool b);
     bool isSeparator() const;
 #ifndef QT_NO_ACCEL
-    void setAccel(const QKeySequence& key);
+    void setAccel(const QKeySequence &key);
     QKeySequence accel() const;
 #endif
     void setCheckable(bool);
@@ -106,6 +119,9 @@ public:
     inline QT_COMPAT bool removeFrom(QWidget *w) { w->removeAction(this); return true; }
 #endif
 
+    int id() const;
+    void setId(int id);
+
 protected:
     virtual void addedTo(QWidget *) {};
 
@@ -119,6 +135,7 @@ signals:
     void dataChanged();
     void triggered();
     void hovered();
+    void activated(); // QT_COMPAT
 
 private slots:
     void sendAccelActivated();
@@ -145,8 +162,8 @@ public:
 
     QAction *addAction(QAction* a);
 #ifndef QT_NO_ACCEL
-    QAction *addAction(const QString& text, QKeySequence accel);
-    QAction *addAction(const QIconSet& icon, const QString& text, QKeySequence accel);
+    QAction *addAction(const QString &text, const QKeySequence &accel);
+    QAction *addAction(const QIconSet &icon, const QString &text, const QKeySequence &accel);
 #endif
     void removeAction(QAction *a);
     QList<QAction*> actions() const;
@@ -178,6 +195,7 @@ protected:
 
 signals:
     void triggered(QAction *);
+    void selected(QAction *); // QT_COMPAT
     void hovered(QAction *);
 
 private slots:

@@ -10,7 +10,7 @@ class QActionPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QAction);
 public:
-    QActionPrivate() : group(0), icons(0), accel(-1), enabled(1), forceDisabled(0), 
+    QActionPrivate() : group(0), icons(0), accel(-1), enabled(1), forceDisabled(0),
                        visible(1), forceInvisible(0), checkable(0), checked(0), separator(0) {}
     ~QActionPrivate() {
         delete icons;
@@ -41,6 +41,8 @@ public:
     uint checkable : 1;
     uint checked : 1;
     uint separator : 1;
+    // used for compat functionality in QPopupMenu and QMenuBar
+    int id;
 
     void sendDataChanged();
 };

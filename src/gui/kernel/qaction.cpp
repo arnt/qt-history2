@@ -30,18 +30,21 @@ void QActionPrivate::sendDataChanged()
     QApplication::sendEvent(q, &e);
 }
 
-QAction::QAction(QActionGroup* parent) : QObject(*(new QActionPrivate), parent)
+QAction::QAction(QActionGroup* parent)
+    : QObject(*(new QActionPrivate), parent)
 {
     d->group = parent;
     if(parent)
         parent->addAction(this);
 }
 
-QAction::QAction(QWidget* parent) : QObject(*(new QActionPrivate), parent)
+QAction::QAction(QWidget* parent)
+    : QObject(*(new QActionPrivate), parent)
 {
 }
 
-QAction::QAction(const QString &text, QMenu *menu, QActionGroup* parent) : QObject(*(new QActionPrivate), parent)
+QAction::QAction(const QString &text, QMenu *menu, QActionGroup* parent)
+    : QObject(*(new QActionPrivate), parent)
 {
     d->text = text;
     d->menu = menu;
@@ -50,7 +53,8 @@ QAction::QAction(const QString &text, QMenu *menu, QActionGroup* parent) : QObje
         parent->addAction(this);
 }
 
-QAction::QAction(const QString &text, QActionGroup* parent) : QObject(*(new QActionPrivate), parent)
+QAction::QAction(const QString &text, QActionGroup* parent)
+    : QObject(*(new QActionPrivate), parent)
 {
     d->text = text;
     d->group = parent;
@@ -58,7 +62,8 @@ QAction::QAction(const QString &text, QActionGroup* parent) : QObject(*(new QAct
         parent->addAction(this);
 }
 
-QAction::QAction(const QIconSet &icon, const QString &text, QActionGroup* parent) : QObject(*(new QActionPrivate), parent)
+QAction::QAction(const QIconSet &icon, const QString &text, QActionGroup* parent)
+    : QObject(*(new QActionPrivate), parent)
 {
     d->icons = new QIconSet(icon);
     d->text = text;
@@ -67,25 +72,29 @@ QAction::QAction(const QIconSet &icon, const QString &text, QActionGroup* parent
         parent->addAction(this);
 }
 
-QAction::QAction(const QString &text, QMenu *menu, QWidget* parent) : QObject(*(new QActionPrivate), parent)
+QAction::QAction(const QString &text, QMenu *menu, QWidget* parent)
+    : QObject(*(new QActionPrivate), parent)
 {
     d->text = text;
     d->menu = menu;
 }
 
-QAction::QAction(const QString &text, QWidget* parent) : QObject(*(new QActionPrivate), parent)
+QAction::QAction(const QString &text, QWidget* parent)
+    : QObject(*(new QActionPrivate), parent)
 {
     d->text = text;
 }
 
-QAction::QAction(const QIconSet &icon, const QString &text, QWidget* parent) : QObject(*(new QActionPrivate), parent)
+QAction::QAction(const QIconSet &icon, const QString &text, QWidget* parent)
+    : QObject(*(new QActionPrivate), parent)
 {
     d->text = text;
     d->icons = new QIconSet(icon);
 }
 
 #ifndef QT_NO_ACCEL
-QAction::QAction(const QString& text, QKeySequence accel, QActionGroup* parent) : QObject(*(new QActionPrivate), parent)
+QAction::QAction(const QString &text, const QKeySequence &accel, QActionGroup* parent)
+    : QObject(*(new QActionPrivate), parent)
 {
     d->text = text;
     setAccel(accel);
@@ -94,8 +103,8 @@ QAction::QAction(const QString& text, QKeySequence accel, QActionGroup* parent) 
         parent->addAction(this);
 }
 
-QAction::QAction(const QIconSet& icon, const QString& text, QKeySequence accel,
-                   QActionGroup* parent) : QObject(*(new QActionPrivate), parent)
+QAction::QAction(const QIconSet &icon, const QString &text, const QKeySequence &accel, QActionGroup* parent)
+    : QObject(*(new QActionPrivate), parent)
 {
     d->text = text;
     setAccel(accel);
@@ -105,13 +114,14 @@ QAction::QAction(const QIconSet& icon, const QString& text, QKeySequence accel,
         parent->addAction(this);
 }
 
-QAction::QAction(const QString& text, QKeySequence accel, QWidget* parent) : QObject(*(new QActionPrivate), parent)
+QAction::QAction(const QString &text, const QKeySequence &accel, QWidget* parent)
+    : QObject(*(new QActionPrivate), parent)
 {
     d->text = text;
     setAccel(accel);
 }
 
-QAction::QAction(const QIconSet& icon, const QString& text, QKeySequence accel,
+QAction::QAction(const QIconSet &icon, const QString &text, const QKeySequence &accel,
                    QWidget* parent) : QObject(*(new QActionPrivate), parent)
 {
     d->text = text;
@@ -141,6 +151,67 @@ QKeySequence QAction::accel() const
         ret = QActionPrivate::actionAccels->key(d->accel);
     return ret;
 }
+#endif
+
+#ifdef QT_COMPAT
+QAction::QAction(QWidget* parent, const char* name)
+ : QObject(*(new QActionPrivate), parent)
+{
+    setObjectName(name);
+}
+
+QAction::QAction(QActionGroup* parent, const char* name)
+ : QObject(*(new QActionPrivate), parent)
+{
+    setObjectName(name);
+    d->group = parent;
+    if(parent)
+        parent->addAction(this);
+}
+
+#ifndef QT_NO_ACCEL
+QAction::QAction(const QString &text, const QKeySequence &accel, QWidget* parent, const char* name)
+ : QObject(*(new QActionPrivate), parent)
+{
+    setObjectName(name);
+    d->text = text;
+    setAccel(accel);
+}
+
+QAction::QAction(const QIconSet &icon, const QString &text, const QKeySequence &accel,
+                 QWidget* parent, const char* name)
+ : QObject(*(new QActionPrivate), parent)
+{
+    setObjectName(name);
+    d->text = text;
+    setAccel(accel);
+    d->icons = new QIconSet(icon);
+}
+
+QAction::QAction(const QString &text, const QKeySequence &accel, QActionGroup* parent, const char* name)
+ : QObject(*(new QActionPrivate), parent)
+{
+    setObjectName(name);
+    d->text = text;
+    setAccel(accel);
+    d->group = parent;
+    if(parent)
+        parent->addAction(this);
+}
+
+QAction::QAction(const QIconSet &icon, const QString &text, const QKeySequence &accel,
+                 QActionGroup* parent, const char* name)
+ : QObject(*(new QActionPrivate), parent)
+{
+    setObjectName(name);
+    d->text = text;
+    setAccel(accel);
+    d->icons = new QIconSet(icon);
+    d->group = parent;
+    if(parent)
+        parent->addAction(this);
+}
+#endif
 #endif
 
 QAction::~QAction()
@@ -298,11 +369,31 @@ void QAction::sendAccelActivated()
 
 void QAction::activate(ActionEvent event)
 {
-    if(event == Trigger)
+    if(event == Trigger) {
         emit triggered();
+        emit activated();
+    }
     else if(event == Hover)
         emit hovered();
 }
+
+/*!
+  \internal
+*/
+int QAction::id() const
+{
+    return d->id;
+}
+
+/*!
+  \internal
+*/
+void QAction::setId(int id)
+{
+    d->id = id;
+}
+
+
 
 /* QActionGroup code */
 QActionGroup::QActionGroup(QObject* parent) : QObject(*new QActionGroupPrivate, parent)
@@ -337,12 +428,12 @@ QAction *QActionGroup::addAction(QAction* a)
 }
 
 #ifndef QT_NO_ACCEL
-QAction *QActionGroup::addAction(const QString& text, QKeySequence accel)
+QAction *QActionGroup::addAction(const QString &text, const QKeySequence &accel)
 {
     return new QAction(text, accel, this);
 }
 
-QAction *QActionGroup::addAction(const QIconSet& icon, const QString& text, QKeySequence accel)
+QAction *QActionGroup::addAction(const QIconSet &icon, const QString &text, const QKeySequence &accel)
 {
     return new QAction(icon, text, accel, this);
 }
@@ -437,6 +528,7 @@ void QActionGroup::internalTriggered()
     if(!action)
         qWarning("not possible..");
     emit triggered(action);
+    emit selected(action);
 }
 
 void QActionGroup::internalHovered()
