@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/mainwindow.cpp#10 $
+** $Id: //depot/qt/main/examples/qfileiconview/mainwindow.cpp#11 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -100,7 +100,7 @@ void FileMainWindow::setup()
     pathCombo->setAutoCompletion( TRUE );
     toolbar->setStretchableWidget( pathCombo );
     connect( pathCombo, SIGNAL( activated( const QString & ) ),
-             this, SLOT ( changePath( const QString & ) ) );
+	     this, SLOT ( changePath( const QString & ) ) );
 
     toolbar->addSeparator();
 
@@ -108,24 +108,24 @@ void FileMainWindow::setup()
 
     pix = QPixmap( cdtoparent_xpm );
     (void)new QToolButton( pix, "One directory up", QString::null,
-                           this, SLOT( cdUp() ), toolbar, "cd up" );
+			   this, SLOT( cdUp() ), toolbar, "cd up" );
 
     pix = QPixmap( newfolder_xpm );
     (void)new QToolButton( pix, "New Folder", QString::null,
-                           this, SLOT( newFolder() ), toolbar, "new folder" );
+			   this, SLOT( newFolder() ), toolbar, "new folder" );
 
     connect( dirlist, SIGNAL( folderSelected( const QString & ) ),
-             fileview, SLOT ( setDirectory( const QString & ) ) );
+	     fileview, SLOT ( setDirectory( const QString & ) ) );
     connect( fileview, SIGNAL( directoryChanged( const QString & ) ),
-             this, SLOT( directoryChanged( const QString & ) ) );
+	     this, SLOT( directoryChanged( const QString & ) ) );
     connect( fileview, SIGNAL( startReadDir( int ) ),
-             this, SLOT( slotStartReadDir( int ) ) );
+	     this, SLOT( slotStartReadDir( int ) ) );
     connect( fileview, SIGNAL( readNextDir() ),
-             this, SLOT( slotReadNextDir() ) );
+	     this, SLOT( slotReadNextDir() ) );
     connect( fileview, SIGNAL( readDirDone() ),
-             this, SLOT( slotReadDirDone() ) );
+	     this, SLOT( slotReadDirDone() ) );
     connect( fileview, SIGNAL( selectionChanged( int ) ),
-             this, SLOT( slotNumItemsSelected( int ) ) );
+	     this, SLOT( slotNumItemsSelected( int ) ) );
 
     progress = new QProgressBar( statusBar() );
     statusBar()->addWidget( progress, TRUE );
@@ -139,17 +139,17 @@ void FileMainWindow::setPathCombo()
     int i = 0;
     bool found = FALSE;
     for ( i = 0; i < pathCombo->count(); ++i ) {
-        if ( pathCombo->text( i ) == dir) {
-            found = TRUE;
-            break;
-        }
+	if ( pathCombo->text( i ) == dir) {
+	    found = TRUE;
+	    break;
+	}
     }
 
     if ( found )
-        pathCombo->setCurrentItem( i );
+	pathCombo->setCurrentItem( i );
     else {
-        pathCombo->insertItem( dir );
-        pathCombo->setCurrentItem( pathCombo->count() - 1 );
+	pathCombo->insertItem( dir );
+	pathCombo->setCurrentItem( pathCombo->count() - 1 );
     }
 
 }
@@ -182,9 +182,9 @@ void FileMainWindow::slotReadDirDone()
 void FileMainWindow::slotNumItemsSelected( int num )
 {
     if ( num == 1 )
-        label->setText( tr( " %1 Item Selected" ).arg( num ) );
+	label->setText( tr( " %1 Item Selected" ).arg( num ) );
     else
-        label->setText( tr( " %1 Items Selected" ).arg( num ) );
+	label->setText( tr( " %1 Items Selected" ).arg( num ) );
 }
 
 void FileMainWindow::cdUp()
@@ -202,7 +202,7 @@ void FileMainWindow::newFolder()
 void FileMainWindow::changePath( const QString &path )
 {
     if ( QFileInfo( path ).exists() )
-        fileview->setDirectory( path );
+	fileview->setDirectory( path );
     else
-        setPathCombo();
+	setPathCombo();
 }
