@@ -17,6 +17,7 @@
 #include <qwidget.h>
 
 class QAxHostWindow;
+class QAxAggregated;
 
 class QAxWidget : public QWidget, public QAxBase
 {
@@ -36,7 +37,9 @@ public:
     
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
-    
+
+    virtual QAxAggregated *createAggregate();
+
 protected:
     bool initialize(IUnknown**);
     virtual bool createHostWindow(bool);

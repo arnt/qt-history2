@@ -13,6 +13,7 @@
 ****************************************************************************/
 
 #include "qaxwidget.h"
+#include "qaxaggregated.h"
 
 #include <qapplication.h>
 #include <qevent.h>
@@ -273,6 +274,8 @@ private:
     IOleInPlaceObject *m_spInPlaceObject;
     IOleInPlaceActiveObject *m_spInPlaceActiveObject;
     
+    QAxAggregated *aggregatedObject;
+
     bool inPlaceModelessEnabled :1;
     
     DWORD m_dwOleObject;
@@ -347,7 +350,12 @@ QAxHostWindow::QAxHostWindow(QAxWidget *c, bool bInited)
 : ref(1), widget(c)
 {
     host = new QAxHostWidget(widget, this);
-    
+    aggregatedObject = widget->createAggregate();
+    if (aggregatedObject) {
+	aggregatedObject->controlling_unknown = (IUnknown*)(IDispatch*)this;
+	aggregatedObject->the_object = c;
+    }
+
     m_spOleObject = 0;
     m_spOleControl = 0;
     m_spInPlaceObject = 0;
@@ -451,6 +459,10 @@ QAxHostWindow::~QAxHostWindow()
 {
     if (host)
         host->axhost = 0;
+
+    if (aggregatedObject)
+        aggregatedObject->the_object = 0;
+    delete aggregatedObject;
 }
 
 void QAxHostWindow::releaseAll()
@@ -495,26 +507,36 @@ HRESULT WINAPI QAxHostWindow::QueryInterface(REFIID iid, void **iface)
 {
     *iface = 0;
     
-    if (iid == IID_IUnknown)
+    if (iid == IID_IUnknown) {
         *iface = (IUnknown*)(IDispatch*)this;
-    else if (iid == IID_IDispatch)
-        *iface = (IDispatch*)this;
-    else if (iid == IID_IOleClientSite)
-        *iface = (IOleClientSite*)this;
-    else if (iid == IID_IOleControlSite)
-        *iface = (IOleControlSite*)this;
-    else if (iid == IID_IOleWindow)
-        *iface = (IOleWindow*)(IOleInPlaceSite*)this;
-    else if (iid == IID_IOleInPlaceSite)
-        *iface = (IOleInPlaceSite*)this;
-    else if (iid == IID_IOleInPlaceFrame)
-        *iface = (IOleInPlaceFrame*)this;
-    else if (iid == IID_IOleInPlaceUIWindow)
-        *iface = (IOleInPlaceUIWindow*)this;
-    else if (iid == IID_IAdviseSink)
-        *iface = (IAdviseSink*)this;
-    else
-        return E_NOINTERFACE;
+    } else {
+	HRESULT res = S_OK;
+	if (aggregatedObject)
+	    res = aggregatedObject->queryInterface(iid, iface);
+	if (*iface)
+	    return res;
+    }
+
+    if (!(*iface)) {
+        if (iid == IID_IDispatch)
+            *iface = (IDispatch*)this;
+        else if (iid == IID_IOleClientSite)
+            *iface = (IOleClientSite*)this;
+        else if (iid == IID_IOleControlSite)
+            *iface = (IOleControlSite*)this;
+        else if (iid == IID_IOleWindow)
+            *iface = (IOleWindow*)(IOleInPlaceSite*)this;
+        else if (iid == IID_IOleInPlaceSite)
+            *iface = (IOleInPlaceSite*)this;
+        else if (iid == IID_IOleInPlaceFrame)
+            *iface = (IOleInPlaceFrame*)this;
+        else if (iid == IID_IOleInPlaceUIWindow)
+            *iface = (IOleInPlaceUIWindow*)this;
+        else if (iid == IID_IAdviseSink)
+            *iface = (IAdviseSink*)this;
+    }
+    if (!*iface)
+	return E_NOINTERFACE;
     
     AddRef();
     return S_OK;
@@ -1421,6 +1443,19 @@ bool QAxWidget::createHostWindow(bool initialized)
         QApplication::postEvent(parentWidget(), new QEvent(QEvent::LayoutRequest));
     
     return true;
+}
+
+/*!
+    Reimplement this function when you want to implement additional
+    COM interfaces for the client site of the ActiveX control, or when 
+    you want to provide alternative implementations of COM interfaces.
+    Return a new object of a QAxAggregated subclass.
+
+    The default implementation returns the null pointer.
+*/
+QAxAggregated *QAxWidget::createAggregate()
+{
+    return 0;
 }
 
 /*!

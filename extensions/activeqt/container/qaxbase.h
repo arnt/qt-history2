@@ -27,7 +27,6 @@ struct QUuid;
 class QAxEventSink;
 class QAxObject;
 class QAxBasePrivate;
-struct QUObject;
 
 class QAxBase
 {
