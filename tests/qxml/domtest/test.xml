@@ -13,6 +13,9 @@
     <!NOTATION n1 PUBLIC "n1_p" "n1_s">
     <!NOTATION n2 SYSTEM "n2_s"       >
     <!NOTATION n3 PUBLIC "n3_p"       >
+
+    <!ENTITY bigblubber "big&blubber;">
+    <!ENTITY blubber "blubber">
 ]>
 
 <!-- You like PIs? -->
@@ -23,7 +26,7 @@
 	<c1/>
     </b1>
     <b2>
-	Some text at the beginning
+	Some text at the &blubber; or &bigblubber; beginning
 	<c2.1>
 	    ...and some nested text...
 	</c2.1>
