@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#76 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#77 $
 **
 ** Definition of QFileDialog class
 **
@@ -39,7 +39,7 @@ class QTimer;
 #include "qlistbox.h"
 #include "qlineedit.h"
 #include "qlistview.h"
-#include "qurl.h"
+#include "qurloperator.h"
 #include "qurlinfo.h"
 #endif // QT_H
 
@@ -234,7 +234,7 @@ public:
 
     void rereadDir();
     void resortDir();
-    
+
     enum Mode { AnyFile, ExistingFile, Directory, ExistingFiles };
     void setMode( Mode );
     Mode mode() const;
@@ -252,8 +252,8 @@ public:
     void setInfoPreviewWidget( QWidget *w );
     void setContentsPreviewWidget( QWidget *w );
 
-    QUrl url() const;
-    void setUrl( const QUrl &url );
+    QUrlOperator url() const;
+    void setUrl( const QUrlOperator &url );
 
 public slots:
     void setDir( const QString& );
@@ -265,7 +265,7 @@ signals:
     void fileHighlighted( const QString& );
     void fileSelected( const QString& );
     void dirEntered( const QString& );
-    void showPreview( const QUrl & );
+    void showPreview( const QUrlOperator & );
 
 protected slots:
     void detailViewSelectionChanged();
@@ -332,7 +332,7 @@ private:
     };
 
     void init();
-    bool trySetSelection( bool isDir, const QUrl &, bool );
+    bool trySetSelection( bool isDir, const QUrlOperator &, bool );
     void deleteFile( const QString &filename );
     void popupContextMenu( const QString &filename, bool withSort,
                            PopupAction &action, const QPoint &p );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#312 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#313 $
 **
 ** Implementation of QFileDialog class
 **
@@ -52,6 +52,7 @@
 #include "qcheckbox.h"
 #include "qsplitter.h"
 #include "qprogressdialog.h"
+#include "qmap.h"
 
 #include <time.h>
 #include <ctype.h>
@@ -384,7 +385,7 @@ struct QFileDialogPrivate {
     QWidgetStack *preview;
     bool infoPreview, contentsPreview;
     QSplitter *splitter;
-    QUrl url, oldUrl;
+    QUrlOperator url, oldUrl;
     QWidget *infoPreviewWidget, *contentsPreviewWidget;
     bool hadDotDot;
 
@@ -669,9 +670,9 @@ void QFileListBox::viewportDropEvent( QDropEvent *e )
 	supportAction = FALSE;
 
 
-    QUrl dest;
+    QUrlOperator dest;
     if ( currDropItem )
-	dest = QUrl( filedialog->d->url, currDropItem->text() );
+	dest = QUrlOperator( filedialog->d->url, currDropItem->text() );
     else
 	dest = filedialog->d->url;
     filedialog->d->url.copy( l, dest, move );
@@ -1085,9 +1086,9 @@ void QFileListView::viewportDropEvent( QDropEvent *e )
     else
 	supportAction = FALSE;
 
-    QUrl dest;
+    QUrlOperator dest;
     if ( currDropItem )
-	dest = QUrl( filedialog->d->url, currDropItem->text( 0 ) );
+	dest = QUrlOperator( filedialog->d->url, currDropItem->text( 0 ) );
     else
 	dest = filedialog->d->url;
     filedialog->d->url.copy( l, dest, move );
@@ -1487,7 +1488,7 @@ static QStringList makeFiltersList( const QString &filter )
 */
 
 /*!
-  \fn void QFileDialog::showPreview( const QUrl &u )
+  \fn void QFileDialog::showPreview( const QUrlOperator &u )
 
   This signal is emitted when a preview of the URL \a u
   should be shown in the preview widget. Normally you don't need
@@ -1555,7 +1556,7 @@ void QFileDialog::init()
     d->ignoreNextKeyPress = FALSE;
     d->progressDia = 0;
 
-    d->url = QUrl( QDir::currentDirPath() );
+    d->url = QUrlOperator( QDir::currentDirPath() );
     d->oldUrl = d->url;
 
     connect( &d->url, SIGNAL( start( int ) ),
@@ -1842,7 +1843,7 @@ void QFileDialog::changeMode( int id )
 	d->preview->hide();
     } else {
 	if ( files->currentItem() )
-	    emit showPreview( QUrl( d->url, files->currentItem()->text( 0 ) ) );
+	    emit showPreview( QUrlOperator( d->url, files->currentItem()->text( 0 ) ) );
 	if ( pb == d->previewInfo )
 	    d->preview->raiseWidget( d->infoPreviewWidget );
 	else
@@ -1894,7 +1895,7 @@ QStringList QFileDialog::selectedFiles() const
 	QListViewItem * i = files->firstChild();
 	while( i ) {
 	    if ( i->isSelected() ) {
-		QString u = QUrl( url(), ((QFileDialogPrivate::File*)i)->info.name() );
+		QString u = QUrlOperator( url(), ((QFileDialogPrivate::File*)i)->info.name() );
 		lst << u;
 	    }
 	    i = i->nextSibling();
@@ -1917,10 +1918,10 @@ void QFileDialog::setSelection( const QString & filename )
 {
     d->oldUrl = d->url;
     QString nf = d->url.nameFilter();
-    d->url = QUrl( filename );
+    d->url = QUrlOperator( filename );
     d->url.setNameFilter( nf );
     if ( !d->url.isDir() ) {
-	QUrl u = d->url;
+	QUrlOperator u( d->url );
 	d->url.setPath( d->url.dirPath() );
 	trySetSelection( FALSE, d->url, FALSE );
 	rereadDir();
@@ -2033,7 +2034,7 @@ void QFileDialog::setDir( const QDir &dir )
     d->url = dir.canonicalPath();
     d->url.setNameFilter( nf );
     QUrlInfo i( d->url, nameEdit->text() );
-    trySetSelection( i.isDir(), QUrl( d->url, nameEdit->text() ), FALSE );
+    trySetSelection( i.isDir(), QUrlOperator( d->url, nameEdit->text() ), FALSE );
     rereadDir();
     emit dirEntered( d->url.path() );
 }
@@ -2042,7 +2043,7 @@ void QFileDialog::setDir( const QDir &dir )
   Sets the \a url which should be used as working directory
 */
 
-void QFileDialog::setUrl( const QUrl &url )
+void QFileDialog::setUrl( const QUrlOperator &url )
 {
     d->oldUrl = d->url;
     QString nf = d->url.nameFilter();
@@ -2050,7 +2051,7 @@ void QFileDialog::setUrl( const QUrl &url )
     d->url.setNameFilter( nf );
 
     if ( !d->url.isDir() ) {
-	QUrl u = d->url;
+	QUrlOperator u = d->url;
 	d->url.setPath( d->url.dirPath() );
 	trySetSelection( FALSE, u, FALSE );
 	rereadDir();
@@ -2181,7 +2182,7 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
     if ( !startWith.isEmpty() ) {
 	
 	// #### works only correct for local files
-	QUrl u( startWith );
+	QUrlOperator u( startWith );
 	if ( u.isLocalFile() && QFileInfo( u ).isDir() ) {
 	    *workingDirectory = startWith;
 	} else {
@@ -2269,7 +2270,7 @@ QString QFileDialog::getSaveFileName( const QString & startWith,
     makeVariables();
     QString initialSelection;
     if ( !startWith.isEmpty() ) {
-	QUrl u( startWith );
+	QUrlOperator u( startWith );
 	if ( u.isLocalFile() && QFileInfo( u ).isDir() ) {
 	    *workingDirectory = startWith;
 	} else {
@@ -2346,7 +2347,7 @@ void QFileDialog::okClicked()
 	else
 	    f = QUrlInfo( d->url, nameEdit->text() );
 	if ( f.isDir() ) {
-	    setUrl( QUrl( d->url, nameEdit->text() + "/" ) );
+	    setUrl( QUrlOperator( d->url, nameEdit->text() + "/" ) );
 	    trySetSelection( TRUE, d->url, TRUE );
 	}
     }
@@ -2386,7 +2387,7 @@ void QFileDialog::resizeEvent( QResizeEvent * )
   \internal
   The only correct way to try to set currentFileName
 */
-bool QFileDialog::trySetSelection( bool isDir, const QUrl &u, bool updatelined )
+bool QFileDialog::trySetSelection( bool isDir, const QUrlOperator &u, bool updatelined )
 {
     if ( d->preview && d->preview->isVisible() )
  	emit showPreview( u );
@@ -2553,7 +2554,7 @@ void QFileDialog::updateFileNameEdit( QListViewItem * newItem )
 	detailViewSelectionChanged();
     } else if ( files->isSelected( newItem ) ) {
 	QFileDialogPrivate::File * i = (QFileDialogPrivate::File *)newItem;
-	trySetSelection( i->info.isDir(), QUrl( d->url, newItem->text( 0 ) ), TRUE );
+	trySetSelection( i->info.isDir(), QUrlOperator( d->url, newItem->text( 0 ) ), TRUE );
     }
 }
 
@@ -2622,7 +2623,7 @@ void QFileDialog::fileNameEditDone()
 {
     QUrlInfo f( d->url, nameEdit->text() );
     if ( mode() != ExistingFiles )
-	trySetSelection( f.isDir(), QUrl( d->url, nameEdit->text() ), FALSE );
+	trySetSelection( f.isDir(), QUrlOperator( d->url, nameEdit->text() ), FALSE );
 }
 
 
@@ -2640,13 +2641,13 @@ void QFileDialog::selectDirectoryOrFile( QListViewItem * newItem )
     QFileDialogPrivate::File * i = (QFileDialogPrivate::File *)newItem;
 
     if ( i->info.isDir() ) {
-	setUrl( QUrl( d->url, i->info.name() + "/" ) );
+	setUrl( QUrlOperator( d->url, i->info.name() + "/" ) );
 	if ( mode() == Directory ) {
 	    QUrlInfo f ( d->url, QString::fromLatin1( "." ) );
 	    trySetSelection( f.isDir(), d->url, TRUE );
 	}
     } else if ( newItem->isSelectable() &&
-		trySetSelection( i->info.isDir(), QUrl( d->url, i->info.name() ), TRUE ) ) {
+		trySetSelection( i->info.isDir(), QUrlOperator( d->url, i->info.name() ), TRUE ) ) {
 	if ( mode() != Directory ) {
 	    emit fileSelected( d->currentFileName );
 	    accept();
@@ -2885,9 +2886,9 @@ void QFileDialog::error( int ecode, const QString &msg )
 
     QMessageBox::critical( this, tr( "ERROR" ), msg );
 
-    if ( ecode == QUrl::ErrReadDir || ecode == QUrl::ErrParse ||
-	 ecode == QUrl::ErrUnknownProtocol || ecode == QUrl::ErrLoginIncorrect ||
-	 ecode == QUrl::ErrValid ) {
+    if ( ecode == QUrlOperator::ErrReadDir || ecode == QUrlOperator::ErrParse ||
+	 ecode == QUrlOperator::ErrUnknownProtocol || ecode == QUrlOperator::ErrLoginIncorrect ||
+	 ecode == QUrlOperator::ErrValid ) {
 	d->url = d->oldUrl;
 	rereadDir();
     }
@@ -2916,7 +2917,7 @@ void QFileDialog::pathSelected( int )
 
 void QFileDialog::cdUpClicked()
 {
-    setUrl( QUrl( d->url, ".." ) );
+    setUrl( QUrlOperator( d->url, ".." ) );
 }
 
 void QFileDialog::newFolderClicked()
@@ -2983,7 +2984,7 @@ QString QFileDialog::getExistingDirectory( const QString & dir,
     dialog->d->types->setEnabled( FALSE );
 
     QString dir_( dir );
-    QUrl u( dir_ );
+    QUrlOperator u( dir_ );
     if ( dir_.isEmpty() && !workingDirectory->isEmpty() )
 	dir_ = *workingDirectory;
     if ( u.isLocalFile() ) {
@@ -3199,7 +3200,7 @@ void QFileDialog::keyPressEvent( QKeyEvent * ke )
 		QUrlInfo i( d->url, nameEdit->text() );
 		if ( i.isDir() ) {
 		    nameEdit->setText( QString::fromLatin1("") );
-		    setDir( QUrl( d->url, i.name() ) );
+		    setDir( QUrlOperator( d->url, i.name() ) );
 		}
 		ke->accept();
 	    } else if ( mode() == ExistingFiles ) {
@@ -3525,7 +3526,7 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
 
     if ( !dir.isEmpty() ) {
 	// #### works only correct for local files
-	QUrl u( dir );
+	QUrlOperator u( dir );
 	if ( u.isLocalFile() && QFileInfo( u ).isDir() ) {
 	    *workingDirectory = dir;
 	} else {
@@ -3550,7 +3551,7 @@ QStringList QFileDialog::getOpenFileNames( const QString & filter,
 	QListViewItem * i = dlg->files->firstChild();
 	while( i ) {
 	    if ( i->isSelected() ) {
-		QString u = QUrl( dlg->url(), ((QFileDialogPrivate::File*)i)->info.name() );
+		QString u = QUrlOperator( dlg->url(), ((QFileDialogPrivate::File*)i)->info.name() );
 		s.append( u );
 	    }
 	    i = i->nextSibling();
@@ -3575,14 +3576,14 @@ void QFileDialog::fixupNameEdit()
   Returns the URL of the current working directory.
 */
 
-QUrl QFileDialog::url() const
+QUrlOperator QFileDialog::url() const
 {
     return d->url;
 }
 
 void QFileDialog::urlStart( int action )
 {
-    if ( action == QUrl::ActListDirectory ) {
+    if ( action == QUrlOperator::ActListDirectory ) {
 	d->moreFiles->clear();
 	files->clear();
 	files->setSorting( -1 );
@@ -3602,10 +3603,10 @@ void QFileDialog::urlStart( int action )
 	    d->cdToParent->setEnabled( FALSE );
 	else
 	    d->cdToParent->setEnabled( TRUE );
-    } else if ( action == QUrl::ActCopyFiles ) {
+    } else if ( action == QUrlOperator::ActCopyFiles ) {
 	d->progressDia = new QProgressDialog( this, "", TRUE );
 	d->progressDia->setCaption( tr( "Copy File" ) );
-    } else if ( action == QUrl::ActMoveFiles ) {
+    } else if ( action == QUrlOperator::ActMoveFiles ) {
 	d->progressDia = new QProgressDialog( this, "", TRUE );
 	d->progressDia->setCaption( tr( "Move File" ) );
     }
@@ -3613,7 +3614,7 @@ void QFileDialog::urlStart( int action )
 
 void QFileDialog::urlFinished( int action )
 {
-    if ( action == QUrl::ActListDirectory ) {
+    if ( action == QUrlOperator::ActListDirectory ) {
 	if ( !d->hadDotDot && d->url.path() != "/" ) {
 	    QUrlInfo ui( d->url, ".." );
 	    ui.setName( ".." );
@@ -3624,7 +3625,7 @@ void QFileDialog::urlFinished( int action )
 	    insertEntry( ui );
 	}
 	resortDir();
-    } else if ( ( action == QUrl::ActCopyFiles || action == QUrl::ActMoveFiles ) &&
+    } else if ( ( action == QUrlOperator::ActCopyFiles || action == QUrlOperator::ActMoveFiles ) &&
 		d->progressDia ) {
 	delete d->progressDia;
 	d->progressDia = 0;
@@ -3722,7 +3723,7 @@ void QFileDialog::setPreviewMode( bool info, bool contents )
 
   This widget should implement a public slot
 
-  void showPreview( const QUrl & );
+  void showPreview( const QUrlOperator & );
 
   A signal of the filedialog will then be automatically connected to
   this slot. If the user selects a file then, this signal is emitted,
@@ -3737,14 +3738,14 @@ void QFileDialog::setInfoPreviewWidget( QWidget *w )
     if ( d->infoPreviewWidget ) {
 	d->preview->removeWidget( d->infoPreviewWidget );
 
-	disconnect( this, SIGNAL( showPreview( const QUrl & ) ),
-		    d->infoPreviewWidget, SLOT( showPreview( const QUrl & ) ) );
+	disconnect( this, SIGNAL( showPreview( const QUrlOperator & ) ),
+		    d->infoPreviewWidget, SLOT( showPreview( const QUrlOperator & ) ) );
 
 	delete d->infoPreviewWidget;
     }
     d->infoPreviewWidget = w;
-    connect( this, SIGNAL( showPreview( const QUrl & ) ),
-	     d->infoPreviewWidget, SLOT( showPreview( const QUrl & ) ) );
+    connect( this, SIGNAL( showPreview( const QUrlOperator & ) ),
+	     d->infoPreviewWidget, SLOT( showPreview( const QUrlOperator & ) ) );
     w->recreate( d->preview, 0, QPoint( 0, 0 ) );
 }
 
@@ -3754,7 +3755,7 @@ void QFileDialog::setInfoPreviewWidget( QWidget *w )
 
   This widget should implement a public slot
 
-  void showPreview( const QUrl & );
+  void showPreview( const QUrlOperator & );
 
   A signal of the filedialog will then be automatically connected to
   this slot. If the user selects a file then, this signal is emitted,
@@ -3769,14 +3770,14 @@ void QFileDialog::setContentsPreviewWidget( QWidget *w )
     if ( d->contentsPreviewWidget ) {
 	d->preview->removeWidget( d->contentsPreviewWidget );
 
-	disconnect( this, SIGNAL( showPreview( const QUrl & ) ),
-		    d->contentsPreviewWidget, SLOT( showPreview( const QUrl & ) ) );
+	disconnect( this, SIGNAL( showPreview( const QUrlOperator & ) ),
+		    d->contentsPreviewWidget, SLOT( showPreview( const QUrlOperator & ) ) );
 	
 	delete d->contentsPreviewWidget;
     }
     d->contentsPreviewWidget = w;
-    connect( this, SIGNAL( showPreview( const QUrl & ) ),
-	     d->contentsPreviewWidget, SLOT( showPreview( const QUrl & ) ) );
+    connect( this, SIGNAL( showPreview( const QUrlOperator & ) ),
+	     d->contentsPreviewWidget, SLOT( showPreview( const QUrlOperator & ) ) );
     w->recreate( d->preview, 0, QPoint( 0, 0 ) );
 }
 
