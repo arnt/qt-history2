@@ -4433,8 +4433,53 @@ bool qKillTimer( QObject *obj )
 // comparing window, time and position between two mouse press events.
 //
 
+//
+// Keyboard event translation
+//
+
+#define XK_MISCELLANY
+#define XK_LATIN1
+#include <X11/keysymdef.h>
+
 static int translateButtonState( int s )
 {
+    // find the alt/meta masks
+    static long altmask = 0, metamask = 0;
+    if (altmask == 0 && metamask == 0) {
+	// get modifier mapping
+	XModifierKeymap *map = XGetModifierMapping(appDpy);
+	if (map) {
+	    int i, maskIndex = 0, mapIndex = 0;
+	    for (maskIndex = 0; maskIndex < 8; maskIndex++) {
+		for (i = 0; i < map->max_keypermod; i++) {
+		    if (map->modifiermap[mapIndex]) {
+			KeySym sym =
+			    XKeycodeToKeysym(appDpy, map->modifiermap[mapIndex], 0);
+			if ( altmask == 0 &&
+			     ( sym == XK_Alt_L || sym == XK_Alt_R ) ) {
+			    altmask = 1 << maskIndex;
+			}
+			if ( metamask == 0 &&
+			     (sym == XK_Meta_L || sym == XK_Meta_R ) ) {
+			    metamask = 1 << maskIndex;
+			}
+		    }
+		    mapIndex++;
+		}
+	    }
+
+	    if (altmask == 0 && metamask == 0) {
+		// alt/meta aren't mapped anywhere
+		altmask = metamask = 1 << (Mod5MapIndex + 1);
+	    }
+	    XFreeModifiermap(map);
+	} else {
+	    // assume defaults
+	    altmask = Mod1Mask;
+	    metamask = Mod4Mask;
+	}
+    }
+
     int bst = 0;
     if ( s & Button1Mask )
 	bst |= Qt::LeftButton;
@@ -4446,9 +4491,9 @@ static int translateButtonState( int s )
 	bst |= Qt::ShiftButton;
     if ( s & ControlMask )
 	bst |= Qt::ControlButton;
-    if ( s & Mod1Mask )
+    if ( s & altmask )
 	bst |= Qt::AltButton;
-    if ( s & Mod4Mask )
+    if ( s & metamask )
 	bst |= Qt::MetaButton;
     return bst;
 }
@@ -4866,14 +4911,6 @@ bool QETWidget::translateXinputEvent( const XEvent *ev )
 #endif
 }
 #endif
-
-//
-// Keyboard event translation
-//
-
-#define XK_MISCELLANY
-#define XK_LATIN1
-#include <X11/keysymdef.h>
 
 #ifndef XK_ISO_Left_Tab
 #define	XK_ISO_Left_Tab					0xFE20
