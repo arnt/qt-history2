@@ -1,0 +1,21 @@
+Before you build the Qt library and example programs, you must run the
+"configure" script to set the platform information and other build
+settings.  You can use the -platform option to specify the operating
+system and compiler you are using.
+
+Supported platforms and compilers:
+
+  aix-g++        hpux-acc       irix-n32       osf1-g++       ultrix-g++
+  aix-xlc        hpux-cc        irix-o32       qnx-g++        unixware-g++
+  bsdi-g++       hpux-g++       linux-g++      sco-g++        unixware7-cc
+  dgux-g++       irix-64        netbsd-g++     solaris-cc     unixware7-g++
+  freebsd-g++    irix-dcc       openbsd-g++    solaris-g++
+  gnu-g++        irix-g++       osf1-cxx       sunos-g++
+
+Limitations:
+
+  aix-g++ and ultrix-g++ do not support shared libraries, use static.
+
+Example:
+
+  ./configure -platform irix-n32 -shared -debug
