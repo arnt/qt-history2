@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#16 $
 **
 ** Implementation of QSlider class
 **
@@ -15,7 +15,7 @@
 #include "qtimer.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#15 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#16 $");
 
 static const int motifBorder = 2;
 static const int motifLength = 30;
@@ -54,7 +54,7 @@ static int sliderStartVal = 0; //##### class member?
 */
 
 /*!
-  Constructs a horizontal slider.
+  Constructs a vertical slider.
 
   The \e parent and \e name arguments are sent to the QWidget constructor.
 */
@@ -62,7 +62,7 @@ static int sliderStartVal = 0; //##### class member?
 QSlider::QSlider( QWidget *parent, const char *name )
     : QWidget( parent, name )
 {
-    orient = Horizontal;
+    orient = Vertical;
     init();
 }
 
@@ -176,7 +176,7 @@ int QSlider::positionFromValue( int v ) const
 {
     int  a = available();
     int range = maxValue() - minValue();
-    return range > 0 ? ( v * a ) / (range): 0;
+    return range > 0 ? ( (v - minValue() ) * a ) / (range): 0;
 }
 /*!
   Returns the available space in which the slider can move.
@@ -205,7 +205,7 @@ int QSlider::valueFromPosition( int p ) const
 {
     int a = available();
     int range = maxValue() - minValue();
-    return a > 0 ? (2 * p * range + a ) / ( 2*a ): 0;
+    return   minValue() + ( a > 0 ? (2 * p * range + a ) / ( 2*a ): 0 );
 }
 
 /*!
