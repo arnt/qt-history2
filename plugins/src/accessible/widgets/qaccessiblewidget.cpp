@@ -464,15 +464,22 @@ QAccessibleButton::QAccessibleButton( QObject *o, Role role, QString description
 : QAccessibleWidget( o, role, QString::null, description, QString::null, 
 		    QString::null, QString::null, QString::null )
 {
+    Q_ASSERT(o->inherits("QButton"));
 }
 
 /*! \reimp */
-bool	QAccessibleButton::doDefaultAction( int /*control*/ )
+bool	QAccessibleButton::doDefaultAction( int control )
 {
     if ( !widget()->isEnabled() )
 	return FALSE;
 
-    ((QButton*)widget())->animateClick();
+    if ( role(control) == PushButton ) {
+	((QButton*)object())->animateClick();
+    } else if ( object()->inherits("QToolButton") ) {
+	QToolButton *tb = (QToolButton*)object();
+	tb->openPopup();
+    }
+
     return TRUE;
 }
 
@@ -485,7 +492,9 @@ QString QAccessibleButton::text( Text t, int control ) const
 
     switch ( t ) {
     case DefaultAction:
+	if ( role(control) == PushButton )
 	    return QButton::tr("Press");
+	return QButton::tr("Open");
     case Accelerator:
 	tx = hotKey( ((QButton*)widget())->text() );
 	if ( !!tx ) {
@@ -795,34 +804,34 @@ QRect QAccessibleScrollBar::rect( int control ) const
 {
     QRect rect;
     QRect srect = scrollBar()->sliderRect();
-    QSize sz = scrollBar()->style().scrollBarExtent();
+    int sz = scrollBar()->style().pixelMetric( QStyle::PM_ScrollBarExtent, scrollBar() );
     switch ( control ) {
     case 1:
 	if ( scrollBar()->orientation() == Vertical )
-	    rect = QRect( 0, 0, sz.width(), sz.height() );
+	    rect = QRect( 0, 0, sz, sz );
 	else
-	    rect = QRect( 0, 0, sz.height(), sz.width() );
+	    rect = QRect( 0, 0, sz, sz );
 	break;
     case 2:
 	if ( scrollBar()->orientation() == Vertical )
-	    rect = QRect( 0, sz.height(), sz.width(), srect.y() - sz.height() );
+	    rect = QRect( 0, sz, sz, srect.y() - sz );
 	else
-	    rect = QRect( sz.width(), 0, srect.x() - sz.width(), sz.height() );
+	    rect = QRect( sz, 0, srect.x() - sz, sz );
 	break;
     case 3:
 	rect = srect;
 	break;
     case 4:
 	if ( scrollBar()->orientation() == Vertical )
-	    rect = QRect( 0, srect.bottom(), sz.width(), scrollBar()->rect().height() - srect.bottom() - sz.height() );
+	    rect = QRect( 0, srect.bottom(), sz, scrollBar()->rect().height() - srect.bottom() - sz );
 	else
-	    rect = QRect( srect.right(), 0, scrollBar()->rect().width() - srect.right() - sz.width(), sz.height() );
+	    rect = QRect( srect.right(), 0, scrollBar()->rect().width() - srect.right() - sz, sz ) ;
 	break;
     case 5:
 	if ( scrollBar()->orientation() == Vertical )
-	    rect = QRect( 0, scrollBar()->rect().height() - sz.height(), sz.width(), sz.height() );
+	    rect = QRect( 0, scrollBar()->rect().height() - sz, sz, sz );
 	else
-	    rect = QRect( scrollBar()->rect().width() - sz.width(), 0, sz.width(), sz.height() );
+	    rect = QRect( scrollBar()->rect().width() - sz, 0, sz, sz );
 	break;
     default:
 	return QAccessibleRangeControl::rect( control );
@@ -894,20 +903,20 @@ QString	QAccessibleScrollBar::text( Text t, int control ) const
     case Name:
 	switch ( control ) {
 	case 1:
-	    return scrollBar()->tr("Line up");
+	    return QScrollBar::tr("Line up");
 	case 2:
-	    return scrollBar()->tr("Page up");
+	    return QScrollBar::tr("Page up");
 	case 3:
-	    return scrollBar()->tr("Position");
+	    return QScrollBar::tr("Position");
 	case 4:
-	    return scrollBar()->tr("Page down");
+	    return QScrollBar::tr("Page down");
 	case 5:
-	    return scrollBar()->tr("Line down");
+	    return QScrollBar::tr("Line down");
 	}
 	break;
     case DefaultAction:
 	if ( control != 3 )
-	    return scrollBar()->tr("Press");
+	    return QScrollBar::tr("Press");
 	break;
     default:
 	break;
@@ -1079,16 +1088,16 @@ QString	QAccessibleSlider::text( Text t, int control ) const
     case Name:
 	switch ( control ) {
 	case 1:
-	    return slider()->tr("Page up");
+	    return QSlider::tr("Page up");
 	case 2:
-	    return slider()->tr("Position");
+	    return QSlider::tr("Position");
 	case 3:
-	    return slider()->tr("Page down");
+	    return QSlider::tr("Page down");
 	}
 	break;
     case DefaultAction:
 	if ( control != 2 )
-	    return slider()->tr("Press");
+	    return QSlider::tr("Press");
 	break;
     default:
 	break;
@@ -1407,7 +1416,7 @@ int QAccessibleTabBar::controlAt( int x, int y ) const
 
     QPoint tp = tabBar()->mapFromGlobal( QPoint( x,y ) );
     QTab *tab = tabBar()->selectTab( tp );
-    return tabBar()->indexOf( tab->identitifer() ) + 1;
+    return tabBar()->indexOf( tab->identifier() ) + 1;
 }
 
 /*! \reimp */
@@ -1495,7 +1504,7 @@ QString QAccessibleTabBar::text( Text t, int control ) const
     case Name:
 	return stripAmp( tab->text() );
     case DefaultAction:
-	return tabBar()->tr( "Switch" );
+	return QTabBar::tr( "Switch" );
     default:
 	break;
     }
@@ -1542,7 +1551,7 @@ QAccessible::State QAccessibleTabBar::state( int control ) const
     else
 	st |= Selectable;
 
-    if ( tabBar()->currentTab() == tab->identitifer() )
+    if ( tabBar()->currentTab() == tab->identifier() )
 	st |= Selected;
 
     return (State)st;
@@ -1632,31 +1641,27 @@ int QAccessibleComboBox::controlAt( int x, int y ) const
 /*! \reimp */
 QRect QAccessibleComboBox::rect( int control ) const
 {
+    QPoint tp;
+    QRect r;
+
     switch( control ) {
     case 1:
-	{
-	    QPoint tp;
-	    QRect r;
-	    if ( comboBox()->editable() ) {
-		tp = comboBox()->lineEdit()->mapToGlobal( QPoint( 0,0 ) );
-		r = comboBox()->lineEdit()->rect();
-	    } else  {
-		tp = comboBox()->mapToGlobal( QPoint( 0,0 ) );
-		r = comboBox()->style().comboButtonRect( 0, 0, comboBox()->rect().width(), comboBox()->rect().height() );
-	    }
-	    return QRect( tp.x() + r.x(), tp.y() + r.y(), r.width(), r.height() );
+	if ( comboBox()->editable() ) {
+	    tp = comboBox()->lineEdit()->mapToGlobal( QPoint( 0,0 ) );
+	    r = comboBox()->lineEdit()->rect();
+	} else  {
+	    tp = comboBox()->mapToGlobal( QPoint( 0,0 ) );
+	    r = comboBox()->style().querySubControlMetrics( QStyle::CC_ComboBox, comboBox(), QStyle::SC_ComboBoxEditField );
 	}
 	break;
     case 2:
-	{
-	    QPoint tp = comboBox()->mapToGlobal( QPoint( 0,0 ) );
-	    QRect r = comboBox()->style().comboButtonRect( 0, 0, comboBox()->rect().width(), comboBox()->rect().height() );
-	    return QRect( tp.x() + r.width(), tp.y() + r.y(), comboBox()->rect().width() - r.width(), r.height() );
-	}
-    default:
+	tp = comboBox()->mapToGlobal( QPoint( 0,0 ) );
+	r = comboBox()->style().querySubControlMetrics( QStyle::CC_ComboBox, comboBox(), QStyle::SC_ComboBoxArrow );
 	break;
+    default:
+	return QAccessibleWidget::rect( control );
     }
-    return QAccessibleWidget::rect( control );
+    return QRect( tp.x() + r.x(), tp.y() + r.y(), r.width(), r.height() );    
 }
 
 /*! \reimp */
@@ -1706,7 +1711,7 @@ QString QAccessibleComboBox::text( Text t, int control ) const
     case Name:
 	if ( control < 2 )
 	    return stripAmp( buddyString( comboBox() ) );
-	return comboBox()->tr("Open");
+	return QComboBox::tr("Open");
     case Accelerator:
 	if ( control < 2 ) {
 	    str = hotKey( buddyString( comboBox() ) );
@@ -1714,7 +1719,7 @@ QString QAccessibleComboBox::text( Text t, int control ) const
 		return "Alt + " + str;
 	    return str;
 	}
-	return comboBox()->tr("Alt + Down Arrow" );
+	return QComboBox::tr("Alt + Down Arrow" );
     case Value:
 	if ( control < 2 ) {
 	    if ( comboBox()->editable() )
@@ -1724,7 +1729,7 @@ QString QAccessibleComboBox::text( Text t, int control ) const
 	break;
     case DefaultAction:
 	if ( control == 2 )
-	    return comboBox()->tr("Open");
+	    return QComboBox::tr("Open");
 	break;
     default:
 	str = QAccessibleWidget::text( t, 0 );
@@ -1791,20 +1796,19 @@ QTitleBar *QAccessibleTitleBar::titleBar() const
 /*! \reimp */
 int QAccessibleTitleBar::controlAt( int x, int y ) const
 {
-    int ctrl = titleBar()->style().titleBarPointOver( titleBar(), titleBar()->mapFromGlobal( QPoint( x,y ) ) );
+    int ctrl = titleBar()->style().querySubControl( QStyle::CC_TitleBar, titleBar(), titleBar()->mapFromGlobal( QPoint( x,y ) ) );
 
     switch ( ctrl )
     {
-    case QStyle::TitleSysMenu:
+    case QStyle::SC_TitleBarSysMenu:
 	return 1;
-    case QStyle::TitleLabel:
+    case QStyle::SC_TitleBarLabel:
 	return 2;
-    case QStyle::TitleMinButton:
+    case QStyle::SC_TitleBarMinButton:
 	return 3;
-    case QStyle::TitleNormalButton:
-    case QStyle::TitleMaxButton:
+    case QStyle::SC_TitleBarMaxButton:
 	return 4;
-    case QStyle::TitleCloseButton:
+    case QStyle::SC_TitleBarCloseButton:
 	return 5;
     default:
 	break;
@@ -1818,13 +1822,23 @@ QRect QAccessibleTitleBar::rect( int control ) const
     if ( !control )
 	return QAccessibleWidget::rect( control );
 
-    int ctrlW, ctrlH, titleW, titleH;
-    titleBar()->style().titleBarMetrics( titleBar(), ctrlW, ctrlH, titleW, titleH );
-
     QRect r;
     switch ( control ) {
     case 1:
-	r = QRect( 0, 0, ctrlW, ctrlH );
+	r = titleBar()->style().querySubControlMetrics( QStyle::CC_TitleBar, titleBar(), QStyle::SC_TitleBarSysMenu );
+	break;
+    case 2:
+	r = titleBar()->style().querySubControlMetrics( QStyle::CC_TitleBar, titleBar(), QStyle::SC_TitleBarLabel );
+	break;
+    case 3:
+	r = titleBar()->style().querySubControlMetrics( QStyle::CC_TitleBar, titleBar(), QStyle::SC_TitleBarMinButton );
+	break;
+    case 4:
+	r = titleBar()->style().querySubControlMetrics( QStyle::CC_TitleBar, titleBar(), QStyle::SC_TitleBarMaxButton );
+	break;
+    case 5:
+	r = titleBar()->style().querySubControlMetrics( QStyle::CC_TitleBar, titleBar(), QStyle::SC_TitleBarCloseButton );
+	break;
     default:
 	break;
     }
@@ -1882,17 +1896,17 @@ QString QAccessibleTitleBar::text( Text t, int control ) const
     case Name:
 	switch ( control ) {
 	case 1:
-	    return titleBar()->tr("System");
+	    return QTitleBar::tr("System");
 	case 3:
 	    if ( titleBar()->window->isMinimized() )
-		return titleBar()->tr("Restore up");
-	    return titleBar()->tr("Minimize");
+		return QTitleBar::tr("Restore up");
+	    return QTitleBar::tr("Minimize");
 	case 4:
 	    if ( titleBar()->window->isMaximized() )
-		return titleBar()->tr("Restore down");	
-	    return titleBar()->tr("Maximize");
+		return QTitleBar::tr("Restore down");	
+	    return QTitleBar::tr("Maximize");
 	case 5:
-	    return titleBar()->tr("Close");
+	    return QTitleBar::tr("Close");
 	default:
 	    break;
 	}
@@ -1903,24 +1917,24 @@ QString QAccessibleTitleBar::text( Text t, int control ) const
 	break;
     case DefaultAction:
 	if ( control > 2 )
-	    return titleBar()->tr("Press");
+	    return QTitleBar::tr("Press");
 	break;
     case Description:
 	switch ( control ) {
 	case 1:
-	    return titleBar()->tr("Contains commands to manipulate the window");
+	    return QTitleBar::tr("Contains commands to manipulate the window");
 	case 3:
 	    if ( titleBar()->window->isMinimized() )
-		return titleBar()->tr("Puts a minimized back to normal");
-	    return titleBar()->tr("Moves the window out of the way");
+		return QTitleBar::tr("Puts a minimized back to normal");
+	    return QTitleBar::tr("Moves the window out of the way");
 	case 4:
 	    if ( titleBar()->window->isMaximized() )
-		return titleBar()->tr("Puts a maximized window back to normal");
-	    return titleBar()->tr("Makes the window full screen");
+		return QTitleBar::tr("Puts a maximized window back to normal");
+	    return QTitleBar::tr("Makes the window full screen");
 	case 5:
-	    return titleBar()->tr("Closes the window");
+	    return QTitleBar::tr("Closes the window");
 	default:
-	    return titleBar()->tr("Displays the name of the window and contains controls to manipulate it");
+	    return QTitleBar::tr("Displays the name of the window and contains controls to manipulate it");
 	}
     default:
 	break;
