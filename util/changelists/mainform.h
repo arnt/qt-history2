@@ -28,6 +28,7 @@ private:
     QProcess process;
     QValueList<int> *changeListFrom;
     QValueList<int> *changeListTo;
+    bool incIntegrates;
 };
 
 #endif // MAINFORM_H

@@ -4,10 +4,12 @@
 #include <qcombobox.h>
 #include <qtextview.h>
 #include <qlistview.h>
+#include <qcheckbox.h>
 #include <qsplitter.h>
 #include <qmessagebox.h>
 #include <qfiledialog.h>
 #include <qapplication.h>
+#include <qregexp.h>
 
 #include <stdlib.h>
 
@@ -66,7 +68,10 @@ void MainForm::startChanges( QString label )
 	file += "/";
     file += "..." + label;
 
-    args << "p4" << "changes" << "-i" << file;
+    if ( incIntegrates )
+	args << "p4" << "changes" << "-i" << file;
+    else
+	args << "p4" << "changes" << file;
 
     //qDebug( args.join( " " ) );
     process.kill();
@@ -85,6 +90,7 @@ void MainForm::go()
     changeListFrom = 0;
     changeListTo = 0;
 
+    incIntegrates = includeIntegrates->isChecked();
     changeListFrom = new QValueList<int>;
     startChanges( changesFrom->currentText() );
 }
@@ -96,6 +102,7 @@ void MainForm::currentChanged( QListViewItem *li )
     } else {
 	if ( process.isRunning() ) {
 	    //qWarning( "Process is running!!!!" );
+	    QApplication::restoreOverrideCursor();
 	}
 	QStringList args;
 	args << "p4" << "describe" << "-du" << li->text(0);
@@ -105,6 +112,7 @@ void MainForm::currentChanged( QListViewItem *li )
 	    QMessageBox::critical( this, tr("Error starting process"),
 		    tr("Could not start p4. Please check your path") );
 	}
+	QApplication::setOverrideCursor( Qt::waitCursor );
     }
 }
 
@@ -114,7 +122,7 @@ void MainForm::readyReadStdout()
     
     if ( command == "labels" ) {
 	while ( process.canReadLineStdout() ) {
-	    QString label = QStringList::split( " ", process.readLineStdout() )[1];
+	    QString label = QStringList::split( ' ', process.readLineStdout() )[1];
 	    changesFrom->insertItem( label, 0 );
 	    changesTo->insertItem( label, 0 );
 	}
@@ -127,7 +135,7 @@ void MainForm::readyReadStdout()
 	}
 	if ( list ) {
 	    while ( process.canReadLineStdout() ) {
-		QString label = QStringList::split( " ", process.readLineStdout() )[1];
+		QString label = QStringList::split( ' ', process.readLineStdout() )[1];
 		list->append( label.toInt() );
 		if ( list->count() % 500 == 0 ) {
 		    qApp->processEvents();
@@ -173,7 +181,6 @@ void MainForm::processExited()
 		startChanges( changesTo->currentText() );
 	    } else {
 		changes->clear();
-		// maybe we have to sort the results?
 		qHeapSort( *changeListFrom );
 		qHeapSort( *changeListTo );
 		QValueList<int>::iterator itFrom, itTo;
@@ -205,6 +212,20 @@ void MainForm::processExited()
 	    }
 	}
     } else if ( command == "describe" ) {
-	description->setText( process.readStdout() );
+	QString desc( process.readStdout() );
+#if 0
+	// ### do some nice syntax highlighting
+	desc = desc.replace( QRegExp("<"), "&lt;" );
+	desc = desc.replace( QRegExp(">"), "&gt;" );
+	desc = desc.replace( QRegExp("^\\+"), "<font color=blue>+</font>" );
+#endif
+	description->setCursorPosition( 0, 0 );
+	description->setText( desc );
+	if ( changes->currentItem() != 0 ) {
+	    int i = desc.find( '\n' );
+	    QString tmp = desc.left(i).replace( QRegExp("^Change \\d* by .* on ") , "" );
+	    changes->currentItem()->setText( 1, tmp );
+	}
+	QApplication::restoreOverrideCursor();
     }
 }
