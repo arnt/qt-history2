@@ -22,6 +22,7 @@
 #include "mainwindow.h"
 #include "project.h"
 #include "formwindow.h"
+#include "formlist.h"
 #include "widgetfactory.h"
 #include "command.h"
 #include "outputwindow.h"
@@ -508,12 +509,12 @@ QWidget *DesignerFormWindowImpl::form() const
 void DesignerFormWindowImpl::setListViewIcon( const QPixmap &pix )
 {
     FormList * listView = formWindow->mainWindow()->formlist();
-    QString formname = formWindow->name();
-    QListViewItemIterator it( (QListView*)listView );
+    QListViewItemIterator it( listView );
     while ( it.current() ) {
-	QListViewItem *item = it.current();
+	FormListItem *item = (FormListItem*)it.current();
 	++it;
-	if ( item->text( 0 ) == formname ) {
+	QWidget *itemForm = item->formWindow();
+	if ( itemForm == formWindow ) {
 	    item->setPixmap( 0, pix );
 	    break;
 	}
