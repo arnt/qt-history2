@@ -1337,10 +1337,9 @@ void QPrintDialogPrivate::okClicked()
     firstPage->interpretText();
     copies->interpretText();
     if (outputToFile) {
-        printer->setOutputToFile(true);
         printer->setOutputFileName(fileName->text());
     } else {
-        printer->setOutputToFile(false);
+        printer->setOutputFileName(QString());
         QModelIndex current = view->currentIndex();
         if (current.isValid())
             printer->setPrinterName(printers.at(current.row()).name);
@@ -1433,7 +1432,7 @@ void QPrintDialogPrivate::setPrinter(QPrinter *p, bool pickUpSettings)
     if (p && pickUpSettings) {
         // top to botton in the old dialog.
         // printer or file
-        if (p->outputToFile())
+        if (!p->outputFileName().isEmpty())
             printToFileButton->setChecked(true);
 
         // printer name

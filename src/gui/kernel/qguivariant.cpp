@@ -294,7 +294,7 @@ static void load(QVariant::Private *d, QDataStream &s)
         qint8 hfw;
         s >> h >> v >> hfw;
         QSizePolicy *sp = v_cast<QSizePolicy>(d);
-        *sp = QSizePolicy(QSizePolicy::SizeType(h), QSizePolicy::SizeType(v));
+        *sp = QSizePolicy(QSizePolicy::Policy(h), QSizePolicy::Policy(v));
         sp->setHeightForWidth(bool(hfw));
         break;
     }

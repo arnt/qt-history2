@@ -37,8 +37,8 @@ public:
     QGridBox(QLayoutItem *lit) { item_ = lit; }
 
     QGridBox(QWidget *wid) { item_ = new QWidgetItem(wid); }
-    QGridBox(int w, int h, QSizePolicy::SizeType hData = QSizePolicy::Minimum,
-              QSizePolicy::SizeType vData = QSizePolicy::Minimum)
+    QGridBox(int w, int h, QSizePolicy::Policy hData = QSizePolicy::Minimum,
+              QSizePolicy::Policy vData = QSizePolicy::Minimum)
     { item_ = new QSpacerItem(w, h, hData, vData); }
     ~QGridBox() { delete item_; }
 

@@ -175,8 +175,8 @@ void QLayoutItem::setAlignment(Qt::Alignment alignment)
     The default values provide a gap that is able to stretch if
     nothing else wants the space.
 */
-void QSpacerItem::changeSize(int w, int h, QSizePolicy::SizeType hData,
-                             QSizePolicy::SizeType vData)
+void QSpacerItem::changeSize(int w, int h, QSizePolicy::Policy hData,
+                             QSizePolicy::Policy vData)
 {
     width = w;
     height = h;

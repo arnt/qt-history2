@@ -1255,8 +1255,10 @@ void QColorDialogPrivate::init()
     topLay->setSpacing(6);
     QVBoxLayout *leftLay = 0;
 
-    if (!compact)
-        leftLay = new QVBoxLayout(topLay);
+    if (!compact) {
+        leftLay = new QVBoxLayout;
+        topLay->addLayout(leftLay);
+    }
 
     initRGB();
 
@@ -1291,12 +1293,15 @@ void QColorDialogPrivate::init()
         standard = 0;
     }
 
-    QVBoxLayout *rightLay = new QVBoxLayout(topLay);
+    QVBoxLayout *rightLay = new QVBoxLayout;
+    topLay->addLayout(rightLay);
 
-    QHBoxLayout *pickLay = new QHBoxLayout(rightLay);
+    QHBoxLayout *pickLay = new QHBoxLayout;
+    rightLay->addLayout(pickLay);
 
 
-    QVBoxLayout *cLay = new QVBoxLayout(pickLay);
+    QVBoxLayout *cLay = new QVBoxLayout;
+    pickLay->addLayout(cLay);
     cp = new QColorPicker(q);
     cp->setFrameStyle(QFrame::Panel + QFrame::Sunken);
     cLay->addSpacing(lumSpace);
@@ -1317,10 +1322,13 @@ void QColorDialogPrivate::init()
     rightLay->addWidget(cs);
 
     QHBoxLayout *buttons;
-    if (compact)
-        buttons = new QHBoxLayout(rightLay);
-    else
-        buttons = new QHBoxLayout(leftLay);
+    if (compact) {
+        buttons = new QHBoxLayout;
+        rightLay->addLayout(buttons);
+    } else {
+        buttons = new QHBoxLayout;
+        leftLay->addLayout(buttons);
+    }
 
     QPushButton *ok, *cancel;
     ok = new QPushButton(QColorDialog::tr("OK"), q);

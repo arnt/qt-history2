@@ -100,7 +100,7 @@ public:
     QSize sizeHint;
     QSize minSize;
     QSize maxSize;
-    QSizePolicy::ExpandData expanding;
+    Qt::Orientations expanding;
     uint hasHfw : 1;
     uint dirty : 1;
     QBoxLayout::Direction dir;
@@ -161,14 +161,14 @@ void QBoxLayoutPrivate::setupGeom()
         bool ignore = empty && box->item->widget(); // ignore hidden widgets
 
         if (horz(dir)) {
-            bool expand = exp & QSizePolicy::Horizontally || box->stretch > 0;
+            bool expand = exp & Qt::Horizontal || box->stretch > 0;
             horexp = horexp || expand;
             maxw += max.width() + space;
             minw += min.width() + space;
             hintw += hint.width() + space;
             if (!ignore)
                 qMaxExpCalc(maxh, verexp,
-                             max.height(), exp & QSizePolicy::Vertically);
+                             max.height(), exp & Qt::Vertical);
             minh = qMax(minh, min.height());
             hinth = qMax(hinth, hint.height());
 
@@ -178,14 +178,14 @@ void QBoxLayoutPrivate::setupGeom()
             a[i].expansive = expand;
             a[i].stretch = box->stretch ? box->stretch : box->hStretch();
         } else {
-            bool expand = (exp & QSizePolicy::Vertically || box->stretch > 0);
+            bool expand = (exp & Qt::Vertical || box->stretch > 0);
             verexp = verexp || expand;
             maxh += max.height() + space;
             minh += min.height() + space;
             hinth += hint.height() + space;
             if (!ignore)
                 qMaxExpCalc(maxw, horexp,
-                             max.width(), exp & QSizePolicy::Horizontally);
+                             max.width(), exp & Qt::Horizontal);
             minw = qMax(minw, min.width());
             hintw = qMax(hintw, hint.width());
 
@@ -201,9 +201,9 @@ void QBoxLayoutPrivate::setupGeom()
         first = first && empty;
     }
 
-    expanding = (QSizePolicy::ExpandData)
-                       ((horexp ? QSizePolicy::Horizontally : 0)
-                         | (verexp ? QSizePolicy::Vertically : 0));
+    expanding = (Qt::Orientations)
+                       ((horexp ? Qt::Horizontal : 0)
+                         | (verexp ? Qt::Vertical : 0));
 
     minSize = QSize(minw, minh);
     maxSize = QSize(maxw, maxh).expandedTo(minSize);
@@ -948,7 +948,7 @@ void QBoxLayout::setDirection(Direction direction)
             if (box->magic) {
                 QSpacerItem *sp = box->item->spacerItem();
                 if (sp) {
-                    if (sp->expandingDirections() == QSizePolicy::NoDirection) {
+                    if (sp->expandingDirections() == Qt::Orientations(0) /*No Direction*/) {
                         //spacing or strut
                         QSize s = sp->sizeHint();
                         sp->changeSize(s.height(), s.width(),

@@ -472,7 +472,8 @@ void QDockWidgetPrivate::init() {
     title = new QDockWidgetTitle(q);
     top->insertWidget(0, title);
 
-    box = new QVBoxLayout(top);
+    box = new QVBoxLayout;
+    top->addLayout(box);
 
     resizer = new QWidgetResizeHandler(q);
     resizer->setMovingEnabled(false);
