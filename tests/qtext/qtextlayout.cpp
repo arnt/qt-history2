@@ -4,7 +4,7 @@
 #include <qregexp.h>
 #include <iostream.h>
 
-//#define BIDI_DEBUG 2
+#define BIDI_DEBUG 2
 
 
 QChar::Direction basicDirection(const QRichTextString &text)
