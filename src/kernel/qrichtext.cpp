@@ -1521,9 +1521,6 @@ void QTextDocument::setRichTextInternal( const QString &text )
 		QString tagname = parseOpenTag(doc, pos, attr, emptyTag);
 		if ( tagname.isEmpty() )
 		    continue; // nothing we could do with this, probably parse error
-		while ( eat( doc, pos, '\n' ) )
-		    ; // eliminate newlines right after openings
-
 		if ( tagname == "pre" || tagname == "nobr" ) {
 		    breakable = FALSE;
 		    if ( lastClose == "pre" || lastClose == "nobr" )
@@ -1548,6 +1545,11 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			depth--;
 		    }
 		    curListStyle = chooseListStyle( nstyle, attr, curListStyle );
+		}
+
+		if ( !nstyle || nstyle->whiteSpaceMode() != QStyleSheetItem::WhiteSpacePre ) {
+ 		    while ( eat( doc, pos, '\n' ) )
+ 			; // eliminate newlines right after openings
 		}
 		
 		QTextCustomItem* custom =  0;
