@@ -28,22 +28,17 @@ public:
     SpinBoxDelegate(QObject *parent = 0);
 
     QWidget *editor(QWidget *parent, const QStyleOptionViewItem &option,
-                    const QAbstractItemModel *model, const QModelIndex &index);
+                    const QModelIndex &index);
 
     void releaseEditor(QWidget *editor);
 
-    void setEditorData(QWidget *editor, const QAbstractItemModel *model,
-                       const QModelIndex &index) const;
+    void setEditorData(QWidget *editor, const QModelIndex &index) const;
 
     void setModelData(QWidget *editor, QAbstractItemModel *model,
                       const QModelIndex &index) const;
 
     void updateEditorGeometry(QWidget *editor,
-        const QStyleOptionViewItem &option, const QAbstractItemModel* model,
-        const QModelIndex &index) const;
-
-protected:
-    bool eventFilter(QObject *object, QEvent *event);
+        const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
 private:
     QSpinBox *spinBox;

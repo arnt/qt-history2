@@ -41,7 +41,6 @@ SpinBoxDelegate::SpinBoxDelegate(QObject *parent)
 
 QWidget *SpinBoxDelegate::editor(QWidget *parent,
     const QStyleOptionViewItem & /* option */,
-    const QAbstractItemModel * /* model */,
     const QModelIndex & /* index */)
 {
     if (spinBox)
@@ -63,7 +62,8 @@ QWidget *SpinBoxDelegate::editor(QWidget *parent,
 void SpinBoxDelegate::releaseEditor(QWidget *editor)
 {
     if (editor == spinBox) {
-        spinBox->deleteLater();
+        spinBox->removeEventFilter(this);
+        delete spinBox;
         spinBox = 0;
     }
 }
@@ -74,12 +74,13 @@ void SpinBoxDelegate::releaseEditor(QWidget *editor)
 */
 
 void SpinBoxDelegate::setEditorData(QWidget *editor,
-    const QAbstractItemModel *model, const QModelIndex &index) const
+                                    const QModelIndex &index) const
 {
     if (editor != spinBox)
         return;
 
-    int value = model->data(index, QAbstractItemModel::DisplayRole).toInt();
+    int value = index.model()->data(index,
+        QAbstractItemModel::DisplayRole).toInt();
 
     spinBox->setValue(value);
 }
@@ -89,7 +90,7 @@ void SpinBoxDelegate::setEditorData(QWidget *editor,
 */
 
 void SpinBoxDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
-                  const QModelIndex &index) const
+                                   const QModelIndex &index) const
 {
     if (editor != spinBox)
         return;
@@ -107,8 +108,7 @@ void SpinBoxDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
 */
 
 void SpinBoxDelegate::updateEditorGeometry(QWidget *editor,
-    const QStyleOptionViewItem &option, const QAbstractItemModel* /* model */,
-    const QModelIndex & /* index */) const
+    const QStyleOptionViewItem &option, const QModelIndex & /* index */) const
 {
     editor->setGeometry(option.rect);
 }
