@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.h#3 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.h#4 $
 **
 ** Definition of 
 **
@@ -14,39 +14,54 @@
 #include "qstring.h"
 
 
-struct QValidatorPrivate;
-
-
-class QValidator: public QObject
+class QValidator
 {
-    Q_OBJECT
 public:
-    QValidator( QObject * parent = 0, const char * name = 0 );
-    ~QValidator();
+    QValidator();
+    virtual ~QValidator();
 
-    enum Result{ Good, Uncertain, Bad };
-
-    virtual Result validate( const char * );
-
-    virtual void setInteger( int bottom, int top );
-    virtual void setDouble( double bottom, double top, int decimals=0 );
-
-    virtual void setPrefix( const char * );
-    const char * prefix() const;
-    virtual void setPostfix( const char * );
-    const char * postfix() const;
-
-    virtual void setCaseSensitive( bool );
-    bool caseSensitive() const;
-
-protected:
-    virtual bool validateContent( const QString );
+    virtual bool isValid( const char * ) = 0;
     virtual void fixup( QString & );
+};
 
-    virtual QString validateAffixes( const QString );
 
+class QIntValidator: public QValidator
+{
+public:
+    QIntValidator();
+    QIntValidator( int bottom, int top );
+    ~QIntValidator();
+
+    bool isValid( const char * );
+
+    virtual void setRange( int bottom, int top );
+
+    int bottom() const { return b; }
+    int top() const { return t; }
+    
 private:
-    QValidatorPrivate * d;
+    int b, t;
+};
+
+
+class QDoubleValidator: public QValidator
+{
+public:
+    QDoubleValidator();
+    QDoubleValidator( double bottom, double top, int decimals = 0 );
+    ~QDoubleValidator();
+
+    bool isValid( const char * );
+
+    virtual void setRange( double bottom, double top, int decimals = 0 );
+
+    double bottom() const { return b; }
+    double top() const { return t; }
+    int decimals() const { return d; }
+    
+private:
+    double b, t;
+    int d;
 };
 
 #endif
