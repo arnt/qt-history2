@@ -387,6 +387,8 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
     updateCurrentCharFormatAndSelection();
 
     doc->setModified(false);
+
+    d->anchorToScrollToWhenVisible = QString::null;
 }
 
 void QTextEditPrivate::startDrag()
@@ -1698,6 +1700,16 @@ void QTextEdit::focusOutEvent(QFocusEvent *ev)
     QViewport::focusOutEvent(ev);
 }
 
+/*! \reimp
+*/
+void QTextEdit::showEvent(QShowEvent *)
+{
+    if (!d->anchorToScrollToWhenVisible.isEmpty()) {
+        scrollToAnchor(d->anchorToScrollToWhenVisible);
+        d->anchorToScrollToWhenVisible = QString::null;
+    }
+}
+
 /*!
     This function is called to create a right mouse button popup menu
     at the document position \a pos. If you want to create a custom
@@ -1872,6 +1884,11 @@ void QTextEdit::scrollToAnchor(const QString &name)
 {
     if (name.isEmpty())
         return;
+
+    if (!isVisible()) {
+        d->anchorToScrollToWhenVisible = name;
+        return;
+    }
 
     for (QTextBlock block = d->doc->begin(); block.isValid(); block = block.next()) {
         QTextCharFormat format = block.charFormat();

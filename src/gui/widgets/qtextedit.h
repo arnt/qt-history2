@@ -190,6 +190,7 @@ protected:
     virtual void dropEvent(QDropEvent *ev);
     virtual void focusInEvent(QFocusEvent *ev);
     virtual void focusOutEvent(QFocusEvent *ev);
+    virtual void showEvent(QShowEvent *);
 
     virtual QMenu *createContextMenu(const QPoint &pos);
 

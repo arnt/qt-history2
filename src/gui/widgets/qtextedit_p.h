@@ -97,6 +97,8 @@ public:
     // Qt3 COMPAT only
     // ### non-compat'ed append needs it, too
     Qt::TextFormat textFormat;
+
+    QString anchorToScrollToWhenVisible;
 };
 
 #endif // QTEXTEDIT_P_H
