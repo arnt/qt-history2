@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#148 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#149 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -145,10 +145,12 @@ static bool qt_create_mitshm_buffer( const QPaintDevice* dev, int w, int h )
 
 #else
 
-static bool qt_create_mitshm_buffer( QPaintDevice*, int, int )
-{
-    return FALSE;
-}
+// If extern, need a dummy.
+//
+// static bool qt_create_mitshm_buffer( QPaintDevice*, int, int )
+// {
+//     return FALSE;
+// }
 
 #endif // MITSHM
 
