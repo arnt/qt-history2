@@ -711,16 +711,46 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
 #endif
     }
 
+#ifndef Q_OS_TEMP
+    bool hasRealAlpha = FALSE;
+    if ( img.hasAlphaBuffer() &&
+	    d==32 && // ### can we have alpha channel with depth<32bpp?
+	    ( QApplication::winVersion() != Qt::WV_95 &&
+	      QApplication::winVersion() != Qt::WV_NT ) ) {
+	int i = 0;
+	while ( i<image.height() && !hasRealAlpha ) {
+	    uchar *p = image.scanLine(i);
+	    uchar *end = p + image.bytesPerLine();
+	    p += 3;
+	    while ( p < end ) {
+		if ( *p!=0 && *p!=0xff ) {
+		    hasRealAlpha = TRUE;
+		    break;
+		}
+		p += 4;
+	    }
+	    ++i;
+	}
+    }
+#endif
+
     int w = image.width();
     int h = image.height();
 
     if ( width() == w && height() == h && ( (d == 1 && depth() == 1) ||
 					    (d != 1 && depth() != 1) ) ) {
-	// same size etc., use the existing pixmap
-	detach();
-	if ( data->mask ) {			// get rid of the mask
-	    delete data->mask;
-	    data->mask = 0;
+	if ( data->realAlphaBits && !hasRealAlpha ) {
+	    // pixmap uses a DIB section, but image has no alpha channel, so we
+	    // can't reuse the old pixmap
+	    QPixmap pm(w, h, d == 1 ? 1 : -1, data->bitmap, data->optim);
+	    *this = pm;
+	} else {
+	    // same size etc., use the existing pixmap
+	    detach();
+	    if ( data->mask ) {			// get rid of the mask
+		delete data->mask;
+		data->mask = 0;
+	    }
 	}
     } else {
 	// different size or depth, make a new pixmap
@@ -799,53 +829,31 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     }
 
 #ifndef Q_OS_TEMP
-    if ( img.hasAlphaBuffer() &&
-	    d==32 && // ### can we have alpha channel with depth<32bpp?
-	    ( QApplication::winVersion() != Qt::WV_95 &&
-	      QApplication::winVersion() != Qt::WV_NT ) ) {
-	bool hasRealAlpha = FALSE;
-	int i = 0;
-	while ( i<image.height() && !hasRealAlpha ) {
-	    uchar *p = image.scanLine(i);
-	    uchar *end = p + image.bytesPerLine();
-	    p += 3;
-	    while ( p < end ) {
-		if ( *p!=0 && *p!=0xff ) {
-		    hasRealAlpha = TRUE;
-		    break;
-		}
-		p += 4;
-	    }
-	    ++i;
-	}
-	// ### use this to turn off alpha blending (if you encounter any problems):
-	//hasRealAlpha = FALSE;
-	if ( hasRealAlpha ) {
-	    initAlphaPixmap( image.bits(), image.numBytes(), bmi );
+    if ( hasRealAlpha ) {
+	initAlphaPixmap( image.bits(), image.numBytes(), bmi );
 
-	    // Windows expects premultiplied alpha
-	    uchar *p = image.bits();
-	    uchar *b = data->realAlphaBits;
-	    uchar *end = p + image.numBytes();
-	    uchar alphaByte;
-	    while ( p < end ) {
-		alphaByte = *(p+3);
-		if ( alphaByte == 0 ) {
-		    *(b++) = 0;
-		    *(b++) = 0;
-		    *(b++) = 0;
-		    b++;
-		    p += 4;
-		} else if ( alphaByte == 255 ) {
-		    b += 4;
-		    p += 4;
-		} else {
-		    *(b++) = ( (*(p++)) * (int)alphaByte + 127 ) / 255;
-		    *(b++) = ( (*(p++)) * (int)alphaByte + 127 ) / 255;
-		    *(b++) = ( (*(p++)) * (int)alphaByte + 127 ) / 255;
-		    b++;
-		    p++;
-		}
+	// Windows expects premultiplied alpha
+	uchar *p = image.bits();
+	uchar *b = data->realAlphaBits;
+	uchar *end = p + image.numBytes();
+	uchar alphaByte;
+	while ( p < end ) {
+	    alphaByte = *(p+3);
+	    if ( alphaByte == 0 ) {
+		*(b++) = 0;
+		*(b++) = 0;
+		*(b++) = 0;
+		b++;
+		p += 4;
+	    } else if ( alphaByte == 255 ) {
+		b += 4;
+		p += 4;
+	    } else {
+		*(b++) = ( (*(p++)) * (int)alphaByte + 127 ) / 255;
+		*(b++) = ( (*(p++)) * (int)alphaByte + 127 ) / 255;
+		*(b++) = ( (*(p++)) * (int)alphaByte + 127 ) / 255;
+		b++;
+		p++;
 	    }
 	}
     }
