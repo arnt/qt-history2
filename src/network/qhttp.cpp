@@ -716,8 +716,10 @@ QHttpResponseHeader::QHttpResponseHeader( const QHttpResponseHeader& header )
 /*!
     Constructs a HTTP response header from the string \a str. The
     string is parsed and the information is set. The \a str should
-    consist of one or more "\r\n" delimited lines; each of these lines
-    should have the format key, colon, space, value.
+    consist of one or more "\r\n" delimited lines; the first line should be the
+    status-line (format: HTTP-version, space, status-code, space,
+    reason-phrase); each of remaining lines should have the format key, colon,
+    space, value.
 */
 QHttpResponseHeader::QHttpResponseHeader( const QString& str )
     : QHttpHeader()
@@ -883,8 +885,10 @@ QHttpRequestHeader::QHttpRequestHeader( const QHttpRequestHeader& header )
 
 /*!
     Constructs a HTTP request header from the string \a str. The \a
-    str should consist of one or more "\r\n" delimited lines; each of
-    these lines should have the format key, colon, space, value.
+    str should consist of one or more "\r\n" delimited lines; the first line
+    should be the request-line (format: method, space, request-URI, space
+    HTTP-version); each of the remaining lines should have the format key,
+    colon, space, value.
 */
 QHttpRequestHeader::QHttpRequestHeader( const QString& str )
     : QHttpHeader()
