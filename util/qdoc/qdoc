@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#139 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#140 $
 #
 # this is a massive hack, written very quickly
 #
@@ -2152,7 +2152,7 @@ die "footer not defined, stopped" unless defined( $footer );
 die "address not defined, stopped" unless defined( $address );
 die "company not defined, stopped" unless defined( $company );
 
-@exampledirs ||= ();
+@exampledirs = () if ( !defined( @exampledirs ) );
 
 umask 0111;
 $cfile = "VOLD";
