@@ -4950,11 +4950,13 @@ QString &QString::operatorPlusEqHelper( const char *s, uint len2 )
 
   Appends \a str to the string and returns a reference to the string.
 */
+#ifndef QT_NO_CAST_ASCII
 QString& QString::operator+=( const char *str )
 {
     // ### Qt 4: make this function inline
     return operatorPlusEqHelper( str );
 }
+#endif
 
 /*! \overload
 
