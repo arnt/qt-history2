@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#24 $
 **
 ** Implementation of layout classes
 **
@@ -12,7 +12,7 @@
 #include "qlayout.h"
 #include "qmenubar.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#23 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qlayout.cpp#24 $");
 
 
 /*!
@@ -570,8 +570,8 @@ void QBoxLayout::addWidget( QWidget *widget, int stretch, int align )
   works perpendicular to this direction.
 
   The directions are \c LeftToRight, \c RightToLeft, \c TopToBottom
-  and \c BottomToTop. For the last two, the shorter aliases \c Up and
-  \c Down are also available.
+  and \c BottomToTop. For the last two, the shorter aliases \c Down and
+  \c Up are also available.
 
   \sa addWidget(), addBox(), addSpacing()
 */
