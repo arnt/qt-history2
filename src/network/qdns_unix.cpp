@@ -1,24 +1,24 @@
-#include "qresolver_p.h"
+#include "qdns_p.h"
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
 #include <qlibrary.h>
 #include <netinet/in.h>
 
-//#define QRESOLVER_DEBUG
+//#define QDNS_DEBUG
 
 /*
     Performs a blocking call to gethostbyname or getaddrinfo, stores
-    the results in a QResolverHostInfo structure and emits the
+    the results in a QDnsHostInfo structure and emits the
     resultsReady() signal.
 */
-void QResolverAgent::run()
+void QDnsAgent::run()
 {
-#if defined(QRESOLVER_DEBUG)
-    qDebug("QResolverAgent::run(%p): looking up \"%s\"", this, hostName.latin1());
+#if defined(QDNS_DEBUG)
+    qDebug("QDnsAgent::run(%p): looking up \"%s\"", this, hostName.latin1());
 #endif
 
-    QResolverHostInfo results;
+    QDnsHostInfo results;
 
 #if !defined (QT_NO_GETADDRINFO)
     // Call getaddrinfo, and place all IPv4 addresses at the start and
@@ -38,7 +38,7 @@ void QResolverAgent::run()
                 if (!results.addresses.contains(addr))
                     results.addresses.append(addr);
             } else {
-		results.error = QResolver::UnknownError;
+		results.error = QDns::UnknownError;
 		results.errorString = tr("Unknown address type");
 		break;
             }
@@ -47,10 +47,10 @@ void QResolverAgent::run()
        
         freeaddrinfo(res);
     } else if (result == EAI_NONAME) {
-        results.error = QResolver::HostNotFound;
+        results.error = QDns::HostNotFound;
         results.errorString = tr("Host not found");
     } else {
-        results.error = QResolver::UnknownError;
+        results.error = QDns::UnknownError;
         results.errorString = QString::fromLocal8Bit(gai_strerror(result));
     }
     
@@ -70,21 +70,21 @@ void QResolverAgent::run()
                     results.addresses.prepend(addr);
             }
         } else {
-            results.error = QResolver::UnknownError;
+            results.error = QDns::UnknownError;
             results.errorString = tr("Unknown address type");
 	}
     } else if (h_errno == HOST_NOT_FOUND) {
-        results.error = QResolver::HostNotFound;
+        results.error = QDns::HostNotFound;
         results.errorString = tr("Host not found");
     } else if (h_errno != NO_DATA) {
-        results.error = QResolver::UnknownError;
+        results.error = QDns::UnknownError;
         results.errorString = QString::fromLocal8Bit(hstrerror(h_errno));
     }
 #endif //  !defined (QT_NO_GETADDRINFO)
 
-#if defined(QRESOLVER_DEBUG)
-    if (results.error != QResolver::NoError) {
-        qDebug("QResolverAgent::run(%p): error #%d %s",
+#if defined(QDNS_DEBUG)
+    if (results.error != QDns::NoError) {
+        qDebug("QDnsAgent::run(%p): error #%d %s",
                 this, h_errno, results.errorString.latin1() );
     } else {
         QString tmp;
@@ -92,7 +92,7 @@ void QResolverAgent::run()
             if (i != 0) tmp += ", ";
             tmp += results.addresses.at(i).toString();
         }
-        qDebug("QResolverAgent::run(%p): found %i entries for \"%s\": {%s}",
+        qDebug("QDnsAgent::run(%p): found %i entries for \"%s\": {%s}",
                this, results.addresses.count(), hostName.latin1(), tmp.latin1());
     }
 #endif

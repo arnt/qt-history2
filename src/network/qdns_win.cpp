@@ -1,11 +1,11 @@
-#include "qresolver_p.h"
+#include "qdns_p.h"
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <qlibrary.h>
 #include <qsignal.h>
 #include <qtimer.h>
 
-// #define QRESOLVER_DEBUG
+// #define QDNS_DEBUG
 
 // Older SDKs do not include the addrinfo struct declaration, so we
 // include a copy of it here.
@@ -23,13 +23,13 @@ struct qt_addrinfo
 
 /*
     Performs a blocking call to gethostbyname or getaddrinfo, stores
-    the results in a QResolverHostInfo structure and emits the
+    the results in a QDnsHostInfo structure and emits the
     resultsReady() signal.
 */
-void QResolverAgent::run()
+void QDnsAgent::run()
 {
-#if defined(QRESOLVER_DEBUG)
-    qDebug("QResolverAgent::run(%p): looking up \"%s\"", this, hostName.latin1());
+#if defined(QDNS_DEBUG)
+    qDebug("QDnsAgent::run(%p): looking up \"%s\"", this, hostName.latin1());
 #endif
 
     // Attempt to resolve getaddrinfo(); without it we'll have to fall
@@ -41,7 +41,7 @@ void QResolverAgent::run()
     local_getaddrinfo = (getaddrinfoProto) QLibrary::resolve("ws2_32.dll", "getaddrinfo");
     local_freeaddrinfo = (freeaddrinfoProto) QLibrary::resolve("ws2_32.dll", "freeaddrinfo");
 
-    QResolverHostInfo results;
+    QDnsHostInfo results;
 
     if (local_getaddrinfo && local_freeaddrinfo) {
         // Call getaddrinfo, and place all IPv4 addresses at the start
@@ -65,17 +65,17 @@ void QResolverAgent::run()
                 }
                     break;
                 default:
-                    results.error = QResolver::UnknownError;
+                    results.error = QDns::UnknownError;
                     results.errorString = "Unknown address type";
                     break;
                 }
             }
             local_freeaddrinfo(res);
         } else if (err == WSAHOST_NOT_FOUND) {
-            results.error = QResolver::HostNotFound;
+            results.error = QDns::HostNotFound;
             results.errorString = tr("Host not found");
         } else {
-            results.error = QResolver::UnknownError;
+            results.error = QDns::UnknownError;
             results.errorString = tr("Unknown error");
             // Get the error messages returned by getaddrinfo's gai_strerror
             QT_WA( {
@@ -105,22 +105,22 @@ void QResolverAgent::run()
 		}
 		break;
 	    default:
-		results.error = QResolver::UnknownError;
+		results.error = QDns::UnknownError;
 		results.errorString = tr("Unknown address type");
 		break;
             }
         } else if (WSAGetLastError() == 11001) {
             results.errorString = tr("Host not found");
-            results.error = QResolver::HostNotFound;
+            results.error = QDns::HostNotFound;
         } else {
             results.errorString = tr("Unknown error");
-            results.error = QResolver::UnknownError;
+            results.error = QDns::UnknownError;
         }
     }
 
-#if defined(QRESOLVER_DEBUG)
-    if (results.error != QResolver::NoError) {
-        qDebug("QResolverAgent::run(%p): error (%s)",
+#if defined(QDNS_DEBUG)
+    if (results.error != QDns::NoError) {
+        qDebug("QDnsAgent::run(%p): error (%s)",
                this, results.errorString.latin1());
     } else {
         QString tmp;
@@ -128,7 +128,7 @@ void QResolverAgent::run()
             if (i != 0) tmp += ", ";
             tmp += results.addresses.at(i).toString();
         }
-        qDebug("QResolverAgent::run(%p): found %i entries: {%s}",
+        qDebug("QDnsAgent::run(%p): found %i entries: {%s}",
                this, results.addresses.count(), tmp.latin1());
     }
 #endif

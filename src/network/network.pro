@@ -30,8 +30,8 @@ network {
 		    qdns.cpp \
 		    qurlinfo.cpp
 
-	unix:SOURCES += qdns_unix.cpp qdns_unix.cpp
-	win32:SOURCES += qdns_win.cpp qdns_win.cpp
+	unix:SOURCES += qdns_unix.cpp
+	win32:SOURCES += qdns_win.cpp
 
 	mac:INCLUDEPATH += ../3rdparty/dlcompat #qdns.cpp uses it (on Jaguar)
 }

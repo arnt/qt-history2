@@ -1,30 +1,30 @@
-#ifndef QRESOLVER_P_H
-#define QRESOLVER_P_H
+#ifndef QDNS_P_H
+#define QDNS_P_H
 
-#include "qresolver.h"
+#include "qdns.h"
 #include <qstring.h>
 #include <qobject.h>
 
 #if !defined QT_NO_THREAD
 #include <qthread.h>
-#    define QResolverAgentBase QThread
+#    define QDnsAgentBase QThread
 #else
-#    define QResolverAgentBase QObject
+#    define QDnsAgentBase QObject
 #endif
 
-class QResolverAgent : public QResolverAgentBase
+class QDnsAgent : public QDnsAgentBase
 {
     Q_OBJECT
 public:
-    inline QResolverAgent(const QString &name) { hostName = name; }
+    inline QDnsAgent(const QString &name) { hostName = name; }
 
     void run();
 
 signals:
-    void resultsReady(QResolverHostInfo);
+    void resultsReady(QDnsHostInfo);
 
 private:
     QString hostName;
 };
 
-#endif // QRESOLVER_P_H
+#endif // QDNS_P_H

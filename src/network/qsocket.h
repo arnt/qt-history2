@@ -18,7 +18,7 @@
 #ifndef QT_H
 #include "qobject.h"
 #include "qiodevice.h"
-#include "qresolver.h"
+#include "qdns.h"
 #include "qhostaddress.h" // int->QHostAddress conversion
 #endif // QT_H
 
@@ -121,7 +121,7 @@ private:
 #endif
 
     Q_DECLARE_PRIVATE(QSocket);
-    Q_PRIVATE_SLOT(void tryConnecting(const QResolverHostInfo &))
+    Q_PRIVATE_SLOT(void tryConnecting(const QDnsHostInfo &))
     Q_PRIVATE_SLOT(void emitErrorConnectionRefused())
 
     QIODevicePrivate *d_ptr;
