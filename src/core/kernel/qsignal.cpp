@@ -111,14 +111,13 @@ static const uint qt_meta_data_QSignalEmitter[] = {
  // content:
        1,       // revision
        0,       // classname
-       0,   12, // classinfo
-       1,   12, // signals
-       0,   17, // slots
-       0,   17, // properties
-       0,   17, // enums/sets
+       0,    0, // classinfo
+       1,   10, // signals
+       0,    0, // properties
+       0,    0, // enums/sets
 
  // signals: signature, parameters, type, tag, flags
-      16,   15,   15,   15, 0x0,
+      16,   15,   15,   15, 0x05,
 
        0        // eod
 };
