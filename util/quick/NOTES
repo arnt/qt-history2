@@ -1,0 +1,14 @@
+TODOs
+- use a QObject with an event filter to coordinate widget drag&drop
+- clipboard - maybe need a pixmap to pretend to share the widgets,
+   or move the clipboard widget to the focussed window (yuck)
+
+IDEAs
+- Hierarchy of widget classes
+    - including user widgets
+- Hierarchy of widget objects
+- Menubar editor
+- "Test" function
+- Layouts
+- Start work with just QWidget and QFrame
+- Extract theoretical properties set
