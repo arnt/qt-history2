@@ -114,7 +114,7 @@
 #include "qthread.h"
 #endif
 
-#if defined(_OS_UNIX_)
+#if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
 #include <sys/ioctl.h>
 static int qt_thread_pipe[2];
 #endif
@@ -1184,7 +1184,7 @@ void qt_init( int *argcptr, char **argv, QApplication::Type type )
     qInitNetworkProtocols();
 #endif
 
-#if defined(_OS_UNIX_)
+#if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
     pipe( qt_thread_pipe );
 #endif
 
@@ -1865,7 +1865,7 @@ bool QApplication::processNextEvent( bool canWait )
 
     int highest=sn_highest;
 
-#if defined(_OS_UNIX_)
+#if defined(_OS_UNIX_) && defined(QT_THREAD_SUPPORT)
     FD_SET( qt_thread_pipe[0], &app_readfds );
     highest = QMAX( highest, qt_thread_pipe[0] );
 #endif
@@ -1891,7 +1891,7 @@ bool QApplication::processNextEvent( bool canWait )
     qApp->lock();
 #endif
 
-#if defined(_OS_UNIX_)
+#if defined(_OS_UNIX_)&& defined(QT_THREAD_SUPPORT)
     if ( FD_ISSET( qt_thread_pipe[0], &app_readfds ) ) {
 	char c;
 	::read(qt_thread_pipe[0],&c,1);
