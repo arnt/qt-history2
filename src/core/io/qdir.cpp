@@ -58,8 +58,16 @@ private:
     }
 
     struct Data {
-        inline Data() : fileEngine(0) { ref = 1; clear(); }
-        inline ~Data() { delete fileEngine; }
+        inline Data()
+            : ref(1), fileEngine(0)
+        { clear(); }
+        inline Data(const Data &copy)
+            : ref(1), path(copy.path), nameFilters(copy.nameFilters), sort(copy.sort),
+              filters(copy.filters)
+        { clear(); }
+        inline ~Data()
+        { delete fileEngine; }
+
         inline void clear() {
             listsDirty = 1;
         }
@@ -238,20 +246,8 @@ void QDirPrivate::initFileEngine(const QString &path)
     data->fileEngine = QFileEngine::createFileEngine(path);
 }
 
-void
-QDirPrivate::detach()
-{
-    if (data->ref != 1) {
-        QDirPrivate::Data *x = data;
-        data = new QDirPrivate::Data;
-        data->path = x->path;
-        data->nameFilters = x->nameFilters;
-        data->sort = x->sort;
-        data->filters = x->filters;
-        initFileEngine(data->path);
-        --x->ref;
-    }
-}
+void QDirPrivate::detach()
+{ qAtomicDetach(data); }
 
 /*!
     \class QDir

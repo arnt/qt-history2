@@ -38,7 +38,12 @@ public:
            CachedMTime=0x10, CachedCTime=0x20, CachedATime=0x40,
            CachedSize =0x08 };
     struct Data {
-        inline Data() : fileEngine(0), cache_enabled(1) { ref = 1; clear(); }
+        inline Data()
+            : ref(1), fileEngine(0), cache_enabled(1)
+        { clear(); }
+        inline Data(const Data &copy)
+            : ref(1), fileEngine(0), fileName(copy.fileName)
+        { clear(); }
         inline ~Data() { delete fileEngine; }
         inline void clear() {
             fileFlags = 0;
@@ -93,16 +98,8 @@ QFileInfoPrivate::initFileEngine(const QString &file)
     data->fileName = file;
 }
 
-void
-QFileInfoPrivate::detach()
-{
-    if (data->ref != 1) {
-        QFileInfoPrivate::Data *x = data;
-        data = new QFileInfoPrivate::Data;
-        initFileEngine(x->fileName);
-        --x->ref;
-    }
-}
+void QFileInfoPrivate::detach()
+{ qAtomicDetach(data); }
 
 uint
 QFileInfoPrivate::getFileFlags(QFileEngine::FileFlags request) const
@@ -311,8 +308,7 @@ QFileInfo::operator==(const QFileInfo &fileinfo)
     Makes a copy of the given \a fileinfo and assigns it to this QFileInfo.
 */
 
-QFileInfo
-&QFileInfo::operator=(const QFileInfo &fileinfo)
+QFileInfo &QFileInfo::operator=(const QFileInfo &fileinfo)
 {
     qAtomicAssign(d->data, fileinfo.d->data);
     return *this;
