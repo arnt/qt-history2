@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#128 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#129 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#128 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#129 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -1146,7 +1146,7 @@ void QWidget::setMaxSize( int w, int h )
 
   \warning The size increment has no effect under Windows.
 
-  \sa sizeIncrement(), setMinimumSize(), setMaximumSize(), size()
+  \sa sizeIncrement(), setMinSize(), setMaxSize(), size()
  ----------------------------------------------------------------------------*/
 
 void QWidget::setSizeIncrement( int w, int h )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#32 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#33 $
 **
 ** Implementation of QFrame widget class
 **
@@ -15,7 +15,7 @@
 #include "qdrawutl.h"
 #include "qframe.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#32 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#33 $")
 
 
 /*----------------------------------------------------------------------------
@@ -399,7 +399,7 @@ void QFrame::paintEvent( QPaintEvent * )
   rectangle is elastic, the surrounding area is static.
 
   The resulting frame rectangle may be null or invalid.  You can use
-  setMinimumSize() is avoid that possibility.
+  setMinSize() to avoid that possibility.
 
   Nothing is done if the frame rectangle is a \link QRect::isNull()
   null rectangle\endlink already.
