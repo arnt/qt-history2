@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#104 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#105 $
 **
 ** Implementation of QMenuBar class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#104 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#105 $");
 
 
 /*!
@@ -178,6 +178,7 @@ void QMenuBar::updateItem( int )
 
 void QMenuBar::menuContentsChanged()
 {
+    setupAccelerators();
     badSize = TRUE;				// might change the size
     if ( isVisible() ) {
 	calculateRects();
@@ -459,37 +460,9 @@ void QMenuBar::hidePopups()
 
 void QMenuBar::show()
 {
-    QMenuItemListIt it(*mitems);
-    register QMenuItem *mi;
-    QWidget *w = parentWidget();
-    while ( (mi=it.current()) ) {
-	++it;
-	QString s = mi->text();
-	if ( !s.isEmpty() ) {
-	    int i = s.find( '&' );
-	    if ( i >= 0 && isalnum(s[i+1]) ) {
-		int k = s[i+1];
-		if ( isalpha(k) )
-		    k = toupper(k) - 'A' + Key_A;
-		if ( !autoaccel ) {
-		    autoaccel = new QAccel( this );
-		    CHECK_PTR( autoaccel );
-		    connect( autoaccel, SIGNAL(activated(int)),
-			     SLOT(accelActivated(int)) );
-		    connect( autoaccel, SIGNAL(destroyed()),
-			     SLOT(accelDestroyed()) );
-		}
-		autoaccel->insertItem( ALT+k, mi->id() );
-	    }
-	}
-	if ( mi->popup() ) {
-	    mi->popup()->updateAccel( this );
-	    if ( !mi->popup()->isEnabled() )
-		mi->popup()->enableAccel( FALSE );
-	}
-    }
-    if ( w )
-	resize( w->width(), height() );
+    setupAccelerators();
+    if ( parentWidget() )
+	resize( parentWidget()->width(), height() );
     calculateRects();
     QWidget::show();
     raise();
@@ -1049,5 +1022,42 @@ void QMenuBar::setWindowsAltMode( bool enable, int index )
 	if ( index == actItem ) // work around setActItem overoptimization
 	    actItem = -1;
 	setActItem( index, FALSE );
+    }
+}
+
+
+/*!  Sets up keyboard accelerators for the menu bar. */
+
+void QMenuBar::setupAccelerators()
+{
+    delete autoaccel;
+
+    QMenuItemListIt it(*mitems);
+    register QMenuItem *mi;
+    while ( (mi=it.current()) ) {
+	++it;
+	QString s = mi->text();
+	if ( !s.isEmpty() ) {
+	    int i = s.find( '&' );
+	    if ( i >= 0 && isalnum(s[i+1]) ) {
+		int k = s[i+1];
+		if ( isalpha(k) )
+		    k = toupper(k) - 'A' + Key_A;
+		if ( !autoaccel ) {
+		    autoaccel = new QAccel( this );
+		    CHECK_PTR( autoaccel );
+		    connect( autoaccel, SIGNAL(activated(int)),
+			     SLOT(accelActivated(int)) );
+		    connect( autoaccel, SIGNAL(destroyed()),
+			     SLOT(accelDestroyed()) );
+		}
+		autoaccel->insertItem( ALT+k, mi->id() );
+	    }
+	}
+	if ( mi->popup() ) {
+	    mi->popup()->updateAccel( this );
+	    if ( !mi->popup()->isEnabled() )
+		mi->popup()->enableAccel( FALSE );
+	}
     }
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.h#27 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.h#28 $
 **
 ** Definition of QMenuBar class
 **
@@ -78,6 +78,7 @@ private:
     int		itemAtPos( const QPoint & );
     QRect	itemRect( int item );
 
+    void	setupAccelerators();
     QAccel     *autoaccel;
     QRect      *irects;
 
