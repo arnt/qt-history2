@@ -685,7 +685,7 @@ void QProgressDialog::layout()
   \property QProgressDialog::minimumDuration
   \brief the time that the progress should run for before the dialog opens
 
-  The dialog will not appear if the anticipated duration of the
+  The dialog will not appear if the expected duration of the
   progressing task is less than the minimum duration.
 
   If set to 0, the dialog is always shown as soon as any progress

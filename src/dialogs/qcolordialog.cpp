@@ -1410,8 +1410,10 @@ void QColorDialogPrivate::addCustom()
     for instance, you might use this in a drawing program to allow the
     user to set the brush color.
 
-    The static functions provide modal color dialogs. If you require a
-    modeless dialog, use the QColorDialog constructor.
+    The static functions provide modal color dialogs.
+    \omit
+    If you require a modeless dialog, use the QColorDialog constructor.
+    \endomit
 
     The static getColor() function shows the dialog and allows the
     user to specify a color. The getRgba() function does the same but
