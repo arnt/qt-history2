@@ -87,7 +87,6 @@ void AssistantSocket::readClient()
         link = link.replace(QLatin1String("\r"), QLatin1String(""));
         QFileInfo fi(link);
         link = fi.absoluteFilePath();
-        link = MainWindow::urlifyFileName(link);
         emit showLinkRequest( link );
     }
 }
