@@ -994,14 +994,12 @@ static void qt_mac_draw_pattern(void *info, CGContextRef c)
     QMacPattern *pat = (QMacPattern*)info;
     int w = 0, h = 0;
     if(pat->as_mask) {
-	qDebug("Completely untested!!"); //need to test patterns
 	w = h = pat->mask.byte_per_line;
 	if(!pat->im) {
 	    pat->im = new QMacPattern::ImageConv;
-	    pat->im->colorspace = CGColorSpaceCreateDeviceRGB();
-	    pat->im->provider = CGDataProviderCreateWithData(0, pat->mask.bytes, w, 0);
-	    pat->im->image = CGImageCreate(w, h, 8, 1, w, pat->im->colorspace, kCGImageAlphaNone,
-					   pat->im->provider, 0, 0, kCGRenderingIntentDefault);
+	    pat->im->colorspace = 0;
+	    pat->im->provider = CGDataProviderCreateWithData(0, pat->mask.bytes, w*h, 0);
+	    pat->im->image = CGImageMaskCreate(w, h, 1, 1, w, pat->im->provider, 0, false);
 	}
     } else {
 	w = pat->pixmap->width();
@@ -1016,14 +1014,7 @@ static void qt_mac_draw_pattern(void *info, CGContextRef c)
 	}
     }
     CGRect rect = CGRectMake(0, 0, w, h);
-#if 1
-    /* For whatever reason HIViews are top, left - so we'll just use this convenience function to
-       actually render the CGImageRef. If this proves not to be an efficent function call (I doubt
-       it), we'll just flip the image in the conversion above. */
-    HIViewDrawCGImage(c, &rect, pat->im->image);
-#else
-    CGContextDrawImage(c, rect, pat->im->image);
-#endif
+    HIViewDrawCGImage(c, &rect, pat->im->image); //HIViews render the way we want anyway, so just use the convenience..
 }
 
 static void qt_mac_dispose_pattern(void *info)
@@ -1036,6 +1027,7 @@ static void qt_mac_dispose_pattern(void *info)
 	    CGColorSpaceRelease(pat->im->colorspace);
 	if(pat->im->provider)
 	    CGDataProviderRelease(pat->im->provider);
+	delete pat->im;
     }
     if(!pat->as_mask)
 	delete pat->pixmap;
@@ -1206,9 +1198,13 @@ QCoreGraphicsPaintEngine::updateBrush(QPainterState *ps)
 
     //pattern
     int bs = ps->brush.style();
+    if(bs != CustomPattern && bs != NoBrush) {
+	const QColor &col = ps->brush.color();
+	CGContextSetRGBFillColor((CGContextRef)d->hd, qt_mac_convert_color_to_cg(col.red()),
+				 qt_mac_convert_color_to_cg(col.green()), qt_mac_convert_color_to_cg(col.blue()), 1.0);
+    }
     if(bs != SolidPattern && bs != NoBrush) {
 	int width = 0, height = 0;
-	CGColorSpaceRef cs_base = 0;
 	QMacPattern *qpattern = new QMacPattern;
 	qpattern->im = 0;
 	if(bs == CustomPattern) {
@@ -1226,10 +1222,9 @@ QCoreGraphicsPaintEngine::updateBrush(QPainterState *ps)
 	    else
 		qpattern->mask.byte_per_line = 16;
 	    width = height = qpattern->mask.byte_per_line;
-	    cs_base = CGColorSpaceCreateDeviceRGB();
 	}
 
-	CGColorSpaceRef fill_colorspace = CGColorSpaceCreatePattern(cs_base);
+	CGColorSpaceRef fill_colorspace = CGColorSpaceCreatePattern(0);
 	CGContextSetFillColorSpace((CGContextRef)d->hd, fill_colorspace);
 
 	CGPatternCallbacks callbks;
@@ -1243,15 +1238,7 @@ QCoreGraphicsPaintEngine::updateBrush(QPainterState *ps)
 
 	CGPatternRelease(fill_pattern);
 	CGColorSpaceRelease(fill_colorspace);
-    } else { //unset
-	CGContextSetFillColorSpace((CGContextRef)d->hd, 0);
-	CGContextSetFillPattern((CGContextRef)d->hd, 0, 0); 
     }
-
-    //color
-    const QColor &col = ps->brush.color();
-    CGContextSetRGBFillColor((CGContextRef)d->hd, qt_mac_convert_color_to_cg(col.red()),
-			       qt_mac_convert_color_to_cg(col.green()), qt_mac_convert_color_to_cg(col.blue()), 1.0);
 }
 
 void
