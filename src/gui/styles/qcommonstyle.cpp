@@ -630,8 +630,12 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe,
             aft_v += delta;
             p->drawPixmap(bef_h, bef_v, flags & QStyle::Style_Open ? open : closed);
         }
-        if (flags & QStyle::Style_Item)
-            p->drawLine(aft_h, mid_v, r.right(), mid_v);
+        if (flags & QStyle::Style_Item) {
+            if (QApplication::reverseLayout())
+                p->drawLine(r.left(), mid_v, bef_h, mid_v);
+            else
+                p->drawLine(aft_h, mid_v, r.right(), mid_v);
+        }
         if (flags & QStyle::Style_Sibling)
             p->drawLine(mid_h, aft_v, mid_h, r.bottom());
         if (flags & (QStyle::Style_Open|QStyle::Style_Children|QStyle::Style_Item|QStyle::Style_Sibling))

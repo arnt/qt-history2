@@ -237,6 +237,7 @@ void QGenericTreeView::drawRow(QPainter *painter, QItemOptions *options, const Q
     QGenericHeader *header = d->header;
     QModelIndex current = selectionModel()->currentItem();
     bool focus = hasFocus() && current.isValid();
+    bool reverse = QApplication::reverseLayout();
 
     int position;
     int headerSection;
@@ -252,9 +253,9 @@ void QGenericTreeView::drawRow(QPainter *painter, QItemOptions *options, const Q
         options->selected = selectionModel()->isSelected(modelIndex);
         if (headerSection == 0) {
             int i = d->indentation(d->current);
-            options->itemRect.setRect(i + position, y, width - i, height);
-            painter->fillRect(position, y, width - position, height, base);
-            drawBranches(painter, QRect(position, y, i, options->itemRect.height()), index);
+            options->itemRect.setRect(reverse ? position : i + position, y, width - i, height);
+            painter->fillRect(position, y, width, height, base);
+            drawBranches(painter, QRect(reverse ? position + width - i: position, y, i, options->itemRect.height()), index);
         } else {
             options->itemRect.setRect(position, y, width, height);
             painter->fillRect(position, y, width, height, base);
@@ -268,14 +269,15 @@ void QGenericTreeView::drawBranches(QPainter *painter, const QRect &rect, const 
     QModelIndex parent = model()->parent(index);
     QModelIndex current = parent;
     QModelIndex ancestor = model()->parent(current);
+    bool reverse = QApplication::reverseLayout();
     int indent = d->indent;
     int level = d->items.at(d->current).level;
     int outer = d->rootDecoration ? 0 : 1;
-    QRect primitive(rect.right(), rect.top(), indent, rect.height());
+    QRect primitive(reverse ? rect.left() : rect.right(), rect.top(), indent, rect.height());
 
     if (level >= outer) {
         // start with the innermost branch
-        primitive.moveLeft(primitive.left() - indent);
+        primitive.moveLeft(reverse ? primitive.left() : primitive.left() - indent);
         QStyle::SFlags flags = QStyle::Style_Item
                                | (model()->rowCount(parent) - 1 > index.row() ? QStyle::Style_Sibling : 0)
                                | (model()->hasChildren(index) ? QStyle::Style_Children : 0)
@@ -284,7 +286,7 @@ void QGenericTreeView::drawBranches(QPainter *painter, const QRect &rect, const 
     }
     // then go out level by level
     for (--level; level >= outer; --level) { // we have already drawn the innermost branch
-        primitive.moveLeft(primitive.left() - indent);
+        primitive.moveLeft(reverse ? primitive.left() + indent : primitive.left() - indent);
         style().drawPrimitive(QStyle::PE_TreeBranch, painter, primitive, palette(),
                               model()->rowCount(ancestor) - 1 > current.row() ? QStyle::Style_Sibling : 0);
         current = ancestor;
@@ -294,9 +296,10 @@ void QGenericTreeView::drawBranches(QPainter *painter, const QRect &rect, const 
 
 void QGenericTreeView::mousePressEvent(QMouseEvent *e)
 {
-    int column = d->header->sectionAt(e->x());
+    int x = QApplication::reverseLayout() ? d->header->size() - e->x() : e->x();
+    int column = d->header->sectionAt(x);
     int position = d->header->sectionPosition(column);
-    int cx = e->x() - position;
+    int cx = x - position;
     int vi = d->item(e->y(), verticalScrollBar()->value());
     QModelIndex mi = d->modelIndex(vi);
 
@@ -319,9 +322,7 @@ QModelIndex QGenericTreeView::itemAt(int, int y) const
 {
     int vi = d->item(y, verticalScrollBar()->value());
     QModelIndex mi = d->modelIndex(vi);
-    int column = d->editColumn;//d->header->sectionAt(x);
-    QModelIndex parent = model()->parent(mi);
-    return model()->index(mi.row(), column, parent);
+    return model()->sibling(mi.row(), d->editColumn, mi);
 }
 
 int QGenericTreeView::horizontalOffset() const

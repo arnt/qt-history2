@@ -632,12 +632,13 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe,
             p->drawRect(bef_h, bef_v, decoration_size, decoration_size);
             p->setPen(oldPen);
         }
-        // ### BUG: the dotted lines don't follow a the y coordinates (causes drawing errors)
         QBrush brush(pal.dark(), Qt::Dense4Pattern);
-//         QPoint org(p->xForm(QPoint(0, 0)));
-//         p->setBrushOrigin(org);
-        if (flags & QStyle::Style_Item)
-            p->fillRect(aft_h, mid_v, r.right() - aft_h + 1, 1, brush);
+        if (flags & QStyle::Style_Item) {
+            if (QApplication::reverseLayout())
+                p->fillRect(r.left(), mid_v, bef_h - r.left(), 1, brush);
+            else
+                p->fillRect(aft_h, mid_v, r.right() - aft_h + 1, 1, brush);
+        }
         if (flags & QStyle::Style_Sibling)
             p->fillRect(mid_h, aft_v, 1, r.bottom() - aft_v + 1, brush);
         if (flags & (QStyle::Style_Open|QStyle::Style_Children|QStyle::Style_Item|QStyle::Style_Sibling))
