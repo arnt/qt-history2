@@ -895,7 +895,7 @@ QMainWindow::QMainWindow( QWidget * parent, const char * name, WFlags f )
     d = new QMainWindowPrivate;
 #ifdef Q_WS_MACX
     if(isTopLevel())
-	ChangeWindowAttributes((WindowPtr)handle(), 
+	ChangeWindowAttributes((WindowPtr)handle(),
 			       kWindowToolbarButtonAttribute, 0); //hide toolbars thingie
     d->opaque = TRUE;
 #else
@@ -1604,6 +1604,14 @@ bool QMainWindow::eventFilter( QObject* o, QEvent *e )
 	if ( showDockMenu( ( (QMouseEvent*)e )->globalPos() ) ) {
 	    ( (QContextMenuEvent*)e )->accept();
 	    return TRUE;
+	}
+    } else if ( e->type() == QEvent::Close && o == this ) {
+	QPtrListIterator<QDockWindow> it( d->dockWindows );
+	QDockWindow *dw;
+	while ( ( dw = it.current() ) ) {
+	    ++it;
+	    if ( dw->place() == QDockWindow::OutsideDock )
+		dw->close();
 	}
     }
 
