@@ -100,7 +100,7 @@
 class QWhatsThisButton: public QToolButton
 {
     Q_OBJECT
-    
+
 public:
     QWhatsThisButton( QWidget * parent, const char * name );
     ~QWhatsThisButton();
@@ -139,7 +139,7 @@ public:
     // say it.
     void say( QWidget *, const QString&, const QPoint&  );
     void say_helper(QWidget*,const QPoint& ppos,bool);
-    
+
     // setup and teardown
     static void tearDownWhatsThis();
     static void setUpWhatsThis();
@@ -158,7 +158,7 @@ public:
 #endif
 
     QString currentText;
-    
+
 private slots:
     void cleanupWidget()
     {
@@ -397,7 +397,6 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
     case Inactive:
  	if ( e->type() == QEvent::Accel &&
  	     ((QKeyEvent *)e)->key() == Key_F1 &&
- 	     !o->parent() &&
  	     o->isWidgetType() &&
  	     ((QKeyEvent *)e)->state() == ShiftButton ) {
  	    QWidget * w = ((QWidget *)o)->focusWidget();
@@ -537,7 +536,7 @@ void QWhatsThisPrivate::say_helper(QWidget* widget,const QPoint& ppos,bool init)
 	whatsThat->setGeometry( x, y, w + shadowWidth, h + shadowWidth );
 	whatsThat->show();
     }
-    
+
     // now for super-clever shadow stuff.  super-clever mostly in
     // how many window system problems it skirts around.
 
