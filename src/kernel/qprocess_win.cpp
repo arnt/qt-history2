@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#22 $
 **
 ** Implementation of QProcess class for Win32
 **
@@ -322,7 +322,7 @@ void QProcess::socketRead( int fd )
 void QProcess::socketWrite( int fd )
 {
     DWORD written;
-    if ( d->stdinBuf.isEmpty() ) {
+    if ( d->stdinBuf.isEmpty() || !isRunning() ) {
 	return;
     }
     if ( !WriteFile( d->pipeStdin[1],
