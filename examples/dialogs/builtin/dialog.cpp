@@ -1,7 +1,5 @@
 #include "dialog.h"
 
-const QString APPNAME(QObject::tr("Built-in Dialogs"));
-
 
 Dialog::Dialog(QWidget *parent)
     : QDialog(parent)
@@ -102,15 +100,16 @@ Dialog::Dialog(QWidget *parent)
     connect(saveFileNameButton, SIGNAL(clicked()),
             this, SLOT(setSaveFileName()));
 
-    setWindowTitle(APPNAME);
+    setWindowTitle(tr("Built-in Dialogs"));
 }
 
 
 void Dialog::setInteger()
 {
     bool ok;
-    int i = QInputDialog::getInteger(APPNAME, tr("Percentage:"),
-                                     25, 0, 100, 1, &ok, this);
+    int i =
+        QInputDialog::getInteger(tr("QInputDialog::getInteger()"),
+                                 tr("Percentage:"), 25, 0, 100, 1, &ok, this);
     if (ok)
         integerLabel->setText(QString("%1%%").arg(i));
 }
@@ -119,8 +118,10 @@ void Dialog::setInteger()
 void Dialog::setDouble()
 {
     bool ok;
-    double d = QInputDialog::getDouble(APPNAME, tr("Amount:"),
-                                       37.56, -10000, 10000, 2, &ok, this);
+    double d =
+        QInputDialog::getDouble(tr("QInputDialog::getDouble()"),
+                                tr("Amount:"), 37.56, -10000, 10000, 2,
+                                &ok, this);
     if (ok)
         doubleLabel->setText(QString("$%1").arg(d));
 }
@@ -131,8 +132,9 @@ void Dialog::setItem()
     QStringList items;
     items << tr("Spring") << tr("Summer") << tr("Fall") << tr("Winter");
     bool ok;
-    QString season = QInputDialog::getItem(APPNAME, tr("Season:"),
-                                           items, 0, false, &ok, this);
+    QString season = QInputDialog::getItem(tr("QInputDialog::getItem()"),
+                                           tr("Season:"), items, 0,
+                                           false, &ok, this);
     if (ok && !season.isEmpty())
         itemLabel->setText(season);
 }
@@ -141,8 +143,9 @@ void Dialog::setItem()
 void Dialog::setText()
 {
     bool ok;
-    QString name = QInputDialog::getText(APPNAME, tr("Username:"),
-                                         QLineEdit::Normal, QString(), &ok, this);
+    QString name = QInputDialog::getText(tr("QInputDialog::getText()"),
+                                         tr("Username:"), QLineEdit::Normal,
+                                         QString(), &ok, this);
     if (ok && !name.isEmpty())
         textLabel->setText(name);
 }
@@ -173,7 +176,8 @@ void Dialog::setExistingDirectory()
 {
     /* TODO Correct once Qt 4 version works.
     QString directory = QFileDialog::getExistingDirectory(
-                                this, APPNAME, directoryLabel->text(),
+                                this, tr("QFileDialog::getExistingDirectory()"),
+                                directoryLabel->text(),
                                 QFileDialog::DontResolveSymlinks|
                                 QFileDialog::ShowDirsOnly);
     if (!directory.isEmpty())
@@ -185,7 +189,7 @@ void Dialog::setExistingDirectory()
 void Dialog::setOpenFileName()
 {
     QString filename = QFileDialog::getOpenFileName(
-                                this, APPNAME,
+                                this, tr("QFileDialog::getOpenFileName()"),
                                 openFileNameLabel->text(),
                                 "All (*);;Text files (*.txt)");
     if (!filename.isEmpty())
@@ -196,7 +200,7 @@ void Dialog::setOpenFileName()
 void Dialog::setOpenFileNames()
 {
     QStringList files = QFileDialog::getOpenFileNames(
-                                this, APPNAME,
+                                this, tr("QFileDialog::getOpenFileNames()"),
                                 openFilesPath,
                                 "All (*);;Text files (*.txt)");
     if (files.count()) {
@@ -209,7 +213,7 @@ void Dialog::setOpenFileNames()
 void Dialog::setSaveFileName()
 {
     QString filename = QFileDialog::getSaveFileName(
-                                this, APPNAME,
+                                this, tr("QFileDialog::getSaveFileName()"),
                                 saveFileNameLabel->text(),
                                 "All (*);;Text files (*.txt)");
     if (!filename.isEmpty())
