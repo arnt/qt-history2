@@ -23,11 +23,44 @@ QString QDir::canonicalPath() const
 
 bool QDir::mkdir(const QString &dirname,bool acceptAbsPath) const
 {
+    FSSpec myspec;
+    char bigbuf[257];
+    char * wingle=QFile::encodeName(filePath(dirname,acceptAbsPath));
+    strcpy(bigbuf+1,dirname.wingle);
+    bigbuf[0]=strlen(wingle);    
+    OSErr ret;
+    ret=FSMakeFSSpec(0,0,bigbuf,&myspec);
+    if(ret!=noErr) {
+	qWarning("Make FS spec in mkdir error %d",ret);
+	return false;
+    }
+    long int dummy;
+    ret=DirCreate(myspec.vRefNum,myspec.parId,myspec.name,&dummy);
+    if(ret!=noErr) {
+	qWarning("DirCreate error %d",ret);
+	return false;
+    }
     return true;
 }
 
 bool QDir::rmdir(const QString &dirname,bool acceptAbsPath) const
 {
+    FSSpec myspec;
+    char bigbuf[257];
+    char * wingle=QFile::encodeName(filePath(dirname,acceptAbsPath));
+    strcpy(bigbuf+1,dirname.wingle);
+    bigbuf[0]=strlen(wingle);    
+    OSErr ret;
+    ret=FSMakeFSSpec(0,0,bigbuf,&myspec);
+    if(ret!=noErr) {
+	qWarning("Make FS spec in rmdir error %d",ret);
+	return false;
+    }
+    ret=HDelete(myspec.vRefNum,myspec.parId,myspec.name);
+    if(ret!=noErr) {
+	qWarning("Directory delete error %d",ret);
+	return false;
+    }
     return true;
 }
 
