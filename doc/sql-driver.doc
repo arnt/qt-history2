@@ -62,7 +62,7 @@ The drivers shipped with Qt are:
 \i \link #QODBC3 QODBC3\endlink - Open Database Connectivity Driver
 \i \link #QPSQL7 QPSQL7\endlink - PostgreSQL v6.x and v7.x Driver
 \i \link #QTDS7 QTDS7\endlink - Sybase Adaptive Server and Microsoft SQL Server Driver
-\i \link #QDB2 QDB2\endlink - IBM DB2 Driver (v7.2 and higher)
+\i \link #QDB2 QDB2\endlink - IBM DB2 Driver (v7.1 and higher)
 \endlist
 
 Note that not all of the plugins are shipped with the Qt Free Edition
@@ -457,13 +457,13 @@ the use of the Sybase Open Client, you must define
 The Qt DB2 plugin makes it possible to access IBM DB2 databases. It
 has been tested with IBM DB2 v7.1 and 7.2. You have to install the IBM
 DB2 development client library, which contains the header and library
-files needed to compile the QDB2 plugin.
+files necessary for compiling the QDB2 plugin.
 
 The QDB2 driver supports prepared queries, reading/writing of Unicode
-strings and reading/writing BLOBs.
+strings and reading/writing of BLOBs.
 
-If you want to call stored procedures, we suggest using a forward-only
-query (see QSqlQuery::setForwardOnly()).
+We suggest using a forward-only query when calling stored procedures
+in DB2 (see QSqlQuery::setForwardOnly()).
 
 \section3 How to build the plugin on Unix/Linux
 
