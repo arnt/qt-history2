@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.h#5 $
+** $Id: //depot/qt/main/src/widgets/qmlined.h#6 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -69,6 +69,7 @@ private:
     QList<QString> *contents;
     uint	    isInputEnabled : 1;
     uint	    cursorOn : 1;
+    uint	    dummy : 1;
 
     int		cursorX;
     int		cursorY;

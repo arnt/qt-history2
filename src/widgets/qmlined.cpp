@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qmlined.cpp#7 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -91,6 +91,8 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
     setCursor( ibeamCursor );
     ((QScrollBar*)verticalScrollBar())->setCursor( sizeVerCursor );
     ((QScrollBar*)horizontalScrollBar())->setCursor( sizeHorCursor );
+    insert("");
+    dummy = TRUE;
 }
 
 /*!
@@ -519,6 +521,11 @@ void QMultiLineEdit::pageUp()
 
 void QMultiLineEdit::insert( QString s, int row )
 {
+    if ( dummy && count() == 1 && getString( 0 )->isEmpty() ) {
+	contents->remove( (uint)0 );
+	//debug ("insert: removing dummy, %d", count() );
+	dummy = FALSE;
+    }
     QString *line = new QString( s );
     if ( row < 0 || !contents->insert( row, line ) )
 	contents->append( line );
@@ -528,6 +535,8 @@ void QMultiLineEdit::insert( QString s, int row )
     setNumRows( contents->count() );
     int w = textWidth( line );
     setCellWidth( QMAX( cellWidth(), w ) );
+    if ( count() == 0 )
+	insert( "" );	// belts and suspenders
     makeVisible();
     if ( updt )
 	repaint();
@@ -548,6 +557,11 @@ void QMultiLineEdit::remove( int row )
     bool updt = autoUpdate() && rowIsVisible( row );
     bool recalc = textWidth( row ) == cellWidth();
     contents->remove( row );
+    if ( contents->count() == 0 ) {
+	//debug( "remove: last one gone, inserting dummy" );
+	insert( "" );
+	dummy = TRUE;
+    }
     setNumRows( contents->count() );
     if ( recalc )
 	updateCellWidth();
@@ -562,6 +576,7 @@ void QMultiLineEdit::remove( int row )
 
 void QMultiLineEdit::insertChar( char c )
 {
+    dummy = FALSE;
     /*
       if ( hasMarkedText() ) {
       tbuf.remove( minMark(), maxMark() - minMark() );
@@ -590,6 +605,7 @@ void QMultiLineEdit::insertChar( char c )
 
 void QMultiLineEdit::newLine()
 {
+    dummy = FALSE;
     QString *s = getString( cursorY );
     bool recalc = cursorX != (int)s->length() && textWidth( s ) == cellWidth();
     QString newString = s->mid( cursorX, s->length() );
@@ -941,6 +957,7 @@ void QMultiLineEdit::mousePressEvent( QMouseEvent *m )
     cursorX = xPosToCursorPos( *getString( newY ), fontMetrics(),
 			       m->pos().x() - BORDER + xOffset(),
 			       cellWidth() - 2 * BORDER );
+    curXPos = 0;
     if ( cursorY != newY ) {
 	int oldY = cursorY;
 	cursorY = newY;
