@@ -141,7 +141,8 @@ void QItemDelegate::doLayout(const QItemOptions &options, QRect *iconRect, QRect
 	    QRect rightRect(x + iconRect->width(), y, textRect->width(), height);
 	    iconRect->moveCenter(leftRect.center());
 	    textRect->setRect(rightRect.x(), rightRect.y(),
-			      bound ? options.itemRect.width() : rightRect.width() + spacing, rightRect.height());
+			      bound ? options.itemRect.width() - leftRect.width() :
+			      rightRect.width() + spacing, rightRect.height());
 	    return;
 	}
 	if (options.iconAlignment & Qt::AlignTop) {
