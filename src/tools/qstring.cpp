@@ -3292,8 +3292,7 @@ QString QString::toUpper() const
 }
 
 
-#ifndef Q_OS_TEMP
-#ifndef QT_LOCAL_NUMBER_CONVERSION
+#if !defined(QT_LOCAL_NUMBER_CONVERSION) && !defined(Q_OS_TEMP)
 void qt_fix_double(char *str)
 {
     struct lconv *lc = localeconv();
@@ -3313,7 +3312,6 @@ void qt_fix_double(char *str)
 }
 #else
 void qt_fix_double(char *) {}
-#endif
 #endif
 
 /*!
