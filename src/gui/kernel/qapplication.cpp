@@ -2521,22 +2521,14 @@ Qt::LayoutDirection QApplication::layoutDirection()
 /*! \obsolete
 
   Strips out vertical alignment flags and transforms an
-  alignment \a align of Qt::AlignAuto into Qt::AlignLeft or
-  Qt::AlignRight according to the language used. The other horizontal
-  alignment flags are left untouched.
+  alignment \a align of Qt::AlignLeft into Qt::AlignLeft or
+  Qt::AlignRight according to the language used.
 */
 
 #ifdef QT3_SUPPORT
 Qt::Alignment QApplication::horizontalAlignment(Qt::Alignment align)
 {
-    align &= Qt::AlignHorizontal_Mask;
-    if (align == Qt::AlignAuto) {
-        if (isRightToLeft())
-            align = Qt::AlignRight;
-        else
-            align = Qt::AlignLeft;
-    }
-    return align;
+    return QStyle::visualAlignment(layoutDirection(), align);
 }
 #endif
 
