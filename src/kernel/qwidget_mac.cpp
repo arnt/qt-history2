@@ -99,6 +99,8 @@ QPoint posInWindow(QWidget *w)
 
 WId parentw, destroyw = 0;
 WId myactive = -1;
+QWidget *mac_mouse_grabber = 0;
+QWidget *mac_keyboard_grabber = 0;
 
 //FIXME How can I create translucent windows? (Need them for pull down menus)
 //FIXME Is this even possible with the Carbon API? (You can't do it on OS9)
@@ -211,8 +213,46 @@ void QWidget::create( WId window, bool initializeWindow, bool /* destroyOldWindo
   This function is usually called from the QWidget destructor.
 */
 
-void QWidget::destroy( bool, bool )
+void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 {
+    deactivateWidgetCleanup();
+    if ( testWState(WState_Created) ) {
+        clearWState( WState_Created );
+        if ( children() ) {
+            QObjectListIt it(*children());
+            register QObject *obj;
+            while ( (obj=it.current()) ) {      // destroy all widget children
+                ++it;
+                if ( obj->isWidgetType() )
+                    ((QWidget*)obj)->destroy(destroySubWindows,
+                                             destroySubWindows);
+            }
+        }
+	if ( mac_mouse_grabber == this )
+	    releaseMouse();
+	if ( mac_keyboard_grabber == this )
+	    releaseKeyboard();
+        if ( testWFlags(WType_Modal) )          // just be sure we leave modal
+            qt_leave_modal( this );
+        else if ( testWFlags(WType_Popup) )
+            qApp->closePopup( this );
+	if ( testWFlags(WType_Desktop) ) {
+#if 0
+	    if ( acceptDrops() )
+		qt_dnd_enable( this, FALSE );
+#endif
+	} else {
+	    if ( destroyWindow && !isTopLevel() && hd)
+	        DisposeWindow( (WindowPtr)hd );
+	}
+    }
+    QWidget * mya;
+    mya=QWidget::find(myactive);
+    if(mya==this) {
+	myactive=-1;
+    }
+    hd=0;
+    setWinId( 0 );
 }
 
 /*!
@@ -480,8 +520,6 @@ void QWidget::setIconText( const QString & )
   \sa releaseMouse(), grabKeyboard(), releaseKeyboard()
 */
 
-QWidget *mac_mouse_grabber = NULL;
-
 void QWidget::grabMouse()
 {
     mac_mouse_grabber=this;
@@ -525,8 +563,6 @@ void QWidget::releaseMouse()
 
   \sa releaseKeyboard(), grabMouse(), releaseMouse()
 */
-
-QWidget *mac_keyboard_grabber = 0;
 
 void QWidget::grabKeyboard()
 {
