@@ -353,6 +353,9 @@ update.  For example:
 //## possibly add sizeHint parameter
 bool QSqlCursorManager::findBuffer( const QSqlIndex& idx, int atHint )
 {
+#ifdef QT_DEBUG_DATAMANAGER
+    qDebug("QSqlCursorManager::findBuffer:");
+#endif
     QSqlCursor* cur = cursor();
     if ( !cur )
 	return FALSE;
@@ -360,14 +363,19 @@ bool QSqlCursorManager::findBuffer( const QSqlIndex& idx, int atHint )
 	return FALSE;
     if ( !idx.count() )
 	return FALSE;
-
     QSqlRecord* buf = cur->editBuffer();
     bool indexEquals = FALSE;
+#ifdef QT_DEBUG_DATAMANAGER
+    qDebug(" Checking hint...");
+#endif
     /* check the hint */
     if ( cur->seek( atHint ) )
 	indexEquals = q_index_matches( cur, buf, idx );
 
     if ( !indexEquals ) {
+#ifdef QT_DEBUG_DATAMANAGER
+	qDebug(" Checking current page...");
+#endif
 	/* check current page */
 	int pageSize = 20;
 	int startIdx = QMAX( atHint - pageSize, 0 );
@@ -382,6 +390,9 @@ bool QSqlCursorManager::findBuffer( const QSqlIndex& idx, int atHint )
     }
 
     if ( !indexEquals && cur->driver()->hasQuerySizeSupport() && cur->sort().count() ) {
+#ifdef QT_DEBUG_DATAMANAGER
+	qDebug(" Using binary-like search...");
+#endif
 	/* binary-like search based on record buffer and current sort fields */
 	int lo = 0;
 	int hi = cur->size();
@@ -431,6 +442,9 @@ bool QSqlCursorManager::findBuffer( const QSqlIndex& idx, int atHint )
     }
 
     if ( !indexEquals ) {
+#ifdef QT_DEBUG_DATAMANAGER
+	qDebug(" Using brute search...");
+#endif
 	QApplication::setOverrideCursor( Qt::waitCursor );
 	/* give up, use brute force */
 	int startIdx = 0;
@@ -447,7 +461,9 @@ bool QSqlCursorManager::findBuffer( const QSqlIndex& idx, int atHint )
 	}
 	QApplication::restoreOverrideCursor();
     }
-
+#ifdef QT_DEBUG_DATAMANAGER
+	qDebug(" Done, result:" + QString::number( indexEquals ) );
+#endif
     return indexEquals;
 }
 
