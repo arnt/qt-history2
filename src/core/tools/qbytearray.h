@@ -126,6 +126,14 @@ public:
     QByteArray right(int len) const;
     QByteArray mid(int index, int len=-1) const;
 
+    bool startsWith(const QByteArray& a) const;
+    bool startsWith(char c) const;
+    bool startsWith(const char *c) const;
+
+    bool endsWith(const QByteArray& a) const;
+    bool endsWith(char c) const;
+    bool endsWith(const char *c) const;
+
     inline void truncate( int l ) { if (l < d->size) resize(l); }
 
     QByteArray toLower() const;

@@ -1513,6 +1513,88 @@ int QByteArray::count(const QByteArray& a) const
 }
 
 /*!
+    Returns true when the byte array starts with \a a,
+    otherwise false.
+ */
+bool QByteArray::startsWith(const QByteArray& a) const
+{
+    if (d == a.d)
+        return true;
+    if (d->size == 0 || a.d->size == 0)
+        return false;
+    if (d->size < a.d->size)
+        return false;
+    return memcmp(d->data, a.d->data, a.d->size) == 0;
+}
+
+/*!
+    \overload
+ */
+bool QByteArray::startsWith(char c) const
+{
+    if (d == &shared_null)
+        return false;
+    return d->data[0] == c;
+}
+
+/*!
+    \overload
+ */
+bool QByteArray::startsWith(const char *c) const
+{
+    if (d == &shared_null || !c)
+        return false;
+    int len = qstrlen(c);
+    if (!len && !d->size)
+        return true;
+    if (!len || d->size < len)
+        return false;
+    return qstrncmp(d->data, c, len) == 0;
+}
+
+/*!
+    Returns true when the byte array ends with \a a,
+    otherwise false.
+ */
+bool QByteArray::endsWith(const QByteArray& a) const
+{
+    if (d == a.d)
+        return true;
+    if (d->size == 0 || a.d->size == 0)
+        return false;
+    if (d->size < a.d->size)
+        return false;
+    return memcmp(d->data + d->size - a.d->size, a.d->data, a.d->size) == 0;
+}
+
+/*!
+    \overload
+ */
+bool QByteArray::endsWith(char c) const
+{
+    if (d == &shared_null)
+        return false;
+    if (d->size == 0)
+        return c == '\0';
+    return d->data[d->size - 1] == c;
+}
+
+/*!
+    \overload
+ */
+bool QByteArray::endsWith(const char *c) const
+{
+    if (d == &shared_null || !c)
+        return false;
+    int len = qstrlen(c);
+    if (!len && !d->size)
+        return true;
+    if (!len || d->size < len)
+        return false;
+    return qstrncmp(d->data + d->size - len, c, len) == 0;
+}
+
+/*!
     \fn QByteArray QByteArray::left(int len)  const
 
     Returns a byte array containing the left-most \a len bytes of this
@@ -1673,12 +1755,16 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
 {
     Q_UINT32 len;
     s >> len;					// read size of array
-    if ( len == 0xffffffff || s.eof() ) {	// end of file reached
+    if ( len == 0xffffffff ) {
 	a.clear();
 	return s;
     }
     if ((int)len <= 0) {
         a = QByteArray("");
+        return s;
+    }
+    if (s.eof()) {
+        a.clear();
         return s;
     }
     a.resize( (int)len );
