@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgrpbox.cpp#26 $
+** $Id: //depot/qt/main/src/widgets/qgrpbox.cpp#27 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -12,7 +12,7 @@
 #include "qgrpbox.h"
 #include "qpainter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qgrpbox.cpp#26 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qgrpbox.cpp#27 $");
 
 
 /*!
@@ -127,7 +127,7 @@ void QGroupBox::setAlignment( int alignment )
   overrides QFrame::paintEvent
 */
 
-void QGroupBox::paintEvent( QPaintEvent * )
+void QGroupBox::paintEvent( QPaintEvent *event )
 {
     int		tw  = 0;
     QRect	cr  = rect();
@@ -137,6 +137,8 @@ void QGroupBox::paintEvent( QPaintEvent * )
     QPainter	paint;
 
     paint.begin( this );
+    paint.setClipRect( event->rect() );
+
     if ( len == 0 )				// no title
 	setFrameRect( QRect(0,0,0,0) );		//  then use client rect
     else {					// set up region for title

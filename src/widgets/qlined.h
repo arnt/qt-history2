@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.h#40 $
+** $Id: //depot/qt/main/src/widgets/qlined.h#41 $
 **
 ** Definition of QLineEdit widget class
 **
@@ -73,8 +73,8 @@ private slots:
     void	clipboardChanged();
 
 private:
-    void	paint( bool frame = FALSE );
-    void	pixmapPaint();
+    void	paint( const QRect& clip, bool frame = FALSE );
+    void	pixmapPaint( const QRect& clip );
     void	paintText( QPainter *, const QSize &, bool frame = FALSE );
     void	cursorLeft( bool mark, int steps = 1 );
     void	cursorRight( bool mark, int steps = 1 );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#9 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#10 $
 **
 **  Table header
 **
@@ -404,10 +404,11 @@ void QHeader::moveAround( int fromIdx, int toIdx )
     places[ count() ] = orient == Horizontal? width() : height();
 }
 
-void QHeader::paintEvent( QPaintEvent * )
+void QHeader::paintEvent( QPaintEvent *event )
 {
     QPainter p;
     p.begin( this );
+    p.setClipRect( event->rect() );
 
     QColorGroup g = colorGroup();
     QRect r( 0, 0, width(), height() );

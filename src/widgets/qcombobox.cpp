@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#98 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#99 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#98 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#99 $");
 
 
 /*!
@@ -876,9 +876,10 @@ void QComboBox::resizeEvent( QResizeEvent * )
   Handles paint events for the combo box.
 */
 
-void QComboBox::paintEvent( QPaintEvent * )
+void QComboBox::paintEvent( QPaintEvent *event )
 {
     QPainter p( this );
+    p.setClipRect( event->rect() );
     QColorGroup g  = colorGroup();
 
     if ( width() < 5 || height() < 5 ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#77 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#78 $
 **
 ** Implementation of QButton widget class
 **
@@ -18,7 +18,7 @@
 #include "qaccel.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#77 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qbutton.cpp#78 $");
 
 
 static const int autoRepeatDelay  = 300;
@@ -677,10 +677,16 @@ void QButton::mouseMoveEvent( QMouseEvent *e )
   Opens the painter on the button and calls drawButton().
 */
 
-void QButton::paintEvent( QPaintEvent * )
+void QButton::paintEvent( QPaintEvent *event )
 {
     QPainter paint;
     paint.begin( this );
+
+    // This optimization is worth it, since we often call repaint()
+    // to draw exactly the whole button.
+    if ( !event->rect().contains(rect()) )
+	paint.setClipRect( event->rect() );
+
     drawButton( &paint );
     paint.end();
 }

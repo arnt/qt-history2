@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#90 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#91 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#90 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#91 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 #if QT_VERSION == 200
@@ -528,9 +528,9 @@ void QLineEdit::focusOutEvent( QFocusEvent * )
   Handles paint events for the line editor.
 */  
 
-void QLineEdit::paintEvent( QPaintEvent * )
+void QLineEdit::paintEvent( QPaintEvent *event )
 {
-    paint( TRUE /* remove for 2.0 */ );
+    paint( event->rect(), TRUE /* remove for 2.0 */ );
 }
 
 
@@ -689,13 +689,14 @@ void QLineEdit::mouseDoubleClickEvent( QMouseEvent * )
   but flickering drawing method is used.
 */
 
-void QLineEdit::paint( bool )
+void QLineEdit::paint( const QRect& clip, bool )
 {
     if ( hasFocus() ) {
-	pixmapPaint();
+	pixmapPaint( clip );
     } else {
 	QPainter p;
 	p.begin( this );
+	p.setClipRect( clip );
 	paintText( &p, size(), TRUE /* remove for 2.0 */ );
 	p.end();
     }
@@ -706,9 +707,10 @@ void QLineEdit::paint( bool )
   Paints the line editor in a pixmap and then blts the pixmap onto the screen.
 */
 
-void QLineEdit::pixmapPaint()
+void QLineEdit::pixmapPaint( const QRect& clip )
 {
     QPainter p( pm );
+    p.setClipRect( clip );
     p.setFont( font() );
     paintText( &p, pm->size(), TRUE /* remove for 2.0 */ );
     p.end();
