@@ -166,7 +166,6 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     m_toolActions->addAction(m_editWidgetsAction);
     m_editWidgetsAction->setChecked(true);
     m_editWidgetsAction->setEnabled(false);
-    /*
     QList<QObject*> builtinPlugins = QPluginLoader::staticInstances();
     foreach (QObject *plugin, builtinPlugins) {
         if (AbstractFormEditorPlugin *formEditorPlugin = qobject_cast<AbstractFormEditorPlugin*>(plugin)) {
@@ -174,7 +173,6 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
             formEditorPlugin->action()->setCheckable(true);
         }
     }
-    */
 
 //
 // form actions
