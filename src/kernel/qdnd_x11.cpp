@@ -338,6 +338,7 @@ void qt_xdnd_cleanup()
 {
     delete qt_xdnd_target_data;
     qt_xdnd_target_data = 0;
+    delete noDropCursor;
     noDropCursor = 0;
     delete copyCursor;
     copyCursor = 0;
