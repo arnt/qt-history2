@@ -117,7 +117,7 @@
 // Simply use the two defines above before the include of
 // implementation to adjust these values.
 //
-// 
+//
 //
 // ->  #define PM_NO_GLOBAL_PM     // Force no globalPM object
 //
@@ -187,6 +187,7 @@
 // __________________________________________________________________
 // GNU specific 64 bit integers
 #elif defined(__GNUC__)
+    #include <stdarg.h>
     #include <unistd.h>
     #define IS_GNU
     // BSD & POSIX defines %llu as a 64 bits unsigned value
@@ -196,6 +197,7 @@
 // __________________________________________________________________
 // Unknown - Try POSIX
 #else
+    #include <stdarg.h>
     #include <unistd.h>
     #define IS_POSIX
     // BSD & POSIX defines %llu as a 64 bits unsigned value
@@ -289,15 +291,25 @@
 
 #else // USE_WINDOWS_CODE - Other platforms using assembly now
     // ______________________________________________________________
-    // Intel specific performance measurement API
-    #if defined(USE_INTEL_ASM_CODE)
-        inline I64 PM_GetCPUCycles()
+    // Intel specific performance measurement API for Windows
+    #if defined(USE_INTEL_ASM_CODE) && defined(_MSC_VER)
+        I64 PM_GetCPUCycles()
         {
             __asm {
                 _emit 0x0F
                 _emit 0x31
             }
         }
+    // ______________________________________________________________
+    // Intel specific performance measurement API for G++
+    #elif defined(USE_INTEL_ASM_CODE)
+        I64 PM_GetCPUCycles()
+        {
+            I64 result;
+            __asm__ __volatile__("rdtsc" : "=A" (result) :);
+            return result;
+        }
+
     // ______________________________________________________________
     // Unknown platform - Help!
     #else
@@ -507,7 +519,7 @@ void PM::display()
 	// as it's too small for this tool to detect properly. We
 	// need to do instruction counting to get a better result.
 	// That's for version 2.0 :-)
-	if ( _delta_ < 0 ) 
+	if ( _delta_ < 0 )
 	    _delta_ = 0;
 
         // Update current sum
