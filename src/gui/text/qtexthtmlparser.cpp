@@ -558,6 +558,11 @@ int QTextHtmlParser::topMargin(int i) const
 
         if (i - 1 && node->parent == at(i - 1).parent)
             break;
+
+        // don't collapse margins across table cell borders
+        if (node->isTableCell)
+            break;
+
         i = node->parent;
     }
     return m;
@@ -579,6 +584,11 @@ int QTextHtmlParser::bottomMargin(int i) const
 
         if (i + 1 < count() && node->parent == at(i + 1).parent)
             break;
+
+        // don't collapse margins across table cell borders
+        if (node->isTableCell)
+            break;
+
         i = node->parent;
     }
     return m;
