@@ -1683,7 +1683,9 @@ void FormWindow::save( const QString &filename, bool withMsgBox )
 
     if ( QFile::exists( filename ) ) {
 #if defined(Q_OS_WIN32)
-	QString cmd = "copy " + filename + " " + filename + ".bak";
+	QString fn( filename );
+	fn.replace( QRegExp( "/" ), "\\" );
+	QString cmd = "copy " + fn + " " + fn + ".bak";
 	system( cmd.latin1() );
 #else
 	QString cmd = "cp " + filename + " " + filename + "~";
