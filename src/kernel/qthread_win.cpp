@@ -194,7 +194,7 @@ void QThreadPrivate::internalRun( QThread* that )
 
 Qt::HANDLE QThread::currentThread()
 {
-    return GetCurrentThread();
+    return (Qt::HANDLE)GetCurrentThreadId();
 }
 
 void QThread::initialize()
