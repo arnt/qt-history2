@@ -742,16 +742,12 @@ void QTabBar::layoutTabs()
     if ( lstatic->isEmpty() )
 	return;
 
-    QTab* t = lstatic->first();
-    QRect r( t->r );
-    while ( (t = lstatic->next()) != 0 )
-	r = r.unite( t->r );
-
     int hframe, vframe, overlap;
     style().tabbarMetrics( this, hframe, vframe, overlap );
     QFontMetrics fm = fontMetrics();
     int x = 0;
-    for ( t = lstatic->first(); t; t = lstatic->next() ) {
+    QRect r;
+    for ( QTab* t = lstatic->first(); t; t = lstatic->next() ) {
 	int lw = fm.width( t->label );
 	int iw = 0;
 	int ih = 0;
@@ -762,9 +758,12 @@ void QTabBar::layoutTabs()
 	int h = QMAX( fm.height(), ih );
 
 	h += vframe;
-	t->r.setRect( x, 0, lw + hframe + iw, QMAX(r.height(), h) );
+	t->r.setRect( x, 0, lw + hframe + iw, h );
 	x += t->r.width() - overlap;
+	r = r.unite( t->r );
     }
+    for ( QTab* t = lstatic->first(); t; t = lstatic->next() )
+	t->r.setHeight( r.height() );
 }
 
 /*!

@@ -439,6 +439,8 @@ void QTabWidget::resizeEvent( QResizeEvent * )
 */
 void QTabWidget::setTabBar( QTabBar* tb)
 {
+    if ( tb->parentWidget() != this )
+	tb->reparent( this, QPoint(0,0), TRUE );
     delete d->tabs;
     d->tabs = tb;
     connect( d->tabs, SIGNAL(selected(int)),
