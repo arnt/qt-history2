@@ -582,7 +582,11 @@ QString QAccel::keyToString( int k )
 {
     QString s;
     if ( (k & CTRL) == CTRL ) {
+#ifdef Q_WS_MAC
+	s += (char) 0x11;
+#else
 	s += tr( "Ctrl" );
+#endif
     }
     if ( (k & ALT) == ALT ) {
 	if ( !s.isEmpty() )

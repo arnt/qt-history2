@@ -815,10 +815,10 @@ struct key_sym
 
 static key_sym modifier_syms[] = {
 { shiftKey, Qt::ShiftButton, "Qt::Shift" },
-{ controlKey, Qt::ControlButton, "Qt::ControlButton" },
-{ rightControlKey, Qt::ControlButton, "Qt::ControlButton" },
-{ optionKey, Qt::AltButton, "Qt::AltButton" },
-{ rightOptionKey, Qt::AltButton, "Qt::AltButton" },
+{ controlKey, Qt::AltButton, "Qt::AltButton" },
+{ rightControlKey, Qt::AltButton, "Qt::AltButton" },
+{ optionKey, Qt::ControlButton, "Qt::ControlButton" },
+{ rightOptionKey, Qt::ControlButton, "Qt::ControlButton" },
 {   0, 0, NULL }
 };
 static int get_modifiers(int key)
@@ -1083,7 +1083,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 
 	QEvent::Type etype = QEvent::None;
 
-	int button=QEvent::NoButton, state=0, wheel_delta=0;
+	int button=QEvent::NoButton, state=0, wheel_delta=0, after_state=mouse_button_state;
 	if(ekind == kEventMouseDown || ekind == kEventMouseUp) {
 	    EventMouseButton mb;
 	    GetEventParameter(event, kEventParamMouseButton, typeMouseButton, NULL,
@@ -1115,18 +1115,18 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		etype = QEvent::MouseButtonDblClick;
 	    else
 		etype = QEvent::MouseButtonPress;
-	    mouse_button_state = button;
+	    after_state  = button;
 	    break;
 	}
 	case kEventMouseUp:
 	    etype = QEvent::MouseButtonRelease;
-	    state = mouse_button_state;
-	    mouse_button_state = 0;
+	    state = after_state;
+	    after_state = 0;
 	    break;
 	case kEventMouseDragged:
 	case kEventMouseMoved:
 	    etype = QEvent::MouseMove;
-	    state = mouse_button_state;
+	    state = after_state;
 	    break;
 	case kEventMouseWheelMoved:
 	{
@@ -1134,7 +1134,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    GetEventParameter(event, kEventParamMouseWheelDelta, typeLongInteger, NULL,
 			      sizeof(mdelt), NULL, &mdelt);
 	    wheel_delta = mdelt * 100;
-	    state = mouse_button_state;
+	    state = after_state;
 	    break;
 	}
 	}
@@ -1169,11 +1169,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	    }
 	}
 
-	if(ekind == kEventMouseDown && !app->do_mouse_down( &where )) {
-	    qt_button_down = NULL;
-	    mouse_button_state = 0;
+	if(ekind == kEventMouseDown && !app->do_mouse_down( &where )) 
 	    return 0;
-	}
 
 	//figure out which widget to send it to
 	if( ekind != kEventMouseDown && qt_button_down )
@@ -1183,6 +1180,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	else
 	    widget = QApplication::widgetAt( where.h, where.v, true );
 
+	mouse_button_state = after_state;
 	switch(ekind) {
 	case kEventMouseDragged:
 	case kEventMouseMoved:
