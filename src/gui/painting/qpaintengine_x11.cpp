@@ -1010,11 +1010,9 @@ void QX11PaintEngine::updateBrush(QPainterState *ps)
                 pm = QBitmap(dd, dd, pat, true);
                 QPixmapCache::insert(key, pm);
             }
-	    if ( d->cbrush.d->pixmap )
-		delete d->cbrush.d->pixmap;
-	    d->cbrush.d->pixmap = new QPixmap( pm );
+	    d->cbrush.setPixmap(pm);
         }
-	pm = *d->cbrush.d->pixmap;
+	pm = *d->cbrush.pixmap();
         pm.x11SetScreen(d->scrn);
         if ( pm.depth() == 1 ) {
             XSetStipple(d->dpy, d->gc_brush, pm.handle());
