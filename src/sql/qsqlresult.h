@@ -21,6 +21,7 @@
 #include "qsqlerror.h"
 #include "qsqlfield.h"
 #include "qsql.h"
+#include "qvector.h"
 #endif // QT_H
 
 #if !defined( QT_MODULE_SQL ) || defined( QT_LICENSE_PROFESSIONAL )
@@ -74,12 +75,12 @@ protected:
     QSql::ParameterType bindValueType( const QString& placeholder ) const;
     QSql::ParameterType bindValueType( int pos ) const;
     int boundValueCount() const;
-    QMap<QString, QVariant>& boundValues() const;
+    QVector<QVariant>& boundValues() const;
     QString executedQuery() const;
     bool savePrepare( const QString& sqlquery ); // ### TODO - find a much better name
-    QVariant parameterValue( const QString& holder ) const; /// ### obsolete??
-    QVariant parameterValue( int pos ) const;
+    QString boundValueName( int pos ) const;
     void clear();
+    bool hasOutValues() const;
     
     BindMethod bindMethod() const;
 

@@ -62,6 +62,7 @@ public:
 
     void positionalToNamedBinding();
     void namedToPositionalBinding();
+    QString holderAt( int pos ) const;
     
 public:
     QSqlResult* q;
@@ -75,16 +76,26 @@ public:
     
     int bindCount;
     QSqlResult::BindMethod bindm;
-    QMap<int, QString> index;
-    typedef QMap<QString, QSql::ParameterType> TypeMap;
-    TypeMap types;
-    typedef QMap<QString, QVariant> ValueMap;
-    ValueMap values;
+    
     QString executedQuery;
-
+    QMap<int, QSql::ParameterType> types;
+    QVector<QVariant> values;
+    typedef QMap<QString, int> IndexMap;
+    IndexMap index;
+    
     typedef QVector<Holder> HolderVector;
     HolderVector holders;
 };
+
+QString QSqlResultPrivate::holderAt( int pos ) const
+{
+    IndexMap::ConstIterator it;
+    for ( it = index.begin(); it != index.end(); ++it ) {
+	if ( it.data() == pos )
+	    return it.key();
+    }
+    return QString();
+}
 
 void QSqlResultPrivate::positionalToNamedBinding()
 {
@@ -111,7 +122,7 @@ void QSqlResultPrivate::namedToPositionalBinding()
 	} else {
 	    // record the index of the placeholder - needed
 	    // for emulating named bindings with ODBC
-	    index[ ++cnt ]= rx.cap(0);
+	    index[ rx.cap(0) ]= ++cnt;
 	    q = q.replace( i, rx.matchedLength(), "?" );
 	    ++i;
 	}
@@ -447,31 +458,31 @@ bool QSqlResult::exec()
 	int i;
 	QVariant val;
 	QString holder;
-	for ( i = (int)d->holders.count() - 1; i >= 0; --i ) {
+	for ( i = d->holders.count() - 1; i >= 0; --i ) {
 	    holder = d->holders[ i ].holderName;
-	    val = d->values[ holder ];
+	    val = d->values[ d->index[ holder ] ];
 	    QSqlField f( "", val.type() );
 	    f.setValue( val );
 	    query = query.replace( d->holders[ i ].holderPos,
 				   holder.length(), driver()->formatValue( &f ) );
 	}
     } else {
-	QMap<int, QString>::ConstIterator it;
 	QString val;
 	int i = 0;
-	for ( it = d->index.begin();
-	it != d->index.end(); ++it ) {
+	int idx = 0;
+	for ( idx = 0; idx < d->values.count(); ++idx ) {
 	    i = query.find( '?', i );
-	    if ( i > -1 ) {
-		QSqlField f( "", d->values[ it.data() ].type() );
-		if ( d->values[ it.data() ].isNull() )
-		    f.setNull();
-		else
-		    f.setValue( d->values[ it.data() ] );
-		val = driver()->formatValue( &f );
-		query = query.replace( i, 1, driver()->formatValue( &f ) );
-		i += val.length();
-	    }
+	    if ( i == -1 )
+		continue;
+	    QVariant var = d->values[ idx ];
+	    QSqlField f( "", var.type() );
+	    if ( var.isNull() )
+		f.setNull();
+	    else
+		f.setValue( var );
+	    val = driver()->formatValue( &f );
+	    query = query.replace( i, 1, driver()->formatValue( &f ) );
+	    i += val.length();
 	}
     }
     // have to retain the original query w/placeholders..
@@ -488,22 +499,29 @@ void QSqlResult::bindValue( const QString& placeholder, const QVariant& val, QSq
     d->bindm = BindByName;
     // if the index has already been set when doing emulated named
     // bindings - don't reset it
-    if ( d->index[ d->values.count() ].isEmpty() ) {
-	d->index[ d->values.count() ] = placeholder;
+    int idx = d->index.value( placeholder, -1 );
+    if ( idx >= 0 ) {
+	d->values[ idx ] = val;
+    } else {
+	d->values.append( val );
+	idx = d->values.count() - 1;
+	d->index[ placeholder ] = idx;
     }
-    d->values[ placeholder ] = val;
-    if ( d->types.count() || tp != QSql::In )
-	d->types[ placeholder ] = tp;
+    
+    if ( tp != QSql::In || !d->types.isEmpty() )
+	d->types[ idx ] = tp;
 }
 
 void QSqlResult::bindValue( int pos, const QVariant& val, QSql::ParameterType tp )
 {
     d->bindm = BindByPosition;
     QString nm( ":f" + QString::number( pos ) );
-    d->index[ pos ] = nm;
-    d->values[ nm ] = val;
-    if ( d->types.count() || tp != QSql::In )
-	d->types[ nm ] = tp;
+    d->index[ nm ] = pos;
+    if ( d->values.count() <= pos )
+	d->values.resize( pos + 1 );
+    d->values[ pos ] = val;
+    if ( tp != QSql::In || !d->types.isEmpty() )
+	d->types[ pos ] = tp;
 }
 
 void QSqlResult::addBindValue( const QVariant& val, QSql::ParameterType tp )
@@ -513,34 +531,31 @@ void QSqlResult::addBindValue( const QVariant& val, QSql::ParameterType tp )
     ++d->bindCount;
 }
 
-QVariant QSqlResult::parameterValue( const QString& holder ) const
-{
-    return d->values[ holder ];
-}
-
-QVariant QSqlResult::parameterValue( int pos ) const
-{
-    return d->values[ d->index[ pos ] ];
-}
-
 QVariant QSqlResult::boundValue( const QString& placeholder ) const
 {
-    return d->values[ placeholder ];
+    int idx = d->index.value( placeholder, -1 );
+    if ( idx < 0 )
+	return QVariant();
+    return d->values.at( idx );
 }
 
 QVariant QSqlResult::boundValue( int pos ) const
 {
-    return d->values[ d->index[ pos ] ];
+    if ( pos < 0 || pos >= d->values.count() )
+	return QVariant();
+    return d->values.at( pos );
 }
 
 QSql::ParameterType QSqlResult::bindValueType( const QString& placeholder ) const
 {
-    return d->types.value( placeholder, QSql::In );
+    return d->types.value( d->index.value( placeholder, -1 ), QSql::In );
 }
 
 QSql::ParameterType QSqlResult::bindValueType( int pos ) const
 {
-    return d->types.value( d->index[ pos ], QSql::In );
+    if ( pos < 0 || pos >= d->values.count() )
+	return QSql::In;
+    return d->types.value( pos, QSql::In );
 }
 
 int QSqlResult::boundValueCount() const
@@ -548,7 +563,7 @@ int QSqlResult::boundValueCount() const
     return d->values.count();
 }
 
-QMap<QString, QVariant>& QSqlResult::boundValues() const
+QVector<QVariant>& QSqlResult::boundValues() const
 {
     return d->values;
 }
@@ -571,6 +586,23 @@ QString QSqlResult::executedQuery() const
 void QSqlResult::resetBindCount()
 {
     d->resetBindCount();
+}
+
+QString QSqlResult::boundValueName( int pos ) const
+{
+    return d->holderAt( pos );
+}
+
+bool QSqlResult::hasOutValues() const
+{
+    if ( d->types.isEmpty() )
+	return FALSE;
+    QMap<int, QSql::ParameterType>::ConstIterator it;
+    for ( it = d->types.constBegin(); it != d->types.constEnd(); ++it ) {
+	if ( it.data() != QSql::In )
+	    return TRUE;
+    }
+    return FALSE;
 }
 
 

@@ -23,7 +23,7 @@
 #include "qsqldatabase.h"
 #include "qsql.h"
 #include "qregexp.h"
-
+#include "qvector.h"
 
 /*!
 \internal
@@ -1009,9 +1009,14 @@ QVariant QSqlQuery::boundValue( int pos ) const
 */
 QMap<QString,QVariant> QSqlQuery::boundValues() const
 {
+    QMap<QString,QVariant> map;
     if ( !d->sqlResult )
-	return QMap<QString,QVariant>();
-    return d->sqlResult->boundValues();
+	return map;
+
+    const QVector<QVariant>& values = d->sqlResult->boundValues();
+    for ( int i = 0; i < values.count(); ++i )
+	map[ d->sqlResult->boundValueName( i ) ] = values.at( i );
+    return map;
 }
 
 /*!
