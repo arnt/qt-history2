@@ -46,7 +46,6 @@ class Q_GUI_EXPORT QPainter
     Q_DECLARE_PRIVATE(QPainter)
 
 public:
-    enum TextDirection { Auto, RTL, LTR };
     enum RenderHint {
         Antialiasing = 0x01,
         TextAntialiasing = 0x02
@@ -265,9 +264,9 @@ public:
     void setLayoutDirection(Qt::LayoutDirection direction);
     Qt::LayoutDirection layoutDirection() const;
 
-    void drawText(const QPointF &p, const QString &s, TextDirection dir = Auto);
-    inline void drawText(const QPoint &p, const QString &s, TextDirection dir = Auto);
-    inline void drawText(int x, int y, const QString &s, TextDirection dir = Auto);
+    void drawText(const QPointF &p, const QString &s);
+    inline void drawText(const QPoint &p, const QString &s);
+    inline void drawText(int x, int y, const QString &s);
 
     void drawText(const QRectF &r, int flags, const QString &text, QRectF *br=0);
     void drawText(const QRect &r, int flags, const QString &text, QRect *br=0);
@@ -309,14 +308,14 @@ public:
     inline QT3_SUPPORT void setBackgroundColor(const QColor &color) { setBackground(color); }
     inline QT3_SUPPORT const QColor &backgroundColor() const { return background().color(); }
 
-    inline QT3_SUPPORT void drawText(int x, int y, const QString &s, int pos, int len, TextDirection dir = Auto)
-        { drawText(x, y, s.mid(pos, len), dir); }
-    inline QT3_SUPPORT void drawText(const QPoint &p, const QString &s, int pos, int len, TextDirection dir = Auto)
-        { drawText(p, s.mid(pos, len), dir); }
-    inline QT3_SUPPORT void drawText(int x, int y, const QString &s, int len, TextDirection dir = Auto)
-        { drawText(x, y, s.left(len), dir); }
-    inline QT3_SUPPORT void drawText(const QPoint &p, const QString &s, int len, TextDirection dir = Auto)
-        { drawText(p, s.left(len), dir); }
+    inline QT3_SUPPORT void drawText(int x, int y, const QString &s, int pos, int len)
+        { drawText(x, y, s.mid(pos, len)); }
+    inline QT3_SUPPORT void drawText(const QPoint &p, const QString &s, int pos, int len)
+        { drawText(p, s.mid(pos, len)); }
+    inline QT3_SUPPORT void drawText(int x, int y, const QString &s, int len)
+        { drawText(x, y, s.left(len)); }
+    inline QT3_SUPPORT void drawText(const QPoint &p, const QString &s, int len)
+        { drawText(p, s.left(len)); }
     inline QT3_SUPPORT void drawText(const QRect &r, int flags, const QString &str, int len, QRect *br=0)
         { drawText(r, flags, str.left(len), br); }
     inline QT3_SUPPORT void drawText(int x, int y, int w, int h, int flags, const QString &text, int len, QRect *br=0)
@@ -714,9 +713,9 @@ inline void QPainter::drawTextItem(const QPoint &p, const QTextItem &ti)
     drawTextItem(QPointF(p), ti);
 }
 
-inline void QPainter::drawText(const QPoint &p, const QString &s, TextDirection dir)
+inline void QPainter::drawText(const QPoint &p, const QString &s)
 {
-    drawText(QPointF(p), s, dir);
+    drawText(QPointF(p), s);
 }
 
 inline void QPainter::drawText(int x, int y, int w, int h, int flags, const QString &str, QRect *br)
@@ -724,9 +723,9 @@ inline void QPainter::drawText(int x, int y, int w, int h, int flags, const QStr
     drawText(QRect(x, y, w, h), flags, str, br);
 }
 
-inline void QPainter::drawText(int x, int y, const QString &s, TextDirection dir)
+inline void QPainter::drawText(int x, int y, const QString &s)
 {
-    drawText(QPointF(x, y), s, dir);
+    drawText(QPointF(x, y), s);
 }
 
 inline QRect QPainter::boundingRect(int x, int y, int w, int h, int flags, const QString &text)

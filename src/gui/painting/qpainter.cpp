@@ -3543,7 +3543,7 @@ void QPainter::drawImage(const QRectF &targetRect, const QImage &image, const QR
     \sa QPainter::TextDirection
 */
 
-void QPainter::drawText(const QPointF &p, const QString &str, TextDirection dir)
+void QPainter::drawText(const QPointF &p, const QString &str)
 {
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
@@ -3558,14 +3558,11 @@ void QPainter::drawText(const QPointF &p, const QString &str, TextDirection dir)
 
     QTextLayout layout(str, d->state->pfont ? *d->state->pfont : d->state->font);
     QTextEngine *engine = layout.engine();
+    QTextOption option(Qt::AlignLeft|Qt::AlignAbsolute);
+    option.setLayoutDirection(d->state->layoutDirection);
+    layout.setTextOption(option);
 
     engine->itemize();
-
-    if (dir != Auto) {
-        int level = dir == RTL ? 1 : 0;
-        for (int i = engine->layoutData->items.size()-1; i >= 0; i--)
-            engine->layoutData->items[i].analysis.bidiLevel = level;
-    }
 
     QTextLine line = layout.createLine();
     line.layout(0x01000000);

@@ -4724,10 +4724,8 @@ void Q3TextParagraph::drawString(QPainter &painter, const QString &str, int star
         }
     }
 
-    QPainter::TextDirection dir = rightToLeft ? QPainter::RTL : QPainter::LTR;
-
     int real_length = len;
-    if (len && dir != QPainter::RTL && start + len == length()) // don't draw the last character (trailing space)
+    if (len && !rightToLeft && start + len == length()) // don't draw the last character (trailing space)
         len--;
     if (len && str.unicode()[start+len-1] == QChar::LineSeparator)
         len--;
@@ -4752,7 +4750,7 @@ void Q3TextParagraph::drawString(QPainter &painter, const QString &str, int star
         allSelected = (it != mSelections->end() && (*it).start <= start && (*it).end >= start+len);
     }
     if (!allSelected)
-        painter.drawText(xstart, y + baseLine, str.mid(start, len), dir);
+        painter.drawText(xstart, y + baseLine, str.mid(start, len));
 
 #ifdef BIDI_DEBUG
     painter.save();
@@ -4839,7 +4837,7 @@ void Q3TextParagraph::drawString(QPainter &painter, const QString &str, int star
                 if (extendRight)
                     tmpw = fullSelectionWidth - xleft;
                 painter.fillRect(xleft, y, tmpw, h, color);
-                painter.drawText(xstart, y + baseLine, str.mid(start, len), dir);
+                painter.drawText(xstart, y + baseLine, str.mid(start, len));
                 if (selStart != start || selEnd != start + len || selWrap)
                     painter.restore();
             }
