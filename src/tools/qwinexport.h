@@ -17,7 +17,7 @@
 // MOC_SKIP_BEGIN
 
 #if defined(Q_DEFINED_QASCIIDICT) && defined(Q_DEFINED_QCONNECTION_LIST) && !defined(Q_EXPORTED_QASCIIDICT_TEMPLATES)
-#define Q_EXPORTED_QASCIIDICT_TEMPLATE
+#define Q_EXPORTED_QASCIIDICT_TEMPLATES
 Q_TEMPLATE_EXTERN template class Q_EXPORT QAsciiDictIterator<QConnectionList>;
 Q_TEMPLATE_EXTERN template class Q_EXPORT QAsciiDict<QConnectionList>;
 #endif
