@@ -233,7 +233,7 @@ void Frame::updateTranslators()
 void
 Frame::setCurrentCategory( QWidget *w )
 {
-    for(int i = 0; i < categories->count(); i++) {
+    for(int i = 0; i < (int)categories->count(); i++) {
 	QListBoxItem *item = categories->item(i);
 	if(((CategoryItem*)item)->widget() == w) {
 	    categories->setCurrentItem( i );
