@@ -102,6 +102,9 @@ signals:
     void activated();
     void toggled( bool );
 
+    void statusMessage(const QString &text);
+    void whatsThisClicked(const QString &href);
+
 private slots:
     void internalActivation();
     void toolButtonToggled( bool );
@@ -113,6 +116,7 @@ private slots:
 private:
     void init();
 
+    friend class QActionPrivate;
     friend class QActionGroup;
     friend class QActionGroupPrivate;
     QActionPrivate* d;
