@@ -3393,6 +3393,15 @@ void QCanvasView::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
     }
 }
 
+/*!
+  \reimp
+
+  (Implemented to get rid of a compiler warning.)
+*/
+void QCanvasView::drawContents( QPainter * )
+{
+}
+
 // ### shouldn't this take transformations into account? Lars
 /*!
   Suggests a size sufficient to view the entire canvas.

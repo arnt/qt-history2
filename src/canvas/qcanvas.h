@@ -368,6 +368,7 @@ protected:
     QSize sizeHint() const;
 
 private:
+    void drawContents( QPainter* );
     QCanvas* viewing;
     QCanvasViewData* d;
     friend void qt_unview(QCanvas* c);

@@ -76,6 +76,7 @@ protected:
     virtual void dimensionChange( int, int );
 
 private:
+    void drawContents( QPainter* );
     void updateGrid();
 
     int nrows;

@@ -276,6 +276,14 @@ void QGridView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
     paintEmptyArea( p, cx, cy, cw, ch );
 }
 
+/*!
+  \reimp
+
+  (Implemented to get rid of a compiler warning.)
+*/
+void QGridView::drawContents( QPainter * )
+{
+}
 
 /*! \fn void QGridView::dimensionChange( int oldNumRows, int oldNumCols )
 

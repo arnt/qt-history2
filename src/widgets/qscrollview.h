@@ -155,7 +155,6 @@ public slots:
     void	setEnabled( bool enable );
 
 protected:
-    void drawContents( QPainter* );
     virtual void drawContents(QPainter*, int cx, int cy, int cw, int ch);
     virtual void drawContentsOffset(QPainter*, int ox, int oy,
 		    int cx, int cy, int cw, int ch);
@@ -214,6 +213,7 @@ protected:
 
 
 private:
+    void drawContents( QPainter* );
     void moveContents(int x, int y);
 
     QScrollViewData* d;

@@ -2313,6 +2313,16 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 }
 
 /*!
+  \reimp
+
+  (Implemented to get rid of a compiler warning.)
+*/
+
+void QTable::drawContents( QPainter * )
+{
+}
+
+/*!
   Returns the geometry of cell \a row, \a col in the cell's coordinate
   system. This is a convenience function useful in paintCell(). It is
   equivalent to QRect( QPoint(0,0), cellGeometry( row, col).size() );
