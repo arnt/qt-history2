@@ -51,15 +51,12 @@ struct BidiStatus {
     QChar::Direction dir;
 };
 
-struct BidiControl {
-    struct Context {
-	unsigned char level : 6;
-	unsigned char override : 1;
-	unsigned char unused : 1;
-    };
+// The Unicode standard says this should be 61, setting it to 29 would save quite some space here.
+enum { MaxBidiLevel = 61 };
 
+struct BidiControl {
     inline BidiControl( bool rtl )
-	: cCtx( 0 ), base(rtl), override(false), level(rtl), singleLine(false) {}
+	: cCtx( 0 ), base(rtl), singleLine(false), override(false), level(rtl) {}
 
     inline void embed( bool rtl, bool o = FALSE ) {
 	uchar plus2 = 0;
@@ -68,7 +65,7 @@ struct BidiControl {
 	    plus2 = 2;
 	}
 	level++;
-	if (level <= 61) {
+	if (level <= MaxBidiLevel) {
 	    override = o;
 	    unsigned char control = (plus2 + (override ? 1 : 0)) << (cCtx % 4)*2;
 	    unsigned char mask = ~(0x3 << (cCtx % 4)*2);
@@ -98,12 +95,13 @@ struct BidiControl {
 	return ((level%2) ? QChar::DirR : QChar:: DirL);
     }
 
-    unsigned char ctx[15];
+    unsigned char ctx[(MaxBidiLevel+3)/4];
     unsigned char cCtx : 6;
     unsigned char base : 1;
+    unsigned char singleLine : 1;
     unsigned char override : 1;
+    unsigned char unused : 1;
     unsigned char level : 6;
-    bool singleLine : 1;
 };
 
 static QChar::Direction basicDirection( const QString &str )
@@ -290,7 +288,7 @@ static void bidiItemize( QTextEngine *engine, bool rightToLeft, int mode )
 
 		uchar level = control.level+1;
 		if ((level%2 != 0) == rtl) ++level;
-		if(level < 61) {
+		if(level < MaxBidiLevel) {
 		    eor = current-1;
 		    appendItems(engine, sor, eor, control, dir);
 		    eor = current;
