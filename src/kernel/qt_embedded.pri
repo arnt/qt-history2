@@ -1,15 +1,6 @@
 # Qt/Embedded 
 
 embedded {
-	contains(embedded-videodriver, eproj) {
-		GSOS_INCLUDEPATH        = 3rdparty/gsos
-		INCLUDEPATH         += $$GSOS_INCLUDEPATH
-		SUBLIBS += gsos
-		MAKELIBgsos = $(MAKE) -C 3rdparty/gsos; \
-			cp 3rdparty/gsos/libgsos.a tmp
-		DEFINES += QT_QWS_EE
-	}
-
 	CONFIG -= opengl
 	CONFIG	+= png zlib
 	CONFIG -= jpeg
