@@ -787,7 +787,6 @@ struct QTLWExtra {
     void    *xic;				// XIM Input Context
 #endif
 #if defined(_WS_QWS_)
-    QRegion alloc_region;			// Allocated region
     QRegion decor_allocated_region;		// decoration allocated region
     QWSManager *qwsManager;
 #endif
