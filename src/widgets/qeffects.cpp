@@ -35,8 +35,8 @@
 **
 **********************************************************************/
 
-#ifndef QT_NO_EFFECTS
 #include "qapplication.h"
+#ifndef QT_NO_EFFECTS
 #include "qwidget.h"
 #include "qeffects_p.h"
 #include "qpixmap.h"
