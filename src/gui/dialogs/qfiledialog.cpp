@@ -350,6 +350,9 @@ void QFileDialog::setFileMode(FileMode mode)
     switch (mode) {
     case Directory:
     case DirectoryOnly:
+//         d->fileType->clear();
+//         d->fileType->insertItem(QFileDialog::tr("Directories"));
+//         d->fileType->setEnabled(false);
         spec = QDir::Dirs;
         break;
     case AnyFile:
@@ -890,7 +893,7 @@ QString QFileDialog::getOpenFileName(const QString &startWith,
     QFileDialog *dlg = qt_create_file_dialog(qt_working_dir, filter,
                                               selectedFilter, initialSelection,
                                               parent, caption.isNull() ? "Open" : caption);
-//    dlg->setMode(QFileDialog::ExistingFile);
+    dlg->setFileMode(QFileDialog::ExistingFile);
 
     QString result;
     if (dlg->exec() == QDialog::Accepted) {
@@ -974,7 +977,7 @@ QString QFileDialog::getSaveFileName(const QString &startWith,
     QFileDialog *dlg = qt_create_file_dialog(qt_working_dir, filter,
                                               selectedFilter, initialSelection,
                                               parent, caption.isNull() ? "Save As" : caption);
-//    dlg->setMode(QFileDialog::AnyFile);
+    dlg->setFileMode(QFileDialog::AnyFile);
 
     QString result;
     if (dlg->exec() == QDialog::Accepted) {
@@ -1051,14 +1054,12 @@ QString QFileDialog::getExistingDirectory(const QString &dir,
 
     QFileDialog *dlg = qt_create_file_dialog(qt_working_dir, QString::null, 0, QString::null,
                                               parent, caption.isNull() ? "Find Directory" : caption);
-//    dlg->setMode(dirOnly ? DirectoryOnly : Directory);
-//     dlg->d->types->clear();
-//     dlg->d->types->insertItem(QFileDialog::tr("Directories"));
-//     dlg->d->types->setEnabled(false);
+    dlg->setFileMode(dirOnly ? DirectoryOnly : Directory);
+    dlg->d->fileType->clear();
+    dlg->d->fileType->insertItem(QFileDialog::tr("Directories"));
+    dlg->d->fileType->setEnabled(false);
 
     QString result;
-//    dlg->setSelection(dlg->d->url.toString());
-
     if (dlg->exec() == QDialog::Accepted) {
         result = dlg->selectedFiles().first();
         qt_working_dir = result;
@@ -1148,7 +1149,7 @@ QStringList QFileDialog::getOpenFileNames(const QString &filter,
     QFileDialog *dlg = qt_create_file_dialog(qt_working_dir, filter,
                                               selectedFilter, QString::null,
                                               parent, caption.isNull() ? "Open" : caption);
-//    dlg->setMode(QFileDialog::ExistingFiles);
+    dlg->setFileMode(QFileDialog::ExistingFiles);
 
     QStringList lst;
     if (dlg->exec() == QDialog::Accepted) {
