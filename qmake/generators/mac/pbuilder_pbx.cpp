@@ -125,6 +125,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     }
 
     //DUMP SOURCES
+    QMap<QString, QStringList> groups;
     QString srcs[] = { "SOURCES", "SRCMOC", "UICIMPLS", QString::null };
     for(i = 0; !srcs[i].isNull(); i++) {
 	tmp = project->variables()[srcs[i]];
@@ -133,10 +134,34 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    if(file.right(Option::moc_ext.length()) == Option::moc_ext) 
 		continue;
 	    fileFixify(file);
-	    QString key = keyFor(file);
-	    project->variables()["QMAKE_PBX_" + srcs[i]].append(key);
+	    bool in_root = TRUE;
+	    QString src_key = keyFor(file);
+	    if(!project->isActiveConfig("flat")) {
+		QString flat_file(file);
+		fileFixify(flat_file, QDir::currentDirPath(), TRUE);
+		if(QDir::isRelativePath(flat_file) && flat_file.find(Option::dir_sep) != -1) {
+		    QString last_grp("QMAKE_PBX_" + srcs[i] + "_HEIR_GROUP");
+		    QStringList dirs = QStringList::split(Option::dir_sep, flat_file);
+		    dirs.pop_back(); //remove the file portion as it will be added via src_key
+		    for(QStringList::Iterator dir_it = dirs.begin(); dir_it != dirs.end(); ++dir_it) {
+			QString new_grp(last_grp + Option::dir_sep + (*dir_it)),
+			        new_grp_key(keyFor(new_grp)), last_grp_key(keyFor(last_grp));
+			if(dir_it == dirs.begin()) {
+			    if(!groups.contains(new_grp)) 
+				project->variables()["QMAKE_PBX_" + srcs[i]].append(new_grp_key);
+			} else {
+			    groups[last_grp] += new_grp_key;
+			}
+			last_grp = new_grp;
+		    }
+		    groups[last_grp] += src_key;
+		    in_root = FALSE;
+		}
+	    }
+	    if(in_root)
+		project->variables()["QMAKE_PBX_" + srcs[i]].append(src_key);
 	    //source reference
-	    t << "\t\t" << key << " = {" << "\n"
+	    t << "\t\t" << src_key << " = {" << "\n"
 	      << "\t\t\t" << "isa = PBXFileReference;" << "\n"
 	      << "\t\t\t" << "path = \"" << file << "\";" << "\n"
 	      << "\t\t\t" << "refType = 4;" << "\n"
@@ -145,7 +170,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    QString obj_key = file + ".o";
 	    obj_key = keyFor(obj_key);
 	    t << "\t\t" << obj_key << " = {" << "\n"
-	      << "\t\t\t" << "fileRef = " << key << ";" << "\n"
+	      << "\t\t\t" << "fileRef = " << src_key << ";" << "\n"
 	      << "\t\t\t" << "isa = PBXBuildFile;" << "\n"
 	      << "\t\t\t" << "settings = {" << "\n"
 	      << "\t\t\t\t" << "ATTRIBUTES = (" << "\n"
@@ -175,6 +200,18 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	      << "\t\t" << "};" << "\n";
 	}
     }
+    for(QMap<QString, QStringList>::Iterator grp_it = groups.begin(); 
+	grp_it != groups.end(); ++grp_it) {
+	t << "\t\t" << keyFor(grp_it.key()) << " = {" << "\n"
+	  << "\t\t\t" << "isa = PBXGroup;" << "\n"
+	  << "\t\t\t" << "children = (" << "\n"
+	  << valGlue(grp_it.data(), "\t\t\t\t", ",\n\t\t\t\t", "\n")
+	  << "\t\t\t" << ");" << "\n"
+	  << "\t\t\t" << "name = \"" << grp_it.key().section(Option::dir_sep, -1) << "\";" << "\n"
+	  << "\t\t\t" << "refType = 4;" << "\n"
+	  << "\t\t" << "};" << "\n";
+    }
+
     //PREPROCESS BUILDPHASE (just a makefile)
     if(!project->isEmpty("UICIMPLS") || !project->isEmpty("SRCMOC") ||
 	!project->isEmpty("YACCSOURCES") || !project->isEmpty("LEXSOURCES")) {

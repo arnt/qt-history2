@@ -1752,19 +1752,19 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
 }
 
 bool
-MakefileGenerator::fileFixify(QStringList &files, const QString &dir) const
+MakefileGenerator::fileFixify(QStringList &files, const QString &dir, bool force_relative) const
 {
     if(files.isEmpty())
 	return FALSE;
     int ret = 0;
     for(QStringList::Iterator it = files.begin(); it != files.end(); ++it)
 	if(!(*it).isEmpty())
-	    ret += (int)fileFixify((*it), dir);
+	    ret += (int)fileFixify((*it), dir, force_relative);
     return ret != 0;
 }
 
 bool
-MakefileGenerator::fileFixify(QString &file, const QString &d) const
+MakefileGenerator::fileFixify(QString &file, const QString &d, bool force_relative) const
 {
     if(file.isEmpty())
 	return FALSE;
@@ -1789,7 +1789,7 @@ MakefileGenerator::fileFixify(QString &file, const QString &d) const
 	file = file.mid(1, file.length() - 2);
     }
     QString orig_file = file;
-    if(!project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH")) { //absoluteify it
+    if(!force_relative && !project->isEmpty("QMAKE_ABSOLUTE_SOURCE_PATH")) { //absoluteify it
 	QString qfile = Option::fixPathToLocalOS(file);
 	if(!QDir::isRelativePath(file)) { //already absolute
 	    file = Option::fixPathToTargetOS(file, FALSE);
@@ -1805,7 +1805,7 @@ MakefileGenerator::fileFixify(QString &file, const QString &d) const
 	    return FALSE;
 	}
 	file = fi.filePath();
-    } else if(!project->isActiveConfig("no_fixpath")) { //relative
+    } else if(force_relative || !project->isActiveConfig("no_fixpath")) { //relative
 	QString qfile = Option::fixPathToLocalOS(file, FALSE);
 	if(QDir::isRelativePath(qfile)) {
 	    file = Option::fixPathToTargetOS(file, FALSE);

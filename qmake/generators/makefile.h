@@ -114,8 +114,8 @@ protected:
     QString valList(const QStringList &varList);
 
 
-    bool fileFixify(QString &file, const QString &dir=QString::null) const;
-    bool fileFixify(QStringList &files, const QString &dir=QString::null) const;
+    bool fileFixify(QString &file, const QString &dir=QString::null, bool force_relative=FALSE) const;
+    bool fileFixify(QStringList &files, const QString &dir=QString::null, bool force_relative=FALSE) const;
 public:
     MakefileGenerator(QMakeProject *p);
     virtual ~MakefileGenerator();
