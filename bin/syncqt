@@ -128,7 +128,7 @@ foreach $dir (keys %dirs) {
 }
 
 
-unless(!check_unix()) {
+if(!check_unix()) {
    symlink_file("$basedir/dist/win/Makefile", "$basedir/Makefile");
    symlink_file("$basedir/dist/win/Makefile.win32-g++", "$basedir/Makefile.win32-g++");
 }
