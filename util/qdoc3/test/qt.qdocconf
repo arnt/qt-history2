@@ -1,23 +1,23 @@
-include(compat.qdoc)
+include(compat.qdocconf)
 
 project			= Qt
 language		= Cpp
 headerdirs		= $QTDIR/src
 sourcedirs              = $QTDIR/src \
-                          $QTDIR/doc \
+                          $QTDIR/doc/src \
                           $QTDIR/extensions/activeqt/doc \
                           $QTDIR/extensions/motif/doc
 sources.fileextensions	= "*.cpp *.doc *.qdoc"
-exampledirs		= $QTDIR/doc/snippets \
+exampledirs		= $QTDIR/doc/src/snippets \
 			  $QTDIR/examples/advanced \
 			  $QTDIR/examples/simple \
 			  $QTDIR/examples \
 			  $QTDIR/demos \
 			  $QTDIR/tutorial
-imagedirs		= $QTDIR/gif \
-			  $QTDIR/doc/tech-preview/images
+imagedirs		= $QTDIR/doc/src/images \
+			  $QTDIR/doc/src/tech-preview/images
 outputdir		= $QTDIR/doc/html
-base			= file:$QTDIR/doc/html/
+base			= file:$QTDIR/doc/html
 versionsym		= QT_VERSION_STR
 defines			= Q_QDOC \
 			  QT_.*_SUPPORT \
@@ -25,7 +25,7 @@ defines			= Q_QDOC \
 			  Q_WS_.* \
 			  Q_OS_.*
 
-extraimages.HTML	= logo32
+#extraimages.HTML	= logo32
 
 macro.key.HTML          = "<bold>ALPHA\1BETA</bold>"
 macro.key               = "{\1}"

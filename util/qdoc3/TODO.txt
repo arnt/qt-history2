@@ -4,6 +4,7 @@
   * add some magic for properties in \sa's?
   * turn \c into links?
   * warning for unnamed parameters in property access functions
+  * \center...\endcenter
 
 LINKS:
   * make types be links in Detailed synopses

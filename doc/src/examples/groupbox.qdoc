@@ -1,0 +1,45 @@
+/*
+    The following comments used to be in the source code. Write them
+    as a walk-through instead:
+*/
+
+/*
+    Set up a main window and populate it with four group boxes:
+    an exclusive radio button group, a non-exclusive checkbox group,
+    an exclusive radio button group with an enabling checkbox, and
+    a group box with normal push buttons.
+*/
+
+/*
+    Creates a group box to display radio buttons in, and a button group
+    to manage them. The button group is exclusive by default, so only
+    one radio button can be checked at any given time. We check the
+    first radio button to ensure that the button group contains one
+    checked button.
+
+    We use a vertical layout within the group box to present the
+    buttons in the form of a vertical list.
+*/
+
+/*
+    Creates an exclusive button group and display radio buttons in a
+    group box. The group box is made checkable, and is set to be initially
+    unchecked - this means that the group box itself must be checked
+    before any of the radio buttons inside can be checked.
+*/
+
+/*
+    Creates a group box to display checkboxes in, and a button group to
+    manage them. The button group is configured to be non-exclusive, so
+    that each checkbox can be checked independently of the others.
+
+    We use a vertical layout within the group box to present the
+    buttons in the form of a vertical list.
+*/
+
+/*
+    Creates a group box without a button group to manage its contents.
+
+    We create three push buttons: a normal button, a flat button, and
+    a button that pops up a menu when clicked.
+*/

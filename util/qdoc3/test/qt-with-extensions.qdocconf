@@ -1,4 +1,4 @@
-include( qt.qdoc )
+include(qt.qdocconf)
 
 project		= Qt with Extensions
 headerdirs	+= $QUICK/src/extensions

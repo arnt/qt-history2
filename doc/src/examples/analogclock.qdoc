@@ -1,0 +1,22 @@
+/*
+    The following comments used to be in the source code. Write them
+    as a walk-through instead:
+*/
+
+/*
+    Constructs an analog clock widget that uses an internal QTimer to
+    ensure that it is updated at regular intervals.
+*/
+
+/*
+    When the internal timer emits the timeout() signal, we update the
+    clock if the minute hand should move.
+*/
+
+/*
+    The clock is drawn in a 100 x 100 square coordinate system, and
+    is rendered to the widget in a centered square area that is as
+    big as possible. The widget's standard foreground color is used
+    to draw the clock face.
+*/
+

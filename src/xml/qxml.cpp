@@ -1892,7 +1892,7 @@ events are reported.
     it we can use the same handler for both of the following
     reader functions:
 
-    \quotefile ../doc/snippets/xml/rsslisting/rsslisting.cpp
+    \quotefile xml/rsslisting/rsslisting.cpp
     \skipto xmlReader.setContentHandler
     \printuntil setErrorHandler(handler);
 
@@ -1900,7 +1900,7 @@ events are reported.
     necessary to reimplement QXmlErrorHandler::fatalError() if, for
     example, we want to stop parsing when such an error occurs:
 
-    \quotefile ../doc/snippets/xml/rsslisting/handler.cpp
+    \quotefile xml/rsslisting/handler.cpp
     \skipto bool Handler::fatalError
     \printuntil }
 
@@ -2611,7 +2611,7 @@ private:
     create a reader, and define an input source to be used by the
     reader:
 
-    \quotefile ../doc/snippets/xml/simpleparse/main.cpp
+    \quotefile xml/simpleparse/main.cpp
     \skipto QXmlSimpleReader
     \printuntil (file);
 
@@ -2622,7 +2622,7 @@ private:
     handler by subclassing QXmlDefaultHandler, and use this to handle
     both error and content events:
 
-    \quotefile ../doc/snippets/xml/simpleparse/main.cpp
+    \quotefile xml/simpleparse/main.cpp
     \skipto Handler *handler
     \printuntil setErrorHandler(handler);
 
@@ -2634,7 +2634,7 @@ private:
     single pass using the parse() function with an argument that
     specifies the input source:
 
-    \quotefile ../doc/snippets/xml/simpleparse/main.cpp
+    \quotefile xml/simpleparse/main.cpp
     \skipto bool ok
     \printuntil endl;
 
@@ -2643,8 +2643,6 @@ private:
     be fed to the parser in pieces. This is achieved by telling
     parse() to work incrementally, and making subsequent calls to the
     parseContinue() function, until all the data has been processed.
-    The incremental approach to parsing is described in the \link
-    ../doc/snippets/xml/rdflisting rdflisting\endlink example.
 
     Aspects of the parsing behavior can be adapted using setFeature()
     and setProperty(). For example, the following code could be used
