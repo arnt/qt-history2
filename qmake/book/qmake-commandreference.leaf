@@ -1573,7 +1573,12 @@ count( MYVAR, 3 ) {
 }
 \endcode
 
+\section2 infile( filename, var, val )
 
+This function will succeed if the file \e filename (when parsed
+by qmake itself) contains the variable \e var with a value of 
+\e val. You may also not pass in a third argument (\e val) and the
+function will only test if \e var has been assigned to in the file.
 
 \section2 isEmpty( variablename )
 

@@ -489,13 +489,41 @@ QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString,
 	return system(args.first().latin1()) == 0;
     } else if(func == "contains") {
 	if(args.count() != 2) {
-	    fprintf(stderr, "%d: contains(var, val) requires two argument.\n", line_count);
+	    fprintf(stderr, "%d: contains(var, val) requires two arguments.\n", line_count);
 	    return FALSE;
 	}
 	return vars[args[0]].findIndex(args[1]) != -1;
+    } else if(func == "infile") {
+	if(args.count() < 2 || args.count() > 3) {
+	    fprintf(stderr, "%d: infile(file, var, val) requires at least 2 arguments.\n", line_count);
+	    return FALSE;
+	}
+	QMakeProject proj;
+	QString file = args[0];
+	int di = file.findRev(Option::dir_sep);
+	QDir sunworkshop42workaround = QDir::current();
+	QString oldpwd = sunworkshop42workaround.currentDirPath();
+	if(di != -1) {
+	    if(!QDir::setCurrent(file.left(file.findRev(Option::dir_sep))))
+		fprintf(stderr, "Cannot find directory: %s\n", file.left(di).latin1());
+	    file = file.right(file.length() - di - 1);
+	    return FALSE;
+	}
+	if(!proj.read(file, oldpwd)) {
+	    fprintf(stderr, "Error processing project file: %s\n", file.latin1());
+	    QDir::setCurrent(oldpwd);
+	    return FALSE;
+	}
+	bool ret = FALSE;
+	if(args.count() == 2) 
+	    ret = !proj.isEmpty(args[1]);
+	else
+	    ret = (proj.isEmpty(args[1]) ? FALSE : (proj.values(args[1]).findIndex(args[2]) != -1));
+	QDir::setCurrent(oldpwd);
+	return ret;
     } else if(func == "count") {
 	if(args.count() != 2) {
-	    fprintf(stderr, "%d: count(var, count) requires two argument.\n", line_count);
+	    fprintf(stderr, "%d: count(var, count) requires two arguments.\n", line_count);
 	    return FALSE;
 	}
 	return vars[args[0]].count() == args[1].toUInt();
