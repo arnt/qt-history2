@@ -140,7 +140,8 @@
     \value NoOptim  No optimization (currently the same as \c
 	MemoryOptim).
 
-    \value MemoryOptim  Optimize for minimal memory use.
+    \value MemoryOptim  Optimize for minimal memory use on Windows 
+	9x and X11 systems.
 
     \value NormalOptim  Optimize for typical usage. Often uses more
 	memory than \c MemoryOptim, and is often faster.
