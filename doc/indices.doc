@@ -272,7 +272,7 @@ including menus, toolbars, workspace, etc.
 \i \link multimedia.html Multimedia\endlink
 \i Classes that provide support for graphics, sound, animation, etc.
 (See also \link graphics.html Graphics and Printing\endlink and \link
-images.html Image Processings\endlink)
+images.html Image Processing\endlink)
 
 \row 
 \i \link objectmodel.html   Object Model \endlink
