@@ -946,6 +946,13 @@ void MainWindow::helpManual()
 void MainWindow::helpAbout()
 {
     AboutDialog dlg( this, 0, TRUE );
+    if ( singleProjectMode() ) {
+	dlg.aboutPixmap->setText( "" );
+	dlg.aboutVersion->setText( "" );
+	dlg.aboutCopyright->setText( "" );
+	LanguageInterface *iface = MetaDataBase::languageInterface( eProject->language() );
+	dlg.aboutLicense->setText( iface->aboutText() );
+    }
     dlg.exec();
 }
 

@@ -120,6 +120,7 @@ struct LanguageInterface : public QUnknownInterface
 
     virtual 	void compressProject( const QString &projectFile, const QString &compressedFile ) = 0;
     virtual QString uncompressProject( const QString &projectFile, const QString &destDir ) = 0;
+    virtual QString aboutText() const = 0;
 
 };
 

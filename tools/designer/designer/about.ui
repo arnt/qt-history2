@@ -27,7 +27,7 @@
         </property>
         <widget class="QLabel">
             <property name="name">
-                <cstring>PixmapLabel1</cstring>
+                <cstring>aboutPixmap</cstring>
             </property>
             <property name="frameShape">
                 <enum>NoFrame</enum>
@@ -49,7 +49,7 @@
         </widget>
         <widget class="QLabel">
             <property name="name">
-                <cstring>TextLabel1</cstring>
+                <cstring>aboutVersion</cstring>
             </property>
             <property name="text">
                 <string>Version 2.0</string>
@@ -62,7 +62,7 @@
         </widget>
         <widget class="QLabel">
             <property name="name">
-                <cstring>TextLabel1_2</cstring>
+                <cstring>aboutCopyright</cstring>
             </property>
             <property name="text">
                 <string>Copyright (C) 2000-2001 Trolltech AS. All Rights Reserved</string>
@@ -75,7 +75,7 @@
         </widget>
         <widget class="QLabel">
             <property name="name">
-                <cstring>TextLabel1_3</cstring>
+                <cstring>aboutLicense</cstring>
             </property>
             <property name="sizePolicy">
                 <sizepolicy>

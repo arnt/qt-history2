@@ -68,6 +68,7 @@ public:
     bool canConnect( const QString &signal, const QString &slot );
     void compressProject( const QString &, const QString & ) {}
     QString uncompressProject( const QString &, const QString & ) { return QString::null; }
+    QString aboutText() const { return ""; }
 
 private:
     QUnknownInterface *parent;
