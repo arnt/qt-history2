@@ -392,8 +392,10 @@ public slots:
 
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     void polish();
+    void setLogLimit( int numLines );
+    int logLimit();
 #endif
-
+    
 signals:
     void textChanged();
     void selectionChanged();
@@ -537,10 +539,11 @@ private:
     void optimSetTextFormat( QTextDocument *, QTextCursor *, QTextFormat * f,
 			     int, int, QTextEditOptimPrivate::Tag * t );
     QTextEditOptimPrivate::Tag * optimAppendTag( int index, const QString & tag );
+    void optimCheckLimit( const QString& str );
 
 private slots:
     void optimDoAutoScroll();
-#endif
+#endif // QT_TEXTEDIT_OPTIMIZATION
 
 private:
 #ifndef QT_NO_CLIPBOARD
