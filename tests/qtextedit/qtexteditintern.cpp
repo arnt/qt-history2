@@ -1349,7 +1349,14 @@ void QTextEditParag::join( QTextEditParag *s )
 
     if ( str->at( str->length() -1 ).c == ' ' ) // #### check this
 	str->truncate( str->length() - 1 );
+    int start = str->length();
     append( s->str->toString() );
+    if ( !doc->syntaxHighlighter() ) {
+	for ( int i = 0; i < s->length(); ++i ) {
+	    s->str->at( i ).format->addRef();
+	    str->setFormat( i + start, s->str->at( i ).format, TRUE );
+	}
+    }
     delete s;
     invalidate( 0 );
     r.setHeight( oh );
