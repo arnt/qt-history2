@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#84 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#85 $
 **
 ** Implementation of QObject class
 **
@@ -15,7 +15,7 @@
 #include "qregexp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#84 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#85 $")
 
 
 /*----------------------------------------------------------------------------
@@ -527,6 +527,10 @@ void QObject::setName( const char *name )
 
 bool QObject::event( QEvent *e )
 {
+#if defined(CHECK_NULL)
+    if ( e == 0 )
+	warning( "QObject::event: Null events are not permitted" );
+#endif
     if ( eventFilters ) {			// try filters
 	if ( activate_filters(e) )		// stopped by a filter
 	    return TRUE;
