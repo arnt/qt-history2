@@ -352,12 +352,11 @@ void KAsteroidsView::timerEvent( QTimerEvent * )
     field.advance();
 
     int i;
-    QCanvasSprite *rock;
 
     // move rocks forward
     for (int i = 0; i < rocks.size(); ++i ) {
 	((KRock *)rocks.at(i))->nextFrame();
-	wrapSprite( rock );
+	wrapSprite( rocks.at(i) );
     }
 
     wrapSprite( ship );
@@ -381,7 +380,7 @@ void KAsteroidsView::timerEvent( QTimerEvent * )
     }
 
     for (int i = 0; i < exhaust.size(); ++i)
-	exhaust.remove(exhaust.at(i));
+	exhaust.removeAt(i);
 //     for ( KExhaust *e = exhaust.first(); e; e = exhaust.next() ) {
 // 	exhaust.removeRef( e );
 //     }
@@ -570,14 +569,16 @@ void KAsteroidsView::processMissiles()
 	wrapSprite( missile );
 
 	QCanvasItemList hits = missile->collisions( TRUE );
-	QCanvasItemList::Iterator hit;
-	for ( hit = hits.begin(); hit != hits.end(); ++hit )
+	QCanvasItem *hit;
+	qWarning("hits: %d", hits.size());
+	for (int i = 0; i < hits.size(); ++i)
 	{
-	    if ( (*hit)->rtti() >= ID_ROCK_LARGE &&
-		 (*hit)->rtti() <= ID_ROCK_SMALL )
+	    hit = hits.at(i);
+	    if ( hit->rtti() >= ID_ROCK_LARGE &&
+		 hit->rtti() <= ID_ROCK_SMALL )
 	    {
 		shotsHit++;
-		rockHit( *hit );
+		rockHit( hit );
 		missiles.remove( missile );
 		break;
 	    }
