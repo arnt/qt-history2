@@ -877,7 +877,67 @@ void QPrinter::setPrinterName( const QString &name )
         return;
     }
     printer_name = name;
+
+    PageRange prange = d->pageRange;
+    uint prangeen = d->pageRangeEnabled;
+    bool toFile = d->outputToFileEnabled;
+    QString dname = doc_name;
+    Orientation orien = orient;
+    int wpgsz = D->winPageSize;
+    PageSize ps = page_size;
+    PageOrder ord = page_order;
+    ColorMode col = color_mode;
+    PaperSource psrc = paper_source;
+    int fpg = from_pg;
+    int tpg = to_pg;
+    int mxpg = max_pg;
+    int mnpg = min_pg;
+
     setDefaultPrinter( name, &hdevmode, &hdevnames );
+
+    if (hdevmode && hdevnames) {
+	QT_WA( {
+	    PRINTDLG pd;
+	    memset( &pd, 0, sizeof(PRINTDLG) );
+	    pd.lStructSize = sizeof(PRINTDLG);
+	    pd.nCopies=ncopies;
+	    pd.hDevMode=hdevmode;
+	    pd.hDevNames=hdevnames;
+	    hdevmode=0;
+	    hdevnames=0;
+	    readPdlg( &pd );
+	} , {
+	    PRINTDLGA pd;
+	    memset( &pd, 0, sizeof(PRINTDLGA) );
+	    pd.lStructSize = sizeof(PRINTDLGA);
+	    pd.nCopies=ncopies;
+	    pd.hDevMode=hdevmode;
+	    pd.hDevNames=hdevnames;
+	    hdevmode=0;
+	    hdevnames=0;
+	    readPdlgA( &pd );
+	} );
+    }
+#ifndef QT_NO_DEBUG
+    else
+	qSystemWarning( "QPrinter::setPrinterName: setDefaultPrinter failed" );
+#endif
+
+    d->pageRange = prange;
+    d->pageRangeEnabled = prangeen;
+    d->outputToFileEnabled = toFile;
+    doc_name = dname;
+    orient = orien;
+    D->winPageSize = wpgsz;
+    page_size = ps;
+    page_order = ord;
+    color_mode = col;
+    paper_source = psrc;
+    from_pg = fpg;
+    to_pg = tpg;
+    mxpg = max_pg;
+    mnpg = min_pg;
+
     reinit();
 }
 
@@ -899,9 +959,27 @@ void QPrinter::writeDevmode( HANDLE hdm )
 	    WRITE_DM_VAR( dm->dmColor, DMCOLOR_COLOR )
 	else
 	    WRITE_DM_VAR( dm->dmColor, DMCOLOR_MONOCHROME )
-	WRITE_DM_VAR( dm->dmDefaultSource, mapPaperSourceDevmode( paper_source ) )
 	WRITE_DM_VAR( dm->dmPaperSize, D->winPageSize )
 	WRITE_DM_VAR( dm->dmCopies, ncopies )
+
+	/* Use some extra gunpowder to avoid some problems on 98 and ME.
+	   See task: 19052 */
+	DWORD caps = DeviceCapabilities( printer_name.ucs2(), 0, DC_BINS, 0, 0 );
+	LPTSTR bins = new TCHAR[caps];
+	if( !DeviceCapabilities( printer_name.ucs2(), 0, DC_BINS, bins, 0 ) ) {
+	    WRITE_DM_VAR( dm->dmDefaultSource, DMBIN_AUTO )
+	} else {
+	    bool ok = FALSE;
+	    int dmMap = mapPaperSourceDevmode( paper_source );
+	    for( uint i=0; i<caps; i++ )
+		ok |= ( bins[i] == dmMap );
+	    if( ok ) {
+		WRITE_DM_VAR( dm->dmDefaultSource, dmMap );
+	    } else {
+		WRITE_DM_VAR( dm->dmDefaultSource, DMBIN_AUTO );
+		paper_source = Auto;
+	    }
+	}
     }
     D->needReinit = changeCount>0;
 #endif
@@ -924,9 +1002,25 @@ void QPrinter::writeDevmodeA( HANDLE hdm )
 	    WRITE_DM_VAR( dm->dmColor, DMCOLOR_COLOR )
 	else
 	    WRITE_DM_VAR( dm->dmColor, DMCOLOR_MONOCHROME )
-	WRITE_DM_VAR( dm->dmDefaultSource, mapPaperSourceDevmode( paper_source ) )
 	WRITE_DM_VAR( dm->dmPaperSize, D->winPageSize )
 	WRITE_DM_VAR( dm->dmCopies, ncopies )
+
+	DWORD caps = DeviceCapabilitiesA( printer_name.latin1(), 0, DC_BINS, 0, 0 );
+	LPSTR bins = new char[caps];
+	if( !DeviceCapabilitiesA( printer_name.latin1(), 0, DC_BINS, bins, 0 ) ) {
+	    WRITE_DM_VAR( dm->dmDefaultSource, DMBIN_AUTO )
+	} else {
+	    bool ok = FALSE;
+	    int dmMap = mapPaperSourceDevmode( paper_source );
+	    for( uint i=0; i<caps; i++ )
+		ok |= ( bins[i] == dmMap );
+	    if( ok ) {
+		WRITE_DM_VAR( dm->dmDefaultSource, dmMap );
+	    } else {
+		WRITE_DM_VAR( dm->dmDefaultSource, DMBIN_AUTO );
+		paper_source = Auto;
+	    }
+	}
     }
     D->needReinit = changeCount>0;
 }
@@ -1539,6 +1633,19 @@ void QPrinter::reinit()
 	if ( hdcTmp ) {
 	    DeleteDC( hdc );
 	    hdc = hdcTmp;
+	    switch ( D->printerMode ) {
+	    case ScreenResolution:
+		{
+		    HDC dc = GetDC( 0 );
+		    res = GetDeviceCaps( dc, LOGPIXELSY );
+		    ReleaseDC( 0, dc );
+		    break;
+		}
+	    case Compatible:
+	    case PrinterResolution:
+	    case HighResolution:
+		res = metric( QPaintDeviceMetrics::PdmPhysicalDpiY );
+	    }
 	    setPrinterMapping( hdc, res );
 	}
     }
