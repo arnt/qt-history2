@@ -3504,13 +3504,14 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	} else {
 	    if ( focus_widget )
 		keywidget = (QETWidget*)focus_widget;
-	    else if ( inPopupMode() )
-		widget = (QETWidget*) activePopupWidget();
-	    if ( !keywidget && widget )
-		keywidget = widget->focusWidget()?(QETWidget*)widget->focusWidget():widget;
+	    if ( !keywidget ) {
+		if ( inPopupMode() ) // no focus widget, see if we have a popup
+		    keywidget = (QETWidget*) activePopupWidget();
+		else if ( widget )
+		    keywidget = (QETWidget*)widget->topLevelWidget();
+	    }
 	}
     }
-
 
     int xkey_keycode = event->xkey.keycode;
     if ( XFilterEvent( event, keywidget ? keywidget->topLevelWidget()->winId() : None ) ) {
@@ -3747,7 +3748,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 
     case XKeyPress:				// keyboard event
     case XKeyRelease: {
-	if ( keywidget ) // should always exist
+	if ( keywidget && keywidget->isEnabled() ) // should always exist
 	    keywidget->translateKeyEvent( event, grabbed );
     }
 	break;
