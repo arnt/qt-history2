@@ -141,6 +141,7 @@ public slots:
     void clear();
 
 signals:
+    void pressed(QListWidgetItem *item, int button);
     void clicked(QListWidgetItem *item, int button);
     void doubleClicked(QListWidgetItem *item, int button);
     void returnPressed(QListWidgetItem *item);
@@ -154,6 +155,7 @@ protected:
     void setup();
 
 private:
+    Q_PRIVATE_SLOT(d, void emitPressed(const QModelIndex &index, int button));
     Q_PRIVATE_SLOT(d, void emitClicked(const QModelIndex &index, int button));
     Q_PRIVATE_SLOT(d, void emitDoubleClicked(const QModelIndex &index, int button));
     Q_PRIVATE_SLOT(d, void emitReturnPressed(const QModelIndex &index));

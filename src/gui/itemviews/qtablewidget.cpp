@@ -461,12 +461,18 @@ class QTableWidgetPrivate : public QTableViewPrivate
 public:
     QTableWidgetPrivate() : QTableViewPrivate() {}
     inline QTableModel *model() const { return ::qt_cast<QTableModel*>(q_func()->model()); }
+    void emitPressed(const QModelIndex &index, int button);
     void emitClicked(const QModelIndex &index, int button);
     void emitDoubleClicked(const QModelIndex &index, int button);
     void emitReturnPressed(const QModelIndex &index);
     void emitSpacePressed(const QModelIndex &index);
     void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current);
 };
+
+void QTableWidgetPrivate::emitPressed(const QModelIndex &index, int button)
+{
+    emit q->pressed(model()->item(index), button);
+}
 
 void QTableWidgetPrivate::emitClicked(const QModelIndex &index, int button)
 {
@@ -520,6 +526,8 @@ QTableWidget::QTableWidget(QWidget *parent)
     : QTableView(*new QTableWidgetPrivate, parent)
 {
     setModel(new QTableModel(0, 0, this));
+    connect(this, SIGNAL(pressed(const QModelIndex&, int)),
+            SLOT(emitPressed(const QModelIndex&, int)));
     connect(this, SIGNAL(clicked(const QModelIndex&, int)),
             SLOT(emitClicked(const QModelIndex&, int)));
     connect(this, SIGNAL(doubleClicked(const QModelIndex&, int)),

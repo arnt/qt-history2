@@ -733,6 +733,7 @@ class QTreeWidgetPrivate : public QTreeViewPrivate
 public:
     QTreeWidgetPrivate() : QTreeViewPrivate() {}
     inline QTreeModel *model() const { return ::qt_cast<QTreeModel*>(q_func()->model()); }
+    void emitPressed(const QModelIndex &index, int button);
     void emitClicked(const QModelIndex &index, int button);
     void emitDoubleClicked(const QModelIndex &index, int button);
     void emitReturnPressed(const QModelIndex &index);
@@ -741,6 +742,11 @@ public:
     void emitCollapsed(const QModelIndex &index);
     void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current);
 };
+
+void QTreeWidgetPrivate::emitPressed(const QModelIndex &index, int button)
+{
+    emit q->pressed(model()->item(index), index.column(), button);
+}
 
 void QTreeWidgetPrivate::emitClicked(const QModelIndex &index, int button)
 {
@@ -838,6 +844,8 @@ QTreeWidget::QTreeWidget(QWidget *parent)
     : QTreeView(*new QTreeViewPrivate(), parent)
 {
     setModel(new QTreeModel(0, this));
+    connect(this, SIGNAL(pressed(const QModelIndex&, int)),
+            SLOT(emitPressed(const QModelIndex&, int)));
     connect(this, SIGNAL(clicked(const QModelIndex&, int)),
             SLOT(emitClicked(const QModelIndex&, int)));
     connect(this, SIGNAL(doubleClicked(const QModelIndex&, int)),

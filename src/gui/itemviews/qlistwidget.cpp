@@ -481,12 +481,18 @@ class QListWidgetPrivate : public QListViewPrivate
 public:
     QListWidgetPrivate() : QListViewPrivate() {}
     inline QListModel *model() const { return ::qt_cast<QListModel*>(q_func()->model()); }
+    void emitPressed(const QModelIndex &index, int button);
     void emitClicked(const QModelIndex &index, int button);
     void emitDoubleClicked(const QModelIndex &index, int button);
     void emitReturnPressed(const QModelIndex &index);
     void emitSpacePressed(const QModelIndex &index);
     void emitCurrentChanged(const QModelIndex &previous, const QModelIndex &current);
 };
+
+void QListWidgetPrivate::emitPressed(const QModelIndex &index, int button)
+{
+    emit q->pressed(model()->at(index.row()), button);
+}
 
 void QListWidgetPrivate::emitClicked(const QModelIndex &index, int button)
 {
@@ -741,6 +747,8 @@ void QListWidget::setModel(QAbstractItemModel *model)
 void QListWidget::setup()
 {
     setModel(new QListModel(this));
+    connect(this, SIGNAL(pressed(const QModelIndex&, int)),
+            SLOT(emitPressed(const QModelIndex&, int)));
     connect(this, SIGNAL(clicked(const QModelIndex&, int)),
             SLOT(emitClicked(const QModelIndex&, int)));
     connect(this, SIGNAL(doubleClicked(const QModelIndex&, int)),

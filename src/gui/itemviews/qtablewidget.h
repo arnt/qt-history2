@@ -149,6 +149,7 @@ public slots:
     void clear();
 
 signals:
+    void pressed(QTableWidgetItem *item, int button);
     void clicked(QTableWidgetItem *item, int button);
     void doubleClicked(QTableWidgetItem *item, int button);
     void returnPressed(QTableWidgetItem *item);
@@ -161,6 +162,7 @@ protected:
     void setModel(QAbstractItemModel *model);
 
 private:
+    Q_PRIVATE_SLOT(d, void emitPressed(const QModelIndex &index, int button));
     Q_PRIVATE_SLOT(d, void emitClicked(const QModelIndex &index, int button));
     Q_PRIVATE_SLOT(d, void emitDoubleClicked(const QModelIndex &index, int button));
     Q_PRIVATE_SLOT(d, void emitReturnPressed(const QModelIndex &index));
