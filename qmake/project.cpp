@@ -21,6 +21,7 @@
 #include <qtextstream.h>
 #include <qvaluestack.h>
 #include <qcstring.h>
+#include <qhash.h>
 #ifdef Q_OS_UNIX
 # include <unistd.h>
 #endif
@@ -633,9 +634,16 @@ QMakeProject::read(uchar cmd)
     }
 
     if(cmd & ReadFeatures) {
+	QHash<QString, bool> processed_configs;
 	QStringList &configs = vars["CONFIG"];
-	for(QStringList::Iterator it = configs.begin(); it != configs.end(); ++it) 
-	    doProjectInclude((*it), TRUE, vars);
+	debug_msg(1, "Processing CONFIG features");
+	for(QStringList::Iterator it = configs.begin(); it != configs.end(); ++it) {
+	    QString conf = (*it).stripWhiteSpace();
+	    if(conf.isNull() || processed_configs[conf])
+		continue;
+	    processed_configs.insert(conf, TRUE);
+	    doProjectInclude(conf, TRUE, vars);
+	}
     }
 
     /* now let the user override the template from an option.. */

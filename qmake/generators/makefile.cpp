@@ -19,7 +19,7 @@
 #include <qfile.h>
 #include <qtextstream.h>
 #include <qregexp.h>
-#include <qdict.h>
+#include <qhash.h>
 #if defined(Q_OS_UNIX)
 #include <unistd.h>
 #else
@@ -686,7 +686,8 @@ MakefileGenerator::init()
     }
 
     /* get deps and mocables */
-    QDict<void> cache_found_files;
+    enum { CACHED_NONE=0, CACHED_DEP=1, CACHED_MOC=2 };
+    QHash<QString, int> cache_found_files;
     QString cache_file(".qmake.internal.cache");
     if(!project->isEmpty("QMAKE_INTERNAL_CACHE_FILE"))
 	cache_file = Option::fixPathToLocalOS(project->first("QMAKE_INTERNAL_CACHE_FILE"));
@@ -737,23 +738,23 @@ MakefileGenerator::init()
 					break;
 				}
 			    } else if(state == CacheDepend) {
-				bool found = (bool)cache_found_files[file];
+				bool found = cache_found_files.contains(file);
 				QStringList files = QStringList::split(" ", line);
 				if(!found) {
 				    QFileInfo fi(fileFixify(file, QDir::currentDirPath(), Option::output_dir));
 				    if(fi.exists() && fi.lastModified() < cachefi.lastModified()) {
-					cache_found_files.insert(file, (void *)1);
+					cache_found_files.insert(file, CACHED_DEP);
 					found = TRUE;
 				    }
 				}
 				if(found) {
 				    for(QStringList::Iterator dep_it = files.begin();
 					dep_it != files.end(); ++dep_it) {
-					if(!cache_found_files[(*dep_it)]) {
+					if(cache_found_files[(*dep_it)] == CACHED_NONE) {
 					    QFileInfo fi(fileFixify((*dep_it), QDir::currentDirPath(), Option::output_dir));
 					    if(fi.exists() &&
 					       fi.lastModified() < cachefi.lastModified()) {
-						cache_found_files.insert((*dep_it), (void *)1);
+						cache_found_files.insert((*dep_it), (int)CACHED_DEP);
 					    } else {
 						found = FALSE;
 						break;
@@ -767,15 +768,15 @@ MakefileGenerator::init()
 				    }
 				}
 			    } else {
-				void *found = cache_found_files[file];
-				if(found != (void *)2) {
+				int found = cache_found_files[file];
+				if(found != CACHED_MOC) {
 				    if(found) {
-					cache_found_files.replace(file, (void *)2);
+					cache_found_files[file] = CACHED_MOC;
 				    } else {
 					QFileInfo fi(fileFixify(file, QDir::currentDirPath(), Option::output_dir));
 					if(fi.exists() && fi.lastModified() < cachefi.lastModified()) {
-					    cache_found_files.insert(file, (void *)2);
-					    found = (void*)1;
+					    cache_found_files.insert(file, (int)CACHED_MOC);
+					    found = CACHED_DEP;
 					}
 				    }
 				}
@@ -890,7 +891,7 @@ MakefileGenerator::init()
 			    project->isActiveConfig("qmake_cache")) {
 			if(!findDependencies(fixed_file).isEmpty())
 			    found_cache_dep = TRUE;
-			if(cache_found_files[(*val_it)] == (void *)2)
+			if(cache_found_files[(*val_it)] == (int)CACHED_MOC)
 			    found_cache_moc = TRUE;
 			if(!found_cache_moc || !found_cache_dep)
 			    write_cache = TRUE;
@@ -1280,7 +1281,7 @@ MakefileGenerator::processPrlVariable(const QString &var, const QStringList &l)
 void
 MakefileGenerator::processPrlFiles()
 {
-    QDict<void> processed;
+    QHash<QString, bool> processed;
     for(bool ret = FALSE; TRUE; ret = FALSE) {
 	//read in any prl files included..
 	QStringList l_out;
@@ -1290,8 +1291,8 @@ MakefileGenerator::processPrlFiles()
 	QStringList &l = project->variables()[where];
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	    QString file = (*it);
-	    if(!processed[file] && processPrlFile(file)) {
-		processed.insert(file, (void*)1);
+	    if(!processed.contains(file) && processPrlFile(file)) {
+		processed.insert(file, TRUE);
 		ret = TRUE;
 	    }
 	    if(!file.isEmpty())
