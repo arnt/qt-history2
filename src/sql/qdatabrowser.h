@@ -59,6 +59,7 @@ class Q_EXPORT QDataBrowser : public QWidget
     Q_PROPERTY( bool boundaryChecking READ boundaryChecking WRITE setBoundaryChecking )
     Q_PROPERTY( QString filter READ filter WRITE setFilter )
     Q_PROPERTY( QStringList sort READ sort WRITE setSort )
+    Q_PROPERTY( bool readOnly READ isReadOnly WRITE setReadOnly )
     Q_PROPERTY( bool autoEdit READ autoEdit WRITE setAutoEdit )
 
 public:
@@ -89,6 +90,8 @@ public:
     virtual void setForm( QSqlForm* form );
     QSqlForm* form();
 
+    virtual void setReadOnly( bool active );
+    bool isReadOnly() const;
     virtual void setAutoEdit( bool autoEdit );
     bool autoEdit() const;
 

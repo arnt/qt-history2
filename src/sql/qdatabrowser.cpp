@@ -45,11 +45,12 @@
 class QDataBrowser::QDataBrowserPrivate
 {
 public:
-    QDataBrowserPrivate() : boundaryCheck( TRUE ) {}
+    QDataBrowserPrivate() : boundaryCheck( TRUE ), readOnly( FALSE ) {}
     QSqlCursorManager cur;
     QSqlFormManager frm;
     QDataManager dat;
     bool boundaryCheck;
+    bool readOnly;
 };
 
 /*!
@@ -66,16 +67,16 @@ public:
 
   Convenient signals and slots are provided to navigate the cursor
   (see firstRecord(), lastRecord(), prevRecord(), nextRecord()), to
-  edit records (see insertRecord(), updateRecord(), deleteRecord()),
-  and to update the display according to the cursor's current position
-  (see firstRecordAvailable(), lastRecordAvailable(),
+  edit records (see insert(), update(), delete()), and to update the
+  display according to the cursor's current position (see
+  firstRecordAvailable(), lastRecordAvailable(),
   nextRecordAvailable(), prevRecordAvailable()).
 
 */
 
 /*! \enum QDataBrowser::Boundary
 
-  This enum type describes where the navigator is currently positioned.
+  This enum type describes where the browser is currently positioned.
 
   The currently defined values are:
   <ul>
@@ -244,6 +245,9 @@ void QDataBrowser::setCursor( QSqlCursor* cursor, bool autoDelete )
 {
     d->cur.setCursor( cursor, autoDelete );
     d->frm.setRecord( cursor->editBuffer() );
+    if ( cursor->isReadOnly() )
+	setReadOnly( TRUE );
+
 }
 
 
@@ -287,6 +291,25 @@ void QDataBrowser::setForm( QSqlForm* form )
 QSqlForm* QDataBrowser::form()
 {
     return d->frm.form();
+}
+
+/*!  Sets the read only property of the browser to \a active.
+  Read-only browsers will not perform database edits.
+
+*/
+
+void QDataBrowser::setReadOnly( bool active )
+{
+    d->readOnly = active;
+}
+
+/*! Returns TRUE if the browser is read-only, otherwise FALSE is
+  returned.
+*/
+
+bool QDataBrowser::isReadOnly() const
+{
+    return d->readOnly;
 }
 
 
@@ -631,6 +654,8 @@ void QDataBrowser::clearValues()
 
 bool QDataBrowser::insertCurrent()
 {
+    if ( isReadOnly() )
+	return FALSE;
     QSqlRecord* buf = d->frm.record();
     QSqlCursor* cur = d->cur.cursor();
     if ( !buf || !cur )
@@ -664,6 +689,8 @@ bool QDataBrowser::insertCurrent()
 
 bool QDataBrowser::updateCurrent()
 {
+    if ( isReadOnly() )
+	return FALSE;
     QSqlRecord* buf = d->frm.record();
     QSqlCursor* cur = d->cur.cursor();
     if ( !buf || !cur )
@@ -697,6 +724,8 @@ bool QDataBrowser::updateCurrent()
 
 bool QDataBrowser::deleteCurrent()
 {
+    if ( isReadOnly() )
+	return FALSE;
     QSqlRecord* buf = d->frm.record();
     QSqlCursor* cur = d->cur.cursor();
     if ( !buf || !cur )
@@ -744,6 +773,8 @@ bool QDataBrowser::currentEdited()
 
 /*! \internal
 
+  Navigate default cursor according to \a nav.  Handles autoEdit.
+
 */
 void QDataBrowser::nav( Nav nav )
 {
@@ -752,7 +783,7 @@ void QDataBrowser::nav( Nav nav )
     if ( !buf || !cur )
 	return;
 
-    if ( autoEdit() && currentEdited() ) {
+    if ( !isReadOnly() && autoEdit() && currentEdited() ) {
 	int ok = FALSE;
 	switch ( d->dat.mode() ) {
 	case QSql::Insert:
