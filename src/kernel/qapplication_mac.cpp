@@ -472,13 +472,19 @@ static QWidget * recursive_match(QWidget * widg,int x,int y)
     QObjectListIt it(*foo);
     QObject * bar;
     QWidget * frobnitz;
+    int bigx=0;
+    int biyy=0;
     bar=it.toFirst();
     do {
 	if(bar->inherits("QWidget")) {
 	    frobnitz=(QWidget *)bar;
 	    int wx,wy,wx2,wy2;
-	    wx=frobnitz->x();
-	    wy=frobnitz->y();
+	    qDebug("recursive_match %d %d %d %d",frobnitz->x(),
+		   frobnitz->y(),bigx,bigy);
+	    wx=frobnitz->x()+bigx;
+	    wy=frobnitz->y()+bigy;
+	    bigx=wx;
+	    bigy=wy;
 	    wx2=wx+frobnitz->width();
 	    wy2=wy+frobnitz->height();
 	    if(x>=wx && y>=wy && x<=wx2 && y<=wy2) {
