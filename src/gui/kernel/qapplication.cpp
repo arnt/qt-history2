@@ -1145,7 +1145,6 @@ QStyle *QApplication::style()
             qFatal("No %s style available!", style.toLatin1().constData());
     }
 
-    setPalette(palette()); // polish
     if (palette().isCopyOf(*qt_std_pal)) {
         qt_create_std_palette();
         setPalette(*qt_std_pal);
@@ -1203,10 +1202,10 @@ void QApplication::setStyle(QStyle *style)
     // take care of possible palette requirements of certain gui
     // styles. Do it before polishing the application since the style
     // might call QApplication::setStyle() itself
-    if (!qt_std_pal)
+    if (true || palette().isCopyOf(*qt_std_pal)) { //###FIXME
         qt_create_std_palette();
-    QPalette tmpPal = *qt_std_pal;
-    setPalette(tmpPal);
+        setPalette(*qt_std_pal);
+    }
 
     // initialize the application with the new style
     QApplicationPrivate::app_style->polish(qApp);
@@ -1477,7 +1476,7 @@ void QApplication::setPalette(const QPalette &palette, const char* className)
     bool all = false;
     PaletteHash *hash = app_palettes();
     if (!className) {
-        if (QApplicationPrivate::app_pal && palette.isCopyOf(*QApplicationPrivate::app_pal))
+        if (QApplicationPrivate::app_pal && pal.isCopyOf(*QApplicationPrivate::app_pal))
             return;
         if (!QApplicationPrivate::app_pal)
             QApplicationPrivate::app_pal = new QPalette(pal);
