@@ -167,7 +167,7 @@ QQuickDrawPaintEngine::begin(QPaintDevice *pdev)
 
         if(w->isDesktop()) {
             if(!unclipped)
-                qWarning("QQuickDrawPaintEngine::begin: Does not support clipped desktop on MacOSX");
+                qWarning("QQuickDrawPaintEngine::begin: Does not support clipped desktop on Mac OS X");
             ShowWindow(qt_mac_window_for(w));
         } else if(unclipped) {
             qWarning("QQuickDrawPaintEngine::begin: Does not support unclipped painting");
@@ -759,7 +759,7 @@ void QQuickDrawPaintEngine::setupQDPort(bool force, QPoint *off, QRegion *rgn)
     if(d->pdev->devType() == QInternal::Printer) {
         if(force) {
             remade_clip = true;
-            d->clip.pdev = QRegion(0, 0, d->pdev->metric(PdmWidth), d->pdev->metric(PdmHeight));
+            d->clip.pdev = QRegion(0, 0, d->pdev->width(), d->pdev->height());
         }
     } else if(d->pdev->devType() == QInternal::Widget) {                    // device is a widget
         paintevent_item *pevent = qt_mac_get_paintevent();
@@ -1077,7 +1077,7 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
 
         if(w->isDesktop()) {
             if(!unclipped)
-                qWarning("QCoreGraphicsPaintEngine::begin: Does not support clipped desktop on MacOSX");
+                qWarning("QCoreGraphicsPaintEngine::begin: Does not support clipped desktop on Mac OSX");
             ShowWindow(qt_mac_window_for(w));
         } else if(unclipped) {
             qWarning("QCoreGraphicsPaintEngine::begin: Does not support unclipped painting");

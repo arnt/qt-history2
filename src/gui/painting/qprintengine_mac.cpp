@@ -404,11 +404,11 @@ int QMacPrintEngine::metric(QPaintDevice::PaintDeviceMetric m) const
             val = qt_get_PDMWidth(d->format, fullPage());
         break;
     case QPaintDevice::PdmWidthMM:
-        val = metric(PdmWidth);
+        val = metric(QPaintDevice::PdmWidth);
         val = int((val * 254 + 5 * d->resolution.hRes) / (10 * d->resolution.hRes));
         break;
     case QPaintDevice::PdmHeightMM:
-        val = metric(PdmHeight);
+        val = metric(QPaintDevice::PdmHeight);
         val = int((val * 254 + 5 * d->resolution.vRes) / (10 * d->resolution.vRes));
         break;
     case QPaintDevice::PdmPhysicalDpiX:
@@ -429,7 +429,7 @@ int QMacPrintEngine::metric(QPaintDevice::PaintDeviceMetric m) const
         val = (int)d->resolution.hRes;
         break;
     case QPaintDevice::PdmNumColors:
-        val = (1 << metric(PdmDepth));
+        val = (1 << metric(QPaintDevice::PdmDepth));
         break;
     case QPaintDevice::PdmDepth:
         val = 24;
