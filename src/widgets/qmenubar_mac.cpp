@@ -156,9 +156,11 @@ void qt_mac_set_modal_state(bool b, QMenuBar *mb)
 
 static void qt_mac_clear_menubar()
 {
+#if 0
     ClearMenuBar();
     qt_mac_command_set_enabled(kHICommandPreferences, false);
     InvalMenuBar();
+#endif
 }
 
 #if !defined(QMAC_QMENUBAR_NO_EVENT)
@@ -257,7 +259,7 @@ void QMenuBar::qt_mac_install_menubar_event(MenuRef ref)
 
 /* utility functions */
 static QString qt_mac_no_ampersands(QString str, CFStringRef *cf=NULL) {
-    for(int w = 0; (w=str.find('&', w)) != -1; ) {
+    for(int w = 0; (w=str.indexOf('&', w)) != -1; ) {
 	if(w < (int)str.length()-1) {
 	    str.remove(w, 1);
 	    if(str[w] == '&')
@@ -306,23 +308,23 @@ uint QMenuBar::isCommand(QMenuItem *it, bool just_check)
     if(qt_mac_no_menubar_merge || it->popup() || it->custom() || it->isSeparator())
 	return 0;
 
-    QString t = qt_mac_no_ampersands(it->text().lower());
-    int st = t.findRev('\t');
+    QString t = qt_mac_no_ampersands(it->text().toLower());
+    int st = t.lastIndexOf('\t');
     if(st != -1)
 	t.remove(st, t.length()-st);
     t.replace(QRegExp(QString::fromLatin1("\\.*$")), ""); //no ellipses
     //now the fun part
     uint ret = 0;
-    if(t.find(tr("About").lower(), 0, false) == 0) {
-	if(t.find(QRegExp(QString::fromLatin1("qt$"), false)) == -1)
+    if(t.startsWith(tr("About").toLower())) {
+	if(t.indexOf(QRegExp(QString::fromLatin1("qt$"), false)) == -1)
 	    ret = kHICommandAbout;
 	else
 	    ret = 'CUTE';
-    } else if(t.find(tr("Config").lower(), 0, false) == 0 || t.find(tr("Preference").lower(), 0, false) == 0 ||
-	      t.find(tr("Options").lower(), 0, false) == 0 || t.find(tr("Setting").lower(), 0, false) == 0 ||
-	      t.find(tr("Setup").lower(), 0, false) == 0 ) {
+    } else if(t.startsWith(tr("Config").toLower()) || t.startsWith(tr("Preference").toLower()) ||
+	      t.startsWith(tr("Options").toLower()) || t.startsWith(tr("Setting").toLower()) ||
+	      t.startsWith(tr("Setup").toLower())) {
 	ret = kHICommandPreferences;
-    } else if(t.find(tr("Quit").lower(), 0, false) == 0 || t.find(tr("Exit").lower(), 0, false) == 0) {
+    } else if(t.startsWith(tr("Quit").toLower()) || t.startsWith(tr("Exit").toLower())) {
 	ret = kHICommandQuit;
     }
     //shall we?
@@ -333,11 +335,11 @@ uint QMenuBar::isCommand(QMenuItem *it, bool just_check)
 	if(ret == kHICommandAbout || ret == 'CUTE') {
 	    if(activeMenuBar->mac_d->apple_menu) {
 		QString text = qt_mac_no_ampersands(it->text());
-		int st = text.findRev('\t');
+		int st = text.lastIndexOf('\t');
 		if(st != -1)
 		    text.remove(st, text.length()-st);
 		text.replace(QRegExp(QString::fromLatin1("\\.*$")), ""); //no ellipses
-		if(ret == kHICommandAbout && text.lower() == tr("About").lower()) {
+		if(ret == kHICommandAbout && text.toLower() == tr("About").toLower()) {
 		    ProcessSerialNumber psn;
 		    if(GetCurrentProcess(&psn) == noErr) {
 			CFStringRef cfstr;
@@ -414,7 +416,7 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 		}
 #endif
 		text = item->text();
-		int st = text.findRev('\t');
+		int st = text.lastIndexOf('\t');
 		if(st != -1) {
 		    accel = text.right(text.length()-(st+1));
 		    text.remove(st, text.length()-st);
@@ -444,7 +446,7 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 	    if(item->key().count() == 1 && (int)item->key() != accel_key)
 		accel_key = (int)item->key();
 	    else if(!accel.isEmpty())
-		accel_key = QAccel::stringToKey(accel);
+		accel_key = QKeySequence(accel);
 
 	    {
 		CFStringRef cfref;
