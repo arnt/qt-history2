@@ -64,7 +64,7 @@ bool FileWriter::writeFile(QString filePath, QByteArray contents)
     if(filePath.isEmpty())
         return false;
     QString path = QFileInfo(filePath).path();
-    if (!QDir().mkdir(path, QDir::Recursive)){
+    if (!QDir().mkpath(path)){
          cout << "Error creating path " <<
          cout << QDir::convertSeparators(path).toLocal8Bit().constData() << endl;
     }
