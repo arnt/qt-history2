@@ -10,6 +10,7 @@
 **
 ****************************************************************************/
 
+#include "qtextengine_p.h"
 
 void QTextEngine::shape( int item ) const
 {
@@ -22,20 +23,20 @@ void QTextEngine::shape( int item ) const
     int from = si.position;
     int len = length( item );
 
+#if 0
     si.glyph_data_offset = used;
-
-
     if ( !si.font() )
 	si.setFont(fnt->engineForScript( script ));
+#endif
 
-    si.ascent = si.font()->ascent();
-    si.descent = si.font()->descent();
+    QFontEngine *font = fontEngine(si);
+    si.ascent = font->ascent();
+    si.descent = font->descent();
 
-    if ( si.font() && si.font() != (QFontEngine*)-1 ) {
-	assert( script < QFont::NScripts );
-	scriptEngines[script].shape( script, string, from, len, (QTextEngine *)this, &si );
-    }
-    ((QTextEngine *)this)->used += si.num_glyphs;
+    assert( script < QFont::NScripts );
+    scriptEngines[script].shape( script, string, from, len, const_cast<QTextEngine*>(this), &si );
+
+    const_cast<QTextEngine*>(this)->used += si.num_glyphs;
 
     si.width = 0;
     QGlyphLayout *glyphs = this->glyphs( &si );
