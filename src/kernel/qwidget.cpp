@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#397 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#398 $
 **
 ** Implementation of QWidget class
 **
@@ -93,7 +93,8 @@
 	update(),
 	repaint(),
 	erase(),
-	scroll().
+	scroll(),
+	updateMask().
 
   <li> Geometry:
 	pos(),
@@ -149,6 +150,7 @@
 
   <li> Look and feel:
 	style(),
+	setStyle(),
 	cursor(),
 	setCursor()
 	font(),
@@ -159,7 +161,7 @@
 	setBackgroundMode(),
 	backgroundPixmap(),
 	setBackgroundPixmap(),
-	backgroundBrush(),
+	backgroundColor(),
 	colorGroup(),
 	fontMetrics(),
 	fontInfo().
@@ -233,6 +235,9 @@
 	getWFlags(),
 	setWFlags(),
 	testWFlags().
+	
+  <li> What's this help:
+  	customWhatsThis()
   </ul>
 
   Every widget's constructor accepts two or three standard arguments:
@@ -4099,7 +4104,7 @@ void QWidget::updateGeometry()
 
   If no style is set, the widget uses the application's style
   QApplication::style() instead.
-  
+
   Setting a widget's style has no effect on existing or future
   childwidgets.
 
