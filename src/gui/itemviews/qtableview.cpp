@@ -615,7 +615,6 @@ QModelIndexList QTableView::selectedIndexes() const
     previous number of rows is specified by \a oldCount, and the new
     number of rows is specified by \a newCount.
 */
-
 void QTableView::rowCountChanged(int, int)
 {
     updateGeometries();
@@ -627,7 +626,6 @@ void QTableView::rowCountChanged(int, int)
     previous number of columns is specified by \a oldCount, and the new
     number of columns is specified by \a newCount.
 */
-
 void QTableView::columnCountChanged(int, int)
 {
     updateGeometries();
@@ -637,7 +635,6 @@ void QTableView::columnCountChanged(int, int)
 /*!
     \internal
 */
-
 void QTableView::updateGeometries()
 {
     int width = d->verticalHeader->isVisible() ? d->verticalHeader->sizeHint().width() : 0;
@@ -711,7 +708,6 @@ int QTableView::columnSizeHint(int column) const
     Returns the y-coordinate in contents coordinates of the given \a
     row.
 */
-
 int QTableView::rowViewportPosition(int row) const
 {
     return d->verticalHeader->sectionViewportPosition(row);
@@ -720,7 +716,6 @@ int QTableView::rowViewportPosition(int row) const
 /*!
     Returns the height of the given \a row.
 */
-
 int QTableView::rowHeight(int row) const
 {
     return d->verticalHeader->sectionSize(row);
@@ -730,7 +725,6 @@ int QTableView::rowHeight(int row) const
     Returns the row in which the given y-coordinate, \a y, in contents
     coordinates is located.
 */
-
 int QTableView::rowAt(int y) const
 {
     return d->verticalHeader->logicalIndexAt(y);
@@ -740,7 +734,6 @@ int QTableView::rowAt(int y) const
     Returns the x-coordinate in contents coordinates of the given \a
     column.
 */
-
 int QTableView::columnViewportPosition(int column) const
 {
     return d->horizontalHeader->sectionViewportPosition(column);
@@ -749,7 +742,6 @@ int QTableView::columnViewportPosition(int column) const
 /*!
     Returns the width of the given \a column.
 */
-
 int QTableView::columnWidth(int column) const
 {
     return d->horizontalHeader->sectionSize(column);
@@ -759,7 +751,6 @@ int QTableView::columnWidth(int column) const
     Returns the column in which the given x-coordinate, \a x, in contents
     coordinates is located.
 */
-
 int QTableView::columnAt(int x) const
 {
     return d->horizontalHeader->logicalIndexAt(x);
@@ -768,7 +759,6 @@ int QTableView::columnAt(int x) const
 /*!
     Returns true if the given \a row is hidden; otherwise returns false.
 */
-
 bool QTableView::isRowHidden(int row) const
 {
     return d->verticalHeader->isSectionHidden(row);
@@ -788,7 +778,6 @@ void QTableView::setRowHidden(int row, bool hide)
 /*!
     Returns true if the given \a column is hidden; otherwise returns false.
 */
-
 bool QTableView::isColumnHidden(int column) const
 {
     return d->horizontalHeader->isSectionHidden(column);
@@ -806,15 +795,13 @@ void QTableView::setColumnHidden(int column, bool hide)
         showColumn(column);
 }
 
-// ### DOC: What is the default?
 /*!
     \property QTableView::showGrid
     \brief whether the grid is shown
 
     If this property is true a grid is drawn for the table; if the
-    property is false, no grid is drawn.
+    property is false, no grid is drawn. The default value is true.
 */
-
 bool QTableView::showGrid() const
 {
     return d->showGrid;
@@ -831,7 +818,6 @@ void QTableView::setShowGrid(bool show)
 
   This property holds the style used when drawing the grid (see \l{showGrid}).
 */
-
 Qt::PenStyle QTableView::gridStyle() const
 {
     return d->gridStyle;
@@ -848,7 +834,6 @@ void QTableView::setGridStyle(Qt::PenStyle style)
     Returns the rectangle on the viewport occupied by the given \a
     index.
 */
-
 QRect QTableView::itemViewportRect(const QModelIndex &index) const
 {
     if (!index.isValid() || model()->parent(index) != root())
@@ -863,7 +848,6 @@ QRect QTableView::itemViewportRect(const QModelIndex &index) const
     Makes sure that the given \a item is visible in the table view,
     scrolling if necessary.
 */
-
 void QTableView::ensureItemVisible(const QModelIndex &index)
 {
     QRect area = d->viewport->rect();
@@ -873,7 +857,7 @@ void QTableView::ensureItemVisible(const QModelIndex &index)
         return;
 
     if (area.contains(rect)) {
-        d->viewport->repaint(rect); // FIXME: make this update ?
+        d->viewport->update(rect);
         return;
     }
 
@@ -890,9 +874,15 @@ void QTableView::ensureItemVisible(const QModelIndex &index)
     }
 
     // horizontal
-    if (rect.left() < area.left()) { // left of
+    bool leftOf = QApplication::reverseLayout()
+                  ? rect.right() > area.right()
+                  : rect.left() < area.left();
+    bool rightOf = QApplication::reverseLayout()
+                   ? rect.left() < area.left()
+                   : rect.right() > area.right();
+    if (leftOf) {
         horizontalScrollBar()->setValue(index.column() * horizontalFactor());
-    } else if (rect.right() > area.right()) { // right of
+    } else if (rightOf) {
         int c = index.column();
         int x = area.width();
         while (x > 0 && c > 0)
@@ -911,7 +901,6 @@ void QTableView::ensureItemVisible(const QModelIndex &index)
 
     \sa columnResized()
 */
-
 void QTableView::rowResized(int row, int, int)
 {
     int y = rowViewportPosition(row);
@@ -926,7 +915,6 @@ void QTableView::rowResized(int row, int, int)
 
     \sa rowResized()
 */
-
 void QTableView::columnResized(int column, int, int)
 {
     int x = columnViewportPosition(column);
@@ -946,7 +934,6 @@ void QTableView::columnResized(int column, int, int)
 
     \sa columnMoved()
 */
-
 void QTableView::rowMoved(int, int oldIndex, int newIndex)
 {
     int o = rowViewportPosition(d->verticalHeader->logicalIndex(oldIndex));
@@ -964,7 +951,6 @@ void QTableView::rowMoved(int, int oldIndex, int newIndex)
 
     \sa rowMoved()
 */
-
 void QTableView::columnMoved(int, int oldIndex, int newIndex)
 {
     int o = columnViewportPosition(d->horizontalHeader->logicalIndex(oldIndex));
@@ -981,7 +967,6 @@ void QTableView::columnMoved(int, int oldIndex, int newIndex)
 
     \sa selectColumn()
 */
-
 void QTableView::selectRow(int row, Qt::ButtonState state)
 {
     if (row >= 0 && row < model()->rowCount(root())) {
@@ -1007,7 +992,6 @@ void QTableView::selectRow(int row, Qt::ButtonState state)
 
     \sa selectRow()
 */
-
 void QTableView::selectColumn(int column, Qt::ButtonState state)
 {
     if (column >= 0 && column < model()->columnCount(root())) {
@@ -1032,7 +1016,6 @@ void QTableView::selectColumn(int column, Qt::ButtonState state)
 
     \sa showRow() hideColumn()
 */
-
 void QTableView::hideRow(int row)
 {
     d->verticalHeader->hideSection(row);
@@ -1043,7 +1026,6 @@ void QTableView::hideRow(int row)
 
     \sa showColumn() hideRow()
 */
-
 void QTableView::hideColumn(int column)
 {
     d->horizontalHeader->hideSection(column);
@@ -1054,7 +1036,6 @@ void QTableView::hideColumn(int column)
 
     \sa hideRow() showColumn()
 */
-
 void QTableView::showRow(int row)
 {
     d->verticalHeader->showSection(row);
@@ -1065,7 +1046,6 @@ void QTableView::showRow(int row)
 
     \sa hideColumn() showRow()
 */
-
 void QTableView::showColumn(int column)
 {
     d->horizontalHeader->showSection(column);
@@ -1074,7 +1054,6 @@ void QTableView::showColumn(int column)
 /*!
     \internal
 */
-
 void QTableView::resizeRowToContents(int row)
 {
     int content = rowSizeHint(row);
@@ -1085,7 +1064,6 @@ void QTableView::resizeRowToContents(int row)
 /*!
     \internal
 */
-
 void QTableView::resizeColumnToContents(int column)
 {
     int content = columnSizeHint(column);
@@ -1096,7 +1074,6 @@ void QTableView::resizeColumnToContents(int column)
 /*!
     \internal
 */
-
 void QTableView::verticalScrollbarAction(int action)
 {
     int factor = d->verticalFactor;
@@ -1129,7 +1106,6 @@ void QTableView::verticalScrollbarAction(int action)
 /*!
     \internal
 */
-
 void QTableView::horizontalScrollbarAction(int action)
 {
     int factor = d->horizontalFactor;

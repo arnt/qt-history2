@@ -462,9 +462,15 @@ void QTreeView::ensureItemVisible(const QModelIndex &index)
     }
 
     // horizontal
-    if (rect.right() < area.left()) { // left of
+    bool leftOf = QApplication::reverseLayout()
+                  ? rect.right() > area.right()
+                  : rect.left() < area.left();
+    bool rightOf = QApplication::reverseLayout()
+                   ? rect.left() < area.left()
+                   : rect.right() > area.right();
+    if (leftOf) {
         horizontalScrollBar()->setValue(index.column() * horizontalFactor());
-    } else if (rect.left() > area.right()) { // right of
+    } else if (rightOf) {
         int c = index.column();
         int x = area.width();
         while (x > 0 && c > 0)
