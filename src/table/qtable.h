@@ -165,6 +165,7 @@ class QM_EXPORT_TABLE QComboTableItem : public QTableItem
 {
 public:
     QComboTableItem( QTable *table, const QStringList &list, bool editable = FALSE );
+    ~QComboTableItem();
     virtual QWidget *createEditor() const;
     virtual void setContentFromEditor( QWidget *w );
     virtual void paint( QPainter *p, const QPalette &pal,
@@ -193,6 +194,8 @@ private:
     int current;
     bool edit;
     static QComboBox *fakeCombo;
+    static QWidget *fakeComboWidget;
+    static int fakeRef;
 
 };
 

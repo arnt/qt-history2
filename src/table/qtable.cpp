@@ -1172,7 +1172,8 @@ bool QTableItem::isEnabled() const
 */
 
 QComboBox *QComboTableItem::fakeCombo = 0;
-QWidget *fakeComboWidget = 0;
+QWidget *QComboTableItem::fakeComboWidget = 0;
+int QComboTableItem::fakeRef = 0;
 
 /*!
     Creates a combo table item for the table \a table. The combobox's
@@ -1190,13 +1191,23 @@ QComboTableItem::QComboTableItem( QTable *table, const QStringList &list, bool e
     : QTableItem( table, WhenCurrent, "" ), entries( list ), current( 0 ), edit( editable )
 {
     setReplaceable( FALSE );
-    if ( !fakeCombo ) {
-	fakeComboWidget = new QWidget( 0, 0 );
-	fakeCombo = new QComboBox( FALSE, fakeComboWidget, 0 );
-	fakeCombo->hide();
+    if ( !QComboTableItem::fakeCombo ) {
+	QComboTableItem::fakeComboWidget = new QWidget( 0, 0 );
+	QComboTableItem::fakeCombo = new QComboBox( FALSE, QComboTableItem::fakeComboWidget, 0 );
+	QComboTableItem::fakeCombo->hide();
     }
+    ++QComboTableItem::fakeRef;
     if ( entries.count() )
 	setText( entries.at( current ) );
+}
+
+QComboTableItem::~QComboTableItem()
+{
+    if (--QComboTableItem::fakeRef <= 0) {
+	delete QComboTableItem::fakeComboWidget;
+	QComboTableItem::fakeComboWidget = 0;
+	QComboTableItem::fakeCombo = 0;
+    }
 }
 
 /*!
