@@ -205,7 +205,14 @@ void QLabel::init()
     lpicture = 0;
 #endif
     align = AlignAuto | AlignVCenter | ExpandTabs;
-    extraMargin= -1;
+    if ( frameWidth() == 0 ) {
+        extraMargin = 0;
+    } else if ( frameWidth() > 0 ) { 
+        QFontMetrics f( font() );
+        extraMargin = f.width( 'x' ) / 2;
+    } else {
+        extraMargin = -1;
+    }
     autoresize = FALSE;
     scaledcontents = FALSE;
     textformat = Qt::AutoText;
