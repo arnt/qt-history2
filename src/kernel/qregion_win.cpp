@@ -37,7 +37,6 @@ QRegion::QRegion(const QRect &r, RegionType t)
     } else {
 	d = new QRegionData;
 	d->ref = 1;
-	Q_CHECK_PTR(d);
 	if (t == Rectangle)
 	    d->rgn = CreateRectRgn(r.left(), r.top(), r.right() + 1, r.bottom() + 1);
 #ifndef Q_OS_TEMP
@@ -160,7 +159,7 @@ HRGN qt_win_bitmapToRegion(const QBitmap& bitmap)
     }
     return region;
 #else
-	return NULL;
+	return 0;
 #endif
 }
 
@@ -173,7 +172,6 @@ QRegion::QRegion(const QBitmap &bm)
     } else {
 	d = new QRegionData;
 	d->ref = 1;
-	Q_CHECK_PTR(d);
 	d->rgn = qt_win_bitmapToRegion(bm);
     }
 }
@@ -210,6 +208,8 @@ QRegion QRegion::copy() const
     if (d->rgn) {
 	x->rgn = CreateRectRgn(0, 0, 2, 2);
 	CombineRgn(x->rgn, d->rgn, 0, RGN_COPY);
+    } else {
+	x->rgn = 0;
     }
     x = qAtomicSetPtr(&r.d, x);
     if (!--x->ref)
@@ -283,8 +283,9 @@ QRegion QRegion::winCombine(const QRegion &r, int op) const
 #endif
     }
 
-    QRegion result(false);
     int allCombineRgnResults = NULLREGION;
+    QRegion result;
+    result.detach();
     result.d->rgn = CreateRectRgn(0, 0, 0, 0);
     if (d->rgn && r.d->rgn)
 	allCombineRgnResults = CombineRgn(result.d->rgn, d->rgn, r.d->rgn, both);
@@ -359,13 +360,12 @@ QVector<QRect> QRegion::rects() const
 
     a = QVector<QRect>(rd->rdh.nCount);
     RECT *r = reinterpret_cast<RECT*>(rd->Buffer);
-    for (int i = 0; i<a.size(); ++i) {
+    for (int i = 0; i < a.size(); ++i) {
 	a[i].setCoords(r->left, r->top, r->right - 1, r->bottom - 1);
 	++r;
     }
 
     delete [] buf;
-
     return a;
 }
 
