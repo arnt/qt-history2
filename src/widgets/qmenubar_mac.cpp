@@ -12,21 +12,34 @@
 #include <qapplication.h>
 #include <qaccel.h>
 
-static MenuRef createPopup(QPopupMenu *d, bool);
-static bool syncPopup(MenuRef ret, QPopupMenu *d);
+MenuRef createMacPopup(QPopupMenu *d, bool);
+static bool syncPopups(MenuRef ret, QPopupMenu *d);
+
+class QMenuBar::MacPrivate {
+public:
+    MacPrivate() : popups(NULL), mac_menubar(NULL) { }
+    ~MacPrivate() { clear(); delete popups; }
+
+    class PopupBinding {
+    public:
+	PopupBinding(QPopupMenu *m, MenuRef r) : qpopup(m), macpopup(r) { }
+	~PopupBinding() { DisposeMenu(macpopup); }
+	QPopupMenu *qpopup;
+	MenuRef macpopup;
+    };
+    QIntDict<PopupBinding> *popups;
+    MenuBarHandle mac_menubar;
+
+    void clear() {
+	if(popups)
+	    popups->clear();
+	if(mac_menubar)
+	    DisposeMenuBar(mac_menubar);
+    }
+};
+static QMenuBar* activeMenuBar = NULL; //The current global menubar
 
 /* utility functions */
-class MacPopupBinding {
-public:
-    MacPopupBinding(QPopupMenu *m, MenuRef r) : qpopup(m), macpopup(r) { }
-    ~MacPopupBinding() { DisposeMenu(macpopup); }
-
-    QPopupMenu *qpopup;
-    MenuRef macpopup;
-};
-static QIntDict<MacPopupBinding> *pdict = NULL;
-static QMenuBar* activeMenuBar = NULL;
-
 static const CFStringRef no_ampersands(QString i) {
     for(int w = 0; (w=i.find('&', w)) != -1; )
 	i.remove(w, 1);
@@ -48,7 +61,7 @@ QMAC_PASCAL void macMenuItemProc(SInt16 msg, MenuRef mr, Rect *menuRect, Point p
 
     if(pdict) {
 	short id = (short)mr;
-	if(MacPopupBinding *mpb = pdict->find((int)id)) {
+	if(QMenuBar::MacPrivate::PopupBinding *mpb = pdict->find((int)id)) {
 	    QPopupMenu *qp = mpb->qpopup;
 	    switch(msg) {
 	    case kMenuSizeMsg:
@@ -99,7 +112,7 @@ QMAC_PASCAL void macMenuItemProc(SInt16 msg, MenuRef mr, Rect *menuRect, Point p
 }
 #endif
 
-static bool syncPopup(MenuRef ret, QPopupMenu *d)
+static bool syncPopups(MenuRef ret, QPopupMenu *d)
 {
     if(d) {
 	for(int id = 1, x = 0; x < (int)d->count(); x++) {
@@ -144,7 +157,7 @@ static bool syncPopup(MenuRef ret, QPopupMenu *d)
 		    DisableMenuItem(ret, id);
 		CheckMenuItem(ret, id, item->isChecked() ? true : false);
 		if(item->popup()) {
-		    SetMenuItemHierarchicalMenu(ret, id, createPopup(item->popup(), FALSE));
+		    SetMenuItemHierarchicalMenu(ret, id, createMacPopup(item->popup(), FALSE));
 		} else {
 		    int k = item->key();
 		    if(k == Qt::Key_unknown && !accel.isEmpty()) 
@@ -172,19 +185,20 @@ static bool syncPopup(MenuRef ret, QPopupMenu *d)
     return TRUE;
 }
 
-static MenuRef createPopup(QPopupMenu *d, bool do_sync) 
+MenuRef createMacPopup(QPopupMenu *d, bool do_sync) 
 {
     MenuRef ret;
     if(CreateNewMenu(0, 0, &ret) != noErr)
 	return NULL;
 
-    if(!pdict) {
-	pdict = new QIntDict<MacPopupBinding>();
-	pdict->setAutoDelete(TRUE);
+    if(!activeMenuBar->mac_d->popups) {
+	activeMenuBar->mac_d->popups = new QIntDict<QMenuBar::MacPrivate::PopupBinding>();
+	activeMenuBar->mac_d->popups->setAutoDelete(TRUE);
     }
     short mid = (short)ret;
     SetMenuID(ret, mid);
-    pdict->insert((int)mid, new MacPopupBinding(d, ret));
+    activeMenuBar->mac_d->popups->insert((int)mid, 
+					 new QMenuBar::MacPrivate::PopupBinding(d, ret));
 
 #if 0
     MenuDefSpec spec;
@@ -194,23 +208,25 @@ static MenuRef createPopup(QPopupMenu *d, bool do_sync)
 #endif
 
     if(1 || do_sync)
-	syncPopup(ret, d);
+	syncPopups(ret, d);
     return ret;
 }
 	
-static bool updateMenuBar(QMenuBar *mbar) 
+bool updateMenuBar(QMenuBar *mbar) 
 {
+    if(mbar != activeMenuBar) 
+	qDebug("Should have happend! %s:%d", __FILE__, __LINE__);
     ClearMenuBar();
     InvalMenuBar();
-    if(pdict)
-	pdict->clear();
+    if(mbar->mac_d)
+	mbar->mac_d->clear();
     
     for(int x = 0; x < (int)mbar->count(); x++) {
 	QMenuItem *item = mbar->findItem(mbar->idAt(x));
 	if(item->isSeparator()) //mac doesn't support these
 	    continue;
 
-	MenuRef mp = createPopup(item->popup(), FALSE);
+	MenuRef mp = createMacPopup(item->popup(), FALSE);
 	SetMenuTitleWithCFString(mp, no_ampersands(item->text()));
 	InsertMenu(mp, 0);
     }
@@ -225,12 +241,12 @@ static bool updateMenuBar(QMenuBar *mbar)
 */
 bool QMenuBar::activate(MenuRef menu, short idx, bool highlight)
 {
-    if(!pdict) {
+    if(!activeMenuBar) {
 	HiliteMenu(0);
 	return FALSE;
     }
 
-    if(MacPopupBinding *mpb = pdict->find((int)((short)menu))) {
+    if(MacPrivate::PopupBinding *mpb = activeMenuBar->mac_d->popups->find((int)((short)menu))) {
 	MenuCommand cmd;
 	GetMenuItemCommandID(mpb->macpopup, idx, &cmd);
 	if(highlight) {
@@ -261,6 +277,8 @@ void QMenuBar::macCreateNativeMenubar()
 	if(!menubars)
 	    menubars = new QIntDict<QMenuBar>();
 	menubars->insert((int)topLevelWidget(), this);
+	if(!mac_d)
+	    mac_d = new MacPrivate;
     } else {
 	mac_eaten_menubar = 0;
     }
@@ -271,21 +289,18 @@ void QMenuBar::macRemoveNativeMenubar()
 	QMenuBar *mb = menubars->find((int)topLevelWidget());
 	if(mb == this) 
 	    menubars->remove((int)topLevelWidget());
-	if(activeMenuBar == this) {
-  	    activeMenuBar = NULL;
-	    ClearMenuBar();
-	    if (pdict)
-	      pdict->clear();
-	}
     }
+    if(activeMenuBar == this) {
+	activeMenuBar = NULL;
+	ClearMenuBar();
+	InvalMenuBar();
+    }
+    if(mac_d)
+	delete mac_d;
 }
 
 void QMenuBar::cleanup()
 {
-    ClearMenuBar();
-    InvalMenuBar();
-    delete pdict;
-    pdict = NULL;
     delete menubars;
     menubars = NULL;
 }
@@ -302,14 +317,18 @@ void QMenuBar::macUpdateMenuBar()
 		return;
 	    activeMenuBar = mb;
 	    first = FALSE;
-	    mb->mac_dirty_menubar = 0;
-	    updateMenuBar(mb);
+	    if(mb->mac_dirty_menubar || !mb->mac_d->mac_menubar) {
+		mb->mac_dirty_menubar = 0;
+		updateMenuBar(mb);
+		mb->mac_d->mac_menubar = GetMenuBar();
+	    } else {
+		SetMenuBar(mb->mac_d->mac_menubar);
+	    }
 	} else if (!first) {
 	    first = TRUE;
 	    if(!w->testWFlags(WType_Dialog) && !w->testWFlags(WType_Popup) ) {
 		ClearMenuBar();
-		if (pdict)
-		    pdict->clear();
+		InvalMenuBar();
 	    }
 	} 
     } 
@@ -317,16 +336,16 @@ void QMenuBar::macUpdateMenuBar()
 
 void QMenuBar::macUpdatePopup(MenuRef mr)
 {
-    if(!mr || !pdict)
+    if(!mr || !activeMenuBar)
 	return;
 
     short id = (short)mr;
-    if(MacPopupBinding *mpb = pdict->find((int)id)) {
+    if(MacPrivate::PopupBinding *mpb = activeMenuBar->mac_d->popups->find((int)id)) {
 	emit mpb->qpopup->aboutToShow();
 	if(1 || mpb->qpopup->mac_dirty_popup) {
 	    mpb->qpopup->mac_dirty_popup = 0;
 	    DeleteMenuItems(mr, 1, CountMenuItems(mr));
-	    syncPopup(mr, mpb->qpopup);
+	    syncPopups(mr, mpb->qpopup);
 	}
     } 
 }

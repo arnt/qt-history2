@@ -176,6 +176,7 @@ QMenuBar::QMenuBar( QWidget *parent, const char *name )
 {
 #if defined( Q_WS_MAC )
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
+    mac_d = NULL;
     macCreateNativeMenubar();
 #endif
 #endif

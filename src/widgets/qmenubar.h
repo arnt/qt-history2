@@ -153,9 +153,13 @@ private:
     void macCreateNativeMenubar();
     void macRemoveNativeMenubar();
 
+    friend MenuRef createMacPopup(QPopupMenu *d, bool);
+    friend bool updateMenuBar(QMenuBar *mbar);
     friend class QApplication;
     uint mac_dirty_menubar : 1;
     uint mac_eaten_menubar : 1;
+    class MacPrivate;
+    MacPrivate *mac_d;
     static bool activate(MenuRef, short, bool highlight=FALSE);
     static void macUpdateMenuBar();
     static void macUpdatePopup(MenuRef);
