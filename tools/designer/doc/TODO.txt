@@ -50,6 +50,8 @@ Extending existing functionality
 Custom Widgets (Volker)
     PlugIn support, see also Qt/Desktop todo for that
 
+ListView editor
+    Support for checkable items
 
 Feature Requests
 ----------------
