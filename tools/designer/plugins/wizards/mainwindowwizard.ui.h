@@ -90,6 +90,10 @@ void MainWindowWizardBase::toolbarRemoveAction()
     listToolbar->removeItem( listToolbar->currentItem() );
 }
 
+static void devNull( QtMsgType, const char * )
+{
+}
+
 void MainWindowWizardBase::accept()
 {
     if ( !dfw || !dIface || !widget ) {
@@ -103,6 +107,8 @@ void MainWindowWizardBase::accept()
 
     QDict<QAction> actions;
     QPtrList<QAction> usedActions;
+
+    QtMsgHandler oldMsgHandler = qInstallMsgHandler( devNull );
 
     getPixmap( "filenew", pix );
     QAction *fileNewAction = dfw->createAction( tr( "New" ), pix, tr( "&New" ), CTRL + Key_N, 0, "fileNewAction" );
@@ -236,6 +242,8 @@ void MainWindowWizardBase::accept()
 		dfw->addConnection( ac, "activated()", widget, slot );
 	}
     }
+
+    qInstallMsgHandler( oldMsgHandler );
 
     QWizard::accept();
 }
