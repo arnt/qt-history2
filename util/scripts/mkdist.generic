@@ -184,7 +184,7 @@ if ( "$VERSION" ne "$SRC_VERSION_N" ) {
     print STDERR "Version mismatch:   qglobal.h: $SRC_VERSION   argument: $VERSION\n";
     exit 1;
 }
-$VERSIONWIN=$SRC_VERSION; $VERSIONWIN =~ s/\.//g;
+$VERSIONWIN=$SRC_VERSION; $VERSIONWIN =~ s/[-.]//g;
 
 if ( !$noch && ! -f "$DISTDIR/qt/dist/changes-$VERSION" ) {
     print STDERR "You must create qt/dist/changes-$VERSION first (or run with -noch)\n";
