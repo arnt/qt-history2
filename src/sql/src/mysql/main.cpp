@@ -41,9 +41,8 @@
 class QMYSQLDriverInterface : public QSqlDriverInterface
 {
 public:
-    QMYSQLDriverInterface( QUnknownInterface * parent = 0,
- 			   const char * name = 0 )
-	: QSqlDriverInterface( parent, name ){}
+    QMYSQLDriverInterface( QUnknownInterface * parent = 0 )
+	: QSqlDriverInterface( parent ){}
 
     QSqlDriver* create( const QString &name );
     QStringList featureList() const;
@@ -63,37 +62,16 @@ QStringList QMYSQLDriverInterface::featureList() const
     return l;
 }
 
-class QMYSQLDriverPlugIn : public QComponentInterface
+class QMYSQLDriverPlugIn : public QUnknownInterface
 {
 public:
     QMYSQLDriverPlugIn();
-    QStringList interfaceList( bool recursive = TRUE ) const;
-    QUnknownInterface* queryInterface( const QString& request, 
-				       bool recursive = TRUE, 
-				       bool regexp = TRUE ) const;
 };
 
 QMYSQLDriverPlugIn::QMYSQLDriverPlugIn()
-    : QComponentInterface( "QMYSQLDriverPlugIn" )
+    : QUnknownInterface()
 {
-    new QMYSQLDriverInterface( this, "QMYSQLDriverInterface" );
-}
-
-QStringList QMYSQLDriverPlugIn::interfaceList( bool ) const
-{
-    QStringList list;
-
-    list << "QMYSQLDriverInterface";
-
-    return list;
-}
-
-QUnknownInterface* QMYSQLDriverPlugIn::queryInterface( const QString& request, 
-						       bool, bool ) const
-{
-    if ( request == "QMYSQLDriverInterface" )
-	return new QMYSQLDriverInterface;
-    return 0;
+    new QMYSQLDriverInterface( this );
 }
 
 Q_EXPORT_INTERFACE(QMYSQLDriverPlugIn)

@@ -42,9 +42,8 @@
 class QODBCDriverInterface : public QSqlDriverInterface
 {
 public:
-    QODBCDriverInterface( QUnknownInterface * parent = 0,
-			  const char * name = 0 )
-	: QSqlDriverInterface( parent, name ){}
+    QODBCDriverInterface( QUnknownInterface * parent = 0 )
+	: QSqlDriverInterface( parent ){}
 
     QSqlDriver* create( const QString &name );
     QStringList featureList() const;
@@ -65,37 +64,16 @@ QStringList QODBCDriverInterface::featureList() const
     return l;
 }
 
-class QODBCDriverPlugIn : public QComponentInterface
+class QODBCDriverPlugIn : public QUnknownInterface
 {
 public:
     QODBCDriverPlugIn();
-    QStringList interfaceList( bool recursive = TRUE ) const;
-    QUnknownInterface* queryInterface( const QString& request, 
-				       bool recursive = TRUE, 
-				       bool regexp = TRUE ) const;
 };
 
 QODBCDriverPlugIn::QODBCDriverPlugIn()
-    : QComponentInterface( "QODBCDriverPlugIn" )
+    : QUnknownInterface()
 {
-    new QODBCDriverInterface( this, "QODBCDriverInterface" );
+    new QODBCDriverInterface( this );
 }
-
-QStringList QODBCDriverPlugIn::interfaceList( bool ) const
-{
-    QStringList list;
-
-    list << "QODBCDriverInterface";
-    return list;
-}
-
-QUnknownInterface* QODBCDriverPlugIn::queryInterface( const QString& request,
-						      bool, bool ) const
-{
-    if ( request == "QODBCDriverInterface" )
-	return new QODBCDriverInterface;
-    return 0;
-}
-
 
 Q_EXPORT_INTERFACE(QODBCDriverPlugIn)
