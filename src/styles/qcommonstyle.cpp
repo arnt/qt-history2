@@ -676,7 +676,7 @@ void QCommonStyle::drawControl( ControlElement element,
 	    drawItem( p, tr, AlignCenter | ShowPrefix, cg,
 		      flags & Style_Enabled, 0, t->text() );
 
-	    if ( flags & Style_HasFocus )
+	    if ( (flags & Style_HasFocus) && !t->text().isEmpty() )
 		drawPrimitive( PE_FocusRect, p, r, cg );
 	    break;
 	}

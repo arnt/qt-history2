@@ -408,6 +408,7 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
 			  QTab* t, bool has_focus ) const
 {
     QRect r = br;
+    bool selected = currentTab() == t->id;
     if ( t->iconset) {
 	// the tab has an iconset, draw it in the right mode
 	QIconSet::Mode mode = (t->enabled && isEnabled())
@@ -418,7 +419,10 @@ void QTabBar::paintLabel( QPainter* p, const QRect& br,
 	int pixw = pixmap.width();
 	int pixh = pixmap.height();
 	r.setLeft( r.left() + pixw + 2 );
-	p->drawPixmap( br.left()+2, br.center().y()-pixh/2, pixmap );
+	// ### the pixmap shift should probably not be hardcoded..
+	p->drawPixmap( br.left() + 2 + ((selected == TRUE) ? 0 : 2),
+		       br.center().y()-pixh/2 + ((selected == TRUE) ? 0 : 2),
+		       pixmap );
     }
 
     QStyle::SFlags flags = QStyle::Style_Default;
