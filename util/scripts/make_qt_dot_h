@@ -1,5 +1,5 @@
 cd $QTDIR/include
-BOGUS="/extensions/|qmutex.h"
+BOGUS="/extensions/|qmutex\.h|qt\.h"
 HEADERS=$( /bin/ls -l q*.h | egrep -v "$BOGUS" | awk '{ print $9 }' )
 HEADMARK='Q[A-Z][A-Z][A-Z]*_H'
 STARTMARK='#ifndef QT_H'
