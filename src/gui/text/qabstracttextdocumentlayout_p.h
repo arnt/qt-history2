@@ -7,7 +7,7 @@
 struct QTextObjectHandler
 {
     QTextObjectInterface *iface;
-    QObject *component;
+    QPointer<QObject> component;
 };
 typedef QHash<int, QTextObjectHandler> HandlerHash;
 
