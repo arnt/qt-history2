@@ -329,9 +329,11 @@ struct XPThemeData
 		painter->drawLine( rec.left(), rec.bottom(), rec.right()+1, rec.bottom() );
 	} else if ( name == "TREEVIEW" ) {
 	    ulong res = pDrawThemeBackground( handle(), painter->handle(), partId, stateId, &rect(), 0 );
-	} else if ( name == "EDIT" && ::qt_cast<QComboBox*>(widget) == 0 ) {
-	    // We assume upto 2px border on the lineedit
-	    // pixmap, and clip the rest to avoid flicker
+	} else if ( (name == "EDIT" || name == "LISTVIEW") && ::qt_cast<QComboBox*>(widget) == 0 ) {
+	    // We assume upto 2px border on the lineedits and Styled Panels,
+	    // and clip the contents.
+	    QRect rt = rec;
+	    rec = painter->xForm( rec );
 	    HRGN hr1 = CreateRectRgn( rec.left(), rec.top(), rec.right() + 1, rec.bottom() + 1 );
 	    HRGN hr2 = CreateRectRgn( rec.left() + 2, rec.top() + 2, rec.right() - 1, rec.bottom() - 1 );
 	    CombineRgn( hr1, hr1, hr2, RGN_DIFF );
@@ -340,6 +342,7 @@ struct XPThemeData
 	    SelectClipRgn( painter->handle(), 0 );
 	    DeleteObject( hr1 );
 	    DeleteObject( hr2 );
+	    rec = rt;
 	} else {
 	    QRect rt = rec;
 	    rec = painter->xForm( rec );
