@@ -10,8 +10,8 @@
 **
 ****************************************************************************/
 
-#ifndef RDFLISTING_H
-#define RDFLISTING_H
+#ifndef RSSLISTING_H
+#define RSSLISTING_H
 
 #include <qhttp.h>
 #include <qlineedit.h>
@@ -22,11 +22,11 @@
 
 #include "handler.h"
 
-class RDFListing : public QWidget
+class RSSListing : public QWidget
 {
     Q_OBJECT
 public:
-    RDFListing(QWidget *widget = 0, const char *name = 0, WFlags flags = 0);
+    RSSListing(QWidget *widget = 0, const char *name = 0, WFlags flags = 0);
 
 public slots:
     void addItem(QString &title, QString &link);

@@ -11,7 +11,7 @@
 ****************************************************************************/
 
 /*
-rdflisting.cpp
+rsslisting.cpp
 
 Provides a widget for displaying news items from RDF news sources.
 RDF is an XML-based format for storing items of information (see
@@ -30,11 +30,11 @@ its operation, and also allows very large data sources to be read.
 #include <qlayout.h>
 #include <qurl.h>
 
-#include "rdflisting.h"
+#include "rsslisting.h"
 
 
 /*!
-    Construct an RDFListing widget with a simple user interface, and set
+    Construct an RSSListing widget with a simple user interface, and set
     up the XML reader to use a custom handler class.
 
     The user interface consists of a line edit, two push buttons, and a
@@ -43,7 +43,7 @@ its operation, and also allows very large data sources to be read.
     news.
 */
 
-RDFListing::RDFListing(QWidget *parent, const char *name, WFlags flags)
+RSSListing::RSSListing(QWidget *parent, const char *name, WFlags flags)
     : QWidget(parent, name, flags)
 {
     setCaption(tr("RDF listing example"));
@@ -102,7 +102,7 @@ RDFListing::RDFListing(QWidget *parent, const char *name, WFlags flags)
     for future reference.
 */
 
-void RDFListing::fetch()
+void RSSListing::fetch()
 {
     lineEdit->setReadOnly(true);
     fetchButton->setEnabled(false);
@@ -141,11 +141,11 @@ void RDFListing::fetch()
     If parsing fails for any reason, we abort the fetch.
 */
 
-void RDFListing::readData(const QHttpResponseHeader &resp)
+void RSSListing::readData(const QHttpResponseHeader &resp)
 {
     bool ok;
 
-    if (resp.statusCode() != 200)
+    if (resp.statusCode() != QHttp::NoError)
         http.abort();
     else {
         xmlInput.setData(http.readAll());
@@ -177,7 +177,7 @@ void RDFListing::readData(const QHttpResponseHeader &resp)
     user interface available to the user for further input.
 */
 
-void RDFListing::finished(int id, bool error)
+void RSSListing::finished(int id, bool error)
 {
     if (error) {
         qWarning("Received error during HTTP fetch.");
@@ -204,7 +204,7 @@ void RDFListing::finished(int id, bool error)
     items are created in sequence.
 */
 
-void RDFListing::addItem(QString &title, QString &link)
+void RSSListing::addItem(QString &title, QString &link)
 {
     QListViewItem *item;
 

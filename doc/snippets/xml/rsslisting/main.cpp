@@ -13,11 +13,11 @@
 /*
 main.cpp
 
-Provides the main function for the RDF news reader example.
+Provides the main function for the RSS news reader example.
 */
 
 #include <qapplication.h>
-#include "rdflisting.h"
+#include "rsslisting.h"
 
 /*!
     Create an application and a main widget. Open the main widget for
@@ -29,10 +29,10 @@ int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
 
-    RDFListing rdflisting;
-    rdflisting.show();
+    RSSListing rsslisting;
+    rsslisting.show();
 
-    app.setMainWidget(&rdflisting);
+    app.setMainWidget(&rsslisting);
 
     return app.exec();
 }

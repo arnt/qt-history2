@@ -108,7 +108,8 @@ bool Handler::endElement(const QString &, const QString &,
     else if (qName == "link" && inLink)
         inLink = false;
     else if (qName == "item") {
-        emit newItem(titleString, linkString);
+        if (!titleString.isEmpty() && !linkString.isEmpty())
+            emit newItem(titleString, linkString);
         inItem = false;
         titleString = "";
         linkString = "";
