@@ -40,7 +40,7 @@ private:
     QList<QGuardedPtr<Type> > cleanUpObjects;
 };
 
-class QCleanUpHandler<QPixmap>
+class Q_EXPORT QCleanUpHandler<QPixmap>
 {
 public:
     ~QCleanUpHandler()
