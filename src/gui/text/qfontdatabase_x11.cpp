@@ -1486,8 +1486,10 @@ static QFontEngine *loadFontConfigFont(const QFontPrivate *fp, const QFontDef &r
         FcCharSetDestroy(cs);
     }
 
+    FcDefaultSubstitute(pattern);
+
     FcResult result;
-    FcFontSet *fs = FcFontSort(0, pattern, FcFalse, 0, &result);
+    FcFontSet *fs = FcFontSort(0, pattern, FcTrue, 0, &result);
     FcPatternDestroy(pattern);
 #ifdef FONT_MATCH_DEBUG
     printf("fontset contains:\n");
