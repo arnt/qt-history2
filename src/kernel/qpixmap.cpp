@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.cpp#5 $
 **
 ** Implementation of QPixmap class
 **
@@ -22,7 +22,7 @@
 
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpixmap.cpp#5 $";
 #endif
 
 // --------------------------------------------------------------------------
@@ -51,8 +51,8 @@ void QPixmap::detach()				// detach shared pixmap
     if ( data->optim )				// detach is called before
 	data->dirty = 1;			//   pixmap is changed
     if ( data->virgin || data->count == 1 ) {
-        data->virgin = FALSE;
-        return;
+	data->virgin = FALSE;
+	return;
     }
     data->deref();
     *this = copy();
