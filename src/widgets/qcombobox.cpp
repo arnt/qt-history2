@@ -1232,6 +1232,7 @@ void QComboBox::paintEvent( QPaintEvent * )
 		item->paint( &p );
 	    }
 	} else {
+	    p.setClipping( FALSE );
 	    QRect r( style().comboButtonRect( 0, 0, width(), height() ) );
 	    QListBoxItem * item = d->listBox()->item( d->current );
 	    const QPixmap *pix = item->pixmap();
