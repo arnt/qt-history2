@@ -195,6 +195,9 @@ void QWindowsXPStyle::polish( QWidget *widget )
     } else if ( widget->inherits( "QScrollBar" ) ) {
 	widget->installEventFilter( this );
 	widget->setMouseTracking( TRUE );
+    } else if ( widget->inherits( "QTitleBar" ) ) {
+	widget->installEventFilter( this );
+	widget->setMouseTracking( TRUE );
     }
     QWindowsStyle::polish( widget );
 }
@@ -764,10 +767,13 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 	    if ( sub & SC_TitleBarLabel ) {
 		theme.rec = titlebar->rect();
 		partId = WP_CAPTION;
-		if ( titlebar->isActive() )
-		    stateId = CS_ACTIVE;
-		else
+		if ( !titlebar->isEnabled() )
+		    stateId = CS_DISABLED;
+		else if ( !titlebar->isActive() )
 		    stateId = CS_INACTIVE;
+		else 
+		    stateId = CS_ACTIVE;
+
 		DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
 
 		QRect ir = querySubControlMetrics( CC_TitleBar, titlebar, SC_TitleBarLabel );
@@ -780,32 +786,67 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 	    if ( titlebar->window() ) {
 		if ( sub & SC_TitleBarSysMenu ) {
 		    theme.rec = querySubControlMetrics( CC_TitleBar, w, SC_TitleBarSysMenu );
-		    partId = WP_SYSBUTTON;
-		    stateId = 1;
+		    partId = WP_MDISYSBUTTON;
+		    if ( !w->isEnabled() )
+			stateId = SBS_DISABLED;
+		    else if ( subActive == SC_TitleBarSysMenu )
+			stateId = SBS_PUSHED;
+		    else if ( theme.rec.contains( d->hotSpot ) )
+			stateId = SBS_HOT;
+		    else
+			stateId = SBS_NORMAL;
 		    DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
 		}
 		if ( sub & SC_TitleBarMinButton ) {
 		    theme.rec = querySubControlMetrics( CC_TitleBar, w, SC_TitleBarMinButton );
-		    partId = WP_MINBUTTON;
-		    stateId = 1;
+		    partId = WP_MDIMINBUTTON;
+		    if ( !w->isEnabled() )
+			stateId = MINBS_DISABLED;
+		    else if ( subActive == SC_TitleBarMinButton )
+			stateId = MINBS_PUSHED;
+		    else if ( theme.rec.contains( d->hotSpot ) )
+			stateId = MINBS_HOT;
+		    else
+			stateId = MINBS_NORMAL;
 		    DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
 		}
 		if ( sub & SC_TitleBarMaxButton ) {
 		    theme.rec = querySubControlMetrics( CC_TitleBar, w, SC_TitleBarMaxButton );
 		    partId = WP_MAXBUTTON;
-		    stateId = 1;
+		    if ( !w->isEnabled() )
+			stateId = MAXBS_DISABLED;
+		    else if ( subActive == SC_TitleBarMinButton )
+			stateId = MAXBS_PUSHED;
+		    else if ( theme.rec.contains( d->hotSpot ) )
+			stateId = MAXBS_HOT;
+		    else
+			stateId = MAXBS_NORMAL;
 		    DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
 		}
 		if ( sub & SC_TitleBarCloseButton ) {
 		    theme.rec = querySubControlMetrics( CC_TitleBar, w, SC_TitleBarCloseButton );
-		    partId = WP_CLOSEBUTTON;
-		    stateId = 1;
+		    partId = WP_MDICLOSEBUTTON;
+		    if ( !w->isEnabled() )
+			stateId = CBS_DISABLED;
+		    else if ( subActive == SC_TitleBarMinButton )
+			stateId = CBS_PUSHED;
+		    else if ( theme.rec.contains( d->hotSpot ) )
+			stateId = CBS_HOT;
+		    else
+			stateId = CBS_NORMAL;
 		    DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
 		}
 		if ( sub & SC_TitleBarNormalButton ) {
 		    theme.rec = querySubControlMetrics( CC_TitleBar, w, SC_TitleBarNormalButton );
-		    partId = WP_RESTOREBUTTON;
-		    stateId = 1;
+		    partId = WP_MDIRESTOREBUTTON;
+		    if ( !w->isEnabled() )
+			stateId = RBS_DISABLED;
+		    else if ( subActive == SC_TitleBarMinButton )
+			stateId = RBS_PUSHED;
+		    else if ( theme.rec.contains( d->hotSpot ) )
+			stateId = RBS_HOT;
+		    else
+			stateId = RBS_NORMAL;
 		    DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
 		}
 		if ( sub & SC_TitleBarShadeButton ) {
@@ -984,6 +1025,15 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
 		    if ( d->hotHeader.isValid() )
 			header->update( d->hotHeader );
 		}
+	    } else if ( o->inherits( "QTitleBar" ) ) {
+		static SubControl clearHot = SC_TitleBarLabel;
+		QTitleBar *titlebar = (QTitleBar*)o;
+		SubControl sc = querySubControl( CC_TitleBar, titlebar, d->hotSpot );
+		if ( sc != clearHot || clearHot != SC_TitleBarLabel ) {
+		    clearHot = sc;
+		    QRect rect = querySubControlMetrics( CC_TitleBar, titlebar, sc );
+		    titlebar->repaint( rect, FALSE );
+		}
 	    } else {
 		widget->repaint( FALSE );
 	    }
@@ -1017,62 +1067,6 @@ bool QWindowsXPStyle::eventFilter( QObject *o, QEvent *e )
         break;
     }
 
-
-/*
-
-
-
-
-
-
-	switch ( e->type() ) {
-	case QEvent::MouseMove:
-	    {
-		if ( d->hotWidget != o )
-		    break;
-		QMouseEvent *me = (QMouseEvent*)e;
-		d->hotSpot = me->pos();
-		if ( o->inherits( "QTabBar" ) ) {
-		    QTabBar* bar = (QTabBar*)o;
-		    QTab * t = bar->selectTab( me->pos() );
-		    if ( d->hotTab != t ) {
-			if ( d->hotTab )
-			    d->hotWidget->update( d->hotTab->rect() );
-			d->hotTab = t;
-			if ( d->hotTab )
-			    d->hotWidget->update( d->hotTab->rect() );
-		    }
-		} else if ( o->inherits( "QHeader" ) ) {
-		    QHeader *header = (QHeader*)o;
-		    QRect oldHeader = d->hotHeader;
-		    
-		    if ( header->orientation() == Horizontal )
-			d->hotHeader = header->sectionRect( header->sectionAt( d->hotSpot.x() ) );
-		    else
-			d->hotHeader = header->sectionRect( header->sectionAt( d->hotSpot.y() ) );
-		    
-		    if ( oldHeader != d->hotHeader ) {
-			if ( oldHeader.isValid() )
-			    header->update( oldHeader );
-			if ( d->hotHeader.isValid() )
-			    header->update( d->hotHeader );
-		    }
-		} else if ( o->inherits( "QSpinWidget" ) ) {
-		    QSpinWidget *spin = (QSpinWidget*)o;
-		    spin->repaint(FALSE);
-		} else if ( o->inherits( "QScrollBar" ) ) {
-		    repaintByMouseMove = TRUE;
-		    ((QScrollBar*)o)->repaint( FALSE );
-		    repaintByMouseMove = FALSE;
-		} else if ( o->inherits( "QComboBox" ) ) {
-		    repaintByMouseMove = TRUE;
-		    ((QWidget*)o)->repaint( FALSE );
-		    repaintByMouseMove = FALSE;
-		}
-	    }
-	    break;
-    }
-*/
     return QWindowsStyle::eventFilter( o, e );
 }
 
