@@ -39,7 +39,7 @@ to other Qt-supported windowsystems, so protect such code with appropriate
 you wish to retain portability.
 
 <a name=x11>
-<h2>X11</h2>
+<h2>Qt/X11</h2>
 </a>
 
 When compiling for this platform, the macro <tt>_WS_X11_</tt> is defined.
@@ -49,7 +49,7 @@ When compiling for this platform, the macro <tt>_WS_X11_</tt> is defined.
 if you have queries.</i>
 
 <a name=win>
-<h2>Windows</h2>
+<h2>Qt/Windows</h2>
 </a>
 
 When compiling for this platform, the macro <tt>_WS_WIN_</tt> is defined.
