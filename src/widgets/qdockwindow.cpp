@@ -296,8 +296,8 @@ void QDockWindowResizeHandle::drawLine( const QPoint &globalPos )
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 QAccessibleInterface *QDockWindowResizeHandle::accessibleInterface()
 {
-    return new QAccessibleWidget( this, QAccessible::Separator, QString::null, 
-	QString::null, QString::null, QString::null, 
+    return new QAccessibleWidget( this, QAccessible::Separator, QString::null,
+	QString::null, QString::null, QString::null,
 	QString::null, QString::null, QAccessible::Moveable );
 }
 #endif
@@ -354,7 +354,7 @@ private:
 
 QDockWindowHandle::QDockWindowHandle( QDockWindow *dw )
     : QWidget( dw, "qt_dockwidget_internal" ), dockWindow( dw ),
-      mousePressed( FALSE ), closeButton( 0 ), opaque( FALSE )
+      closeButton( 0 ), opaque( FALSE ), mousePressed( FALSE )
 {
     timer = new QTimer( this );
     connect( timer, SIGNAL( timeout() ), this, SLOT( minimize() ) );
@@ -491,8 +491,8 @@ void QDockWindowHandle::mouseDoubleClickEvent( QMouseEvent *e )
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 QAccessibleInterface *QDockWindowHandle::accessibleInterface()
 {
-    return new QAccessibleWidget( this, QAccessible::Grip, dockWindow->caption(), 
-	QString::null, QString::null, QString::null, 
+    return new QAccessibleWidget( this, QAccessible::Grip, dockWindow->caption(),
+	QString::null, QString::null, QString::null,
 	QString::null, QString::null, QAccessible::Moveable );
 }
 #endif
@@ -522,15 +522,16 @@ private:
     QDockWindow *dockWindow;
     QPoint offset;
     QToolButton *closeButton;
-    uint mousePressed	: 1;
-    uint hadDblClick	: 1;
-    uint opaque		: 1;
+    uint mousePressed : 1;
+    uint hadDblClick : 1;
+    uint opaque : 1;
 
 };
 
 QDockWindowTitleBar::QDockWindowTitleBar( QDockWindow *dw )
-    : QTitleBar( 0, dw, "qt_dockwidget_internal" ), dockWindow( dw ), mousePressed( FALSE ),
-      closeButton( 0 ), opaque( FALSE )
+    : QTitleBar( 0, dw, "qt_dockwidget_internal" ), dockWindow( dw ),
+      closeButton( 0 ), mousePressed( FALSE ), hadDblClick( FALSE ),
+      opaque( FALSE )
 {
     setMouseTracking( TRUE );
     setFixedHeight( 13 );
