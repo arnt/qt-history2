@@ -929,7 +929,7 @@ void Uic::createFormImpl( const QDomElement &e )
 	out << " *  TRUE to construct a modal " << objClass.mid(1).lower() << "." << endl;
 	out << " */" << endl;
 	out << nameOfClass << "::" << bareNameOfClass << "( QWidget* parent, const char* name, bool modal, WFlags fl )" << endl;
-	out << "    : " << objClass << "( parent, name, modal, fl )" << endl;
+	out << "    : " << objClass << "( parent, name, modal, fl )";
     } else if ( objClass == "QWidget" )  {
 	out << "/* " << endl;
 	out << " *  Constructs a " << nameOfClass << " as a child of 'parent', with the " << endl;
