@@ -372,7 +372,6 @@ int MetaDataBase::margin( QObject *o )
 		  o, o->name(), o->className() );
 	return -1;
     }
-    qDebug( "returning margin: %d %s", r->margin, o->name() );
     return r->margin;
 }
 
