@@ -202,9 +202,9 @@ void QOleDropSource::createCursors()
             }
 #endif
 
-            QPixmap newCursor(w, h, -1, QPixmap::NormalOptim);
+            QPixmap newCursor(w, h, -1);
+            newCursor.fill(QColor(0, 0, 0, 0));
             QPainter p(&newCursor);
-            p.fillRect(0,0,w,h,Qt::color1);
             p.drawPixmap(qMax(0,-hotSpot.x()),qMax(0,-hotSpot.y()),pm);
             p.drawPixmap(qMax(0,hotSpot.x()),qMax(0,hotSpot.y()),cpm);
             
