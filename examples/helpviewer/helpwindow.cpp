@@ -160,14 +160,12 @@ void HelpWindow::setForwardAvailable( bool b)
 
 void HelpWindow::textChanged()
 {
-    if ( browser->documentTitle().isNull() ) {
+    if ( browser->documentTitle().isNull() )
 	setCaption( "Qt Example - Helpviewer - " + browser->context() );
-	selectedURL = browser->context();
-    }
-    else {
+    else
 	setCaption( "Qt Example - Helpviewer - " + browser->documentTitle() ) ;
-	selectedURL = browser->documentTitle();
-    }
+    
+    selectedURL = browser->context();
 
     if ( !selectedURL.isEmpty() && pathCombo ) {
 	bool exists = FALSE;
