@@ -451,6 +451,7 @@ public:
 	CT_DockWindow,
 	CT_ProgressBar,
 	CT_PopupMenuItem,
+	CT_TabBarTab,
 
 	// do not add any values below/greater than this
 	CT_CustomBase =		0xf0000000

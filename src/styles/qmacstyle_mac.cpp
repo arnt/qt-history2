@@ -74,7 +74,7 @@ RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
 void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
 
 static inline const Rect *qt_glb_mac_rect(const QRect &qr, const QPaintDevice *pd=NULL, 
-					  const QRect &rect=QRect())
+					  bool off=TRUE, const QRect &rect=QRect())
 {
     static Rect r;
     QPoint tl(qr.topLeft());
@@ -82,9 +82,16 @@ static inline const Rect *qt_glb_mac_rect(const QRect &qr, const QPaintDevice *p
 	QWidget *w = (QWidget*)pd;
 	tl = w->mapTo(w->topLevelWidget(), tl);
     }
-    tl += rect.topLeft();
-    SetRect(&r, tl.x(), tl.y(), tl.x() + qr.width() - 1 -rect.width(), 
-	    tl.y() + qr.height() - 1 - rect.height());
+    if(rect.isValid())
+	tl += rect.topLeft();
+    int offset = 0;
+    if(off)
+	offset = 1;
+    SetRect(&r, tl.x(), tl.y(), tl.x() + qr.width() - offset, tl.y() + qr.height() - offset);
+    if(rect.isValid()) {
+	r.right -= rect.width();
+	r.bottom -= rect.height();
+    }
     return &r;
 }
 
@@ -114,7 +121,7 @@ void QMacStyle::polish( QApplication* app )
 	QPainter p(&px);
 	((QMacPainter *)&p)->noop();
 	SetThemeBackground(kThemeBrushDialogBackgroundActive, px.depth(), true);
-	EraseRect(qt_glb_mac_rect(QRect(-5, -5, px.width()+10, px.height()+10)));
+	EraseRect(qt_glb_mac_rect(QRect(0, 0, px.width(), px.height()), 0, FALSE));
     }
     QBrush background( Qt::black, px );
     pal.setBrush( QColorGroup::Background, background );
@@ -155,6 +162,17 @@ void QMacStyle::unPolish( QWidget* w )
         QToolButton * btn = (QToolButton *) w;
         btn->setAutoRaise( TRUE );
     } 
+}
+
+/*! \reimp */
+void QMacStyle::drawItem( QPainter *p, const QRect &r,
+			   int flags, const QColorGroup &g, bool enabled,
+			   const QPixmap *pixmap, const QString& text,
+			   int len, const QColor* penColor ) const
+{
+    //No accelerators drawn here!
+    QWindowsStyle::drawItem( p, r, flags | NoAccel, g, enabled, pixmap, text,
+			     len, penColor );
 }
 
 /*! \reimp */
@@ -307,7 +325,7 @@ void QMacStyle::drawControl( ControlElement element,
 	int x, y, w, h;
 	r.rect(&x, &y, &w, &h);
 	Rect mrect = *qt_glb_mac_rect(popupmenu->rect(), p->device()),
-	     irect = *qt_glb_mac_rect(r, p->device());
+	     irect = *qt_glb_mac_rect(r, p->device(), FALSE);
 
 	if ( checkable )
 	    maxpmw = QMAX( maxpmw, 12 ); // space for the checkmarks
@@ -502,13 +520,13 @@ void QMacStyle::drawControl( ControlElement element,
      if( tb->shape() == QTabBar::RoundedBelow )
 	 ttd = kThemeTabSouth;
      ((QMacPainter *)p)->noop();
-     DrawThemeTab(qt_glb_mac_rect(r, p->device()), tts, ttd, NULL, 0);
+     DrawThemeTab(qt_glb_mac_rect(r, p->device(), FALSE), tts, ttd, NULL, 0);
      break; }
  case CE_PushButton: {
      ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
      ((QMacPainter *)p)->noop();
-     DrawThemeButton(qt_glb_mac_rect(r, p->device(), QRect(3, 3, 6, 6)), kThemePushButton,
-		     &info, NULL, NULL, NULL, 0);
+     DrawThemeButton(qt_glb_mac_rect(r, p->device(), TRUE, QRect(3, 3, 6, 6)), 
+		     kThemePushButton, &info, NULL, NULL, NULL, 0);
      break; }
  default:
      QWindowsStyle::drawControl(element, p, widget, r, cg, how, opt);
@@ -653,9 +671,9 @@ void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	twm.titleHeight = tbar->height();
 	ThemeWindowAttributes twa = kThemeWindowHasTitleText;
 	if(tbar->window()) 
-	    twa = kThemeWindowHasFullZoom | kThemeWindowHasCloseBox | kThemeWindowHasCollapseBox;
+	    twa |= kThemeWindowHasFullZoom | kThemeWindowHasCloseBox | kThemeWindowHasCollapseBox;
 	else if(tbar->testWFlags( WStyle_SysMenu)) 
-	    twa = kThemeWindowHasCloseBox;
+	    twa |= kThemeWindowHasCloseBox;
 	const Rect *rect = qt_glb_mac_rect(r, p->device());
 	((QMacPainter *)p)->noop();
 #if 0
@@ -676,7 +694,7 @@ void QMacStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 				    tds | ((subActive & SC_TitleBarMaxButton) ? kThemeStatePressed : 0), 
 				    &twm, twa, kThemeWidgetZoomBox);
 #else
-	DrawThemeWindowFrame(kThemeUtilityWindow, rect, tds, &twm, twa, NULL, 0);
+	DrawThemeWindowFrame(kThemeDocumentWindow, rect, tds, &twm, twa, NULL, 0);
 #endif
 	break; }
     case CC_ScrollBar: {
@@ -759,6 +777,9 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 {
     SInt32 ret = 0;
     switch(metric) {
+    case PM_TabBarTabOverlap:
+	ret = 0;
+	break;
     case PM_ScrollBarSliderMin:
 	ret = 24;
 	break;
@@ -781,12 +802,9 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
     case PM_ButtonDefaultIndicator:
 	ret = 0;
 	break;
-
-    case PM_TabBarTabHSpace:
-	GetThemeMetric(kThemeMetricLargeTabHeight, &ret);
-	break;
     case PM_TabBarBaseOverlap:
-	GetThemeMetric(kThemeMetricTabOverlap, &ret);
+	ret = kThemeTabPaneOverlap;
+//	GetThemeMetric(kThemeMetricTabOverlap, &ret);
 	break;
     case PM_IndicatorHeight:
 	GetThemeMetric(kThemeMetricCheckBoxHeight, &ret);
@@ -1006,6 +1024,11 @@ QSize QMacStyle::sizeFromContents( ContentsType contents,
 {
     QSize sz(contentsSize);
     switch(contents) {
+    case CT_TabBarTab: {
+	SInt32 lth = kThemeLargeTabHeight;
+	if(sz.height() > lth) 
+	    sz.setHeight(lth);
+	break; }
     case CT_PopupMenuItem: {
 	if(!widget || opt.isDefault())
 	    break;

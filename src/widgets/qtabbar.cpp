@@ -1017,8 +1017,9 @@ void QTabBar::layoutTabs()
 	h = QMAX( h, QApplication::globalStrut().height() );
 
 	h += vframe;
-	t->r.setRect( x, 0, QMAX( lw + hframe + iw,
-				  QApplication::globalStrut().width() ), h );
+	t->r = QRect(QPoint(x, 0), style().sizeFromContents(QStyle::CT_TabBarTab, this, 
+   	             QSize( QMAX( lw + hframe + iw, QApplication::globalStrut().width() ), h ),
+		     QStyleOption(t) ));
 	x += t->r.width() - overlap;
 	r = r.unite( t->r );
 	if ( reverse )
