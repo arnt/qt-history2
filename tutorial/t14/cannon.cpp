@@ -257,10 +257,6 @@ bool CannonField::barrelHit( const QPoint &p ) const
     QWMatrix mtx;
     mtx.translate( 0, height() - 1 );
     mtx.rotate( -ang );
-    debug( "------\np=(%d,%d)", p.x(), p.y() );
-    QPoint p2;
-    p2 = mtx.map(p);
     mtx = mtx.invert();
-    debug( 
     return barrel_rect.contains( mtx.map(p) );
 }
