@@ -368,36 +368,50 @@ inline bool QVariant::isValid() const
 
 inline QValueListConstIterator<QString> QVariant::stringListBegin() const
 {
+    if ( d->typ != StringList )
+	return QValueListConstIterator<QString>();
     return ((const QStringList*)d->value.ptr)->begin();
 }
 
 inline QValueListConstIterator<QString> QVariant::stringListEnd() const
 {
+    if ( d->typ != StringList )
+	return QValueListConstIterator<QString>();
     return ((const QStringList*)d->value.ptr)->end();
 }
 
 inline QValueListConstIterator<QVariant> QVariant::listBegin() const
 {
+    if ( d->typ != List )
+	return QValueListConstIterator<QVariant>();
     return ((const QValueList<QVariant>*)d->value.ptr)->begin();
 }
 
 inline QValueListConstIterator<QVariant> QVariant::listEnd() const
 {
+    if ( d->typ != List )
+	return QValueListConstIterator<QVariant>();
     return ((const QValueList<QVariant>*)d->value.ptr)->end();
 }
 
 inline QMapConstIterator<QString,QVariant> QVariant::mapBegin() const
 {
+    if ( d->typ != Map )
+	return QMapConstIterator<QString,QVariant>();
     return ((const QMap<QString,QVariant>*)d->value.ptr)->begin();
 }
 
 inline QMapConstIterator<QString,QVariant> QVariant::mapEnd() const
 {
+    if ( d->typ != Map )
+	return QMapConstIterator<QString,QVariant>();
     return ((const QMap<QString,QVariant>*)d->value.ptr)->end();
 }
 
 inline QMapConstIterator<QString,QVariant> QVariant::mapFind( const QString& key ) const
 {
+    if ( d->typ != Map )
+	return QMapConstIterator<QString,QVariant>();
     return ((const QMap<QString,QVariant>*)d->value.ptr)->find( key );
 }
 
