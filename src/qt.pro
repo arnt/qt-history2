@@ -65,7 +65,11 @@ win32 {
 	MOC_DIR	= tmp
 	OBJECTS_DIR = tmp
 	dll:DEFINES+=QT_MAKEDLL
-	accessibility:LIBS+=oleacc.lib
+        accessibility:LIBS+=oleacc.lib
+        tablet {
+		DEFINES += QT_WINTAB_SUPPORT
+		LIBS += wintab32.lib
+	}
 }
 win32-borland:INCLUDEPATH += kernel
 
