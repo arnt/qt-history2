@@ -425,11 +425,13 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	folderGroups->insertItem( "Anyone who uses this computer (all users)" );
         folderGroups->insertItem( QString( "Only for me (" ) + QString( buffer.data() ) + ")" );
 
-	ULARGE_INTEGER freeSpace = WinShell::dirFreeSpace( installPath->text() );
+/*
+        ULARGE_INTEGER freeSpace = WinShell::dirFreeSpace( installPath->text() );
 	if( ( freeSpace.HighPart == 0 ) && ( freeSpace.LowPart < 250 * 1024 * 1024 ) ) {
 	    QMessageBox::warning( this, "Disk space", "There is not enough disk space available\non this drive." );
 	    showPage( optionsPage );
 	}
+*/
 	QStringList devSys = QStringList::split( ';',"Microsoft Visual Studio path;Borland C++ Builder path;GNU C++ path" );
 
 	folderPath->setText( QString( "Qt " ) + DISTVER );
