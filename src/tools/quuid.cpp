@@ -141,7 +141,7 @@ QUuid::QUuid( const QString &text )
 */
 #ifndef QT_NO_QUUID_STRING
 /*!
-  QUuid::operator QString() const
+  \fn QUuid::operator QString() const
 
   Returns the string representation of the uuid.
 
