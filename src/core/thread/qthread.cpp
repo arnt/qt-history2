@@ -105,8 +105,6 @@ QThread *QThreadPrivate::threadForId(int id)
     process but executes independently in the way that a separate
     program does on a multitasking operating system. Instead of
     starting in \c main(), QThreads begin executing in run().
-    run() to include your code.
-
     To create your own threads, subclass QThread and reimplement
     run(). For example:
 
