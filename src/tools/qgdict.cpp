@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgdict.cpp#4 $
+** $Id: //depot/qt/main/src/tools/qgdict.cpp#5 $
 **
 ** Implementation of QGDict and QGDictIterator classes
 **
@@ -17,7 +17,7 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qgdict.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qgdict.cpp#5 $";
 #endif
 
 
@@ -186,7 +186,7 @@ bool QGDict::remove( const char *key )		// remove item from dictionary
 	    else
 		vec[index] = n->getNext();
 	    if ( copyk )
-		delete[] n->getKey();
+		delete n->getKey();
 	    deleteItem( n->getData() );
 	    delete n;				// delete bucket
 	    numItems--;
@@ -206,7 +206,7 @@ void QGDict::clear()				// delete all items
 	register Qbucket *n = vec[j];
 	while ( n ) {
 	    if ( copyk )
-		delete[] n->getKey();
+		delete n->getKey();
 	    deleteItem( n->getData() );
 	    Qbucket *next = n->getNext();
 	    delete n;
