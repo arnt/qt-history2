@@ -33,7 +33,7 @@
 #include <private/qpainter_p.h>
 #include <private/qpolygonclipper_p.h>
 
-class QWin32PaintEngine : public QPaintEngine
+class Q_GUI_EXPORT QWin32PaintEngine : public QPaintEngine
 {
     Q_DECLARE_PRIVATE(QWin32PaintEngine)
 public:
