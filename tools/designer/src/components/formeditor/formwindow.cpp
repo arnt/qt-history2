@@ -34,6 +34,7 @@
 #include <layoutinfo.h>
 #include <layoutdecoration.h>
 #include <connectionedit.h>
+#include <taskmenu.h>
 
 // sdk
 #include <abstractformeditor.h>
@@ -1277,6 +1278,28 @@ void FormWindow::handleMouseButtonDblClickEvent(QWidget *w, QMouseEvent *e)
     emit activated(w);
 }
 
+void FormWindow::finishContextMenu(QWidget *w, QWidget *menuParent, QContextMenuEvent *e)
+{
+    e->accept();
+#ifndef VS_CTX_MENU
+    ITaskMenu *taskMenu = qt_extension<ITaskMenu*>(core()->extensionManager(), w);
+    QMenu *menu = createPopupMenu(menuParent);
+    if (menu && taskMenu) {
+        QList<QAction *> acts = taskMenu->taskActions();
+        QAction *sep = new QAction(menu);
+        sep->setSeparator(true);
+        acts.append(sep);
+        menu->insertActions(menu->actions().at(0), acts);
+    }
+    if (menu)
+        menu->exec(e->globalPos());
+    delete menu;
+#else
+    emit showContextMenu(this, e->globalPos());
+#endif
+}
+
+
 void FormWindow::handleContextMenu(QWidget *w, QContextMenuEvent *e)
 {
     if (!isMainContainer(w)) { // press on a child widget
@@ -1292,40 +1315,12 @@ void FormWindow::handleContextMenu(QWidget *w, QContextMenuEvent *e)
         QWidget *realWidget = w; // but store the original one
 
         if (qobject_cast<QMainWindow*>(mainContainer()) && static_cast<QMainWindow*>(mainContainer())->centralWidget() == realWidget) {
-            e->accept();
-#ifndef VS_CTX_MENU
-            QMenu *menu = createPopupMenu(this);
-            if (menu) {
-                menu->exec(e->globalPos());
-                delete menu;
-            }
-#else
-            emit showContextMenu(this, e->globalPos());
-#endif
+            finishContextMenu(w, this, e);
         } else {
-            e->accept();
-#ifndef VS_CTX_MENU
-            QMenu *menu = createPopupMenu(realWidget);
-            if (menu) {
-                menu->exec(e->globalPos());
-                delete menu;
-            }
-#else
-            emit showContextMenu(realWidget, e->globalPos());
-#endif
+            finishContextMenu(realWidget, realWidget, e);
         }
     } else {
-        e->accept();
-        clearSelection();
-#ifndef VS_CTX_MENU
-        QMenu *menu = createPopupMenu(this);
-        if (menu) {
-            menu->exec(e->globalPos());
-            delete menu;
-        }
-#else
-        emit showContextMenu(this, e->globalPos());
-#endif
+        finishContextMenu(this, this, e);
     }
 }
 
@@ -1530,17 +1525,18 @@ QMenu *FormWindow::createPopupMenu(QWidget *w)
     }
 
     popup->addSeparator();
-    popup->addAction(manager->actionAdjustSize());
-    popup->addAction(manager->actionVerticalLayout());
-    popup->addAction(manager->actionHorizontalLayout());
-    popup->addAction(manager->actionGridLayout());
+    QMenu *menu = popup->addMenu(tr("Lay out"));
+    menu->addAction(manager->actionAdjustSize());
+    menu->addAction(manager->actionVerticalLayout());
+    menu->addAction(manager->actionHorizontalLayout());
+    menu->addAction(manager->actionGridLayout());
 
     if (!isFormWindow) {
-        popup->addAction(manager->actionSplitHorizontal());
-        popup->addAction(manager->actionSplitVertical());
+        menu->addAction(manager->actionSplitHorizontal());
+        menu->addAction(manager->actionSplitVertical());
     }
 
-    popup->addAction(manager->actionBreakLayout());
+    menu->addAction(manager->actionBreakLayout());
 
     return popup;
 }
