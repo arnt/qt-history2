@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#153 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#154 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -45,7 +45,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #include <bstring.h> // bzero
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#153 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#154 $")
 
 
 /*****************************************************************************
@@ -545,15 +545,12 @@ void QApplication::setMainWidget( QWidget *mainWidget )
 	    if ( (m & YValue) == 0 )	  y = main_widget->geometry().y();
 	    if ( (m & WidthValue) == 0 )  w = main_widget->width();
 	    if ( (m & HeightValue) == 0 ) h = main_widget->height();
-	    int minw, minh, maxw, maxh;
-	    if ( main_widget->minimumSize(&minw,&minh) ) {
-		w = QMAX(w,minw);
-		h = QMAX(h,minh);
-	    }
-	    if ( main_widget->maximumSize(&maxw,&maxh) ) {
-		w = QMIN(w,maxw);
-		h = QMIN(h,maxh);
-	    }
+	    QSize minSize = main_widget->minSize();
+	    QSize maxSize = main_widget->maxSize();
+	    w = QMIN(w,maxSize.width());
+	    h = QMIN(h,maxSize.height());
+	    w = QMAX(w,minSize.width());
+	    h = QMAX(h,minSize.height());
 	    main_widget->setGeometry( x, y, w, h );
 	}
     }
