@@ -462,6 +462,11 @@
 #define QT_NO_STYLE_MOTIF
 #endif
 
+// Windows style
+#if !defined(QT_NO_STYLE_WINDOWS) && (defined(QT_NO_STYLE))
+#define QT_NO_STYLE_WINDOWS
+#endif
+
 // Internal titlebar widget
 #if !defined(QT_NO_TITLEBAR) && (defined(QT_NO_STYLE))
 #define QT_NO_TITLEBAR
@@ -522,9 +527,19 @@
 #define QT_NO_STATUSBAR
 #endif
 
+// Compact Windows style
+#if !defined(QT_NO_STYLE_COMPACT) && (defined(QT_NO_STYLE_WINDOWS))
+#define QT_NO_STYLE_COMPACT
+#endif
+
 // Interlace-friendly style
 #if !defined(QT_NO_STYLE_INTERLACE) && (defined(QT_NO_STYLE_MOTIF))
 #define QT_NO_STYLE_INTERLACE
+#endif
+
+// Platinum style
+#if !defined(QT_NO_STYLE_PLATINUM) && (defined(QT_NO_STYLE_WINDOWS))
+#define QT_NO_STYLE_PLATINUM
 #endif
 
 // Widget stacks
@@ -627,9 +642,9 @@
 #define QT_NO_QWS_SOUNDSERVER
 #endif
 
-// Windows style
-#if !defined(QT_NO_STYLE_WINDOWS) && (defined(QT_NO_STYLE) || defined(QT_NO_IMAGEIO_XPM))
-#define QT_NO_STYLE_WINDOWS
+// Aqua style
+#if !defined(QT_NO_STYLE_AQUA) && (defined(QT_NO_STYLE_WINDOWS) || defined(QT_NO_IMAGE_TRANSFORMATION))
+#define QT_NO_STYLE_AQUA
 #endif
 
 // Vertical group boxes
@@ -645,16 +660,6 @@
 // QHeader
 #if !defined(QT_NO_HEADER) && (defined(QT_NO_STYLE) || defined(QT_NO_ICONSET))
 #define QT_NO_HEADER
-#endif
-
-// Compact Windows style
-#if !defined(QT_NO_STYLE_COMPACT) && (defined(QT_NO_STYLE_WINDOWS))
-#define QT_NO_STYLE_COMPACT
-#endif
-
-// Platinum style
-#if !defined(QT_NO_STYLE_PLATINUM) && (defined(QT_NO_STYLE_WINDOWS))
-#define QT_NO_STYLE_PLATINUM
 #endif
 
 // Drag and drop
@@ -715,11 +720,6 @@
 // Popup-menus
 #if !defined(QT_NO_POPUPMENU) && (defined(QT_NO_MENUDATA) || defined(QT_NO_FRAME))
 #define QT_NO_POPUPMENU
-#endif
-
-// Aqua style
-#if !defined(QT_NO_STYLE_AQUA) && (defined(QT_NO_STYLE_WINDOWS) || defined(QT_NO_IMAGE_TRANSFORMATION))
-#define QT_NO_STYLE_AQUA
 #endif
 
 // QCanvas

@@ -989,6 +989,7 @@ void QWindowsStyle::polishPopupMenu( QPopupMenu* p)
 #endif
 }
 
+#ifndef QT_NO_IMAGEIO_XPM
 static const char * const qt_close_xpm[] = {
 "12 12 2 1",
 "# c #000000",
@@ -1250,6 +1251,7 @@ static const char* const critical_xpm[]={
 "...........aaaaaaaaaaa..........",
 ".............aaaaaaa............"};
 
+#endif //QT_NO_IMAGEIO_XPM
 
 /*!
  \reimp
@@ -1258,6 +1260,7 @@ QPixmap QWindowsStyle::stylePixmap(StylePixmap stylepixmap,
 				   const QWidget *widget,
 				   const QStyleOption& opt) const
 {
+#ifndef QT_NO_IMAGEIO_XPM
     switch (stylepixmap) {
     case SP_TitleBarShadeButton:
 	return QPixmap((const char **)qt_shade_xpm);
@@ -1282,7 +1285,7 @@ QPixmap QWindowsStyle::stylePixmap(StylePixmap stylepixmap,
     default:
 	break;
     }
-
+#endif //QT_NO_IMAGEIO_XPM
     return QCommonStyle::stylePixmap(stylepixmap, widget, opt);
 }
 

@@ -1074,7 +1074,7 @@ SeeAlso: ???
 
 Feature: STYLE_WINDOWS
 Section: Widgets
-Requires: STYLE IMAGEIO_XPM
+Requires: STYLE
 Name: Windows style
 SeeAlso: ???
 
