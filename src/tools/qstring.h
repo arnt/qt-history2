@@ -366,7 +366,7 @@ inline bool QString::isEmpty() const
 inline const QChar *QString::unicode() const
 { return (const QChar*) d->data; }
 inline const ushort *QString::ucs2() const
-{ return d->data; }
+{ d->data[d->size] = 0; return d->data; } //###
 inline QChar *QString::detach()
 { if (d->ref != 1 || d->data != d->array) realloc(); return (QChar*) d->data; }
 inline bool QString::isDetached() const
