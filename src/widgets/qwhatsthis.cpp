@@ -57,32 +57,31 @@
 
   \ingroup helpsystem
 
-  What's This? help is part of an application's
-  <a href="helpsystem.html">online help system</a> that
-  provides users with information about functionality,
-  usage, background etc. in various levels of detail between
-  tool tips and full text browsing windows.
+  What's This? help is part of an application's online help system
+  that provides users with information about functionality, usage,
+  background etc. in various levels of detail between tool tips and
+  full text browsing windows.
 
-  QWhatsThis provides a single window with a single explanatory
-  text which pops up when the user asks "What's this?".
-  The default way to do this is to focus
-  the relevant widget and press Shift-F1. The help text appears
-  immediately; it goes away as soon as the user does something else.
+  QWhatsThis provides a single window with a single explanatory text
+  which pops up when the user asks "What's this?".  The default way to
+  do this is to focus the relevant widget and press Shift-F1. The help
+  text appears immediately; it goes away as soon as the user does
+  something else.
 
-  Note that this mechanism stops to take effect when Shift-F1 is
-  assigned to serve as an accelerator in the application.
+  (Note that if there is an accelerator for Shift-F1, this mechanism
+  will not work.)
 
-  To add What's This? text to a widget you simply
-  call QWhatsThis::add() for the widget. To assign text to a
-  menu item, call QMenuData::setWhatsThis(); for a global
-  accelerator key, call QAccel::setWhatsThis(). If you're
-  using actions QAction::setWhatsThis() does the job.
+  To add What's This? text to a widget you simply call
+  QWhatsThis::add() for the widget. To assign text to a menu item,
+  call QMenuData::setWhatsThis(); for a global accelerator key, call
+  QAccel::setWhatsThis() and If you're using actions
+  QAction::setWhatsThis() does the job.
 
-  The text can be either rich text or plain text.  If you
-  specify a rich text formatted string, it will be rendered using the
-  default stylesheet. This makes it also possible to embed images. See
+  The text can be either rich text or plain text.  If you specify a
+  rich text formatted string, it will be rendered using the default
+  stylesheet. This makes it also possible to embed images. See
   QStyleSheet::defaultSheet() for details.
-
+  
   \walkthrough action/application.cpp
   \skipto fileOpenText
   \printuntil setWhatsThis
@@ -91,13 +90,13 @@
   <A HREF="simple-application-action.html">Simple Application Walkthrough
   featuring QAction</A>.)
 
-  An alternative way to enter What's This? mode is
-  to use the ready-made tool bar tool button from
-  QWhatsThis::whatsThisButton().
-  By invoking this context help button (in the below picture
-  the first one from the right) the user switches into What's this? mode.
-  If now he or she clicks on a widget the appropriate help text is shown.
-  The mode is left when help is given or when the user presses the Escape key.
+  An alternative way to enter What's This? mode is to use the
+  ready-made tool bar tool button from QWhatsThis::whatsThisButton().
+  By invoking this context help button (in the below picture the first
+  one from the right) the user switches into What's this? mode.  If
+  now he or she clicks on a widget the appropriate help text is shown.
+  The mode is left when help is given or when the user presses the
+  Escape key.
 
   <img src="whatsthis.png" width="284" height="246">
 
@@ -398,26 +397,27 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 	} else if ( e->type() == QEvent::KeyPress ) {
 	    QKeyEvent* kev = (QKeyEvent*)e;
 
-	    if (kev->key() == Qt::Key_Escape) {
+	    if ( kev->key() == Qt::Key_Escape ) {
 		leaveWhatsThisMode();
 		return TRUE;
-	    }
-	    else if ( kev->key() == Key_Menu ||
-		      ( kev->key() == Key_F10 && kev->state() == ShiftButton ) )
-		return FALSE; // ignore these keys, they are used for context menus
-	    else if ( kev->state() == kev->stateAfter() &&
-		      kev->key() != Key_Meta )  // not a modifier key
+	    } else if ( kev->key() == Key_Menu ||
+			( kev->key() == Key_F10 &&
+			  kev->state() == ShiftButton ) ) {
+		// we don't react to these keys, they are used for context menus
+		return FALSE;
+	    } else if ( kev->state() == kev->stateAfter() &&
+			kev->key() != Key_Meta ) {  // not a modifier key
 		leaveWhatsThisMode();
-
+	    }
 	} else if ( e->type() == QEvent::MouseButtonDblClick ) {
 	    return TRUE;
 	}
 	break;
     case Inactive:
  	if ( e->type() == QEvent::Accel &&
- 	     ((QKeyEvent *)e)->key() == Key_F1 &&
+	     ((QKeyEvent *)e)->key() == Key_F1 &&
  	     o->isWidgetType() &&
- 	     ((QKeyEvent *)e)->state() == ShiftButton ) {
+	     ((QKeyEvent *)e)->state() == ShiftButton ) {
  	    QWidget * w = ((QWidget *)o)->focusWidget();
 	    if ( !w )
 		break;
@@ -644,10 +644,9 @@ void QWhatsThisPrivate::add( QWidget * widget, const QString &text )
 
 // and finally the What's This class itself
 
-/*!
-  Adds \a text as <i>What's This</i> help for \a widget. If the text is rich
-  text formatted (i.e., it contains markup) it will be rendered with
-  the default stylesheet QStyleSheet::defaultSheet().
+/*!  Adds \a text as <i>What's This</i> help for \a widget. If the
+  text is rich text formatted (i.e., it contains markup) it will be
+  rendered with the default stylesheet QStyleSheet::defaultSheet().
 
   The text is destroyed if the widget is later destroyed, so it need
   not be explicitly removed.
