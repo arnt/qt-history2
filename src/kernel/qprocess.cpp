@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qprocess.cpp#32 $
 **
 ** Implementation of QProcess class
 **
@@ -282,8 +282,8 @@ int QProcess::exitStatus() const
 */
 QByteArray QProcess::readStdout()
 {
-    QByteArray buf = bufStdout.copy();
-    bufStdout.resize( 0 );
+    QByteArray buf = bufStdout()->copy();
+    consumeBufStdout( -1 ); // consume everything
     return buf;
 }
 
@@ -298,9 +298,108 @@ QByteArray QProcess::readStdout()
 */
 QByteArray QProcess::readStderr()
 {
-    QByteArray buf = bufStderr.copy();
-    bufStderr.resize( 0 );
+    QByteArray buf = bufStderr()->copy();
+    consumeBufStderr( -1 ); // consume everything
     return buf;
+}
+
+/*!
+  Returns TRUE if it's possible to read an entire line of text from
+  standard output at this time, or FALSE if not.
+
+  \sa readLineStdout() canReadLineStderr()
+*/
+bool QProcess::canReadLineStdout() const
+{
+    QProcess *that = (QProcess*)this;
+    return that->scanNewline( TRUE, 0 );
+}
+
+/*!
+  Returns TRUE if it's possible to read an entire line of text from
+  standard error at this time, or FALSE if not.
+
+  \sa readLineStderr() canReadLineStdout()
+*/
+bool QProcess::canReadLineStderr() const
+{
+    QProcess *that = (QProcess*)this;
+    return that->scanNewline( FALSE, 0 );
+}
+
+/*!
+  Reads a line of text from standard output, excluding any treailing newline or
+  carriage return characters and returns it. Returns "" if canReadLineStdout()
+  returns FALSE.
+
+  \sa canReadLineStdout() readLineStderr()
+*/
+QString QProcess::readLineStdout()
+{
+    QByteArray a;
+    QString s;
+    if ( scanNewline( TRUE, &a ) ) {
+	s = QString( a );
+    }
+    return s;
+}
+
+/*!
+  Reads a line of text from standard error, excluding any treailing newline or
+  carriage return characters and returns it. Returns "" if canReadLineStderr()
+  returns FALSE.
+
+  \sa canReadLineStderr() readLineStdout()
+*/
+QString QProcess::readLineStderr()
+{
+    QByteArray a;
+    QString s;
+    if ( scanNewline( FALSE, &a ) ) {
+	s = QString( a );
+    }
+    return s;
+}
+
+/*!
+  This private function scans for any occurrence of \n in the buffer \a buf.
+  Stores the text in the byte array \a store if it is non-null.
+*/
+bool QProcess::scanNewline( bool stdOut, QByteArray *store )
+{
+    QByteArray *buf;
+    if ( stdOut )
+	buf = bufStdout();
+    else
+	buf = bufStderr();
+    uint n = buf->size();
+    uint lineLength = 0;
+    uint i;
+    bool found = FALSE;
+    for ( i=0; i<n; i++ ) {
+	if ( buf->at(i)=='\n' || buf->at(i)=='\r' ) {
+	    if ( !found ) {
+		lineLength = i;
+		found = TRUE;
+	    }
+	} else {
+	    if ( found ) {
+		break;
+	    }
+	}
+    }
+    if ( !found )
+	return FALSE;
+
+    if ( store ) {
+	store->resize( lineLength );
+	memcpy( store->data(), buf->data(), lineLength );
+	if ( stdOut )
+	    consumeBufStdout( i );
+	else
+	    consumeBufStderr( i );
+    }
+    return TRUE;
 }
 
 /*!

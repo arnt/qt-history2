@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#62 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#63 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -115,6 +115,9 @@ public:
 
     void closeOpenSocketsForChild();
     void newProc( pid_t pid, QProcess *process );
+
+    QByteArray bufStdout;
+    QByteArray bufStderr;
 
     QQueue<QByteArray> stdinBuf;
 
@@ -489,10 +492,43 @@ void QProcess::reset()
     d = new QProcessPrivate();
     exitStat = 0;
     exitNormal = FALSE;
-    bufStdout.resize( 0 );
-    bufStderr.resize( 0 );
+    d->bufStdout.resize( 0 );
+    d->bufStderr.resize( 0 );
 }
 
+QByteArray* QProcess::bufStdout()
+{
+    return &d->bufStdout;
+}
+
+QByteArray* QProcess::bufStderr()
+{
+    return &d->bufStderr;
+}
+
+void QProcess::consumeBufStdout( int consume )
+{
+    uint n = d->bufStdout.size();
+    if ( consume==-1 || (uint)consume >= n ) {
+	d->bufStdout.resize( 0 );
+    } else {
+	QByteArray tmp( n - consume );
+	memcpy( tmp.data(), d->bufStdout.data()+consume, n-consume );
+	d->bufStdout = tmp;
+    }
+}
+
+void QProcess::consumeBufStderr( int consume )
+{
+    uint n = d->bufStderr.size();
+    if ( consume==-1 || (uint)consume >= n ) {
+	d->bufStderr.resize( 0 );
+    } else {
+	QByteArray tmp( n - consume );
+	memcpy( tmp.data(), d->bufStderr.data()+consume, n-consume );
+	d->bufStderr = tmp;
+    }
+}
 
 /*!
   Destructs the class.
@@ -811,9 +847,9 @@ void QProcess::socketRead( int fd )
     uint oldSize;
     int n;
     if ( fd == d->proc->socketStdout ) {
-	buffer = &bufStdout;
+	buffer = &d->bufStdout;
     } else if ( fd == d->proc->socketStderr ) {
-	buffer = &bufStderr;
+	buffer = &d->bufStderr;
     }
 
     // read data

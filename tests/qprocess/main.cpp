@@ -38,6 +38,21 @@ int main( int argc, char **argv )
 		    }
 		}
 	    }
+	} else if ( QString( "-readline" ) == argv[1] ) {
+	    // ### I should make a real test for the QProcess::readLine...()
+	    QApplication a( argc, argv );
+
+	    QProcess proc;
+	    proc.addArgument( "p4" );
+	    proc.addArgument( "help" );
+	    proc.addArgument( "commands" );
+	    proc.start();
+	    while ( TRUE ) {
+		while ( proc.canReadLineStdout() ) {
+		    qDebug( proc.readLineStdout() );
+		}
+		a.processEvents();
+	    }
 	}
     } else {
 	QApplication a( argc, argv );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qprocess_win.cpp#40 $
 **
 ** Implementation of QProcess class for Win32
 **
@@ -110,6 +110,9 @@ public:
 	memset( &pid, 0, sizeof(PROCESS_INFORMATION) );
     }
 
+    QByteArray bufStdout;
+    QByteArray bufStderr;
+
     QQueue<QByteArray> stdinBuf;
 
     HANDLE pipeStdin[2];
@@ -141,8 +144,42 @@ void QProcess::reset()
     d->reset();
     exitStat = 0;
     exitNormal = FALSE;
-    bufStdout.resize( 0 );
-    bufStderr.resize( 0 );
+    d->bufStdout.resize( 0 );
+    d->bufStderr.resize( 0 );
+}
+
+QByteArray* QProcess::bufStdout()
+{
+    return &d->bufStdout;
+}
+
+QByteArray* QProcess::bufStderr()
+{
+    return &d->bufStderr;
+}
+
+void QProcess::consumeBufStdout( int consume )
+{
+    uint n = d->bufStdout.size();
+    if ( consume==-1 || (uint)consume >= n ) {
+	d->bufStdout.resize( 0 );
+    } else {
+	QByteArray tmp( n - consume );
+	memcpy( tmp.data(), d->bufStdout.data()+consume, n-consume );
+	d->bufStdout = tmp;
+    }
+}
+
+void QProcess::consumeBufStderr( int consume )
+{
+    uint n = d->bufStderr.size();
+    if ( consume==-1 || (uint)consume >= n ) {
+	d->bufStderr.resize( 0 );
+    } else {
+	QByteArray tmp( n - consume );
+	memcpy( tmp.data(), d->bufStderr.data()+consume, n-consume );
+	d->bufStderr = tmp;
+    }
 }
 
 
@@ -326,9 +363,9 @@ void QProcess::socketRead( int fd )
 	QByteArray *buffer;
 	uint oldSize;
 	if ( fd == 1 ) {
-	    buffer = &bufStdout;
+	    buffer = &d->bufStdout;
 	} else {
-	    buffer = &bufStderr;
+	    buffer = &d->bufStderr;
 	}
 
 	oldSize = buffer->size();

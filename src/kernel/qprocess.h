@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.h#28 $
+** $Id: //depot/qt/main/src/kernel/qprocess.h#29 $
 **
 ** Implementation of QProcess class
 **
@@ -80,6 +80,10 @@ public:
     // reading
     virtual QByteArray readStdout();
     virtual QByteArray readStderr();
+    bool canReadLineStdout() const;
+    bool canReadLineStderr() const;
+    virtual QString readLineStdout();
+    virtual QString readLineStderr();
 
 signals:
     void readyReadStdout();
@@ -106,6 +110,12 @@ private:
 #if defined(Q_OS_WIN32)
     uint readStddev( HANDLE dev, char *buf, uint bytes );
 #endif
+    bool scanNewline( bool stdOut, QByteArray *store );
+
+    QByteArray* bufStdout();
+    QByteArray* bufStderr();
+    void consumeBufStdout( int consume );
+    void consumeBufStderr( int consume );
 
 private slots:
     void socketRead( int fd );
@@ -119,8 +129,6 @@ private:
     QDir        workingDir;
     QStringList _arguments;
 
-    QByteArray bufStdout;
-    QByteArray bufStderr;
     int  exitStat; // exit status
     bool exitNormal; // normal exit?
     bool ioRedirection; // automatically set be (dis)connectNotify
