@@ -94,9 +94,31 @@ public:
 	    return token;
 	}
 
-	// first, look for the special stuff
+	bool forceVariableReference = FALSE;
 	QChar parseChar = expr[parsePos];
 qDebug( QString(parseChar) );
+
+	// look for numbers
+	// Attention: This test must occur before the test for a single '.' in
+	// the "special stuff" section.
+	if ( parseChar.isNumber() ||
+		(parseChar == '.' && lookAhead(1).isNumber()) ) {
+	    uint strBegin = parsePos;
+	    parsePos++;
+	    while ( !atEnd() ) {
+		parseChar = expr[parsePos];
+		if ( parseChar.isNumber() || parseChar == '.' )
+		    parsePos++;
+		else
+		    break;
+	    }
+	    str = expr.mid( strBegin, parsePos-strBegin );
+	    num = str.toDouble();
+	    token = TkNumber;
+	    return token;
+	}
+
+	// look for the special stuff
 	if        ( parseChar == '(' ) {
 	    token = TkLeftParen;
 	    goto finished;
@@ -212,6 +234,10 @@ qDebug( QString(parseChar) );
 	}
 
 	// look for NCName and related stuff (QName, functions, axis, etc.)
+	if ( parseChar == '$' ) {
+	    forceVariableReference = TRUE;
+	    parsePos++;
+	}
 	if ( parseChar.isLetter() || parseChar == '_' ) {
 	    uint strBegin = parsePos;
 	    bool forceQName = FALSE;
@@ -234,6 +260,11 @@ qDebug( QString(parseChar) );
 	    eatWs();
 	    parseChar = expr[parsePos]; // get char at actual position
 
+	    // variableReference overwrites all other tests
+	    if ( forceVariableReference ) {
+		token = TkVariableReference;
+		goto finished;
+	    }
 	    // must an operator be recognized?
 	    switch ( token ) {
 		case TkAttribAbbr:
@@ -259,8 +290,10 @@ qDebug( QString(parseChar) );
 	    }
 
 	    // no operator
-	    if ( forceQName )
+	    if ( forceQName ) {
+		token = TkNameTest_QName;
 		goto finished;
+	    }
 	    if ( parseChar == '(' ) {
 		if ( str == "comment" ) {
 		    token = TkNodeType_Comment;

@@ -5,7 +5,7 @@ int main( int argc, char** argv )
     char *paths[] = {
 	"child::para",
 	"child::*/child::para",
-	"child::para[position()=3*5]",
+	"child::para[position()=3.1415*.5]",
 	"para[attribute::type='warning']",
 	0 };
     if ( argc == 1 ) {
