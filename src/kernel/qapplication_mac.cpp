@@ -1302,6 +1302,11 @@ bool QApplication::do_mouse_down( Point *pt )
     if(!widget) {
 	mouse_down_unhandled = TRUE;
 	return FALSE;
+    } else if(windowPart != inGoAway && windowPart != inCollapseBox) {
+	widget->raise();
+	if(widget->isTopLevel() && !widget->isDesktop() && !widget->isPopup() && 
+	   (widget->isModal() || !widget->inherits("QDockWindow")))
+	    widget->setActiveWindow();
     }
 
     bool in_widget = FALSE;
@@ -1822,25 +1827,21 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	}
 
 	if(ekind == kEventMouseDown) {
-	    if(QWidget* w = widget) {
-		while ( w->focusProxy() )
-		    w = w->focusProxy();
-		if(ekind == kEventMouseDown) {
-		    if(QWidget *tlw = w->topLevelWidget()) {
-			tlw->raise();
-			if(tlw->isTopLevel() && !tlw->isDesktop() && !tlw->isPopup() && 
-			   (tlw->isModal() || !tlw->inherits("QDockWindow")))
-			    tlw->setActiveWindow();
-		    }
-		}
-	    }
-	    if(!app->do_mouse_down( &where )) {
+	    if(!app->do_mouse_down(&where)) {
 		if(mouse_down_unhandled) {
 		    handled_event = FALSE;
 		    break;
 		} 
 		mouse_button_state = 0;
 		return 0;
+	    } else if(QWidget* w = widget) {
+		while(w->focusProxy())
+		    w = w->focusProxy();
+		QWidget *tlw = w->topLevelWidget(); 
+		tlw->raise();
+		if(tlw->isTopLevel() && !tlw->isDesktop() && !tlw->isPopup() && 
+		   (tlw->isModal() || !tlw->inherits("QDockWindow")))
+		    tlw->setActiveWindow();
 	    }
 	}
 	mouse_button_state = after_state;
@@ -2027,6 +2028,11 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    a.ignore();
 		    QApplication::sendSpontaneousEvent( widget->topLevelWidget(), &a );
 		    if ( a.isAccepted() ) {
+#ifdef DEBUG_KEY_MAPS
+		qDebug("KeyEvent: %s::%s consumed Accel: %04x %c %s %d",
+		       widget ? widget->className() : "none", widget ? widget->name() : "",
+		       mychar, chr, mystr.latin1(), ekind == kEventRawKeyRepeat);
+#endif
 			key_event = FALSE;
 		    } else {
 			HICommand hic;
@@ -2038,12 +2044,20 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 			       qDebug("Shouldn't happen.. %s:%d", __FILE__, __LINE__);
 #if !defined(QMAC_QMENUBAR_NO_NATIVE) //In native menubar mode we offer the event to the menubar...
 			    if(QMenuBar::activateCommand(hic.commandID) || 
-			       QMenuBar::activate(hic.menu.menuRef, hic.menu.menuItemIndex)) 
-				key_event = FALSE;
-			    else
+			       QMenuBar::activate(hic.menu.menuRef, hic.menu.menuItemIndex)) {
+#ifdef DEBUG_KEY_MAPS
+				qDebug("KeyEvent: Consumed by Menubar(1)");
 #endif
-			    if(!ProcessHICommand(&hic)) 
+
 				key_event = FALSE;
+			    } else 
+#endif
+			    if(!ProcessHICommand(&hic)) {
+#ifdef DEBUG_KEY_MAPS
+				qDebug("KeyEvent: Consumed by an HICommand(1)");
+#endif
+				key_event = FALSE;
+			    }
 			}
 		    }
 		}
@@ -2060,11 +2074,20 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    mystr = QString();
 		    chr = 0;
 		} 
+#ifdef DEBUG_KEY_MAPS
+		qDebug("KeyEvent: Sending %s to %s::%s: %04x %c %s %d",
+		       etype == QEvent::KeyRelease ? "KeyRelease" : "KeyPress",
+		       widget ? widget->className() : "none", widget ? widget->name() : "",
+		       mychar, chr, mystr.latin1(), ekind == kEventRawKeyRepeat);
+#endif
 		QKeyEvent ke(etype,mychar, chr, modifiers,
 			     mystr, ekind == kEventRawKeyRepeat, mystr.length());
 		QApplication::sendSpontaneousEvent(widget,&ke);
 	    }
 	} else if(etype == QEvent::KeyPress) {
+#ifdef DEBUG_KEY_MAPS
+	    qDebug("KeyEvent: No widget could be found to accept the KeyPress");
+#endif
 	    HICommand hic;
 	    if(IsMenuKeyEvent(NULL, event, kNilOptions, 
 			      &hic.menu.menuRef, &hic.menu.menuItemIndex)) {
@@ -2074,11 +2097,18 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    qDebug("Shouldn't happen.. %s:%d", __FILE__, __LINE__);
 #if !defined(QMAC_QMENUBAR_NO_NATIVE) 
 		if(QMenuBar::activateCommand(hic.commandID) ||
-		   QMenuBar::activate(hic.menu.menuRef, hic.menu.menuItemIndex));
-		    else
+		   QMenuBar::activate(hic.menu.menuRef, hic.menu.menuItemIndex)) {
+#ifdef DEBUG_KEY_MAPS
+		    qDebug("KeyEvent: Consumed by Menubar(2)");
 #endif
-			if(!ProcessHICommand(&hic)) 
-			    handled_event = FALSE;
+		} else 
+#endif
+		    if(!ProcessHICommand(&hic)) {
+#ifdef DEBUG_KEY_MAPS
+			qDebug("KeyEvent: Consumed by an HICommand(2)");
+#endif
+			handled_event = FALSE;
+		    }
 	    } else {
 		handled_event = FALSE;
 	    }

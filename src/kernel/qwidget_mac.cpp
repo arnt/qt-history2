@@ -535,7 +535,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	id = (WId)hd;
 	own_id = 0;
 	setWinId( id );
-    } else if( popup || dialog || topLevel ) {
+    } else if( isTopLevel() ) {
 	own_id = 1; //I created it, I own it
 
 	Rect r;
