@@ -30,7 +30,6 @@
 #include "qprinter.h"
 #include "qpainter.h"
 #include "qapplication.h"
-#include "qpaintdevicemetrics.h"
 #include "qpixmap.h"
 #include "qimage.h"
 #include "qdatetime.h"
@@ -4979,7 +4978,6 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
     static_cast<QFile *>(outDevice)->open(QIODevice::WriteOnly, fd);
     outStream.setDevice(outDevice);
     outStream << "%!PS-Adobe-1.0";
-    QPaintDeviceMetrics m(printer);
     QPSPrintEngine *q = static_cast<QPSPrintEngine *>(q_ptr);
     scale = 72. / ((float) q->metric(QPaintDeviceMetrics::PdmDpiY));
     QRect pageRect = q->pageRect();
@@ -5000,18 +4998,18 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
             if (!fullPage)
                 boundingBox.translate(-mleft, -mtop);
             outStream << " EPSF-3.0\n%%BoundingBox: "
-                      << (int)(m.height() - boundingBox.bottom())*scale << " " // llx
-                      << (int)(m.width() - boundingBox.right())*scale - 1 << " " // lly
-                      << (int)(m.height() - boundingBox.top())*scale + 1 << " " // urx
-                      << (int)(m.width() - boundingBox.left())*scale; // ury
+                      << (int)(printer->height() - boundingBox.bottom())*scale << " " // llx
+                      << (int)(printer->width() - boundingBox.right())*scale - 1 << " " // lly
+                      << (int)(printer->height() - boundingBox.top())*scale + 1 << " " // urx
+                      << (int)(printer->width() - boundingBox.left())*scale; // ury
         } else {
             if (!fullPage)
                 boundingBox.translate(mleft, -mtop);
             outStream << " EPSF-3.0\n%%BoundingBox: "
                       << (int)(boundingBox.left())*scale << " "
-                      << (int)(m.height() - boundingBox.bottom())*scale - 1 << " "
+                      << (int)(printer->height() - boundingBox.bottom())*scale - 1 << " "
                       << (int)(boundingBox.right())*scale + 1 << " "
-                      << (int)(m.height() - boundingBox.top())*scale;
+                      << (int)(printer->height() - boundingBox.top())*scale;
         }
     } else {
         int w = width + (fullPage ? 0 : mleft + mright);
@@ -5073,11 +5071,11 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
                    << mleft*scale << " translate\n";
     }
     if (orientation == QPrinter::Portrait) {
-        outStream << "% " << m.widthMM() << "*" << m.heightMM()
+        outStream << "% " << printer->widthMM() << "*" << printer->heightMM()
                << "mm (portrait)\n0 " << height*scale
                << " translate " << scale << " -" << scale << " scale/defM matrix CM d } d\n";
     } else {
-        outStream << "% " << m.heightMM() << "*" << m.widthMM()
+        outStream << "% " << printer->heightMM() << "*" << printer->widthMM()
                << " mm (landscape)\n 90 rotate " << scale << " -" << scale << " scale/defM matrix CM d } d\n";
     }
     outStream << "%%EndProlog\n";
@@ -5345,8 +5343,7 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
     d->boundingBox = QRect(0, 0, -1, -1);
     d->fontsUsed = QLatin1String("");
 
-    QPaintDeviceMetrics m(d->printer);
-    d->scale = 72. / ((float) m.logicalDpiY());
+    d->scale = 72. / ((float) d->printer->logicalDpiY());
     setActive(true);
 
     newPage();
@@ -5482,9 +5479,8 @@ void QPSPrintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperation /
         // if we're painting without clipping, the bounding box must
         // be everything.  NOTE: this assumes that this function is
         // only ever called when something is to be painted.
-        QPaintDeviceMetrics m(printer);
         if (!boundingBox.isValid())
-            boundingBox.setRect(0, 0, m.width(), m.height());
+            boundingBox.setRect(0, 0, printer->width(), printer->height());
     }
 #endif
 }
@@ -5857,37 +5853,37 @@ int QPSPrintEngine::numCopies() const
     return d->copies;
 }
 
-int  QPSPrintEngine::metric(int metricType) const
+int  QPSPrintEngine::metric(QPaintDevice::PaintDevmetricType) const
 {
     int val;
     QRect r = paperRect();
     switch (metricType) {
-    case QPaintDeviceMetrics::PdmWidth:
+    case QPaintDevice::PdmWidth:
         val = r.width();
         break;
-    case QPaintDeviceMetrics::PdmHeight:
+    case QPaintDevice::PdmHeight:
         val = r.height();
         break;
-    case QPaintDeviceMetrics::PdmDpiX:
+    case QPaintDevice::PdmDpiX:
         val = d->resolution;
         break;
-    case QPaintDeviceMetrics::PdmDpiY:
+    case QPaintDevice::PdmDpiY:
         val = d->resolution;
         break;
-    case QPaintDeviceMetrics::PdmPhysicalDpiX:
-    case QPaintDeviceMetrics::PdmPhysicalDpiY:
+    case QPaintDevice::PdmPhysicalDpiX:
+    case QPaintDevice::PdmPhysicalDpiY:
         val = 1200;
         break;
-    case QPaintDeviceMetrics::PdmWidthMM:
+    case QPaintDevice::PdmWidthMM:
         val = qRound(r.width()*25.4/d->resolution);
         break;
-    case QPaintDeviceMetrics::PdmHeightMM:
+    case QPaintDevice::PdmHeightMM:
         val = qRound(r.height()*25.4/d->resolution);
         break;
-    case QPaintDeviceMetrics::PdmNumColors:
+    case QPaintDevice::PdmNumColors:
         val = INT_MAX;
         break;
-    case QPaintDeviceMetrics::PdmDepth:
+    case QPaintDevice::PdmDepth:
         val = 32;
         break;
     default:

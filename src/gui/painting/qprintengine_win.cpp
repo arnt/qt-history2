@@ -22,7 +22,6 @@
 
 #include <qbitmap.h>
 #include <qdebug.h>
-#include <qpaintdevicemetrics.h>
 #include <qvector.h>
 
 #define d d_func()
@@ -198,10 +197,10 @@ QWin32PrintEngine::QWin32PrintEngine(QPrinter::PrinterMode mode)
 void QWin32PrintEngine::updateClipRegion(const QRegion &clipRegion, bool clipEnabled)
 {
     if (clipEnabled) {
-	double xscale = ((float)metric(QPaintDeviceMetrics::PdmPhysicalDpiX)) /
-			((float)metric(QPaintDeviceMetrics::PdmDpiX));
-	double yscale = ((float)metric(QPaintDeviceMetrics::PdmPhysicalDpiY)) /
-			((float)metric(QPaintDeviceMetrics::PdmDpiY));
+	double xscale = ((float)metric(QPaintDevice::PdmPhysicalDpiX)) /
+			((float)metric(QPaintDevice::PdmDpiX));
+	double yscale = ((float)metric(QPaintDevice::PdmPhysicalDpiY)) /
+			((float)metric(QPaintDevice::PdmDpiY));
 	double xoff = 0;
 	double yoff = 0;
 	if (d->fullPage) {	// must adjust for margins
@@ -377,36 +376,36 @@ bool QWin32PrintEngine::abort()
 }
 
 
-int QWin32PrintEngine::metric(int m) const
+int QWin32PrintEngine::metric(QPaintDevice::PaintDeviceMetric m) const
 {
     Q_ASSERT(d->hdc);
     int val;
     int res = d->resolution;
 
     switch (m) {
-    case QPaintDeviceMetrics::PdmWidth:
+    case QPaintDevice::PdmWidth:
         val = res
 	      * GetDeviceCaps(d->hdc, d->fullPage ? PHYSICALWIDTH : HORZRES)
 	      / GetDeviceCaps(d->hdc, LOGPIXELSX);
         break;
-    case QPaintDeviceMetrics::PdmHeight:
+    case QPaintDevice::PdmHeight:
         val = res
 	      * GetDeviceCaps(d->hdc, d->fullPage ? PHYSICALHEIGHT : VERTRES)
 	      / GetDeviceCaps(d->hdc, LOGPIXELSY);
         break;
-    case QPaintDeviceMetrics::PdmDpiX:
+    case QPaintDevice::PdmDpiX:
         val = res;
         break;
-    case QPaintDeviceMetrics::PdmDpiY:
+    case QPaintDevice::PdmDpiY:
         val = res;
         break;
-    case QPaintDeviceMetrics::PdmPhysicalDpiX:
+    case QPaintDevice::PdmPhysicalDpiX:
         val = GetDeviceCaps(d->hdc, LOGPIXELSX);
         break;
-    case QPaintDeviceMetrics::PdmPhysicalDpiY:
+    case QPaintDevice::PdmPhysicalDpiY:
         val = GetDeviceCaps(d->hdc, LOGPIXELSY);
         break;
-    case QPaintDeviceMetrics::PdmWidthMM:
+    case QPaintDevice::PdmWidthMM:
         if (!d->fullPage) {
             val = GetDeviceCaps(d->hdc, HORZSIZE);
         }
@@ -415,7 +414,7 @@ int QWin32PrintEngine::metric(int m) const
             val = qRound(wi / GetDeviceCaps(d->hdc,  LOGPIXELSX));
         }
         break;
-    case QPaintDeviceMetrics::PdmHeightMM:
+    case QPaintDevice::PdmHeightMM:
         if (!d->fullPage) {
             val = GetDeviceCaps(d->hdc, VERTSIZE);
         }
@@ -424,7 +423,7 @@ int QWin32PrintEngine::metric(int m) const
             val = qRound(hi / GetDeviceCaps(d->hdc,  LOGPIXELSY));
         }
         break;
-    case QPaintDeviceMetrics::PdmNumColors:
+    case QPaintDevice::PdmNumColors:
         {
 	    int bpp = GetDeviceCaps(d->hdc, BITSPIXEL);
 	    if(bpp==32)
@@ -435,7 +434,7 @@ int QWin32PrintEngine::metric(int m) const
 		val = 1 << (bpp * GetDeviceCaps(d->hdc, PLANES));
 	}
         break;
-    case QPaintDeviceMetrics::PdmDepth:
+    case QPaintDevice::PdmDepth:
         val = GetDeviceCaps(d->hdc, PLANES);
         break;
     default:

@@ -17,7 +17,6 @@
 #include "qapplication.h"
 #include "qdesktopwidget.h"
 #include "qevent.h"
-#include "qpaintdevicemetrics.h"
 #include "qpixmap.h"
 #include "qpainter.h"
 #include "qtimer.h"

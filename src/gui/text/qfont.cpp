@@ -21,7 +21,6 @@
 #include "qdatastream.h"
 #include "qapplication.h"
 #include "qstringlist.h"
-#include "qpaintdevicemetrics.h"
 
 #include <private/qunicodetables_p.h>
 #include <private/qfontdata_p.h>
@@ -532,7 +531,7 @@ QFont::QFont(const QFont &font, QPaintDevice *pd)
     : resolve_mask(0)
 {
     Q_ASSERT(pd != 0);
-    int dpi = QPaintDeviceMetrics(pd).logicalDpiY();
+    int dpi = pd->logicalDpiY();
 #ifdef Q_WS_X11
     const QX11Info *info = qt_x11Info(pd);
     int screen = info ? info->screen() : 0;

@@ -94,7 +94,7 @@ public:
 
     bool newPage();
     bool abort();
-    int metric( int ) const;
+    int metric(QPaintDevice::PaintDeviceMetric) const;
 
     //forwarded functions
     virtual void updatePen(const QPen &pen);

@@ -13,7 +13,6 @@
 
 #include "qpaintdevice.h"
 #include "qpainter.h"
-#include "qpaintdevicemetrics.h"
 #include "qwidget.h"
 #include "qbitmap.h"
 #include "qapplication.h"
@@ -43,14 +42,14 @@ QPaintDevice::~QPaintDevice()
 }
 
 
-int QPaintDevice::metric(int m) const
+int QPaintDevice::metric(PaintDeviceMetric m) const
 {
     qWarning("QPaintDevice::metrics: Device has no metric information");
-    if (m == QPaintDeviceMetrics::PdmDpiX) {
+    if (m == PdmDpiX) {
         return 72;
-    } else if (m == QPaintDeviceMetrics::PdmDpiY) {
+    } else if (m == PdmDpiY) {
         return 72;
-    } else if (m == QPaintDeviceMetrics::PdmNumColors) {
+    } else if (m == PdmNumColors) {
         // FIXME: does this need to be a real value?
         return 256;
     } else {

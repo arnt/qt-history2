@@ -29,7 +29,6 @@
 #include "qt_windows.h"
 #include <private/qapplication_p.h>
 #include "qapplication.h"
-#include "qpaintdevicemetrics.h"
 #include <private/qunicodetables_p.h>
 #include <qfontdatabase.h>
 

@@ -128,7 +128,7 @@ public:
     virtual void setNumCopies(int numCopies);
     virtual int numCopies() const;
 
-    virtual int metric(int metricType) const;
+    virtual int metric(QPaintDevice::PaintDeviceMetric metricType) const;
 
     virtual QPrinter::PrinterState printerState() const;
 

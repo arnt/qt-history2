@@ -23,7 +23,6 @@
 #include "qfile.h"
 #include "qimage.h"
 #include "qmutex.h"
-#include "qpaintdevicemetrics.h"
 #include "qpainter.h"
 #include "qpainterpath.h"
 #include "qpixmap.h"
@@ -715,42 +714,40 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
     Internal implementation of the virtual QPaintDevice::metric()
     function.
 
-    Use the QPaintDeviceMetrics class instead.
-
     A picture has the following hard-coded values: dpi=72,
     numcolors=16777216 and depth=24.
 
     \a m is the metric to get.
 */
 
-int QPicture::metric(int m) const
+int QPicture::metric(PaintDeviceMetric m) const
 {
     int val;
     switch (m) {
-        case QPaintDeviceMetrics::PdmWidth:
+        case PdmWidth:
             val = d->brect.width();
             break;
-        case QPaintDeviceMetrics::PdmHeight:
+        case PdmHeight:
             val = d->brect.height();
             break;
-        case QPaintDeviceMetrics::PdmWidthMM:
+        case PdmWidthMM:
             val = int(25.4/72.0*d->brect.width());
             break;
-        case QPaintDeviceMetrics::PdmHeightMM:
+        case PdmHeightMM:
             val = int(25.4/72.0*d->brect.height());
             break;
-        case QPaintDeviceMetrics::PdmDpiX:
-        case QPaintDeviceMetrics::PdmPhysicalDpiX:
+        case PdmDpiX:
+        case PdmPhysicalDpiX:
             val = 72;
             break;
-        case QPaintDeviceMetrics::PdmDpiY:
-        case QPaintDeviceMetrics::PdmPhysicalDpiY:
+        case PdmDpiY:
+        case PdmPhysicalDpiY:
             val = 72;
             break;
-        case QPaintDeviceMetrics::PdmNumColors:
+        case PdmNumColors:
             val = 16777216;
             break;
-        case QPaintDeviceMetrics::PdmDepth:
+        case PdmDepth:
             val = 24;
             break;
         default:

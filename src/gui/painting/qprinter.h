@@ -171,7 +171,7 @@ public:
 #endif
 
 protected:
-    int         metric(int) const;
+    int         metric(PaintDeviceMetric) const;
 
 private:
     Q_DISABLE_COPY(QPrinter)

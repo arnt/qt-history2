@@ -65,7 +65,7 @@ public:
     QPaintEngine *paintEngine() const;
 
 protected:
-    virtual int         metric(int) const;
+    virtual int         metric(PaintDeviceMetric) const;
 
 private:
     // reading

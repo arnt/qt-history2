@@ -556,7 +556,7 @@ protected:
     // Misc. protected functions
     virtual void changeEvent(QEvent *);
 
-    int metric(int) const;
+    int metric(PaintDeviceMetric) const;
 
     void resetInputContext();
 

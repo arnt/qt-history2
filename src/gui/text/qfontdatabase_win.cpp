@@ -628,13 +628,13 @@ void QFontPrivate::initFontInfo()
     });
     if (actual.pointSize == -1) {
         if (paintdevice)
-            actual.pointSize = actual.pixelSize * 720 / QPaintDeviceMetrics(paintdevice).logicalDpiY();
+            actual.pointSize = actual.pixelSize * 720 / paintdevice->logicalDpiY();
         else {
             actual.pointSize = actual.pixelSize * 720 / GetDeviceCaps(fin->dc(), LOGPIXELSY);
         }
     } else if (actual.pixelSize == -1) {
         if (paintdevice)
-            actual.pixelSize = actual.pointSize * QPaintDeviceMetrics(paintdevice).logicalDpiY() / 720;
+            actual.pixelSize = actual.pointSize * paintdevice->logicalDpiY() / 720;
         else
             actual.pixelSize = actual.pointSize * GetDeviceCaps(fin->dc(), LOGPIXELSY) / 720;
     }

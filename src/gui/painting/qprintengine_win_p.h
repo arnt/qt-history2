@@ -97,7 +97,7 @@ public:
 
     bool newPage();
     bool abort();
-    int metric( int ) const;
+    int metric(QPaintDevice::PaintDeviceMetric) const;
 
     QPrinter::PrinterState printerState() const;
 

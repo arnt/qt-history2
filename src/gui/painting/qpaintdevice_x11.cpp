@@ -12,7 +12,6 @@
 ****************************************************************************/
 
 #include "qpaintdevice.h"
-#include "qpaintdevicemetrics.h"
 #include "qpainter.h"
 #include "qwidget.h"
 #include "qbitmap.h"
@@ -163,10 +162,9 @@ const QX11Info *qt_x11Info(const QPaintDevice *pd)
 
     Internal virtual function that returns paint device metrics.
 
-    Please use the QPaintDeviceMetrics class instead.
 */
 
-int QPaintDevice::metric(int) const
+int QPaintDevice::metric(PaintDeviceMetric) const
 {
     qWarning("QPaintDevice::metrics: Device has no metric information");
     return 0;
@@ -486,8 +484,7 @@ int QPaintDevice::x11AppDpiX(int screen)
 
 /*!
     Returns the vertical DPI of the X11 display (X11 only) for screen
-    \a screen.  Using this function is not portable. See
-    QPaintDeviceMetrics for portable access to related information.
+    \a screen.  Using this function is not portable.
     Using this function is not portable.
 
     \sa x11AppDpiX(), x11SetAppDpiY(), QPaintDeviceMetrics::logicalDpiY()

@@ -15,7 +15,6 @@
 
 #include "qgl.h"
 #include "qpixmap.h"
-#include "qpaintdevicemetrics.h"
 #include "qimage.h"
 #include "qcleanuphandler.h"
 #include "qgl_p.h"
@@ -2506,8 +2505,7 @@ void QGLWidget::glDraw()
         glDrawBuffer(GL_FRONT);
     if (!d->glcx->initialized()) {
         glInit();
-        QPaintDeviceMetrics dm(d->glcx->device());
-        resizeGL(dm.width(), dm.height()); // New context needs this "resize"
+        resizeGL(d->glcx->device()->width(), d->glcx->device()->height()); // New context needs this "resize"
     }
     paintGL();
     if (doubleBuffer()) {

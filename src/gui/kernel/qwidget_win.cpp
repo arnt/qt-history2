@@ -18,7 +18,6 @@
 #include "qimage.h"
 #include "qlayout.h"
 #include "qt_windows.h"
-#include "qpaintdevicemetrics.h"
 #include "qcursor.h"
 #include <private/qapplication_p.h>
 #include <private/qinputcontext_p.h>
@@ -1653,35 +1652,35 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
 
 extern Q_GUI_EXPORT HDC qt_display_dc();
 
-int QWidget::metric(int m) const
+int QWidget::metric(PaintDeviceMetric m) const
 {
     int val;
-    if (m == QPaintDeviceMetrics::PdmWidth) {
+    if (m == PdmWidth) {
         val = data->crect.width();
-    } else if (m == QPaintDeviceMetrics::PdmHeight) {
+    } else if (m == PdmHeight) {
         val = data->crect.height();
     } else {
         HDC gdc = qt_display_dc();
         switch (m) {
-        case QPaintDeviceMetrics::PdmDpiX:
-        case QPaintDeviceMetrics::PdmPhysicalDpiX:
+        case PdmDpiX:
+        case PdmPhysicalDpiX:
             val = GetDeviceCaps(gdc, LOGPIXELSX);
             break;
-        case QPaintDeviceMetrics::PdmDpiY:
-        case QPaintDeviceMetrics::PdmPhysicalDpiY:
+        case PdmDpiY:
+        case PdmPhysicalDpiY:
             val = GetDeviceCaps(gdc, LOGPIXELSY);
             break;
-        case QPaintDeviceMetrics::PdmWidthMM:
+        case PdmWidthMM:
             val = data->crect.width()
                     * GetDeviceCaps(gdc, HORZSIZE)
                     / GetDeviceCaps(gdc, HORZRES);
             break;
-        case QPaintDeviceMetrics::PdmHeightMM:
+        case PdmHeightMM:
             val = data->crect.height()
                     * GetDeviceCaps(gdc, VERTSIZE)
                     / GetDeviceCaps(gdc, VERTRES);
             break;
-        case QPaintDeviceMetrics::PdmNumColors:
+        case PdmNumColors:
             if (GetDeviceCaps(gdc, RASTERCAPS) & RC_PALETTE)
                 val = GetDeviceCaps(gdc, SIZEPALETTE);
             else {
@@ -1694,7 +1693,7 @@ int QWidget::metric(int m) const
                     val = 1 << (bpp * GetDeviceCaps((HDC)d->hd, PLANES));
             }
             break;
-        case QPaintDeviceMetrics::PdmDepth:
+        case PdmDepth:
             val = GetDeviceCaps(gdc, BITSPIXEL);
             break;
         default:

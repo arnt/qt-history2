@@ -17,7 +17,6 @@
 #include "qfontinfo.h"
 #include "qfontmetrics.h"
 #include "qpaintdevice.h"
-#include "qpaintdevicemetrics.h"
 #include "qstring.h"
 #include <private/qt_mac_p.h>
 #include <private/qunicodetables_p.h>

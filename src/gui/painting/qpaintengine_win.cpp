@@ -16,7 +16,6 @@
 #include "qcolormap.h"
 #include "qlibrary.h"
 #include "qpaintdevice.h"
-#include "qpaintdevicemetrics.h"
 #include <private/qpaintengine_win_p.h>
 #include "qpainter.h"
 #include "qpainter_p.h"
@@ -1616,8 +1615,8 @@ void QWin32PaintEnginePrivate::fillGradient(const QRect &rect)
 
     bool useMemDC = !(rect.x() == 0
                      && rect.y() == 0
-                     && rect.width() == QPaintDeviceMetrics(pdev).width()
-                     && rect.height() == QPaintDeviceMetrics(pdev).height()
+                     && rect.width() == pdev->width()
+                     && rect.height() == pdev->height()
                      && gcol1.alpha() == 255
                      && gcol2.alpha() == 255);
     HDC memdc = hdc;

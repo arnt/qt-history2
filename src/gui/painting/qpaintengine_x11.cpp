@@ -21,7 +21,6 @@
 #include "qbitmap.h"
 #include "qpixmapcache.h"
 #include "qtextcodec.h"
-#include "qpaintdevicemetrics.h"
 #include "qcoreevent.h"
 #include "qiodevice.h"
 
@@ -1570,13 +1569,13 @@ void qt_bit_blt(QPaintDevice *dst, int dx, int dy,
 
     if (sw <= 0) {                                // special width
         if (sw < 0)
-            sw = src->metric(QPaintDeviceMetrics::PdmWidth) - sx;
+            sw = src->metric(QPaintDevice::PdmWidth) - sx;
         else
             return;
     }
     if (sh <= 0) {                                // special height
         if (sh < 0)
-            sh = src->metric(QPaintDeviceMetrics::PdmHeight) - sy;
+            sh = src->metric(QPaintDevice::PdmHeight) - sy;
         else
             return;
     }

@@ -155,7 +155,7 @@ public:
 
 protected:
     QPixmap(int w, int h, const uchar *data, bool isXbitmap);
-    int metric(int) const;
+    int metric(PaintDeviceMetric) const;
 
 private:
     QPixmapData *data;

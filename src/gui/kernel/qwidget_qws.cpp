@@ -14,7 +14,6 @@
 #include "qcursor.h"
 #include "qapplication.h"
 #include "qapplication_p.h"
-#include "qpaintdevicemetrics.h"
 #include "qpainter.h"
 #include "qbitmap.h"
 #include "qimage.h"
@@ -1473,23 +1472,23 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
 }
 
 
-int QWidget::metric(int m) const
+int QWidget::metric(PaintDeviceMetric m) const
 {
     int val;
-    if (m == QPaintDeviceMetrics::PdmWidth) {
+    if (m == PdmWidth) {
         val = data->crect.width();
-    } else if (m == QPaintDeviceMetrics::PdmWidthMM) {
+    } else if (m == PdmWidthMM) {
         // 75 dpi is 3dpmm
         val = (data->crect.width()*100)/288;
-    } else if (m == QPaintDeviceMetrics::PdmHeight) {
+    } else if (m == PdmHeight) {
         val = data->crect.height();
-    } else if (m == QPaintDeviceMetrics::PdmHeightMM) {
+    } else if (m == PdmHeightMM) {
         val = (data->crect.height()*100)/288;
-    } else if (m == QPaintDeviceMetrics::PdmDepth) {
+    } else if (m == PdmDepth) {
         return qwsDisplay()->depth();
-    } else if (m == QPaintDeviceMetrics::PdmDpiX || m == QPaintDeviceMetrics::PdmPhysicalDpiX) {
+    } else if (m == PdmDpiX || m == PdmPhysicalDpiX) {
         return 72;
-    } else if (m == QPaintDeviceMetrics::PdmDpiY || m == QPaintDeviceMetrics::PdmPhysicalDpiY) {
+    } else if (m == PdmDpiY || m == PdmPhysicalDpiY) {
         return 72;
     } else {
         val = QPaintDevice::metric(m);// XXX

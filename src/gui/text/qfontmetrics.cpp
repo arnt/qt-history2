@@ -13,7 +13,6 @@
 
 #include "qfont.h"
 #include "qpaintdevice.h"
-#include "qpaintdevicemetrics.h"
 #include "qfontmetrics.h"
 
 #include "qfontdata_p.h"
@@ -166,7 +165,7 @@ QFontMetrics::QFontMetrics(const QFont &font, QFont::Script script)
 QFontMetrics::QFontMetrics(const QFont &f, QPaintDevice *paintdevice)
     : fscript(QFont::NoScript)
 {
-    int dpi = paintdevice ? QPaintDeviceMetrics(paintdevice).logicalDpiY() : qt_defaultDpi();
+    int dpi = paintdevice ? paintdevice->logicalDpiY() : qt_defaultDpi();
 #ifdef Q_WS_X11
     int screen = paintdevice ? qt_x11Info(paintdevice)->screen() : 0;
 #else
@@ -901,7 +900,7 @@ QFontMetricsF::QFontMetricsF(const QFont &font, QFont::Script script)
 QFontMetricsF::QFontMetricsF(const QFont &f, QPaintDevice *paintdevice)
     : fscript(QFont::NoScript)
 {
-    int dpi = paintdevice ? QPaintDeviceMetrics(paintdevice).logicalDpiY() : qt_defaultDpi();
+    int dpi = paintdevice ? paintdevice->logicalDpiY() : qt_defaultDpi();
 #ifdef Q_WS_X11
     int screen = paintdevice ? qt_x11Info(paintdevice)->screen() : 0;
 #else

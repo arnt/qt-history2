@@ -17,7 +17,6 @@
 #include "qimage.h"
 #include "qlist.h"
 #include "qmap.h"
-#include "qpaintdevicemetrics.h"
 #include "qpaintengine_svg_p.h"
 #include "qpainter.h"
 #include "qpixmap.h"
@@ -1106,7 +1105,6 @@ double QSVGPaintEnginePrivate::parseLen(const QString &str, bool *ok, bool horiz
     double dbl = reg.cap(1).toDouble();
     QString u = reg.cap(2);
     if (!u.isEmpty() && u != "px") {
-        QPaintDeviceMetrics m(d->dev);//pt->device()); // ### NB! this is the metrics from QPicture - was the same as the old QSvgDevice...
         if (u == "em") {
             QFontInfo fi(d->cfont);
             dbl *= fi.pixelSize();
@@ -1116,15 +1114,15 @@ double QSVGPaintEnginePrivate::parseLen(const QString &str, bool *ok, bool horiz
         } else if (u == "%")
             dbl *= (horiz ? d->wwidth : d->wheight)/100.0;
         else if (u == "cm")
-            dbl *= m.logicalDpiX() / 2.54;
+            dbl *= d->dev->logicalDpiX() / 2.54;
         else if (u == "mm")
-            dbl *= m.logicalDpiX() / 25.4;
+            dbl *= d->dev->logicalDpiX() / 25.4;
         else if (u == "in")
-            dbl *= m.logicalDpiX();
+            dbl *= d->dev->logicalDpiX();
         else if (u == "pt")
-            dbl *= m.logicalDpiX() / 72.0;
+            dbl *= d->dev->logicalDpiX() / 72.0;
         else if (u == "pc")
-            dbl *= m.logicalDpiX() / 6.0;
+            dbl *= d->dev->logicalDpiX() / 6.0;
         else
             qWarning("QSVGPaintEngine::parseLen: Unknown unit %s", u.latin1());
     }

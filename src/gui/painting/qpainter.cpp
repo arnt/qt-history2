@@ -15,7 +15,6 @@
 #include "qbitmap.h"
 #include "qimage.h"
 #include "qpaintdevice.h"
-#include "qpaintdevicemetrics.h"
 #include "qpaintengine.h"
 #include "qpainter.h"
 #include "qpainter_p.h"
@@ -1077,8 +1076,8 @@ bool QPainter::begin(QPaintDevice *pd)
         }
         case QInternal::ExternalDevice:
         {
-            d->state->ww = d->state->vw = pd->metric(QPaintDeviceMetrics::PdmWidth);
-            d->state->wh = d->state->vh = pd->metric(QPaintDeviceMetrics::PdmHeight);
+            d->state->ww = d->state->vw = pd->metric(QPaintDevice::PdmWidth);
+            d->state->wh = d->state->vh = pd->metric(QPaintDevice::PdmHeight);
         }
     }
 
@@ -1581,8 +1580,8 @@ void QPainter::resetMatrix()
     }
 
     d->state->wx = d->state->wy = d->state->vx = d->state->vy = 0;                        // default view origins
-    d->state->ww = d->state->vw = d->device->metric(QPaintDeviceMetrics::PdmWidth);
-    d->state->wh = d->state->vh = d->device->metric(QPaintDeviceMetrics::PdmHeight);
+    d->state->ww = d->state->vw = d->device->metric(QPaintDevice::PdmWidth);
+    d->state->wh = d->state->vh = d->device->metric(QPaintDevice::PdmHeight);
     d->state->worldMatrix = QMatrix();
     setMatrixEnabled(false);
     setViewTransformEnabled(false);

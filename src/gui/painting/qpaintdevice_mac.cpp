@@ -12,7 +12,6 @@
 ****************************************************************************/
 
 #include "qpaintdevice.h"
-#include "qpaintdevicemetrics.h"
 #include "qpainter.h"
 #include "qwidget.h"
 #include "qbitmap.h"
@@ -52,7 +51,7 @@ QPaintDevice::~QPaintDevice()
                  "painted.  Be sure to QPainter::end() painters!");
 }
 
-int QPaintDevice::metric(int) const
+int QPaintDevice::metric(PaintDeviceMetric) const
 {
     return 0;
 }

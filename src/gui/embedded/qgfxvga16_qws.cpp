@@ -17,7 +17,6 @@
 
 #include "qregexp.h"
 #include "qpen.h"
-#include "qpaintdevicemetrics.h"
 #include "qgfxraster_qws.h"
 #include "qgfxvga16_qws.h"
 
@@ -994,9 +993,8 @@ void QGfxVga16::setSource(const QPaintDevice * p)
 {
     BEGIN_PROFILING
 
-    QPaintDeviceMetrics qpdm(p);
     srclinestep=((QPaintDevice *)p)->bytesPerLine();
-    srcdepth=qpdm.depth();
+    srcdepth=p->depth();
     if(srcdepth==0)
         abort();
     srcbits=((QPaintDevice *)p)->scanLine(0);

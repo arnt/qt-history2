@@ -17,7 +17,6 @@
 #include "qapplication.h"
 #include "qapplication_p.h"
 #include "qnamespace.h"
-#include "qpaintdevicemetrics.h"
 #include "qpainter.h"
 #include "qbitmap.h"
 #include "qlayout.h"
@@ -2442,42 +2441,40 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
     Internal implementation of the virtual QPaintDevice::metric()
     function.
 
-    Use the QPaintDeviceMetrics class instead.
-
     \a m is the metric to get.
 */
 
-int QWidget::metric(int m) const
+int QWidget::metric(PaintDeviceMetric m) const
 {
     int val;
-    if (m == QPaintDeviceMetrics::PdmWidth) {
+    if (m == PdmWidth) {
         val = data->crect.width();
-    } else if (m == QPaintDeviceMetrics::PdmHeight) {
+    } else if (m == PdmHeight) {
         val = data->crect.height();
     } else {
         Display *dpy = X11->display;
         int scr = d->xinfo.screen();
         switch (m) {
-            case QPaintDeviceMetrics::PdmDpiX:
-            case QPaintDeviceMetrics::PdmPhysicalDpiX:
+            case PdmDpiX:
+            case PdmPhysicalDpiX:
                 val = QX11Info::appDpiX(scr);
                 break;
-            case QPaintDeviceMetrics::PdmDpiY:
-            case QPaintDeviceMetrics::PdmPhysicalDpiY:
+            case PdmDpiY:
+            case PdmPhysicalDpiY:
                 val = QX11Info::appDpiY(scr);
                 break;
-            case QPaintDeviceMetrics::PdmWidthMM:
+            case PdmWidthMM:
                 val = (DisplayWidthMM(dpy,scr)*data->crect.width())/
                       DisplayWidth(dpy,scr);
                 break;
-            case QPaintDeviceMetrics::PdmHeightMM:
+            case PdmHeightMM:
                 val = (DisplayHeightMM(dpy,scr)*data->crect.height())/
                       DisplayHeight(dpy,scr);
                 break;
-            case QPaintDeviceMetrics::PdmNumColors:
+            case PdmNumColors:
                 val = d->xinfo.cells();
                 break;
-            case QPaintDeviceMetrics::PdmDepth:
+            case PdmDepth:
                 val = d->xinfo.depth();
                 break;
             default:

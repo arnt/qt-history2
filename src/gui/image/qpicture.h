@@ -64,7 +64,7 @@ public:
 protected:
     QPicture(QPicturePrivate &data);
 
-    int metric(int m) const;
+    int metric(PaintDeviceMetric m) const;
 #ifdef QT_COMPAT
     inline QT_COMPAT QPicture copy() const { QPicture p(*this); p.detach(); return p; }
 #endif

@@ -10,7 +10,6 @@ HEADERS += \
 	painting/qdrawutil.h \
 	painting/qline.h \
 	painting/qpaintdevice.h \
-	painting/qpaintdevicemetrics.h \
 	painting/qpaintengine.h \
 	painting/qpainter.h \
 	painting/qpainter_p.h \
@@ -35,7 +34,6 @@ SOURCES += \
 	painting/qcolor_p.cpp \
 	painting/qdrawutil.cpp \
 	painting/qline.cpp \
-	painting/qpaintdevicemetrics.cpp \
 	painting/qpaintengine.cpp \
 	painting/qpainter.cpp \
 	painting/qpainterpath.cpp \

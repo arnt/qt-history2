@@ -20,7 +20,6 @@
 // Class forward definitions
 
 class QPaintDevice;
-class QPaintDeviceMetrics;
 class QWidget;
 class QDialog;
 class QColor;

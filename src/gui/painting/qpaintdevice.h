@@ -26,6 +26,19 @@ class QPaintEngine;
 class Q_GUI_EXPORT QPaintDevice                                // device for QPainter
 {
 public:
+    enum PaintDeviceMetric {
+        PdmWidth = 1,
+        PdmHeight,
+        PdmWidthMM,
+        PdmHeightMM,
+        PdmNumColors,
+        PdmDepth,
+        PdmDpiX,
+        PdmDpiY,
+        PdmPhysicalDpiX,
+        PdmPhysicalDpiY
+    };
+
     virtual ~QPaintDevice();
 
     int devType() const;
@@ -44,9 +57,20 @@ public:
     virtual void releaseDC(HDC hdc) const;
 #endif
 
+    int width() const { return metric(PdmWidth); }
+    int height() const { return metric(PdmHeight); }
+    int widthMM() const { return metric(PdmWidthMM); }
+    int heightMM() const { return metric(PdmHeightMM); }
+    int logicalDpiX() const { return metric(PdmDpiX); }
+    int logicalDpiY() const { return metric(PdmDpiY); }
+    int physicalDpiX() const { return metric(PdmPhysicalDpiX); }
+    int physicalDpiY() const { return metric(PdmPhysicalDpiY); }
+    int numColors() const { return metric(PdmNumColors); }
+    int depth() const { return metric(PdmDepth); }
+
 protected:
     QPaintDevice(uint devflags);
-    virtual int metric(int) const;
+    virtual int metric(PaintDeviceMetric metric) const;
 
     ushort        devFlags;                        // device flags
     ushort        painters;                        // refcount
@@ -81,7 +105,6 @@ public:
 #endif
 
     friend class QPainter;
-    friend class QPaintDeviceMetrics;
     friend class QQuickDrawPaintEngine;
     friend class QFontEngineMac;
     friend void qt_bit_blt(QPaintDevice *, int, int, const QPaintDevice *, int, int, int, int, bool);

@@ -25,7 +25,6 @@
 #include "qmenubar.h"
 #include "qmessagebox.h"
 #include "qmime.h"
-#include "qpaintdevicemetrics.h"
 #include "qpixmapcache.h"
 #include "qpointer.h"
 #include "qsessionmanager.h"

@@ -12,7 +12,6 @@
 ****************************************************************************/
 
 #include <private/qprintengine_mac_p.h>
-#include "qpaintdevicemetrics.h"
 
 
 #define d d_func()
@@ -388,32 +387,32 @@ static inline int qt_get_PDMHeight(PMPageFormat pformat, bool fullPage)
 }
 
 
-int QMacPrintEngine::metric(int m) const
+int QMacPrintEngine::metric(QPaintDevice::PaintDeviceMetric m) const
 {
     int val = 1;
     switch (m) {
-    case QPaintDeviceMetrics::PdmWidth:
+    case QPaintDevice::PdmWidth:
         if (d->state == QPrinter::Active || orientation() == QPrinter::Portrait)
             val = qt_get_PDMWidth(d->format, fullPage());
         else
             val = qt_get_PDMHeight(d->format, fullPage());
         break;
-    case QPaintDeviceMetrics::PdmHeight:
+    case QPaintDevice::PdmHeight:
         if (d->state == QPrinter::Active || orientation() == QPrinter::Portrait)
             val = qt_get_PDMHeight(d->format, fullPage());
         else
             val = qt_get_PDMWidth(d->format, fullPage());
         break;
-    case QPaintDeviceMetrics::PdmWidthMM:
-        val = metric(QPaintDeviceMetrics::PdmWidth);
+    case QPaintDevice::PdmWidthMM:
+        val = metric(PdmWidth);
         val = int((val * 254 + 5 * d->resolution.hRes) / (10 * d->resolution.hRes));
         break;
-    case QPaintDeviceMetrics::PdmHeightMM:
-        val = metric(QPaintDeviceMetrics::PdmHeight);
+    case QPaintDevice::PdmHeightMM:
+        val = metric(PdmHeight);
         val = int((val * 254 + 5 * d->resolution.vRes) / (10 * d->resolution.vRes));
         break;
-    case QPaintDeviceMetrics::PdmPhysicalDpiX:
-    case QPaintDeviceMetrics::PdmPhysicalDpiY: {
+    case QPaintDevice::PdmPhysicalDpiX:
+    case QPaintDevice::PdmPhysicalDpiY: {
         PMPrinter printer;
         if(PMSessionGetCurrentPrinter(d->session, &printer) == noErr) {
             PMResolution resolution;
@@ -423,16 +422,16 @@ int QMacPrintEngine::metric(int m) const
         }
         //otherwise fall through
     }
-    case QPaintDeviceMetrics::PdmDpiY:
+    case QPaintDevice::PdmDpiY:
         val = (int)d->resolution.vRes;
         break;
-    case QPaintDeviceMetrics::PdmDpiX:
+    case QPaintDevice::PdmDpiX:
         val = (int)d->resolution.hRes;
         break;
-    case QPaintDeviceMetrics::PdmNumColors:
-        val = (1 << metric(QPaintDeviceMetrics::PdmDepth));
+    case QPaintDevice::PdmNumColors:
+        val = (1 << metric(PdmDepth));
         break;
-    case QPaintDeviceMetrics::PdmDepth:
+    case QPaintDevice::PdmDepth:
         val = 24;
         break;
     default:

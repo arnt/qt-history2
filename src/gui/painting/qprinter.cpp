@@ -16,7 +16,6 @@
 #include "qprinter_p.h"
 #include "qprinter.h"
 #include "qprintengine.h"
-#include "qpaintdevicemetrics.h"
 #include "qlist.h"
 #include <qprintdialog.h>
 #include <qpagesetupdialog.h>
@@ -104,7 +103,7 @@
   before you ask the user through QPrintDialog.
 
   Once you start printing, calling newPage() is essential. You will
-  probably also need to look at the QPaintDeviceMetrics for the
+  probably also need to look at the device metrics for the
   printer (see the \link simple-application.html#printersimple print
   function\endlink in the Application walk-through). Note that the
   paint device metrics are valid only after the QPrinter has been
@@ -204,8 +203,7 @@
   This enum type specifies what paper size QPrinter should use.
   QPrinter does not check that the paper size is available; it just
   uses this information, together with QPrinter::Orientation and
-  QPrinter::setFullPage(), to determine the printable area (see
-  QPaintDeviceMetrics).
+  QPrinter::setFullPage(), to determine the printable area.
 
   The defined sizes (with setFullPage(TRUE)) are:
 
@@ -831,17 +829,17 @@ void QPrinter::setNumCopies(int numCopies)
   the top-left corner of the printable area is if \a fp is false.
 
   The default is false. You can (probably) print on (0,0), and
-  QPaintDeviceMetrics will report something smaller than the size
+  the device metrics will report something smaller than the size
   indicated by PageSize. (Note that QPrinter may be wrong on Unix
   systems: it does not have perfect knowledge of the physical
   printer.)
 
-  If \a fp is true, QPaintDeviceMetrics will report the exact same
+  If \a fp is true, the device metrics will report the exact same
   size as indicated by \c PageSize. It probably isn't possible to
   print on the entire page because of the printer's physical
   margins, so the application must account for the margins itself.
 
-  \sa PageSize setPageSize() QPaintDeviceMetrics fullPage()
+  \sa PageSize setPageSize() fullPage() width() height()
 */
 
 void QPrinter::setFullPage(bool fp)
@@ -857,7 +855,7 @@ void QPrinter::setFullPage(bool fp)
 
   See setFullPage() for details and caveats.
 
-  \sa setFullPage() PageSize QPaintDeviceMetrics
+  \sa setFullPage() PageSize
 */
 
 bool QPrinter::fullPage() const
@@ -871,7 +869,7 @@ bool QPrinter::fullPage() const
   possible.
 
   This setting affects the coordinate system as returned by, for
-  example, QPaintDeviceMetrics and QPainter::viewport().
+  example QPainter::viewport().
 
   The value depends on the \c PrintingMode used in the QPrinter
   constructor. By default, the the screen's dpi value is used.
@@ -976,7 +974,7 @@ QRect QPrinter::paperRect() const
 
     Returns the metric for the given \a id.
 */
-int QPrinter::metric(int id) const
+int QPrinter::metric(PaintDeviceMetric id) const
 {
     return d->printEngine->metric(id);
 }

@@ -13,7 +13,6 @@
 
 #include <qbitmap.h>
 #include <qpaintdevice.h>
-#include <qpaintdevicemetrics.h>
 #include <private/qpaintengine_mac_p.h>
 #include <qpainterpath.h>
 #include <qpixmapcache.h>
@@ -469,7 +468,7 @@ QQuickDrawPaintEngine::drawPolygon(const QPolygon &p, PolygonDrawMode mode)
             penPoint = QPoint(-dot, -dot);
         }
 
-        // We draw 5000 chunks at a time because of limitations in QD 
+        // We draw 5000 chunks at a time because of limitations in QD
         for(int chunk = 0; chunk < pa.count();) {
             //make a region of it
             PolyHandle poly = OpenPoly();
@@ -760,8 +759,7 @@ void QQuickDrawPaintEngine::setupQDPort(bool force, QPoint *off, QRegion *rgn)
     if(d->pdev->devType() == QInternal::Printer) {
         if(force) {
             remade_clip = true;
-            d->clip.pdev = QRegion(0, 0, d->pdev->metric(QPaintDeviceMetrics::PdmWidth),
-                                          d->pdev->metric(QPaintDeviceMetrics::PdmHeight));
+            d->clip.pdev = QRegion(0, 0, d->pdev->metric(PdmWidth), d->pdev->metric(PdmHeight));
         }
     } else if(d->pdev->devType() == QInternal::Widget) {                    // device is a widget
         paintevent_item *pevent = qt_mac_get_paintevent();
@@ -1529,7 +1527,7 @@ QCoreGraphicsPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap
     callbks.drawPattern = qt_mac_draw_pattern;
     callbks.releaseInfo = qt_mac_dispose_pattern;
     const int width = pixmap.width(), height = pixmap.height();
-    CGPatternRef pat = CGPatternCreate(qpattern, CGRectMake(0, 0, width, height), 
+    CGPatternRef pat = CGPatternCreate(qpattern, CGRectMake(0, 0, width, height),
                                        CGContextGetCTM(d->hd), width, height,
                                        kCGPatternTilingNoDistortion, true, &callbks);
     CGColorSpaceRef cs = CGColorSpaceCreatePattern(0);

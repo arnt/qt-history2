@@ -16,7 +16,6 @@
 #ifndef QT_NO_SVG
 
 #include "qpainter.h"
-#include "qpaintdevicemetrics.h"
 #include "qfile.h"
 #include "qmap.h"
 #include "qregexp.h"
@@ -332,38 +331,36 @@ void QSvgDevice::setBoundingRect(const QRect &r)
     Internal implementation of the virtual QPaintDevice::metric()
     function.
 
-    \warning Use the QPaintDeviceMetrics class instead.
-
     A QSvgDevice has the following hard coded values: dpi=72,
     numcolors=16777216 and depth=24. \a m is the metric to get.
 */
 
-int QSvgDevice::metric(int m) const
+int QSvgDevice::metric(PaintDeviceMetric m) const
 {
     int val;
     switch (m) {
-    case QPaintDeviceMetrics::PdmWidth:
+    case PdmWidth:
         val = brect.width();
         break;
-    case QPaintDeviceMetrics::PdmHeight:
+    case PdmHeight:
         val = brect.height();
         break;
-    case QPaintDeviceMetrics::PdmWidthMM:
+    case PdmWidthMM:
         val = int(25.4/72.0*brect.width());
         break;
-    case QPaintDeviceMetrics::PdmHeightMM:
+    case PdmHeightMM:
         val = int(25.4/72.0*brect.height());
         break;
-    case QPaintDeviceMetrics::PdmDpiX:
+    case PdmDpiX:
         val = 72;
         break;
-    case QPaintDeviceMetrics::PdmDpiY:
+    case PdmDpiY:
         val = 72;
         break;
-    case QPaintDeviceMetrics::PdmNumColors:
+    case PdmNumColors:
         val = 16777216;
         break;
-    case QPaintDeviceMetrics::PdmDepth:
+    case PdmDepth:
         val = 24;
         break;
     default:
@@ -1066,7 +1063,6 @@ double QSvgDevice::parseLen(const QString &str, bool *ok, bool horiz) const
     double dbl = reg.cap(1).toDouble();
     QString u = reg.cap(2);
     if (!u.isEmpty() && u != "px") {
-        QPaintDeviceMetrics m(pt->device());
         if (u == "em") {
             QFontInfo fi(pt->font());
             dbl *= fi.pixelSize();
@@ -1076,15 +1072,15 @@ double QSvgDevice::parseLen(const QString &str, bool *ok, bool horiz) const
         } else if (u == "%")
             dbl *= (horiz ? pt->window().width() : pt->window().height())/100.0;
         else if (u == "cm")
-            dbl *= m.logicalDpiX() / 2.54;
+            dbl *= pt->device()->logicalDpiX() / 2.54;
         else if (u == "mm")
-            dbl *= m.logicalDpiX() / 25.4;
+            dbl *= pt->device()->logicalDpiX() / 25.4;
         else if (u == "in")
-            dbl *= m.logicalDpiX();
+            dbl *= pt->device()->logicalDpiX();
         else if (u == "pt")
-            dbl *= m.logicalDpiX() / 72.0;
+            dbl *= pt->device()->logicalDpiX() / 72.0;
         else if (u == "pc")
-            dbl *= m.logicalDpiX() / 6.0;
+            dbl *= pt->device()->logicalDpiX() / 6.0;
         else
             qWarning("QSvgDevice::parseLen: Unknown unit %s", u.latin1());
     }

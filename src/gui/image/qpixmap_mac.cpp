@@ -14,7 +14,6 @@
 #include "qpixmap.h"
 #include "qpixmap_p.h"
 #include "qimage.h"
-#include "qpaintdevicemetrics.h"
 #include "qapplication.h"
 #include "qbitmap.h"
 #include "qmatrix.h"
@@ -425,34 +424,34 @@ void QPixmap::detach()
     }
 }
 
-int QPixmap::metric(int m) const
+int QPixmap::metric(PaintDeviceMetric m) const
 {
     int val=0;
     switch (m) {
-        case QPaintDeviceMetrics::PdmWidth:
+        case PdmWidth:
             val = width();
             break;
-        case QPaintDeviceMetrics::PdmHeight:
+        case PdmHeight:
             val = height();
             break;
-        case QPaintDeviceMetrics::PdmWidthMM:
-        case QPaintDeviceMetrics::PdmHeightMM:
+        case PdmWidthMM:
+        case PdmHeightMM:
             break;
-        case QPaintDeviceMetrics::PdmNumColors:
+        case PdmNumColors:
             val = 1 << depth();
             break;
-        case QPaintDeviceMetrics::PdmDpiX:
-        case QPaintDeviceMetrics::PdmPhysicalDpiX:
-        case QPaintDeviceMetrics::PdmDpiY:
-        case QPaintDeviceMetrics::PdmPhysicalDpiY: {
+        case PdmDpiX:
+        case PdmPhysicalDpiX:
+        case PdmDpiY:
+        case PdmPhysicalDpiY: {
             if(GDHandle gd = GetGWorldDevice(static_cast<GWorldPtr>(handle()))) {
-                if (m == QPaintDeviceMetrics::PdmDpiX || m == QPaintDeviceMetrics::PdmPhysicalDpiX)
+                if (m == PdmDpiX || m == PdmPhysicalDpiX)
                     val = Fix2Long((**(**gd).gdPMap).hRes);
                 else
                     val = Fix2Long((**(**gd).gdPMap).vRes);
             }
             break; }
-        case QPaintDeviceMetrics::PdmDepth:
+        case PdmDepth:
             val = depth();
             break;
         default:
@@ -482,7 +481,7 @@ void QPixmapData::copyAlpha(const QPixmapData *data)
 {
     if(!alphapm)
         return;
-    alphapm = new QPixmap(data->alphapm->width(), data->alphapm->height(), 
+    alphapm = new QPixmap(data->alphapm->width(), data->alphapm->height(),
                           data->alphapm->depth());
     QPainter painter(alphapm);
     painter.drawPixmap(QPoint(0, 0), *data->alphapm, Qt::CopyPixmapNoMask);

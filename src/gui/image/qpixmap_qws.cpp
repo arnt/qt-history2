@@ -16,7 +16,6 @@
 #include "qwidget.h"
 #include "qbitmap.h"
 #include "qcolormap.h"
-#include "qpaintdevicemetrics.h"
 #include "qimage.h"
 #include "qmatrix.h"
 #include "qapplication.h"
@@ -367,23 +366,23 @@ void QPixmap::fill(const QColor &fillColor)
 }
 
 
-int QPixmap::metric(int m) const
+int QPixmap::metric(PaintDeviceMetric m) const
 {
     int val;
-    if (m == QPaintDeviceMetrics::PdmWidth) {
+    if (m == PdmWidth) {
         val = width();
-    } else if (m == QPaintDeviceMetrics::PdmWidthMM) {
+    } else if (m == PdmWidthMM) {
         // 75 dpi is 3dpmm
         val = (width()*100)/288;
-    } else if (m == QPaintDeviceMetrics::PdmHeight) {
+    } else if (m == PdmHeight) {
         val = height();
-    } else if (m == QPaintDeviceMetrics::PdmHeightMM) {
+    } else if (m == PdmHeightMM) {
         val = (height()*100)/288;
-    } else if (m == QPaintDeviceMetrics::PdmDpiX || m == QPaintDeviceMetrics::PdmPhysicalDpiX) {
+    } else if (m == PdmDpiX || m == PdmPhysicalDpiX) {
         return 72;
-    } else if (m == QPaintDeviceMetrics::PdmDpiY || m == QPaintDeviceMetrics::PdmPhysicalDpiY) {
+    } else if (m == PdmDpiY || m == PdmPhysicalDpiY) {
         return 72;
-    } else if(m ==  QPaintDeviceMetrics::PdmDepth) {
+    } else if(m ==  PdmDepth) {
         val=depth();
     } else {
         // XXX

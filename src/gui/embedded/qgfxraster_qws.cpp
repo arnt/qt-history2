@@ -14,7 +14,6 @@
 #include "qgfxraster_qws.h"
 #include "qpen.h"
 #include "qcolormap.h"
-#include "qpaintdevicemetrics.h"
 #include "qpaintdevice.h"
 #include "qmemorymanager_qws.h"
 #include "qwsdisplay_qws.h"
@@ -1134,9 +1133,8 @@ template <const int depth, const int type>
 void QGfxRaster<depth,type>::setSource(const QPaintDevice *p)
 {
     // if the source is 1bpp, the pen and brush currently active will be used
-    QPaintDeviceMetrics qpdm(p);
     srclinestep=((QPaintDevice *)p)->bytesPerLine();
-    srcdepth=qpdm.depth();
+    srcdepth=p->depth();
     if(srcdepth==0)
         abort();
     srcbits=((QPaintDevice *)p)->scanLine(0);

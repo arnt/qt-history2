@@ -22,7 +22,6 @@
 #include "qfontdatabase.h"
 #include "qfontmetrics.h"
 #include "qpaintdevice.h"
-#include "qpaintdevicemetrics.h"
 #include "qtextcodec.h"
 #include "qiodevice.h"
 

@@ -19,7 +19,6 @@
 #include <private/qpaintengine_mac_p.h>
 #include <private/qprintengine_mac_p.h>
 #include <qglobal.h>
-#include <qpaintdevicemetrics.h>
 #include <qpixmap.h>
 #include <qpixmapcache.h>
 #include <qvarlengtharray.h>
@@ -375,7 +374,7 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
             if(widget)
                 height = widget->topLevelWidget()->height();
             else
-                height = device->metric(QPaintDeviceMetrics::PdmHeight);
+                height = device->metric(QPaintDevice::PdmHeight);
             tf = CGAffineTransformTranslate(tf, 0, height);
             tf = CGAffineTransformScale(tf, 1, -1);
         }
@@ -546,7 +545,7 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
             if(widget)
                 height = widget->topLevelWidget()->height();
             else
-                height = device->metric(QPaintDeviceMetrics::PdmHeight);
+                height = device->metric(QPaintDevice::PdmHeight);
             drawy = height-drawy;
         }
         ATSUDrawText(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd, FixRatio(x, 1),

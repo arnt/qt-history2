@@ -24,7 +24,6 @@
 #include "qtexthtmlparser_p.h"
 #include "qpainter.h"
 #include "qprinter.h"
-#include "qpaintdevicemetrics.h"
 
 #include "qtextdocument_p.h"
 
@@ -716,10 +715,9 @@ void QTextDocument::print(QPrinter *printer) const
     // Check that there is a valid device to print to.
     if (!p.device()) return;
 
-    QPaintDeviceMetrics metrics(p.device());
-    const int dpiy = metrics.logicalDpiY();
+    const int dpiy = p.device()->logicalDpiY();
     const int margin = (int) ((2/2.54)*dpiy); // 2 cm margins
-    QRect body(margin, margin, metrics.width() - 2*margin, metrics.height() - 2*margin);
+    QRect body(margin, margin, p.device()->width() - 2*margin, p.device()->height() - 2*margin);
 
     QTextDocument doc;
     QTextCursor(&doc).insertFragment(QTextDocumentFragment(this));

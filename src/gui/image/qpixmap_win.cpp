@@ -14,7 +14,6 @@
 #include "qpixmap_p.h"
 #include "qbitmap.h"
 #include "qimage.h"
-#include "qpaintdevicemetrics.h"
 #include "qmatrix.h"
 #include "qcolormap.h"
 #include "qapplication.h"
@@ -379,11 +378,11 @@ void QPixmap::fill(const QColor &fillColor)
 }
 
 
-int QPixmap::metric(int m) const
+int QPixmap::metric(PaintDeviceMetric m) const
 {
-    if (m == QPaintDeviceMetrics::PdmWidth) {
+    if (m == PdmWidth) {
         return width();
-    } else if (m == QPaintDeviceMetrics::PdmHeight) {
+    } else if (m == PdmHeight) {
         return height();
     } else {
         int val;
@@ -395,27 +394,27 @@ int QPixmap::metric(int m) const
             spm = 0;
         }
         switch (m) {
-            case QPaintDeviceMetrics::PdmDpiX:
+            case PdmDpiX:
                 val = GetDeviceCaps(dc, LOGPIXELSX);
                 break;
-            case QPaintDeviceMetrics::PdmDpiY:
+            case PdmDpiY:
                 val = GetDeviceCaps(dc, LOGPIXELSY);
                 break;
-            case QPaintDeviceMetrics::PdmWidthMM:
+            case PdmWidthMM:
                 val = width()
                         * GetDeviceCaps(dc, HORZSIZE)
                         / GetDeviceCaps(dc, HORZRES);
                 if (spm)
                     val = val * width() / spm->width();
                 break;
-            case QPaintDeviceMetrics::PdmHeightMM:
+            case PdmHeightMM:
                 val = height()
                         * GetDeviceCaps(dc, VERTSIZE)
                         / GetDeviceCaps(dc, VERTRES);
                 if (spm)
                     val = val * height() / spm->height();
                 break;
-            case QPaintDeviceMetrics::PdmNumColors:
+            case PdmNumColors:
                 if (GetDeviceCaps(dc, RASTERCAPS) & RC_PALETTE)
                     val = GetDeviceCaps(dc, SIZEPALETTE);
                 else {
@@ -428,7 +427,7 @@ int QPixmap::metric(int m) const
                         val = 1 << (bpp * GetDeviceCaps(dc, PLANES));
                 }
                 break;
-            case QPaintDeviceMetrics::PdmDepth:
+            case PdmDepth:
                 val = depth();
                 break;
             default:

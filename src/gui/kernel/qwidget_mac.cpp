@@ -21,7 +21,6 @@
 #include "qevent.h"
 #include "qimage.h"
 #include "qlayout.h"
-#include "qpaintdevicemetrics.h"
 #include <private/qpaintengine_mac_p.h>
 #include "qpainter.h"
 #include "qstack.h"
@@ -1995,29 +1994,29 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
     HIViewScrollRect((HIViewRef)winId(), valid_rect ? &scrollrect : 0, dx, dy);
 }
 
-int QWidget::metric(int m) const
+int QWidget::metric(PaintDeviceMetric m) const
 {
     switch(m) {
-    case QPaintDeviceMetrics::PdmHeightMM: // 75 dpi is 3dpmm
-        return (metric(QPaintDeviceMetrics::PdmHeight)*100)/288;
-    case QPaintDeviceMetrics::PdmWidthMM: // 75 dpi is 3dpmm
-        return (metric(QPaintDeviceMetrics::PdmWidth)*100)/288;
-    case QPaintDeviceMetrics::PdmHeight:
-    case QPaintDeviceMetrics::PdmWidth: {
+    case PdmHeightMM: // 75 dpi is 3dpmm
+        return (metric(PdmHeight)*100)/288;
+    case PdmWidthMM: // 75 dpi is 3dpmm
+        return (metric(PdmWidth)*100)/288;
+    case PdmHeight:
+    case PdmWidth: {
         HIRect rect;
         HIViewGetFrame((HIViewRef)winId(), &rect);
-        if(m == QPaintDeviceMetrics::PdmWidth)
+        if(m == PdmWidth)
             return (int)rect.size.width;
         return (int)rect.size.height; }
-    case QPaintDeviceMetrics::PdmDepth:
+    case PdmDepth:
         return 32;
-    case QPaintDeviceMetrics::PdmDpiX:
-    case QPaintDeviceMetrics::PdmPhysicalDpiX: {
+    case PdmDpiX:
+    case PdmPhysicalDpiX: {
         short dpix, dpiy;
         ScreenRes(&dpix, &dpiy);
         return dpix; }
-    case QPaintDeviceMetrics::PdmDpiY:
-    case QPaintDeviceMetrics::PdmPhysicalDpiY: {
+    case PdmDpiY:
+    case PdmPhysicalDpiY: {
         short dpix, dpiy;
         ScreenRes(&dpix, &dpiy);
         return dpiy; }
