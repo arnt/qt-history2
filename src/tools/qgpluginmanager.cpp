@@ -324,12 +324,10 @@ void QGPluginManager::addLibraryPath( const QString& path )
 
     QStringList plugins = QDir(path).entryList( "*." + filter );
     for ( QStringList::Iterator p = plugins.begin(); p != plugins.end(); ++p ) {
-	QString lib = path + "/" + *p;
+	QString lib = QDir::cleanDirPath( path + "/" + *p );
 	if ( libList.contains( lib ) )
 	    continue;
-
-	// use QFileInfo::filePath() to correct backslashes to slashes
-	libList.append( QFileInfo( lib ).filePath() );
+	libList.append( lib );
     }
 }
 
