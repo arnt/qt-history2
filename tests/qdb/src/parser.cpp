@@ -286,6 +286,9 @@ int Parser::getToken()
 	    case HASH( 'c', 7, 'r' ):
 		CHECK( "character" );
 		return Tok_character;
+	    case HASH( 'd', 1, 'c' ):
+		CHECK( "dec" );
+		return Tok_decimal;
 	    case HASH( 'd', 2, 'c' ):
 		CHECK( "desc" );
 		return Tok_desc;
@@ -964,19 +967,19 @@ void Parser::emitWhereLoop( const QVariant& cond,
     int tableId = yyActiveTableIds[level];
     int lastLevel = (int) yyActiveTableIds.count() - 1;
     bool saving = !selectColumns.isEmpty();
-    bool allColumnsAreSimple = TRUE;
+    bool needLoop = ( cond.isValid() || lastLevel > 0 );
 
-    QValueList<QVariant>::ConstIterator c = selectColumns.begin();
-    while ( c != selectColumns.end() ) {
-	if ( (*c).type() == QVariant::List &&
-	     (*c).toList()[0].toInt() != Node_ResolvedField ) {
-	    allColumnsAreSimple = FALSE;
-	    break;
+    if ( !needLoop ) {
+	QValueList<QVariant>::ConstIterator c = selectColumns.begin();
+	while ( c != selectColumns.end() ) {
+	    if ( (*c).type() == QVariant::List &&
+		 (*c).toList()[0].toInt() != Node_ResolvedField ) {
+		needLoop = TRUE;
+		break;
+	    }
+	    ++c;
 	}
-	++c;
     }
-
-    bool needLoop = ( !allColumnsAreSimple || cond.isValid() || lastLevel > 0 );
 
     QValueList<QVariant> constantsForLevel;
     if ( yyActiveTableIds.count() == 1 ) {
@@ -1020,16 +1023,20 @@ void Parser::emitWhereLoop( const QVariant& cond,
 	if ( level == lastLevel ) {
 	    if ( saving ) {
 		int save = yyNextLabel--;
-		emitExpr( cond, save, next );
-		yyProg->appendLabel( save );
+		if ( cond.isValid() ) {
+		    emitExpr( cond, save, next );
+		    yyProg->appendLabel( save );
+		}
 		emitExprList( selectColumns );
 		yyProg->append( new SaveResult(0) );
 	    } else {
 		int unmark = yyNextLabel--;
-		emitExpr( cond, next, unmark );
-		if ( !cond.isValid() )
+		if ( cond.isValid() ) {
+		    emitExpr( cond, next, unmark );
+		    yyProg->appendLabel( unmark );
+		} else {
 		    yyProg->append( new Goto(next) );
-		yyProg->appendLabel( unmark );
+		}
 		yyProg->append( new Unmark(tableId) );
 	    }
 	} else {
