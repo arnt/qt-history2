@@ -3166,7 +3166,6 @@ QTextParagraph *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch
     QTextParagraph *parag = firstParagraph();
 
     QPixmap *doubleBuffer = 0;
-    QPainter painter;
 
     bool fullWidthSelection = QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection);
     while ( parag ) {
@@ -3179,9 +3178,13 @@ QTextParagraph *QTextDocument::draw( QPainter *p, int cx, int cy, int cw, int ch
 	    pr.setWidth( parag->document()->width() );
 	if ( pr.y() > cy + ch )
 	    goto floating;
-	if ( !pr.intersects( QRect( cx, cy, cw, ch ) ) || ( onlyChanged && !parag->hasChanged() ) ) {
+	QRect clipr( cx, cy, cw, ch );
+	if ( !pr.intersects( clipr ) || ( onlyChanged && !parag->hasChanged() ) ) {
 	    bool uDoubleBuffer = useDoubleBuffer( parag, p );
-	    if ( uDoubleBuffer && !QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) )
+	    pr.setWidth( parag->document()->width() );
+	    if ( uDoubleBuffer &&
+		 !QApplication::style().styleHint(QStyle::SH_RichText_FullWidthSelection) &&
+		pr.intersects( clipr ) )
 		eraseParagraphEmptyArea( parag, p, cg );
 	    parag = parag->next();
 	    continue;
