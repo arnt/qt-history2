@@ -227,6 +227,8 @@ static void set_background_mode( QWidget *top, Qt::BackgroundMode bm )
 }
 
 
+#define FIX_PAGE( page ) if ( page && !page->inherits( "QScrollView" ) ) page = page->parentWidget()
+
 /*!
     \class QToolBox
 
@@ -502,6 +504,7 @@ void QToolBox::setCurrentPage( int index )
 
 void QToolBox::setCurrentPage( QWidget *page )
 {
+    FIX_PAGE( page );
     if ( !page || d->currentPage == page )
 	return;
 
@@ -545,6 +548,7 @@ void QToolBox::relayout()
 
 void QToolBox::removePage( QWidget *page )
 {
+    FIX_PAGE( page );
     if ( !page )
 	return;
 
@@ -595,6 +599,9 @@ QWidget *QToolBox::page( int index ) const
 
 int QToolBox::pageIndex( QWidget *page ) const
 {
+    FIX_PAGE( page );
+    if ( !page )
+	return -1;
     QToolBoxButton *tb = d->button( page );
     int i = 0;
     for ( QToolBoxPrivate::Page *c = d->pageList->first(); c;
@@ -612,6 +619,9 @@ int QToolBox::pageIndex( QWidget *page ) const
 
 void QToolBox::setPageEnabled( QWidget *page, bool enabled )
 {
+    FIX_PAGE( page );
+    if ( !page )
+	return;
     QToolBoxButton *tb = d->button( page );
     if ( !tb )
 	return;
@@ -645,6 +655,9 @@ void QToolBox::activateClosestPage( QWidget *page )
 
 void QToolBox::setPageLabel( QWidget *page, const QString &label )
 {
+    FIX_PAGE( page );
+    if ( !page )
+	return;
     QToolBoxButton *tb = d->button( page );
     QToolBoxPrivate::Page *c = d->page( page );
     if ( !tb || !c )
@@ -660,6 +673,9 @@ void QToolBox::setPageLabel( QWidget *page, const QString &label )
 
 void QToolBox::setPageIconSet( QWidget *page, const QIconSet &iconSet )
 {
+    FIX_PAGE( page );
+    if ( !page )
+	return;
     QToolBoxButton *tb = d->button( page );
     QToolBoxPrivate::Page *c = d->page( page );
     if ( !tb || !c )
@@ -675,6 +691,9 @@ void QToolBox::setPageIconSet( QWidget *page, const QIconSet &iconSet )
 
 void QToolBox::setPageToolTip( QWidget *page, const QString &toolTip )
 {
+    FIX_PAGE( page );
+    if ( !page )
+	return;
     QToolBoxButton *tb = d->button( page );
     QToolBoxPrivate::Page *c = d->page( page );
     if ( !tb || !c )
@@ -691,6 +710,9 @@ void QToolBox::setPageToolTip( QWidget *page, const QString &toolTip )
 
 bool QToolBox::isPageEnabled( QWidget *page ) const
 {
+    FIX_PAGE( page );
+    if ( !page )
+	return FALSE;
     QToolBoxButton *tb = d->button( page );
     return tb && tb->isEnabled();
 }
@@ -701,6 +723,9 @@ bool QToolBox::isPageEnabled( QWidget *page ) const
 
 QString QToolBox::pageLabel( QWidget *page ) const
 {
+    FIX_PAGE( page );
+    if ( !page )
+	return QString::null;
     QToolBoxPrivate::Page *c = d->page( page );
     return c ? c->label : QString::null;
 }
@@ -711,6 +736,9 @@ QString QToolBox::pageLabel( QWidget *page ) const
 
 QIconSet QToolBox::pageIconSet( QWidget *page ) const
 {
+    FIX_PAGE( page );
+    if ( !page )
+	return QIconSet();
     QToolBoxPrivate::Page *c = d->page( page );
     return c ? c->iconSet : QIconSet();
 }
@@ -721,6 +749,9 @@ QIconSet QToolBox::pageIconSet( QWidget *page ) const
 
 QString QToolBox::pageToolTip( QWidget *page ) const
 {
+    FIX_PAGE( page );
+    if ( !page )
+	return QString::null;
     QToolBoxPrivate::Page *c = d->page( page );
     return c ? c->toolTip : QString::null;
 }
