@@ -186,7 +186,7 @@ void TrayIcon::mouseReleaseEvent( QMouseEvent *e )
 	emit clicked( e->globalPos() );
 	break;
     default:
-	;
+	break;
     }
     e->ignore();
 }
