@@ -93,14 +93,15 @@ void QPainterSubpath::arcTo(const QRectF &rect, float startAngle, float sweepLen
 #endif
 
 #define ANGLE(t) ((t) * 2 * M_PI / 360.0)
+#define SIGN(t) (t > 0 ? 1 : -1)
     float a = rect.width() / 2.0;
     float b = rect.height() / 2.0;
 
-    int iterations = int((sweepLength + 89) / 90);
+    int iterations = int((abs(sweepLength) + 89) / 90);
     float clength = sweepLength / iterations;
     float cosangle1, sinangle1, cosangle2, sinangle2;
     for (int i=0; i<iterations; ++i) {
-        float cangle = startAngle + i * sweepLength / iterations;
+        float cangle = startAngle + i * clength;
 
         cosangle1 = cos(ANGLE(cangle));
         sinangle1 = sin(ANGLE(cangle));
@@ -117,9 +118,10 @@ void QPainterSubpath::arcTo(const QRectF &rect, float startAngle, float sweepLen
         float edx = -a * sinangle2;
         float edy = -b * cosangle2;
 
-        // Creating the tangent lines.
-        QLineF controlLine1(startPoint, startPoint + QPointF(sdx, sdy));
-        QLineF controlLine2(endPoint, endPoint - QPointF(edx, edy));
+        // Creating the tangent lines. We need to reverse their direction if the
+        // sweep is negative (clockwise)
+        QLineF controlLine1(startPoint, startPoint + SIGN(sweepLength) * QPointF(sdx, sdy));
+        QLineF controlLine2(endPoint, endPoint - SIGN(sweepLength) * QPointF(edx, edy));
 
         // Adjust their length to fit the magic KAPPA length.
         controlLine1.setLength(controlLine1.length() * KAPPA);
