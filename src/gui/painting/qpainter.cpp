@@ -1426,7 +1426,11 @@ Qt::BGMode QPainter::backgroundMode() const
 
 void QPainter::setPen(const QColor &color)
 {
-    d->state->pen = QPen(color, 0, Qt::SolidLine);
+    QPen newPen = QPen(color, 0, Qt::SolidLine);
+    if (newPen == d->state->pen)
+        return;
+    d->state->pen = newPen;
+
     if (d->engine)
         d->engine->setDirty(QPaintEngine::DirtyPen);
 }
@@ -1442,6 +1446,8 @@ void QPainter::setPen(const QColor &color)
 
 void QPainter::setPen(const QPen &pen)
 {
+    if (d->state->pen == pen)
+        return;
     d->state->pen = pen;
     if (d->engine)
         d->engine->setDirty(QPaintEngine::DirtyPen);
@@ -1458,7 +1464,9 @@ void QPainter::setPen(const QPen &pen)
 
 void QPainter::setPen(Qt::PenStyle style)
 {
-    if (d->state->pen.style() == style)
+    if (d->state->pen.style() == style
+        && d->state->pen.color() == Qt::black
+        && d->state->pen.width() == 0)
         return;
     d->state->pen.setStyle(style);
     if (d->engine)
@@ -1506,7 +1514,9 @@ void QPainter::setBrush(const QBrush &brush)
 
 void QPainter::setBrush(Qt::BrushStyle style)
 {
-    // ### Missing optimization from qpainter.cpp
+    if (d->state->brush.style() == style &&
+        d->state->brush.color() == Qt::black)
+        return;
     d->state->brush = QBrush(Qt::black, style);
     if (d->engine)
         d->engine->setDirty(QPaintEngine::DirtyBrush);
@@ -2616,13 +2626,16 @@ void QPainter::eraseRect(int x, int y, int w, int h)
 
 void QPainter::fillRect(int x, int y, int w, int h, const QBrush &brush)
 {
-    QPen   oldPen   = pen();                        // save pen
-    QBrush oldBrush = this->brush();                // save brush
-    setPen(Qt::NoPen);
+    QPen oldPen   = pen();
+    bool swap = oldPen.style() != Qt::NoPen;
+    if (swap)
+        setPen(Qt::NoPen);
+    QBrush oldBrush = this->brush();
     setBrush(brush);
-    drawRect(x, y, w, h);                        // draw filled rect
-    setBrush(oldBrush);                        // restore brush
-    setPen(oldPen);                                // restore pen
+    drawRect(x, y, w, h);
+    setBrush(oldBrush);
+    if (swap)
+        setPen(oldPen);
 }
 
 
