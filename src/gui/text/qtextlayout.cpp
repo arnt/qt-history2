@@ -84,7 +84,7 @@
 QRect QTextInlineObject::rect() const
 {
     QScriptItem& si = eng->items[itm];
-    return QRect(0, -si.ascent.toInt(), si.width.toInt(), (si.ascent+si.descent).toInt());
+    return QRect(0, -si.ascent.toInt(), si.width.toInt(), si.height().toInt());
 }
 
 /*!
@@ -116,6 +116,18 @@ int QTextInlineObject::descent() const
 {
     return eng->items[itm].descent.toInt();
 }
+
+/*!
+    Returns the inline object's total height. This is equal to
+    ascent() + descent() + 1.
+
+    \sa ascent() descent() width() rect()
+*/
+int QTextInlineObject::height() const
+{
+    return eng->items[itm].height().toInt();
+}
+
 
 /*!
     Sets the inline object's width to \a w.
@@ -221,7 +233,7 @@ bool QTextInlineObject::isRightToLeft() const
             line.layout(lineWidth);
             height += leading;
             line.setPosition(QPoint(0, height));
-            height += line.ascent() + line.descent();
+            height += line.height();
             widthUsed = qMax(widthUsed, line.textWidth());
         }
     \endcode
@@ -810,7 +822,7 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
         QTextLine l(i, d);
         const QScriptLine &sl = d->lines[i];
 
-        if (sl.y.toInt() > clipe || (sl.y + sl.ascent + sl.descent).toInt() < clipy)
+        if (sl.y.toInt() > clipe || (sl.y + sl.height()).toInt() < clipy)
             continue;
 
         int from = sl.from;
@@ -829,7 +841,7 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
                     QRect highlight = QRect(QPoint(position.x() + l.cursorToX(qMax(s.from(), from)),
                                                    position.y() + sl.y.toInt()),
                                             QPoint(position.x() + l.cursorToX(qMin(s.from() + s.length(), from+length)) - 1,
-                                                   position.y() + (sl.y + sl.ascent + sl.descent).toInt())).normalize();
+                                                   position.y() + (sl.y + sl.height()).toInt())).normalize();
                     drawSelection(p, d->pal, (QTextLayout::SelectionType)s.type(), highlight, l, position, j);
                 }
             }
@@ -850,7 +862,7 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
 
             p->setPen(Qt::black);
             p->drawLine(x, position.y() + (sl.y + sl.ascent - ascent).toInt(),
-                        x, position.y() + (sl.y + sl.ascent + descent).toInt());
+                        x, position.y() + (sl.y + sl.ascent + descent).toInt() + 1);
         }
     }
 
@@ -939,8 +951,8 @@ void QTextLayout::draw(QPainter *p, const QPoint &pos, int cursorPos, const Sele
 */
 QRect QTextLine::rect() const
 {
-    const QScriptLine& si = eng->lines[i];
-    return QRect(si.x.toInt(), si.y.toInt(), si.width.toInt(), (si.ascent + si.descent).toInt());
+    const QScriptLine& sl = eng->lines[i];
+    return QRect(sl.x.toInt(), sl.y.toInt(), sl.width.toInt(), sl.height().toInt());
 }
 
 /*!
@@ -977,7 +989,7 @@ int QTextLine::width() const
 /*!
     Returns the line's ascent.
 
-    \sa descent()
+    \sa descent() height()
 */
 int QTextLine::ascent() const
 {
@@ -987,11 +999,21 @@ int QTextLine::ascent() const
 /*!
     Returns the line's descent.
 
-    \sa ascent()
+    \sa ascent() height()
 */
 int QTextLine::descent() const
 {
     return eng->lines[i].descent.toInt();
+}
+
+/*!
+    Returns the line's height. This is equal to ascent() + descent() + 1.
+
+    \sa ascent() descent()
+*/
+int QTextLine::height() const
+{
+    return eng->lines[i].height().toInt();
 }
 
 /*!
@@ -1249,7 +1271,7 @@ void QTextLine::draw(QPainter *p, int xpos, int ypos, int selection) const
                 // ###
                 selType = static_cast<QTextLayout::SelectionType>(eng->selections[selection].type());
 
-            eng->docLayout->drawObject(p, QRect(x.toInt(), (y-si.ascent).toInt(), si.width.toInt(), (si.ascent+si.descent).toInt()),
+            eng->docLayout->drawObject(p, QRect(x.toInt(), (y-si.ascent).toInt(), si.width.toInt(), si.height().toInt()),
                                        QTextInlineObject(item, eng), format, selType);
         }
 

@@ -289,6 +289,7 @@ struct QScriptItem
     Q26Dot6 width;
     int glyph_data_offset;
     int format;
+    Q26Dot6 height() const { return ascent + descent + Q26Dot6(1); }
 };
 
 
@@ -308,6 +309,7 @@ struct QScriptLine
     uint length : 30;
     mutable uint justified : 1;
     mutable uint gridfitted : 1;
+    Q26Dot6 height() const { return ascent + descent + Q26Dot6(1); }
 };
 Q_DECLARE_TYPEINFO(QScriptLine, Q_PRIMITIVE_TYPE);
 

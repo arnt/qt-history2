@@ -40,6 +40,7 @@ public:
     int width() const;
     int ascent() const;
     int descent() const;
+    int height() const;
 
     bool isRightToLeft() const;
 
@@ -192,6 +193,7 @@ public:
     int width() const;
     int ascent() const;
     int descent() const;
+    int height() const;
     int textWidth() const;
 
     enum Edge {
