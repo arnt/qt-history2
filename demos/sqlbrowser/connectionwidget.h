@@ -29,9 +29,13 @@ public:
 
     QSqlDatabase currentDatabase() const;
 
+signals:
+    void tableActivated(const QString &table);
+
 public slots:
     void refresh();
     void on_tree_doubleClicked(QTreeWidgetItem *item, int column, Qt::ButtonState button);
+    void on_tree_returnPressed(QTreeWidgetItem *item, int column);
 
 private:
     void setActive(QTreeWidgetItem *);

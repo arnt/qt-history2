@@ -30,6 +30,7 @@ public:
 
 public slots:
     void exec();
+    void showTable(const QString &table);
     void addConnection();
 
 signals:

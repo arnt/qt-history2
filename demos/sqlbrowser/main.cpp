@@ -24,6 +24,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     QMainWindow mainWin;
+    mainWin.setWindowTitle(QObject::tr("Qt SQL Browser"));
 
     BrowserWidget browser(&mainWin);
     app.setMainWidget(&mainWin);

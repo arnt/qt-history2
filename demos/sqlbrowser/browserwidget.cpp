@@ -12,47 +12,43 @@
 ****************************************************************************/
 
 #include "browserwidget.h"
-
-#include <qtableview.h>
-#include <qhboxwidget.h>
-#include <qlayout.h>
-#include <qmessagebox.h>
-#include <qpushbutton.h>
-#include <qsqldatabase.h>
-#include <qsqlerror.h>
-#include <qsqlquerymodel.h>
-#include <qsqlquery.h>
-#include <qsplitter.h>
-#include <qtextedit.h>
-#include <qvboxwidget.h>
-
 #include "connectionwidget.h"
 #include "qsqlconnectiondialog.h"
+
+#include <QtGui>
+#include <QtSql>
 
 BrowserWidget::BrowserWidget(QWidget *parent)
     : QWidget(parent)
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
 
-    QHBoxWidget *box = new QHBoxWidget(this);
-    box->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-    QSplitter *splitter = new QSplitter(box);
-    dbc = new ConnectionWidget(splitter);
+    QSplitter *splitter = new QSplitter(Qt::Vertical, this);
 
-    QVBoxWidget *vbox = new QVBoxWidget(splitter);
-    QSplitter *splitter2 = new QSplitter(Qt::Vertical, vbox);
+    QHBoxWidget *box = new QHBoxWidget(splitter);
+    QSplitter *splitter2 = new QSplitter(Qt::Horizontal, box);
+
+    dbc = new ConnectionWidget(splitter2);
+    connect(dbc, SIGNAL(tableActivated(QString)), SLOT(showTable(QString)));
     view = new QTableView(splitter2);
-    edit = new QTextEdit(splitter2);
 
-    QHBoxWidget *hbox = new QHBoxWidget(this);
+    QGroupBox *gbox = new QGroupBox(tr("SQL Query"), splitter);
+    QVBoxLayout *boxLayout = new QVBoxLayout(gbox);
+
+    edit = new QTextEdit(gbox);
+
+    QHBoxWidget *hbox = new QHBoxWidget(gbox);
     hbox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     hbox->layout()->addItem(new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
 
     submitButton = new QPushButton(tr("&Submit"), hbox);
     connect(submitButton, SIGNAL(clicked()), SLOT(exec()));
 
-    layout->addWidget(box);
-    layout->addWidget(hbox);
+    boxLayout->addWidget(edit);
+    boxLayout->addWidget(hbox);
+
+    layout->addWidget(splitter);
+//    layout->addWidget(hbox);
 
     if (QSqlDatabase::drivers().isEmpty())
         QMessageBox::information(this, tr("No database drivers found"),
@@ -80,12 +76,6 @@ void BrowserWidget::exec()
 
 void BrowserWidget::addConnection()
 {
-/*
-    QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
-    db.setDatabaseName(":memory:");
-    db.open();
-    QSqlQuery q("create table foo(int id)");
-*/
     QSqlConnectionDialog dialog;
     if (dialog.exec() != QDialog::Accepted)
         return;
@@ -103,5 +93,15 @@ void BrowserWidget::addConnection()
                              "opening the connection: ") + db.lastError().text());
 
     dbc->refresh();
+}
+
+void BrowserWidget::showTable(const QString &table)
+{
+    QSqlTableModel *model = new QSqlTableModel(view, dbc->currentDatabase());
+    model->setTable(table);
+    model->select();
+    if (model->lastError().type() != QSqlError::NoError)
+        emit statusMessage(model->lastError().text());
+    view->setModel(model);
 }
 

@@ -37,6 +37,16 @@ ConnectionWidget::~ConnectionWidget()
 {
 }
 
+static QString qDBCaption(const QSqlDatabase &db)
+{
+    QString nm = db.driverName();
+    nm.append(QLatin1Char(':'));
+    if (!db.userName().isEmpty())
+        nm.append(db.userName()).append(QLatin1Char('@'));
+    nm.append(db.databaseName());
+    return nm;
+}
+
 void ConnectionWidget::refresh()
 {
     tree->clear();
@@ -47,7 +57,7 @@ void ConnectionWidget::refresh()
         QTreeWidgetItem *root = new QTreeWidgetItem(tree);
         QSqlDatabase db = QSqlDatabase::database(connectionNames.at(i), false);
         qDebug() << db;
-        root->setText(0, "database");
+        root->setText(0, qDBCaption(db));
         if (connectionNames.at(i) == activeDb) {
             gotActiveDb = true;
             setActive(root);
@@ -60,8 +70,10 @@ void ConnectionWidget::refresh()
             }
         }
     }
-    if (!gotActiveDb)
+    if (!gotActiveDb) {
+        activeDb = connectionNames.value(0);
         setActive(tree->topLevelItem(0));
+    }
 
     tree->doItemsLayout(); // HACK
 }
@@ -84,5 +96,20 @@ void ConnectionWidget::setActive(QTreeWidgetItem *item)
 void ConnectionWidget::on_tree_doubleClicked(QTreeWidgetItem *item, int column,
                                              Qt::ButtonState button)
 {
-    qDebug("DCLICK");
+    Q_ASSERT(item);
+
+    if (button != Qt::LeftButton || column != 0 || !item->parent())
+        return;
+
+    emit tableActivated(item->text(0));
+}
+
+void ConnectionWidget::on_tree_returnPressed(QTreeWidgetItem *item, int column)
+{
+    Q_ASSERT(item);
+
+    if (column != 0 || !item->parent())
+        return;
+
+    emit tableActivated(item->text(0));
 }
