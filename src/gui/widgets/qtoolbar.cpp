@@ -253,10 +253,13 @@ void QToolBarPrivate::init()
 
     QBoxLayout *layout = new QBoxLayout(QBoxLayout::LeftToRight, q);
     layout->setSpacing(q->style().pixelMetric(QStyle::PM_ToolBarItemSpacing, q));
+
     handle = new QToolBarHandle(q);
+    layout->addWidget(handle);
+
     extension = new QToolBarExtension(q);
     extension->hide();
-    layout->removeWidget(d->extension);
+
     q->setArea(Qt::ToolBarAreaTop);
 }
 
@@ -501,14 +504,18 @@ QAction *QToolBar::insertSeparator(QAction *before)
     return action;
 }
 
-/*! \reimp */
-void QToolBar::childEvent(QChildEvent *event)
+void QToolBar::addWidget(QWidget *widget)
+{ layout()->addWidget(widget); }
+
+void QToolBar::insertWidget(int index, QWidget *widget)
 {
-    QWidget *widget = qt_cast<QWidget *>(event->child());
-    if (!widget) return;
-    if (event->added()) layout()->addWidget(widget);
-    else if (event->removed()) layout()->removeWidget(widget);
+    QBoxLayout *box = qt_cast<QBoxLayout *>(layout());
+    Q_ASSERT_X(box != 0, "QToolBar::insertWidget", "internal error");
+    box->insertWidget(index, widget);
 }
+
+void QToolBar::removeWidget(QWidget *widget)
+{ layout()->removeWidget(widget); }
 
 /*! \reimp */
 void QToolBar::actionEvent(QActionEvent *event)
@@ -517,25 +524,30 @@ void QToolBar::actionEvent(QActionEvent *event)
 
     switch (event->type()) {
     case QEvent::ActionAdded:
-	if (action->isSeparator()) {
+        {
 	    QBoxLayout *box = qt_cast<QBoxLayout *>(layout());
-	    if (box->direction() == QBoxLayout::LeftToRight
-		|| box->direction() == QBoxLayout::RightToLeft)
-		(void) new QToolBarSeparator(this, Qt::Horizontal);
-	    else
-		(void) new QToolBarSeparator(this, Qt::Vertical);
-	} else {
-	    QToolBarButton *button = new QToolBarButton(this);
-	    button->addAction(action);
+            if (action->isSeparator()) {
+                QToolBarSeparator *separator =
+                    new QToolBarSeparator(this,
+                                          (box->direction() == QBoxLayout::LeftToRight
+                                           || box->direction() == QBoxLayout::RightToLeft)
+                                          ? Qt::Horizontal
+                                          : Qt::Vertical);
+                box->addWidget(separator);
+            } else {
+                QToolBarButton *button = new QToolBarButton(this);
+                button->addAction(action);
+                box->addWidget(button);
 
-            QObject::connect(action, SIGNAL(triggered()),
-                             this, SLOT(actionTriggered()));
-            if (action->menu()) {
-                QObject::connect(action->menu(), SIGNAL(activated(QAction *)),
-                                 this, SIGNAL(actionTriggered(QAction *)));
+                QObject::connect(action, SIGNAL(triggered()),
+                                 this, SLOT(actionTriggered()));
+                if (action->menu()) {
+                    QObject::connect(action->menu(), SIGNAL(activated(QAction *)),
+                                     this, SIGNAL(actionTriggered(QAction *)));
+                }
             }
-	}
-	break;
+            break;
+        }
 
     case QEvent::ActionChanged:
         action->disconnect(this, SLOT(actionTriggered()));

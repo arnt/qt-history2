@@ -57,6 +57,9 @@ public:
     QAction *addSeparator();
     QAction *insertSeparator(QAction *before);
 
+    void addWidget(QWidget *widget);
+    void insertWidget(int index, QWidget *widget);
+    void removeWidget(QWidget *widget);
 
 #ifdef QT_COMPAT
     QT_COMPAT_CONSTRUCTOR QToolBar(QMainWindow *parent, const char *name);
@@ -70,7 +73,6 @@ signals:
     void actionTriggered(QAction *action);
 
 protected:
-    void childEvent(QChildEvent *event);
     void actionEvent(QActionEvent *event);
     void resizeEvent(QResizeEvent *event);
 
