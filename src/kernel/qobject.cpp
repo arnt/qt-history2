@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#147 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#148 $
 **
 ** Implementation of QObject class
 **
@@ -17,7 +17,7 @@
 #include "qapp.h"
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#147 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qobject.cpp#148 $");
 
 
 /*!
@@ -1681,6 +1681,17 @@ static void dumpRecursive( int level, QObject *object )
 	QString flags="";
 	if ( qApp->focusWidget() == object )
 	    flags += 'F';
+	if ( object->isWidgetType() ) {
+	    QWidget * w = (QWidget *)object;
+	    if ( w->isVisible() ) {
+		QString t;
+		t.sprintf( "<%d,%d,%d,%d>",
+			   w->x(), w->y(), w->width(), w->height() );
+		flags += t;
+	    } else {
+		flags += 'I';
+	    }
+	}	
 	debug( "%s%s::%s %s", (const char*)buf, object->className(), name,
 	    (const char*)flags );
 	if ( object->children() ) {
