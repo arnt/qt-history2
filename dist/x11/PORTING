@@ -34,7 +34,7 @@ Make a new directory under arch and fill it in from arch/template:
         ( cd template; tar cf - . ) | ( cd whatever ; tar xf - )
 
 You'll need to edit at least arch/whatever/Makefile, possibly other
-Makefiles, src/tools/qglobal.h and src/kernel/qapp_x11.cpp.
+Makefiles and src/tools/qglobal.h.
 
 The Makefiles will generally need CFLAGS, CC and so on.  You may need to
 add some more libraries.  Edit arch/whatever/Makefile, then say 'make
@@ -54,9 +54,6 @@ they're right for your system.
 Some compilers emit bad warnings when they compile Qt.  If yours does, and
 the code in Qt is sane, please use a #pragma or two to shut your compiler
 up.  (This is a good reason for wanting the _CC_whatever_ define above.)
-
-In src/kernel/qapp_x11.cpp, you may need to add another #ifdef around line
-140, to set the SIG_HANDLER type appropriately.
 
 For most Unix varieties, that's all.  Some may need some include file
 tweaks.  Good luck, and feel free to send mail to qt-bugs@troll.no.

@@ -2,10 +2,8 @@
 
 Read this file if you want to port Qt to other NT platforms or C++
 compilers. Our internal development environment is Windows 95 and NT
-with Microsoft Visual C++ (MSVC++) 4.1.
+with Microsoft Visual C++ (MSVC++) 4.1 on Intel.
 
-We have not yet tested Qt on other NT platforms than i386. You should be
-able to compile without problems.
 
                                REQUIREMENTS
 
