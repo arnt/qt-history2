@@ -39,7 +39,7 @@ class QBrush;
 class QWMatrix;
 class QFontInfo;
 class QFontMetrics;
-class QGlyphFragment;
+struct QGlyphFragment;
 
 class Q_GUI_EXPORT QPainter : public Qt
 {
