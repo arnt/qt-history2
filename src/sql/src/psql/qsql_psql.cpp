@@ -160,12 +160,10 @@ QPSQLResult::~QPSQLResult()
 
 void QPSQLResult::cleanup()
 {
-    if ( isActive() ) {
-	if ( d->result )
-	    PQclear( d->result );
-        d->result = 0;
-        setAt( -1 );
-    }
+    if ( d->result ) 
+	PQclear( d->result );
+    d->result = 0;
+    setAt( -1 );
     currentSize = 0;
     binary = FALSE;
     setActive( FALSE );
@@ -384,7 +382,7 @@ bool QPSQLResult::reset ( const QString& query )
         return FALSE;
     setActive( FALSE );
     setAt( BeforeFirst );
-    if ( d->result )
+    if ( d->result ) 
     	PQclear( d->result );
     d->result = PQexec( d->connection, (const char*)query );
     int status =  PQresultStatus( d->result );
