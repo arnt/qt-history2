@@ -53,13 +53,7 @@ void GLWidget::initializeGL()
     QImage tex;
     tex.load(":/res/cubelogo.png");
 
-    tex = QGLWidget::convertToGLFormat(tex);  // flipped 32bit RGBA
-
-    glGenTextures(1, &cubeTextureId);
-    glBindTexture(GL_TEXTURE_2D, cubeTextureId);
-    glTexImage2D(GL_TEXTURE_2D, 0, 3, tex.width(), tex.height(), 0,
-		 GL_RGBA, GL_UNSIGNED_BYTE, tex.bits());
-
+    cubeTextureId = bindTexture(QPixmap(tex));
     cubeList = glGenLists(1);
     glNewList(cubeList, GL_COMPILE);
 
@@ -72,61 +66,61 @@ void GLWidget::initializeGL()
     glEnable(GL_CULL_FACE);
     glEnable(GL_BLEND);
 
-    glBegin( GL_QUADS );
+    glBegin(GL_QUADS);
     {
-	glTexCoord2f( 0.0, 0.0 ); glVertex3f( 0.0, 0.0, 0.0 );
-	glTexCoord2f( 1.0, 0.0 ); glVertex3f( 1.0, 0.0, 0.0 );
-	glTexCoord2f( 1.0, 0.0 ); glVertex3f( 1.0, 0.0, 0.0 );
-	glTexCoord2f( 1.0, 1.0 ); glVertex3f( 1.0, 1.0, 0.0 );
-	glTexCoord2f( 1.0, 1.0 ); glVertex3f( 1.0, 1.0, 0.0 );
-	glTexCoord2f( 0.0, 1.0 ); glVertex3f( 0.0, 1.0, 0.0 );
-	glTexCoord2f( 0.0, 1.0 ); glVertex3f( 0.0, 1.0, 0.0 );
-	glTexCoord2f( 0.0, 0.0 ); glVertex3f( 0.0, 0.0, 0.0 );
+        glTexCoord2f( 0.0, 0.0 ); glVertex3f( 0.0, 0.0, 0.0 );
+        glTexCoord2f( 1.0, 0.0 ); glVertex3f( 1.0, 0.0, 0.0 );
+        glTexCoord2f( 1.0, 0.0 ); glVertex3f( 1.0, 0.0, 0.0 );
+        glTexCoord2f( 1.0, 1.0 ); glVertex3f( 1.0, 1.0, 0.0 );
+        glTexCoord2f( 1.0, 1.0 ); glVertex3f( 1.0, 1.0, 0.0 );
+        glTexCoord2f( 0.0, 1.0 ); glVertex3f( 0.0, 1.0, 0.0 );
+        glTexCoord2f( 0.0, 1.0 ); glVertex3f( 0.0, 1.0, 0.0 );
+        glTexCoord2f( 0.0, 0.0 ); glVertex3f( 0.0, 0.0, 0.0 );
 
-	glTexCoord2f( 0.0, 0.0 ); glVertex3f( 0.0, 0.0, 1.0 );
-	glTexCoord2f( 0.0, 1.0 ); glVertex3f( 0.0, 1.0, 1.0 );
-	glTexCoord2f( 0.0, 1.0 ); glVertex3f( 0.0, 1.0, 1.0 );
-	glTexCoord2f( 1.0, 1.0 ); glVertex3f( 1.0, 1.0, 1.0 );
-	glTexCoord2f( 1.0, 1.0 ); glVertex3f( 1.0, 1.0, 1.0 );
-	glTexCoord2f( 1.0, 0.0 ); glVertex3f( 1.0, 0.0, 1.0 );
-	glTexCoord2f( 1.0, 0.0 ); glVertex3f( 1.0, 0.0, 1.0 );
-	glTexCoord2f( 0.0, 0.0 ); glVertex3f( 0.0, 0.0, 1.0 );
+        glTexCoord2f( 0.0, 0.0 ); glVertex3f( 0.0, 0.0, 1.0 );
+        glTexCoord2f( 0.0, 1.0 ); glVertex3f( 0.0, 1.0, 1.0 );
+        glTexCoord2f( 0.0, 1.0 ); glVertex3f( 0.0, 1.0, 1.0 );
+        glTexCoord2f( 1.0, 1.0 ); glVertex3f( 1.0, 1.0, 1.0 );
+        glTexCoord2f( 1.0, 1.0 ); glVertex3f( 1.0, 1.0, 1.0 );
+        glTexCoord2f( 1.0, 0.0 ); glVertex3f( 1.0, 0.0, 1.0 );
+        glTexCoord2f( 1.0, 0.0 ); glVertex3f( 1.0, 0.0, 1.0 );
+        glTexCoord2f( 0.0, 0.0 ); glVertex3f( 0.0, 0.0, 1.0 );
 
-	glTexCoord2f( 0.0, 0.0 ); glVertex3f( 0.0, 0.0, 0.0 );
-	glTexCoord2f( 1.0, 0.0 ); glVertex3f( 0.0, 0.0, 1.0 );
-	glTexCoord2f( 1.0, 0.0 ); glVertex3f( 0.0, 0.0, 1.0 );
-	glTexCoord2f( 1.0, 1.0 ); glVertex3f( 1.0, 0.0, 1.0 );
-	glTexCoord2f( 1.0, 1.0 ); glVertex3f( 1.0, 0.0, 1.0 );
-	glTexCoord2f( 0.0, 1.0 ); glVertex3f( 1.0, 0.0, 0.0 );
-	glTexCoord2f( 0.0, 1.0 ); glVertex3f( 1.0, 0.0, 0.0 );
-	glTexCoord2f( 0.0, 0.0 ); glVertex3f( 0.0, 0.0, 0.0 );
+        glTexCoord2f( 0.0, 0.0 ); glVertex3f( 0.0, 0.0, 0.0 );
+        glTexCoord2f( 1.0, 0.0 ); glVertex3f( 0.0, 0.0, 1.0 );
+        glTexCoord2f( 1.0, 0.0 ); glVertex3f( 0.0, 0.0, 1.0 );
+        glTexCoord2f( 1.0, 1.0 ); glVertex3f( 1.0, 0.0, 1.0 );
+        glTexCoord2f( 1.0, 1.0 ); glVertex3f( 1.0, 0.0, 1.0 );
+        glTexCoord2f( 0.0, 1.0 ); glVertex3f( 1.0, 0.0, 0.0 );
+        glTexCoord2f( 0.0, 1.0 ); glVertex3f( 1.0, 0.0, 0.0 );
+        glTexCoord2f( 0.0, 0.0 ); glVertex3f( 0.0, 0.0, 0.0 );
 
-	glTexCoord2f( 1.0, 0.0 ); glVertex3f( 0.0, 1.0, 0.0 );
-	glTexCoord2f( 0.0, 0.0 ); glVertex3f( 1.0, 1.0, 0.0 );
-	glTexCoord2f( 0.0, 0.0 ); glVertex3f( 1.0, 1.0, 0.0 );
-	glTexCoord2f( 0.0, 1.0 ); glVertex3f( 1.0, 1.0, 1.0 );
-	glTexCoord2f( 0.0, 1.0 ); glVertex3f( 1.0, 1.0, 1.0 );
-	glTexCoord2f( 1.0, 1.0 ); glVertex3f( 0.0, 1.0, 1.0 );
-	glTexCoord2f( 1.0, 1.0 ); glVertex3f( 0.0, 1.0, 1.0 );
-	glTexCoord2f( 1.0, 0.0 ); glVertex3f( 0.0, 1.0, 0.0 );
+        glTexCoord2f( 1.0, 0.0 ); glVertex3f( 0.0, 1.0, 0.0 );
+        glTexCoord2f( 0.0, 0.0 ); glVertex3f( 1.0, 1.0, 0.0 );
+        glTexCoord2f( 0.0, 0.0 ); glVertex3f( 1.0, 1.0, 0.0 );
+        glTexCoord2f( 0.0, 1.0 ); glVertex3f( 1.0, 1.0, 1.0 );
+        glTexCoord2f( 0.0, 1.0 ); glVertex3f( 1.0, 1.0, 1.0 );
+        glTexCoord2f( 1.0, 1.0 ); glVertex3f( 0.0, 1.0, 1.0 );
+        glTexCoord2f( 1.0, 1.0 ); glVertex3f( 0.0, 1.0, 1.0 );
+        glTexCoord2f( 1.0, 0.0 ); glVertex3f( 0.0, 1.0, 0.0 );
 
-	glTexCoord2f( 0.0, 0.0 ); glVertex3f( 1.0, 0.0, 0.0 );
-	glTexCoord2f( 1.0, 0.0 ); glVertex3f( 1.0, 0.0, 1.0 );
-	glTexCoord2f( 1.0, 0.0 ); glVertex3f( 1.0, 0.0, 1.0 );
-	glTexCoord2f( 1.0, 1.0 ); glVertex3f( 1.0, 1.0, 1.0 );
-	glTexCoord2f( 1.0, 1.0 ); glVertex3f( 1.0, 1.0, 1.0 );
-	glTexCoord2f( 0.0, 1.0 ); glVertex3f( 1.0, 1.0, 0.0 );
-	glTexCoord2f( 0.0, 1.0 ); glVertex3f( 1.0, 1.0, 0.0 );
-	glTexCoord2f( 0.0, 0.0 ); glVertex3f( 1.0, 0.0, 0.0 );
+        glTexCoord2f( 0.0, 0.0 ); glVertex3f( 1.0, 0.0, 0.0 );
+        glTexCoord2f( 1.0, 0.0 ); glVertex3f( 1.0, 0.0, 1.0 );
+        glTexCoord2f( 1.0, 0.0 ); glVertex3f( 1.0, 0.0, 1.0 );
+        glTexCoord2f( 1.0, 1.0 ); glVertex3f( 1.0, 1.0, 1.0 );
+        glTexCoord2f( 1.0, 1.0 ); glVertex3f( 1.0, 1.0, 1.0 );
+        glTexCoord2f( 0.0, 1.0 ); glVertex3f( 1.0, 1.0, 0.0 );
+        glTexCoord2f( 0.0, 1.0 ); glVertex3f( 1.0, 1.0, 0.0 );
+        glTexCoord2f( 0.0, 0.0 ); glVertex3f( 1.0, 0.0, 0.0 );
 
-	glTexCoord2f( 1.0, 0.0 ); glVertex3f( 0.0, 0.0, 0.0 );
-	glTexCoord2f( 0.0, 0.0 ); glVertex3f( 0.0, 1.0, 0.0 );
-	glTexCoord2f( 0.0, 0.0 ); glVertex3f( 0.0, 1.0, 0.0 );
-	glTexCoord2f( 0.0, 1.0 ); glVertex3f( 0.0, 1.0, 1.0 );
-	glTexCoord2f( 0.0, 1.0 ); glVertex3f( 0.0, 1.0, 1.0 );
-	glTexCoord2f( 1.0, 1.0 ); glVertex3f( 0.0, 0.0, 1.0 );
-	glTexCoord2f( 1.0, 1.0 ); glVertex3f( 0.0, 0.0, 1.0 );
-	glTexCoord2f( 1.0, 0.0 ); glVertex3f( 0.0, 0.0, 0.0 );
+        glTexCoord2f( 1.0, 0.0 ); glVertex3f( 0.0, 0.0, 0.0 );
+        glTexCoord2f( 0.0, 0.0 ); glVertex3f( 0.0, 1.0, 0.0 );
+        glTexCoord2f( 0.0, 0.0 ); glVertex3f( 0.0, 1.0, 0.0 );
+        glTexCoord2f( 0.0, 1.0 ); glVertex3f( 0.0, 1.0, 1.0 );
+        glTexCoord2f( 0.0, 1.0 ); glVertex3f( 0.0, 1.0, 1.0 );
+        glTexCoord2f( 1.0, 1.0 ); glVertex3f( 0.0, 0.0, 1.0 );
+        glTexCoord2f( 1.0, 1.0 ); glVertex3f( 0.0, 0.0, 1.0 );
+        glTexCoord2f( 1.0, 0.0 ); glVertex3f( 0.0, 0.0, 0.0 );
     }
     glEnd();
 
@@ -146,7 +140,7 @@ void GLWidget::paintEvent(QPaintEvent *)
     if (dw->attribs()->antialias)
         p.setRenderHints(QPainter::LineAntialiasing);
     p.setBrush(QBrush(QPoint(0,0), Qt::white,
- 		      QPoint(width(), height()), Qt::black));
+                      QPoint(width(), height()), Qt::black));
     p.drawRect(0, 0, width(), height());
     p.translate(width()/2, height()/2);
     p.rotate(step % 360);
