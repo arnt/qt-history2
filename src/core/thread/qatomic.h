@@ -76,6 +76,8 @@ template <typename T>
 inline T qAtomicSetPtr(volatile T *ptr, T newval)
 { return static_cast<T>(q_atomic_set_ptr(ptr, newval)); }
 
+#ifndef Q_SPECIALIZED_QATOMIC
+
 struct QAtomic {
     int atomic;
 
@@ -99,7 +101,49 @@ struct QAtomic {
 
     inline void operator=(int x)
     { atomic = x; }
+
+    inline bool testAndSet(int expected, int newval)
+    { return q_atomic_test_and_set_int(&atomic, expected, newval); }
+
+    inline int exchange(int newval)
+    { return q_atomic_set_int(&atomic, newval); }
 };
+
+template <typename T>
+struct QAtomicPointer
+{
+    T *atomic;
+
+    inline bool operator==(T *x) const
+    {
+        const T * volatile * const ptr = &atomic;
+        return *ptr == x;
+    }
+
+    inline bool operator!=(T *x) const
+    {
+        const T * volatile * const ptr = &atomic;
+        return *ptr != x;
+    }
+
+    inline void operator=(T *x)
+    { atomic = x; }
+
+    inline T *operator->()
+    { return atomic; }
+    inline const T *operator->() const
+    { return atomic; }
+
+    inline bool testAndSet(T *expected, T *newval)
+    { return q_atomic_test_and_set_ptr(&atomic, expected, newval); }
+
+    inline T *exchange(T * newval)
+    { return static_cast<T *>(q_atomic_set_ptr(&atomic, newval)); }
+};
+
+#define Q_ATOMIC_INIT(a) { (a) }
+
+#endif
 
 /*! \internal
   This is a helper for the assignment operators of implicitely shared classes.
@@ -131,8 +175,5 @@ inline void qAtomicDetach(T *&d)
     if (!--x->ref)
         delete x;
 }
-
-
-#define Q_ATOMIC_INIT(a) { (a) }
 
 #endif
