@@ -415,6 +415,8 @@ QTextEdit::QTextEdit(QWidget *parent)
     : QViewport(*new QTextEditPrivate, parent)
 {
     d->init();
+    d->hbar->setSingleStep(20);
+    d->vbar->setSingleStep(20);
 
     // compat signals
     connect(d->doc, SIGNAL(contentsChanged()), this, SIGNAL(textChanged()));
