@@ -1741,7 +1741,9 @@ void qt_init_internal( int *argcptr, char **argv,
 	QFont::initialize();
 	QCursor::initialize();
 	QPainter::initialize();
+#if defined(QT_THREAD_SUPPORT)
 	QThread::initialize();
+#endif	
     }
     gettimeofday( &watchtime, 0 );
 
@@ -1984,8 +1986,10 @@ void qt_cleanup()
 	QFont::cleanup();
 	QColor::cleanup();
     }
+#if defined(QT_THREAD_SUPPORT)
     QThread::cleanup();
-
+#endif
+    
 #ifndef QT_NO_XINPUT
     if ( dev != NULL )
 	XCloseDevice( appDpy, dev );
