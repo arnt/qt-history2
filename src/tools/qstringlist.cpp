@@ -29,7 +29,7 @@
     \mainclass
 
     It is used to store and manipulate strings that logically belong
-    together. Essentially QStringList is a QValueList of QString
+    together. Essentially QStringList is a QList of QString
     objects. Unlike QStrList, which stores pointers to characters,
     QStringList holds real QString objects. It is the class of choice
     whenever you work with Unicode strings. QStringList is part of the
@@ -135,7 +135,7 @@
 */
 
 /*!
-    \fn QStringList::QStringList(const QValueList<QString>& l)
+    \fn QStringList::QStringList(const QList<QString>& l)
 
     Constructs a new string list that is a copy of \a l.
 */
