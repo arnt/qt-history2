@@ -117,8 +117,8 @@ const char *qws_display_spec = ":0";
 int qws_display_id = 0;
 QWidget *qt_pressGrab = 0;
 QWidget *qt_mouseGrb = 0;
-int qt_last_x;
-int qt_last_y;
+int *qt_last_x = 0;
+int *qt_last_y = 0;
 bool qws_overrideCursor = FALSE;
 static bool qws_regionRequest = FALSE;
 #ifndef QT_NO_QWS_MANAGER
@@ -564,6 +564,10 @@ void QWSDisplay::Data::init()
 #endif
 
     sharedRamSize -= mouseoffset;
+    sharedRamSize -= sizeof(int);
+    qt_last_x = (int *)(sharedRam + sharedRamSize);
+    sharedRamSize -= sizeof(int);
+    qt_last_y = (int *)(sharedRam + sharedRamSize);
 
     /* Initialise framebuffer memory manager */
     /* Add 4k for luck and to avoid clobbering hardware cursor */
@@ -2055,7 +2059,6 @@ int QApplication::qwsProcessEvent( QWSEvent* event )
 #endif
 	    ) {
 	    qt_last_cursor = 0xffffffff; // cursor can be changed by another application
-	    qt_last_x = qt_last_y = -1;  // we no longer know the real cursor pos
 	}
 
 	QWidget* popup = QApplication::activePopupWidget();
@@ -2492,8 +2495,10 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
 	return TRUE;
     const QWSMouseEvent::SimpleData &mouse = event->simpleData;
     pos = mapFromGlobal(QPoint( mouse.x_root, mouse.y_root ));
-    qt_last_x=mouse.x_root;
-    qt_last_y=mouse.y_root;
+    if ( qt_last_x ) {
+	*qt_last_x=mouse.x_root;
+	*qt_last_y=mouse.y_root;
+    }
     globalPos.rx() = mouse.x_root;
     globalPos.ry() = mouse.y_root;
     state = translateButtonState( mouse.state );

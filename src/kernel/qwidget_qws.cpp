@@ -48,8 +48,8 @@ extern bool qt_xdnd_enable( QWidget* w, bool on );
 
 extern void qt_deferred_map_add( QWidget* ); // defined in qapplication_x11.const
 extern void qt_deferred_map_take( QWidget* );// defined in qapplication_x11.const
-extern int qt_last_x;
-extern int qt_last_y;
+extern int *qt_last_x;
+extern int *qt_last_y;
 extern WId qt_last_cursor;
 extern bool qws_overrideCursor;
 extern QWidget *qt_pressGrab;
@@ -1749,10 +1749,10 @@ void QWidget::updateFrameStrut() const
 #ifndef QT_NO_CURSOR
 void QWidget::updateCursor( const QRegion &r ) const
 {
-    if ( (!QWidget::mouseGrabber() || QWidget::mouseGrabber() == this) &&
+    if ( qt_last_x && (!QWidget::mouseGrabber() || QWidget::mouseGrabber() == this) &&
 	    qt_last_cursor != (WId)cursor().handle() && !qws_overrideCursor ) {
 	QSize s( qt_screen->width(), qt_screen->height() );
-	QPoint pos = qt_screen->mapToDevice(QPoint(qt_last_x, qt_last_y), s);
+	QPoint pos = qt_screen->mapToDevice(QPoint(*qt_last_x, *qt_last_y), s);
 	if ( r.contains(pos) )
 	    qwsDisplay()->selectCursor((QWidget*)this, (unsigned int)cursor().handle());
     }

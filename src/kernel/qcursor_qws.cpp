@@ -272,13 +272,16 @@ void QCursor::update() const
 
 
 
-extern int qt_last_x,qt_last_y;
+extern int *qt_last_x,*qt_last_y;
 
 QPoint QCursor::pos()
 {
     // This doesn't know about hotspots yet so we disable it
     //qt_accel_update_cursor();
-    return QPoint( qt_last_x,qt_last_y );
+    if ( qt_last_x )
+	return QPoint( *qt_last_x,*qt_last_y );
+    else
+	return QPoint();
 }
 
 void QCursor::setPos( int x, int y )
