@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#21 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -74,6 +74,7 @@ QWindowsMime::~QWindowsMime()
 }
 
 
+static
 LPFORMATETC allFormats(int& n)
 {
     n = 0;
@@ -101,6 +102,7 @@ LPFORMATETC allFormats(int& n)
 }
 
 
+static
 LPFORMATETC someFormats(const char* mime, int& n)
 {
     n = 0;
@@ -248,7 +250,7 @@ public:
 
     int cfFor(const char* mime)
     {
-	if ( qstricmp( mime, "text/plain" ) )
+	if ( 0==qstricmp( mime, "text/plain" ) )
 	    return CF_TEXT;
 	else
 	    return 0;
