@@ -3284,6 +3284,10 @@ void MainWindow::enableAll( bool enable )
 
 void MainWindow::showSourceLine( QObject *o, int line, LineMode lm )
 {
+    if ( !qwf_forms ) {
+	qWarning( "MainWindow::showSourceLine: qwf_forms is NULL!" );
+	return;
+    }
     QWidgetList windows = qworkspace->windowList();
     for ( QWidget *w = windows.first(); w; w = windows.next() ) {
 	FormWindow *fw = 0;
