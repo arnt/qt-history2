@@ -532,7 +532,7 @@ void QWindowsXPStyle::unPolish( QWidget *widget )
     widget->removeEventFilter( this );
     if ( widget->inherits( "QTitleBar" ) && !widget->inherits( "QDockWindowTitleBar" ) ) {
 	SetWindowRgn( widget->winId(), 0, TRUE );
-	if ( widget->isMinimized() ) {
+	if ( ((QTitleBar*)widget)->window() && ((QTitleBar*)widget)->window()->isMinimized() ) {
 	    SetWindowRgn( widget->parentWidget()->winId(), 0, TRUE );
 	}
     } else if ( widget->inherits( "QWorkspaceChild" ) ) {
@@ -557,7 +557,7 @@ void QWindowsXPStyle::updateRegion( QWidget *widget )
 	return;
 
     if ( widget->inherits( "QTitleBar" ) && !widget->inherits( "QDockWindowTitleBar" ) ) {
-	if ( widget->isMinimized() ) {
+	if ( ((QTitleBar*)widget)->window() && ((QTitleBar*)widget)->window()->isMinimized() ) {
 	    XPThemeData theme( widget, 0, "WINDOW", WP_MINCAPTION, CS_ACTIVE, widget->rect() );
 	    theme.setTransparency();
 	    XPThemeData theme2( widget->parentWidget(), 0, "WINDOW", WP_MINCAPTION, CS_ACTIVE, widget->rect() );
