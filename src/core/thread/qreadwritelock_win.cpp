@@ -26,7 +26,7 @@ void QReadWriteLock::lock(AccessMode mode)
     if(mode==ReadAccess) {
         for(;;){
             int localAccessCount(d->accessCount);
-            if(d->waitingWriters == 0 && localAccessCount != -1, && localAccessCount <= d->maxReaders) {
+            if(d->waitingWriters == 0 && localAccessCount != -1 && localAccessCount <= d->maxReaders) {
                 if (q_atomic_test_and_set_int(&d->accessCount, localAccessCount, localAccessCount + 1))
                      break;
             }else {
