@@ -68,7 +68,7 @@ class QListBoxPrivate
 public:
     QListBoxPrivate( QListBox *lb ):
 	head( 0 ), last( 0 ), cache( 0 ), cacheIndex( -1 ), current( 0 ),
-	highlighted( 0 ), rowPos( 1 ), columnPos( 1 ), rowPosCache( 0 ),
+	highlighted( 0 ), columnPos( 1 ), rowPos( 1 ), rowPosCache( 0 ),
 	columnPosOne( 0 ), rowMode( QListBox::FixedNumber ),
 	columnMode( QListBox::FixedNumber ), numRows( 1 ), numColumns( 1 ),
 	currentRow( 0 ), currentColumn( 0 ),
