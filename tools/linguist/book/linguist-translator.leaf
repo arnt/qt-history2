@@ -446,7 +446,7 @@ number of projects and applications.
 \i \e {Phrase} (See the section \l {Creating ... Phrase
 Books} for details.)
     \list
-    \i \e {New Phrase Book...} \BR pops up a save as file dialog.
+    \i \e {New Phrase Book... Ctrl+N} \BR pops up a save as file dialog.
     You must enter a filename to be used for the phrase book and save
     the file. Once saved you should open the phrase book to begin using
     it.
