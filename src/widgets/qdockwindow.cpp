@@ -976,6 +976,10 @@ void QDockWindow::updatePosition( const QPoint &globalPos )
 	}
     } else {
 	if ( dockArea ) {
+	    QMainWindow *mw = (QMainWindow*)dockArea->parentWidget();
+	    if ( mw && mw->inherits( "QMainWindow" ) &&
+		 !mw->isDockEnabled( QMainWindow::TornOff ) || !mw->isDockEnabled( this, QMainWindow::TornOff ) )
+		return;
 	    delete (QDockArea::DockWindowData*)dockWindowData;
 	    dockWindowData = dockArea->dockWindowData( this );
 	    dockArea->removeDockWindow( this, TRUE, startOrientation != Horizontal );
