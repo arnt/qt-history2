@@ -545,6 +545,10 @@ bool QSpinBox::eventFilter( QObject* obj, QEvent* ev )
 	    interpretText();
 	    return FALSE;
 	}
+    } else if ( ev->type() == QEvent::FocusOut || ev->type() == QEvent::Leave || ev->type() == QEvent::Hide ) {
+	if ( edited ) {
+	    interpretText();
+	}
     }
     return FALSE;
 }
