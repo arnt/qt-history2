@@ -91,12 +91,12 @@ public:
     whitespace is controlled by the \link
     QStyleSheetItem::WhiteSpaceMode white space mode\endlink; see
     setWhiteSpaceMode(). An item's margins are set with setMargin(),
-    and line spacing is set with setLineSpacing(). In the case of list
-    items, the list style is set with setListStyle(). An item may be a
-    hypertext link anchor; see setAnchor(). Other attributes are set
-    with setAlignment(), setVerticalAlignment(), setFontFamily(),
-    setFontSize(), setFontWeight(), setFontItalic(),
-    setFontUnderline() and setColor().
+    In the case of list items, the list style is set with
+    setListStyle(). An item may be a hypertext link anchor; see
+    setAnchor(). Other attributes are set with setAlignment(),
+    setVerticalAlignment(), setFontFamily(), setFontSize(),
+    setFontWeight(), setFontItalic(), setFontUnderline() and
+    setColor().
 */
 
 /*! \enum QStyleSheetItem::AdditionalStyleValues
@@ -224,11 +224,11 @@ void QStyleSheetItem::init()
     d->anchor = FALSE;
     d->align = Undefined;
     d->valign = VAlignBaseline;
-    d->margin[0] = Undefined;
-    d->margin[1] = Undefined;
-    d->margin[2] = Undefined;
-    d->margin[3] = Undefined;
-    d->margin[4] = Undefined;
+    d->margin[0] = 0;
+    d->margin[1] = 0;
+    d->margin[2] = 0;
+    d->margin[3] = 0;
+    d->margin[4] = 0;
     d->list = (ListStyle) Undefined;
     d->whitespacemode = QStyleSheetItem::WhiteSpaceNormal;
     d->selfnest = TRUE;
@@ -772,7 +772,8 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
     d->selfnest = nesting;
 }
 
-/*!
+/*!\obsolete
+
     Sets the linespacing to be \a ls pixels
 */
 
@@ -782,7 +783,9 @@ void QStyleSheetItem::setLineSpacing( int ls )
 }
 
 /*!
-    Returns the linespacing
+  \obsolete
+
+  Returns the linespacing
 */
 
 int QStyleSheetItem::lineSpacing() const
@@ -1180,7 +1183,7 @@ void QStyleSheet::init()
      style->setFontUnderline( TRUE);
      style = new QStyleSheetItem( this, QString::fromLatin1("nobr") );
      style->setWhiteSpaceMode( QStyleSheetItem::WhiteSpaceNoWrap );
-     
+
      // compatibily with some minor 3.0.x Qt versions that had an
      // undocumented <wsp> tag. ### Remove 3.1
      style = new QStyleSheetItem( this, QString::fromLatin1("wsp") );

@@ -1001,8 +1001,8 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
     case Key_Return: case Key_Enter:
 	if ( doc->hasSelection( QTextDocument::Standard, FALSE ) )
 	    removeSelectedText();
-	if ( e->state() & ControlButton ) {
-	    // Ctrl-Enter inserts a line break
+	if ( textFormat() == Qt::RichText && ( e->state() & ControlButton ) ) {
+	    // Ctrl-Enter inserts a line break in rich text mode
 	    insert( QString( QChar( 0x2028) ), TRUE, FALSE );
 	} else {
 #ifndef QT_NO_CURSOR
@@ -1103,11 +1103,8 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 		clearUndoRedoInfo = FALSE;
 		if ( e->key() == Key_Tab ) {
 		    if ( d->allowTabs ) {
-			if ( textFormat() == Qt::RichText &&
-			     cursor->index() == 0 && cursor->parag()->style() &&
-			     cursor->parag()->style()->displayMode() ==
-			     QStyleSheetItem::DisplayListItem ) {
-			    cursor->parag()->incDepth();
+			if ( textFormat() == Qt::RichText && cursor->parag()->isListItem() ) {
+			    cursor->parag()->setListDepth( cursor->parag()->listDepth() +1 );
 			    drawCursor( FALSE );
 			    repaintChanged();
 			    drawCursor( TRUE );
@@ -1119,8 +1116,7 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 		    }
 		}
 
-		if ( textFormat() == Qt::RichText && ( !cursor->parag()->style() ||
-			       cursor->parag()->style()->displayMode() != QStyleSheetItem::DisplayListItem ) ) {
+		if ( textFormat() == Qt::RichText && !cursor->parag()->isListItem() ) {
 		    if ( cursor->index() == 0 && ( e->text()[0] == '-' || e->text()[0] == '*' ) ) {
 			setParagType( QStyleSheetItem::DisplayListItem, QStyleSheetItem::ListDisc );
 			drawCursor( FALSE );
@@ -1319,11 +1315,12 @@ void QTextEdit::doKeyboardAction( KeyboardAction action )
 	}
     } break;
     case ActionBackspace:
-	if ( textFormat() == Qt::RichText &&
-	     cursor->parag()->style() &&
-	     cursor->parag()->style()->displayMode() == QStyleSheetItem::DisplayListItem &&
-	     cursor->index() == 0 ) {
-	    cursor->parag()->decDepth();
+	if ( textFormat() == Qt::RichText && cursor->parag()->isListItem() && cursor->index() == 0 ) {
+	    int ldepth = cursor->parag()->listDepth();
+	    ldepth = QMAX( ldepth-1, 0 );
+	    cursor->parag()->setListDepth( ldepth );
+	    if ( ldepth == 0 )
+		cursor->parag()->setListItem( FALSE );
 	    lastFormatted = cursor->parag();
 	    repaintChanged();
 	    drawCursor( TRUE );
@@ -3022,47 +3019,63 @@ void QTextEdit::setParagType( QStyleSheetItem::DisplayMode dm,
     drawCursor( FALSE );
     if ( !doc->hasSelection( QTextDocument::Standard ) ) {
 	if ( undoEnabled ) {
-	    clearUndoRedo();
-	    undoRedoInfo.type = UndoRedoInfo::ParagType;
-	    QValueList< QPtrVector<QStyleSheetItem> > oldStyles;
-	    undoRedoInfo.oldStyles.clear();
-	    undoRedoInfo.oldStyles << cursor->parag()->styleSheetItems();
-	    undoRedoInfo.oldListStyles.clear();
-	    undoRedoInfo.oldListStyles << cursor->parag()->listStyle();
-	    undoRedoInfo.list = dm == QStyleSheetItem::DisplayListItem;
-	    undoRedoInfo.listStyle = listStyle;
-	    undoRedoInfo.id = cursor->parag()->paragId();
-	    undoRedoInfo.eid = cursor->parag()->paragId();
-	    undoRedoInfo.d->text = " ";
-	    undoRedoInfo.index = 1;
-	    clearUndoRedo();
+	clearUndoRedo();
+	undoRedoInfo.type = UndoRedoInfo::ParagType;
+	QValueList< QPtrVector<QStyleSheetItem> > oldStyles;
+	undoRedoInfo.oldStyles.clear();
+	undoRedoInfo.oldStyles << cursor->parag()->styleSheetItems();
+	undoRedoInfo.oldListStyles.clear();
+	undoRedoInfo.oldListStyles << cursor->parag()->listStyle();
+	undoRedoInfo.list = dm == QStyleSheetItem::DisplayListItem;
+	undoRedoInfo.listStyle = listStyle;
+	undoRedoInfo.id = cursor->parag()->paragId();
+	undoRedoInfo.eid = cursor->parag()->paragId();
+	undoRedoInfo.d->text = " ";
+	undoRedoInfo.index = 1;
+	clearUndoRedo();
 	}
-	cursor->parag()->setList( dm == QStyleSheetItem::DisplayListItem, listStyle );
+	cursor->parag()->setListStyle( listStyle );
+	if ( dm == QStyleSheetItem::DisplayListItem ) {
+	    cursor->parag()->setListItem( TRUE );
+	    if( cursor->parag()->listDepth() == 0 )
+		cursor->parag()->setListDepth( 1 );
+	} else if ( cursor->parag()->isListItem() ) {
+	    cursor->parag()->setListItem( FALSE );
+	    cursor->parag()->setListDepth( QMAX( cursor->parag()->listDepth()-1, 0 ) );
+	}
 	repaintChanged();
     } else {
 	QTextParag *start = doc->selectionStart( QTextDocument::Standard );
 	QTextParag *end = doc->selectionEnd( QTextDocument::Standard );
 	lastFormatted = start;
 	if ( undoEnabled ) {
-	    clearUndoRedo();
-	    undoRedoInfo.type = UndoRedoInfo::ParagType;
-	    undoRedoInfo.id = start->paragId();
-	    undoRedoInfo.eid = end->paragId();
-	    undoRedoInfo.list = dm == QStyleSheetItem::DisplayListItem;
-	    undoRedoInfo.listStyle = listStyle;
-	    undoRedoInfo.oldStyles.clear();
-	    undoRedoInfo.oldListStyles.clear();
-	    while ( start ) {
-		undoRedoInfo.oldStyles << start->styleSheetItems();
-		undoRedoInfo.oldListStyles << start->listStyle();
-		start->setList( dm == QStyleSheetItem::DisplayListItem, listStyle );
-		if ( start == end )
-		    break;
-		start = start->next();
+	clearUndoRedo();
+	undoRedoInfo.type = UndoRedoInfo::ParagType;
+	undoRedoInfo.id = start->paragId();
+	undoRedoInfo.eid = end->paragId();
+	undoRedoInfo.list = dm == QStyleSheetItem::DisplayListItem;
+	undoRedoInfo.listStyle = listStyle;
+	undoRedoInfo.oldStyles.clear();
+	undoRedoInfo.oldListStyles.clear();
+	while ( start ) {
+	    undoRedoInfo.oldStyles << start->styleSheetItems();
+	    undoRedoInfo.oldListStyles << start->listStyle();
+	    start->setListStyle( listStyle );
+	    if ( dm == QStyleSheetItem::DisplayListItem ) {
+		start->setListItem( TRUE );
+		if( start->listDepth() == 0 )
+		start->setListDepth( 1 );
+	    } else if ( start->isListItem() ) {
+		start->setListItem( FALSE );
+		start->setListDepth( QMAX( start->listDepth()-1, 0 ) );
 	    }
-	    undoRedoInfo.d->text = " ";
-	    undoRedoInfo.index = 1;
-	    clearUndoRedo();
+	    if ( start == end )
+		break;
+	    start = start->next();
+	}
+	undoRedoInfo.d->text = " ";
+	undoRedoInfo.index = 1;
+	clearUndoRedo();
 	}
 	repaintChanged();
 	formatMore();
@@ -3343,7 +3356,8 @@ void QTextEdit::setText( const QString &text, const QString &context )
 	return;
     }
 #endif
-    if ( !isModified() && this->context() == context && this->text() == text )
+    if ( !isModified() && isReadOnly() && 
+	 this->context() == context && this->text() == text )
 	return;
 
     emit undoAvailable( FALSE );

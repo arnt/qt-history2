@@ -912,6 +912,7 @@ private:
     QString parseWord(const QChar* doc, int length, int& pos, bool lower = TRUE);
     QChar parseChar(const QChar* doc, int length, int& pos, QStyleSheetItem::WhiteSpaceMode wsm );
     void setRichTextInternal( const QString &text );
+    void setRichTextMarginsInternal( QPtrList< QPtrVector<QStyleSheetItem> >& styles, QTextParag* stylesPar );
 
 private:
     struct Q_EXPORT Focus {
@@ -968,6 +969,8 @@ private:
     QPtrList<QTextDocument> childList;
     QColor linkColor;
     double scaleFontsFactor;
+
+    short list_tm,list_bm, list_lm, li_tm, li_bm, par_tm, par_bm;
 };
 
 // ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -1172,15 +1175,15 @@ public:
     int leftGap() const;
     int length() const; // maybe remove later
 
-    void setListStyle( QStyleSheetItem::ListStyle ls );
-    QStyleSheetItem::ListStyle listStyle() const;
+    void setListStyle( QStyleSheetItem::ListStyle ls ) { lstyle = ls; changed = TRUE; }
+    QStyleSheetItem::ListStyle listStyle() const { return lstyle; }
+    void setListItem( bool li ) { litem = li; changed = TRUE; }
+    bool isListItem() const { return litem; }
     void setListValue( int v ) { list_val = v; }
     int listValue() const { return list_val > 0 ? list_val : -1; }
 
-    void setList( bool b, QStyleSheetItem::ListStyle listStyle = QStyleSheetItem::ListDisc);
-    void incDepth();
-    void decDepth();
-    int listDepth() const;
+    void setListDepth( int depth );
+    int listDepth() const { return ldepth; }
 
     void setFormat( QTextFormat *fm );
     QTextFormat *paragFormat() const;
@@ -1265,7 +1268,7 @@ public:
     virtual int leftMargin() const;
     virtual int firstLineMargin() const;
     virtual int rightMargin() const;
-    virtual int lineSpacing() const;
+    virtual int lineExtra() const;
 
 #ifndef QT_NO_TEXTCUSTOMITEM
     void registerFloatingItem( QTextCustomItem *i );
@@ -1349,21 +1352,23 @@ private:
     uint movedDown : 1;
     uint mightHaveCustomItems : 1;
     uint hasdoc : 1;
+    uint litem : 1; // whether the paragraph is a list item
+    uint rtext : 1; // whether the paragraph needs rich text margin
     int align : 4;
     int state, id;
     QTextString *str;
     QMap<int, QTextParagSelection> *mSelections;
     QPtrVector<QStyleSheetItem> *mStyleSheetItemsVec;
     QPtrList<QTextCustomItem> *mFloatingItems;
-    QStyleSheetItem::ListStyle listS;
-    short tm, bm, lm, rm, flm;
-    short utm, ubm, ulm, urm, uflm;
+    QStyleSheetItem::ListStyle lstyle;
+    short utm, ubm, ulm, urm, uflm, ulineextra;
     QTextFormat *defFormat;
     int *tArray;
     short tabStopWidth;
     QTextParagData *eData;
     short list_val;
     QColor *bgcol;
+    ushort ldepth;
     QPaintDevice *paintdevice;
 };
 
@@ -2060,17 +2065,6 @@ inline void QTextParag::setAlignment( int a )
 	return;
     align = a;
     invalidate( 0 );
-}
-
-inline void QTextParag::setListStyle( QStyleSheetItem::ListStyle ls )
-{
-    listS = ls;
-    invalidate( 0 );
-}
-
-inline QStyleSheetItem::ListStyle QTextParag::listStyle() const
-{
-    return listS;
 }
 
 inline QTextFormat *QTextParag::paragFormat() const
