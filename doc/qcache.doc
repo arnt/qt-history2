@@ -38,58 +38,56 @@
   QCache documentation
  *****************************************************************************/
 
-// BEING REVISED: ettrich
 /*!
-  \class QCache
+    \class QCache
+    \brief The QCache class is a template class that provides a cache based on QString keys.
 
-  \brief The QCache class is a template class that provides a cache based on QString keys.
+    \ingroup collection
+    \ingroup tools
 
-  \ingroup collection
-  \ingroup tools
+    \important autoDelete setAutoDelete
 
-  \important autoDelete setAutoDelete
+    A cache is a least recently used (LRU) list of cache items. Each
+    cache item has a key and a certain cost. The sum of item costs,
+    totalCost(), never exceeds the maximum cache cost, maxCost(). If
+    inserting a new item would cause the total cost to exceed the
+    maximum cost, the least recently used items in the cache are
+    removed.
 
-  A cache is a least recently used (LRU) list of cache items.  Each
-  cache item has a key and a certain cost. The sum of item costs,
-  totalCost(), never exceeds the maximum cache cost, maxCost(). If
-  inserting a new item would cause the total cost to exceed the
-  maximum cost, the least recently used items in the cache are
-  removed.
+    QCache is a template class. QCache\<X\> defines a cache that
+    operates on pointers to X, or X*.
 
-  QCache is a template class. QCache\<X\> defines a cache that
-  operates on pointers to X, or X*.
+    Apart from insert(), by far the most important function is find()
+    (which also exists as operator[]()). This function looks up an
+    item, returns it, and by default marks it as being the most
+    recently used item.
 
-  Apart from insert(), by far the most important function is find()
-  (which also exists as operator[]()).  This function looks up an item,
-  returns it, and by default marks it as being the most recently used
-  item.
+    There are also methods to remove() or take() an object from the
+    cache. Calling setAutoDelete(TRUE) for a cache tells it to delete
+    items that are removed. The default is to not delete items when
+    they are removed (i.e., remove() and take() are equivalent).
 
-  There are also methods to remove() or take() an object from the
-  cache.  Calling setAutoDelete(TRUE) for a cache tells it to delete
-  items that are removed.  The default is to not delete items when
-  they are removed (i.e., remove() and take() are equivalent).
+    When inserting an item into the cache, only the pointer is copied,
+    not the item itself. This is called a shallow copy. It is possible
+    to make the cache copy all of the item's data (known as a deep
+    copy) when an item is inserted. insert() calls the virtual
+    function QPtrCollection::newItem() for the item to be inserted.
+    Inherit a cache and reimplement newItem() if you want deep copies.
 
-  When inserting an item into the cache, only the pointer is copied, not
-  the item itself. This is called a shallow copy. It is possible to make the
-  cache copy all of the item's data (known as a deep copy) when an
-  item is inserted.  insert() calls the virtual function
-  QPtrCollection::newItem() for the item to be inserted.
-  Inherit a cache and reimplement it if you want deep copies.
+    When removing a cache item, the virtual function
+    QPtrCollection::deleteItem() is called. The default
+    implementation deletes the item if auto-deletion is enabled, and
+    does nothing otherwise.
 
-  When removing a cache item, the virtual function
-  QPtrCollection::deleteItem() is called.  The default implementation
-  deletes the item if auto-deletion is enabled, and does nothing
-  otherwise.
+    There is a QCacheIterator that can be used to traverse the items
+    in the cache in arbitrary order.
 
-  There is a QCacheIterator that can be used to traverse the
-  items in the cache in arbitrary order.
+    In QCache, the cache items are accessed via \l QString keys, which
+    are Unicode strings. If you want to use non-Unicode, plain 8-bit
+    \c char* keys, use the QAsciiCache template. A QCache has the
+    same performace as a QAsciiCache.
 
-  In QCache, the cache items are accessed via \l QString keys, which
-  are Unicode strings.  If you want to use non-Unicode, plain 8-bit \c
-  char* keys, use the QAsciiCache template.  A QCache has the same
-  performace as a QAsciiCache.
-
-  \sa QCacheIterator, QAsciiCache, QIntCache
+    \sa QCacheIterator, QAsciiCache, QIntCache
 */
 
 /*!
@@ -102,32 +100,32 @@
 
 
 /*!
-  \fn QCache::QCache( int maxCost, int size, bool caseSensitive )
+    \fn QCache::QCache( int maxCost, int size, bool caseSensitive )
 
-  Constructs a cache whose contents will never have a total cost
-  greater than \a maxCost and which is expected to contain less than
-  \a size items.
+    Constructs a cache whose contents will never have a total cost
+    greater than \a maxCost and which is expected to contain less than
+    \a size items.
 
-  \a size is actually the size of an internal hash array; it's usually
-  best to make it a prime number and at least 50% bigger than the largest
-  expected number of items in the cache.
+    \a size is actually the size of an internal hash array; it's
+    usually best to make it a prime number and at least 50% bigger
+    than the largest expected number of items in the cache.
 
-  Each inserted item has an associated cost.  When inserting a new
-  item, if the total cost of all items in the cache will exceed \a
-  maxCost, the cache will start throwing out the older (least recently
-  used) items until there is enough room for the new item to be
-  inserted.
+    Each inserted item has an associated cost. When inserting a new
+    item, if the total cost of all items in the cache will exceed \a
+    maxCost, the cache will start throwing out the older (least
+    recently used) items until there is enough room for the new item
+    to be inserted.
 
-  If \a caseSensitive is TRUE (the default), the cache keys are case
-  sensitive; if it is FALSE, they are case-insensitive.
-  Case-insensitive comparison includes all letters in Unicode.
+    If \a caseSensitive is TRUE (the default), the cache keys are case
+    sensitive; if it is FALSE, they are case-insensitive.
+    Case-insensitive comparison considers all Unicode letters.
 */
 
 /*!
-  \fn QCache::~QCache()
+    \fn QCache::~QCache()
 
-  Removes all items from the cache and destroys it.
-  All iterators that access this cache will be reset.
+    Removes all items from the cache and destroys it. All iterators
+    that access this cache will be reset.
 */
 
 /*!
@@ -139,151 +137,153 @@
 */
 
 /*!
-  \fn int QCache::maxCost() const
+    \fn int QCache::maxCost() const
 
-  Returns the maximum allowed total cost of the cache.
-  \sa setMaxCost() totalCost()
+    Returns the maximum allowed total cost of the cache.
+
+    \sa setMaxCost() totalCost()
 */
 
 /*!
-  \fn int QCache::totalCost() const
+    \fn int QCache::totalCost() const
 
-  Returns the total cost of the items in the cache.  This is an
-  integer in the range 0 to maxCost().
+    Returns the total cost of the items in the cache. This is an
+    integer in the range 0 to maxCost().
 
-  \sa setMaxCost()
+    \sa setMaxCost()
 */
 
 /*!
-  \fn void QCache::setMaxCost( int m )
+    \fn void QCache::setMaxCost( int m )
 
-  Sets the maximum allowed total cost of the cache to \a m.  If the
-  current total cost is greater than \a m, some items are deleted
-  immediately.
+    Sets the maximum allowed total cost of the cache to \a m. If the
+    current total cost is greater than \a m, some items are deleted
+    immediately.
 
-  \sa maxCost() totalCost()
+    \sa maxCost() totalCost()
 */
 
 /*!
-  \fn uint QCache::count() const
+    \fn uint QCache::count() const
 
-  Returns the number of items in the cache.
+    Returns the number of items in the cache.
 
-  \sa totalCost()
+    \sa totalCost()
 */
 
 /*!
-  \fn uint QCache::size() const
+    \fn uint QCache::size() const
 
-  Returns the size of the hash array used to implement the cache.
-  This should be a bit bigger than count() is likely to be.
+    Returns the size of the hash array used to implement the cache.
+    This should be a bit bigger than count() is likely to be.
 */
 
 /*!
-  \fn bool QCache::isEmpty() const
+    \fn bool QCache::isEmpty() const
 
-  Returns TRUE if the cache is empty, or FALSE if there is at least one
-  object in it.
+    Returns TRUE if the cache is empty; otherwise returns FALSE.
 */
 
 /*!
-  \fn bool QCache::insert( const QString &k, const type *d, int c, int p )
+    \fn bool QCache::insert( const QString &k, const type *d, int c, int p )
 
-  Inserts the item \a d into the cache with key \a k and cost \a
-  c. Returns TRUE if it is successful and FALSE if it fails.
+    Inserts the item \a d into the cache with key \a k and associated
+    cost, \a c. Returns TRUE if it is successfully inserted; otherwise
+    returns FALSE.
 
-  The cache's size is limited, and if the total cost is too high,
-  QCache will remove old, least recently used items until there is room
-  for this new item.
+    The cache's size is limited, and if the total cost is too high,
+    QCache will remove old, least recently used items until there is
+    room for this new item.
 
-  The parameter \a p is internal and should be left at the default
-  value (0).
+    The parameter \a p is internal and should be left at the default
+    value (0).
 
-  \warning If this function returns FALSE you must delete \a d
-  yourself.  Additionally, be very careful about using \a d after
-  calling this function because any other insertions into the cache, from
-  anywhere in the application or within Qt itself, could cause the
-  object to be discarded from the cache and the pointer to become
-  invalid.
+    \warning If this function returns FALSE (which could happen, e.g.
+    if the cost of this item alone exceeds maxCost()) you must delete
+    \a d yourself. Additionally, be very careful about using \a d
+    after calling this function because any other insertions into the
+    cache, from anywhere in the application or within Qt itself, could
+    cause the object to be discarded from the cache and the pointer to
+    become invalid.
 */
 
 /*!
-  \fn bool QCache::remove( const QString &k )
+    \fn bool QCache::remove( const QString &k )
 
-  Removes the item associated with \a k, and returns TRUE if the item
-  was present in the cache or FALSE if it was not.
+    Removes the item associated with \a k, and returns TRUE if the
+    item was present in the cache; otherwise returns FALSE.
 
-  The item is deleted if auto-deletion has been enabled, i.e., you have
-  called setAutoDelete(TRUE).
+    The item is deleted if auto-deletion has been enabled, i.e., if
+    you have called setAutoDelete(TRUE).
 
-  If there are two or more items with equal keys, the one that
-  was inserted last is removed.
+    If there are two or more items with equal keys, the one that was
+    inserted last is removed.
 
-  All iterators that refer to the removed item are set to point to the
-  next item in the cache's traversal order.
+    All iterators that refer to the removed item are set to point to
+    the next item in the cache's traversal order.
 
-  \sa take(), clear()
+    \sa take(), clear()
 */
 
 /*!
-  \fn type *QCache::take( const QString &k )
+    \fn type *QCache::take( const QString &k )
 
-  Takes the item associated with \a k out of the cache without
-  deleting it and returns a pointer to the item taken out, or null if
-  the key does not exist in the cache.
+    Takes the item associated with \a k out of the cache without
+    deleting it, and returns a pointer to the item taken out, or 0
+    if the key does not exist in the cache.
 
-  If there are two or more items with equal keys, the one that
-  was inserted last is taken.
+    If there are two or more items with equal keys, the one that was
+    inserted last is taken.
 
-  All iterators that refer to the taken item are set to point to the
-  next item in the cache's traversal order.
+    All iterators that refer to the taken item are set to point to the
+    next item in the cache's traversal order.
 
-  \sa remove(), clear()
+    \sa remove(), clear()
 */
 
 /*!
-  \fn void QCache::clear()
+    \fn void QCache::clear()
 
-  Removes all items from the cache and deletes them if auto-deletion
-  has been enabled.
+    Removes all items from the cache and deletes them if auto-deletion
+    has been enabled.
 
-  All cache iterators that operate this on cache are reset.
+    All cache iterators that operate this on cache are reset.
 
-  \sa remove() take()
+    \sa remove() take()
 */
 
 /*!
-  \fn type *QCache::find( const QString &k, bool ref ) const
+    \fn type *QCache::find( const QString &k, bool ref ) const
 
-  Returns the item associated with key \a k, or null if the key does not
-  exist in the cache.  If \a ref is TRUE (the default), the item is
-  moved to the front of the least recently used list.
+    Returns the item associated with key \a k, or 0 if the key does
+    not exist in the cache. If \a ref is TRUE (the default), the item
+    is moved to the front of the least recently used list.
 
-  If there are two or more items with equal keys, the one that
-  was inserted last is returned.
+    If there are two or more items with equal keys, the one that was
+    inserted last is returned.
 */
 
 /*!
-  \fn type *QCache::operator[]( const QString &k ) const
+    \fn type *QCache::operator[]( const QString &k ) const
 
-  Returns the item associated with key \a k, or null if \a k does not
-  exist in the cache, and moves the item to the front of the least
-  recently used list.
+    Returns the item associated with key \a k, or 0 if \a k does not
+    exist in the cache, and moves the item to the front of the least
+    recently used list.
 
-  If there are two or more items with equal keys, the one that
-  was inserted last is returned.
+    If there are two or more items with equal keys, the one that was
+    inserted last is returned.
 
-  This is the same as find( k, TRUE ).
+    This is the same as find( k, TRUE ).
 
-  \sa find()
+    \sa find()
 */
 
 /*!
-  \fn void QCache::statistics() const
+    \fn void QCache::statistics() const
 
-  A debug-only utility function. Prints out cache usage, hit/miss, and
-  distribution information using qDebug(). This function does nothing
-  in the release library.
+    A debug-only utility function. Prints out cache usage, hit/miss,
+    and distribution information using qDebug(). This function does
+    nothing in the release library.
 */
 
 /*****************************************************************************
@@ -291,169 +291,176 @@
  *****************************************************************************/
 
 /*!
-  \class QCacheIterator qcache.h
-  \brief The QCacheIterator class provides an iterator for QCache collections.
+    \class QCacheIterator qcache.h
+    \brief The QCacheIterator class provides an iterator for QCache collections.
 
-  \ingroup collection
-  \ingroup tools
+    \ingroup collection
+    \ingroup tools
 
-  Note that the traversal order is arbitrary; you are not guaranteed
-  any particular order.  If new objects are inserted into the cache
-  while the iterator is active, the iterator may or may not see them.
+    Note that the traversal order is arbitrary; you are not guaranteed
+    any particular order. If new objects are inserted into the cache
+    while the iterator is active, the iterator may or may not see
+    them.
 
-  Multiple iterators are completely independent, even when they
-  operate on the same QCache. QCache updates all iterators that refer
-  an item when that item is removed.
+    Multiple iterators are completely independent, even when they
+    operate on the same QCache. QCache updates all iterators that
+    refer an item when that item is removed.
 
-  QCacheIterator provides an operator++(), and an operator+=() to
-  traverse the cache. The current() and currentKey() functions are used
-  to access the current cache item and its key. The atFirst() and
-  atLast() return TRUE if the iterator points to the first or last item
-  in the cache respectively. The isEmpty() function returns TRUE if the
-  cache is empty, and count() returns the number of items in the cache.
+    QCacheIterator provides an operator++(), and an operator+=() to
+    traverse the cache. The current() and currentKey() functions are
+    used to access the current cache item and its key. The atFirst()
+    and atLast() return TRUE if the iterator points to the first or
+    last item in the cache respectively. The isEmpty() function
+    returns TRUE if the cache is empty, and count() returns the number
+    of items in the cache.
 
-  Note that atFirst() and atLast() refer to the iterator's arbitrary
-  ordering, not to the cache's internal least recently used list.
+    Note that atFirst() and atLast() refer to the iterator's arbitrary
+    ordering, not to the cache's internal least recently used list.
 
-  \sa QCache
+    \sa QCache
 */
 
 /*!
-  \fn QCacheIterator::QCacheIterator( const QCache<type> &cache )
+    \fn QCacheIterator::QCacheIterator( const QCache<type> &cache )
 
-  Constructs an iterator for \a cache.  The current iterator item is
-  set to point to the first item in the \a cache.
+    Constructs an iterator for \a cache. The current iterator item is
+    set to point to the first item in the \a cache.
 */
 
 /*!
-  \fn QCacheIterator::QCacheIterator (const QCacheIterator<type> & ci)
+    \fn QCacheIterator::QCacheIterator (const QCacheIterator<type> & ci)
 
-  Constructs an iterator for the same cache as \a ci.  The new
-  iterator starts at the same item as ci.current(), but moves
-  independently from there on.
+    Constructs an iterator for the same cache as \a ci. The new
+    iterator starts at the same item as ci.current(), but moves
+    independently from there on.
 */
 
 /*!
-  \fn QCacheIterator<type>& QCacheIterator::operator=( const QCacheIterator<type> &ci )
+    \fn QCacheIterator<type>& QCacheIterator::operator=( const QCacheIterator<type> &ci )
 
-  Makes this an iterator for the same cache as \a ci.  The new
-  iterator starts at the same item as ci.current(), but moves
-  independently thereafter.
+    Makes this an iterator for the same cache as \a ci. The new
+    iterator starts at the same item as ci.current(), but moves
+    independently thereafter.
 */
 
 /*!
-  \fn uint QCacheIterator::count() const
+    \fn uint QCacheIterator::count() const
 
-  Returns the number of items in the cache on which this iterator operates.
-  \sa isEmpty()
+    Returns the number of items in the cache on which this iterator
+    operates.
+
+    \sa isEmpty()
 */
 
 /*!
-  \fn bool QCacheIterator::isEmpty() const
+    \fn bool QCacheIterator::isEmpty() const
 
-  Returns TRUE if the cache is empty, i.e. count() == 0; otherwise
-  it returns FALSE.  \sa count()
+    Returns TRUE if the cache is empty, i.e. count() == 0; otherwise
+    it returns FALSE.
+    
+    \sa count()
 */
 
 /*!
-  \fn bool QCacheIterator::atFirst() const
+    \fn bool QCacheIterator::atFirst() const
 
-  Returns TRUE if the iterator points to the first item in the
-  cache. Note that this refers to the iterator's arbitrary ordering,
-  not to the cache's internal least recently used list.
+    Returns TRUE if the iterator points to the first item in the
+    cache; otherwise returns FALSE. Note that this refers to the
+    iterator's arbitrary ordering, not to the cache's internal least
+    recently used list.
 
-  \sa toFirst(), atLast()
+    \sa toFirst(), atLast()
 */
 
 /*!
-  \fn bool QCacheIterator::atLast() const
+    \fn bool QCacheIterator::atLast() const
 
-  Returns TRUE if the iterator points to the last item in the
-  cache. Note that this refers to the iterator's arbitrary ordering,
-  not to the cache's internal least recently used list.
+    Returns TRUE if the iterator points to the last item in the cache;
+    otherwise returns FALSE. Note that this refers to the iterator's
+    arbitrary ordering, not to the cache's internal least recently
+    used list.
 
-  \sa toLast(), atFirst()
+    \sa toLast(), atFirst()
 */
 
 /*!
-  \fn type *QCacheIterator::toFirst()
+    \fn type *QCacheIterator::toFirst()
 
-  Sets the iterator to point to the first item in the cache and
-  returns a pointer to the item.
+    Sets the iterator to point to the first item in the cache and
+    returns a pointer to the item.
 
-  Sets the iterator to null and returns null if the cache is empty.
+    Sets the iterator to 0 and returns 0 if the cache is empty.
 
-  \sa toLast() isEmpty()
+    \sa toLast() isEmpty()
 */
 
 /*!
-  \fn type *QCacheIterator::toLast()
+    \fn type *QCacheIterator::toLast()
 
-  Sets the iterator to point to the last item in the cache and
-  returns a pointer to the item.
+    Sets the iterator to point to the last item in the cache and
+    returns a pointer to the item.
 
-  Sets the iterator to null and returns null if the cache is empty.
+    Sets the iterator to 0 and returns 0 if the cache is empty.
 
-  \sa toFirst() isEmpty()
+    \sa toFirst() isEmpty()
 */
 
 /*!
-  \fn QCacheIterator::operator type *() const
+    \fn QCacheIterator::operator type *() const
 
-  Cast operator. Returns a pointer to the current iterator item.
-  Same as current().
-
+    Cast operator. Returns a pointer to the current iterator item.
+    Same as current().
 */
 
 /*!
-  \fn type *QCacheIterator::current() const
+    \fn type *QCacheIterator::current() const
 
-  Returns a pointer to the current iterator item.
+    Returns a pointer to the current iterator item.
 */
 
 /*!
-  \fn QString QCacheIterator::currentKey() const
+    \fn QString QCacheIterator::currentKey() const
 
-  Returns the key for the current iterator item.
+    Returns the key for the current iterator item.
 */
 
 /*!
-  \fn type *QCacheIterator::operator()()
+    \fn type *QCacheIterator::operator()()
 
-  Makes the succeeding item current and returns the original current
-  item.
+    Makes the succeeding item current and returns the original current
+    item.
 
-  If the current iterator item was the last item in the cache or if it
-  was null, null is returned.
+    If the current iterator item was the last item in the cache or if
+    it was 0, 0 is returned.
 */
 
 /*!
-  \fn type *QCacheIterator::operator+=( uint jump )
+    \fn type *QCacheIterator::operator+=( uint jump )
 
-  Returns the item \a jump positions after the current item, or null if
-  it is beyond the last item.  Makes this the current item.
+    Returns the item \a jump positions after the current item, or 0 if
+    it is beyond the last item. Makes this the current item.
 */
 
 /*!
-  \fn type *QCacheIterator::operator-=( uint jump )
+    \fn type *QCacheIterator::operator-=( uint jump )
 
-  Returns the item \a jump positions before the current item, or null if
-  it is before the first item.  Makes this the current item.
+    Returns the item \a jump positions before the current item, or 0
+    if it is before the first item. Makes this the current item.
 */
 
 /*!
-  \fn type *QCacheIterator::operator++()
+    \fn type *QCacheIterator::operator++()
 
-  Prefix++ makes the iterator point to the item just after
-  current() and makes that the new current item for the iterator.  If
-  current() was the last item, operator++() returns 0.
+    Prefix++ makes the iterator point to the item just after current()
+    and makes that the new current item for the iterator. If current()
+    was the last item, operator++() returns 0.
 */
 
 /*!
-  \fn type *QCacheIterator::operator--()
+    \fn type *QCacheIterator::operator--()
 
-  Prefix-- makes the iterator point to the item just before
-  current() and makes that the new current item for the iterator.  If
-  current() was the first item, operator--() returns 0.
+    Prefix-- makes the iterator point to the item just before
+    current() and makes that the new current item for the iterator. If
+    current() was the first item, operator--() returns 0.
 */
 

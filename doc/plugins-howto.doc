@@ -10,7 +10,7 @@ widgets as stand-alone components.
 \warning Qt 3.0.5 introduces changes into some aspects of plugins, in
 particular regarding loading, path handling and library versions. As
 a result of this change, <b>\e{no}</b> plugins compiled with Qt 3.0.4 and
-earlier will work with Qt 3.0.5 and later.
+earlier will work with Qt 3.0.5 and later: they must be recompiled.
 
 Writing a plugin is achieved by subclassing the appropriate plugin
 base clase, implementing a few functions, and adding a macro. 
@@ -62,9 +62,9 @@ to make available as a plugin. The required code is straightforward:
     Q_EXPORT_PLUGIN( MyStylePlugin )
 \endcode
 
-(Note that QStyleFactory works case-insensitive, and the lower case of
-the key is used; other factories, e.g. QWidgetFactory, work case 
-sensitive.)
+(Note that QStyleFactory is case-insensitive, and the lower case
+version of the key is used; other factories, e.g. QWidgetFactory, are
+case sensitive.)
 
 The constructor and destructor do not need to do anything, so are left
 empty. There are only two virtual functions that must be implemented.
@@ -87,8 +87,8 @@ style explicitly in code. To apply a style, use code like this:
     QApplication::setStyle( QStyleFactory::create( "MyStyle" ) );
 \endcode
 
-Some plugin classes require additional functions to be implemented,
-see the \link designer-manual.book Qt Designer manual's\endlink,
+Some plugin classes require additional functions to be implemented.
+See the \link designer-manual.book Qt Designer manual's\endlink,
 'Creating Custom Widgets' section in the 'Creating Custom Widgets'
 chapter, for a complete example of a QWidgetPlugin, which implements
 extra functions to integrate the plugin into \e{Qt Designer}. The
@@ -111,7 +111,7 @@ path you want to use for the plugins, and save the path, e.g. using
 QSettings, for the application to read when it runs. The application
 can then call QApplication::addLibraryPath() with this path and your
 plugins will be available to the application. Note that the final part
-of the path, i.e. \c styles, \c widgets, etc. cannot be changed.
+of the path, i.e. \c styles, \c widgets, etc., cannot be changed.
 
 The normal way to include a plugin with an application is either to 
 compile it in with the application, or to compile it into a \c DLL (or
@@ -120,7 +120,7 @@ other library. If you want the plugin to be loadable then one approach
 is to create a subdirectory under the application, e.g. \c
 appdir/plugins/designer, and place the plugin in that directory.
 
-\section1 Loading and Verifying Plugins. 
+\section1 Loading and Verifying Plugins
 
 When loading plugins, the Qt library does some sanity checking to
 determine whether or not the plugin can be loaded and used. This
@@ -197,7 +197,7 @@ The build key contains the following information:
    loads the plugin uses the list of (missing) features to
    determine if the plugin is binary compatible.
 
-   \e note: There are cases where a plugin can use features that are
+   \e Note: There are cases where a plugin can use features that are
    available in two different configurations. However, the
    developer writing plugins would need to know which features are
    in use, both in their plugin and internally by the utility
