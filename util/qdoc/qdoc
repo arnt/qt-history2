@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#115 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#116 $
 #
 # this is a massive hack, written very quickly
 #
@@ -107,7 +107,7 @@ sub processcode {
     }
 
     # look for own class definitions that inherit documented classes
-    while ( /(?:^|[\n\{])\s*class\s+(\w+)\s*:\s*public\s+(\w[\w\d+]*)\b/gs ) {
+    while ( /(?:^|[\n\{])\s*(?:(?:class)|(?:struct))\s+(\w+)\s*:\s*public\s+(\w[\w\d+]*)\b/gs ) {
 	if (!defined( $anchor{$1} ) && 
 	    defined( $anchor{$2} ) &&
 	    !defined( $inheritedtypes{$1} ) ) {
@@ -836,7 +836,7 @@ sub readfiles {
 	$h = <F>;
 	close(F);
 	$h = &html($h);
-	$h =~ s@\nclass\s+\w+(?:\s*:(\s*(?:public\s+)?\w+\s*,?)*)?@
+	$h =~ s@\n(?:(?:class)|(?:struct))\s+\w+(?:\s*:(\s*(?:public\s+)?\w+\s*,?)*)?@
 	    $_ = "";
 	    foreach $w (split(/\b/, $&)) {
 		if (defined($anchor{$w})) {
@@ -947,7 +947,7 @@ sub readh {
 
 # { is \x7b and } is \x7d
     while ($h =~ m-\n(?:template\s*<\s*class\s+(.+?)\s*>\s*)?
-	   class\s+([^\n]*?)\s+
+	   (?:(?:class)|(?:struct))\s+([^\n]*?)\s+
 	   \x7b\s+(.*?)\n\x7d-xsg
 	   ) {
 	if ( $1 eq "" ) {

@@ -226,8 +226,8 @@ sub parseclassfile {
     s/\s*<hr>\s*//gs;
 
     # links, headers, widow/orphan hack
-    s-.pp\n.*?<a href=#details>More...</a>--s;
-    s-<a href=.*?members.html>List of all member functions.</a>--;
+    s-.pp\n.*?<a href="#details">More...</a>--s;
+    s-<a href=.*?members.html.>List of all member functions.</a>--;
     s-<a.*?>(.*?)</a>-$1-gs;
     s-\s*<h1\b.*?>\s*(.*?)</h1.*?>-\n.sh 1 "$1"\n-gs;
     s-\s*<h2\b.*?>\s*(.*?)</h2.*?>(\s*\.pp)?-\n.sh 2 "$1"\n.pp\n-gs;
