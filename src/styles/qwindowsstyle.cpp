@@ -383,6 +383,9 @@ void QWindowsStyle::drawControl( ControlElement element,
 				 void *data ) const
 {
     switch (element) {
+    case CE_Splitter: 
+        qDrawWinPanel( p, r.x(), r.y(), r.width(), r.height(), cg );
+	break;
     case CE_PushButton: {
 	QPushButton *button = (QPushButton *) widget;
 	QRect br = r;
@@ -534,9 +537,9 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	ret = 11;
 	break;
 
-    // Returns the number of pixels to use for the business part of the
-    // slider (i.e., the non-tickmark portion). The remaining space is shared
-    // equally between the tickmark regions.
+	// Returns the number of pixels to use for the business part of the
+	// slider (i.e., the non-tickmark portion). The remaining space is shared
+	// equally between the tickmark regions.
     case PM_SliderControlThickness: {
 	QSlider * sl = (QSlider *) widget;
 	int space = (sl->orientation() == Horizontal) ? sl->height()
@@ -565,6 +568,10 @@ int QWindowsStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 	ret = 0;
 	break;
 
+    case PM_SplitterWidth:
+	ret = QMAX( 6, QApplication::globalStrut().width() );
+	break;
+	
     default:
 	ret = QCommonStyle::pixelMetric(metric, widget);
 	break;
@@ -764,23 +771,6 @@ void QWindowsStyle::drawTab( QPainter* p,  const QTabBar* tb, QTab* t , bool sel
         QCommonStyle::drawTab( p, tb, t, selected );
     }
 #endif
-}
-
-/*! \reimp
-*/
-
-int QWindowsStyle::splitterWidth() const
-{
-    return QMAX( 6, QApplication::globalStrut().width() );
-}
-
-/*! \reimp
-*/
-
-void QWindowsStyle::drawSplitter( QPainter *p,  int x, int y, int w, int h,
-                                  const QColorGroup &g,  Orientation)
-{
-        qDrawWinPanel( p, x, y, w, h, g );
 }
 
 static const int windowsItemFrame               = 2;    // menu item frame width

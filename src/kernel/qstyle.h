@@ -179,7 +179,9 @@ public:
 	CE_RadioButton,
 	CE_RadioButtonLabel,
 
-	CE_TabBarTab
+	CE_TabBarTab,
+
+	CE_Splitter
         /*
 	  CE_MenuBarItem,
 	*/
@@ -344,8 +346,10 @@ public:
 
 	PM_TabBarOverlap,
 	PM_TabBarBaseHeight,
-	PM_TabBarBaseOverlap
+	PM_TabBarBaseOverlap,
 
+	PM_SplitterWidth
+	
 	/*
 	  PM_PopupFrameWidth,
 	  PM_MenuFrameWidth,
@@ -372,7 +376,9 @@ public:
 	CT_CheckBox,
 	CT_RadioButton,
 	CT_ToolButton,
-	CT_ComboBox
+	CT_ComboBox,
+	CT_Splitter,
+	CT_DockWindow
     };
 
     virtual QSize sizeFromContents( ContentsType contents,
@@ -463,13 +469,6 @@ public:
     virtual void drawTabBarExtension( QPainter * p, int x, int y, int w, int h,
 				      const QColorGroup & cg,
 				      const QTabWidget * tw );
-
-    // splitter
-    virtual int splitterWidth() const = 0;
-    virtual void drawSplitter( QPainter *p,
-			       int x, int y, int w, int h,
-			       const QColorGroup &g,
-			       Orientation) = 0;
 
     // popup menus
     virtual void drawCheckMark( QPainter *p, int x, int y, int w, int h,

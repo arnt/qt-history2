@@ -92,8 +92,9 @@ QSplitterHandle::QSplitterHandle( Qt::Orientation o,
 
 QSize QSplitterHandle::sizeHint() const
 {
-    int sw = style().splitterWidth();
-    return QSize(sw,sw).expandedTo( QApplication::globalStrut() );
+    int sw = style().pixelMetric(QStyle::PM_SplitterWidth, this);
+    return (style().sizeFromContents(QStyle::CT_Splitter, this, QSize(sw, sw)).
+	    expandedTo(QApplication::globalStrut()));
 }
 
 void QSplitterHandle::setOrientation( Qt::Orientation o )
@@ -141,7 +142,7 @@ void QSplitterHandle::mouseReleaseEvent( QMouseEvent *e )
 void QSplitterHandle::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
-    s->drawSplitter( &p, 0, 0, width(), height() );
+    style().drawControl( QStyle::CE_Splitter, &p, this, QRect(0, 0, width(), height()), colorGroup() );
 }
 
 class QSplitterLayoutStruct
@@ -421,7 +422,7 @@ void QSplitter::setRubberband( int p )
     paint.setRasterOp( XorROP );
     QRect r = contentsRect();
     const int rBord = 3; //Themable????
-    const int sw = style().splitterWidth();
+    int sw = style().pixelMetric(QStyle::PM_SplitterWidth, this);
     if ( orient == Horizontal ) {
 	if ( opaqueOldPos >= 0 )
 	    paint.drawRect( opaqueOldPos + sw/2 - rBord , r.y(),
@@ -461,7 +462,7 @@ bool QSplitter::event( QEvent *e )
 void QSplitter::drawSplitter( QPainter *p,
 			      QCOORD x, QCOORD y, QCOORD w, QCOORD h )
 {
-    style().drawSplitter( p, x, y, w, h, colorGroup(), orient );
+    style().drawControl( QStyle::CE_Splitter, p, this, QRect(x, y, w, h), colorGroup() );
 }
 
 
@@ -1135,7 +1136,7 @@ void QSplitter::processChildEvents()
 
 void QSplitter::styleChange( QStyle& old )
 {
-    int sw = style().splitterWidth();
+    int sw = style().pixelMetric(QStyle::PM_SplitterWidth, this);
     QSplitterLayoutStruct *s = data->list.first();
     while ( s ) {
 	if ( s->isSplitter )

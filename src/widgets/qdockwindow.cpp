@@ -108,8 +108,9 @@ QDockWindowResizeHandle::QDockWindowResizeHandle( Qt::Orientation o, QWidget *pa
 
 QSize QDockWindowResizeHandle::sizeHint() const
 {
-    int sw = 2 * style().splitterWidth() / 3;
-    return QSize(sw,sw).expandedTo( QApplication::globalStrut() );
+    int sw = style().pixelMetric(QStyle::PM_SplitterWidth, this);
+    return (style().sizeFromContents(QStyle::CT_DockWindow, this, QSize(sw, sw)).
+	    expandedTo(QApplication::globalStrut()));
 }
 
 void QDockWindowResizeHandle::setOrientation( Qt::Orientation o )
@@ -239,7 +240,7 @@ void QDockWindowResizeHandle::mouseReleaseEvent( QMouseEvent *e )
 void QDockWindowResizeHandle::paintEvent( QPaintEvent * )
 {
     QPainter p( this );
-    style().drawSplitter( &p, 0, 0, width(), height(), colorGroup(), orientation() == Horizontal ? Vertical : Horizontal );
+    style().drawControl( QStyle::CE_Splitter, &p, this, QRect(0, 0, width(), height()), colorGroup() );
 }
 
 void QDockWindowResizeHandle::startLineDraw()
@@ -1391,9 +1392,9 @@ QSize QDockWindow::sizeHint() const
     sh = sh.expandedTo( QSize( 16, 16 ) );
     if ( area() ) {
 	if ( area()->orientation() == Horizontal && !vHandleRight->isVisible() )
-	    sh.setWidth( sh.width() + 2 * style().splitterWidth() / 3 );
+	    sh.setWidth( sh.width() + 2 * style().pixelMetric(QStyle::PM_SplitterWidth, this) / 3 );
 	else if ( area()->orientation() == Vertical && !hHandleBottom->isVisible() )
-	    sh.setHeight( sh.height() + 2 * style().splitterWidth() / 3 );
+	    sh.setHeight( sh.height() + 2 * style().pixelMetric(QStyle::PM_SplitterWidth, this) / 3 );
     }
     return sh;
 }
@@ -1408,9 +1409,9 @@ QSize QDockWindow::minimumSize() const
     ms = ms.expandedTo( QSize( 16, 16 ) );
     if ( area() ) {
 	if ( area()->orientation() == Horizontal && !vHandleRight->isVisible() )
-	    ms.setWidth( ms.width() + 2 * style().splitterWidth() / 3 );
+	    ms.setWidth( ms.width() + 2 * style().pixelMetric(QStyle::PM_SplitterWidth, this) / 3 );
 	else if ( area()->orientation() == Vertical && !hHandleBottom->isVisible() )
-	    ms.setHeight( ms.height() + 2 * style().splitterWidth() / 3 );
+	    ms.setHeight( ms.height() + 2 * style().pixelMetric(QStyle::PM_SplitterWidth, this) / 3 );
     }
     return ms;
 }
@@ -1425,9 +1426,9 @@ QSize QDockWindow::minimumSizeHint() const
     msh = msh.expandedTo( QSize( 16, 16 ) );
     if ( area() ) {
 	if ( area()->orientation() == Horizontal && !vHandleRight->isVisible() )
-	    msh.setWidth( msh.width() + 2 * style().splitterWidth() / 3 );
+	    msh.setWidth( msh.width() + 2 * style().pixelMetric(QStyle::PM_SplitterWidth, this) / 3 );
 	else if ( area()->orientation() == Vertical && !hHandleBottom->isVisible() )
-	    msh.setHeight( msh.height() + 2 * style().splitterWidth() / 3 );
+	    msh.setHeight( msh.height() + 2 * style().pixelMetric(QStyle::PM_SplitterWidth, this) / 3 );
     }
     return msh;
 }
