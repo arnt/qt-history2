@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#67 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#68 $
 **
 ** Definition of QPainter class
 **
@@ -40,27 +40,27 @@ public:
 
     bool	begin( const QPaintDevice * );	// begin painting in device
     bool	end();				// end painting
-    QPaintDevice *device() const { return pdev; }
+    QPaintDevice *device() const;
 
     static void redirect( QPaintDevice *pdev, QPaintDevice *replacement );
 
-    bool	isActive() const { return testf(IsActive); }
+    bool	isActive() const;
 
-    void	save();				// save (push) current state
-    void	restore();			// restore (pop) state
+    void	save();
+    void	restore();
 
   // Drawing tools
 
-    QFontMetrics fontMetrics()	const { return QFontMetrics(this); }
-    QFontInfo	 fontInfo()	const { return QFontInfo(this); }
+    QFontMetrics fontMetrics()	const;
+    QFontInfo	 fontInfo()	const;
 
-    const QFont &font()		const { return cfont; }
+    const QFont &font()		const;
     void	setFont( const QFont & );
-    const QPen &pen()		const { return cpen; }
+    const QPen &pen()		const;
     void	setPen( const QPen & );
     void	setPen( PenStyle );
     void	setPen( const QColor & );
-    const QBrush &brush()	const { return cbrush; }
+    const QBrush &brush()	const;
     void	setBrush( const QBrush & );
     void	setBrush( BrushStyle );
     void	setBrush( const QColor & );
@@ -83,7 +83,7 @@ public:
 //    void	setUnit( PaintUnit );		// NOT IMPLEMENTED!!!
 
     void	setViewXForm( bool );		// set xform on/off
-    bool	hasViewXForm() const { return testf(VxF); }
+    bool	hasViewXForm() const;
     QRect	window()       const;		// get window
     void	setWindow( const QRect & );	// set window
     void	setWindow( int x, int y, int w, int h );
@@ -92,7 +92,7 @@ public:
     void	setViewport( int x, int y, int w, int h );
 
     void	setWorldXForm( bool );		// set world xform on/off
-    bool	hasWorldXForm() const { return testf(WxF); }
+    bool	hasWorldXForm() const;
     const QWMatrix &worldMatrix() const;	// get/set world xform matrix
     void	setWorldMatrix( const QWMatrix &, bool concat=FALSE );
 
@@ -112,7 +112,8 @@ public:
   // Clipping
 
     void	setClipping( bool );		// set clipping on/off
-    bool	hasClipping() const { return testf(ClipOn); }
+    bool	hasClipping() const;
+    const QRegion &clipRegion() const;
     void	setClipRect( const QRect & );	// set clip rectangle
     void	setClipRect( int x, int y, int w, int h );
     void	setClipRegion( const QRegion &);// set clip region
@@ -177,9 +178,9 @@ public:
     QRect	boundingRect( const QRect &, int flags,
 			      const char *str, int len = -1, char **intern=0 );
 
-    int		tabStops() const	{ return tabstops; }
+    int		tabStops() const;
     void	setTabStops( int );
-    int	       *tabArray() const	{ return tabarray; }
+    int	       *tabArray() const;
     void	setTabArray( int * );
 
     HANDLE	handle() const;
@@ -259,6 +260,48 @@ protected:
 // QPainter member functions
 //
 
+inline QPaintDevice *QPainter::device() const
+{
+    return pdev;
+}
+
+inline bool QPainter::isActive() const
+{
+    return testf(IsActive);
+}
+
+inline QFontMetrics QPainter::fontMetrics() const
+{
+    return QFontMetrics(this);
+}
+
+inline QFontInfo QPainter::fontInfo() const
+{
+    return QFontInfo(this);
+}
+
+inline const QFont &QPainter::font() const
+{
+    return cfont;
+}
+
+inline const QPen &QPainter::pen() const
+{
+    return cpen;
+}
+
+inline const QBrush &QPainter::brush() const
+{
+    return cbrush;
+}
+
+/*
+inline PaintUnit QPainter::unit() const
+{
+    return (PaintUnit)pu;
+}
+*/
+
 inline const QColor &QPainter::backgroundColor() const
 {
     return bg_col;
@@ -279,12 +322,35 @@ inline const QPoint &QPainter::brushOrigin() const
     return bro;
 }
 
-/*
-inline PaintUnit QPainter::unit() const
+inline bool QPainter::hasViewXForm() const
 {
-    return (PaintUnit)pu;
+    return testf(VxF);
 }
-*/
+
+inline bool QPainter::hasWorldXForm() const
+{
+    return testf(WxF);
+}
+
+inline bool QPainter::hasClipping() const
+{
+    return testf(ClipOn);
+}
+
+inline const QRegion &QPainter::clipRegion() const
+{
+    return crgn;
+}
+
+inline int QPainter::tabStops() const
+{
+    return tabstops;
+}
+
+inline int *QPainter::tabArray() const
+{
+    return tabarray;
+}
 
 inline HANDLE QPainter::handle() const
 {
