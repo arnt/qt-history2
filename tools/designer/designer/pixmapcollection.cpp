@@ -115,7 +115,7 @@ void PixmapCollection::savePixmap( Pixmap &pix )
     if ( pix.absname == imageDir() + "/" + pix.name )
 	return; // no need to save, it is already there
     QString rel = project->makeRelative( pix.absname );
-    if ( rel[0] == '/' ) { // only save if file is outside the project
+    if ( rel[0] == '/' || ( rel[1] == ':' && rel[2] == '/' ) ) { // only save if file is outside the project
 	mkdir();
 	pix.name = unifyName( QFileInfo( pix.absname ).baseName() ) + ".png";
 	pix.absname = imageDir() + "/" + pix.name;
