@@ -1204,7 +1204,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                     if (!(toolbutton->state & Style_Enabled))
                         mode = QIcon::Disabled;
                     else if (opt->state & (Style_Down | Style_On) ||
-                             ((opt->state & Style_Raised) && (opt->state & Style_AutoRaise)))
+                             ((opt->state & Style_MouseOver) && (opt->state & Style_AutoRaise)))
                         mode = QIcon::Active;
                     else
                         mode = QIcon::Normal;
