@@ -11,7 +11,7 @@
 #include "qsqlcursor.h"
 #include "qsqlfield.h"
 #include "qsqlindex.h"
-#include "qeditorfactory.h"
+#include "qsqleditorfactory.h"
 #include "qsqlform.h"
 #endif // QT_H
 
@@ -58,7 +58,7 @@ public:
     QVariant     value ( int row, int col ) const;
     QSqlRecord   currentFieldSelection() const;
 
-    void         installEditorFactory( QEditorFactory * f );
+    void         installEditorFactory( QSqlEditorFactory * f );
     void         installPropertyMap( QSqlPropertyMap* m );
 
 signals:

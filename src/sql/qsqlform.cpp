@@ -6,7 +6,7 @@
 #include "qsqlrecord.h"
 #include "qsqlcursor.h"
 #include "qsqlresult.h"
-#include "qeditorfactory.h"
+#include "qsqleditorfactory.h"
 #include "qlabel.h"
 #include "qlayout.h"
 
@@ -404,12 +404,12 @@ QSqlCursor * QSqlForm::cursor() const
 
 /*!
 
-  Installs a custom QEditorFactory. This is used in the populate()
+  Installs a custom QSqlEditorFactory. This is used in the populate()
   function to automatically create the widgets in the form.
 
-  \sa installPropertyMap(QSqlPropertyMap *), QEditorFactory
+  \sa installPropertyMap(QSqlPropertyMap *), QSqlEditorFactory
  */
-void QSqlForm::installEditorFactory( QEditorFactory * f )
+void QSqlForm::installEditorFactory( QSqlEditorFactory * f )
 {
     if( factory )
 	delete factory;
@@ -422,7 +422,7 @@ void QSqlForm::installEditorFactory( QEditorFactory * f )
  editors. Please note that the QSqlForm class will take ownership of
  the propery map, so don't delete it!
 
- \sa installEditorFactory(QEditorFactory *), QSqlPropertyMap
+ \sa installEditorFactory(), QSqlPropertyMap
 */
 void QSqlForm::installPropertyMap( QSqlPropertyMap * m )
 {
@@ -644,8 +644,8 @@ void QSqlForm::populate( QWidget * widget, QSqlCursor * cursor, QSqlRecord* fiel
 
     if( !widget || !cursor || !fields ) return;
 
-    QEditorFactory * f = (factory == 0) ? QEditorFactory::defaultFactory() :
-    	                                  factory;
+    QSqlEditorFactory * f = (factory == 0) ? 
+			    QSqlEditorFactory::defaultFactory() : factory;
     QWidget * editor;
     QLabel * label;
     QVBoxLayout * vb = new QVBoxLayout( widget );

@@ -1,23 +1,24 @@
-#ifndef QEDITORFACTORY_H
-#define QEDITORFACTORY_H
+#ifndef QSQLEDITORFACTORY_H
+#define QSQLEDITORFACTORY_H
 
 #ifndef QT_H
 #include "qobject.h"
 #include "qvariant.h"
 #include "qsqlfield.h"
-#include "qlineedit.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
 
-class Q_EXPORT QEditorFactory : public QObject
+class Q_EXPORT QSqlEditorFactory : public QObject
 {
 public:
-    QEditorFactory ( QObject * parent=0, const char * name=0 );
-    ~QEditorFactory();
+    QSqlEditorFactory ( QObject * parent=0, const char * name=0 );
+    ~QSqlEditorFactory();
     virtual QWidget * createEditor( QWidget * parent, const QVariant & v );
     virtual QWidget * createEditor( QWidget * parent, const QSqlField & f );
+    
+    static QSqlEditorFactory * defaultFactory();
 };
 
 #endif // QT_NO_SQL
-#endif // QEDITORFACTORY_H
+#endif // QSQLEDITORFACTORY_H

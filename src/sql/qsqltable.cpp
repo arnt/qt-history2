@@ -1,7 +1,7 @@
 #include "qapplication.h"
 #include "qsqltable.h"
 #include "qsqldriver.h"
-#include "qeditorfactory.h"
+#include "qsqleditorfactory.h"
 #include "qsqlform.h"
 #include "qlayout.h"
 #include "qpopupmenu.h"
@@ -57,7 +57,7 @@ public:
     bool         haveAllRows;
     bool         continuousEdit;
     bool         ro;
-    QEditorFactory* editorFactory;
+    QSqlEditorFactory* editorFactory;
     QSqlPropertyMap* propertyMap;
     QString trueTxt;
     QString falseTxt;
@@ -108,8 +108,6 @@ QSqlTable::QSqlTable ( QWidget * parent, const char * name )
 {
     d = new QSqlTablePrivate();
     setSelectionMode( NoSelection );
-    d->editorFactory = new QEditorFactory( this, "qt_default_qsqleditorfactory");
-    d->propertyMap = new QSqlPropertyMap();
     d->trueTxt = tr( "True" );
     d->falseTxt = tr( "False" );
     reset();
@@ -292,20 +290,27 @@ bool QSqlTable::confirmCancels() const
   For an editable table, creates an editor suitable for the data type
   in \a row and \a col.
 
-  \sa QEditorFactory QSqlPropertyMap
+  \sa QSqlEditorFactory QSqlPropertyMap
 
 */
 
 QWidget * QSqlTable::createEditor( int , int col, bool initFromCell ) const
 {
     //    qDebug("QSqlTable::createEditor( int , int col, bool initFromCell ) const");
+    
+    QSqlEditorFactory * f = (d->editorFactory == 0) ? 
+		     QSqlEditorFactory::defaultFactory() : d->editorFactory;
+
+    QSqlPropertyMap * m = (d->propertyMap == 0) ? 
+			  QSqlPropertyMap::defaultMap() : d->propertyMap;
+    
     if ( d->mode == QSqlTable::None )
 	return 0;
     QWidget * w = 0;
     if( initFromCell && d->editBuffer ){
-	w = d->editorFactory->createEditor( viewport(), d->editBuffer->value( indexOf( col ) ) );
+	w = f->createEditor( viewport(), d->editBuffer->value( indexOf( col ) ) );
 	if ( w )
-	    d->propertyMap->setProperty( w, d->editBuffer->value( indexOf( col ) ) );
+	    m->setProperty( w, d->editBuffer->value( indexOf( col ) ) );
     } else {
 	//	qDebug("not init from cell");
     }
@@ -1494,10 +1499,10 @@ void QSqlTable::refresh( QSqlIndex idx )
   QSqlTable takes ownership of this pointer, and will delete it when
   it is no longer needed or when installEditorFactory() is called again.
 
-  \sa QEditorFactory
+  \sa QSqlEditorFactory
 */
 
-void QSqlTable::installEditorFactory( QEditorFactory * f )
+void QSqlTable::installEditorFactory( QSqlEditorFactory * f )
 {
     if( f ) {
 	delete d->editorFactory;

@@ -12,7 +12,7 @@
 class QSqlField;
 class QSqlRecord;
 class QSqlCursor;
-class QEditorFactory;
+class QSqlEditorFactory;
 
 #if defined(Q_TEMPLATEDLL)
 // MOC_SKIP_BEGIN
@@ -83,7 +83,7 @@ public:
     void       setAutoDelete( bool enable );
     bool       autoDelete() const;
 
-    void       installEditorFactory( QEditorFactory * f );
+    void       installEditorFactory( QSqlEditorFactory * f );
     void       installPropertyMap( QSqlPropertyMap * m );
 
 
@@ -109,7 +109,7 @@ private:
     bool readOnly;
     QSqlCursor * v;
     QSqlFormMap map;
-    QEditorFactory * factory;
+    QSqlEditorFactory * factory;
 };
 
 #endif // QT_NO_SQL

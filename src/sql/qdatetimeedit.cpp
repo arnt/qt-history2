@@ -53,32 +53,33 @@ void QDateTimeEditBase::init()
 	setFrameStyle( Panel | Sunken );
     setLineWidth( 2 );
 
-    QPalette p = palette();
+    QPalette p = palette();    
+    p.setBrush( QPalette::Inactive, QColorGroup::Background,
+		palette().inactive().brush( QColorGroup::Background ) );
     p.setBrush( QPalette::Active, QColorGroup::Background,
 		palette().active().brush( QColorGroup::Base ) );
     setPalette( p );
-
+    // setBackgroundMode( PaletteBase );
     ed[0] = new NumEdit( this, "Ed_1" );
     ed[1] = new NumEdit( this, "Ed_2" );
     ed[2] = new NumEdit( this, "Ed_3" );
 
     sep[0] = new QLabel( this );
     sep[1] = new QLabel( this );
-
-/*
-    sep[0]->setBackgroundColor( ed[0]->backgroundColor() );
-    sep[1]->setBackgroundColor( ed[0]->backgroundColor() );
-    setBackgroundColor( ed[0]->backgroundColor() );
-*/
-
+    
+    // sep[0]->setBackgroundMode( PaletteBase );
+    // sep[1]->setBackgroundMode( PaletteBase );
+    
     up   = new QPushButton( this );
-    down = new QPushButton( this );
+    up->setFocusPolicy( QWidget::NoFocus );
+    up->setAutoDefault( FALSE );
     up->setAutoRepeat( TRUE );
+
+    down = new QPushButton( this );
+    down->setFocusPolicy( QWidget::NoFocus );
+    down->setAutoDefault( FALSE );
     down->setAutoRepeat( TRUE );
-
-    up->setFocusPolicy( NoFocus );
-    down->setFocusPolicy( NoFocus );
-
+    
     connect( up, SIGNAL( clicked() ), SLOT( stepUp() ) );
     connect( down, SIGNAL( clicked() ), SLOT( stepDown() ) );
 
@@ -88,6 +89,7 @@ void QDateTimeEditBase::init()
 
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
     setFocusProxy( ed[0] );
+    setFocusPolicy( StrongFocus );
 }
 
 QSize QDateTimeEditBase::sizeHint() const
@@ -99,7 +101,10 @@ QSize QDateTimeEditBase::sizeHint() const
 	h = 12;
     int w = 35; 	// minimum width for the value
     int wx = fm.width( ' ' )*2;
-    w = QMAX( w, fm.width( ed[0]->text()+ed[1]->text()+ed[2]->text() ) + wx );
+    QString s;
+    s = ed[0]->text() + sep[0]->text() +ed[1]->text() + sep[1]->text() + 
+	ed[2]->text();
+    w = QMAX( w, fm.width( s ) + wx);
     QSize r( h // buttons AND frame both sides - see resizeevent()
 	     + 6 // right/left margins
 	     + w, // widest value
@@ -247,10 +252,14 @@ bool QDateTimeEditBase::eventFilter( QObject * o, QEvent * e )
 		return TRUE;
 	    }
 	}
-	if( (k->key() == Key_Up) )
+	if( (k->key() == Key_Up) ){
 	    stepUp();
-	if( (k->key() == Key_Down) )
+	    return TRUE;
+	}
+	if( (k->key() == Key_Down) ){
 	    stepDown();
+	    return TRUE;
+	}
     }
 
     if( e->type() == QEvent::FocusOut ){
@@ -287,15 +296,12 @@ void QDateTimeEditBase::layoutArrows()
 
     int y = style() == WindowsStyle ? frameWidth() : 0;
     int x, lx;
-    // int rx; ### never used ?!?
     if ( QApplication::reverseLayout() ) {
 	x = y;
 	lx = x + bs.width() + frameWidth();
-//	rx = width() - frameWidth(); ### never used ?!?
     } else {
 	x = width() - y - bs.width();
 	lx = frameWidth();
-//	rx = x - frameWidth(); ### never used ?!?
     }
 
     if ( style() == WindowsStyle )
@@ -499,9 +505,10 @@ void QDateEdit::fixup()
 */
 void QDateEdit::resizeEvent( QResizeEvent * )
 {
-    int mSize = 6;
-    int h     = height() - frameWidth()*2;
-    int numSize = (width() - 15) / 10;
+    layoutArrows();
+
+    int h       = height() - frameWidth()*2;
+    int numSize = (width() - up->width()) / 10;
     int offset  = frameWidth();
 
     ed[yearPos]->resize( numSize*4, h );
@@ -509,15 +516,14 @@ void QDateEdit::resizeEvent( QResizeEvent * )
     ed[dayPos]->resize( numSize*2, h );
 
     ed[0]->move( offset, offset );
-    ed[1]->move( ed[0]->x() + ed[0]->width() + mSize, offset );
-    ed[2]->move( ed[1]->x() + ed[1]->width() + mSize, offset );
+    ed[1]->move( ed[0]->x() + ed[0]->width() + numSize, offset );
+    ed[2]->move( ed[1]->x() + ed[1]->width() + numSize, offset );
 
-    sep[0]->resize( mSize, h - 2);
-    sep[1]->resize( mSize, h - 2);
+    sep[0]->resize( numSize, h - 2);
+    sep[1]->resize( numSize, h - 2);
     sep[0]->move( ed[0]->x() + ed[0]->width() + 1, offset );
     sep[1]->move( ed[1]->x() + ed[1]->width() + 1, offset );
 
-    layoutArrows();
 }
 
 /*!
