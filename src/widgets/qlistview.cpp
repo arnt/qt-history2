@@ -400,11 +400,23 @@ QListViewItem::QListViewItem( QListViewItem * parent, QListViewItem * after )
 
 
 /*!  Constructs a new list view item in the QListView \a parent,
-  \a parent, with at most 8 constant strings as contents.
+  \a parent, with up to eight constant strings \a label1, \a label2, ...,
+  \a label8 defining its column contents.
 
-  \code
-     (void)new QListViewItem( lv, "/", "Root directory" );
-  \endcode
+  \walkthrough xml/tagreader-with-features/structureparser.h
+  \skipto QListView * table
+  \printline QListView * table
+
+  \walkthrough xml/tagreader-with-features/structureparser.cpp
+  \skipto startElement
+  \printuntil QListViewItem
+  \skipto QListViewItem( table
+  \printline QListViewItem( table
+  \skipto }
+  \printline }
+
+  (from \link xml/tagreader-with-features/structureparser.cpp 
+  xml/tagreader-with-features/structureparser.cpp \endlink )
 
   \sa setText()
 */
@@ -433,13 +445,19 @@ QListViewItem::QListViewItem( QListView * parent,
 }
 
 
-/*!  Constructs a new list view item that's a child of the QListViewItem
-  \a parent, with at most 8 constant strings as contents.  Possible
-  example in a threaded news or e-mail reader:
+/*!  Constructs a new list view item as a child of the QListViewItem
+  \a parent with optional constant strings \a label1, \a label2, ..., 
+  \a label8 as column contents.
 
-  \code
-     (void)new QListViewItem( parentMessage, author, subject );
-  \endcode
+  \walkthrough xml/tagreader-with-features/structureparser.cpp
+  \skipto QListViewItem * element
+  \printline QListViewItem * element
+  \skipto QListViewItem * attribute; 
+  \printuntil }
+
+  (from \link xml/tagreader-with-features/structureparser.cpp 
+  xml/tagreader-with-features/structureparser.cpp \endlink )
+
 
   \sa setText()
 */
@@ -467,8 +485,9 @@ QListViewItem::QListViewItem( QListViewItem * parent,
     setText( 7, label8 );
 }
 
-/*!  Constructs a new list view item in the QListView \a parent,
-  after item \a after, with at most 8 constant strings as contents.
+/*!  Constructs a new list view item in the QListView \a parent
+  that is included after item \a after and can contain up to
+  eight column texts \a label1, \a label2, ...,\a label8.
 
   Note that the order is changed according to QListViewItem::key()
   unless the list view's sorting is disabled using
@@ -502,9 +521,10 @@ QListViewItem::QListViewItem( QListView * parent, QListViewItem * after,
 }
 
 
-/*!  Constructs a new list view item that's a child of the QListViewItem
-  \a parent, after item \a after, with at most 8 constant strings as
-  contents.
+/*!  Constructs a new list view item as a child of the QListViewItem
+  \a parent. It is inserted after item \a after and
+  may contain up to eight strings \a label1, \a label2, ...,\a label8
+  as column entries.
 
   Note that the order is changed according to QListViewItem::key()
   unless the list view's sorting is disabled using
@@ -584,7 +604,7 @@ void QListViewItem::init()
     enabled = TRUE;
 }
 
-/* If \a b is TRUE, the item is made visible, else it is hidden, so
+/*! If \a b is TRUE, the item is made visible, else it is hidden, so
    that the user can't see it use it.
 
    If the item is not visible, itemAbove() and itemBelow() will never
@@ -1048,8 +1068,8 @@ int QListViewItem::compare( QListViewItem *i, int col, bool ascending ) const
 }
 
 /*!  Sorts the children of this item by the return values of
-  key (\a column, \a ascending), in ascending order if \a ascending
-  is TRUE and in descending order if \a descending is FALSE.
+  key (\a column, \a ascending). This is done in ascending order if \a ascending
+  is TRUE and in descending order if \a ascending is FALSE.
 
   Asks some of the children to sort their children.  (QListView and
   QListViewItem ensure that all on-screen objects are properly sorted
@@ -1153,13 +1173,29 @@ void QListViewItem::invalidateHeight()
 }
 
 
-/*!  Sets this item to be open (its children are visible) if \a o is
-  TRUE and to be closed (its children are not visible) if \a o is
-  FALSE.
+/*!  Determines whether \e this item is presented open or collapsed.
+
+  If \a o is TRUE all child items are visible initially, and the
+  user might collapse them by clicking the \e - icon symbolizing
+  the node.
+  If \a o is FALSE, the children of \e this item are initially unvisible.
+  The user might unhide them by clicking the \e + node icon. 
+
+  \walkthrough xml/tagreader-with-features/structureparser.cpp
+  \skipto QListViewItem
+  \printline QListViewItem
+  \skipto QListViewItem( table
+  \printuntil QListViewItem( table
+  \skipto setOpen
+  \printline setOpen
+
+  (c.f. \link xml/tagreader-with-features/structureparser.cpp 
+  xml/tagreader-with-features/structureparser.cpp \endlink )
+
 
   Also does some bookkeeping.
 
-  \sa height() totalHeight()
+  \sa height() totalHeight() isOpen()
 */
 
 void QListViewItem::setOpen( bool o )
@@ -1369,9 +1405,9 @@ void QListViewItem::enforceSortOrder() const
 
 
 /*!  Sets this item to be selected if \a s is TRUE and to not be
-  selected if \a o is FALSE.
+  selected if \a s is FALSE.
 
-  This function does not maintain any invariants or repaint anything -
+  This function does not maintain any invariants or repaint anything --
   QListView::setSelected() does that.
 
   \sa height() totalHeight() */
@@ -1994,35 +2030,58 @@ void QListViewPrivate::Root::setup()
   \ingroup advanced
 
   It can display and control a hierarchy of multi-column items, and
-  provides the ability to add new items at any time, let the user
-  select one or many items, sort the list in increasing or decreasing
-  order by any column, and so on.
+  provides the ability to add new items at any time. Among others the user
+  may select one or many items and sort the list in increasing or decreasing
+  order by any column.
 
   The simplest mode of usage is to create a QListView, add some column
-  headers using addColumn(), create one or more QListViewItem objects
-  with the QListView as parent, set up the list view's geometry(), and
-  show() it.
+  headers using addColumn() and create one or more QListViewItem objects
+  with the QListView as parent: 
 
-  The main setup functions are <ul>
+  \walkthrough xml/tagreader-with-features/structureparser.h
+  \skipto QListView * table
+  \printline QListView
+  \walkthrough xml/tagreader-with-features/structureparser.cpp
+  \skipto addColumn
+  \printline addColumn
+  \printline addColumn
+  \skipto element
+  \printline element
+  \skipto QListViewItem( table
+  \printline QListViewItem( table
 
-  <li>addColumn() - adds a column with text and perhaps width.
+  Further nodes can be added to the listview object (the root of the
+  tree) or as child nodes to QListViewItems:
 
-  <li>setColumnWidthMode() - sets the column to be resized
+  \skipto QListViewItem
+  \printline QListViewItem
+  \printline for
+  \printuntil }
+
+  (Code taken from 
+  \link xml/tagreader-with-features/structureparser.cpp 
+  xml/tagreader-with-features/structureparser.cpp \endlink ) 
+
+  The main setup functions are 
+  <ul>
+  <li> \l addColumn() - adds a column with text and perhaps width.
+
+  <li> \l setColumnWidthMode() - sets the column to be resized
   automatically or not.
 
-  <li>setAllColumnsShowFocus() - decides whether items should show
+  <li> \l setAllColumnsShowFocus() - decides whether items should show
   keyboard focus using all columns or just column 0.  The default is
   to show focus using just column 0.
 
-  <li>setRootIsDecorated() - decides whether root items can be opened
+  <li> \l setRootIsDecorated() - decides whether root items can be opened
   and closed by the user and have open/close decoration to their left.
   The default is FALSE.
 
-  <li>setTreeStepSize() - decides how many pixels an item's
+  <li> \l setTreeStepSize() - decides how many pixels an item's
   children are indented relative to their parent.  The default is 20.
   This is mostly a matter of taste.
 
-  <li>setSorting() - decides whether the items should be sorted,
+  <li> \l setSorting() - decides whether the items should be sorted,
   whether it should be in ascending or descending order, and by what
   column it should be sorted.</ul>
 
@@ -2093,12 +2152,11 @@ void QListViewPrivate::Root::setup()
 /*!
   \fn void QListView::itemRenamed (QListViewItem * item, const QString &text)
 
-  This signal is emitted when \a item has bee renamed to \a name,
+  This signal is emitted when \a item has been renamed to \a text,
   usually by in in-place renaming.
 */
 
-/*!
-  Constructs a new empty list view, with \a parent as a parent and \a name
+/*! Constructs a new empty list view, with \a parent as a parent and \a name
   as object name.
 
   Performance is boosted by modifying the widget flags \a f so that only
@@ -2235,7 +2293,7 @@ void QListView::setShowToolTips( bool b )
     d->toolTips = b;
 }
 
-/* Returns whether tooltips are shown for truncated column textes. */
+/*! Returns whether tooltips are shown for truncated column textes. */
 
 bool QListView::showToolTips() const
 {
@@ -2676,12 +2734,26 @@ void QListView::setContentsPos( int x, int y )
     QScrollView::setContentsPos( x, y );
 }
 
-/*!
-  Adds a new column at the right end of the widget with the header \a
-  label and returns the index of the column.
+/*! Adds a \a width pixels wide column with the column header \a label 
+  to \e this QListView, and returns the index of the new column.
 
-  If \a width is negative, the new column will have WidthMode Maximum,
-  otherwise it will be Manual at \a width pixels wide.
+  All columns apart from the first one are inserted to the right of the
+  older ones:
+
+  \walkthrough xml/tagreader-with-features/structureparser.h
+  \skipto table
+  \printline table
+  \walkthrough xml/tagreader-with-features/structureparser.cpp
+  \skipto addColumn
+  \printline addColumn
+  \printline addColumn
+
+  (c.f. \link xml/tagreader-with-features/structureparser.cpp
+  xml/tagreader-with-features/structureparser.cpp \endlink)
+
+  If \a width is negative, the new column's \l WidthMode is set
+  to Maximum
+  which is otherwise set to Manual.
 
   \sa setColumnText() setColumnWidth() setColumnWidthMode()
 */
@@ -2694,12 +2766,14 @@ int QListView::addColumn( const QString &label, int width )
     return c;
 }
 
-/*!
-  Adds a new column at the right end of the widget, with the header \a
-  label and \a iconset, and returns the index of the column.
+/*! \overload
 
-  If \a width is negative, the new column will have WidthMode Maximum,
-  otherwise it will be Manual at \a width pixels wide.
+  Adds a \a width pixels wide new column with the header \a
+  label and \a iconset to \e this QListView, and returns the index of the column.
+
+  If \a width is negative, the new column's \l WidthMode is set
+  to Maximum,
+  and to Manual otherwise.
 
   \sa setColumnText() setColumnWidth() setColumnWidthMode()
 */
@@ -4299,13 +4373,13 @@ int QListView::itemPos( const QListViewItem * item )
 
 
 /*!
-  Sets the list view to Multi selection mode if \a enable is TRUE,
-  and to Single selection mode if \a enable is FALSE.
+  Sets the list view to multi selection mode if \a enable is TRUE,
+  and to single selection mode if \a enable is FALSE.
 
-  If you enable Multi selection mode, it's possible to specify
-  whether or not this mode should be \a extended. Extended means that the
+  If you enable multi selection mode, it's possible to specify
+  whether or not this mode should be extended. Extended means that the
   user can select multiple items only when pressing the Shift
-  or Control button at the same time.
+  or Control key at the same time.
 
   \sa isMultiSelection()
 */
@@ -5565,7 +5639,7 @@ void QListView::showEvent( QShowEvent * )
 }
 
 
-/*!  Returns the y coordinate of \a item in the list view's
+/*!  Returns the y coordinate of \e this item in the list view's
   coordinate system.  This function is normally much slower than
   QListView::itemAt(), but it works for all items whereas
   QListView::itemAt() normally works only for items on the screen.
