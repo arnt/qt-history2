@@ -363,8 +363,6 @@ QLibraryPrivate::~QLibraryPrivate()
         Q_ASSERT(this == that);
 	Q_UNUSED(that);
     }
-    if (instance)
-        delete instance(); // create and destroy
 }
 
 void *QLibraryPrivate::resolve(const char *symbol)

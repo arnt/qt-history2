@@ -109,7 +109,9 @@ QPluginLoader::~QPluginLoader()
     instantiated.
 
     If the root component object was destroyed, calling this function
-    creates a new instance.
+    creates a new instance. 
+    
+    The instance is not deleted when the QPluginLoader is destroyed.
 
     The component object is a QObject. Use \l qt_cast to access
     interfaces you are interested in.
