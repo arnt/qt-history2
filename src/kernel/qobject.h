@@ -71,8 +71,8 @@ public:
 
 #ifdef Q_QDOC
     virtual const char *className() const;
-    static QString tr( const char *, const char * ) const;
-    static QString trUtf8( const char *, const char * ) const;
+    static QString tr( const char *, const char * );
+    static QString trUtf8( const char *, const char * );
     virtual QMetaObject *metaObject() const;
 #endif
 
