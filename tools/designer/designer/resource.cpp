@@ -2535,7 +2535,7 @@ void Resource::saveFormCode()
     if ( langIface->supports( LanguageInterface::StoreFormCodeSeperate ) ) {
 	if ( formwindow->formFile()->code().isEmpty() || !formwindow->formFile()->hasFormCode() )
 	    return;
-	QFile f( formwindow->formFile()->codeFile() );
+	QFile f( formwindow->project()->makeAbsolute( formwindow->formFile()->codeFile() ) );
 	if ( f.open( IO_WriteOnly ) ) {
 	    QTextStream ts( &f );
 	    ts << formwindow->formFile()->code();
@@ -2607,7 +2607,7 @@ void Resource::loadExtraSource()
 			 functions, forwards, includesImpl, includesDecl, vars, connections );
 
     if ( iface->supports( LanguageInterface::StoreFormCodeSeperate ) ) {
-	QFile f( formwindow->formFile()->codeFile() );
+	QFile f( formwindow->project()->makeAbsolute( formwindow->formFile()->codeFile() ) );
 	QString code;
 	if ( f.open( IO_ReadOnly ) ) {
 	    QTextStream ts( &f );
