@@ -93,7 +93,7 @@ public:
 class QTextEditOptimizedPrivate
 {
 public:
-    QTextEditOptimizedPrivate() : len( 0 ), numLines( 0 ), maxLineLength( 0 ),
+    QTextEditOptimizedPrivate() : len( 0 ), numLines( 0 ), maxLineWidth( 0 ),
 	anchorX( 0 )
     {
 	selectionStart.line = selectionStart.index = -1;
@@ -101,7 +101,7 @@ public:
     }
     int len;
     int numLines;
-    int maxLineLength;
+    int maxLineWidth;
     int anchorX;
     struct Selection {
 	int line;
@@ -641,6 +641,10 @@ QTextEdit::~QTextEdit()
 
 void QTextEdit::init()
 {
+#ifdef QT_TEXTEDIT_OPTIMIZATION
+    od = 0;
+    optimizedMode = FALSE;
+#endif    
     doc->formatCollection()->setPaintDevice( this );
     undoEnabled = TRUE;
     readonly = TRUE;
@@ -658,10 +662,6 @@ void QTextEdit::init()
     wrapWidth = -1;
     wPolicy = AtWhiteSpace;
     inDnD = FALSE;
-#ifdef QT_TEXTEDIT_OPTIMIZATION
-    od = 0;
-    optimizedMode = FALSE;
-#endif    
     doc->setFormatter( new QTextFormatterBreakWords );
     currentFormat = doc->formatCollection()->defaultFormat();
     currentAlignment = Qt::AlignAuto;
@@ -2002,7 +2002,7 @@ void QTextEdit::contentsContextMenuEvent( QContextMenuEvent *e )
 }
 
 void QTextEdit::doAutoScroll()
-{
+{     
     if ( !mousePressed )
 	return;
 
@@ -2194,6 +2194,11 @@ bool QTextEdit::eventFilter( QObject *o, QEvent *e )
 
 void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine, bool removeSelected )
 {
+#ifdef QT_TEXTEDIT_OPTIMIZATION
+    if ( optimizedMode )
+	return;
+#endif
+    
     if ( cursor->nestedDepth() != 0 ) // #### for 3.0, disable editing of tables as this is not advanced enough
 	return;
     QString txt( text );
@@ -2255,6 +2260,10 @@ void QTextEdit::insert( const QString &text, bool indent, bool checkNewLine, boo
 
 void QTextEdit::insertAt( const QString &text, int para, int index )
 {
+#ifdef QT_TEXTEDIT_OPTIMIZATION
+    if ( optimizedMode )
+	return;
+#endif
     QTextParag *p = doc->paragAt( para );
     if ( !p )
 	return;
@@ -2272,6 +2281,10 @@ void QTextEdit::insertAt( const QString &text, int para, int index )
 
 void QTextEdit::insertParagraph( const QString &text, int para )
 {
+#ifdef QT_TEXTEDIT_OPTIMIZATION
+    if ( optimizedMode )
+	return;
+#endif
     QTextParag *p = doc->paragAt( para );
     if ( p ) {
 	QTextCursor tmp( doc );
@@ -4651,8 +4664,8 @@ bool QTextEdit::checkOptimizedMode()
 		     this, SLOT( optimizedDoAutoScroll() ) );
  	    optimizedSetText( text() );
 	} else {
-	    disconnect( scrollTimer, SIGNAL( timeout() ),
-			this, SLOT( optimizedDoAutoScroll() ) );
+ 	    disconnect( scrollTimer, SIGNAL( timeout() ),
+ 			this, SLOT( optimizedDoAutoScroll() ) );
 	    connect( scrollTimer, SIGNAL( timeout() ),
 		     this, SLOT( doAutoScroll() ) );
  	    setText( optimizedText() );
@@ -4695,10 +4708,10 @@ void QTextEdit::optimizedSetText( const QString &str )
     for ( QStringList::Iterator it = strl.begin(); it != strl.end(); ++it ) {
 	od->lines[ od->numLines++ ] = *it;
 	lWidth = fm.width( *it );
-	if ( lWidth > od->maxLineLength )
-	    od->maxLineLength = lWidth;
+	if ( lWidth > od->maxLineWidth )
+	    od->maxLineWidth = lWidth;
     }
-    resizeContents( od->maxLineLength + 4, od->numLines * fm.lineSpacing() + 
+    resizeContents( od->maxLineWidth + 4, od->numLines * fm.lineSpacing() + 
 		    fm.descent() + 1 );
     emit textChanged();
 }
@@ -4718,18 +4731,18 @@ void QTextEdit::optimizedAppend( const QString &str )
     if ( od->numLines > 0 ) {
 	od->lines[ od->numLines - 1 ].append( *it );
 	lWidth = fm.width( od->lines[ od->numLines -1 ] );
-	if ( lWidth > od->maxLineLength )
-	    od->maxLineLength = lWidth;
+	if ( lWidth > od->maxLineWidth )
+	    od->maxLineWidth = lWidth;
 	++it;
     }
     
     for ( ; it != strl.end(); ++it ) {
 	od->lines[ od->numLines++ ] = *it;
 	lWidth = fm.width( *it );
-	if ( lWidth > od->maxLineLength )
-	    od->maxLineLength = lWidth;
+	if ( lWidth > od->maxLineWidth )
+	    od->maxLineWidth = lWidth;
     }
-    resizeContents( od->maxLineLength + 4, od->numLines * fm.lineSpacing() + 
+    resizeContents( od->maxLineWidth + 4, od->numLines * fm.lineSpacing() + 
 		    fm.descent() + 1 );    
     emit textChanged();
 }
@@ -4908,7 +4921,7 @@ void QTextEdit::optimizedDoAutoScroll()
 {
     if ( !mousePressed )
 	return;
-    
+
     QFontMetrics fm( QScrollView::font() );
     QPoint pos( mapFromGlobal( QCursor::pos() ) );
     bool doScroll = FALSE;
