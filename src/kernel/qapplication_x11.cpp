@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#493 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#494 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -106,14 +106,6 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #if !defined(_OS_WIN32_)
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
-#endif
-
-#if defined(_OS_AIX_)
-// for FD_ZERO
-static inline void bzero( void *s, int n )
-{
-    memset( s, 0, n );
-}
 #endif
 
 //#define X_NOT_BROKEN
@@ -3076,7 +3068,7 @@ bool QETWidget::translateMouseEvent( const XEvent *event )
 			if ( tlw && tlw->extra && tlw->extra->topextra &&
 			     tlw->extra->topextra->embedded ) {
 			    XEvent ev;
-			    bzero(&ev, sizeof(ev));
+			    memset( &ev, 0, sizeof(ev) );
 			    ev.xclient.type = ClientMessage;
 			    ev.xclient.window = tlw->extra->topextra->parentWinId;
 			    ev.xclient.message_type = qt_wheel_event;
