@@ -805,6 +805,14 @@ static QPalette qt_naturalWidgetPalette( QWidget* w ) {
 QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     : QObject( parent, name ), QPaintDevice( QInternal::Widget )
 {
+    if ( qApp->type() == QApplication::Tty ) {
+#if defined(QT_CHECK_STATE)
+	qFatal( "QWidget: Cannot create a QWidget when no GUI "
+		"is being used" );
+#endif
+	return;
+    }
+
     fstrut_dirty = 1;
 
     isWidget = TRUE;				// is a widget
