@@ -2,8 +2,7 @@
 
 HEADERS += \
 	containers/qiconview.h \
-	containers/qtable.h \
-	containers/qtl.h
+	containers/qtable.h
 SOURCES += \
 	containers/qiconview.cpp \
 	containers/qtable.cpp

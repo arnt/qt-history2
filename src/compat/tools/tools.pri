@@ -26,6 +26,7 @@ compat {
 		  tools/qsortedlist.h \
 		  tools/qstrlist.h \
 		  tools/qstrvec.h \
+		  tools/qtl.h \
 	          tools/qvaluelist.h \ 
 		  tools/qvaluestack.h \
 		  tools/qvaluevector.h 

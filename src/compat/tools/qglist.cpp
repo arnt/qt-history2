@@ -18,12 +18,8 @@
 #include "qlist.h"
 
 
-// cannot delete this type
-template <> inline void qDelete<QGListIterator>(QGListIterator *&) { }
-
-
 /*!
-  \class QLNode qglist.h
+  \class QLNode
   \reentrant
   \ingroup collection
   \brief The QLNode class is an internal class for the QPtrList template collection.
