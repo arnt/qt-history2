@@ -64,11 +64,6 @@ extern "C" int res_init(); // undeclared - at least on HP-UX 10.20
 #include <resolv.h>
 #endif
 
-// Solaris redefines connect -> __xnet_connect with _XOPEN_SOURCE_EXTENDED.
-#if defined(connect)
-# undef connect
-#endif
-
 // UnixWare 7 redefines socket -> _socket
 #if defined(socket)
 # undef socket

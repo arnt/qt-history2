@@ -35,11 +35,6 @@
 #include <X11/Xatom.h>
 #include <X11/Xmu/StdCmap.h>
 
-// POSIX Large File Support redefines truncate -> truncate64
-#if defined(truncate)
-# undef truncate
-#endif
-
 extern Drawable qt_x11Handle(const QPaintDevice *pd);
 extern const QX11Info *qt_x11Info(const QPaintDevice *pd);
 

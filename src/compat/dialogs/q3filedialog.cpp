@@ -13,11 +13,6 @@
 
 #include "qplatformdefs.h"
 
-// Solaris redefines connect -> __xnet_connect with _XOPEN_SOURCE_EXTENDED.
-#if defined(connect)
-# undef connect
-#endif
-
 #include "q3filedialog.h"
 
 #ifndef QT_NO_FILEDIALOG
@@ -82,11 +77,6 @@
 #include <qmacstyle_mac.h>
 #include <private/qt_mac_p.h>
 #undef check
-#endif
-
-// POSIX Large File Support redefines truncate -> truncate64
-#if defined(truncate)
-# undef truncate
 #endif
 
 /* XPM */

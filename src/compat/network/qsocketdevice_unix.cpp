@@ -32,13 +32,6 @@ static inline int qt_socket_bind(int s, struct sockaddr *addr, QT_SOCKLEN_T addr
 # undef bind
 #endif
 
-// Solaris redefines connect -> __xnet_connect with _XOPEN_SOURCE_EXTENDED
-static inline int qt_socket_connect(int s, struct sockaddr *addr, QT_SOCKLEN_T addrlen)
-{ return ::connect(s, addr, addrlen); }
-#if defined(connect)
-# undef connect
-#endif
-
 // UnixWare 7 redefines listen -> _listen
 static inline int qt_socket_listen(int s, int backlog)
 { return ::listen(s, backlog); }
@@ -406,7 +399,7 @@ bool QSocketDevice::connect(const QHostAddress &addr, Q_UINT16 port)
         return false;
     }
 
-    int r = qt_socket_connect(d->fd, aa, aalen);
+    int r = QT_SOCKET_CONNECT(d->fd, aa, aalen);
     if (r == 0) {
         d->fetchConnectionParameters();
         return true;

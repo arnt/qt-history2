@@ -57,11 +57,6 @@
 #include <rpcsvc/ypclnt.h>
 #include <rpcsvc/yp_prot.h>
 
-// Solaris redefines connect -> __xnet_connect with _XOPEN_SOURCE_EXTENDED.
-#if defined(connect)
-# undef connect
-#endif
-
 #endif // QT_NO_NIS
 
 #include <ctype.h>
