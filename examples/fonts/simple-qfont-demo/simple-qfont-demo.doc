@@ -1,7 +1,3 @@
-/*
-$Id$
-*/
-     
 /*! \page simple-font-demo-example.html
 
   \ingroup qfont-examples
@@ -10,9 +6,6 @@ $Id$
  
   This example demonstrates the use of various
   QFont member functions.
-
-  It is covered in detail by a \link simple-qfont-demo-walkthrough.html
-  walkthrough. \endlink
 
   <hr>
 
