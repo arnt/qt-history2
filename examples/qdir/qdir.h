@@ -17,12 +17,14 @@
 #include <qvbox.h>
 #include <qurl.h>
 #include <qpixmap.h>
+#include <qstringlist.h>
 
 class QMultiLineEdit;
 class QTextView;
 class DirectoryView;
 class QSpinBox;
 class QShowEvent;
+class QPopupMenu;
 
 class PixmapView : public QScrollView
 {
@@ -72,18 +74,26 @@ private:
 class CustomFileDialog : public QFileDialog
 {
     Q_OBJECT
-    
+
 public:
     CustomFileDialog();
-
+    ~CustomFileDialog();
+    
 protected:
     void showEvent( QShowEvent *e );
-    
+
 public slots:
     void setDir2( const QString & );
     
+private slots:
+    void bookmarkChosen( int i );
+    void goHome();
+    
 private:
     DirectoryView *dirView;
+    QPopupMenu *bookmarkMenu;
+    QStringList bookmarkList;
+    int addId;
     
 };
 

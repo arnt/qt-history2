@@ -2334,7 +2334,7 @@ void QFileDialog::init()
     d->rightLayout = new QHBoxLayout( lay, 5 );
     d->topLevelLayout->setStretchFactor( d->mcView, 1 );
     d->topLevelLayout->setStretchFactor( files, 1 );
-    
+
     updateGeometries();
 
     setTabOrder( d->paths, d->cdToParent );
@@ -3193,7 +3193,7 @@ r.setHeight( QMAX(r.height(),t.height()) )
     QButton *b = 0;
     if ( !d->toolButtons.isEmpty() ) {
 	for ( b = d->toolButtons.first(); b; b = d->toolButtons.next() )
-	    b->setFixedSize( r );
+	    b->setFixedSize( b->sizeHint().width(), r.height() );
     }
 
     if ( d->infoPreview ) {

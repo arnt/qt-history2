@@ -19,26 +19,84 @@
 #include <qmultilineedit.h>
 #include <qheader.h>
 #include <qevent.h>
+#include <qpopupmenu.h>
+#include <qpushbutton.h>
+#include <qtoolbutton.h>
+#include <qfile.h>
+#include <qtextstream.h>
 
 #include "../dirview/dirview.h"
 #include "qdir.h"
 
+#include <stdlib.h>
+
+/* XPM */
+static const char *bookmarks[]={
+    "22 14 8 1",
+    "# c #000080",
+    "a c #585858",
+    "b c #000000",
+    "c c #ffffff",
+    "d c #ffffff",
+    "e c #ffffff",
+    "f c #000000",
+    ". c None",
+    "...bb.................",
+    "..bacb....bbb.........",
+    "..badcb.bbccbab.......",
+    "..bacccbadccbab.......",
+    "..baecdbcccdbab.......",
+    "..bacccbacccbab.......",
+    "..badcdbcecdfab.......",
+    "..bacecbacccbab.......",
+    "..baccdbcccdbab.......",
+    "...badcbacdbbab.......",
+    "....bacbcbbccab.......",
+    ".....babbaaaaab.......",
+    ".....bbabbbbbbb.......",
+    "......bb.............."
+};
+
+/* XPM */
+static const char *home[]={
+    "16 15 4 1",
+    "# c #000000",
+    "a c #ffffff",
+    "b c #c0c0c0",
+    ". c None",
+    ".......##.......",
+    "..#...####......",
+    "..#..#aabb#.....",
+    "..#.#aaaabb#....",
+    "..##aaaaaabb#...",
+    "..#aaaaaaaabb#..",
+    ".#aaaaaaaaabbb#.",
+    "###aaaaaaaabb###",
+    "..#aaaaaaaabb#..",
+    "..#aaa###aabb#..",
+    "..#aaa#.#aabb#..",
+    "..#aaa#.#aabb#..",
+    "..#aaa#.#aabb#..",
+    "..#aaa#.#aabb#..",
+    "..#####.######.."
+};
+   
 // ****************************************************************************************************
 
 PixmapView::PixmapView( QWidget *parent )
-    : QScrollView( parent ) 
+    : QScrollView( parent )
 {
     viewport()->setBackgroundMode( PaletteBase );
 }
 
-void PixmapView::setPixmap( const QPixmap &pix ) 
+void PixmapView::setPixmap( const QPixmap &pix )
 {
     pixmap = pix;
     resizeContents( pixmap.size().width(), pixmap.size().height() );
     viewport()->repaint( FALSE );
 }
 
-void PixmapView::drawContents( QPainter *p, int, int, int, int ) 
+void PixmapView::drawContents( QPainter *p, int, int, int, int )
 {
     viewport()->erase();
     p->drawPixmap( 0, 0, pixmap );
@@ -47,7 +105,7 @@ void PixmapView::drawContents( QPainter *p, int, int, int, int )
 // ****************************************************************************************************
 
 Preview::Preview( QWidget *parent )
-    : QWidgetStack( parent ) 
+    : QWidgetStack( parent )
 {
     normalText = new QMultiLineEdit( this );
     normalText->setReadOnly( TRUE );
@@ -56,7 +114,7 @@ Preview::Preview( QWidget *parent )
     raiseWidget( normalText );
 }
 
-void Preview::showPreview( const QUrl &u, int size ) 
+void Preview::showPreview( const QUrl &u, int size )
 {
     if ( u.isLocalFile() ) {
 	QString path = u.path();
@@ -102,7 +160,7 @@ void Preview::showPreview( const QUrl &u, int size )
 // ****************************************************************************************************
 
 PreviewWidget::PreviewWidget( QWidget *parent )
-    : QVBox( parent ) 
+    : QVBox( parent )
 {
     setSpacing( 5 );
     setMargin( 5 );
@@ -123,20 +181,71 @@ void PreviewWidget::showPreview( const QUrl &u )
 
 // ****************************************************************************************************
 
-CustomFileDialog::CustomFileDialog() 
-    :  QFileDialog( 0, 0, TRUE ) 
+CustomFileDialog::CustomFileDialog()
+    :  QFileDialog( 0, 0, TRUE )
 {
+    setDir( "/" );
+    
     dirView = new DirectoryView( this, 0, TRUE );
     dirView->addColumn( "" );
     dirView->header()->hide();
     class Directory *root = new class Directory( dirView, "/" );
     root->setOpen( TRUE );
     dirView->setFixedWidth( 150 );
+    
     addLeftWidget( dirView );
+
+    QPushButton *p = new QPushButton( this );
+    p->setPixmap( QPixmap( bookmarks ) );
+
+    bookmarkMenu = new QPopupMenu( this );
+    connect( bookmarkMenu, SIGNAL( activated( int ) ),
+	     this, SLOT( bookmarkChosen( int ) ) );
+    addId = bookmarkMenu->insertItem( tr( "Add bookmark" ) );
+    bookmarkMenu->insertSeparator();
+    
+    QFile f( ".bookmarks" );
+    if ( f.open( IO_ReadOnly ) ) {
+	QDataStream ds( &f );
+	ds >> bookmarkList;
+	f.close();
+	
+	QStringList::Iterator it = bookmarkList.begin();
+	for ( ; it != bookmarkList.end(); ++it ) {
+	    bookmarkMenu->insertItem( *it );
+	}
+    }
+	
+    p->setPopup( bookmarkMenu );
+    
+    addToolButton( p, TRUE );
+    
     connect( dirView, SIGNAL( folderSelected( const QString & ) ),
 	     this, SLOT( setDir2( const QString & ) ) );
     connect( this, SIGNAL( dirEntered( const QString & ) ),
 	     dirView, SLOT( setDir( const QString & ) ) );
+
+    QToolButton *b = new QToolButton( this );
+    b->setPixmap( QPixmap( home ) );
+    connect( b, SIGNAL( clicked() ),
+	     this, SLOT( goHome() ) );
+    
+    addToolButton( b );
+    
+    resize( width() + width() / 3, height() );
+}
+
+CustomFileDialog::~CustomFileDialog()
+{
+    if ( bookmarkList.isEmpty() )
+	return;
+    
+    QFile f( ".bookmarks" );
+    if ( !f.open( IO_WriteOnly ) )
+	return;
+    QDataStream ds( &f );
+    ds << bookmarkList;
+    f.close();
 }
 
 void CustomFileDialog::setDir2( const QString &s )
@@ -150,6 +259,24 @@ void CustomFileDialog::showEvent( QShowEvent *e )
 {
     QFileDialog::showEvent( e );
     dirView->setDir( dirPath() );
+}
+
+void CustomFileDialog::bookmarkChosen( int i )
+{
+    if ( i == addId ) {
+	bookmarkList << dirPath();
+	bookmarkMenu->insertItem( dirPath() );
+    } else {
+	setDir( bookmarkMenu->text( i ) );
+    }
+}
+
+void CustomFileDialog::goHome()
+{
+    if ( getenv( "HOME" ) )
+	setDir( getenv( "HOME" ) );
+    else
+	setDir( "/" );
 }
 
 // ****************************************************************************************************

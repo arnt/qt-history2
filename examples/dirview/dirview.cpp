@@ -511,7 +511,7 @@ void DirectoryView::setDir( const QString &s )
     for ( ; it.current(); ++it ) {
 	it.current()->setOpen( FALSE );
     }
-    
+
     QStringList lst( QStringList::split( "/", s ) );
     QListViewItem *item = firstChild();
     QStringList::Iterator it2 = lst.begin();
@@ -524,9 +524,7 @@ void DirectoryView::setDir( const QString &s )
 	    item = item->itemBelow();
 	}
     }
-    
-    if ( item ) {
+
+    if ( item )
 	setCurrentItem( item );
-	ensureItemVisible( item );
-    }
 }
