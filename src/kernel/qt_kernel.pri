@@ -5,7 +5,7 @@ kernel {
 	HEADERS += $$KERNEL_H/qabstractlayout.h \
 		  $$KERNEL_H/qaccel.h \
 		  $$KERNEL_H/qapplication.h \
-		  $$KERNEL_H/qapplication_p.h \
+		  $$KERNEL_P/qapplication_p.h \
 		  $$KERNEL_H/qasyncimageio.h \
 		  $$KERNEL_H/qasyncio.h \
 		  $$KERNEL_H/qbitmap.h \
@@ -13,7 +13,7 @@ kernel {
 		  $$KERNEL_H/qcleanuphandler.h \
 		  $$KERNEL_H/qclipboard.h \
 		  $$KERNEL_H/qcolor.h \
-		  $$KERNEL_H/qcolor_p.h \
+		  $$KERNEL_P/qcolor_p.h \
 		  $$KERNEL_H/qcomponentinterface.h \
 		  $$KERNEL_H/qconnection.h \
 		  $$KERNEL_H/qcursor.h \
@@ -47,7 +47,7 @@ kernel {
 		  $$KERNEL_H/qpaintdevice.h \
 		  $$KERNEL_H/qpaintdevicedefs.h \
 		  $$KERNEL_H/qpainter.h \
-		  $$KERNEL_H/qpainter_p.h \
+		  $$KERNEL_P/qpainter_p.h \
 		  $$KERNEL_H/qpalette.h \
 		  $$KERNEL_H/qpaintdevicemetrics.h \
 		  $$KERNEL_H/qpen.h \
@@ -76,7 +76,7 @@ kernel {
 		  $$KERNEL_H/qstyle.h \
 		  $$KERNEL_H/qstylesheet.h \
 		  $$KERNEL_H/qthread.h \
-		  $$KERNEL_H/qthread_p.h \
+		  $$KERNEL_P/qthread_p.h \
 		  $$KERNEL_H/qtimer.h \
 		  $$KERNEL_H/qurl.h \
 		  $$KERNEL_H/qlocalfs.h \
@@ -88,7 +88,7 @@ kernel {
 		  $$KERNEL_H/qwindowdefs.h \
 		  $$KERNEL_H/qwmatrix.h \
 		  $$KERNEL_H/qvariant.h \
-		  kernel/qrichtext_p.h \
+		  $$KERNEL_P/qrichtext_p.h \
 		  $$KERNEL_H/qsimplerichtext.h 
 
 
