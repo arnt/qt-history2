@@ -100,7 +100,7 @@ HEADERS		= $$DIALOGS_H/qcolordialog.h \
 		  $$KERNEL_H/qkeycode.h \
 		  $$KERNEL_H/qjpegio.h \
 		  $$KERNEL_H/qlayout.h \
-		  $$KERNEL_H/qlayoutengine.h \
+		  $$KERNEL_H/qlayoutengine_p.h \
 		  $$KERNEL_H/qtranslator.h \
 		  $$KERNEL_H/qmetaobject.h \
 		  $$KERNEL_H/qmime.h \
