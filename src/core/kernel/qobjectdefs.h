@@ -138,20 +138,20 @@ struct Q_CORE_EXPORT QMetaObject
     QString trUtf8(const char *s, const char *c) const;
 #endif // QT_NO_TRANSLATION
 
-    int        slotOffset() const;
-    int        signalOffset() const;
-    int        enumeratorOffset() const;
-    int        propertyOffset() const;
-    int        classInfoOffset() const;
+    int slotOffset() const;
+    int signalOffset() const;
+    int enumeratorOffset() const;
+    int propertyOffset() const;
+    int classInfoOffset() const;
 
-    int        slotCount() const;
-    int        signalCount() const;
-    int        enumeratorCount() const;
-    int        propertyCount() const;
-    int        classInfoCount() const;
+    int slotCount() const;
+    int signalCount() const;
+    int enumeratorCount() const;
+    int propertyCount() const;
+    int classInfoCount() const;
 
-    int        indexOfSlot(const char *slot) const;
-    int        indexOfSignal(const char *signal) const;
+    int indexOfSlot(const char *slot) const;
+    int indexOfSignal(const char *signal) const;
     int indexOfEnumerator(const char *name) const;
     int indexOfProperty(const char *name) const;
     int indexOfClassInfo(const char *name) const;
