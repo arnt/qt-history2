@@ -1551,7 +1551,7 @@ QRect QMotifStyle::querySubControlMetrics( ComplexControl control,
 	    bs.setHeight( widget->height()/2 );
 	    if ( bs.height() < 8 )
 		bs.setHeight( 8 );
-	    bs.setWidth( bs.height() * 8 / 5 ); // 1.6 -approximate golden mean
+	    bs.setWidth( QMIN( bs.height() * 8 / 5, widget->width() / 4 ) ); // 1.6 -approximate golden mean
 	    bs = bs.expandedTo( QApplication::globalStrut() );
 	    int y = 0;
 	    int x, lx, rx;
