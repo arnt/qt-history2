@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#26 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -474,11 +474,11 @@ void QTextRow::draw( QPainter* p, int obx, int oby, int ox, int oy, int cx, int 
 	const QTextContainer* anc = it.parentNode()->anchor();
 	s.truncate(0);
 	QFont font = it.parentNode()->font();
-	if ( anc && to.linkUnderline && anc->attributes() 
+	if ( anc && to.linkUnderline && anc->attributes()
 	     && anc->attributes()->contains("href") )
 	    font.setUnderline( TRUE );
 	if ( font != p->font() ) {
-		    
+		
 	    p->setFont( font );
 	    fm = p->fontMetrics();
 	}
@@ -516,10 +516,10 @@ void QTextRow::draw( QPainter* p, int obx, int oby, int ox, int oy, int cx, int 
 
 	if (!onlySelection || selectionDirty) {
 	    p->setPen( it.parentNode()->color(cg.text()) );
-	    
+	
 	    if ( anc && anc->attributes() && anc->attributes()->contains("href") )
 		p->setPen( to.linkColor );
-		    
+		
 
 	
 	    if (select) {
@@ -716,6 +716,7 @@ void QTextContainer::setParent( QTextContainer* p)
     // invalidate any cached values
     delete  fnt;
     fnt = 0;
+    fontsize = -1;
     if ( col.isValid() )
 	col = QColor();
 
@@ -736,10 +737,8 @@ void QTextContainer::setFont( const QFont& f)
 
 void QTextContainer::setFontSize( int s )
 {
-    if ( s < 1 )
+    if ( s < 1)
 	s = 1;
-    if ( s > 7 )
-	s = 7;
     fontsize = s;
 }
 
@@ -925,17 +924,18 @@ void QTextContainer::createFont()
     // fnt is used to cache these values, therefore
     // use a temporary QFont* here
     QFont* f = new QFont( fontFamily() );
+    f->setWeight( fontWeight() );
+    f->setItalic( fontItalic() );
+    f->setUnderline( fontUnderline() );
     if ( style->fontSize() > 0 )
 	f->setPointSize( style->fontSize() );
     else {
 	QRichText* r = root();
 	if ( r ) {
-	    f->setPointSize( style->styleSheet()->pointSizeFromLogicalFontSize(r->font().pointSize(), fontSize() ));
+	    f->setPointSize( r->font().pointSize() );
+	    style->styleSheet()->scaleFont( *f, fontSize() );
 	}
     }
-    f->setWeight( fontWeight() );
-    f->setItalic( fontItalic() );
-    f->setUnderline( fontUnderline() );
     fnt = f;
 }
 
@@ -977,16 +977,16 @@ int QTextContainer::fontSize() const
 
 
    int f = style->logicalFontSize();
-    
+
     if ( f == -1 && parent )
 	f = parent->fontSize();
-    
+
     f += style->logicalFontSizeStep();
-    
+
    QTextContainer* that = (QTextContainer*) this;
    that->setFontSize( f );
 
-    return fontsize; 
+    return fontsize;
 }
 
 QString QTextContainer::fontFamily() const

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#15 $
 **
 ** Implementation of the QStyleSheet class
 **
@@ -313,7 +313,7 @@ int QStyleSheetItem::logicalFontSize() const
 
 
 /*!
-  Sets the logical font size setting of the style tp \a s. 
+  Sets the logical font size setting of the style tp \a s.
   Valid logical sizes are 1 to 7.
 
  \sa logicalFontSize(), QFont::pointSize(), QFont::setPointSize()
@@ -325,10 +325,10 @@ void QStyleSheetItem::setLogicalFontSize(int s)
 
 /*!
   Returns the logical font size step of this style.
-  
+
   The default is 0. Tags like \c big define \c +1, \c small defines
   \c -1
-  
+
   \sa setLogicalFontSizeStep()
  */
 int QStyleSheetItem::logicalFontSizeStep() const
@@ -338,7 +338,7 @@ int QStyleSheetItem::logicalFontSizeStep() const
 
 /*!
   Sets the logical font size step of this style to \a s.
-  
+
   \sa logicalFontSizeStep()
  */
 void QStyleSheetItem::setLogicalFontSizeStep( int s )
@@ -710,7 +710,7 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
 	<li> \c size
 	- the logical size of the font. Logical sizes 1 to 7 are supported.
 	 The value may either be absolute, for example
-	\c size=3, or relative. In the latter case, the sizes are simply added. 
+	\c size=3, or relative. In the latter case, the sizes are simply added.
 	</ul>
 	
     <li>\c &lt;em&gt;...&lt;/em&gt;
@@ -1141,32 +1141,45 @@ void QStyleSheet::error( const QString& ) const
 
 
 /*!
-  Maps the logical font size \a l to a point size given the relative
-  point size \a rel.
+  Scales the font \a font to the appropriate phsycial point size
+  corresponding to the logical font size \a logicalSize.
   
-  \a l is a number between 1 and 7, \a rel is the pointsize of the
-  logical size 3.
+  When calling this function, \a font has a point size corresponding to
+  the logical font size 3.
   
-  \sa logicalFontSize(), logicalFontSizeStep()
+  Typical logical font sizes range from 1 to 7, with 1 beeing the smallest.
+
+  \sa logicalFontSize(), logicalFontSizeStep(), QFont::setPointSize()
  */
-int QStyleSheet::pointSizeFromLogicalFontSize( int ref, int l ) const
+void QStyleSheet::scaleFont( QFont& font, int logicalSize ) const
 {
-    switch ( l ) {
+    if ( logicalSize < 1 )
+	logicalSize = 1;
+    if ( logicalSize > 7 )
+	logicalSize = 7;
+    int basePointSize = font.pointSize();
+    int s;
+    switch ( logicalSize ) {
     case 1:
-	return int(0.5 * ref);
+	s =  int(0.5 * basePointSize);
+	break;
     case 2:
-	return int(0.8 * ref);
-    case 3:
-	return ref;
+	s = int(0.8 * basePointSize);
+	break;
     case 4:
-	return int(1.2 * ref);
+	s =  int(1.2 * basePointSize);
+	break;
     case 5:
-	return int(1.5 * ref);
+	s = int(1.5 * basePointSize);
+	break;
     case 6:
-	return int(2 * ref);
+	s = int(2 * basePointSize);
+	break;
     case 7:
-	return int(2.5 * ref);
+	s = int(2.4 * basePointSize);
+	break;
     default:
-	return ref;
+	s = basePointSize;
     }
+    font.setPointSize( s );
 }

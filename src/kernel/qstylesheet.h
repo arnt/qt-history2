@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.h#8 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.h#9 $
 **
 ** Definition of the QStyleSheet class
 **
@@ -44,7 +44,7 @@ public:
     ~QStyleSheetItem();
 
     QString name() const;
-    
+
     QStyleSheet* styleSheet();
     const QStyleSheet* styleSheet() const;
 
@@ -62,7 +62,7 @@ public:
 
     int logicalFontSize() const;
     void setLogicalFontSize(int s);
-    
+
     int logicalFontSizeStep() const;
     void setLogicalFontSizeStep( int s );
 
@@ -150,9 +150,8 @@ public:
     static QString convertFromPlainText( const QString& );
     static bool mightBeRichText( const QString& );
 
-    virtual int pointSizeFromLogicalFontSize( int ref, int l ) const;
-    
-    
+    virtual void scaleFont( QFont& font, int logicalSize ) const;
+
     virtual void error( const QString& ) const;
 
 private:
