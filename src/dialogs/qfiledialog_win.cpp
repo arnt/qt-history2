@@ -78,7 +78,7 @@ static QString extractFilter( const QString& rawFilter )
     QRegExp r( QString::fromLatin1(qt_file_dialog_filter_reg_exp) );
     int index = r.search( result );
     if ( index >= 0 )
-	result = r.cap( 1 );
+	result = r.cap( 2 );
     return result.replace( QRegExp(QString::fromLatin1(" ")), QChar(';') );
 }
 

@@ -2189,7 +2189,7 @@ static QStringList makeFiltersList( const QString &filter )
 */
 
 extern const char qt_file_dialog_filter_reg_exp[] =
-	"\\(([a-zA-Z0-9_.*? +;#\\[\\]]*)\\)$";
+	"([a-zA-Z0-9 ]*)\\(([a-zA-Z0-9_.*? +;#\\[\\]]*)\\)$";
 
 /*!
   Constructs a file dialog with the parent, \a parent, and the name,
@@ -2787,7 +2787,7 @@ void QFileDialog::setSelectedFilter( int n )
     QRegExp r( QString::fromLatin1(qt_file_dialog_filter_reg_exp) );
     int index = r.search( f );
     if ( index >= 0 )
-	f = r.cap( 1 );
+	f = r.cap( 2 );
     d->url.setNameFilter( f );
     rereadDir();
 }
@@ -2808,7 +2808,7 @@ void QFileDialog::setSelectedFilter( const QString& mask )
 	    QRegExp r( QString::fromLatin1(qt_file_dialog_filter_reg_exp) );
 	    int index = r.search( f );
 	    if ( index >= 0 )
-		f = r.cap( 1 );
+		f = r.cap( 2 );
 	    d->url.setNameFilter( f );
 	    rereadDir();
 	    return;
@@ -2962,7 +2962,7 @@ void QFileDialog::setFilter( const QString & newFilter )
     QRegExp r( QString::fromLatin1(qt_file_dialog_filter_reg_exp) );
     int index = r.search( f );
     if ( index >= 0 )
-	f = r.cap( 1 );
+	f = r.cap( 2 );
     d->url.setNameFilter( f );
     if ( d->types->count() == 1 )  {
 	d->types->clear();
@@ -5252,7 +5252,7 @@ void QFileDialog::addFilter( const QString &filter )
     QRegExp r( QString::fromLatin1(qt_file_dialog_filter_reg_exp) );
     int index = r.search( f );
     if ( index >= 0 )
-	f = r.cap( 1 );
+	f = r.cap( 2 );
     for ( int i = 0; i < d->types->count(); ++i ) {
 	QString f2( d->types->text( i ) );
 	int index = r.search( f2 );

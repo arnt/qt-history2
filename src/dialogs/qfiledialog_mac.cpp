@@ -51,54 +51,69 @@ static void cleanup_str_buffer()
 extern const char qt_file_dialog_filter_reg_exp[]; // defined in qfiledialog.cpp
 
 // Returns the wildcard part of a filter.
-static QString extractFilter( const QString& rawFilter )
+struct qt_mac_filter_name {
+    QString description, regxp;
+};
+static qt_mac_filter_name *extractFilter( const QString& rawFilter )
 {
     QString result = rawFilter;
     QRegExp r( QString::fromLatin1(qt_file_dialog_filter_reg_exp) );
+    qt_mac_filter_name *ret = new qt_mac_filter_name;
     int index = r.search( result );
-    if ( index >= 0 )
-	result = r.cap( 1 );
-    return result.replace( QRegExp(QString::fromLatin1(" ")), QChar(';') );
+    if ( index >= 0 ) {
+	ret->description = r.cap(1).stripWhiteSpace();
+	result = r.cap(2);
+    }
+    if(ret->description.isEmpty()) 
+	ret->description = result;
+    ret->regxp = result.replace(QRegExp(QString::fromLatin1(" ")), QChar(';'));
+    return ret;
 }
 
 // Makes a list of filters from ;;-separated text.
-static QPtrList<QRegExp> makeFiltersList( const QString &filter )
+static QPtrList<qt_mac_filter_name> makeFiltersList( const QString &filter )
 {
     QString f( filter );
 
     if ( f.isEmpty( ) )
-	f = QFileDialog::tr( "All Files (*.*)" );
+	f = QFileDialog::tr( "All Files (*)" );
 
     if ( f.isEmpty() )
-	return QPtrList<QRegExp>();
+	return QPtrList<qt_mac_filter_name>();
 
-    int i = f.find( ";;", 0 );
-    QString sep( ";;" );
+    QString sep(";;");
+    int i = f.find( sep, 0 );
     if ( i == -1 ) {
-	if ( f.find( "\n", 0 ) != -1 ) {
-	    sep = "\n";
+	sep = "\n";
+	if ( f.find( sep, 0 ) != -1 )
 	    i = f.find( sep, 0 );
-	}
     }
-
-    QPtrList<QRegExp> ret;
+    QPtrList<qt_mac_filter_name> ret;
     QStringList filts = QStringList::split( sep, f);
     for (QStringList::Iterator it = filts.begin(); it != filts.end(); ++it )
-	ret.append(new QRegExp(extractFilter((*it)), TRUE, TRUE));
+	ret.append(extractFilter((*it)));
     return ret;
 }
 
+struct qt_mac_nav_filter_type {
+    unsigned int index;
+    QPtrList<qt_mac_filter_name> *filts;
+};
 
-QMAC_PASCAL static Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
-				 void *myd, NavFilterModes)
+static QMAC_PASCAL Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
+					     void *myd, NavFilterModes)
 {
-    QPtrList<QRegExp> *filt = (QPtrList<QRegExp> *)myd;
-    if(!filt)
+    qt_mac_nav_filter_type *t = (qt_mac_nav_filter_type *)myd;
+    if(!t || !t->filts || t->index >= t->filts->count())
 	return true;
 
     NavFileOrFolderInfo *theInfo = (NavFileOrFolderInfo *)info;
-    if(theItem->descriptorType == typeFSS ) {
-	if( !theInfo->isFolder ) {
+    if( !theInfo->isFolder ) {
+	qt_mac_filter_name *fn = t->filts->at(t->index);
+	if(!fn)
+	    return true;
+	QStringList reg = QStringList::split(";", fn->regxp);
+	if(theItem->descriptorType == typeFSS ) {
 	    AliasHandle alias;
 	    Str63 str;
 	    char tmp[sizeof(Str63)+2];
@@ -111,10 +126,29 @@ QMAC_PASCAL static Boolean qt_mac_nav_filter(AEDesc *theItem, void *info,
 	    if(str[0]) {
 		strncpy((char *)tmp, (const char *)str+1, str[0]);
 		tmp[str[0]] = '\0';
-		for (QPtrListIterator<QRegExp> it(*filt); it.current(); ++it ) {
-		    if(it.current()->exactMatch( tmp ))
+		for(QStringList::Iterator it = reg.begin(); it != reg.end(); ++it) {
+		    QRegExp rg((*it), TRUE, TRUE);
+		    if(rg.exactMatch(tmp)) 
 			return true;
 		}
+	    }
+	    return false;
+	} else if(theItem->descriptorType == typeFSRef) {
+	    FSRef ref;
+	    AEGetDescData( theItem, &ref, sizeof(ref));
+	    if(!str_buffer) {
+		qAddPostRoutine( cleanup_str_buffer );
+		str_buffer = (UInt8 *)malloc(1024);
+	    }
+	    FSRefMakePath(&ref, str_buffer, 1024);
+	    QString str = QString::fromUtf8((const char *)str_buffer);
+	    int slsh = str.findRev('/');
+	    if(slsh != -1) 
+		str = str.right(str.length() - slsh - 1);
+	    for(QStringList::Iterator it = reg.begin(); it != reg.end(); ++it) {
+		QRegExp rg((*it), TRUE, TRUE);
+		if(rg.exactMatch(str)) 
+		    return true;
 	    }
 	    return false;
 	}
@@ -143,14 +177,21 @@ static void cleanup_navProcUPP()
     DisposeNavEventUPP(mac_navProcUPP);
     mac_navProcUPP = NULL;
 }
-static pascal void qt_mac_empty_proc(const NavEventCallbackMessage, NavCBRecPtr, NavCallBackUserData)
-{ /* Yes this is intentionally empty */ }
+static QMAC_PASCAL void qt_mac_filedialog_event_proc(const NavEventCallbackMessage msg, 
+						     NavCBRecPtr p, NavCallBackUserData myd)
+{ 
+    if(msg == kNavCBPopupMenuSelect) {
+	qt_mac_nav_filter_type *t = (qt_mac_nav_filter_type *)myd;
+	NavMenuItemSpec *s = (NavMenuItemSpec*)p->eventData.eventDataParms.param;
+	t->index = s->menuType;
+    }
+}
 static const NavEventUPP make_navProcUPP()
 {
     if(mac_navProcUPP)
 	return mac_navProcUPP;
     qAddPostRoutine( cleanup_navProcUPP );
-    return mac_navProcUPP = NewNavEventUPP(qt_mac_empty_proc);
+    return mac_navProcUPP = NewNavEventUPP(qt_mac_filedialog_event_proc);
 }
 
 
@@ -205,6 +246,21 @@ QStringList QFileDialog::macGetOpenFileNames( const QString &filter, QString *,
 	}
     }
 
+    QPtrList<qt_mac_filter_name> filts = makeFiltersList(filter);
+    qt_mac_nav_filter_type t;
+    t.index = 0;
+    t.filts = &filts;
+    filts.setAutoDelete(TRUE);
+    if(filts.count() > 1) {
+	int i = 0;
+	CFStringRef *arr = (CFStringRef *)malloc(sizeof(CFStringRef) * filts.count());
+	for (QPtrListIterator<qt_mac_filter_name> it(filts); it.current(); ++it ) {
+	    QString rg = (*it)->description;
+	    arr[i++] = CFStringCreateWithCharacters(NULL, (UniChar *)rg.unicode(), rg.length());
+	}
+	options.popupExtension = CFArrayCreate(NULL, (const void **)arr, filts.count(), NULL);
+    }
+
     NavDialogRef dlg;
     if (directory) {
 	if(NavCreateChooseFolderDialog(&options, NULL, NULL, NULL, &dlg)) {
@@ -212,9 +268,8 @@ QStringList QFileDialog::macGetOpenFileNames( const QString &filter, QString *,
 	    return retstrl;
 	}
     } else {
-	QPtrList<QRegExp> filts = makeFiltersList(filter);
 	if(NavCreateGetFileDialog(&options, NULL, make_navProcUPP(), NULL, 
-				  make_navFilterUPP(), (void *) (filts.isEmpty() ? NULL : &filts), 
+				  make_navFilterUPP(), (void *) (filts.isEmpty() ? NULL : &t), 
 				  &dlg)) {
 	    qDebug("Shouldn't happen %s:%d", __FILE__, __LINE__);
 	    return retstrl;
@@ -350,7 +405,6 @@ QString QFileDialog::macGetSaveFileName( const QString &, const QString &,
 #else
     err = AEGetNthPtr(&(ret.selection), 1, typeFSRef, &keyword,
 		      &type, &ref, sizeof(ref), &size);
-    qDebug("%d", err);
 #endif    
     if(err == noErr) {
 #ifdef Q_WS_MAC9
