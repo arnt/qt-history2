@@ -195,7 +195,7 @@
 /*!
     \fn void QVarLengthArray::append(const T *buf, int size)
 
-    \internal
+    Appends \a size amount of items referenced by \a buf to this array.
 */
 
 
@@ -236,3 +236,12 @@
 
     \sa data(), operator[]()
 */
+
+/*! \fn QVarLengthArray &QVarLengthArray::operator=(const QVarLengthArray &other)
+    Assigns \a other to this array and returns a reference to this array.
+ */
+
+/*! \fn QVarLengthArray::QVarLengthArray(const QVarLengthArray &other)
+    Constructs a copy of \a other.
+ */
+
