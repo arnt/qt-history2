@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#23 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#22 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#23 $";
 #endif
 
 
@@ -1954,122 +1954,145 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	fix_neg_rect( &x, &y, &w, &h );
     }
 
-    QFontMetrics fm( cfont );
+    QFontMetrics fm( cfont );			// get font metrics
 
-    int codelen = len + len/2 + 4;;
+    int codelen = len + len/2 + 10;
     ushort *codes = (ushort *)malloc( sizeof(ushort)*codelen );
     ushort cc = 0;				// character code
 
     const BEGLINE  = 0x8000;			// encoding 0x8zzz, zzz=width
     const TABSTOP  = 0x4000;			// encoding 0x4zzz, zzz=tab pos
     const PREFIX   = 0x2000;			// encoding 0x20zz, zz=char
-    const WDBITS   = 0x1fff;			// bits for width encoding
+    const WIDTHBITS= 0x1fff;			// bits for width encoding
+    const MAXWIDTH = 0x1fff;			// max width value
 
-    register char *p = (char *)str;
-    int nlines     = 0;				// number of lines
-    int index      = 0;				// index for codes
-    int begline    = 0;				// index at beginning of line
-    int breakindex = 0;				// index where to break
-    int breakwidth = 0;				// width of text at breakindex
-    int bcwidth	   = 0;				// width of break char
-    int tabindex   = 0;				// tab array index
+    char *p = (char *)str;
+    int nlines;					// number of lines
+    int index;					// index for codes
+    int begline;				// index at beginning of line
+    int breakindex;				// index where to break
+    int breakwidth;				// width of text at breakindex
+    int bcwidth;				// width of break char
+    int tabindex;				// tab array index
     int cw;					// character width
-    int k = 0;					// index for p
-    int tw = 0;					// text width
+    int k;					// index for p
+    int tw;					// text width
+
     short charwidth[255];			// TO BE REMOVED LATER!!!
     memset( charwidth, -1, 255*sizeof(short) );
+
+#define CWIDTH(x) (charwidth[x]>=0 ? charwidth[x] : (charwidth[x]=fm.width(x)))
+#undef  MIN
+#define MIN(x,y) ((x) < (y) ? (x) : (y))
 
     bool wordbreak  = (tf & WordBreak)  == WordBreak;
     bool expandtabs = (tf & ExpandTabs) == ExpandTabs;
     bool singleline = (tf & SingleLine) == SingleLine;
     bool showprefix = (tf & ShowPrefix) == ShowPrefix;
 
-#define CWIDTH(x) (charwidth[x]>=0 ? charwidth[x] : (charwidth[x]=fm.width(x)))
+    int  spacewidth = CWIDTH( ' ' );		// width of space char
 
-    index++;					// first index contains BEGLINE
+    nlines = 0;
+    index  = 1;					// first index contains BEGLINE
+    begline = breakindex = breakwidth = bcwidth = tabindex = 0;
+    k = tw = 0;
 
     while ( k < len ) {				// convert string to codes
 
-	if ( wordbreak && isspace(*p) ) {
-	    breakindex = index;			// good position for word break
-	    breakwidth = tw;
-	    bcwidth = CWIDTH( *p );
-	}
-
-	if ( *p == '\n' ) {			// newline
-	    if ( singleline ) {
-		cc = ' ';			// convert newline to space
-		cw = CWIDTH( ' ' );
-	    }
-	    else {
-		cc = BEGLINE;
-		cw = 0;
-	    }
-	}
-
-	else if ( *p == '\t' ) { 		// TAB character
-	    if ( expandtabs ) {
-		int tstop = 0;
-		if ( tabarray ) {
-		    debug( "TAB ARRAY NOT IMPLEMENTED" );
-		    while ( tabindex < tabarraylen ) {
-			/* NOTE!!! Tab array not implemented */
-			tabindex++;
-		    }
+	if ( *p > 32 ) {			// printable character
+	    if ( *p == '&' && showprefix ) {
+		cc = '&';			// assume ampersand
+		if ( k < len-1 ) {
+		    k++;
+		    p++;
+		    if ( *p != '&' && isprint(*p) )
+			cc = PREFIX | *p;	// use prefix char
 		}
-		else if ( tabstops )
-		    tstop = tabstops - tw%tabstops;
-		cw = tstop;
-		cc = TABSTOP | (tw + cw);
 	    }
-	    else {				// convert TAB to space
+	    else
+		cc = *p;
+	    cw = CWIDTH( cc & 0xff );
+	}
+
+	else {					// not printable (except ' ')
+
+	    if ( *p == 32 ) {			// the space character
 		cc = ' ';
-		cw = CWIDTH( ' ' );
+		cw = spacewidth;
 	    }
-	}
 
-	else if ( *p == '&' && showprefix ) {
-	    cc = '&';				// assume ampersand
-	    if ( k < len-1 ) {
-		k++;
-		p++;
-		if ( *p != '&' && isprint(*p) )	// use prefix char
-		    cc = PREFIX | *p;
-	    }
-	    cw = CWIDTH( (char)(cc & 0xff) );
-	}
-
-	else {					// normal character
-	    cc = *p;
-	    cw = CWIDTH( *p );
-	}
-
-	if ( wordbreak ) {			// break line
-	    if ( tw+cw > w && breakindex > 0 ) {
-		if ( index == breakindex ) {	// break at current index
+	    else if ( *p == '\n' ) {		// newline
+		if ( singleline ) {
+		    cc = ' ';			// convert newline to space
+		    cw = spacewidth;
+		}
+		else {
 		    cc = BEGLINE;
 		    cw = 0;
 		}
-		else {
-		    codes[begline] = BEGLINE | (breakwidth & WDBITS);
-		    begline = breakindex;
-		    nlines++;
-		    tw -= breakwidth + bcwidth;
-		    breakindex = tabindex = 0;
+	    }
+
+	    else if ( *p == '\t' ) { 		// TAB character
+		if ( expandtabs ) {
+		    cw = 0;
+		    if ( tabarray ) {		// use tab array
+			while ( tabindex < tabarraylen ) {
+			    if ( tabarray[tabindex] > tw ) {
+				cw = tabarray[tabindex] - tw;
+				tabindex++;
+				break;
+			    }
+			    tabindex++;
+			}
+		    }
+		    if ( cw == 0 && tabstops )	// use fixed tab stops
+			cw = tabstops - tw%tabstops;
+		    cc = TABSTOP | MIN(tw+cw,MAXWIDTH);
 		}
+		else {				// convert TAB to space
+		    cc = ' ';
+		    cw = spacewidth;
+		}
+	    }
+
+	    else {				// ignore character
+		k++;
+		p++;
+		continue;
+	    }
+
+	    if ( wordbreak ) {			// possible break position
+		breakindex = index;
+		breakwidth = tw;
+		bcwidth = cw;
 	    }
 	}
 
-	tw += cw;
-	if ( (cc & BEGLINE) == BEGLINE ) {
-	    codes[begline] = BEGLINE | (tw & WDBITS);
+	if ( wordbreak && breakindex > 0 && tw+cw > w ) {
+	    if ( index == breakindex ) {	// break at current index
+		cc = BEGLINE;
+		cw = 0;
+	    }
+	    else {				// break at breakindex
+		codes[begline] = BEGLINE | MIN(breakwidth,MAXWIDTH);
+		begline = breakindex;
+		nlines++;
+		tw -= breakwidth + bcwidth;
+		breakindex = tabindex = 0;
+	    }
+	}
+
+	tw += cw;				// increment text width
+
+	if ( cc == BEGLINE ) {
+	    codes[begline] = BEGLINE | MIN(tw,MAXWIDTH);
 	    begline = index;
 	    nlines++;
 	    tw = 0;
 	    breakindex = tabindex = 0;
 	}
 	codes[index++] = cc;
-	if ( index >= codelen ) {		// grow code array
+	if ( index >= codelen - 1 ) {		// grow code array
 	    codelen += len;
 	    codes = (ushort *)realloc( codes, sizeof(ushort)*codelen );
 	}
@@ -2077,12 +2100,8 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	p++;
     }
 
-    if ( (cc & BEGLINE) != BEGLINE ) {		// !!!hmm, er denne sikker???
-	codes[begline] = BEGLINE | tw;
-	nlines++;
-    }
-    else
-	debug( "QPainter::drawText: UNEXPECTED" );
+    codes[begline] = BEGLINE | MIN(tw,MAXWIDTH);
+    nlines++;
     codes[index++] = 0;
     codelen = index;
 
@@ -2094,11 +2113,11 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	if ( (cc & BEGLINE) == BEGLINE ) {
 	    if ( index > 0 )
 		s += '\n';
-	    n.sprintf( "[%d]", cc & WDBITS );
+	    n.sprintf( "[%d]", cc & WIDTHBITS );
 	    s += n;
 	}
 	else if ( (cc & TABSTOP) == TABSTOP ) {
-	    n.setNum( cc & WDBITS );
+	    n.setNum( cc & WIDTHBITS );
 	    s += "<\\t:";
 	    s += n;
 	    s += ">";
@@ -2120,9 +2139,9 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
     int fheight  = fm.height();
     QRegion save_rgn = crgn;			// save the current region
     int xp, yp;
-    p = new char[codelen];			// buffer for printable string
+    p = new char[len];				// buffer for printable string
 
-    if ( nlines == 1 && (codes[0] & WDBITS) < w && h > fheight )
+    if ( nlines == 1 && (codes[0] & WIDTHBITS) < w && h > fheight )
 	tf |= DontClip;				// no need to clip
 
     if ( (tf & DontClip) == 0 )	{		// clip text
@@ -2170,7 +2189,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 	if ( codes[index] == 0 )		// end of text
 	    break;
 
-	tw = codes[index++] & WDBITS;		// text width
+	tw = codes[index++] & WIDTHBITS;		// text width
 
 	if ( tw == 0 ) {			// ignore empty line
 	    while ( codes[index] && (codes[index] & BEGLINE) != BEGLINE )
@@ -2199,12 +2218,11 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 		p[k++] = (char)*ci++;
 		index++;
 	    }
-// INGEN VITS!!!	    p[k] = 0;
-	    drawText( x+xp, y+yp, p, k );
+	    drawText( x+xp, y+yp, p, k );	// draw the text
 	    if ( (*ci & BEGLINE) == BEGLINE || *ci == 0 )
 		break;
 	    else if ( (*ci & TABSTOP) == TABSTOP ) {
-		xp = bx + (*ci & WDBITS);
+		xp = bx + (*ci & WIDTHBITS);
 		index++;
 	    }
 	}
