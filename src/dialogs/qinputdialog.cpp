@@ -489,14 +489,14 @@ QString QInputDialog::getItem( const QString &caption, const QString &label, con
 
 void QInputDialog::textChanged( const QString &s )
 {
-    bool on;
+    bool on = TRUE;
 
     if ( d->lineEdit->validator() ) {
 	QString str = d->lineEdit->text();
 	int index = d->lineEdit->cursorPosition();
 	on = ( d->lineEdit->validator()->validate(str, index) ==
 	       QValidator::Acceptable );
-    } else {
+    } else if ( type() != LineEdit ) {
 	on = !s.isEmpty();
     }
     d->ok->setEnabled( on );
