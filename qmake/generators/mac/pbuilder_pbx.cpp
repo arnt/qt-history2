@@ -476,7 +476,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << "\t\t\t" << "name = \"" << grp << "\";" << "\n"
 	  << "\t\t" << "};" << "\n";
     }
-    if(project->first("TEMPLATE") == "app") { //BUNDLE RESOURCES
+    if(project->isActiveConfig("resource_fork") && !project->isActiveConfig("console") &&
+       project->first("TEMPLATE") == "app") { //BUNDLE RESOURCES
 	QString grp("Bundle Resources"), key = keyFor(grp);
 	project->variables()["QMAKE_PBX_BUILDPHASES"].append(key);
 	t << "\t\t" << key << " = {" << "\n"
@@ -512,7 +513,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	    targ = targ.right(targ.length() - slsh - 1);
 	fixEnvVariables(targ);
 	QStringList links;
-	if(project->first("TEMPLATE") == "app") {
+	if(project->isActiveConfig("resource_fork") && !project->isActiveConfig("console") &&
+	   project->first("TEMPLATE") == "app") {
 	    targ += ".app";
 	} else if(!project->isActiveConfig("staticlib") &&
 	   !project->isActiveConfig("frameworklib")) {
@@ -531,7 +533,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	if(shf.open(IO_WriteOnly | IO_Translate)) {
 	    debug_msg(1, "pbuilder: Creating file: %s", script.latin1());
 	    QString targ = project->first("QMAKE_ORIG_TARGET"), cpflags;
-	    if(project->first("TEMPLATE") == "app") {
+	    if(project->isActiveConfig("resource_fork") && !project->isActiveConfig("console") &&
+	       project->first("TEMPLATE") == "app") {
 		cpflags += "-r ";
 		targ += ".app";
 	    } else if(!project->isActiveConfig("frameworklib")) {
@@ -599,11 +602,17 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     t << "\t\t" << keyFor("QMAKE_PBX_REFERENCE") << " = {" << "\n"
       << "\t\t\t" << "refType = 3;" << "\n";
     if(project->first("TEMPLATE") == "app") {
-	t << "\t\t\t" << "isa = PBXApplicationReference;" << "\n"
-	  << "\t\t\t" << "name = " << project->first("QMAKE_ORIG_TARGET") << ".app;" << "\n"
+	QString targ = project->first("QMAKE_ORIG_TARGET");
+	if(project->isActiveConfig("resource_fork") && !project->isActiveConfig("console")) {
+	    targ += ".app";
+	    t << "\t\t\t" << "isa = PBXApplicationReference;" << "\n";
+	} else {
+	    t << "\t\t\t" << "isa = PBXExecutableFileReference;" << "\n";
+	}
+	t << "\t\t\t" << "name = " <<  targ << ";" << "\n"
 	  << "\t\t\t" << "path = \"" 
 	  << (!project->isEmpty("DESTDIR") ? project->first("DESTDIR") + project->first("QMAKE_ORIG_TARGET") : 
-	      QDir::currentDirPath()) << Option::dir_sep << project->first("QMAKE_ORIG_TARGET") << ".app\";" << "\n";
+	      QDir::currentDirPath()) << Option::dir_sep << targ << "\";" << "\n";
     } else {
 	QString lib = project->first("QMAKE_ORIG_TARGET");
 	if(project->isActiveConfig("staticlib")) {
@@ -656,8 +665,9 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     if(!project->isEmpty("OBJECTS_DIR"))
 	t << "\t\t\t\t" << "OBJECT_FILE_DIR = \"" << project->first("OBJECTS_DIR") << "\";" << "\n";
     if(project->first("TEMPLATE") == "app") {
-	t << "\t\t\t\t" << "WRAPPER_EXTENSION = app;" << "\n"
-	  << "\t\t\t\t" << "PRODUCT_NAME = " << project->first("QMAKE_ORIG_TARGET") << ";" << "\n";
+	if(project->isActiveConfig("resource_fork") && !project->isActiveConfig("console"))
+	    t << "\t\t\t\t" << "WRAPPER_EXTENSION = app;" << "\n";
+	t << "\t\t\t\t" << "PRODUCT_NAME = " << project->first("QMAKE_ORIG_TARGET") << ";" << "\n";
     } else {
 	QString lib = project->first("QMAKE_ORIG_TARGET");
 	if(!project->isActiveConfig("plugin") && project->isActiveConfig("staticlib")) {
@@ -688,33 +698,37 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t\t\t" << "productReference = " << keyFor("QMAKE_PBX_REFERENCE") << ";" << "\n"
       << "\t\t\t" << "shouldUseHeadermap = 1;" << "\n";
     if(project->first("TEMPLATE") == "app") {
-	t << "\t\t\t" << "isa = PBXApplicationTarget;" << "\n"
-	  << "\t\t\t" << "name = \"" << project->first("QMAKE_ORIG_TARGET") << "\";" << "\n"
+	if(project->isActiveConfig("resource_fork") && !project->isActiveConfig("console")) {
+	    t << "\t\t\t" << "isa = PBXApplicationTarget;" << "\n"
+	      << "\t\t\t" << "productSettingsXML = " << "\"" << "<?xml version=" 
+	      << "\\\"1.0\\\" encoding=" << "\\\"UTF-8\\\"" << "?>" << "\n"
+	      << "\t\t\t\t" << "<!DOCTYPE plist SYSTEM \\\"file://localhost/System/" 
+	      << "Library/DTDs/PropertyList.dtd\\\">" << "\n"
+	      << "\t\t\t\t" << "<plist version=\\\"0.9\\\">" << "\n"
+	      << "\t\t\t\t" << "<dict>" << "\n"
+	      << "\t\t\t\t\t" << "<key>CFBundleDevelopmentRegion</key>" << "\n"
+	      << "\t\t\t\t\t" << "<string>English</string>" << "\n"
+	      << "\t\t\t\t\t" << "<key>CFBundleExecutable</key>" << "\n"
+	      << "\t\t\t\t\t" << "<string>" << project->first("QMAKE_ORIG_TARGET") << "</string>" << "\n"
+	      << "\t\t\t\t\t" << "<key>CFBundleIconFile</key>" << "\n"
+	      << "\t\t\t\t\t" << "<string>" << var("RC_FILE") << "</string>" << "\n"
+	      << "\t\t\t\t\t" << "<key>CFBundleInfoDictionaryVersion</key>"  << "\n"
+	      << "\t\t\t\t\t" << "<string>6.0</string>" << "\n"
+	      << "\t\t\t\t\t" << "<key>CFBundlePackageType</key>" << "\n"
+	      << "\t\t\t\t\t" << "<string>APPL</string>" << "\n"
+	      << "\t\t\t\t\t" << "<key>CFBundleSignature</key>" << "\n"
+	      << "\t\t\t\t\t" << "<string>????</string>" << "\n"
+	      << "\t\t\t\t\t" << "<key>CFBundleVersion</key>" << "\n"
+	      << "\t\t\t\t\t" << "<string>0.1</string>" << "\n"
+	      << "\t\t\t\t\t" << "<key>CSResourcesFileMapped</key>" << "\n"
+	      << "\t\t\t\t\t" << "<true/>" << "\n"
+	      << "\t\t\t\t" << "</dict>" << "\n"
+	      << "\t\t\t\t" << "</plist>" << "\";" << "\n";
+	} else {
+	    t << "\t\t\t" << "isa = PBXToolTarget;" << "\n";
+	}
+	t << "\t\t\t" << "name = \"" << project->first("QMAKE_ORIG_TARGET") << "\";" << "\n"
 	  << "\t\t\t" << "productName = " << project->first("QMAKE_ORIG_TARGET") << ";" << "\n";
-	t << "\t\t\t" << "productSettingsXML = " << "\"" << "<?xml version=" 
-	  << "\\\"1.0\\\" encoding=" << "\\\"UTF-8\\\"" << "?>" << "\n"
-	  << "\t\t\t\t" << "<!DOCTYPE plist SYSTEM \\\"file://localhost/System/" 
-	  << "Library/DTDs/PropertyList.dtd\\\">" << "\n"
-	  << "\t\t\t\t" << "<plist version=\\\"0.9\\\">" << "\n"
-	  << "\t\t\t\t" << "<dict>" << "\n"
-	  << "\t\t\t\t\t" << "<key>CFBundleDevelopmentRegion</key>" << "\n"
-	  << "\t\t\t\t\t" << "<string>English</string>" << "\n"
-	  << "\t\t\t\t\t" << "<key>CFBundleExecutable</key>" << "\n"
-	  << "\t\t\t\t\t" << "<string>" << project->first("QMAKE_ORIG_TARGET") << "</string>" << "\n"
-	  << "\t\t\t\t\t" << "<key>CFBundleIconFile</key>" << "\n"
-	  << "\t\t\t\t\t" << "<string>" << var("RC_FILE") << "</string>" << "\n"
-	  << "\t\t\t\t\t" << "<key>CFBundleInfoDictionaryVersion</key>"  << "\n"
-	  << "\t\t\t\t\t" << "<string>6.0</string>" << "\n"
-	  << "\t\t\t\t\t" << "<key>CFBundlePackageType</key>" << "\n"
-	  << "\t\t\t\t\t" << "<string>APPL</string>" << "\n"
-	  << "\t\t\t\t\t" << "<key>CFBundleSignature</key>" << "\n"
-	  << "\t\t\t\t\t" << "<string>????</string>" << "\n"
-	  << "\t\t\t\t\t" << "<key>CFBundleVersion</key>" << "\n"
-	  << "\t\t\t\t\t" << "<string>0.1</string>" << "\n"
-	  << "\t\t\t\t\t" << "<key>CSResourcesFileMapped</key>" << "\n"
-	  << "\t\t\t\t\t" << "<true/>" << "\n"
-	  << "\t\t\t\t" << "</dict>" << "\n"
-	  << "\t\t\t\t" << "</plist>" << "\";" << "\n";
     } else {
 	QString lib = project->first("QMAKE_ORIG_TARGET");
 	if(!project->isActiveConfig("frameworklib"))
