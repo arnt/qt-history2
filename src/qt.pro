@@ -70,8 +70,6 @@ win32 {
 
 	CONFIG	+= zlib
 	INCLUDEPATH += tmp
-	MOC_DIR	= tmp
-	OBJECTS_DIR = tmp
 	dll:DEFINES+=QT_MAKEDLL
 
 }
