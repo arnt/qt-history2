@@ -601,18 +601,28 @@ typedef const char *pcchar;
 #  ifdef QT_COMPAT
 #    undef QT_COMPAT
 #  endif
+#  ifdef QT_COMPAT_VARIABLE
+#    undef QT_COMPAT_VARIABLE
+#  endif
 #  if defined(Q_MOC_RUN)
 #    define QT_COMPAT QT_COMPAT
 #  elif defined(Q_CC_GNU) && !defined(Q_CC_INTEL) && (__GNUC__ - 0 > 3 || (__GNUC__ - 0 == 3 && __GNUC_MINOR__ - 0 >= 2))
 #    define QT_COMPAT __attribute__ ((__deprecated__))
 #  elif defined(Q_CC_MSVC) && (_MSC_VER >= 1300)
 #    define QT_COMPAT __declspec(deprecated)
+#    if defined (Q_CC_INTEL)
+#      define QT_COMPAT_VARIABLE
+#    endif
 #  else
 #    define QT_COMPAT
 #  endif
 #elif defined(QT_COMPAT) // make sure QT_COMPAT is void
 #  undef QT_COMPAT
 #  define QT_COMPAT
+#endif
+
+#ifndef QT_COMPAT_VARIABLE
+#  define QT_COMPAT_VARIABLE QT_COMPAT
 #endif
 
 #ifndef QT_COMPAT_CONSTRUCTOR

@@ -160,13 +160,13 @@ public:
 Q_DECLARE_OPERATORS_FOR_FLAGS(QIODevice::OpenMode)
 
 #ifdef QT_COMPAT
-static QT_COMPAT const uint IO_Direct = 0x0100;
-static QT_COMPAT const uint IO_Sequential = 0x0200;
-static QT_COMPAT const uint IO_Combined = 0x0300;
-static QT_COMPAT const uint IO_TypeMask = 0x0300;
+static QT_COMPAT_VARIABLE const uint IO_Direct = 0x0100;
+static QT_COMPAT_VARIABLE const uint IO_Sequential = 0x0200;
+static QT_COMPAT_VARIABLE const uint IO_Combined = 0x0300;
+static QT_COMPAT_VARIABLE const uint IO_TypeMask = 0x0300;
 
-static QT_COMPAT const uint IO_Raw = 0x0000;
-static QT_COMPAT const uint IO_Async = 0x0000;
+static QT_COMPAT_VARIABLE const uint IO_Raw = 0x0000;
+static QT_COMPAT_VARIABLE const uint IO_Async = 0x0000;
 
 #define IO_ReadOnly QIODevice::ReadOnly
 #define IO_WriteOnly QIODevice::WriteOnly
@@ -176,19 +176,19 @@ static QT_COMPAT const uint IO_Async = 0x0000;
 #define IO_Translate QIODevice::Translate
 #define IO_ModeMask 0x00ff
 
-static QT_COMPAT const uint IO_Open = 0x1000;
-static QT_COMPAT const uint IO_StateMask = 0xf000;
+static QT_COMPAT_VARIABLE const uint IO_Open = 0x1000;
+static QT_COMPAT_VARIABLE const uint IO_StateMask = 0xf000;
 
-static QT_COMPAT const uint IO_Ok = 0;
-static QT_COMPAT const uint IO_ReadError = 1;
-static QT_COMPAT const uint IO_WriteError = 2;
-static QT_COMPAT const uint IO_FatalError = 3;
-static QT_COMPAT const uint IO_ResourceError = 4;
-static QT_COMPAT const uint IO_OpenError = 5;
-static QT_COMPAT const uint IO_ConnectError = 5;
-static QT_COMPAT const uint IO_AbortError = 6;
-static QT_COMPAT const uint IO_TimeOutError = 7;
-static QT_COMPAT const uint IO_UnspecifiedError	= 8;
+static QT_COMPAT_VARIABLE const uint IO_Ok = 0;
+static QT_COMPAT_VARIABLE const uint IO_ReadError = 1;
+static QT_COMPAT_VARIABLE const uint IO_WriteError = 2;
+static QT_COMPAT_VARIABLE const uint IO_FatalError = 3;
+static QT_COMPAT_VARIABLE const uint IO_ResourceError = 4;
+static QT_COMPAT_VARIABLE const uint IO_OpenError = 5;
+static QT_COMPAT_VARIABLE const uint IO_ConnectError = 5;
+static QT_COMPAT_VARIABLE const uint IO_AbortError = 6;
+static QT_COMPAT_VARIABLE const uint IO_TimeOutError = 7;
+static QT_COMPAT_VARIABLE const uint IO_UnspecifiedError	= 8;
 
 inline QT_COMPAT int QIODevice::state() const
 {
