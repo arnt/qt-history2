@@ -1,0 +1,22 @@
+#!/usr/bin/perl
+
+undef $/;
+
+@whatsthis_list;
+$output = shift;
+
+while ( <ARGV> ) {
+  while ( /.*<h1 align=center>(.*) Class Reference<\/h1><br clear=\"all\">[.\n]*<p>[.\n]*(.*)[.\n]*<a href=\"\#details\">More...<\/a>.*/g ) {
+    $whatsthis = $2;
+    $widget = $1;
+    $whatsthis =~ s/<.*>(.*)<.*>/$1/g;
+    $whatsthis =~ s/Q(.*) class/$1 widget/g;
+    $whatsthis =~ s/Q(.*) /$1 /g;
+    push( @whatsthis_list, "$whatsthis | $widget\n" );
+  }
+}
+
+@whatsthis_list = sort( @whatsthis_list );
+open( INDEX, "> $output" );
+print INDEX @whatsthis_list;
+close( INDEX );
