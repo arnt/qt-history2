@@ -367,7 +367,7 @@ const char* QMacMimeAnyMime::mimeFor(int flav)
     loadMimeRegistry();
     for(QMap<QString, int>::Iterator it = mime_registry.begin(); it != mime_registry.end(); ++it) {
 	if(it.value() == flav)
-	    return it.key();
+	    return it.key().latin1();
     }
     return NULL;
 }
