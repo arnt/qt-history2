@@ -1,0 +1,27 @@
+This is the Qt %VERSION% Technology Preview 1
+
+In this release we focus on the following features:
+1. tulip - the new tool classes
+2. interview - the new item views
+3. arthur - the new painting engine
+4. scribe - the new text engine
+5. mainwindow - the new mainwindow and docking
+
+For more detailed information consult the documents ...
+
+For this release, the following platforms have been tested:
+
+win32-msvc
+
+linux-g++
+
+macx-g++
+
+How to get the release:
+
+...
+
+Any problems encountered with Qt %VERSION% should be reported to
+qt-bugs@trolltech.com.
+
+Qt is a trademark of Trolltech AS.
