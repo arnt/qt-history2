@@ -1167,9 +1167,19 @@ void QLineEdit::contextMenuEvent( QContextMenuEvent* e )
     QPopupMenu *popup = createPopupMenu();
     QPoint pos = e->reason() == QContextMenuEvent::Mouse ? e->globalPos() :
 		 mapToGlobal( QPoint(e->pos().x(), 0) ) + QPoint( width() / 2, height() / 2 );
-    int r = popup->exec( pos );
+    connect( popup, SIGNAL(activated(int)), SLOT(popupActivated(int)) );
+    popup->exec( pos );
     delete popup;
 
+    // WARNING: do not add any code here that accesses members of this QLineEdit since
+    // it could already be destroyed
+
+    e->accept();
+#endif //QT_NO_POPUPMENU
+}
+
+void QLineEdit::popupActivated( int r )
+{
     if ( r == d->id[ IdClear ] )
 	clear();
     else if ( r == d->id[ IdSelectAll ] )
@@ -1186,9 +1196,8 @@ void QLineEdit::contextMenuEvent( QContextMenuEvent* e )
     else if ( r == d->id[ IdPaste ] )
 	paste();
 #endif
-    e->accept();
-#endif //QT_NO_POPUPMENU
 }
+
 
 /*!
   \obsolete
@@ -2033,7 +2042,7 @@ void QLineEdit::redo()
 QPopupMenu *QLineEdit::createPopupMenu()
 {
 #ifndef QT_NO_POPUPMENU
-    QPopupMenu *popup = new QPopupMenu( this, "qt_edit_menu" );
+    QPopupMenu *popup = new QPopupMenu( 0, "qt_edit_menu" );
     d->id[ IdUndo ] = popup->insertItem( tr( "Undo" ) );
     d->id[ IdRedo ] = popup->insertItem( tr( "Redo" ) );
     popup->insertSeparator();
