@@ -456,32 +456,21 @@ int QPixmap::depth() const
 
     Resizes the pixmap to size \a size.
 */
-void QPixmap::resize(const QSize &s)
+#ifdef QT3_SUPPORT
+void QPixmap::resize_helper(const QSize &s)
 {
-    resize(s.width(), s.height());
-}
-
-/*!
-    Resizes the pixmap to \a w width and \a h height. If either \a w
-    or \a h is 0, the pixmap becomes a null pixmap.
-
-    If both \a w and \a h are greater than 0, a valid pixmap is
-    created. New pixels will be uninitialized (random) if the pixmap
-    is expanded.
-*/
-
-void QPixmap::resize(int w, int h)
-{
+    int w = s.width();
+    int h = s.height();
     if (w < 1 || h < 1) {                        // becomes null
         QPixmap pm(0, 0, 0, data->bitmap);
         *this = pm;
         return;
     }
     int d;
-    if (depth() > 0)
-        d = depth();
+    if (data->d > 0)
+        d = data->d;
     else
-        d = isQBitmap() ? 1 : -1;
+        d = data->bitmap ? 1 : -1;
     // Create new pixmap
     QPixmap pm(w, h, d, data->bitmap);
 #ifdef Q_WS_X11
@@ -508,6 +497,18 @@ void QPixmap::resize(int w, int h)
         }
     *this = pm;
 }
+#endif
+
+/*!
+  \fn void QPixmap::resize(int w, int h)
+
+    Resizes the pixmap to \a w width and \a h height. If either \a w
+    or \a h is 0, the pixmap becomes a null pixmap.
+
+    If both \a w and \a h are greater than 0, a valid pixmap is
+    created. New pixels will be uninitialized (random) if the pixmap
+    is expanded.
+*/
 
 
 /*!

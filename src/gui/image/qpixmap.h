@@ -55,10 +55,8 @@ public:
     static int defaultDepth();
 
     void fill(const QColor &fillColor = Qt::white);
-    inline void fill(const QWidget *, int xofs, int yofs);
-    void fill(const QWidget *, const QPoint &ofs);
-    void resize(int width, int height);
-    void resize(const QSize &);
+    void fill(const QWidget *widget, const QPoint &ofs);
+    inline void fill(const QWidget *widget, int xofs, int yofs) { fill(widget, QPoint(xofs, yofs)); }
 
     QBitmap mask() const;
     void setMask(const QBitmap &);
@@ -76,7 +74,9 @@ public:
     QBitmap createMaskFromColor(const QColor &maskColor) const;
     static QPixmap grabWindow(WId, int x=0, int y=0, int w=-1, int h=-1);
     static QPixmap grabWidget(QWidget *widget, const QRect &rect);
-    static inline QPixmap grabWidget(QWidget *widget, int x=0, int y=0, int w=-1, int h=-1);
+    static inline QPixmap grabWidget(QWidget *widget, int x=0, int y=0, int w=-1, int h=-1)
+    { return grabWidget(widget, QRect(x, y, w, h)); }
+
 
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
     inline QPixmap scaled(int w, int h, Qt::AspectRatioMode aspectMode = Qt::IgnoreAspectRatio,
@@ -146,17 +146,23 @@ public:
 #ifndef QT_NO_IMAGEIO
     enum ColorMode { Auto, Color, Mono };
     QT3_SUPPORT_CONSTRUCTOR QPixmap(const QString& fileName, const char *format, ColorMode mode);
-    QT3_SUPPORT_CONSTRUCTOR QPixmap(const QImage& image);
-    QT3_SUPPORT QPixmap &operator=(const QImage &);
     QT3_SUPPORT bool load(const QString& fileName, const char *format, ColorMode mode);
     QT3_SUPPORT bool loadFromData(const uchar *buf, uint len, const char* format, ColorMode mode);
 #endif
+    QT3_SUPPORT_CONSTRUCTOR QPixmap(const QImage& image);
+    QT3_SUPPORT QPixmap &operator=(const QImage &);
     inline QT3_SUPPORT QImage convertToImage() const { return toImage(); }
     QT3_SUPPORT bool convertFromImage(const QImage &, ColorMode mode);
     QT3_SUPPORT bool convertFromImage(const QImage &img, Qt::ImageConversionFlags flags = Qt::AutoColor)
         { (*this) = fromImage(img, flags); return !isNull(); }
     inline QT3_SUPPORT operator QImage() const { return toImage(); }
     inline QT3_SUPPORT QPixmap xForm(const QMatrix &matrix) const { return transformed(matrix); }
+
+private:
+    void resize_helper(const QSize &s);
+public:
+    inline QT3_SUPPORT void resize(const QSize &s) { resize_helper(s); }
+    inline QT3_SUPPORT void resize(int width, int height) { resize_helper(QSize(width, height)); }
 #endif
 
 protected:
@@ -196,15 +202,6 @@ private:
 
 Q_DECLARE_SHARED(QPixmap)
 
-inline void QPixmap::fill(const QWidget *w, int x, int y)
-{
-    fill(w, QPoint(x, y));
-}
-
-inline QPixmap QPixmap::grabWidget(QWidget *widget, int x, int y, int w, int h)
-{
-    return grabWidget(widget, QRect(x, y, w, h));
-}
 
 /*****************************************************************************
  QPixmap stream functions
