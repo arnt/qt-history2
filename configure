@@ -95,7 +95,8 @@ then
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_MOC_SRC=$relpath/src/moc\""
 else
     # Override the Windows Makefile
-    if [ -f "$relpath/GNUmakefile" ]; then
+    if [ -f "$relpath/GNUmakefile" ]
+    then
 	rm -f $outpath/Makefile
 	cp $relpath/GNUmakefile $outpath/Makefile
     fi
@@ -1404,7 +1405,8 @@ QMAKE_VARS="$QMAKE_VARS \"OBJECTS_DIR=.obj/$QMAKE_OUTDIR\" \"MOC_DIR=.moc/$QMAKE
 [ "x$JPEG" = "xsystem" ] && QMAKE_CONFIG="$QMAKE_CONFIG system-jpeg"
 [ "x$MNG" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG mng"
 [ "x$FT" = "xyes" -a "x$EMBEDDED" != "xno" ] && QMAKE_CONFIG="$QMAKE_CONFIG ft"
-if [ "$X11_PLATFORM" = "yes" ]; then
+if [ "$X11_PLATFORM" = "yes" ]
+then
     [ "x$SM" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG sm"
     [ "x$XINERAMA" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG xinerama"
     [ "x$XRENDER" = "xyes" ] && QMAKE_CONFIG="$QMAKE_CONFIG xrender"
@@ -1507,9 +1509,11 @@ done
 #incrementals
 INCREMENTAL=""
 [ "$DO_INCREMENT" = "auto" ] && which p4 >/dev/null 2>&1 && [ "$Edition" = "troll" ] && DO_INCREMENT="yes"
-if [ "$DO_INCREMENT" = "yes" ]; then
+if [ "$DO_INCREMENT" = "yes" ]
+then
     openfiles=`find $relpath -perm u+w -mtime -3 | grep 'cpp$'`
-    for f in $openfiles; do
+    for f in $openfiles
+    do
 	#don't need to worry about generated files
 	[ -e `echo $f | sed "s,cpp$,ui,"` ] && continue
 	basename $f | grep '^moc_' >/dev/null 2>&1 && continue
@@ -1578,7 +1582,8 @@ echo "MNG support.......... $MNG"
 echo "JPEG support......... $JPEG"
 echo "NAS sound support.... $NAS_SOUND"
 [ "$QWS_PLATFORM" = "yes" ] && echo "Embedded support..... $EMBEDDED"
-if [ "$X11_PLATFORM" = "yes" ]; then
+if [ "$X11_PLATFORM" = "yes" ]
+then
     echo "Session management... $SM"
     echo "Xinerama support..... $XINERAMA"
     echo "XRender support ..... $XRENDER"
