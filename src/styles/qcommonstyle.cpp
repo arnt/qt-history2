@@ -523,6 +523,59 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 		      &cg.buttonText() );
 	}
 	break; }
+    
+    case PO_GroupBoxFrame: {
+	void ** sdata = (void **) data;
+	if ( !sdata )
+	    break;
+	// evil hacks
+	QFrame::Shape	type 	= (QFrame::Shape) ((int) sdata[0]);
+	QFrame::Shadow	cstyle 	= (QFrame::Shadow) ((int) sdata[1]);
+	int 		lwidth 	= (int) sdata[2];
+	int 		mlwidth = (int) sdata[3];
+
+	int x = r.x();
+	int y = r.y();
+	int w = r.width();
+	int h = r.height();
+	
+	switch ( type ) {
+	case QFrame::Box:
+	    if ( cstyle == QFrame::Plain )
+		qDrawPlainRect( p, x, y, w, h, cg.foreground(), lwidth );
+	    else
+		qDrawShadeRect( p, x, y, w, h, cg, cstyle == QFrame::Sunken,
+				lwidth, mlwidth );
+	    break;
+
+	case QFrame::StyledPanel:
+	    if ( cstyle == QFrame::Plain )
+		qDrawPlainRect( p, x, y, w, h, cg.foreground(), lwidth );
+	    break;
+
+	case QFrame::PopupPanel:
+	    if ( cstyle == QFrame::Plain )
+		qDrawPlainRect( p, x, y, w, h, cg.foreground(), lwidth );
+	    break;
+
+	case QFrame::Panel:
+	    if ( cstyle == QFrame::Plain )
+		qDrawPlainRect( p, x, y, w, h, cg.foreground(), lwidth );
+	    else
+		qDrawShadePanel( p, x, y, w, h, cg, cstyle == QFrame::Sunken,
+				 lwidth );
+	    break;
+
+	case QFrame::WinPanel:
+	    if ( cstyle == QFrame::Plain )
+		qDrawPlainRect( p, x, y, w, h, cg.foreground(), 2 );
+	    else
+		qDrawWinPanel( p, x, y, w, h, cg, cstyle == QFrame::Sunken );
+	    break;
+	default:
+	    break;
+	}
+    break; }
 
     default:
 	break;

@@ -302,11 +302,19 @@ void QGroupBox::paintEvent( QPaintEvent *event )
 		x = 8;
 	}
 	QRect r( x, 0, tw, h );
-	style().drawGroupBoxTitle( &paint, x, 0, tw, h, colorGroup(), str, isEnabled() );
-	paint.setClipRegion( event->region().subtract( r ) );	// clip everything but title
+	
+	style().drawItem( &paint, r, AlignCenter | ShowPrefix, colorGroup(),
+			  isEnabled(), 0, str );
+	paint.setClipRegion( event->region().subtract( r ) ); // clip everything but title
     }
-    QRect fr = frameRect();
-    style().drawGroupBoxFrame( &paint, fr.x(), fr.y(), fr.width(), fr.height(), colorGroup(), this );
+    // I really think this should call drawFrame() instead...
+    void * data[4];
+    data[0] = (void *) frameShape();
+    data[1] = (void *) frameShadow();
+    data[2] = (void *) lineWidth();
+    data[3] = (void *) midLineWidth();
+    style().drawPrimitive( QStyle::PO_GroupBoxFrame, &paint, frameRect(),
+			   colorGroup(), QStyle::PStyle_Default, data );
     drawContents( &paint );			// draw the contents
 }
 

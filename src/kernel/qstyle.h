@@ -132,7 +132,9 @@ public:
 	PO_TabBarBase,
 
 	PO_HeaderSection,
-	PO_StatusBarSection
+	PO_StatusBarSection,
+	
+	PO_GroupBoxFrame
 
         /*
 	  PO_CheckMark,
