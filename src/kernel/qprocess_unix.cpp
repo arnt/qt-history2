@@ -171,7 +171,11 @@ private:
     QSocketNotifier *sn;
 };
 
-QCleanupHandler<QProcessManager> qprocess_cleanup_procmanager;
+static void qprocess_cleanup()
+{
+    delete QProcessPrivate::procManager;
+    QProcessPrivate::procManager = 0;
+}
 
 #ifdef Q_OS_QNX6
 #define BAILOUT close(tmpSocket);close(socketFD[1]);return -1;
@@ -305,7 +309,7 @@ void QProcessManager::cleanup()
 void QProcessManager::removeMe()
 {
     if ( procList.count() == 0 ) {
-	qprocess_cleanup_procmanager.remove( &QProcessPrivate::procManager );
+	qRemovePostRoutine(qprocess_cleanup);
 	QProcessPrivate::procManager = 0;
 	delete this;
     }
@@ -483,7 +487,7 @@ void QProcessPrivate::newProc( pid_t pid, QProcess *process )
     proc = new QProc( pid, process );
     if ( procManager == 0 ) {
 	procManager = new QProcessManager;
-	qprocess_cleanup_procmanager.add( &procManager );
+	qAddPostRoutine(qprocess_cleanup);
     }
     // the QProcessManager takes care of deleting the QProc instances
     procManager->procList.append(proc);
@@ -728,7 +732,7 @@ bool QProcess::start( QStringList *env )
     // in case the process exits quickly.
     if ( d->procManager == 0 ) {
 	d->procManager = new QProcessManager;
-	qprocess_cleanup_procmanager.add( &d->procManager );
+	qAddPostRoutine(qprocess_cleanup);
     }
 
     // fork and exec
