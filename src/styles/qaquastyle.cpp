@@ -370,6 +370,9 @@ void QAquaStyle::unPolish( QWidget * w )
             w->setBackgroundOrigin( QWidget::WidgetOrigin );
     }
 
+    if( w->inherits("QTitleBar") )
+	w->font().setPixelSize(10);
+
     if(d->focusWidget && d->focusWidget->widget() == w)
 	d->focusWidget->setFocusWidget(NULL);
 }
@@ -1399,24 +1402,21 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    break;
 	if(sub) {
 	    QTitleBar *tb = (QTitleBar *)widget;
-	    QPixmap left;
-	    if(tb->window())
-		qAquaPixmap( "win_act_left_controls", left );
-	    else
-		qAquaPixmap( "win_act_left", left );
-	    p->drawPixmap(0, 0, left);
-
+	    if(tb->window()) {
+		QPixmap ctrl;
+		qAquaPixmap( "win_act_controls", ctrl );
+		p->drawPixmap(0, 0, ctrl);
+	    }
 	    if(sub & SC_TitleBarLabel) {
+		int x = 0;
+		if(tb->window())
+		    x += 55;
+		QPixmap fill;
+		qAquaPixmap( "win_act_fill", fill );
+		p->drawTiledPixmap(x, 0, tb->width() - x, fill.height(), fill);
 		QColorGroup cgroup = tb->isActive() || !tb->window() ? tb->palette().active() : tb->palette().inactive();
-		QPixmap mid, right;
-		qAquaPixmap( "win_act_mid", mid );
-		qAquaPixmap( "win_act_right", right );
-
-		p->drawTiledPixmap( left.width(), 0, tb->width() - left.width() - right.width(),
-				    mid.height(), mid );
-		p->drawPixmap(tb->width() - right.width(), 0, right);
 		p->setPen( cgroup.highlightedText() );
-		p->drawText(left.width(), 0, tb->width() - left.width(), tb->height(),
+		p->drawText(x, 0, tb->width() - x, tb->height(),
 			    AlignAuto | AlignVCenter | SingleLine | AlignHCenter, tb->visibleText() );
 	    }
 	}
@@ -1672,15 +1672,15 @@ QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 
     case CC_TitleBar: {
 	if(sc & SC_TitleBarCloseButton)
-	    rect = QRect(7, 3, 15, 17);
+	    rect = QRect(6, 2, 11, 12);
 	else if(sc & SC_TitleBarMinButton)
-	    rect = QRect(31, 3, 15, 17);
+	    rect = QRect(23, 2, 11, 12);
 	else if(sc & SC_TitleBarMaxButton)
-	    rect = QRect(51, 3, 15, 17);
+	    rect = QRect(42, 2, 11, 12);
 	else if(sc & SC_TitleBarLabel)
-	    rect = QRect(66, 3, w->width(), 17);
+	    rect = QRect(53, 0, w->width(), 16);
 	else if(sc & SC_TitleBarSysMenu)
-	    rect = QRect(-666, -666, 0, 23); //ugh, how bogus!
+	    rect = QRect(-666, -666, 0, 16); //ugh, how bogus!
 	break; }
 
 #ifndef QT_NO_SCROLLBAR
