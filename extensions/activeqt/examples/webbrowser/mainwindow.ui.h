@@ -26,7 +26,6 @@ void MainWindow::init()
 
     connect( WebBrowser, SIGNAL(ProgressChange(int,int)), this, SLOT(setProgress(int,int)) );
     connect( WebBrowser, SIGNAL(StatusTextChange(const QString&)), statusBar(), SLOT(message(const QString&)) );
-    connect( addressEdit, SIGNAL(textChanged(const QString&)), WebBrowser, SLOT(Navigate(const QString&)) );
 
     WebBrowser->dynamicCall( "GoHome()" );
 }
