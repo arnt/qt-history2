@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#255 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#256 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -59,7 +59,7 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#255 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#256 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -2554,10 +2554,12 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     int	   count;
     int	   state;
     KeySym key;
+    static XComposeStatus composeStatus; // starts as all zeros
 
     type = (event->type == KeyPress) ? Event_KeyPress : Event_KeyRelease;
 
-    count = XLookupString( &((XEvent*)event)->xkey, ascii, 16, &key, 0 );
+    count = XLookupString( &((XEvent*)event)->xkey, ascii, 16, &key, 
+			   &composeStatus );
     state = translateButtonState( event->xkey.state );
 
     // commentary in X11/keysymdef says that X codes match ASCII, so it
