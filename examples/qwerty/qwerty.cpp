@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qwerty/qwerty.cpp#3 $
+** $Id: //depot/qt/main/examples/qwerty/qwerty.cpp#4 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -47,7 +47,7 @@ Editor::Editor( QWidget * parent , const char * name )
     file->insertItem( "&Print", this, SLOT(print()),    ALT+Key_P );
     file->insertSeparator();
     file->insertItem( "&Close", this, SLOT(close()),ALT+Key_W );
-    file->insertItem( "&Quit",  qApp, SLOT(quit()),     ALT+Key_Q );
+    file->insertItem( "&Quit",  qApp, SLOT(closeAllWindows()),     ALT+Key_Q );
 
     connect( save_as, SIGNAL(activated(int)), this, SLOT(saveAsEncoding(int)) );
     rebuildCodecList();
@@ -222,7 +222,7 @@ void Editor::resizeEvent( QResizeEvent * )
 void Editor::closeEvent( QCloseEvent *e )
 {
     e->accept();
-    
+
     if ( changed ) { // the text has been changed
 	switch ( QMessageBox::warning( this, "Qwerty",
 					"Save changes to Document?",
