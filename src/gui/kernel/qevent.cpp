@@ -1536,7 +1536,6 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, i
       mYT(yTilt),
       mType(uId.first),
       mPhy(uId.second),
-      mbAcc(true)
 {}
 
 /*!
@@ -1679,25 +1678,6 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, i
     It is possible to generate a unique ID for any Wacom device.
 
 */
-
-/*!
-    \fn int QTabletEvent::isAccepted() const
-
-    \reimp
-*/
-
-/*!
-    \fn void QTabletEvent::accept()
-
-    \reimp
-*/
-
-/*!
-    \fn void QTabletEvent::ignore()
-
-    \reimp
-*/
-
 
 /*!
     \fn QDragMoveEvent::QDragMoveEvent(const QPoint &point, Type type)

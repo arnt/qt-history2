@@ -103,7 +103,7 @@ public:
                   int pressure, int xTilt, int yTilt, const QPair<int,int> &uId )
         : QInputEvent( TabletMove ), mPos( pos ), mGPos( globalPos ), mDev( device ),
           mPress( pressure ), mXT( xTilt ), mYT( yTilt ), mType( uId.first ),
-          mPhy( uId.second ), mbAcc(TRUE)
+          mPhy( uId.second )
     {}
     int pressure()              const { return mPress; }
     int xTilt()                 const { return mXT; }
@@ -115,10 +115,7 @@ public:
     int globalX()               const { return mGPos.x(); }
     int globalY()               const { return mGPos.y(); }
     TabletDevice device()       const { return TabletDevice(mDev); }
-    int isAccepted()            const { return mbAcc; }
-    void accept()                     { mbAcc = TRUE; }
-    void ignore()                     { mbAcc = FALSE; }
-    QPair<int,int> uniqueId()         { return QPair<int,int>( mType, mPhy); }
+    QPair<int, int> uniqueId()         { return QPair<int,int>( mType, mPhy); }
 protected:
     QPoint mPos;
     QPoint mGPos;
@@ -128,7 +125,6 @@ protected:
         mYT,
         mType,
         mPhy;
-    bool mbAcc;
 
 };
 
