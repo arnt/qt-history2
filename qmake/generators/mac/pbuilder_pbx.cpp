@@ -279,7 +279,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	}
 	QString phase_key = keyFor("QMAKE_PBX_MAKEQMAKE_BUILDPHASE");
 	mkfile = fileFixify(mkfile, QDir::currentDirPath());
-	project->variables()["QMAKE_PBX_BUILDPHASES"].append(phase_key);
+	project->variables()["QMAKE_PBX_SCRIPT_BUILDPHASES"].append(phase_key);
 	t << "\t\t" << phase_key << " = {" << "\n"
 	  << "\t\t\t" << "buildActionMask = 2147483647;" << "\n"
 	  << "\t\t\t" << "files = (" << "\n"
@@ -480,8 +480,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	}
 	QString target_key = keyFor("QMAKE_PBX_PREPROCESS_TARGET");
 	mkfile = fileFixify(mkfile, QDir::currentDirPath());
-#if 1
-	project->variables()["QMAKE_PBX_BUILDPHASES"].append(target_key);
+	project->variables()["QMAKE_PBX_SCRIPT_BUILDPHASES"].append(target_key);
 	t << "\t\t" << target_key << " = {" << "\n"
 	  << "\t\t\t" << "buildActionMask = 2147483647;" << "\n"
 	  << "\t\t\t" << "files = (" << "\n"
@@ -498,33 +497,6 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << "\t\t\t" << "shellScript = \"make -C " << QDir::currentDirPath() <<
 	    " -f " << mkfile << "\";" << "\n"
 	  << "\t\t" << "};" << "\n";
-#else
-	t << "\t\t" << target_key << " = {" << "\n"
-	  << "\t\t\t" << "buildArgumentsString = \"-f " << mkfile << "\";" << "\n"
-	  << "\t\t\t" << "buildPhases = (" << "\n"
-	  << "\t\t\t" << ");" << "\n"
-	  << "\t\t\t" << "buildSettings = {" << "\n"
-	  << "\t\t\t" << "};" << "\n"
-	  << "\t\t\t" << "buildToolPath = \"/usr/bin/gnumake\";"<< "\n"
-	  << "\t\t\t" << "buildWorkingDirectory = \"" << QDir::currentDirPath() << "\";" << "\n"
-	  << "\t\t\t" << "dependencies = (" << "\n"
-	  << "\t\t\t" << ");" << "\n"
-	  << "\t\t\t" << "isa = PBXLegacyTarget;" << "\n"
-	  << "\t\t\t" << "name = QtPreprocessors;" << "\n"
-	  << "\t\t\t" << "productName = QtPreprocessors;" << "\n"
-	  << "\t\t\t" << "settingsToExpand = 6;" << "\n"
-	  << "\t\t\t" << "settingsToPassInEnvironment = 287;" << "\n"
-	  << "\t\t\t" << "settingsToPassOnCommandLine = 280;" << "\n"
-	  << "\t\t\t" << "shouldsUseHeadermap = 0;" << "\n"
-	  << "\t\t" << "};" << "\n";
-
-	QString target_depend_key = keyFor("QMAKE_PBX_PREPROCESS_TARGET_DEPEND");
-	project->variables()["QMAKE_PBX_TARGETDEPENDS"].append(target_depend_key);
-	t << "\t\t" << target_depend_key << " = {" << "\n"
-	  << "\t\t\t" << "isa = PBXTargetDependency;" << "\n"
-	  << "\t\t\t" << "target = " << target_key << ";" << "\n"
-	  << "\t\t" << "};" << "\n";
-#endif
     }
     //SOURCE BUILDPHASE
     if(!project->isEmpty("QMAKE_PBX_OBJ")) {
@@ -672,7 +644,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	}
 	QString phase_key = keyFor("QMAKE_PBX_SUBLIBS_BUILDPHASE");
 	mkfile = fileFixify(mkfile, QDir::currentDirPath());
-	project->variables()["QMAKE_PBX_BUILDPHASES"].append(phase_key);
+	project->variables()["QMAKE_PBX_SCRIPT_BUILDPHASES"].append(phase_key);
 	t << "\t\t" << phase_key << " = {" << "\n"
 	  << "\t\t\t" << "buildActionMask = 2147483647;" << "\n"
 	  << "\t\t\t" << "files = (" << "\n"
@@ -728,6 +700,40 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << "\t\t\t" << "isa = PBXResourcesBuildPhase;" << "\n"
 	  << "\t\t\t" << "name = \"" << grp << "\";" << "\n"
 	  << "\t\t" << "};" << "\n";
+    }
+    if(ideType() == MAC_XCODE && did_preprocess) {
+	// build reference
+	t << "\t\t" << keyFor("QMAKE_PBX_PREPROCESS_BUILDREFERENCE") << " = {" << "\n"
+	  << "\t\t\t" << "includeInIndex = 0;" << "\n"
+	  << "\t\t\t" << "isa = PBXFileReference;" << "\n"
+	  << "\t\t\t" << "path = preprocessor.out;" << "\n"
+	  << "\t\t\t" << "refType = 3;" << "\n"
+	  << "\t\t\t" << "sourceTree = BUILT_PRODUCTS_DIR;" << "\n"
+	  << "\t\t" << "};" << "\n";
+	//build phase
+	t << "\t\t" << keyFor("QMAKE_PBX_PREPROCESS_BUILDPHASE") << " = {" << "\n"
+	  << "\t\t\t" << "buildPhases = (" << "\n"
+	  << varGlue("QMAKE_PBX_SCRIPT_BUILDPHASES", "\t\t\t\t", ",\n\t\t\t\t", "\n")
+	  << "\t\t\t" << ");" << "\n"
+	  << "\t\t\t" << "buildRules = (" << "\n"
+	  << "\t\t\t" << ");" << "\n"
+	  << "\t\t\t" << "buildSettings = {" << "\n"
+	  << "\t\t\t" << "};" << "\n"
+	  << "\t\t\t" << "dependencies = (" << "\n"
+	  << "\t\t\t" << ");" << "\n"
+	  << "\t\t\t" << "isa = PBXNativeTarget;" << "\n"
+	  << "\t\t\t" << "name = \"Qt Preprocessor Steps\";" << "\n"
+	  << "\t\t\t" << "productName = \"Qt Preprocessor Steps\";" << "\n"
+	  << "\t\t\t" << "productReference = " << keyFor("QMAKE_PBX_PREPROCESS_BUILDREFERENCE") << ";" << "\n"
+	  << "\t\t\t" << "productType = \"com.apple.product-type.tool\";" << "\n"
+	  << "\t\t" << "};" << "\n";
+	//dependency
+	t << "\t\t" << keyFor("QMAKE_PBX_PREPROCESS_DEPENDENCY") << " = {" << "\n"
+	  << "\t\t\t" << "isa = PBXTargetDependency;" << "\n"
+	  << "\t\t\t" << "target = QMAKE_PBX_PREPROCESS_BUILDPHASE;" << "\n"
+	  << "\t\t" << "};" << "\n";
+	project->variables()["QMAKE_PBX_TARGET_DEPENDS"].append(keyFor("QMAKE_PBX_PREPROCESS_DEPENDENCY"));
+	project->variables()["QMAKE_PBX_SCRIPT_BUILDPHASES"].clear(); //these are already consumed above
     }
 
     //DUMP EVERYTHING THAT TIES THE ABOVE TOGETHER
@@ -816,7 +822,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 #endif
 	    QString phase_key = keyFor("QMAKE_PBX_INSTALL_BUILDPHASE");
 	    script = fileFixify(script, QDir::currentDirPath());
-	    project->variables()["QMAKE_PBX_BUILDPHASES"].append(phase_key);
+	    project->variables()["QMAKE_PBX_SCRIPT_BUILDPHASES"].append(phase_key);
 	    t << "\t\t" << phase_key << " = {" << "\n"
 	      << "\t\t\t" << "buildActionMask = 8;" << "\n" //only on install!
 	      << "\t\t\t" << "files = (" << "\n"
@@ -881,7 +887,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     //TARGET
     t << "\t\t" << keyFor("QMAKE_PBX_TARGET") << " = {" << "\n"
       << "\t\t\t" << "buildPhases = (" << "\n"
-      << varGlue("QMAKE_PBX_BUILDPHASES", "\t\t\t\t", ",\n\t\t\t\t", "\n")
+      << varGlue("QMAKE_PBX_BUILDPHASES", "\t\t\t\t", ",\n\t\t\t\t", ",\n")
+      << varGlue("QMAKE_PBX_SCRIPT_BUILDPHASES", "\t\t\t\t", ",\n\t\t\t\t", "\n")
       << "\t\t\t" << ");" << "\n"
       << "\t\t\t" << "buildSettings = {" << "\n"
       << "\t\t\t\t" << "CC = \"" << fixEnvsList("QMAKE_CC") << "\";" << "\n"
@@ -982,7 +989,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t\t\t" << "conditionalBuildSettings = {" << "\n"
       << "\t\t\t" << "};" << "\n"
       << "\t\t\t" << "dependencies = (" << "\n"
-      << varGlue("QMAKE_PBX_TARGETDEPENDS", "\t\t\t\t", ",\n\t\t\t\t", "\n")
+      << varGlue("QMAKE_PBX_TARGET_DEPENDS", "\t\t\t\t", ",\n\t\t\t\t", "\n")
       << "\t\t\t" << ");" << "\n"
       << "\t\t\t" << "productReference = " << keyFor(pbx_dir + "QMAKE_PBX_REFERENCE") << ";" << "\n"
       << "\t\t\t" << "shouldUseHeadermap = 1;" << "\n";
@@ -1088,26 +1095,28 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t" << "rootObject = " << keyFor("QMAKE_PBX_ROOT") << ";" << "\n"
       << "}" << endl;
 
-    QString mkwrap = fileFixify(pbx_dir + Option::dir_sep + ".." + Option::dir_sep + project->first("MAKEFILE"), 
-				QDir::currentDirPath());
-    QFile mkwrapf(mkwrap);
-    if(mkwrapf.open(IO_WriteOnly | IO_Translate)) {
-	debug_msg(1, "pbuilder: Creating file: %s", mkwrap.latin1());
-	QTextStream mkwrapt(&mkwrapf);
-	writeHeader(mkwrapt);
-	const char *cleans = "uiclean mocclean preprocess_clean ";
-	mkwrapt << "#This is a makefile wrapper for PROJECT BUILDER\n"
-		<< "all:" << "\n\t" 
-		<< "cd " << project->first("QMAKE_ORIG_TARGET") << projectSuffix() << "/ && " << pbxbuild() << "\n"
-		<< "install: all" << "\n\t" 
-		<< "cd " << project->first("QMAKE_ORIG_TARGET") << projectSuffix() << "/ && " << pbxbuild() << " install" << "\n"
-		<< "distclean clean: preprocess_clean" << "\n\t" 
-		<< "cd " << project->first("QMAKE_ORIG_TARGET") << projectSuffix() << "/ && " << pbxbuild() << " clean" << "\n"
-		<< (!did_preprocess ? cleans : "") << ":" << "\n";
-	if(did_preprocess) 
-	    mkwrapt << cleans << ":" << "\n\t"
-		    << "make -f " 
-		    << pbx_dir << Option::dir_sep << "qt_preprocess.mak $@" << endl;
+    if(project->isActiveConfig("generate_pbxbuild_makefile")) {
+	QString mkwrap = fileFixify(pbx_dir + Option::dir_sep + ".." + Option::dir_sep + project->first("MAKEFILE"), 
+				    QDir::currentDirPath());
+	QFile mkwrapf(mkwrap);
+	if(mkwrapf.open(IO_WriteOnly | IO_Translate)) {
+	    debug_msg(1, "pbuilder: Creating file: %s", mkwrap.latin1());
+	    QTextStream mkwrapt(&mkwrapf);
+	    writeHeader(mkwrapt);
+	    const char *cleans = "uiclean mocclean preprocess_clean ";
+	    mkwrapt << "#This is a makefile wrapper for PROJECT BUILDER\n"
+		    << "all:" << "\n\t" 
+		    << "cd " << project->first("QMAKE_ORIG_TARGET") << projectSuffix() << "/ && " << pbxbuild() << "\n"
+		    << "install: all" << "\n\t" 
+		    << "cd " << project->first("QMAKE_ORIG_TARGET") << projectSuffix() << "/ && " << pbxbuild() << " install\n"
+		    << "distclean clean: preprocess_clean" << "\n\t" 
+		    << "cd " << project->first("QMAKE_ORIG_TARGET") << projectSuffix() << "/ && " << pbxbuild() << " clean" << "\n"
+		    << (!did_preprocess ? cleans : "") << ":" << "\n";
+	    if(did_preprocess) 
+		mkwrapt << cleans << ":" << "\n\t"
+			<< "make -f " 
+			<< pbx_dir << Option::dir_sep << "qt_preprocess.mak $@" << endl;
+	}
     }
     return TRUE;
 }
