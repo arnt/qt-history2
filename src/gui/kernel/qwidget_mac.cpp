@@ -52,7 +52,11 @@
 static WindowGroupRef qt_mac_stays_on_top_group = 0;
 QWidget *mac_mouse_grabber = 0;
 QWidget *mac_keyboard_grabber = 0;
-int mac_window_count = 0;
+const UInt32 kWidgetCreatorQt = 'cute';
+enum {
+    kWidgetPropertyQWidget = 'QWId' //QWidget *
+};
+
 
 /*****************************************************************************
   Externals
@@ -101,21 +105,9 @@ static void qt_mac_release_stays_on_top_group() //cleanup function
 //find a QWidget from a WindowPtr
 QWidget *qt_mac_find_window(WindowPtr window)
 {
-    //There is a better way to do it, but at the moment I just want to see if my hacks work.. FIXME ###
-    HIViewRef hiview = 0;
-    OSStatus err = HIViewFindByID(HIViewGetRoot(window), kHIViewWindowContentID, &hiview);
-    if(err == errUnknownControl)
-        hiview = HIViewGetRoot(window);
-    else if(err != noErr)
-        qWarning("That cannot happen! %d [%ld]", __LINE__, err);
-    if(hiview) {
-        QWidgetList list = QApplication::topLevelWidgets();
-        for (int i = 0; i < list.size(); ++i) {
-            QWidget *w = list.at(i);
-            if(hiview == HIViewGetSuperview((HIViewRef)w->winId()))
-                return w;
-        }
-    }
+    QWidget *ret;
+    if(GetWindowProperty(window, kWidgetCreatorQt, kWidgetPropertyQWidget, sizeof(ret), 0, &ret) == noErr)
+        return ret;
     return 0;
 }
 
@@ -874,6 +866,8 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         if(OSStatus ret = qt_mac_create_window(wclass, wattr, &r, &window))
             qDebug("Qt: internal: %s:%d If you reach this error please contact Trolltech and include the\n"
                    "      WidgetFlags used in creating the widget (%ld)", __FILE__, __LINE__, ret);
+        QWidget *me = this;
+        SetWindowProperty(window, kWidgetCreatorQt, kWidgetPropertyQWidget, sizeof(me), &me);
         if(!desktop) { //setup an event callback handler on the window
             SetAutomaticControlDragTrackingEnabledForWindow(window, true);
             InstallWindowEventHandler(window, make_win_eventUPP(), GetEventTypeCount(window_events),
@@ -978,13 +972,13 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
             qt_leave_modal(this);
         else if(testWFlags(WType_Popup))
             qApp->closePopup(this);
+        RemoveWindowProperty(qt_mac_window_for((HIViewRef)winId()), kWidgetCreatorQt, kWidgetPropertyQWidget);
         if(destroyWindow) {
             if(d->window_event)
                 RemoveEventHandler(d->window_event);
-            HIViewRef hiview = (HIViewRef)winId();
             if(isTopLevel())
-                DisposeWindow(qt_mac_window_for(hiview));
-            else if(hiview)
+                DisposeWindow(qt_mac_window_for((HIViewRef)winId()));
+            else if(HIViewRef hiview = (HIViewRef)winId())
                 CFRelease(hiview);
         }
     }

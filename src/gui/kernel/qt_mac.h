@@ -201,32 +201,26 @@ QMacSavedPortInfo::init()
     if(qt_mac_port_mutex)
         qt_mac_port_mutex->lock();
 #endif
-    extern int mac_window_count; //qwidget_mac.cpp
-    if(mac_window_count) {
-        GetBackColor(&back);
-        GetForeColor(&fore);
-        GetGWorld(&world, &handle);
-        valid_gworld = true;
-        clip = NewRgn();
-        GetClip(clip);
-        GetPenState(&pen);
-    }
+    GetBackColor(&back);
+    GetForeColor(&fore);
+    GetGWorld(&world, &handle);
+    valid_gworld = true;
+    clip = NewRgn();
+    GetClip(clip);
+    GetPenState(&pen);
 }
 
 inline QMacSavedPortInfo::~QMacSavedPortInfo()
 {
-    extern int mac_window_count; //qwidget_mac.cpp
-    if(mac_window_count) {
-        if(valid_gworld)
-            SetGWorld(world,handle); //always do this one first
-        else
-            setPaintDevice(qt_mac_safe_pdev);
-        SetClip(clip);
-        DisposeRgn(clip);
-        SetPenState(&pen);
-        RGBForeColor(&fore);
-        RGBBackColor(&back);
-    }
+    if(valid_gworld)
+        SetGWorld(world,handle); //always do this one first
+    else
+        setPaintDevice(qt_mac_safe_pdev);
+    SetClip(clip);
+    DisposeRgn(clip);
+    SetPenState(&pen);
+    RGBForeColor(&fore);
+    RGBBackColor(&back);
 #if defined(QT_THREAD_SUPPORT)
     if(qt_mac_port_mutex)
         qt_mac_port_mutex->unlock();
