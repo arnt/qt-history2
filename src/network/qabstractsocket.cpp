@@ -16,29 +16,70 @@
     no extra functionality, QUdpSocket has some extra functions that
     are specific to sending UDP datagrams. QAbstractSocket can be used
     for both socket types, and the type of socket is determined by
-    passing either Qt::TcpSocket or Qt::UdpSocket to its constructor.
+    passing either Qt::TcpSocket or Qt::UdpSocket to its
+    constructor. The type of socket is returned by socketType().
 
-    Call connectToHost() to connect the socket to a host. isValid()
-    and socketState() can be called to check the state of the
-    socket. When the socket is connected, the readyRead() signal is
-    emitted every time new data has arrived. This signal is emitted
-    only once for every incoming payload of data.
+    Call connectToHost() to connect the socket to a host.
+    QAbstractSocket first enters Qt::HostLookupState. If the host is
+    found, it emits hostFound() and enters Qt::ConnectingState. When
+    the connection has been established, it enters Qt::ConnectedState
+    and emits connected(). If an error occurs at any stage, error() is
+    emitted. socketState() can be called to check which state
+    QAbstractSocket is in. When the state changes. stateChanged() is
+    emitted. If the socket is ready for reading and writing, isValid()
+    will return true.
 
-    bytesAvailable() returns the number of bytes that are available
-    for reading. To read or write data, call read() or write().
+    The port and address of the connected peer is fetched by calling
+    peerPort() and peerAddress(). peerName() returns the host name of
+    the peer, as passed to connectToHost(). localPort() and
+    localAddress() return the port and address of the local socket.
+
+    When the socket is connected, the readyRead() signal is emitted
+    every time new data has arrived. This signal is emitted only once
+    for every incoming payload of data. bytesAvailable() returns the
+    number of bytes that are available for reading. By default, all
+    incoming data is buffered in QAbstractSocket. This read buffer
+    size can be limited by calling setReadBufferSize().
+
+    Read or write data by calling read() or write(), or make use of
+    the convenience functions readLine(), canReadLine() and
+    readAll(). QIODevice also provides getch(), putch() and ungetch(),
+    which work on single bytes. For every payload of data that has
+    been written to the socket, bytesWritten() is emitted. Calling
+    flush() forces QAbstractSocket to attempt to write outgoing data
+    to the socket.
+
+    The blocking function waitForReadyRead() waits until the
+    readyRead() signal has been emitted, before returning.
+
+    To close the socket, call close(). QAbstractSocket enters
+    Qt::ClosingState, then emits closing(). After all pending data has
+    been written to the socket, QAbstractSocket closes the socket,
+    enters Qt::ClosedState and finally emits closed(). If you want to
+    abort a connection immediately, discarding all pending data, call
+    abort().
+
+    QAbstractSocket can act as a wrapper for an existing native
+    socket, via setSocketDescriptor(). socketDescriptor() returns the
+    current native socket descriptor.
 
     By calling setBlocking(), QAbstractSocket can be toggled to
     operate in blocking mode or non-blocking mode. You will find more
     details about QAbstractSocket's blocking mode behavior in the
     documentation for each function. In short, when in blocking mode,
     certain functions do not return until their operation has
-    completed. In non-blocking mode, all function return immediately.
+    completed, while in non-blocking mode, all function return
+    immediately.
 
     Since QAbstractSocket inherits QIODevice, it can be used with
     streams for reading or writing text. Reading from a QTextStream or
     QDataStream works best when the socket is in blocking mode;
     otherwise you must make sure that enough data is available before
     reading.
+
+    If an error has occurred, socketError() will return the type of
+    the error.  A human readable description is returned by
+    errorString().
 */
 
 #include "qabstractsocket.h"
@@ -52,21 +93,35 @@
 
 #include <time.h>
 
+#define QABSTRACTSOCKET_BUFFERSIZE 32768
+
 //#define QABSTRACTSOCKET_DEBUG
 
 #define d d_func()
 #define q q_func()
 
+/*! \internal
+    Creates an empty ring buffer. The buffer will grow in steps of \a
+    growth as data is written to it.
+*/
 QRingBuffer::QRingBuffer(int growth) : basicBlockSize(growth)
 {
     clear();
 }
 
+/*! \internal
+    Returns the number of bytes that can be read in one operation. The
+    data is read from readPointer().
+*/
 int QRingBuffer::nextDataBlockSize() const
 {
     return (tailBuffer == 0 ? tail : buffers[0].size()) - head;
 }
 
+/*! \internal
+    Returns a pointer to where no more than nextDataBlockSize() bytes
+    of data can be read. Call free() to remove data after reading.
+*/
 char *QRingBuffer::readPointer() const
 {
     if (buffers.count() == 0)
@@ -74,6 +129,10 @@ char *QRingBuffer::readPointer() const
     return const_cast<char *>(buffers[0].data()) + head;
 }
 
+/*! \internal
+    Removes \a bytes bytes from the front of the buffer. If \a bytes
+    is larger than the size of the buffer, the buffer is cleared.
+*/
 void QRingBuffer::free(int bytes)
 {
     for (;;) {
@@ -101,6 +160,10 @@ void QRingBuffer::free(int bytes)
     }
 }
 
+/*! \internal
+    Reserves space in the buffer for \a bytes new bytes, and returns a
+    pointer to the first byte.
+*/
 char *QRingBuffer::reserve(int bytes)
 {
     // if there is already enough space, simply return.
@@ -139,6 +202,10 @@ char *QRingBuffer::reserve(int bytes)
     return buffers[tailBuffer].data();
 }
 
+/*! \internal
+    Removes \a bytes bytes from the end of the buffer. If \a bytes is
+    larger than the buffer size, the buffer is cleared.
+*/
 void QRingBuffer::truncate(int bytes)
 {
     for (;;) {
@@ -166,6 +233,10 @@ void QRingBuffer::truncate(int bytes)
     }
 }
 
+/*! \internal
+    Returns and removes the first character in the buffer. Returns -1
+    if the buffer is empty.
+*/
 int QRingBuffer::getchar()
 {
     if (isEmpty())
@@ -175,12 +246,18 @@ int QRingBuffer::getchar()
     return c;
 }
 
+/*! \internal
+    Appends the character \a c to the end of the buffer.
+*/
 void QRingBuffer::putchar(char c)
 {
     char *ptr = reserve(1);
     *ptr = c;
 }
 
+/*! \internal
+    Prepends the character \a c to the front of the buffer.
+*/
 void QRingBuffer::ungetchar(char c)
 {
     --head;
@@ -192,6 +269,10 @@ void QRingBuffer::ungetchar(char c)
     buffers[0][head] = c;
 }
 
+/*! \internal
+    Returns the size of the buffer; e.g. the number of bytes
+    currently in use.
+*/
 int QRingBuffer::size() const
 {
     int tmpSize = 0;
@@ -212,6 +293,9 @@ int QRingBuffer::size() const
     return tmpSize;
 }
 
+/*! \internal
+    Removes all data from the buffer and resets its size to 0.
+*/
 void QRingBuffer::clear()
 {
     if (!buffers.isEmpty())
@@ -222,11 +306,18 @@ void QRingBuffer::clear()
     tailBuffer = 0;
 }
 
+/*! \internal
+    Returns true if the buffer is empty; otherwise returns false.
+*/
 bool QRingBuffer::isEmpty() const
 {
     return size() == 0;
 }
 
+/*! \internal
+    Returns the index of the first occurrence of the character \a c in
+    the buffer. In no such character is found, -1 is returned.
+*/
 int QRingBuffer::indexOf(char c) const
 {
     int index = 0;
@@ -247,6 +338,12 @@ int QRingBuffer::indexOf(char c) const
     return -1;
 }
 
+/*! \internal
+    Reads one line of data (all data up to and including the '\n'
+    character), no longer than \a maxLength bytes, and stores it in \a
+    data. If the line is too long, or if no line could be read, -1 is
+    returned.
+*/
 int QRingBuffer::readLine(char *data, int maxLength)
 {
     int index = indexOf('\n');
@@ -267,17 +364,21 @@ int QRingBuffer::readLine(char *data, int maxLength)
     return readSoFar;
 }
 
+/*! \internal
+    Returns true if a line can be read from the buffer; otherwise
+    returns false.
+*/
 bool QRingBuffer::canReadLine() const
 {
     return indexOf('\n') != -1;
 }
 
 /*! \internal
-
     Constructs a QAbstractSocketPrivate. Initializes all members.
 */
 QAbstractSocketPrivate::QAbstractSocketPrivate()
-    : readBuffer(32768), writeBuffer(32768)
+    : readBuffer(QABSTRACTSOCKET_BUFFERSIZE),
+      writeBuffer(QABSTRACTSOCKET_BUFFERSIZE)
 {
     port = 0;
     readSocketNotifier = 0;
@@ -292,7 +393,6 @@ QAbstractSocketPrivate::QAbstractSocketPrivate()
 }
 
 /*! \internal
-
     Destructs the QAbstractSocket. If the socket layer is open, it
     will be reset.
 */
@@ -302,7 +402,6 @@ QAbstractSocketPrivate::~QAbstractSocketPrivate()
 }
 
 /*! \internal
-
     Resets the socket layer, clears the read and write buffers and
     deletes any socket notifiers.
 */
@@ -330,7 +429,6 @@ void QAbstractSocketPrivate::resetSocketLayer()
 }
 
 /*! \internal
-
     Creates one read and one write socket notifier, and disables them
     both. Connects their signals to the respective private slots
     canReadNotification() and canWriteNotification().
@@ -351,7 +449,6 @@ void QAbstractSocketPrivate::setupSocketNotifiers()
 }
 
 /*! \internal
-
     Initializes the socket layer to by of type \a type, using the
     network layer protocol \a protocol. Resets the socket layer first
     if it's already initialized. Sets up the socket notifiers.
@@ -393,7 +490,6 @@ bool QAbstractSocketPrivate::initSocketLayer(Qt::SocketType type,
 }
 
 /*! \internal
-
     Slot connected to the read socket notifier. This slot is called
     when new data is available for reading, or when the socket has
     been closed. Handles recursive calls.
@@ -473,7 +569,6 @@ void QAbstractSocketPrivate::canReadNotification(int)
 }
 
 /*! \internal
-
     Slot connected to the write socket notifier. It's called during a
     delayed connect or when the socket is ready for writing.
 */
@@ -494,7 +589,6 @@ void QAbstractSocketPrivate::canWriteNotification(int)
 }
 
 /*! \internal
-
     Writes pending data in the write buffers to the socket. When in
     blocking mode, this function blocks until the buffers are empty;
     otherwise the function writes as much as it can without blocking.
@@ -553,7 +647,6 @@ void QAbstractSocketPrivate::flush()
 }
 
 /*! \internal
-
     Slot connected to QDns::getHostByName() in connectToHost(). This
     function starts the process of connecting to any number of
     candidate IP addresses for the host, if it was found. Calls
@@ -601,7 +694,6 @@ void QAbstractSocketPrivate::startConnecting(const QDnsHostInfo &hostInfo)
 }
 
 /*! \internal
-
     Called by a queued or direct connection from startConnecting() or
     testConnection(), this function takes the first address of the
     pending addresses list and tries to connect to it. If the
@@ -719,7 +811,6 @@ void QAbstractSocketPrivate::connectToNextAddress()
 }
 
 /*! \internal
-
     Tests if a connection has been established. If it has, connected()
     is emitted. Otherwise, connectToNextAddress() is invoked.
 */
@@ -752,7 +843,6 @@ void QAbstractSocketPrivate::testConnection()
 }
 
 /*! \internal
-
     Reads data from the socket layer into the read buffer. Returns
     true on success; otherwise false.
 */
@@ -813,7 +903,6 @@ bool QAbstractSocketPrivate::readFromSocket()
 }
 
 /*! \internal
-
     Constructs a new abstract socket of type \a socketType. The \a
     parent argument is passed to QObject's constructor.
 */
