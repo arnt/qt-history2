@@ -1,6 +1,6 @@
 DESTDIR = ../../../../bin
 QT += xml network
-CONFIG += qt depend_prl
+CONFIG += qt depend_prl assistant
 
 #mac:TARGETDEPS += $$QMAKE_LIBDIR_QT/libQtDesigner.dylib
 
@@ -34,7 +34,9 @@ INCLUDEPATH += ../uilib \
     ../components/widgetbox \
     ../components/imagecollection \
     ../components/specialeditor \
-    ../components/propertyeditor
+    ../components/propertyeditor \
+    ../../../assistant/lib
+
 
 LIBS += -L../../lib \
     -lformeditor \

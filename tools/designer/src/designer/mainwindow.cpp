@@ -37,6 +37,9 @@
 #include <propertysheet.h>
 #include <qextensionmanager.h>
 
+// assistant
+#include <qassistantclient.h>
+
 #include <QtCore/QBuffer>
 #include <QtCore/QEvent>
 #include <QtCore/QSettings>
@@ -57,6 +60,7 @@
 #include <QtGui/QVBoxWidget>
 #include <QtGui/QVariant>
 
+
 #define IDE_NO_DEBUGVIEWS
 
 MainWindow::MainWindow()
@@ -66,7 +70,8 @@ MainWindow::MainWindow()
 #endif
         ),
       m_closeForm(true), m_settingsSaved(false),
-      m_newFormDialog(0), m_preferenceDialog(0), m_actionWindowList(0), m_actionWindowSeparator(0)
+      m_newFormDialog(0), m_preferenceDialog(0), m_actionWindowList(0), m_actionWindowSeparator(0),
+      assistant(0)
 {
     invisibleParent = new QWidget(0, Qt::WStyle_Tool);
     setWindowTitle(tr("Qt Designer"));
@@ -800,9 +805,9 @@ static void readColumnSizeSettings(const QSettings &settings, const QString &key
         list.append(header->sectionSizeHint(i));
 
     list = settings.value(key + "/columnSizes", list).toList();
-    int i = 0;
+    int j = 0;
     foreach (QCoreVariant v, list)
-        header->resizeSection(i++, v.toInt());
+        header->resizeSection(j++, v.toInt());
 }
 
 void MainWindow::readSettings()
@@ -1047,16 +1052,32 @@ void MainWindow::onActivated(QWidget *w)
 
 void MainWindow::showDesignerHelp()
 {
-    QMessageBox::warning(0, tr("Designer Help"), tr("The Qt Designer Documentation is located in:"
-                "\n$QTDIR/doc/html/designer-manual.html"
-                "\n\nAutomation for showing this is under way."));
+//    QMessageBox::warning(0, tr("Designer Help"), tr("The Qt Designer Documentation is located in:"
+//                "\n$QTDIR/doc/html/designer-manual.html"
+//                "\n\nAutomation for showing this is under way."));
+
+    showHelp("designer-manual.html");
 }
 
 void MainWindow::showTheNewStuff()
 {
-    QMessageBox::warning(0, tr("What's New in Designer"),
+    /*QMessageBox::warning(0, tr("What's New in Designer"),
                          tr("I should point to a page that explains"
-                            " what is new in this version of Designer."));
+                            " what is new in this version of Designer."));*/
+    showHelp("designer-manual.html");
+}
+
+void MainWindow::showHelp(const QString &url)
+{
+    if (!assistant) {
+        QString path = QDir::cleanPath(QString(qInstallPath()) +
+            QDir::separator() + "bin/");
+#if defined(Q_OS_MAC)
+        path += QDir::separator() + ".app/Contents/MacOS/";
+#endif
+        assistant = new QAssistantClient(path, this);
+    }
+    assistant->showPage(QString(qInstallPath()) + "\\doc\\html\\" + url);    
 }
 
 void MainWindow::aboutDesigner()

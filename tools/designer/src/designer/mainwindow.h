@@ -29,6 +29,7 @@ class AbstractFormWindowManager;
 class AbstractFormWindow;
 class NewFormDialog;
 class PreferenceDialog;
+class QAssistantClient;
 
 class MainWindow: public QMainWindow
 {
@@ -88,6 +89,7 @@ private:
     void enableFormActions(bool enable);
     void addRecentFile(const QString &fileName);
     void updateRecentFileActions();
+    void showHelp(const QString &url);
 
 private:
     AbstractFormEditor *core;
@@ -118,8 +120,8 @@ private:
 
     QHash<QAction*, AbstractFormWindow*> m_showWindowActions;
 
-
     QWidget *invisibleParent;
+    QAssistantClient *assistant;
 };
 
 #endif // MAINWINDOW_H
