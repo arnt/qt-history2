@@ -4,6 +4,8 @@ $USAGE='
 
  Usage:  qtlibdiff [-s] $QTOLDDIR $QTDIR
    directories must contain include/ and lib/ of Qt release.
+
+   -s   Symbols only, not full check
 ';
 
 if ( $ARGV[0] eq "-s" ) {
@@ -19,7 +21,7 @@ $OLDLIB="$OLD/lib/libqt.so";
 $NEWLIB="$NEW/lib/libqt.so";
 
 #open OUT, "| cat";
-open OUT, "| c++filt";
+open OUT, "| c++filt | sort";
 
 open OSYMS, "nm --size-sort $OLDLIB | sort +2 |";
 while (<OSYMS>) {
@@ -134,7 +136,11 @@ sub sizes
 %new = sizes $NEW;
 
 for $c ( keys %old ) {
-    print OUT "OBJECTSIZE: $c $old{$c} -> $new{$c}\n" if $old{$c} ne $new{$c};
+    if ( defined($new{$c}) ) {
+	print OUT "OBJECTSIZE: $c $old{$c} -> $new{$c}\n" if $old{$c} ne $new{$c};
+    } elsif ( $old{$c} ne $new{$c} ) {
+	print OUT "REMOVED: $c\n";
+    }
 }
 
 close OUT;

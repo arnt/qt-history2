@@ -27,7 +27,7 @@
 #include "qsound.h"
 #include <qapplication.h>
 
-QList<QAuServer> *servers=0;
+static QList<QAuServer> *servers=0;
 
 QAuServer::QAuServer(QObject* parent, const char* name) :
     QObject(parent,name)

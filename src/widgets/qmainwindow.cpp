@@ -521,10 +521,10 @@ void QToolLayout::setGeometry( const QRect &r )
 //************************************************************************************************
 
 
-class HideToolTip : public QToolTip
+class QHideToolTip : public QToolTip
 {
 public:
-    HideToolTip( QWidget *parent ) : QToolTip( parent ) {}
+    QHideToolTip( QWidget *parent ) : QToolTip( parent ) {}
 
     void maybeTip( const QPoint &pos );
 };
@@ -541,7 +541,7 @@ public:
 	pressed = FALSE;
 	setMouseTracking( TRUE );
 	win = parent;
-	tip = new HideToolTip( this );
+	tip = new QHideToolTip( this );
     }
     ~HideDock() { delete tip; }
 
@@ -655,13 +655,13 @@ private:
     QMainWindow *win;
     int pressedHandle;
     bool pressed;
-    HideToolTip *tip;
+    QHideToolTip *tip;
 
-    friend class HideToolTip;
+    friend class QHideToolTip;
 
 };
 
-void HideToolTip::maybeTip( const QPoint &pos )
+void QHideToolTip::maybeTip( const QPoint &pos )
 {
     if ( !parentWidget() )
 	return;

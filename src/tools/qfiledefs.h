@@ -28,6 +28,9 @@
 **
 *****************************************************************************/
 
+#ifndef QFILEDEFS_H
+#define QFILEDEFS_H
+
 #if defined(_CC_MWERKS_)
 # include <stdlib.h>
 # include <stat.h>
@@ -197,3 +200,4 @@ struct QFileInfoCache
     bool isSymLink;
 };
 
+#endif

@@ -255,8 +255,8 @@ int	  QApplication::cursor_flash_time = 1000;	// text caret flash time
 int	  QApplication::mouse_double_click_time = 400;	// mouse dbl click limit
 int	  QApplication::wheel_scroll_lines = 3;		// number of lines to scroll
 bool	  qt_is_gui_used;
-int drag_time = 250;
-int drag_distance = 4;
+static int drag_time = 250;
+static int drag_distance = 4;
 
 // Default application palettes and fonts (per widget type)
 QAsciiDict<QPalette> *QApplication::app_palettes = 0;
