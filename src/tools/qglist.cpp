@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglist.cpp#19 $
+** $Id: //depot/qt/main/src/tools/qglist.cpp#20 $
 **
 ** Implementation of QGList and QGListIterator classes
 **
@@ -14,12 +14,19 @@
 #include "qgvector.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#19 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qglist.cpp#20 $")
 
 
-// --------------------------------------------------------------------------
-// Default implementation of virtual functions
-//
+/*!
+  \class QGList qglist.h
+  \brief The QGList is an internal class for implementing the collection classes.
+  \internal
+*/
+
+
+/*****************************************************************************
+  Default implementation of virtual functions
+ *****************************************************************************/
 
 int QGList::compareItems( GCI d1, GCI d2 )
 {
@@ -38,9 +45,9 @@ QDataStream &QGList::write( QDataStream &s, GCI ) const
 }
 
 
-// --------------------------------------------------------------------------
-// QGList member functions
-//
+/*****************************************************************************
+  QGList member functions
+ *****************************************************************************/
 
 QGList::QGList()				// create empty list
 {
@@ -506,9 +513,9 @@ void QGList::toVector( QGVector *vector ) const // store items in vector
 }
 
 
-// --------------------------------------------------------------------------
-// QGList stream functions
-//
+/*****************************************************************************
+  QGList stream functions
+ *****************************************************************************/
 
 QDataStream &operator>>( QDataStream &s, QGList &list )
 {						// read list
@@ -560,9 +567,9 @@ QDataStream &QGList::write( QDataStream &s ) const
 }
 
 
-// --------------------------------------------------------------------------
-// QGListIterator member functions
-//
+/*****************************************************************************
+  QGListIterator member functions
+ *****************************************************************************/
 
 QGListIterator::QGListIterator( const QGList &l )
 {
