@@ -46,34 +46,37 @@ void QMacStylePainter::setport()
     NormalizeThemeDrawingState();
 }
 
-#include <qpushbutton.h>
-#include <qspinbox.h>
-#include <qscrollbar.h>
-#include <qtabbar.h>
-#include "private/qtitlebar_p.h"
-#include <qbitmap.h>
-#include <qprogressbar.h>
-#include <qapplication.h>
-#include <qlistview.h>
-#include <qtoolbutton.h>
-#include <qbuttongroup.h>
-#include <qtoolbar.h>
-#include <qlayout.h>
+#include <qt_mac.h>
+#include <private/qaquastyle_p.h>
 #include <private/qdialogbuttons_p.h>
-#include <qpopupmenu.h>
-#include <qmenubar.h>
+#include <private/qtitlebar_p.h>
+#include <qapplication.h>
+#include <qbitmap.h>
+#include <qbuttongroup.h>
 #include <qcombobox.h>
 #include <qdrawutil.h>
-#include <qlineedit.h>
-#include <qregexp.h>
 #include <qguardedptr.h>
-#include "qmainwindow.h"
-#include "private/qaquastyle_p.h"
-#include <qt_mac.h>
+#include <qlayout.h>
+#include <qlineedit.h>
+#include <qlistview.h>
+#include <qmainwindow.h>
+#include <qmenubar.h>
+#include <qpopupmenu.h>
+#include <qprogressbar.h>
+#include <qpushbutton.h>
+#include <qregexp.h>
+#include <qscrollbar.h>
+#include <qscrollview.h>
+#include <qspinbox.h>
+#include <qsplitter.h>
+#include <qtabbar.h>
+#include <qtoolbar.h>
+#include <qtoolbutton.h>
 
 /* I need these to simulate the pushbutton pulse */
-#include <qimage.h>
 #include <qpixmapcache.h>
+#include <qimage.h>
+
 #include <string.h>
 
 //externals
@@ -227,6 +230,7 @@ public:
 public slots:
     void destroyedObject(QObject *);
 };
+
 #include "qmacstyle_mac.moc"
 void QMacStylePrivate::PolicyState::watchObject(QObject *o)
 {
@@ -419,11 +423,19 @@ void QMacStyle::polish(QApplication* app)
 /*! \reimp */
 void QMacStyle::polish(QWidget* w)
 {
+    if(!w->isTopLevel() && ::qt_cast<QSplitter*>(w) == 0 &&
+       w->backgroundPixmap() &&
+       qApp->palette().brush(QPalette::Active, QColorGroup::Background).pixmap() &&
+	w->backgroundPixmap()->serialNumber() ==
+       qApp->palette().brush(QPalette::Active, QColorGroup::Background).pixmap()->serialNumber())
+	w->setBackgroundOrigin(QWidget::AncestorOrigin);
     d->addWidget(w);
 
 #ifdef QMAC_DO_SECONDARY_GROUPBOXES
-    if(w->parentWidget() && w->parentWidget()->inherits("QGroupBox") && !w->testAttribute(QWidget::WA_SetPalette) &&
-       w->parentWidget()->parentWidget() && w->parentWidget()->parentWidget()->inherits("QGroupBox")) {
+    if(w->parentWidget() && ::qt_cast<QGroupBox*>(w->parentWidget())
+	    && !w->testAttribute(QWidget::WA_SetPalette)
+	    && w->parentWidget()->parentWidget()
+	    && ::qt_cast<QGroupBox*>(w->parentWidget()->parentWidget())) {
 	QPalette pal = w->palette();
 	QPixmap px(200, 200, 32);
 	QColor pc(black);
@@ -442,42 +454,42 @@ void QMacStyle::polish(QWidget* w)
     }
 #endif
 
-#if QT_MACOSX_VERSION >= 0x1020
-    if(w->inherits("QGroupBox"))
-	w->setAttribute(QWidget::WA_ContentsPropagated, true);
-#endif
-
-    if(w->inherits("QLineEdit")) {
-	QLineEdit *lined = (QLineEdit*)w;
-	if(w->parentWidget() && w->parentWidget()->inherits("QComboBox"))
+    if (qMacVersion() >= Qt::MV_JAGUAR) {
+	if (::qt_cast<QGroupBox*>(w))
+	    w->setAttribute(QWidget::WA_ContentsPropagated, true);
+    }
+    QLineEdit *lined;
+    QDialogButtons *btns;
+    QToolButton *btn;
+    QToolBar *bar;
+    QPopupMenu *popup;
+    QTitleBar *tb;
+    if ((lined = ::qt_cast<QLineEdit*>(w)) != 0) {
+        if(w->parentWidget() && ::qt_cast<QComboBox*>(w->parentWidget()))
 	    lined->setFrameStyle(QFrame::LineEditPanel | QFrame::Sunken);
 	SInt32 frame_size;
 	GetThemeMetric(kThemeMetricEditTextFrameOutset, &frame_size);
 	lined->setLineWidth(frame_size);
-    } else if(w->inherits("QDialogButtons")) {
-	QDialogButtons *btns = (QDialogButtons*)w;
+    } else if ((btns = ::qt_cast<QDialogButtons*>(w)) != 0) {
 	if(btns->buttonText(QDialogButtons::Help).isNull())
 	    btns->setButtonText(QDialogButtons::Help, "?");
-    } else if(w->inherits("QToolButton")) {
-        QToolButton * btn = (QToolButton *) w;
+    } else if ((btn = ::qt_cast<QToolButton*>(w)) != 0) {
         btn->setAutoRaise(FALSE);
-    } else if(w->inherits("QToolBar")) {
-	QToolBar * bar = (QToolBar *) w;
+    } else if ((bar = ::qt_cast<QToolBar*>(w)) != 0) {
 	QBoxLayout * layout = bar->boxLayout();
 	layout->setSpacing(0);
 	layout->setMargin(0);
-    } else if(w->inherits("QTipLabel")) {
-	QLabel *label = (QLabel*)w;
+    } else if (w->inherits("QTipLabel")) {   // QTipLabel is declared in qtooltip.cpp :-(
+        QLabel *label = (QLabel*)w;
 	label->setFrameStyle(QFrame::NoFrame);
 	label->setLineWidth(1);
-    } else if(w->inherits("QPopupMenu")) {
-	QPopupMenu *popup = (QPopupMenu*)w;
+    } else if ((popup = ::qt_cast<QPopupMenu*>(w)) != 0) {
 	popup->setMargin(0);
 	popup->setLineWidth(0);
 	w->setWindowOpacity(0.95);
-    } else if(w->inherits("QTitleBar")) {
+    } else if ((tb = ::qt_cast<QTitleBar *>(w)) != 0) {
 //	w->font().setPixelSize(10);
-	((QTitleBar*)w)->setAutoRaise(TRUE);
+	tb->setAutoRaise(TRUE);
     }
 }
 
@@ -485,16 +497,13 @@ void QMacStyle::polish(QWidget* w)
 void QMacStyle::unPolish(QWidget* w)
 {
     d->removeWidget(w);
-    if(w->inherits("QToolButton")) {
+    QToolButton *btn = ::qt_cast<QToolButton*>(w);
+    if (btn) {
         QToolButton * btn = (QToolButton *) w;
         btn->setAutoRaise(TRUE);
-    }
-#ifdef Q_WS_MAC
-    else if(w->inherits("QPopupMenu")) {
+    } else if (::qt_cast<QPopupMenu*>(w)) {
 	w->setWindowOpacity(1.0);
     }
-#endif
-
 }
 
 /*! \reimp */
@@ -550,11 +559,11 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	    break;
 	QWidget *w = NULL;
 	//This is terrible, if I we just passed the widget in this wouldn't be necesary!
-	if(p && p->device() && p->device()->devType() == QInternal::Widget)
+	if (p && p->device() && p->device()->devType() == QInternal::Widget)
 	    w = (QWidget*)p->device();
 	((QMacStylePainter *)p)->setport();
 #ifdef QMAC_DO_SECONDARY_GROUPBOXES
-	if(w && w->parentWidget() && w->parentWidget()->inherits("QGroupBox"))
+        if (w && w->parentWidget() && ::qt_cast<QGroupBox*>(w->parentWidget()))
 	    DrawThemeSecondaryGroup(qt_glb_mac_rect(r, p), kThemeStateActive);
 	else
 #endif
@@ -1565,11 +1574,10 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 #endif
 	break;
     case PM_DefaultFrameWidth:
-	if(widget &&
-	   (widget->isTopLevel() || !widget->parentWidget() ||
-	    (widget->parentWidget()->inherits("QMainWindow") &&
-	     ((QMainWindow*)widget->parentWidget())->centralWidget() == widget)) &&
-	    (widget->inherits("QScrollView") || widget->inherits("QWorkspaceChild")))
+	if (widget && (widget->isTopLevel() || !widget->parentWidget()
+                || (::qt_cast<QMainWindow*>(widget->parentWidget())
+                   && ((QMainWindow*)widget->parentWidget())->centralWidget() == widget))
+		&& (::qt_cast<QScrollView*>(widget) || widget->inherits("QWorkspaceChild")))
 	    ret = 0;
 	else
 	    ret = QWindowsStyle::pixelMetric(metric, widget);
@@ -2044,8 +2052,8 @@ int QMacStyle::styleHint(StyleHint sh, const QWidget *w,
 	ret = Qt::AlignTop;
 	break;
     case SH_ScrollView_FrameOnlyAroundContents:
-	if(w && (w->isTopLevel() || !w->parentWidget() || w->parentWidget()->isTopLevel()) &&
-	   (w->inherits("QScrollView") || w->inherits("QWorkspaceChild")))
+	if (w && (w->isTopLevel() || !w->parentWidget() || w->parentWidget()->isTopLevel())
+            && (::qt_cast<QScrollView*>(w) || w->inherits("QWorkspaceChild")))
 	    ret = TRUE;
 	else
 	    ret = QWindowsStyle::styleHint(sh, w, opt, d);
@@ -2204,8 +2212,10 @@ QSize QMacStyle::sizeFromContents(ContentsType contents, const QWidget *widget,
 	    w += 20 - maxpmw;
 	if(checkable || maxpmw > 0)
 	    w += 2;
-	if(widget->parentWidget() && widget->parentWidget()->inherits("QComboBox") && widget->parentWidget()->isVisible())
-	    w = qMax(w, querySubControlMetrics(CC_ComboBox, widget->parentWidget(), SC_ComboBoxEditField).width());
+        if (widget->parentWidget() && ::qt_cast<QComboBox*>(widget->parentWidget())
+            && widget->parentWidget()->isVisible())
+	    w = QMAX(w, querySubControlMetrics(CC_ComboBox, widget->parentWidget(),
+			SC_ComboBoxEditField).width());
 	else
 	    w += 12;
 	sz = QSize(w, h);
