@@ -1318,7 +1318,7 @@ MakefileGenerator::writeExtraTargets(QTextStream &t)
                 dep = (*dep_it);
             deps += " " + dep;
         }
-        if(!project->variables()["QMAKE_NOFORCE"].isEmpty() &&
+        if(project->isEmpty("QMAKE_NOFORCE") &&
            project->variables()[(*it) + ".CONFIG"].indexOf("phony") != -1)
             deps += QString(" ") + "FORCE";
         t << targ << ":" << deps << "\n\t"
@@ -1763,7 +1763,10 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
             makefilein = " -f " + subtarget->makefile;
 
         //actually compile
-        t << subtarget->target << ": " << mkfile << "\n\t";
+        t << subtarget->target << ": " << mkfile;
+        if(project->isEmpty("QMAKE_NOFORCE"))
+            t <<  " FORCE";
+        t << "\n\t";
         if(have_dir)
             t << "cd " << subtarget->directory << " && ";
         t << "$(MAKE)" << makefilein << endl;
@@ -1797,6 +1800,8 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
     writeMakeQmake(t);
 
     t << "qmake_all:";
+    if(project->isEmpty("QMAKE_NOFORCE"))
+        t <<  " FORCE";
     if(!targets.isEmpty()) {
         for(QList<SubTarget*>::Iterator it = targets.begin(); it != targets.end(); ++it) {
             if(!(*it)->profile.isEmpty())
@@ -1813,12 +1818,16 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
             continue;
 
         t << suffix << ":";
+        if(project->isEmpty("QMAKE_NOFORCE"))
+            t <<  " FORCE";
         for(int target = 0; target < targets.size(); ++target) {
             QString targetRule = targets.at(target)->target + "-" + suffix;
             if(flags & SubTargetOrdered)
                 targetRule += "-ordered";
             t << " " << targetRule;
         }
+        if(suffix == "all")
+            t << varGlue("ALL_DEPS"," "," ","");
         t << endl;
         if(suffix == "clean") {
             t << varGlue("QMAKE_CLEAN","\t-$(DEL_FILE) ","\n\t-$(DEL_FILE) ", "\n");
@@ -1845,7 +1854,7 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
                 dep = (*dep_it);
             deps += " " + dep;
         }
-        if(!project->variables()["QMAKE_NOFORCE"].isEmpty() &&
+        if(project->isEmpty("QMAKE_NOFORCE") &&
            project->variables()[(*qut_it) + ".CONFIG"].indexOf("phony") != -1)
             deps += " FORCE";
         t << "\n\n" << targ << ":" << deps << "\n\t"
