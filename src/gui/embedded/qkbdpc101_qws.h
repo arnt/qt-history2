@@ -21,7 +21,7 @@
 #ifndef QT_NO_QWS_KBD_PC101
 
 typedef struct QWSKeyMap {
-    ushort key_code;
+    uint key_code;
     ushort unicode;
     ushort shift_unicode;
     ushort ctrl_unicode;
