@@ -775,12 +775,12 @@ void QAction::activate(ActionEvent event)
     In some situations it is useful to group actions together. For
     example, if you have a left justify action, a right justify action
     and a center action, only one of these actions should be active at
-    any one time, and one simple way of achieving this is to group the
+    any one time. One simple way of achieving this is to group the
     actions together in an action group.
 
     An action group can also be added to a menu or a toolbar as a
     single unit, with all the actions within the action group
-    appearing as separate menu options and toolbar buttons.
+    appearing as separate menu options or toolbar buttons.
 
     Here's an example from examples/textedit:
     \quotefile textedit/textedit.cpp
@@ -794,37 +794,38 @@ void QAction::activate(ActionEvent event)
 
     \printuntil actionAlignLeft->setToggleAction
 
-    We create a left align action, add it to the toolbar and the menu
+    We create a left align action, add it to the toolbar and the menu,
     and make it a toggle action. We create center and right align
     actions in exactly the same way.
 
     A QActionGroup emits an triggered() signal when one of its actions
-    is activated. The actions in an action group emit their
+    is activated. Each action in an action group emits its
     triggered() signal as usual.
 
     The setExclusive() function is used to ensure that only one action
-    is active at any one time: it should be used with actions which
-    have their \c checkable set to true.
+    is active at any one time; it should be used with \c checkable
+    actions.
 
-##### need to actually figure this out. After discussion with matthias
-    Actions can be added to an action group using add(), but normally
-    they are added by creating the action with the action group as
-    parent. Actions can have separators dividing them using
-    addSeparator(). Action groups are added to widgets with addTo().
+    Actions can be added to an action group using addAction(), but it
+    is usually more convenient to specify a group when creating
+    actions; this ensures that actions are automatically created with
+    a parent. Actions can be visually separated from each other
+    using addSeparator(). Action groups are added to widgets with
+    addTo().
 */
 
 /*!
     Constructs an action group for the \a parent object.
 
-    The action group is exclusive by default. Call setExclusive(false) to make
-    the action group non-exclusive.
+    The action group is exclusive by default. Call setExclusive(false)
+    to make the action group non-exclusive.
 */
 QActionGroup::QActionGroup(QObject* parent) : QObject(*new QActionGroupPrivate, parent)
 {
 }
 
 /*!
-    Destroys the object and frees allocated resources.
+    Destroys the action group.
 */
 QActionGroup::~QActionGroup()
 {
@@ -833,7 +834,7 @@ QActionGroup::~QActionGroup()
 /*!
     \fn QAction *QActionGroup::addAction(QAction *action)
 
-    Adds the \a action to this group.
+    Adds the \a action to this group, and returns it.
 
     Normally an action is added to a group by creating it with the
     group as its parent, so this function is not usually used.
@@ -864,9 +865,8 @@ QAction *QActionGroup::addAction(QAction* a)
 }
 
 /*!
-    Adds an action with \a text and an shortcut of \a
-    shortcut. This newly created action's parent is set to this action
-    group and it is returned.
+    Creates and returns an action with \a text and a \a shortcut.
+    The newly created action is a child of this action group.
 
     Normally an action is added to a group by creating it with the
     group as parent, so this function is not usually used.
@@ -880,8 +880,8 @@ QAction *QActionGroup::addAction(const QString &text, const QKeySequence &shortc
 
 /*!
     Creates and returns an action with \a text, an \a icon, and
-    a \a shortcut. The newly created action is a child of this action
-    group.
+    a \a shortcut. The newly created action is a child of this
+    action group.
 
     Normally an action is added to a group by creating it with the
     group as its parent, so this function is not usually used.
@@ -894,8 +894,8 @@ QAction *QActionGroup::addAction(const QIconSet &icon, const QString &text, cons
 }
 
 /*!
-  Removes action \a action from this group. The action \a action's
-  action group is set to 0.
+  Removes the \a action from this group. The action will have no
+  parent as a result.
 
   \sa QAction::setActionGroup()
 */
@@ -905,7 +905,7 @@ void QActionGroup::removeAction(QAction *action)
 }
 
 /*!
-    Returns the (possibly empty) list of this groups's actions.
+    Returns the list of this groups's actions. This may be empty.
 */
 QList<QAction*> QActionGroup::actions() const
 {
@@ -916,12 +916,12 @@ QList<QAction*> QActionGroup::actions() const
     \property QActionGroup::exclusive
     \brief whether the action group does exclusive checking
 
-    If exclusive is true only one checkable action in the action group
-    can ever be active at any one time. If the user chooses another
-    checkable action in the group the one they chose becomes active and
+    If exclusive is true, only one checkable action in the action group
+    can ever be active at any time. If the user chooses another
+    checkable action in the group, the one they chose becomes active and
     the one that was active becomes inactive.
 
-    \sa Q3Action::checkable
+    \sa QAction::checkable
 */
 void QActionGroup::setExclusive(bool b)
 {
@@ -939,8 +939,8 @@ bool QActionGroup::isExclusive() const
     \property QActionGroup::enabled
     \brief whether the action group is enabled
 
-    All action's in the action group will match the enabled state of
-    this action group if the action has not been explicitly disabled.
+    Each action in the group will be enabled or disabled unless it
+    has been explicitly disabled.
 
     \sa QAction::setEnabled()
 */
@@ -961,7 +961,8 @@ bool QActionGroup::isEnabled() const
 }
 
 /*!
-  Returns the currently checked action in the group, or 0 if none are checked
+  Returns the currently checked action in the group, or 0 if none
+  are checked.
 */
 QAction *QActionGroup::checkedAction() const
 {
@@ -972,8 +973,8 @@ QAction *QActionGroup::checkedAction() const
     \property QActionGroup::visible
     \brief whether the action group is visible
 
-    All action's in the action group will match the visible state of
-    this action group if the action has not been explicitly hidden.
+    Each action in the action group will match the visible state of
+    this group unless it has been explicitly hidden.
 
     \sa QAction::setEnabled()
 */
