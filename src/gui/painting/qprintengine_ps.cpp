@@ -90,37 +90,36 @@ void qt_generate_epsf(bool b)
 }
 
 static const char *const ps_header =
-"/d/def load def/D{bind d}bind d/d2{dup dup}D/B{0 d2}D/W{255 d2}D/ED{exch d}D\n"
-"/D0{0 ED}D/LT{lineto}D/MT{moveto}D/S{stroke}D/F{setfont}D/SW{setlinewidth}D\n"
-"/CP{closepath}D/RL{rlineto}D/NP{newpath}D/CM{currentmatrix}D/SM{setmatrix}D\n"
-"/TR{translate}D/SD{setdash}D/SC{aload pop setrgbcolor}D/CR{currentfile read\n"
-"pop}D/i{index}D/bs{bitshift}D/scs{setcolorspace}D/DB{dict dup begin}D/DE{end\n"
-"d}D/ie{ifelse}D/sp{astore pop}D/BSt 0 d/LWi 1 d/PSt 1 d/Cx 0 d/Cy 0 d/WFi\n"
-"false d/OMo false d/BCol[1 1 1]d/PCol[0 0 0]d/BkCol[1 1 1]d/BDArr[0.94 0.88\n"
-"0.63 0.50 0.37 0.12 0.06]d/defM matrix d/nS 0 d/GPS{PSt 1 ge PSt 5 le and{{\n"
-"LArr PSt 1 sub 2 mul get}{LArr PSt 2 mul 1 sub get}ie}{[]}ie}D/QS{PSt 0 ne{\n"
-"gsave LWi SW true GPS 0 SD S OMo PSt 1 ne and{BkCol SC false GPS dup 0 get\n"
-"SD S}if grestore}if}D/r28{{CR dup 32 gt{exit}if pop}loop 3{CR}repeat 0 4{7\n"
-"bs exch dup 128 gt{84 sub}if 42 sub 127 and add}repeat}D/rA 0 d/rL 0 d/rB{rL\n"
-"0 eq{/rA r28 d/rL 28 d}if dup rL gt{rA exch rL sub rL exch/rA 0 d/rL 0 d rB\n"
-"exch bs add}{dup rA 16#fffffff 3 -1 roll bs not and exch dup rL exch sub/rL\n"
-"ED neg rA exch bs/rA ED}ie}D/uc{/rL 0 d 0{dup 2 i length ge{exit}if 1 rB 1\n"
-"eq{3 rB dup 3 ge{1 add dup rB 1 i 5 ge{1 i 6 ge{1 i 7 ge{1 i 8 ge{128 add}if\n"
-"64 add}if 32 add}if 16 add}if 3 add exch pop}if 3 add exch 10 rB 1 add{dup 3\n"
-"i lt{dup}{2 i}ie 4 i 3 i 3 i sub 2 i getinterval 5 i 4 i 3 -1 roll\n"
-"putinterval dup 4 -1 roll add 3 1 roll 4 -1 roll exch sub dup 0 eq{exit}if 3\n"
-"1 roll}loop pop pop}{3 rB 1 add{2 copy 8 rB put 1 add}repeat}ie}loop pop}D\n"
-"/sl D0/QCIgray D0/QCIcolor D0/QCIindex D0/QCI{/colorimage where{pop false 3\n"
-"colorimage}{exec/QCIcolor ED/QCIgray QCIcolor length 3 idiv string d 0 1\n"
-"QCIcolor length 3 idiv 1 sub{/QCIindex ED/x QCIindex 3 mul d QCIgray\n"
-"QCIindex QCIcolor x get 0.30 mul QCIcolor x 1 add get 0.59 mul QCIcolor x 2\n"
-"add get 0.11 mul add add cvi put}for QCIgray image}ie}D/di{gsave TR 1 i 1 eq\n"
-"{false eq{pop true 3 1 roll 4 i 4 i false 4 i 4 i imagemask BkCol SC\n"
-"imagemask}{pop false 3 1 roll imagemask}ie}{dup false ne{/languagelevel\n"
-"where{pop languagelevel 3 ge}{false}ie}{false}ie{/ma ED 8 eq{/dc[0 1]d\n"
-"/DeviceGray}{/dc[0 1 0 1 0 1]d/DeviceRGB}ie scs/im ED/mt ED/h ED/w ED/id 7\n"
-"DB/ImageType 1 d/Width w d/Height h d/ImageMatrix mt d/DataSource im d\n"
-"/BitsPerComponent 8 d/Decode dc d DE/md 7 DB/ImageType 1 d/Width w d/Height\n"
+"/d/def load def/D{bind d}bind d/d2{dup dup}D/ED{exch d}D/D0{0 ED}D/LT\n"
+"{lineto}D/MT{moveto}D/S{stroke}D/F{setfont}D/SW{setlinewidth}D/CP{closepath}\n"
+"D/RL{rlineto}D/NP{newpath}D/CM{currentmatrix}D/SM{setmatrix}D/TR{translate}D\n"
+"/SD{setdash}D/SC{aload pop setrgbcolor}D/CR{currentfile read pop}D/i{index}D\n"
+"/bs{bitshift}D/scs{setcolorspace}D/DB{dict dup begin}D/DE{end d}D/ie{ifelse}\n"
+"D/BSt 0 d/LWi 1 d/PSt 1 d/Cx 0 d/Cy 0 d/WFi false d/OMo false d/BCol[1 1 1]d\n"
+"/PCol[0 0 0]d/BkCol[1 1 1]d/BDArr[0.94 0.88 0.63 0.50 0.37 0.12 0.06]d/defM\n"
+"matrix d/GPS{PSt 1 ge PSt 5 le and{{LArr PSt 1 sub 2 mul get}{LArr PSt 2 mul\n"
+"1 sub get}ie}{[]}ie}D/QS{PSt 0 ne{gsave LWi SW true GPS 0 SD S OMo PSt 1 ne\n"
+"and{BkCol SC false GPS dup 0 get SD S}if grestore}if}D/r28{{CR dup 32 gt{\n"
+"exit}if pop}loop 3{CR}repeat 0 4{7 bs exch dup 128 gt{84 sub}if 42 sub 127\n"
+"and add}repeat}D/rA 0 d/rL 0 d/rB{rL 0 eq{/rA r28 d/rL 28 d}if dup rL gt{rA\n"
+"exch rL sub rL exch/rA 0 d/rL 0 d rB exch bs add}{dup rA 16#fffffff 3 -1\n"
+"roll bs not and exch dup rL exch sub/rL ED neg rA exch bs/rA ED}ie}D/uc{/rL\n"
+"0 d 0{dup 2 i length ge{exit}if 1 rB 1 eq{3 rB dup 3 ge{1 add dup rB 1 i 5\n"
+"ge{1 i 6 ge{1 i 7 ge{1 i 8 ge{128 add}if 64 add}if 32 add}if 16 add}if 3 add\n"
+"exch pop}if 3 add exch 10 rB 1 add{dup 3 i lt{dup}{2 i}ie 4 i 3 i 3 i sub 2\n"
+"i getinterval 5 i 4 i 3 -1 roll putinterval dup 4 -1 roll add 3 1 roll 4 -1\n"
+"roll exch sub dup 0 eq{exit}if 3 1 roll}loop pop pop}{3 rB 1 add{2 copy 8 rB\n"
+"put 1 add}repeat}ie}loop pop}D/sl D0/QCIgray D0/QCIcolor D0/QCIindex D0/QCI{\n"
+"/colorimage where{pop false 3 colorimage}{exec/QCIcolor ED/QCIgray QCIcolor\n"
+"length 3 idiv string d 0 1 QCIcolor length 3 idiv 1 sub{/QCIindex ED/x\n"
+"QCIindex 3 mul d QCIgray QCIindex QCIcolor x get 0.30 mul QCIcolor x 1 add\n"
+"get 0.59 mul QCIcolor x 2 add get 0.11 mul add add cvi put}for QCIgray image\n"
+"}ie}D/di{gsave TR 1 i 1 eq{false eq{pop true 3 1 roll 4 i 4 i false 4 i 4 i\n"
+"imagemask BkCol SC imagemask}{pop false 3 1 roll imagemask}ie}{dup false ne{\n"
+"/languagelevel where{pop languagelevel 3 ge}{false}ie}{false}ie{/ma ED 8 eq{\n"
+"/dc[0 1]d/DeviceGray}{/dc[0 1 0 1 0 1]d/DeviceRGB}ie scs/im ED/mt ED/h ED/w\n"
+"ED/id 7 DB/ImageType 1 d/Width w d/Height h d/ImageMatrix mt d/DataSource im\n"
+"d/BitsPerComponent 8 d/Decode dc d DE/md 7 DB/ImageType 1 d/Width w d/Height\n"
 "h d/ImageMatrix mt d/DataSource ma d/BitsPerComponent 1 d/Decode[0 1]d DE 4\n"
 "DB/ImageType 3 d/DataDict id d/MaskDict md d/InterleaveType 3 d end image}{\n"
 "pop 8 4 1 roll 8 eq{image}{QCI}ie}ie}ie grestore}d/BF{gsave BSt 1 eq{BCol SC\n"
@@ -149,12 +148,11 @@ static const char *const ps_header =
 "1 h w div scale NP 0 0 w 2 div 0 360 arc mat SM BF QS}D/A{16 div exch 16 div\n"
 "exch NP ARC QS}D/PIE{/ang2 ED/ang1 ED/h ED/w ED/y ED/x ED NP x w 2 div add y\n"
 "h 2 div add MT x y w h ang1 16 div ang2 16 div ARC CP BF QS}D/CH{16 div exch\n"
-"16 div exch NP ARC CP BF QS}D/BZ{curveto QS}D/CRGB{255 div 3 1 roll 255 div\n"
-"3 1 roll 255 div 3 1 roll}D/BC{CRGB BkCol sp}D/BR{CRGB BCol sp/BSt ED}D/WB{1\n"
-"W BR}D/NB{0 B BR}D/PE{setlinejoin setlinecap CRGB PCol sp/LWi ED/PSt ED LWi\n"
-"0 eq{0.25/LWi ED}if PCol SC}D/P1{1 0 5 2 roll 0 0 PE}D/ST{defM SM concat}D\n"
-"/MF{true exch true exch{exch pop exch pop dup 0 get dup findfont dup\n"
-"/FontName get 3 -1 roll eq{exit}if}forall exch dup 1 get/fxscale ED 2 get\n"
+"16 div exch NP ARC CP BF QS}D/BZ{curveto QS}D/BC{/BkCol ED}D/BR{/BCol ED/BSt\n"
+"ED}D/WB{1[1 1 1]BR}D/NB{0[0 0 0]BR}D/PE{setlinejoin setlinecap/PCol ED/LWi\n"
+"ED/PSt ED LWi 0 eq{0.25/LWi ED}if PCol SC}D/P1{1 0 3 2 roll 0 0 PE}D/ST{defM\n"
+"SM concat}D/MF{true exch true exch{exch pop exch pop dup 0 get dup findfont\n"
+"dup/FontName get 3 -1 roll eq{exit}if}forall exch dup 1 get/fxscale ED 2 get\n"
 "/fslant ED exch/fencoding ED[fxscale 0 fslant 1 0 0]makefont fencoding false\n"
 "eq{}{dup maxlength dict begin{1 i/FID ne{def}{pop pop}ifelse}forall/Encoding\n"
 "fencoding d currentdict end}ie definefont pop}D/MFEmb{findfont dup length\n"
@@ -166,11 +164,9 @@ static const char *const ps_header =
 "1 i dup length 2 div exch stringwidth pop 3 -1 roll exch sub exch div exch 0\n"
 "exch ashow}D/QI{/C save d pageinit/Cx 0 d/Cy 0 d/OMo false d}D/QP{C restore\n"
 "showpage}D/SPD{/setpagedevice where{1 DB 3 1 roll d end setpagedevice}{pop\n"
-"pop}ie}D/SV{BSt LWi PSt Cx Cy WFi OMo BCol PCol BkCol/nS nS 1 add d gsave}D\n"
-"/RS{nS 0 gt{grestore/BkCol ED/PCol ED/BCol ED/OMo ED/WFi ED/Cy ED/Cx ED/PSt\n"
-"ED/LWi ED/BSt ED/nS nS 1 sub d}if}D/CLSTART{gsave/clipTmp matrix CM d defM\n"
-"SM NP}D/ACR{/h ED/w ED/y ED/x ED x y MT 0 h RL w 0 RL 0 h neg RL CP}D/CLEND{\n"
-"clip NP clipTmp SM}D/CLO{grestore}D\n";
+"pop}ie}D/CLSTART{gsave/clipTmp matrix CM d defM SM NP}D/ACR{/h ED/w ED/y ED\n"
+"/x ED x y MT 0 h RL w 0 RL 0 h neg RL CP}D/CLEND{clip NP clipTmp SM}D/CLO{\n"
+"grestore}D\n";
 
 static const char * const agl =
 ".notdef\0space\0exclam\0quotedbl\0numbersign\0dollar\0percent\0ampersand\0"
@@ -528,6 +524,8 @@ static const struct { Q_UINT16 u; Q_UINT16 index; } unicodetoglyph[] = {
     {0xFB04, 8083}, {0xFB1F, 8087}, {0xFB2A, 8097}, {0xFB2B, 8107},
     {0xFB35, 8117}, {0xFB4B, 8127}, {0xFFFF, 8137}
 };
+
+
 
 
 
@@ -5145,22 +5143,17 @@ static QByteArray compress(const QImage & image, bool gray) {
                         WIDTH (r.width()) << ' ' << HEIGHT(r.height()) << ' '
 #define INT_ARG(x)  x << ' '
 
-static char returnbuffer[13];
-static const char * color(const QColor &c, QPSPrintEnginePrivate *printer)
+static QByteArray color(const QColor &c, QPSPrintEnginePrivate *printer)
 {
-    if (c == Qt::black)
-        qstrcpy(returnbuffer, "B ");
-    else if (c == Qt::white)
-        qstrcpy(returnbuffer, "W ");
-    else if (c.red() == c.green() && c.red() == c.blue())
-        sprintf(returnbuffer, "%d d2 ", c.red());
-    else if (printer->colorMode == QPrinter::GrayScale)
-        sprintf(returnbuffer, "%d d2 ",
-                 qGray(c.red(), c.green(),c.blue()));
-    else
-        sprintf(returnbuffer, "%d %d %d ",
-                 c.red(), c.green(), c.blue());
-    return returnbuffer;
+    QByteArray retval;
+    retval += '[';
+    retval += QByteArray::number(c.red()/255.);
+    retval += ' ';
+    retval += QByteArray::number(c.green()/255.);
+    retval += ' ';
+    retval += QByteArray::number(c.blue()/255.);
+    retval += ']';
+    return retval;
 }
 
 
@@ -5633,10 +5626,10 @@ void QPSPrintEngine::updatePen(const QPen &pen)
         d->cpen.joinStyle() == Qt::MiterJoin)
         d->pageStream << color(d->cpen.color(), d) << "P1\n";
     else
-        d->pageStream << (int)d->cpen.style() << ' ' << d->cpen.width()
-                      << ' ' << color(d->cpen.color(), d)
-                      << psCap(d->cpen.capStyle())
-                      << psJoin(d->cpen.joinStyle()) << "PE\n";
+    d->pageStream << (int)d->cpen.style() << ' ' << d->cpen.width()
+                  << ' ' << color(d->cpen.color(), d)
+                  << psCap(d->cpen.capStyle())
+                  << psJoin(d->cpen.joinStyle()) << "PE\n";
 }
 
 void QPSPrintEngine::updateBrush(const QBrush &brush, const QPoint &origin)

@@ -8,8 +8,6 @@
 /d  /def load def
 /D  {bind d} bind d
 /d2 {dup dup} D
-/B  {0 d2} D
-/W  {255 d2} D
 /ED {exch d} D
 /D0 {0 ED} D
 /LT {lineto} D
@@ -32,7 +30,6 @@
 /DB {dict dup begin} D
 /DE {end d} D
 /ie {ifelse} D
-/sp {astore pop} D
 
 % ENDUNCOMPRESSED: Warning: leave this line in. 
 % Everything before this line will be left untouched by the compression
@@ -60,8 +57,6 @@
   0.06 
 ] d
 /defM matrix d
-
-/nS 0 d                              % number of saved painter states
 
 % LArr for the Pen styles is defined in emitHeader because of scaling
 
@@ -578,36 +573,25 @@
   QS
 } D
 
-/CRGB {                              % Compute RGB [R G B] => R/255 G/255 B/255
-  255 div 3 1 roll
-  255 div 3 1 roll
-  255 div 3 1 roll
+/BC {                                % PdcSetBkColor [[R G B]]
+  /BkCol ED
 } D
 
-
-/BC {                                % PdcSetBkColor [R G B]
-  CRGB
-  BkCol astore pop
-} D
-
-/BR {                                % PdcSetBrush [style R G B]
-  CRGB
-  BCol astore pop
-  /BSt ED
+/BR {                                % PdcSetBrush [style [R G B]]
+  /BCol ED /BSt ED
 } D
 
 /WB {                                % set white solid brush
-  1 W BR
+  1 [1 1 1] BR
 } D
 
 /NB {                                % set nobrush
-  0 B BR
+  0 [0 0 0] BR
 } D
 
 /PE {                                % PdcSetPen [style width R G B Cap Join]
   setlinejoin setlinecap
-  CRGB
-  PCol astore pop
+  /PCol ED
   /LWi ED
   /PSt ED
   LWi 0 eq { 0.25 /LWi ED } if % ### 3.0 remove this line
@@ -615,7 +599,7 @@
 } D
 
 /P1 {                                % PdcSetPen [R G B]
-  1 0 5 2 roll 0 0 PE
+  1 0 3 2 roll 0 0 PE
 } D
 
 /ST {                                % SET TRANSFORM [matrix]
@@ -760,21 +744,6 @@
     1 dict dup begin 3 1 roll def end
     setpagedevice
   } { pop pop } ifelse
-} D
-
-/SV {                                % Save painter state
-  BSt LWi PSt Cx Cy WFi OMo BCol PCol BkCol
-  /nS nS 1 add d
-  gsave
-} D
-
-/RS {                                % Restore painter state
-  nS 0 gt
-  { grestore
-    /BkCol ED /PCol ED /BCol ED /OMo ED /WFi ED
-    /Cy ED /Cx ED /PSt ED /LWi ED /BSt ED
-    /nS nS 1 sub d
-  } if
 } D
 
 /CLSTART {                           % clipping start
