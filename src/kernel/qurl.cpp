@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#14 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#15 $
 **
 ** Implementation of QFileDialog class
 **
@@ -180,6 +180,17 @@ struct QUrlPrivate
 */
 
 /*!
+  \fn void QUrl::copyProgress( const QString &from, const QString &to, int step, int total )
+
+  When copying a file this signal is emitted. \a from is the file which
+  is copied, \a to the destination. \a step is the progress 
+  (always <= \a total) or -1, if copying just started. \a total is the 
+  number of steps needed to copy the file.
+  
+  This signal can be used to show the progress when copying files.
+*/
+  
+/*!
   \fn void QUrl::emitEntry( const QUrlInfo & );
 
   Emits the signal entry( const QUrlInfo & ). This method is mainly
@@ -267,6 +278,14 @@ struct QUrlPrivate
   working together with the QUrl class.
 */
 
+
+/*!
+  \fn void QUrl::emitCopyProgress( const QString &from, const QString &to, int step, int total )
+  
+  Emits the signal copyProgress(  const QString &, const QString &, int, int). 
+  This method is mainly provided for implementations of network protocols which are
+  working together with the QUrl class.
+*/
 
 /*!
   Constructs an empty, malformed URL.
