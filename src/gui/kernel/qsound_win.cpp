@@ -82,7 +82,7 @@ DWORD WINAPI SoundPlayProc(LPVOID param)
     QAuServerWindows *server = info->server;
     QSound *sound = info->sound;
     int loops = info->loops;
-    QString filename(info->filename);
+    QString filename = info->filename;
     HANDLE mutex = server->mutex;
     HANDLE event = server->event;
     info = 0;
