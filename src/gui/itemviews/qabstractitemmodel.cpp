@@ -806,7 +806,7 @@ bool QAbstractItemModel::setItemData(const QModelIndex &index, const QMap<int, Q
 }
 
 /*!
-
+  Returns a list of the supported mime types.
 */
 QStringList QAbstractItemModel::mimeTypes() const
 {
@@ -816,7 +816,7 @@ QStringList QAbstractItemModel::mimeTypes() const
 }
 
 /*!
-
+  Returns the mimedata associated with the given \a indexes.
 */
 QMimeData *QAbstractItemModel::mimeData(const QModelIndexList &indexes) const
 {
@@ -832,7 +832,7 @@ QMimeData *QAbstractItemModel::mimeData(const QModelIndexList &indexes) const
 }
 
 /*!
-
+  
 */
 bool QAbstractItemModel::dropMimeData(const QMimeData *data, QDrag::DropAction action,
                                       int row, const QModelIndex &parent)
@@ -854,7 +854,8 @@ bool QAbstractItemModel::dropMimeData(const QMimeData *data, QDrag::DropAction a
 }
 
 /*!
-
+  Returns the drop actions supported by this model.
+  \sa QDrag::DropActions
 */
 QDrag::DropActions QAbstractItemModel::supportedDropActions() const
 {
