@@ -105,7 +105,7 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate( QDesktopWidget *that )
 {
     rects = new QMemArray<QRect>();
     workrects = new QMemArray<QRect>();
-    if ( qt_winver & Qt::WV_98 || qt_winver & Qt::WV_2000 || qt_winver == Qt::WV_XP ) {
+    if ( qt_winver == Qt::WV_98 || qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_XP ) {
 	screenCount = 0;  // SM_CMONITORS
 	// Trying to get the function pointers to Win98/2000 only functions
 #ifdef Q_OS_TEMP
@@ -313,7 +313,7 @@ const QRect& QDesktopWidget::availableGeometry( int screen ) const
 */
 const QRect& QDesktopWidget::screenGeometry( int screen ) const
 {
-    if ( qt_winver & Qt::WV_98 || qt_winver & Qt::WV_2000 || qt_winver == Qt::WV_XP ) {
+    if ( qt_winver == Qt::WV_98 || qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_XP ) {
 	if ( screen < 0 || screen >= d->screenCount )
 	    screen = d->primaryScreen;
 
@@ -331,7 +331,7 @@ const QRect& QDesktopWidget::screenGeometry( int screen ) const
 */
 int QDesktopWidget::screenNumber( QWidget *widget ) const
 {
-    if ( qt_winver & Qt::WV_98 || qt_winver & Qt::WV_2000 || qt_winver == Qt::WV_XP ) {
+    if ( qt_winver == Qt::WV_98 || qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_XP ) {
 	if ( !widget )
 	    return d->primaryScreen;
 	QRect frame = widget->frameGeometry();
@@ -364,7 +364,7 @@ int QDesktopWidget::screenNumber( QWidget *widget ) const
 */
 int QDesktopWidget::screenNumber( const QPoint &point ) const
 {
-    if ( qt_winver & Qt::WV_98 || qt_winver & Qt::WV_2000 || qt_winver == Qt::WV_XP ) {
+    if ( qt_winver == Qt::WV_98 || qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_XP ) {
 	for ( int i = 0; i < d->screenCount; ++i ) {
 	    if ( d->rects->at(i).contains( point ) )
 		return i;

@@ -1790,7 +1790,7 @@ int QWindowsStyle::styleHint( StyleHint hint,
 
     case SH_ItemView_ChangeHighlightOnFocus:
 #if defined(Q_WS_WIN)
-	if ( qWinVersion() & WV_98 || qWinVersion() & WV_2000 || qWinVersion() & WV_XP )
+	if ( qWinVersion() == WV_98 || qWinVersion() == WV_2000 || qWinVersion() == WV_XP )
 	    ret = 1;
 	else
 #endif
