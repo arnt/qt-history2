@@ -136,7 +136,6 @@ UnixMakefileGenerator::init()
 	if ( !( (project->first("TARGET") == "qt") || (project->first("TARGET") == "qte") ||
 		(project->first("TARGET") == "qt-mt") ) ) {
 	    if(!project->variables()["QMAKE_LIBDIR_QT"].isEmpty()) {
-		qDebug("fuck %s", project->first("QMAKE_LIBDIR_QT").latin1());
 		project->variables()["QMAKE_LIBDIR_FLAGS"].append("-L" +
 								  project->first("QMAKE_LIBDIR_QT"));
 	    }
