@@ -13,7 +13,10 @@ DESTDIR = ../../../lib
 
 DEFINES += QT_TASKMENU_LIBRARY
 
-HEADERS += button_taskmenu.h
-SOURCES += button_taskmenu.cpp
+HEADERS += button_taskmenu.h \
+  taskmenu_component.h
+
+SOURCES += button_taskmenu.cpp \
+  taskmenu_component.cpp
 
 include(../../sharedcomponents.pri)
