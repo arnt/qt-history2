@@ -65,8 +65,8 @@
      BSDI	- BSD/OS
      IRIX	- SGI Irix
      OSF	- Compaq Tru64
-     SCO	- SCO OpenServer, Open UNIX 8
-     UNIXWARE	- UnixWare
+     SCO	- SCO OpenServer
+     UNIXWARE	- UnixWare, Open UNIX 8
      AIX	- AIX
      HURD	- GNU Hurd
      DGUX	- DG/UX
