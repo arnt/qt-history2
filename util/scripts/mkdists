@@ -887,7 +887,7 @@ sub copy_source {
 		    && !/^syncqt$/
 		|| /^\.../
 		|| /^lib(-[^\/]*)$/
-		|| -s $_ > 300000 && !/^qstring.cpp$/ && !/\.qpf$/
+		|| -s $_ > 300000 && !/\.cpp$/ && !/\.qpf$/
 		|| $d =~ /examples/ && -f $_ && -x $_
 	    ) {
 		$File::Find::prune = 1 if -d $_;
