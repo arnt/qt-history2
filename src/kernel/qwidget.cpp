@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#312 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#313 $
 **
 ** Implementation of QWidget class
 **
@@ -3799,28 +3799,28 @@ void QWidget::setPalettePropagation( PropagationMode m )
 
 
 /*!
-  Updates (using update()) pixels to a width of \a bw around
+  Repaints (using repaint()) pixels to a width of \a bw around
   the margin of the widget that the resize event
   \a e would have damaged.
   Particularly useful in resizeEvent() when using WResizeNoErase.
 */
-void QWidget::updateResizedBorder( QResizeEvent* e, int bw )
+void QWidget::repaintResizedBorder( QResizeEvent* e, int bw )
 {
     bool samew = e->oldSize().width() == e->size().width();
     bool sameh = e->oldSize().height() == e->size().height();
     {
 	QRect r(QPoint(0,0),e->oldSize());
 	if ( !samew )
-	    update( r.width()-bw,0,bw,height() );
+	    repaint( r.width()-bw,0,bw,height() );
 	if ( !sameh )
-	    update( 0, r.height()-bw,width(),bw );
+	    repaint( 0, r.height()-bw,width(),bw );
     }
     {
 	QRect r(QPoint(0,0),e->size());
 	if ( !samew )
-	    update( r.width()-bw,0,bw,height() );
+	    repaint( r.width()-bw,0,bw,height() );
 	if ( !sameh )
-	    update( 0, r.height()-bw,width(),bw );
+	    repaint( 0, r.height()-bw,width(),bw );
     }
 }
 

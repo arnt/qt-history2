@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#127 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#128 $
 **
 ** Implementation of QMenuBar class
 **
@@ -454,7 +454,7 @@ void QMenuBar::openActPopup()
     //avoid circularity
     if ( popup->isVisible() )
 	return;
-    
+
     if (popup->parentMenu != this ){
 	// reuse
 	if (popup->parentMenu)
@@ -999,7 +999,7 @@ void QMenuBar::resizeEvent( QResizeEvent *e )
 	setFrameRect( r );
     }
 
-    updateResizedBorder( e, frameWidth() );
+    repaintResizedBorder( e, frameWidth() );
 
     if ( e->oldSize().height() == height() ) {
 	update( rightSide, 0, width(), height()-frameWidth()*2 );

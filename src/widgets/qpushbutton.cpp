@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#126 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#127 $
 **
 ** Implementation of QPushButton class
 **
@@ -288,7 +288,7 @@ void QPushButton::setGeometry( const QRect &r )
 
 void QPushButton::resizeEvent( QResizeEvent *e )
 {
-    updateResizedBorder( e, 2 );
+    repaintResizedBorder( e, 2 );
     repaint( 2, 2, width()-4, height()-4 );
     if ( autoMask())
 	updateMask();
