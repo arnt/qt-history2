@@ -1,12 +1,18 @@
-Qt OCI Driver
+You will need the Oracle development headers and libraries installed
+before compiling this plugin.
+
+See the Qt SQL documentation for more information on compiling Qt SQL
+driver plugins.
 
 
-Notes on Linux / Unix
 
-All files required to build driver should ship with the standard Oracle install.
-For Linux, it may be possible to copy headers from another platform's install.
+Notes on Unix/Linux:
 
-Oracle lib files required to build driver:
+All files required to build driver should ship with the standard Oracle
+install. For Linux, it may be possible to copy headers from another
+platform's install.
+
+Oracle library files required to build driver:
 
 libclntsh.so
 libclntsh.so.8.0
@@ -35,41 +41,33 @@ orl.h
 oro.h
 ort.h
 
-
-Issue the following commands to build the plugin
+Tell qmake where to find the Oracle header files and shared libraries
+(here it is assumed that Oracle is installed in /usr/local) and run make:
 
 cd $QTDIR/plugins/src/sqldrivers/oci
 qmake -o Makefile "INCLUDEPATH+=/usr/local/include" "LIBS+=-L/usr/local/lib -lclntsh -lwtc8" oci.pro
 make
 
-Replace the paths corresponding to where the libraries and headers have been
-installed to.
 
 
+Notes on Windows:
 
-Notes on Windows
+Choosing the option "Programmer" in the Oracle Client Installer from
+the Oracle Client Installation CD is sufficient to build the plugin. 
 
-Choosing the option "Programmer" in the Oracle Client Installer from the
-Oracle Client Installation CD is sufficient to build the plugin. 
+Build the plugin as follows (here it is assumed that Oracle Client is
+installed in C:\ORACLE):
 
-To build the plugins the following commands are neccesarry (assuming
-that QT was installed in C:\QT and Oracle Client in C:\ORACLE):
-
-cd %QTDIR%\plugins\src\sqldrivers\oci
+cd %QTDIR%\PLUGINS\SRC\SQLDRIVERS\OCI
 qmake -o Makefile "INCLUDEPATH+=C:\ORACLE\OCI\INCLUDE" oci.pro
 nmake
 
-If you are using a Borland compiler, replace "nmake" with "make" in the statement
-above.
+If you are using a Borland compiler, replace "nmake" with "make" in the
+statement above.
 
-Please note that the Makefile may not contain path names with special characters
-like spaces, so it is recommended that you use the 8.3 filename equivalent instead.
+Please note that the Makefile may not contain path names with special
+characters like spaces, so it is recommended that you use the 8.3 filename
+equivalent instead.
  
-For example: If Oracle is installed in "c:\program files\Oracle", use the
-following path as an argument for qmake: "C:\progra~1\oracle"
-
-
-
-See the Qt SQL documentation for more information on compiling Qt SQL
-driver plugins.
-
+Example: If Oracle is installed in "C:\PROGRAM FILES\ORACLE", use the
+following path as an argument for qmake: "C:\PROGRA~1\ORACLE" 

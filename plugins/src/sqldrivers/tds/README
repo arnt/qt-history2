@@ -1,8 +1,15 @@
-You will need the TDS development headers and libraries
-installed before compiling this plugin.
+You will need the TDS development headers and libraries installed before
+compiling this plugin.
 
-Under Windows, use the DB-Library supplied by Microsoft. You have to 
-include NTWDBLIB.LIB to build the plugin:
+See the Qt SQL documentation for more information on compiling Qt SQL
+driver plugins.
+
+
+
+Notes on Windows:
+
+Use the DB-Library supplied by Microsoft. You have to include NTWDBLIB.LIB
+to build the plugin:
 
 qmake -o Makefile "LIBS+=NTWDBLIB.LIB" tds.pro
 
@@ -11,9 +18,11 @@ you have to define Q_USE_SYBASE (look at qsql_tds.cpp).
 
  
 
+Notes on Unix/Linux:
+
 Under Unix, two libraries are available which support the TDS protocol:
 
-- FreeTDS, a free implementation of the TDS protocol. (www.freetds.org)
+- FreeTDS, a free implementation of the TDS protocol (www.freetds.org).
   Note that FreeTDS is not yet stable and may crash.
 
 - Sybase Open Client, available from www.sybase.com
@@ -24,8 +33,3 @@ set the SYBASE environment variable to point to the directory where you
 installed the library and execute qmake:
 
 qmake -o Makefile "INCLUDEPATH=$SYBASE/include" "LIBS=-L$SYBASE/lib -lsybdb"
-
-
-
-See the Qt SQL documentation for more information on compiling Qt SQL
-driver plugins.

@@ -1,24 +1,26 @@
-You will need ODBC development headers and libraries installed
-before compiling this plugin.
+You will need ODBC development headers and libraries installed before
+compiling this plugin.
 
 See the Qt SQL documentation for more information on compiling Qt SQL
 driver plugins.
 
 
+
 Notes on Unix/Linux ODBC:
 
-It is recommended that you use unixODBC. You can find the newest version
-on www.unixodbc.org.
+It is recommended that you use unixODBC. You can find the newest
+version on www.unixodbc.org. You need the unixODBC header files
+and shared libraries.
 
-To compile the QODBC3 plugin you have to issue the following command in
-$QTDIR/plugins/src/sqldrivers/odbc (it is assumed that unixODBC is installed in
-/usr/local/unixODBC):
+Tell qmake where to find the unixODBC header files and shared libraries
+(here it is assumed that unixODBC is installed in /usr/local/unixODBC)
+and run make:
 
-qmake "INCLUDEPATH+=/usr/local/unixODBC/include" 
-"LIBS+=-L/usr/local/unixODBC/lib -lodbc"
+cd $QTDIR/plugins/src/sqldrivers/odbc
+qmake "INCLUDEPATH+=/usr/local/unixODBC/include" "LIBS+=-L/usr/local/unixODBC/lib -lodbc"
+make
 
-then run make to build the plugin. Look at the unixODBC website for
-available ODBC drivers.
+Look at the unixODBC website for available ODBC drivers.
 
 
 
@@ -27,9 +29,9 @@ Notes on Windows:
 The ODBC header and include files should already be installed in the
 right directories. You just have to build the plugin as follows:
 
-cd %QTDIR%\plugins\src\sqldrivers\odbc
+cd %QTDIR%\PLUGINS\SRC\SQLDRIVERS\ODBC
 qmake -o Makefile odbc.pro
 nmake
 
-If you are using a Borland compiler, replace "nmake" with "make" in the statement
-above.
+If you are using a Borland compiler, replace "nmake" with "make" in the
+statement above.

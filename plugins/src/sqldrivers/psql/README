@@ -1,25 +1,24 @@
-You will need the PostgreSQL development headers and libraries
-installed before compiling this plugin.
+You will need the PostgreSQL development headers and libraries installed
+before compiling this plugin.
 
 See the Qt SQL documentation for more information on compiling Qt SQL
 driver plugins.
 
 
-Special notes for PostgreSQL under Linux/Unix:
 
-Just installing libpq.so and the corresponding header files is
+Notes for PostgreSQL under Unix/Linux:
+
+Just installing "libpq.so" and the corresponding header files is
 unfortunately not sufficient. You have to get the whole source
-distribution (look at www.postgresql.org) and run the configure
-script once (there is no need to build it if you already
-installed a binary distribution).
+distribution (www.postgresql.org) and run the configure script
+once (there is no need to build it if you have already installed
+a binary distribution).
 
-Then go into the QT psql module directory (usually it is
-$QTDIR/plugins/src/sqldrivers/psql) and start qmake with the following
-parameters (it is assumed that you extracted the PostgreSQL
-source code in /usr/src/psql and the libpq.so library is
-installed in /usr/lib)
+Tell qmake where to find the PostgreSQL header files and shared
+libraries (here it is assumed that you extracted the PostgreSQL
+source code in /usr/src/psql and the shared library is installed
+in /usr/lib) and run make:
 
-qmake -o Makefile "INCLUDEPATH+=/usr/src/psql/src/include 
-/usr/src/psql/src/interfaces/libpq" "LIBS+=-L/usr/lib -lpq" psql.pro
-
-Finally run make to build the PostgreSQL plugin.
+cd $QTDIR/plugins/src/sqldrivers/psql
+qmake -o Makefile "INCLUDEPATH+=/usr/src/psql/src/include /usr/src/psql/src/interfaces/libpq" "LIBS+=-L/usr/lib -lpq" psql.pro
+make
