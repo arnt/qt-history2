@@ -2888,22 +2888,3 @@ int QApplication::wheelScrollLines()
 {
     return 0;
 }
-
-bool QApplication::effectEnabled( Qt::UIEffect effect )
-{
-    switch( effect ) {
-    case UI_AnimateMenu:
-	return animate_menu;
-    case UI_FadeMenu:
-	return fade_menu;
-    case UI_AnimateCombo:
-	return animate_combo;
-    case UI_AnimateTooltip:
-	return animate_tooltip;
-    case UI_FadeTooltip:
-	return fade_tooltip;
-    default:
-	return animate_ui;
-    }
-    return FALSE;
-}

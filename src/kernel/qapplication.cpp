@@ -2613,8 +2613,6 @@ int QApplication::startDragDistance()
 /*!
   Enable the UI effect \a effect if \a enable is TRUE, otherwise
   the effect will not be used.
-  By default, Qt will try to use the desktop settings, and 
-  setDesktopSettingsAware() must be called to prevent this.
 
   \sa effectEnabled(), Qt::UIEffect, setDesktopSettingsAware()
 */
@@ -2643,8 +2641,6 @@ void QApplication::enableEffect( Qt::UIEffect effect, bool enable )
 }
 
 /*!
-  \fn bool QApplication::effectEnabled( Qt::UIEffect effect )
-
   Returns TRUE if \a effect is enabled, otherwise FALSE.
 
   By default, Qt will try to use the desktop settings, and 
@@ -2652,6 +2648,26 @@ void QApplication::enableEffect( Qt::UIEffect effect, bool enable )
 
   sa\ enableEffect(), Qt::UIEffect
 */
+bool QApplication::effectEnabled( Qt::UIEffect effect )
+{
+    if ( !animate_ui )
+	return FALSE;
+
+    switch( effect ) {
+    case UI_AnimateMenu:
+	return animate_menu;
+    case UI_FadeMenu:
+	return fade_menu;
+    case UI_AnimateCombo:
+	return animate_combo;
+    case UI_AnimateTooltip:
+	return animate_tooltip;
+    case UI_FadeTooltip:
+	return fade_tooltip;
+    default:
+	return animate_ui;
+    }
+}
 
 /*!
   \class QSessionManager qsessionmanager.h

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#391 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#392 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -499,10 +499,47 @@ static void qt_set_windows_resources()
 	QApplication::setPalette( pal, TRUE, "QTipLabel");
     }
 
+    BOOL effect = FALSE;
+
     if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_98 ) {
-	QApplication::enableEffect( Qt::UI_AnimateMenu);
-	QApplication::enableEffect( Qt::UI_AnimateTooltip );
-	QApplication::enableEffect( Qt::UI_AnimateCombo );
+#if defined(SPI_GETUIEFFECTS)
+       SystemParametersInfo( SPI_GETUIEFFECTS, 0, &effect, 0 );
+       QApplication::enableEffect( Qt::UI_General, effect );
+#else
+       QApplication::enableEffect( Qt::UI_General, TRUE );
+#endif
+#if defined(SPI_GETMENUANIMATION)
+        SystemParametersInfo( SPI_GETMENUANIMATION, 0, &effect, 0 );
+	QApplication::enableEffect( Qt::UI_AnimateMenu, effect );
+#else
+	QApplication::enableEffect( Qt::UI_AnimateMenu, TRUE );
+#endif
+#if defined(SPI_GETMENUFADE)
+	SystemParametersInfo( SPI_GETMENUFADE, 0, &effect, 0 );
+	QApplication::enableEffect( Qt::UI_FadeMenu, effect );
+#else
+	QApplication::enableEffect( Qt::UI_FadeMenu, FALSE );
+#endif
+#if defined(SPI_GETCOMBOBOXANIMATION)
+	SystemParametersInfo( SPI_GETCOMBOBOXANIMATION, 0, &effect, 0 );
+	QApplication::enableEffect( Qt::UI_AnimateCombo, effect );
+#else
+	QApplication::enableEffect( Qt::UI_AnimateCombo, TRUE );
+#endif
+#if defined(SPI_GETTOOLTIPANIMATION)
+	SystemParametersInfo( SPI_GETTOOLTIPANIMATION, 0, &effect, 0 );
+	QApplication::enableEffect( Qt::UI_AnimateTooltip, effect );
+#else
+	QApplication::enableEffect( Qt::UI_AnimateTooltip, TRUE );
+#endif	
+#if defined(SPI_GETTOOLTIPFADE)
+	SystemParametersInfo( SPI_GETTOOLTIPFADE, 0, &effect, 0 );
+	QApplication::enableEffect( Qt::UI_FadeTooltip, effect );
+#else
+	QApplication::enableEffect( Qt::UI_FadeTooltip, FALSE );
+#endif
+    } else {
+	QApplication::enableEffect( Qt::UI_General, FALSE );
     }
 }
 
@@ -2990,70 +3027,6 @@ int QApplication::wheelScrollLines()
 #else
     return wheel_scroll_lines;
 #endif
-}
-
-bool QApplication::effectEnabled( Qt::UIEffect effect )
-{
-    BOOL result = FALSE;
-    uint WINPARAM = 0;
-
-#if defined(SPI_GETUIEFFECTS)
-    WINPARAM = SPI_GETUIEFFECTS;
-#endif
-    result =  animate_ui;
-    if ( obey_desktop_settings && WINPARAM &&
-         (qt_winver == WV_2000 || qt_winver == WV_98) ) {
-	SystemParametersInfo( WINPARAM, 0, &result, 0 );
-    }
-
-    if ( !result )
-	return FALSE;
-
-    WINPARAM = 0;
-
-    switch (effect) {
-    case UI_AnimateMenu:
-#if defined(SPI_GETMENUANIMATION)
-	WINPARAM = SPI_GETMENUANIMATION;
-#endif
-	result = animate_menu;
-	break;
-    case UI_FadeMenu:
-#if defined(SPI_GETMENUFADE)
-	WINPARAM = SPI_GETMENUFADE;
-#endif
-	result = fade_menu;
-	break;
-    case UI_AnimateCombo:
-#if defined(SPI_GETCOMBOBOXANIMATION)
-	WINPARAM = SPI_GETCOMBOBOXANIMATION;
-#endif
-	result = animate_combo;
-	break;
-    case UI_AnimateTooltip:
-#if defined(SPI_GETTOOLTIPANIMATION)
-	WINPARAM = SPI_GETTOOLTIPANIMATION;
-#endif	
-	result = animate_tooltip;
-	break;
-    case UI_FadeTooltip:
-#if defined(SPI_GETTOOLTIPFADE)
-	WINPARAM = SPI_GETTOOLTIPFADE;
-#endif
-	result = fade_tooltip;
-	break;
-    default:
-#if defined(SPI_GETUIEFFECTS)
-	WINPARAM = SPI_GETUIEFFECTS;
-#endif
-	result =  animate_ui;
-	break;
-    }
-    if ( obey_desktop_settings && WINPARAM &&
-         (qt_winver == WV_2000 || qt_winver == WV_98) ) {
-	SystemParametersInfo( WINPARAM, 0, &result, 0 );
-    }
-    return result;
 }
 
 /*****************************************************************************
