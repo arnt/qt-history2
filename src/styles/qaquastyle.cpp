@@ -81,7 +81,7 @@ static const int aquaTabSpacing        = 12;   // space between text and tab
 static const int aquaCheckMarkHMargin  = 2;    // horiz. margins of check mark
 static const int aquaRightBorder       = 12;   // right border on aqua
 static const int aquaCheckMarkWidth    = 12;   // checkmarks width on aqua
-static QColor qt_aqua_highlight_active_color = QColor( 0xC2, 0xC2, 0xC2 ); //color of highlighted text
+static QColor qt_aqua_highlight_active_color = QColor(0xC2, 0xC2, 0xC2); //color of highlighted text
 static QColor qt_aqua_highlight_inactive_color = qt_aqua_highlight_active_color.light();
 #ifdef QMAC_QAQUA_MODIFY_TEXT_COLOURS
 static QColor qt_aqua_text_active_color = Qt::black;
@@ -96,31 +96,31 @@ public:
     QAquaStyleFocusWidget() : QAquaFocusWidget(FALSE) { }
 
 protected: 
-    virtual void paintEvent( QPaintEvent * );
+    virtual void paintEvent(QPaintEvent *);
 };
 
-void QAquaStyleFocusWidget::paintEvent( QPaintEvent * )
+void QAquaStyleFocusWidget::paintEvent(QPaintEvent *)
 {
     QPixmap pmt, pmb, pml, pmr, pmtl, pmtr, pmbl, pmbr;
-    qAquaPixmap( "focus_t", pmt );
-    qAquaPixmap( "focus_l", pml );
-    qAquaPixmap( "focus_b", pmb );
-    qAquaPixmap( "focus_r", pmr );
-    qAquaPixmap( "focus_tl", pmtl );
-    qAquaPixmap( "focus_bl", pmbl );
-    qAquaPixmap( "focus_tr", pmtr );
-    qAquaPixmap( "focus_br", pmbr );
+    qAquaPixmap("focus_t", pmt);
+    qAquaPixmap("focus_l", pml);
+    qAquaPixmap("focus_b", pmb);
+    qAquaPixmap("focus_r", pmr);
+    qAquaPixmap("focus_tl", pmtl);
+    qAquaPixmap("focus_bl", pmbl);
+    qAquaPixmap("focus_tr", pmtr);
+    qAquaPixmap("focus_br", pmbr);
 
-    QSharedDoubleBuffer buffer( QSharedDoubleBuffer::NoFlags );
-    buffer.begin( this, rect() );
-    buffer.painter()->drawTiledPixmap( 4, 0, width() - 8, pmt.height(), pmt );
-    buffer.painter()->drawTiledPixmap( 4, height() - pmb.height(), width() - 8, pmb.height(), pmb );
-    buffer.painter()->drawTiledPixmap( 0, 5, pml.width(), height() - 10, pml );
-    buffer.painter()->drawTiledPixmap( width() - pmr.width(), 5, pml.width(), height() - 10, pmr );
-    buffer.painter()->drawPixmap( 0, 0, pmtl );
-    buffer.painter()->drawPixmap( 0, height() - pmbl.height(), pmbl );
-    buffer.painter()->drawPixmap( width() - pmtr.width(), 0, pmtr );
-    buffer.painter()->drawPixmap( width() - pmbr.width(), height() - pmbr.height(), pmbr );
+    QSharedDoubleBuffer buffer(QSharedDoubleBuffer::NoFlags);
+    buffer.begin(this, rect());
+    buffer.painter()->drawTiledPixmap(4, 0, width() - 8, pmt.height(), pmt);
+    buffer.painter()->drawTiledPixmap(4, height() - pmb.height(), width() - 8, pmb.height(), pmb);
+    buffer.painter()->drawTiledPixmap(0, 5, pml.width(), height() - 10, pml);
+    buffer.painter()->drawTiledPixmap(width() - pmr.width(), 5, pml.width(), height() - 10, pmr);
+    buffer.painter()->drawPixmap(0, 0, pmtl);
+    buffer.painter()->drawPixmap(0, height() - pmbl.height(), pmbl);
+    buffer.painter()->drawPixmap(width() - pmtr.width(), 0, pmtr);
+    buffer.painter()->drawPixmap(width() - pmbr.width(), height() - pmbr.height(), pmbr);
 }
 
 class QAquaStylePrivate : public QAquaAnimate
@@ -153,7 +153,7 @@ void QAquaStylePrivate::doFocus(QWidget *w)
 {
     if (!focusWidget)
 	focusWidget = new QAquaStyleFocusWidget();
-    focusWidget->setFocusWidget( w );
+    focusWidget->setFocusWidget(w);
 }
 
 
@@ -231,20 +231,20 @@ QAquaStyle::~QAquaStyle()
 }
 
 /*! \reimp */
-void QAquaStyle::polish( QApplication* app )
+void QAquaStyle::polish(QApplication* app)
 {
     QPixmap px;
-    qAquaPixmap( "gen_back", px );
-    QBrush background( Qt::black, px );
+    qAquaPixmap("gen_back", px);
+    QBrush background(Qt::black, px);
     QPalette pal = app->palette();
-    pal.setBrush( QColorGroup::Background, background );
-    pal.setBrush( QColorGroup::Button, background );
+    pal.setBrush(QColorGroup::Background, background);
+    pal.setBrush(QColorGroup::Button, background);
     qt_mac_update_palette(pal, TRUE);
     app->setPalette(pal, TRUE);
 }
 
 /*! \reimp */
-void QAquaStyle::polish( QWidget * w )
+void QAquaStyle::polish(QWidget * w)
 {
     qt_mac_polish_font(w, qt_aqua_size_constrain(w));
     d->addWidget(w);
@@ -255,67 +255,67 @@ void QAquaStyle::polish( QWidget * w )
     if(w->inherits("QLineEdit")) 
 	((QLineEdit *)w)->setLineWidth(3);
 
-    if( w->inherits("QToolButton") ){
+    if(w->inherits("QToolButton")) {
         QToolButton * btn = (QToolButton *) w;
-        btn->setAutoRaise( FALSE );
+        btn->setAutoRaise(FALSE);
     }
 
-    if( w->inherits("QToolBar") ){
+    if(w->inherits("QToolBar")) {
 	QToolBar * bar = (QToolBar *) w;
 	QBoxLayout * layout = bar->boxLayout();
-	layout->setSpacing( 0 );
-	layout->setMargin( 0 );
+	layout->setSpacing(0);
+	layout->setMargin(0);
     }
 
     if(w->inherits("QTipLabel")) {
 	QLabel *label = (QLabel*)w;
 	label->setFrameStyle(QFrame::NoFrame);
-	label->setLineWidth( 1 );
+	label->setLineWidth(1);
     }
 
-    if ( !w->isTopLevel() ) {
-        if( !w->inherits("QSplitter") && w->backgroundPixmap() &&
+    if(!w->isTopLevel()) {
+        if(!w->inherits("QSplitter") && w->backgroundPixmap() &&
             (w->backgroundMode() == QWidget::PaletteBackground) && qApp->palette().isCopyOf(w->palette()))
-            w->setBackgroundOrigin( QWidget::WindowOrigin );
+            w->setBackgroundOrigin(QWidget::WindowOrigin);
     }
 
-    if( w->inherits("QTitleBar") ) {
+    if(w->inherits("QTitleBar")) {
 	w->font().setPixelSize(10);
 	((QTitleBar*)w)->setAutoRaise(TRUE);
     }
 #ifdef Q_WS_MACX
-    if( w->inherits("QPopupMenu")  && w->parentWidget() && w->parentWidget()->inherits("QComboBox") )
+    if(w->inherits("QPopupMenu")  && w->parentWidget() && w->parentWidget()->inherits("QComboBox"))
 	((QPopupMenu*)w)->setFrameStyle(QFrame::NoFrame);
 #endif
 }
 
 /*! \reimp */
-void QAquaStyle::unPolish( QWidget * w )
+void QAquaStyle::unPolish(QWidget * w)
 {
     d->removeWidget(w);
 #ifdef Q_WS_MAC
     if(w->inherits("QPopupMenu"))
 	QMacSavedPortInfo::setAlphaTransparancy(w, 1);
 #endif
-    if( w->inherits("QToolButton") ){
+    if(w->inherits("QToolButton")) {
         QToolButton * btn = (QToolButton *) w;
-        btn->setAutoRaise( TRUE );
+        btn->setAutoRaise(TRUE);
     }
 
-    if( w->inherits("QTitleBar") )
+    if(w->inherits("QTitleBar"))
 	((QTitleBar*)w)->setAutoRaise(FALSE);
-    if( w->inherits("QPopupMenu")  && w->parentWidget() && w->parentWidget()->inherits("QComboBox") )
-	((QPopupMenu*)w)->setFrameStyle( QFrame::PopupPanel | QFrame::Raised );
+    if(w->inherits("QPopupMenu")  && w->parentWidget() && w->parentWidget()->inherits("QComboBox"))
+	((QPopupMenu*)w)->setFrameStyle(QFrame::PopupPanel | QFrame::Raised);
 
-    if ( !w->isTopLevel() ) {
-        if( !w->inherits("QSplitter") && w->backgroundPixmap() &&
-            (w->backgroundMode() == QWidget::PaletteBackground) )
-            w->setBackgroundOrigin( QWidget::WidgetOrigin );
+    if(!w->isTopLevel()) {
+        if(!w->inherits("QSplitter") && w->backgroundPixmap() &&
+            (w->backgroundMode() == QWidget::PaletteBackground))
+            w->setBackgroundOrigin(QWidget::WidgetOrigin);
     }
 }
 
 /*! \reimp */
-bool QAquaStyle::event( QEvent *e )
+bool QAquaStyle::event(QEvent *e)
 {
 #ifdef Q_WS_MAC
     if(e->type() == QEvent::Style)
@@ -325,27 +325,27 @@ bool QAquaStyle::event( QEvent *e )
 }
 
 /*! \reimp */
-void QAquaStyle::drawItem( QPainter *p, const QRect &r,
+void QAquaStyle::drawItem(QPainter *p, const QRect &r,
 			   int flags, const QColorGroup &g, bool enabled,
 			   const QPixmap *pixmap, const QString& text,
-			   int len, const QColor* penColor ) const
+			   int len, const QColor* penColor) const
 {
     //No accelerators drawn here!
-    QWindowsStyle::drawItem( p, r, flags | NoAccel, g, enabled, pixmap, text,
-			     len, penColor );
+    QWindowsStyle::drawItem(p, r, flags | NoAccel, g, enabled, pixmap, text,
+			     len, penColor);
 }
 
 /*!
   \reimp
 */
-void QAquaStyle::drawPrimitive( PrimitiveElement pe,
+void QAquaStyle::drawPrimitive(PrimitiveElement pe,
 				   QPainter *p,
 				   const QRect &r,
 				   const QColorGroup &cg,
 				   SFlags flags,
-				   const QStyleOption& opt ) const
+				   const QStyleOption& opt) const
 {
-    switch( pe ) {
+    switch(pe) {
     case PE_Panel:
     case PE_PanelLineEdit: {
 	if(flags & Style_Sunken) {
@@ -380,7 +380,7 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 	break; }
 
     case PE_PanelGroupBox: {
-	if ( opt.isDefault() )
+	if(opt.isDefault())
 	    break;
 	QColor clr = gray;
 	//This is terrible, if I we just passed the widget in this wouldn't be necesary!
@@ -453,42 +453,42 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
     case PE_ArrowRight:
     case PE_ArrowLeft: {
 	p->save();
-	p->setPen( cg.text() );
+	p->setPen(cg.text());
 	QPointArray a;
-	if ( pe == PE_ArrowDown )
-	    a.setPoints( 3, r.x(), r.y(), r.right(), r.y(), r.x() + (r.width() / 2) , r.bottom());
-	else if( pe == PE_ArrowRight )
-	    a.setPoints( 3, r.x(), r.y(), r.right(), r.y() + (r.height() / 2), r.x(), r.bottom());
-	else if( pe == PE_ArrowUp )
-	    a.setPoints( 3, r.x() + (r.width() / 2), r.y(), r.right(), r.bottom(), r.x(), r.bottom());
+	if(pe == PE_ArrowDown)
+	    a.setPoints(3, r.x(), r.y(), r.right(), r.y(), r.x() + (r.width() / 2) , r.bottom());
+	else if(pe == PE_ArrowRight)
+	    a.setPoints(3, r.x(), r.y(), r.right(), r.y() + (r.height() / 2), r.x(), r.bottom());
+	else if(pe == PE_ArrowUp)
+	    a.setPoints(3, r.x() + (r.width() / 2), r.y(), r.right(), r.bottom(), r.x(), r.bottom());
 	else
-	    a.setPoints( 3, r.x(), r.y() + (r.height() / 2), r.right(), r.y(), r.right(), r.bottom());
-	p->setBrush( cg.text() );
-	p->drawPolygon( a );
-	p->setBrush( NoBrush );
+	    a.setPoints(3, r.x(), r.y() + (r.height() / 2), r.right(), r.y(), r.right(), r.bottom());
+	p->setBrush(cg.text());
+	p->drawPolygon(a);
+	p->setBrush(NoBrush);
 	p->restore();
 	break; }
 
     case PE_HeaderSection: {
 	QPixmap px;
 	QString nstr = QString::number(r.height()), mod;
-	if(flags & Style_Down )
+	if(flags & Style_Down)
 	    mod = "down_";
-	else if(flags & Style_Sunken && qAquaActive( cg ))
+	else if(flags & Style_Sunken && qAquaActive(cg))
 	    mod = "act_";
-	qAquaPixmap( "hdr_" + mod + nstr, px );
-	p->drawTiledPixmap( r, px );
+	qAquaPixmap("hdr_" + mod + nstr, px);
+	p->drawTiledPixmap(r, px);
 	//separator
 	p->save();
-	p->setPen( gray );
-	p->drawLine( r.right(), r.top(), r.right(), r.bottom() );
+	p->setPen(gray);
+	p->drawLine(r.right(), r.top(), r.right(), r.bottom());
 	p->restore();
 	break; }
 
     case PE_ProgressBarChunk: {
 	QPixmap px;
-	qAquaPixmap( "progress_" + QString::number(r.height()), px );
-	p->drawTiledPixmap( r, px, QPoint((r.x() % px.width()) - d->progressOff, 0) );
+	qAquaPixmap("progress_" + QString::number(r.height()), px);
+	p->drawTiledPixmap(r, px, QPoint((r.x() % px.width()) - d->progressOff, 0));
 	break; }
 
     case PE_FocusRect:
@@ -497,56 +497,56 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
     case PE_DockWindowHandle:
 	{
 	    p->save();
-	    p->translate( r.x(), r.y() );
+	    p->translate(r.x(), r.y());
 
 	    bool highlight = flags & Style_On;
-	    QColor dark( cg.dark() );
-	    QColor light( cg.light() );
+	    QColor dark(cg.dark());
+	    QColor light(cg.light());
 	    unsigned int i;
-	    if ( flags & Style_Horizontal ) {
+	    if(flags & Style_Horizontal) {
 		int h = r.height();
-		if ( h > 6 ) {
-		    if ( highlight )
-			p->fillRect( 1, 1, 8, h - 2, cg.highlight() );
-		    QPointArray a( 2 * ((h-6)/3) );
+		if(h > 6) {
+		    if(highlight)
+			p->fillRect(1, 1, 8, h - 2, cg.highlight());
+		    QPointArray a(2 * ((h-6)/3));
 		    int y = 3 + (h%3)/2;
-		    p->setPen( dark );
-		    p->drawLine( 8, 1, 8, h-2 );
-		    for( i=0; 2*i < a.size(); i ++ ) {
-			a.setPoint( 2*i, 5, y+1+3*i );
-			a.setPoint( 2*i+1, 2, y+2+3*i );
+		    p->setPen(dark);
+		    p->drawLine(8, 1, 8, h-2);
+		    for(i=0; 2*i < a.size(); i ++) {
+			a.setPoint(2*i, 5, y+1+3*i);
+			a.setPoint(2*i+1, 2, y+2+3*i);
 		    }
-		    p->drawPoints( a );
-		    p->setPen( light );
-		    p->drawLine( 9, 1, 9, h-2 );
-		    for( i=0; 2*i < a.size(); i++ ) {
-			a.setPoint( 2*i, 4, y+3*i );
-			a.setPoint( 2*i+1, 1, y+1+3*i );
+		    p->drawPoints(a);
+		    p->setPen(light);
+		    p->drawLine(9, 1, 9, h-2);
+		    for(i=0; 2*i < a.size(); i++) {
+			a.setPoint(2*i, 4, y+3*i);
+			a.setPoint(2*i+1, 1, y+1+3*i);
 		    }
-		    p->drawPoints( a );
+		    p->drawPoints(a);
 		}
 	    } else {
 		int w = r.width();
-		if ( w > 6 ) {
-		    if ( highlight )
-			p->fillRect( 1, 1, w - 2, 9, cg.highlight() );
-		    QPointArray a( 2 * ((w-6)/3) );
+		if(w > 6) {
+		    if(highlight)
+			p->fillRect(1, 1, w - 2, 9, cg.highlight());
+		    QPointArray a(2 * ((w-6)/3));
 
 		    int x = 3 + (w%3)/2;
-		    p->setPen( dark );
-		    p->drawLine( 1, 8, w-2, 8 );
-		    for( i=0; 2*i < a.size(); i ++ ) {
-			a.setPoint( 2*i, x+1+3*i, 6 );
-			a.setPoint( 2*i+1, x+2+3*i, 3 );
+		    p->setPen(dark);
+		    p->drawLine(1, 8, w-2, 8);
+		    for(i=0; 2*i < a.size(); i ++) {
+			a.setPoint(2*i, x+1+3*i, 6);
+			a.setPoint(2*i+1, x+2+3*i, 3);
 		    }
-		    p->drawPoints( a );
-		    p->setPen( light );
-		    p->drawLine( 1, 9, w-2, 9 );
-		    for( i=0; 2*i < a.size(); i++ ) {
-			a.setPoint( 2*i, x+3*i, 5 );
-			a.setPoint( 2*i+1, x+1+3*i, 2 );
+		    p->drawPoints(a);
+		    p->setPen(light);
+		    p->drawLine(1, 9, w-2, 9);
+		    for(i=0; 2*i < a.size(); i++) {
+			a.setPoint(2*i, x+3*i, 5);
+			a.setPoint(2*i+1, x+1+3*i, 2);
 		    }
-		    p->drawPoints( a );
+		    p->drawPoints(a);
 		}
 		p->restore();
 	    }
@@ -555,24 +555,24 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 
     case PE_DockWindowSeparator: {
 	QPixmap px;
-	if( flags & Style_Horizontal )
-	    qAquaPixmap( "tbar_hsep_" + QString::number(r.width())+ "_" + QString::number(r.height()), px );
+	if(flags & Style_Horizontal)
+	    qAquaPixmap("tbar_hsep_" + QString::number(r.width())+ "_" + QString::number(r.height()), px);
 	else
-	    qAquaPixmap( "tbar_vsep_" + QString::number(r.width())+ "_" + QString::number(r.height()), px );
+	    qAquaPixmap("tbar_vsep_" + QString::number(r.width())+ "_" + QString::number(r.height()), px);
 
-	p->drawPixmap( r.x(), r.y(), px );
+	p->drawPixmap(r.x(), r.y(), px);
 	break; }
 
     case PE_TabBarBase: {
 	QPixmap px;
 	QString mod = "act";
-	if( !qAquaActive( cg ) )
+	if(!qAquaActive(cg))
 	    mod = "dis";
-	if( flags & Style_Top )
-	    qAquaPixmap( "tab_t_top_" + mod, px );
+	if(flags & Style_Top)
+	    qAquaPixmap("tab_t_top_" + mod, px);
 	else
-	    qAquaPixmap( "tab_b_top_" + mod, px );
-	p->drawTiledPixmap( r.x(), r.y(), r.width(), r.height(), px );
+	    qAquaPixmap("tab_b_top_" + mod, px);
+	p->drawTiledPixmap(r.x(), r.y(), r.width(), r.height(), px);
 	break; }
 
     case PE_Indicator: {
@@ -580,28 +580,28 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 	bool down = flags & Style_Down;
 	bool on  = flags  & Style_On;
 	bool tri = flags & Style_NoChange;
-	if( flags & Style_Enabled && qAquaActive( cg ) ){
-	    if( down && on )
+	if(flags & Style_Enabled && qAquaActive(cg)) {
+	    if(down && on)
 		qAquaPixmap("chk_psh_t", px);
-	    else if( on )
+	    else if(on)
 		qAquaPixmap("chk_act_t", px);
-	    else if ( down && tri )
-		qAquaPixmap("chk_mid_psh_t", px );
-	    else if ( tri )
-		qAquaPixmap("chk_mid_t", px );
-	    else if( !on && down )
+	    else if(down && tri)
+		qAquaPixmap("chk_mid_psh_t", px);
+	    else if(tri)
+		qAquaPixmap("chk_mid_t", px);
+	    else if(!on && down)
 		qAquaPixmap("chk_psh_f", px);
 	    else
 		qAquaPixmap("chk_act_f", px);
 	} else {
-	    if ( on )
+	    if(on)
 		qAquaPixmap("chk_dis_t", px);
-	    else if ( tri )
+	    else if(tri)
 		qAquaPixmap("chk_mid_dis_t", px);
 	    else
 		qAquaPixmap("chk_act_f", px);
 	}
-	p->drawPixmap( r.x(), r.y(), px, 0, 1 );
+	p->drawPixmap(r.x(), r.y(), px, 0, 1);
 	break; }
 
     case PE_IndicatorMask: {
@@ -613,12 +613,12 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 	bool down = flags & Style_Down;
 	bool on  = flags  & Style_On;
 	bool enabled = flags & Style_Enabled;
-	if( enabled  && qAquaActive( cg ) ){
-	    if( down && on )
+	if(enabled  && qAquaActive(cg)) {
+	    if(down && on)
 		qAquaPixmap("radio_psh_t", px);
-	    else if( on )
+	    else if(on)
 		qAquaPixmap("radio_t", px);
-	    else if( !on && down )
+	    else if(!on && down)
 		qAquaPixmap("radio_psh_f", px);
 	    else
 		qAquaPixmap("radio_f", px);
@@ -628,25 +628,25 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 	    else
 		qAquaPixmap("radio_f", px);
 	}
-	p->drawPixmap( r.x(), r.y(), px, 0, 0 );
+	p->drawPixmap(r.x(), r.y(), px, 0, 0);
 	break; }
 
     case PE_ExclusiveIndicatorMask: {
-	QBitmap radio_mask( aqua_radio_mask_xbm_width,
+	QBitmap radio_mask(aqua_radio_mask_xbm_width,
 			    aqua_radio_mask_xbm_height,
-			    (const uchar *) aqua_radio_mask_xbm_bits, TRUE );
-	p->drawPixmap( r.x(), r.y()+1, radio_mask, 0, 1 );
+			    (const uchar *) aqua_radio_mask_xbm_bits, TRUE);
+	p->drawPixmap(r.x(), r.y()+1, radio_mask, 0, 1);
 	break; }
 
 #ifndef QT_NO_SCROLLBAR
     case PE_ScrollBarAddLine:
     case PE_ScrollBarSubLine: {
 	QPixmap arrow;
-	p->setBackgroundMode( OpaqueMode );
+	p->setBackgroundMode(OpaqueMode);
 	QString mod, prefix, join;
-	if(flags & Style_Down )
+	if(flags & Style_Down)
 	    mod += "psh_";
-	if( flags & Style_Horizontal ) {
+	if(flags & Style_Horizontal) {
 	    prefix = "h";
 	    if(pe == PE_ScrollBarAddLine)
 		mod += "right_";
@@ -661,33 +661,33 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 		mod += "up_";
 	    mod += QString::number(r.width());
 	}
-	if( qt_mac_scrollbar_arrows_together )
+	if(qt_mac_scrollbar_arrows_together)
 	    join = "joined_";
-	qAquaPixmap( prefix + "sbr_" + join + "arw_" + mod, arrow );
-	p->drawPixmap( r.x(), r.y(), arrow );
+	qAquaPixmap(prefix + "sbr_" + join + "arw_" + mod, arrow);
+	p->drawPixmap(r.x(), r.y(), arrow);
 	break; }
 
     case PE_ScrollBarSubPage:
     case PE_ScrollBarAddPage: {
 	QPixmap fill;
-	p->setBackgroundMode( OpaqueMode );
+	p->setBackgroundMode(OpaqueMode);
 	QString prefix="v";
-	if( flags & Style_Horizontal )
+	if(flags & Style_Horizontal)
 	    prefix = "h";
-	qAquaPixmap( prefix + "sbr_back_fill_" + QString::number(
-	    flags & Style_Horizontal ? r.height() : r.width()), fill );
+	qAquaPixmap(prefix + "sbr_back_fill_" + QString::number(
+	    flags & Style_Horizontal ? r.height() : r.width()), fill);
 	QRect fillr = r;
-	if( pe == PE_ScrollBarSubPage && qt_mac_scrollbar_arrows_together) {
+	if(pe == PE_ScrollBarSubPage && qt_mac_scrollbar_arrows_together) {
 	    QPixmap cap;
-	    qAquaPixmap( prefix + "sbr_joined_back_cap_" + QString::number(
-		flags & Style_Horizontal ? r.height() : r.width()), cap );
-	    p->drawPixmap( r.x(), r.y(), cap );
+	    qAquaPixmap(prefix + "sbr_joined_back_cap_" + QString::number(
+		flags & Style_Horizontal ? r.height() : r.width()), cap);
+	    p->drawPixmap(r.x(), r.y(), cap);
 	    if(flags & Style_Horizontal)
-		fillr.setX( r.x() + cap.width() );
+		fillr.setX(r.x() + cap.width());
 	    else
-		fillr.setY( r.y() + cap.height() );
+		fillr.setY(r.y() + cap.height());
 	}
-	p->drawTiledPixmap( fillr, fill );
+	p->drawTiledPixmap(fillr, fill);
 	break; }
 
     case PE_ScrollBarSlider: {
@@ -695,28 +695,28 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 	QBitmap tip1m, tip2m;
 	QRect real_rect;
 	QString act;
-	if(!qAquaActive( cg ) )
+	if(!qAquaActive(cg))
 	    act = "dis_";
-	if( flags & Style_Horizontal ) {
+	if(flags & Style_Horizontal) {
 	    QString nstr = QString::number(r.height());
-	    qAquaPixmap( "hsbr_tip_" + act + "left_" + nstr, tip1 );
-	    qAquaPixmap( "hsbr_tip_" + act + "right_" + nstr, tip2 );
-	    qAquaPixmap( "hsbr_" + act + "fill_" + nstr, fill );
-	    p->drawPixmap( r.x(), r.y(), tip1 );
-	    p->drawPixmap( r.x()+r.width()-tip2.width(), r.y(), tip2 );
+	    qAquaPixmap("hsbr_tip_" + act + "left_" + nstr, tip1);
+	    qAquaPixmap("hsbr_tip_" + act + "right_" + nstr, tip2);
+	    qAquaPixmap("hsbr_" + act + "fill_" + nstr, fill);
+	    p->drawPixmap(r.x(), r.y(), tip1);
+	    p->drawPixmap(r.x()+r.width()-tip2.width(), r.y(), tip2);
 	    real_rect = QRect(r.x() + tip1.width(), r.y(), r.width() - tip2.width() - tip1.width(),
 			      r.height());
 	} else {
 	    QString nstr = QString::number(r.width());
-	    qAquaPixmap( "vsbr_tip_" + act + "up_" + nstr, tip1 );
-	    qAquaPixmap( "vsbr_tip_" + act + "down_" + nstr, tip2 );
-	    qAquaPixmap( "vsbr_" + act + "fill_" + nstr, fill );
-	    p->drawPixmap( r.x(), r.y(), tip1 );
-	    p->drawPixmap( r.x(), r.y()+r.height()-tip2.height(), tip2 );
+	    qAquaPixmap("vsbr_tip_" + act + "up_" + nstr, tip1);
+	    qAquaPixmap("vsbr_tip_" + act + "down_" + nstr, tip2);
+	    qAquaPixmap("vsbr_" + act + "fill_" + nstr, fill);
+	    p->drawPixmap(r.x(), r.y(), tip1);
+	    p->drawPixmap(r.x(), r.y()+r.height()-tip2.height(), tip2);
 	    real_rect = QRect(r.x(), r.y() + tip1.height(), r.width(),
 			      r.height() - tip2.height() - tip1.height());
 	}
-	p->fillRect( real_rect, QBrush( Qt::black, fill ) );
+	p->fillRect(real_rect, QBrush(Qt::black, fill));
 	break; }
 #endif
     default:
@@ -728,13 +728,13 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 /*!
   \reimp
 */
-void QAquaStyle::drawControl( ControlElement element,
+void QAquaStyle::drawControl(ControlElement element,
 				 QPainter *p,
 				 const QWidget *widget,
 				 const QRect &r,
 				 const QColorGroup &cg,
 				 SFlags how,
-				 const QStyleOption& opt ) const
+				 const QStyleOption& opt) const
 {
     SFlags flags = Style_Default;
     if (widget->isEnabled())
@@ -742,8 +742,8 @@ void QAquaStyle::drawControl( ControlElement element,
 
     switch(element) {
     case CE_PopupMenuScroller: {
-	p->fillRect( r.x(), r.y(), r.width(), r.height(), cg.brush( QColorGroup::Button ));
-	const int w = 10, x = (r.width() / 2) - (w / 2),
+	p->fillRect(r.x(), r.y(), r.width(), r.height(), cg.brush(QColorGroup::Button));
+	const int w = 10, x = (r.width() / 2) - (w / 2), 
 		  h = 10, y = (r.height() / 2) - (h / 2);
 	drawPrimitive((how & Style_Down) ? PE_ArrowDown : PE_ArrowUp, p,
 		      QRect(r.x() + x, r.y() + y, w, h), cg, flags, opt);
@@ -758,42 +758,42 @@ void QAquaStyle::drawControl( ControlElement element,
 	bool selected = how & Style_Selected;
 	QString pos;
 
-	if( tb->shape() == QTabBar::RoundedAbove )
+	if(tb->shape() == QTabBar::RoundedAbove)
 	    pos = "t";
 	else
 	    pos = "b";
 
-	QString hstr = QString::number( r.height() );
-	if( qAquaActive( tb->colorGroup() ) ){
-	    if( (how & Style_Sunken) && (how & Style_MouseOver) ) {
-		qAquaPixmap( "tab_"+ pos +"_prs_left_" + hstr, left );
-		qAquaPixmap( "tab_"+ pos +"_prs_mid_" + hstr, mid );
-		qAquaPixmap( "tab_"+ pos +"_prs_right_" + hstr, right );
-	    } else if( selected ){
-		qAquaPixmap( "tab_"+ pos +"_act_left_" + hstr, left );
-		qAquaPixmap( "tab_"+ pos +"_act_mid_" + hstr, mid );
-		qAquaPixmap( "tab_"+ pos +"_act_right_" + hstr, right );
+	QString hstr = QString::number(r.height());
+	if(qAquaActive(tb->colorGroup())) {
+	    if((how & Style_Sunken) && (how & Style_MouseOver)) {
+		qAquaPixmap("tab_"+ pos +"_prs_left_" + hstr, left);
+		qAquaPixmap("tab_"+ pos +"_prs_mid_" + hstr, mid);
+		qAquaPixmap("tab_"+ pos +"_prs_right_" + hstr, right);
+	    } else if(selected) {
+		qAquaPixmap("tab_"+ pos +"_act_left_" + hstr, left);
+		qAquaPixmap("tab_"+ pos +"_act_mid_" + hstr, mid);
+		qAquaPixmap("tab_"+ pos +"_act_right_" + hstr, right);
 	    } else {
-		qAquaPixmap( "tab_"+ pos +"_dis_left_" + hstr, left );
-		qAquaPixmap( "tab_"+ pos +"_dis_mid_" + hstr, mid );
-		qAquaPixmap( "tab_"+ pos +"_dis_right_" + hstr , right );
+		qAquaPixmap("tab_"+ pos +"_dis_left_" + hstr, left);
+		qAquaPixmap("tab_"+ pos +"_dis_mid_" + hstr, mid);
+		qAquaPixmap("tab_"+ pos +"_dis_right_" + hstr , right);
 	    }
 	} else {
-	    if( selected ){
-		qAquaPixmap( "tab_"+ pos +"_sel_dis_left_" + hstr, left );
-		qAquaPixmap( "tab_"+ pos +"_sel_dis_mid_" + hstr, mid );
-		qAquaPixmap( "tab_"+ pos +"_sel_dis_right_" + hstr, right );
+	    if(selected) {
+		qAquaPixmap("tab_"+ pos +"_sel_dis_left_" + hstr, left);
+		qAquaPixmap("tab_"+ pos +"_sel_dis_mid_" + hstr, mid);
+		qAquaPixmap("tab_"+ pos +"_sel_dis_right_" + hstr, right);
 	    } else {
-		qAquaPixmap( "tab_"+ pos +"_usel_dis_left_" + hstr, left );
-		qAquaPixmap( "tab_"+ pos +"_usel_dis_mid_" + hstr, mid );
-		qAquaPixmap( "tab_"+ pos +"_usel_dis_right_" + hstr, right );
+		qAquaPixmap("tab_"+ pos +"_usel_dis_left_" + hstr, left);
+		qAquaPixmap("tab_"+ pos +"_usel_dis_mid_" + hstr, mid);
+		qAquaPixmap("tab_"+ pos +"_usel_dis_right_" + hstr, right);
 	    }
 	}
 
-	p->drawPixmap( r.x(), r.y(), left );
-	p->drawTiledPixmap( r.x() + left.width(), r.y(), r.width()-left.width()*2,
-			    r.height(), mid );
-	p->drawPixmap( r.x() + r.width() - right.width(), r.y(), right );
+	p->drawPixmap(r.x(), r.y(), left);
+	p->drawTiledPixmap(r.x() + left.width(), r.y(), r.width()-left.width()*2,
+			    r.height(), mid);
+	p->drawPixmap(r.x() + r.width() - right.width(), r.y(), right);
 #endif
 	break; }
 
@@ -805,8 +805,8 @@ void QAquaStyle::drawControl( ControlElement element,
 	QMenuItem *mi = opt.menuItem();
 	int x, y, w, h;
 	r.rect(&x, &y, &w, &h);
-	if ( !mi ) {
-	    p->fillRect( x, y, w, h, cg.brush( QColorGroup::Button ));
+	if (!mi) {
+	    p->fillRect(x, y, w, h, cg.brush(QColorGroup::Button));
 	    break;
 	}
 
@@ -819,85 +819,81 @@ void QAquaStyle::drawControl( ControlElement element,
 	bool checkable = popupmenu->isCheckable();
 	bool act = how & Style_Active;
 
-	if ( checkable )
-	    maxpmw = QMAX( maxpmw, 12 ); // space for the checkmarks
+	if(checkable)
+	    maxpmw = QMAX(maxpmw, 12); // space for the checkmarks
 
 	int checkcol = maxpmw;
 	QPixmap selectedBackground;
-	qAquaPixmap( "sel_back", selectedBackground );
+	qAquaPixmap("sel_back", selectedBackground);
 
-	if ( mi && mi->isSeparator() ) { // Aqua separators are just empty menuitems
-	    p->fillRect( r, g.brush( QColorGroup::Button ) );
+	if (mi && mi->isSeparator()) { // Aqua separators are just empty menuitems
+	    p->fillRect(r, g.brush(QColorGroup::Button));
 	    return;
 	}
 
-	QBrush fill = act && !dis ? QBrush( Qt::black, selectedBackground ) :
-	    g.brush( QColorGroup::Button );
-	p->fillRect( x, y, w, h, fill);
+	QBrush fill = act && !dis ? QBrush(Qt::black, selectedBackground) :  g.brush(QColorGroup::Button);
+	p->fillRect(x, y, w, h, fill);
 	bool reverse = QApplication::reverseLayout();
 
 	int xpos = x;
-	if ( reverse )
+	if(reverse)
 	    xpos += w - checkcol;
 
-	if ( mi && mi->iconSet() ) {              // draw iconset
-	    if ( checked ) {
-		QRect vrect = visualRect( QRect( xpos, y, checkcol, h ), r );
-		if ( act && !dis ) {
-		    qDrawShadePanel( p, vrect.x(), y, checkcol, h,
-				     cg, TRUE, 1, &cg.brush( QColorGroup::Button ) );
+	if(mi && mi->iconSet()) {              // draw iconset
+	    if(checked) {
+		QRect vrect = visualRect(QRect(xpos, y, checkcol, h), r);
+		if (act && !dis) {
+		    qDrawShadePanel(p, vrect.x(), y, checkcol, h,
+				     cg, TRUE, 1, &cg.brush(QColorGroup::Button));
 		} else {
-		    QBrush fill( cg.light(), Dense4Pattern );
+		    QBrush fill(cg.light(), Dense4Pattern);
 		    // set the brush origin for the hash pattern to the x/y coordinate
 		    // of the menu item's checkmark... this way, the check marks have
 		    // a consistent look
 		    QPoint origin = p->brushOrigin();
-		    p->setBrushOrigin( vrect.x(), y );
-		    qDrawShadePanel( p, vrect.x(), y, checkcol, h, cg, TRUE, 1,
-				     &fill );
+		    p->setBrushOrigin(vrect.x(), y);
+		    qDrawShadePanel(p, vrect.x(), y, checkcol, h, cg, TRUE, 1,
+				     &fill);
 		    // restore the previous brush origin
-		    p->setBrushOrigin( origin );
+		    p->setBrushOrigin(origin);
 		}
-	    } else if ( !act ) {
-		p->fillRect(xpos, y, checkcol, h,
-			    g.brush( QColorGroup::Button ));
+	    } else if(!act) {
+		p->fillRect(xpos, y, checkcol, h, g.brush(QColorGroup::Button));
 	    }
 
 	    QIconSet::Mode mode = dis ? QIconSet::Disabled : QIconSet::Normal;
-	    if (act && !dis )
+	    if (act && !dis)
 		mode = QIconSet::Active;
 	    QPixmap pixmap;
-	    if ( checkable && mi->isChecked() )
-		pixmap = mi->iconSet()->pixmap( QIconSet::Small, mode, QIconSet::On );
+	    if (checkable && mi->isChecked())
+		pixmap = mi->iconSet()->pixmap(QIconSet::Small, mode, QIconSet::On);
 	    else
-		pixmap = mi->iconSet()->pixmap( QIconSet::Small, mode );
+		pixmap = mi->iconSet()->pixmap(QIconSet::Small, mode);
 	    int pixw = pixmap.width();
 	    int pixh = pixmap.height();
-	    if ( act && !dis ) {
-		if ( !mi->isChecked() )
-		    qDrawShadePanel( p, xpos, y, checkcol, h, g, FALSE, 1,
-				     &g.brush( QColorGroup::Button ) );
+	    if (act && !dis) {
+		if (!mi->isChecked())
+		    qDrawShadePanel(p, xpos, y, checkcol, h, g, FALSE, 1, &g.brush(QColorGroup::Button));
 	    }
-	    QRect cr( xpos, y, checkcol, h );
-	    QRect pmr( 0, 0, pixw, pixh );
-	    pmr.moveCenter( cr.center() );
-	    p->setPen( itemg.text() );
-	    p->drawPixmap( pmr.topLeft(), pixmap );
+	    QRect cr(xpos, y, checkcol, h);
+	    QRect pmr(0, 0, pixw, pixh);
+	    pmr.moveCenter(cr.center());
+	    p->setPen(itemg.text());
+	    p->drawPixmap(pmr.topLeft(), pixmap);
 
-	    QBrush fill = act? QBrush( Qt::black, selectedBackground ) :
-				  g.brush( QColorGroup::Button );
+	    QBrush fill = act? QBrush(Qt::black, selectedBackground) : g.brush(QColorGroup::Button);
 	    int xp;
-	    if ( reverse )
+	    if (reverse)
 		xp = x;
 	    else
 		xp = xpos + checkcol + 1;
-	    p->fillRect( xp, y, w - checkcol - 1, h, fill);
-	} else  if ( checkable ) {  // just "checking"...
+	    p->fillRect(xp, y, w - checkcol - 1, h, fill);
+	} else  if (checkable) {  // just "checking"...
 	    int mw = checkcol + aquaItemFrame;
 	    int mh = h - 2*aquaItemFrame;
-	    if ( mi->isChecked() ) {
+	    if (mi->isChecked()) {
 		int xp = xpos;
-		if( reverse )
+		if(reverse)
 		    xp -= aquaItemFrame;
 		else
 		    xp += aquaItemFrame;
@@ -911,83 +907,81 @@ void QAquaStyle::drawControl( ControlElement element,
 	    }
 	}
 
-	p->setPen( act ? Qt::white/*g.highlightedText()*/ : g.buttonText() );
+	p->setPen(act ? Qt::white/*g.highlightedText()*/ : g.buttonText());
 
 	QColor discol;
-	if ( dis ) {
+	if (dis) {
 	    discol = itemg.text();
-	    p->setPen( discol );
+	    p->setPen(discol);
 	}
 
 	int xm = aquaItemFrame + checkcol + aquaItemHMargin;
-	if ( reverse )
+	if (reverse)
 	    xpos = aquaItemFrame + tab;
 	else
 	    xpos += xm;
 
-	if ( mi && mi->custom() ) {
+	if (mi && mi->custom()) {
 	    int m = aquaItemVMargin;
 	    p->save();
-	    if ( dis && !act ) {
-		p->setPen( g.light() );
-		mi->custom()->paint( p, itemg, act, !dis,
-				     xpos+1, y+m+1, w-xm-tab+1, h-2*m );
-		p->setPen( discol );
+	    if (dis && !act) {
+		p->setPen(g.light());
+		mi->custom()->paint(p, itemg, act, !dis,
+				     xpos+1, y+m+1, w-xm-tab+1, h-2*m);
+		p->setPen(discol);
 	    }
-	    mi->custom()->paint( p, itemg, act, !dis,
-				 x+xm, y+m, w-xm-tab+1, h-2*m );
+	    mi->custom()->paint(p, itemg, act, !dis,
+				 x+xm, y+m, w-xm-tab+1, h-2*m);
 	    p->restore();
 	}
 	QString s = mi->text();
-	if ( !s.isNull() ) {                        // draw text
-	    int t = s.find( '\t' );
+	if (!s.isNull()) {                        // draw text
+	    int t = s.find('\t');
 	    int m = aquaItemVMargin;
 	    const int text_flags = AlignVCenter|NoAccel | DontClip | SingleLine;
-	    if ( t >= 0 ) {                         // draw tab text
+	    if (t >= 0) {                         // draw tab text
 		int xp;
-		if( reverse )
+		if(reverse)
 		    xp = x + aquaRightBorder+aquaItemHMargin+aquaItemFrame - 1;
 		else
 		    xp = x + w - tab - aquaRightBorder-aquaItemHMargin-aquaItemFrame+1;
-		if ( dis && !act ) {
-		    p->setPen( g.light() );
-		    p->drawText( xp, y+m+1, tab, h-2*m, text_flags, s.mid( t+1 ));
-		    p->setPen( discol );
+		if (dis && !act) {
+		    p->setPen(g.light());
+		    p->drawText(xp, y+m+1, tab, h-2*m, text_flags, s.mid(t+1));
+		    p->setPen(discol);
 		}
-		p->drawText( xp, y+m, tab, h-2*m, text_flags, s.mid( t+1 ) );
-		s = s.left( t );
+		p->drawText(xp, y+m, tab, h-2*m, text_flags, s.mid(t+1));
+		s = s.left(t);
 	    }
-	    if ( dis && !act ) {
-		p->setPen( g.light() );
-		p->drawText( xpos+1, y+m+1, w-xm-tab+1, h-2*m, text_flags, s, t );
-		p->setPen( discol );
+	    if (dis && !act) {
+		p->setPen(g.light());
+		p->drawText(xpos+1, y+m+1, w-xm-tab+1, h-2*m, text_flags, s, t);
+		p->setPen(discol);
 	    }
-	    p->drawText( xpos, y+m, w-xm-tab+1, h-2*m, text_flags, s, t );
-	} else if ( mi && mi->pixmap() ) {                        // draw pixmap
+	    p->drawText(xpos, y+m, w-xm-tab+1, h-2*m, text_flags, s, t);
+	} else if (mi && mi->pixmap()) {                        // draw pixmap
 	    QPixmap *pixmap = mi->pixmap();
-	    if ( pixmap->depth() == 1 )
-		p->setBackgroundMode( OpaqueMode );
-	    p->drawPixmap( xpos, y+aquaItemFrame, *pixmap );
-	    if ( pixmap->depth() == 1 )
-		p->setBackgroundMode( TransparentMode );
+	    if (pixmap->depth() == 1)
+		p->setBackgroundMode(OpaqueMode);
+	    p->drawPixmap(xpos, y+aquaItemFrame, *pixmap);
+	    if (pixmap->depth() == 1)
+		p->setBackgroundMode(TransparentMode);
 	}
-	if ( mi->popup() ) {                        // draw sub menu arrow
+	if (mi->popup()) {                        // draw sub menu arrow
 	    int dim = (h-2*aquaItemFrame) / 2;
 	    PrimitiveElement arrow;
-	    if ( reverse ) {
+	    if (reverse) {
 		arrow = PE_ArrowLeft;
 		xpos = x + aquaArrowHMargin + aquaItemFrame;
 	    } else {
 		arrow = PE_ArrowRight;
 		xpos = x+w - aquaArrowHMargin - aquaItemFrame - dim;
 	    }
-	    if ( act ) {
-		if ( !dis )
+	    if (act) {
+		if (!dis)
 		    discol = white;
-		QColorGroup g2( discol, cg.highlight(),
-				white, white,
-				dis ? discol : white,
-				discol, white );
+		QColorGroup g2(discol, cg.highlight(), white, white,
+				dis ? discol : white, discol, white);
 
 		drawPrimitive(arrow, p, QRect(xpos, y + h / 2 - dim / 2, dim, dim),
 			      g2, Style_Enabled);
@@ -1008,16 +1002,16 @@ void QAquaStyle::drawControl( ControlElement element,
 	    break;
 	bool down = how & Style_Down;
 	bool active = how & Style_Active;
-	if( down && active ){
+	if(down && active) {
 	    QPixmap px;
-	    qAquaPixmap( "sel_back", px );
-	    p->fillRect( r, QBrush( black, px ) );
+	    qAquaPixmap("sel_back", px);
+	    p->fillRect(r, QBrush(black, px));
 	} else {
-	    p->fillRect( r, cg.brush( QColorGroup::Button ) );
+	    p->fillRect(r, cg.brush(QColorGroup::Button));
 	}
-	drawItem( p, r, AlignCenter|DontClip|SingleLine|ShowPrefix,
+	drawItem(p, r, AlignCenter|DontClip|SingleLine|ShowPrefix,
 		  cg, mi->isEnabled(), mi->pixmap(), mi->text(), -1,
-		  (down && active) ? &white : &cg.buttonText() );
+		  (down && active) ? &white : &cg.buttonText());
 	break; }
 
     case CE_PushButton: {
@@ -1031,63 +1025,63 @@ void QAquaStyle::drawControl( ControlElement element,
 	int x=r.x(), y=r.y(), w=r.width(), h=r.height();
 
 	// ### What about buttons that are so small that the pixmaps don't fit?
-	if( w < 33 ){
-	    drawPrimitive( PE_ButtonCommand, p, r, cg, how, opt);
+	if(w < 33) {
+	    drawPrimitive(PE_ButtonCommand, p, r, cg, how, opt);
 	    return;
 	}
 
-	QString hstr = QString::number( h - y );
-	if( d->animatable(QAquaAnimate::AquaPushButton, btn) ) {
+	QString hstr = QString::number(h - y);
+	if(d->animatable(QAquaAnimate::AquaPushButton, btn)) {
 	    int & alt = d->buttonState.frame;
 	    int & dir = d->buttonState.dir;
-	    if( alt > 0 && !(how & Style_Down) ){
-		QString num = QString::number( alt );
-		qAquaPixmap( "btn_def_left" + num + "_" + hstr, left );
-		qAquaPixmap( "btn_def_mid" + num + "_" + hstr, mid );
-		qAquaPixmap( "btn_def_right" + num + "_" + hstr, right );
+	    if(alt > 0 && !(how & Style_Down)) {
+		QString num = QString::number(alt);
+		qAquaPixmap("btn_def_left" + num + "_" + hstr, left);
+		qAquaPixmap("btn_def_mid" + num + "_" + hstr, mid);
+		qAquaPixmap("btn_def_right" + num + "_" + hstr, right);
 	    } else {
-		qAquaPixmap( "btn_def_left_" + hstr, left );
-		qAquaPixmap( "btn_def_mid_" + hstr, mid );
-		qAquaPixmap( "btn_def_right_" + hstr, right );
+		qAquaPixmap("btn_def_left_" + hstr, left);
+		qAquaPixmap("btn_def_mid_" + hstr, mid);
+		qAquaPixmap("btn_def_right_" + hstr, right);
 	    }
 	    // Pause animation if button is down
-	    if( how & Style_Down ) {
+	    if(how & Style_Down) {
 		dir = 1;
 		alt = 0;
 	    } else {
-		if( (dir == 1) && (alt == 9) ) dir = -1;
-		if( (dir == -1) && (alt == 0) ) dir = 1;
+		if((dir == 1) && (alt == 9)) dir = -1;
+		if((dir == -1) && (alt == 0)) dir = 1;
 		alt += dir;
 	    }
-	} else if ( how & Style_Down ) {
+	} else if (how & Style_Down) {
 	    if(btn->isFlat()) {
-		qAquaPixmap( "btn_def_mir_left_" + hstr, left );
-		qAquaPixmap( "btn_def_mir_mid_" + hstr, mid );
-		qAquaPixmap( "btn_def_mir_right_" + hstr, right );
+		qAquaPixmap("btn_def_mir_left_" + hstr, left);
+		qAquaPixmap("btn_def_mir_mid_" + hstr, mid);
+		qAquaPixmap("btn_def_mir_right_" + hstr, right);
 	    } else {
-		qAquaPixmap( "btn_def_left_" + hstr, left );
-		qAquaPixmap( "btn_def_mid_" + hstr, mid );
-		qAquaPixmap( "btn_def_right_" + hstr, right );
+		qAquaPixmap("btn_def_left_" + hstr, left);
+		qAquaPixmap("btn_def_mid_" + hstr, mid);
+		qAquaPixmap("btn_def_right_" + hstr, right);
 	    }
-	} else if ( !(how & Style_Enabled) ) {
-	    qAquaPixmap( "btn_dis_left_" + hstr, left );
-	    qAquaPixmap( "btn_dis_mid_" + hstr, mid );
-	    qAquaPixmap( "btn_dis_right_" + hstr, right );
-	} else if ( how & Style_On ) {
-	    qAquaPixmap( "btn_def_mir_left_" + hstr, left );
-	    qAquaPixmap( "btn_def_mir_mid_" + hstr, mid );
-	    qAquaPixmap( "btn_def_mir_right_" + hstr, right );
-	} else if( how & Style_Raised ) {
-	    qAquaPixmap( "btn_nrm_left_" + hstr, left );
-	    qAquaPixmap( "btn_nrm_mid_" + hstr, mid );
-	    qAquaPixmap( "btn_nrm_right_" + hstr, right );
+	} else if (!(how & Style_Enabled)) {
+	    qAquaPixmap("btn_dis_left_" + hstr, left);
+	    qAquaPixmap("btn_dis_mid_" + hstr, mid);
+	    qAquaPixmap("btn_dis_right_" + hstr, right);
+	} else if (how & Style_On) {
+	    qAquaPixmap("btn_def_mir_left_" + hstr, left);
+	    qAquaPixmap("btn_def_mir_mid_" + hstr, mid);
+	    qAquaPixmap("btn_def_mir_right_" + hstr, right);
+	} else if(how & Style_Raised) {
+	    qAquaPixmap("btn_nrm_left_" + hstr, left);
+	    qAquaPixmap("btn_nrm_mid_" + hstr, mid);
+	    qAquaPixmap("btn_nrm_right_" + hstr, right);
 	}
 
 	if(!mid.isNull()) {
-	    QBrush mid_f( Qt::black, mid );
-	    p->drawPixmap( x, y, left );
-	    p->drawTiledPixmap( x+left.width(), y, w-x-left.width()*2, h-y, mid );
-	    p->drawPixmap( w-right.width(), y, right );
+	    QBrush mid_f(Qt::black, mid);
+	    p->drawPixmap(x, y, left);
+	    p->drawTiledPixmap(x+left.width(), y, w-x-left.width()*2, h-y, mid);
+	    p->drawPixmap(w-right.width(), y, right);
 	}
 #endif
 	break; }
@@ -1099,21 +1093,21 @@ void QAquaStyle::drawControl( ControlElement element,
 	QPushButton *btn = (QPushButton *)widget;
 	bool on = btn->isDown() || btn->isOn();
 	int x, y, w, h;
-	r.rect( &x, &y, &w, &h );
-	if ( btn->isMenuButton() ) {
+	r.rect(&x, &y, &w, &h);
+	if(btn->isMenuButton()) {
 	    int dx = pixelMetric(PM_MenuButtonIndicator, widget);
 
-	    QColorGroup g( btn->colorGroup() );
+	    QColorGroup g(btn->colorGroup());
 	    int xx = x+w-dx-4;
 	    int yy = y-3;
 	    int hh = h+6;
 
-	    if ( !on ) {
-		p->setPen( g.mid() ); // mid
+	    if(!on) {
+		p->setPen(g.mid()); // mid
 		p->drawLine(xx, yy+2, xx, yy+hh-3);
-		p->setPen( g.button() );
+		p->setPen(g.button());
 		p->drawLine(xx+1, yy+1, xx+1, yy+hh-2);
-		p->setPen( g.light() );
+		p->setPen(g.light());
 		p->drawLine(xx+2, yy+2, xx+2, yy+hh-2);
 	    }
 	    QRect ar(r.right() - dx, r.y() + 2, dx - 4, r.height() - 4);
@@ -1121,29 +1115,29 @@ void QAquaStyle::drawControl( ControlElement element,
 	    w -= dx;
 	}
 
-	if ( btn->iconSet() && !btn->iconSet()->isNull() ) {
+	if(btn->iconSet() && !btn->iconSet()->isNull()) {
 	    QIconSet::Mode mode = btn->isEnabled()
 				  ? QIconSet::Normal : QIconSet::Disabled;
-	    if ( mode == QIconSet::Normal && btn->hasFocus() )
+	    if(mode == QIconSet::Normal && btn->hasFocus())
 		mode = QIconSet::Active;
 	    QIconSet::State state = QIconSet::Off;
-	    if ( btn->isToggleButton() && btn->isOn() )
+	    if(btn->isToggleButton() && btn->isOn())
 		state = QIconSet::On;
-	    QPixmap pixmap = btn->iconSet()->pixmap( QIconSet::Small, mode, state );
+	    QPixmap pixmap = btn->iconSet()->pixmap(QIconSet::Small, mode, state);
 	    int pixw = pixmap.width();
 	    int pixh = pixmap.height();
-	    p->drawPixmap( x+2, y+h/2-pixh/2, pixmap );
+	    p->drawPixmap(x+2, y+h/2-pixh/2, pixmap);
 	    x += pixw + 4;
 	    w -= pixw + 4;
 	}
 
-	drawItem( p, QRect(x, y, w, h), AlignCenter|ShowPrefix, cg, btn->isEnabled(),
+	drawItem(p, QRect(x, y, w, h), AlignCenter|ShowPrefix, cg, btn->isEnabled(),
 		  btn->pixmap(), btn->text(), -1);
 #endif
 	break; }
 
     default:
-	QWindowsStyle::drawControl( element, p, widget, r, cg, how, opt);
+	QWindowsStyle::drawControl(element, p, widget, r, cg, how, opt);
 	break;
     }
 }
@@ -1223,10 +1217,10 @@ int QAquaStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 /*!
   \reimp
 */
-QSize QAquaStyle::sizeFromContents( ContentsType contents,
+QSize QAquaStyle::sizeFromContents(ContentsType contents,
 				       const QWidget *widget,
 				       const QSize &contentsSize,
-				       const QStyleOption& opt ) const
+				       const QStyleOption& opt) const
 {
     QSize sz(contentsSize);
     switch(contents) {
@@ -1245,7 +1239,7 @@ QSize QAquaStyle::sizeFromContents( ContentsType contents,
 	    h = mi->custom()->sizeHint().height();
 	    if (! mi->custom()->fullSpan())
 		h += 8;
-	} else if ( mi->widget() ) {
+	} else if(mi->widget()) {
 	} else if (mi->isSeparator()) {
 	    w = 10;
 	    h = aquaSepHeight;
@@ -1303,17 +1297,17 @@ QSize QAquaStyle::sizeFromContents( ContentsType contents,
 /*!
   \reimp
 */
-QRect QAquaStyle::subRect( SubRect r, const QWidget *w ) const
+QRect QAquaStyle::subRect(SubRect r, const QWidget *w) const
 {
     QRect ret, wrect(w->rect());
     switch(r) {
     case SR_PushButtonContents:
 	ret = QWindowsStyle::subRect(r, w);
 	if(w->width() > 32) {
-	    ret.setTop( ret.top()+1);
-	    ret.setLeft( ret.left()+8);
-	    ret.setBottom( ret.bottom()-1);
-	    ret.setRight( ret.right()-8);
+	    ret.setTop(ret.top()+1);
+	    ret.setLeft(ret.left()+8);
+	    ret.setBottom(ret.bottom()-1);
+	    ret.setRight(ret.right()-8);
 	}
 	break;
 
@@ -1344,14 +1338,14 @@ QRect QAquaStyle::subRect( SubRect r, const QWidget *w ) const
 /*!
   \reimp
 */
-void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
+void QAquaStyle::drawComplexControl(ComplexControl ctrl, QPainter *p,
 					const QWidget *widget,
 					const QRect &r,
 					const QColorGroup &cg,
 					SFlags flags,
 					SCFlags sub,
 					SCFlags subActive,
-					const QStyleOption& opt ) const
+					const QStyleOption& opt) const
 {
     switch(ctrl) {
 #ifndef QT_NO_SCROLLBAR
@@ -1363,7 +1357,7 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    QPixmap fill;
 	    QString prefix="v";
 	    int size = r.width();
-	    if( flags & Style_Horizontal ) {
+	    if(flags & Style_Horizontal) {
 		prefix = "h";
 		size = r.height();
 	    }
@@ -1473,14 +1467,14 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    int ctrlw = 0;
 	    if(tb->window())
 		ctrlw = 55;
-	    else if(tb->testWFlags( WStyle_SysMenu))
+	    else if(tb->testWFlags(WStyle_SysMenu))
 		ctrlw = 17;
-	    if ( sub & (SC_TitleBarMinButton|SC_TitleBarCloseButton|SC_TitleBarMaxButton) ) {
+	    if(sub & (SC_TitleBarMinButton|SC_TitleBarCloseButton|SC_TitleBarMaxButton)) {
 		QPixmap ctrl;
 		if(flags & Style_MouseOver)
-		    qAquaPixmap( "win_act_controls", ctrl );
+		    qAquaPixmap("win_act_controls", ctrl);
 		else
-		    qAquaPixmap( "win_dis_controls", ctrl );
+		    qAquaPixmap("win_dis_controls", ctrl);
 		p->drawPixmap(0, 0, ctrl, 0, 0, ctrlw, 16);
 	    }
 
@@ -1489,31 +1483,31 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		if(tb->icon())
 		   iw = tb->icon()->width() + 3;
 		QPixmap fill;
-		qAquaPixmap( "win_fill", fill );
+		qAquaPixmap("win_fill", fill);
 		p->drawTiledPixmap(x, 0, tb->width() - x, fill.height(), fill);
 		QColorGroup cgroup = tb->usesActiveColor() ?
 				     tb->palette().active() : tb->palette().inactive();
-		p->setPen( cgroup.highlightedText() );
+		p->setPen(cgroup.highlightedText());
 		p->save();
-		p->setClipRect( x, 0, tb->width() - x, tb->height() );
+		p->setClipRect(x, 0, tb->width() - x, tb->height());
 		if((tb->width() - x) <= (p->fontMetrics().width(tb->caption())+iw*2))
 		    x += iw;
 		else
-		    x += ((tb->width() - x) / 2) - ( p->fontMetrics().width(tb->visibleText()) / 2);
-		y = (tb->height() / 2) - ( p->fontMetrics().height() / 2 );
+		    x += ((tb->width() - x) / 2) - (p->fontMetrics().width(tb->visibleText()) / 2);
+		y = (tb->height() / 2) - (p->fontMetrics().height() / 2);
 		if(tb->icon() && !tb->caption().isEmpty())
 		    p->drawPixmap(x - iw, y, *tb->icon());
-		p->drawText( x, y + p->fontMetrics().ascent(), tb->visibleText() );
+		p->drawText(x, y + p->fontMetrics().ascent(), tb->visibleText());
 		p->restore();
 	    }
 	}
 	break; }
 
     case CC_ListView: {
-	if ( sub & SC_ListView ) {
-	    QWindowsStyle::drawComplexControl( ctrl, p, widget, r, cg, flags, sub, subActive, opt );
+	if(sub & SC_ListView) {
+	    QWindowsStyle::drawComplexControl(ctrl, p, widget, r, cg, flags, sub, subActive, opt);
 	}
-	if ( sub & ( SC_ListViewBranch | SC_ListViewExpand ) ) {
+	if(sub & (SC_ListViewBranch | SC_ListViewExpand)) {
 	    if (opt.isDefault())
 		break;
 	    QListViewItem *item = opt.listViewItem();
@@ -1523,9 +1517,9 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    for(QListViewItem *child = item->firstChild(); child && y < h;
 		y += child->totalHeight(), child = child->nextSibling()) {
 		if(y + child->height() > 0) {
-		    if ( child->isExpandable() || child->childCount() )
-			drawPrimitive( child->isOpen() ? PE_ArrowDown : PE_ArrowRight, p,
-				       QRect(r.right() - 10, (y + child->height()/2) - 4, 9, 9), cg2 );
+		    if(child->isExpandable() || child->childCount())
+			drawPrimitive(child->isOpen() ? PE_ArrowDown : PE_ArrowRight, p,
+				       QRect(r.right() - 10, (y + child->height()/2) - 4, 9, 9), cg2);
 		}
 	    }
 	}
@@ -1537,26 +1531,26 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 
 	QPixmap btn;
 	if(sub & SC_SpinWidgetUp) {
-	    QRect sr = visualRect( querySubControlMetrics( CC_SpinWidget, widget,
-							   SC_SpinWidgetUp ), widget );
-	    QString wstr = QString::number( sr.width() );
-	    QString hstr = QString::number( sr.height() );
-	    if ( subActive & SC_SpinWidgetUp )
-		qAquaPixmap( "spinbtn_up_on_" + wstr + "_" + hstr, btn );
+	    QRect sr = visualRect(querySubControlMetrics(CC_SpinWidget, widget,
+							   SC_SpinWidgetUp), widget);
+	    QString wstr = QString::number(sr.width());
+	    QString hstr = QString::number(sr.height());
+	    if(subActive & SC_SpinWidgetUp)
+		qAquaPixmap("spinbtn_up_on_" + wstr + "_" + hstr, btn);
 	    else
-		qAquaPixmap( "spinbtn_up_off_" + wstr + "_" + hstr, btn );
-	    p->drawPixmap( sr.x(), sr.y(), btn );
+		qAquaPixmap("spinbtn_up_off_" + wstr + "_" + hstr, btn);
+	    p->drawPixmap(sr.x(), sr.y(), btn);
 	}
 	if(sub & SC_SpinWidgetDown) {
-	    QRect sr = visualRect( querySubControlMetrics( CC_SpinWidget, widget,
-							   SC_SpinWidgetDown ), widget );
-	    QString wstr = QString::number( sr.width() );
-	    QString hstr = QString::number( sr.height() );
-	    if ( subActive & SC_SpinWidgetDown )
-		qAquaPixmap( "spinbtn_down_on_" + wstr + "_" + hstr, btn );
+	    QRect sr = visualRect(querySubControlMetrics(CC_SpinWidget, widget,
+							   SC_SpinWidgetDown), widget);
+	    QString wstr = QString::number(sr.width());
+	    QString hstr = QString::number(sr.height());
+	    if(subActive & SC_SpinWidgetDown)
+		qAquaPixmap("spinbtn_down_on_" + wstr + "_" + hstr, btn);
 	    else
-		qAquaPixmap( "spinbtn_down_off_" + wstr + "_" + hstr, btn );
-	    p->drawPixmap( sr.x(), sr.y(), btn );
+		qAquaPixmap("spinbtn_down_off_" + wstr + "_" + hstr, btn);
+	    p->drawPixmap(sr.x(), sr.y(), btn);
 	}
 	break; }
 
@@ -1565,82 +1559,82 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    break;
 	QSlider *sldr = (QSlider *)widget;
 
-	if ( sub == SC_None )
+	if(sub == SC_None)
 	    sub = SC_SliderGroove | SC_SliderTickmarks | SC_SliderHandle;
 
-	if ( sub & SC_SliderGroove ) {
+	if(sub & SC_SliderGroove) {
 	    int offset = 3;
 	    QPixmap sldr_l, sldr_mid, sldr_r;
 	    QString dir("h");
 	    QSlider * s = (QSlider *) widget;
-	    if ( s->orientation() == Vertical )
+	    if(s->orientation() == Vertical)
 		dir = "v";
-	    if ( s->tickmarks() == QSlider::Above )
+	    if(s->tickmarks() == QSlider::Above)
 		offset = 10;
-	    qAquaPixmap( "sldr_" + dir + "grv_tip_left", sldr_l );
-	    qAquaPixmap( "sldr_" + dir + "grv_mid", sldr_mid );
-	    qAquaPixmap( "sldr_" + dir + "grv_tip_right", sldr_r );
+	    qAquaPixmap("sldr_" + dir + "grv_tip_left", sldr_l);
+	    qAquaPixmap("sldr_" + dir + "grv_mid", sldr_mid);
+	    qAquaPixmap("sldr_" + dir + "grv_tip_right", sldr_r);
 
-	    if ( s->orientation() == Horizontal ){
-		p->drawPixmap( r.x(), r.y() + offset, sldr_l );
-		p->drawTiledPixmap( r.x() + sldr_l.width(), r.y() + offset, r.width() - sldr_l.width()*2,
-				    sldr_l.height(), sldr_mid );
-		p->drawPixmap( r.x() + r.width() - sldr_r.width(), r.y() + offset, sldr_r );
+	    if(s->orientation() == Horizontal) {
+		p->drawPixmap(r.x(), r.y() + offset, sldr_l);
+		p->drawTiledPixmap(r.x() + sldr_l.width(), r.y() + offset, r.width() - sldr_l.width()*2,
+				    sldr_l.height(), sldr_mid);
+		p->drawPixmap(r.x() + r.width() - sldr_r.width(), r.y() + offset, sldr_r);
 	    } else {
-		p->drawPixmap( r.x() + offset, r.y(), sldr_r );
-		p->drawTiledPixmap( r.x() + offset, r.y() + sldr_l.height(), sldr_mid.width(),
-				    r.height() - sldr_l.height()*2, sldr_mid );
-		p->drawPixmap( r.x() + offset, r.y() + r.height() - sldr_l.height(), sldr_l );
+		p->drawPixmap(r.x() + offset, r.y(), sldr_r);
+		p->drawTiledPixmap(r.x() + offset, r.y() + sldr_l.height(), sldr_mid.width(),
+				    r.height() - sldr_l.height()*2, sldr_mid);
+		p->drawPixmap(r.x() + offset, r.y() + r.height() - sldr_l.height(), sldr_l);
 	    }
 	}
-	if ( sub & SC_SliderTickmarks ) {
+	if(sub & SC_SliderTickmarks) {
 	    QColorGroup cg2 = cg;
 	    cg2.setColor(QColorGroup::Foreground, gray); //ick, just want grayish ticks
-	    QWindowsStyle::drawComplexControl( ctrl, p, widget, r, cg2, flags,
+	    QWindowsStyle::drawComplexControl(ctrl, p, widget, r, cg2, flags,
 					       SC_SliderTickmarks, subActive,
-					       opt );
+					       opt);
 	}
-	if ( sub & SC_SliderHandle ) {
-	    QRect re = querySubControlMetrics( CC_Slider, widget, SC_SliderHandle, opt );
+	if(sub & SC_SliderHandle) {
+	    QRect re = querySubControlMetrics(CC_Slider, widget, SC_SliderHandle, opt);
 	    QPixmap px;
-	    QString hstr = QString::number( re.height() );
+	    QString hstr = QString::number(re.height());
 	    QString dir;
-	    if ( sldr->orientation() == Horizontal ){
-		if ( sldr->tickmarks() == QSlider::Above )
+	    if(sldr->orientation() == Horizontal) {
+		if(sldr->tickmarks() == QSlider::Above)
 		    dir = "up";
 		else
 		    dir = "down";
-	    } else if ( sldr->orientation() == Vertical ) {
-		if ( sldr->tickmarks() == QSlider::Above )
+	    } else if(sldr->orientation() == Vertical) {
+		if(sldr->tickmarks() == QSlider::Above)
 		    dir = "left";
 		else
 		    dir = "right";
 	    }
-	    if( qAquaActive( cg ) ) {
-		qAquaPixmap( "sldr_act_pty_" + dir + "_" + hstr, px );
+	    if(qAquaActive(cg)) {
+		qAquaPixmap("sldr_act_pty_" + dir + "_" + hstr, px);
 	    } else {
-		qAquaPixmap( "sldr_dis_pty_" + dir + "_" + hstr, px );
+		qAquaPixmap("sldr_dis_pty_" + dir + "_" + hstr, px);
 	    }
 	    sldr->erase(re.x(), re.y(), px.width(), px.height());
-	    p->drawPixmap( re.x(), re.y(), px );
+	    p->drawPixmap(re.x(), re.y(), px);
 	}
 	break; }
 
     case CC_ComboBox:
 	{
 	    QPixmap left, mid, right;
-	    QString hstr = QString::number( r.height() );
-	    bool active = qAquaActive( cg );
-	    qAquaPixmap( "cmb_act_left_" + hstr, left );
-	    qAquaPixmap( "cmb_act_mid_" + hstr, mid );
-	    if( active )
-		qAquaPixmap( "cmb_act_right_" + hstr, right );
+	    QString hstr = QString::number(r.height());
+	    bool active = qAquaActive(cg);
+	    qAquaPixmap("cmb_act_left_" + hstr, left);
+	    qAquaPixmap("cmb_act_mid_" + hstr, mid);
+	    if(active)
+		qAquaPixmap("cmb_act_right_" + hstr, right);
 	    else
-		qAquaPixmap( "cmb_dis_right_" + hstr, right );
+		qAquaPixmap("cmb_dis_right_" + hstr, right);
 
-	    p->drawPixmap( r.x(), r.y(), left );
-	    p->drawTiledPixmap( r.x() + left.width(), r.y(), r.width() - left.width()*2, r.height(), mid );
-	    p->drawPixmap( r.x() + r.width() - right.width(), r.y(), right );
+	    p->drawPixmap(r.x(), r.y(), left);
+	    p->drawTiledPixmap(r.x() + left.width(), r.y(), r.width() - left.width()*2, r.height(), mid);
+	    p->drawPixmap(r.x() + r.width() - right.width(), r.y(), right);
 	    break;
 	}
 
@@ -1667,20 +1661,20 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	if (sub & SC_ToolButton) {
 	    if (bflags & (Style_Down | Style_On | Style_Raised)) {
 		QPixmap px;
-		QString w = QString::number( r.width() );
-		QString h = QString::number( r.height() );
+		QString w = QString::number(r.width());
+		QString h = QString::number(r.height());
 
 		QWidget *btn_prnt = toolbutton->parentWidget();
 		QString mod = (down || on) ? "on_" : "off_";
-		if ( btn_prnt && btn_prnt->inherits("QToolBar") ) {
+		if(btn_prnt && btn_prnt->inherits("QToolBar")) {
 		    QToolBar * bar  = (QToolBar *) btn_prnt;
-		    if( bar->orientation() == Qt::Vertical )
+		    if(bar->orientation() == Qt::Vertical)
 			mod += "v";
-		    QObjectList * l = bar->queryList( "QToolButton", 0, FALSE, FALSE );
-		    QObjectListIt it( *l );
-		    if ( it.toFirst() == toolbutton )
+		    QObjectList * l = bar->queryList("QToolButton", 0, FALSE, FALSE);
+		    QObjectListIt it(*l);
+		    if(it.toFirst() == toolbutton)
 			mod += "left";
-		    else if( it.toLast() == toolbutton && !toolbutton->popup() )
+		    else if(it.toLast() == toolbutton && !toolbutton->popup())
 			mod += "right";
 		    else
 			mod += "mid";
@@ -1688,33 +1682,33 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		} else {
 		    mod += "mid";
 		}
-		qAquaPixmap( "toolbtn_" + mod + "_" + w + "_" + h, px );
-		p->drawPixmap( r.x(), r.y(), px );
-	    } else if ( toolbutton->parentWidget() &&
+		qAquaPixmap("toolbtn_" + mod + "_" + w + "_" + h, px);
+		p->drawPixmap(r.x(), r.y(), px);
+	    } else if(toolbutton->parentWidget() &&
 			toolbutton->parentWidget()->backgroundPixmap() &&
-			! toolbutton->parentWidget()->backgroundPixmap()->isNull() ) {
-		p->drawTiledPixmap( r, *(toolbutton->parentWidget()->backgroundPixmap()),
-				    toolbutton->pos() );
+			! toolbutton->parentWidget()->backgroundPixmap()->isNull()) {
+		p->drawTiledPixmap(r, *(toolbutton->parentWidget()->backgroundPixmap()),
+				    toolbutton->pos());
 	    }
 	}
 
 	if (sub & SC_ToolButtonMenu) {
 	    QPixmap px;
-	    QString w = QString::number( menuarea.width() );
-	    QString h = QString::number( menuarea.height() );
+	    QString w = QString::number(menuarea.width());
+	    QString h = QString::number(menuarea.height());
 	    QWidget *btn_prnt = toolbutton->parentWidget();
 	    QString mod = (down || on || (subActive & SC_ToolButtonMenu)) ? "on_" : "off_";
-	    if ( btn_prnt && btn_prnt->inherits("QToolBar") ) {
+	    if(btn_prnt && btn_prnt->inherits("QToolBar")) {
 		QToolBar * bar  = (QToolBar *) btn_prnt;
-		if( bar->orientation() == Qt::Vertical )
+		if(bar->orientation() == Qt::Vertical)
 		    mod += "v";
-		QObjectList * l = bar->queryList( "QToolButton", 0, FALSE, FALSE );
-		QObjectListIt it( *l );
-		if ( it.toFirst() == toolbutton ) {
-		    if( bar->orientation() == Qt::Horizontal )
+		QObjectList * l = bar->queryList("QToolButton", 0, FALSE, FALSE);
+		QObjectListIt it(*l);
+		if(it.toFirst() == toolbutton) {
+		    if(bar->orientation() == Qt::Horizontal)
 			mod += "left";
-		} else if( it.toLast() == toolbutton && !toolbutton->popup() ){
-		    if( bar->orientation() == Qt::Horizontal )
+		} else if(it.toLast() == toolbutton && !toolbutton->popup()) {
+		    if(bar->orientation() == Qt::Horizontal)
 			mod += "right";
 		} else {
 		    mod += "mid";
@@ -1723,8 +1717,8 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    } else {
 		mod += "mid";
 	    }
-	    qAquaPixmap( "toolbtn_" + mod + "_" + w + "_" + h, px );
-	    p->drawPixmap( menuarea.x(), menuarea.y(), px );
+	    qAquaPixmap("toolbtn_" + mod + "_" + w + "_" + h, px);
+	    p->drawPixmap(menuarea.x(), menuarea.y(), px);
 	    drawPrimitive(PE_ArrowDown, p, QRect(menuarea.x()+2,
 						 menuarea.y()+(menuarea.height()-menuarea.width()-4),
 						 menuarea.width() - 4, menuarea.width()-2),
@@ -1746,13 +1740,13 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 /*!
   \reimp
 */
-QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
+QRect QAquaStyle::querySubControlMetrics(ComplexControl control,
 					    const QWidget *w,
 					    SubControl sc,
-					    const QStyleOption& opt ) const
+					    const QStyleOption& opt) const
 {
     QRect rect;
-    switch( control ) {
+    switch(control) {
     case CC_ComboBox: {
 	rect = QWindowsStyle::querySubControlMetrics(control, w, sc, opt);
 	if(sc == SC_ComboBoxEditField)
@@ -1771,13 +1765,13 @@ QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 	    int wd = 0;
 	    if(tb->window())
 		wd = 55;
-	    else if(tb->testWFlags( WStyle_SysMenu))
+	    else if(tb->testWFlags(WStyle_SysMenu))
 		wd = 17;
 	    if(tb->icon())
 		wd += tb->icon()->width() + 3;
 	    rect = QRect(wd, 0, w->width() - wd, 16);
 	} else if(sc & SC_TitleBarSysMenu) {
-	    rect = QRect(-666, -666, 10, 10 ); //ugh
+	    rect = QRect(-666, -666, 10, 10); //ugh
 	}
 	break; }
 
@@ -1798,27 +1792,27 @@ QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 	    sliderlen = (scr->pageStep() * maxlen) /
 			(range + scr->pageStep());
 
-	    int slidermin = pixelMetric( PM_ScrollBarSliderMin, scr );
-	    if ( sliderlen < slidermin || range > INT_MAX / 2 )
+	    int slidermin = pixelMetric(PM_ScrollBarSliderMin, scr);
+	    if(sliderlen < slidermin || range > INT_MAX / 2)
 		sliderlen = slidermin;
-	    if ( sliderlen > maxlen )
+	    if(sliderlen > maxlen)
 		sliderlen = maxlen;
 	} else
 	    sliderlen = maxlen;
 
-	if( qt_mac_scrollbar_arrows_together ) {
+	if(qt_mac_scrollbar_arrows_together) {
 	    switch(sc) {
 	    case SC_ScrollBarAddLine:
 		if(scr->orientation() == Horizontal)
-		    rect.setRect( scr->width() - 17, 0, 17, 15 );
+		    rect.setRect(scr->width() - 17, 0, 17, 15);
 		else
-		    rect.setRect( 0, scr->height() - 17, 16, 17 );
+		    rect.setRect(0, scr->height() - 17, 16, 17);
 		break;
 	    case SC_ScrollBarSubLine:
 		if(scr->orientation() == Horizontal)
-		    rect.setRect( scr->width() - (22 + 17), 0, 22, 15 );
+		    rect.setRect(scr->width() - (22 + 17), 0, 22, 15);
 		else
-		    rect.setRect( 0, scr->height() - (20 + 17), 16, 20 );
+		    rect.setRect(0, scr->height() - (20 + 17), 16, 20);
 		break;
 	    case SC_ScrollBarSlider:
 		if (scr->orientation() == Qt::Horizontal)
@@ -1828,9 +1822,9 @@ QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 		break;
 	    case SC_ScrollBarGroove: {
 		if(scr->orientation() == Horizontal)
-		    rect.setRect( 6, 0, scr->width() - 38, scr->height());
+		    rect.setRect(6, 0, scr->width() - 38, scr->height());
 		else
-		    rect.setRect(0, 5, scr->width(), scr->height() - 37 );
+		    rect.setRect(0, 5, scr->width(), scr->height() - 37);
 		break;
 	    }
   	    case SC_ScrollBarSubPage:
@@ -1838,7 +1832,7 @@ QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 		if (scr->orientation() == Qt::Horizontal)
 		    rect.setRect(0, 0, sliderStart, sbextent);
 		else
-		    rect.setRect(0, 0, sbextent, sliderStart );
+		    rect.setRect(0, 0, sbextent, sliderStart);
 		break;
 	    case SC_ScrollBarAddPage:
 		// between bottom/right button and slider
@@ -1847,33 +1841,33 @@ QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 				 maxlen - sliderStart - sliderlen, sbextent);
 		else
 		    rect.setRect(0, sliderStart + sliderlen,
-				 sbextent, maxlen - sliderStart - sliderlen );
+				 sbextent, maxlen - sliderStart - sliderlen);
 		break;
 	    default:
-		rect = QWindowsStyle::querySubControlMetrics( control, w, sc, opt);
+		rect = QWindowsStyle::querySubControlMetrics(control, w, sc, opt);
 	    }
 	} else {
 	    switch(sc) {
 	    case SC_ScrollBarAddLine:
 		if(scr->orientation() == Horizontal)
-		    rect.setRect( scr->width() - 26, 0, 26, 14 );
+		    rect.setRect(scr->width() - 26, 0, 26, 14);
 		else
-		    rect.setRect( 0, scr->height() - 26, 14, 26 );
+		    rect.setRect(0, scr->height() - 26, 14, 26);
 		break;
 	    case SC_ScrollBarSubLine:
 		if(scr->orientation() == Horizontal)
-		    rect.setRect( 0, 0, 26, 14 );
+		    rect.setRect(0, 0, 26, 14);
 		else
-		    rect.setRect( 0, 0, 14, 26 );
+		    rect.setRect(0, 0, 14, 26);
 		break;
 	    case SC_ScrollBarGroove:
 		if (scr->orientation() == Qt::Horizontal)
 		    rect.setRect(16, 0, scr->width() - 32, scr->height());
 		else
-		    rect.setRect(0, 15, scr->width(), scr->height() - 31 );
+		    rect.setRect(0, 15, scr->width(), scr->height() - 31);
 		break;
 	    default:
-		rect = QWindowsStyle::querySubControlMetrics( control, w, sc, opt);
+		rect = QWindowsStyle::querySubControlMetrics(control, w, sc, opt);
 	    }
 	}
 
@@ -1881,7 +1875,7 @@ QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 #endif
 
     default:
-	rect = QWindowsStyle::querySubControlMetrics( control, w, sc, opt);
+	rect = QWindowsStyle::querySubControlMetrics(control, w, sc, opt);
 	break;
     }
     return rect;
@@ -1971,7 +1965,7 @@ void QAquaStyle::appearanceChanged()
 
 	QPalette pal = qApp->palette();
 	if(qt_mac_update_palette(pal, FALSE))
-	    qApp->setPalette( pal, TRUE );
+	    qApp->setPalette(pal, TRUE);
 
 	ThemeScrollBarArrowStyle arrows;
 	GetThemeScrollBarArrowStyle(&arrows);
