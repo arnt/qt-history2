@@ -85,6 +85,34 @@ protected:
 #include "qcursor_mac.moc"
 #endif
 
+class QMacAnimateCursor : public QObject
+{
+    int timerId, step;
+    ThemeCursor curs;
+public:
+    QMacAnimateCursor() : QObject(), timerId(-1) { }
+    void start(ThemeCursor c) {
+	step = 1;
+	if(timerId != -1)
+	    killTimer(timerId);
+	timerId = startTimer(600);
+	curs = c;
+    }
+    void stop() {
+	if(timerId != -1) {
+	    killTimer(timerId);
+	    timerId = -1;
+	}
+    }
+protected:
+    void timerEvent(QTimerEvent *e) {
+	if(e->timerId() == timerId) {
+	    if(SetAnimatedThemeCursor(curs, step++) == themeBadCursorIndexErr)
+		stop();
+	}
+    }
+};
+
 struct QCursorData : public QShared
 {
     QCursorData(int s = 0);
@@ -111,7 +139,10 @@ struct QCursorData : public QShared
 	char *big_cursor_name;
 #endif
 	CursorImageRec *ci;
-	ThemeCursor tc;
+	struct {
+	    QMacAnimateCursor *anim;
+	    ThemeCursor curs;
+	} tc;
     } curs;
 };
 
@@ -144,18 +175,20 @@ void qt_mac_set_cursor(const QCursor *c, const Point *p)
 	if(currentCursor && currentCursor->type == QCursorData::TYPE_FakeCursor)
 	    currentCursor->curs.fc.widget->hide();
 #endif
+	if(currentCursor && currentCursor->type == QCursorData::TYPE_ThemeCursor && currentCursor->curs.tc.anim) 
+	    currentCursor->curs.tc.anim->stop();
+
 	if(c->data->type == QCursorData::TYPE_CursPtr) {
 	    SetCursor(c->data->curs.cp.hcurs);
 	} else if(c->data->type == QCursorData::TYPE_CursorImage) {
 
 	} else if(c->data->type == QCursorData::TYPE_ThemeCursor) {
-	    switch(c->data->curs.tc) {
-	    case kThemeWatchCursor:
-		SetAnimatedThemeCursor(c->data->curs.tc, 1);
-		break;
-	    default:
-		SetThemeCursor(c->data->curs.tc);
-		break;
+	    if(SetAnimatedThemeCursor(c->data->curs.tc.curs, 0) == themeBadCursorIndexErr) {
+		SetThemeCursor(c->data->curs.tc.curs);
+	    } else {
+		if(!c->data->curs.tc.anim)
+		    c->data->curs.tc.anim = new QMacAnimateCursor;
+		c->data->curs.tc.anim->start(c->data->curs.tc.curs);
 	    }
 #ifdef QMAC_USE_BIG_CURSOR_API
 	} else if(c->data->type == QCursorData::TYPE_BigCursor) {
@@ -174,6 +207,7 @@ QCursorData::QCursorData(int s)
     bm = bmm = 0;
     hx = hy  = -1;
     type = TYPE_None;
+    memset(&curs, '\0', sizeof(curs));
 
     static int static_id = 121578; //the holy day
     id = static_id++;
@@ -196,6 +230,8 @@ QCursorData::~QCursorData()
 	free(curs.fc.empty_curs);
 	delete curs.fc.widget;
 #endif
+    } else if(type == TYPE_ThemeCursor) {
+	delete curs.tc.anim;
     }
     type = TYPE_None;
 
@@ -475,32 +511,32 @@ void QCursor::update() const
 	break; }
     case ArrowCursor:
 	d->type = QCursorData::TYPE_ThemeCursor;
-	d->curs.tc = kThemeArrowCursor;
+	d->curs.tc.curs = kThemeArrowCursor;
 	break;
     case CrossCursor:
 	d->type = QCursorData::TYPE_ThemeCursor;
-	d->curs.tc = kThemeCrossCursor;
+	d->curs.tc.curs = kThemeCrossCursor;
 	break;
     case WaitCursor:
 	d->type = QCursorData::TYPE_ThemeCursor;
-	d->curs.tc = kThemeWatchCursor;
+	d->curs.tc.curs = kThemeWatchCursor;
 	break;
     case IbeamCursor:
 	d->type = QCursorData::TYPE_ThemeCursor;
-	d->curs.tc = kThemeIBeamCursor;
+	d->curs.tc.curs = kThemeIBeamCursor;
 	break;
     case SizeAllCursor:
 	d->type = QCursorData::TYPE_ThemeCursor;
-	d->curs.tc = kThemePlusCursor;
+	d->curs.tc.curs = kThemePlusCursor;
 	break;
     case WhatsThisCursor: //for now jus tuse the pointing hand
     case PointingHandCursor:
 	d->type = QCursorData::TYPE_ThemeCursor;
-	d->curs.tc = kThemePointingHandCursor;
+	d->curs.tc.curs = kThemePointingHandCursor;
 	break;
     case BusyCursor:
 	d->type = QCursorData::TYPE_ThemeCursor;
-	d->curs.tc = kThemeSpinningCursor;
+	d->curs.tc.curs = kThemeSpinningCursor;
 	break;
 
 #define QT_USE_APPROXIMATE_CURSORS
@@ -582,7 +618,7 @@ void QCursor::update() const
     case ForbiddenCursor:
 #if QT_MACOSX_VERSION >= 0x1020
 	d->type = QCursorData::TYPE_ThemeCursor;
-	d->curs.tc = kThemeNotAllowedCursor;
+	d->curs.tc.curs = kThemeNotAllowedCursor;
 	break;
 #endif
     case BlankCursor:
