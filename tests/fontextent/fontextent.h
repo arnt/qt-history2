@@ -13,5 +13,5 @@ public slots:
 private:
     void draw(QPainter&);
     QString line;
-    int align;
+    int flags;
 };

@@ -9,7 +9,7 @@ Main::Main(QWidget* parent, const char* name, int f) :
     QWidget(parent, name, f)
 {
     line="type";
-    align=AlignVCenter|AlignLeft;
+    flags=AlignVCenter|AlignLeft;
     setBackgroundColor(white);
 }
 
@@ -29,16 +29,18 @@ void Main::keyPressEvent(QKeyEvent* ke)
     } else if ( ke->key() == Key_Return ) {
 	line += '\n';
     } else if ( ke->key() == Key_Left ) {
-	align = AlignVCenter|AlignLeft;
+	flags = AlignVCenter|AlignLeft;
     } else if ( ke->key() == Key_Right ) {
-	align = AlignVCenter|AlignRight;
+	flags = AlignVCenter|AlignRight;
     } else if ( ke->key() == Key_Up ||  ke->key() == Key_Down ) {
-	align = AlignCenter;
+	flags = AlignCenter;
     } else if ( ke->key() == Key_Escape ) {
 	QLabel *l = new QLabel(line);
 	l->resize(l->sizeHint());
-	l->setAlignment(align);
+	l->setAlignment(flags);
 	l->show();
+    } else if ( ke->key() == Key_G && ke->state()&AltButton ) {
+	flags ^= GrayText;
     } else if ( ke->key() == Key_P && ke->state()&AltButton ) {
 	QPrinter prn;
 	if (prn.setup(this)) {
@@ -72,7 +74,7 @@ void Main::draw(QPainter& p)
     int hmarg = w/2;
     br.moveBy(hmarg,vmarg);
     QRect r(hmarg,vmarg+h-80,w/2,80);
-    QRect pbr = p.boundingRect(r,align,line);
+    QRect pbr = p.boundingRect(r,flags,line);
     int right = fm.width(line)+hmarg-1;
 
     p.setPen(yellow);
@@ -109,7 +111,7 @@ void Main::draw(QPainter& p)
     p.setPen(magenta);
     p.drawRect(pbr);
     p.setPen(blue);
-    p.drawText(pbr,align,line);
+    p.drawText(pbr,flags,line);
 }
 
 main(int argc, char** argv)
