@@ -130,9 +130,10 @@ int main( int argc, char** argv )
 	    r = dlg.exec();
 	}
 	if ( r ) {
-	    bool tight = qApp->desktop()->screen()->width() < 1024;
-	    int x=5;
-	    int y=25;
+	    QRect screen = qApp->desktop()->availableGeometry();
+	    bool tight = screen.width() < 1024;
+	    int x=screen.left()+5;
+	    int y=screen.top()+25;
 	    for ( int i=0; qm[i]; i++ ) {
 		if ( r == 2 || qmb[i]->isChecked() ) {
 		    MyWidget* w = showLang((const char*)qm[i]);
