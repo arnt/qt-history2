@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: porting.doc,v 1.22 1999/01/28 15:40:33 warwick Exp $
+** $Id: porting.doc,v 1.23 1999/01/30 13:06:47 aavit Exp $
 **
 ** Help with porting from Qt 1.x to Qt 2.0
 **
@@ -32,15 +32,17 @@
 <h2>How to port code using Qt 1.x to use Qt 2.0</h2>
 
 <ul>
- <li> Breifly read the notes below to get an idea of what to expect.
- <li> Be sure your code compiles on all your target platforms with Qt 1.0.
+ <li> Briefly read the notes below to get an idea of what to expect.
+ <li> Be sure your code compiles on all your target platforms with Qt 1.x.
  <li> Recompile with Qt 2.0.  For each error, search below for related
 	identifiers (eg. function names, class names).  Changes in Qt 2.0 are
 	arranged so that almost all prolem code will cause compile-time
-	errors when compiled 
-	with Qt 2.0.
- <li> To take full advantage of the Internationalization
-	functionality in Qt 2.0:
+	errors when compiled with Qt 2.0.
+</ul>
+
+<p> To take full advantage of the new Internationalization
+functionality in Qt 2.0, the following steps are required:
+
     <ul>
      <li> Start converting all uses of "const char*" in parameters to
             "const QString&" - this can often be done mechanically, eg.
@@ -59,39 +61,49 @@
      <li> See the Qt \link i18n.html Internationalization page\endlink 
 	    for more tips.
     </ul>
- <li> 
-</ul> 
+
 
 <h2>Notes</h2>
 
 
+<h3>Namespace</h3>
 
-<h3>General</h3>
+<p> Qt 2.0 is much more namespace-clean than 1.x, relying far less on
+global identifiers. Identifiers like <code>red, blue, LeftButton,
+AlignRight, Key_Up, Key_Down, NoBrush</code> etc. are now part of a
+special class <code>Qt</code> (qnamespace.h), which is inherited by
+most Qt classes.  This means that in any code you have that is
+<em>not</em> in functions of classes inherited from <code>Qt</code>,
+you must qualify these identifiers like this: <code>Qt::red,
+Qt::LeftButton, Qt::AlignRight</endcode>, etc.
+
+<p>The <code>qt/bin/qt20fix</code> script helps to fix the code that
+needs adaption. Most code does not need any change.
+
+Compiling with -DQT1COMPATIBILITY will help you get going with Qt 2.0
+- it allows all the old "dirty namespace" identifiers from Qt 1.x to
+continue working.  Without it, you'll get compile errors that can
+easily be fixed by searching this page for the clean identifiers.
 
 
-<p>
-The following virtual functions have changed signature in Qt 2.0.
-If you override them, you must change your code.
+<h3>Virtual Functions</h3>
+
+<p> The following virtual functions have changed signature in Qt 2.0.
+If you override them in derived classes, you must change the signature
+of your functions accordingly.
+
 [can we provide assistance in the code for this?]
 [GENERATE THE LIST]
 Easy for const char* -> QString - there are about 20 in total.
 
-<p> The Q_DECLARE macro and qgeneric.h are obsolete.  Use real
-template instantiations instead.  (e.g. QCache<QPixmap> instead of
-Q_DECLARE(QCache,QPixmap).)
 
-<p> The GrayText painter flag has ben removed.  use
-setPen( palette().disabled().foreground() ) instead.
+<h3>Collection classes</h3>
 
-<p> Compiling with -DQT1COMPATIBILITY will help you get going with
-Qt 2.0 - it allows all the old "dirty namespace" identifiers from
-Qt 1.x to continue working.  Without it, you'll get errors that
-can easily be fixed by searching this page for the clean identifiers.
+<p> The macro-based Qt collection classes are obsolete; use the
+template-based classes instead. I.e. the Q_DECLARE macro and
+qgeneric.h are obsolete. Replace e.g. Q_DECLARE(QCache,QPixmap) with
+QCache<QPixmap>.
 
-<p> Many previously global identifiers have been moved into our new
-namespace class, Qt (qnamespace.h).  The <code>qt/bin/qt20fix</code>
-script helps to fix the code that needs adaption.  Most code does not
-need any change.
 
 
 <h3>QApplication</h3>
@@ -170,6 +182,7 @@ anyway).
 
 QString has undergone major changes internally, and although it is highly
 backward compatible, it is worth studying in detail when porting to Qt 2.0.
+The Qt 1.x QString class has been renamed to QCString in Qt 2.0.
 
 <dl compact>
 <dt><b>Unicode</b></dt>
@@ -296,7 +309,7 @@ This means that inserting a 0-character
 <dt><b>QString or STL string?</b></dt>
 <dd>
 <p>
-STL string is not Unicode, and is inefficient when used with Qt.
+STL string is not Unicode, and though it is possible to convert between STL string to QString, it is less efficient than using QString throughout.
 For example, when using:
 <pre>
     QLabel::setText( const QString& )
@@ -380,6 +393,12 @@ of another widget (as is the usual way to intercept foreign events).
 <p>
 operator>>(QTextStream&, QChar&) does not skip whitespace.
 operator>>(QTextStream&, char&) does, as was the case with Qt 1.x.
+
+
+<h3>QPainter</h3>
+
+<p> The GrayText painter flag has been removed. Use setPen(
+palette().disabled().foreground() ) instead.
 
 
 <h3>QPixmap</h3>
