@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.cpp#18 $
 **
 ** Localization database support.
 **
@@ -633,7 +633,7 @@ void QTranslator::squeeze()
 	    items[i].scope = it.key().scope;
 	    items[i].translation = *it;
 	    items[i].hash = it.key().hash;
-	    size += 10 + WORDSIZE + 2*it->length();
+	    size += 10 + WORDSIZE + 2 * (*it).length();
 	    if ( !scope_offsets.contains(it.key().scope) ) {
 		scope_offsets.insert(it.key().scope, scope_table_size);
 		scope_table_size += it.key().scope.length()+1;

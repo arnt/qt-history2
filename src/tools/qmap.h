@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qmap.h#17 $
+** $Id: //depot/qt/main/src/tools/qmap.h#18 $
 **
 ** Definition of QMap class
 **
@@ -95,7 +95,9 @@ struct QMapIterator
     bool operator==( const Type& x ) const { return node == x.node; }
     bool operator!=( const Type& x ) const { return node != x.node; }
     Ref operator*()  const { return node->data; }
-    Ptr operator->() const { return &(node->data); }
+
+    // Cannot have this - some compilers are too stupid
+    //Ptr operator->() const { return &(node->data); }
 
     const K& key() const { return node->key; }
     Ref data()     const { return node->data; }
