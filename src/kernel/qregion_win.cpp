@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#31 $
 **
 ** Implementation of QRegion class for Win32
 **
@@ -41,14 +41,12 @@ QRegion::QRegion()
     data->ref();
 }
 
-QRegion::QRegion( bool )
+QRegion::QRegion( bool is_null )
 {
     data = new QRegionData;
     CHECK_PTR( data );
-    data->rgn  = 0;
-    data->type = QRegionData::NullRgn;
-    data->poly = 0;
-    data->offs = QPoint(0,0);
+    data->rgn = 0;
+    data->is_null = is_null;
 }
 
 QRegion::QRegion( const QRect &r, RegionType t )
@@ -56,15 +54,11 @@ QRegion::QRegion( const QRect &r, RegionType t )
     QRect rr = r.normalize();
     data = new QRegionData;
     CHECK_PTR( data );
-    data->rect = rr;
-    data->poly = 0;
-    data->offs = QPoint(0,0);
+    data->is_null = FALSE;
     if ( t == Rectangle ) {			// rectangular region
-	data->type = QRegionData::RectangleRgn;
 	data->rgn = CreateRectRgn( rr.left(),	 rr.top(),
 				   rr.right()+1, rr.bottom()+1 );
     } else if ( t == Ellipse ) {		// elliptic region
-	data->type = QRegionData::EllipseRgn;
 	data->rgn = CreateEllipticRgn( rr.left(),    rr.top(),
 				       rr.right()+1, rr.bottom()+1 );
     }
@@ -74,17 +68,9 @@ QRegion::QRegion( const QPointArray &a, bool winding )
 {
     data = new QRegionData;
     CHECK_PTR( data );
-    int r;
-    if ( winding ) {
-	r = WINDING;
-	data->type = QRegionData::PolygonWindRgn;
-    } else {
-	r = ALTERNATE;
-	data->type = QRegionData::PolygonAltRgn;
-    }
-    data->rgn = CreatePolygonRgn( (POINT*)a.data(), a.size(), r );
-    data->poly = new QPointArray( a );
-    data->offs = QPoint(0,0);
+    data->is_null = FALSE;
+    data->rgn = CreatePolygonRgn( (POINT*)a.data(), a.size(),
+				  winding ? WINDING : ALTERNATE );
 }
 
 QRegion::QRegion( const QRegion &r )
@@ -98,7 +84,6 @@ QRegion::~QRegion()
     if ( data->deref() ) {
 	if ( data->rgn )
 	    DeleteObject( data->rgn );
-	delete data->poly;
 	delete data;
     }
 }
@@ -109,7 +94,6 @@ QRegion &QRegion::operator=( const QRegion &r )
     if ( data->deref() ) {
 	if ( data->rgn )
 	    DeleteObject( data->rgn );
-	delete data->poly;
 	delete data;
     }
     data = r.data;
@@ -119,21 +103,7 @@ QRegion &QRegion::operator=( const QRegion &r )
 
 QRegion QRegion::copy() const
 {
-    QRegion r( TRUE );
-    r.data->type = data->type;
-    r.data->offs = data->offs;
-    switch ( r.data->type ) {			// copy the relevant data
-	case QRegionData::RectangleRgn:
-	case QRegionData::EllipseRgn:
-	    r.data->rect = data->rect;
-	    break;
-	case QRegionData::PolygonAltRgn:
-	case QRegionData::PolygonWindRgn:
-	    r.data->poly = new QPointArray( *(data->poly) );
-	    break;
-	default:
-	    ; // no action needed for NullRgn or ComplexRgn
-    }
+    QRegion r( data->is_null );
     if ( data->rgn ) {
 	r.data->rgn = CreateRectRgn( 0, 0, 2, 2 );
 	CombineRgn( r.data->rgn, data->rgn, 0, RGN_COPY );
@@ -144,12 +114,12 @@ QRegion QRegion::copy() const
 
 bool QRegion::isNull() const
 {
-    return data->type == QRegionData::NullRgn;
+    return data->is_null;
 }
 
 bool QRegion::isEmpty() const
 {
-    return data->type == QRegionData::NullRgn || data->rgn == 0;
+    return data->is_null || data->rgn == 0;
 }
 
 
@@ -173,7 +143,6 @@ void QRegion::translate( int dx, int dy )
     if ( !data->rgn )
 	return;
     detach();
-    data->offs += QPoint(dx,dy);
     OffsetRgn( data->rgn, dx, dy );
 }
 
@@ -210,7 +179,7 @@ QRegion QRegion::winCombine( const QRegion &r, int op ) const
 #endif
     }
 
-    QRegion result( TRUE );
+    QRegion result( FALSE );
     result.data->rgn = CreateRectRgn( 0, 0, 0, 0 );
     int res = NULLREGION;
     if ( data->rgn && r.data->rgn )
@@ -219,7 +188,6 @@ QRegion QRegion::winCombine( const QRegion &r, int op ) const
 	res = CombineRgn( result.data->rgn, data->rgn, 0, left );
     else if ( r.data->rgn && right != RGN_NOP )
 	res = CombineRgn( result.data->rgn, r.data->rgn, 0, right );
-    result.data->type = QRegionData::ComplexRgn;
     if ( res == NULLREGION ) {
 	if ( result.data->rgn )
 	    DeleteObject( result.data->rgn );

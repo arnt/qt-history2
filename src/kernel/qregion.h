@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.h#36 $
+** $Id: //depot/qt/main/src/kernel/qregion.h#37 $
 **
 ** Definition of QRegion class
 **
@@ -100,12 +100,7 @@ private:
 #elif defined(_WS_X11_)
 	Region rgn;
 #endif
-	enum Type { NullRgn, RectangleRgn, EllipseRgn,
-		    PolygonAltRgn, PolygonWindRgn, ComplexRgn };
-	Type	type;
-	QRect	rect;
-	QPointArray *poly;
-	QPoint	offs;
+	bool   is_null;
     } *data;
 #if defined(_WS_PM_)
     static HPS hps;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qregion_x11.cpp#39 $
 **
 ** Implementation of QRegion class for X11
 **
@@ -46,14 +46,12 @@ QRegion::QRegion()
   Internal constructor that creates a null region.
 */
 
-QRegion::QRegion( bool )
+QRegion::QRegion( bool is_null )
 {
     data = new QRegionData;
     CHECK_PTR( data );
-    data->rgn  = XCreateRegion();
-    data->type = QRegionData::NullRgn;
-    data->poly = 0;
-    data->offs = QPoint(0,0);
+    data->rgn = XCreateRegion();
+    data->is_null = is_null;
 }
 
 /*!
@@ -69,11 +67,8 @@ QRegion::QRegion( const QRect &r, RegionType t )
     QRect rr = r.normalize();
     data = new QRegionData;
     CHECK_PTR( data );
-    data->rect = rr;
-    data->poly = 0;
-    data->offs = QPoint(0,0);
+    data->is_null = FALSE;
     if ( t == Rectangle ) {			// rectangular region
-	data->type = QRegionData::RectangleRgn;
 	data->rgn = XCreateRegion();
 	XRectangle xr;
 	xr.x = rr.x();
@@ -82,7 +77,6 @@ QRegion::QRegion( const QRect &r, RegionType t )
 	xr.height = rr.height();
 	XUnionRectWithRegion( &xr, data->rgn, data->rgn );
     } else if ( t == Ellipse ) {		// elliptic region
-	data->type = QRegionData::EllipseRgn;
 	QPointArray a;
 	a.makeEllipse( rr.x(), rr.y(), rr.width(), rr.height() );
 	data->rgn = XPolygonRegion( (XPoint*)a.data(), a.size(), EvenOddRule );
@@ -102,17 +96,9 @@ QRegion::QRegion( const QPointArray &a, bool winding )
 {
     data = new QRegionData;
     CHECK_PTR( data );
-    int r;
-    if ( winding ) {
-	r = WindingRule;
-	data->type = QRegionData::PolygonWindRgn;
-    } else {
-	r = EvenOddRule;
-	data->type = QRegionData::PolygonAltRgn;
-    }
-    data->rgn = XPolygonRegion( (XPoint*)a.data(), a.size(), r );
-    data->poly = new QPointArray( a );
-    data->offs = QPoint(0,0);
+    data->is_null = FALSE;
+    data->rgn = XPolygonRegion( (XPoint*)a.data(), a.size(),
+				winding ? WindingRule : EvenOddRule );
 }
 
 
@@ -136,7 +122,6 @@ QRegion::~QRegion()
 {
     if ( data->deref() ) {
 	XDestroyRegion( data->rgn );
-	delete data->poly;
 	delete data;
     }
 }
@@ -153,7 +138,6 @@ QRegion &QRegion::operator=( const QRegion &r )
     r.data->ref();				// beware of r = r
     if ( data->deref() ) {
 	XDestroyRegion( data->rgn );
-	delete data->poly;
 	delete data;
     }
     data = r.data;
@@ -168,21 +152,7 @@ QRegion &QRegion::operator=( const QRegion &r )
 
 QRegion QRegion::copy() const
 {
-    QRegion r( TRUE );
-    r.data->type = data->type;
-    r.data->offs = data->offs;
-    switch ( r.data->type ) {			// copy the relevant data
-	case QRegionData::RectangleRgn:
-	case QRegionData::EllipseRgn:
-	    r.data->rect = data->rect;
-	    break;
-	case QRegionData::PolygonAltRgn:
-	case QRegionData::PolygonWindRgn:
-	    r.data->poly = new QPointArray( *(data->poly) );
-	    break;
-	default:
-	    ; // no action needed for NullRgn or ComplexRgn
-    }
+    QRegion r( data->is_null );
     XUnionRegion( data->rgn, r.data->rgn, r.data->rgn );
     return r;
 }
@@ -200,7 +170,7 @@ QRegion QRegion::copy() const
 
 bool QRegion::isNull() const
 {
-    return data->type == QRegionData::NullRgn;
+    return data->is_null;
 }
 
 
@@ -229,7 +199,7 @@ bool QRegion::isNull() const
 
 bool QRegion::isEmpty() const
 {
-    return data->type == QRegionData::NullRgn || XEmptyRegion( data->rgn );
+    return data->is_null || XEmptyRegion( data->rgn );
 }
 
 
@@ -264,7 +234,6 @@ void QRegion::translate( int dx, int dy )
     if ( data == empty_region->data )
 	return;
     detach();
-    data->offs += QPoint(dx,dy);
     XOffsetRegion( data->rgn, dx, dy );
 }
 
@@ -275,9 +244,8 @@ void QRegion::translate( int dx, int dy )
 
 QRegion QRegion::unite( const QRegion &r ) const
 {
-    QRegion result( TRUE );
+    QRegion result( FALSE );
     XUnionRegion( data->rgn, r.data->rgn, result.data->rgn );
-    result.data->type = QRegionData::ComplexRgn;
     return result;
 }
 
@@ -287,9 +255,8 @@ QRegion QRegion::unite( const QRegion &r ) const
 
 QRegion QRegion::intersect( const QRegion &r ) const
 {
-    QRegion result( TRUE );
+    QRegion result( FALSE );
     XIntersectRegion( data->rgn, r.data->rgn, result.data->rgn );
-    result.data->type = QRegionData::ComplexRgn;
     return result;
 }
 
@@ -299,9 +266,8 @@ QRegion QRegion::intersect( const QRegion &r ) const
 
 QRegion QRegion::subtract( const QRegion &r ) const
 {
-    QRegion result( TRUE );
+    QRegion result( FALSE );
     XSubtractRegion( data->rgn, r.data->rgn, result.data->rgn );
-    result.data->type = QRegionData::ComplexRgn;
     return result;
 }
 
@@ -311,9 +277,8 @@ QRegion QRegion::subtract( const QRegion &r ) const
 
 QRegion QRegion::eor( const QRegion &r ) const
 {
-    QRegion result( TRUE );
+    QRegion result( FALSE );
     XXorRegion( data->rgn, r.data->rgn, result.data->rgn );
-    result.data->type = QRegionData::ComplexRgn;
     return result;
 }
 
