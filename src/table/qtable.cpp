@@ -34,6 +34,9 @@
 **
 **********************************************************************/
 
+// needed for qsort (at least for Borland)
+#include "qplatformdefs.h"
+
 #include "qtable.h"
 
 #ifndef QT_NO_TABLE

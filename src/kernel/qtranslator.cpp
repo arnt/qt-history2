@@ -35,6 +35,8 @@
 **
 **********************************************************************/
 
+// needed for bsearch (at least for Borland)
+#include "qplatformdefs.h"
 
 #include "qtranslator.h"
 

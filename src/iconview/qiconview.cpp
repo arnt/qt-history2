@@ -35,6 +35,9 @@
 **
 **********************************************************************/
 
+// needed for qsort (at least for Borland)
+#include "qplatformdefs.h"
+
 #include "qiconview.h"
 
 #ifndef QT_NO_ICONVIEW
