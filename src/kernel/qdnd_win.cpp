@@ -884,21 +884,6 @@ QOleDropTarget::DragEnter(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, L
     acceptfmt = de.isAccepted();
     acceptact = de.isActionAccepted();
 
-    if (!acceptfmt&&!acceptact)
-	*pdwEffect = DROPEFFECT_NONE;
-    else if (!acceptact)
-	*pdwEffect = DROPEFFECT_COPY;
-    else if ( de.action() == QDropEvent::Move )
-	*pdwEffect = DROPEFFECT_MOVE;
-    else if ( de.action() == QDropEvent::Copy )
-	*pdwEffect = DROPEFFECT_COPY;
-    else if ( de.action() == QDropEvent::Link )
-	*pdwEffect = DROPEFFECT_LINK;
-
-    last_pt = pt;
-    last_effect = *pdwEffect;
-    last_keystate = grfKeyState;
-
     return NOERROR;
 }
 
@@ -914,6 +899,10 @@ QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
 	return NOERROR;
     }
 
+    last_pt = pt;
+    last_effect = *pdwEffect;
+    last_keystate = grfKeyState;
+
     QDragMoveEvent de( widget->mapFromGlobal(QPoint(pt.x,pt.y)) );
     if ( *pdwEffect & DROPEFFECT_MOVE )
 	de.setAction( QDropEvent::Move );
@@ -922,25 +911,22 @@ QOleDropTarget::DragOver(DWORD grfKeyState, POINTL pt, LPDWORD pdwEffect)
     de.acceptAction(acceptact);
     de.accept(acceptfmt);
 
-    
     QApplication::sendEvent( widget, &de );
     acceptfmt = de.isAccepted();
     acceptact = de.isActionAccepted();
 
     if (!acceptfmt&&!acceptact)
 	*pdwEffect = DROPEFFECT_NONE;
+#ifdef QT_DND_RESPECT_ACCEPTACTION
     else if (!acceptact)
 	*pdwEffect = DROPEFFECT_COPY;
-    else if ( de.action() == QDropEvent::Move )
+#endif    
+	else if ( de.action() == QDropEvent::Move )
 	*pdwEffect = DROPEFFECT_MOVE;
     else if ( de.action() == QDropEvent::Copy )
 	*pdwEffect = DROPEFFECT_COPY;
     else if ( de.action() == QDropEvent::Link )
 	*pdwEffect = DROPEFFECT_LINK;
-
-    last_pt = pt;
-    last_effect = *pdwEffect;
-    last_keystate = grfKeyState;
 
     return NOERROR;
 }
@@ -980,8 +966,10 @@ QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWOR
 
 	if (!acceptact&&!acceptfmt)
 	*pdwEffect = DROPEFFECT_NONE;
+#ifdef QT_DND_RESPECT_ACCEPTACTION
     else if (!acceptact)
 	*pdwEffect = DROPEFFECT_COPY;
+#endif    
     else if ( de.action() == QDropEvent::Move )
 	*pdwEffect = DROPEFFECT_MOVE;
     else if ( de.action() == QDropEvent::Copy )
