@@ -17,8 +17,8 @@
 // Used to get Q_DECLARE_PUBLIC
 #include "private/qobject_p.h"
 #include "qpainter.h"
+#include "qpaintengine.h"
 
-class QPaintEngine;
 class QPaintDevice;
 
 class QPaintEnginePrivate

@@ -1609,7 +1609,6 @@ typedef uint Flags
 
 #endif // Q_NO_TYPESAFE_FLAGS
 
-
 #if defined(Q_CC_GNU) && !defined(Q_CC_INTEL) && !(__GNUC__ == 2 && __GNUC_MINOR__ <= 95)
 // make use of typeof-extension
 template <typename T>
@@ -1625,7 +1624,7 @@ for (QForeachContainer<__typeof__(container)> _container_(container); _container
     ++_container_.i) \
     for (variable = *_container_.i;;({break;}))
 
-#elif (defined Q_CC_MSVC && _MSC_VER < 1300) || (defined Q_CC_XLC)
+#elif (defined Q_CC_MSVC && _MSC_VER < 1300) || (defined Q_CC_XLC) || (defined Q_CC_HPACC)
 
 template <typename T>
 class QForeachContainer  {

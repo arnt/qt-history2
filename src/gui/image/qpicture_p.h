@@ -17,6 +17,7 @@
 #include <qatomic.h>
 #include <qbuffer.h>
 #include <qobjectdefs.h>
+#include <qpicture.h>
 #include <qrect.h>
 #include <private/qobject_p.h>
 
@@ -26,7 +27,6 @@ extern const char  *qt_mfhdr_tag;
 extern const Q_UINT16 mfhdr_maj;
 extern const Q_UINT16 mfhdr_min;
 
-class QPicture;
 class QPicturePrivate
 {
     Q_DECLARE_PUBLIC(QPicture)

@@ -742,8 +742,15 @@ void QTextDocumentPrivate::appendUndoItem(QAbstractUndoItem *item)
         return;
     }
 
-    QTextUndoCommand c = { QTextUndoCommand::Custom, (editBlock != 0),
-                      QTextUndoCommand::MoveCursor, 0, 0, 0, { 0 } };
+    QTextUndoCommand c;
+    c.command = QTextUndoCommand::Custom;
+    c.block = editBlock != 0;
+    c.operation = QTextUndoCommand::MoveCursor;
+    c.format = 0;
+    c.strPos = 0;
+    c.pos = 0;
+    c.blockFormat = 0;
+
     c.custom = item;
     appendUndoItem(c);
 }

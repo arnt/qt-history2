@@ -41,8 +41,10 @@
 # include "qt_windows.h"
 #else
 # include <sys/types.h>
+# include <netinet/in.h>
 # include <arpa/nameser.h>
 # include <resolv.h>
+extern int res_init();
 #endif
 
 // POSIX Large File Support redefines open -> open64
