@@ -942,10 +942,16 @@ QString QTextHtmlExporter::toHtml(const QByteArray &encoding)
     if (!encoding.isEmpty())
         html += QString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=%1\" />").arg(QString::fromAscii(encoding));
 
-    html += QString("</head><body style=\" white-space: pre-wrap; font-family:%1; font-weight:%2; font-style:%3; text-decoration:none;\">")
+    html += QString("</head><body style=\" white-space: pre-wrap; font-family:%1; font-weight:%2; font-style:%3; text-decoration:none;\"")
             .arg(defaultCharFormat.fontFamily())
             .arg(defaultCharFormat.fontWeight() * 8)
             .arg(defaultCharFormat.fontItalic() ? "italic" : "normal");
+
+    const QTextFrameFormat fmt = doc->rootFrame()->frameFormat();
+    if (fmt.backgroundColor().isValid())
+        emitAttribute("bgcolor", fmt.backgroundColor().name());
+
+    html += QLatin1Char('>');
 
     emitFrame(doc->rootFrame()->begin());
     html += QLatin1String("</body></html>");
