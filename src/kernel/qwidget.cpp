@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#414 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#415 $
 **
 ** Implementation of QWidget class
 **
@@ -2300,7 +2300,7 @@ bool QWidget::focusNextPrevChild( bool next )
     } while( w && !(candidate && w==startingPoint) );
 
 #if defined(_WS_X11_)
-    extern qt_xembed_tab_focus( QWidget*, bool ); // defined in qapplication_x11.cpp
+    extern void qt_xembed_tab_focus( QWidget*, bool ); // defined in qapplication_x11.cpp
     if (!candidate || wrapped ) {
 	qt_xembed_tab_focus( this, next );
     }
