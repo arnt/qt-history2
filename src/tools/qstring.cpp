@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#158 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#159 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -2129,14 +2129,20 @@ const char* QString::ascii() const
 */
 
 /*!
-  Only used for uncommon cases of at() above.
+  Internal chunk of code to handle the
+  uncommon cases of at() above.
 */
 void QString::subat( uint i )
 {
     uint olen = d->len;
-    setLength( i+1 );
-    for ( uint j=olen; j<=i; j++ )
-	d->unicode[j]='\0';
+    if ( i > olen ) {
+	setLength( i );
+	for ( uint j=olen; j<=i; j++ )
+	    d->unicode[j]='\0';
+    } else {
+	// Just be sure to detach
+	real_detach();
+    }
 }
 
 
