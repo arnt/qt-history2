@@ -902,7 +902,7 @@ ProjectBuilderMakefileGenerator::pbuilderVersion() const
 	if(version_plist.isEmpty())
 	    version_plist = "/Developer/Applications/Project Builder.app/Contents/version.plist";
 	else
-	    version_plist = version_plist.replace("\"", "");
+	    version_plist = version_plist.replace(QRegExp("\""), "");
 	QFile version_file(version_plist);
 	if(version_file.open(IO_ReadOnly)) {
 	    debug_msg(1, "pbuilder: version.plist: Reading file: %s", version_plist.latin1());
