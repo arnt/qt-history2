@@ -591,7 +591,7 @@ QFSFileEngine::tempPath()
     QString ret;
     QT_WA({
 	wchar_t tempPath[MAX_PATH];
-	GetTempPath(MAX_PATH, tempPath);
+	GetTempPathW(MAX_PATH, tempPath);
 	ret = QString::fromUtf16((ushort*)tempPath);
     } , {
 	char tempPath[MAX_PATH];
