@@ -51,7 +51,7 @@
 #include "qcleanuphandler.h"
 #include <limits.h>
 #ifdef Q_OS_MAC
-#include <dlfcn.h>
+#include "../3rdparty/dlcompat/dlfcn.h"
 #endif
 
 //#define QDNS_DEBUG
