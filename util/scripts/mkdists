@@ -172,7 +172,7 @@ while [ -n "$1" ]; do
    version)
        expr "$VAL" : ".*\.\d*" >/dev/null 2>&1 || die "Can't figure out version from $VAL"
        REL_VERSION=$VAL
-       LABEL="qt/$VAL" 
+       LABEL="qt/$VAL"
        ;;
    #other
    doc) DO_DOC=$VAL ;;
@@ -384,12 +384,12 @@ public_file () {
 	 myexpr "$file" : '^dist\/' ||
 
 	 # no tests
-	 myexpr "$file" : '^tests\/.*' 
+	 myexpr "$file" : '^tests\/.*'
      then
 	    KEEP=no
      elif
 	 # for the love of god! keep qmake! all hail qmake!
-	 myexpr "$file" : "^qmake\/" || 
+	 myexpr "$file" : "^qmake\/" ||
 
 	 # the scripts, for now
 	 myexpr "$file" : "^util\/scripts\/" ||
@@ -561,11 +561,11 @@ for plat in mac win x11 qws; do
 	dist_for_edition=$edition
 	case $edition in
 	enterprise)
-	    [ "x$DO_ENTERPRISE" = "xyes" ] || continue 
+	    [ "x$DO_ENTERPRISE" = "xyes" ] || continue
 	    dist_for_edition="commercial"
 	    ;;
 	professional)
-	    [ "x$DO_PROFESSIONAL" = "xyes" ] || continue 
+	    [ "x$DO_PROFESSIONAL" = "xyes" ] || continue
 	    dist_for_edition="commercial"
 	    ;;
 	free)
@@ -581,7 +581,7 @@ for plat in mac win x11 qws; do
 		[ -d $a ] && continue
 		if public_file $a; then
 		    echo $a | sed "s,^${DISTDIR}/qt,," >>${MANIFEST_FILE} 2>/dev/null || \
-			    die "Could not write to manifest file"; 
+			    die "Could not write to manifest file";
 		fi
 	    done
 	fi
@@ -602,25 +602,28 @@ for plat in mac win x11 qws; do
 	case $edition in
 	free)
 	    #remove sql from the main file
-	    sed 's,\(<li>.*<a.*> *SQL</a>\),<!--\1-->,' doc/indices.doc >${TMP_FILE}
-	    mv ${TMP_FILE} doc/indices.doc
+	    sed 's,\(<li>.*<a.*> *SQL</a>\),<!--\1-->,' $PLATDIR/doc/indices.doc >${TMP_FILE}
+	    mv ${TMP_FILE} $PLATDIR/doc/indices.doc
 
 	    #Remove all sql's existance
-	    for sql in doc/*sql*.doc src/sql examples/pingpong examples/sqltable examples/sql; do
+	    for sql in src/sql examples/pingpong examples/sqltable examples/sql; do
 		[ -d "$PLATDIR/$sql" ] && rm -rf "$PLATDIR/$sql"
 	    done
+	    rm -rf $PLATDIR/doc/*sql*.doc
 	    ;;
 	professional)
 	    #remove sql & table from the main file
 	    sed -e 's,\(<li>.*<a.*> *SQL</a>\),<!--\1-->,' \
-		-e 's,\(<li>.*<a.*> *Table</a>\),<!--\1-->,' doc/indices.doc >${TMP_FILE}
-	    mv ${TMP_FILE} doc/indices.doc
+		-e 's,\(<li>.*<a.*> *Table</a>\),<!--\1-->,' $PLATDIR/doc/indices.doc >${TMP_FILE}
+	    mv ${TMP_FILE} $PLATDIR/doc/indices.doc
 
 	    #Remove sql & table
-	    for f in doc/*sql*.doc src/sql examples/pingpong examples/sqltable examples/sql \
-		     doc/table.doc src/table examples/table; do
+	    for f in src/sql examples/pingpong examples/sqltable examples/sql \
+		     src/table examples/table; do
 		[ -d "$PLATDIR/$f" ] && rm -rf "$PLATDIR/$f"
 	    done
+	    rm -rf $PLATDIR/doc/*sql*.doc
+	    rm -rf $PLATDIR/doc/table.doc
 	    #move xml stuff into designer directory TBD
 	    ;;
 	esac
@@ -675,7 +678,7 @@ for plat in mac win x11 qws; do
 	    find $PLATDIR/gif -exec mv {} $PLATDIR/doc/html/ \; >/dev/null 2>&1
 	    if [ "$plat" = "x11" ] || [ "$plat" = "qws" ]; then
 		$DISTDIR/qt/util/qdoc/man  $PLATDIR/ >/dev/null 2>&1 || die "could not run man, stopped"
-            fi
+	    fi
 	fi
 	if [ "$plat" = "win" ]; then
 	    rm -rf "$PLATDIR/doc/man"
@@ -698,24 +701,24 @@ for plat in mac win x11 qws; do
 		[ -d $file ] && continue
 		match=`basename $file | sed "s,.*_,," | cut -d'.' -f1`
 		case $match in
-		unix|win|mac|x11|qws) 
+		unix|win|mac|x11|qws)
 		    if [ "$match" != "$plat" ] && [ "$match" != "$plat2" ]; then
 			rm -f $file
-			echo $file | sed "s,^${PLATDIR},,g" >>$PLAT_RM_FILE 
+			echo $file | sed "s,^${PLATDIR},,g" >>$PLAT_RM_FILE
 		    fi
 		    ;;
 		*) ;;
 		esac
 	    done
-        else
+	else
 	    for f in `cat $PLAT_RM_FILE`; do
 		rm -f $PLATDIR/$f
 	    done
-        fi
+	fi
 
 	#actually package
 	status "Packaging.."
-	(cd "$DISTDIR" 
+	(cd "$DISTDIR"
 	if [ "$plat" = "x11" ] || [ "$plat" = "qws" ]; then
 	    tar cf "$OUT_TREE/${PLATNAME}.tar" "${PLATNAME}"
 	    [ "$DO_GZIP" = "yes" ] && gzip -c "$OUT_TREE/${PLATNAME}.tar" >"$OUT_TREE/${PLATNAME}.tar.gz"
