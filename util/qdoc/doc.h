@@ -188,7 +188,7 @@ class FnDoc : public Doc
 public:
     FnDoc( const Location& loc, const QString& html, const QString& prototype,
 	   const QString& relates, const StringSet& documentedParams,
-	   bool overloads, Trool reentrant = Tdef );
+	   bool overloads, Trool reentrant = Tdef, Trool threadsafe = Tdef );
 
     void setOverloads( bool overloads ) { over = overloads; }
 
@@ -197,6 +197,7 @@ public:
     const StringSet& documentedParameters() const { return params; }
     bool overloads() const { return over; }
     Trool isReentrant() const { return reent; }
+    Trool isThreadSafe() const { return threa; }
 
 private:
     QString proto;
@@ -204,6 +205,7 @@ private:
     StringSet params;
     bool over;
     Trool reent;
+    Trool threa;
 };
 
 class ClassDoc : public Doc
@@ -213,7 +215,7 @@ public:
 	      const QString& className, const QString& brief,
 	      const QString& module, const QString& extension,
 	      const StringSet& headers, const QStringList& important,
-	      bool mainClass, bool reentrant );
+	      bool mainClass, bool reentrant, bool threadsafe );
 
     const QString& brief() const { return bf; }
     const QString& module() const { return mod; }
@@ -222,6 +224,7 @@ public:
     const QStringList& important() const { return imp; }
     bool mainClass() const { return main; }
     bool isReentrant() const { return reent; }
+    bool isThreadSafe() const { return threa; }
 
 private:
     QString bf;
@@ -231,6 +234,7 @@ private:
     QStringList imp;
     bool main;
     bool reent;
+    bool threa;
 };
 
 class EnumDoc : public Doc

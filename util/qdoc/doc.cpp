@@ -40,7 +40,6 @@ static QString linkBase( const QString& link )
 	return link.left( k );
 }
 
-// ### speed up
 static bool isCppSym( QChar ch )
 {
     return isalnum( (uchar) ch.latin1() ) || ch == QChar( '_' ) ||
@@ -251,6 +250,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
     bool preliminary = FALSE;
     bool mainClass = FALSE;
     Trool reentrant = Tdef;
+    Trool threadsafe = Tdef;
     int base;
     int briefBegin = -1;
     int briefEnd = 0;
@@ -738,6 +738,9 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		CONSUME( "nonreentrant" );
 		reentrant = Tfalse;
 		break;
+	    case HASH( 'n', 13 ):
+		threadsafe = Tfalse;
+		break;
 	    case HASH( 'o', 4 ):
 		CONSUME( "omit" );
 		end = yyIn.find( QString("\\endomit"), yyPos );
@@ -1053,6 +1056,10 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 		yyOut += getWord( yyIn, yyPos );
 		yyOut += QString( "\"></a>" );
 		break;
+	    case HASH( 't', 10 ):
+		CONSUME( "threadsafe" );
+		threadsafe = Ttrue;
+		break;
 	    case HASH( 'v', 5 ):
 		// see also \bug
 		CONSUME( "value" );
@@ -1208,7 +1215,7 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 	sanitize( prototype );
 	sanitize( relates );
 	doc = new FnDoc( loc, yyOut, prototype, relates, documentedParams,
-			 overloads, reentrant );
+			 overloads, reentrant, threadsafe );
 	break;
     case Doc::Class:
 	if ( briefBegin == -1 ) {
@@ -1233,7 +1240,8 @@ Doc *DocParser::parse( const Location& loc, const QString& in )
 
 	doc = new ClassDoc( loc, yyOut, className, brief, moduleName, extName,
 			    headers, important, mainClass,
-			    fromTrool(reentrant, FALSE) );
+			    fromTrool(reentrant, FALSE),
+			    fromTrool(threadsafe, FALSE) );
 	break;
     case Doc::Enum:
 	sanitize( enumName );
@@ -2594,9 +2602,10 @@ QString Doc::finalHtml() const
 FnDoc::FnDoc( const Location& loc, const QString& html,
 	      const QString& prototype, const QString& relates,
 	      const StringSet& documentedParams, bool overloads,
-	      Trool reentrant )
+	      Trool reentrant, Trool threadsafe )
     : Doc( Fn, loc, html ), proto( prototype ), rel( relates ),
-      params( documentedParams ), over( overloads ), reent( reentrant )
+      params( documentedParams ), over( overloads ), reent( reentrant ),
+      threa( threadsafe )
 {
 }
 
@@ -2604,9 +2613,10 @@ ClassDoc::ClassDoc( const Location& loc, const QString& html,
 		    const QString& className, const QString& brief,
 		    const QString& module, const QString& extension,
 		    const StringSet& headers, const QStringList& important,
-		    bool mainClass, bool reentrant )
+		    bool mainClass, bool reentrant, bool threadsafe )
     : Doc( Class, loc, html, className ), bf( brief ), mod( module ),
-      ext( extension ), h( headers ), main( mainClass ), reent( reentrant )
+      ext( extension ), h( headers ), main( mainClass ), reent( reentrant ),
+      threa( threadsafe )
 {
     setFileName( config->classRefHref(className) );
 

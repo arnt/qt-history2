@@ -138,12 +138,33 @@ static void printHtmlLongMembers( HtmlWriter& out,
 		case Tfalse:
 		    if ( cl != 0 && cl->isReentrant() )
 			out.printfMeta( "<p><b>Warning:</b> This function is"
-					" non-reentrant.</p>\n" );
+					" <i>not</i>"
+					" <a href=\"threads.html#reentrant\">"
+					"reentrant</a>.</p>\n" );
 		    break;
 		case Ttrue:
 		    if ( cl == 0 || !cl->isReentrant() )
 			out.printfMeta( "<p><b>Note:</b> This function is"
-					" reentrant.</p>\n" );
+					" <a href=\"threads.html#reentrant\">"
+					"reentrant</a>.</p>\n" );
+		    break;
+		case Tdef:
+		    ;
+		}
+
+		switch ( fn->isThreadSafe() ) {
+		case Tfalse:
+		    if ( cl != 0 && cl->isThreadSafe() )
+			out.printfMeta( "<p><b>Warning:</b> This function is"
+					" <i>not</i>"
+					" <a href=\"threads.html#threadsafe\">"
+					"thread-safe</a>.</p>\n" );
+			break;
+		case Ttrue:
+		    if ( cl == 0 || !cl->isThreadSafe() )
+			out.printfMeta( "<p><b>Note:</b> This function is"
+					" <a href=\"threads.html#threadsafe\">"
+					"thread-safe</a>.</p>\n" );
 		    break;
 		case Tdef:
 		    ;
@@ -763,10 +784,43 @@ void ClassDecl::printHtmlLong( HtmlWriter& out ) const
 
 	    if ( except.isEmpty() ) {
 		out.printfMeta( "<p>All the functions in this class are"
-				" reentrant.\n" );
+				" <a href=\"threads.html#reentrant\">"
+				"reentrant</a>.\n" );
 	    } else {
 		out.printfMeta( "<p>All the functions in this class are"
-				" reentrant except " );
+				" <a href=\"threads.html#reentrant\">"
+				"reentrant</a> except " );
+		QValueStack<QString> seps = separators( except.count(),
+							QString(".\n") );
+		QValueList<Decl *>::ConstIterator e = except.begin();
+		while ( e != except.end() ) {
+		    printHtmlShortName( out, *e );
+		    out.puts( ("()" + seps.pop()).latin1() );
+		    ++e;
+		}
+	    }
+	}
+
+	if ( classDoc()->isThreadSafe() ) {
+	    QValueList<Decl *> except;
+	    QValueList<Decl *>::ConstIterator c = children().begin();
+	    while ( c != children().end() ) {
+		if ( (*c)->kind() == Function ) {
+		    FnDoc *fn = ((FunctionDecl *) *c)->fnDoc();
+		    if ( fn != 0 && !fromTrool(fn->isThreadSafe(), TRUE) )
+			except.append( *c );
+		}
+		++c;
+	    }
+
+	    if ( except.isEmpty() ) {
+		out.printfMeta( "<p>All the functions in this class are"
+				" <a href=\"threads.html#threadsafe\">"
+				"thread-safe</a>.\n" );
+	    } else {
+		out.printfMeta( "<p>All the functions in this class are"
+				" <a href=\"threads.html#threadsafe\">"
+				"thread-safe</a> except" );
 		QValueStack<QString> seps = separators( except.count(),
 							QString(".\n") );
 		QValueList<Decl *>::ConstIterator e = except.begin();
