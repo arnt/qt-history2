@@ -240,7 +240,7 @@ void QWidget::create( WId window, bool initializeWindow, bool /*destroyOldWindow
     if ( initializeWindow ) {
     }
 
-    setWState( WState_MouseTracking );
+    setAttribute( WA_MouseTracking, TRUE );
     setMouseTracking( FALSE );			// also sets event mask
     if ( desktop ) {
 	setWState( WState_Visible );
@@ -1080,9 +1080,9 @@ void QWidget::setGeometry_helper( int x, int y, int w, int h, bool isMove )
 	dirtyChildren = QRegion();
     } else {
 	if (isMove && pos() != oldPos)
-	    d->setAttribute(WA_PendingMoveEvent, true);
+	    setAttribute(WA_PendingMoveEvent, true);
 	if (isResize)
-	    d->setAttribute(WA_PendingResizeEvent, true);
+	    setAttribute(WA_PendingResizeEvent, true);
     }
 }
 

@@ -2729,7 +2729,7 @@ bool QETWidget::translateKeyEvent( const QWSKeyEvent *event, bool grab )
 	    return TRUE;
     }
 #endif
-    if ( !text.isEmpty() && hasAttribute(WA_KeyCompression) ) {
+    if ( !text.isEmpty() && testAttribute(WA_KeyCompression) ) {
 	// the widget wants key compression so it gets it
 
 	// XXX not implemented
