@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -225,13 +225,15 @@ void EditFunctions::functionAdd( const QString &access, const QString &type )
     else
 	i->setText( 3, access );
 
-    if( type.isEmpty() )
-	i->setText( 4, "function" );
-    else
+    if( type.isEmpty() ) {
+	if ( showOnlySlots->isChecked() )
+	    i->setText( 4, "slot" );
+	else
+	    i->setText( 4, "function" );
+    } else
 	i->setText( 4, type );
 
     if ( i->text( 4 ) == "slot" ) {
-	i->setText( 0, "newSlot()" );
 	if ( MetaDataBase::isSlotUsed( formWindow, "newSlot()" ) )
 	    i->setText( 5, tr( "Yes" ) );
 	else
