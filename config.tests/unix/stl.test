@@ -1,13 +1,26 @@
 #!/bin/sh
 
+QMKSPEC=$1
+VERBOSE=$2
+
+
+# debuggery
+
+if [ "$VERBOSE" = "yes" ]
+then
+    echo "Testing STL support..."
+fi
+
+
+# ?
+
 cd $QTDIR/config.tests/unix
-$QTDIR/bin/qmake -nocache -spec $1 stltest.pro -o Makefile >/dev/null 2>&1
-[ "$2" = "yes" ] && echo "Testing STL support"
-if [ "$2" = "yes" ]; then
+$QTDIR/bin/qmake -nocache -spec "$QMKSPEC" stltest.pro -o Makefile >/dev/null 2>&1
+
+if [ "$VERBOSE" = "yes" ]; then
   make
   ./stltest 
 else
   make >/dev/null 2>&1
   ./stltest >/dev/null 2>/dev/null
 fi
-
