@@ -113,7 +113,6 @@ New classes
 ================================
 
 - QIconFactory
-- QOCI9Result
 - QMutexLocker
 - QBackInsertIterator
 - QSyntaxHighlighter
@@ -306,7 +305,7 @@ New functions:
 	bool isNull() const
 
 New enum values:
-	KeySequence, KeySequence, Pen
+	KeySequence, Pen
 
 QWidget
 ------------------
@@ -359,18 +358,11 @@ QODBCResult
 New functions:
 	bool prepare( const QString& query )
 	bool exec()
-	bool fetchPrior()
-
-QSqlCursor
-------------------
-New functions:
-	void setValue( int i, const QVariant& val )
-	void setValue( const QString& name, const QVariant& val )
 
 QSqlDriver
 ------------------
 New enum values:
-	Unicode, PreparedQueries
+	Unicode, PreparedQueries, OracleBindingStyle, ODBCBindingStyle
 	
 QSqlQuery
 ------------------
@@ -490,7 +482,7 @@ New functions:
 
 Improvements:
 	find, findRef, contains use either a fast hashing
-	algorithmen (for short input) or an optimized Boyer-Moore
+	algorithm (for short input) or an optimized Boyer-Moore
 	implementation. Lots of smaller performance optimisations.
 
 QTextStream
@@ -549,7 +541,7 @@ New functions:
 QTextEdit
 ------------------
 QTextEdit offers another TextFormat (LogText), which is optimized
-(speed and memory) for displaying large read-only textes normally used
+(speed and memory) for displaying large read-only texts normally used
 for logging.
 
 New properties:
