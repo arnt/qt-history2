@@ -1011,11 +1011,6 @@ void QDockWindow::handleMove( const QPoint &pos, const QPoint &gp, bool drawRect
     if ( !unclippedPainter )
 	return;
 
-    QRect predict = QRect( realWidgetPos( this ), size() );
-    predict.moveBy( pos.x(), pos.y() );
-    if ( !QApplication::desktop()->geometry().contains( predict ) )
-	return;
-
     if ( drawRect ) {
 	QRect dr(currRect);
 #ifdef MAC_DRAG_HACK
