@@ -62,8 +62,8 @@ template<class Type>
 class Q_EXPORT QPluginManager : public QGPluginManager
 {
 public:
-    QPluginManager( const QUuid& id, const QStringList& paths = QString::null, const QString &suffix = QString::null, QLibrary::Policy pol = QLibrary::Delayed, bool cs = TRUE )
-	: QGPluginManager( id, pol, cs )
+    QPluginManager( const QUuid& id, const QStringList& paths = QString::null, const QString &suffix = QString::null, bool cs = TRUE )
+	: QGPluginManager( id, cs )
     {
 	for ( QStringList::ConstIterator it = paths.begin(); it != paths.end(); ++it ) {
 	    QString path = *it;
@@ -71,8 +71,8 @@ public:
 	}
     }
 
-    QPluginManager( const QUuid &id, const QString &file, QLibrary::Policy pol = QLibrary::Delayed, bool cs = TRUE )
-	: QGPluginManager( id, pol, cs )
+    QPluginManager( const QUuid &id, const QString &file, bool cs = TRUE )
+	: QGPluginManager( id, cs )
     {
 	addLibrary( file );
     }
@@ -87,7 +87,7 @@ public:
 	    return plugin;
 
 	// Create a library object, and try to get the desired interface
-	plugin = new QComLibrary( file, defPol );
+	plugin = new QComLibrary( file );
 
 	bool useful = FALSE;
 
@@ -129,8 +129,6 @@ public:
 		cpiFace->release();
 	    iFace->release();
 	}
-	if ( defPol != QLibrary::Immediately )
-	    plugin->unload();
 
 	if ( useful ) {
 	    libDict.replace( file, plugin );
@@ -148,9 +146,9 @@ public:
     {
 	if ( file.isEmpty() )
 	    return FALSE;
-	
+
 	libList.remove( file );
-	
+
 	QComLibrary* plugin = (QComLibrary*)libDict[ file ];
 	if ( !plugin )
 	    return FALSE;
@@ -203,8 +201,6 @@ public:
 #ifdef Q_QDOC
 #error "The Symbol Q_QDOC is reserved for documentation purposes."
     void addLibraryPath( const QString& path );
-    void setDefaultPolicy( QLibrary::Policy pol );
-    QLibrary::Policy defaultPolicy() const;
     const QLibrary* library( const QString& feature ) const;
     QStringList featureList() const;
 #endif

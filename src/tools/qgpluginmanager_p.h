@@ -66,12 +66,10 @@ template class Q_EXPORT QDict<QLibrary>;
 class Q_EXPORT QGPluginManager
 {
 public:
-    QGPluginManager( const QUuid& id, QLibrary::Policy pol = QLibrary::Delayed, bool cs = TRUE );
+    QGPluginManager( const QUuid& id, bool cs = TRUE );
     virtual ~QGPluginManager();
 
     void addLibraryPath( const QString& path );
-    void setDefaultPolicy( QLibrary::Policy pol );
-    QLibrary::Policy defaultPolicy() const;
     const QLibrary* library( const QString& feature ) const;
     QStringList featureList() const;
 
@@ -84,7 +82,6 @@ protected:
     QDict<QLibrary> libDict;	    // Dict to match library file with library
     QStringList libList;
 
-    QLibrary::Policy defPol;
     uint casesens : 1;
 };
 

@@ -110,19 +110,6 @@ QLibraryPrivate::QLibraryPrivate( QLibrary *lib )
 */
 
 /*!
-  \enum QLibrary::Policy
-
-  This enum type defines the various policies a QLibrary can have with respect to
-  loading and unloading the shared library.
-
-  The \e policy can be:
-
-  \value Delayed  The library get's loaded as soon as needed and unloaded in the destructor
-  \value Immediately  The library is loaded immediately and unloaded in the destructor
-  \value Manual  Like delayed, but the library has to be unloaded manually using unload()
-*/
-
-/*!
   Creates a QLibrary object for the shared library \a filename.
   The library get's loaded if \a pol is Immediately.
 
@@ -143,27 +130,25 @@ QLibraryPrivate::QLibraryPrivate( QLibrary *lib )
   If \a filename does not include a path, the library loader will look for
   the file in the platform specific search paths.
 
-  \sa setPolicy(), unload()
+  \sa unload()
 */
-QLibrary::QLibrary( const QString& filename, Policy pol )
-    : libfile( filename ), libPol( pol )
+QLibrary::QLibrary( const QString& filename )
+    : libfile( filename ), aunload( TRUE )
 {
     libfile.replace( QRegExp("\\\\"), "/" );
     d = new QLibraryPrivate( this );
-    if ( pol == Immediately )
-	load();
 }
 
 /*!
   Deletes the QLibrary object.
-  The library will be unloaded if the policy is not Manual, otherwise
+  The library will be unloaded if autoUnload() is TRUE, otherwise
   it stays in memory until the application is exited.
 
-  \sa unload(), setPolicy()
+  \sa unload(), setAutoUnload()
 */
 QLibrary::~QLibrary()
 {
-    if ( libPol != Manual )
+    if ( autoUnload() )
 	unload();
 
     delete d;
@@ -219,7 +204,8 @@ void *QLibrary::resolve( const char* symb )
 */
 void *QLibrary::resolve( const QString &filename, const char *symb )
 {
-    QLibrary lib( filename, Manual );
+    QLibrary lib( filename );
+    lib.setAutoUnload( FALSE );
     return lib.resolve( symb );
 }
 
@@ -234,7 +220,9 @@ bool QLibrary::isLoaded() const
 }
 
 /*!
-  Loads the library.
+  Loads the library. resolve() always calls this function before resolving
+  any symbols. Therefore you'll never have to call it yourself explicitly
+  unless you want to enforce it at an earlier point in time.
 */
 bool QLibrary::load()
 {
@@ -245,7 +233,7 @@ bool QLibrary::load()
   Unloads the library and returns TRUE if the library could be unloaded,
   otherwise returns FALSE.
 
-  This function is called by the destructor if the policy is not Manual.
+  This function is called by the destructor if autoUnload() is enabled.
 
   \sa resolve()
 */
@@ -278,25 +266,26 @@ bool QLibrary::unload()
 }
 
 /*!
-  Sets the current policy to \a pol.
-  The library is loaded if \a pol is set to Immediately.
-*/
-void QLibrary::setPolicy( Policy pol )
-{
-    libPol = pol;
+  Returns whether the library will be automatically unloaded when this wrapper
+  object is destructed. The default is TRUE.
 
-    if ( libPol == Immediately && !d->pHnd )
-	load();
+  \sa setAutoUnload()
+*/
+bool QLibrary::autoUnload() const
+{
+    return (bool)aunload;
 }
 
 /*!
-  Returns the current policy.
+  Set the wrapper object to automatically unload the library upon destruction.
+  Otherwise the library will stay in memory unless you have previously called
+  unload().
 
-  \sa setPolicy()
+  \sa autoUnload()
 */
-QLibrary::Policy QLibrary::policy() const
+void QLibrary::setAutoUnload( bool enabled )
 {
-    return libPol;
+    aunload = enabled;
 }
 
 /*!

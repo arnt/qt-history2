@@ -258,10 +258,10 @@ static int similarity( const QString& s1, const QString& s2 )
 */
 
 /*!
-  \fn QPluginManager::QPluginManager( const QUuid& id, const QStringList& paths = QString::null, const QString &suffix = QString::null, QLibrary::Policy pol = QLibrary::Delayed, bool cs = TRUE )
+  \fn QPluginManager::QPluginManager( const QUuid& id, const QStringList& paths = QString::null, const QString &suffix = QString::null, bool cs = TRUE )
 
   Creates an QPluginManager for interfaces \a id that will load all shared library files in the \a paths + \a suffix.
-  The default policy is set to \a pol. If \a cs is FALSE the manager will handle feature strings case insensitive.
+  If \a cs is FALSE the manager will handle feature strings case insensitive.
 
   \warning
   Setting the cs flag to FALSE requires that components also convert to lower case when comparing with passed strings, so this has
@@ -274,9 +274,9 @@ static int similarity( const QString& s1, const QString& s2 )
 
 
 /*!
-  \overload QPluginManager::QPluginManager( const QUuid &id, const QString &file, QLibrary::Policy pol = QLibrary::Delayed, bool cs = TRUE )
+  \overload QPluginManager::QPluginManager( const QUuid &id, const QString &file, bool cs = TRUE )
 
-  Creates an QPluginManager for interfaces \a id that will load the shared library \a file. The default policy is set to \a pol. 
+  Creates an QPluginManager for interfaces \a id that will load the shared library \a file.
   If \a cs is FALSE the manager will handle feature strings case insensitive.
 */
 
@@ -284,9 +284,8 @@ static int similarity( const QString& s1, const QString& s2 )
   \fn void QPluginManager::addLibraryPath( const QString& path )
 
   Calls addLibrary for all shared library files in \a path.
-  The current library policy will be used for all new QLibrary objects.
 
-  \sa addLibrary(), setDefaultPolicy(), QApplication::libraryPaths()
+  \sa addLibrary(), QApplication::libraryPaths()
 */
 
 /*!
@@ -295,8 +294,6 @@ static int similarity( const QString& s1, const QString& s2 )
   Tries to load the library \a file, adds the library to the managed list and
   returns the created QLibrary object if successful, otherwise returns 0. If
   there is already a QLibrary object for \a file, this object will be returned.
-  The library will stay in memory if the default policy is Immediately, otherwise
-  it gets unloaded again.
 
   Note that \a file does not have to include the platform dependent file extension.
 
@@ -313,23 +310,6 @@ static int similarity( const QString& s1, const QString& s2 )
   The QLibrary object for this file will be destroyed.
 
   \sa addLibrary()
-*/
-
-/*!
-  \fn void QPluginManager::setDefaultPolicy( QLibrary::Policy pol )
-
-  Sets the default policy for this plugin manager to \a pol. The default policy is
-  propagated to all newly created QLibrary objects.
-
-  \sa defaultPolicy()
-*/
-
-/*!
-  \fn QLibrary::Policy QPluginManager::defaultPolicy() const
-
-  Returns the current default policy.
-
-  \sa setDefaultPolicy()
 */
 
 /*!
@@ -358,8 +338,8 @@ static int similarity( const QString& s1, const QString& s2 )
 */
 
 
-QGPluginManager::QGPluginManager( const QUuid& id, QLibrary::Policy pol, bool cs )
-    : interfaceId( id ), plugDict( 17, cs ), defPol( pol ), casesens( cs )
+QGPluginManager::QGPluginManager( const QUuid& id, bool cs )
+    : interfaceId( id ), plugDict( 17, cs ), casesens( cs )
 {
     // Every QLibrary object is destroyed on destruction of the manager
     libDict.setAutoDelete( TRUE );
@@ -390,21 +370,7 @@ void QGPluginManager::addLibraryPath( const QString& path )
 
 	libList.append( lib );
 
-	if ( defPol == QLibrary::Immediately ) {
-	    if ( !addLibrary( lib ) )
-		libList.remove( lib );
-	}
     }
-}
-
-void QGPluginManager::setDefaultPolicy( QLibrary::Policy pol )
-{
-    defPol = pol;
-}
-
-QLibrary::Policy QGPluginManager::defaultPolicy() const
-{
-    return defPol;
 }
 
 const QLibrary* QGPluginManager::library( const QString& feature ) const

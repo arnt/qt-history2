@@ -7,14 +7,14 @@
 # endif
 #endif
 
-QComLibrary::QComLibrary( const QString &filename, QLibrary::Policy pol )
-: QLibrary( filename, pol ), entry( 0 ), libiface( 0 )
+QComLibrary::QComLibrary( const QString &filename )
+: QLibrary( filename ), entry( 0 ), libiface( 0 )
 {
 }
 
 QComLibrary::~QComLibrary()
 {
-    if ( policy() != Manual )
+    if ( autoUnload() )
 	unload();
 }
 

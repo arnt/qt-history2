@@ -74,7 +74,7 @@ QPluginManager<QStyleFactoryInterface> *QStyleFactoryPrivate::manager = 0;
 QStyleFactoryPrivate::QStyleFactoryPrivate()
 : QObject( qApp )
 {
-    manager = new QPluginManager<QStyleFactoryInterface>( IID_QStyleFactory, QApplication::libraryPaths(), "/styles", QLibrary::Delayed, FALSE );
+    manager = new QPluginManager<QStyleFactoryInterface>( IID_QStyleFactory, QApplication::libraryPaths(), "/styles", FALSE );
 }
 
 QStyleFactoryPrivate::~QStyleFactoryPrivate()
@@ -90,17 +90,17 @@ QStyleFactoryPrivate::~QStyleFactoryPrivate()
 /*!
   \class QStyleFactory qstylefactory.h
   \brief The QStyleFactory class creates QStyle objects.
-  
+
   The style factory creates a QStyle object for a given key with
   QStyleFactory::create(key).
-  
+
   The styles are either built-in or dynamically loaded from a style
   plugin (see \l QStylePlugin).
-  
+
   QStyleFactory::keys() returns a list of valid keys. Qt currently
   ships with "windows", "motif", "cde", "platinum", "sgi" and
   "motifplus".
-  
+
 */
 
 /*!  Creates a QStyle object that matches \a key. This is either a
@@ -173,7 +173,7 @@ QStyle *QStyleFactory::create( const QString& key )
 }
 
 #ifndef QT_NO_STRINGLIST
-/*!  
+/*!
   Returns the list of keys  this factory can create
   styles for.
 

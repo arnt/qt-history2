@@ -66,7 +66,7 @@ QTextCodecFactoryPrivate::QTextCodecFactoryPrivate()
     manager =
 	new QPluginManager<QTextCodecFactoryInterface>(IID_QTextCodecFactory,
 						   QApplication::libraryPaths(), "/codecs",
-						   QLibrary::Delayed, FALSE);
+						   FALSE);
 
 }
 

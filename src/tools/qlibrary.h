@@ -49,35 +49,26 @@ class QLibraryPrivate;
 class Q_EXPORT QLibrary
 {
 public:
-    enum Policy
-    {
-	Delayed,
-	Immediately,
-	Manual
-    };
-
-    QLibrary( const QString& filename, Policy = Delayed );
+    QLibrary( const QString& filename );
     virtual ~QLibrary();
 
     void *resolve( const char* );
     static void *resolve( const QString &filename, const char * );
 
+    bool load();
     virtual bool unload();
     bool isLoaded() const;
 
-    void setPolicy( Policy pol );
-    Policy policy() const;
+    bool autoUnload() const;
+    void setAutoUnload( bool enable );
 
     QString library() const;
-
-protected:
-    bool load();
 
 private:
     QLibraryPrivate *d;
 
     QString libfile;
-    Policy libPol;
+    uint aunload : 1;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

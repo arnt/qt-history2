@@ -164,7 +164,8 @@ QRESULT QComponentFactory::createInstance( const QString &cid, const QUuid &iid,
     if ( !ok )
 	return res;
 
-    QComLibrary *library = new QComLibrary( file, QLibrary::Manual );
+    QComLibrary *library = new QComLibrary( file );
+    library->setAutoUnload( FALSE );
 
     QComponentFactoryInterface *cfIface =0;
     library->queryInterface( IID_QComponentFactory, (QUnknownInterface**)&cfIface );
@@ -180,7 +181,7 @@ QRESULT QComponentFactory::createInstance( const QString &cid, const QUuid &iid,
 	delete library; // only deletes the object, thanks to QLibrary::Manual
     } else {
 	libiface->release();
-	library->setPolicy( QLibrary::Delayed );
+	library->setAutoUnload( TRUE );
 	liblist()->prepend( library );
     }
     return res;
@@ -197,7 +198,8 @@ QRESULT QComponentFactory::createInstance( const QString &cid, const QUuid &iid,
 */
 QRESULT QComponentFactory::registerServer( const QString &filename )
 {
-    QComLibrary lib( filename, QLibrary::Immediately );
+    QComLibrary lib( filename );
+    lib.load();
     QComponentRegistrationInterface *iface = 0;
     QRESULT res = lib.queryInterface( IID_QComponentRegistration, (QUnknownInterface**)&iface );
     if ( res != QS_OK )
@@ -219,7 +221,8 @@ QRESULT QComponentFactory::registerServer( const QString &filename )
 */
 QRESULT QComponentFactory::unregisterServer( const QString &filename )
 {
-    QComLibrary lib( filename, QLibrary::Immediately );
+    QComLibrary lib( filename );
+    lib.load();
     QComponentRegistrationInterface *iface = 0;
     QRESULT res = lib.queryInterface( IID_QComponentRegistration, (QUnknownInterface**)&iface );
     if ( res != QS_OK )

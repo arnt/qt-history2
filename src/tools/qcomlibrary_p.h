@@ -21,7 +21,7 @@
 class Q_EXPORT QComLibrary : public QLibrary
 {
 public:
-    QComLibrary( const QString &filename, QLibrary::Policy pol = QLibrary::Delayed );
+    QComLibrary( const QString &filename );
     ~QComLibrary();
 
     bool unload();
