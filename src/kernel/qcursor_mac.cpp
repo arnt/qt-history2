@@ -70,23 +70,41 @@ QT_STATIC_CONST_IMPL QCursor & Qt::whatsThisCursor = cursorTable[15];
  *****************************************************************************/
 
 #ifndef QMAC_NO_FAKECURSOR
+#include <qpainter.h>
 class QMacCursorWidget : public QWidget
 {
     Q_OBJECT
-    QPixmap *pm;
+    QBitmap bitmap;
 public:
-    QMacCursorWidget(QBitmap *mask, QPixmap *pix) :
+    QMacCursorWidget(const QBitmap *b, const QBitmap *m) :
 	QWidget(0, "fake_cursor", WType_Dialog | WStyle_Customize | WStyle_NoBorder)
 	{
-	    pm = pix;
+	    setAcceptDrops(TRUE); //bleh
 	    hide();
-	    resize(pm->width(), pm->height());
-	    setMask(*mask);
 	    ChangeWindowAttributes((WindowPtr)handle(), kWindowNoShadowAttribute, 0);
+	    int w = b->width(), h = b->height();
+	    resize(w, h);
+
+	    QImage bi, mi;
+	    bitmap = *b;
+	    bi = bitmap;
+	    mi = *m;
+	    for(int y = 0; y < bi.height(); y++) {
+		for(int x = 0; x < bi.width(); x++) 
+		    mi.setPixel(x, y, !(bi.pixel(x, y) && mi.pixel(x, y)));
+	    }
+	    QBitmap mask;
+	    mask = mi;
+#if 0
+	    bitmap.setMask(mask);
+	    setBackgroundColor(blue);
+#else
+	    setMask(mask);
+#endif
 	}
     ~QMacCursorWidget() { }
 protected:
-    void paintEvent(QPaintEvent *) { bitBlt(this, 0, 0, pm); }
+    void paintEvent(QPaintEvent *) { bitBlt(this, 0, 0, &bitmap); }
 };
 #include "qcursor_mac.moc"
 #endif
@@ -409,26 +427,38 @@ void QCursor::update() const
 	    memset(d->curs.cp.hcurs->data, 0, 32);
 	    for(int y = 0; y < 16; y++) {
 		for(int x = 0; x < 16; x++) {
-		    if(!bmmi.pixel(x,y)) {
-			if(bmi.pixel(x,y)) {
-			    *(((uchar*)d->curs.cp.hcurs->mask) + (y*2) + (x / 8)) |= (1 << (7 - (x % 8)));
-			    *(((uchar*)d->curs.cp.hcurs->data) + (y*2) + (x / 8)) |= (1 << (7 - (x % 8)));
-			} else {
-			    *(((uchar*)d->curs.cp.hcurs->mask) + (y*2) + (x / 8)) |= (1 << (7 - (x % 8)));
-			}
+		    int bmi_val = 0, bmmi_val = 0;
+		    if(!bmi.pixel(x, y)) {
+			if(bmmi.pixel(x, y)) 
+			    bmi_val = 1;
+			else 
+			    bmi_val = bmmi_val = 1;
 		    }
+		    if(bmmi_val)
+			*(((uchar*)d->curs.cp.hcurs->mask) + (y*2) + (x / 8)) |= (1 << (7 - (x % 8)));
+		    if(bmi_val)
+			*(((uchar*)d->curs.cp.hcurs->data) + (y*2) + (x / 8)) |= (1 << (7 - (x % 8)));
 		}
 	    }
 	} else {
 #ifndef QMAC_NO_FAKECURSOR
 	    d->type = QCursorData::TYPE_FakeCursor;
-	    d->curs.fc.widget = new QMacCursorWidget(d->bmm, d->bm);
+	    d->curs.fc.widget = new QMacCursorWidget(d->bm, d->bmm);
 	    //make an empty cursor
 	    d->curs.fc.empty_curs = (CursPtr)malloc(sizeof(Cursor));
 	    memset(d->curs.fc.empty_curs->data, 0x00, sizeof(d->curs.fc.empty_curs->data));
 	    memset(d->curs.fc.empty_curs->mask, 0x00, sizeof(d->curs.fc.empty_curs->mask));
-	    d->curs.fc.empty_curs->hotSpot.h = data->hx >= 0 ? data->hx : 8;
-	    d->curs.fc.empty_curs->hotSpot.v = data->hy >= 0 ? data->hy : 8;
+	    int hx = data->hx, hy = data->hy;
+	    if(hx < 0)
+		hx = 8;
+	    else if(hx > 15)
+		hx = 15;
+	    if(hy < 0)
+		hy = 8;
+	    else if(hy > 15)
+		hy = 15;
+	    d->curs.fc.empty_curs->hotSpot.h = hx;
+	    d->curs.fc.empty_curs->hotSpot.v = hy;
 #else
 	    d->type = QCursorData::TYPE_CursorImage;
 	    d->curs.ci = (CursorImageRec*)malloc(sizeof(CursorImageRec));
