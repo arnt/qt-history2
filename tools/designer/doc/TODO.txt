@@ -21,11 +21,6 @@ Editing of Slots (Reggie)
     designer, so that one doesn't need to subclass always just to
     implement a slot. This is easy to do using QTextEdit.
 
-Add splitter support (Reggie)
-    Same concept as tabwidgets
-    (widgetOfContainer/containerOfWidget/passiveInteractor). Will be
-    easy to do.
-
 Add QWidgetStack support (Reggie)
     Use code of tabwidget support to make a general widget stack
     support and make tabwidget support a special case of that.
