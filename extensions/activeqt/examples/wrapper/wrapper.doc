@@ -74,7 +74,7 @@ CODEBASE=http://www.trolltech.com/demos/wrapperax.cab>
   IDs of the COM classes and interfaces for each control.
 
   \printuntil }
-  The factory is exported using the QAXFACTORY_EXPORT macro
+  The factory is exported using the QAXFACTORY_EXPORT macro.
 
   To build the example you must first build the \link qaxserver.html
   QAxServer \endlink library. Then run qmake and your make tool in 
