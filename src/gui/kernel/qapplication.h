@@ -15,6 +15,7 @@
 #define QAPPLICATION_H
 
 #include "qcoreapplication.h"
+#include "qwindowdefs.h"
 #include "qpoint.h"
 #include "qsize.h"
 #ifdef QT_INCLUDE_COMPAT
