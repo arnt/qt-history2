@@ -361,6 +361,7 @@ protected:
 #elif defined(Q_WS_MAC)
     QRegion clippedreg;
     QMacSavedPortInfo *saved;
+    void initPaintDevice(bool force=FALSE);
     
     int offx, offy;
     int penx, peny;

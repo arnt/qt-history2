@@ -105,6 +105,7 @@ void qt_clear_paintevent_clipping( QPaintDevice *dev )
     delete paintevents.pop();
 }
 
+
 void QPainter::initialize()
 {
 }
@@ -113,11 +114,30 @@ void QPainter::cleanup()
 {
 }
 
-//FIXME: Implement this
-void QPainter::redirect( QPaintDevice *, QPaintDevice * )
+void QPainter::redirect( QPaintDevice *pdev, QPaintDevice *replacement )
 {
+#if 0
+    if ( pdev_dict == 0 ) {
+	if ( replacement == 0 )
+	    return;
+	pdev_dict = new QPaintDeviceDict;
+	Q_CHECK_PTR( pdev_dict );
+    }
+#if defined(QT_CHECK_NULL)
+    if ( pdev == 0 )
+	qWarning( "QPainter::redirect: The pdev argument cannot be 0" );
+#endif
+    if ( replacement ) {
+	pdev_dict->insert( (long)pdev, replacement );
+    } else {
+	pdev_dict->remove( (long)pdev );
+	if ( pdev_dict->count() == 0 ) {
+	    delete pdev_dict;
+	    pdev_dict = 0;
+	}
+    }
+#endif
 }
-
 
 void QPainter::init()
 {
@@ -312,17 +332,10 @@ bool QPainter::begin( const QPaintDevice *pd )
     }
     offx = offy = wx = wy = vx = vy = 0;                      // default view origins
 
-    clippedreg = QRegion(); //empty
-    if ( dt == QInternal::Widget ) {                    // device is a widget
+    if ( pdev->devType() == QInternal::Widget ) {                    // device is a widget
         QWidget *w = (QWidget*)pdev;
 
-	//set the correct window prot
-	SetPortWindowPort((WindowPtr)w->handle());
-
-	//offset painting in widget relative the tld
-	QPoint wp(posInWindow(w));
-	offx = wp.x();
-	offy = wp.y();
+	initPaintDevice();
 
         cfont = w->font();                      // use widget font
         cpen = QPen( w->foregroundColor() );    // use widget fg color
@@ -333,23 +346,10 @@ bool QPainter::begin( const QPaintDevice *pd )
         bg_col = w->backgroundColor();          // use widget bg color
         ww = vw = w->width();                   // default view size
         wh = vh = w->height();
-	if(!w->isVisible()) { 
-	    clippedreg = QRegion(0, 0, 0, 0); //make the clipped reg empty if its not visible, this is hacky FIXME!!!
-	}
-	else if(!paintevents.isEmpty() && (*paintevents.current()) == pdev) {
-	    clippedreg = paintevents.current()->region();
-	}
-        else if ( w->testWFlags(WPaintUnclipped) ) { // paint direct on device
+        if ( w->testWFlags(WPaintUnclipped) ) // paint direct on device
             setf( NoCache );
-            updatePen();
-            updateBrush();
 
-	    //just clip my bounding rect
-	    clippedreg = w->clippedRegion(FALSE);
-        }  else {
-	    clippedreg = w->clippedRegion();
-	}
-    } else if ( dt == QInternal::Pixmap ) {             // device is a pixmap
+    } else if ( pdev->devType() == QInternal::Pixmap ) {             // device is a pixmap
         QPixmap *pm = (QPixmap*)pdev;
         if ( pm->isNull() ) {
 #if defined(QT_CHECK_NULL)
@@ -361,12 +361,8 @@ bool QPainter::begin( const QPaintDevice *pd )
         ww = vw = pm->width();                  // default view size
         wh = vh = pm->height();
 
-	//setup the gworld
-	SetGWorld((GWorldPtr)pm->handle(),0);
-	Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)pm->handle())));
+	initPaintDevice();
 
-	//clip out my bounding rect
-	clippedreg = QRegion(0, 0, pm->width(), pm->height());
     } 
 
     if ( testf(ExtDev) ) {               // external device
@@ -388,8 +384,6 @@ bool QPainter::begin( const QPaintDevice *pd )
         setRasterOp( CopyROP );                 // default raster operation
     }
 
-    if(!clippedreg.isNull())
-	SetClip((RgnHandle)clippedreg.handle());
     updateBrush();
     updatePen();
     return TRUE;
@@ -527,6 +521,7 @@ void QPainter::setClipping( bool b )
 	return;
     }
 
+    initPaintDevice();
     QRegion reg;
     if(b) {
 	setf(ClipOn);
@@ -560,6 +555,7 @@ void QPainter::setClipRegion( const QRegion &r )
 	return;
     }
 
+    initPaintDevice();
     QRegion rset(r);
     rset.translate(offx, offy);
     crgn = rset;
@@ -576,6 +572,8 @@ void QPainter::setClipRegion( const QRegion &r )
 
 void QPainter::drawPolyInternal( const QPointArray &a, bool close )
 {
+    initPaintDevice();
+
     RgnHandle polyRegion = NewRgn();
     OpenRgn();
     uint loopc;
@@ -614,6 +612,7 @@ void QPainter::drawPoint( int x, int y )
     }
 
     // FIXME: This is a bit silly
+    initPaintDevice();
     updatePen();
     MoveTo(x+offx,y+offy);
     LineTo(x+offx,y+offy);
@@ -660,6 +659,7 @@ void QPainter::lineTo( int x, int y )
     map( x, y, &x, &y );
   }
 
+  initPaintDevice();
   updateBrush();
   updatePen();
   MoveTo(penx+offx,peny+offy);
@@ -685,10 +685,10 @@ void QPainter::drawLine( int x1, int y1, int x2, int y2 )
     map( x2, y2, &x2, &y2 );
   }
 
+  initPaintDevice();
   updatePen();
   MoveTo(x1+offx,y1+offy);
   LineTo(x2+offx,y2+offy);
-
 }
 
 
@@ -725,6 +725,7 @@ void QPainter::drawRect( int x, int y, int w, int h )
     }
 #endif
 
+    initPaintDevice();
     Rect rect;
     SetRect( &rect, x+offx, y+offy, x + w+offx, y + h+offy);
     if( this->brush().style() == SolidPattern ) {
@@ -904,6 +905,7 @@ void QPainter::drawRoundRect( int x, int y, int w, int h, int xRnd, int yRnd)
         h++;
     }
 
+    initPaintDevice();
     Rect rect;
     SetRect( &rect, x+offx, y+offy, x + w+offx, y + h+offy );
     if( this->brush().style() == SolidPattern ) {
@@ -947,6 +949,7 @@ void QPainter::drawEllipse( int x, int y, int w, int h )
         h++;
     }
 
+    initPaintDevice();
     Rect r;
     SetRect( &r, x+offx, y+offy, x + w+offx, y + h+offy );
     if( this->brush().style() == SolidPattern ) {
@@ -987,6 +990,7 @@ void QPainter::drawArc( int x, int y, int w, int h, int a, int alen )
         fix_neg_rect( &x, &y, &w, &h );
     }
 
+    initPaintDevice();
     Rect bounds;
     SetRect(&bounds,x+offx,y+offy,x+w+offx,y+h+offy);
     updatePen();
@@ -1038,6 +1042,7 @@ void QPainter::drawPie( int x, int y, int w, int h, int a, int alen )
         h++;
     }
 
+    initPaintDevice();
     Rect bounds;
     SetRect(&bounds,x+offx,y+offy,x+w+offx,y+h+offy);
     //PaintArc(&bounds,a*16,alen*16);
@@ -1108,6 +1113,7 @@ void QPainter::drawLineSegments( const QPointArray &a, int index, int nlines )
     int  x1, y1, x2, y2;
     uint i = index;
 
+    initPaintDevice();
     updatePen();
     while ( nlines-- ) {
         pa.point( i++, &x1, &y1 );
@@ -1167,6 +1173,7 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
         plot_pixel = cpen.style() == SolidLine; // plot last pixel
     }
     int loopc;
+    initPaintDevice();
     updateBrush();
     updatePen();
     MoveTo(pa[0].x() + offx, pa[0].y() + offy );
@@ -1261,6 +1268,7 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap, int sx, int sy, 
         return;
     }
 
+    initPaintDevice();
     if ( testf(ExtDev|VxF|WxF) ) {
         if ( testf(ExtDev) || (txop == TxScale && pixmap.mask()) ||
              txop == TxRotShear ) {
@@ -1496,6 +1504,7 @@ void QPainter::drawText( int x, int y, const QString &str, int len)
 	mapped=soo;
     }
 
+    initPaintDevice();
     if ( !cfont.handle() ) {
 	if ( mapped.isNull() )
 	    warning("Fontsets only apply to mapped encodings");
@@ -1539,4 +1548,71 @@ QPoint QPainter::pos() const
     return QPoint(penx, peny);
 }
 
+/* mac specific hackery */
+//#define TRY_CACHE 
+#ifdef TRY_CACHE
+static GWorldPtr lworld = NULL;
+static GDHandle lhandle = NULL;
+#endif
+void QPainter::initPaintDevice(bool force) {
+#ifdef TRY_CACHE
+    GWorldPtr world;
+    GDHandle handle;
+    if(!force) {
+	GetGWorld(&world, &handle);
+	if(world == lworld && handle == lhandle) 
+	    return;
+    }
+#endif
+    
+    clippedreg = QRegion(); //empty
+    if ( pdev->devType() == QInternal::Widget ) {                    // device is a widget
+        QWidget *w = (QWidget*)pdev;
+
+	//set the correct window prot
+	SetPortWindowPort((WindowPtr)w->handle());
+
+	//offset painting in widget relative the tld
+	QPoint wp(posInWindow(w));
+	offx = wp.x();
+	offy = wp.y();
+
+	if(!w->isVisible()) 
+	    clippedreg = QRegion(0, 0, 0, 0); //make the clipped reg empty if its not visible, this is hacky FIXME!!!
+	else if(!paintevents.isEmpty() && (*paintevents.current()) == pdev) 
+	    clippedreg = paintevents.current()->region();
+        else if ( w->testWFlags(WPaintUnclipped) )
+	    clippedreg = w->clippedRegion(FALSE);	    //just clip my bounding rect
+	else 
+	    clippedreg = w->clippedRegion();
+
+    } else if ( pdev->devType() == QInternal::Pixmap ) {             // device is a pixmap
+        QPixmap *pm = (QPixmap*)pdev;
+
+	//setup the gworld
+	SetGWorld((GWorldPtr)pm->handle(),0);
+	Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)pm->handle())));
+
+	//clip out my bounding rect
+	clippedreg = QRegion(0, 0, pm->width(), pm->height());
+    } 
+
+    QRegion reg; 
+    if(testf(ClipOn) && !crgn.isNull())
+	reg = crgn;
+    if(!clippedreg.isNull()) {
+	if(reg.isNull())
+	    reg = clippedreg;
+	else
+	    reg &= clippedreg;
+    }
+    SetClip((RgnHandle)reg.handle());
+
+#ifdef TRY_CACHE
+    //save it
+    GetGWorld(&world, &handle);
+    lworld = world;
+    lhandle = handle;
+#endif
+}
 
