@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#76 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#77 $
 **
 ** Implementation of QFrame widget class
 **
@@ -59,7 +59,7 @@
 
   \code
     QFrame *emptyFrame = new QFrame( parentWidget );
-    emptyFrame->setFrameStyle( Panel | Sunken );
+    emptyFrame->setFrameStyle( QFrame::Panel | QFrame::Sunken );
     emptyFrame->setLineWidth( 2 );
   \endcode
 
