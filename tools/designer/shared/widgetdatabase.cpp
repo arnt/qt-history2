@@ -278,7 +278,7 @@ void WidgetDatabase::setupDataBase()
     append( r );
 
     r = new WidgetDatabaseRecord;
-    r->iconSet = "textedit.xpm";
+    r->iconSet = "richtextedit.xpm";
     r->name = "QTextEdit";
     r->group = widgetGroup( "Input" );
     r->toolTip = "Richtext Editor";
