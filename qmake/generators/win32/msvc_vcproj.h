@@ -76,6 +76,7 @@ protected:
     void initSourceFiles();
     void initHeaderFiles();
     void initMOCFiles();
+    void initTranslationFiles();
     void initResourceFiles();
     void initLexYaccFiles();
     void initExtraCompilerOutputs();

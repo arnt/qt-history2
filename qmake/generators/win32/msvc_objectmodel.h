@@ -773,6 +773,16 @@ typedef QList<VCFilter> VCFilterList;
 class VCProjectSingleConfig
 {
 public:
+    enum FilterTypes {
+        None,
+        Source,
+        Header,
+        Generated,
+        LexYacc,
+        Translation,
+        Resources,
+        Extras
+    };
     // Functions
     VCProjectSingleConfig(){};
     ~VCProjectSingleConfig(){}
@@ -792,6 +802,7 @@ public:
     VCFilter                HeaderFiles;
     VCFilter                MOCFiles;
     VCFilter                LexYaccFiles;
+    VCFilter                TranslationFiles;
     VCFilter                ResourceFiles;
     VCFilterList            ExtraCompilersFiles;
 
@@ -930,9 +941,11 @@ public:
 
     // Functions
     void                    outputFilter(XmlOutput &xml,
+//                                         VCProjectSingleConfig::FilterTypes type,
                                          const QString &filtername);
 
     void                    outputFileConfigs(XmlOutput &xml, 
+//                                              VCProjectSingleConfig::FilterTypes type,
                                               const VCFilterFile &info, 
                                               const QString &filtername);
 };

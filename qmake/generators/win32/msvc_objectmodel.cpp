@@ -2099,6 +2099,7 @@ void FlatNode::generateXML(XmlOutput &xml, const QString &/*tagName*/, VCProject
 // Output all configurations (by filtername) for a file (by info) 
 // A filters config output is in VCFilter.outputFileConfig()
 void VCProject::outputFileConfigs(XmlOutput &xml,
+//                                  VCProjectSingleConfig::FilterTypes type
                                   const VCFilterFile &info,
                                   const QString &filtername)
 {
@@ -2114,6 +2115,8 @@ void VCProject::outputFileConfigs(XmlOutput &xml,
             filter = SingleProjects.at(i).MOCFiles;
         } else if (filtername == "LexYaccFiles") {
             filter = SingleProjects.at(i).LexYaccFiles;
+        } else if (filtername == "TranslationFiles") {
+            filter = SingleProjects.at(i).TranslationFiles;
         } else if (filtername == "ResourceFiles") {
             filter = SingleProjects.at(i).ResourceFiles;
         } else {
@@ -2127,6 +2130,7 @@ void VCProject::outputFileConfigs(XmlOutput &xml,
 
 // outputs a given filter for all existing configurations of a project
 void VCProject::outputFilter(XmlOutput &xml,
+//                             VCProjectSingleConfig::FilterTypes type
                              const QString &filtername)
 {
     Node *root;
@@ -2148,6 +2152,8 @@ void VCProject::outputFilter(XmlOutput &xml,
             filter = SingleProjects.at(i).MOCFiles;
         } else if (filtername == "LexYaccFiles") {
             filter = SingleProjects.at(i).LexYaccFiles;
+        } else if (filtername == "TranslationFiles") {
+            filter = SingleProjects.at(i).TranslationFiles;
         } else if (filtername == "ResourceFiles") {
             filter = SingleProjects.at(i).ResourceFiles;
         } else {
@@ -2213,6 +2219,7 @@ XmlOutput &operator<<(XmlOutput &xml, VCProject &tool)
     tool.outputFilter(xml, "Headers");
     tool.outputFilter(xml, "MOCFiles");
     tool.outputFilter(xml, "LexYaccFiles");
+    tool.outputFilter(xml, "TranslationFiles");
     tool.outputFilter(xml, "ResourceFiles");
     for (int x = 0; x < tool.ExtraCompilers.count(); ++x) {
         tool.outputFilter(xml, tool.ExtraCompilers.at(x));

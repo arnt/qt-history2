@@ -24,20 +24,21 @@
 //#define DEBUG_SOLUTION_GEN
 //#define DEBUG_PROJECT_GEN
 
+// Filter GUIDs (Do NOT change these!) ------------------------------
+const char* _GUIDSourceFiles           = "{4FC737F1-C7A5-4376-A066-2A32D752A2FF}";
+const char* _GUIDHeaderFiles           = "{93995380-89BD-4b04-88EB-625FBE52EBFB}";
+const char* _GUIDGeneratedFiles        = "{71ED8ED8-ACB9-4CE9-BBE1-E00B30144E11}";
+const char* _GUIDTranslated            = "{639EADAA-A684-42e4-A9AD-28FC9BCB8F7C}";
+const char* _GUIDResourceFiles         = "{D9D6E242-F8AF-46E4-B9FD-80ECBC20BA3E}";
+const char* _GUIDLexYaccFiles          = "{E12AE0D2-192F-4d59-BD23-7D3FA58D3183}";
+const char* _GUIDExtraCompilerFiles    = "{E0D8C965-CC5F-43d7-AD63-FAEF0BBC0F85}";
+
 #ifdef Q_OS_WIN32
 #  include <qt_windows.h>
 
 // Registry keys for .NET version detection -------------------------
 const char* _regNet2002                = "Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VC\\ProductDir";
 const char* _regNet2003                = "Software\\Microsoft\\VisualStudio\\7.1\\Setup\\VC\\ProductDir";
-
-// Filter GUIDs (Don NOT change these!) -----------------------------
-const char* _GUIDSourceFiles           = "{E6E9E982-9FC4-454e-9CA8-A7130BAA7969}";
-const char* _GUIDHeaderFiles           = "{E20DD029-6ECC-40cc-8664-7BCE54B77DE1}";
-const char* _GUIDGeneratedFiles        = "{EB449A14-9DB3-49a4-96B9-75A100B5D27E}";
-const char* _GUIDResourceFiles         = "{E68C65EF-42A7-4d5e-A044-58F10C142C46}";
-const char* _GUIDLexYaccFiles          = "{E12AE0D2-192F-4d59-BD23-7D3FA58D3183}";
-const char* _GUIDExtraCompilerFiles    = "{E0D8C965-CC5F-43d7-AD63-FAEF0BBC0F85}";
 
 
 static QString keyPath(const QString &rKey)
@@ -898,7 +899,7 @@ void VcprojGenerator::addMocArguments(VCFilter &filter)
 void VcprojGenerator::initSourceFiles()
 {
     vcProject.SourceFiles.Name = "Source Files";
-    vcProject.SourceFiles.Filter = "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat";
+    vcProject.SourceFiles.Filter = "cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx";
     vcProject.SourceFiles.Guid = _GUIDSourceFiles;
 
     vcProject.SourceFiles.addFiles(project->variables()["SOURCES"]);
@@ -912,7 +913,7 @@ void VcprojGenerator::initHeaderFiles()
 {
     QStringList list;
     vcProject.HeaderFiles.Name = "Header Files";
-    vcProject.HeaderFiles.Filter = "h;hpp;hxx;hm;inl";
+    vcProject.HeaderFiles.Filter = "h;hpp;hxx;hm;inl;inc;xsd";
     vcProject.HeaderFiles.Guid = _GUIDHeaderFiles;
 
     list += project->variables()["HEADERS"];
@@ -931,7 +932,7 @@ void VcprojGenerator::initHeaderFiles()
 void VcprojGenerator::initMOCFiles()
 {
     vcProject.MOCFiles.Name = "Generated Files";
-    vcProject.MOCFiles.Filter = "cpp;c;cxx;moc";
+    vcProject.MOCFiles.Filter = "cpp;c;cxx;moc;h";
     vcProject.MOCFiles.Guid = _GUIDGeneratedFiles;
 
     // Create a list of the files being moc'ed
@@ -970,11 +971,25 @@ void VcprojGenerator::initLexYaccFiles()
     vcProject.LexYaccFiles.CustomBuild = lexyacc;
 }
 
+void VcprojGenerator::initTranslationFiles()
+{
+    vcProject.TranslationFiles.Name = "Translations Files";
+    vcProject.TranslationFiles.ParseFiles = _False;
+    vcProject.TranslationFiles.Filter = "ts";
+
+    vcProject.TranslationFiles.addFiles(project->variables()["TRANSLATIONS"]);
+
+    vcProject.TranslationFiles.Project = this;
+    vcProject.TranslationFiles.Config = &(vcProject.Configuration);
+    vcProject.TranslationFiles.CustomBuild = none;
+}
+
+
 void VcprojGenerator::initResourceFiles()
 {
     vcProject.ResourceFiles.Name = "Resource Files";
     vcProject.ResourceFiles.ParseFiles = _False;
-    vcProject.ResourceFiles.Filter = "cpp;ico;png;jpg;jpeg;gif;xpm;bmp;rc;ts;qrc";
+    vcProject.ResourceFiles.Filter = ""; //"rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;ts;qrc";
     vcProject.ResourceFiles.Guid = _GUIDResourceFiles;
 
     vcProject.ResourceFiles.addFiles(project->variables()["FORMS"]);
