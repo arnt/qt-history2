@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#140 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#141 $
 **
 ** Implementation of QFileDialog class
 **
@@ -289,6 +289,9 @@ QString QFileDialogPrivate::File::text( int column ) const
 	    char a[256];
 	    time_t t1 = epoch.secsTo( info.lastModified() );
 	    struct tm * t2 = ::localtime( &t1 );
+#if defined(_CC_GNU_)
+#warning "if a locale warning appears, ignore it - it is harmless but it can not be disabled."
+#endif
 	    if ( strftime( a, 255, "%x  %X", t2 ) > 0 )
 		*tmpString = a;
 	    else
