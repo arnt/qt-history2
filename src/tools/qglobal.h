@@ -170,33 +170,27 @@
 #elif defined( __KCC )
 #  define Q_CC_KAI
 // does not define __EDG__
-#  define Q_HAS_BOOL_TYPE
 #  define Q_C_CALLBACKS
 #elif defined(applec)
 #  define Q_CC_MPW
+#  define Q_NO_BOOL_TYPE
 #elif defined(__MWERKS__)
 #  define Q_CC_MWERKS
-#  define Q_HAS_BOOL_TYPE
 #elif defined(_MSC_VER)
 #  define Q_CC_MSVC
 // proper support of bool for _MSC_VER >= 1100
-#  define Q_HAS_BOOL_TYPE
 #elif defined(__BORLANDC__) || defined(__TURBOC__)
 #  define Q_CC_BOR
-#  if __BORLANDC__ >= 0x500
-#    define Q_HAS_BOOL_TYPE
+#  if __BORLANDC__ < 0x500
+#    define Q_NO_BOOL_TYPE
 #  endif
 #elif defined(__WATCOMC__)
 #  define Q_CC_WAT
-#  define Q_HAS_BOOL_TYPE
 #elif defined(__GNUC__)
 #  define Q_CC_GNU
 #  if __GNUC__ == 2 && __GNUC_MINOR__ <= 7
 #    define Q_FULL_TEMPLATE_INSTANTIATION
 #    define Q_SPURIOUS_NON_VOID_WARNING
-#  endif
-#  if __GNUC__ > 2 || __GNUC__ == 2 && __GNUC_MINOR__ >= 6
-#    define Q_HAS_BOOL_TYPE
 #  endif
 #  if __GNUC__ > 2 || __GNUC__ == 2 && __GNUC_MINOR__ >= 95
 #    define Q_DELETING_VOID_UNDEFINED
@@ -207,8 +201,8 @@
 #elif defined(__xlC__)
 #  define Q_CC_XLC
 #  define Q_FULL_TEMPLATE_INSTANTIATION
-#  if __xlC__ >= 0x400
-#    define Q_HAS_BOOL_TYPE
+#  if __xlC__ < 0x400
+#    define Q_NO_BOOL_TYPE
 #  endif
 #elif defined(__COMO__) || defined(como40)
 // one documented, the other observed (?)
@@ -223,33 +217,34 @@
 #  define Q_CC_OC
 #elif defined(__SUNPRO_CC)
 #  define Q_CC_SUN
+#  if __SUNPRO_CC < 0x500
+#    define Q_NO_BOOL_TYPE
+#  endif
 #  if __SUNPRO_CC >= 0x500
-#    define Q_HAS_BOOL_TYPE
 #    define Q_C_CALLBACKS
 #  endif
 #elif defined(__DECCXX)
 // defines __EDG__?
 #  define Q_CC_DEC
-#  if __DECCXX_VER >= 60060005
-#    define Q_HAS_BOOL_TYPE
+#  if __DECCXX_VER < 60060005
+#    define Q_NO_BOOL_TYPE
 #  endif
 #elif defined(__CDS__)
 // defines __EDG__?
 #  define Q_CC_CDS
-#  define Q_HAS_BOOL_TYPE
 #elif defined(__EDG__) || defined(__EDG)
 // one documented by EDG, the other documented by SGI
 #  define Q_CC_EDG
-#  if defined(_BOOL)
-#    define Q_HAS_BOOL_TYPE
+#  if !defined(_BOOL)
+#    define Q_NO_BOOL_TYPE
 #  endif
 #elif defined(Q_OS_HPUX)
 // __HP_aCC was not defined by first aCC releases
 #  if defined(__HP_aCC) || __cplusplus >= 199707L
 #    define Q_CC_HPACC
-#    define Q_HAS_BOOL_TYPE
 #  else
 #    define Q_CC_HP
+#    define Q_NO_BOOL_TYPE
 #    define Q_FULL_TEMPLATE_INSTANTIATION
 #  endif
 #else
@@ -311,7 +306,7 @@
 // Useful type definitions for Qt
 //
 
-#if !defined(Q_HAS_BOOL_TYPE)
+#if defined(Q_NO_BOOL_TYPE)
 enum { false, true } bool;
 #endif
 

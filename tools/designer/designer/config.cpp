@@ -63,7 +63,7 @@ void Config::writeEntry( const QString &key, int num )
     writeEntry( key, s );
 }
 
-#ifdef Q_HAS_BOOL_TYPE
+#if !defined(Q_NO_BOOL_TYPE)
 void Config::writeEntry( const QString &key, bool b )
 {
     QString s;

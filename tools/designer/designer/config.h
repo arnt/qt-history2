@@ -35,7 +35,7 @@ public:
     void setGroup( const QString &gname );
     void writeEntry( const QString &key, const QString &value );
     void writeEntry( const QString &key, int num );
-#ifdef Q_HAS_BOOL_TYPE
+#if !defined(Q_NO_BOOL_TYPE)
     void writeEntry( const QString &key, bool b );
 #endif
     void writeEntry( const QString &key, const QStringList &lst, const QChar &sep );
