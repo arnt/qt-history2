@@ -180,10 +180,13 @@ int qWinVersion()
 		winver = Qt::WV_95;
 	    break;
 	default: // VER_PLATFORM_WIN32_NT
-	    if ( osver.dwMajorVersion < 5 )
+	    if ( osver.dwMajorVersion < 5 ) {
 		winver = Qt::WV_NT;
-	    else
+	    } else if ( osver.dwMinorVersion == 0 ) {
 		winver = Qt::WV_2000;
+	    } else {
+		winver = Qt::WV_XP;
+	    }
 	}
     }
     return winver;

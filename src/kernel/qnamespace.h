@@ -598,6 +598,7 @@ public:
 
 	WV_NT 		= 0x0010,
 	WV_2000 	= 0x0020,
+	WV_XP		= 0x0030,
 	WV_NT_based	= 0x00f0
     };
 
