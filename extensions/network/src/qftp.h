@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qftp.h#4 $
+** $Id: //depot/qt/main/extensions/network/src/qftp.h#5 $
 **
 ** Implementation of Network Extension Library
 **
@@ -32,9 +32,9 @@
 #include "qstringlist.h"
 
 #include "qurlinfo.h"
-#include "qnetprotocol.h"
+#include "qnetworkprotocol.h"
 
-class QFtp : public QNetworkProtocol
+class QFtp : public QNetworkFileAccess
 {
     Q_OBJECT
 
@@ -51,8 +51,8 @@ public:
     virtual void remove( const QString &filename );
     virtual void rename( const QString &oldname, const QString &newname );
     virtual void copy( const QStringList &files, const QString &dest, bool move );
-    virtual void isDir();
-    virtual void isFile();
+    virtual void isUrlDir();
+    virtual void isUrlFile();
 
     virtual QNetworkProtocol *copy() const;
 
@@ -80,10 +80,6 @@ protected slots:
     void dataConnected();
     void dataClosed();
     void dataReadyRead();
-
-signals:
-    void newEntry( const QUrlInfo & );
-    void listFinished();
 
 };
 

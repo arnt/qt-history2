@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qnetwork.cpp#2 $
+** $Id: //depot/qt/main/extensions/network/src/qnetwork.cpp#3 $
 **
 ** Implementation of Network Extension Library
 **
@@ -24,12 +24,12 @@
 *****************************************************************************/
 
 #include "qnetwork.h"
-#include "qnetprotocol.h"
+#include "qnetworkprotocol.h"
 
 // protocols
 #include "qftp.h"
 
 void qInitNetworkProtocols()
 {
-    qRegisterNetworkProtocol( "ftp", new QFtp );
+    QNetworkProtocol::registerNetworkProtocol( "ftp", new QFtp );
 };
