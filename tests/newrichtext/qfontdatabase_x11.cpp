@@ -41,6 +41,9 @@
 #include <stdlib.h>
 
 // #define QFONTDATABASE_DEBUG
+#ifdef QFONTDATABASE_DEBUG
+#  include <qdatetime.h>
+#endif // QFONTDATABASE_DEBUG
 
 // ----- begin of generated code -----
 
@@ -437,6 +440,10 @@ int qt_mibForXlfd( const char * encoding )
 
 static const char * xlfd_for_id( int id )
 {
+    // special case: -1 returns the "*-*" encoding, allowing us to do full
+    // database population in a single X server round trip.
+    if ( id < 0 ) return "*-*";
+
     for ( int i = 0; i < TOTAL_KEYWORDS; i++ )
 	if ( xlfd_encoding[i].id == id )
 	    return xlfd_encoding[i].name;
@@ -516,8 +523,17 @@ static void loadXlfdEncoding( int encoding_id )
 
 
     for( int i = 0 ; i < fontCount ; i++ ) {
-	if ( !QFontPrivate::parseXFontName( fontList[i], tokens ) )
-	    continue;
+	if ( !QFontPrivate::parseXFontName( fontList[i], tokens ) ) continue;
+
+	// get the encoding_id for this xlfd.  we need to do this
+	// here, since we can pass -1 to this function to do full
+	// database population
+	*(tokens[QFontPrivate::CharsetEncoding]-1) = '-';
+	const XlfdEncoding * const x =
+	    qt_xlfdEncoding_Id( tokens[QFontPrivate::CharsetRegistry],
+				strlen( tokens[QFontPrivate::CharsetRegistry] ) );
+	if ( !x ) continue;
+	encoding_id = x->id;
 
 	char *familyName = tokens[QFontPrivate::Family];
 	capitalize( familyName );
@@ -568,6 +584,7 @@ static void loadXlfdEncoding( int encoding_id )
 
 
 }
+
 
 #ifndef QT_NO_XFTFREETYPE
 static void loadXft()
@@ -624,7 +641,6 @@ static void loadXft()
 #endif
 
 
-#include <qdatetime.h>
 
 
 void QFontDatabase::createDatabase()
@@ -632,19 +648,30 @@ void QFontDatabase::createDatabase()
     if ( db ) return;
     db = new QFontDatabasePrivate;
 
+#ifdef QFONTDATABASE_DEBUG
     QTime t;
     t.start();
-    for ( int i = 0; i < TOTAL_KEYWORDS; ++i ) {
-	loadXlfdEncoding( i );
-    }
-    qDebug("loading took %d ms",  t.elapsed() );
+#endif // QFONTDATABASE_DEBUG
+    /*
+      when the time comes, we need to change the font database to do
+      incremental loading, instead of fully creating the database all
+      at once.
+    */
+    // loadXlfdEncoding( ... ); // load default encoding
+    loadXlfdEncoding( -1 ); // full load
+
+#ifdef QFONTDATABASE_DEBUG
+    qDebug("QFontDatabase: loaded XLFD: %d ms",  t.elapsed() );
+    t.start();
+#endif // QFONTDATABASE_DEBUG
 
 #ifndef QT_NO_XFTFREETYPE
     loadXft();
 #endif
-    qDebug("xft loading took %d ms",  t.elapsed() );
 
 #ifdef QFONTDATABASE_DEBUG
+    qDebug("QFontDatabase: loaded Xft: %d ms",  t.elapsed() );
+
     // print the database
     for ( int i = 0; i < QFont::NScripts; i++ ) {
 	QtFontScript &script = db->scripts[i];
