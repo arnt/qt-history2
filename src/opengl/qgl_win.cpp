@@ -848,10 +848,6 @@ uint QGLContext::colorIndex( const QColor& c ) const
     return c.pixel() & 0x00ffffff;		// Assumes standard palette
 }
 
-void QGLContext::setColormap( const QColormap & cmap )
-{
-}
-
 /*****************************************************************************
   QGLWidget Win32/WGL-specific code
  *****************************************************************************/

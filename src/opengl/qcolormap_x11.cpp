@@ -13,15 +13,27 @@
 ** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition licenses may use this
+** file in accordance with the Qt Commercial License Agreement provided
+** with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #include "qcolormap.h"
 #include "qshared.h"
@@ -53,12 +65,8 @@ public:
 };
 
 
-QColormap::QColormap()
-{
-    d = new QColormapPrivate();
-}
-
-QColormap::QColormap( QWidget * w )
+QColormap::QColormap( QWidget * w, const char * name )
+    : QObject( w, name )
 {
     d = new QColormapPrivate();
     if ( !w ) 
@@ -68,6 +76,8 @@ QColormap::QColormap( QWidget * w )
     d->map = XCreateColormap( w->x11Display(), w->topLevelWidget()->winId(),
 			      (Visual *) w->x11Visual(), AllocAll );
     if ( d->map ) {
+	XSetWindowColormap( w->x11Display(), w->topLevelWidget()->winId(), 
+			    d->map );
 	d->valid  = TRUE;
 	d->size   = ((Visual *) w->x11Visual())->map_entries;
 	d->widget = w;
@@ -76,6 +86,7 @@ QColormap::QColormap( QWidget * w )
 }
 
 QColormap::QColormap( const QColormap & map )
+    : QObject( map.d->widget, map.name() )
 {
     d = map.d;
     d->ref();
@@ -119,20 +130,20 @@ void QColormap::detach()
 	
 	// Re-set the color cells in the new colormap
 	for ( int x = 0; x < d->size; x++ )
-	    setEntry( x, d->cells[ x ] );
+	    setRgb( x, d->cells[ x ] );
     }
 }
 
-void QColormap::setEntry( int idx, QRgb color )
+void QColormap::setRgb( int idx, QRgb color )
 {    
 #if defined(QT_CHECK_RANGE)
     if ( !d->valid ) {
-	qWarning( "QColormap::setEntry: Not a valid colormap" );
+	qWarning( "QColormap::setRgb: Not a valid colormap" );
 	return;
     }
     
     if ( idx < 0 || idx > d->size ) {
-	qWarning( "QColormap::setEntry: Index out of range" );
+	qWarning( "QColormap::setRgb: Index out of range" );
 	return;
     }
 #endif
@@ -149,9 +160,19 @@ void QColormap::setEntry( int idx, QRgb color )
     d->cells[ idx ] = color;
 }
 
-void QColormap::setEntry( int idx, const QColor & color )
+QRgb QColormap::rgb( int idx ) const
 {
-    setEntry( idx, color.rgb() );
+    return d->cells[ idx ];
+}
+
+void QColormap::setColor( int idx, const QColor & color )
+{
+    setRgb( idx, color.rgb() );
+}
+
+QColor QColormap::color( int idx ) const
+{
+    return QColor( d->cells[ idx ] );
 }
 
 bool QColormap::isValid() const
@@ -162,4 +183,9 @@ bool QColormap::isValid() const
 Qt::HANDLE QColormap::colormap() const
 {
     return d->map;
+}
+
+int QColormap::size() const
+{
+    return d->size;
 }

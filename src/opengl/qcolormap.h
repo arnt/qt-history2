@@ -13,37 +13,55 @@
 ** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition licenses may use this
+** file in accordance with the Qt Commercial License Agreement provided
+** with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 #ifndef QCOLORMAP_H
 #define QCOLORMAP_H
 
 #ifndef QT_H
+#include "qobject.h"
 #include "qcolor.h"
 #endif // QT_H
 
 class QColormapPrivate;
 class QWidget;
-class Q_EXPORT QColormap : public Qt
+class Q_EXPORT QColormap : public QObject
 {
 public:
-    QColormap();
-    QColormap( QWidget * w );
+    QColormap( QWidget * w, const char * name = 0 );
     QColormap( const QColormap & );
     virtual   ~QColormap();
+    
     QColormap &operator=( const QColormap & );
     bool      isValid() const;
-    void      setEntry( int idx, QRgb color );
-    void      setEntry( int idx, const QColor & color );
-    HANDLE    colormap() const;
+    
+    void   setRgb( int idx, QRgb color );
+    QRgb   rgb( int idx ) const;
+    void   setColor( int idx, const QColor & color );
+    QColor color( int idx ) const;
+    
+    HANDLE colormap() const;
+    int    size() const;
     
 private:
     void detach();

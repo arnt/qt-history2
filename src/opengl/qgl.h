@@ -168,7 +168,6 @@ public:
     QGLFormat		format() const;
     QGLFormat		requestedFormat() const;
     virtual void	setFormat( const QGLFormat& format );
-    virtual void        setColormap( const QColormap & cmap );
     
     virtual void	makeCurrent();
     virtual void	swapBuffers() const;
@@ -254,7 +253,6 @@ public:
 
     void		qglColor( const QColor& c ) const;
     void		qglClearColor( const QColor& c ) const;
-    void                setColormap( const QColormap & cmap );
     
     bool		isValid() const;
     bool		isSharing() const;
@@ -487,8 +485,4 @@ inline void QGLWidget::fixBufferRect()
 }
 #endif
 
-inline void QGLWidget::setColormap( const QColormap & cmap )
-{
-    glcx->setColormap( cmap );
-}
 #endif

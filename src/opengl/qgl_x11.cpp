@@ -604,13 +604,6 @@ uint QGLContext::colorIndex( const QColor& c ) const
     return 0;
 }
 
-void QGLContext::setColormap( const QColormap & cmap )
-{
-    XSetWindowColormap( paintDevice->x11Display(),
-			((QWidget *) paintDevice)->topLevelWidget()->winId(), 
-			(Colormap) cmap.colormap() );
-}
-
 /*****************************************************************************
   QGLOverlayWidget (Internal overlay class for X11)
  *****************************************************************************/

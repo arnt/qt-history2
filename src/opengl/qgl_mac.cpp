@@ -304,10 +304,6 @@ uint QGLContext::colorIndex( const QColor&c) const
     return (uint)(ret == -1 ? 0 : ret);
 }
 
-void QGLContext::setColormap( const QColormap & cmap )
-{
-}
-
 /*****************************************************************************
   QGLWidget AGL-specific code
  *****************************************************************************/

@@ -13,15 +13,27 @@
 ** as defined by Trolltech AS of Norway and appearing in the file
 ** LICENSE.QPL included in the packaging of this file.
 **
-** Licensees holding valid Qt Professional Edition licenses may use this
-** file in accordance with the Qt Professional Edition License Agreement
-** provided with the Qt Professional Edition.
+** This file may be distributed and/or modified under the terms of the
+** GNU General Public License version 2 as published by the Free Software
+** Foundation and appearing in the file LICENSE.GPL included in the
+** packaging of this file.
+**
+** Licensees holding valid Qt Enterprise Edition licenses may use this
+** file in accordance with the Qt Commercial License Agreement provided
+** with the Software.
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ** See http://www.trolltech.com/pricing.html or email sales@trolltech.com for
-** information about the Professional Edition licensing, or see
-** http://www.trolltech.com/qpl/ for QPL licensing information.
+**   information about Qt Commercial License Agreements.
+** See http://www.trolltech.com/qpl/ for QPL licensing information.
+** See http://www.trolltech.com/gpl/ for GPL licensing information.
 **
-*****************************************************************************/
+** Contact info@trolltech.com if any conditions of this licensing are
+** not clear to you.
+**
+**********************************************************************/
 
 /*!
   \class QColormap qcolormap.h
@@ -31,34 +43,64 @@
   \module OpenGL
     
   This class is used to install custom colormaps in QGLWidgets that
-  use the OpenGL color-index mode.
+  use the OpenGL color-index mode. You can only install one colormap
+  in each top-level widget. QColormap tries to allocate all the
+  colorcells in a colormap for exclusive use. This will most likely
+  result in colormap flashing when running in 8 bit color mode.
+  
+  Under X11 you will have to use an X server that supports either a
+  PseudoColor or DirectColor visual class.  If your X server currently
+  only provides a TrueColor, StaticColor or StaticGray visual, you
+  will not be able to allocate colorcells for writing. The QColormap
+  will then be invalid. Hint: Try setting up your X server in 8 bit
+  mode, and it will most likely provide a PseudoColor visual.
     
-  This class uses implicit sharing.
+  This class uses implicit sharing (see \link shclass.html Shared
+  Classes\endlink).
     
   \sa QGLWidget::setColormap()
  */
 
 /*!
-  \fn QColormap &operator=( const QColormap & map )
+  \fn QColormap & QColormap::operator=( const QColormap & map )
   Assign a shallow copy of \a map to this QColormap.
 */
 
 /*!
-  \fn bool isValid() const
-  Returns TRUE if the colormap is valid. All attempts to use an invalid
-  colormap will fail.
+  \fn bool QColormap::isValid() const
+  Returns TRUE if the colormap is valid, otherwise FALSE.
   
-  The most common reason for a colormap to be invalid under X11 is
-  that the X server does not support the visual class that is need for
-  a read/write colormap. 
+  The most common reason for a colormap to be invalid under X11, is
+  that the X server does not support the visual class that is needed
+  for a read/write colormap.
 */
 
 /*!
-  \fn void setEntry( int idx, QRgb color )
-  Set entry \a idx in the colormap to \a color.
+  \fn void QColormap::setRgb( int idx, QRgb color )
+  Set cell \a idx in the colormap to \a color.
 */
 
 /*!
-  \fn void setEntry( int idx, QColor & color )
-  Set entry \a idx in the colormap to \a color.
+  \fn QRgb QColormap::rgb( int idx ) const
+  Returns the QRgb value in the colorcell \a idx.
+*/
+
+/*!
+  \fn void QColormap::setColor( int idx, const QColor & color )
+  Set cell \a idx in the colormap to \a color.
+*/
+
+/*!
+  \fn QRgb QColormap::color( int idx ) const
+  Returns the QRgb value in the colorcell \a idx.
+*/
+
+/*!
+  \fn Qt::HANDLE QColormap::colormap() const
+  Returns the system specific colormap handle.
+*/
+
+/*!
+  \fn int QColormap::size() const
+  Returns the number of colorcells in the colormap.
 */
