@@ -135,12 +135,12 @@ int main( int argc, char** argv )
 	die( env.lastError() );
 
     /* output results */
-    ResultSet& rs = env.resultSet( 0 ); //## what about more than one result set? will this always be the last one?
-    if ( rs.size() ) {
-	rs.first();
+    qdb::ResultSet* rs = env.resultSet( 0 ); //## what about more than one result set?
+    if ( rs->size() ) {
+	rs->first();
 	do {
 	    //## todo
-	} while( rs.next() );
+	} while( rs->next() );
     }
     if ( outfile.isOpen() )
 	outfile.close();
