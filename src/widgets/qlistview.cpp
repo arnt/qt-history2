@@ -3309,11 +3309,12 @@ void QListView::removeColumn( int index )
 	}
     }
 
-    for ( int i = index; i < (int)d->column.count() - 1; ++i ) {
+    for ( int i = index; i < (int)d->column.count(); ++i ) {
 	QListViewPrivate::Column *c = d->column.take( i );
 	if ( i == index )
 	    delete c;
-	d->column.insert( i, d->column[ i + 1 ] );
+	if ( i < (int)d->column.count()-1 )
+	    d->column.insert( i, d->column[ i + 1 ] );
     }
     d->column.take( d->column.size() - 1 );
     d->column.resize( d->column.size() - 1 );
