@@ -99,7 +99,7 @@ bool QPixmap::convertFromImage(const QImage &img, int conversion_flags)
 {
     if(img.isNull()) {
 #if defined(QT_CHECK_NULL)
-	warning("QPixmap::convertFromImage: Cannot convert a null image");
+	qWarning("QPixmap::convertFromImage: Cannot convert a null image");
 #endif
 	return FALSE;
     }
@@ -504,7 +504,7 @@ int QPixmap::metric(int m) const
 	default:
 	    val = 0;
 #if defined(QT_CHECK_RANGE)
-	    warning("QPixmap::metric: Invalid metric command");
+	    qWarning("QPixmap::metric: Invalid metric command");
 #endif
     }
     return val;
