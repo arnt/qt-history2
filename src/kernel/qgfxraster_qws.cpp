@@ -4467,11 +4467,11 @@ void QGfxRaster<depth,type>::processSpans( int n, QPoint* point, int* width )
 }
 
 /*!
-  \fn static find_pointer(unsigned char * base,int x,int y,
-      int w, int linestep, int &astat,
-      unsigned char &ahold,
-      bool is_bigendian, bool rev)
-
+  \fn static GFX_INLINE unsigned char * find_pointer(unsigned char * base,int x,int y,
+					   int w, int linestep, int &astat,
+					   unsigned char &ahold,
+					   bool is_bigendian, bool rev)
+					   
   Finds a pointer to pixel (\a x, \a y) in a bitmap that
   is \a w pixels wide and stored in \a base. \a is_bigendian determines
   endianness.
@@ -4980,9 +4980,11 @@ void QGfxRaster<depth,type>::tiledBlt( int rx,int ry,int w,int h )
 /*!
   \class QScreen qgfx_qws.h
   \ingroup qws
-  \brief Descendants of QScreen manage the framebuffer and palette and act as
-  factories for the screen cursor and QGfx's. QLinuxFbScreen manages
-  a Linux framebuffer; accelerated drivers subclass QLinuxFbScreen.
+  \brief The QScreen class and its descendants manage the framebuffer and 
+  palette.
+  
+  QScreens act as factories for the screen cursor and QGfx's. QLinuxFbScreen 
+  manages a Linux framebuffer; accelerated drivers subclass QLinuxFbScreen.
   There can only be one screen in a Qt/Embedded application.
 */
 
@@ -5027,7 +5029,7 @@ If \a on is true, blank the screen. Otherwise unblank it.
 
 /*!
 \fn QScreen::pixmapOffsetAlignment()
-Returns the value in bytes to which the start address of pixmaps held in 
+Returns the value in bytes to which the start address of pixmaps held in
 graphics card memory should be aligned. This is only useful for accelerated
 drivers. By default the value returned is 64 but it can be overridden
 by individual accelerated drivers.
@@ -5035,7 +5037,7 @@ by individual accelerated drivers.
 
 /*!
 \fn QScreen::pixmapLinestepAlignment()
-Returns the value in bytes to which individual scanlines of pixmaps held in 
+Returns the value in bytes to which individual scanlines of pixmaps held in
 graphics card memory should be aligned. This is only useful for accelerated
 drivers. By default the value returned is 64 but it can be overridden
 by individual accelerated drivers.
@@ -5110,7 +5112,7 @@ the beginning of framebuffer memory (i.e. at base()).
 
 /*!
   \fn QScreen::totalSize() const
-Returns the size in bytes of available graphics card memory, including the 
+Returns the size in bytes of available graphics card memory, including the
 screen. Offscreen memory is only used by the accelerated drivers.
 */
 

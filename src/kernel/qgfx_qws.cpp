@@ -53,7 +53,7 @@ QGfx *QGfx::createGfx( int depth, unsigned char *buffer, int w, int h,
 
 /*!
 \fn QScreen::setDirty( const QRect& )
-Indicates section of the screen has been altered. Used by the VNC 
+Indicates section of the screen has been altered. Used by the VNC
 and VFB displays; the QScreen version does nothing.
 */
 
@@ -110,7 +110,8 @@ QSize QScreen::mapFromDevice( const QSize &s ) const
   \fn QScreen::mapToDevice( const QPoint &, const QSize & ) const
   \overload
   Map a user coordinate to the one to actually be drawn. Used by
-  the rotated driver; the QScreen implementation simply returns \a p.
+  the rotated driver; the QScreen implementation simply returns the point
+  passed in.
 */
 
 QPoint QScreen::mapToDevice( const QPoint &p, const QSize & ) const

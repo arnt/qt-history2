@@ -618,8 +618,8 @@ static const MouseData mouseData[] = {
     { 3 },  // MouseMan
     { 4 },  // intelliMouse
     { 3 },  // Microsoft
-    { 0 },  // QVFBMouse, 
-    { 0 },  // TPanel, 
+    { 0 },  // QVFBMouse,
+    { 0 },  // TPanel,
     { 3 },  // BusMouse,
 };
 
@@ -629,7 +629,7 @@ void QWSMouseHandlerPrivate::readMouseData()
 {
     int n;
     if ( BusMouse == mouseProtocol ) {
-	// a workaround of linux busmouse driver interface.  
+	// a workaround of linux busmouse driver interface.
 	// It'll only read 3 bytes a time and return all other buffer zeroed, thus cause protocol errors
 	for (;;) {
 	    if ( mouseBufSize - mouseIdx < 3 )
@@ -1392,7 +1392,7 @@ QWSMouseHandler* QWSServer::newMouseHandler(const QString& spec)
 	handler = new QAutoMouseHandlerPrivate();
 	break;
 #endif
-#ifndef QT_NO_QWS_MOUSE_MANUAL	
+#ifndef QT_NO_QWS_MOUSE_MANUAL
     case MouseMan:
     case IntelliMouse:
     case Microsoft:
@@ -1400,7 +1400,7 @@ QWSMouseHandler* QWSServer::newMouseHandler(const QString& spec)
 	handler = new QWSMouseHandlerPrivate( mouseProtocol, mouseDev );
 	break;
 #endif
-#ifndef QT_NO_QWS_VFB	
+#ifndef QT_NO_QWS_VFB
     case QVFBMouse:
 	handler = new QVFbMouseHandlerPrivate( mouseProtocol, mouseDev );
 	break;
@@ -1418,3 +1418,16 @@ QWSMouseHandler* QWSServer::newMouseHandler(const QString& spec)
 
     return handler;
 }
+
+/*!
+  \fn QWSMouseHandler::clearCalibration()
+  This method is reimplemented in the calibrated mouse handler
+  to clear calibration information. This version does nothing.
+*/
+
+/*!
+  \fn QWSMouseHandler::calibrate(QWSPointerCalibrationData * )
+  This method is reimplemented in the calibrated mouse handler
+  to set calibration information (from, for instance, the QPE
+  calibration screen). This version does nothing.
+*/

@@ -2431,3 +2431,76 @@ void QWSServer::screenSaverActivate(bool activate)
   Constructs a new top-level window, associated with the client \a client
   and giving it the id \a i.
 */
+
+/*!
+\fn QWSServer::manager()
+  Returns the QWSPropertyManager, which is used for implementing
+  X11-style window properties.
+*/
+
+/*!
+  \fn QWSServer::windowEvent(QWSWindow * w,QWSServer::WindowEvent e)
+This signal is triggered whenever something happens to a top level
+window (e.g. it's created or destroyed). \a w is the window
+to which an event has happened, \a e specifies what type of event
+has occurred.
+*/
+
+/*!
+  \fn QWSServer::keyMap()
+This returns the keyboard mapping table used to convert keyboard
+scancodes to Qt keycodes and unicode values. It's used by the keyboard
+driver in qkeyboard_qws.cpp.
+*/
+
+/*!
+  \enum QWSServer::ServerFlags
+This enum is used to pass various options to the window system server.
+Currently defined are:
+
+\value DisableKeyboard Ignore all keyboard input
+\value DisableMouse Ignore all mouse input
+*/
+
+/*!
+  \enum QWSServer::GUIMode
+This determines what sort of QWS server to create:
+
+\value NoGui This is used for non-graphical Qt applications
+\value NormalGUI A normal Qt/Embedded application (not the server)
+\value Server A Qt/Embedded server (e.g. if -qws has been specified
+  on the command line
+*/
+
+/*!
+  \class QWSServer::KeyMap
+  \brief The QWSServer::KeyMap class is used for mapping scancodes.
+  
+  The KeyMap structure records an individual KeyMap entry in the
+  array used to map keyboard scancodes to Qt key codes and unicode
+  values.
+*/
+
+/*!
+  \class QWSServer::KeyboardFilter
+  \brief The QWSServer::KeyboardFilter class provides a global keyboard 
+  event filter.
+  
+  The KeyboardFilter class is used to implement a global, low-level
+  filter on key events in the Qt/Embedded server application; this
+  can be used to implement things like APM suspend from a button
+  without having to filter it in all applications.
+*/
+
+/*!
+  \enum QWSServer::WindowEvent
+This specifies what sort of event has occurred to a top level window:
+
+\value Create A new window has been created (QWidget constructor)
+\value Destroy The window has been closed and deleted (QWidget destructor)
+\value Hide The window has been hidden with QWidget::hide()
+\value Show The window has been shown with QWidget::show() or similar
+\value Raise The window has been raised to the top of the desktop
+\value Lower The window has been lowered
+\value Geometry The window has changed size or position
+*/
