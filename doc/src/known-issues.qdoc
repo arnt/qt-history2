@@ -20,13 +20,23 @@
 
     \table
     \header \i Description \i Resolution
+
     \row \i When Qt has been built in both debug and release modes, the object files for
     the demos will be built in debug mode regardless.
     \i Fix scheduled for beta 2.
+
     \row \i All tools are compiled in debug mode with no optimizations.
     \i Fix scheduled for beta 2.
+
     \row \i \c{make install} doesn't work with \c{configure -fast}.
     \i Fix scheduled for beta 2.
+
+    \row \i Static builds are untested for beta 1. In the mean time,
+    you should be able to make use of the dynamic build. \i Fix
+    scheduled for beta 2.
+
+
+
     \endtable
 
     \section2 Windows
@@ -78,14 +88,27 @@
 
     \section2 General
 
-    No current issues.
-
-    \omit
     \table
     \header \i Description \i Resolution
-    \row \i <description goes here> \i <resolution goes here>
+
+    \row \i The Qt Motif Extension has not yet been ported to Qt 4.0,
+    and as such is not available in any of the technical previews or
+    the first beta. \i Fix scheduled for beta 2.
+
+    \row \i The Visual Studio (v6) integration plugin does
+    not work with Qt 4 beta 1 release. \i Fix scheduled for beta 2.
+
+    \row \i The ActiveQt integration plugin is not yet ported to the
+    new Designer plugin system. \i Fix scheduled for beta 2.
+
+    \row \i The SQLite driver doesn't at the moment support BLOBs,
+    despite SQLite itself supporting them as of version 3. \i Fix
+    scheduled for beta 2.
+
+    \row \i Qt 3 SVG support is not yet ported to Qt 4. \i Fix
+    scheduled for beta 2.
+
     \endtable
-    \endomit
 
     \section2 Windows
 
