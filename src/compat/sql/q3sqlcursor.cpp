@@ -696,7 +696,7 @@ bool Q3SqlCursor::select()
 
 bool Q3SqlCursor::select(const QSqlIndex& sort)
 {
-    return select(QString(), sort);
+    return select(filter(), sort);
 }
 
 /*!
@@ -1217,7 +1217,7 @@ int Q3SqlCursor::update(const QString & filter, bool invalidate)
     if (k == 0) {
         return 0;
     }
-
+    
     // use a prepared query if the driver supports it
     if (driver()->hasFeature(QSqlDriver::PreparedQueries)) {
         QString fList;
