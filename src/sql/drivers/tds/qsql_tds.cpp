@@ -653,20 +653,17 @@ QSqlRecordInfo QTDSDriver::recordInfo( const QString& tablename ) const
     if ( !isOpen() )
 		return info;
     QSqlQuery t = createQuery();
-    QString stmt ( "select name, type, isnullable, length, prec, iscomputed  from syscolumns "
+    QString stmt ( "select name, type, length, prec from syscolumns "
 		   "where id = (select id from sysobjects where name = '%1')" );
     t.exec( stmt.arg( tablename ) );
     while ( t.next() ) {
-	info.append( QSqlFieldInfo( t.value(0).toString().stripWhiteSpace(),// name
-				    qDecodeTDSType( t.value(1).toInt() ),   // type
-				    (t.value(2).toInt() == 0) ? 1:0,	    // required
-				    t.value(3).toInt(),			    // length
-				    t.value(4).toInt(),			    // precision
-				    QVariant(),				    // default value
-				    t.value(1).toInt(),			    // db internal type id
-				    TRUE,				    // generated
-				    FALSE,				    // trim
-				    t.value(5).toInt() ) );		    // calculated
+	info.append( QSqlFieldInfo( t.value(0).toString().stripWhiteSpace(),
+				    qDecodeTDSType( t.value(1).toInt() ),
+				    -1,
+				    t.value(2).toInt(),
+				    t.value(3).toInt(),
+				    QVariant(),
+				    t.value(1).toInt() ) );
     }
     return info;
 }
