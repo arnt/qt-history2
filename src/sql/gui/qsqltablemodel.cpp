@@ -417,8 +417,7 @@ bool QSqlTableModel::setData(const QModelIndex &index, const QVariant &value, in
     if (role & ~EditRole)
         return QSqlQueryModel::setData(index, value, role);
 
-    QSqlRecord rec = query().record();
-    if (index.column() >= rec.count() || index.row() >= rowCount())
+    if (index.column() >= d->rec.count() || index.row() >= rowCount())
         return false;
 
     bool isOk = true;
@@ -1036,7 +1035,7 @@ int QSqlTableModel::rowCount(const QModelIndex &) const
 /*!
     Returns the index of the value in the database result set for the
     given \a item in the model.
-    
+
     The return value is identical to \a item if no columns or rows
     have been inserted, removed, or moved around.
 
