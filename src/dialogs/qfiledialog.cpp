@@ -3266,11 +3266,11 @@ QString QFileDialog::getOpenFileName( const QString & startWith,
   centered over the parent.
 
   \code
-    QStringList s = QFileDialog::getSaveFileName( "/home",
-						  "Images (*.png *.xpm *.jpg)",
-						  this,
-						  "open files dialog"
-						  "Choose a file" );
+    QString s = QFileDialog::getSaveFileName( "/home",
+					      "Images (*.png *.xpm *.jpg)",
+					      this,
+					      "save file dialog"
+					      "Choose a file" );
   \endcode
 
   The file dialog's working directory will be set to \a startWith. If \a
