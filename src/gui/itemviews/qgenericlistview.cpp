@@ -564,10 +564,10 @@ void QGenericListView::paintEvent(QPaintEvent *e)
 {
     QItemOptions options;
     getViewOptions(&options);
-    d->backBuffer.fill(options.palette.base());
 
     QPainter painter(&d->backBuffer);
     QRect area = e->rect();
+    painter.fillRect(area, options.palette.base());
     area.moveBy(horizontalScrollBar()->value(), verticalScrollBar()->value());
 
     // fill the intersectVector
