@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#27 $
 **
 ** Implementation of QObject class
 **
@@ -15,15 +15,26 @@
 #include <ctype.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#26 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qobject.cpp#27 $";
 #endif
 
 
 /*!
 \class QObject qobject.h
 
-The QObject class is the base class of all Qt objects that can deal with
-signals, slots and events.
+\brief The QObject class is the base class of all Qt objects that can
+deal with signals, slots and events.
+
+Qt uses a very powerful mechanism, signals that are connected to
+slots, for communication between objects.  An object has zero or more
+signals and zero or more slots, and a signal may be connected to a slot
+on (the same or) a different object.
+
+When an object wants to (whatever it wants), the slot(s) that are
+connected to that signal get called with the same arguments.  Ie. the
+calling object (the object that emits the signal) doesn't need to know
+or care what slot the signal is connected to.  It works much like the
+traditional callback, but is easier to program.
 */
 
 
@@ -81,6 +92,9 @@ static void removeObjFromList( QObjectList *objList, const QObject *obj,
 
 /*!
 Constructs an object with parent objects \e parent and a \e name.
+
+Which doesn't say a whole lot, you read that from the declaration.  You
+can get a better explanation via <a href=mailto:hanord@troll.no>mail</a>.
 */
 
 QObject::QObject( QObject *parent, const char *name )
@@ -105,7 +119,9 @@ QObject::QObject( QObject *parent, const char *name )
 }
 
 /*!
-Destroys the object and all its children objects.
+Destroys the object and all its children objects.  (Children in the
+widget tree, not the class inheritance tree.)
+
 All signals to and from the object are automatically disconnected.
 */
 
@@ -175,14 +191,21 @@ bool QObject::isA( const char *clname ) const	// test if is-a class
 }
 
 /*!
-Returns TRUE if this object is an instance of a class that is a, or inherits a
-specified class, otherwise FALSE.
+Returns TRUE if this object is an istance of a class that inherits \e
+clname.  (A class is considered to inherit itself.)
+
 \code
 QTimer *t = new QTimer;			\/ QTimer inherits QObject
 t->inherits("QTimer");			\/ returns TRUE
 t->inherits("QObject");			\/ returns TRUE
 t->inherits("QButton");			\/ returns FALSE
 \endcode
+
+This class may be used to determine whether a certain widget (or other
+object) implements certain features.  Qt uses it to implement keyboard
+accellerators, for instance: A keyboard accelerator is an object for
+which <code>inherits("QAccel")</code> is TRUE.
+
 See also: isA().
 */
 
@@ -210,12 +233,15 @@ const char *QObject::className() const		// get name of class
 
 /*!
 \fn const char *QObject::name() const
-Returns the name of this object.<br>
+
+Returns the name of this object.
+
 See also: setName().
 */
 
 /*!
-Sets the name of this object.<br>
+Sets the name of this object.
+
 See also: name().
 */
 
@@ -228,9 +254,8 @@ void QObject::setName( const char *name )	// set object name
 
 
 /*!
-This virtual function receives events to an objects and must returns
-TRUE if the event was recognized and processed, otherwise FALSE
-should be returned.
+This virtual function receives events to an object and must returns
+TRUE if the event was recognized and processed.
 
 The event() function can be reimplemented to customize the behavior of
 an object.
@@ -243,7 +268,8 @@ bool QObject::event( QEvent *e )		// receive event
 
 /*!
 Filters events if an event filter has been installed.
-<br>See also: installEventFilter().
+
+See also: installEventFilter().
 */
 
 bool QObject::eventFilter( QObject *, QEvent * )// filter event
