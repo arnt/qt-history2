@@ -838,15 +838,10 @@ void QScrollView::updateScrollBars()
     }
 
     // Finally, show the scrollbars.
-    if ( showh && !d->hbar.isVisible() ) {
+    if ( showh && !d->hbar.isVisible() )
 	d->hbar.show();
-	qApp->processEvents();
-    }
     if ( showv && !d->vbar.isVisible() )
-    {
 	d->vbar.show();
-	qApp->processEvents();
-    }    
 }
 
 
