@@ -729,7 +729,8 @@ QAction *QMenu::addMenu(const QString &text, QMenu *menu)
 */
 QAction *QMenu::addMenu(const QIconSet &icon, const QString &text, QMenu *menu)
 {
-    QAction *ret = new QAction(icon, text, menu, this);
+    QAction *ret = new QAction(text, menu, this);
+    ret->setIcon(icon);
     addAction(ret);
     return ret;
 }
@@ -779,7 +780,8 @@ QAction *QMenu::insertMenu(QAction *before, const QString &text, QMenu *menu)
 */
 QAction *QMenu::insertMenu(QAction *before, const QIconSet &icon, const QString &text, QMenu *menu)
 {
-    QAction *ret = new QAction(icon, text, menu, this);
+    QAction *ret = new QAction(text, menu, this);
+    ret->setIcon(icon);
     insertAction(before, ret);
     return ret;
 }
