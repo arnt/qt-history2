@@ -170,9 +170,9 @@ QAccessible::Relation QAccessibleWidget::relationTo(int child, const QAccessible
 	else
 	    relation |= QAccessible::Right;
 	if (wc.y() < sc.y())
-	    relation |= QAccessible::Above;
+	    relation |= QAccessible::Up;
 	else
-	    relation |= QAccessible::Below;
+	    relation |= QAccessible::Down;
 
 	return (Relation)relation;
     }
@@ -271,14 +271,14 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 	    return entry + 1;
 	}
 	// fall through
-    case QAccessible::Above:
+    case QAccessible::Up:
 	if (complexWidget && entry) {
 	    if (entry < 2 || widget()->width() > widget()->height() + 20) // looks horizontal
 		return - 1;
 	    return entry - 1;
 	}
 	// fall through
-    case QAccessible::Below:
+    case QAccessible::Down:
 	if (complexWidget && entry) {
 	    if (entry >= childCount() || widget()->width() > widget()->height()  + 20) // looks horizontal
 		return - 1;
@@ -318,14 +318,14 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 			continue;
 		    distp = sibp - startp;
 		    break;
-		case QAccessible::Above:
+		case QAccessible::Up:
 		    startp = QPoint(startg.left() + startg.width() / 2, startg.top());
 		    sibp = QPoint(sibg.left() + sibg.width() / 2, sibg.bottom());
 		    if (QPoint(sibc - startc).y() >= 0)
 			continue;
 		    distp = sibp - startp;
 		    break;
-		case QAccessible::Below:
+		case QAccessible::Down:
 		    startp = QPoint(startg.left() + startg.width() / 2, startg.bottom());
 		    sibp = QPoint(sibg.left() + sibg.width() / 2, sibg.top());
 		    if (QPoint(sibc - startc).y() <= 0)
