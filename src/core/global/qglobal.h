@@ -1153,7 +1153,9 @@ Q_CORE_EXPORT void qFatal(const char *, ...) // print fatal message and exit
 #endif
 ;
 
-Q_CORE_EXPORT void qSystemWarning(const char *msg, int code = -1);
+// print warning from platform API calls
+Q_CORE_EXPORT void qErrnoWarning(int code, const char *msg, ...);
+Q_CORE_EXPORT void qErrnoWarning(const char *msg, ...);
 
 class QDebug;
 class QNoDebug;
