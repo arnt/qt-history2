@@ -316,7 +316,8 @@ void QTextDocumentLayout::documentChange(int from, int oldLength, int length)
 //     qDebug("documentChange: from=%d, oldLength=%d, length=%d", from, oldLength, length);
     QTextBlockIterator it = findBlock(from);
     QTextBlockIterator end = findBlock(from + length - 1);
-    ++end;
+    if (!end.atEnd())
+        ++end;
     QPoint pos;
 
     if (it != begin()) {
