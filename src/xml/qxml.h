@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.h#21 $
+** $Id: //depot/qt/main/src/xml/qxml.h#22 $
 **
 ** Definition of QXmlSimpleReader and related classes.
 **
@@ -355,7 +355,7 @@ private:
 
     bool parseString();
 
-    void reportParseError();
+    void reportParseError( const QString& error );
 
     friend class QXmlSimpleReaderPrivate;
     friend class QXmlLocator;
