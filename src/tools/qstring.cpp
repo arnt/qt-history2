@@ -12433,7 +12433,36 @@ char* QString::unicodeToAscii(const QChar *uc, uint l)
   \sa QChar
 */
 
-Q_EXPORT QStringData *QString::shared_null = 0;
+/*!
+  \enum Qt::StringComparisonMode
+
+  This enum type is used to set the string comparison mode when searching
+  for an item.  This is currently implemented in QListBox, QListView and 
+  QIconView.
+
+  \value CaseSensitive The search is set to be case sensitive.
+  \value BeginsWith The search is set to check if the search string is at 
+  the beginning of the string.
+  \value Contains The search is set to check if the search string is 
+  contained inside the string.
+  \value EndsWith The search is set to check if the search string is at the 
+   end of the string.
+  \value ExactMatch The search is set to check if the search string 
+  matches the string exactly.
+
+  You can use one or more of these flags, it will check each option (if set) 
+  individually in the following order:
+
+  <ul>
+  <li> ExactMatch
+  <li> BeginsWith
+  <li> EndsWith
+  <li> Contains
+  </ul>
+
+  
+*/
+
 QT_STATIC_CONST_IMPL QString QString::null;
 QT_STATIC_CONST_IMPL QChar QChar::null;
 QT_STATIC_CONST_IMPL QChar QChar::replacement((ushort)0xfffd);
