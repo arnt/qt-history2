@@ -172,42 +172,42 @@ QSyntaxHighlighter::~QSyntaxHighlighter()
     function).
 
     The specified \a font and \a color are applied to the character at
-    position \a start and to the \a len following characters.
+    position \a start and to the \a count following characters.
 */
 
-void QSyntaxHighlighter::setFormat( int start, int len, const QFont &font, const QColor &color )
+void QSyntaxHighlighter::setFormat( int start, int count, const QFont &font, const QColor &color )
 {
-    if ( !para )
+    if ( !para || len <= 0 )
 	return;
     QTextFormat *f = 0;
     f = para->document()->formatCollection()->format( font, color );
-    para->setFormat( start, len, f );
+    para->setFormat( start, count, f );
     f->removeRef();
 }
 
 /*! \overload */
 
-void QSyntaxHighlighter::setFormat( int start, int len, const QColor &color )
+void QSyntaxHighlighter::setFormat( int start, int count, const QColor &color )
 {
-    if ( !para )
+    if ( !para || len <= 0 )
 	return;
     QTextFormat *f = 0;
     QFont fnt = textEdit()->QWidget::font();
     f = para->document()->formatCollection()->format( fnt, color );
-    para->setFormat( start, len, f );
+    para->setFormat( start, count, f );
     f->removeRef();
 }
 
 /*! \overload */
 
-void QSyntaxHighlighter::setFormat( int start, int len, const QFont &font )
+void QSyntaxHighlighter::setFormat( int start, int count, const QFont &font )
 {
-    if ( !para )
+    if ( !para || len <= 0 )
 	return;
     QTextFormat *f = 0;
     QColor c = textEdit()->viewport()->paletteForegroundColor();
     f = para->document()->formatCollection()->format( font, c );
-    para->setFormat( start, len, f );
+    para->setFormat( start, count, f );
     f->removeRef();
 }
 
