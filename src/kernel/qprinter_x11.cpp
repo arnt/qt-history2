@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qprinter_x11.cpp#57 $
 **
 ** Implementation of QPrinter class for X11
 **
@@ -299,7 +299,7 @@ int QPrinter::metric( int m ) const
     int val;
     PageSize s = pageSize();
 #if defined(CHECK_RANGE)
-    ASSERT( (uint)s <= (uint)Executive );
+    ASSERT( (uint)s < (uint)NPageSize );
 #endif
     static int widths[]	 = { 595, 516, 612, 612, 541,
 			     2384, 1684, 1191, 842, 420, 297, 210, 148, 105,
