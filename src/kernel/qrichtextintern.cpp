@@ -233,6 +233,118 @@ protected:
 
 
 
+
+
+class QTextMulticol : public QTextContainer
+{
+private:
+    int ncols;
+public:
+    QTextMulticol( const QStyleSheetItem *stl)
+	: QTextContainer(stl)
+	{
+	    ncols = 1;
+	}
+    QTextMulticol( const QStyleSheetItem *stl, const QMap<QString, QString> &attr )
+	: QTextContainer(stl, attr)
+	{
+	    if ( attr.contains("cols") )
+		ncols =  attr["cols"].toInt();
+	    ncols = QMAX( 1, ncols);
+	}
+
+    ~QTextMulticol()
+	{
+	}
+
+    int numberOfColumns() const
+	{
+	    return ncols;
+	}
+};
+
+class QTextFont : public QTextContainer
+{
+public:
+    QTextFont( const QStyleSheetItem *stl);
+    QTextFont( const QStyleSheetItem *stl, const QMap<QString, QString> &attr );
+    ~QTextFont();
+
+    void setParent( QTextContainer* );
+};
+
+
+
+class QTextBox : public QTextContainer
+{
+public:
+    QTextBox( const QStyleSheetItem *stl);
+    QTextBox( const QStyleSheetItem *stl, const QMap<QString, QString> &attr );
+    ~QTextBox();
+
+    void draw(QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
+	      QRegion& backgroundRegion,
+	      const QColorGroup& cg, const QTextOptions& ,
+	      bool onlyDirty = FALSE, bool onlySelection = FALSE);
+    void setWidth (QPainter* p, int newWidth, bool forceResize = FALSE);
+
+    void update(QPainter* p, QTextRow* r = 0);
+
+    QTextContainer* copy() const;
+
+    QList<QTextRow> rows;
+
+    int width;
+    int widthUsed;
+    int height;
+
+    //    QTextNode* locate(int x, int y);
+    QTextRow*  locate(QPainter* p, QTextNode* node, int &lx, int &ly, int &lh, int&lry, int &lrh);
+
+    QTextNode* hitTest(QPainter* p, int obx, int oby, int xarg, int yarg);
+
+    int numberOfSubBox( QTextBox* subbox, bool onlyListItems);
+    QStyleSheetItem::ListStyle listStyle();
+
+};
+
+
+class QRichText : public QTextBox
+{
+public:
+    QRichText( const QString &doc, const QFont& fnt = QApplication::font(),
+	       const QString& context = QString::null,
+	       int margin = 8, const QMimeSourceFactory* factory = 0, const QStyleSheet* sheet = 0 );
+    ~QRichText();
+
+
+    bool isValid() const;
+
+    QString context() const;
+    void dump();
+
+private:
+    void init( const QString& doc, const QFont& fnt, int margin = 8 );
+
+    bool parse (QTextContainer* current, QTextNode* lastChild, const QString& doc, int& pos);
+    bool eatSpace(const QString& doc, int& pos, bool includeNbsp = FALSE );
+    bool eat(const QString& doc, int& pos, QChar c);
+    bool lookAhead(const QString& doc, int& pos, QChar c);
+    QString parseOpenTag(const QString& doc, int& pos, QMap<QString, QString> &attr, bool& emptyTag);
+    bool eatCloseTag(const QString& doc, int& pos, const QString& open);
+    QChar parseHTMLSpecialChar(const QString& doc, int& pos);
+    QString parseWord(const QString& doc, int& pos, bool insideTag = FALSE, bool lower = FALSE);
+    QString parsePlainText(const QString& doc, int& pos, bool pre, bool justOneWord);
+    bool hasPrefix(const QString& doc, int pos, QChar c);
+    bool hasPrefix(const QString& doc, int pos, const QString& s);
+    bool valid;
+    QString contxt;
+    const QStyleSheet* sheet_;
+    const QMimeSourceFactory* factory_;
+    QStyleSheetItem* base;
+
+};
+
 inline QTextIterator::QTextIterator( const QTextNode* n )
 {
     node = (QTextNode*)n;
@@ -467,114 +579,3 @@ inline QTextNode* QTextNode::nextSibling() const
 }
 
 
-
-
-class QTextMulticol : public QTextContainer
-{
-private:
-    int ncols;
-public:
-    QTextMulticol( const QStyleSheetItem *stl)
-	: QTextContainer(stl)
-	{
-	    ncols = 1;
-	}
-    QTextMulticol( const QStyleSheetItem *stl, const QMap<QString, QString> &attr )
-	: QTextContainer(stl, attr)
-	{
-	    if ( attr.contains("cols") )
-		ncols =  attr["cols"].toInt();
-	    ncols = QMAX( 1, ncols);
-	}
-
-    ~QTextMulticol()
-	{
-	}
-
-    int numberOfColumns() const
-	{
-	    return ncols;
-	}
-};
-
-class QTextFont : public QTextContainer
-{
-public:
-    QTextFont( const QStyleSheetItem *stl);
-    QTextFont( const QStyleSheetItem *stl, const QMap<QString, QString> &attr );
-    ~QTextFont();
-
-    void setParent( QTextContainer* );
-};
-
-
-
-class QTextBox : public QTextContainer
-{
-public:
-    QTextBox( const QStyleSheetItem *stl);
-    QTextBox( const QStyleSheetItem *stl, const QMap<QString, QString> &attr );
-    ~QTextBox();
-
-    void draw(QPainter* p, int obx, int oby, int ox, int oy, int cx, int cy, int cw, int ch,
-	      QRegion& backgroundRegion,
-	      const QColorGroup& cg, const QTextOptions& ,
-	      bool onlyDirty = FALSE, bool onlySelection = FALSE);
-    void setWidth (QPainter* p, int newWidth, bool forceResize = FALSE);
-
-    void update(QPainter* p, QTextRow* r = 0);
-
-    QTextContainer* copy() const;
-
-    QList<QTextRow> rows;
-
-    int width;
-    int widthUsed;
-    int height;
-
-    //    QTextNode* locate(int x, int y);
-    QTextRow*  locate(QPainter* p, QTextNode* node, int &lx, int &ly, int &lh, int&lry, int &lrh);
-
-    QTextNode* hitTest(QPainter* p, int obx, int oby, int xarg, int yarg);
-
-    int numberOfSubBox( QTextBox* subbox, bool onlyListItems);
-    QStyleSheetItem::ListStyle listStyle();
-
-};
-
-
-class QRichText : public QTextBox
-{
-public:
-    QRichText( const QString &doc, const QFont& fnt = QApplication::font(),
-	       const QString& context = QString::null,
-	       int margin = 8, const QMimeSourceFactory* factory = 0, const QStyleSheet* sheet = 0 );
-    ~QRichText();
-
-
-    bool isValid() const;
-
-    QString context() const;
-    void dump();
-
-private:
-    void init( const QString& doc, const QFont& fnt, int margin = 8 );
-
-    bool parse (QTextContainer* current, QTextNode* lastChild, const QString& doc, int& pos);
-    bool eatSpace(const QString& doc, int& pos, bool includeNbsp = FALSE );
-    bool eat(const QString& doc, int& pos, QChar c);
-    bool lookAhead(const QString& doc, int& pos, QChar c);
-    QString parseOpenTag(const QString& doc, int& pos, QMap<QString, QString> &attr, bool& emptyTag);
-    bool eatCloseTag(const QString& doc, int& pos, const QString& open);
-    QChar parseHTMLSpecialChar(const QString& doc, int& pos);
-    QString parseWord(const QString& doc, int& pos, bool insideTag = FALSE, bool lower = FALSE);
-    QString parsePlainText(const QString& doc, int& pos, bool pre, bool justOneWord);
-    bool hasPrefix(const QString& doc, int pos, QChar c);
-    bool hasPrefix(const QString& doc, int pos, const QString& s);
-    bool valid;
-    QString contxt;
-    const QStyleSheet* sheet_;
-    const QMimeSourceFactory* factory_;
-    QStyleSheetItem* base;
-
-};

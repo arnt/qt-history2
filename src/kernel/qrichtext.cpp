@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#26 $
+** $Id: //depot/qt/main/src/kernel/qrichtext.cpp#27 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -480,7 +480,6 @@ void QTextRow::draw( QPainter* p, int obx, int oby, int ox, int oy, int cx, int 
 	if ( font != p->font() ) {
 		
 	    p->setFont( font );
-	    fm = p->fontMetrics();
 	}
 	int tw = 0;
 	bool select = it->isSelected;
@@ -668,14 +667,12 @@ bool QTextRow::locate(QPainter* p, QTextNode* node, int &lx, int &ly, int &lh)
 	if ( !it->isContainer || it->isBox )
 	    continue;
 	p->setFont( it.parentNode()->font() );
-	fm = p->fontMetrics();
 	if (it->isSimpleNode)
 	    lx += fm.width( it->text );
 	else
 	    lx += ((QTextCustomNode*)*it)->width;
     };
     p->setFont( it.parentNode()->font() );
-    fm = p->fontMetrics();
     ly = y + base - fm.ascent();
     lh = fm.height();
 
