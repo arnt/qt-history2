@@ -73,6 +73,7 @@
 #include "qlayout.h"
 #include "qobject.h"
 #include <limits.h>
+#include "qcomplextext_p.h"
 #endif // QT_H
 
 //#define DEBUG_COLLECTION
@@ -89,40 +90,9 @@ class QTextFormatCollection;
 class QStyleSheetItem;
 class QTextCustomItem;
 class QTextFlow;
-class QTextBidiContext;
+class QBidiContext;
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-struct Q_EXPORT QTextBidiStatus {
-    QTextBidiStatus() {
-	eor = QChar::DirON;
-	lastStrong = QChar::DirON;
-	last = QChar:: DirON;
-    }
-    QChar::Direction eor 		: 5;
-    QChar::Direction lastStrong 	: 5;
-    QChar::Direction last		: 5;
-};
-
-class Q_EXPORT QTextBidiContext {
-public:
-    QTextBidiContext( uchar level, QChar::Direction embedding, QTextBidiContext *parent = 0, bool override = FALSE );
-    ~QTextBidiContext();
-
-    void ref() const;
-    void deref() const;
-
-    unsigned char level;
-    bool override : 1;
-    QChar::Direction dir : 5;
-
-    QTextBidiContext *parent;
-
-    // refcounting....
-    int count;
-};
-
-// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 class Q_EXPORT QTextStringChar
 {
@@ -1039,10 +1009,10 @@ struct Q_EXPORT QTextParagLineStart
     QTextParagLineStart() : y( 0 ), baseLine( 0 ), h( 0 ), bidicontext( 0 ) {  }
     QTextParagLineStart( ushort y_, ushort bl, ushort h_ ) : y( y_ ), baseLine( bl ), h( h_ ),
 	w( 0 ), bidicontext( 0 )  {  }
-    QTextParagLineStart( QTextBidiContext *c, QTextBidiStatus s ) : y(0), baseLine(0), h(0),
+    QTextParagLineStart( QBidiContext *c, QBidiStatus s ) : y(0), baseLine(0), h(0),
 	status( s ), bidicontext( c ) { if ( bidicontext ) bidicontext->ref();  }
     ~QTextParagLineStart() { if ( bidicontext ) bidicontext->deref();  }
-    void setContext( QTextBidiContext *c ) {
+    void setContext( QBidiContext *c ) {
 	if ( c == bidicontext )
 	    return;
 	if ( bidicontext )
@@ -1051,15 +1021,15 @@ struct Q_EXPORT QTextParagLineStart
 	if ( bidicontext )
 	    bidicontext->ref();
     }
-    QTextBidiContext *context() const { return bidicontext; }
+    QBidiContext *context() const { return bidicontext; }
 
 public:
     ushort y, baseLine, h;
-    QTextBidiStatus status;
+    QBidiStatus status;
     int w;
 	
 private:
-    QTextBidiContext *bidicontext;
+    QBidiContext *bidicontext;
 
 };
 

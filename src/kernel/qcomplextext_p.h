@@ -35,8 +35,12 @@ struct Q_EXPORT QBidiContext : public QShared {
 };
 
 struct Q_EXPORT QBidiControl {
+    QBidiControl( QBidiContext *c, QBidiStatus s)
+    { context = c; if( context ) context->ref(); status = s; }
+    ~QBidiControl() { if ( context ) context->deref(); }
+    void setContext( QBidiContext *c ) { if ( context == c ) return; if ( context ) context->deref(); context = c; context->ref(); }
     QBidiContext *context;
-    QBidiStatus *status;
+    QBidiStatus status;
 };
 
 struct Q_EXPORT QTextRun {
