@@ -5,7 +5,7 @@
 
 cd ${QTDIR}
 unset CPLUS_INCLUDE_DIR
-QT_VERSION=`grep "#define.*QT_VERSION_STR" src/tools/qglobal.h | fmt -1 | grep '"' | sed -e 's/"//g' -e 's/[^0-9\.]//g'`
+QT_VERSION=`perl -n -e 'if (/#define\s+QT_VERSION\s+(\d)(\d+)/) { $maj=$1; $min=$2; $min =~ s/00/0/; print "$maj.$min\n";}' src/tools/qglobal.h`
 
 exec > Makefile
 
