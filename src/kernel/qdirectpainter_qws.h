@@ -50,7 +50,7 @@ public:
 
     int numRects() const;
     const QRect& rect(int i) const;
-    QRegion region();
+    QRegion region() const;
 
     int depth() const;
     int width() const;

@@ -175,19 +175,36 @@ int QDirectPainter::transformOrientation()
 }
 
 /*!
-    Returns the number of rectangles in the clip region.
+    Returns the number of rectangles in the drawable region.
 
-    \sa rect(), clipRegion()
+    \sa rect(), region()
 */
 int QDirectPainter::numRects() const { return d->gfx->numRects(); }
 
 /*!
-    Returns a reference to rectangle \a i of the clip region.
+    Returns a reference to rectangle \a i of the drawable region.
     Valid values for \a i are 0..numRects()-1.
 
-    \sa clipRegion()
+    \sa region()
 */
 const QRect& QDirectPainter::rect(int i) const { return d->gfx->rect(i); }
+
+/*!
+    Returns the region of the framebuffer which represents the exposed
+    area of the widget being painted on. Note that this may be a sub-area of
+    the clip region, because of child widgets and overlapping cousin widgets.
+
+    \sa numRects(), rect()
+*/
+QRegion QDirectPainter::region() const
+{
+    if ( d->rgn.isNull() ) {
+	QRegion r;
+	r.setRects( &d->gfx->rect(0), numRects() );
+	d->rgn = r;
+    }
+    return d->rgn;
+}
 
 /*!
     Returns the bit-depth of the display.
@@ -232,7 +249,7 @@ QSize QDirectPainter::size() const { return QSize(d->w,d->h); }
     Sets the area changed by the transaction to \a r. By default, the
     entire widget is assumed to have changed. The area changed is only
     used by some graphics drivers, so often calling this function for
-    a smaller area will make no difference.
+    a smaller area will make no difference to performance.
 */
 void QDirectPainter::setAreaChanged( const QRect& r )
 {
