@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#70 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#71 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -14,6 +14,7 @@
 #include "qpaintdc.h"
 #include "qwidget.h"
 #include "qbitmap.h"
+#include "qpmcache.h"
 #include "qlist.h"
 #include <ctype.h>
 #include <malloc.h>
@@ -23,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#70 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#71 $";
 #endif
 
 
@@ -2083,7 +2084,7 @@ static QPixmap *get_text_bitmap( const Q2DMatrix &m, const QFont &f,
 				 const char *str, int len )
 {
     QString k = gen_xbm_key( m, f, str, len );
-    return QPixmap::find( k );
+    return QPixmapCache::find( k );
 }
 
 
@@ -2091,7 +2092,7 @@ static void ins_text_bitmap( const Q2DMatrix &m, const QFont &f,
 			     const char *str, int len, QPixmap *pm )
 {
     QString k = gen_xbm_key( m, f, str, len );
-    if ( !QPixmap::insert(k,pm) )		// cannot insert pixmap
+    if ( !QPixmapCache::insert(k,pm) )		// cannot insert pixmap
 	delete pm;
 }
 
@@ -2144,7 +2145,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 		paint.setFont( cfont );
 		paint.drawText( tx, ty, str, len );
 		paint.end();
-		wx_bm = bm.xForm( mat );	// transform bitmap
+		wx_bm = new QPixmap( bm.xForm( mat ) );	// transform bitmap
 	    }
 	    mat = QPixmap::trueMatrix( mat, w, h );
 #if 1
