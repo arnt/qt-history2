@@ -525,6 +525,7 @@ static void qt_set_windows_resources()
     QFont messageFont;
     QFont statusFont;
     QFont titleFont;
+    QFont smallTitleFont;
 
 #ifndef Q_OS_TEMP
 #if defined(UNICODE)
@@ -538,6 +539,7 @@ static void qt_set_windows_resources()
 	messageFont = qt_LOGFONTtoQFont(ncm.lfMessageFont,TRUE);
 	statusFont = qt_LOGFONTtoQFont(ncm.lfStatusFont,TRUE);
 	titleFont = qt_LOGFONTtoQFont(ncm.lfCaptionFont,TRUE);
+	smallTitleFont = qt_LOGFONTtoQFont(ncm.lfSmCaptionFont,TRUE);
     } else
 #endif
     {
@@ -550,6 +552,7 @@ static void qt_set_windows_resources()
 	messageFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfMessageFont,TRUE);
 	statusFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfStatusFont,TRUE);
 	titleFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfCaptionFont,TRUE);
+	smallTitleFont = qt_LOGFONTtoQFont((LOGFONT&)ncm.lfSmCaptionFont,TRUE);
     }
 #endif
 
@@ -559,6 +562,7 @@ static void qt_set_windows_resources()
     QApplication::setFont( statusFont, TRUE, "QTipLabel" );
     QApplication::setFont( statusFont, TRUE, "QStatusBar" );
     QApplication::setFont( titleFont, TRUE, "QTitleBar" );
+    QApplication::setFont( smallTitleFont, TRUE, "QDockWindowTitleBar" );
 
     if ( qt_std_pal && *qt_std_pal != QApplication::palette() )
 	return;
