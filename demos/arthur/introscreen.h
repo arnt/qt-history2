@@ -17,6 +17,7 @@
 #include "demowidget.h"
 
 class QTextDocument;
+class QAbstractTextDocumentLayout;
 
 class IntroScreen : public DemoWidget
 {
@@ -29,10 +30,13 @@ public:
     void mouseReleaseEvent(QMouseEvent *);
     void mouseMoveEvent(QMouseEvent *);
 
+    void resizeEvent(QResizeEvent *);
+
 private:
     QString text;
     QPoint oldMousePoint;
     QTextDocument *textDocument;
+    QAbstractTextDocumentLayout *textLayout;
     bool mouseDown;
 };
 

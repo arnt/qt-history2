@@ -34,6 +34,9 @@ IntroScreen::IntroScreen(QWidget *widget)
     // Initialize text...
     textDocument = new QTextDocument(this);
     textDocument->setHtml(text);
+
+    textLayout = textDocument->documentLayout();
+    textLayout->setPageSize(QSize(400, 400));
 }
 
 void IntroScreen::paintEvent(QPaintEvent *)
@@ -51,17 +54,15 @@ void IntroScreen::paintEvent(QPaintEvent *)
 
     QRect textRect(100, 0, w-200, h);
 
-    QAbstractTextDocumentLayout::PaintContext ctx;
-    ctx.showCursor = false;
-    ctx.palette = palette();
-
-    QAbstractTextDocumentLayout *textLayout = textDocument->documentLayout();
-    textLayout->setPageSize(textRect.size());
 
     int blockHeight = textLayout->sizeUsed().height();
     int ypos = (-animationStep % blockHeight);
 
     p.translate(textRect.x(), ypos);
+
+    QAbstractTextDocumentLayout::PaintContext ctx;
+    ctx.showCursor = false;
+    ctx.palette = palette();
 
     for ( ; ypos < h; ypos += blockHeight) {
         textLayout->draw(&p, ctx);
@@ -88,4 +89,10 @@ void IntroScreen::mouseMoveEvent(QMouseEvent *e)
     animationStep += oldMousePoint.y() - e->y();
     oldMousePoint = e->pos();
     repaint();
+}
+
+void IntroScreen::resizeEvent(QResizeEvent *e)
+{
+    QWidget::resizeEvent(e);
+    textLayout->setPageSize(QSize(e->size().width() - 200, e->size().height()));
 }
