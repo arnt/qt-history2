@@ -29,42 +29,38 @@
 #include "qframe.h"
 #include "qbitmap.h"
 
-// NOT REVISED
+// BEING REVISED: warwick
 /*!
   \class QFrame qframe.h
-  \brief The QFrame class is the base class of widgets that (can) have a frame.
+  \brief The QFrame class is the base class of widgets that can have a frame.
 
   \ingroup abstractwidgets
   \ingroup realwidgets
 
   It draws a frame and calls a virtual function, drawContents(), to
-  fill in the frame.  This function is reimplemented by essentially
-  all subclasses.  There are also two other less useful functions,
+  fill in the frame.  This function is reimplemented by 
+  subclasses.  There are also two other less useful functions,
   drawFrame() and frameChanged().
 
-  QMenuBar uses this to "raise" the menu bar above the surrounding
-  screen:
+  QPopupMenu uses this to "raise" the menu above the surrounding
+  screen. QProgressBar has a "sunken" look.  QLabel has a flat look.
+  The frames of widgets such as these can be changed.
 
   \code
-    if ( style() == MotifStyle ) {
-	setFrameStyle( QFrame::Panel | QFrame::Raised );
-	setLineWidth( 2 );
-    } else {
-	setFrameStyle( QFrame::NoFrame );
-    }
+    QLabel label(...);
+    label.setFrameStyle( QFrame::Panel | QFrame::Raised );
+    label.setLineWidth( 2 );
+
+    QProgressBar pbar(...);
+    label.setFrameStyle( QFrame::NoFrame );
   \endcode
 
   The QFrame class can also be used directly for creating simple frames
-  without any contents, for example like this:
+  without any contents, although usually you would use a QHBox or QVBox
+  as these layout the widgets you put inside the frame.
 
-  \code
-    QFrame *emptyFrame = new QFrame( parentWidget );
-    emptyFrame->setFrameStyle( QFrame::Panel | QFrame::Sunken );
-    emptyFrame->setLineWidth( 2 );
-  \endcode
-
-  A frame widget has three attributes: frameStyle(), lineWidth() and a
-  midLineWidth().
+  A frame widget has four attributes: frameStyle(), lineWidth(),
+  midLineWidth(), and margin().
 
   The frame style is specified by a frame shape and a shadow style.
   The frame shapes are \c NoFrame, \c Box, \c Panel, \c StyledPanel \c
@@ -78,19 +74,13 @@
   effect.  Notice that a mid-line is only drawn for \c Box, \c HLine
   and \c VLine frames that are raised or sunken.
 
+  The margin is the gap between the frame and the contents of the frame.
+
   <a name=picture></a>
   This table shows the most useful combinations of styles and widths
   (and some rather useless ones):
 
   <img src=frames.png height=422 width=520 alt="Table of frame styles">
-
-  For obvious reasons, \c NoFrame isn't shown.  The gray areas next to
-  the \c VLine and \c HLine examples are there because the widgets in
-  the illustration are taller/wider than the natural width of the
-  lines.  frameWidth() returns the natural width of the line.
-
-  The labels on the top and right are QLabel objects with frameStyle()
-  \c Raised|Panel and lineWidth() 1.
 */
 
 
