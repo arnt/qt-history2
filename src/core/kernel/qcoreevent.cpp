@@ -39,11 +39,10 @@
     QWidget::mouseMoveEvent(). QObject::installEventFilter() allows an
     object to intercept events destined for another object.
 
-    The basic QEvent contains only an event type parameter and an
-    accept flag.  The accept flag is read with isAccepted(), set with
-    accept(), and cleared by calling ignore(). The accept flag is set
-    by default, but don't rely on it as subclasses may choose to clear
-    it in their constructor.
+    The basic QEvent contains only an event type parameter and an \l
+    accept flag.  The accept flag set with accept(), and cleared with
+    ignore(). It is set by default, but don't rely on this as
+    subclasses may choose to clear it in their constructor.
 
     Subclasses of QEvent contain additional parameters that describe
     the particular event.
@@ -219,20 +218,27 @@ QEvent::~QEvent()
 
 
 /*!
-    \fn bool QEvent::isAccepted() const
+    \property  QEvent::accepted
+    the accept flag of the event object
 
-    Returns the accept flag of the event object.
+    Setting the accept parameter indicates that the event receiver
+    wants the event. Unwanted events might be propagated to the parent
+    widget. By default, isAccepted() is set to true, but don't rely on
+    this as subclasses may choose to clear it in their constructor.
 
-    \sa accept(), ignore()
+    For convenience, the accept flag can also be set with accept(),
+    and cleared with ignore().
 */
 
 /*!
-    \fn void QEvent::accept(bool y  = true)
+    \fn void QEvent::accept()
 
-    Sets the accept parameter if \a y is true, otherwise clears the
-    accept parameter.  Setting the accept parameter indicates that the
-    event receiver wants the event. Unwanted events might be
-    propagated to the parent widget.
+    Sets the accept flag of the event object, the equivalent of
+    callign setAccepted(true).
+
+    Setting the accept parameter indicates that the event receiver
+    wants the event. Unwanted events might be propagated to the parent
+    widget.
 
     \sa ignore()
 */
@@ -241,12 +247,12 @@ QEvent::~QEvent()
 /*!
     \fn void QEvent::ignore()
 
-    Clears the accept flag parameter of the event object.
+    Clears the accept flag parameter of the event object, the
+    equivalent of calling setAccepted(false).
 
     Clearing the accept parameter indicates that the event receiver
     does not want the event. Unwanted events might be propgated to the
     parent widget.
-
 
     \sa accept()
 */

@@ -15,10 +15,13 @@
 #define QCOREEVENT_H
 
 #include <qnamespace.h>
+#include <qobjectdefs.h>
+
 
 class QEventPrivate;
 class Q_CORE_EXPORT QEvent           // event base class
 {
+    QDOC_PROPERTY(bool accepted READ isAccepted WRITE setAccepted)
 public:
     enum Type {
         /*
@@ -166,8 +169,10 @@ public:
     inline Type type() const { return static_cast<Type>(t); }
     inline bool spontaneous() const { return spont; }
 
+    inline void setAccepted(bool accepted) { m_accept = accepted; }
     inline bool isAccepted() const { return m_accept; }
-    inline void accept(bool y = true) { m_accept = y; }
+
+    inline void accept() { m_accept = true; }
     inline void ignore() { m_accept = false; }
 
 protected:

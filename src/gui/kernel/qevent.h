@@ -348,7 +348,6 @@ public:
     inline const QPoint &pos() const { return p; }
 
     enum Action { Ask, Copy, Link, Move, Private, UserAction = Private };
-    inline void accept(bool y = true) { QEvent::accept(y); }
     inline bool isActionAccepted() const { return m_acceptact; }
     inline void acceptAction(bool y = true)  { m_acceptact = y; if (y) accept(); }
 
@@ -362,6 +361,8 @@ public:
     QByteArray encodedData(const char*) const;
     bool provides(const char*) const;
 #ifdef QT_COMPAT
+    inline void accept() { QEvent::accept(); }
+    inline QT_COMPAT void accept(bool y) { setAccepted(y); }
     inline QT_COMPAT QByteArray data(const char* f) const { return encodedData(f); }
 #endif
 
@@ -381,11 +382,16 @@ class Q_GUI_EXPORT QDragMoveEvent : public QDropEvent
 public:
     QDragMoveEvent(const QPoint &pos, const QMimeData *data, Type typ = DragMove);
     inline QRect answerRect() const { return rect; }
-    inline void accept(bool y = true) { QDropEvent::accept(y); }
+
+    inline void accept() { QDropEvent::accept(); }
     inline void ignore() { QDropEvent::ignore(); }
 
     inline void accept(const QRect & r) { accept(); rect = r; }
     inline void ignore(const QRect & r) { accept(); rect = r; }
+
+#ifdef QT_COMPAT
+    inline QT_COMPAT void accept(bool y) { setAccepted(y); }
+#endif
 
 protected:
     QRect rect;
