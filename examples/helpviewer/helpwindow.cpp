@@ -248,7 +248,7 @@ void HelpWindow::print()
 #ifndef QT_NO_PRINTER
     QPrinter printer; //( QPrinter::HighResolution );
     printer.setFullPage(TRUE);
-    if ( printer.setup() ) {
+    if ( printer.setup( this ) ) {
 	QPainter p( &printer );
 	QPaintDeviceMetrics metrics(p.device());
 	int dpix = metrics.logicalDpiX();

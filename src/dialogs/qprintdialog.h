@@ -55,9 +55,9 @@ public:
     QPrintDialog( QPrinter *, QWidget* Q_PARENT, const char* Q_NAME );
     ~QPrintDialog();
 
-    static bool getPrinterSetup( QPrinter * );
+    static bool getPrinterSetup( QPrinter *, QWidget* = 0 );
     static void setGlobalPrintDialog( QPrintDialog * );
-    
+
     void setPrinter( QPrinter *, bool = FALSE );
     QPrinter * printer() const;
 

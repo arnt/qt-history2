@@ -555,35 +555,56 @@ void QDialog::show()
 	adjustSize();
     if ( has_relpos ) {
 	if ( parentWidget() )
-	    move( parentWidget()->topLevelWidget()->pos() + d->relPos );
+	    adjustPositionInternal( parentWidget(), TRUE );
     } else if ( !did_move ) {
-	QWidget *w = parentWidget();
-	QPoint p( 0, 0 );
-	int extraw = 0, extrah = 0;
-	if ( w )
-	    w = w->topLevelWidget();
-	QRect desk = QApplication::desktop()->screenGeometry( QApplication::desktop()->screenNumber( w ? w : qApp->mainWidget() ) );
+	adjustPositionInternal( parentWidget() );
+    }
+    QWidget::show();
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessible::updateAccessibility( this, 0, QAccessible::DialogStart );
+#endif
+}
 
-	QWidgetList  *list = QApplication::topLevelWidgets();
-	QWidgetListIt it( *list );
-	while ( (extraw == 0 || extrah == 0) &&
-		it.current() != 0 ) {
-	    int w, h;
-	    QWidget * current = it.current();
-	    ++it;
-	    w = current->geometry().x() - current->x();
-	    h = current->geometry().y() - current->y();
 
-	    extraw = QMAX( extraw, w );
-	    extrah = QMAX( extrah, h );
-	}
-	delete list;
+/*!\internal
+ */
+void QDialog::adjustPosition( QWidget* w) 
+{
+    adjustPositionInternal( w );
+}
 
-	// sanity check for decoration frames. With embedding, we
-	// might get extraordinary values
-	if ( extraw >= 10 || extrah >= 40 )
-	    extraw = extrah = 0;
+void QDialog::adjustPositionInternal( QWidget*w, bool useRelPos)
+{
+    QPoint p( 0, 0 );
+    int extraw = 0, extrah = 0;
+    if ( w )
+	w = w->topLevelWidget();
+    QRect desk = QApplication::desktop()->screenGeometry( QApplication::desktop()->screenNumber( w ? w : qApp->mainWidget() ) );
 
+    QWidgetList  *list = QApplication::topLevelWidgets();
+    QWidgetListIt it( *list );
+    while ( (extraw == 0 || extrah == 0) &&
+	    it.current() != 0 ) {
+	int w, h;
+	QWidget * current = it.current();
+	++it;
+	w = current->geometry().x() - current->x();
+	h = current->geometry().y() - current->y();
+
+	extraw = QMAX( extraw, w );
+	extrah = QMAX( extrah, h );
+    }
+    delete list;
+
+    // sanity check for decoration frames. With embedding, we
+    // might get extraordinary values
+    if ( extraw >= 10 || extrah >= 40 )
+	extraw = extrah = 0;
+
+    if ( useRelPos ) {
+	p = w->pos() + d->relPos;
+	
+    } else {
 	if ( w ) {
 	    // Use mapToGlobal rather than geometry() in case w might
 	    // be embedded in another application
@@ -598,42 +619,40 @@ void QDialog::show()
 	// p = origin of this
 	p = QPoint( p.x()-width()/2 - extraw,
 		    p.y()-height()/2 - extrah );
-
-	if ( p.x() + extraw + width() > desk.x() + desk.width() )
-	    p.setX( desk.x() + desk.width() - width() - extraw );
-	if ( p.x() < desk.x() )
-	    p.setX( desk.x() );
-
-	if ( p.y() + extrah + height() > desk.y() + desk.height() )
-	    p.setY( desk.y() + desk.height() - height() - extrah );
-	if ( p.y() < desk.y() )
-	    p.setY( desk.y() );
-
-	move( p );
     }
-    QWidget::show();
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessible::updateAccessibility( this, 0, QAccessible::DialogStart );
-#endif
+    
+
+    if ( p.x() + extraw + width() > desk.x() + desk.width() )
+	p.setX( desk.x() + desk.width() - width() - extraw );
+    if ( p.x() < desk.x() )
+	p.setX( desk.x() );
+
+    if ( p.y() + extrah + height() > desk.y() + desk.height() )
+	p.setY( desk.y() + desk.height() - height() - extrah );
+    if ( p.y() < desk.y() )
+	p.setY( desk.y() );
+
+    move( p );
 }
+
 
 /*! \reimp */
 void QDialog::hide()
 {
     if ( isHidden() )
 	return;
-    
+
 #if defined(QT_ACCESSIBILITY_SUPPORT)
     if ( isVisible() )
 	QAccessible::updateAccessibility( this, 0, QAccessible::DialogEnd );
 #endif
-    
+
     if ( parentWidget() ) {
 	d->relPos = pos() - parentWidget()->topLevelWidget()->pos();
 	has_relpos = 1;
 	did_move = 0;
     }
-    
+
     // Reimplemented to exit a modal when the dialog is hidden.
     QWidget::hide();
     if ( in_loop ) {

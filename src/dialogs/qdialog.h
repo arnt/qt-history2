@@ -102,6 +102,7 @@ protected:
     void	resizeEvent( QResizeEvent * );
     void 	contextMenuEvent( QContextMenuEvent * );
     bool 	eventFilter( QObject *, QEvent * );
+    void     adjustPosition( QWidget*);
 
 private:
     void	setDefault( QPushButton * );
@@ -111,6 +112,7 @@ private:
     uint 	has_relpos : 1;
     uint	did_resize : 1;
     uint	in_loop: 1;
+    void adjustPositionInternal( QWidget*, bool useRelPos = FALSE );
     QDialogPrivate* d;
 
 private:	// Disabled copy constructor and operator=

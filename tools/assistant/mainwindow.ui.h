@@ -145,7 +145,7 @@ void MainWindow::print()
 {
     QPrinter printer;
     printer.setFullPage(TRUE);
-    if ( printer.setup() ) {
+    if ( printer.setup( this ) ) {
 	QPaintDeviceMetrics screen( this );
 	printer.setResolution( screen.logicalDpiY() );
 	QPainter p( &printer );

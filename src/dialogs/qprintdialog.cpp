@@ -750,6 +750,7 @@ void QPrintDialog::setGlobalPrintDialog( QPrintDialog *pd )
 	delete oldPd;
     else
 	qpd_cleanup_globaldialog.add( &globalPrintDialog );
+    globalPrintDialog->adjustSize();
 }
 
 QGroupBox * QPrintDialog::setupPrinterSettings()
@@ -1129,27 +1130,29 @@ QGroupBox * QPrintDialog::setupPaper()
 }
 
 
-/*!
+/*!  
   Display a dialog and allow the user to configure the QPrinter \a
-  p.  Returns TRUE if the user clicks OK or presses Enter, FALSE if
-  the user clicks Cancel or presses Escape.
+  p for an optional  widget \a w. Returns TRUE if the user clicks OK or
+  presses Enter, FALSE if the user clicks Cancel or presses Escape.
 
   getPrinterSetup() remembers the settings and provides the same
   settings the next time the dialog is shown.
 */
 
-bool QPrintDialog::getPrinterSetup( QPrinter * p )
+bool QPrintDialog::getPrinterSetup( QPrinter * p, QWidget* w  )
 {
     if ( !globalPrintDialog ) {
-        globalPrintDialog = new QPrintDialog( 0, 0, "global print dialog" );
+	globalPrintDialog = new QPrintDialog( 0, 0, "global print dialog" );
 #ifndef QT_NO_WIDGET_TOPEXTRA
-        globalPrintDialog->setCaption( QPrintDialog::tr( "Setup Printer" ) );
+	globalPrintDialog->setCaption( QPrintDialog::tr( "Setup Printer" ) );
 #endif
-        qpd_cleanup_globaldialog.add( &globalPrintDialog );
-        globalPrintDialog->setPrinter( p, TRUE );
+	qpd_cleanup_globaldialog.add( &globalPrintDialog );
+	globalPrintDialog->setPrinter( p, TRUE );
+	globalPrintDialog->adjustSize();
     } else {
-        globalPrintDialog->setPrinter( p, TRUE );
+	globalPrintDialog->setPrinter( p, TRUE );
     }
+    globalPrintDialog->adjustPosition( w );
     bool r = globalPrintDialog->exec() == QDialog::Accepted;
     globalPrintDialog->setPrinter( 0 );
     return r;
