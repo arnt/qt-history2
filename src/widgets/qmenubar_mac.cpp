@@ -13,11 +13,13 @@
 #include <qregexp.h>
 #include <qmessagebox.h>
 
+QCString p2qstring(const unsigned char *); //qglobal.cpp
 void qt_event_request_menubarupdate(); //qapplication_mac.cpp
 
 class QMenuBar::MacPrivate {
 public:
-    MacPrivate() : commands(NULL), popups(NULL), mac_menubar(NULL), dirty(1) { }
+    MacPrivate() : commands(NULL), popups(NULL), mac_menubar(NULL), 
+	apple_menu(NULL), in_apple(0), dirty(1) { }
     ~MacPrivate() { clear(); delete popups; delete commands; }
 
     class CommandBinding {
@@ -38,9 +40,16 @@ public:
     };
     QIntDict<PopupBinding> *popups;
     MenuBarHandle mac_menubar;
+    MenuRef apple_menu;
+    int in_apple;
     uint dirty;
 
     void clear() {
+	in_apple = 0;
+	if(apple_menu) {
+	    DeleteMenu(GetMenuID(apple_menu));
+	    DisposeMenu(apple_menu);
+	}
 	if(popups)
 	    popups->clear();
 	if(commands)
@@ -140,11 +149,13 @@ uint QMenuBar::isCommand(QMenuItem *it)
 	t.remove(st, t.length()-st);
     t.replace(QRegExp("\\.*$"), ""); //no ellipses
     //now the fun part
-    uint ret = 0;
-#if 0
-    if(t.find("about", 0, FALSE) == 0 && t.find(QRegExp("qt$", FALSE)) == -1) 
-	ret = kHICommandAbout;
-#endif
+    uint ret = 0, place = 0;
+    if(t.find("about", 0, FALSE) == 0) {
+	if(t.find(QRegExp("qt$", FALSE)) == -1)
+	    ret = kHICommandAbout;
+	else 
+	    ret = 'CUTE';
+    }
     if(t.find("config", 0, FALSE) == 0 || t.find("preference", 0, FALSE) == 0 || 
        t.find("options", 0, FALSE) == 0 || t.find("setting", 0, FALSE) == 0) 
 	ret = kHICommandPreferences;
@@ -153,6 +164,30 @@ uint QMenuBar::isCommand(QMenuItem *it)
     //shall we?
     if(ret && activeMenuBar && (!activeMenuBar->mac_d->commands || 
 				!activeMenuBar->mac_d->commands->find(ret))) {
+	if(ret == kHICommandAbout || ret == 'CUTE') {
+	    if(activeMenuBar->mac_d->apple_menu) {
+		QString text = it->text();
+		for(int w = 0; (w=text.find('&', w)) != -1; )
+		    text.remove(w, 1);
+		int st = text.findRev('\t');
+		if(st != -1) 
+		    text.remove(st, text.length()-st);
+		if(ret == kHICommandAbout || text == "About") {
+		    ProcessInfoRec psi;
+		    memset(&psi, '\0', sizeof(psi));
+		    psi.processInfoLength = sizeof(psi);
+		    psi.processName = (StringPtr) malloc(256);
+		    ProcessSerialNumber psn;
+		    MacGetCurrentProcess(&psn);
+		    GetProcessInformation(&psn, &psi);
+		    text += " " + p2qstring((unsigned char *)psi.processName);
+		    free(psi.processName);
+		}
+		InsertMenuItemTextWithCFString(activeMenuBar->mac_d->apple_menu, 
+					       no_ampersands(text), 
+					       activeMenuBar->mac_d->in_apple++, 0, ret);
+	    }
+	} 
 	EnableMenuCommand(NULL, ret);
     } else {
 	ret = 0;
@@ -294,6 +329,11 @@ bool QMenuBar::updateMenuBar()
     ClearMenuBar();
     if(mac_d)
 	mac_d->clear();
+    if(!CreateNewMenu(0, 0, &mac_d->apple_menu)) {
+	SetMenuTitleWithCFString(mac_d->apple_menu, 
+				 no_ampersands(QString(QChar(0x14))));
+	InsertMenu(mac_d->apple_menu, 0);
+    }
 
     for(int x = 0; x < (int)count(); x++) {
 	QMenuItem *item = findItem(idAt(x));
