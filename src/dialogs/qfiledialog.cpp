@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#200 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#201 $
 **
 ** Implementation of QFileDialog class
 **
@@ -319,8 +319,8 @@ void QRenameEdit::focusOutEvent( QFocusEvent * )
     emit escapePressed();
 }
 
-QFileListBox::QFileListBox( QWidget *parent, QFileDialog *d )
-    : QListBox( parent, "filelistbox" ), filedialog( d ),
+QFileListBox::QFileListBox( QWidget *parent, QFileDialog *dlg )
+    : QListBox( parent, "filelistbox" ), filedialog( dlg ),
       renaming( FALSE ), renameItem( 0L )
 {
     lined = new QRenameEdit( viewport() );
@@ -414,11 +414,11 @@ void QFileListBox::startRename( bool check )
     int i = currentItem();
     setSelected( i, TRUE );
     QRect r = itemRect( item( i ) );
-    int d = item( i )->pixmap() ?
+    int bdr = item( i )->pixmap() ?
             item( i )->pixmap()->width() + 5 : 25;
-    int x = r.x() + d;
+    int x = r.x() + bdr;
     int y = r.y() + 1;
-    int w = r.width() - d - 1;
+    int w = r.width() - bdr - 1;
     int h = r.height() - 2;
 
     lined->setFocusPolicy( StrongFocus );
@@ -480,8 +480,8 @@ void QFileListBox::cancelRename()
     updateItem( currentItem() );
 }
 
-QFileListView::QFileListView( QWidget *parent, QFileDialog *d )
-    : QListView( parent ), filedialog( d ), renaming( FALSE ),
+QFileListView::QFileListView( QWidget *parent, QFileDialog *dlg )
+    : QListView( parent ), filedialog( dlg ), renaming( FALSE ),
       renameItem( 0L )
 {
     lined = new QRenameEdit( viewport() );
@@ -554,11 +554,11 @@ void QFileListView::startRename( bool check )
     setSelected( i, TRUE );
 
     QRect r = itemRect( i );
-    int d = i->pixmap( 0 ) ?
+    int bdr = i->pixmap( 0 ) ?
             i->pixmap( 0 )->width() + 2 : 22;
-    int x = r.x() + d;
+    int x = r.x() + bdr;
     int y = r.y() + 1;
-    int w = columnWidth( 0 ) - d - 1;
+    int w = columnWidth( 0 ) - bdr - 1;
     int h = r.height() - 2;
 
     lined->setFocusPolicy( StrongFocus );
@@ -716,9 +716,9 @@ QFileDialogPrivate::MCItem::MCItem( QListBox * lb, QListViewItem * item )
     lb->insertItem( this );
 }
 
-void QFileDialogPrivate::MCItem::setSelectable( bool s )
+void QFileDialogPrivate::MCItem::setSelectable( bool sel )
 {
-    selectable = s;
+    selectable = sel;
 }
 
 bool QFileDialogPrivate::MCItem::isSelectable()
@@ -759,9 +759,9 @@ int QFileDialogPrivate::MCItem::width( const QListBox * lb ) const
 }
 
 
-void QFileDialogPrivate::MCItem::paint( QPainter * p )
+void QFileDialogPrivate::MCItem::paint( QPainter * ptr )
 {
-    QFontMetrics fm = p->fontMetrics();
+    QFontMetrics fm = ptr->fontMetrics();
 
     int h;
 
@@ -780,9 +780,9 @@ void QFileDialogPrivate::MCItem::paint( QPainter * p )
 
     const QPixmap * pm = pixmap();
     if ( pm )
-        p->drawPixmap( ( h - pm->height() ) / 2, 4, *pm );
+        ptr->drawPixmap( ( h - pm->height() ) / 2, 4, *pm );
 
-    p->drawText( pm ? pm->width() + 6 : 20, ( h - fm.height() ) / 2, fm.width( text() ), fm.height(), 0, text() );
+    ptr->drawText( pm ? pm->width() + 6 : 20, ( h - fm.height() ) / 2, fm.width( text() ), fm.height(), 0, text() );
 }
 
 
@@ -1184,29 +1184,29 @@ void QFileDialog::setFilter( const QString & newFilter )
 
 void QFileDialog::setDir( const QString & pathstr )
 {
-    QString d = pathstr;
+    QString dr = pathstr;
 
 #if defined(UNIX)
-    if ( d.length() && d[0] == '~' ) {
+    if ( dr.length() && dr[0] == '~' ) {
         struct passwd *pw;
         int i;
 
         i = 0;
-        while( i < (int)d.length() && d[i] != '/' )
+        while( i < (int)dr.length() && dr[i] != '/' )
             i++;
         QCString user;
         if ( i == 1 )
             user = ::getlogin();
         else
-            user = d.mid( 1, i-1 ).local8Bit();
-        d = d.mid( i, d.length() );
+            user = dr.mid( 1, i-1 ).local8Bit();
+        dr = dr.mid( i, dr.length() );
         pw = ::getpwnam( user );
         if ( pw )
-            d.prepend( QString::fromLocal8Bit(pw->pw_dir) );
+            dr.prepend( QString::fromLocal8Bit(pw->pw_dir) );
     }
 #endif
 
-    QDir tmp( d );
+    QDir tmp( dr );
     tmp.setFilter( cwd.filter() );
     setDir( tmp );
 }

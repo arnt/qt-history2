@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#262 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#263 $
 **
 ** Implementation of QListBox widget class
 **
@@ -303,13 +303,13 @@ QListBoxText::~QListBoxText()
 }
 
 /*!
-  Draws the text using painter \a p.
+  Draws the text using \a painter.
 */
 
-void QListBoxText::paint( QPainter *p )
+void QListBoxText::paint( QPainter *painter )
 {
-    QFontMetrics fm = p->fontMetrics();
-    p->drawText( 3, fm.ascent() + fm.leading()/2, text() );
+    QFontMetrics fm = painter->fontMetrics();
+    painter->drawText( 3, fm.ascent() + fm.leading()/2, text() );
 }
 
 /*!
@@ -379,12 +379,12 @@ QListBoxPixmap::~QListBoxPixmap()
 
 
 /*!
-  Draws the pixmap using painter \a p.
+  Draws the pixmap using \a painter.
 */
 
-void QListBoxPixmap::paint( QPainter *p )
+void QListBoxPixmap::paint( QPainter *painter )
 {
-    p->drawPixmap( 3, 0, pm );
+    painter->drawPixmap( 3, 0, pm );
 }
 
 /*!

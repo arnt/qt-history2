@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#146 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#147 $
 **
 ** Implementation of QMenuBar class
 **
@@ -921,15 +921,15 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 
     QMenuItem  *mi = 0;
     QPopupMenu *popup;
-    int d = 0;
+    int dx = 0;
 
     switch ( e->key() ) {
     case Key_Left:
-	d = -1;
+	dx = -1;
 	break;
 
     case Key_Right:
-	d = 1;
+	dx = 1;
 	break;
 
     case Key_Up:
@@ -952,12 +952,12 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 	break;
     }
 
-    if ( d ) {					// highlight next/prev
+    if ( dx ) {					// highlight next/prev
 	register int i = actItem;
 	int c = mitems->count();
 	int n = c;
 	while ( n-- ) {
-	    i = i + d;
+	    i = i + dx;
 	    if ( i == c )
 		i = 0;
 	    else if ( i < 0 )
@@ -1025,9 +1025,9 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 
 void QMenuBar::resizeEvent( QResizeEvent * )
 {
-    QRect frect = frameRect();
-    if ( !frect.isNull() ) {
-	QRect r( frect.x(), frect.y(), width(), height() );
+    QRect fr = frameRect();
+    if ( !fr.isNull() ) {
+	QRect r( fr.x(), fr.y(), width(), height() );
 	setFrameRect( r );
     }
 

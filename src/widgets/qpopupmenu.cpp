@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#226 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#227 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -865,12 +865,12 @@ int QPopupMenu::itemHeight( QMenuItem *mi ) const
 }
 
 
-void QPopupMenu::drawItem( QPainter* p, int tab, QMenuItem* mi,
+void QPopupMenu::drawItem( QPainter* p, int tab_, QMenuItem* mi,
 			   bool act, int x, int y, int w, int h)
 {
 
     bool dis = (selfItem && !selfItem->isEnabled()) || !mi->isEnabled();
-    style().drawPopupMenuItem(p, checkable, maxPMWidth, tab, mi, palette(),
+    style().drawPopupMenuItem(p, checkable, maxPMWidth, tab_, mi, palette(),
 			      act, !dis, x, y, w, h);
 
     return;
@@ -1010,7 +1010,7 @@ void QPopupMenu::drawItem( QPainter* p, int tab, QMenuItem* mi,
 	    }
 	    p->drawText( x+xm, y+m, w-xm, h-2*m, text_flags, s, t );
 	    s = s.mid(t+1);
-	    x = tab;
+	    x = tab_;
 	}
 	if ( gs == WindowsStyle && dis && !act ) {
 	    p->setPen( g.light() );
@@ -1240,7 +1240,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 {
     QMenuItem  *mi = 0;
     QPopupMenu *popup;
-    int d = 0;
+    int dy = 0;
     bool ok_key = TRUE;
 
     switch ( e->key() ) {
@@ -1249,11 +1249,11 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	break;
 	
     case Key_Up:
-	d = -1;
+	dy = -1;
 	break;
 
     case Key_Down:
-	d = 1;
+	dy = 1;
 	break;
 
     case Key_Alt:
@@ -1381,14 +1381,14 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    ((QMenuBar*)top)->tryKeyEvent( this, e );
     }
 
-    if ( d && actItem < 0 ) {
+    if ( dy && actItem < 0 ) {
 	setFirstItemActive();
-    } else if ( d ) {				// highlight next/prev
+    } else if ( dy ) {				// highlight next/prev
 	register int i = actItem;
 	int c = mitems->count();
 	int n = c;
 	while ( n-- ) {
-	    i = i + d;
+	    i = i + dy;
 	    if ( i == c )
 		i = 0;
 	    else if ( i < 0 )
