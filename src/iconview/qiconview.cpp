@@ -4517,8 +4517,10 @@ void QIconView::contentsMousePressEventEx( QMouseEvent *e )
 
 void QIconView::contentsContextMenuEvent( QContextMenuEvent *e )
 {
-    if ( receivers( SIGNAL(contextMenuRequested(QIconViewItem*, const QPoint &)) ) )
-	e->accept();
+    if ( !receivers( SIGNAL(contextMenuRequested(QIconViewItem*, const QPoint &)) ) ) {
+	e->ignore();
+	return;
+    }
     if ( e->reason() == QContextMenuEvent::Keyboard ) {
 	QIconViewItem *item = currentItem();
 	QRect r = item ? item->rect() : QRect( 0, 0, visibleWidth(), visibleHeight() );

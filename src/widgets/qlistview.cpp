@@ -4332,8 +4332,10 @@ void QListView::contentsMousePressEventEx( QMouseEvent * e )
 
 void QListView::contentsContextMenuEvent( QContextMenuEvent *e )
 {
-    if ( receivers( SIGNAL(contextMenuRequested(QListViewItem *, const QPoint &, int)) ) )
-	e->accept();
+    if ( !receivers( SIGNAL(contextMenuRequested(QListViewItem *, const QPoint &, int)) ) ) {
+	e->ignore();
+	return;
+    }
     if ( e->reason() == QContextMenuEvent::Keyboard ) {
 	QListViewItem *item = currentItem();
 	if ( item ) {

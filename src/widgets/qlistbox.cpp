@@ -2401,8 +2401,10 @@ void QListBox::repaintSelection()
 
 void QListBox::contentsContextMenuEvent( QContextMenuEvent *e )
 {
-    if ( receivers( SIGNAL(contextMenuRequested(QListBoxItem*, const QPoint&)) ) )
-	e->accept();
+    if ( !receivers( SIGNAL(contextMenuRequested(QListBoxItem*, const QPoint&)) ) ) {
+	e->ignore();
+	return;
+    }
     if ( e->reason() == QContextMenuEvent::Keyboard ) {
 	QListBoxItem *i = item( currentItem() );
 	if ( i ) {

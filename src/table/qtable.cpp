@@ -3852,8 +3852,10 @@ void QTable::contentsMouseReleaseEvent( QMouseEvent *e )
 
 void QTable::contentsContextMenuEvent( QContextMenuEvent *e )
 {
-    if ( receivers( SIGNAL(contextMenuRequested(int, int, const QPoint &)) ) )
-	e->accept();
+    if ( !receivers( SIGNAL(contextMenuRequested(int, int, const QPoint &)) ) ) {
+	e->ignore();
+	return;
+    }
     if ( e->reason() == QContextMenuEvent::Keyboard ) {
 	QRect r = cellGeometry( curRow, curCol );
 	emit contextMenuRequested( curRow, curCol, viewport()->mapToGlobal( contentsToViewport( r.center() ) ) );
