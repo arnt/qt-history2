@@ -29,6 +29,8 @@
 #define DBL_DIG 10
 #endif //DBL_DIG
 
+typedef QMap<QString,QCoreVariant> QVariantMap;
+
 template<> QBitArray qt_cast<QBitArray>(const QCoreVariant &v) { return v.toBitArray(); }
 template<> QString qt_cast<QString>(const QCoreVariant &v) { return v.toString(); }
 #ifndef QT_NO_STRINGLIST
@@ -47,40 +49,62 @@ template<> QMap<QString,QCoreVariant> qt_cast<QMap<QString,QCoreVariant> >(const
 
 QCoreVariant::Private QCoreVariant::shared_invalid = { Q_ATOMIC_INIT(1), Invalid, true, {0}, 0 };
 
+// takes a type, returns the internal void* pointer castet
+// to a pointer of the input type
+template<typename T> inline T *v_cast(void *&p)
+{
+    if (QTypeInfo<T>::isLarge)
+        return static_cast<T*>(p);
+    else
+        return reinterpret_cast<T*>(&p);
+}
+
+#define QCONSTRUCT(vType) \
+    if (QTypeInfo<vType >::isLarge) \
+	x->value.ptr = new vType(*static_cast<const vType *>(v)); \
+    else \
+	new (&x->value.ptr) vType(*static_cast<const vType *>(v))
+
+#define QCONSTRUCT_EMPTY(vType) \
+    if (QTypeInfo<vType >::isLarge) \
+	x->value.ptr = new vType; \
+    else \
+	new (&x->value.ptr) vType
+  
 static void construct(QCoreVariant::Private *x, const void *v)
 {
     if (v) {
 	switch( x->type ) {
 	case QCoreVariant::String:
-	    x->value.ptr = new QString(*static_cast<const QString *>(v));
+	    QCONSTRUCT(QString);
 	    break;
 #ifndef QT_NO_STRINGLIST
 	case QCoreVariant::StringList:
-	    x->value.ptr = new QStringList(*static_cast<const QStringList *>(v));
+	    QCONSTRUCT(QStringList);
 	    break;
 #endif //QT_NO_STRINGLIST
 #ifndef QT_NO_TEMPLATE_VARIANT
 	case QCoreVariant::Map:
-	    x->value.ptr = new QMap<QString,QCoreVariant>(*static_cast<const QMap<QString, QCoreVariant> *>(v));
+	    QCONSTRUCT(QVariantMap);
 	    break;
 	case QCoreVariant::List:
-	    x->value.ptr = new QList<QCoreVariant>(*static_cast<const QList<QCoreVariant> *>(v));
+	    QCONSTRUCT(QList<QCoreVariant>);
 	    break;
 #endif
 	case QCoreVariant::Date:
-	    x->value.ptr = new QDate(*static_cast<const QDate *>(v));
+	    QCONSTRUCT(QDate);
 	    break;
 	case QCoreVariant::Time:
-	    x->value.ptr = new QTime(*static_cast<const QTime *>(v));
+	    QCONSTRUCT(QTime);
 	    break;
 	case QCoreVariant::DateTime:
-	    x->value.ptr = new QDateTime(*static_cast<const QDateTime *>(v));
+	    QCONSTRUCT(QDateTime);
 	    break;
 	case QCoreVariant::ByteArray:
-	    x->value.ptr = new QByteArray(*static_cast<const QByteArray *>(v));
+	    QCONSTRUCT(QByteArray);
 	    break;
 	case QCoreVariant::BitArray:
-	    x->value.ptr = new QBitArray(*static_cast<const QBitArray *>(v));
+	    QCONSTRUCT(QBitArray);
 	    break;
 	case QCoreVariant::Int:
 	    x->value.i = *static_cast<const int *>(v);
@@ -111,35 +135,35 @@ static void construct(QCoreVariant::Private *x, const void *v)
 	case QCoreVariant::Invalid:
 	    break;
 	case QCoreVariant::String:
-	    x->value.ptr = new QString;
+	    QCONSTRUCT_EMPTY(QString);
 	    break;
 #ifndef QT_NO_STRINGLIST
 	case QCoreVariant::StringList:
-	    x->value.ptr = new QStringList;
+	    QCONSTRUCT_EMPTY(QStringList);
 	    break;
 #endif //QT_NO_STRINGLIST
 #ifndef QT_NO_TEMPLATE_VARIANT
 	case QCoreVariant::Map:
-	    x->value.ptr = new QMap<QString,QCoreVariant>;
+	    QCONSTRUCT_EMPTY(QVariantMap);
 	    break;
 	case QCoreVariant::List:
-	    x->value.ptr = new QList<QCoreVariant>;
+	    QCONSTRUCT_EMPTY(QList<QCoreVariant>);
 	    break;
 #endif
 	case QCoreVariant::Date:
-	    x->value.ptr = new QDate;
+	    QCONSTRUCT_EMPTY(QDate);
 	    break;
 	case QCoreVariant::Time:
-	    x->value.ptr = new QTime;
+	    QCONSTRUCT_EMPTY(QTime);
 	    break;
 	case QCoreVariant::DateTime:
-	    x->value.ptr = new QDateTime;
+	    QCONSTRUCT_EMPTY(QDateTime);
 	    break;
 	case QCoreVariant::ByteArray:
-	    x->value.ptr = new QByteArray;
+	    QCONSTRUCT_EMPTY(QByteArray);
 	    break;
 	case QCoreVariant::BitArray:
-	    x->value.ptr = new QBitArray;
+	    QCONSTRUCT_EMPTY(QBitArray);
 	    break;
 	case QCoreVariant::Int:
 	    x->value.i = 0;
@@ -166,39 +190,45 @@ static void construct(QCoreVariant::Private *x, const void *v)
     }
 }
 
+#define QCLEAR(vType) \
+    if (QTypeInfo<vType >::isLarge) \
+	delete static_cast<vType *>(p->value.ptr); \
+    else \
+	reinterpret_cast<vType *>(&p->value.ptr)->~vType()
+
 static void clear(QCoreVariant::Private *p)
 {
     switch (p->type) {
     case QCoreVariant::String:
-	delete static_cast<QString *>(p->value.ptr);
+	QCLEAR(QString);
 	break;
 #ifndef QT_NO_STRINGLIST
     case QCoreVariant::StringList:
-	delete static_cast<QStringList *>(p->value.ptr);
+	QCLEAR(QStringList);
 	break;
 #endif //QT_NO_STRINGLIST
 #ifndef QT_NO_TEMPLATE_VARIANT
     case QCoreVariant::Map:
-	delete static_cast<QMap<QString, QCoreVariant> *>(p->value.ptr);
+	QCLEAR(QVariantMap);
 	break;
     case QCoreVariant::List:
-	delete static_cast<QList<QCoreVariant> *>(p->value.ptr);
+	QCLEAR(QList<QCoreVariant>);
 	break;
 #endif
     case QCoreVariant::Date:
-	delete static_cast<QDate *>(p->value.ptr);
+	QCLEAR(QDate);
 	break;
     case QCoreVariant::Time:
-	delete static_cast<QTime *>(p->value.ptr);
+	QCLEAR(QTime);
 	break;
     case QCoreVariant::DateTime:
-	delete static_cast<QDateTime *>(p->value.ptr);
+	QCLEAR(QDateTime);
 	break;
     case QCoreVariant::ByteArray:
-	delete static_cast<QByteArray *>(p->value.ptr);
+	QCLEAR(QByteArray);
 	break;
     case QCoreVariant::BitArray:
-	delete static_cast<QBitArray *>(p->value.ptr);
+	QCLEAR(QBitArray);
 	break;
     case QCoreVariant::Invalid:
     case QCoreVariant::Int:
@@ -220,21 +250,28 @@ static void clear(QCoreVariant::Private *p)
     }
 }
 
+// used internally by construct() only
+#define QISNULL(vType) \
+    if (QTypeInfo<vType >::isLarge) \
+	return static_cast<const vType *>(d->value.ptr)->isNull(); \
+    else \
+	return reinterpret_cast<const vType *>(&d->value.ptr)->isNull()
+
 static bool isNull(const QCoreVariant::Private *d)
 {
     switch( d->type ) {
     case QCoreVariant::String:
-	return static_cast<QString *>(d->value.ptr)->isNull();
+	QISNULL(QString);
     case QCoreVariant::Date:
-	return static_cast<QDate *>(d->value.ptr)->isNull();
+	QISNULL(QDate);
     case QCoreVariant::Time:
-	return static_cast<QTime *>(d->value.ptr)->isNull();
+	QISNULL(QTime);
     case QCoreVariant::DateTime:
-	return static_cast<QDateTime *>(d->value.ptr)->isNull();
+	QISNULL(QDateTime);
     case QCoreVariant::ByteArray:
-	return static_cast<QByteArray *>(d->value.ptr)->isNull();
+	QISNULL(QByteArray);
     case QCoreVariant::BitArray:
-	return static_cast<QBitArray *>(d->value.ptr)->isNull();
+	QISNULL(QBitArray);
 #ifndef QT_NO_STRINGLIST
     case QCoreVariant::StringList:
 #endif //QT_NO_STRINGLIST
@@ -257,6 +294,13 @@ static bool isNull(const QCoreVariant::Private *d)
 }
 
 #ifndef QT_NO_DATASTREAM
+
+#define QLOAD(vType) \
+    if (QTypeInfo<vType >::isLarge) \
+        s >> *static_cast<vType *>(d->value.ptr); \
+    else \
+        s >> *reinterpret_cast<vType *>(&d->value.ptr)
+
 static void load(QCoreVariant::Private *d, QDataStream &s)
 {
     switch (d->type) {
@@ -269,18 +313,18 @@ static void load(QCoreVariant::Private *d, QDataStream &s)
     }
 #ifndef QT_NO_TEMPLATE_VARIANT
     case QCoreVariant::Map:
-	s >> *static_cast<QMap<QString, QCoreVariant> *>(d->value.ptr);
+	QLOAD(QVariantMap);
 	break;
     case QCoreVariant::List:
-	s >> *static_cast<QList<QCoreVariant> *>(d->value.ptr);
+	QLOAD(QList<QCoreVariant>);
 	break;
 #endif
     case QCoreVariant::String:
-	s >> *static_cast<QString *>(d->value.ptr);
+	QLOAD(QString);
 	break;
 #ifndef QT_NO_STRINGLIST
     case QCoreVariant::StringList:
-	s >> *static_cast<QStringList *>(d->value.ptr);
+	QLOAD(QStringList);
 	break;
 #endif // QT_NO_STRINGLIST
     case QCoreVariant::Int:
@@ -305,43 +349,48 @@ static void load(QCoreVariant::Private *d, QDataStream &s)
 	s >> d->value.d;
 	break;
     case QCoreVariant::Date:
-	s >> *static_cast<QDate *>(d->value.ptr);
+	QLOAD(QDate);
 	break;
     case QCoreVariant::Time:
-	s >> *static_cast<QTime *>(d->value.ptr);
+	QLOAD(QTime);
 	break;
     case QCoreVariant::DateTime:
-	s >> *static_cast<QDateTime *>(d->value.ptr);
+	QLOAD(QDateTime);
 	break;
     case QCoreVariant::ByteArray:
-	s >> *static_cast<QByteArray *>(d->value.ptr);
+	QLOAD(QByteArray);
 	break;
     case QCoreVariant::BitArray:
-	s >> *static_cast<QBitArray *>(d->value.ptr);
+	QLOAD(QBitArray);
 	break;
     default:
 	qFatal("cannot handle GUI types of QCoreVariant without a Gui application");
     }
 }
 
+#define QSAVE(vType) \
+    if (QTypeInfo<vType >::isLarge) \
+        s << *static_cast<const vType *>(d->value.ptr); \
+    else \
+        s << *reinterpret_cast<const vType *>(&d->value.ptr)
 
 static void save(const QCoreVariant::Private *d, QDataStream &s)
 {
     switch (d->type) {
 #ifndef QT_NO_TEMPLATE_VARIANT
     case QCoreVariant::List:
-	s << *static_cast<QList<QCoreVariant> *>(d->value.ptr);
+	QSAVE(QList<QCoreVariant>);
 	break;
     case QCoreVariant::Map:
-	s << *static_cast<QMap<QString,QCoreVariant> *>(d->value.ptr);
+	QSAVE(QVariantMap);
 	break;
 #endif
     case QCoreVariant::String:
-	s << *static_cast<QString *>(d->value.ptr);
+	QSAVE(QString);
 	break;
 #ifndef QT_NO_STRINGLIST
     case QCoreVariant::StringList:
-	s << *static_cast<QStringList *>(d->value.ptr);
+	QSAVE(QStringList);
 	break;
 #endif
     case QCoreVariant::Int:
@@ -363,19 +412,19 @@ static void save(const QCoreVariant::Private *d, QDataStream &s)
 	s << d->value.d;
 	break;
     case QCoreVariant::Date:
-	s << *static_cast<QDate *>(d->value.ptr);
+	QSAVE(QDate);
 	break;
     case QCoreVariant::Time:
-	s << *static_cast<QTime *>(d->value.ptr);
+	QSAVE(QTime);
 	break;
     case QCoreVariant::DateTime:
-	s << *static_cast<QDateTime *>(d->value.ptr);
+	QSAVE(QDateTime);
 	break;
     case QCoreVariant::ByteArray:
-	s << *static_cast<QByteArray *>(d->value.ptr);
+	QSAVE(QByteArray);
 	break;
     case QCoreVariant::BitArray:
-	s << *static_cast<QBitArray *>(d->value.ptr);
+	QSAVE(QBitArray);
 	break;
     case QCoreVariant::Invalid:
 	s << QString();
@@ -386,20 +435,27 @@ static void save(const QCoreVariant::Private *d, QDataStream &s)
 }
 #endif // QT_NO_DATASTREAM
 
+#define QCOMPARE(vType) \
+    if (QTypeInfo<vType >::isLarge) \
+        return *static_cast<const vType *>(a->value.ptr) == \
+	    *static_cast<const vType *>(b->value.ptr); \
+    else \
+	return *reinterpret_cast<const vType *>(&a->value.ptr) \
+	    == *reinterpret_cast<const vType *>(&b->value.ptr);
+
 static bool compare(const QCoreVariant::Private *a, const QCoreVariant::Private *b)
 {
     switch(a->type) {
 #ifndef QT_NO_TEMPLATE_VARIANT
     case QCoreVariant::List:
-	return *static_cast<QList<QCoreVariant> *>(a->value.ptr)
-	    == *static_cast<QList<QCoreVariant> *>(b->value.ptr);
+	QCOMPARE(QList<QCoreVariant>);
     case QCoreVariant::Map: {
-	QMap<QString,QCoreVariant> *m1 = static_cast<QMap<QString,QCoreVariant> *>(a->value.ptr);
-	QMap<QString,QCoreVariant> *m2 = static_cast<QMap<QString,QCoreVariant> *>(b->value.ptr);
+	QVariantMap *m1 = v_cast<QVariantMap>((void*)a->value.ptr);
+	QVariantMap *m2 = v_cast<QVariantMap>((void*)b->value.ptr);
 	if (m1->count() != m2->count())
 	    return false;
-	QMap<QString, QCoreVariant>::ConstIterator it = m1->constBegin();
-	QMap<QString, QCoreVariant>::ConstIterator it2 = m2->constBegin();
+	QVariantMap::ConstIterator it = m1->constBegin();
+	QVariantMap::ConstIterator it2 = m2->constBegin();
 	while (it != m1->constEnd()) {
 	    if (*it != *it2)
 		return false;
@@ -410,12 +466,10 @@ static bool compare(const QCoreVariant::Private *a, const QCoreVariant::Private 
     }
 #endif
     case QCoreVariant::String:
-	return *static_cast<QString *>(a->value.ptr)
-	    == *static_cast<QString *>(b->value.ptr);
+	QCOMPARE(QString);
 #ifndef QT_NO_STRINGLIST
     case QCoreVariant::StringList:
-	return *static_cast<QStringList *>(a->value.ptr)
-	    == *static_cast<QStringList *>(b->value.ptr);
+	QCOMPARE(QStringList);
 #endif
     case QCoreVariant::Int:
 	return a->value.i == b->value.i;
@@ -430,20 +484,15 @@ static bool compare(const QCoreVariant::Private *a, const QCoreVariant::Private 
     case QCoreVariant::Double:
 	return a->value.d == b->value.d;
     case QCoreVariant::Date:
-	return *static_cast<QDate *>(a->value.ptr)
-	    == *static_cast<QDate *>(b->value.ptr);
+	QCOMPARE(QDate);
     case QCoreVariant::Time:
-	return *static_cast<QTime *>(a->value.ptr)
-	    == *static_cast<QTime *>(b->value.ptr);
+	QCOMPARE(QTime);
     case QCoreVariant::DateTime:
-	return *static_cast<QDateTime *>(a->value.ptr)
-	    == *static_cast<QDateTime *>(b->value.ptr);
+	QCOMPARE(QDateTime);
     case QCoreVariant::ByteArray:
-	return *static_cast<QByteArray *>(a->value.ptr)
-	    == *static_cast<QByteArray *>(b->value.ptr);
+	QCOMPARE(QByteArray);
     case QCoreVariant::BitArray:
-	return *static_cast<QBitArray *>(a->value.ptr)
-	    == *static_cast<QBitArray *>(b->value.ptr);
+	QCOMPARE(QBitArray);
     case QCoreVariant::Invalid:
 	break;
     default:
@@ -451,7 +500,6 @@ static bool compare(const QCoreVariant::Private *a, const QCoreVariant::Private 
     }
     return false;
 }
-
 
 static void cast(QCoreVariant::Private *d, QCoreVariant::Type t, void *result, bool *ok)
 {
@@ -477,20 +525,20 @@ static void cast(QCoreVariant::Private *d, QCoreVariant::Type t, void *result, b
 	    break;
 #if !defined(QT_NO_SPRINTF) && !defined(QT_NO_DATESTRING)
 	case QCoreVariant::Date:
-	    *str = static_cast<QDate *>(d->value.ptr)->toString(Qt::ISODate);
+	    *str = v_cast<QDate>(d->value.ptr)->toString(Qt::ISODate);
 	    break;
 	case QCoreVariant::Time:
-	    *str = static_cast<QTime *>(d->value.ptr)->toString(Qt::ISODate);
+	    *str = v_cast<QTime>(d->value.ptr)->toString(Qt::ISODate);
 	    break;
 	case QCoreVariant::DateTime:
-	    *str = static_cast<QDateTime *>(d->value.ptr)->toString(Qt::ISODate);
+	    *str = v_cast<QDateTime>(d->value.ptr)->toString(Qt::ISODate);
 	    break;
 #endif
 	case QCoreVariant::Bool:
 	    *str = d->value.b ? "true" : "false";
 	    break;
 	case QCoreVariant::ByteArray:
-	    *str = QString(static_cast<QByteArray *>(d->value.ptr)->constData());
+	    *str = QString(v_cast<QByteArray>(d->value.ptr)->constData());
 	    break;
 	default:
 	    break;
@@ -501,7 +549,7 @@ static void cast(QCoreVariant::Private *d, QCoreVariant::Type t, void *result, b
     case QCoreVariant::StringList:
 	if (d->type == QCoreVariant::List) {
 	    QStringList *slst = static_cast<QStringList *>(result);
-	    QList<QCoreVariant> *list = static_cast<QList<QCoreVariant> *>(d->value.ptr);
+	    QList<QCoreVariant> *list = v_cast<QList<QCoreVariant> >(d->value.ptr);
 	    for (int i = 0; i < list->size(); ++i)
 		slst->append(list->at(i).toString());
 	}
@@ -510,10 +558,10 @@ static void cast(QCoreVariant::Private *d, QCoreVariant::Type t, void *result, b
     case QCoreVariant::Date: {
 	QDate *dt = static_cast<QDate *>(result);
 	if (d->type == QCoreVariant::DateTime)
-	    *dt = static_cast<QDateTime *>(d->value.ptr)->date();
+	    *dt = v_cast<QDateTime>(d->value.ptr)->date();
 #ifndef QT_NO_DATESTRING
 	else if (d->type == QCoreVariant::String)
-	    *dt = QDate::fromString(*static_cast<QString *>(d->value.ptr), Qt::ISODate);
+	    *dt = QDate::fromString(*v_cast<QString>(d->value.ptr), Qt::ISODate);
 #endif
 	break;
     }
@@ -521,11 +569,11 @@ static void cast(QCoreVariant::Private *d, QCoreVariant::Type t, void *result, b
 	QTime *t = static_cast<QTime *>(result);
 	switch ( d->type ) {
 	case QCoreVariant::DateTime:
-	    *t = static_cast<QDateTime*>(d->value.ptr)->time();
+	    *t = v_cast<QDateTime>(d->value.ptr)->time();
 	    break;
 #ifndef QT_NO_DATESTRING
 	case QCoreVariant::String:
-	    *t = QTime::fromString( *static_cast<QString *>(d->value.ptr), Qt::ISODate );
+	    *t = QTime::fromString( *v_cast<QString>(d->value.ptr), Qt::ISODate );
 	    break;
 #endif
 	default:
@@ -538,11 +586,11 @@ static void cast(QCoreVariant::Private *d, QCoreVariant::Type t, void *result, b
 	switch ( d->type ) {
 #ifndef QT_NO_DATESTRING
 	case QCoreVariant::String:
-	    *dt = QDateTime::fromString(*static_cast<QString *>(d->value.ptr), Qt::ISODate);
+	    *dt = QDateTime::fromString(*v_cast<QString>(d->value.ptr), Qt::ISODate);
 	    break;
 #endif
 	case QCoreVariant::Date:
-	    *dt = QDateTime(*static_cast<QDate*>(d->value.ptr));
+	    *dt = QDateTime(*v_cast<QDate>(d->value.ptr));
 	    break;
 	default:
 	    break;
@@ -552,17 +600,17 @@ static void cast(QCoreVariant::Private *d, QCoreVariant::Type t, void *result, b
     case QCoreVariant::ByteArray: {
 	QByteArray *ba = static_cast<QByteArray *>(result);
 	if (d->type == QCoreVariant::String)
-	    *ba = static_cast<QString *>(d->value.ptr)->toAscii();
+	    *ba = v_cast<QString>(d->value.ptr)->toAscii();
     }
     break;
     case QCoreVariant::Int: {
 	int *i = static_cast<int *>(result);
 	switch (d->type) {
 	case QCoreVariant::String:
-	    *i = static_cast<QString *>(d->value.ptr)->toInt(ok);
+	    *i = v_cast<QString>(d->value.ptr)->toInt(ok);
 	    break;
 	case QCoreVariant::ByteArray:
-	    *i = QString(*static_cast<QByteArray *>(d->value.ptr)).toInt(ok);
+	    *i = QString(*v_cast<QByteArray>(d->value.ptr)).toInt(ok);
 	    break;
 	case QCoreVariant::Int:
 	    *i = d->value.i;
@@ -592,10 +640,10 @@ static void cast(QCoreVariant::Private *d, QCoreVariant::Type t, void *result, b
 	uint *u = static_cast<uint *>(result);
 	switch (d->type) {
 	case QCoreVariant::String:
-	    *u = static_cast<QString *>(d->value.ptr)->toUInt(ok);
+	    *u = v_cast<QString>(d->value.ptr)->toUInt(ok);
 	    break;
 	case QCoreVariant::ByteArray:
-	    *u = QString(*static_cast<QByteArray *>(d->value.ptr)).toUInt(ok);
+	    *u = QString(*v_cast<QByteArray>(d->value.ptr)).toUInt(ok);
 	    break;
 	case QCoreVariant::Int:
 	    *u = (uint)d->value.i;
@@ -625,10 +673,10 @@ static void cast(QCoreVariant::Private *d, QCoreVariant::Type t, void *result, b
 	Q_LLONG *l = static_cast<Q_LLONG *>(result);
 	switch (d->type) {
 	case QCoreVariant::String:
-	    *l = static_cast<QString *>(d->value.ptr)->toLongLong(ok);
+	    *l = v_cast<QString>(d->value.ptr)->toLongLong(ok);
 	    break;
 	case QCoreVariant::ByteArray:
-	    *l = QString(*static_cast<QByteArray *>(d->value.ptr)).toLongLong(ok);
+	    *l = QString(*v_cast<QByteArray>(d->value.ptr)).toLongLong(ok);
 	    break;
 	case QCoreVariant::Int:
 	    *l = (Q_LLONG)d->value.i;
@@ -676,10 +724,10 @@ static void cast(QCoreVariant::Private *d, QCoreVariant::Type t, void *result, b
 	    *l = (Q_ULLONG)d->value.b;
 	    break;
 	case QCoreVariant::String:
-	    *l = static_cast<QString *>(d->value.ptr)->toULongLong(ok);
+	    *l = v_cast<QString>(d->value.ptr)->toULongLong(ok);
 	    break;
 	case QCoreVariant::ByteArray:
-	    *l = QString(*static_cast<QByteArray *>(d->value.ptr)).toULongLong(ok);
+	    *l = QString(*v_cast<QByteArray>(d->value.ptr)).toULongLong(ok);
 	    break;
 	default:
 	    *l = 0;
@@ -707,7 +755,7 @@ static void cast(QCoreVariant::Private *d, QCoreVariant::Type t, void *result, b
 	    break;
 	case QCoreVariant::String:
 	{
-	    QString str = static_cast<QString *>(d->value.ptr)->toLower();
+	    QString str = v_cast<QString>(d->value.ptr)->toLower();
 	    *b = !(str == "0" || str == "false" || str.isEmpty());
 	    break;
 	}
@@ -721,10 +769,10 @@ static void cast(QCoreVariant::Private *d, QCoreVariant::Type t, void *result, b
 	double *f = static_cast<double *>(result);
 	switch (d->type) {
 	case QCoreVariant::String:
-	    *f = static_cast<QString *>(d->value.ptr)->toDouble(ok);
+	    *f = v_cast<QString>(d->value.ptr)->toDouble(ok);
 	    break;
 	case QCoreVariant::ByteArray:
-	    *f = QString(*static_cast<QByteArray *>(d->value.ptr)).toDouble(ok);
+	    *f = QString(*v_cast<QByteArray>(d->value.ptr)).toDouble(ok);
 	    break;
 	case QCoreVariant::Double:
 	    *f = d->value.d;
@@ -758,7 +806,7 @@ static void cast(QCoreVariant::Private *d, QCoreVariant::Type t, void *result, b
     case QCoreVariant::List:
 	if (d->type == QCoreVariant::StringList) {
 	    QList<QCoreVariant> *lst = static_cast<QList<QCoreVariant> *>(result);
-	    QStringList *slist = static_cast<QStringList *>(d->value.ptr);
+	    QStringList *slist = v_cast<QStringList>(d->value.ptr);
 	    for (int i = 0; i < slist->size(); ++i)
 		lst->append(QCoreVariant(slist->at(i)));
 	}
@@ -821,7 +869,7 @@ static bool canCast(QCoreVariant::Private *d, QCoreVariant::Type t)
 #ifndef QT_NO_TEMPLATE_VARIANT
     case QCoreVariant::StringList:
 	if (d->type == QCoreVariant::List) {
-	    const QList<QCoreVariant> &varlist = *static_cast<QList<QCoreVariant> *>(d->value.ptr);
+	    const QList<QCoreVariant> &varlist = *v_cast<QList<QCoreVariant> >(d->value.ptr);
 	    for (int i = 0; i < varlist.size(); ++i) {
 		if (!varlist.at(i).canCast(QCoreVariant::String))
 		    return false;
@@ -1399,7 +1447,7 @@ QDataStream& operator<<(QDataStream &s, const QCoreVariant::Type p)
 #define Q_VARIANT_TO(f) \
 Q##f QCoreVariant::to##f() const { \
     if ( d->type == f ) \
-        return *static_cast<Q##f *>(d->value.ptr); \
+        return *v_cast<Q##f >(d->value.ptr); \
     Q##f ret; \
     handler->cast(d, f, &ret, 0); \
     return ret; \
@@ -1450,7 +1498,7 @@ Q_VARIANT_TO(ByteArray)
 QString QCoreVariant::toString() const
 {
     if (d->type == String)
-	return *static_cast<QString *>(d->value.ptr);
+	return *reinterpret_cast<QString *>(&d->value.ptr);
     if (d->str_cache)
 	return *reinterpret_cast<QString *>(&d->str_cache);
 
@@ -1482,7 +1530,7 @@ QMap<QString, QCoreVariant> QCoreVariant::toMap() const
     if (d->type != Map)
 	return QMap<QString,QCoreVariant>();
 
-    return *static_cast<QMap<QString, QCoreVariant> *>(d->value.ptr);
+    return *v_cast<QVariantMap>(d->value.ptr);
 }
 #endif
 
@@ -1542,7 +1590,7 @@ QMap<QString, QCoreVariant> QCoreVariant::toMap() const
 QBitArray QCoreVariant::toBitArray() const
 {
     if (d->type == BitArray)
-	return *static_cast<QBitArray *>(d->value.ptr);
+	return *v_cast<QBitArray>(d->value.ptr);
     return QBitArray();
 }
 
@@ -1728,7 +1776,7 @@ double QCoreVariant::toDouble(bool *ok) const
 QList<QCoreVariant> QCoreVariant::toList() const
 {
     if (d->type == List)
-	return *static_cast<QList<QCoreVariant> *>(d->value.ptr);
+	return *v_cast<QList<QCoreVariant> >(d->value.ptr);
     QList<QCoreVariant> res;
     handler->cast(d, List, &res, 0);
     return res;
@@ -2176,6 +2224,12 @@ void *QCoreVariant::rawAccess(void *ptr, Type typ, bool deepCopy)
     return ret;
 }
 
+#define QDATA(vType) \
+    if (QTypeInfo<vType >::isLarge) \
+        return d->value.ptr; \
+    else \
+        return &d->value.ptr
+
 /*! \internal
  */
 void* QCoreVariant::data()
@@ -2188,6 +2242,28 @@ void* QCoreVariant::data()
     case Double:
     case Bool:
 	return &d->value;
+    case String:
+        QDATA(QString);
+#ifndef QT_NO_STRINGLIST
+    case StringList:
+        QDATA(QStringList);
+#endif
+#ifndef QT_NO_TEMPLATE_VARIANT
+    case Map:
+	QDATA(QVariantMap);
+    case List:
+	QDATA(QList<QCoreVariant>);
+#endif
+    case Date:
+	QDATA(QDate);
+    case Time:
+	QDATA(QTime);
+    case QCoreVariant::DateTime:
+	QDATA(QDateTime);
+    case QCoreVariant::ByteArray:
+	QDATA(QByteArray);
+    case QCoreVariant::BitArray:
+	QDATA(QBitArray);
     default:
 	return d->value.ptr;
     }

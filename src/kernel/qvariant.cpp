@@ -36,6 +36,14 @@
 extern const QVariant::Handler qt_gui_variant_handler;
 Q_CORE_EXPORT const QVariant::Handler *qcoreVariantHandler();
 
+template<typename T> inline T *v_cast(void *&p)
+{
+    if (QTypeInfo<T>::isLarge)
+        return static_cast<T*>(p);
+    else
+        return reinterpret_cast<T*>(&p);
+}
+
 static void construct(QVariant::Private *x, const void *v)
 {
     if (v) {
@@ -593,13 +601,13 @@ static void cast(QVariant::Private *d, QVariant::Type t, void *result, bool *ok)
     case QVariant::Font:
 	if (d->type == QVariant::String) {
 	    QFont *f = static_cast<QFont *>(result);
-	    f->fromString(*static_cast<QString *>(d->value.ptr));
+	    f->fromString(*v_cast<QString>(d->value.ptr));
 	    converted = true;
 	}
 	break;
     case QVariant::Color:
 	if (d->type == QVariant::String) {
-	    static_cast<QColor *>(result)->setNamedColor(*static_cast<QString *>(d->value.ptr));
+	    static_cast<QColor *>(result)->setNamedColor(*v_cast<QString>(d->value.ptr));
 	    converted = true;
 	}
 #ifndef QT_NO_ACCEL
@@ -607,7 +615,7 @@ static void cast(QVariant::Private *d, QVariant::Type t, void *result, bool *ok)
 	QKeySequence *seq = static_cast<QKeySequence *>(result);
 	switch (d->type) {
 	case QVariant::String:
-	    *seq = QKeySequence(*static_cast<QString *>(d->value.ptr));
+	    *seq = QKeySequence(*v_cast<QString>(d->value.ptr));
 	    converted = true;
 	    break;
 	case QVariant::Int:
