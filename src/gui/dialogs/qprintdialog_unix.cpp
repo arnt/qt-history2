@@ -39,12 +39,34 @@
 #include "qstyle.h"
 #include "qstring.h"
 #include "qregexp.h"
-#if !defined(QT_NO_CUPS)
-#include "qlibrary.h"
-#endif
 #include "qgroupbox.h"
 #include "qsignalmapper.h"
 #include "qmap.h"
+
+#if !defined(QT_NO_CUPS) || !defined(QT_NO_NIS)
+#include "qlibrary.h"
+#endif
+
+#ifndef QT_NO_NIS
+
+#ifndef BOOL_DEFINED
+#define BOOL_DEFINED
+#endif
+
+#include <rpcsvc/ypclnt.h>
+#include <rpcsvc/yp_prot.h>
+
+// Solaris redefines connect -> __xnet_connect with _XOPEN_SOURCE_EXTENDED.
+#if defined(connect)
+# undef connect
+#endif
+
+#endif // QT_NO_NIS
+
+// UNIX Large File Support redefines open -> open64
+#if defined(open)
+# undef open
+#endif
 
 #include <ctype.h>
 #include <stdlib.h>
