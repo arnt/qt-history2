@@ -1403,6 +1403,7 @@ void QListViewPrivate::init()
     rubberBand = new QRubberBand(QRubberBand::Rectangle, viewport);
     rubberBand->hide();
     viewport->setAcceptDrops(true);
+    q->setDragEnabled(true);
 }
 
 void QListViewPrivate::prepareItemsLayout()
