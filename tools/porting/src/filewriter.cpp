@@ -54,10 +54,10 @@ bool FileWriter::writeFile(QString filePath, QByteArray contents)
             printf("Error writing file %s: It already exists\n", cleanPath.latin1());
             return false;
         } else if(overWriteFiles == AskOnOverWrite) {
-            printf("Warning: overwriting file %s ", cleanPath.latin1());
+            printf("Convert file %s", cleanPath.latin1());
             char answer = 0;
             int ret = 0;
-            printf("\nOk? (Y)es, (N)o, (A)ll ");
+            printf("? (Y)es, (N)o, (A)ll ");
             while (ret == 0 || (answer != 'y' && answer != 'n' && answer != 'a')) {
                 ret = scanf("%c", &answer);            
                 answer = tolower(answer);
