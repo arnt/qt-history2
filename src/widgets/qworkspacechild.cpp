@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#23 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -37,7 +37,7 @@
 //  -------------
 //
 //  It is very unlikely that this code will be available in the final
-//  Qt 2.0 release.  It will be available soon after then, but a number
+//  Qt 2.1 release.  It will be available soon after then, but a number
 //  of important API changes still need to be made.
 //
 //  Thus, it is important that you do NOT use this code in an application
@@ -191,7 +191,7 @@ QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* parent
 		 this, SIGNAL( doMinimize() ) );
     }
 
-    titleL = new QLabel( this );
+    titleL = new QLabel( this, "__workspace_child_title_bar" );
 
     titleL->setMouseTracking( TRUE );
     titleL->installEventFilter( this );
@@ -331,7 +331,7 @@ class QProtectedWidget : public QWidget
 public:
     WFlags getWFlags() const { return QWidget::getWFlags(); }
     void reasonableFocus() { if ( !isFocusEnabled() )
-	(void) focusNextPrevChild( TRUE ); 
+	(void) focusNextPrevChild( TRUE );
     }
 };
 
