@@ -706,6 +706,7 @@ void QPainter::setClipRegion(const QRegion &r, CoordinateMode m)
     d->state->clipEnabled = true;
     if (d->engine)
 	d->engine->setDirty(QPaintEngine::DirtyClip);
+    d->engine->updateState(d->state);
 }
 
 
@@ -1123,7 +1124,8 @@ void QPainter::drawRect(const QRect &r)
 
     QRect rect = r.normalize();
 
-    if ((d->state->VxF || d->state->WxF) && !d->engine->hasCapability(QPaintEngine::CoordTransform)) {
+    if ((d->state->VxF || d->state->WxF)
+	&& !d->engine->hasCapability(QPaintEngine::CoordTransform)) {
 	if (d->state->txop == TxRotShear) {
 	    drawPolygon(QPointArray(rect));
 	    return;
@@ -2053,13 +2055,18 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr)
     if (sw <= 0 || sh <= 0)
 	return;
 
-    if ((d->state->VxF || d->state->WxF)
-	&& !d->engine->hasCapability(QPaintEngine::PixmapTransform)) {
+    bool stretch = (r.width() == sr.width() && sr.width() != pm.width())
+		   || (r.height() == sr.height() && sr.height() != pm.height());
 
+    if ((d->state->VxF || d->state->WxF || stretch)
+	&& !d->engine->hasCapability(QPaintEngine::PixmapTransform)) {
 	QPixmap source(sw, sh);
 	bitBlt(&source, 0, 0, &pm, sx, sy, sw, sh, CopyROP);
 
 	QWMatrix mat(d->state->matrix);
+	double scalex = w / (double)sw;
+	double scaley = h / (double)sh;
+	mat = QWMatrix(scalex, 0, 0, scaley, 0, 0) * mat;
 	mat = QPixmap::trueMatrix(mat, sw, sh);
 	QPixmap pmx;
 	if (sx == 0 && sy == 0 &&
@@ -2124,9 +2131,7 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr)
   ### remove when combining QImage/QPixmap
 */
 
-void QPainter::drawImage(int x, int y, const QImage &,
-			  int sx, int sy, int sw, int sh,
-			  int conversionFlags)
+void QPainter::drawImage(int, int, const QImage &, int, int, int, int, int)
 {
     if (!isActive())
 	return;
@@ -3007,7 +3012,7 @@ QPaintDevice *QPainter::redirected(const QPaintDevice *device, QPoint *offset)
 
 void qt_format_text( const QFont& font, const QRect &_r,
 		     int tf, const QString& str, int len, QRect *brect,
-		     int tabstops, int* tabarray, int tabarraylen,
+		     int tabstops, int *, int tabarraylen,
 		     QPainter* painter )
 {
     // we need to copy r here to protect against the case (&r == brect).

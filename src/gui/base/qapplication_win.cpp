@@ -624,6 +624,9 @@ void qt_init( QApplicationPrivate *priv, int )
     QFont::initialize();
     QCursor::initialize();
     QWin32PaintEngine::initialize();
+#if defined (QT_GDIPLUS_SUPPORT)
+    QGdiplusPaintEngine::initialize();
+#endif
     qApp->setObjectName( appName );
 
     // default font

@@ -1787,7 +1787,20 @@ double QWidget::windowOpacity() const
 
 QPaintEngine *QWidget::engine() const
 {
-    if (!d->paintEngine)
-	const_cast<QWidget *>(this)->d->paintEngine = new QWin32PaintEngine(const_cast<QWidget *>(this));
+    if (!d->paintEngine) {
+#if defined (QT_GDIPLUS_SUPPORT)
+	static const char *nogdi = getenv("NOGDI");
+	if (!nogdi) {
+	    const_cast<QWidget *>(this)->d->paintEngine =
+		new QGdiplusPaintEngine(const_cast<QWidget *>(this));
+	} else {
+	    const_cast<QWidget *>(this)->d->paintEngine =
+		new QWin32PaintEngine(const_cast<QWidget *>(this));
+	}
+#else
+	const_cast<QWidget *>(this)->d->paintEngine =
+	    new QWin32PaintEngine(const_cast<QWidget *>(this));
+#endif
+    }
     return d->paintEngine;
 }

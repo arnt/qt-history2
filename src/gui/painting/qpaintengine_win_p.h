@@ -17,6 +17,10 @@
 
 #include <windows.h>
 
+#if defined QT_GDIPLUS_SUPPORT
+#include <gdiplus.h>
+#endif
+
 #include "qnamespace.h"
 #include "qpaintengine_p.h"
 
@@ -62,8 +66,7 @@ public:
 	pStyle(Qt::SolidLine),
 	pWidth(0),
 	pColor(0),
-	bColor(0),
-	device(0)
+	bColor(0)
     {
     }
 
@@ -90,8 +93,41 @@ public:
     COLORREF            bColor;
 
     uint 		fontFlags;
-
-    QPaintDevice        *device;
 };
+
+#if defined QT_GDIPLUS_SUPPORT
+class QGdiplusPaintEnginePrivate : public QPaintEnginePrivate
+{
+    Q_DECLARE_PUBLIC(QGdiplusPaintEngine);
+public:
+    QGdiplusPaintEnginePrivate() :
+	hwnd(0),
+	hdc(0),
+	graphics(0),
+	pen(0),
+	focusRectPen(0),
+	brush(0),
+	cachedSolidBrush(0),
+	usesTempDC(false),
+	usePen(false),
+	temporaryBrush(false)
+    {
+    }
+
+    HWND hwnd;
+    HDC hdc;
+
+    Gdiplus::Graphics *graphics;
+    Gdiplus::Pen *pen;
+    Gdiplus::Pen *focusRectPen;
+    Gdiplus::Brush *brush;
+
+    Gdiplus::SolidBrush *cachedSolidBrush;
+
+    uint usesTempDC : 1;
+    uint usePen : 1;
+    uint temporaryBrush : 1;
+};
+#endif // QT_GDIPLUS_SUPPORT
 
 #endif

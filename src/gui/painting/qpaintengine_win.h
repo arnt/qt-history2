@@ -89,4 +89,53 @@ protected:
     friend class QPainter;
 };
 
+class QGdiplusPaintEnginePrivate;
+class QGdiplusPaintEngine : public QPaintEngine
+{
+    Q_DECLARE_PRIVATE(QGdiplusPaintEngine);
+public:
+    QGdiplusPaintEngine(QPaintDevice *pdev);
+    ~QGdiplusPaintEngine();
+
+    bool begin(QPaintDevice *pdev, QPainterState *state, bool unclipped = FALSE);
+    bool end();
+
+    void updatePen(QPainterState *ps);
+    void updateBrush(QPainterState *ps);
+    void updateFont(QPainterState *ps);
+    void updateRasterOp(QPainterState *ps);
+    void updateBackground(QPainterState *ps);
+    void updateXForm(QPainterState *ps);
+    void updateClipRegion(QPainterState *ps);
+
+    void drawLine(const QPoint &p1, const QPoint &p2);
+    void drawRect(const QRect &r);
+    void drawPoint(const QPoint &p);
+    void drawPoints(const QPointArray &pa, int index = 0, int npoints = -1);
+    void drawWinFocusRect(const QRect &r, bool xorPaint, const QColor &bgColor);
+    void drawRoundRect(const QRect &r, int xRnd, int yRnd);
+    void drawEllipse(const QRect &r);
+    void drawArc(const QRect &r, int a, int alen);
+    void drawPie(const QRect &r, int a, int alen);
+    void drawChord(const QRect &r, int a, int alen);
+    void drawLineSegments(const QPointArray &, int index = 0, int nlines = -1);
+    void drawPolyline(const QPointArray &pa, int index = 0, int npoints = -1);
+    void drawPolygon(const QPointArray &pa, bool winding = false, int index = 0, int npoints = -1);
+    void drawConvexPolygon(const QPointArray &, int index = 0, int npoints = -1);
+
+    void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr);
+    void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
+    void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s, bool optim);
+
+    HDC handle() const;
+    Type type() const { return Gdiplus; }
+
+#ifndef QT_NO_BEZIER
+    void drawCubicBezier(const QPointArray &, int index = 0);
+#endif
+
+    static void initialize();
+    static void cleanup();
+};
+
 #endif // QWIN32PAINTENGINE_H

@@ -117,7 +117,7 @@ public:
 	//X11
 	X11,
 	//Windows
-	Windows,
+	Windows, Gdiplus,
 	//Mac
 	QuickDraw, CoreGraphics,
 	//QWS
