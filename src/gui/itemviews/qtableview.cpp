@@ -878,12 +878,13 @@ QRect QTableView::itemViewportRect(const QModelIndex &index) const
 */
 void QTableView::ensureItemVisible(const QModelIndex &index)
 {
-    QRect area = d->viewport->rect();
-    QRect rect = itemViewportRect(index);
-
+    // check if we really need to do anything
     if (model()->parent(index) != root())
         return;
-
+    if (isIndexHidden(index))
+        return;
+    QRect area = d->viewport->rect();
+    QRect rect = itemViewportRect(index);
     if (area.contains(rect)) {
         d->viewport->update(rect);
         return;
@@ -897,7 +898,8 @@ void QTableView::ensureItemVisible(const QModelIndex &index)
         int y = area.height();
         while (y > 0 && r > 0)
             y -= rowHeight(r--);
-        int a = (-y * verticalFactor()) / rowHeight(r);
+        int h = rowHeight(r);
+        int a = (-y * verticalFactor()) / (h ? h : 1);
         verticalScrollBar()->setValue(++r * verticalFactor() + a);
     }
 
@@ -915,7 +917,8 @@ void QTableView::ensureItemVisible(const QModelIndex &index)
         int x = area.width();
         while (x > 0 && c > 0)
             x -= columnWidth(c--);
-        int a = (-x * horizontalFactor()) / columnWidth(c);
+        int w = columnWidth(c);
+        int a = (-x * horizontalFactor()) / (w ? w : 1);
         horizontalScrollBar()->setValue(++c * horizontalFactor() + a);
     }
 
