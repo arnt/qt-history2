@@ -16,24 +16,24 @@ CC		= gcc
 
 #######	Files
 
-HEADERS		= qbutton.h	qbuttgrp.h	qchkbox.h	qlabel.h	qlcdnum.h     \
+HEADERS		= qbutton.h	qbttngrp.h	qchkbox.h	qlabel.h	qlcdnum.h     \
 		  qlined.h	qlistbox.h	qmenubar.h	qmenudta.h    \
 		  qpopmenu.h	qpushbt.h	qradiobt.h	qrangect.h    \
-		  qscrbar.h	qtablew.h
-SOURCES		= qbutton.cpp	qbuttgrp.cpp	qchkbox.cpp	qlabel.cpp	qlcdnum.cpp   \
+		  qscrbar.h	qtablew.h	qframe.h
+SOURCES		= qbutton.cpp	qbttngrp.cpp	qchkbox.cpp	qlabel.cpp	qlcdnum.cpp   \
 		  qlined.cpp	qlistbox.cpp	qmenubar.cpp	qmenudta.cpp  \
 		  qpopmenu.cpp	qpushbt.cpp	qradiobt.cpp	qrangect.cpp  \
-		  qscrbar.cpp	qtablew.cpp
-OBJECTS		= qbutton.o	qbuttgrp.o	qchkbox.o	qlabel.o	qlcdnum.o     \
+		  qscrbar.cpp	qtablew.cpp	qframe.cpp
+OBJECTS		= qbutton.o	qbttngrp.o	qchkbox.o	qlabel.o	qlcdnum.o     \
 		  qlined.o	qlistbox.o	qmenubar.o	qmenudta.o    \
 		  qpopmenu.o	qpushbt.o	qradiobt.o	qrangect.o    \
-		  qscrbar.o	qtablew.o
-SRCMETA		= mbutton.cpp	mbuttgrp.cpp	mchkbox.cpp	mlabel.cpp	mlcdnum.cpp   \
+		  qscrbar.o	qtablew.o	qframe.o
+SRCMETA		= mbutton.cpp	mbttngrp.cpp	mchkbox.cpp	mlabel.cpp	mlcdnum.cpp   \
 		  mlined.cpp	mlistbox.cpp	mmenubar.cpp	mpopmenu.cpp  \
-		  mpushbt.cpp	mradiobt.cpp	mscrbar.cpp	mtablew.cpp
-OBJMETA		= mbutton.o	mbuttgrp.o	mchkbox.o	mlabel.o	mlcdnum.o     \
+		  mpushbt.cpp	mradiobt.cpp	mscrbar.cpp	mtablew.cpp	mframe.cpp
+OBJMETA		= mbutton.o	mbttngrp.o	mchkbox.o	mlabel.o	mlcdnum.o     \
 		  mlined.o	mlistbox.o	mmenubar.o	mpopmenu.o    \
-		  mpushbt.o	mradiobt.o	mscrbar.o	mtablew.o
+		  mpushbt.o	mradiobt.o	mscrbar.o	mtablew.o	mframe.o
 TARGET		= $(LIBDIR)/libqwidgets.a
 
 #######	Implicit rules
@@ -76,11 +76,14 @@ clean:
 mbutton.cpp: qbutton.h
 	$(QTDIR)/bin/moc qbutton.h -o mbutton.cpp
 
-mbuttgrp.cpp: qbuttgrp.h
-	$(QTDIR)/bin/moc qbuttgrp.h -o mbuttgrp.cpp
+mbttngrp.cpp: qbttngrp.h
+	$(QTDIR)/bin/moc qbttngrp.h -o mbttngrp.cpp
 
 mchkbox.cpp: qchkbox.h
 	$(QTDIR)/bin/moc qchkbox.h -o mchkbox.cpp
+
+mframe.cpp: qframe.h
+	$(QTDIR)/bin/moc qframe.h -o mframe.cpp
 
 mlabel.cpp: qlabel.h
 	$(QTDIR)/bin/moc qlabel.h -o mlabel.cpp
