@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#92 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#93 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -25,13 +25,9 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#92 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#93 $";
 #endif
 
-
-#define CHANGE_RESET  0				// QPainter::changed.. commands
-#define CHANGE_ALL    1
-#define CHANGE_COLOR  2
 
 // --------------------------------------------------------------------------
 // QPen member functions
@@ -59,13 +55,13 @@ Use the QBrush class for specifying fill styles.
 Example of how to use a pen:
 \code
   QPainter painter;
-  QPen     pen( red );			\/ red solid line, 0 width
-  painter.begin( &anyPaintDevice );	\/ paint widget, pixmap etc.
-  painter.setPen( pen );		\/ sets the red pen
-  painter.drawRect( 40,30, 200,100 );	\/ draw 200x100 rect at (40,30)
-  painter.pen().setColor( blue );	\/ change pen color to blue
-  painter.drawLine( 40,30, 240,130 );	\/ draw diagonal in rectangle
-  painter.end();			\/ painting done
+  QPen     pen( red, 2 );		// red solid line, 2 pixel width
+  painter.begin( &anyPaintDevice );	// paint something
+  painter.setPen( pen );		// set the red, fat pen
+  painter.drawRect( 40,30, 200,100 );	// draw rectangle
+  painter.setPen( blue );		// set blue pen, 0 pixel width
+  painter.drawLine( 40,30, 240,130 );	// draw diagonal in rectangle
+  painter.end();			// painting done
 \endcode
 
 The setStyle() function has a list of pen styles.
@@ -217,7 +213,6 @@ void QPen::setStyle( PenStyle s )		// set pen style
 	return;
     detach();
     data->style = s;
-    QPainter::changedPen( this, CHANGE_ALL );
 }
 
 /*!
@@ -232,7 +227,6 @@ void QPen::setWidth( uint w )			// set pen width
 	return;
     detach();
     data->width = w;
-    QPainter::changedPen( this, CHANGE_ALL );
 }
 
 /*!
@@ -246,8 +240,6 @@ void QPen::setColor( const QColor &c )		// set pen color
     ulong pixel = data->color.pixel();
     detach();
     data->color = c;
-    if ( pixel != data->color.pixel() )
-	QPainter::changedPen( this, CHANGE_COLOR );
 }
 
 
@@ -298,15 +290,15 @@ Use the QPen class for specifying line/outline styles.
 Example of how to use a brush:
 \code
   QPainter painter;
-  QBrush   brush( yellow );		\/ yellow solid pattern
-  QPen     pen( red );			\/ red solid line, 0 width
-  painter.begin( &anyPaintDevice );	\/ paint widget, pixmap etc.
-  painter.setBrush( brush );		\/ sets the yellow brush
-  painter.setPen( pen );		\/ sets the red pen
-  painter.drawRect( 40,30, 200,100 );	\/ draw 200x100 rect at (40,30)
-  painter.brush().setStyle( NoBrush );	\/ do not fill
-  painter.drawrect( 10,10, 30,20 );	\/ draw rectangle outline
-  painter.end();			\/ painting done
+  QBrush   brush( yellow );		// yellow solid pattern
+  painter.begin( &anyPaintDevice );	// paint something
+  painter.setBrush( brush );		// set the yellow brush
+  painter.setPen( NoPen );		// do not draw outline
+  painter.drawRect( 40,30, 200,100 );	// draw filled rectangle
+  painter.setBrush( NoBrush );		// do not fill
+  painter.setPen( black );		// set black pen, 0 pixel width
+  painter.drawrect( 10,10, 30,20 );	// draw rectangle outline
+  painter.end();			// painting done
 \endcode
 
 The setStyle() function has a list of brush styles.
@@ -501,7 +493,6 @@ void QBrush::setStyle( BrushStyle s )		// set brush style
 #endif
     detach();
     data->style = s;
-    QPainter::changedBrush( this, CHANGE_ALL );
 }
 
 /*!
@@ -515,8 +506,6 @@ void QBrush::setColor( const QColor &c )	// set brush color
     ulong pixel = data->color.pixel();
     detach();
     data->color = c;
-    if ( pixel != data->color.pixel() )
-	QPainter::changedBrush( this, CHANGE_COLOR );
 }
 
 /*!
@@ -532,7 +521,6 @@ void QBrush::setBitmap( const QBitmap &bitmap )	// set brush bitmap
     if ( data->bitmap )
 	delete data->bitmap;
     data->bitmap = new QBitmap( bitmap );
-    QPainter::changedBrush( this, CHANGE_ALL );
 }
 
 
@@ -823,16 +811,18 @@ QPainter::~QPainter()
 }
 
 /*!
+\fn const QFont &QPainter::font()
 Returns the current painter font.
+\sa setFont(), QFont
 */
-
-QFont &QPainter::font()
-{
-    return cfont;
-}
 
 /*!
 Sets a new painter font.
+
+This font is used by all subsequent drawText() functions.
+The text color is the same as the pen color.
+
+\sa font(), QFont
 */
 
 void QPainter::setFont( const QFont &font )	// set current font
@@ -844,18 +834,27 @@ void QPainter::setFont( const QFont &font )	// set current font
 }
 
 /*!
+\fn const QPen &QPainter::pen()
+Returns the current painter pen.
+\sa setPen(), QPen
+*/
+
+/*!
 Sets a new painter pen.
 
-The pen defines how to draw lines and outlines, and it also determines
+The pen defines how to draw lines and outlines, and it also defines
 the text color.
+
+\sa pen(), QPen
 */
 
 void QPainter::setPen( const QPen &pen )	// set current pen
 {
     if ( cpen.data != pen.data ) {
-	if ( cpen != pen )
+	if ( cpen != pen ) {
 	    setf( DirtyPen );
-	cpen = pen;
+	    cpen = pen;
+	}
     }
 }
 
@@ -864,6 +863,8 @@ Sets a new painter pen with black color, width 0 and the specified \e style.
 
 The pen defines how to draw lines and outlines, and it also determines
 the text color.
+
+\sa pen(), QPen
 */
 
 void QPainter::setPen( PenStyle style )		// set solid pen with color
@@ -877,22 +878,60 @@ Sets a new painter pen with style \c SolidLine, width 0 the specified \e color.
 
 The pen defines how to draw lines and outlines, and it also determines
 the text color.
+
+\sa pen(), QPen
 */
+
+#if 0
+static int yo_gc[256];
+static int yo_todo = 0;
+#endif
 
 void QPainter::setPen( const QColor &color )	// set solid pen with color
 {
-    QPen pen( color );
-    cpen = pen;
-    if ( isActive() && gc && cpen.style() == SolidLine && cpen.width() == 0 )
-	XSetForeground( dpy, gc, cpen.color().pixel() );
-    else if ( cpen != pen )
+    register QPen::QPenData *d = cpen.data;	// low level access!
+    if ( d->count == 1 && isActive() && gc &&
+	 d->style == SolidLine && d->width == 0 ) {
+#if 0
+	if ( yo_todo ) {
+	    yo_todo++;
+	    memset( yo_gc, 0, 256*sizeof(int) );
+	}
+#endif
+	if ( d->color != color ) {
+	    d->color = color;
+	    XSetForeground( dpy, gc, d->color.pixel() );
+#if 0
+	    ulong pix = d->color.pixel();
+	    if ( yo_gc[pix] )
+		gc = yo_gc[pix];
+	    else {
+		gc = XCreateGC( dpy, hd, 0, 0 );
+		XSetForeground( dpy, gc, pix );
+		yo_gc[pix] = gc;
+	    }
+#endif
+	}
+    }
+    else {
+	QPen pen( color );
+	cpen = pen;
 	setf( DirtyPen );
+    }
 }
+
+/*!
+\fn const QBrush &QPainter::brush()
+Returns the current painter brush.
+\sa QPainter::setBrush(), QBrush
+*/
 
 /*!
 Sets a new painter brush.
 
 The brush defines how to fill shapes.
+
+\sa brush(), QBrush
 */
 
 void QPainter::setBrush( const QBrush &brush )	// set current brush
@@ -909,6 +948,8 @@ void QPainter::setBrush( const QBrush &brush )	// set current brush
 Sets a new painter brush with black color and the specified \e style.
 
 The brush defines how to fill shapes.
+
+\sa brush(), QBrush
 */
 
 void QPainter::setBrush( BrushStyle style )	// set brush
@@ -922,80 +963,25 @@ Sets a new painter brush with the style \c SolidPattern and the specified
 \e color.
 
 The brush defines how to fill shapes.
+
+\sa brush(), QBrush
 */
 
 void QPainter::setBrush( const QColor &color )	// set solid brush width color
 {
-    QBrush brush( color );
-    cbrush = brush;
-    cbrush.data->dpy = dpy;
-    if ( isActive() && gc_brush && cbrush.style() == SolidPattern )
-	XSetForeground( dpy, gc_brush, cbrush.color().pixel() );
-    else if ( cbrush != brush )
+    register QBrush::QBrushData *d = cbrush.data; // low level access!
+    if ( d->count == 1 && isActive() && gc_brush &&
+	 d->style == SolidPattern ) {
+	if ( d->color != color ) {
+	    d->color = color;
+	    XSetForeground( dpy, gc_brush, d->color.pixel() );
+	}
+    }
+    else {
+	QBrush brush( color );
+	cbrush = brush;
+	cbrush.data->dpy = dpy;
 	setf( DirtyBrush );
-}
-
-
-void QPainter::changedFont( const QFont *font )	// a font object was changed
-{
-    if ( !list )
-	return;
-    register QPainter *p = list->first();
-    while ( p ) {				// notify active painters
-	if ( p->isActive() && p->cfont.d == font->d )
-	    p->setf(DirtyFont);
-	p = list->next();
-    }
-}
-
-void QPainter::changedPen( const QPen *pen, int cmd )
-{						// a pen object was changed
-    if ( !list )
-	return;
-    register QPainter *p = list->first();
-    while ( p ) {				// notify active painters
-	if ( p->isActive() && p->cpen.data == pen->data ) {
-	    switch ( cmd ) {
-	        case CHANGE_COLOR:
-		    if ( p->gc ) {
-			XSetForeground( p->dpy, p->gc, pen->color().pixel() );
-			break;
-		    }
-	        case CHANGE_ALL:
-		    p->setf(DirtyPen);
-		    break;
-		case CHANGE_RESET:
-		    p->clearf(DirtyPen);
-		    break;
-	    }
-	}
-	p = list->next();
-    }
-}
-
-void QPainter::changedBrush( const QBrush *brush, int cmd )
-{						// a brush object was updated
-    if ( !list )
-	return;
-    register QPainter *p = list->first();
-    while ( p ) {				// notify active painters
-	if ( p->isActive() && p->cbrush.data == brush->data ) {
-	    switch ( cmd ) {
-	        case CHANGE_COLOR:
-		    if ( p->gc_brush ) {
-			XSetForeground( p->dpy, p->gc_brush,
-					brush->color().pixel() );
-			break;
-		    }
-	        case CHANGE_ALL:
-		    p->setf(DirtyBrush);
-		    break;
-		case CHANGE_RESET:
-		    p->clearf(DirtyBrush);
-		    break;
-	    }
-	}
-	p = list->next();
     }
 }
 
