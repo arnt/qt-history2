@@ -17,7 +17,7 @@ int main( int argc, char **argv )
     QApplication a( argc, argv );
 
     
-    bool small =  qApp->desktop()->size().width() < 450 
+    bool isSmall =  qApp->desktop()->size().width() < 450 
 		  || qApp->desktop()->size().height() < 450;
     
     int i;
