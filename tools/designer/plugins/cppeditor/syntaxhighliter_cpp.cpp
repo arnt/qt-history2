@@ -265,7 +265,7 @@ void SyntaxHighlighter_CPP::process( QTextDocument *doc, QTextParagraph *string,
 	if ( lastWasBackSlash ) {
 	    input = InputSep;
 	} else {
-	    switch ( c ) {
+	    switch ( c.unicode() ) {
 	    case '*':
 		input = InputAsterix;
 		break;

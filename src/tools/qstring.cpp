@@ -2472,8 +2472,8 @@ QString QString::fromUtf8( const char* utf8, int len )
 			uc -= 0x10000;
 			unsigned short high = uc/0x400 + 0xd800;
 			unsigned short low = uc%0x400 + 0xdc00;
-			*qch++ = QChar(high);
-			*qch++ = QChar(low);
+			*qch++ = high;
+			*qch++ = low;
 		    } else {
 			*qch++ = uc;
 		    }
@@ -3496,9 +3496,9 @@ Q_LLONG QString::toLongLong(bool *ok, int base) const
 	    dv = p->digitValue();
 	} else {
 	    if (*p >= 'a' && *p <= 'z')
-		dv = *p - 'a' + 10;
+		dv = p->unicode() - 'a' + 10;
 	    else
-		dv = *p - 'A' + 10;
+		dv = p->unicode() - 'A' + 10;
 	}
 	if (val > max_mult ||
 	    (val == max_mult && dv > (LLONG_MAX % base) + neg))
@@ -3554,9 +3554,9 @@ Q_ULLONG QString::toULongLong(bool *ok, int base) const
 	    dv = p->digitValue();
 	} else {
 	    if (*p >= 'a' && *p <= 'z')
-		dv = *p - 'a' + 10;
+		dv = p->unicode() - 'a' + 10;
 	    else
-		dv = *p - 'A' + 10;
+		dv = p->unicode() - 'A' + 10;
 	}
 	if (val > max_mult || (val == max_mult && dv > ULLONG_MAX % base))
 	    goto bye;

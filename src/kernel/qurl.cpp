@@ -701,7 +701,7 @@ bool QUrl::parse( const QString& url )
     QString port;
 
     for ( ;; ) {
-	switch ( c ) {
+	switch ( c.latin1() ) {
 	case '?':
 	    input = InputQuery;
 	    break;

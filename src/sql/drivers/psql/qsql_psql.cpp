@@ -260,7 +260,7 @@ QVariant QPSQLResult::data( int i )
     }
     int ptype = PQftype( d->result, i );
     QVariant::Type type = qDecodePSQLType( ptype );
-    const QString val = ( d->isUtf8 && ptype != BYTEAOID ) ? 
+    const QString val = ( d->isUtf8 && ptype != BYTEAOID ) ?
 			QString::fromUtf8( PQgetvalue( d->result, at(), i ) ) :
 			QString::fromLocal8Bit( PQgetvalue( d->result, at(), i ) );
     if ( PQgetisnull( d->result, at(), i ) ) {
@@ -361,11 +361,11 @@ QVariant QPSQLResult::data( int i )
 			ba[ index++ ] = (char)(val.mid( i + 1, 3 ).toInt( 0, 8 ));
 			i += 4;
 		    } else {
-			ba[ index++ ] = val.at( i + 1 );
+			ba[ index++ ] = val.at( i + 1 ).ascii();
 			i += 2;
 		    }
 		} else {
-		    ba[ index++ ] = val.at( i++ ).unicode();
+		    ba[ index++ ] = val.at( i++ ).ascii();
 		}
 	    }
 	    ba.resize( index );
@@ -824,7 +824,7 @@ QSqlRecord QPSQLDriver::record( const QString& tablename ) const
 			"and pg_attribute.attnum > 0 "
 			"and pg_attribute.attisdropped = false "
 			"and pg_attribute.attrelid = pg_class.oid ";
-	break;    
+	break;
     }
 
     QSqlQuery fi = createQuery();

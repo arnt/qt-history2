@@ -60,10 +60,10 @@ QString Rot13::rot13( const QString & input ) const
     while( i-- ) {
 	if ( r[i] >= QChar('A') && r[i] <= QChar('M') ||
 	     r[i] >= QChar('a') && r[i] <= QChar('m') )
-	    r[i] = (char)((int)QChar(r[i]) + 13);
+	    r[i] = QChar(QChar(r[i]).unicode() + 13);
 	else if  ( r[i] >= QChar('N') && r[i] <= QChar('Z') ||
 		   r[i] >= QChar('n') && r[i] <= QChar('z') )
-	    r[i] = (char)((int)QChar(r[i]) - 13);
+	    r[i] = QChar(QChar(r[i]).unicode() - 13);
     }
     return r;
 }

@@ -2639,7 +2639,7 @@ int QRegExpEngine::getEscape()
     case 'x':
 	val = 0;
 	for (i = 0; i < 4; i++) {
-	    low = QChar(yyCh).lower();
+	    low = QChar(yyCh).lower().unicode();
 	    if (low >= '0' && low <= '9')
 		val = (val << 4) | (low - '0');
 	    else if (low >= 'a' && low <= 'f')

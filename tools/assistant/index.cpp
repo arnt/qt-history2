@@ -321,7 +321,7 @@ QStringList Index::getWildcardTerms( const QString &term )
     for( ; it.current(); ++it ) {
 	int index = 0;
 	bool found = FALSE;
-	QCString text( it.currentKey() );
+	QString text( it.currentKey() );
 	for ( iter = terms.begin(); iter != terms.end(); ++iter ) {
 	    if ( *iter == "*" ) {
 		found = TRUE;

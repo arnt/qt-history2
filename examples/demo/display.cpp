@@ -21,6 +21,7 @@
 #include <qlcdnumber.h>
 #include <qprogressbar.h>
 #include <qspinbox.h>
+#include <qevent.h>
 
 #include <math.h>
 
@@ -100,7 +101,7 @@ void Screen::drawContents( QPainter *p )
 
     int vp = ( r.left() - FrameWidth + pos0 ) % width();
     int y0 = FrameWidth + height()/2;
-    
+
     for ( int x = r.left(); x <= r.right(); x++ ) {
 	p->drawLine( x, y0 + yval[ vp ], x, r.bottom());
 	++vp;
@@ -168,7 +169,7 @@ DisplayWidget::DisplayWidget( QWidget *parent, const char *name )
     lcd = new QLCDNumber( 2, this );
     lcd->setSizePolicy( QSizePolicy::MinimumExpanding, QSizePolicy::Preferred );
     lcdval = 0;
-    
+
     hbox->addWidget( screen );
 
     QVBoxLayout *vb2 = new QVBoxLayout( hbox );
@@ -179,12 +180,12 @@ DisplayWidget::DisplayWidget( QWidget *parent, const char *name )
     spin->setValue( 2 );
     vb2->addWidget( curve );
     vb2->addWidget( spin );
-    
+
     QHBoxLayout *hbox2 = new QHBoxLayout( vb2 );
-    
+
     hbox2->addWidget( dial );
     hbox2->addWidget( lcd );
-    
+
     bar = new QProgressBar( 10, this );
     tbar = 0;
 

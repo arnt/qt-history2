@@ -117,7 +117,7 @@ static QStringList split_arg_list(const QString &params)
 	    quote = 0;
 	} else if(params[x] == '\'' || params[x] == '"') {
 	    quote = params[x];
-	} else if(!parens && !quote && params[x] == ',') {
+	} else if(!parens && !quote.unicode() && params[x] == ',') {
 	    args << params.mid(last, x - last);
 	    last = x+1;
 	}
@@ -139,7 +139,7 @@ static QStringList split_value_list(const QString &vals, bool do_semicolon=FALSE
 	//a bit nervous to change it now..
 	if(x != (int)vals.length()-1 && vals[x] == '\\' && (vals[x+1] == ' '  || (do_semicolon && vals[x+1] == ';')))
 	    build += QString(vals[x++]) + QString(vals[x++]);
-	else 
+	else
 #endif
 	if(x != (int)vals.length()-1 && vals[x] == '\\' && (vals[x+1] == '\'' || vals[x+1] == '"'))
 	    build += vals[x++]; //get that 'escape'
@@ -1140,7 +1140,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		replacement = "";
 	    else if(val == "LITERAL_WHITESPACE")
 		replacement = "\t";
-	    else if(val == "PWD") 
+	    else if(val == "PWD")
 		replacement = QDir::currentDirPath();
 	    else
 		replacement = place[varMap(val)].join(" ");
@@ -1199,7 +1199,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 		    int di = file.findRev(Option::dir_sep);
 		    QDir sunworkshop42workaround = QDir::current();
 		    QString oldpwd = sunworkshop42workaround.currentDirPath();
-		    if(di != -1 && QDir::setCurrent(file.left(file.findRev(Option::dir_sep)))) 
+		    if(di != -1 && QDir::setCurrent(file.left(file.findRev(Option::dir_sep))))
 			file = file.right(file.length() - di - 1);
 		    parser_info pi = parser;
 		    int sb = scope_block;

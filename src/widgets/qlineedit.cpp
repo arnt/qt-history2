@@ -2514,20 +2514,14 @@ void QLineEditPrivate::parseInputMask( const QString &maskFields )
 	    maskData[ index ].caseMode = m;
 	    index++;
 	    escape = FALSE;
-	} else if ( c == '<' || c == '>' || c == '!') {
-	    switch ( c ) {
-	    case '<':
+	} else if ( c == '<' ) {
 		m = MaskInputData::Lower;
-		break;
-	    case '>':
-		m = MaskInputData::Upper;
-		break;
-	    case '!':
-		m = MaskInputData::NoCaseMode;
-		break;
-	    }
+	} else if ( c == '>' ) {
+	    m = MaskInputData::Upper;
+	} else if ( c == '!') {
+	    m = MaskInputData::NoCaseMode;
 	} else if ( c != '{' && c != '}' && c != '[' && c != ']' ) {
-	    switch ( c ) {
+	    switch ( c.unicode() ) {
 	    case 'A':
 	    case 'a':
 	    case 'N':
@@ -2563,7 +2557,7 @@ void QLineEditPrivate::parseInputMask( const QString &maskFields )
 /* checks if the key is valid compared to the inputMask */
 bool QLineEditPrivate::isValidInput( QChar key, QChar mask ) const
 {
-    switch ( mask ) {
+    switch ( mask.unicode() ) {
     case 'A':
 	if ( key.isLetter() && key != blank )
 	    return TRUE;

@@ -9177,22 +9177,22 @@ static uint qt_Gb18030ToUnicode(const uchar *gbstr, int& len) {
 		} else {
 		    /* undefined or reserved area */
 		    len = 1;
-		    uni = QChar::replacement.unicode();
+		    uni = QChar::replacement;
 		}
 	    }
 	    else {
 		len = 1;
-		uni = QChar::replacement.unicode();
+		uni = QChar::replacement;
 	    }
 	}
 	else {
 	    len = 1;
-	    uni = QChar::replacement.unicode();
+	    uni = QChar::replacement;
 	}
     }
     else {
 	len = 1;
-	uni = QChar::replacement.unicode();
+	uni = QChar::replacement;
     }
     return uni;
 }

@@ -716,11 +716,11 @@ inline static int ts_end(const QChar *c, uint len, uchar flags)
 	    end = 1;
 	break;
     case TS_HEX:
-	if(isxdigit(*c))
+	if(isxdigit(c->latin1()))
 	    end = 1;
 	break;
     case TS_BIN:
-	if(c->isDigit() && (*c == '0' || *c == '1'))
+	if(c->isDigit() && (c->latin1() == '0' || c->latin1() == '1'))
 	    end = 1;
 	break;
     default:
@@ -1198,7 +1198,7 @@ QTextStream &QTextStream::operator>>( char &c )
 {
     CHECK_STREAM_PRECOND
     skipWhiteSpace();
-    c = ts_getc();
+    c = ts_getc().latin1();
     return *this;
 }
 
@@ -1278,7 +1278,7 @@ ulong QTextStream::input_hex()
     while(1) {
 	bool sr = ts_getbuf(buf, buf_size, TS_MOD_NOT|TS_HEX, &l);
 	for(uint i = 0; i < l; i++) {
-	    char c = buf[i].lower();
+	    char c = buf[i].lower().latin1();
 	    val = (val << 4) + (buf[i].isDigit() ? c - '0' : 10 + c-'a');
 	}
 	if(sr)
@@ -1383,7 +1383,7 @@ double QTextStream::input_double()
     QChar c = ts_getc();
     for (;;) {
 
-	switch ( c ) {
+	switch ( c.unicode() ) {
 	    case '+':
 	    case '-':
 		input = InputSign;
@@ -1417,7 +1417,7 @@ double QTextStream::input_double()
 	    return strtod( buf, &end );
 	}
 
-	buf[i++] = c;
+	buf[i++] = c.latin1();
 	c = ts_getc();
     }
 
@@ -1575,7 +1575,7 @@ QTextStream &QTextStream::operator>>( char *s )
     while(1) {
 	bool sr = ts_getbuf(buf, buf_size, TS_SPACE, &l);
 	for(uint i = 0; i < l; i++)
-	    *(s++) = buf[i];
+	    *(s++) = buf[i].latin1();
 	total += l;
 	if(sr || (maxlen && total >= maxlen-1))
 	   break;
@@ -1635,7 +1635,7 @@ QTextStream &QTextStream::operator>>( QByteArray &str )
 	    if((int)(used+l) >= str.size())
 		str.resize(used+l+1);
 	    for(uint i = 0; i < l; i++)
-		str[(int)(used+i)] = buf[i];
+		str[(int)(used+i)] = buf[i].latin1();
 	    used += l;
 	}
 	if(sr)

@@ -325,7 +325,7 @@ QStringList parse_multiline_part( const QString &contents, const QString &key, i
     int braceCount = 0;
     for ( int i = 0; i < (int)contents.length(); ++i ) {
 	QChar c( contents[ i ] );
-	switch ( c ) {
+	switch ( c.unicode() ) {
 	case '{':
 	    braceCount++;
 	    lastWord = "";

@@ -720,9 +720,9 @@ void QLCDNumber::drawString( const QString &s, QPainter &p,
     for ( int i=0;  i<ndigits; i++ ) {
         pos = QPoint( xOffset + xAdvance*i, yOffset );
         if ( newString )
-            drawDigit( pos, p, segLen, s[i], digitStr[i].latin1() );
+            drawDigit( pos, p, segLen, s[i].latin1(), digitStr[i].latin1() );
         else
-            drawDigit( pos, p, segLen, s[i]);
+            drawDigit( pos, p, segLen, s[i].latin1());
         if ( newPoints ) {
             char newPoint = newPoints->testBit(i) ? '.' : ' ';
             if ( newString ) {

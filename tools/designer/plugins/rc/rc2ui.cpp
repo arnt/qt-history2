@@ -303,7 +303,7 @@ bool RC2UI::makeDialog()
 	int endDesc;
 	bool space = FALSE;
 	for ( endDesc = 0; endDesc < line.length() ; endDesc++ ) {
-	    char c = (QChar)line.at(endDesc);
+	    char c = line.at(endDesc).latin1();
 	    if ( space && (c >= '0') && (c <= '9') )
 		break;
 	    space = c==' ';

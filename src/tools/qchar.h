@@ -149,10 +149,6 @@ public:
     static QChar fromAscii(char c);
     static QChar fromLatin1(char c);
 
-#ifndef QT_NO_CAST_TO_ASCII
-    operator char() const;
-#endif
-
     inline bool isNull() const { return unicode()==0; }
     bool isPrint() const;
     bool isPunct() const;
@@ -176,79 +172,16 @@ public:
 	return bigEndian;
     }
 
-    friend bool operator==(char ch, QChar c);
-    friend bool operator==(QChar c, char ch);
-    friend bool operator==(QChar c, unsigned short ch);
-    friend bool operator==(unsigned short ch, QChar c);
     friend bool operator==(QChar c1, QChar c2);
-    friend bool operator==(int ch, QChar c);
-    friend bool operator==(QChar c, int ch);
     friend bool operator!=(QChar c1, QChar c2);
-    friend bool operator!=(char ch, QChar c);
-    friend bool operator!=(QChar c, char ch);
-    friend bool operator!=(QChar c, unsigned short ch);
-    friend bool operator!=(unsigned short ch, QChar c);
-    friend bool operator!=(int ch, QChar c);
-    friend bool operator!=(QChar c, int ch);
-    friend bool operator<=(QChar c, char ch);
-    friend bool operator<=(char ch, QChar c);
     friend bool operator<=(QChar c1, QChar c2);
-    friend bool operator<=(QChar c, unsigned short ch);
-    friend bool operator<=(unsigned short ch, QChar c);
-    friend bool operator<=(int ch, QChar c);
-    friend bool operator<=(QChar c, int ch);
 
 private:
-#ifdef QT_NO_CAST_TO_ASCII
-    operator char() const;
-#endif
     ushort ucs;
 } Q_PACKED;
 
-// ##### circular dependency with QTextCodec. Need to fix somehow
-#define QT_NO_CODEC_FOR_C_STRINGS
-
 inline QChar::QChar() : ucs(0) {}
 
-#ifndef QT_NO_CAST_FROM_ASCII
-inline QChar::QChar(char c) : ucs((uchar)c)
-{
-#ifndef QT_NO_CODEC_FOR_C_STRINGS
-    if (QTextCodec::codecForCStrings())
-	ucs =  QTextCodec::codecForCStrings()->toUnicode((uchar) c).ucs;
-    else
-#endif
-	ucs = (unsigned char)c;
-}
-inline QChar::QChar(uchar c) : ucs(c)
-{
-#ifndef QT_NO_CODEC_FOR_C_STRINGS
-    if (QTextCodec::codecForCStrings())
-	ucs =  QTextCodec::codecForCStrings()->toUnicode(c).ucs;
-    else
-#endif
-	ucs = (unsigned char)c;
-}
-#endif
-inline const char QChar::ascii() const
-{
-#ifndef QT_NO_CODEC_FOR_C_STRINGS
-    if (QTextCodec::codecForCStrings())
-	return QTextCodec::codecForCStrings()->fromUnicode(*this);
-#endif
-    return ucs > 0xff ? 0 : (char) ucs;
-}
-inline QChar QChar::fromAscii(char c)
-{
-#ifndef QT_NO_CODEC_FOR_C_STRINGS
-    if (QTextCodec::codecForCStrings())
-	return QTextCodec::codecForCStrings()->toUnicode((uchar) c);
-#endif
-    return QChar((ushort) c);
-}
-#ifndef QT_NO_CAST_TO_ASCII
-inline QChar::operator char() const { return ascii(); }
-#endif
 inline const char QChar::latin1() const { return ucs > 0xff ? 0 : (char) ucs; }
 inline QChar QChar::fromLatin1(char c) { return QChar((ushort) c); }
 
@@ -265,62 +198,6 @@ inline bool operator<=(QChar c1, QChar c2) { return c1.ucs <= c2.ucs; }
 inline bool operator>=(QChar c1, QChar c2) { return c2 <= c1; }
 inline bool operator<(QChar c1, QChar c2) { return !(c2<=c1); }
 inline bool operator>(QChar c1, QChar c2) { return !(c2>=c1); }
-
-#ifndef QT_NO_CAST_FROM_ASCII
-#ifndef QT_NO_CODEC_FOR_C_STRINGS
-inline bool operator==(char ch, QChar c) { return ((uchar) ch) == c.ucs; }
-inline bool operator==(QChar c, char ch) { return ((uchar) ch) == c.ucs; }
-inline bool operator!=(char ch, QChar c) { return ((uchar)ch) != c.ucs; }
-inline bool operator!=(QChar c, char ch) { return ((uchar) ch) != c.ucs; }
-inline bool operator<=(QChar c, char ch) { return c.ucs <= ((uchar) ch); }
-inline bool operator<=(char ch, QChar c) { return ((uchar) ch) <= c.ucs; }
-inline bool operator>=(QChar c, char ch) { return ch <= c; }
-inline bool operator>=(char ch, QChar c) { return c <= ch; }
-inline bool operator<(QChar c, char ch) { return !(ch<=c); }
-inline bool operator<(char ch, QChar c) { return !(c<=ch); }
-inline bool operator>(QChar c, char ch) { return !(ch>=c); }
-inline bool operator>(char ch, QChar c) { return !(c>=ch); }
-#else
-inline bool operator==(char ch, QChar c) { return QChar(ch) == c; }
-inline bool operator==(QChar c, char ch) { return QChar(ch) == c; }
-inline bool operator!=(char ch, QChar c) { return c != ch; }
-inline bool operator!=(QChar c, char ch) { return QChar(ch) != c; }
-inline bool operator<=(QChar c, char ch) { return c <= QChar(ch); }
-inline bool operator<=(char ch, QChar c) { return QChar(ch) <= c; }
-inline bool operator>=(QChar c, char ch) { return QChar(ch) <= c; }
-inline bool operator>=(char ch, QChar c) { return QChar(c) <= ch; }
-inline bool operator<(QChar c, char ch) { return !(ch<=c); }
-inline bool operator<(char ch, QChar c) { return !(c<=ch); }
-inline bool operator>(QChar c, char ch) { return !(ch>=c); }
-inline bool operator>(char ch, QChar c) { return !(c>=ch); }
-#endif
-#endif
-
-inline bool operator==(unsigned short ch, QChar c) { return ch == c.ucs; }
-inline bool operator==(QChar c, unsigned short ch) { return ch == c.ucs; }
-inline bool operator!=(unsigned short ch, QChar c) { return ch != c.ucs; }
-inline bool operator!=(QChar c, unsigned short ch) { return ch != c.ucs; }
-inline bool operator<=(unsigned short ch, QChar c) { return ch <= c.ucs; }
-inline bool operator<=(QChar c, unsigned short ch) { return c.ucs <= ch; }
-inline bool operator>=(QChar c, unsigned short ch) { return ch <= c; }
-inline bool operator>=(unsigned short ch, QChar c) { return c <= ch; }
-inline bool operator<(QChar c, unsigned short ch) { return !(ch<=c); }
-inline bool operator<(unsigned short ch, QChar c) { return !(c<=ch); }
-inline bool operator>(QChar c, unsigned short ch) { return !(ch>=c); }
-inline bool operator>(unsigned short ch, QChar c) { return !(c>=ch); }
-
-inline bool operator==(int ch, QChar c) { return ch == c.ucs; }
-inline bool operator==(QChar c, int ch) { return ch == c.ucs; }
-inline bool operator!=(int ch, QChar c) { return ch != c.ucs; }
-inline bool operator!=(QChar c, int ch) { return ch != c.ucs; }
-inline bool operator<=(int ch, QChar c) { return ch <= c.ucs; }
-inline bool operator<=(QChar c, int ch) { return c.ucs <= ch; }
-inline bool operator>=(QChar c, int ch) { return ch <= c; }
-inline bool operator>=(int ch, QChar c) { return c <= ch; }
-inline bool operator<(QChar c, int ch) { return !(ch<=c); }
-inline bool operator<(int ch, QChar c) { return !(c<=ch); }
-inline bool operator>(QChar c, int ch) { return !(ch>=c); }
-inline bool operator>(int ch, QChar c) { return !(c>=ch); }
 
 Q_DECLARE_TYPEINFO(QChar, Q_MOVABLE_TYPE);
 

@@ -8,6 +8,8 @@
 #endif
 #include "qchar.h"
 #include "qunicodetables_p.h"
+#include "qtextcodec.h"
+
 
 /*!
     \class QChar qchar.h
@@ -210,17 +212,32 @@
 
 
 /*!
-    \fn QChar::QChar(char c)
-
     Constructs a QChar corresponding to ASCII/Latin-1 character \a c.
 */
-
+QChar::QChar(char c)
+{
+#ifndef QT_NO_CODEC_FOR_C_STRINGS
+    if (QTextCodec::codecForCStrings())
+	// #####
+	ucs =  QTextCodec::codecForCStrings()->toUnicode(&c, 1).at(0).unicode();
+    else
+#endif
+	ucs = (unsigned char)c;
+}
 
 /*!
-    \fn QChar::QChar(uchar c)
-
     Constructs a QChar corresponding to ASCII/Latin-1 character \a c.
 */
+QChar::QChar(uchar c)
+{
+#ifndef QT_NO_CODEC_FOR_C_STRINGS
+    if (QTextCodec::codecForCStrings())
+	// #####
+	ucs =  QTextCodec::codecForCStrings()->toUnicode(&((char)c), 1).at(0).unicode();
+    else
+#endif
+	ucs = (unsigned char)c;
+}
 
 
 /*!
@@ -544,13 +561,36 @@ QChar QChar::upper() const
 }
 
 /*!
-    \fn QChar::operator char() const
-
-    Returns the Latin-1 character equivalent to the QChar, or 0. This
+    Returns the ascii character equivalent to the QChar, or 0. This
     is mainly useful for non-internationalized software.
 
-    \sa unicode()
+    \sa unicode(), QTextCodec::codecForCStrings()
 */
+const char QChar::ascii() const
+{
+#ifndef QT_NO_CODEC_FOR_C_STRINGS
+    if (QTextCodec::codecForCStrings())
+	// #####
+	return QTextCodec::codecForCStrings()->fromUnicode(QString(*this)).at(0);
+#endif
+    return ucs > 0xff ? 0 : (char) ucs;
+}
+
+/*!
+    Converts the ascii character to it's equivalent QChar. This
+    is mainly useful for non-internationalized software.
+
+    \sa unicode(), QTextCodec::codecForCStrings()
+*/
+QChar QChar::fromAscii(char c)
+{
+#ifndef QT_NO_CODEC_FOR_C_STRINGS
+    if (QTextCodec::codecForCStrings())
+	// #####
+	return QTextCodec::codecForCStrings()->toUnicode(&c, 1).at(0).unicode();
+#endif
+    return QChar((ushort) c);
+}
 
 /*!
     \fn ushort QChar::unicode() const
