@@ -12,40 +12,8 @@
 
 #include "widgetinfo.h"
 
-#include <qmetaobject.h>
-#include <qpushbutton.h>
-#include <qtoolbutton.h>
-#include <qradiobutton.h>
-#include <qcheckbox.h>
-#include <qbuttongroup.h>
-#include <qlabel.h>
-#include <qlayout.h>
-#include <qtabwidget.h>
-#include <qwizard.h>
-#include <qwidgetstack.h>
-#include <qsplitter.h>
-#include <q3mainwindow.h>
-#include <qtoolbox.h>
-#include <qgroupbox.h>
-#include <qscrollview.h>
-#include <qlistbox.h>
-#include <qlistview.h>
-#include <qdatetime.h>
-#include <qdatetimeedit.h>
-#include <qlineedit.h>
-#include <qspinbox.h>
-#include <qcombobox.h>
-#include <qlcdnumber.h>
-#include <qprogressbar.h>
-#include <qtextview.h>
-#include <qtextbrowser.h>
-#include <qdial.h>
-#include <qslider.h>
-#include <qiconview.h>
-#include <qaction.h>
-#include <q3buttongroup.h>
-#include <q3mainwindow.h>
-#include <q3dockwindow.h>
+#include <QtGui>
+#include <Qt3Compat>
 
 WidgetInfo::WidgetInfo()
 {
@@ -73,8 +41,9 @@ const QMetaObject *WidgetInfo::metaObject(const QString &widgetName)
         return &QDateTimeEdit::staticMetaObject;
     else if (widgetName == QLatin1String("QListBox"))
         return &QListBox::staticMetaObject;
-    else if (widgetName == QLatin1String("QListView"))
-        return &QListView::staticMetaObject;
+    else if (widgetName == QLatin1String("QListView") ||
+             widgetName == QLatin1String("Q3ListView"))
+        return &Q3ListView::staticMetaObject;
     else if (widgetName == QLatin1String("QLineEdit"))
         return &QLineEdit::staticMetaObject;
     else if (widgetName == QLatin1String("QSpinBox"))
