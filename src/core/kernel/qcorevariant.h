@@ -347,6 +347,10 @@ class QPen;
 template<>
 inline int qt_variant_metatype_id(QPen *) { return QCoreVariant::Pen; }
 template<>
+inline int qt_variant_metatype_id(Q_LONGLONG *) { return QCoreVariant::LongLong; }
+template<>
+inline int qt_variant_metatype_id(Q_ULONGLONG *) { return QCoreVariant::ULongLong; }
+template<>
 inline int qt_variant_metatype_id(QUrl *) { return QCoreVariant::Url; }
 class QTextLength;
 template<>
