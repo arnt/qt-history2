@@ -1,7 +1,7 @@
 TEMPLATE        = app
 TARGET          = sqlbrowser
 
-QT              = core gui sql
+QT              += sql
 
 HEADERS         = browserwidget.h connectionwidget.h qsqlconnectiondialog.h
 SOURCES         = main.cpp browserwidget.cpp connectionwidget.cpp qsqlconnectiondialog.cpp
