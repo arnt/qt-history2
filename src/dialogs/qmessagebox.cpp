@@ -1270,7 +1270,9 @@ static int textBox( QWidget *parent, QMessageBox::Icon severity,
     if ( b[2] )
 	mb->setButtonText( 3, button2Text );
 
+#ifndef QT_NO_CURSOR
     mb->setCursor( Qt::arrowCursor );
+#endif
     int reply = mb->exec();
 
     delete mb;

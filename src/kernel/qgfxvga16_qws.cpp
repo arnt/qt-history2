@@ -58,6 +58,16 @@
 
 #define UNREFERENCED_PARAMETER(x)   ((x) = (x))
 
+unsigned char *screen_double_buffer;
+unsigned char *vga_register_values;
+unsigned char *fb_line_ptrs[480]; //### probably want these in shared memory
+unsigned char *db_line_ptrs[480];
+unsigned char closestMatchLUT[16][16][16]; // this takes 4096 bytes
+
+bool closestMatchLUTinitialised = false;
+bool set_back_buffer = true;
+bool force_set_pixel = false;
+
 
 #ifndef QT_NO_QWS_CURSOR
 
@@ -125,18 +135,8 @@ CVga16ScreenGlobals  *gVga16ScreenGlobals;
 */
 
 
-	unsigned char *screen_double_buffer;
-	unsigned char *vga_register_values;
-	unsigned char *fb_line_ptrs[480]; //### probably want these in shared memory
-	unsigned char *db_line_ptrs[480];
-	unsigned char closestMatchLUT[16][16][16]; // this takes 4096 bytes
-
 
 static QVga16Cursor *qt_vga16cursor = NULL;
-bool closestMatchLUTinitialised = false;
-bool set_back_buffer = true;
-bool force_set_pixel = false;
-
 
 
 inline QVga16Cursor::QVga16Cursor()
@@ -149,7 +149,7 @@ inline QVga16Cursor::QVga16Cursor()
 
 #ifndef QT_NO_QWS_CURSOR
 
-QRect	Vga16DrawArea;
+static QRect	Vga16DrawArea;
 
 # define VGA16_GFX_START(r)	if(is_screen_gfx && qt_sw_cursor) \
 				    Vga16DrawArea = r, beginDraw();

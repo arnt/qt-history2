@@ -8,15 +8,18 @@
 // supported on Qt/Embedded where reducing the library size is important
 // and where the application-suite is often a fixed set.
 
-//#define QT_DEMO_LINUX
+#define QT_DEMO_LINUX
 //#define QT_DEMO_SINGLE_FLOPPY
+#define QT_QWS_IPAQ
 
 #ifndef QT_DLL
 #define QT_DLL // Internal
 #endif
 
 #define QT_NO_PROCESS
-//#define QT_NO_QWS_CURSOR
+#ifdef QT_QWS_IPAQ
+# define QT_NO_QWS_CURSOR
+#endif
 #define QT_NO_CODECS
 #define QT_NO_UNICODETABLES
 #define QT_NO_IMAGEIO_BMP
@@ -66,14 +69,15 @@
 
 #if defined(QT_DEMO_LINUX) || defined(QT_DEMO_SINGLE_FLOPPY)
 #define QT_NO_QWS_VFB
+#ifndef QT_QWS_IPAQ
 #define QT_NO_QWS_TRANSFORMED
+#endif
 #endif
 
 #ifdef QT_DEMO_SINGLE_FLOPPY // VGA16 is all we need
 #define QT_NO_QWS_MACH64
 #define QT_NO_QWS_VOODOO3
 #define QT_NO_QWS_MATROX
-#define QT_NO_QWS_DEPTH_8
 #define QT_NO_QWS_DEPTH_16
 #define QT_NO_QWS_DEPTH_32
 #endif

@@ -101,7 +101,9 @@
 QTextView::QTextView(QWidget *parent, const char *name)
     : QTextEdit( parent, name )
 {
+#ifndef QT_NO_CURSOR
     viewport()->setCursor( arrowCursor );
+#endif
 }
 
 
@@ -114,7 +116,9 @@ QTextView::QTextView( const QString& text, const QString& context,
 		      QWidget *parent, const char *name)
     : QTextEdit( parent, name )
 {
+#ifndef QT_NO_CURSOR
     viewport()->setCursor( arrowCursor );
+#endif
     setText( text, context );
 }
 

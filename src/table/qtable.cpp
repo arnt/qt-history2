@@ -3336,15 +3336,22 @@ void QTableHeader::mousePressEvent( QMouseEvent *e )
     startPos = -1;
     setCaching( TRUE );
     resizedSection = -1;
+#ifdef QT_NO_CURSOR
+    isResizing = FALSE;
+#else
     isResizing = cursor().shape() != ArrowCursor;
     if ( !isResizing && sectionAt( pressPos ) != -1 )
 	doSelection( e );
+#endif
 }
 
 void QTableHeader::mouseMoveEvent( QMouseEvent *e )
 {
-    if ( !mousePressed || cursor().shape() != ArrowCursor ||
-	 ( ( e->state() & ControlButton ) == ControlButton &&
+    if ( !mousePressed
+#ifndef QT_NO_CURSOR
+	|| cursor().shape() != ArrowCursor
+#endif
+	    || ( ( e->state() & ControlButton ) == ControlButton &&
 	   ( orientation() == Horizontal
 	     ? table->columnMovingEnabled() : table->rowMovingEnabled() ) ) ) {
 	QHeader::mouseMoveEvent( e );

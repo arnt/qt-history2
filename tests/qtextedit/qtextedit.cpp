@@ -58,7 +58,9 @@ void QTextEdit::init()
     setHScrollBarMode( AlwaysOff );
     setVScrollBarMode( AlwaysOn );
     viewport()->setMouseTracking( TRUE );
+#ifndef QT_NO_CURSOR
     viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+#endif
     viewport()->setFocusPolicy( WheelFocus );
 
     cursor = new QTextCursor( doc );
@@ -597,12 +599,16 @@ void QTextEdit::contentsMouseMoveEvent( QMouseEvent *e )
 #ifndef QT_NO_NETWORKPROTOCOL
 	if ( c.parag() && c.parag()->at( c.index() ) &&
 	     c.parag()->at( c.index() )->format()->isAnchor() ) {
+#ifndef QT_NO_CURSOR
 	    viewport()->setCursor( pointingHandCursor );
+#endif
 	    onLink = c.parag()->at( c.index() )->format()->anchorHref();
 	    QUrl u( doc->context(), onLink, TRUE );
 	    emit highlighted( u.toString( FALSE, FALSE ) );
 	} else {
+#ifndef QT_NO_CURSOR
 	    viewport()->setCursor( isReadOnly() ? arrowCursor : ibeamCursor );
+#endif
 	    onLink = QString::null;
 	    emit highlighted( QString::null );
 	}
