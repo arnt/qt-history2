@@ -2156,7 +2156,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 
     case CT_ToolButton:
 	{
-	    sz = QSize(sz.width() + 7, sz.height() + 6);
+	    sz = QSize(sz.width() + 6, sz.height() + 5);
 	    break;
 	}
 

@@ -1811,8 +1811,7 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	sm_cancel = FALSE;
 	qApp->commitData( *win_session_manager );
 	if ( lParam == (LPARAM)ENDSESSION_LOGOFF ) {
-	    //### should call something like fsync() for all
-	    //file descriptors being closed?
+	    _flushall();
 	}
 	RETURN(!sm_cancel);
     }
