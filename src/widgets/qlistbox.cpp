@@ -2239,7 +2239,7 @@ void QListBox::mouseMoveEvent( QMouseEvent *e )
     // it.
     if ( !QRect( 0, 0, visibleWidth(), visibleHeight() ).contains( e->pos() ) &&
 	 ( d->mousePressColumn < 0 && d->mousePressRow < 0 ||
-	   e->state() == NoButton || !d->pressedItem ) )
+	   (e->state() == NoButton && !d->pressedItem) ) )
 	return;
 
     // figure out in what direction to drag-select and perhaps scroll
