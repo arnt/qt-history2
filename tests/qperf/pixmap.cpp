@@ -2,6 +2,7 @@
 #include <qpixmap.h>
 #include <qbitmap.h>
 #include <qpainter.h>
+#include <qimage.h>
 
 
 QPixmap *pm_64x64;
@@ -121,11 +122,11 @@ static int pixmap_fill_256x256()
     return i;
 }
 
-static int pixmap_bitblt( QPixmap *pm, int w, int h )
+static int pixmap_bitblt( QPixmap *pm, int w, int h, int numIter=1000 )
 {
     int i;
     QPainter *p = qperf_painter();
-    for ( i=0; i<1000; i++ ) {
+    for ( i=0; i<numIter; i++ ) {
 	p->drawPixmap( qrnd(640-w), qrnd(480-h), *pm );
     }
     return i;
@@ -143,39 +144,83 @@ static int pixmap_bitblt_256x256()
 
 static int pixmap_monobitblt_64x64()
 {
-    return pixmap_bitblt( bm_64x64, 64, 64 );
+    return pixmap_bitblt( bm_64x64, 64, 64, 500 );
 }
 
 static int pixmap_monobitblt_256x256()
 {
-    return pixmap_bitblt( bm_256x256, 256, 256 );
+    return pixmap_bitblt( bm_256x256, 256, 256, 500 );
 }
 
 static int pixmap_maskblt_64x64()
 {
-    return pixmap_bitblt( pmm_64x64, 64, 64 );
+    return pixmap_bitblt( pmm_64x64, 64, 64, 100 );
 }
 
 static int pixmap_maskblt_256x256()
 {
-    return pixmap_bitblt( pmm_256x256, 256, 256 );
+    return pixmap_bitblt( pmm_256x256, 256, 256, 100 );
 }
 
 static int pixmap_selfmaskblt_64x64()
 {
-    return pixmap_bitblt( bmm_64x64, 64, 64 );
+    return pixmap_bitblt( bmm_64x64, 64, 64, 100 );
 }
 
 static int pixmap_selfmaskblt_256x256()
 {
-    return pixmap_bitblt( bmm_256x256, 256, 256 );
+    return pixmap_bitblt( bmm_256x256, 256, 256, 100 );
 }
 
-static int pixmap_load( const char *fileName )
+static int pixmap_to_image_64x64()
+{
+    int i;
+    QImage image;
+    for ( i=0; i<50; i++ ) {
+	image = *pm_64x64;
+    }
+    return i;
+}
+
+static int pixmap_to_image_256x256()
+{
+    int i;
+    QImage image;
+    for ( i=0; i<50; i++ ) {
+	image = *pm_256x256;
+    }
+    return i;
+}
+
+static int pixmap_from_image_64x64()
+{
+    int i;
+    QImage image;
+    image = *pm_64x64;
+    QPixmap pm;
+    for ( i=0; i<50; i++ ) {
+	pm = image;
+    }
+    return i;
+}
+
+static int pixmap_from_image_256x256()
+{
+    int i;
+    QImage image;
+    image = *pm_256x256;
+    QPixmap pm;
+    for ( i=0; i<50; i++ ) {
+	pm = image;
+    }
+    return i;
+}
+
+static int pixmap_load( const char *fileName, int numIter=10 )
 {
     int i;
     QPixmap pm;
-    for ( i=0; i<100; i++ ) {
+    for ( i=0; i<numIter; i++ ) {
 	pm.load(fileName);
     }
     return i;
@@ -191,11 +236,11 @@ static int pixmap_load_256x256()
     return pixmap_load( pm_256x256_file );
 }
 
-static int pixmap_save( QPixmap *pm, const QString &fileName )
+static int pixmap_save( QPixmap *pm, const QString &fileName, int numIter=10 )
 {
     int i;
     QString format = qperf_imageFormat();
-    for ( i=0; i<100; i++ ) {
+    for ( i=0; i<numIter; i++ ) {
 	pm->save(fileName,format);
     }
     return i;
@@ -229,6 +274,10 @@ QPERF_BEGIN(pixmap,"QPixmap tests")
     QPERF(pixmap_maskblt_256x256,"Bitblt a masked 256x256 pixmap")
     QPERF(pixmap_selfmaskblt_64x64,"Bitblt a masked 64x64 bitmap with selfmask")
     QPERF(pixmap_selfmaskblt_256x256,"Bitblt a masked 256x256 bitmap with selfmask")
+    QPERF(pixmap_to_image_64x64,"Convert a 64x64 pixmap to an image")
+    QPERF(pixmap_to_image_256x256,"Convert a 256x256 pixmap to an image")
+    QPERF(pixmap_from_image_64x64,"Convert a 64x64 image to a pixmap")
+    QPERF(pixmap_from_image_256x256,"Convert a 256x256 image to a pixmap")
     QPERF(pixmap_load_64x64,"Load a 64x64 pixmap")
     QPERF(pixmap_load_256x256,"Load a 256x256 pixmap")
     QPERF(pixmap_save_64x64,"Save a 64x64 pixmap")
