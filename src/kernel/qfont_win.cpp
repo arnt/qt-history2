@@ -320,10 +320,13 @@ void QFontPrivate::load()
     if ( !request.dirty )
 	return;
 
+    QFontStruct *qfs = 0;
     QString k = key();
-    if ( paintdevice )
-	k += "/" + QString::number(QPaintDeviceMetrics( paintdevice ).logicalDpiY());
-    QFontStruct *qfs = fontCache->find( k );
+    if ( !paintdevice ) {
+	// we can't cache printer fonts as the HDC will get 
+	// deleted between two printings.
+    	qfs = fontCache->find( k );
+    }
 
     if ( !qfs ) {			// font was never loaded
 	qfs = new QFontStruct( k );
@@ -355,7 +358,8 @@ void QFontPrivate::load()
 	if ( !res )
 	    qSystemWarning( "QFontPrivate: GetTextMetrics failed" );
 #endif
-	fontCache->insert( fin->key(), fin, 1 );
+	if ( !paintdevice )
+		fontCache->insert( fin->key(), fin, 1 );
     }
     initFontInfo();
     exactMatch = TRUE;
