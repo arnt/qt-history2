@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#33 $
 **
 ** Implementation of QPainter class for Windows
 **
@@ -20,7 +20,7 @@
 #include <math.h>
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#32 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter_win.cpp#33 $")
 
 
 /*****************************************************************************
@@ -309,6 +309,7 @@ QPainter::QPainter()
     tabarraylen = 0;
     ps_stack = 0;
     hdc = hpen = hbrush = hbrushbm = 0;
+    txop = txinv = 0;
     pixmapBrush = nocolBrush = FALSE;
     penRef = brushRef = 0;
     tm = 0;
@@ -612,6 +613,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 	bg_mode = TransparentMode;		// default background mode
 	rop = CopyROP;				// default ROP
 	wxmat.reset();				// reset world xform matrix
+	txop = txinv = 0;
 	if ( dt != PDT_WIDGET ) {
 	    QFont  defaultFont;			// default drawing tools
 	    QPen   defaultPen;
@@ -636,7 +638,7 @@ bool QPainter::begin( const QPaintDevice *pd )
 	bg_col	= w->backgroundColor();		// use widget bg color
 	ww = vw = w->width();			// default view size
 	wh = vh = w->height();
-	if ( w->testWFlags(WState_PaintEvent) )	// during paint event
+	if ( w->testWFlags(WState_PaintEvent) ) // during paint event
 	    hdc = w->hdc;
 	else
 	    w->hdc = hdc = GetDC( w->id() );
@@ -741,7 +743,7 @@ bool QPainter::end()
 	pdev->cmd( PDC_END, this, 0 );
 
     if ( pdev->devType() == PDT_WIDGET ) {
-	if ( !((QWidget*)pdev)->testWFlags(WState_Paint) ) {
+	if ( !((QWidget*)pdev)->testWFlags(WState_PaintEvent) ) {
 	    QWidget *w = (QWidget*)pdev;
 	    ReleaseDC( w->id(), hdc );
 	    w->hdc = 0;
@@ -1641,7 +1643,7 @@ void QPainter::drawPolyline( const QPointArray &a, int index, int npoints )
 	    }
 	    QPDevCmdParam param[1];
 	    param[0].ptarr = (QPointArray*)&pa;
-	    if ( !pdev->cmd(PDC_DRAWPOLYLINE,this,param) || !hd )
+	    if ( !pdev->cmd(PDC_DRAWPOLYLINE,this,param) || !hdc )
 		return;
 	}
 	if ( txop != TxNone && cpen.style() != NoPen )
@@ -1751,7 +1753,6 @@ void QPainter::drawPixmap( int x, int y, const QPixmap &pixmap,
 	}
 	if ( txop == TxTranslate )
 	    map( x, y, &x, &y );
-	    
     }
     QPixmap *pm = (QPixmap*)&pixmap;
     bool tmp_dc = pm->handle() == 0;
