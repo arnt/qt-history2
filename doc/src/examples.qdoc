@@ -77,7 +77,7 @@
     \o \l{itemviews/chart}{Chart}
     \o \l{itemviews/dirview}{Dir View}
     \o \l{itemviews/pixelator}{Pixelator}
-    \o \l{itemviews/spinboxdelegate}{Spin Box Delegate}
+    \o \l{itemviews/spinboxdelegate}{Spin Box Delegate}\raisedaster
     \endlist
 
     \section1 Tool Examples
