@@ -6,7 +6,6 @@
 class FilterInterface : public QUnknownInterface
 {
 public:
-    FilterInterface( QUnknownInterface *parent = 0 ) : QUnknownInterface( parent ) {}
     virtual QStringList featureList() const = 0;
 
     virtual QStringList import( const QString& filter, const QString& filename ) = 0;
