@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#62 $
+** $Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#63 $
 **
 ** Implementation of QMessageBox class
 **
@@ -16,7 +16,7 @@
 #include "qkeycode.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#62 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qmsgbox.cpp#63 $");
 
 
 // Message box icons, from page 210 of the Windows style guide.
@@ -122,13 +122,13 @@ static const unsigned char critical_gif_data[] = {
 
   The Microsoft Windows User Interface Guidelines strongly recommends
   using the application name as window caption.  The message box has
-  just one button, Ok, and its text tells the user both what happened
+  just one button, OK, and its text tells the user both what happened
   and what the program will do about it.  Since the application is
   able to make do, the message box is just information, not a warning
   or a critical error.
 
   Exiting a program is part of its normal operation, and if there are
-  unsaved data the user probably should be asked what do do, for
+  unsaved data the user probably should be asked what to do, for
   example like this:
 
   \code
