@@ -591,21 +591,14 @@ QDateTime QSettingsPrivate::modificationTime()
 */
 void QSettings::insertSearchPath( System s, const QString &path)
 {
-#ifdef Q_WS_WIN
-/*
-    if ( d->win ) {
-	if ( s != Windows || path.isEmpty() )
-	    return;
-	QString p = path;
-	if ( p[0] != '/' )
-	    p = "/" + p;
-	d->win->paths.append( p );
+#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
+    if ( d->sysd ) {
+	d->sysInsertSearchPath( s, path );
 	return;
     }
-*/
 #endif
 
-    if ( s != Unix ) {
+    if ( d->sysd && s != Unix ) {
 #ifdef Q_OS_MAC
 	if(s != Mac) //mac is respected on the mac as well
 #endif
@@ -629,18 +622,12 @@ void QSettings::insertSearchPath( System s, const QString &path)
 void QSettings::removeSearchPath( System s, const QString &path)
 {
 #ifdef Q_WS_WIN
-/*
-    if ( d->win ) {
-	if ( s != Windows || path.isEmpty() )
-	    return;
-	QString p = path;
-	if ( p[0] != '/' )
-	    p = "/" + p;
-	d->win->paths.remove( p );
+    if ( d->sysd ) {
+	d->sysRemoveSearchPath( s, path );
+	return;
     }
-*/
 #endif
-    if ( s != Unix ) {
+    if ( d->sysd && s != Unix ) {
 #ifdef Q_OS_MAC
 	if(s != Mac) //mac is respected on the mac as well
 #endif
@@ -713,7 +700,7 @@ bool QSettings::sync()
 {
 #if defined(Q_WS_WIN) || defined(Q_OS_MAC)
     if ( d->sysd )
-	d->sysSync();
+	return d->sysSync();
 #endif
     if (! d->modified)
 	// fake success

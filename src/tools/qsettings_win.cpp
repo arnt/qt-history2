@@ -855,5 +855,28 @@ QStringList QSettingsPrivate::sysSubkeyList( const QString &key ) const
     return result;
 }
 
+void QSettingsPrivate::sysInsertSearchPath( QSettings::System s, const QString &path )
+{
+    Q_ASSERT(sysd);
+
+    if ( s != QSettings::Windows || path.isEmpty() )
+	return;
+    QString p = path;
+    if ( p[0] != '/' )
+	p = "/" + p;
+    sysd->paths.append( p );
+}
+
+void QSettingsPrivate::sysRemoveSearchPath( QSettings::System s, const QString &path )
+{
+    Q_ASSERT(sysd);
+
+    if ( s != QSettings::Windows || path.isEmpty() )
+	return;
+    QString p = path;
+    if ( p[0] != '/' )
+	p = "/" + p;
+    sysd->paths.remove( p );
+}
 
 #endif //QT_NO_SETTINGS
