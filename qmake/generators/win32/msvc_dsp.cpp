@@ -788,7 +788,7 @@ DspMakefileGenerator::init()
 
     if ( !project->variables()["QMAKE_POST_LINK"].isEmpty() )
 	postLinkStep += var("QMAKE_POST_LINK");
-   
+
     if ( !project->variables()["DESTDIR"].isEmpty() ) {
 	project->variables()["TARGET"].first().prepend(project->first("DESTDIR"));
 	Option::fixPathToTargetOS(project->first("TARGET"));
@@ -808,7 +808,7 @@ DspMakefileGenerator::init()
 	if ( dlldirs.count() )
 	    copyDllStep += "\t";
 	for ( QStringList::Iterator dlldir = dlldirs.begin(); dlldir != dlldirs.end(); ++dlldir ) {
-	    copyDllStep += "copy \"" + dest + "\" \"" + *dlldir + "\"\t";
+	    copyDllStep += "copy \"$(TargetPath)\" \"" + *dlldir + "\"\t";
 	}
     }
 
