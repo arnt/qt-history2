@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: indices.doc,v 1.4 1995/08/29 20:44:51 agulbra Exp $
+** $Id: indices.doc,v 1.5 1996/01/10 11:53:32 hanord Exp $
 **
 ** Miscellaneous index pages
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: indices.doc,v 1.4 1995/08/29 20:44:51 agulbra Exp $";
+static char ident[] = "$Id: indices.doc,v 1.5 1996/01/10 11:53:32 hanord Exp $";
 #endif
 
 /*! \page index.html
@@ -18,31 +18,31 @@ static char ident[] = "$Id: indices.doc,v 1.4 1995/08/29 20:44:51 agulbra Exp $"
 
 <h1>Qt Documentation Home Page</h1>
 
-<strong> This documentation is far from complete.  Remember, Qt is
-still not at version 1.0. </strong>
+<strong>The documentation covers Qt version 0.93.</strong>
 
 <p>
 
-Here are the main index pages: <ul>
+Here are the main index pages:
+<ul>
 <li><a href=hierarchy.html>Class overview</a>
 <li><a href=classes.html>Alphabetical list</a>
 <li><a href=classes69.html>Annotated list</a>
+</ul>
+
+<p>
+
+Here is a tutorial and other documentation:
+<ul>
+<li><a href=tutorial.html>Tutorial</a>
+<li><a href=headers.html>Header files</a>
 <li><a href=topicals.html>Other index pages</a>
 </ul>
 
 <p>
 
-Here are some introductory pages and pages about some of the central
-concepts in Qt: <ul>
+And, finally, some meta-information:
+<ul>
 <li><a href=faq.html>FAQ</a>
-<li><a href=metaobjects.html>Signals, slots and the Meta Object Compiler</a>
-<li><a href=fontmatch.html>Font matching</a>
-<li><a href=debug.html>Some debugging support</a>
-</ul>
-
-<p>
-
-And, finally, some meta-information: <ul>
 <li><a href=troll.html>Troll Tech contact information</a>
 <li><a href=license.html>License statement for Qt</a>
 </ul>
@@ -53,7 +53,8 @@ There is a mailing list for Qt users.  Send a message containing the
 single word "subscribe" to <a
 href=mailto:qt-interest-request@nvg.unit.no>qt-interest-request@nvg.unit.no</a>
 to join the list.  You will receive a receipt from the list server
-within a few minutes. */
+within a few minutes.
+*/
 
 
 /*! \page topicals.html
