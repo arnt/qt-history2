@@ -1080,6 +1080,7 @@ void QDialog::resizeEvent( QResizeEvent * )
 	    d->resizer->move( rect().bottomLeft() -d->resizer->rect().bottomLeft() );
 	else
 	    d->resizer->move( rect().bottomRight() -d->resizer->rect().bottomRight() );
+	d->resizer->raise();
     }
 #endif
 }
