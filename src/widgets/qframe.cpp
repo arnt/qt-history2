@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#29 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#30 $
 **
 ** Implementation of QFrame widget class
 **
@@ -15,7 +15,7 @@
 #include "qdrawutl.h"
 #include "qframe.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#29 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#30 $")
 
 
 /*!
@@ -407,7 +407,8 @@ void QFrame::resizeEvent( QResizeEvent *e )
 
   This function is virtual, but in general you don't need to
   reimplement it.  If you do, note that the QPainter is already open
-  and must remain open.
+  and must remain open.  drawContents() expects the painter to have
+  any \link QPainter::setWorldMatrix transformation. \endlink
 
   \sa frameRect() contentsRect() drawContents() frameStyle()
   setPalette() QColorGroup */
@@ -472,7 +473,9 @@ void QFrame::drawFrame( QPainter *p )
   Virtual function that draws the contents of the frame.
 
   The QPainter is already open when you get it, and you must leave it
-  open.
+  open.  You may assume that the painter is not \link
+  QPainter::setWorldMatrix() translated \endlink on entry.  If you use
+  transformation, remember to take the frame into account.
 
   This function is reimplemented by subclasses that draw something
   inside the frame.  It should draw only inside contentsRect().
