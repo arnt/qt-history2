@@ -64,11 +64,16 @@ public:
     ~QSQLiteDriver();
     bool hasFeature(DriverFeature f) const;
     bool open(const QString & db,
-                   const QString & user = QString(),
-                   const QString & password = QString(),
-                   const QString & host = QString(),
-                   int port = -1,
-                   const QString & connOpts = QString() );
+                   const QString & user,
+                   const QString & password,
+                   const QString & host,
+                   int port,
+                   const QString & connOpts);
+    bool open( const QString & db,
+	    const QString & user = QString::null,
+	    const QString & password = QString::null,
+	    const QString & host = QString::null,
+	    int port = -1 ) { return open (db, user, password, host, port, QString()); }
     void close();
     QSqlQuery createQuery() const;
     bool beginTransaction();

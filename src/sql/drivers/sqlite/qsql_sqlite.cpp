@@ -19,13 +19,11 @@
 #include <qregexp.h>
 
 #if (QT_VERSION-0 < 0x030000)
-#include <qlist.h>
 #include <qvector.h>
 #include <unistd.h>
 #include "../../../3rdparty/libraries/sqlite/sqlite.h"
 #else
-#include <qptrlist.h>
-#include <qptrvector.h>
+#include <qvector.h>
 #include <unistd.h>
 #include <sqlite.h>
 #endif
@@ -64,7 +62,8 @@ public:
     // initializes the recordInfo and the cache
     void init(const char **cnames, int numCols);
     void finalize();
-
+    void deleteValues(int idx);
+    
     QSQLiteResult* p;
     sqlite *access;
 
@@ -77,15 +76,14 @@ public:
     typedef QVector<QSqlVariant> RowCache;
     typedef QVector<RowCache> RowsetCache;
 #else
-    typedef QPtrVector<QSqlVariant> RowCache;
-    typedef QPtrVector<RowCache> RowsetCache;
+    typedef QVector<QSqlVariant*> RowCache;
+    typedef QVector<RowCache*> RowsetCache;
 #endif
     RowsetCache rowCache;
     int rowCacheEnd;
-    int rowCacheCurrent;
     
-    uint skipFetch: 1; // skip the next fetchNext() ??
-    uint skippedStatus: 1; // the status of the fetchNext() that's skipped ??
+    uint skipFetch: 1; // skip the next fetchNext()
+    uint skippedStatus: 1; // the status of the fetchNext() that's skipped
     uint forwardOnly: 1; // if true, then don't expand cache, loop. Otherwise expand cache.
     uint utf8: 1;
     
@@ -95,18 +93,32 @@ public:
 static const uint initial_cache_size = 128;
 
 QSQLiteResultPrivate::QSQLiteResultPrivate(QSQLiteResult* res) : p(res), access(0), currentTail(0),
-    currentMachine(0), rowCacheEnd(0), rowCacheCurrent(-1), skipFetch(FALSE), skippedStatus(FALSE), forwardOnly(FALSE), utf8(FALSE)
+    currentMachine(0), rowCacheEnd(0), skipFetch(FALSE), skippedStatus(FALSE), forwardOnly(FALSE), utf8(FALSE)
 {
-    rowCache.setAutoDelete(TRUE);
-    rowCache.resize(initial_cache_size);
 }
 
-/* BEWARE!! Call that only once after reset! */
+void QSQLiteResultPrivate::deleteValues(int idx)
+{
+    Q_ASSERT(idx < rowCache.count());
+
+    RowCache* cache = rowCache[idx];
+    if (!cache)
+	return;
+    for (int i = 0; i < cache->count(); ++i)
+	delete (*cache)[i];
+    delete cache;
+    rowCache[idx] = 0;
+}
+
+// check whether the query has a result set.
 bool QSQLiteResultPrivate::isSelect()
 {
-    // XXX should be a bool to protect this.
-    skippedStatus = fetchNext();
-    skipFetch = TRUE;
+    if (p->at() == QSql::BeforeFirst) {
+	// we need at least one fetch to find out
+	// whether there is a result set or not
+	skippedStatus = fetchNext();
+	skipFetch = TRUE;
+    }
     return !rInf.isEmpty();
 }
 
@@ -138,15 +150,6 @@ void QSQLiteResultPrivate::init(const char **cnames, int numCols)
         const char* fieldName = lastDot ? lastDot + 1 : cnames[i];
         rInf.append(QSqlFieldInfo(fieldName, nameToType(cnames[i+numCols])));
     }
-    /* XXX this seems wrong, why add an empty record to the cache?
-    if (forwardOnly) {
-	RowCache *r = new RowCache(numCols);
-	r->setAutoDelete(TRUE);
-	if (rowCacheEnd == rowCache.size())
-	    rowCache.resize(rowCache.size() << 1);
-	rowCache.insert(rowCacheEnd++, r); // why?
-    }
-    */
 }
 
 bool QSQLiteResultPrivate::fetchNext()
@@ -157,62 +160,65 @@ bool QSQLiteResultPrivate::fetchNext()
     int colNum;
     int res;
     int i;
-
+    
     if (skipFetch) {
-        // already fetched
-        skipFetch = FALSE;
-        return skippedStatus;
+	// already fetched
+	skipFetch = FALSE;
+	return skippedStatus;
     }
- 
+    
     if (!currentMachine)
-        return FALSE;
-
+	return FALSE;
+    
     // keep trying while busy, wish I could implement this better.
     while ((res = sqlite_step(currentMachine, &colNum, &fvals, &cnames)) == SQLITE_BUSY) {
 	// sleep instead requesting result again immidiately.  
 	sleep(1);
     }
-
+    
     switch(res) {
-        case SQLITE_ROW:
-            // check to see if should fill out columns
-            if (rInf.isEmpty())
-                // must be first call.
-                init(cnames, colNum);
-            if (fvals) {
-                RowCache *values = new RowCache(colNum);
-		values->setAutoDelete(TRUE);
-                for (i = 0; i < colNum; ++i) {
-                    if (utf8)
-                        values->insert(i, new QSqlVariant(QString::fromUtf8(fvals[i])));
-                    else
-                        values->insert(i, new QSqlVariant(QString(fvals[i])));
-                }
-                if (forwardOnly) {
-		    // e.g. not caching
-		    if (rowCacheCurrent != -1)
-			rowCache.remove(0);
-                    rowCache.insert(0, values);
-		    rowCacheCurrent = 0;
+    case SQLITE_ROW:
+	// check to see if should fill out columns
+	if (rInf.isEmpty())
+	    // must be first call.
+	    init(cnames, colNum);
+	if (fvals) {
+	    RowCache *values = new RowCache(colNum);
+	    //		values->setAutoDelete(TRUE);
+	    for (i = 0; i < colNum; ++i) {
+		if (utf8)
+		    (*values)[i] = new QSqlVariant(QString::fromUtf8(fvals[i]));
+		else
+		    (*values)[i] = new QSqlVariant(QString(fvals[i]));
+	    }
+	    if (forwardOnly) {
+		// e.g. not caching
+		if (rowCache.size()) {
+		    deleteValues(0);
 		} else {
-		    if (rowCacheEnd == rowCache.size())
-			rowCache.resize(rowCache.size() << 1);
-		    rowCache.insert(rowCacheEnd++, values);
+		    rowCache.resize(1);
+		    rowCacheEnd = 1;
 		}
-                return TRUE;
-            }
-            break;
-        case SQLITE_DONE:
-            if (rInf.isEmpty())
-                // must be first call.
-                init(cnames, colNum);
-            return FALSE;
-        case SQLITE_ERROR:
-        case SQLITE_MISUSE:
-        default:
-            // something wrong, don't get col info, but still return false
-            finalize(); // finalize to get the error message.
-            return FALSE;
+		rowCache[0] = values;
+	    } else {
+		if (rowCacheEnd == rowCache.size())
+		    rowCache.resize(rowCache.size() + initial_cache_size);
+		rowCache[rowCacheEnd++] = values;
+	    }
+	    return TRUE;
+	}
+	break;
+    case SQLITE_DONE:
+	if (rInf.isEmpty())
+	    // must be first call.
+	    init(cnames, colNum);
+	return FALSE;
+    case SQLITE_ERROR:
+    case SQLITE_MISUSE:
+	default:
+	// something wrong, don't get col info, but still return false
+	finalize(); // finalize to get the error message.
+	return FALSE;
     }
     return FALSE;
 }
@@ -234,10 +240,10 @@ QSQLiteResult::~QSQLiteResult()
 void QSQLiteResult::cleanup()
 {
     d->finalize();
+    for (int i = 0; i < (int)d->rowCacheEnd; ++i)
+	d->deleteValues(i);
     d->rowCache.clear();
-    d->rowCache.resize(initial_cache_size);
     d->rowCacheEnd = 0;
-    d->rowCacheCurrent = -1;
     d->rInf.clear();
     d->currentTail = 0;
     d->currentMachine = 0;
@@ -561,43 +567,29 @@ QSqlIndex QSQLiteDriver::primaryIndex(const QString &tblname) const
 
     QSqlQuery q = createQuery();
     q.setForwardOnly(TRUE);
-    q.exec("SELECT name, sql FROM sqlite_master WHERE type='index' and tbl_name='" + tblname + "'");
-    if (!q.next())
-        return QSqlIndex();
+    // finrst find a UNIQUE INDEX
+    q.exec("PRAGMA index_list('" + tblname + "');");
+    QString indexname;
+    while(q.next()) {
+	if (q.value(2).toInt()==1) {
+	    indexname = q.value(1).toString();
+	    break;
+	}
+    }
+    if (indexname.isEmpty())
+	return QSqlIndex();
 
-    QString indexname = q.value(0).toString();
-    QString sql = q.value(1).toString().simplifyWhiteSpace();
+    q.exec("PRAGMA index_info('" + indexname + "');");
 
     QSqlIndex index(indexname);
-    // ql-statement ::=
-    // CREATE [TEMP | TEMPORARY] [UNIQUE] INDEX index-name 
-    //	 ON [database-name .] table-name ( column-name [, column-name]* )
-    //	  [ ON CONFLICT conflict-algorithm ]
-    //
-    //
-    //	  column-name ::=
-    //	  name [ ASC | DESC ]
-
-    if (sql.contains("unique", FALSE)) {
-	// is a primary index, suitable for QSqlCursor
-	int start = sql.find('(');
-	int end = sql.find(')');
-	QString sqltypes = sql.mid(start+1, end-start-1);
-	QStringList types = QStringList::split(',', sqltypes);
-	for ( QStringList::Iterator it = types.begin(); it != types.end(); ++it ) {
-	    QString tname = *it;
-	    int spos = tname.find(' ');
-	    if (spos > -1)
-		tname = tname.mid(0,spos);
-	    //get type...
-	    QSqlVariant::Type type = QSqlVariant::Invalid;
-	    if (rec.contains(tname))
-		type = rec.find(tname).type();
-	    index.append(tname, type);
-	}
-	return index;
+    while(q.next()) {
+	QString name = q.value(2).toString();
+	QSqlVariant::Type type = QSqlVariant::Invalid;
+	if (rec.contains(name))
+	    type = rec.find(name).type();
+	index.append(QSqlField(name, type));
     }
-    return QSqlIndex();
+    return index;
 }
 
 QSqlRecordInfo QSQLiteDriver::recordInfo(const QString &tbl) const
