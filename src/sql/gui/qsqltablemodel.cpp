@@ -13,7 +13,6 @@
 
 #include "qsqltablemodel.h"
 
-#include "qmap.h"
 #include "qsqldriver.h"
 #include "qsqlerror.h"
 #include "qsqlfield.h"
@@ -21,57 +20,11 @@
 #include "qsqlquery.h"
 #include "qsqlrecord.h"
 
-#include "qsqlquerymodel_p.h"
+#include "qsqltablemodel_p.h"
 
 #include <qdebug.h>
 
-class QSqlTableModelPrivate: public QSqlQueryModelPrivate
-{
-public:
-    QSqlTableModelPrivate(QSqlTableModel *qq)
-        : QSqlQueryModelPrivate(qq),
-          editIndex(-1), insertIndex(-1), sortColumn(-1),
-          sortOrder(Qt::AscendingOrder),
-          strategy(QSqlTableModel::OnFieldChange),
-          q(qq)
-    {}
-    void clear();
-    QSqlRecord primaryValues(int index);
-    void clearEditBuffer();
-    QSqlRecord record(const QVector<QVariant> &values) const;
-
-    bool exec(const QString &stmt, bool prepStatement,
-              const QSqlRecord &rec, const QSqlRecord &whereValues = QSqlRecord());
-    void revertCachedRow(int row);
-    QSqlDatabase db;
-    int editIndex;
-    int insertIndex;
-
-    int sortColumn;
-    Qt::SortOrder sortOrder;
-
-    QSqlTableModel::EditStrategy strategy;
-
-    QSqlQuery editQuery;
-    QSqlIndex primaryIndex;
-    QString tableName;
-    QString filter;
-
-    struct ModifiedRow
-    {
-        ModifiedRow(QSql::Op o = QSql::None, const QSqlRecord &r = QSqlRecord()): op(o), rec(r) {}
-        ModifiedRow(const ModifiedRow &other): op(other.op), rec(other.rec) {}
-        QSql::Op op;
-        QSqlRecord rec;
-    };
-
-    QSqlRecord editBuffer;
-
-    typedef QMap<int, ModifiedRow> CacheMap;
-    CacheMap cache;
-
-    QSqlTableModel *q;
-};
+#define q q_func()
 
 /*! \internal
     Populates our record with values
@@ -189,6 +142,8 @@ QSqlRecord QSqlTableModelPrivate::primaryValues(int row)
     return record;
 }
 
+#define d d_func()
+
 /*!
   \class QSqlTableModel
   \brief The QSqlTableModel class provides an editable data model
@@ -259,7 +214,14 @@ QSqlRecord QSqlTableModelPrivate::primaryValues(int row)
 QSqlTableModel::QSqlTableModel(QObject *parent, QSqlDatabase db)
     : QSqlQueryModel(*new QSqlTableModelPrivate(this), parent)
 {
-    d = static_cast<QSqlTableModelPrivate *>(d_func());
+    d->db = db.isValid() ? db : QSqlDatabase::database();
+}
+
+/*!  \interal
+ */
+QSqlTableModel::QSqlTableModel(QSqlTableModelPrivate &dd, QObject *parent, QSqlDatabase db)
+    : QSqlQueryModel(dd, parent)
+{
     d->db = db.isValid() ? db : QSqlDatabase::database();
 }
 

@@ -36,7 +36,7 @@
 class QSqlQueryModelPrivate
 {
 public:
-    QSqlQueryModelPrivate(QSqlQueryModel *qq): atEnd(false), q(qq) {}
+    QSqlQueryModelPrivate(QSqlQueryModel *qq): atEnd(false), q_ptr(qq) {}
     virtual ~QSqlQueryModelPrivate();
 
     void prefetch(int);
@@ -48,7 +48,7 @@ public:
     uint atEnd : 1;
     QVector<QVariant> headers;
     QVarLengthArray<int, 56> colOffsets; // used to calculate dataIndex of columns
-    QSqlQueryModel *q;
+    QSqlQueryModel *q_ptr;
 };
 
 #endif

@@ -25,6 +25,7 @@ class QSqlQuery;
 class Q_SQL_EXPORT QSqlQueryModel: public QAbstractTableModel
 {
     Q_OBJECT
+    friend class QSqlQueryModelPrivate;
 
 public:
     QSqlQueryModel(QObject *parent = 0);
@@ -57,11 +58,9 @@ protected:
     void setLastError(const QSqlError &error);
     QSqlQueryModel(QSqlQueryModelPrivate &d, QObject *parent);
 
-    inline QSqlQueryModelPrivate *d_func() const { return d; }
+    inline QSqlQueryModelPrivate *d_func() const { return d_ptr; }
 
-private:
-    friend class QSqlQueryModelPrivate;
-    QSqlQueryModelPrivate *d;
+    QSqlQueryModelPrivate *d_ptr;
 };
 
 #endif

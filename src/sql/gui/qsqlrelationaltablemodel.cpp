@@ -21,6 +21,8 @@
 #include "qsqlquery.h"
 #include "qsqlrecord.h"
 
+#include "qsqltablemodel_p.h"
+
 struct Relation
 {
     Relation(): model(0) {}
@@ -29,9 +31,13 @@ struct Relation
     QHash<int, QVariant> displayValues;
 };
 
-class QSqlRelationalTableModelPrivate
+class QSqlRelationalTableModelPrivate: public QSqlTableModelPrivate
 {
 public:
+    QSqlRelationalTableModelPrivate(QSqlRelationalTableModel *qq)
+        : QSqlTableModelPrivate(qq)
+    {}
+
     QVector<Relation> relations;
     void clearChanges();
 };
@@ -56,6 +62,8 @@ void QSqlRelationalTableModelPrivate::clearChanges()
         rel.displayValues.clear();
     }
 }
+
+#define d d_func()
 
 /*!
   \class QSqlRelationalTableModel
@@ -91,9 +99,8 @@ void QSqlRelationalTableModelPrivate::clearChanges()
   default database connection will be used.
  */
 QSqlRelationalTableModel::QSqlRelationalTableModel(QObject *parent, QSqlDatabase db)
-    : QSqlTableModel(parent, db)
+    : QSqlTableModel(*new QSqlRelationalTableModelPrivate(this), parent, db)
 {
-    d = new QSqlRelationalTableModelPrivate;
 }
 
 /*!
@@ -101,7 +108,6 @@ QSqlRelationalTableModel::QSqlRelationalTableModel(QObject *parent, QSqlDatabase
  */
 QSqlRelationalTableModel::~QSqlRelationalTableModel()
 {
-    delete d;
 }
 
 /*!
