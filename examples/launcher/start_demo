@@ -10,6 +10,29 @@ then
     echo "Please run start_demo from the directory containing it."
     exit 1
 fi
+if [ ! -f ./examples/launcher/launcher ]
+then
+	echo "Could not find demo program. Will try to make it."
+	QTDIR=`pwd`
+	if [ ! -f $TMAKEDIR/lib/linux-qws-g++/tmake.conf ]
+	then
+		TMAKEDIR=$QTDIR/../tmake
+		if [ ! -f $TMAKEDIR/lib/linux-qws-g++/tmake.conf ]
+		then
+				echo " trying $TMAKEDIR"
+			echo "Could not find tmake. See the INSTALL file for information."
+			exit 1
+		fi
+		PATH=$TMAKEDIR/bin:$PATH
+		export PATH TMAKEDIR
+	fi
+	export QTDIR
+	make
+	if [ $? != 0 ]
+	then
+		exit 1
+	fi
+fi
 if [ "$TERM" == xterm ]
 then
     echo "Please run start_demo from the Linux Console, not from within X11."
