@@ -32,7 +32,7 @@ public:
 
 
 /*!
-  
+
   Base class for the QTimeEdit and QDateEdit widgets.
  */
 QDateTimeEditBase::QDateTimeEditBase( QWidget * parent, const char * name )
@@ -42,7 +42,7 @@ QDateTimeEditBase::QDateTimeEditBase( QWidget * parent, const char * name )
 }
 
 /*!
-  
+
   \internal Initialization.
 */
 void QDateTimeEditBase::init()
@@ -53,15 +53,15 @@ void QDateTimeEditBase::init()
 	setFrameStyle( Panel | Sunken );
     setLineWidth( 2 );
 
-    QPalette p = palette();    
+    QPalette p = palette();
     p.setBrush( QPalette::Active, QColorGroup::Background,
 		palette().active().brush( QColorGroup::Base ) );
     setPalette( p );
-    
+
     ed[0] = new NumEdit( this, "Ed_1" );
     ed[1] = new NumEdit( this, "Ed_2" );
     ed[2] = new NumEdit( this, "Ed_3" );
-    
+
     sep[0] = new QLabel( this );
     sep[1] = new QLabel( this );
 
@@ -70,7 +70,7 @@ void QDateTimeEditBase::init()
     sep[1]->setBackgroundColor( ed[0]->backgroundColor() );
     setBackgroundColor( ed[0]->backgroundColor() );
 */
-    
+
     up   = new QPushButton( this );
     down = new QPushButton( this );
     up->setAutoRepeat( TRUE );
@@ -78,14 +78,14 @@ void QDateTimeEditBase::init()
 
     up->setFocusPolicy( NoFocus );
     down->setFocusPolicy( NoFocus );
-    
+
     connect( up, SIGNAL( clicked() ), SLOT( stepUp() ) );
     connect( down, SIGNAL( clicked() ), SLOT( stepDown() ) );
 
     ed[0]->installEventFilter( this );
     ed[1]->installEventFilter( this );
     ed[2]->installEventFilter( this );
-        
+
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
     setFocusProxy( ed[0] );
 }
@@ -111,7 +111,7 @@ QSize QDateTimeEditBase::sizeHint() const
 }
 
 /*!
-  
+
   Draws the arrow buttons.
  */
 void QDateTimeEditBase::updateArrows()
@@ -165,7 +165,7 @@ void QDateTimeEditBase::updateArrows()
 }
 
 /*!
-  
+
   Increase the current value one step. This slot is called when the
   up button is clicked.
  */
@@ -181,7 +181,7 @@ void QDateTimeEditBase::stepUp()
     if( focus != -1 ){
 	NumEdit * e = ed[focus];
 	QIntValidator * v = (QIntValidator *) e->validator();
-    
+
 	if( !v ) return;
 	int n = e->text().toInt();
 	n++;
@@ -190,13 +190,13 @@ void QDateTimeEditBase::stepUp()
 	    n = v->top();
 	else if( n < v->bottom() )
 	    n = v->bottom();
-    
+
 	e->setText( QString::number( n ) );
     }
 }
 
 /*!
-  
+
   Decrease the current value one step. This slot is called when the
   down button is clicked.
  */
@@ -208,7 +208,7 @@ void QDateTimeEditBase::stepDown()
     for( i = 0; i < 3; i++)
 	if( ed[i]->hasFocus() )
 	    focus = i;
-    
+
     if( focus != -1 ){
 	NumEdit * e = ed[focus];
 	QIntValidator * v = (QIntValidator *) e->validator();
@@ -227,7 +227,7 @@ void QDateTimeEditBase::stepDown()
 }
 
 /*!
-  
+
   \reimp
  */
 bool QDateTimeEditBase::eventFilter( QObject * o, QEvent * e )
@@ -252,31 +252,31 @@ bool QDateTimeEditBase::eventFilter( QObject * o, QEvent * e )
 	if( (k->key() == Key_Down) )
 	    stepDown();
     }
-    
+
     if( e->type() == QEvent::FocusOut ){
 	for(int i = 0; i < 3; i++){
-	    QString s = ed[i]->text(); 
+	    QString s = ed[i]->text();
 	    int pos = 0;
 
-	    if( ed[i]->validator()->validate( s, pos ) !=  
+	    if( ed[i]->validator()->validate( s, pos ) !=
 		QValidator::Acceptable )
 	    {
 		ed[i]->setText( lastValid[i] );
 	    } else {
 		lastValid[i] = ed[i]->text();
 	    }
-	}	
-    }    
+	}
+    }
     return QFrame::eventFilter( o, e );;
 }
 
 /*!
-  
+
   Layout the arrow buttons.
  */
 void QDateTimeEditBase::layoutArrows()
 {
-    QSize bs; 
+    QSize bs;
     if ( style() == WindowsStyle )
 	bs.setHeight( height()/2 - frameWidth() );
     else
@@ -319,24 +319,24 @@ void QDateTimeEditBase::layoutArrows()
 /*!
   \class QDateEdit qdatetimeedit.h
   \brief The QDateEdit class provides a spin-like box to edit dates
-  
+
   The QDateEdit class provides a spin-like box to edit dates.
-  
+
   QDateEdit allows the user to edit the date by either using the
   keyboard, or by using the arrow buttons to increase/decrease date
   values.  The Tab key can be used to move from field to field within
   the QDateEdit box.
-  
+
   If illegal values are entered, these will be reverted to the last
   known legal value. I.e if you enter 5000 for the day value, and
   it was 12 before you stated editing, the value will be reverted to
   12.
-  
+
  */
 
 
 /*!
- 
+
   Constructs an empty QDateEdit widget.
  */
 QDateEdit::QDateEdit( QWidget * parent, const char * name )
@@ -346,7 +346,7 @@ QDateEdit::QDateEdit( QWidget * parent, const char * name )
 }
 
 /*!
- 
+
   Constructs a QDateEdit widget and initializes it with the QDate \a d.
  */
 QDateEdit::QDateEdit( const QDate & d, QWidget * parent, const char * name )
@@ -357,7 +357,7 @@ QDateEdit::QDateEdit( const QDate & d, QWidget * parent, const char * name )
 }
 
 /*!
-  
+
   \internal Initialization.
  */
 void QDateEdit::init()
@@ -369,7 +369,7 @@ void QDateEdit::init()
 
 
 /*!
-  
+
   Set the date in this QDateEdit.
  */
 void QDateEdit::setDate( const QDate & d )
@@ -378,13 +378,13 @@ void QDateEdit::setDate( const QDate & d )
     int yy = d.year();
     int mm = d.month();
     int dd = d.day();
-    
+
     v[0] = (QIntValidator *) ed[0]->validator();
     v[1] = (QIntValidator *) ed[1]->validator();
     v[2] = (QIntValidator *) ed[2]->validator();
 
-    if( (yy > v[yearPos]->top()) || (yy < v[yearPos]->bottom()) || 
-	(mm > v[monthPos]->top()) || (mm < v[monthPos]->bottom()) || 
+    if( (yy > v[yearPos]->top()) || (yy < v[yearPos]->bottom()) ||
+	(mm > v[monthPos]->top()) || (mm < v[monthPos]->bottom()) ||
 	(dd > v[dayPos]->top()) || (dd < v[dayPos]->bottom()) )
     {
 	// Date out of range - leave it blank
@@ -402,19 +402,19 @@ void QDateEdit::setDate( const QDate & d )
 }
 
 /*!
-  
+
   Returns the date in this QDateEdit.
  */
 QDate QDateEdit::date() const
 {
     ((QDateEdit *) this)->fixup(); // Fix invalid dates
-    
+
     return QDate( ed[yearPos]->text().toInt(), ed[monthPos]->text().toInt(),
 		  ed[dayPos]->text().toInt() );
 }
 
-/*!  
-  
+/*!
+
   Set the order the date should appear in the edit box.
 
   \sa order
@@ -422,33 +422,33 @@ QDate QDateEdit::date() const
 void QDateEdit::setOrder( const QString & fmt )
 {
     QString tmp;
-    
+
     if( fmt.length() > 3 ) return;
     tmp = fmt.upper();
-    
-    if( !tmp.contains( 'Y' ) || !tmp.contains( 'M' ) || !tmp.contains( 'D' ) ) 
+
+    if( !tmp.contains( 'Y' ) || !tmp.contains( 'M' ) || !tmp.contains( 'D' ) )
 	return;
-    
+
     yearPos  = tmp.find( 'Y' );
     monthPos = tmp.find( 'M' );
     dayPos   = tmp.find( 'D' );
-    
+
     ed[yearPos]->setRange( 1753, 3000 );
     ed[monthPos]->setRange( 1, 12 );
     ed[dayPos]->setRange( 1, 31 );
-    
+
     format[yearPos]  = 'Y';
     format[monthPos] = 'M';
     format[dayPos]   = 'D';
     format[3] = 0;
 }
 
-/*!  
-  
+/*!
+
   Returns a string that indicates in which order the date appears in
   the editor. I.e, "YMD" means that the date appears in the year -
   month - day order.
-  
+
   \sa setOrder
 */
 QString QDateEdit::order() const
@@ -457,7 +457,7 @@ QString QDateEdit::order() const
 }
 
 
-/*!  
+/*!
   \internal
   Post-process the edited date. This will guarantee that a date is
   valid.
@@ -473,7 +473,7 @@ void QDateEdit::fixup()
     yy = ed[yearPos]->text().toInt();
     mm = ed[monthPos]->text().toInt();
     dd = ed[dayPos]->text().toInt();
-    
+
     if( !QDate::isValid( yy, mm, dd) ){
 	if( !QDate::isValid( yy, 1, 1 ) )
 	    if( yy > v[yearPos]->top() ) yy = v[yearPos]->top();
@@ -483,7 +483,7 @@ void QDateEdit::fixup()
 	    else if( mm < v[monthPos]->bottom() ) mm = v[monthPos]->bottom();
 	if( dd > v[dayPos]->top() ) dd = v[dayPos]->top();
 	else if( dd < v[dayPos]->bottom() ) dd = v[dayPos]->bottom();
-	
+
 	while( !QDate::isValid( yy, mm, dd ) ){
 	    dd--;
 	}
@@ -493,8 +493,8 @@ void QDateEdit::fixup()
     }
 }
 
-/*!  
-  
+/*!
+
   Handle resize events.
 */
 void QDateEdit::resizeEvent( QResizeEvent * )
@@ -503,7 +503,7 @@ void QDateEdit::resizeEvent( QResizeEvent * )
     int h     = height() - frameWidth()*2;
     int numSize = (width() - 15) / 10;
     int offset  = frameWidth();
-    
+
     ed[yearPos]->resize( numSize*4, h );
     ed[monthPos]->resize( numSize*2, h );
     ed[dayPos]->resize( numSize*2, h );
@@ -525,14 +525,14 @@ void QDateEdit::resizeEvent( QResizeEvent * )
   \class QTimeEdit qdatetimeedit.h
   \brief The QTimeEdit class provides a spin-like box to edit a given
   time
-  
+
   The QTimeEdit class provides a spin-like box to edit a given time.
-  
+
   QTimeEdit allows the user to edit the time by either using the
   keyboard, or by using the arrow buttons to increase/decrease date
   values.  The Tab key can be used to move from field to field within
   the QTimeEdit box.
-  
+
   If illegal values are entered, these will be reverted to the last
   known legal value. I.e if you enter 5000 for the hour value, and
   it was 12 before you stated editing, the value will be reverted to
@@ -540,7 +540,7 @@ void QDateEdit::resizeEvent( QResizeEvent * )
   */
 
 /*!
-  
+
   Constructs an empty QTimeEdit widget.
 */
 QTimeEdit::QTimeEdit( QWidget * parent, const char * name )
@@ -550,7 +550,7 @@ QTimeEdit::QTimeEdit( QWidget * parent, const char * name )
 }
 
 /*!
-  
+
   Constructs a QTimeEdit widget, and initializes it with the QTime \a t.
 */
 QTimeEdit::QTimeEdit( const QTime & t, QWidget * parent, const char * name )
@@ -562,7 +562,7 @@ QTimeEdit::QTimeEdit( const QTime & t, QWidget * parent, const char * name )
 
 
 /*!
-  
+
   \internal Initialization.
  */
 void QTimeEdit::init()
@@ -575,7 +575,7 @@ void QTimeEdit::init()
 }
 
 /*!
-  
+
   Set the time in this QTimeEdit.
  */
 void QTimeEdit::setTime( const QTime & t )
@@ -583,13 +583,13 @@ void QTimeEdit::setTime( const QTime & t )
     ed[0]->setText( QString::number( t.hour() ) );
     ed[1]->setText( QString::number( t.minute() ) );
     ed[2]->setText( QString::number( t.second() ) );
-    
+
 //    ed[0]->setFocus();
 //    ed[0]->selectAll();
 }
 
 /*!
-  
+
   Returns the time in this QTimeEdit.
  */
 QTime QTimeEdit::time() const
@@ -599,7 +599,7 @@ QTime QTimeEdit::time() const
 }
 
 /*!
-  
+
   Handle resizing.
  */
 void QTimeEdit::resizeEvent( QResizeEvent * )
@@ -608,7 +608,7 @@ void QTimeEdit::resizeEvent( QResizeEvent * )
     int h     = height() - frameWidth()*2;
     int numSize = (width() - 15) / 8;
     int offset  = frameWidth();
-    
+
     ed[0]->resize( numSize*2, h );
     ed[1]->resize( numSize*2, h );
     ed[2]->resize( numSize*2, h );
@@ -623,4 +623,70 @@ void QTimeEdit::resizeEvent( QResizeEvent * )
     sep[1]->move( ed[1]->x() + ed[1]->width() + 1, offset );
     layoutArrows();
 }
+
+
+/*!
+
+  \class QDateTimeEdit qdatetimeedit.h
+  \brief The QDateTimeEdit class provides a spin-like box to edit a given
+  datetime
+
+  \sa QDateEdit QTimeEdit
+  */
+
+/*!
+
+  Constructs an empty QDateTimeEdit widget.
+*/
+QDateTimeEdit::QDateTimeEdit( QWidget * parent, const char * name )
+    : QFrame( parent, name )
+{
+    init();
+}
+
+/*!
+
+  Constructs a QDateTimeEdit widget, and initializes it with the QDateTime \a dt.
+*/
+QDateTimeEdit::QDateTimeEdit( const QDateTime & dt, QWidget * parent, const char * name )
+    : QFrame( parent, name )
+{
+    init();
+    setDateTime( dt );
+}
+
+
+/*!
+
+  \internal Initialization.
+ */
+void QDateTimeEdit::init()
+{
+    QHBoxLayout* hb = new QHBoxLayout( this );
+    de = new QDateEdit( this );
+    te = new QTimeEdit( this );
+    hb->addWidget( de );
+    hb->addWidget( te );
+    setFocusProxy( de );    
+}
+
+/*!
+
+  Set the datetime in this QDateTimeEdit.
+ */
+void QDateTimeEdit::setDateTime( const QDateTime & dt )
+{
+    de->setDate( dt.date() );
+    te->setTime( dt.time() );
+}
+
+/*!
+
+  Returns the datetime in this QDateTimeEdit.
+ */
+QDateTime QDateTimeEdit::dateTime() const
+{
+    return QDateTime( de->date(), te->time() );
+}
+
 #endif

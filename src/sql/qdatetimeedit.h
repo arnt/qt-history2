@@ -19,10 +19,10 @@ class Q_EXPORT QDateTimeEditBase : public QFrame
 {
     Q_OBJECT
 public:
-    QDateTimeEditBase( QWidget * parent = 0, 
+    QDateTimeEditBase( QWidget * parent = 0,
 		       const char * name = "QDateTimeEditBase" );
     QSize sizeHint() const;
-    
+
 public slots:
     void stepUp();
     void stepDown();
@@ -32,7 +32,7 @@ protected:
     bool eventFilter( QObject *, QEvent * );
     void updateArrows();
     void layoutArrows();
-    
+
     QPushButton * up, * down;
     NumEdit     * ed[3];
     QLabel      * sep[2];
@@ -48,10 +48,10 @@ public:
     QDateEdit( QWidget * parent = 0, const char * name = 0 );
     QDateEdit( const QDate & d, QWidget * parent = 0, const char * name = 0 );
     void    setDate( const QDate & d );
-    QDate   date() const;    
+    QDate   date() const;
     void    setOrder( const QString & order );
     QString order() const;
-    
+
 protected:
     void init();
     void fixup();
@@ -73,6 +73,23 @@ public:
 protected:
     void init();
     void resizeEvent( QResizeEvent * );
+};
+
+class Q_EXPORT QDateTimeEdit : public QFrame
+{
+    Q_OBJECT
+    Q_PROPERTY( QDateTime dateTime READ dateTime WRITE setDateTime )
+public:
+    QDateTimeEdit( QWidget * parent = 0, const char * name = 0 );
+    QDateTimeEdit( const QDateTime & dt, QWidget * parent = 0, const char * name = 0 );
+    void  setDateTime( const QDateTime & dt );
+    QDateTime dateTime() const;
+
+protected:
+    void init();
+private:
+    QDateEdit* de;
+    QTimeEdit* te;
 };
 
 #endif
