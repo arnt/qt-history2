@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#262 $
+** $Id: //depot/qt/main/src/kernel/qapp_x11.cpp#263 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -36,6 +36,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
+#include <X11/Xlocale.h>
 
 #if defined(_OS_LINUX_) && defined(DEBUG)
 #include "qfile.h"
@@ -59,7 +60,14 @@ extern "C" int gettimeofday( struct timeval *, struct timezone * );
 #undef select
 extern "C" int select( int, void *, void *, void *, struct timeval * );
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#262 $");
+#if defined(_OS_AIX_)
+// for FD_ZERO
+static inline void bzero( void * s, int n ) {
+    memset( s, n, sizeof( char ) );
+}
+#endif
+
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_x11.cpp#263 $");
 
 #if !defined(XlibSpecificationRelease)
 typedef char *XPointer;				// X11R4
@@ -390,9 +398,11 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
     setlocale( LC_ALL, "" );		// use correct char set mapping
     setlocale( LC_NUMERIC, "C" );	// make sprintf()/scanf() work
     if ( XSupportsLocale() &&
-	 ( qstrlen(XSetLocaleModifiers( "@im=none" )) ||
-	   qstrlen(XSetLocaleModifiers( "" ) ) ) )
+	 ( qstrlen(XSetLocaleModifiers( "" )) ||
+	   qstrlen(XSetLocaleModifiers( "@im=none" ) ) ) )
 	xim = XOpenIM (appDpy, 0, 0, 0);
+    else
+	xim = 0;
 }
 
 void qt_init( int *argcptr, char **argv )
@@ -2595,23 +2605,28 @@ bool QETWidget::translateKeyEvent( const XEvent *event, bool grab )
     static int composingKeycode;
 
     if ( type == Event_KeyPress ) {
-	QWExtra * xd = extraData();
-	if ( !xd ) {
-	    createExtra();
-	    xd = extraData();
-	}
-	if ( xd->xic == 0 )
-	    xd->xic = (void*)XCreateIC( xim, XNInputStyle,
-					XIMPreeditNothing + XIMStatusNothing,
-					XNClientWindow, winId(),
-					0 );
-	if ( XFilterEvent( (XEvent*)event, winId() ) ) {
-	    composingKeycode = keycode; // ### this is not documented in xlib
-	    return TRUE;
-	}
+	if ( xim ) {
+	    QWExtra * xd = extraData();
+	    if ( !xd ) {
+		createExtra();
+		xd = extraData();
+	    }
+	    if ( xd->xic == 0 )
+		xd->xic = (void*)XCreateIC( xim, XNInputStyle,
+					    XIMPreeditNothing+XIMStatusNothing,
+					    XNClientWindow, winId(),
+					    0 );
+	    if ( XFilterEvent( (XEvent*)event, winId() ) ) {
+		composingKeycode = keycode; // ### not documented in xlib
+		return TRUE;
+	    }
 
-	count = XmbLookupString( (XIC)(xd->xic), &((XEvent*)event)->xkey,
-				 ascii, 16, &key, &status );
+	    count = XmbLookupString( (XIC)(xd->xic), &((XEvent*)event)->xkey,
+				     ascii, 16, &key, &status );
+	} else {
+	    count = XLookupString( &((XEvent*)event)->xkey,
+				   ascii, 16, &key, 0 );
+	}
 
 	if ( count && !keycode ) {
 	    keycode = composingKeycode;
