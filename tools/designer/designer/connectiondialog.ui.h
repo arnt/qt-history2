@@ -253,7 +253,7 @@ void ConnectionDialog::deleteClicked()
     connectionsTable->removeRow( cr );
     connections.remove( cr );
 
-    int i;
+    int i = 0;
     for ( ConnectionContainer *c = connections.first(); c; c = connections.next() )
 	c->setRow( i++ );
 }
