@@ -69,3 +69,7 @@ TRANSLATIONS        = assistant_de.ts \
 
 
 unix:!contains(QT_CONFIG, zlib):LIBS += -lz
+
+
+target.path=$$bins.path
+INSTALLS += target
