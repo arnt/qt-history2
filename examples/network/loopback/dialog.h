@@ -37,6 +37,7 @@ private:
     QTcpServer tcpServer;
     QTcpSocket tcpClient;
     QTcpSocket *tcpServerConnection;
+    int bytesToWrite;
     int bytesWritten;
     int bytesReceived;
 };

@@ -4,6 +4,7 @@
 #include "dialog.h"
 
 static const int TotalBytes = 50 * 1024 * 1024;
+static const int PayloadSize = 65536;
 
 Dialog::Dialog(QWidget *parent)
     : QDialog(parent)
@@ -78,13 +79,15 @@ void Dialog::acceptConnection()
 
 void Dialog::startTransfer()
 {
-    tcpClient.write(QByteArray(TotalBytes, '@'));
+    bytesToWrite = TotalBytes - (int)tcpClient.write(QByteArray(PayloadSize, '@'));
     clientStatusLabel->setText(tr("Connected"));
 }
 
 void Dialog::updateServerProgress()
 {
-    bytesReceived = (int)tcpServerConnection->bytesAvailable();
+    bytesReceived += (int)tcpServerConnection->bytesAvailable();
+    tcpServerConnection->readAll();
+
     serverProgressBar->setMaximum(TotalBytes);
     serverProgressBar->setValue(bytesReceived);
     serverStatusLabel->setText(tr("Received %1MB")
@@ -100,6 +103,9 @@ void Dialog::updateServerProgress()
 void Dialog::updateClientProgress(Q_LONGLONG numBytes)
 {
     bytesWritten += (int)numBytes;
+    if (bytesToWrite > 0)
+        bytesToWrite -= (int)tcpClient.write(QByteArray(qMin(bytesToWrite, PayloadSize), '@'));
+
     clientProgressBar->setMaximum(TotalBytes);
     clientProgressBar->setValue(bytesWritten);
     clientStatusLabel->setText(tr("Sent %1MB")
