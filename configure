@@ -2224,16 +2224,6 @@ if [ "$CFG_STL" = "no" ]; then
 else
     QMAKE_CONFIG="$QMAKE_CONFIG stl"
 fi
-if [ "$CFG_LIBJPEG" = "system" ]; then
-    QMAKE_CONFIG="$QMAKE_CONFIG system-jpeg"
-    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT+=-ljpeg\""
-fi
-if [ "$CFG_JPEG" = "no" ]; then
-    QMAKE_CONFIG="$QMAKE_CONFIG no-jpeg"
-elif [ "$CFG_JPEG" = "yes" ]; then
-    QMAKE_CONFIG="$QMAKE_CONFIG jpeg"
-fi
-
 if [ "$CFG_LIBMNG" = "system" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG system-mng"
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT+=-lmng\""
@@ -2242,6 +2232,15 @@ if [ "$CFG_MNG" = "no" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG no-mng"
 elif [ "$CFG_MNG" = "yes" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG mng"
+fi
+if [ "$CFG_LIBJPEG" = "system" ]; then
+    QMAKE_CONFIG="$QMAKE_CONFIG system-jpeg"
+    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT+=-ljpeg\""
+fi
+if [ "$CFG_JPEG" = "no" ]; then
+    QMAKE_CONFIG="$QMAKE_CONFIG no-jpeg"
+elif [ "$CFG_JPEG" = "yes" ]; then
+    QMAKE_CONFIG="$QMAKE_CONFIG jpeg"
 fi
 if [ "$CFG_LIBPNG" = "system" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG system-png"
