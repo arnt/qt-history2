@@ -128,10 +128,12 @@ public:
     int precision() const;
     void setPrecision(int p);
 
-    int flags(int f) { int old = flags(); setFlags(f); return old; }
-    int width(int w) { int old = width(); setWidth(w); return old; }
-    int fill(int f) { int old = fill(); setFill(f); return old; }
-    int precision(int p) { int old = precision(); setPrecision(p); return old; }
+#ifdef QT_COMPAT
+    inline QT_COMPAT int flags(int f) { int old = flags(); setFlags(f); return old; }
+    inline QT_COMPAT int width(int w) { int old = width(); setWidth(w); return old; }
+    inline QT_COMPAT int fill(int f) { int old = fill(); setFill(f); return old; }
+    inline QT_COMPAT int precision(int p) { int old = precision(); setPrecision(p); return old; }
+#endif
 
 private:
     Q_DISABLE_COPY(QTextStream)
@@ -140,7 +142,9 @@ private:
     QTextStreamPrivate *d_ptr;
 };
 
+#ifdef QT_COMPAT
 typedef QTextStream QTS;
+#endif
 
 class Q_CORE_EXPORT QTextIStream : public QTextStream
 {
@@ -169,7 +173,7 @@ private:
  *****************************************************************************/
 
 typedef QTextStream & (*QTSFUNC)(QTextStream &);// manipulator function
-typedef int (QTextStream::*QTSMFI)(int);        // manipulator w/int argument
+typedef void (QTextStream::*QTSMFI)(int);        // manipulator w/int argument
 
 class Q_CORE_EXPORT QTSManip
 {
@@ -202,19 +206,19 @@ Q_CORE_EXPORT QTextStream &reset(QTextStream &s);        // set default flags
 
 inline QTSManip qSetW(int w)
 {
-    QTSMFI func = &QTextStream::width;
+    QTSMFI func = &QTextStream::setWidth;
     return QTSManip(func,w);
 }
 
 inline QTSManip qSetFill(int f)
 {
-    QTSMFI func = &QTextStream::fill;
+    QTSMFI func = &QTextStream::setFill;
     return QTSManip(func,f);
 }
 
 inline QTSManip qSetPrecision(int p)
 {
-    QTSMFI func = &QTextStream::precision;
+    QTSMFI func = &QTextStream::setPrecision;
     return QTSManip(func,p);
 }
 
