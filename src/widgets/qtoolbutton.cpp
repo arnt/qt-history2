@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#52 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#53 $
 **
 ** Implementation of QToolButton class
 **
@@ -194,7 +194,8 @@ void QToolButton::setToggleButton( bool enable )
 
 QSize QToolButton::sizeHint() const
 {
-    int w, h;
+    int w = 0;
+    int h = 0;
 
     if ( !text().isNull()) {
 	w = fontMetrics().width( text() );

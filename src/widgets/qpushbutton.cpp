@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#135 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#136 $
 **
 ** Implementation of QPushButton class
 **
@@ -193,7 +193,8 @@ void QPushButton::setDefault( bool enable )
 
 QSize QPushButton::sizeHint() const
 {
-    int w, h;
+    int w = 0;
+    int h = 0;
     if ( pixmap() ) {
 	QPixmap *pm = (QPixmap *)pixmap();
 	w = pm->width()	 + 6;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#77 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#78 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -524,7 +524,7 @@ QByteArray QTextDrag::encodedData(const char* mime) const
 {
     QCString r;
     if ( 0==strnicmp(mime,"text/",5) ) {
-	QTextCodec *codec;
+	QTextCodec *codec = 0;
 	if ( 0==stricmp(mime,"text/plain") ) {
 	    codec = QTextCodec::codecForLocale();
 	} else if ( 0==stricmp(mime,"text/utf16")

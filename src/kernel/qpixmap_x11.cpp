@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#151 $
+** $Id: //depot/qt/main/src/kernel/qpixmap_x11.cpp#152 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -1541,7 +1541,8 @@ QPixmap QPixmap::grabWindow( WId window, int x, int y, int w, int h )
 
 QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 {
-    int	   w, h;				// size of target pixmap
+    int	   w = 0;
+    int	   h = 0;				// size of target pixmap
     int	   ws, hs;				// size of source pixmap
     uchar *dptr;				// data in target pixmap
     int	   dbpl, dbytes;			// bytes per line/bytes total
