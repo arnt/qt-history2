@@ -3157,16 +3157,22 @@ void QTable::setNumRows( int r )
 	return;
     leftHeader->setUpdatesEnabled( FALSE );
     bool updateBefore = r < numRows();
+    int w = leftMargin();
     if ( r > numRows() ) {
 	clearSelection( FALSE );
 	while ( numRows() < r ) {
 	    leftHeader->addLabel( QString::number( numRows() + 1 ), 20 );
+	    int tmpw = fontMetrics().width( QString::number( numRows() + 1 ) + "  " );
+	    w = QMAX( w, tmpw );
 	}
     } else {
 	clearSelection( FALSE );
 	while ( numRows() > r )
 	    leftHeader->removeLabel( numRows() - 1 );
     }
+
+    if ( w > leftMargin() )
+	setLeftMargin( w );
 
     QVector<QTableItem> tmp;
     tmp.resize( contents.size() );
@@ -3211,9 +3217,8 @@ void QTable::setNumCols( int c )
     bool updateBefore = c < numCols();
     if ( c > numCols() ) {
 	clearSelection( FALSE );
-	while ( numCols() < c ) {
+	while ( numCols() < c )
 	    topHeader->addLabel( QString::number( numCols() + 1 ), 100 );
-	}
     } else {
 	clearSelection( FALSE );
 	while ( numCols() > c )
