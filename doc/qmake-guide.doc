@@ -45,6 +45,8 @@
 <li><a href="#Details"><em>qmake</em> Details</a></li> 
 </ul>
 
+See also the <a href="qmake-commandreference.html"><em>qmake</em> Command Reference</a>.
+
 <h1><a name="About">About This Manual</a></li>
 
 This manual describes <em>qmake</em>, a cross-platform utility for
@@ -136,22 +138,23 @@ variable properly before you run qmake.
 
 <h1><a name="Introduction">Introducting qmake</a></li>
 
-\e qmake is a simple tool from Trolltech to create and
-maintain makefiles for software projects.  <em>qmake</em> provides all
-of the functionality involved in generating complex makefiles using a
-single 'project' specification.  That 'project' can be targeted to
-create makefiles for different platforms.  It can be a painful task to
-manage makefiles manually, especially if you develop for more than one
-platform or use more than one compiler.  <em>qmake</em> automates and
-streamlines this process, allowing you to spend your valuable time on
-writing code, not makefiles.
+\e qmake is a simple tool from Trolltech to create and maintain
+makefiles for software projects across multiple platforms.
+<em>qmake</em> provides all of the functionality involved in
+generating complex makefiles using a single 'project' specification.
+That 'project' can be targeted to create makefiles for different
+platforms.  It can be a painful task to manage makefiles manually,
+especially if you develop for more than one platform or use more than
+one compiler.  <em>qmake</em> automates and streamlines this process,
+allowing you to spend your valuable time on writing code, not
+makefiles.
 
 <em>qmake</em> can be used for any software project of any size,
 however <em>qmake</em> contains special features to support developing
 applications with <a href="http://www.trolltech.com">Trolltech's</a>
 <a href="http://www.trolltech.com/qt"> Qt</a> library.
 
-<em>qmake</em> is part of the Qt library and is licensed under several
+<em>qmake</em> is a part of the Qt library and is licensed under several
 licenses, including the QPL, GPL and a commercial license.  See the <a
 href="http://doc.trolltech.com/licenses.html">Qt</a> LICENSE file for
 details.
@@ -176,18 +179,23 @@ for:
 <h3><a name="QMAKEPATH">QMAKEPATH</a></h3>
 
 <em>qmake</em> requires a description of your platform so that a
-suitable makefile can be generated.  These descriptions are kept in
-'makefile specifications', or <a href="#QMAKEPATH">QMAKEPATH</a> files.  An
-QMAKEPATH directory contains the basic information about a platform and
-compiler, such as the compiler to use, the names of system libraries
-and location of system headers.  On startup, <em>qmake</em> will
-attempt to locate the QMAKEPATH file for your platform, and load all of
-its default values.  The QMAKEPATH environment variable can be used to
-tell <em>qmake</em> where to find this file, or a command line option
-can be given.  <em>qmake</em> ships with many standard QMAKEPATH files
-for many platform-compiler combinations.  See the <a
-href="qmake-commandreference.html#QMAKEPATH"<em>qmake</em> command
-reference</a> for more info.
+suitable makefile can be generated.  These descriptions are kept in a
+'makefile specification' files called qmake.conf. <em>qmake</em>
+requires this configuration file in order to generate appropriate
+makefiles for specific platform and compiler combinations.  The \c
+QMAKEPATH environment variable must be set to the name of a directory
+which contains this configuration file.  The qmake.conf file will
+contain such basic information as the compiler to use, the names of
+system libraries and location of system headers.  
+
+On startup, <em>qmake</em> will attempt to locate the qmake.conf file
+for your platform by using the QMAKEPATH environment variable.  Alternatively, 
+load all of its default values.  The QMAKEPATH environment variable
+can be used to tell <em>qmake</em> where to find this file, or a
+command line option can be given.  <em>qmake</em> ships with many
+standard QMAKEPATH files for many platform-compiler combinations.  See
+the <a href="qmake-commandreference.html#QMAKEPATH"<em>qmake</em>
+command reference</a> for more info.
 
 The QMAKEPATH environment variable should point to a directory which
 contains information about your platform and compiler.  When invoked,
