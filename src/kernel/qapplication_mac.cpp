@@ -1318,8 +1318,9 @@ bool QApplication::do_mouse_down( Point *pt )
     {
 	Rect limits;
 	SetRect( &limits, -2, 0, 0, 0 );
-	int wstrut = 0, hstrut = 0;
+
 	if( widget ) {
+	    int wstrut = 0, hstrut = 0;
 	    if(widget->fstrut_dirty)
 		widget->updateFrameStrut();
 	    if(QTLWExtra *tlextra = widget->topData()) {
@@ -1338,7 +1339,7 @@ bool QApplication::do_mouse_down( Point *pt )
 	    int nh = HiWord( growWindowSize );
 	    if(nw != widget->width() || nh != widget->height()) {
 		if( nw < desktop()->width() && nw > 0 && nh < desktop()->height() && nh > 0 && widget)
-			widget->resize(nw-wstrut, nh-hstrut);
+			widget->resize(nw, nh);
 	    }
 	}
 	break;
