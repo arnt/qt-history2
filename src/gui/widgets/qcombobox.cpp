@@ -44,6 +44,8 @@ ListViewContainer::ListViewContainer(QListView *listView, QWidget *parent)
     list->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     list->viewport()->installEventFilter(this);
     setFocusProxy(list);
+    list->setAttribute(Qt::WA_CompositeChild);
+    setAttribute(Qt::WA_CompositeParent);
     QStyleOptionComboBox opt;
     opt.init(parent);
     if (QComboBox *cmb = qt_cast<QComboBox *>(parent))
@@ -461,7 +463,7 @@ void QComboBoxPrivate::init()
     d->model = l->model();
     container = new ListViewContainer(l, q);
     container->setParent(q, Qt::WType_Popup);
-    q->setFocusPolicy(Qt::StrongFocus);
+    q->setFocusPolicy(Qt::TabFocus);
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     q->setCurrentItem(0);
     QStyleOptionComboBox opt = getStyleOption();
@@ -765,6 +767,7 @@ void QComboBox::setEditable(bool editable)
         return;
 
     if (editable) {
+        setFocusPolicy(Qt::StrongFocus);
         setLineEdit(new QLineEdit(this));
     } else {
         delete d->lineEdit;
@@ -789,6 +792,7 @@ void QComboBox::setLineEdit(QLineEdit *edit)
     edit->setText(currentText());
     delete d->lineEdit;
 
+    setFocusPolicy(Qt::StrongFocus);
     d->lineEdit = edit;
     if (d->lineEdit->parent() != this)
 	d->lineEdit->setParent(this);
