@@ -169,7 +169,7 @@ private:
     Q_PRIVATE_SLOT(d, void enterSubdir(const QModelIndex &index))
     Q_PRIVATE_SLOT(d, void keyPressed(const QModelIndex &index, Qt::Key key, Qt::KeyboardModifiers modifiers))
     Q_PRIVATE_SLOT(d, void deletePressed(const QModelIndex &index))
-    Q_PRIVATE_SLOT(d, void currentChanged(const QModelIndex &current, const QModelIndex &previous))
+    Q_PRIVATE_SLOT(d, void selectionChanged(const QItemSelection &selection))
     Q_PRIVATE_SLOT(d, void fileNameChanged(const QString &text))
     Q_PRIVATE_SLOT(d, void lookInChanged(const QString &text))
     Q_PRIVATE_SLOT(d, void useFilter(const QString &filter))

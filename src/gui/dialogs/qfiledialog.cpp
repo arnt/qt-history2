@@ -106,7 +106,7 @@ public:
     void enterSubdir(const QModelIndex &index);
     void keyPressed(const QModelIndex &index, Qt::Key key, Qt::KeyboardModifiers modifiers);
     void deletePressed(const QModelIndex &index);
-    void currentChanged(const QModelIndex &current, const QModelIndex &previous);
+    void selectionChanged(const QItemSelection &selection);
     void fileNameChanged(const QString &text);
     void lookInChanged(const QString &text);
     void useFilter(const QString &filter);
@@ -555,14 +555,18 @@ QStringList QFileDialog::selectedFiles() const
         }
     }
 
-    QString filename = d->toInternal(d->fileName->text());
-    if ((d->fileMode == AnyFile && files.count() <= 0)
-        ||(d->fileMode == ExistingFile && QFileInfo(filename).exists())) { // a new filename
-        if (QFileInfo(filename).isAbsolute())
-            files.append(filename);
-        else
-            files.append(d->toInternal(d->lookIn->currentText() + QDir::separator() + filename));
+    QStringList fileNames = d->fileName->text().split(' ', QString::SkipEmptyParts);
+    for (int j = 0; j < fileNames.count(); ++j) {
+        QString name = d->toInternal(fileNames.at(j));
+        if ((d->fileMode == AnyFile && files.count() <= 0)
+            ||(d->fileMode == ExistingFile && QFileInfo(name).exists())) { // a new filename
+            if (QFileInfo(name).isAbsolute())
+                files.append(name);
+            else
+                files.append(d->toInternal(d->lookIn->currentText() + QDir::separator() + name));
+        }
     }
+
     return files;
 }
 
@@ -987,14 +991,18 @@ void QFileDialogPrivate::deletePressed(const QModelIndex &index)
     from \a index to \a current.
 */
 
-void QFileDialogPrivate::currentChanged(const QModelIndex &current,
-                                        const QModelIndex &previous)
+void QFileDialogPrivate::selectionChanged(const QItemSelection &selection)
 {
-    Q_UNUSED(previous);
-    if (!fileName->hasFocus() && current.isValid()) {
-        QString text = model->data(current).toString();
-        fileName->setText(text);
+    if (fileName->hasFocus())
+        return; // the selection changed because of autocompletion
+
+    QString text;
+    QModelIndexList indexes = selections->selectedIndexes();
+    for (int i = 0; i < indexes.count(); ++i) {
+        text.append(model->data(indexes.at(i)).toString());
+        text.append(" ");
     }
+    fileName->setText(text);
 }
 
 /*!
@@ -1332,8 +1340,10 @@ void QFileDialogPrivate::setup(const QString &directory,
 
     // Selections
     selections = new QItemSelectionModel(model);    
-    QObject::connect(selections, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
-                     q, SLOT(currentChanged(QModelIndex,QModelIndex)));
+    QObject::connect(selections,
+                     SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
+                     q, SLOT(selectionChanged(const QItemSelection&)));
+    
 
     QModelIndex current = directory.isEmpty() ? QModelIndex() : model->index(directory);
 
