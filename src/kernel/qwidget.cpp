@@ -2715,7 +2715,7 @@ void QWidget::paletteChange( const QPalette & )
 void QWidget::setFont( const QFont &font )
 {
     own_font = TRUE;
-    if ( fnt == font && fnt.d->request.mask == font.d->request.mask )
+    if ( fnt == font && fnt.d->mask == font.d->mask )
 	return;
     QFont old = fnt;
     fnt = font.resolve( qt_naturalWidgetFont( this ) );

@@ -63,8 +63,7 @@ struct QFontDef
     QFontDef()
 	: family_hash( 0 ), pointSize( -1 ), pixelSize( -1 ),
 	  styleHint( QFont::AnyStyle ), styleStrategy( QFont::PreferDefault ),
-	  weight( 50 ), italic( FALSE ), underline( FALSE ), overline( FALSE ),
-	  strikeOut( FALSE ), fixedPitch( FALSE ), stretch( 100 ), mask( 0 )
+	  weight( 50 ), italic( FALSE ), fixedPitch( FALSE ), stretch( 100 )
     {
     }
 
@@ -83,41 +82,16 @@ struct QFontDef
 
     uint weight     :  7; // 0-99
     uint italic     :  1;
-    uint underline  :  1;
-    uint overline   :  1;
-    uint strikeOut  :  1;
     uint fixedPitch :  1;
     uint stretch    : 12; // 0-400
 
     uint reserved   : 16; // for future extensions
-
-    enum {
-	Family        = 0x0001,
-	Size          = 0x0002,
-	StyleHint     = 0x0004,
-	StyleStrategy = 0x0008,
-	Weight        = 0x0010,
-	Italic        = 0x0020,
-	Underline     = 0x0040,
-	Overline      = 0x0080,
-	StrikeOut     = 0x0100,
-	FixedPitch    = 0x0200,
-	Stretch       = 0x0400,
-	Complete      = 0x07ff,
-
-	RawMode       = 0x10000000
-    };
-
-    uint mask;
 
     inline bool operator<( const QFontDef &other ) const
     {
 	if ( pixelSize != other.pixelSize ) return pixelSize < other.pixelSize;
 	if ( weight != other.weight ) return weight < other.weight;
 	if ( italic != other.italic ) return italic < other.italic;
-	if ( underline != other.underline ) return underline < other.underline;
-	if ( overline != other.overline ) return overline < other.overline;
-	if ( fixedPitch != other.fixedPitch ) return fixedPitch < other.fixedPitch;
 	if ( stretch != other.stretch ) return stretch < other.stretch;
 	if ( styleHint != other.styleHint ) return styleHint < other.styleHint;
 	if ( styleStrategy != other.styleStrategy ) return styleStrategy < other.styleStrategy;
@@ -139,9 +113,6 @@ struct QFontDef
 		 styleStrategy == other.styleStrategy &&
 		 weight        == other.weight        &&
 		 italic        == other.italic        &&
-		 underline     == other.underline     &&
-		 overline      == other.overline      &&
-		 strikeOut     == other.strikeOut     &&
 		 fixedPitch    == other.fixedPitch    &&
 		 stretch       == other.stretch       &&
 		 family        == other.family
@@ -149,47 +120,6 @@ struct QFontDef
 		 && addStyle == other.addStyle
 #endif // Q_WS_X11
 		 );
-    }
-
-    inline void resolve( const QFontDef &other )
-    {
-	if ( ( mask & Complete ) == Complete ) return;
-
-	// assign the unset-bits with the set-bits of the other font def
-	if ( ! ( mask & Family ) )
-	    family = other.family;
-
-	if ( ! ( mask & Size ) ) {
-	    pointSize = other.pointSize;
-	    pixelSize = other.pixelSize;
-	}
-
-	if ( ! ( mask & StyleHint ) )
-	    styleHint = other.styleHint;
-
-	if ( ! ( mask & StyleStrategy ) )
-	    styleStrategy = other.styleStrategy;
-
-	if ( ! ( mask & Weight ) )
-	    weight = other.weight;
-
-	if ( ! ( mask & Italic ) )
-	    italic = other.italic;
-
-	if ( ! ( mask & Underline ) )
-	    underline = other.underline;
-
-	if ( ! ( mask & Overline ) )
-	    overline = other.overline;
-
-	if ( ! ( mask & StrikeOut ) )
-	    strikeOut = other.strikeOut;
-
-	if ( ! ( mask & FixedPitch ) )
-	    fixedPitch = other.fixedPitch;
-
-	if ( ! ( mask & Stretch ) )
-	    stretch = other.stretch;
     }
 };
 
@@ -231,7 +161,7 @@ public:
 	return engineData->engines[script];
 #else
         if ( ! engineData || ! engineData->engine )
-	  ((QFontPrivate *) this)->load( script );
+	    ((QFontPrivate *) this)->load( script );
         return engineData->engine;
 #endif // Q_WS_X11 || Q_WS_WIN
     }
@@ -240,6 +170,31 @@ public:
     QFontEngineData *engineData;
     QPaintDevice *paintdevice;
     int screen;
+
+    uint underline  :  1;
+    uint overline   :  1;
+    uint strikeOut  :  1;
+
+    enum {
+	Family        = 0x0001,
+	Size          = 0x0002,
+	StyleHint     = 0x0004,
+	StyleStrategy = 0x0008,
+	Weight        = 0x0010,
+	Italic        = 0x0020,
+	Underline     = 0x0040,
+	Overline      = 0x0080,
+	StrikeOut     = 0x0100,
+	FixedPitch    = 0x0200,
+	Stretch       = 0x0400,
+	Complete      = 0x07ff,
+
+	RawMode       = 0x10000000
+    };
+
+    uint mask;
+
+    void resolve( const QFontPrivate *other );
 };
 
 

@@ -62,10 +62,10 @@ QFontEngineMac::stringToCMap(const QChar *str, int len, glyph_t *glyphs, advance
 
 void
 QFontEngineMac::draw(QPainter *p, int x, int y, const glyph_t *glyphs,
-		      const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse)
+		      const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse, int textFlags )
 {
     uchar task = DRAW;
-    if(fontDef.underline || fontDef.strikeOut)
+    if( textFlags != 0 )
 	task |= WIDTH; //I need the width for these..
     int w = 0;
     const QRegion &rgn = qt_mac_update_painter(p, FALSE);
@@ -85,9 +85,9 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const glyph_t *glyphs,
 	MoveTo(x, y);
 	w = doTextTask((QChar*)glyphs, 0, numGlyphs, numGlyphs, task, x, y, p->device(), &rgn);
     }
-    if(w && (fontDef.underline || fontDef.strikeOut)) {
+    if(w && textFlags != 0) {
 	int lineWidth = p->fontMetrics().lineWidth();
-	if(fontDef.underline) {
+	if(textFlags & Underline) {
 	    Rect r;
 	    SetRect(&r, x, (y + 2) - (lineWidth / 2),
 		    x + w, (y + 2) + (lineWidth / 2));
@@ -95,7 +95,7 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const glyph_t *glyphs,
 		r.bottom++;
 	    PaintRect(&r);
 	}
-	if(fontDef.overline) {
+	if(textFlags & Overline) {
 	    int spos = ascent() + 1;
 	    Rect r;
 	    SetRect(&r, x, (y - spos) - (lineWidth / 2),
@@ -104,7 +104,7 @@ QFontEngineMac::draw(QPainter *p, int x, int y, const glyph_t *glyphs,
 		r.bottom++;
 	    PaintRect(&r);
 	}
-	if(fontDef.strikeOut) {
+	if(textFlags & StrikeOut) {
 	    int spos = ascent() / 3;
 	    if(!spos)
 		spos = 1;

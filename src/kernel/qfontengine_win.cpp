@@ -192,7 +192,7 @@ QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, glyp
 }
 
 void QFontEngineWin::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
-	   const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse )
+	   const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse, int textFlags )
 {
     Q_UNUSED( p );
     HDC hdc = dc();
@@ -465,7 +465,7 @@ typedef HRESULT (WINAPI *fScriptTextOut)( const HDC, SCRIPT_CACHE *, int, int, U
 extern fScriptTextOut ScriptTextOut;
 
 void QFontEngineUniscribe::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
-	   const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse )
+	   const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse, int textFlags )
 {
     ScriptTextOut(
     HDC hdc = dc();
@@ -532,7 +532,7 @@ QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *,  int len, glyph_
 }
 
 void QFontEngineBox::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
-			  const advance_t *advances, const offset_t *offsets, int numGlyphs, bool )
+			  const advance_t *advances, const offset_t *offsets, int numGlyphs, bool, int )
 {
     Q_UNUSED( p );
     Q_UNUSED( x );

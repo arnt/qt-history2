@@ -44,7 +44,7 @@ QFontEngine::Error QFontEngine::stringToCMap( const QChar *str, int len, glyph_t
 }
 
 void QFontEngine::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
-			const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse )
+			const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse, int textFlags )
 {
     // ### Fix non spacing marks, use advances and offsets
     p->internalGfx()->drawText(x, y, QConstString((QChar *)glyphs, numGlyphs).string() );

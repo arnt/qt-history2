@@ -1942,8 +1942,14 @@ void QPainter::drawText(int x, int y, const QString &str, int pos, int len, QPai
 	QScriptItem *si = &engine->items[i];
 	QFontEngine *fe = si->fontEngine;
 	Q_ASSERT(fe);
+
+	int textFlags = 0;
+	if ( cfont.d->underline ) textFlags |= QFontEngine::Underline;
+	if ( cfont.d->overline ) textFlags |= QFontEngine::Overline;
+	if ( cfont.d->strikeOut ) textFlags |= QFontEngine::StrikeOut;
+
 	fe->draw(this, x + si->x,  y + si->y - ascent, engine->glyphs( si ), engine->advances( si ),
-		 engine->offsets( si ), si->num_glyphs, si->analysis.bidiLevel % 2);
+		 engine->offsets( si ), si->num_glyphs, si->analysis.bidiLevel % 2, textFlags);
     }
 }
 
@@ -1992,8 +1998,14 @@ void QPainter::drawTextItem(int x, int y, const QTextItem &ti, int *ulChars, int
     }
 #endif
     updatePen();
+
+    int textFlags = 0;
+    if ( cfont.d->underline ) textFlags |= QFontEngine::Underline;
+    if ( cfont.d->overline ) textFlags |= QFontEngine::Overline;
+    if ( cfont.d->strikeOut ) textFlags |= QFontEngine::StrikeOut;
+
     fe->draw(this, x,  y, engine->glyphs( &si ), engine->advances( &si ),
-	     engine->offsets( &si ), si.num_glyphs, si.analysis.bidiLevel % 2);
+	     engine->offsets( &si ), si.num_glyphs, si.analysis.bidiLevel % 2, textFlags);
 
     if ( ulChars ) {
         int ulpos = fe->underlinePosition();

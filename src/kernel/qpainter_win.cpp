@@ -2533,8 +2533,14 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 	HDC oldDC = fe->hdc;
 	fe->hdc = hdc;
 	SelectObject( hdc, fe->hfont );
+
+	int textFlags = 0;
+	if ( cfont.d->underline ) textFlags |= QFontEngine::Underline;
+	if ( cfont.d->overline ) textFlags |= QFontEngine::Overline;
+	if ( cfont.d->strikeOut ) textFlags |= QFontEngine::StrikeOut;
+
 	fe->draw( this, xpos,  ypos, engine->glyphs( &si ), engine->advances( &si ),
-		  engine->offsets( &si ), si.num_glyphs, rightToLeft );
+		  engine->offsets( &si ), si.num_glyphs, rightToLeft, textFlags );
 	fe->hdc = oldDC;
 	if ( rop != CopyROP ) {
 #ifndef Q_OS_TEMP
@@ -2584,15 +2590,21 @@ void QPainter::drawTextItem( int x,  int y, const QTextItem &ti, int *ulChars, i
     HDC oldDC = fe->hdc;
     fe->hdc = hdc;
     SelectObject( hdc, fe->hfont );
+
+    int textFlags = 0;
+    if ( cfont.d->underline ) textFlags |= QFontEngine::Underline;
+    if ( cfont.d->overline ) textFlags |= QFontEngine::Overline;
+    if ( cfont.d->strikeOut ) textFlags |= QFontEngine::StrikeOut;
+
     fe->draw( this, x,  y, engine->glyphs( &si ), engine->advances( &si ),
-		  engine->offsets( &si ), si.num_glyphs, rightToLeft );
+	      engine->offsets( &si ), si.num_glyphs, rightToLeft, textFlags );
     fe->hdc = oldDC;
 
     if ( ulChars ) {
 	uint pix = COLOR_VALUE(cpen.data->color);
 	HBRUSH tbrush = CreateSolidBrush( pix );
 	SelectObject( hdc, tbrush );
-	
+
 	// draw underlines
 	for ( int i = 0; i < nUlChars; i++ ) {
 	    // ### fix for ligatures and indic syllables

@@ -3160,8 +3160,13 @@ void QPainter::drawText( int x, int y, const QString &str, int pos, int len, QPa
 
 	bool rightToLeft = si.analysis.bidiLevel % 2;
 
+	int textFlags = 0;
+	if ( cfont.d->underline ) textFlags |= QFontEngine::Underline;
+	if ( cfont.d->overline ) textFlags |= QFontEngine::Overline;
+	if ( cfont.d->strikeOut ) textFlags |= QFontEngine::StrikeOut;
+
 	fe->draw( this, xpos,  ypos, engine.glyphs( &si ), engine.advances( &si ),
-		  engine.offsets( &si ), si.num_glyphs, rightToLeft );
+		  engine.offsets( &si ), si.num_glyphs, rightToLeft, textFlags );
     }
     layout.d = 0;
 }
@@ -3284,8 +3289,13 @@ void QPainter::drawTextItem( int x,  int y, const QTextItem &ti, int *ulChars, i
 
     bool rightToLeft = si.analysis.bidiLevel % 2;
 
+    int textFlags = 0;
+    if ( cfont.d->underline ) textFlags |= QFontEngine::Underline;
+    if ( cfont.d->overline ) textFlags |= QFontEngine::Overline;
+    if ( cfont.d->strikeOut ) textFlags |= QFontEngine::StrikeOut;
+
     fe->draw( this, x,  y, engine->glyphs( &si ), engine->advances( &si ),
-		  engine->offsets( &si ), si.num_glyphs, rightToLeft );
+	      engine->offsets( &si ), si.num_glyphs, rightToLeft, textFlags );
 
     if ( ulChars ) {
 	// draw underlines

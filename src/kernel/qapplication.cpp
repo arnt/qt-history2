@@ -1890,7 +1890,7 @@ void QApplication::setFont( const QFont &font, bool informWidgets,
 
 	// make sure the application font is complete
 	app_font->detach();
-	app_font->d->request.mask = QFontDef::Complete;
+	app_font->d->mask = QFontPrivate::Complete;
 
 	all = app_fonts != 0;
 	delete app_fonts;

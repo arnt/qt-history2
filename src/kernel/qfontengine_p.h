@@ -55,9 +55,15 @@ public:
     virtual QOpenType *openType() const { return 0; }
 #endif
 
+    enum TextFlags {
+	Underline = 0x01,
+	Overline  = 0x02,
+	StrikeOut = 0x04
+    };
+
     virtual void draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 		       const advance_t *advances, const offset_t *offsets,
-		       int numGlyphs, bool reverse ) = 0;
+		       int numGlyphs, bool reverse, int textFlags ) = 0;
 
     virtual glyph_metrics_t boundingBox( const glyph_t *glyphs,
 					 const advance_t *advances,
@@ -129,7 +135,7 @@ public:
     Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const;
 
     void draw( QPainter *p, int x, int y, const glyph_t *glyphs,
-	       const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse );
+	       const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse, int textFlags );
 
     glyph_metrics_t boundingBox( const glyph_t *glyphs,
 			       const advance_t *advances, const offset_t *offsets, int numGlyphs );
@@ -179,7 +185,7 @@ public:
     Error stringToCMap( const QChar *str,  int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const;
 
     void draw( QPainter *p, int x, int y, const glyph_t *glyphs,
-	       const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse );
+	       const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse, int textFlags );
 
     virtual glyph_metrics_t boundingBox( const glyph_t *glyphs,
 				    const advance_t *advances, const offset_t *offsets, int numGlyphs );
@@ -230,7 +236,7 @@ public:
     Error stringToCMap( const QChar *str,  int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const;
 
     void draw( QPainter *p, int x, int y, const glyph_t *glyphs,
-	       const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse );
+	       const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse, int textFlags );
 
     virtual glyph_metrics_t boundingBox( const glyph_t *glyphs,
 				    const advance_t *advances, const offset_t *offsets, int numGlyphs );
@@ -278,7 +284,7 @@ public:
     Error stringToCMap( const QChar *str,  int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const;
 
     void draw( QPainter *p, int x, int y, const glyph_t *glyphs,
-	       const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse );
+	       const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse, int textFlags );
 
     virtual glyph_metrics_t boundingBox( const glyph_t *glyphs,
 				    const advance_t *advances, const offset_t *offsets, int numGlyphs );
@@ -368,7 +374,7 @@ public:
     Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const;
 
     void draw( QPainter *p, int x, int y, const glyph_t *glyphs,
-	       const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse );
+	       const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse, int textFlags );
 
     glyph_metrics_t boundingBox( const glyph_t *glyphs,
 			       const advance_t *advances, const offset_t *offsets, int numGlyphs );
@@ -406,7 +412,7 @@ public:
     Error stringToCMap( const QChar *str, int len, glyph_t *glyphs, advance_t *advances, int *nglyphs ) const;
 
     void draw( QPainter *p, int x, int y, const glyph_t *glyphs,
-	       const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse );
+	       const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse, int textFlags );
 
     glyph_metrics_t boundingBox( const glyph_t *glyphs,
 			       const advance_t *advances, const offset_t *offsets, int numGlyphs );
@@ -431,7 +437,7 @@ class QFontEngineUniscribe : public QFontEngineWin
 {
 public:
     void draw( QPainter *p, int x, int y, const glyph_t *glyphs,
-	       const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse );
+	       const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse, int textFlags );
     bool canRender( const QChar *string,  int len );
 
     Type type() const;

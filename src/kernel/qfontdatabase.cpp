@@ -503,9 +503,9 @@ static inline bool canRender( QFontEngine *fe, const QChar &sample )
     if ( !fe ) return FALSE;
 
     QChar chs[2] = { QChar(0xfffe), sample };
-    bool hasChar = 
+    bool hasChar =
 #ifndef Q_OS_TEMP
-	!fe->canRender( chs, 1 ) && 
+	!fe->canRender( chs, 1 ) &&
 #endif
 	fe->canRender( chs+1, 1 );
 
@@ -830,7 +830,7 @@ QFontDatabase::findFont( QFont::Script script, const QFontDef &request, int scre
 	    break;
     }
 
-    if ( best_family == 0 || best_foundry == 0 || best_style == 0 
+    if ( best_family == 0 || best_foundry == 0 || best_style == 0
 #ifdef Q_WS_X11
 	 || best_size == 0 || best_encoding == 0
 #endif
@@ -925,9 +925,6 @@ QFontDatabase::findFont( QFont::Script script, const QFontDef &request, int scre
 
 	fe->fontDef.weight        = best_style->key.weight;
 	fe->fontDef.italic        = best_style->key.italic;
-	fe->fontDef.underline     = request.underline;
-	fe->fontDef.overline      = request.overline;
-	fe->fontDef.strikeOut     = request.strikeOut;
 	fe->fontDef.fixedPitch    = best_family->fixedPitch;
 	fe->fontDef.stretch       = best_style->key.stretch;
 

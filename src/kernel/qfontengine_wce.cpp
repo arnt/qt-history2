@@ -118,7 +118,7 @@ QFontEngine::Error QFontEngineWin::stringToCMap( const QChar *str, int len, glyp
 }
 
 void QFontEngineWin::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
-	   const advance_t *advances, const offset_t *, int numGlyphs, bool reverse )
+	   const advance_t *advances, const offset_t *, int numGlyphs, bool reverse, int textFlags )
 {
     Q_UNUSED( p );
     const unsigned int options = 0;
@@ -210,7 +210,7 @@ bool QFontEngineWin::canRender( const QChar *string,  int len )
 	    return FALSE;
 	string++;
     }
-#endif 
+#endif
     return TRUE;
 }
 
@@ -255,11 +255,11 @@ QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *str,  int len, gly
 }
 
 void QFontEngineBox::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
-			  const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse )
+			  const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse, int textFlags )
 {
     Q_UNUSED( p );
 
-    y -= ascent();    
+    y -= ascent();
     const unsigned int options = 0;
 
     if ( !reverse ) {

@@ -18,19 +18,19 @@
 // defined in qfontdatbase_x11.cpp
 extern int qt_mibForXlfd( const char * encoding );
 
-static void drawLines( Display *dpy, Qt::HANDLE hd, GC gc, QFontEngine *fe, int baseline, int x1,  int w )
+static void drawLines( Display *dpy, Qt::HANDLE hd, GC gc, QFontEngine *fe, int baseline, int x1,  int w, int textFlags )
 {
     int lw = fe->lineThickness();
-    if ( fe->fontDef.underline ) {
+    if ( textFlags & QFontEngine::Underline ) {
     	int pos = fe->underlinePosition();
 	XFillRectangle( dpy, hd, gc, x1, baseline+pos, w, lw );
     }
-    if ( fe->fontDef.overline ) {
+    if ( textFlags & QFontEngine::Overline ) {
 	int pos = fe->ascent()+1;
 	if ( !pos ) pos = 1;
 	XFillRectangle( dpy, hd, gc, x1, baseline-pos, w, lw );
     }
-    if ( fe->fontDef.strikeOut ) {
+    if ( textFlags & QFontEngine::StrikeOut ) {
 	int pos = fe->ascent()/3;
 	if ( !pos ) pos = 1;
 	XFillRectangle( dpy, hd, gc, x1, baseline-pos, w, lw );
@@ -94,7 +94,7 @@ QFontEngine::Error QFontEngineBox::stringToCMap( const QChar *,  int len, glyph_
 }
 
 void QFontEngineBox::draw( QPainter *p, int x, int y, const glyph_t */*glyphs*/,
-			  const advance_t */*advances*/, const offset_t */*offsets*/, int numGlyphs, bool )
+			  const advance_t */*advances*/, const offset_t */*offsets*/, int numGlyphs, bool, int textFlags )
 {
 //     qDebug("QFontEngineXLFD::draw( %d, %d, numglyphs=%d", x, y, numGlyphs );
 
@@ -125,8 +125,8 @@ void QFontEngineBox::draw( QPainter *p, int x, int y, const glyph_t */*glyphs*/,
     XDrawRectangles(dpy, hd, gc, rects, numGlyphs);
     delete [] rects;
 
-    if ( fontDef.underline || fontDef.overline || fontDef.strikeOut )
-	drawLines( dpy, hd, gc, this, y, x, numGlyphs*_size );
+    if ( textFlags != 0 )
+	drawLines( dpy, hd, gc, this, y, x, numGlyphs*_size, textFlags );
 
 #ifdef FONTENGINE_DEBUG
     x = xp;
@@ -338,7 +338,7 @@ QFontEngine::Error QFontEngineXLFD::stringToCMap( const QChar *str,  int len, gl
 }
 
 void QFontEngineXLFD::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
-			   const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse )
+			   const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse, int textFlags )
 {
     if ( !numGlyphs )
 	return;
@@ -409,9 +409,8 @@ void QFontEngineXLFD::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
     if ( chars != ch )
 	free( chars );
 
-    if ( fontDef.underline || fontDef.overline || fontDef.strikeOut )
-	drawLines( dpy, hd, gc, this, y, xpos, x-xpos );
-
+    if ( textFlags != 0 )
+	drawLines( dpy, hd, gc, this, y, xpos, x-xpos, textFlags );
 
 #ifdef FONTENGINE_DEBUG
     x = xp;
@@ -769,7 +768,7 @@ QFontEngine::Error QFontEngineXft::stringToCMap( const QChar *str,  int len, gly
 
 //#define FONTENGINE_DEBUG
 void QFontEngineXft::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
-			   const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse )
+			   const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse, int textFlags )
 {
     if ( !numGlyphs )
 	return;
@@ -845,11 +844,11 @@ void QFontEngineXft::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
 	}
     }
 
-    if ( fontDef.underline || fontDef.overline || fontDef.strikeOut ) {
+    if ( textFlags != 0 ) {
 	Display *dpy = QPaintDevice::x11AppDisplay();
 	Qt::HANDLE hd = p->device()->handle();
 	GC gc = p->gc;
-	drawLines( dpy, hd, gc, this, y, xp, x-xp );
+	drawLines( dpy, hd, gc, this, y, xp, x-xp, textFlags );
     }
 
 #ifdef FONTENGINE_DEBUG

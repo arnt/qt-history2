@@ -62,7 +62,8 @@
 
 
 QFontPrivate::QFontPrivate()
-    : engineData( 0 ), paintdevice( 0 )
+    : engineData( 0 ), paintdevice( 0 ),
+      underline( FALSE ), overline( FALSE ), strikeOut( FALSE ), mask( 0 )
 {
 #ifdef Q_WS_X11
     screen = QPaintDevice::x11AppScreen();
@@ -73,7 +74,9 @@ QFontPrivate::QFontPrivate()
 
 QFontPrivate::QFontPrivate( const QFontPrivate &other )
     : QShared(), request( other.request ), engineData( 0 ),
-      paintdevice( other.paintdevice ), screen( other.screen )
+      paintdevice( other.paintdevice ), screen( other.screen ),
+      underline( other.underline ), overline( other.overline ),
+      strikeOut( other.strikeOut ), mask( other.mask )
 {
 }
 
@@ -82,6 +85,53 @@ QFontPrivate::~QFontPrivate()
     if ( engineData )
 	engineData->deref();
     engineData = 0;
+}
+
+void QFontPrivate::resolve( const QFontPrivate *other )
+{
+    {
+#ifdef QT_CHECK_STATE
+	Q_ASSERT( other != 0 );
+#endif
+
+	if ( ( mask & Complete ) == Complete ) return;
+
+	// assign the unset-bits with the set-bits of the other font def
+	if ( ! ( mask & Family ) )
+	    request.family = other->request.family;
+
+	if ( ! ( mask & Size ) ) {
+	    request.pointSize = other->request.pointSize;
+	    request.pixelSize = other->request.pixelSize;
+	}
+
+	if ( ! ( mask & StyleHint ) )
+	    request.styleHint = other->request.styleHint;
+
+	if ( ! ( mask & StyleStrategy ) )
+	    request.styleStrategy = other->request.styleStrategy;
+
+	if ( ! ( mask & Weight ) )
+	    request.weight = other->request.weight;
+
+	if ( ! ( mask & Italic ) )
+	    request.italic = other->request.italic;
+
+	if ( ! ( mask & FixedPitch ) )
+	    request.fixedPitch = other->request.fixedPitch;
+
+	if ( ! ( mask & Stretch ) )
+	    request.stretch = other->request.stretch;
+
+	if ( ! ( mask & Underline ) )
+	    underline = other->underline;
+
+	if ( ! ( mask & Overline ) )
+	    overline = other->overline;
+
+	if ( ! ( mask & StrikeOut ) )
+	    strikeOut = other->strikeOut;
+    }
 }
 
 
@@ -442,7 +492,7 @@ void QFont::detach()
     */
     const QFont appfont = QApplication::font();
     if ( old_d == appfont.d )
-	d->request.mask = 0;
+	d->mask = 0;
 
     if ( old_d->deref() )
 	delete old_d;
@@ -485,7 +535,7 @@ QFont::QFont( const QString &family, int pointSize, int weight, bool italic )
     Q_CHECK_PTR( d );
 
     d->request.family = family;
-    d->request.mask |= QFontDef::Family;
+    d->mask |= QFontPrivate::Family;
 
     d->request.pointSize = pointSize * 10;
     d->request.pixelSize = -1;
@@ -493,9 +543,9 @@ QFont::QFont( const QString &family, int pointSize, int weight, bool italic )
     d->request.italic = italic;
 
     // set the mask if the attributes are non-default
-    if ( pointSize != 12 ) d->request.mask |= QFontDef::Size;
-    if ( weight != Normal ) d->request.mask |= QFontDef::Weight;
-    if ( italic ) d->request.mask |= QFontDef::Italic;
+    if ( pointSize != 12 ) d->mask |= QFontPrivate::Size;
+    if ( weight != Normal ) d->mask |= QFontPrivate::Weight;
+    if ( italic ) d->mask |= QFontPrivate::Italic;
 }
 
 /*!
@@ -559,7 +609,7 @@ QString QFont::family() const
 */
 void QFont::setFamily( const QString &family )
 {
-    if ( ( d->request.mask & QFontDef::Family ) &&
+    if ( ( d->mask & QFontPrivate::Family ) &&
 	 d->request.family == family )
 	return;
 
@@ -570,7 +620,7 @@ void QFont::setFamily( const QString &family )
     d->request.addStyle = QString::null;
 #endif // Q_WS_X11
 
-    d->request.mask |= QFontDef::Family;
+    d->mask |= QFontPrivate::Family;
 }
 
 /*!
@@ -615,7 +665,7 @@ void QFont::setPointSize( int pointSize )
     }
 
     pointSize *= 10;
-    if ( ( d->request.mask & QFontDef::Size ) &&
+    if ( ( d->mask & QFontPrivate::Size ) &&
 	 d->request.pointSize == pointSize )
 	return;
 
@@ -623,7 +673,7 @@ void QFont::setPointSize( int pointSize )
     d->request.pointSize = pointSize;
     d->request.pixelSize = -1;
 
-    d->request.mask |= QFontDef::Size;
+    d->mask |= QFontPrivate::Size;
 }
 
 /*!
@@ -643,7 +693,7 @@ void QFont::setPointSizeFloat( float pointSize )
     }
 
     int ps = int(pointSize * 10.0 + 0.5);
-    if ( ( d->request.mask & QFontDef::Size ) &&
+    if ( ( d->mask & QFontPrivate::Size ) &&
 	 d->request.pointSize == ps )
 	return;
 
@@ -651,7 +701,7 @@ void QFont::setPointSizeFloat( float pointSize )
     d->request.pointSize = (int) ps;
     d->request.pixelSize = -1;
 
-    d->request.mask |= QFontDef::Size;
+    d->mask |= QFontPrivate::Size;
 }
 
 /*!
@@ -683,7 +733,7 @@ void QFont::setPixelSize( int pixelSize )
 	return;
     }
 
-    if ( ( d->request.mask & QFontDef::Size ) &&
+    if ( ( d->mask & QFontPrivate::Size ) &&
 	 d->request.pixelSize == pixelSize )
 	return;
 
@@ -691,7 +741,7 @@ void QFont::setPixelSize( int pixelSize )
     d->request.pixelSize = pixelSize;
     d->request.pointSize = -1;
 
-    d->request.mask |= QFontDef::Size;
+    d->mask |= QFontPrivate::Size;
 }
 
 /*!
@@ -734,14 +784,14 @@ bool QFont::italic() const
 */
 void QFont::setItalic( bool enable )
 {
-    if ( ( d->request.mask & QFontDef::Italic ) &&
+    if ( ( d->mask & QFontPrivate::Italic ) &&
 	 (bool) d->request.italic == enable )
 	return;
 
     detach();
 
     d->request.italic = enable;
-    d->request.mask |= QFontDef::Italic;
+    d->mask |= QFontPrivate::Italic;
 }
 
 /*!
@@ -788,14 +838,14 @@ void QFont::setWeight( int weight )
 	return;
     }
 
-    if ( ( d->request.mask & QFontDef::Weight ) &&
+    if ( ( d->mask & QFontPrivate::Weight ) &&
 	 (int) d->request.weight == weight )
 	return;
 
     detach();
 
     d->request.weight = weight;
-    d->request.mask |= QFontDef::Weight;
+    d->mask |= QFontPrivate::Weight;
 }
 
 /*!
@@ -826,7 +876,7 @@ void QFont::setWeight( int weight )
 */
 bool QFont::underline() const
 {
-    return d->request.underline;
+    return d->underline;
 }
 
 /*!
@@ -837,13 +887,13 @@ bool QFont::underline() const
 */
 void QFont::setUnderline( bool enable )
 {
-    if ( ( d->request.mask & QFontDef::Underline ) &&
-	 (bool) d->request.underline == enable )
+    if ( ( d->mask & QFontPrivate::Underline ) &&
+	 (bool) d->underline == enable )
 	return;
 
     detach();
-    d->request.underline = enable;
-    d->request.mask |= QFontDef::Underline;
+    d->underline = enable;
+    d->mask |= QFontPrivate::Underline;
 }
 
 /*!
@@ -853,7 +903,7 @@ void QFont::setUnderline( bool enable )
 */
 bool QFont::overline() const
 {
-    return d->request.overline;
+    return d->overline;
 }
 
 /*!
@@ -863,13 +913,13 @@ bool QFont::overline() const
 */
 void QFont::setOverline( bool enable )
 {
-    if ( ( d->request.mask & QFontDef::Overline ) &&
-	 (bool) d->request.overline == enable )
+    if ( ( d->mask & QFontPrivate::Overline ) &&
+	 (bool) d->overline == enable )
 	return;
 
     detach();
-    d->request.overline = enable;
-    d->request.mask |= QFontDef::Overline;
+    d->overline = enable;
+    d->mask |= QFontPrivate::Overline;
 }
 
 /*!
@@ -879,7 +929,7 @@ void QFont::setOverline( bool enable )
 */
 bool QFont::strikeOut() const
 {
-    return d->request.strikeOut;
+    return d->strikeOut;
 }
 
 /*!
@@ -890,13 +940,13 @@ bool QFont::strikeOut() const
 */
 void QFont::setStrikeOut( bool enable )
 {
-    if ( ( d->request.mask & QFontDef::StrikeOut ) &&
-	 (bool) d->request.strikeOut == enable )
+    if ( ( d->mask & QFontPrivate::StrikeOut ) &&
+	 (bool) d->strikeOut == enable )
 	return;
 
     detach();
-    d->request.strikeOut = enable;
-    d->request.mask |= QFontDef::StrikeOut;
+    d->strikeOut = enable;
+    d->mask |= QFontPrivate::StrikeOut;
 }
 
 /*!
@@ -917,13 +967,13 @@ bool QFont::fixedPitch() const
 */
 void QFont::setFixedPitch( bool enable )
 {
-    if ( ( d->request.mask & QFontDef::FixedPitch ) &&
+    if ( ( d->mask & QFontPrivate::FixedPitch ) &&
 	 (bool) d->request.fixedPitch == enable )
 	return;
 
     detach();
     d->request.fixedPitch = enable;
-    d->request.mask |= QFontDef::FixedPitch;
+    d->mask |= QFontPrivate::FixedPitch;
 }
 
 /*!
@@ -1022,7 +1072,7 @@ QFont::StyleHint QFont::styleHint() const
 */
 void QFont::setStyleHint( StyleHint hint, StyleStrategy strategy )
 {
-    if ( ( d->request.mask & ( QFontDef::StyleHint | QFontDef::StyleStrategy ) ) &&
+    if ( ( d->mask & ( QFontPrivate::StyleHint | QFontPrivate::StyleStrategy ) ) &&
 	 (StyleHint) d->request.styleHint == hint &&
 	 (StyleStrategy) d->request.styleStrategy == strategy )
 	return;
@@ -1030,8 +1080,8 @@ void QFont::setStyleHint( StyleHint hint, StyleStrategy strategy )
     detach();
     d->request.styleHint = hint;
     d->request.styleStrategy = strategy;
-    d->request.mask |= QFontDef::StyleHint;
-    d->request.mask |= QFontDef::StyleStrategy;
+    d->mask |= QFontPrivate::StyleHint;
+    d->mask |= QFontPrivate::StyleStrategy;
 
 #if defined(Q_WS_X11)
     d->request.addStyle = QString::null;
@@ -1045,13 +1095,13 @@ void QFont::setStyleHint( StyleHint hint, StyleStrategy strategy )
 */
 void QFont::setStyleStrategy( StyleStrategy s )
 {
-    if ( ( d->request.mask & QFontDef::StyleStrategy ) &&
+    if ( ( d->mask & QFontPrivate::StyleStrategy ) &&
 	 s == (StyleStrategy)d->request.styleStrategy )
 	return;
 
     detach();
     d->request.styleStrategy = s;
-    d->request.mask |= QFontDef::StyleStrategy;
+    d->mask |= QFontPrivate::StyleStrategy;
 }
 
 
@@ -1111,13 +1161,13 @@ void QFont::setStretch( int factor )
 	return;
     }
 
-    if ( ( d->request.mask & QFontDef::Stretch ) &&
+    if ( ( d->mask & QFontPrivate::Stretch ) &&
 	 d->request.stretch == (uint)factor )
 	return;
 
     detach();
     d->request.stretch = (uint)factor;
-    d->request.mask |= QFontDef::Stretch;
+    d->mask |= QFontPrivate::Stretch;
 }
 
 /*!
@@ -1139,13 +1189,13 @@ void QFont::setStretch( int factor )
 */
 void QFont::setRawMode( bool enable )
 {
-    if ( (bool)( d->request.mask & QFontDef::RawMode ) == enable ) return;
+    if ( (bool)( d->mask & QFontPrivate::RawMode ) == enable ) return;
 
     detach();
     if ( enable )
-	d->request.mask |= QFontDef::RawMode;
+	d->mask |= QFontPrivate::RawMode;
     else
-	d->request.mask &= ~QFontDef::RawMode;
+	d->mask &= ~QFontPrivate::RawMode;
 }
 
 /*!
@@ -1176,7 +1226,10 @@ bool QFont::exactMatch() const
 */
 bool QFont::operator==( const QFont &f ) const
 {
-    return f.d == d || f.d->request == d->request;
+    return f.d == d || ( f.d->request   == d->request   &&
+			 f.d->underline == d->underline &&
+			 f.d->overline  == d->overline  &&
+			 f.d->strikeOut == d->strikeOut );
 }
 
 /*!
@@ -1214,7 +1267,7 @@ bool QFont::isCopyOf( const QFont & f ) const
 */
 bool QFont::rawMode() const
 {
-    return d->request.mask & QFontDef::RawMode;
+    return d->mask & QFontPrivate::RawMode;
 }
 
 /*!
@@ -1222,7 +1275,7 @@ bool QFont::rawMode() const
 */
 QFont QFont::resolve( const QFont &other ) const
 {
-    if ( *this == other && d->request.mask == other.d->request.mask )
+    if ( *this == other && d->mask == other.d->mask )
 	return *this;
 
     QFont font( *this );
@@ -1235,9 +1288,9 @@ QFont QFont::resolve( const QFont &other ) const
     */
     const QFont appfont = QApplication::font();
     if ( d == appfont.d )
-	font.d->request.mask = 0;
+	font.d->mask = 0;
 
-    font.d->request.resolve( other.d->request );
+    font.d->resolve( other.d );
 
     return font;
 }
@@ -1446,22 +1499,26 @@ QStringList QFont::substitutions()
     Internal function. Converts boolean font settings to an unsigned
     8-bit number. Used for serialization etc.
 */
-static Q_UINT8 get_font_bits( const QFontDef &f )
+static Q_UINT8 get_font_bits( const QFontPrivate *f )
 {
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( f != 0 );
+#endif
+
     Q_UINT8 bits = 0;
-    if ( f.italic )
+    if ( f->request.italic )
 	bits |= 0x01;
-    if ( f.underline )
+    if ( f->underline )
 	bits |= 0x02;
-    if ( f.overline )
+    if ( f->overline )
 	bits |= 0x40;
-    if ( f.strikeOut )
+    if ( f->strikeOut )
 	bits |= 0x04;
-    if ( f.fixedPitch )
+    if ( f->request.fixedPitch )
 	bits |= 0x08;
     // if ( f.hintSetByUser )
     // bits |= 0x10;
-    if ( f.mask & QFontDef::RawMode )
+    if ( f->mask & QFontPrivate::RawMode )
 	bits |= 0x20;
     return bits;
 }
@@ -1473,15 +1530,19 @@ static Q_UINT8 get_font_bits( const QFontDef &f )
     Internal function. Sets boolean font settings from an unsigned
     8-bit number. Used for serialization etc.
 */
-static void set_font_bits( Q_UINT8 bits, QFontDef *f )
+static void set_font_bits( Q_UINT8 bits, QFontPrivate *f )
 {
-    f->italic        = (bits & 0x01) != 0;
-    f->underline     = (bits & 0x02) != 0;
-    f->overline      = (bits & 0x40) != 0;
-    f->strikeOut     = (bits & 0x04) != 0;
-    f->fixedPitch    = (bits & 0x08) != 0;
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( f != 0 );
+#endif
+
+    f->request.italic        = (bits & 0x01) != 0;
+    f->underline             = (bits & 0x02) != 0;
+    f->overline              = (bits & 0x40) != 0;
+    f->strikeOut             = (bits & 0x04) != 0;
+    f->request.fixedPitch    = (bits & 0x08) != 0;
     // f->hintSetByUser = (bits & 0x10) != 0;
-    f->mask |= (bits & 0x20) != 0 ? QFontDef::RawMode : 0;
+    f->mask |= (bits & 0x20) != 0 ? QFontPrivate::RawMode : 0;
 }
 
 #endif
@@ -1640,7 +1701,7 @@ QDataStream &operator<<( QDataStream &s, const QFont &font )
 	s << (Q_UINT8 ) font.d->request.styleStrategy;
     return s << (Q_UINT8) 0
 	     << (Q_UINT8) font.d->request.weight
-	     << get_font_bits(font.d->request);
+	     << get_font_bits(font.d);
 }
 
 
@@ -1685,7 +1746,7 @@ QDataStream &operator>>( QDataStream &s, QFont &font )
     font.d->request.styleStrategy = styleStrategy;
     font.d->request.weight = weight;
 
-    set_font_bits( bits, &(font.d->request) );
+    set_font_bits( bits, font.d );
 
     return s;
 }
@@ -2637,7 +2698,7 @@ int QFontInfo::weight() const
 */
 bool QFontInfo::underline() const
 {
-    return d->request.underline;
+    return d->underline;
 }
 
 /*!
@@ -2652,7 +2713,7 @@ bool QFontInfo::underline() const
 */
 bool QFontInfo::overline() const
 {
-    return d->request.overline;
+    return d->overline;
 }
 
 /*!
@@ -2665,7 +2726,7 @@ bool QFontInfo::overline() const
 */
 bool QFontInfo::strikeOut() const
 {
-    return d->request.strikeOut;
+    return d->strikeOut;
 }
 
 /*!
@@ -2710,7 +2771,7 @@ QFont::StyleHint QFontInfo::styleHint() const
 */
 bool QFontInfo::rawMode() const
 {
-    return ( d->request.mask & QFontDef::RawMode );
+    return ( d->mask & QFontPrivate::RawMode );
 }
 
 /*!
