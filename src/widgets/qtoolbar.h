@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.h#1 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.h#2 $
 **
 ** Definition of something or other
 **
@@ -13,6 +13,7 @@
 #define QTOOLBAR_H
 
 #include "qwidget.h"
+#include "qmainwindow.h"
 
 class QButton;
 class QBoxLayout;
@@ -23,6 +24,9 @@ class QToolBar: public QWidget
 {
     Q_OBJECT
 public:
+    QToolBar( const char * label, 
+	      QMainWindow *, QMainWindow::ToolBarDock = QMainWindow::Top,
+	      bool newLine = FALSE, const char * name = 0 );
     QToolBar( QWidget * parent = 0, const char * name = 0 );
     ~QToolBar();
 
@@ -33,9 +37,10 @@ public:
     Orientation orientation() const { return o; }
 
     void show();
-    
+
 signals:
     void useBigPixmaps( bool );
+    void useTextLabels( bool );
 
 protected:
     void paintEvent( QPaintEvent * );

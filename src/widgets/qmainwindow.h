@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.h#3 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.h#4 $
 **
 ** Definition of something or other
 **
@@ -46,7 +46,8 @@ public:
     void setDockEnabled( ToolBarDock dock, bool enable );
     bool isDockEnabled( ToolBarDock dock ) const;
 
-    void addToolBar( QToolBar *, ToolBarDock = Top, bool newLine = FALSE );
+    void addToolBar( QToolBar *, const char * label, 
+		     ToolBarDock = Top, bool newLine = FALSE );
     void removeToolBar( QToolBar * );
 
     void show();
@@ -58,7 +59,7 @@ public slots:
 
 protected slots:
     void setUpLayout();
-    
+
 protected:
     void paintEvent( QPaintEvent * );
 

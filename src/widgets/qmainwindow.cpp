@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#6 $
 **
 ** Implementation of something useful.
 **
@@ -25,15 +25,17 @@
 
 #include "qtooltip.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#5 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmainwindow.cpp#6 $");
 
 
 class QMainWindowPrivate {
 public:
     struct ToolBar {
-	ToolBar() : t(0), nl(FALSE) {}
-	ToolBar( QToolBar * tb, bool n=FALSE ): t(tb), nl(n) {}
+	ToolBar() : t(0), l(0), nl(FALSE) {}
+	ToolBar( QToolBar * tb, const char * label, bool n=FALSE )
+	    : t(tb), l(label), nl(n) {}
 	QToolBar * t;
+	QString l;
 	bool nl;
     };
 	
@@ -300,7 +302,8 @@ bool QMainWindow::isDockEnabled( ToolBarDock dock ) const
 
 */
 
-void QMainWindow::addToolBar( QToolBar * toolBar, ToolBarDock edge, bool nl )
+void QMainWindow::addToolBar( QToolBar * toolBar, const char * label,
+			      ToolBarDock edge, bool nl )
 {
     if ( !toolBar )
 	return;
@@ -325,7 +328,7 @@ void QMainWindow::addToolBar( QToolBar * toolBar, ToolBarDock edge, bool nl )
     if ( !dl )
 	return;
 
-    dl->append( new QMainWindowPrivate::ToolBar( toolBar, nl ) );
+    dl->append( new QMainWindowPrivate::ToolBar( toolBar, label, nl ) );
     d->timer->start( 0, TRUE );
 
     connect( this, SIGNAL(internalUseBigPixmaps(bool)),
@@ -420,7 +423,7 @@ static void addToolBarToLayout( QMainWindowPrivate::ToolBarDock * dock,
 	dockLayout->addSpacing( 2 );
 	toolBarRowLayout->addSpacing( 2 );
     }
-    
+
     toolBarRowLayout->addStretch( 1 );
 }
 
@@ -471,8 +474,8 @@ void QMainWindow::show()
 }
 
 
-/*!
-
+/*!  Sets the central widget for this window to \a w.  The centail
+  widget is the one around which the toolbars etc. are arranged.
 */
 
 void QMainWindow::setCentralWidget( QWidget * w )

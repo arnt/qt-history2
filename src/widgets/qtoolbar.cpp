@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#7 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#8 $
 **
 ** Implementation of something useful.
 **
@@ -20,7 +20,7 @@
 #include "qpainter.h"
 #include "qdrawutl.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#7 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#8 $");
 
 
 
@@ -29,8 +29,8 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#7 $");
   \brief The QToolBar class provides a simple tool bar.
 
   Very simple, even.
-  
-  \sa QToolButton 
+
+  \sa QToolButton
   <a href="http://www.iarchitect.com/visual.htm">Isys on Visual Design</a>
 */
 
@@ -39,6 +39,24 @@ RCSTAG("$Id: //depot/qt/main/src/widgets/qtoolbar.cpp#7 $");
 
   This signal is emitted when items in teh toolbar need to foo */
 
+
+
+
+/*!  Constructs an empty tool bar.
+
+*/
+
+QToolBar::QToolBar( const char * label, 
+		    QMainWindow * parent, QMainWindow::ToolBarDock dock,
+		    bool newLine, const char * name )
+    : QWidget( parent, name )
+{
+    d = 0;
+    b = 0;
+    o = (dock == QMainWindow::Left || dock == QMainWindow::Right )
+	? Vertical : Horizontal;
+    parent->addToolBar( this, label, dock, newLine );
+}
 
 /*!  Constructs an empty tool bar. */
 
