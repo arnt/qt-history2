@@ -10,7 +10,7 @@
 **
 ****************************************************************************/
 
-/*!
+/*
   model.cpp
 
   A simple model that uses a QStringList as its data source.

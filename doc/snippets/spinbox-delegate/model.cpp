@@ -10,7 +10,7 @@
 **
 ****************************************************************************/
 
-/*!
+/*
     model.cpp
 
     Provides a table model for use in various examples.

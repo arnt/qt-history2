@@ -10,7 +10,7 @@
 **
 ****************************************************************************/
 
-/*!
+/*
   model.cpp
 
   A simple model that uses a QVector as its data source.
@@ -28,7 +28,7 @@ int LinearModel::rowCount() const
     return values.count();
 }
 
-/*!
+/*
     Returns an appropriate value for the requested data.
     If the view requests an invalid index, an invalid variant is returned.
     If a header is requested then we just return the column or row number,

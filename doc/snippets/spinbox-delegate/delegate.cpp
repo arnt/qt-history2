@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-/*!
+/*
     delegate.cpp
 
     A delegate that allows the user to change integer values from the model

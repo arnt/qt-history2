@@ -10,7 +10,7 @@
 **
 ****************************************************************************/
 
-/*!
+/*
     main.cpp
 
     An example of a main window application that used a subclassed model
