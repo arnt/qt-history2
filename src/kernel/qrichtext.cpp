@@ -405,9 +405,9 @@ bool QTextCursor::place( const QPoint &pos, QTextParag *s )
 	s = s->next();
     }
 
-    if ( !s )
+    if ( !s ) 
 	return FALSE;
-
+    
     setParag( s, FALSE );
     int y = s->rect().y();
     int lines = s->lines();
@@ -4310,7 +4310,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParag *parag,
 	    if ( x != left || w != dw )
 		fullWidth = FALSE;
 	    curLeft = x;
-	    y += h;
+	    y += QMAX( h, tmph );
 	    tmph = c->height();
 	    h = tmph;
 	    lineStart->y = y;
