@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#243 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#244 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -278,30 +278,41 @@ static void qt_set_windows_resources()
  	QApplication::setFont( messageFont, TRUE, "QMessageBoxLabel");
     }
 
-    // same technique could apply to set the statusbar or tooltip
+    // Same technique could apply to set the statusbar or tooltip
     // font, but since windows does not allow to change them, we do
     // not care for now.
 
-
-    // do the color settings
-
+    // Do the color settings
 
     QColorGroup cg;
-    cg.setForeground(QColor(GetSysColor(COLOR_WINDOWTEXT)  ));
-    cg.setButton( QColor(GetSysColor(COLOR_BTNFACE)));
-    cg.setLight( QColor(GetSysColor(COLOR_BTNHIGHLIGHT)));
-    cg.setMidlight(QColor(GetSysColor(COLOR_3DLIGHT) ));
-    cg.setDark(QColor(GetSysColor(COLOR_BTNSHADOW) ));
-    cg.setMid(QColor(GetSysColor(COLOR_3DDKSHADOW) ));
-    cg.setText(QColor(GetSysColor(COLOR_WINDOWTEXT) ));
-    cg.setButtonText(QColor(GetSysColor(COLOR_WINDOWTEXT) ));
-    cg.setBrightText(QColor(GetSysColor(COLOR_BTNHIGHLIGHT) ));
-    cg.setBase(QColor(GetSysColor(COLOR_WINDOW) ));
-    cg.setBackground( QColor(GetSysColor(COLOR_BTNFACE)));
-    cg.setShadow(QColor(GetSysColor(COLOR_3DDKSHADOW) ));
-    cg.setHighlight(QColor(GetSysColor(COLOR_HIGHLIGHT) ));
-    cg.setHighlightedText( QColor(GetSysColor(COLOR_HIGHLIGHTTEXT)));
-
+    cg.setColor( QColorGroup::Foreground,
+		 QColor(GetSysColor(COLOR_WINDOWTEXT)) );
+    cg.setColor( QColorGroup::Button,
+		 QColor(GetSysColor(COLOR_BTNFACE)) );
+    cg.setColor( QColorGroup::Light,
+		 QColor(GetSysColor(COLOR_BTNHIGHLIGHT)) );
+    cg.setColor( QColorGroup::Midlight,
+		 QColor(GetSysColor(COLOR_3DLIGHT)) );
+    cg.setColor( QColorGroup::Dark,
+		 QColor(GetSysColor(COLOR_BTNSHADOW)) );
+    cg.setColor( QColorGroup::Mid,
+		 QColor(GetSysColor(COLOR_3DDKSHADOW)) );
+    cg.setColor( QColorGroup::Text,
+		 QColor(GetSysColor(COLOR_WINDOWTEXT)) );
+    cg.setColor( QColorGroup::BrightText,
+		 QColor(GetSysColor(COLOR_BTNHIGHLIGHT)) );
+    cg.setColor( QColorGroup::ButtonText,
+		 QColor(GetSysColor(COLOR_WINDOWTEXT)) );
+    cg.setColor( QColorGroup::Base,
+		 QColor(GetSysColor(COLOR_WINDOW)) );
+    cg.setColor( QColorGroup::Background,
+		 QColor(GetSysColor(COLOR_BTNFACE)) );
+    cg.setColor( QColorGroup::Shadow,
+		 QColor(GetSysColor(COLOR_3DDKSHADOW)) );
+    cg.setColor( QColorGroup::Highlight,
+		 QColor(GetSysColor(COLOR_HIGHLIGHT)) );
+    cg.setColor( QColorGroup::HighlightedText,
+		 QColor(GetSysColor(COLOR_HIGHLIGHTTEXT)) );
 	
     QColor disabled( (cg.foreground().red()+cg.button().red())/2,
 		     (cg.foreground().green()+cg.button().green())/2,
@@ -316,10 +327,10 @@ static void qt_set_windows_resources()
     QColor menuText(GetSysColor(COLOR_MENUTEXT));
     if (menu != cg.button() || menuText != cg.text()) {
 	// we need a special color group for the menu.
-	cg.setButton(menu);
-	cg.setText(menuText);
-	cg.setForeground(menuText);
-	cg.setButtonText(menuText);
+	cg.setColor( QColorGroup::Button, menu );
+	cg.setColor( QColorGroup::Text, menuText );
+	cg.setColor( QColorGroup::Foreground, menuText );
+	cg.setColor( QColorGroup::ButtonText, menuText );
 	QColor disabled( (cg.foreground().red()+cg.button().red())/2,
 			 (cg.foreground().green()+cg.button().green())/2,
 			 (cg.foreground().blue()+cg.button().blue())/2);

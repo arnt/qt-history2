@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#36 $
+** $Id: //depot/qt/main/src/kernel/qcursor_win.cpp#37 $
 **
 ** Implementation of QCursor class for Win32
 **
@@ -57,7 +57,7 @@ struct QCursorData : public QShared {
     HCURSOR   hcurs;
 };
 
-QCursorData::QCursorData( s )
+QCursorData::QCursorData( int s )
 {
     cshape = s;
     hcurs = 0;
@@ -114,7 +114,7 @@ QCursor::QCursor( int shape )			// cursor with shape
 	initialize();
     QCursor *c = find_cur( shape );
     if ( !c )					// not found
-	c = (QCursor *)&arrowCursor;		//   then use arrowCursor
+	c = (QCursor *)&Qt::arrowCursor;	//   then use arrowCursor
     c->data->ref();
     data = c->data;
 }
@@ -129,7 +129,7 @@ void QCursor::setBitmap( const QBitmap &bitmap, const QBitmap &mask,
 #if defined(CHECK_NULL)
 	warning( "QCursor: Cannot create bitmap cursor; invalid bitmap(s)" );
 #endif
-	QCursor *c = (QCursor *)&arrowCursor;
+	QCursor *c = (QCursor *)&Qt::arrowCursor;
 	c->data->ref();
 	data = c->data;
 	return;
@@ -186,7 +186,7 @@ void QCursor::setShape( int shape )		// set cursor shape
 	initialize();
     QCursor *c = find_cur( shape );		// find one of the global ones
     if ( !c )					// not found
-	c = (QCursor *)&arrowCursor;		//   then use arrowCursor
+	c = (QCursor *)&Qt::arrowCursor;	//   then use arrowCursor
     c->data->ref();
     if ( data->deref() )			// make shallow copy
 	delete data;
