@@ -1327,7 +1327,8 @@ static QByteArray qt_xdnd_obtain_data( const char *format )
 	    return result; // should never happen?
 
 	QWidget* tw = qt_xdnd_current_widget;
-	if ( qt_xdnd_current_widget->isDesktop() ) {
+	if ( !qt_xdnd_current_widget ||
+	     qt_xdnd_current_widget->isDesktop() ) {
 	    tw = new QWidget;
 	}
 	XConvertSelection( QPaintDevice::x11AppDisplay(),
@@ -1365,7 +1366,8 @@ static QByteArray qt_xdnd_obtain_data( const char *format )
 #endif
 	    }
 	}
-	if ( qt_xdnd_current_widget->isDesktop() ) {
+	if ( !qt_xdnd_current_widget ||
+	     qt_xdnd_current_widget->isDesktop() ) {
 	    delete tw;
 	}
     }
