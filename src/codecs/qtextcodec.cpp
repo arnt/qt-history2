@@ -1616,7 +1616,7 @@ public:
 #endif
     bool canEncode( QChar ch ) const;
 
-    void fromUnicode( const QChar *in, unsigned short *out, int length );
+    void fromUnicode( const QChar *in, unsigned short *out, int length ) const;
 
 private:
     void buildReverseMap();
@@ -2314,7 +2314,7 @@ QCString QSimpleTextCodec::fromUnicode(const QString& uc, int& len ) const
     return r;
 }
 
-void QSimpleTextCodec::fromUnicode( const QChar *in, unsigned short *out, int length )
+void QSimpleTextCodec::fromUnicode( const QChar *in, unsigned short *out, int length ) const
 {
 #ifdef Q_WS_QWS
     if ( this != reverseOwner )
@@ -2438,6 +2438,7 @@ public:
 #endif
     QString toUnicode(const char* chars, int len) const;
     QCString fromUnicode(const QString& uc, int& lenInOut ) const;
+    void fromUnicode( const QChar *in, unsigned short *out, int length ) const;
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 
     const char* name() const;
@@ -2477,6 +2478,15 @@ QCString QLatin1Codec::fromUnicode(const QString& uc, int& len ) const
     return r;
 }
 
+void QLatin1Codec::fromUnicode( const QChar *in, unsigned short *out, int length ) const
+{
+    while ( length-- ) {
+	unsigned short u = in->unicode();
+	*out = u < 0xff ? u : 0;
+	++in;
+	++out;
+    }
+}
 
 unsigned short QLatin1Codec::characterFromUnicode(const QString &str, int pos) const
 {
@@ -2532,6 +2542,7 @@ public:
     using QTextCodec::fromUnicode;
 #endif
     QCString fromUnicode(const QString& uc, int& lenInOut ) const;
+    void fromUnicode( const QChar *in, unsigned short *out, int length ) const;
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 
     const char* name() const;
@@ -2584,25 +2595,26 @@ QString QLatin15Codec::toUnicode(const char* chars, int len) const
     return str;
 }
 
-static inline unsigned char latin15CharFromUnicode( unsigned short uc )
+static inline unsigned char
+latin15CharFromUnicode( unsigned short uc, bool replacement = TRUE )
 {
     uchar c;
     if ( uc < 0x0100 ) {
 	if ( uc > 0xa3 && uc < 0xbf ) {
 	    switch( uc ) {
-		case 0xa4:
-		case 0xa6:
-		case 0xa8:
-		case 0xb4:
-		case 0xb8:
-		case 0xbc:
-		case 0xbd:
-		case 0xbe:
-		    c = '?';
-		    break;
-		default:
-		    c = (unsigned char) uc;
-		    break;
+	    case 0xa4:
+	    case 0xa6:
+	    case 0xa8:
+	    case 0xb4:
+	    case 0xb8:
+	    case 0xbc:
+	    case 0xbd:
+	    case 0xbe:
+		c = replacement ? '?' : 0;
+		break;
+	    default:
+		c = (unsigned char) uc;
+		break;
 	    }
 	} else {
 	    c = (unsigned char) uc;
@@ -2612,36 +2624,48 @@ static inline unsigned char latin15CharFromUnicode( unsigned short uc )
 	    c = 0xa4;
 	else if ( (uc & 0xff00) == 0x0100 ) {
 	    switch( uc ) {
-		case 0x0160:
-		    c = 0xa6;
-		    break;
-		case 0x0161:
-		    c = 0xa8;
-		    break;
-		case 0x017d:
-		    c = 0xb4;
-		    break;
-		case 0x017e:
-		    c = 0xb8;
-		    break;
-		case 0x0152:
-		    c = 0xbc;
-		    break;
-		case 0x0153:
-		    c = 0xbd;
-		    break;
-		case 0x0178:
-		    c = 0xbe;
-		    break;
-		default:
-		    c = '?';
+	    case 0x0160:
+		c = 0xa6;
+		break;
+	    case 0x0161:
+		c = 0xa8;
+		break;
+	    case 0x017d:
+		c = 0xb4;
+		break;
+	    case 0x017e:
+		c = 0xb8;
+		break;
+	    case 0x0152:
+		c = 0xbc;
+		break;
+	    case 0x0153:
+		c = 0xbd;
+		break;
+	    case 0x0178:
+		c = 0xbe;
+		break;
+	    default:
+		c = replacement ? '?' : 0;
 	    }
 	} else {
-	    c = '?';
+	    c = replacement ? '?' : 0;
 	}
     }
     return c;
 }
+
+
+void QLatin15Codec::fromUnicode( const QChar *in, unsigned short *out, int length ) const
+{
+    while ( length-- ) {
+	*out = latin15CharFromUnicode( in->unicode(), FALSE );
+	++in;
+	++out;
+    }
+}
+
+
 QCString QLatin15Codec::fromUnicode(const QString& uc, int& len ) const
 {
     if ( len <0 || len > (int)uc.length() )
@@ -2853,8 +2877,8 @@ static void realSetup()
 
 void QTextCodec::fromUnicodeInternal( const QChar *in, unsigned short *out, int length )
 {
-#ifndef QT_NO_CODECS
     switch( mibEnum() ) {
+#ifndef QT_NO_CODECS
     case 2084:
     case 2088:
     case 5:
@@ -2868,6 +2892,7 @@ void QTextCodec::fromUnicodeInternal( const QChar *in, unsigned short *out, int 
     case 13:
     case 109:
     case 110:
+    case 2004:
     case 2009:
     case 2086:
     case 2250:
@@ -2880,18 +2905,26 @@ void QTextCodec::fromUnicodeInternal( const QChar *in, unsigned short *out, int 
     case 2257:
     case 2258:
     case 2259:
-	((QSimpleTextCodec *)this)->fromUnicode( in,  out, length );
+	((QSimpleTextCodec *)this)->fromUnicode( in, out, length );
 	return;
-    default: {
 #endif
-	QConstString string( in,  length );
-	QString str = string.string();
-	for ( int i = 0; i < length; i++ )
-	    out[i] = characterFromUnicode( str, i );
-#ifndef QT_NO_CODECS
+
+    case 4:
+	((QLatin1Codec *) this)->fromUnicode( in, out, length );
+	break;
+
+    case 111:
+	((QLatin15Codec *) this)->fromUnicode( in, out, length );
+	break;
+
+    default:
+	{
+	    QConstString string( in, length );
+	    QString str = string.string();
+	    for ( int i = 0; i < length; i++ )
+		out[i] = characterFromUnicode( str, i );
+	}
     }
-    }
-#endif
 }
 
 
