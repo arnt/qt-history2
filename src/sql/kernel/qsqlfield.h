@@ -38,6 +38,7 @@ public:
     QSqlField(const QSqlField& other);
     QSqlField& operator=(const QSqlField& other);
     bool operator==(const QSqlField& other) const;
+    inline bool operator!=(const QSqlField &other) const { return !operator==(other); }
     ~QSqlField();
 
     void setValue(const QCoreVariant& value);

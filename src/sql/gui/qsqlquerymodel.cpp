@@ -187,17 +187,25 @@ QVariant QSqlQueryModel::headerData(int section, Qt::Orientation orientation, in
 */
 void QSqlQueryModel::setQuery(const QSqlQuery &query)
 {
+    QSqlRecord newRec = query.record();
+    bool columnsChanged = (newRec != d->rec);
+
     if (d->bottom.isValid()) {
         emit rowsRemoved(QModelIndex(), 0, d->bottom.row());
-        emit columnsRemoved(QModelIndex(), 0, d->bottom.column());
+        if (columnsChanged)
+            emit columnsRemoved(QModelIndex(), 0, d->bottom.column());
     }
+
+    if (d->colOffsets.size() != newRec.count() || columnsChanged) {
+        d->colOffsets.resize(newRec.count());
+        memset(d->colOffsets.data(), 0, d->colOffsets.size() * sizeof(int));
+    }
+
     d->bottom = QModelIndex();
     d->error = QSqlError();
     d->atEnd = false;
     d->query = query;
-    d->rec = query.record();
-    d->colOffsets.resize(d->rec.count());
-    memset(d->colOffsets.data(), 0, d->colOffsets.size() * sizeof(int));
+    d->rec = newRec;
     if (!query.isActive() || query.isForwardOnly()) {
         d->atEnd = true;
         d->bottom = QModelIndex();
@@ -217,7 +225,8 @@ void QSqlQueryModel::setQuery(const QSqlQuery &query)
         fetchMore();
     }
     emit rowsInserted(QModelIndex(), 0, d->bottom.row());
-    emit columnsInserted(QModelIndex(), 0, d->bottom.column());
+    if (columnsChanged)
+        emit columnsInserted(QModelIndex(), 0, d->bottom.column());
 }
 
 /*! \overload

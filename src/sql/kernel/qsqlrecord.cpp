@@ -138,6 +138,12 @@ QSqlRecord::~QSqlRecord()
         delete d;
 }
 
+
+bool QSqlRecord::operator==(const QSqlRecord &other) const
+{
+    return d->fields == other.d->fields;
+}
+
 /*!
     Returns the value of the field located at position \a i in the
     record. If field \a i does not exist an invalid variant is returned.

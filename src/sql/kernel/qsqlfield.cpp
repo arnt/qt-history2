@@ -171,6 +171,12 @@ QSqlField& QSqlField::operator=(const QSqlField& other)
     return *this;
 }
 
+
+/*! \fn bool QSqlField::operator!=(const QSqlField &other) const
+    Returns true if the field is unequal to \a other; otherwise returns
+    false.
+*/
+
 /*!
     Returns true if the field is equal to \a other; otherwise returns
     false.

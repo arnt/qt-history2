@@ -37,6 +37,9 @@ public:
     QSqlRecord& operator=(const QSqlRecord& other);
     ~QSqlRecord();
 
+    bool operator==(const QSqlRecord &other) const;
+    inline bool operator!=(const QSqlRecord &other) const { return !operator==(other); }
+
     QCoreVariant value(int i) const;
     QCoreVariant value(const QString& name) const;
     void setValue(int i, const QCoreVariant& val);
