@@ -1089,11 +1089,11 @@ void QWidget::setMouseTracking( bool enable )
 #if defined (QT_TABLET_SUPPORT)
  	if ( devStylus != NULL ) {
  	    XSelectExtensionEvent( x11Display(), winId(), event_list_stylus,
- 				   curr_events_stylus );
+ 				   qt_curr_events_stylus );
  	}
 	if ( devEraser != NULL ) {
 	    XSelectExtensionEvent( x11Display(), winId(), event_list_eraser,
-				   curr_events_eraser );
+				   qt_curr_events_eraser );
 	}
 #endif
     }
