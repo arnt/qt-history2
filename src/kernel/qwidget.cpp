@@ -2846,6 +2846,15 @@ void QWidget::setFocusProxy( QWidget * w )
     if ( !w && !extra )
 	return;
 
+    for ( QWidget* fp  = w; fp; fp = fp->focusProxy() ) {
+	if ( fp == this ) {
+#if defined (QT_CHECK_STATE)
+	    qWarning( "%s (%s): already in focus proxy chain", className(), name() );
+#endif
+	    return;
+	}
+    }
+
     createExtra();
 
     if ( extra->focus_proxy ) {
