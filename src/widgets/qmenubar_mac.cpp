@@ -163,6 +163,13 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 {
     if(d) {
 	for(int id = 1, x = 0; x < (int)d->count(); x++) {
+	    if(activeMenuBar->mac_d->commands) {
+		bool found = FALSE;
+		QIntDictIterator<QMenuBar::MacPrivate::CommandBinding> it(*(activeMenuBar->mac_d->commands));
+		for( ; it.current() && !(found = (it.current()->index == x)); ++it);
+		if(found)
+		    continue;
+	    }
 	    QMenuItem *item = d->findItem(d->idAt(x));
 	
 	    if(item->custom()) {
@@ -182,7 +189,8 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 			activeMenuBar->mac_d->commands = new QIntDict<QMenuBar::MacPrivate::CommandBinding>();
 			activeMenuBar->mac_d->commands->setAutoDelete(TRUE);
 		    }
-		    activeMenuBar->mac_d->commands->insert(cmd, new QMenuBar::MacPrivate::CommandBinding(d, x));
+		    activeMenuBar->mac_d->commands->insert(cmd, 
+							   new QMenuBar::MacPrivate::CommandBinding(d, x));
 		    continue;
 		}
 #endif
