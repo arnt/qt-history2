@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdstream.h#2 $
+** $Id: //depot/qt/main/src/tools/qdstream.h#3 $
 **
-** Definition of QStream class
+** Definition of QDataStream class
 **
 ** Author  : Haavard Nord
 ** Created : 930831
@@ -10,205 +10,111 @@
 **
 *****************************************************************************/
 
-#ifndef QSTREAM_H
-#define QSTREAM_H
+#ifndef QDSTREAM_H
+#define QDSTREAM_H
 
 #include "qiodev.h"
 
 
-// Stream format
-
-#define Stream_Data		1		// 8 bit data (default)
-#define Stream_Data7bit		2		// 7 bit printable
-
-
-class QStream					// stream class
+class QDataStream				// data stream class
 {
 public:
-    QStream();
-    QStream( QIODevice * );
-    virtual ~QStream();
+    QDataStream();
+    QDataStream( QIODevice * );
+    virtual ~QDataStream();
 
     QIODevice 	*device() const;		// get current stream device
     void	 setDevice( QIODevice * );	// set stream device
+    void	 resetDevice();			// set NULL stream device
 
-    int	  	 format() const;		// get stream format
-    void  	 setFormat( int );		// set stream format
+    bool	 isPrintableData() const;	// using printable data
+    void	 setPrintableData( bool );	// set printable data on/off
 
-    long	 size()  const;			// get stream device size
-    long	 at()    const;			// get stream device index
-    bool	 at( long );			// set stream device index
-    bool	 atEnd() const;			// test if at end of device
-    bool	 reset();			// reset stream device index
+    QDataStream &operator>>( INT8 &i );
+    QDataStream &operator>>( UINT8 &i );
+    QDataStream &operator>>( INT16 &i );
+    QDataStream &operator>>( UINT16 &i );
+    QDataStream &operator>>( INT32 &i );
+    QDataStream &operator>>( UINT32 &i );
+    QDataStream &operator>>( int &i );
+    QDataStream &operator>>( uint &i );
+    QDataStream &operator>>( float &f );
+    QDataStream &operator>>( double &f );
+    QDataStream &operator>>( char *&str );
+    QDataStream &operator<<( INT8 i );
+    QDataStream &operator<<( UINT8 i );
+    QDataStream &operator<<( INT16 i );
+    QDataStream &operator<<( UINT16 i );
+    QDataStream &operator<<( INT32 i );
+    QDataStream &operator<<( UINT32 i );
+    QDataStream &operator<<( int i );
+    QDataStream &operator<<( uint i );
+    QDataStream &operator<<( float f );
+    QDataStream &operator<<( double f );
+    QDataStream &operator<<( const char *str );
 
-    QStream	&read( INT8 & );		// read integer
-    QStream	&read( UINT8 &i )  { return read((INT8&)i); }
-    QStream	&read( INT16 & );
-    QStream	&read( UINT16 &i ) { return read((INT16&)i); }
-    QStream	&read( INT32 & );
-    QStream	&read( UINT32 &i ) { return read((INT32&)i); }
-    QStream	&read( int & );
-    QStream	&read( uint & );
+    QDataStream	&readBytes( char *&, uint &len );
+    QDataStream	&readRawBytes( char *, uint len );
 
-    QStream	&read( float & );		// read floating point
-    QStream	&read( double & );
-
-    QStream	&read( char *& );		// read char array
-    QStream	&read( char *&, uint &len );
-    QStream	&readBytes( char *, uint len );
-
-    QStream	&write( INT8 );			// write integer
-    QStream	&write( UINT8 i )  { return write((INT8)i); }
-    QStream	&write( INT16 );
-    QStream	&write( UINT16 i ) { return write((INT16)i); }
-    QStream	&write( INT32 );
-    QStream	&write( UINT32 i ) { return write((INT32)i); }
-    QStream	&write( int i )	   { return write((INT32)i); }
-    QStream	&write( uint i )   { return write((UINT32)i); }
-
-    QStream	&write( float );		// write floating point
-    QStream	&write( double );
-
-    QStream	&write( const char * );		// write char array
-    QStream	&write( const char *, uint len );
-    QStream	&writeBytes( const char *, uint len );
+    QDataStream	&writeBytes( const char *, uint len );
+    QDataStream	&writeRawBytes( const char *, uint len );
 
 private:
     QIODevice   *dev;				// I/O device
-    int	  	 frmt;				// stream format
+    bool	 printable;			// printable data
 };
 
 
 // --------------------------------------------------------------------------
-// QStream inline functions
+// QDataStream inline functions
 //
 
-inline QIODevice *QStream::device() const	{ return dev; }
-inline void QStream::setDevice( QIODevice *d )	{ dev = d; }
+inline QIODevice *QDataStream::device() const	  { return dev; }
+inline void QDataStream::setDevice(QIODevice *d ) { dev = d; }
+inline void QDataStream::resetDevice()		  { dev = 0; }
 
-inline int QStream::format() const		{ return frmt; }
-inline void QStream::setFormat( int f )		{ frmt = f; }
+inline bool QDataStream::isPrintableData() const  { return printable; }
+inline void QDataStream::setPrintableData(bool p) { printable = p; }
 
-inline long QStream::size()  const		{ return dev->size(); }
-inline long QStream::at()    const		{ return dev->at(); }
-inline bool QStream::at( long index )		{ return dev->at(index); }
-inline bool QStream::atEnd() const		{ return dev->atEnd(); }
-inline bool QStream::reset()			{ return dev->reset(); }
-
-
-// --------------------------------------------------------------------------
-// iostream-like operators for QStream read/write
-//
-
-inline QStream &operator>>( QStream &s, INT8 &i )
+inline QDataStream &QDataStream::operator>>( UINT8 &i )
 {
-    return s.read( i );
+    return *this >> (INT8&)i;
 }
 
-inline QStream &operator>>( QStream &s, UINT8 &i )
+inline QDataStream &QDataStream::operator>>( UINT16 &i )
 {
-    return s.read( i );
+    return *this >> (INT16&)i;
 }
 
-inline QStream &operator>>( QStream &s, INT16 &i )
+inline QDataStream &QDataStream::operator>>( UINT32 &i )
 {
-    return s.read( i );
+    return *this >> (INT32&)i;
 }
 
-inline QStream &operator>>( QStream &s, UINT16 &i )
+inline QDataStream &QDataStream::operator<<( UINT8 i )
 {
-    return s.read( i );
+    return *this << (INT8)i;
 }
 
-inline QStream &operator>>( QStream &s, INT32 &i )
+inline QDataStream &QDataStream::operator<<( UINT16 i )
 {
-    return s.read( i );
+    return *this << (INT16)i;
 }
 
-inline QStream &operator>>( QStream &s, UINT32 &i )
+inline QDataStream &QDataStream::operator<<( UINT32 i )
 {
-    return s.read( i );
+    return *this << (INT32)i;
 }
 
-inline QStream &operator>>( QStream &s, int &i )
+inline QDataStream &QDataStream::operator<<( int i )
 {
-    return s.read( i );
+    return *this << (INT32)i;
 }
 
-inline QStream &operator>>( QStream &s, uint &i )
+inline QDataStream &QDataStream::operator<<( uint i )
 {
-    return s.read( i );
-}
-
-inline QStream &operator>>( QStream &s, float &f )
-{
-    return s.read( f );
-}
-
-inline QStream &operator>>( QStream &s, double &f )
-{
-    return s.read( f );
-}
-
-inline QStream &operator>>( QStream &s, char *&str )
-{
-    return s.read( str );
-}
-
-inline QStream &operator<<( QStream &s, INT8 i )
-{
-    return s.write( i );
-}
-
-inline QStream &operator<<( QStream &s, UINT8 i )
-{
-    return s.write( i );
-}
-
-inline QStream &operator<<( QStream &s, INT16 i )
-{
-    return s.write( i );
-}
-
-inline QStream &operator<<( QStream &s, UINT16 i )
-{
-    return s.write( i );
-}
-
-inline QStream &operator<<( QStream &s, INT32 i )
-{
-    return s.write( i );
-}
-
-inline QStream &operator<<( QStream &s, UINT32 i )
-{
-    return s.write( i );
-}
-
-inline QStream &operator<<( QStream &s, int i )
-{
-    return s.write( (INT32)i );
-}
-
-inline QStream &operator<<( QStream &s, uint i )
-{
-    return s.write( (UINT32)i );
-}
-
-inline QStream &operator<<( QStream &s, float f )
-{
-    return s.write( f );
-}
-
-inline QStream &operator<<( QStream &s, double f )
-{
-    return s.write( f );
-}
-
-inline QStream &operator<<( QStream &s, const char *str )
-{
-    return s.write( str );
+    return *this << (UINT32)i;
 }
 
 
-#endif // QSTREAM_H
+#endif // QDSTREAM_H

@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdstream.cpp#2 $
+** $Id: //depot/qt/main/src/tools/qdstream.cpp#3 $
 **
-** Implementation of QStream class
+** Implementation of QDataStream class
 **
 ** Author  : Haavard Nord
 ** Created : 930831
@@ -10,7 +10,7 @@
 **
 *****************************************************************************/
 
-#include "qstream.h"
+#include "qdstream.h"
 #include "qstring.h"
 #include <stdio.h>
 #include <ctype.h>
@@ -22,42 +22,52 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdstream.cpp#2 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdstream.cpp#3 $";
 #endif
 
 
 // --------------------------------------------------------------------------
-// QStream member functions
+// QDataStream member functions
 //
+
+#if defined(CHECK_STATE)
+#define CHECK_STREAM_PRECOND  if ( !dev ) {				\
+				warning( "QDataStream: No device" );	\
+				return *this; }
+#else
+#define CHECK_STREAM_PRECOND
+#endif
 
 static int wordSize = 0;
 static int bigEndian;
 
-QStream::QStream()
+
+QDataStream::QDataStream()
 {
     if ( wordSize == 0 )			// get system features
 	qSysInfo( &wordSize, &bigEndian );
     dev = 0;					// no device set
-    frmt = Stream_Data;				// set default format    
+    printable = FALSE;
 }
 
-QStream::QStream( QIODevice *d )
+QDataStream::QDataStream( QIODevice *d )
 {
     if ( wordSize == 0 )			// get system features
 	qSysInfo( &wordSize, &bigEndian );
-    dev = d;					// no device set
-    frmt = Stream_Data;				// set default format    
+    dev = d;					// set device
+    printable = FALSE;
 }
 
-QStream::~QStream()
+QDataStream::~QDataStream()
 {
 }
 
+
 // --------------------------------------------------------------------------
-// QStream read functions
+// QDataStream read functions
 //
 
-static INT32 read_int_d7( QStream *s )		// read data7 int constant
+static INT32 read_int_d7( QDataStream *s )	// read data7 int constant
 {
     register int n = 0;
     char buf[40];
@@ -71,9 +81,11 @@ static INT32 read_int_d7( QStream *s )		// read data7 int constant
     return atol( buf );
 }
 
-QStream &QStream::read( INT8 &i )		// read 8-bit signed int (char)
+
+QDataStream &QDataStream::operator>>( INT8 &i )	// read 8-bit signed int (char)
 {
-    if ( format() == Stream_Data7bit ) {	// data7
+    CHECK_STREAM_PRECOND
+    if ( printable ) {				// printable data
 	i = (INT8)dev->getch();
 	if ( i == '\\' ) {			// read octal code
 	    char buf[4];
@@ -86,9 +98,11 @@ QStream &QStream::read( INT8 &i )		// read 8-bit signed int (char)
     return *this;
 }
 
-QStream &QStream::read( INT16 &i )		// read 16-bit signed int
+
+QDataStream &QDataStream::operator>>( INT16 &i )// read 16-bit signed int
 {
-    if ( format() == Stream_Data7bit )		// data7
+    CHECK_STREAM_PRECOND
+    if ( printable )				// printable data
 	i = (INT16)read_int_d7( this );
     else
     if ( bigEndian )				// no conversion needed
@@ -108,9 +122,11 @@ QStream &QStream::read( INT16 &i )		// read 16-bit signed int
     return *this;
 }
 
-QStream &QStream::read( INT32 &i )		// read 32-bit signed int
+
+QDataStream &QDataStream::operator>>( INT32 &i )// read 32-bit signed int
 {
-    if ( format() == Stream_Data7bit )		// data7
+    CHECK_STREAM_PRECOND
+    if ( printable )				// printable data
 	i = read_int_d7( this );
     else
     if ( bigEndian )				// no conversion needed
@@ -132,24 +148,26 @@ QStream &QStream::read( INT32 &i )		// read 32-bit signed int
     return *this;
 }
 
-QStream &QStream::read( int &i )		// read integer as INT32
+
+QDataStream &QDataStream::operator>>( int &i )	// read integer as INT32
 {
     INT32 n;
-    read( n );
+    *this >> n;
     i = (int)n;
     return *this;
 }
 
-QStream &QStream::read( uint &i )		// read uinteger as UINT32
+
+QDataStream &QDataStream::operator>>( uint &i )	// read uinteger as UINT32
 {
     UINT32 n;
-    read( n );
+    *this >> n;
     i = (uint)n;
     return *this;
 }
 
 
-static double read_double_d7( QStream *s )	// read data7 double constant
+static double read_double_d7( QDataStream *s )	// read data7 double constant
 {
     register int n = 0;
     char buf[80];
@@ -163,9 +181,11 @@ static double read_double_d7( QStream *s )	// read data7 double constant
     return atof( buf );
 }
 
-QStream &QStream::read( float &f )		// read 32-bit floating point
+
+QDataStream &QDataStream::operator>>( float &f )// read 32-bit floating point
 {
-    if ( format() == Stream_Data7bit )		// data7
+    CHECK_STREAM_PRECOND
+    if ( printable )				// printable data
 	f = (float)read_double_d7( this );
     else
     if ( bigEndian )				// no conversion needed
@@ -182,9 +202,11 @@ QStream &QStream::read( float &f )		// read 32-bit floating point
     return *this;
 }
 
-QStream &QStream::read( double &f )		// read 64-bit floating point
+
+QDataStream &QDataStream::operator>>( double &f)// read 64-bit floating point
 {
-    if ( format() == Stream_Data7bit )		// data7
+    CHECK_STREAM_PRECOND
+    if ( printable )				// printable data
 	f = read_double_d7( this );
     else
     if ( bigEndian )				// no conversion needed
@@ -206,30 +228,34 @@ QStream &QStream::read( double &f )		// read 64-bit floating point
 }
 
 
-QStream &QStream::read( char *&s )		// read char array
+QDataStream &QDataStream::operator>>( char *&s )// read char array
 {
     uint len = 0;
-    return read( s, len );
+    return readBytes( s, len );
 }
 
-QStream &QStream::read( char *&s, uint &l )	// read char array with length
-{
+
+QDataStream &QDataStream::readBytes( char *&s, uint &l )
+{						// read length-encoded bytes
+    CHECK_STREAM_PRECOND
     UINT32 len;
-    read( len );				// first read length spec
+    *this >> len;				// first read length spec
     l = (uint)len;
     s = new char[len];				// create char array
     CHECK_PTR( s );
     if ( !s )					// no memory
 	return *this;
-    return readBytes( s, (uint)len );
+    return readRawBytes( s, (uint)len );
 }
 
-QStream &QStream::readBytes( char *s, uint len )// read bytes
-{
-    if ( format() == Stream_Data7bit ) {	// read data7 char array
+
+QDataStream &QDataStream::readRawBytes( char *s, uint len )
+{						// read len bytes
+    CHECK_STREAM_PRECOND
+    if ( printable ) {				// printable data
 	register char *p = s;
 	while ( len-- )
-	    read( *p++ );
+	    *this >> *p++;
     }
     else					// read data char array
 	dev->readBlock( s, len );
@@ -238,12 +264,13 @@ QStream &QStream::readBytes( char *s, uint len )// read bytes
 
 
 // --------------------------------------------------------------------------
-// QStream write functions
+// QDataStream write functions
 //
 
-QStream &QStream::write( INT8 i )		// write 8-bit signed int
+QDataStream &QDataStream::operator<<( INT8 i )	// write 8-bit signed int
 {
-    if ( format() == Stream_Data7bit && !isprint(i) ) {
+    CHECK_STREAM_PRECOND
+    if ( printable && !isprint(i) ) {		// printable data
 	char buf[8];				// write octal code
 	buf[0] = '\\';
 	buf[1] = '0' + ((i >> 6) & 0x07);
@@ -257,9 +284,11 @@ QStream &QStream::write( INT8 i )		// write 8-bit signed int
     return *this;
 }
 
-QStream &QStream::write( INT16 i )		// write 16-bit signed int
+
+QDataStream &QDataStream::operator<<( INT16 i )	// write 16-bit signed int
 {
-    if ( format() == Stream_Data7bit ) {	// data7
+    CHECK_STREAM_PRECOND
+    if ( printable ) {				// printable data
 	char buf[16];
 	sprintf( buf, "%d$", i );
 	dev->writeBlock( buf, strlen(buf) );
@@ -282,9 +311,11 @@ QStream &QStream::write( INT16 i )		// write 16-bit signed int
     return *this;
 }
 
-QStream &QStream::write( INT32 i )		// write 32-bit signed int
+
+QDataStream &QDataStream::operator<<( INT32 i )	// write 32-bit signed int
 {
-    if ( format() == Stream_Data7bit ) {	// data7
+    CHECK_STREAM_PRECOND
+    if ( printable ) {				// printable data
 	char buf[16];
 	sprintf( buf, "%ld$", i );
 	dev->writeBlock( buf, strlen(buf) );
@@ -310,9 +341,10 @@ QStream &QStream::write( INT32 i )		// write 32-bit signed int
 }
 
 
-QStream &QStream::write( float f )		// write 32-bit floating point
+QDataStream &QDataStream::operator<<( float f )	// write 32-bit floating point
 {
-    if ( format() == Stream_Data7bit ) {	// data7
+    CHECK_STREAM_PRECOND
+    if ( printable ) {				// printable data
 	char buf[32];
 	sprintf( buf, "%g$", f );
 	dev->writeBlock( buf, strlen(buf) );
@@ -334,9 +366,11 @@ QStream &QStream::write( float f )		// write 32-bit floating point
     return *this;
 }
 
-QStream &QStream::write( double f )		// write 64-bit floating point
+
+QDataStream &QDataStream::operator<<( double f )// write 64-bit floating point
 {
-    if ( format() == Stream_Data7bit ) {	// data7
+    CHECK_STREAM_PRECOND
+    if ( printable ) {				// printable data
 	char buf[32];
 	sprintf( buf, "%g$", f );
 	dev->writeBlock( buf, strlen(buf) );
@@ -361,25 +395,29 @@ QStream &QStream::write( double f )		// write 64-bit floating point
 }
 
 
-QStream &QStream::write( const char *s )	// write 0-term char array
-{
+QDataStream &QDataStream::operator<<( const char *s )
+{						// write 0-term char array
     uint len = strlen( s ) + 1;			// also write null terminator
-    write( (INT32)len );			// write length specifier
-    return writeBytes( s, len );
+    *this << (INT32)len;			// write length specifier
+    return writeRawBytes( s, len );
 }
 
-QStream &QStream::write(const char *s, uint len)// write char array with length
-{
-    write( (INT32)len );			// write length specifier
-    return writeBytes( s, len );
+
+QDataStream &QDataStream::writeBytes(const char *s, uint len)
+{						// write char array with length
+    CHECK_STREAM_PRECOND
+    *this << (INT32)len;			// write length specifier
+    return writeRawBytes( s, len );
 }
 
-QStream &QStream::writeBytes( const char *s, uint len )
+
+QDataStream &QDataStream::writeRawBytes( const char *s, uint len )
 {
-    if ( format() == Stream_Data7bit ) {	// write data7 char array
+    CHECK_STREAM_PRECOND
+    if ( printable ) {				// write printable
 	register char *p = (char *)s;
 	while ( len-- )
-	    write( *p++ );
+	    *this << *p++;
     }
     else					// write data char array
 	dev->writeBlock( s, len );
