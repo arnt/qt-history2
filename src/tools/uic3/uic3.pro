@@ -19,7 +19,7 @@ SOURCES += main.cpp \
 
 CONFIG += console
 CONFIG -= resource_fork
-QT += xml compat
+QT += xml network sql compat
 TEMPLATE = app
 INCLUDEPATH += . ../uic
 
