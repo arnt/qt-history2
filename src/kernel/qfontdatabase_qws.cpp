@@ -108,3 +108,7 @@ void QFontDatabase::createDatabase()
     }
 #endif
 }
+
+static inline void load(const QString & = QString::null, int = -1 )
+{
+}
