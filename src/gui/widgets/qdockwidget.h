@@ -53,7 +53,7 @@ public:
     void setFeatures(DockWidgetFeatures features);
     DockWidgetFeatures features() const;
 
-    void setFloating(bool floating = true);
+    void setFloating(bool floating);
     inline bool isFloating() const { return isWindow(); }
 
     void setAllowedAreas(Qt::DockWidgetAreas areas);
