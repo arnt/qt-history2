@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#359 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#360 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -418,6 +418,11 @@ void QWidget::destroy( bool destroyWindow, bool destroySubWindows )
 
   If the new parent widget is in the same top-level widget as the old
   parent, reparent doesn't change the TAB order or keyboard focus.
+  
+  \warning Reparenting widgets should be a real exception. In normal
+  applications, you will almost never need it. Dynamic masks can be
+  achieved much easier and cleaner with classes like QWidgetStack or
+  on a higher abstraction level, QWizard.
 
   \sa getWFlags()
 */
