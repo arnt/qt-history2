@@ -3,7 +3,7 @@
 @Place 
     x { right - 4.5c }
     y { foot + 1c }
-{ darkgrey @Colour 9p @Font INST300404NO-12"/"02 }
+{ darkgrey @Colour 9p @Font {INST500404NO-04"/"04} }
 #############################################################
 ######################## Qt/Embedded ########################
 #############################################################
@@ -14,11 +14,11 @@ you choose to install Qt.
 @LI { Unpack the archive using:
 @LD @F @Verbatim {
 cd /usr/local
-cp /cdrom/Embedded/qt-embedded-commercial-3.1.2.tar.gz .
-gunzip qt-embedded-commercial-3.1.2.tar.gz
-tar xf qt-embedded-commercial-3.1.2.tar
+cp /cdrom/Embedded/qt-embedded-commercial-3.3.2.tar.gz .
+gunzip qt-embedded-commercial-3.3.2.tar.gz
+tar xf qt-embedded-commercial-3.3.2.tar
 }
-This will create the directory @F "/usr/local/qt-embedded-commercial-3.1.2" which
+This will create the directory @F "/usr/local/qt-embedded-commercial-3.3.2" which
 will contain the files from the archive, and where @F "/usr/local" is
 an example of where you wish to install Qt and @F "/cdrom/Embedded" is
 an example of where the Qt"/"Embedded directory would be depending on
@@ -64,7 +64,7 @@ problems with installing Qt"/"Embedded then refer to the @F INSTALL file in
 #############################################################
 @CD @Heading { How to Install Qt for Mac OS X }
 @NumberedList gap { 0.75v }
-@LI { Run the @F{qt-mac-commercial-3.1.2} program. }
+@LI { Run the @F{qt-mac-commercial-3.3.2} program. }
 @LI { Choose the folder where you wish to install Qt and enter your
 license key as it appears on the CD cover. }
 @LI { Click on @B Unpack, and read the license.  You are only able to
@@ -107,7 +107,7 @@ configuration.
 double-click an application. This is achieved by making the following
 symbolic links:
 @LD @F @Verbatim {
-ln -s $QTDIR/lib/libqt.dylib.3.1.2 /usr/lib
+ln -s $QTDIR/lib/libqt.dylib.3.3.2 /usr/lib
 ln -s $QTDIR/lib/libqui.dylib.1.0.0 /usr/lib}
 }
 @EndList
@@ -123,7 +123,7 @@ problems with installing Qt then refer to the @F INSTALL file in
 environment variable @F{%LIB%} to include the path to your SQL libraries
 @Underline before starting the installation. }
 @PP
-Run the @F{qt-win-commercial-3.1.2.exe} program and go through all the
+Run the @F{qt-win-commercial-3.3.2.exe} program and go through all the
 steps of the installation wizard:
 @NumberedList
 @LI { Enter in your license key as it appears on the CD cover. }
@@ -182,11 +182,11 @@ directories where you choose to install Qt.
 @LI { Unpack the archive using:
 @LD @F @Verbatim {
 cd /usr/local
-cp /cdrom/X11/qt-x11-commercial-3.1.2.tar.gz .
-gunzip qt-x11-commercial-3.1.2.tar.gz
-tar xf qt-x11-commercial-3.1.2.tar
+cp /cdrom/X11/qt-x11-commercial-3.3.2.tar.gz .
+gunzip qt-x11-commercial-3.3.2.tar.gz
+tar xf qt-x11-commercial-3.3.2.tar
 }
-This will create the directory @F "/usr/local/qt-x11-commercial-3.1.2"
+This will create the directory @F "/usr/local/qt-x11-commercial-3.3.2"
 which will contain the files from the archive, and where @F
 "/usr/local" is an example of where you wish to install Qt and @F
 "/cdrom/X11" is an example of where the X11 directory would be
