@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#36 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#37 $
 **
 ** Implementation of QTextStream class
 **
@@ -16,7 +16,7 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#36 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qtextstream.cpp#37 $");
 
 
 /*!
@@ -494,7 +494,7 @@ static double input_double( QTextStream *s )
 	c = d->getch();
     }
 
-#if !defined(_CC_EDG_) // has working dead code detection
+#if !defined(NO_DEADCODE)
     return 0.0;
 #endif
 }
@@ -910,14 +910,13 @@ QTextStream &QTextStream::operator<<( double f )
     if ( prec >= 10 ) {
 	*fs++ = prec / 10 + '0';
 	*fs++ = prec % 10 + '0';
-    }
-    else
+    } else {
 	*fs++ = prec + '0';
-    ASSERT( prec > 0 && prec <10 );	// TESTING
+    }
     *fs++ = 'l';
     *fs++ = f_char;
     *fs = '\0';
-    sprintf( buf, format, f );			// the easy way out...
+    sprintf( buf, format, f );			// convert to text
     if ( fwidth )				// padding
 	*this << (const char *)buf;
     else					// just write it
@@ -931,7 +930,7 @@ QTextStream &QTextStream::operator<<( double f )
 */
 
 QTextStream &QTextStream::operator<<( const char *s )
-{						// write 0-term char array
+{
     CHECK_STREAM_PRECOND
     char padbuf[48];
     uint len = strlen( s );			// don't write null terminator
@@ -943,9 +942,9 @@ QTextStream &QTextStream::operator<<( const char *s )
 	    if ( padlen > 46 ) {		// create extra big fill buffer
 		ppad = new char[padlen];
 		CHECK_PTR( ppad );
-	    }
-	    else
+	    } else {
 		ppad = padbuf;
+	    }
 	    memset( ppad, fillchar, padlen );	// fill with fillchar
 	    if ( !(flags() & left) ) {
 		dev->writeBlock( ppad, padlen );
