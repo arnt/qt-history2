@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.h#20 $
+** $Id: //depot/qt/main/src/widgets/qframe.h#21 $
 **
 ** Definition of QFrame widget class
 **
@@ -86,7 +86,7 @@ inline int QFrame::frameShadow() const
 { return fstyle & MShadow; }
 
 inline bool QFrame::lineShapesOk() const
-{ return lineok; }
+{ return lineok; }				// ### Qt 2.0: bool
 
 inline int QFrame::lineWidth() const
 { return lwidth; }

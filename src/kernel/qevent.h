@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#40 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#41 $
 **
 ** Definition of event classes
 **
@@ -122,7 +122,7 @@ public:
 protected:
     ushort k, s;
     uchar  a;
-    char   accpt;
+    char   accpt;				// ### Qt 2.0: bool
 };
 
 #define Q_KEY_EVENT(x)		((QKeyEvent*)x)
