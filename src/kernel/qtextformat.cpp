@@ -45,7 +45,7 @@ public:
     } data;
 
     QString stringValue() const
-    { return *reinterpret_cast<QString *>(&const_cast<void *>(data.ptr)); }
+    { return *reinterpret_cast<QString *>(const_cast<void *>(data.ptr)); }
 
 private:
     void free();
