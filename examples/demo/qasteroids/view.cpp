@@ -9,6 +9,7 @@
 #include <qapplication.h>
 #include <qkeycode.h>
 #include <qaccel.h>
+#include <qmessagebox.h>
 
 #include "view.h"
 
@@ -857,4 +858,21 @@ double KAsteroidsView::randDouble()
 int KAsteroidsView::randInt( int range )
 {
     return rand() % range;
+}
+
+void KAsteroidsView::showEvent( QShowEvent *e )
+{
+#if defined( QT_LICENSE_PROFESSIONAL )
+    static bool wasThere = FALSE;
+
+    if ( !wasThere ) {
+	wasThere = TRUE;
+	QMessageBox::information( this, tr("QCanvas demo"), 
+				  tr("This game has been implemented using the QCanvas class.\n"
+				     "The QCanvas class is not part of the Professional Edition. Please \n"
+				     "contact Trolltech if you want to upgrade to the Enterprise Edition.") );
+    }
+#endif
+
+    QWidget::showEvent( e );
 }

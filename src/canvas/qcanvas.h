@@ -49,7 +49,7 @@
 #include "qpointarray.h"
 #endif // QT_H
 
-#if !defined( QT_MODULE_CANVAS ) || defined( QT_LICENSE_PROFESSIONAL )
+#if !defined( QT_MODULE_CANVAS ) || defined( QT_LICENSE_PROFESSIONAL ) || defined( QT_INTERNAL_CANVAS )
 #define QM_EXPORT_CANVAS
 #else
 #define QM_EXPORT_CANVAS Q_EXPORT

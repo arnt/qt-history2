@@ -60,6 +60,21 @@
 	DEFINES     *= QT_MODULE_ICONVIEW
 }
 
+!canvas:contains( DEFINES, QT_INTERNAL_CANVAS ) {
+	CONFIG += canvas
+	CANVAS_CPP = $(QTDIR)/src/canvas
+	win32 {
+		WIN_ALL_H = $(QTDIR)/include
+		CANVAS_H = $$WIN_ALL_H
+	}
+	unix {
+		CANVAS_H = $$CANVAS_CPP
+	}
+	INCLUDEPATH += $(QTDIR)/src/canvas
+	include( $(QTDIR)/src/canvas/qt_canvas.pri )
+	DEFINES     *= QT_MODULE_CANVAS
+}
+
 contains(QT_PRODUCT,qt-professional) {
 	DEFINES     *= QT_LICENSE_PROFESSIONAL
 }

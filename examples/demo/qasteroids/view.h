@@ -78,6 +78,8 @@ protected:
     virtual void resizeEvent( QResizeEvent *event );
     virtual void timerEvent( QTimerEvent * );
 
+    void showEvent( QShowEvent * );
+
 private:
     QCanvas field;
     QCanvasView view;
