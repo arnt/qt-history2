@@ -514,10 +514,11 @@ int QEventLoop::activateTimers()
 	return 0;
     bool first = TRUE;
     timeval currentTime;
-    int maxcount = timerList->count();
     int n_act = 0;
+    TimerInfo *begin = 0;
     register TimerInfo *t;
-    while ( maxcount-- ) {			// avoid starvation
+
+    for ( ;; ) {
 	getTime( currentTime );			// get current time
 	if ( first ) {
 	    if ( currentTime < watchtime )	// clock was turned back
@@ -526,6 +527,12 @@ int QEventLoop::activateTimers()
 	    watchtime = currentTime;
 	}
 	t = timerList->first();
+	if ( ! begin ) {
+	    begin = t;
+	} else if ( begin == t ) {
+	    // avoid sending the same timer multiple times
+	    break;
+	}
 	if ( !t || currentTime < t->timeout )	// no timer has expired
 	    break;
 	timerList->take();			// unlink from list

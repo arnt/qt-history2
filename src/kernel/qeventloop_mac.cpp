@@ -342,9 +342,9 @@ static int qt_activate_timers(TimerInfo::TimerType types = TimerInfo::TIMER_ANY)
 #ifdef Q_OS_MACX
     bool first = TRUE;
     timeval currentTime;
-    int maxcount = timerList->count();
+    TimerInfo *begin = 0;
     register TimerInfo *t;
-    while(maxcount--) {			// avoid starvation
+    for ( ;; ) {
 	getTime(currentTime);			// get current time
 	if(first) {
 	    if(currentTime < watchtime)	// clock was turned back
@@ -354,6 +354,12 @@ static int qt_activate_timers(TimerInfo::TimerType types = TimerInfo::TIMER_ANY)
 	}
 	t = timerList->first();
 	if(t->type == TimerInfo::TIMER_QT) {
+	    if ( ! begin ) {
+		begin = t;
+	    } else if ( begin == t ) {
+		// avoid sending the same timer multiple times
+		break;
+	    }
 	    if(!t || currentTime < t->u.qt_timer.timeout) // no timer has expired
 		break;
 	    timerList->take();			// unlink from list
@@ -761,7 +767,7 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
 	EventRef event;
 	do {
 	    do {
-		if(ReceiveNextEvent(0, 0, QMAC_EVENT_NOWAIT, TRUE, &event) != noErr) 
+		if(ReceiveNextEvent(0, 0, QMAC_EVENT_NOWAIT, TRUE, &event) != noErr)
 		    break;
 		if(qt_mac_send_event(flags, event))
 		    nevents++;
@@ -770,7 +776,7 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
 	    QApplication::sendPostedEvents();
 	} while(GetNumEventsInQueue(GetMainEventQueue()));
     }
-    if(d->quitnow || d->exitloop) 
+    if(d->quitnow || d->exitloop)
 	return FALSE;
 
     QApplication::sendPostedEvents();
