@@ -767,8 +767,7 @@ void QTabBar::layoutTabs()
     int hframe, vframe, overlap;
     style().tabbarMetrics( this, hframe, vframe, overlap );
     QFontMetrics fm = fontMetrics();
-    int x = tab( 0 )->r.left();
-    x = 0;
+    int x = 0;
     QRect r;
     QTab *t;
     for ( t = lstatic->first(); t; t = lstatic->next() ) {
