@@ -284,8 +284,8 @@ class QM_EXPORT_DOM QDomDocument : public QDomNode
 {
 public:
     QDomDocument();
-    QDomDocument( const QString& name );
-    QDomDocument( const QDomDocumentType& doctype );
+    Q_EXPLICIT QDomDocument( const QString& name );
+    Q_EXPLICIT QDomDocument( const QDomDocumentType& doctype );
     QDomDocument( const QDomDocument& x );
     QDomDocument& operator= ( const QDomDocument& );
     ~QDomDocument();
