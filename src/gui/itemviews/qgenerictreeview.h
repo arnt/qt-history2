@@ -34,13 +34,12 @@ public:
     int columnAt(int x) const;
 
     bool isColumnHidden(int column) const;
-
-    void open(const QModelIndex &item);
-    void close(const QModelIndex &item);
     bool isOpen(const QModelIndex &item) const;
 
 public slots:
     void hideColumn(int column);
+    void open(const QModelIndex &item);
+    void close(const QModelIndex &item);
 
 protected slots:
     void resizeColumnToContents(int column);
@@ -54,7 +53,6 @@ protected:
     void contentsInserted(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void contentsRemoved(const QModelIndex &parent, const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void startItemsLayout();
-    bool doItemsLayout(int num);
 
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction, ButtonState state);
     QModelIndex itemAt(int x, int y) const;
