@@ -637,7 +637,7 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 	break; }
 #endif
     default:
-	QWindowsStyle::drawPrimitive(op, p, r, cg, flags, data);
+	QWindowsStyle::drawPrimitive(pe, p, r, cg, flags, data);
 	break;
     }
 }
