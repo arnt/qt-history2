@@ -2223,6 +2223,7 @@ fi
 if [ "$CFG_LIBMNG" = "system" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG system-mng"
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT+=-lmng\""
+    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT_THREAD+=-lmng\""
 fi
 if [ "$CFG_MNG" = "no" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG no-mng"
@@ -2232,6 +2233,7 @@ fi
 if [ "$CFG_LIBJPEG" = "system" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG system-jpeg"
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT+=-ljpeg\""
+    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT_THREAD+=-ljpeg\""
 fi
 if [ "$CFG_JPEG" = "no" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG no-jpeg"
@@ -2241,6 +2243,7 @@ fi
 if [ "$CFG_LIBPNG" = "system" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG system-png"
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT+=-lpng\""
+    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT_THREAD+=-lpng\""
 fi
 if [ "$CFG_PNG" = "no" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG no-png"
@@ -2262,6 +2265,7 @@ elif [ "$CFG_ZLIB" = "yes" ]; then
 elif [ "$CFG_ZLIB" = "system" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG system-zlib"
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT+=-lz\""
+    QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBS_QT_THREAD+=-lz\""
 fi
 [ "$CFG_NIS" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG nis"
 [ "$CFG_CUPS" = "yes" ] && QMAKE_CONFIG="$QMAKE_CONFIG cups"
