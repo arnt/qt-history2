@@ -799,7 +799,8 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
 
     if (index.isValid()) {
         if (state() != Selecting) {
-            bool dnd = model()->isDragEnabled(index) && isDragEnabled(index);
+            bool dnd = (model()->flags(index) & QAbstractItemModel::ItemIsDragEnabled)
+                       && isDragEnabled(index);
             bool selected = selectionModel()->isSelected(index);
             if (dnd && selected) {
                 setState(Dragging);
@@ -1783,7 +1784,7 @@ bool QAbstractItemViewPrivate::shouldEdit(QAbstractItemView::BeginEditAction act
 {
     if (!index.isValid())
         return false;
-    if (!model->isEditable(index))
+    if (model->flags(index) & QAbstractItemModel::ItemIsEditable == 0)
         return false;
     if (state == QAbstractItemView::Editing)
         return false;

@@ -502,6 +502,19 @@ bool QDirModel::hasChildren(const QModelIndex &parent) const
 }
 
 /*!
+  ###
+*/
+QAbstractItemModel::ItemFlags QDirModel::flags(const QModelIndex &index) const
+{
+    QAbstractItemModel::ItemFlags flags = QAbstractItemModel::ItemIsDragEnabled;
+    if (isEditable(index))
+        flags |= QAbstractItemModel::ItemIsEditable;
+    if (isDir(index) && isEditable(index))
+        flags |= QAbstractItemModel::ItemIsDropEnabled;
+    return flags;
+}
+
+/*!
   Returns true if the model item \a index in the directory model is
   editable; otherwise returns false.
 
@@ -522,29 +535,6 @@ bool QDirModel::isEditable(const QModelIndex &index) const
 }
 
 /*!
-  \fn bool QDirModel::isDragEnabled(const QModelIndex &index) const
-
-  Returns true if the model item \a index in the directory model can
-  be dragged; otherwise returns false.
-*/
-
-bool QDirModel::isDragEnabled(const QModelIndex &index) const
-{
-    return index.isValid();
-}
-
-/*!
-  Returns true if the model item \a index in the directory model can
-  receive items dropped on it; otherwise returns false.
-
-*/
-
-bool QDirModel::isDropEnabled(const QModelIndex &index) const
-{
-    return isDir(index) && isEditable(index);
-}
-
-/*!
   Returns true if the items in the directory model can be sorted;
   otherwise returns false.
 
@@ -561,8 +551,9 @@ bool QDirModel::isSortable() const
 
 */
 
-void QDirModel::sort(int column, Qt::SortOrder order)
+void QDirModel::sort(int column, const QModelIndex &, Qt::SortOrder order)
 {
+    // FIXME: parent is ignored
     int spec = (order == Qt::DescendingOrder ? QDir::Reversed : 0);
 
     switch (column) {

@@ -186,7 +186,7 @@ QModelIndexList QItemSelectionRange::items(const QAbstractItemModel *model) cons
         for (int column = l; column <= r; ++column) {
             for (int row = t; row <= b; ++row) {
                 index = model->index(row, column, parent());
-                if (model->isSelectable(index))
+                if (model->flags(index) & QAbstractItemModel::ItemIsSelectable)
                     indexes.append(index); //###does not specify Type
             }
         }
@@ -643,7 +643,7 @@ QModelIndex QItemSelectionModel::currentItem() const
 */
 bool QItemSelectionModel::isSelected(const QModelIndex &index) const
 {
-    if (!model()->isSelectable(index))
+    if (model()->flags(index) & QAbstractItemModel::ItemIsSelectable == 0)
         return false;
     bool selected = false;
     QList<QItemSelectionRange>::const_iterator it = d->ranges.begin();

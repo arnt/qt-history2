@@ -870,47 +870,13 @@ void QAbstractItemModel::fetchMore(const QModelIndex &)
 }
 
 /*!
-    Returns true if the item at \a index is selectable; otherwise
-    returns false.
+    Returns ItemFlags.
 
-    The base class implementation returns true.
+    The base class implementation returns 0.
 */
-bool QAbstractItemModel::isSelectable(const QModelIndex &) const
+QAbstractItemModel::ItemFlags QAbstractItemModel::flags(const QModelIndex &) const
 {
-    return true;
-}
-
-/*!
-    Returns true if the item at \a index is editable; otherwise
-    returns false.
-
-    The base class implementation returns false.
-*/
-bool QAbstractItemModel::isEditable(const QModelIndex &) const
-{
-    return false;
-}
-
-/*!
-    Returns true if the item at \a index can be dragged; otherwise
-    returns false.
-
-    The base class implementation returns false.
-*/
-bool QAbstractItemModel::isDragEnabled(const QModelIndex &) const
-{
-    return false;
-}
-
-/*!
-    Returns true if other items can be dropped on the item at \a
-    index; otherwise returns false.
-
-    The base class implementation returns false.
-*/
-bool QAbstractItemModel::isDropEnabled(const QModelIndex &) const
-{
-    return false;
+    return 0;
 }
 
 /*!
@@ -933,7 +899,7 @@ bool QAbstractItemModel::isSortable() const
 
     \sa isSortable()
 */
-void QAbstractItemModel::sort(int, Qt::SortOrder)
+void QAbstractItemModel::sort(int, const QModelIndex &, Qt::SortOrder)
 {
     // do nothing
 }

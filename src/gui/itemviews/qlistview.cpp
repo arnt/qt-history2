@@ -688,7 +688,7 @@ void QListView::dragMoveEvent(QDragMoveEvent *e)
         e->accept();
     } else if (e->source() == this && d->draggedItems.contains(index)) {
         e->accept();
-    } else if (model()->isDropEnabled(index)) {
+    } else if (model()->flags(index) & QAbstractItemModel::ItemIsDropEnabled) {
         setCurrentItem(index);
         e->accept();
     } else {
@@ -741,7 +741,7 @@ QDragObject *QListView::dragObject()
     QModelIndexList items = selectionModel()->selectedItems();
     QModelIndexList::ConstIterator it = items.begin();
     for (; it != items.end(); ++it)
-        if (model()->isDragEnabled(*it))
+        if (model()->flags(*it) & QAbstractItemModel::ItemIsDragEnabled)
             d->draggedItems.push_back(*it);
     return model()->dragObject(items, this);
 }

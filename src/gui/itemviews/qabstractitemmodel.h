@@ -103,6 +103,12 @@ public:
         ToolTipRole = 3,
         StatusTipRole = 4,
         WhatsThisRole = 5,
+        // Metadata
+        FontRole = 6,
+        BackgroundColorRole = 7,
+        TextColorRole = 8,
+        CheckStateRole = 9,
+        // Reserved
         UserRole = 32
     };
 
@@ -117,6 +123,17 @@ public:
     };
 
     Q_DECLARE_FLAGS(MatchFlags, MatchFlag);
+    
+    enum ItemFlag {
+        ItemIsSelectable = 1,
+        ItemIsEditable = 2,
+        ItemIsDragEnabled = 4,
+        ItemIsDropEnabled = 8,
+        ItemIsCheckable = 16,
+        ItemIsEnabled = 32
+    };
+
+    Q_DECLARE_FLAGS(ItemFlags, ItemFlag);
 
     QAbstractItemModel(QObject *parent = 0);
     virtual ~QAbstractItemModel();
@@ -163,13 +180,11 @@ public:
 
     virtual void fetchMore(const QModelIndex &parent);
 
-    virtual bool isSelectable(const QModelIndex &index) const;
-    virtual bool isEditable(const QModelIndex &index) const;
-    virtual bool isDragEnabled(const QModelIndex &index) const;
-    virtual bool isDropEnabled(const QModelIndex &index) const;
+    virtual ItemFlags flags(const QModelIndex &index) const;
 
     virtual bool isSortable() const;
-    virtual void sort(int column, Qt::SortOrder order);
+    virtual void sort(int column, const QModelIndex &parent = QModelIndex::Null,
+                      Qt::SortOrder order = Qt::AscendingOrder);
 
     virtual bool equal(const QModelIndex &left, const QModelIndex &right) const;
     virtual bool lessThan(const QModelIndex &left, const QModelIndex &right) const;
@@ -212,6 +227,7 @@ protected:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractItemModel::MatchFlags);
+Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractItemModel::ItemFlags);
 
 class Q_GUI_EXPORT QAbstractTableModel : public QAbstractItemModel
 {

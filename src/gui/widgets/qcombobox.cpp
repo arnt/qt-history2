@@ -781,7 +781,7 @@ void QComboBox::setLineEdit(QLineEdit *edit)
 	Q_ASSERT(edit != 0);
 	return;
     }
-    if (!model()->isEditable(model()->index(0, 0, root()))) {
+    if (!model()->flags(model()->index(0, 0, root())) & QAbstractItemModel::ItemIsEditable) {
         delete edit;
         return;
     }

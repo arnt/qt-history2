@@ -16,7 +16,6 @@
 
 #ifndef QT_H
 #include <qtreeview.h>
-#include <qwidgetbaseitem.h>
 #include <qlist.h>
 #endif
 
@@ -45,66 +44,88 @@ protected:
     void setModel(QAbstractItemModel *model);
 };
 
-class Q_GUI_EXPORT QTreeWidgetItem : public QWidgetBaseItem
+class Q_GUI_EXPORT QTreeWidgetItem
 {
     friend class QTreeModel;
 public:
     QTreeWidgetItem(QTreeWidget *view);
     QTreeWidgetItem(QTreeWidgetItem *parent);
     virtual ~QTreeWidgetItem();
-
-    // these functions are intended to be reimplemented    
-    virtual CheckedState checkedState() const;
-    virtual void setCheckedState(CheckedState state);
-
-    virtual QString text(int column) const;
-    virtual void setText(int column, const QString &text);
     
-    virtual QIconSet icon(int column) const;
-    virtual void setIcon(int column, const QIconSet &icon);
+    inline QAbstractItemModel::ItemFlags flags() const { return itemFlags; }
+    inline void setFlags(QAbstractItemModel::ItemFlags flags) { itemFlags = flags; }
 
-    virtual QString statusTip(int column) const;
-    virtual void setStatusTip(int column, const QString &statusTip);
+    inline QString text(int column) const
+        { return data(column, QAbstractItemModel::DisplayRole).toString(); }
+    inline void setText(int column, const QString &text)
+        { setData(column, QAbstractItemModel::DisplayRole, text); }
+    
+    inline QIconSet icon(int column) const
+        { return data(column, QAbstractItemModel::DecorationRole).toIcon(); }
+    inline void setIcon(int column, const QIconSet &icon)
+        { setData(column, QAbstractItemModel::DecorationRole, icon); }
 
-    virtual QString toolTip(int column) const;
-    virtual void setToolTip(int column, const QString &toolTip);
+    inline QString statusTip(int column) const
+        { return data(column, QAbstractItemModel::StatusTipRole).toString(); }
+    inline void setStatusTip(int column, const QString &statusTip)
+        { setData(column, QAbstractItemModel::StatusTipRole, statusTip); }
 
-    virtual QString whatsThis(int column) const;
-    virtual void setWhatsThis(int column, const QString &whatsThis);
+    inline QString toolTip(int column) const
+        { return data(column, QAbstractItemModel::ToolTipRole).toString(); }
+    inline void setToolTip(int column, const QString &toolTip)
+        { setData(column, QAbstractItemModel::ToolTipRole, toolTip); }
 
-    virtual QFont font(int column) const;
-    virtual void setFont(int column, const QFont &font);
+    inline QString whatsThis(int column) const
+        { return data(column, QAbstractItemModel::WhatsThisRole).toString(); }
+    inline void setWhatsThis(int column, const QString &whatsThis)
+        { setData(column, QAbstractItemModel::WhatsThisRole, whatsThis); }
 
-    virtual QColor backgroundColor(int column) const;
-    virtual void setBackgroundColor(int column, const QColor &color);
+    inline QFont font(int column) const
+        { return data(column, QAbstractItemModel::FontRole).toFont(); }
+    inline void setFont(int column, const QFont &font)
+        { setData(column, QAbstractItemModel::FontRole, font); }
 
-    virtual QColor textColor(int column) const;
-    virtual void setTextColor(int column, const QColor &color);
+    inline QColor backgroundColor(int column) const
+        { return data(column, QAbstractItemModel::BackgroundColorRole).toColor(); }
+    inline void setBackgroundColor(int column, const QColor &color)
+        { setData(column, QAbstractItemModel::BackgroundColorRole, color); }
+
+    inline QColor textColor(int column) const
+        { return data(column, QAbstractItemModel::TextColorRole).toColor(); }
+    inline void setTextColor(int column, const QColor &color)
+        { setData(column, QAbstractItemModel::TextColorRole, color); }
+
+    inline int checkedState(int column) const
+        { return data(column, QAbstractItemModel::CheckStateRole).toInt(); }
+    inline void setCheckedState(int column, bool state)
+        { setData(column, QAbstractItemModel::CheckStateRole, state); }
     
     virtual QVariant data(int column, int role) const;
     virtual void setData(int column, int role, const QVariant &value);
+    virtual bool operator<(const QTreeWidgetItem &other) const;
 
-    // other functions
     inline QTreeWidgetItem *parent() { return par; }
     inline QTreeWidgetItem *child(int index) { return children.at(index); }
     inline int childCount() const { return children.count(); }
-
     inline bool isSelected() { return view->isSelected(this); }
-    
     inline int columnCount() const { return values.count(); }
-    inline void setColumnCount(int count) { values.resize(count); }
 
 protected:
     QTreeWidgetItem();
 
-    void store(int column, int role, const QVariant &value);
-    QVariant retrieve(int column, int role) const;
-
 private:
+    struct Data {
+        Data() : role(-1) {}
+        Data(int r, QVariant v) : role(r), value(v) {}
+        int role;
+        QVariant value;
+    };
+
     QTreeWidget *view;
     QTreeWidgetItem *par;
     QList<QTreeWidgetItem*> children;
-    QVector< QVector<QWidgetBaseItem::Data> > values;
+    QVector< QVector<Data> > values;
+    QAbstractItemModel::ItemFlags itemFlags;
     // One item has a vector of column entries. Each column has a vector of (role, value) pairs.
 };
 

@@ -13,9 +13,57 @@
 
 #include "qtablewidget.h"
 #include <qheaderview.h>
+#include <qitemdelegate.h>
+#include <qpainter.h>
 #include <qabstractitemmodel.h>
 #include <private/qabstractitemmodel_p.h>
 #include <private/qtableview_p.h>
+
+class QTableItemDelegate : public QItemDelegate
+{
+public:
+    QTableItemDelegate(QObject *parent) : QItemDelegate(parent) {}
+    ~QTableItemDelegate() {}
+
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+               const QAbstractItemModel *model, const QModelIndex &index) const;
+    QSize sizeHint(const QFontMetrics &fontMetrics, const QStyleOptionViewItem &option,
+                   const QAbstractItemModel *model, const QModelIndex &index) const;
+};
+
+
+void QTableItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
+                              const QAbstractItemModel *model, const QModelIndex &index) const
+{
+    QStyleOptionViewItem opt = option;
+    // enabled
+    if (model->flags(index) & QAbstractItemModel::ItemIsEnabled == 0)
+        opt.state &= ~QStyle::Style_Enabled;
+    // set font
+    QVariant value = model->data(index, QAbstractItemModel::FontRole);
+    if (value.isValid())
+        opt.font = value.toFont();
+    // set text color
+    value = model->data(index, QAbstractItemModel::TextColorRole);
+    if (value.isValid() && value.toColor().isValid())
+        opt.palette.setColor(QPalette::Text, value.toColor());
+    // draw the background color
+    value = model->data(index, QAbstractItemModel::BackgroundColorRole);
+    if (value.isValid() && value.toColor().isValid())
+        painter->fillRect(option.rect, value.toColor());
+    // draw the item
+    QItemDelegate::paint(painter, opt, model, index);
+}
+
+QSize QTableItemDelegate::sizeHint(const QFontMetrics &/*fontMetrics*/,
+                                  const QStyleOptionViewItem &option,
+                                  const QAbstractItemModel *model,
+                                  const QModelIndex &index) const
+{
+    QVariant value = model->data(index, QAbstractItemModel::FontRole);
+    QFont fnt = value.isValid() ? value.toFont() : option.font;
+    return QItemDelegate::sizeHint(QFontMetrics(fnt), option, model, index);
+}
 
 class QTableModel : public QAbstractTableModel
 {
@@ -268,13 +316,44 @@ bool QTableModel::isValid(const QModelIndex &index) const
 // item
 
 QTableWidgetItem::QTableWidgetItem(QTableWidget *view)
-    : view(view)
+    : view(view),
+      itemFlags(QAbstractItemModel::ItemIsEditable
+                |QAbstractItemModel::ItemIsSelectable
+                |QAbstractItemModel::ItemIsCheckable
+                |QAbstractItemModel::ItemIsEnabled)
 {
 }
 
 QTableWidgetItem::~QTableWidgetItem()
 {
     view->removeItem(this);
+}
+
+
+bool QTableWidgetItem::operator<(const QTableWidgetItem &other) const
+{
+    return text() < other.text();
+}
+
+void QTableWidgetItem::setData(int role, const QVariant &value)
+{
+    role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
+    for (int i = 0; i < values.count(); ++i) {
+        if (values.at(i).role == role) {
+            values[i].value = value;
+            return;
+        }
+    }
+    values.append(Data(role, value));
+}
+
+QVariant QTableWidgetItem::data(int role) const
+{
+    role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
+    for (int i = 0; i < values.count(); ++i)
+        if (values.at(i).role == role)
+            return values.at(i).value;
+    return QVariant();
 }
 
 /*!
@@ -318,9 +397,9 @@ QTableWidget::QTableWidget(QWidget *parent)
     : QTableView(*new QTableWidgetPrivate, parent)
 {
     setModel(new QTableModel(0, 0, this));
-    setItemDelegate(new QWidgetBaseItemDelegate(this));
-    verticalHeader()->setItemDelegate(new QWidgetBaseItemDelegate(verticalHeader()));
-    horizontalHeader()->setItemDelegate(new QWidgetBaseItemDelegate(horizontalHeader()));
+    setItemDelegate(new QTableItemDelegate(this));
+    verticalHeader()->setItemDelegate(new QTableItemDelegate(verticalHeader()));
+    horizontalHeader()->setItemDelegate(new QTableItemDelegate(horizontalHeader()));
 }
 
 /*!

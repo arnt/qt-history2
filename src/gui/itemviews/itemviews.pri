@@ -19,8 +19,7 @@ HEADERS += \
 	itemviews/qlistwidget.h \
 	itemviews/qtablewidget.h \
 	itemviews/qtreewidget.h \
-	itemviews/qheaderwidget.h \
-	itemviews/qwidgetbaseitem.h
+	itemviews/qheaderwidget.h
 
 SOURCES += \
 	itemviews/qabstractitemview.cpp \
@@ -36,5 +35,4 @@ SOURCES += \
 	itemviews/qlistwidget.cpp \
 	itemviews/qtablewidget.cpp \
 	itemviews/qtreewidget.cpp \
-	itemviews/qheaderwidget.cpp \
-	itemviews/qwidgetbaseitem.cpp
+	itemviews/qheaderwidget.cpp

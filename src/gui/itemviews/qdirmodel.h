@@ -65,12 +65,11 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
     bool hasChildren(const QModelIndex &index) const;
-    bool isEditable(const QModelIndex &index) const;
-    bool isDragEnabled(const QModelIndex &index) const;
-    bool isDropEnabled(const QModelIndex &index) const;
-
+    QAbstractItemModel::ItemFlags flags(const QModelIndex &index) const;
+    bool isEditable(const QModelIndex &index) const; // specific for this model
+    
     bool isSortable() const;
-    void sort(int column, Qt::SortOrder order);
+    void sort(int column, const QModelIndex &parent, Qt::SortOrder order);
 
     bool equal(const QModelIndex &left, const QModelIndex &right) const;
     bool lessThan(const QModelIndex &left, const QModelIndex &right) const;

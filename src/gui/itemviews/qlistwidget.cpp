@@ -12,7 +12,55 @@
 ****************************************************************************/
 
 #include "qlistwidget.h"
+#include <qitemdelegate.h>
+#include <qpainter.h>
 #include <private/qlistview_p.h>
+
+class QListItemDelegate : public QItemDelegate
+{
+public:
+    QListItemDelegate(QObject *parent) : QItemDelegate(parent) {}
+    ~QListItemDelegate() {}
+
+    void paint(QPainter *painter, const QStyleOptionViewItem &option,
+               const QAbstractItemModel *model, const QModelIndex &index) const;
+    QSize sizeHint(const QFontMetrics &fontMetrics, const QStyleOptionViewItem &option,
+                   const QAbstractItemModel *model, const QModelIndex &index) const;
+};
+
+
+void QListItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
+                              const QAbstractItemModel *model, const QModelIndex &index) const
+{
+    QStyleOptionViewItem opt = option;
+    // enabled
+    if (model->flags(index) & QAbstractItemModel::ItemIsEnabled == 0)
+        opt.state &= ~QStyle::Style_Enabled;
+    // set font
+    QVariant value = model->data(index, QAbstractItemModel::FontRole);
+    if (value.isValid())
+        opt.font = value.toFont();
+    // set text color
+    value = model->data(index, QAbstractItemModel::TextColorRole);
+    if (value.isValid() && value.toColor().isValid())
+        opt.palette.setColor(QPalette::Text, value.toColor());
+    // draw the background color
+    value = model->data(index, QAbstractItemModel::BackgroundColorRole);
+    if (value.isValid() && value.toColor().isValid())
+        painter->fillRect(option.rect, value.toColor());
+    // draw the item
+    QItemDelegate::paint(painter, opt, model, index);
+}
+
+QSize QListItemDelegate::sizeHint(const QFontMetrics &/*fontMetrics*/,
+                                  const QStyleOptionViewItem &option,
+                                  const QAbstractItemModel *model,
+                                  const QModelIndex &index) const
+{
+    QVariant value = model->data(index, QAbstractItemModel::FontRole);
+    QFont fnt = value.isValid() ? value.toFont() : option.font;
+    return QItemDelegate::sizeHint(QFontMetrics(fnt), option, model, index);
+}
 
 class QListModel : public QAbstractListModel
 {
@@ -36,8 +84,10 @@ public:
     bool insertRows(int row, const QModelIndex &parent = QModelIndex::Null, int count = 1);
     bool removeRows(int row, const QModelIndex &parent = QModelIndex::Null, int count = 1);
 
-    bool isSelectable(const QModelIndex &index) const;
-    bool isEditable(const QModelIndex &index) const;
+    QAbstractItemModel::ItemFlags flags(const QModelIndex &index) const;
+
+    bool isSortable() const;
+    void sort(int column, const QModelIndex &parent, Qt::SortOrder order);
 
 private:
     QList<QListWidgetItem*> lst;
@@ -146,18 +196,27 @@ bool QListModel::removeRows(int row, const QModelIndex &, int count)
     return false;
 }
 
-bool QListModel::isSelectable(const QModelIndex &index) const
+QAbstractItemModel::ItemFlags QListModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid() || index.row() >= lst.count())
-        return false;
-    return lst.at(index.row())->isSelectable();
+        return 0;
+    return lst.at(index.row())->flags();
 }
 
-bool QListModel::isEditable(const QModelIndex &index) const
+bool QListModel::isSortable() const
 {
-    if (!index.isValid() || index.row() >= lst.count())
-        return false;
-    return lst.at(index.row())->isEditable();
+    return true;
+}
+
+void QListModel::sort(int column, const QModelIndex &parent, Qt::SortOrder order)
+{
+    if (column != 0 || parent.isValid())
+        return;
+    if (order == Qt::AscendingOrder)
+        qHeapSort(lst.begin(), lst.end());
+    else
+        qHeapSort(lst.end(), lst.begin());
+    emit dataChanged(index(0, 0), index(lst.count() - 1, 0));
 }
 
 /*!
@@ -174,7 +233,11 @@ bool QListModel::isEditable(const QModelIndex &index) const
 */
 
 QListWidgetItem::QListWidgetItem(QListWidget *view)
-    : view(view)
+    : view(view),
+      itemFlags(QAbstractItemModel::ItemIsEditable
+                |QAbstractItemModel::ItemIsSelectable
+                |QAbstractItemModel::ItemIsCheckable
+                |QAbstractItemModel::ItemIsEnabled)
 {
     if (view)
         view->appendItem(this);
@@ -200,6 +263,32 @@ void QListWidgetItem::closePersistentEditor()
 {
     if (view)
         view->closePersistentEditor(this);
+}
+
+bool QListWidgetItem::operator<(const QListWidgetItem &other) const
+{
+    return text() < other.text();
+}
+
+void QListWidgetItem::setData(int role, const QVariant &value)
+{
+    role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
+    for (int i = 0; i < values.count(); ++i) {
+        if (values.at(i).role == role) {
+            values[i].value = value;
+            return;
+        }
+    }
+    values.append(Data(role, value));
+}
+
+QVariant QListWidgetItem::data(int role) const
+{
+    role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
+    for (int i = 0; i < values.count(); ++i)
+        if (values.at(i).role == role)
+            return values.at(i).value;
+    return QVariant();
 }
 
 /*!
@@ -303,7 +392,7 @@ QListWidget::QListWidget(QWidget *parent, const char* name)
 {
     setObjectName(name);
     setModel(new QListModel(this));
-    setItemDelegate(new QWidgetBaseItemDelegate(this));
+    setItemDelegate(new QListItemDelegate(this));
 }
 #endif
 
@@ -325,7 +414,7 @@ QListWidget::QListWidget(QWidget *parent)
     : QListView(*new QListWidgetPrivate(), parent)
 {
     setModel(new QListModel(this));
-    setItemDelegate(new QWidgetBaseItemDelegate(this));
+    setItemDelegate(new QListItemDelegate(this));
 }
 
 /*!
@@ -415,11 +504,22 @@ QListWidgetItem *QListWidget::takeItem(int row)
     return item;
 }
 
+/*!
+  ###
+*/
 int QListWidget::count() const
 {
     return d->model()->rowCount();
 }
 
+/*!
+  ###
+*/
+
+void QListWidget::sort(Qt::SortOrder order)
+{
+    d->model()->sort(0, QModelIndex::Null, order);
+}
 
 /*!
   Removes the \a item from the list.
