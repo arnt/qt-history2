@@ -612,12 +612,14 @@ void QWin32PaintEngine::drawEllipse(const QRectF &r)
         return;
     }
 
+#ifndef QT_NO_NATIVE_PATH
     if ((d->brushStyle == Qt::SolidPattern && d->brush.color().alpha() != 255)
         || d->brushStyle == Qt::LinearGradientPattern) {
         QPainterPath path;
         path.addEllipse(r.x(), r.y(), r.width(), r.height());
         drawPath(path);
     }
+#endif // QT_NO_NATIVE_PATH
 
     // Ellipse sizes differ depending on whether we have been in ADVANCED mode or not
     // so make sure it is the case.
@@ -700,6 +702,7 @@ void QWin32PaintEngine::drawPolygon(const QPolygon &p, PolygonDrawMode mode)
         return;
     }
 
+#ifndef QT_NO_NATIVE_PATH
     // Fall back to path implementation for gradient and alpha brushes..
     if (d->brushStyle == Qt::LinearGradientPattern ||
         d->brushStyle == Qt::SolidPattern && d->brush.color().alpha() != 255) {
@@ -708,6 +711,7 @@ void QWin32PaintEngine::drawPolygon(const QPolygon &p, PolygonDrawMode mode)
         drawPath(path);
         return;
     }
+#endif // QT_NO_NATIVE_PATH
 
 #ifndef Q_OS_TEMP
     if (mode == WindingMode)                    // set to winding fill mode
@@ -1499,7 +1503,7 @@ void QWin32PaintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperatio
 void QWin32PaintEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperation op)
 {
 #ifdef QT_NO_NATIVE_PATH
-    Q_ASSERT(!"QWin32PaintEngine::updateClipPath()");
+    QPaintEngine::updateClipPath(path, op);
     return;
 #endif
     // Sanity check since we use it blindly below.
