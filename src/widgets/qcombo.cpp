@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.cpp#124 $
+** $Id: //depot/qt/main/src/widgets/qcombo.cpp#125 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#124 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombo.cpp#125 $");
 
 
 /*!
@@ -1142,7 +1142,6 @@ void QComboBox::keyPressEvent( QKeyEvent *e )
 	popup();
 	return;
     } else {
-	e->ignore();
 	return;
     }
 
