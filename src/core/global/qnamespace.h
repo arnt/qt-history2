@@ -25,6 +25,8 @@ class Q_CORE_EXPORT Qt {
     Q_ENUMS(Orientation TextFormat BackgroundMode DateFormat ScrollBarPolicy FocusPolicy ContextMenuPolicy CaseSensitivity LayoutDirection ArrowType)
     Q_ENUMS(ToolButtonStyle)
     Q_FLAGS(Alignment)
+    Q_FLAGS(Orientations)
+    Q_FLAGS(DockWidgetAreas)
 public:
 #endif
     enum GlobalColor {
@@ -95,8 +97,8 @@ public:
 #endif
 
     enum Orientation {
-        Horizontal = 0,
-        Vertical
+        Horizontal = 0x1,
+        Vertical = 0x2
     };
 
     Q_DECLARE_FLAGS(Orientations, Orientation);
