@@ -3,8 +3,10 @@
 styles {
 	HEADERS +=$$STYLES_H/qstylefactory.h \
 		  $$STYLES_H/qstyleinterface.h \
+		  $$STYLES_H/qstyleplugin.h \
 		  $$STYLES_H/qcommonstyle.h
 	SOURCES +=$$STYLES_CPP/qstylefactory.cpp \
+		  $$STYLES_CPP/qstyleplugin.cpp \
 		  $$STYLES_CPP/qcommonstyle.cpp
 
 	contains( styles, all ) {

@@ -32,6 +32,7 @@ kernel {
 		  $$KERNEL_H/qiconset.h \
 		  $$KERNEL_H/qimage.h \
 		  $$KERNEL_H/qimageformatinterface.h \
+		  $$KERNEL_H/qimageformatplugin.h \
 		  $$KERNEL_P/qinputcontext_p.h \
 		  $$KERNEL_H/qkeycode.h \
 		  $$KERNEL_H/qkeysequence.h \
@@ -177,6 +178,7 @@ kernel {
 		  $$KERNEL_CPP/qguardedptr.cpp \
 		  $$KERNEL_CPP/qiconset.cpp \
 		  $$KERNEL_CPP/qimage.cpp \
+		  $$KERNEL_CPP/qimageformatplugin.cpp \
 		  $$KERNEL_CPP/qkeysequence.cpp \
 		  $$KERNEL_CPP/qlayout.cpp \
 		  $$KERNEL_CPP/qlayoutengine.cpp \

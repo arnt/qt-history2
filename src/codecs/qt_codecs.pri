@@ -16,8 +16,9 @@ tools {
 		  $$CODECS_H/qtextcodec.h \
 		  $$CODECS_H/qtsciicodec.h \
 		  $$CODECS_H/qutfcodec.h \
-		   $$CODECS_H/qtextcodecinterface.h \
-		   $$CODECS_H/qtextcodecfactory.h
+		  $$CODECS_H/qtextcodecinterface.h \
+		  $$CODECS_H/qtextcodecfactory.h \
+		  $$CODECS_H/qtextcodecplugin.h
 
 	SOURCES += \
 #$$CODECS_CPP/qasmocodec.cpp \
@@ -32,7 +33,8 @@ tools {
 		  $$CODECS_CPP/qtextcodec.cpp \
 		  $$CODECS_CPP/qtsciicodec.cpp \
 		  $$CODECS_CPP/qutfcodec.cpp \
-		   $$CODECS_CPP/qtextcodecfactory.cpp
+		  $$CODECS_CPP/qtextcodecfactory.cpp \
+		  $$CODECS_CPP/qtextcodecplugin.cpp
 
 	x11:SOURCES += $$CODECS_CPP/qfontarcodec.cpp \
 		$$CODECS_CPP/qfontcncodec.cpp \
