@@ -78,13 +78,14 @@ int main(int argc, char **argv)
     QObject::connect(editor, SIGNAL(done()), hub, SLOT(setDefault()));
 
     bar->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
-    bar->addAction("new", hub, SLOT(createNew()));
-    bar->addAction("edit", hub, SLOT(editCurrent()));
-    bar->addAction("view", hub, SLOT(viewCurrent()));
-    bar->addAction("delete", hub, SLOT(deleteCurrent()));
+    bar->addAction(QPixmap(":/images/new.png"), "New Entry", hub, SLOT(createNew()));
+    bar->addAction(QPixmap(":/images/edit.png"), "Edit Current Entry", hub, SLOT(editCurrent()));
+    bar->addAction(QPixmap(":/images/book.png"), "View Current Entry", hub, SLOT(viewCurrent()));
+    bar->addAction(QPixmap(":/images/delete.png"), "Delete Current Entry", hub, SLOT(deleteCurrent()));
 
     addData(model);
     app.setMainWidget(&w);
+    w.setWindowIcon(QPixmap(":/images/interview.png"));
     w.show();
     
     return app.exec();
