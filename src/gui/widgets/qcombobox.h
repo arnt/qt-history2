@@ -113,6 +113,7 @@ public:
     void setItem(const QIcon &icon, const QString &text, int row);
 
     QListView *listView() const;
+    void setListview(QListView *listview);
 
     QSize sizeHint() const;
 

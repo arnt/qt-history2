@@ -85,8 +85,9 @@ class ListViewContainer : public QFrame
     Q_OBJECT
 
 public:
-    ListViewContainer(QListView *listView, QWidget *parent = 0);
+    ListViewContainer(QListView *listView, QComboBox *parent);
     QListView *listView() const;
+    void setListview(QListView *listView);
 
 public slots:
     void scrollListView(int action);
@@ -98,12 +99,14 @@ protected:
     bool eventFilter(QObject *o, QEvent *e);
     void mousePressEvent(QMouseEvent *e);
     void hideEvent(QHideEvent *e);
+    QStyleOptionComboBox comboStyleOption() const;
 
 signals:
     void itemSelected(const QModelIndex &);
     void containerDisappearing();
 
 private:
+    QComboBox *combo;
     QListView *list;
     Scroller *top;
     Scroller *bottom;
