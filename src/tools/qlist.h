@@ -327,7 +327,7 @@ inline void QList<T>::setAutoDelete(bool enable)
 }
 
 template <typename T>
-void QList<T>::detach_helper()
+Q_INLINE_TEMPLATES void QList<T>::detach_helper()
 {
     Node *n = (Node*) p.begin();
     QListData::Data *x = p.detach();
@@ -344,7 +344,7 @@ inline QList<T>::~QList()
 }
 
 template <typename T>
-bool QList<T>::operator== (const QList<T> &l) const
+Q_INLINE_TEMPLATES bool QList<T>::operator== (const QList<T> &l) const
 {
     if (p.size() != l.p.size())
 	return false;
@@ -363,7 +363,7 @@ bool QList<T>::operator== (const QList<T> &l) const
 
 
 template <typename T>
-void QList<T>::free(QListData::Data *d)
+Q_INLINE_TEMPLATES void QList<T>::free(QListData::Data *d)
 {
     node_destruct((Node*)(d->array + d->begin),
 		  (Node*)(d->array + d->end),
@@ -375,7 +375,7 @@ void QList<T>::free(QListData::Data *d)
 
 
 template <typename T>
-void QList<T>::clear()
+Q_INLINE_TEMPLATES void QList<T>::clear()
 {
     bool wasAutoDelete = d->autoDelete == this;
     *this = QList<T>();
@@ -384,7 +384,7 @@ void QList<T>::clear()
 }
 
 template <typename T>
-int QList<T>::remove(const T &t)
+Q_INLINE_TEMPLATES int QList<T>::remove(const T &t)
 {
     detach();
     int count=0, i=0;
@@ -401,7 +401,7 @@ int QList<T>::remove(const T &t)
 }
 
 template <typename T>
-int QList<T>::take(const T &t)
+Q_INLINE_TEMPLATES int QList<T>::take(const T &t)
 {
     detach();
     int count=0, i=0;
@@ -418,7 +418,7 @@ int QList<T>::take(const T &t)
 }
 
 template <typename T>
-typename QList<T>::Iterator QList<T>::erase( typename QList<T>::Iterator first,
+Q_INLINE_TEMPLATES typename QList<T>::Iterator QList<T>::erase( typename QList<T>::Iterator first,
 					     typename QList<T>::Iterator last )
 {
     for ( Node *n = first.i; n <= last.i; ++n)
@@ -429,7 +429,7 @@ typename QList<T>::Iterator QList<T>::erase( typename QList<T>::Iterator first,
 }
 
 template <typename T>
-QList<T> &QList<T>::operator+=(const QList<T> &l)
+Q_INLINE_TEMPLATES QList<T> &QList<T>::operator+=(const QList<T> &l)
 {
     detach();
     Node *n = (Node*)p.append(l.p);
@@ -438,7 +438,7 @@ QList<T> &QList<T>::operator+=(const QList<T> &l)
 }
 
 template <typename T>
-int QList<T>::indexOf(const T &t, int from) const
+Q_INLINE_TEMPLATES int QList<T>::indexOf(const T &t, int from) const
 {
     if (from < 0)
 	from = QMAX(from + p.size(), 0);
@@ -453,7 +453,7 @@ int QList<T>::indexOf(const T &t, int from) const
 }
 
 template <typename T>
-int QList<T>::lastIndexOf(const T &t, int from) const
+Q_INLINE_TEMPLATES int QList<T>::lastIndexOf(const T &t, int from) const
 {
     if (from < 0)
 	from += p.size();
@@ -471,7 +471,7 @@ int QList<T>::lastIndexOf(const T &t, int from) const
 }
 
 template <typename T>
-QBool QList<T>::contains(const T &t) const
+Q_INLINE_TEMPLATES QBool QList<T>::contains(const T &t) const
 {
     Node *b = (Node*) p.begin();
     Node *i = (Node*) p.end();
@@ -482,7 +482,7 @@ QBool QList<T>::contains(const T &t) const
 }
 
 template <typename T>
-int QList<T>::count(const T &t) const
+Q_INLINE_TEMPLATES int QList<T>::count(const T &t) const
 {
     int c = 0;
     Node *b = (Node*) p.begin();
