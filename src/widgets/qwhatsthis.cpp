@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#3 $
 **
 ** C++ file skeleton
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#2 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#3 $");
 
 
 class QWhatsThisPrivate: public QObject
@@ -30,6 +30,7 @@ public:
     struct Button: public QToolButton
     {
 	Button( QWidget * parent, const char * name );
+	~Button();
 
 	// reimplemented because of QButton's lack of virtuals
 	void mouseReleaseEvent( QMouseEvent * );
@@ -66,6 +67,7 @@ public:
     QWidget * whatsThat;
     QPtrDict<Item> * dict;
     QPtrDict<QWidget> * tlw;
+    QPtrDict<Button> * buttons;
     State state;
 };
 
@@ -77,7 +79,7 @@ static QWhatsThisPrivate * wt = 0;
 // the item
 QWhatsThisPrivate::Item::~Item()
 {
-    if ( count ) // ### Hei Haavard!   Tiss bæsj promp!!!
+    if ( count )
 	fatal( "Internal error #10%d in What's This", count );
     if ( dc )
 	delete[] s;
@@ -114,6 +116,14 @@ QWhatsThisPrivate::Button::Button( QWidget * parent, const char * name )
     QPixmap p( fucking_button_image_and_you_too );
     setPixmap( p );
     setToggleButton( TRUE );
+    wt->buttons->insert( (void *)this, this );
+}
+
+
+QWhatsThisPrivate::Button::~Button()
+{
+    if ( wt && wt->buttons )
+	wt->buttons->take( (void *)this );
 }
 
 
@@ -143,13 +153,33 @@ QWhatsThisPrivate::QWhatsThisPrivate()
     dict = new QPtrDict<QWhatsThisPrivate::Item>;
     tlw = new QPtrDict<QWidget>;
     wt = this;
+    buttons = new QPtrDict<Button>;
     state = Inactive;
 }
 
 QWhatsThisPrivate::~QWhatsThisPrivate()
 {
-    // lots of stuff really
-}
+    // the two straight-and-simple dicts
+    delete tlw;
+    delete buttons;
+    
+    
+    // then delete the complex one.
+    QPtrDictIterator<Item> it( *dict );
+    Item * i;
+    QWidget * w;
+    while( (i=it.current()) != 0 ) {
+	w = (QWidget *)it.currentKey();
+	++it;
+	dict->take( w );
+	i->deref();
+	if ( !i->dc || !i->count )
+	    delete i;
+    }
+    
+    // and finally lose wt
+    wt = 0;
+}    
 
 bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 {
@@ -161,7 +191,8 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 	if( e->type() == Event_MouseButtonRelease ) {
 	    state = Inactive;
 	    qApp->removeEventFilter( this );
-	    whatsThat->hide();
+	    if ( whatsThat )
+		whatsThat->hide();
 	    return TRUE;
 	} else if ( e->type() == Event_MouseMove ) {
 	    return TRUE;
@@ -170,23 +201,27 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
     case Displaying:
 	if ( e->type() == Event_MouseButtonPress ) {
 	    if ( !qstrcmp( "QWhatsThisPrivate::Button", o->className() ) ) {
-		state = Waiting;
+		state = Inactive;
+		qApp->removeEventFilter( this );
 	    } else {
 		state = FinalPress;
 	    }
-	    whatsThat->hide();
+	    if ( whatsThat )
+		whatsThat->hide();
 	    return TRUE;
 	} else if ( e->type() == Event_MouseButtonRelease ||
 		    e->type() == Event_MouseMove ) {
 	    return TRUE;
 	} else if ( e->type() == Event_Accel ) {
-	    whatsThat->hide();
+	    if ( whatsThat )
+		whatsThat->hide();
 	    ((QKeyEvent *)e)->accept();
 	    state = Inactive;
 	    qApp->removeEventFilter( this );
 	} else if ( e->type() == Event_FocusOut ||
 		    e->type() == Event_FocusIn ) {
-	    whatsThat->hide();
+	    if ( whatsThat )
+		whatsThat->hide();
 	    state = Inactive;
 	    qApp->removeEventFilter( this );
 	}
@@ -195,10 +230,15 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 	if ( e->type() == Event_MouseButtonPress && o->isWidgetType() ) {
 	    QWidget * w = (QWidget *) o;
 	    QWhatsThisPrivate::Item * i = dict->find( w );
+	    QPtrDictIterator<Button> it( *(wt->buttons) );
+	    Button * b;
+	    while( (b=it.current()) != 0 ) {
+		++it;
+		b->setOn( FALSE );
+	    }
 	    if ( i ) {
-		say( w, i->s );
 		state = Displaying;
-		qApp->installEventFilter( this );
+		say( w, i->s );
 	    } else {
 		state = FinalPress;
 	    }
@@ -207,7 +247,8 @@ bool QWhatsThisPrivate::eventFilter( QObject * o, QEvent * e )
 		    e->type() == Event_FocusIn ||
 		    e->type() == Event_Accel ||
 		    e->type() == Event_KeyPress ) {
-	    whatsThat->hide();
+	    if ( whatsThat )
+		whatsThat->hide();
 	    state = Inactive;
 	    qApp->removeEventFilter( this );
 	}
