@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogdlg.h#6 $
+** $Id: //depot/qt/main/src/dialogs/qprogdlg.h#7 $
 **
 ** Definition of QProgressDialog class
 **
@@ -45,8 +45,8 @@ signals:
 
 protected:
     void	resizeEvent( QResizeEvent * );
-    virtual QProgressBar*	progressBar(int totalsteps);
-    virtual QWidget*		labelWidget(const QString&);
+    virtual QProgressBar*	createProgressBar(int totalsteps);
+    virtual QWidget*		createLabelWidget(const QString&);
     void	styleChange(GUIStyle);
 
 private:

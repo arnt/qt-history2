@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#11 $
+** $Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#12 $
 **
 ** Implementation of QProgressDialog class
 **
@@ -14,7 +14,7 @@
 #include <qdrawutl.h>
 #include <qapp.h>
 
-RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#11 $");
+RCSTAG("$Id: //depot/qt/main/src/dialogs/qprogdlg.cpp#12 $");
 
 // If the operation is expected to take this long (as predicted by
 // progress time), show the progress dialog.
@@ -100,7 +100,7 @@ struct QProgressData
     the first file, call setProgress(0), and after examining the last file
     call setProgress(50).
   \arg \e parent, \e name, \e modal, and \e f are sent to the
-    QDialog::QDialog() constructor. Note that \e if modal is FALSE (the
+    QSemiModal::QSemiModal() constructor. Note that \e if modal is FALSE (the
     default), you will need to have an event loop proceeding for any
     redrawing of the dialog to occur.  If it is TRUE, the dialog ensures
     events are processed when needed.
@@ -120,7 +120,7 @@ QProgressDialog::QProgressDialog( const char* label_text, int total_steps,
 
 /*!
   Destroys the progress dialog, destroying any objects ever
-  returned by progressBar() or labelWidget().
+  returned by createProgressBar() or createLabelWidget().
 */
 QProgressDialog::~QProgressDialog()
 {
@@ -188,9 +188,11 @@ void QProgressDialog::reset()
   you must at least call this with the parameter 0 initially, then
   later with QProgressDialog::totalSteps().
 
-  \warning This method calls QApplication::processEvents(), although making
-  the progress dialog modal (see QProgressDialog::QProgressDialog()), will block
-  most events from receipt by your application.
+  \warning If the progress dialog is modal
+    (see QProgressDialog::QProgressDialog()),
+    this function calls QApplication::processEvents(), so take care that
+    this does not cause undesirable re-entrancy to your code. For example,
+    don't use a QProgressDialog inside a paintEvent()!
 
   Returns TRUE if the user has clicked the cancellation button. 
 */
@@ -350,20 +352,21 @@ void QProgressDialog::layout()
 */
 
 /*!
-  This method is called once when a QProgressBar is first required.
+  This method is called to create a QProgressBar when required.
   Override this if you want to use your own subclass of QProgressBar.
   Note that ownership of the progress bar transfers to the QProgressDialog,
-  so you should pass a newly allocated QProgressBar with the given
+  so the function should return a newly allocated QProgressBar with the given
   \e total_steps and \e this as the parent.
 */
-QProgressBar* QProgressDialog::progressBar(int total_steps)
+QProgressBar* QProgressDialog::createProgressBar(int total_steps)
 {
     return new QProgressBar(total_steps, this, "bar");
 }
 
 /*!
-  This method is called once whenever a QWidget is required for the
-  area above the progress bar.  The widget is recreated whenever the
+  This method is called to create a QWidget when required for the
+  area above the progress bar.  The previous widget is destroyed and
+  this function is called again whenever the
   label text is changed or set to 0.
   Override this if you want to use your own subclass of QWidget.
   Note that ownership of the widget transfers to the QProgressDialog,
@@ -371,7 +374,7 @@ QProgressBar* QProgressDialog::progressBar(int total_steps)
   \e text and \e this as the parent.  The default implementation
   uses a QLabel, aligned according to the style() of the dialog.
 */
-QWidget* QProgressDialog::labelWidget(const QString& str)
+QWidget* QProgressDialog::createLabelWidget(const QString& str)
 {
     QLabel* lbl = new QLabel(str, this, "label");
     lbl->setAlignment( style() != WindowsStyle
@@ -388,7 +391,7 @@ QProgressBar& QProgressDialog::bar() const
     QProgressDialog* non_const_this = (QProgressDialog*)this;
     if (!the_bar) {
 	QProgressBar* result = non_const_this->the_bar =
-	    non_const_this->progressBar(totalsteps);
+	    non_const_this->createProgressBar(totalsteps);
 	non_const_this->the_bar = result;
 	return *result;
     }
@@ -400,7 +403,8 @@ QProgressBar& QProgressDialog::bar() const
 */
 QWidget& QProgressDialog::label()
 {
-    if (!d->the_label) d->the_label = labelWidget(d->label_text);
+    if (!d->the_label)
+	d->the_label = createLabelWidget(d->label_text);
     return *d->the_label;
 }
 
