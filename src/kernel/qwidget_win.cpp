@@ -1216,9 +1216,9 @@ void QWidget::showWindow()
 	    extra->shown_mode = sm;
 
     ShowWindow( winId(), sm );
-    UpdateWindow( winId() );
     if ( isTopLevel() && sm == SW_SHOW )
 	SetForegroundWindow( winId() );
+    UpdateWindow( winId() );
 }
 
 
