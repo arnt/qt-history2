@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#67 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#68 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qscrbar.h"				// qDrawArrow
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#67 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#68 $")
 
 
 // Windows style parameters
@@ -220,7 +220,7 @@ void QPopupMenu::subHighlighted( int id )
 void QPopupMenu::accelActivated( int id )
 {
     QMenuItem *mi = findItem( id );
-    if ( mi && !mi->isDisabled() ) {
+    if ( mi && mi->isEnabled() ) {
 	if ( mi->signal() )			// activate signal
 	    mi->signal()->activate();
 	else					// normal connection
@@ -562,7 +562,7 @@ void QPopupMenu::updateAccel( QWidget *parent )
 		connect( autoaccel, SIGNAL(destroyed()),
 			 SLOT(accelDestroyed()) );
 		if ( accelDisabled )
-		    autoaccel->disable();
+		    autoaccel->setEnabled( FALSE );
 	    }
 	    int k = mi->key();
 	    autoaccel->insertItem( k, mi->id() );
@@ -594,12 +594,8 @@ void QPopupMenu::updateAccel( QWidget *parent )
 
 void QPopupMenu::enableAccel( bool enable )
 {
-    if ( autoaccel ) {
-	if ( enable )
-	    autoaccel->enable();
-	else
-	    autoaccel->disable();
-    }
+    if ( autoaccel )
+	autoaccel->setEnabled( enable );
     else
 	accelDisabled = TRUE;			// rememeber when updateAccel
     QMenuItemListIt it(*mitems);
@@ -684,7 +680,7 @@ void QPopupMenu::paintCell( QPainter *p, int row, int col )
     int cellw	  = cellWidth( col );
     GUIStyle gs	  = style();
     bool act	  = row == actItem;
-    bool dis	  = (selfItem && selfItem->isDisabled()) || mi->isDisabled();
+    bool dis	  = (selfItem && !selfItem->isEnabled()) || !mi->isEnabled();
 
     if ( !mi->isDirty() )
 	return;
@@ -847,7 +843,7 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 	} else {				// normal menu item
 	    hideAllPopups();			// hide all popup
 	    byeMenuBar();			// deactivate menu bar
-	    if ( !mi->isDisabled() ) {
+	    if ( mi->isEnabled() ) {
 		if ( mi->signal() )		// activate signal
 		    mi->signal()->activate();
 		else				// normal connection
@@ -948,7 +944,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    else {
 		hideAllPopups();
 		byeMenuBar();
-		if ( !mi->isDisabled() ) {
+		if ( mi->isEnabled() ) {
 		    if ( mi->signal() )
 			mi->signal()->activate();
 		    else
@@ -981,7 +977,7 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 	    else if ( i < 0 )
 		i = c - 1;
 	    mi = mitems->at( i );
-	    if ( !(mi->isSeparator() || mi->isDisabled()) )
+	    if ( mi->isEnabled() && !mi->isSeparator() )
 		break;
 	}
 	if ( i != actItem ) {

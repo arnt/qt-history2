@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#52 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.cpp#53 $
 **
 ** Implementation of QMenuBar class
 **
@@ -18,7 +18,7 @@
 #include "qapp.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#52 $")
+RCSTAG("$Id: //depot/qt/main/src/widgets/qmenubar.cpp#53 $")
 
 
 /*----------------------------------------------------------------------------
@@ -201,7 +201,7 @@ void QMenuBar::accelActivated( int id )
     if ( !isEnabled() )				// the menu bar is disabled
 	return;
     QMenuItem *mi = findItem( id );
-    if ( mi && !mi->isDisabled() ) {
+    if ( mi && mi->isEnabled() ) {
 	actItem = indexOf( id );
 	repaint( FALSE );
 	QPopupMenu *popup = mi->popup();
@@ -499,7 +499,7 @@ void QMenuBar::drawContents( QPainter *p )
 			   r.top() + motifItemFrame,
 			   *mi->pixmap() );
 	else if ( mi->text() ) {
-	    if ( mi->isDisabled() && mi->popup() == 0 )
+	    if ( !mi->isEnabled() && mi->popup() == 0 )
 		p->setPen( palette().disabled().text() );
 	    else {
 		if ( i == actItem && gs == WindowsStyle )
@@ -654,7 +654,7 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 	    else if ( i < 0 )
 		i = c - 1;
 	    mi = mitems->at( i );
-	    if ( !(mi->isSeparator() || mi->isDisabled()) )
+	    if ( mi->isEnabled() && !mi->isSeparator() )
 		break;
 	}
 	if ( i != actItem ) {
