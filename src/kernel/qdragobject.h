@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.h#3 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.h#4 $
 **
 ** Definition of
 **
@@ -17,6 +17,7 @@ class QWidget;
 #include "qobject.h"
 #endif // QT_H
 
+
 class QDragObject: public QObject {
     Q_OBJECT
 public:
@@ -25,17 +26,19 @@ public:
 
     virtual void setAutoDelete( bool );
     bool autoDelete() const;
-    
+
     virtual void startDrag();
-    
+
     virtual void setFormat( const char * mimeType );
     const char * format() const;
 
     void setEncodedData( QByteArray & );
     const QByteArray encodedData() const;
-    
+
     virtual void encode();
 
+    QWidget * source();
+    
 private:
     QDragData * d;
 };

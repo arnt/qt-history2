@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qt_xdnd.cpp#3 $
+* $Id: //depot/qt/main/src/kernel/qt_xdnd.cpp#4 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -14,6 +14,7 @@
 #include "qintdict.h"
 #include "qdatetm.h"
 #include "qdict.h"
+#include "qdragobject.h"
 
 
 #include <X11/X.h> // for Atom
@@ -21,11 +22,12 @@
 #include <X11/Xatom.h> // for XA_STRING and friends
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qt_xdnd.cpp#3 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qt_xdnd.cpp#4 $");
 
 // this stuff is copied from qapp_x11.cpp
 
 extern void qt_x11_intern_atom( const char *, Atom * );
+extern Window qt_x11_findClientWindow( Window, Atom, bool );
 
 // and all this stuff is copied -into- qapp_x11.cpp
 
@@ -70,6 +72,11 @@ static Atom qt_xdnd_preferred_type = 0;
 static QIntDict<QString> * qt_xdnd_drag_types = 0;
 static QDict<Atom> qt_xdnd_atom_numbers( 17 );
 
+// rectangle in which the answer will be the same
+static QRect qt_xdnd_sameanswer;
+// widget we sent position to last.
+Window qt_xdnd_current_target;
+
 
 void qt_xdnd_setup() {
     // set up protocol atoms
@@ -99,7 +106,7 @@ void qt_handle_xdnd_enter( QWidget *, const XEvent * xe ) {
     const long *l = xe->xclient.data.l;
 
     debug( "xdnd enter" );
-    
+
     // first, build the atom dict, if possible
     if ( !qt_xdnd_drag_types ) {
 	qt_xdnd_drag_types = new QIntDict<QString>( 17 );
@@ -261,7 +268,7 @@ void qt_handle_xdnd_drop( QWidget *w, const XEvent * xe )
 
     Atom prop = xevent.xselection.property;
     Window win = xevent.xselection.requestor;
-    
+
     if ( !prop || !win )
 	return;
 
@@ -329,4 +336,64 @@ void qt_xdnd_cleanup()
 {
     delete qt_xdnd_drag_types;
     qt_xdnd_drag_types = 0;
+}
+
+
+void qt_xdnd_send_move( Window target, QDragObject * object, const QPoint &p )
+{
+    if ( qt_xdnd_sameanswer.contains( p ) )
+	return;
+
+    if ( !object->source() )
+	return;
+
+    int x = p.x(), y=p.y(), lx, ly;
+    Window child = target;
+    while( child ) {
+	if ( !XTranslateCoordinates(qt_xdisplay(), target, target,
+				    x, y,
+				    &lx, &ly, &child) ) {
+	    // somehow got to a different screen?  ignore for now
+	    child = 0;
+	}
+	if ( child ) {
+	    target = child;
+	    x = lx;
+	    y = ly;
+	}
+    }
+
+    if ( target != qt_xdnd_current_target ) {
+	Atom * primaryType = qt_xdnd_atom_numbers.find( object->format() );
+	XClientMessageEvent enter;
+	enter.type = ClientMessage;
+	enter.window = target;
+	enter.format = 32;
+	enter.message_type = qt_xdnd_enter;
+	enter.data.l[0] = object->source()->winId();
+	enter.data.l[1] = 1 << 24; // flags
+	enter.data.l[2] = primaryType ? *primaryType : 0; // ###
+	enter.data.l[3] = 0;
+	enter.data.l[4] = 0;
+
+	XSendEvent( qt_xdisplay(), target, FALSE, NoEventMask,
+		    (XEvent*)&enter );
+	qt_xdnd_current_target = target;
+	// provisionally set the rectangle to 5x5 pixels...
+	qt_xdnd_sameanswer = QRect( p.x() - 2, p.y() -2 , 5, 5 );
+    }
+
+    XClientMessageEvent move;
+    move.type = ClientMessage;
+    move.window = target;
+    move.format = 32;
+    move.message_type = qt_xdnd_position;
+    move.window = object->source()->winId();
+    move.data.l[1] = 0; // flags
+    move.data.l[2] = x << 16 + y;
+    move.data.l[3] = 0;
+    move.data.l[4] = 0;
+
+    XSendEvent( qt_xdisplay(), target, FALSE, NoEventMask, (XEvent*)&move );
+
 }

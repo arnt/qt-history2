@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#129 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#130 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#129 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#130 $");
 
 
 /*!
@@ -698,7 +698,7 @@ void QApplication::quit()
   an event: <ol> <li> Reimplementing this function.  Very powerful,
   you get \e complete control, but of course only one subclass can be
   qApp.
-  
+
   <li> Installing an event filter on qApp.  Such an event filter gets
   to process all events for all widgets, so it's just as powerful as
   reimplementing notify(), and in this way it's possible to have more
@@ -706,14 +706,14 @@ void QApplication::quit()
   to see even mouse events for \link QWidget::isEnabled() disabled
   widgets, \endlink and if \link setGlobalMouseTracking() global mouse
   tracking \endlink is enabled, mouse move events for all widgets.
-  
+
   <li> Reimplementing QObject::event() (as QWidget does).  If you do
   this you get tab key-presses, and you get to see the events before
   any widget-specific event filters.
-  
+
   <li> Installing an event filter on the object.  Such an even filter
   gets all the events except Tab and Shift-Tab key presses.
-  
+
   <li> Finally, reimplementing paintEvent(), mousePressEvent() and so
   on.  This is the normal, easist and least powerful way. </ol>
 
