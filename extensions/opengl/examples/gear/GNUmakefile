@@ -1,7 +1,7 @@
 #############################################################################
-# $Id: //depot/qt/main/extensions/opengl/examples/gear/Makefile#7 $
+# $Id: //depot/qt/main/extensions/opengl/examples/gear/GNUmakefile#1 $
 #
-# Win32 Makefile, requires Microsoft nmake.
+# Unix Makefile, requires GNU make (gmake).
 #
 # Copyright (C) 1998 by Troll Tech AS.  All rights reserved.
 #
@@ -9,4 +9,4 @@
 
 PROJECT = gear
 
-!INCLUDE $(QTDIR)\Makefile.inc
+include $(QTDIR)/GNUmakefile.inc
