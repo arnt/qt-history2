@@ -80,7 +80,8 @@ public:
     enum Protocol {
 	Version6 = 6,
 	Version7 = 7,
-	Version71 = 8
+	Version71 = 8,
+	Version73 = 9
     };
 
     QPSQLDriver( QObject * parent=0, const char * name=0 );

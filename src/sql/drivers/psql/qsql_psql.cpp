@@ -513,7 +513,7 @@ static QPSQLDriver::Protocol getPSQLVersion( PGconn* connection )
     if ( status == PGRES_COMMAND_OK || status == PGRES_TUPLES_OK ) {
 	QString val( PQgetvalue( result, 0, 0 ) );
 	PQclear( result );
-	QRegExp rx( "(\\d*)\\.(\\d*)" );
+	QRegExp rx( "(\\d+)\\.(\\d+)" );
 	rx.setMinimal ( TRUE ); // enforce non-greedy RegExp
         if ( rx.search( val ) != -1 ) {
 	    int vMaj = rx.cap( 1 ).toInt();
@@ -526,17 +526,13 @@ static QPSQLDriver::Protocol getPSQLVersion( PGconn* connection )
 	    }
 	    if ( vMaj == 6 ) {
 		return QPSQLDriver::Version6;
-	    }
-	    if ( vMaj == 7 ) {
-		if ( vMin < 1 ) {
+	    } else if ( vMaj == 7 ) {
+		if ( vMin < 1 )
 		    return QPSQLDriver::Version7;
-		} else {
+		else if ( vMin < 3 )
 		    return QPSQLDriver::Version71;
-		}
 	    }
-	    if ( vMaj > 7 ) {
-		return QPSQLDriver::Version71;
-	    }
+	    return QPSQLDriver::Version73;
 	}
     } else {
 #ifdef QT_CHECK_RANGE
@@ -590,8 +586,7 @@ bool QPSQLDriver::open( const QString & db,
     case QPSQLDriver::Version6:
 	dateResult = PQexec( d->connection, "SET DATESTYLE TO 'ISO'" );
 	break;
-    case QPSQLDriver::Version7:
-    case QPSQLDriver::Version71:
+    default:
 	dateResult = PQexec( d->connection, "SET DATESTYLE=ISO" );
 	break;
     }
@@ -702,23 +697,27 @@ QSqlIndex QPSQLDriver::primaryIndex( const QString& tablename ) const
     case QPSQLDriver::Version6:
 	stmt = "select pg_att1.attname, int(pg_att1.atttypid), pg_att2.attnum, pg_cl.relname "
 		"from pg_attribute pg_att1, pg_attribute pg_att2, pg_class pg_cl, pg_index pg_ind "
-		"where pg_cl.relname = '%1_pkey' AND pg_cl.oid = pg_ind.indexrelid "
-		"and pg_att2.attrelid = pg_ind.indexrelid "
-		"and pg_att1.attrelid = pg_ind.indrelid "
-		"and pg_att1.attnum = pg_ind.indkey[pg_att2.attnum-1] "
-		"order by pg_att2.attnum";
+		"where pg_cl.relname = '%1_pkey' ";
 	break;
     case QPSQLDriver::Version7:
     case QPSQLDriver::Version71:
 	stmt = "select pg_att1.attname, pg_att1.atttypid::int, pg_cl.relname "
 		"from pg_attribute pg_att1, pg_attribute pg_att2, pg_class pg_cl, pg_index pg_ind "
-		"where pg_cl.relname = '%1_pkey' AND pg_cl.oid = pg_ind.indexrelid "
-		"and pg_att2.attrelid = pg_ind.indexrelid "
-		"and pg_att1.attrelid = pg_ind.indrelid "
-		"and pg_att1.attnum = pg_ind.indkey[pg_att2.attnum-1] "
-		"order by pg_att2.attnum";
+		"where pg_cl.relname = '%1_pkey' ";
+	break;
+    case QPSQLDriver::Version73:
+	stmt = "select pg_att1.attname, pg_att1.atttypid::int, pg_cl.relname "
+		"from pg_attribute pg_att1, pg_attribute pg_att2, pg_class pg_cl, pg_index pg_ind "
+		"where pg_cl.relname = '%1_pkey' "
+		"and pg_att1.attisdropped = false ";
 	break;
     }
+    stmt += "and pg_cl.oid = pg_ind.indexrelid "
+	    "and pg_att2.attrelid = pg_ind.indexrelid "
+	    "and pg_att1.attrelid = pg_ind.indrelid "
+	    "and pg_att1.attnum = pg_ind.indkey[pg_att2.attnum-1] "
+	    "order by pg_att2.attnum";
+
     i.exec( stmt.arg( tablename ) );
     while ( i.isActive() && i.next() ) {
 	QSqlField f( i.value(0).toString(), qDecodePSQLType( i.value(1).toInt() ) );
@@ -750,6 +749,14 @@ QSqlRecord QPSQLDriver::record( const QString& tablename ) const
 			"and pg_attribute.attnum > 0 "
 			"and pg_attribute.attrelid = pg_class.oid ";
 	break;
+    case QPSQLDriver::Version73:
+	stmt = "select pg_attribute.attname, pg_attribute.atttypid::int "
+			"from pg_class, pg_attribute "
+			"where pg_class.relname = '%1' "
+			"and pg_attribute.attnum > 0 "
+			"and pg_attribute.attisdropped = false "
+			"and pg_attribute.attrelid = pg_class.oid ";
+	break;    
     }
 
     QSqlQuery fi = createQuery();
@@ -810,13 +817,25 @@ QSqlRecordInfo QPSQLDriver::recordInfo( const QString& tablename ) const
 		"left join pg_attrdef on (pg_attrdef.adrelid = pg_attribute.attrelid and pg_attrdef.adnum = pg_attribute.attnum) "
 		"where pg_class.relname = '%1' "
 		"and pg_attribute.attnum > 0 "
-		"and pg_attribute.attrelid = pg_class.oid ";
+		"and pg_attribute.attrelid = pg_class.oid "
+		"order by pg_attribute.attnum ";
+	break;
+    case QPSQLDriver::Version73:
+	stmt = "select pg_attribute.attname, pg_attribute.atttypid::int, pg_attribute.attnotnull, "
+		"pg_attribute.attlen, pg_attribute.atttypmod, pg_attrdef.adsrc "
+		"from pg_class, pg_attribute "
+		"left join pg_attrdef on (pg_attrdef.adrelid = pg_attribute.attrelid and pg_attrdef.adnum = pg_attribute.attnum) "
+		"where pg_class.relname = '%1' "
+		"and pg_attribute.attnum > 0 "
+		"and pg_attribute.attrelid = pg_class.oid "
+		"and pg_attribute.attisdropped = false "
+		"order by pg_attribute.attnum ";
 	break;
     }
 
     QSqlQuery query = createQuery();
     query.exec( stmt.arg( tablename ) );
-    if ( pro == QPSQLDriver::Version71 ) {
+    if ( pro >= QPSQLDriver::Version71 ) {
 	while ( query.next() ) {
 	    int len = query.value( 3 ).toInt();
 	    int precision = query.value( 4 ).toInt();
