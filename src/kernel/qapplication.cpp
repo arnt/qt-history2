@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#184 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#185 $
 **
 ** Implementation of QApplication class
 **
@@ -1193,7 +1193,7 @@ void QApplication::noteTopLevel( QWidget* tlw )
   localization.  Message files are searched starting with the most
   recently added file.
 
-  \sa removeMessageFile() translate() QObject::tr()
+  \sa removeMessageFile() translate() QObject::tr() couldNotTranslate()
 */
 
 void QApplication::installMessageFile( QMessageFile * mf )
@@ -1233,19 +1233,20 @@ void QApplication::removeMessageFile( QMessageFile * mf )
   be very long (as for help texts).
 
   If none of the message files contain a translation for \a key in \a
-  scope, this function returns \a key.
+  scope, this function returns \a key and emits the couldNotTranslate()
+  signal.
 
   This function is not virtual, but you can add alternative translation
   techniques by installing subclasses of QMessageFile.
 
-  \sa QObject::tr() installMessageFile() removeMessageFile() QMessageFile
+  \sa QObject::tr() installMessageFile() removeMessageFile() QMessageFile couldNotTranslate()
 */
 
 QString QApplication::translate( const char * scope, const char * key ) const
 {
     if ( !key )
 	return key;
-    // scope can be null, for global shite.
+    // scope can be null, for global stuff
 
     if ( messageFiles ) {
 	uint h = QMessageFile::hash( scope, key );
@@ -1259,9 +1260,19 @@ QString QApplication::translate( const char * scope, const char * key ) const
 		return result;
 	}
     }
-
+    emit couldNotTranslate( scope, key );
     return key;
 }
+
+/*!
+  \fn void QApplication::couldNotTranslate( const char* scope, const char* key )
+
+  This signal is emitted when a translation is attempted for \a key in \a
+  scope, but there is no translation available.
+
+  \sa QObject::tr() installMessageFile() removeMessageFile() QMessageFile
+*/
+
 
 
 /*****************************************************************************
