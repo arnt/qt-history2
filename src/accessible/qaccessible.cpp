@@ -315,19 +315,6 @@ static void qAccessibleCleanup()
     if ( qAccessibleInterface && qAccessibleInterface->count() && qAccessibleManager )
 	qAccessibleManager->setAutoUnload( FALSE );
 
-    if (qAccessibleInterface && qAccessibleInterface->count()) {
-	qDebug("Still objects in hash!");
-	QHash<QObject*, QAccessibleInterface*>::Iterator it = qAccessibleInterface->begin();
-	while (it != qAccessibleInterface->end()) {
-	    QObject *o = it.key();
-	    QAccessibleInterface *iface = it.data();
-	    if (!iface->isValid()) {
-		iface->release();
-	    } else {
-		qDebug("%s (%s)", o->name(), o->className());
-	    }
-	}
-    }
     delete qAccessibleInterface;
     qAccessibleInterface = 0;
     delete qAccessibleManager;

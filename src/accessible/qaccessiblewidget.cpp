@@ -257,7 +257,7 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 	    QRect geom = start->geometry();
 	    QPoint center = geom.center();
 	    QWidget *candidate = 0;
-	    int mindist = INT_MAX;
+	    int mindist = 100000;
 	    for (int i = 0; i < ol.count(); ++i) {
 		QWidget *sibling = static_cast<QWidget*>(ol.at(i));
 		if (sibling == start)

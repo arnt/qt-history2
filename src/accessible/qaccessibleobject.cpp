@@ -40,8 +40,6 @@ public:
 extern void qInsertAccessibleObject(QObject *object, QAccessibleInterface *iface);
 extern void qRemoveAccessibleObject(QObject *object);
 
-static int acc_object_count = 0;
-
 /*!
     Creates a QAccessibleObject for \a object.
 */
@@ -51,7 +49,6 @@ QAccessibleObject::QAccessibleObject( QObject *object )
     d->object = object;
 
     qInsertAccessibleObject(object, this);
-    qDebug("%d", ++acc_object_count);
 }
 
 /*!
@@ -65,7 +62,6 @@ QAccessibleObject::~QAccessibleObject()
     qRemoveAccessibleObject(d->object);
 
     delete d;
-    qDebug("%d", --acc_object_count);
 }
 
 /*!
