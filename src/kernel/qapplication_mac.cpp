@@ -1066,11 +1066,13 @@ QApplication::qt_select_timer_callbk(EventLoopTimerRef, void *)
 
 bool QApplication::processNextEvent( bool canWait )
 {
+#if 0
     //TrackDrag says you may not use the EventManager things..
     if(qt_mac_in_drag) {
 	qWarning("Whoa! Cannot process events whilst dragging!");
 	return FALSE;
     }
+#endif
 
     //ok to carry on
     int	   nevents = 0;

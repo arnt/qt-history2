@@ -539,6 +539,7 @@ void QCursor::update() const
 	memcpy(d->curs.cp.hcurs->mask, mcur_bdiag_bits, sizeof(mcur_bdiag_bits));
 	break;
     }
+    case ForbiddenCursor: //need a forbidden cursor! FIXME
     case BlankCursor:
     {
 	d->type = QCursorData::TYPE_CursPtr;
@@ -548,8 +549,6 @@ void QCursor::update() const
 	memset(d->curs.cp.hcurs->mask, 0x00, sizeof(d->curs.cp.hcurs->data));
 	break;
     }
-
-
     case UpArrowCursor:
     {
 	static unsigned char cur_up_arrow_bits[] = {
@@ -568,8 +567,6 @@ void QCursor::update() const
 	memcpy(d->curs.cp.hcurs->mask, mcur_up_arrow_bits, sizeof(mcur_up_arrow_bits));
 	break;
     }
-
-
     case SplitVCursor:
     {
 	static unsigned char cur_vsplit_bits[] = {
@@ -606,17 +603,6 @@ void QCursor::update() const
 	memcpy(d->curs.cp.hcurs->mask, mcur_hsplit_bits, sizeof(mcur_hsplit_bits));
 	break;
     }
-#if 0
-    case ForbiddenCursor:
-    {
-	d->my_cursor = TRUE;
-	d->curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
-	memcpy(d->curs.cp.hcurs->data, cur_ver_bits, sizeof(cur_ver_bits));
-	memcpy(d->curs.cp.hcurs->mask, mcur_ver_bits, sizeof(mcur_ver_bits));
-	break;
-    }
-#endif
-
 #endif
     default:
 #if defined(QT_CHECK_RANGE)

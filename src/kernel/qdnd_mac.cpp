@@ -101,8 +101,9 @@ static void qt_mac_dnd_cleanup()
 }
 
 void updateDragMode() {
-    if(0 && set_drag_mode == QDragObject::DragDefault) { 
+    if(set_drag_mode == QDragObject::DragDefault) { 
 	//how do we get the keyboard mode? FIXME
+	current_drag_action = QDropEvent::Move;
     } else {
 	if(set_drag_mode == QDragObject::DragMove)
 	    current_drag_action = QDropEvent::Move;
@@ -483,7 +484,7 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage
 #endif
 	qAddPostRoutine( qt_mac_dnd_cleanup );
     }
-    QCursor *cursor = noDropCursor;
+    QCursor *cursor = NULL;
     if (widget && theMessage == kDragTrackingInWindow && widget == current_drag_widget ) {
         QDragMoveEvent de( widget->mapFromGlobal( globalMouse ) );
 	de.setAction(current_drag_action);
@@ -515,10 +516,19 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage
 		macDndExtra->acceptact = de.isActionAccepted();
 		current_drag_widget = widget;
 	    }
-	} 
+	} else {
+	    cursor = noDropCursor;
+	}
     }
-    if(cursor)
-	qt_mac_set_cursor(cursor, &mouse);
+    if(!cursor) {
+	if(qApp && qApp->overrideCursor())
+	    cursor = qApp->overrideCursor();
+	else
+	    cursor = &Qt::arrowCursor;
+    }
+    qt_mac_set_cursor(cursor, &mouse); //finally set the cursor
+
+    //idle things
     if(qGlobalPostedEventsCount()) {
 	QApplication::sendPostedEvents();
 	QApplication::flush();
