@@ -6,8 +6,6 @@
 #include "qwmatrix.h"
 #include "qt_mac.h"
 
-static int hack_cnt = 0;
-
 extern const uchar *qt_get_bitflip_array();		// defined in qimage.cpp
 
 QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
@@ -398,7 +396,6 @@ void QPixmap::deref()
 #endif
             DisposeGWorld((GWorldPtr)hd);
             hd = 0;
-            hack_cnt-=((data->w * data->h) * 4);
         }
         delete data;
     }
@@ -679,50 +676,29 @@ void QPixmap::init( int w, int h, int d, bool bitmap, Optimization optim )
     Rect rect;
     SetRect(&rect,0,0,w,h);
 
-#if 0
-    for(int x = 0; x < 3; x++) {
-        int location = useDistantHdwrMem;
-        if(x == 1)
-               location = useLocalHdwrMem;
-        else if(x == 2)
-                location = keepLocal;
-        QDErr e=NewGWorld( (GWorldPtr *)&hd, 32, &rect, data->clut ? &data->clut : NULL, 
-	        	       0, location);
-
-        /* error? */
-        if(!(e & gwFlagErr)) {
-#ifdef ONE_PIXEL_LOCK
-                Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
-#endif
-	        data->w=w;
-	        data->h=h;
-	        break;
-        }
-     }
-     if(!hd) {
+    QDErr e = 0;
+    const int params = alignPix | stretchPix | newDepth;
+#if 0    
+    if(w <= 300 && h <= 100) //try to get it into distant memory
+        e = NewGWorld((GWorldPtr *)&hd, 32, &rect, data->clut ? &data->clut : NULL, 0, 
+                   useDistantHdwrMem | params);
+    if(!hd) //oh well I tried
+#endif  
+       e = NewGWorld((GWorldPtr *)&hd, 32, &rect, data->clut ? &data->clut : NULL, 0,
+                    params);
+                    
+    /* error? */
+    if((e & gwFlagErr)!=0) {
 	qDebug( "QPixmap::init Something went wrong");
 	Q_ASSERT(0);
 	hd=0;
-    }
-#else
-    /* actually create world */
-    QDErr e=NewGWorld( (GWorldPtr *)&hd, 32, &rect, data->clut ? &data->clut : NULL, 
-		       0, alignPix | stretchPix | newDepth );
+     } else {
 #ifdef ONE_PIXEL_LOCK
-    Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
+        Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)hd)));
 #endif
-
-    /* error? */
-    if((e & gwFlagErr)!=0) {
-	qDebug( "QPixmap::init Something went wrong" );
-	Q_ASSERT(0);
-	hd=0;
-    } else {
-        hack_cnt+=((w * h) * 4);
 	data->w=w;
 	data->h=h;
     }
-#endif     
 }
 
 int QPixmap::defaultDepth()
