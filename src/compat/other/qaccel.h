@@ -14,73 +14,7 @@
 #ifndef QACCEL_H
 #define QACCEL_H
 
-#include "qobject.h"
+#include "q3accel.h"
 
-#include "qkeysequence.h"
-
-#ifndef QT_NO_ACCEL
-
-class QAccelPrivate;
-class QKeySequence;
-class QWidget;
-
-class Q_COMPAT_EXPORT QAccel : public QObject
-{
-    Q_OBJECT
-    Q_DECLARE_PRIVATE(QAccel)
-public:
-    QAccel(QWidget *parent, const char *name=0);
-    QAccel(QWidget* watch, QObject *parent, const char *name=0);
-    ~QAccel();
-
-    bool isEnabled() const;
-    void setEnabled(bool);
-
-    uint count() const;
-
-    int insertItem(const QKeySequence& key, int id=-1);
-    void removeItem(int id);
-    void clear();
-
-    QKeySequence key(int id);
-    int findKey(const QKeySequence& key) const;
-
-    bool isItemEnabled(int id) const;
-    void setItemEnabled(int id, bool enable);
-
-    bool connectItem(int id,  const QObject *receiver, const char* member);
-    bool disconnectItem(int id,  const QObject *receiver, const char* member);
-
-    void setWhatsThis(int id, const QString&);
-    QString whatsThis(int id) const;
-    void setIgnoreWhatsThis(bool);
-    bool ignoreWhatsThis() const;
-
-    static QKeySequence shortcutKey(const QString &);
-    static QString keyToString(const QKeySequence &k);
-    static QKeySequence stringToKey(const QString &);
-
-signals:
-    void activated(int id);
-    void activatedAmbiguously(int id);
-
-private:
-    Q_DISABLE_COPY(QAccel)
-
-    friend class QAccelManager;
-};
-
-class QKeyEvent;
-
-inline QString QAccel::keyToString(const QKeySequence &k)
-{
-    return QString(k);
-}
-
-inline QKeySequence QAccel::stringToKey(const QString & s)
-{
-    return QKeySequence(s);
-}
-
-#endif // QT_NO_ACCEL
+typedef Q3Accel QAccel;
 #endif // QACCEL_H

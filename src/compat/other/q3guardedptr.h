@@ -11,10 +11,16 @@
 **
 ****************************************************************************/
 
-#ifndef QGUARDEDPTR_H
-#define QGUARDEDPTR_H
+#ifndef Q3GUARDEDPTR_H
+#define Q3GUARDEDPTR_H
 
-#include "q3guardedptr.h"
+#include "qpointer.h"
 
-#define QGuardedPtr Q3GuardedPtr
+template <class T> class Q3GuardedPtr : public QPointer<T>
+{
+public:
+    inline Q3GuardedPtr(){}
+    inline Q3GuardedPtr(T *obj) : QPointer<T>(obj){}
+    inline Q3GuardedPtr(const QPointer<T> &p) : QPointer<T>(p) {}
+};
 #endif
