@@ -1857,7 +1857,8 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                             if(QFileInfo(fname).isDir()) {
                                 if(recursive)
                                     dirs.append(fname);
-                            } else if(regex.exactMatch(fname)) {
+                            } 
+                            if(regex.exactMatch(fname)) {
                                 if(!replacement.isEmpty())
                                     replacement += Option::field_sep;
                                 replacement += fname;
