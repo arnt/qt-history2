@@ -2689,7 +2689,7 @@ const QPalette &QWidget::palette() const
     else if (!isVisible() || isActiveWindow())
         data->pal.setCurrentColorGroup(QPalette::Active);
 #ifdef Q_WS_MAC
-    else if(!testAttribute(Qt::WA_MacNoClickThrough))
+    else if (qt_mac_can_clickThrough(this))
         data->pal.setCurrentColorGroup(QPalette::Active);
 #endif
     else

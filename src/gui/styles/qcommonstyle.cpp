@@ -944,7 +944,7 @@ void QCommonStyle::drawControl(ControlElement ce, const QStyleOption *opt,
                 QPixmap pixmap = btn->icon.pixmap(Qt::SmallIconSize, mode, state);
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
-                //Center the icon if there is neither text nor pixmap
+                //Center the icon if there is no text
                 if (btn->text.isEmpty())
                     p->drawPixmap(ir.x() + ir.width() / 2 - pixw / 2,
                                   ir.y() + ir.height() / 2 - pixh / 2, pixmap);

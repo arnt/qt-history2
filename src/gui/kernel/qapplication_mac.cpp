@@ -2019,9 +2019,9 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
 #ifdef DEBUG_MOUSE_MAPS
                 qDebug("Entering: %p - %s (%s), Leaving %s (%s)", (QWidget*)widget,
                        widget ? widget->metaObject()->className() : "none",
-                       widget ? widget->objectName().local8Bit() : "",
+                       widget ? widget->objectName().toLocal8Bit().constData() : "",
                        qt_mouseover ? qt_mouseover->metaObject()->className() : "none",
-                       qt_mouseover ? qt_mouseover->objectName().local8Bit() : "");
+                       qt_mouseover ? qt_mouseover->objectName().toLocal8Bit().constData() : "");
 #endif
                 qt_dispatchEnterLeave(widget, qt_mouseover);
                 qt_mouseover = widget;
@@ -2097,7 +2097,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 event_desc = "Double Click";
             qDebug("%d %d (%d %d) - Would send (%s) event to %p %s %s (%d 0x%08x 0x%08x %d)", p.x(), p.y(),
                    plocal.x(), plocal.y(), event_desc, (QWidget*)widget,
-                   widget ? widget->objectName().local8Bit() : "*Unknown*",
+                   widget ? widget->objectName().toLocal8Bit().constData() : "*Unknown*",
                    widget ? widget->metaObject()->className() : "*Unknown*",
                    button, (int)buttons, (int)modifiers, wheel_delta);
 #endif

@@ -20,7 +20,6 @@
 #include "QtGui/qstyle.h"
 #include "QtGui/qtabbar.h"
 #include "QtGui/qtabwidget.h"
-
 class Q_GUI_EXPORT QStyleOption
 {
 public:

@@ -163,13 +163,13 @@ public:
     inline QMacSavedPortInfo(QPaintDevice *pd, const QRegion &r)
         { init(); setPaintDevice(pd); setClipRegion(r); }
     ~QMacSavedPortInfo();
-    static bool setClipRegion(const QRect &r);
-    static bool setClipRegion(const QRegion &r);
-    inline static bool setClipRegion(QWidget *w)
+    static inline bool setClipRegion(const QRect &r);
+    static inline bool setClipRegion(const QRegion &r);
+    static inline bool setClipRegion(QWidget *w)
         { return setClipRegion(w->d_func()->clippedRegion()); }
-    static bool setPaintDevice(QPaintDevice *);
-    static bool setPaintDevice(QWidget *, bool set_clip=false, bool with_child=true);
-    static void setWindowAlpha(QWidget *, float);
+    static inline bool setPaintDevice(QPaintDevice *);
+    static inline bool setPaintDevice(QWidget *, bool set_clip=false, bool with_child=true);
+    static inline void setWindowAlpha(QWidget *, float);
 };
 
 extern "C" {
@@ -263,6 +263,18 @@ inline QMacSavedPortInfo::~QMacSavedPortInfo()
         RGBBackColor(&back);
     }
     DisposeRgn(clip);
+}
+
+inline bool qt_mac_can_clickThrough(const QWidget *w)
+{
+    // Idea here is that if a parent doesn't have a clickthrough property,
+    // neither can it's child
+    while (w) {
+	if (w->testAttribute(Qt::WA_MacNoClickThrough))
+	    return false;
+	w = w->parentWidget();
+    }
+    return true;
 }
 
 #endif // QT_MAC_P_H
