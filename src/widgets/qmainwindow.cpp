@@ -156,7 +156,16 @@ public:
 	  mb(0), sb(0), ttg(0), mc(0), timer(0), tll(0), ubp( FALSE ), utl( FALSE ),
 	  justify( FALSE )
     {
-	// nothing
+	rectPainter = 0;
+	dockable[ (int)QMainWindow::Left ] = TRUE;
+	dockable[ (int)QMainWindow::Right ] = TRUE;
+	dockable[ (int)QMainWindow::Top ] = TRUE;
+	dockable[ (int)QMainWindow::Bottom ] = TRUE;
+	dockable[ (int)QMainWindow::Unmanaged ] = TRUE;
+	dockable[ (int)QMainWindow::Hidden ] = TRUE;
+	dockable[ (int)QMainWindow::TornOff ] = TRUE;
+
+	movable = TRUE;
     }
 
     ToolBar *findToolbar( QToolBar *t, QMainWindowPrivate::ToolBarDock *&dock );
@@ -533,19 +542,8 @@ QMainWindow::QMainWindow( QWidget * parent, const char * name, WFlags f )
 {
     d = new QMainWindowPrivate;
     d->timer = new QTimer( this );
-    d->rectPainter = 0;
     connect( d->timer, SIGNAL(timeout()),
 	     this, SLOT(setUpLayout()) );
-
-    d->dockable[ (int)Left ] = TRUE;
-    d->dockable[ (int)Right ] = TRUE;
-    d->dockable[ (int)Top ] = TRUE;
-    d->dockable[ (int)Bottom ] = TRUE;
-    d->dockable[ (int)Unmanaged ] = TRUE;
-    d->dockable[ (int)Hidden ] = TRUE;
-    d->dockable[ (int)TornOff ] = TRUE;
-
-    d->movable = TRUE;
     d->hideDock = new HideDock( this, d );
 }
 
@@ -1415,9 +1413,9 @@ void QMainWindow::paintEvent( QPaintEvent * )
 bool QMainWindow::eventFilter( QObject* o, QEvent *e )
 {
     if ( ( e->type() == QEvent::MouseButtonPress ||
-		  e->type() == QEvent::MouseMove ||
-		  e->type() == QEvent::MouseButtonRelease ) &&
-		o && o->inherits( "QToolBar" )  ) {
+	   e->type() == QEvent::MouseMove ||
+	   e->type() == QEvent::MouseButtonRelease )
+	 && o && o->inherits( "QToolBar" )  ) {
 	if ( d->movable ) {
 	    moveToolBar( (QToolBar *)o, (QMouseEvent *)e );
 	    return TRUE;
@@ -1956,6 +1954,10 @@ void QMainWindow::moveToolBar( QToolBar* t , QMouseEvent * e )
 	emit endMovingToolbar( t );
 	
 	return;
+    } else if ( e->type() == QMouseEvent::MouseMove ) {
+	if ( (e->state() & LeftButton) == 0 ) {
+	    return;
+	}
     }
 
     // find out if the mouse had been moved yet...
@@ -2112,9 +2114,14 @@ QList<QToolBar> QMainWindow::toolBars( ToolBarDock dock ) const
 }
 
 /*!
-  If \a enable is TRUE, the user is allowed to drag toolbars between and
-  in the toolbar docks. Else this feature is disabled.
+  Sets the toolbars to be movable if \a enable is TRUE, or static
+  otherwise.
 
+  Movable toolbars can be dragged around between and within the
+  different toolbar docks by the user.
+  
+  The default is TRUE.
+  
   \sa setDockEnabled(), toolbarsMovable()
 */
 
@@ -2124,8 +2131,7 @@ void QMainWindow::setToolBarsMovable( bool enable )
 }
 
 /*!
-  Returns TRUE if the user is allowed to drag toolbars between and
-  in the toolbar docks, else FALSE.
+  Returns whether or not the toolbars of this main window are movable.
 
   \sa setToolbarsMovable()
 */
