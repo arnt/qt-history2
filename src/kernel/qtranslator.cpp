@@ -516,7 +516,7 @@ bool QTranslator::load( const QString & filename, const QString & directory,
   \sa load()
 */
 
-bool QTranslator::save( const QString & filename, QTranslator::SaveMode )
+bool QTranslator::save( const QString & filename, SaveMode )
 {
     QFile f( filename );
     if ( f.open( IO_WriteOnly ) ) {
