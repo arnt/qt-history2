@@ -29,22 +29,7 @@ library testconLib
 	{
 	properties:
 	methods:
-		[id(1)] void changeProperties();
-		[id(2)] void clearControl();
-		[id(3)] void containerProperties();
-		[id(4)] void invokeMethods();
-		[id(5)] void logPropertyChanged( [in] BSTR p_prop);
-		[id(6)] void logException( [in] int p_code,  [in] BSTR p_source_,  [in] BSTR p_desc,  [in] BSTR p_help);
 		[id(7)] void logMacro( [in] int p_code,  [in] BSTR p_description,  [in] int p_sourcePosition,  [in] BSTR p_sourceText);
-		[id(8)] void setControl();
-		[id(9)] void controlInfo();
-		[id(10)] void fileLoad();
-		[id(11)] void fileSave();
-		[id(12)] void fileNew();
-		[id(13)] void showDocumentation();
-		[id(14)] void renderPixmap();
-		[id(15)] void runMacro();
-		[id(16)] void loadScript();
 	};
 
 	[
