@@ -1195,56 +1195,127 @@ void QFtp::init()
 }
 
 /*!
-  \enum QFtp::State
+    \enum QFtp::State
 
-  This enum defines the changes of the connection state:
+    This enum defines the changes of the connection state:
 
-  \value Unconnected if no connection to the host exists
-  \value HostLookup if it started a host name lookup
-  \value Connecting if it tries to connect to the host
-  \value Connected if a connection to the host exists
-  \value LoggedIn if a connection to the host exists and the user is logged in
-  \value Closing if the connection is closing down, but is not yet closed
+    \value Unconnected There is no connection to the host.
+    \value HostLookup It started a host name lookup.
+    \value Connecting It tries to connect to the host.
+    \value Connected There is a connection to the host.
+    \value LoggedIn There is a connection to the host and the user is logged in.
+    \value Closing The connection is closing down, but it is not yet closed.
 
-  \sa stateChanged() state()
+    \sa stateChanged() state()
 */
 /*!
-  \enum QFtp::Command
-###
+    \enum QFtp::Error
+
+    This enum defines the detail of the error cause:
+
+    \value NoError No error occurred.
+    \value UnknownError An error that does not fit in another category.
+    \value NotConnected Tried to send a command, but there is no connection to
+    a server.
+    \value HostNotFound The host name lookup failed.
+    \value ConnectionRefused The server refused the connection.
+
+    \sa error()
+*/
+/*!
+    \enum QFtp::Command
+
+    This enum is used as the return value for the currentCommand() function.
+    This allows you to do  actions for certain commands only, e.g. in a FTP
+    client, you might want to clear the directory view when a list() command is
+    started; in this case you can simply check in the slot connected to the
+    start() signal if the currentCommand() is \c List.
+
+    The values for this enum are:
+
+    \value None No command is currently executed.
+    \value ConnectToHost The connectToHost() command is currently executed.
+    \value Login The login() command is currently executed.
+    \value Close The close() command is currently executed.
+    \value List The list() command is currently executed.
+    \value Cd The cd() command is currently executed.
+    \value Get The get() command is currently executed.
+    \value Put The put() command is currently executed.
+    \value Remove The remove() command is currently executed.
+    \value Mkdir The mkdir() command is currently executed.
+    \value Rmdir The rmdir() command is currently executed.
+    \value Rename The rename() command is currently executed.
+    \value RawCommand The rawCommand() command is currently executed.
+
+    \sa currentCommand()
 */
 /*!  \fn void QFtp::stateChanged( int state )
-  This signal is emitted when the state of the connection changes. The argument
-  \a state is the new state of the connection; it is one of the enum \l
-  State values.
+    This signal is emitted when the state of the connection changes. The
+    argument \a state is the new state of the connection; it is one of the enum
+    \l State values.
 
-  It is usually emitted in reaction of a connectToHost() or close() command,
-  but it can also be emitted "spontaneous", e.g. when the server closes the
-  connection unexpectedly.
+    It is usually emitted in reaction of a connectToHost() or close() command,
+    but it can also be emitted "spontaneous", e.g. when the server closes the
+    connection unexpectedly.
 
-  \sa connectToHost() close() state() State
+    \sa connectToHost() close() state() State
 */
 /*!  \fn void QFtp::listInfo( const QUrlInfo &i );
-  This signal is emitted for each directory entry the list() command can find.
-  The details of the entry are stored in \a i.
+    This signal is emitted for each directory entry the list() command can
+    find. The details of the entry are stored in \a i.
 
-  \sa list()
+    \sa list()
 */
 /*!  \fn void QFtp::commandStarted( int id )
-  This signal is emitted ###
+    This signal is emitted when the command with the identifier \a id is
+    started to be processed.
+
+    \sa commandFinished() done()
 */
 /*!  \fn void QFtp::commandFinished( int id, bool error )
-  This signal is emitted ###
+    This signal is emitted when the command with the identifier \a id has
+    finished processing. \a error is TRUE if an error occurred during
+    processing it. Otherwise \a error is FALSE.
+
+    \sa commandFinished() done() error() errorString()
 */
 /*!  \fn void QFtp::done( bool error )
-  This signal is emitted ###
+    This signal is emitted when the last pending command has finished (it is
+    emitted after the commandFinished() signal for it). \a error is TRUE if an
+    error occurred during processing it. Otherwise \a error is FALSE.
+
+    \sa commandFinished() error() errorString()
 */
 /*!  \fn void QFtp::readyRead()
-  This signal is emitted ###
+    This signal is emitted in response to a get() command when there is new
+    data to read.
 
-  \sa get() readBlock() readAll() bytesAvailable()
+    If you specify a device as the second argument in the get() command, this
+    signal is \e not emitted, but the data is rather written to the device
+    directly.
+
+    This signal is useful if you want to do process the data as soon as there
+    is something available. If you are only intrested in the whole data, you
+    can simply connect to the commandFinished() signal and read the data then
+    instead.
+
+    \sa get() readBlock() readAll() bytesAvailable()
 */
-/*!  \fn void QFtp::dataTransferProgress( int bytesDone, int bytesTotal )
-  This signal is emitted ###
+/*!  \fn void QFtp::dataTransferProgress( int done, int total )
+    This signal is emitted in response to a get() or put() request to inform
+    about the process of the download or upload.
+
+    \a done is the amount of data that has already arrived and \a total is the
+    total amount of data. It is possible that the QFtp class is not able to
+    determine the total amount of data that should be transferred. In this case
+    \a total is 0 (if you use this with a QProgressBar, the progress bar shows
+    a busy indicator in this case).
+
+    Please note that \a done and \a total are not necessarily the size in
+    bytes, since for large files these values might need to be "scaled" to
+    avoid an overflow.
+
+    \sa get() put() QProgressBar::setProgress()
 */
 /*!  \fn void QFtp::rawCommandReply( int replyCode, const QString &detail );
     This signal is emitted in reply to the rawCommand() function. \a replyCode
