@@ -2614,14 +2614,23 @@ Returns pixmap \a i in the array, if \a i is nonnegative and smaller
 than count(), and returns an unspecified value otherwise.
 */
 
-/*!  Replaces the array at index \a i by \a p, if \a i is nonnegative
-  and smaller than count().
+/*!
+  Replaces the pixmap at index \a i by \a p.
+
+  The array is extended to at least \a i+1 elements.
 
   Note that \a p becomes owned by this array, which will delete \a p
-  when it itself is deleted.
+  when it is itself deleted.
 */
 void QCanvasPixmapArray::setImage(int i, QCanvasPixmap* p)
 {
+    if ( i >= framecount ) {
+	QCanvasPixmap** newimg = new QCanvasPixmap*[i+1];
+	memcpy(newimg, img, sizeof(newimg[0])*framecount);
+	framecount = i+1;
+	delete [] img;
+	img = newimg;
+    }
     delete img[i]; img[i]=p;
 }
 
