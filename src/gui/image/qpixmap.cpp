@@ -706,7 +706,7 @@ int QPixmap::serialNumber() const
 }
 
 /*
-  fills \a buf with \a r in \a widget. Then blits \a buf on \a res at
+  Fills \a buf with \a r in \a widget. Then blits \a buf on \a res at
   position \a offset
  */
 static void grabWidget_helper(QWidget *widget, QPixmap &res, QPixmap &buf,
@@ -772,7 +772,7 @@ QPixmap QPixmap::grabWidget(QWidget * widget, const QRect &rect)
 }
 
 /*!
-    \fn QPixmap QPixmap::grabWidget(QWidget *widget, int x, int y, int w, int h);
+    \fn QPixmap QPixmap::grabWidget(QWidget *widget, int x, int y, int w, int h)
 
     Creates a pixmap and paints \a widget in it.
 
@@ -1007,8 +1007,7 @@ void QPixmap::deref()
 */
 
 /*!
-    \fn QPixmap QPixmap::scaled(int w, int h, Qt::AspectRatioMode aspectRatioMode,
-                             Qt::TransformationMode transformMode) const
+    \fn QPixmap QPixmap::scaled(int w, int h, Qt::AspectRatioMode aspectRatioMode, Qt::TransformationMode transformMode) const
 
     Returns a copy of the pixmap scaled to a rectangle of width \a w
     and height \a h according to \a aspectRatioMode and \a transformMode.
