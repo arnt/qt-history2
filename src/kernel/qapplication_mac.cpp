@@ -391,8 +391,8 @@ void qt_mac_update_os_settings()
 		pal.setBrush(QColorGroup::HighlightedText, QColor(c.red / 256, c.green / 256, c.blue / 256));
 		GetThemeTextColor(kThemeTextColorMenuItemDisabled, 32, true, &c);
 		pal.setBrush(QColorGroup::Text, QColor(c.red / 256, c.green / 256, c.blue / 256));
-	    } else if(!strcmp(mac_widget_colours[i].qt_class, "QButton") && pal != apppal) { //special
-		pal.setColor(QPalette::Disabled, QColorGroup::ButtonText,
+	    } else if(!strcmp(mac_widget_colours[i].qt_class, "QButton")) { //special
+		pal.setColor(QPalette::Disabled, QColorGroup::ButtonText, 
 			     pal.color(QPalette::Disabled, QColorGroup::Text));
 		pal.setColor(QPalette::Inactive, QColorGroup::ButtonText,
 			     pal.color(QPalette::Inactive, QColorGroup::Text));
