@@ -1200,20 +1200,20 @@ public:
     inline ~QGlobalStatic() { pointer = 0; }
 };
 
-#define Q_GLOBAL_STATIC(TYPE, NAME)                             \
-    static TYPE *NAME()                                         \
-    {                                                           \
-        static TYPE this_##NAME;                                \
-        static QGlobalStatic<TYPE> global_##NAME(&this_##NAME); \
-        return global_##NAME.pointer;                           \
+#define Q_GLOBAL_STATIC(TYPE, NAME)                              \
+    static TYPE *NAME()                                          \
+    {                                                            \
+        static TYPE this_##NAME;                                 \
+        static QGlobalStatic<TYPE > global_##NAME(&this_##NAME); \
+        return global_##NAME.pointer;                            \
     }
 
-#define Q_GLOBAL_STATIC_WITH_ARGS(TYPE, NAME, ARGS)             \
-    static TYPE *NAME()                                         \
-    {                                                           \
-        static TYPE this_##NAME ARGS;                           \
-        static QGlobalStatic<TYPE> global_##NAME(&this_##NAME); \
-        return global_##NAME.pointer;                           \
+#define Q_GLOBAL_STATIC_WITH_ARGS(TYPE, NAME, ARGS)              \
+    static TYPE *NAME()                                          \
+    {                                                            \
+        static TYPE this_##NAME ARGS;                            \
+        static QGlobalStatic<TYPE > global_##NAME(&this_##NAME); \
+        return global_##NAME.pointer;                            \
     }
 
 #else
@@ -1240,7 +1240,7 @@ public:
 #define Q_GLOBAL_STATIC(TYPE, NAME)                                     \
     static TYPE *NAME()                                                 \
     {                                                                   \
-        static QGlobalStatic<TYPE> this_##NAME;                         \
+        static QGlobalStatic<TYPE > this_##NAME;                        \
         if (!this_##NAME.pointer && !this_##NAME.destroyed) {           \
             TYPE *x = new TYPE;                                         \
             if (!q_atomic_test_and_set_ptr(&this_##NAME.pointer, 0, x)) \
@@ -1252,7 +1252,7 @@ public:
 #define Q_GLOBAL_STATIC_WITH_ARGS(TYPE, NAME, ARGS)                     \
     static TYPE *NAME()                                                 \
     {                                                                   \
-        static QGlobalStatic<TYPE> this_##NAME;                         \
+        static QGlobalStatic<TYPE > this_##NAME;                        \
         if (!this_##NAME.pointer && !this_##NAME.destroyed) {           \
             TYPE *x = new TYPE ARGS;                                    \
             if (!q_atomic_test_and_set_ptr(&this_##NAME.pointer, 0, x)) \
