@@ -1673,7 +1673,7 @@ void QLineEdit::paintEvent(QPaintEvent *)
     if ((minLB + widthUsed) <=  lineRect.width()) {
         switch (d->visualAlignment()) {
         case AlignRight:
-            d->hscroll = widthUsed - lineRect.width();
+            d->hscroll = widthUsed - lineRect.width() + 1;
             break;
         case AlignHCenter:
             d->hscroll = (widthUsed - lineRect.width()) / 2;
