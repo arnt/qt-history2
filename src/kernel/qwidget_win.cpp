@@ -125,15 +125,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
     if ( desktop ) {				// desktop widget
 	popup = FALSE;				// force this flags off
-	QSize size;
-	if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_98 ) {
-	    fpos = QPoint( GetSystemMetrics( 76 ), GetSystemMetrics( 77 ) ); // SM_XVIRTUALSCREEN, SM_YVIRTUALSCREEN
-	    size = QSize( GetSystemMetrics( 78 ), GetSystemMetrics( 79 ) );  // SM_CXVIRTUALSCREEN, SM_CYVIRTUALSCREEN
-	} else {
-	    fpos = QPoint( 0, 0);
-	    size = QSize( GetSystemMetrics( SM_CXSCREEN ), GetSystemMetrics( SM_CYSCREEN ) );
-	}
-	crect = QRect( fpos, size );
+	if ( qt_winver == Qt::WV_2000 || qt_winver == Qt::WV_98 )
+	    crect.setRect( GetSystemMetrics( 76 ), GetSystemMetrics( 77 ), GetSystemMetrics( 78 ), GetSystemMetrics( 79 ) );
+	else
+	    crect.setRect( 0, 0, GetSystemMetrics( SM_CXSCREEN ), GetSystemMetrics( SM_CYSCREEN ) );
     }
 
     parentw = parentWidget() ? parentWidget()->winId() : 0;
@@ -268,7 +263,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	}
 	
  	if ( topLevel ){
-	    fpos = QPoint(fr.left,fr.top);
 	    // one cannot trust cr.left and cr.top, use a correction POINT instead
 	    POINT pt;
 	    pt.x = 0;
@@ -276,13 +270,17 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    ClientToScreen( id, &pt );
  	    crect = QRect( QPoint(pt.x, pt.y),
  			   QPoint(pt.x+cr.right, pt.y+cr.bottom) );
+
+	    ftop = crect.top() - fr.top;
+	    fleft = crect.left() - fr.left;
+	    fbottom = fr.bottom - crect.bottom();
+	    fright = fr.right - crect.right();
+
 	    createTLExtra();
 	    extra->topextra->fsize = QSize(fr.right-fr.left+1,
 					   fr.bottom-fr.top+1);
  	} else {
- 	    fpos = QPoint(cr.left, cr.top);
-	    crect = QRect( QPoint(cr.left,  cr.top),
-			   QPoint(cr.right, cr.bottom) );
+	    crect.setCoords( cr.left, cr.top, cr.right, cr.bottom );
 	    // in case extra data already exists (eg. reparent()).  Set it.
 	    if ( extra && extra->topextra )
 		extra->topextra->fsize = QSize(cr.right-cr.left+1,
@@ -792,7 +790,7 @@ void QWidget::showWindow()
     if ( testWFlags(WStyle_Tool) || isPopup() ) {
 	QSize fSize = frameSize();
 	SetWindowPos( winId(), 0,
-		      fpos.x(), fpos.y(), fSize.width(), fSize.height(),
+		      crect.left() - fleft, crect.top() - ftop, fSize.width(), fSize.height(),
 		      SWP_NOACTIVATE | SWP_SHOWWINDOW );
     }
     else {
@@ -973,7 +971,6 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 	}
 	clearWState( WState_ConfigPending );
     }
-
 }
 
 
@@ -1254,7 +1251,7 @@ void QWidget::setMask( const QRegion &region )
     CombineRgn(wr, region.handle(), 0, RGN_COPY);
     RECT cr;
     GetClientRect( winId(), &cr );
-    OffsetRgn(wr, crect.x()-fpos.x(), crect.y()-fpos.y());
+    OffsetRgn(wr, fleft, ftop );
     SetWindowRgn( winId(), wr, TRUE );
 }
 
@@ -1263,7 +1260,7 @@ void QWidget::setMask( const QBitmap &bitmap )
     HRGN wr = qt_win_bitmapToRegion(bitmap);
     RECT cr;
     GetClientRect( winId(), &cr );
-    OffsetRgn(wr, crect.x()-fpos.x(), crect.y()-fpos.y());
+    OffsetRgn(wr, fleft, ftop );
     SetWindowRgn( winId(), wr, TRUE );
 }
 
