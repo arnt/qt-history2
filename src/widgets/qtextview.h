@@ -104,23 +104,23 @@ public:
     void setFont( const QFont &f );
 
     QString text() const;
-    QString text( int parag ) const;
+    QString text( int para ) const;
     TextFormat textFormat() const;
     QString context() const;
     QString documentTitle() const;
     QString fileName() const;
 
-    void getSelection( int &parag_from, int &index_from,
-		    int &parag_to, int &index_to, int selNum = 0 ) const;
+    void getSelection( int &paraFrom, int &indexFrom,
+		    int &paraTo, int &indexTo, int selNum = 0 ) const;
     virtual bool find( const QString &expr, bool cs, bool wo, bool forward = TRUE,
-		       int *parag = 0, int *index = 0 );
+		       int *para = 0, int *index = 0 );
 
     void append( const QString& text );
 
     int paragraphs() const;
     int lines() const;
-    int linesOfParagraph( int parag ) const;
-    int lineOfChar( int parag, int chr );
+    int linesOfParagraph( int para ) const;
+    int lineOfChar( int para, int chr );
     int length() const;
 
     QStyleSheet* styleSheet() const;

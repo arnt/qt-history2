@@ -141,13 +141,14 @@
     <li>/opt/MyCompany/share/MyApplication
     <li>$HOME/.qt
     </ol>
-    The settings file will be called 'myapplicationrc'. Settings will be
-    read from each file working forwards, in the order shown, with
-    settings from later files overriding settings from earlier files,
-    the final values being the ones returned. Files for which the user
-    does not have access rights will be skipped. When settings are
-    saved the first file that the user has access rights to will be
-    used, working backwards up the list.
+    Settings will be read from each file working forwards, in the order
+    shown, with settings from later files overriding settings from
+    earlier files, the final values being the ones returned. Files for
+    which the user does not have access rights will be skipped. When
+    settings are saved the first file that the user has access rights to
+    will be used, working backwards up the list. The settings file will
+    be called 'myapplicationrc' (based on the key: see
+    insertSearchPath() for details). 
 
     For cross-platform applications you should ensure that the Windows
     size limitations are not exceeded.
@@ -517,6 +518,14 @@ QDateTime QSettingsPrivate::modificationTime()
   QSettings works backwards from the last directory to the first,
   writing to the first settings file for which the user has write
   permission. 
+
+  Settings under Unix are stored in files whose names are based on the
+  first subkey of the key (not including the search path). The algorithm
+  for creating names is essentially: lowercase the first subkey, replace
+  spaces with underscores and add 'rc', e.g.
+  <tt>/MyCompany/MyApplication/background color</tt> will be stored in
+  <tt>myapplicationrc</tt> (assuming that <tt>/MyCompany</tt> is part of
+  the search path). 
 
   \sa removeSearchPath()
 
