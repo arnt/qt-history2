@@ -14227,9 +14227,9 @@ static bool ok_in_base( QChar c, int base )
 
 /*! Returns the string converted to a \c long value to the base \a base.
 
-  If \a ok is non-null, and no conversion error occured then \a *ok
+  If \a ok is nonnull, and no conversion error occurred then \a *ok
   is set to TRUE.  In the event of a conversion error the number
-  returned will be 0 and *ok is set to FALSE if ok is non-null.
+  returned will be 0 and *ok is set to FALSE if ok is nonnull.
 
   \sa number()
 */
@@ -14289,9 +14289,9 @@ bye:
 /*! Returns the string converted to an \c{unsigned long}
   value to the base \a base.
 
-  If \a ok is non-null, and no conversion error occured then \a *ok
+  If \a ok is nonnull, and no conversion error occurred then \a *ok
   is set to TRUE.  In the event of a conversion error the number
-  returned will be 0 and *ok is set to FALSE if ok is non-null.
+  returned will be 0 and *ok is set to FALSE if ok is nonnull.
 
   \sa number()
 */
@@ -14343,9 +14343,9 @@ bye:
 /*! Returns the string converted to a \c short value to the
   base \a base.
 
-  If \a ok is non-null, and no conversion error occured then \a *ok
+  If \a ok is nonnull, and no conversion error occurred then \a *ok
   is set to TRUE.  In the event of a conversion error the number
-  returned will be 0 and *ok is set to FALSE if ok is non-null.
+  returned will be 0 and *ok is set to FALSE if ok is nonnull.
 */
 
 short QString::toShort( bool *ok, int base ) const
@@ -14361,9 +14361,9 @@ short QString::toShort( bool *ok, int base ) const
 /*! Returns the string converted to an \c{unsigned short} value
   to the base \a base.
 
-  If \a ok is non-null, and no conversion error occured then \a *ok
+  If \a ok is nonnull, and no conversion error occurred then \a *ok
   is set to TRUE.  In the event of a conversion error the number
-  returned will be 0 and *ok is set to FALSE if ok is non-null.
+  returned will be 0 and *ok is set to FALSE if ok is nonnull.
 */
 
 ushort QString::toUShort( bool *ok, int base ) const
@@ -14388,8 +14388,8 @@ ushort QString::toUShort( bool *ok, int base ) const
   Returns the string converted to an \c int value to the base
   \a base.
 
-  If \a *ok is non-null, and is TRUE then there have been no errors
-  in the conversion.  If \a *ok is non-null, and is FALSE, then the
+  If \a *ok is nonnull, and is TRUE then there have been no errors
+  in the conversion.  If \a *ok is nonnull, and is FALSE, then the
   string is not a number at all or it has invalid characters at the end.
 
   \sa number()
@@ -14403,9 +14403,9 @@ int QString::toInt( bool *ok, int base ) const
 /*! Returns the string converted to an \c{unsigned int} value
   to the base \a base.
 
-  If \a ok is non-null, and no conversion error occured then \a *ok
+  If \a ok is nonnull, and no conversion error occurred then \a *ok
   is set to TRUE.  In the event of a conversion error the number
-  returned will be 0 and *ok is set to FALSE if ok is non-null.
+  returned will be 0 and *ok is set to FALSE if ok is nonnull.
 
   \sa number()
 */
@@ -14417,15 +14417,16 @@ uint QString::toUInt( bool *ok, int base ) const
 
 /*!
   \code
-    QString string("1234.56");
-    double a = string.toDouble();   \\ a == 1234.56
+    QString string( "1234.56" );
+    double a = string.toDouble();   // a == 1234.56
   \endcode
 
   Returns the string converted to a \c double value.
 
-  If \a ok is non-null, and no conversion error occured then \a *ok
+  If \a ok is nonnull, and no conversion error occurred then \a *ok
   is set to TRUE.  In the event of a conversion error the number
-  returned will be an arbitrary double value and *ok is set to FALSE if ok is non-null.
+  returned will be an arbitrary double value and *ok is set to FALSE
+  if ok is nonnull.
 
   \sa number()
 */
@@ -14437,15 +14438,15 @@ double QString::toDouble( bool *ok ) const
     QCString a = latin1();
     double val = strtod( a.data() ? a.data() : "", &end );
     if ( ok )
-	*ok = ( a && *a && ( end == 0 || *end == '\0' ) );
+	*ok = ( a && *a && (end == 0 || at(end - a.data()) == QChar('\0')) );
     return val;
 }
 
 /*! Returns the string converted to a \c float value.
 
-  If \a ok is non-null, and no conversion error occured then \a *ok
+  If \a ok is nonnull, and no conversion error occurred then \a *ok
   is set to TRUE.  In the event of a conversion error the number
-  returned will be an arbitrary float value  and *ok is set to FALSE if ok is non-null.
+  returned will be an arbitrary float value  and *ok is set to FALSE if ok is nonnull.
 
   \sa number()
 */
@@ -15446,7 +15447,7 @@ bool operator>=( const char *s1, const QString &s2 )
   \fn bool operator==( const QString &s1, const QString &s2 )
   \relates QString
   Returns TRUE if \a s1 is equal to \a s2 or FALSE if they are different.
-  Note that a null string is not equal to an empty string which is non-null.
+  Note that a null string is not equal to a nonnull empty string.
 
   Equivalent to compare( s1, s2 ) != 0.
 
@@ -15458,7 +15459,7 @@ bool operator>=( const char *s1, const QString &s2 )
 
   \relates QString
   Returns TRUE if \a s1 is equal to \a s2 or FALSE if they are different.
-  Note that a null string is not equal to an empty string which is non-null.
+  Note that a null string is not equal to an empty string which is nonnull.
 
   Equivalent to compare( s1, s2 ) == 0.
 */
@@ -15468,7 +15469,7 @@ bool operator>=( const char *s1, const QString &s2 )
 
   \relates QString
   Returns TRUE if \a s1 is equal to \a s2 or FALSE if they are different.
-  Note that a null string is not equal to an empty string which is non-null.
+  Note that a null string is not equal to an empty string which is nonnull.
 
   Equivalent to compare( s1, s2 ) == 0.
 */
@@ -15477,7 +15478,7 @@ bool operator>=( const char *s1, const QString &s2 )
   \fn bool operator!=( const QString &s1, const QString &s2 )
   \relates QString
   Returns TRUE if \a s1 is not equal to \a s2 or FALSE if they are equal.
-  Note that a null string is not equal to an empty string which is non-null.
+  Note that a null string is not equal to an empty string which is nonnull.
 
   Equivalent to compare( s1, s2 ) != 0.
 */
@@ -15487,7 +15488,7 @@ bool operator>=( const char *s1, const QString &s2 )
 
   \relates QString
   Returns TRUE if \a s1 is not equal to \a s2 or FALSE if they are equal.
-  Note that a null string is not equal to an empty string which is non-null.
+  Note that a null string is not equal to an empty string which is nonnull.
 
   Equivalent to compare( s1, s2 ) != 0.
 */
@@ -15497,7 +15498,7 @@ bool operator>=( const char *s1, const QString &s2 )
 
   \relates QString
   Returns TRUE if \a s1 is not equal to \a s2 or FALSE if they are equal.
-  Note that a null string is not equal to an empty string which is non-null.
+  Note that a null string is not equal to an empty string which is nonnull.
 
   Equivalent to compare( s1, s2 ) != 0.
 */
@@ -15507,7 +15508,7 @@ bool operator>=( const char *s1, const QString &s2 )
   \relates QString
   Returns TRUE if \a s1 is lexically less than \a s2 or FALSE if it is not.
   The comparison is case-sensitive.  Note that a null string is not equal to
-  an empty string which is non-null.
+  an empty string which is nonnull.
 
   Equivalent to compare( s1, s2 ) < 0.
 */
@@ -15518,7 +15519,7 @@ bool operator>=( const char *s1, const QString &s2 )
   \relates QString
   Returns TRUE if \a s1 is lexically less than \a s2 or FALSE if it is not.
   The comparison is case-sensitive.  Note that a null string is not equal to
-  an empty string which is non-null.
+  an empty string which is nonnull.
 
   Equivalent to compare( s1, s2 ) < 0.
 
@@ -15529,7 +15530,7 @@ bool operator>=( const char *s1, const QString &s2 )
   \relates QString
   Returns TRUE if \a s1 is lexically less than or equal to \a s2 or FALSE if it is not.
   The comparison is case-sensitive.  Note that a null string is not equal to
-  an empty string which is non-null.
+  an empty string which is nonnull.
 
   Equivalent to compare( s1, s2 ) <= 0.
 
@@ -15541,7 +15542,7 @@ bool operator>=( const char *s1, const QString &s2 )
   \relates QString
   Returns TRUE if \a s1 is lexically less than or equal to \a s2 or FALSE if it is not.
   The comparison is case-sensitive.  Note that a null string is not equal to
-  an empty string which is non-null.
+  an empty string which is nonnull.
 
   Equivalent to compare( s1, s2 ) <= 0.
 */
@@ -15551,7 +15552,7 @@ bool operator>=( const char *s1, const QString &s2 )
   \relates QString
   Returns TRUE if \a s1 is lexically greater than \a s2 or FALSE if it is not.
   The comparison is case-sensitive.  Note that a null string is not equal to
-  an empty string which is non-null.
+  an empty string which is nonnull.
 
   Equivalent to compare( s1, s2 ) > 0.
 */
@@ -15562,7 +15563,7 @@ bool operator>=( const char *s1, const QString &s2 )
   \relates QString
   Returns TRUE if \a s1 is lexically greater than \a s2 or FALSE if it is not.
   The comparison is case-sensitive.  Note that a null string is not equal to
-  an empty string which is non-null.
+  an empty string which is nonnull.
 
   Equivalent to compare( s1, s2 ) > 0.
 */
@@ -15572,7 +15573,7 @@ bool operator>=( const char *s1, const QString &s2 )
   \relates QString
   Returns TRUE if \a s1 is lexically greater than or equal to \a s2 or FALSE if it is not.
   The comparison is case-sensitive.  Note that a null string is not equal to
-  an empty string which is non-null.
+  an empty string which is nonnull.
 
   Equivalent to compare( s1, s2 ) >= 0.
 */
@@ -15583,7 +15584,7 @@ bool operator>=( const char *s1, const QString &s2 )
   \relates QString
   Returns TRUE if \a s1 is lexically greater than or equal to \a s2 or FALSE if it is not.
   The comparison is case-sensitive.  Note that a null string is not equal to
-  an empty string which is non-null.
+  an empty string which is nonnull.
 
   Equivalent to compare( s1, s2 ) >= 0.
 */
