@@ -12,9 +12,10 @@
 <ul><li>Architecture</li>
 <ul><li>A look back at Qt 3.x</li>
 <li>How painting is done in Qt 4</li>
+<li>Enabling use of GDI+ on Windows</li>
 </ul>
-<li>New Features in the Qt 4 Paint Subsystem</li>
-<ul><li>Linear Gradient Brushes</li>
+<li>New features in the Qt 4 paint subsystem</li>
+<ul><li>Linear gradient brushes</li>
 <li>Alpha-blended drawing</li>
 <li>QPainter and QGLWidget</li>
 <li>Anti-aliased edges</li>
@@ -44,10 +45,13 @@
 </ul>
 <p>To implement support for a new backend, you must derive from QPaintEngine and reimplement its virtual functions. You also need to derive from QPaintDevice and reimplement the virtual function <b>QPaintDevice::paintEngine</b>()&nbsp;to tell QPainter which paint engine should be used to draw on this particular device.</p>
 <p>The main benefit of this approach is that all painting follows the same painting pipeline which means that adding support for new features and providing default implementations for unsupported ones has become much simpler.</p>
+<a name="sec.1.3"></a>
+<h3>Enabling use of GDI+ on Windows</h3>
+<p>GDI+ is installed by default on Windows XP, and is available as a downloadable redistributable binary for 98/ME/NT/2000. In order for Qt to take advantage of the features in GDI+ the gdiplus.dll library must be in the PATH.</p>
 <a name="sec.2"></a>
-<h2>New Features in the Qt 4 Paint Subsystem</h2>
+<h2>New features in the Qt 4 paint subsystem</h2>
 <a name="sec.2.1"></a>
-<h3>Linear Gradient Brushes</h3>
+<h3>Linear gradient brushes</h3>
 <p>With Qt 4 it is possible to fill shapes using a linear gradient brush. A gradient in this case is used to describe the transition from one color at one point to another color at another point. We use the term linear gradient since the transition area follows a line.</p>
 <p>Setting a linear gradient brush is done using the QBrush&nbsp;constructor that takes two points and two colors, as sketched below:</p>
 <pre>&nbsp;   QBrush diagonalGradient(QPoint(0, 0), Qt::red, QPoint(width(), height()), Qt::blue);
@@ -120,10 +124,13 @@
 <p>Part of the work in progress is the finalization of the rendering pipeline for all platforms, so that all features are supported and look the same on all platforms. Among the currently unfinished features are these:</p>
 <ul>
 <li>Gradients cannot have alpha color on X11.</li>
-<li>Anti-aliasing of lines on X11, (though this might not be present at all).</li>
+<li>Anti-aliasing of lines on X11.</li>
 <li>Clipping regions on OpenGL.</li>
 <li>Transformation of pen widths.</li>
 <li>Transformation of fill patterns.</li>
+<li>Support for querying for supported features (such as if antialiasing is available)</li>
+<li>Not all primitive types are supported with gradient filling or alpha filling at the moment. These will be made more consistent in the time to come.</li>
 </ul>
+<p><a href="tech-preview.html">[Back to the Technology Preview page]</a></p>
 <p>See also QBrush.</p>
 <p><address><hr><div align="center">

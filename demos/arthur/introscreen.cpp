@@ -52,7 +52,7 @@ void IntroScreen::paintEvent(QPaintEvent *)
 
     QRect textRect(100, 0, w-200, h);
 
-    p.setBrush(QColor(255, 255, 255, attributes->alpha ? 220 : 255));
+    p.setBrush(QColor(255, 255, 255, attributes->alpha ? 191 : 255));
     p.drawRect(textRect.x() - 20, textRect.y(), textRect.width() + 40, textRect.height());
 
     p.setPen(Qt::NoPen);
