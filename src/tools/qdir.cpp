@@ -49,7 +49,7 @@
 
 
 /*!
-  \class QDir qdir.h
+  \class QDir
   \brief The QDir class provides access to directory structures and their contents in a platform-independent way.
 
   \ingroup io
@@ -145,13 +145,13 @@
 	d.setSorting( QDir::Size | QDir::Reversed );
 
 	const QFileInfoList *list = d.entryInfoList();
-	QFileInfoListIterator it( *list );	// create list iterator
-	QFileInfo *fi;				// pointer for traversing
+	QFileInfoListIterator it( *list );
+	QFileInfo *fi;
 
-	printf( "     Bytes Filename\n" );	// print header
-	while ( (fi=it.current()) ) {		// for each file...
-	    printf( "%10li %s\n", fi->size(), fi->fileName().data() );
-	    ++it;				// go to the next list element
+	printf( "     Bytes Filename\n" );
+	while ( (fi = it.current()) != 0 ) {
+	    printf( "%10li %s\n", fi->size(), fi->fileName().latin1() );
+	    ++it;
 	}
 	return 0;
     }
