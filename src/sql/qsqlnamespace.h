@@ -54,6 +54,12 @@ public:
 	Update = 1,
 	Delete = 2
     };
+
+    enum Location {
+	BeforeFirst = -1,
+	AfterLast = -2
+    };
+
 };
 
 #endif

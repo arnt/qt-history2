@@ -144,7 +144,7 @@ QString qOrderByClause( const QSqlIndex & i, const QString& prefix = QString::nu
     We create a cursor specifying a table or view name. Then we call
     select(), which can be parameterised to filter and order the records
     retrieved. We then iterate through the result set with calls to
-    next(). 
+    next().
 
 */
 
@@ -509,7 +509,7 @@ bool QSqlCursor::select( const QString & filter, const QSqlIndex & sort )
 	str += " order by " + sort.toString( d->nm );
     str += ";";
     d->srt = sort;
-    d->lastAt = QSqlResult::BeforeFirst;
+    d->lastAt = BeforeFirst;
     return exec( str );
 }
 
@@ -642,8 +642,8 @@ bool QSqlCursor::isCalculated( const QString& name ) const
 }
 
 /*! Sets field \a name to \a trim.  If the field \a name does not
-  exist, nothing happens.  
-  
+  exist, nothing happens.
+
     When a trimmed field of type string or cstring is read from the
     database any trailing (right-most) spaces are removed.
 
@@ -798,11 +798,11 @@ QString QSqlCursor::toString( const QSqlIndex& i, QSqlRecord* rec, const QString
     \dontinclude sql/overview/insert2/main.cpp
     \skipto prices
     \printline prices
-    \printuntil insert 
+    \printuntil insert
 
     We create a cursor on the prices table and acquire a pointer to the
     insert buffer. We set each field's value and then call insert() to
-    save the data in the database. 
+    save the data in the database.
 
   \sa setMode() lastError()
 */
@@ -912,7 +912,7 @@ QSqlRecord* QSqlCursor::primeInsert()
   \skipto prices
   \printline prices
   \printuntil update
-  \printline 
+  \printline
 
   Here we create a cursor and select the record we wish to update. We
   move to the record and acquire a pointer to the update buffer. We
@@ -1035,7 +1035,7 @@ int QSqlCursor::apply( const QString& q, bool invalidate )
 {
     int ar = 0;
     if ( invalidate ) {
-	d->lastAt = QSqlResult::BeforeFirst;
+	d->lastAt = BeforeFirst;
 	if ( exec( q ) )
 	    ar = numRowsAffected();
     } else if ( driver() ) {

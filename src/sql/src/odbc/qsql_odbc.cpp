@@ -305,7 +305,7 @@ QODBCResult::~QODBCResult()
 		qSqlWarning( "QODBCDriver: Unable to free statement handle" + QString::number(r), d );
 #endif
     }
-	
+
     delete d;
 }
 
@@ -953,7 +953,7 @@ SQLHANDLE QODBCDriver::connection()
     return d->hDbc;
 }
 
-QString QODBCDriver::formatValue( const QSqlField* field, 
+QString QODBCDriver::formatValue( const QSqlField* field,
 				  bool trimStrings ) const
 {
     QString r;
@@ -964,8 +964,8 @@ QString QODBCDriver::formatValue( const QSqlField* field,
 	if ( field->value().toDateTime().isValid() ){
 	    QDate dt = field->value().toDateTime().date();
 	    QTime tm = field->value().toDateTime().time();
-	    r = "'{ ts `" + 
-		QString::number(dt.year()) + "-" + 
+	    r = "'{ ts `" +
+		QString::number(dt.year()) + "-" +
 		QString::number(dt.month()) + "-" +
 		QString::number(dt.day()) + " " +
 		tm.toString() +
@@ -973,7 +973,7 @@ QString QODBCDriver::formatValue( const QSqlField* field,
 	} else
 	    r = nullText();
     } else {
-	r = QSqlDriver::formatValue( field );
+	r = QSqlDriver::formatValue( field, trimStrings );
     }
     return r;
 }

@@ -46,6 +46,7 @@
 #include "qvariant.h"
 #include "qsqlerror.h"
 #include "qsqlfield.h"
+#include "qsqlnamespace.h"
 #endif // QT_H
 
 class QSqlDriver;
@@ -54,15 +55,11 @@ class QSqlResultInfo;
 class QSqlResultPrivate;
 struct QSqlResultShared;
 
-class Q_EXPORT QSqlResult
+class Q_EXPORT QSqlResult : public QSqlNamespace
 {
 friend class QSqlQuery;
 friend struct QSqlResultShared;
 public:
-    enum Location {
-	BeforeFirst = -1,
-	AfterLast = -2
-    };
     virtual ~QSqlResult();
 protected:
     QSqlResult(const QSqlDriver * db );

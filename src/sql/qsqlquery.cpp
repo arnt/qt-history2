@@ -200,7 +200,7 @@ bool QSqlQuery::exec ( const QString& query )
     if ( !d->sqlResult )
 	return FALSE;
     d->sqlResult->setActive( FALSE );
-    d->sqlResult->setAt( QSqlResult::BeforeFirst );
+    d->sqlResult->setAt( BeforeFirst );
     if ( !driver() )
 	return FALSE;
     if ( d->count > 1 )
@@ -236,7 +236,7 @@ QVariant QSqlQuery::value( int i ) const
 {
     if ( !d->sqlResult )
 	return QVariant();
-    if ( isActive() && isValid() && ( i > QSqlResult::BeforeFirst ) ) {
+    if ( isActive() && isValid() && ( i > BeforeFirst ) ) {
 	return d->sqlResult->data( i );
     }
     return QVariant();
@@ -244,7 +244,7 @@ QVariant QSqlQuery::value( int i ) const
 
 /*! Returns the current internal position of the query.  The first
     record is at position zero. If the position is invalid, a
-    QSqlResult::Location will be returned indicating the invalid
+    QSqlNamespace::Location will be returned indicating the invalid
     position.
 
     \sa isValid()
@@ -254,7 +254,7 @@ QVariant QSqlQuery::value( int i ) const
 int QSqlQuery::at() const
 {
     if ( !d->sqlResult )
-	return QSqlResult::BeforeFirst;
+	return BeforeFirst;
     return d->sqlResult->at();
 }
 
@@ -340,7 +340,7 @@ bool QSqlQuery::seek( int i, bool relative )
     int actualIdx;
     if ( !relative ) { // arbitrary seek
 	if ( i < 0 ) {
-	    d->sqlResult->setAt( QSqlResult::BeforeFirst );
+	    d->sqlResult->setAt( BeforeFirst );
 	    afterSeek();
 	    return FALSE;
 	}
@@ -348,7 +348,7 @@ bool QSqlQuery::seek( int i, bool relative )
     }
     else {
 	switch ( at() ) { // relative seek
-	case QSqlResult::BeforeFirst:
+	case BeforeFirst:
 	    if ( i > 0 )
 		actualIdx = i;
 	    else {
@@ -356,7 +356,7 @@ bool QSqlQuery::seek( int i, bool relative )
 		return FALSE;
 	    }
 	    break;
-	case QSqlResult::AfterLast:
+	case AfterLast:
 	    if ( i < 0 )
 		actualIdx = i;
 	    else {
@@ -366,7 +366,7 @@ bool QSqlQuery::seek( int i, bool relative )
 	    break;
 	default:
 	    if ( ( at() + i ) < 0  ) {
-		d->sqlResult->setAt( QSqlResult::BeforeFirst );
+		d->sqlResult->setAt( BeforeFirst );
 		afterSeek();
 		return FALSE;
 	    }
@@ -377,20 +377,20 @@ bool QSqlQuery::seek( int i, bool relative )
     // let drivers optimize
     if ( actualIdx == ( at() + 1 ) ) {
 	if ( !d->sqlResult->fetchNext() ) {
-	    d->sqlResult->setAt( QSqlResult::AfterLast );
+	    d->sqlResult->setAt( AfterLast );
 	    afterSeek();
 	    return FALSE;
 	}
     }
     if ( actualIdx == ( at() - 1 ) ) {
 	if ( !d->sqlResult->fetchPrev() ) {
-	    d->sqlResult->setAt( QSqlResult::BeforeFirst );
+	    d->sqlResult->setAt( BeforeFirst );
 	    afterSeek();
 	    return FALSE;
 	}
     }
     if ( !d->sqlResult->fetch( actualIdx ) ) {
-	d->sqlResult->setAt( QSqlResult::AfterLast );
+	d->sqlResult->setAt( AfterLast );
 	afterSeek();
 	return FALSE;
     }
@@ -433,16 +433,16 @@ bool QSqlQuery::next()
     checkDetach();
     bool b = FALSE;
     switch ( at() ) {
-    case QSqlResult::BeforeFirst:
+    case BeforeFirst:
 	b = d->sqlResult->fetchFirst();
 	afterSeek();
 	return b;
-    case QSqlResult::AfterLast:
+    case AfterLast:
 	afterSeek();
 	return FALSE;
     default:
 	if ( !d->sqlResult->fetchNext() ) {
-	    d->sqlResult->setAt( QSqlResult::AfterLast );
+	    d->sqlResult->setAt( AfterLast );
 	    afterSeek();
 	    return FALSE;
 	}
@@ -485,16 +485,16 @@ bool QSqlQuery::prev()
     checkDetach();
     bool b = FALSE;
     switch ( at() ) {
-    case QSqlResult::BeforeFirst:
+    case BeforeFirst:
 	afterSeek();
 	return FALSE;
-    case QSqlResult::AfterLast:
+    case AfterLast:
 	b = d->sqlResult->fetchLast();
 	afterSeek();
 	return b;
     default:
 	if ( !d->sqlResult->fetchPrev() ) {
-	    d->sqlResult->setAt( QSqlResult::BeforeFirst );
+	    d->sqlResult->setAt( BeforeFirst );
 	    afterSeek();
 	    return FALSE;
 	}

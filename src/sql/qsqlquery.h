@@ -47,6 +47,7 @@
 #include "qvaluelist.h"
 #include "qsqlerror.h"
 #include "qsqlfield.h"
+#include "qsqlnamespace.h"
 #endif // QT_H
 
 class QSqlDriver;
@@ -63,7 +64,7 @@ struct Q_EXPORT QSqlResultShared : public QShared
     QSqlResult* sqlResult;
 };
 
-class Q_EXPORT QSqlQuery
+class Q_EXPORT QSqlQuery : public QSqlNamespace
 {
 public:
     QSqlQuery( QSqlResult * r );

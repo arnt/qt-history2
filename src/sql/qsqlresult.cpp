@@ -74,7 +74,7 @@ QSqlResult::QSqlResult( const QSqlDriver * db )
 {
     d = new QSqlResultPrivate();
     d->sqldriver = db;
-    d->idx = QSqlResult::BeforeFirst;
+    d->idx = BeforeFirst;
     d->isSel = FALSE;
     d->active = FALSE;
 }
