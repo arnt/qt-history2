@@ -1,11 +1,13 @@
 TEMPLATE	= lib
 CONFIG		= qt staticlib release
 HEADERS		= qftp.h \
+		  qhttp.h \
 		  qnetwork.h \
 		  qserversocket.h \
 		  qsocket.h \
 		  qsocketdevice.h
 SOURCES		= qftp.cpp \
+		  qhttp.cpp \
 		  qnetwork.cpp \
 		  qserversocket.cpp \
 		  qsocket.cpp \
