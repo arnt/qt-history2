@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qptd_x11.cpp#5 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -19,7 +19,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qptd_x11.cpp#5 $";
 #endif
 
 
@@ -104,7 +104,7 @@ bool QPaintDevice::cmd( int, QPDevCmdParam * )
     return FALSE;
 }
 
-int QPaintDevice::metric( int )
+long QPaintDevice::metric( int ) const
 {
 #if defined(CHECK_STATE)
     warning( "QPaintDevice::metrics: Internal error" );
