@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#172 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#173 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -131,15 +131,14 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    if ( testWFlags(WStyle_NormalBorder|WStyle_DialogBorder) == 0 ) {
 		style = WS_POPUP;		// no border
 	    } else {
-		style = WS_OVERLAPPED;
+		style = 0;
 	    }
 	} else {
 	    style = WS_OVERLAPPED;
-	    if (testWFlags(WStyle_DialogBorder) )
-		setWFlags( WStyle_DialogBorder | WStyle_Title | WStyle_SysMenu );
+	    if ( !modal ) 
+		setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_MinMax | WStyle_SysMenu  );
 	    else
-		setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_SysMenu |
-			   WStyle_MinMax );
+		setWFlags( WStyle_NormalBorder | WStyle_Title | WStyle_SysMenu  );
 	}
     }
     if ( !desktop ) {
@@ -148,7 +147,7 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	    if ( testWFlags(WStyle_NormalBorder) )
 		style |= WS_THICKFRAME;
 	    else if ( testWFlags(WStyle_DialogBorder) )
-		style |= WS_THICKFRAME;
+		style |= WS_POPUP | WS_DLGFRAME;
 	    if ( testWFlags(WStyle_Title) )
 		style |= WS_CAPTION;
 	    if ( testWFlags(WStyle_SysMenu) )

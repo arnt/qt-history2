@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.h#33 $
+** $Id: //depot/qt/main/src/kernel/qdialog.h#34 $
 **
 ** Definition of QDialog class
 **
@@ -40,7 +40,7 @@ friend class QPushButton;
     Q_OBJECT
 public:
     QDialog( QWidget *parent=0, const char *name=0, bool modal=FALSE,
-	     WFlags f=WStyle_DialogBorder );
+	     WFlags f=0 );
    ~QDialog();
 
     enum DialogCode { Rejected, Accepted };
