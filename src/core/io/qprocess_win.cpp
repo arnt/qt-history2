@@ -21,6 +21,7 @@
 #include <qmutex.h>
 #include <qwaitcondition.h>
 #include <private/qwineventnotifier_p.h>
+#include <qabstracteventdispatcher.h>
 
 #define SLEEPMIN 10
 #define SLEEPMAX 500
@@ -337,12 +338,14 @@ void QProcessPrivate::startProcess()
 
     processState = QProcess::Running;
 
-    processFinishedNotifier = new QWinEventNotifier(((PROCESS_INFORMATION*)pid)->hProcess, q);
-    QObject::connect(processFinishedNotifier, SIGNAL(activated(HANDLE)), q, SLOT(processDied()));
-    processFinishedNotifier->setEnabled(true);
-    notifier = new QTimer(q);
-    QObject::connect(notifier, SIGNAL(timeout()), q, SLOT(notified()));
-    notifier->start(NOTIFYTIMEOUT);
+    if (QAbstractEventDispatcher::instance(q->thread())) {
+        processFinishedNotifier = new QWinEventNotifier(((PROCESS_INFORMATION*)pid)->hProcess, q);
+        QObject::connect(processFinishedNotifier, SIGNAL(activated(HANDLE)), q, SLOT(processDied()));
+        processFinishedNotifier->setEnabled(true);
+        notifier = new QTimer(q);
+        QObject::connect(notifier, SIGNAL(timeout()), q, SLOT(notified()));
+        notifier->start(NOTIFYTIMEOUT);
+    }
 
     startupNotification();
 }
