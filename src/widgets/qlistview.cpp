@@ -122,7 +122,7 @@ struct QListViewPrivate
 
     class ViewColumnInfo {
     public:
-	ViewColumnInfo(): align(Qt::AlignLeft), sortable(TRUE), next( 0 ) {}
+	ViewColumnInfo(): align(Qt::AlignAuto), sortable(TRUE), next( 0 ) {}
 	~ViewColumnInfo() { delete next; }
 	int align;
 	bool sortable;
@@ -1318,6 +1318,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 	    // if we have to do the ellipsis thingy calc the truncated text
 	    int pw = pixmap( column ) ? pixmap( column )->width() + lv->itemMargin() : lv->itemMargin();
 	    if ( fm.width( t ) + pw > width ) {
+		// take care of arabic shaping in width calculation (lars)
 		ci->truncated = TRUE;
 		ci->tmpText = "...";
 		int i = 0;
@@ -1335,12 +1336,13 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 	    t = ci->tmpText;
     }
 
-    int r = lv ? lv->itemMargin() : 1;
+    int marg = lv ? lv->itemMargin() : 1;
+    int r = marg;
     const QPixmap * icon = pixmap( column );
 
     p->fillRect( 0, 0, width, height(), cg.brush( QColorGroup::Base ) );
 
-    int marg = lv ? lv->itemMargin() : 1;
+    // (lars) what does this do???
     if ( align != AlignLeft )
 	marg -= lv->d->minRightBearing;
     if ( isSelected() &&
@@ -1352,14 +1354,21 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 	p->setPen( cg.text() );
     }
 
+    bool reverse = QApplication::reverseLayout();
+    int iconWidth = 0;
+    
     if ( icon ) {
-	p->drawPixmap( r, (height()-icon->height())/2, *icon );
-	r += icon->width() + listView()->itemMargin();
+	iconWidth = icon->width() + listView()->itemMargin();
+	int x = r;
+	if ( reverse )
+	    x = width - 2*marg - iconWidth;
+	p->drawPixmap( x, (height()-icon->height())/2, *icon );
     }
 
     if ( !t.isEmpty() ) {
-	p->drawText( r, 0, width-marg-r, height(),
-		     align | AlignVCenter, t );
+	if ( !reverse )
+	    r += iconWidth;
+	p->drawText( r, 0, width-marg-r, height(), align | AlignVCenter, t );
     }
 }
 
@@ -2509,7 +2518,7 @@ void QListView::setColumnAlignment( int column, int align )
 
 /*!
   Returns the alignment of logical column \a column.  The default
-  is \c AlignLeft.
+  is \c AlignAuto.
 
   \sa Qt::AlignmentFlags
 */
@@ -2517,7 +2526,7 @@ void QListView::setColumnAlignment( int column, int align )
 int QListView::columnAlignment( int column ) const
 {
     if ( column < 0 || !d->vci )
-	return AlignLeft;
+	return AlignAuto;
     QListViewPrivate::ViewColumnInfo * l = d->vci;
     while( column ) {
 	if ( !l->next )
@@ -2525,7 +2534,7 @@ int QListView::columnAlignment( int column ) const
 	l = l->next;
 	column--;
     }
-    return l ? l->align : AlignLeft;
+    return l ? l->align : AlignAuto;
 }
 
 
@@ -2569,11 +2578,12 @@ void QListView::updateContents()
 void QListView::updateGeometries()
 {
     int th = d->r->totalHeight();
-    int tw = d->h->cellPos( d->h->count()-1 ) +
-	    d->h->cellSize( d->h->count()-1 );
+    int tw = d->h->headerWidth();
     if ( d->h->offset() &&
 	 tw < d->h->offset() + d->h->width() )
 	horizontalScrollBar()->setValue( tw - QListView::d->h->width() );
+    if ( QApplication::reverseLayout() && d->h->offset() != horizontalScrollBar()->value() )
+	horizontalScrollBar()->setValue( d->h->offset() );
     resizeContents( tw, th );
     if ( d->h->isHidden() ) {
 	setMargins( 0, 0, 0, 0 );
@@ -2614,10 +2624,12 @@ void QListView::handleSizeChange( int section, int os, int ns )
     viewport()->repaint( left - 4 - d->ellipsisWidth, 0, 4 + d->ellipsisWidth,
 			 visibleHeight(), FALSE ); // border between the items and ellipses width
 
-    if ( columnAlignment( section ) != AlignLeft )
+    // (lars) need to fix alignment here?
+    int align = columnAlignment( section );
+    if ( align != AlignAuto && align != AlignLeft ) {
 	viewport()->repaint( d->h->cellPos( actual ) - contentsX(), 0,
 			     d->h->cellSize( actual ), visibleHeight() );
-
+    }
 }
 
 

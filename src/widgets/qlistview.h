@@ -147,7 +147,7 @@ public:
 
     void repaint() const;
 
-    void sort(); // ######## make virtual in next major release
+    virtual void sort();
     void moveItem( QListViewItem *after );
 
 protected:
@@ -209,6 +209,7 @@ public:
 
     virtual void insertItem( QListViewItem * );
     virtual void takeItem( QListViewItem * );
+    // ### should we remove that one for 3.0?
     virtual void removeItem( QListViewItem * ); // obsolete, use takeItem instead
 
     virtual void clear();
@@ -217,7 +218,7 @@ public:
 
     virtual int addColumn( const QString &label, int size = -1);
     virtual int addColumn( const QIconSet& iconset, const QString &label, int size = -1);
-    void removeColumn( int index ); // #### make virtual in next major release!
+    virtual void removeColumn( int index );
     virtual void setColumnText( int column, const QString &label );
     virtual void setColumnText( int column, const QIconSet& iconset, const QString &label );
     QString columnText( int column ) const;
@@ -272,7 +273,7 @@ public:
     bool rootIsDecorated() const;
 
     virtual void setSorting( int column, bool increasing = TRUE );
-    void sort(); // #### make virtual in next major release
+    virtual void sort();
 
     virtual void setFont( const QFont & );
     virtual void setPalette( const QPalette & );
@@ -286,8 +287,8 @@ public:
     bool showSortIndicator() const;
 
 public slots:
-    void invertSelection(); // ###### make virtual
-    void selectAll( bool select ); // make virtual
+    virtual void invertSelection();
+    virtual void selectAll( bool select );
     void triggerUpdate();
     void setContentsPos( int x, int y );
 
