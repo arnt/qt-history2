@@ -806,7 +806,7 @@ then
 	    fi
 	done
 	if [ ! -z "$FOUND_LIB" -a  ! "x$THREAD" = "xyes" -a ! -z "$F" ]; then
-	    LDD_P=`which ldd`
+	    LDD_P=`which ldd 2>/dev/null`
 	    if [ ! -z $LDD_P ]; then
 	        for a in $FOUND_LIB; do
 		    if $LDD_P $a 2>/dev/null | grep -i thread >/dev/null 2>&1
