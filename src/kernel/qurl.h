@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.h#16 $
+** $Id: //depot/qt/main/src/kernel/qurl.h#17 $
 **
 ** Implementation of QFileDialog class
 **
@@ -168,6 +168,7 @@ protected:
     virtual void addEntry( const QUrlInfo &i );
     virtual void clearEntries();
     void getNetworkProtocol();
+    void deleteNetworkProtocol();
     bool checkValid();
 
 private:
@@ -184,6 +185,8 @@ inline void QUrl::emitEntry( const QUrlInfo &i )
 inline void QUrl::emitFinished( int action )
 {
     emit finished( action );
+    deleteNetworkProtocol();
+    getNetworkProtocol();
 }
 
 inline void QUrl::emitStart( int action )

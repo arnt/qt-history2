@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#40 $
 **
 ** Implementation of QFileDialog class
 **
@@ -946,12 +946,12 @@ QString QUrl::path() const
 	else
 	    res = QDir::cleanDirPath( d->path );
     }
-    
+
     if ( res.length() > 1 ) {
 	if ( res.left( 2 ) == "//" )
 	    res.remove( res.length() - 1, 1 );
     }
-    
+
     return res;
 }
 
@@ -1504,4 +1504,13 @@ bool QUrl::checkValid()
 	return FALSE;
     } else
 	return TRUE;
+}
+
+/*
+ */
+void QUrl::deleteNetworkProtocol()
+{
+    if ( d->networkProtocol )
+	delete d->networkProtocol;
+    d->networkProtocol = 0;
 }
