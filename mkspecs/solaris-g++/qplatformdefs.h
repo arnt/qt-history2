@@ -91,6 +91,7 @@ static inline int qt_socket_bind(int s, struct sockaddr *addr, QT_SOCKLEN_T addr
 #define QT_SOCKET_CONNECT	qt_socket_connect
 #define QT_SOCKET_BIND		qt_socket_bind
 #define QT_FILENO		fileno
+#define QT_CLOSE                ::close
 #define QT_READ			::read
 #define QT_WRITE		::write
 #define QT_ACCESS		::access
