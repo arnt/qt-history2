@@ -424,14 +424,23 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                     if(widget->testWState(Qt::WState_InPaintEvent))
                         qWarning("QWidget::repaint: recursive repaint detected.");
 
+
+                    QPoint redirectionOffset(0, 0);
+                    // handle the first paintable point since Mac doesn't.
+                    if(QWidget *tl = widget->topLevelWidget()) {
+                        if(tl->d->extra && !tl->d->extra->mask.isEmpty())
+                            redirectionOffset += tl->d->extra->mask.boundingRect().topLeft();
+                    }
+
+                    //setup the context
                     widget->setWState(Qt::WState_InPaintEvent);
                     qt_set_paintevent_clipping(widget, qrgn);
 
-                    // Mapping region from system to qt (32 bit) coordinate system.
-                    QPoint redirectionOffset = widget->data->wrect.topLeft();
-
+                    //handle the erase
                     if(!widget->testAttribute(Qt::WA_NoBackground) &&
                        !widget->d->isBackgroundInherited()) {
+                        if (!redirectionOffset.isNull())
+                            QPainter::setRedirected(widget, widget, redirectionOffset);
                         QBrush bg = widget->palette().brush(widget->d->bg_role);
                         QRect rr = qrgn.boundingRect();
                         bool was_unclipped = widget->testAttribute(Qt::WA_PaintUnclipped);
@@ -442,22 +451,26 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                         p.setClipRegion(qrgn);
                         QPixmap pm = bg.texture();
                         if(!pm.isNull())
-                            p.drawTiledPixmap(rr, pm,
-                                              QPoint((rr.x()+redirectionOffset.x())%pm.width(),
-                                                     (rr.y()+redirectionOffset.y())%pm.height()));
+                            p.drawTiledPixmap(rr, pm, QPoint(rr.x()%pm.width(), rr.y()%pm.height()));
                         else
                             p.fillRect(rr, bg.color());
+                        p.end();
+                        if (!redirectionOffset.isNull())
+                            QPainter::restoreRedirected(widget);
                     }
-                    qrgn.translate(redirectionOffset);
+
+                    //send the paint
+                    redirectionOffset += widget->data->wrect.topLeft(); // Map from system to qt coordinates
                     if (!redirectionOffset.isNull())
                         QPainter::setRedirected(widget, widget, redirectionOffset);
+                    qrgn.translate(redirectionOffset);
                     QPaintEvent e(qrgn);
                     QApplication::sendSpontaneousEvent(widget, &e);
-                    qt_clear_paintevent_clipping(widget);
-
                     if (!redirectionOffset.isNull())
                         QPainter::restoreRedirected(widget);
 
+                    //cleanup
+                    qt_clear_paintevent_clipping(widget);
                     widget->clearWState(Qt::WState_InPaintEvent);
                     if(!widget->testAttribute(Qt::WA_PaintOutsidePaintEvent) && widget->paintingActive())
                         qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");
