@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#98 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#99 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 #include <X11/Xatom.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#98 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont_x11.cpp#99 $");
 
 
 static const int fontFields = 14;
@@ -435,7 +435,7 @@ void QFont::initFontInfo() const
 	f->s.dirty = FALSE;
 	return;
     }
- 
+
     char *tokens[fontFields];
     QString buffer = f->name();
     if ( !parseXFontName(buffer, tokens) ) {	// not an XLFD name
@@ -708,7 +708,7 @@ int QFont_Private::fontMatchScore( char	 *fontName,	 QString &buffer,
 	    *resx = localResx;
 	    *resy = localResy;
 	}
-	if ( localResx == *resx && localResy == *resy ) 
+	if ( localResx == *resx && localResy == *resy )
 	    score |= ResolutionScore;
 	else
 	    exactMatch = FALSE;
@@ -1129,7 +1129,7 @@ int QFontMetrics::lineSpacing() const
 }
 
 /*!
-  Returns the logical width of a \e ch in pixels.  This is 
+  Returns the logical width of a \e ch in pixels.  This is
   a distance appropriate for drawing a subsequent character
   after \e ch.
 
@@ -1290,7 +1290,7 @@ int QFontMetrics::underlinePos() const
 	return pos;
     } else {
 	return 1;
-    } 
+    }
 }
 
 
@@ -1307,7 +1307,7 @@ int QFontMetrics::strikeOutPos() const
 	return printerAdjusted(pos);
     } else {
 	return 1;
-    } 
+    }
 }
 
 

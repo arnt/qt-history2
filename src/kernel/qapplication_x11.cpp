@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#296 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#297 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -85,7 +85,7 @@ static inline void bzero( void *s, int n )
 #endif
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#296 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#297 $");
 
 
 /*****************************************************************************
@@ -320,6 +320,72 @@ static void qt_x11_process_intern_atoms()
 
 
 /*****************************************************************************
+  set_local_font() - tries to set a sensible default font char set
+ *****************************************************************************/
+
+/* locale names mostly copied from XFree86 */
+static const char * latin2locales[] = {
+    "croatian", "cs", "cs_CS", "cs_CZ","cz", "cz_CZ", "czech", "hr",
+    "hr_HR", "hu", "hu_HU", "hungarian", "pl", "pl_PL", "polish", "ro",
+    "ro_RO", "rumanian", "serbocroatian", "sh", "sh_SP", "sh_YU", "sk",
+    "sk_SK", "sl", "sl_CS", "sl_SI", "slovak", "slovene", "sr_SP", 0 };
+
+static const char * latin5locales[] = {
+    "bg", "bg_BG", "bulgarian", "mk", "mk_MK", "ru", "ru_RU", "ru_SU",
+    "russian", "sp", "sp_YU", 0 };
+
+
+static const char * latin6locales[] = {
+    "ar_AA", "ar_SA", "arabic", 0 };
+
+static const char * latin7locales[] = {
+    "el", "el_GR", "greek", 0 };
+
+static const char * latin8locales[] = {
+    "hebrew", "iw", "iw_IL", 0 };
+
+static const char * latin9locales[] = {
+    "tr", "tr_TR", "turkish", 0 };
+
+static bool try_locale( const char * locale[], const char * lang,
+			QFont::CharSet encoding )
+{
+    int i;
+    for( i=0; locale[i] && strcmp(locale[i], lang); i++ )
+	;
+    if ( locale[i] ) {
+	QFont::setDefaultFont( QFont( "Helvetica", 12,
+				      QFont::Normal, FALSE, encoding ) );
+	return TRUE;
+    }
+    return FALSE;
+}
+
+static void set_local_font()
+{
+    char * lang = qstrdup( getenv( "LANG" ) );
+    char * p = lang;
+    while( p && * p ) {
+	if ( *p == '.' )
+	    *p = 0; // ### should use the specified encoding.. but not now
+	else
+	    p++;
+    }
+
+    if ( lang &&
+	 !try_locale( latin2locales, lang, QFont::Latin2 ) &&
+	 !try_locale( latin5locales, lang, QFont::Latin5 ) &&
+	 !try_locale( latin6locales, lang, QFont::Latin5 ) &&
+	 !try_locale( latin7locales, lang, QFont::Latin7 ) &&
+	 !try_locale( latin8locales, lang, QFont::Latin8 ) &&
+	 !try_locale( latin9locales, lang, QFont::Latin9 ) )
+	QFont::setDefaultFont( QFont( "Helvetica", 12,
+				      QFont::Normal, FALSE, QFont::Latin1 ) );
+    delete[] lang;
+}
+
+
+/*****************************************************************************
   qt_init() - initializes Qt for X11
  *****************************************************************************/
 
@@ -449,6 +515,9 @@ static void qt_init_internal( int *argcptr, char **argv, Display *display )
 	    }
 	}
 #endif
+	// pick default character set
+
+	set_local_font();
 
       // Connect to X server
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#82 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#83 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -21,7 +21,7 @@
 #include <ctype.h>
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#82 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#83 $");
 
 
 /*!
@@ -84,7 +84,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#82 $");
   To get font size information use the class QFontMetrics.
 
   QFont objects make use of implicit sharing.
-  
+
   For more general information on fonts, see the
   <a href="http://www.ora.com/homepages/comp.fonts/ifa/">Internet Font
   Archive</a> and in particular its extensive FAQs: <ul>
@@ -161,8 +161,11 @@ QFont::QFont()
 
 /*!
   Constructs a font object with the specified \e family, \e pointSize,
-  \e weight and \e italic settings. If \e pointSize is less than or
-  equal to 0 it is set to 1.
+  \e weight and \e italic settings.  The \link charSet() character set
+  \endlink is copied from the \link defaultFont() default font
+  \endlink and the rest of the settings ser set reasonably.
+  
+  If \e pointSize is less than or equal to 0 it is set to 1.
 
   \sa setFamily(), setPointSize(), setWeight(), setItalic()
 */
@@ -176,6 +179,9 @@ QFont::QFont( const char *family, int pointSize, int weight, bool italic )
     d->req.pointSize = pointSize * 10;
     d->req.weight    = weight;
     d->req.italic    = italic;
+    if ( defFont )
+	d->req.charSet   = defFont->d->req.charSet;
+    debug( "requested font %d", (int) d->req.charSet );
 }
 
 

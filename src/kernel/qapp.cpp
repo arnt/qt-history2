@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#130 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#131 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#130 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#131 $");
 
 
 /*!
@@ -226,6 +226,7 @@ void QApplication::initialize( int argc, char **argv )
     }
     if ( !app_font ) {				// font not already set
 	app_font = new QFont;
+	app_font->setCharSet( QFont::defaultFont().charSet() );
 	CHECK_PTR( app_font );
     }
     QWidget::createMapper();			// create widget mapper
