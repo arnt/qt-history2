@@ -833,7 +833,7 @@ QMakeProject::read(QTextStream &file, QMap<QString, QStringList> &place)
 {
     bool ret = true;
     QString s, line;
-    while(!file.eof()) {
+    while(!file.atEnd()) {
         parser.line_no++;
         line = file.readLine().trimmed();
         int prelen = line.length();
@@ -1189,7 +1189,7 @@ QMakeProject::doProjectTest(const QString& func, const QString &params, QMap<QSt
    3) <project_root> (where .qmake.cache lives) + FEATURES_DIR
    4) environment variable QMAKEPATH (as separated by colons) + /mkspecs/FEATURES_DIR
    5) your QMAKESPEC/features dir
-   6) your data_install/mkspecs/FEATURES_DIR 
+   6) your data_install/mkspecs/FEATURES_DIR
    7) environment variable QTDIR/mkspecs/FEATURES_DIR
 
    FEATURES_DIR is defined as:
@@ -1890,7 +1890,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
                     QFile qfile(file);
                     if(qfile.open(QIODevice::ReadOnly)) {
                         QTextStream stream(&qfile);
-                        while(!stream.eof())
+                        while(!stream.atEnd())
                             replacement += stream.readLine().trimmed();
                         qfile.close();
                     }

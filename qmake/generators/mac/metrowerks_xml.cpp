@@ -165,7 +165,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
 
     int rep;
     QString line;
-    while (!xml.eof()) {
+    while (!xml.atEnd()) {
         line = xml.readLine();
         while((rep = line.indexOf(QRegExp("\\$\\$[!a-zA-Z0-9_-]*"))) != -1) {
             QString torep = line.mid(rep, line.indexOf(QRegExp("[^\\$!a-zA-Z0-9_-]"), rep) - rep);

@@ -1174,7 +1174,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                 if (plist.open(QIODevice::ReadOnly)) {
                     read_plist = true;
                     QTextStream stream(&plist);
-                    while(!stream.eof())
+                    while(!stream.atEnd())
                         t << stream.readLine().replace('"', "\\\"") << endl;
                 }
             }
@@ -1406,7 +1406,7 @@ ProjectBuilderMakefileGenerator::pbuilderVersion() const
             bool in_dict = false;
             QString current_key;
             QRegExp keyreg("^<key>(.*)</key>$"), stringreg("^<string>(.*)</string>$");
-            while(!plist.eof()) {
+            while(!plist.atEnd()) {
                 QString line = plist.readLine().trimmed();
                 if(line == "<dict>")
                     in_dict = true;
