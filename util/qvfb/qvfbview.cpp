@@ -30,7 +30,7 @@
 #include <qtimer.h>
 
 #include "qvfbview.h"
-#include <qvfbhdr.h>
+#include <qvfbhdr_qws.h>
 
 QVFbView::QVFbView( int w, int h, int d, QWidget *parent, const char *name,
 			uint flags )
