@@ -1745,18 +1745,18 @@ QPoint QPainter::pos() const
 }
 
 inline void QPainter::initPaintDevice(bool force) {
-#if 1
+#if 0
     /*this optimization causes weird interplay, a dirtyClippedRegion()
       can happen in a widget between calls to this, need to find a solution
       for now the optimization probably doesn't buy us so much to matter, maybe I 
       I want to FIXME? //Sam
     */
-    force = TRUE; 
-#endif
+
     if(!force && pdev == g_cur_paintdev) {
 	updateClipRegion();
 	return;
     }
+#endif
 
     paintreg = clippedreg = QRegion(); //empty    
     QMacSavedPortInfo::setPaintDevice(pdev);
