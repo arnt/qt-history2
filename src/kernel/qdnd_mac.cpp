@@ -364,8 +364,10 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
     DragReference theDrag;
     QByteArray ar;
 
-    if((result = NewDrag(&theDrag)))
-	return(!result);
+    if ( (result = NewDrag(&theDrag)) ) {
+	dragSource = 0;
+	return( !result );
+    }
 
     if (!noDropCursor) {
 	noDropCursor = new QCursor(QCursor::ForbiddenCursor);
@@ -487,8 +489,10 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
 #endif
 
     QWidget *widget = QApplication::widgetAt(fakeEvent.where.h, fakeEvent.where.v, TRUE);
-    if(!widget)
+    if(!widget) {
 	return FALSE;
+	dragSource = 0;
+    }
     drag_received = FALSE;
     qt_mac_in_drag = TRUE;
     //kick off the drag by calling the callback ourselves first..
@@ -505,6 +509,7 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
     }
     DisposeDrag(theDrag);
     qt_mac_in_drag = FALSE;
+    dragSource = 0;
 
     return ((result == noErr) && (current_drag_action == QDropEvent::Move) &&
 	    widget->extraData()->macDndExtra->acceptfmt &&
