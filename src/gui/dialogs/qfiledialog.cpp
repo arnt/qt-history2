@@ -3098,7 +3098,7 @@ void QFileDialog::setDir( const QString & pathstr )
 	    else
 #else
 	    user = ::getlogin();
-	    if ( !user )
+	    if ( user.isEmpty() )
 #endif
 		user = getenv( "LOGNAME" );
 	} else
