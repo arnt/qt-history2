@@ -85,7 +85,7 @@ void QDragObject::setTarget(QWidget* t)
 
 struct QStoredDragData {
     QStoredDragData() {}
-    const char* fmt;
+    char* fmt;
     QByteArray enc;
 };
 
@@ -960,7 +960,7 @@ QStoredDrag::QStoredDrag( const char* mimeType, QWidget * dragSource, const char
 */
 QStoredDrag::~QStoredDrag()
 {
-    delete [] (void*)d->fmt;
+    delete [] d->fmt;
     delete d;
 }
 
