@@ -3402,6 +3402,7 @@ void QFileDialog::listBoxSelectionChanged()
     nameEdit->clear();
     QString str;
     QListBoxItem * i = d->moreFiles->item( 0 );
+    QListBoxItem * j = 0;
     int index = 0;
     files->blockSignals( TRUE );
     while( i ) {
@@ -3410,18 +3411,20 @@ void QFileDialog::listBoxSelectionChanged()
 		files->setSelected( ( (QFileDialogPrivate::MCItem *)i )->i, i->selected() );
 	}
 	if ( d->moreFiles->isSelected( i )
-	     && !( (QFileDialogPrivate::File*)( (QFileDialogPrivate::MCItem *)i )->i )->info.isDir() )
+        && !( (QFileDialogPrivate::File*)( (QFileDialogPrivate::MCItem *)i )->i )->info.isDir() ) {
 	    str += QString( "\"%1\" " ).arg( i->text() );
+        if ( j == 0 )
+            j = i;
+    }
 	i = d->moreFiles->item( ++index );
     }
     files->blockSignals( FALSE );
     nameEdit->setText( str );
     nameEdit->setCursorPosition( str.length() );
     okB->setEnabled( TRUE );
-    if ( d->preview && d->preview->isVisible() && d->moreFiles->item( d->moreFiles->currentItem() ) ) {
+    if ( d->preview && d->preview->isVisible() && j ) {
 	QUrl u = QUrl( d->url,
-		       ( (QFileDialogPrivate::File*)( (QFileDialogPrivate::MCItem*)d->
-						      moreFiles->item( d->moreFiles->currentItem() ) )->i )->info.name() );
+		       ( (QFileDialogPrivate::File*)( (QFileDialogPrivate::MCItem*)j )->i )->info.name() );
 	if ( d->infoPreviewer )
 	    d->infoPreviewer->previewUrl( u );
 	if ( d->contentsPreviewer )
