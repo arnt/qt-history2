@@ -792,7 +792,7 @@ static void getArabicProperties(const unsigned short *chars, int len, ArabicProp
 
 	lastPos = i;
     }
-    properties[lastPos].shape = joining_table[shape][XIsolated].form1;
+    properties[lastPos].shape = joining_table[shape][JNone].form1;
 }
 
 
