@@ -216,7 +216,7 @@ void QGLContext::reset()
 
 void QGLContext::makeCurrent()
 {
-    if( aglGetCurrentContext() == (AGLContext) cx)
+    if( currentCtx && aglGetCurrentContext() == (AGLContext) cx)
 	return;
 
     if( !d->valid) {
