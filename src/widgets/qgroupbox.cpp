@@ -75,7 +75,7 @@
   constructor) and the title's alignment().
 
   You can change the spacing used by the group box with
-  setInsideMargin() and setInsideSpacing(). 
+  setInsideMargin() and setInsideSpacing().
 
   <img src=qgrpbox-w.png>
 
@@ -302,17 +302,19 @@ void QGroupBox::paintEvent( QPaintEvent *event )
 		x = 8;
 	}
 	QRect r( x, 0, tw, h );
-	
+
 	style().drawItem( &paint, r, AlignCenter | ShowPrefix, colorGroup(),
 			  isEnabled(), 0, str );
 	paint.setClipRegion( event->region().subtract( r ) ); // clip everything but title
     }
     // I really think this should call drawFrame() instead...
-    void * data[4];
-    data[0] = (void *) frameShape();
-    data[1] = (void *) frameShadow();
-    data[2] = (void *) lineWidth();
-    data[3] = (void *) midLineWidth();
+    void *data[4];
+    int fs = frameShape(), fh = frameShadow(), lw = lineWidth(),
+	mw = midLineWidth();
+    data[0] = &fs;
+    data[1] = &fh;
+    data[2] = &lw;
+    data[3] = &mw;
     style().drawPrimitive( QStyle::PO_GroupBoxFrame, &paint, frameRect(),
 			   colorGroup(), QStyle::PStyle_Default, data );
     drawContents( &paint );			// draw the contents

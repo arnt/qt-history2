@@ -411,10 +411,10 @@ void QCommonStyle::drawPrimitive( PrimitiveOperation op,
 	    break;
 
 	// evil hacks
-	QFrame::Shape	type 	= (QFrame::Shape) ((int) data[0]);
-	QFrame::Shadow	cstyle 	= (QFrame::Shadow) ((int) data[1]);
-	int 		lwidth 	= (int) data[2];
-	int 		mlwidth = (int) data[3];
+	QFrame::Shape	type 	= (QFrame::Shape) *((int *) data[0]);
+	QFrame::Shadow	cstyle 	= (QFrame::Shadow) *((int *) data[1]);
+	int 		lwidth 	= *((int *) data[2]);
+	int 		mlwidth = *((int *) data[3]);
 
 	int x = r.x();
 	int y = r.y();
@@ -653,19 +653,19 @@ void QCommonStyle::drawControl( ControlElement element,
 	    return;
 	QTab * t = (QTab *) data[0];
 	bool has_focus = *((bool *) data[1]);
-	
+
 	QRect tr = r;
 	if ( t->identifier() == tb->currentTab() )
 	    tr.setBottom( tr.bottom() -
 			  pixelMetric( QStyle::PM_DefaultFrameWidth, tb ) );
-	
-	drawItem( p, tr, AlignCenter | ShowPrefix, cg, tb->isEnabled() && 
+
+	drawItem( p, tr, AlignCenter | ShowPrefix, cg, tb->isEnabled() &&
 		  t->isEnabled(), 0, t->text() );
-	
+
 	if ( has_focus )
 	    drawPrimitive( PO_FocusRect, p, r, cg );
 	break; }
-    
+
     case CE_ProgressBar: {
 	QProgressBar *progressbar = (QProgressBar *) widget;
 
