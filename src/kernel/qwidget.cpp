@@ -5420,6 +5420,9 @@ void QWidget::showFullScreen()
     if ( !isTopLevel() )
 	return;
     if ( topData()->fullscreen ) {
+#if defined(Q_WS_QWS)
+	resize( screen.size() );
+#endif
 	show();
 	raise();
 	return;
