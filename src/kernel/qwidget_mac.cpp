@@ -1317,9 +1317,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		QResizeEvent e( size(), olds );
 		QApplication::sendEvent( this, &e );
 	    }
-#ifdef Q_WS_MACX
-	    if(!isTopLevel())
-#endif
+	    if(!isTopLevel() || !QDIsPortBuffered(GetWindowPort((WindowPtr)hd)))
 	    {
 		//finally issue "expose" event
 		QRegion upd((oldregion + clpreg) - bltregion);
