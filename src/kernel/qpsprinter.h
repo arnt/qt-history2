@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.h#16 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.h#17 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -65,7 +65,7 @@ private:
     void orientationSetup();
     void newPageSetup( QPainter * );
     void resetDrawingTools( QPainter * );
-    void emitHeader();
+    void emitHeader( bool finished );
     void setFont( const QFont & );
     void drawImage( QPainter *, const QPoint &, const QImage & );
 

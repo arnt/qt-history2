@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#56 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#57 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -24,6 +24,7 @@
 #include "qpsprinter.h"
 #include "qpainter.h"
 #include "qpaintdevicedefs.h"
+#include "qpaintdevicemetrics.h"
 #include "qimage.h"
 #include "qdatetime.h"
 
@@ -528,7 +529,7 @@ static const char *ps_header[] = {
 "    end",
 "  } D",
 "} ifelse",
-//"/setstrokeadjust where { pop true setstrokeadjust } if",
+"/setstrokeadjust where { pop true setstrokeadjust } if",
 0};
 
 
@@ -1946,6 +1947,7 @@ struct QPSPrinterPrivate {
     QTextStream fontStream;
     bool dirtyClipping;
     bool firstClipOnPage;
+    QRect boundingBox;
 };
 
 
@@ -2294,6 +2296,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	dirtyNewPage        = FALSE;		// setup done by QPainter
 	                                        // for the first page.
 	d->firstClipOnPage  = TRUE;
+	d->boundingBox = QRect( 0, 0, -1, -1 );
 	fontsUsed = "";
 	
 	stream << "%%Page: " << pageCount << ' ' << pageCount << endl;
@@ -2304,10 +2307,8 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
     }
 
     if ( c == PDC_END ) {			// painting done
-	if ( d->buffer ) {
-	    // ### epsf here
-	    emitHeader();
-	}
+	if ( d->buffer )
+	    emitHeader( TRUE );
 	stream << "GR\n";
 	stream << "QP\n";
 	stream << "%%Trailer\n";
@@ -2327,7 +2328,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    matrixSetup( paint );
 	if ( dirtyNewPage )
 	    newPageSetup( paint );
-	if ( d->dirtyClipping )	// Must be after matrixSetup and newPageSetup~
+	if ( d->dirtyClipping )	// Must be after matrixSetup and newPageSetup
 	    clippingSetup( paint );
     }
 
@@ -2465,12 +2466,10 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	    stream << COLOR(*(p[0].color)) << "BC\n";
 	    break;
 	case PDC_SETBKMODE:
-	    stream << "/OMo ";
 	    if ( p[0].ival == TransparentMode )
-		stream << "false";
+		stream << "/OMo false def\n";
 	    else
-		stream << "true";
-	    stream << " def\n";
+		stream << "/OMo true def\n";
 	    break;
 	case PDC_SETROP:
 #if defined(DEBUG)
@@ -2598,40 +2597,50 @@ void QPSPrinter::orientationSetup()
 }
 
 
-void QPSPrinter::emitHeader()
+void QPSPrinter::emitHeader( bool finished )
 {
     const char *title   = printer->docName();
     const char *creator = printer->creator();
     if ( !title )				// default document names
 	title = "Unknown";
     if ( !creator )				// default creator
-	creator = "Qt";
+	creator = "Qt " QT_VERSION_STR;
     d->realDevice = new QFile();
     (void)((QFile *)d->realDevice)->open( IO_WriteOnly, d->fd );
     stream.setDevice( d->realDevice );
-    stream << "%!PS-Adobe-1.0\n"
-	   << "%%Creator: " << creator << '\n'
-	   << "%%Title: " << title   << '\n'
-	   << "%%CreationDate: " << QDateTime::currentDateTime().toString()
-	   << '\n'
-	   << "%%Pages: (atend)\n"
-	   << "%%DocumentFonts: (atend)\n"
-	   << "%%EndComments\n\n";
+    stream << "%!PS-Adobe-1.0";
+    if ( finished && pageCount == 1 && printer->numCopies() == 1 ) {
+	QPaintDeviceMetrics m( printer );
+	if ( !d->boundingBox.isValid() )
+	    d->boundingBox.setRect( 0, 0, m.width(), m.height() );
+	stream << " EPSF-3.0\n%%BoundingBox: "
+	       << d->boundingBox.left() << " "
+	       << m.height() - d->boundingBox.bottom() << " "
+	       << d->boundingBox.right() << " "
+	       << m.height() - d->boundingBox.top();
+    }
+    stream << "\n%%Creator: " << creator
+	   << "\n%%Title: " << title
+	   << "\n%%CreationDate: " << QDateTime::currentDateTime().toString()
+	   << "\n%%Pages: (atend)"
+	   << "\n%%DocumentFonts: (atend)"
+	   << "\n%%EndComments\n\n";
+
     if ( printer->numCopies() > 1 )
 	stream << "/#copies " << printer->numCopies() << " def\n";
 
-    if ( !fixed_ps_header ) {
+    if ( !fixed_ps_header )
 	makeFixedStrings();
-    }
 
-    stream << "% Standard Qt prolog\n" << fixed_ps_header;
+    stream << "% Standard Qt prolog\n" << fixed_ps_header << "\n";
     if ( d->fontBuffer->buffer().size() ) {
-	stream << "\n% Fonts and encodings used on pages 1-"
-	       << pageCount << "\n";
+	if ( pageCount > 1 )
+	    stream << "% Fonts and encodings used on pages 1-"
+		   << pageCount << "\n";
 	stream.writeRawBytes( (const char *)(d->fontBuffer->buffer().data()),
 			      d->fontBuffer->buffer().size() );
     }
-    stream << "\n%%EndProlog\n";
+    stream << "%%EndProlog\n";
     stream.writeRawBytes( (const char *)(d->buffer->buffer().data()),
 			  d->buffer->buffer().size() );
 
@@ -2645,7 +2654,7 @@ void QPSPrinter::emitHeader()
 void QPSPrinter::newPageSetup( QPainter *paint )
 {
     if ( d->buffer && d->pagesInBuffer++ > 4 )
-	emitHeader();
+	emitHeader( FALSE );
 
     if ( !d->buffer ) {
 	d->pageEncodings.clear();
@@ -2717,6 +2726,8 @@ void QPSPrinter::clippingSetup( QPainter *paint )
 	for( i = 0 ; i < (int)rects.size() ; i++ ) {
 	    putRect( stream, rects[i] );
 	    stream << "ACR\n";		// add clip rect
+	    if ( pageCount == 1 )
+		d->boundingBox = d->boundingBox.unite( rects[i] );
 	}
 	stream << "CLEND\n";		// end clipping
 	d->firstClipOnPage = FALSE;
