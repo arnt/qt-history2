@@ -163,9 +163,9 @@ UnixMakefileGenerator::init()
 	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL"];
 	}
     }
-    if ( project->isActiveConfig("x11sm") ) 
+    if ( project->isActiveConfig("x11sm") )
 	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_X11SM"];
-    if ( project->isActiveConfig("dylib") ) 
+    if ( project->isActiveConfig("dylib") )
 	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_DYNLOAD"];
     if ( project->isActiveConfig("x11inc") )
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_X11"];
@@ -175,15 +175,15 @@ UnixMakefileGenerator::init()
 	}
 	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_X11"];
     }
-    if ( project->isActiveConfig("moc") ) 
+    if ( project->isActiveConfig("moc") )
 	setMocAware(TRUE);
-    if ( project->variables()["QMAKE_RUN_CC"].isEmpty() ) 
+    if ( project->variables()["QMAKE_RUN_CC"].isEmpty() )
 	project->variables()["QMAKE_RUN_CC"].append("$(CC) -c $(CFLAGS) $(INCPATH) -o $obj $src");
-    if ( project->variables()["QMAKE_RUN_CC_IMP"].isEmpty() ) 
+    if ( project->variables()["QMAKE_RUN_CC_IMP"].isEmpty() )
 	project->variables()["QMAKE_RUN_CC_IMP"].append("$(CC) -c $(CFLAGS) $(INCPATH) -o $@ $<");
-    if ( project->variables()["QMAKE_RUN_CXX"].isEmpty() ) 
+    if ( project->variables()["QMAKE_RUN_CXX"].isEmpty() )
 	project->variables()["QMAKE_RUN_CXX"].append("$(CXX) -c $(CXXFLAGS) $(INCPATH) -o $obj $src");
-    if ( project->variables()["QMAKE_RUN_CXX_IMP"].isEmpty() ) 
+    if ( project->variables()["QMAKE_RUN_CXX_IMP"].isEmpty() )
 	project->variables()["QMAKE_RUN_CXX_IMP"].append("$(CXX) -c $(CXXFLAGS) $(INCPATH) -o $@ $<");
     project->variables()["QMAKE_FILETAGS"] += QStringList::split("HEADERS SOURCES TARGET DESTDIR", " ");
     if ( !project->variables()["PRECOMPH"].isEmpty() ) {
@@ -199,7 +199,7 @@ UnixMakefileGenerator::init()
 	project->variables()["HEADERS_ORIG"] = project->variables()["HEADERS"];
 	project->variables()["HEADERS"].clear();
     }
-    if( project->isActiveConfig("GNUmake") && !project->isEmpty("QMAKE_CFLAGS_DEPS")) 
+    if( project->isActiveConfig("GNUmake") && !project->isEmpty("QMAKE_CFLAGS_DEPS"))
 	include_deps = TRUE; //do not generate deps
 
     MakefileGenerator::init();
@@ -300,7 +300,8 @@ UnixMakefileGenerator::init()
 	    project->variables()["QMAKE_LINK_SHLIB_CMD"].append(
 		"$(LINK) $(LFLAGS) -o $(TARGET) $(OBJECTS) $(OBJMOC) $(LIBS)");
     }
-    if ( project->isActiveConfig("dll") ) {
+    if ( project->variables()["QMAKE_APP_FLAG"].isEmpty() &&
+	 project->isActiveConfig("dll") ) {
 	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_SHLIB"];
 	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_SHLIB"];
 	if ( !project->variables()["QMAKE_APP_FLAG"].isEmpty() ) {
