@@ -727,8 +727,9 @@ void ClassDecl::printHtmlShort( HtmlWriter& out ) const
 void ClassDecl::printHtmlLong( HtmlWriter& out ) const
 {
 #ifdef DO_HEADER_DOC
-    if(Decl *c = context()) 
-        out.printfMeta( "<a name=\"//apple_ref/cpp/cl/%s/%s\"></a>", c->fullName().latin1(), fullName().latin1() );
+    if(!superTypes().isEmpty()) 
+        out.printfMeta( "<a name=\"//apple_ref/cpp/cl/%s/%s\"></a>", superTypes().first().toString().latin1(), 
+                        fullName().latin1() );
     else
         out.printfMeta( "<a name=\"//apple_ref/cpp/cl/%s\"></a>", fullName().latin1() );
 #endif
