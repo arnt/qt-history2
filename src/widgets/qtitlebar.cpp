@@ -194,6 +194,8 @@ void QTitleBar::readColors()
 {
     QPalette pal = palette();
 
+    bool colorsInitialized = FALSE;
+
 #ifdef Q_WS_WIN // ask system properties on windows
 #ifndef SPI_GETGRADIENTCAPTIONS
 #define SPI_GETGRADIENTCAPTIONS 0x1008
@@ -210,6 +212,7 @@ void QTitleBar::readColors()
 	pal.setColor( QPalette::Active, QColorGroup::HighlightedText, qt_colorref2qrgb(GetSysColor(COLOR_CAPTIONTEXT)) );
 	pal.setColor( QPalette::Inactive, QColorGroup::HighlightedText, qt_colorref2qrgb(GetSysColor(COLOR_INACTIVECAPTIONTEXT)) );
 	if ( qt_winver != Qt::WV_95 && qt_winver != WV_NT ) {
+	    colorsInitialized = TRUE;
 	    BOOL gradient;
 	    QT_WA( {
 		SystemParametersInfo( SPI_GETGRADIENTCAPTIONS, 0, &gradient, 0 );
@@ -224,9 +227,9 @@ void QTitleBar::readColors()
 		pal.setColor( QPalette::Inactive, QColorGroup::Base, palette().inactive().highlight() );
 	    }
 	}
-    } else
+    }
 #endif // Q_WS_WIN
-    {
+    if ( !colorsInitialized ) {
 	pal.setColor( QPalette::Active, QColorGroup::Highlight, palette().active().highlight() );
 	pal.setColor( QPalette::Active, QColorGroup::Base, palette().active().highlight() );
 	pal.setColor( QPalette::Inactive, QColorGroup::Highlight, palette().inactive().dark() );
