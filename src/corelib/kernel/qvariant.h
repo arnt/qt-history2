@@ -18,7 +18,7 @@
 #include "QtCore/qbytearray.h"
 #include "QtCore/qlist.h"
 #include "QtCore/qmetatype.h"
-//#include "QtCore/qmap.h"
+#include "QtCore/qmap.h"
 
 #ifndef QT_NO_VARIANT
 class QBitArray;
@@ -42,8 +42,6 @@ class QTextLength;
 class QUrl;
 class QVariant;
 class QVariantComparisonHelper;
-
-template <class Key, class Type> class QMap;
 
 
 #ifndef QT_NO_MEMBER_TEMPLATES
