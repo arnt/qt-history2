@@ -13,7 +13,7 @@ all:
 	${QTDIR}/util/qdoc/qdoc2latex/books/thread.q2l \
 	${QTDIR}/util/qdoc/qdoc2latex/books/widgets.q2l \
 	${QTDIR}/util/qdoc/qdoc2latex/books/xml.q2l \
-	${QTDIR}/qmake/book/qmake-manual.book \
-	${QTDIR}/tools/assistant/book/assistant.book \
-	${QTDIR}/tools/designer/book/designer-manual.book \
-	${QTDIR}/tools/linguist/book/linguist-manual.book
+	${QTDIR}/util/qdoc/qdoc2latex/books/qmake-manual.book \
+	${QTDIR}/util/qdoc/qdoc2latex/books/assistant.book \
+	${QTDIR}/util/qdoc/qdoc2latex/books/designer-manual.book \
+	${QTDIR}/util/qdoc/qdoc2latex/books/linguist-manual.book
