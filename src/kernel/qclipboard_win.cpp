@@ -165,16 +165,9 @@ public:
 		int cf = 0;
 		QPtrList<QWindowsMime> all = QWindowsMime::all();
 		while (cf = EnumClipboardFormats(cf)) {
-#ifdef Q_OS_TEMP
-			if ( cf == CF_TEXT )
-				sawSBText = TRUE;
-#else
-#if defined(UNICODE)
-                    if ( qWinVersion() & Qt::WV_NT_based && cf == CF_TEXT ) {
+		    if ( cf == CF_TEXT ) {
 			sawSBText = TRUE;
-		    } else 
-#endif
-		    {
+		    } else {
 			mime = QWindowsMime::cfToMime(cf);
 			if ( mime ) {
 			    if ( !n )
@@ -183,13 +176,12 @@ public:
 			    mime = 0;
 			}
 		    }
-#endif
 		}
 		// COME FROM BREAK
 
 		// If we did not find a suitable mime type, yet skipped
 		// CF_TEXT due to the priorities above, give it a shot
-                if ( qWinVersion() & Qt::WV_NT_based && !mime && sawSBText ) {
+                if ( !mime && sawSBText ) {
 		    mime = QWindowsMime::cfToMime( CF_TEXT );
 		    if ( mime ) {
 			n--;
