@@ -13,7 +13,7 @@ NorwegianWoodStyle::NorwegianWoodStyle()
 
 void NorwegianWoodStyle::polish(QPalette &palette)
 {
-    QImage buttonImage(QString(":/images/woodbutton.xpm"));
+    QImage buttonImage(":/images/woodbutton.xpm");
     QImage lightImage = buttonImage;
     QImage darkImage = buttonImage;
     QImage midImage = buttonImage;
