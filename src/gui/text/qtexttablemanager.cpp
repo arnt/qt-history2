@@ -169,12 +169,14 @@ static bool operator<(int cursorPos, const QTextPieceTable::BlockIterator &cell)
     return cursorPos < cell.key();
 }
 
+/* unused, currently
 static bool operator<(const QTextPieceTable::BlockIterator &cell, int cursorPos)
 {
     if (cell.atEnd())
 	return false;
     return cell.key() < cursorPos;
 }
+*/
 
 int QTextTablePrivate::rowAt(int cursor) const
 {
