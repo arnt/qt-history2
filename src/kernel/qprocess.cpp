@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess.cpp#22 $
+** $Id: //depot/qt/main/src/kernel/qprocess.cpp#23 $
 **
 ** Implementation of QProcess class
 **
@@ -51,13 +51,13 @@
 /*!
   \class QProcess qprocess.h
 
-  \brief The QProcess class is used to start external programs and to control
-  their behavior.
+  \brief The QProcess class is used to start external programs and to
+  communicate with them.
 
   \ingroup misc
 
   You can write to standard input of the started program. You can read the
-  output of the program on standard output and standard error. You get notified
+  output of the program on standard output and standard error. You are notified
   when the program exits.
 
   There are two different ways to run a process: If you use start(), you have
@@ -74,18 +74,12 @@
   If you use a launch() function to run the process, you should not use the
   slots writeToStdin() and closeStdin(), since the result is not well-defined.
 
-  It is possible to use one instance to start more than one process. If the
-  first process is not finished yet, you loose control of that process: all
-  pending data that is not written yet is lost, you get not notified when the
-  process finishes, etc. All signals, slots and functions affect only the
-  process that was started last.
-
   Example: If you want to start the \c uic command (Qt commandline tool used
   with the Qt Designer) and make some operations on the output (the \c uic
   outputs the code it generates to standard output by default). Consider the
   case, that you want to start it with the command line options "-tr i18n" on
   the file "help dialog.ui" (notice the space in the filename). On the command
-  line you would do that with 
+  line you would do that with
   \code
   uic -tr i18n "help dialog.ui"
   \endcode
@@ -101,14 +95,14 @@
       proc->addArgument( "i18n" );
       proc->addArgument( "help dialog.ui" );
       connect( proc, SIGNAL(readyReadStdout()), this, SLOT(readFromStdout()) );
-      proc->start();                                                          
+      proc->start();
   }
 
   void UicManager::readFromStdout()
   {
       // Do some processing.
       // Keep in mind that the data might be reported in chunks.
-  }                                                                           
+  }
   \endcode
 
   The readyReadStdout() signal is emitted when there is new data on standard
@@ -359,9 +353,9 @@ void QProcess::closeStdinLaunch()
   \fn void QProcess::wroteStdin()
 
   This signal is emitted if the data send to standard input (via
-  writeToStdin()) was actually written to the process. This does not imply that
-  the process really read the data, but it is now save to close standard input
-  without loosing pending data.
+  writeToStdin()) was actually written to the process. This does not
+  imply that the process really read the data, but it is now safe to
+  close standard input without loosing pending data.
 
   \sa writeToStdin() closeStdin()
 */

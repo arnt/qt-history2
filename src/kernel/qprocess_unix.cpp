@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qprocess_unix.cpp#46 $
 **
 ** Implementation of QProcess class for Unix
 **
@@ -516,10 +516,12 @@ QProcess::~QProcess()
   writeToStdin(), you can close standard input with closeStdin() and you can
   terminate the process hangUp() resp. kill().
 
-  You can call this function when a process that was started with this instance
-  still runs. In this case, it closes standard input of that process and it
-  deletes pending data - you loose all control over that process, but the
-  process is not terminated.
+  You can call this function even when there already is a running
+  process in this object. In this case, QProcess closes standard input
+  of the old process and deletes pending data, i.e., you loose all
+  control over that process, but the process is not terminated. (On
+  operating systems that have zombie processes, Qt will also wait() on
+  the old process.)
 
   \sa launch() closeStdin()
 */
@@ -903,9 +905,9 @@ void QProcess::setIoRedirection( bool value )
     }
 }
 
-/*
-  Used by connectNotify() and disconnectNotify() to change the value of
-  notifyOnExit (and related behaviour)
+/* This private function is used by connectNotify() and
+  disconnectNotify() to change the value of notifyOnExit (and related
+  behaviour)
 */
 void QProcess::setNotifyOnExit( bool value )
 {
