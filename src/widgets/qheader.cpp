@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#6 $
 **
 **  Table header
 **
@@ -235,7 +235,7 @@ void QHeader::init( int n )
     recalc();
     labels.resize(n+1);
     for ( int i = 0; i < n ; i ++ )
-	labels[i] = "Boring";
+	labels[i] = "Uninitialized";
     labels[n] = 0; 
     setMouseTracking( TRUE );
     trackingIsOn = FALSE;
@@ -263,11 +263,6 @@ void QHeader::setOrientation( Orientation orientation )
 {
     orient = orientation;
     repaint();
-}
-
-void QHeader::paintLine( int,int,int)// idx, int oldPos, int newPos )
-{
-    repaint(); //#####
 }
 
 static QPen  ppppen( black, 1, DotLine );
@@ -396,11 +391,21 @@ void QHeader::paintEvent( QPaintEvent * )
     QRect r( 0, 0, width(), height() );
     switch ( style() ) {
     case WindowsStyle:
+	{
+	    for ( int i = 0; i < (int) count(); i++ ) {
+	    bool down = (i==handleIdx) && ( state == Pressed || state == Moving );
+		if ( orient == Horizontal ) {
+		    qDrawWinButton( &p, pPos(i), 0, pSize(i), height(), g, down );		
+		} else {
+		    qDrawWinButton( &p, pPos(i), 0, pSize(i), height(), g, down );
+		}
+	    }
+	    break;
+	}
     default:
     case MotifStyle:
-	{ // h-pux CC wants this
-	    QBrush fill( g.background() );
-	    qDrawShadePanel( &p, r, g, FALSE, 2, &fill );
+	{
+	    qDrawShadePanel( &p, r, g, FALSE, 2 );
 	    for ( int i = 1; i < (int) count(); i++ ) {
 		if ( orient == Horizontal ) {
 		    int x = pPos( i );
@@ -420,11 +425,11 @@ void QHeader::paintEvent( QPaintEvent * )
 		if ( orient == Horizontal ) {
 		    QRect q( pPos( handleIdx ) + 1, r.top()+1, 
 			     pSize( handleIdx ), r.height()-2 );
-		    qDrawShadePanel( &p, q, g, TRUE, 2, &fill );
+		    qDrawShadePanel( &p, q, g, TRUE, 2 );
 		} else {
 		    QRect q( r.left()+1, pPos( handleIdx ) + 1, 
 			     r.width()-2, pSize( handleIdx ) );
-		    qDrawShadePanel( &p, q, g, TRUE, 2, &fill );
+		    qDrawShadePanel( &p, q, g, TRUE, 2 );
 		}
 	    }
 	    break;
@@ -434,7 +439,11 @@ void QHeader::paintEvent( QPaintEvent * )
 
     for ( int i = 0; i < (int) count(); i++ ) {
 	const char *s = labels[i];
-	QRect r( pPos(i)+4, 2, pSize(i) - 6, 
+	int d = 0;
+	if ( style() == WindowsStyle  &&
+	     i==handleIdx && ( state == Pressed || state == Moving ) )
+	    d = 1;
+	QRect r( pPos(i)+4+d, 2+d, pSize(i) - 6, 
 		 orient == Horizontal ?  height() - 4 : width() - 4 );
 
 	if ( orient == Vertical ) {
@@ -443,33 +452,7 @@ void QHeader::paintEvent( QPaintEvent * )
 	    m.translate( 0, -width() ); //###########  
 	    p.setWorldMatrix( m );  
 	}
-
-
-	//p.setPen( black );
-	//debug( "Draw text %s", s );
 	p.drawText ( r, AlignLeft| AlignVCenter|SingleLine, s );
-	/*
-	  switch ( i ) {
-	  case 0:
-	  p.setPen( red );
-	  break;
-	  case 1:
-	  p.setPen( yellow );
-	  break;
-	  case 2:
-	  p.setPen( green );
-	  break;
-	  case 3:
-	  p.setPen( blue );
-	  break;
-	  case 4:
-	  p.setPen( cyan );
-	  break;
-	  default:
-	  p.setPen( white );
-	  }
-	  p.drawRect( r );
-	  */
     }
     p.end();
 }
@@ -487,6 +470,7 @@ void QHeader::mousePressEvent( QMouseEvent *m )
 	    break;
 	} else if ( pPos(i)  < c && c < pPos( i+1 ) ) {  
 	    handleIdx = i;
+	    moveToIdx = -1;
 	    state = Pressed;
 	    clickPos = c;
 	    repaint();//###
@@ -512,12 +496,13 @@ void QHeader::mouseReleaseEvent( QMouseEvent *m )
 	break;
     case Moving: {
 	setCursor( arrowCursor );
-	if ( handleIdx != moveToIdx ) {
+	if ( handleIdx != moveToIdx && moveToIdx != -1 ) {
 	    moveAround( handleIdx, moveToIdx );
 	    emit moved( handleIdx, moveToIdx );
-	} else
+	} else { 
 	    if ( sRect( handleIdx).contains( m->pos() ) )
 		emit sectionClicked( handleIdx );
+	}
 	repaint(); //###
 	break;
     }
@@ -554,7 +539,7 @@ void QHeader::mouseMoveEvent( QMouseEvent *m )
 	case Pressed:
 	    if ( QABS( s - clickPos ) > 4 ) {
 		state = Moving;
-		moveToIdx = handleIdx;
+		moveToIdx = -1;
 		if ( orient == Horizontal )
 		    setCursor( sizeHorCursor );
 		else
@@ -562,19 +547,45 @@ void QHeader::mouseMoveEvent( QMouseEvent *m )
 	    }
 	    break;
 	case Sliding:
-	    if ( s > pPos(handleIdx-1) + MINSIZE && s < pPos(handleIdx+1) - MINSIZE ) {
+	    if ( s > pPos(handleIdx-1) + MINSIZE ) {
+
 		int oldPos = pPos( handleIdx );
-		places[handleIdx] = s;
-		paintLine( handleIdx, oldPos, s);
+		int delta = s - oldPos;
+		for ( int i = handleIdx; i < (int) count(); i++ )
+		    places[i] += delta;
+
+		int us, uw;
+		if ( oldPos < s ) {
+		    us = oldPos;
+		    uw = s - oldPos;
+		    uw += 3; //#######
+		    us -= 3; //#######
+		} else {
+		    int w = ( orient == Horizontal ) ? width() : height();
+		    uw = (oldPos - s);
+		    us = w - uw;
+		    uw += 3; //#######
+		    us -= 3; //#######
+		}
+		if ( orient == Horizontal ) {
+		    bitBlt( this, s, 0, this, oldPos, 0 );
+		    repaint( us, 0, uw, height() ); 
+		} else {
+		    bitBlt( this, 0, s, this, 0, oldPos );
+		    repaint( 0, us, width(), uw ); 
+		}
 	    }
 	    break;
 	case Moving: {
-	    moveToIdx = findLine( s );
-	    repaint();//###
-	    if ( moveToIdx == handleIdx || moveToIdx == handleIdx + 1 )
-		paintRect( pPos( handleIdx ), pSize( handleIdx ) );
-	    else
-		markLine( moveToIdx );
+	    int newPos = findLine( s );
+	    if ( newPos != moveToIdx ) {
+		moveToIdx = newPos;
+		repaint();//###
+		if ( moveToIdx == handleIdx || moveToIdx == handleIdx + 1 )
+		    paintRect( pPos( handleIdx ), pSize( handleIdx ) );
+		else
+		    markLine( moveToIdx );
+	    }
 	    break;
 	}
 	default:
@@ -591,9 +602,9 @@ void QHeader::mouseMoveEvent( QMouseEvent *m )
 QRect QHeader::sRect( int i )
 {
     if ( orient == Horizontal )
-	return QRect( pPos( i ), 2, pSize( i ), height() - 4 );
+	return QRect( pPos( i ), 0, pSize( i ), height() );
     else
-	return QRect( 2, pPos( i ), width() - 4, pSize( i ) );
+	return QRect( 0, pPos( i ), width(), pSize( i ) );
 }
 
 /*!
@@ -610,10 +621,10 @@ void QHeader::setLabel( int i, const char *s )
 
 
 /*!
-  Adds a new section, with label text \a s.
+  Adds a new section, with label text \a s. Returns the index.
 */
 
-void QHeader::addLabel( const char *s )
+int QHeader::addLabel( const char *s )
 {
     int n = count() + 1;
     labels.resize( n + 1 );
@@ -621,6 +632,7 @@ void QHeader::addLabel( const char *s )
     places.resize( n + 1 );
     recalc();
     repaint();
+    return n - 1;
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.h#4 $
+** $Id: //depot/qt/main/src/widgets/qheader.h#5 $
 **
 **  Table header
 **
@@ -25,7 +25,7 @@ public:
     ~QHeader();
 
     void	setLabel( int, const char * );
-    void	addLabel( const char * );
+    int		addLabel( const char * );
     void	setOrientation( Orientation );
     Orientation orientation() const;
     void	setTracking( bool enable );
@@ -55,8 +55,6 @@ protected:
 private:
     void	init( int );
     void	recalc();
-    //bool	track;
-    void	paintLine( int idx, int oldPos, int newPos );
     void	paintRect( int p, int s );
     void	markLine( int idx );
     int		pPos( int i ) const { return places[i]; }
