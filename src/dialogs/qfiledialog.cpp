@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#171 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#172 $
 **
 ** Implementation of QFileDialog class
 **
@@ -128,6 +128,27 @@ static const char* cdtoparent_xpm[]={
 
 
 /* XPM */
+static const char* newfolder_xpm[] = {
+"15 14 4 1",
+" 	c None",
+".	c #000000",
+"+	c #FFFF00",
+"@	c #FFFFFF",
+"          .    ",
+"               ",
+"          .    ",
+"       .     . ",
+"  ....  . . .  ",
+" .+@+@.  . .   ",
+"..........  . .",
+".@+@+@+@+@..   ",
+".+@+@+@+@+. .  ",
+".@+@+@+@+@.  . ",
+".+@+@+@+@+.    ",
+".@+@+@+@+@.    ",
+".+@+@+@+@+.    ",
+"...........    "};
+/* XPM */
 static const char* detailedview_xpm[]={
 "14 11 3 1",
 ". c None",
@@ -171,6 +192,7 @@ static QPixmap * closedFolderIcon = 0;
 static QPixmap * detailViewIcon = 0;
 static QPixmap * multiColumnListViewIcon = 0;
 static QPixmap * cdToParentIcon = 0;
+static QPixmap * newFolderIcon = 0;
 static QPixmap * fifteenTransparentPixels = 0;
 static QString * workingDirectory = 0;
 
@@ -185,6 +207,8 @@ static void cleanup() {
     multiColumnListViewIcon = 0;
     delete cdToParentIcon;
     cdToParentIcon = 0;
+    delete newFolderIcon;
+    newFolderIcon = 0;
     delete fifteenTransparentPixels;
     fifteenTransparentPixels = 0;
     delete workingDirectory;
@@ -201,6 +225,7 @@ static void makeVariables() {
 	detailViewIcon = new QPixmap(detailedview_xpm);
 	multiColumnListViewIcon = new QPixmap(mclistview_xpm);
 	cdToParentIcon = new QPixmap(cdtoparent_xpm);
+	newFolderIcon = new QPixmap(newfolder_xpm);
 	fifteenTransparentPixels = new QPixmap( closedFolderIcon->width(), 1 );
 	QBitmap m( fifteenTransparentPixels->width(), 1 );
 	m.fill( Qt::color0 );
@@ -225,7 +250,7 @@ struct QFileDialogPrivate {
 
     QWidgetStack * stack;
 
-    QPushButton * cdToParent, * detailView, * mcView;
+    QPushButton * cdToParent, *newFolder, * detailView, * mcView;
     QButtonGroup * modeButtons;
 
     QString currentFileName;
@@ -580,6 +605,11 @@ void QFileDialog::init()
     connect( d->cdToParent, SIGNAL(clicked()),
 	     this, SLOT(cdUpClicked()) );
 
+    d->newFolder = new QPushButton( this, "new folder" );
+    d->newFolder->setPixmap( *newFolderIcon );
+    connect( d->newFolder, SIGNAL(clicked()),
+	     this, SLOT(newFolderClicked()) );
+
     d->modeButtons = new QButtonGroup( 0, "invisible group" );
     connect( d->modeButtons, SIGNAL(destroyed()),
 	     this, SLOT(modeButtonsDestroyed()) );
@@ -615,6 +645,8 @@ void QFileDialog::init()
     h->addSpacing( 8 );
     h->addWidget( d->cdToParent );
     h->addSpacing( 8 );
+    h->addWidget( d->newFolder );
+    h->addSpacing( 8 );
     h->addWidget( d->detailView );
     h->addWidget( d->mcView );
     h->addSpacing( 16 );
@@ -641,6 +673,7 @@ void QFileDialog::init()
     updateGeometries();
 
     d->cdToParent->setFocusPolicy( NoFocus );
+    d->newFolder->setFocusPolicy( NoFocus );
     d->detailView->setFocusPolicy( NoFocus );
     d->mcView->setFocusPolicy( NoFocus );
 
@@ -1257,6 +1290,7 @@ void QFileDialog::updateGeometries()
     if ( r.height()+1 > r.width() )
 	r.setWidth( r.height()+1 );
     d->cdToParent->setFixedSize( r );
+    d->newFolder->setFixedSize( r );
     d->mcView->setFixedSize( r );
     d->detailView->setFixedSize( r );
     // ...
@@ -1413,6 +1447,76 @@ void QFileDialog::cdUpClicked()
     if ( cwd.cdUp() ) {
 	cwd.convertToAbs();
 	rereadDir();
+    }
+}
+
+// Internal
+class NewFolderDialog : public QDialog {
+public:
+	NewFolderDialog(QWidget *parent = 0, const char *name = 0);
+	~NewFolderDialog();
+
+	const QString dirname() { return nameEdit->text(); }
+
+private:
+	QLineEdit *nameEdit;
+};
+
+
+// This dialog should be rewritten using a layout (so can be resized)
+NewFolderDialog::NewFolderDialog(QWidget *parent, const char *name)
+	: QDialog(parent, name, TRUE)
+{
+	setCaption(tr("New Folder"));
+
+	nameEdit = new QLineEdit(this);
+	QLabel *label = new QLabel(nameEdit, tr("&Folder name"), this);
+	label->setAutoResize(TRUE);
+	label->move(10, 15);
+	nameEdit->move(label->width() + 20, 10);
+
+	QPushButton *okButton = new QPushButton(tr("OK"), this);
+	okButton->setDefault(TRUE);
+	okButton->setGeometry(10, 50, 75, 30);
+	connect(okButton, SIGNAL(clicked()), SLOT(accept()));
+
+	QPushButton *cancelButton = new QPushButton(tr("Cancel"), this);
+	cancelButton->setGeometry(okButton->width() + 20, 50, 75, 30);
+	connect(cancelButton, SIGNAL(clicked()), SLOT(reject()));
+
+	nameEdit->setFocus();
+}
+
+NewFolderDialog::~NewFolderDialog()
+{
+	delete nameEdit;
+}
+
+void QFileDialog::newFolderClicked()
+{
+    NewFolderDialog *dialog = new NewFolderDialog(this, "new folder dialog");
+    if ( dialog->exec() == QDialog::Accepted ) {
+	QString dirname = dialog->dirname();
+        delete dialog;
+	if (dirname.length() < 1) {
+	        QMessageBox::warning( this, tr("New Folder"),
+				       QString( tr("Invalid directory name") ));
+		return;
+	}
+	if (!cwd.mkdir(dirname))
+	    if (cwd.exists(dirname))
+	        QMessageBox::warning( this, tr("New Folder"),
+				       QString( tr("Unable to create directory\n") )
+				       + cwd.absPath() + "/" + dirname + "\n\n" +
+				       tr("A file/directory with that name already exists."));
+	    else
+	        QMessageBox::warning( this, tr("New Folder"),
+				       QString( tr("Unable to create directory\n") )
+				       + cwd.absPath() + "/" + dirname + "\n\n" +
+				       tr("Please make sure that the current directory\n"
+				          "is writable."));
+        else
+	    rereadDir(); // This seem not to work!?
     }
 }
 

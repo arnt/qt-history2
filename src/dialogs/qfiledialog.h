@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#43 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#44 $
 **
 ** Definition of QFileDialog class
 **
@@ -128,6 +128,7 @@ private slots:
     void cancelClicked();
 
     void cdUpClicked();
+    void newFolderClicked();
 
     void fixupNameEdit();
 
