@@ -124,7 +124,3 @@ unix {
 
 # enable COMPAT warnings.
 DEFINES += QT_COMPAT_WARNINGS QT_NO_CAST_TO_ASCII
-
-release {
-	DEFINES += QT_NO_DEBUG
-}
