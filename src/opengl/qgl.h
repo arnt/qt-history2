@@ -127,7 +127,7 @@ public:
 
     void		setOption( FormatOption opt );
     bool		testOption( FormatOption opt ) const;
-    
+
     static QGLFormat	defaultFormat();
     static void		setDefaultFormat( const QGLFormat& f );
 
@@ -139,7 +139,7 @@ public:
 
     friend Q_EXPORT bool operator==( const QGLFormat&, const QGLFormat& );
     friend Q_EXPORT bool operator!=( const QGLFormat&, const QGLFormat& );
-    
+
 private:
     uint opts;
     int pln;
@@ -177,7 +177,7 @@ public:
 protected:
     virtual bool	chooseContext( const QGLContext* shareContext = 0 );
     virtual void	doneCurrent();
-    
+
 #if defined(Q_WS_WIN)
     virtual int		choosePixelFormat( void* pfd, HDC pdc );
 #elif defined(Q_WS_X11)
@@ -205,9 +205,9 @@ protected:
 #elif defined(Q_WS_X11)
     void*		vi;
     void*		cx;
-    Q_UINT32		gpm
+    Q_UINT32		gpm;
 #elif defined(Q_WS_MAC)
-    void*               vi;;
+    void*               vi;
 #endif
 
     QGLFormat		glFormat;
@@ -223,7 +223,7 @@ private:
     static QGLContext*	currentCtx;
 
     friend class QGLWidget;
-    
+
 private:	// Disabled copy constructor and operator=
     QGLContext() {}
     QGLContext( const QGLContext& ) {}
@@ -298,7 +298,7 @@ protected:
 
     virtual void	glInit();
     virtual void	glDraw();
-    
+
 private:
     void		init( const QGLFormat& fmt,
 			      const QGLWidget* shareWidget );
