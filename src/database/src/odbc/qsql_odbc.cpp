@@ -22,31 +22,40 @@ public:
 
 QString qWarnODBCHandle(int handleType, SQLHANDLE handle)
 {
-    SQLCHAR state_[SQL_SQLSTATE_SIZE+1];
     SQLINTEGER nativeCode_;
-    SQLCHAR description_[SQL_MAX_MESSAGE_LENGTH];
     SQLSMALLINT tmp;
     SQLRETURN r = SQL_ERROR;
 #if defined(_OS_WIN32_)
-    if ( qApp->winVersion() & Qt::WV_NT_based )
+    if ( qApp->winVersion() & Qt::WV_NT_based ) {
+	SQLTCHAR state_[SQL_SQLSTATE_SIZE+1];
+	SQLTCHAR description_[SQL_MAX_MESSAGE_LENGTH];
 	r = SQLGetDiagRec( handleType,
     				     handle,
 				     1,
-				     (SQLTCHAR*)state_,
+				     (SQLTCHAR*)&state_,
 				     &nativeCode_,
-			    	     (SQLTCHAR*)description_,
+			    	     (SQLTCHAR*)&description_,
 				     SQL_MAX_MESSAGE_LENGTH-1,
 				     &tmp);
-    else
+	if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO )
+	    return QString( qt_winQString( (SQLTCHAR*)description_ ) );
+    } else {
+	SQLCHAR state_[SQL_SQLSTATE_SIZE+1];
+	SQLCHAR description_[SQL_MAX_MESSAGE_LENGTH];
 	r = SQLGetDiagRecA( handleType,
     				     handle,
 				     1,
-				     (SQLCHAR*)state_,
+				     (SQLCHAR*)&state_,
 				     &nativeCode_,
-			    	     (SQLCHAR*)description_,
+			    	     (SQLCHAR*)&description_,
 				     SQL_MAX_MESSAGE_LENGTH-1,
 				     &tmp);
+	if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO )
+	    return QString( (const char*)description_ );
+    }
 #else
+    SQLCHAR state_[SQL_SQLSTATE_SIZE+1];
+    SQLCHAR description_[SQL_MAX_MESSAGE_LENGTH];
     r = SQLGetDiagRec( handleType,
     				 handle,
 				 1,
@@ -55,9 +64,9 @@ QString qWarnODBCHandle(int handleType, SQLHANDLE handle)
 				 (SQLCHAR*)description_,
 				 SQL_MAX_MESSAGE_LENGTH-1,
 				 &tmp);
-#endif
     if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO )
 	return QString( (const char*)description_ );
+#endif
     return QString::null;
 }
 
@@ -127,15 +136,16 @@ QVariant::Type qDecodeODBCType( SQLSMALLINT sqltype )
 
 QSqlField qMakeField( const QODBCPrivate* p, int i  )
 {
-    SQLCHAR colName[255];
     SQLSMALLINT colNameLen;
     SQLSMALLINT colType;
     SQLUINTEGER colSize;
     SQLSMALLINT colScale;
     SQLSMALLINT nullable;
     SQLRETURN r = SQL_ERROR;
+    QString qColName;
 #if defined(_OS_WIN32_)
-    if ( qApp->winVersion() & Qt::WV_NT_based )
+    if ( qApp->winVersion() & Qt::WV_NT_based ) {
+        SQLTCHAR colName[255];
 	r = SQLDescribeCol( p->hStmt,
 			    i+1,
 			    (SQLTCHAR*)colName,
@@ -145,7 +155,9 @@ QSqlField qMakeField( const QODBCPrivate* p, int i  )
 			    &colSize,
 			    &colScale,
 			    &nullable);
-    else
+	qColName = qt_winQString( colName );
+    } else {
+	SQLCHAR colName[255];
 	r = SQLDescribeColA( p->hStmt,
 		    i+1,
 		    colName,
@@ -155,7 +167,10 @@ QSqlField qMakeField( const QODBCPrivate* p, int i  )
 		    &colSize,
 		    &colScale,
 		    &nullable);
+	qColName = qstrdup((const char*)colName);
+    }
 #else
+    SQLCHAR colName[255];
     r = SQLDescribeCol( p->hStmt,
 			i+1,
 			colName,
@@ -165,27 +180,29 @@ QSqlField qMakeField( const QODBCPrivate* p, int i  )
 			&colSize,
 			&colScale,
 			&nullable);
+    qColName = qstrdup((const char*)colName);
 #endif
 #ifdef CHECK_RANGE
     if ( r != SQL_SUCCESS )
 	qSqlWarning( QString("qMakeField: Unable to describe column %1").arg(i), p );
 #endif
     QVariant::Type type = qDecodeODBCType( colType );
-    return QSqlField( QString((char*)colName), i, type );
+    return QSqlField( qColName, i, type );
 }
 
 QString qGetStringData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndicator, bool& isNull )
 {
     QString fieldVal;
-    SQLCHAR colName[255];
     SQLSMALLINT colNameLen;
     SQLSMALLINT colType;
     SQLUINTEGER colSize;
     SQLSMALLINT colScale;
     SQLSMALLINT nullable;
     SQLRETURN r = SQL_ERROR;
+    QString qColName;
 #if defined(_OS_WIN32_)
-    if ( qApp->winVersion() & Qt::WV_NT_based )
+    if ( qApp->winVersion() & Qt::WV_NT_based ) {
+	SQLTCHAR colName[255];
 	r = SQLDescribeCol( hStmt,
 			    column+1,
 			    (SQLTCHAR*)colName,
@@ -195,7 +212,9 @@ QString qGetStringData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndicator
 			    &colSize,
 			    &colScale,
 			    &nullable);
-    else
+	qColName = qt_winQString( colName );
+    } else {
+	SQLCHAR colName[255];
 	r = SQLDescribeColA( hStmt,
 			    column+1,
 			    colName,
@@ -205,6 +224,8 @@ QString qGetStringData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndicator
 			    &colSize,
 			    &colScale,
 			    &nullable);
+	qColName = qstrdup( (const char*)colName );
+    }
 #else
     r = SQLDescribeCol( hStmt,
 			column+1,
@@ -215,12 +236,74 @@ QString qGetStringData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndicator
 			&colSize,
 			&colScale,
 			&nullable);
+    qColName = qstrdup( (const char*)colName );
 #endif
 #ifdef CHECK_RANGE
     if ( r != SQL_SUCCESS )
 	qWarning( QString("qGetStringData: Unable to describe column %1").arg(column) );
 #endif
-    SQLCHAR* buf = new SQLCHAR[ colSize ];
+#if defined(_OS_WIN32_)
+    if ( qApp->winVersion() & Qt::WV_NT_based ) {
+	SQLTCHAR* buf = new SQLTCHAR[ colSize ];
+	while ( TRUE ) {
+	    r = SQLGetData( hStmt,
+			    column+1,
+			    SQL_C_CHAR,
+			    (SQLPOINTER)buf,
+			    sizeof(buf),
+			    &lengthIndicator );
+	    if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) {
+		if ( lengthIndicator == SQL_NO_TOTAL )
+		    fieldVal += (char*)buf;  // keep going
+		else if ( lengthIndicator == SQL_NULL_DATA ) {
+		    fieldVal = QString::null;
+		    isNull = TRUE;
+		    break;
+		} else {
+		    if ( r == SQL_SUCCESS ) {
+			fieldVal += (char*)buf;
+			break;
+		    } else
+			fieldVal += (char*)buf;
+		}
+	    } else {
+		fieldVal += QString::null;
+		break;
+	    }
+	}
+	delete buf;
+    } else {
+	SQLCHAR* buf = new SQLCHAR[ colSize ];
+	while ( TRUE ) {
+	    r = SQLGetData( hStmt,
+			    column+1,
+			    SQL_C_CHAR,
+			    (SQLPOINTER)buf,
+			    sizeof(buf),
+			    &lengthIndicator );
+	    if ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) {
+		if ( lengthIndicator == SQL_NO_TOTAL )
+		    fieldVal += QString( (char*)buf );  // keep going
+		else if ( lengthIndicator == SQL_NULL_DATA ) {
+		    fieldVal = QString::null;
+		    isNull = TRUE;
+		    break;
+		} else {
+		    if ( r == SQL_SUCCESS ) {
+			fieldVal += QString( (char*)buf );
+			break;
+		    } else
+			fieldVal += QString( (char*)buf );
+		}
+	    } else {
+		fieldVal += QString::null;
+		break;
+	    }
+	}
+	delete buf;
+    }
+#else
+    SQLCHAR* buf = new SQLTCHAR[ colSize ];
     while ( TRUE ) {
 	r = SQLGetData( hStmt,
 			column+1,
@@ -248,6 +331,7 @@ QString qGetStringData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndicator
 	}
     }
     delete buf;
+#endif
     return fieldVal;
 }
 
@@ -701,10 +785,10 @@ bool QODBCDriver::open( const QString & db,
         return FALSE;
     }
     QString connQStr = "DSN=" + db + ";UID=" + user + ";PWD=" + password + ";";
-    SQLCHAR connOut[255];
     SWORD       cb;
 #if defined(_OS_WIN32_)
-    if ( qApp->winVersion() & Qt::WV_NT_based )
+    if ( qApp->winVersion() & Qt::WV_NT_based ) {
+	SQLTCHAR connOut[255];
 	r = SQLDriverConnect( d->hDbc,
 				NULL,
 				(SQLTCHAR*)qt_winTchar(connQStr, TRUE),
@@ -713,7 +797,8 @@ bool QODBCDriver::open( const QString & db,
 				255,
 				&cb,
 				SQL_DRIVER_NOPROMPT);
-    else
+    } else {
+	SQLCHAR connOut[255];
 	r = SQLDriverConnectA( d->hDbc,
 				NULL,
 				(SQLCHAR*)connQStr.local8Bit().data(),
@@ -722,7 +807,9 @@ bool QODBCDriver::open( const QString & db,
 				255,
 				&cb,
 				SQL_DRIVER_NOPROMPT);
+    }
 #else
+    SQLCHAR connOut[255];
     r = SQLDriverConnect( d->hDbc,
 			    NULL,
 			    (SQLCHAR*)connQStr.local8Bit().data(),
