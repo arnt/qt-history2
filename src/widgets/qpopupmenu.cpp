@@ -212,6 +212,8 @@ static bool preventAnimation = FALSE;
   This signal is emitted just before the popup menu is hidden after it
   has been displayed.
 
+  \warning Do not open a widget in a slot connected to this signal.
+
   \sa aboutToShow(), setItemEnabled(), setItemChecked(), insertItem(), removeItem()
 */
 
