@@ -4235,7 +4235,7 @@ QColor QTextEdit::color() const
 
     Returns QScrollView::font()
 
-    \warning In previous versions This function returned the font of
+    \warning In previous versions this function returned the font of
     the current format. This lead to confusion. Please use
     currentFont() instead.
 */
