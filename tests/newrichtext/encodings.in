@@ -31,10 +31,10 @@ iso10646-1 0 Arabic
 iso8859-8 85 Hebrew
 #
 # China, Mainland
-gb18030-0 -114 Han_SimplifiedChinese,Bopomofo
-gb18030.2000-0 -113 Han_SimplifiedChinese
-gbk-0 -113 Han_SimplifiedChinese
-gb2312.*-0 57 Han_SimplifiedChinese
+gb18030-0 -114 Han,Han_SimplifiedChinese,Bopomofo
+gb18030.2000-0 -113 Han,Han_SimplifiedChinese
+gbk-0 -113 Han,Han_SimplifiedChinese
+gb2312.*-0 57 Han,Han_SimplifiedChinese
 #
 # Japan
 jisx0201*-0 15 KatakanaHalfWidth
