@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: $
+** $Id: //depot/qt/main/doc/sql.doc#1 $
 **
 ** Documentation for sql programming
 **
@@ -33,16 +33,86 @@
 **
 **********************************************************************/
 
-#if defined(DEBUG)
-static char ident[] = "$Id: $";
-#endif
-
-
 /*! \page sql.html
 
 \title Qt SQL Module
 
-The SQL module provides access to SQL databases.
+The Qt SQL module provides classes to access SQL databases in a
+uniform way across different platforms and across different SQL
+database servers.  There are several sets of classes which handle
+database connections, SQL queries and results, SQL database objects
+such as tables, views, fields and indexes, and classes which help
+display data from SQL databases in GUI classes such as QLineEdit,
+QComboBox, etc.
+
+Connections to SQL database servers at a low level are handled by the
+QSqlDriver and QSqlResult abstract classes.  These classes provide an
+interface for database-specific derived classes to implement the
+actual connections to specific SQL servers.  All low-level interaction
+with the SQL servers is handled by these database-specific drivers.
+
+At a higher level, QSqlQuery and QSqlCursor provide funcitonality to
+send SQL queries (INSERT, UPDATE, DELETE, etc.) to a database and to
+return results (i.e., data) from those queries.  QSqlField, QSqlRecord
+and QSqlIndex are helper classes which represent SQL fields, records
+and indexes respectively.
+
+QSqlTable and QSqlForm display data from SQL databases.  There are
+also helper classes such as QSqlPropertyMap and QSqlEditorFactory
+which help 'glue' together the GUI and the SQL database in your
+applications.
+
+<h2>Connecting to the database</h2>
+
+<h2>Queries</h2>
+
+Once a connection to a SQL database has been established, it is very
+straightforward to begin using the Qt SQL classes.  For example,
+updating a record in e.g. the 'Employee' table can be done with the
+following code:
+
+\code 
+    QSqlQuery q;
+    q.exec( "update Employee set name='Dave' where id=1" );
+\endcode
+
+You can also query the database for information about the database
+objects (e.g., tables, views, indexes, fields ) that it contains:
+
+\code
+    QSqlDatabase* db = QSqlDatabase::database();
+    QSqlIndex pri = db->primaryIndex( "Employee" );
+\endcode
+
+You can also perform operations on tables or views within the database
+as a whole.  For example, to perform some operation on each Employee
+that is in department #10:
+
+\code
+    QSqlCursor emp( "Employee" );
+    emp.select( "dept=10" );
+    while( emp.next() ) {
+        processEmployee( emp.updateBuffer() );
+        emp.update();
+    }
+\endcode
+
+By default, when you create queries or cursors, the default database
+connection is used.  To specify a different database connection, pass
+a pointer to the desired QSqlDatabase which should be used.  For
+example:
+
+\code
+    QSqlDatabase* alternateDb = QSqlDatabase::database( "alternate" );
+    QSqlQuery q;
+    q.exec( "update Employee set name='Trond' where id=2", alternateDb );
+\endcode
+
+<h2>Database Objects</h2>
+
+<h2>GUI Components</h2>
+
+<h2>Drivers</h2>
 
 */
 
