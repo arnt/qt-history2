@@ -199,7 +199,7 @@ struct {
     },
     { "Hindi",
       QString::fromUtf8(
-	  "            यूनिकोड प्रत्येक अक्षर के लिए एक विशेष नम्बर             प्रदान करता है,             चाहे कोई भी प्लैटफॉर्म हो.")
+	  "यूनिकोड प्रत्येक अक्षर के लिए एक विशेष नम्बर प्रदान करता है, चाहे कोई भी प्लैटफॉर्म हो.")
     }
 };
 
@@ -258,7 +258,7 @@ static void timeSpeed()
 	const QChar *qch = str.unicode();
 	const QChar *ch = qch + str.length();
 	while ( ch-- > qch )
-	    fm.width( *qch );
+	    fm.width( *ch );
     } );
 
 #if QT_VERSION >= 300
