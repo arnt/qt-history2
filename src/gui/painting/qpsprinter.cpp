@@ -5583,7 +5583,7 @@ static void ignoreSigPipe(bool b)
     }
 }
 
-bool QPSPrinter::begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped)
+bool QPSPrinter::begin(QPaintDevice *pdev, QPainterState *state, bool unclipped)
 {
     d->pagesInBuffer = 0;
     d->buffer = new QBuffer();
@@ -5605,6 +5605,7 @@ bool QPSPrinter::begin(const QPaintDevice *pdev, QPainterState *state, bool uncl
 
     QPaintDeviceMetrics m( d->printer );
     d->scale = 72. / ((float) m.logicalDpiY());
+    setActive(true);
 
     return TRUE;
 }
@@ -5632,6 +5633,7 @@ bool QPSPrinter::end()
     d->fd = -1;
     delete d->outDevice;
     d->outDevice = 0;
+    setActive(false);
 
     return true;
 }

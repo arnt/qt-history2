@@ -46,7 +46,7 @@ private:
     QPSPrinter( QPrinter *, int );
    ~QPSPrinter();
 
-    virtual bool begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped = FALSE);
+    virtual bool begin(QPaintDevice *pdev, QPainterState *state, bool unclipped = FALSE);
     virtual bool end();
 
     virtual void updatePen(QPainterState *ps);
