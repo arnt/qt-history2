@@ -44,7 +44,7 @@ static const char* default_pm[] = {
 };
 
 // Shift/Ctrl handling, and final drop status
-static QDrag::DragOperations drag_mode;
+static QDrag::DropAction drag_mode;
 static QDropEvent::Action global_requested_action = QDropEvent::Copy;
 static QDropEvent::Action global_accepted_action = QDropEvent::Copy;
 static QDragPrivate *drag_object;
@@ -230,10 +230,10 @@ bool QDragManager::eventFilter(QObject *o, QEvent *e)
     return false;
 }
 
-QDrag::DragOperation QDragManager::drag(QDragPrivate * o, QDrag::DragOperations mode)
+QDrag::DropAction QDragManager::drag(QDragPrivate * o, QDrag::DropAction mode)
 {
     if (object == o || !o || !o->source)
-         return QDrag::NoDrag;
+         return QDrag::NoAction;
     object = drag_object = o;
     qt_qws_dnd_deco = new QShapedPixmapWidget();
     oldstate = Qt::ButtonState(-1); // #### Should use state that caused the drag
@@ -246,7 +246,7 @@ QDrag::DragOperation QDragManager::drag(QDragPrivate * o, QDrag::DragOperations 
     restoreCursor = true;
     object->target = 0;
     qApp->installEventFilter(this);
-    return QDrag::DefaultDrag;
+    return QDrag::DefaultAction;
 }
 
 void QDragManager::updateMode(Qt::KeyboardModifiers newstate)
@@ -258,12 +258,12 @@ void QDragManager::updateMode(Qt::KeyboardModifiers newstate)
         global_requested_action = QDropEvent::Link;
     } else {
         bool local = drag_object != 0;
-        if (drag_mode == QDrag::MoveDrag)
+        if (drag_mode == QDrag::MoveAction)
             global_requested_action = QDropEvent::Move;
-        else if (drag_mode == QDrag::CopyDrag)
+        else if (drag_mode == QDrag::CopyAction)
             global_requested_action = QDropEvent::Copy;
-        else {
-            if (drag_mode == QDrag::DefaultDrag && local)
+        else {                  //
+            if (drag_mode == QDrag::DefaultAction && local) //
                 global_requested_action = QDropEvent::Move;
             else
                 global_requested_action = QDropEvent::Copy;

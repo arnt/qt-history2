@@ -1027,8 +1027,8 @@ bool QApplication::compressEvent(QEvent *event, QObject *receiver, QPostEventLis
 #ifdef Q_WS_QWS
             } else if (cur.event->type() == QEvent::QWSUpdate) {
                 QPaintEvent * p = static_cast<QPaintEvent*>(cur.event);
-                p->reg = p->reg.unite(((QPaintEvent *)event)->reg);
-                p->rec = p->rec.unite(((QPaintEvent *)event)->rec);
+                p->m_region = p->m_region.unite(((QPaintEvent *)event)->m_region);
+                p->m_rect = p->m_rect.unite(((QPaintEvent *)event)->m_rect);
 #endif
             } else if (cur.event->type() == QEvent::LanguageChange) {
                 ;
