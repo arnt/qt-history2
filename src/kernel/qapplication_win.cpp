@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#470 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#471 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1169,8 +1169,15 @@ static void drawTile( HDC hdc, int x, int y, int w, int h,
 	    drawW = pixmap->width() - xOff;	// Cropping first column
 	    if ( xPos + drawW > x + w )		// Cropping last column
 		drawW = x + w - xPos;
-	    BitBlt( hdc, xPos, yPos, drawW, drawH, pixmap->handle(),
-		    xOff, yOff, SRCCOPY );
+	    if ( pixmap->isMultiCellPixmap() ) {
+		BitBlt( hdc, xPos, yPos,
+			drawW, drawH, pixmap->multiCellHandle(),
+			xOff, yOff+pixmap->multiCellOffset(), SRCCOPY );
+	    } else {
+		BitBlt( hdc, xPos, yPos,
+			drawW, drawH, pixmap->handle(),
+			xOff, yOff, SRCCOPY );
+	    }
 	    xPos += drawW;
 	    xOff = 0;
 	}
@@ -1232,8 +1239,6 @@ void qt_draw_tiled_pixmap( HDC hdc, int x, int y, int w, int h,
 	    qt_fill_tile( tile, *bg_pixmap );
 	    pm = tile;
 	} else {
-	    if ( bg_pixmap->isMultiCellPixmap() )
-		off_y += bg_pixmap->multiCellOffset();
 	    pm = (QPixmap*)bg_pixmap;
 	}
 	drawTile( hdc, x, y, w, h, pm, off_x, off_y );
