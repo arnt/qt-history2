@@ -358,7 +358,7 @@ template <typename T>
 Q_INLINE_TEMPLATE void QList<T>::setAutoDelete(bool enable)
 {
     Q_ASSERT_X(QTypeInfo<T>::isPointer,
-		 "QList<T>::setAutoDelete", "Cannot delete non pointer types");
+		 "QList<T>::setAutoDelete", "Cannot delete non-pointer types");
     detach();
     d->autoDelete = enable ? this : 0;
 }

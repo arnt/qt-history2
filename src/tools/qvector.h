@@ -64,6 +64,7 @@ public:
     T &operator[](int i);
     const T &operator[](int i) const;
     void append(const T &t);
+    void prepend(const T &t);
     void insert(int i, const T &t);
     void replace(int i, const T &t);
 
@@ -112,9 +113,10 @@ public:
     typedef Iterator iterator;
     typedef ConstIterator const_iterator;
     typedef int size_type;
-    inline void push_back(const T &t)
-    { append(t); }
+    inline void push_back(const T &t) { append(t); }
+    inline void push_front(const T &t) { prepend(t); }
     void pop_back() { Q_ASSERT(!isEmpty()); erase(end()-1); }
+    void pop_front() { Q_ASSERT(!isEmpty()); erase(begin()); }
     inline bool empty() const
     { return d->size == 0; }
     inline T& front() { return first(); }
@@ -174,6 +176,9 @@ template <typename T>
 inline void QVector<T>::insert(int i, const T &t)
 { Q_ASSERT_X(i >= 0 && i <= d->size, "QVector<T>::insert", "index out of range");
   insert(begin()+i, 1, t); }
+template <typename T>
+inline void QVector<T>::prepend(const T &t)
+{ insert(begin(), 1, t); }
 template <typename T>
 inline void QVector<T>::replace(int i, const T &t)
 { Q_ASSERT_X(i >= 0 && i < d->size, "QVector<T>::replace", "index out of range");
