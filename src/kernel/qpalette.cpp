@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpalette.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qpalette.cpp#30 $
 **
 ** Implementation of QColorGroup and QPalette classes
 **
@@ -60,9 +60,6 @@
   <li>Highlight  (a color to indicate a selected or highlighted item)
   <li>HighlightedText  (a text color that contrasts to Highlight)
   </ol>
-
-  We have not seen any good, well-made and usable widgets that use more
-  than these eight color roles.
 
   A QPalette contains three color groups.
 
