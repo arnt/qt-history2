@@ -15,21 +15,20 @@
 #include "qsplitter.h"
 #ifndef QT_NO_SPLITTER
 
-#include "qevent.h"
-#include "qlayout.h"
-#include "private/qlayoutengine_p.h"
 #include "qapplication.h"
 #include "qcursor.h"
-#include "qbitmap.h"
 #include "qdrawutil.h"
-#include "qvector.h"
-#include "qpainter.h"
-#include "qstyle.h"
+#include "qevent.h"
+#include "qlayout.h"
 #include "qlist.h"
+#include "qpainter.h"
 #include "qrubberband.h"
+#include "qstyle.h"
+#include "qstyleoption.h"
 #include "qtextstream.h"
-
-#include "qsplitter_p.h"
+#include "qvector.h"
+#include "private/qlayoutengine_p.h"
+#include "private/qsplitter_p.h"
 #define d d_func()
 #define q q_func()
 
@@ -89,9 +88,14 @@ QSplitterHandle::QSplitterHandle(Orientation o, QSplitter *parent,
 QSize QSplitterHandle::sizeHint() const
 {
     int hw = s->handleWidth();
-    return parentWidget()->style().sizeFromContents(QStyle::CT_Splitter, s,
-                                                     QSize(hw, hw))
-                                  .expandedTo(QApplication::globalStrut());
+    Q4StyleOptionFrame opt(0);
+    opt.rect = s->rect();
+    opt.palette = s->palette();
+    opt.state = QStyle::Style_Default;
+    opt.lineWidth = 0;
+    return parentWidget()->style().sizeFromContents(QStyle::CT_Splitter, &opt, QSize(hw, hw),
+                                                    s->fontMetrics(), s)
+                                                    .expandedTo(QApplication::globalStrut());
 }
 
 void QSplitterHandle::setOrientation(Orientation o)
@@ -134,10 +138,15 @@ void QSplitterHandle::mouseReleaseEvent(QMouseEvent *e)
 void QSplitterHandle::paintEvent(QPaintEvent *)
 {
     QPainter p(this);
-    parentWidget()->style().drawPrimitive(QStyle::PE_Splitter, &p, rect(),
-                                           palette(),
-                                           (orientation() == Horizontal ?
-                                            QStyle::Style_Horizontal : 0));
+    Q4StyleOptionFrame opt(0);
+    opt.rect = rect();
+    opt.palette = palette();
+    if (orientation() == Horizontal)
+        opt.state = QStyle::Style_Horizontal;
+    else
+        opt.state = QStyle::Style_Default;
+    opt.lineWidth = 0;
+    parentWidget()->style().drawPrimitive(QStyle::PE_Splitter, &opt, &p, s);
 }
 
 class QSplitterLayoutStruct : public Qt
@@ -511,25 +520,6 @@ bool QSplitter::event(QEvent *e)
         ;
     }
     return QWidget::event(e);
-}
-
-
-/*!
-  \obsolete
-
-  Draws the splitter handle in the rectangle described by \a x, \a y,
-  \a w, \a h using painter \a p.
-  \sa QStyle::drawPrimitive()
-*/
-
-// ### Remove this in 4.0
-
-void QSplitter::drawSplitter(QPainter *p,
-                              QCOORD x, QCOORD y, QCOORD w, QCOORD h)
-{
-    style().drawPrimitive(QStyle::PE_Splitter, p, QRect(x, y, w, h), palette(),
-                          (orientation() == Horizontal ?
-                           QStyle::Style_Horizontal : 0));
 }
 
 

@@ -2436,6 +2436,26 @@ void QWindowsStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt,
             }
         }
         break;
+    case PE_Splitter: {
+        QRect r = opt->rect;
+        QPen oldPen = p->pen();
+        p->setPen(opt->palette.light());
+        if (opt->state & Style_Horizontal) {
+            p->drawLine(opt->rect.x() + 1, opt->rect.y(), opt->rect.x() + 1, opt->rect.height());
+            p->setPen(opt->palette.dark());
+            p->drawLine(opt->rect.x(), r.y(), r.x(), r.height());
+            p->drawLine(opt->rect.right()-1, r.y(), r.right()-1, r.height());
+            p->setPen(opt->palette.shadow());
+            p->drawLine(opt->rect.right(), r.y(), r.right(), r.height());
+        } else {
+            p->drawLine(opt->rect.x(), r.y() + 1, r.width(), r.y() + 1);
+            p->setPen(opt->palette.dark());
+            p->drawLine(opt->rect.x(), r.bottom() - 1, r.width(), r.bottom() - 1);
+            p->setPen(opt->palette.shadow());
+            p->drawLine(opt->rect.x(), r.bottom(), r.width(), r.bottom());
+        }
+        p->setPen(oldPen);
+        break; }
     default:
         QCommonStyle::drawPrimitive(pe, opt, p, w);
     }

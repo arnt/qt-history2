@@ -79,8 +79,6 @@ protected:
     int idAfter(QWidget*) const;
 
     void moveSplitter(QCOORD pos, int id);
-    virtual void drawSplitter(QPainter*, QCOORD x, QCOORD y,
-                               QCOORD w, QCOORD h);
     void changeEvent(QEvent *);
     int adjustPos(int, int);
     virtual void setRubberband(int);

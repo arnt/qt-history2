@@ -90,7 +90,7 @@ static inline const QRect qrectForHIRect(const HIRect &hirect)
                  QSize(int(hirect.size.width), int(hirect.size.height)));
 }
 
-inline static bool qt_mac_is_metal(QWidget *w)
+inline static bool qt_mac_is_metal(const QWidget *w)
 {
     for (; w; w = w->parentWidget()) {
         if (w->testAttribute(QWidget::WA_MacMetalStyle))
@@ -1738,6 +1738,16 @@ void QMacStyleCG::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, Q
     case PE_FocusRect:
         // Use the our own focus widget stuff.
         break;
+    case PE_Splitter: {
+        HIThemeSplitterDrawInfo sdi;
+        sdi.version = qt_mac_hitheme_version;
+        sdi.state = tds;
+        sdi.adornment = qt_mac_is_metal(w) ? kHIThemeSplitterAdornmentMetal
+                                           : kHIThemeSplitterAdornmentNone;
+        HIRect hirect = qt_hirectForQRect(opt->rect, p);
+        HIThemeDrawPaneSplitter(&hirect, &sdi, static_cast<CGContextRef>(p->handle()),
+                                kHIThemeOrientationNormal);
+        break; }
     default:
         QWindowsStyle::drawPrimitive(pe, opt, p, w);
     }
