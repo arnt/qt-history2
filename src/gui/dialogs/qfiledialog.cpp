@@ -1341,7 +1341,12 @@ void QFileDialogPrivate::setup()
     lookIn->setDuplicatesEnabled(false);
     lookIn->setEditable(true);
     lookIn->setAutoCompletion(false);
-    lookIn->insertItem(QDir::root().absolutePath());
+    for (int r = 0; r < model->rowCount(QModelIndex()); ++r) {
+        QModelIndex index = model->index(r, 0, QModelIndex()); 
+        QString path = model->path(index);
+        QIconSet icons = model->icons(index);
+        lookIn->insertItem(icons, path);
+    }
     QObject::connect(lookIn, SIGNAL(activated(const QString&)),
                      q, SLOT(setCurrentDir(const QString&)));
     grid->addWidget(d->lookIn, 0, 1, 1, 3);
@@ -1425,11 +1430,12 @@ void QFileDialogPrivate::updateButtons(const QModelIndex &index)
     toParent->setEnabled(index.isValid());
     back->setEnabled(history.count() > 0);
     QString pth = d->model->path(index);
+    QIconSet icn = d->model->icons(index);
     int i = lookIn->findItem(pth, QAbstractItemModel::Match_Exactly);
     if (i > -1) {
         lookIn->setCurrentItem(i);
     } else {
-        lookIn->insertItem(pth);
+        lookIn->insertItem(icn, pth);
         lookIn->setCurrentItem(lookIn->count() - 1);
     }
 }

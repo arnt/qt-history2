@@ -157,6 +157,34 @@ static const char * const link_file_xpm[]={
     ".ddddcaaahaac###",
     "ccccccccccccc###"};
 
+/* XPM */
+static char * disk_xpm[] = {
+"16 16 7 1",
+". c #000000",
+"a c #008000",
+"h c #808080",
+"g c #c0c0c0",
+"b c #00ff00",
+"f c #ffffff",
+"# c None",
+"################",
+"################",
+"################",
+"################",
+"##hhhhhhhhhhhhh#",
+"#hggggggggggggh.",
+"hffffffffffffgh.",
+"hgggggggggbaggh.",
+"hgggggggggggggh.",
+"hghhhhhhhhhhggh.",
+"hgffffffffffggh.",
+"hhhhhhhhhhhhhh.#",
+"#.............##",
+"################",
+"################",
+"################"};
+
+
 static bool qt_copy_file(const QString &from, const QString &to)
 {
     QFile src(from);
@@ -212,6 +240,9 @@ QFileIconProvider::QFileIconProvider()
     dir.setPixmap(openPixmap, QIconSet::Small, QIconSet::Normal, QIconSet::On);
     dir.setPixmap(closedPixmap, QIconSet::Small, QIconSet::Normal, QIconSet::Off);
 
+    QPixmap diskPixmap(disk_xpm);
+    disk.setPixmap(diskPixmap, QIconSet::Small);
+
     QPixmap linkFilePixmap(link_file_xpm);
     linkFile.setPixmap(linkFilePixmap, QIconSet::Small);
 
@@ -233,11 +264,15 @@ QFileIconProvider::~QFileIconProvider()
   Returns an icon set for the file described by \a fileInfo.
 */
 
-QIconSet QFileIconProvider::icons(const QFileInfo &fileInfo) const
+QIconSet QFileIconProvider::icons(const QFileInfo &info) const
 {
-    if (fileInfo.isDir())
-        return fileInfo.isSymLink() ? linkDir : dir;
-   return fileInfo.isSymLink() ? linkFile : file;
+//     if (info.isDrive())
+//         return disk;
+    if (info.isFile())
+        return info.isSymLink() ? linkFile : file;
+    if (info.isDir())
+        return info.isSymLink() ? linkDir : dir;
+    return QIconSet();
 }
 
 /*!
@@ -246,7 +281,13 @@ QIconSet QFileIconProvider::icons(const QFileInfo &fileInfo) const
 
 QString QFileIconProvider::type(const QFileInfo &info) const
 {
-    return info.isDir() ? "Directory" : info.suffix() + " File";
+//     if (info.isDrive())
+//         return "Disk";
+    if (info.isFile())
+        return info.suffix() + " File";
+    if (info.isDir())
+        return "Directory";
+    return "Unknown";
 }
 
 class QDirModelPrivate : public QAbstractItemModelPrivate
@@ -995,6 +1036,20 @@ QString QDirModel::name(const QModelIndex &index) const
         return QString::null;
     }
     return fileInfo(index).fileName();
+}
+
+/*!
+  Returns the iconset for the item stored in the model under the
+  \a index given.
+*/
+
+QIconSet QDirModel::icons(const QModelIndex &index) const
+{
+    if (!index.isValid()) {
+        qWarning("icons: the index is invalid");
+        return QIconSet();
+    }
+    return d->iconProvider->icons(fileInfo(index));
 }
 
 /*!

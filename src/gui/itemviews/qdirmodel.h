@@ -29,6 +29,7 @@ public:
 protected:
     QIconSet file;
     QIconSet dir;
+    QIconSet disk;
     QIconSet linkFile;
     QIconSet linkDir;
 };
@@ -85,6 +86,7 @@ public:
     QModelIndex index(const QString &path) const;
     QString path(const QModelIndex &index) const;
     QString name(const QModelIndex &index) const;
+    QIconSet icons(const QModelIndex &index) const;
     QFileInfo fileInfo(const QModelIndex &index) const;
 
     bool isDir(const QModelIndex &index) const;
