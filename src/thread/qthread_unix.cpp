@@ -339,7 +339,12 @@ void QThread::start(Priority priority)
 #endif // _POSIX_THREAD_PRIORITY_SCHEDULING
 
     if (d->stacksize > 0) {
+#if _POSIX_THREAD_ATTR_STACKSIZE-0 > 0
 	ret = pthread_attr_setstacksize(&attr, d->stacksize);
+#else
+	ret = ENOSYS; // stack size not supported, automatically fail
+#endif // _POSIX_THREAD_ATTR_STACKSIZE
+
 	if (ret) {
 #ifdef QT_CHECK_STATE
 	    qWarning("QThread::start: thread stack size error: %s", strerror(ret)) ;
@@ -352,6 +357,7 @@ void QThread::start(Priority priority)
 	    return;
 	}
     }
+
     d->args[0] = this;
     d->args[1] = d;
     ret = pthread_create(&d->thread_id, &attr, (QtThreadCallback)QThreadInstance::start, d->args);
