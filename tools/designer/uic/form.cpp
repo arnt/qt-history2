@@ -426,9 +426,9 @@ void Uic::createFormDecl( const QDomElement &e )
 	QString type = *it2;
 	if ( type.isEmpty() )
 	    type = "void";
-	if ( *it3 != "nonVirtual" )
+	if ( *it3 != "non virtual" && *it3 != "nonVirtual" )
 	    specifier = "virtual ";
-	if ( *it3 == "pureVirtual" )
+	if ( *it3 == "pure virtual" || *it3 == "pureVirtual" )
 	    pure = " = 0";
 	QString fname = Parser::cleanArgs( *it );
 	QMap<QString, QString>::Iterator fit = functionImpls.find( fname );
@@ -456,9 +456,9 @@ void Uic::createFormDecl( const QDomElement &e )
 	    QString type = *it2;
 	    if ( type.isEmpty() )
 		type = "void";
-	    if ( *it3 != "nonVirtual" )
+	    if ( *it3 != "non virtual" && *it3 != "nonVirtual" )
 		specifier = "virtual ";
-	    if ( *it3 == "pureVirtual" )
+	    if ( *it3 == "pure virtual" || *it3 == "pureVirtual" )
 		pure = " = 0";
 	    QString fname = Parser::cleanArgs( *it );
 	    QMap<QString, QString>::Iterator fit = functionImpls.find( fname );
@@ -484,9 +484,9 @@ void Uic::createFormDecl( const QDomElement &e )
 	    QString type = *it2;
 	    if ( type.isEmpty() )
 		type = "void";
-	    if ( *it3 != "nonVirtual" )
+	    if ( *it3 != "non virtual" && *it3 != "nonVirtual" )
 		specifier = "virtual ";
-	    if ( *it3 == "pureVirtual" )
+	    if ( *it3 == "pure virtual" || *it3 == "pureVirtual" )
 		pure = " = 0";
 	    QString fname = Parser::cleanArgs( *it );
 	    QMap<QString, QString>::Iterator fit = functionImpls.find( fname );
