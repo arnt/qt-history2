@@ -1,26 +1,9 @@
 /****************************************************************************
 ** $Id: //depot/qt/main/src/%s#3 $
 **
-** Definition of ________ class.
-**
 ** Created : 970521
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
-**
-** This file is part of the network module of the Qt GUI Toolkit.
-**
-** This file may be distributed under the terms of the Q Public License
-** as defined by Trolltech AS of Norway and appearing in the file
-** LICENSE.QPL included in the packaging of this file.
-**
-** This file may be distributed and/or modified under the terms of the
-** GNU General Public License version 2 as published by the Free Software
-** Foundation and appearing in the file LICENSE.GPL included in the
-** packaging of this file.
-**
-** Licensees holding valid Qt Enterprise Edition licenses may use this
-** file in accordance with the Qt Commercial License Agreement provided
-** with the Software.
 **
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
@@ -422,6 +405,35 @@ QGfxPS2::fillRect(int x,int y, int w, int h)
     if(!ncliprect)
 	return;
 
+    if((cbrush.style()!=QBrush::NoBrush) && patternedbrush) {
+	srcwidth=cbrushpixmap->width();
+	srcheight=cbrushpixmap->height();
+	if(cbrushpixmap->depth()==1) {
+	    if(opaque) {
+		setSource(cbrushpixmap);
+		setAlphaType(IgnoreAlpha);
+		useBrush();
+		srcclut[0]=pixel;
+		QBrush tmp=cbrush;
+		cbrush=QBrush(backcolor);
+		useBrush();
+		srcclut[1]=pixel;
+		cbrush=tmp;
+	    } else {
+		useBrush();
+		srccol=pixel;
+		srctype=SourcePen;
+		setAlphaType(LittleEndianMask);
+		setAlphaSource(cbrushpixmap->scanLine(0), cbrushpixmap->bytesPerLine());
+	    }
+	} else {
+	    setSource(cbrushpixmap);
+	    setAlphaType(IgnoreAlpha);
+	}
+	tiledBlt(x, y, w, h);
+	return;
+    }
+
     x += xoffs;
     y += yoffs;
 
@@ -442,8 +454,10 @@ QGfxPS2::fillRect(int x,int y, int w, int h)
 
 	gsosMakeGiftag( 2, GSOS_GIF_EOP_TERMINATE, GSOS_GIF_PRE_IGNORE, 0,
 			GSOS_GIF_FLG_PACKED, 2, (GSOS_GIF_REG_XYZ2<<4) | (GSOS_GIF_REG_RGBAQ));
+
 	gsosSetPacket4( qRed(rgb), qGreen(rgb), qBlue(rgb), qAlpha(rgb) );
 	gsosSetPacket4(GSOS_SUBPIX_OFST(x), GSOS_SUBPIX_OFST(y),0,0);
+
 	gsosSetPacket4( qRed(rgb), qGreen(rgb), qBlue(rgb), qAlpha(rgb) );
 	gsosSetPacket4(GSOS_SUBPIX_OFST((x+w)), GSOS_SUBPIX_OFST((y+h)),0,0);
 
@@ -569,6 +583,21 @@ QGfxPS2::mapSourceToTexture(int x, int y, int w, int h)
 	switch(srcdepth)
 	{
 	default:
+	    fprintf(stderr, "Woops, forgot a bitdepth in mapSourceToTexture\n");
+	    break;
+	case 1:
+	    tex_psm = 0;
+	    bits = (uchar *)malloc(aligned_width*tex_height*4);
+	    for(int yi = 0; yi < tex_height; yi++) {
+		uint *bitsline = (uint *)(bits + (aligned_width * yi * 4));
+		int sy = yi * (srcwidth/8);
+		for(int xi = 0; xi < tex_width; xi++) {
+		    if(src_little_endian)
+			*(bitsline+xi) = srcclut[*(srcbits + (sy + (xi / 8))) >> (xi % 8) & 0x01];
+		    else
+			*(bitsline+xi) = srcclut[*(srcbits + (sy + (xi / 8))) >> (7 - (xi % 8)) & 0x01];
+		}
+	    }
 	    break;
 	case 8:
 	    tex_psm = 0;
@@ -576,14 +605,15 @@ QGfxPS2::mapSourceToTexture(int x, int y, int w, int h)
 	    for (int i=0; i<tex_height; i++ ) {
 		register uint *p = (uint *)(bits + ((aligned_width * i) * 4));
 		uchar  *b = (srcbits + (srcwidth * (y + i)));
-		uint *end = p + (width * 4);
-		while ( p < end )
+		uint *end = p + tex_width;
+		while (p < end)
 		    *p++ = srcclut[(*b++)];
 	    }
 	    break;
 	case 16:
 	    tex_psm = 2;
 	    bits = (uchar *)malloc(aligned_width*tex_height*2);
+	    /* fall through */
 	case 32:
 	    if(!bits) {
 		bits = (uchar *)malloc(aligned_width*tex_height*4);
@@ -594,6 +624,7 @@ QGfxPS2::mapSourceToTexture(int x, int y, int w, int h)
 	    for(int i = 0; i < tex_height; i++)
 		memcpy(bits + ((aligned_width * i)*colsize),
 		       srcbits + (((srcwidth * (y + i)) + x)*colsize), tex_width * colsize);
+	    break;
 	}
     } 
 
@@ -603,38 +634,50 @@ QGfxPS2::mapSourceToTexture(int x, int y, int w, int h)
     }
 
     /* take care of the alpha */
-    if(tex_psm == 0) {
-	if(alphatype != IgnoreAlpha) {
-	    unsigned int rgb;
-	    unsigned char alpha_channel;
-	    if(srctype == SourcePen) {
-		usePen();
-		alpha_channel = 255;
-		rgb = (0x00FFFFFF) & cpen.color().rgb();
-	    }
+    if(!tex_psm) { //need to add support for non rgba alpha blending FIXME!
+	unsigned int rgb;
+	unsigned char alpha_channel;
+	if(srctype == SourcePen) {
+	    usePen();
+	    alpha_channel = 255;
+	    rgb = (0x00FFFFFF) & cpen.color().rgb();
+	}
 
-	    unsigned int *out = (unsigned int *)bits;
-	    for(int y = 0; y < tex_height; y++) {
-		int dy = (y * aligned_width);
-		int sy = (y * alphalinestep);
-		for(int x = 0; x < tex_width; x++) {
-		    if(srctype == SourceImage) {
-			alpha_channel = (out[dy+x] >> 24) & 0xFF;
-			rgb = (0x00FFFFFF) & out[dy+x];
-		    }
-		    if(alphatype ==  LittleEndianMask || alphatype == BigEndianMask) {
-			char a = alphabits[sy + (x / 8)];
-			if(alphatype == LittleEndianMask) 
-			    a = a >> (x % 8);
-			else
-			    a = a >> (7 - (x % 8));
-			out[dy+x] = ((a & 0x01) ? 0x80000000 : 0) | rgb;
-		    }	
-		    else if(alphatype == SeparateAlpha)
-			out[dy+x] = ((alphabits[sy+x]/2) << 24) | rgb;
-		    else
-			out[dy+x] = (alpha_channel / 2) << 24 | rgb;
+	unsigned int *out = (unsigned int *)bits;
+	for(int y = 0; y < tex_height; y++) {
+	    int dy = (y * aligned_width);
+	    int sy = (y * alphalinestep);
+	    for(int x = 0; x < tex_width; x++) {
+		if(srctype == SourceImage) {
+		    alpha_channel = (out[dy+x] >> 24) & 0xFF;
+		    rgb = (0x00FFFFFF) & out[dy+x];
 		}
+
+		switch(alphatype) {
+		case LittleEndianMask:
+		case BigEndianMask:
+		{
+		    char a = alphabits[sy + (x / 8)];
+		    if(alphatype == LittleEndianMask) 
+			a = a >> (x % 8);
+		    else
+			a = a >> (7 - (x % 8));
+		    alpha_channel = ((a & 0x01) ? 0xFF : 0x00);
+		    break;
+		}	
+		case SeparateAlpha:
+		    alpha_channel = alphabits[sy+x];
+		    break;
+		case SolidAlpha:
+		    //not sure what this one means..
+
+		case InlineAlpha: /* do nothing for these */
+		case IgnoreAlpha:
+		    break;
+		// do not add a default case so the compiler whines when new alphas are added!
+		}
+		out[dy+x] = ((alpha_channel / 2) << 24) | //divide by two because GS says 0x80 is 1.0
+			    ((rgb << 16) & 0x00ff0000) | (rgb & 0x0000ff00) | ((rgb >> 16) & 0xff); //swap bloody RGB!!!
 	    }
 	}
     }
@@ -656,15 +699,21 @@ QGfxPS2::bltTexture(int x, int y, int clp, int w, int h)
     if(h == -1)
 	h = tex_height;
 
-    bool do_alpha = (alphatype != IgnoreAlpha);
-    gsosMakeGiftag( 6, GSOS_GIF_EOP_CONTINUE, GSOS_GIF_PRE_IGNORE,
-		    0, GSOS_GIF_FLG_PACKED, 1, GSOS_GIF_REG_AD );
+    gsosMakeGiftag( 6, GSOS_GIF_EOP_CONTINUE, GSOS_GIF_PRE_IGNORE, 0, GSOS_GIF_FLG_PACKED, 1, GSOS_GIF_REG_AD );
 
+    //do alpha blending
+    bool do_alpha = (alphatype != IgnoreAlpha);
     gsosSetPacketAddrData(GSOS_ALPHA_1, GsosAlphaData(0, 1, 0, 1, 0));
     gsosSetPacketAddrData(GSOS_TEST_1, GsosTestData( do_alpha, 7, 0, 0, 0, 0, 0, 0 ));
 
-    gsosSetPacketAddrData( GSOS_TEX0_1, GsosTex0Data(0x3000, (tex_width+63)/64, tex_psm, 10, 10,
+    //handle log() fu..
+    int nw = 0, nh = 0 ;
+    while((1<<nw) < tex_width) nw++;
+    while((1<<nh) < tex_height) nh++;
+    gsosSetPacketAddrData( GSOS_TEX0_1, GsosTex0Data(0x3000, (tex_width+63)/64, tex_psm, nw, nh,
 						     1, 1, 0, 0, 0, 0, 0 ));
+
+    //handle clips
     QRect clip;
     if(clp == -1)
 	clip = clipbounds;
@@ -672,9 +721,12 @@ QGfxPS2::bltTexture(int x, int y, int clp, int w, int h)
 	clip = cliprect[clp];
     gsosSetPacketAddrData4( GSOS_SCISSOR_1,(GSOSbit64)clip.topLeft().x(), (GSOSbit64)clip.bottomRight().x(),
 			    (GSOSbit64)clip.topLeft().y(), (GSOSbit64)clip.bottomRight().y() ) ;
+
+    //do it on a sprite..
     gsosSetPacketAddrData( GSOS_PRMODE, GsosPrmodeData( 0, 1, 0, do_alpha, 0, 1, 0, 0 ) ) ;
     gsosSetPacketAddrData( GSOS_PRIM, GSOS_PRIM_SPRITE ) ;
 
+    //draw it
     gsosMakeGiftag( 2, GSOS_GIF_EOP_TERMINATE, GSOS_GIF_PRE_IGNORE, 0, GSOS_GIF_FLG_PACKED, 
 		    2, (GSOS_GIF_REG_XYZ2<<4) | GSOS_GIF_REG_UV);
 
@@ -705,7 +757,7 @@ QGfxPS2::blt( int rx, int ry, int w, int h, int sx,int sy)
        the buffers wrapping at some point so I'm going to segment up blts
        into BLT_CHUNKxBLT_CHUNK image chunks..
     */
-#define     BLT_CHUNK 320 //should be a multiple of 64 for efficency in mapSourceToTexture
+#define     BLT_CHUNK 256 //should be a multiple of 64 for efficency in mapSourceToTexture
 #if defined(BLT_CHUNK)
     if(w > BLT_CHUNK || h > BLT_CHUNK) {
 	for(int wi = 0; wi < w; wi += BLT_CHUNK) {
@@ -734,6 +786,7 @@ QGfxPS2::blt( int rx, int ry, int w, int h, int sx,int sy)
 void
 QGfxPS2::stretchBlt( int rx, int ry, int w, int h, int sx, int sy)
 {
+    /* must write this function still.. */
 }
 #endif
 
@@ -748,7 +801,12 @@ QGfxPS2::tiledBlt( int rx, int ry, int w, int h)
 
     GFX_START(QRect(rx, ry, w+1, h+1));
 
-    if(mapSourceToTexture(0, 0, w, h)) {
+    /* I should probably do the chunking that I do in blt in some general function
+       and use it here, however tiledblt hasn't proved to be necesary since the tiles
+       have been small thus far..
+    */
+
+    if(mapSourceToTexture(0, 0, srcwidth, srcheight)) {
 	for(int clp = 0; clp < ncliprect; clp++)
 	    bltTexture(rx, ry, clp, w, h);
     }
@@ -756,6 +814,10 @@ QGfxPS2::tiledBlt( int rx, int ry, int w, int h)
     GFX_END;
 }
 
+/* This doesn't use textures for blts because screen->screen seemed right
+   If this seems to be a bad assumption I will come back and rewrite
+   this to use blt()
+*/
 void
 QGfxPS2::scroll( int rx, int ry, int w, int h,int sx, int sy)
 {
@@ -790,6 +852,7 @@ QGfxPS2::scroll( int rx, int ry, int w, int h,int sx, int sy)
     GFX_END;    
 }
 
+/* I should move these to qgfxraster.. */
 void QGfxPS2::setSource(const QPaintDevice * p)
 {
     QPaintDeviceMetrics qpdm(p);
@@ -865,6 +928,11 @@ QGfxPS2::buildSourceClut(QRgb * cols,int numcols)
 }
 
 #ifndef QT_NO_QWS_CURSOR
+/* I could probably collapse the blts in this chunk of code into some
+   single point and use it with the QGfxPS2 but I think right now I'd 
+   prefer to keep them separate, so when I break blt()'s in the qgfx fu
+   the cursor will still somewhat work.
+*/
 struct QPS2CursorData
 {
     SWCursorData d;
