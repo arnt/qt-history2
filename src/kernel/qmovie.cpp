@@ -325,22 +325,6 @@ void QMoviePrivate::updatePixmapFromImage(const QPoint& off,
     if (mypixmap.width() != gimg.width() || mypixmap.height() != gimg.height())
 	mypixmap.resize(gimg.width(), gimg.height());
 
-    if (bg.isValid()) {
-	QPainter p;
-	p.begin(&mypixmap);
-	p.fillRect(area, bg);
-	p.end();
-    } else {
-	if (gimg.hasAlphaBuffer()) {
-	    // Resize to size of image
-	    if (mymask.isNull()) {
-		mymask.resize(gimg.width(), gimg.height());
-		mymask.fill( Qt::color1 );
-	    }
-	}
-	mypixmap.setMask(QBitmap()); // Remove reference to my mask
-    }
-
     // Convert to pixmap and bitBlt that onto myself
     QPixmap lines;
 
@@ -356,8 +340,24 @@ void QMoviePrivate::updatePixmapFromImage(const QPoint& off,
         lines.convertFromImage( img );
     }
 
-    copyBlt( &mypixmap, area.left(), area.top(),
-	     &lines, off.x(), off.y(), area.width(), area.height() );
+    if (bg.isValid()) {
+	QPainter p;
+	p.begin(&mypixmap);
+	p.fillRect(area, bg);
+	p.drawPixmap(area, lines);
+	p.end();
+    } else {
+	if (gimg.hasAlphaBuffer()) {
+	    // Resize to size of image
+	    if (mymask.isNull()) {
+		mymask.resize(gimg.width(), gimg.height());
+		mymask.fill( Qt::color1 );
+	    }
+	}
+	mypixmap.setMask(QBitmap()); // Remove reference to my mask
+	copyBlt( &mypixmap, area.left(), area.top(),
+		 &lines, off.x(), off.y(), area.width(), area.height() );
+    }
 
 #ifdef Q_WS_QWS
     if(display_widget) {
