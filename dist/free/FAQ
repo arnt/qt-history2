@@ -1,26 +1,27 @@
                        Frequently Asked Questions
 
 
-1: Will Qt continue to be free? 
+1:  Will Qt continue to be free? 
+
     A: We will continue to release free versions for the X Window System,
        and they will be free for non-commercial purposes.
 
        Send a mail to sales@troll.no for more information.
 
-2: What kind of licenses exist for Qt? 
+2:  What kind of licenses exist for Qt? 
 
     A: The Qt toolkit is available under several licenses; the free license
        for X, a license for shareware developers for X and a fully-fledged
        commercial license.
 
-3: What are the differences between the free and commercial versions of Qt?
+3:  What are the differences between the free and commercial versions of Qt?
  
     A: You can write commercial software using the commercial license.
        The library itself is the same. You also get 1 year of free support
        when you buy a commercial license.
 
-4: Can I write software for internal use in my company/organization using
-   the free license?
+4:  Can I write software for internal use in my company/organization using
+    the free license?
 
     A: No, if you want to use the free license within an organization, your
        software must be intended for the free software community.  Your
@@ -28,38 +29,38 @@
        Troll Tech before starting to use it, you have to allow free
        distribution and you have to make your source code available.
 
-5: Can I write software under the GNU General Public License, GNU
-   General Library Public License or BSD licenses using the Qt free license? 
+5:  Can I write software under the GNU General Public License, GNU
+    General Library Public License or BSD licenses using the Qt free license? 
 
     A: Yes. 
 
-6: Really? Your additional requirements seem to conflict with the GPL.
+6:  Really? Your additional requirements seem to conflict with the GPL.
 
     A: Really yes. We require cooperation from you, in return you can use 
        Qt. We could have demanded money (actually, we do for the commercial
        licence) and still not have been in conflict with the GPL.
 
-7: I want to use Qt to develop free software on Windows. 
+7:  I want to use Qt to develop free software on Windows. 
 
     A: Qt is not free for Windows.  We do however sell commercial licenses. 
 
-8: When will 1.0 be released? 
+8:  When will 1.0 be released? 
 
     A: In a few weeks. It will be functionally identical to 0.99.
 
-9: I don't want to give away my source. What do I do? 
+9:  I don't want to give away my source. What do I do? 
 
     A: Then you need a shareware or commercial license. 
 
 10: Can I charge for my application? 
 
-   A: If you have a commercial license; of course. If you have a free
-      license your software must be freely distributable and you must
-      make the source available.
+    A: If you have a commercial license; of course. If you have a free
+       license your software must be freely distributable and you must
+       make the source available.
 
-      The free license is intended for _free_ software.  We realize that
-      CD-ROMs cost money to produce, for example, so you can charge a
-      copying fee.
+       The free license is intended for _free_ software.  We realize that
+       CD-ROMs cost money to produce, for example, so you can charge a
+       copying fee.
 
 11: Where can I find Qt?  
 
@@ -77,9 +78,9 @@
        company in 1993, but parts of Qt were written for earlier
        projects. The first line of code was written in 1992.
 
-      Most of our income comes from a contract with a beta customer; we
-      develop code based on Qt for the Norwegian division of NCR
-      (previously AT&T).
+       Most of our income comes from a contract with a beta customer; we
+       develop code based on Qt for the Norwegian division of NCR
+       (previously AT&T).
 
 13: Can I use Qt's classes without writing a graphical user interface?  
 
@@ -118,9 +119,9 @@
        you do change Qt, you may not distribute the modified toolkit or
        programs using it.
 
-      We encourage you to send patches to qt-bugs@troll.no.  We will try
-      to evaluate the patches and reply as soon as they come in.  If we
-      like what we see, we'll incorporate it in the next Qt release.
+       We encourage you to send patches to qt-bugs@troll.no.  We will try
+       to evaluate the patches and reply as soon as they come in.  If we
+       like what we see, we'll incorporate it in the next Qt release.
 
 19: How can I distribute my cool widget library? 
 
