@@ -3,77 +3,93 @@
 */
 
 /*! \typedef uchar
-    \relates <qglobal.h>
+    \relates <QtGlobal>
 */
 
 /*! \typedef ushort
-    \relates <qglobal.h>
+    \relates <QtGlobal>
 */
 
 /*! \typedef uint
-    \relates <qglobal.h>
+    \relates <QtGlobal>
 */
 
 /*! \typedef ulong
-    \relates <qglobal.h>
+    \relates <QtGlobal>
 */
 
 /*! \typedef pchar
-    \relates <qglobal.h>
+    \relates <QtGlobal>
 */
 
 /*! \typedef puchar
-    \relates <qglobal.h>
+    \relates <QtGlobal>
 */
 
 /*! \typedef pcchar
-    \relates <qglobal.h>
+    \relates <QtGlobal>
 */
 
-/*! \typedef Q_INT8
+/*! \typedef qint8
+    \relates <QtGlobal>
 */
 
-/*! \typedef Q_UINT8
+/*! \typedef quint8
+    \relates <QtGlobal>
 */
 
-/*! \typedef Q_INT16
+/*! \typedef qint16
+    \relates <QtGlobal>
 */
 
-/*! \typedef Q_UINT16
+/*! \typedef quint16
+    \relates <QtGlobal>
 */
 
-/*! \typedef Q_INT32
+/*! \typedef qint32
+    \relates <QtGlobal>
 */
 
-/*! \typedef Q_UINT32
+/*! \typedef quint32
+    \relates <QtGlobal>
 */
 
-/*! \typedef Q_LONG
+/*! \typedef qint64
+    \relates <QtGlobal>
 */
 
-/*! \typedef Q_ULONG
+/*! \typedef quint64
+    \relates <QtGlobal>
 */
 
-/*! \typedef Q_LONGLONG
+/*! \typedef qlonglong
+    \relates <QtGlobal>
 */
 
-/*! \typedef Q_ULONGLONG
+/*! \typedef qulonglong
+    \relates <QtGlobal>
 */
 
 /*! \macro Q_INT64_C(constant)
+    \relates <QtGlobal>
 */
 
 /*! \macro Q_UINT64_C(constant)
+    \relates <QtGlobal>
 */
 
 /*! \macro QABS(value)
+    \relates <QtGlobal>
 */
 
 /*! \fn int qRound(double d)
+    \relates <QtGlobal>
 */
 
 /*! \fn T qMin(T a, T b)
+    \relates <QtGlobal>
 */
 
 /*! \fn T qMax(T a, T b)
+    \relates <QtGlobal>
 */

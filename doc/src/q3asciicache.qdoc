@@ -360,7 +360,7 @@
 
     Sets the iterator to 0 and returns 0 if the cache is empty.
 
-    \sa toLast() isEmpty()
+    \sa toFirst() isEmpty()
 */
 
 /*!

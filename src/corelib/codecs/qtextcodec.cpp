@@ -716,6 +716,15 @@ QTextCodec* QTextCodec::codecForMib(int mib)
     return createForMib(mib);
 }
 
+/*!
+    Returns the list of all available codecs, by name. Call
+    QTextCodec::codecForName() to obtain the QTextCodec for the name.
+
+    The list may contain many mentions of the same codec
+    if the codec has aliases.
+
+    \sa availableMibs(), name(), aliases()
+*/
 QList<QByteArray> QTextCodec::availableCodecs()
 {
     setup();
@@ -738,6 +747,12 @@ QList<QByteArray> QTextCodec::availableCodecs()
     return codecs;
 }
 
+/*!
+    Returns the list of MIBs for all available codecs. Call
+    QTextCodec::codecForMib() to obtain the QTextCodec for the MIB.
+
+    \sa availableCodecs(), mibEnum()
+*/
 QList<int> QTextCodec::availableMibs()
 {
     setup();
@@ -1095,10 +1110,10 @@ QString QTextDecoder::toUnicode(const char* chars, int len)
 }
 
 /*!
-  Converts the bytes in the byte array specified by \a ba to Unicode
-  and returns the result.
+    \overload
 
-  \overload
+    Converts the bytes in the byte array specified by \a ba to Unicode
+    and returns the result.
 */
 QString QTextDecoder::toUnicode(const QByteArray &ba)
 {
@@ -1145,7 +1160,7 @@ QString QTextDecoder::toUnicode(const QByteArray &ba)
     files to be loaded. For details of internationalization, see
     \l{Internationalization with Qt}.
 
-    \sa codecForTr(), setCodecForTr(), setCodecForCStrings()
+    \sa codecForTr(), setCodecForCStrings()
 */
 
 
@@ -1175,7 +1190,7 @@ QString QTextDecoder::toUnicode(const QByteArray &ba)
     expressions. Use QString::fromLatin1() to preserve characters in
     the ASCII range when needed.
 
-    \sa codecForCStrings(), setCodecForTr(), setCodecForCStrings()
+    \sa codecForCStrings(), setCodecForTr()
 */
 
 #endif // QT_NO_TEXTCODEC

@@ -4161,7 +4161,7 @@ Q3PointArray Q3CanvasPolygon::areaPoints() const
 /*!
     Constructs a line from (0,0) to (0,0) on \a canvas.
 
-    \sa setPoints().
+    \sa setPoints()
 */
 Q3CanvasLine::Q3CanvasLine(Q3Canvas* canvas) :
     Q3CanvasPolygonalItem(canvas)
@@ -4670,14 +4670,14 @@ void Q3CanvasText::setRect()
 
     Returns the currently set alignment flags.
 
-    \sa setTextFlags() Qt::AlignmentFlags
+    \sa setTextFlags() Qt::AlignmentFlag
 */
 
 
 /*!
     Sets the alignment flags to \a f. These are a bitwise OR of the
     flags available to QPainter::drawText() -- see the
-    \l{Qt::AlignmentFlags}.
+    \l{Qt::AlignmentFlag}s.
 
     \sa setFont() setColor()
 */

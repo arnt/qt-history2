@@ -159,11 +159,11 @@
 
     The QSqlQuery::value() function returns the value of a field in
     the current record. Fields are specified as zero-based indexes.
-    QSqlQuery::value() returns a QCoreVariant, a type that can hold
+    QSqlQuery::value() returns a QVariant, a type that can hold
     various C++ and core Qt data types such as \c int, QString, and
     QByteArray. The different database types are automatically mapped
     into the closest Qt equivalent. In the code snippet, we call
-    QCoreVariant::toString() and QCoreVariant::toInt() to convert
+    QVariant::toString() and QVariant::toInt() to convert
     variants to QString and \c int.
 
     You can iterate back and forth using QSqlQuery::next(),

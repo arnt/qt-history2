@@ -84,7 +84,7 @@
     iterators may traverse the same list, independently of each other
     and of the current list item.
 
-    In the example above we make the call setAutoDelete(TRUE).
+    In the example above we make the call setAutoDelete(true).
     Enabling auto-deletion tells the list to delete items that are
     removed. The default is to not delete items when they are removed
     but this would cause a memory leak in the example because there
@@ -115,7 +115,7 @@
     directly on the Q3LNode, but they should be used with care. The
     data component of the node is available through Q3LNode::getData().
 
-    The Q3StrList class defined in \l qstrlist.h is a list of \c char*.
+    The Q3StrList class is a list of \c char*.
     It reimplements newItem(), deleteItem() and compareItems(). (But
     see QStringList for a list of Unicode QStrings.)
 
@@ -802,9 +802,9 @@
     Define a template instance Q3PtrListIterator\<X\> to create a list
     iterator that operates on Q3PtrList\<X\> (list of X*).
 
-    The following example is similar to the \link
-    qptrlist.html#example example in the Q3PtrList class documentation
-    \endlink, but it uses Q3PtrListIterator. The class Employee is
+    The following example is similar to the
+    example in the Q3PtrList class documentation,
+    but it uses Q3PtrListIterator. The class Employee is
     defined there.
 
     \code

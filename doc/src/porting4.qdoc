@@ -44,9 +44,6 @@
     <     Function: void QIconViewItem::paintItem(QPainter *, const QColorGroup &)
     >     Function: void QIconViewItem::paintItem(QPainter *, const QPalette &)
 
-    <     Function: QVariant QSqlCursor::calculateField(const QString &)
-    >     Function: QCoreVariant QSqlCursor::calculateField(const QString &)
-
     <     Function: bool QUrlOperator::checkValid()
 
     <     Function: void QWSInputMethod::setFont(const QFont &)
@@ -3580,21 +3577,16 @@
 
     \section1 QVariant
 
-    The QVariant class has been split into two classes: QCoreVariant
-    and QVariant. The new QVariant class inherits QCoreVariant and
-    adds GUI-related types. In practice, this has no consequences for
-    existing Qt applications.
-
-    In addition, some changes to the rest of the Qt library have
-    implications on QVariant as well:
+    Some changes to the rest of the Qt library have
+    implications on QVariant:
 
     \list 1
-    \o The \c QCoreVariant::ColorGroup enum value is defined only
+    \o The \c QVariant::ColorGroup enum value is defined only
        if \c QT3_SUPPORT is defined.
-    \o The \c QCoreVariant::IconSet enum value has been renamed
-       \c QCoreVariant::Icon.
-    \o The \c QCoreVariant::CString enum value is now a synonym for
-       \c QCoreVariant::ByteArray.
+    \o The \c QVariant::IconSet enum value has been renamed
+       QVariant::Icon.
+    \o The \c QVariant::CString enum value is now a synonym for
+       QVariant::ByteArray.
     \endlist
 
     \section1 QVBox

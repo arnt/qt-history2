@@ -23,41 +23,41 @@ and how they are represented. The format described below is
 \l{QDataStream::setVersion()}{version 7}.
 
 It is always best to cast integers to a Qt integer type, such as \c
-Q_INT16 or \c Q_UINT32, when reading and writing. This ensures that
+qint16 or \c quint32, when reading and writing. This ensures that
 you always know exactly what size integers you are reading and
 writing, no matter what the underlying platform and architecture the
 application happens to be running on.
 
 \table
-\row \i Q_INT8
+\row \i qint8
      \i \list
 	\i signed byte
 	\endlist
-\row \i Q_INT16
+\row \i qint16
      \i \list
 	\i signed 16-bit integer
 	\endlist
-\row \i Q_INT32
+\row \i qint32
      \i \list
 	\i signed 32-bit integer
 	\endlist
-\row \i Q_INT64
+\row \i qint64
      \i \list
 	\i signed 64-bit integer
 	\endlist
-\row \i Q_UINT8
+\row \i quint8
      \i \list
 	\i unsigned byte
 	\endlist
-\row \i Q_UINT16
+\row \i quint16
      \i \list
 	\i unsigned 16-bit integer
 	\endlist
-\row \i Q_UINT32
+\row \i quint32
      \i \list
 	\i unsigned 32-bit integer
 	\endlist
-\row \i Q_UINT64
+\row \i quint64
      \i \list
 	\i unsigned 64-bit integer
 	\endlist
@@ -71,40 +71,35 @@ application happens to be running on.
 	\endlist
 \row \i const char *
      \i \list
-        \i The string length (Q_UINT32)
+        \i The string length (quint32)
         \i The string bytes, excluding the terminating 0
 	\endlist
 \row \i QBitArray
      \i \list
-	\i The array size (Q_UINT32)
+	\i The array size (quint32)
 	\i The array bits, i.e. (size + 7)/8 bytes
 	\endlist
 \row \i QBrush
      \i \list
-	\i The brush style (Q_UINT8)
+	\i The brush style (quint8)
 	\i The brush color (QColor)
 	\i If style is CustomPattern, the brush pixmap (QPixmap)
 	\endlist
 \row \i QByteArray
      \i \list
-        \i If the byte array is null: 0xFFFFFFFF (Q_UINT32)
-        \i Otherwise: the array size (Q_UINT32) followed by the array bytes, i.e. size bytes
+        \i If the byte array is null: 0xFFFFFFFF (quint32)
+        \i Otherwise: the array size (quint32) followed by the array bytes, i.e. size bytes
 	\endlist
 \row \i \l QColor
-     \i \list \i RGB value serialized as a Q_UINT32 \endlist
-\row \i QCoreVariant
-     \i \list
-	\i The type of the data (Q_UINT32)
-	\i The data of the specified type
-	\endlist
+     \i \list \i RGB value serialized as a quint32 \endlist
 \row \i QCursor
      \i \list
-	\i Shape ID (Q_INT16)
+	\i Shape ID (qint16)
 	\i If shape is BitmapCursor: The bitmap (QPixmap), mask (QPixmap), and hot spot (QPoint)
 	\endlist
 \row \i QDate
      \i \list
-	\i Julian day (Q_UINT32)
+	\i Julian day (quint32)
 	\endlist
 \row \i QDateTime
      \i \list
@@ -114,15 +109,15 @@ application happens to be running on.
 \row \i QFont
      \i \list
 	\i The family (QString)
-	\i The point size (Q_INT16)
-	\i The style hint (Q_UINT8)
-	\i The char set (Q_UINT8)
-	\i The weight (Q_UINT8)
-	\i The font bits (Q_UINT8)
+	\i The point size (qint16)
+	\i The style hint (quint8)
+	\i The char set (quint8)
+	\i The weight (quint8)
+	\i The font bits (quint8)
 	\endlist
 \row \i QHash\<Key, T\>
      \i \list
-	\i The number of items (Q_UINT32)
+	\i The number of items (quint32)
 	\i For all items, the key (Key) and value (T)
 	\endlist
 \row \i QImage
@@ -137,17 +132,17 @@ application happens to be running on.
      \i A QList\<int\>, where each integer is a key in the key sequence
 \row \i QLinkedList\<T\>
      \i \list
-	\i The number of items (Q_UINT32)
+	\i The number of items (quint32)
 	\i The items (T)
 	\endlist
 \row \i QList\<T\>
      \i \list
-	\i The number of items (Q_UINT32)
+	\i The number of items (quint32)
 	\i The items (T)
 	\endlist
 \row \i QMap\<Key, T\>
      \i \list
-	\i The number of items (Q_UINT32)
+	\i The number of items (quint32)
 	\i For all items, the key (Key) and value (T)
 	\endlist
 \row \i QMatrix
@@ -187,13 +182,13 @@ application happens to be running on.
 	\endlist
 \row \i QPen
      \i \list
-	\i The pen styles (Q_UINT8)
-	\i The pen width (Q_UINT16)
+	\i The pen styles (quint8)
+	\i The pen width (quint16)
 	\i The pen color (QColor)
 	\endlist
 \row \i QPicture
      \i \list
-	\i The size of the picture data (Q_UINT32)
+	\i The size of the picture data (quint32)
 	\i The raw bytes of picture data (char)
 	\endlist
 \row \i QPixmap
@@ -202,40 +197,45 @@ application happens to be running on.
 	\endlist
 \row \i QPoint
      \i \list
-	\i The x coordinate (Q_INT32)
-	\i The y coordinate (Q_INT32)
+	\i The x coordinate (qint32)
+	\i The y coordinate (qint32)
 	\endlist
 \row \i QRect
      \i \list
-	\i left (Q_INT32)
-	\i top (Q_INT32)
-	\i right (Q_INT32)
-	\i bottom (Q_INT32)
+	\i left (qint32)
+	\i top (qint32)
+	\i right (qint32)
+	\i bottom (qint32)
 	\endlist
 \row \i QRegion
      \i \list
-	\i The size of the data, i.e. 8 + 16 * (number of rectangles) (Q_UINT32)
-	\i QRGN_RECTS (Q_INT32)
-	\i The number of rectangles (Q_UINT32)
+	\i The size of the data, i.e. 8 + 16 * (number of rectangles) (quint32)
+	\i QRGN_RECTS (qint32)
+	\i The number of rectangles (quint32)
 	\i The rectangles in sequential order (QRect)
 	\endlist
 \row \i QSize
      \i \list
-	\i width (Q_INT32)
-	\i height (Q_INT32)
+	\i width (qint32)
+	\i height (qint32)
 	\endlist
 \row \i QString
      \i \list
-	\i If the string is null: 0xFFFFFFFF (Q_UINT32)
-	\i Otherwise: The string length in bytes (Q_UINT32) followed by the data in UTF-16
+	\i If the string is null: 0xFFFFFFFF (quint32)
+	\i Otherwise: The string length in bytes (quint32) followed by the data in UTF-16
 	\endlist
 \row \i QTime
      \i \list
-	\i Milliseconds since midnight (Q_UINT32)
+	\i Milliseconds since midnight (quint32)
+	\endlist
+\row \i QVariant
+     \i \list
+	\i The type of the data (quint32)
+	\i The data of the specified type
 	\endlist
 \row \i QVector\<T\>
      \i \list
-	\i The number of items (Q_UINT32)
+	\i The number of items (quint32)
 	\i The items (T)
 	\endlist
 \endtable

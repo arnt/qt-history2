@@ -101,7 +101,6 @@
     \o QBitmap
     \o QBrush
     \o QByteArray
-    \o QCoreVariant
     \o QCursor
     \o QDir
     \o QDomImplementation

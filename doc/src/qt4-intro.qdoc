@@ -91,15 +91,10 @@
     \endlist
 
     QtCore contains tool classes like QString, QList, and QFile, as
-    well as kernel classes like QObject and QTimer. A few classes
-    have been refactored so that they can be used in non-GUI
-    applications:
-
-    \list
-    \o QApplication is split into QCoreApplication (in QtCore) and
-       QApplication (in QtGui).
-    \o QVariant is split into QCoreVariant and QVariant.
-    \endlist
+    well as kernel classes like QObject and QTimer. The QApplication
+    class has been refactored so that it can be used in non-GUI
+    applications. It is split into QCoreApplication (in \l QtCore)
+    and QApplication (in \l QtGui).
 
     This split makes it possible to develop server applications using Qt
     without linking in any unnecessary GUI-related code and without

@@ -16,11 +16,11 @@
 
 /*!
     \fn Q3SqlFieldInfo::Q3SqlFieldInfo(const QString& name,
-                                       QCoreVariant::Type typ,
+                                       QVariant::Type typ,
                                        int required,
                                        int len,
                                        int prec,
-                                       const QCoreVariant& defValue,
+                                       const QVariant& defValue,
                                        int typeID,
                                        bool generated,
                                        bool trim,
@@ -93,9 +93,9 @@
 */
 
 /*!
-    \fn QCoreVariant::Type Q3SqlFieldInfo::type() const
+    \fn QVariant::Type Q3SqlFieldInfo::type() const
 
-    Returns the field's type or QCoreVariant::Invalid if the type is
+    Returns the field's type or QVariant::Invalid if the type is
     unknown.
 */
 
@@ -117,7 +117,7 @@
 */
 
 /*!
-    \fn QCoreVariant Q3SqlFieldInfo::defaultValue() const
+    \fn QVariant Q3SqlFieldInfo::defaultValue() const
 
     Returns the field's default value or an empty QVariant if the
     field has no default value or the value couldn't be determined.
