@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.h#9 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.h#10 $
 **
 ** Definition of QScrollView class
 **
@@ -46,6 +46,7 @@ public:
     int		contentsY() const;
 
     void	resize( int w, int h );
+    void	resize( const QSize& );
     void	show();
 
 signals:

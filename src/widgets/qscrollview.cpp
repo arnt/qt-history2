@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#15 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#16 $
 **
 ** Implementation of QScrollView class
 **
@@ -263,6 +263,11 @@ void QScrollView::resize( int w, int h )
     // Need both this and resize event, due to deferred resize event.
     QWidget::resize( w, h );
     updateScrollBars();
+}
+
+void QScrollView::resize( const QSize& s )
+{
+    resize(s.width(),s.height());
 }
 
 /*!
