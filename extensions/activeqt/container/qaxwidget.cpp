@@ -1057,6 +1057,7 @@ extern Q_EXPORT void qt_leave_modal(QWidget*);
 
 HRESULT WINAPI QAxHostWindow::EnableModeless( BOOL fEnable )
 {
+    EnableWindow(host->winId(), fEnable);
     if ( !fEnable )
 	qt_enter_modal( host );
     else 
