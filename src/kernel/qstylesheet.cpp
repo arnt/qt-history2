@@ -767,6 +767,8 @@ int QStyleSheetItem::lineSpacing() const
 	- The background pixmap, for example \c
 	  background="granit.xpm". The pixmap name will be resolved by
 	  a QMimeSourceFactory().
+	\i text
+	- The default text color, for example \c text="red".
 	\endlist
     \i \c{<h1>...</h1>}
 	- A top-level heading.
