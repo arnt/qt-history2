@@ -186,6 +186,7 @@ MainWindow::MainWindow( bool asClient )
     actionEditor = 0;
     currentProject = 0;
     formList = 0;
+    oWindow = 0;
 
     statusBar()->clear();
     statusBar()->addWidget( new QLabel("Ready", statusBar()), 1 );
@@ -207,14 +208,15 @@ MainWindow::MainWindow( bool asClient )
     setupLayoutActions();
     setupPreviewActions();
     setupWindowActions();
-    setupActionManager();
-    setupHelpActions();
 
     setupFormList();
     setupHierarchyView();
     setupPropertyEditor();
     setupActionEditor();
     setupOutputWindow();
+
+    setupActionManager();
+    setupHelpActions();
 
     setupRMBMenus();
 
