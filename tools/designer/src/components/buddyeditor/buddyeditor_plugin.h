@@ -15,9 +15,14 @@
 #define BUDDYEDITOR_PLUGIN_H
 
 #include "buddyeditor_global.h"
+
 #include <abstractformeditorplugin.h>
 
 #include <QtCore/QPointer>
+#include <QtCore/QHash>
+
+class BuddyEditorTool;
+class AbstractFormWindow;
 
 class QT_BUDDYEDITOR_EXPORT BuddyEditorPlugin: public QObject, public AbstractFormEditorPlugin
 {
@@ -32,8 +37,13 @@ public:
 
     virtual AbstractFormEditor *core() const;
 
+private slots:
+    void addFormWindow(AbstractFormWindow *formWindow);
+    void removeFormWindow(AbstractFormWindow *formWindow);
+
 private:
     QPointer<AbstractFormEditor> m_core;
+    QHash<AbstractFormWindow*, BuddyEditorTool*> m_tools;
     bool m_initialized;
 };
 

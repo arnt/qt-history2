@@ -12,8 +12,12 @@
 ****************************************************************************/
 
 #include "buddyeditor_plugin.h"
+#include "buddyeditor_tool.h"
 
 #include <abstractformeditor.h>
+#include <abstractformwindow.h>
+#include <abstractformwindowmanager.h>
+
 
 BuddyEditorPlugin::BuddyEditorPlugin()
     : m_initialized(false)
@@ -32,10 +36,35 @@ void BuddyEditorPlugin::initialize(AbstractFormEditor *core)
     setParent(core);
     m_core = core;
     m_initialized = true;
+
+    connect(core->formWindowManager(), SIGNAL(formWindowAdded(AbstractFormWindow*)),
+            this, SLOT(addFormWindow(AbstractFormWindow*)));
+
+    connect(core->formWindowManager(), SIGNAL(formWindowRemoved(AbstractFormWindow*)),
+            this, SLOT(removeFormWindow(AbstractFormWindow*)));
 }
 
 AbstractFormEditor *BuddyEditorPlugin::core() const
 {
     return m_core;
+}
+
+void BuddyEditorPlugin::addFormWindow(AbstractFormWindow *formWindow)
+{
+    Q_ASSERT(formWindow != 0);
+    Q_ASSERT(m_tools.contains(formWindow) == false);
+
+    m_tools[formWindow] = new BuddyEditorTool(formWindow, this);
+}
+
+void BuddyEditorPlugin::removeFormWindow(AbstractFormWindow *formWindow)
+{
+    Q_ASSERT(formWindow != 0);
+    Q_ASSERT(m_tools.contains(formWindow) == true);
+
+    BuddyEditorTool *tool = m_tools.value(formWindow);
+    m_tools.remove(formWindow);
+
+    delete tool;
 }
 
