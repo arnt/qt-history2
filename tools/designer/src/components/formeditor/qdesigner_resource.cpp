@@ -90,6 +90,74 @@ QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
     return Resource::create(ui, parentWidget);
 }
 
+static ActionListElt createActionListElt(DomAction *action)
+{
+    ActionListElt result;
+    
+    result.name = action->attributeName();
+    result.menu = action->attributeMenu();
+    QList<DomProperty*> prop_list = action->elementProperty();
+    foreach (DomProperty *prop, prop_list) {
+        if (prop->attributeName() == "objectName") {
+            result.objectName
+                = prop->elementString() == 0 ? QString() : prop->elementString()->text();
+        } else if (prop->attributeName() == "icon") {
+            result.icon
+                = prop->elementIconSet() == 0 ? QString() : prop->elementIconSet()->text();
+        } else if (prop->attributeName() == "iconText") {
+            result.iconText
+                = prop->elementString() == 0 ? QString() : prop->elementString()->text();
+        } else if (prop->attributeName() == "shortcut") {
+            result.shortcut
+                = prop->elementString() == 0 ? QString() : prop->elementString()->text();
+        }
+    }
+    
+    return result;
+}
+
+static DomAction *createDomAction(const ActionListElt &elt)
+{
+    DomAction *result = new DomAction;
+
+    result->setAttributeName(elt.name);
+    result->setAttributeMenu(elt.menu);
+        
+    QList<DomProperty*> prop_list;
+    
+    DomProperty *prop = new DomProperty;
+    prop->setAttributeName("objectName");
+    DomString *string = new DomString;
+    string->setText(elt.objectName);
+    prop->setElementString(string);
+    prop_list.append(prop);
+    
+    prop = new DomProperty;
+    prop->setAttributeName("icon");
+    DomResourcePixmap *pixmap = new DomResourcePixmap;
+    pixmap->setText(elt.icon);
+    prop->setElementIconSet(pixmap);
+    prop_list.append(prop);
+    
+    prop = new DomProperty;
+    prop->setAttributeName("iconText");
+    string = new DomString;
+    string->setText(elt.iconText);
+    prop->setElementString(string);
+    prop_list.append(prop);
+    
+    prop = new DomProperty;
+    prop->setAttributeName("shortcut");
+    string = new DomString;
+    string->setText(elt.shortcut);
+    prop->setElementString(string);
+    prop_list.append(prop);
+    
+    result->setElementProperty(prop_list);
+    
+    return result;
+}
+
 QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
 {
     QString className = ui_widget->attributeClass();
@@ -110,6 +178,16 @@ QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
         mainWindow->setCentralWidget(central_widget);
     }
 
+    QList<DomActionRef*> action_ref_list = ui_widget->elementAddAction();
+    foreach (DomActionRef *action_ref, action_ref_list) {
+        if (action_ref->hasAttributeName())
+            m_formWindow->widgetToActionMap().add(w, action_ref->attributeName());
+    }
+    
+    QList<DomAction*> action_list = ui_widget->elementAction();
+    foreach (DomAction *action, action_list)
+        m_formWindow->actionList().append(createActionListElt(action));
+    
     return w;
 }
 
@@ -303,6 +381,26 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
 
     w->setAttributeName(widget->objectName());
 
+    QList<DomActionRef*> ref_list;
+    QStringList action_list = m_formWindow->widgetToActionMap().actions(widget);
+    foreach (QString s, action_list) {
+        DomActionRef *ref = new DomActionRef;
+        ref->setAttributeName(s);
+        ref_list.append(ref);
+    }
+    if (!ref_list.isEmpty())
+        w->setElementAddAction(ref_list);
+    
+    if (widget == m_formWindow->mainContainer()) {
+        QList<DomAction*> dom_action_list;
+        ActionList action_list = m_formWindow->actionList();
+        foreach (ActionListElt elt, action_list) {
+            dom_action_list.append(createDomAction(elt));
+        }
+        if (!dom_action_list.isEmpty())
+            w->setElementAction(dom_action_list);
+    }
+        
     return w;
 }
 

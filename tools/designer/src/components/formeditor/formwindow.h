@@ -74,6 +74,25 @@ public:
         : QWidget(parent) {}
 };
 
+// ### fake - remove when actions are implemented
+class QT_FORMEDITOR_EXPORT WidgetToActionMap
+{
+public:
+    void add(QWidget *w, const QString &action_name)
+        { m_map[w].append(action_name); }
+    QStringList actions(QWidget *w)
+        { return m_map.value(w, QStringList()); }
+private:
+    typedef QMap<QWidget*, QStringList> Map;
+    Map m_map;
+};
+
+// ### fake - remove when actions are implemented
+struct QT_FORMEDITOR_EXPORT ActionListElt {
+    QString name, objectName, menu, icon, iconText, shortcut; 
+};
+typedef QList<ActionListElt> ActionList;
+
 class QT_FORMEDITOR_EXPORT FormWindow: public AbstractFormWindow
 {
     Q_OBJECT
@@ -185,6 +204,9 @@ public:
     void createConnections(DomConnections *connections, QWidget *parent);
 
     void updateOrderIndicators();
+    
+    WidgetToActionMap &widgetToActionMap() { return m_widget_to_action_map; }
+    ActionList &actionList() { return m_action_list; }
     
 signals:
     void showContextMenu(QWidget *w, const QPoint &pos);
@@ -323,6 +345,9 @@ private:
     SignalSlotEditor *m_signalSlotEditor;
     EditMode m_editMode;
 
+    WidgetToActionMap m_widget_to_action_map;
+    ActionList m_action_list;
+    
 private:
     friend class FormWindowManager;
     friend class SizeHandle;
