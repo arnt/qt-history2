@@ -11,20 +11,20 @@
 **
 ****************************************************************************/
 
-#include "projectporter.h"
-#include "fileporter.h"
-#include "logger.h"
+#include <iostream>
 #include <QString>
 #include <QFile>
 #include <QFileInfo>
 #include <QDir>
-#include <iostream>
-#include <sstream>
-#include <stdio.h>
+#include <QByteArray>
+#include <QBuffer>
+#include <QTextStream>
 
+#include "projectporter.h"
+#include "fileporter.h"
+#include "logger.h"
 using std::cout;
 using std::endl;
-
 
 QString rulesFileName;
 QString rulesFilePath;
@@ -143,14 +143,21 @@ int main(int argc, char**argv)
     QStringList report = Logger::instance()->cronologicalReport();
     QString logFileName =  "portinglog.txt";
     cout << "Writing log to " << logFileName.latin1() << endl;
-    //get a platform independent line separator
-    std::stringstream newLine;
-    newLine << endl;
-    QString qNewLine(newLine.str());
-    //write log file
-    FileWriter fileWriter(FileWriter::AskOnOverWrite, "Overwrite file ");
-    fileWriter.writeFile(logFileName, report.join(qNewLine).latin1());
-       
-    Logger::deleteInstance();
+    QByteArray logContents;
+	QBuffer logBuffer(&logContents);
+	logBuffer.open(QIODevice::Translate | QIODevice::WriteOnly);
+	QTextStream logStream(&logBuffer);
+	foreach(QString logLine, report) {
+//temporary workarond for missing Translate functionality in QTextStream
+#ifdef Q_OS_WIN	
+		logStream << logLine << "\r\n";
+#else
+		logStream << logLine << endl;
+#endif
+	}
+	FileWriter fileWriter(FileWriter::AskOnOverWrite, "Overwrite file ");
+    fileWriter.writeFile(logFileName, logContents);
+
+	Logger::deleteInstance();
     return retval;
 }
