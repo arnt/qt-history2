@@ -14,6 +14,8 @@
 #ifndef QREGEXP_H
 #define QREGEXP_H
 
+#ifndef QT_NO_REGEXP
+
 #include "qstring.h"
 
 struct QRegExpPrivate;
@@ -98,5 +100,7 @@ private:
     QRegExpPrivate *priv;
 };
 Q_DECLARE_TYPEINFO(QRegExp, Q_MOVABLE_TYPE);
+
+#endif
 
 #endif // QREGEXP_H

@@ -48,10 +48,7 @@ SOURCES	+= ../core/tools/qbytearray.cpp	\
 		  ../core/tools/qmap.cpp		\ 
 		  ../core/tools/qvector.cpp          \
 		  ../core/tools/qlocale.cpp \
-	 	  ../core/tools/qregexp.cpp \
-	 	  ../core/kernel/qinternal.cpp \
-	 	  ../core/tools/qbitarray.cpp \
-		  ../core/tools/qhash.cpp
+		  ../core/kernel/qinternal.cpp
 
 unix:SOURCES += ../core/io/qfileengine_unix.cpp
 
