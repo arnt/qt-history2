@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#20 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.cpp#21 $
 **
 ** Implementation of QBitmap class
 **
@@ -13,7 +13,7 @@
 #include "qbitmap.h"
 #include "qimage.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qbitmap.cpp#20 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qbitmap.cpp#21 $")
 
 
 /*----------------------------------------------------------------------------
@@ -183,4 +183,23 @@ QBitmap &QBitmap::operator=( const QImage &image )
 {
     convertFromImage( image );
     return *this;
+}
+
+
+/*----------------------------------------------------------------------------
+  Transforms the bitmap using \e matrix, and returns the transformed
+  bitmap.
+
+  This function does exactly the same as QPixmap::xForm(), except that
+  it returns a QBitmap instead of a QPixmap.
+
+  \sa QPixmap::xForm()
+ ----------------------------------------------------------------------------*/
+
+QBitmap QBitmap::xForm( const QWMatrix &matrix ) const
+{
+    QPixmap pm = QPixmap::xForm( matrix );
+    QBitmap bm;
+    bm = pm;
+    return bm;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbitmap.h#16 $
+** $Id: //depot/qt/main/src/kernel/qbitmap.h#17 $
 **
 ** Definition of QBitmap class
 **
@@ -29,6 +29,8 @@ public:
     QBitmap &operator=( const QBitmap & );
     QBitmap &operator=( const QPixmap & );
     QBitmap &operator=( const QImage  & );
+
+    QBitmap  xForm( const QWMatrix & ) const;
 };
 
 
