@@ -52,6 +52,8 @@ class QPopupMenu;
 class QMenuItem;
 class QToolButton;
 class QTabWidget;
+class QSpinBox;
+class QGroupBox;
 
 class Q_EXPORT QStyle: public QObject
 {
@@ -286,6 +288,39 @@ public:
 				       const QColorGroup & g,
 				       Orientation orientation );
     virtual QSize toolBarSeparatorSize( Qt::Orientation orientation ) const;
+
+    // title bar
+    virtual void drawTitleBar( QPainter *p, 
+			       const QRect &r, const QColor &left, const QColor &right, 
+			       bool active ) = 0;
+    virtual void drawTitleBarLabel( QPainter *p, 
+			       const QRect &r, const QString &text, 
+			       const QColor &tc, bool active ) = 0;
+    virtual void drawTitleBarButton( QPainter *p, const QRect &r, const QColorGroup &g, bool down ) = 0;
+    virtual void drawTitleBarButtonLabel( QPainter *p, const QRect &r, const QPixmap *, int button, bool down ) = 0;
+
+    // header
+    virtual void drawHeaderSection( QPainter *p, const QRect &rect, const QColorGroup &g, bool down ) = 0;
+
+    // spinbox
+    virtual int spinBoxFrameWidth() const = 0;
+    virtual void drawSpinBoxButton( QPainter *p, const QRect &rect, const QColorGroup &g, const QSpinBox *sp, 
+				bool downbtn, bool enabled, bool down ) = 0;
+    virtual void drawSpinBoxSymbol( QPainter *p, const QRect &rect, const QColorGroup &g, const QSpinBox *sp,
+				bool downbtn, bool enabled, bool down ) = 0;
+
+    // groupbox
+    virtual void drawGroupBoxTitle( QPainter *p, const QRect &rect, const QColorGroup &g, const QString &text, bool enabled ) = 0;
+    virtual void drawGroupBoxFrame( QPainter *p, const QRect &rect, const QColorGroup &g, const QGroupBox *gb ) = 0;
+
+    // statusbar
+    virtual void drawStatusBarSection( QPainter *p, const QRect &rect, const QColorGroup &g, bool permanent ) = 0;
+    virtual void drawSizeGrip( QPainter *p, const QRect &rect, const QColorGroup &g ) = 0;
+
+    // progressbar
+    virtual int progressChunkWidth() const = 0;
+    virtual void drawProgressBar( QPainter *p, const QRect &rect, const QColorGroup &g ) = 0;
+    virtual void drawProgressChunk( QPainter *p, const QRect &rect, const QColorGroup &g ) = 0;
 
 private:
     class Private;

@@ -80,6 +80,35 @@ public:
                           bool active, bool down, bool hasFocus );
 
     int menuBarFrameWidth() const { return 2; }
+
+    // titlebar
+    void drawTitleBar( QPainter *p, 
+		       const QRect &r, const QColor &left, const QColor &right, 
+		       bool active );
+    void drawTitleBarLabel( QPainter *p, 
+		       const QRect &r, const QString &text, 
+		       const QColor &tc, bool active );
+
+    void drawTitleBarButton( QPainter *p, const QRect &r, const QColorGroup &g, bool down );
+    void drawTitleBarButtonLabel( QPainter *p, const QRect &r, const QPixmap *, int button, bool down );
+
+    // header
+    void drawHeaderSection( QPainter *p, const QRect &rect, const QColorGroup &g, bool down );
+
+    // spinbox
+    void drawSpinBoxButton( QPainter *p, const QRect &rect, const QColorGroup &g, 
+			const QSpinBox *sp, bool upDown, bool enabled, bool down );
+    void drawSpinBoxSymbol( QPainter *p, const QRect &rect, const QColorGroup &g, 
+			const QSpinBox *sp, bool upDown, bool enabled, bool down );
+
+    // groupbox
+    void drawGroupBoxTitle( QPainter *p, const QRect &rect, const QColorGroup &g, const QString &text, bool enabled );
+    void drawGroupBoxFrame( QPainter *p, const QRect &rect, const QColorGroup &g, const QGroupBox *gb );
+
+    // statusbar
+    void drawStatusBarSection( QPainter *p, const QRect &rect, const QColorGroup &g, bool permanent );
+    void drawSizeGrip( QPainter *p, const QRect &rect, const QColorGroup &g );
+
 private:        // Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
     QCommonStyle( const QCommonStyle & );

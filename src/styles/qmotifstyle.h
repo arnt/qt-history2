@@ -146,6 +146,14 @@ public:
     void drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
                           QMenuItem* mi, QColorGroup& g, bool active,
                           bool down, bool hasFocus );
+
+    int spinBoxFrameWidth() const;
+
+    // progressbar
+    int progressChunkWidth() const;
+    void drawProgressBar( QPainter *p, const QRect &rect, const QColorGroup &g );
+    void drawProgressChunk( QPainter *p, const QRect &rect, const QColorGroup &g );
+
 private:
     bool highlightCols;
 private:        // Disabled copy constructor and operator=

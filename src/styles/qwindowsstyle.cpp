@@ -1530,4 +1530,38 @@ int QWindowsStyle::menuBarFrameWidth() const
 {
     return 0;
 }
+
+/*!
+ \reimp
+*/
+int QWindowsStyle::spinBoxFrameWidth() const
+{
+    return 2;
+}
+
+/*!
+ \reimp
+ */
+int QWindowsStyle::progressChunkWidth() const
+{
+    return 9;
+}
+
+/*!
+ \reimp
+*/
+void QWindowsStyle::drawProgressBar( QPainter *p, const QRect &rect, const QColorGroup &g )
+{
+    qDrawShadePanel( p, rect, g, TRUE, 1 );
+}
+
+/*!
+ \reimp
+ */
+void QWindowsStyle::drawProgressChunk( QPainter *p, const QRect &rect, const QColorGroup &g )
+{
+    p->fillRect( rect.x() + 1, rect.y() + 1, rect.width() - 2, rect.height() - 2, 
+	g.brush( QColorGroup::Highlight ) );
+}
+
 #endif

@@ -50,6 +50,8 @@
 #include "qtabbar.h"
 #include "qscrollbar.h"
 #include "qtoolbutton.h"
+#include "qspinbox.h"
+#include "qgroupbox.h"
 #include <limits.h>
 
 
@@ -312,6 +314,236 @@ void QCommonStyle::drawToolButton( QToolButton* btn, QPainter *p)
     }
 #endif
 #endif
+}
+
+void QCommonStyle::drawTitleBar( QPainter *p, 
+		       const QRect &r, const QColor &left, const QColor &right, 
+		       bool active )
+{
+    if ( left != right ) {
+	double rS = left.red();
+	double gS = left.green();
+	double bS = left.blue();
+
+	double rD = double(right.red() - rS) / r.width();
+	double gD = double(right.green() - gS) / r.width();
+	double bD = double(right.blue() - bS) / r.width();
+
+	for ( int x = r.x(); x < r.width(); x++ ) {
+	    rS+=rD;
+	    gS+=gD;
+	    bS+=bD;
+	    p->setPen( QColor( (int)rS, (int)gS, (int)bS ) );
+	    p->drawLine( x, r.y(), x, r.height() );
+	}
+    } else {
+	p->fillRect( r, left );
+    }
+}
+
+void QCommonStyle::drawTitleBarLabel( QPainter *p, 
+		       const QRect &r, const QString &text, 
+		       const QColor &tc, bool active )
+{
+    p->setPen( tc );
+    p->drawText( r, AlignAuto | AlignVCenter | SingleLine, text );
+}
+
+void QCommonStyle::drawTitleBarButton( QPainter *p, const QRect &r, const QColorGroup &g, bool down )
+{
+    drawToolButton( p, r.x(), r.y(), r.width(), r.height(), g, down );
+}
+
+void QCommonStyle::drawTitleBarButtonLabel( QPainter *p, const QRect &r, const QPixmap *pm, int button, bool down )
+{
+    if ( pm ) {
+	QSize sdiff = r.size() - pm->size();
+	int x = 0;
+	int y = 0;
+	if ( down )
+	    getButtonShift( x, y );
+
+	p->drawPixmap( x + sdiff.width() / 2, y + sdiff.height() / 2 ,*pm );
+    }
+}
+
+// header
+void QCommonStyle::drawHeaderSection( QPainter *p, const QRect &rect, const QColorGroup &g, bool down )
+{
+    drawBevelButton( p, rect.x(), rect.y(), rect.width(), rect.height(), g, down );
+}
+
+// spinbox
+void QCommonStyle::drawSpinBoxButton( QPainter *p, const QRect &rect, const QColorGroup &g, 
+		    const QSpinBox *sp, bool upDown, bool enabled, bool down )
+{
+    drawButton( p, rect.x(), rect.y(), rect.width(), rect.height(), g, down );
+}
+
+void QCommonStyle::drawSpinBoxSymbol( QPainter *p, const QRect &rect, const QColorGroup &g, const QSpinBox *sp,
+			    bool downbtn, bool enabled, bool down )
+{
+    if ( sp->buttonSymbols() == QSpinBox::PlusMinus ) {
+	
+	int length;
+	if ( rect.width() <= 8 || rect.height() <= 6 ) {
+	    length = QMIN( rect.width()-2, rect.height()-2 );
+	}
+	else {
+	    length = QMIN( 2*rect.width() / 3, 2*rect.height() / 3 );
+	    p->setPen( QPen( g.buttonText(), 1 ) ); 
+	}
+	int xmarg = ( rect.width() - length ) / 2;
+	int ymarg = ( rect.height() - length ) / 2;
+
+	p->drawLine( rect.left() + xmarg, ( rect.y() + rect.height() / 2 - 1 ), 
+		     rect.right() - xmarg, ( rect.y() + rect.height() / 2 - 1 ) );
+	if ( !downbtn )
+	    p->drawLine( ( rect.x() + rect.width() / 2 ) - 1, rect.top() + ymarg, 
+			 ( rect.x() + rect.width() / 2 ) - 1, rect.bottom() - ymarg );
+    } else {
+	int w = rect.width()-4;
+	if ( w < 3 )
+	    return;
+	else if ( !(w & 1) )
+	    w--;
+	w -= ( w / 7 ) * 2;		// Empty border
+	int h = w/2 + 2;        // Must have empty row at foot of arrow
+
+	int x = rect.x() + rect.width() / 2 - w / 2 - 1;
+	int y = rect.y() + rect.height() / 2 - h / 2 - 1;
+
+	QPointArray a;
+	if ( downbtn )
+	    a.setPoints( 3,  0, 1,  w-1, 1,  h-2, h-1 );
+	else
+	    a.setPoints( 3,  0, h-1,  w-1, h-1,  h-2, 1 );
+	p->save();
+	int sx = 0;
+	int sy = 0;
+	if ( down )
+	    getButtonShift( sx, sy );
+	p->translate( x + sx, y + sy );
+	p->setBrush( g.foreground() );
+	p->drawPolygon( a );
+	p->restore();
+    }
+}
+
+// groupbox
+void QCommonStyle::drawGroupBoxTitle( QPainter *p, const QRect &rect, const QColorGroup &g, const QString &text, bool enabled )
+{
+    drawItem( p, rect.x(), rect.y(), rect.width(), rect.height(), AlignCenter + ShowPrefix, g, enabled, 0, text );
+}
+
+void QCommonStyle::drawGroupBoxFrame( QPainter *p, const QRect &rect, const QColorGroup &g, const QGroupBox *gb )
+{
+    QRect		r = gb->frameRect();
+    QPoint		p1, p2;
+    QFrame::Shape	type  = gb->frameShape();
+    QFrame::Shadow	cstyle = gb->frameShadow();
+    int			lwidth = gb->lineWidth();
+    int			mlwidth = gb->midLineWidth();
+
+    switch ( type ) {
+
+    case QFrame::Box:
+        if ( cstyle == QFrame::Plain )
+            qDrawPlainRect( p, r, g.foreground(), lwidth );
+        else
+            qDrawShadeRect( p, r, g, cstyle == QFrame::Sunken, lwidth,
+                            mlwidth );
+        break;
+
+    case QFrame::StyledPanel:
+        if ( cstyle == QFrame::Plain )
+            qDrawPlainRect( p, r, g.foreground(), lwidth );
+        else
+            drawPanel( p, r.x(), r.y(), r.width(), r.height(), g, cstyle == QFrame::Sunken, lwidth );
+        break;
+
+    case QFrame::PopupPanel:
+        if ( cstyle == QFrame::Plain )
+            qDrawPlainRect( p, r, g.foreground(), lwidth );
+        else
+            drawPopupPanel( p, r.x(), r.y(), r.width(), r.height(), g, lwidth );
+        break;
+
+    case QFrame::Panel:
+        if ( cstyle == QFrame::Plain )
+            qDrawPlainRect( p, r, g.foreground(), lwidth );
+        else
+            qDrawShadePanel( p, r, g, cstyle == QFrame::Sunken, lwidth );
+        break;
+
+    case QFrame::WinPanel:
+        if ( cstyle == QFrame::Plain )
+            qDrawPlainRect( p, r, g.foreground(), 2 );
+        else
+            qDrawWinPanel( p, r, g, cstyle == QFrame::Sunken );
+        break;
+    case QFrame::MenuBarPanel:
+        drawMenuBarPanel( p, r.x(), r.y(), r.width(), r.height(), g );
+        break;
+    case QFrame::ToolBarPanel:
+        drawToolBarPanel( p, r.x(), r.y(), r.width(), r.height(), g );
+        break;
+    case QFrame::HLine:
+    case QFrame::VLine:
+        if ( type == QFrame::HLine ) {
+            p1 = QPoint( r.x(), r.height()/2 );
+            p2 = QPoint( r.x()+r.width(), p1.y() );
+        }
+        else {
+            p1 = QPoint( r.x()+r.width()/2, 0 );
+            p2 = QPoint( p1.x(), r.height() );
+        }
+        if ( cstyle == QFrame::Plain ) {
+            QPen oldPen = p->pen();
+            p->setPen( QPen(g.foreground(),lwidth) );
+            p->drawLine( p1, p2 );
+            p->setPen( oldPen );
+        }
+        else
+            qDrawShadeLine( p, p1, p2, g, cstyle == QFrame::Sunken,
+                            lwidth, mlwidth );
+        break;
+    }
+}
+
+// statusbar
+void QCommonStyle::drawStatusBarSection( QPainter *p, const QRect &rect, const QColorGroup &g, bool /*permanent*/ )
+{
+    qDrawShadeRect( p, rect, g, TRUE, 1, 0, 0 );
+}
+
+void QCommonStyle::drawSizeGrip( QPainter *p, const QRect &rect, const QColorGroup &g )
+{
+    p->save();
+    int w = QMIN( rect.height(),rect.width() );
+    if ( rect.height() > rect.width() )
+	p->translate( 0, rect.height() - rect.width() );
+    else
+	p->translate( rect.width() - rect.height(), 0 );
+
+    int x = rect.x();
+    int y = rect.y();
+    int s = w / 3;
+
+    for ( int i = 0; i < 3; ++i ) {
+	p->setPen( QPen( g.mid(), 1 ) );
+	p->drawLine(  x-1, w, w,  y-1 );
+	p->setPen( QPen( g.dark(), 1 ) );
+	p->drawLine(  x, w, w,  y );
+	x += s;
+	y += s;
+    }
+    p->setPen( QPen( g.mid(), 1 ) );
+    p->drawPoint( w-2, w-2 );
+    p->setPen( QPen( g.dark(), 1 ) );
+    p->drawPoint( w-1, w-1 );
+
+    p->restore();
 }
 
 #endif

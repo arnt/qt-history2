@@ -1281,4 +1281,37 @@ void QMotifStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
                                    mi, g, active, down, hasFocus );
 }
 
+/*!
+ \reimp
+ */
+int QMotifStyle::spinBoxFrameWidth() const
+{
+    return 0;
+}
+
+/*!
+ \reimp
+ */
+int QMotifStyle::progressChunkWidth() const
+{
+    return 5;
+}
+
+/*!
+  \reimp
+*/
+void QMotifStyle::drawProgressBar( QPainter *p, const QRect &rect, const QColorGroup &g )
+{
+    qDrawShadePanel( p, rect, g, TRUE, 1 );
+    p->fillRect( rect.x() + 2, rect.y() + 2, rect.width() - 4, rect.height() - 4, g.base() );
+}
+
+/*!
+ \reimp
+ */
+void QMotifStyle::drawProgressChunk( QPainter *p, const QRect &rect, const QColorGroup &g )
+{
+    p->fillRect( rect, g.brush( QColorGroup::Highlight ) );
+}
+
 #endif
