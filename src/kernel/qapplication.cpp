@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#54 $
 **
 ** Implementation of QApplication class
 **
@@ -17,7 +17,7 @@
 #include "qpalette.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#53 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qapplication.cpp#54 $";
 #endif
 
 
@@ -368,14 +368,10 @@ void QApplication::setFont( const QFont &font,	bool updateAllWidgets )
   loop an returns from the call to exec(). The exec() function
   returns \e retcode.
 
-  This may be used as a slot one can connect e.g. a QPushButton \c
-  pressed() signal to, or called directly:
+  Exit code 0 means success. Any non-zero exit code indicates an error.
 
-  \code
-    qApp->quit();		// if qApp is zero, you're SOL anyway
-  \endcode  
-
-  \sa exec(). */
+  \sa quitApp(), exec()
+*/
 
 void QApplication::quit( int retcode )		// quit application
 {
@@ -385,6 +381,28 @@ void QApplication::quit( int retcode )		// quit application
 	return;
     qApp->quit_now = TRUE;
     qApp->quit_code = retcode;
+}
+
+
+/*!
+  Tells the application to quit with exit code 0 (success).
+  Equivalent to calling QApplication::quit(0).
+
+  This function is a slot, i.e. you may connect any signal to
+  activate quitApp().
+
+  Example:
+  \code
+    QPushButton *quitButton = new QPushButton( ... );
+    connect( quitButton, SIGNAL(clicked()), qApp, SLOT(quitApp()) );
+  \endcode  
+
+  \sa quit()
+*/
+
+void QApplication::quitApp()			// quit application
+{
+    quit( 0 );
 }
 
 
