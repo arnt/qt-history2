@@ -758,10 +758,30 @@ bool QTextHtmlExporter::emitCharFormatStyle(const QTextCharFormat &format)
 
 void QTextHtmlExporter::exportFragment(const QTextFragment &fragment)
 {
+    const QTextCharFormat format = fragment.charFormat();
+
+    bool closeAnchor = false;
+
+    if (format.isAnchor()) {
+        const QString name = format.anchorName();
+        if (!name.isEmpty()) {
+            html += QLatin1String("<a name=\"");
+            html += name;
+            html += QLatin1String("\"></a>");
+        }
+        const QString href = format.anchorHref();
+        if (!href.isEmpty()) {
+            html += QLatin1String("<a href=\"");
+            html += href;
+            html += QLatin1String("\">");
+            closeAnchor = true;
+        }
+    }
+
     QLatin1String styleTag("<span style=\"");
     html += styleTag;
 
-    const bool attributesEmitted = emitCharFormatStyle(fragment.charFormat());
+    const bool attributesEmitted = emitCharFormatStyle(format);
     if (attributesEmitted)
         html += QLatin1String("\">");
     else
@@ -771,6 +791,9 @@ void QTextHtmlExporter::exportFragment(const QTextFragment &fragment)
 
     if (attributesEmitted)
         html += QLatin1String("</span>");
+
+    if (closeAnchor)
+        html += QLatin1String("</a>");
 }
 
 void QTextHtmlExporter::emitBlockFormatAttributes(const QTextBlockFormat &format)
