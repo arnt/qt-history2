@@ -43,6 +43,7 @@
 #include "../../kernel/qpainter_p.h" // ### change this to ../kernel/qpainter_p.h
 
 #include <qdict.h>
+#include <qcache.h>
 #include <qdatastream.h>
 #include <qapplication.h>
 #include <qcleanuphandler.h>
@@ -51,7 +52,10 @@
 #include <limits.h>
 
 
-// REVISED: arnt
+// #define QFONTCACHE_DEBUG
+
+
+// REVISED: brad
 /*!
   \class QFont qfont.h
 
@@ -1338,7 +1342,28 @@ QString QFont::key() const
 }
 
 
+/*! \internal
+  Internal function that dumps font cache statistics.
+*/
+void QFont::cacheStatistics()
+{
 
+#if defined(QT_DEBUG)
+
+    QFontPrivate::fontCache->statistics();
+
+    QFontCacheIterator it(*QFontPrivate::fontCache);
+    QFontStruct *qfs;
+    qDebug( "{" );
+    while ( (qfs = it.current()) ) {
+	++it;
+	qDebug( "   [%s]", (const char *) qfs->name );
+    }
+    qDebug( "}" );
+
+#endif
+
+}
 
 
 
@@ -1946,16 +1971,8 @@ QFontInfo::QFontInfo( const QPainter *p )
     painter->setf( QPainter::FontInf );
     d = painter->cfont.d;
     d->ref();
-
+    
     d->load();
-
-    /*
-      for (int i = 0; i < QFontPrivate::NScripts - 1; i++) {
-      if (d->x11data.fontstruct[i]) {
-      d->load((QFontPrivate::Script) i);
-      }
-      }
-    */
 
     flags = 0;
 
@@ -2146,6 +2163,188 @@ bool QFontInfo::exactMatch() const
     return painter ? painter->font().exactMatch() : exactMatchFlag();
 }
 
+
+
+
+// **********************************************************************
+// QFontCache
+// **********************************************************************
+
+static const int qtFontCacheMin = 2*1024*1024;
+static const int qtFontCacheSize = 61;
+static const int qtFontCacheFastTimeout =  30000;
+static const int qtFontCacheSlowTimeout = 300000;
+
+
+QFontCache *QFontPrivate::fontCache = 0;
+
+
+QFontCache::QFontCache() :
+    QObject(0, "global font cache"),
+    QCache<QFontStruct>(qtFontCacheMin, qtFontCacheSize),
+    timer_id(0), fast(FALSE)
+{
+    setAutoDelete(TRUE);
+}
+
+
+QFontCache::~QFontCache()
+{
+    // remove negative cache items
+    QFontCacheIterator it(*this);
+    QString key;
+    QFontStruct *qfs;
+
+    while ((qfs = it.current())) {
+	key = it.currentKey();
+	++it;
+
+	if (qfs == (QFontStruct *) -1) {
+	    take(key);
+	}
+    }
+}
+
+
+bool QFontCache::insert(const QString &key, const QFontStruct *qfs, int cost)
+{
+
+#ifdef QFONTCACHE_DEBUG
+    qDebug("QFC::insert: inserting %p w/ cost %d", qfs, cost);
+#endif // QFONTCACHE_DEBUG
+
+    if (totalCost() + cost > maxCost()) {
+
+#ifdef QFONTCACHE_DEBUG
+	qDebug("QFC::insert: adjusting max cost to %d (%d %d)",
+	       totalCost() + cost, totalCost(), maxCost());
+#endif // QFONTCACHE_DEBUG
+
+	setMaxCost(totalCost() + cost);
+    }
+
+    bool ret = QCache<QFontStruct>::insert(key, qfs, cost);
+
+    if (ret && (! timer_id || ! fast)) {
+	if (timer_id) {
+
+#ifdef QFONTCACHE_DEBUG
+	    qDebug("QFC::insert: killing old timer");
+#endif // QFONTCACHE_DEBUG
+
+	    killTimer(timer_id);
+	}
+
+#ifdef QFONTCACHE_DEBUG
+	qDebug("QFC::insert: starting timer");
+#endif // QFONTCACHE_DEBUG
+
+	timer_id = startTimer(qtFontCacheFastTimeout);
+	fast = TRUE;
+    }
+
+    return ret;
+}
+
+
+void QFontCache::deleteItem(Item d)
+{
+    QFontStruct *qfs = (QFontStruct *) d;
+
+    // don't try to delete negative cache items
+    if (qfs == (QFontStruct *) -1) {
+	return;
+    }
+
+    if (qfs->count == 0) {
+
+#ifdef QFONTCACHE_DEBUG
+	qDebug("QFC::deleteItem: removing %s from cache", (const char *) qfs->name);
+#endif // QFONTCACHE_DEBUG
+
+    	delete qfs;
+    }
+}
+
+
+void QFontCache::timerEvent(QTimerEvent *)
+{
+    if (maxCost() <= qtFontCacheMin) {
+
+#ifdef QFONTCACHE_DEBUG
+	qDebug("QFC::timerEvent: cache max cost is less than min, killing timer");
+#endif // QFONTCACHE_DEBUG
+
+	setMaxCost(qtFontCacheMin);
+
+	killTimer(timer_id);
+	timer_id = 0;
+	fast = TRUE;
+
+	return;
+    }
+
+    QFontCacheIterator it(*this);
+    QString key;
+    QFontStruct *qfs;
+    int tqcost = maxCost() * 3 / 4;
+    int nmcost = 0;
+
+    while ((qfs = it.current())) {
+	key = it.currentKey();
+	++it;
+
+	if (qfs != (QFontStruct *) -1) {
+	    if (qfs->count > 0) {
+		nmcost += qfs->cache_cost;
+	    }
+	} else {
+	    // keep negative cache items in the cache
+	    nmcost++;
+	}
+    }
+
+    nmcost = QMAX(tqcost, nmcost);
+    if (nmcost < qtFontCacheMin) nmcost = qtFontCacheMin;
+
+    if (nmcost == totalCost()) {
+	if (fast) {
+
+#ifdef QFONTCACHE_DEBUG
+	    qDebug("QFC::timerEvent: slowing timer");
+#endif // QFONTCACHE_DEBUG
+
+	    killTimer(timer_id);
+
+	    timer_id = startTimer(qtFontCacheSlowTimeout);
+	    fast = FALSE;
+	}
+    } else if (! fast) {
+	// cache size is changing now, but we're still on the slow timer... time to
+	// drop into passing gear
+
+#ifdef QFONTCACHE_DEBUG
+	qDebug("QFC::timerEvent: dropping into passing gear");
+#endif // QFONTCACHE_DEBUG
+
+	killTimer(timer_id);
+	timer_id = startTimer(qtFontCacheFastTimeout);
+	fast = TRUE;
+    }
+
+#ifdef QFONTCACHE_DEBUG
+    qDebug("QFC::timerEvent: before cache cost adjustment: %d %d",
+	   totalCost(), maxCost());
+#endif // QFONTCACHE_DEBUG
+
+    setMaxCost(nmcost);
+
+#ifdef QFONTCACHE_DEBUG
+    qDebug("QFC::timerEvent:  after cache cost adjustment: %d %d",
+	   totalCost(), maxCost());
+#endif // QFONTCACHE_DEBUG
+
+}
 
 
 

@@ -38,6 +38,10 @@
 #ifndef QFONTDATA_P_H
 #define QFONTDATA_P_H
 
+#include <qcache.h>
+#include <qobject.h>
+
+
 //
 //  W A R N I N G
 //  -------------
@@ -140,6 +144,28 @@ public:
 
 #endif
 
+typedef QCacheIterator<QFontStruct> QFontCacheIterator;
+class QFontCache : public QObject, public QCache<QFontStruct>
+{
+public:
+    QFontCache();
+    ~QFontCache();
+
+    bool insert(const QString &, const QFontStruct *, int c);
+    void deleteItem(Item);
+
+    void timerEvent(QTimerEvent *);
+
+
+protected:
+
+
+private:
+    int timer_id;
+    bool fast;
+};
+
+
 // QFontPrivate - holds all data on which a font operates
 class QFontPrivate : public QShared
 {
@@ -163,7 +189,7 @@ public:
 	LatinLigatures, // Latin Ligatures
 
 	Diacritical,
-	
+
 	Greek,
 	GreekExt, // Extended Greek
 	Cyrillic,
@@ -230,7 +256,10 @@ public:
 #define NSCRIPTSEGCSHACK 54
 
     static Script scriptForChar(const QChar &c);
-
+    
+    static QFontCache *fontCache;
+    
+    
 public:
     QFontPrivate()
 	: exactMatch(FALSE), lineWidth(1)
@@ -344,7 +373,7 @@ public:
 	    }
 	}
     } x11data;
-
+    
     static QFontPrivate::Script defaultScript;
 
 #endif // Q_WS_X11
