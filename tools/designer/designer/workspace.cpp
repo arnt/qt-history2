@@ -218,7 +218,7 @@ bool WorkspaceItem::checkCompletion( const QString& completion )
     case ProjectType:
 	break;
     case FormFileType:
-	return  completion == formFile->formName() 
+	return  completion == formFile->formName()
 		 || completion == formFile->fileName();
     case FormSourceType:
 	return completion == formFile->codeFile();
@@ -262,6 +262,18 @@ QColor WorkspaceItem::backgroundColor()
     return b ? *backColor2 : *backColor1;
 }
 
+
+void WorkspaceItem::setOpen( bool b )
+{
+    QListViewItem::setOpen( b );
+    autoOpen = FALSE;
+}
+
+void WorkspaceItem::setAutoOpen( bool b ) 
+{
+    QListViewItem::setOpen( b );
+    autoOpen = b;
+}
 
 Workspace::Workspace( QWidget *parent, MainWindow *mw )
     : QListView( parent, 0, WStyle_Customize | WStyle_NormalBorder | WStyle_Title |
@@ -405,33 +417,28 @@ void Workspace::update( FormFile* ff )
 
 void Workspace::activeFormChanged( FormWindow *fw )
 {
-    closeAutoOpenItems();
-	
     WorkspaceItem *i = findItem( fw->formFile() );
     if ( i ) {
 	setCurrentItem( i );
 	setSelected( i, TRUE );
-	if ( !i->isOpen() ) {
-	    i->setOpen( TRUE );
-	    i->autoOpen = TRUE;
-	}
+	if ( !i->isOpen() ) 
+	    i->setAutoOpen( TRUE );
     }
+
+    closeAutoOpenItems();
+	
 }
 
 void Workspace::activeEditorChanged( SourceEditor *se )
 {
     if ( !se->object() )
 	return;
-
-    closeAutoOpenItems();
 	
     if ( se->formWindow() ) {
 	WorkspaceItem *i = findItem( se->formWindow()->formFile() );
 	if ( i && i->firstChild() ) {
-	    if ( !i->isOpen() ) {
-		i->setOpen( TRUE );
-		i->autoOpen = TRUE;
-	    }
+	    if ( !i->isOpen() )
+		i->setAutoOpen( TRUE );
 	    setCurrentItem( i->firstChild() );
 	    setSelected( i->firstChild(), TRUE );
 	}
@@ -442,6 +449,8 @@ void Workspace::activeEditorChanged( SourceEditor *se )
 	    setSelected( i, TRUE );
 	}
     }
+    
+    closeAutoOpenItems();
 }
 
 WorkspaceItem *Workspace::findItem( FormFile* ff)
@@ -472,9 +481,8 @@ void Workspace::closeAutoOpenItems()
 	WorkspaceItem* ip = (WorkspaceItem*) i->parent();
 	if ( i->type() == WorkspaceItem::FormSourceType ) {
 	    if ( !i->isSelected() && !ip->isSelected()
-		 && ip->autoOpen ) {
-		ip->setOpen( FALSE );
-		ip->autoOpen = FALSE;
+		 && ip->isAutoOpen() ) {
+		ip->setAutoOpen( FALSE );
 	    }
 	}
     }
@@ -657,12 +665,12 @@ void Workspace::bufferChosen( const QString &buffer )
 {
     if ( bufferEdit )
 	bufferEdit->setText( "" );
-    
+
     if ( MainWindow::self->projectFileNames().contains( buffer ) ) {
 	MainWindow::self->setCurrentProjectByFilename( buffer );
 	return;
     }
-    
+
     QListViewItemIterator it( this );
     while ( it.current() ) {
 	if ( ( (WorkspaceItem*)it.current())->checkCompletion( buffer ) ) {

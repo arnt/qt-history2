@@ -62,12 +62,16 @@ public:
     SourceFile* sourceFile;
     FormFile* formFile;
 
-    bool autoOpen;
+    void setOpen( bool );
+    
+    void setAutoOpen( bool );
+    bool isAutoOpen() const { return isOpen() && autoOpen; }
+    
     bool useOddColor;
 
 private:
     void init();
-
+    bool autoOpen;
     QColor backgroundColor();
     Type t;
 };
