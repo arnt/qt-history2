@@ -795,8 +795,9 @@ static void loadXft()
 				XFT_FAMILY, 0, &value) != XftResultMatch )
 	    continue;
 	// 	capitalize( value );
-	rawName = familyName = value;
+	rawName = familyName = QString::fromUtf8(value);
 	familyName.replace('-', ' ');
+	familyName.replace("/", "");
 
 	slant_value = XFT_SLANT_ROMAN;
 	weight_value = XFT_WEIGHT_MEDIUM;
@@ -1282,11 +1283,11 @@ QFontEngine *loadEngine( QFont::Script script,
 
 	if ( !foundry->name.isEmpty() )
 	    XftPatternAddString( pattern, XFT_FOUNDRY,
-				 foundry->name.local8Bit() );
+				 foundry->name.utf8() );
 
 	if ( !family->rawName.isEmpty() )
 	    XftPatternAddString( pattern, XFT_FAMILY,
-				 family->rawName.local8Bit() );
+				 family->rawName.utf8() );
 
 	const char *stylehint_value = 0;
 	switch ( request.styleHint ) {
@@ -1385,6 +1386,12 @@ QFontEngine *loadEngine( QFont::Script script,
 	    return 0;
 
 	QFontEngine *fe = new QFontEngineXft( xftfs, result, symbol ? 1 : 0 );
+	if (fp->paintdevice
+	    && QPaintDeviceMetrics(fp->paintdevice).logicalDpiY() != QPaintDevice::x11AppDpiY()) {
+	    double px;
+	    XftPatternGetDouble(result, XFT_PIXEL_SIZE, 0, &px);
+	    scale = request.pixelSize/px;
+	}
 	fe->setScale( scale );
 	return fe;
     }
@@ -1417,6 +1424,9 @@ QFontEngine *loadEngine( QFont::Script script,
 	scale = (double)px/(double)MAXFONTSIZE_XLFD;
 	px = MAXFONTSIZE_XLFD;
     }
+    if (fp->paintdevice
+	&& QPaintDeviceMetrics(fp->paintdevice).logicalDpiY() != QPaintDevice::x11AppDpiY())
+	scale = request.pixelSize/px;
 
     xlfd += QString::number( px ).latin1();
     xlfd += "-";

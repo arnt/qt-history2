@@ -55,7 +55,7 @@ double qt_pixelSize(double pointSize, QPaintDevice *paintdevice, int scr)
     if (pointSize < 0) return -1.;
 
     double result = pointSize;
-    if ( paintdevice )
+    if (paintdevice && QPaintDeviceMetrics( paintdevice ).logicalDpiY() != 75)
 	result *= QPaintDeviceMetrics( paintdevice ).logicalDpiY() / 72.;
     else if (QPaintDevice::x11AppDpiY( scr ) != 75)
 	result *= QPaintDevice::x11AppDpiY( scr ) / 72.;
@@ -74,7 +74,7 @@ double qt_pointSize(double pixelSize, QPaintDevice *paintdevice, int scr)
     if (pixelSize < 0) return -1.;
 
     double result = pixelSize;
-    if ( paintdevice )
+    if ( paintdevice && QPaintDeviceMetrics( paintdevice ).logicalDpiY() != 75)
 	result *= 72. / QPaintDeviceMetrics( paintdevice ).logicalDpiY();
     else if (QPaintDevice::x11AppDpiY(scr) != 75)
 	result *= 72. / QPaintDevice::x11AppDpiY( scr );
