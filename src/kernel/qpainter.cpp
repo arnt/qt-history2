@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#116 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#117 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -21,7 +21,7 @@
 #include "qwidget.h"
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#116 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpainter.cpp#117 $");
 
 
 /*!
@@ -323,6 +323,8 @@ void QPainter::killPStack()
 void QPainter::save()
 {
     if ( testf(ExtDev) ) {
+	if ( testf(DirtyFont) )
+	    updateFont();
 	pdev->cmd( PDC_SAVE, this, 0 );
     }
     QPStateStack *pss = (QPStateStack *)ps_stack;
@@ -2828,9 +2830,9 @@ void QPainter::drawWinFocusRect( int, int, int, int,
 
 
 /*!  Draws \a image at point \a p.
-  
+
   This function simply converts \a image to a QPixmap and draws it.
-  
+
   \sa drawPixmap() QPixmap::convertFromImage()
 */
 
