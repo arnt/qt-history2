@@ -130,7 +130,7 @@ bool FormFile::isModified( int who )
 
 bool FormFile::isFormWindowModified() const
 {
-    if ( !formWindow() )
+    if ( !formWindow()  || !formWindow()->commandHistory() )
 	return FALSE;
     return formWindow()->commandHistory()->isModified();
 }
@@ -144,16 +144,24 @@ bool FormFile::isCodeModified() const
 
 void FormFile::setFormWindowModified( bool m )
 {
-    if ( !formWindow() )
+    bool b = isFormWindowModified();
+    if ( m == b )
+	return;
+    if ( !formWindow() || !formWindow()->commandHistory() )
 	return;
     formWindow()->commandHistory()->setModified( m );
+    emit modificationChange();
 }
 
 void FormFile::setCodeModified( bool m )
 {
+    bool b = isCodeModified();
+    if ( m == b )
+	return;
     if ( !editor() )
 	return;
     editor()->setModified( m );
+    emit modificationChange();
 }
 
 void FormFile::showFormWindow()

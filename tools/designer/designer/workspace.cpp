@@ -121,6 +121,7 @@ WorkspaceItem::WorkspaceItem( QListViewItem *parent, FormFile* ff )
     formFile = ff;
     t = FormFileType;
     setPixmap( 0, *formPixmap );
+    QObject::connect( ff, SIGNAL( modificationChange() ), listView(), SLOT( update() ) );
 }
 
 
@@ -215,6 +216,13 @@ bool WorkspaceItem::isModified() const
     return FALSE; // shut up compiler
 }
 
+QString WorkspaceItem::key( int column, bool ) const
+{
+    QString key = text( column );
+    if ( t == FormFileType )
+	key.prepend( "0" );
+    return key;
+}
 
 QColor WorkspaceItem::backgroundColor()
 {
@@ -297,11 +305,15 @@ void Workspace::setCurrentProject( Project *pro )
     if ( project ) {
 	disconnect( project, SIGNAL( sourceFileAdded(SourceFile*) ), this, SLOT( sourceFileAdded(SourceFile*) ) );
 	disconnect( project, SIGNAL( sourceFileRemoved(SourceFile*) ), this, SLOT( sourceFileRemoved(SourceFile*) ) );
+	disconnect( project, SIGNAL( formFileAdded(FormFile*) ), this, SLOT( formFileAdded(FormFile*) ) );
+	disconnect( project, SIGNAL( formFileRemoved(FormFile*) ), this, SLOT( formFileRemoved(FormFile*) ) );
 	disconnect( project, SIGNAL( projectModified() ), this, SLOT( update() ) );
     }
     project = pro;
     connect( project, SIGNAL( sourceFileAdded(SourceFile*) ), this, SLOT( sourceFileAdded(SourceFile*) ) );
     connect( project, SIGNAL( sourceFileRemoved(SourceFile*) ), this, SLOT( sourceFileRemoved(SourceFile*) ) );
+    connect( project, SIGNAL( formFileAdded(FormFile*) ), this, SLOT( formFileAdded(FormFile*) ) );
+    connect( project, SIGNAL( formFileRemoved(FormFile*) ), this, SLOT( formFileRemoved(FormFile*) ) );
     connect( project, SIGNAL( destroyed(QObject*) ), this, SLOT( projectDestroyed(QObject*) ) );
     connect( project, SIGNAL( projectModified() ), this, SLOT( update() ) );
     clear();
@@ -331,7 +343,7 @@ void Workspace::setCurrentProject( Project *pro )
 	FormFile* f = forms.current();
 	(void) new WorkspaceItem( projectItem, f );
     }
-    
+
     completionDirty = TRUE;
 }
 
@@ -339,13 +351,22 @@ void Workspace::setCurrentProject( Project *pro )
 
 void Workspace::sourceFileAdded( SourceFile* sf )
 {
-    qDebug("source file added");
     (void) new WorkspaceItem( projectItem, sf );
 }
 
 void Workspace::sourceFileRemoved( SourceFile* sf )
 {
     delete findItem( sf );
+}
+
+void Workspace::formFileAdded( FormFile* ff )
+{
+    (void) new WorkspaceItem( projectItem, ff );
+}
+
+void Workspace::formFileRemoved( FormFile* ff )
+{
+    delete findItem( ff );
 }
 
 

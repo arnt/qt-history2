@@ -66,6 +66,9 @@ public:
     void showEditor();
 
     static QString createUnnamedFileName();
+    
+signals:
+    void modificationChange();
 
 private:
     bool isFormWindowModified() const;

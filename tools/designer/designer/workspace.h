@@ -55,6 +55,8 @@ public:
     QString text( int ) const;
 
     void fillCompletionList( QStringList& completion );
+    
+    QString key( int, bool ) const; // column sorting key
 
     Project* project;
     SourceFile* sourceFile;
@@ -124,6 +126,9 @@ private slots:
 
     void sourceFileAdded( SourceFile* );
     void sourceFileRemoved( SourceFile* );
+
+    void formFileAdded( FormFile* );
+    void formFileRemoved( FormFile* );
 
 private:
     WorkspaceItem *findItem( FormFile *ff );
