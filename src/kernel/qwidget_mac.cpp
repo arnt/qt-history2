@@ -1233,3 +1233,14 @@ void QWidget::fixport()
 
 }
 
+void QWidget::setMicroFocusHint(int x,int y,int width,int height,bool text)
+{
+}
+
+void QWidget::setName( const char * name )
+{
+}
+
+void QWidget::setFontSys()
+{
+}

@@ -65,7 +65,7 @@ int QFontMetrics::width(QChar c) const
       sponges[loopc]=-1;
     }
     spongy=true;
-  } 
+  }
   unsigned char f;
   f=c;
   if(f<0 || f>255) {
@@ -255,6 +255,7 @@ const QFontCharSet& QFontFamily::charSet(const QString &) const
 }
 
 QUtf8Codec * quc=0;
+*/
 
 const QTextCodec * QFontData::mapper() const
 {
@@ -263,4 +264,5 @@ const QTextCodec * QFontData::mapper() const
   }
   return quc;
 }
-*/
+
+QFont::CharSet QFont::defaultCharSet=QFont::anyCharSet;

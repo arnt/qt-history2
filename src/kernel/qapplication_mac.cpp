@@ -11,8 +11,10 @@
 #include "qevent.h"
 #include <stdio.h>
 #include <Math64.h>
-#include <OpenTransport.h>
-#include <OpenTptInternet.h>
+//#include <OpenTransport.h>
+//#include <OpenTptInternet.h>
+#include "qsessionmanager.h"
+#include "qstringlist.h"
 #include <Files.h>
 
 class SockRec {
@@ -815,6 +817,81 @@ bool qt_set_socket_handler( int sockfd, int type, QObject *obj, bool enable )
     return false;
   }
   return true;
+}
+
+QSessionManager::QSessionManager( QApplication * app,QString &session ) 
+{
+}
+
+QSessionManager::~QSessionManager()
+{
+}
+
+QString QSessionManager::sessionId() const
+{
+}
+
+bool QSessionManager::allowsInteraction()
+{
+    return false;
+}
+
+bool QSessionManager::allowsErrorInteraction()
+{
+    return false;
+}
+
+void QSessionManager::release()
+{
+}
+
+void QSessionManager::cancel()
+{
+}
+
+void QSessionManager::setRestartHint( RestartHint )
+{
+}
+
+RestartHint QSessionManager::restartHint() const
+{
+    return RestartIfRunning;
+}
+
+void QSessionManager::setRestartCommand( const QStringList& )
+{
+}
+
+QStringList QSessionManager::restartCommand() const
+{
+    return QStringList;
+}
+
+void QSessionManager::setDiscardCommand( const QStringList& )
+{
+}
+
+QStringList QSessionManager::discardCommand() const
+{
+    return QStringList;
+}
+
+void QSessionManager::setProperty( const QString& name, const QString& value )
+{
+}
+
+void QSessionManager::setProperty( const QString& name, 
+				   const QStringList& value )
+{
+}
+
+bool QSessionManager::isPhase2() const
+{
+    return false;
+}
+
+void QSessionManager::requestPhase2()
+{
 }
 
 QObject * qt_clipboard=0;

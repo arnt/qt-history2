@@ -33,4 +33,8 @@ void QDragManager::updatePixmap()
   printf("%s %d\n",__FILE__,__LINE__);
 }
 
+void QDragManager::timerEvent ( QTimerEvent * e )
+{
+}
+
 

@@ -237,12 +237,12 @@ QImage QPixmap::convertToImage() const
 
 #endif
 
-	      
+
     for ( int i=0; i<ncols; i++ ) {             // copy color table
       image.setColor( i, qRgb(0,
                               0,
                               0));
-    }	      
+    }
 
     QImage * flippy=new QImage();
     *flippy=image;
@@ -417,6 +417,10 @@ QWMatrix QPixmap::trueMatrix(const QWMatrix & matrix,int w,int h)
     QWMatrix mat( 1, 0, 0, 1, -xmin, -ymin );   // true matrix
     mat = matrix * mat;
     return mat;
+}
+
+void QPixmap::setOptimization( Optimization optimization )
+{
 }
 
 
