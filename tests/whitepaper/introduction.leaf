@@ -56,16 +56,18 @@ Designer}, which offers live preview of database data. Qt includes
 database-specific widgets, and any built-in or custom widget can be
 made data aware.
 
+  \index qmake
+
 Recompilation is all that is required to produce applications for
 Windows 95/98/NT4/ME/2000, Mac OS X, Linux, Solaris, HP-UX and many
 other versions of Unix with X11. Qt applications can even be compiled
 to run on Qt/Embedded. A single source tree can be used to build
-applications for multiple platforms. Qt's \c qmake build tool produces
-Makefiles or .dsp files appropriate to the target platform. Many
-customers also use Qt for single-platform development on both Windows
-and Unix because they prefer the Qt approach.
+applications for multiple platforms. Qt's \Cmd qmake build tool
+produces Makefiles or \File .dsp files appropriate to the target
+platform. Many customers also use Qt for single-platform development
+on both Windows and Unix because they prefer the Qt approach.
 
-Qt has considerable support for \l{Internationalization}. Qt's use of
+Qt has considerable support for \l Internationalization. Qt's use of
 Unicode, along with the \l{Qt Linguist} application and other tools to
 support translators, means that Qt applications can be localized for
 almost any country in the world. Applications can easily use and mix
@@ -91,5 +93,3 @@ world. In addition to Qt's many commercial uses, Qt is the
 foundation of KDE, the Linux desktop environment. Qt makes application
 development a pleasure, with its cross-platform build system, visual
 form design and elegant API. 
-
-

@@ -122,7 +122,7 @@ predefined in Qt.
 
 \section2 Paint Devices
 
-\Class QPainter can be associated with any 'paint device'. The code
+\Class QPainter can operate on any 'paint device'. The code
 required to paint on any supported device is the same, regardless of
 the device. Qt supports the following paint devices:
 
@@ -165,8 +165,6 @@ bar-graph example.
   \index canvas
   \index animations
   \index sprites
-
-
 
 The \Class QCanvas class provides a high-level interface to 2D
 graphics. It can handle a very large number of 'canvas items' that
@@ -211,11 +209,10 @@ achieved by subclassing \Class QGLWidget, a \Class QWidget subclass,
 and drawing with standard OpenGL functions rather than with \Class
 QPainter.
 
-  \index GLUT
+  \index Mesa
 
 Qt's OpenGL module is available on Windows, X11 and Macintosh, and
-uses the system's OpenGL library (including Mesa). Qt avantageously
-replaces GLUT as a cross-platform OpenGL-enabled toolkit.
+uses the system's OpenGL library (including Mesa).
 
   \index alpha channel
   \index colormap
@@ -230,6 +227,8 @@ colormap manually in color index mode.
 When using Qt, developers write in pure OpenGL. Qt also provides two
 convenience functions, \Func qglClearColor() and \Func qglColor(),
 that accept a \Class QColor argument and work in any mode.
+
+\omit ### HOOPS by Tech Soft America? ### \endomit
 
 \section1 A 3D Example
 

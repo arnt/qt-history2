@@ -205,5 +205,5 @@ implemented in a base class. This could be achieved by reimplementing
 \Func paintEvent(), as explained in \l {2D Graphics}.
 
 \ONLINES
-###
+\Online qwidget.html
 \ENDONLINES

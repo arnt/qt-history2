@@ -6,6 +6,8 @@ understand and use, simple to hand code, and are fully supported by
 \l{Qt Designer}.
 \endquote
 
+\omit ### Mark, avoid 'component programming' for QObject ### \endomit
+
 GUI applications respond to user actions. For example, when a user
 clicks a menu item or toolbar button, the program executes some code.
 More generally, we want objects of any kind to be able to communicate
@@ -176,11 +178,11 @@ are compatible.
 
 The signals and slots mechanism is implemented in pure standard C++.
 The implementation uses the C++ preprocessor and the Meta Object
-Compiler (\e moc) included with the Qt library. 
+Compiler (\Cmd moc) included with the Qt library. 
 
-The \e moc reads the application's header files and generates the
+The \Cmd moc reads the application's header files and generates the
 necessary code to support the signals and slots mechanism. Developers
-never have to edit or even look at the generated code, and the \l
+never have to edit or even look at the generated code, and the \Cmd
 qmake build tool generates the correct makefiles for the target
 platform.
 
@@ -191,9 +193,9 @@ platform.
   \index run-time type information
   \index translations
 
-In addition to handling signals and slots, \e moc supports Qt's \l
+In addition to handling signals and slots, \Cmd moc supports Qt's \l
 {translation mechanism}, its property system and extended run-time type
-information. The \e moc also makes the cross-platform introspection
+information. The \Cmd moc also makes the cross-platform introspection
 of C++ programs possible.
 
 \ONLINES

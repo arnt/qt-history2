@@ -11,10 +11,9 @@
 \input databases.leaf
 \input internationalization.leaf
 \input qt-linguist.leaf
-\input xml.leaf
 \input styles-and-themes.leaf
 \input layouts.leaf
 \input events.leaf
 \input io-and-networking.leaf
 \input collection-classes.leaf
-\input component-model.leaf
+\omit \input component-model.leaf \endomit

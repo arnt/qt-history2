@@ -1,49 +1,69 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<!-- ./internationalization.leaf:3 -->
+<!-- ./databases.leaf:3 -->
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Internationalization</title>
+<title>Databases</title>
 </head>
 <body>
-<p align="right">[<a href="whitepaper-6.html">Prev: Databases</a>] [<a href="whitepaper.html">Home</a>] [<a href="whitepaper-8.html">Next: Qt Linguist</a>]</p>
-<h2 align="center">Internationalization</h2>
+<p align="right">[<a href="whitepaper-6.html">Prev: 2D and 3D Graphics</a>] [<a href="whitepaper.html">Home</a>] [<a href="whitepaper-8.html">Next: Internationalization</a>]</p>
+<h2 align="center">Databases</h2>
 <blockquote>
-<p>Qt fully supports Unicode, the international standard character encoding scheme. Programmers can freely mix Arabic, English, Hebrew, Japanese, Russian, and every other language supported by Unicode, in their applications. Qt also includes tools to support application translation to help companies reach international markets.</p>
+<p>The Qt SQL module simplifies the creation of GUI database applications. Programmers can easily execute SQL statements, use database-specific widgets, and make any widget data-aware.</p>
 </blockquote>
-<!-- index i18n --><!-- index internationalization --><!-- index l10n --><!-- index localization --><!-- index multi-language --><p>Qt includes tools to facilitate the translation process. Programmers can easily mark user-visible text that needs translation and a tool is provided which extracts this text from the source code. <a href="whitepaper-8.html">Qt Linguist</a> is an easy-to-use GUI application for translators that reads the extracted source text and provides the text with context information for the translator to translate. When the translation is complete <a href="whitepaper-8.html">Qt Linguist</a> outputs the translations ready for use by application programs. <a href="whitepaper-8.html">Qt Linguist</a>'s documentation provides the relevant information for release managers, translators and programmers.</p>
-<h3><a name="1"></a>Unicode</h3>
-<!-- index QChar --><!-- index QRegExp --><!-- index QString --><!-- index Unicode --><!-- index char --><!-- index implicit sharing --><!-- index strings --><p>Qt uses the <font color=darkblue><b>QString</b></font> class to store Unicode strings, and uses it throughout the API and internally. <font color=darkblue><b>QString</b></font> replaces the crude <tt>const char *</tt> and the 16-bit <font color=darkblue><b>QChar</b></font> class replaces <tt>char</tt>. Constructors and operators are provided to automatically convert to and from 8-bit strings. Programmers can copy <font color=darkblue><b>QString</b></font>s by value, since they are implicitly shared (copy on write), which makes them fast and memory efficient.</p>
-<!-- index regular expressions --><p><font color=darkblue><b>QString</b></font> is more than a 16-bit character string. Functions such as <font color=darkblue>QChar::lower()</font> and <font color=darkblue>QChar::isPunct()</font> replace <font color=darkblue>tolower()</font> and <font color=darkblue>ispunct()</font> and work over the whole Unicode range. Qt's regular expression engine, provided by the <font color=darkblue><b>QRegExp</b></font> class, uses Unicode strings both for the regular expression pattern and the string to match.</p>
-<!-- index QTextCodec --><!-- index charsets --><!-- index codecs --><!-- index encodings --><p>Conversion to and from different encodings and charsets is handled by <font color=darkblue><b>QTextCodec</b></font> subclasses. Qt uses <font color=darkblue><b>QTextCodec</b></font> for fonts, input methods and I/O; you can use it for your own purposes as well.</p>
-<!-- index Big5 --><!-- index EUC-JP --><!-- index GBK --><!-- index ISO 8859 --><!-- index JIS --><!-- index KOI8-R --><!-- index Shift-JIS --><!-- index charmap --><p>Qt 3.0 supports 37 different encodings, including Big5 and GBK for Chinese, EUC-JP, JIS and Shift-JIS for Japanese, KOI8-R for Russian and the ISO 8859 series; see <a href="http://doc.trolltech.com/qtextcodec.html">http://doc.trolltech.com/qtextcodec.html</a> for the complete list. Programmers can add their own encodings by providing a charmap or by subclassing <font color=darkblue><b>QTextCodec</b></font>.</p>
-<h3><a name="2"></a>Text Rendering</h3>
-<!-- index Arabic --><!-- index Chinese --><!-- index Cyrillic --><!-- index Greek --><!-- index Hebrew --><!-- index Japanese --><!-- index Korean --><!-- index Latin --><!-- index Thai --><!-- index Vietnamese --><!-- index bidirectional writing --><!-- index diacritical marks --><!-- index fonts --><!-- index line breaking --><!-- index right-to-left languages --><!-- index text rendering --><!-- index writing systems --><p>Qt provides a powerful text-rendering engine for all text that is displayed on screen, from the simplest label to the most sophisticated rich-text editor. The engine supports advanced features such as special line breaking behavior, bidirectional writing and diacritical marks. It renders most of the world's writing systems, including Arabic, Chinese, Cyrillic, Greek, Hebrew, Japanese, Korean, Latin, Thai and Vietnamese. Qt will automatically combine many of the installed fonts to render multi-language text.</p>
-<h3><a name="3"></a>Input Methods</h3>
-<!-- index input methods --><!-- index keyboard --><p>Far-Eastern writing systems require many more characters than are available on a keyboard. The conversion from a sequence of key presses to actual characters is performed at the window-system level by software called input methods. Qt automatically supports the installed input methods.</p>
-<h3><a name="4"></a>Dates and Times</h3>
-<!-- index QDateEdit --><!-- index QDateTimeEdit --><!-- index QTimeEdit --><!-- index dates --><!-- index locales --><!-- index times --><p>The editor classes for dates and times (<font color=darkblue><b>QDateEdit</b></font>, <font color=darkblue><b>QTimeEdit</b></font> and <font color=darkblue><b>QDateTimeEdit</b></font>) respect the user's locale for separators and ordering.</p>
-<h3><a name="5"></a>Translating Your Application</h3>
-<!-- index translations --><p>Qt provides functions and tools to help you provide applications translated to many languages.</p>
-<!-- index tr() --><p>To make a string translatable, simply wrap it in a call to <font color=darkblue>tr()</font> (read "translate"):</p>
+<!-- index Microsoft SQL Server --><!-- index MySQL --><!-- index OCI --><!-- index ODBC --><!-- index Oracle --><!-- index PostgreSQL --><!-- index SQL --><!-- index Sybase --><!-- index TDS --><p>The Qt SQL module provides a cross-platform interface for accessing SQL databases. Qt includes native drivers for Oracle, Microsoft SQL Server, Sybase Adaptive Server, PostgreSQL, MySQL and ODBC. The drivers work on all platforms supported by Qt, and programs can access multiple databases using multiple drivers simultaneously.</p>
+<p>Programmers can easily execute any arbitrary SQL statements. Qt also provides a high-level C++ interface that programmers can use to generate the appropriate SQL statements automatically.</p>
+<!-- index keys --><!-- index primary keys --><p>Any Qt widget, including custom widgets, can be made data aware. Qt also includes some database-specific convenience widgets, to simplify the creation of dialogs and windows that present records as forms or in tables. Data-aware widgets automatically support browsing, updating and deleting records. Most database designs require that new records have a unique key that cannot be guessed by Qt, so insertion usually needs a small amount of code to be written. The programmer can easily force the user to confirm actions, e.g. deletions.</p>
+<!-- index Designer --><!-- index Qt Designer --><p>Qt's SQL module is fully integrated into <a href="whitepaper-5.html">Qt Designer</a>, which provides templates and wizards to make the creation of database forms as quick and easy as possible. The wizards can create forms with navigation buttons, and with update, insert and delete buttons.</p>
+<p>Using the facilities that the Qt SQL module provides, it is straightforward to create database applications that use foreign key lookups, present master-detail relationships, and support drill-down.</p>
+<h3><a name="1"></a>Executing SQL Commands</h3>
+<!-- index DDL --><!-- index DML --><!-- index SELECT --><!-- index queries --><p>The <font color=darkblue><b>QSqlQuery</b></font> class can be used to directly execute SQL DDL and DML statements. The <font color=darkblue><b>QSqlQuery</b></font> class is also used to navigate the result sets produced by <tt>SELECT</tt> statements.</p>
+<p>In the example below, a query is executed, and the result set navigated using the <font color=darkblue>QSqlQuery::next()</font> function:</p>
 <pre>
-    saveButton-&gt;setText( tr("Save") );
+    QSqlQuery query( "SELECT id, surname FROM staff" );
+    while ( query.next() ) {
+	cout &lt;&lt; "id: "
+	     &lt;&lt; query.value(0).toInt()
+	     &lt;&lt; " surname: "
+	     &lt;&lt; query.value(1).toString() &lt;&lt; endl;
+    }
 </pre>
-<p><font color=darkblue>tr()</font> attempts to replace a string literal (e.g. <tt>"Save"</tt>) with a translation if one is available; otherwise it uses the original text. You can use English as the source language and Chinese as the translated language, or vice versa. The argument to <font color=darkblue>tr()</font> is converted to Unicode from the application's default encoding.</p>
-<!-- index QObject --><!-- index comments (for translation) --><!-- index contexts (for translation) --><!-- index source texts --><p><font color=darkblue>tr()</font>'s general syntax is</p>
+<p>Field values are indexed in the order they appear in the <tt>SELECT</tt> statement. <font color=darkblue><b>QSqlQuery</b></font> also provides the <font color=darkblue>first()</font>, <font color=darkblue>prev()</font>, <font color=darkblue>last()</font> and <font color=darkblue>seek()</font> navigation functions.</p>
+<!-- index DELETE --><!-- index INSERT --><!-- index UPDATE --><p><tt>INSERT</tt>, <tt>UPDATE</tt> and <tt>DELETE</tt> are equally simple. Below is an <tt>UPDATE</tt> example:</p>
 <pre>
-    Context::tr("source text", "comment")
+    QSqlQuery query( "UPDATE staff SET salary = salary * 1.10"
+		     " WHERE id &gt; 1155 AND id &lt; 8155" );
+    if ( query.isActive() ) {
+	cout &lt;&lt; "Pay rise given to "
+	     &lt;&lt; query.numRowsAffected()
+	     &lt;&lt; " staff" &lt;&lt; endl;
+    }
 </pre>
-<p>The 'context' is the name of a <font color=darkblue><b>QObject</b></font> subclass. It is usually omitted, in which case the class containing the <font color=darkblue>tr()</font> call is used as the context. The 'source text' is the text to translate. The 'comment' is optional; along with the context, it provides additional information to the human translators.</p>
-<!-- index .qm --><!-- index QTranslator --><!-- index locales --><p>Translations are stored in <font color=darkblue><b>QTranslator</b></font> objects, which use disk-based <tt>.qm</tt> files (Qt Message files). Each <tt>.qm</tt> file contains the translations for a particular language. It is possible to choose the language at run-time; for example, according to the locale or user preferences.</p>
-<!-- index Linguist --><!-- index Qt Linguist --><!-- index lrelease --><!-- index lupdate --><p>Qt provides three tools for preparing <tt>.qm</tt> files: <font color=red><b>lupdate</i></font>, <a href="whitepaper-8.html">Qt Linguist</a> and <font color=red><b>lrelease</i></font>.</p>
-<!-- index .ts --><!-- index XML --><ol type=1><li><p><font color=red><b>lupdate</i></font> extracts all the (context, source text, comment) triples from the source code and generates a <tt>.ts</tt> file (Translation Source file). <tt>.ts</tt> files are in human-readable XML format.</p>
-<li><p>Translators use the <a href="whitepaper-8.html">Qt Linguist</a> tool to provide translations for the source texts in the <tt>.ts</tt> files.</p>
-<li><p>Highly compressed <tt>.qm</tt> files are generated by running <font color=red><b>lrelease</i></font> on the <tt>.ts</tt> files.</p>
-</ol><p>These steps are repeated as often as necessary during the lifetime of an application. It is perfectly safe to run <font color=red><b>lupdate</i></font> frequently, as it reuses existing translations and marks translations for obsolete source texts without eliminating them. <font color=red><b>lupdate</i></font> also detects slight changes in source texts and automatically suggests translations. These translations are marked as unfinished so that a translator can easily check them.</p>
-<!-- index French --><!-- index German --><p>Qt itself contains a modest 400 user-visible strings, for which Trolltech provides French and German translations.</p>
-<p><hr><ul> <li><a href=http://doc.trolltech.com/3.0/i18n.html>http://doc.trolltech.com/3.0/i18n.html</a> <li><a href=http://doc.trolltech.com/3.0/unicode.html>http://doc.trolltech.com/3.0/unicode.html</a> <li><a href=http://doc.trolltech.com/3.0/scripts.html>http://doc.trolltech.com/3.0/scripts.html</a> <li><a href=http://doc.trolltech.com/3.0/linguist-manual.html>http://doc.trolltech.com/3.0/linguist-manual.html</a> </ul></p>
+<!-- index tables --><!-- index views --><p>For programmers who are not comfortable writing raw SQL, the <font color=darkblue><b>QSqlCursor</b></font> class provides a high-level interface for browsing and editing records in SQL tables or views without the need to write SQL statements. For example:</p>
+<pre>
+    QSqlCursor cur( "staff" );
+    while ( cur.next() ) {
+	cout &lt;&lt; "id: "
+	     &lt;&lt; cur.value("id").toInt()
+	     &lt;&lt; " surname: "
+	     &lt;&lt; cur.value("surname").toString() &lt;&lt; endl;
+    }
+</pre>
+<p><font color=darkblue><b>QSqlCursor</b></font> also supports the ordering and filtering that are achieved using <tt>ORDER BY</tt> and <tt>WHERE</tt> clauses in the SQL statements used by <font color=darkblue><b>QSqlQuery</b></font>.</p>
+<!-- index calculated fields --><!-- index foreign keys --><p>Calculated fields are useful both for real calculations (e.g. calculating totals) and for performing foreign key lookups, (e.g. to display names rather than codes). Calculated fields can be created by subclassing <font color=darkblue><b>QSqlCursor</b></font>, adding additional <font color=darkblue><b>QSqlField</b></font>s with their calculated property set to TRUE, and by reimplementing <font color=darkblue>QSqlCursor::calculateField()</font>.</p>
+<!-- index commit --><!-- index rollback --><!-- index transactions --><p>Database drivers can be asked about the features they support, including whether they support query size reporting and transations. The <font color=darkblue>transaction()</font>, <font color=darkblue>commit()</font> and <font color=darkblue>rollback()</font> functions can be used if the underlying database supports transactions.</p>
+<h3><a name="2"></a>Data-aware Widgets</h3>
+<!-- index data tables --><!-- index tables --><p><font color=darkblue><b>QDataTable</b></font> is a <font color=darkblue><b>QTable</b></font> that displays records from a result set using a <font color=darkblue><b>QSqlCursor</b></font>. <font color=darkblue><b>QDataTable</b></font>, like <font color=darkblue><b>QTable</b></font>, supports in-place editing. Programmers can force users to confirm all or selected changes (e.g. deletions) by setting <font color=darkblue><b>QDataTable</b></font>'s confirmation properties. The editor widget chosen for each type of data depends on the data type. For example, a <font color=darkblue><b>QLineEdit</b></font> is used for <tt>CHAR</tt> fields, whereas a <font color=darkblue><b>QSpinBox</b></font> is used for <tt>INTEGER</tt> fields. The programmer can override the defaults by creating a property map for the table, which matches fields (columns) to the editor widget type the programmer prefers.</p>
+<p>Records can be updated and deleted without writing any code. Insertions require some code since most database designs expect new records to be created with a unique key. This can easily be achieved by generating the key in a slot connected to the <font color=darkblue>QDataTable::beforeInsert()</font> signal.</p>
+<p><font color=darkblue><b>QDataTable</b></font> uses intelligent buffering to make the loading of large result sets fast, while keeping the user interface responsive. For databases that are capable of reporting query sizes, the scroll bar slider is displayed proportionally immediately.</p>
+<p>Qt also includes <font color=darkblue><b>QDataBrowser</b></font> and <font color=darkblue><b>QDataView</b></font> to display records as forms, typically with one or perhaps just a few records shown at a time. These classes provide buttons with ready-made connections for navigating through the records. <font color=darkblue><b>QDataView</b></font> is used for read only data. <font color=darkblue><b>QDataBrowser</b></font> is used for editing, and can provide ready-made insert, update and delete buttons.</p>
+<p>Both editable widgets, <font color=darkblue><b>QDataTable</b></font> and <font color=darkblue><b>QDataBrowser</b></font>, have both a popup context menu and keyboard shortcuts for editing records.</p>
+<!-- index foreign keys --><p>Programmers can manipulate data retrieved from the database before it is displayed, e.g. by implementing a slot and connecting it to the <font color=darkblue>primeInsert()</font> and <font color=darkblue>primeUpdate()</font> signals. Data can also be manipulated or actions logged just before changes are written back to the database, for example, converting a foreign key's display text into its ID by implementing a slot connected to <font color=darkblue>beforeInsert()</font>, <font color=darkblue>beforeUpdate()</font> and <font color=darkblue>beforeDelete()</font>.</p>
+<p>Developers can create their own forms for displaying database records. Unlike older toolkits that duplicate their widgets with data-aware versions, any Qt widget (including custom widgets) can be made data aware. All that is necessary is to include the widget in a <font color=darkblue><b>QSqlForm</b></font> and set up a property map to relate the relevant database field to the widget that will present and edit the field's data.</p>
+<!-- index drill-down --><!-- index master-detail --><p>Master-detail relationships are easily set up by filtering the detail form or table's cursor by the master form or table's current record. Drill-down is also easy to achieve, for example, by associating a button, menu item or keyboard shortcut with a drill-down form that is invoked with the current record's key as a parameter.</p>
+<!-- index Designer --><!-- index Qt Designer --><!-- index wizards --><p>Qt's SQL module is fully integrated with <a href="whitepaper-5.html">Qt Designer</a>. <a href="whitepaper-5.html">Qt Designer</a> can preview database forms and tables using live data if desired, allowing developers to browse, delete and update records. <a href="whitepaper-5.html">Qt Designer</a> has templates and wizards to make creating database forms fast and simple.</p>
+<p><hr><ul> <li><a href=http://doc.trolltech.com/3.0/sql.html>http://doc.trolltech.com/3.0/sql.html</a> </ul></p>
 <!-- eof -->
-<p align="right">[<a href="whitepaper-6.html">Prev: Databases</a>] [<a href="whitepaper.html">Home</a>] [<a href="whitepaper-8.html">Next: Qt Linguist</a>]</p>
+<p align="right">[<a href="whitepaper-6.html">Prev: 2D and 3D Graphics</a>] [<a href="whitepaper.html">Home</a>] [<a href="whitepaper-8.html">Next: Internationalization</a>]</p>
 </body>
 </html>

@@ -246,7 +246,7 @@ components transparently to the application.
   \index qmake
 
 Makefiles for shared libraries can easily be generated for any
-platform supported by Qt using Trolltech's \l qmake tool.
+platform supported by Qt using Trolltech's \Cmd qmake tool.
 
 \ONLINES
 \Online component.html

@@ -1,79 +1,138 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
-<!-- ./signals-and-slots.leaf:3 -->
+<!-- ./widgets.leaf:3 -->
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-<title>Signals and Slots</title>
+<title>Widgets</title>
 </head>
 <body>
-<p align="right">[<a href="whitepaper-1.html">Prev: Widgets</a>] [<a href="whitepaper.html">Home</a>] [<a href="whitepaper-3.html">Next: GUI Applications</a>]</p>
-<h2 align="center">Signals and Slots</h2>
+<p align="right">[<a href="whitepaper-1.html">Prev: Introduction</a>] [<a href="whitepaper.html">Home</a>] [<a href="whitepaper-3.html">Next: Signals and Slots</a>]</p>
+<h2 align="center">Widgets</h2>
 <blockquote>
-<p>Signals and slots provide inter-object communication. They are easy to understand and use, simple to hand code, and are fully supported by <a href="whitepaper-4.html">Qt Designer</a>.</p>
+<p>Qt has a rich set of widgets (e.g. buttons, scrollbars, etc.), that cater for most situations. Qt's widgets are flexible and easy to subclass for special requirements.</p>
 </blockquote>
-<p>GUI applications respond to user actions. For example, when a user clicks a menu item or toolbar button, the program executes some code. More generally, we want objects of any kind to be able to communicate with one another. For example, if we were parsing an XML file we might want to notify a list view that we're using to represent the XML file's structure whenever we encounter a new tag. The programmer must relate events to the relevant code. Older toolkits use mechanisms which are not type-safe (i.e. are crash-prone), are inflexible, and make it difficult to do component programming. Qt uses a mechanism, invented by Trolltech, called 'signals and slots'. Signals and slots is a powerful inter-object communication mechanism that can be used to completely replace the crude callbacks and message maps used by older toolkits. Signals and slots are type-safe, flexible, and well suited to component programming.</p>
-<p>If a programmer wants to associate some code with a button, using the old callback mechanism, they would have to pass a pointer to a function to the button. When the button is clicked, the function would then be called. There is no way of ensuring that arguments of the right type are given to the function when it is called, which makes crashes more likely. The other problem with the callback approach is that it tightly binds the GUI element to the functionality, making it difficult to develop classes independently.</p>
-<p>Qt's signals and slots mechanism is different. Qt widgets emit signals when events occur. For example, a button will emit a 'clicked' signal when it is clicked. The programmer can choose to connect to a signal by creating a function (called a slot) and calling the <font color=darkblue>connect()</font> function to relate the signal with the slot. Qt's signals and slots mechanism does not require classes to have knowledge of each other, which makes it much easier to develop highly reusable software components. Signals and slots are type-safe, with type errors being reported by the compiler rather than by crashes.</p>
-<!-- index MFC --><!-- index Motif --><!-- index QObject --><!-- index callbacks --><!-- index communication --><!-- index message maps --><!-- index objects --><!-- index signals --><!-- index slots --><!-- index events --><!-- index state of widgets --><p>Objects, typically widgets, emit signals to indicate state changes. Signals can be connected to member functions, slots, that implement the required behavior.</p>
-<!-- index connect() --><p>For example, if a <font color=darkgreen><em>Quit</em></font> button's <font color=darkblue>clicked()</font> signal is connected to the application's <font color=darkblue>quit()</font> slot, a user's click on <font color=darkgreen><em>Quit</em></font> makes the application quit. In code, this is written as</p>
-<pre>
-    connect( button, SIGNAL(clicked()), qApp, SLOT(quit()) );
-</pre>
-<p>Connections can be added or removed at any time during the execution of a Qt application.</p>
-<!-- index OOP --><!-- index object-oriented programming --><!-- index type safety --><p>The signals and slots implementation smoothly extends C++'s syntax and takes full advantage of C++'s object-orientated features. Signals and slots are type safe, can be overloaded or reimplemented and may appear in the public, protected or private sections of a class.</p>
-<!-- index components --><!-- index reusability --><h3><a name="1"></a>A Signals and Slots Example</h3>
-<!-- index QObject --><p>To benefit from signals and slots, a class needs to inherit from <font color=darkblue><b>QObject</b></font> or one of its subclasses and must include the <tt>Q_OBJECT</tt> macro in the class's definition. Signals are declared in the <tt>signals</tt> section of the class, while slots are declared in the <tt>public slots</tt>, <tt>protected slots</tt> or <tt>private slots</tt> sections.</p>
-<!-- index inheriting in Qt --><!-- index subclassing in Qt --><p>Here's an example <font color=darkblue><b>QObject</b></font> subclass:</p>
-<pre>
-    class BankAccount : public QObject
-    {
-	Q_OBJECT
-    public:
-	BankAccount() { curBalance = 0; }
-	int balance() const { return curBalance; }
-    public slots:
-	void setBalance( int newBalance );
+<p>Qt provides a full set of widgets ('controls' and 'containers' in Windows terminology). Widgets are visual elements that are combined to create user interfaces. Buttons, menus, scroll bars, message boxes, application windows, etc., are all examples of widgets. Qt's widgets are not arbitrarily divided between 'controls' and 'containers'; all widgets can be used both as controls and as containers. Custom widgets can easily be created by subclassing existing Qt widgets, or even created from scratch on the rare occasions when this is necessary.</p>
+<!-- index controls --><!-- index widgets --><p>Widgets are instances of <font color=darkblue><b>QWidget</b></font> or one of its subclasses, and custom widgets are created by subclassing.</p>
+<p align="center"><img align="middle" src="qwidget-hierarchy.png">
+</p>
+<blockquote><p align="center"><em>An extract from the <font color=darkblue><b>QWidget</b></font> class hierarchy</em></p></blockquote>
+<!-- index child widgets --><!-- index parent widgets --><p>A widget may contain any number of child widgets. Child widgets are shown within the parent widget's area. A widget with no visible parent is a top-level widget (a 'window') and usually has its own entry in the desktop environment's task bar. Qt imposes no arbitrary limitations on widgets. Any widget can be a top-level widget; any widget can be a child of any other widget. The position of child widgets within the parent's area can be set automatically using <a href="whitepaper-11.html">layout managers</a>, or manually if preferred. When a parent widget is disabled, hidden or deleted, the action is applied to all its child widgets recursively.</p>
+<!-- index HTML --><!-- index rich text --><p>Developers are not confined to using a single color, font or language in labels, message boxes, tooltips, etc. Qt's text-rendering widgets can display multi-language rich text using a subset of HTML. See <a href="whitepaper-8.html#2">Text Rendering</a>.</p>
+<h3><a name="1"></a>A 'Hello' Example</h3>
+<p align="center"><img align="middle" src="hello.png" alt="Hello Qt!">
+</p>
+<p>The complete code for a program that displays "Hello Qt!" follows:</p>
+<pre>    #include &lt;qapplication.h&gt;
+    #include &lt;qlabel.h&gt;
 
-    signals:
-	void balanceChanged( int newBalance );
-
-    private:
-	int curBalance;
-    };
-</pre>
-<p>The class <font color=darkblue><b>BankAccount</b></font> has a constructor, a get function, <font color=darkblue>balance()</font>, and a set function, <font color=darkblue>setBalance()</font>, like almost any C++ class.</p>
-<p>The class also has a signal, <font color=darkblue>balanceChanged()</font>, that announces that the balance in the account has changed. Signals are not implemented; when a signal is emitted, the slots it is connected to are executed.</p>
-<p>The set function is declared in the <tt>public slots</tt> section, so it is a slot. Slots are standard member functions with an implementation that can be called like any other function, and which can also be connected to signals.</p>
-<!-- index emitting a signal --><!-- index preprocessor (C++) --><p>Here's the implementation of the slot <font color=darkblue>setBalance()</font>:</p>
-<pre>
-    void BankAccount::setBalance( int newBalance )
+    int main( int argc, char **argv )
     {
-	if ( newBalance != curBalance ) {
-	    curBalance = newBalance;
-	    emit balanceChanged( curBalance );
-	}
+        QApplication app( argc, argv );
+        QLabel hello( "&lt;font color=blue&gt;Hello &lt;i&gt;Qt!&lt;/i&gt;&lt;/font&gt;", 0 );
+        app.setMainWidget( &amp;hello );
+        hello.show();
+        return app.exec();
     }
 </pre>
-<p>The statement</p>
-<pre>
-    emit balanceChanged( curBalance );
+<h3><a name="2"></a> Built-in Widgets</h3>
+<p>The screenshots below present the main Qt widgets. They are shown using the Windows style.</p>
+<!-- index buttons --><!-- index hbox --><!-- index horizontal box layout --><!-- index labels --><!-- index push buttons --><p align="center"><img align="middle" src="qlabel-etc.png">
+</p>
+<blockquote><p align="center"><em>A <font color=darkblue><b>QLabel</b></font> and a <font color=darkblue><b>QPushButton</b></font> in a <font color=darkblue><b>QHBox</b></font></em></p></blockquote>
+<!-- index checkboxes --><!-- index radio buttons --><p align="center"><img align="middle" src="qradiobutton-etc.png">
+</p>
+<blockquote><p align="center"><em>Two <font color=darkblue><b>QRadioButton</b></font>s and two <font color=darkblue><b>QCheckBox</b></font>es in a <font color=darkblue><b>QButtonGroup</b></font></em></p></blockquote>
+<!-- index comboboxes --><!-- index dates --><!-- index line editors --><!-- index multi-line editors --><!-- index text editors --><!-- index times --><p align="center"><img align="middle" src="qdateedit-etc.png">
+</p>
+<blockquote><p align="center"><em>A <font color=darkblue><b>QDateTimeEdit</b></font>, a <font color=darkblue><b>QLineEdit</b></font>, a <font color=darkblue><b>QTextEdit</b></font> and a <font color=darkblue><b>QComboBox</b></font> in a <font color=darkblue><b>QGroupBox</b></font></em></p></blockquote>
+<!-- index dials --><!-- index LCD --><!-- index progress bars --><!-- index scroll bars --><!-- index sliders --><!-- index spin boxes --><p align="center"><img align="middle" src="qdial-etc.png">
+</p>
+<blockquote><p align="center"><em>A <font color=darkblue><b>QDial</b></font>, a <font color=darkblue><b>QProgressBar</b></font>, a <font color=darkblue><b>QSpinBox</b></font>, a <font color=darkblue><b>QScrollBar</b></font>, a <font color=darkblue><b>QLCDNumber</b></font> and a <font color=darkblue><b>QSlider</b></font> in a <font color=darkblue><b>QGrid</b></font></em></p></blockquote>
+<!-- index icon views --><!-- index list boxes --><!-- index list views --><!-- index spreadsheets --><!-- index tables --><!-- index tree views --><p align="center"><img align="middle" src="qiconview-etc.png">
+</p>
+<blockquote><p align="center"><em>A <font color=darkblue><b>QIconView</b></font>, a <font color=darkblue><b>QListView</b></font>, a <font color=darkblue><b>QListBox</b></font> and a <font color=darkblue><b>QTable</b></font> in a <font color=darkblue><b>QGrid</b></font></em></p></blockquote>
+<p>Widgets that are used to display large amounts of data (e.g. <font color=darkblue><b>QTable</b></font>, <font color=darkblue><b>QListView</b></font> and <font color=darkblue><b>QTextEdit</b></font>) inherit <font color=darkblue><b>QScrollView</b></font> and can display scroll bars automatically.</p>
+<p>More specialized widgets are presented in the appropriate sections. <font color=darkblue><b>QMenuBar</b></font>, <font color=darkblue><b>QStatusBar</b></font>, <font color=darkblue><b>QToolBar</b></font> and related widgets are shown in <a href="whitepaper-4.html">GUI Applications</a>. <font color=darkblue><b>QMessageBox</b></font>, <font color=darkblue><b>QFileDialog</b></font>, <font color=darkblue><b>QTabDialog</b></font>, <font color=darkblue><b>QWizard</b></font> and other dialogs are shown in <a href="whitepaper-4.html#3">Dialogs</a>. <font color=darkblue><b>QSplitter</b></font> is covered in <a href="whitepaper-11.html">Layouts</a>. <font color=darkblue><b>QCanvas</b></font> and <font color=darkblue><b>QGLWidget</b></font> are shown in <a href="whitepaper-6.html#2">3D Graphics</a>.</p>
+<p>The code for the screenshot that shows the <font color=darkblue><b>QRadioButton</b></font>s and <font color=darkblue><b>QCheckBox</b></font>es follows:</p>
+<pre>        parent = new QButtonGroup( 2, Qt::Vertical, "QButtonGroup" );
+        radio1 = new QRadioButton( "&amp;Radio 1", parent );
+        radio2 = new QRadioButton( "R&amp;adio 2", parent );
+        radio1-&gt;setChecked( TRUE );
+        check1 = new QCheckBox( "&amp;Check 1", parent );
+        check2 = new QCheckBox( "C&amp;heck 2", parent );
+        check2-&gt;setChecked( TRUE );
 </pre>
-<p>causes the <font color=darkblue>balanceChanged()</font> signal to be emitted with the new current balance as its argument. The keyword <tt>emit</tt>, like <tt>signals</tt> and <tt>slots</tt>, is provided by Qt and is transformed into standard C++ by the C++ preprocessor.</p>
-<p>Here's an example of how to use <font color=darkblue><b>BankAccount</b></font>:</p>
-<pre>
-    BankAccount x, y;
-    connect( &amp;x, SIGNAL(balanceChanged(int)),
-	     &amp;y, SLOT(setBalance(int)) );
-    x.setBalance( 2450 );
+<h3><a name="3"></a> Custom Widgets</h3>
+<p>Developers can create their own widgets and dialogs by subclassing <font color=darkblue><b>QWidget</b></font> or one of its subclasses. To illustrate subclassing, we will implement a digital clock widget.</p>
+<p align="center"><img align="middle" src="clock.png">
+</p>
+<!-- index Clock --><!-- index LCD --><p>The <font color=darkblue><b>Clock</b></font> widget is a LCD that displays the current time and updates itself automatically. Its colon separator blinks to indicate the passing seconds.</p>
+<p>In <font color=red><i>clock.h</i></font>, we define <font color=darkblue><b>Clock</b></font> like this:</p>
+<pre>    #include &lt;qlcdnumber.h&gt;
+
+    class Clock : public QLCDNumber
+    {
+    public:
+        Clock( QWidget *parent = 0, const char *name = 0 );
+
+    protected:
+        void timerEvent( QTimerEvent *event );
+
+    private:
+        void showTime();
+
+        bool showingColon;
+    };
 </pre>
-<p>We create two <font color=darkblue><b>BankAccount</b></font> objects, <tt>x</tt> and <tt>y</tt>, and connect <tt>x</tt>'s <font color=darkblue>balanceChanged()</font> signal to <tt>y</tt>'s <font color=darkblue>setBalance()</font> slot. When we set the balance in <tt>x</tt> to 2450, the <font color=darkblue>balanceChanged()</font> signal is emitted and is received by <tt>y</tt>'s <font color=darkblue>setBalance()</font> slot, which sets <tt>y</tt>'s balance to 2450.</p>
-<p>One object's signal can be connected to many different slots and many signals can be connected to one slot in a particular object. Connections can be made between any signal and slot, provided that their arguments are compatible.</p>
-<h3><a name="2"></a>Meta Object Compiler</h3>
-<!-- index Meta Object Compiler --><!-- index compiler features --><!-- index header files --><!-- index moc --><!-- index qmake --><p>The signals and slots mechanism is implemented in pure standard C++. The implementation uses the C++ preprocessor and the Meta Object Compiler (<em>moc</em>) included with the Qt library.</p>
-<p>The <em>moc</em> reads the application's header files and generates the necessary code to support the signals and slots mechanism. Developers never have to edit or even look at the generated code, and the qmake build tool generates the correct makefiles for the target platform.</p>
-<!-- index introspection --><!-- index magic --><!-- index properties --><!-- index rtti --><!-- index run-time type information --><!-- index translations --><p>In addition to handling signals and slots, <em>moc</em> supports Qt's translation mechanism, its property system and extended run-time type information. The <em>moc</em> also makes the cross-platform introspection of C++ programs possible.</p>
-<p><hr><ul> <li><a href=http://doc.trolltech.com/3.0/object.html>http://doc.trolltech.com/3.0/object.html</a> <li><a href=http://doc.trolltech.com/3.0/signalsandslots.html>http://doc.trolltech.com/3.0/signalsandslots.html</a> <li><a href=http://doc.trolltech.com/3.0/moc.html>http://doc.trolltech.com/3.0/moc.html</a> </ul></p>
+<!-- index name (of widget) --><!-- index parent widgets --><!-- index timers --> <p><font color=darkblue><b>Clock</b></font> inherits its LCD functionality from the <font color=darkblue><b>QLCDNumber</b></font> widget. It has a constructor typical of widget classes, with optional <tt>parent</tt> and <tt>name</tt> parameters. (Testing and debugging are easier if <tt>name</tt> is set.) The <font color=darkblue>timerEvent()</font> function is inherited from <font color=darkblue><b>QObject</b></font> and is called at regular intervals by the system.</p>
+<p>In <font color=red><i>clock.cpp</i></font>, we implement the functions declared in <font color=red><i>clock.h</i></font>:</p>
+<pre>    #include &lt;qdatetime.h&gt;
+
+    #include "clock.h"
+
+    Clock::Clock( QWidget *parent, const char *name )
+        : QLCDNumber( parent, name ), showingColon( TRUE  )
+    {
+        showTime();
+        startTimer( 1000 );
+    }
+
+    void Clock::timerEvent( QTimerEvent * )
+    {
+        showTime();
+    }
+
+    void Clock::showTime()
+    {
+        QString time = QTime::currentTime().toString().left( 5 );
+        if ( !showingColon )
+            time[2] = ' ';
+        display( time );
+        showingColon = !showingColon;
+    }
+</pre>
+ <p>The constructor calls <font color=darkblue>showTime()</font> to initialize the clock with the current time, and tells the system to call <font color=darkblue>timerEvent()</font> every 1000 milliseconds to refresh the LCD display. See the <a href="whitepaper-12.html">Events</a> section for details.</p>
+<p>In <font color=darkblue>showTime()</font>, we call <font color=darkblue>QLCDNumber::display()</font> with the current time. The colon is replaced by a space every other time <font color=darkblue>showTime()</font> is called to make the colon blink.</p>
+<p>In <font color=red><i>main.cpp</i></font>, we create a <font color=darkblue><b>Clock</b></font> instance, resize it and show it:</p>
+<pre>    #include &lt;qapplication.h&gt;
+
+    #include "clock.h"
+
+    int main( int argc, char **argv )
+    {
+        QApplication app( argc, argv );
+        Clock clock;
+        clock.resize( 140, 60 );
+        app.setMainWidget( &amp;clock );
+        clock.show();
+        return app.exec();
+    }
+</pre>
+ <p>This example contains only one widget (the <font color=darkblue><b>Clock</b></font>) and no child widgets. Most complex widgets are built by combining built-in widgets and layouts.</p>
+<!-- index Designer --><!-- index Qt Designer --><p>Even though Qt's classes are comfortable to hand code, the build cycle can be time consuming, especially when designing user interfaces. It is easiest to use <a href="whitepaper-5.html">Qt Designer</a>, Qt's visual design tool, to develop and experiment with different designs.</p>
+<p>Developers can also write custom widgets from scratch. For example, to create an analog clock, it would be necessary to draw the clock's face and hands in code rather than relying on functionality implemented in a base class. This could be achieved by reimplementing <font color=darkblue>paintEvent()</font>, as explained in <a href="whitepaper-6.html#1">2D Graphics</a>.</p>
+<p><hr><ul> <li><a href=http://doc.trolltech.com/3.0/qwidget.html>http://doc.trolltech.com/3.0/qwidget.html</a> </ul></p>
 <!-- eof -->
-<p align="right">[<a href="whitepaper-1.html">Prev: Widgets</a>] [<a href="whitepaper.html">Home</a>] [<a href="whitepaper-3.html">Next: GUI Applications</a>]</p>
+<p align="right">[<a href="whitepaper-1.html">Prev: Introduction</a>] [<a href="whitepaper.html">Home</a>] [<a href="whitepaper-3.html">Next: Signals and Slots</a>]</p>
 </body>
 </html>

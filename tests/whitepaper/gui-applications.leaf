@@ -322,11 +322,11 @@ present the user with simple choices (e.g. 'Yes' or 'No').
   \img qfiledialog.png QFileDialog
 
 \Class QFileDialog is a sophisticated file selection dialog. It can
-be used to select single or multiple files, and includes
-functionality such as directory and file renaming and directory
-creation. Like most Qt dialogs, \Class QFileDialog is resizable,
-which makes it far easier to view long file names and large
-directories.
+be used to select single or multiple local or remote files (e.g.
+using FTP), and includes functionality such as directory and file
+renaming and directory creation. Like most Qt dialogs, \Class
+QFileDialog is resizable, which makes it easy to view long file
+names and large directories.
 
   \index progress bars
 
