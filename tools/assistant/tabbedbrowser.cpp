@@ -21,7 +21,7 @@
 #include <qfileinfo.h>
 #include <qtoolbutton.h>
 #include <qpixmap.h>
-#include <qiconset.h>
+#include <qicon.h>
 #include <qstyle.h>
 #include <qtimer.h>
 
