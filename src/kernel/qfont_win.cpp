@@ -68,7 +68,7 @@ QFont qt_LOGFONTtoQFont(LOGFONT& lf, bool /*scale*/)
     if (lf.lfItalic)
 	qf.setItalic( TRUE );
     if (lf.lfWeight != FW_DONTCARE)
-	qf.setWeight(lf.lfWeight/10);
+	qf.setWeight(lf.lfWeight*99/900);
     int lfh = QABS( lf.lfHeight );
     Q_ASSERT(shared_dc);
     qf.setPointSizeFloat( lfh * 72.0 / GetDeviceCaps(shared_dc,LOGPIXELSY) );
