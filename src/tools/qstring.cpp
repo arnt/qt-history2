@@ -15348,8 +15348,8 @@ QCString QString::local8Bit() const
 #if defined( Q_WS_MACX )
     return utf8();
 #endif
-#elif defined( Q_WS_MAC9 )
-     return QCString(latin1()); //I'm evil..
+#if defined( Q_WS_MAC9 )
+    return QCString(latin1()); //I'm evil..
 #endif
 #ifdef Q_WS_WIN
     return qt_winQString2MB( *this );
