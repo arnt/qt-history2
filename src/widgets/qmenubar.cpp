@@ -1269,7 +1269,7 @@ void QMenuBar::keyPressEvent( QKeyEvent *e )
 		break;
 	}
 	setActiveItem( i, popupvisible	 );
-    } else if ( ( !e->state() || ( e->state() & (MetaButton|AltButton) ) ) && e->text().length()==1 ) {
+    } else if ( ( !e->state() || (e->state()&(MetaButton|AltButton)) ) && e->text().length()==1 && !popupvisible ) {
 	QChar c = e->text()[0].toUpper();
 
 	QMenuItem* first = 0;
