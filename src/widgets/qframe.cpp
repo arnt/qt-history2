@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#77 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#78 $
 **
 ** Implementation of QFrame widget class
 **
@@ -401,7 +401,7 @@ QRect QFrame::frameRect() const
 
 void QFrame::setFrameRect( const QRect &r )
 {
-    frect = r;
+    frect = r.isValid() ? r : rect();
 }
 
 
