@@ -289,6 +289,21 @@ inline bool QMacSetFontInfo::setMacFont(const QFontPrivate *d, QMacSetFontInfo *
 	    delete st;
 	    st = NULL;
 	}
+	{
+	    int feat_guess=5, feats=0;
+	    ATSUFontFeatureType feat_types[feat_guess];
+	    ATSUFontFeatureSelector feat_values[feat_guess];
+	    feat_types[feats] = kLigaturesType;
+	    feat_values[feats] = kRareLigaturesOffSelector;
+	    feats++;
+	    feat_types[feats] = kLigaturesType;
+	    feat_values[feats] = kCommonLigaturesOffSelector;
+	    feats++;
+	    if(feats > feat_guess) //this won't really happen, just so I will not miss the case
+		qDebug("%d: Whoa!! you forgot to increase feat_guess! %d", __LINE__, feats);
+	    if(OSStatus e = ATSUSetFontFeatures(st->style, feats, feat_types, feat_values)) 
+		qDebug("%ld: This shouldn't happen %s:%d", e, __FILE__, __LINE__);
+	}
 	fi->setATSUStyle(st);
 #endif
     }
