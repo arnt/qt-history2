@@ -62,67 +62,83 @@ struct my_jpeg_source_mgr : public jpeg_source_mgr {
     JOCTET buffer[max_buf];
 
 public:
-    my_jpeg_source_mgr(QImageIO* iio)
-    {
-	jpeg_source_mgr::init_source = init_source;
-	jpeg_source_mgr::fill_input_buffer = fill_input_buffer;
-	jpeg_source_mgr::skip_input_data = skip_input_data;
-	jpeg_source_mgr::resync_to_restart = jpeg_resync_to_restart;
-	jpeg_source_mgr::term_source = term_source;
-	this->iio = iio;
-	bytes_in_buffer = 0;
-	next_input_byte = buffer;
-    }
-
-    static void init_source(j_decompress_ptr)
-    {
-    }
-
-    static boolean fill_input_buffer(j_decompress_ptr cinfo)
-    {
-	int num_read;
-	my_jpeg_source_mgr* src = (my_jpeg_source_mgr*)cinfo->src;
-	QIODevice* dev = src->iio->ioDevice();
-	src->next_input_byte = src->buffer;
-	num_read = dev->readBlock((char*)src->buffer, max_buf);
-	if ( num_read <= 0 ) {
-	    // Insert a fake EOI marker - as per jpeglib recommendation
-	    src->buffer[0] = (JOCTET) 0xFF;
-	    src->buffer[1] = (JOCTET) JPEG_EOI;
-	    src->bytes_in_buffer = 2;
-	}
-	else
-	    src->bytes_in_buffer = num_read;
-	return TRUE;
-    }
-
-    static void skip_input_data(j_decompress_ptr cinfo, long num_bytes)
-    {
-	my_jpeg_source_mgr* src = (my_jpeg_source_mgr*)cinfo->src;
-
-	// `dumb' implementation from jpeglib
-
-	/* Just a dumb implementation for now.  Could use fseek() except
-	 * it doesn't work on pipes.  Not clear that being smart is worth
-	 * any trouble anyway --- large skips are infrequent.
-	 */
-	if (num_bytes > 0) {
-	    while (num_bytes > (long) src->bytes_in_buffer) {
-	        num_bytes -= (long) src->bytes_in_buffer;
-	        (void) fill_input_buffer(cinfo);
-	        /* note we assume that fill_input_buffer will never return FALSE,
-	         * so suspension need not be handled.
-	         */
-	    }
-	    src->next_input_byte += (size_t) num_bytes;
-	    src->bytes_in_buffer -= (size_t) num_bytes;
-	}
-    }
-
-    static void term_source(j_decompress_ptr)
-    {
-    }
+    my_jpeg_source_mgr(QImageIO* iio);
 };
+
+#if defined(Q_C_CALLBACKS)
+extern "C" {
+#endif
+
+static
+void qt_init_source(j_decompress_ptr)
+{
+}
+
+static
+boolean qt_fill_input_buffer(j_decompress_ptr cinfo)
+{
+    int num_read;
+    my_jpeg_source_mgr* src = (my_jpeg_source_mgr*)cinfo->src;
+    QIODevice* dev = src->iio->ioDevice();
+    src->next_input_byte = src->buffer;
+    num_read = dev->readBlock((char*)src->buffer, max_buf);
+    if ( num_read <= 0 ) {
+	// Insert a fake EOI marker - as per jpeglib recommendation
+	src->buffer[0] = (JOCTET) 0xFF;
+	src->buffer[1] = (JOCTET) JPEG_EOI;
+	src->bytes_in_buffer = 2;
+    }
+    else
+	src->bytes_in_buffer = num_read;
+    return TRUE;
+}
+
+static
+void qt_skip_input_data(j_decompress_ptr cinfo, long num_bytes)
+{
+    my_jpeg_source_mgr* src = (my_jpeg_source_mgr*)cinfo->src;
+
+    // `dumb' implementation from jpeglib
+
+    /* Just a dumb implementation for now.  Could use fseek() except
+     * it doesn't work on pipes.  Not clear that being smart is worth
+     * any trouble anyway --- large skips are infrequent.
+     */
+    if (num_bytes > 0) {
+	while (num_bytes > (long) src->bytes_in_buffer) {
+	    num_bytes -= (long) src->bytes_in_buffer;
+	    (void) qt_fill_input_buffer(cinfo);
+	    /* note we assume that qt_fill_input_buffer will never return FALSE,
+	    * so suspension need not be handled.
+	    */
+	}
+	src->next_input_byte += (size_t) num_bytes;
+	src->bytes_in_buffer -= (size_t) num_bytes;
+    }
+}
+
+static
+void qt_term_source(j_decompress_ptr)
+{
+}
+
+#if defined(Q_C_CALLBACKS)
+}
+#endif
+
+
+inline my_jpeg_source_mgr::my_jpeg_source_mgr(QImageIO* iio)
+{
+    jpeg_source_mgr::init_source = qt_init_source;
+    jpeg_source_mgr::fill_input_buffer = qt_fill_input_buffer;
+    jpeg_source_mgr::skip_input_data = qt_skip_input_data;
+    jpeg_source_mgr::resync_to_restart = jpeg_resync_to_restart;
+    jpeg_source_mgr::term_source = qt_term_source;
+    this->iio = iio;
+    bytes_in_buffer = 0;
+    next_input_byte = buffer;
+}
+
 
 static
 void read_jpeg_image(QImageIO* iio)

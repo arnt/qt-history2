@@ -422,9 +422,9 @@ QMetaData *QMetaObject::mdata( int code, const char *name, bool super ) const
 	}
 
 	if ( dict ) {
-	    QMetaData *d = dict->find(name);
-	    if ( d )
-		return d;
+	    QMetaData *md = dict->find(name);
+	    if ( md )
+		return md;
 	}
 	if ( super && meta->superclass )	// try for super class
 	    meta = meta->superclass;
