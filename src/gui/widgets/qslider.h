@@ -17,7 +17,6 @@
 
 #ifndef QT_H
 #include <qabstractslider.h>
-#include <qwidget.h>
 #endif // QT_H
 
 #ifndef QT_NO_SLIDER
@@ -57,7 +56,7 @@ protected:
 
 private:
     Q_DECL_PRIVATE(QSlider);
-  
+
 #ifdef QT_COMPAT
 public:
     QSlider(QWidget *parent = 0, const char *name = 0);
@@ -74,7 +73,7 @@ private:
 #if defined(Q_DISABLE_COPY)     // Disabled copy constructor and operator
     QSlider(const QSlider &);
     QSlider &operator=(const QSlider &);
-#endif  
+#endif
 };
 
 #endif // QT_NO_SLIDER
