@@ -411,11 +411,11 @@ static void set_winapp_name()
 
 #if defined( Q_OS_TEMP )
 Q_EXPORT void __cdecl qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
-	       int cmdShow, int &argc, QMemArray<pchar> &argv )
+	       int cmdShow, int &argc, QVector<pchar> &argv )
 #else
 Q_EXPORT
 void qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
-	       int cmdShow, int &argc, QMemArray<pchar> &argv )
+	       int cmdShow, int &argc, QVector<pchar> &argv )
 #endif
 {
     static bool already_called = FALSE;
