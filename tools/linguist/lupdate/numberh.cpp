@@ -24,20 +24,20 @@ typedef QValueList<MetaTranslatorMessage> TML;
 
 static bool isDigitFriendly( int c )
 {
-    return ispunct( c ) || isspace( c );
+    return ispunct((uchar)c) || isspace((uchar)c);
 }
 
 static int numberLength( const char *s )
 {
     int i = 0;
 
-    if ( isdigit(s[0]) ) {
+    if ( isdigit((uchar)s[0]) ) {
 	do {
 	    i++;
-	} while ( isdigit(s[i]) ||
-		  (isDigitFriendly(s[i]) &&
-		   (isdigit(s[i + 1]) ||
-		    (isDigitFriendly(s[i + 1]) && isdigit(s[i + 2])))) );
+	} while (isdigit((uchar)s[i]) ||
+		 (isDigitFriendly(s[i]) &&
+		  (isdigit((uchar)s[i + 1]) ||
+		   (isDigitFriendly(s[i + 1]) && isdigit((uchar)s[i + 2])))));
     }
     return i;
 }
