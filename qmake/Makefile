@@ -107,22 +107,22 @@ distclean:: clean
 qconfig.obj: ..\src\core\global\qconfig.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\global\qconfig.cpp
 
-qcoresettings_win.obj: ..\src\io\qcoresettings_win.cpp
+qcoresettings_win.obj: ..\src\core\io\qcoresettings_win.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qcoresettings_win.cpp
 
-qcoresettings.obj: ..\src\io\qcoresettings.cpp
+qcoresettings.obj: ..\src\core\io\qcoresettings.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\io\qcoresettings.cpp
 
-qcorevariant.obj: ..\src\kernel\qcorevariant.cpp
+qcorevariant.obj: ..\src\core\kernel\qcorevariant.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\kernel\qcorevariant.cpp
 
-qrect.obj: ..\src\tools\qrect.cpp
+qrect.obj: ..\src\core\tools\qrect.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\tools\qrect.cpp
 
-qpoint.obj: ..\src\tools\qpoint.cpp
+qpoint.obj: ..\src\core\tools\qpoint.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\tools\qpoint.cpp
 
-qsize.obj: ..\src\tools\qsize.cpp
+qsize.obj: ..\src\core\tools\qsize.cpp
 	$(CXX) $(CXXFLAGS) ..\src\core\tools\qsize.cpp
 
 qtextstream.obj: ..\src\core\io\qtextstream.cpp
