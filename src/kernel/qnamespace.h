@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnamespace.h#12 $
+** $Id: //depot/qt/main/src/kernel/qnamespace.h#13 $
 **
 ** Definition of Qt namespace (as class for compiler compatibility)
 **
@@ -380,6 +380,34 @@ public:
 	OrNotROP,
 	NandROP,
 	NorROP,	LastROP=NorROP
+    };
+
+    enum PenStyle { // pen style
+	NoPen,
+	SolidLine,
+	DashLine,
+	DotLine,
+	DashDotLine,
+	DashDotDotLine
+    };
+
+    enum BrushStyle { // brush style
+	NoBrush,
+	SolidPattern,
+	Dense1Pattern,
+	Dense2Pattern,
+	Dense3Pattern,
+	Dense4Pattern,
+	Dense5Pattern,
+	Dense6Pattern,
+	Dense7Pattern,
+	HorPattern,
+	VerPattern,
+	CrossPattern,
+	BDiagPattern,
+	FDiagPattern,
+	DiagCrossPattern,
+	CustomPattern=24
     };
 
 };

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#163 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#164 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -961,17 +961,17 @@ const QWMatrix &QPainter::worldMatrix() const
   \code
     void QPainter::rotate( double a )
     {
-	QWMatrix m;     
+	QWMatrix m;
 	m.rotate( a );
 	setWorldMatrix( m, TRUE );
     }
   \endcode
-  
+
   Note that you should always use combine when you are drawing into a
   QPicture. Otherwise the picture may not be completely encapsulated
   and cannot be replayed with additional transformations. Using the
   translate(), scale(), etc. functions is safe.
-  
+
   Furthermore, you can easily save and restore the current world
   transformation matrix with the convenient functions
   saveWorldMatrix() and restoreWorldMatrix(), respectively. If you
@@ -2641,7 +2641,7 @@ QDataStream &operator>>( QDataStream &s, QPen &p )
     s >> style;
     s >> width;
     s >> color;
-    p = QPen( color, (uint)width, (PenStyle)style );
+    p = QPen( color, (uint)width, (Qt::PenStyle)style );
     return s;
 }
 
@@ -2960,7 +2960,7 @@ bool QBrush::operator==( const QBrush &b ) const
 QDataStream &operator<<( QDataStream &s, const QBrush &b )
 {
     s << (UINT8)b.style() << b.color();
-    if ( b.style() == CustomPattern )
+    if ( b.style() == Qt::CustomPattern )
 	s << *b.pixmap();
     return s;
 }
@@ -2976,12 +2976,12 @@ QDataStream &operator>>( QDataStream &s, QBrush &b )
     QColor color;
     s >> style;
     s >> color;
-    if ( style == CustomPattern ) {
+    if ( style == Qt::CustomPattern ) {
 	QPixmap pm;
 	s >> pm;
 	b = QBrush( color, pm );
     }
     else
-	b = QBrush( color, (BrushStyle)style );
+	b = QBrush( color, (Qt::BrushStyle)style );
     return s;
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#303 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#304 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1244,12 +1244,12 @@ void QWidget::move( int x, int y )
 	fpos = p;
     }
     internalMove( x, y );
-    if ( !isVisible() ) {
-	deferMove( oldp );
-    } else {
-	cancelMove();
+    if ( isVisible() ) {
 	QMoveEvent e( fpos, oldp );
-	QApplication::sendEvent( this, &e );	// send move event immediately
+	QApplication::sendEvent( this, &e );
+    } else {
+	QMoveEvent * e = new QMoveEvent( fpos, oldp );
+	QApplication::postEvent( this, e );
     }
 }
 
@@ -1325,15 +1325,14 @@ void QWidget::resize( int w, int h )
     r.setSize( s );
     setCRect( r );
     internalResize( w, h );
-    if ( !isVisible() ) {
-	deferResize( olds );
-    } else {
-	cancelResize();
+    if ( isVisible() ) {
 	QResizeEvent e( s, olds );
-	QApplication::sendEvent( this, &e );       // send resize event immediately
- 	if ( !testWFlags(WResizeNoErase) ) {
+	QApplication::sendEvent( this, &e );
+ 	if ( !testWFlags(WResizeNoErase) )
  	    repaint( TRUE );
- 	}
+    } else {
+	QResizeEvent * e = new QResizeEvent( s, olds );
+	QApplication::postEvent( this, e );
     }
 }
 
@@ -1346,7 +1345,7 @@ void QWidget::internalResize( int w, int h )
 	size_hints.flags = USSize | PSize;
 	size_hints.width = w;
 	size_hints.height = h;
-	if (usposition) {
+	if ( usposition ) {
 	    // also restore the usposition, otherwise it would be cleared
 	    size_hints.flags |= USPosition;
 	    size_hints.x = x();

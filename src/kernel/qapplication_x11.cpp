@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#409 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#410 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3667,11 +3667,11 @@ bool QETWidget::translateConfigEvent( const XEvent *event )
 	r.moveTopLeft( newPos );
 	setCRect( r );
 	if ( isVisible() ) {
-	    cancelMove();
 	    QMoveEvent e( newPos, oldPos );
 	    QApplication::sendEvent( this, &e );
 	} else {
-	    deferMove( oldPos );
+	    QMoveEvent * e = new QMoveEvent( newPos, oldPos );
+	    QApplication::postEvent( this, e );
 	}
     }
     return TRUE;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#197 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#198 $
 **
 ** Definition of QWidget class
 **
@@ -378,16 +378,11 @@ private:
     void	 internalMove( int, int );
     void	 internalResize( int, int );
     void	 internalSetGeometry( int, int, int, int );
-    void	 deferMove( const QPoint & );
-    void	 deferResize( const QSize & );
-    void	 cancelMove();
-    void	 cancelResize();
-    void	 sendDeferredEvents();
     void	 reparentFocusWidgets( QWidget *parent );
     QFocusData	*focusData( bool create );
     void         setBackgroundFromMode();
     void         setBackgroundColorDirect( const QColor & );
-    void   	    setBackgroundPixmapDirect( const QPixmap & );
+    void   	 setBackgroundPixmapDirect( const QPixmap & );
     void         setBackgroundModeDirect( BackgroundMode );
     void         setBackgroundEmpty();
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qdrawutil.cpp#42 $
 **
 ** Implementation of draw utilities
 **
@@ -228,7 +228,7 @@ void qDrawShadeRect( QPainter *p, int x, int y, int w, int h,
     if ( fill ) {
 	QBrush oldBrush = p->brush();
 	int tlw = lineWidth + midLineWidth;
-	p->setPen( NoPen );
+	p->setPen( Qt::NoPen );
 	p->setBrush( *fill );
 	p->drawRect( x+tlw, y+tlw, w-2*tlw, h-2*tlw );
 	p->setBrush( oldBrush );
@@ -316,7 +316,7 @@ void qDrawShadePanel( QPainter *p, int x, int y, int w, int h,
     p->drawLineSegments( a );
     if ( fill ) {				// fill with fill color
 	QBrush oldBrush = p->brush();
-	p->setPen( NoPen );
+	p->setPen( Qt::NoPen );
 	p->setBrush( *fill );
 	p->drawRect( x+lineWidth, y+lineWidth, w-lineWidth*2, h-lineWidth*2 );
 	p->setBrush( oldBrush );
@@ -374,7 +374,7 @@ static void qDrawWinShades( QPainter *p,
 	if ( fill ) {
 	    QBrush oldBrush = p->brush();
 	    p->setBrush( *fill );
-	    p->setPen( NoPen );
+	    p->setPen( Qt::NoPen );
 	    p->drawRect( x+2, y+2, w-4, h-4 );
 	    p->setBrush( oldBrush );
 	}
@@ -481,11 +481,11 @@ void qDrawPlainRect( QPainter *p, int x, int y, int w, int h, const QColor &c,
     QPen   oldPen   = p->pen();
     QBrush oldBrush = p->brush();
     p->setPen( c );
-    p->setBrush( NoBrush );
+    p->setBrush( Qt::NoBrush );
     for ( int i=0; i<lineWidth; i++ )
 	p->drawRect( x+i, y+i, w-i*2, h-i*2 );
     if ( fill ) {				// fill with fill color
-	p->setPen( NoPen );
+	p->setPen( Qt::NoPen );
 	p->setBrush( *fill );
 	p->drawRect( x+lineWidth, y+lineWidth, w-lineWidth*2, h-lineWidth*2 );
     }
@@ -824,14 +824,14 @@ static void qDrawMotifArrow( QPainter *p, Qt::ArrowType type, bool down,
     QPen     savePen   = p->pen();		// save current pen
     QBrush   saveBrush = p->brush();		// save current brush
     QWMatrix wxm = p->worldMatrix();
-    QPen     pen( NoPen );
+    QPen     pen( Qt::NoPen );
     QBrush brush = g.fillButton();
 
     p->setPen( pen );
     p->setBrush( brush );
     p->setWorldMatrix( matrix, TRUE );		// set transformation matrix
     p->drawPolygon( bFill );			// fill arrow
-    p->setBrush( NoBrush );			// don't fill
+    p->setBrush( Qt::NoBrush );			// don't fill
 
     p->setPen( CLEFT );
     p->drawLineSegments( bLeft );

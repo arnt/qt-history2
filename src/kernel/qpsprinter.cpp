@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#85 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#86 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -2454,7 +2454,7 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 		   << ' ' << COLOR(p[0].pen->color()) << "PE\n";
 	    break;
 	case PDC_SETBRUSH:
-	    if ( p[0].brush->style() == CustomPattern ) {
+	    if ( p[0].brush->style() == Qt::CustomPattern ) {
 #if defined(DEBUG)
 		warning( "QPrinter: Pixmap brush not supported" );
 #endif
@@ -2814,7 +2814,7 @@ void QPSPrinter::emitHeader( bool finished )
 			 "90 rotate 1 -1 scale\n",
 			 m.heightMM(), m.widthMM() );
     }
-			 
+			
     if ( finished ) {
 	QString r( stripHeader( *fixed_ps_header,
 				d->buffer->buffer().data(),

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbrush.h#34 $
+** $Id: //depot/qt/main/src/kernel/qbrush.h#35 $
 **
 ** Definition of QBrush class
 **
@@ -30,15 +30,7 @@
 #endif // QT_H
 
 
-enum BrushStyle					// brush style
-      { NoBrush, SolidPattern,
-	Dense1Pattern, Dense2Pattern, Dense3Pattern, Dense4Pattern,
-	Dense5Pattern, Dense6Pattern, Dense7Pattern,
-	HorPattern, VerPattern, CrossPattern,
-	BDiagPattern, FDiagPattern, DiagCrossPattern, CustomPattern=24 };
-
-
-class Q_EXPORT QBrush
+class Q_EXPORT QBrush: public Qt
 {
 friend class QPainter;
 public:

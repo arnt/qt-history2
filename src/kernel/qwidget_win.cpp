@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#160 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#161 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -778,11 +778,6 @@ void QWidget::move( int x, int y )
 	qWinRequestConfig( winId(), 0, x, y, 0, 0 );
     } else {
 	setFRect( QRect(QPoint(x,y),frameSize()) );
-	if ( !isVisible() ) {
-	    deferMove( oldp );
-	} else {
-	    cancelMove();
-	}
 	internalMove( x, y );
     }
 }
@@ -830,11 +825,6 @@ void QWidget::resize( int w, int h )
 	    h += fs.height() - crect.height();
 	}
 	setFRect( QRect(x,y,w,h) );
-	if ( !isVisible() ) {
-	    deferResize( olds );
-	} else {
-	    cancelResize();
-	}
 	internalResize( width(), height() );
     }
 }
@@ -880,13 +870,6 @@ void QWidget::setGeometry( int x, int y, int w, int h )
 	    h += fs.height() - crect.height();
 	}
 	setFRect( QRect(x,y,w,h) );
-	if ( !isVisible() ) {
-	    deferMove( oldp );
-	    deferResize( olds );
-	} else {
-	    cancelMove();
-	    cancelResize();
-	}
 	setWFlags( WState_ConfigPending );
 	internalSetGeometry( x, y, width(), height() );
 	clearWFlags( WState_ConfigPending );

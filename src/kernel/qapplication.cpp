@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#181 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#182 $
 **
 ** Implementation of QApplication class
 **
@@ -450,7 +450,7 @@ void QApplication::setStyle( QStyle *style )
 	delete old;
 	return;
     }
-    
+
     if (old) {
 	if ( is_app_running && !is_app_closing ) {
 	    QWidgetIntDictIt it( *((QWidgetIntDict*)QWidget::mapper) );

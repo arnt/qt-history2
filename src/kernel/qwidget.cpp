@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#326 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#327 $
 **
 ** Implementation of QWidget class
 **
@@ -454,120 +454,6 @@ inline bool QWidgetMapper::remove( WId id )
   QWidget member functions
  *****************************************************************************/
 
-typedef QPtrDict<void> QDeferDict;
-
-static QDeferDict *deferredMoves   = 0;
-static QDeferDict *deferredResizes = 0;
-
-static void cleanupDeferredDicts()
-{
-    delete deferredMoves;
-    deferredMoves = 0;
-    delete deferredResizes;
-    deferredResizes = 0;
-}
-
-static void initDeferredDicts()
-{
-    if ( deferredMoves )
-	return;
-    deferredMoves   = new QDeferDict( 137 );
-    CHECK_PTR( deferredMoves );
-    deferredResizes = new QDeferDict( 137 );
-    CHECK_PTR( deferredResizes );
-    qAddPostRoutine( cleanupDeferredDicts );
-}
-
-/*
-  The compress functions below store two short values in a pointer.
-*/
-
-static inline uint compress( int a, int b )
-{
-    return ((uint)(a-QCOORD_MIN) << 16) | ((b-QCOORD_MIN) & 0xffff);
-}
-
-static inline short decompress_a( uint n )
-{
-    return (short)((int)(n >> 16) + QCOORD_MIN);
-}
-
-static inline short decompress_b( uint n )
-{
-    return (short)((int)(n & 0xffff) + QCOORD_MIN);
-}
-
-
-void QWidget::deferMove( const QPoint &oldPos )
-{
-    uint n = (uint)(long)deferredMoves->find( this );
-    if ( !n ) {
-	n = compress(oldPos.x(),oldPos.y());
-	deferredMoves->insert( this, (void*)n );
-    }
-}
-
-void QWidget::deferResize( const QSize &oldSize )
-{
-    int w = oldSize.width();
-    int h = oldSize.height();
-    uint n = (uint)(long)deferredResizes->find( this );
-    if ( n ) {
-	if ( w < 0 && decompress_a(n) > 0 ) {	// did setGeometry
-	    deferredResizes->take( this );
-	    n = compress(-decompress_a(n),-decompress_b(n));
-	    deferredResizes->insert( this, (void*)n );
-	}
-    } else {
-	n = compress(w,h);
-	deferredResizes->insert( this, (void*)n );
-    }
-}
-
-
-void QWidget::cancelMove()
-{
-    deferredMoves->take( this );
-}
-
-void QWidget::cancelResize()
-{
-    deferredResizes->take( this );
-}
-
-
-/*!
-  Send deferred or enforced move, resize and child events for this widget.
-*/
-
-void QWidget::sendDeferredEvents()
-{
-    QApplication::sendPostedEvents( this, QEvent::ChildInserted );
-    uint m = (uint)(long)deferredMoves->find(this);
-    uint r = (uint)(long)deferredResizes->find(this);
-    if ( m && r && decompress_a(r) < 0 ) {
-	// Hack it to work: the old width is negative to indicate that
-	// we wanted to setGeometry and not move + resize.
-	internalSetGeometry( x(), y(), width(), height() );
-    } else {
-	if ( m )
-	    internalMove( x(), y() );
-	if ( r )
-	    internalResize( width(), height() );
-    }
-    if ( m ) {
-	deferredMoves->take( this );
-	QMoveEvent e( pos(), QPoint(decompress_a(m), decompress_b(m)) );
-	QApplication::sendEvent( this, &e );
-    }
-    if ( r ) {
-	deferredResizes->take( this );
-	int w = decompress_a(r);
-	int h = decompress_b(r);
-	QResizeEvent e( size(), QSize(QABS(w),QABS(h)) );
-	QApplication::sendEvent( this, &e );
-    }
-}
 
 /*!
   Constructs a widget which is a child of \e parent, with the name \e name and
@@ -2794,7 +2680,8 @@ void QWidget::show()
 	    resize( w, h );			// deferred resize
 	}
     }
-    sendDeferredEvents();
+    QApplication::sendPostedEvents( this, QEvent::Move );
+    QApplication::sendPostedEvents( this, QEvent::Resize );
     if ( children() ) {
 	QObjectListIt it(*children());
 	register QObject *object;
@@ -2862,10 +2749,6 @@ void QWidget::hide()
     // hidden.
     if ( qApp && qApp->focusWidget() == this )
 	focusNextPrevChild( TRUE );
-
-    // ### Can these ever be useful?
-    cancelMove();
-    cancelResize();
 
     if ( isTopLevel() ) {			// last TLW hidden?
 	if ( qApp->receivers(SIGNAL(lastWindowClosed())) && noVisibleTLW() )
