@@ -203,5 +203,41 @@ QPalette QToolTip::palette()
     return QApplication::palette("QTipLabel");
 }
 
+/*!
+    \fn void QToolTip::add(QWidget *widget, const QString &text)
+
+    Use QWidget::setToolTip() instead.
+
+    \oldcode
+    tip->add(widget, text);
+    \newcode
+    widget->setToolTip(text);
+    \endcode
+*/
+
+/*!
+    \fn void QToolTip::add(QWidget *widget, const QRect &rect, const QString &text)
+    Use QWidget::setToolTip() instead.
+
+    \oldcode
+    tip->add(widget, rect, text);
+    \newcode
+    widget->setToolTip(text);
+    \endcode
+*/
+
+/*!
+    \fn void QToolTip::remove(QWidget *widget)
+
+    Use QWidget::setToolTip() instead.
+
+    \oldcode
+    tip->remove(widget);
+    \newcode
+    widget->setToolTip(QString());
+    \endcode
+*/
+
+
 #include "qtooltip.moc"
 

@@ -1291,7 +1291,7 @@ void QPainter::strokePath(const QPainterPath &path, const QPen &pen)
 }
 
 /*!
-    Fills the path \a path using the brush \ a brush. The outline
+    Fills the path \a path using the given \a brush. The outline
     is not drawn.
 */
 void QPainter::fillPath(const QPainterPath &path, const QBrush &brush)
@@ -2217,6 +2217,26 @@ void QPainter::drawConvexPolygon(const QPointArray &a, int index, int npoints)
 }
 
 /*!
+    \fn void QPainter::drawPixmap(int x, int y, const QPixmap &pixmap, Qt::PixmapDrawingMode mode)
+
+    \overload
+
+    Draws the given \a pixmap at position (\a{x}, \a{y}) using the
+    specified drawing \a mode.
+*/
+
+/*!
+    \fn void QPainter::drawPixmap(int x, int y, int width, int height,
+    const QPixmap &pixmap, Qt::PixmapDrawingMode mode)
+
+    \overload
+
+    Draws the \a pixmap in the rectangle at position (\a{x}, \a{y})
+    and of the given \a width and \a height.
+
+*/
+
+/*!
     \fn void QPainter::drawPixmap(int x, int y, int w, int h, const QPixmap &pm,
                                   int sx, int sy, int sw, int sh, Qt::PixmapDrawingMode mode)
 
@@ -2388,6 +2408,15 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt
 }
 
 /*!
+    \fn void QPainter::drawText(int x, int y, const QString &text, TextDirection dir)
+
+    \overload
+
+    Draws the given \a text at position (\a{x}, \a{y}), in text
+    direction \a dir.
+*/
+
+/*!
     \fn void QPainter::drawText(int x, int y, int w, int h, int flags,
                                 const QString &str, int len, QRect *br)
 
@@ -2403,21 +2432,8 @@ void QPainter::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt
 */
 
 /*!
-
-    \fn void QPainter::drawText(const QPoint &p, const QString &str,
-                                TextDirection dir)
-
-    \overload
-
-    Draws the string \a str at point \a p. The text's
-    direction is given by \a dir.
-
-    \sa QPainter::TextDirection
-*/
-
-/*!
-    Draws the string \a str at position \a x, \a y. The text's
-    direction is given by \a dir.
+    Draws the string \a str at position \a p. The text's direction is
+    given by \a dir.
 
     \sa QPainter::TextDirection
 */
@@ -3697,5 +3713,110 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
     \value LoEnglishUnit Obsolete
     \value HiEnglishUnit Obsolete
     \value TwipsUnit Obsolete
+*/
+
+/*!
+    \fn void QPainter::setBackgroundColor(const QColor &color)
+
+    Use setBackground() instead.
+*/
+
+/*!
+    \fn const QColor &QPainter::backgroundColor() const
+
+    Use background().color() instead.
+*/
+
+/*!
+    \fn void QPainter::drawText(int x, int y, const QString &text, int pos, int len, TextDirection dir)
+
+    Use drawText(x, y, text.mid(pos, len), dir) instead.
+*/
+
+/*!
+    \fn void QPainter::drawText(const QPoint &p, const QString &text, int pos, int len, TextDirection dir)
+
+    Use drawText(p, text.mid(pos, len), dir) instead.
+*/
+
+/*!
+    \fn void QPainter::drawText(int x, int y, const QString &text, int len, TextDirection dir)
+
+    Use drawText(x, y, text.left(len), dir) instead.
+*/
+
+/*!
+    \fn void QPainter::drawText(const QPoint &p, const QString &s, int len, TextDirection dir)
+
+    Use drawText(p, text.left(len), dir) instead.
+*/
+
+/*!
+    \fn bool QPainter::begin(QPaintDevice *pdev, const QWidget *init)
+###
+*/
+
+/*!
+    \fn void QPainter::drawImage(const QPoint &p, const QImage &image, const QRect &sr, int conversionFlags = 0)
+
+    Draw a pixmap instead.
+
+    \oldcode
+    painter.drawImage(p, image, sr, conversionFlags);
+    \newcode
+    QPixmap pixmap;
+    pixmap.convertFromImage(image, conversionFlags);
+    painter.drawPixmap(p, pixmap, sr);
+    \endcode
+*/
+
+/*!
+    \fn void QPainter::drawImage(const QRect &r, const QImage &image)
+
+    Draw a pixmap instead.
+
+    \oldcode
+    painter.drawImage(r, image);
+    \newcode
+    painter.drawPixmap(r, QPixmap(image));
+    \endcode
+*/
+
+/*!
+    \fn void QPainter::drawImage(int x, int y, const QImage &image, int sx, int sy, int sw, int sh, int conversionFlags)
+
+    Draw a pixmap instead.
+
+    \oldcode
+    painter.drawImage(x, y, image, sx, sy, sw, sh, conversionFlags);
+    \newcode
+    QPixmap pixmap;
+    pixmap.convertFromImage(image, conversionFlags);
+    painter.drawPixmap(QPoint(x, y), pixmap, QRect(sx, sy, sw, sh));
+    \endcode
+*/
+
+/*!
+    \fn void QPainter::drawImage(const QPoint &p, const QImage &image)
+
+    Draw a pixmap instead.
+
+    \oldcode
+    painter.drawImage(p, image);
+    \newcode
+    painter.drawPixmap(p, QPixmap(image));
+    \endcode
+*/
+
+/*!
+    \fn void QPainter::redirect(QPaintDevice *pdev, QPaintDevice *replacement)
+
+    Use setRedirected() instead.
+*/
+
+/*!
+    \fn QPaintDevice *QPainter::redirect(QPaintDevice *pdev)
+
+    Use redirected() instead.
 */
 

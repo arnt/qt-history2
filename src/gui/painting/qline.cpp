@@ -132,6 +132,8 @@
 
 /*!
     \fn QLineF::setLength(float len)
+
+    Sets the length of the line to \a len.
 */
 
 /*!

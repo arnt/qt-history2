@@ -300,5 +300,11 @@ void QAuServer::init(QSound*)
 QAuBucket::~QAuBucket()
 {
 }
+/*!
+    \fn bool QSound::available()
+
+    Use isAvailable() instead.
+*/
+
 
 #endif // QT_NO_SOUND

@@ -96,6 +96,22 @@
   in the QPaintEngine
 */
 
+/*!
+    \enum QPaintEngine::PolygonDrawMode
+
+    \value OddEvenMode
+    \value WindingMode
+    \value ConvexMode
+    \value UnconnectedMode
+*/
+
+/*!
+    \fn void QPaintEngine::drawPolygon(const QPointArray &pa, PolygonDrawMode mode)
+
+    Reimplement this pure virtual function to draw a polygon based on
+    the points in \a pa using the given drawing \a mode.
+*/
+
 
 #define d d_func()
 #define q q_func()
@@ -187,10 +203,7 @@ void QPaintEngine::drawRect(const QRect &r)
 */
 
 /*!
-    \fn void QPaintEngine::drawPoints(const QPointArray &pa)
-
-    Reimplement this function to draw at most \a npoints from the
-    point array \a pa, starting at the \a{index}-th point in \a pa.
+    Calls drawPoint() to draw every point in the point array \a pa.
 */
 
 void QPaintEngine::drawPoints(const QPointArray &pa)
@@ -218,12 +231,8 @@ void QPaintEngine::drawEllipse(const QRect &r)
 }
 
 /*!
-    \fn void QPaintEngine::drawLineSegments(const QPointArray &pa, int
-    index, int nlines)
-
-    Reimplement this function to draw at most \a nlines line segments
-    between pairs of points in the point array \a pa, starting with
-    the \a{index}-th point in \a pa.
+    Calls drawLine() for every pair of points in the point array \a
+    pa.
 */
 
 void QPaintEngine::drawLineSegments(const QPointArray &pa)
@@ -231,17 +240,6 @@ void QPaintEngine::drawLineSegments(const QPointArray &pa)
     for (int i=0; i+1<pa.size(); i+=2)
         drawLine(pa.at(i), pa.at(i+1));
 }
-
-/*!
-    \fn void QPaintEngine::drawPolygon(const QPointArray &pa, bool
-    winding, int index, int npoints)
-
-    Reimplement this function to draw a polygon consisting of at most
-    \a npoints points from the point array \a pa, starting with the
-    \a{index}-th point in \a pa. If \a winding is true the polygon
-    should be filled using the Winding algorithm; otherwise it should
-    be filled using the Odd-Even algorithm.
-*/
 
 /*!
     \fn void QPaintEngine::drawPixmap(const QRect &rectangle, const QPixmap
@@ -483,7 +481,8 @@ void QPaintEngine::drawPath(const QPainterPath &)
 }
 
 /*!
-    The default implementation calls the int version of drawLine
+    The default implementation splits \a line into two points and
+    calls the integer version of drawLine().
 */
 void QPaintEngine::drawLine(const QLineF &line)
 {
@@ -493,7 +492,8 @@ void QPaintEngine::drawLine(const QLineF &line)
 /*!
     \overload
 
-    The default implementation calls the int version of drawRect
+    The default implementation converts \a rf to an integer rectangle
+    and calls the integer version of drawRect().
 */
 void QPaintEngine::drawRect(const QRectF &rf)
 {
@@ -503,7 +503,8 @@ void QPaintEngine::drawRect(const QRectF &rf)
 /*!
     \overload
 
-    The default implementation calls the int version of drawPoint
+    The default implementation converts \a pf to an integer point and
+    calls the integer version of drawPoint().
 */
 void QPaintEngine::drawPoint(const QPointF &pf)
 {

@@ -661,6 +661,8 @@ void QPainterPath::closeSubpath()
     \fn void QPainterPath::moveTo(float x, float y)
 
     \overload
+
+    Moves the current point to (\a{x}, \a{y}).
 */
 
 /*!
@@ -688,6 +690,8 @@ void QPainterPath::moveTo(const QPointF &p)
     \fn void QPainterPath::lineTo(float x, float y)
 
     \overload
+
+    Draws a line to point (\a{x}, \a{y}).
 */
 
 /*!
@@ -700,9 +704,14 @@ void QPainterPath::lineTo(const QPointF &p)
 }
 
 /*!
-    \fn void QPainterPath::curveTo(float x, float y)
+    \fn void QPainterPath::curveTo(float ctrlPt1x, float ctrlPt1y, float ctrlPt2x,
+                                   float ctrlPt2y, float endPtx, float endPty);
 
     \overload
+
+    Adds a Bezier curve with control points (\a{ctrlPt1x},
+    \a{ctrlPt1y}), (\a{ctrlPt2x}, \a{ctrlPt2y}), and end points,
+    (\a{endPtx}, \a{endPty}).
 */
 
 /*!
@@ -716,9 +725,13 @@ void QPainterPath::curveTo(const QPointF &c1, const QPointF &c2, const QPointF &
 }
 
 /*!
-    \fn void QPainterPath::arcTo(float x, float y, float w, float h, float startAngle, float length)
+    \fn void QPainterPath::arcTo(float x, float y, float width, float
+    height, float startAngle, float sweepLength)
 
     \overload
+
+    The arc's rectangle is at point (\a{x}, \a{y}) and has the given
+    \a width and \a height.
 */
 
 /*!
@@ -734,9 +747,20 @@ void QPainterPath::arcTo(const QRectF &rect, float startAngle, float sweepLength
 }
 
 /*!
-    Adds rectangle as a closed subpath to this path. The rectangle
-    is added as a clockwise set of lines. An empty subpath with current
-    position at (0, 0) is in use after this function returns.
+    \fn void QPainterPath::addRect(float x, float y, float width, float height)
+
+    \overload
+
+    Adds a rectangle at position (\a{x}, \a{y}), with the given \a
+    width and \a height.
+
+*/
+
+/*!
+    Adds rectangle, \a r, as a closed subpath to this path. The
+    rectangle is added as a clockwise set of lines. An empty subpath
+    with current position at (0, 0) is in use after this function
+    returns.
 */
 void QPainterPath::addRect(const QRectF &r)
 {
@@ -785,7 +809,7 @@ void QPainterPath::transform(const QMatrix &matrix)
     Returns the fill mode of the painter path. The default fill mode
     is OddEven.
 
-    \sa FillMode, setFillMode
+    \sa FillMode, setFillMode()
 */
 QPainterPath::FillMode QPainterPath::fillMode() const
 {
@@ -825,6 +849,9 @@ bool QPainterPath::isEmpty() const
     return d->subpaths.isEmpty();
 }
 
+/*!
+    Create an outline for the path with the given \a width.
+*/
 QPainterPath QPainterPath::createPathOutline(int width)
 {
     return d->createStroke(QPen(Qt::black, width, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));

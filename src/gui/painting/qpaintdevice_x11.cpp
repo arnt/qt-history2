@@ -176,11 +176,17 @@ int QPaintDevice::metric(int) const
 
 #ifdef QT_COMPAT
 
+/*!
+###
+*/
 Display *QPaintDevice::x11Display() const
 {
     return X11->display;
 }
 
+/*!
+    Use QX11Info::appScreen() instead.
+*/
 int QPaintDevice::x11Screen() const
 {
     const QX11Info *info = qt_x11Info(this);
@@ -189,6 +195,9 @@ int QPaintDevice::x11Screen() const
     return QX11Info::appScreen();
 }
 
+/*!
+    Use QX11Info::appVisual() instead.
+*/
 void *QPaintDevice::x11Visual() const
 {
     const QX11Info *info = qt_x11Info(this);
@@ -197,6 +206,9 @@ void *QPaintDevice::x11Visual() const
     return QX11Info::appVisual();
 }
 
+/*!
+    Use QX11Info::appDepth() instead.
+*/
 int QPaintDevice::x11Depth() const
 {
     const QX11Info *info = qt_x11Info(this);
@@ -205,6 +217,9 @@ int QPaintDevice::x11Depth() const
     return QX11Info::appDepth();
 }
 
+/*!
+    Use QX11Info::appCells() instead.
+*/
 int QPaintDevice::x11Cells() const
 {
     const QX11Info *info = qt_x11Info(this);
@@ -213,6 +228,9 @@ int QPaintDevice::x11Cells() const
     return QX11Info::appCells();
 }
 
+/*!
+    Use QX11Info::appColormap() instead.
+*/
 Qt::HANDLE QPaintDevice::x11Colormap() const
 {
     const QX11Info *info = qt_x11Info(this);
@@ -221,6 +239,9 @@ Qt::HANDLE QPaintDevice::x11Colormap() const
     return QX11Info::appColormap();
 }
 
+/*!
+    Use QX11Info::appDefaultColormap() instead.
+*/
 bool QPaintDevice::x11DefaultColormap() const
 {
     const QX11Info *info = qt_x11Info(this);
@@ -229,6 +250,9 @@ bool QPaintDevice::x11DefaultColormap() const
     return QX11Info::appDefaultColormap();
 }
 
+/*!
+    Use QX11Info::appDefaultVisual() instead.
+*/
 bool QPaintDevice::x11DefaultVisual() const
 {
     const QX11Info *info = qt_x11Info(this);
@@ -237,30 +261,57 @@ bool QPaintDevice::x11DefaultVisual() const
     return QX11Info::appDefaultVisual();
 }
 
+/*!
+    Use QX11Info::appVisual() instead.
+*/
 void *QPaintDevice::x11AppVisual(int screen)
 { return QX11Info::appVisual(screen); }
 
+/*!
+    Use QX11Info::appColormap() instead.
+*/
 Qt::HANDLE QPaintDevice::x11AppColormap(int screen)
 { return QX11Info::appColormap(screen); }
 
+/*!
+    Use QX11Info::display() instead.
+*/
 Display *QPaintDevice::x11AppDisplay()
 { return QX11Info::display(); }
 
+/*!
+    Use QX11Info::appScreen() instead.
+*/
 int QPaintDevice::x11AppScreen()
 { return QX11Info::appScreen(); }
 
+/*!
+    Use QX11Info::appDepth() instead.
+*/
 int QPaintDevice::x11AppDepth(int screen)
 { return QX11Info::appDepth(screen); }
 
+/*!
+    Use QX11Info::appCells() instead.
+*/
 int QPaintDevice::x11AppCells(int screen)
 { return QX11Info::appCells(screen); }
 
+/*!
+    Use QX11Info::appRootWindow() instead.
+*/
 Qt::HANDLE QPaintDevice::x11AppRootWindow(int screen)
 { return QX11Info::appRootWindow(screen); }
 
+/*!
+    Use QX11Info::appDefaultColormap() instead.
+*/
 bool QPaintDevice::x11AppDefaultColormap(int screen)
 { return QX11Info::appDefaultColormap(screen); }
 
+/*!
+    Use QX11Info::appDefaultVisual() instead.
+*/
 bool QPaintDevice::x11AppDefaultVisual(int screen)
 { return QX11Info::appDefaultVisual(screen); }
 

@@ -157,7 +157,15 @@
     \value Rgb
     \value Hsv
     \value Cmyk
+    \value Invalid
 */
+
+/*!
+    \fn Spec QColor::spec() const
+
+    Returns how the color was specified.
+*/
+
 
 /*!
     \fn QColor::QColor()
@@ -260,21 +268,6 @@ QColor::QColor(QRgb rgb)
     argb.blue  = qBlue(rgb)  * 0x101;
     argb.pad   = 0;
 }
-
-/*! \obsolete
-    Constructs a color with the RGB or HSV value \a x, \a y, \a z.
-
-    The arguments are an RGB value if \a colorSpec is QColor::Rgb. \a
-    x (red), \a y (green), and \a z (blue). All of them must be in the
-    range 0 to 255.
-
-    The arguments are an HSV value if \a colorSpec is QColor::Hsv. \a
-    x (hue) must be -1 for achromatic colors and in the range 0 to 359 for
-    chromatic colors; \a y (saturation) and \a z (value) must both be in the
-    range 0 to 255.
-
-    \sa setRgb(), setHsv()
-*/
 
 /*!
     \fn QColor::QColor(const QString &name)
@@ -385,9 +378,16 @@ QStringList QColor::colorNames()
 }
 
 /*!
+    \fn void QColor::getHsv(float *h, float *s, float *v, float *a) const
+
+    \overload
+*/
+
+/*!
     Returns the current RGB value as HSV. The contents of the \a h, \a
-    s, and \a v pointers are set to the HSV values. If any of the three
-    pointers are null, the function does nothing.
+    s, and \a v pointers are set to the HSV values, and the contenst
+    of \a a is set to the alpha-channel (transparency) value. If any
+    of the pointers are null, the function does nothing.
 
     The hue (which \a h points to) is set to -1 if the color is
     achromatic.
@@ -416,6 +416,15 @@ void QColor::getHsv(int *h, int *s, int *v, int *a) const
 }
 
 /*!
+    \fn void QColor::setHsv(float h, float s, float v, float a);
+
+    \overload
+
+    The value of \a s, \a v, and \a a must all be in the range
+    0.0f-1.0f; the value of \a h must be in the range 0.0f-360.0f.
+*/
+
+/*!
     Sets a HSV color value; \a h is the hue, \a s is the saturation,
     \a v is the value and \a a is the alpha component of the HSV
     color.
@@ -442,9 +451,15 @@ void QColor::setHsv(int h, int s, int v, int a)
 }
 
 /*!
-    Sets the contents pointed to by \a r, \a g and, \a b to the red,
-    green, and blue components of the RGB value respectively. The value
-    range for each component is 0 to 255.
+    \fn void QColor::getRgb(float *r, float *g, float *b, float *a) const
+
+    \overload
+*/
+
+/*!
+    Sets the contents pointed to by \a r, \a g, \a b, and \a a, to the
+    red, green, blue, and alpha-channel (transparency) components of
+    the RGB value.
 
     \sa rgb(), setRgb(), getHsv()
 */
@@ -474,6 +489,14 @@ void QColor::getRgb(int *r, int *g, int *b, int *a) const
     All the values are in the range 0 to 255.
 
     \sa setRgba() setRgb() setHsv()
+*/
+
+/*!
+    \fn void QColor::setRgb(float r, float g, float b, float a)
+
+    \overload
+
+    All values must be in the range 0.0f-1.0f.
 */
 
 /*!
@@ -548,20 +571,25 @@ void QColor::setRgb(QRgb rgb)
 }
 
 /*!
-    \fn int QColor::alpha() const
+    Returns the alpha color component of this color.
 
-    Returns the alpha channel component of the color.
+    \sa alphaF() red() green() blue()
 */
 int QColor::alpha() const
 { return argb.alpha >> 8; }
 
+/*!
+    Returns the alpha color component of this color.
+
+    \sa alpha() redF() greenF() blueF()
+*/
 float QColor::alphaF() const
 { return argb.alpha / float(USHRT_MAX); }
 
 /*!
-    \fn int QColor::red() const
+    Returns the red color component of this color.
 
-    Returns the R (red) component of the color.
+    \sa redF() green() blue() alpha()
 */
 int QColor::red() const
 {
@@ -571,9 +599,9 @@ int QColor::red() const
 }
 
 /*!
-    \fn int QColor::green() const
+    Returns the green color component of this color.
 
-    Returns the G (green) component of the color.
+    \sa greenF() red() blue() alpha()
 */
 int QColor::green() const
 {
@@ -583,9 +611,9 @@ int QColor::green() const
 }
 
 /*!
-    \fn int QColor::blue() const
+    Returns the blue color component of this color.
 
-    Returns the B (blue) component of the color.
+    \sa blueF() red() green() alpha()
 */
 int QColor::blue() const
 {
@@ -594,6 +622,11 @@ int QColor::blue() const
     return argb.blue >> 8;
 }
 
+/*!
+    Returns the red color component of this color.
+
+    \sa red() greenF() blueF() alphaF()
+*/
 float QColor::redF() const
 {
     if (cspec != Invalid && cspec != Rgb)
@@ -601,6 +634,11 @@ float QColor::redF() const
     return argb.red / float(USHRT_MAX);
 }
 
+/*!
+    Returns the green color component of this color.
+
+    \sa green() redF() blueF() alphaF()
+*/
 float QColor::greenF() const
 {
     if (cspec != Invalid && cspec != Rgb)
@@ -608,6 +646,11 @@ float QColor::greenF() const
     return argb.green / float(USHRT_MAX);
 }
 
+/*!
+    Returns the blue color component of this color.
+
+    \sa blue() redF() greenF() alphaF()
+*/
 float QColor::blueF() const
 {
     if (cspec != Invalid && cspec != Rgb)
@@ -615,6 +658,11 @@ float QColor::blueF() const
     return argb.blue / float(USHRT_MAX);
 }
 
+/*!
+    Returns the hue color component of this color.
+
+    \sa hueF() saturation() value() alpha()
+*/
 int QColor::hue() const
 {
     if (cspec != Invalid && cspec != Hsv)
@@ -622,6 +670,11 @@ int QColor::hue() const
     return ahsv.hue == USHRT_MAX ? -1 : ahsv.hue / 100;
 }
 
+/*!
+    Returns the saturation color component of this color.
+
+    \sa saturationF() hue() value() alpha()
+*/
 int QColor::saturation() const
 {
     if (cspec != Invalid && cspec != Hsv)
@@ -629,6 +682,11 @@ int QColor::saturation() const
     return ahsv.saturation >> 8;
 }
 
+/*!
+    Returns the value color component of this color.
+
+    \sa valueF() hue() saturation() alpha()
+*/
 int QColor::value() const
 {
     if (cspec != Invalid && cspec != Hsv)
@@ -636,6 +694,11 @@ int QColor::value() const
     return ahsv.value >> 8;
 }
 
+/*!
+    Returns the hue color component of this color.
+
+    \sa hue() saturationF() valueF() alphaF()
+*/
 float QColor::hueF() const
 {
     if (cspec != Invalid && cspec != Hsv)
@@ -643,6 +706,11 @@ float QColor::hueF() const
     return ahsv.hue == USHRT_MAX ? -1.0f : ahsv.hue / 100.0f;
 }
 
+/*!
+    Returns the saturation color component of this color.
+
+    \sa saturation() hueF() valueF() alphaF()
+*/
 float QColor::saturationF() const
 {
     if (cspec != Invalid && cspec != Hsv)
@@ -650,6 +718,11 @@ float QColor::saturationF() const
     return ahsv.saturation / float(USHRT_MAX);
 }
 
+/*!
+    Returns the value color component of this color.
+
+    \sa value() hueF() saturationF() alphaF()
+*/
 float QColor::valueF() const
 {
     if (cspec != Invalid && cspec != Hsv)
@@ -657,6 +730,11 @@ float QColor::valueF() const
     return ahsv.value / float(USHRT_MAX);
 }
 
+/*!
+    Returns the cyan color component of this color.
+
+    \sa cyanF() black() magenta() yellow() alpha()
+*/
 int QColor::cyan() const
 {
     if (cspec != Invalid && cspec != Cmyk)
@@ -664,6 +742,11 @@ int QColor::cyan() const
     return acmyk.cyan >> 8;
 }
 
+/*!
+    Returns the magenta color component of this color.
+
+    \sa magentaF() cyan() black() yellow() alpha()
+*/
 int QColor::magenta() const
 {
     if (cspec != Invalid && cspec != Cmyk)
@@ -671,6 +754,11 @@ int QColor::magenta() const
     return acmyk.magenta >> 8;
 }
 
+/*!
+    Returns the yellow color component of this color.
+
+    \sa yellowF() cyan() magenta() black() alpha()
+*/
 int QColor::yellow() const
 {
     if (cspec != Invalid && cspec != Cmyk)
@@ -678,6 +766,11 @@ int QColor::yellow() const
     return acmyk.yellow >> 8;
 }
 
+/*!
+    Returns the black color component of this color.
+
+    \sa blackF() cyan() magenta() yellow() alpha()
+*/
 int QColor::black() const
 {
     if (cspec != Invalid && cspec != Cmyk)
@@ -685,6 +778,11 @@ int QColor::black() const
     return acmyk.black >> 8;
 }
 
+/*!
+    Returns the cyan color component of this color.
+
+    \sa cyan() blackF() magentaF() yellowF() alphaF()
+*/
 float QColor::cyanF() const
 {
     if (cspec != Invalid && cspec != Cmyk)
@@ -692,6 +790,11 @@ float QColor::cyanF() const
     return acmyk.cyan / float(10000);
 }
 
+/*!
+    Returns the magenta color component of this color.
+
+    \sa magenta() cyanF() blackF() yellowF() alphaF()
+*/
 float QColor::magentaF() const
 {
     if (cspec != Invalid && cspec != Cmyk)
@@ -699,6 +802,11 @@ float QColor::magentaF() const
     return acmyk.magenta / float(10000);
 }
 
+/*!
+    Returns the yellow color component of this color.
+
+    \sa yellow() cyanF() magentaF() blackF() alphaF()
+*/
 float QColor::yellowF() const
 {
     if (cspec != Invalid && cspec != Cmyk)
@@ -706,6 +814,11 @@ float QColor::yellowF() const
     return acmyk.yellow / float(10000);
 }
 
+/*!
+    Returns the black color component of this color.
+
+    \sa black() cyanF() magentaF() yellowF() alphaF()
+*/
 float QColor::blackF() const
 {
     if (cspec != Invalid && cspec != Cmyk)
@@ -713,6 +826,11 @@ float QColor::blackF() const
     return acmyk.black / float(10000);
 }
 
+/*!
+    Returns an RGB QColor based on this color.
+
+    \sa fromRgb() toCmyk() toHsv()
+*/
 QColor QColor::toRgb() const
 {
     if (!isValid() || cspec == Rgb)
@@ -802,6 +920,11 @@ QColor QColor::toRgb() const
     return color;
 };
 
+/*!
+    Returns an HSV QColor based on this color.
+
+    \sa fromHsv() toCmyk() toRgb()
+*/
 QColor QColor::toHsv() const
 {
     if (!isValid())
@@ -843,6 +966,11 @@ QColor QColor::toHsv() const
     return color;
 }
 
+/*!
+    Returns a CMYK QColor based on this color.
+
+    \sa fromCmyk() toHsv() toRgb()
+*/
 QColor QColor::toCmyk() const
 {
     QColor rgb = toRgb();
@@ -875,6 +1003,10 @@ QColor QColor::toCmyk() const
     return color;
 }
 
+/*!
+    Returns a new QColor of the given color specification based on
+    this color.
+*/
 QColor QColor::convertTo(QColor::Spec colorSpec) const
 {
     if (colorSpec == cspec)
@@ -892,6 +1024,15 @@ QColor QColor::convertTo(QColor::Spec colorSpec) const
     return *this; // must be invalid
 }
 
+/*!
+    Static convenience function that returns a QColor constructed from
+    the RGB color values, \a r (red), \a g (green), \a b (blue),
+    and \a a (alpha-channel, i.e. transparency).
+
+    All the values must be in the range 0.0f-1.0f.
+
+    \sa toRgb() fromCmyk() fromHsv()
+*/
 QColor QColor::fromRgb(float r, float g, float b, float a)
 {
     if (r < 0.0f || r > 1.0f
@@ -912,6 +1053,16 @@ QColor QColor::fromRgb(float r, float g, float b, float a)
     return color;
 }
 
+/*!
+    Static convenience function that returns a QColor constructed from
+    the HSV color values, \a h (hue), \a s (saturation), \a v (value),
+    and \a a (alpha-channel, i.e. transparency).
+
+    The value of \a s, \a v, and \a a must all be in the range
+    0.0f-1.0f; the value of \a h must be in the range 0.0f-360.0f.
+
+    \sa toHsv() fromCmyk() fromRgb()
+*/
 QColor QColor::fromHsv(float h, float s, float v, float a)
 {
     if (((h < 0.0f || h >= 360.0f) && h != 1.0f)
@@ -932,6 +1083,50 @@ QColor QColor::fromHsv(float h, float s, float v, float a)
     return color;
 }
 
+/*!
+    \fn void QColor::getCmyk(int *c, int *m, int *y, int *k, int *a)
+
+    Sets the contents pointed to by \a c, \a m, \a y, \a k, and \a a,
+    to the cyan, magenta, yellow, black, and alpha-channel
+    (transparency) components of the CMYK value.
+
+    \sa setCmyk() getRgb() getHsv()
+*/
+
+/*!
+    \fn void QColor::getCmyk(float *c, float *m, float *y, float *k, float *a)
+
+    \overload
+*/
+
+/*!
+    \fn void QColor::setCmyk(int c, int m, int y, int k, int a)
+
+    Sets the color to CMYK values, \a c (cyan), \a m (magenta), \a y (yellow),
+    \a k (black), and \a a (alpha-channel, i.e. transparency).
+
+    All the values must be in the range 0-255.
+
+    \sa getCmyk() setRgb() setHsv()
+*/
+
+/*!
+    \fn void QColor::setCmyk(float c, float m, float y, float k, float a)
+
+    \overload
+
+    All the values must be in the range 0.0f-1.0f.
+*/
+
+/*!
+    Static convenience function that returns a QColor constructed from
+    the CMYK color values, \a c (cyan), \a m (magenta), \a y (yellow),
+    \a k (black), and \a a (alpha-channel, i.e. transparency).
+
+    All the values must be in the range 0.0f-1.0f.
+
+    \sa toCmyk() fromHsv() fromRgb()
+*/
 QColor QColor::fromCmyk(float c, float m, float y, float k, float a)
 {
     if (c < 0.0f || c > 1.0f
@@ -1236,3 +1431,23 @@ QDataStream &operator>>(QDataStream &stream, QColor &color)
 
     Returns a gray value (0 to 255) from the given RGB triplet \a rgb.
 */
+
+/*!
+    \fn QColor::QColor(int x, int y, int z, Spec colorSpec)
+
+    Use one of the other QColor constructors, or one of the static
+    convenience functions, instead.
+*/
+
+/*!
+    \fn QColor::rgb(int *r, int *g, int *b) const
+
+    Use getRgb() instead.
+*/
+
+/*!
+    \fn QColor::hsv(int *h, int *s, int *v) const
+
+    Use getHsv() instead.
+*/
+

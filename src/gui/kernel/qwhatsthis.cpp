@@ -511,6 +511,12 @@ public slots:
     }
 };
 
+/*!
+    Returns a new What's This QToolButton with the given \a parent. To
+    do this now, create your own QToolButton and a QWhatsThis object
+    and call the QWhatsThis object's showText() function when the
+    QToolButton is invoked.
+*/
 QToolButton * QWhatsThis::whatsThisButton(QWidget * parent)
 {
     return new QWhatsThisButton(parent);

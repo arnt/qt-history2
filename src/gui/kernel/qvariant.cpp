@@ -697,6 +697,14 @@ const QVariant::Handler qt_gui_variant_handler = {
 */
 
 /*!
+    \fn QVariant::QVariant(QObject *object)
+
+    \internal
+
+    Constructs a variant that stores the given \a object.
+*/
+
+/*!
     \fn QVariant::QVariant(Type type, const void *v)
 
     \internal
@@ -960,6 +968,10 @@ QVariant::QVariant(const QColor &val) { d = create(Color, &val); }
 #ifndef QT_NO_PALETTE
 QVariant::QVariant(const QPalette &val) { d = create(Palette, &val); }
 #ifdef QT_COMPAT
+/*!
+    QVariant's don't store color groups directly; store and retrieve a
+    QPalette instead.
+*/
 QVariant::QVariant(const QColorGroup &val) { d = create(ColorGroup, &val); }
 #endif
 #endif //QT_NO_PALETTE
@@ -1162,6 +1174,10 @@ QPalette QVariant::toPalette() const
 }
 
 #ifdef QT_COMPAT
+/*!
+    QVariant's don't store color groups directly; store and retrieve a
+    QPalette instead. See toPalette().
+*/
 QColorGroup QVariant::toColorGroup() const
 {
     if (d->type != ColorGroup)
@@ -1231,6 +1247,9 @@ QIconSet QVariant::toIcon() const
     return *static_cast<QIconSet *>(d->value.ptr);
 }
 #ifdef QT_COMPAT
+/*!
+    Use toIcon() instead.
+*/
 QIconSet QVariant::toIconSet() const { return toIcon(); }
 #endif
 
@@ -1423,3 +1442,119 @@ template<> QSize QVariant_to<QSize>(const QCoreVariant &v)
 
 
 #endif
+
+/*!
+    \fn QVariant::QVariant(bool b, int dummy)
+
+    Use the single-argument overload instead.
+*/
+
+/*!
+    \fn QFont& QVariant::asFont()
+
+    Use toFont() instead.
+*/
+
+/*!
+    \fn QImage& QVariant::asImage()
+
+    Use toImage() instead.
+*/
+
+/*!
+    \fn QBrush& QVariant::asBrush()
+
+    Use toBrush() instead.
+*/
+
+/*!
+    \fn QColor& QVariant::asColor()
+
+    Use toColor() instead.
+*/
+
+/*!
+    \fn QPalette& QVariant::asPalette()
+
+    Use toPalette() instead.
+*/
+
+/*!
+    \fn QColorGroup& QVariant::asColorGroup()
+
+    QVariant's don't store color groups directly; store and retrieve a
+    QPalette instead.
+*/
+
+/*!
+    \fn QIconSet& QVariant::asIconSet()
+
+    Use toIcon() instead.
+*/
+
+/*!
+    \fn QPointArray& QVariant::asPointArray()
+
+    Use toPointArray() instead.
+*/
+
+/*!
+    \fn QBitmap& QVariant::asBitmap()
+
+    Use toBitmap() instead.
+*/
+
+/*!
+    \fn QRegion& QVariant::asRegion()
+
+    Use toRegion() instead.
+*/
+
+/*!
+    \fn QCursor& QVariant::asCursor()
+
+    Use toCursor() instead.
+*/
+
+/*!
+    \fn QKeySequence& QVariant::asKeySequence()
+
+    Use toKeySequence() instead.
+*/
+
+/*!
+    \fn QPen& QVariant::asPen()
+
+    Use toPen() instead.
+*/
+
+/*!
+    \fn QSizePolicy& QVariant::asSizePolicy()
+
+    Use toSizePolicy() instead.
+*/
+
+/*!
+    \fn QPoint& QVariant::asPoint()
+
+    Use toPoint() instead.
+*/
+
+/*!
+    \fn QRect& QVariant::asRect()
+
+    Use toRect() instead.
+*/
+
+/*!
+    \fn QSize &QVariant::asSize()
+
+    Use toSize() instead.
+*/
+
+/*!
+    \fn QPixmap& QVariant::asPixmap()
+
+    Use toPixmap() instead.
+*/
+

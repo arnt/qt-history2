@@ -980,4 +980,59 @@ QPalette::setColorGroup(ColorGroup cg, const QBrush &foreground, const QBrush &b
     setBrush(cg, LinkVisited, link_visited);
 }
 
+/*!
+    \fn QPalette QPalette::copy() const
+
+    Use simple assignment instead.
+*/
+
+/*!
+    \fn QColorGroup QPalette::normal() const
+
+    Use createColorGroup(Active) instead.
+*/
+
+/*!
+    \fn void QPalette::setNormal(const QColorGroup &colorGroup)
+
+    Use setColorGroup(Active, colorGroup) instead.
+*/
+
+/*!
+    \fn QColorGroup QPalette::active() const
+
+    Use createColorGroup(Active) instead.
+*/
+
+/*!
+    \fn QColorGroup QPalette::disabled() const
+
+    Use createColorGroup(Disabled) instead.
+*/
+
+/*!
+    \fn QColorGroup QPalette::inactive() const
+
+    Use createColorGroup(Inactive) instead.
+*/
+
+/*!
+    \fn void QPalette::setActive(const QColorGroup &colorGroup)
+
+    Use setColorGroup(Active, colorGroup) instead.
+*/
+
+/*!
+    \fn void QPalette::setDisabled(const QColorGroup &colorGroup)
+
+    Use setColorGroup(Disabled, colorGroup) instead.
+*/
+
+/*!
+    \fn void QPalette::setInactive(const QColorGroup &colorGroup)
+
+    Use setColorGroup(Inactive, colorGroup) instead.
+*/
+
+
 #endif // QT_NO_PALETTE

@@ -332,11 +332,11 @@ QRect QMatrix::mapRect(const QRect &rect) const
 
 
 /*!
-  \fn QPoint operator*(const QPoint &p, const QMatrix &m)
+    \fn QPoint operator*(const QPoint &p, const QMatrix &m)
 
-  \relates QMatrix
+    \relates QMatrix
 
-  Same as m.map(p).
+    This is the same as \a{m}.mapRect(\a{p}).
 */
 
 /*!
@@ -391,11 +391,11 @@ struct QWMDoublePoint {
 };
 
 /*!
-  \fn QPointArray operator*(const QPointArray &a, const QMatrix &m)
+    \fn QPointArray operator*(const QPointArray &a, const QMatrix &m)
 
-  \relates QMatrix
+    \relates QMatrix
 
-  Same as m.map(a).
+    This is the same as \a{m}.mapRect(\a{a}).
 */
 
 /*!
@@ -462,11 +462,11 @@ QPointArray QMatrix::map(const QPointArray &a) const
 }
 
 /*!
-  \fn QRegion operator*(const QRegion &r, const QMatrix &m)
+    \fn QRegion operator*(const QRegion &r, const QMatrix &m)
 
-  \relates QMatrix
+    \relates QMatrix
 
-  Same as m.map(r).
+    This is the same as \a{m}.mapRect(\a{r}).
 */
 
 /*!
@@ -857,7 +857,8 @@ QMatrix &QMatrix::operator *=(const QMatrix &m)
 
 /*!
     \overload
-    Returns the product of \a this * \a m.
+
+    Returns the product of \e this * \a m.
 
     Note that matrix multiplication is not commutative, i.e. a*b !=
     b*a.
@@ -949,6 +950,12 @@ QDebug operator<<(QDebug dbg, const QMatrix &m)
     return dbg.space();
 }
 #endif
+
+/*!
+    \fn QRect QMatrix::map(const QRect &r) const
+
+    Use mapRect() instead.
+*/
 
 
 #endif // QT_NO_WMATRIX
