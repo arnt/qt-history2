@@ -225,6 +225,8 @@ public:
     bool widgetIdx(const QString &name, int *cat_idx, int *wgt_idx) const;
     int categoryIdx(const QString &name) const;
 
+    void loadDescription(const QString &fileName = QString());
+
 private:
     CategoryList m_model;
 
@@ -242,7 +244,18 @@ WidgetCollectionModel::WidgetCollectionModel(AbstractFormEditor *core, QObject *
 {
     m_core = core;
 
-    QString name = QLatin1String(":/trolltech/widgetbox/widgetbox.xml");
+    loadDescription();
+}
+
+void WidgetCollectionModel::loadDescription(const QString &fileName)
+{
+    QString name = fileName;
+
+    if (name.isEmpty())
+        name = QLatin1String(":/trolltech/widgetbox/widgetbox.xml");
+
+    m_model.clear();
+
     QFile f(name);
     if (!f.open(QIODevice::ReadOnly)) {
         qWarning("WidgetBox: failed to open \"%s\"", name.toLatin1().constData());
@@ -263,6 +276,7 @@ WidgetCollectionModel::WidgetCollectionModel(AbstractFormEditor *core, QObject *
     if (custom.widgetCount() > 0)
         m_model.append(custom);
 
+    emit reset();
 //    dumpModel();
 }
 
@@ -890,6 +904,11 @@ WidgetBox::~WidgetBox()
 {
     // delete view before model
     delete m_view;
+}
+
+void WidgetBox::reload()
+{
+    m_model->loadDescription();
 }
 
 AbstractFormEditor *WidgetBox::core() const

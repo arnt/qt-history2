@@ -36,10 +36,7 @@ class DomWidget;
 class QT_WIDGETBOX_EXPORT WidgetBox : public AbstractWidgetBox
 {
     Q_OBJECT
-
 public:
-    enum ViewMode { TreeMode, FormMode };
-
     WidgetBox(AbstractFormEditor *core, QWidget *parent = 0, Qt::WindowFlags flags = 0);
     virtual ~WidgetBox();
 
@@ -54,6 +51,9 @@ public:
     virtual Widget widget(int cat_idx, int wgt_idx) const;
     virtual void addWidget(int cat_idx, const Widget &wgt);
     virtual void removeWidget(int cat_idx, int wgt_idx);
+
+public slots:
+    virtual void reload();
 
 private slots:
     void handleMousePress(const QString &xml, const QRect &geometry);
