@@ -207,6 +207,7 @@ class SubdirsMetaMakefileGenerator : public MetaMakefileGenerator
     bool init_flag;
 private:
     struct Subdir {
+        QString input_dir;
         QString output_dir, output_file;
         MetaMakefileGenerator *makefile;
     };
@@ -246,9 +247,10 @@ SubdirsMetaMakefileGenerator::init()
             //handle sub project
             QMakeProject *sub_proj = new QMakeProject(project->properities());
             printf("RECURSIVE: reading %s\n", subdir.absoluteFilePath().toLatin1().constData());
-            qmake_setpwd(subdir.path());
-            sub->output_dir = qmake_getpwd();
-            Option::output_dir = qmake_getpwd();
+            sub->input_dir = subdir.absolutePath();
+            qmake_setpwd(sub->input_dir);
+            sub->output_dir = qmake_getpwd(); //this is not going to work for shadow builds ### --Sam
+            Option::output_dir = sub->output_dir;
             if(Option::output_dir.at(Option::output_dir.length()-1) != QLatin1Char('/'))
                 Option::output_dir += QLatin1Char('/');
             sub_proj->read(subdir.fileName());
@@ -272,6 +274,7 @@ SubdirsMetaMakefileGenerator::init()
     }
 
     Subdir *self = new Subdir;
+    self->input_dir = qmake_getpwd();
     self->output_dir = Option::output_dir;
     self->output_file = Option::output.fileName();
     self->makefile = new BuildsMetaMakefileGenerator(project);
@@ -288,8 +291,8 @@ SubdirsMetaMakefileGenerator::write(const QString &)
     const QString &output_dir = Option::output_dir;
     const QString &output_name = Option::output.fileName();
     for(int i = 0; ret && i < subs.count(); i++) {
-        qmake_setpwd(subs.at(i)->output_dir);
-        Option::output_dir = qmake_getpwd();
+        qmake_setpwd(subs.at(i)->input_dir);
+        Option::output_dir = QFileInfo(subs.at(i)->output_dir).absoluteFilePath();
         if(Option::output_dir.at(Option::output_dir.length()-1) != QLatin1Char('/'))
             Option::output_dir += QLatin1Char('/');
         Option::output.setFileName(subs.at(i)->output_file);
