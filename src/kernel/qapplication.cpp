@@ -60,6 +60,7 @@
 #ifdef Q_WS_WIN
 #include "qinputcontext_p.h"
 #endif
+#include "qfontdata_p.h"
 
 #if defined(QT_THREAD_SUPPORT)
 #  include "qmutex.h"
@@ -1885,7 +1886,11 @@ void QApplication::setFont( const QFont &font, bool informWidgets,
 	} else {
 	    *app_font = font;
 	}
+
+	// make sure the application font is complete
 	app_font->detach();
+	app_font->d->request.mask = QFontDef::Complete;
+
 	all = app_fonts != 0;
 	delete app_fonts;
 	app_fonts = 0;
@@ -2599,9 +2604,9 @@ void QApplication::processOneEvent()
 /*!
     Returns the application event loop. This function will return
     zero if called during and after destroying QApplication.
-    
-    To create your own instance of QEventLoop or QEventLoop subclass create 
-    it before you create the QApplication object.   
+
+    To create your own instance of QEventLoop or QEventLoop subclass create
+    it before you create the QApplication object.
 
     \sa QEventLoop
 */
