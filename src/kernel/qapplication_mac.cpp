@@ -1750,8 +1750,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 #ifdef DEBUG_KEY_MAPS
 	qDebug("------------ Mapping modifiers and key -----------");
 #endif
-	if(modifiers & (Qt::ControlButton | Qt::AltButton | Qt::MetaButton)) {
-	    if(chr & (1 << 7))
+	if(modifiers & (Qt::AltButton | Qt::ControlButton)) {
+	    if(chr & (1 << 7)) 
 		chr = 0;
 	} else {  	//now get the real ascii value
 	    UInt32 tmp_mod = 0L;
@@ -1771,7 +1771,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    chr = KeyTranslate((void *)GetScriptManagerVariable(smUnicodeScript),
 			       tmp_mod | keyc, &tmp_state);
 	}
-	if(chr) {
+	/* I don't know why the str is only filled in in RawKeyDown - but it does seem to be on X11 
+	   is this a bug on X11? --Sam ### */
+	if(chr && ekind == kEventRawKeyDown) {
 	    static QTextCodec *c = NULL;
 	    if(!c)
 		c = QTextCodec::codecForName("Apple Roman");
@@ -1841,6 +1843,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		       mychar, chr, mystr.latin1(), modifiers,
 		       ekind == kEventRawKeyRepeat ? " Repeat" : "");
 #endif
+		/* This is actually wrong - but unfortunatly it is the best that can be
+		   done for now because of the Control/Meta mapping problems */
 		if(modifiers & (Qt::ControlButton | Qt::AltButton | Qt::MetaButton)) {
 		    /* I do this so that widgets that override the accel event can
 		       use the lack of a ascii and/or the QString to detect if they
