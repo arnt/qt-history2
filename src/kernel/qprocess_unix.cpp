@@ -44,11 +44,6 @@
 #include "qlist.h"
 #include "qsocketnotifier.h"
 
-//### 3.0: remove -D_BSD from tmake and remove this AIX preprocessor stuff
-#if defined(_OS_AIX_) && defined(_BSD)
-#undef _BSD
-#endif
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -72,7 +67,7 @@
 extern "C" {
 #endif
 
-#if defined(_OS_OSF_)
+#if defined(_OS_OSF_) || ( defined(_OS_IRIX_) && defined(_CC_GNU_) )
 static void qt_C_sigchldHnd();
 #else
 static void qt_C_sigchldHnd( int );
@@ -227,7 +222,7 @@ QList<QProcess> *QProcessPrivate::proclist = 0;
  * sigchld handler callback
  *
  **********************************************************************/
-#if defined(_OS_OSF_)
+#if defined(_OS_OSF_) || ( defined(_OS_IRIX_) && defined(_CC_GNU_) )
 void qt_C_sigchldHnd()
 #else
 void qt_C_sigchldHnd( int )
