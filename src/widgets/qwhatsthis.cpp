@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#2 $
 **
 ** C++ file skeleton
 **
@@ -20,7 +20,7 @@
 #include "qkeycode.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#1 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#2 $");
 
 
 class QWhatsThisPrivate: public QObject
@@ -85,27 +85,26 @@ QWhatsThisPrivate::Item::~Item()
 
 
 static const char * fucking_button_image_and_you_too[] = {
-    "24 24 3 1",
-    "  None",
-    "o #000000",
-    "a #000080",
-    "o        aaaaa  ",
-    "oo      aaa aaa ",
-    "ooo    aaa   aaa",
-    "oooo   aa     aa",
-    "ooooo  aa     aa",
-    "oooooo  a    aaa",
-    "ooooooo     aaa ",
-    "oooooooo   aaa  ",
-    "ooooooooo aaa   ",
-    "ooooo     aaa   ",
-    "oo ooo          ",
-    "o  ooo    aaa   ",
-    "    ooo   aaa   ",
-    "    ooo         ",
-    "     ooo        ",
-    "     ooo        "
-};
+"16 16 3 1",
+" 	c None",
+"o	c #000000",
+"a	c #000080",
+"o        aaaaa  ",
+"oo      aaa aaa ",
+"ooo    aaa   aaa",
+"oooo   aa     aa",
+"ooooo  aa     aa",
+"oooooo  a    aaa",
+"ooooooo     aaa ",
+"oooooooo   aaa  ",
+"ooooooooo aaa   ",
+"ooooo     aaa   ",
+"oo ooo          ",
+"o  ooo    aaa   ",
+"    ooo   aaa   ",
+"    ooo         ",
+"     ooo        ",
+"     ooo        "};
 
 
 // the button class
