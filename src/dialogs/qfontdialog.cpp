@@ -139,7 +139,7 @@ public:
 /*!
   Constructs a default font dialog. Use setFont() for setting
   the initial values.
-  
+
   \sa getFont()
 */
 
@@ -688,7 +688,7 @@ void QFontDialog::sizeHighlighted( const QString &s )
 /*!
   Sets the \a f to the font which values should be set
   in the QFontDialog.
-  
+
   \sa font()
 */
 
@@ -740,7 +740,7 @@ void QFontDialog::setFont( const QFont &f )
 
 /*!
   Returns the font which the user has chosen.
-  
+
   \sa setFont()
 */
 
@@ -767,3 +767,15 @@ void QFontDialog::emitSelectedFont()
 {
     emit fontSelected(font());
 }
+
+/*!
+  \fn  void QFontDialog::fontSelected( const QFont & ) const
+  
+  This signal is emitted, when the user has chosen a font and clicked ok.
+*/
+
+/*!
+  \fn  void QFontDialog::fontHighlighted( const QFont & ) const
+  
+  This signal is emitted, when the user changed a setting in the dialog.
+*/
