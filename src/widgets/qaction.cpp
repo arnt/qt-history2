@@ -1346,7 +1346,7 @@ bool QActionGroup::isExclusive() const
 
     In a popup menu the member actions are displayed in a submenu.
 
-    Changing usesDropDown only effects \e subsequent calls to addTo().
+    Changing usesDropDown only affects \e subsequent calls to addTo().
 
     This property's default is FALSE.
 
