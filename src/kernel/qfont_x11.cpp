@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#137 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#138 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -197,10 +197,10 @@ class QFontCache : public QCache<QFontInternal>
 public:
     QFontCache( int maxCost, int size=17, bool cs=TRUE, bool ck=TRUE )
 	: QCache<QFontInternal>(maxCost,size,cs,ck) {}
-    void deleteItem( GCI );
+    void deleteItem( Item );
 };
 
-void QFontCache::deleteItem( GCI d )
+void QFontCache::deleteItem( Item d )
 {
     QFontInternal *fin = (QFontInternal *)d;
     fin->reset();
