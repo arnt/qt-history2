@@ -403,6 +403,7 @@ QImage QPixmap::convertToImage() const
 	    image.setColor( i, clut()[i] );
 	if (mask()) {				// which pixels are used?
 	    QImage alpha = mask()->convertToImage();
+	    alpha = qt_screen->mapToDevice( alpha );
 	    bool ale = alpha.bitOrder() == QImage::LittleEndian;
 	    register uchar *p;
 	    int  used[256];
