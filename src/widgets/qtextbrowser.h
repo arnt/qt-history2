@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextbrowser.h#3 $
+** $Id: //depot/qt/main/src/widgets/qtextbrowser.h#4 $
 **
 ** Definition of the QTextBrowser class
 **
@@ -44,7 +44,7 @@ public:
 
     virtual void setSource(const QString& name);
 
-    void setText( const QString& contents, const QString& context );
+    void setText( const QString& contents, const QString& context=QString::null );
 
     void scrollToAnchor(const QString& name);
 
