@@ -374,7 +374,7 @@ void QSlider::paintEvent( QPaintEvent * )
     data[0] = (void *) &sliderPos;
 
     style().drawComplexControl( QStyle::CC_Slider, &p, this, rect(), colorGroup(),
-				flags, QStyle::SC_All, QStyle::SC_None, data );
+				flags, QStyle::SC_All, state == Dragging ? QStyle::SC_SliderHandle : QStyle::SC_None, data );
 }
 
 
