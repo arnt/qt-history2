@@ -108,7 +108,7 @@ void PimEditor::edit(const QModelIndex &index)
 void PimEditor::accept()
 {
     PimEntry pe;
-    pe.photo = photoButton->icon().pixmap();
+    pe.photo = photoButton->icon().pixmap(QSize(64, 64));
     pe.firstName = firstNameEdit->text();
     pe.lastName = lastNameEdit->text();
     pe.middleName = middleNameEdit->text();
