@@ -10,7 +10,6 @@ DLLDESTDIR	= ../bin
 CONFIG		+= qt warn_on depend_includepath
 CONFIG          += qmake_cache target_qt
 
-unix:CONFIG      += create_libtool create_pc
 #mac:QMAKE_LFLAGS += -undefined suppress -flat_namespace
 
 win32:!shared:CONFIG += staticlib
@@ -138,3 +137,9 @@ largefile:unix:!darwin:DEFINES += _LARGEFILE_SOURCE _LARGE_FILES _FILE_OFFSET_BI
 
 #install directives
 include(qt_install.pri)
+
+unix {
+   CONFIG     += create_libtool create_pc
+   QMAKE_PKGCONFIG_LIBDIR = $$target.path
+   QMAKE_PKGCONFIG_INCDIR = $$headers.path
+}
