@@ -500,24 +500,28 @@ bool QIconDragData::operator==( const QIconDragData &i ) const
     dragged items in the correct positions. Internally QIconDrag stores
     the data associated with drag items in QIconDragItem objects.
 
-  If you want to use the extended drag-and-drop functionality of
-  QIconView you create a QIconDrag object in a reimplementation of
-  QIconView::dragObject(). Then create a QIconDragItem for each item
-  which should be dragged, set the data it represents with
-  QIconDragItem::setData(), and add each QIconDragItem to the drag
-  object using append().
+    If you want to use the extended drag-and-drop functionality of
+    QIconView you create a QIconDrag object in a reimplementation of
+    QIconView::dragObject(). Then create a QIconDragItem for each item
+    which should be dragged, set the data it represents with
+    QIconDragItem::setData(), and add each QIconDragItem to the drag
+    object using append().
 
-  If you want to offer the data in other mime-types as well, derive a
-  class from this and implement the needed encoding and decoding here.
+    The data in QIconDragItems is stored in a QByteArray and is
+    mime-typed (see QMimeSource and the 
+    <a href="http://doc.trolltech.com/dnd.html">Drag and Drop</a>
+    overview). If you want to use your own mime-types derive a class
+    from QIconDrag and reimplement format(), encodedData() and
+    canDecode().
 
     The fileiconview example program demonstrates the use of the
-    QIconDrag class including subclassing and reimplementing QIconView::dragObject().
-    See the files qt/examples/fileiconview/qfileiconview.h and
+    QIconDrag class including subclassing and reimplementing
+    dragObject(), format(), encodedData() and canDecode(). See the files
+    qt/examples/fileiconview/qfileiconview.h and
     qt/examples/fileiconview/qfileiconview.cpp.
 */ 
 // ### consider using \dontinclude and friends there
 // ### better still produce a really simple example and present that since fileiconview is too complicated 
-// ### The para begining "If you want to offer the data in other mime-types..." is unintelligible.
 
 /*!
   \reimp
