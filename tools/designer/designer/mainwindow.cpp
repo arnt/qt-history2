@@ -3177,6 +3177,13 @@ QWidget *MainWindow::findRealForm( QWidget *wid )
 	if ( QString( w->name() ) == QString( wid->name() ) )
 	    return w;
     }
+
+    for ( QPtrListIterator<FormFile> it = currentProject->formFiles(); it.current(); ++it ) {
+	if ( (*it)->formWindow() &&
+	     qstrcmp( (*it)->formWindow()->mainContainer()->name(), wid->name() ) == 0 )
+	    return (*it)->formWindow();
+    }
+
     return 0;
 }
 
