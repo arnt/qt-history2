@@ -52,6 +52,7 @@
 #include "qstylefactory.h"
 #include "qfile.h"
 #include "private/qcomponentfactory_p.h"
+#include "qeventloop.h"
 #include <stdlib.h>
 
 #ifndef QT_NO_REMOTE
@@ -436,7 +437,9 @@ Q_EXPORT void qRemovePostRoutine( QtCleanUpFunction p )
 }
 
 #ifdef QT_THREAD_SUPPORT
+#  if defined(Q_WS_WIN) || defined(Q_WS_MAC) || defined(Q_WS_QWS)
 QMutex * QApplication::qt_mutex=0;
+#  endif
 #endif
 
 // Default application palettes and fonts (per widget type)
@@ -754,7 +757,9 @@ void QApplication::construct( int &argc, char **argv, Type type )
     process_cmdline( &argc, argv );
 
 #if defined(QT_THREAD_SUPPORT)
+#  if defined(Q_WS_WIN) || defined(Q_WS_MAC) || defined(Q_WS_QWS)
     qt_mutex = new QMutex(TRUE);
+#  endif
 #endif
 
     initialize( argc, argv );
@@ -794,7 +799,9 @@ QApplication::QApplication( Display* dpy, HANDLE visual, HANDLE colormap )
     qt_init( dpy, visual, colormap );
 
 #if defined(QT_THREAD_SUPPORT)
+#  if defined(Q_WS_WIN) || defined(Q_WS_MAC) || defined(Q_WS_QWS)
     qt_mutex = new QMutex(TRUE);
+#  endif
 #endif
 
     initialize( aargc, aargv );
@@ -817,7 +824,9 @@ QApplication::QApplication(Display *dpy, int argc, char **argv,
     qt_init(dpy, visual, colormap);
 
 #if defined(QT_THREAD_SUPPORT)
+#  if defined(Q_WS_WIN) || defined(Q_WS_MAC) || defined(Q_WS_QWS)
     qt_mutex = new QMutex(TRUE);
+#  endif
 #endif
 
     initialize(argc, argv);
@@ -862,12 +871,6 @@ void QApplication::initialize( int argc, char **argv )
     // connect to the session manager
     session_manager = new QSessionManager( qApp, session_id, session_key );
 #endif
-
-#if defined(QT_THREAD_SUPPORT)
-    if (qt_is_gui_used)
-	qApp->lock();
-#endif
-
 }
 
 
@@ -1077,8 +1080,10 @@ QApplication::~QApplication()
     is_app_running = FALSE;
 
 #if defined(QT_THREAD_SUPPORT)
+#  if defined(Q_WS_WIN) || defined(Q_WS_MAC) || defined(Q_WS_QWS)
     delete qt_mutex;
     qt_mutex = 0;
+#  endif
 #endif
 
     if ( widgetCount ) {
@@ -1874,7 +1879,7 @@ QFontMetrics QApplication::fontMetrics()
 
   \sa quit(), exec()
 */
-
+#  if defined(Q_WS_WIN) || defined(Q_WS_MAC) || defined(Q_WS_QWS)
 void QApplication::exit( int retcode )
 {
     if ( !qApp )				// no global app object
@@ -1885,7 +1890,7 @@ void QApplication::exit( int retcode )
     ((QApplication*)qApp)->quit_now = TRUE;
     ((QApplication*)qApp)->app_exit_loop = TRUE;
 }
-
+#  endif
 
 /*!
   Tells the application to exit with return code 0 (success).
@@ -3168,6 +3173,8 @@ bool QApplication::desktopSettingsAware()
 }
 
 
+#if !defined(Q_WS_X11)
+
 /*!
   This function enters the main event loop (recursively). Do not call
   it unless you really know what you are doing.
@@ -3233,6 +3240,8 @@ int QApplication::loopLevel() const
     return loop_level;
 }
 
+#endif // Q_WS_X11
+
 
 /*! \fn void QApplication::lock()
   Lock the Qt library mutex.  If another thread has already locked the
@@ -3281,12 +3290,11 @@ int QApplication::loopLevel() const
 
 
 #if defined(QT_THREAD_SUPPORT)
-
+#  if defined(Q_WS_WIN) || defined(Q_WS_MAC) || defined(Q_WS_QWS)
 void QApplication::lock()
 {
     qt_mutex->lock();
 }
-
 
 void QApplication::unlock(bool wakeUpGui)
 {
@@ -3295,7 +3303,6 @@ void QApplication::unlock(bool wakeUpGui)
     if (wakeUpGui)
 	wakeUpGuiThread();
 }
-
 
 bool QApplication::locked()
 {
@@ -3306,7 +3313,30 @@ bool QApplication::tryLock()
 {
     return qt_mutex->tryLock();
 }
+#  else
+void QApplication::lock()
+{
+    eventLoop()->mutex()->lock();
+}
 
+void QApplication::unlock(bool wakeUpGui)
+{
+    eventLoop()->mutex()->unlock();
+
+    if (wakeUpGui)
+	wakeUpGuiThread();
+}
+
+bool QApplication::locked()
+{
+    return eventLoop()->mutex()->locked();
+}
+
+bool QApplication::tryLock()
+{
+    return eventLoop()->mutex()->tryLock();
+}
+#  endif
 #endif
 
 
@@ -4006,4 +4036,3 @@ void QSessionManager::requestPhase2()
 
 #endif // QT_NO_SM_SUPPORT
 #endif //QT_NO_SESSIONMANAGER
-

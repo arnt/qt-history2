@@ -121,6 +121,8 @@ kernel {
 			  $$KERNEL_CPP/qcursor_x11.cpp \
 			  $$KERNEL_CPP/qdnd_x11.cpp \
 			  $$KERNEL_CPP/qdesktopwidget_x11.cpp \
+			  $$KERNEL_CPP/qeventloop.cpp \
+			  $$KERNEL_CPP/qeventloop_x11.cpp \
 			  $$KERNEL_CPP/qfont_x11.cpp \
 			  $$KERNEL_CPP/qinputcontext_x11.cpp \
 			  $$KERNEL_CPP/qmotifdnd_x11.cpp \
@@ -132,6 +134,7 @@ kernel {
 			  $$KERNEL_CPP/qwidget_x11.cpp \
 			  $$KERNEL_CPP/qnpsupport.cpp \
 			  $$KERNEL_CPP/qwidgetcreate_x11.cpp
+	      HEADERS += $$KERNEL_H/qeventloop.h
 	}
 
 	mac:SOURCES += $$KERNEL_CPP/qsound_mac.cpp 
