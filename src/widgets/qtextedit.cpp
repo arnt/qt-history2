@@ -3147,6 +3147,7 @@ void QTextEdit::setModified( bool m )
     if ( modified ) {
 	disconnect( this, SIGNAL( textChanged() ),
 		    this, SLOT( setModified() ) );
+	doc->invalidateOriginalText();
     } else {
 	connect( this, SIGNAL( textChanged() ),
 		 this, SLOT( setModified() ) );
