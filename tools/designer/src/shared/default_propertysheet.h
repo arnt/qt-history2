@@ -43,6 +43,7 @@ public:
 
     virtual QVariant property(int index) const;
     virtual void setProperty(int index, const QVariant &value);
+
     virtual bool isChanged(int index) const;
     virtual void setChanged(int index, bool changed);
 

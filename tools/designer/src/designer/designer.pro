@@ -12,7 +12,6 @@ INCLUDEPATH += ../uilib \
     ../components/objectinspector \
     ../components/widgetbox \
     ../components/imagecollection \
-    ../components/specialeditor \
     ../components/propertyeditor \
     ../components/taskmenu \
     ../../../assistant/lib
@@ -24,7 +23,6 @@ LIBS += -L../../lib \
     -lpropertyeditor \
     -lwidgetbox \
     -limagecollection \
-    -lspecialeditor \
     -luilib \
     -lsignalsloteditor \
     -lbuddyeditor \

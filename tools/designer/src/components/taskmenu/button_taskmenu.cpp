@@ -49,10 +49,12 @@ QList<QAction*> ButtonTaskMenu::taskActions() const
     connect(action, SIGNAL(triggered()), this, SLOT(editText()));
     m_taskActions.append(action);
 
+#if 0 // ### implement me
     action = new QAction(that);
     action->setText(tr("Edit button icon"));
     connect(action, SIGNAL(triggered()), this, SLOT(editIcon()));
     m_taskActions.append(action);
+#endif
 
     return m_taskActions;
 }

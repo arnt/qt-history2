@@ -6,7 +6,6 @@ SUBDIRS = propertyeditor \
     signalsloteditor \
     formeditor \
     widgetbox \
-    specialeditor \
     imagecollection \
     buddyeditor \
     taskmenu
