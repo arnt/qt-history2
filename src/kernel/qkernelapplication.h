@@ -34,7 +34,7 @@ public:
     static QKernelApplication *instance() { return self; }
     static QEventLoop *eventLoop();
 
-    int		     exec();
+    virtual int      exec();
     void	     processEvents();
     void	     processEvents( int maxtime );
     void	     processOneEvent();

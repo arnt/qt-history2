@@ -2877,6 +2877,15 @@ QCursor *QApplication::overrideCursor()
 }
 #endif
 
+/*! \reimp
+ */
+int QApplication::exec()
+{
+#if defined(QT_ACCESSIBILITY_SUPPORT)
+    QAccessible::setRootObject(this);
+#endif
+    return QKernelApplication::exec();
+}
 
 #ifndef QT_NO_ACCEL
 extern bool qt_dispatchAccelEvent( QWidget*, QKeyEvent* ); // def in qaccel.cpp

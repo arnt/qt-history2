@@ -230,6 +230,7 @@ public:
     static bool x11_apply_settings();
 #endif
 
+    int exec();
     bool notify(QObject *, QEvent *);
 
 

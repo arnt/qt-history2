@@ -383,9 +383,6 @@ void QKernelApplication::processOneEvent()
 */
 int QKernelApplication::exec()
 {
-#if defined(QT_ACCESSIBILITY_SUPPORT)
-    QAccessible::setRootObject(this);
-#endif
     return eventloop->exec();
 }
 
