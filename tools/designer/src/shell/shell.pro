@@ -1,9 +1,7 @@
 
-
 DESTDIR = ../../../../bin
 QT += xml network compat
 CONFIG += qt depend_prl assistant
-TARGET = designer
 
 INCLUDEPATH += ../uilib \
     ../lib/sdk \

@@ -4,8 +4,9 @@ CONFIG += ordered
 SUBDIRS = \
     lib \
     uilib \
-    shared \    
+    shared \
     components \
     designer \
+    shell \
     plugins
 

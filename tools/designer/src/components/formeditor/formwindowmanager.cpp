@@ -69,8 +69,6 @@ FormWindowManager::FormWindowManager(AbstractFormEditor *core, QObject *parent)
 
 FormWindowManager::~FormWindowManager()
 {
-    qApp->removeEventFilter(this);
-
     qDeleteAll(m_formWindows);
 }
 

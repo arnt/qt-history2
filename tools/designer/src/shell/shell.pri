@@ -1,4 +1,6 @@
 
+TARGET = designer4u
+
 HEADERS += \
     qdesigner.h \
     qdesigner_mainwindow.h \
