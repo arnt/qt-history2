@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#38 $
+** $Id: //depot/qt/main/src/widgets/qpopmenu.cpp#39 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -19,7 +19,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#38 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpopmenu.cpp#39 $";
 #endif
 
 
@@ -113,7 +113,7 @@ QPopupMenu::QPopupMenu( QWidget *, const char *name )
     setNumCols( 1 );				// set number of table columns
     setNumRows( 0 );				// set number of table rows
     clearTableFlags( Tbl_clipCellPainting );	// don't clip when painting tbl
-    setFrameStyle( QFrame::Panel | QFrame::Raised ); // standard menu frame
+    setFrameStyle( QFrame::Panel | QFrame::Raised );
     setLineWidth( motifPopupFrame );
     autoaccel	  = 0;
     accelDisabled = FALSE;
@@ -174,7 +174,6 @@ void QPopupMenu::menuDelPopup( QPopupMenu *popup )
 
 void QPopupMenu::frameChanged()
 {    
-    debug( "frameChanged" );
     menuContentsChanged();
 }
 
