@@ -1223,7 +1223,7 @@ public:
     virtual int leftMargin() const;
     virtual int firstLineMargin() const;
     virtual int rightMargin() const;
-    virtual int lineExtra() const;
+    virtual int lineSpacing() const;
 
 #ifndef QT_NO_TEXTCUSTOMITEM
     void registerFloatingItem( QTextCustomItem *i );
@@ -1318,7 +1318,7 @@ private:
     QMap<int, QTextParagraphSelection> *mSelections;
     QPtrList<QTextCustomItem> *mFloatingItems;
     QStyleSheetItem::ListStyle lstyle;
-    short utm, ubm, ulm, urm, uflm, ulineextra;
+    short utm, ubm, ulm, urm, uflm, ulinespacing;
     int *tArray;
     short tabStopWidth;
     QTextParagraphData *eData;

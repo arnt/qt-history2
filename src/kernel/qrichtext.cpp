@@ -2046,7 +2046,10 @@ void QTextDocument::setRichTextMarginsInternal( QPtrList< QPtrVector<QStyleSheet
 	for ( i = (int)curStyle->size() - 1 ; i >= 0; --i ) {
 	    item = (*curStyle)[ i ];
 	    if ( item->lineSpacing() != QStyleSheetItem::Undefined ) {
-		stylesPar->ulineextra = item->lineSpacing();
+		stylesPar->ulinespacing = item->lineSpacing();
+		if ( formatCollection() &&
+		     stylesPar->ulinespacing < formatCollection()->defaultFormat()->height() )
+		    stylesPar->ulinespacing += formatCollection()->defaultFormat()->height();
 		break;
 	    }
 	}
@@ -3788,7 +3791,7 @@ QTextParagraph::QTextParagraph( QTextDocument *d, QTextParagraph *pr, QTextParag
       mightHaveCustomItems(FALSE), hasdoc( d != 0 ), litem(FALSE), rtext(FALSE),
       align( 0 ),mSelections( 0 ),
       mFloatingItems( 0 ), lstyle( QStyleSheetItem::ListDisc ),
-      utm( 0 ), ubm( 0 ), ulm( 0 ), urm( 0 ), uflm( 0 ), ulineextra( 0 ),
+      utm( 0 ), ubm( 0 ), ulm( 0 ), urm( 0 ), uflm( 0 ), ulinespacing( 0 ),
       tArray(0), tabStopWidth(0), eData( 0 ), ldepth( 0 )
 {
     lstyle = QStyleSheetItem::ListDisc;
@@ -4670,7 +4673,7 @@ void QTextParagraph::readStyleInformation( QDataStream& stream )
     int int_align, int_lstyle;
     uchar uchar_litem, uchar_rtext, uchar_dir;
     stream >> int_align >> int_lstyle >> utm >> ubm >> ulm >> urm >> uflm
-	   >> ulineextra >> ldepth >> uchar_litem >> uchar_rtext >> uchar_dir;
+	   >> ulinespacing >> ldepth >> uchar_litem >> uchar_rtext >> uchar_dir;
     align = int_align; lstyle = (QStyleSheetItem::ListStyle) int_lstyle;
     litem = uchar_litem; rtext = uchar_rtext; str->setDirection( (QChar::Direction)uchar_dir );
     QTextParagraph* s = prev() ? prev() : this;
@@ -4682,7 +4685,7 @@ void QTextParagraph::readStyleInformation( QDataStream& stream )
 
 void QTextParagraph::writeStyleInformation( QDataStream& stream ) const
 {
-    stream << (int) align << (int) lstyle << utm << ubm << ulm << urm << uflm << ulineextra << ldepth << (uchar)litem << (uchar)rtext << (uchar)str->direction();
+    stream << (int) align << (int) lstyle << utm << ubm << ulm << urm << uflm << ulinespacing << ldepth << (uchar)litem << (uchar)rtext << (uchar)str->direction();
 }
 
 
@@ -4875,9 +4878,9 @@ int QTextParagraph::rightMargin() const
     return scale( m, QTextFormat::painter() );
 }
 
-int QTextParagraph::lineExtra() const
+int QTextParagraph::lineSpacing() const
 {
-    int l = ulineextra;
+    int l = ulinespacing;
     l = scale( l, QTextFormat::painter() );
     return l;
 }
@@ -4894,7 +4897,7 @@ void QTextParagraph::copyParagData( QTextParagraph *parag )
     urm = parag->urm;
     ulm = parag->ulm;
     uflm = parag->uflm;
-    ulineextra = parag->ulineextra;
+    ulinespacing = parag->ulinespacing;
     QColor *c = parag->backgroundColor();
     if ( c )
 	setBackgroundColor( *c );
@@ -5407,7 +5410,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
     int minw = 0;
     int wused = 0;
     int tminw = marg;
-    int lineextra = doc ? parag->lineExtra() : 0;
+    int linespacing = doc ? parag->lineSpacing() : 0;
     bool wrapEnabled = isWrapEnabled( parag );
 
     start = 0;
@@ -5482,8 +5485,8 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
 	    c->x = x;
 	    curLeft = x;
 	    if ( i == 0 || !isBreakable( string, i - 1 ) || string->at( i - 1 ).lineStart == 0 ) {
-		y += QMAX( h, tmph );
-		tmph = c->height() + lineextra;
+		y += QMAX( h, QMAX( tmph, linespacing ) );
+		tmph = c->height();
 		h = tmph;
 		lineStart = lineStart2;
 		lineStart->y = y;
@@ -5491,7 +5494,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
 		c->lineStart = 1;
 		firstChar = c;
 	    } else {
-		tmph = c->height() + lineextra;
+		tmph = c->height();
 		h = tmph;
 		delete lineStart2;
 	    }
@@ -5556,8 +5559,8 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
 			ww = nx - x;
 		}
 		curLeft = x;
-		y += h;
-		tmph = c->height() + lineextra;
+		y += QMAX( h, linespacing );
+		tmph = c->height();
 		h = 0;
 		lineStart->y = y;
 		insertLineStart( parag, i, lineStart );
@@ -5584,8 +5587,8 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
 			ww = nx - x;
 		}
 		curLeft = x;
-		y += h;
-		tmph = c->height() + lineextra;
+		y += QMAX( h, linespacing );
+		tmph = c->height();
 		h = tmph;
 		lineStart->y = y;
 		insertLineStart( parag, i + 1, lineStart );
@@ -5602,7 +5605,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
 	} else if ( lineStart && isBreakable( string, i ) ) {
 	    if ( len <= 2 || i < len - 1 ) {
 		tmpBaseLine = QMAX( tmpBaseLine, c->ascent() );
-		tmph = QMAX( tmph, c->height() + lineextra );
+		tmph = QMAX( tmph, c->height() );
 	    }
 	    minw = QMAX( minw, tminw );
 
@@ -5614,7 +5617,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
 		lastBreak = i;
 	} else {
 	    tminw += ww;
-	    int belowBaseLine = QMAX( tmph - tmpBaseLine, c->height() + lineextra - c->ascent() );
+	    int belowBaseLine = QMAX( tmph - tmpBaseLine, c->height()- c->ascent() );
 	    tmpBaseLine = QMAX( tmpBaseLine, c->ascent() );
 	    tmph = tmpBaseLine + belowBaseLine;
 	}
@@ -5624,8 +5627,10 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
 	wused = QMAX( wused, x );
     }
 
-    // ### hack. The last char in the paragraph is always invisible, and somehow sometimes has a wrong format. It changes between
-    // layouting and printing. This corrects some layouting errors in BiDi mode due to this.
+    // ### hack. The last char in the paragraph is always invisible,
+    // ### and somehow sometimes has a wrong format. It changes
+    // ### between // layouting and printing. This corrects some
+    // ### layouting errors in BiDi mode due to this.
     if ( len > 1 && !c->isAnchor() ) {
 	c->format()->removeRef();
 	c->setFormat( string->at( len - 2 ).format() );
@@ -5654,7 +5659,7 @@ int QTextFormatterBreakWords::format( QTextDocument *doc, QTextParagraph *parag,
     else
 	m = QMAX(m, parag->next()->topMargin() ) / 2;
     parag->setFullWidth( fullWidth );
-    y += h + m;
+    y += QMAX( h, linespacing ) + m;
 
     wused += rm;
     if ( !wrapEnabled || wrapAtColumn() != -1 )

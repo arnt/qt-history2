@@ -809,9 +809,14 @@ void QStyleSheetItem::setSelfNesting( bool nesting )
     d->selfnest = nesting;
 }
 
-/*!\obsolete
+/*
+    Sets the linespacing to be at least \a ls pixels.
 
-    Sets the linespacing to be \a ls pixels
+    For compatibility with previous Qt releases, small values get
+    treated differently: If \a ls is smaller than the default font
+    line spacing in pixels at parse time, the resulting line spacing
+    is the sum of the default line spacing plus \a ls. We recommend
+    not relying on this behavior.
 */
 
 void QStyleSheetItem::setLineSpacing( int ls )
