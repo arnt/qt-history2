@@ -763,7 +763,7 @@ int QSocket::bytesAvailable() const
 
 
 /*!
-  Wait up to \a msecs milliseconds for more data to be available.
+  Wait upto \a msecs milliseconds for more data to be available.
 
   If \a msecs is -1 the call will block indefinitely.
   This is a blocking call and should be avoided in event driven
