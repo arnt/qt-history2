@@ -533,19 +533,6 @@ TrWindow::TrWindow()
 
     setupMenuBar();
     setupToolBars();
-#if 0
-    doneAndNextAccel = new QLabel( QString(" %1: %2 ").arg(tr("Done & Next"))
-						      .arg(tr("Ctrl+Enter")),
-				   statusBar(), "done and next accel" );
-    statusBar()->addWidget( doneAndNextAccel, 0, FALSE );
-    beginFromSourceAccel = new QLabel( QString(" %1: %2 ")
-					       .arg(tr("Begin from Source"))
-					       .arg(tr("Ctrl+B")),
-				       statusBar(), "begin from source accel" );
-    statusBar()->addWidget( beginFromSourceAccel, 0, FALSE );
-    connect( me, SIGNAL(updateActions(bool)), beginFromSourceAccel,
-	     SLOT(setEnabled(bool)) );
-#endif
 
     progress = new QLabel( statusBar(), "progress" );
     statusBar()->addWidget( progress, 0, TRUE );
@@ -685,9 +672,6 @@ void TrWindow::openFile( const QString& name )
 	    updateCaption();
 	    me->showNothing();
 	    doneAndNextAct->setEnabled( FALSE );
-#if 0
-	    doneAndNextAccel->setEnabled( FALSE );
-#endif
 	    messageIsShown = FALSE;
 	    statusBar()->message(
 		    tr("%1 source phrase(s) loaded.").arg(numMessages),
@@ -1120,7 +1104,7 @@ void TrWindow::about()
     splash->setPixmap( pixmap );
     splash->setFixedSize( pixmap.width(), pixmap.height() );
 
-    QLabel * copyright = new QLabel( tr("Version 1.0\n"
+    QLabel * copyright = new QLabel( tr("Version 1.0 beta\n"
 			     "Copyright (c) 2000-2001 Trolltech AS"), &about );
     copyright->setAlignment( QLabel::AlignCenter );
 
@@ -1244,20 +1228,15 @@ void TrWindow::showNewCurrent( QListViewItem *item )
 	    danger( m->sourceText(), m->translation(), TRUE );
 	else
 	    statusBar()->clear();
+
 	doneAndNextAct->setEnabled( m->message().type() !=
 				    MetaTranslatorMessage::Obsolete );
-#if 0
-	doneAndNextAccel->setEnabled( doneAndNextAct->isEnabled() );
-#endif
     } else {
 	if ( item == 0 )
 	    me->showNothing();
 	else
 	    me->showContext( c->fullContext(), c->finished() );
 	doneAndNextAct->setEnabled( FALSE );
-#if 0
-	doneAndNextAccel->setEnabled( FALSE );
-#endif
     }
     
     deleteAct->setEnabled( messageIsShown );
@@ -1810,14 +1789,14 @@ void TrWindow::setupMenuBar()
 			  QAccel::stringToKey(tr("Ctrl+Shift+L")) );
     doneAndNextAct = new Action( translationp, tr("Done and &Next"),
 				 this, SLOT(doneAndNext()),
-				 QAccel::stringToKey(tr("Ctrl+Enter")) );
+				 QAccel::stringToKey(tr("Ctrl+Return")) );
 
     // Phrasebook menu
     newPhraseBookAct = new Action( phrasep, tr("&New Phrase Book..."),
 				   this, SLOT(newPhraseBook()) );
     openPhraseBookAct = new Action( phrasep, tr("&Open Phrase Book..."),
 				    this, SLOT(openPhraseBook()),
-				    QAccel::stringToKey(tr("Ctrl+B")) );
+				    QAccel::stringToKey(tr("Ctrl+H")) );
     closePhraseBookId = phrasep->insertItem( tr("&Close Phrase Book"),
 					     closePhraseBookp );
     phrasep->insertSeparator();
@@ -2136,6 +2115,7 @@ bool TrWindow::danger( const QString& source, const QString& translation,
     }
     if ( verbose )
 	statusBar()->clear();
+
     return FALSE;
 }
 

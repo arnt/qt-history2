@@ -1,3 +1,2 @@
 #!/bin/sh
-p4 edit images.h
-$QTDIR/tools/qembed/qembed {,*/}*.{png,xpm} >images.h
+$QTDIR/tools/qembed/qembed *.png */*.{png,xpm} >images.h
