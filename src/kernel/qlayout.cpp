@@ -79,9 +79,9 @@ public:
     QLayoutItem *item() { return item_; }
     QLayoutItem *takeItem() { QLayoutItem *i = item_; item_ = 0; return i; }
 
-    int hStretch() { return (item_->widget()) ?
+    int hStretch() { return item_->widget() ?
 			 item_->widget()->sizePolicy().horStretch() : 0; }
-    int vStretch() { return (item_->widget()) ?
+    int vStretch() { return item_->widget() ?
 			 item_->widget()->sizePolicy().verStretch() : 0; }
 
 private:
@@ -125,16 +125,22 @@ public:
     QSizePolicy::ExpandData expanding( int spacing );
 
     void distribute( QRect, int );
-    int numRows() const { return rr; }
-    int numCols() const { return cc; }
-    void expand( int rows, int cols )
+    inline int numRows() const { return rr; }
+    inline int numCols() const { return cc; }
+    inline void expand( int rows, int cols )
     { setSize( QMAX(rows, rr), QMAX(cols, cc) ); }
-    void setRowStretch( int r, int s )
-    { expand( r + 1, 0 ); rStretch[r] = rowData[r].stretch = s; }
-    void setColStretch( int c, int s )
-    { expand( 0, c+1 ); cStretch[c] = colData[c].stretch = s; }
-    int rowStretch( int r ) const { return rStretch[r]; }
-    int colStretch( int c ) const { return cStretch[c]; }
+    inline void setRowStretch( int r, int s )
+    { expand( r + 1, 0 ); rStretch[r] = s; setDirty(); }
+    inline void setColStretch( int c, int s )
+    { expand( 0, c + 1 ); cStretch[c] = s; setDirty(); }
+    inline int rowStretch( int r ) const { return rStretch[r]; }
+    inline int colStretch( int c ) const { return cStretch[c]; }
+    inline void setRowSpacing( int r, int s )
+    { expand( r + 1, 0 ); rSpacing[r] = s; setDirty(); }
+    inline void setColSpacing( int c, int s )
+    { expand( 0, c + 1 ); cSpacing[c] = s; setDirty(); }
+    inline int rowSpacing( int r ) const { return rSpacing[r]; }
+    inline int colSpacing( int c ) const { return cSpacing[c]; }
 
     void setReversed( bool r, bool c ) { hReversed = c; vReversed = r; }
     bool horReversed() const { return hReversed; }
@@ -170,6 +176,8 @@ private:
     QMemArray<QLayoutStruct> *hfwData;
     QMemArray<int> rStretch;
     QMemArray<int> cStretch;
+    QMemArray<int> rSpacing;
+    QMemArray<int> cSpacing;
     QPtrList<QGridBox> things;
     QPtrList<QGridMultiBox> *multi;
 
@@ -391,18 +399,22 @@ void QGridLayoutData::setSize( int r, int c )
 	int newR = QMAX( r, rr * 2 );
 	rowData.resize( newR );
 	rStretch.resize( newR );
+	rSpacing.resize( newR );
 	for ( int i = rr; i < newR; i++ ) {
 	    rowData[i].init();
 	    rStretch[i] = 0;
+	    rSpacing[i] = 0;
 	}
     }
     if ( (int)colData.size() < c ) {
 	int newC = QMAX( c, cc * 2 );
 	colData.resize( newC );
 	cStretch.resize( newC );
+	cSpacing.resize( newC );
 	for ( int i = cc; i < newC; i++ ) {
 	    colData[i].init();
 	    cStretch[i] = 0;
+	    cSpacing[i] = 0;
 	}
     }
 
@@ -482,7 +494,6 @@ void QGridLayoutData::addData( QGridBox *box, bool r, bool c )
     QSize hint = box->sizeHint();
     QSize minS = box->minimumSize();
     QSize maxS = box->maximumSize();
-
 
     if ( c ) {
 	if ( !cStretch[box->col] )
@@ -579,7 +590,6 @@ static void distributeMultiBox( QMemArray<QLayoutStruct> &chain, int spacing,
 		chain[i].maximumSize = chain[i].minimumSize;
 	    pos = nextPos;
 	}
-
     } else if ( w < minSize ) {
 	qGeomCalc( chain, start, end - start + 1, 0, minSize, spacing );
 	for ( i = start; i <= end; i++ ) {
@@ -607,14 +617,12 @@ void QGridLayoutData::setupLayoutData( int spacing )
 #endif
     has_hfw = FALSE;
     int i;
-    for ( i = 0; i < rr; i++ ) {
-	rowData[i].initParameters();
-	rowData[i].stretch = rStretch[i];
-    }
-    for ( i = 0; i < cc; i++ ) {
-	colData[i].initParameters();
-	colData[i].stretch = cStretch[i];
-    }
+
+    for ( i = 0; i < rr; i++ )
+	rowData[i].init( rStretch[i], rSpacing[i] );
+    for ( i = 0; i < cc; i++ )
+	colData[i].init( cStretch[i], cSpacing[i] );
+
     QPtrListIterator<QGridBox> it( things );
     QGridBox * box;
     while ( (box = it.current()) != 0 ) {
@@ -659,12 +667,11 @@ void QGridLayoutData::setupLayoutData( int spacing )
 	    }
 	}
     }
-    for ( i = 0; i < rr; i++ ) {
+    for ( i = 0; i < rr; i++ )
 	rowData[i].expansive = rowData[i].expansive || rowData[i].stretch > 0;
-    }
-    for ( i = 0; i < cc; i++ ) {
+    for ( i = 0; i < cc; i++ )
 	colData[i].expansive = colData[i].expansive || colData[i].stretch > 0;
-    }
+
     needRecalc = FALSE;
 }
 
@@ -1339,7 +1346,7 @@ void QGridLayout::addMultiCellLayout( QLayout *layout, int fromRow, int toRow,
     The default stretch factor is 0. If the stretch factor is 0 and no
     other row in this table can grow at all, the row may still grow.
 
-    \sa rowStretch(), addRowSpacing(), setColStretch()
+    \sa rowStretch(), setRowSpacing(), setColStretch()
 */
 void QGridLayout::setRowStretch( int row, int stretch )
 {
@@ -1385,24 +1392,74 @@ void QGridLayout::setColStretch( int col, int stretch )
     data->setColStretch( col, stretch );
 }
 
+#if QT_VERSION >= 0x040000
+#error "Make add{Row,Col}Spacing() inline QT_NO_COMPAT functions defined in terms of set{Row,Col}Spacing()"
+#endif
+
 /*!
+    \obsolete
+
     Sets the minimum height of row \a row to \a minsize pixels.
+
+    Use setRowSpacing() instead.
 */
 void QGridLayout::addRowSpacing( int row, int minsize )
 {
     QLayoutItem *b = new QSpacerItem( 0, minsize );
-    // b.setAlignment( align );
     add( b, row, 0 );
 }
 
 /*!
+    \obsolete
+
     Sets the minimum width of column \a col to \a minsize pixels.
+
+    Use setColSpacing() instead.
 */
 void QGridLayout::addColSpacing( int col, int minsize )
 {
     QLayoutItem *b = new QSpacerItem( minsize, 0 );
-    // b.setAlignment( align );
     add( b, 0, col );
+}
+
+/*!
+    Sets the minimum height of row \a row to \a minSize pixels.
+
+    \sa rowSpacing(), setColSpacing()
+*/
+void QGridLayout::setRowSpacing( int row, int minSize )
+{
+    data->setRowSpacing( row, minSize );
+}
+
+/*!
+    Returns the row spacing for row \a row.
+
+    \sa setRowSpacing()
+*/
+int QGridLayout::rowSpacing( int row ) const
+{
+    return data->rowSpacing( row );
+}
+
+/*!
+    Sets the minimum width of column \a col to \a minSize pixels.
+
+    \sa colSpacing(), setRowSpacing()
+*/
+void QGridLayout::setColSpacing( int col, int minSize )
+{
+    data->setColSpacing( col, minSize );
+}
+
+/*!
+    Returns the column spacing for column \a col.
+
+    \sa setColSpacing()
+*/
+int QGridLayout::colSpacing( int row ) const
+{
+    return data->colSpacing( row );
 }
 
 /*!

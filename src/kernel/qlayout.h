@@ -300,10 +300,16 @@ public:
     QSize minimumSize() const;
     QSize maximumSize() const;
 
+    // ### remove 'virtual' in 4.0 (or add 'virtual' to set{Row,Col}Spacing())
     virtual void setRowStretch( int row, int stretch );
     virtual void setColStretch( int col, int stretch );
     int rowStretch( int row ) const;
     int colStretch( int col ) const;
+
+    void setRowSpacing( int row, int minSize );
+    void setColSpacing( int col, int minSize );
+    int rowSpacing( int row ) const;
+    int colSpacing( int col ) const;
 
     int numRows() const;
     int numCols() const;
