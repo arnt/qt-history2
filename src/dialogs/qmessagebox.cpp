@@ -1212,7 +1212,8 @@ int QMessageBox::critical( QWidget *parent,
 
     about() looks for a suitable icon in four locations:
     \list 1
-    \i It prefers \link QWidget::icon() parent->icon() \endlink if that exists.
+    \i It prefers \link QWidget::windowIcon() parent->icon() \endlink
+    if that exists.
     \i If not, it tries the top-level widget containing \a parent.
     \i If that fails, it tries the \link
     QApplication::mainWidget() main widget. \endlink
@@ -1221,7 +1222,7 @@ int QMessageBox::critical( QWidget *parent,
 
     The about box has a single button labelled "OK".
 
-    \sa QWidget::icon() QApplication::mainWidget()
+    \sa QWidget::windowIcon() QApplication::mainWidget()
 */
 
 void QMessageBox::about( QWidget *parent, const QString &caption,

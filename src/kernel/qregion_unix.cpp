@@ -2161,9 +2161,9 @@ QRegionPrivate *qt_bitmapToRegion(const QBitmap& bitmap)
 }
 
 /*!
-    Constructs a null region.
+    Constructs an empty region.
 
-    \sa isNull()
+    \sa isEmpty()
 */
 
 QRegion::QRegion()
@@ -2344,17 +2344,6 @@ QRegion QRegion::copy() const
 }
 
 /*!
-    \fn bool QRegion::isNull() const
-    Returns true if the region is a null region; otherwise returns
-    false.
-
-    A null region is a region that has not been initialized. A null
-    region is always empty.
-
-    \sa isEmpty()
-*/
-
-/*!
     Returns true if the region is empty; otherwise returns false. An
     empty region is a region that contains no points.
 
@@ -2374,8 +2363,6 @@ QRegion QRegion::copy() const
         r3.isNull();             // false
         r3.isEmpty();            // false
     \endcode
-
-    \sa isNull()
 */
 
 bool QRegion::isEmpty() const

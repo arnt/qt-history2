@@ -209,7 +209,7 @@ static int current_IM_winId=-1;
     Returns the region that the window has requested to draw onto,
     including any window decorations.
 
-    \sa allocation()
+    \sa allocatedRegion()
 */
 
 /*!
@@ -219,7 +219,7 @@ static int current_IM_winId=-1;
     including any window decorations but excluding regions covered by
     other windows.
 
-    \sa requested()
+    \sa requestedRegion()
 */
 
 /*!
