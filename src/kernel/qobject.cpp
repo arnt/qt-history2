@@ -1932,11 +1932,19 @@ QMetaObject* QObject::staticQtMetaObject()
 	{ "X11ParentRelative",  (int) Qt::X11ParentRelative }
     };
 
+    static const QMetaEnum::Item enum_4[] = {
+	{ "TextDate", (int) Qt::TextDate },
+	{ "ISODate", (int) Qt::ISODate },
+	{ "LocalDate", (int) Qt::LocalDate }
+    };
+
+
     static const QMetaEnum enum_tbl[] = {
 	{ "Alignment", 10, enum_0, TRUE },
 	{ "Orientation", 2, enum_1, FALSE },
 	{ "TextFormat", 3, enum_2, FALSE },
-	{ "BackgroundMode", 18, enum_3, FALSE }
+	{ "BackgroundMode", 18, enum_3, FALSE },
+	{ "DateFormat", 3, enum_4, FALSE }
     };
 
     qtMetaObject = new QMetaObject( "Qt", 0,
@@ -1945,7 +1953,7 @@ QMetaObject* QObject::staticQtMetaObject()
 #ifndef QT_NO_PROPERTIES
 			  0, 0,
 #endif
-			  enum_tbl, 4,
+			  enum_tbl, 5,
 			  0, 0 );
     cleanUp_Qt.setMetaObject( qtMetaObject );
 

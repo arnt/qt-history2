@@ -47,6 +47,7 @@
 #include "qpopupmenu.h"
 #include "qvaluelist.h"
 #include "qsqlmanager_p.h"
+#include "qdatetime.h"
 
 //#define QT_DEBUG_DATATABLE
 
@@ -75,6 +76,7 @@ public:
     QSqlEditorFactory* editorFactory;
     QSqlPropertyMap* propertyMap;
     QString trueTxt;
+    Qt::DateFormat datefmt;
     QString falseTxt;
     int editRow;
     int editCol;
@@ -258,6 +260,7 @@ void QDataTable::init()
     setFocusStyle( FollowStyle );
     d->trueTxt = tr( "True" );
     d->falseTxt = tr( "False" );
+    d->datefmt = Qt::LocalDate;
     reset();
     connect( this, SIGNAL( currentChanged( int, int ) ),
 	     SLOT( setCurrentSelection( int, int )));
@@ -1349,6 +1352,23 @@ QString QDataTable::falseText() const
     return d->falseTxt;
 }
 
+/*! \property QDataTable::dateFormat
+  \brief the format how date/time values are displayed
+
+  The dateFormat property will be used to display date/time values in the
+  table. The default value is 'Qt::LocalDate'.
+*/
+
+void QDataTable::setDateFormat( const DateFormat f )
+{
+    d->datefmt = f;
+}
+
+Qt::DateFormat QDataTable::dateFormat() const
+{
+    return d->datefmt;
+}
+
 /*! \property QDataTable::numRows
 
   \brief the number of rows in the table
@@ -1581,9 +1601,23 @@ void QDataTable::paintField( QPainter * p, const QSqlField* field,
 	text = nullText();
     } else {
 	const QVariant val = field->value();
-	text = val.toString();
-	if ( val.type() == QVariant::Bool )
+	switch ( val.type() ) {
+	case QVariant::Bool:
 	    text = val.toBool() ? d->trueTxt : d->falseTxt;
+	    break;
+	case QVariant::Date:
+	    text = val.toDate().toString( d->datefmt );
+	    break;
+	case QVariant::Time:
+	    text = val.toTime().toString( d->datefmt );
+	    break;
+	case QVariant::DateTime:
+	    text = val.toDateTime().toString( d->datefmt );
+	    break;
+	default:
+	    text = val.toString();
+	    break;
+	}
     }
     p->drawText( 2,2, cr.width()-4, cr.height()-4, fieldAlignment( field ), text );
 }

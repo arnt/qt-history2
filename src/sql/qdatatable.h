@@ -70,6 +70,7 @@ class QM_EXPORT_SQL QDataTable : public QTable
     Q_PROPERTY( QString nullText READ nullText WRITE setNullText )
     Q_PROPERTY( QString trueText READ trueText WRITE setTrueText )
     Q_PROPERTY( QString falseText READ falseText WRITE setFalseText )
+    Q_PROPERTY( DateFormat dateFormat READ dateFormat WRITE setDateFormat )
     Q_PROPERTY( bool confirmEdits READ confirmEdits WRITE setConfirmEdits )
     Q_PROPERTY( bool confirmInsert READ confirmInsert WRITE setConfirmInsert )
     Q_PROPERTY( bool confirmUpdate READ confirmUpdate WRITE setConfirmUpdate )
@@ -104,6 +105,7 @@ public:
     QString      nullText() const;
     QString      trueText() const;
     QString      falseText() const;
+    DateFormat   dateFormat() const;
     bool         confirmEdits() const;
     bool         confirmInsert() const;
     bool         confirmUpdate() const;
@@ -128,6 +130,7 @@ public:
     virtual void setNullText( const QString& nullText );
     virtual void setTrueText( const QString& trueText );
     virtual void setFalseText( const QString& falseText );
+    virtual void setDateFormat( const DateFormat f );
     virtual void setConfirmEdits( bool confirm );
     virtual void setConfirmInsert( bool confirm );
     virtual void setConfirmUpdate( bool confirm );
