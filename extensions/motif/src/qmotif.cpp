@@ -15,7 +15,9 @@
 #include "qmotif.h"
 
 #include <qapplication.h>
-#include <qwidgetintdict.h>
+#include <qhash.h>
+#include <qwidget.h>
+#include <qvector.h>
 
 // resolve the conflict between X11's FocusIn and QEvent::FocusIn
 const int XFocusOut = FocusOut;
@@ -27,6 +29,8 @@ const int XKeyPress = KeyPress;
 const int XKeyRelease = KeyRelease;
 #undef KeyPress
 #undef KeyRelease
+
+typedef QHash<ulong,QSocketNotifier*> SockNotMapper;
 
 Boolean qmotif_event_dispatcher( XEvent *event );
 static void qmotif_keep_alive();
@@ -41,11 +45,11 @@ public:
     void unhook();
 
     XtAppContext appContext, ownContext;
-    QMemArray<XtEventDispatchProc> dispatchers;
-    QWidgetIntDict mapper;
+    QVector<XtEventDispatchProc> dispatchers;
+    QWidgetMapper mapper;
 
-    QIntDict<QSocketNotifier> socknotDict;
-    uint pending_socknots;
+    SockNotMapper sock_not_mapper;
+    int pending_socknots;
     bool activate_timers;
     XtIntervalId timerid;
 
@@ -154,8 +158,9 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 	}
     }
 
-    QWidgetIntDict *mapper = &static_d->mapper;
-    QWidget* qMotif = mapper->find( event->xany.window );
+    QWidgetMapper *mapper = &static_d->mapper;
+    QWidgetMapper::Iterator it = mapper->find(event->xany.window);
+    QWidget* qMotif = it == mapper->end() ? 0 : *it;
     if ( !qMotif && QWidget::find( event->xany.window) == 0 ) {
 	if (! xt_grab
 	    && (event->type == XFocusIn && event->xfocus.mode == NotifyGrab)) {
@@ -167,7 +172,9 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 	// event is not for Qt, try Xt
 	Widget w = XtWindowToWidget( QPaintDevice::x11AppDisplay(), event->xany.window );
 
-	while ( w && ! ( qMotif = mapper->find( XtWindow( w ) ) ) ) {
+	while (w && (it = mapper->find(XtWindow(w))) != mapper->end()) {
+	    qMotif = *it;
+
 	    if ( XtIsShell( w ) ) {
 		break;
 	    }
@@ -256,15 +263,16 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 	    // we could have a pure Xt shell as a child of the active
 	    // modal widget
 	    QWidget *qw = 0;
-	    Widget xw = XtWindowToWidget( QPaintDevice::x11AppDisplay(),
-					  event->xany.window );
-	    while ( xw && !( qw = mapper->find( XtWindow( xw ) ) ) )
-		xw = XtParent( xw );
+	    Widget xw = XtWindowToWidget(QPaintDevice::x11AppDisplay(), event->xany.window);
+	    while (xw && (it = mapper->find(XtWindow(xw))) != mapper->end()) {
+		qw = *it;
+		xw = XtParent(xw);
+	    }
 
-	    while ( qw && qw != QApplication::activeModalWidget() )
+	    while (qw && qw != QApplication::activeModalWidget())
 		qw = qw->parentWidget();
 
-	    if ( !qw ) {
+	    if (!qw) {
 		// event is destined for an Xt widget, but since Qt has an
 		// active modal widget, we stop here...
 		switch ( event->type ) {
@@ -284,15 +292,18 @@ Boolean qmotif_event_dispatcher( XEvent *event )
 	    }
 	}
     }
-    
+
     // make click-to-focus work with QMotifWidget children
     if ( !xt_grab && event->type == ButtonPress ) {
 	QWidget *qw = 0;
 	Widget xw = XtWindowToWidget( QPaintDevice::x11AppDisplay(),
 				      event->xany.window );
-	while ( xw && !( qw = mapper->find( XtWindow( xw ) ) ) )
+	while (xw && (it = mapper->find(XtWindow(xw))) != mapper->end()) {
+	    qw = *it;
 	    xw = XtParent( xw );
-	if ( qw && !qw->hasFocus() && (qw->focusPolicy() & QWidget::ClickFocus) )
+	}
+
+	if (qw && !qw->hasFocus() && (qw->focusPolicy() & QWidget::ClickFocus))
 	    qw->setFocus();
     }
 
@@ -454,14 +465,15 @@ void QMotif::unregisterWidget( QWidget* w )
 
 /*! \internal
  */
-void qmotif_socknot_handler( XtPointer pointer, int *, XtInputId *id )
+void qmotif_socknot_handler(XtPointer pointer, int *, XtInputId *id)
 {
-    QMotif *eventloop = (QMotif *) pointer;
-    QSocketNotifier *socknot = static_d->socknotDict.find( *id );
-    if ( ! socknot ) // this shouldn't happen
+    SockNotMapper::Iterator it = static_d->sock_not_mapper.find(*id);
+    if (it == static_d->sock_not_mapper.end()) // this shouldn't happen
 	return;
-    eventloop->setSocketNotifierPending( socknot );
-    if ( ++static_d->pending_socknots > static_d->socknotDict.count() ) {
+
+    QMotif *eventloop = (QMotif *) pointer;
+    eventloop->setSocketNotifierPending(*it);
+    if (++static_d->pending_socknots > static_d->sock_not_mapper.size()) {
 	/*
 	  We have too many pending socket notifiers.  Since Xt prefers
 	  socket notifiers over X events, we should go ahead and
@@ -496,29 +508,26 @@ void QMotif::registerSocketNotifier( QSocketNotifier *notifier )
 	return;
     }
 
-    XtInputId id = XtAppAddInput( d->appContext,
-				  notifier->socket(), (XtPointer) mask,
-				  qmotif_socknot_handler, this );
-    d->socknotDict.insert( id, notifier );
+    XtInputId id = XtAppAddInput(d->appContext, notifier->socket(), (XtPointer) mask,
+				 qmotif_socknot_handler, this);
+    d->sock_not_mapper.insert(id, notifier);
 
-    QEventLoop::registerSocketNotifier( notifier );
+    QEventLoop::registerSocketNotifier(notifier);
 }
 
 /*! \reimp
  */
 void QMotif::unregisterSocketNotifier( QSocketNotifier *notifier )
 {
-    QIntDictIterator<QSocketNotifier> it( d->socknotDict );
-    while ( it.current() && notifier != it.current() )
-	++it;
-    if ( ! it.current() ) {
-	// this shouldn't happen
+    SockNotMapper::Iterator it = d->sock_not_mapper.begin();
+    while (*it != notifier) ++it;
+    if (*it != notifier) { // this shouldn't happen
 	qWarning( "QMotifEventLoop: failed to unregister socket notifier" );
 	return;
     }
 
-    XtRemoveInput( it.currentKey() );
-    d->socknotDict.remove( it.currentKey() );
+    XtRemoveInput( it.key() );
+    d->sock_not_mapper.remove( it.key() );
 
     QEventLoop::unregisterSocketNotifier( notifier );
 }

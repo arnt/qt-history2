@@ -15,7 +15,7 @@
 #include "qxtwidget.h"
 
 #include <qapplication.h>
-#include <qobjectlist.h>
+#include <qdesktopwidget.h>
 
 #include <X11/Xlib.h>
 #include <X11/Intrinsic.h>
@@ -50,23 +50,17 @@ typedef struct _QWidgetRec {
 static
 void reparentChildrenOf(QWidget* parent)
 {
-
     if ( !parent->children() )
 	return; // nothing to do
 
-    for ( QObjectListIt it( *parent->children() ); it.current(); ++it ) {
-	if ( it.current()->isWidgetType() ) {
-	    QWidget* widget = (QWidget*)it.current();
-	    XReparentWindow( qt_xdisplay(),
-			     widget->winId(),
-			     parent->winId(),
-			     widget->x(),
-			     widget->y() );
-	    if ( widget->isVisible() )
-		XMapWindow( qt_xdisplay(), widget->winId() );
-	}
-    }
+    QObjectList children = parent->children();
+    for (int i = 0; i < children.size(); ++i) {
+	QWidget *widget = qt_cast<QWidget*>(children.at(i));
+	if (! widget) continue;
 
+	XReparentWindow(widget->x11Display(), widget->winId(), parent->winId(),
+			widget->x(), widget->y());
+    }
 }
 
 void qwidget_realize(
@@ -260,15 +254,11 @@ QXtWidget::~QXtWidget()
 {
     // Delete children first, as Xt will destroy their windows
     //
-    QObjectList* list = queryList("QWidget", 0, FALSE, FALSE);
-    if ( list ) {
-	QWidget* c;
-        QObjectListIt it( *list );
-        while ( (c = (QWidget*)it.current()) ) {
+    QObjectList list = queryList("QWidget", 0, FALSE, FALSE);
+    for (int i = 0; i < list.size(); ++i) {
+	QWidget *c;
+        while ((c = qt_cast<QWidget*>(list.at(i))) != 0)
             delete c;
-            ++it;
-        }
-        delete list;
     }
 
     if ( need_reroot ) {

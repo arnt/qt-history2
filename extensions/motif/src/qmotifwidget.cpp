@@ -16,9 +16,11 @@
 #include "qmotif.h"
 
 #include <qapplication.h>
-#include <qobjectlist.h>
-#include <qwidgetintdict.h>
 #include <qevent.h>
+
+#include <private/qwidget_p.h>
+#undef d
+#undef q
 
 #include <X11/StringDefs.h>
 #include <X11/IntrinsicP.h>
@@ -244,12 +246,13 @@ QMotifWidget::QMotifWidget( QWidget *parent, WidgetClass widgetclass,
 
     d->widget = XtCreateWidget( name, widgetclass, motifparent, args, argcount );
 
-    if (! extraData()) {
+    QWidgetPrivate *wp = static_cast<QWidgetPrivate*>(QObject::d_ptr);
+    if (! wp->extra) {
         // createExtra() is private, so use topData() to ensure that
         // the extra data is created
-        (void) topData();
+	wp->createExtra();
     }
-    extraData()->compress_events = FALSE;
+    wp->extra->compress_events = FALSE;
 }
 
 /*!
@@ -358,20 +361,15 @@ void QMotifWidget::realize( Widget w )
 	}
 
 	Window newid = XtWindow( w );
-	if ( children() ) {
-	    QObjectListIt it( *children() );
-	    for ( ; it.current(); ++it ) {
-		if ( it.current()->isWidgetType() ) {
-		    QWidget *widget = (QWidget *) it.current();
-		    XReparentWindow( QPaintDevice::x11AppDisplay(),
-				     widget->winId(),
-				     newid,
-				     widget->x(),
-				     widget->y() );
-		    if ( !widget->isHidden() )
-			XMapWindow( QPaintDevice::x11AppDisplay(), widget->winId() );
-		}
-	    }
+	QObjectList list = children();
+	for (int i = 0; i < list.size(); ++i) {
+	    QWidget *widget = qt_cast<QWidget*>(list.at(i));
+	    if (!widget) continue;
+
+	    XReparentWindow(widget->x11Display(), widget->winId(), newid,
+			    widget->x(), widget->y());
+	    if (!widget->isHidden())
+		XMapWindow(widget->x11Display(), widget->winId());
 	}
 	QApplication::syncX();
 

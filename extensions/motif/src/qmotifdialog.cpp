@@ -17,7 +17,6 @@
 #include "qmotifwidget.h"
 
 #include <qapplication.h>
-#include <qobjectlist.h>
 
 #include <X11/StringDefs.h>
 #include <Xm/DialogS.h>
@@ -580,21 +579,16 @@ void QMotifDialog::realize( Widget w )
 	    }
 	}
 
-	Window newid = XtWindow( w );
-       	if ( children() ) {
-	    QObjectListIt it( *children() );
-	    for ( ; it.current(); ++it ) {
-		if ( it.current()->isWidgetType() ) {
-		    QWidget *widget = (QWidget *) it.current();
-		    XReparentWindow( QPaintDevice::x11AppDisplay(),
-				     widget->winId(),
-				     newid,
-				     widget->x(),
-				     widget->y() );
-		    if ( !widget->isHidden() )
-			XMapWindow( QPaintDevice::x11AppDisplay(), widget->winId() );
-		}
-	    }
+	Window newid = XtWindow(w);
+	QObjectList list = children();
+	for (int i = 0; i < list.size(); ++i) {
+	    QWidget *widget = qt_cast<QWidget*>(list.at(i));
+	    if (!widget) continue;
+
+	    XReparentWindow(widget->x11Display(), widget->winId(), newid,
+			    widget->x(), widget->y());
+	    if ( !widget->isHidden() )
+		XMapWindow(widget->x11Display(), widget->winId());
 	}
 	QApplication::syncX();
 
@@ -635,21 +629,19 @@ void QMotifDialog::insertChild( Widget w )
     Resets the dialog widget for the QMotifDialog if the current
     dialog widget matches \w.
 */
-void QMotifDialog::deleteChild( Widget w )
+void QMotifDialog::deleteChild(Widget w)
 {
-#if defined(QT_CHECK_STATE)
-    if ( ! d->dialog ) {
-	qWarning( "QMotifDialog::deleteChild: cannot delete widget since no child\n"
-		  "                           was inserted." );
+    if (!d->dialog) {
+	qWarning("QMotifDialog::deleteChild: cannot delete widget since no child\n"
+		 "                           was inserted.");
 	return;
     }
 
-    if ( d->dialog != w ) {
-	qWarning( "QMotifDialog::deleteChild: cannot delete widget different from\n"
-		  "                           inserted child" );
+    if (d->dialog != w) {
+	qWarning("QMotifDialog::deleteChild: cannot delete widget different from\n"
+		 "                           inserted child");
 	return;
     }
-#endif
 
     d->dialog = NULL;
 }
