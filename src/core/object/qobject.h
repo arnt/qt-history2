@@ -93,36 +93,8 @@ public:
     QObject *findChild(const char *name) const;
     QObjectList findChildren(const char *name) const;
 
-    // MOC_SKIP_BEGIN
-#ifndef QT_MOC_CPP
-    template<typename T>
-    T findChild(const char *name, T = 0) const
-    { return static_cast<T>(findChild_helper(name, ((T)0)->staticMetaObject)); }
-
-    template<typename T>
-    QList<T> findChildren(const char *name, T = 0) const
-    {
-	QList<T> list;
-	findChildren_helper(name, 0, ((T)0)->staticMetaObject,
-			    reinterpret_cast<QList<void *>*>(&list));
-	return list;
-    }
-#endif //QT_MOC_CPP
-    // MOC_SKIP_END
 #ifndef QT_NO_REGEXP
     QObjectList findChildren(const QRegExp &re) const;
-    // MOC_SKIP_BEGIN
-#ifndef QT_MOC_CPP
-    template<typename T>
-    QList<T> findChildren(const QRegExp &re, T = 0) const
-    {
-	QList<T> list;
-	findChildren_helper(0, &re, ((T)0)->staticMetaObject,
-			    reinterpret_cast<QList<void*>*>(&list));
-	return list;
-    }
-#endif
-    // MOC_SKIP_END
 #endif
 
 #ifdef QT_COMPAT
@@ -220,13 +192,17 @@ protected:
 	{ return QMetaObject::normalizedSignature(signalSlot); }
 #endif
 
+public:
+    // public because we can't make a template method a friend
+    void findChildren_helper(const char *name, const QRegExp *re,
+                             const QMetaObject &mo, QList<void*> *list) const;
+    QObject *findChild_helper(const char *name, const QMetaObject &mo) const;
+
+
 protected:
     QObject(QObjectPrivate &d, QObject *parent);
 private:
     QObject(QWidgetPrivate &d, QObject *parent);
-    void findChildren_helper(const char *name, const QRegExp *re,
-                             const QMetaObject &mo, QList<void*> *list) const;
-    QObject *findChild_helper(const char *name, const QMetaObject &mo) const;
     void setParent_helper(QObject *);
     uint isWidget : 1;
     uint pendTimer : 1;
@@ -278,6 +254,34 @@ public:
     virtual ~QObjectUserData();
 };
 #endif
+
+
+template<typename T>
+inline T qFindChild(const QObject *o, const char *name = 0, T = 0)
+{
+    return static_cast<T>(o->findChild_helper(name, ((T)0)->staticMetaObject));
+}
+
+template<typename T>
+inline QList<T> qFindChildren(const QObject *o, const char *name = 0, T = 0)
+{
+    QList<T> list;
+    o->findChildren_helper(name, 0, ((T)0)->staticMetaObject,
+			reinterpret_cast<QList<void *>*>(&list));
+    return list;
+}
+
+#ifndef QT_NO_REGEXP
+template<typename T>
+inline QList<T> qFindChildren(const QObject *o, const QRegExp &re, T = 0)
+{
+    QList<T> list;
+    o->findChildren_helper(0, &re, ((T)0)->staticMetaObject,
+			reinterpret_cast<QList<void*>*>(&list));
+    return list;
+}
+#endif
+
 
 #if defined Q_CC_MSVC && _MSC_VER < 1300
 template <class T> inline T qt_cast_helper(const QObject *object, T) { return (T) ((T)0)->staticMetaObject.cast(object); }

@@ -1179,6 +1179,8 @@ QObjectList QObject::findChildren(const QRegExp &re) const
 }
 #endif
 
+/*! \internal
+ */
 void QObject::findChildren_helper(const char *name, const QRegExp *re,
                          const QMetaObject &mo, QList<void*> *list) const
 {
@@ -1198,6 +1200,8 @@ void QObject::findChildren_helper(const char *name, const QRegExp *re,
     }
 }
 
+/*! \internal
+ */
 QObject *QObject::findChild_helper(const char *name, const QMetaObject &mo) const
 {
     QObject *obj;
