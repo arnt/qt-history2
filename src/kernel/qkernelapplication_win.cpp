@@ -40,6 +40,7 @@ void set_winapp_name()
 	afm.setLength( 256 );
 	afm.setLength( GetModuleFileName( 0, (unsigned short*)afm.unicode(), 255 ) );
 	strncpy( appFileName, afm.latin1(), afm.length() );
+	appUniqueID = RegisterWindowMessage( afm.lower().remove('\\').ucs2() );
 #endif
 	const char *p = strrchr( appFileName, '\\' );	// skip path
 	if ( p )
@@ -193,14 +194,6 @@ void qWinMain( HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
     appInst = instance;
     appPrevInst = prevInstance;
     appCmdShow = cmdShow;
-
-#ifdef Q_OS_TEMP
-    TCHAR uniqueAppID[256];
-    GetModuleFileName( 0, uniqueAppID, 255 );
-    appUniqueID = RegisterWindowMessage(
-		  QString::fromUcs2(uniqueAppID)
-		  .lower().remove('\\').ucs2() );
-#endif
 }
 
 /*!
