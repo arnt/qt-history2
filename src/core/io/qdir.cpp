@@ -1672,8 +1672,8 @@ QString QDir::nameFilter() const
 
 void QDir::setNameFilter(const QString &nameFilter)
 {
-    d->filterSepChar = QDirPrivate::getFilterSepChar(nameFilter)
-    setNameFilters(QDirPrivate::splitFilters(nameFilter, d->filterSepChar);
+    d->filterSepChar = QDirPrivate::getFilterSepChar(nameFilter);
+    setNameFilters(QDirPrivate::splitFilters(nameFilter, d->filterSepChar));
 }
 #endif
 
