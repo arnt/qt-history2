@@ -354,7 +354,9 @@ void QAction::setIconSet( const QIconSet& icon )
  */
 QIconSet QAction::iconSet() const
 {
-    return *d->iconset;
+    if ( d->iconset )
+	return *d->iconset;
+    return QIconSet();
 }
 
 /*!
