@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindefs.h#61 $
+** $Id: //depot/qt/main/src/kernel/qwindefs.h#62 $
 **
 ** Definition of general window system dependent functions, types and
 ** constants
@@ -203,12 +203,17 @@ const ulong WReserved2		= 0x80000000;
 
 
 // Extra QWidget data
+//  - to minimize memory usage for members that are seldom used.
 
 struct QWExtra {
     GUIStyle guistyle;				// GUI Style
-    short  minw, minh;				// minimum size
-    short  maxw, maxh;				// maximum size
-    short  incw, inch;				// size increments
+    short    minw, minh;			// minimum size
+    short    maxw, maxh;			// maximum size
+    short    incw, inch;			// size increments
+    char    *caption;				// widget caption
+    char    *iconText;				// widget icon text
+    QPixmap *icon;				// widget icon
+    QPixmap *bg_pix;				// background pixmap
 };
 
 
