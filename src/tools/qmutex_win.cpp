@@ -178,6 +178,7 @@ void QNonRecursiveMutexPrivate::lock()
     protect.enter();
 
     if ( threadID == GetCurrentThreadId() ) {
+	protect.leave();
 #ifdef QT_CHECK_RANGE
 	qWarning( "Non-recursive mutex already locked by this thread" );
 #endif
