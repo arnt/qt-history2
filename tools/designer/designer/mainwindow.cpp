@@ -665,7 +665,7 @@ QWidget* MainWindow::previewFormInternal( QStyle* style, QPalette* palet )
 
 	if ( style )
 	    w->setStyle( style );
-	
+
 	QObjectList *l = w->queryList( "QWidget" );
 	for ( QObject *o = l->first(); o; o = l->next() ) {
 	    if ( style )
@@ -2601,7 +2601,7 @@ void MainWindow::showDialogHelp()
     else if ( w->inherits( "HelpDialogBase" ) )
 	openHelpForDialog( "The Help Dialog" );
     else if ( w->inherits( "NewFormBase" ) )
-	openHelpForDialog( "The New Form Dialog" );
+	openHelpForDialog( "The New File Dialog" );
     else if ( w->inherits( "PaletteEditorBase" ) )
 	openHelpForDialog( "The Palette Editor Dialog" );
     else if ( w->inherits( "PixmapFunction" ) )
@@ -3058,7 +3058,7 @@ void MainWindow::showSourceLine( QObject *o, int line, LineMode lm )
 	    else
 		sf = se->sourceFile();
 	}
-	
+
 	if ( fw ) {
 	    if ( fw->project() != currentProject )
 		continue;

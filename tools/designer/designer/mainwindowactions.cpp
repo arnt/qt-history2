@@ -724,25 +724,15 @@ void MainWindow::setupProjectActions()
 
     projectMenu->insertSeparator();
 
-    a = new QAction( tr( "Insert File" ), QPixmap(), tr( "&Insert File..." ), CTRL + Key_I, this, 0 );
-    a->setStatusTip( tr("Inserts a file into the current project") );
-    a->setWhatsThis( tr("<b>Insert File</b>"
+    a = new QAction( tr( "Add File" ), QPixmap(), tr( "&Add File..." ), 0, this, 0 );
+    a->setStatusTip( tr("Adds a file to the current project") );
+    a->setWhatsThis( tr("<b>Add File</b>"
 			"<p>Use the filedialog to select the file you want to "
-			"insert into the current project</p>" ) );
+			"add to the current project</p>" ) );
     connect( a, SIGNAL( activated() ), this, SLOT( projectInsertFile() ) );
     a->setEnabled( FALSE );
     connect( this, SIGNAL( hasNonDummyProject(bool) ), a, SLOT( setEnabled(bool) ) );
     a->addTo( projectMenu );
-
-    QAction* actionEditProjectSettings = new QAction( tr( "Project Settings..." ), QPixmap(),
-					  tr( "&Project Settings..." ), 0, this, 0 );
-    actionEditProjectSettings->setStatusTip( tr("Opens a dialog to change the settings of the project") );
-    actionEditProjectSettings->setWhatsThis( tr("<b>Edit settings of the project</b>"
-					     "<p>####TODO</p>") );
-    connect( actionEditProjectSettings, SIGNAL( activated() ), this, SLOT( editProjectSettings() ) );
-    actionEditProjectSettings->setEnabled( FALSE );
-    connect( this, SIGNAL( hasNonDummyProject(bool) ), actionEditProjectSettings, SLOT( setEnabled(bool) ) );
-    actionEditProjectSettings->addTo( projectMenu );
 
     QAction* actionEditPixmapCollection = new QAction( tr( "Image Collection..." ), QPixmap(),
 					  tr( "&Image Collection..." ), 0, this, 0 );
@@ -765,6 +755,16 @@ void MainWindow::setupProjectActions()
     //connect( this, SIGNAL( hasNonDummyProject(bool) ), actionEditDatabaseConnections, SLOT( setEnabled(bool) ) );
     actionEditDatabaseConnections->addTo( projectMenu );
 #endif
+
+    QAction* actionEditProjectSettings = new QAction( tr( "Project Settings..." ), QPixmap(),
+					  tr( "&Project Settings..." ), 0, this, 0 );
+    actionEditProjectSettings->setStatusTip( tr("Opens a dialog to change the settings of the project") );
+    actionEditProjectSettings->setWhatsThis( tr("<b>Edit settings of the project</b>"
+					     "<p>####TODO</p>") );
+    connect( actionEditProjectSettings, SIGNAL( activated() ), this, SLOT( editProjectSettings() ) );
+    actionEditProjectSettings->setEnabled( FALSE );
+    connect( this, SIGNAL( hasNonDummyProject(bool) ), actionEditProjectSettings, SLOT( setEnabled(bool) ) );
+    actionEditProjectSettings->addTo( projectMenu );
 
 }
 
@@ -1115,12 +1115,12 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
 	if ( fn.isEmpty() ) {
 	    if ( !inProject ) {
 		QString f = QFileDialog::getOpenFileName( QString::null, filters, this, 0,
-							  (inProject ? tr("Insert") : tr("Open" )),
+							  (inProject ? tr("Add") : tr("Open" )),
 							  &lastOpenFilter );
 		filenames << f;
 	    } else {
 		filenames = QFileDialog::getOpenFileNames( filters, QString::null, this, 0,
-							  (inProject ? tr("Insert") : tr("Open" )),
+							  (inProject ? tr("Add") : tr("Open" )),
 							  &lastOpenFilter );
 	    }
 	} else {
