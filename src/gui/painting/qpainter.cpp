@@ -222,7 +222,7 @@ QFontInfo QPainter::fontInfo() const
 }
 
 
-const QPoint &QPainter::brushOrigin() const
+QPoint QPainter::brushOrigin() const
 {
     return d->state->bgOrigin + d->redirection_offset;
 }

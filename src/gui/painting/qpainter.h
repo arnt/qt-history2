@@ -78,7 +78,7 @@ public:
     void setBackgroundMode(BGMode mode);
     BGMode backgroundMode() const;
 
-    const QPoint &brushOrigin() const;
+    QPoint brushOrigin() const;
     void setBrushOrigin(int x, int y);
     void setBrushOrigin(const QPoint &);
 
