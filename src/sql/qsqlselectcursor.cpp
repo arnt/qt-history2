@@ -56,9 +56,24 @@ public:
     \module sql
 
     QSqlSelectCursor is a convenience class that makes it possible to
-    display result sets of general SQL queries in data-aware Qt
+    display result sets from general SQL queries in data-aware Qt
     widgets. QSqlSelectCursor is read-only and does not support
     INSERT, UPDATE or DELETE operations.
+    
+    Pass the query in at construction time, or use the QSqlSelectCursor::exec() function.
+    
+    Example:
+    \code
+    ...
+    QSqlSelectCursor cur( "SELECT id, firstname, lastname FROM author" );
+    QDataTable table( this );
+    table.setSqlCursor( &cur, TRUE, FALSE );
+    table.refresh();
+    ...
+    cur.exec( "SELECT * FROM books" );
+    table.refresh();
+    ...
+    \endcode
 */
 
 /*!
@@ -119,4 +134,107 @@ void QSqlSelectCursor::populateCursor()
     d->populated = TRUE;
 }
 
+/*! \fn QSqlIndex QSqlSelectCursor::primaryIndex( bool ) const
+    \reimp
+*/
+
+/*! \fn QSqlIndex QSqlSelectCursor::index( const QStringList& ) const
+    \reimp
+*/
+
+/*! \fn QSqlIndex QSqlSelectCursor::index( const QString& ) const
+    \reimp
+*/
+
+/*! \fn QSqlIndex QSqlSelectCursor::index( const char* ) const
+    \reimp
+*/
+
+/*! \fn void QSqlSelectCursor::setPrimaryIndex( const QSqlIndex& )
+    \reimp
+*/
+
+/*! \fn void QSqlSelectCursor::append( const QSqlFieldInfo& )
+    \reimp
+*/
+
+/*! \fn void QSqlSelectCursor::insert( int, const QSqlFieldInfo& )
+    \reimp
+*/
+
+/*! \fn void QSqlSelectCursor::remove( int )
+    \reimp
+*/
+
+/*! \fn void QSqlSelectCursor::clear()
+    \reimp
+*/
+
+/*! \fn void QSqlSelectCursor::setGenerated( const QString&, bool )
+    \reimp
+*/
+
+/*! \fn void QSqlSelectCursor::setGenerated( int, bool )
+    \reimp
+*/
+
+/*! \fn QSqlRecord* QSqlSelectCursor::editBuffer( bool )
+    \reimp
+*/
+
+/*! \fn QSqlRecord* QSqlSelectCursor::primeInsert()
+    \reimp
+*/
+
+/*! \fn QSqlRecord* QSqlSelectCursor::primeUpdate()
+    \reimp
+*/
+
+/*! \fn QSqlRecord* QSqlSelectCursor::primeDelete()
+    \reimp
+*/
+
+/*! \fn int QSqlSelectCursor::insert( bool )
+    \reimp
+*/
+
+/*! \fn int QSqlSelectCursor::update( bool )
+    \reimp
+*/
+
+/*! \fn int QSqlSelectCursor::del( bool )
+    \reimp
+*/
+
+/*! \fn void QSqlSelectCursor::setMode( int )
+    \reimp
+*/
+
+/*! \fn void QSqlSelectCursor::setSort( const QSqlIndex& )
+    \reimp
+*/
+
+/*! \fn QSqlIndex QSqlSelectCursor::sort() const
+    \reimp
+*/
+
+/*! \fn void QSqlSelectCursor::setFilter( const QString& )
+    \reimp
+*/
+
+/*! \fn QString QSqlSelectCursor::filter() const
+    \reimp
+*/
+
+/*! \fn void QSqlSelectCursor::setName( const QString&, bool )
+    \reimp
+*/
+
+/*! \fn QString QSqlSelectCursor::name() const
+    \reimp
+*/
+
+/*! \fn QString QSqlSelectCursor::toString( const QString&, const QString& ) const
+    \reimp
+*/
 #endif // QT_NO_SQL
