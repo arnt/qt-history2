@@ -24,7 +24,7 @@
 
 class QAbstractButton;
 
-class Q_GUI_EXPORT Q3ButtonGroup : public Q3GroupBox
+class Q_COMPAT_EXPORT Q3ButtonGroup : public Q3GroupBox
 {
     Q_OBJECT
     Q_PROPERTY(bool exclusive READ isExclusive WRITE setExclusive)

@@ -283,8 +283,8 @@ static void cleanUpOFN(OPENFILENAME** ofn)
 
 #endif // UNICODE
 
-extern Q_GUI_EXPORT void qt_enter_modal(QWidget*);
-extern Q_GUI_EXPORT void qt_leave_modal(QWidget*);
+extern Q_COMPAT_EXPORT void qt_enter_modal(QWidget*);
+extern Q_COMPAT_EXPORT void qt_leave_modal(QWidget*);
 
 QString Q3FileDialog::winGetOpenFileName(const QString &initialSelection,
                                          const QString &filter,

@@ -244,10 +244,10 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
     }
     if (testWFlags(WStyle_Title)) {
         QT_WA({
-            title = QString::fromLocal8Bit(isTopLevel() ? qAppName() : objectName());
+            title = isTopLevel() ? QString::fromLocal8Bit(qAppName()) : objectName();
             ttitle = (TCHAR*)title.utf16();
         } , {
-            title95 = isTopLevel() ? qAppName() : objectName();
+            title95 = isTopLevel() ? qAppName() : objectName().latin1();
         });
     }
 
@@ -1590,7 +1590,8 @@ void QWidget::setMaximumSize(int maxw, int maxh)
     if (maxw < 0 || maxh < 0) {
         qWarning("QWidget::setMaximumSize: (%s/%s) Negative sizes (%d,%d) "
                 "are not possible",
-                objectName("unnamed"), className(), maxw, maxh);
+                 objectName().isEmpty() ? QLatin1String("unnamed") : objectName(),
+                 metaObject()->className(), maxw, maxh);
         maxw = qMax(maxw, 0);
         maxh = qMax(maxh, 0);
     }

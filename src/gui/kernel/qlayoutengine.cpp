@@ -219,7 +219,7 @@ void qGeomCalc(QVector<QLayoutStruct> &chain, int start, int count,
     }
 }
 
-QSize qSmartMinSize(const QWidgetItem *i)
+Q_GUI_EXPORT QSize qSmartMinSize(const QWidgetItem *i)
 {
     QWidget *w = ((QWidgetItem *)i)->widget();
 
@@ -260,13 +260,13 @@ QSize qSmartMinSize(const QWidgetItem *i)
     return s;
 }
 
-QSize qSmartMinSize(QWidget *w)
+Q_GUI_EXPORT QSize qSmartMinSize(QWidget *w)
 {
     QWidgetItem item(w);
     return qSmartMinSize(&item);
 }
 
-QSize qSmartMaxSize(const QWidgetItem *i, Qt::Alignment align)
+Q_GUI_EXPORT QSize qSmartMaxSize(const QWidgetItem *i, Qt::Alignment align)
 {
     QWidget *w = ((QWidgetItem*)i)->widget();
     if (align & Qt::AlignHorizontal_Mask && align & Qt::AlignVertical_Mask)
@@ -289,7 +289,7 @@ QSize qSmartMaxSize(const QWidgetItem *i, Qt::Alignment align)
     return s;
 }
 
-QSize qSmartMaxSize(QWidget *w, Qt::Alignment align)
+Q_GUI_EXPORT QSize qSmartMaxSize(QWidget *w, Qt::Alignment align)
 {
     QWidgetItem item(w);
     return qSmartMaxSize(&item, align);

@@ -21,7 +21,7 @@
 
 class Q3GroupBoxPrivate;
 
-class Q_GUI_EXPORT Q3GroupBox : public QWidget
+class Q_COMPAT_EXPORT Q3GroupBox : public QWidget
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(Q3GroupBox)
