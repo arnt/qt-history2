@@ -262,6 +262,7 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 
 MenuRef QMenuBar::createMacPopup(QPopupMenu *d, bool do_sync, bool top_level) 
 {
+    static int mid = 0;
     MenuRef ret;
     if(CreateNewMenu(0, 0, &ret) != noErr)
 	return NULL;
@@ -270,8 +271,7 @@ MenuRef QMenuBar::createMacPopup(QPopupMenu *d, bool do_sync, bool top_level)
 	activeMenuBar->mac_d->popups = new QIntDict<QMenuBar::MacPrivate::PopupBinding>();
 	activeMenuBar->mac_d->popups->setAutoDelete(TRUE);
     }
-    short mid = (short)ret;
-    SetMenuID(ret, mid);
+    SetMenuID(ret, ++mid);
     activeMenuBar->mac_d->popups->insert((int)mid, 
 					 new QMenuBar::MacPrivate::PopupBinding(d, ret, 
 										top_level));
@@ -394,7 +394,8 @@ bool QMenuBar::activate(MenuRef menu, short idx, bool highlight)
 	return FALSE;
     }
 
-    if(MacPrivate::PopupBinding *mpb = activeMenuBar->mac_d->popups->find((int)((short)menu))) {
+    int mid = GetMenuID(menu);
+    if(MacPrivate::PopupBinding *mpb = activeMenuBar->mac_d->popups->find(mid)) {
 	MenuCommand cmd;
 	GetMenuItemCommandID(mpb->macpopup, idx, &cmd);
 	if(highlight) {
@@ -511,8 +512,8 @@ void QMenuBar::macUpdatePopup(MenuRef mr)
     if(!mr || !activeMenuBar)
 	return;
 
-    short id = (short)mr;
-    if(MacPrivate::PopupBinding *mpb = activeMenuBar->mac_d->popups->find((int)id)) {
+    int mid = GetMenuID( mr );
+    if(MacPrivate::PopupBinding *mpb = activeMenuBar->mac_d->popups->find(mid)) {
 	emit mpb->qpopup->aboutToShow();
 	if(1 || mpb->qpopup->mac_dirty_popup) {
 	    mpb->qpopup->mac_dirty_popup = 0;
