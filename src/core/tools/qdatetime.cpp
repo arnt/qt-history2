@@ -1135,6 +1135,17 @@ void QDate::julianToGregorian(uint jd, int &y, int &m, int &d)
     }
 }
 
+/*! \fn static QDate fromJulianDay(int jd)
+
+Converts a Julian day to a QDate.
+
+\sa toJulianDay
+*/
+
+/*! \fn int toJulianDay() const
+
+Converts the date to a julian day.
+*/
 
 /*****************************************************************************
   QTime member functions
@@ -2398,7 +2409,7 @@ bool QDateTime::operator<(const QDateTime &other) const
     if (d->spec == other.d->spec) {
         if (d->date != other.d->date)
             return d->date < other.d->date;
-        return d->time < other.d->time;    
+        return d->time < other.d->time;
     } else {
         QDate date1, date2;
         QTime time1, time2;

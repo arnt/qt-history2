@@ -87,6 +87,9 @@ public:
     static QT_COMPAT QDate currentDate(TimeSpec spec);
 #endif
 
+    static inline QDate fromJulianDay(int jd) { QDate d; d.jd = jd; return d; }
+    inline int toJulianDay() const { return jd; }
+
 private:
     uint jd;
 
