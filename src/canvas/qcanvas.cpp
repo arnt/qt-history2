@@ -494,8 +494,8 @@ setAdvancePeriod() makes QCanvas move them by itself on a periodic
 basis. In the context of the QCanvas classes to `animate' a canvas item
 is to set it in motion, i.e. using QCanvasItem::setVelocity(). Animation
 of a canvas item itself, i.e. items which change over time, is achieved
-with the QCanvasSprite class, or your subclasses of QCanvasSprite. To
-detect collisions use one of the collisions() functions.
+by subclassing QCanvasSprite. To detect collisions use one of the
+collisions() functions.
 
 The changed parts of the canvas are redrawn (if they are visible in a
 canvas view) whenever update() is called. You can either call update()
