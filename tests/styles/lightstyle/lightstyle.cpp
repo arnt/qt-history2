@@ -37,17 +37,50 @@ public:
 		     QMAX(pixmap.height(), constraint.height()), 32);
 	image.setAlphaBuffer(TRUE);
 	int i;
-	uint *p;
-	for (i = 0, p = (uint *) image.scanLine(0); i < image.bytesPerLine(); i+=4)
-	    *p++ = qRgba(color.red(),
-			 color.green(),
-			 color.blue(),
-			 0xdd);
-	for (i = 0, p = (uint *) image.scanLine(1); i < image.bytesPerLine(); i+=4)
-	    *p++ = qRgba(color2.red(),
-			 color2.green(),
-			 color2.blue(),
-			 0xdd);
+	uint *p, pixel;
+
+	i = image.bytesPerLine() / 4;
+	p = (uint *) image.scanLine(0);
+	pixel = qRgba(color.red(), color.green(), color.blue(), 0xdd);
+	while (i > 4) {
+	    p[0] = pixel;
+	    p[1] = pixel;
+	    p[2] = pixel;
+	    p[3] = pixel;
+	    i-=4;
+	    p+=4;
+	}
+	if (i > 0) {
+	    p[0] = pixel;
+	    if (i > 1) {
+		p[1] = pixel;
+	    	if (i > 2) {
+		    p[2] = pixel;
+		}
+	    }
+	}
+
+	i = image.bytesPerLine() / 4;
+	p = (uint *) image.scanLine(1);
+	pixel = qRgba(color2.red(), color2.green(), color2.blue(), 0xdd);
+	while (i > 4) {
+	    p[0] = pixel;
+	    p[1] = pixel;
+	    p[2] = pixel;
+	    p[3] = pixel;
+	    i-=4;
+	    p+=4;
+	}
+	if (i > 0) {
+	    p[0] = pixel;
+	    if (i > 1) {
+		p[1] = pixel;
+	    	if (i > 2) {
+		    p[2] = pixel;
+		}
+	    }
+	}
+
 	for (i = 2; i < image.height() - 1; i += 2)
 	    memcpy(image.scanLine(i), image.scanLine(0),
 		   image.bytesPerLine() * 2);
