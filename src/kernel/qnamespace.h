@@ -294,6 +294,7 @@ public:
 	Key_Pause = 0x1008,
 	Key_Print = 0x1009,
 	Key_SysReq = 0x100a,
+	Key_Clear = 0x100b,
 	Key_Home = 0x1010,		// cursor movement
 	Key_End = 0x1011,
 	Key_Left = 0x1012,

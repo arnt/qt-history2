@@ -2657,7 +2657,7 @@ static const ushort KeyTbl[] = {		// keyboard mapping table
     VK_RETURN,		Qt::Key_Return,
     VK_INSERT,		Qt::Key_Insert,
     VK_DELETE,		Qt::Key_Delete,
-//  VK_CLEAR,		Qt::Key_Clear,
+    VK_CLEAR,		Qt::Key_Clear,
     VK_PAUSE,		Qt::Key_Pause,
     VK_SNAPSHOT,	Qt::Key_Print,
     VK_HOME,		Qt::Key_Home,		// cursor movement
