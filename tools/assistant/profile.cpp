@@ -280,7 +280,7 @@ QString Profile::makeRelativePath( const QString &base, const QString &path )
     }
     QString rel = "";
     if ( bl.count() )
-	for ( int i = 0; i < bl.count(); ++i )
+	for ( int i = 0; i < (int)bl.count(); ++i )
 	    rel += "../";
     else
 	rel = "./";

@@ -17,7 +17,7 @@
 
 static QString reduceLabelLength( const QString &s )
 {
-    int maxLength = 16;
+    uint maxLength = 16;
     QString str = s;
     if ( str.length() < maxLength )
 	return str;
