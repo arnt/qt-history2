@@ -891,16 +891,16 @@ QApplication::~QApplication()
 #endif
 
     // delete widget mapper
-    if (!QWidget::mapper)                                // already gone
-        return;
-    QWidgetMapper * myMapper = QWidget::mapper;
-    QWidget::mapper = 0;
-    for (QWidgetMapper::Iterator it = myMapper->begin(); it != myMapper->end(); ++it) {
-        register QWidget *w = *it;
-        if (!w->parent())                        // widget is a parent
-            w->destroy(true, true);
+    if (QWidget::mapper) {
+        QWidgetMapper * myMapper = QWidget::mapper;
+        QWidget::mapper = 0;
+        for (QWidgetMapper::Iterator it = myMapper->begin(); it != myMapper->end(); ++it) {
+            register QWidget *w = *it;
+            if (!w->parent())                        // widget is a parent
+                w->destroy(true, true);
+        }
+        delete myMapper;
     }
-    delete myMapper;
 
 #ifndef QT_NO_PALETTE
     delete qt_std_pal;
@@ -923,7 +923,8 @@ QApplication::~QApplication()
 #endif
 
 #ifndef QT_NO_DRAGANDDROP
-    delete QDragManager::self();
+    if (qt_is_gui_used)
+        delete QDragManager::self();
 #endif
 
     qt_cleanup();
