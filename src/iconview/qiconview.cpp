@@ -211,7 +211,8 @@ public:
     QIconViewItem *firstItem, *lastItem;
     uint count;
     QIconView::SelectionMode selectionMode;
-    QIconViewItem *currentItem, *tmpCurrentItem, *highlightedItem, *startDragItem, *pressedItem, *selectAnchor;
+    QIconViewItem *currentItem, *tmpCurrentItem, *highlightedItem,
+	*startDragItem, *pressedItem, *selectAnchor, *renamingItem;
     QRect *rubber;
     QTimer *scrollTimer, *adjustTimer, *updateTimer, *inputTimer,
 	*fullRedrawTimer;
@@ -1669,6 +1670,8 @@ void QIconViewItem::rename()
     view->viewport()->setFocusProxy( renameBox );
     renameBox->setFocus();
     renameBox->show();
+    Q_ASSERT( view->d->renamingItem == 0L );
+    view->d->renamingItem = this;
 }
 #endif
 
@@ -1757,6 +1760,8 @@ void QIconViewItem::removeRenameBox()
 	view->viewport()->setFocusProxy( view );
 	view->setFocus();
     }
+    Q_ASSERT( view->d->renamingItem == this );
+    view->d->renamingItem = 0L;
 }
 #endif
 
@@ -2720,6 +2725,7 @@ QIconView::QIconView( QWidget *parent, const char *name, WFlags f )
     d->containerUpdateLocked = FALSE;
     d->firstSizeHint = TRUE;
     d->selectAnchor = 0;
+    d->renamingItem = 0;
     d->drawActiveSelection = TRUE;
     d->drawDragShapes = FALSE;
 
@@ -4290,8 +4296,8 @@ void QIconView::contentsMousePressEventEx( QMouseEvent *e )
 	d->selectAnchor = item;
 
 #ifndef QT_NO_TEXTEDIT
-    if ( d->currentItem )
-	d->currentItem->renameItem();
+    if ( d->renamingItem )
+	d->renamingItem->renameItem();
 #endif
 
     if ( !d->currentItem && !item && d->firstItem ) {
@@ -6112,7 +6118,7 @@ void QIconView::windowActivationChange( bool )
 bool QIconView::isRenaming() const
 {
 #ifndef QT_NO_TEXTEDIT
-    return currentItem() && currentItem()->renameBox;
+    return d->renamingItem && d->renamingItem->renameBox;
 #else
     return FALSE;
 #endif
