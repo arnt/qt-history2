@@ -1585,9 +1585,9 @@ bool QTime::isValid( int h, int m, int s, int ms )
 
   \code
     QTime t;
-    t.start();                     // start clock
-    ... // some lengthy task
-    qDebug( "%d\n", t.elapsed() ); // prints the number of msecs elapsed
+    t.start();
+    some_lengthy_task();
+    qDebug( "%d milliseconds", t.elapsed() );
   \endcode
 
   \sa restart(), elapsed(), currentTime()
@@ -2029,8 +2029,8 @@ int QDateTime::daysTo( const QDateTime &dt ) const
   Example:
   \code
     QDateTime dt = QDateTime::currentDateTime();
-    QDateTime xmas( QDate(dt.year(),12,24), QTime(17,00) );
-    qDebug( "There are %d seconds to Christmas", dt.secsTo(xmas) );
+    QDateTime xmas( QDate(dt.year(), 12, 24), QTime(17, 00) );
+    qDebug( "%d seconds to Christmas", dt.secsTo(xmas) );
   \endcode
 
   \sa addSecs(), daysTo(), QTime::secsTo()
