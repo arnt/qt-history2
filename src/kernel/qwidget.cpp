@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#311 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#312 $
 **
 ** Implementation of QWidget class
 **
@@ -563,7 +563,9 @@ void QWidget::sendDeferredEvents()
 
   If \e parent is 0, the new widget becomes a \link isTopLevel() top-level
   window\endlink. If \e parent is another widget, this widget becomes a child
-  window inside \e parent.
+  window inside \e parent.  Unless the newly created widget is
+  \link QWidget::reparent() reparented\endlink, it will be deleted when
+  the parent is deleted.
 
   The \e name is sent to the QObject constructor.
 
