@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#82 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#83 $
 **
 ** Implementation of QFrame widget class
 **
@@ -541,7 +541,7 @@ void QFrame::drawFrame( QPainter *p )
     QRect	r     = frameRect();
     int		type  = fstyle & MShape;
     int		cstyle = fstyle & MShadow;
-    QColorGroup g     = colorGroup();
+    const QColorGroup & g = colorGroup();
 
     switch ( type ) {
 

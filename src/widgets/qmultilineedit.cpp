@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#15 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -344,7 +344,7 @@ static QPixmap *getCacheBuffer( QSize sz )
 */
 void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
 {
-    QColorGroup	 g    = colorGroup();
+    const QColorGroup & g = colorGroup();
     QFontMetrics fm( painter->font() );
     QString *s = contents->at( row );
     if ( !s ) {
@@ -2227,7 +2227,7 @@ void QMultiLineEdit::resizeEvent( QResizeEvent *e )
 }
 
 /*!
-  Post a paint event 
+  Post a paint event
  */
 void  QMultiLineEdit::repaintDelayed( bool erase)
 {

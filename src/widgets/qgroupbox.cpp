@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#55 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#56 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -206,7 +206,7 @@ void QGroupBox::resizeEvent( QResizeEvent *e )
 
 void QGroupBox::paintEvent( QPaintEvent *event )
 {
-    QColorGroup g = colorGroup();
+    const QColorGroup & g = colorGroup();
     QPainter paint( this );
 
     paint.setClipRegion( event->region() );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#72 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#73 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -742,7 +742,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
     QPoint pt = pos;
     int width = segLen/5;
 
-    QColorGroup g = colorGroup();
+    const QColorGroup & g = colorGroup();
     QColor lightColor,darkColor,fgColor;
 
     lightColor = g.light();

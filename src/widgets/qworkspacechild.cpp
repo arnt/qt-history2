@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#13 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -311,7 +311,7 @@ void QWorkspaceChildTitleBar::setActive( bool active )
 	    closeB->hide();
 	    maxB->hide();
 	}
-	QColorGroup g = colorGroup();
+	const QColorGroup & g = colorGroup();
 	titleL->setPalette( QPalette( g, g, g), TRUE );
 	titleL->setFrameStyle( QFrame::NoFrame );
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#91 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#92 $
 **
 ** Implementation of QCheckBox class
 **
@@ -157,7 +157,7 @@ void QCheckBox::drawButton( QPainter *paint )
 {
     QPainter	*p = paint;
     GUIStyle	 gs = style();
-    QColorGroup	 g  = colorGroup();
+    const QColorGroup & g = colorGroup();
     int		 x, y;
 
     QFontMetrics fm = fontMetrics();

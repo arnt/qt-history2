@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#104 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#105 $
 **
 ** Implementation of QRadioButton class
 **
@@ -188,7 +188,7 @@ bool QRadioButton::hitButton( const QPoint &pos ) const
 void QRadioButton::drawButton( QPainter *paint )
 {
     QPainter	*p = paint;
-    QColorGroup	 g  = colorGroup();
+    const QColorGroup & g = colorGroup();
     int		 x, y;
 
     QFontMetrics fm = fontMetrics();
@@ -245,6 +245,7 @@ void QRadioButton::drawButton( QPainter *paint )
 }
 
 
+
 /*!
   Draws the radio button label.
   \sa drawButton()
@@ -287,6 +288,7 @@ void QRadioButton::drawButtonLabel( QPainter *p )
     }
 }
 
+
 void QRadioButton::resizeEvent( QResizeEvent* e )
 {
     QButton::resizeEvent(e);
@@ -308,6 +310,7 @@ void QRadioButton::resizeEvent( QResizeEvent* e )
 	updateMask();
     update( br.right(), w, 0, h );
 }
+
 
 void QRadioButton::updateMask()
 {

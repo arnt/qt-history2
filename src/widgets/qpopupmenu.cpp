@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#210 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#211 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -1063,7 +1063,7 @@ int QPopupMenu::cellWidth( int col )
 
 void QPopupMenu::paintCell( QPainter *p, int row, int col )
 {
-    QColorGroup g = colorGroup();
+    const QColorGroup & g = colorGroup();
     QMenuItem *mi = mitems->at( row );		// get menu item
     int cellh	  = cellHeight( row );
     int cellw	  = cellWidth( col );

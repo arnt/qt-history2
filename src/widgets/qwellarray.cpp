@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qwellarray.cpp#12 $
+** $Id: //depot/qt/main/src/widgets/qwellarray.cpp#13 $
 **
 ** Implementation of QWellArray widget class
 **
@@ -114,9 +114,9 @@ void QWellArray::paintCell( QPainter* p, int row, int col )
     if ( !smallStyle )
 	b = 3; //#####
 
-    QColorGroup g = colorGroup();
+    const QColorGroup & g = colorGroup();
     p->setPen( QPen( black, 0, SolidLine ) );
-    if ( !smallStyle && row ==selRow && col == selCol && 
+    if ( !smallStyle && row ==selRow && col == selCol &&
 	 style() != MotifStyle ) {
 	int n = 2;
 	p->drawRect( n, n, w-2*n, h-2*n );	
@@ -241,10 +241,10 @@ void QWellArray::setCurrent( int row, int col )
 }
 
 
-/*! 
+/*!
   Sets the currently selected cell to \a row, \a col.  If \a row or \a
   col are less than zero, the current cell is unselected.
-  
+
   Does not set the position of the focus indicator.
 */
 
@@ -313,7 +313,7 @@ void QWellArray::setCellBrush( int row, int col, const QBrush &b )
 #ifdef CHECK_RANGE
     else
 	warning( "QWellArray::setCellBrush( %d, %d ) out of range", row, col );
-#endif    
+#endif
 }
 
 

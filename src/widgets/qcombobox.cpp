@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#188 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#189 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -945,7 +945,7 @@ void QComboBox::paintEvent( QPaintEvent *event )
     QPainter p( this );
     if ( event )
 	p.setClipRegion( event->region() );
-    QColorGroup g  = colorGroup();
+    const QColorGroup & g = colorGroup();
 
     if ( width() < 5 || height() < 5 ) {
 	qDrawShadePanel( &p, rect(), g, FALSE, 2,

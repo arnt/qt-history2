@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#189 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#190 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -537,13 +537,12 @@ void QLineEdit::leaveEvent( QEvent * )
 
 void QLineEdit::paintEvent( QPaintEvent *e )
 {
-
     if ( !d->pm || d->pmDirty ) {
 	if ( !d->pm )
 	    d->pm = new QPixmap( size() );
 	QPainter p( d->pm, this );
 
-	QColorGroup g = colorGroup();
+	const QColorGroup & g = colorGroup();
 	QColor bg = isEnabled() ? g.base() : g.background();
 	QFontMetrics fm = fontMetrics();
 	int markBegin = minMark();
@@ -574,7 +573,6 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 	int ypos = height() - margin - fm.descent() - 1 -
 		   (height() - 2*margin - fm.height())/2;
 	
-	
 	// alignment code comes here - a bit yucky but it works
 	int w = fm.width(tbuf);
 	if ( !(alignmentFlag & AlignLeft) && w < width()-margin-margin-2) {
@@ -583,16 +581,15 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 		alignOffset = width()-margin-margin-2-w;
 	    else if (alignmentFlag == AlignCenter)
 		    alignOffset = (width()-margin-margin-w-2)/2;
-	    if (offset) {
+	    if ( offset ) {
 		offset = 0;
 		p.end();
 		repaint( FALSE );
 		return;
 	    }
-	}
-	else
+	} else {
 	    alignOffset = 0;
-	
+	}
 	
 	if ( !displayText.isEmpty() ) {
 	    int charsVisible = lastCharVisible() - offset;
@@ -622,10 +619,10 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 		
 	    // display code comes here - a bit yucky but it works
 	
-	
 	    if ( mark1 != mark2 ) {
 		QString marked( displayText.mid( mark1, mark2 - mark1 ) );
-		int xpos1 =  alignOffset + margin + 2 + fm.width( displayText, mark1 );
+		int xpos1 =  alignOffset + margin + 2 +
+			     fm.width( displayText, mark1 );
 		int xpos2 =  xpos1 + fm.width( marked ) - 1;
 		p.fillRect( xpos1, ypos - fm.ascent(),
 			    xpos2 - xpos1, fm.height(),
