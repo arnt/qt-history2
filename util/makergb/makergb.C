@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/makergb/makergb.C#1 $
+** $Id: //depot/qt/main/util/makergb/makergb.C#2 $
 **
 ** makergb - Utility to generate X11 RGB color lookup function
 **
@@ -15,7 +15,7 @@
 ** To generate this code, you'll need an X11 rgb.txt file that contains
 ** color names and their RGB values.
 **
-** Usage: makergb [file] > file.C
+** Usage: makergb rgb.txt > file.C
 *****************************************************************************/
 
 #include <qstring.h>
@@ -52,20 +52,14 @@ ColorVector *readData( FILE *f )
     int n = 0;
     while ( !feof( f ) ) {
 	int r, g, b;
-	char name[200];
+	char buf[200];
 	fscanf( f, "%d%d%d", &r, &g, &b );	// read r,g,b
 	if ( feof( f ) )
 	    break;
-	fgets( name, 200, f );			// read color name
-	int i = strlen( name );
-	while ( i && isspace(name[i-1]) )
-	    i--;
-	name[i] = '\0';
-	i = 0;
-	while ( isspace(name[i]) )
-	    i++;
+	fgets( buf, 200, f );			// read color name
 	Color *c = new Color;			// add info to vector
-	c->name = &name[i];
+	c->name = buf;
+	c->name.stripWhiteSpace();
 	c->r = r;
 	c->g = g;
 	c->b = b;
@@ -98,7 +92,7 @@ const char *rgb_struct =
 
 const char *rgb_func =
 "static int rgbCmp( RGBData *d1, RGBData *d2 )\n{\n    "
-"return strcmp( d1->name, d2->name );\n}\n\n"
+"return stricmp( d1->name, d2->name );\n}\n\n"
 "ulong qGetRGBValue( const char *name )\n{\n    "
 "RGBData x;\n    x.name = (char *)name;\n    "
 "RGBData *r = (RGBData*)bsearch((char*)&x, (char*)rgbTbl, rgbTblSize,\n"
