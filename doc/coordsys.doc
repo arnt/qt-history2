@@ -102,7 +102,4 @@ All \link QPainter QPainter\endlink functions that take point, size or
 rectangle arguments are overloaded. For example, \link QPainter::drawLine()
 drawLine()\endlink can take the integers (x1,y1,x2,y2) or the QPoints
 (p1,p2).
-
-Qt does not force you to use QPoint, QSize or QRect.  You decide.
-
 */
