@@ -1308,7 +1308,7 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
     switch ( e->type() ) {
     case QEvent::Hide:
     case QEvent::HideToParent:
-	if ( !o->isA( "QWorkspaceChild" ) || !isVisible() )
+	if ( !o->isA( "QWorkspaceChild" ) || !isVisible() || e->spontaneous() )
 	    break;
 	if ( d->active == o ) {
 	    int a = d->focus.find( d->active );
