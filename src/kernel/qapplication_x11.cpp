@@ -3613,9 +3613,12 @@ int QApplication::x11ProcessEvent( XEvent* event )
 	QWidget* enter = 0;
 	XEvent ev;
 	while ( XCheckMaskEvent( widget->x11Display(), EnterWindowMask | LeaveWindowMask , &ev )
-		&& !qt_x11EventFilter( &ev ) && !widget->x11Event( &ev ) ) {
+		&& !qt_x11EventFilter( &ev )) {
+            QWidget* event_widget = QWidget::find( ev.xcrossing.window );
+            if( event_widget && event_widget->x11Event( &ev ) )
+                break;
 	    if ( ev.type == LeaveNotify && ev.xcrossing.mode == NotifyNormal ){
-		enter = QWidget::find( ev.xcrossing.window );
+		enter = event_widget;
 		XPutBackEvent( widget->x11Display(), &ev );
 		break;
 	    }
@@ -3623,7 +3626,7 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		  ev.xcrossing.detail == NotifyVirtual  ||
 		  ev.xcrossing.detail == NotifyNonlinearVirtual )
 		continue;
-	    enter = QWidget::find( ev.xcrossing.window );
+	    enter = event_widget;
 	    if ( ev.xcrossing.focus &&
 		 enter && !enter->isDesktop() && !enter->isActiveWindow() ) {
 		if ( qt_focus_model == FocusModel_Unknown ) // check focus model
