@@ -13,7 +13,7 @@
 
 #include "phrasemodel.h"
 
-static Qt::SortOrder sSortOrder = Qt::Ascending;
+static Qt::SortOrder sSortOrder = Qt::AscendingOrder;
 static int sSortColumn = 1;
 
 void PhraseModel::removePhrases()
@@ -159,22 +159,22 @@ bool PhraseModel::compare(const Phrase left, const Phrase right)
     switch (sSortColumn) {
     case 0:
         res = QString::localeAwareCompare(left.source(), right.source());
-        if ((sSortOrder == Qt::Ascending) ? (res < 0) : !(res < 0))
+        if ((sSortOrder == Qt::AscendingOrder) ? (res < 0) : !(res < 0))
             return true;
         break;
     case 1:
         res = QString::localeAwareCompare(left.target(), right.target());
-        if ((sSortOrder == Qt::Ascending) ? (res < 0) : !(res < 0))
+        if ((sSortOrder == Qt::AscendingOrder) ? (res < 0) : !(res < 0))
             return true;
         break;
     case 2:
         // handle the shortcuts when sorting
         if ((left.shortcut() != -1) && (right.shortcut() == -1))
-            return (sSortOrder == Qt::Ascending);
+            return (sSortOrder == Qt::AscendingOrder);
         else if ((left.shortcut() == -1) && (right.shortcut() != -1))
-            return (sSortOrder != Qt::Ascending);
+            return (sSortOrder != Qt::AscendingOrder);
         res = QString::localeAwareCompare(left.definition(), right.definition());
-        if ((sSortOrder == Qt::Ascending) ? (res < 0) : !(res < 0))
+        if ((sSortOrder == Qt::AscendingOrder) ? (res < 0) : !(res < 0))
             return true;
         break;
     }

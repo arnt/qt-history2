@@ -135,9 +135,9 @@ QVariant MessageModel::data(const QModelIndex &index, int role) const
         case 0: // done
             return QVariant();
         case 1: // source text
-            return msgItem->sourceText();
+			return msgItem->sourceText().simplified();
         case 2: // translation
-            return msgItem->translation();
+            return msgItem->translation().simplified();
         }
     }
     else if ((role == QAbstractItemModel::DecorationRole) && (column == 0)) {

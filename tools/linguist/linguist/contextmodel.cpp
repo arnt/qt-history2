@@ -17,7 +17,7 @@
 #include "messagemodel.h"
 #include "trwindow.h"
 
-static Qt::SortOrder sSortOrder = Qt::Ascending;
+static Qt::SortOrder sSortOrder = Qt::AscendingOrder;
 static int sSortColumn = 1;
 
 ContextItem::ContextItem(QString c)
@@ -67,12 +67,12 @@ bool ContextItem::compare(const MessageItem *left, const MessageItem *right)
     int res;
     if (sSortColumn == 1) {
         res = QString::localeAwareCompare(left->sourceText(), right->sourceText());
-        if ((sSortOrder == Qt::Ascending) ? (res < 0) : !(res < 0))
+        if ((sSortOrder == Qt::AscendingOrder) ? (res < 0) : !(res < 0))
             return true;
     }
     else if (sSortColumn == 2) {
         res = QString::localeAwareCompare(left->translation(), right->translation());
-        if ((sSortOrder == Qt::Ascending) ? (res < 0) : !(res < 0))
+        if ((sSortOrder == Qt::AscendingOrder) ? (res < 0) : !(res < 0))
             return true;
     }
 
@@ -175,7 +175,7 @@ QVariant ContextModel::data(const QModelIndex &index, int role) const
         case 0: // done
             return QVariant();
         case 1: // context
-            return cntxtItem->context();
+            return cntxtItem->context().simplified();
         case 2: // items
             QString s;
             int itemCount = cntxtItem->messageItemsInList();
@@ -217,7 +217,7 @@ bool ContextModel::compare(const ContextItem *left, const ContextItem *right)
     int res;
     if (sSortColumn == 1) {
         res = QString::localeAwareCompare(left->context(), right->context());
-        if ((sSortOrder == Qt::Ascending) ? (res < 0) : !(res < 0))
+        if ((sSortOrder == Qt::AscendingOrder) ? (res < 0) : !(res < 0))
             return true;
     }
 

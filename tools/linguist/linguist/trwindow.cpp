@@ -44,7 +44,8 @@
 #include <qsettings.h>
 #include <qstatusbar.h>
 #include <qtoolbar.h>
-#include <qassistantclient.h>
+#include <QWhatsThis>
+//#include <qassistantclient.h>
 #include <qdesktopwidget.h>
 #include <qprintdialog.h>
 
@@ -172,7 +173,7 @@ TrWindow::TrWindow()
     setCorner(Qt::BottomRightCorner, Qt::DockWindowAreaRight);
 
     // Set up the Scope dock window
-    QDockWindow *dwScope = new QDockWindow(this, Qt::DockWindowAreaLeft);
+    dwScope = new QDockWindow(this, Qt::DockWindowAreaLeft);
 
     dwScope->setAllowedAreas(Qt::AllDockWindowAreas);
     dwScope->setFeatures(QDockWindow::AllDockWindowFeatures);
@@ -193,7 +194,6 @@ TrWindow::TrWindow()
     tv->header()->setResizeMode(QHeaderView::Stretch, 1);
     tv->header()->resizeSection(0, fm.width(ContextModel::tr("Done")) + 10);
     tv->header()->resizeSection(2, 55);
-    tv->header()->setClickable(true);
         
     me = new MessageEditor(&tor, this);
     setCentralWidget(me);
@@ -221,15 +221,13 @@ TrWindow::TrWindow()
     finddlg = new FindDialog(this);
     findMatchCase = false;
     findWhere = 0;
-//    foundItem = 0;
-//    foundScope = 0;
     foundWhere = 0;
     foundOffset = 0;
 
     connect(tv->selectionModel(), SIGNAL(currentChanged(const QModelIndex &, const QModelIndex &)),
         this, SLOT(showNewScope(const QModelIndex &, const QModelIndex &)));
-    connect(stv, SIGNAL(clicked(const QModelIndex &, int)),
-        this, SLOT(toggleFinished(const QModelIndex &, int)));
+    connect(stv, SIGNAL(clicked(const QModelIndex &, Qt::MouseButton, Qt::KeyboardModifiers)),
+        this, SLOT(toggleFinished(const QModelIndex &, Qt::MouseButton)));
     connect(me, SIGNAL(translationChanged(const QString&)),
         this, SLOT(updateTranslation(const QString&)));
     connect(me, SIGNAL(finished(bool)), this, SLOT(updateFinished(bool)));
@@ -239,12 +237,12 @@ TrWindow::TrWindow()
     connect(me, SIGNAL(focusPhraseList()), this, SLOT(focusPhraseList()));
     connect(finddlg, SIGNAL(findNext(const QString&, int, bool)), 
         this, SLOT(findNext(const QString&, int, bool)));
-    connect(tv->header(), SIGNAL(sectionClicked(int, Qt::ButtonState)),
-        this, SLOT(sortContexts(int, Qt::ButtonState)));
-    connect(stv->header(), SIGNAL(sectionClicked(int, Qt::ButtonState)),
-        this, SLOT(sortMessages(int, Qt::ButtonState)));
-    connect(ptv->header(), SIGNAL(sectionClicked(int, Qt::ButtonState)),
-        this, SLOT(sortPhrases(int, Qt::ButtonState)));
+    connect(tv->header(), SIGNAL(sectionClicked(int, Qt::MouseButton, Qt::KeyboardModifiers)),
+        this, SLOT(sortContexts(int, Qt::MouseButton)));
+    connect(stv->header(), SIGNAL(sectionClicked(int, Qt::MouseButton, Qt::KeyboardModifiers)),
+        this, SLOT(sortMessages(int, Qt::MouseButton)));
+    connect(ptv->header(), SIGNAL(sectionClicked(int, Qt::MouseButton, Qt::KeyboardModifiers)),
+        this, SLOT(sortPhrases(int, Qt::MouseButton)));
 
     tv->setWhatsThis(tr("This panel lists the source contexts."));
     stv->setWhatsThis(tr("This panel lists the source texts. "
@@ -267,20 +265,20 @@ TrWindow::~TrWindow()
     delete stats;
 }
 
-void TrWindow::sortContexts(int section, Qt::ButtonState state)
+void TrWindow::sortContexts(int section, Qt::MouseButton state)
 {
     if ((state == Qt::LeftButton) && (section == 1)) {
         Qt::SortOrder order;
         int column;
 
         if (cmdl->sortParameters(order, column)) {
-            if ((order == Qt::Ascending) && (column == section))
-                order = Qt::Descending;
+            if ((order == Qt::AscendingOrder) && (column == section))
+                order = Qt::DescendingOrder;
             else
-                order = Qt::Ascending;
+                order = Qt::AscendingOrder;
         }
         else {
-            order = Qt::Ascending;
+            order = Qt::AscendingOrder;
         }
 
         if (cmdl->contextsInList() > 0) {
@@ -293,7 +291,7 @@ void TrWindow::sortContexts(int section, Qt::ButtonState state)
     }
 }
 
-void TrWindow::sortMessages(int section, Qt::ButtonState state)
+void TrWindow::sortMessages(int section, Qt::MouseButton state)
 {
     if ((state == Qt::LeftButton) && 
         ((section == 1) || (section == 2))) {
@@ -302,13 +300,13 @@ void TrWindow::sortMessages(int section, Qt::ButtonState state)
         int column;
 
         if ((c != 0) && (c->sortParameters(order, column))) {
-            if ((order == Qt::Ascending) && (column == section))
-                order = Qt::Descending;
+            if ((order == Qt::AscendingOrder) && (column == section))
+                order = Qt::DescendingOrder;
             else
-                order = Qt::Ascending;
+                order = Qt::AscendingOrder;
         }
         else {
-            order = Qt::Ascending;
+            order = Qt::AscendingOrder;
         }
 
         if (c != 0) {
@@ -320,7 +318,7 @@ void TrWindow::sortMessages(int section, Qt::ButtonState state)
     }
 }
 
-void TrWindow::sortPhrases(int section, Qt::ButtonState state)
+void TrWindow::sortPhrases(int section, Qt::MouseButton state)
 {
     if ((state == Qt::LeftButton) && 
         ((section >= 0) && (section <= 2))) {
@@ -329,13 +327,13 @@ void TrWindow::sortPhrases(int section, Qt::ButtonState state)
         int column;
 
         if ((pmdl->sortParameters(order, column))) {
-            if ((order == Qt::Ascending) && (column == section))
-                order = Qt::Descending;
+            if ((order == Qt::AscendingOrder) && (column == section))
+                order = Qt::DescendingOrder;
             else
-                order = Qt::Ascending;
+                order = Qt::AscendingOrder;
         }
         else {
-            order = Qt::Ascending;
+            order = Qt::AscendingOrder;
         }
 
         ptv->header()->setSortIndicator(section, order);
@@ -418,7 +416,6 @@ void TrWindow::openFile( const QString& name )
     doneAndNextAct->setEnabled(false);
     doneAndNextAlt->setEnabled(false);
     statusBar()->message(tr("%1 source phrase(s) loaded.").arg(numMessages), MessageMS);
-//    foundItem = 0;
     foundWhere = 0;
     foundOffset = 0;
 
@@ -814,16 +811,16 @@ void TrWindow::revertSorting()
     if (cmdl->contextsInList() < 0)
         return;
 
-    tv->header()->setSortIndicator(1, Qt::Ascending);
+    tv->header()->setSortIndicator(1, Qt::AscendingOrder);
     tv->header()->setSortIndicatorShown(true);
-    cmdl->sort(1, QModelIndex::Null, Qt::Ascending);
+    cmdl->sort(1, QModelIndex::Null, Qt::AscendingOrder);
     tv->clearSelection();
     mmdl->setContextItem(0);
 
     foreach(ContextItem *c, cmdl->contextList()) {
-        c->sortMessages(1, Qt::Ascending);
+        c->sortMessages(1, Qt::AscendingOrder);
     }
-    stv->header()->setSortIndicator(1, Qt::Ascending);
+    stv->header()->setSortIndicator(1, Qt::AscendingOrder);
     stv->header()->setSortIndicatorShown(true);
 }
 
@@ -834,8 +831,9 @@ void TrWindow::manual()
 #if defined(Q_OS_MAC)
     path += QDir::separator() + ".app/Contents/MacOS/";
 #endif
-    QAssistantClient *ac = new QAssistantClient(path, this);
-    ac->showPage(QString(qInstallPath()) + "/doc/html/linguist-manual.html");
+	// TODO -> enable!
+    /*QAssistantClient *ac = new QAssistantClient(path, this);
+    ac->showPage(QString(qInstallPath()) + "/doc/html/linguist-manual.html");*/
 }
 
 void TrWindow::about()
@@ -1012,6 +1010,7 @@ void TrWindow::updateFinished(bool finished)
         mmdl->updateItem(item);
         insertMessage(m);
         cmdl->updateItem(tv->currentIndex());
+        updateStatistics();
     }
 }
 
@@ -1033,7 +1032,7 @@ void TrWindow::doneAndNext()
     }
 }
 
-void TrWindow::toggleFinished(const QModelIndex &index, int button)
+void TrWindow::toggleFinished(const QModelIndex &index, Qt::MouseButton button)
 {
     if (!index.isValid() || (index.column() != 0))
         return;
@@ -1358,7 +1357,7 @@ void TrWindow::setupMenuBar()
 
     recentFilesMenu = new QMenu(this);
     filep->addMenu(recentFilesMenu)->setText(tr("Re&cently opened files"));
-    connect(filep, SIGNAL(aboutToShow()), this, 
+    connect(recentFilesMenu, SIGNAL(aboutToShow()), this, 
         SLOT(setupRecentFilesMenu()));
     connect(recentFilesMenu, SIGNAL(triggered(QAction *)), this,
         SLOT(recentFileActivated(QAction *)));
@@ -1472,6 +1471,16 @@ void TrWindow::setupMenuBar()
     toggleStats->setCheckable(true);
     viewp->addSeparator();
 
+    QMenu *tbMenu = new QMenu(this);
+    QMenu *dwMenu = new QMenu(this);
+    populateToolBarsMenu(tbMenu);
+    populateDocksMenu(dwMenu);
+    viewp->addMenu(tbMenu)->setText(tr("&Toolbars"));
+    viewp->addMenu(dwMenu)->setText(tr("Vie&ws"));
+
+    connect(viewp, SIGNAL(aboutToShow()), this, 
+        SLOT(updateViewMenu()));
+
 #if 0 // ### enable me
     viewp->addMenu(tr("Vie&ws"), createDockWindowMenu(NoToolBars));
     viewp->addMenu(tr("&Toolbars"), createDockWindowMenu(OnlyToolBars));
@@ -1486,7 +1495,7 @@ void TrWindow::setupMenuBar()
     helpp->addSeparator();
 
     whatsThisAct = helpp->addAction(loadPixmap("whatsthis.xpm"), tr("&What's This?"),
-                               this, SLOT(whatsThis()));
+                               this, SLOT(onWhatsThis()));
 
     whatsThisAct->setShortcut(Qt::SHIFT + Qt::Key_F1);
 
@@ -1549,22 +1558,80 @@ void TrWindow::setupMenuBar()
     doneAndNextAlt->setWhatsThis(doneAndNextAct->whatsThis());
 }
 
+void TrWindow::updateViewMenu()
+{
+    if (stats)
+        toggleStats->setChecked(stats->isVisible());
+    else
+        toggleStats->setChecked(false);
+    showDockScope->setChecked(dwScope->isVisible());
+    showDockSource->setChecked(me->sourceDockWnd()->isVisible());
+    showDockPhrase->setChecked(me->phraseDockWnd()->isVisible());
+}
+
+void TrWindow::populateDocksMenu(QMenu *dwMenu)
+{
+    showDockScope = dwMenu->addAction(tr("Context"));
+    showDockScope->setCheckable(true);
+    connect(showDockScope, SIGNAL(checked(bool)), dwScope, SLOT(setShown(bool)));
+    showDockSource = dwMenu->addAction(tr("Source text"));
+    showDockSource->setCheckable(true);
+    connect(showDockSource, SIGNAL(checked(bool)), me->sourceDockWnd(), SLOT(setShown(bool)));
+    showDockPhrase = dwMenu->addAction(tr("Phrases"));
+    showDockPhrase->setCheckable(true);
+    connect(showDockPhrase, SIGNAL(checked(bool)), me->phraseDockWnd(), SLOT(setShown(bool)));
+}
+
+void TrWindow::populateToolBarsMenu(QMenu *tbMenu)
+{
+    showFileAct = tbMenu->addAction(tr("File"));
+    showFileAct->setCheckable(true);
+    showFileAct->setChecked(true);
+    showEditAct = tbMenu->addAction(tr("Edit"));
+    showEditAct->setCheckable(true);
+    showEditAct->setChecked(true);
+    showTransAct = tbMenu->addAction(tr("Translation"));
+    showTransAct->setCheckable(true);
+    showTransAct->setChecked(true);
+    showValAct = tbMenu->addAction(tr("Validation"));
+    showValAct->setCheckable(true);
+    showValAct->setChecked(true);
+    showHelpAct = tbMenu->addAction(tr("Help"));
+    showHelpAct->setCheckable(true);
+    showHelpAct->setChecked(true);
+}
+
+void TrWindow::onWhatsThis()
+{
+    QWhatsThis::enterWhatsThisMode();
+}
+
 void TrWindow::setupToolBars()
 {
     QToolBar *filet = new QToolBar(this);
     filet->setWindowTitle(tr("File"));
+	this->addToolBar(filet);
+    connect(showFileAct, SIGNAL(checked(bool)), filet, SLOT(setShown(bool)));
 
     QToolBar *editt = new QToolBar(this);
     editt->setWindowTitle(tr("Edit"));
+	this->addToolBar(editt);
+    connect(showEditAct, SIGNAL(checked(bool)), editt, SLOT(setShown(bool)));
 
     QToolBar *translationst = new QToolBar(this);
     translationst->setWindowTitle(tr("Translation"));
+	this->addToolBar(translationst);
+    connect(showTransAct, SIGNAL(checked(bool)), translationst, SLOT(setShown(bool)));
 
     QToolBar *validationt   = new QToolBar(this);
     validationt->setWindowTitle(tr("Validation"));
+	this->addToolBar(validationt);
+    connect(showValAct, SIGNAL(checked(bool)), validationt, SLOT(setShown(bool)));
 
     QToolBar *helpt = new QToolBar(this);
     helpt->setWindowTitle(tr("Help"));
+	this->addToolBar(helpt);
+    connect(showHelpAct, SIGNAL(checked(bool)), helpt, SLOT(setShown(bool)));
 
     filet->addAction(openAct);
     filet->addAction(saveAct);
@@ -1949,10 +2016,9 @@ void TrWindow::toggleStatistics()
             stats = new Statistics(this);
             connect(this, SIGNAL(statsChanged(int,int,int,int,int,int)), stats,
                 SLOT(updateStats(int,int,int,int,int,int)));
-            connect(stats, SIGNAL(closed()), toggleStats, SLOT(toggle()));
         }
-        updateStatistics();
         stats->show();
+        updateStatistics();
     } 
     else if (stats) {
         stats->close();
@@ -1961,6 +2027,11 @@ void TrWindow::toggleStatistics()
 
 void TrWindow::updateStatistics()
 {
+    // don't call this if stats dialog is not open
+    // because this can be slow...
+    if (!stats || !stats->isVisible())
+        return;
+    
     QList<ContextItem *> ctxtList;
     QList<MessageItem *> msgList;
     const MessageItem *mi;
@@ -2011,7 +2082,7 @@ QIcon TrWindow::loadPixmap(const QString &imageName)
             s.setPixmap(disabledPix, QIcon::Small, QIcon::Disabled);
         }
         return s;
-    }
+	}
 
     return QIcon();
 }

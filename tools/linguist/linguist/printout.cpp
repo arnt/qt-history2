@@ -70,7 +70,7 @@ void PrintOut::flushLine( bool /* mayBreak */ )
 
     for ( int i = 0; i < (int) cp.boxes.count(); i++ ) {
         Box b = cp.boxes[i];
-        b.rect.moveBy( 0, voffset );
+        b.rect.translate( 0, voffset );
         QRect r = b.rect;
         p.setFont( b.font );
         p.drawText( r, b.align, b.text );

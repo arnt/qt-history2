@@ -61,8 +61,8 @@ PhraseBookBox::PhraseBookBox(const QString& filename,
     connect(saveBut, SIGNAL(clicked()), this, SLOT(save()));
     connect(closeBut, SIGNAL(clicked()), this, SLOT(accept()));
 
-    connect(phraseList->header(), SIGNAL(sectionClicked(int, Qt::ButtonState)),
-        this, SLOT(sortPhrases(int, Qt::ButtonState)));
+    connect(phraseList->header(), SIGNAL(sectionClicked(int, Qt::MouseButton, Qt::KeyboardModifiers)),
+        this, SLOT(sortPhrases(int, Qt::MouseButton)));
 
     foreach(Phrase p, phraseBook) {
         phrMdl->addPhrase(p);
@@ -72,7 +72,7 @@ PhraseBookBox::PhraseBookBox(const QString& filename,
     enableDisable();
 }
 
-void PhraseBookBox::sortPhrases(int section, Qt::ButtonState state)
+void PhraseBookBox::sortPhrases(int section, Qt::MouseButton state)
 {
     if ((state == Qt::LeftButton) && 
         ((section >= 0) && (section <= 2))) {
@@ -81,13 +81,13 @@ void PhraseBookBox::sortPhrases(int section, Qt::ButtonState state)
         int column;
 
         if ((phrMdl->sortParameters(order, column))) {
-            if ((order == Qt::Ascending) && (column == section))
-                order = Qt::Descending;
+            if ((order == Qt::AscendingOrder) && (column == section))
+                order = Qt::DescendingOrder;
             else
-                order = Qt::Ascending;
+                order = Qt::AscendingOrder;
         }
         else {
-            order = Qt::Ascending;
+            order = Qt::AscendingOrder;
         }
 
         phraseList->header()->setSortIndicator(section, order);

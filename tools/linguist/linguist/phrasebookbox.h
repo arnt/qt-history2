@@ -40,7 +40,7 @@ private slots:
     void targetChanged(const QString &target);
     void definitionChanged(const QString &definition);
     void selectionChanged();
-    void sortPhrases(int section, Qt::ButtonState state);
+    void sortPhrases(int section, Qt::MouseButton state);
 
 private:
     void sortAndSelectItem(const QModelIndex &index);

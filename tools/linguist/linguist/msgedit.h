@@ -180,6 +180,8 @@ public:
     MessageEditor(MetaTranslator *t, QMainWindow *parent = 0);
     QTreeView *sourceTextView() const;
     QTreeView *phraseView() const;
+    inline QDockWindow *sourceDockWnd() const {return topDockWnd;}
+    inline QDockWindow *phraseDockWnd() const {return bottomDockWnd;}
 
     void showNothing();
     void showMessage(const QString &text, const QString &comment,
@@ -218,7 +220,7 @@ public slots:
 private slots:
     void emitTranslationChanged();
     void guessActivated(int key);
-    void insertPhraseInTranslation(const QModelIndex &index, int button = Qt::LeftButton);
+    void insertPhraseInTranslation(const QModelIndex &index, Qt::MouseButton button = Qt::LeftButton);
     void insertPhraseInTranslationAndLeave(const QModelIndex &index);
     void updateButtons();
     void updateCanPaste();

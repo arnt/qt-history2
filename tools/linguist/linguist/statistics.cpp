@@ -20,9 +20,7 @@
 Statistics::Statistics(QWidget* parent, Qt::WFlags fl)
 : QDialog(parent, fl)
 {
-    setModal(false);
     setupUi(this);
-
     connect(closeBtn, SIGNAL(clicked()), this, SLOT(close()));
 }
 
@@ -31,12 +29,12 @@ void Statistics::languageChange()
     retranslateUi(this);
 }
 
-void Statistics::updateStats(int,int,int,int,int,int)
+void Statistics::updateStats(int sW,int sC,int sCS,int trW,int trC,int trCS)
 {
-    qWarning("Statistics::updateStats(int,int,int,int,int,int): Not implemented yet");
-}
-
-void Statistics::closeEvent( QCloseEvent *)
-{
-    qWarning("Statistics::closeEvent( QCloseEvent *): Not implemented yet");
+    untrWords->setText(QString::number(sW));
+    untrChars->setText(QString::number(sC)); 
+    untrCharsSpc->setText(QString::number(sCS));
+    trWords->setText(QString::number(trW));
+    trChars->setText(QString::number(trC));
+    trCharsSpc->setText(QString::number(trCS));
 }

@@ -208,7 +208,7 @@ EditorPage::EditorPage(QWidget *parent, const char *name)
     p = srcText->palette();
     p.setColor(QPalette::Disabled, QPalette::Base, p.color(QPalette::Active, QPalette::Base));
     srcText->setPalette( p );
-    srcText->setEnabled(false);
+	srcText->setReadOnly(true);
     connect(srcText->document(), SIGNAL(contentsChanged()), SLOT(handleSourceChanges()));
 
     cmtText = new QTextEdit(this);
@@ -223,6 +223,7 @@ EditorPage::EditorPage(QWidget *parent, const char *name)
     p.setColor(QPalette::Active, QPalette::Base, QColor(236,245,255));
     p.setColor(QPalette::Inactive, QPalette::Base, QColor(236,245,255));
     cmtText->setPalette(p);
+	cmtText->setReadOnly(true);
     connect(cmtText->document(), SIGNAL(contentsChanged()), SLOT(handleCommentChanges()));
 
     transText = new QTextEdit(this);
@@ -390,12 +391,12 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
     srcTextView->setSelectionBehavior(QAbstractItemView::SelectRows);
     srcTextView->setSelectionMode(QAbstractItemView::SingleSelection);
     srcTextView->setRootIsDecorated(false);
+	srcTextView->setUniformRowHeights(true);
         
     QFontMetrics fm(font());
     srcTextView->header()->setResizeMode(QHeaderView::Stretch, 1);
     srcTextView->header()->resizeSection(0, fm.width(MessageModel::tr("Done")) + 10);
     srcTextView->header()->resizeSection(2, 300);
-    srcTextView->header()->setClickable(true);
 
     topDockWnd->setWidget(srcTextView);
 
@@ -469,8 +470,8 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
         this, SIGNAL(copyAvailable(bool)));
     connect(qApp->clipboard(), SIGNAL(dataChanged()),
         this, SLOT(updateCanPaste()));
-    connect(phraseTv, SIGNAL(doubleClicked(const QModelIndex &, int)),
-        this, SLOT(insertPhraseInTranslation(const QModelIndex &, int)));
+    connect(phraseTv, SIGNAL(doubleClicked(const QModelIndex &, Qt::MouseButton, Qt::KeyboardModifiers)),
+        this, SLOT(insertPhraseInTranslation(const QModelIndex &, Qt::MouseButton)));
     connect(phraseTv, SIGNAL(returnPressed(const QModelIndex &)),
         this, SLOT(insertPhraseInTranslationAndLeave(const QModelIndex &)));
 
@@ -594,14 +595,23 @@ void MessageEditor::setTranslation(const QString &translation, bool emitt)
     // Block signals so that a signal is not emitted when
     // for example a new source text item is selected and *not*
     // the actual translation.
-    editorPage->transText->document()->blockSignals(!emitt);
+    if (!emitt)
+        editorPage->transText->document()->blockSignals(true);
+
     if (translation.isNull())
         editorPage->transText->clear();
     else
         editorPage->transText->setPlainText(translation);
-    editorPage->transText->document()->blockSignals(false);
+
     if (!emitt)
+    {
+        editorPage->transText->document()->blockSignals(false);
+
+        //don't undo the change
+        emit undoAvailable(false);
+        emit redoAvailable(false);
         updateButtons();
+    }
     emit cutAvailable(false);
     emit copyAvailable(false);
 }
@@ -666,7 +676,7 @@ void MessageEditor::guessActivated(int key)
     }
 }
 
-void MessageEditor::insertPhraseInTranslation(const QModelIndex &index, int button)
+void MessageEditor::insertPhraseInTranslation(const QModelIndex &index, Qt::MouseButton button)
 {
     if (button == Qt::LeftButton) {
         editorPage->transText->textCursor().insertText(phrMdl->phrase(index).target());

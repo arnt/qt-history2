@@ -72,9 +72,9 @@ signals:
     void statsChanged(int w, int c, int cs, int w2, int c2, int cs2);
 
 private slots:
-    void sortContexts(int section, Qt::ButtonState state);
-    void sortMessages(int section, Qt::ButtonState state);
-    void sortPhrases(int section, Qt::ButtonState state);
+    void sortContexts(int section, Qt::MouseButton state);
+    void sortMessages(int section, Qt::MouseButton state);
+    void sortPhrases(int section, Qt::MouseButton state);
     void doneAndNext();
     void prev();
     void next();
@@ -96,6 +96,7 @@ private slots:
     void revertSorting();
     void about();
     void aboutQt();
+    void updateViewMenu();
 
     void setupPhrase();
     bool maybeSave();
@@ -104,7 +105,7 @@ private slots:
     void showNewCurrent(const QModelIndex &current, const QModelIndex &old);
     void updateTranslation(const QString &translation);
     void updateFinished(bool finished);
-    void toggleFinished(const QModelIndex &index, int button);
+    void toggleFinished(const QModelIndex &index, Qt::MouseButton);
     void prevUnfinished();
     void nextUnfinished();
     void findNext(const QString &text, int where, bool matchCase);
@@ -114,6 +115,7 @@ private slots:
     void focusPhraseList();
     void toggleStatistics();
     void updateStatistics();
+    void onWhatsThis();
 
 private:
     static QIcon loadPixmap(const QString &imageName);
@@ -149,6 +151,8 @@ private:
     bool danger(const QString &source, const QString &translation,
         bool verbose = false);
 
+    void populateDocksMenu(QMenu *dwMenu);
+    void populateToolBarsMenu(QMenu *tbMenu);
     void insertMessage(MessageItem *m);
     void printDanger(MessageItem *m);
     bool updateDanger(MessageItem *m, bool verbose = false);
@@ -180,16 +184,27 @@ private:
     QString findText;
     int findWhere;
     bool findMatchCase;
-//    int foundItem;
-//    int foundScope;
     int foundWhere;
     int foundOffset;
+
+    QDockWindow *dwScope;
 
     QMenu *phrasep;
     QMenu *closePhraseBookp;
     QMenu *editPhraseBookp;
     QMenu *printPhraseBookp;
     QMenu *recentFilesMenu;
+
+    QAction *showFileAct;
+    QAction *showEditAct;
+    QAction *showTransAct;
+    QAction *showValAct;
+    QAction *showHelpAct;
+
+    QAction *showDockScope;
+    QAction *showDockSource;
+    QAction *showDockPhrase;
+
     QAction *closePhraseBookId;
     QAction *editPhraseBookId;
     QAction *printPhraseBookId;
@@ -227,7 +242,7 @@ private:
     QAction *doneAndNextAlt;
     QAction *doGuessesAct;
     QAction *toggleStats;
-    Statistics * stats;
+    Statistics *stats;
     int  srcWords;
     int  srcChars;
     int  srcCharsSpc;
