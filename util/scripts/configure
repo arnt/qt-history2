@@ -295,17 +295,11 @@ while [ -n "$1" ]; do
        MODULE=`echo $1 | sed -e "s/-no-//"`;
        if [ -d "src/$MODULE" ]
        then
-	    if [ $MODULE = "opengl" ]
-	    then
-		OPENGL=no
-	    fi
-		
 	   MODULES=`echo $MODULES | sed -e "s/$MODULE//"`
        else
 	   FEATURE=`echo $1 | sed -e "s/-/_/g" | tr '[a-z]' '[A-Z]'`;
 	   QT_CXX="$QT_CXX -DQT"`echo $1 | sed -e "s/-/_/g" | tr '[a-z]' '[A-Z]'`
        fi
-	
     #buildpath=`dirname $a | sed -e "s;$sepath;.;g"`
 	;;
    -h | -help | --help)
@@ -567,9 +561,18 @@ then
     exit 2
 fi
 
+
+# Auto-detect opengl support
+
+if echo $MODULES | grep >/dev/null opengl
+then
+    DUMMY=dummy
+else
+    OPENGL=no
+fi
+
 if [ ! -f configs/linux-generic-g++-shared -a $OPENGL = "auto" ]
 then
-    # Auto-detect opengl support
     OPENGL=yes
 
     if [ "$VERBOSE" = "yes" ]; then
