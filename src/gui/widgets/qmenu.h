@@ -298,6 +298,7 @@ private:
     friend class MyMenuPrivate;
 
 #ifdef Q_WS_MAC
+    friend bool watchingAboutToShow(QMenu *);
     friend OSStatus qt_mac_menu_event(EventHandlerCallRef, EventRef, void *);
     friend bool qt_mac_activate_action(MenuRef, uint, QAction::ActionEvent, bool);
 #endif

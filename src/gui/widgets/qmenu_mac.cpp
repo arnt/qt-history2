@@ -68,6 +68,11 @@ inline static QCFString qt_mac_no_ampersands(QString str) {
     return QCFString(str);
 }
 
+bool watchingAboutToShow(QMenu *menu) 
+{
+    return menu && menu->receivers(SIGNAL(aboutToShow()));
+}
+
 //lookup a QMacMenuAction in a menu
 static short qt_mac_menu_find_action(MenuRef menu, MenuCommand cmd)
 {
@@ -589,20 +594,15 @@ QMenuPrivate::macMenu(MenuRef merge)
     QList<QAction*> items = q->actions();
     for(int i = 0; i < items.count(); i++) 
         mac_menu->addAction(items[i]);
-
-    if(!CountMenuItems(mac_menu->menu) && !q->receivers(SIGNAL(aboutToShow()))) {
-        ReleaseMenu(mac_menu->menu);
-        mac_menu->menu = 0;
-    }
     return mac_menu->menu;
 }
 
 /*!
     \internal
 
-    This special function will return the MenuRef used to create the
-    native menubar bindings. This MenuRef may be referenced in the
-    Menu Manager, or this can be used to create native dock menus.
+    This function will return the MenuRef used to create the native menubar
+    bindings. This MenuRef may be referenced in the Menu Manager, or this
+    can be used to create native dock menus.
 
     \warning This function is not portable.
 
@@ -648,21 +648,29 @@ QMenuBarPrivate::QMacMenuBarPrivate::addAction(QMacMenuAction *action, QMacMenuA
 {
     if(!action || !menu)
         return;
-    if(!qt_mac_no_menubar_merge && !apple_menu) { //handle the apple menu
-        QWidget *widget = 0;
-        GetMenuItemProperty(menu, 0, kMenuCreatorQt, kMenuPropertyQWidget, sizeof(widget), 0,
-                            &widget);
+    if(!qt_mac_no_menubar_merge) {
+        if(!apple_menu) { //handle the apple menu
+            QWidget *widget = 0;
+            GetMenuItemProperty(menu, 0, kMenuCreatorQt, kMenuPropertyQWidget, sizeof(widget), 0,
+                                &widget);
 
-        //create
-        MenuItemIndex index;
-        apple_menu = qt_mac_create_menu(widget);
-        AppendMenuItemTextWithCFString(menu, 0, 0, 0, &index);
+            //create
+            MenuItemIndex index;
+            apple_menu = qt_mac_create_menu(widget);
+            AppendMenuItemTextWithCFString(menu, 0, 0, 0, &index);
 
-        // set it up
-        SetMenuTitleWithCFString(apple_menu, QCFString(QString(QChar(0x14))));
-        SetMenuItemHierarchicalMenu(menu, index, apple_menu);
-        SetMenuItemProperty(apple_menu, 0, kMenuCreatorQt, kMenuPropertyQWidget, sizeof(widget),
-                            &widget);
+            // set it up
+            SetMenuTitleWithCFString(apple_menu, QCFString(QString(QChar(0x14))));
+            SetMenuItemHierarchicalMenu(menu, index, apple_menu);
+            SetMenuItemProperty(apple_menu, 0, kMenuCreatorQt, kMenuPropertyQWidget, sizeof(widget),
+                                &widget);
+        }
+
+        if(QMenu *qmenu = action->action->menu()) {
+            if(!qmenu->actions().isEmpty() && !CountMenuItems(qmenu->macMenu(apple_menu)) 
+               && !watchingAboutToShow(qmenu)) 
+                return; // We don't want to add this to the list because it was all "merged" away
+        }
     }
 
     int before_index = actionItems.indexOf(before);
@@ -706,15 +714,17 @@ QMenuBarPrivate::QMacMenuBarPrivate::syncAction(QMacMenuAction *action)
             GetMenuItemProperty(action->menu, 0, kMenuCreatorQt, kMenuPropertyQWidget, sizeof(caused), 0, &caused);
             SetMenuItemProperty(submenu, 0, kMenuCreatorQt, kMenuPropertyCausedQWidget, sizeof(caused), &caused);
         }
-    } else {
+    } else if(!submenu) {
         release_submenu = true;
         CreateNewMenu(0, 0, &submenu);
     }
     if(submenu) {
-        SetMenuItemHierarchicalMenu(action->menu, qt_mac_menu_find_action(action->menu, action), submenu);
+        SetMenuItemHierarchicalMenu(action->menu, index, submenu);
         SetMenuTitleWithCFString(submenu, qt_mac_no_ampersands(action->action->text()));
-        if(release_submenu)
+        if(release_submenu) //no pointers to it
             ReleaseMenu(submenu);
+    } else {
+        qWarning("QMenu: No MenuRef created for popup menu!");
     }
 }
 
@@ -770,9 +780,9 @@ MenuRef QMenuBarPrivate::macMenu()
 /*!
     \internal
 
-    This special function will return the MenuRef used to create the
-    native menubar bindings. This MenuRef is then set as the root menu
-    for the Menu Manager.
+    This function will return the MenuRef used to create the native menubar
+    bindings. This MenuRef is then set as the root menu for the Menu
+    Manager.
 
     \warning This function is not portable.
 
