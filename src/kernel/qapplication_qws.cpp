@@ -739,12 +739,14 @@ void QWSDisplay::defineCursor(int id, const QBitmap &curs, const QBitmap &mask,
     d->sendCommand( cmd );
 }
 
+#ifndef QT_NO_SOUND
 void QWSDisplay::playSoundFile(const QString& f)
 {
     QWSPlaySoundCommand cmd;
     cmd.setFilename(f);
     d->sendCommand( cmd );
 }
+#endif
 
 void QWSDisplay::selectCursor( QWidget *w, unsigned int cursId )
 {

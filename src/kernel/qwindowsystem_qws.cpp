@@ -208,6 +208,8 @@ void QWSClient::sendSelectionRequestEvent( QWSConvertSelectionCommand *cmd, int 
     sendEvent( &event );
 }
 
+#ifndef QT_NO_SOUND
+
 static const int fragment_size = 8;
 static const int sound_buffer_size=1<<fragment_size;
 class QWSSoundServerBucket {
@@ -383,6 +385,8 @@ void QWSSoundServer::feedDevice(int fd)
     d->feedDevice(fd);
 }
 
+#endif
+
 /*********************************************************************
  *
  * Class: QWSServer
@@ -497,7 +501,9 @@ QWSServer::QWSServer( int flags,
     qt_init_display();
     client[-1] = new QWSClient( this, -1 );
 
+#ifndef QT_NO_SOUND
     soundserver = new QWSSoundServer(this);
+#endif
 }
 
 QWSServer::~QWSServer()
@@ -697,10 +703,11 @@ void QWSServer::doClient( QWSClient *client )
 	case QWSCommand::GrabMouse:
 	    invokeGrabMouse( (QWSGrabMouseCommand*)cs->command, cs->client );
 	    break;
+#ifndef QT_NO_SOUND
 	case QWSCommand::PlaySound:
 	    invokePlaySound( (QWSPlaySoundCommand*)cs->command, cs->client );
 	    break;
-
+#endif
 	}
 	delete cs->command;
 	delete cs;
@@ -1166,10 +1173,12 @@ void QWSServer::invokeGrabMouse( QWSGrabMouseCommand *cmd, QWSClient *client )
     }
 }
 
+#ifndef QT_NO_SOUND
 void QWSServer::invokePlaySound( QWSPlaySoundCommand *cmd, QWSClient *client )
 {
     soundserver->playFile(cmd->filename);
 }
+#endif
 
 /*!
   Adds \a r to the window's allocated region.

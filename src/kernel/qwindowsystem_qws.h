@@ -220,7 +220,9 @@ private:
     void invokeSelectCursor( QWSSelectCursorCommand *cmd, QWSClient *client );
 #endif
     void invokeGrabMouse( QWSGrabMouseCommand *cmd, QWSClient *client );
+#ifndef QT_NO_SOUND
     void invokePlaySound( QWSPlaySoundCommand *cmd, QWSClient *client );
+#endif
 
     QMouseHandler* newMouseHandler(const QString& spec);
     QWSKeyboardHandler* newKeyboardHandler(const QString& spec);
@@ -298,7 +300,9 @@ private:
     void setCursor(QWSCursor *curs);
 
     // multimedia
+#ifndef QT_NO_SOUND
     QWSSoundServer *soundserver;
+#endif
 };
 
 

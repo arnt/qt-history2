@@ -307,6 +307,7 @@ struct QWSGrabMouseCommand : public QWSCommand
     } simpleData;
 };
 
+#ifndef QT_NO_SOUND
 struct QWSPlaySoundCommand : public QWSCommand
 {
     QWSPlaySoundCommand() :
@@ -327,6 +328,7 @@ struct QWSPlaySoundCommand : public QWSCommand
     } simpleData;
     QString filename;
 };
+#endif
 
 
 #endif
