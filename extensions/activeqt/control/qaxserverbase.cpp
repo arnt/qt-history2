@@ -2385,21 +2385,29 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 	    // setup parameters (pcount + return)
 	    bool ok = TRUE;
             void *static_argv[QAX_NUM_PARAMS + 1];
-            QVariant static_varp[QAX_NUM_PARAMS];
+            QVariant static_varp[QAX_NUM_PARAMS + 1];
+            void *static_argv_pointer[QAX_NUM_PARAMS + 1];
+
             int totalParam = pcount;
             if (!type.isEmpty())
                 ++totalParam;
 
-	    void **argv = 0;
-	    QVariant *varp = 0;
+	    void **argv = 0; // the actual array passed into qt_metacall
+            void **argv_pointer = 0; // the parameters we have to delete later on
+	    QVariant *varp = 0; // QVariants to hold the temporary Qt data object for us
+
             if (totalParam) {
                 if (totalParam <= QAX_NUM_PARAMS) {
                     argv = static_argv;
+                    argv_pointer = static_argv_pointer;
                     varp = static_varp;
                 } else {
                     argv = new void*[pcount + 1];
+                    argv_pointer = new void*[pcount + 1];
                     varp = new QVariant[pcount + 1];
                 }
+
+                argv_pointer[0] = 0;
             }
 
 	    for ( int p = 0; p < pcount; ++p ) {
@@ -2407,16 +2415,21 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 		bool out;
 		QString ptype = paramType(ptypes.at(p), &out);
 		varp[p + 1] = VARIANTToQVariant(pDispParams->rgvarg[pcount - p - 1], ptype);
+                argv_pointer[p + 1] = 0;
 		if (varp[p + 1].isValid()) {
 		    argv[p + 1] = const_cast<void*>(varp[p + 1].constData());
-                    if (ptype.endsWith("*"))
-                        argv[p+1] = new void*(argv[p + 1]);
+                    if (ptype.endsWith("*")) {
+                        argv_pointer[p + 1] = argv[p + 1];
+                        argv[p + 1] = argv_pointer + p + 1;
+                    }
 		} else {
 		    if (puArgErr)
 			*puArgErr = pcount-p-1;
 		    ok = FALSE;
 		}
 	    }
+
+            // return value
 	    if (!type.isEmpty()) {
                 varp[0] = QVariant(QVariant::nameToType(slot.type()));
                 if (varp[0].type() == QVariant::Invalid) {
@@ -2427,8 +2440,10 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
                 }
                 Q_ASSERT(varp[0].type() != QVariant::Invalid);
 		argv[0] = const_cast<void*>(varp[0].constData());
-                if (type.endsWith("*"))
+                if (type.endsWith("*")) {
                     argv[0] = new void*(argv[0]);
+                    argv_pointer[0] = argv[0];
+                }
 	    }
 
 	    // call the slot if everthing went fine.
@@ -2444,11 +2459,15 @@ HRESULT WINAPI QAxServerBase::Invoke( DISPID dispidMember, REFIID riid,
 			    ok = FALSE;
 		    }
 		}
-		if (!type.isEmpty() && pvarResult)
+                if (!type.isEmpty() && pvarResult) {
+                    if (argv_pointer[0])
+                        varp[0] = QVariant::UserData(*(void**)argv[0], type.latin1());
 		    ok = QVariantToVARIANT(varp[0], *pvarResult, type);
+                }
 	    }
             if (argv && argv != static_argv) {
                 delete []argv;
+                delete []argv_pointer;
                 delete []varp;
             }
 
