@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtableview.cpp#47 $
+** $Id: //depot/qt/main/src/widgets/qtableview.cpp#48 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qdrawutl.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#47 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtableview.cpp#48 $");
 
 
 const int sbDim = 16;
@@ -136,7 +136,6 @@ QTableView::QTableView( QWidget *parent, const char *name, WFlags f )
     xOffs		 = yOffs      = 0;	// zero total pixel offset
     cellH		 = cellW      = 0;	// user defined cell size
     tFlags		 = 0;
-    doUpdate		 = TRUE;
     vScrollBar		 = hScrollBar = 0;	// no scroll bars
     cornerSquare	 = 0;
     sbDirty		 = 0;
@@ -905,10 +904,10 @@ void QTableView::clearTableFlags( uint f )
 
 void QTableView::setAutoUpdate( bool enable )
 {
-    if ( (bool)doUpdate == enable )
+    if ( isUpdatesEnabled() == enable )
 	return;
-    doUpdate = enable;
-    if ( doUpdate ) {
+    setUpdatesEnabled( enable );
+    if ( enable ) {
 	showOrHideScrollBars();
 	updateScrollBars();
     }

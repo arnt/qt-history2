@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.h#11 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.h#12 $
 **
 ** Definition of QTableView class
 **
@@ -142,7 +142,7 @@ private:
     short	xCellDelta, yCellDelta;
     short	cellH, cellW;
 
-    uint	doUpdate		: 1;
+    uint	/*doUpdate*/		: 1;
     uint	eraseInPaint		: 1;
     uint	verSliding		: 1;
     uint	verSnappingOff		: 1;
@@ -223,7 +223,7 @@ inline QRect QTableView::cellUpdateRect() const
 { return cellUpdateR; }
 
 inline bool QTableView::autoUpdate() const
-{ return doUpdate; }
+{ return isUpdatesEnabled(); }
 
 inline void QTableView::repaint( bool erase )
 { repaint( 0, 0, width(), height(), erase ); }
