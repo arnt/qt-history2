@@ -636,10 +636,24 @@ const char *QFontEngineWin::name() const
 
 bool QFontEngineWin::canRender( const QChar *string,  int len )
 {
-    while( len-- ) {
-	if ( getGlyphIndex( cmap, string->unicode() ) == 0 )
-	    return FALSE;
-	string++;
+    if ( ttf ) {
+	while( len-- ) {
+	    if ( getGlyphIndex( cmap, string->unicode() ) == 0 )
+		return FALSE;
+	    string++;
+	}
+    } else {
+	QT_WA( {
+	    while( len-- ) {
+		if ( tm.w.tmFirstChar > string->unicode() || tm.w.tmLastChar < string->unicode() )
+		    return FALSE;
+	    }
+	}, {
+	    while( len-- ) {
+		if ( tm.a.tmFirstChar > string->unicode() || tm.a.tmLastChar < string->unicode() )
+		    return FALSE;
+	    }
+	} );
     }
     return TRUE;
 }
