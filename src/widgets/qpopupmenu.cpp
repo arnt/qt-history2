@@ -34,7 +34,7 @@
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
-#include "q3signal.h"
+#include "qsignal.h"
 
 //#define ANIMATED_POPUP
 //#define BLEND_POPUP
@@ -666,12 +666,13 @@ void QPopupMenu::accelActivated( int id )
 {
     QMenuItem *mi = findItem( id );
     if ( mi && mi->isEnabledAndVisible() ) {
-	QGuardedPtr<Q3Signal> signal = mi->signal();
+	QGuardedPtr<QSignalEmitter> signal = mi->signal();
+	int value = mi->signalValue();
 	fromAccel = TRUE;
 	actSig( mi->id() );
 	fromAccel = FALSE;
 	if ( signal )
-	    signal->activate();
+	    signal->activate(&value);
     }
 }
 
@@ -1659,10 +1660,11 @@ void QPopupMenu::mouseReleaseEvent( QMouseEvent *e )
 		actItem = -1;
 		updateItem( mi->id() );
 		active_popup_menu = this;
-		QGuardedPtr<Q3Signal> signal = mi->signal();
+		QGuardedPtr<QSignalEmitter> signal = mi->signal();
+		int value = mi->signalValue();
 		actSig( mi->id(), b );
 		if ( signal && !b )
-		    signal->activate();
+		    signal->activate(&value);
 		active_popup_menu = 0;
 	    }
 	}
@@ -1906,10 +1908,11 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 		byeMenuBar();
 		if ( mi->isEnabledAndVisible() || b ) {
 		    active_popup_menu = this;
-		    QGuardedPtr<Q3Signal> signal = mi->signal();
+		    QGuardedPtr<QSignalEmitter> signal = mi->signal();
+		    int value = mi->signalValue();
 		    actSig( mi->id(), b );
 		    if ( signal && !b )
-			signal->activate();
+			signal->activate(&value);
 		    active_popup_menu = 0;
 		}
 	    }
@@ -1991,10 +1994,11 @@ void QPopupMenu::keyPressEvent( QKeyEvent *e )
 #endif
 		if ( mi->isEnabledAndVisible() || b ) {
 		    active_popup_menu = this;
-		    QGuardedPtr<Q3Signal> signal = mi->signal();
+		    QGuardedPtr<QSignalEmitter> signal = mi->signal();
+		    int value = mi->signalValue();
 		    actSig( mi->id(), b );
 		    if ( signal && !b  )
-			signal->activate();
+			signal->activate(&value);
 		    active_popup_menu = 0;
 		}
 	    }
@@ -2705,10 +2709,11 @@ void QPopupMenu::activateItemAt( int index )
 		    actItem = -1;
 		    updateItem( mi->id() );
 		    active_popup_menu = this;
-		    QGuardedPtr<Q3Signal> signal = mi->signal();
+		    QGuardedPtr<QSignalEmitter> signal = mi->signal();
+		    int value = mi->signalValue();
 		    actSig( mi->id(), b );
 		    if ( signal && !b )
-			signal->activate();
+			signal->activate(&value);
 		    active_popup_menu = 0;
 		}
 	    }

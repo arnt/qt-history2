@@ -18,7 +18,7 @@
 #include "qmenubar.h"
 #include "qapplication.h"
 #include "qguardedptr.h"
-#include "q3signal.h"
+#include "qsignal.h"
 
 class QMenuItemData {
 public:
@@ -85,7 +85,7 @@ QMenuDataData::QMenuDataData()
 
 QMenuItem::QMenuItem()
     :ident( -1 ), iconset_data( 0 ), pixmap_data( 0 ), popup_menu( 0 ),
-     widget_item( 0 ), signal_data( 0 ), is_separator( FALSE ), is_enabled( TRUE ),
+     widget_item( 0 ), signal_data( 0 ), signal_value(0), is_separator( FALSE ), is_enabled( TRUE ),
      is_checked( FALSE ), is_dirty( TRUE ), is_visible( TRUE ), d( 0)
 {}
 
@@ -1304,9 +1304,9 @@ bool QMenuData::setItemParameter( int id, int param ) {
     if ( !mi )					// no such identifier
 	return FALSE;
     if ( !mi->signal_data ) {			// create new signal
-	mi->signal_data = new Q3Signal;
+	mi->signal_data = new QSignalEmitter("int");
     }
-    mi->signal_data->setValue( param );
+    mi->signal_value = param;
     return TRUE;
 }
 
@@ -1324,7 +1324,7 @@ int QMenuData::itemParameter( int id ) const
     QMenuItem *mi = findItem( id );
     if ( !mi || !mi->signal_data )
 	return id;
-    return mi->signal_data->value().toInt();
+    return mi->signal_value;
 }
 
 
@@ -1345,8 +1345,8 @@ bool QMenuData::connectItem( int id, const QObject *receiver,
     if ( !mi )					// no such identifier
 	return FALSE;
     if ( !mi->signal_data ) {			// create new signal
-	mi->signal_data = new Q3Signal;
-	mi->signal_data->setValue( id );
+	mi->signal_data = new QSignalEmitter("int");
+	mi->signal_value = id;
     }
     return mi->signal_data->connect( receiver, member );
 }

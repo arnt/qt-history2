@@ -121,7 +121,8 @@ static const uint qt_meta_data_QSignalEmitter[] = {
 QSignalEmitter::QSignalEmitter(const char *type)
     :stringdata("QSignalEmitter\0\0activated(", 26)
 {
-    stringdata += type;
+    if (type)
+	stringdata += type;
     stringdata += ')';
     staticMetaObject.d.superdata = &QObject::staticMetaObject;
     staticMetaObject.d.data = qt_meta_data_QSignalEmitter;
@@ -146,14 +147,14 @@ void QSignalEmitter::activate(void *_t1)
     QMetaObject::activate(this, &staticMetaObject, 0, _a);
 }
 
-bool QSignalEmitter::connect( const QObject *receiver, const char *member )
+bool QSignalEmitter::connect(const QObject *receiver, const char *member, ConnectionType type)
 {
     QByteArray signal = stringdata.data() + 16;
     signal.prepend('0' + SIGNAL_CODE);
-    return QObject::connect(this, signal, receiver, member);
+    return QObject::connect(this, signal, receiver, member, type);
 }
 
-bool QSignalEmitter::disconnect( const QObject *receiver, const char *member )
+bool QSignalEmitter::disconnect(const QObject *receiver, const char *member)
 {
     QByteArray signal = stringdata.data() + 16;
     signal.prepend('0' + SIGNAL_CODE);

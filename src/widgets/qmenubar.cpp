@@ -34,7 +34,7 @@
 #if defined(QT_ACCESSIBILITY_SUPPORT)
 #include "qaccessible.h"
 #endif
-#include "q3signal.h"
+#include "qsignal.h"
 
 class QMenuDataData {
     // attention: also defined in qmenudata.cpp
@@ -1393,8 +1393,10 @@ void QMenuBar::setActiveItem( int i, bool show, bool activate_first_item )
 	    popup->setFirstItemActive();
     } else {				// not a popup
 	goodbye( FALSE );
-	if ( mi->signal() )			// activate signal
-	    mi->signal()->activate();
+	if ( mi->signal() ) {
+	    int value = mi->signalValue();
+	    mi->signal()->activate(&value);
+	}
 	emit activated( mi->id() );
     }
 }

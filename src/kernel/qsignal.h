@@ -23,12 +23,12 @@
 // internal helper class for QSignal
 class QSignalEmitter : public QObject{
 public:
-    QSignalEmitter(const char *type);
+    QSignalEmitter(const char *type = 0);
     ~QSignalEmitter();
     const QMetaObject *metaObject() const { return &staticMetaObject; }
     void *qt_metacast(const char *) const;
-    void activate(void *);
-    bool connect( const QObject *receiver, const char *member );
+    void activate(void * = 0);
+    bool connect( const QObject *receiver, const char *member, ConnectionType = AutoConnection );
     bool disconnect( const QObject *receiver, const char *member=0 );
 private:
     QMetaObject staticMetaObject;
@@ -44,9 +44,10 @@ public:
     inline QSignal():d(0){}
     inline ~QSignal(){ delete d; }
     inline void activate(const T& t) { if(d)d->activate((void*)&t); }
-    bool connect( const QObject *receiver, const char *member )	{
+    bool connect( const QObject *receiver, const char *member,
+		  Qt::ConnectionType type = Qt::AutoConnection ) {
 	if (!d) d = new QSignalEmitter(QTypeInfo<T>::name());
-	return d->connect(receiver, member);
+	return d->connect(receiver, member, type);
     }
     inline bool disconnect( const QObject *receiver, const char *member=0 )
 	{ return d ? d->disconnect(receiver, member) : false; }
@@ -64,10 +65,11 @@ class QSignal<void>
 public:
     inline QSignal():d(0){}
     inline ~QSignal(){ delete d; }
-    inline void activate() { if(d)d->activate(0); }
-    bool connect( const QObject *receiver, const char *member )	{
-	if (!d) d = new QSignalEmitter("");
-	return d->connect(receiver, member);
+    inline void activate() { if(d)d->activate(); }
+    bool connect( const QObject *receiver, const char *member,
+		  Qt::ConnectionType type = Qt::AutoConnection ) {
+	if (!d) d = new QSignalEmitter;
+	return d->connect(receiver, member, type);
     }
     inline bool disconnect( const QObject *receiver, const char *member=0 )
 	{ return d ? d->disconnect(receiver, member) : false; }
