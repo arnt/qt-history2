@@ -3704,6 +3704,7 @@ void QTextString::setFormat( int index, QTextFormat *f, bool useCollection )
 
 void QTextString::checkBidi() const
 {
+    ((QTextString *)this)->bidiDirty = FALSE;
     bool rtlKnown = FALSE;
     if ( dir == QChar::DirR ) {
 	((QTextString *)this)->bidi = TRUE;
@@ -4506,8 +4507,8 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 	    flush |= nextchr->startOfRun;
 	    // we flush on bidi changes
 	    flush |= ( nextchr->rightToLeft != chr->rightToLeft );
-	    // we flush on tab
-	    flush |= ( chr->c == '\t' );
+	    // we flush before and after tabs
+	    flush |= ( chr->c == '\t' || nextchr->c == '\t' );
 	    // we flush on soft hypens
 	    flush |= ( chr->c.unicode() == 0xad );
 	    // we flush on custom items
