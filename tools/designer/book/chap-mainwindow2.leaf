@@ -970,7 +970,7 @@ We are now ready to write the code.
 
 \img qd-connections2-dlg.png View and Edit Connections dialog
 
-\section2 Editing the Code
+\section2 Editing the Code: Setting Up
 
 There is quite a lot of code to include in the application, but this
 does not mean that a lot of typing is required! All the code is
@@ -978,13 +978,23 @@ reproduced here so, if you're reading an electronic copy, you can
 simply cut and paste. If you're reading a print copy, all the code is
 provided in \c{qt/tools/designer/examples/colortool}; simply open the
 relevant \c{.ui.h} files and copy and paste from there into your own
-version of the project. If you are comfortable with Qt programming and
-simply want to use this manual to learn about designing with \QD, you
-can skip to \l{Creating main.cpp}, and once you've created
-\c{main.cpp} you can skip to the next section. Just copy
-\c{mainform.ui.h} from the examples directory into the directory where
-you've created your version of the \c{colortool} project and you'll
-have all the code instantly.
+version of the project. Alternativley, just copy \c{mainform.ui.h}
+from the examples directory into the directory where you've created
+your version of the \c{colortool} project and you'll have all the code
+instantly.
+
+\sidebar Cutting \& Pasting into the Code Editor
+
+If you cut and paste code from this manual, because we've indented the
+code for readability, the code will be over-indented in \QD. This is
+easily solved. Simply select the pasted code (either with the mouse,
+or \Key{Shift+Arrow}s) and press \Key{Tab}: this will make \QD fix
+the indentation.
+
+Remember that if you copy and paste just the body of functions into
+the skeletons \QD provides, you must manually enter the names of the
+arguments in the functions' parameter lists.
+\endsidebar
 
 Click \c{mainform.ui.h} in the Project Overview window. A code editor
 window showing the empty slots appears.
@@ -1116,7 +1126,166 @@ don't want a pen because we don't want an outline around the shape we
 draw. We draw an ellipse (which will be circular since we draw in an
 80 x 80 pixel square). We return the resultant pixmap.
 
-[[Create main.cpp and make and run the application]]
+\section2 Creating main.cpp
+
+Now that we've entered some of the code it would be nice to build and
+run the application to get a feel for the progress we've made. To do
+this we need to create a \Func{main()} function. In Qt we typically
+create a small \File{main.cpp} file for the \Func{main()} function. We
+can ask \QD to create this file for us.
+
+Click \Menu{File|New} to invoke the \Widget{New File} dialog. Click
+"C++ Main-File", then click OK. The \Widget{Configure Main-File}
+dialog appears, listing the all the forms in the project. We've only
+got one form, "MainForm", so it is already highlighted. Click \OK to
+create a \File{main.cpp} file that loads our MainForm.
+
+\quotefile colortool/main.cpp
+\printto connect
+\code
+	a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
+\endcode
+\skipto return
+\printuntil }
+
+Notice that \QD creates a connection to ensure that the application
+terminates correctly. If we left this code as-is, the user could
+by-pass our own termination code by clicking the main window's close
+(X) button. Since we want to give the user the option to save any
+unsaved changes we need to ensure that we intercept any attempt to
+close the application. This is easily achieved by changing the connect
+line.
+
+\quotefile colortool/main.cpp
+\skipto connect
+\printline
+
+Now, whatever the user clicks to close the application, our
+\Func{fileExit()} slot will be called. We'll code the
+\Func{fileExit()} slot right now. 
+
+Click \File{mainform.ui.h} in the Project Overview window to show this
+file in a code editor window. Right click "fileExit()" in Object
+Explorer's Members list (under Slots, public), then click \Menu{Goto
+Implementation}. Now change the \Func{fileExit()} slot to the
+following:
+
+\quotefile colortool/mainform.ui.h
+\skipto MainForm::fileExit
+\printuntil {
+\skipto exit
+\printline
+\skipto }
+\skipto }
+\printline
+
+This ensures that our application will cleanly terminate. Later we'll
+revise this function to give the user the opportunity to save any
+unsaved data.
+
+\section3 Building and Running
+
+We now have some code in the application and a \File{main.cpp}
+containing the \Func{main()} function, so we should be able to
+compile, link and run the application.
+
+Click \Menu{File|Save} to ensure that all our work is saved to disk.
+Open a console (e.g. an xterm or DOS window) and run \c{qmake} to
+generate a Makefile:
+\code
+    qmake -o Makefile colortool.pro
+\endcode
+
+Now make the project (run \c{nmake} on Windows, \c{make} on other
+platforms). Providing you commented out the "findForm" and
+"loadSettings" lines in the \Func{init()} function, the program should
+build. 
+
+Once the make has finished, run the program. You still can't change
+views since we haven't written the code for that yet, but it does
+create a default set of colors. You can terminate the application by
+clicking the close (X) button or by clicking \Menu{File|Exit}.
+
+\section2 Editing the Code: Updating the Status Bar
+
+We want to show information about the current color in the status bar,
+and we want to ensure that when the user switches view or loads in a
+color file, the relevant view is updated.
+
+\section3 aboutToShow()
+
+\quotefile colortool/mainform.ui.h
+\skipto MainForm::aboutToShow
+\printuntil }
+
+We could have make \Func{populate()} a slot and connected directly to
+it. We've used the indirection because it's clearer and in a real
+application there would probably be more to do in this slot.
+
+\section3 changedTableColor()
+
+\quotefile colortool/mainform.ui.h
+\skipto MainForm::changedTableColor
+\printuntil }
+
+We connected to this slot so that we'd know whenever the user moved or
+clicked in the table view. We call the \Func{changedColor()} function
+(which we'll see in a moment) with the name of the current colour.
+Note that we don't care about the column argument, so we could have
+left it out.
+
+\section3 changedIconColor()
+
+\quotefile colortool/mainform.ui.h
+\skipto MainForm::changedIconColor
+\printuntil }
+
+This slot is connected for the same purpose as
+\Func{changedTableColor()}, above. It also calls \Func{changedColor()}
+with the name of the current color.
+
+\section3 changedColor()
+
+This is a function that we need to write from scratch. Simply enter
+its code into \QD's code editor and it will automatically appear in
+Object Explorer's Members tab (under Functions, public). 
+
+By default any function that it typed directly into the code editor
+becomes a public function. To change this, right click the function's
+name in Object Explorer's Members list, and click \Menu{Properties} to
+invoke the \Widget{Edit Functions} dialog. This dialog can be used to
+change various attributes of the function, including changing it into
+a slot.
+
+\quotefile colortool/mainform.ui.h
+\skipto MainForm::changedColor
+\printuntil }
+
+This function looks up the color name in the colors map and retrieves
+the color the name refers to. It then displays the name, hex value and
+whether the color is a web color in the status bar.
+
+Note that \Class QMainWindow only creates a status bar if you actually
+use one. Since we haven't used one up until now we've had no problem,
+but if we were to try compiling we'd get an error because we're now
+using a status bar but haven't declared the relevant header. Click
+Object Explorer's Members tab and add a "qstatusbar.h" to the
+"Includes (In Implementation)" section. (Right click "Includes (In
+Implementation)", click \Menu{New}, enter "qstatusbar.h" then press
+\Key Enter.)
+
+Try saving (press \Key Ctrl+S), making and running the application.
+Move to different colors and see the status bar indicating the color
+you are on.
+
+\section2 Editing the Code: File Handling
+
+
+--------
+Frustratingly, we have not yet been able to see the icon view in
+action because there's been no code in place to switch views. We'll
+address this in this section by implementing the relevant functions
+and slots.
 
 
 [[DON'T FORGET TO TELL 'EM TO UNCOMMENT findForm and loadSettings in init() WHEN THEY ARE READY]]

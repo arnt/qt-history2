@@ -407,7 +407,7 @@ void MainForm::helpAbout()
 
 void MainForm::changedTableColor( int row, int )
 {
-    changedColor( colorTable->text( row, 0 ) );
+    changedColor( colorTable->text( row, COL_NAME ) );
 }
 
 void MainForm::changedIconColor( QIconViewItem *item )
@@ -426,11 +426,6 @@ void MainForm::changedColor( const QString& name )
 			  arg( color.name().upper() ).
 			  arg( r ).arg( g ).arg( b ).
 			  arg( isWebColor( r, g, b ) ? " web" : "" ) );
-}
-
-void MainForm::aboutToShow( int )
-{
-    populate();
 }
 
 
@@ -558,4 +553,10 @@ void MainForm::saveSettings()
     settings.writeEntry( APP_KEY + "ShowWeb", m_show_web );
     settings.writeEntry( APP_KEY + "View",
 	    colorWidgetStack->visibleWidget() == tablePage );
+}
+
+
+void MainForm::aboutToShow()
+{
+    populate();
 }

@@ -483,12 +483,6 @@
         <slot>changedIconColor(QIconViewItem*)</slot>
     </connection>
     <connection>
-        <sender>colorWidgetStack</sender>
-        <signal>aboutToShow(int)</signal>
-        <receiver>MainForm</receiver>
-        <slot>aboutToShow(int)</slot>
-    </connection>
-    <connection>
         <sender>viewActionGroup</sender>
         <signal>selected(QAction*)</signal>
         <receiver>MainForm</receiver>
@@ -505,6 +499,12 @@
         <signal>activated()</signal>
         <receiver>MainForm</receiver>
         <slot>editOptions()</slot>
+    </connection>
+    <connection>
+        <sender>colorWidgetStack</sender>
+        <signal>aboutToShow(int)</signal>
+        <receiver>MainForm</receiver>
+        <slot>aboutToShow()</slot>
     </connection>
 </connections>
 <includes>
@@ -567,13 +567,13 @@
     <function type="slot">changedTableColor( int row, int )</function>
     <function type="slot">changedIconColor( QIconViewItem * item )</function>
     <function type="function">changedColor( const QString &amp; name )</function>
-    <function type="slot">aboutToShow( int )</function>
     <function type="slot">changeView( QAction * action )</function>
     <function type="function" returnType="bool">isWebColor( int r, int g, int b )</function>
     <function type="slot">editAdd()</function>
     <function type="slot">editOptions()</function>
     <function type="function">loadSettings()</function>
     <function type="function">saveSettings()</function>
+    <function type="slot">aboutToShow()</function>
 </functions>
 <pixmapinproject/>
 <layoutdefaults spacing="6" margin="11"/>
