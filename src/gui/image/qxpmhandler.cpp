@@ -19,6 +19,11 @@
 #include <qtextstream.h>
 #include <qvariant.h>
 
+#if defined(Q_CC_BOR)
+// needed for qsort() because of a std namespace problem on Borland
+#include "qplatformdefs.h"
+#endif
+
 #ifdef QRGB
 #undef QRGB
 #endif
