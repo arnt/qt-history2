@@ -84,13 +84,14 @@ class QTextEditPrivate
 public:
     QTextEditPrivate()
 	:preeditStart(-1),preeditLength(-1),ensureCursorVisibleInShowEvent(FALSE),
-	 allowTabs(TRUE)
+	 tabChangesFocus(FALSE),
 #ifndef QT_NO_CLIPBOARD
-	,clipboard_mode( QClipboard::Clipboard )
+	clipboard_mode( QClipboard::Clipboard ),
 #endif
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-	, od(0), optimMode( FALSE)
+	od(0), optimMode( FALSE),
 #endif
+	autoFormatting( QTextEdit::AutoAll )
     {
 	for ( int i=0; i<7; i++ )
 	    id[i] = 0;
@@ -99,7 +100,7 @@ public:
     int preeditStart;
     int preeditLength;
     uint ensureCursorVisibleInShowEvent : 1;
-    uint allowTabs : 1;
+    uint tabChangesFocus : 1;
     QString scrollToAnchor; // used to deferr scrollToAnchor() until the show event when we are resized
     QString pressedName;
     QString onName;
@@ -112,6 +113,7 @@ public:
     QTextEditOptimPrivate * od;
     bool optimMode : 1;
 #endif
+    uint autoFormatting;
 };
 
 #ifndef QT_NO_DRAGANDDROP
@@ -1325,7 +1327,7 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 		 ( !e->ascii() || e->ascii() >= 32 || e->text() == "\t" ) ) {
 		clearUndoRedoInfo = FALSE;
 		if ( e->key() == Key_Tab ) {
-		    if ( !d->allowTabs ) {
+		    if ( d->tabChangesFocus ) {
 			e->ignore();
 			break;
 		    }
@@ -1345,7 +1347,8 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 		    }
 		}
 
-		if ( textFormat() == Qt::RichText && cursor->index() == 0
+		if ( ( autoFormatting() & AutoBulletList ) &&
+		     textFormat() == Qt::RichText && cursor->index() == 0
 		     && !cursor->paragraph()->isListItem()
 		     && ( e->text()[0] == '-' || e->text()[0] == '*' ) ) {
 			clearUndoRedo();
@@ -1387,7 +1390,7 @@ void QTextEdit::keyPressEvent( QKeyEvent *e )
 		    cut();
 		    break;
 		case Key_I: case Key_T: case Key_Tab:
-		    if ( d->allowTabs )
+		    if ( !d->tabChangesFocus )
 			indent();
 		    break;
 		case Key_A:
@@ -5672,23 +5675,23 @@ void QTextEdit::clipboardChanged()
     selectAll(FALSE);
 }
 
-/*! \property QTextEdit::allowTabs
-  \brief whether the textedit accepts TAB as input
+/*! \property QTextEdit::tabChangesFocus
+  \brief whether TAB changes focus or is accepted as input
 
   In some occasions text edits should not allow the user to input
-  tabulators using the TAB key, as this breaks the focus chain. The
-  default is TRUE.
+  tabulators or change indentation using the TAB key, as this breaks
+  the focus chain. The default is FALSE.
 
 */
 
-void QTextEdit::setAllowTabs( bool b )
+void QTextEdit::setTabChangesFocus( bool b )
 {
-    d->allowTabs = b;
+    d->tabChangesFocus = b;
 }
 
-bool QTextEdit::allowTabs() const
+bool QTextEdit::tabChangesFocus() const
 {
-    return d->allowTabs;
+    return d->tabChangesFocus;
 }
 
 #ifdef QT_TEXTEDIT_OPTIMIZATION
@@ -5726,7 +5729,7 @@ bool QTextEdit::checkOptimMode()
 			this, SLOT( autoScrollTimerDone() ) );
 	    disconnect( formatTimer, SIGNAL( timeout() ),
 			this, SLOT( formatMore() ) );
-	    
+
  	    optimSetText( doc->originalText() );
     	    doc->clear( TRUE );
 	} else {
@@ -6568,6 +6571,29 @@ void QTextEdit::polish()
     if ( d->optimMode )
 	scrollToBottom();
     QWidget::polish();
+}
+
+
+/*!
+  \property QTextEdit::autoFormatting
+  \brief the enabled set of auto formatting features
+
+  The value can be any combination of the values in the \c
+  AutoFormatting enum.  The default is \a AutoAll. Choose \c AutoNone
+  to disable all auto formatting.
+
+  At present, the only available auto formatting feature is \c
+  AutoBulletList, future versions of Qt may offer more.
+*/
+
+void QTextEdit::setAutoFormatting( uint features )
+{
+    d->autoFormatting = features;
+}
+
+uint QTextEdit::autoFormatting() const
+{
+    return d->autoFormatting;
 }
 
 #endif // QT_TEXTEDIT_OPTIMIZATION

@@ -136,6 +136,7 @@ class Q_EXPORT QTextEdit : public QScrollView
 
     Q_OBJECT
     Q_ENUMS( WordWrap WrapPolicy )
+    Q_SETS( AutoFormatting )
     Q_PROPERTY( TextFormat textFormat READ textFormat WRITE setTextFormat )
     Q_PROPERTY( QString text READ text WRITE setText )
     Q_PROPERTY( QBrush paper READ paper WRITE setPaper )
@@ -153,7 +154,8 @@ class Q_EXPORT QTextEdit : public QScrollView
     Q_PROPERTY( bool readOnly READ isReadOnly WRITE setReadOnly )
     Q_PROPERTY( bool undoRedoEnabled READ isUndoRedoEnabled WRITE setUndoRedoEnabled )
     Q_PROPERTY( int tabStopWidth READ tabStopWidth WRITE setTabStopWidth )
-    Q_PROPERTY( bool allowTabs READ allowTabs WRITE setAllowTabs )
+    Q_PROPERTY( bool tabChangesFocus READ tabChangesFocus WRITE setTabChangesFocus )
+    Q_PROPERTY( AutoFormatting autoFormatting READ autoFormatting WRITE setAutoFormatting )
 
 public:
     enum WordWrap {
@@ -168,6 +170,12 @@ public:
 	Anywhere,
 	AtWhiteSpace = AtWordBoundary, // deprecated, don't use
 	AtWordOrDocumentBoundary
+    };
+
+    enum AutoFormatting {
+	AutoNone = 0,
+	AutoBulletList = 0x00000001,
+	AutoAll = 0xffffffff
     };
 
     enum KeyboardAction {
@@ -287,7 +295,10 @@ public:
 
     bool isUndoRedoEnabled() const;
     bool eventFilter( QObject *o, QEvent *e );
-    bool allowTabs() const;
+    bool tabChangesFocus() const;
+
+    void setAutoFormatting( uint features );
+    uint autoFormatting() const;
 
 public slots:
     void setEnabled( bool );
@@ -375,12 +386,12 @@ public slots:
     virtual void clearParagraphBackground( int para );
 
     virtual void setUndoRedoEnabled( bool b );
-    void setAllowTabs( bool b ); // ### make virtual in 4.0
+    void setTabChangesFocus( bool b ); // ### make virtual in 4.0
 
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     void polish();
 #endif
-    
+
 signals:
     void textChanged();
     void selectionChanged();
