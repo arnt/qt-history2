@@ -733,7 +733,6 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     int	   sbpl;				// bytes per line in original
     int	   bpp;					// bits per pixel
     bool   depth1 = depth() == 1;
-    int	   y;
 
     if ( isNull() )				// this is a null pixmap
 	return copy();
