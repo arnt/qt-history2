@@ -110,6 +110,7 @@ protected:
     bool initializeFromFile(IUnknown** ptr);
 
     void internalRelease();
+    void initializeFrom(QAxBase *that);
     void connectNotify();
     
 private:

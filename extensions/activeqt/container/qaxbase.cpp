@@ -564,6 +564,7 @@ public:
     QMetaObject *staticMetaObject;
 };
 
+
 QByteArray QAxEventSink::findProperty(DISPID dispID)
 {
     // look up in cache, and fall back to
@@ -860,6 +861,24 @@ void QAxBase::internalRelease()
     if (d->ptr)
         d->ptr->Release();
 }
+
+/*!
+    \internal 
+
+    Used by subclasses generated with dumpcpp to implement cast-operators.
+*/
+void QAxBase::initializeFrom(QAxBase *that)
+{
+    if (d->ptr)
+        return;
+
+    d->ptr = that->d->ptr;
+    if (d->ptr) {
+        d->ptr->AddRef();
+        d->initialized = true;
+    }
+}
+
 
 QAxMetaObject *QAxBase::internalMetaObject() const
 {
@@ -1391,6 +1410,11 @@ public:
     void readEventInfo();
     void readEventInterface(ITypeInfo *eventinfo, IConnectionPoint *cpoint);
 
+    inline void addClassInfo(const char *key, const char *value)
+    {
+        classinfo_list.insert(key, value);
+    }
+
 private:
     void init();
 
@@ -1486,10 +1510,6 @@ private:
     }
 
     QMap<QByteArray, QByteArray> classinfo_list;
-    inline void addClassInfo(const char *key, const char *value)
-    {
-        classinfo_list.insert(key, value);
-    }
 
     inline bool hasClassInfo(const char *key)
     {
@@ -1634,10 +1654,11 @@ QMetaObject *qax_readClassInfo(ITypeLib *typeLib, ITypeInfo *typeInfo, const QMe
 
     QString className;
     BSTR bstr;
-    if (S_OK == typeInfo->GetDocumentation(-1, &bstr, 0, 0, 0))
-        className = BSTRToQString(bstr);
-    else
+    if (S_OK != typeInfo->GetDocumentation(-1, &bstr, 0, 0, 0))
         return 0;
+
+    className = BSTRToQString(bstr);
+    SysFreeString(bstr);
 
 //    generator.readEnumInfo();
 
@@ -1662,12 +1683,21 @@ QMetaObject *qax_readClassInfo(ITypeLib *typeLib, ITypeInfo *typeInfo, const QMe
             if (!interfaceInfo)
                 continue;
 
+            interfaceInfo->GetDocumentation(-1, &bstr, 0, 0, 0);
+            QString interfaceName = BSTRToQString(bstr);
+            SysFreeString(bstr);
+            QByteArray key;
+
             if (flags & IMPLTYPEFLAG_FSOURCE) {
+                key = "Event Interface " + QByteArray::number(index);
                 generator.readEventInterface(interfaceInfo, 0);
             } else {
+                key = "Interface " + QByteArray::number(index);
                 generator.readFuncsInfo(interfaceInfo, 0);
                 generator.readVarsInfo(interfaceInfo, 0);
             }
+            if (!key.isEmpty())
+                generator.addClassInfo(key.data(), interfaceName.ascii());
 
             interfaceInfo->Release();
         }
