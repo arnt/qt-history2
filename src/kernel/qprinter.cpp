@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#17 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#18 $
 **
 ** Implementation of QPrinter class
 **
@@ -12,7 +12,7 @@
 
 #include "qprinter.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#17 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#18 $")
 
 
 /*----------------------------------------------------------------------------
@@ -56,7 +56,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#17 $")
   should from time to time check the aborted() flag and stop painting
   if the print job has been aborted.
 
-  Here is a helloworld for QPrinter:
+  Example (a complete application):
 
   \code
   #include <qapp.h>
@@ -68,13 +68,13 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qprinter.cpp#17 $")
       QApplication a( argc, argv );
 
       QPrinter prt;
-      if ( prt.setup( 0 ) ) {
-          QPainter p;
-          p.begin( &prt );
+      if ( prt.setup(0) ) {
+	  QPainter p;
+	  p.begin( &prt );
 	  p.rotate( 55 );
-          p.setFont( QFont( "times", 144, QFont::Bold ) );
-          p.drawText( 80,30, "Hello world!" );
-          p.end();
+	  p.setFont( QFont("times", 144, QFont::Bold) );
+	  p.drawText( 80,30, "Hello, world!" );
+	  p.end();
       }
       return 0;
   }
@@ -150,7 +150,7 @@ void QPrinter::setOutputToFile( bool enable )
 
 /*----------------------------------------------------------------------------
   \fn const char *QPrinter::outputFileName() const
-  Returns the name of the output file.  There is no default file name.
+  Returns the name of the output file.	There is no default file name.
   \sa setOutputFileName(), setOutputToFile()
  ----------------------------------------------------------------------------*/
 
@@ -315,18 +315,20 @@ void QPrinter::setPageSize( PageSize pageSize )
 
 /*----------------------------------------------------------------------------
   \fn int QPrinter::fromPage() const
-  Returns the from-page setting.  The programmer is responsible for reading
-  this setting and printing accordingly.
-  The default value is 1.
+  Returns the from-page setting. The default value is 0.
+
+  The programmer is responsible for reading this setting and print
+  accordingly.
 
   \sa setFromTo(), toPage()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn int QPrinter::toPage() const
-  Returns the to-page setting.  The programmer is responsible for reading
-  this setting and printing accordingly.
-  The default value is 1.
+  Returns the to-page setting. The default value is 0.
+
+  The programmer is responsible for reading this setting and print
+  accordingly.
 
   \sa setFromTo(), fromPage()
  ----------------------------------------------------------------------------*/
@@ -336,7 +338,7 @@ void QPrinter::setPageSize( PageSize pageSize )
 
   The from-page and to-page settings specify what pages to print.
 
-  \sa fromPage(), toPage()
+  \sa fromPage(), toPage(), setMinMax(), setup()
  ----------------------------------------------------------------------------*/
 
 void QPrinter::setFromTo( int fromPage, int toPage )
@@ -354,13 +356,13 @@ void QPrinter::setFromTo( int fromPage, int toPage )
 
 /*----------------------------------------------------------------------------
   \fn int QPrinter::minPage() const
-  Returns the min-page setting.  The default value is 0.
+  Returns the min-page setting.	 The default value is 0.
   \sa maxPage(), setMinMax()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn int QPrinter::maxPage() const
-  Returns the max-page setting.  The default value is 0.
+  Returns the max-page setting.	 The default value is 0.
   \sa minPage(), setMinMax()
  ----------------------------------------------------------------------------*/
 
@@ -371,7 +373,7 @@ void QPrinter::setFromTo( int fromPage, int toPage )
   When the printer setup dialog comes up, the user cannot select
   from and to that are outsize the range specified by min and max pages.
 
-  \sa minPage(), maxPage(), setup()
+  \sa minPage(), maxPage(), setFromTo(), setup()
  ----------------------------------------------------------------------------*/
 
 void QPrinter::setMinMax( int minPage, int maxPage )
@@ -393,7 +395,7 @@ void QPrinter::setMinMax( int minPage, int maxPage )
   The printer driver reads this setting and prints the specified number of
   copies.
 
-  \sa numCopies()
+  \sa numCopies(), setup()
  ----------------------------------------------------------------------------*/
 
 void QPrinter::setNumCopies( int numCopies )
