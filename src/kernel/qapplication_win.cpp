@@ -1596,13 +1596,12 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 	if ( qApp->type() == QApplication::Tty )
 	    break;
 	if ( QApplication::desktopSettingsAware() && wParam != SPI_SETWORKAREA ) {
-	    QWidgetList *twl = qApp->topLevelWidgets();
-	    QETWidget *w = (QETWidget *) twl->first();
-	    while ( w ) {
-		w->markFrameStrutDirty();
-		w = (QETWidget *) twl->next();
+	    widget = (QETWidget*)QWidget::find( hwnd );
+	    if ( widget ) {
+		widget->markFrameStrutDirty();
+		if ( !widget->parentWidget() )
+		    qt_set_windows_resources();
 	    }
-	    qt_set_windows_resources();
 	}
 	break;
     case WM_SYSCOLORCHANGE:
