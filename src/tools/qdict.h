@@ -95,6 +95,7 @@ public:
     bool  isEmpty() const     { return dict->count() == 0; }
     type *toFirst()	      { return (type *)QGDictIterator::toFirst(); }
     operator type *() const   { return (type *)QGDictIterator::get(); }
+    type *operator*()         { return (type *)QGDictIterator::get(); }
     type   *current() const   { return (type *)QGDictIterator::get(); }
     QString currentKey() const{ return QGDictIterator::getKeyString(); }
     type *operator()()	      { return (type *)QGDictIterator::operator()(); }
