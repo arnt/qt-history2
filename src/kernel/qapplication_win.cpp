@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#58 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#59 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -24,7 +24,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#58 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapplication_win.cpp#59 $");
 
 
 /*****************************************************************************
@@ -39,9 +39,9 @@ static int	numZeroTimers = 0;		// number of full-speed timers
 static HWND	curWin	  = 0;			// current window
 static HANDLE	displayDC = 0;			// display device context
 static QWidget *desktopWidget	= 0;		// desktop window widget
-#if defined(USE_HEARTBEAT)
-static int	heartBeat = 0;			// heatbeat timer
-#endif
+
+// static HWND	autoCapture	= 0;		// Qt auto-capture window
+
 #if defined(DEBUG)
 static bool	appNoGrab	= FALSE;	// mouse/keyboard grabbing
 #endif
@@ -237,9 +237,6 @@ void qt_init( int *argcptr, char **argv )
     QCursor::initialize();
     QPainter::initialize();
     qApp->setName( appName );
-#if defined(USE_HEARTBEAT)
-    heartBeat = SetTimer( 0, 0, 100, 0 );
-#endif
 }
 
 
@@ -267,9 +264,6 @@ void qt_cleanup()
     QColor::cleanup();
     if ( displayDC )
 	ReleaseDC( 0, displayDC );
-#if defined(USE_HEARTBEAT)
-    KillTimer( 0, heartBeat );
-#endif
 }
 
 
@@ -641,29 +635,10 @@ int QApplication::enter_loop()
 	if ( winEventFilter( &msg ) )		// pass through event filter
 	    continue;
 
-#if defined(USE_HEARTBEAT)
-	if ( msg.message == WM_TIMER ) {	// timer message received
-	    if ( msg.wParam != heartBeat )
-		activateTimer( msg.wParam );
-	    else
-	    if ( curWin && qApp ) {		// process heartbeat
-		POINT p;
-		GetCursorPos( &p );
-		if ( WindowFromPoint( p ) != curWin ) {
-		    QWidget *curWidget = QWidget::find(curWin);
-		    QEvent leave( Event_Leave );
-		    QApplication::sendEvent( curWidget, &leave );
-		    curWin = 0;
-		}
-	    }
-	    continue;
-	}
-#else
 	if ( msg.message == WM_TIMER ) {	// timer message received
 	    activateTimer( msg.wParam );
 	    continue;
 	}
-#endif
 
 	if ( msg.message == WM_KEYDOWN || msg.message == WM_KEYUP ) {
 	    if ( translateKeyCode(msg.wParam) == 0 ) {
@@ -781,18 +756,6 @@ LRESULT CALLBACK WndProc( HWND hwnd, UINT message, WPARAM wParam,
 	case WM_PAINT:				// paint event
 	    result = widget->translatePaintEvent( msg );
 	    break;
-
-#if defined(USE_HEARTBEAT)
-	case WM_NCHITTEST: {			// non-client mouse event
-	    LRESULT r = DefWindowProc(hwnd,message,wParam,lParam);
-	    if ( r != HTCLIENT && hwnd == curWin ) {
-		QEvent leave( Event_Leave );
-		QApplication::sendEvent( widget, &leave );
-		curWin = 0;
-	    }
-	    return r;
-	    }
-#endif
 
 	case WM_ERASEBKGND: {			// erase window background
 	    HDC	    hdc = (HDC)wParam;
@@ -1307,13 +1270,15 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
     int	   type;				// event parameters
     int	   button;
     int	   state;
+    int	   i;
 
-    for ( int i=0; mouseTbl[i] != msg.message || !mouseTbl[i]; i += 3 ) ;
+    for ( i=0; mouseTbl[i] != msg.message || !mouseTbl[i]; i += 3 ) ;
     if ( !mouseTbl[i] )
 	return FALSE;
     type   = mouseTbl[++i];			// event type
     button = mouseTbl[++i];			// which button
     state  = translateButtonState( msg.wParam ); // button state
+
     if ( type == Event_MouseMove ) {
 	QCursor *c = qt_grab_cursor();
 	if ( !c )
@@ -1343,8 +1308,7 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    return TRUE;			// same position
 	pos.rx() = (short)curPos.x;
 	pos.ry() = (short)curPos.y;
-    }
-    else {
+    } else {
 	pos.rx() = LOWORD(msg.lParam);		// get position
 	pos.ry() = HIWORD(msg.lParam);
     }
