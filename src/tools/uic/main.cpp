@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
             }
             driver.option().translateFunction = QLatin1String(argv[arg]);
         } else if (!fileName) {
-            fileName = QFile::decodeName(argv[arg]);
+            fileName = argv[arg];
         } else {
             showHelp(argv[0]);
             return 1;
