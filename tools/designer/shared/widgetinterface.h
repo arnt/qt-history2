@@ -24,7 +24,7 @@ public:
     virtual QString whatsThis( const QString& ) = 0;
     virtual bool isContainer( const QString& ) = 0;
 
-    QString interfaceID() const { return "WidgetInterface_QtDesigner_Trolltech_05102000_0516"; }
+    QString interfaceID() const { return "QUnknownInterface/WidgetInterface%QtDesigner_Trolltech"; }
 };
 
 #endif //QWIDGETINTERFACE_H
