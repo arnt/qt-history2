@@ -218,19 +218,20 @@ void QAquaAnimate::timerEvent( QTimerEvent * te )
     if( te->timerId() == d->buttonTimerId ) {
 	if( d->defaultButton && d->defaultButton->isEnabled() && d->defaultButton->isVisibleTo(0) &&
 	    (d->defaultButton->isDefault() || (d->defaultButton->autoDefault() && d->defaultButton->hasFocus()) ) ) {
-	    doAnimate(AquaPushButton);
-	    d->defaultButton->repaint(FALSE);
+	    if(doAnimate(AquaPushButton)) 
+		d->defaultButton->repaint(FALSE);
 	}
     } else if( te->timerId() == d->progressTimerId && !d->progressBars.isEmpty() ) {
-	doAnimate(AquaProgressBar);
-	if( d->progressBars.count() == 1) {
-	    QProgressBar *b = d->progressBars.first();
-	    if(b->progress() > 0)
-		b->repaint(FALSE);
-	} else {
-	    for( QPtrListIterator<QProgressBar> it(d->progressBars); it.current(); ++it) {
-		if((*it)->progress() > 0)
-		    (*it)->repaint( FALSE );
+	if(doAnimate(AquaProgressBar)) {
+	    if( d->progressBars.count() == 1) {
+		QProgressBar *b = d->progressBars.first();
+		if(b->progress() > 0)
+		    b->repaint(FALSE);
+	    } else {
+		for( QPtrListIterator<QProgressBar> it(d->progressBars); it.current(); ++it) {
+		    if((*it)->progress() > 0)
+			(*it)->repaint( FALSE );
+		}
 	    }
 	}
     }

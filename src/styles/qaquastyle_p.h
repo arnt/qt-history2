@@ -100,7 +100,7 @@ public:
 
 protected:
     //finally do the animate..
-    virtual void doAnimate(Animates) = 0;
+    virtual bool doAnimate(Animates) = 0;
     //finally set the focus
     void setFocusWidget(QWidget *);
     virtual void doFocus(QWidget *w) = 0;

@@ -142,13 +142,14 @@ public:
     QGuardedPtr<QAquaStyleFocusWidget> focusWidget;
     
 protected:
-    void doAnimate(QAquaAnimate::Animates);
+    bool doAnimate(QAquaAnimate::Animates);
     void doFocus(QWidget *);
 };
-void QAquaStylePrivate::doAnimate(QAquaAnimate::Animates as)
+bool QAquaStylePrivate::doAnimate(QAquaAnimate::Animates as)
 {
     if(as == QAquaAnimate::AquaProgressBar) 
 	progressOff--;
+    return TRUE;
 }
 void QAquaStylePrivate::doFocus(QWidget *w)
 {

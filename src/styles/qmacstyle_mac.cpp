@@ -79,8 +79,6 @@ public:
 
 #include <string.h>
 
-#define QMAC_NO_MACSTYLE_ANIMATE //just disable animations for now
-
 //externals
 RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
 void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
@@ -160,38 +158,24 @@ int QMacStyleFocusWidget::focusOutset()
 
 class QMacStylePrivate : public QAquaAnimate
 {
-    ControlRef progressbar;
     QGuardedPtr<QMacStyleFocusWidget> focusWidget;
 public:
     struct ButtonState {
 	int frame;
 	enum { ButtonDark, ButtonLight } dir;
     } buttonState;
+    struct ProgressBarState {
+	int frame;
+    } progressbarState;
     QMacStylePrivate();
     ~QMacStylePrivate();
-    ControlRef control(QAquaAnimate::Animates);
 protected:
-    void doAnimate(QAquaAnimate::Animates);
+    bool doAnimate(QAquaAnimate::Animates);
     void doFocus(QWidget *);
 };
-ControlRef
-QMacStylePrivate::control(QAquaAnimate::Animates as)
-{
-    if(as == QAquaAnimate::AquaProgressBar) {
-	if(progressbar)
-	    return progressbar;
-	if(CreateProgressBarControl((WindowPtr)qt_mac_safe_pdev->handle(),
-				     qt_glb_mac_rect(QRect(0, 0, 40, 10), (QPaintDevice*)0, FALSE),
-				     0, 0, 10, false, 0))
-	    qDebug("Unexpected error: %s:%d", __FILE__, __LINE__);
-	else
-	    ShowControl(progressbar);
-	return progressbar;
-    }
-    return 0;
-}
-QMacStylePrivate::QMacStylePrivate() : QAquaAnimate(), progressbar(0) 
+QMacStylePrivate::QMacStylePrivate() : QAquaAnimate()
 { 
+    progressbarState.frame = 0;
     buttonState.frame = 0;
     buttonState.dir = ButtonState::ButtonDark;
 }
@@ -199,11 +183,9 @@ QMacStylePrivate::~QMacStylePrivate()
 {
     buttonState.frame = 0;
     buttonState.dir = ButtonState::ButtonDark;
-    if(progressbar)
-	DisposeControl(progressbar);
-    progressbar = NULL;
+    progressbarState.frame = 0;
 }
-void QMacStylePrivate::doAnimate(QAquaAnimate::Animates as)
+bool QMacStylePrivate::doAnimate(QAquaAnimate::Animates as)
 {
     if(as == AquaPushButton) {
 	if(buttonState.frame == 25 && buttonState.dir == ButtonState::ButtonDark)
@@ -211,17 +193,14 @@ void QMacStylePrivate::doAnimate(QAquaAnimate::Animates as)
 	else if(!buttonState.frame && buttonState.dir == ButtonState::ButtonLight)
 	    buttonState.dir = ButtonState::ButtonDark;
 	buttonState.frame += ((buttonState.dir == ButtonState::ButtonDark) ? 1 : -1);
-    } 
-#ifndef QMAC_NO_MACSTYLE_ANIMATE
-    else {
-	if(QWidgetList *list = qApp->topLevelWidgets()) {
-	    for (QWidget *widget = list->first(); widget; widget = list->next()) {
-		if(widget->isActiveWindow())
-		    IdleControls((WindowPtr)widget->handle());
-	    }
-	}
+    } else if(as == AquaProgressBar) {
+	if(progressbarState.frame == 20)
+	    progressbarState.frame = 0;
+	else
+	    progressbarState.frame++;
+	return FALSE;
     }
-#endif
+    return TRUE;
 }
 void QMacStylePrivate::doFocus(QWidget *w)
 {
@@ -819,33 +798,26 @@ void QMacStyle::drawControl(ControlElement element,
 	if(!widget)
 	    break;
 	QProgressBar *pbar = (QProgressBar *) widget;
-#ifndef QMAC_NO_MACSTYLE_ANIMATE
-	if(ControlRef prgctl = d->control(QAquaAnimate::AquaProgressBar)) {
-	    qDebug("foo..");
-	    SetControlBounds(prgctl, qt_glb_mac_rect(r, p->device()));
-	    SetControlMaximum(prgctl, pbar->totalSteps());
-	    SetControlValue(prgctl, pbar->progress());
-	    ((QMacPainter *)p)->setport();
-	    DrawControlInCurrentPort(prgctl);
-	} else
+	ThemeTrackDrawInfo ttdi;
+	memset(&ttdi, '\0', sizeof(ttdi));
+	ttdi.kind = kThemeLargeProgressBar;
+	if(qt_aqua_size_constrain(widget) == QAquaSizeSmall)
+	    ttdi.kind = kThemeMediumProgressBar;
+	ttdi.bounds = *qt_glb_mac_rect(r, p);
+	ttdi.max = pbar->totalSteps();
+	ttdi.value = pbar->progress();
+#if 0
+	ttdi.bounds.left -= d->progressbarState.frame;
+	if(ttdi.value && ttdi.value != ttdi.max)
+	    ttdi.value += d->progressbarState.frame;
 #endif
-	{
-	    ThemeTrackDrawInfo ttdi;
-	    memset(&ttdi, '\0', sizeof(ttdi));
-	    ttdi.kind = kThemeLargeProgressBar;
-	    if(qt_aqua_size_constrain(widget) == QAquaSizeSmall)
-		ttdi.kind = kThemeMediumProgressBar;
-	    ttdi.bounds = *qt_glb_mac_rect(r, p);
-	    ttdi.max = pbar->totalSteps();
-	    ttdi.value = pbar->progress();
-	    ttdi.attributes |= kThemeTrackHorizontal;
-	    if(!qAquaActive(cg))
-		ttdi.enableState = kThemeTrackInactive;
-	    else if(!pbar->isEnabled())
-		ttdi.enableState = kThemeTrackDisabled;
-	    ((QMacPainter *)p)->setport();
-	    DrawThemeTrack(&ttdi, NULL, NULL, 0);
-	}
+	ttdi.attributes |= kThemeTrackHorizontal;
+	if(!qAquaActive(cg))
+	    ttdi.enableState = kThemeTrackInactive;
+	else if(!pbar->isEnabled())
+	    ttdi.enableState = kThemeTrackDisabled;
+	((QMacPainter *)p)->setport();
+	DrawThemeTrack(&ttdi, NULL, NULL, 0);
 	break; }
     case CE_TabBarTab: {
 	if(!widget)
