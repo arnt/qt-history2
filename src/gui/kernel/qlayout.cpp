@@ -970,6 +970,27 @@ QGridLayout::QGridLayout(int nRows, int nCols,
 
 
 /*!
+\internal (mostly)
+
+Sets the positioning mode used by addItem(). If \a orient is
+Qt::Horizontal, this layout is expanded to \a n columns, and items
+will be added columns-first. Otherwise it is expanded to \a n rows and
+items will be added rows-first.
+*/
+
+void QGridLayout::setDefaultPositioning(int n, Qt::Orientation orient)
+{
+    if (orient == Qt::Horizontal) {
+        d->expand(1, n);
+        d->addVertical = false;
+    } else {
+        d->expand(n,1);
+        d->addVertical = true;
+    }
+}
+
+
+/*!
     Destroys the grid layout. Geometry management is terminated if
     this is a top-level grid.
 

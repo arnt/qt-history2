@@ -306,6 +306,8 @@ public:
     void setGeometry(const QRect&);
 
     void addItem(QLayoutItem *item, int row, int column, int rowSpan = 1, int columnSpan = 1, Qt::Alignment = 0);
+
+    void setDefaultPositioning(int n, Qt::Orientation orient);
 protected:
     bool findWidget(QWidget* w, int *r, int *c);
     void addItem(QLayoutItem *);

@@ -59,6 +59,7 @@ QGrid::QGrid(int n, Qt::Orientation orient, QWidget *parent, Qt::WFlags f)
         nRows = n;
     }
     lay = new QGridLayout(this);
+    lay->setDefaultPositioning(n, orient);
 }
 
 
@@ -72,6 +73,7 @@ QGrid::QGrid(int n, QWidget *parent, Qt::WFlags f)
     : QFrame(parent, f)
 {
     lay = new QGridLayout(this);
+    lay->setDefaultPositioning(n, Qt::Horizontal);
 }
 
 
