@@ -1450,11 +1450,8 @@ void QTable::setCurrentCell( int row, int col )
 	    viewport()->setFocus();
 
 	if ( itm && itm->editType() == QTableItem::WhenCurrent ) {
-	    if ( beginEdit( curRow, curCol, FALSE ) ) {
-		edMode = Editing;
-		editRow = row;
-		editCol = col;
-	    }
+	    if ( beginEdit( curRow, curCol, FALSE ) )
+		setEditMode( Editing, row, col );
 	} else if ( itm && itm->editType() == QTableItem::Always ) {
 	    if ( cellWidget( itm->row(), itm->col() ) )
 		cellWidget( itm->row(), itm->col() )->setFocus();
@@ -1705,15 +1702,24 @@ void QTable::contentsMouseDoubleClickEvent( QMouseEvent *e )
     int tmpRow = rowAt( e->pos().y() );
     int tmpCol = columnAt( e->pos().x() );
     if ( tmpRow != -1 && tmpCol != -1 ) {
-	if ( beginEdit( tmpRow, tmpCol, FALSE ) ) {
-	    edMode = Editing;
-	    editRow = tmpRow;
-	    editCol = tmpCol;
-	}
+	if ( beginEdit( tmpRow, tmpCol, FALSE ) )
+	    setEditMode( Editing, tmpRow, tmpCol );
     }
 
     emit doubleClicked( tmpRow, tmpCol, e->button(), e->pos() );
 }
+
+/*!  Sets the current edit mode to \a mode, the current edit row to \a
+  row and the current edit column to \a col.
+*/
+
+void QTable::setEditMode( EditMode mode, int row, int col )
+{
+    edMode = mode;
+    editRow = row;
+    editCol = col;
+}
+
 
 /*!  \reimp
 */
@@ -1824,10 +1830,17 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 		return TRUE;
 	    }
 
-	    if ( ke->key() == Key_Tab ) {
+	    if ( ke->key() == Key_Tab || ke->key() == Key_BackTab ) {
 		if ( !itm || itm->editType() == QTableItem::OnTyping )
 		    endEdit( editRow, editCol, TRUE, edMode != Editing );
-		setCurrentCell( currentRow(), QMIN( numCols() - 1, currentColumn() + 1 ) );
+		if ( ke->key() == Key_Tab && currentColumn() >= numCols() - 1 )
+		    return TRUE;
+		if ( ke->key() == Key_BackTab && currentColumn() == 0 )
+		    return TRUE;
+		if ( ke->key() == Key_Tab )
+		    setCurrentCell( currentRow(), QMIN( numCols() - 1, currentColumn() + 1 ) );
+		else // Key_BackTab
+		    setCurrentCell( currentRow(), QMAX( 0, currentColumn() - 1 ) );
 		itm = item( curRow, curCol );
 		if ( beginEdit( curRow, curCol, FALSE ) ) {
 		    edMode = Editing;
@@ -1836,7 +1849,7 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 		}
 		return TRUE;
 	    }
-	    
+
 	    if ( ( edMode == Replacing ||
 		   itm && itm->editType() == QTableItem::WhenCurrent ) &&
 		 ( ke->key() == Key_Up || ke->key() == Key_Prior ||
@@ -1946,11 +1959,8 @@ void QTable::keyPressEvent( QKeyEvent* e )
 	navigationKey = TRUE;
 	break;
     case Key_F2:
-	if ( beginEdit( tmpRow, tmpCol, FALSE ) ) {
-	    edMode = Editing;
-	    editRow = tmpRow;
-	    editCol = tmpCol;
-	}
+	if ( beginEdit( tmpRow, tmpCol, FALSE ) )
+	    setEditMode( Editing, tmpRow, tmpCol );
 	break;
     default: // ... or start in-place editing
 	if ( e->text()[ 0 ].isPrint() ) {
@@ -1959,10 +1969,8 @@ void QTable::keyPressEvent( QKeyEvent* e )
 		QWidget *w;
 		if ( ( w = beginEdit( tmpRow, tmpCol,
 				      itm ? itm->isReplaceable() : TRUE ) ) ) {
-		    edMode = ( !itm || itm && itm->isReplaceable()
-			       ? Replacing : Editing );
-		    editRow = tmpRow;
-		    editCol = tmpCol;
+		    setEditMode( ( !itm || itm && itm->isReplaceable()
+				   ? Replacing : Editing ), tmpRow, tmpCol );
 		    QApplication::sendEvent( w, e );
 		}
 	    }
@@ -2588,11 +2596,8 @@ void QTable::endEdit( int row, int col, bool accept, bool replace )
 	return;
 
     if ( !accept ) {
-	if ( row == editRow && col == editCol ) {
-	    editRow = -1;
-	    editCol = -1;
-	    edMode = NotEditing;
-	}
+	if ( row == editRow && col == editCol )
+	    setEditMode( NotEditing, -1, -1 );
 	clearCellWidget( row, col );
     	updateCell( row, col );
 	viewport()->setFocus();
@@ -2611,11 +2616,8 @@ void QTable::endEdit( int row, int col, bool accept, bool replace )
     else
 	i->setContentFromEditor( editor );
 
-    if ( row == editRow && col == editCol ) {
-	editRow = -1;
-	editCol = -1;
-	edMode = NotEditing;
-    }
+    if ( row == editRow && col == editCol )
+	setEditMode( NotEditing, -1, -1 );
 
     viewport()->setFocus();
     updateCell( row, col );

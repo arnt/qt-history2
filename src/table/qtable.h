@@ -266,6 +266,7 @@ public slots:
     virtual void setRowMovingEnabled( bool b );
 
 protected:
+    enum EditMode { NotEditing, Editing, Replacing };
     void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     void contentsMousePressEvent( QMouseEvent* );
     void contentsMouseMoveEvent( QMouseEvent* );
@@ -276,6 +277,7 @@ protected:
     void focusOutEvent( QFocusEvent* );
     void resizeEvent( QResizeEvent * );
     void showEvent( QShowEvent *e );
+    void setEditMode( EditMode mode, int row, int col );
 
     virtual void paintEmptyArea( QPainter *p, int cx, int cy, int cw, int ch );
     virtual void activateNextCell();
@@ -307,8 +309,6 @@ private slots:
     void doAutoScroll();
 
 private:
-    enum EditMode { NotEditing, Editing, Replacing };
-
     void updateGeometries();
     void repaintSelections( QTableSelection *oldSelection,
 			    QTableSelection *newSelection,
