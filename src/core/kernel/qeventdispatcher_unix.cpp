@@ -764,7 +764,10 @@ void QCoreApplication::watchUnixSignal(int sig, bool watch)
         struct sigaction sa;
         sigemptyset(&(sa.sa_mask));
         sa.sa_flags = 0;
-        sa.sa_handler = watch ? signalHandler : SIG_DFL;
+        if (watch)
+            sa.sa_handler = signalHandler;
+        else
+            sa.sa_handler = SIG_DFL;
         sigaction(sig, &sa, 0);
     }
 }
