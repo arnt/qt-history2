@@ -1437,11 +1437,6 @@ void QSqlTable::columnClicked ( int col )
     }
 }
 
-// void QSqlTable::paintFocus( QPainter * p, const QRect & cr )
-// {
-// //    QSqlTable::paintFocus( p, cr );
-// }
-
 /*!  \reimp
 */
 void QSqlTable::repaintCell( int row, int col )
@@ -1591,7 +1586,6 @@ void QSqlTable::setCursor( QSqlCursor* cursor, bool autoPopulate, bool autoDelet
     if ( d->autoDelete )
 	delete sqlCursor();
     if ( cursor ) {
-	//	reset(); ## needed here?
 	QSqlCursorNavigator::setCursor( cursor );
 	if ( autoPopulate ) {
 	    for ( uint i = 0; i < sqlCursor()->count(); ++i )
@@ -1760,8 +1754,7 @@ void QSqlTable::refresh()
     QSqlCursor* cur = sqlCursor();
     if ( !cur )
 	return;
-    QSqlCursorNavigator::refresh();
-    setNumCols(0);
+    setNumCols( 0 );
     d->colIndex.clear();
     if ( d->fld.count() ) {
 	QSqlField* field = 0;
@@ -1780,6 +1773,7 @@ void QSqlTable::refresh()
 	    }
 	}
     }
+    QSqlCursorNavigator::refresh();
     setSize( cur );
 }
 
