@@ -589,10 +589,17 @@ void HelpDialog::insertContents()
 	}
     }
     delete lst;
-
-
     QString manualdir = QString( getenv( "QTDIR" ) ) + "/doc/html/designer-manual.html";
-    QFile file( manualdir );
+    insertContents( manualdir, tr( "Qt Designer Manual" ), lastItem, handbook );
+    manualdir = QString( getenv( "QTDIR" ) ) + "/doc/html/linguist-manual.html";
+    insertContents( manualdir, tr( "Qt Linguist Manual" ), lastItem, linguistDocu );
+}
+
+void HelpDialog::insertContents( const QString &filename, const QString &titl,
+				 HelpNavigationContentsItem *lastItem,
+				 HelpNavigationContentsItem *handbook )
+{
+    QFile file( filename );
     if ( !file.open( IO_ReadOnly ) )
 	return;
     QTextStream ts( &file );
@@ -600,7 +607,7 @@ void HelpDialog::insertContents()
     text = text.simplifyWhiteSpace();
     QValueList<Entry> entries;
 
-    int i = text.find( "Qt Designer Manual" );
+    int i = text.find( titl );
 
     QString link, title;
     int depth = 0;
@@ -671,22 +678,6 @@ void HelpDialog::insertContents()
 	lastItem->setLink( (*it2).link );
     }
 
-    // Linguist contents
-    // I do this manually, because titleMap is only used for the
-    // Qt reference docs. This will be removed when the Assistant becomes
-    // more generalised.
-    lastItem = new HelpNavigationContentsItem( linguistDocu, 0 );
-    lastItem->setText( 0, tr( "Chapter 3: Programmers" ) );
-    lastItem->setLink( "linguist-programmer.html" );
-    lastItem = new HelpNavigationContentsItem( linguistDocu, 0 );
-    lastItem->setText( 0, tr( "Chapter 2: Translators" ) );
-    lastItem->setLink( "linguist-translator.html" );
-    lastItem = new HelpNavigationContentsItem( linguistDocu, 0 );
-    lastItem->setText( 0, tr( "Chapter 1: Release Manager" ) );
-    lastItem->setLink( "linguist-manager.html" );
-    lastItem = new HelpNavigationContentsItem( linguistDocu, 0 );
-    lastItem->setText( 0, tr( "Guide to the Qt Translation tools" ) );
-    lastItem->setLink( "qt-translation-tools.html" );
 }
 
 void HelpDialog::currentContentsChanged( QListViewItem * )

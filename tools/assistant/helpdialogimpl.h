@@ -95,6 +95,9 @@ private:
     void setupTitleMap();
     void saveBookmarks();
     void showContentsTopic();
+    void insertContents( const QString &filename, const QString &title,
+			 HelpNavigationContentsItem *lastItem,
+			 HelpNavigationContentsItem *handbook );
 
 private:
     QMap<QString, QString> titleMap;
