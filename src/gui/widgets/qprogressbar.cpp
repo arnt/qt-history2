@@ -278,7 +278,7 @@ QSize QProgressBar::sizeHint() const
 */
 QSize QProgressBar::minimumSizeHint() const
 {
-    return sizeHint();
+    return QSize(sizeHint().width(), fontMetrics().height() + 2);
 }
 
 /*!
