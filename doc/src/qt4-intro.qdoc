@@ -81,7 +81,7 @@ documentation itself is still far from complete.
 
 \section1 Supported Platforms
 
-The Technology Preview has been not been tested on the entire range
+The Technology Preview has not been tested on the entire range
 of platforms targeted by the final Qt 4.0 release. The following
 platforms are supported:
 
