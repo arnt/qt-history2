@@ -137,6 +137,8 @@ protected:
     QAbstractSocketPrivate *d_ptr;
 
 private:
+    inline int state() {return 0;} //to help catch programming errors: socketState() is the function you want
+
     Q_DECLARE_PRIVATE(QAbstractSocket)
     Q_DISABLE_COPY(QAbstractSocket)
 
