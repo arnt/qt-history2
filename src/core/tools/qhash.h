@@ -173,7 +173,7 @@ public:
 
     inline bool isEmpty() const { return d->size == 0; }
     inline bool operator!() const { return d->size == 0; }
-    inline operator QSafeBool() const { return d.isEmpty ? 0 : &BoolStruct::QTrue; }
+    inline operator QSafeBool() const { return d->size == 0 ? 0 : &BoolStruct::QTrue; }
 
     void reserve(int size);
     inline int capacity() const { return d->numBuckets; }
