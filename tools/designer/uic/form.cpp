@@ -912,9 +912,10 @@ void Uic::createFormImpl( const QDomElement &e )
 	for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
 	    if ( tags.contains( n.tagName()  ) ) {
 		QString page = createObjectImpl( n, objClass, "this" );
-		QString label = DomTool::readAttribute( n, "title", "" ).toString();
+		QString comment;
+		QString label = DomTool::readAttribute( n, "title", "", comment ).toString();
 		out << indent << "addPage( " << page << ", \"\" );" << endl;
-		trout << indent << "setTitle( " << page << ", " << trcall( label ) << " );" << endl;
+		trout << indent << "setTitle( " << page << ", " << trcall( label, comment ) << " );" << endl;
 		QVariant def( FALSE, 0 );
 		if ( DomTool::hasAttribute( n, "backEnabled" ) )
 		    out << indent << "setBackEnabled( " << page << ", " << mkBool( DomTool::readAttribute( n, "backEnabled", def).toBool() ) << endl;

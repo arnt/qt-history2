@@ -31,11 +31,13 @@ class DomTool : public Qt
 {
 public:
     static QVariant readProperty( const QDomElement& e, const QString& name, const QVariant& defValue );
+    static QVariant readProperty( const QDomElement& e, const QString& name, const QVariant& defValue, QString& comment );
     static bool hasProperty( const QDomElement& e, const QString& name );
     static QStringList propertiesOfType( const QDomElement& e, const QString& type );
     static QVariant elementToVariant( const QDomElement& e, const QVariant& defValue );
     static QVariant elementToVariant( const QDomElement& e, const QVariant& defValue, QString &comment );
     static QVariant readAttribute( const QDomElement& e, const QString& name, const QVariant& defValue );
+    static QVariant readAttribute( const QDomElement& e, const QString& name, const QVariant& defValue, QString& comment );
     static bool hasAttribute( const QDomElement& e, const QString& name );
     static QColor readColor( const QDomElement &e );
     static void fixDocument( QDomDocument& );

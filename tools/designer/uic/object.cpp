@@ -255,10 +255,11 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 	for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
 	    if ( tags.contains( n.tagName()  ) ) {
 		QString page = createObjectImpl( n, objClass, objName );
-		QString label = DomTool::readAttribute( n, "title", "" ).toString();
+		QString comment;
+		QString label = DomTool::readAttribute( n, "title", "", comment ).toString();
 		out << indent << objName << "->insertTab( " << page << ", \"\" );" << endl;
 		trout << indent << objName << "->changeTab( " << page << ", "
-		      << trcall( label ) << " );" << endl;
+		      << trcall( label, comment ) << " );" << endl;
 	    }
 	}
     } else if ( objClass == "QWidgetStack" ) {

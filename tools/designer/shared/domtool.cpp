@@ -38,25 +38,34 @@
 
 */
 
-
 /*!
   Returns the contents of property \a name of object \a e as
   variant or the variant passed as \a defValue if the property does
   not exist.
 
   \sa hasProperty()
- */
-QVariant DomTool::readProperty( const QDomElement& e, const QString& name, const QVariant& defValue )
+*/
+QVariant DomTool::readProperty( const QDomElement& e, const QString& name, const QVariant& defValue, QString& comment )
 {
     QDomElement n;
     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName() == "property" ) {
 	    if ( n.attribute( "name" ) != name )
 		continue;
-	    return elementToVariant( n.firstChild().toElement(), defValue );
+	    return elementToVariant( n.firstChild().toElement(), defValue, comment );
 	}
     }
     return defValue;
+}
+
+
+/*!
+  \overload
+ */
+QVariant DomTool::readProperty( const QDomElement& e, const QString& name, const QVariant& defValue )
+{
+    QString comment;
+    return readProperty( e, name, defValue, comment );
 }
 
 /*!
@@ -291,17 +300,26 @@ QColor DomTool::readColor( const QDomElement &e )
 
   \sa hasAttribute()
  */
-QVariant DomTool::readAttribute( const QDomElement& e, const QString& name, const QVariant& defValue )
+QVariant DomTool::readAttribute( const QDomElement& e, const QString& name, const QVariant& defValue, QString& comment )
 {
     QDomElement n;
     for ( n = e.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement() ) {
 	if ( n.tagName() == "attribute" ) {
 	    if ( n.attribute( "name" ) != name )
 		continue;
-	    return elementToVariant( n.firstChild().toElement(), defValue );
+	    return elementToVariant( n.firstChild().toElement(), defValue, comment );
 	}
     }
     return defValue;
+}
+
+/*!
+  \overload
+*/
+QVariant DomTool::readAttribute( const QDomElement& e, const QString& name, const QVariant& defValue )
+{
+    QString comment;
+    return readAttribute( e, name, defValue, comment );
 }
 
 /*!
