@@ -414,12 +414,8 @@ QString Ui3Reader::fixHeaderName(const QString &headerName) const
         return QLatin1String("q3datetimeedit.h");
     else if (headerName == QLatin1String("qtextedit.h"))
         return QLatin1String("q3textedit.h");
-    else if (headerName == QLatin1String("qurl.h"))
-        return QLatin1String("q3url.h");
     else if (headerName == QLatin1String("qbuttongroup.h"))
         return QLatin1String("q3buttongroup.h");
-    else if (headerName == QLatin1String("qcache.h"))
-        return QLatin1String("q3cache.h");
     else if (headerName == QLatin1String("qtoolbar.h"))
         return QLatin1String("q3toolbar.h");
     else if (headerName == QLatin1String("qlistview.h"))
