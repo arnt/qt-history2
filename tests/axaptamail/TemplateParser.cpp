@@ -35,6 +35,8 @@ STDMETHODIMP CTemplateParser::parseTemplate(BSTR inStream, BSTR *outStream)
     QString varName;
     int index( in.find( "%" ) );
     int lastIndex( 0 ), index2;
+    int width( 0 );
+    int widthPos;
 
     while( index != -1 ) {
 	out += in.mid( lastIndex, index - lastIndex );
@@ -43,8 +45,18 @@ STDMETHODIMP CTemplateParser::parseTemplate(BSTR inStream, BSTR *outStream)
 
 	if( ( index2 - index ) == 1 )
 	    out += "%";
-	else
+	else {
+	    widthPos = varName.find( QRegExp( "\\.\\d+" ) );
+	    if( widthPos != -1 ) {
+		width = varName.mid( widthPos + 1 ).toInt();
+		varName.truncate( widthPos );
+	    }
 	    out += dictionary[ varName ];
+	    if( dictionary[ varName ].length() < width ) {
+		for( int i = dictionary[ varName ].length(); i < width; i++ )
+		    out += " ";
+	    }
+	}
 
 	index = index2;
 	lastIndex = index + 1;
