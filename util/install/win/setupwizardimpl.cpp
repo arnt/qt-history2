@@ -672,7 +672,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	QSettings settings;
 	configList->setSorting( -1 );
 	advancedList->setSorting( -1 );
-	QCheckListItem* item;
+	QCheckListItem *item, *staticItem;
 	QCheckListItem *folder;
 	QStringList::Iterator it;
 	connect( &configure, SIGNAL( processExited() ), this, SLOT( configDone() ) );
@@ -726,6 +726,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	entry = settings.readEntry( "/Trolltech/Qt/Library", "Shared", &settingsOK );
 	item = new QCheckListItem( folder, "Static", QCheckListItem::RadioButton );
 	item->setOn( entry == "Static" );
+	staticItem = item;
 	item = new QCheckListItem( folder, "Shared", QCheckListItem::RadioButton );
 	item->setOn( entry == "Shared" );
 
@@ -980,7 +981,7 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	else
 	    setInstallStep( 5 );
 
-	setStaticEnabled( item->text(0) == "Static" && item->isOn() );
+	setStaticEnabled( staticItem->isOn() );
 
 	setBackEnabled( buildPage, false );
 
