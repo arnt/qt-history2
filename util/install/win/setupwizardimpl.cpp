@@ -538,6 +538,16 @@ void SetupWizardImpl::showPage( QWidget* newPage )
     } else if( newPage == optionsPage ) {
 	setInstallStep( 2 );
     } else if( newPage == licensePage ) {
+	QStringList makeCmds = QStringList::split( ' ', "nmake.exe make.exe gmake.exe" );
+	QStringList paths = QStringList::split( QRegExp("[;,]"), QEnvironment::getEnv( "PATH" ) );
+	if( !findFileInPaths( makeCmds[ sysID ], paths ) ) {
+	    setNextEnabled( licensePage, false );
+	    QMessageBox::critical( this, "Environment problems", "The installation program can't find the make command '" + makeCmds[ sysID ] + "'.\nMake sure the path to it "
+					 "is present in the PATH environment variable.\n"
+					 "The installation can't continue." );
+	} else {
+	    setNextEnabled( licensePage, true );
+	}
 	setInstallStep( 3 );
     } else if( newPage == foldersPage ) {
 	QStringList devSys = QStringList::split( ';',"Microsoft Visual Studio path;Borland C++ Builder path;GNU C++ path" );
@@ -942,15 +952,6 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 	QFileInfo fi;
 	totalRead = 0;
 	bool copySuccessful = true;
-
-	QStringList makeCmds = QStringList::split( ' ', "nmake.exe make.exe gmake.exe" );
-	QStringList paths = QStringList::split( QRegExp("[;,]"), QEnvironment::getEnv( "PATH" ) );
-	if( !findFileInPaths( makeCmds[ sysID ], paths ) ) {
-	    QMessageBox::critical( this, "Environment problems", "The installation program can't find the make command '" + makeCmds[ sysID ] + "'.\nMake sure the path to it "
-					 "is present in the PATH environment variable.\n"
-					 "The installation can't continue.", "Yes", QString::null, QString::null, 0, 1 );
-	    return;
-	}
 
 	setInstallStep( 6 );
 	if( !filesCopied ) {
