@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#82 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#83 $
 **
 ** Implementation of QTabBar class
 **
@@ -35,6 +35,14 @@
 
   \sa QTabBar
 */
+
+
+/*! \fn QTab::QTab()
+  Constructs an empty tab.  All fields are set to empty.
+*/
+
+
+/*! Destructs the tab and frees all allocated resource */
 
 QTab::~QTab()
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#92 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#93 $
 **
 ** Implementation of QMenuData class
 **
@@ -683,7 +683,7 @@ void QMenuData::insertSeparator( int index )
     insertAny( 0, 0, 0, 0, 0, index );
 }
 #endif // QT_BUILDER
-    
+
 /*!
   \fn void QMenuData::removeItem( int id )
   Removes the menu item which has the identifier \a id.

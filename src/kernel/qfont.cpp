@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#144 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#145 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -45,15 +45,13 @@
   \ingroup drawing
 
   QFont, more precisely, is a collection of attributes of a font.
-  When Qt needs to draw text, it will look up and load the \link
-  fontmatch.html closest matching installed font \endlink and draw
-  using that.
+  When Qt needs to draw text, it will look up and load the closest
+  matching installed font and draw using that.
 
-  The most important attributes of a QFont are \link setFamily()
-  family, \endlink \link setPointSize() point size, \endlink \link
-  setWeight() weight \endlink and \link setItalic() italic. \endlink
-  There are QFont constructors that take these attributes as
-  arguments, as shown in this example:
+  The most important attributes of a QFont are its family(),
+  pointSize(), weight() and whether it is italic() or not.  There are
+  QFont constructors that take these attributes as arguments, as shown
+  in this example:
 
   \code
     void MyWidget::paintEvent( QPaintEvent * )
@@ -78,8 +76,8 @@
     }
   \endcode
 
-  The default QFont constructor makes a copy of the \link
-  QApplication::font() application's default font. \endlink
+  The default QFont constructor makes a copy of application's default
+  font, QApplication::font().
 
   You can also change these attributes of an existing QFont object
   using functions such as setFamily(), setPointSize(), setWeight() and
@@ -126,13 +124,33 @@
 
   For more general information on fonts, see the
   <a href="http://www.nwalsh.com/comp.fonts/FAQ/">comp.fonts FAQ</a>
-  and for more general information on encodings, see <a
-  href="http://czyborra.com/charsets/">Roman Czyborra's font
-  encodings.</a>
+  and for more general information on encodings, see
+  <a href="http://czyborra.com/charsets/">Roman Czyborra's page</a>
+  about that.
 
   \sa QFontMetrics QFontInfo QApplication::setFont()
   QWidget::setFont() QPainter::setFont() QFont::StyleHint
   QFont::CharSet QFont::Weight
+*/
+
+/*! \enum QFont::CharSet
+
+  The following character set encodings are available: <ul>
+  <li> \c QFont::ISO_8859_1 - Latin1 , common in much of Europe
+  <li> \c QFont::ISO_8859_2 - Latin2, Central and Eastern European character set
+  <li> \c QFont::ISO_8859_3 - Latin3, less common European character set
+  <li> \c QFont::ISO_8859_4 - Latin4, less common European character set
+  <li> \c QFont::ISO_8859_5, Cyrillic
+  <li> \c QFont::ISO_8859_6, Arabic
+  <li> \c QFont::ISO_8859_7, Greek
+  <li> \c QFont::ISO_8859_8, Hebrew
+  <li> \c QFont::ISO_8859_9, Turkish
+  <li> \c QFont::ISO_8859_10..15, other ISO 8859 characters sets
+  <li> \c QFont::KOI8R - KOI8-R, Cyrillic, defined in
+       <a href="ftp://ftp.nordu.net/rfc/rfc1489.txt">RFC 1489.</a>
+  <li> \c QFont::AnyCharSet - whatever is handiest.
+  </ul>
+
 */
 
 
@@ -723,31 +741,10 @@ QFont::CharSet QFont::charSet() const
 }
 
 /*!
-  \enum QFont::CharSet
-
-  The following character set encodings are available: <ul>
-  <li> \c QFont::ISO_8859_1 - Latin1 , common in much of Europe
-  <li> \c QFont::ISO_8859_2 - Latin2, Central and Eastern European character set
-  <li> \c QFont::ISO_8859_3 - Latin3, less common European character set
-  <li> \c QFont::ISO_8859_4 - Latin4, less common European character set
-  <li> \c QFont::ISO_8859_5, Cyrillic
-  <li> \c QFont::ISO_8859_6, Arabic
-  <li> \c QFont::ISO_8859_7, Greek
-  <li> \c QFont::ISO_8859_8, Hebrew
-  <li> \c QFont::ISO_8859_9, Turkish
-  <li> \c QFont::ISO_8859_10..15, other ISO 8859 characters sets
-  <li> \c QFont::KOI8R - KOI8-R, Cyrillic, defined in
-       <a href="ftp://ftp.nordu.net/rfc/rfc1489.txt">RFC 1489.</a>
-  <li> \c QFont::AnyCharSet - whatever is handiest.
-  </ul>
-
-*/
-
-/*!
   Sets the character set encoding (e.g. \c Latin1).
 
   If the character set encoding is not available another will be used
-  for drawing.  for most non-trivial applications you will probably
+  for drawing.  For most non-trivial applications you will probably
   not want this to happen since it can totally obscure the text shown
   to the user.  This is why the \link fontmatch.html font
   matching algorithm \endlink gives high priority to finding the
@@ -756,25 +753,24 @@ QFont::CharSet QFont::charSet() const
   You can test that the character set is correct using the QFontInfo
   class.
 
-  Example:
-  \code
-    QFont     font( "times", 14 );	     // default character set is Latin1
-    QFontInfo info( font );
-    if ( info.charSet() != Latin1 )	     // check actual font
-	qFatal( "Cannot find a Latin 1 Times font" );
-  \endcode
-
   \sa charSet(), QFontInfo, \link fontmatch.html font matching\endlink
 */
 
 void QFont::setCharSet( CharSet charset )
 {
-    if ( (CharSet)d->req.charSet != charset ) {
-	detach();
-	d->req.charSet = charset;
-	d->req.dirty   = TRUE;
-    }
+    if ( (CharSet)d->req.charSet == charset )
+	return;
+
+    detach();
+    d->req.charSet = charset;
+    d->req.dirty   = TRUE;
 }
+
+
+/*!  Returns a guess at the character set most likely to be
+  appropriate for the locale the application is running in.  This is
+  the character sets fonts will use by default.
+*/
 
 QFont::CharSet QFont::charSetForLocale()
 {
