@@ -393,7 +393,10 @@ void QSqlDatabase::removeDatabase(const QString& connectionName)
 
 QStringList QSqlDatabase::drivers()
 {
-    QStringList l = loader()->keys();
+    QStringList l;
+    if (QFactoryLoader *fl = loader())
+        l = fl->keys();
+
     DriverDict dict = QSqlDatabasePrivate::driverDict();
     for (DriverDict::ConstIterator itd = dict.constBegin(); itd != dict.constEnd(); ++itd) {
         if (!l.contains(itd.key()))
@@ -606,7 +609,7 @@ void QSqlDatabasePrivate::init(const QString& type)
         }
     }
 
-    if (!driver) {
+    if (!driver && loader()) {
         if (QSqlDriverFactoryInterface *factory = qt_cast<QSqlDriverFactoryInterface*>(loader()->instance(type)))
             driver = factory->create(type);
     }
