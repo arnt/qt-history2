@@ -424,6 +424,7 @@
 #      define Q_TYPENAME
 #      define Q_BROKEN_TEMPLATE_SPECIALIZATION
 #      define Q_STRICT_INLINING_RULES
+#      define Q_NO_EXPLICIT_KEYWORD
 #    elif defined(_COMPILER_VERSION) && (_COMPILER_VERSION < 730) /* 7.2 */
 #      define Q_TYPENAME
 #      define Q_BROKEN_TEMPLATE_SPECIALIZATION
