@@ -387,21 +387,22 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 	    archiveHeader = ar.readArchiveHeader();
 	}
     }
-    int sysGroupButton = 0;
+    int sysGroupButton = 2;
+
+    // First check for MSVC 6.0
+    QString regValue = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual Studio", "ProductDir", QEnvironment::LocalMachine );
+    if ( regValue.length() )
+	sysGroupButton = 1;
+
+    // MSVC.NET takes presedence over 6.0
+    regValue = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VC", "ProductDir", QEnvironment::LocalMachine );
+    if ( regValue.length() )
+	sysGroupButton = 0;
+
     if ( archiveHeader ) {
 	QString qt_version_str = archiveHeader->description();
 	if ( !qt_version_str.isEmpty() )
 	    globalInformation.setQtVersionStr( qt_version_str );
-
-	// First check for MSVC 6.0
-	QString regValue = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual Studio", "ProductDir", QEnvironment::LocalMachine );
-	if ( regValue.length() )
-	    sysGroupButton = 1;
-
-	// MSVC.NET takes presedence over 6.0
-	regValue = QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VC", "ProductDir", QEnvironment::LocalMachine );
-	if ( regValue.length() )
-	    sysGroupButton = 0;
 
 #if defined(EVAL) || defined(EDU)
 	if ( archiveHeader->findExtraData( "compiler" ) == "borland" ) {
@@ -410,7 +411,6 @@ SetupWizardImpl::SetupWizardImpl( QWidget* pParent, const char* pName, bool moda
 #endif
 	delete archiveHeader;
     }
-
 
     initPages();
     initConnections();
@@ -1097,28 +1097,11 @@ void SetupWizardImpl::showPage( QWidget* newPage )
 
 void SetupWizardImpl::showPageLicense()
 {
-    if ( !findFile( "string.h" ) ) {
-	QMessageBox::critical( this, "Environment problems",
-			      "The file 'string.h' could not be located in any directory\n"
-			      "listed in the 'INCLUDE' environment variable.\n"
-			      "You might have to install the platform headers, or adjust\n"
-			      "the environment variables of your system, and restart the\n"
-			      "installation.\n\n"
-			      "Please contact your local system administration if you have\n"
-			      "difficulties finding the file, or if you don't know how to\n"
-			      "modify the environment settings on your system." );
-	qApp->quit();
-    }
     licenseChanged();
 }
 
 void SetupWizardImpl::showPageOptions()
 {
-    static bool firstTime = FALSE;
-    if ( firstTime )
-	return;
-    firstTime = TRUE;
-
     // First make sure that the current license information is saved
     if( !globalInformation.reconfig() )
 	writeLicense( QDir::homeDirPath() + "/.qt-license" );
@@ -1148,17 +1131,6 @@ void SetupWizardImpl::showPageOptions()
     optionsPage->sysMsvc->setEnabled( FALSE );
     optionsPage->sysBorland->setEnabled( FALSE );
 #endif
-
-    if ( !QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VS", "ProductDir", QEnvironment::LocalMachine ).isEmpty() ) {
-	globalInformation.setSysId( GlobalInformation::MSVCNET );
-	optionsPage->sysMsvcNet->setChecked( TRUE );
-    } else if ( !QEnvironment::getRegistryString( "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual Studio", "ProductDir", QEnvironment::LocalMachine ).isEmpty() ) {
-	optionsPage->sysMsvc->setChecked( TRUE );
-	globalInformation.setSysId( GlobalInformation::MSVC );
-    } else {
-	optionsPage->sysBorland->setChecked( TRUE );
-	globalInformation.setSysId( GlobalInformation::Borland );
-    }
 }
 
 void SetupWizardImpl::showPageFolders()
@@ -1176,6 +1148,19 @@ void SetupWizardImpl::showPageFolders()
 				     "system. Please contact your local system administration if "
 				     "you have difficulties finding the files, or if you don't "
 				     "know how to modifiy the environment settings of your system." );
+	qApp->quit();
+    }
+    if ( globalInformation.sysId() != GlobalInformation::Borland && !findFile( "string.h" ) ) {
+	QMessageBox::critical( this, "Environment problems",
+			      "The file 'string.h' could not be located in any directory\n"
+			      "listed in the 'INCLUDE' environment variable.\n"
+			      "You might have to install the platform headers, or adjust\n"
+			      "the environment variables of your system, and restart the\n"
+			      "installation.\n\n"
+			      "Please contact your local system administration if you have\n"
+			      "difficulties finding the file, or if you don't know how to\n"
+			      "modify the environment settings on your system." );
+	qApp->quit();
     }
 
     QStringList devSys = QStringList::split( ';',"Microsoft Visual Studio 6.0 path;Borland C++ Builder path;GNU C++ path;MAC X buildtool path;Microsoft Visual Studio .NET path" );
@@ -2106,12 +2091,12 @@ bool SetupWizardImpl::findFile( const QString &fileName )
 #else
     QRegExp split( "[:]" );
 #endif
-    if ( file.endsWith( ".exe" ) || file.endsWith( ".dll" ) )
-	paths = QStringList::split( split, QEnvironment::getEnv( "PATH" ) );
-    else if ( file.endsWith( ".h" ) )
+    if ( file.endsWith( ".h" ) )
 	paths = QStringList::split( split, QEnvironment::getEnv( "INCLUDE" ) );
     else if ( file.endsWith( ".lib" ) )
 	paths = QStringList::split( split, QEnvironment::getEnv( "LIB" ) );
+    else
+	paths = QStringList::split( split, QEnvironment::getEnv( "PATH" ) );
 
     return findFileInPaths( file, paths );
 }
