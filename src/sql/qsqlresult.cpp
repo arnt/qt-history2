@@ -115,7 +115,7 @@ void QSqlResultPrivate::namedToPositionalBinding()
 {
     QRegExp rx("'[^']*'|:([a-zA-Z0-9_]+)");    
     QString q = sql;
-    int i = 0, cnt = 0;
+    int i = 0, cnt = -1;
     while ( (i = rx.search( q, i )) != -1 ) {
 	if ( rx.cap(1).isEmpty() ) {
 	    i += rx.matchedLength();
@@ -501,6 +501,8 @@ void QSqlResult::bindValue( const QString& placeholder, const QVariant& val, QSq
     // bindings - don't reset it
     int idx = d->index.value( placeholder, -1 );
     if ( idx >= 0 ) {
+	if ( d->values.count() <= idx )
+	    d->values.resize( idx + 1 );
 	d->values[ idx ] = val;
     } else {
 	d->values.append( val );
