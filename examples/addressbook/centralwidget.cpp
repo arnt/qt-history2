@@ -242,6 +242,8 @@ void ABCentralWidget::selectionChanged()
 
 void ABCentralWidget::itemSelected( QListViewItem *item )
 {
+    if ( !item )
+	return;
     item->setSelected( TRUE );
     item->repaint();
 
