@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.cpp#13 $
+** $Id: //depot/qt/main/src/tools/qstringlist.cpp#14 $
 **
 ** Implementation of QStringList
 **
@@ -97,10 +97,22 @@ void QStringList::sort()
     qHeapSort(*this);
 }
 
+/*!
+  Splits the string \a str using \a sep as separator. Returns the
+  list of strings. If \a str doesn't contain \sep, a stringlist
+  with one item, which is the same as \str, is returned.
+*/
+
 QStringList QStringList::split( const QString &str, const QChar &sep)
 {
     return split( str, QString( sep ) );
 }
+
+/*!
+  Splits the string \a str using \a sep as separator. Returns the
+  list of strings. If \a str doesn't contain \sep, a stringlist
+  with one item, which is the same as \str, is returned.
+*/
 
 QStringList QStringList::split( const QString &str, const QString &sep )
 {
@@ -108,7 +120,7 @@ QStringList QStringList::split( const QString &str, const QString &sep )
 
     int j = 0;
     int i = str.find( sep, j );
-    
+
     while ( i != -1 ) {
         if ( str.mid( j, i - j ).length() > 0 )
             lst.append( str.mid( j, i - j ) );
