@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#98 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#99 $
 **
 ** Implementation of QListView widget class
 **
@@ -26,7 +26,7 @@
 #include <stdlib.h> // qsort
 #include <ctype.h> // tolower
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#98 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#99 $");
 
 
 const int Unsorted = 16383;
@@ -800,11 +800,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
     int r = lv ? lv->itemMargin() : 2;
     QPixmap * icon = 0; // ### temporary! to be replaced with an array
 
-    int marg = lv ? lv->itemMargin() : 2;
-    p->fillRect( 0, 0, width, marg, cg.base() );
-    p->fillRect( 0, marg, marg, height()-2*marg, cg.base() );
-    p->fillRect( width-marg, marg, marg, height()-2*marg, cg.base() );
-    p->fillRect( 0, height()-marg, width, marg, cg.base() );
+    p->fillRect( 0, 0, width, height(), cg.base() );
 
     if ( icon && !column ) {
 	p->drawPixmap( 0, (height()-icon->height())/2, *icon );
@@ -814,25 +810,26 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 
     const char * t = text( column );
     if ( t ) {
+ 	int marg = lv ? lv->itemMargin() : 2;
+ 
 	if ( isSelected() &&
 	     (column==0 || listView()->allColumnsShowFocus()) ) {
 	    if ( listView()->style() == WindowsStyle ) {
-		p->setBackgroundColor(QApplication::winStyleHighlightColor());
+ 		p->fillRect( r - marg, 0, width - r + marg,
+ 			    height(), QApplication::winStyleHighlightColor() );
 		p->setPen( white ); // ###
 	    } else {
-		p->setBackgroundColor( cg.text() );
+ 		p->fillRect( r - marg, 0, width - r
+ 				+ marg, height(), cg.text() );
 		p->setPen( cg.base() );
 	    }
 	} else {
 	    p->setPen( cg.text() );
 	    p->setBackgroundColor( cg.base() );
 	}
-	p->setBackgroundMode( OpaqueMode );
 	// should do the ellipsis thing in drawText()
 	p->drawText( r, 0, width-marg-r, height(),
 		     align | AlignVCenter, t );
-    } else {
-	p->fillRect( r - marg, 0, width - r + marg, height(), cg.base() );
     }
 }
 
