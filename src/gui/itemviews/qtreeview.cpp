@@ -39,7 +39,7 @@ public:
     int childRowCount(const QModelIndex &parent) const;
     int childColumnCount(const QModelIndex &parent) const;
 
-    QVariant data(const QModelIndex &index, int role = QAbstractItemModel::Role_Display) const;
+    QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
 
     bool insertRows(int row, const QModelIndex &parent = QModelIndex(), int count = 1);
@@ -132,7 +132,7 @@ int QTreeModel::columnCount() const
 void QTreeModel::setColumnText(int column, const QString &text)
 {
     QModelIndex index = createIndex(0, column, 0, QModelIndex::HorizontalHeader);
-    setData(index, QAbstractItemModel::Role_Display, text);
+    setData(index, QAbstractItemModel::DisplayRole, text);
 }
 
 /*!
@@ -144,7 +144,7 @@ void QTreeModel::setColumnText(int column, const QString &text)
 void QTreeModel::setColumnIconSet(int column, const QIconSet &iconSet)
 {
     QModelIndex index = createIndex(0, column, 0, QModelIndex::HorizontalHeader);
-    setData(index, QAbstractItemModel::Role_Decoration, iconSet);
+    setData(index, QAbstractItemModel::DecorationRole, iconSet);
 }
 
 /*!
@@ -155,7 +155,7 @@ void QTreeModel::setColumnIconSet(int column, const QIconSet &iconSet)
 QString QTreeModel::columnText(int column) const
 {
     QModelIndex index = createIndex(0, column, 0, QModelIndex::HorizontalHeader);
-    return data(index, QAbstractItemModel::Role_Display).toString();
+    return data(index, QAbstractItemModel::DisplayRole).toString();
 }
 
 /*!
@@ -166,7 +166,7 @@ QString QTreeModel::columnText(int column) const
 QIconSet QTreeModel::columnIconSet(int column) const
 {
     QModelIndex index = createIndex(0, column, 0, QModelIndex::HorizontalHeader);
-    return data(index, QAbstractItemModel::Role_Decoration).toIconSet();
+    return data(index, QAbstractItemModel::DecorationRole).toIconSet();
 }
 
 /*!
@@ -482,7 +482,7 @@ QVariant QTreeViewItem::data(int column, int role) const
     if (column < 0 || column >= c)
         return QVariant();
     const QVector<Data> column_values = values.at(column);
-    role = (role == QAbstractItemModel::Role_Edit ? QAbstractItemModel::Role_Display : role);
+    role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
     for (int i = 0; i < column_values.count(); ++i) {
         if (column_values.at(i).role == role)
             return column_values.at(i).value;
@@ -501,7 +501,7 @@ void QTreeViewItem::setData(int column, int role, const QVariant &value)
     if (column >= c)
         setColumnCount(column + 1);
     QVector<Data> column_values = values.at(column);
-    role = (role == QAbstractItemModel::Role_Edit ? QAbstractItemModel::Role_Display : role);
+    role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
     for (int i = 0; i < column_values.count(); ++i) {
         if (column_values.at(i).role == role) {
             values[column][i].value = value;

@@ -46,7 +46,7 @@ public:
     QSqlRelationalTableModel(QObject *parent = 0, QSqlDatabase db = QSqlDatabase());
     virtual ~QSqlRelationalTableModel();
 
-    QVariant data(const QModelIndex &item, int role = QAbstractItemModel::Role_Display) const;
+    QVariant data(const QModelIndex &item, int role = QAbstractItemModel::DisplayRole) const;
     bool setData(const QModelIndex &item, int role, const QVariant &value);
     void clear();
 

@@ -41,7 +41,7 @@ public:
 
     bool isEditable(const QModelIndex &) const;
 
-    QVariant data(const QModelIndex &idx, int role = QAbstractItemModel::Role_Display) const;
+    QVariant data(const QModelIndex &idx, int role = QAbstractItemModel::DisplayRole) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
     bool isDirty(const QModelIndex &index) const;
     void clear();
@@ -60,7 +60,7 @@ public:
     QString filter() const;
     virtual void setFilter(const QString &filter);
 
-    int rowCount(const QModelIndex &parent = QModelIndex()) const;
+    int rowCount() const;
     bool removeColumn(int column, const QModelIndex &parent = QModelIndex());
     bool removeRow(int row, const QModelIndex &parent = QModelIndex());
 

@@ -94,23 +94,23 @@ class Q_GUI_EXPORT QAbstractItemModel : public QObject
 
 public:
     enum Role {
-        Role_Display = 0,
-        Role_Decoration = 1,
-        Role_Edit = 2,
-        Role_ToolTip = 3,
-        Role_StatusTip = 4,
-        Role_WhatsThis = 5,
-        Role_User = 32
+        DisplayRole = 0,
+        DecorationRole = 1,
+        EditRole = 2,
+        ToolTipRole = 3,
+        StatusTipRole = 4,
+        WhatsThisRole = 5,
+        UserRole = 32
     };
 
     enum MatchFlag {
-        Match_Contains = 0,
-        Match_FromStart = 1,
-        Match_FromEnd = 2,
-        Match_Exactly = Match_FromStart | Match_FromEnd,
-        Match_Case = 4,
-        Match_Wrap = 8,
-        Match_Default = Match_FromStart | Match_Wrap
+        MatchContains = 0,
+        MatchFromStart = 1,
+        MatchFromEnd = 2,
+        MatchExactly = MatchFromStart | MatchFromEnd,
+        MatchCase = 4,
+        MatchWrap = 8,
+        MatchDefault = MatchFromStart | MatchWrap
     };
 
     Q_DECLARE_FLAGS(MatchFlags, MatchFlag);
@@ -136,10 +136,10 @@ public:
     virtual bool decode(QDropEvent *e, const QModelIndex &parent = QModelIndex());
     virtual QDragObject *dragObject(const QModelIndexList &indices, QWidget *dragSource);
 
-    virtual QVariant data(const QModelIndex &index, int role = Role_Display) const = 0;
+    virtual QVariant data(const QModelIndex &index, int role = DisplayRole) const = 0;
     virtual bool setData(const QModelIndex &index, int role, const QVariant &value);
     inline bool setData(const QModelIndex &index, const QVariant &value)
-        { return setData(index, Role_Edit, value); }
+        { return setData(index, EditRole, value); }
 
     virtual QMap<int, QVariant> itemData(const QModelIndex &index) const;
     virtual bool setItemData(const QModelIndex &index, const QMap<int, QVariant> &roles);
@@ -165,7 +165,7 @@ public:
     virtual QModelIndex buddy(const QModelIndex &index) const;
 
     virtual QModelIndexList match(const QModelIndex &start, int role, const QVariant &value,
-                                  int hits = 1, MatchFlags flags = Match_Default) const;
+                                  int hits = 1, MatchFlags flags = MatchDefault) const;
 
 signals:
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);

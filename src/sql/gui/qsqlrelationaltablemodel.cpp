@@ -67,7 +67,7 @@ QSqlRelationalTableModel::~QSqlRelationalTableModel()
 
 QVariant QSqlRelationalTableModel::data(const QModelIndex &item, int role) const
 {
-    if (role == Role_Display && item.column() > 0 && item.column() < d->relations.count()) {
+    if (role == DisplayRole && item.column() > 0 && item.column() < d->relations.count()) {
         const QVariant v = d->relations.at(item.column()).displayValues.value(item.row());
         if (v.isValid())
             return v;
@@ -78,7 +78,7 @@ QVariant QSqlRelationalTableModel::data(const QModelIndex &item, int role) const
 
 bool QSqlRelationalTableModel::setData(const QModelIndex &item, int role, const QVariant &value)
 {
-    if (role == Role_Display && item.column() > 0 && item.column() < d->relations.count()) {
+    if (role == DisplayRole && item.column() > 0 && item.column() < d->relations.count()) {
         d->relations[item.column()].displayValues[item.row()] = value;
         return true;
     }

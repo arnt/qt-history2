@@ -630,14 +630,14 @@ QAbstractItemModel::~QAbstractItemModel()
     it, each with its own role. The roles are used when visualizing
     and editing the items in the views.
 
-    \value Role_Display The data rendered as text.
-    \value Role_Decoration The data rendered as an icon.
-    \value Role_Edit The data in a form suitable for editing in an item editor.
-    \value Role_ToolTip The data displayed in the item's tooltip.
-    \value Role_StatusTip The data displayed in the status bar.
-    \value Role_WhatsThis The data displayed for the item in "What's This?"
+    \value DisplayRole The data rendered as text.
+    \value DecorationRole The data rendered as an icon.
+    \value EditRole The data in a form suitable for editing in an item editor.
+    \value ToolTipRole The data displayed in the item's tooltip.
+    \value StatusTipRole The data displayed in the status bar.
+    \value WhatsThisRole The data displayed for the item in "What's This?"
     mode.
-    \value Role_User The first custom role defined by the user.
+    \value UserRole The first custom role defined by the user.
 */
 
 /*!
@@ -758,7 +758,7 @@ QDragObject *QAbstractItemModel::dragObject(const QModelIndexList &indices, QWid
 QMap<int, QVariant> QAbstractItemModel::itemData(const QModelIndex &index) const
 {
     QMap<int, QVariant> roles;
-    for (int i = 0; i < Role_User; ++i) {
+    for (int i = 0; i < UserRole; ++i) {
         QVariant variantData = data(index, i);
         if (variantData != QVariant::Invalid)
             roles.insert(i, variantData);
@@ -989,13 +989,13 @@ QModelIndex QAbstractItemModel::buddy(const QModelIndex &) const
 /*!
     \enum QAbstractItemModel::MatchFlag
 
-    \value Match_Contains The value is contained in the item.
-    \value Match_FromStart The value matches the start of the item.
-    \value Match_FromEnd The value matches the end of the item.
-    \value Match_Exactly The value matches the item exactly.
-    \value Match_Case The search is case sensitive.
-    \value Match_Wrap The search wraps around.
-    \value Match_Default The default match, which is Match_FromStart|Match_Wrap.
+    \value MatchContains The value is contained in the item.
+    \value MatchFromStart The value matches the start of the item.
+    \value MatchFromEnd The value matches the end of the item.
+    \value MatchExactly The value matches the item exactly.
+    \value MatchCase The search is case sensitive.
+    \value MatchWrap The search wraps around.
+    \value MatchDefault The default match, which is MatchFromStart|MatchWrap.
 */
 
 /*!
@@ -1003,7 +1003,7 @@ QModelIndex QAbstractItemModel::buddy(const QModelIndex &) const
     \a role based on the \a flags. The list may be empty. The search
     starts from index \a start and continues until the number of
     matching data items equals \a hits or the search reaches the last
-    row or \a start, depending on whether \c Match_Wrap is specified
+    row or \a start, depending on whether \c MatchWrap is specified
     in \a flags or not.
 
     \sa QAbstractItemModel::MatchFlag
@@ -1014,7 +1014,7 @@ QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
 {
     QString val = value.toString();
 
-    if (!(flags & Match_Case))
+    if (!(flags & MatchCase))
         val = val.toLower();
 
     QModelIndexList result;
@@ -1022,12 +1022,12 @@ QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
     QModelIndex par = parent(start);
     QString itemText;
     int col = start.column();
-    int matchType = flags & Match_Exactly;
+    int matchType = flags & MatchExactly;
     int rc = par.isValid() ? childRowCount(par) : rowCount();
 
     // iterates twice if wrapping
     for (int i = 0; i < 2 && result.count() < hits; ++i) {
-        if (!(flags & Match_Wrap) && i == 1)
+        if (!(flags & MatchWrap) && i == 1)
             break;
         int rowStart = (i == 0) ? start.row() : 0;
         int rowEnd = (i == 0) ? rc : start.row();
@@ -1035,23 +1035,23 @@ QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
         for (int row = rowStart; row < rowEnd && result.count() < hits; ++row) {
             idx = index(row, col, par);
             itemText = data(idx, role).toString();
-            if (!(flags & Match_Case))
+            if (!(flags & MatchCase))
                 itemText = itemText.toLower();
 
             switch (matchType) {
-            case Match_Exactly:
+            case MatchExactly:
                 if (itemText == val)
                     result.append(idx);
                 break;
-            case Match_FromStart:
+            case MatchFromStart:
                 if (itemText.startsWith(val))
                     result.append(idx);
                 break;
-            case Match_FromEnd:
+            case MatchFromEnd:
                 if (itemText.endsWith(val))
                     result.append(idx);
                 break;
-            case Match_Contains:
+            case MatchContains:
             default:
                 if (itemText.contains(val))
                     result.append(idx);

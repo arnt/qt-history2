@@ -774,7 +774,7 @@ bool QSqlTableModel::insertRow(int row, const QModelIndex &parent, int count)
     emit primeInsert(row, d->editBuffer);
 #define UGLY_WORKAROUND
 #ifdef UGLY_WORKAROUND
-    emit rowsRemoved(parent, row, bottomRight().row());
+    emit rowsRemoved(parent, row, rowCount() - 1);
     emit rowsInserted(parent, row, rowCount() + 1);
 #else
     // broken atm
@@ -785,10 +785,10 @@ bool QSqlTableModel::insertRow(int row, const QModelIndex &parent, int count)
 
 /*! \reimp
  */
-int QSqlTableModel::rowCount(const QModelIndex &parent) const
+int QSqlTableModel::rowCount() const
 {
-    int rc = QSqlModel::rowCount(parent);
-    if (!parent.isValid() && d->insertIndex >= 0)
+    int rc = QSqlModel::rowCount();
+    if (d->insertIndex >= 0)
         ++rc;
     return rc;
 }

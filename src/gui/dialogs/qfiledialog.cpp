@@ -982,7 +982,7 @@ void QFileDialog::deletePressed(const QModelIndex &index)
 void QFileDialog::currentChanged(const QModelIndex &, const QModelIndex &current)
 {
     if (!d->fileName->hasFocus() && current.isValid()) {
-        QString text = d->model->data(current, QAbstractItemModel::Role_Display).toString();
+        QString text = d->model->data(current, QAbstractItemModel::DisplayRole).toString();
         d->fileName->setText(text);
     }
 }
@@ -1000,14 +1000,14 @@ void QFileDialog::fileNameChanged(const QString &text)
         QModelIndex current = d->current();
         if (!current.isValid())
             current = d->model->index(0, 0, d->root());
-        QModelIndexList indices = d->model->match(current, QAbstractItemModel::Role_Display, text);
+        QModelIndexList indices = d->model->match(current, QAbstractItemModel::DisplayRole, text);
         int key = d->fileName->lastKeyPressed();
         if (indices.count() <= 0) { // no matches
             d->lview->selectionModel()->clear();
         } else if (key != Qt::Key_Delete && key != Qt::Key_Backspace) {
             d->setCurrent(indices.first());
             QString completed = d->model->data(indices.first(),
-                                               QAbstractItemModel::Role_Display).toString();
+                                               QAbstractItemModel::DisplayRole).toString();
             int start = completed.length();
             int length = text.length() - start; // negative length
             bool block = d->fileName->blockSignals(true);
@@ -1041,7 +1041,7 @@ void QFileDialog::lookInChanged(const QString &text)
             QString searchText = text.section(QDir::separator(), -1);
             int rowCount = d->lview->rowCount(dirIndex);
             QModelIndexList indices = d->model->match(d->model->index(0, 0, dirIndex),
-                                                      QAbstractItemModel::Role_Display,
+                                                      QAbstractItemModel::DisplayRole,
                                                       searchText, rowCount);
             for (int i = 0; i < indices.count(); ++i) {
                 if (d->model->isDir(indices.at(i))) {
@@ -1481,7 +1481,7 @@ void QFileDialogPrivate::updateButtons(const QModelIndex &index)
     back->setEnabled(history.count() > 0);
     QString pth = d->model->path(index);
     QIconSet icn = d->model->icons(index);
-    int i = lookIn->findItem(pth, QAbstractItemModel::Match_Exactly);
+    int i = lookIn->findItem(pth, QAbstractItemModel::MatchExactly);
     bool block = lookIn->blockSignals(true);
     if (i > -1) {
         lookIn->setCurrentItem(i);

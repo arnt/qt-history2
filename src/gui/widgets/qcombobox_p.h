@@ -150,8 +150,8 @@ private:
             opt.checkState = QStyleOptionMenuItem::Unchecked;
         }
         opt.menuItemType = QStyleOptionMenuItem::Normal;
-        opt.icon = model->data(index, QAbstractItemModel::Role_Decoration).toIconSet();
-        opt.text = model->data(index, QAbstractItemModel::Role_Display).toString();
+        opt.icon = model->data(index, QAbstractItemModel::DecorationRole).toIconSet();
+        opt.text = model->data(index, QAbstractItemModel::DisplayRole).toString();
         opt.tabWidth = 0;
         opt.maxIconWidth = 0;
         if (!opt.icon.isNull())
@@ -165,14 +165,14 @@ private:
 class ComboModel : public QAbstractItemModel
 {
 public:
-    QVariant data(const QModelIndex &index, int role = Role_Display) const {
-        if ((role == Role_Display || role == Role_Edit || role == Role_Decoration)
+    QVariant data(const QModelIndex &index, int role = DisplayRole) const {
+        if ((role == DisplayRole || role == EditRole || role == DecorationRole)
             && index.type() == QModelIndex::View  && index.isValid()
             && index.row() < rowCount()
             && index.column() < columnCount()) {
-            if (role == Role_Display || role == Role_Edit)
+            if (role == DisplayRole || role == EditRole)
                 return list.at(index.row()).first;
-            if (role == Role_Decoration)
+            if (role == DecorationRole)
                 return list.at(index.row()).second;
         }
         return QVariant::Invalid;
@@ -186,11 +186,11 @@ public:
     bool setData(const QModelIndex &index, int role, const QVariant &value) {
         if (!index.isValid())
             return false;
-        if (role == Role_Display || role == Role_Edit) {
+        if (role == DisplayRole || role == EditRole) {
             list[index.row()].first = value.toString();
             emit dataChanged(index, index);
             return true;
-        } else if (role == Role_Decoration) {
+        } else if (role == DecorationRole) {
             list[index.row()].second = value.toIconSet();
             emit dataChanged(index, index);
             return true;

@@ -542,11 +542,11 @@ void QComboBoxPrivate::complete()
     QString text = lineEdit->text();
     if (!text.isEmpty()) {
         QModelIndexList list
-            = d->model->match(currentItem, QAbstractItemModel::Role_Edit, text);
+            = d->model->match(currentItem, QAbstractItemModel::EditRole, text);
         if (!list.count())
             return;
         QString completed = d->model->data(list.first(),
-                                           QAbstractItemModel::Role_Edit).toString();
+                                           QAbstractItemModel::EditRole).toString();
         int start = completed.length();
         int length = text.length() - start; // negative length
         lineEdit->setText(completed);
@@ -561,7 +561,7 @@ void QComboBoxPrivate::itemSelected(const QModelIndex &item)
     } else if (q->isEditable()) {
         if (lineEdit) {
             lineEdit->selectAll();
-            lineEdit->setText(model->data(currentItem, QAbstractItemModel::Role_Edit).toString());
+            lineEdit->setText(model->data(currentItem, QAbstractItemModel::EditRole).toString());
         }
         emitActivated(currentItem);
     }
@@ -569,7 +569,7 @@ void QComboBoxPrivate::itemSelected(const QModelIndex &item)
 
 void QComboBoxPrivate::emitActivated(const QModelIndex &index)
 {
-    QString text(q->model()->data(index, QAbstractItemModel::Role_Edit).toString());
+    QString text(q->model()->data(index, QAbstractItemModel::EditRole).toString());
     emit q->activated(index.row());
     emit q->activated(text);
     emit q->activated(index);
@@ -577,7 +577,7 @@ void QComboBoxPrivate::emitActivated(const QModelIndex &index)
 
 void QComboBoxPrivate::emitHighlighted(const QModelIndex &index)
 {
-    QString text(q->model()->data(index, QAbstractItemModel::Role_Edit).toString());
+    QString text(q->model()->data(index, QAbstractItemModel::EditRole).toString());
     emit q->highlighted(index.row());
     emit q->highlighted(text);
     emit q->highlighted(index);
@@ -674,9 +674,9 @@ void QComboBox::setDuplicatesEnabled(bool enable)
 bool QComboBox::contains(const QString &text) const
 {
     return model()->match(model()->index(0, 0, root()),
-                          QAbstractItemModel::Role_Edit, text, 1,
-                          QAbstractItemModel::Match_Exactly
-                          |QAbstractItemModel::Match_Case).count() > 0;
+                          QAbstractItemModel::EditRole, text, 1,
+                          QAbstractItemModel::MatchExactly
+                          |QAbstractItemModel::MatchCase).count() > 0;
 }
 
 /*!
@@ -689,7 +689,7 @@ int QComboBox::findItem(const QString &text, QAbstractItemModel::MatchFlags flag
 {
     QModelIndexList result;
     QModelIndex start = model()->index(0, 0, root());
-    result = model()->match(start, QAbstractItemModel::Role_Edit, text, 1, flags);
+    result = model()->match(start, QAbstractItemModel::EditRole, text, 1, flags);
     if (result.isEmpty())
         return -1;
     return result.first().row();
@@ -918,7 +918,7 @@ QString QComboBox::currentText() const
     if (d->lineEdit)
         return d->lineEdit->text();
     else if (d->currentItem.isValid())
-	return model()->data(d->currentItem, QAbstractItemModel::Role_Edit).toString();
+	return model()->data(d->currentItem, QAbstractItemModel::EditRole).toString();
     else
 	return QString::null;
 }
@@ -926,7 +926,7 @@ QString QComboBox::currentText() const
 void QComboBox::setCurrentText(const QString& text)
 {
     if (d->currentItem.isValid()) {
-        model()->setData(d->currentItem, QAbstractItemModel::Role_Edit, text);
+        model()->setData(d->currentItem, QAbstractItemModel::EditRole, text);
         if (d->lineEdit)
             d->lineEdit->setText(text);
     }
@@ -939,7 +939,7 @@ void QComboBox::setCurrentText(const QString& text)
 QString QComboBox::text(int row) const
 {
     QModelIndex index = model()->index(row, 0, root());
-    return model()->data(index, QAbstractItemModel::Role_Edit).toString();
+    return model()->data(index, QAbstractItemModel::EditRole).toString();
 }
 
 /*!
@@ -949,7 +949,7 @@ QString QComboBox::text(int row) const
 QPixmap QComboBox::pixmap(int row) const
 {
     QModelIndex index = model()->index(row, 0, root());
-    return model()->data(index, QAbstractItemModel::Role_Edit).toIconSet().pixmap();
+    return model()->data(index, QAbstractItemModel::EditRole).toIconSet().pixmap();
 }
 
 /*!
@@ -969,7 +969,7 @@ void QComboBox::insertStringList(const QStringList &list, int row)
         QModelIndex item;
         for (int i = 0; i < list.count(); ++i) {
             item = model()->index(i+row, 0, root());
-            model()->setData(item, QAbstractItemModel::Role_Edit, list.at(i));
+            model()->setData(item, QAbstractItemModel::EditRole, list.at(i));
         }
     }
     if (!d->currentItem.isValid())
@@ -989,7 +989,7 @@ void QComboBox::insertItem(const QString &text, int row)
     QModelIndex item;
     if (model()->insertRows(row, root())) {
         item = model()->index(row, 0, root());
-        model()->setData(item, QAbstractItemModel::Role_Edit, text);
+        model()->setData(item, QAbstractItemModel::EditRole, text);
     }
     if (!d->currentItem.isValid())
         setCurrentItem(row);
@@ -1008,7 +1008,7 @@ void QComboBox::insertItem(const QIconSet &icon, int row)
     QModelIndex item;
     if (model()->insertRows(row, root())) {
         item = model()->index(row, 0, root());
-        model()->setData(item, QAbstractItemModel::Role_Decoration, icon);
+        model()->setData(item, QAbstractItemModel::DecorationRole, icon);
     }
     if (!d->currentItem.isValid())
         setCurrentItem(row);
@@ -1028,8 +1028,8 @@ void QComboBox::insertItem(const QIconSet &icon, const QString &text, int row)
     if (model()->insertRows(row, root())) {
         item = model()->index(row, 0, root());
         QMap<int, QVariant> values;
-        values.insert(QAbstractItemModel::Role_Edit, text);
-        values.insert(QAbstractItemModel::Role_Decoration, icon);
+        values.insert(QAbstractItemModel::EditRole, text);
+        values.insert(QAbstractItemModel::DecorationRole, icon);
         model()->setItemData(item, values);
     }
     if (!d->currentItem.isValid())
@@ -1055,7 +1055,7 @@ void QComboBox::setItemText(const QString &text, int row)
 {
     QModelIndex item = model()->index(row, 0, root());
     if (item.isValid()) {
-        model()->setData(item, QAbstractItemModel::Role_Edit, text);
+        model()->setData(item, QAbstractItemModel::EditRole, text);
     }
 }
 
@@ -1067,7 +1067,7 @@ void QComboBox::setItemIcon(const QIconSet &icon, int row)
 {
     QModelIndex item = model()->index(row, 0, root());
     if (item.isValid()) {
-        model()->setData(item, QAbstractItemModel::Role_Decoration, icon);
+        model()->setData(item, QAbstractItemModel::DecorationRole, icon);
     }
 }
 
@@ -1080,8 +1080,8 @@ void QComboBox::setItem(const QIconSet &icon, const QString &text, int row)
     QModelIndex item = model()->index(row, 0, root());
     if (item.isValid()) {
         QMap<int, QVariant> map;
-        map.insert(QAbstractItemModel::Role_Edit, text);
-        map.insert(QAbstractItemModel::Role_Decoration, icon);
+        map.insert(QAbstractItemModel::EditRole, text);
+        map.insert(QAbstractItemModel::DecorationRole, icon);
         model()->setItemData(item, map);
     }
 }
@@ -1237,7 +1237,7 @@ void QComboBox::setEditText(const QString &text)
 void QComboBox::currentChanged(const QModelIndex &, const QModelIndex &)
 {
     if (d->lineEdit)
-        d->lineEdit->setText(model()->data(d->currentItem, QAbstractItemModel::Role_Edit)
+        d->lineEdit->setText(model()->data(d->currentItem, QAbstractItemModel::EditRole)
                              .toString());
     d->emitActivated(d->currentItem);
 }

@@ -54,7 +54,7 @@ public:
     int childRowCount(const QModelIndex &parent) const;
     int childColumnCount(const QModelIndex &parent) const;
 
-    QVariant data(const QModelIndex &index, int role = QAbstractItemModel::Role_Display) const;
+    QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
 
     bool hasChildren(const QModelIndex &index) const;

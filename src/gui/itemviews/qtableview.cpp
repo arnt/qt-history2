@@ -55,7 +55,7 @@ public:
     int rowCount() const;
     int columnCount() const;
 
-    QVariant data(const QModelIndex &index, int role = QAbstractItemModel::Role_Display) const;
+    QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
 
     bool isSelectable(const QModelIndex &index) const;
@@ -156,73 +156,73 @@ bool QTableModel::removeColumns(int, const QModelIndex &, int)
 void QTableModel::setText(int row, int column, const QString &text)
 {
     QModelIndex index = createIndex(row, column);
-    setData(index, QAbstractItemModel::Role_Display, QVariant(text));
+    setData(index, QAbstractItemModel::DisplayRole, QVariant(text));
 }
 
 void QTableModel::setIconSet(int row, int column, const QIconSet &iconSet)
 {
     QModelIndex index = createIndex(row, column);
-    setData(index, QAbstractItemModel::Role_Decoration, QVariant(iconSet));
+    setData(index, QAbstractItemModel::DecorationRole, QVariant(iconSet));
 }
 
 QString QTableModel::text(int row, int column) const
 {
     QModelIndex index = createIndex(row, column);
-    return data(index, QAbstractItemModel::Role_Display).toString();
+    return data(index, QAbstractItemModel::DisplayRole).toString();
 }
 
 QIconSet QTableModel::iconSet(int row, int column) const
 {
     QModelIndex index = createIndex(row, column);
-    return data(index, QAbstractItemModel::Role_Decoration).toIconSet();
+    return data(index, QAbstractItemModel::DecorationRole).toIconSet();
 }
 
 void QTableModel::setRowText(int row, const QString &text)
 {
     QModelIndex index = QAbstractItemModel::createIndex(row, 0, 0, QModelIndex::VerticalHeader);
-    setData(index, QAbstractItemModel::Role_Decoration, QVariant(text));
+    setData(index, QAbstractItemModel::DecorationRole, QVariant(text));
 }
 
 void QTableModel::setRowIconSet(int row, const QIconSet &iconSet)
 {
     QModelIndex index = createIndex(row, 0, 0, QModelIndex::VerticalHeader);
-    setData(index, QAbstractItemModel::Role_Decoration, QVariant(iconSet));
+    setData(index, QAbstractItemModel::DecorationRole, QVariant(iconSet));
 }
 
 QString QTableModel::rowText(int row) const
 {
     QModelIndex index = createIndex(row, 0, 0, QModelIndex::VerticalHeader);
-    return data(index, QAbstractItemModel::Role_Display).toString();
+    return data(index, QAbstractItemModel::DisplayRole).toString();
 }
 
 QIconSet QTableModel::rowIconSet(int row) const
 {
     QModelIndex index = createIndex(row, 0, 0, QModelIndex::VerticalHeader);
-    return data(index, QAbstractItemModel::Role_Decoration).toIconSet();
+    return data(index, QAbstractItemModel::DecorationRole).toIconSet();
 }
 
 void QTableModel::setColumnText(int column, const QString &text)
 {
     QModelIndex index = createIndex(0, column, 0, QModelIndex::HorizontalHeader);
-    setData(index, QAbstractItemModel::Role_Display, QVariant(text));
+    setData(index, QAbstractItemModel::DisplayRole, QVariant(text));
 }
 
 void QTableModel::setColumnIconSet(int column, const QIconSet &iconSet)
 {
     QModelIndex index = createIndex(0, column, 0, QModelIndex::HorizontalHeader);
-    setData(index, QAbstractItemModel::Role_Decoration, QVariant(iconSet));
+    setData(index, QAbstractItemModel::DecorationRole, QVariant(iconSet));
 }
 
 QString QTableModel::columnText(int column) const
 {
     QModelIndex index = createIndex(0, column, 0, QModelIndex::HorizontalHeader);
-    return data(index, QAbstractItemModel::Role_Display).toString();
+    return data(index, QAbstractItemModel::DisplayRole).toString();
 }
 
 QIconSet QTableModel::columnIconSet(int column) const
 {
     QModelIndex index = createIndex(0, column, 0, QModelIndex::HorizontalHeader);
-    return data(index, QAbstractItemModel::Role_Decoration).toIconSet();
+    return data(index, QAbstractItemModel::DecorationRole).toIconSet();
 }
 
 void QTableModel::setItem(int row, int column, const QTableViewItem &item)
@@ -323,7 +323,7 @@ bool QTableViewItem::operator ==(const QTableViewItem &other) const
 
 QVariant QTableViewItem::data(int role) const
 {
-    role = (role == QAbstractItemModel::Role_Edit ? QAbstractItemModel::Role_Display : role);
+    role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
     for (int i = 0; i < values.count(); ++i)
         if (values.at(i).role == role)
             return values.at(i).value;
@@ -332,7 +332,7 @@ QVariant QTableViewItem::data(int role) const
 
 void QTableViewItem::setData(int role, const QVariant &value)
 {
-    role = (role == QAbstractItemModel::Role_Edit ? QAbstractItemModel::Role_Display : role);
+    role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
     for (int i = 0; i < values.count(); ++i) {
         if (values.at(i).role == role) {
             values[i].value = value;

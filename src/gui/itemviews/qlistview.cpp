@@ -25,7 +25,7 @@ public:
 
     int rowCount() const;
 
-    QVariant data(const QModelIndex &index, int role = QAbstractItemModel::Role_Display) const;
+    QVariant data(const QModelIndex &index, int role = QAbstractItemModel::DisplayRole) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
 
     bool insertRows(int row, const QModelIndex &parent = QModelIndex(), int count = 1);
@@ -189,7 +189,7 @@ bool QListViewItem::operator ==(const QListViewItem &other) const
 
 QVariant QListViewItem::data(int role) const
 {
-    role = (role == QAbstractItemModel::Role_Edit ? QAbstractItemModel::Role_Display : role);
+    role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
     for (int i = 0; i < values.count(); ++i) {
         if (values.at(i).role == role)
             return values.at(i).value;
@@ -202,7 +202,7 @@ QVariant QListViewItem::data(int role) const
 
 void QListViewItem::setData(int role, const QVariant &value)
 {
-    role = (role == QAbstractItemModel::Role_Edit ? QAbstractItemModel::Role_Display : role);
+    role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
     for (int i = 0; i < values.count(); ++i) {
         if (values.at(i).role == role) {
             values[i].value = value;
@@ -258,7 +258,7 @@ QListView::~QListView()
 
 void QListView::setText(int row, const QString &text)
 {
-    model()->setData(model()->index(row,0), QAbstractItemModel::Role_Display, text);
+    model()->setData(model()->index(row,0), QAbstractItemModel::DisplayRole, text);
 }
 
 /*!
@@ -266,7 +266,7 @@ void QListView::setText(int row, const QString &text)
 
 void QListView::setIconSet(int row, const QIconSet &iconSet)
 {
-    model()->setData(model()->index(row,0), QAbstractItemModel::Role_Decoration, iconSet);
+    model()->setData(model()->index(row,0), QAbstractItemModel::DecorationRole, iconSet);
 }
 
 /*!
@@ -274,7 +274,7 @@ void QListView::setIconSet(int row, const QIconSet &iconSet)
 
 QString QListView::text(int row) const
 {
-    return model()->data(model()->index(row,0), QAbstractItemModel::Role_Display).toString();
+    return model()->data(model()->index(row,0), QAbstractItemModel::DisplayRole).toString();
 }
 
 /*!
@@ -282,7 +282,7 @@ QString QListView::text(int row) const
 
 QIconSet QListView::iconSet(int row) const
 {
-    return model()->data(model()->index(row,0), QAbstractItemModel::Role_Decoration).toIconSet();
+    return model()->data(model()->index(row,0), QAbstractItemModel::DecorationRole).toIconSet();
 }
 
 /*!

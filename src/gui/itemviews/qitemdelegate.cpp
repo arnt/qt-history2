@@ -131,9 +131,9 @@ void QItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
 {
     static QPoint pt(0, 0);
     static QSize sz(border * 2, border * 2);
-    QVariant variant = model->data(index, QAbstractItemModel::Role_Decoration);
+    QVariant variant = model->data(index, QAbstractItemModel::DecorationRole);
     QPixmap pixmap = decoration(option, variant);
-    QString text = model->data(index, QAbstractItemModel::Role_Display).toString();
+    QString text = model->data(index, QAbstractItemModel::DisplayRole).toString();
     
     QRect pixmapRect = pixmap.rect();
     QRect textRect(pt, painter->fontMetrics().size(0, text) + sz);
@@ -157,9 +157,9 @@ QSize QItemDelegate::sizeHint(const QFontMetrics &fontMetrics, const QStyleOptio
     static QPoint pt(0, 0);
     static QSize sz(border * 2, border * 2);
 
-    QVariant variant = model->data(index, QAbstractItemModel::Role_Decoration);
+    QVariant variant = model->data(index, QAbstractItemModel::DecorationRole);
     QPixmap pixmap = decoration(option, variant);
-    QString text = model->data(index, QAbstractItemModel::Role_Display).toString();
+    QString text = model->data(index, QAbstractItemModel::DisplayRole).toString();
 
     QRect pixmapRect = pixmap.rect();
     QRect textRect(pt, fontMetrics.size(0, text) + sz);
@@ -202,7 +202,7 @@ QWidget *QItemDelegate::editor(BeginEditAction action, QWidget *parent,
         || (option.state & QStyle::Style_HasFocus && editorType(model, index) == Widget)) {
         QLineEdit *lineEdit = new QLineEdit(parent);
         lineEdit->setFrame(false);
-        lineEdit->setText(model->data(index, QAbstractItemModel::Role_Edit).toString());
+        lineEdit->setText(model->data(index, QAbstractItemModel::EditRole).toString());
         lineEdit->selectAll();
         updateEditorGeometry(lineEdit, option, model, index);
         return lineEdit;
@@ -236,7 +236,7 @@ void QItemDelegate::setEditorData(QWidget *editor,
 {
     QLineEdit *lineEdit = ::qt_cast<QLineEdit*>(editor);
     if (lineEdit)
-        lineEdit->setText(model->data(index, QAbstractItemModel::Role_Edit).toString());
+        lineEdit->setText(model->data(index, QAbstractItemModel::EditRole).toString());
 }
 
 /*!
@@ -249,7 +249,7 @@ void QItemDelegate::setModelData(QWidget *editor,
 {
     QLineEdit *lineEdit = ::qt_cast<QLineEdit*>(editor);
     if (lineEdit)
-        model->setData(index, QAbstractItemModel::Role_Edit, lineEdit->text());
+        model->setData(index, QAbstractItemModel::EditRole, lineEdit->text());
 }
 
 /*!
@@ -264,8 +264,8 @@ void QItemDelegate::updateEditorGeometry(QWidget *editor,
 {
     static QPoint pt(0, 0);
     if (editor) {
-        QPixmap pixmap = decoration(option, model->data(index, QAbstractItemModel::Role_Decoration));
-        QString text = model->data(index, QAbstractItemModel::Role_Edit).toString();
+        QPixmap pixmap = decoration(option, model->data(index, QAbstractItemModel::DecorationRole));
+        QString text = model->data(index, QAbstractItemModel::EditRole).toString();
         QRect pixmapRect = pixmap.rect();
         QRect textRect(pt, editor->fontMetrics().size(0, text));
         doLayout(option, &pixmapRect, &textRect, false);
