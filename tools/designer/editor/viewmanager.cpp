@@ -158,7 +158,9 @@ void ViewManager::setStackFrame( int line )
  	paragData->stackFrame = TRUE;
 	p->setExtraData( paragData );
 	markerWidget->doRepaint();
+	( (Editor*)curView )->sync();
 	( (Editor*)curView )->setCursorPosition( line, 0 );
+	( (Editor*)curView )->ensureCursorVisible();
 	( (Editor*)curView )->viewport()->setFocus();
     }
 }
