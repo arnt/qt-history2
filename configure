@@ -1885,6 +1885,8 @@ cat >>$outpath/include/qmodules.h.new << EOF
 #define QT_NO_STL
 #endif
 EOF
+else
+QMAKE_CONFIG="$QMAKE_CONFIG stl"
 fi
 #because things depend on qmodules.h, I conditionally copy
 #so I don't rebuild them when I configure but change nothing...

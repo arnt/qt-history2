@@ -359,7 +359,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    t <<  "# Begin Source File\n\nSOURCE=.\\" << (*it) << endl;
 
 		    QString fname = (*it);
-		    fname.replace(QRegExp("\\.l"), Option::lex_mod + Option::cpp_ext);
+		    fname.replace(QRegExp("\\.l"), Option::lex_mod + Option::cpp_ext.first());
 
 		    QString build = "\n\n# Begin Custom Build - Lex'ing " + (*it) + "...\n"
 			"InputPath=.\\" + (*it) + "\n\n"
@@ -397,12 +397,12 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 
 		    QString build = "\n\n# Begin Custom Build - Yacc'ing " + (*it) + "...\n"
 			"InputPath=.\\" + (*it) + "\n\n"
-			"\"" + fname + Option::cpp_ext + "\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
+			"\"" + fname + Option::cpp_ext.first() + "\" : \"$(SOURCE)\" \"$(INTDIR)\" \"$(OUTDIR)\"" "\n"
 			"\t" + yaccpath + (*it) + "\\\n"
-			"\tdel " + fname + Option::h_ext + "\\\n"
-			"\tmove y.tab.h " + fname + Option::h_ext + "\n\n" +
-			"\tdel " + fname + Option::cpp_ext + "\\\n"
-			"\tmove y.tab.c " + fname + Option::cpp_ext + "\n\n" +
+			"\tdel " + fname + Option::h_ext.first() + "\\\n"
+			"\tmove y.tab.h " + fname + Option::h_ext.first() + "\n\n" +
+			"\tdel " + fname + Option::cpp_ext.first() + "\\\n"
+			"\tmove y.tab.c " + fname + Option::cpp_ext.first() + "\n\n" +
 			"# End Custom Build\n\n";
 
 		    t << "!IF  \"$(CFG)\" == \"" << var("MSVCDSP_PROJECT") << " - Win32 Release\"" << build
@@ -448,6 +448,7 @@ DspMakefileGenerator::init()
     if ( project->variables()["QMAKESPEC"].isEmpty() )
 	project->variables()["QMAKESPEC"].append( getenv("QMAKESPEC") );
 
+    bool is_qt = (project->first("TARGET") == "qt" || project->first("TARGET") == "qt-mt");
     project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
     
     QStringList &configs = project->variables()["CONFIG"];
@@ -465,9 +466,7 @@ DspMakefileGenerator::init()
 	       project->variables()["DEFINES"].findIndex("QT_DLL") != -1) ||
 	      (getenv("QT_DLL") && !getenv("QT_NODLL"))) ) {
 	    project->variables()["QMAKE_QT_DLL"].append("1");
-	    if ( (project->first("TARGET") == "qt" ||
-		  (project->first("TARGET") == "qt-mt") &&
-		  !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ))
+	    if ( is_qt && !project->variables()["QMAKE_LIB_FLAG"].isEmpty() )
 		project->variables()["CONFIG"].append("dll");
 	}
     }
@@ -501,9 +500,7 @@ DspMakefileGenerator::init()
 	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT_OPENGL"];
 	}
 
-	if ( (project->first("TARGET") == "qt" ||
-	      project->first("TARGET") == "qt-mt") &&
-	     !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
+	if ( is_qt && !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
 	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
 		project->variables()["DEFINES"].append("QT_MAKEDLL");
 		project->variables()["QMAKE_LFLAGS"].append("/base:\"0x39D00000\"");
@@ -532,7 +529,8 @@ DspMakefileGenerator::init()
 	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL"];
     }
     if ( project->isActiveConfig("thread") ) {
-	project->variables()["DEFINES"].append("QT_THREAD_SUPPORT" );
+	if(project->isActiveConfig("qt"))
+	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_THREAD_SUPPORT" );
         if ( project->isActiveConfig("dll") || project->first("TARGET") == "qtmain"
             || !project->variables()["QMAKE_QT_DLL"].isEmpty() ) {
 	    project->variables()["MSVCDSP_MTDEFD"] += project->variables()["QMAKE_CXXFLAGS_MT_DLLDBG"];
@@ -542,20 +540,20 @@ DspMakefileGenerator::init()
 	    project->variables()["MSVCDSP_MTDEFD"] += project->variables()["QMAKE_CXXFLAGS_MT_DBG"];
 	    project->variables()["MSVCDSP_MTDEF"] += project->variables()["QMAKE_CXXFLAGS_MT"];
 	}
-	if ( !project->variables()["DEFINES"].contains("QT_DLL") && project->first("TARGET") != "qt-mt"
-	    && project->first("TARGET") != "qtmain" )
+	if ( !project->variables()["DEFINES"].contains("QT_DLL") && is_qt
+	     && project->first("TARGET") != "qtmain" )
 	    project->variables()["QMAKE_LFLAGS"].append("/NODEFAULTLIB:\"libc\"");
     }
 
-    if ( !project->variables()["DEFINES"].contains("QT_NO_STL") )
+    if ( !project->isActiveConfig("stl") )
 	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_STL"];
 
-    if ( project->isActiveConfig("accessibility" ) )
-	project->variables()["DEFINES"].append("QT_ACCESSIBILITY_SUPPORT");
-
-    if ( project->isActiveConfig("tablet") )
-	project->variables()["DEFINES"].append("QT_TABLET_SUPPORT");
-
+    if(project->isActiveConfig("qt")) {
+	if ( project->isActiveConfig("accessibility" ) )
+	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_ACCESSIBILITY_SUPPORT");
+	if ( project->isActiveConfig("tablet") )
+	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_TABLET_SUPPORT");
+    }
     if ( project->isActiveConfig("dll") ) {
 	if ( !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
 	    QString ver_xyz(project->first("VERSION"));
@@ -565,11 +563,10 @@ DspMakefileGenerator::init()
 	    project->variables()["TARGET_EXT"].append(".dll");
 	}
     } else {
-	if ( !project->variables()["QMAKE_APP_FLAG"].isEmpty() ) {
+	if ( !project->variables()["QMAKE_APP_FLAG"].isEmpty() ) 
 	    project->variables()["TARGET_EXT"].append(".exe");
-	} else {
+	else 
 	    project->variables()["TARGET_EXT"].append(".lib");
-	}
     }
 
     project->variables()["MSVCDSP_VER"] = "6.00";
@@ -577,7 +574,7 @@ DspMakefileGenerator::init()
 
     if(!project->isActiveConfig("incremental")) {
 	project->variables()["QMAKE_LFLAGS"].append(QString("/incremental:no"));
-	if ( project->first("TARGET") == "qt" || project->first("TARGET") == "qt-mt" )
+	if ( is_qt )
 	    project->variables()["MSVCDSP_DEBUG_OPT"] = "/GZ /Zi";
     }
 
@@ -586,9 +583,9 @@ DspMakefileGenerator::init()
 	msvcdsp_project = project->variables()["TARGET"].first();
 
     project->variables()["TARGET"].first() += project->first("TARGET_EXT");
-    if ( project->isActiveConfig("moc") ) {
+    if ( project->isActiveConfig("moc") ) 
 	setMocAware(TRUE);
-    }
+
     project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
     project->variables()["QMAKE_FILETAGS"] += QStringList::split(' ',
 								 "HEADERS SOURCES DEF_FILE RC_FILE TARGET QMAKE_LIBS DESTDIR DLLDESTDIR INCLUDEPATH");
@@ -637,6 +634,7 @@ DspMakefileGenerator::init()
     project->variables()["MSVCDSP_LFLAGS" ] += project->variables()["QMAKE_LFLAGS"];
     project->variables()["MSVCDSP_CXXFLAGS" ] += project->variables()["QMAKE_CXXFLAGS"];
     project->variables()["MSVCDSP_DEFINES"].append(varGlue("DEFINES","/D ","" " /D ",""));
+    project->variables()["MSVCDSP_DEFINES"].append(varGlue("PRL_EXPORT_DEFINES"," /D ","" " /D ",""));
     project->variables()["MSVCDSP_INCPATH"].append(varGlue("INCLUDEPATH","/I \"","\" /I \"","\"") +
 						   " /I \"" + specdir() + "\"");
 

@@ -350,11 +350,6 @@ old header-file names are still supported.
 \row \i QVector \i \l QPtrVector \i \c <qptrvector.h>
 \endtable
 
-\section1 QApplication
-
-The function QApplication::processOneEvent() has been removed from
-the public API. Use QApplication::processEvents() instead.
-
 \section1 QButtonGroup
 
 In Qt 2.x, the function QButtonGroup::selected() returns the selected
@@ -585,6 +580,11 @@ QRegExp cast:
 This change makes it possible to introduce a
 QString::replace(QString, QString) overload in a future version of Qt
 without breaking source compatibility.
+
+\section1 QSemiModal 
+
+The QSemiModal class is now obsolete. You should call show() on a
+modal dialog instead.
 
 \section1 QSortedList
 

@@ -62,12 +62,9 @@ struct Option
     //simply global convenience
     static QString prl_ext;
     static QString ui_ext;
-    static QString h_ext;
-    static QString hpp_ext;
+    static QStringList h_ext;
+    static QStringList cpp_ext;
     static QString moc_ext;
-    static QString cpp_ext;
-    static QString cc_ext;
-    static QString cxx_ext;
     static QString obj_ext;
     static QString lex_ext;
     static QString yacc_ext;
@@ -77,7 +74,7 @@ struct Option
     static QString dir_sep;
     //both of these must be called..
     static bool parseCommandLine(int argc, char **argv); //parse cmdline
-    static bool postProcessProject(QMakeProject *); //parse project
+    static bool postProcessProject(QMakeProject *); 
 
     //and convenience functions    
     static QString fixPathToLocalOS(const QString& in, bool fix_env=TRUE);
@@ -101,6 +98,7 @@ struct Option
     //QMAKE_GENERATE_PROJECT options
     struct projfile {
 	static bool do_pwd;
+	static bool do_recursive;
 	static QStringList project_dirs;
     };
 

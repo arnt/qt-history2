@@ -747,9 +747,9 @@ void Configure::generateCachefile()
 	    configStream << " debug";
 	else
 	    configStream << " release";
+	if( dictionary[ "STL" ] == "yes" )
+	    configStream << " stl";
 	configStream << endl;
-	if( dictionary[ "STL" ] == "no" )
-	    configStream << "DEFINES+= QT_NO_STL";
 	configFile.close();
     }
 }

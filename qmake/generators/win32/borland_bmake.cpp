@@ -83,8 +83,12 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
     t << "CXX	=	" << var("QMAKE_CXX") << endl;
     t << "LEX     = " << var("QMAKE_LEX") << endl;
     t << "YACC    = " << var("QMAKE_YACC") << endl;
-    t << "CFLAGS	=	" << var("QMAKE_CFLAGS") << " " <<  varGlue("DEFINES","-D"," -D","") << endl;
-    t << "CXXFLAGS=	" << var("QMAKE_CXXFLAGS") << " " << varGlue("DEFINES","-D"," -D","") << endl;
+    t << "CFLAGS	=	" << var("QMAKE_CFLAGS") << " " 
+      << varGlue("PRL_EXPORT_DEFINES","-D"," -D","") << " "
+      <<  varGlue("DEFINES","-D"," -D","") << endl;
+    t << "CXXFLAGS=	" << var("QMAKE_CXXFLAGS") << " " 
+      << varGlue("PRL_EXPORT_DEFINES","-D"," -D","") << " "
+      << varGlue("DEFINES","-D"," -D","") << endl;
     t << "LEXFLAGS=" << var("QMAKE_LEXFLAGS") << endl;
     t << "YACCFLAGS=" << var("QMAKE_YACCFLAGS") << endl;
 
@@ -210,9 +214,10 @@ BorlandMakefileGenerator::init()
 	return;
     }
     
+    bool is_qt = (project->first("TARGET") == "qt" || project->first("TARGET") == "qtmt");
     QStringList &configs = project->variables()["CONFIG"];
     if (project->isActiveConfig("shared"))
-	project->variables()["DEFINES"].append("QT_DLL");
+	project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_DLL");
     if (project->isActiveConfig("qt_dll"))
 	if(configs.findIndex("qt") == -1) configs.append("qt");
     if ( project->isActiveConfig("qt") ) {
@@ -225,9 +230,7 @@ BorlandMakefileGenerator::init()
 	       project->variables()["DEFINES"].findIndex("QT_DLL") != -1) ||
 	      (getenv("QT_DLL") && !getenv("QT_NODLL"))) ) {
 	    project->variables()["QMAKE_QT_DLL"].append("1");
-	    if ( (project->first("TARGET") == "qt" ||
-		  project->first("TARGET") == "qtmt") &&
-		 !project->variables()["QMAKE_LIB_FLAG"].isEmpty() )
+	    if ( is_qt && !project->variables()["QMAKE_LIB_FLAG"].isEmpty() )
 		project->variables()["CONFIG"].append("dll");
 	}
     }
@@ -244,15 +247,14 @@ BorlandMakefileGenerator::init()
 	project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_WARN_ON"];
 	project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_WARN_ON"];
     }
-    if ( project->isActiveConfig("thread") ) {
-        project->variables()["DEFINES"].append("QT_THREAD_SUPPORT");
+    if(project->isActiveConfig("qt")) {
+	if ( project->isActiveConfig("thread") ) 
+	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_THREAD_SUPPORT");
+	if ( project->isActiveConfig("accessibility" ) )
+	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_ACCESSIBILITY_SUPPORT");
+	if ( project->isActiveConfig("tablet") )
+	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_TABLET_SUPPORT");
     }
-    if ( project->isActiveConfig("accessibility" ) )
-	project->variables()["DEFINES"].append("QT_ACCESSIBILITY_SUPPORT");
-
-    if ( project->isActiveConfig("tablet") )
-	project->variables()["DEFINES"].append("QT_TABLET_SUPPORT");
-
 
     if ( project->isActiveConfig("debug") ) {
         if ( project->isActiveConfig("thread") ) {
@@ -291,12 +293,9 @@ BorlandMakefileGenerator::init()
     if ( project->isActiveConfig("qt") ) {
 	project->variables()["CONFIG"].append("moc");
 	project->variables()["INCLUDEPATH"] +=	project->variables()["QMAKE_INCDIR_QT"];
-	if ( !project->isActiveConfig("debug") ) {
-	    project->variables()["DEFINES"].append("QT_NO_DEBUG");
-	}
-	if ( (project->first("TARGET") == "qt" ||
-	      project->first("TARGET") == "qtmt") &&
-	     !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
+	if ( !project->isActiveConfig("debug") ) 
+	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_NO_DEBUG");
+	if ( is_qt && !project->variables()["QMAKE_LIB_FLAG"].isEmpty() ) {
 	    if ( !project->variables()["QMAKE_QT_DLL"].isEmpty()) {
 		project->variables()["DEFINES"].append("QT_MAKEDLL");
 		project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_QT_DLL"];

@@ -75,7 +75,7 @@
   simple text editor.
 
 - action
- Just like the application example but uses QAction to build
+  Just like the application example but uses QAction to build
   the menu and the toolbar.
 
 
@@ -144,7 +144,7 @@
   This example shows simple and intermediate use of Qt's layout
   classes, QGridLaout, QBoxLayout etc.
 
-- linedits
+- lineedits
   The Lineedits example shows how to work with single Lineedit widgets, and
   how to use different Echo Modes and Validators.
 
@@ -192,7 +192,7 @@
   Unix "Fortune" are displayed nicely formatted.
 
 - rot13
-  In this example you can enter a text in one Mulitilinedit widget
+  In this example you can enter a text in one Mulitilineedit widget
   and it is displayed in the edit widget at the right transformed using
   the rot13 algorithm.
 

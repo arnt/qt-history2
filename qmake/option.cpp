@@ -44,10 +44,9 @@
 //convenience
 QString Option::prl_ext;
 QString Option::ui_ext;
-QString Option::h_ext;
-QString Option::hpp_ext;
+QStringList Option::h_ext;
 QString Option::moc_ext;
-QString Option::cpp_ext;
+QStringList Option::cpp_ext;
 QString Option::obj_ext;
 QString Option::lex_ext;
 QString Option::yacc_ext;
@@ -55,8 +54,6 @@ QString Option::dir_sep;
 QString Option::moc_mod;
 QString Option::yacc_mod;
 QString Option::lex_mod;
-QString Option::cc_ext;
-QString Option::cxx_ext;
 
 //mode
 Option::QMAKE_MODE Option::qmake_mode = Option::QMAKE_GENERATE_NOTHING;
@@ -81,6 +78,7 @@ Option::TARG_MODE Option::target_mode = Option::TARG_UNIX_MODE;
 
 //QMAKE_GENERATE_PROJECT stuff
 bool Option::projfile::do_pwd = TRUE;
+bool Option::projfile::do_recursive = FALSE;
 QStringList Option::projfile::project_dirs;
 
 //QMAKE_GENERATE_MAKEFILE stuff
@@ -139,6 +137,7 @@ bool usage(const char *a0)
 	    "\t-nodepend      Don't generate dependencies [makefile mode only]\n"
 	    "\t-nomoc         Don't generate moc targets  [makefile mode only]\n"
 	    "\t-nopwd         Don't look for files in pwd [ project mode only]\n"
+	    "\t-r             Recursive search            [ project mode only]\n"
 	    ,a0);
     return FALSE;
 }
@@ -235,6 +234,8 @@ Option::parseCommandLine(int argc, char **argv)
 		} else if(Option::qmake_mode == Option::QMAKE_GENERATE_PROJECT) {
 		    if(opt == "nopwd") {
 			Option::projfile::do_pwd = FALSE;
+		    } else if(opt == "r") {
+			Option::projfile::do_recursive = TRUE;
 		    } else {
 			fprintf(stderr, "***Unknown option -%s\n", opt.latin1());
 			return usage(argv[0]);
@@ -303,12 +304,9 @@ Option::parseCommandLine(int argc, char **argv)
     Option::yacc_mod = "_yacc";
     Option::prl_ext = ".prl";
     Option::ui_ext = ".ui";
-    Option::h_ext = ".h";
-    Option::hpp_ext = ".hpp";
+    Option::h_ext << ".h" << ".hpp";
     Option::moc_ext = ".moc";
-    Option::cpp_ext = ".cpp";
-    Option::cc_ext = ".cc";
-    Option::cxx_ext = ".cxx";
+    Option::cpp_ext << ".cpp" << ".cc" << ".cxx" << ".C";
     Option::lex_ext = ".l";
     Option::yacc_ext = ".y";
     if(Option::target_mode == Option::TARG_WIN_MODE) {
@@ -326,26 +324,23 @@ Option::parseCommandLine(int argc, char **argv)
 
 bool Option::postProcessProject(QMakeProject *project)
 {
+    Option::cpp_ext = project->variables()["QMAKE_EXT_CPP"];
+    if(cpp_ext.isEmpty())
+	cpp_ext << ".cpp"; //something must be there
+    Option::h_ext = project->variables()["QMAKE_EXT_H"];
+    if(h_ext.isEmpty())
+	h_ext << ".h";
+
     if(!project->isEmpty("QMAKE_EXT_PRL"))
 	Option::prl_ext = project->first("QMAKE_EXT_PRL");
     if(!project->isEmpty("QMAKE_EXT_UI"))
 	Option::ui_ext = project->first("QMAKE_EXT_UI");
-    if(!project->isEmpty("QMAKE_EXT_H")) 
-	Option::h_ext = project->first("QMAKE_EXT_H");
-    if(!project->isEmpty("QMAKE_EXT_HPP"))
-	Option::hpp_ext = project->first("QMAKE_EXT_HPP");
     if(!project->isEmpty("QMAKE_EXT_MOC"))
 	Option::moc_ext = project->first("QMAKE_EXT_MOC");
     if(!project->isEmpty("QMAKE_EXT_LEX"))
 	Option::lex_ext = project->first("QMAKE_EXT_LEX");
     if(!project->isEmpty("QMAKE_EXT_YACC"))
 	Option::yacc_ext = project->first("QMAKE_EXT_YACC");
-    if(!project->isEmpty("QMAKE_EXT_CPP"))
-	Option::cpp_ext = project->first("QMAKE_EXT_CPP");
-    if(!project->isEmpty("QMAKE_EXT_CC"))
-	Option::cc_ext = project->first("QMAKE_EXT_CC");
-    if(!project->isEmpty("QMAKE_EXT_CXX"))
-	Option::cxx_ext = project->first("QMAKE_EXT_CXX");
     if(!project->isEmpty("QMAKE_EXT_OBJ"))
 	Option::obj_ext = project->first("QMAKE_EXT_OBJ");
     if(!project->isEmpty("QMAKE_MOD_MOC"))

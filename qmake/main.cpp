@@ -96,7 +96,7 @@ int main(int argc, char **argv)
 		continue;
 	    }
 
-	    /* let Option post process */
+	    /* let Option post-process */
 	    if(!Option::postProcessProject(&proj)) {
 		fprintf(stderr, "Error post-processing project file: %s", fn == "-" ? "(stdin)" : (*pfile).latin1());
 		exit_val = 8;

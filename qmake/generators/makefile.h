@@ -95,6 +95,7 @@ protected:
 
     //for prl
     bool processPrlFile(QString &);
+    virtual void processPrlLibraries(const QStringList &l);
     virtual void processPrlFiles();
 
     QString var(const QString &var);

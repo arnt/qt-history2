@@ -10,20 +10,24 @@
 
 #include <qapplication.h>
 #include <qfiledialog.h>
+#include <qpushbutton.h>
 #include <qlabel.h>
 #include <qpainter.h>
 #include <qmessagebox.h>
 #include <qmovie.h>
+#include <qvbox.h>
 
 
 class MovieScreen : public QFrame {
     Q_OBJECT
     QMovie movie;
     QString filename;
+    QSize sh;
 
 public:
     MovieScreen(const char* fname, QMovie m, QWidget* p=0, const char* name=0, WFlags f=0) :
-        QFrame(p, name, f)
+        QFrame(p, name, f),
+	sh(100,100)
     {
         setCaption(fname);
         filename = fname;
@@ -40,8 +44,14 @@ public:
         movie.connectUpdate(this, SLOT(movieUpdated(const QRect&)));
         movie.connectResize(this, SLOT(movieResized(const QSize&)));
         movie.connectStatus(this, SLOT(movieStatus(int)));
+
+	setSizePolicy(QSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding));
     }
 
+    QSize sizeHint() const
+    {
+	return sh;
+    }
 
 protected:
 
@@ -109,22 +119,32 @@ protected:
         }
     }
 
-    void mouseReleaseEvent(QMouseEvent* event)
+public slots:
+    void restart()
     {
-        // Do what the Help says...
+	movie.restart();
+        repaint();
+    }
 
-        if (event->state() & ShiftButton) {
-            movie.restart();
-        } else if (!movie.paused()) {
-            movie.pause();
-        } else {
-            if (event->button() & LeftButton)
-                movie.step((event->state() & ControlButton) ? 10 : 1);
-            else if (event->button() & (MidButton|RightButton))
-                movie.unpause();
-        }
+    void togglePause()
+    {
+	if ( movie.paused() )
+	    movie.unpause();
+	else
+	    movie.pause();
+        repaint();
+    }
 
-        repaint(); // To hide/show "PAUSED".
+    void step()
+    {
+	movie.step();
+        repaint();
+    }
+
+    void step10()
+    {
+	movie.step(10);
+        repaint();
     }
 
 private slots:
@@ -152,9 +172,10 @@ private slots:
         // The movie changed size, probably from its initial zero size.
 
         int fw = frameWidth();
-        resize( size.width() + fw*2, size.height() + fw*2 );
-        qApp->setMainWidget(this); // Just geometry, etc.
-        qApp->setMainWidget(0); // Not Close==Quit
+        sh = QSize( size.width() + fw*2, size.height() + fw*2 );
+	updateGeometry();
+	if ( parentWidget() && parentWidget()->isHidden() )
+	    parentWidget()->show();
     }
 
     void movieStatus(int status)
@@ -168,6 +189,26 @@ private slots:
         } else if (status == QMovie::Paused || status == QMovie::EndOfMovie) {
             repaint(); // Ensure status text is displayed
         }
+    }
+};
+
+class MoviePlayer : public QVBox {
+    MovieScreen* movie;
+public:
+    MoviePlayer(const char* fname, QMovie m, QWidget* p=0, const char* name=0, WFlags f=0) :
+	QVBox(p,name,f)
+    {
+	movie = new MovieScreen(fname, m, this);
+	QHBox* hb = new QHBox(this);
+	QPushButton* btn;
+	btn = new QPushButton("<<", hb);
+	connect(btn, SIGNAL(clicked()), movie, SLOT(restart()));
+	btn = new QPushButton("||", hb);
+	connect(btn, SIGNAL(clicked()), movie, SLOT(togglePause()));
+	btn = new QPushButton(">|", hb);
+	connect(btn, SIGNAL(clicked()), movie, SLOT(step()));
+	btn = new QPushButton(">>|", hb);
+	connect(btn, SIGNAL(clicked()), movie, SLOT(step10()));
     }
 };
 
@@ -201,8 +242,8 @@ MovieStarter::MovieStarter(const char *dir)
 void MovieStarter::startMovie(const QString& filename)
 {
     if ( filename ) // Start a new movie - have it delete when closed.
-	(void)new MovieScreen( filename, QMovie(filename), 0, 0,
-			       WDestructiveClose);
+	(new MoviePlayer( filename, QMovie(filename), 0, 0,
+			       WDestructiveClose))->show();
 }
 
 void MovieStarter::done( int r )
@@ -222,28 +263,23 @@ int main(int argc, char **argv)
     if (argc > 1) {
         // Commandline mode - show movies given on the command line
         //
-        for (int arg=1; arg<argc; arg++)
-            (void)new MovieScreen(argv[arg], QMovie(argv[arg]), 0, 0,
-                                  Qt::WDestructiveClose);
+	bool gui=TRUE;
+        for (int arg=1; arg<argc; arg++) {
+	    if ( QString(argv[arg]) == "-i" )
+		gui = !gui;
+	    else if ( gui )
+		(void)new MoviePlayer(argv[arg], QMovie(argv[arg]), 0, 0,
+				      Qt::WDestructiveClose);
+	    else
+		(void)new MovieScreen(argv[arg], QMovie(argv[arg]), 0, 0,
+				      Qt::WDestructiveClose);
+	}
         QObject::connect(qApp, SIGNAL(lastWindowClosed()), qApp, SLOT(quit()));
     } else {
         // "GUI" mode - open a chooser for movies
         //
         MovieStarter* fd = new MovieStarter(".");
         fd->show();
-
-        // Some help text to explain the `hidden' features.
-        QLabel* help 
-	    = new QLabel( "Choose some movies.\n\n"
-			  "Shift-click to Restart.\n"
-			  "Click to Pause,\n"
-			  "then left-click to Step,\n"
-			  "control-left-click to Step 10,\n"
-			  "right-click to Unpause\n\n"
-			  "Windows may be resized to enlarge movie.", 0, 0, Qt::WDestructiveClose );
-        help->setCaption( "Qt Examples - Movies" );
-        help->setIndent( 10 );
-        help->show();
     }
 
     // Go!

@@ -78,13 +78,12 @@ UnixMakefileGenerator::init()
 	project->variables()["QMAKE_COPY_DIR"].append( "$(COPY) -pR" );
     project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
 
-
+    bool is_qt = (project->first("TARGET") == "qt" || project->first("TARGET") == "qte" ||
+		  project->first("TARGET") == "qt-mt" || project->first("TARGET") == "qte-mt");
     bool extern_libs = !project->variables()["QMAKE_APP_FLAG"].isEmpty() ||
-		       (!project->variables()["QMAKE_LIB_FLAG"].isEmpty() && project->isActiveConfig("dll")) ||
-                       (project->first("TARGET") == "qt" ||
-			project->first("TARGET") == "qte" ||
-			project->first("TARGET") == "qt-mt" ||
-			project->first("TARGET") == "qte-mt");
+		       (!project->variables()["QMAKE_LIB_FLAG"].isEmpty() && 
+			project->isActiveConfig("dll")) || is_qt;
+                       ;
     project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
     if ( (!project->variables()["QMAKE_LIB_FLAG"].isEmpty() && !project->isActiveConfig("staticlib") ) ||
 	 (project->isActiveConfig("qt") &&  project->isActiveConfig( "plugin" ) )) {
@@ -124,18 +123,16 @@ UnixMakefileGenerator::init()
 	if(configs.findIndex("x11inc") == -1) 
 	    configs.append("x11inc");
     }
-    if ( project->isActiveConfig("accessibility" ) ) 
-	project->variables()["DEFINES"].append("QT_ACCESSIBILITY_SUPPORT");
-    if ( project->isActiveConfig("tablet") )
-	project->variables()["DEFINES"].append("QT_TABLET_SUPPORT");
     if ( project->isActiveConfig("qt") ) {
+	if ( project->isActiveConfig("accessibility" ) ) 
+	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_ACCESSIBILITY_SUPPORT");
+	if ( project->isActiveConfig("tablet") )
+	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_TABLET_SUPPORT");
 	if(configs.findIndex("moc")) configs.append("moc");
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_QT"];
-	if ( !project->isActiveConfig("debug") ) {
-	    project->variables()["DEFINES"].append("QT_NO_DEBUG");
-	}
-	if ( !( (project->first("TARGET") == "qt") || (project->first("TARGET") == "qte") ||
-		(project->first("TARGET") == "qt-mt") || (project->first("TARGET") == "qte-mt") ) ) {
+	if ( !project->isActiveConfig("debug") ) 
+	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_NO_DEBUG");
+	if ( !is_qt ) {
 	    if ( !project->variables()["QMAKE_LIBDIR_QT"].isEmpty() ) {
 		if ( !project->variables()["QMAKE_RPATH"].isEmpty() )
 		    project->variables()["QMAKE_LIBDIR_FLAGS"].append(project->first("QMAKE_RPATH") +
@@ -150,7 +147,8 @@ UnixMakefileGenerator::init()
 	}
     }
     if ( project->isActiveConfig("thread") ) {
-	project->variables()["DEFINES"].append("QT_THREAD_SUPPORT");
+	if(project->isActiveConfig("qt"))
+	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_THREAD_SUPPORT");
 	if ( !project->variables()["QMAKE_CFLAGS_THREAD"].isEmpty())
 	    project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_THREAD"];
 	if( !project->variables()["QMAKE_CXXFLAGS_THREAD"].isEmpty())
@@ -165,8 +163,7 @@ UnixMakefileGenerator::init()
 	if(!project->variables()["QMAKE_LIBDIR_OPENGL"].isEmpty()) {
 	    project->variables()["QMAKE_LIBDIR_FLAGS"].append("-L" + project->first("QMAKE_LIBDIR_OPENGL"));
 	}
-	if ( (project->first("TARGET") == "qt") || (project->first("TARGET") == "qte") ||
-	     (project->first("TARGET") == "qt-mt") || (project->first("TARGET") == "qte-mt") )
+	if ( is_qt )
 	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL_QT"];
 	else 
 	    project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_OPENGL"];
@@ -237,6 +234,35 @@ UnixMakefileGenerator::init()
 }
 
 void
+UnixMakefileGenerator::processPrlLibraries(const QStringList &l)
+{
+    QStringList &out = project->variables()["QMAKE_LIBS"];
+    for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
+	bool append = TRUE;
+	if((*it).left(1) == "-") {
+	    if((*it).left(2) == "-l" || (*it).left(2) == "-L") {
+		append = out.findIndex((*it)) == -1;
+	    } else if(project->isActiveConfig("macx") && (*it).left(2) == "-framework") {
+		++it;
+		for(QStringList::ConstIterator outit = out.begin(); outit != out.end(); ++it) {
+		    if((*outit) == "-framework") {
+			++outit;
+			if((*outit) == (*it)) {
+			    append = FALSE;
+			    break;
+			}
+		    }
+		}
+	    }
+	} else if(QFile::exists((*it))) {
+	    append = out.findIndex((*it));
+	}
+	if(append)
+	    out.append((*it));
+    }
+}
+
+void
 UnixMakefileGenerator::processPrlFiles()
 {
     QPtrList<MakefileDependDir> libdirs;
@@ -266,6 +292,7 @@ UnixMakefileGenerator::processPrlFiles()
 				    prl = "-l" + reg.cap(1);
 				opt = prl;
 				ret = TRUE;
+				break;
 			    }
 			}
 		    } else if(project->isActiveConfig("macx") && opt == "-framework") {
@@ -277,11 +304,13 @@ UnixMakefileGenerator::processPrlFiles()
 			if(processPrlFile(prl))
 			    ret = TRUE;
 		    }
-		    l_out.append(opt);
+		    if(!opt.isEmpty())
+			l_out.append(opt);
 		} else {
 		    if(processPrlFile(opt))
 			ret = TRUE;
-		    l_out.append(opt);
+		    if(!opt.isEmpty())
+			l_out.append(opt);
 		}
 	    }
 	    if(ret)

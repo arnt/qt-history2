@@ -42,7 +42,7 @@
 class ProjectGenerator : public MakefileGenerator
 {
     bool init_flag;
-    bool addFile(const QString &);
+    bool addFile(QString);
     bool addConfig(const QString &, bool add=TRUE);
     QString getWritableVar(const QString &);
 protected:

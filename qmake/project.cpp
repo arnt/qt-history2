@@ -315,6 +315,10 @@ bool
 QMakeProject::read(QString project, QString pwd)
 {
     if(cfile.isEmpty()) {
+	// hack to get the Option stuff in there
+	base_vars["QMAKE_EXT_CPP"] = Option::cpp_ext;
+	base_vars["QMAKE_EXT_H"] = Option::h_ext;
+
 	/* parse the cache */
 	if(Option::mkfile::do_cache && !Option::mkfile::cachefile.isEmpty()) {
 	    read(Option::mkfile::cachefile, cache);

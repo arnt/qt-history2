@@ -153,18 +153,26 @@ MakefileGenerator::generateMocList(QString fn_target)
 		    mocFile = project->first("MOC_DIR");
 		else if(dir_pos != -1)
 		    mocFile = fn_target.left(dir_pos+1);
-
-		if(fn_target.right(ext_len) == Option::cpp_ext || fn_target.right(ext_len) == Option::cc_ext ||
-		   fn_target.right(ext_len) == Option::cxx_ext) {
+		
+		bool cpp_ext = FALSE;
+		for(QStringList::Iterator cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit) {
+		    if((cpp_ext = (fn_target.right(ext_len) == (*cppit))))
+			break;
+		}
+		if(cpp_ext) {
 		    mocFile += fn_target.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::moc_ext;
 		    findDependencies(fn_target).append(mocFile);
 		    project->variables()["_SRCMOC"].append(mocFile);
-		} else if((fn_target.right(ext_len) == Option::h_ext || 
-			   fn_target.right(ext_len) == Option::hpp_ext) &&
-			  project->variables()["HEADERS"].findIndex(fn_target) != -1) {
-		    mocFile += Option::moc_mod + fn_target.mid(dir_pos+1, ext_pos - dir_pos-1) + Option::cpp_ext;
-		    logicWarn(mocFile, "SOURCES");
-		    project->variables()["_HDRMOC"].append(mocFile);
+		} else if(project->variables()["HEADERS"].findIndex(fn_target) != -1) {
+		    for(QStringList::Iterator hit = Option::h_ext.begin(); hit != Option::h_ext.end(); ++hit) {
+			if((fn_target.right(ext_len) == (*hit))) {
+			    mocFile += Option::moc_mod + fn_target.mid(dir_pos+1, ext_pos - dir_pos-1) + 
+				       Option::cpp_ext.first();
+			    logicWarn(mocFile, "SOURCES");
+			    project->variables()["_HDRMOC"].append(mocFile);
+			    break;
+			}
+		    }
 		}
 
 		if(!mocFile.isEmpty()) {
@@ -470,8 +478,8 @@ MakefileGenerator::init()
 	    QFileInfo fi((*it));
 	    QString impl, decl;
 	    if ( !project->isEmpty("UI_DIR") ) {
-		impl = project->first("UI_DIR") + fi.baseName() + Option::cpp_ext;
-		decl = project->first("UI_DIR") + fi.baseName() + Option::h_ext;
+		impl = project->first("UI_DIR") + fi.baseName() + Option::cpp_ext.first();
+		decl = project->first("UI_DIR") + fi.baseName() + Option::h_ext.first();
 
 		QString d = fi.dirPath();
 		if( d == ".")
@@ -480,11 +488,11 @@ MakefileGenerator::init()
 		if( !project->variables()["INCLUDEPATH"].contains(d))
 		    project->variables()["INCLUDEPATH"].append(d);
 	    } else if ( fi.dirPath() == "." ) {
-	    	impl = fi.baseName() + Option::cpp_ext;
-                decl = fi.baseName() + Option::h_ext;
+	    	impl = fi.baseName() + Option::cpp_ext.first();
+                decl = fi.baseName() + Option::h_ext.first();
 	    } else {
-	    	impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::cpp_ext;
-                decl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::h_ext;
+	    	impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::cpp_ext.first();
+                decl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::h_ext.first();
 	    }
 	    logicWarn(impl, "SOURCES");
 	    logicWarn(decl, "HEADERS");
@@ -492,7 +500,7 @@ MakefileGenerator::init()
 	    impls.append(impl);
 	    findDependencies(impl).append(decl);
 
-	    QString mocable = Option::moc_mod + fi.baseName() + Option::cpp_ext;
+	    QString mocable = Option::moc_mod + fi.baseName() + Option::cpp_ext.first();
 	    if(!v["MOC_DIR"].isEmpty())
 		mocable.prepend(v["MOC_DIR"].first());
 	    else if(fi.dirPath() != ".")
@@ -508,7 +516,7 @@ MakefileGenerator::init()
     //Image files
     if(!project->isEmpty("IMAGES")) {
 	if(project->isEmpty("QMAKE_IMAGE_COLLECTION"))
-	    v["QMAKE_IMAGE_COLLECTION"].append("qmake_image_collection" + Option::cpp_ext);
+	    v["QMAKE_IMAGE_COLLECTION"].append("qmake_image_collection" + Option::cpp_ext.first());
 	QString imgfile = project->first("QMAKE_IMAGE_COLLECTION");
 	Option::fixPathToTargetOS(imgfile);
 	if(!project->isEmpty("UI_DIR")) {
@@ -537,7 +545,7 @@ MakefileGenerator::init()
 	QStringList &l = v["LEXSOURCES"];
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	    QFileInfo fi((*it));
-	    QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext;
+	    QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext.first();
 	    logicWarn(impl, "SOURCES");
 	    impls.append(impl);
 	    if( ! project->isActiveConfig("lex_included")) {
@@ -561,9 +569,9 @@ MakefileGenerator::init()
 	QStringList &l = v["YACCSOURCES"];
 	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	    QFileInfo fi((*it));
-	    QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::yacc_mod + Option::cpp_ext;
+	    QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::yacc_mod + Option::cpp_ext.first();
 	    logicWarn(impl, "SOURCES");
-	    QString decl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::yacc_mod + Option::h_ext;
+	    QString decl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::yacc_mod + Option::h_ext.first();
 	    logicWarn(decl, "HEADERS");
 
 	    decls.append(decl);
@@ -583,7 +591,7 @@ MakefileGenerator::init()
 		if(fi.dirPath() != ".")
 		    lexsrc.prepend(fi.dirPath() + Option::dir_sep);
 		if(v["LEXSOURCES"].findIndex(lexsrc) != -1) {
-		    QString trg = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext;
+		    QString trg = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext.first();
 		    impldeps.append(trg);
 		    impldeps += findDependencies(lexsrc);
 		    depends[lexsrc].clear();
@@ -622,8 +630,7 @@ MakefileGenerator::processPrlFile(QString &file)
 	int ext = tmp.findRev('.');
 	if(ext != -1)
 	    tmp = tmp.left(ext);
-	if(QFile::exists(tmp + Option::prl_ext)) 
-	    prl_file = tmp + Option::prl_ext;
+	prl_file = tmp + Option::prl_ext;
     }
     fileFixify(prl_file);
     if(!QFile::exists(prl_file) && project->isActiveConfig("qt")) {
@@ -642,8 +649,11 @@ MakefileGenerator::processPrlFile(QString &file)
 	    extn = stem.right(stem.length() - dot);
 	    stem = stem.left(dot);
 	}
-	if(stem == "qt" || stem == "qte") {
-	    stem += "-mt"; //try the thread case, this is a bit of magic
+	if(stem == "qt" || stem == "qte" || stem == "qte-mt" || stem == "qt-mt") {
+	    if(stem.right(3) == "-mt")
+		stem = stem.left(stem.length() - 3); //lose the -mt
+	    else
+		stem += "-mt"; //try the thread case
 	    prl_file = dir;
 	    if(hadlib)
 		prl_file += "lib";
@@ -659,10 +669,17 @@ MakefileGenerator::processPrlFile(QString &file)
 	    fprintf(stderr, "Error processing prl file: %s\n", prl_file.latin1());
 	} else {
 	    ret = TRUE;
-	    if(!proj.isEmpty("QMAKE_PRL_LIBS"))
-		project->variables()["QMAKE_LIBS"] += proj.variables()["QMAKE_PRL_LIBS"];
-	    if(!proj.isEmpty("QMAKE_PRL_DEFINES"))
-		project->variables()["DEFINES"] += proj.variables()["QMAKE_PRL_DEFINES"];
+	    if(!proj.isEmpty("QMAKE_PRL_LIBS")) 
+		processPrlLibraries(proj.variables()["QMAKE_PRL_LIBS"]);
+	    if(!proj.isEmpty("QMAKE_PRL_DEFINES")) {
+		const QStringList &in = project->variables()["QMAKE_PRL_DEFINES"];
+		QStringList &out = project->variables()["DEFINES"];
+		for(QStringList::ConstIterator it = in.begin(); it != in.end(); ++it) {
+		    if(out.findIndex((*it)) == -1 && 
+		       project->variables()["PRL_EXPORT_DEFINES"].findIndex((*it)) == -1)
+			out.append((*it));
+		}
+	    }
 	    if(try_replace_file && !proj.isEmpty("QMAKE_PRL_TARGET")) {
 		QString dir;
 		int slsh = file.findRev(Option::dir_sep);
@@ -678,6 +695,16 @@ MakefileGenerator::processPrlFile(QString &file)
 }
 
 void
+MakefileGenerator::processPrlLibraries(const QStringList &l)
+{
+    QStringList &out = project->variables()["QMAKE_LIBS"];
+    for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
+	if(!QFile::exists((*it)) || out.findIndex((*it)) == -1)
+	    out.append((*it));
+    }
+}
+
+void
 MakefileGenerator::processPrlFiles()
 {
     for(bool ret = FALSE; TRUE; ret = FALSE) {
@@ -688,7 +715,8 @@ MakefileGenerator::processPrlFiles()
 	    QString file = (*it);
 	    if(processPrlFile(file))
 		ret = TRUE;
-	    l_out.append(file);
+	    if(!file.isEmpty())
+		l_out.append(file);
 	}
 	if(ret)
 	    l = l_out;
@@ -726,8 +754,10 @@ MakefileGenerator::write()
 	    if(slsh != -1)
 		target = target.right(target.length() - slsh - 1);
 	    t << "QMAKE_PRL_TARGET = " << target << endl;
-	    t << "QMAKE_PRL_DEFINES = " << project->variables()["DEFINES"].join(" ") << endl;
-	    if(project->isActiveConfig("staticlib")) {
+	    if(!project->isEmpty("PRL_EXPORT_DEFINES")) 
+		t << "QMAKE_PRL_DEFINES = " 
+		  << project->variables()["PRL_EXPORT_DEFINES"].join(" ") << endl;
+	    if(project->isActiveConfig("staticlib") || project->isActiveConfig("explicitlib")) {
 		QStringList libs; 
 		if(!project->isEmpty("QMAKE_INTERNAL_PRL_LIBS"))
 		    libs = project->variables()["QMAKE_INTERNAL_PRL_LIBS"];
@@ -783,12 +813,14 @@ MakefileGenerator::writeObj(QTextStream &t, const QString &obj, const QString &s
 	}
 
 	QString comp, cimp;
-	if((*sit).right(qstrlen(Option::cpp_ext)) == Option::cpp_ext || 
-	    (*sit).right(qstrlen(Option::cc_ext)) == Option::cc_ext ||
-	    (*sit).right(qstrlen(Option::cxx_ext)) == Option::cxx_ext)  {
-	    comp = "QMAKE_RUN_CXX";
-	    cimp = "QMAKE_RUN_CXX_IMP";
-	} else {
+	for(QStringList::Iterator cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit) {
+	    if((*sit).right((*cppit).length()) == (*cppit)) {
+		comp = "QMAKE_RUN_CXX";
+		cimp = "QMAKE_RUN_CXX_IMP";
+		break;
+	    }
+	}
+	if(comp.isEmpty()) {
 	    comp = "QMAKE_RUN_CC";
 	    cimp = "QMAKE_RUN_CC_IMP";
 	}
@@ -811,9 +843,9 @@ MakefileGenerator::writeUicSrc(QTextStream &t, const QString &ui)
 	QString deps = findDependencies((*it)).join(" \\\n\t\t"), decl, impl;
 	{
 	    QString tmp = (*it);
-	    decl = tmp.replace(QRegExp("\\" + Option::ui_ext + "$"), Option::h_ext);
+	    decl = tmp.replace(QRegExp("\\" + Option::ui_ext + "$"), Option::h_ext.first());
 	    tmp = (*it);
-	    impl = tmp.replace(QRegExp("\\" + Option::ui_ext + "$"), Option::cpp_ext);
+	    impl = tmp.replace(QRegExp("\\" + Option::ui_ext + "$"), Option::cpp_ext.first());
 	    if(!project->isEmpty("UI_DIR")) {
 		int dlen = (*it).findRev(Option::dir_sep) + 1;
 		decl = project->first("UI_DIR") + decl.right(decl.length() - dlen);
@@ -853,7 +885,7 @@ MakefileGenerator::writeMocObj(QTextStream &t, const QString &obj)
 	    dirName = mocdir;
 	else if(!fi.dirPath().isEmpty() && fi.dirPath() != "." && project->isEmpty("OBJECTS_DIR")) 
 	    dirName = Option::fixPathToTargetOS(fi.dirPath(), FALSE) + Option::dir_sep;
-	QString src(dirName + fi.baseName() + Option::cpp_ext );
+	QString src(dirName + fi.baseName() + Option::cpp_ext.first() );
 
 	QString hdr = findMocSource(src);
 	t << (*oit) << ": " << src << " "
@@ -892,8 +924,8 @@ MakefileGenerator::writeYaccSrc(QTextStream &t, const QString &src)
 		 "This can lead to link problems.\n");
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QFileInfo fi((*it));
-	QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::yacc_mod + Option::cpp_ext;
-	QString decl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::yacc_mod + Option::h_ext;
+	QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::yacc_mod + Option::cpp_ext.first();
+	QString decl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::yacc_mod + Option::h_ext.first();
 
 	QString yaccflags = "$(YACCFLAGS)";
 	if(!project->isActiveConfig("yacc_no_name_mangle"))
@@ -916,7 +948,7 @@ MakefileGenerator::writeLexSrc(QTextStream &t, const QString &src)
 		 "This can lead to link problems.\n");
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QFileInfo fi((*it));
-	QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext;
+	QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext.first();
 
 	QString lexflags = "$(LEXFLAGS)", stub="yy";
 	if(!project->isActiveConfig("yacc_no_name_mangle")) {
