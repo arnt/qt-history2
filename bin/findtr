@@ -42,7 +42,8 @@ sub outmsg {
     print "#: $file:$line\n";
     $msgid =~ s/^"//;
     print "msgid \"${scope}::$msgid\n";
-    print "msgstr \"$msgid\n";
+    #print "msgstr \"$msgid\n";
+    print "msgstr \"\"\n";
     print "\n";
 }
 
