@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/etc/trial/qapplication_trial.cpp#3 $
+** $Id: //depot/qt/main/etc/trial/qapplication_trial.cpp#4 $
 **
 **		     ***   STRICTLY CONFIDENTIAL   ***
 **
@@ -8,7 +8,7 @@
 ** Implementation of Windows trial routines.
 ** This file is included by qapp_win.cpp if QT_TRIAL is defined.
 **
-** IMPORTANT: Change FINAL_TRIALDATE before Aug. 15th 1997.
+** IMPORTANT: Change FINAL_TRIALDATE before March 15th 1997.
 **
 ** Created : 970421
 **
@@ -17,7 +17,7 @@
 *****************************************************************************/
 
 
-#define FINAL_TRIALDATE 2450723	    // Oct. 1st 1997
+#define FINAL_TRIALDATE 2450935	    // May 1st 1998
 
 
 #if defined(UNIX)
