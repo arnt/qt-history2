@@ -1,4 +1,3 @@
-#define Q_UUIDIMPL
 #include <qstyleinterface.h>
 #include <qmotifstyle.h>
 

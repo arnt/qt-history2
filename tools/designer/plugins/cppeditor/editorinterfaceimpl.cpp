@@ -1,4 +1,3 @@
-#define Q_UUIDIMPL
 #include "editorinterfaceimpl.h"
 #include "viewmanager.h"
 #include "editor.h"

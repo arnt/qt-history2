@@ -1,5 +1,3 @@
-#define Q_UUIDIMPL
-
 #include "designerappiface.h"
 #include "mainwindow.h"
 #include "project.h"

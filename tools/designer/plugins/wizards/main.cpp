@@ -1,4 +1,3 @@
-#define Q_UUIDIMPL
 #include <qcleanuphandler.h>
 #include <designerinterface.h>
 #include <qfeatures.h>
