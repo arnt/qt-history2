@@ -30,7 +30,7 @@ ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv 
     dictionary[ "DEBUG" ] = "no";
     dictionary[ "SHARED" ] = "yes";
     dictionary[ "GIF" ] = "no";
-    dictionary[ "THREAD" ] = "no";
+    dictionary[ "THREAD" ] = "yes";
     dictionary[ "ZLIB" ] = "yes";
     dictionary[ "LIBPNG" ] = "yes";
     dictionary[ "JPEG" ] = "no";
