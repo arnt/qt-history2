@@ -2445,7 +2445,7 @@ void pnmscale(const QImage& src, QImage& dst)
 
   \sa scale() mirror()
 */
-QImage QImage::smoothScale( int w, int h, ScaleMode mode=ScaleFree ) const
+QImage QImage::smoothScale( int w, int h, ScaleMode mode ) const
 {
     return smoothScale( QSize( w, h ), mode );
 }
@@ -2455,7 +2455,7 @@ QImage QImage::smoothScale( int w, int h, ScaleMode mode=ScaleFree ) const
 /*! \overload
   The wished size of the image is \a s.
 */
-QImage QImage::smoothScale( const QSize& s, ScaleMode mode=ScaleFree ) const
+QImage QImage::smoothScale( const QSize& s, ScaleMode mode ) const
 {
     if ( isNull() ) {
 #if defined(QT_CHECK_RANGE)
@@ -2497,7 +2497,7 @@ QImage QImage::smoothScale( const QSize& s, ScaleMode mode=ScaleFree ) const
  
   \sa smoothScale()
 */
-QImage QImage::scale( int w, int h, ScaleMode mode=ScaleFree ) const
+QImage QImage::scale( int w, int h, ScaleMode mode ) const
 {
     return scale( QSize( w, h ), mode );
 }
@@ -2505,7 +2505,7 @@ QImage QImage::scale( int w, int h, ScaleMode mode=ScaleFree ) const
 /*! \overload
   The wished size of the image is \a s.
 */
-QImage QImage::scale( const QSize& s, ScaleMode mode=ScaleFree ) const
+QImage QImage::scale( const QSize& s, ScaleMode mode ) const
 {
     if ( isNull() ) {
 #if defined(QT_CHECK_RANGE)
