@@ -172,6 +172,9 @@ msvc_dsp.obj: generators/win32/msvc_dsp.cpp
 msvc_vcproj.obj: generators/win32/msvc_vcproj.cpp
 	$(CXX) $(CXXFLAGS) generators/win32/msvc_vcproj.cpp
 
+msvc_objectmodel.obj: generators/win32/msvc_objectmodel.cpp
+	$(CXX) $(CXXFLAGS) generators/win32/msvc_objectmodel.cpp
+
 project.obj: project.cpp project.h option.h
 	$(CXX) $(CXXFLAGS) project.cpp
 
