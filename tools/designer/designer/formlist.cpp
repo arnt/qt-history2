@@ -150,16 +150,21 @@ FormList::FormList( QWidget *parent, MainWindow *mw, Project *pro )
     setAcceptDrops( TRUE );
     setColumnWidthMode( 1, Manual );
     setRootIsDecorated( TRUE );
+
+    if ( !folderPixmap ) {
+	folderPixmap = new QPixmap( folder_xpm );
+    }
+
+    formsParent = new FormListItem( this );
+    formsParent->setText( 0, tr( "Forms" ) );
+    formsParent->setPixmap( 0, *folderPixmap );
+    formsParent->setOpen( TRUE );
 }
 
 void FormList::setProject( Project *pro )
 {
     project = pro;
     clear();
-
-    if ( !folderPixmap ) {
-	folderPixmap = new QPixmap( folder_xpm );
-    }
 
     formsParent = new FormListItem( this );
     formsParent->setText( 0, tr( "Forms" ) );
