@@ -248,7 +248,8 @@ bool Resource::load( FormFile *ff, QIODevice* dev )
 	    if ( firstWidget.attribute( "impldecl" ) == "in implementation" )
 		inc.implDecl = "in implementation";
 	    inc.header = firstWidget.firstChild().toText().data();
-	    metaIncludes.append( inc );
+	    if ( inc.header.right( 5 ) != ".ui.h" )
+		metaIncludes.append( inc );
 	} else if ( firstWidget.tagName() == "comment" ) {
 	    metaInfo.comment = firstWidget.firstChild().toText().data();
 	} else if ( firstWidget.tagName() == "forward" ) { // compatibility with old betas
