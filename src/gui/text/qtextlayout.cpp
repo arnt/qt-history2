@@ -253,10 +253,10 @@ QTextLine QTextLayout::createLine(int from, int y, int x1, int x2)
 
     const QCharAttributes *attributes = d->attributes();
 
-    Q26Dot6 minw;
+    Q26Dot6 minw, spacew;
 
 //     qDebug("from: %d:   item=%d, total %d width available %d/%d", from, item, d->items.size(), line.width.value(), line.width.toInt());
-    Q26Dot6 spacew;
+
     while (item < d->items.size()) {
 	d->shape(item);
 	const QScriptItem &current = d->items[item];
@@ -288,32 +288,35 @@ QTextLine QTextLayout::createLine(int from, int y, int x1, int x2)
 	    int next = pos;
 
 	    Q26Dot6 tmpw;
-	    do {
-		int gp = logClusters[next];
+	    if (!itemAttrs[next].whiteSpace) {
+		tmpw = spacew;
+		spacew = 0;
 		do {
-		    ++next;
-		} while (next < length && logClusters[next] == gp);
-		do {
-		    tmpw += glyphs[gp].advance.x;
-		    ++gp;
-		} while (gp < current.num_glyphs && !glyphs[gp].attributes.clusterStart);
+		    int gp = logClusters[next];
+		    do {
+			++next;
+		    } while (next < length && logClusters[next] == gp);
+		    do {
+			tmpw += glyphs[gp].advance.x;
+			++gp;
+		    } while (gp < current.num_glyphs && !glyphs[gp].attributes.clusterStart);
 
-		Q_ASSERT((next == length && gp == current.num_glyphs) || logClusters[next] == gp);
+		    Q_ASSERT((next == length && gp == current.num_glyphs) || logClusters[next] == gp);
 
-	    } while (next < length && !itemAttrs[next].whiteSpace && !itemAttrs[next].softBreak && !(breakany && itemAttrs[next].charStop));
-	    minw = qMax(tmpw, minw);
+		} while (next < length && !itemAttrs[next].whiteSpace && !itemAttrs[next].softBreak && !(breakany && itemAttrs[next].charStop));
+		minw = qMax(tmpw, minw);
+	    }
 
 	    if (itemAttrs[next].softBreak)
 		breakany = false;
 
-	    Q26Dot6 nextspacew;
 	    while (next < length && itemAttrs[next].whiteSpace) {
 		int gp = logClusters[next];
 		do {
 		    ++next;
 		} while (next < length && logClusters[next] == gp);
 		do {
-		    nextspacew += glyphs[gp].advance.x;
+		    spacew += glyphs[gp].advance.x;
 		    ++gp;
 		} while (gp < current.num_glyphs && !glyphs[gp].attributes.clusterStart);
 
@@ -321,14 +324,13 @@ QTextLine QTextLayout::createLine(int from, int y, int x1, int x2)
 
 	    }
 
-// 	    qDebug("possible break at %d, chars (%d-%d) / glyphs (%d-%d): width %d, spacew=%d, nextspacew=%d",
-// 		   current.position + next, pos, next, logClusters[pos], logClusters[next], tmpw.value(), spacew.value(),  nextspacew.value());
+// 	    qDebug("possible break at %d, chars (%d-%d) / glyphs (%d-%d): width %d, spacew=%d",
+// 		   current.position + next, pos, next, logClusters[pos], logClusters[next], tmpw.value(), spacew.value());
 
-	    if (line.length && line.textWidth + tmpw > line.width && !(d->textFlags & Qt::SingleLine))
+	    if (line.length && tmpw.value() && line.textWidth + tmpw > line.width && !(d->textFlags & Qt::SingleLine))
 		goto found;
 
-	    line.textWidth += tmpw + spacew;
-	    spacew = nextspacew;
+	    line.textWidth += tmpw;
 	    line.length += next - pos;
 
 	    pos = next;

@@ -1203,12 +1203,23 @@ void QTextEngine::justify(const QScriptLine &line)
     Q26Dot6 minKashidaWidth = 0x100000;
     int maxJustify = 0;
 
+    // don't include trailing white spaces when doing justification
+    int line_length = line.length;
+    const QCharAttributes *a = attributes()+line.from;
+    while (line_length && a[line_length-1].whiteSpace)
+	--line_length;
+
+    if (!line_length) {
+	line.justified = true;
+	return;
+    }
+
     int firstItem = findItem(line.from);
-    int nItems = findItem(line.from + line.length - 1) - firstItem + 1;
+    int nItems = findItem(line.from + line_length - 1) - firstItem + 1;
 
     QVarLengthArray<JustificationPoint> justificationPoints;
     int nPoints = 0;
-//     qDebug("justifying from %d len %d, firstItem=%d, nItems=%d", line.from, line.length, firstItem, nItems);
+//     qDebug("justifying from %d len %d, firstItem=%d, nItems=%d", line.from, length, firstItem, nItems);
     Q26Dot6 minKashida = 0x100000;
 
     for (int i = 0; i < nItems; ++i) {
@@ -1218,7 +1229,7 @@ void QTextEngine::justify(const QScriptLine &line)
 	int kashida_pos = -1;
 
 	int start = qMax(line.from - si.position, 0);
-	int end = qMin(line.from + (int)line.length - (int)si.position, length(firstItem+i));
+	int end = qMin(line.from + line_length - (int)si.position, length(firstItem+i));
 
 	unsigned short *log_clusters = logClusters(&si);
 
@@ -1277,14 +1288,18 @@ void QTextEngine::justify(const QScriptLine &line)
     }
 
     // don't justify last line. Return here, so we ensure justificationType etc. are reset.
-    if (line.from + line.length == string.length()) {
+    if (line.from + (int)line.length == string.length()) {
 	line.justified = true;
 	return;
     }
 
 
     Q26Dot6 need = line.width - line.textWidth;
-    Q_ASSERT(need >= 0);
+    if (need < 0) {
+	// line overflows already!
+	line.justified = true;
+	return;
+    }
 
 //     qDebug("doing justification: textWidth=%x, requested=%x, maxJustify=%d", line.textWidth.value(), line.width.value(), maxJustify);
 //     qDebug("     minKashida=%x, need=%x", minKashida.value(), need.value());
