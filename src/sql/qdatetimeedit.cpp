@@ -628,11 +628,11 @@ public:
   the QDateEdit be initialised with a date, e.g.
 
     \code
-    QDateEdit *dateedit = new QDateEdit( QDate::currentDate(), this );
-    dateedit->setRange( QDate::currentDate().addDays( -365 ),
+    QDateEdit *dateEdit = new QDateEdit( QDate::currentDate(), this );
+    dateEdit->setRange( QDate::currentDate().addDays( -365 ),
 			QDate::currentDate().addDays(  365 ) );
-    dateedit->setOrder( QDateEdit::MDY );
-    dateedit->setAutoAdvance( TRUE );
+    dateEdit->setOrder( QDateEdit::MDY );
+    dateEdit->setAutoAdvance( TRUE );
     \endcode
 
   Here we've created a new QDateEdit object initialised with today's
@@ -1419,8 +1419,8 @@ public:
 
     \code
     QTime timeNow = QTime::currentTime();
-    QTimeEdit *timeedit = new QTimeEdit( timeNow, this );
-    timeedit->setRange( timeNow, timeNow.addSecs( 60 * 60 ) );
+    QTimeEdit *timeEdit = new QTimeEdit( timeNow, this );
+    timeEdit->setRange( timeNow, timeNow.addSecs( 60 * 60 ) );
     \endcode
   Here we've created a QTimeEdit widget set to the current time. We've
   also set the minimum value to the current time and the maximum time
@@ -2005,12 +2005,13 @@ public:
   It is recommended that the QDateTimeEdit is initialised with a
   datetime, e.g.
     \code
-    QDateTimeEdit *datetimeedit = new QDateTimeEdit( QDateTime::currentDateTime(), this );
-    dateedit->setRange( QDateTime::currentDateTime(),
-			QDateTime::currentDateTime().addDays( 7 ) );
+    QDateTimeEdit *dateTimeEdit = new QDateTimeEdit( QDateTime::currentDateTime(), this );
+    dateTimeEdit->dateEdit()->setRange( QDateTime::currentDate(),
+				        QDateTime::currentDate().addDays( 7 ) );
     \endcode
-    Here we've created a new QDateTimeEdit object with a minimum
-    date/time of now and a maximum date/time of a week from now.
+    Here we've created a new QDateTimeEdit set to the current date and
+    time, and set the date to have a minimum date of now and a maximum
+    date of a week from now.
 
   Terminology: A QDateEdit widget consists of three 'sections', one each
   for the year, month and day. Similarly a QTimeEdit consists of three
