@@ -140,8 +140,8 @@ bool QMYSQLResult::fetch( int i )
 {
     if ( isForwardOnly() ) { // fake a forward seek
 	if ( at() < i ) {
-	    int x = i;
-	    while ( x-- && fetchNext() );
+	    int x = i - at();
+	    while ( --x && fetchNext() );
 	    return fetchNext();
 	} else {
 	    return FALSE;
