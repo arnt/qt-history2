@@ -1,5 +1,5 @@
 #############################################################################
-# $Id: //depot/qt/main/examples/application/Makefile#4 $
+# $Id: //depot/qt/main/examples/application/Makefile#5 $
 #
 # Win32 Makefile, requires Microsoft nmake.
 #
@@ -9,4 +9,4 @@
 
 PROJECT = application
 
-include $(QTDIR)/Makefile.inc
+!INCLUDE $(QTDIR)\Makefile.inc
