@@ -30,12 +30,6 @@ QPtrList<MainWindow> *MainWindow::windows = 0;
 
 void MainWindow::init()
 {
-    const QMimeSource *m = QMimeSourceFactory::defaultFactory()->data( "logo.png" );
-    if ( m ) {
-	QPixmap pix;
-	QImageDrag::decode( m, pix );
-	setIcon( pix );
-    }
     if ( !windows )
 	windows = new QPtrList<MainWindow>;
     windows->append( this );
@@ -117,7 +111,7 @@ void MainWindow::setup()
     browser->mimeSourceFactory()->addFilePath( base + "/html/" );
 #endif
 
-    connect( actionGoPrev, SIGNAL( activated() ), browser, SLOT( backward() ) );
+    connect( actionGoPrevious, SIGNAL( activated() ), browser, SLOT( backward() ) );
     connect( actionGoNext, SIGNAL( activated() ), browser, SLOT( forward() ) );
     connect( actionEditCopy, SIGNAL( activated() ), browser, SLOT( copy() ) );
     connect( actionFileExit, SIGNAL( activated() ), qApp, SLOT( closeAllWindows() ) );
