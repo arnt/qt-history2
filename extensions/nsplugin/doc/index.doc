@@ -16,6 +16,7 @@ static char ident[] = "$Id: $";
 /*! \page netscape-plugin.html
 
 \title Qt Netscape Plugin Extension
+\keyword Netscape
 
 The Qt Netscape Plugin software makes it easy to write browser plugins
 that can be used on both Unix/Linux and MS-Windows, in Netscape,

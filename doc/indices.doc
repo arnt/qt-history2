@@ -16,15 +16,25 @@
 \if defined(commercial)
 \title Qt Reference Documentation (Commercial Edition)
 \endif
-\if !defined(commercial)
+\if defined(noncommercial)
+\title Qt Reference Documentation (Non-Commercial Edition)
+\endif
+\if !defined(commercial) && !defined(noncommercial)
 \title Qt Reference Documentation (Free Edition)
 \endif
 <table cellpadding=2 cellspacing=1 border=0 width=100% bgcolor=#e5e5e5>
-\if !defined(commercial)
+\if !defined(commercial) && !defined(noncommercial)
 <tr bgcolor=white><td colspan=3 align=center><b>Notice</b>: This edition is
 for the development of \link freeeditions.html Free and Open
 Source\endlink software only; see \link commercialeditions.html
 Commercial Editions\endlink.</td></tr>
+\endif
+\if defined(noncommercial)
+<tr bgcolor=white><td colspan=3 align=center><b>Notice</b>: This
+edition is for the development of non-commercial software in
+accordance with the license you agreed to when you installed the
+software from the CD; see also \link
+commercialeditions.html Commercial Editions\endlink.</td></tr>
 \endif
 <tr>
 <th bgcolor=#a2c511 width=33%>
@@ -40,7 +50,7 @@ General
 <tr>
 <td valign=top>
 \list
-\i \link mailinglists.html Mailing lists\endlink
+\i \link http://lists.trolltech.com Mailing lists\endlink
 \i \link http://doc.trolltech.com/qq/index.html <i>Qt Quarterly</i> newsletter\endlink
 \i \link http://www.trolltech.com/freesoftware/index.html User contributed Qt additions\endlink
 \i \link bughowto.html How to report a bug\endlink
