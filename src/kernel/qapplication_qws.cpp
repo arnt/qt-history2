@@ -204,8 +204,8 @@ static bool sm_blockUserInput = FALSE;		// session management
 static QGuardedPtr<QWidget>* activeBeforePopup = 0; // focus handling with popups
 
 
-typedef void  (*VFPTR)();
-typedef QList<void> QVFuncList;
+typedef void (*VFPTR)();
+typedef QValueList<VFPTR> QVFuncList;
 static QVFuncList *postRList = 0;		// list of post routines
 
 static void	initTimers();
@@ -1237,11 +1237,11 @@ void qt_init( int *argcptr, char **argv, QApplication::Type type )
 void qt_cleanup()
 {
     if ( postRList ) {
-	VFPTR f = (VFPTR)postRList->first();
-	while ( f ) {				// call post routines
-	    (*f)();
-	    postRList->remove();
-	    f = (VFPTR)postRList->first();
+	QVFuncList::Iterator it = postRList->begin();
+	while ( it != postRList->end() ) {	// call post routines
+	    (**it)();
+	    postRList->remove( it );
+	    it = postRList->begin();
 	}
 	delete postRList;
 	postRList = 0;
@@ -1279,7 +1279,7 @@ void qAddPostRoutine( Q_CleanUpFunction p )
 	postRList = new QVFuncList;
 	CHECK_PTR( postRList );
     }
-    postRList->insert( 0, (void *)p );		// store at list head
+    postRList->prepend( p );
 }
 
 
@@ -1570,9 +1570,8 @@ void QApplication::setGlobalMouseTracking( bool enable )
   Routines to find a Qt widget from a screen position
  *****************************************************************************/
 
-static QWidget *findChildWidget( const QWidget *p, const QPoint &pos );
-
-static QWidget *findWidget( const QObjectList& list, const QPoint &pos, bool rec )
+QWidget *QApplication::findWidget( const QObjectList& list, 
+				   const QPoint &pos, bool rec )
 {
     QWidget *w;
     QObjectListIt it( list );
@@ -1580,7 +1579,8 @@ static QWidget *findWidget( const QObjectList& list, const QPoint &pos, bool rec
     while ( it.current() ) {
 	if ( it.current()->isWidgetType() ) {
 	    w = (QWidget*)it.current();
-	    if ( w->isVisible() && w->geometry().contains(pos) ) {
+	    if ( w->isVisible() && w->geometry().contains(pos) 
+		 && w->requestedRegion().contains( w->mapToGlobal(w->mapFromParent(pos)) ) ) {
 		if ( !rec )
 		    return w;
 		QWidget *c = findChildWidget( w, w->mapFromParent(pos) );
@@ -1592,7 +1592,7 @@ static QWidget *findWidget( const QObjectList& list, const QPoint &pos, bool rec
     return 0;
 }
 
-static QWidget *findChildWidget( const QWidget *p, const QPoint &pos )
+QWidget *QApplication::findChildWidget( const QWidget *p, const QPoint &pos )
 {
     if ( p->children() ) {
 	return findWidget( *p->children(), pos, TRUE );
@@ -1613,7 +1613,8 @@ QWidget *QApplication::widgetAt( int x, int y, bool child )
 	it.toLast();
 	while ( it.current() ) {
 	    w = (QWidget*)it.current();
-	    if ( w->isVisible() && w->geometry().contains(pos) ) {
+	    if ( w->isVisible() && w->geometry().contains(pos) 
+		 && w->requestedRegion().contains( w->mapToGlobal(w->mapFromParent(pos)) ) ) {
 		if ( !child )
 		    return w;
 		QWidget *c = findChildWidget( w, w->mapFromParent(pos) );
@@ -2757,7 +2758,7 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
 			}
 		    }
 		    if ( mouse.state&button ) { //button press
-			qt_button_down = findChildWidget( this, pos );	//magic for masked widgets
+			qt_button_down = QApplication::findChildWidget( this, pos );	//magic for masked widgets
 			if ( !qt_button_down || !qt_button_down->testWFlags(WMouseNoMask) )
 			    qt_button_down = this;
 			if ( /*XXX mouseActWindow == this &&*/
@@ -2803,7 +2804,7 @@ bool QETWidget::dispatchMouseEvent( const QWSMouseEvent *event )
 		    pos = popup->mapFromGlobal( globalPos );
 	    }
 	    bool releaseAfter = FALSE;
-	    QWidget *popupChild  = findChildWidget( popup, pos );
+	    QWidget *popupChild  = QApplication::findChildWidget( popup, pos );
 	    QWidget *popupTarget = popupChild ? popupChild : popup;
 
 	    if (popup != popupOfPopupButtonFocus){

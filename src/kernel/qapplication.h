@@ -258,7 +258,11 @@ private:
     void	     initialize( int, char ** );
     void	     init_precmdline();
     void	     process_cmdline( int* argcptr, char ** argv );
-
+#if defined(_WS_QWS_)
+    static QWidget *findChildWidget( const QWidget *p, const QPoint &pos );
+    static QWidget *findWidget( const QObjectList&, const QPoint &, bool rec );
+#endif
+    
 #if defined(QT_THREAD_SUPPORT)
     static QMutex * qt_mutex;
 #endif
