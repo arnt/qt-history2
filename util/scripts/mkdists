@@ -587,7 +587,11 @@ for plat in mac win x11 qws; do
 	fi
 
 	status "*** Packing $edition... *****" "1"
-	PLATNAME=qt-${plat}-${edition}-${REL_VERSION}${type}
+	if [ "$REL_VERSION" = "0.0.0" ]; then
+	    PLATNAME=`date "+qt-${plat}-${edition}-%d-%m-%y${type}"`
+        else
+	    PLATNAME=qt-${plat}-${edition}-${REL_VERSION}${type}
+	fi
 	PLATDIR=$DISTDIR/$PLATNAME
 
 	#copy the tree
