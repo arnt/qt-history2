@@ -63,5 +63,9 @@ private:
     int	errorNumber;
 };
 
+#ifndef QT_NO_DEBUG
+QDebug operator<<(QDebug, const QSqlError &);
+#endif
+
 #endif // QT_NO_SQL
 #endif

@@ -13,9 +13,19 @@
 ****************************************************************************/
 
 #include "qsqlerror.h"
-#include <qmessagebox.h>
+#include "qmessagebox.h"
+#include "qdebug.h"
 
 #ifndef QT_NO_SQL
+
+#ifndef QT_NO_DEBUG
+QDebug operator<<(QDebug dbg, const QSqlError &s)
+{
+    dbg.nospace() << "QSqlError("<< s.number() << ", \"" << s.driverText() << 
+		     "\", \"" << s.databaseText() << "\")";
+    return dbg.space();
+}
+#endif
 
 /*!
     \class QSqlError qsqlerror.h
