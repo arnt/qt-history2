@@ -5,6 +5,21 @@ QTreeModelItem::QTreeModelItem()
 {
 }
 
+QTreeModelItem::QTreeModelItem(const QVariant &values)
+    : par(0), mod(0), c(0), edit(true), select(true)
+{
+    if (values.type() != QVariant::List)
+	return;
+    QList<QVariant> elementList = *reinterpret_cast< QList<QVariant> *>(&values.toList());
+    QList<QVariant>::ConstIterator it = elementList.begin();
+    for (int e = 0; e < elementList.count(); ++it, ++e) {
+	if ((*it).type() == QVariant::String)
+	    setText(0, (*it).toString());
+	else if ((*it).type() == QVariant::IconSet)
+	    setIconSet(0, (*it).toIconSet());
+    }
+}
+
 QTreeModelItem::QTreeModelItem(QTreeModel *model)
     : par(0), mod(model), c(0), edit(true), select(true)
 {

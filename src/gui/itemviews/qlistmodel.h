@@ -12,9 +12,11 @@ class QListModel;
 
 class Q_GUI_EXPORT QListModelItem
 {
+    friend class QListModel;
+    
 public:
     QListModelItem(QListModel *model);
-    virtual ~QListModelItem() {}
+    ~QListModelItem() {}
 
     inline QString text() const { return txt; }
     inline QIconSet iconSet() const { return icn; }
@@ -31,6 +33,7 @@ public:
     inline bool operator !=(const QListModelItem &other) const { return !operator==(other); }
 
 private:
+    QListModelItem(const QVariant &values);
     QString txt;
     QIconSet icn;
     uint edit : 1;
@@ -62,6 +65,8 @@ public:
 
     QVariant data(const QModelIndex &index, int element) const;
     void setData(const QModelIndex &index, int element, const QVariant &variant);
+    void insertDataList(const QModelIndex &index, const QVariant &variant);
+    void appendDataList(const QVariant &variant);
 
     QVariant::Type type(const QModelIndex &index, int element) const;
     int element(const QModelIndex &index, QVariant::Type type) const;

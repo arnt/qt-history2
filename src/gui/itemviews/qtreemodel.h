@@ -45,6 +45,7 @@ public:
 
 private:
     QTreeModelItem();
+    QTreeModelItem(const QVariant &values);
     QTreeModelItem *par;
     QList< QExplicitSharedPointer<QTreeModelItem> > children;
     QVector<QString> txt;

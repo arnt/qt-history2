@@ -1,6 +1,20 @@
 #include "qtablemodel.h"
 #include <qtl.h>
 
+QTableModelItem::QTableModelItem(const QVariant &values)
+{
+    if (values.type() != QVariant::List)
+	return;
+    QList<QVariant> elementList = *reinterpret_cast< QList<QVariant> *>(&values.toList());
+    QList<QVariant>::ConstIterator it = elementList.begin();
+    for (int e = 0; e < elementList.count(); ++it, ++e) {
+	if ((*it).type() == QVariant::String)
+	    setText((*it).toString());
+	else if ((*it).type() == QVariant::IconSet)
+	    setIconSet((*it).toIconSet());
+    }
+}
+
 QTableModel::QTableModel(int rows, int columns, QObject *parent, const char *name)
     : QGenericItemModel(parent, name), r(rows), c(columns),
       table(rows * columns), leftHeader(rows), topHeader(columns) {}
@@ -11,7 +25,6 @@ QTableModel::~QTableModel()
     qDeleteAll(leftHeader);
     qDeleteAll(topHeader);
 }
-
 
 void QTableModel::setRowCount(int rows)
 {
@@ -103,9 +116,9 @@ QIconSet QTableModel::iconSet(int row, int column) const
 
 void QTableModel::setRowText(int row, const QString &text)
 {
-    QModelIndex index(row, 0, 0, QModelIndex::VerticalHeader);
-    int e = element(index, QVariant::String);
-    setData(index, e, QVariant(text));
+    QModelIndex idx(row, 0, 0, QModelIndex::VerticalHeader);
+    int e = element(idx, QVariant::String);
+    setData(idx, e, QVariant(text));
 }
 
 void QTableModel::setRowIconSet(int row, const QIconSet &iconSet)
@@ -152,9 +165,9 @@ QString QTableModel::columnText(int column) const
 
 QIconSet QTableModel::columnIconSet(int column) const
 {
-    QModelIndex index(0, column, 0, QModelIndex::HorizontalHeader);
-    int e = element(index, QVariant::IconSet);
-    return data(index, e).toIconSet();
+    QModelIndex idx(0, column, 0, QModelIndex::HorizontalHeader);
+    int e = element(idx, QVariant::IconSet);
+    return data(idx, e).toIconSet();
 }
 
 void QTableModel::setItem(int row, int column, QTableModelItem *item)
@@ -234,6 +247,30 @@ void QTableModel::setData(const QModelIndex &index, int element, const QVariant 
     else if (element == 1)
 	itm->setIconSet(variant.toIconSet());
     emit contentsChanged(index, index);
+}
+
+void QTableModel::insertDataList(const QModelIndex &index, const QVariant &variant)
+{
+    // inserts row
+    int ti = tableIndex(index.row(), 0) - 1;
+    // FIXME
+    
+    table.insert(ti, c, 0);
+    for (int i = ti; i < (ti + c); ++i)
+	table[i] = new QTableModelItem();
+
+    QTableModelItem *item = new QTableModelItem();
+    item->setText(QString::number(index.row()));
+    leftHeader.insert(index.row(), 1, item);
+    ++r;
+
+    setDataList(index, variant);
+}
+
+void QTableModel::appendDataList(const QVariant &variant)
+{
+    setRowCount(rowCount() + 1);
+    setDataList(index(rowCount() - 1, 0, 0), variant);
 }
 
 QVariant::Type QTableModel::type(const QModelIndex &index, int element) const

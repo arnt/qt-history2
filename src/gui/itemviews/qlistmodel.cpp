@@ -8,6 +8,21 @@ QListModelItem::QListModelItem(QListModel *model)
 	model->append(this);
 }
 
+QListModelItem::QListModelItem(const QVariant &values)
+    : edit(true), select(true)
+{
+    if (values.type() != QVariant::List)
+	return;
+    QList<QVariant> elementList = *reinterpret_cast< QList<QVariant> *>(&values.toList());
+    QList<QVariant>::ConstIterator it = elementList.begin();
+    for (int e = 0; e < elementList.count(); ++it, ++e) {
+	if ((*it).type() == QVariant::String)
+	    setText((*it).toString());
+	else if ((*it).type() == QVariant::IconSet)
+	    setIconSet((*it).toIconSet());
+    }
+}
+
 QListModel::QListModel(QObject *parent, const char *name)
     : QGenericItemModel(parent, name)
 {
@@ -98,6 +113,17 @@ void QListModel::setData(const QModelIndex &index, int element, const QVariant &
     else if (element == 1)
 	lst[index.row()]->setIconSet(variant.toIconSet());
     emit contentsChanged(index, index);
+}
+
+void QListModel::insertDataList(const QModelIndex &index, const QVariant &variant)
+{
+    lst.insert(index.row(), new QListModelItem(variant));
+}
+
+void QListModel::appendDataList(const QVariant &variant)
+{
+    (void)new QListModelItem(this);
+    setDataList(index(rowCount() - 1, 0, 0), variant);
 }
 
 QVariant::Type QListModel::type(const QModelIndex &index, int element) const
