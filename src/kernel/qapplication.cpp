@@ -54,9 +54,9 @@
 #include "private/qcomponentfactory_p.h"
 #include <stdlib.h>
 
+#include <qremotecontrol.h>
 #ifndef QT_NO_REMOTE
-#include "private/qremoteinterface_p.h"
-#include "qremotefactory.h"
+#include "private/qtestcontrol_p.h"
 #endif //QT_NO_REMOTE
 
 #if defined(QT_THREAD_SUPPORT)
@@ -322,10 +322,9 @@ bool	  QApplication::widgetCount	= FALSE;
 QApplication::Type qt_appType=QApplication::Tty;
 QStringList *QApplication::app_libpaths = 0;
 
-#ifndef QT_NO_REMOTE
+// two globals required for remote control
+static QRemoteControl *remote_control = 0;
 QUuid application_id = QUuid(0,0,0,0,0,0,0,0,0,0,0);
-static QRemoteInterface *remoteControl = 0;
-#endif //QT_NO_REMOTE
 
 #if defined(QT_TABLET_SUPPORT)
 bool chokeMouse = FALSE;
@@ -871,7 +870,6 @@ void QApplication::initialize( int argc, char **argv )
 }
 
 
-#ifndef QT_NO_REMOTE
 /*!
     Enables remote access to the application if \a enable is set to TRUE.
     You can use the \a appId to give your application a unique
@@ -885,15 +883,16 @@ void QApplication::setEnableRemoteControl(bool enable, const QUuid appId)
 {
     application_id = appId;
 
+#ifndef QT_NO_REMOTE
     if (!enable) {
 
-	if (remoteControl != 0) {
-//	    remoteControl->release();
-	    remoteControl = 0;
+	if (remote_control != 0) {
+            delete remote_control;
+	    remote_control = 0;
 	}
     } else {
 
-	if (remoteControl != 0) {
+	if (remote_control != 0) {
 	    return; // it's enabled already so there's nothing more to do.
 	}
 
@@ -914,35 +913,26 @@ void QApplication::setEnableRemoteControl(bool enable, const QUuid appId)
 		    hostPort = s.mid(pos+1);
 		    int port = hostPort.toInt();
 		    if (port > 0) {
-/*
-			// This is a hack, but since this number will never change...
-			// {C71CE12C-AB3C-459B-87D6-C539FF45975D}
-			QUuid cid( 0xc71ce12c, 0xab3c, 0x459b, 0x87, 0xd6, 0xc5, 0x39, 0xff, 0x45, 0x97, 0x5d);
-			if (QComponentFactory::createInstance(cid,IID_QRemoteInterface,(QUnknownInterface**)&remoteControl) == QS_OK) {
-*/
-			remoteControl = QRemoteFactory::create("rc1");
-			if (remoteControl != 0) {
 
-			    remoteControl->open(hostIp,port);
+                        remote_control = new QTestControl;
+			if (remote_control != 0) {
+
+			    remote_control->open(hostIp,port);
 			    qDebug("Remote Control is enabled.");
-			} else {
-
-    			    qDebug("Remote Control component NOT found");
-			}
+			} 
 		    } else {
 
-			qDebug("Host port seems invalid, remote control is NOT enabled!");
 			qDebug("Use -QREMOTE_CONTROL:RcIpAddress:RcIpPort");
 		    }
 		} else {
 
-		    qDebug("Ip address and port are not specified, remote control is NOT enabled!");
 		    qDebug("Use -QREMOTE_CONTROL:RcIpAddress:RcIpPort");
 		}
 		break;
 	    }
 	}
     }
+#endif //QT_NO_REMOTE
 }
 
 /*!
@@ -951,7 +941,16 @@ void QApplication::setEnableRemoteControl(bool enable, const QUuid appId)
 */
 bool QApplication::remoteControlEnabled() const
 {
-    return remoteControl != 0;
+    return remote_control != 0;
+}
+
+/*!
+    Returns a pointer to the remote control.
+*/
+
+QRemoteControl* QApplication::remoteControl() const
+{
+    return remote_control;
 }
 
 /*!
@@ -961,7 +960,6 @@ QUuid QApplication::applicationId() const
 {
     return application_id;
 }
-#endif //QT_NO_REMOTE
 
 
 
@@ -1027,9 +1025,11 @@ QApplication::~QApplication()
 	delete postRList;
 	postRList = 0;
     }
-#ifndef QT_NO_REMOTE
-    remoteControl = 0; // The actual instance is in a plugin and will be destroyed automatically
-#endif // QT_NO_REMOTE
+    
+    if (remote_control!= 0)
+        delete remote_control;
+    remote_control = 0; 
+
     QObject *tipmanager = child( "toolTipManager", "QTipManager", FALSE );
     delete tipmanager;
 
@@ -2047,8 +2047,8 @@ void QApplication::closeAllWindows()
 bool QApplication::notify( QObject *receiver, QEvent *e )
 {
 #ifndef QT_NO_REMOTE
-    if (remoteControl != 0) {
-	if (remoteControl->handleNotification(receiver, e))
+    if (remote_control != 0) {
+	if (remote_control->handleNotification(receiver, e))
 	    return TRUE;
     }
 #endif //QT_NO_REMOTE

@@ -66,6 +66,7 @@ kernel {
 		  $$KERNEL_H/qprocess.h \
 		  $$KERNEL_H/qrect.h \
 		  $$KERNEL_H/qregion.h \
+		  $$KERNEL_H/qremotecontrol.h \
 		  $$KERNEL_H/qsessionmanager.h \
 		  $$KERNEL_H/qsignal.h \
 		  $$KERNEL_H/qsignalmapper.h \
@@ -237,14 +238,4 @@ kernel {
 	
 	      win32:SOURCES += $$KERNEL_CPP/qaccessible_win.cpp
 	}
-	remote {
-	      HEADERS += $$KERNEL_P/qremoteinterface_p.h \
-			 $$KERNEL_P/qremotemessage_p.h \
-			 $$KERNEL_P/qremotefactory.h \
-			 $$KERNEL_P/qremoteplugin.h
-	      SOURCES += $$KERNEL_CPP/qremotemessage.cpp \
-			$$KERNEL_CPP/qremotefactory.cpp \
-			$$KERNEL_CPP/qremoteplugin.cpp
-	}
-	else:DEFINES += QT_NO_REMOTE
 }

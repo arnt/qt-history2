@@ -29,6 +29,7 @@ WORKSPACE_CPP	= workspace
 XML_CPP	        = xml
 STYLES_CPP	= styles
 EMBEDDED_CPP	= embedded
+REMOTE_CPP	= remote
 
 win32 {
 	internal {
@@ -46,6 +47,7 @@ win32 {
 		XML_H		= $$XML_CPP
 		CANVAS_H	= $$CANVAS_CPP
 		STYLES_H	= $$STYLES_CPP
+		REMOTE_H	= $$REMOTE_CPP
 	}
 	!internal {
 		WIN_ALL_H = ../include
@@ -63,6 +65,7 @@ win32 {
 		XML_H		= $$WIN_ALL_H
 		CANVAS_H	= $$WIN_ALL_H
 		STYLES_H	= $$WIN_ALL_H
+		REMOTE_H	= $$WIN_ALL_H
 		CONFIG 		-= incremental
 	}
 
@@ -90,6 +93,7 @@ unix {
 	WORKSPACE_H	= $$WORKSPACE_CPP
 	XML_H		= $$XML_CPP
 	STYLES_H	= $$STYLES_CPP
+	REMOTE_H	= $$REMOTE_CPP
 	!embedded:!mac:CONFIG	   += x11 x11inc
 }
 
@@ -101,6 +105,10 @@ DEPENDPATH += ;$$NETWORK_H;$$KERNEL_H;$$WIDGETS_H;$$SQL_H;$$TABLE_H;$$DIALOGS_H;
 DEPENDPATH += $$ICONVIEW_H;$$OPENGL_H;$$TOOLS_H;$$CODECS_H;$$WORKSPACE_H;$$XML_H;
 DEPENDPATH += $$CANVAS_H;$$STYLES_H
 embedded:DEPENDPATH += ;$$EMBEDDED_H
+
+remote {
+	DEPENDPATH += ;$$REMOTE_H
+}
 
 thread {
 	!win32-borland:TARGET = qt-mt
@@ -144,6 +152,7 @@ include($$TOOLS_CPP/qt_tools.pri)
 include($$CODECS_CPP/qt_codecs.pri)
 include($$STYLES_CPP/qt_styles.pri)
 embedded:include($$EMBEDDED_CPP/qt_embedded.pri)
+include($$REMOTE_CPP/qt_remote.pri)
 
 #install directives
 include(qt_install.pri)
