@@ -2611,7 +2611,7 @@ int QFontMetrics::lineWidth() const
     that is not screen-compatible.
 */
 QFontInfo::QFontInfo(const QFont &font)
-    : d(font.d), painter(0), fscript(QFont::NoScript)
+    : d(font.d), fscript(QFont::NoScript)
 {
     ++d->ref;
 }
@@ -2621,36 +2621,8 @@ QFontInfo::QFontInfo(const QFont &font)
     script.
 */
 QFontInfo::QFontInfo(const QFont &font, QFont::Script script)
-    : d(font.d), painter(0), fscript(script)
+    : d(font.d), fscript(script)
 {
-    ++d->ref;
-}
-
-/*! \internal
-
-  Constructs a font info object from the painter's font \a p.
-*/
-QFontInfo::QFontInfo(const QPainter *p)
-    : painter(0), fscript(QFont::NoScript)
-{
-    QPainter *painter = (QPainter *) p;
-
-#if defined(CHECK_STATE)
-    if (!painter->isActive())
-        qWarning("QFontInfo: Get font info between QPainter::begin() "
-                  "and QPainter::end()");
-#endif
-
-// ### check ->  #ifdef Q_Q3PAINTER
-//     painter->setf(QPainter::FontInf);
-//     if (painter->testf(QPainter::DirtyFont))
-//         painter->updateFont();
-//     if (painter->pfont)
-//         d = painter->pfont->d;
-//     else
-//         d = painter->cfont.d;
-// #else
-    d = painter->font().d;
     ++d->ref;
 }
 
@@ -2658,7 +2630,7 @@ QFontInfo::QFontInfo(const QPainter *p)
     Constructs a copy of \a fi.
 */
 QFontInfo::QFontInfo(const QFontInfo &fi)
-    : d(fi.d), painter(0), fscript(fi.fscript)
+    : d(fi.d), fscript(fi.fscript)
 {
     ++d->ref;
 }
@@ -2678,7 +2650,6 @@ QFontInfo::~QFontInfo()
 QFontInfo &QFontInfo::operator=(const QFontInfo &fi)
 {
     qAtomicAssign(d, fi.d);
-    painter = 0;
     fscript = fi.fscript;
     return *this;
 }

@@ -43,14 +43,8 @@ public:
     bool exactMatch() const;
 
 private:
-    QFontInfo(const QPainter *);
-
     QFontPrivate *d;
-    QPainter *painter;
     int fscript;
-
-    friend class QWidget;
-    friend class QPainter;
 };
 
 #endif // QFONTINFO_H
