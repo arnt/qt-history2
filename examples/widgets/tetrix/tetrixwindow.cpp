@@ -47,7 +47,7 @@ TetrixWindow::TetrixWindow()
     createLabel(tr("LINES REMOVED"), 330, 130, 178, 30);
 
     setWindowTitle(tr("Tetrix"));
-    resize(550, 370);
+    setFixedSize(550, 370);
 }
 
 void TetrixWindow::createLabel(const QString &text, int x, int y, int width,
