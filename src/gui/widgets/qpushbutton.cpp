@@ -14,7 +14,6 @@
 
 #include "qapplication.h"
 #include "qbitmap.h"
-#include "qbutton.h"
 #include "qdesktopwidget.h"
 #include "qdialog.h"
 #include <private/qdialog_p.h>

@@ -19,8 +19,17 @@
 #include "qabstractbutton.h"
 #endif // QT_H
 
-#ifdef QT_COMPAT
-typedef QAbstractButton QButton;
-#endif
+class QButton : public QAbstractButton
+{
+    Q_OBJECT
+public:
+    QButton( QWidget* parent=0, const char* name=0, Qt::WFlags f=0 );
+    ~QButton();
+
+protected:
+    virtual void drawButton( QPainter * );
+    void	paintEvent( QPaintEvent * );
+
+};
 
 #endif

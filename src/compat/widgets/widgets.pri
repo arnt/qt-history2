@@ -2,6 +2,7 @@
 
 HEADERS += \
     widgets/q3action.h \
+    widgets/qbutton.h \
     widgets/q3buttongroup.h \
     widgets/q3datetimeedit.h \
     widgets/q3dockarea.h \
@@ -22,6 +23,7 @@ HEADERS += \
 
 SOURCES += \
     widgets/q3action.cpp \
+    widgets/qbutton.cpp \
     widgets/q3buttongroup.cpp \
     widgets/q3datetimeedit.cpp \
     widgets/q3dockarea.cpp \

@@ -40,7 +40,6 @@
 #ifndef QT_NO_TOOLBOX
 
 #include <qapplication.h>
-#include <qbutton.h>
 #include <qeventloop.h>
 #include <qlayout.h>
 #include <qlayout.h>
