@@ -29,6 +29,10 @@ public:
           sortIndicatorOrder(Qt::AscendingOrder),
           sortIndicatorSection(0),
           sortIndicatorShown(false),
+          lastPos(-1),
+          section(-1),
+          target(-1),
+          pressed(-1),
           movableSections(false),
           clickableSections(false),
           highlightCurrent(false),
@@ -65,6 +69,7 @@ public:
     int lastPos;
     int section; // used for resizing and moving sections
     int target;
+    int pressed;
     bool movableSections;
     bool clickableSections;
     bool highlightCurrent;
