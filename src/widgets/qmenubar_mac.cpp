@@ -373,8 +373,9 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 	    DisableMenuItem(ret, 0);
 	ChangeMenuAttributes(ret, !d->isCheckable() ? kMenuAttrExcludesMarkColumn : 0,
 			     d->isCheckable() ? kMenuAttrExcludesMarkColumn : 0);
-	int id = 1, index = 0;
-	for(QMenuItemListIt it(*d->mitems); it.current(); ++it, ++index) {
+	int id = 1;
+	
+	for (int index = 0; index < d->mitems->size(); ++index) {
 #if !defined(QMAC_QMENUBAR_NO_MERGE)
 	    if(activeMenuBar->mac_d->commands) {
 		bool found = false;
@@ -387,7 +388,7 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 	    }
 #endif
 
-	    QMenuItem *item = (*it);
+	    QMenuItem *item = d->mitems->at(index);
 #if defined(QMAC_QMENUBAR_NO_EVENT)
 	    if (item->custom())
 		continue;
@@ -420,14 +421,11 @@ bool QMenuBar::syncPopups(MenuRef ret, QPopupMenu *d)
 		}
 	    }
 #if !defined(QMAC_QMENUBAR_NO_MERGE)
-	    else if(!it.atLast()) {
-		QMenuItemListIt it2 = it;
-		++it2;
-		if(isCommand((*it2), true)) {
-		    if(it2.atLast()) 
+	    else if(index != d->mitems->count()-1) {
+		if(isCommand(d->mitems->at(index+1)), true) {
+		    if(index+1 == d->mitems->count()-1) 
 			continue;
-		    ++it2;
-		    if((*it2)->isSeparator()) 
+		    if(d->mitems->at(index+2)->isSeparator()) 
 			continue;
 		}
 	    }
@@ -585,8 +583,8 @@ bool QMenuBar::updateMenuBar()
 	InsertMenu(mac_d->apple_menu, 0);
     }
 
-    for(QMenuItemListIt it(*mitems); it.current(); ++it) {
-	QMenuItem *item = (*it);
+    for (int i = 0; i < mitems->size(); ++i) {
+	QMenuItem *item = mitems->at(i);
 	if (item->isSeparator()) //mac doesn't support these
 	    continue;
 	if(MenuRef mp = createMacPopup(item->popup(), item->id(), true)) {
