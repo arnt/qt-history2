@@ -189,6 +189,7 @@ public:
 #ifdef QT_COMPAT
     // compatibility
     inline QT_COMPAT iterator remove(iterator pos) { return erase(pos); }
+    inline QT_COMPAT int remove(const T &t) { return removeAll(t); }
     inline QT_COMPAT int findIndex(const T& t) const { return indexOf(t); }
     inline QT_COMPAT iterator find(const T& t)
     { int i = indexOf(t); return (i == -1 ? end() : (begin()+i)); }
