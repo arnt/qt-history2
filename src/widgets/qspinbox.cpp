@@ -992,3 +992,70 @@ void QSpinBox::updateButtonSymbols()
     down->setPixmap( dnBm );
     up->setPixmap( upBm );
 }
+
+/*!
+  \reimp
+*/
+int QSpinBox::minValue() const
+{
+    return QRangeControl::minValue();
+}
+
+/*!
+  \reimp
+*/
+int QSpinBox::maxValue() const
+{
+    return QRangeControl::maxValue();
+}
+
+/*!
+  A convenience function which just calls
+  setRange( i, maxValue() )
+
+  \sa setRange()
+*/
+void QSpinBox::setMinValue( int i )
+{
+    setRange( i, maxValue() );
+}
+
+/*!
+  A convenience function which just calls
+  setRange( minValue(), i )
+
+  \sa setRange()
+*/
+void QSpinBox::setMaxValue( int i )
+{
+    setRange( minValue(), i );
+}
+
+/*!
+  \reimp
+*/
+int QSpinBox::lineStep() const
+{
+    return QRangeControl::lineStep();
+}
+
+/*!
+  Sets the line step to \e i.
+
+  Calls the virtual stepChange() function if the new line step is
+  different from the previous setting.
+
+  \sa lineStep() QRangeControl::setSteps() setRange()
+*/
+void QSpinBox::setLineStep( int i )
+{
+    setSteps( i, pageStep() );
+}
+
+/*!
+  \reimp
+*/
+int QSpinBox::value() const
+{
+    return QRangeControl::value();
+}
