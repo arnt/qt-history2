@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qregexp.cpp#15 $
+** $Id: //depot/qt/main/src/tools/qregexp.cpp#16 $
 **
 ** Implementation of QRegExp class
 **
@@ -19,7 +19,7 @@
 #endif
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#15 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qregexp.cpp#16 $";
 #endif
 
 
@@ -749,18 +749,18 @@ void QRegExp::compile()
 			d += 16;
 			p++;
 			p++;
+                        break;
 		    }
 		    else if ( *(p+1) == '<' || *(p+1) == '>' ) {
 			GEN( *++p == '<' ? BOW : EOW );
 			p++;
+                        break;
 		    }
 		}
-		else {
-		    int c = char_val(&p);
-		    if ( !cs )
-			c = tolower( c );
-		    GEN( CHR | c );
-		}
+		int c = char_val(&p);
+		if ( !cs )
+		    c = tolower( c );
+		GEN( CHR | c );
 	}
 	if ( d >= rxarray + maxlen ) {		// oops!
 	    error = PatOverflow;		// pattern too long	    
