@@ -924,7 +924,6 @@ void QFileDialogPrivate::showDetailClicked()
     detailMode->setDown(true);
     treeView->show();
     treeView->doItemsLayout();
-    treeView->resizeColumnToContents(0);
     listView->hide();
 }
 
@@ -1477,6 +1476,7 @@ void QFileDialogPrivate::setupTreeView(const QModelIndex &current, QGridLayout *
     treeView->header()->setSortIndicatorShown(true);
     treeView->hide();
     treeView->setEditTriggers(QAbstractItemView::EditKeyPressed);
+    treeView->resizeColumnToContents(0);
 
     grid->addWidget(treeView, 1, 0, 1, 6);
 
@@ -1621,6 +1621,7 @@ void QFileDialogPrivate::setRoot(const QModelIndex &index)
     fileName->clear();
     listView->setRoot(index);
     treeView->setRoot(index);
+    treeView->resizeColumnToContents(0);
     selections->blockSignals(block);
     selections->setCurrentIndex(d->model->index(0, 0, index), QItemSelectionModel::SelectCurrent);
 }
