@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: examples.doc,v 1.5 1996/01/09 15:48:48 hanord Exp $
+** $Id: examples.doc,v 1.6 1996/01/09 15:51:08 hanord Exp $
 **
 ** Documentation for the examples
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: examples.doc,v 1.5 1996/01/09 15:48:48 hanord Exp $";
+static char ident[] = "$Id: examples.doc,v 1.6 1996/01/09 15:51:08 hanord Exp $";
 #endif
 
 
@@ -19,8 +19,11 @@ static char ident[] = "$Id: examples.doc,v 1.5 1996/01/09 15:48:48 hanord Exp $"
   This example displays an analog clock widget.
 
   Here is the definition:
+  <hr>
 
   \include aclock/aclock.h
+
+  <hr>
 
   Here is the implementation:
 
@@ -130,6 +133,28 @@ cursor is on.
   <h1>Show Image</h1>
 
   This example reads and displays an image.
+*/
+
+
+/*! \example tictac/tictac.cpp
+
+  <h1>Tic Tac Toe</h1>
+
+  This is an implementation of the Tic-tac-toe game.
+
+  We didn't put much effort in making a clever algorithm so it's not a
+  challenge to play against the computer. Instead, study the source code
+  to see how you can make reusable components such as the TicTacGameBoard
+  widget.
+
+  Here is the definition of the tic-tac-toe classes:
+  <hr>
+
+  \include tictac/tictac.h
+
+  <hr>
+
+  Here is the implementation:
 */
 
 
