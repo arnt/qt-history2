@@ -270,9 +270,10 @@ private:
     ConnectionPoints points;
 
     union {
-	QWidget* widget;
-	QObject* object;
+	QWidget *widget;
+	QObject *object;
     } qt;
+    QGuardedPtr<QObject> theObject;
     unsigned isWidget		:1;
     unsigned ownObject		:1;
     unsigned initNewCalled	:1;
@@ -756,6 +757,7 @@ QAxServerBase::QAxServerBase( QObject *o )
 
     qt.object = o;
     if ( o ) {
+	theObject = o;
 	isWidget = o->isWidgetType();
 	class_name = o->className();
     }
@@ -815,7 +817,7 @@ QAxServerBase::~QAxServerBase()
     }
     delete aggregatedObject;
     aggregatedObject = 0;
-    if ( qt.object ) {
+    if ( theObject ) {
 	axTakeServer( m_hWnd );
 	if ( qt.widget->isWidgetType() )
 	    axTakeServer( qt.widget->winId() );
@@ -928,6 +930,7 @@ bool QAxServerBase::internalCreate()
     if ( !qt.object )
 	return FALSE;
 
+    theObject = qt.object;
     ownObject = TRUE;
     isWidget = qt.object->isWidgetType();
     hasStockEvents = qAxFactory()->hasStockEvents( class_name );
