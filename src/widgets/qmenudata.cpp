@@ -1231,8 +1231,6 @@ QString QMenuData::whatsThis( int id ) const
   \brief The QCustomMenuItem class is an abstract base class for custom menu items in
   popup menus.
 
-  \ingroup misc
-
   A custom menu item is a menu item that is defined by two purely
   virtual functions, paint() and sizeHint(). The size hint tells the
   menu how much space it needs to reserve for this item, wheras paint
