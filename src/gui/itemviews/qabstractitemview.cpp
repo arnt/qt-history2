@@ -440,24 +440,20 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
     case Key_Control:
         break;
     case Key_Space:
-//        if (startEdit(currentItem(), QAbstractItemDelegate::NoAction, e)) {
-//                 return;
-//         } else {
-    {
         d->selectionModel->select(currentItem(),
-                                 selectionCommand(e->state(),
-                                                  currentItem(),
-                                                  e->type(),
-                                                  (Key)e->key()));
-            return;
-        }
-        break;
+                                  selectionCommand(
+                                      e->state(),
+                                      currentItem(),
+                                      e->type(),
+                                      (Key)e->key()));
+        return;
     case Key_F2:
         if (startEdit(currentItem(), QAbstractItemDelegate::EditKeyPressed, e))
             return;
         break;
     default:
-        if (startEdit(currentItem(), QAbstractItemDelegate::AnyKeyPressed, e))
+        if (!e->text().isEmpty() &&
+            startEdit(currentItem(), QAbstractItemDelegate::AnyKeyPressed, e))
             return;
         break;
     }
