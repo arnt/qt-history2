@@ -27,7 +27,7 @@ protected:
     Editor *curEditor;
     QTextParag *oldHighlightedParag;
     QString lastWord;
-    QTextFormat *highlighteFormat;
+    QTextFormat *highlightedFormat;
 
 };
 

@@ -11,12 +11,12 @@ EditorBrowser::EditorBrowser( Editor *e )
     curEditor->installEventFilter( this );
     QFont fn( curEditor->font() );
     fn.setUnderline( TRUE );
-    highlighteFormat = curEditor->document()->formatCollection()->format( fn, blue );
+    highlightedFormat = curEditor->document()->formatCollection()->format( fn, blue );
 }
 
 EditorBrowser::~EditorBrowser()
 {
-    delete highlighteFormat;
+    delete highlightedFormat;
 }
 
 bool EditorBrowser::eventFilter( QObject *o, QEvent *e )
@@ -35,10 +35,10 @@ bool EditorBrowser::eventFilter( QObject *o, QEvent *e )
 		if ( oldHighlightedParag ) {
 		    oldHighlightedParag->setEndState( -1 );
 		    oldHighlightedParag->format();
+		    oldHighlightedParag = 0;
 		}
-		oldHighlightedParag = 0;
 		if ( findCursor( c, from, to ) && from.parag() == to.parag() ) {
-		    from.parag()->setFormat( from.index(), to.index() - from.index() + 1, highlighteFormat, FALSE );
+		    from.parag()->setFormat( from.index(), to.index() - from.index() + 1, highlightedFormat, FALSE );
 		    lastWord = from.parag()->string()->toString().mid( from.index(), to.index() - from.index() + 1 );
 		    oldHighlightedParag = from.parag();
 		} else {
@@ -58,8 +58,8 @@ bool EditorBrowser::eventFilter( QObject *o, QEvent *e )
 		oldHighlightedParag->setEndState( -1 );
 		oldHighlightedParag->format();
 		curEditor->repaintChanged();
+		oldHighlightedParag = 0;
 	    }
-	    oldHighlightedParag = 0;
 	    if ( killEvent )
 		return TRUE;
 	} break;
@@ -72,8 +72,8 @@ bool EditorBrowser::eventFilter( QObject *o, QEvent *e )
 		    oldHighlightedParag->setEndState( -1 );
 		    oldHighlightedParag->format();
 		    curEditor->repaintChanged();
+		    oldHighlightedParag = 0;
 		}
-		oldHighlightedParag = 0;
 	    }
 	default:
 	    break;
