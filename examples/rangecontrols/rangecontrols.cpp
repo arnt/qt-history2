@@ -55,7 +55,7 @@ RangeControls::RangeControls( QWidget *parent, const char *name )
     QVBox *cell3 = new QVBox( row2 );
     cell3->setMargin( 10 );
     cell3->setFrameStyle( QFrame::WinPanel | QFrame::Sunken );
-    QSlider *hslider = new QSlider( 0, 64, 1, 33, Qt::Horizontal, cell3 );
+    QSlider *hslider = new QSlider( 0, 64, 1, 33, Qt::Horizontal, cell3, "horizontal_s" );
     QLCDNumber *lcd2 = new QLCDNumber( 2, cell3 );
     lcd2->display( 33 );
     lcd2->setSegmentStyle( QLCDNumber::Filled );

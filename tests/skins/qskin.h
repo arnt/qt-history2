@@ -51,20 +51,20 @@ public:
 	    SFlags flags = Style_Default,
 	    const QStyleOption& = QStyleOption::Default ) const;
 
-#if 0
     void drawComplexControl(ComplexControl element,
 	    QPainter *p,
-	    const Widget *widet,
+	    const QWidget *widet,
 	    const QRect &r,
 	    const QColorGroup &cg,
-	    SFlags flags = StyleDefault,
+	    SFlags flags = Style_Default,
 	    SCFlags sub = SC_All,
 	    SCFlags subActive = SC_None,
 	    const QStyleOption& = QStyleOption::Default ) const;
-#endif
+
+    QRect subRect(SubRect c, const QWidget *widget) const;
 
     void polish(QWidget *);
-    void polish(QPalette &);
+    void polish(QApplication *);
 private:
     // disable copy 
     QSkinStyle( const QSkinStyle & );

@@ -21,6 +21,44 @@
 	</rect>
     </image>
 </widget>
+<widget type="QPushButton" name="toggle">
+    <size><width>100</width><height>35</height></size>
+    <image name="Up">
+        <source>th_buttons.png</source>
+	<rect>
+	    <x>100</x><y>0</y>
+	    <width>100</width><height>35</height>
+	</rect>
+    </image>
+    <image name="Down">
+        <source>th_buttons.png</source>
+	<rect>
+	    <x>100</x><y>36</y>
+	    <width>100</width><height>35</height>
+	</rect>
+    </image>
+    <image name="OnUp">
+        <source>th_buttons.png</source>
+	<rect>
+	    <x>100</x><y>72</y>
+	    <width>100</width><height>35</height>
+	</rect>
+    </image>
+    <image name="OnDown">
+        <source>th_buttons.png</source>
+	<rect>
+	    <x>100</x><y>108</y>
+	    <width>100</width><height>35</height>
+	</rect>
+    </image>
+    <image name="Disabled">
+        <source>th_buttons.png</source>
+	<rect>
+	    <x>100</x><y>144</y>
+	    <width>100</width><height>35</height>
+	</rect>
+    </image>
+</widget>
 <widget type="QCheckBox">
     <image name="Off">
         <source>th_buttons.png</source>
@@ -47,6 +85,29 @@
         <source>th_buttons.png</source>
 	<rect>
 	    <x>33</x><y>166</y>
+	    <width>13</width><height>13</height>
+	</rect>
+    </image>
+</widget>
+<widget type="QRadioButton">
+    <image name="Off">
+        <source>th_buttons.png</source>
+	<rect>
+	    <x>50</x><y>151</y>
+	    <width>13</width><height>13</height>
+	</rect>
+    </image>
+    <image name="On">
+        <source>th_buttons.png</source>
+	<rect>
+	    <x>66</x><y>151</y>
+	    <width>13</width><height>13</height>
+	</rect>
+    </image>
+    <image name="Disabled">
+        <source>th_buttons.png</source>
+	<rect>
+	    <x>50</x><y>166</y>
 	    <width>13</width><height>13</height>
 	</rect>
     </image>

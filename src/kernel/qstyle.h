@@ -293,6 +293,10 @@ public:
 
 	SR_ToolButtonContents,
 
+	/* for styles where the drawn handle might be larger than the
+	 * actual handle */
+	SR_SliderHandleRect,
+
 	// do not add any values below/greater than this
 	SR_CustomBase =		0xf0000000
     };

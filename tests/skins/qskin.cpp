@@ -6,6 +6,7 @@
 #include <qrect.h>
 #include <qdict.h>
 #include <qvaluestack.h>
+#include <qptrvector.h>
 #include <qtextstream.h>
 #include <qptrlist.h>
 #include <qxml.h>
@@ -13,6 +14,7 @@
 #include <qapplication.h>
 #include <qbitmap.h>
 #include <qpalette.h>
+#include <qslider.h>
 
 class QSkinStyleItem
 {
@@ -27,6 +29,9 @@ public:
     QRect geom;
     QDict<QPixmap> images;
     QDict<QRect> clips;
+
+    QDict<QPixmap> imageSets;
+    QDict< QVector< QRect > > clipSets;
 
     bool hasMask;
     QBitmap mask;
@@ -292,6 +297,11 @@ bool QSkinStyleHandler::startElement(const QString &, const QString &,
 		return TRUE;
 	    }
 	    if (qName == "imageset") {
+		eName = atts.value("name");
+		if(!eName) {
+		    errorProt += "missing attributes: ";
+		    return FALSE;
+		}
 		state.push(S_PixmapSet);
 		return TRUE;
 	    }
@@ -461,7 +471,6 @@ bool QSkinStyleHandler::endElement(const QString &, const QString &,
 	     break;
 	 case S_PixmapSet:
 	     {
-#if 0
 		 /* push image and clipping onto 'i' */
 		 QPixmap *im = d->images.find(last_string);
 		 if(!im) {
@@ -473,16 +482,20 @@ bool QSkinStyleHandler::endElement(const QString &, const QString &,
 		     qWarning(QString("could not find image %1").arg(last_string));
 		     return FALSE;
 		 }
+
+		 i->imageSets.replace(eName, im);
+
 		 int j;
+		 QVector<QRect> *v = new QVector<QRect>(count);
 		 for(j = 0; j < count; j++) {
-		     i->images.append(im);
-		     i->clips.append( new QRect( previous_x, previous_y, 
+		     v->insert(j, new QRect( previous_x, previous_y, 
 				 last_width, last_height));
 		     previous_x += last_x;
 		     previous_y += last_y;
 		 }
 
-#endif
+		 i->clipSets.replace(eName, v);
+
 		 /* re-init for next round */
 		 previous_x = previous_y =last_x = last_y 
 		     = last_width = last_height = 0;
@@ -503,7 +516,12 @@ bool QSkinStyleHandler::endElement(const QString &, const QString &,
 		     qWarning(QString("could not find image %1").arg(last_string));
 		     return FALSE;
 		 }
-		 d->backgroundPixmap = new QPixmap(*im);
+
+		 d->backgroundPixmap = new QPixmap();
+		 d->backgroundPixmap->convertFromImage(
+			 im->convertToImage()
+			 .copy(last_x, last_y, last_width, last_height));
+
 		 d->backgroundClip = QRect(last_x, last_y, 
 			 last_width, last_height);
 		 /* re-init for next round */
@@ -816,6 +834,63 @@ void QSkinStyle::drawImage(QPainter *p, const QWidget *w, const QString &i) cons
     p->drawPixmap(QPoint(0,0), *d->getItem(w)->images.find(i), *d->getItem(w)->clips.find(i));
 }
 
+
+void QSkinStyle::drawComplexControl(ComplexControl element,
+	    QPainter *p,
+	    const QWidget *widget,
+	    const QRect &r,
+	    const QColorGroup &cg,
+	    SFlags flags,
+	    SCFlags sub,
+	    SCFlags subActive,
+	    const QStyleOption &data) const
+{
+    /* haven't successfully loaded the skin */
+    if(!d) {
+	QWindowsStyle::drawComplexControl(element, p, widget, r, cg, flags, 
+		sub, subActive, data);
+	return;
+    }
+    QSkinStyleItem *i = d->getItem(widget);
+    if(i) {
+	switch(element) {
+	    case CC_Slider: 
+		{
+		    QSlider *sl = (QSlider *)widget;
+		    QPixmap *pix = i->imageSets.find("Base");
+		    QVector<QRect> *set = i->clipSets.find("Base");
+
+		    int steps = set->size();
+		    if( steps == 0 )
+			break;;
+
+		    /* scale between value the number of images we have */
+		    int scale = sl->maxValue() - sl->minValue();
+		    int pos = sl->value() - sl->minValue();
+
+		    pos = (pos * steps) / scale;
+
+		    if (pos >= steps)
+		       pos = steps - 1;
+		    if (pos < 0)
+		       pos = 0;
+
+		    QRect *clip = set->at(pos);
+
+		    if (!(pix && clip)) {
+			break;
+		    }
+		    p->drawPixmap(r.topLeft(), *pix, *clip);
+		}
+		return;
+	}
+    }
+
+    /* fall back */
+    QWindowsStyle::drawComplexControl(element, p, widget, r, cg, flags, 
+	    sub, subActive, data);
+}
+
 void QSkinStyle::drawControl(ControlElement element,
 	    QPainter *p,
 	    const QWidget *widget,
@@ -927,8 +1002,38 @@ void QSkinStyle::drawControl(ControlElement element,
 			return;
 		    }
 
-		    p->drawPixmap(r.topLeft(), 
-			    *pix, *clip);
+		    p->drawPixmap(r.topLeft(), *pix, *clip);
+		}
+		break;
+	    case CE_RadioButton: 
+		{
+		    QPixmap *pix = 0;
+		    QRect   *clip = 0;
+		    if(flags & Style_Enabled) {
+			if (flags & Style_On) {
+			    pix = i->images.find("On");
+			    clip = i->clips.find("On");
+			} else {
+			    pix = i->images.find("Off");
+			    clip = i->clips.find("Off");
+			}
+		    } else {
+			pix = i->images.find("Disabled");
+			clip = i->clips.find("Disabled");
+		    }
+
+		    /* fall backs */
+		    if (!(pix && clip)) {
+			pix = i->images.find("Default");
+			clip = i->clips.find("Default");
+		    }
+		    if (!(pix && clip)) {
+			QWindowsStyle::drawControl(element, p, widget, r, cg, 
+				flags, data);
+			return;
+		    }
+
+		    p->drawPixmap(r.topLeft(), *pix, *clip);
 		}
 		break;
 	    default:
@@ -939,6 +1044,36 @@ void QSkinStyle::drawControl(ControlElement element,
     } else {
 	QWindowsStyle::drawControl(element, p, widget, r, cg, flags, data);
     }
+}
+
+QRect QSkinStyle::subRect( SubRect sr, const QWidget *widget) const
+{
+    /* haven't successfully loaded the skin */
+    if(!d || !widget) {
+	return QWindowsStyle::subRect(sr, widget);
+    }
+
+    QSkinStyleItem *i = d->getItem(widget);
+    if(i) {
+	switch(sr) {
+	    case SR_SliderHandleRect: 
+		{
+		    /* we re-draw the entire slider for when updating the 
+		       handle if we have a set of images */
+		    QPixmap *pix = i->imageSets.find("Base");
+		    QRect *clip = i->clipSets.find("Base")->at(0);
+
+		    if (!(pix && clip)) {
+			break;
+		    }
+		    return *clip;
+		}
+		break;
+	    default:
+		break;
+	}
+    }
+    return QWindowsStyle::subRect(sr, widget);
 }
 
 void QSkinStyle::polish( QWidget *widget )
@@ -972,12 +1107,14 @@ void QSkinStyle::polish( QWidget *widget )
     }
 }
 
-void QSkinStyle::polish( QPalette &palette ) 
+void QSkinStyle::polish( QApplication *app ) 
 {
     if (!d)
 	return;
 
     if (d->hasColors) {
+	QPalette palette = app->palette();
+
 	palette = QPalette(d->fColor, d->bColor);
 
 	QColorGroup g =  palette.active();
@@ -1006,6 +1143,8 @@ void QSkinStyle::polish( QPalette &palette )
 	    g.setBrush(QColorGroup::Background, 
 		    QBrush(d->tColor, *(d->backgroundPixmap)));
 	palette.setNormal(g);
+
+	app->setPalette(palette);
     }
     
 }
