@@ -74,7 +74,7 @@
                             </item>
                             <item>
                                 <property name="text">
-                                    <string>Other</string>
+                                    <string>Anywhere outside North and South America</string>
                                 </property>
                             </item>
                             <property name="name">
