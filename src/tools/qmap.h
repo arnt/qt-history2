@@ -213,7 +213,7 @@ public:
 
     QList<Key> keys() const;
     QList<T> values() const;
-    QList<T> values(const Key &key);
+    QList<T> values(const Key &key) const;
 
     inline Iterator begin() { detach(); return Iterator(e->forward[0]); }
     inline ConstIterator begin() const { return ConstIterator(e->forward[0]); }
@@ -538,7 +538,7 @@ Q_OUTOFLINE_TEMPLATE QList<T> QMap<Key, T>::values() const
 }
 
 template <class Key, class T>
-Q_OUTOFLINE_TEMPLATE QList<T> QMap<Key, T>::values(const Key &key)
+Q_OUTOFLINE_TEMPLATE QList<T> QMap<Key, T>::values(const Key &key) const
 {
     QList<T> list;
     QMapData::Node *node = findNode(key);
