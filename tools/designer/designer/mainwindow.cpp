@@ -3292,6 +3292,13 @@ void MainWindow::breakPointsChanged()
     if ( e->project() != currentProject )
 	return;
 
+    if ( !interpreterPluginManager ) {
+	interpreterPluginManager =
+	    new QPluginManager<InterpreterInterface>( IID_Interpreter,
+						      QApplication::libraryPaths(),
+						      "/qsa" );
+    }
+
     InterpreterInterface *iiface = 0;
     if ( interpreterPluginManager ) {
 	QString lang = currentProject->language();
