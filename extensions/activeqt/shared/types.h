@@ -34,6 +34,7 @@ struct IAxServerBase : public IUnknown
 #define HIMETRIC_PER_INCH   2540
 #define MAP_PIX_TO_LOGHIM(x,ppli)   ( (HIMETRIC_PER_INCH*(x) + ((ppli)>>1)) / (ppli) )
 #define MAP_LOGHIM_TO_PIX(x,ppli)   ( ((ppli)*(x) + HIMETRIC_PER_INCH/2) / HIMETRIC_PER_INCH )
+#define QAX_NUM_PARAMS 8
 
 
 /*! 
