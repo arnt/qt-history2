@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.cpp#2 $
 **
 ** Implementation of QFileDialog class
 **
@@ -105,6 +105,10 @@ QNetworkProtocol *QNetworkProtocol::copy() const
     return new QNetworkProtocol();
 }
 
+/*!
+  #### todo
+*/
+
 void QNetworkProtocol::registerNetworkProtocol( const QString &protocol, QNetworkProtocol *nprotocol )
 {
     if ( !qNetworkProtocolRegister )
@@ -112,6 +116,10 @@ void QNetworkProtocol::registerNetworkProtocol( const QString &protocol, QNetwor
 
     qNetworkProtocolRegister->insert( protocol, nprotocol );
 }
+
+/*!
+  #### todo
+*/
 
 QNetworkProtocol *QNetworkProtocol::getNetworkProtocol( const QString &protocol )
 {
