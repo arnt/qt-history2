@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#132 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#133 $
 **
 ** Definition of QPainter class
 **
@@ -162,6 +162,8 @@ public:
 				  const QColor &bgColor );
     void	drawRoundRect( int x, int y, int w, int h, int, int );
     void	drawRoundRect( const QRect &, int, int );
+    void	drawRoundRect( int x, int y, int w, int h );
+    void	drawRoundRect( const QRect & );
     void	drawEllipse( int x, int y, int w, int h );
     void	drawEllipse( const QRect & );
     void	drawArc( int x, int y, int w, int h, int a, int alen );
@@ -513,6 +515,21 @@ inline void QPainter::drawRoundRect( const QRect &r, int xRnd, int yRnd )
 {
     drawRoundRect( r.x(), r.y(), r.width(), r.height(), xRnd, yRnd );
 }
+
+inline void QPainter::drawRoundRect( const QRect &r )
+{
+    // ### Qt 3.0 make one func. with def. args.
+    drawRoundRect( r.x(), r.y(), r.width(), r.height(), 25, 25 );
+}
+
+inline void QPainter::drawRoundRect( int x, int y, int w, int h )
+{
+    // ### Qt 3.0 make one func. with def. args.
+    drawRoundRect( x, y, w, h, 25, 25 );
+}
+
+
+
 
 inline void QPainter::drawEllipse( const QRect &r )
 {
