@@ -2721,7 +2721,7 @@ static QWidget* dbg_wid=0;
 static QPainter* dbg_ptr=0;
 #endif
 
-struct QPolygonalProcessor {
+class QPolygonalProcessor {
     QPolygonalProcessor(QCanvas* c, const QPointArray& pa) :
 	canvas(c)
     {
