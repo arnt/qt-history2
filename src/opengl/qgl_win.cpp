@@ -435,16 +435,19 @@ static QRgb* qgl_create_rgb_palette(const PIXELFORMATDESCRIPTOR* pfd)
     return pal;
 }
 
-
 static QGLFormat pfdToQGLFormat(const PIXELFORMATDESCRIPTOR* pfd)
 {
     QGLFormat fmt;
     fmt.setDoubleBuffer(pfd->dwFlags & PFD_DOUBLEBUFFER);
     fmt.setDepth(pfd->cDepthBits);
+    fmt.setDepthBufferSize(pfd->cDepthBits);
     fmt.setRgba(pfd->iPixelType == PFD_TYPE_RGBA);
     fmt.setAlpha(pfd->cAlphaBits);
+    fmt.setAlphaBufferSize(pfd->cAlphaBits);
     fmt.setAccum(pfd->cAccumBits);
+    fmt.setAccumBufferSize(pfd->cAccumRedBits);
     fmt.setStencil(pfd->cStencilBits);
+    fmt.setStencilBufferSize(pfd->cStencilBits);
     fmt.setStereo(pfd->dwFlags & PFD_STEREO);
     fmt.setDirectRendering((pfd->dwFlags & PFD_GENERIC_ACCELERATED) ||
                             !(pfd->dwFlags & PFD_GENERIC_FORMAT));
@@ -510,6 +513,10 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
         d->glFormat.setStencil(lpfd.cStencilBits);
         d->glFormat.setStereo(lpfd.dwFlags & LPD_STEREO);
         d->glFormat.setDirectRendering(false);
+	d->glFormat.setDepthBufferSize(lpfd.cDepthBits);
+	d->glFormat.setAlphaBufferSize(lpfd.cAlphaBits);
+	d->glFormat.setAccumBufferSize(lpfd.cAccumRedBits);
+	d->glFormat.setStencilBufferSize(lpfd.cStencilBits);
 
         if (d->glFormat.rgba()) {
             if (lpfd.dwFlags & LPD_TRANSPARENT)
@@ -645,7 +652,7 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
     if (d->glFormat.stereo())
         p->dwFlags |= PFD_STEREO;
     if (d->glFormat.depth() && !deviceIsPixmap())
-        p->cDepthBits = 32;
+        p->cDepthBits = d->glFormat.depthBufferSize() == 1 ? 32 : d->glFormat.depthBufferSize();
     else
         p->dwFlags |= PFD_DEPTH_DONTCARE;
     if (d->glFormat.rgba()) {
@@ -659,11 +666,12 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
         p->cColorBits = 8;
     }
     if (d->glFormat.alpha())
-        p->cAlphaBits = 8;
+        p->cAlphaBits = d->glFormat.alphaBufferSize() == 1 ? 8 : d->glFormat.alphaBufferSize();
     if (d->glFormat.accum())
-        p->cAccumBits = p->cColorBits + p->cAlphaBits;
+        p->cAccumBits = d->glFormat.accumBufferSize() == 1 ? p->cColorBits + p->cAlphaBits 
+			                                   : d->glFormat.accumBufferSize()*4;
     if (d->glFormat.stencil())
-        p->cStencilBits = 4;
+        p->cStencilBits = d->glFormat.stencilBufferSize() == 1 ? 4 : d->glFormat.stencilBufferSize();
     p->iLayerType = PFD_MAIN_PLANE;
     int chosenPfi = ChoosePixelFormat(pdc, p);
     if (!chosenPfi)
