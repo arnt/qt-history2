@@ -1329,13 +1329,13 @@ void TrWindow::setupMenuBar()
     viewp->setCheckable( TRUE );
     QMenu * helpp = new QMenu( this );
 
-    m->addMenu( tr("&File"), filep );
-    m->addMenu( tr("&Edit"), editp );
-    m->addMenu( tr("&Translation"), translationp );
-    m->addMenu( tr("V&alidation"), validationp );
-    m->addMenu( tr("&Phrases"), phrasep );
-    m->addMenu( tr("&View"), viewp );
-    m->addMenu( tr("&Help"), helpp );
+    m->addMenu(filep)->setText(tr("&File"));
+    m->addMenu(editp)->setText(tr("&Edit"));
+    m->addMenu(translationp)->setText(tr("&Translation"));
+    m->addMenu(validationp)->setText(tr("V&alidation"));
+    m->addMenu(phrasep)->setText(tr("&Phrases"));
+    m->addMenu(viewp)->setText(tr("&View"));
+    m->addMenu(helpp)->setText(tr("&Help"));
 
     connect( closePhraseBookp, SIGNAL(activated(int)),
              this, SLOT(closePhraseBook(int)) );
@@ -1359,7 +1359,7 @@ void TrWindow::setupMenuBar()
     filep->addSeparator();
 
     recentFilesMenu = new QMenu( this );
-    filep->addMenu( tr("Re&cently opened files"), recentFilesMenu );
+    filep->addMenu( recentFilesMenu )->setText(tr("Re&cently opened files"));
     connect( recentFilesMenu, SIGNAL(aboutToShow()), this,
              SLOT(setupRecentFilesMenu()) );
     connect( recentFilesMenu, SIGNAL(activated( int )), this,
@@ -1442,16 +1442,15 @@ void TrWindow::setupMenuBar()
                                    this, SLOT(newPhraseBook()));
     newPhraseBookAct->setShortcut(QKeySequence("Ctrl+N"));
     openPhraseBookAct = phrasep->addAction(loadPixmap("book.png"), tr("&Open Phrase Book..."),
-                                    this, SLOT(openPhraseBook()))
-                                    ;
+                                    this, SLOT(openPhraseBook()));
     openPhraseBookAct->setShortcut(QKeySequence("Ctrl+H"));
-    closePhraseBookId = phrasep->addMenu( tr("&Close Phrase Book"),
-                                             closePhraseBookp );
+    closePhraseBookId = phrasep->addMenu(closePhraseBookp);
+    closePhraseBookId->setText(tr("&Close Phrase Book"));
     phrasep->addSeparator();
-    editPhraseBookId = phrasep->addMenu( tr("&Edit Phrase Book..."),
-                                            editPhraseBookp );
-    printPhraseBookId = phrasep->addMenu( tr("&Print Phrase Book..."),
-                                             printPhraseBookp );
+    editPhraseBookId = phrasep->addMenu(editPhraseBookp);
+    editPhraseBookId->setText(tr("&Edit Phrase Book..."));
+    printPhraseBookId = phrasep->addMenu(printPhraseBookp);
+    printPhraseBookId->setText(tr("&Print Phrase Book..."));
     connect( phrasep, SIGNAL(aboutToShow()), this, SLOT(setupPhrase()) );
 
     // Validation menu

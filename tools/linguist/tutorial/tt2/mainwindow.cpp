@@ -22,5 +22,5 @@ MainWindow::MainWindow( QWidget *parent, const char *name )
     QAction *exitAction = file->addAction( tr("E&xit"), qApp, SLOT(quit()));
     exitAction->setShortcut(QKeySequence("Ctrl+Q"));
     
-    menuBar()->addMenu( tr("&File"), file );
+    menuBar()->addMenu(file)->setText(tr("&File"));
 }

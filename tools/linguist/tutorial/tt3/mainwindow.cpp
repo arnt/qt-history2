@@ -29,8 +29,8 @@ MainWindow::MainWindow( QWidget *parent, const char *name )
     aboutAction->setShortcut(Qt::Key_F1);
     help->addAction( tr("About &Qt"), this, SLOT(aboutQt()) );
 
-    menuBar()->addMenu( tr("&File"), file );
-    menuBar()->addMenu( tr("&Help"), help );
+    menuBar()->addMenu(file)->setText(tr("&File"));
+    menuBar()->addMenu(help)->setText(tr("&Help"));
 }
 
 void MainWindow::about()
