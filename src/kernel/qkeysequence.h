@@ -39,8 +39,10 @@
 #define QKEYSEQUENCE_H
 
 #ifndef QT_H
+#ifndef QT_H
 #include "qnamespace.h"
 #include "qstring.h"
+#endif // QT_H
 #endif
 
 class QKeySequencePrivate;
