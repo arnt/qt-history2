@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#57 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#58 $
 **
 ** Implementation of QMainWindow class
 **
@@ -416,6 +416,7 @@ void QMainWindow::setStatusBar( QStatusBar * newStatusBar )
     if ( d->sb )
 	delete d->sb;
     d->sb = newStatusBar;
+    // ### this code can cause unnecessary creation of a tool tip group
     connect( toolTipGroup(), SIGNAL(showTip(const QString&)),
 	     d->sb, SLOT(message(const QString&)) );
     connect( toolTipGroup(), SIGNAL(removeTip()),
@@ -891,12 +892,17 @@ QWidget * QMainWindow::centralWidget() const
 
 void QMainWindow::paintEvent( QPaintEvent * )
 {
-    if ( style() == WindowsStyle && d->mb) { //######## Arnt, what was this meant to be?
+#if 0
+    // this code should only be used if there's a menu bar, in Windows
+    // Style, and there's a tool bar immediately below it.  or
+    // something like that.  I'll have to figure it out again.
+    if ( style() == WindowsStyle && d->mb ) {
 	QPainter p( this );
 	int y = d->mb->height();
 	p.setPen( colorGroup().dark() );
 	p.drawLine( 0, y, width()-1, y );
     }
+#endif
 }
 
 
