@@ -51,7 +51,7 @@
     \code
     QFile file("file.dat");
     file.open(IO_WriteOnly);
-    QDataStream stream(&file); // we will serialize the data into the file
+    QDataStream stream(&file);   // we will serialize the data into the file
     stream << "the answer is";   // serialize a string
     stream << (Q_INT32)42;       // serialize an integer
     \endcode
@@ -60,10 +60,10 @@
     \code
     QFile file("file.dat");
     file.open(IO_ReadOnly);
-    QDataStream stream(&file);  // read the data serialized from the file
+    QDataStream stream(&file);   // read the data serialized from the file
     QString str;
     Q_INT32 a;
-    stream >> str >> a;           // extract "the answer is" and 42
+    stream >> str >> a;          // extract "the answer is" and 42
     \endcode
 
     Each item written to the stream is written in a predefined binary
@@ -256,10 +256,10 @@ QDataStream::QDataStream(QIODevice *d)
     \code
     static char bindata[] = { 231, 1, 44, ... };
     QByteArray a;
-    a.setRawData(bindata, sizeof(bindata));        // a points to bindata
+    a.setRawData(bindata, sizeof(bindata));    // a points to bindata
     QDataStream stream(a, IO_ReadOnly);        // open on a's data
-    stream >> [something];                        // read raw bindata
-    a.resetRawData(bindata, sizeof(bindata)); // finished
+    stream >> [something];                     // read raw bindata
+    a.resetRawData(bindata, sizeof(bindata));  // finished
     \endcode
 
     The QByteArray::setRawData() function is not for the inexperienced.
@@ -419,7 +419,7 @@ void QDataStream::setByteOrder(ByteOrder bo)
     format.
 
     If \a enable is true, the write functions will generate output
-    that consists of printable characters (7 bit ASCII). This output
+    that consists of printable characters (7-bit ASCII). This output
     will typically be a lot larger than the default binary output, and
     consequently slower to write.
 
@@ -430,8 +430,7 @@ void QDataStream::setByteOrder(ByteOrder bo)
 /*!
     \fn int QDataStream::version() const
 
-    Returns the version number of the data serialization format. In Qt
-    3.1, this number is 5.
+    Returns the version number of the data serialization format.
 
     \sa setVersion()
 */
@@ -449,15 +448,17 @@ void QDataStream::setByteOrder(ByteOrder bo)
     versions of Qt. If you want to read data that was created by an
     earlier version of Qt, or write data that can be read by a program
     that was compiled with an earlier version of Qt, use this function
-    to modify the serialization format of QDataStream.
+    to modify the serialization format used by QDataStream.
 
     \table
-    \header \i Qt Version            \i QDataStream Version
-    \row \i Qt 3.1                    \i11 5
-    \row \i Qt 3.0                    \i11 4
-    \row \i Qt 2.1.x and Qt 2.2.x   \i11 3
-    \row \i Qt 2.0.x                    \i11 2
-    \row \i Qt 1.x                    \i11 1
+    \header \i Qt Version   \i QDataStream Version
+    \row \i Qt 4.0              \i11 ###
+    \row \i Qt 3.3              \i11 6
+    \row \i Qt 3.1, 3.2         \i11 5
+    \row \i Qt 3.0              \i11 4
+    \row \i Qt 2.1, 2.2, 2.3    \i11 3
+    \row \i Qt 2.0              \i11 2
+    \row \i Qt 1.x              \i11 1
     \endtable
 
     \sa version()
