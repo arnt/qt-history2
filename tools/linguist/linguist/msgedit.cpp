@@ -416,7 +416,8 @@ MessageEditor::MessageEditor( MetaTranslator * t, QWidget * parent,
     srcTextList->setShowSortIndicator( TRUE );
     srcTextList->setAllColumnsShowFocus( TRUE );
     srcTextList->setSorting( 0 );
-    srcTextList->addColumn( tr("Done"), 40 );
+    QFontMetrics fm( font() );
+    srcTextList->addColumn( tr("Done"), fm.width( tr("Done") ) + 10 );
     srcTextList->addColumn( tr("Source text") );
     srcTextList->addColumn( tr("Translation"), 200 );
     srcTextList->setColumnWidthMode( 1, QListView::Maximum );

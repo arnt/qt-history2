@@ -239,7 +239,8 @@ TrWindow::TrWindow()
     lv->setShowSortIndicator( TRUE );
     lv->setAllColumnsShowFocus( TRUE );
     lv->header()->setStretchEnabled( TRUE, 1 );
-    lv->addColumn( tr("Done"), 40 );
+    QFontMetrics fm( font() );
+    lv->addColumn( tr("Done"), fm.width( tr("Done") ) + 10 );
     lv->addColumn( tr("Context") );
     lv->addColumn( tr("Items"), 55 );
     lv->setColumnAlignment( 0, Qt::AlignCenter );
