@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#105 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#106 $
 **
 ** Global type declarations and definitions
 **
@@ -327,6 +327,7 @@ bool qSysInfo( int *wordSize, bool *bigEndian );
 #if defined(_CC_MSVC_)
 #pragma warning(disable: 4244)
 #elif defined(_CC_BOR_)
+#pragma option -w-inl
 #pragma warn -inl
 #pragma warn -pia
 #pragma warn -ccc
