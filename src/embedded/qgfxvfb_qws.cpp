@@ -396,9 +396,14 @@ bool QVFbScreen::connect( const QString &displaySpec )
 
     key_t key = ftok( QString(QT_VFB_MOUSE_PIPE).arg(displayId).latin1(), 'b' );
 
+    if ( key == -1 )
+	return FALSE;
+
     int shmId = shmget( key, 0, 0 );
     if ( shmId != -1 )
 	shmrgn = (unsigned char *)shmat( shmId, 0, 0 );
+    else
+	return FALSE;
 
     if ( (int)shmrgn == -1 || shmrgn == 0 ) {
 	qDebug("No shmrgn %d", (int)shmrgn);
