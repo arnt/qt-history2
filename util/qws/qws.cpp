@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qws/qws.cpp#5 $
+** $Id: //depot/qt/main/util/qws/qws.cpp#6 $
 **
 ** Implementation of Qt/FB central server
 **
@@ -54,9 +54,9 @@ QWSClient::QWSClient( int socket, int shmid ) :
     stream.device()->flush();
 }
 
-int QWSClient::socket() const 
-{ 
-    return s; 
+int QWSClient::socket() const
+{
+    return s;
 }
 
 void QWSClient::sendMouseEvent(const QPoint& pos, int state)
@@ -180,7 +180,7 @@ main(int argc, char** argv)
     QApplication app(argc, argv);
 
     qwsRegisterCommands();
-    
+
     Main m;
     app.setMainWidget(&m);
     m.show();

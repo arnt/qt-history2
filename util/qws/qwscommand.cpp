@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qws/qws.cpp#3 $
+** $Id: //depot/qt/main/util/qws/qwcommand.cpp#3 $
 **
 ** Implementation of Qt/FB central server
 **
@@ -21,10 +21,12 @@
 #include "qwscommand.h"
 #include "qws.h"
 
+// commands
+#include "qwsproperty.h"
+
 #include <stdlib.h>
 
 #include <qstring.h>
-#include <qstringlist.h>
 
 QWSCommandDict *qwsCommandRegister = 0;
 
@@ -105,70 +107,4 @@ void QWSNewWindowCommand::readData()
 void QWSNewWindowCommand::execute()
 {
     qFatal( "QWSNewWindowCommand::execute not implemented" );
-}
-
-/*********************************************************************
- *
- * Class: QWSSetPropertyCommand
- *
- *********************************************************************/
-
-/*
-  The format of a set property command is:
-  A,B,C,D:data
-  
-  A .... winId
-  B .... property
-  C .... mode
-  D .... length of data
-  data .... D bytes of data
-*/
-
-QWSSetPropertyCommand::QWSSetPropertyCommand( QWSServer *s, QWSClient *c )
-    : QWSCommand( s, c )
-{
-}
-
-QWSSetPropertyCommand::~QWSSetPropertyCommand()
-{
-}
-
-void QWSSetPropertyCommand::readData()
-{
-    QString s;
-    QStringList lst;
-    char c;
-    while ( ( c = client->getch() ) != ':' ) {
-	qDebug( "got: %c", c );
-	if ( c == ',' ) {
-	    lst.append( s );
-	    s = QString::null;
-	    continue;
-	}
-	s += c;
-    }
-    lst.append( s );
-
-    if ( lst.count() != 4 )
-	qFatal( "QWSSetPropertyCommand::readData: Protocol error" );
-
-    int len = -1;
-
-    winId = lst[ 0 ].toInt();
-    property = lst[ 1 ].toInt();
-    mode = lst[ 2 ].toInt();
-    len = lst[ 3 ].toInt();
-
-    qDebug( "%d %d %d %d", winId, property, mode, len );
-
-    if ( len > 0 ) {
-	data.resize( len );
-	client->readBlock( data.data(), len );
-    }
-}
-
-void QWSSetPropertyCommand::execute()
-{
-    qDebug( "QWSSetPropertyCommand::execute: set data:" );
-    qDebug( "%s", data.data() );
 }

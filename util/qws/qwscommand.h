@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/qws/qws.cpp#3 $
+** $Id: //depot/qt/main/util/qws/qwscommand.cpp#3 $
 **
 ** Implementation of Qt/FB central server
 **
@@ -22,7 +22,6 @@
 #define QWSCOMMAND_H
 
 #include <qmap.h>
-#include <qcstring.h>
 
 class QWSCommand;
 class QWSServer;
@@ -61,17 +60,17 @@ class QWSCommand
 public:
     QWSCommand( QWSServer *s, QWSClient *c );
     virtual ~QWSCommand();
-  
+
     virtual void readData();
     virtual void execute();
-    
+
     static void registerCommand( int cmd, QWSCommandFactoryBase *commandFactory );
     static QWSCommand *getCommand( int cmd, QWSServer *server, QWSClient *c );
 
 protected:
     QWSServer *server;
     QWSClient *client;
-    
+
 };
 
 /*********************************************************************
@@ -85,41 +84,14 @@ class QWSNewWindowCommand : public QWSCommand
 public:
     QWSNewWindowCommand( QWSServer *s, QWSClient *c );
     virtual ~QWSNewWindowCommand();
-  
+
     virtual void readData();
     virtual void execute();
 
 private:
     ushort x, y, w, h;
     ushort flags;
-    
-};
 
-/*********************************************************************
- *
- * Class: QWSSetPropertyCommand
- *
- *********************************************************************/
-
-class QWSSetPropertyCommand : public QWSCommand
-{
-public:
-    enum Mode {
-	PropReplace,
-	PropPrepend,
-	PropAppend
-    };
-	
-    QWSSetPropertyCommand( QWSServer *s, QWSClient *c );
-    virtual ~QWSSetPropertyCommand();
-  
-    virtual void readData();
-    virtual void execute();
-
-private:
-    int winId, property, mode;
-    QByteArray data;
-    
 };
 
 #endif
