@@ -1257,6 +1257,7 @@ void QTable::keyPressEvent( QKeyEvent* e )
     int oldCol = curCol;
 
     bool navigationKey = FALSE;
+    int r;
     switch ( e->key() ) {
     case Key_Left:
 	curCol = QMAX( 0, curCol - 1 );
@@ -1275,10 +1276,25 @@ void QTable::keyPressEvent( QKeyEvent* e )
 	navigationKey = TRUE;
 	break;
     case Key_Prior:
+	r = QMAX( 0, rowAt( rowPos( curRow ) - visibleHeight() ) );
+	if ( r < curRow )
+	    curRow = r;
+	navigationKey = TRUE;
+	break;
     case Key_Next:
+	r = QMIN( numRows() - 1, rowAt( rowPos( curRow ) + visibleHeight() ) );
+	if ( r > curRow )
+	    curRow = r;
+	else
+	    curRow = numRows() - 1;
+	navigationKey = TRUE;
+	break;
     case Key_Home:
+	curRow = 0;
+	navigationKey = TRUE;
+	break;
     case Key_End:
-	clearSelection();
+	curRow = numRows() - 1;
 	navigationKey = TRUE;
 	break;
     default: // ... or start in-place editing
