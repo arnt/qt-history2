@@ -1,11 +1,11 @@
 #ifndef QMACSTYLECG_MAC_H
 #define QMACSTYLECG_MAC_H
 
-#if QT_MACOSX_VERSION >= 0x1030
-
 #ifndef QT_H
 #include "qwindowsstyle.h"
 #endif // QT_H
+
+#if QT_MACOSX_VERSION >= 0x1030
 
 #if defined(Q_WS_MAC) && !defined(QT_NO_STYLE_MAC)
 
