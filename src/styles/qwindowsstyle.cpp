@@ -1360,7 +1360,7 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	break;
 
     case CC_Slider:
-	if ( sub == SC_All || sub & SC_SliderGroove ) {
+	if ( sub & SC_SliderGroove ) {
 	    QSlider * sl = (QSlider *) w;
 
 	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
@@ -1401,12 +1401,12 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	    }
 	}
 
-	if ( sub == SC_All || sub & SC_SliderTickmarks )
+	if ( sub & SC_SliderTickmarks )
 	    QCommonStyle::drawComplexControl( ctrl, p, w, r, cg, flags,
 					      SC_SliderTickmarks, subActive,
 					      data );
 
-	if ( sub == SC_All || sub & SC_SliderHandle ) {
+	if ( sub & SC_SliderHandle ) {
 	    // 4444440
 	    // 4333310
 	    // 4322210

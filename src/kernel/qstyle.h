@@ -408,9 +408,6 @@ public:
 	SH_ScrollBar_MiddleClickAbsolutePosition,
 	SH_ScrollBar_ScrollWhenPointerLeavesControl,
 	SH_TabBar_Alignment
-	/*
-	  FH_TabBarCentered
-	*/
     };
 
     virtual int styleHint( StyleHint stylehint,

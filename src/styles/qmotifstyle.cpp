@@ -1081,7 +1081,7 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 	break;
 
     case CC_Slider:	
-	if ( sub == SC_All || sub & SC_SliderGroove ) {
+	if ( sub & SC_SliderGroove ) {
 	    QSlider * sl = (QSlider *) widget;
 
 	    int tickOffset = pixelMetric( PM_SliderTickmarkOffset, sl );
@@ -1122,12 +1122,12 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 	    }
 	}
 
-	if ( sub == SC_All || sub & SC_SliderTickmarks )
+	if ( sub & SC_SliderTickmarks )
 	    QCommonStyle::drawComplexControl( control, p, widget, r, cg, flags,
 					      SC_SliderTickmarks, subActive,
 					      data );
 
-	if ( sub == SC_All || sub & SC_SliderHandle ) {
+	if ( sub & SC_SliderHandle ) {
 	    QSlider * sl = (QSlider *) widget;
 
 	    if ( sl->hasFocus() ) {
