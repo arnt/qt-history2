@@ -37,6 +37,7 @@
 
 #include "unixmake.h"
 #include "option.h"
+#include "meta.h"
 #include <qregexp.h>
 #include <qfile.h>
 #include <qdir.h>
@@ -359,18 +360,17 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	QStringList &l = project->variables()["QMAKE_PRL_INTERNAL_FILES"];
 	QStringList::Iterator it;
 	for(it = l.begin(); it != l.end(); ++it) {
-	    QMakeProject proj;
-	    if(proj.read((*it), QDir::currentDirPath(), QMakeProject::ReadProFile) &&
-	       !proj.isEmpty("QMAKE_PRL_BUILD_DIR")) {
+	    QMakeMetaInfo libinfo;
+	    if(libinfo.readLib((*it)) && !libinfo.isEmpty("QMAKE_PRL_BUILD_DIR")) {
 		QString dir;
 		int slsh = (*it).findRev(Option::dir_sep);
 		if(slsh != -1)
 		    dir = (*it).left(slsh + 1);
-		QString targ = dir + proj.first("QMAKE_PRL_TARGET");
+		QString targ = dir + libinfo.first("QMAKE_PRL_TARGET");
 		deps += " " + targ;
 		t << targ << ":" << "\n\t"
 		  << "@echo \"Creating '" << targ << "'\"" << "\n\t"
-		  << "(cd " << proj.first("QMAKE_PRL_BUILD_DIR") << ";"
+		  << "(cd " << libinfo.first("QMAKE_PRL_BUILD_DIR") << ";"
 		  << "$(MAKE) )" << endl;
 	    }
 	}

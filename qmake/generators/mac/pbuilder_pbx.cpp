@@ -37,6 +37,7 @@
 
 #include "pbuilder_pbx.h"
 #include "option.h"
+#include "meta.h"
 #include <qdir.h>
 #include <qdict.h>
 #include <qregexp.h>
@@ -357,18 +358,17 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 			       encode the version number in the Project file which might be a bad
 			       things in days to come? --Sam
 			    */
-			    QString prl_file = (*lit) + Option::dir_sep + lib + Option::prl_ext;
-			    if(QFile::exists(prl_file)) {
-				QMakeProject proj;
-				if(proj.read(prl_file, QDir::currentDirPath(), QMakeProject::ReadProFile)) {
-				    if(!proj.isEmpty("QMAKE_PRL_TARGET")) {
-					library = (*lit) + Option::dir_sep + proj.first("QMAKE_PRL_TARGET");
+			    QString lib_file = (*lit) + Option::dir_sep + lib;
+			    if(QMakeMetaInfo::libExists(lib_file)) {
+				QMakeMetaInfo libinfo;
+				if(libinfo.readLib(lib_file)) {
+				    if(!libinfo.isEmpty("QMAKE_PRL_TARGET")) {
+					library = (*lit) + Option::dir_sep + libinfo.first("QMAKE_PRL_TARGET");
 					debug_msg(1, "pbuilder: Found library (%s) via PRL %s (%s)", 
-						  opt.latin1(), prl_file.latin1(), library.latin1());
+						  opt.latin1(), lib_file.latin1(), library.latin1());
 					remove = TRUE;
 				    }
 				}
-
 			    }
 			}
 			if(!remove) {

@@ -38,6 +38,7 @@
 #include "winmakefile.h"
 #include "option.h"
 #include "project.h"
+#include "meta.h"
 #include <qtextstream.h>
 #include <qstring.h>
 #include <qdict.h>
@@ -224,12 +225,10 @@ Win32MakefileGenerator::findHighestVersion(const QString &d, const QString &stem
 	    biggest = QMAX(biggest, (regx.cap(1) == dllStem ||
 				     regx.cap(2).isEmpty()) ? -1 : regx.cap(2).toInt());
     }
-    if(dir.exists(dllStem + Option::prl_ext)) {
-	QMakeProject proj;
-	if(proj.read(bd + dllStem + Option::prl_ext, QDir::currentDirPath(), QMakeProject::ReadProFile)) {
-	    if(!proj.isEmpty("QMAKE_PRL_VERSION"))
-		biggest = QMAX(biggest, proj.first("QMAKE_PRL_VERSION").replace(".", "").toInt());
-	}
+    QMakeMetaInfo libinfo;
+    if(libinfo.readLib(bd + dllStem)) {
+	if(!libinfo.isEmpty("QMAKE_PRL_VERSION"))
+	    biggest = QMAX(biggest, libinfo.first("QMAKE_PRL_VERSION").replace(".", "").toInt());
     }
     return biggest;
 }

@@ -15,7 +15,7 @@ DEFINES += QT_NO_TEXTCODEC QT_NO_COMPONENT QT_NO_STL QT_NO_COMPRESS QT_NO_UNICOD
 
 #qmake code
 SOURCES+=project.cpp property.cpp main.cpp makefile.cpp \
-         unixmake2.cpp unixmake.cpp \
+         unixmake2.cpp unixmake.cpp meta.cpp \
          borland_bmake.cpp msvc_nmake.cpp \
 	 msvc_dsp.cpp msvc_vcproj.cpp option.cpp winmakefile.cpp \
 	 projectgenerator.cpp metrowerks_xml.cpp mingw_make.cpp \

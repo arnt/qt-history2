@@ -37,6 +37,7 @@
 
 #include "makefile.h"
 #include "option.h"
+#include "meta.h"
 #include <qdir.h>
 #include <qfile.h>
 #include <qtextstream.h>
@@ -1170,22 +1171,22 @@ bool
 MakefileGenerator::processPrlFile(QString &file)
 {
     bool ret = FALSE, try_replace_file=FALSE;
-    QString prl_file;
-    if(file.endsWith(Option::prl_ext)) {
+    QString meta_file;
+    if(QMakeMetaInfo::libExists(file)) {
 	try_replace_file = TRUE;
-	prl_file = file;
+	meta_file = file;
 	file = "";
     } else {
 	QString tmp = file;
 	int ext = tmp.findRev('.');
 	if(ext != -1)
 	    tmp = tmp.left(ext);
-	prl_file = tmp + Option::prl_ext;
+	meta_file = tmp;
     }
-    prl_file = fileFixify(prl_file);
-    if(!QFile::exists(fileFixify(prl_file, QDir::currentDirPath(), Option::output_dir)) &&
+    meta_file = fileFixify(meta_file);
+    if(!QMakeMetaInfo::libExists(fileFixify(meta_file, QDir::currentDirPath(), Option::output_dir)) &&
        project->isActiveConfig("qt")) {
-	QString stem = prl_file, dir, extn;
+	QString stem = meta_file, dir, extn;
 	int slsh = stem.findRev('/'), hadlib = 0;
 	if(slsh != -1) {
 	    dir = stem.left(slsh + 1);
@@ -1205,39 +1206,40 @@ MakefileGenerator::processPrlFile(QString &file)
 		stem = stem.left(stem.length() - 3); //lose the -mt
 	    else
 		stem += "-mt"; //try the thread case
-	    prl_file = dir;
+	    meta_file = dir;
 	    if(hadlib)
-		prl_file += "lib";
-	    prl_file += stem + extn;
+		meta_file += "lib";
+	    meta_file += stem + extn;
 	    try_replace_file = TRUE;
 	}
     }
-    QString real_prl_file = Option::fixPathToLocalOS(prl_file);
-    if(project->variables()["QMAKE_PRL_INTERNAL_FILES"].findIndex(prl_file) != -1) {
+    QString real_meta_file = Option::fixPathToLocalOS(meta_file);
+    if(project->variables()["QMAKE_PRL_INTERNAL_FILES"].findIndex(meta_file) != -1) {
 	ret = TRUE;
-    } else if(!real_prl_file.isEmpty() &&
-	      QFile::exists(fileFixify(real_prl_file, QDir::currentDirPath(), Option::output_dir))) {
-	project->variables()["QMAKE_PRL_INTERNAL_FILES"].append(prl_file);
-	QMakeProject proj;
-	debug_msg(1, "Processing PRL file: %s", real_prl_file.latin1());
-	if(!proj.read(fileFixify(real_prl_file, QDir::currentDirPath(), Option::output_dir),
-		      QDir::currentDirPath(), QMakeProject::ReadProFile)) {
-	    fprintf(stderr, "Error processing prl file: %s\n", real_prl_file.latin1());
-	} else {
-	    ret = TRUE;
-	    QMap<QString, QStringList> &vars = proj.variables();
-	    for( QMap<QString, QStringList>::Iterator it = vars.begin(); it != vars.end(); ++it)
-		processPrlVariable(it.key(), it.data());
-	    if(try_replace_file && !proj.isEmpty("QMAKE_PRL_TARGET")) {
-		QString dir;
-		int slsh = real_prl_file.findRev(Option::dir_sep);
-		if(slsh != -1)
-		    dir = real_prl_file.left(slsh+1);
-		file = dir + proj.first("QMAKE_PRL_TARGET");
+    } else if(!meta_file.isEmpty()) {
+	project->variables()["QMAKE_PRL_INTERNAL_FILES"].append(meta_file);
+	QString f = fileFixify(real_meta_file, QDir::currentDirPath(), Option::output_dir);
+	if(QMakeMetaInfo::libExists(f)) {
+	    QMakeMetaInfo libinfo;
+	    debug_msg(1, "Processing PRL file: %s", real_meta_file.latin1());
+	    if(!libinfo.readLib(f)) {
+		fprintf(stderr, "Error processing prl file: %s\n", real_meta_file.latin1());
+	    } else {
+		ret = TRUE;
+		QMap<QString, QStringList> &vars = libinfo.variables();
+		for( QMap<QString, QStringList>::Iterator it = vars.begin(); it != vars.end(); ++it)
+		    processPrlVariable(it.key(), it.data());
+		if(try_replace_file && !libinfo.isEmpty("QMAKE_PRL_TARGET")) {
+		    QString dir;
+		    int slsh = real_meta_file.findRev(Option::dir_sep);
+		    if(slsh != -1)
+			dir = real_meta_file.left(slsh+1);
+		    file = dir + libinfo.first("QMAKE_PRL_TARGET");
+		}
 	    }
 	}
 	if(ret)
-	    project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"].append(prl_file);
+	    project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"].append(meta_file);
     }
     return ret;
 }
