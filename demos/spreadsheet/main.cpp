@@ -33,8 +33,6 @@ public:
 
     inline QString formula() const
         { return QTableWidgetItem::data(QAbstractItemModel::DisplayRole).toString(); }
-    inline void setFormula(const QString &text)
-        { QTableWidgetItem::setData(QAbstractItemModel::DisplayRole, text); }
 
     QPoint convertCoords(const QString coords) const;
 };
