@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#9 $
 **
 ** Implementation of something useful
 **
@@ -15,8 +15,9 @@
 #include "qpainter.h"
 #include "qscrbar.h"
 #include <stdlib.h>
+#include <qapp.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#8 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistview.cpp#9 $");
 
 /*!
   \class QListViewItem qlistview.h
@@ -300,6 +301,12 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 void QListViewItem::paintTreeBranches( QPainter * p, const QColorGroup & cg,
 				       int w, int top, int bottom ) const
 {
+
+    p->fillRect( 0, top, w, bottom - top, cg.base() );
+
+    //QApplication::flushX();
+    //    sleep( 5 );
+
     const QListViewItem * child = firstChild();
     int y = 0;
     int linetop = (top > 64) ? ((top-30) & ~31) : 2;
@@ -317,7 +324,7 @@ void QListViewItem::paintTreeBranches( QPainter * p, const QColorGroup & cg,
     int by;
 
     // paint stuff in the magical area
-    while ( c && y < bottom ) {
+    while ( child && y < bottom ) {
 	by = y + child->height()/2;
 	if ( child->children() ) {
 	    // needs a box
@@ -361,6 +368,7 @@ struct QListViewRoot: public QListViewItem {
 
     void setHeight( int );
     void invalidateHeight();
+    QListView *listView() const;
 
     QTimer * timer;
     int levelWidth;
@@ -392,6 +400,10 @@ void QListViewRoot::invalidateHeight()
     timer->start( 0, TRUE );
 }
 
+QListView *QListViewRoot::listView() const
+{
+    return ((QListView*)parent()); //###
+}
 
 
 /*!
@@ -507,15 +519,18 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	    x = fx;
 	    c = fc;
 
-	    // draw to last interesting column
-	    while( c < lc ) {
-		cs = root->h->cellSize( c );
-		r.setRect( x + ox, head->y + oy, cs, ih );
-		if ( c + 1 == lc && x + cs < cx + cw )
-		    r.setRight( cx + cw + ox - 1 );
-		p->save();
-		p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
-		p->translate( r.left(), r.top() );
+            // draw to last interesting column
+            while( c < lc ) {
+		int i = root->h->mapToLogical( c );
+                cs = root->h->cellSize( c );
+                r.setRect( x + ox, head->y + oy, cs, ih );
+                if ( c + 1 == lc && x + cs < cx + cw )
+                    r.setRight( cx + cw + ox - 1 );
+		if ( i==0 && head->l > 0 )
+		    r.setLeft( r.left() + (head->l-1) * treeStepSize() );
+                p->save();
+                p->setClipRegion( p->clipRegion().intersect(QRegion(r)) );
+                p->translate( r.left(), r.top() );
 		head->item->paintCell( p, colorGroup(),
 				       root->h->mapToLogical( c ), r.width() );
 		p->restore();
@@ -527,29 +542,41 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	struct PendingItem * next;
 
 	// do any children of the head need to be painted?
-	if ( head->item->isOpen() &&
+	if ( head->item->children() > 0 &&
+	     head->item->isOpen() &&
 	     head->y + ith > cy &&
 	     head->y + ih < cy + ch ) {
 	    // perhaps even a branch?
 	    if ( tx >= 0 ) {
+		debug( "tx = %d", tx );
 		p->save();
 		// compute the clip rectangle the safe way
 
 		int rtop = head->y + ih;
 		int rbottom = head->y + ith;
-		int rright = tx;
-		int rleft = tx + treeStepSize();
-		rtop = QMAX( rtop, cy );
-		rbottom = QMIN( rbottom, cy+ch );
-		rleft = QMAX( rleft, cx );
-		rright = QMIN( rright, cx+cw );
+		int rleft = tx + (head->l-1)*treeStepSize();
+		int rright = rleft + treeStepSize();
 
-		r.setRect( rleft+ox, rtop+oy, rright-rleft, rbottom-rtop );
+		int crtop = QMAX( rtop, cy );
+		int crbottom = QMIN( rbottom, cy+ch );
+		int crleft = QMAX( rleft, cx );
+		int crright = QMIN( rright, cx+cw );
+
+		r.setRect( crleft+ox, crtop+oy, 
+			   crright-crleft, crbottom-crtop );
 
 		p->setClipRect( r );
+
+		debug( "QListView painting tree branches (%d,%d,%d,%d)",
+		       r.left(),r.top(),r.width(),r.height());
+		debug( " item %p ", head->item );
+
+
+                p->translate( rleft, rtop );
 		head->item->paintTreeBranches( p, colorGroup(),
 					       treeStepSize(),
-					       r.top(), r.bottom() + 1 );
+					       r.top() - rtop,
+					       r.bottom() - rtop + 1 );
 		p->restore();
 	    }
 
@@ -728,6 +755,18 @@ bool QListView::eventFilter( QObject * o, QEvent * e )
     return QScrollView::eventFilter( o, e );
 }
 
+/*!
+  Returns the listview containing this item. 
+*/
+
+QListView * QListViewItem::listView() const
+{
+    if ( parentItem )
+	return parentItem->listView();
+    else 
+	return 0;
+}
+
 
 /*! \fn bool QListViewItem::isOpen () const
 
@@ -769,4 +808,5 @@ bool QListView::eventFilter( QObject * o, QEvent * e )
   This signal is emitted when the list view changes width (or height?
   not at present).
 */
+
 
