@@ -29,7 +29,6 @@ void executeCommand( const Location& location, const QString& format,
     while ( process.isRunning() )
 	;
 
-qDebug( "Exec '%s', status '%d'", actualCommand.latin1(), process.exitStatus() );
     if ( process.exitStatus() == 127 )
 	location.fatal( tr("Couldn't launch the '%1' tool")
 			.arg(toolName),
