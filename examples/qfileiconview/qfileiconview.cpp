@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#8 $
+** $Id: //depot/qt/main/examples/qfileiconview/qfileiconview.cpp#9 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -403,7 +403,7 @@ void QtFileIconView::readDir( const QDir &dir )
         return;
 
     clear();
-
+    
     setCaption( dir.absPath() );
     emit directoryChanged( dir.absPath() );
 
@@ -434,7 +434,6 @@ void QtFileIconView::readDir( const QDir &dir )
     }
     emit readDirDone();
 
-    orderItemsInGrid();
     viewport()->repaint( TRUE );
 }
 
