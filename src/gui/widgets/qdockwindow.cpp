@@ -646,6 +646,12 @@ void QDockWindow::childEvent(QChildEvent *event)
     }
 }
 
+void QDockWindow::closeEvent(QCloseEvent *event)
+{
+    if (!d->closable)
+        event->ignore();
+}
+
 bool QDockWindow::event(QEvent *event)
 {
     switch (event->type()) {

@@ -54,6 +54,7 @@ public:
 protected:
     void changeEvent(QEvent *event);
     void childEvent(QChildEvent *event);
+    void closeEvent(QCloseEvent *event);
     bool event(QEvent *event);
 };
 
