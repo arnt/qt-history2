@@ -7,6 +7,7 @@
 #include <qstringlist.h>
 #include <qsettings.h>
 #include "assistant.h"
+#include <stdlib.h>
 
 const int server_port = 7358;
 
@@ -219,7 +220,7 @@ int main( int argc, char ** argv )
 				      ".." + QDir::separator());
     setenv("QTDIR", qdir.latin1(), 0);
 #endif
-    
+
     QStringList catlist;
     QString file;
     bool parsestdin = FALSE;
@@ -242,19 +243,19 @@ int main( int argc, char ** argv )
 	    printf( " -stdin              reads commands from stdin after\n" );
 	    printf( "                     assistant has started\n" );
 	    printf( " -help               shows this help\n" );
-	    exit( 0 );  
+	    exit( 0 );
 	}
 	else {
 	    printf( "Wrong options! Try -help to get help.\n" );
 	    exit( 1 );
 	}	
     }
-        
-    if ( a.argc() >= 1 || file.left( 2 ) != "d:" ) {    
+
+    if ( a.argc() >= 1 || file.left( 2 ) != "d:" ) {
 	QString keybase("/Qt Assistant/3.1/");
 	QSettings *config = new QSettings();
 	config->insertSearchPath( QSettings::Windows, "/Trolltech" );
-	if( !catlist.isEmpty() ) { 
+	if( !catlist.isEmpty() ) {
 	    config->writeEntry( "/Qt Assistant/categories/selected/", catlist );
 	}
 	bool max = config->readBoolEntry( keybase  + "GeometryMaximized", FALSE ) ;
@@ -273,12 +274,12 @@ int main( int argc, char ** argv )
 	    commandInput = new StdInParser(mw, &a);
 	else if ( !file.isEmpty() )
 	    mw->showLink( file, "" );
-    
+
     } else {
 	Socket *s = new Socket( 0 );
 	s->start();
     }
-        
+
     a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
 
     // Now we need to setup read from stdin...
