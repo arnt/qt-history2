@@ -2254,7 +2254,6 @@ void qt_format_text( const QFont& font, const QRect &r,
 	// need to build paragraph
 	parag = new QTextParag( 0, 0, 0, FALSE );
 	QTextFormat *f = new QTextFormat( font, painter ? painter->pen().color() : QColor() );
-	parag->setFormat( f );
 	if ( singleline ) {
 	    parStr.replace(QRegExp("[\n\r]"), " ");
 	}
@@ -2262,22 +2261,28 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    int idx = -1;
 	    int start = 0;
 	    int len = str.length();
-	    f->setUnderline( TRUE );
+	    QTextFormat *ul = new QTextFormat( *f );
+	    ul->setUnderline( TRUE );
 	    int num = 0;
 	    while ( (idx = parStr.find( '&', start ) ) != -1 ) {
 		parag->append( parStr.mid( start, idx - start ) );
-		if ( idx == len -1 || str[idx+1] == '&' )
+		parag->setFormat( start - num, idx - start, f );
+		if ( idx == len -1 || str[idx+1] == '&' ) {
 		    parag->append( QString( "&" ) );
-		else {
+		    parag->setFormat( start - num, 1, f );
+		} else {
 		    parag->append( parStr.mid(idx + 1, 1) );
-		    parag->setFormat(idx - num, 1, f );
+		    parag->setFormat(idx - num, 1, ul );
 		    num++;
 		}
 		start = idx + 2;
 	    }
 	    parag->append( parStr.mid( start ) );
-	} else
+	    parag->setFormat( start - num, parStr.length() - start, f );
+	} else {
 	    parag->append( parStr );
+	    parag->setFormat( 0, parStr.length(), f );
+	}
 	if ( expandtabs ) {
 	    parag->setTabArray( tabarray );
 	    parag->setTabStops( tabstops );
