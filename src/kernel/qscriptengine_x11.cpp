@@ -2727,5 +2727,7 @@ const q_scriptEngine scriptEngines[] = {
     //Buhid,
     { basic_shape, basic_attributes },
     //Tagbanwa,
+    { basic_shape, basic_attributes },
+    // KatakanaHalfWidth
     { basic_shape, basic_attributes }
 };

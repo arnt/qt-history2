@@ -11803,33 +11803,14 @@ enum Script {
     Buhid,
     Tagbanwa,
 
+    KatakanaHalfWidth,		// from JIS X 0201
     // End
     NScripts,
-    UnknownScript = NScripts,
-
-    NoScript,
-
-    // ----------------------------------------
-    // Dear User, you can see values > Unicode,
-    // but they are internal - do not touch.
-
-    // only used on X11 to get some char displayed for all of the Han area.
-    HanX11,
-
-    LatinBasic = Latin,             // from ISO-8859-1
-    LatinExtendedA_2 = HanX11 + 1,  // from ISO-8859-2
-    LatinExtendedA_3,               // from ISO-8859-3
-    LatinExtendedA_4,               // from ISO-8859-4
-    LatinExtendedA_14,              // from ISO-8859-14
-    LatinExtendedA_15,              // from ISO-8859-15
-    KatakanaHalfWidth,		// from JIS X 0201
-
-    LastPrivateScript
 };
 
 // copied form qfont.h, as we can't include it in tools. Do not modify without
 // changing the script enum in qfont.h aswell.
-const unsigned char QUnicodeTables::otherScripts [118] = {
+const unsigned char QUnicodeTables::otherScripts [116] = {
 #define SCRIPTS_02 0
     0xaf, Latin, 0xff, SpacingModifiers, 			// row 0x02, index 0
 #define SCRIPTS_03 4
@@ -11875,7 +11856,7 @@ const unsigned char QUnicodeTables::otherScripts [118] = {
     0xff, Arabic,						// row 0xfe, index 98
 #define SCRIPTS_ff 108
     0x5e, Katakana, 0x60, Unicode,        		// row 0xff, index 106
-    0x9f, KatakanaHalfWidth, 0xfe, UnknownScript, 0xfe, Unicode
+    0x9f, KatakanaHalfWidth, 0xff, Unicode
 };
 
 // (uc-0x0900)>>7
