@@ -11883,7 +11883,6 @@ static int ucstrnicmp( const QChar *a, const QChar *b, int l )
 
 static uint computeNewMax( uint len )
 {
-    return len;
     uint newMax = 4;
     while ( newMax < len )
 	newMax *= 2;
