@@ -16,7 +16,7 @@
 class QTextDocumentFragmentPrivate
 {
 public:
-    QTextDocumentFragmentPrivate() {}
+    QTextDocumentFragmentPrivate() : hasTitle(false) {}
     QTextDocumentFragmentPrivate(const QTextCursor &cursor);
 
     void insert(QTextCursor &cursor) const;
@@ -56,6 +56,9 @@ public:
     FormatMap formats;
     // maps from group index to index (key) in 'formats' map
     GroupMap formatGroups;
+
+    Q_INT8 hasTitle;
+    QString title;
 };
 
 inline QDataStream &operator<<(QDataStream &stream, const QTextDocumentFragmentPrivate::TextFragment &fragment)
@@ -69,9 +72,9 @@ inline QDataStream &operator>>(QDataStream &stream, QTextDocumentFragmentPrivate
 { return stream >> block.createBlockUponInsertion >> block.blockFormat >> block.charFormat >> block.fragments; }
 
 inline QDataStream &operator<<(QDataStream &stream, const QTextDocumentFragmentPrivate &priv)
-{ return stream << priv.formats << priv.formatGroups << priv.blocks << priv.localBuffer; }
+{ return stream << priv.formats << priv.formatGroups << priv.blocks << priv.localBuffer << priv.hasTitle << priv.title; }
 inline QDataStream &operator>>(QDataStream &stream, QTextDocumentFragmentPrivate &priv)
-{ return stream >> priv.formats >> priv.formatGroups >> priv.blocks >> priv.localBuffer; }
+{ return stream >> priv.formats >> priv.formatGroups >> priv.blocks >> priv.localBuffer >> priv.hasTitle >> priv.title; }
 
 class QTextHTMLImporter : public QTextHtmlParser
 {

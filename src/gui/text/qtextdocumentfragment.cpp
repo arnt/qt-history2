@@ -10,6 +10,7 @@
 #include <qdatastream.h>
 
 QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cursor)
+    : hasTitle(false)
 {
     if (!cursor.hasSelection())
         return;
@@ -135,6 +136,10 @@ void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
             destPieceTable->insert(cursor.position(), text, formatIdx);
         }
     }
+
+    // ### UNDO
+    if (hasTitle)
+        destPieceTable->config()->title = title;
 
     destPieceTable->endEditBlock();
 }
@@ -487,8 +492,8 @@ void QTextHTMLImporter::import()
             appendImage(fmt);
             continue;
         } else if (node->tag == QLatin1String("title")) {
-            // ### fixme
-//            d->pieceTable->config()->title = node->text;
+              d->hasTitle = true;
+              d->title = node->text;
             continue;
         }
         if (node->text.size() == 0)
