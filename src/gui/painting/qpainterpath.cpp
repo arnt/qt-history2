@@ -20,6 +20,7 @@
 #include <qpointarray.h>
 #include <qmatrix.h>
 #include <qvarlengtharray.h>
+#include <qpen.h>
 
 #include <qdebug.h>
 
