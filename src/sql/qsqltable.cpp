@@ -24,7 +24,6 @@ enum {
     IdDelete
 };
 
-
 class QSqlTablePrivate
 {
 public:
@@ -690,15 +689,13 @@ void QSqlTable::updateCurrent()
 	QApplication::restoreOverrideCursor();
 	if ( !b )
 	    handleError( d->editBuffer.lastError() );
-	qDebug("edit buffer id:" + d->editBuffer["id"].toString());
 	QSqlIndex idx = d->editBuffer.primaryIndex( TRUE );
-	qDebug("idx:" + idx.field(0)->value().toString());
 	endUpdate();
 	refresh( d->view, idx );
 	setCurrentSelection( currentRow(), currentColumn() );
 	break;
     }
-    case No: 
+    case No:
 	endUpdate();
 	setEditMode( NotEditing, -1, -1 );
 	break;
@@ -826,45 +823,72 @@ QSqlTable::Confirm  QSqlTable::confirmCancel( QSqlTable::Mode )
 }
 
 /*!  Refreshes the \a view.  A "select" is issued on the \a view using
-  the view's current filter and current sort.  The table is resized to accomodate the view size, if possible.
+  the view's current filter and current sort.  The table is resized to
+  accomodate the view size, if possible.  If \a idx is specified, the
+  table selects the first record matching the value of the index.
 
   \sa QSqlView
 */
 
 void QSqlTable::refresh( QSqlView* view, QSqlIndex idx )
 {
-    //    qDebug("QSqlTable::refresh");
     bool seekPrimary = (idx.count() ? TRUE : FALSE );
     QSqlIndex pi;
     if ( seekPrimary )
 	pi = idx;
     QApplication::setOverrideCursor( Qt::waitCursor );
     view->select( view->filter(), view->sort() );
-    setSize( view );   
+    setSize( view );
     if ( seekPrimary ) {
 	// ###
-	/* brute force for the moment */
-	view->first();
-	for ( ;; ) {
-	    bool indexEquals = FALSE;
-	    for ( uint i = 0; i < pi.count(); ++i ) {
-		const QString fn( pi.field(i)->name() );
-		if ( pi.field(i)->value() == view->value( fn ) )
-		    indexEquals = TRUE;
-		else {
-		    indexEquals = FALSE;
+	bool indexEquals = FALSE;	
+
+	/* common case, check current page */
+	int startIdx = verticalScrollBar()->value() / 20;    
+	int pageSize = (int)( height() * 2 / 20 );
+	int endIdx = startIdx + pageSize;
+	for ( int j = startIdx; j <= endIdx; ++j ) {
+	    if ( view->seek( j ) ) {
+		for ( uint i = 0; i < pi.count(); ++i ) {
+		    const QString fn( pi.field(i)->name() );
+		    if ( pi.field(i)->value() == view->value( fn ) ) 
+			indexEquals = TRUE;
+		    else {
+			indexEquals = FALSE;
+			break;
+		    }
+		}
+		if ( indexEquals )
+		    break;
+	    }
+	}
+	
+	if ( indexEquals ) 
+	    setCurrentCell( view->at(), currentColumn() );
+	else {
+	    /* give up, use brute force */
+	    view->first();
+	    for ( ;; ) {
+		indexEquals = FALSE;
+		for ( uint i = 0; i < pi.count(); ++i ) {
+		    const QString fn( pi.field(i)->name() );
+		    if ( pi.field(i)->value() == view->value( fn ) )
+			indexEquals = TRUE;
+		    else {
+			indexEquals = FALSE;
+			break;
+		    }
+		}
+		if ( indexEquals ) {
+		    setCurrentCell( view->at(), currentColumn() );
 		    break;
 		}
+		if ( !view->next() )
+		    break;
 	    }
-	    if ( indexEquals ) {
-		setCurrentCell( view->at(), currentColumn() );
-		break;
-	    }
-	    if ( !view->next() )
-		break;
 	}
     }
-    QApplication::restoreOverrideCursor();    
+    QApplication::restoreOverrideCursor();
 }
 
 /*!
