@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qdom.cpp#25 $
+** $Id: //depot/qt/main/src/xml/qdom.cpp#26 $
 **
 ** Implementation of QDomDocument and related classes.
 **
@@ -5834,7 +5834,9 @@ bool QDomHandler::startElement( const QString& namespaceURI, const QString&, con
     // attributes
     for ( int i=0; i<atts.length(); i++ )
     {
-	if ( nsProcessing && !atts.uri(i).isNull() ) {
+	if ( nsProcessing && !atts.uri(i).isEmpty() ) {
+	// ### is this one the right here, I guess so (should fix qxml then):
+	//if ( nsProcessing && !atts.uri(i).isNull() ) {
 	    QDomAttrPrivate *attr = doc->createAttributeNS( atts.uri(i), atts.qName(i) );
 	    attr->value = atts.value(i);
 	    ((QDomElementPrivate*)node)->setAttributeNode( attr );
