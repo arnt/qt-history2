@@ -671,6 +671,8 @@ void QDesignerToolBar::clear()
 
 void QDesignerToolBar::installEventFilters( QWidget *w )
 {
+    if ( !w )
+	return;
     QObjectList *l = w->queryList( "QWidget" );
     for ( QObject *o = l->first(); o; o = l->next() )
 	o->installEventFilter( this );
