@@ -2,6 +2,9 @@
 $Id$
 */  
 
+#ifndef STRUCTUREPARSER_H
+#define STRUCTUREPARSER_H   
+
 #include <qxml.h>
 
 class QString;
@@ -17,3 +20,5 @@ public:
 private:
     QString indent;
 };                   
+
+#endif 
