@@ -46,7 +46,7 @@ struct LayoutStruct;
 class QTextFrameData : public QTextFrameLayoutData
 {
 public:
-    QTextFrameData() : minimumWidth(0), currentLayoutStruct(0) {}
+    QTextFrameData() : minimumWidth(0), maximumWidth(INT_MAX), currentLayoutStruct(0) {}
 
     // relative to parent frame
     QRect boundingRect;
@@ -60,6 +60,7 @@ public:
     int contentsHeight;
 
     int minimumWidth;
+    int maximumWidth;
 
     QTextFrameFormat::Position position;
     QList<QTextFrame *> layoutedFrames;
@@ -70,13 +71,14 @@ public:
 };
 
 struct LayoutStruct {
-    LayoutStruct() : widthUsed(0), minimumWidth(0) {}
+    LayoutStruct() : widthUsed(0), minimumWidth(0), maximumWidth(INT_MAX) {}
     QTextFrame *frame;
     int x_left;
     int x_right;
     int y;
     int widthUsed;
     int minimumWidth;
+    int maximumWidth;
 };
 
 class QTextTableData : public QTextFrameData
@@ -618,6 +620,7 @@ LayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextTa
     LayoutStruct layoutStruct;
     layoutStruct.frame = t;
     layoutStruct.minimumWidth = 0;
+    layoutStruct.maximumWidth = INT_MAX;
     layoutStruct.y = 0;
     layoutStruct.x_left = 0;
     layoutStruct.x_right = width;
@@ -633,6 +636,8 @@ LayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextTa
             layoutFrame(frame, frame->firstPosition(), frame->lastPosition(), width, -1);
             td->layoutedFrames.removeAll(frame);
             layoutStruct.minimumWidth = qMax(layoutStruct.minimumWidth, cd->boundingRect.width());
+            // we assume floats to have a fixed size
+            layoutStruct.maximumWidth = qMin(layoutStruct.maximumWidth, layoutStruct.minimumWidth);
 
             if (cd->position != QTextFrameFormat::InFlow)
                 floats.append(frame);
@@ -1009,6 +1014,7 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
     layoutStruct.y = margin + fd->padding; // #### fix for !fullLayout
     layoutStruct.widthUsed = 0;
     layoutStruct.minimumWidth = 0;
+    layoutStruct.maximumWidth = INT_MAX;
 
     // layout regular contents and position non absolute positioned child frames
     if (!fullLayout) {
@@ -1044,6 +1050,7 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
 
     fd->contentsWidth = qMax(fd->contentsWidth, layoutStruct.widthUsed);
     fd->minimumWidth = layoutStruct.minimumWidth;
+    fd->maximumWidth = layoutStruct.maximumWidth;
 
     int height = fd->contentsHeight == -1
                  ? layoutStruct.y + margin + fd->padding
@@ -1144,6 +1151,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(QTextBlock bl, LayoutStruct *layout
     layoutStruct->y += blockFormat.bottomMargin();
     // ### doesn't take floats into account. would need to do it per line. but how to retrieve then? (Simon)
     layoutStruct->minimumWidth = qMax(layoutStruct->minimumWidth, tl->minimumWidth() + blockFormat.leftMargin() + indent);
+    layoutStruct->maximumWidth = qMin(layoutStruct->maximumWidth, tl->maximumWidth() + blockFormat.leftMargin() + indent);
 }
 
 void QTextDocumentLayoutPrivate::floatMargins(LayoutStruct *layoutStruct, int *left, int *right)
