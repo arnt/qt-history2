@@ -40,6 +40,7 @@
 #include "project.h"
 #include <qtextstream.h>
 #include <qstring.h>
+#include <qdict.h>
 #include <qregexp.h>
 #include <qstringlist.h>
 #include <qdir.h>
@@ -230,4 +231,53 @@ Win32MakefileGenerator::findLibraries(const QString &where)
             ++it;
     }
     return TRUE;
+}
+
+void
+Win32MakefileGenerator::processPrlFiles()
+{
+    QDict<void> processed;
+    QPtrList<MakefileDependDir> libdirs;
+    libdirs.setAutoDelete(TRUE);
+    for(bool ret = FALSE; TRUE; ret = FALSE) {
+	//read in any prl files included..
+	QStringList l_out;
+	QString where = "QMAKE_LIBS";
+	if(!project->isEmpty("QMAKE_INTERNAL_PRL_LIBS"))
+	    where = project->first("QMAKE_INTERNAL_PRL_LIBS");
+	QStringList &l = project->variables()[where];
+	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+	    QString opt = (*it);
+	    if(opt.left(9) == "/LIBPATH:") {
+		QString r = opt.right(opt.length() - 2), l = r;
+		fixEnvVariables(l);
+		libdirs.append(new MakefileDependDir(r.replace("\"",""),
+						     l.replace("\"","")));
+	    } else {
+		if(!processed[opt]) {
+		    if(processPrlFile(opt)) {
+			processed.insert(opt, (void*)1);
+			ret = TRUE;
+		    } else {
+			for(MakefileDependDir *mdd = libdirs.first(); mdd; mdd = libdirs.next() ) {
+			    QString prl = mdd->local_dir + Option::dir_sep + opt;
+			    if(processPrlFile(prl)) {
+				break;
+			    } else if(processPrlFile(prl)) {
+				processed.insert(prl, (void*)1);
+				ret = TRUE;
+				break;
+			    }
+			}
+		    }
+		} 
+	    }
+	    if(!opt.isEmpty())
+		l_out.append(opt);
+	}
+	if(ret)
+	    l = l_out;
+	else
+	    break;
+    }
 }

@@ -54,6 +54,7 @@ protected:
     int findHighestVersion(const QString &dir, const QString &stem);
     bool findLibraries(const QString &);
     virtual bool findLibraries();
+    virtual void processPrlFiles();
 
 public:
     Win32MakefileGenerator(QMakeProject *p);
