@@ -539,7 +539,7 @@ void QHeaderView::initializeSections(int start, int end)
     QHeaderViewPrivate::HeaderSection *sections = d->sections.data() + start;
     int s = start;
     int num = end - start + 1;
-    int size = orientation() == Qt::Horizontal ? default_width : default_height;;
+    int size = orientation() == Qt::Horizontal ? default_width : default_height;
 
     // unroll loop - to initialize the arrays as fast as possible
     while (num >= 4) {

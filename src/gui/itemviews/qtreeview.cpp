@@ -177,11 +177,11 @@ void QTreeView::setHeader(QHeaderView *header)
     d->header = header;
 
     QObject::connect(d->header, SIGNAL(sectionSizeChanged(int,int,int)),
-                     this, SLOT(columnWidthChanged(int,int,int)));
+                     this, SLOT(columnWidthChanged(int,int,int)), Qt::QueuedConnection);
     QObject::connect(d->header, SIGNAL(sectionIndexChanged(int,int,int)),
-                     this, SLOT(dataChanged()));
+                     this, SLOT(dataChanged()), Qt::QueuedConnection);
     QObject::connect(d->header, SIGNAL(sectionCountChanged(int,int)),
-                     this, SLOT(columnCountChanged(int,int)));
+                     this, SLOT(columnCountChanged(int,int)), Qt::QueuedConnection);
     QObject::connect(d->header, SIGNAL(sectionHandleDoubleClicked(int,Qt::ButtonState)),
                      this, SLOT(resizeColumnToContents(int)));
 }
@@ -445,8 +445,6 @@ void QTreeView::paintEvent(QPaintEvent *e)
         d->right = tmp;
     }
 
-    const QTreeViewItem *items = d->items.constData();
-
     QFontMetrics fontMetrics(this->fontMetrics());
     QAbstractItemDelegate *delegate = itemDelegate();
     QModelIndex index;
@@ -458,15 +456,17 @@ void QTreeView::paintEvent(QPaintEvent *e)
     int v = verticalScrollBar()->value();
     int c = d->items.count();
     int i = d->itemAt(v);
-    int s = delegate->sizeHint(fontMetrics, option, model(), items[i].index).height();
+    int s = delegate->sizeHint(fontMetrics, option, model(), d->items.at(i).index).height();
     int y = d->coordinateAt(v, s);
 
+    QVector<QTreeViewItem> items = d->items;
+
     while (y < h && i < c) {
-        index = items[i].index;
+        index = items.at(i).index;
         s = delegate->sizeHint(fontMetrics, option, d->model, index).height();
         if (y + s >= t) {
             option.rect.setRect(0, y, 0, s);
-            option.state = state|(d->items[i].open ? QStyle::Style_Open : QStyle::Style_Default);
+            option.state = state|(items.at(i).open ? QStyle::Style_Open : QStyle::Style_Default);
             d->current = i;
             drawRow(&painter, option, index);
         }
@@ -911,9 +911,10 @@ void QTreeView::dataChanged()
   inclusive have been inserted into the \a parent model item.
 */
 
-void QTreeView::rowsInserted(const QModelIndex &parent, int, int)
+void QTreeView::rowsInserted(const QModelIndex &parent, int start, int end)
 {
     d->relayout(parent);
+    QAbstractItemView::rowsInserted(parent, start, end);
 }
 
 /*!
