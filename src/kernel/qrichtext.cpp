@@ -1490,7 +1490,8 @@ struct Q_EXPORT Tag {
 #endif
 };
 
-#define NEWPAR       do{ if ( !hasNewPar ) curpar = createParag( this, curpar );  if ( curtag.style->whiteSpaceMode() != QStyleSheetItem::WhiteSpaceNormal ) curpar->setBreakable( FALSE ); \
+#define NEWPAR       do{ if ( !hasNewPar ) curpar = createParag( this, curpar ); \
+		    curpar->setBreakable( curtag.style->whiteSpaceMode() == QStyleSheetItem::WhiteSpaceNormal ); \
 		    hasNewPar = TRUE; \
 		    space = TRUE; \
 		    QPtrVector<QStyleSheetItem> vec( (uint)tags.count() + 1); \
