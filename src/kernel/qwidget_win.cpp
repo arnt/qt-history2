@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#90 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#91 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -27,7 +27,7 @@
 #include <windows.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#90 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget_win.cpp#91 $");
 
 
 #if !defined(WS_EX_TOOLWINDOW)
@@ -810,7 +810,7 @@ void QWidget::setMinimumSize( int minw, int minh )
 	return;
     extra->minw = minw;
     extra->minh = minh;
-    if ( isVisible() && (minw > width() || minh > height()) )
+    if ( minw > width() || minh > height() )
 	resize( QMAX(minw,width()), QMAX(minh,height()) );
 }
 
@@ -826,7 +826,7 @@ void QWidget::setMaximumSize( int maxw, int maxh )
 	return;
     extra->maxw = maxw;
     extra->maxh = maxh;
-    if ( isVisible() && (maxw < width() || maxh < height()) )
+    if ( maxw < width() || maxh < height() )
 	resize( QMIN(maxw,width()), QMIN(maxh,height()) );
 }
 
