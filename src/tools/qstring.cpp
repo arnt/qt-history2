@@ -12133,7 +12133,7 @@ static int stat_get_ascii_size=0;
 static int stat_copy_on_write=0;
 static int stat_copy_on_write_size=0;
 static int stat_fast_copy=0;
-void Q_EXPORT qt_qstring_stats()
+Q_EXPORT void qt_qstring_stats()
 {
 	qDebug("construct_charstar = %d (%d chars)", stat_construct_charstar, stat_construct_charstar_size);
 	qDebug("construct_null = %d", stat_construct_null);

@@ -1178,6 +1178,7 @@ void QMultiCellPixmap::debugger()
 }
 
 
+// ### rename 3.0 - qt_mcp_debugger()
 Q_EXPORT void mcp_debugger()
 {
     int i, s=16;
