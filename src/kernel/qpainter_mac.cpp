@@ -1595,6 +1595,15 @@ void QPainter::drawArc(int x, int y, int w, int h, int a, int alen)
 	if(!pdev->cmd(QPaintDevice::PdcDrawArc, this, param) || !hd)
 	    return;
     }
+    if(testf(VxF|WxF)) {
+        if(txop == TxRotShear) {             // rotate/shear
+            QPointArray pa;
+            pa.makeArc(x, y, w, h, a, alen, xmat); // arc polyline
+            drawPolyInternal(pa, FALSE);
+            return;
+        }
+        map(x, y, w, h, &x, &y, &w, &h);
+    }
     if(w <= 0 || h <= 0) {
 	if(w == 0 || h == 0)
 	    return;
@@ -1642,14 +1651,20 @@ void QPainter::drawPie(int x, int y, int w, int h, int a, int alen)
 	if(!pdev->cmd(QPaintDevice::PdcDrawPie, this, param) || !hd)
 	    return;
     }
-    if((a + alen) == (360*16)) {
-	bool extdev = testf(ExtDev);
-	if(extdev)
-	    clearf(ExtDev);
-	drawEllipse(x, y, w, h);
-	if(extdev)
-	    setf(ExtDev);
-	return;
+    if(testf(VxF|WxF) ) {
+        if(txop == TxRotShear) {             // rotate/shear
+            QPointArray pa;
+            pa.makeArc( x, y, w, h, a, alen, xmat ); // arc polyline
+            int n = pa.size();
+            int cx, cy;
+            xmat.map(x+w/2, y+h/2, &cx, &cy);
+            pa.resize( n+2 );
+            pa.setPoint( n, cx, cy );   // add legs
+            pa.setPoint( n+1, pa.at(0) );
+            drawPolyInternal( pa );
+            return;
+        }
+        map( x, y, w, h, &x, &y, &w, &h );
     }
 #ifdef USE_CORE_GRAPHICS
     CGMutablePathRef path = CGPathCreateMutable();
@@ -1694,6 +1709,18 @@ void QPainter::drawChord(int x, int y, int w, int h, int a, int alen)
 	param[2].ival = alen;
 	if(!pdev->cmd(QPaintDevice::PdcDrawChord, this, param) || !hd)
 	    return;
+    }
+    if(testf(VxF|WxF) ) {
+        if(txop == TxRotShear) {             // rotate/shear
+            QPointArray pa;
+            pa.makeArc(x, y, w-1, h-1, a, alen, xmat); // arc polygon
+            int n = pa.size();
+            pa.resize(n+1);
+            pa.setPoint(n, pa.at(0));         // connect endpoints
+            drawPolyInternal(pa);
+            return;
+        }
+        map(x, y, w, h, &x, &y, &w, &h);
     }
 #ifdef USE_CORE_GRAPHICS
     CGMutablePathRef path = CGPathCreateMutable();
