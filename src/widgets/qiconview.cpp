@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#76 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#77 $
 **
 ** Definition of QIconView widget class
 **
@@ -1285,6 +1285,40 @@ void QIconViewItem::setView( QIconView *v )
 {
     view = v;
 }
+
+/*!
+  Sets the bounding rectangle of the whole item. This should
+  be only used in subclasses, which reimplement calcRect() to be able
+  to set the calcualted rectangle
+*/
+
+void QIconViewItem::setItemRect( const QRect &r )
+{
+    itemRect = r;
+}
+
+/*!
+  Sets the bounding rectangle of the item text. This should
+  be only used in subclasses, which reimplement calcRect() to be able
+  to set the calcualted rectangle
+*/
+
+void QIconViewItem::setTextRect( const QRect &r )
+{
+    itemTextRect = r;
+}
+
+/*!
+  Sets the bounding rectangle of the item icon. This should
+  be only used in subclasses, which reimplement calcRect() to be able
+  to set the calcualted rectangle
+*/
+
+void QIconViewItem::setIconRect( const QRect &r )
+{
+    itemIconRect = r;
+}
+
 
 /*****************************************************************************
  *
