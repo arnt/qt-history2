@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#53 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#54 $
 **
 ** Implementation of QRect class
 **
@@ -599,7 +599,8 @@ bool QRect::contains( const QRect &r, bool proper ) const
 */
 QRect& QRect::operator|=(const QRect &r)
 {
-    return *this = *this | r;
+    *this = *this | r;
+    return *this;
 }
 
 /*!
@@ -607,7 +608,8 @@ QRect& QRect::operator|=(const QRect &r)
 */
 QRect& QRect::operator&=(const QRect &r)
 {
-    return *this = *this & r;
+    *this = *this & r;
+    return *this;
 }
 
 
