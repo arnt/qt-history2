@@ -79,8 +79,7 @@ void QTableViewPrivate::init()
     columnViewportPosition() functions provide the equivalent conversion
     operations between x-coordinates and column indices.
 
-    \sa \link model-view-programming.html Model/View Programming\endlink
-        QAbstractItemModel QAbstractItemView
+    \sa \link model-view-programming.html Model/View Programming\endlink QAbstractItemModel QAbstractItemView
 
 */
 

@@ -39,8 +39,7 @@
     the overloaded operators for equality and inequality, and the intersects()
     function allows you to determine whether two ranges overlap.
 
-    \sa \link model-view-programming.html Model/View Programming\endlink
-        QAbstractItemModel QItemSelection QItemSelectionModel
+    \sa \link model-view-programming.html Model/View Programming\endlink QAbstractItemModel QItemSelection QItemSelectionModel
 
 */
 

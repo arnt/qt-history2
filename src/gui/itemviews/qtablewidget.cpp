@@ -361,7 +361,7 @@ void QTableWidgetItem::setData(int role, const QVariant &value)
     with setRowCount(), and the number of columns with
     setColumnCount().
 
-    \sa \link model-view-programming.html Model/View Programming\endlink.
+    \sa \link model-view-programming.html Model/View Programming\endlink
 */
 
 class QTableWidgetPrivate : public QTableViewPrivate

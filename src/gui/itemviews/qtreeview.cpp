@@ -52,7 +52,7 @@
         tree->setModel(model);
     \endcode
 
-    The Model/View architecture ensures that the contents of the tree view
+    The model/view architecture ensures that the contents of the tree view
     are updated as the model changes.
 
     Items that have children can be in an expanded (children are
@@ -67,8 +67,7 @@
     Describe the opening/closing concept if not covered elsewhere.
     \endomit
 
-    \sa \link model-view-programming.html Model/View Programming\endlink
-        QAbstractItemModel QAbstractItemView
+    \sa \link model-view-programming.html Model/View Programming\endlink QAbstractItemModel QAbstractItemView
 */
 
 

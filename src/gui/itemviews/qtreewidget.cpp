@@ -694,8 +694,7 @@ public:
   \endcode
   \endomit
 
-  \sa \link model-view-programming.html Model/View Programming\endlink
-      QTreeModel QTreeWidgetItem
+  \sa \link model-view-programming.html Model/View Programming\endlink QTreeModel QTreeWidgetItem
 */
 
 /*!
