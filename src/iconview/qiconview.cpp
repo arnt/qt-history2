@@ -4298,7 +4298,6 @@ void QIconView::contentsMouseReleaseEvent( QMouseEvent *e )
     d->startDragItem = 0;
 
     if ( d->rubber ) {
-	emitClicked = FALSE;
 	QPainter p;
 	p.begin( viewport() );
 	p.setRasterOp( NotROP );
