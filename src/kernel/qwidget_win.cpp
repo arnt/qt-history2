@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#218 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#219 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -344,7 +344,6 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
     bool     enable = isEnabled();		// remember status
     FocusPolicy fp = focusPolicy();
     QSize    s	    = size();
-    QColor   bgc    = bg_col;			// save colors
     QString capt= caption();
     widget_flags = f;
     clearWState( WState_Created | WState_Visible );
@@ -362,7 +361,6 @@ void QWidget::reparent( QWidget *parent, WFlags f, const QPoint &p,
 	}
     }
 
-    bg_col = bgc;
     setGeometry( p.x(), p.y(), s.width(), s.height() );
     setEnabled( enable );
     setFocusPolicy( fp );

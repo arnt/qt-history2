@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#443 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#444 $
 **
 ** Implementation of QWidget class
 **
@@ -562,6 +562,7 @@ QWidget::QWidget( QWidget *parent, const char *name, WFlags f )
     focus_policy = 0;
     lay_out = 0;
     extra = 0;					// no extra widget info
+    bg_col = pal.normal().background();		// default background color
     create();					// platform-dependent init
     // make sure move/resize events are sent to all widgets
     QApplication::postEvent( this, new QMoveEvent( fpos, fpos ) );

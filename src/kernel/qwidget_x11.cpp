@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#378 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#379 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -170,8 +170,6 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 	sw = DisplayWidth(dpy,scr);
 	sh = DisplayHeight(dpy,scr);
     }
-
-    bg_col = pal.normal().background();		// default background color
 
     if ( modal || popup || desktop ) {		// these are top-level, too
 	topLevel = TRUE;
