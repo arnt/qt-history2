@@ -298,6 +298,28 @@ static QClipboardData *clipboardData()
 
 //#define QT_DEBUG_CB
 
+static void setClipboardData( int cf, const char *mime, QWindowsMime *c, QMimeSource *s )
+{
+    QByteArray md = s->encodedData(mime);
+#if defined(QT_DEBUG_CB)
+    qDebug("source is %d bytes of %s",md.size(),mime);
+#endif
+    md = c->convertFromMime(md,mime,cf);
+    int len = md.size();
+#if defined(QT_DEBUG_CB)
+    qDebug("rendered %d bytes of CF %d by %s",len,cf,c->convertorName());
+#endif
+    HANDLE h = GlobalAlloc( GHND, len );
+    char *d = (char *)GlobalLock( h );
+    memcpy( d, md.data(), len );
+    HANDLE res = SetClipboardData( cf, h );
+#ifndef QT_NO_DEBUG
+    if ( !res )
+	qSystemWarning( "QClipboard: Failed to write data" );
+#endif
+    GlobalUnlock( h );
+}
+
 static void renderFormat(int cf)
 {
 #if defined(QT_DEBUG_CB)
@@ -312,24 +334,7 @@ static void renderFormat(int cf)
     for (int i=0; (mime=s->format(i)); i++) {
 	QWindowsMime* c = QWindowsMime::convertor(mime,cf);
 	if ( c ) {
-	    QByteArray md = s->encodedData(mime);
-#if defined(QT_DEBUG_CB)
-	    qDebug("source is %d bytes of %s",md.size(),mime);
-#endif
-	    md = c->convertFromMime(md,mime,cf);
-	    int len = md.size();
-#if defined(QT_DEBUG_CB)
-	    qDebug("rendered %d bytes of CF %d by %s",len,cf,c->convertorName());
-#endif
-	    HANDLE h = GlobalAlloc( GHND, len );
-	    char *d = (char *)GlobalLock( h );
-	    memcpy( d, md.data(), len );
-	    HANDLE res = SetClipboardData( cf, h );
-#ifndef QT_NO_DEBUG
-	    if ( !res )
-		qSystemWarning( "QClipboard: Failed to write data" );
-#endif
-	    GlobalUnlock( h );
+	    setClipboardData( cf, mime, c, s );
 	    return;
 	}
     }
@@ -365,20 +370,7 @@ static void renderAllFormats()
 		for (int j = 0; j < c->countCf(); j++) {
 		    int cf = c->cf(j);
 		    if ( c->canConvert(mime,cf) ) {
-			QByteArray md = s->encodedData(mime);
-#if defined(QT_DEBUG_CB)
-			qDebug("source is %d bytes of %s",md.size(),mime);
-#endif
-			md = c->convertFromMime(md,mime,cf);
-			int len = md.size();
-#if defined(QT_DEBUG_CB)
-			qDebug("rendered %d bytes of CF %d by %s",len,cf,c->convertorName());
-#endif
-			HANDLE h = GlobalAlloc( GHND, len );
-			char *d = (char *)GlobalLock( h );
-			memcpy( d, md.data(), len );
-			SetClipboardData( cf, h );
-			GlobalUnlock( h );
+			setClipboardData( cf, mime, c, s );
 		    }
 		}
 	    }
@@ -486,8 +478,13 @@ void QClipboard::setData( QMimeSource* src )
 	    if ( c->cfFor(mime) ) {
 		for (int j = 0; j < c->countCf(); j++) {
 		    UINT cf = c->cf(j);
-		    if ( c->canConvert(mime,cf) )
-			SetClipboardData( cf, 0 ); // 0 == ask me later
+		    if ( c->canConvert(mime,cf) ) {
+			if ( !qApp || !qApp->loopLevel() ) { // write now if we can't process data requests
+			    setClipboardData( cf, mime, c, src );
+			} else {
+			    SetClipboardData( cf, 0 ); // 0 == ask me later
+			}
+		    }
 		}
 	    }
 	}
