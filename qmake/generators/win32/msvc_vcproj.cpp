@@ -283,7 +283,7 @@ nextfile:
 	    dit != solution_cleanup.current()->dependencies.end();
 	    ++dit) {
 	    VcsolutionDepend *vc;
-	    if(vc=solution_depends[*dit]) {
+	    if((vc=solution_depends[*dit])) {
 	    	if(solution_cleanup.current()->targetType != StaticLib || vc->targetType == Application)
 		    t << "\n\t\t" << solution_cleanup.current()->uuid << "." << cnt++ << " = " << vc->uuid;
 	    }

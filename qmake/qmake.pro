@@ -5,12 +5,12 @@
 QMAKE_INCREMENTAL = 
 SKIP_DEPENDS += qconfig.h qmodules.h
 CONFIG += console
-CONFIG -= opengl qt shared
+CONFIG -= opengl qt shared x11sm
 DESTDIR = ../bin/
 DEPENDPATH += generators generators/unix generators/win32 \
               generators/mac $$QT_SOURCE_TREE/include $$QT_SOURCE_TREE/qmake
 INCLUDEPATH += $$DEPENDPATH .
-DEFINES += QT_NO_TEXTCODEC QT_LITE_COMPONENT QT_NO_STL
+DEFINES += QT_NO_TEXTCODEC QT_LITE_COMPONENT QT_NO_STL QT_NO_COMPRESS
 
 #qmake code
 SOURCES+=project.cpp main.cpp makefile.cpp \
@@ -27,7 +27,7 @@ SOURCES+=qstring.cpp qtextstream.cpp \
 	 qdatastream.cpp qgarray.cpp \
 	 qbuffer.cpp qglist.cpp \
 	 qptrcollection.cpp qfile.cpp \
-	 qregexp.cpp \
+	 qregexp.cpp quuid.cpp \
 	 qgvector.cpp qgcache.cpp \
 	 qbitarray.cpp qdir.cpp \
 	 qfileinfo.cpp qdatetime.cpp \
