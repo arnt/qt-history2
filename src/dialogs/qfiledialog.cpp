@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#262 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#263 $
 **
 ** Implementation of QFileDialog class
 **
@@ -777,7 +777,7 @@ void QFileListBox::doDragScroll()
 {
     renameTimer->stop();
     changeDirTimer->stop();
-    
+
     QPoint p = viewport()->mapFromGlobal( QCursor::pos() );
 
     int l = 16;
@@ -1190,7 +1190,7 @@ void QFileListView::doDragScroll()
 {
     renameTimer->stop();
     changeDirTimer->stop();
-    
+
     QPoint p = viewport()->mapFromGlobal( QCursor::pos() );
 
     int l = 16;
@@ -2089,6 +2089,7 @@ void QFileDialog::rereadDir()
 	if ( i == d->paths->count() || d->paths->text( i ) != cp )
 	    d->paths->insertItem( cwd.canonicalPath(), i );
 	d->paths->setCurrentItem( i );
+	d->last = 0;
     }
 
     files->setSorting( -1 );
