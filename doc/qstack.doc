@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: qstack.doc,v 1.1 1995/12/20 22:07:52 hanord Exp $
+** $Id: qstack.doc,v 1.2 1995/12/20 22:08:27 hanord Exp $
 **
 ** QStack class documentation
 **
@@ -20,7 +20,7 @@
   \ingroup tools
 
   QStack is implemented as both a template and a macro class. Define a
-  template instance QStack\<X\> to create a dictionary that operates on
+  template instance QStack\<X\> to create a stack that operates on
   pointers to X, or X*.
 
   A stack is a collection that can be used to push and pop items.
