@@ -77,7 +77,7 @@
   QApplication object, no matter whether the application has 0, 1, 2
   or more windows at any time.
 
-  The QApplication object is accessible through the global variable \c
+  The QApplication object is accessible through the global pointer \c
   qApp. Its main areas of responsibility are:
   \list
 
@@ -1030,54 +1030,58 @@ QApplication::~QApplication()
 
 
 /*!
-  \fn int QApplication::argc() const
+    \fn int QApplication::argc() const
 
-  Returns the number of command line arguments.
+    Returns the number of command line arguments.
 
-  The documentation for argv() describes how to process command line
-  arguments.
+    The documentation for argv() describes how to process command line
+    arguments.
 
-  \sa argv(), QApplication::QApplication()
+    \sa argv(), QApplication::QApplication()
 */
 
 /*!
-  \fn char **QApplication::argv() const
+    \fn char **QApplication::argv() const
 
-  Returns the command line argument vector.
+    Returns the command line argument vector.
 
-  \c argv()[0] is the program name, \c argv()[1] is the first argument and
-  \c argv()[argc()-1] is the last argument.
+    \c argv()[0] is the program name, \c argv()[1] is the first
+    argument and \c argv()[argc()-1] is the last argument.
 
-  A QApplication object is constructed by passing \e argc and \e argv
-  from the \c main() function. Some of the arguments may be recognized
-  as Qt options and removed from the argument vector. For example, the X11
-  version of Qt knows about \c -display, \c -font and a few more
-  options.
+    A QApplication object is constructed by passing \e argc and \e
+    argv from the \c main() function. Some of the arguments may be
+    recognized as Qt options and removed from the argument vector. For
+    example, the X11 version of Qt knows about \c -display, \c -font
+    and a few more options.
 
-  Example:
-  \code
-    // showargs.cpp - displays program arguments in a list box
+    Example:
+    \code
+	// showargs.cpp - displays program arguments in a list box
 
-    #include <qapplication.h>
-    #include <qlistbox.h>
+	#include <qapplication.h>
+	#include <qlistbox.h>
 
-    int main( int argc, char **argv )
-    {
-	QApplication a( argc, argv );
-	QListBox b;
-	a.setMainWidget( &b );
-	for ( int i = 0; i < a.argc(); i++ )  // a.argc() == argc
-	    b.insertItem( a.argv()[i] );      // a.argv()[i] == argv[i]
-	b.show();
-	return a.exec();
-    }
-  \endcode
+	int main( int argc, char **argv )
+	{
+	    QApplication a( argc, argv );
+	    QListBox b;
+	    a.setMainWidget( &b );
+	    for ( int i = 0; i < a.argc(); i++ )  // a.argc() == argc
+		b.insertItem( a.argv()[i] );      // a.argv()[i] == argv[i]
+	    b.show();
+	    return a.exec();
+	}
+    \endcode
 
-  If you run \c{showargs -display unix:0 -font 9x15bold hello world}
-  under X11, the list box contains the three strings "showargs",
-  "hello" and "world".
+    If you run \c{showargs -display unix:0 -font 9x15bold hello world}
+    under X11, the list box contains the three strings "showargs",
+    "hello" and "world".
 
-  \sa argc(), QApplication::QApplication()
+    Qt provides a global pointer, \c qApp, that points to the
+    QApplication object, and through which you can access argc() and
+    argv() in functions other than main().
+
+    \sa argc(), QApplication::QApplication()
 */
 
 /*!

@@ -52,12 +52,12 @@
 
     Guarded pointers are useful whenever you need to store a pointer
     to a QObject that is owned by someone else and therefore might be
-    destroyed while you still keep a reference to it. You can safely
+    destroyed while you still hold a reference to it. You can safely
     test the pointer for validity.
 
     Example:
     \code
-	QGuardedPtr<QLabel> label = new QLabel( 0,"label" );
+	QGuardedPtr<QLabel> label = new QLabel( 0, "label" );
 	label->setText( "I like guarded pointers" );
 
 	delete (QLabel*) label; // simulate somebody destroying the label
@@ -68,11 +68,8 @@
 	    qDebug("The label has been destroyed");
     \endcode
 
-    The program will output
-    \code
-	The label has been destroyed
-    \endcode
-    rather than dereferencing an invalid address in \c label->show().
+    The program will output \c{The label has been destroyed} rather
+    than dereferencing an invalid address in \c label->show().
 
     The functions and operators available with a QGuardedPtr are the
     same as those available with a normal unguarded pointer, except
@@ -82,10 +79,9 @@
 
     For creating guarded pointers, you can construct or assign to them
     from an X* or from another guarded pointer of the same type. You
-    can compare them with each other for equality operator==() and
-    inequality operator!=(), or test for null with isNull(). And you
-    can dereference them using either the \c *x or the \c x->member
-    notation.
+    can compare them with each other using operator==() and
+    operator!=(), or test for 0 with isNull(). And you can dereference
+    them using either the \c *x or the \c x->member notation.
 
     A guarded pointer will automatically cast to an X*, so you can
     freely mix guarded and unguarded pointers. This means that if you
@@ -140,7 +136,7 @@
 /*!
     \overload QGuardedPtr<T> & QGuardedPtr::operator=(T* p)
 
-    Assignment operator. This guarded pointer then points to same
+    Assignment operator. This guarded pointer then points to the same
     object as \a p points to.
 */
 

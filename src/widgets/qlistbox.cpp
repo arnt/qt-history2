@@ -389,8 +389,8 @@ void QListBoxItem::setCustomHighlighting( bool b )
 /*!
     \fn void QListBoxItem::paint( QPainter *p )
 
-    Implement this function to draw your item. You must pass the
-    QPainter that will draw the item in \a p.
+    Implement this function to draw your item. The painter, \a p, is
+    already open for painting.
 
     \sa height(), width()
 */

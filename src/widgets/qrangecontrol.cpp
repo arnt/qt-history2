@@ -468,7 +468,7 @@ int QRangeControl::bound( int v ) const
     in-between.
 
     This function can handle the entire integer range without
-    overflow.
+    overflow, providing \a span is \<= 4096.
 
     Calling this method is useful when actually drawing a range
     control such as a QScrollBar on-screen.
