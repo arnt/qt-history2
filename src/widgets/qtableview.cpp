@@ -1283,7 +1283,6 @@ void QTableView::setupPainter( QPainter * )
 void QTableView::paintEvent( QPaintEvent *e )
 {
     QRect updateR = e->rect();			// update rectangle
-
     //debug("Update rect = ( %i, %i, %i, %i )",
     //updateR.x(),updateR.y(), updateR.width(), updateR.height() );
 
@@ -1294,8 +1293,8 @@ void QTableView::paintEvent( QPaintEvent *e )
     }
 
     QPainter paint( this );
-
-    if ( !contentsRect().contains( updateR ) ) {// update frame ?
+    
+    if ( !contentsRect().contains( updateR, TRUE  ) ) {// update frame ?
 	drawFrame( &paint );
 	if ( updateR.left() < frameWidth() ) 		//###
 	    updateR.setLeft( frameWidth() );
@@ -1386,13 +1385,13 @@ void QTableView::paintEvent( QPaintEvent *e )
 
     QRect viewR = viewRect();
 
-    if ( xPos < maxX ) {
+    if ( xPos <= maxX ) {
 	QRect r = viewR;
 	r.setLeft( xPos );
 	r.setBottom( yPos<maxY?yPos:maxY );
 	paint.eraseRect( r.intersect( updateR ) );
     }
-    if ( yPos < maxY ) {
+    if ( yPos <= maxY ) {
 	QRect r = viewR;
 	r.setTop( yPos );
 	paint.eraseRect( r.intersect( updateR ) );
