@@ -1173,7 +1173,6 @@ the values when the user adds a new record.
 \skipto InvoiceItem
 \printline InvoiceItem
 \printuntil };
-\printline
 \caption From \l sql/overview/subclass2/main.h
 
 We have created a separate header file and subclassed QSqlCursor.
