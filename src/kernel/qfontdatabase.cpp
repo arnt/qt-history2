@@ -1570,12 +1570,13 @@ static QStringList emptyList;
   \class QFontDatabase qfontdatabase.h
   \brief Class which can be used to get information about the
   available fonts
-  
+  \ingroup fonts
+
   This class can be used to get information about the available
   fonts. With the 4 public members families(), pointSizes(), styles()
-  and charSets() it should be possible to get the most important 
+  and charSets() it should be possible to get the most important
   information about the installed fonts.
-  
+
   In later Qt releases QFontDatabase will offer event more
   information about the available fonts.
 */
