@@ -343,14 +343,13 @@ QSqlIndex QMYSQLDriver::primaryIndex( const QString& tablename ) const
     QSqlIndex idx;
     QSqlQuery i = createQuery();
     QString stmt( "show index from %1;" );
+    QSqlRecord fil = record( tablename );    
     i.exec( stmt.arg( tablename ) );
     while ( i.isActive() && i.next() ) {
 	if ( i.value(2).toString() == "PRIMARY" ) {
-	    QSqlRecord fil = record( tablename );
 	    idx.append( *fil.field( i.value(3).toInt()-1 ) );
 	    idx.setCursorName( i.value(0).toString() );
 	    idx.setName( i.value(2).toString() );
-	    break;
 	}
     }
     return idx;
