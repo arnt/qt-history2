@@ -34,7 +34,7 @@ protected:
     virtual void paint( QPainter * );
     virtual int width( const QListBox* ) const { return 100; }
     virtual int height( const QListBox* ) const { return 16; }
-    
+
 };
 
 void MyListBoxItem::paint( QPainter *painter )
@@ -47,7 +47,7 @@ void MyListBoxItem::paint( QPainter *painter )
 	painter->eraseRect( r );
     painter->fillRect( 5, 5, width( listBox() ) - 10, height( listBox() ) - 10, Qt::red );
     if ( in_list_box && current() )
-	listBox()->style().drawFocusRect( painter, r, listBox()->colorGroup(), &painter->backgroundColor(), TRUE );
+	listBox()->style().drawPrimitive( QStyle::PO_FocusRect, painter, r, listBox()->colorGroup() );
 }
 
 /*
@@ -61,13 +61,13 @@ ListBoxCombo::ListBoxCombo( QWidget *parent, const char *name )
 {
     setMargin( 5 );
     setSpacing( 5 );
-    
+
     unsigned int i;
     QString str;
 
     QHBox *row1 = new QHBox( this );
     row1->setSpacing( 5 );
-    
+
     // Create a multi-selection ListBox...
     lb1 = new QListBox( row1 );
     lb1->setSelectionMode( QListBox::Multi );
@@ -114,7 +114,7 @@ ListBoxCombo::ListBoxCombo( QWidget *parent, const char *name )
 
     QVBox *box2 = new QVBox( row2 );
     box2->setSpacing( 5 );
-    
+
     // Create an editable Combobox and a label below...
     QComboBox *cb2 = new QComboBox( TRUE, box2 );
     label2 = new QLabel( "Current Item: Combobox Item 0", box2 );
