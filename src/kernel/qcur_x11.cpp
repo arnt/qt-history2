@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcur_x11.cpp#24 $
+** $Id: //depot/qt/main/src/kernel/qcur_x11.cpp#25 $
 **
 ** Implementation of QCursor class for X11
 **
@@ -21,7 +21,7 @@
 #include <X11/cursorfont.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qcur_x11.cpp#24 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qcur_x11.cpp#25 $";
 #endif
 
 
@@ -188,6 +188,15 @@ QCursor::QCursor( int shape )			// cursor with shape
 QCursor::QCursor( const QBitmap &bitmap, const QBitmap &mask,
 		  int hotX, int hotY )
 {						// define own cursor
+    if ( bitmap.isNull() || mask.isNull() ) {
+#if defined(CHECK_NULL)
+	warning( "QCursor: Cannot set cursor with null bitmap(s)" );
+#endif
+	QCursor *c = (QCursor *)&arrowCursor;
+	c->data->ref();
+	data = c->data;
+	return;
+    }
     data = new QCursorData;
     CHECK_PTR( data );
     data->bm  = new QBitmap( bitmap );
