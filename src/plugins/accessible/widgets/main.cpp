@@ -50,7 +50,7 @@ QStringList AccessibleFactory::keys() const
     list << "QRadioButton";
     list << "QPushButton";
     list << "QButton";
-    list << "QViewportWidget";
+    list << "QAbstractScrollAreaWidget";
     list << "QClipperWidget";
     list << "QDialog";
     list << "QMessageBox";
@@ -120,7 +120,7 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
         iface = new QAccessibleButton(widget, role);
     } else if (classname == "QButton") {
         iface = new QAccessibleButton(widget, PushButton);
-    } else if (classname == "QViewportWidget") {
+    } else if (classname == "QAbstractScrollAreaWidget") {
         iface = new QAccessibleViewport(widget, widget->parentWidget());
     } else if (classname == "QClipperWidget") {
         iface = new QAccessibleViewport(widget, widget->parentWidget()->parentWidget());

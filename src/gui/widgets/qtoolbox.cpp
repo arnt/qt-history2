@@ -21,7 +21,7 @@
 #include <qlayout.h>
 #include <qlist.h>
 #include <qpainter.h>
-#include <qwidgetview.h>
+#include <qscrollarea.h>
 #include <qstyle.h>
 #include <qstyleoption.h>
 #include <qtooltip.h>
@@ -63,7 +63,7 @@ public:
     struct Page
     {
         QToolBoxButton *button;
-        QWidgetView *sv;
+        QScrollArea *sv;
         QWidget *widget;
         QString toolTip;
 
@@ -362,7 +362,7 @@ int QToolBox::insertItem(int index, QWidget *widget, const QIcon &icon, const QS
     c.button = new QToolBoxButton(this);
     connect(c.button, SIGNAL(clicked()), this, SLOT(buttonClicked()));
 
-    c.sv = new QWidgetView(this);
+    c.sv = new QScrollArea(this);
     c.sv->setWidget(widget);
     c.sv->setWidgetResizable(true);
     c.sv->hide();

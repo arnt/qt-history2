@@ -39,9 +39,9 @@
     Qt displays scroll bars in a way that is appropriate for each platform.
 
     If you need to provide a scrolling view onto another widget, it may be
-    more convenient to use the QWidgetView class because this provides a
+    more convenient to use the QScrollArea class because this provides a
     viewport widget and scroll bars. QScrollBar is useful if you need to
-    implement similar functionality for specialized widgets using QViewport;
+    implement similar functionality for specialized widgets using QAbstractScrollArea;
     for example, if you decide to subclass QAbstractItemView.
     For most other situations where a slider control is used to obtain a value
     within a given range, the QSlider class may be more appropriate for your
@@ -158,7 +158,7 @@
     Most GUI styles use the pageStep() value to calculate the size of the
     slider.
 
-    \sa QWidgetView QSlider QDial QSpinBox
+    \sa QScrollArea QSlider QDial QSpinBox
     \link guibooks.html#fowler GUI Design Handbook: Scroll Bar\endlink
 */
 

@@ -17,17 +17,17 @@
 #include "QtGui/qframe.h"
 
 class QScrollBar;
-class QViewportPrivate;
+class QAbstractScrollAreaPrivate;
 
-class Q_GUI_EXPORT QViewport : public QFrame
+class Q_GUI_EXPORT QAbstractScrollArea : public QFrame
 {
     Q_OBJECT
     Q_PROPERTY(Qt::ScrollBarPolicy verticalScrollBarPolicy READ verticalScrollBarPolicy WRITE setVerticalScrollBarPolicy)
     Q_PROPERTY(Qt::ScrollBarPolicy horizontalScrollBarPolicy READ horizontalScrollBarPolicy WRITE setHorizontalScrollBarPolicy)
 
 public:
-    explicit QViewport(QWidget* parent=0);
-    ~QViewport();
+    explicit QAbstractScrollArea(QWidget* parent=0);
+    ~QAbstractScrollArea();
 
     Qt::ScrollBarPolicy verticalScrollBarPolicy() const;
     void setVerticalScrollBarPolicy(Qt::ScrollBarPolicy);
@@ -45,7 +45,7 @@ public:
     QSize sizeHint() const;
 
 protected:
-    QViewport(QViewportPrivate &dd, QWidget *parent = 0);
+    QAbstractScrollArea(QAbstractScrollAreaPrivate &dd, QWidget *parent = 0);
     void setViewportMargins(int left, int top, int right, int bottom);
 
     bool event(QEvent *);
@@ -73,8 +73,8 @@ protected:
     virtual void scrollContentsBy(int dx, int dy);
 
 private:
-    Q_DECLARE_PRIVATE(QViewport)
-    Q_DISABLE_COPY(QViewport)
+    Q_DECLARE_PRIVATE(QAbstractScrollArea)
+    Q_DISABLE_COPY(QAbstractScrollArea)
     Q_PRIVATE_SLOT(d, void hslide(int))
     Q_PRIVATE_SLOT(d, void vslide(int))
     Q_PRIVATE_SLOT(d,void showOrHideScrollBars())

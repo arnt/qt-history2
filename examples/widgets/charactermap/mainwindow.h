@@ -7,7 +7,7 @@
 class QClipboard;
 class QComboBox;
 class QLineEdit;
-class QWidgetView;
+class QScrollArea;
 class CharacterWidget;
 
 class MainWindow : public QMainWindow
@@ -30,7 +30,7 @@ private:
     QComboBox *fontCombo;
     QComboBox *styleCombo;
     QLineEdit *lineEdit;
-    QWidgetView *view;
+    QScrollArea *view;
 };
 
 #endif

@@ -28,12 +28,12 @@
 #include <private/qframe_p.h>
 
 class QScrollBar;
-class QViewportPrivate: public QFramePrivate
+class QAbstractScrollAreaPrivate: public QFramePrivate
 {
-    Q_DECLARE_PUBLIC(QViewport)
+    Q_DECLARE_PUBLIC(QAbstractScrollArea)
 
 public:
-    QViewportPrivate();
+    QAbstractScrollAreaPrivate();
     QScrollBar *hbar, *vbar;
     Qt::ScrollBarPolicy vbarpolicy, hbarpolicy;
 

@@ -332,8 +332,8 @@ QMotifWidget::QMotifWidget(const char *name, WidgetClass widgetClass, QWidget *p
                 if (tlw->parentWidget()->inherits("QWorkspace")) {
                     d->filter2 = tlw;
                     d->filter2->installEventFilter(this);
-                } else if (tlw->parentWidget()->inherits("QViewportWidget")
-                           || tlw->parentWidget()->inherits("QViewportHelper")) {
+                } else if (tlw->parentWidget()->inherits("QAbstractScrollAreaWidget")
+                           || tlw->parentWidget()->inherits("QAbstractScrollAreaHelper")) {
                     break;
                 }
                 tlw = tlw->parentWidget();
@@ -661,8 +661,8 @@ bool QMotifWidget::eventFilter( QObject *, QEvent *event )
                     if (tlw->parentWidget()->inherits("QWorkspace")) {
                         d->filter2 = tlw;
                         d->filter2->installEventFilter(this);
-                    } else if (tlw->parentWidget()->inherits("QViewportWidget")
-                               || tlw->parentWidget()->inherits("QViewportHelper")) {
+                    } else if (tlw->parentWidget()->inherits("QAbstractScrollAreaWidget")
+                               || tlw->parentWidget()->inherits("QAbstractScrollAreaHelper")) {
                         break;
                     }
                     tlw = tlw->parentWidget();

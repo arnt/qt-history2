@@ -4,7 +4,7 @@
 #include <QDialog>
 
 class QStackedWidget;
-class QWidgetView;
+class QScrollArea;
 
 class ConfigDialog : public QDialog
 {

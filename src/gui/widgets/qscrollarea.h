@@ -14,17 +14,17 @@
 #ifndef QWIDGETVIEW_H
 #define QWIDGETVIEW_H
 
-#include "QtGui/qviewport.h"
+#include "QtGui/qabstractscrollarea.h"
 
-class QWidgetViewPrivate;
+class QScrollAreaPrivate;
 
-class Q_GUI_EXPORT QWidgetView : public QViewport
+class Q_GUI_EXPORT QScrollArea : public QAbstractScrollArea
 {
     Q_OBJECT
     Q_PROPERTY(bool widgetResizable READ widgetResizable WRITE setWidgetResizable)
 public:
-    explicit QWidgetView(QWidget* parent=0);
-    ~QWidgetView();
+    explicit QScrollArea(QWidget* parent=0);
+    ~QScrollArea();
 
     QWidget *widget() const;
     void setWidget(QWidget *w);
@@ -43,8 +43,8 @@ protected:
     void scrollContentsBy(int dx, int dy);
 
 private:
-    Q_DECLARE_PRIVATE(QWidgetView)
-    Q_DISABLE_COPY(QWidgetView)
+    Q_DECLARE_PRIVATE(QScrollArea)
+    Q_DISABLE_COPY(QScrollArea)
 };
 
 #endif // QWIDGETVIEW_H

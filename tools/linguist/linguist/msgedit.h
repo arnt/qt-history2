@@ -24,7 +24,7 @@
 #include <qshortcut.h>
 #include <qframe.h>
 #include <qtextedit.h>
-#include <qwidgetview.h>
+#include <qscrollarea.h>
 #include <QTextCharFormat>
 
 template <typename T> class QList;
@@ -190,7 +190,7 @@ signals:
     void pageHeightUpdated(int height);
 };
 
-class MessageEditor : public QWidgetView
+class MessageEditor : public QScrollArea
 {
     Q_OBJECT
 public:

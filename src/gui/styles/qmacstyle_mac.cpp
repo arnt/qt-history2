@@ -4696,7 +4696,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
         if (widget && (widget->isWindow() || !widget->parentWidget()
                 || (qt_cast<const QMainWindow*>(widget->parentWidget())
                    && static_cast<QMainWindow *>(widget->parentWidget())->centralWidget() == widget))
-                && (qt_cast<const QViewport *>(widget)
+                && (qt_cast<const QAbstractScrollArea *>(widget)
 #ifdef QT3_SUPPORT
                     || widget->inherits("QScrollView")
 #endif
@@ -4898,7 +4898,7 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
         break;
     case SH_ScrollView_FrameOnlyAroundContents:
         if (w && (w->isWindow() || !w->parentWidget() || w->parentWidget()->isWindow())
-            && (qt_cast<const QViewport *>(w)
+            && (qt_cast<const QAbstractScrollArea *>(w)
 #ifdef QT3_SUPPORT
                 || w->inherits("QScrollView")
 #endif

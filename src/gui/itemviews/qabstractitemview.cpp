@@ -363,7 +363,7 @@ void QAbstractItemViewPrivate::init()
     Constructs an abstract item view with the given \a parent.
 */
 QAbstractItemView::QAbstractItemView(QWidget *parent)
-    : QViewport(*(new QAbstractItemViewPrivate), parent)
+    : QAbstractScrollArea(*(new QAbstractItemViewPrivate), parent)
 {
     d->init();
 }
@@ -372,7 +372,7 @@ QAbstractItemView::QAbstractItemView(QWidget *parent)
     \internal
 */
 QAbstractItemView::QAbstractItemView(QAbstractItemViewPrivate &dd, QWidget *parent)
-    : QViewport(dd, parent)
+    : QAbstractScrollArea(dd, parent)
 {
     d->init();
 }
@@ -876,7 +876,7 @@ bool QAbstractItemView::event(QEvent *e)
     default:
         break;
     }
-    return QViewport::event(e);
+    return QAbstractScrollArea::event(e);
 }
 
 /*!
@@ -1149,7 +1149,7 @@ void QAbstractItemView::dropEvent(QDropEvent *e)
 */
 void QAbstractItemView::focusInEvent(QFocusEvent *e)
 {
-    QViewport::focusInEvent(e);
+    QAbstractScrollArea::focusInEvent(e);
     QModelIndex index = currentIndex();
     if (index.isValid())
         d->viewport->update(visualRect(index));
@@ -1161,7 +1161,7 @@ void QAbstractItemView::focusInEvent(QFocusEvent *e)
 */
 void QAbstractItemView::focusOutEvent(QFocusEvent *e)
 {
-    QViewport::focusOutEvent(e);
+    QAbstractScrollArea::focusOutEvent(e);
     QModelIndex index = currentIndex();
     if (index.isValid())
         d->viewport->update(visualRect(index));
@@ -1292,7 +1292,7 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
 */
 void QAbstractItemView::resizeEvent(QResizeEvent *e)
 {
-    QViewport::resizeEvent(e);
+    QAbstractScrollArea::resizeEvent(e);
     updateGeometries();
 }
 

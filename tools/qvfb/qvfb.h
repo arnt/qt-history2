@@ -19,7 +19,7 @@ class QPopupMenu;
 class QMenu;
 class QAction;
 class Config;
-class QWidgetView;
+class QScrollArea;
 class Skin;
 
 class QVFb: public QMainWindow
@@ -59,7 +59,7 @@ private:
     void createActions();
 
     QVFbView *view;
-    QWidgetView *scroller;
+    QScrollArea *scroller;
     Skin *skin;
     QVFbRateDialog *rateDlg;
     Config* config;

@@ -45,22 +45,22 @@ public:
 
 int main( int argc, char ** argv ) {
     QApplication a( argc, argv );
-    QWidgetView *view = new QWidgetView;
-    view->setWindowTitle( "Qt Demo - WidgetView" );
+    QScrollArea *scroller = new QScrollArea;
+    scroller->setWindowTitle( "Qt Demo - ScrollArea" );
 
     Grid *grid = new Grid;
-    view->setWidget(grid);
+    scroller->setWidget(grid);
     grid->setPalette(Qt::green);
 
-    Grid *iframe = new Grid(view->widget());
+    Grid *iframe = new Grid(scroller->widget());
     iframe->setPalette(Qt::magenta);
     iframe->setGeometry(256, 256, 512, 66560);
 
-    QLabel * label = new QLabel(view->widget());
+    QLabel * label = new QLabel(scroller->widget());
     label->setPalette(Qt::yellow);
     label->setWordWrap(true);
     label->setText(
-        "This is an example for QWidgetView. "
+        "This is an example for QScrollArea. "
         "It shows that you can have Qt widgets that exceed the "
         "built-in 16-bit limit of MS-Windows, X11 and Mac OS X. "
         "The green grid is one big widget that is 128000 x 128000 pixels large. It contains "
@@ -69,7 +69,7 @@ int main( int argc, char ** argv ) {
     label->setFrameStyle(QFrame::Box);
     label->setMargin(8);
 
-    view->show();
+    scroller->show();
 
     a.connect( &a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()) );
     return a.exec();

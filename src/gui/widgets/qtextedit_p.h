@@ -25,7 +25,7 @@
 // We mean it.
 //
 
-#include <private/qviewport_p.h>
+#include <private/qabstractscrollarea_p.h>
 #include <qtextdocumentfragment.h>
 #include <qscrollbar.h>
 #include <qtextcursor.h>
@@ -34,7 +34,7 @@
 
 class QMimeData;
 
-class QTextEditPrivate : public QViewportPrivate
+class QTextEditPrivate : public QAbstractScrollAreaPrivate
 {
     Q_DECLARE_PUBLIC(QTextEdit)
 public:

@@ -14,7 +14,7 @@
 #ifndef QABSTRACTITEMVIEW_H
 #define QABSTRACTITEMVIEW_H
 
-#include <QtGui/qviewport.h>
+#include <QtGui/qabstractscrollarea.h>
 #include <QtCore/qabstractitemmodel.h>
 #include <QtGui/qitemselectionmodel.h>
 #include <QtGui/qabstractitemdelegate.h>
@@ -24,7 +24,7 @@ class QDrag;
 class QEvent;
 class QAbstractItemViewPrivate;
 
-class Q_GUI_EXPORT QAbstractItemView : public QViewport
+class Q_GUI_EXPORT QAbstractItemView : public QAbstractScrollArea
 {
     Q_OBJECT
     Q_PROPERTY(bool autoScroll READ hasAutoScroll WRITE setAutoScroll)

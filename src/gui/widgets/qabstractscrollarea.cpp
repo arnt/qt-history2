@@ -11,14 +11,14 @@
 **
 ****************************************************************************/
 
-#include "qviewport.h"
+#include "qabstractscrollarea.h"
 #include "qscrollbar.h"
 #include "qapplication.h"
 #include "qstyle.h"
 #include "qstyleoption.h"
 #include "qevent.h"
 
-#include "qviewport_p.h"
+#include "qabstractscrollarea_p.h"
 #include <qwidget.h>
 #define d d_func()
 #define q q_func()
@@ -26,18 +26,18 @@
 
 
 /*!
-    \class QViewport qviewport.h
+    \class QAbstractScrollArea qabstractscrollarea.h
 
-    \brief The QViewport widget provides a scrolling area with
+    \brief The QAbstractScrollArea widget provides a scrolling area with
     on-demand scroll bars.
 
     \ingroup abstractwidgets
 
-    QViewport is a low-level abstraction of a scrolling area. It gives
+    QAbstractScrollArea is a low-level abstraction of a scrolling area. It gives
     you full control of the scroll bars, at the cost of simplicity. In
-    most cases, using a QWidgetView is preferable.
+    most cases, using a QScrollArea is preferable.
 
-    QViewport's central child widget is the scrolling area itself,
+    QAbstractScrollArea's central child widget is the scrolling area itself,
     called viewport(). The viewport widget uses all available
     space. Next to the viewport is a vertical scroll bar (accessible
     with verticalScrollBar()), and below a horizontal scroll bar
@@ -50,7 +50,7 @@
     bar.
 
     With a scroll bar policy of Qt::ScrollBarAsNeeded (the default),
-    QViewport shows scroll bars when those provide a non-zero
+    QAbstractScrollArea shows scroll bars when those provide a non-zero
     scrolling range, and hides them otherwise. You control the range
     of each scroll bar with QAbstractSlider::setRange().
 
@@ -64,7 +64,7 @@
     setViewportMargins(). The feature is mostly used to place a
     QHeaderView widget above or beside the scrolling area.
 
-    For convience, QViewport makes all viewport events available in
+    For convience, QAbstractScrollArea makes all viewport events available in
     the virtual viewportEvent()-handler.  QWidget's specialised
     handlers are remapped to viewport events in the cases where this
     makes sense. The remapped specialised handlers are: paintEvent(),
@@ -79,38 +79,38 @@
 /*!
     \enum Qt::ScrollBarPolicy
 
-    This enum type describes the various modes of QViewport's scroll
+    This enum type describes the various modes of QAbstractScrollArea's scroll
     bars.
 
-    \value ScrollBarAsNeeded QViewport shows a scroll bar when the
+    \value ScrollBarAsNeeded QAbstractScrollArea shows a scroll bar when the
     content is too large to fit and not otherwise. This is the
     default.
 
-    \value ScrollBarAlwaysOff QViewport never shows a scroll bar.
+    \value ScrollBarAlwaysOff QAbstractScrollArea never shows a scroll bar.
 
-    \value ScrollBarAlwaysOn  QViewport always shows a scroll bar.
+    \value ScrollBarAlwaysOn  QAbstractScrollArea always shows a scroll bar.
 
     (The modes for the horizontal and vertical scroll bars are
     independent.)
 */
 
-inline  bool QViewportPrivate::viewportEvent(QEvent *e) { return q->viewportEvent(e); }
+inline  bool QAbstractScrollAreaPrivate::viewportEvent(QEvent *e) { return q->viewportEvent(e); }
 
 
-class QViewportHelper : public QWidget
+class QAbstractScrollAreaHelper : public QWidget
 {
 public:
-    QViewportHelper(QWidget *parent):QWidget(parent){}
+    QAbstractScrollAreaHelper(QWidget *parent):QWidget(parent){}
     bool event(QEvent *e);
-    friend class QViewport;
+    friend class QAbstractScrollArea;
 };
-bool QViewportHelper::event(QEvent *e) {
-    if (QViewport* viewport = qt_cast<QViewport*>(parentWidget()))
-        return ((QViewportPrivate*)((QViewportHelper*)viewport)->d_ptr)->viewportEvent(e);
+bool QAbstractScrollAreaHelper::event(QEvent *e) {
+    if (QAbstractScrollArea* viewport = qt_cast<QAbstractScrollArea*>(parentWidget()))
+        return ((QAbstractScrollAreaPrivate*)((QAbstractScrollAreaHelper*)viewport)->d_ptr)->viewportEvent(e);
     return QWidget::event(e);
 }
 
-QViewportPrivate::QViewportPrivate()
+QAbstractScrollAreaPrivate::QAbstractScrollAreaPrivate()
     :hbar(0), vbar(0), vbarpolicy(Qt::ScrollBarAsNeeded), hbarpolicy(Qt::ScrollBarAsNeeded),
      viewport(0), left(0), top(0), right(0), bottom(0),
      xoffset(0), yoffset(0)
@@ -118,7 +118,7 @@ QViewportPrivate::QViewportPrivate()
 }
 
 
-void QViewportPrivate::init()
+void QAbstractScrollAreaPrivate::init()
 {
     q->setFocusPolicy(Qt::WheelFocus);
     q->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
@@ -129,14 +129,14 @@ void QViewportPrivate::init()
     vbar = new QScrollBar(Qt::Vertical, q);
     QObject::connect(vbar, SIGNAL(valueChanged(int)), q, SLOT(vslide(int)));
     QObject::connect(hbar, SIGNAL(rangeChanged(int,int)), q, SLOT(showOrHideScrollBars()), Qt::QueuedConnection);
-    viewport = new QViewportHelper(q);
+    viewport = new QAbstractScrollAreaHelper(q);
     viewport->setBackgroundRole(QPalette::Base);
     viewport->setFocusProxy(q);
     QEvent userEvent(QEvent::User);
     QApplication::sendEvent(viewport, &userEvent);
 }
 
-void QViewportPrivate::layoutChildren()
+void QAbstractScrollAreaPrivate::layoutChildren()
 {
     bool needh = (hbarpolicy == Qt::ScrollBarAlwaysOn
                   || (hbarpolicy == Qt::ScrollBarAsNeeded && hbar->minimum() < hbar->maximum()));
@@ -184,9 +184,9 @@ void QViewportPrivate::layoutChildren()
 /*!
     \internal
 
-    Creates a new QViewportPrivate, \a dd with the given \a parent.
+    Creates a new QAbstractScrollAreaPrivate, \a dd with the given \a parent.
 */
-QViewport::QViewport(QViewportPrivate &dd, QWidget *parent)
+QAbstractScrollArea::QAbstractScrollArea(QAbstractScrollAreaPrivate &dd, QWidget *parent)
     :QFrame(dd, parent)
 {
     d->init();
@@ -197,8 +197,8 @@ QViewport::QViewport(QViewportPrivate &dd, QWidget *parent)
 
     The \a parent arguments is sent to the QWidget constructor.
 */
-QViewport::QViewport(QWidget *parent)
-    :QFrame(*new QViewportPrivate, parent)
+QAbstractScrollArea::QAbstractScrollArea(QWidget *parent)
+    :QFrame(*new QAbstractScrollAreaPrivate, parent)
 {
     d->init();
 }
@@ -207,13 +207,13 @@ QViewport::QViewport(QWidget *parent)
 /*!
   Destroys the viewport.
  */
-QViewport::~QViewport()
+QAbstractScrollArea::~QAbstractScrollArea()
 {
 }
 
 /*! Returns the viewport's viewport
  */
-QWidget *QViewport::viewport() const
+QWidget *QAbstractScrollArea::viewport() const
 {
     return d->viewport;
 }
@@ -224,7 +224,7 @@ Returns the size of the viewport as if the scroll bars had no valid
 scrolling range.
 */
 // ### still thinking about the name
-QSize QViewport::maximumViewportSize() const
+QSize QAbstractScrollArea::maximumViewportSize() const
 {
     int hsbExt = d->hbar->sizeHint().height();
     int vsbExt = d->vbar->sizeHint().width();
@@ -239,7 +239,7 @@ QSize QViewport::maximumViewportSize() const
 }
 
 /*!
-    \property QViewport::verticalScrollBarPolicy
+    \property QAbstractScrollArea::verticalScrollBarPolicy
     \brief the policy for the vertical scroll bar
 
     The default policy is \c Qt::ScrollBarAsNeeded.
@@ -247,12 +247,12 @@ QSize QViewport::maximumViewportSize() const
     \sa horizontalScrollBarPolicy
 */
 
-Qt::ScrollBarPolicy QViewport::verticalScrollBarPolicy() const
+Qt::ScrollBarPolicy QAbstractScrollArea::verticalScrollBarPolicy() const
 {
     return d->vbarpolicy;
 }
 
-void QViewport::setVerticalScrollBarPolicy(Qt::ScrollBarPolicy policy)
+void QAbstractScrollArea::setVerticalScrollBarPolicy(Qt::ScrollBarPolicy policy)
 {
     d->vbarpolicy = policy;
     if (isVisible())
@@ -265,13 +265,13 @@ void QViewport::setVerticalScrollBarPolicy(Qt::ScrollBarPolicy policy)
 
   \sa verticalScrollBarPolicy, horizontalScrollBar()
  */
-QScrollBar *QViewport::verticalScrollBar() const
+QScrollBar *QAbstractScrollArea::verticalScrollBar() const
 {
     return d->vbar;
 }
 
 /*!
-    \property QViewport::horizontalScrollBarPolicy
+    \property QAbstractScrollArea::horizontalScrollBarPolicy
     \brief the policy for the horizontal scroll bar
 
     The default policy is \c Qt::ScrollBarAsNeeded.
@@ -279,12 +279,12 @@ QScrollBar *QViewport::verticalScrollBar() const
     \sa verticalScrollBarPolicy
 */
 
-Qt::ScrollBarPolicy QViewport::horizontalScrollBarPolicy() const
+Qt::ScrollBarPolicy QAbstractScrollArea::horizontalScrollBarPolicy() const
 {
     return d->hbarpolicy;
 }
 
-void QViewport::setHorizontalScrollBarPolicy(Qt::ScrollBarPolicy policy)
+void QAbstractScrollArea::setHorizontalScrollBarPolicy(Qt::ScrollBarPolicy policy)
 {
     d->hbarpolicy = policy;
     if (isVisible())
@@ -296,7 +296,7 @@ void QViewport::setHorizontalScrollBarPolicy(Qt::ScrollBarPolicy policy)
 
   \sa horizontalScrollBarPolicy, verticalScrollBar()
  */
-QScrollBar *QViewport::horizontalScrollBar() const
+QScrollBar *QAbstractScrollArea::horizontalScrollBar() const
 {
     return d->hbar;
 }
@@ -310,7 +310,7 @@ QScrollBar *QViewport::horizontalScrollBar() const
     By default all margins are zero.
 
 */
-void QViewport::setViewportMargins(int left, int top, int right, int bottom)
+void QAbstractScrollArea::setViewportMargins(int left, int top, int right, int bottom)
 {
     d->left = left;
     d->top = top;
@@ -320,10 +320,10 @@ void QViewport::setViewportMargins(int left, int top, int right, int bottom)
 }
 
 /*!
-    This is the main event handler for the QViewport widget (\e not
+    This is the main event handler for the QAbstractScrollArea widget (\e not
     the scrolling area viewport()). The event is passed in \a e.
 */
-bool QViewport::event(QEvent *e)
+bool QAbstractScrollArea::event(QEvent *e)
 {
     switch (e->type()) {
     case QEvent::MouseTrackingChange:
@@ -370,7 +370,7 @@ bool QViewport::event(QEvent *e)
   resizeEvent().
 
  */
-bool QViewport::viewportEvent(QEvent *e)
+bool QAbstractScrollArea::viewportEvent(QEvent *e)
 {
     switch (e->type()) {
     case QEvent::Resize:
@@ -396,11 +396,11 @@ bool QViewport::viewportEvent(QEvent *e)
     default:
         break;
     }
-    return static_cast<QViewportHelper*>(d->viewport)->QWidget::event(e);
+    return static_cast<QAbstractScrollAreaHelper*>(d->viewport)->QWidget::event(e);
 }
 
 /*!
-    \fn void QViewport::resizeEvent(QResizeEvent *event)
+    \fn void QAbstractScrollArea::resizeEvent(QResizeEvent *event)
 
     This event handler can be reimplemented in a subclass to receive
     resize events (passed in \a event), for the viewport() widget.
@@ -410,12 +410,12 @@ bool QViewport::viewportEvent(QEvent *e)
 
     \sa QWidget::resizeEvent()
  */
-void QViewport::resizeEvent(QResizeEvent *)
+void QAbstractScrollArea::resizeEvent(QResizeEvent *)
 {
 }
 
 /*!
-    \fn void QViewport::paintEvent(QPaintEvent *event)
+    \fn void QAbstractScrollArea::paintEvent(QPaintEvent *event)
 
     This event handler can be reimplemented in a subclass to receive
     paint events (passed in \a event), for the viewport() widget.
@@ -425,7 +425,7 @@ void QViewport::resizeEvent(QResizeEvent *)
 
     \sa QWidget::paintEvent()
 */
-void QViewport::paintEvent(QPaintEvent*)
+void QAbstractScrollArea::paintEvent(QPaintEvent*)
 {
 }
 
@@ -436,7 +436,7 @@ void QViewport::paintEvent(QPaintEvent*)
 
     \sa QWidget::mousePressEvent()
 */
-void QViewport::mousePressEvent(QMouseEvent *e)
+void QAbstractScrollArea::mousePressEvent(QMouseEvent *e)
 {
     e->ignore();
 }
@@ -448,7 +448,7 @@ void QViewport::mousePressEvent(QMouseEvent *e)
 
     \sa QWidget::mouseReleaseEvent()
 */
-void QViewport::mouseReleaseEvent(QMouseEvent *e)
+void QAbstractScrollArea::mouseReleaseEvent(QMouseEvent *e)
 {
     e->ignore();
 }
@@ -460,7 +460,7 @@ void QViewport::mouseReleaseEvent(QMouseEvent *e)
 
     \sa QWidget::mouseDoubleClickEvent()
 */
-void QViewport::mouseDoubleClickEvent(QMouseEvent *e)
+void QAbstractScrollArea::mouseDoubleClickEvent(QMouseEvent *e)
 {
     e->ignore();
 }
@@ -472,7 +472,7 @@ void QViewport::mouseDoubleClickEvent(QMouseEvent *e)
 
     \sa QWidget::mouseMoveEvent()
 */
-void QViewport::mouseMoveEvent(QMouseEvent *e)
+void QAbstractScrollArea::mouseMoveEvent(QMouseEvent *e)
 {
     e->ignore();
 }
@@ -485,7 +485,7 @@ void QViewport::mouseMoveEvent(QMouseEvent *e)
     \sa QWidget::wheelEvent()
 */
 #ifndef QT_NO_WHEELEVENT
-void QViewport::wheelEvent(QWheelEvent *e)
+void QAbstractScrollArea::wheelEvent(QWheelEvent *e)
 {
     e->ignore();
 }
@@ -498,7 +498,7 @@ void QViewport::wheelEvent(QWheelEvent *e)
 
     \sa QWidget::contextMenuEvent()
 */
-void QViewport::contextMenuEvent(QContextMenuEvent *e)
+void QAbstractScrollArea::contextMenuEvent(QContextMenuEvent *e)
 {
     QFrame::contextMenuEvent(e);
 }
@@ -508,7 +508,7 @@ void QViewport::contextMenuEvent(QContextMenuEvent *e)
     occur. It handles PageUp, PageDown, Up, Down, Left, and Right, and
     ignores all other key presses.
 */
-void QViewport::keyPressEvent(QKeyEvent * e)
+void QAbstractScrollArea::keyPressEvent(QKeyEvent * e)
 {
     switch (e->key()) {
     case Qt::Key_PageUp:
@@ -539,50 +539,50 @@ void QViewport::keyPressEvent(QKeyEvent * e)
 
 #ifndef QT_NO_DRAGANDDROP
 /*!
-    \fn void QViewport::dragEnterEvent(QDragEnterEvent *event)
+    \fn void QAbstractScrollArea::dragEnterEvent(QDragEnterEvent *event)
 
     This event handler can be reimplemented in a subclass to receive
     drag enter events (passed in \a event), for the viewport() widget.
 
     \sa QWidget::dragEnterEvent()
 */
-void QViewport::dragEnterEvent(QDragEnterEvent *)
+void QAbstractScrollArea::dragEnterEvent(QDragEnterEvent *)
 {
 }
 
 /*!
-    \fn void QViewport::dragMoveEvent(QDragMoveEvent *event)
+    \fn void QAbstractScrollArea::dragMoveEvent(QDragMoveEvent *event)
 
     This event handler can be reimplemented in a subclass to receive
     drag move events (passed in \a event), for the viewport() widget.
 
     \sa QWidget::dragMoveEvent()
 */
-void QViewport::dragMoveEvent(QDragMoveEvent *)
+void QAbstractScrollArea::dragMoveEvent(QDragMoveEvent *)
 {
 }
 
 /*!
-    \fn void QViewport::dragLeaveEvent(QDragLeaveEvent *event)
+    \fn void QAbstractScrollArea::dragLeaveEvent(QDragLeaveEvent *event)
 
     This event handler can be reimplemented in a subclass to receive
     drag leave events (passed in \a event), for the viewport() widget.
 
     \sa QWidget::dragLeaveEvent()
 */
-void QViewport::dragLeaveEvent(QDragLeaveEvent *)
+void QAbstractScrollArea::dragLeaveEvent(QDragLeaveEvent *)
 {
 }
 
 /*!
-    \fn void QViewport::dropEvent(QDropEvent *event)
+    \fn void QAbstractScrollArea::dropEvent(QDropEvent *event)
 
     This event handler can be reimplemented in a subclass to receive
     drop events (passed in \a event), for the viewport() widget.
 
     \sa QWidget::dropEvent()
 */
-void QViewport::dropEvent(QDropEvent *)
+void QAbstractScrollArea::dropEvent(QDropEvent *)
 {
 }
 
@@ -592,26 +592,26 @@ void QViewport::dropEvent(QDropEvent *)
 /*!
     Scrolls the viewport's contents by \a dx, \a dy.
 */
-void QViewport::scrollContentsBy(int, int)
+void QAbstractScrollArea::scrollContentsBy(int, int)
 {
     viewport()->update();
 }
 
-void QViewportPrivate::hslide(int x)
+void QAbstractScrollAreaPrivate::hslide(int x)
 {
     int dx = xoffset - x;
     xoffset = x;
     q->scrollContentsBy(dx, 0);
 }
 
-void QViewportPrivate::vslide(int y)
+void QAbstractScrollAreaPrivate::vslide(int y)
 {
     int dy = yoffset - y;
     yoffset = y;
     q->scrollContentsBy(0, dy);
 }
 
-void QViewportPrivate::showOrHideScrollBars()
+void QAbstractScrollAreaPrivate::showOrHideScrollBars()
 {
     layoutChildren();
 }
@@ -620,7 +620,7 @@ void QViewportPrivate::showOrHideScrollBars()
     \reimp
 
 */
-QSize QViewport::minimumSizeHint() const
+QSize QAbstractScrollArea::minimumSizeHint() const
 {
     int h = qMax(10, fontMetrics().height());
     int f = 2 * d->frameWidth;
@@ -630,9 +630,9 @@ QSize QViewport::minimumSizeHint() const
 /*!
     \reimp
 */
-QSize QViewport::sizeHint() const
+QSize QAbstractScrollArea::sizeHint() const
 {
     return QSize(256, 192);
 }
 
-#include "moc_qviewport.cpp"
+#include "moc_qabstractscrollarea.cpp"

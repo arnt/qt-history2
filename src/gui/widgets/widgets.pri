@@ -58,12 +58,12 @@ HEADERS += \
         widgets/qtoolbutton.h \
         widgets/qvalidator.h \
         widgets/qvboxwidget.h \
-        widgets/qviewport.h \
-        widgets/qviewport_p.h \
+        widgets/qabstractscrollarea.h \
+        widgets/qabstractscrollarea_p.h \
         widgets/qwidgetplugin.h \
         widgets/qwidgetresizehandler_p.h \
 	widgets/qfocusframe.h \
-        widgets/qwidgetview.h
+        widgets/qscrollarea.h
 
 SOURCES += \
         widgets/qabstractbutton.cpp \
@@ -115,11 +115,11 @@ SOURCES += \
         widgets/qtoolbutton.cpp \
         widgets/qvalidator.cpp \
         widgets/qvboxwidget.cpp \
-        widgets/qviewport.cpp \
+        widgets/qabstractscrollarea.cpp \
         widgets/qwidgetplugin.cpp \
         widgets/qwidgetresizehandler.cpp \
 	widgets/qfocusframe.cpp \
-        widgets/qwidgetview.cpp
+        widgets/qscrollarea.cpp
 
 
 !embedded:mac:SOURCES += widgets/qmenu_mac.cpp

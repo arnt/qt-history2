@@ -7,7 +7,7 @@
 ConfigDialog::ConfigDialog()
 {
     contentsWidget = new QWidget;
-    QWidgetView *view = new QWidgetView(this);
+    QScrollArea *view = new QScrollArea(this);
     view->setBackgroundRole(QPalette::Light);
     view->setWidget(contentsWidget);
 

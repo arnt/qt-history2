@@ -11,17 +11,17 @@
 **
 ****************************************************************************/
 
-#include "qwidgetview.h"
+#include "qscrollarea.h"
 #include "qscrollbar.h"
-#include "private/qviewport_p.h"
+#include "private/qabstractscrollarea_p.h"
 #include "qlayout.h"
 #include "private/qlayoutengine_p.h"
-class QWidgetViewPrivate: public QViewportPrivate
+class QScrollAreaPrivate: public QAbstractScrollAreaPrivate
 {
-    Q_DECLARE_PUBLIC(QWidgetView)
+    Q_DECLARE_PUBLIC(QScrollArea)
 
 public:
-    QWidgetViewPrivate(): resizable(false){}
+    QScrollAreaPrivate(): resizable(false){}
     void updateScrollBars();
     QPointer<QWidget> widget;
     mutable QSize widgetSize;
@@ -33,13 +33,13 @@ public:
 
 
 /*!
-    \class QWidgetView
-    \brief The QWidgetView class provides a scrolling view onto another widget.
+    \class QScrollArea
+    \brief The QScrollArea class provides a scrolling view onto another widget.
 
     \ingroup basic
     \mainclass
 
-    A widget view is used to display the contents of a child widget within
+    A scroll area is used to display the contents of a child widget within
     a frame. If the widget exceeds the size of the frame, the view can
     provide scroll bars so that the entire area of the child widget can be
     viewed.
@@ -48,21 +48,21 @@ public:
     retrieved with widget(). The view can be made to be resizable with
     the setWidgetResizable() function.
 
-    When using a widget view to display the contents of a custom widget,
+    When using a scroll area to display the contents of a custom widget,
     it is important to ensure that the \l{QWidget::sizeHint}{size hint} of the
     child widget is set to a suitable value. If a standard QWidget is used
     for the child widget, it may be necessary to call
     \l{QWidget::setMinimumSize} to ensure that the contents of the widget are
-    shown correctly within the widget view.
+    shown correctly within the scroll area.
 */
 
 
 /*!
-    Constructs a widget view with the given \a parent, and with no
+    Constructs a scroll area with the given \a parent, and with no
     widget; see setWidget().
 */
-QWidgetView::QWidgetView(QWidget *parent)
-    :QViewport(*new QWidgetViewPrivate,parent)
+QScrollArea::QScrollArea(QWidget *parent)
+    :QAbstractScrollArea(*new QScrollAreaPrivate,parent)
 {
     d->viewport->setAttribute(Qt::WA_SetBackgroundRole, false);
     d->vbar->setSingleStep(20);
@@ -73,13 +73,13 @@ QWidgetView::QWidgetView(QWidget *parent)
 }
 
 /*!
-    Destroys the widget view.
+    Destroys the scroll area.
 */
-QWidgetView::~QWidgetView()
+QScrollArea::~QScrollArea()
 {
 }
 
-void QWidgetViewPrivate::updateScrollBars()
+void QScrollAreaPrivate::updateScrollBars()
 {
     if (!widget)
         return;
@@ -108,7 +108,7 @@ void QWidgetViewPrivate::updateScrollBars()
     \sa setWidget()
 */
 
-QWidget *QWidgetView::widget() const
+QWidget *QScrollArea::widget() const
 {
     return d->widget;
 }
@@ -116,12 +116,12 @@ QWidget *QWidgetView::widget() const
 /*!
     Set's the view widget's widget to \a w.
 
-    \a w becomes a child of the widget view, and will be destroyed
-    when the widget view is deleted or when a new view widget is set.
+    \a w becomes a child of the scroll area, and will be destroyed
+    when the scroll area is deleted or when a new view widget is set.
 
     \sa widget()
 */
-void QWidgetView::setWidget(QWidget *w)
+void QScrollArea::setWidget(QWidget *w)
 {
     if (w == d->widget || !w)
         return;
@@ -146,7 +146,7 @@ void QWidgetView::setWidget(QWidget *w)
 /*!  Removes the view widget's widget from the view, and passes
   ownership of the widget to the caller.
  */
-QWidget *QWidgetView::takeWidget()
+QWidget *QScrollArea::takeWidget()
 {
     QWidget *w = d->widget;
     d->widget = 0;
@@ -157,18 +157,18 @@ QWidget *QWidgetView::takeWidget()
 
 /*!\reimp
  */
-bool QWidgetView::event(QEvent *e)
+bool QScrollArea::event(QEvent *e)
 {
     if (e->type() == QEvent::StyleChange) {
         d->updateScrollBars();
     }
-    return QViewport::event(e);
+    return QAbstractScrollArea::event(e);
 }
 
 
 /*!\reimp
  */
-bool QWidgetView::eventFilter(QObject *o, QEvent *e)
+bool QScrollArea::eventFilter(QObject *o, QEvent *e)
 {
     if (o == d->widget && e->type() == QEvent::Resize)
         d->updateScrollBars();
@@ -177,7 +177,7 @@ bool QWidgetView::eventFilter(QObject *o, QEvent *e)
 
 /*! \reimp
  */
-void QWidgetView::resizeEvent(QResizeEvent *)
+void QScrollArea::resizeEvent(QResizeEvent *)
 {
     d->updateScrollBars();
 }
@@ -185,7 +185,7 @@ void QWidgetView::resizeEvent(QResizeEvent *)
 
 /*!\reimp
  */
-void QWidgetView::scrollContentsBy(int, int)
+void QScrollArea::scrollContentsBy(int, int)
 {
     if (!d->widget)
         return;
@@ -194,24 +194,24 @@ void QWidgetView::scrollContentsBy(int, int)
 
 
 /*!
-    \property QWidgetView::widgetResizable
-    \brief whether the widget view should resize the view widget
+    \property QScrollArea::widgetResizable
+    \brief whether the scroll area should resize the view widget
 
     If this property is set to false (the default), the view honors
     the size of its widget. Regardless of this property, you can
     programmatically resize the widget using widget()->resize(), and
-    the widget view will automatically adjust itself to the new size.
+    the scroll area will automatically adjust itself to the new size.
 
     If this property is set to true, the view will automatically
     resize the widget in order to avoid scroll bars where they can be
     avoided, or to take advantage of extra space.
 */
-bool QWidgetView::widgetResizable() const
+bool QScrollArea::widgetResizable() const
 {
     return d->resizable;
 }
 
-void QWidgetView::setWidgetResizable(bool resizable)
+void QScrollArea::setWidgetResizable(bool resizable)
 {
     d->resizable = resizable;
     updateGeometry();
@@ -219,7 +219,7 @@ void QWidgetView::setWidgetResizable(bool resizable)
 
 /*!\reimp
  */
-QSize QWidgetView::sizeHint() const
+QSize QScrollArea::sizeHint() const
 {
     int f = 2 * d->frameWidth;
     QSize sz(f, f);
@@ -242,7 +242,7 @@ QSize QWidgetView::sizeHint() const
 
 /*!\reimp
  */
-bool QWidgetView::focusNextPrevChild(bool next)
+bool QScrollArea::focusNextPrevChild(bool next)
 {
     if (QWidget::focusNextPrevChild(next)) {
         if (QWidget *fw = focusWidget()) {

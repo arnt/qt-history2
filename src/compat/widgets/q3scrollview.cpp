@@ -74,12 +74,12 @@ void QSVChildRec::hideOrShow(Q3ScrollView* sv, QWidget* clipped_viewport)
     }
 }
 
-class QViewportWidget : public QWidget
+class QAbstractScrollAreaWidget : public QWidget
 {
     Q_OBJECT
 
 public:
-    QViewportWidget(Q3ScrollView* parent=0, const char* name=0, Qt::WFlags f = 0)
+    QAbstractScrollAreaWidget(Q3ScrollView* parent=0, const char* name=0, Qt::WFlags f = 0)
         : QWidget(parent, name, f) {}
 };
 
@@ -99,7 +99,7 @@ public:
     Q3ScrollViewData(Q3ScrollView* parent, int vpwflags) :
         hbar(new QScrollBar(Qt::Horizontal, parent, "qt_hbar")),
         vbar(new QScrollBar(Qt::Vertical, parent, "qt_vbar")),
-        viewport(new QViewportWidget(parent, "qt_viewport", QFlag(vpwflags))),
+        viewport(new QAbstractScrollAreaWidget(parent, "qt_viewport", QFlag(vpwflags))),
         clipped_viewport(0),
         flags(vpwflags),
         vx(0), vy(0), vwidth(1), vheight(1),
@@ -154,7 +154,7 @@ public:
     QScrollBar*  vbar;
     bool hbarPressed;
     bool vbarPressed;
-    QViewportWidget*    viewport;
+    QAbstractScrollAreaWidget*    viewport;
     QClipperWidget*     clipped_viewport;
     int         flags;
     Q3PtrList<QSVChildRec>       children;

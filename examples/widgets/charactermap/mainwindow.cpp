@@ -12,7 +12,7 @@ MainWindow::MainWindow()
     QLabel *styleLabel = new QLabel(tr("Style:"), centralWidget);
     styleCombo = new QComboBox(centralWidget);
 
-    view = new QWidgetView(centralWidget);
+    view = new QScrollArea(centralWidget);
     characterWidget = new CharacterWidget;
     view->setWidget(characterWidget);
 

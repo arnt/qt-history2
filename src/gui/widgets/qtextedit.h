@@ -14,7 +14,7 @@
 #ifndef QTEXTEDIT_H
 #define QTEXTEDIT_H
 
-#include <QtGui/qviewport.h>
+#include <QtGui/qabstractscrollarea.h>
 #include <QtGui/qtextdocument.h>
 
 #ifdef QT3_SUPPORT
@@ -33,7 +33,7 @@ class QMenu;
 class QTextEditPrivate;
 class QMimeData;
 
-class Q_GUI_EXPORT QTextEdit : public QViewport
+class Q_GUI_EXPORT QTextEdit : public QAbstractScrollArea
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTextEdit)

@@ -41,7 +41,7 @@
 #include <qdockwidget.h>
 #include <qfont.h>
 #include <qtreeview.h>
-#include <qwidgetview.h>
+#include <qscrollarea.h>
 #include <qtextdocumentfragment.h>
 #include <qtextcursor.h>
 #include <QTextBlock>
@@ -437,7 +437,7 @@ void EditorPage::fontChange(const QFont &)
    Handle layout of dock windows and the editor page.
 */
 MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
-    : QWidgetView(parent), tor(t)
+    : QScrollArea(parent), tor(t)
 {
     doGuesses = true;
     topDockWnd = new QDockWidget(parent);
@@ -497,7 +497,7 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
     bottomDockWnd->setWidget(w);
     parent->addDockWidget(Qt::BottomDockWidgetArea, bottomDockWnd);
 
-    setObjectName("widget view");
+    setObjectName("scroll area");
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     setFrameStyle(QFrame::NoFrame);
 

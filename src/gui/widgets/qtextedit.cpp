@@ -529,7 +529,7 @@ void QTextEditPrivate::ensureVisible(int documentPosition)
 {
     // don't check for the visibility of the vertical scrollbar here,
     // always scroll to the position. we might have a layoutChildren
-    // in QViewport pending, which will make things visible later on
+    // in QAbstractScrollArea pending, which will make things visible later on
     // then, for example when initially showing the widget and right
     // after that calling scrollToAnchor, which calls us. the vbar
     // isn't visible then, but that's okay.
@@ -791,7 +791,7 @@ void QTextEditPrivate::setBlinkingCursorEnabled(bool enable)
     parent.
 */
 QTextEdit::QTextEdit(QWidget *parent)
-    : QViewport(*new QTextEditPrivate, parent)
+    : QAbstractScrollArea(*new QTextEditPrivate, parent)
 {
     Q_D(QTextEdit);
     d->init();
@@ -801,7 +801,7 @@ QTextEdit::QTextEdit(QWidget *parent)
     \internal
 */
 QTextEdit::QTextEdit(QTextEditPrivate &dd, QWidget *parent)
-    : QViewport(dd, parent)
+    : QAbstractScrollArea(dd, parent)
 {
     Q_D(QTextEdit);
     d->init();
@@ -812,7 +812,7 @@ QTextEdit::QTextEdit(QTextEditPrivate &dd, QWidget *parent)
     the text \a text. The text is interpreted as html.
 */
 QTextEdit::QTextEdit(const QString &text, QWidget *parent)
-    : QViewport(*new QTextEditPrivate, parent)
+    : QAbstractScrollArea(*new QTextEditPrivate, parent)
 {
     Q_D(QTextEdit);
     QTextDocumentFragment fragment = QTextDocumentFragment::fromHtml(text);
@@ -825,7 +825,7 @@ QTextEdit::QTextEdit(const QString &text, QWidget *parent)
     argument and then use setObjectName() instead.
 */
 QTextEdit::QTextEdit(QWidget *parent, const char *name)
-    : QViewport(*new QTextEditPrivate, parent)
+    : QAbstractScrollArea(*new QTextEditPrivate, parent)
 {
     Q_D(QTextEdit);
     d->init();
@@ -1301,7 +1301,7 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
                 else
                     d->vbar->triggerAction(QAbstractSlider::SliderPageStepAdd);
             default:
-                QViewport::keyPressEvent(e);
+                QAbstractScrollArea::keyPressEvent(e);
                 break;
         }
         return;
@@ -1436,7 +1436,7 @@ process:
                 d->cursor.insertText(text);
                 d->selectionChanged();
             } else {
-                QViewport::keyPressEvent(e);
+                QAbstractScrollArea::keyPressEvent(e);
                 return;
             }
             break;
@@ -1528,7 +1528,7 @@ void QTextEdit::resizeEvent(QResizeEvent *)
     // If the wider case causes a vertical scrollbar to appear and the narrower one
     // (narrower because the vertical scrollbar takes up horizontal space)) to disappear
     // again then we have an endless loop, as adjustScrollBars sets new ranges on the
-    // scrollbars, the QViewport will find out about it and try to show/hide the scrollbars
+    // scrollbars, the QAbstractScrollArea will find out about it and try to show/hide the scrollbars
     // again. That's why we try to detect this case here and break out.
     //
     // (if you change this please also check the layoutingLoop() testcase in
@@ -1939,7 +1939,7 @@ void QTextEdit::focusInEvent(QFocusEvent *e)
     if (!d->readOnly)
         d->setBlinkingCursorEnabled(true);
 
-    QViewport::focusInEvent(e);
+    QAbstractScrollArea::focusInEvent(e);
 }
 
 /*! \reimp
@@ -1951,7 +1951,7 @@ void QTextEdit::focusOutEvent(QFocusEvent *e)
         d->setBlinkingCursorEnabled(false);
     if (e->reason() != Qt::PopupFocusReason)
         d->cursorOn = false;
-    QViewport::focusOutEvent(e);
+    QAbstractScrollArea::focusOutEvent(e);
 }
 
 /*! \reimp
@@ -1970,7 +1970,7 @@ void QTextEdit::showEvent(QShowEvent *)
 void QTextEdit::changeEvent(QEvent *e)
 {
     Q_D(QTextEdit);
-    QViewport::changeEvent(e);
+    QAbstractScrollArea::changeEvent(e);
     if (e->type() == QEvent::ApplicationFontChange
         || e->type() == QEvent::FontChange) {
         d->doc->documentLayout()->setDefaultFont(font());
@@ -2000,7 +2000,7 @@ void QTextEdit::wheelEvent(QWheelEvent *e)
             return;
         }
     }
-    QViewport::wheelEvent(e);
+    QAbstractScrollArea::wheelEvent(e);
     updateMicroFocus();
 }
 

@@ -27,13 +27,13 @@
 
 class QRubberBand;
 
-#include <private/qviewport_p.h>
+#include <private/qabstractscrollarea_p.h>
 #include <qdatetime.h>
 #include <qevent.h>
 #include <qmime.h>
 #include <qmap.h>
 
-class QAbstractItemViewPrivate : public QViewportPrivate
+class QAbstractItemViewPrivate : public QAbstractScrollAreaPrivate
 {
     Q_DECLARE_PUBLIC(QAbstractItemView)
 

@@ -1,5 +1,5 @@
 TEMPLATE        = app
-TARGET          = widgetview
+TARGET          = scrollarea
 
 HEADERS         = 
 SOURCES         = main.cpp

@@ -33,7 +33,7 @@
 #include <qpixmap.h>
 #include <qcursor.h>
 #include <qcheckbox.h>
-#include <qwidgetview.h>
+#include <qscrollarea.h>
 
 QVFb::QVFb( int display_id, int w, int h, int d, const QString &skinName, QWidget *parent,
             const char *name, Qt::WFlags flags )
@@ -84,7 +84,7 @@ void QVFb::init( int display_id, int w, int h, int d, const QString &skin_name )
         }
         menuBar()->show();
         skin = 0;
-        scroller = new QWidgetView(this);
+        scroller = new QScrollArea(this);
         view = new QVFbView( display_id, w, h, d, scroller );
         scroller->setWidget(view);
         setCentralWidget(scroller);
