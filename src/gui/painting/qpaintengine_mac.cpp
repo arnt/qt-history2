@@ -108,13 +108,22 @@ QMacCGContext::QMacCGContext(QPainter *p)
 /*****************************************************************************
   QQuickDrawPaintEngine member functions
  *****************************************************************************/
+
+inline static QPaintEngine::PaintEngineFeatures qt_mac_qd_features()
+{
+    return QPaintEngine::PaintEngineFeatures(
+        QPaintEngine::UsesFontEngine|QPaintEngine::PixmapScale
+        |QPaintEngine::AlphaPixmap
+        );
+}
+
 QQuickDrawPaintEngine::QQuickDrawPaintEngine()
-    : QPaintEngine(*(new QQuickDrawPaintEnginePrivate), PaintEngineFeatures(UsesFontEngine|PixmapScale|AlphaPixmap))
+    : QPaintEngine(*(new QQuickDrawPaintEnginePrivate), qt_mac_qd_features())
 {
 }
 
 QQuickDrawPaintEngine::QQuickDrawPaintEngine(QPaintEnginePrivate &dptr, PaintEngineFeatures devcaps)
-    : QPaintEngine(dptr, (devcaps ? devcaps : (UsesFontEngine|PixmapScale|AlphaPixmap)))
+    : QPaintEngine(dptr, (devcaps ? devcaps : qt_mac_qd_features()))
 {
 }
 
@@ -1009,20 +1018,26 @@ static void qt_mac_clip_cg(CGContextRef hd, const QRegion &rgn, const QPoint *pt
   QCoreGraphicsPaintEngine member functions
  *****************************************************************************/
 
+inline static QPaintEngine::PaintEngineFeatures qt_mac_cg_features()
+{
+    return QPaintEngine::PaintEngineFeatures(
+        QPaintEngine::CoordTransform|QPaintEngine::PenWidthTransform
+        |QPaintEngine::PatternTransform|QPaintEngine::PixmapTransform
+        |QPaintEngine::PainterPaths|QPaintEngine::PixmapScale
+        |QPaintEngine::UsesFontEngine|QPaintEngine::LinearGradients
+        |QPaintEngine::ClipTransform|QPaintEngine::AlphaStroke
+        |QPaintEngine::AlphaFill|QPaintEngine::AlphaPixmap
+        |QPaintEngine::FillAntialiasing|QPaintEngine::LineAntialiasing
+        );
+}
+
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine()
-    : QQuickDrawPaintEngine(*(new QCoreGraphicsPaintEnginePrivate),
-                            PaintEngineFeatures(CoordTransform|PenWidthTransform|PatternTransform|PixmapTransform|PainterPaths
-                                                |PixmapScale|UsesFontEngine|LinearGradients
-                                                |ClipTransform|AlphaStroke|AlphaFill|AlphaPixmap
-                                                |FillAntialiasing|LineAntialiasing))
+    : QQuickDrawPaintEngine(*(new QCoreGraphicsPaintEnginePrivate), qt_mac_cg_features())
 {
 }
 
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr)
-    : QQuickDrawPaintEngine(dptr, PaintEngineFeatures(CoordTransform|PenWidthTransform|PatternTransform|PixmapTransform|PainterPaths
-                                                      |PixmapScale|UsesFontEngine|LinearGradients
-                                                      |ClipTransform|AlphaStroke|AlphaFill|AlphaPixmap
-                                                      |FillAntialiasing|LineAntialiasing))
+    : QQuickDrawPaintEngine(dptr, qt_mac_cg_features())
 {
 }
 
