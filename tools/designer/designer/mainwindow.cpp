@@ -160,6 +160,11 @@ MainWindow::MainWindow( bool asClient )
     setupLayoutActions();
     setupPreviewActions();
     setupWindowActions();
+
+    setupPropertyEditor();
+    setupHierarchyView();
+    setupFormList();
+
     setupActionManager();
     setupHelpActions();
     setupRMBMenus();
@@ -168,10 +173,6 @@ MainWindow::MainWindow( bool asClient )
 
     lastPressWidget = 0;
     qApp->installEventFilter( this );
-
-    setupPropertyEditor();
-    setupHierarchyView();
-    setupFormList();
 
     QSize as( qApp->desktop()->size() );
     as -= QSize( 30, 30 );
