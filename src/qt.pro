@@ -69,6 +69,7 @@ win32:DEPENDPATH = ../include
 unix:DEPENDPATH	= $$DIALOGS_H:$$KERNEL_H:$$TOOLS_H:$$WIDGETS_H
 
 HEADERS		= $$DIALOGS_H/qcolordialog.h \
+		  $$DIALOGS_H/qerrormessage.h \
 		  $$DIALOGS_H/qfiledialog.h \
 		  $$DIALOGS_H/qfontdialog.h \
 		  $$DIALOGS_H/qmessagebox.h \
@@ -458,6 +459,7 @@ SOURCES	       += tools/qbig5codec.cpp \
 		  widgets/qaction.cpp \
 		  widgets/qeffects.cpp \
 		  dialogs/qcolordialog.cpp \
+		  dialogs/qerrormessage.cpp \
 		  dialogs/qfiledialog.cpp \
 		  dialogs/qfontdialog.cpp \
 		  dialogs/qmessagebox.cpp \
