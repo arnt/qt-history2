@@ -87,7 +87,7 @@ for %%m in ( %MODULES% ) do (
 cd ..
 
 rem *** The following is a workaround
-if x%1==x-internal set QMAKE_CONFIG=%MODULES%
+if x%1==x-internal set QMAKE_INTERNAL=yes
 shift
 goto loop
 :endloop
@@ -105,6 +105,13 @@ set HELP=yes
 :foundconfig
 set QMAKE_CONFIG=%QMAKE_CONFIG% %QMAKE_CONFIG_TMP%
 
+if x%QMAKE_INTERNAL%==xyes (
+	for %%m in ( %MODULES% ) do (
+		if not x!DISABLED_%%m%!==xyes (
+			set QMAKE_CONFIG=!QMAKE_CONFIG! %%m )
+		)
+	)
+)
 rem **************************************
 rem   Display help text if needed
 rem **************************************
@@ -175,7 +182,7 @@ set QMAKE_CONFIG=%QMAKE_CONFIG% thread
 set QMAKE_OUTDIR=%QMAKE_OUTDIR%-mt)
 
 set QMAKE_VARS=%QMAKE_VARS% "QMAKE_LIBDIR_QT=%QTDIR%\lib"
-set QMAKE_VARS=%QMAKE_VARS% "OBJECTS_DIR=.obj\%QMAKE_OUTDIR%" "MOC_DIR=.moc\%QMAKE_OUTDIR%"
+set QMAKE_VARS=%QMAKE_VARS% "OBJECTS_DIR=tmp\obj\%QMAKE_OUTDIR%" "MOC_DIR=tmp\moc\%QMAKE_OUTDIR%"
 
 if x%SHARED%==xyes (
 set QMAKE_CONFIG=%QMAKE_CONFIG% dll
