@@ -295,9 +295,11 @@ static QThreadPostEventPrivate * qthreadposteventprivate = 0;
 
 
 /*!
-  This returns the thread ID of the currently executing thread.  The
+  This returns the thread handle of the currently executing thread.  The
   handle returned by this function is used for internal reasons and
   should not be used in any application code.
+  On Windows, the returned value is a pseudo handle for the current thread,
+  and it can not be used for numerical comparison.
 */
 Qt::HANDLE QThread::currentThread()
 {

@@ -36,7 +36,7 @@ void qSystemWarning( const QString& message )
     int error = GetLastError();
     TCHAR* string;
 
-    if ( qt_winver & Qt::WV_NT_based )
+    if ( qt_winver & Qt::WV_NT_based ) {
 	FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
 			      NULL,
 			      error,
@@ -44,7 +44,8 @@ void qSystemWarning( const QString& message )
 			      (LPTSTR)&string,
 			      0,
 			      NULL );
-    else 
+        qWarning( message + QString("\tError code %1 - %2").arg( error ).arg( qt_winQString(string) ) );
+    } else {
 	FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
 			      NULL,
 			      error,
@@ -53,7 +54,9 @@ void qSystemWarning( const QString& message )
 			      0,
 			      NULL );
 
-    qWarning( message + QString("\n\tError code %1 - %2").arg( error ).arg( qt_winQString(string) ) );
+	qWarning( message + QString("\tError code %1 - %2").arg( error ).arg( QString((const char*)string) ) );
+    }
+    
     LocalFree( (HLOCAL)string );
 }
 
@@ -618,7 +621,7 @@ void QThread::start()
 
 bool QThread::wait( unsigned long time )
 {
-    if ( d->handle == QThread::currentThread() ) {
+    if ( d->id == GetCurrentThreadId() ) {
 #ifdef CHECK_RANGE
 	qWarning( "Thread tried to wait on itself" );
 #endif
