@@ -88,7 +88,7 @@ static int tb_pos( QToolBar *t, Qt::Orientation orient, bool swap = FALSE )
 	return t->y();
 }
 
-static int tb_extend( QToolBar *t, Qt::Orientation orient, bool swap = FALSE )
+static int tb_extent( QToolBar *t, Qt::Orientation orient, bool swap = FALSE )
 {
     Qt::Orientation o = orient;
     if ( swap )
@@ -110,7 +110,7 @@ static int rect_pos( const QRect &r, Qt::Orientation orient, bool swap = FALSE )
 	return r.y();
 }
 
-static int rect_extend( const QRect &r, Qt::Orientation orient, bool swap = FALSE )
+static int rect_extent( const QRect &r, Qt::Orientation orient, bool swap = FALSE )
 {
     Qt::Orientation o = orient;
     if ( swap )
@@ -121,7 +121,7 @@ static int rect_extend( const QRect &r, Qt::Orientation orient, bool swap = FALS
 	return r.height();
 }
 
-static int size_extend( const QSize &s, Qt::Orientation orient, bool swap = FALSE )
+static int size_extent( const QSize &s, Qt::Orientation orient, bool swap = FALSE )
 {
     Qt::Orientation o = orient;
     if ( swap )
@@ -486,17 +486,17 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
     int stretchs = 0;
     int e = 0;
     int pos = rect_pos( r, o, TRUE );
-    int lineExtend = 0;
+    int lineExtent = 0;
     while ( TRUE ) {
 	QSize sh = t ? size_hint( t->t ) : QSize();
 	int nx = e;
 	if ( t && t->extraOffset != -1 && t->extraOffset > e )
 	    nx = t->extraOffset;
-	if ( nx + size_extend( sh, o ) > rect_extend( r, o ) )
-	    nx = QMAX( e, rect_extend( r, o ) - size_extend( sh, o ) );
-	if ( !t || t->nl || nx + size_extend( sh, o ) > rect_extend( r, o ) ) {
+	if ( nx + size_extent( sh, o ) > rect_extent( r, o ) )
+	    nx = QMAX( e, rect_extent( r, o ) - size_extent( sh, o ) );
+	if ( !t || t->nl || nx + size_extent( sh, o ) > rect_extent( r, o ) ) {
 	    QValueList<QRect> rects;
-	    int s = stretchs > 0 ? ( rect_extend( r, o ) - e + rect_pos( r, o ) ) / stretchs : 0;
+	    int s = stretchs > 0 ? ( rect_extent( r, o ) - e + rect_pos( r, o ) ) / stretchs : 0;
 	    int p = rect_pos( r, o );
 	    QMainWindowPrivate::ToolBar *tmp = 0;
 	    for ( t2 = row.first(); t2; t2= row.next() ) {
@@ -520,7 +520,7 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 			ext += QMAX( 0, ( t2->t->isHorizontalStretchable() || fill ? s : 0 ) );
 		    if ( p + ext > r.width() && ( t2->t->isHorizontalStretchable() || fill ) )
 			ext = r.width() - p;
-		    g = QRect( p, pos, ext , lineExtend );
+		    g = QRect( p, pos, ext , lineExtent );
 		} else {
 		    int ext = size_hint( t2->t ).height();
 		    if ( p + ext > r.y() + r.height() && p == t2->extraOffset )
@@ -534,10 +534,10 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 			ext += QMAX( 0, ( t2->t->isVerticalStretchable() || fill ? s : 0 ) );
 		    if ( p + ext > r.y() + r.height() && ( t2->t->isVerticalStretchable() || fill ) )
 			ext = ( r.y() + r.height() ) - p;
-		    g = QRect( pos, p, lineExtend, ext );
+		    g = QRect( pos, p, lineExtent, ext );
 		}
 		rects.append( g );
-		p = rect_pos( g, o ) + rect_extend( g, o );
+		p = rect_pos( g, o ) + rect_extent( g, o );
 		tmp = t2;
 	    }
 	    if ( !testonly ) {
@@ -556,8 +556,8 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 	    }
 	    stretchs = 0;
 	    e = 0;
-	    pos += lineExtend;
-	    lineExtend = 0;
+	    pos += lineExtent;
+	    lineExtent = 0;
 	    row.clear();
 	    nx = 0;
 	    if ( t && t->extraOffset != -1 && t->extraOffset > e )
@@ -567,8 +567,8 @@ int QToolLayout::layoutItems( const QRect &r, bool testonly )
 	if ( !t )
 	    break;
 
-	e = nx + size_extend( sh, o );
-	lineExtend = QMAX( lineExtend, size_extend( sh, o, TRUE ) );
+	e = nx + size_extent( sh, o );
+	lineExtent = QMAX( lineExtent, size_extent( sh, o, TRUE ) );
 	row.append( t );
 	if ( ( o == Qt::Horizontal && t->t->isHorizontalStretchable() ||
 	       o == Qt::Vertical && t->t->isVerticalStretchable() ) || fill )
@@ -814,7 +814,7 @@ class QHideDock : public QWidget
 public:
     QHideDock( QMainWindow *parent, QMainWindowPrivate *p ) : QWidget( parent, "hide-dock" ) {
 	hide();
-	setFixedHeight( style().toolBarHandleExtend() );
+	setFixedHeight( style().toolBarHandleExtent() );
 	d = p;
 	pressedHandle = -1;
 	pressed = FALSE;
@@ -1172,7 +1172,7 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
 #endif
 	    if ( it.key().intersects( d->oldPosRect ) ) {
 		QRect ir = it.key().intersect( d->oldPosRect );
-		if ( rect_extend( ir, o, TRUE ) < 3 )
+		if ( rect_extent( ir, o, TRUE ) < 3 )
 		    continue;
 		int div = 4;
 		int mul = 3;
@@ -1182,12 +1182,12 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
 		}
 		bool contains = it.key().contains( d->oldPosRect );
 		QRect oldPosRect( d->oldPosRect ); // g++ 2.7.2.3 bug
-		if ( !contains && rect_extend( oldPosRect, o, TRUE ) > rect_extend( it.key(), o, TRUE ) &&
+		if ( !contains && rect_extent( oldPosRect, o, TRUE ) > rect_extent( it.key(), o, TRUE ) &&
 		     rect_pos( oldPosRect, o, TRUE ) < rect_pos( it.key(), o, TRUE ) &&
-		     rect_pos( oldPosRect, o, TRUE ) + rect_extend( oldPosRect, o, TRUE ) >
-		     rect_pos( it.key(), o, TRUE ) + rect_extend( it.key(), o, TRUE ) )
+		     rect_pos( oldPosRect, o, TRUE ) + rect_extent( oldPosRect, o, TRUE ) >
+		     rect_pos( it.key(), o, TRUE ) + rect_extent( it.key(), o, TRUE ) )
 		    contains = TRUE;
-		if ( !contains && rect_extend( ir, o, TRUE ) < ( mul * rect_extend( it.key(), o, TRUE ) ) / div ) {
+		if ( !contains && rect_extent( ir, o, TRUE ) < ( mul * rect_extent( it.key(), o, TRUE ) ) / div ) {
 		    if ( rect_pos( ir, o, TRUE ) <= rect_pos( it.key(), o, TRUE ) ) {
 #ifdef QMAINWINDOW_DEBUG
 			qDebug( "above" );
@@ -1229,7 +1229,7 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
 			    t = bars.next();
 			    continue;
 			}
-			if ( tb_pos( t->t, o ) + tb_extend( t->t, o ) / 2 < rect_pos( d->oldPosRect, o ) ) {
+			if ( tb_pos( t->t, o ) + tb_extent( t->t, o ) / 2 < rect_pos( d->oldPosRect, o ) ) {
 			    b = t;
 			    t = bars.next();
 			    continue;
@@ -1273,8 +1273,8 @@ static void findNewToolbarPlace( QMainWindowPrivate *d, QToolBar *tb, QMainWindo
     if ( rect_pos( d->oldPosRect, o, TRUE ) < rect_pos( dockArea, o, TRUE ) && first ) {
 	relative = first->t;
 	ipos = QMainWindowPrivate::Above;
-    } else if ( rect_pos( d->oldPosRect, o, TRUE ) + rect_extend( d->oldPosRect, o, TRUE ) >
-		rect_pos( dockArea, o, TRUE ) + rect_extend( d->oldPosRect, o, TRUE ) && last ) {
+    } else if ( rect_pos( d->oldPosRect, o, TRUE ) + rect_extent( d->oldPosRect, o, TRUE ) >
+		rect_pos( dockArea, o, TRUE ) + rect_extent( d->oldPosRect, o, TRUE ) && last ) {
 	relative = last->t;
 	ipos = QMainWindowPrivate::Below;
     } else {
@@ -2132,7 +2132,7 @@ void QMainWindow::setUpLayout()
     }
 #endif
 
-    d->hideDock->setFixedHeight( style().toolBarHandleExtend() );
+    d->hideDock->setFixedHeight( style().toolBarHandleExtent() );
 
     if ( d->hidden && !d->hidden->isEmpty() ) {
 	if ( style() == WindowsStyle )

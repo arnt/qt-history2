@@ -363,7 +363,7 @@ void QToolBar::setOrientation( Orientation newOrientation )
 	    delete d->back;
 	    d->back = 0;
 	}
-	boxLayout()->setDirection( o==Horizontal ? (QApplication::reverseLayout() ? QBoxLayout::RightToLeft 
+	boxLayout()->setDirection( o==Horizontal ? (QApplication::reverseLayout() ? QBoxLayout::RightToLeft
 						    : QBoxLayout::LeftToRight ) :
 				   QBoxLayout::TopToBottom );
 	emit orientationChanged( newOrientation );
@@ -804,9 +804,9 @@ void QToolBar::setupArrowMenu()
 		if ( mv ) {
 		    bool hdb = FALSE;
 		    if ( orientation() == Horizontal )
-			hdb = w->x() > 2 * style().toolBarHandleExtend();
+			hdb = w->x() > 2 * style().toolBarHandleExtent();
 		    else
-			hdb = w->y() > 2 * style().toolBarHandleExtend();
+			hdb = w->y() > 2 * style().toolBarHandleExtent();
 		    if ( hdb )
 			w->move( -w->width(), -w->height() );
 		    if ( w->inherits( "QToolButton" ) ) {
@@ -907,7 +907,7 @@ void QToolBar::paintToolBar()
     int xpos;
     if ( QApplication::reverseLayout() && orientation() == Horizontal )
 	xpos = width() - 10;
-    else 
+    else
 	xpos = 0;
     style().drawToolBarHandle( &p, QRect( xpos, 0, hw, hh ),
  			       orientation(), d->moving, colorGroup() );
