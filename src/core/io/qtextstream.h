@@ -17,6 +17,8 @@
 #include "qiodevice.h"
 #include "qstring.h"
 #include "qchar.h"
+
+#include <unistd.h>
 #include <stdio.h>
 
 #ifndef QT_NO_TEXTSTREAM
@@ -28,7 +30,7 @@ class QTextStreamPrivate;
 class Q_CORE_EXPORT QTextStream                                // text stream class
 {
     Q_DECLARE_PRIVATE(QTextStream)
-            
+
 public:
     enum Encoding { Locale, Latin1, Unicode, UnicodeNetworkOrder,
                     UnicodeReverse, RawUnicode, UnicodeUTF8 };

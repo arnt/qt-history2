@@ -16,6 +16,8 @@
 
 #include "qiodevice.h"
 #include "qstring.h"
+
+#include <unistd.h>
 #include <stdio.h>
 
 #ifndef QT_NO_QFILE_QOBJECT
