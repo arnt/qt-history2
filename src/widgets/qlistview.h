@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#63 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#64 $
 **
 ** Definition of QListView widget class
 **
@@ -249,6 +249,8 @@ protected:
     void keyPressEvent( QKeyEvent *e );
 
     void resizeEvent( QResizeEvent *e );
+    
+    void showEvent( QShowEvent * );
 
     void drawContentsOffset( QPainter *, int ox, int oy,
 			     int cx, int cy, int cw, int ch );
