@@ -10,6 +10,7 @@ class QMakeMetaInfo
     bool readLibtoolFile(const QString &f);
     bool readPkgCfgFile(const QString &f);
     QMap<QString, QStringList> vars;
+    static QMap<QString, QMap<QString, QStringList> > cache_vars;
     void clear();
 public:
     QMakeMetaInfo();

@@ -3,6 +3,8 @@
 #include "option.h"
 #include <qdir.h>
 
+QMap<QString, QMap<QString, QStringList> > QMakeMetaInfo::cache_vars;
+
 QMakeMetaInfo::QMakeMetaInfo()
 {
     
@@ -14,23 +16,32 @@ QMakeMetaInfo::readLib(const QString &lib)
 {
     clear();
     QString meta_file = findLib(lib);
+    
+    if(cache_vars.contains(meta_file)) {
+	vars = cache_vars[meta_file];
+	return TRUE;
+    }
+
+    bool ret = FALSE;
     if(!meta_file.isNull()) {
 	if(meta_file.endsWith(Option::pkgcfg_ext)) {
-	    return readPkgCfgFile(meta_file);
+	    ret = readPkgCfgFile(meta_file);
 	} else if(meta_file.endsWith(Option::libtool_ext)) {
-	    return readLibtoolFile(meta_file);
+	    ret = readLibtoolFile(meta_file);
 	} else if(meta_file.endsWith(Option::prl_ext)) {
 	    QMakeProject proj;
 	    if(!proj.read(Option::fixPathToLocalOS(meta_file), 
 			  QDir::currentDirPath(), QMakeProject::ReadProFile))
 		return FALSE;
 	    vars = proj.variables();
-	    return TRUE;
+	    ret = TRUE;
 	} else {
 	    warn_msg(WarnLogic, "QMakeMetaInfo: unknown file format for %s", meta_file.latin1());
 	}
     }
-    return FALSE;
+    if(ret) 
+	cache_vars.insert(meta_file, vars);
+    return ret;
 }
 
 
@@ -73,7 +84,7 @@ QMakeMetaInfo::readLibtoolFile(const QString &f)
     QMakeProject proj;
     if(!proj.read(Option::fixPathToLocalOS(f), QDir::currentDirPath(), QMakeProject::ReadProFile))
 	return FALSE;
-    QString dirf = Option::fixPathToTargetOS(f).section(Option::dir_sep, 0, -1);
+    QString dirf = Option::fixPathToTargetOS(f).section(Option::dir_sep, 0, -2);
     if(dirf == f)
 	dirf = "";
     else if(!dirf.isEmpty() && !dirf.endsWith(Option::output_dir))
@@ -94,17 +105,16 @@ QMakeMetaInfo::readLibtoolFile(const QString &f)
 	    if(lst.count() == 1)
 		lst = QStringList::split(" ", lst.first());
 	    for(QStringList::Iterator lst_it = lst.begin(); lst_it != lst.end(); ++lst_it) {
-		if(QFile::exists(Option::fixPathToLocalOS(dir + (*lst_it)))) {
-		    vars["QMAKE_PRL_TARGET"] << dir + (*lst_it);
-		    break;
-		} else if(QFile::exists(Option::fixPathToLocalOS(dirf + (*lst_it)))) {
-		    vars["QMAKE_PRL_TARGET"] << dirf + (*lst_it);
-		    break;
-		} else if(QFile::exists(Option::fixPathToLocalOS(dirf + ".libs" + Option::dir_sep + 
-								 (*lst_it)))) {
-		    vars["QMAKE_PRL_TARGET"] << dirf + ".libs" + Option::dir_sep + (*lst_it);
-		    break;
+		bool found = FALSE;
+		QString dirs[] = { "", dir, dirf, dirf + ".libs" + Option::dir_sep, "(term)" };
+		for(int i = 0; !found && dirs[i] != "(term)"; i++) {
+		    if(QFile::exists(dirs[i] + (*lst_it))) {
+			vars["QMAKE_PRL_TARGET"] << dirs[i] + (*lst_it);
+			found = TRUE;
+		    }
 		}
+		if(found)
+		    break;
 	    }
 	} else if(it.key() == "dependency_libs") {
 	    vars["QMAKE_PRL_LIBS"] += lst;

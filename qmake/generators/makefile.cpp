@@ -1239,7 +1239,9 @@ MakefileGenerator::processPrlFile(QString &file)
 		    int slsh = real_meta_file.findRev(Option::dir_sep);
 		    if(slsh != -1)
 			dir = real_meta_file.left(slsh+1);
-		    file = dir + libinfo.first("QMAKE_PRL_TARGET");
+		    file = libinfo.first("QMAKE_PRL_TARGET");
+		    if(QDir::isRelativePath(file))
+			file.prepend(dir);
 		}
 	    }
 	}
