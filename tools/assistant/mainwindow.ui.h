@@ -277,7 +277,15 @@ void MainWindow::find()
 
 void MainWindow::goHome()
 {
-    showLink( QString( qInstallPathDocs() ) + "/html/index.html" );
+    QSettings settings;
+
+    settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
+    QString home = settings.readEntry( "/Qt Assistant/3.1/Homepage" );
+
+    if ( home.isEmpty() )
+	showLink( QString( qInstallPathDocs() ) + "/html/index.html" );
+    else
+	showLink( QString( home ) );
 }
 
 void MainWindow::showAssistantHelp()
@@ -374,9 +382,10 @@ void MainWindow::showLink( const QString &link )
 {
     QString filename = link.left( link.find( '#' ) );
     QFileInfo fi( filename );
-    // introduce a default-not-found site
-    if ( !fi.exists() )
+    // ### introduce a default-not-found site
+    if ( !fi.exists() ) {
 	browser->setSource( "index.html" );
+    }
     else {
 	browser->setSource( link );
     }

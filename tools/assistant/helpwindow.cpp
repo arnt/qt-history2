@@ -39,7 +39,7 @@
 HelpWindow::HelpWindow( MainWindow *w, QWidget *parent, const char *name )
     : QTextBrowser( parent, name ), mw( w ), shiftPressed( FALSE ), blockScroll( FALSE )
 {
-    
+
 }
 
 void HelpWindow::setSource( const QString &name )
@@ -82,6 +82,36 @@ void HelpWindow::setSource( const QString &name )
 	proc->addArgument( webbrowser );
 	proc->addArgument( name );
 	proc->launch( "" );
+	return;
+    }
+
+    if ( name.right( 3 ) == "pdf" ) {
+	QSettings settings;
+	settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
+	QString pdfbrowser =
+	    settings.readEntry( "/Qt Assistant/3.1/PDFApplication" );
+	if ( pdfbrowser.isEmpty() ) {
+	    QMessageBox::information( mw,
+				      tr( "Help" ),
+				      tr( "No PDF Viewer has been specified\n"
+					  "Please use the settings dialog to specify one!\n" ) );
+	    return;
+	}
+	QFileInfo info( pdfbrowser );
+	if( !info.exists() ) {
+	    QMessageBox::information( mw,
+				      tr( "Help" ),
+				      tr( "Qt Assistant is unable to start the PDF Viewer\n\n"
+					  "%1\n\n"
+					  "Please make sure that the executable exists and is located at\n"
+					  "the specified location." ).arg( pdfbrowser ) );
+	    return;
+	}
+	QProcess *proc = new QProcess();
+	proc->addArgument( pdfbrowser );
+	proc->addArgument( name );
+	proc->launch( "" );
+
 	return;
     }
 

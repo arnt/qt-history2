@@ -117,8 +117,9 @@ void SettingsDialog::init()
     changed = FALSE;
     selectionChanged = FALSE;
 
-    QString b = settings.readEntry( "/Qt Assistant/3.1/Webbrowser", "" );
-    browserApp->setText( b );
+    browserApp->setText( settings.readEntry( "/Qt Assistant/3.1/Webbrowser", "" ) );
+    homePage->setText( settings.readEntry( "/Qt Assistant/3.1/Homepage", "" ) );
+    pdfApp->setText( settings.readEntry( "/Qt Assistant/3.1/PDFApplication", "" ) );
 
     docuFileBox->clear();
     docuFileList = settings.readListEntry( DocuParser::DocumentKey + "AdditionalDocFiles" );
@@ -369,6 +370,33 @@ void SettingsDialog::browseWebApp()
     }
 }
 
+void SettingsDialog::browsePDFApplication()
+{
+    QFileDialog *fd = new QFileDialog( this );
+    fd->setCaption( tr( "Qt Assistant - Set PDF Browser" ) );
+    fd->setMode( QFileDialog::AnyFile );
+    fd->setDir( QDir::homeDirPath() );
+
+    if ( fd->exec() == QDialog::Accepted ) {
+	if ( !fd->selectedFile().isEmpty() )
+	   pdfApp->setText( fd->selectedFile() );
+    }
+}
+
+void SettingsDialog::browseHomepage()
+{
+    QFileDialog *fd = new QFileDialog( this );
+    fd->setCaption( tr( "Qt Assistant - Set Homepage" ) );
+    fd->setMode( QFileDialog::AnyFile );
+    fd->setDir( QDir::homeDirPath() );
+
+    if ( fd->exec() == QDialog::Accepted ) {
+	if ( !fd->selectedFile().isEmpty() )
+	    homePage->setText( fd->selectedFile() );
+    }
+}
+
+
 void SettingsDialog::accept()
 {
     QSettings *settings = new QSettings();
@@ -378,6 +406,8 @@ void SettingsDialog::accept()
     settings->writeEntry( DocuParser::DocumentKey + "CategoriesAvailable", catListAvail );
 
     settings->writeEntry( "/Qt Assistant/3.1/Webbrowser", browserApp->text() );
+    settings->writeEntry( "/Qt Assistant/3.1/Homepage", homePage->text() );
+    settings->writeEntry( "/Qt Assistant/3.1/PDFApplication", pdfApp->text() );
 
     hide();
 

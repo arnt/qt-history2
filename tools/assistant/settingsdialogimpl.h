@@ -80,6 +80,8 @@ protected slots:
     void addCategory();
     void deleteCategory();
     void browseWebApp();
+    void browsePDFApplication();
+    void browseHomepage();
     void accept();
     void reject();
 

@@ -14,7 +14,6 @@ HEADERS	+= helpwindow.h \
 TARGET	= assistant
 
 #DEFINES +=  QT_PALMTOPCENTER_DOCS
-DEFINES	+= QT_INTERNAL_NETWORK QT_INTERNAL_XML
 include( ../../src/qt_professional.pri )
 DESTDIR	= ../../bin
 
@@ -37,8 +36,8 @@ FORMS	= mainwindow.ui \
 	helpdialog.ui \
 	settingsdialog.ui
 IMAGES	= images/appicon.png \
-	images/editcopy.png \
-	images/find.png \
+        images/editcopy.png \
+        images/find.png \
 	images/home.png \
 	images/next.png \
 	images/previous.png \
@@ -52,6 +51,8 @@ IMAGES	= images/appicon.png \
 	images/zoomin.png \
 	images/zoomout.png \
 	images/splash.png
+	
 TEMPLATE	=app
-CONFIG	+= qt
+CONFIG	+= qt console
+DEFINES	+= QT_INTERNAL_NETWORK QT_INTERNAL_XML
 LANGUAGE	= C++
