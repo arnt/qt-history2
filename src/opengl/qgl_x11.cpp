@@ -117,11 +117,11 @@ static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
     XStandardColormap *c;
     int n, i;
 
-    //qDebug( "Choosing cmap for vID %0x", vi->visualid );
-
+    // qDebug( "Choosing cmap for vID %0x", vi->visualid );
+        
     if ( vi->visualid ==
 	 XVisualIDFromVisual( (Visual*)QPaintDevice::x11AppVisual() ) ) {
-	//qDebug( "Using x11AppColormap" );
+	// qDebug( "Using x11AppColormap" );
 	return QPaintDevice::x11AppColormap();
     }
 
@@ -168,17 +168,12 @@ static Colormap choose_cmap( Display *dpy, XVisualInfo *vi )
 	x->cmap = XCreateColormap( dpy, RootWindow(dpy,vi->screen), vi->visual,
 				   AllocNone );
 	x->alloc = TRUE;
-	//qDebug( "Allocating cmap" );
-
+	// qDebug( "Allocating cmap" );
     }
 
     cmap_dict->insert( (long)vi->visualid, x ); // associate cmap with visualid
     return x->cmap;
 }
-
-
-
-
 
 struct TransColor
 {
@@ -428,7 +423,7 @@ void *QGLContext::tryVisual( const QGLFormat& f, int bufDepth )
     int i = 0;
     spec[i++] = GLX_LEVEL;
     spec[i++] = f.plane();
-
+    
 #if defined(GLX_VERSION_1_1) && defined(GLX_EXT_visual_info)
     static bool useTranspExt = FALSE;
     static bool useTranspExtChecked = FALSE;
@@ -490,9 +485,10 @@ void *QGLContext::tryVisual( const QGLFormat& f, int bufDepth )
 	}
     }
     else {
-	spec[i++] = GLX_BUFFER_SIZE;
-	spec[i++] = bufDepth;
+ 	spec[i++] = GLX_BUFFER_SIZE;
+ 	spec[i++] = bufDepth;
     }
+    
     spec[i] = None;
     return glXChooseVisual( paintDevice->x11Display(),
 			    paintDevice->x11Screen(), spec );
@@ -601,15 +597,18 @@ uint QGLContext::colorIndex( const QColor& c ) const
 		     + ( bf * x->scmap.blue_mult );
 	    return p;
 	}
-	else
+	else {
 	    return c.pixel(); // ### wrong; should really ask QColor to alloc
+	}
     }
     return 0;
 }
 
-
-
-
+void QGLContext::setColormap( const QColormap & cmap )
+{
+    XSetWindowColormap( paintDevice->x11Display(),
+			((QWidget *) paintDevice)->winId(), cmap.colormap() );
+}
 
 /*****************************************************************************
   QGLOverlayWidget (Internal overlay class for X11)
@@ -723,6 +722,7 @@ void QGLWidget::init( const QGLFormat& format, const QGLWidget* shareWidget )
     olw = 0;
     autoSwap = TRUE;
 
+    qDebug("init QGL");
     if ( shareWidget )
 	setContext( new QGLContext( format, this ), shareWidget->context() );
     else
@@ -807,6 +807,7 @@ void QGLWidget::setContext( QGLContext *context,
 			    const QGLContext* shareContext,
 			    bool deleteOldContext )
 {
+    qDebug("attempting to set context");
     if ( context == 0 ) {
 #if defined(QT_CHECK_NULL)
 	qWarning( "QGLWidget::setContext: Cannot set null context" );

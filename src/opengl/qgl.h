@@ -40,6 +40,7 @@
 
 #ifndef QT_H
 #include <qwidget.h>
+#include "qcolormap.h"
 #endif // QT_H
 
 #ifndef QT_NO_COMPAT
@@ -63,7 +64,10 @@ Q_EXPORT inline const char *qGLVersion() {
 # include <GL/glu.h>
 #endif
 
+#if defined(Q_WS_WIN) || defined(Q_WS_MAC)
 class QGLColorMap;
+#endif
+
 class QPixmap;
 #if defined(Q_WS_X11)
 class QGLOverlayWidget;
@@ -164,7 +168,8 @@ public:
     QGLFormat		format() const;
     QGLFormat		requestedFormat() const;
     virtual void	setFormat( const QGLFormat& format );
-
+    virtual void        setColormap( const QColormap & cmap );
+    
     virtual void	makeCurrent();
     virtual void	swapBuffers() const;
 
@@ -173,7 +178,7 @@ public:
     QColor		overlayTransparentColor() const;
 
     static const QGLContext*	currentContext();
-
+        
 protected:
     virtual bool	chooseContext( const QGLContext* shareContext = 0 );
     virtual void	doneCurrent();
@@ -249,7 +254,8 @@ public:
 
     void		qglColor( const QColor& c ) const;
     void		qglClearColor( const QColor& c ) const;
-
+    void                setColormap( const QColormap & cmap );
+    
     bool		isValid() const;
     bool		isSharing() const;
     virtual void	makeCurrent();
@@ -481,4 +487,8 @@ inline void QGLWidget::fixBufferRect()
 }
 #endif
 
+inline void QGLWidget::setColormap( const QColormap & cmap )
+{
+    glcx->setColormap( cmap );
+}
 #endif
