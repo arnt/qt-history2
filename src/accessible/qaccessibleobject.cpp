@@ -332,7 +332,7 @@ QAccessible::Role QAccessibleApplication::role( int ) const
 }
 
 /*! \reimp */
-QAccessible::State QAccessibleApplication::state( int ) const
+int QAccessibleApplication::state( int ) const
 {
     return qApp->activeWindow() ? Focused : Normal;
 }

@@ -36,24 +36,24 @@ public:
     QObject	*object() const;
 
     // properties
-    QRect	rect(int control) const;
-    void	setText(Text t, int control, const QString &text);
+    QRect	rect(int child) const;
+    void	setText(Text t, int child, const QString &text);
 
-    int		propertyCount(int control) const;
-    QString	propertyText(int property, Text t, int control) const;
-    QString	property(int property, int control) const;
-    void	setProperty(int property, const QString& value, int control);
+    int		propertyCount(int child) const;
+    QString	propertyText(int property, Text t, int child) const;
+    QString	property(int property, int child) const;
+    void	setProperty(int property, const QString& value, int child);
 
     // selections
-    bool	setSelected(int control, bool on, bool extend);
+    bool	setSelected(int child, bool on, bool extend);
     void	clearSelection();
     QVector<int> selection() const;
 
     // actions
-    int		actionCount(int control) const;
-    int		defaultAction(int control) const;
-    bool	doAction(int action, int control);
-    QString	actionText(int action, Text t, int control) const;
+    int		actionCount(int child) const;
+    int		defaultAction(int child) const;
+    bool	doAction(int action, int child);
+    QString	actionText(int action, Text t, int child) const;
 
 protected:
     virtual ~QAccessibleObject();
@@ -77,14 +77,14 @@ public:
     int		navigate(Relation, int, QAccessibleInterface **) const;
 
     // properties and state
-    QString	text(Text t, int control) const;
-    Role	role(int control) const;
-    State	state(int control) const;
+    QString	text(Text t, int child) const;
+    Role	role(int child) const;
+    int		state(int child) const;
 
     // actions
-    int		defaultAction(int control) const;
-    bool	doAction(int action, int control);
-    QString	actionText(int action, Text t, int control) const;
+    int		defaultAction(int child) const;
+    bool	doAction(int action, int child);
+    QString	actionText(int action, Text t, int child) const;
 };
 
 #endif //QT_ACCESSIBILITY_SUPPORT

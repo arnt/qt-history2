@@ -90,6 +90,9 @@
     \value AlertHigh
     \value Protected
     \value Valid
+
+    Implementations of QAccessibleInterface::state() return a combination
+    of those flags.
 */
 
 /*!
@@ -206,16 +209,14 @@
 /*!
     \enum QAccessible::Relation
 
-    This enum specifies the relationship between two objects.
+    This enum type defines bitflags that can be combined to indicate
+    the relationship between two accessible objects.
 
     \value Unrelated	    The objects are unrelated
     \value Self		    The objects are the same
-    \value Ancestor	    The first object is a parent of the
-			    second object
-    \value Child	    The first object is a direct child
-			    of the second object
-    \value Descendent	    The first object is an indirect child
-			    of the second object
+    \value Ancestor	    The first object is a parent of the second object
+    \value Child	    The first object is a direct child of the second object
+    \value Descendent	    The first object is an indirect child of the second object
     \value Sibling	    The objects are siblings
     \value HierarchyMask    A mask for hierarchical relationships
 
@@ -228,16 +229,17 @@
     \value GeometryMask	    A mask for geometrical relationships. 
 			    Geometrical relationships are only relevant between siblings.
 
-    \value FocusChild	    The first object is the second object's
-			    focus child
-    \value Label	    The first object is the label of the
-			    second object
+    \value FocusChild	    The first object is the second object's focus child
+    \value Label	    The first object is the label of the second object
+    \value Labelled	    The first object is labelled by the second object
     \value Controller	    The first object controls the second object
+    \value Controlled	    The first object is controlled by the second object
     \value LogicalMask	    A mask for logical relationships
 
-    relationTo() can return a combination of the different values.
-    (some values are obviously mutually exclusive). navigate() can
-    accepts only one distinct value.
+    Implementations of relationTo() return a combination of those flags.
+    (some values are obviously mutually exclusive).
+
+    Implementations of navigate() can accepts only one distinct value.
 */
 
 /*!
@@ -249,10 +251,8 @@
     \value Name		    The name of the object
     \value Description	    A short text describing the object
     \value Value	    The value of the object
-    \value Help		    A longer text giving information about how
-			    to use the object
-    \value Accelerator	    The keyboard shortcut that executes the
-			    default action
+    \value Help		    A longer text giving information about how to use the object
+    \value Accelerator	    The keyboard shortcut that executes the default action
 */
 
 /*!
@@ -261,7 +261,8 @@
     This enum specifies predefined actions that an accessible object
     can execute.
 
-    \value NoAction	    Do nothing
+    \value NoAction	    Do nothing. Usually used as a return value of defaultAction()
+			    to indicate that the object cannot perform any action.
     \value Press	    Press
     \value SetFocus	    Take the focus
     \value Increase	    Increase the value
@@ -486,9 +487,9 @@ QAccessible::RootObjectHandler QAccessible::installRootObjectHandler(RootObjectH
     if one plugin can provide the implementation.
 
     If no implementation for the object's class is available the function tries to
-    find an implementation for the object's parent class.
+    find an implementation for the object's parent class, using above strategy.
 
-    The caller has to release the interface returned in \a iface.
+    The caller has to call release() on the interface returned in \a iface.
 */
 bool QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInterface **iface )
 {
@@ -499,7 +500,7 @@ bool QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInterfac
     QEvent e(QEvent::Accessibility);
     QApplication::sendEvent(object, &e);
 
-    if ( qInterfaceCache ) {
+    if (qInterfaceCache) {
 	*iface = qInterfaceCache->value(object);
 	if ( *iface ) {
 	    if ((*iface)->isValid()) {
@@ -571,7 +572,7 @@ bool QAccessible::queryAccessibleInterface( QObject *object, QAccessibleInterfac
 */
 bool QAccessible::isActive()
 {
-    return qAccessibleManager != 0;
+    return qInterfaceCache != 0;
 }
 
 /*!
@@ -605,7 +606,7 @@ bool QAccessible::isActive()
 
     Every element that the user needs to interact with or react to is an accessible object,
     and should provide this information. These are mainly visual objects, e.g. widgets and
-    widget contents, but can also be content, e.g. sounds.
+    widget elements, but can also be content, e.g. sounds.
 
     The AT client uses three basic concepts to acquire information about any accessible
     object in an application:
@@ -619,6 +620,10 @@ bool QAccessible::isActive()
 
     The QAccessibleInterface defines the API for those three concepts.
 
+    \section2 Relations and Navigation
+
+    childCount(), indexOfChild(), relationTo(), childAt(), navigate()
+
     \section2 Properties
 
     text(), setText(), role(), state(), rect()
@@ -627,10 +632,6 @@ bool QAccessible::isActive()
 
     actionCount(), defaultAction(), actionText(), doAction()
     setSelected(), clearSelection(), selection()
-
-    \section2 Relations and Navigation
-
-    childCount(), indexOfChild(), relationTo(), childAt(), navigate()
 
     \section2 Objects and children
 
@@ -698,7 +699,8 @@ bool QAccessible::isActive()
 /*!
     \fn QObject *QAccessibleInterface::object() const
 
-    Returns the QObject this interface implementation provides information for.
+    Returns a pointer to the QObject this interface implementation provides 
+    information for.
 
     \sa isValid()
 */
@@ -711,6 +713,8 @@ bool QAccessible::isActive()
     widget), or be a sub-element of this accessible object.
 
     All objects provide this information.
+
+    \sa indexOfChild()
 */
 
 /*!
@@ -731,12 +735,14 @@ bool QAccessible::isActive()
     \a otherChild. If \a child is zero the object's own relation is returned.
 
     The returned value indicates the relation of the called object to the \a other object,
-    e.g. if \a other is child of this object the return value will be \c Ancestor.
+    e.g. if this object is a child of \a other the return value will be \c Child.
 
-    The return value is a combination of the bitflags in the \c Relation enumeration. The
-    returned value always includes a bit from the hierarchical relations
+    The return value is a combination of the bitflags in the \c QAccessible::Relation 
+    enumeration.
 
     All objects provide this information.
+
+    \sa indexOfChild(), navigate()
 */
 
 /*!
@@ -751,24 +757,15 @@ bool QAccessible::isActive()
     not be layouted correctly).
 
     All visual objects provide this information.
+
+    \sa rect()
 */
 
 /*!
     \fn int QAccessibleInterface::navigate(Relation relation, int entry, QAccessibleInterface **target) const
 
     Navigates from this object to an object that has a relationship
-    \a relation to this object.
-
-    The \a entry parameter has two different meanings:
-    \list
-    \i Logical relations -  if multiple object with the requested relationship
-    exist \a entry specifies which one to return. \a entry is 1-based, e.g. use 1 to
-    get the first (and possibly only) object with the requested relationship.
-    \i Geometrical relations - the index of the child from which to start navigating
-    into the specified direction. \a entry can be 0 to navigate to a sibling of this
-    object, or non-null to navigate within contained children that don't provide their
-    own accessible information.
-    \endlist
+    \a relation to this object, and returns the respective object in \a target.
 
     If an object is found \a target is set to point to the object, and the index
     of the child in \a target is returned. The return value is 0 if \a target itself
@@ -777,23 +774,35 @@ bool QAccessible::isActive()
 
     If no object is found \a target is set to null, and the return value is -1.
 
+    The \a entry parameter has two different meanings:
+    \list
+    \i Hierarchical and Logical relations -  if multiple object with the requested 
+    relationship exist \a entry specifies which one to return. \a entry is 1-based,
+    e.g. use 1 to get the first (and possibly only) object with the requested relationship.
+
     The following code demonstrates how to use this function to navigate
-    to the next sibling of an object. The example doesn't check for errors
-    for simplicity.
+    to the first child of an object:
 
     \code
-    QAccessibleInterface *parent = 0;
-    QAccessibleInterface *sibling = 0;
-    int index = 0;
-    object->navigate(Ancestor, 0, &parent);
-    index = parent->indexOfChild(object);
-    parent->navigate(Child, index + 1, &sibling);
-    parent->release();
+    QAccessibleInterface *child = 0;
+    int targetChild = object->navigate(Child, 1, &child);
+    if (child) {
+        // ...
+	child->release();
+    }
     \endcode
+
+    \i Geometrical relations - the index of the child from which to start navigating
+    into the specified direction. \a entry can be 0 to navigate to a sibling of this
+    object, or non-null to navigate within contained children that don't provide their
+    own accessible information.
+    \endlist
 
     Note that \c Descendent as a value for \a relation is not supported.
 
     All objects support navigation.
+
+    \sa relationTo(), childCount()
 */
 
 /*!
@@ -832,9 +841,9 @@ bool QAccessible::isActive()
     tool buttons also have shortcut keys and usually display them in
     their tooltip.
 
-    \sa role(), state(), selection()
-
     All objects provide a string for \e Name.
+
+    \sa role(), state(), selection()
 */
 
 /*!
@@ -844,6 +853,8 @@ bool QAccessible::isActive()
     child if \a child is not 0 to \a text.
 
     Note that the text properties of most objects are read-only.
+
+    \sa text()
 */
 
 /*!
@@ -856,6 +867,8 @@ bool QAccessible::isActive()
     not be layouted correctly).
 
     All visual objects provide this information.
+
+    \sa childAt()
 */
 
 /*!
@@ -870,10 +883,11 @@ bool QAccessible::isActive()
 */
 
 /*!
-    \fn QAccessible::State QAccessibleInterface::state(int child) const
+    \fn int QAccessibleInterface::state(int child) const
 
     Returns the current state of the object or of the object's child if
-    \a child is not 0.
+    \a child is not 0. The returned value is a combination of the flags in
+    the QAccessible::State enumeration.
 
     All accessible objects have a state.
 

@@ -210,7 +210,9 @@ public:
 
 	FocusChild	= 0x00010000,
 	Label		= 0x00020000,
-	Controller	= 0x00040000,
+	Labelled	= 0x00040000,
+	Controller	= 0x00080000,
+	Controlled	= 0x00100000,
 	LogicalMask	= 0x00ff0000
     };
 
@@ -257,26 +259,26 @@ struct Q_EXPORT QAccessibleInterface : public QAccessible, public QUnknownInterf
     virtual int		navigate(Relation relation, int index, QAccessibleInterface **iface) const = 0;
 
     // properties and state
-    virtual QString	text(Text t, int control) const = 0;
-    virtual void	setText(Text t, int control, const QString &text) = 0;
-    virtual QRect	rect(int control) const = 0;
-    virtual Role	role(int control) const = 0;
-    virtual State	state(int control) const = 0;
+    virtual QString	text(Text t, int child) const = 0;
+    virtual void	setText(Text t, int child, const QString &text) = 0;
+    virtual QRect	rect(int child) const = 0;
+    virtual Role	role(int child) const = 0;
+    virtual int		state(int child) const = 0;
 
     // more properties
-    virtual int		propertyCount(int control) const = 0;
-    virtual QString	propertyText(int property, Text t, int control) const = 0;
-    virtual QString	property(int property, int control) const = 0;
-    virtual void	setProperty(int property, const QString& value, int control) = 0;
+    virtual int		propertyCount(int child) const = 0;
+    virtual QString	propertyText(int property, Text t, int child) const = 0;
+    virtual QString	property(int property, int child) const = 0;
+    virtual void	setProperty(int property, const QString& value, int child) = 0;
 
     // action
-    virtual int		actionCount(int control) const = 0;
-    virtual int		defaultAction(int control) const = 0;
-    virtual QString	actionText(int action, Text t, int control) const = 0;
-    virtual bool	doAction(int action, int control) = 0;
+    virtual int		actionCount(int child) const = 0;
+    virtual int		defaultAction(int child) const = 0;
+    virtual QString	actionText(int action, Text t, int child) const = 0;
+    virtual bool	doAction(int action, int child) = 0;
 
     // selection
-    virtual bool	setSelected(int control, bool on, bool extend) = 0;
+    virtual bool	setSelected(int child, bool on, bool extend) = 0;
     virtual QVector<int> selection() const = 0;
     virtual void	clearSelection() = 0;
 };

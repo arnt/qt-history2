@@ -103,6 +103,7 @@ public:
     QString defActionName;
     QString accelerator;
     QStringList primarySignals;
+    const QAccessibleInterface *asking;
 };
 
 /*!
@@ -126,6 +127,7 @@ QAccessibleWidget::QAccessibleWidget(QWidget *w, Role role, QString name)
     d = new QAccessibleWidgetPrivate();
     d->role = role;
     d->name = name;
+    d->asking = 0;
 }
 
 /*!
@@ -205,20 +207,17 @@ QRect	QAccessibleWidget::rect(int child) const
     return QRect(wpos.x(), wpos.y(), w->width(), w->height());
 }
 
-
-// ### I don't like this at all. QObject or QMetaObject
-// should have a better API for something like this.
-// Introspection is a Qt feature - hiding it in obscure
-// privat headers makes this very difficult to use
 #include <private/qobject_p.h>
 
-class FindConnectionObject : public QObject
+class ConnectionObject : public QObject
 {
 public:
-    bool isConnected(const QObject *receiver, const char *signal);
+    bool isSender(const QObject *receiver, const char *signal) const;
+    QList<QObject*> receiverList(const char *signal) const;
+    QList<QObject*> senders() const;
 };
 
-bool FindConnectionObject::isConnected(const QObject *receiver, const char *signal)
+bool ConnectionObject::isSender(const QObject *receiver, const char *signal) const
 {
     int sigindex = metaObject()->indexOfSignal(signal);
     if (sigindex < 0)
@@ -232,6 +231,34 @@ bool FindConnectionObject::isConnected(const QObject *receiver, const char *sign
 	connections = d->findConnection(sigindex, i);
     } while (connections);
     return FALSE;
+}
+
+QList<QObject*> ConnectionObject::receiverList(const char *signal) const
+{
+    QList<QObject*> receivers;
+
+    int sigindex = metaObject()->indexOfSignal(signal);
+    if (sigindex < 0)
+	return receivers;
+
+    int i = 0;
+    QObjectPrivate::Connections::Connection *connections = d->findConnection(sigindex, i);
+    if (connections) do {
+	receivers << connections->receiver;
+    	connections = d->findConnection(sigindex, i);
+    } while (connections);
+    return receivers;
+}
+
+QList<QObject*> ConnectionObject::senders() const
+{
+    QList<QObject*> senders;
+    if (!d->senders)
+	return senders;
+    for (int i = 0; i < d->senders->count; ++i)
+	senders << d->senders->senders[i].sender;
+
+    return senders;
 }
 
 #undef d
@@ -296,9 +323,9 @@ void QAccessibleWidget::setHelp(const QString &help)
 
     Note that the object wrapped by this interface is not modified.
 */
-void QAccessibleWidget::setAccelerator(const QString &accelerator)
+void QAccessibleWidget::setAccelerator(const QString &accel)
 {
-    d->accelerator = accelerator;
+    d->accelerator = accel;
 }
 
 /*!
@@ -320,30 +347,34 @@ void QAccessibleWidget::setDefaultAction(int defAction, const QString &name)
 int QAccessibleWidget::relationTo(int child, const QAccessibleInterface *other, int otherChild) const
 {
     int relation = Unrelated;
+    if (d->asking == this) // recursive call
+	return relation;
+
     QObject *o = other ? other->object() : 0;
-    if (!o || !o->isWidgetType())
+    if (!o)
 	return relation;
 
     QWidget *focus = widget()->focusWidget();
-    if (object() == focus) {
-	QObject *focusParent = focus->parent();
-	bool focusIsChild = FALSE;
-	while(focusParent && !focusIsChild) {
-	    focusIsChild = focusParent == o;
-	    focusParent = focusParent ->parent();
-	}
+    if (object() == focus && o->isAncestorOf(focus))
+	relation |= FocusChild;
 
-	if(focusIsChild)
-	    relation |= FocusChild;
-    }
-
-    FindConnectionObject *findConnection = (FindConnectionObject*)object();
+    ConnectionObject *connectionObject = (ConnectionObject*)object();
     for (int sig = 0; sig < d->primarySignals.count(); ++sig) {
-	if (findConnection->isConnected(o, d->primarySignals.at(sig).ascii())) {
+	if (connectionObject->isSender(o, d->primarySignals.at(sig).ascii())) {
 	    relation |= Controller;
 	    break;
 	}
     }
+    // test for passive relationships.
+    // d->asking protects from endless recursion.
+    d->asking = this;
+    int inverse = other->relationTo(otherChild, this, child);
+    d->asking = 0;
+
+    if (inverse & Controller)
+	relation |= Controlled;
+    if (inverse & Label)
+	relation |= Labelled;
 
     if(o == object()) {
 	if (child && !otherChild)
@@ -641,12 +672,39 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 	    // be very expensive
 	}
 	break;
+    case Labelled: // only implemented in subclasses
+	break;
     case Controller:
-	{
-	    // Need some sort of "controllingSlot" or
-	    // "controllingProperty" here, then we can check
-	    // all senders we are connected to, and see if they
-	    // are a controller to us.
+	if (entry > 0) {
+	    // check all senders we are connected to,
+	    // and figure out which one are controllers to us
+	    ConnectionObject *connectionObject = (ConnectionObject*)object();
+	    QList<QObject*> allSenders = connectionObject->senders();
+	    QList<QObject*> senders;
+	    for (int s = 0; s < allSenders.count(); ++s) {
+		QAccessibleInterface *test = 0;
+		QObject *sender = allSenders.at(s);
+		QAccessible::queryAccessibleInterface(sender, &test);
+		if (!test)
+		    continue;
+		if (test->relationTo(0, this, 0)&Controller)
+		    senders << sender;
+		test->release();
+	    }
+	    if (entry <= senders.count())
+		targetObject = senders.at(entry-1);
+	}
+	break;
+    case Controlled:
+	if (entry > 0) {
+	    QList<QObject*> allReceivers;
+	    ConnectionObject *connectionObject = (ConnectionObject*)object();
+	    for (int sig = 0; sig < d->primarySignals.count(); ++sig) {
+		QList<QObject*> receivers = connectionObject->receiverList(d->primarySignals.at(sig).ascii());
+		allReceivers += receivers;
+	    }
+	    if (entry <= allReceivers.count())
+		targetObject = allReceivers.at(entry-1);
 	}
 	break;
     default:
@@ -753,7 +811,7 @@ QAccessible::Role QAccessibleWidget::role(int child) const
 }
 
 /*! \reimp */
-QAccessible::State QAccessibleWidget::state(int child) const
+int QAccessibleWidget::state(int child) const
 {
     if (child)
 	return Normal;
