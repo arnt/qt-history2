@@ -147,7 +147,7 @@ void WriteInitialization::acceptWidget(DomWidget *node)
     } else if (uic->customWidgetsInfo()->extends(className, QLatin1String("QListWidget"))) {
         initializeListWidget(node);
     } else if (uic->customWidgetsInfo()->extends(className, QLatin1String("QTreeWidget"))) {
-        initializeListWidget(node);
+        initializeTreeWidget(node);
     } else if (uic->customWidgetsInfo()->extends(className, QLatin1String("QTableWidget"))) {
         initializeTableWidget(node);
     } else if (uic->customWidgetsInfo()->extends(className, QLatin1String("Q3ListBox"))) {
@@ -945,6 +945,40 @@ void WriteInitialization::initializeQ3ListViewItems(const QString &className, co
     }
 }
 
+void WriteInitialization::initializeTreeWidgetItems(const QString &className, const QString &varName, const QList<DomItem *> &items)
+{
+    if (items.isEmpty())
+        return;
+
+    // items
+    for (int i=0; i<items.size(); ++i) {
+        DomItem *item = items.at(i);
+
+        QString itemName = driver->unique(QLatin1String("__item"));
+        refreshOut << "\n";
+        refreshOut << option.indent << "QTreeWidgetItem *" << itemName << " = new QTreeWidgetItem(" << varName << ");\n";
+
+        int textCount = 0, pixCount = 0;
+        QList<DomProperty*> properties = item->elementProperty();
+        for (int i=0; i<properties.size(); ++i) {
+            DomProperty *p = properties.at(i);
+            if (p->attributeName() == QLatin1String("text"))
+                refreshOut << option.indent << itemName << "->setText(" << textCount++ << ", "
+                           << trCall(p->elementString(), className) << ");\n";
+
+            if (p->attributeName() == QLatin1String("icon"))
+                refreshOut << option.indent << itemName << "->setIcon(" << pixCount++ << ", "
+                           << pixCall(p->elementIconSet()) << ");\n";
+        }
+
+        if (item->elementItem().size()) {
+            refreshOut << option.indent << varName << "->setExpanded(" << itemName << ", " << "true);\n";
+            initializeTreeWidgetItems(className, itemName, item->elementItem());
+        }
+    }
+}
+
+
 void WriteInitialization::initializeQ3Table(DomWidget *w)
 {
     QString varName = driver->findOrInsertWidget(w);
@@ -1099,8 +1133,44 @@ void WriteInitialization::initializeListWidget(DomWidget *w)
 
 void WriteInitialization::initializeTreeWidget(DomWidget *w)
 {
-    // ### not implemented yet
-    Q_UNUSED(w);
+    QString varName = driver->findOrInsertWidget(w);
+    QString className = w->attributeClass();
+
+    // columns
+    QList<DomColumn*> columns = w->elementColumn();
+    for (int i=0; i<columns.size(); ++i) {
+        DomColumn *column = columns.at(i);
+
+        QHash<QString, DomProperty*> properties = propertyMap(column->elementProperty());
+        DomProperty *text = properties.value(QLatin1String("text"));
+        DomProperty *icon = properties.value(QLatin1String("icon"));
+        DomProperty *clickable = properties.value(QLatin1String("clickable"));
+        DomProperty *resizable = properties.value(QLatin1String("resizable"));
+
+        QString txt = trCall(text->elementString(), className);
+        refreshOut << option.indent << varName << "->headerItem()->setText(" << i << ", " << txt << ");\n";
+
+        if (icon != 0 && icon->elementIconSet()) {
+            output << option.indent << varName << "->headerItem()->setIcon("
+                   << varName << "->headerItem()->childCount() - 1, " << pixCall(icon->elementIconSet()) << ");\n";
+        }
+
+#if 0 // ### port me
+        if (!clickable) {
+            output << option.indent << varName << "->header()->setClickEnabled(false, " << varName << "->header()->count() - 1);\n";
+        }
+
+        if (!resizable) {
+            output << option.indent << varName << "->header()->setResizeEnabled(false, " << varName << "->header()->count() - 1);\n";
+        }
+#endif
+    }
+
+    if (w->elementItem().size()) {
+        refreshOut << option.indent << varName << "->clear();\n";
+
+        initializeTreeWidgetItems(className, varName, w->elementItem());
+    }
 }
 
 void WriteInitialization::initializeTableWidget(DomWidget *w)

@@ -86,6 +86,7 @@ private:
     void initializeComboBox(DomWidget *w);
     void initializeListWidget(DomWidget *w);
     void initializeTreeWidget(DomWidget *w);
+    void initializeTreeWidgetItems(const QString &className, const QString &varName, const QList<DomItem *> &items);
     void initializeTableWidget(DomWidget *w);
 
 //
