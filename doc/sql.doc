@@ -70,6 +70,8 @@
  
 \title Qt SQL Module
 
+This module is part of the <a href="editions.html">Qt Enterprise Edition</a>.
+
 <ul>
 <li><a href="#Introduction">Introduction</a></li>
 <li><a href="#Architecture">SQL Module Architecture</a></li>

@@ -128,10 +128,10 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
     f.setStereo( TRUE );
     MyGLWidget* myWidget = new MyGLWidget( f, ... );
     if ( !w->format().stereo() ) {
-        // ok, goggles off
-        if ( !w->format().hasOverlay() ) {
-            qFatal( "Cool hardware wanted" );
-        }
+	// ok, goggles off
+	if ( !w->format().hasOverlay() ) {
+	    qFatal( "Cool hardware wanted" );
+	}
     }
   \endcode
 
@@ -176,12 +176,12 @@ QGLFormat::QGLFormat()
     // The rendering in MyGLWidget depends on using
     // stencil buffer and alpha channel
     MyGLWidget::MyGLWidget( QWidget* parent, const char* name )
-        : QGLWidget( QGLFormat( StencilBuffer | AlphaChannel ), parent, name )
+	: QGLWidget( QGLFormat( StencilBuffer | AlphaChannel ), parent, name )
     {
       if ( !format().stencil() )
-        qWarning( "Could not get stencil buffer; results will be suboptimal" );
+	qWarning( "Could not get stencil buffer; results will be suboptimal" );
       if ( !format().alphaChannel() )
-        qWarning( "Could not get alpha channel; results will be suboptimal" );
+	qWarning( "Could not get alpha channel; results will be suboptimal" );
       ...
    }
   \endcode
@@ -624,9 +624,9 @@ QGLFormat QGLFormat::defaultOverlayFormat()
       // Yes, we got an overlay, let's check _its_ format:
       QGLContext* olContext = myWidget->overlayContext();
       if ( olContext->format().doubleBuffer() )
-         ; // yes, we got a double buffered overlay
+	 ; // yes, we got a double buffered overlay
       else
-         ; // no, only single buffered overlays were available
+	 ; // no, only single buffered overlays were available
     }
   \endcode
 
@@ -776,7 +776,7 @@ QGLContext::~QGLContext()
     f.setStereo( TRUE );
     cx->setFormat( f );
     if ( !cx->create() )
-        exit(); // no OpenGL support, or cannot render on specified paintdevice
+	exit(); // no OpenGL support, or cannot render on specified paintdevice
     if ( !cx->format().stereo() )
 	exit(); // could not create stereo context
   \endcode
@@ -1013,15 +1013,15 @@ bool QGLContext::create( const QGLContext* shareContext )
   \code
     class MyGLDrawer : public QGLWidget
     {
-        Q_OBJECT	// must include this if you use Qt signals/slots
+	Q_OBJECT	// must include this if you use Qt signals/slots
 
     public:
-        MyGLDrawer( QWidget *parent, const char *name )
+	MyGLDrawer( QWidget *parent, const char *name )
 	    : QGLWidget(parent,name) {}
 
     protected:
 
-        void initializeGL()
+	void initializeGL()
 	{
 	  // Set up the rendering context, define display lists etc.:
 	  ...
@@ -1039,7 +1039,7 @@ bool QGLContext::create( const QGLContext* shareContext )
 	  ...
 	}
 
-        void paintGL()
+	void paintGL()
 	{
 	  // draw the scene:
 	  ...
@@ -1277,7 +1277,7 @@ bool QGLWidget::isSharing() const
 void QGLWidget::makeCurrent()
 {
 #ifdef QMAC_OPENGL_DOUBLEBUFFER
-    if(!gl_pix) 
+    if(!gl_pix)
 	setContext( new QGLContext( req_format, gl_pix = new QPixmap(width(), height()) ));
 #endif
     glcx->makeCurrent();
@@ -1364,8 +1364,8 @@ void QGLWidget::setFormat( const QGLFormat &format )
   OBSOLETE
 
   \fn void QGLWidget::setContext( QGLContext *context,
-                                  const QGLContext* shareContext,
-                                  bool deleteOldContext )
+				  const QGLContext* shareContext,
+				  bool deleteOldContext )
 
   Sets a new context for this widget. The QGLContext \a context must
   be created using \e new. QGLWidget will delete \a context when
@@ -1787,6 +1787,8 @@ QImage QGLWidget::convertToGLFormat( const QImage& img )
 
 \title Qt OpenGL 3D Graphics
 
+This module is part of the <a href="editions.html">Qt Enterprise Edition</a>.
+
 <h2>Introduction</h2>
 
 OpenGL is a standard API for rendering 3D graphics.
@@ -1846,9 +1848,9 @@ Many applications need only the high-level QGLWidget class. The other QGL
 classes provide advanced features. */
 
 /*! \enum QGL::FormatOption
-  
-  This enum 
-  
+
+  This enum
+
   \value DoubleBuffer
   \value DepthBuffer
   \value Rgba

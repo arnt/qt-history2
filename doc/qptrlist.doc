@@ -126,7 +126,7 @@
   compare pointers instead, for instance removeRef(const type*).
   These functions are somewhat faster than those that call compareItems().
 
-  The QPtrStrList class in qptrstrlist.h is a list of \c char*.  QPtrStrList is
+  The QStrList class in qstrlist.h is a list of \c char*.  QStrList is
   a good example of a list that reimplements newItem(), deleteItem(), and
   compareItems()
 
@@ -876,7 +876,7 @@
 */
 
 /*!
-  \fn type *QPtrStrListIterator::operator()()
+  \fn type *QStrListIterator::operator()()
   Makes the succeeding item current and returns the original current item.
 
   If the current iterator item was the last item in the list or if it was
@@ -924,19 +924,19 @@
 
 
 /*****************************************************************************
-  QPtrStrList documentation
+  QStrList documentation
  *****************************************************************************/
 
 /*!
-  \class QPtrStrList qptrstrlist.h
-  \brief The QPtrStrList class provides a doubly-linked list of \c char*.
+  \class QStrList qstrlist.h
+  \brief The QStrList class provides a doubly-linked list of \c char*.
 
   \ingroup collection
   \ingroup tools
 
   This class is a QPtrList\<char\> instance (a list of char*).
 
-  QPtrStrList can make deep or shallow copies of the strings that are inserted.
+  QStrList can make deep or shallow copies of the strings that are inserted.
 
   A deep copy means to allocate space for the string and then copy the string
   data into it.  A shallow copy is just a copy of the pointer value and not
@@ -950,25 +950,25 @@
   consume far less memory than deep copies.  It is also much faster
   to copy a pointer (typically 4 or 8 bytes) than to copy string data.
 
-  A QPtrStrList that operates on deep copies will, by default, turn on
-  auto-deletion (see setAutoDelete()). Thus, by default QPtrStrList will
+  A QStrList that operates on deep copies will, by default, turn on
+  auto-deletion (see setAutoDelete()). Thus, by default QStrList will
   deallocate any string copies it allocates.
 
   The virtual compareItems() function is reimplemented and does a case-sensitive string comparison. The inSort() function will insert
   strings in a sorted order.
 
-  The QPtrStrListIterator class is an iterator for QPtrStrList.
+  The QStrListIterator class is an iterator for QStrList.
 */
 
 /*!
-  \fn QPtrStrList::QPtrStrList( bool deepCopies )
+  \fn QStrList::QStrList( bool deepCopies )
   Constructs an empty list of strings.  Will make deep copies of all inserted
   strings if \e deepCopies is TRUE, or uses shallow copies if \e deepCopies
   is FALSE.
 */
 
 /*!
-  \fn QPtrStrList::QPtrStrList( const QPtrStrList &list )
+  \fn QStrList::QStrList( const QStrList &list )
   Constructs a copy of \e list.
 
   If \e list has deep copies, this list will also get deep copies.
@@ -977,12 +977,12 @@
 */
 
 /*!
-  \fn QPtrStrList::~QPtrStrList()
+  \fn QStrList::~QStrList()
   Destroys the list.  All strings are removed.
 */
 
 /*!
-  \fn QPtrStrList& QPtrStrList::operator=( const QPtrStrList& list )
+  \fn QStrList& QStrList::operator=( const QStrList& list )
   Assigns \e list to this list and returns a reference to this list.
 
   If \e list has deep copies, this list will also get deep copies.
@@ -992,12 +992,12 @@
 
 
 /*****************************************************************************
-  QPtrStrIList documentation
+  QStrIList documentation
  *****************************************************************************/
 
 /*!
-  \class QPtrStrIList qptrstrlist.h
-  \brief The QPtrStrIList class provides a doubly-linked list of \c char* with
+  \class QStrIList qstrlist.h
+  \brief The QStrIList class provides a doubly-linked list of \c char* with
 case-insensitive compare.
 
   \ingroup collection
@@ -1005,37 +1005,37 @@ case-insensitive compare.
 
   This class is a QPtrList\<char\> instance (a list of char*).
 
-  QPtrStrIList is similar to QPtrStrList except that it is case-insensitive.
+  QStrIList is similar to QStrList except that it is case-insensitive.
   The virtual compareItems() function is reimplemented and does a
   case-insensitive string comparison.
   The inSort() function inserts strings in a sorted order.
 
-  The QPtrStrListIterator class is an iterator for QPtrStrList.
+  The QStrListIterator class is an iterator for QStrList.
 */
 
 /*!
-  \fn QPtrStrIList::QPtrStrIList( bool deepCopies )
+  \fn QStrIList::QStrIList( bool deepCopies )
   Constructs a list of strings.  Will make deep copies of all inserted
   strings if \e deepCopies is TRUE, or uses shallow copies if \e deepCopies
   is FALSE.
 */
 
 /*!
-  \fn QPtrStrIList::~QPtrStrIList()
+  \fn QStrIList::~QStrIList()
   Destroys the list.  All strings are removed.
 */
 
 
 /*****************************************************************************
-  QPtrStrListIterator documentation
+  QStrListIterator documentation
  *****************************************************************************/
 
 /*!
-  \class QPtrStrListIterator qptrstrlist.h
-  \brief The QPtrStrListIterator class is an iterator for the QPtrStrList and QPtrStrIList classes.
+  \class QStrListIterator qstrlist.h
+  \brief The QStrListIterator class is an iterator for the QStrList and QStrIList classes.
 
   \ingroup tools
 
   This class is a QPtrListIterator\<char\> instance.
-  It can traverse the strings in the QPtrStrList and QPtrStrIList classes.
+  It can traverse the strings in the QStrList and QStrIList classes.
 */

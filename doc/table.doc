@@ -36,6 +36,8 @@
 
 \title Qt Table Module
 
+This module is part of the <a href="editions.html">Qt Enterprise Edition</a>.
+
 The table module provides a flexible and editable table widget dubbed \l QTable.
 
 <center>

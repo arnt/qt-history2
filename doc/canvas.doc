@@ -37,6 +37,8 @@
 
 \title Qt Canvas Module
 
+This module is part of the <a href="editions.html">Qt Enterprise Edition</a>.
+
 The canvas module provides a highly optimized 2D graphic area called \l
 QCanvas. The canvas can contain an arbitrary number of \link QCanvasItem
 QCanvasItems \endlink. Canvas items can have an arbitrary shape, size and

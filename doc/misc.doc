@@ -58,10 +58,10 @@ Qt is supported on the following platforms:
 
 Qt is a product of <a href="troll.html">Trolltech</a>.
 
-Qt is released in different editions:
+Qt is released in different <a href="editions.html">editions</a>:
 
 <dl>
-<dd><b>Qt Enterprise Edition</b> and <b>Qt Professional Edition</b>
+<dd><b>Qt Enterprise <a href="editions.html">Edition</a></b> and <b>Qt Professional <a href="editions.html">Edition</a></b>
 provide for commercial software development.
 They permits traditional commercial software
 distribution and includes free upgrades and Technical Support
@@ -71,7 +71,7 @@ page, or contact <a href="mailto:sales@trolltech.com">sales@trolltech.com</a>.
 The Enterprise Edition offers \link modules.html extended modules
 \endlink over the Professional Edition.
 
-<dd><b>Qt Free Edition</b> is the Unix/X11 version of Qt
+<dd><b>Qt Free <a href="editions.html">Edition</a></b> is the Unix/X11 version of Qt
 available for development of <em>Free and Open Source software</em>
 only. It is provided free of charge under the terms of both the
 <a href="license.html">Q Public License</a> and the
@@ -79,7 +79,7 @@ only. It is provided free of charge under the terms of both the
 The latest version is available for
 <a href="http://www.trolltech.com/dl/qtfree-dl.html">download</a>.
 
-<dd><b>Qt/Embedded Free Edition</b> is the Embedded version of Qt
+<dd><b>Qt/Embedded Free <a href="editions.html">Edition</a></b> is the Embedded version of Qt
 available for development of <em>Free software</em>
 only. It is provided free of charge under the terms of the
 <a href="gpl.html">GNU General Public License</a>.

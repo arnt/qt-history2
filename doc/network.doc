@@ -43,6 +43,8 @@ static char ident[] = "$Id: classes.doc,v 1.8 1999/04/28 09:53:43 aavit Exp $";
 
 \title Qt Network Module
 
+This module is part of the <a href="editions.html">Qt Enterprise Edition</a>.
+
 The network module offers classes to make network programming easier
 and portable. Basically there are three sets of classes, first very
 basic classes like \l QSocket, \l QServerSocket, \l QDns, etc. which

@@ -37,6 +37,8 @@
 
 \title Qt XML Module
 
+This module is part of the <a href="editions.html">Qt Enterprise Edition</a>.
+
 The XML module provides a well-formed XML parser using the SAX2 (Simple API for
 XML) interface plus an implementation of the DOM Level 2 (Document Object
 Model).
