@@ -32,7 +32,8 @@ static const char MagicComment[] = "TRANSLATOR ";
   most of C++; the only tokens that interest us are defined here.
   Thus, the code fragment
 
-      int main() {
+      int main()
+      {
 	  printf( "Hello, world!\n" );
 	  return 0;
       }
@@ -40,19 +41,18 @@ static const char MagicComment[] = "TRANSLATOR ";
   is broken down into the following tokens:
 
       Ident Ident LeftParen RightParen
+      LeftBrace
 	  Ident LeftParen String RightParen Semicolon
 	  Ident Semicolon
       RightBrace.
 
-  Notice that the left brace and the 0 don't produce any token. (The
-  left brace is not completely ignored, as it increments
-  yyBraceDepth.)
+  Notice that the 0 doesn't produce any token.
 */
 
-enum { Tok_Eof, Tok_class, Tok_tr, Tok_trUtf8, Tok_translate,
-       Tok_Ident, Tok_Comment, Tok_String, Tok_Gulbrandsen,
-       Tok_RightBrace, Tok_LeftParen, Tok_RightParen, Tok_Comma,
-       Tok_Semicolon, Tok_TRUE, Tok_FALSE };
+enum { Tok_Eof, Tok_class, Tok_namespace, Tok_tr, Tok_trUtf8,
+       Tok_translate, Tok_Ident, Tok_Comment, Tok_String,
+       Tok_Gulbrandsen, Tok_LeftBrace, Tok_RightBrace, Tok_LeftParen,
+       Tok_RightParen, Tok_Comma, Tok_Semicolon, Tok_TRUE, Tok_FALSE };
 
 /*
   The tokenizer maintains the following global variables. The names
@@ -156,6 +156,10 @@ static int getToken()
 	    case 'f':
 		if ( qstrcmp(yyIdent + 1, "alse") == 0 )
 		    return Tok_FALSE;
+		break;
+	    case 'n':
+		if ( qstrcmp(yyIdent + 1, "amespace") == 0 )
+		    return Tok_namespace;
 		break;
 	    case 's':
 		if ( qstrcmp(yyIdent + 1, "truct") == 0 )
@@ -283,7 +287,7 @@ static int getToken()
 	    case '{':
 		yyBraceDepth++;
 		yyCh = getChar();
-		break;
+		return Tok_LeftBrace;
 	    case '}':
 		yyBraceDepth--;
 		yyCh = getChar();
@@ -353,6 +357,7 @@ static void parse( MetaTranslator *tor, const char *initialContext,
 		   const char *defaultContext )
 {
     QMap<QCString, QCString> qualifiedContexts;
+    QStringList namespaces;
     QCString context;
     QCString text;
     QCString com;
@@ -368,7 +373,8 @@ static void parse( MetaTranslator *tor, const char *initialContext,
 	      Partial support for inlined functions.
 	    */
 	    yyTok = getToken();
-	    if ( yyBraceDepth == 0 && yyParenDepth == 0 ) {
+	    if ( yyBraceDepth == (int) namespaces.count() &&
+		 yyParenDepth == 0 ) {
 		functionContext = yyIdent;
 		yyTok = getToken();
 		while ( yyTok == Tok_Gulbrandsen ) {
@@ -379,6 +385,16 @@ static void parse( MetaTranslator *tor, const char *initialContext,
 		}
 	    }
 	    break;
+	case Tok_namespace:
+	    yyTok = getToken();
+	    if ( yyTok == Tok_Ident ) {
+		QCString ns = yyIdent;
+		yyTok = getToken();
+		if ( yyTok == Tok_LeftBrace &&
+		     yyBraceDepth == (int) namespaces.count() + 1 )
+		    namespaces.append( QString(ns) );
+	    }
+	    break;
 	case Tok_tr:
 	case Tok_trUtf8:
 	    utf8 = ( yyTok == Tok_trUtf8 );
@@ -387,10 +403,14 @@ static void parse( MetaTranslator *tor, const char *initialContext,
 		com = "";
 		if ( match(Tok_RightParen) || (match(Tok_Comma) &&
 			matchString(&com) && match(Tok_RightParen)) ) {
-		    if ( prefix.isNull() )
+		    if ( prefix.isNull() ) {
 			context = functionContext;
-		    else
+			if ( !namespaces.isEmpty() )
+			    context.prepend( (namespaces.join(QString("::")) +
+					      QString( "::" )).latin1() );
+		    } else {
 			context = prefix;
+		    }
 		    prefix = (const char *) 0;
 
 		    if ( qualifiedContexts.contains(context) )
@@ -443,11 +463,11 @@ static void parse( MetaTranslator *tor, const char *initialContext,
 		}
 
 		/*
-		  Provide some backdoor for people using "using
-		  namespace".
+		  Provide a backdoor for people using "using
+		  namespace". See the manual for details.
 		*/
 		k = 0;
-		while ( (k = context.find(QString("::"), k)) != -1 ) {
+		while ( (k = context.find("::", k)) != -1 ) {
 		    qualifiedContexts.insert( context.mid(k + 2), context );
 		    k++;
 		}
@@ -455,13 +475,15 @@ static void parse( MetaTranslator *tor, const char *initialContext,
 	    yyTok = getToken();
 	    break;
 	case Tok_Gulbrandsen:
-	    if ( yyBraceDepth == 0 && yyParenDepth == 0 )
+	    if ( yyBraceDepth == (int) namespaces.count() && yyParenDepth == 0 )
 		functionContext = prefix;
 	    yyTok = getToken();
 	    break;
 	case Tok_RightBrace:
 	case Tok_Semicolon:
-	    if ( yyBraceDepth == 0 )
+	    if ( yyBraceDepth + 1 == (int) namespaces.count() )
+		namespaces.remove( namespaces.fromLast() );
+	    if ( yyBraceDepth == (int) namespaces.count() )
 		functionContext = defaultContext;
 	    yyTok = getToken();
 	    break;
