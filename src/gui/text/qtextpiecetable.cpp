@@ -446,6 +446,10 @@ void QTextPieceTable::undoRedo(bool undo)
 	}
     }
     undoEnabled = true;
+
+    // ############ optimise
+    if (lout)
+	lout->documentChange(0, length(), length());
 }
 
 /*!
