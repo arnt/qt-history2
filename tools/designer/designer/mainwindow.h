@@ -133,6 +133,7 @@ public:
     void addPreferencesTab( QWidget *tab, const QString &title, QObject *receiver, const char *init_slot, const char *accept_slot );
     void setModified( bool b, QWidget *window );
     void slotsChanged();
+    void updateFunctionList();
 
 public slots:
     void showProperties( QObject *w );

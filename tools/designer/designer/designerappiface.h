@@ -41,6 +41,7 @@ public:
     DesignerDock *createDock() const;
     DesignerOutputDock *outputDock() const;
     void setModified( bool b, QWidget *window );
+    void updateFunctionList();
 
     QUnknownInterface *queryInterface( const QUuid &uuid );
     ulong addRef();

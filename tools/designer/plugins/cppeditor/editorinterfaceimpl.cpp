@@ -21,18 +21,23 @@
 #include "editorinterfaceimpl.h"
 #include <viewmanager.h>
 #include "cppeditor.h"
-#include "qrichtext_p.h"
-#include "qapplication.h"
+#include <qrichtext_p.h>
+#include <qapplication.h>
 #include "completion.h"
 #include <designerinterface.h>
+#include <qtimer.h>
 
 EditorInterfaceImpl::EditorInterfaceImpl()
     : EditorInterface(), viewManager( 0 ), ref( 0 ), dIface( 0 )
 {
+    updateTimer = new QTimer( this );
+    connect( updateTimer, SIGNAL( timeout() ),
+	     this, SLOT( update() ) );
 }
 
 EditorInterfaceImpl::~EditorInterfaceImpl()
 {
+    updateTimer->stop();
     delete viewManager;
     if ( dIface )
 	dIface->release();
@@ -219,7 +224,20 @@ void EditorInterfaceImpl::setModified( bool m )
 
 bool EditorInterfaceImpl::eventFilter( QObject *o, QEvent *e )
 {
-    if ( e->type() == QEvent::ChildRemoved )
+    if ( e->type() == QEvent::ChildRemoved ) {
 	viewManager = 0;
+    } else if ( e->type() == QEvent::FocusOut && dIface ) {
+	dIface->updateFunctionList();
+	updateTimer->stop();
+    } else if ( e->type() == QEvent::FocusIn && dIface ) {
+	updateTimer->start( 5000, FALSE );
+    }
+	
     return QObject::eventFilter( o, e );
+}
+
+void EditorInterfaceImpl::update()
+{
+    if ( dIface )
+	dIface->updateFunctionList();
 }

@@ -4105,4 +4105,12 @@ void MainWindow::doSlotsChanged()
     hierarchyView->functionList()->refreshFunctions();
 }
 
+void MainWindow::updateFunctionList()
+{
+    if ( !workSpace()->activeWindow()->inherits( "SourceEditor" ) )
+	return;
+    ( (SourceEditor*)workSpace()->activeWindow() )->save();
+    hierarchyView->functionList()->refreshFunctions();
+}
+
 #include "mainwindow.moc"

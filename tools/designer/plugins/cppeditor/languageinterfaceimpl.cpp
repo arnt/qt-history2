@@ -79,6 +79,7 @@ void LanguageInterfaceImpl::functions( const QString &code, QValueList<Function>
     int k = 0;
     while ( i != -1 ) {
 	i = text.find( "::", i );
+	int colon = i;
 	if ( i == -1 )
 	    break;
 	int nl = -1;
@@ -94,6 +95,11 @@ void LanguageInterfaceImpl::functions( const QString &code, QValueList<Function>
 	if ( j == (int)text.length() - 1 )
 	    break;
 	k = text.find( ")", j );
+	int l = text.find( "::", colon + QString( "::" ).length() + 1 );
+	if ( l < k && l > colon ) {
+	    i = l - 1;
+	    continue;
+	}
 	func = text.mid( j, k - j + 1 );
 	func = func.stripWhiteSpace();
 	func = func.simplifyWhiteSpace();
@@ -103,6 +109,11 @@ void LanguageInterfaceImpl::functions( const QString &code, QValueList<Function>
 	i = text.find( "{", i );
 	if ( i == -1 )
 	    break;
+	l = text.find( "::", k );
+	if ( l < i && l > colon ) {
+	    i = l - 1;
+	    continue;
+	}
 	int open = 0;
 	for ( j = i; j < (int)text.length(); ++j ) {
 	    if ( text[ j ] == '{' )
@@ -112,13 +123,17 @@ void LanguageInterfaceImpl::functions( const QString &code, QValueList<Function>
 	    if ( !open )
 		break;
 	}
+	l = text.find( "::", i );
+	if ( l < j && l > colon ) {
+	    i = l - 1;
+	    continue;
+	}
 	body = text.mid( i, j - i + 1 );
 
 	Function f;
 	f.name = func;
 	f.body = body;
 	functionMap->append( f );
-    }
 }
 
 QString LanguageInterfaceImpl::createFunctionStart( const QString &className, const QString &func )

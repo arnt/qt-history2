@@ -100,6 +100,10 @@ void DesignerInterfaceImpl::setModified( bool b, QWidget *window )
     mainWindow->setModified( b, window );
 }
 
+void DesignerInterfaceImpl::updateFunctionList()
+{
+    mainWindow->updateFunctionList();
+}
 
 
 

@@ -61,6 +61,7 @@ struct DesignerInterface : public QUnknownInterface
     virtual DesignerDock *createDock() const = 0;
     virtual DesignerOutputDock *outputDock() const = 0;
     virtual void setModified( bool b, QWidget *window ) = 0;
+    virtual void updateFunctionList() = 0;
 };
 
 struct DesignerProject

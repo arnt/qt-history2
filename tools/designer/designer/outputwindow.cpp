@@ -11,7 +11,7 @@
 static QTextEdit *debugoutput = 0;
 
 OutputWindow::OutputWindow( QWidget *parent )
-    : QTabWidget( parent, "output_window" ), errorView( 0 ), debugView( 0 )
+    : QTabWidget( parent, "output_window" ), debugView( 0 ), errorView( 0 )
 {
     setupDebug();
     setupError();

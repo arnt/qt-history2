@@ -24,6 +24,7 @@
 #include <editorinterface.h>
 #include <qobject.h>
 
+class QTimer;
 class ViewManager;
 struct DesignerInterface;
 
@@ -65,11 +66,14 @@ protected:
 
 private slots:
     void modificationChanged();
+    void update();
 
 private:
     ViewManager *viewManager;
     unsigned long ref;
     DesignerInterface *dIface;
+    QTimer *updateTimer;
+
 };
 
 #endif
