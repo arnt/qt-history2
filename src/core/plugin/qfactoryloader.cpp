@@ -11,13 +11,12 @@
 **
 ****************************************************************************/
 
-#include <qdir.h>
-#include <qdebug.h>
-#include <qcoresettings.h>
-#include "qmutex.h"
-#include "qfactoryinterface.h"
 #include "qfactoryloader_p.h"
-
+#include "qfactoryinterface.h"
+#include "qmap.h"
+#include <qdir.h>
+#include <qcoresettings.h>
+#include <qdebug.h>
 #include "private/qobject_p.h"
 
 class QFactoryLoaderPrivate : public QObjectPrivate
@@ -138,4 +137,3 @@ QObject *QFactoryLoader::instance(const QString &key) const
         }
     return 0;
 }
-

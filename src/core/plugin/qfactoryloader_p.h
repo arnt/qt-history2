@@ -15,9 +15,9 @@
 #define QFACTORYLOADER_P_H
 
 #include <qobject.h>
-#include <qmap.h>
 #include <qstringlist.h>
 #include "qlibrary_p.h"
+
 class QFactoryLoaderPrivate;
 
 class Q_CORE_EXPORT QFactoryLoader : public QObject

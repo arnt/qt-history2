@@ -19,6 +19,7 @@
 #include <private/qcolor_p.h>
 #include <qcoreapplication.h>
 #include <qmutex.h>
+#include "qmap.h"
 #include "qpngio.h"
 #include "qmngio.h"
 #include "qjpegio.h"

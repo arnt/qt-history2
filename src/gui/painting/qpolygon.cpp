@@ -112,7 +112,7 @@ void QPolygon::translate(const QPointF &offset)
     register QPointF *p = data();
     register int i = size();
     while (i--) {
-        *p += pt;
+        *p += offset;
         ++p;
     }
 }
