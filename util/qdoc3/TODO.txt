@@ -1,10 +1,10 @@
 From Jasmin:
 
+  * implement \target and \keyword
   * be smart about enum types Foo::Bar vs. Bar when comparing functions
   * be smart about const & non-const when comparing functions
 
   * expand QObjectList -> QList<QObject *>
-  * #include <const_iterator> is wrong
   * Drop return type in "List of all members" pages.
   * \enum Qt::ScrollBarPolicy (qviewport.cpp contains documentation for  \enum Qt::ScrollBarPolicy, and it 
   does show up in the docs, but not as a link from the properties in QViewport)
@@ -30,7 +30,6 @@ From Matthias:
   * make links beyond document work
 
   * make \macro work (?)
-  * implement \target and \keyword
   * many broken links, e.g. "See also QFrame::style()" at the end of QFrame's detailed description
   * add some magic for properties in \sa's?
   * turn \c into links?

@@ -1162,8 +1162,15 @@ bool CppCodeParser::matchDocsAndStuff()
 	    while ( n != nodes.end() ) {
 		processOtherMetaCommands( *d, *n );
 		(*n)->setDoc( *d );
-		if ((*n)->isInnerNode() && ((InnerNode *)*n)->includes().isEmpty())
-		    ((InnerNode *)*n)->addInclude((*n)->name());
+		if ((*n)->isInnerNode() && ((InnerNode *)*n)->includes().isEmpty()) {
+                    InnerNode *m = static_cast<InnerNode *>(*n);
+		    while (m->parent() != tre->root())
+                        m = m->parent();
+		    if (m == *n)
+                        ((InnerNode *)*n)->addInclude((*n)->name());
+                    else
+                        ((InnerNode *)*n)->setIncludes(m->includes());
+		}
 		++d;
 		++n;
 	    }

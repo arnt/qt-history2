@@ -90,6 +90,7 @@ public:
     FunctionNode *findFunctionNode( const QString& name );
     FunctionNode *findFunctionNode( const FunctionNode *clone );
     void addInclude(const QString &include);
+    void setIncludes(const QStringList &includes);
     void setOverload( const FunctionNode *func, bool overlode );
     void normalizeOverloads();
     void makeUndocumentedChildrenInternal();

@@ -246,6 +246,11 @@ void InnerNode::addInclude( const QString& include )
     inc.append( include );
 }
 
+void InnerNode::setIncludes(const QStringList& includes)
+{
+    inc = includes;
+}
+
 bool InnerNode::isSameSignature( const FunctionNode *f1,
 				 const FunctionNode *f2 )
 {
