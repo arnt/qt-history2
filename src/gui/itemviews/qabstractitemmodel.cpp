@@ -414,7 +414,7 @@ QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
 */
 
 /*!
-    \fn const QAbstractItemModel *model() const
+    \fn const QModelIndex::QAbstractItemModel *model() const
 
     \internal
 
@@ -888,10 +888,15 @@ QDrag::DropActions QAbstractItemModel::supportedDropActions() const
 }
 
 /*!
-  Inserts \a count rows in the model before position \a row. If \a row is 0 the
-  rows are prepended to the model, if \a row is rowCount() the rows are
-  appended to the model. The row will be a child of \a parent.
-  If \a parent has no children \a count rows with at least one column is inserted.
+  Inserts \a count rows into the model before the given \a row.
+  The items in the new row will be children of the item represented by the
+  \a parent model index.
+
+  If \a row is 0, the rows are prepended to any existing rows in the parent.
+  If \a row is rowCount(), the rows are appended to any existing rows in the
+  parent.
+  If \a parent has no children, a single column with \a count rows is inserted.
+
   Returns true if the rows were successfully inserted; otherwise returns
   false.
 
@@ -905,13 +910,17 @@ bool QAbstractItemModel::insertRows(int, const QModelIndex &, int)
 }
 
 /*!
-  Inserts \a count new columns in the model before position \a column. If \a
-  column is 0 the columns are prepended to the model, if \a column is
-  columnCount() the columns are appended to the model. The items in the column
-  will be children of the item represented by the \a parent index.
+  Inserts \a count new columns in the model before the given \a column.
+  The items in each new column will be children of the item represented by the
+  \a parent model index.
+
+  If \a column is 0, the columns are prepended to any existing columns.
+  If \a column is columnCount(), the columns are appended to any existing
+  columns. 
   If \a parent has no children, a single row with \a count columns is inserted.
-  Returns true if the columns were successfully inserted; otherwise
-  returns false.
+
+  Returns true if the columns were successfully inserted; otherwise returns
+  false.
 
   The base class implementation does nothing and returns false. If
   you want to be able to insert columns you must reimplement this

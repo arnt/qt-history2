@@ -222,6 +222,8 @@ public:
   directories. In the simplest case, it can be used with a suitable display
   widget as part of a browser or filer.
 
+  QDirModel does not store file information internally or cache file data.
+
   A directory model that displays the contents of a default directory
   is constructed with a QDir to supply the file infomation, and a parent
   object:

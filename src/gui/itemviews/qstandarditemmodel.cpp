@@ -47,6 +47,27 @@ public:
 };
 
 
+/*!
+    \class QStandardItemModel
+    \brief The QStandardItemModel provides a generic model for storing custom data.
+
+    QStandardItemModel provides a model that that can be used as a repository
+    for standard Qt data types. Data is written to the model and read back using
+    the standard QAbstractItemModel interface. The way each item of information
+    is referenced depends on how the data is inserted into the model.
+
+    For performance and flexibility, you may want to subclass QAbstractItemModel
+    to provide support for different kinds of repositories. For example, the
+    QDirModel provides a model interface to the underlying file system, and does
+    not actually store file information internally.
+
+    \sa \link model-view-programming.html Model/View Programming\endlink QAbstractItemModel
+
+*/
+
+/*!
+    Destroys the model.
+*/
 QStandardItemModel::~QStandardItemModel()
 {
     for (int i=0; i<topLevelRows.count(); ++i)
@@ -54,6 +75,9 @@ QStandardItemModel::~QStandardItemModel()
     topLevelRows.clear();
 }
 
+/*!
+    Returns a model index for the given \a row, \a column, and \a parent.
+*/
 QModelIndex QStandardItemModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (hasIndex(row, column, parent)) {
@@ -67,6 +91,9 @@ QModelIndex QStandardItemModel::index(int row, int column, const QModelIndex &pa
     return QModelIndex::Null;
 }
 
+/*!
+    Returns a model index for the parent of the \a child item.
+*/
 QModelIndex QStandardItemModel::parent(const QModelIndex &child) const
 {
     if (child.isValid() && child.data()) {
@@ -82,6 +109,11 @@ QModelIndex QStandardItemModel::parent(const QModelIndex &child) const
     return QModelIndex::Null;
 }
 
+/*!
+    Returns the number of rows in the model that contain items with the given
+    \a parent.
+
+*/
 int QStandardItemModel::rowCount(const QModelIndex &parent) const
 {
     ModelRow *modelRow = containedRow(parent, false);
@@ -91,6 +123,10 @@ int QStandardItemModel::rowCount(const QModelIndex &parent) const
     return topLevelRows.count();
 }
 
+/*!
+    Returns the number of columns in the model that contain items with the given
+    \a parent.
+*/
 int QStandardItemModel::columnCount(const QModelIndex &parent) const
 {
     ModelRow *modelRow = containedRow(parent, false);
@@ -100,6 +136,10 @@ int QStandardItemModel::columnCount(const QModelIndex &parent) const
     return topLevelColumns;
 }
 
+/*!
+    Returns true if the \a parent model index has child items; otherwise returns
+    false.
+*/
 bool QStandardItemModel::hasChildren(const QModelIndex &parent) const
 {
     if (parent.isValid()) {
@@ -110,6 +150,9 @@ bool QStandardItemModel::hasChildren(const QModelIndex &parent) const
     return false;
 }
 
+/*!
+    Returns the data for the given \a index and \a role.
+*/
 QVariant QStandardItemModel::data(const QModelIndex &index, int role) const
 {
     role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
@@ -124,6 +167,9 @@ QVariant QStandardItemModel::data(const QModelIndex &index, int role) const
     return QVariant::Invalid;
 }
 
+/*!
+    Sets the data for the given \a index and \a role to the \a value specified.
+*/
 bool QStandardItemModel::setData(const QModelIndex &index, int role, const QVariant &value)
 {
     role = (role == QAbstractItemModel::EditRole ? QAbstractItemModel::DisplayRole : role);
@@ -143,6 +189,18 @@ bool QStandardItemModel::setData(const QModelIndex &index, int role, const QVari
     return false;
 }
 
+/*!
+Inserts \a count new rows into the model before the given \a row.
+The items in each new column will be children of the item represented by
+the \a parent model index.
+
+If \a row is 0, the rows are prepended to any existing rows in the parent.
+If \a row is columnCount(), the rows are appended to any existing rows in
+the parent.
+If \a parent has no children, a single column with \a count rows is inserted.
+
+Returns true if the rows were successfully inserted; otherwise returns false.
+*/
 bool QStandardItemModel::insertRows(int row, const QModelIndex &parent, int count)
 {
     if (count < 1 || row < 0 || row > rowCount(parent))
@@ -155,6 +213,20 @@ bool QStandardItemModel::insertRows(int row, const QModelIndex &parent, int coun
     return true;
 }
 
+/*!
+    Inserts \a count new columns into the model before the given \a column.
+    The items in each new column will be children of the item represented by
+    the \a parent model index.
+
+    If \a column is 0, the columns are prepended to any existing columns in the
+    parent.
+    If \a column is columnCount(), the columns are appended to any existing
+    columns in the parent.
+    If \a parent has no children, a single row with \a count columns is inserted.
+
+    Returns true if the columns were successfully inserted; otherwise returns
+    false.
+*/
 bool QStandardItemModel::insertColumns(int column, const QModelIndex &parent, int count)
 {
     if (count < 0 || column < 0 || column > columnCount(parent))
@@ -182,6 +254,15 @@ bool QStandardItemModel::insertColumns(int column, const QModelIndex &parent, in
     return true;
 }
 
+/*!
+    Removes \a count rows from the model, starting with the given
+    \a row.
+    The items removed are children of the item represented by the \a parent
+    model index.
+
+    Returns true if the rows were successfully removed; otherwise returns
+    false.
+*/
 bool QStandardItemModel::removeRows(int row, const QModelIndex &parent, int count)
 {
     if (count < 1 || row < 0 || (row + count) > rowCount(parent))
@@ -199,6 +280,15 @@ bool QStandardItemModel::removeRows(int row, const QModelIndex &parent, int coun
     return true;
 }
 
+/*!
+    Removes \a count columns from the model, starting with the given
+    \a column.
+    The items removed are children of the item represented by the \a parent
+    model index.
+
+    Returns true if the columns were successfully removed; otherwise returns
+    false.
+*/
 bool QStandardItemModel::removeColumns(int column, const QModelIndex &parent, int count)
 {
     if (count < 1 || column < 0 || (column + count) > columnCount(parent))
@@ -230,6 +320,9 @@ bool QStandardItemModel::removeColumns(int column, const QModelIndex &parent, in
     return true;
 }
 
+/*!
+    \internal
+*/
 ModelRow *QStandardItemModel::containedRow(const QModelIndex &index, bool createIfMissing) const
 {
     if (!index.isValid())
