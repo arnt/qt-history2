@@ -280,6 +280,7 @@ uint QTextFormatPrivate::recalcHash() const
     \value FontFixedPitch
 
     \value TextColor
+    \value TextVerticalAlignment
 
     \value IsAnchor
     \value AnchorHref
@@ -316,6 +317,8 @@ uint QTextFormatPrivate::recalcHash() const
     \value ImageName
     \value ImageWidth
     \value ImageHeight
+
+    \omitvalue DocumentFragmentMark
 
     \value UserProperty
 */
