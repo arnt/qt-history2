@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#144 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#145 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -23,7 +23,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#144 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#145 $");
 
 
 /*!
@@ -1663,8 +1663,8 @@ void pnmscale(const QImage& src, QImage& dst)
 #define SCALE 4096
 #define HALFSCALE 2048
 
-    QRgb* xelrow;
-    QRgb* tempxelrow;
+    QRgb* xelrow = 0;
+    QRgb* tempxelrow = 0;
     register QRgb* xP;
     register QRgb* nxP;
     int rows, cols, rowsread, newrows, newcols;
@@ -1775,7 +1775,7 @@ void pnmscale(const QImage& src, QImage& dst)
 	    memcpy(dst.scanLine(rowswritten++), tempxelrow, newcols*4);
 	} else {
 	    register long a, r, g, b;
-	    register long fraccoltofill, fraccolleft;
+	    register long fraccoltofill, fraccolleft = 0;
 	    register int needcol;
 
 	    nxP = (QRgb*)dst.scanLine(rowswritten++);
