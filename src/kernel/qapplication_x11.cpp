@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#496 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#497 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -3915,7 +3915,7 @@ void QETWidget::embeddedWindowTabFocus( bool next )
     if ( tlw && tlw->extra && tlw->extra->topextra &&
 	 tlw->extra->topextra->embedded ) {
 	XEvent ev;
-	bzero(&ev, sizeof(ev));
+	memset( &ev, 0, sizeof(ev) );
 	ev.xclient.type = ClientMessage;
 	ev.xclient.window = tlw->extra->topextra->parentWinId;
 	ev.xclient.message_type = qt_embedded_window_tab_focus;
