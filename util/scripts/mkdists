@@ -599,7 +599,7 @@ copy_platform_files() {
 	final_dir=`dirname $o_dir/$o_file`
 	[ ! -d $final_dir ] && mkdir -p $final_dir
 	[ -f $o_dir/$o_file ] && rm -f $o_dir/$o_file
-	if [ -f "$dir/$a_file" ] && [ ! -e "$o_dir/$o_file" ] && [ ! -x "$dir/$a_dir" ]; then
+	if [ -f "$dir/$a_file" ] && [ ! -e "$o_dir/$o_file" ] && [ ! -x "$dir/$a_file" ]; then
 	    sed -e "s/%YEAR%/$year/g" -e "s/%VERSION%/${BRANCH}${TYPE}/g" \
 		-e "s/%VERSIONWIN%/${BRANCH_DIGITS}/g" $dir/$a_file >${TMP_FILE}
 	    if [ "$TYPE" = "-snapshot" ]; then
