@@ -29,6 +29,7 @@
 #include "pixmapcollection.h"
 #include "sourcefile.h"
 #include "sourceeditor.h"
+#include "propertyeditor.h"
 
 #include <qheader.h>
 #include <qdragobject.h>
@@ -566,6 +567,9 @@ void Workspace::itemClicked( int button, QListViewItem *i, const QPoint& )
 	break;
     case WorkspaceItem::SourceFileType:
 	mainWindow->editSource( wi->sourceFile );
+	break;
+    case WorkspaceItem::ObjectType:
+	mainWindow->propertyeditor()->setWidget( wi->object, project->fakeFormFor( wi->object ) );
 	break;
     }
 }

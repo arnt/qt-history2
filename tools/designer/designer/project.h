@@ -32,6 +32,7 @@
 #include "sourcefile.h"
 #include "formfile.h"
 #include <qobjectlist.h>
+#include <qptrdict.h>
 
 class FormWindow;
 class QObjectList;
@@ -189,6 +190,7 @@ public:
     void setObjects( const QObjectList &ol );
     void removeObject( QObject *o );
     QObjectList objects() const;
+    FormWindow *fakeFormFor( QObject *o ) const;
 
 signals:
     void projectModified();
@@ -231,6 +233,7 @@ private:
     bool isDummyProject;
     bool modified;
     QObjectList objs;
+    QPtrDict<FormWindow> fakeForms;
 
 };
 

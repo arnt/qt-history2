@@ -201,6 +201,7 @@ Project::Project( const QString &fn, const QString &pName, QPluginManager<Projec
     sourcefiles.setAutoDelete( TRUE );
     modified = FALSE;
     objs.setAutoDelete( FALSE );
+    fakeForms.setAutoDelete( TRUE );
 }
 
 Project::~Project()
@@ -1160,19 +1161,40 @@ void Project::addObject( QObject *o )
 {
     objs.append( o );
     emit objectAdded( o );
+    MetaDataBase::addEntry( o );
+    FormFile *ff = new FormFile( "", TRUE, this );
+    FormWindow *fw = new FormWindow( ff, MainWindow::self, "qt_fakewindow" );
+    fw->setMainWindow( MainWindow::self );
+    fw->setProject( this );
+    fw->hide();
+    formfiles.removeRef( ff );
+    emit formFileRemoved( ff );
+    fakeForms.insert( (void*)o, fw );
 }
 
 void Project::setObjects( const QObjectList &ol )
 {
     objs = ol;
-    for ( QObjectListIt it( objs ); it.current(); ++it )
+    for ( QObjectListIt it( objs ); it.current(); ++it ) {
 	emit objectAdded( it.current() );
+	MetaDataBase::addEntry( it.current() );
+	FormFile *ff = new FormFile( "", TRUE, this );
+	FormWindow *fw = new FormWindow( ff, MainWindow::self, "qt_fakewindow" );
+	fw->setMainWindow( MainWindow::self );
+	fw->setProject( this );
+	fw->hide();
+	fakeForms.insert( (void*)it.current(), fw );
+	formfiles.removeRef( ff );
+	emit formFileRemoved( ff );
+    }
 }
 
 void Project::removeObject( QObject *o )
 {
     emit objectRemoved( o );
     objs.removeRef( o );
+    MetaDataBase::removeEntry( o );
+    fakeForms.remove( (void*)o );
 }
 
 QObjectList Project::objects() const
@@ -1180,3 +1202,7 @@ QObjectList Project::objects() const
     return objs;
 }
 
+FormWindow *Project::fakeFormFor( QObject *o ) const
+{
+    return fakeForms.find( (void*)o );
+}
