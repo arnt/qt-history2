@@ -22,18 +22,21 @@
 
 #ifndef QT_NO_TABLE
 
-#include "qpainter.h"
-#include "qlineedit.h"
-#include "qcursor.h"
-#include "qapplication.h"
-#include "qtimer.h"
-#include "qiconset.h"
-#include "qcombobox.h"
-#include "qcheckbox.h"
-#include "qdragobject.h"
-#include "qevent.h"
-#include "qlistbox.h"
-#include "qstyle.h"
+#include <qpainter.h>
+#include <qlineedit.h>
+#include <qcursor.h>
+#include <qapplication.h>
+#include <qtimer.h>
+#include <qobjectlist.h>
+#include <qiconset.h>
+#include <qcombobox.h>
+#include <qcheckbox.h>
+#include <qdragobject.h>
+#include <qevent.h>
+#include <qlistbox.h>
+#include <qstyle.h>
+#include <qdatatable.h>
+#include <qvalidator.h>
 
 #include <stdlib.h>
 #include <limits.h>
@@ -767,9 +770,13 @@ QWidget *QTableItem::createEditor() const
 
 void QTableItem::setContentFromEditor( QWidget *w )
 {
-    QLineEdit *le = qt_cast<QLineEdit*>(w);
-    if ( le )
-	setText( le->text() );
+    QLineEdit *le = ::qt_cast<QLineEdit*>(w);
+    if ( le ) {
+	QString input = le->text();
+	if ( le->validator() )
+	    le->validator()->fixup( input );
+	setText( input );
+    }
 }
 
 #if (QT_VERSION >= 0x040000)
