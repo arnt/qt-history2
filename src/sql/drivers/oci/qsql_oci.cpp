@@ -1025,7 +1025,7 @@ bool QOCIResult::exec()
 				       it.key().length(),
  				       (dvoid *) it.data().asByteArray().data(),
  				       it.data().asByteArray().size(),
-				       SQLT_BIN, (dvoid *) 0, (ub2 *) 0, (ub2) 0,
+				       SQLT_BIN, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
 				       (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 		    break; }
 		case QVariant::CString: {
@@ -1035,7 +1035,7 @@ bool QOCIResult::exec()
 				       it.key().length(),
  				       (dvoid *) it.data().asCString().data(),
  				       it.data().asCString().length(),
-				       SQLT_LNG, (dvoid *) 0, (ub2 *) 0, (ub2) 0,
+				       SQLT_LNG, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
 				       (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 		    break; }
 		case QVariant::Time:
@@ -1051,7 +1051,7 @@ bool QOCIResult::exec()
 				       it.key().length(),
 				       (ub1 *) ba.data(),
 				       ba.size(),
-				       SQLT_DAT, (dvoid *) 0, (ub2 *) 0, (ub2) 0,
+				       SQLT_DAT, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
 				       (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 		    break; }
 		case QVariant::Int:
@@ -1060,7 +1060,7 @@ bool QOCIResult::exec()
 				       it.key().length(),
 				       (ub1 *) &it.data().asInt(),
 				       sizeof(int),
-				       SQLT_INT, (dvoid *) 0, (ub2 *) 0, (ub2) 0,
+				       SQLT_INT, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
 				       (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 		    break;
 		case QVariant::Double:
@@ -1069,7 +1069,7 @@ bool QOCIResult::exec()
 				       it.key().length(),
 				       (ub1 *) &it.data().asDouble(),
 				       sizeof(double),
-				       SQLT_FLT, (dvoid *) 0, (ub2 *) 0, (ub2) 0,
+				       SQLT_FLT, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
 				       (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 		    break;
 		default:
@@ -1078,7 +1078,7 @@ bool QOCIResult::exec()
 				       it.key().length(),
 				       (ub1 *) it.data().asString().local8Bit().data(),
 				       it.data().asString().length() + 1,
-				       SQLT_STR, (dvoid *) 0, (ub2 *) 0, (ub2) 0,
+				       SQLT_STR, (dvoid *) 0, (ub2 *) 0, (ub2*) 0,
 				       (ub4) 0, (ub4 *) 0, OCI_DEFAULT );
 		    break;
 	    }
