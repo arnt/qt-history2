@@ -12,10 +12,11 @@
 **
 ****************************************************************************/
 
-#define         QRECT_C
 #include "qrect.h"
 #include "qdatastream.h"
 #include "qdebug.h"
+
+QRect::RectangleMode QRect::static_rect_mode = QRect::InclusiveRectangles;
 
 /*!
     \class QRect
