@@ -105,7 +105,7 @@ for file in $OUTPWD/other.exp $OUTPWD/class.exp $DIR/global.exp; do
         match=`head -${line} $OUTPWD/tmp.out | tail -1 | sed "s,//.*$,,g"`
         if [ ! -z "$match" ]; then
 	   if [ "$file" = "$OUTPWD/class.exp" ]; then
-	      OUTPUT="$match::* $match?virtual?table $match?type_info?node $match?type_info?function vtable?for?$match typeinfo?for?$match"
+	      OUTPUT="$match::* $match?virtual?table $match?type_info?node $match?type_info?function vtable?for?$match typeinfo?for?$match non-virtual?thunk?to?$match::*"
 	   else
 	      OUTPUT="$match*"
 	   fi
