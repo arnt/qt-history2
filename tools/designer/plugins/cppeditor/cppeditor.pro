@@ -11,7 +11,7 @@ VERSION		= 1.0.0
 
 INCLUDEPATH	+= ../../interfaces ../../editor
 win32{
-    LIBS	+= editor.lib
+    LIBS	+= $$QT_BUILD_TREE/lib/editor.lib
 } else {
     !hpux-acc:LIBS	+= -L$$QT_BUILD_TREE/lib -leditor
     hpux-acc:LIBS += -L$$QT_BUILD_TREE/lib -Wl,-a,default -leditor
