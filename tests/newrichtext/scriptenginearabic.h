@@ -1,12 +1,15 @@
-#include "scriptengine.h"
+#ifndef SCRIPTENGINEARABIC_H
+#define SCRIPTENGINEARABIC_H
+
+#include "scriptenginebasic.h"
 
 
-class ScriptEngineArabic : public ScriptEngine
+class ScriptEngineArabic : public ScriptEngineBasic
 {
 public:
     virtual void charAttributes( const QString &text, int from, int len, CharAttributes *attributes );
-    virtual void shape( const QString &text, int from, int len, ShapedItem *result );
+    virtual void shape( ShapedItem *result );
 
-    virtual int cursorToX( int cursorPos, const QString &text, int from, int len, const ShapedItem &shaped );
-    virtual int xToCursor( int x, const QString &text, int from, int len, const ShapedItem &shaped );
 };
+
+#endif

@@ -17,10 +17,15 @@ void ScriptEngineArabic::charAttributes( const QString &text, int from, int len,
 }
 
 
-void ScriptEngineArabic::shape( const QString &text, int from, int len, ShapedItem *result )
+void ScriptEngineArabic::shape( ShapedItem *result )
 {
+    const QString &text = result->d->string;
+    int from = result->d->from;
+    int len = result->d->length;
+
     ShapedItemPrivate *d = result->d;
     QPainter::TextDirection dir = d->analysis.bidiLevel % 2 ? QPainter::RTL : QPainter::LTR;
+    // ### this is hacky and should work on glyphs
     QString shaped = QComplexText::shapedString( text, from, len, dir );
     len = shaped.length();
 
@@ -32,14 +37,4 @@ void ScriptEngineArabic::shape( const QString &text, int from, int len, ShapedIt
 	d->fontEngine->stringToCMap( shaped.unicode(), len, d->glyphs, &d->num_glyphs, FALSE );
     }
     d->offsets = new Offset[d->num_glyphs];
-}
-
-int ScriptEngineArabic::cursorToX( int cPos, const QString &text, int from, int len, const ShapedItem &shaped )
-{
-
-}
-
-int ScriptEngineArabic::xToCursor( int x, const QString &text, int from, int len, const ShapedItem &shaped )
-{
-
 }

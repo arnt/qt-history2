@@ -19,6 +19,7 @@ Some of the ideas are stolen from the Uniscribe API or from Pango.
 #define QTEXTLAYOUT_H
 
 #include <qglobal.h>
+#include <qstring.h>
 #include <stdlib.h>
 class FontEngineIface;
 class QFont;
@@ -94,7 +95,9 @@ public:
 class ShapedItemPrivate
 {
 public:
-    ShapedItemPrivate() : num_glyphs( 0 ), glyphs( 0 ), offsets( 0 ), fontEngine( 0 ) {}
+    ShapedItemPrivate()
+	: num_glyphs( 0 ), glyphs( 0 ), offsets( 0 ), fontEngine( 0 ),
+	  from( 0 ), length( 0 ) {}
     ~ShapedItemPrivate() {
 	free( glyphs );
 	delete[] offsets;
@@ -104,6 +107,9 @@ public:
     Offset *offsets;
     FontEngineIface *fontEngine;
     ScriptAnalysis analysis;
+    QString string;
+    int from;
+    int length;
 };
 
 class ShapedItem
@@ -148,29 +154,19 @@ public:
 class TextLayout
 {
 public:
+    static const TextLayout *instance();
 
-//     virtual void itemize( ScriptItemArray &items, const QRTString & ) const = 0;
     virtual void itemize( ScriptItemArray &items, const QString & ) const = 0;
 
     virtual void attributes( CharAttributesArray &attrs, const QString &string,
 		     const ScriptItemArray &items, int item ) const = 0;
-//     void attributes( CharAttributesArray &attrs, const QRTString &string,
-// 		     const ScriptItemArray &items, int item ) const {
-// 	attributes( attrs, string.qstring(), items, item );
-//     }
 
-
-    static const TextLayout *instance();
-
-    // corresponds to ScriptLayout in Uniscribe
     void bidiReorder( int numRuns, const Q_UINT8 *levels, int *visualOrder ) const;
 
-    // ScriptShape && ScriptPlace
-//     virtual void shape( ShapedItem &shaped, const QRTString &string,
-// 			const ScriptItemArray &items, int item ) const = 0;
     virtual void shape( ShapedItem &shaped, const QFont &f, const QString &string,
 			const ScriptItemArray &items, int item ) const = 0;
 
+    virtual void position( ShapedItem &shaped ) = 0;
 
 #if 0
 

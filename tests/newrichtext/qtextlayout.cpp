@@ -71,6 +71,9 @@ public:
 
     void shape( ShapedItem &shaped, const QFont &font, const QString &string,
 		const ScriptItemArray &items, int item ) const;
+
+    void position( ShapedItem &shaped );
+
 };
 
 
@@ -111,11 +114,22 @@ void TextLayoutQt::shape( ShapedItem &shaped, const QFont &f, const QString &str
     item++;
     int len = ( item < items.size() ? items[item].position : string.length() ) - from;
 
+    shaped.d->string = string;
+    shaped.d->from = from;
+    shaped.d->length = len;
     shaped.d->fontEngine = f.engineForScript( script );
     shaped.d->analysis = si.analysis;
+
     if ( shaped.d->fontEngine && shaped.d->fontEngine != (FontEngineIface*)-1 )
-	scriptEngines[script]->shape( string, from, len, &shaped );
+	scriptEngines[script]->shape( &shaped );
 }
+
+void TextLayoutQt::position( ShapedItem &shaped )
+{
+
+
+}
+
 
 static TextLayout *_instance = 0;
 
