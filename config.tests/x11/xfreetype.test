@@ -118,7 +118,7 @@ fi
 XFTNAMEUNPARSE=yes
 if [ "$XFREETYPE" = "yes" ] && [ -f "$XFTCOMPAT_H" ]
 then
-   ;
+    XFTNAMEUNPARSE=yes
 else
     if [ "$XFREETYPE" = "yes" ] && [ -f "$XFT_H" ]
     then
