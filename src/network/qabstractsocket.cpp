@@ -157,7 +157,7 @@ void QAbstractSocketPrivate::canReadNotification(int)
 
     // Anything might have happened in whatever is connected to the
     // readyRead() slot.
-    if (!that)
+    if (!that || state == Qt::UnconnectedState || state == Qt::ClosingState)
         return;
 
     // if bytesAvailable is the same after readRead was emitted, don't
