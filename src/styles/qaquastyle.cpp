@@ -1264,46 +1264,186 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 	p->drawTiledPixmap( r.x() + left.width(), r.y(), r.width() - left.width()*2, r.height(), mid );
 	p->drawPixmap( r.x() + r.width() - right.width(), r.y(), right );
 	break; }
+    case CC_ToolButton:
+    {
+	QToolButton *toolbutton = (QToolButton *) widget;
+
+	QRect button, menuarea;
+	button   = querySubControlMetrics(ctrl, widget, SC_ToolButton, data);
+	menuarea = querySubControlMetrics(ctrl, widget, SC_ToolButtonMenu, data);
+
+	bool on = toolbutton->isOn();
+	bool down = toolbutton->isDown();
+	bool autoraise = toolbutton->autoRaise();
+	bool use3d = FALSE;
+	bool drawarrow = FALSE;
+	Qt::ArrowType arrowType = Qt::DownArrow;
+
+	if (data) {
+	    use3d      = *((bool *) data[0]);
+	    drawarrow  = *((bool *) data[1]);
+	    arrowType  = *((Qt::ArrowType *) data[2]);
+	}
+
+	PFlags bflags = PStyle_Default,
+	       mflags = PStyle_Default;
+
+	if (toolbutton->isEnabled()) {
+	    bflags |= PStyle_Enabled;
+	    mflags |= PStyle_Enabled;
+	}
+
+	if (down) {
+	    bflags |= PStyle_Down;
+	    mflags |= PStyle_Down;
+	}
+	if (on) {
+	    bflags |= PStyle_On;
+	    mflags |= PStyle_On;
+	}
+	if (autoraise) {
+	    bflags |= PStyle_AutoRaise;
+	    mflags |= PStyle_AutoRaise;
+
+	    if (use3d) {
+		bflags |= PStyle_MouseOver;
+		mflags |= PStyle_MouseOver;
+
+		if (subActive & SC_ToolButton)
+		    bflags |= PStyle_Down;
+		if (subActive & SC_ToolButtonMenu)
+		    mflags |= PStyle_Down;
+
+		if (! on && ! down) {
+		    bflags |= PStyle_Raised;
+		    mflags |= PStyle_Raised;
+		}
+	    }
+	} else if (! on && ! down) {
+	    bflags |= PStyle_Raised;
+	    mflags |= PStyle_Raised;
+	}
+
+	if (sub & SC_ToolButton) {
+	    if (bflags & (PStyle_Down | PStyle_On | PStyle_Raised)) {
+		QPixmap px;
+		QString w = QString::number( r.width() );
+		QString h = QString::number( r.height() );
+
+		QWidget *btn_prnt = toolbutton->parentWidget();
+		if ( btn_prnt && btn_prnt->inherits("QToolBar") ) {
+		    QToolBar * bar  = (QToolBar *) btn_prnt;
+		    QObjectList * l = bar->queryList( "QToolButton", 0, FALSE, FALSE );
+		    QObjectListIt it( *l );
+		    if ( it.toFirst() == toolbutton ) {
+			if ( on || down )
+			    qAquaPixmap( "toolbtn_on_left_" + w + "_" + h, px );
+			else
+			    qAquaPixmap( "toolbtn_off_left_" + w + "_" + h, px );
+		    } else if( it.toLast() == toolbutton ){
+			if ( on || down )
+			    qAquaPixmap( "toolbtn_on_right_" + w + "_" + h, px );
+			else
+			    qAquaPixmap( "toolbtn_off_right_" + w + "_" + h, px );
+		    } else {
+			if ( on || down )
+			    qAquaPixmap( "toolbtn_on_mid_" + w + "_" + h, px );
+			else
+			    qAquaPixmap( "toolbtn_off_mid_"+ w + "_" + h, px );
+		    }
+		    delete l;
+		} else {
+		    if ( down || on )
+			qAquaPixmap( "toolbtn_on_mid_" + w + "_" + h, px );
+		    else
+			qAquaPixmap( "toolbtn_off_mid_" + w + "_" + h, px );
+		}
+		p->drawPixmap( r.x(), r.y(), px );
+	    } else if ( toolbutton->parentWidget() &&
+			toolbutton->parentWidget()->backgroundPixmap() &&
+			! toolbutton->parentWidget()->backgroundPixmap()->isNull() ) {
+		p->drawTiledPixmap( r, *(toolbutton->parentWidget()->backgroundPixmap()),
+				    toolbutton->pos() );
+	    }
+
+	    if (bflags & (PStyle_Down | PStyle_On))
+		button.moveBy(pixelMetric(PM_ButtonShiftHorizontal, widget),
+			      pixelMetric(PM_ButtonShiftVertical, widget));
+
+	    if (drawarrow) {
+		PrimitiveOperation op;
+		switch (arrowType) {
+		case Qt::LeftArrow:  op = PO_ArrowLeft;  break;
+		case Qt::RightArrow: op = PO_ArrowRight; break;
+		case Qt::UpArrow:    op = PO_ArrowUp;    break;
+		default:
+		case Qt::DownArrow:  op = PO_ArrowDown;  break;
+		}
+
+		drawPrimitive(op, p, button, cg, bflags, data);
+	    } else {
+		QColor btext = cg.buttonText();
+
+		if (toolbutton->iconSet().isNull() &&
+		    ! toolbutton->text().isNull() &&
+		    ! toolbutton->usesTextLabel()) {
+		    drawItem(p, button, AlignCenter | ShowPrefix, cg,
+			     bflags & PStyle_Enabled, 0, toolbutton->text(),
+			     toolbutton->text().length(), &btext);
+		} else {
+		    QPixmap pm;
+		    QIconSet::Size size =
+			toolbutton->usesBigPixmap() ? QIconSet::Large : QIconSet::Small;
+		    QIconSet::State state =
+			toolbutton->isOn() ? QIconSet::On : QIconSet::Off;
+		    QIconSet::Mode mode;
+		    if (! toolbutton->isEnabled())
+			mode = QIconSet::Disabled;
+		    else if (bflags & (PStyle_Down | PStyle_On | PStyle_Raised))
+			mode = QIconSet::Active;
+		    else
+			mode = QIconSet::Normal;
+		    pm = toolbutton->iconSet().pixmap( size, mode, state );
+
+		    if ( toolbutton->usesTextLabel() ) {
+			p->setFont( toolbutton->font() );
+
+			QRect pr = button, tr = button;
+			int fh = p->fontMetrics().height();
+			pr.addCoords(0, 0, 0, -fh);
+			tr.addCoords(0, tr.height() - fh, 0, 0);
+			drawItem( p, pr, AlignCenter, cg, TRUE, &pm, QString::null );
+			drawItem( p, tr, AlignCenter | ShowPrefix, cg,
+				  bflags & PStyle_Enabled, 0, toolbutton->textLabel(),
+				  toolbutton->textLabel().length(), &btext);
+		    } else
+			drawItem( p, button, AlignCenter, cg, TRUE, &pm, QString::null );
+		}
+	    }
+	}
+
+	if (sub & SC_ToolButtonMenu) {
+	    if (mflags & (PStyle_Down | PStyle_On | PStyle_Raised))
+		drawPrimitive(PO_ButtonDropDown, p, menuarea, cg, mflags, data);
+	    drawPrimitive(PO_ArrowDown, p, menuarea, cg, mflags, data);
+	}
+
+	if (toolbutton->hasFocus() && !toolbutton->focusProxy()) {
+	    QRect fr = toolbutton->rect();
+	    fr.addCoords(3, 3, -3, -3);
+	    drawPrimitive(PO_FocusRect, p, fr, cg);
+	}
+
+	break;
+    }
+
+#if 0
     case CC_ToolButton: {
 	QToolButton * btn = (QToolButton *) widget;
 	if ( !btn )
 	    return;
-	QPixmap px;
-	QString w = QString::number( r.width() );
-	QString h = QString::number( r.height() );
-	bool on = btn->isOn();
-	bool down = btn->isDown();
-
-	QWidget *btn_prnt = btn->parentWidget();
-	if ( btn_prnt && btn_prnt->inherits("QToolBar") ) {
-	    QToolBar * bar  = (QToolBar *) btn_prnt;
-	    QObjectList * l = bar->queryList( "QToolButton", 0, FALSE, FALSE );
-	    QObjectListIt it( *l );
-	    if ( it.toFirst() == btn ) {
-		if ( on || down )
-		    qAquaPixmap( "toolbtn_on_left_" + w + "_" + h, px );
-		else
-		    qAquaPixmap( "toolbtn_off_left_" + w + "_" + h, px );
-	    } else if( it.toLast() == btn ){
-		if ( on || down )
-		    qAquaPixmap( "toolbtn_on_right_" + w + "_" + h, px );
-		else
-		    qAquaPixmap( "toolbtn_off_right_" + w + "_" + h, px );
-	    } else {
-		if ( on || down )
-		    qAquaPixmap( "toolbtn_on_mid_" + w + "_" + h, px );
-		else
-		    qAquaPixmap( "toolbtn_off_mid_"+ w + "_" + h, px );
-	    }
-	    delete l;
-	} else {
-	    if ( down || on )
-		qAquaPixmap( "toolbtn_on_mid_" + w + "_" + h, px );
-	    else
-		qAquaPixmap( "toolbtn_off_mid_" + w + "_" + h, px );
-	}
-	p->drawPixmap( r.x(), r.y(), px );
 	break; }
+#endif
     default:
 	QWindowsStyle::drawComplexControl(ctrl, p, widget, r, cg, flags, sub, subActive, data);
     }
@@ -1316,6 +1456,11 @@ QRect QAquaStyle::querySubControlMetrics( ComplexControl control,
 {
     QRect rect;
     switch( control ) {
+    case CC_ComboBox: {
+	rect = QWindowsStyle::querySubControlMetrics(control, w, sc, data);
+	if(sc == SC_ComboBoxEditField)
+	    rect.setWidth(rect.width() - 5);
+	break; }
     case CC_TitleBar: {
 	if(sc & SC_TitleBarCloseButton)
 	    rect = QRect(7, 3, 15, 17);
