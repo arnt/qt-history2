@@ -1799,24 +1799,43 @@ QFont QTextCharFormat::font() const
 /*!
     \class QTextTableFormat qtextformat.h
     \brief The QTextTableFormat class provides formatting information for
-    tables in a QTextDocument.
+    tables in a text document.
 
     \ingroup text
 
     A table is a group of cells ordered into rows and columns. Each table
     contains at least one row and one column. Each cell contains a block.
+    Tables in rich text documents are formatted using the properties
+    defined in this class.
 
-    A QTextTableFormat specifies the characteristics of a table. The
-    setColumns() function sets the number of columns; the number of
-    rows is automatically derived based on the number of columns and
-    the number of cells (blocks) contained in the table.
+    Tables are horizontally justified within their parent frame according to the
+    table's alignment. This can be read with the alignment() function and set
+    with setAlignment().
 
-    \omit
-    ### Mention something about the column constraints and the QTextTable
-    class
-    \endomit
+    Cells within the table are separated by cell spacing. The number of pixels
+    between cells is set with setCellSpacing() and read with cellSpacing().
+    The contents of each cell is surrounded by cell padding. The number of pixels
+    between each cell edge and its contents is set with setCellPadding() and read
+    with cellPadding().
 
-    \sa QTextTable
+    \image qtexttableformat-cell.png
+
+    The table's background color can be read with the backgroundColor() function,
+    and can be specified with setBackgroundColor(). The background color of each
+    cell can be set independently, and will control the color of the cell within
+    the padded area.
+
+    The table format also provides a way to constrain the widths of the columns
+    in the table. Columns can be assigned a fixed width, a variable width, or
+    a percentage of the available width (see QTextLength). The columns() function
+    returns the number of columns with constraints, and the
+    columnWidthConstraints() function returns the constraints defined for the
+    table. These quantities can also be set by calling setColumnWidthConstraints()
+    with a vector containing new constraints. The setColumns() function can be
+    used to change the number of constraints in use. If no constraints are
+    required, clearColumnWidthConstraints() can be used to remove them.
+
+    \sa QTextTable QTextTableCell QTextLength
 */
 
 /*!
