@@ -345,7 +345,7 @@ static QPtrList<QGPluginManager> *pluginManagerList()
     if ( !pluginmanager_list ) {
 	pluginmanager_list = new QPtrList<QGPluginManager>();
 	pluginmanager_list->setAutoDelete( TRUE );
-	qt_cleanup_pluginmanagers.add( &pluginmanager_list );
+	//qt_cleanup_pluginmanagers.add( &pluginmanager_list );
     }
     return pluginmanager_list;
 }
