@@ -266,7 +266,7 @@ void QKeySequence::setKey( int key, int index )
 #ifdef QT_CHECK_STATE
     if ( 0 > index && 4 < index ) {
 	qWarning( "QKeySequence::setKey: index %u out of range", index );
-        return;
+	return;
     }
 #endif // QT_CHECK_STATE
 
@@ -336,7 +336,7 @@ int QKeySequence::assign( QString keyseq )
 	}
 	part = keyseq.left( -1==p?keyseq.length():p-diff );
 	keyseq = keyseq.right( -1==p?0:keyseq.length() - ( p + 1 ) );
-        d->key[n] = decodeString( part );
+	d->key[n] = decodeString( part );
 	n++;
     }
     return n;
@@ -356,16 +356,16 @@ int QKeySequence::decodeString( const QString& str )
     } else {
 	name = str;
     }
-    int fnum=0;
+    int fnum;
     if ( name.length() == 1 ) {
-	QChar c = name[0];
-	c = c.upper();
-	k = c.unicode();
-	k |= UNICODE_ACCEL;
-
+	if ( name.at(0).isLetterOrNumber() ) {
+	    QString uppname = name.upper();
+	    k = uppname[0].unicode();
+	} else {
+	    k = name[0].unicode() | UNICODE_ACCEL;
+	}
     } else if ( name[0] == 'F' && (fnum = name.mid(1).toInt()) ) {
 	k = Key_F1 + fnum - 1;
-
     } else {
 	// Check through translation table for the correct key name
 	// ...or fall back on english table.
@@ -505,11 +505,11 @@ Qt::SequenceMatch QKeySequence::matches( const QKeySequence& seq ) const
 	int a  = (*this)[i],
 	    b  = seq[i];
 
- 	if ( a == b ) // perfect match
- 	    continue;
+	if ( a == b ) // perfect match
+	    continue;
 
- 	if ( (b & Qt::UNICODE_ACCEL ) == 0 || ( a & Qt::UNICODE_ACCEL) == 0 )
- 	    return NoMatch; // no unicode representation and no perfect match => no match
+	if ( (b & Qt::UNICODE_ACCEL ) == 0 || ( a & Qt::UNICODE_ACCEL) == 0 )
+	    return NoMatch; // no unicode representation and no perfect match => no match
 	
 	int   am = a & Qt::MODIFIER_MASK;
 	QChar ac = QChar(a & 0xffff),
@@ -679,15 +679,15 @@ QDataStream &operator>>( QDataStream &s, QKeySequence &keysequence )
 #endif
 
     if ( 1 == list.count() ) {
-        keysequence.d->key[0] = *list.at( 0 );
+	keysequence.d->key[0] = *list.at( 0 );
 	keysequence.d->key[1] =
 	    keysequence.d->key[2] =
 	    keysequence.d->key[3] = 0;
     } else {
-        keysequence.d->key[0] = *list.at( 0 );
-        keysequence.d->key[1] = *list.at( 1 );
-        keysequence.d->key[2] = *list.at( 2 );
-        keysequence.d->key[3] = *list.at( 3 );
+	keysequence.d->key[0] = *list.at( 0 );
+	keysequence.d->key[1] = *list.at( 1 );
+	keysequence.d->key[2] = *list.at( 2 );
+	keysequence.d->key[3] = *list.at( 3 );
     }
     return s;
 }
