@@ -255,11 +255,25 @@ extern QX11Data *qt_x11Data;
 struct QX11Data
 {
     Window findClientWindow(Window, Atom, bool);
-    // this stuff is implemented in qclb_x11.cpp
+    // from qclipboard_x11.cpp
     bool clipboardWaitForEvent(Window win, int type, XEvent *event, int timeout);
     bool clipboardReadProperty(Window win, Atom property, bool deleteProperty,
                             QByteArray *buffer, int *size, Atom *type, int *format, bool nullterm);
     QByteArray clipboardReadIncrementalProperty(Window win, Atom property, int nbytes, bool nullterm);
+
+    // from qdnd_x11.cpp
+    static void xdndSetup();
+    void xdndHandleEnter(QWidget *, const XEvent *, bool);
+    void xdndHandlePosition(QWidget *, const XEvent *, bool);
+    void xdndHandleStatus(QWidget *, const XEvent *, bool);
+    void xdndHandleLeave(QWidget *, const XEvent *, bool);
+    void xdndHandleDrop(QWidget *, const XEvent *, bool);
+    void xdndHandleFinished(QWidget *, const XEvent *, bool);
+    void xdndHandleSelectionRequest(const XSelectionRequestEvent *);
+    static bool xdndHandleBadwindow();
+
+    // from qmotifdnd_x11.cpp
+    void motifdndHandle(QWidget *, const XEvent *, bool);
 
     Display *display;
     char *displayName;

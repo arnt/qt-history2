@@ -45,17 +45,9 @@
 
 // and all this stuff is copied -into- qapp_x11.cpp
 
-void qt_xdnd_setup();
-void qt_handle_xdnd_enter(QWidget *, const XEvent *, bool);
 static void handle_xdnd_position(QWidget *, const XEvent *, bool);
-void qt_handle_xdnd_position(QWidget *, const XEvent *, bool);
 static void handle_xdnd_status(QWidget * w, const XEvent * xe, bool /*passive*/);
-void qt_handle_xdnd_status(QWidget *, const XEvent *, bool);
-void qt_handle_xdnd_leave(QWidget *, const XEvent *, bool);
-void qt_handle_xdnd_drop(QWidget *, const XEvent *, bool);
-void qt_handle_xdnd_finished(QWidget *, const XEvent *, bool);
-void qt_xdnd_handle_selection_request(const XSelectionRequestEvent *);
-bool qt_xdnd_handle_badwindow();
+
 // client messages
 const int qt_xdnd_version = 4;
 

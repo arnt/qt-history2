@@ -357,22 +357,6 @@ bool        qt_try_modal(QWidget *, XEvent *);
 QWidget *qt_button_down = 0; // last widget to be pressed with the mouse
 static QWidget *qt_popup_down = 0;  // popup that contains the pressed widget
 
-
-// stuff in qt_xdnd.cpp
-// setup
-extern void qt_xdnd_setup();
-// x event handling
-extern void qt_handle_xdnd_enter(QWidget *, const XEvent *, bool);
-extern void qt_handle_xdnd_position(QWidget *, const XEvent *, bool);
-extern void qt_handle_xdnd_status(QWidget *, const XEvent *, bool);
-extern void qt_handle_xdnd_leave(QWidget *, const XEvent *, bool);
-extern void qt_handle_xdnd_drop(QWidget *, const XEvent *, bool);
-extern void qt_handle_xdnd_finished(QWidget *, const XEvent *, bool);
-extern void qt_xdnd_handle_selection_request(const XSelectionRequestEvent *);
-extern bool qt_xdnd_handle_badwindow();
-
-extern void qt_motifdnd_handle_msg(QWidget *, const XEvent *, bool);
-
 extern bool qt_xdnd_dragging;
 
 // gui or non-gui from qapplication.cpp
@@ -481,7 +465,7 @@ static int qt_x_errhandler(Display *dpy, XErrorEvent *err)
 {
     if (err->error_code == BadWindow) {
         X11->seen_badwindow = true;
-        if (err->request_code == 25 /* X_SendEvent */ && qt_xdnd_handle_badwindow())
+        if (err->request_code == 25 /* X_SendEvent */ && X11->xdndHandleBadwindow())
             return 0;
         if (X11->ignore_badwindow)
             return 0;
@@ -1465,7 +1449,7 @@ void qt_init(QApplicationPrivate *priv, int,
         QColormap::initialize();
 
         // Support protocols
-        qt_xdnd_setup();
+        X11->xdndSetup();
 
         // Finally create all atoms
         qt_x11_create_intern_atoms();
@@ -2471,23 +2455,23 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
         } else if (event->xclient.message_type == ATOM(_QT_SCROLL_DONE)) {
             widget->translateScrollDoneEvent(event);
         } else if (event->xclient.message_type == ATOM(XdndPosition)) {
-            qt_handle_xdnd_position(widget, event, passive_only);
+            X11->xdndHandlePosition(widget, event, passive_only);
         } else if (event->xclient.message_type == ATOM(XdndEnter)) {
-            qt_handle_xdnd_enter(widget, event, passive_only);
+            X11->xdndHandleEnter(widget, event, passive_only);
         } else if (event->xclient.message_type == ATOM(XdndStatus)) {
-            qt_handle_xdnd_status(widget, event, passive_only);
+            X11->xdndHandleStatus(widget, event, passive_only);
         } else if (event->xclient.message_type == ATOM(XdndLeave)) {
-            qt_handle_xdnd_leave(widget, event, passive_only);
+            X11->xdndHandleLeave(widget, event, passive_only);
         } else if (event->xclient.message_type == ATOM(XdndDrop)) {
-            qt_handle_xdnd_drop(widget, event, passive_only);
+            X11->xdndHandleDrop(widget, event, passive_only);
         } else if (event->xclient.message_type == ATOM(XdndFinished)) {
-            qt_handle_xdnd_finished(widget, event, passive_only);
+            X11->xdndHandleFinished(widget, event, passive_only);
         } else {
             if (passive_only) return 0;
             // All other are interactions
         }
     } else {
-        qt_motifdnd_handle_msg(widget, event, passive_only);
+        X11->motifdndHandle(widget, event, passive_only);
     }
 
     return 0;
@@ -2971,7 +2955,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
             break;
 
         if (ATOM(XdndSelection) && req->selection == ATOM(XdndSelection)) {
-            qt_xdnd_handle_selection_request(req);
+            X11->xdndHandleSelectionRequest(req);
 
         } else if (qt_clipboard) {
             QCustomEvent e(QEvent::Clipboard, event);

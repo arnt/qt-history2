@@ -66,15 +66,6 @@ static ushort num_src_targets ;
 
 extern bool qt_motifdnd_active;
 
-// this stuff is copied from qclipboard_x11.cpp
-
-extern bool qt_xclb_wait_for_event(Display *dpy, Window win, int type,
-                                    XEvent *event, int timeout);
-extern bool qt_xclb_read_property(Display *dpy, Window win, Atom property,
-                                   bool deleteProperty,
-                                   QByteArray *buffer, int *size, Atom *type,
-                                   int *format, bool nullterm);
-
 extern Atom qt_xdnd_str_to_atom(const char *mimeType);
 extern const char* qt_xdnd_atom_to_str(Atom);
 
@@ -721,16 +712,11 @@ QByteArray qt_motifdnd_obtain_data(const char *mimeType)
     XFlush(qt_xdisplay());
 
     XEvent xevent;
-    bool got=qt_xclb_wait_for_event(qt_xdisplay(),
-                                     tw->winId(),
-                                     SelectionNotify, &xevent, 5000);
+    bool got=X11->clipboardWaitForEvent(tw->winId(), SelectionNotify, &xevent, 5000);
     if (got) {
         Atom type;
 
-        if (qt_xclb_read_property(qt_xdisplay(),
-                                    tw->winId(),
-                                    Dnd_selection, true,
-                                    &result, 0, &type, 0, true)) {
+        if (X11->clipboardReadProperty(tw->winId(), Dnd_selection, true, &result, 0, &type, 0, true)) {
         }
     }
 
@@ -739,9 +725,7 @@ QByteArray qt_motifdnd_obtain_data(const char *mimeType)
                        Dnd_selection, tw->winId(), Dnd_selection_time);
 
     // wait again for SelectionNotify event
-    qt_xclb_wait_for_event(qt_xdisplay(),
-                            tw->winId(),
-                            SelectionNotify, &xevent, 5000);
+    X11->clipboardWaitForEvent(tw->winId(), SelectionNotify, &xevent, 5000);
 
     if (drop_widget->isDesktop()) {
         delete tw;
