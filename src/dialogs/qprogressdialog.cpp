@@ -207,6 +207,8 @@ QProgressDialog::QProgressDialog( const QString &labelText,
 
 QProgressDialog::~QProgressDialog()
 {
+    if ( d->creator )
+	d->creator->setCursor( d->parentCursor );
     delete d;
 }
 
