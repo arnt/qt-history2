@@ -589,26 +589,13 @@ bool QProcess::waitForReadyRead(int msecs)
         msecs -= stopWatch.elapsed();
     } else if (d->processState != Running)
         return (bytesAvailable() > 0);
-
-    if (!d->waitForReadyRead(msecs)) {
-        emit error(d->processError);
-        return false;
-    }
-
-    bool emitReadyRead = false;
-    if (d->processChannel == QProcess::StandardOutput) {
-        int size = d->outputReadBuffer.size();
-        d->canReadStandardOutput();
-        emitReadyRead = (size < d->outputReadBuffer.size());
-    } else {
-        int size = d->errorReadBuffer.size();
-        d->canReadStandardError();
-        emitReadyRead = (size < d->errorReadBuffer.size());
-    }
-    if (emitReadyRead) {
-        emit readyRead();
+    else if (bytesAvailable() > 0)
         return true;
-    }
+
+    if (d->waitForReadyRead(msecs))
+        return true;
+
+    emit error(d->processError);
     return false;
 }
 
