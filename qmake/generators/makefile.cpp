@@ -475,7 +475,6 @@ MakefileGenerator::init()
 			    for(QStringList::Iterator vpath_it = vpath.begin();
 				vpath_it != vpath.end(); ++vpath_it) {
 				QString real_dir = Option::fixPathToLocalOS((*vpath_it));
-				qDebug("Trying %s", QString(real_dir + QDir::separator() + (*val_it)).latin1());
 				if(QFile::exists(real_dir + QDir::separator() + (*val_it))) {
 				    QString dir = (*vpath_it);
 				    if(dir.right(Option::dir_sep.length()) != Option::dir_sep)
@@ -496,7 +495,7 @@ MakefileGenerator::init()
 				real_dir = Option::fixPathToLocalOS(dir);
 				regex = regex.right(regex.length() - dir.length());
 			    }
-			    if(QFile::exists(real_dir)) {
+			    if(real_dir.isEmpty() || QFile::exists(real_dir)) {
 				QDir d(real_dir, regex);
 				if(!d.count()) {
 				    debug_msg(1, "Failure to find %s in vpath (%s)",
@@ -512,6 +511,7 @@ MakefileGenerator::init()
 				debug_msg(1, "Cannot match %s%c%s, as %s does not exist.",
 					  real_dir.latin1(), QDir::separator(), regex.latin1(),
 					  real_dir.latin1());
+				warn_msg(WarnLogic, "Failure to find: %s", (*val_it).latin1());
 			    }
 			}
 		    }
@@ -526,6 +526,69 @@ MakefileGenerator::init()
 	}
     }
     v["OBJECTS"] = createObjectList("SOURCES") + v["OBJECTS"]; // init variables
+
+    //lex files
+    {
+	QStringList &impls = v["LEXIMPLS"];
+	QStringList &l = v["LEXSOURCES"];
+	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+	    QFileInfo fi((*it));
+	    QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext.first();
+	    logicWarn(impl, "SOURCES");
+	    impls.append(impl);
+	    if( ! project->isActiveConfig("lex_included")) {
+		v["SOURCES"].append(impl);
+		// attribute deps of lex file to impl file
+		QStringList &lexdeps = findDependencies((*it));
+		QStringList &impldeps = findDependencies(impl);
+		for(QStringList::ConstIterator d = lexdeps.begin(); d != lexdeps.end(); ++d) {
+		    if(!impldeps.contains(*d))
+			impldeps.append(*d);
+		}
+		lexdeps.clear();
+	    }
+	}
+	if( ! project->isActiveConfig("lex_included"))
+	    v["OBJECTS"] += (v["LEXOBJECTS"] = createObjectList("LEXIMPLS"));
+    }
+    //yacc files
+    {
+	QStringList &decls = v["YACCCDECLS"], &impls = v["YACCIMPLS"];
+	QStringList &l = v["YACCSOURCES"];
+	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
+	    QFileInfo fi((*it));
+	    QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::yacc_mod + Option::cpp_ext.first();
+	    logicWarn(impl, "SOURCES");
+	    QString decl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::yacc_mod + Option::h_ext.first();
+	    logicWarn(decl, "HEADERS");
+
+	    decls.append(decl);
+	    impls.append(impl);
+	    v["SOURCES"].append(impl);
+	    QStringList &impldeps = findDependencies(impl);
+ 	    impldeps.append(decl);
+	    // attribute deps of yacc file to impl file
+	    QStringList &yaccdeps = findDependencies((*it));
+	    for(QStringList::ConstIterator d = yaccdeps.begin(); d != yaccdeps.end(); ++d) {
+		if(!impldeps.contains(*d))
+		    impldeps.append(*d);
+	    }
+	    if( project->isActiveConfig("lex_included")) {
+		// is there a matching lex file ? Transfer its dependencies.
+		QString lexsrc = fi.baseName() + Option::lex_ext;
+		if(fi.dirPath() != ".")
+		    lexsrc.prepend(fi.dirPath() + Option::dir_sep);
+		if(v["LEXSOURCES"].findIndex(lexsrc) != -1) {
+		    QString trg = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext.first();
+		    impldeps.append(trg);
+		    impldeps += findDependencies(lexsrc);
+		    depends[lexsrc].clear();
+		}
+	    }
+	    yaccdeps.clear();
+	}
+	v["OBJECTS"] += (v["YACCOBJECTS"] = createObjectList("YACCIMPLS"));
+    }
 
     //UI files
     {
@@ -596,69 +659,6 @@ MakefileGenerator::init()
 	    findDependencies(imgfile).append(f);
 	}
 	v["OBJECTS"] += (v["IMAGEOBJECTS"] = createObjectList("QMAKE_IMAGE_COLLECTION"));
-    }
-
-    //lex files
-    {
-	QStringList &impls = v["LEXIMPLS"];
-	QStringList &l = v["LEXSOURCES"];
-	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-	    QFileInfo fi((*it));
-	    QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext.first();
-	    logicWarn(impl, "SOURCES");
-	    impls.append(impl);
-	    if( ! project->isActiveConfig("lex_included")) {
-		v["SOURCES"].append(impl);
-		// attribute deps of lex file to impl file
-		QStringList &lexdeps = findDependencies((*it));
-		QStringList &impldeps = findDependencies(impl);
-		for(QStringList::ConstIterator d = lexdeps.begin(); d != lexdeps.end(); ++d) {
-		    if(!impldeps.contains(*d))
-			impldeps.append(*d);
-		}
-		lexdeps.clear();
-	    }
-	}
-	if( ! project->isActiveConfig("lex_included"))
-	    v["OBJECTS"] += (v["LEXOBJECTS"] = createObjectList("LEXIMPLS"));
-    }
-    //yacc files
-    {
-	QStringList &decls = v["YACCCDECLS"], &impls = v["YACCIMPLS"];
-	QStringList &l = v["YACCSOURCES"];
-	for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-	    QFileInfo fi((*it));
-	    QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::yacc_mod + Option::cpp_ext.first();
-	    logicWarn(impl, "SOURCES");
-	    QString decl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::yacc_mod + Option::h_ext.first();
-	    logicWarn(decl, "HEADERS");
-
-	    decls.append(decl);
-	    impls.append(impl);
-	    v["SOURCES"].append(impl);
-	    QStringList &impldeps = findDependencies(impl);
- 	    impldeps.append(decl);
-	    // attribute deps of yacc file to impl file
-	    QStringList &yaccdeps = findDependencies((*it));
-	    for(QStringList::ConstIterator d = yaccdeps.begin(); d != yaccdeps.end(); ++d) {
-		if(!impldeps.contains(*d))
-		    impldeps.append(*d);
-	    }
-	    if( project->isActiveConfig("lex_included")) {
-		// is there a matching lex file ? Transfer its dependencies.
-		QString lexsrc = fi.baseName() + Option::lex_ext;
-		if(fi.dirPath() != ".")
-		    lexsrc.prepend(fi.dirPath() + Option::dir_sep);
-		if(v["LEXSOURCES"].findIndex(lexsrc) != -1) {
-		    QString trg = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext.first();
-		    impldeps.append(trg);
-		    impldeps += findDependencies(lexsrc);
-		    depends[lexsrc].clear();
-		}
-	    }
-	    yaccdeps.clear();
-	}
-	v["OBJECTS"] += (v["YACCOBJECTS"] = createObjectList("YACCIMPLS"));
     }
 
     //moc files
