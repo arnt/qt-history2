@@ -53,6 +53,10 @@
 #include <qfocusframe.h>
 #include <private/qaquatabpix_mac_p.h>
 
+#ifndef QT_NO_DEBUG
+#include <QtCore/qdebug.h>
+#endif
+
 extern QRegion qt_mac_convert_mac_region(RgnHandle); //qregion_mac.cpp
 extern QHash<QByteArray, QFont> *qt_app_fonts_hash(); // qapplication.cpp
 
@@ -5060,27 +5064,6 @@ QPixmap QMacStyle::generatedIconPixmap(QIcon::Mode iconMode, const QPixmap &pixm
             }
         }
         return img; }
-    case QIcon::Active: {
-        QImage img = pixmap.toImage();
-        img.setAlphaBuffer(true);
-        int imgh = img.height();
-        int imgw = img.width();
-        int h, s, v, a;
-        QRgb pixel;
-        for (int y = 0; y < imgh; ++y) {
-            for (int x = 0; x < imgw; ++x) {
-                pixel = img.pixel(x, y);
-                a = qAlpha(pixel);
-                QColor hsvColor(pixel);
-                hsvColor.getHsv(&h, &s, &v);
-                s = qMin(100, s * 2);
-                v = v / 2;
-                hsvColor.setHsv(h, s, v);
-                pixel = hsvColor.rgb();
-                img.setPixel(x, y, qRgba(qRed(pixel), qGreen(pixel), qBlue(pixel), a));
-            }
-        }
-        return img; }
     default:
         ;
     }
@@ -5210,6 +5193,32 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
     }
 }
 
+static inline QPixmap darkenPixmap(const QPixmap &pixmap)
+{
+    QImage img = pixmap.toImage();
+    img.setAlphaBuffer(true);
+    int imgh = img.height();
+    int imgw = img.width();
+    int h, s, v, a;
+    QRgb pixel;
+    for (int y = 0; y < imgh; ++y) {
+        for (int x = 0; x < imgw; ++x) {
+            pixel = img.pixel(x, y);
+            a = qAlpha(pixel);
+            QColor hsvColor(pixel);
+            hsvColor.getHsv(&h, &s, &v);
+            s = qMin(100, s * 2);
+            v = v / 2;
+            hsvColor.setHsv(h, s, v);
+            pixel = hsvColor.rgb();
+            img.setPixel(x, y, qRgba(qRed(pixel), qGreen(pixel), qBlue(pixel), a));
+        }
+    }
+    return img;
+}
+
+
+
 /*! \reimp */
 void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter *p,
                             const QWidget *w) const
@@ -5250,34 +5259,65 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
             myTb.state &= ~State_AutoRaise;
             if (w && qt_cast<QToolBar *>(w->parentWidget())) {
                 QRect cr = tb->rect;
-                if (tb->toolButtonStyle != Qt::ToolButtonIconOnly && !tb->text.isEmpty()
-                    && (tb->state & QStyle::State_Down)) {
-                    if (tb->toolButtonStyle == Qt::ToolButtonTextOnly) {
-                        p->drawText(cr, Qt::AlignCenter, tb->text);
-                    } else {
+                int shiftX = 0;
+                int shiftY = 0;
+                if (tb->state & (State_Down | State_On)) {
+                    shiftX = pixelMetric(PM_ButtonShiftHorizontal, tb, w);
+                    shiftY = pixelMetric(PM_ButtonShiftVertical, tb, w);
+                }
+                // The down state is special for QToolButtons in a toolbar on the Mac
+                // The text is a bit bolder and gets a drop shadow and the icons are also darkened.
+                // This doesn't really fit into any particular case in QIcon, so we
+                // do the majority of the work ourselves.
+                if (tb->state & QStyle::State_Down
+                        && !(tb->features & QStyleOptionToolButton::Arrow)) {
+                    Qt::ToolButtonStyle tbstyle = tb->toolButtonStyle;
+                    if (tb->icon.isNull() && !tb->text.isEmpty())
+                        tbstyle = Qt::ToolButtonTextOnly;
+
+                    switch (tbstyle) {
+                    case Qt::ToolButtonTextOnly:
+                        drawItemText(p, cr, Qt::AlignCenter, tb->palette,
+                                     tb->state & QStyle::State_Enabled, tb->text);
+                        break;
+                    case Qt::ToolButtonIconOnly:
+                    case Qt::ToolButtonTextBesideIcon:
+                    case Qt::ToolButtonTextUnderIcon: {
+                        QRect pr = cr;
                         QIcon::Mode iconMode = (tb->state & QStyle::State_Enabled) ? QIcon::Normal
                                                                                    : QIcon::Disabled;
-                        if (tb->state & QStyle::State_Down)
-                            iconMode = QIcon::Active;
                         QIcon::State iconState = (tb->state & QStyle::State_On) ? QIcon::On
                                                                                 : QIcon::Off;
-                        const QPixmap pixmap = tb->icon.pixmap(pixelMetric(PM_LargeIconSize), iconMode,
-                                                               iconState);
-                        int alignment = 0;
-                        if (tb->toolButtonStyle == Qt::ToolButtonTextUnderIcon) {
-                            int fh = p->fontMetrics().height();
-                            cr.addCoords(0, cr.bottom() - fh - 3, 0, -3);
-                            alignment |= Qt::AlignCenter;
-                        } else {
-                            cr.addCoords(pixmap.width() + 7, -1, 0, 0);
-                            alignment |= Qt::AlignLeft | Qt::AlignVCenter;
+                        QPixmap pixmap = tb->icon.pixmap(tb->rect.size(), iconMode, iconState);
+
+                        // Draw the text if it's needed.
+                        if (tb->toolButtonStyle != Qt::ToolButtonIconOnly) {
+                            int alignment = 0;
+                            if (tb->toolButtonStyle == Qt::ToolButtonTextUnderIcon) {
+                                int fh = p->fontMetrics().height();
+                                pr.addCoords(0, 3, 0, -fh - 3);
+                                cr.addCoords(0, pr.bottom(), 0, -3);
+                                alignment |= Qt::AlignCenter;
+                            } else {
+                                pr.setWidth(pixmap.width() + 8);
+                                cr.addCoords(pr.right(), 0, 0, 0);
+                                alignment |= Qt::AlignLeft | Qt::AlignVCenter;
+                            }
+                            cr.translate(shiftX, shiftY);
+                            drawItemText(p, cr, alignment, tb->palette,
+                                         tb->state & QStyle::State_Enabled, tb->text);
+                            cr.addCoords(0, 3, 0, -3); // the drop shadow
+                            drawItemText(p, cr, alignment, tb->palette,
+                                         tb->state & QStyle::State_Enabled, tb->text);
                         }
-                        p->drawText(cr, alignment, tb->text);
-
+                        pr.translate(shiftX, shiftY);
+                        pixmap = darkenPixmap(pixmap);
+                        drawItemPixmap(p, pr, Qt::AlignCenter, tb->palette, pixmap);
+                        break; }
                     }
-
+                } else {
+                    QWindowsStyle::drawControl(ce, &myTb, p, w);
                 }
-                QWindowsStyle::drawControl(ce, &myTb, p, w);
             } else {
                 QWindowsStyle::drawControl(ce, &myTb, p, w);
             }
