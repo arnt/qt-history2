@@ -1206,7 +1206,7 @@ void PopupMenuEditor::keyPressEvent( QKeyEvent * e )
     update();
 }
 
-void PopupMenuEditor::focusOutEvent( QFocusEvent * e )
+void PopupMenuEditor::focusOutEvent( QFocusEvent * )
 {
     QWidget * w = qApp->focusWidget();
     if ( ! ( w->inherits( "PopupMenuEditor" ) || w->inherits( "MenuBarEditor" ) ) ) {

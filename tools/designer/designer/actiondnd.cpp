@@ -185,39 +185,6 @@ QWidget *QSeparatorAction::widget() const
 
 
 
-
-QSubMenuAction::QSubMenuAction( QObject *parent )
-    : QAction( parent, "qt_designer_separator" ), popup( 0 )
-{
-}
-
-bool QSubMenuAction::addTo( QWidget *w )
-{
-    //FIXME: nothing yet. mmonsen 21112002.
-    /*
-    idx = ( (QPopupMenu*)w )->count();
-    if ( !popup )
-	popup = new QDesignerPopupMenu( MainWindow::self );
-    ( (QPopupMenu*)w )->insertItem( menuText(), popup, -1, idx );
-    return TRUE;
-    */
-    return FALSE;
-}
-
-bool QSubMenuAction::removeFrom( QWidget *w )
-{
-    ( (QPopupMenu*)w )->removeItemAt( idx );
-    return TRUE;
-}
-
-QPopupMenu *QSubMenuAction::popupMenu() const
-{
-    return popup;
-}
-
-
-
-
 QDesignerToolBar::QDesignerToolBar( QMainWindow *mw )
     : QToolBar( mw ), lastIndicatorPos( -1, -1 )
 {

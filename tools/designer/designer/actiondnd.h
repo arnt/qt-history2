@@ -144,23 +144,6 @@ private:
 
 };
 
-class QSubMenuAction : public QAction
-{
-    Q_OBJECT
-
-public:
-    QSubMenuAction( QObject *parent );
-
-    bool addTo( QWidget *w );
-    bool removeFrom( QWidget *w );
-    QPopupMenu *popupMenu() const;
-    int index() const;
-
-private:
-    QPopupMenu *popup;
-    int idx;
-
-};
 
 class QDesignerToolBar : public QToolBar
 {
