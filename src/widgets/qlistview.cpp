@@ -324,6 +324,33 @@ static int indexOfItem( QListViewItem *item )
 }
 #endif
 
+/*!
+  \internal
+  Creates a string with ... like "Trollte..." or "...olltech" depending on the alignment
+*/
+
+static QString qEllipsisText( const QString &org, const QFontMetrics &fm, int width, int align )
+{
+    int ellWidth = fm.width( "..." );
+    QString text = QString::fromLatin1("");
+    int i = 0;
+    int len = org.length();
+    int offset = (align & Qt::AlignRight) ? (len-1) - i : i;
+    while ( i < len && fm.width( text + org[ offset ] ) + ellWidth < width ) {
+	if ( align & Qt::AlignRight )
+	    text.prepend( org[ offset ] );
+	else
+	    text += org[ offset ];
+	offset = (align & Qt::AlignRight) ? (len-1) - ++i : ++i;
+    }
+    if ( text.isEmpty() )
+	text = ( align & Qt::AlignRight ) ? org.right( 1 ) : text = org.left( 1 );
+    if ( align & Qt::AlignRight )
+	text.prepend( "..." );
+    else
+	text += "...";
+    return text;
+}
 
 /*!
     \class QListViewItem
@@ -1997,15 +2024,7 @@ void QListViewItem::paintCell( QPainter * p, const QPalette & pal,
 	    if ( !mlenabled && fm.width( t ) + pw > width ) {
 		// take care of arabic shaping in width calculation (lars)
 		ci->truncated = TRUE;
-		ci->tmpText = "...";
-		int i = 0;
-		int len = t.length();
-		while ( i < len && fm.width( ci->tmpText + t[ i ] ) + pw < width )
-		    ci->tmpText += t[ i++ ];
-		ci->tmpText.remove( (uint)0, 3 );
-		if ( ci->tmpText.isEmpty() )
-		    ci->tmpText = t.left( 1 );
-		ci->tmpText += "...";
+		ci->tmpText = qEllipsisText( t, fm, width - pw, align );
 	    } else if ( mlenabled && fm.width( t ) + pw > width ) {
 #ifndef QT_NO_STRINGLIST
 		QStringList list = QStringList::split( QChar('\n'), t, TRUE );
@@ -2013,16 +2032,7 @@ void QListViewItem::paintCell( QPainter * p, const QPalette & pal,
 		    QString z = *it;
 		    if ( fm.width( z ) + pw > width ) {
 			ci->truncated = TRUE;
-			QString tempText = "...";
-			int i = 0;
-			int len = z.length();
-			while ( i < len && fm.width( tempText + z[ i ]) + pw < width )
-			    tempText += z[i++];
-			tempText.remove( (uint)0, 3 );
-			if ( tempText.isEmpty() )
-			    tempText = z.left( 1 );
-			tempText += "...";
-			*it = tempText;
+			*it = qEllipsisText( z, fm, width - pw, align );
 		    }
 		}
 
@@ -3432,7 +3442,9 @@ QListView::WidthMode QListView::columnWidthMode( int c ) const
 /*!
     Sets column \a{column}'s alignment to \a align. The alignment is
     ultimately passed to QListViewItem::paintCell() for each item in
-    the list view.
+    the list view. For horizontally aligned text with Qt::AlignLeft or
+    Qt::AlignHCenter the ellipsis (...) will be to the right, for
+    Qt::AlignRight the ellipsis will be to the left.
 
     \sa Qt::AlignmentFlags
 */
