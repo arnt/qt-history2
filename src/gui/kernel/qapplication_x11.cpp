@@ -4867,7 +4867,7 @@ bool QETWidget::translateKeyEvent(const XEvent *event, bool grab)
         // send accel events if the keyboard is not grabbed
         QKeyEvent a(type, code, state, text, autor,
                      qMax(qMax(count,1), int(text.length())));
-        if (static_cast<QApplicationPrivate*>(qApp->d_ptr)qt_tryAccelEvent(this, &a))
+        if (static_cast<QApplicationPrivate*>(qApp->d_ptr)->qt_tryAccelEvent(this, &a))
             return true;
     }
 #endif
