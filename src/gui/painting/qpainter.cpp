@@ -3506,8 +3506,14 @@ void qt_fill_linear_gradient(const QRect &rect, QPainter *p, const QBrush &brush
     QPen oldPen = p->pen();
     p->translate(rect.topLeft());
 
-    gstart -= rect.topLeft();
-    gstop -= rect.topLeft();
+    // The redirection offset should not be taken into account when
+    // calculating the gradient start/stop pts. The reason for this is
+    // that gradient pts exist in logical coordinate space only -
+    // nothing to do with redirection offset whatsoever.
+    QPoint rdOffset;
+    p->redirected(p->device(), &rdOffset);
+    gstart = gstart - rect.topLeft() + rdOffset;
+    gstop = gstop - rect.topLeft() + rdOffset;
 
     QColor gcol1 = brush.color();
     QColor gcol2 = brush.gradientColor();
