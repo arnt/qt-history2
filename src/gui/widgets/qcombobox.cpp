@@ -547,7 +547,6 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
 
 QComboBox::~QComboBox()
 {
-    delete d;
 }
 
 void QComboBox::setDuplicatesEnabled( bool enable )
