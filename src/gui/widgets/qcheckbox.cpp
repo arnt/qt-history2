@@ -127,7 +127,7 @@ QStyleOptionButton QCheckBoxPrivate::getStyleOption() const
     if (down)
         opt.state |= QStyle::Style_Down;
     if (q->testAttribute(Qt::WA_UnderMouse))
-        opt.state |= QStyle::Style_HasFocus;
+        opt.state |= QStyle::Style_MouseOver;
     if (tristate && noChange)
         opt.state |= QStyle::Style_NoChange;
     else
