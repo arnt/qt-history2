@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#133 $
+** $Id: //depot/qt/main/src/kernel/qwid_x11.cpp#134 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -22,7 +22,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#133 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwid_x11.cpp#134 $")
 
 
 void qt_enter_modal( QWidget * );		// defined in qapp_x11.cpp
@@ -1052,8 +1052,8 @@ void QWidget::resize( int w, int h )
 	do_size_hints( dpy, winid, extra, &size_hints );
     }
     XResizeWindow( dpy, winid, w, h );
-    QResizeEvent e( s, olds );
-    QApplication::sendEvent( this, &e );	// send resize event immediatly
+    QResizeEvent * e = new QResizeEvent( s, olds );
+    QApplication::postEvent( this, e );
 }
 
 
