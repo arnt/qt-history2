@@ -124,7 +124,7 @@ volatile int * lastop = &dummy_lastop;
   Constructs a screen cursor
 */
 
-QScreenCursor::QScreenCursor() : gfx(0)
+QScreenCursor::QScreenCursor() : gfx(0), gfxunder(0), imgunder(0), cursor(0)
 {
 }
 
@@ -177,8 +177,6 @@ void QScreenCursor::init(SWCursorData *da, bool init)
 	    imgunder->setColor( i, qt_screen->clut()[i] );
     }
     gfxunder = (QGfxRasterBase*)imgunder->graphicsContext();
-
-    cursor = new QImage();
 }
 
 /*!
@@ -193,7 +191,6 @@ QScreenCursor::~QScreenCursor()
     delete gfx;
     delete gfxunder;
     delete imgunder;
-    delete cursor;
 }
 
 /*!
