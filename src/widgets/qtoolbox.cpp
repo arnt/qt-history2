@@ -389,7 +389,7 @@ QueryPerformanceCounter( &count ); \
 if ( count.QuadPart > next.QuadPart )
 
 #define REINIT_TIMER \
-next.QuadPart = next.QuadPart + oneMill.QuadPart;
+next.QuadPart = next.QuadPart + oneMill.QuadPart
 
 #endif
 
