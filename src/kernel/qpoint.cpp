@@ -27,7 +27,7 @@
 #include "qdatastream.h"
 
 
-// NOT REVISED
+// BEING REVISED: paul
 /*!
   \class QPoint qpoint.h
   \brief The QPoint class defines a point in the plane.
