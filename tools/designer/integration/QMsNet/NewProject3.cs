@@ -27,6 +27,7 @@ namespace QMsNet
 	public System.Windows.Forms.RichTextBox txtDescription;
 	private System.ComponentModel.Container components = null;
 	private bool autoUpdateFilename = true;
+	private bool autoUpdateProjectName = true;
 
 	public NewQtProject3()
 	{
@@ -242,8 +243,10 @@ namespace QMsNet
 	#endregion
 
 	private void btnBrowse_Click(object sender, System.EventArgs e) {
-	    if ( saveProDialog.ShowDialog( this ) == DialogResult.OK ) 
+	    if ( saveProDialog.ShowDialog( this ) == DialogResult.OK ) {
+		autoUpdateFilename = false;
 		txtProjectFile.Text = saveProDialog.FileName;
+	    }
 	}
 
         private void lstTemplates_SelectedIndexChanged(object sender, System.EventArgs e) {
@@ -264,9 +267,22 @@ namespace QMsNet
         private void txtProjectFile_TextChanged(object sender, System.EventArgs e) {
 	    if ( txtProjectFile.Focused )
 		autoUpdateFilename = false;
+
+	    if ( autoUpdateProjectName ) {
+		string newName = txtProjectFile.Text;
+		int index = newName.LastIndexOf( "\\" ) + 1;
+		if ( index != 0 )
+		    newName = newName.Substring( index, newName.Length - index );
+		if ( newName.EndsWith( ".pro" ) )
+		    newName = newName.Substring( 0, newName.Length - 4 );
+		txtProjectName.Text = newName;
+	    }
 	}
 
         private void txtProjectName_TextChanged(object sender, System.EventArgs e) {
+	    if ( txtProjectName.Focused )
+		autoUpdateProjectName = false;
+
 	    if ( autoUpdateFilename ) {
 		txtProjectFile.Text = txtProjectName.Text + ".pro";
 	    }
