@@ -596,7 +596,10 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
     case PE_RubberBandMask:
     case PE_RubberBand: {
 	QPen oldPen = p->pen();
-	p->setPen(pal.foreground());
+	if (pe == PE_RubberBandMask)
+	    p->setPen(color1);
+	else
+	    p->setPen(pal.foreground());
 	if(flags & Style_Rectangle)
 	    p->drawRect(r);
 	else
@@ -2617,7 +2620,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 	    sz = QSize(sz.width() + dfw + 21, sz.height() + dfw );
 	    break;
 	}
-	
+
     case CT_MenuItem:
 	{
 #ifndef QT_NO_MENU
@@ -2706,7 +2709,7 @@ QSize QCommonStyle::sizeFromContents(ContentsType contents,
 
     case CT_MenuBar:
     case CT_Menu:
-    case CT_MenuBarItem: 
+    case CT_MenuBarItem:
     case CT_LineEdit:
     case CT_Header:
     case CT_Slider:
