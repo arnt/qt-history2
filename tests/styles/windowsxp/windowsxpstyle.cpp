@@ -753,7 +753,7 @@ void QWindowsXPStyle::drawComplexControl( ComplexControl control,
 			stateId = 4; // no TRVS_DISABLED
 		    else
 			stateId = TRVS_NORMAL;
-		    theme.rec = QRect( theme.rec.center().x() - 2, 0, theme.rec.center().x(), 4 );
+		    theme.rec = QRect( theme.rec.center().x() - 2, 0, 4, sl->height() );
 		}
 		DrawThemeBackground( theme.handle(), p->handle(), partId, stateId, &theme.rect(), 0 );
 		tickreg -= theme.rec;
