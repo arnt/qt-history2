@@ -1654,7 +1654,6 @@ fi
 
 if [ "x$REMOTE" = "xyes" ]; then
     QMAKE_CONFIG="$QMAKE_CONFIG remote"
-    QMAKE_VARS="$QMAKE_VARS \"DEFINES+=QT_REMOTE_CONTROL\""
 fi
 
 [ "x$FT" = "xyes" -a "x$EMBEDDED" != "xno" ] && QMAKE_CONFIG="$QMAKE_CONFIG ft"

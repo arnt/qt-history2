@@ -243,4 +243,5 @@ kernel {
 			$$KERNEL_CPP/qremotefactory.cpp \
 			$$KERNEL_CPP/qremoteplugin.cpp
 	}
+	!remote:DEFINES += QT_NO_REMOTE
 }
