@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#23 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#24 $
 **
 ** Implementation of QClipboard class for Win32
 **
@@ -278,6 +278,19 @@ void QClipboard::setData( QMimeSource* src )
 	put it on X clipboard
 	*/
     }
+}
+
+
+QImage QClipboard::image() const
+{
+// TODO: Share _x11 code
+    QImage r;
+    return r;
+}
+
+void QClipboard::setImage( const QImage & )
+{
+// TODO: Share _x11 code
 }
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#40 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#41 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -65,21 +65,36 @@ public:
     QClipboardData();
    ~QClipboardData();
 
-    void		setSource(QMimeSource* s)
+    void setSource(QMimeSource* s)
 	{ delete src; src = s; }
-    QMimeSource*	source()
+    QMimeSource* source()
 	{ return src; }
+    void addTransferredPixmap(QPixmap pm)
+	{ /* TODO: queue them */
+	    transferred[tindex] = pm;
+	    (tindex=tindex+1)%2;
+	}
+    void clearTransfers()
+	{
+	    transferred[0] = QPixmap();
+	    transferred[1] = QPixmap();
+	    debug("CLEAR");
+	}
 
-    void		clear();
+    void clear();
 
 private:
     // NEW
     QMimeSource* src;
+
+    QPixmap transferred[2];
+    int tindex;
 };
 
 QClipboardData::QClipboardData()
 {
     src = 0;
+    tindex=0;
 }
 
 QClipboardData::~QClipboardData()
@@ -336,6 +351,7 @@ bool QClipboard::event( QEvent *e )
 
 	case SelectionNotify:
 	    clipboardData()->clear();
+	    clipboardData()->clearTransfers();
 	    break;
 
 	case SelectionRequest:
@@ -382,6 +398,7 @@ bool QClipboard::event( QEvent *e )
 		    target = req->target;
 		    property = req->property;
 		}
+debug("%d: %s to %s",imulti,qt_xdnd_atom_to_str(target),property ? qt_xdnd_atom_to_str(property) : "None");
 
 		if ( target == xa_targets ) {
 		    int n = 0;
@@ -415,6 +432,38 @@ bool QClipboard::event( QEvent *e )
 					  (uchar *)&ph,
 					  sizeof(Pixmap));
 			evt.xselection.property = property;
+			d->addTransferredPixmap(pm);
+			already_done = TRUE;
+		    } else if ( target == XA_BITMAP ) {
+			fmt = "image/pbm";
+			data = d->source()->encodedData(fmt);
+			QPixmap pm;
+			QImage img;
+			img.loadFromData(data);
+			pm.convertFromImage(img);
+			if ( img.depth() == 1 ) {
+			    Pixmap ph = pm.handle();
+			    XChangeProperty ( dpy, req->requestor, property,
+					      target, 32,
+					      PropModeReplace,
+					      (uchar *)&ph,
+					      sizeof(Pixmap));
+			    evt.xselection.property = property;
+			    d->addTransferredPixmap(pm);
+			} else {
+			    if ( pm.mask() )
+				pm = *pm.mask();
+			    else
+				pm.convertFromImage(img.convertDepth(1));
+			    Pixmap ph = pm.handle();
+			    XChangeProperty ( dpy, req->requestor, property,
+					      target, 32,
+					      PropModeReplace,
+					      (uchar *)&ph,
+					      sizeof(Pixmap));
+			    evt.xselection.property = property;
+			    d->addTransferredPixmap(pm);
+			}
 			already_done = TRUE;
 		    } else {
 			fmt = qt_xdnd_atom_to_str(target);
@@ -469,9 +518,33 @@ void QClipboard::setText( const QString &text )
 
 
 /*!
-  Returns the clipboard pixmap, or null if the clipboard does not contains
-  any pixmap.
+  Returns the clipboard image, or null if the clipboard does not contains
+  any image.
   \sa setText()
+*/
+
+QImage QClipboard::image() const
+{
+    QImage r;
+    QImageDrag::decode(data(),r);
+    return r;
+}
+
+/*!
+  Copies \e image into the clipboard.
+  \sa image()
+*/
+
+void QClipboard::setImage( const QImage &image )
+{
+    setData(new QImageDrag(image));
+}
+
+
+/*!
+  Returns the clipboard pixmap, or null if the clipboard does not contains
+  any pixmap. Note that this usually looses more information than image().
+  \sa setText(), image()
 */
 
 QPixmap QClipboard::pixmap() const
@@ -483,11 +556,14 @@ QPixmap QClipboard::pixmap() const
 
 /*!
   Copies \e pixmap into the clipboard.
+  Note that this usually looses more information than setImage(),
+  as the data may be converted to an image for transfer.
   \sa pixmap()
 */
 
 void QClipboard::setPixmap( const QPixmap &pixmap )
 {
+    // *could* just use the handle, but that is X hackery, MIME is better.
     setData(new QImageDrag(pixmap.convertToImage()));
 }
 
