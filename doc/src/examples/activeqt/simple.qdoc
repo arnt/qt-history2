@@ -37,7 +37,7 @@
     WebBrowser to support ActiveX controls, and scripting to be enabled.
 
     The simple ActiveX control is embedded using the \c <object> tag.
-    \quotefile simple/simple.doc
+    \quotefile examples/activeqt/simple-demo.qdocinc
     \skipto <object ID
     \printuntil </object>
 

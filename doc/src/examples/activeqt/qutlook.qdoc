@@ -2,14 +2,14 @@
   \page qaxcontainer-example-qutlook.html
   \ingroup qaxcontainer-examples
   \title In Sync with Outlook
- 
+
   This example demonstrates the use of ActiveQt to automate Outlook. The example
   makes use of the \link activeqt-tools-dumpcpp.html dumpcpp \endlink tool to generate a C++
   namespace for the type library describing the Outlook Object Model.
-  
+
   \quotefile qutlook/qutlook.pro
   \printto else
-  
+
   The project file checks if the the Outlook type library is located in the standard location.
   If not, then the generated makefile will just print an error message.
 
@@ -32,7 +32,7 @@
   \quotefile qutlook/addressview.cpp
   \skipto #include
   \printto class AddressBookModel
-  
+
   The implementation includes the required header files (including the \c msoutl.h header generated
   by the \e dumpcpp tool), and provides a \c qHash implementation for QModelIndex, which allows
   caching of data in the application (thus reducing the number of calls to Outlook).
@@ -46,7 +46,7 @@
   the return value has to be put into an object of the correct type. The various signals Outlook
   provides to notify about contents changes are connected to the \c updateOutlook() slot.
 
-  \printto ::rowCount()
+  \printto ::rowCount(
   The destructor logs off from the session.
 
   \printto ::data(
@@ -66,7 +66,7 @@
   \printto ::update(
   The \c addItem() slot calls the CreateItem method of the Outlook to create a new contact item,
   sets the properties of the new item to the values entered by the user and saves the item.
-  
+
   \printto ::AddressView
   The \c update() slot clears the cache, and emits the reset() signal to notify the view about the
   data change requiring a redraw of the contents.
