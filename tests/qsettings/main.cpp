@@ -11,6 +11,7 @@ static void readtest()
     QString val;
 
     settings.insertSearchPath(QSettings::Unix, QDir::current().absPath());
+    settings.insertSearchPath(QSettings::Mac, "test/qsettings");
     val = settings.readEntry("/settings test/multiline");
     if (val.isNull() || val.isEmpty())
 	printf("read empty value\n");
@@ -26,6 +27,7 @@ static void readtest()
     printf( "entrylist/subkeylist tests\n" );
     QSettings settings2;
     settings2.insertSearchPath(QSettings::Unix, QDir::current().absPath());
+    settings2.insertSearchPath(QSettings::Mac, "test/qsettings");
     QStringList entries = settings2.entryList("/settings test/one/two/");
     QStringList::Iterator it = entries.begin();
     while (it != entries.end())
@@ -51,6 +53,7 @@ static void writetest()
     QString val;
 
     settings.insertSearchPath(QSettings::Unix, QDir::current().absPath());
+    settings.insertSearchPath(QSettings::Mac, "test/qsettings");
 
     val = "this is multiline\ntext for testing the\nescaping.";
     settings.writeEntry("/settings test/multiline", val);
