@@ -214,14 +214,14 @@ int QSocketDevicePrivate::createNewSocket()
 void QSocketDevice::close()
 {
     if (d->fd == -1)                // already closed
-        return false;
+        return;
     ::closesocket(d->fd);
 #if defined(QSOCKETDEVICE_DEBUG)
     qDebug("QSocketDevice::close: Closed socket %x", d->fd);
 #endif
     d->fd = -1;
     d->fetchConnectionParameters();
-    return true;
+    return;
 }
 
 
@@ -797,8 +797,7 @@ Q_LLONG QSocketDevice::write(const char *data, Q_LLONG len)
 }
 
 
-Q_LONG QSocketDevice::writeBlock(const char *data, Q_LONG len, const QHostAddress &host,
-                                 Q_UINT16 port)
+Q_LLONG QSocketDevice::write(const char *data, Q_LLONG len, const QHostAddress & host, Q_UINT16 port)
 {
     if (d->t != Datagram) {
         qWarning("QSocketDevice::sendBlock: Not datagram");
