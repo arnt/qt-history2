@@ -10,11 +10,14 @@ QListModelItem::QListModelItem(QListModel *model)
 
 bool QListModelItem::operator ==(const QListModelItem &other) const
 {
-    if (values.count() != other.values.count())
+    if (values.count() != other.values.count()
+	|| edit != other.edit
+	|| select != other.select)
 	return false;
 
     for (int i=0; values.count(); ++i)
-	if (values.at(i) != other.values.at(i))
+	if (values.at(i).role != other.values.at(i).role
+	    || values.at(i).value != other.values.at(i).value)
 	    return false;
 
     return true;
