@@ -303,7 +303,7 @@ void QWSPaintEngine::updatePen(const QPen &pen)
 QPixmap qt_pixmapForBrush(int brushStyle, bool invert); //in qbrush.cpp
 
 
-void QWSPaintEngine::updateBrush(const QBrush &brush, const QPoint &)
+void QWSPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
 {
     if (!d->gfx)
         return;
@@ -364,21 +364,23 @@ void QWSPaintEngine::updateClipRegion(const QRegion &clipRegion, bool clipEnable
         clearf(ClipOn);
 }
 
-void QWSPaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
+void QWSPaintEngine::drawLine(const QPointF &p1, const QPointF &p2)
 {
     if (state->pen.style() != Qt::NoPen)
-        d->gfx->drawLine(p1.x(), p1.y(), p2.x(), p2.y());
+        d->gfx->drawLine(int(p1.x()), int(p1.y()), int(p2.x()), int(p2.y()));
 }
-void QWSPaintEngine::drawRect(const QRect &r)
+void QWSPaintEngine::drawRect(const QRectF &r)
 {
     //############ gfx->setBrushOffset(x-bro.x(), y-bro.y());
 
-    int x1, y1, w, h;
-    r.getRect(&x1, &y1, &w, &h);
+    int x1 = int(r.x());
+    int y1 = int(r.y());
+    int w = int(r.width());
+    int h = int(r.height());
 
     if (state->pen.style() != Qt::NoPen) {
         if (state->pen.width() > 1) {
-            QPointArray a(r, true);
+            QPointArray a(QRect(x1,y1,w,h), true);
             drawPolyInternal(a);
             return;
         } else        {
@@ -397,16 +399,17 @@ void QWSPaintEngine::drawRect(const QRect &r)
 
     d->gfx->fillRect(x1, y1, w, h);
 }
-void QWSPaintEngine::drawPoint(const QPoint &p)
+void QWSPaintEngine::drawPoint(const QPointF &p)
 {
-    d->gfx->drawPoint(p.x(), p.y());
+    d->gfx->drawPoint(int(p.x()), int(p.y()));
 }
 
-void QWSPaintEngine::drawPoints(const QPointArray &pa)
+void QWSPaintEngine::drawPoints(const QPolygon &p)
 {
     if (state->pen.style() == Qt::NoPen)
         return;
 
+    QPointArray pa(p.toPointArray());
     d->gfx->drawPoints(pa, 0, pa.size());
 }
 
@@ -439,10 +442,12 @@ void QWSPaintEngine::drawPolyInternal(const QPointArray &a, bool close)
 
 
 
-void QWSPaintEngine::drawEllipse(const QRect &r)
+void QWSPaintEngine::drawEllipse(const QRectF &r)
 {
-    int x, y, w, h;
-    r.getRect(&x, &y, &w, &h);
+    int x = int(r.x());
+    int y = int(r.y());
+    int w = int(r.width());
+    int h = int(r.height());
 
     QPointArray a;
 // #ifndef QT_NO_TRANSFORMATIONS
@@ -461,24 +466,9 @@ void QWSPaintEngine::drawEllipse(const QRect &r)
     drawPolyInternal(a);
 }
 
-void QWSPaintEngine::drawPolygon(const QPointArray &pa, PolygonDrawMode mode)
+void QWSPaintEngine::drawPolygon(const QPolygon &p, PolygonDrawMode mode)
 {
-#if 0
-#ifndef QT_NO_TRANSFORMATIONS
-    bool tx = (txop != TxNone);
-#else
-    bool tx = xlatex || xlatey;
-#endif
-    if (tx) {
-        pa = xForm(a, index, npoints);
-        if (pa.size() != a.size()) {
-            index   = 0;
-            npoints = pa.size();
-        }
-        pa.translate(-redirection_offset);
-    }
-
-#endif
+    QPointArray pa(p.toPointArray());
     if (mode == PolylineMode) {
         if (state->pen.style() != Qt::NoPen)
             d->gfx->drawPolyline(pa, 0, pa.size());
@@ -488,13 +478,19 @@ void QWSPaintEngine::drawPolygon(const QPointArray &pa, PolygonDrawMode mode)
 
 }
 
-void QWSPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr,
+void QWSPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QRectF &sr,
                                 Qt::PixmapDrawingMode mode)
     //(int x, int y, const QPixmap &pixmap, int sx, int sy, int sw, int sh)
 {
-    int x,y,w,h,sx,sy,sw,sh;
-    r.getRect(&x, &y, &w, &h);
-    sr.getRect(&sx, &sy, &sw, &sh);
+    int x = int(r.x());
+    int y = int(r.y());
+    int w = int(r.width());
+    int h = int(r.height());
+
+    int sx = int(sr.x());
+    int sy = int(sr.y());
+    int sw = int(sr.width());
+    int sh = int(sr.height());
 
     if ((w != sw || h != sh) && (sx != 0) && (sy != 0))
         qDebug("QWSPaintEngine::drawPixmap offset stretch notimplemented");
@@ -517,7 +513,7 @@ void QWSPaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRe
         d->gfx->stretchBlt(x,y,w,h,sw,sh);
 }
 
-void QWSPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s,
+void QWSPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s,
 				     Qt::PixmapDrawingMode mode)
 {
     qDebug("QWSPaintEngine::drawTiledPixmap");
