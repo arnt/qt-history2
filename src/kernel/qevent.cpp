@@ -114,7 +114,7 @@
   \value FocusIn  widget gains keyboard focus, QFocusEvent
   \value FocusOut  widget loses keyboard focus, QFocusEvent
   \value Enter  mouse enters widget's space
-  \value Leave  mouse leaves widget's soace
+  \value Leave  mouse leaves widget's space
   \value Paint  screen update necessary, QPaintEvent
   \value Move  widget's position changed, QMoveEvent
   \value Resize  widget's size changed, QResizeEvent
