@@ -202,10 +202,8 @@
 #include "qsqlnavigator.h"
 #include <qsqlpropertymap.h>
 #include <qsqldatabase.h>
-#include <qsqldialog.h>
 #include <qsqlresult.h>
 #include "qtable.h"
-#include <qsqlwidget.h>
 #include <qstack.h>
 #include <qstatusbar.h>
 #include "qtimer.h"
