@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: qdict.doc,v 2.11 1999/06/23 17:06:07 hanord Exp $
+** $Id: qasciidict.doc,v 2.1 1999/06/23 17:06:07 hanord Exp $
 **
-** QDict and QDictIterator class documentation
+** QAsciiDict and QAsciiDictIterator class documentation
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -23,24 +23,24 @@
 
 
 /*****************************************************************************
-  QDict documentation
+  QAsciiDict documentation
  *****************************************************************************/
 
 /*!
-  \class QDict qdict.h
-  \brief The QDict class is a template class that provides a dictionary based on \c QString keys.
+  \class QAsciiDict qasciidict.h
+  \brief The QAsciiDict class is a template class that provides a dictionary based on \c char* keys.
 
   \ingroup collection
   \ingroup tools
 
-  QDict is implemented as a template class. Define a template instance
-  QDict\<X\> to create a dictionary that operates on pointers to X, or X*.
+  QAsciiDict is implemented as a template class. Define a template instance
+  QAsciiDict\<X\> to create a dictionary that operates on pointers to X, or X*.
 
   A dictionary is a collection that associates an item with a key.
-  The key is used for inserting and looking up an item. QDict has
-  \c QString keys, which are Unicode strings.  If you want to use
-  non-Unicode, plain 8-bit \c char* keys, use the QAsciiDict template.
-  A QDict has the same performace as a QAsciiDict.
+  The key is used for inserting and looking up an item.  QAsciiDict has
+  \c char* keys.  QAsciiDict cannot handle Unicode keys, instead use the
+  QDict template which uses QString keys.  A QDict has the same performace
+  as a QAsciiDict.
 
   The dictionary has very fast insertion and lookup.
 
@@ -51,8 +51,8 @@
 
     void main()
     {
-      // Creates a dictionary that maps QString ==> char* (case insensitive)
-	QDict<char> dict( 17, FALSE );
+      // Creates a dictionary that maps char* ==> char* (case insensitive)
+	QAsciiDict<char> dict( 17, FALSE );
 
 	dict.insert( "France", "Paris" );
 	dict.insert( "Russia", "Moscow" );
@@ -75,12 +75,12 @@
 	Italy not defined
   \endcode
 
-  The dictionary in our example maps \c QString keys to \c char* items.
+  The dictionary in our example maps \c char* keys to \c char* items.
   Note that the mapping is case insensitive (specified in the
-  \link QDict::QDict() constructor\endlink).
-  QDict implements the \link operator[] [] operator\endlink to lookup an item.
+  \link QAsciiDict::QAsciiDict() constructor\endlink).
+  QAsciiDict implements the \link operator[] [] operator\endlink to lookup an item.
 
-  QDict is implemented by QGDict as a hash array with a fixed number of
+  QAsciiDict is implemented by QGDict as a hash array with a fixed number of
   entries. Each array entry points to a singly linked list of buckets, in
   which the dictionary items are stored.
 
@@ -89,7 +89,7 @@
   first bucket in the list of buckets.
 
   Looking up an item is normally very fast. The key is again hashed to an
-  array index. Then QDict scans the list of buckets and returns the item
+  array index. Then QAsciiDict scans the list of buckets and returns the item
   found or null if the item was not found.  You cannot insert null pointers
   into a dictionary.
 
@@ -109,8 +109,8 @@
 
     void main()
     {
-      // Creates a dictionary that maps QString ==> char* (case sensitive)
-	QDict<char> dict;
+      // Creates a dictionary that maps char* ==> char* (case sensitive)
+	QAsciiDict<char> dict;
 
 	dict.insert( "Germany", "Berlin" );
 	dict.insert( "Germany", "Bonn" );
@@ -127,7 +127,7 @@
 	Berlin
   \endcode
 
-  The QDictIterator class can traverse the dictionary contents, but only
+  The QAsciiDictIterator class can traverse the dictionary contents, but only
   in an arbitrary order.  Multiple iterators may independently traverse the
   same dictionary.
 
@@ -143,19 +143,20 @@
   Inherit a dictionary and reimplement it if you want deep copies.
 
   When removing a dictionary item, the virtual function
-  QCollection::deleteItem() is called.  QDict's default implementation
+  QCollection::deleteItem() is called.  QAsciiDict's default implementation
   is to delete the item if auto-deletion is enabled.
 
-  \sa QDictIterator, QAsciiDict, QIntDict, QPtrDict,
+  \sa QAsciiDictIterator, QDict, QIntDict, QPtrDict,
       \link collection.html Collection Classes\endlink
 */
 
 
 /*!
-  \fn QDict::QDict( int size, bool caseSensitive )
+  \fn QAsciiDict::QAsciiDict( int size, bool caseSensitive, bool copyKeys )
   Constructs a dictionary with the following properties:
   \arg \e size is the size of the internal hash array.
   \arg \e caseSensitive specifies whether to use case sensitive lookup or not.
+  \arg \e copyKeys specifies whether to copy the key strings.
 
   Setting \e size to a suitably large \link primes.html prime
   number\endlink (equal to or greater than the expected number of entries)
@@ -163,11 +164,16 @@
 
   Setting \e caseSensitive to TRUE will treat "abc" and "Abc" as different
   keys.  Setting it to FALSE will make the dictionary ignore case.
-  Case insensitive comparison includes the whole Unicode alphabeth.
+  Case insensitive comparison includes only the 26 standard letters A..Z,
+  not French or German accents or Scandinavian letters.
+
+  Setting \e copyKeys to TRUE will make the dictionary copy the key
+  when an item is inserted.  Setting it to FALSE will make the dictionary
+  only use the pointer to the key.
 */
 
 /*!
-  \fn QDict::QDict( const QDict<type> &dict )
+  \fn QAsciiDict::QAsciiDict( const QAsciiDict<type> &dict )
   Constructs a copy of \e dict.
 
   Each item in \e dict are inserted into this dictionary.
@@ -175,7 +181,7 @@
 */
 
 /*!
-  \fn QDict::~QDict()
+  \fn QAsciiDict::~QAsciiDict()
   Removes all items from the dictionary and destroys it.
 
   All iterators that access this dictionary will be reset.
@@ -184,7 +190,7 @@
 */
 
 /*!
-  \fn QDict<type> &QDict::operator=(const QDict<type> &dict)
+  \fn QAsciiDict<type> &QAsciiDict::operator=(const QAsciiDict<type> &dict)
   Assigns \e dict to this dictionary and returns a reference to this
   dictionary.
 
@@ -195,34 +201,34 @@
 */
 
 /*!
-  \fn uint QDict::count() const
+  \fn uint QAsciiDict::count() const
   Returns the number of items in the dictionary.
   \sa isEmpty()
 */
 
 /*!
-  \fn uint QDict::size() const
+  \fn uint QAsciiDict::size() const
   Returns the size of the internal hash array (as specified in the
   constructor).
   \sa count()
 */
 
 /*!
-  \fn void QDict::resize( uint newsize )
+  \fn void QAsciiDict::resize( uint newsize )
   Changes the size of the hashtable the \a newsize.
   The contents of the dictionary are preserved,
   but all iterators on the dictionary become invalid.
 */
 
 /*!
-  \fn bool QDict::isEmpty() const
+  \fn bool QAsciiDict::isEmpty() const
   Returns TRUE if the dictionary is empty, i.e. count() == 0. Returns FALSE
   otherwise.
   \sa count()
 */
 
 /*!
-  \fn void QDict::insert( const QString &key, const type *item )
+  \fn void QAsciiDict::insert( const char *key, const type *item )
 
   Inserts the \e key with the \e item into the dictionary.
 
@@ -235,7 +241,7 @@
 */
 
 /*!
-  \fn void QDict::replace( const QString &key, const type *item )
+  \fn void QAsciiDict::replace( const char *key, const type *item )
 
   Replaces an item which has a key equal to \e key with \e item.
 
@@ -245,7 +251,7 @@
 
   Equivalent to:
   \code
-    QDict<char> dict;
+    QAsciiDict<char> dict;
 	...
     if ( dict.find(key) )
 	dict.remove( key );
@@ -259,7 +265,7 @@
 */
 
 /*!
-  \fn bool QDict::remove( const QString &key )
+  \fn bool QAsciiDict::remove( const char *key )
 
   Removes the item associated with \e key from the dictionary.
   Returns TRUE if successful, or FALSE if the key does not exist in the
@@ -278,7 +284,7 @@
 */
 
 /*!
-  \fn type *QDict::take( const QString &key )
+  \fn type *QAsciiDict::take( const char *key )
 
   Takes the item associated with \e key out of the dictionary without
   deleting it (even if \link QCollection::setAutoDelete()
@@ -297,7 +303,7 @@
 */
 
 /*!
-  \fn void QDict::clear()
+  \fn void QAsciiDict::clear()
 
   Removes all items from the dictionary.
 
@@ -310,7 +316,7 @@
 */
 
 /*!
-  \fn type *QDict::find( const QString &key ) const
+  \fn type *QAsciiDict::find( const char *key ) const
 
   Returns the item associated with \e key, or null if the key does not
   exist in the dictionary.
@@ -326,7 +332,7 @@
 */
 
 /*!
-  \fn type *QDict::operator[]( const QString &key ) const
+  \fn type *QAsciiDict::operator[]( const char *key ) const
 
   Returns the item associated with \e key, or null if the key does not
   exist in the dictionary.
@@ -342,42 +348,43 @@
 */
 
 /*!
-  \fn void QDict::statistics() const
+  \fn void QAsciiDict::statistics() const
+
   Debugging-only function that prints out the dictionary distribution
   using qDebug().
 */
 
 
 /*****************************************************************************
-  QDictIterator documentation
+  QAsciiDictIterator documentation
  *****************************************************************************/
 
 /*!
-  \class QDictIterator qdict.h
-  \brief The QDictIterator class provides an iterator for QDict collections.
+  \class QAsciiDictIterator qasciidict.h
+  \brief The QAsciiDictIterator class provides an iterator for QAsciiDict collections.
 
   \ingroup collection
   \ingroup tools
 
-  QDictIterator is implemented as a template class.
-  Define a template instance QDictIterator\<X\> to create a
-  dictionary iterator that operates on QDict\<X\> (dictionary of X*).
+  QAsciiDictIterator is implemented as a template class.
+  Define a template instance QAsciiDictIterator\<X\> to create a
+  dictionary iterator that operates on QAsciiDict\<X\> (dictionary of X*).
 
   Example:
   \code
-    #include <qdict.h>
+    #include <qasciidict.h>
     #include <stdio.h>
 
     void main()
     {
-      // Creates a dictionary that maps QString ==> char* (case insensitive)
-	QDict<char> dict( 17, FALSE );
+      // Creates a dictionary that maps char* ==> char* (case insensitive)
+	QAsciiDict<char> dict( 17, FALSE );
 
 	dict.insert( "France", "Paris" );
 	dict.insert( "Russia", "Moscow" );
 	dict.insert( "Norway", "Oslo" );
 
-	QDictIterator<char> it( dict ); // iterator for dict
+	QAsciiDictIterator<char> it( dict ); // iterator for dict
 
         while ( it.current() ) {
 	    printf( "%s -> %s\n", it.currentKey(), it.current() );
@@ -397,39 +404,39 @@
   order above.
 
   Multiple iterators may independently traverse the same dictionary.
-  A QDict knows about all iterators that are operating on the dictionary.
-  When an item is removed from the dictionary, QDict update all iterators
+  A QAsciiDict knows about all iterators that are operating on the dictionary.
+  When an item is removed from the dictionary, QAsciiDict update all iterators
   that are referring the removed item to point to the next item in the
   traversing order.
 
-  \sa QDict, \link collection.html Collection Classes\endlink
+  \sa QAsciiDict, \link collection.html Collection Classes\endlink
 */
 
 /*!
-  \fn QDictIterator::QDictIterator( const QDict<type> &dict )
+  \fn QAsciiDictIterator::QAsciiDictIterator( const QAsciiDict<type> &dict )
   Constructs an iterator for \e dict.  The current iterator item is
   set to point on the first item in the \e dict.
 */
 
 /*!
-  \fn QDictIterator::~QDictIterator()
+  \fn QAsciiDictIterator::~QAsciiDictIterator()
   Destroys the iterator.
 */
 
 /*!
-  \fn uint QDictIterator::count() const
+  \fn uint QAsciiDictIterator::count() const
   Returns the number of items in the dictionary this iterator operates on.
   \sa isEmpty()
 */
 
 /*!
-  \fn bool QDictIterator::isEmpty() const
+  \fn bool QAsciiDictIterator::isEmpty() const
   Returns TRUE if the dictionary is empty, i.e. count() == 0, otherwise FALSE.
   \sa count()
 */
 
 /*!
-  \fn type *QDictIterator::toFirst()
+  \fn type *QAsciiDictIterator::toFirst()
   Sets the current iterator item to point to the first item in the
   dictionary and returns a pointer to the item.
   If the dictionary is  empty it sets the current item to null and 
@@ -437,23 +444,23 @@
 */
 
 /*!
-  \fn QDictIterator::operator type *() const
+  \fn QAsciiDictIterator::operator type *() const
   Cast operator. Returns a pointer to the current iterator item.
   Same as current().
 */
 
 /*!
-  \fn type *QDictIterator::current() const
+  \fn type *QAsciiDictIterator::current() const
   Returns a pointer to the current iterator item.
 */
 
 /*!
-  \fn QString QDictIterator::currentKey() const
+  \fn const char *QAsciiDictIterator::currentKey() const
   Returns a pointer to the key for the current iterator item.
 */
 
 /*!
-  \fn type *QDictIterator::operator()()
+  \fn type *QAsciiDictIterator::operator()()
   Makes the succeeding item current and returns the original current item.
 
   If the current iterator item was the last item in the dictionary or if it
@@ -461,7 +468,7 @@
 */
 
 /*!
-  \fn type *QDictIterator::operator++()
+  \fn type *QAsciiDictIterator::operator++()
   Prefix ++ makes the succeeding item current and returns the new current
   item.
 
@@ -470,7 +477,7 @@
 */
 
 /*!
-  \fn type *QDictIterator::operator+=( uint jump )
+  \fn type *QAsciiDictIterator::operator+=( uint jump )
   Sets the current item to the item \e jump positions after the current item,
   and returns a pointer to that item.
 
