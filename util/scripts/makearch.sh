@@ -111,7 +111,7 @@ moc: variables
 	cp moc/moc bin/moc
 
 clean:
-	rm variables
+	-rm variables
 	cd moc; \$(MAKE) clean
 	cd library; \$(MAKE) clean
 	cd tutorial; \$(MAKE) clean
