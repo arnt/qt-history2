@@ -20,10 +20,6 @@
 #include <qsqlindex.h>
 #include <qsqlcachedresult.h>
 
-#if (QT_VERSION-0 >= 0x030000)
-typedef QCoreVariant QSqlVariant;
-#endif
-
 #if defined (Q_OS_WIN32)
 # include <qt_windows.h>
 #endif

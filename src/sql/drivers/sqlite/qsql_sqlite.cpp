@@ -29,17 +29,17 @@
 
 typedef struct sqlite_vm sqlite_vm;
 
-static QSqlVariant::Type nameToType(const QString& typeName)
+static QCoreVariant::Type nameToType(const QString& typeName)
 {
     QString tName = typeName.toUpper();
     if (tName.startsWith(QLatin1String("INT")))
-        return QSqlVariant::Int;
+        return QCoreVariant::Int;
     if (tName.startsWith(QLatin1String("FLOAT")) || tName.startsWith(QLatin1String("NUMERIC")))
-        return QSqlVariant::Double;
+        return QCoreVariant::Double;
     if (tName.startsWith(QLatin1String("BOOL")))
-        return QSqlVariant::Bool;
+        return QCoreVariant::Bool;
     // SQLite is typeless - consider everything else as string
-    return QSqlVariant::String;
+    return QCoreVariant::String;
 }
 
 class QSQLiteDriverPrivate
@@ -457,7 +457,7 @@ QSqlIndex QSQLiteDriver::primaryIndex(const QString &tblname) const
     QSqlIndex index(indexname);
     while(q.next()) {
         QString name = q.value(2).toString();
-        QSqlVariant::Type type = QSqlVariant::Invalid;
+        QCoreVariant::Type type = QCoreVariant::Invalid;
         if (rec.contains(name))
             type = rec.field(name).type();
         index.append(QSqlField(name, type));
