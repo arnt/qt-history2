@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.h#5 $
+** $Id: //depot/qt/main/src/widgets/qheader.h#6 $
 **
 **  Table header
 **
@@ -57,6 +57,7 @@ private:
     void	recalc();
     void	paintRect( int p, int s );
     void	markLine( int idx );
+    void	unMarkLine( int idx );
     int		pPos( int i ) const { return places[i]; }
     int		pSize( int i ) const { return places[i+1] - places[i]; }
 

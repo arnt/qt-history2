@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#7 $
 **
 **  Table header
 **
@@ -281,6 +281,7 @@ void QHeader::paintRect( int p, int s )
 	paint.drawRect( 3, p, height() - 5, s );
     paint.end();
 }
+
 /*!
   Marks the division line at \a idx.
   */
@@ -317,6 +318,26 @@ void QHeader::markLine( int idx )
     paint.drawLine( x2-1, y, x2-1, y2 );
 #endif
     paint.end();
+
+}
+
+/*!
+  Removes the mark at the division line at \a idx.
+  */
+void QHeader::unMarkLine( int idx )
+{
+    if ( idx < 0 )
+	return;
+    int p = pPos( idx );
+    int x = p - MARKSIZE/2;
+    int y = 2;
+    int x2 = p + MARKSIZE/2;
+    int y2 = height() - 3;
+    if ( orient == Vertical ) {
+	int t = x; x = y; y = t;
+	t = x2; x2 = y2; y2 = t;
+    }
+    repaint( x, y, x2-x+1, y2-y+1);
 }
 
 /*!
@@ -393,12 +414,8 @@ void QHeader::paintEvent( QPaintEvent * )
     case WindowsStyle:
 	{
 	    for ( int i = 0; i < (int) count(); i++ ) {
-	    bool down = (i==handleIdx) && ( state == Pressed || state == Moving );
-		if ( orient == Horizontal ) {
-		    qDrawWinButton( &p, pPos(i), 0, pSize(i), height(), g, down );		
-		} else {
-		    qDrawWinButton( &p, pPos(i), 0, pSize(i), height(), g, down );
-		}
+		bool down = (i==handleIdx) && ( state == Pressed || state == Moving );
+		qDrawWinButton( &p, sRect(i), g, down );
 	    }
 	    break;
 	}
@@ -473,7 +490,7 @@ void QHeader::mousePressEvent( QMouseEvent *m )
 	    moveToIdx = -1;
 	    state = Pressed;
 	    clickPos = c;
-	    repaint();//###
+	    repaint(sRect( handleIdx ));
 	    break;
 	}
 	i++;
@@ -486,7 +503,7 @@ void QHeader::mouseReleaseEvent( QMouseEvent *m )
     state = None;
     switch ( oldState ) {
     case Pressed:
-	repaint(); //###
+	repaint(sRect( handleIdx ));
 	if ( sRect( handleIdx ).contains( m->pos() ) )
 	    emit sectionClicked( handleIdx );
 	break;
@@ -499,11 +516,12 @@ void QHeader::mouseReleaseEvent( QMouseEvent *m )
 	if ( handleIdx != moveToIdx && moveToIdx != -1 ) {
 	    moveAround( handleIdx, moveToIdx );
 	    emit moved( handleIdx, moveToIdx );
+	    repaint();
 	} else { 
 	    if ( sRect( handleIdx).contains( m->pos() ) )
 		emit sectionClicked( handleIdx );
+	    repaint(sRect( handleIdx ));
 	}
-	repaint(); //###
 	break;
     }
     default:
@@ -579,8 +597,11 @@ void QHeader::mouseMoveEvent( QMouseEvent *m )
 	case Moving: {
 	    int newPos = findLine( s );
 	    if ( newPos != moveToIdx ) {
+		if ( moveToIdx == handleIdx || moveToIdx == handleIdx + 1 )
+		    repaint( sRect(handleIdx) );
+		else
+		    unMarkLine( moveToIdx );
 		moveToIdx = newPos;
-		repaint();//###
 		if ( moveToIdx == handleIdx || moveToIdx == handleIdx + 1 )
 		    paintRect( pPos( handleIdx ), pSize( handleIdx ) );
 		else
