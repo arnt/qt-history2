@@ -588,8 +588,8 @@ do
    -system-zlib)
 	ZLIB=system
 	;;
-   -no-libpng) #left for commandline compatability, not documented
-	echo "-no-png is left for compatability, in the future please use -no-imgfmt-png"
+   -no-libpng) #left for commandline compatibility, not documented
+	echo "-no-png is left for compatibility, in the future please use -no-imgfmt-png"
 	PNG=no
 	;;
    -qt-libpng)
@@ -598,8 +598,8 @@ do
    -system-libpng)
 	LIBPNG=system
 	;;
-   -no-mng) #left for commandline compatability, not documented
-	echo "-no-mng is left for compatability, in the future please use -no-imgfmt-mng"
+   -no-mng) #left for commandline compatibility, not documented
+	echo "-no-mng is left for compatibility, in the future please use -no-imgfmt-mng"
         MNG=no
 	;;
    -qt-libmng)
@@ -608,19 +608,19 @@ do
    -system-libmng)
 	LIBMNG=system
 	;;
-   -no-jpeg) #left for commandline compatability, not documented
-	echo "-no-jpeg is left for compatability, in the future please use -no-imgfmt-jpeg"
+   -no-jpeg) #left for commandline compatibility, not documented
+	echo "-no-jpeg is left for compatibility, in the future please use -no-imgfmt-jpeg"
         JPEG=no
 	;;
    -qt-jpeg|-qt-libjpeg)
 	if [ "$1" = "-qt-jpeg" ]; then
-	    echo "-qt-jpeg is left for compatability, in the future please use -qt-libjpeg"
+	    echo "-qt-jpeg is left for compatibility, in the future please use -qt-libjpeg"
 	fi
 	LIBJPEG=qt
 	;;
    -system-jpeg|-system-libjpeg)
 	if [ "$1" = "-system-jpeg" ]; then
-	    echo "-system-jpeg is left for compatability, in the future please use -system-libjpeg"
+	    echo "-system-jpeg is left for compatibility, in the future please use -system-libjpeg"
 	fi
 	LIBJPEG=system
 	;;
