@@ -1322,13 +1322,13 @@ QString QFont::toString() const
     QStringList l;
     l.append(family());
     l.append(QString::number(pointSize()));
-    l.append(QString::number(styleHint()));
+    l.append(QString::number((int)styleHint()));
     l.append(QString::number(weight()));
-    l.append(QString::number(italic()));
-    l.append(QString::number(underline()));
-    l.append(QString::number(strikeOut()));
-    l.append(QString::number(fixedPitch()));
-    l.append(QString::number(rawMode()));
+    l.append(QString::number((int)italic()));
+    l.append(QString::number((int)underline()));
+    l.append(QString::number((int)strikeOut()));
+    l.append(QString::number((int)fixedPitch()));
+    l.append(QString::number((int)rawMode()));
     return l.join(",");
 }
 
