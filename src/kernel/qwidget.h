@@ -577,6 +577,7 @@ private:
     friend void qt_clean_root_win();
     friend bool qt_recreate_root_win();
     friend QPoint posInWindow(QWidget *);
+    friend bool qt_mac_update_sizer(QWidget *, int);
     friend QWidget *qt_recursive_match(QWidget *widg, int x, int y);
     friend bool qt_paint_children(QWidget *,QRegion &, uchar ops);
     friend QMAC_PASCAL OSStatus qt_window_event(EventHandlerCallRef er, EventRef event, void *);
@@ -948,6 +949,7 @@ struct Q_EXPORT QTLWExtra {
 #if defined(Q_WS_MAC)
     WindowGroupRef group;
     uint     is_moved: 1;
+    uint     resizer : 4;
 #endif
 #if defined(Q_WS_QWS) && !defined ( QT_NO_QWS_MANAGER )
     QRegion decor_allocated_region;		// decoration allocated region

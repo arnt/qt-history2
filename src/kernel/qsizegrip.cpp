@@ -49,6 +49,8 @@ extern Atom qt_sizegrip;			// defined in qapplication_x11.cpp
 #elif defined (Q_WS_WIN )
 #include "qobjectlist.h"
 #include "qt_windows.h"
+#elif defined(Q_WS_MAC)
+bool qt_mac_update_sizer(QWidget *, int); //qwidget_mac.cpp
 #endif
 
 
@@ -120,6 +122,13 @@ QSizeGrip::QSizeGrip( QWidget * parent, const char* name )
 			qt_sizegrip, XA_WINDOW, 32, PropModeReplace,
 			(unsigned char *)&id, 1);
     }
+#elif defined(Q_WS_MAC)
+    if(!qt_sizegrip_workspace(this)) {
+	if(QWidget *w = qt_sizegrip_topLevelWidget(this)) {
+	    if(w->isTopLevel()) 
+		qt_mac_update_sizer(w, 1);
+	}
+    }
 #endif
     tlw = qt_sizegrip_topLevelWidget( this );
     if ( tlw )
@@ -138,6 +147,13 @@ QSizeGrip::~QSizeGrip()
  	XChangeProperty(qt_xdisplay(), topLevelWidget()->winId(),
  			qt_sizegrip, XA_WINDOW, 32, PropModeReplace,
  			(unsigned char *)&id, 1);
+    }
+#elif defined(Q_WS_MAC)
+    if(!QApplication::closingDown() && parentWidget() && !qt_sizegrip_workspace(this)) {
+	if(QWidget *w = qt_sizegrip_topLevelWidget(this)) {
+	    if(w->isTopLevel()) 
+		qt_mac_update_sizer(w, -1);
+	}
     }
 #endif
 }

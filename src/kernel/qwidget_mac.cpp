@@ -98,6 +98,20 @@ QPoint posInWindow(QWidget *w)
     return QPoint(x, y);
 }
 
+bool qt_mac_update_sizer(QWidget *w, int up=0)
+{
+    if(!w || !w->isTopLevel())
+	return FALSE;
+    w->createTLExtra();
+    w->extra->topextra->resizer += up;
+    if(w->extra->topextra->resizer ||
+       (w->extra->maxw && w->extra->maxh && w->extra->maxw == w->extra->minw && w->extra->maxh == w->extra->minh))
+	ChangeWindowAttributes((WindowRef)w->handle(), 0, kWindowResizableAttribute);
+    else
+	ChangeWindowAttributes((WindowRef)w->handle(), kWindowResizableAttribute, 0);
+    return TRUE;
+}
+
 static inline const Rect *mac_rect(const QRect &qr)
 {
     static Rect r;
@@ -1655,12 +1669,8 @@ void QWidget::internalSetGeometry(int x, int y, int w, int h, bool isMove)
     if(isDesktop())
 	return;
     if(extra) {				// any size restrictions?
-	if(isTopLevel()) {
-	    if(extra->maxw && extra->maxh && extra->maxw == extra->minw && extra->maxh == extra->minh)
-		ChangeWindowAttributes((WindowRef)handle(), 0, kWindowResizableAttribute);
-	    else
-		ChangeWindowAttributes((WindowRef)handle(), kWindowResizableAttribute, 0);
-	}
+	if(isTopLevel())
+	    qt_mac_update_sizer(this);
 	w = QMIN(w,extra->maxw);
 	h = QMIN(h,extra->maxh);
 	w = QMAX(w,extra->minw);
@@ -2019,6 +2029,7 @@ void QWidget::createTLSysExtra()
 {
     extra->topextra->group = NULL;
     extra->topextra->is_moved = 0;
+    extra->topextra->resizer = 0;
 }
 
 void QWidget::deleteTLSysExtra()

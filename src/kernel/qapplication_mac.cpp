@@ -149,7 +149,7 @@ extern void qt_clear_paintevent_clipping(QPaintDevice *dev);
 extern void qt_mac_set_cursor(const QCursor *, const Point *); //Cursor switching - qcursor_mac.cpp
 extern bool qt_mac_is_macsheet(QWidget *, bool =FALSE); //qwidget_mac.cpp
 QCString p2qstring(const unsigned char *); //qglobal.cpp
-qt_mac_command_set_enabled(UInt32, bool); //qmenubar_mac.cpp
+void qt_mac_command_set_enabled(UInt32, bool); //qmenubar_mac.cpp
 
 /* Unicode input entry magic */
 class QTSMDocumentWrapper
