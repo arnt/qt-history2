@@ -836,7 +836,7 @@ QTextCodec* QTextCodec::codecForContent(const char* chars, int len)
 
     Subclasses of QTextCodec must reimplement this function. It
     returns the MIBenum (see \link
-    ftp://ftp.isi.edu/in-notes/iana/assignments/character-sets the
+    http://www.iana.org/assignments/character-sets the
     IANA character-sets encoding file\endlink for more information).
     It is important that each QTextCodec subclass returns the correct
     unique value for this function.
@@ -845,7 +845,7 @@ QTextCodec* QTextCodec::codecForContent(const char* chars, int len)
 
 /*!
     Returns the preferred mime name of the encoding as defined in the
-    \link ftp://ftp.isi.edu/in-notes/iana/assignments/character-sets
+    \link http://www.iana.org/assignments/character-sets
     IANA character-sets encoding file\endlink.
 */
 const char* QTextCodec::mimeName() const
