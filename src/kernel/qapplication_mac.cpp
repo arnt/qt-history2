@@ -121,7 +121,7 @@ extern bool qt_mac_in_drag; //qdnd_mac.cpp
 extern bool qt_resolve_symlinks; // from qapplication.cpp
 static char    *appName;                        // application name
 QGuardedPtr<QWidget> qt_button_down;		// widget got last button-down
-extern bool qt_tryAccelEvent( QWidget*, QKeyEvent* ); // def in qaccel.cpp
+extern bool qt_tryAccelEvent(QWidget*, QKeyEvent*); // def in qaccel.cpp
 static QGuardedPtr<QWidget> qt_mouseover;
 static QPtrDict<void> unhandled_dialogs;        //all unhandled dialogs (ie mac file dialog)
 #if defined(QT_DEBUG)
@@ -142,7 +142,7 @@ static bool	    popupCloseDownMode = FALSE;
   External functions
  *****************************************************************************/
 // Paint event clipping magic - qpainter_mac.cpp
-extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
+extern void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region);
 extern void qt_clear_paintevent_clipping(QPaintDevice *dev);
 extern void qt_mac_set_cursor(const QCursor *, const Point *); //Cursor switching - qcursor_mac.cpp
 extern bool qt_mac_is_macsheet(QWidget *); //qwidget_mac.cpp
@@ -161,14 +161,14 @@ static QMAC_PASCAL void qt_mac_display_change_callbk(void *, SInt16 msg, void *)
     }
 }
 
-static short qt_mac_find_window( int x, int y, QWidget **w=NULL )
+static short qt_mac_find_window(int x, int y, QWidget **w=NULL)
 {
     Point p;
     p.h = x;
     p.v = y;
     WindowPtr wp;
     short ret = FindWindow(p, &wp);
-#if !defined( QMAC_NO_FAKECURSOR ) && !defined( MACOSX_102 )
+#if !defined(QMAC_NO_FAKECURSOR) && !defined(MACOSX_102)
     if(wp && !unhandled_dialogs.find((void *)wp)) {
 	QWidget *tmp_w = QWidget::find((WId)wp);
 	if(tmp_w && !strcmp(tmp_w->className(),"QMacCursorWidget")) {
@@ -262,7 +262,7 @@ void qt_event_request_showsheet(QWidget *w)
 {
     EventRef ctx = NULL;
     CreateEvent(NULL, kEventClassQt, kEventQtRequestShowSheet, GetCurrentEventTime(),
-		kEventAttributeUserEvent, &ctx );
+		kEventAttributeUserEvent, &ctx);
     SetEventParameter(ctx, kEventParamQWidget, typeQWidget, sizeof(w), &w);
     PostEventToQueue(GetMainEventQueue(), ctx, kEventPriorityStandard);
     ReleaseEvent(ctx);
@@ -316,7 +316,7 @@ void qt_event_request_timer(TimerInfo *tmr)
 {
     EventRef tmr_ev = NULL;
     CreateEvent(NULL, kEventClassQt, kEventQtRequestTimer, GetCurrentEventTime(),
-		kEventAttributeUserEvent, &tmr_ev );
+		kEventAttributeUserEvent, &tmr_ev);
     SetEventParameter(tmr_ev, kEventParamTimer, typeTimerInfo, sizeof(tmr), &tmr);
     PostEventToQueue(GetMainEventQueue(), tmr_ev, kEventPriorityStandard);
     ReleaseEvent(tmr_ev);
@@ -413,7 +413,7 @@ void qt_init(int* argcptr, char **argv, QApplication::Type)
 	if(GetCurrentProcess(&psn) == noErr) {
 	    if(!mac_display_changeUPP) {
 		mac_display_changeUPP = NewDMExtendedNotificationUPP(qt_mac_display_change_callbk);
-		DMRegisterExtendedNotifyProc( mac_display_changeUPP, NULL, 0, &psn);
+		DMRegisterExtendedNotifyProc(mac_display_changeUPP, NULL, 0, &psn);
 	    }
 #ifdef Q_WS_MACX
 	    SetFrontProcess(&psn);
@@ -431,7 +431,7 @@ void qt_init(int* argcptr, char **argv, QApplication::Type)
 	}
 	QCString arg = argv[i];
 #if defined(QT_DEBUG)
-	if (arg == "-nograb")
+	if(arg == "-nograb")
 	    appNoGrab = !appNoGrab;
 	else
 #endif // QT_DEBUG
@@ -458,7 +458,7 @@ void qt_init(int* argcptr, char **argv, QApplication::Type)
 #endif
 
     qApp->setName(appName);
-    if (qt_is_gui_used) {
+    if(qt_is_gui_used) {
 #if !defined(QMAC_QMENUBAR_NO_NATIVE)
 	QMenuBar::initialize();
 #else
@@ -523,7 +523,7 @@ void qt_updated_rootinfo()
 {
 }
 
-bool qt_wstate_iconified( WId )
+bool qt_wstate_iconified(WId)
 {
     return FALSE;
 }
@@ -565,20 +565,28 @@ typedef QPtrList<QCursor> QCursorList;
 static QCursorList *cursorStack = 0;
 void QApplication::setOverrideCursor(const QCursor &cursor, bool replace)
 {
-    if ( !cursorStack ) {
+    if(!cursorStack) {
 	cursorStack = new QCursorList;
-	Q_CHECK_PTR( cursorStack );
-	cursorStack->setAutoDelete( TRUE );
+	Q_CHECK_PTR(cursorStack);
+	cursorStack->setAutoDelete(TRUE);
     }
     app_cursor = new QCursor(cursor);
-    if ( replace )
+    if(replace)
 	cursorStack->removeLast();
-    cursorStack->append( app_cursor );
+    cursorStack->append(app_cursor);
+
+    if(qApp && qApp->activeWindow()) {
+	Point mouse_pos;
+	QPoint qmp(QCursor::pos());
+	mouse_pos.h = qmp.x();
+	mouse_pos.v = qmp.y();
+	qt_mac_set_cursor(app_cursor, &mouse_pos);
+    }
 }
 
 void QApplication::restoreOverrideCursor()
 {
-    if ( !cursorStack )				// no cursor stack
+    if(!cursorStack)				// no cursor stack
 	return;
     cursorStack->removeLast();
     if(cursorStack->isEmpty()) {
@@ -586,11 +594,23 @@ void QApplication::restoreOverrideCursor()
 	delete cursorStack;
 	cursorStack = NULL;
     }
+
+    if(qApp && qApp->activeWindow()) {
+	Point mouse_pos;
+	QPoint qmp(QCursor::pos());
+	mouse_pos.h = qmp.x();
+	mouse_pos.v = qmp.y();
+
+	const QCursor *n = app_cursor;
+	if(!n)
+	    n = &arrowCursor;
+	qt_mac_set_cursor(n, &mouse_pos);
+    }
 }
 
 #endif
 
-void QApplication::setGlobalMouseTracking( bool b)
+void QApplication::setGlobalMouseTracking(bool b)
 {
     if(b)
 	app_tracking++;
@@ -632,11 +652,11 @@ QWidget *qt_recursive_match(QWidget *widg, int x, int y)
     return widg;
 }
 
-QWidget *QApplication::widgetAt( int x, int y, bool child)
+QWidget *QApplication::widgetAt(int x, int y, bool child)
 {
     //find the tld
     QWidget *widget;
-    qt_mac_find_window( x, y, &widget);
+    qt_mac_find_window(x, y, &widget);
     if(!widget)
 	return 0;
 
@@ -866,7 +886,8 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 	   (widget->isModal() || !widget->inherits("QDockWindow")))
 	    widget->setActiveWindow();
     }
-    if(windowPart == inGoAway || windowPart == inCollapseBox || windowPart == inZoomIn || windowPart == inZoomOut) {
+    if(windowPart == inGoAway || windowPart == inCollapseBox || 
+       windowPart == inZoomIn || windowPart == inZoomOut) {
 	QMacBlockingFunction block;
 	if(!TrackBox((WindowPtr)widget->handle(), *pt, windowPart))
 	    return FALSE;
@@ -940,7 +961,7 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 	break; }
     case inGrow: {
 	Rect limits;
-	SetRect(&limits, -2, 0, 0, 0 );
+	SetRect(&limits, -2, 0, 0, 0);
 	if(QWExtra   *extra = widget->extraData())
 	    SetRect(&limits, extra->minw, extra->minh,
 		    extra->maxw < QWIDGETSIZE_MAX ? extra->maxw : QWIDGETSIZE_MAX,
@@ -990,7 +1011,7 @@ void qt_enter_modal(QWidget *widget)
     qDebug("Entering modal state with %s::%s::%p (%d)", widget->className(), widget->name(), 
 	   widget, qt_modal_stack ? (int)qt_modal_stack->count() : -1);
 #endif
-    if (!qt_modal_stack) {			// create modal stack
+    if(!qt_modal_stack) {			// create modal stack
 	qt_modal_stack = new QWidgetList;
 	Q_CHECK_PTR(qt_modal_stack);
     }
@@ -1033,7 +1054,7 @@ static bool qt_try_modal(QWidget *widget, EventRef event)
     }
     // a bit of a hack: use WStyle_Tool as a general ignore-modality
     // allow tool windows; disallow tear off popups
-   if (widget->testWFlags(Qt::WStyle_Tool) && widget->inherits( "QPopupMenu")) {
+   if(widget->testWFlags(Qt::WStyle_Tool) && widget->inherits("QPopupMenu")) {
 #ifdef DEBUG_MODAL_EVENTS
 	qDebug("%s:%d -- Short circuit(TRUE)", __FILE__, __LINE__);
 #endif
@@ -1051,36 +1072,37 @@ static bool qt_try_modal(QWidget *widget, EventRef event)
     QWidget* groupLeader = widget;
     widget = widget->topLevelWidget();
 
-    if (widget->testWFlags(Qt::WShowModal))	// widget is modal
+    if(widget->testWFlags(Qt::WShowModal))	// widget is modal
 	modal = widget;
 #ifdef DEBUG_MODAL_EVENTS
     qDebug("%s:%d -- %s::%s(%p) -- %s::%s(%p)", __FILE__, __LINE__, modal ? modal->className() : "Unknown",
-	   modal ? modal->name() : "Unknown", modal, top ? top->className() : "Unknown", top ? top->name() : "Unknown", top);
+	   modal ? modal->name() : "Unknown", modal, 
+	   top ? top->className() : "Unknown", top ? top->name() : "Unknown", top);
 #endif
-    if (!top || modal == top) {			// don't block event
+    if(!top || modal == top) {			// don't block event
 #ifdef DEBUG_MODAL_EVENTS
 	qDebug("%s:%d -- Short circuit(TRUE)", __FILE__, __LINE__);
 #endif
 	return TRUE;
     }
 
-    while (groupLeader && !groupLeader->testWFlags(Qt::WGroupLeader))
+    while(groupLeader && !groupLeader->testWFlags(Qt::WGroupLeader))
 	groupLeader = groupLeader->parentWidget();
 
-    if (groupLeader) {
+    if(groupLeader) {
 	// Does groupLeader have a child in qt_modal_stack?
 	bool unrelated = TRUE;
 	modal = qt_modal_stack->first();
-	while (modal && unrelated) {
+	while(modal && unrelated) {
 	    QWidget* p = modal->parentWidget();
-	    while (p && p != groupLeader && !p->testWFlags(Qt::WGroupLeader)) {
+	    while(p && p != groupLeader && !p->testWFlags(Qt::WGroupLeader)) {
 		p = p->parentWidget();
 	    }
 	    modal = qt_modal_stack->next();
-	    if (p == groupLeader) unrelated = FALSE;
+	    if(p == groupLeader) unrelated = FALSE;
 	}
 
-	if (unrelated) {
+	if(unrelated) {
 #ifdef DEBUG_MODAL_EVENTS
 	    qDebug("%s:%d -- unrelated (TRUE)", __FILE__, __LINE__);
 #endif
@@ -1104,7 +1126,7 @@ static bool qt_try_modal(QWidget *widget, EventRef event)
 	break;
     }
 
-    if (!top->parentWidget() && (block_event || paint_event))
+    if(!top->parentWidget() && (block_event || paint_event))
 	top->raise();
 #if 0 //This is really different than Qt behaves, but it is correct for Aqua, what do I do? -Sam
     if(block_event && qt_mac_is_macsheet(top)) {
@@ -1144,7 +1166,7 @@ QApplication::qt_context_timer_callbk(EventLoopTimerRef r, void *d)
 	return;
 
     CreateEvent(NULL, kEventClassQt, kEventQtRequestContext, GetCurrentEventTime(),
-		kEventAttributeUserEvent, &request_context_pending );
+		kEventAttributeUserEvent, &request_context_pending);
     SetEventParameter(request_context_pending, kEventParamQWidget, typeQWidget, sizeof(w), &w);
     PostEventToQueue(GetMainEventQueue(), request_context_pending, kEventPriorityStandard);
     ReleaseEvent(request_context_pending);
@@ -1152,7 +1174,7 @@ QApplication::qt_context_timer_callbk(EventLoopTimerRef r, void *d)
 
 bool qt_mac_send_event(QEventLoop::ProcessEventsFlags flags, EventRef event, WindowPtr pt)
 {
-    if(flags != QEventLoop::AllEvents ) {
+    if(flags != QEventLoop::AllEvents) {
 	UInt32 ekind = GetEventKind(event), eclass = GetEventClass(event);
 	if(flags & QEventLoop::ExcludeUserInput) {
 	    switch(eclass) {
@@ -1183,7 +1205,7 @@ QMAC_PASCAL OSStatus
 QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void *data)
 {
     QApplication *app = (QApplication *)data;
-    if (app->macEventFilter(er, event)) //someone else ate it
+    if(app->macEventFilter(er, event)) //someone else ate it
 	return noErr;
     QWidget *widget = NULL;
 
@@ -1220,8 +1242,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    request_updates_pending = NULL;
 	    QApplication::sendPostedEvents();
 	    if(QWidgetList *list   = qApp->topLevelWidgets()) {
-		for (QWidget *widget = list->first(); widget; widget = list->next()) {
-		    if (!widget->isHidden())
+		for(QWidget *widget = list->first(); widget; widget = list->next()) {
+		    if(!widget->isHidden())
 			widget->propagateUpdates();
 		}
 		delete list;
@@ -1259,17 +1281,17 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    if(qt_button_down)
 			widget = qt_button_down;
 		    else
-			widget = QApplication::widgetAt( where.x(), where.y(), true );
+			widget = QApplication::widgetAt(where.x(), where.y(), true);
 		}
-		if ( widget ) {
-		    QPoint plocal(widget->mapFromGlobal( where ));
-		    QContextMenuEvent qme( QContextMenuEvent::Mouse, plocal, where, 0 );
-		    QApplication::sendEvent( widget, &qme );
+		if(widget) {
+		    QPoint plocal(widget->mapFromGlobal(where));
+		    QContextMenuEvent qme(QContextMenuEvent::Mouse, plocal, where, 0);
+		    QApplication::sendEvent(widget, &qme);
 		    if(qme.isAccepted()) { //once this happens the events before are pitched
 			if(qt_button_down && mouse_button_state) {
-			    QMouseEvent qme( QEvent::MouseButtonRelease, plocal, where,
-					     mouse_button_state, mouse_button_state );
-			    QApplication::sendSpontaneousEvent( qt_button_down, &qme );
+			    QMouseEvent qme(QEvent::MouseButtonRelease, plocal, where,
+					     mouse_button_state, mouse_button_state);
+			    QApplication::sendSpontaneousEvent(qt_button_down, &qme);
 			}
 			qt_button_down = NULL;
 			mouse_button_state = 0;
@@ -1302,8 +1324,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	case kEventMouseWheelMoved: edesc = "MouseWheelMove"; break;
 	}
 #endif
-	if( (ekind == kEventMouseDown && mouse_button_state ) ||
-	    (ekind == kEventMouseUp && !mouse_button_state) ) {
+	if((ekind == kEventMouseDown && mouse_button_state) ||
+	    (ekind == kEventMouseUp && !mouse_button_state)) {
 #ifdef DEBUG_MOUSE_MAPS
 	    qDebug("**** Dropping mouse event.. %s %d %p **** ",
 		   edesc, mouse_button_state, (QWidget*)qt_button_down);
@@ -1409,7 +1431,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 
 	//This mouse button state stuff looks like this on purpose
 	//although it looks hacky it is VERY intentional..
-	if (widget && app_do_modal && !qt_try_modal(widget, event)) {
+	if(widget && app_do_modal && !qt_try_modal(widget, event)) {
 	    mouse_button_state = after_state;
 	    if(ekind == kEventMouseDown && qt_mac_is_macsheet(activeModalWidget())) {
 		activeModalWidget()->parentWidget()->setActiveWindow(); //sheets have a parent
@@ -1445,7 +1467,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    if(ekind == kEventMouseDown &&
 	       ((button == QMouseEvent::RightButton) ||
 		(button == QMouseEvent::LeftButton && (modifiers & controlKey)))) {
-		QContextMenuEvent cme(QContextMenuEvent::Mouse, plocal, p, keys );
+		QContextMenuEvent cme(QContextMenuEvent::Mouse, plocal, p, keys);
 		QApplication::sendSpontaneousEvent(popupwidget, &cme);
 		was_context = cme.isAccepted();
 	    }
@@ -1505,7 +1527,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	case kEventMouseDragged:
 	case kEventMouseMoved:
 	{
-	    if ((QWidget *)qt_mouseover != widget) {
+	    if((QWidget *)qt_mouseover != widget) {
 #ifdef DEBUG_MOUSE_MAPS
 		qDebug("Entering: %p - %s (%s), Leaving %s (%s)", widget,
 		       widget ? widget->className() : "none", widget ? widget->name() : "",
@@ -1533,13 +1555,13 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	}
 
 	//finally send the event to the widget if its not the popup
-	if (widget && widget != popupwidget) {
+	if(widget && widget != popupwidget) {
 	    if(ekind == kEventMouseDown || ekind == kEventMouseWheelMoved) {
 		if(popupwidget) //guess we close the popup...
 		    popupwidget->close();
 
 		QWidget* w = widget;
-		while (w->focusProxy())
+		while(w->focusProxy())
 		    w = w->focusProxy();
 		int fp = (ekind == kEventMouseDown) ? QWidget::ClickFocus : QWidget::WheelFocus;
 		if(w->focusPolicy() & fp) {
@@ -1549,13 +1571,13 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		}
 	    }
 
-	    QPoint p(where.h, where.v );
+	    QPoint p(where.h, where.v);
 	    QPoint plocal(widget->mapFromGlobal(p));
 	    bool was_context = FALSE;
 	    if(ekind == kEventMouseDown &&
 	       ((button == QMouseEvent::RightButton) ||
 		(button == QMouseEvent::LeftButton && (modifiers & controlKey)))) {
-		QContextMenuEvent cme(QContextMenuEvent::Mouse, plocal, p, keys );
+		QContextMenuEvent cme(QContextMenuEvent::Mouse, plocal, p, keys);
 		QApplication::sendSpontaneousEvent(widget, &cme);
 		was_context = cme.isAccepted();
 	    }
@@ -1580,9 +1602,9 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		    QWheelEvent qwe(plocal, p, wheel_delta, state | keys);
 		    QApplication::sendSpontaneousEvent(widget, &qwe);
 		    if(!qwe.isAccepted() && focus_widget && focus_widget != widget) {
-			QWheelEvent qwe2( focus_widget->mapFromGlobal( p ), p,
-					  wheel_delta, state | keys );
-			QApplication::sendSpontaneousEvent( focus_widget, &qwe2 );
+			QWheelEvent qwe2(focus_widget->mapFromGlobal(p), p,
+					  wheel_delta, state | keys);
+			QApplication::sendSpontaneousEvent(focus_widget, &qwe2);
 		    }
 		} else {
 #ifdef QMAC_SPEAK_TO_ME
@@ -1650,11 +1672,11 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		   last_modifiers = keyboard_modifiers_state,
 			modifiers = get_modifiers(last_modifiers);
 	    keyboard_modifiers_state = modif;
-	    if( mac_keyboard_grabber )
+	    if(mac_keyboard_grabber)
 		widget = mac_keyboard_grabber;
 	    else if(focus_widget)
 		widget = focus_widget;
-	    if(!widget || (app_do_modal && !qt_try_modal(widget, event) ))
+	    if(!widget || (app_do_modal && !qt_try_modal(widget, event)))
 		break;
 	    static key_sym key_modif_syms[] = {
 		{ shiftKeyBit, MAP_KEY(Qt::Key_Shift) },
@@ -1862,7 +1884,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 			  sizeof(WindowRef), NULL, &wid);
 	widget = QWidget::find((WId)wid);
 	if(!widget) {
-	    if(ekind == kEventWindowShown )
+	    if(ekind == kEventWindowShown)
 		unhandled_dialogs.insert((void *)wid, (void *)1);
 	    else if(ekind == kEventWindowHidden)
 		unhandled_dialogs.remove((void *)wid);
@@ -1889,7 +1911,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		int nx = nr.left, ny = nr.top;
 		if(nx != ox ||  ny != oy) {
 		    widget->crect.setRect(nx, ny, widget->width(), widget->height());
-		    QMoveEvent qme(widget->crect.topLeft(), QPoint( ox, oy));
+		    QMoveEvent qme(widget->crect.topLeft(), QPoint(ox, oy));
 		    QApplication::sendSpontaneousEvent(widget, &qme);
 		}
 	    }
@@ -1917,7 +1939,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		if(tlw->isTopLevel() && !tlw->isPopup() && (tlw->isModal() ||
 							    !tlw->testWFlags(WStyle_Tool)))
 		    app->setActiveWindow(tlw);
-		if (widget->focusWidget())
+		if(widget->focusWidget())
 		    widget->focusWidget()->setFocus();
 		else
 		    widget->setFocus();
@@ -2095,34 +2117,34 @@ bool QApplication::macEventFilter(EventHandlerCallRef, EventRef)
 
 void QApplication::openPopup(QWidget *popup)
 {
-    if (!popupWidgets) {			// create list
+    if(!popupWidgets) {			// create list
 	popupWidgets = new QWidgetList;
 	Q_CHECK_PTR(popupWidgets);
-	if (!activeBeforePopup)
+	if(!activeBeforePopup)
 	    activeBeforePopup = new QGuardedPtr<QWidget>;
 	(*activeBeforePopup) = focus_widget ? focus_widget : active_window;
     }
-    popupWidgets->append( popup );		// add to end of list
+    popupWidgets->append(popup);		// add to end of list
 
     // popups are not focus-handled by the window system (the first
     // popup grabbed the keyboard), so we have to do that manually: A
     // new popup gets the focus
-    QFocusEvent::setReason( QFocusEvent::Popup );
-    if (popup->focusWidget())
+    QFocusEvent::setReason(QFocusEvent::Popup);
+    if(popup->focusWidget())
 	popup->focusWidget()->setFocus();
     else
 	popup->setFocus();
     QFocusEvent::resetReason();
 }
 
-void QApplication::closePopup( QWidget *popup )
+void QApplication::closePopup(QWidget *popup)
 {
-    if ( !popupWidgets )
+    if(!popupWidgets)
 	return;
 
-    popupWidgets->removeRef( popup );
-    qt_closed_popup = !popup->geometry().contains( QCursor::pos() );
-    if (popup == popupOfPopupButtonFocus) {
+    popupWidgets->removeRef(popup);
+    qt_closed_popup = !popup->geometry().contains(QCursor::pos());
+    if(popup == popupOfPopupButtonFocus) {
 	popupButtonFocus = 0;
 	popupOfPopupButtonFocus = 0;
     }
@@ -2130,15 +2152,15 @@ void QApplication::closePopup( QWidget *popup )
 	mouse_button_state = 0;
 	qt_button_down = NULL;
     }
-    if ( popupWidgets->count() == 0 ) {		// this was the last popup
+    if(popupWidgets->isEmpty()) {		// this was the last popup
 	popupCloseDownMode = TRUE;		// control mouse events
 	delete popupWidgets;
 	popupWidgets = 0;
 	// restore the former active window immediately, although
 	// we'll get a focusIn later
-	if ( *activeBeforePopup ) {
+	if(*activeBeforePopup) {
 	    active_window = (*activeBeforePopup)->topLevelWidget();
-	    QFocusEvent::setReason( QFocusEvent::Popup );
+	    QFocusEvent::setReason(QFocusEvent::Popup);
 	    (*activeBeforePopup)->setFocus();
 	    QFocusEvent::resetReason();
 	} else {
@@ -2150,8 +2172,8 @@ void QApplication::closePopup( QWidget *popup )
 	// manually: A popup was closed, so the previous popup gets
 	// the focus.
 	active_window = popupWidgets->getLast();
-	QFocusEvent::setReason( QFocusEvent::Popup );
-	if (active_window->focusWidget())
+	QFocusEvent::setReason(QFocusEvent::Popup);
+	if(active_window->focusWidget())
 	    active_window->focusWidget()->setFocus();
 	else
 	    active_window->setFocus();
@@ -2159,7 +2181,7 @@ void QApplication::closePopup( QWidget *popup )
     }
 }
 
-void  QApplication::setCursorFlashTime( int msecs )
+void  QApplication::setCursorFlashTime(int msecs)
 {
     cursor_flash_time = msecs;
 }
@@ -2169,7 +2191,7 @@ int QApplication::cursorFlashTime()
     return cursor_flash_time;
 }
 
-void QApplication::setDoubleClickInterval( int ms )
+void QApplication::setDoubleClickInterval(int ms)
 {
     qt_mac_dblclick.use_qt_time_limit = 1;
     mouse_double_click_time = ms;
@@ -2180,7 +2202,7 @@ int QApplication::doubleClickInterval()
     return mouse_double_click_time; //FIXME: What is the default value on the Mac?
 }
 
-void QApplication::setWheelScrollLines( int n )
+void QApplication::setWheelScrollLines(int n)
 {
     wheel_scroll_lines = n;
 }
@@ -2190,19 +2212,19 @@ int QApplication::wheelScrollLines()
     return wheel_scroll_lines;
 }
 
-void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
+void QApplication::setEffectEnabled(Qt::UIEffect effect, bool enable)
 {
     switch (effect) {
     case UI_FadeMenu:
 	fade_menu = enable;
-	if( !enable )
+	if(!enable)
 	    break;
     case UI_AnimateMenu:
 	animate_menu = enable;
 	break;
     case UI_FadeTooltip:
 	fade_tooltip = enable;
-	if( !enable )
+	if(!enable)
 	    break;
     case UI_AnimateTooltip:
 	animate_tooltip = enable;
@@ -2216,16 +2238,16 @@ void QApplication::setEffectEnabled( Qt::UIEffect effect, bool enable )
     }
 }
 
-bool QApplication::isEffectEnabled( Qt::UIEffect effect )
+bool QApplication::isEffectEnabled(Qt::UIEffect effect)
 {
-    if ( !animate_ui )
+    if(!animate_ui)
 	return FALSE;
 
-    switch( effect ) {
+    switch(effect) {
     case UI_AnimateMenu:
 	return animate_menu;
     case UI_FadeMenu:
-	if ( QColor::numBitPlanes() < 16 )
+	if(QColor::numBitPlanes() < 16)
 	    return FALSE;
 	return fade_menu;
     case UI_AnimateCombo:
@@ -2233,7 +2255,7 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
     case UI_AnimateTooltip:
 	return animate_tooltip;
     case UI_FadeTooltip:
-	if ( QColor::numBitPlanes() < 16 )
+	if(QColor::numBitPlanes() < 16)
 	    return FALSE;
 	return fade_tooltip;
     default:
@@ -2246,7 +2268,7 @@ void QApplication::flush()
 //    sendPostedEvents();
     if(qApp) {
 	if(QWidgetList *list = qApp->topLevelWidgets()) {
-	    for ( QWidget *widget = list->first(); widget; widget = list->next() ) {
+	    for(QWidget *widget = list->first(); widget; widget = list->next()) {
 		if(widget->isVisible()) {
 		    widget->propagateUpdates();
 		    QMacSavedPortInfo::flush(widget);
@@ -2280,18 +2302,18 @@ bool QApplication::qt_mac_apply_settings()
 
     // read library (ie. plugin) path list
     QString libpathkey =
-	QString("/qt/%1.%2/libraryPath").arg( QT_VERSION >> 16 ).arg( (QT_VERSION & 0xff00 ) >> 8 );
+	QString("/qt/%1.%2/libraryPath").arg(QT_VERSION >> 16).arg((QT_VERSION & 0xff00) >> 8);
     QStringList pathlist = settings.readListEntry(libpathkey, ':');
-    if (! pathlist.isEmpty()) {
+    if(!pathlist.isEmpty()) {
 	QStringList::ConstIterator it = pathlist.begin();
-	while (it != pathlist.end())
+	while(it != pathlist.end())
 	    QApplication::addLibraryPath(*it++);
     }
 
     QString defaultcodec = settings.readEntry("/qt/defaultCodec", "none");
-    if (defaultcodec != "none") {
+    if(defaultcodec != "none") {
 	QTextCodec *codec = QTextCodec::codecForName(defaultcodec);
-	if (codec)
+	if(codec)
 	    qApp->setDefaultCodec(codec);
     }
 
@@ -2303,37 +2325,37 @@ bool QApplication::qt_mac_apply_settings()
 	int i, num;
 	QPalette pal(QApplication::palette());
 	strlist = settings.readListEntry("/qt/Palette/active");
-	if (strlist.count() == QColorGroup::NColorRoles) {
-	    for (i = 0; i < QColorGroup::NColorRoles; i++)
+	if(strlist.count() == QColorGroup::NColorRoles) {
+	    for(i = 0; i < QColorGroup::NColorRoles; i++)
 		pal.setColor(QPalette::Active, (QColorGroup::ColorRole) i,
 			     QColor(strlist[i]));
 	}
 	strlist = settings.readListEntry("/qt/Palette/inactive");
-	if (strlist.count() == QColorGroup::NColorRoles) {
-	    for (i = 0; i < QColorGroup::NColorRoles; i++)
+	if(strlist.count() == QColorGroup::NColorRoles) {
+	    for(i = 0; i < QColorGroup::NColorRoles; i++)
 		pal.setColor(QPalette::Inactive, (QColorGroup::ColorRole) i, QColor(strlist[i]));
 	}
 	strlist = settings.readListEntry("/qt/Palette/disabled");
-	if (strlist.count() == QColorGroup::NColorRoles) {
-	    for (i = 0; i < QColorGroup::NColorRoles; i++)
+	if(strlist.count() == QColorGroup::NColorRoles) {
+	    for(i = 0; i < QColorGroup::NColorRoles; i++)
 		pal.setColor(QPalette::Disabled, (QColorGroup::ColorRole) i, QColor(strlist[i]));
 	}
-	if ( pal != QApplication::palette())
+	if(pal != QApplication::palette())
 	    QApplication::setPalette(pal, TRUE);
 
 	QFont font(QApplication::font());     // read new font
 	str = settings.readEntry("/qt/font");
-	if (! str.isNull() && ! str.isEmpty()) {
+	if(!str.isNull() && !str.isEmpty()) {
 	    font.fromString(str);
-	    if (font != QApplication::font())
+	    if(font != QApplication::font())
 		QApplication::setFont(font, TRUE);
 	}
 
 	// read new QStyle
 	QString stylename = settings.readEntry("/qt/style");
-	if (! stylename.isNull() && ! stylename.isEmpty()) {
+	if(! stylename.isNull() && ! stylename.isEmpty()) {
 	    QStyle *style = QStyleFactory::create(stylename);
-	    if (style)
+	    if(style)
 		QApplication::setStyle(style);
 	    else
 		stylename = "default";
@@ -2352,50 +2374,50 @@ bool QApplication::qt_mac_apply_settings()
 	QApplication::setWheelScrollLines(num);
 
 	QString colorspec = settings.readEntry("/qt/colorSpec", "default");
-	if (colorspec == "normal")
+	if(colorspec == "normal")
 	    QApplication::setColorSpec(QApplication::NormalColor);
-	else if (colorspec == "custom")
+	else if(colorspec == "custom")
 	    QApplication::setColorSpec(QApplication::CustomColor);
-	else if (colorspec == "many")
+	else if(colorspec == "many")
 	    QApplication::setColorSpec(QApplication::ManyColor);
-	else if (colorspec != "default")
+	else if(colorspec != "default")
 	    colorspec = "default";
 
 	QStringList strut = settings.readListEntry("/qt/globalStrut");
-	if (! strut.isEmpty()) {
-	    if (strut.count() == 2) {
+	if(!strut.isEmpty()) {
+	    if(strut.count() == 2) {
 		QSize sz(strut[0].toUInt(), strut[1].toUInt());
-		if (sz.isValid())
+		if(sz.isValid())
 		    QApplication::setGlobalStrut(sz);
 	    }
 	}
 
 	QStringList effects = settings.readListEntry("/qt/GUIEffects");
-	if (! effects.isEmpty()) {
-	    if ( effects.contains("none") )
-		QApplication::setEffectEnabled( Qt::UI_General, FALSE);
-	    if ( effects.contains("general") )
-		QApplication::setEffectEnabled( Qt::UI_General, TRUE );
-	    if ( effects.contains("animatemenu") )
-		QApplication::setEffectEnabled( Qt::UI_AnimateMenu, TRUE );
-	    if ( effects.contains("fademenu") )
-		QApplication::setEffectEnabled( Qt::UI_FadeMenu, TRUE );
-	    if ( effects.contains("animatecombo") )
-		QApplication::setEffectEnabled( Qt::UI_AnimateCombo, TRUE );
-	    if ( effects.contains("animatetooltip") )
-		QApplication::setEffectEnabled( Qt::UI_AnimateTooltip, TRUE );
-	    if ( effects.contains("fadetooltip") )
-		QApplication::setEffectEnabled( Qt::UI_FadeTooltip, TRUE );
+	if(!effects.isEmpty()) {
+	    if(effects.contains("none"))
+		QApplication::setEffectEnabled(Qt::UI_General, FALSE);
+	    if(effects.contains("general"))
+		QApplication::setEffectEnabled(Qt::UI_General, TRUE);
+	    if(effects.contains("animatemenu"))
+		QApplication::setEffectEnabled(Qt::UI_AnimateMenu, TRUE);
+	    if(effects.contains("fademenu"))
+		QApplication::setEffectEnabled(Qt::UI_FadeMenu, TRUE);
+	    if(effects.contains("animatecombo"))
+		QApplication::setEffectEnabled(Qt::UI_AnimateCombo, TRUE);
+	    if(effects.contains("animatetooltip"))
+		QApplication::setEffectEnabled(Qt::UI_AnimateTooltip, TRUE);
+	    if(effects.contains("fadetooltip"))
+		QApplication::setEffectEnabled(Qt::UI_FadeTooltip, TRUE);
 	} else {
-	    QApplication::setEffectEnabled( Qt::UI_General, FALSE);
+	    QApplication::setEffectEnabled(Qt::UI_General, FALSE);
 	}
 
 	QStringList fontsubs = settings.entryList("/qt/Font Substitutions");
-	if (!fontsubs.isEmpty()) {
+	if(!fontsubs.isEmpty()) {
 	    QStringList subs;
 	    QString fam, skey;
 	    QStringList::Iterator it = fontsubs.begin();
-	    while (it != fontsubs.end()) {
+	    while(it != fontsubs.end()) {
 		fam = (*it++).latin1();
 		skey = "/qt/Font Substitutions/" + fam;
 		subs = settings.readListEntry(skey);

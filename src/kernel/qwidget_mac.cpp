@@ -71,6 +71,7 @@ int mac_window_count = 0;
  *****************************************************************************/
 void qt_event_request_updates(); //qapplication_mac.cpp
 void qt_event_request_showsheet(QWidget *); //qapplication_mac.cpp
+extern void qt_mac_set_cursor(const QCursor *, const Point *); //qcursor_mac.cpp
 bool qt_nograb();
 RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
 void qt_mac_dispose_rgn(RgnHandle r); //qregion_mac.cpp
@@ -1076,6 +1077,19 @@ void QWidget::setCursor(const QCursor &cursor)
 	extra->curs = new QCursor(cursor);
     }
     setWState(WState_OwnCursor);
+
+    if(qApp && qApp->activeWindow() && 
+       QApplication::widgetAt(QCursor::pos()) == this) {
+	Point mouse_pos;
+	QPoint qmp(QCursor::pos());
+	mouse_pos.h = qmp.x();
+	mouse_pos.v = qmp.y();
+
+	const QCursor *n = extra->curs;
+	if(QApplication::overrideCursor()) 
+	    n = QApplication::overrideCursor();
+	qt_mac_set_cursor(n, &mouse_pos);
+    }
 }
 
 void QWidget::unsetCursor()
@@ -1086,6 +1100,29 @@ void QWidget::unsetCursor()
 	    extra->curs = 0;
 	}
 	clearWState(WState_OwnCursor);
+    }
+
+    if(qApp && qApp->activeWindow() && 
+       QApplication::widgetAt(QCursor::pos()) == this) {
+	Point mouse_pos;
+	QPoint qmp(QCursor::pos());
+	mouse_pos.h = qmp.x();
+	mouse_pos.v = qmp.y();
+
+	const QCursor *n = NULL;
+	if(QApplication::overrideCursor()) {
+	    n = QApplication::overrideCursor();
+	} else {
+	    for(QWidget *p = this; p; p = p->parentWidget()) {
+		if(p->extra && p->extra->curs) {
+		    n = p->extra->curs;
+		    break;
+		}
+	    }
+	}
+	if(!n)
+	    n = &arrowCursor; //I give up..
+	qt_mac_set_cursor(extra->curs, &mouse_pos);
     }
 }
 
