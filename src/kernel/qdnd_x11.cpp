@@ -45,6 +45,7 @@
 #include "qintdict.h"
 #include "qdatetime.h"
 #include "qdict.h"
+#include "qguardedptr.h"
 #include "qdragobject.h"
 #include "qobjectlist.h"
 #include "qcursor.h"
@@ -186,7 +187,7 @@ static Window qt_xdnd_current_target;
 // window to send events to (always valid if qt_xdnd_current_target)
 static Window qt_xdnd_current_proxy_target;
 // widget we forwarded position to last, and local position
-static QWidget * qt_xdnd_current_widget;
+static QGuardedPtr<QWidget> qt_xdnd_current_widget;
 static QPoint qt_xdnd_current_position;
 // time of this drop, as type Atom to save on casts
 static Atom qt_xdnd_source_current_time;
@@ -284,20 +285,9 @@ public:
 
 extern QDragManager * qt_dnd_manager;
 
-void QDragManager::resetPointer()
-{
-    qt_xdnd_current_widget = 0;
-}
-
 void qt_xdnd_set_current_widget( QWidget * w )
 {
-    if ( qt_xdnd_current_widget )
-	QObject::disconnect( qt_xdnd_current_widget, SIGNAL( destroyed() ),
-			     qt_dnd_manager, SLOT( resetPointer() ) );
     qt_xdnd_current_widget = w;
-    if ( qt_xdnd_current_widget )
-	QObject::connect( qt_xdnd_current_widget, SIGNAL( destroyed() ),
-			  qt_dnd_manager, SLOT( resetPointer() ) );
 }
 
 

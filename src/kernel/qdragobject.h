@@ -245,11 +245,6 @@ private:
     void drop();
     void updatePixmap();
 
-#ifdef Q_WS_X11
-private slots:
-    void resetPointer();
-#endif
-    
 private:
     QDragObject * object;
     void updateMode( ButtonState newstate );
