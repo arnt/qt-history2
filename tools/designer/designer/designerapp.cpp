@@ -42,7 +42,6 @@ void set_splash_status( const QString &txt )
     if ( !splash )
 	return;
     splash->repaint( FALSE );
-    QApplication::flush();
     QPainter p( splash );
     p.setPen( Qt::white );
     p.drawText( 5, splash->fontMetrics().height(), txt );

@@ -2306,9 +2306,8 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 
 void QApplication::flush()
 {
-    sendPostedEvents();
-    if(QWidgetList *list   = qApp->topLevelWidgets()) {
-	for ( QWidget     *widget = list->first(); widget; widget = list->next() ) {
+    if(QWidgetList *list = qApp->topLevelWidgets()) {
+	for ( QWidget *widget = list->first(); widget; widget = list->next() ) {
 	    widget->propagateUpdates();
 	    QMacSavedPortInfo::flush(widget);
 	}

@@ -2696,7 +2696,7 @@ void QApplication::flushX()
 	XFlush( appDpy );
 }
 
-/*!  Flushes the posted event and window system specific event queues.
+/*!  Flushes the window system specific event queues.
 
   If you are doing graphical changes inside a loop that does not
   return to the event loop on asynchronous window systems like X11 or
@@ -2709,7 +2709,6 @@ void QApplication::flushX()
 
 void QApplication::flush()
 {
-    sendPostedEvents();
     flushX();
 }
 

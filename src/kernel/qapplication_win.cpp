@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#548 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#549 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -4060,7 +4060,6 @@ bool QApplication::isEffectEnabled( Qt::UIEffect effect )
 
 void QApplication::flush()
 {
-    sendPostedEvents();
 }
 
 
