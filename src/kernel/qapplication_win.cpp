@@ -3052,6 +3052,14 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
     else
 	delta = (int) msg.wParam;
 
+    // "delta" for usual wheels is +-120. +-240 seems to indicate the second wheel
+    // see more recent MSDN for WM_MOUSEWHEEL
+
+    Orientation orient =
+	( state&AltButton || delta == 240 || delta == -240 )?Horizontal:Vertical;
+    if ( delta == 240 || delta == -240 )
+	delta /= 2;
+
     QPoint globalPos;
 
     globalPos.rx() = (short)LOWORD ( msg.lParam );
@@ -3078,7 +3086,7 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
 	QWidget* popup = qApp->activePopupWidget();
 	if ( popup && w->topLevelWidget() != popup )
 	    popup->close();
-	QWheelEvent e( w->mapFromGlobal( globalPos ), globalPos, delta, state, (state&AltButton)?Horizontal:Vertical  );
+	QWheelEvent e( w->mapFromGlobal( globalPos ), globalPos, delta, state, orient );
 	if ( QApplication::sendSpontaneousEvent( w, &e ) )
 	    return TRUE;
     }
@@ -3088,7 +3096,7 @@ bool QETWidget::translateWheelEvent( const MSG &msg )
 	QWidget* popup = qApp->activePopupWidget();
 	if ( popup && w->topLevelWidget() != popup )
 	    popup->close();
-	QWheelEvent e( w->mapFromGlobal( globalPos ), globalPos, delta, state, (state&AltButton)?Horizontal:Vertical  );
+	QWheelEvent e( w->mapFromGlobal( globalPos ), globalPos, delta, state, orient );
 	if ( QApplication::sendSpontaneousEvent( w, &e ) )
 	    return TRUE;
     }
