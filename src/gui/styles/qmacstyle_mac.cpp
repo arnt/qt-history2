@@ -2687,12 +2687,9 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                             int(outRect.size.width - hirect.size.width),
                             int(outRect.size.height - hirect.size.height + offSet));
             hirect = qt_hirectForQRect(combo->rect, p, false, off_rct);
-            if (!hasClickThrough) {
+            if (!hasClickThrough)
                 HIThemeDrawButton(&hirect, &bdi, cg, kHIThemeOrientationNormal, 0);
-                QRect r = q->subControlRect(cc, combo, QStyle::SC_ComboBoxArrow, widget);
-                p->fillRect(r, Qt::red);
-                qDebug("final rect %d %d %d %d", r.x(), r.y(), r.width(), r.height());
-            } else
+            else
                 HIThemeDrawClickThroughButton(hirect, bdi, p, opt);
         }
         break;
