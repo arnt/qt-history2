@@ -63,7 +63,10 @@ void FilePorter::port(QString fileName)
     portedContents = includeAnalyse(portedContents);
 
     //Write file.
-    FileWriter::instance()->writeFileVerbously(fileName, portedContents);
+    if(portedContents != sourceTokens.fullText()) //only write if contents has changed.
+        FileWriter::instance()->writeFileVerbously(fileName, portedContents);
+    else
+        cout << "No changes made to file " << fileName.toLocal8Bit().constData() << endl;  
 }
 
 QByteArray FilePorter::includeAnalyse(QByteArray fileContents)
