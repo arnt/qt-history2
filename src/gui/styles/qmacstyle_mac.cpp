@@ -1062,7 +1062,7 @@ void QMacStylePrivate::focusOnWidget(QWidget *w)
 {
     if (w) {
         QWidget *top = w->parentWidget();
-        while (!top->isTopLevel() && !top->testWFlags(Qt::WSubWindow))
+        while (top && !top->isTopLevel() && !top->testWFlags(Qt::WSubWindow))
             top = top->parentWidget();
 #ifndef QT_NO_MAINWINDOW
         if (qt_cast<QMainWindow *>(top)) {
@@ -1465,7 +1465,7 @@ bool QMacStylePrivate::eventFilter(QObject *o, QEvent *e)
 bool QMacStylePrivate::doAnimate(QMacStylePrivate::Animates as)
 {
     if (as == AquaPushButton && !useHITheme) {
-        const int MaxFrames = QSysInfo::MacintoshVersion == QSysInfo::MV_10_2 ? 13 : 10;
+        const int MaxFrames = QSysInfo::MacintoshVersion == QSysInfo::MV_10_2 ? 13 : 15;
         if (buttonState.frame == MaxFrames && buttonState.dir == ButtonState::ButtonDark)
             buttonState.dir = ButtonState::ButtonLight;
         else if (!buttonState.frame && buttonState.dir == ButtonState::ButtonLight)
