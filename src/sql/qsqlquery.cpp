@@ -18,55 +18,56 @@
 
 //#define QT_DEBUG_SQL
 
+#include "qatomic.h"
 #include "qsqlresult.h"
 #include "qsqldriver.h"
 #include "qsqldatabase.h"
 #include "qsql.h"
-#include "qregexp.h"
+#include "private/qsqlnulldriver_p.h"
 #include "qvector.h"
 #include "qmap.h"
-#include "qobject.h"
-#include "qshared.h"
 
-class Q_SQL_EXPORT QSqlResultShared : public QObject, public QShared
+class QSqlQueryPrivate
 {
-    Q_OBJECT
 public:
-    QSqlResultShared( QSqlResult* result );
-    virtual ~QSqlResultShared();
+    QSqlQueryPrivate(QSqlResult* result);
+    ~QSqlQueryPrivate();
     QSqlResult* sqlResult;
-private slots:
-    void slotResultDestroyed();
+    QAtomic ref;
+
+    static QSqlResult* nullResult();
+    static QSqlQueryPrivate* shared_null();
 };
 
-#include "qsqlquery.moc"
-
-/*!
-\internal
-*/
-QSqlResultShared::QSqlResultShared( QSqlResult* result ): sqlResult(result)
+QSqlQueryPrivate* QSqlQueryPrivate::shared_null()
 {
-    if ( result )
-	connect( result->driver(), SIGNAL(destroyed()), this, SLOT(slotResultDestroyed()) );
+    static QSqlQueryPrivate null(0);
+    ++null.ref;
+    return &null;
+}
+
+QSqlResult *QSqlQueryPrivate::nullResult()
+{
+    static QNullDriver nDriver;
+    static QNullResult nResult(&nDriver);
+    return &nResult;
 }
 
 /*!
 \internal
 */
-QSqlResultShared::~QSqlResultShared()
+QSqlQueryPrivate::QSqlQueryPrivate(QSqlResult* result): sqlResult(result)
 {
-    delete sqlResult;
+    ref = 1;
+    if (!sqlResult)
+        sqlResult = nullResult();
 }
 
-/*!
-\internal
-
-In case a plugin gets unloaded the pointer to the sqlResult gets invalid
-*/
-void QSqlResultShared::slotResultDestroyed()
+QSqlQueryPrivate::~QSqlQueryPrivate()
 {
+    if (sqlResult == nullResult())
+        return;
     delete sqlResult;
-    sqlResult = 0;
 }
 
 /*!
@@ -88,11 +89,11 @@ void QSqlResultShared::slotResultDestroyed()
     (e.g. \c{SET DATESTYLE=ISO} for PostgreSQL).
 
     Successfully executed SQL statements set the query's state to
-    active (isActive() returns TRUE); otherwise the query's state is
+    active (isActive() returns true); otherwise the query's state is
     set to inactive. In either case, when executing a new SQL
     statement, the query is positioned on an invalid record; an active
     query must be navigated to a valid record (so that isValid()
-    returns TRUE) before values can be retrieved.
+    returns true) before values can be retrieved.
 
     Navigating records is performed with the following functions:
 
@@ -116,10 +117,10 @@ void QSqlResultShared::slotResultDestroyed()
     For example:
 
     \code
-    QSqlQuery query( "SELECT name FROM customer" );
-    while ( query.next() ) {
-	QString name = query.value(0).toString();
-	doSomething( name );
+    QSqlQuery query("SELECT name FROM customer");
+    while (query.next()) {
+        QString name = query.value(0).toString();
+        doSomething(name);
     }
     \endcode
 
@@ -153,43 +154,43 @@ void QSqlResultShared::slotResultDestroyed()
     <b>Named binding using named placeholders</b>
     \code
     QSqlQuery query;
-    query.prepare( "INSERT INTO atable (id, forename, surname) "
-	           "VALUES (:id, :forename, :surname)" );
-    query.bindValue( ":id", 1001 );
-    query.bindValue( ":forename", "Bart" );
-    query.bindValue( ":surname", "Simpson" );
+    query.prepare("INSERT INTO atable (id, forename, surname) "
+                   "VALUES (:id, :forename, :surname)");
+    query.bindValue(":id", 1001);
+    query.bindValue(":forename", "Bart");
+    query.bindValue(":surname", "Simpson");
     query.exec();
     \endcode
 
     <b>Positional binding using named placeholders</b>
     \code
     QSqlQuery query;
-    query.prepare( "INSERT INTO atable (id, forename, surname) "
-		   "VALUES (:id, :forename, :surname)" );
-    query.bindValue( 0, 1001 );
-    query.bindValue( 1, "Bart" );
-    query.bindValue( 2, "Simpson" );
+    query.prepare("INSERT INTO atable (id, forename, surname) "
+                   "VALUES (:id, :forename, :surname)");
+    query.bindValue(0, 1001);
+    query.bindValue(1, "Bart");
+    query.bindValue(2, "Simpson");
     query.exec();
     \endcode
 
     <b>Binding values using positional placeholders #1</b>
     \code
     QSqlQuery query;
-    query.prepare( "INSERT INTO atable (id, forename, surname) "
-		   "VALUES (?, ?, ?)" );
-    query.bindValue( 0, 1001 );
-    query.bindValue( 1, "Bart" );
-    query.bindValue( 2, "Simpson" );
+    query.prepare("INSERT INTO atable (id, forename, surname) "
+                   "VALUES (?, ?, ?)");
+    query.bindValue(0, 1001);
+    query.bindValue(1, "Bart");
+    query.bindValue(2, "Simpson");
     query.exec();
     \endcode
 
     <b>Binding values using positional placeholders #2</b>
     \code
-    query.prepare( "INSERT INTO atable (id, forename, surname) "
-		   "VALUES (?, ?, ?)" );
-    query.addBindValue( 1001 );
-    query.addBindValue( "Bart" );
-    query.addBindValue( "Simpson" );
+    query.prepare("INSERT INTO atable (id, forename, surname) "
+                   "VALUES (?, ?, ?)");
+    query.addBindValue(1001);
+    query.addBindValue("Bart");
+    query.addBindValue("Simpson");
     query.exec();
     \endcode
 
@@ -199,11 +200,11 @@ void QSqlResultShared::slotResultDestroyed()
     the out parameter.
     \code
     QSqlQuery query;
-    query.prepare( "call AsciiToInt(?, ?)" );
-    query.bindValue( 0, "A" );
-    query.bindValue( 1, 0, QSql::Out );
+    query.prepare("call AsciiToInt(?, ?)");
+    query.bindValue(0, "A");
+    query.bindValue(1, 0, QSql::Out);
     query.exec();
-    int i = query.boundValue( 1 ).toInt(); // i is 65.
+    int i = query.boundValue(1).toInt(); // i is 65.
     \endcode
 
     \sa QSqlDatabase QSqlCursor QCoreVariant
@@ -214,9 +215,9 @@ void QSqlResultShared::slotResultDestroyed()
     communicate with a database.
 */
 
-QSqlQuery::QSqlQuery( QSqlResult * r )
+QSqlQuery::QSqlQuery(QSqlResult * r)
 {
-    d = new QSqlResultShared( r );
+    d = new QSqlQueryPrivate(r);
 }
 
 /*!
@@ -225,19 +226,18 @@ QSqlQuery::QSqlQuery( QSqlResult * r )
 
 QSqlQuery::~QSqlQuery()
 {
-    if (d->deref()) {
-	delete d;
-    }
+    if (!--d->ref)
+        delete d;
 }
 
 /*!
     Constructs a copy of \a other.
 */
 
-QSqlQuery::QSqlQuery( const QSqlQuery& other )
-    : d(other.d)
+QSqlQuery::QSqlQuery(const QSqlQuery& other)
 {
-    d->ref();
+    d = other.d;
+    ++d->ref;
 }
 
 /*!
@@ -248,9 +248,9 @@ QSqlQuery::QSqlQuery( const QSqlQuery& other )
 
     \sa QSqlDatabase
 */
-QSqlQuery::QSqlQuery( const QString& query, QSqlDatabase* db )
+QSqlQuery::QSqlQuery(const QString& query, QSqlDatabase* db)
 {
-    init( query, db );
+    init(query, db);
 }
 
 /*!
@@ -260,60 +260,60 @@ QSqlQuery::QSqlQuery( const QString& query, QSqlDatabase* db )
     \sa QSqlDatabase
 */
 
-QSqlQuery::QSqlQuery( QSqlDatabase* db )
+QSqlQuery::QSqlQuery(QSqlDatabase* db)
 {
-    init( QString(), db );
+    init(QString(), db);
 }
 
 /*! \internal
 */
 
-void QSqlQuery::init( const QString& query, QSqlDatabase* db )
+void QSqlQuery::init(const QString& query, QSqlDatabase* db)
 {
-    d = new QSqlResultShared( 0 );
+    d = QSqlQueryPrivate::shared_null();
     QSqlDatabase* database = db;
-    if ( !database )
-	database = QSqlDatabase::database( QSqlDatabase::defaultConnection, FALSE );
-    if ( database )
-	*this = database->driver()->createQuery();
-    if ( !query.isEmpty() )
-	exec( query );
+    if (!database)
+        database = QSqlDatabase::database(QSqlDatabase::defaultConnection, false);
+    if (database)
+        *this = database->driver()->createQuery();
+    if (!query.isEmpty())
+        exec(query);
 }
 
 /*!
     Assigns \a other to the query.
 */
 
-QSqlQuery& QSqlQuery::operator=( const QSqlQuery& other )
+QSqlQuery& QSqlQuery::operator=(const QSqlQuery& other)
 {
-    other.d->ref();
-    deref();
-    d = other.d;
+    QSqlQueryPrivate *x = other.d;
+    ++x->ref;
+    x = qAtomicSetPtr(&d, x);
+    if (!--x->ref)
+        delete x;
     return *this;
 }
 
 /*!
-    Returns TRUE if the query is active and positioned on a valid
-    record and the \a field is NULL; otherwise returns FALSE. Note
+    Returns true if the query is active and positioned on a valid
+    record and the \a field is NULL; otherwise returns false. Note
     that for some drivers isNull() will not return accurate
     information until after an attempt is made to retrieve data.
 
     \sa isActive() isValid() value()
 */
 
-bool QSqlQuery::isNull( int field ) const
+bool QSqlQuery::isNull(int field) const
 {
-    if ( !d->sqlResult )
-	return FALSE;
-    if ( d->sqlResult->isActive() && d->sqlResult->isValid() )
-	return d->sqlResult->isNull( field );
-    return FALSE;
+    if (d->sqlResult->isActive() && d->sqlResult->isValid())
+        return d->sqlResult->isNull(field);
+    return true;
 }
 
 /*!
-    Executes the SQL in \a query. Returns TRUE and sets the query
+    Executes the SQL in \a query. Returns true and sets the query
     state to active if the query was successful; otherwise returns
-    FALSE and sets the query state to inactive. The \a query string
+    false and sets the query state to inactive. The \a query string
     must use syntax appropriate for the SQL database being queried,
     for example, standard SQL.
 
@@ -327,33 +327,28 @@ bool QSqlQuery::isNull( int field ) const
     \sa isActive() isValid() next() prev() first() last() seek()
 */
 
-bool QSqlQuery::exec ( const QString& query )
+bool QSqlQuery::exec(const QString& query)
 {
-    if ( !d->sqlResult )
-	return FALSE;
-    d->sqlResult->clear();
-    d->sqlResult->setActive( FALSE );
-    d->sqlResult->setLastError( QSqlError() );
-    d->sqlResult->setAt( QSql::BeforeFirst );
-    if ( !driver() ) {
-	qWarning("QSqlQuery::exec: no driver" );
-	return FALSE;
+    if (d->ref != 1) {
+        *this = driver()->createQuery();
+    } else {
+        d->sqlResult->setActive(false);
+        d->sqlResult->setLastError(QSqlError());
+        d->sqlResult->setAt(QSql::BeforeFirst);
     }
-    if ( d->count > 1 )
-	*this = driver()->createQuery();
-    d->sqlResult->setQuery( query.trimmed() );
-    if ( !driver()->isOpen() || driver()->isOpenError() ) {
-	qWarning("QSqlQuery::exec: database not open" );
-	return FALSE;
+    d->sqlResult->setQuery(query.trimmed());
+    if (!driver()->isOpen() || driver()->isOpenError()) {
+        qWarning("QSqlQuery::exec: database not open");
+        return false;
     }
-    if ( query.isEmpty() ) {
-	qWarning("QSqlQuery::exec: empty query" );
-	return FALSE;
+    if (query.isEmpty()) {
+        qWarning("QSqlQuery::exec: empty query");
+        return false;
     }
 #ifdef QT_DEBUG_SQL
-    qDebug( "\n QSqlQuery: " + query );
+    qDebug("\n QSqlQuery: " + query);
 #endif
-    return d->sqlResult->reset( query );
+    return d->sqlResult->reset(query);
 }
 
 /*!
@@ -372,15 +367,11 @@ bool QSqlQuery::exec ( const QString& query )
     \sa prev() next() first() last() seek() isActive() isValid()
 */
 
-QCoreVariant QSqlQuery::value( int i ) const
+QCoreVariant QSqlQuery::value(int i) const
 {
-    if ( !d->sqlResult )
-	return QCoreVariant();
-    if ( isActive() && isValid() && ( i > QSql::BeforeFirst ) ) {
-	return d->sqlResult->data( i );
-    } else {
-	qWarning( "QSqlQuery::value: not positioned on a valid record" );
-    }
+    if (isActive() && isValid() && (i > QSql::BeforeFirst))
+        return d->sqlResult->data(i);
+    qWarning("QSqlQuery::value: not positioned on a valid record");
     return QCoreVariant();
 }
 
@@ -394,8 +385,6 @@ QCoreVariant QSqlQuery::value( int i ) const
 
 int QSqlQuery::at() const
 {
-    if ( !d->sqlResult )
-	return QSql::BeforeFirst;
     return d->sqlResult->at();
 }
 
@@ -408,8 +397,6 @@ int QSqlQuery::at() const
 
 QString QSqlQuery::lastQuery() const
 {
-    if ( !d->sqlResult )
-	return QString();
     return d->sqlResult->lastQuery();
 }
 
@@ -419,8 +406,6 @@ QString QSqlQuery::lastQuery() const
 
 const QSqlDriver* QSqlQuery::driver() const
 {
-    if ( !d->sqlResult )
-	return 0;
     return d->sqlResult->driver();
 }
 
@@ -437,123 +422,122 @@ const QSqlResult* QSqlQuery::result() const
     Retrieves the record at position (offset) \a i, if available, and
     positions the query on the retrieved record. The first record is
     at position 0. Note that the query must be in an active state and
-    isSelect() must return TRUE before calling this function.
+    isSelect() must return true before calling this function.
 
-    If \a relative is FALSE (the default), the following rules apply:
+    If \a relative is false (the default), the following rules apply:
 
     \list
     \i If \a i is negative, the result is positioned before the
-    first record and FALSE is returned.
+    first record and false is returned.
     \i Otherwise, an attempt is made to move to the record at position
     \a i. If the record at position \a i could not be retrieved, the
-    result is positioned after the last record and FALSE is returned. If
-    the record is successfully retrieved, TRUE is returned.
+    result is positioned after the last record and false is returned. If
+    the record is successfully retrieved, true is returned.
     \endlist
 
-    If \a relative is TRUE, the following rules apply:
+    If \a relative is true, the following rules apply:
 
     \list
     \i If the result is currently positioned before the first
     record or on the first record, and \a i is negative, there is no
-    change, and FALSE is returned.
+    change, and false is returned.
     \i If the result is currently located after the last record, and
-    \a i is positive, there is no change, and FALSE is returned.
+    \a i is positive, there is no change, and false is returned.
     \i If the result is currently located somewhere in the middle,
     and the relative offset \a i moves the result below zero, the
-    result is positioned before the first record and FALSE is
+    result is positioned before the first record and false is
     returned.
     \i Otherwise, an attempt is made to move to the record \a i
     records ahead of the current record (or \a i records behind the
     current record if \a i is negative). If the record at offset \a i
     could not be retrieved, the result is positioned after the last
     record if \a i >= 0, (or before the first record if \a i is
-    negative), and FALSE is returned. If the record is successfully
-    retrieved, TRUE is returned.
+    negative), and false is returned. If the record is successfully
+    retrieved, true is returned.
     \endlist
 
     \sa next() prev() first() last() at() isActive() isValid()
 */
-bool QSqlQuery::seek( int i, bool relative )
+bool QSqlQuery::seek(int i, bool relative)
 {
-    if ( !isSelect() || !isActive() )
-	return FALSE;
+    if (!isSelect() || !isActive())
+        return false;
     beforeSeek();
-    checkDetach();
     int actualIdx;
-    if ( !relative ) { // arbitrary seek
-	if ( i < 0 ) {
-	    d->sqlResult->setAt( QSql::BeforeFirst );
-	    afterSeek();
-	    return FALSE;
-	}
-	actualIdx = i;
+    if (!relative) { // arbitrary seek
+        if (i < 0) {
+            d->sqlResult->setAt(QSql::BeforeFirst);
+            afterSeek();
+            return false;
+        }
+        actualIdx = i;
     } else {
-	switch ( at() ) { // relative seek
-	case QSql::BeforeFirst:
-	    if ( i > 0 )
-		actualIdx = i;
-	    else {
-		afterSeek();
-		return FALSE;
-	    }
-	    break;
-	case QSql::AfterLast:
-	    if ( i < 0 ) {
-		d->sqlResult->fetchLast();
-		actualIdx = at() + i;
-	    } else {
-		afterSeek();
-		return FALSE;
-	    }
-	    break;
-	default:
-	    if ( ( at() + i ) < 0  ) {
-		d->sqlResult->setAt( QSql::BeforeFirst );
-		afterSeek();
-		return FALSE;
-	    }
-	    actualIdx = at() + i;
-	    break;
-	}
+        switch (at()) { // relative seek
+        case QSql::BeforeFirst:
+            if (i > 0)
+                actualIdx = i;
+            else {
+                afterSeek();
+                return false;
+            }
+            break;
+        case QSql::AfterLast:
+            if (i < 0) {
+                d->sqlResult->fetchLast();
+                actualIdx = at() + i;
+            } else {
+                afterSeek();
+                return false;
+            }
+            break;
+        default:
+            if ((at() + i) < 0 ) {
+                d->sqlResult->setAt(QSql::BeforeFirst);
+                afterSeek();
+                return false;
+            }
+            actualIdx = at() + i;
+            break;
+        }
     }
     // let drivers optimize
-    if ( isForwardOnly() && actualIdx < at() ) {
-	qWarning("QSqlQuery::seek: cannot seek backwards in a forward only query" );
-	afterSeek();
-	return FALSE;
+    if (isForwardOnly() && actualIdx < at()) {
+        qWarning("QSqlQuery::seek: cannot seek backwards in a forward only query");
+        afterSeek();
+        return false;
     }
-    if ( actualIdx == ( at() + 1 ) && at() != QSql::BeforeFirst ) {
-	if ( !d->sqlResult->fetchNext() ) {
-	    d->sqlResult->setAt( QSql::AfterLast );
-	    afterSeek();
-	    return FALSE;
-	}
-	afterSeek();
-	return TRUE;
+    if (actualIdx == (at() + 1) && at() != QSql::BeforeFirst) {
+        if (!d->sqlResult->fetchNext()) {
+            d->sqlResult->setAt(QSql::AfterLast);
+            afterSeek();
+            return false;
+        }
+        afterSeek();
+        return true;
     }
-    if ( actualIdx == ( at() - 1 ) ) {
-	if ( !d->sqlResult->fetchPrev() ) {
-	    d->sqlResult->setAt( QSql::BeforeFirst );
-	    afterSeek();
-	    return FALSE;
-	}
-	afterSeek();
-	return TRUE;
+    if (actualIdx == (at() - 1)) {
+        if (!d->sqlResult->fetchPrev()) {
+            d->sqlResult->setAt(QSql::BeforeFirst);
+            afterSeek();
+            return false;
+        }
+        afterSeek();
+        return true;
     }
-    if ( !d->sqlResult->fetch( actualIdx ) ) {
-	d->sqlResult->setAt( QSql::AfterLast );
-	afterSeek();
-	return FALSE;
+    if (!d->sqlResult->fetch(actualIdx)) {
+        d->sqlResult->setAt(QSql::AfterLast);
+        afterSeek();
+        return false;
     }
     afterSeek();
-    return TRUE;
+    return true;
 }
 
 /*!
     Retrieves the next record in the result, if available, and
     positions the query on the retrieved record. Note that the result
-    must be in an active state and isSelect() must return TRUE before
-    calling this function or it will do nothing and return FALSE.
+    must be in an active state and isSelect() must return true before
+    calling this function or it will do nothing and return false.
 
     The following rules apply:
 
@@ -563,56 +547,55 @@ bool QSqlQuery::seek( int i, bool relative )
     made to retrieve the first record.
 
     \i If the result is currently located after the last record,
-    there is no change and FALSE is returned.
+    there is no change and false is returned.
 
     \i If the result is located somewhere in the middle, an attempt
     is made to retrieve the next record.
     \endlist
 
     If the record could not be retrieved, the result is positioned after
-    the last record and FALSE is returned. If the record is successfully
-    retrieved, TRUE is returned.
+    the last record and false is returned. If the record is successfully
+    retrieved, true is returned.
 
     \sa prev() first() last() seek() at() isActive() isValid()
 */
 
 bool QSqlQuery::next()
 {
-    if ( !isSelect() || !isActive() )
-	return FALSE;
+    if (!isSelect() || !isActive())
+        return false;
     beforeSeek();
-    checkDetach();
-    bool b = FALSE;
-    switch ( at() ) {
+    bool b = false;
+    switch (at()) {
     case QSql::BeforeFirst:
-	b = d->sqlResult->fetchFirst();
-	afterSeek();
-	return b;
+        b = d->sqlResult->fetchFirst();
+        afterSeek();
+        return b;
     case QSql::AfterLast:
-	afterSeek();
-	return FALSE;
+        afterSeek();
+        return false;
     default:
-	if ( !d->sqlResult->fetchNext() ) {
-	    d->sqlResult->setAt( QSql::AfterLast );
-	    afterSeek();
-	    return FALSE;
-	}
-	afterSeek();
-	return TRUE;
+        if (!d->sqlResult->fetchNext()) {
+            d->sqlResult->setAt(QSql::AfterLast);
+            afterSeek();
+            return false;
+        }
+        afterSeek();
+        return true;
     }
 }
 
 /*!
     Retrieves the previous record in the result, if available, and
     positions the query on the retrieved record. Note that the result
-    must be in an active state and isSelect() must return TRUE before
-    calling this function or it will do nothing and return FALSE.
+    must be in an active state and isSelect() must return true before
+    calling this function or it will do nothing and return false.
 
     The following rules apply:
 
     \list
     \i If the result is currently located before the first record,
-    there is no change and FALSE is returned.
+    there is no change and false is returned.
 
     \i If the result is currently located after the last record, an
     attempt is made to retrieve the last record.
@@ -622,65 +605,63 @@ bool QSqlQuery::next()
     \endlist
 
     If the record could not be retrieved, the result is positioned
-    before the first record and FALSE is returned. If the record is
-    successfully retrieved, TRUE is returned.
+    before the first record and false is returned. If the record is
+    successfully retrieved, true is returned.
 
     \sa next() first() last() seek() at() isActive() isValid()
 */
 
 bool QSqlQuery::prev()
 {
-    if ( !isSelect() || !isActive() )
-	return FALSE;
-    if ( isForwardOnly() ) {
-	qWarning("QSqlQuery::seek: cannot seek backwards in a forward only query" );
-	return FALSE;
+    if (!isSelect() || !isActive())
+        return false;
+    if (isForwardOnly()) {
+        qWarning("QSqlQuery::seek: cannot seek backwards in a forward only query");
+        return false;
     }
 
     beforeSeek();
-    checkDetach();
-    bool b = FALSE;
-    switch ( at() ) {
+    bool b = false;
+    switch (at()) {
     case QSql::BeforeFirst:
-	afterSeek();
-	return FALSE;
+        afterSeek();
+        return false;
     case QSql::AfterLast:
-	b = d->sqlResult->fetchLast();
-	afterSeek();
-	return b;
+        b = d->sqlResult->fetchLast();
+        afterSeek();
+        return b;
     default:
-	if ( !d->sqlResult->fetchPrev() ) {
-	    d->sqlResult->setAt( QSql::BeforeFirst );
-	    afterSeek();
-	    return FALSE;
-	}
-	afterSeek();
-	return TRUE;
+        if (!d->sqlResult->fetchPrev()) {
+            d->sqlResult->setAt(QSql::BeforeFirst);
+            afterSeek();
+            return false;
+        }
+        afterSeek();
+        return true;
     }
 }
 
 /*!
     Retrieves the first record in the result, if available, and
     positions the query on the retrieved record. Note that the result
-    must be in an active state and isSelect() must return TRUE before
-    calling this function or it will do nothing and return FALSE.
-    Returns TRUE if successful. If unsuccessful the query position is
-    set to an invalid position and FALSE is returned.
+    must be in an active state and isSelect() must return true before
+    calling this function or it will do nothing and return false.
+    Returns true if successful. If unsuccessful the query position is
+    set to an invalid position and false is returned.
 
     \sa next() prev() last() seek() at() isActive() isValid()
 */
 
 bool QSqlQuery::first()
 {
-    if ( !isSelect() || !isActive() )
-	return FALSE;
-    if ( isForwardOnly() && at() > QSql::BeforeFirst ) {
-	qWarning("QSqlQuery::seek: cannot seek backwards in a forward only query" );
-	return FALSE;
+    if (!isSelect() || !isActive())
+        return false;
+    if (isForwardOnly() && at() > QSql::BeforeFirst) {
+        qWarning("QSqlQuery::seek: cannot seek backwards in a forward only query");
+        return false;
     }
     beforeSeek();
-    checkDetach();
-    bool b = FALSE;
+    bool b = false;
     b = d->sqlResult->fetchFirst();
     afterSeek();
     return b;
@@ -689,21 +670,20 @@ bool QSqlQuery::first()
 /*!
     Retrieves the last record in the result, if available, and
     positions the query on the retrieved record. Note that the result
-    must be in an active state and isSelect() must return TRUE before
-    calling this function or it will do nothing and return FALSE.
-    Returns TRUE if successful. If unsuccessful the query position is
-    set to an invalid position and FALSE is returned.
+    must be in an active state and isSelect() must return true before
+    calling this function or it will do nothing and return false.
+    Returns true if successful. If unsuccessful the query position is
+    set to an invalid position and false is returned.
 
     \sa next() prev() first() seek() at() isActive() isValid()
 */
 
 bool QSqlQuery::last()
 {
-    if ( !isSelect() || !isActive() )
-	return FALSE;
+    if (!isSelect() || !isActive())
+        return false;
     beforeSeek();
-    checkDetach();
-    bool b = FALSE;
+    bool b = false;
     b = d->sqlResult->fetchLast();
     afterSeek();
     return b;
@@ -713,8 +693,8 @@ bool QSqlQuery::last()
     Returns the size of the result, (number of rows returned), or -1
     if the size cannot be determined or if the database does not
     support reporting information about query sizes. Note that for
-    non-\c SELECT statements (isSelect() returns FALSE), size() will
-    return -1. If the query is not active (isActive() returns FALSE),
+    non-\c SELECT statements (isSelect() returns false), size() will
+    return -1. If the query is not active (isActive() returns false),
     -1 is returned.
 
     To determine the number of rows affected by a non-SELECT
@@ -724,10 +704,8 @@ bool QSqlQuery::last()
 */
 int QSqlQuery::size() const
 {
-    if ( !d->sqlResult )
-	return -1;
-    if ( isActive() && d->sqlResult->driver()->hasFeature( QSqlDriver::QuerySize ) )
-	return d->sqlResult->size();
+    if (isActive() && d->sqlResult->driver()->hasFeature(QSqlDriver::QuerySize))
+        return d->sqlResult->size();
     return -1;
 }
 
@@ -735,17 +713,15 @@ int QSqlQuery::size() const
     Returns the number of rows affected by the result's SQL statement,
     or -1 if it cannot be determined. Note that for \c SELECT
     statements, the value is undefined; see size() instead. If the
-    query is not active (isActive() returns FALSE), -1 is returned.
+    query is not active (isActive() returns false), -1 is returned.
 
     \sa size() QSqlDriver::hasFeature()
 */
 
 int QSqlQuery::numRowsAffected() const
 {
-    if ( !d->sqlResult )
-	return -1;
-    if ( isActive() )
-	return d->sqlResult->numRowsAffected();
+    if (isActive())
+        return d->sqlResult->numRowsAffected();
     return -1;
 }
 
@@ -758,62 +734,52 @@ int QSqlQuery::numRowsAffected() const
 
 QSqlError QSqlQuery::lastError() const
 {
-    if ( !d->sqlResult )
-	return QSqlError();
     return d->sqlResult->lastError();
 }
 
 /*!
-    Returns TRUE if the query is currently positioned on a valid
-    record; otherwise returns FALSE.
+    Returns true if the query is currently positioned on a valid
+    record; otherwise returns false.
 */
 
 bool QSqlQuery::isValid() const
 {
-    if ( !d->sqlResult )
-	return FALSE;
     return d->sqlResult->isValid();
 }
 
 /*!
-    Returns TRUE if the query is currently active; otherwise returns
-    FALSE.
+    Returns true if the query is currently active; otherwise returns
+    false.
 */
 
 bool QSqlQuery::isActive() const
 {
-    if ( !d->sqlResult )
-	return FALSE;
     return d->sqlResult->isActive();
 }
 
 /*!
-    Returns TRUE if the current query is a \c SELECT statement;
-    otherwise returns FALSE.
+    Returns true if the current query is a \c SELECT statement;
+    otherwise returns false.
 */
 
 bool QSqlQuery::isSelect() const
 {
-    if ( !d->sqlResult )
-	return FALSE;
     return d->sqlResult->isSelect();
 }
 
 /*!
-    Returns TRUE if you can only scroll \e forward through a result
-    set; otherwise returns FALSE.
+    Returns true if you can only scroll \e forward through a result
+    set; otherwise returns false.
 
     \sa setForwardOnly()
 */
 bool QSqlQuery::isForwardOnly() const
 {
-    if ( !d->sqlResult )
-	return FALSE;
     return d->sqlResult->isForwardOnly();
 }
 
 /*!
-    Sets forward only mode to \a forward. If forward is TRUE only
+    Sets forward only mode to \a forward. If forward is true only
     next(), and seek() with positive values, are allowed for
     navigating the results. Forward only mode needs far less memory
     since results do not need to be cached.
@@ -826,46 +792,15 @@ bool QSqlQuery::isForwardOnly() const
 
     \sa isForwardOnly(), next(), seek()
 */
-void QSqlQuery::setForwardOnly( bool forward )
+void QSqlQuery::setForwardOnly(bool forward)
 {
-    if ( d->sqlResult )
-	d->sqlResult->setForwardOnly( forward );
+    d->sqlResult->setForwardOnly(forward);
 }
 
 QSqlRecord QSqlQuery::record() const
 {
-    if (d->sqlResult)
-	return d->sqlResult->record();
-    return QSqlRecord();
+    return d->sqlResult->record();
 }
-
-/*!
-  \internal
-*/
-
-void QSqlQuery::deref()
-{
-    if ( d->deref() ) {
-	delete d;
-	d = 0;
-    }
-}
-
-/*!
-  \internal
-*/
-
-bool QSqlQuery::checkDetach()
-{
-    if ( d->count > 1 && d->sqlResult ) {
-	QString sql = d->sqlResult->lastQuery();
-	*this = driver()->createQuery();
-	exec( sql );
-	return TRUE;
-    }
-    return FALSE;
-}
-
 
 /*!
     Protected virtual function called before the internal record
@@ -903,46 +838,43 @@ void QSqlQuery::afterSeek()
 
     \sa exec(), bindValue(), addBindValue()
 */
-bool QSqlQuery::prepare( const QString& query )
+bool QSqlQuery::prepare(const QString& query)
 {
-    if ( !d->sqlResult )
-	return FALSE;
-    d->sqlResult->setActive( FALSE );
-    d->sqlResult->setLastError( QSqlError() );
-    d->sqlResult->setAt( QSql::BeforeFirst );
-    if ( !driver() ) {
-	qWarning("QSqlQuery::prepare: no driver" );
-	return FALSE;
+    if (d->ref != 1) {
+        *this = driver()->createQuery();
+    } else {
+        d->sqlResult->setActive(false);
+        d->sqlResult->setLastError(QSqlError());
+        d->sqlResult->setAt(QSql::BeforeFirst);
     }
-    if ( d->count > 1 )
-	*this = driver()->createQuery();
-    if ( !driver()->isOpen() || driver()->isOpenError() ) {
-	qWarning("QSqlQuery::prepare: database not open" );
-	return FALSE;
+    if (!driver()) {
+        qWarning("QSqlQuery::prepare: no driver");
+        return false;
     }
-    if ( query.isEmpty() ) {
-	qWarning("QSqlQuery::prepare: empty query" );
-	return FALSE;
+    if (!driver()->isOpen() || driver()->isOpenError()) {
+        qWarning("QSqlQuery::prepare: database not open");
+        return false;
+    }
+    if (query.isEmpty()) {
+        qWarning("QSqlQuery::prepare: empty query");
+        return false;
     }
 #ifdef QT_DEBUG_SQL
-    qDebug( "\n QSqlQuery: " + query );
+    qDebug("\n QSqlQuery: " + query);
 #endif
-    return d->sqlResult->savePrepare( query );
+    return d->sqlResult->savePrepare(query);
 }
 
 /*!
     \overload
 
-    Executes a previously prepared SQL query. Returns TRUE if the
-    query executed successfully; otherwise returns FALSE.
+    Executes a previously prepared SQL query. Returns true if the
+    query executed successfully; otherwise returns false.
 
     \sa prepare(), bindValue(), addBindValue()
 */
 bool QSqlQuery::exec()
 {
-    if ( !d->sqlResult )
-	return FALSE;
-
     d->sqlResult->resetBindCount();
     return d->sqlResult->exec();
 }
@@ -956,11 +888,10 @@ bool QSqlQuery::exec()
 
     \sa addBindValue(), prepare(), exec()
 */
-void QSqlQuery::bindValue( const QString& placeholder, const QCoreVariant& val, QSql::ParamType type )
+void QSqlQuery::bindValue(const QString& placeholder, const QCoreVariant& val, QSql::ParamType type
+)
 {
-    if ( !d->sqlResult )
-	return;
-    d->sqlResult->bindValue( placeholder, val, type );
+    d->sqlResult->bindValue(placeholder, val, type);
 }
 
 /*!
@@ -973,11 +904,9 @@ void QSqlQuery::bindValue( const QString& placeholder, const QCoreVariant& val, 
 
     \sa addBindValue(), prepare(), exec()
 */
-void QSqlQuery::bindValue( int pos, const QCoreVariant& val, QSql::ParamType type )
+void QSqlQuery::bindValue(int pos, const QCoreVariant& val, QSql::ParamType type)
 {
-    if ( !d->sqlResult )
-	return;
-    d->sqlResult->bindValue( pos, val, type );
+    d->sqlResult->bindValue(pos, val, type);
 }
 
 /*!
@@ -989,21 +918,17 @@ void QSqlQuery::bindValue( int pos, const QCoreVariant& val, QSql::ParamType typ
 
     \sa bindValue(), prepare(), exec()
 */
-void QSqlQuery::addBindValue( const QCoreVariant& val, QSql::ParamType type )
+void QSqlQuery::addBindValue(const QCoreVariant& val, QSql::ParamType type)
 {
-    if ( !d->sqlResult )
-	return;
-    d->sqlResult->addBindValue( val, type );
+    d->sqlResult->addBindValue(val, type);
 }
 
 /*!
     Returns the value for the \a placeholder.
 */
-QCoreVariant QSqlQuery::boundValue( const QString& placeholder ) const
+QCoreVariant QSqlQuery::boundValue(const QString& placeholder) const
 {
-    if ( !d->sqlResult )
-	return QCoreVariant();
-    return d->sqlResult->boundValue( placeholder );
+    return d->sqlResult->boundValue(placeholder);
 }
 
 /*!
@@ -1011,11 +936,9 @@ QCoreVariant QSqlQuery::boundValue( const QString& placeholder ) const
 
     Returns the value for the placeholder at position \a pos.
 */
-QCoreVariant QSqlQuery::boundValue( int pos ) const
+QCoreVariant QSqlQuery::boundValue(int pos) const
 {
-    if ( !d->sqlResult )
-	return QCoreVariant();
-    return d->sqlResult->boundValue( pos );
+    return d->sqlResult->boundValue(pos);
 }
 
 /*!
@@ -1028,16 +951,16 @@ QCoreVariant QSqlQuery::boundValue( int pos ) const
     // Examine the bound values - bound using named binding
     QMap<QString, QCoreVariant>::ConstIterator it;
     QMap<QString, QCoreVariant> vals = query.boundValues();
-    for ( it = vals.begin(); it != vals.end(); ++it )
-        qWarning( "Placeholder: " + it.key() + ", Value: " + (*it).toString() );
+    for (it = vals.begin(); it != vals.end(); ++it)
+        qWarning("Placeholder: " + it.key() + ", Value: " + (*it).toString());
     ...
 
     // Examine the bound values - bound using positional binding
     QList<QCoreVariant>::ConstIterator it;
     QList<QCoreVariant> list = query.boundValues().values();
     int i = 0;
-    for ( it = list.begin(); it != list.end(); ++it )
-        qWarning( "Placeholder pos: %d, Value: " + (*it).toString(), i++ );
+    for (it = list.begin(); it != list.end(); ++it)
+        qWarning("Placeholder pos: %d, Value: " + (*it).toString(), i++);
     ...
 
     \endcode
@@ -1045,12 +968,10 @@ QCoreVariant QSqlQuery::boundValue( int pos ) const
 QMap<QString,QCoreVariant> QSqlQuery::boundValues() const
 {
     QMap<QString,QCoreVariant> map;
-    if ( !d->sqlResult )
-	return map;
 
-    const QVector<QCoreVariant>& values = d->sqlResult->boundValues();
-    for ( int i = 0; i < values.count(); ++i )
-	map[ d->sqlResult->boundValueName( i ) ] = values.at( i );
+    const QVector<QCoreVariant> values(d->sqlResult->boundValues());
+    for (int i = 0; i < values.count(); ++i)
+        map[ d->sqlResult->boundValueName(i) ] = values.at(i);
     return map;
 }
 
@@ -1068,8 +989,6 @@ QMap<QString,QCoreVariant> QSqlQuery::boundValues() const
 */
 QString QSqlQuery::executedQuery() const
 {
-    if (!d->sqlResult)
-	return QString();
     return d->sqlResult->executedQuery();
 }
 #endif // QT_NO_SQL

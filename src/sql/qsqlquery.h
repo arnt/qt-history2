@@ -29,62 +29,62 @@ class QSqlResult;
 class QSqlDatabase;
 class QSqlRecord;
 
-class QSqlResultShared;
+class QSqlQueryPrivate;
 
 class Q_SQL_EXPORT QSqlQuery
 {
 public:
-    QSqlQuery( QSqlResult * r );
-    QSqlQuery( const QString& query = QString(), QSqlDatabase* db = 0 );
-    Q_EXPLICIT QSqlQuery( QSqlDatabase* db );
-    QSqlQuery( const QSqlQuery& other );
-    QSqlQuery& operator=( const QSqlQuery& other );
+    QSqlQuery(QSqlResult * r);
+    QSqlQuery(const QString& query = QString(), QSqlDatabase* db = 0);
+    Q_EXPLICIT QSqlQuery(QSqlDatabase* db);
+    QSqlQuery(const QSqlQuery& other);
+    QSqlQuery& operator=(const QSqlQuery& other);
     virtual ~QSqlQuery();
 
-    bool                isValid() const;
-    bool                isActive() const;
-    bool	        isNull( int field ) const;
-    int                 at() const;
-    QString             lastQuery() const;
-    int                 numRowsAffected() const;
-    QSqlError	        lastError() const;
-    bool                isSelect() const;
-    int                 size() const;
-    const QSqlDriver*   driver() const;
-    const QSqlResult*   result() const;
-    bool		isForwardOnly() const;
-    void		setForwardOnly( bool forward );
-    QSqlRecord		record() const;
+    bool isValid() const;
+    bool isActive() const;
+    bool isNull(int field) const;
+    int at() const;
+    QString lastQuery() const;
+    int numRowsAffected() const;
+    QSqlError lastError() const;
+    bool isSelect() const;
+    int size() const;
+    const QSqlDriver* driver() const;
+    const QSqlResult* result() const;
+    bool isForwardOnly() const;
+    QSqlRecord record() const;
 
-    virtual bool	exec ( const QString& query );
-    virtual QCoreVariant    value( int i ) const;
+    virtual void setForwardOnly(bool forward);
+    virtual bool exec (const QString& query);
+    virtual QCoreVariant value(int i) const;
 
-    virtual bool	seek( int i, bool relative = FALSE );
-    virtual bool        next();
-    virtual bool        prev();
-    virtual bool        first();
-    virtual bool        last();
+    virtual bool seek(int i, bool relative = FALSE);
+    virtual bool next();
+    virtual bool prev();
+    virtual bool first();
+    virtual bool last();
 
     // prepared query support
     bool exec();
-    bool prepare( const QString& query );
-    void bindValue( const QString& placeholder, const QCoreVariant& val, QSql::ParamType type = QSql::In );
-    void bindValue( int pos, const QCoreVariant& val, QSql::ParamType type = QSql::In );
-    void addBindValue( const QCoreVariant& val, QSql::ParamType type = QSql::In );
-    QCoreVariant boundValue( const QString& placeholder ) const;
-    QCoreVariant boundValue( int pos ) const;
+    bool prepare(const QString& query);
+    void bindValue(const QString& placeholder, const QCoreVariant& val,
+                   QSql::ParamType type = QSql::In);
+    void bindValue(int pos, const QCoreVariant& val, QSql::ParamType type = QSql::In);
+    void addBindValue(const QCoreVariant& val, QSql::ParamType type = QSql::In);
+    QCoreVariant boundValue(const QString& placeholder) const;
+    QCoreVariant boundValue(int pos) const;
     QMap<QString, QCoreVariant> boundValues() const;
     QString executedQuery() const;
 
 protected:
-    virtual void        beforeSeek();
-    virtual void        afterSeek();
+    virtual void beforeSeek();
+    virtual void afterSeek();
 
 private:
-    void 		init( const QString& query, QSqlDatabase* db );
-    void                deref();
-    bool                checkDetach();
-    QSqlResultShared*   d;
+    void init(const QString& query, QSqlDatabase* db);
+//     void detach();
+    QSqlQueryPrivate* d;
 };
 
 
