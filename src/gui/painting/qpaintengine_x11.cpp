@@ -1351,9 +1351,9 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
     XSetBackground(d->dpy, d->gc_brush, cmap.pixel(d->bg_col));
 
     int s  = FillSolid;
-    if (bs == Qt::CustomPattern || bs >= Qt::Dense1Pattern && bs <= Qt::DiagCrossPattern) {
+    if (bs == Qt::TexturePattern || bs >= Qt::Dense1Pattern && bs <= Qt::DiagCrossPattern) {
         QPixmap pm;
-        if (bs == Qt::CustomPattern)
+        if (bs == Qt::TexturePattern)
             pm = d->cbrush.texture();
         else
             pm = qt_pixmapForBrush(bs, true);
