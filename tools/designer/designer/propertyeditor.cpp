@@ -2458,10 +2458,10 @@ void PropertyKeysequenceItem::handleKeyEvent( QKeyEvent *e )
     int nextKey = e->key();
 
     if ( num > 3 ||
-	 nextKey == Qt::Key_Control ||
-	 nextKey == Qt::Key_Shift ||
-	 nextKey == Qt::Key_Meta ||
-	 nextKey == Qt::Key_Alt )
+	 nextKey == QObject::Key_Control ||
+	 nextKey == QObject::Key_Shift ||
+	 nextKey == QObject::Key_Meta ||
+	 nextKey == QObject::Key_Alt )
 	 return;
     
     nextKey |= translateModifiers( e->state() );
@@ -2489,14 +2489,14 @@ void PropertyKeysequenceItem::handleKeyEvent( QKeyEvent *e )
 int PropertyKeysequenceItem::translateModifiers( int state )
 {
     int result = 0;
-    if ( state & Qt::ShiftButton )
-	result |= Qt::SHIFT;
-    if ( state & Qt::ControlButton )
-	result |= Qt::CTRL;
-    if ( state & Qt::MetaButton )
-	result |= Qt::META;
-    if ( state & Qt::AltButton )
-	result |= Qt::ALT;
+    if ( state & QObject::ShiftButton )
+	result |= QObject::SHIFT;
+    if ( state & QObject::ControlButton )
+	result |= QObject::CTRL;
+    if ( state & QObject::MetaButton )
+	result |= QObject::META;
+    if ( state & QObject::AltButton )
+	result |= QObject::ALT;
     return result;
 }
 
