@@ -36,10 +36,9 @@ library implements a value based approach comparable to the C++
 Standard Template Library (STL).
 
 It currently provides the containers \l QMap, \l QValueList and \l
-QValueStack plus a set of iterators operating on these classes ( \l
-QMapIterator, \l QMapConstIterator, \l QValueListIterator and \l
-QValueListConstIterator ). For convenience, it also includes a
-predefined class \l QStringList that stores a list of unicode string.
+QValueStack plus a set of iterators and algorithms operating on these
+classes. For convenience, it also includes a predefined class \l
+QStringList that stores a list of unicode string.
 
 While QCollection and friends store pointers to objects, these classes
 store copies of the actual objects,
@@ -73,10 +72,10 @@ Examples for value based classes are QRect, QPoint, QSize and all
 simple C++ types like int, bool or double.
 
 The Qt template library is designed for speed. Especially iterators
-are extremely fast. On the drawback side, lesser error checking than
-in the QCollection based containers is done. A template library
-container for example does not track associated iterators. This makes
-certain validy checks, like on removing items, impossible to perform
+are extremely fast. On the drawback side, less error checking than in
+the QCollection based containers is done. A template library container
+for example does not track associated iterators. This makes certain
+validy checks, like on removing items, impossible to perform
 automatically.
 
 <h2> Iterators </h2>
@@ -125,22 +124,13 @@ whenever the container itself is const, for example a member variable
 inside a const function. Assigning a ConstIterator to a normal
 Iterator is not allowed as it would violate const semantics.
 
-<h2> Template functions </h2>
+<h2> Algorithms </h2>
 
-There is more to the template library then just container
-classes. Since the containers are templates, the code is instantiated
-for every different kind of incarnation. As an example, the two
-declarations QValueList\<int\> and QValueList\<double\> would cause
-the QValueList code to appear twice in your application. To avoid
-bloat, the template classes therefore have been designed to be as slim
-as possible. Any more advanced functionality that requries more code
-has been moved to template functions outside the classes. These
-functions are in turn usable with a wide range of containers.
+The template library defines a couple of algorithms that operate on
+its containers, namely qHeapSort(), qBubbleSort(), qSwap() and
+qCopy(). These algorithms are implemented as template functions.
 
-Currently, the library provides the template functions qHeapSort(),
-qBubbleSort(), qSwap() and qCopy().
-
-qHeapSort() and qBubbleSort() implement the well known sorting
+qHeapSort() and qBubbleSort() provide the well known sorting
 algorithms. You can use them like this:
 
 \code
@@ -222,6 +212,7 @@ standard C++ array with qCopy():
 	QTextOStream str( stdout );
 	qCopy( arr, arr + 3, QTextOStreamIterator( str ) );	
 \endcode
+
 
 <h2> Streaming </h2>
 
