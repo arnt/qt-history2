@@ -2,7 +2,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "Qt"
-!define PRODUCT_VERSION "4.0.0-b1"
+!define PRODUCT_VERSION "%VERSION%"
 !define PRODUCT_PUBLISHER "Trolltech"
 !define PRODUCT_WEB_SITE "http://www.trolltech.com"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
@@ -19,7 +19,7 @@
 ; Welcome page
 !insertmacro MUI_PAGE_WELCOME
 ; License page
-!insertmacro MUI_PAGE_LICENSE "..\..\cygwin\home\period\qt-win-beta-4.0.0-b1clean\.LICENSE"
+!insertmacro MUI_PAGE_LICENSE "%PACKAGEDIR%\.LICENSE"
 ; Directory page
 !insertmacro MUI_PAGE_DIRECTORY
 ; Instfiles page
@@ -37,7 +37,7 @@
 ; MUI end ------
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
-OutFile "Setup.exe"
+OutFile "%DISTNAME%.exe"
 InstallDir "$PROGRAMFILES\Qt"
 ShowInstDetails show
 ShowUnInstDetails show
@@ -45,7 +45,7 @@ ShowUnInstDetails show
 Section "MainSection" SEC01
   SetOutPath "$INSTDIR"
   SetOverwrite ifnewer
-  File /r "..\..\cygwin\home\period\qt-win-beta-4.0.0-b1clean\*.*"
+  File /r "%PACKAGEDIR%\*.*"
 SectionEnd
 
 Section -AdditionalIcons
