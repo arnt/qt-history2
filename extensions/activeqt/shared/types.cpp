@@ -421,7 +421,7 @@ bool QVariantToVARIANT( const QVariant &var, VARIANT &res, const QUParameter *pa
     }
 
     bool ok = QVariantToVARIANT( variant, res, vartypename );
-    bool byref = param && ( param->inOut == QUParameter::InOut );
+    bool byref = param && ( param->inOut & QUParameter::Out );
     if ( byref )
 	makeReference( res );
     return ok;
