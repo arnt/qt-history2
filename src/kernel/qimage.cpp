@@ -4486,6 +4486,9 @@ bool read_dib( QDataStream& s, int offset, int startpos, QImage& image )
     if ( image.isNull() )			// could not create image
 	return FALSE;
 
+    image.setDotsPerMeterX( bi.biXPelsPerMeter );
+    image.setDotsPerMeterY( bi.biYPelsPerMeter );
+
     d->at( startpos + BMP_FILEHDR_SIZE + bi.biSize ); // goto start of colormap
 
     if ( ncols > 0 ) {				// read color table
@@ -4750,8 +4753,9 @@ bool qt_write_dib( QDataStream& s, QImage image )
     bi.biBitCount      = nbits;
     bi.biCompression   = BMP_RGB;
     bi.biSizeImage     = bpl_bmp*image.height();
-    bi.biXPelsPerMeter = 2834;			// 72 dpi
-    bi.biYPelsPerMeter = 2834;
+    bi.biXPelsPerMeter = image.dotsPerMeterX() ? image.dotsPerMeterX()
+						: 2834; // 72 dpi default
+    bi.biYPelsPerMeter = image.dotsPerMeterY() ? image.dotsPerMeterY() : 2834;
     bi.biClrUsed       = image.numColors();
     bi.biClrImportant  = image.numColors();
     s << bi;					// write info header
