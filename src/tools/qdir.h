@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.h#6 $
+** $Id: //depot/qt/main/src/tools/qdir.h#7 $
 **
 ** Definition of QDir class
 **
@@ -58,8 +58,8 @@ public:
 
     void        setPath( const char *relativeOrAbsolutePath );
     const char *path()         const;
-    QString     fullPath()     const;
     QString     absolutePath() const;
+    QString     canonicalPath()     const;
 
     QString     dirName() const;
     QString     pathName( const char *fileName, 

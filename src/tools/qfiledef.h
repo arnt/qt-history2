@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfiledef.h#3 $
+** $Id: //depot/qt/main/src/tools/qfiledef.h#4 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -34,6 +34,7 @@
 #undef STAT_REG
 #undef STAT_DIR
 #undef STAT_LNK
+#undef STAT_MASK
 #undef OPEN
 #undef CLOSE
 #undef LSEEK
@@ -52,6 +53,7 @@
 #define STAT	 _stat
 #define STAT_REG _S_IFREG
 #define STAT_DIR _S_IFDIR
+#error define STAT_MASK here
 #if defined(_S_IFLNK)
 #define STAT_LNK _S_IFLNK
 #endif
@@ -75,6 +77,7 @@
 #define STAT	 ::stat
 #define STAT_REG S_IFREG
 #define STAT_DIR S_IFDIR
+#define STAT_MASK S_IFMT
 #if defined(S_IFLNK)
 #define STAT_LNK S_IFLNK
 #endif

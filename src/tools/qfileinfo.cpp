@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#5 $
+** $Id: //depot/qt/main/src/tools/qfileinfo.cpp#6 $
 **
 ** Implementation of QFileInfo class
 **
@@ -20,21 +20,12 @@
 
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qfileinfo.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qfileinfo.cpp#6 $";
 #endif
 
 struct QFileInfoCache 
 {
     struct STATBUF st;
-    uint   readable   : 1;
-    uint   writable   : 1;
-    uint   executable : 1;
-    uint   rRead      : 1;    
-    uint   wRead      : 1;
-    uint   xRead      : 1;
-    uint   statDone   : 1;
-    const  char *owner; 
-    const  char *group; 
 };
 
   /*! \class QFileInfo qfileinf.h
@@ -131,13 +122,13 @@ QFileInfo::QFileInfo( const QFile &file )
 }
 
   /*!
-  Constructs a new QFileInfo that  gives information about the file
+  Constructs a new QFileInfo that gives information about the file
   named \e fileName in the directory \e d.
   If the directory has a relative path, the QFileInfo will also have one.
   */
 QFileInfo::QFileInfo( const  QDir &d, const char *fileName )
 {
-    fn    = QDir::cleanPathName( d.fullPathName( fileName ) );
+    fn    = d.pathName( fileName );
     fic   = 0;    
     cache = TRUE;
 }
@@ -150,7 +141,7 @@ QFileInfo::QFileInfo( const  QDir &d, const char *fileName )
   */
 QFileInfo::QFileInfo( const char *relativeOrAbsoluteFileName )
 {
-    fn    = QDir::cleanPathName( relativeOrAbsoluteFileName );
+    fn    = relativeOrAbsoluteFileName;
     fic   = 0;
     cache = TRUE;
 }
@@ -259,7 +250,7 @@ void QFileInfo::setFile( const  QDir &d, const char *fileName )
   */
 void QFileInfo::setFile( const char *relativeOrAbsoluteFileName )
 {
-    fn  = QDir::cleanPathName( relativeOrAbsoluteFileName );
+    fn = relativeOrAbsoluteFileName;
     delete fic;
     fic = 0;
 }
@@ -292,7 +283,9 @@ QString QFileInfo::fileName() const
   /*!
   Returns the full path name, i.e. the file name including the full
   absolute path. If the QFileInfo is absolute (i.e. not relative) this
-  function will return the same string as name().
+  function will return the same string as name(). Note that this
+  function can be time-consuming under UNIX. (in the order of milliseconds
+  on a 486 DX2/66 running Linux).
  
   \sa isRelative(), name()
   */
@@ -303,7 +296,7 @@ QString QFileInfo::fullPathName() const
         tmp.detach();
         tmp += QDir::separator();
         tmp += fn;
-        return QDir::cleanPathName( tmp.data() );
+        return tmp;
     } else {
         return fn.copy();
     }
@@ -449,7 +442,7 @@ bool QFileInfo::isFile() const
     if ( !fic || !cache )
         doStat();
     if ( fic )    
-        return ( fic->st.st_mode & STAT_REG) == STAT_REG;
+        return ( fic->st.st_mode & STAT_MASK) == STAT_REG;
     else
         return FALSE;
 #endif
@@ -469,7 +462,7 @@ bool QFileInfo::isDir() const
     if ( !fic || !cache )
         doStat();
     if ( fic )    
-        return ( fic->st.st_mode & STAT_DIR) == STAT_DIR;
+        return ( fic->st.st_mode & STAT_MASK) == STAT_DIR;
     else
         return FALSE;
 #endif
@@ -488,7 +481,7 @@ bool QFileInfo::isSymLink() const
     if ( !fic || !cache )
         doStat();
     if ( fic )    
-        return ( fic->st.st_mode & STAT_LNK) == STAT_LNK;
+        return ( fic->st.st_mode & STAT_MASK) == STAT_LNK;
     else
         return FALSE;
 #endif
@@ -549,7 +542,7 @@ const char *QFileInfo::group() const
 
   /*!
   Returns the id of the group the file belongs to. On systems where files do
-  not have owners this function returns ((uint) -2).
+  not have groups this function returns ((uint) -2).
   */
 uint QFileInfo::groupId() const
 {

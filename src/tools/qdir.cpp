@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#6 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#7 $
 **
 ** Implementation of QDir class
 **
@@ -21,7 +21,7 @@
 #include<unistd.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qdir.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qdir.cpp#7 $";
 #endif
 
   /*! \class QDir qdir.h
@@ -34,20 +34,28 @@ static char ident[] = "$Id: //depot/qt/main/src/tools/qdir.cpp#6 $";
   The QDir class can be used to traverse the directory structure and to
   read the contents of directories in a platform-independent way.
 
-  When a QDir is created with a relative path, it is assumed that the
-  starting directory is the home directory, NOT the current directory.
-  The directory "example" under the home directory is checked for existence
+  A QDir can point to a file using either a relative or an absolute
+  file path. Absolute file paths begin with the directory separator
+  ('/' under UNIX) or a drive specification (not applicable to UNIX).
+  Relative file names begin with a directory name or a file name and specify
+  a path relative to the current directory. Under UNIX, an example of
+  an absolute path is the string "/tmp/quartz", a relative path might look like
+  "src/fatlib". You can use the function isRelative() to check if a QDir
+  is using a relative or an absolute file path. You can call the function
+  convertToAbsolute() to convert a relative QDir to an absolute one.
+
+  The directory "example" under the current directory is checked for existence
   in the example below:
 
   \code
-  QDir d("mystuff");      // points to "mystuff" under the home directory
+  QDir d("example");      // points to "example" under the home directory
   if ( !d.exists() )
       warning("Cannot find the example directory.");
   \endcode
 
-  If you construct paths manually (not recommended), the static function
-  separator() can be used to ensure that your programs will be
-  platform-independent:
+  If you construct paths manually, the static function
+  separator() or the macro Q_SEPARATOR can be used to ensure
+  that your programs will be platform independent:
 
   \code
       QString myPath;
@@ -64,32 +72,71 @@ static char ident[] = "$Id: //depot/qt/main/src/tools/qdir.cpp#6 $";
   QDir d( "mystuff" Q_SEPARATOR "examples" ); // "mystuff/examples" on UNIX.
   \endcode
 
-  cd() and cdUp() can be used to navigate the directory tree:
+  cd() and cdUp() can be used to navigate the directory tree. Note that the
+  logical cd and cdUp operations are not performed if the new directory does
+  not exist:
 
   \code
   QDir d = QDir::root();              // "/" on UNIX
-  if ( !d.cd("tmp") )                 // "/tmp" on UNIX
-      warning("Cannot find the %s directory.", (char *) d.path());
-  if ( !d.cd("example") )             // "/tmp/example" on UNIX
-      warning("Cannot find the %s directory.", (char *) d.path());
-  QFile f( d, "ex1.txt" );
-  if ( f.open(IO_ReadWrite) )
-      warning("Cannot create the file %s.", f.name() );
+  if ( !d.cd("tmp") ) {               // "/tmp" on UNIX
+      warning("Cannot find the " Q_SEPARATOR "tmp directory." );
+  } else {
+      QFile f( d.pathName("ex1.txt") );
+      if ( f.open(IO_ReadWrite) )
+          warning("Cannot create the file %s.", f.name() );
+  }
   \endcode
-  */ // "
 
+  To read the contents of a directory you can use the entries() and
+  entryInfos() functions. The example below lists all files in the current
+  directory sorted by size with the smallest files first:
+
+  \code
+  #include <stdlib.h>
+  #include <qdir.h>
+
+  main() {
+      QDir d;                                      // current directory
+                                                   // list all files that are
+                                                   // not symbolic links:
+      d.setFilter( QDir::Files | QDir::Hidden | QDir::NoSymLinks );
+      d.setSorting( QDir::Size | QDir::Reversed ); // smallest files first
+      const QFileInfoList *fil = d.entryInfos();   // get file infos
+      QFileInfo *fi;                               // pointer for traversing
+      QFileInfoIterator fiter( *fil );             // create iterator
+      printf( "     BYTES FILENAME\n" );           // print header
+      for( fi = fiter.toFirst() ; fi ; fi = fiter++ )  // loop for all files
+          printf( "%10li %s\n",  fi->size(), fi->fileName().data() );
+}
+
+  \endcode
+*/ // "
+
+
+  /*!
+  Constructs a QDir pointing to the current directory.
+  */
 QDir::QDir()
 {
     dPath = ".";
     init();
 }
 
+  /*!
+  Constructs a QDir pointing to the given directory. No check is made to ensure
+  that the directory exists.
+
+  \sa exists()
+  */
 QDir::QDir( const char *pathName )
 {
     dPath = cleanPathName( pathName );
     init();
 }
 
+  /*!
+  Constructs a QDir that is a copy of the given directory.
+  */
 QDir::QDir( const QDir &d )
 {
     dPath    = d.dPath;
@@ -113,6 +160,9 @@ void QDir::init()
     sortS    = Name | IgnoreCase;
 }
 
+  /*
+  Destroys the QDir and cleans up.
+  */
 QDir::~QDir()
 {
     if ( fList )
@@ -126,7 +176,18 @@ QDir::~QDir()
   and multiple separators. No check is made to ensure that a directory
   with this path exists.
 
-  \sa path(), absolutePath(), exists, cleanPathName(), dirName(), fullPathName()
+  The path can be either absolute or relative. Absolute paths begin with the
+  directory separator ('/' under UNIX) or a drive specification (not
+  applicable to UNIX).
+  Relative file names begin with a directory name or a file name and specify
+  a path relative to the current directory. Under UNIX, an example of
+  an absolute path is the string "/tmp/quartz", a relative path might look like
+  "src/fatlib". You can use the function isRelative() to check if a QDir
+  is using a relative or an absolute file path. You can call the function
+  convertToAbsolute() to convert a relative QDir to an absolute one.
+
+  \sa path(), absolutePath(), exists, cleanPathName(), dirName(),
+      fullPathName(), isRelative(), convertToAbsolute()
   */
 void QDir::setPath( const char *relativeOrAbsolutePath )
 {
@@ -135,14 +196,23 @@ void QDir::setPath( const char *relativeOrAbsolutePath )
 }
 
   /*!
-  \fn  QDir::path()
+  \fn  const char *QDir::path() const
   Returns the path, this may contain symbolic links, but never contains
-  redundant ".", ".." or multiple separators.
+  redundant ".", ".." or multiple separators. The returned path can be
+  either absolute or relative (see setPath()).
    \sa  setPath(), absolutePath(), exists(), cleanPathName(), dirName(),
        fullPathName()
   */
 
-QString QDir::fullPath() const
+  /*!
+  Returns the full path, i.e. this may contain symbolic links, but never
+  contains redundant ".", ".." or multiple separators. The returned path
+  can be either absolute or relative (see setPath()).
+   \sa  setPath(), absolutePath(), exists(), cleanPathName(), dirName(),
+       fullPathName()
+  */
+
+QString QDir::absolutePath() const
 {
     if ( QDir::isRelativePath(dPath) ) {
         QString tmp = currentDirString();
@@ -156,14 +226,16 @@ QString QDir::fullPath() const
 }
 
   /*!
-  Returns the absolute path, i.e. a path without symbolic links.
-  If the absolute path does not exist a null string is returned.
+  Returns the canonical path, i.e. a path without symbolic links.
+  On systems that do not have symbolic links this function will
+  always return the same string that absolutePath returns.
+  If the canonical path does not exist a null string is returned.
   
-  \sa path(), exists(), cleanPathName(), dirName(), fullPathName(), 
-      QString::isNull()
+  \sa path(), fullPath(), exists(), cleanPathName(), dirName(),
+      fullPathName(), QString::isNull()
   */
 
-QString QDir::absolutePath() const
+QString QDir::canonicalPath() const
 {
     QString cur( PATH_MAX );
     QString tmp( PATH_MAX );
@@ -193,6 +265,20 @@ QString QDir::dirName() const
     return dPath.right( dPath.length() - pos - 1 );
 }
 
+  /*!
+  Returns the path name of a file in the directory. Does NOT check if
+  the file actually exists in the directory. If the QDir is relative
+  the returned pathname will also be relative. Redundant multiple separators
+  or "." and ".." directories in \e fileName will NOT be removed (see
+  cleanPathName()).
+
+  If \e acceptAbsolutePath is TRUE a \e fileName starting with a separator
+  ('/' under UNIX) will return the path of a file in the absolute directory,
+  if \e acceptAbsolutePath is FALSE an absolute path will be appended to
+  the directory path.
+
+  \sa fullPathName(), isRelative()
+  */
 QString QDir::pathName( const char *fileName,
                         bool acceptAbsolutePath ) const
 {
@@ -207,8 +293,17 @@ QString QDir::pathName( const char *fileName,
 }
 
   /*!
-   Returns the full path name of a file in the directory. Does NOT check if
-   the file actually exists in the directory.
+  Returns the full path name of a file in the directory. Does NOT check if
+  the file actually exists in the directory. Redundant multiple separators
+  or "." and ".." directories in \e fileName will NOT be removed (see
+  cleanPathName()).
+
+  If \e acceptAbsolutePath is TRUE a \e fileName starting with a separator
+  ('/' under UNIX) will return the path of a file in the absolute directory,
+  if \e acceptAbsolutePath is FALSE an absolute path will be appended to
+  the directory path.
+
+  \sa pathName()
   */
 
 QString QDir::fullPathName( const char *fileName,
@@ -217,7 +312,7 @@ QString QDir::fullPathName( const char *fileName,
     if ( acceptAbsolutePath && !isRelativePath( fileName ) )
         return fileName;
 
-    QString tmp = fullPath();
+    QString tmp = absolutePath();
     if ( tmp.right(1) != Q_SEPARATOR && fileName && fileName[0] != separator())
         tmp += separator();
     tmp += fileName;
@@ -228,6 +323,10 @@ QString QDir::fullPathName( const char *fileName,
   Changes directory by descending into the given directory. Returns
   TRUE if the new directory exists and is readable. Note that the logical
   cd operation is NOT performed if the new directory does not exist. 
+
+  If \e acceptAbsolutePath is TRUE a path starting with a separator ('/' under
+  UNIX) will cd to the absolute directory, if \e acceptAbsolutePath is FALSE
+  any number of separators at the beginning of \e dirName will be removed.
 
   Example: \code
 
@@ -253,8 +352,7 @@ QString QDir::fullPathName( const char *fileName,
   }
   \endcode
 
-   Calling cd( ".." ) will move one directory up the \e absolute path of the
-   current directory (see cdUp()). 
+   Calling cd( ".." ) is equivalent to calling cdUp. 
 
   \sa cdUp(), isReadable(), exists(), path()
   */
@@ -286,21 +384,9 @@ bool QDir::cd( const char *dirName, bool acceptAbsolutePath )
 
   /*!
   Changes directory by moving one directory up the path followed to arrive
-  at the current directory. Note that this is NOT always the same as "cd.."
-  under UNIX since the directory could have been reached through a symbolic
-  link:
-  \code
-  QDir d1 = QDir::root();
-  d1.cd("tmp");
-  d1.cd("kidney");   // actually a symbolic link to "/usr/local/kidney"
-  QDir d2 = d;
-  d1.cdUp();         // d1 now points to "/tmp"
-  d2.cd("..");       // d2 now points to "/usr/local"
-  \endcode
-
-  Returns TRUE if the new directory exists and is readable. Note that the
-  logical cdUp() operation is NOT performed if the new directory does not
-  exist. 
+  at the current directory. Returns TRUE if the new directory exists and is
+  readable. Note that the logical cdUp() operation is NOT performed if the
+  new directory does not exist. 
   */
 
 bool QDir::cdUp()
@@ -308,12 +394,74 @@ bool QDir::cdUp()
     return cd( ".." );
 }
 
+  /*!
+  \fn const char *QDir::nameFilter() const
+
+  Returns the string set by setNameFilter()
+
+  \sa setNameFilter
+  */
+
+  /*!
+  Sets the name filter used by entries() and entryInfos(). The name filter is
+  a wildcarding filter that understands "*" and "?" wildcards, if you want
+  entries() and entryInfos() to list all files ending with ".cpp", you
+  simply call dir.setNameFilter("*.cpp");
+
+  \sa nameFilter()
+  */
 void QDir::setNameFilter( const char *nameFilter )
 {
     nameFilt = nameFilter;
     dirty    = TRUE;
 }
 
+  /*!
+  \fn QDir::FilterSpec QDir::filter() const
+
+  Returns the value set by setFilter()
+
+  \sa setFilter
+  */
+
+  /*!
+  Sets the filter used by entries() and entryInfos(). The filter is used
+  to specify the kind of files that should be returned by entries() and
+  entryInfos(). The filter is specified by or-ing values from the enum
+  FilterSpec. The different values are:
+
+
+  <dl compact>
+  <dt> Dirs <dd>
+  <dt> Files <dd>
+  <dt> Drives <dd>
+  <dt> NoSymLinks <dd>
+  <dt> All <dd>
+
+  <dt> Readable <dd>
+  <dt> Writable <dd>
+  <dt> Executable <dd>
+
+  <dt> Modified <dd>
+  <dt> Hidden <dd>
+  <dt> System <dd>
+
+  <dt> DefaultFilter <dd>
+  </dl>
+
+  <dl>
+  <dt> Name <dd>
+  <dt> Time <dd>
+  <dt> Size <dd>
+  <dt> Unsorted <dd>
+
+  <dt> DirsFirst <dd>
+  <dt> Reversed <dd>
+  <dt>IgnoreCase  <dd>
+  </dl>
+
+  \sa nameFilter()
+  */
 void QDir::setFilter( int filterSpec )
 {
     if ( filtS == (FilterSpec) filterSpec )
@@ -394,6 +542,12 @@ const QFileInfoList *QDir::entryInfos( const char *nameFilter,
         return 0;
 }
 
+/*
+  If \e acceptAbsolutePath is TRUE a path starting with a separator ('/' under
+  UNIX) will cd to the absolute directory, if \e acceptAbsolutePath is FALSE
+  any number of separators at the beginning of \e dirName will be removed.
+*/
+
 bool QDir::mkdir( const char *dirName, bool acceptAbsolutePath ) const
 {
     if ( ::mkdir( pathName( dirName, acceptAbsolutePath ) , 0777 ) == 0 )
@@ -401,6 +555,12 @@ bool QDir::mkdir( const char *dirName, bool acceptAbsolutePath ) const
     else
         return FALSE;
 }
+
+/*
+  If \e acceptAbsolutePath is TRUE a path starting with a separator ('/' under
+  UNIX) will cd to the absolute directory, if \e acceptAbsolutePath is FALSE
+  any number of separators at the beginning of \e dirName will be removed.
+*/
 
 bool QDir::rmdir( const char *dirName, bool acceptAbsolutePath ) const
 {
@@ -497,6 +657,12 @@ bool QDir::setToCurrent() const
     return setCurrent( dPath.data() );
 }
 
+/*
+  If \e acceptAbsolutePath is TRUE a path starting with a separator ('/' under
+  UNIX) will cd to the absolute directory, if \e acceptAbsolutePath is FALSE
+  any number of separators at the beginning of \e dirName will be removed.
+*/
+
 bool QDir::remove( const char *fileName, bool acceptAbsolutePath )
 {
     if ( fileName == 0 || fileName[0] == '\0' ) {
@@ -513,6 +679,12 @@ bool QDir::remove( const char *fileName, bool acceptAbsolutePath )
 #endif
 }
 
+/*
+  If \e acceptAbsolutePath is TRUE a path starting with a separator ('/' under
+  UNIX) will cd to the absolute directory, if \e acceptAbsolutePath is FALSE
+  any number of separators at the beginning of \e dirName will be removed.
+*/
+
 bool QDir::rename( const char *name, const char *newName,
                    bool acceptAbsolutePaths  )
 {
@@ -526,6 +698,12 @@ bool QDir::rename( const char *name, const char *newName,
     QString tmp2 = pathName( newName, acceptAbsolutePaths );
     return rename( tmp1, tmp2) == 0;
 }
+
+/*
+  If \e acceptAbsolutePath is TRUE a path starting with a separator ('/' under
+  UNIX) will cd to the absolute directory, if \e acceptAbsolutePath is FALSE
+  any number of separators at the beginning of \e dirName will be removed.
+*/
 
 bool QDir::exists( const char *name, bool acceptAbsolutePath )
 {
