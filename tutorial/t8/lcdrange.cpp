@@ -8,17 +8,21 @@
 
 #include <qscrollbar.h>
 #include <qlcdnumber.h>
+#include <qlayout.h>
 
 LCDRange::LCDRange( QWidget *parent, const char *name )
         : QWidget( parent, name )
 {
-    lcd  = new QLCDNumber( 2, this, "lcd"  );
-    lcd->move( 0, 0 );
-    sBar = new QScrollBar( 0, 99,		       	// range
-			   1, 10, 			// line/page steps
-			   0, 				// inital value
-			   QScrollBar::Horizontal, 	// direction
-                           this, "scrollbar" );
+    QLCDNumber *lcd  = new QLCDNumber( 2, this, "lcd"  );
+    sBar = new QScrollBar( 0, 99, 	// range
+			   1, 10,	// line/page steps
+			   0,	// inital value
+			   QScrollBar::Horizontal, 	// orientation
+			   this, "scrollbar" );
+    QVBoxLayout *vbox = new QVBoxLayout( this, 5 );
+    vbox->addWidget( lcd );
+    vbox->addWidget( sBar );
+
     connect( sBar, SIGNAL(valueChanged(int)), lcd, SLOT(display(int)) );
     connect( sBar, SIGNAL(valueChanged(int)), SIGNAL(valueChanged(int)) );
 
@@ -41,13 +45,7 @@ void LCDRange::setRange( int minVal, int maxVal )
 		 "\tRange must be 0..99\n"
 		 "\tand minVal must not be greater than maxVal",
 		 minVal, maxVal );
-	return;
+	return; 
     }
-    sBar->setRange( minVal, maxVal );
-}
-
-void LCDRange::resizeEvent( QResizeEvent * )
-{
-    lcd->resize( width(), height() - 16 - 5 );
-    sBar->setGeometry( 0, lcd->height() + 5, width(), 16 );
+    sBar->setRange( minVal, maxVal );    
 }

@@ -29,13 +29,10 @@ public slots:
     void setText( const char * );
 signals:
     void valueChanged( int );
-protected:
-    void resizeEvent( QResizeEvent * );
 private:
     void init();
 
     QScrollBar  *sBar;
-    QLCDNumber  *lcd;
     QLabel      *label;
 };
 

@@ -31,3 +31,9 @@ void CannonField::paintEvent( QPaintEvent * )
     s.sprintf( "Angle = %i", ang );
     drawText( 200, 100, s );
 }
+
+QSizePolicy CannonField::sizePolicy() const
+{
+    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
+}
+

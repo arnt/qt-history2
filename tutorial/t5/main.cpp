@@ -10,46 +10,38 @@
 #include <qlcdnumber.h>
 #include <qfont.h>
 
+#include <qlayout.h>
+
 class MyWidget : public QWidget
 {
 public:
     MyWidget( QWidget *parent=0, const char *name=0 );
-protected:
-    void resizeEvent( QResizeEvent * );
-private:
-    QPushButton *quit;
-    QScrollBar  *sBar;
-    QLCDNumber  *lcd;
 };
 
 
 MyWidget::MyWidget( QWidget *parent, const char *name )
         : QWidget( parent, name )
 {
-    setMinimumSize( 200, 200 );
-
-    quit = new QPushButton( "Quit", this, "quit" );
-    quit->setGeometry( 10, 10, 75, 30 );
+    QPushButton *quit = new QPushButton( "Quit", this, "quit" );
     quit->setFont( QFont( "Times", 18, QFont::Bold ) );
 
     connect( quit, SIGNAL(clicked()), qApp, SLOT(quit()) );
 
-    lcd  = new QLCDNumber( 2, this, "lcd" );
-    lcd->move( 10, quit->y() + quit->height() + 10 );
+    QLCDNumber *lcd  = new QLCDNumber( 2, this, "lcd" );
 
-    sBar = new QScrollBar( 0, 99,		       	// range
+    QScrollBar *sBar = new QScrollBar( 0, 99,		       	// range
 			   1, 10, 			// line/page steps
 			   0, 				// inital value
 			   QScrollBar::Horizontal, 	// orientation
                            this, "scrollbar" );
 
     connect( sBar, SIGNAL(valueChanged(int)), lcd, SLOT(display(int)) );
-}
 
-void MyWidget::resizeEvent( QResizeEvent * )
-{
-    sBar->setGeometry( 10, height() - 10 - 16, width() - 20, 16 );
-    lcd->resize( sBar->width(), sBar->y() - lcd->y() - 5 );
+    QVBoxLayout *vbox = new QVBoxLayout( this, 5 );
+
+    vbox->addWidget( quit, 0, AlignLeft );
+    vbox->addWidget( lcd );  //stretch unnecessary, since lcd wants to grow
+    vbox->addWidget( sBar );
 }
 
 int main( int argc, char **argv )

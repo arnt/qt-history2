@@ -19,6 +19,7 @@ public:
     int   angle()      const { return ang; }
     int   force()      const { return f; }
     bool  isShooting() const { return shooting; }
+    QSizePolicy sizePolicy() const;
 public slots:
     void  setAngle( int degrees );
     void  setForce( int newton );

@@ -86,7 +86,7 @@ void CannonField::setGameOver()
 }
 
 void CannonField::restartGame()
-{    
+{
     if ( shooting )
 	stopShooting();
     gameEnded = FALSE;
@@ -189,9 +189,9 @@ QRect CannonField::shotRect() const
     const double gravity = 4;
 
     double time      = timerCount / 4.0;
-    double velocity  = shoot_f; 
+    double velocity  = shoot_f;
     double radians   = shoot_ang*3.14159265/180;
-    
+
     double velx      = velocity*cos( radians );
     double vely      = velocity*sin( radians );
     double x0        = ( barrel_rect.right()  + 5 )*cos(radians);
@@ -209,4 +209,9 @@ QRect CannonField::targetRect() const
     QRect r( 0, 0, 20, 10 );
     r.moveCenter( QPoint(target.x(),height() - 1 - target.y()) );
     return r;
+}
+
+QSizePolicy CannonField::sizePolicy() const
+{
+    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
 }

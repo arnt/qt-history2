@@ -6,6 +6,7 @@
 
 #include "lcdrange.h"
 
+#include <qlayout.h>
 #include <qscrollbar.h>
 #include <qlcdnumber.h>
 #include <qlabel.h>
@@ -25,8 +26,7 @@ LCDRange::LCDRange( const char *s, QWidget *parent, const char *name )
 
 void LCDRange::init()
 {
-    lcd  = new QLCDNumber( 2, this, "lcd"  );
-    lcd->move( 0, 0 );
+    QLCDNumber *lcd  = new QLCDNumber( 2, this, "lcd"  );
     sBar = new QScrollBar( 0, 99,		       	// range
 			   1, 10, 			// line/page steps
 			   0, 				// inital value
@@ -34,6 +34,12 @@ void LCDRange::init()
                            this, "scrollbar" );
     label  = new QLabel( this, "label"  );
     label->setAlignment( AlignCenter );
+
+    QVBoxLayout *vbox = new QVBoxLayout( this, 0, 5 );
+    vbox->addWidget( lcd );
+    vbox->addWidget( sBar );
+    vbox->addWidget( label );
+    
     connect( sBar, SIGNAL(valueChanged(int)), lcd, SLOT(display(int)) );
     connect( sBar, SIGNAL(valueChanged(int)), SIGNAL(valueChanged(int)) );
 
@@ -69,11 +75,4 @@ void LCDRange::setRange( int minVal, int maxVal )
 void LCDRange::setText( const char *s )
 {
     label->setText( s );
-}
-
-void LCDRange::resizeEvent( QResizeEvent * )
-{
-    lcd->resize( width(), height() - 41 - 5 );
-    sBar->setGeometry( 0, lcd->height() + 5, width(), 16 );
-    label->setGeometry( 0, lcd->height() + 21, width(), 20 );
 }

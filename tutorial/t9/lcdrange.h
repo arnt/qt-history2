@@ -25,11 +25,8 @@ public slots:
     void setRange( int minVal, int maxVal );
 signals:
     void valueChanged( int );
-protected:
-    void resizeEvent( QResizeEvent * );
 private:
     QScrollBar  *sBar;
-    QLCDNumber  *lcd;
 };
 
 #endif // LCDRANGE_H

@@ -12,6 +12,7 @@
 #include <qaccel.h>
 #include <qpushbutton.h>
 #include <qlcdnumber.h>
+#include <qlayout.h>
 
 #include "lcdrange.h"
 #include "cannon.h"
@@ -21,22 +22,25 @@ GameBoard::GameBoard( QWidget *parent, const char *name )
 {
     setMinimumSize( 500, 355 );
 
-    quit = new QPushButton( "Quit", this, "quit" );
+    QPushButton *quit = new QPushButton( "Quit", this, "quit" );
     quit->setFont( QFont( "Times", 18, QFont::Bold ) );
 
     connect( quit, SIGNAL(clicked()), qApp, SLOT(quit()) );
 
-    angle  = new LCDRange( "ANGLE", this, "angle" );
+    LCDRange *angle  = new LCDRange( "ANGLE", this, "angle" );
     angle->setRange( 5, 70 );
 
-    force  = new LCDRange( "FORCE", this, "force" );
+    LCDRange *force  = new LCDRange( "FORCE", this, "force" );
     force->setRange( 10, 50 );
 
-    frame = new QFrame( this, "cannonFrame" );
+    QFrame *frame = new QFrame( this, "cannonFrame" );
     frame->setFrameStyle( QFrame::WinPanel | QFrame::Sunken );
 
-    cannonField = new CannonField( this, "cannonField" );
+    cannonField = new CannonField( frame, "cannonField" );
     cannonField->setBackgroundColor( QColor( 250, 250, 200) );
+    //### to use frameWidth is a hack, sort of
+    QHBoxLayout *frameLayout = new QHBoxLayout( frame, frame->frameWidth() );
+    frameLayout->addWidget( cannonField );
 
     connect( angle,SIGNAL(valueChanged(int)), cannonField,SLOT(setAngle(int)));
     connect( cannonField,SIGNAL(angleChanged(int)), angle,SLOT(setValue(int)));
@@ -50,12 +54,12 @@ GameBoard::GameBoard( QWidget *parent, const char *name )
     angle->setValue( 60 );
     force->setValue( 25 );
 
-    shoot = new QPushButton( "Shoot", this, "shoot" );
+    QPushButton *shoot = new QPushButton( "Shoot", this, "shoot" );
     shoot->setFont( QFont( "Times", 18, QFont::Bold ) );
 
     connect( shoot, SIGNAL(clicked()), SLOT(fire()) );
 
-    restart = new QPushButton( "New Game", this, "newgame" );
+    QPushButton *restart = new QPushButton( "New Game", this, "newgame" );
     restart->setFont( QFont( "Times", 18, QFont::Bold ) );
 
     connect( restart, SIGNAL(clicked()), SLOT(newGame()) );
@@ -69,26 +73,28 @@ GameBoard::GameBoard( QWidget *parent, const char *name )
     accel->connectItem( accel->insertItem( Key_Space), this, SLOT(fire()) );
     accel->connectItem( accel->insertItem( Key_Q), qApp, SLOT(quit()) );
 
-    quit->setGeometry( 10, 10, 75, 30 );
-    angle->setGeometry( 10, quit->y() + quit->height() + 10, 75, 130 );
-    force->setGeometry( 10, angle->y() + angle->height() + 10, 75, 130 );
-    frame->move( angle->x() + angle->width() + 10, angle->y() );
-    cannonField->move( frame->x() + 2, frame->y() + 2 );
-    shoot->setGeometry( 10, 315, 75, 30 );
-    restart->setGeometry( 380, 10, 110, 30 );
-    hits->setGeometry( 130, 10, 40, 30 );
-    hitsL->setGeometry( hits->x() + hits->width() + 5, 10, 60, 30 );
-    shotsLeft->setGeometry( 240, 10, 40, 30 );
-    shotsLeftL->setGeometry( shotsLeft->x()+shotsLeft->width()+5, 10, 70, 30 );
+    QGridLayout *grid = new QGridLayout( this, 2, 2, 10 );
+    grid->addWidget( quit, 0, 0 );
+    grid->addWidget( frame, 1, 1 );
+    grid->setColStretch( 1, 10 );
+
+    QVBoxLayout *leftBox = new QVBoxLayout;
+    grid->addLayout( leftBox, 1, 0 );
+    leftBox->addWidget( angle );
+    leftBox->addWidget( force );
+
+    QHBoxLayout *topBox = new QHBoxLayout;
+    grid->addLayout( topBox, 0, 1 );
+    topBox->addWidget( shoot );
+    topBox->addWidget( hits );
+    topBox->addWidget( hitsL );
+    topBox->addWidget( shotsLeft );
+    topBox->addWidget( shotsLeftL );
+    topBox->addStretch( 1 );
+    topBox->addWidget( restart );
+
 
     newGame();
-}
-
-void GameBoard::resizeEvent( QResizeEvent * )
-{
-    frame->resize( width()  - frame->x() - 10,
-		   height() - frame->y() - 10 );
-    cannonField->resize( frame->width() - 4, frame->height() - 4 );
 }
 
 void GameBoard::fire()

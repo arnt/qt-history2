@@ -78,3 +78,8 @@ QRect CannonField::cannonRect() const
     r.moveBottomLeft( rect().bottomLeft() );
     return r;
 }
+
+QSizePolicy CannonField::sizePolicy() const
+{
+    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
+}

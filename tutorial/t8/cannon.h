@@ -17,6 +17,7 @@ public:
     CannonField( QWidget *parent=0, const char *name=0 );
 
     int angle() const { return ang; }
+    QSizePolicy sizePolicy() const;
 public slots:
     void setAngle( int degrees );
 signals:

@@ -87,7 +87,7 @@ void CannonField::setGameOver()
 }
 
 void CannonField::restartGame()
-{    
+{
     if ( shooting )
 	stopShooting();
     gameEnded = FALSE;
@@ -227,9 +227,9 @@ QRect CannonField::shotRect() const
     const double gravity = 4;
 
     double time      = timerCount / 4.0;
-    double velocity  = shoot_f; 
+    double velocity  = shoot_f;
     double radians   = shoot_ang*3.14159265/180;
-    
+
     double velx      = velocity*cos( radians );
     double vely      = velocity*sin( radians );
     double x0        = ( barrel_rect.right()  + 5 )*cos(radians);
@@ -261,4 +261,9 @@ bool CannonField::barrelHit( const QPoint &p ) const
     mtx.rotate( -ang );
     mtx = mtx.invert();
     return barrel_rect.contains( mtx.map(p) );
+}
+
+QSizePolicy CannonField::sizePolicy() const
+{
+    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
 }

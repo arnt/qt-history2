@@ -9,48 +9,33 @@
 #include <qscrollbar.h>
 #include <qlcdnumber.h>
 #include <qfont.h>
-
+#include <qlayout.h>
 
 class LCDRange : public QWidget
 {
 public:
     LCDRange( QWidget *parent=0, const char *name=0 );
-protected:
-    void resizeEvent( QResizeEvent * );
-private:
-    QScrollBar  *sBar;
-    QLCDNumber  *lcd;
 };
 
 LCDRange::LCDRange( QWidget *parent, const char *name )
         : QWidget( parent, name )
 {
-    lcd  = new QLCDNumber( 2, this, "lcd"  );
-    lcd->move( 0, 0 );
-    sBar = new QScrollBar( 0, 99,		       	// range
-			   1, 10, 			// line/page steps
-			   0, 				// inital value
-			   QScrollBar::Horizontal, 	// orientation
-                           this, "scrollbar" );
+    QLCDNumber *lcd  = new QLCDNumber( 2, this, "lcd"  );
+    QScrollBar* sBar = new QScrollBar( 0, 99, 	// range
+				       1, 10,	// line/page steps
+				       0,	// inital value
+				       QScrollBar::Horizontal, 	// orientation
+				       this, "scrollbar" );
     connect( sBar, SIGNAL(valueChanged(int)), lcd, SLOT(display(int)) );
+    QVBoxLayout *vbox = new QVBoxLayout( this, 5 );
+    vbox->addWidget( lcd );
+    vbox->addWidget( sBar );
 }
-
-void LCDRange::resizeEvent( QResizeEvent * )
-{
-    sBar->setGeometry( 0, height() - 16, width(), 16 );
-    lcd->resize( width(), sBar->y() - 5 );
-}
-
 
 class MyWidget : public QWidget
 {
 public:
     MyWidget( QWidget *parent=0, const char *name=0 );
-protected:
-    void resizeEvent( QResizeEvent * );
-private:
-    QPushButton *quit;
-    LCDRange *value[16];
 };
 
 
@@ -59,26 +44,23 @@ MyWidget::MyWidget( QWidget *parent, const char *name )
 {
     setMinimumSize( 200, 300 );
 
-    quit = new QPushButton( "Quit", this, "quit" );
-    quit->setGeometry( 10, 10, 75, 30 );
+    QVBoxLayout *vbox = new QVBoxLayout( this );
+    
+    QPushButton *quit = new QPushButton( "Quit", this, "quit" );
     quit->setFont( QFont( "Times", 18, QFont::Bold ) );
 
     connect( quit, SIGNAL(clicked()), qApp, SLOT(quit()) );
 
-    for( int i = 0 ; i < 16 ; i++ )
-	value[i] = new LCDRange( this );
-}
-
-void MyWidget::resizeEvent( QResizeEvent * )
-{
-    int startx      = 10;
-    int starty      = quit->y() + quit->height() + 10;
-    int valueWidth  = (width() - startx - 10 - 3*5)/4;
-    int valueHeight = (height() - starty - 10 - 3*5)/4;
-    for( int i = 0 ; i < 16 ; i++ )
-	value[i]->setGeometry( startx + (i%4)*(5+valueWidth),
-			       starty + (i/4)*(5+valueHeight),
-                               valueWidth, valueHeight );
+    vbox->addWidget( quit, 0, Qt::AlignRight );
+    
+    QGridLayout *grid = new QGridLayout( 4, 4 ); //### 4,4 superfluous
+    vbox->addLayout( grid );
+    
+    for( int c = 0 ; c < 4 ; c++ )
+	for( int r = 0 ; r < 4 ; r++ ) {
+	    LCDRange* lr = new LCDRange( this );
+	    grid->addWidget( lr, r, c );
+	}
 }
 
 int main( int argc, char **argv )

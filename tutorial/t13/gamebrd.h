@@ -23,19 +23,12 @@ class GameBoard : public QWidget
     Q_OBJECT
 public:
     GameBoard( QWidget *parent=0, const char *name=0 );
-protected:
-    void  resizeEvent( QResizeEvent * );
 protected slots:
     void  fire();
     void  hit();
     void  missed();
     void  newGame();
 private:
-    QPushButton *quit;
-    QPushButton *shoot;
-    QPushButton *restart;
-    LCDRange    *angle;
-    LCDRange    *force;
     QLCDNumber  *hits;
     QLCDNumber  *shotsLeft;
     CannonField *cannonField;

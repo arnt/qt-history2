@@ -43,3 +43,8 @@ void CannonField::paintEvent( QPaintEvent * )
 
     p.end();
 }
+
+QSizePolicy CannonField::sizePolicy() const
+{
+    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
+}

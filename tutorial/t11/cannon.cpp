@@ -130,9 +130,9 @@ QRect CannonField::shotRect() const
     const double gravity = 4;
 
     double time      = timerCount / 4.0;
-    double velocity  = shoot_f; 
+    double velocity  = shoot_f;
     double radians   = shoot_ang*3.14159265/180;
-    
+
     double velx      = velocity*cos( radians );
     double vely      = velocity*sin( radians );
     double x0        = ( barrel_rect.right()  + 5 )*cos(radians);
@@ -143,4 +143,9 @@ QRect CannonField::shotRect() const
     QRect r = QRect( 0, 0, 6, 6 );
     r.moveCenter( QPoint( qRound(x), height() - 1 - qRound(y) ) );
     return r;
+}
+
+QSizePolicy CannonField::sizePolicy() const
+{
+    return QSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
 }

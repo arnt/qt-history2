@@ -20,6 +20,7 @@ public:
     int   force()      const { return f; }
     bool  gameOver()   const { return gameEnded; }
     bool  isShooting() const { return shooting; }
+    QSizePolicy sizePolicy() const;
 public slots:
     void  setAngle( int degrees );
     void  setForce( int newton );

@@ -7,7 +7,7 @@
 #include <qapplication.h>
 #include <qpushbutton.h>
 #include <qfont.h>
-
+#include <qlayout.h>
 
 int main( int argc, char **argv )
 {
@@ -17,12 +17,13 @@ int main( int argc, char **argv )
     w.resize( 200, 120 );
 
     QPushButton quit( "Quit", &w );
-    quit.move( 62, 40 );
-    quit.resize( 75, 30 );
     quit.setFont( QFont( "Times", 18, QFont::Bold ) );
 
     QObject::connect( &quit, SIGNAL(clicked()), &a, SLOT(quit()) );
 
+    QHBoxLayout layout( &w );
+    layout.addWidget( &quit, 0, Qt::AlignCenter );
+    
     a.setMainWidget( &w );
     w.show();
     return a.exec();
