@@ -411,10 +411,9 @@ bool QWin32PaintEngine::end()
         d->hbrushbm = 0;
         d->pixmapBrush = d->nocolBrush = false;
     }
-    if (d->hfont) {
-        SelectObject(d->hdc, stock_sysfont);
-        d->hfont = 0;
-    }
+
+    SelectObject(d->hdc, stock_sysfont);
+
     if (d->holdpal) {
         SelectPalette(d->hdc, d->holdpal, true);
         RealizePalette(d->hdc);
@@ -1520,13 +1519,12 @@ void QWin32PaintEngine::updateFont(const QFont &font)
         d->gdiplusEngine->updateFont(font);
         return;
     }
-    d->hfont = font.handle();
-    SelectObject(d->hdc, d->hfont);
 
-    d->fontFlags = 0;
-    if (font.underline()) d->fontFlags |= Qt::Underline;
-    if (font.overline()) d->fontFlags |= Qt::Overline;
-    if (font.strikeOut()) d->fontFlags |= Qt::StrikeOut;
+    if (state->pfont)
+        delete state->pfont;
+#undef d
+    state->pfont = new QFont(font.d, d_func()->pdev);
+#define d d_func()
 }
 
 extern void qt_fill_tile(QPixmap *tile, const QPixmap &pixmap);

@@ -1519,7 +1519,7 @@ void QPainter::setFont(const QFont &font)
 
 const QFont &QPainter::font() const
 {
-    return d->state->font;
+    return d->state->pfont ? *d->state->pfont : d->state->font;
 }
 /*! \fn void QPainter::drawRoundRect(int x, int y, int w, int h, int xRnd, int yRnd)
 

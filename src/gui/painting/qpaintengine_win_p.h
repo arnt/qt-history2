@@ -86,7 +86,6 @@ public:
         hwnd(0),
         hdc(0),
         hpen(0),
-        hfont(0),
         hbrush(0),
         hbrushbm(0),
         holdpal(0),
@@ -106,7 +105,6 @@ public:
         pWidth(0),
         pColor(0),
         bColor(0),
-        fontFlags(0),
         txop(QPainter::TxNone),
         gdiplusInUse(false),
         gdiplusEngine(0)
@@ -116,7 +114,6 @@ public:
     HWND hwnd;
     HDC hdc;
     HPEN hpen;
-    HFONT hfont;
     HBRUSH hbrush;
     HBITMAP hbrushbm;
     HPALETTE holdpal;
@@ -140,8 +137,6 @@ public:
     int pWidth;
     COLORREF pColor;
     COLORREF bColor;
-
-    uint fontFlags;
 
     QPainter::TransformationCodes txop;
 

@@ -60,8 +60,12 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
         return;
     }
 
+    // assign state after we start checking so the if works, but before update
+    // calls since we need it in some cases..
+
     // Same state, do minimal update...
     if (s==state) {
+        state = s;
         if (testDirty(DirtyPen))
             updatePen(s->pen);
         if (testDirty(DirtyBrush))
@@ -77,6 +81,7 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
         }
         // Same painter, restoring old state.
     } else if (state && s->painter == state->painter) {
+        state = s;
         if ((changeFlag&DirtyPen)!=0)
             updatePen(s->pen);
         if ((changeFlag&DirtyBrush)!=0)
@@ -92,6 +97,7 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
         changeFlag = 0;
         // Different painter or state == 0 which is true for first time call
     } else {
+        state = s;
         changeFlag = 0;
         updatePen(s->pen);
         updateBrush(s->brush, s->bgOrigin);
@@ -101,7 +107,6 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
         updateClipRegion(s->clipRegion, s->clipEnabled);
     }
     dirtyFlag = 0;
-    state = s;
 }
 
 /*! Default implementation does nothing...

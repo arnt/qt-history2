@@ -679,7 +679,7 @@ QFontEngine *loadEngine(QFont::Script script, const QFontPrivate *fp,
 
     HDC hdc;
     if (paintdevice) {
-        hdc = paintdevice->handle();
+        hdc = paintdevice->paintEngine()->handle();
     } else if (QSysInfo::WindowsVersion & QSysInfo::WV_NT_based) {
         hdc = GetDC(0);
     } else {
