@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#2 $
 **
 ** tab control implementation
 **
@@ -9,7 +9,7 @@
 
 #include "qtabbar.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#1 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#2 $");
 
 QTab::~QTab()
 {
@@ -23,11 +23,28 @@ struct QTabPrivate {
 };
 
 
+/*! \class QTabBar qtabbar.h
+
+  \brief The QTabBar class provides a tab bar, for use in e.g. tabbed
+  dialogs.
+
+  As implemented, the class provides a look and feel suitable for
+  QTabDialog.  It can be subclassed easily, to provide tab bars with
+  other appearances.
+
+  The following virtual functions may need to be reimplemented: <ul>
+  <li> paint() paints a single tab.  paintEvent() calls paint() for
+  each tab in such a way that any overlap will look right.  <li>
+  addTab() creates a new tab and adds it to the bar. <li> selectTab()
+  decides which, if any, tab the user selects with the mouse. </ul>
+
+*/
+
 /*!
   Create a new, empty tab bar.
 */
 
-QTabBar::QTabBar( QWidget * parent , const char * name )
+QTabBar::QTabBar( QWidget * parent, const char * name )
     : QWidget( parent, name )
 {
     d = new QTabPrivate;
@@ -256,7 +273,7 @@ struct QTab * QTabBar::selectTab( const QPoint & p ) const
 
 
 /*!
-
+  Handles mouse press events; records what tab the mouse points to.
 */
 
 void QTabBar::mousePressEvent( QMouseEvent * e )
@@ -294,7 +311,7 @@ void QTabBar::mouseReleaseEvent( QMouseEvent * e )
 
 
 /*!
-
+  Shows the widget, and ensures that one tab is selected.
 */
 
 void QTabBar::show()
