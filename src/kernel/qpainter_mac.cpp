@@ -99,6 +99,11 @@ void qt_set_paintevent_clipping(QPaintDevice* dev, const QRegion& region, QWidge
 	QPoint mp(posInWindow(w));
 	r.translate(mp.x(), mp.y());
     }
+    if(paintevent_item *curr = paintevents.current()) {
+	if(curr->device() == dev || curr->clip() == dev || clip == curr->clip()
+	   || curr->device() == clip)
+	    r &= curr->region();
+    }
     paintevents.push(new paintevent_item(dev, r, clip));
 }
 

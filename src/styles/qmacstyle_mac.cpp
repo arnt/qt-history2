@@ -585,7 +585,6 @@ void QMacStyle::drawPrimitive(PrimitiveElement pe,
 	else
 #endif
 	    DrawThemePrimaryGroup(qt_glb_mac_rect(r, p), kThemeStateActive);
-	p->fillRect(r, green);
 	break; }
     case PE_ArrowUp:
     case PE_ArrowDown:
