@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#41 $
+** $Id: //depot/qt/main/src/kernel/qprinter_win.cpp#42 $
 **
 ** Implementation of QPrinter class for Win32
 **
@@ -48,6 +48,10 @@ QPrinter::QPrinter()
 
 QPrinter::~QPrinter()
 {
+    if ( hdc ) {
+	DeleteDC( hdc );
+	hdc = 0;
+    }
 }
 
 
@@ -92,27 +96,59 @@ bool QPrinter::setup( QWidget *parent )
     else
 	parent = qApp->mainWidget();
 
+    if ( hdc ) {
+	DeleteDC( hdc );
+	hdc = 0;
+    }
+
     PRINTDLG pd;
     memset( &pd, 0, sizeof(PRINTDLG) );
     pd.lStructSize = sizeof(PRINTDLG);
-    pd.Flags	 = PD_RETURNDC;
-    pd.hwndOwner = parent ? parent->winId() : 0;
-    pd.nFromPage = QMAX(from_pg,min_pg);
-    pd.nToPage	 = QMIN(to_pg,max_pg);
-    if ( pd.nFromPage > pd.nToPage )
-	pd.nFromPage = pd.nToPage = 0;
-    pd.nMinPage	 = min_pg;
-    pd.nMaxPage	 = max_pg;
-    pd.nCopies	 = ncopies;
+    pd.Flags	 = PD_RETURNDEFAULT;
+    bool result = PrintDlg( &pd ) != 0;
+    if ( result ) {
+	pd.Flags	 = PD_RETURNDC;
+	if ( outputToFile() )
+	    pd.Flags |= PD_PRINTTOFILE;
+	pd.hwndOwner = parent ? parent->winId() : 0;
+	pd.nFromPage = QMAX(from_pg,min_pg);
+	pd.nToPage	 = QMIN(to_pg,max_pg);
+	if ( pd.nFromPage > pd.nToPage )
+	    pd.nFromPage = pd.nToPage = 0;
+	pd.nMinPage	 = min_pg;
+	pd.nMaxPage	 = max_pg;
+	pd.nCopies	 = ncopies;
 
-    bool result = PrintDlg( &pd );
-    if ( result && pd.hDC == 0 )
-	result = FALSE;
-    if ( result ) {				// get values from dlg
-	from_pg = pd.nFromPage;
-	to_pg	= pd.nToPage;
-	ncopies = pd.nCopies;
-	hdc	= pd.hDC;
+	if ( pd.hDevMode ) {
+	    DEVMODE* dm = (DEVMODE*)GlobalLock( pd.hDevMode );
+	    if ( dm ) {
+		if ( orient == Portrait )
+		    dm->dmOrientation = DMORIENT_PORTRAIT;
+		else
+		    dm->dmOrientation = DMORIENT_LANDSCAPE;
+		GlobalUnlock( pd.hDevMode );
+	    }
+	}
+	result = PrintDlg( &pd ) != 0;
+	if ( result && pd.hDC == 0 )
+	    result = FALSE;
+	if ( result ) {				// get values from dlg
+	    output_file = (pd.Flags & PD_PRINTTOFILE) != 0;
+	    from_pg = pd.nFromPage;
+	    to_pg	= pd.nToPage;
+	    ncopies = pd.nCopies;
+	    hdc	= pd.hDC;
+	    if ( pd.hDevMode ) {
+		DEVMODE* dm = (DEVMODE*)GlobalLock( pd.hDevMode );
+		if ( dm ) {
+		    if ( dm->dmOrientation == DMORIENT_PORTRAIT )
+			orient = Portrait;
+		    else
+			orient = Landscape;
+		    GlobalUnlock( pd.hDevMode );
+		}
+	    }
+	}
     }
     if ( pd.hDevMode )
 	GlobalFree( pd.hDevMode );
@@ -209,8 +245,6 @@ bool QPrinter::cmd( int c, QPainter *paint, QPDevCmdParam *p )
 	if ( hdc ) {
 	    EndPage( hdc );			// end; printing done
 	    EndDoc( hdc );
-	    DeleteDC( hdc );
-	    hdc = 0;
 	}
 	state = PST_IDLE;
     } else {					// all other commands...
