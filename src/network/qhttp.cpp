@@ -1554,6 +1554,8 @@ QHttp::QHttp()
 	    this, SLOT(reply(const QHttpReplyHeader&, const QByteArray&)) );
     connect( client, SIGNAL(finished()),
 	    this, SLOT(requestFinished()) );
+    connect( client, SIGNAL(requestFailed()),
+	    this, SLOT(requestFailed()) );
 }
 
 /*!
@@ -1596,55 +1598,69 @@ void QHttp::operationPut( QNetworkOperation *op )
 	    header, op->rawArg(1) );
 }
 
-#if 0
-/*! \reimp
-*/
-bool QHttp::checkConnection( QNetworkOperation * )
-{
-    int cstate = client->state();
-    if ( cstate != QHttpClient::Alive && cstate != QHttpClient::Reading && cstate != QHttpClient::Sending )
-	return TRUE;
-    return FALSE;
-}
-#endif
-
 void QHttp::reply( const QHttpReplyHeader &rep, const QByteArray & dataA )
 {
-    if ( rep.replyCode() >= 400 && rep.replyCode() < 600 ) {
-	operationInProgress()->setState( StFailed );
-	operationInProgress()->setProtocolDetail(
-		QString("%1 %2").arg(rep.replyCode()).arg(rep.replyText())
-		);
-	switch (rep.replyCode() ) {
-	    case 401:
-	    case 403:
-	    case 405:
-		operationInProgress()->setErrorCode( ErrPermissionDenied );
-		break;
-	    case 404:
-		operationInProgress()->setErrorCode(ErrFileNotExisting );
-		break;
-	    default:
-		if ( operationInProgress()->operation() == OpGet )
-		    operationInProgress()->setErrorCode( ErrGet );
-		else
-		    operationInProgress()->setErrorCode( ErrPut );
-		break;
+    QNetworkOperation *op = operationInProgress();
+    if ( op ) {
+	if ( rep.replyCode() >= 400 && rep.replyCode() < 600 ) {
+	    op->setState( StFailed );
+	    op->setProtocolDetail(
+		    QString("%1 %2").arg(rep.replyCode()).arg(rep.replyText())
+						    );
+	    switch (rep.replyCode() ) {
+		case 401:
+		case 403:
+		case 405:
+		    op->setErrorCode( ErrPermissionDenied );
+		    break;
+		case 404:
+		    op->setErrorCode(ErrFileNotExisting );
+		    break;
+		default:
+		    if ( op->operation() == OpGet )
+			op->setErrorCode( ErrGet );
+		    else
+			op->setErrorCode( ErrPut );
+		    break;
+	    }
 	}
-    }
-    // ### In cases of an error, should we still emit the data() signals?
-    if ( operationInProgress()->operation() == OpGet && !dataA.isEmpty() ) {
-	emit data( dataA, operationInProgress() );
-	bytesRead += dataA.size();
-	if ( !rep.hasAutoContentLength() ) {
-	    emit dataTransferProgress( bytesRead, rep.contentLength(), operationInProgress() );
+	// ### In cases of an error, should we still emit the data() signals?
+	if ( op->operation() == OpGet && !dataA.isEmpty() ) {
+	    emit data( dataA, op );
+	    bytesRead += dataA.size();
+	    if ( !rep.hasAutoContentLength() ) {
+		emit dataTransferProgress( bytesRead, rep.contentLength(), op );
+	    }
 	}
     }
 }
 
 void QHttp::requestFinished()
 {
-    emit finished( operationInProgress() );
+    QNetworkOperation *op = operationInProgress();
+    if ( op ) {
+	if ( op->state() != StFailed ) {
+	    op->setState( QNetworkProtocol::StDone );
+	    op->setErrorCode( QNetworkProtocol::NoError );
+	}
+	emit finished( op );
+    }
+}
+
+void QHttp::requestFailed()
+{
+    // ### we need some means to differentiate better between the different
+    // kind of errors that can happen
+    QNetworkOperation *op = operationInProgress();
+    if ( op ) {
+	op->setState( QNetworkProtocol::StFailed );
+	if ( op->operation() == OpGet )
+	    op->setErrorCode( ErrGet );
+	else
+	    op->setErrorCode( ErrPut );
+	op->setProtocolDetail( tr( "HTTP request failed" ) );
+	emit finished( op );
+    }
 }
 
 #endif

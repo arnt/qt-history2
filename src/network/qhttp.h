@@ -74,15 +74,10 @@ protected:
     void operationGet( QNetworkOperation *op );
     void operationPut( QNetworkOperation *op );
 
-private:
-#if 0
-    bool checkConnection( QNetworkOperation *op );
-#endif
-//    void close();
-
 private slots:
     void reply( const QHttpReplyHeader & rep, const QByteArray & dataA );
     void requestFinished();
+    void requestFailed();
 
 private:
     QHttpPrivate *d;
