@@ -34,10 +34,6 @@
 #endif
 
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
-
 #define qreal_to_fixed(f) (int(f * 64))
 #define qt_swap(x, y) { int tmp = (x); (x) = (y); (y) = tmp; }
 
@@ -479,9 +475,10 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
 #endif
 
     if (device->devType() == QInternal::Image) {
-        d->flushOnEnd = d->deviceDepth != 32; // Direct access for 32 bit so no flush.
-        d->rasterBuffer->prepare(static_cast<QImage *>(device));
-        if (static_cast<QImage *>(device)->hasAlphaBuffer() && d->deviceDepth == 32)
+        QImage *image = static_cast<QImage *>(device);
+        d->flushOnEnd = image->format() != QImage::Format_ARGB32_Premultiplied;
+        d->rasterBuffer->prepare(image);
+        if (image->hasAlphaBuffer())
             layout =  DrawHelper::Layout_ARGB;
 #ifdef Q_WS_QWS
     } else if (device->devType() == QInternal::Pixmap) {
@@ -584,9 +581,20 @@ void QRasterPaintEngine::flush(QPaintDevice *device)
         }
 
         Q_ASSERT(target);
-        Q_ASSERT(target->depth() == 1);
+        switch (target->format()) {
+        case QImage::Format_Mono:
+            d->rasterBuffer->flushTo1BitImage(target);
+            break;
 
-        d->rasterBuffer->flushTo1BitImage(target);
+        case QImage::Format_RGB32:
+        case QImage::Format_ARGB32:
+            d->rasterBuffer->flushToARGBImage(target);
+            break;
+
+        default:
+            qWarning("QRasterPaintEngine::flush(), unhandled case: %d", target->format());
+            break;
+        }
     }
 
 #elif defined(Q_WS_MAC)
@@ -2331,6 +2339,30 @@ QImage QRasterBuffer::bufferImage() const
 }
 #endif
 
+
+void QRasterBuffer::flushToARGBImage(QImage *target) const
+{
+    int w = qMin(m_width, target->width());
+    int h = qMin(m_height, target->height());
+
+    for (int y=0; y<h; ++y) {
+        uint *sourceLine = const_cast<QRasterBuffer *>(this)->scanLine(y);
+        QRgb *dest = (QRgb *) target->scanLine(y);
+        for (int x=0; x<w; ++x) {
+            QRgb pixel = sourceLine[x];
+            int alpha = qAlpha(pixel);
+            if (!alpha) {
+                dest[x] = 0;
+            } else {
+                dest[x] = (alpha << 24)
+                        | ((255*qRed(pixel)/alpha) << 16)
+                        | ((255*qGreen(pixel)/alpha) << 8)
+                        | ((255*qBlue(pixel)/alpha) << 0);
+            }
+        }
+    }
+}
+
 void QRasterBuffer::flushTo1BitImage(QImage *target) const
 {
     int w = qMin(m_width, target->width());
@@ -2489,7 +2521,7 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
         // rotation + scale + translation
         scale = sqrt(d->matrix.m11()*d->matrix.m22()
                       - d->matrix.m12()*d->matrix.m21());
-        angle = qRound(1800*acos(d->matrix.m11()/scale)/M_PI);
+        angle = qRound(1800*acos(d->matrix.m11()/scale)/Q_PI);
         if (d->matrix.m12() < 0)
             angle = 3600 - angle;
 
@@ -2801,7 +2833,7 @@ QImage qt_draw_conical_gradient_image(const QRect &rect, ConicalGradientData *cd
 
     dx0 = rect.x() - cdata->center.x();
     dy0 = rect.y() - cdata->center.y();
-    da = cdata->angle / 2. / M_PI;
+    da = cdata->angle / 2. / Q_PI;
 
     dy = dy0;
 
