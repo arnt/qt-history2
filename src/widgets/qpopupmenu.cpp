@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#2 $
 **
 ** Implementation of QButton class
 **
@@ -281,16 +281,25 @@ void QPopupMenu::updateSize()			// update popup size params
     bool hasSubMenu = FALSE;
     cellh = fm.ascent() + motifItemVMargin + 2*motifItemFrame;
     while ( (popup=it.current()) ) {
+	int w = 0;
 	if ( popup->submenu )
 	    hasSubMenu = TRUE;
 	if ( popup->isSeparator )
 	    height += motifSepHeight;
-	else {
-	    height += cellh;
-	    int w = fm.width(popup->text);
-	    if ( max_width < w )
-		max_width = w;
+	else if ( popup->bitmap ) {
+	    height += popup->bitmap->size().height() + 2*motifItemFrame;
+	    w = popup->bitmap->size().width();
 	}
+	else if ( !popup->text.isNull() ) {
+	    height += cellh;
+	    w = fm.width(popup->text);
+	}
+#if defined(CHECK_NULL)
+	else
+	    warning( "QPopupMenu: Popup has invalid menu item" );
+#endif
+	if ( max_width < w )
+	    max_width = w;
 	++it;
     }
     max_width  += 2*motifItemHMargin + 2*motifItemFrame;
@@ -336,8 +345,13 @@ void QPopupMenu::hide()
 int QPopupMenu::cellHeight( long row )
 {
     QMenuItem *popup = items->at( row );
+    int h = cellh;				// default cell height
     ASSERT( popup );
-    return popup->isSeparator ? motifSepHeight : cellh;
+    if ( popup->isSeparator )
+	h = motifSepHeight;
+    else if ( popup->bitmap )
+	h = popup->bitmap->size().height() + 2*motifItemFrame;
+    return h;
 }
 
 int QPopupMenu::cellWidth( long col )
@@ -355,15 +369,22 @@ void QPopupMenu::paintCell( QPainter *p, long row, long col )
     }
     QFontMetrics fm( font() );
     int bo = fm.descent()+motifItemVMargin/2;	// baseline offset
+    int h = popup->bitmap ?
+	    popup->bitmap->size().height() + 2*motifItemFrame
+	  : cellh;
     if ( row == activeItem )			// this is the active item
-	p->drawShadePanel( 0, 0, cellw, cellh,
+	p->drawShadePanel( 0, 0, cellw, h,
 			   lightColor, darkColor,
 			   motifItemFrame, motifItemFrame );
     else					// normal item
-	p->drawShadePanel( 0, 0, cellw, cellh,
+	p->drawShadePanel( 0, 0, cellw, h,
 			   normalColor, normalColor,
 			   motifItemFrame, motifItemFrame );
-    p->drawText( motifItemFrame + motifItemHMargin, cellh-bo, popup->text );
+    if ( popup->text )
+	p->drawText( motifItemFrame + motifItemHMargin, cellh-bo, popup->text);
+    else if ( popup->bitmap )
+	p->drawPixMap( motifItemFrame + motifItemHMargin, motifItemFrame,
+		       *popup->bitmap );
     if ( popup->submenu ) {			// draw sub menu arrow
 	int dim = fm.ascent()*3/4;
 	qDrawMotifArrow( p, MotifRightArrow, row == activeItem,
