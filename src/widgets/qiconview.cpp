@@ -2214,9 +2214,11 @@ void QIconView::slotUpdate()
 	    w += d->spacing;
 	else
 	    h += d->spacing;
+	viewport()->setUpdatesEnabled( FALSE );
 	resizeContents( w, h );
+	viewport()->setUpdatesEnabled( TRUE );
+	viewport()->repaint( FALSE );
     }
-    //viewport()->repaint( FALSE );
 
     int cx = d->cachedContentsX == -1 ? contentsX() : d->cachedContentsX;
     int cy = d->cachedContentsY == -1 ? contentsY() : d->cachedContentsY;
@@ -2591,7 +2593,9 @@ void QIconView::alignItemsInGrid( bool update )
     else
 	h += d->spacing;
 
+    viewport()->setUpdatesEnabled( FALSE );
     resizeContents( w, h );
+    viewport()->setUpdatesEnabled( TRUE );
     d->dirty = FALSE;
     if ( update )
 	repaintContents( contentsX(), contentsY(), viewport()->width(), viewport()->height(), FALSE );
