@@ -78,7 +78,7 @@ static const char * const qt_shortMonthNames[] = {
  *****************************************************************************/
 
 // Replaces tokens by their value. See QDateTime::toString() for a list of valid tokens
-static QString getFmtString( const QString& f, const QTime* dt = 0, const QDate* dd = 0, bool am_pm = false )
+static QString getFmtString( const QString& f, const QTime* dt = 0, const QDate* dd = 0, bool am_pm = FALSE )
 {
     if ( f.isEmpty() )
 	return QString::null;
@@ -216,7 +216,7 @@ static QString fmtDateTime( const QString& f, const QTime* dt = 0, const QDate* 
   The year(), month(), and day() functions provide access to the year,
   month, and day numbers. Also, dayOfWeek() and dayOfYear() functions
   are provided. The same information is provided in textual format by
-  the toString(), shortDayName(), longDayName(), shortMonthName() 
+  the toString(), shortDayName(), longDayName(), shortMonthName()
   and longMonthName() functions.
 
   QDate provides a full set of operators to compare two QDate
@@ -508,7 +508,7 @@ QString QDate::longDayName( int weekday )
 #endif //QT_NO_TEXTDATE
 
 #if !defined(QT_NO_SPRINTF)
-/*!  
+/*!
     \overload
 
     Returns the date as a string.  The \a f parameter determines the
@@ -836,7 +836,7 @@ QDate QDate::fromString( const QString& s, Qt::DateFormat f )
 	    int year = s.right( 4 ).toInt();
 	    return QDate( year, month, day );
 	}
-#endif    
+#endif
 	break;
     }
     return QDate();
@@ -1067,7 +1067,7 @@ int QTime::msec() const
 
 
 #ifndef QT_NO_SPRINTF
-/*!  
+/*!
     \overload
     Returns the time as a string.  Milliseconds are not included.
   The \a f parameter determines the format of the string.
@@ -1508,7 +1508,7 @@ int QTime::elapsed()
   which takes a POSIX-standard "number of seconds since 00:00:00 on
   January 1, 1970" value. The fromString() function returns a QDate
   given a string and a date format which is used to interpret the date
-  within the string. 
+  within the string.
 
   The date() and time() functions provide access to the date and time
   parts of the datetime. The same information is provided in textual
@@ -1638,7 +1638,7 @@ void QDateTime::setTime_t( uint secsSince1Jan1970UTC )
 }
 
 #ifndef QT_NO_SPRINTF
-/*!  
+/*!
     \overload
 
     Returns the datetime as a string.  The \a f parameter determines
@@ -1665,7 +1665,7 @@ QString QDateTime::toString( Qt::DateFormat f ) const
 {
     if ( f == Qt::ISODate ) {
 	return d.toString( Qt::ISODate ) + "T" + t.toString( Qt::ISODate );
-    } 
+    }
 #ifndef QT_NO_TEXTDATE
     else if ( f == Qt::TextDate ) {
 	QString buf = d.shortDayName( d.dayOfWeek() );
@@ -1995,7 +1995,7 @@ QDateTime QDateTime::fromString( const QString& s, Qt::DateFormat f )
 	}
 	return QDateTime( date, time );
     }
-#endif //QT_NO_REGEXP    
+#endif //QT_NO_REGEXP
     return QDateTime();
 }
 
