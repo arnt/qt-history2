@@ -218,8 +218,9 @@ void QSpinWidget::windowActivationChange( bool active )
 {
     if ( !active && d->buttonDown ) {
 	d->stopTimer();
+	d->buttonDown = 0;
+	d->theButton = 0;
 	update();
-	d->buttonDown = 0;	
     }    
 }
 
