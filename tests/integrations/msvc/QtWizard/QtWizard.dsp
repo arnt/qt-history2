@@ -140,73 +140,6 @@ SOURCE=.\QtWizard.cpp
 # End Source File
 # Begin Source File
 
-SOURCE=.\hlp\QtWizard.hpj
-
-!IF  "$(CFG)" == "QtWizard - Win32 Release"
-
-# PROP Ignore_Default_Tool 1
-USERDEP__QTWIZ="hlp\AfxCore.rtf"	"hlp\AfxPrint.rtf"	"hlp\$(TargetName).hm"	
-# Begin Custom Build - Making help file...
-OutDir=.\Release
-TargetName=QtWizard
-InputPath=.\hlp\QtWizard.hpj
-InputName=QtWizard
-
-BuildCmds= \
-	start /wait hcw /C /E /M "hlp\$(InputName).hpj" \
-	if errorlevel 1 goto :Error \
-	if not exist "hlp\$(InputName).hlp" goto :Error \
-	copy "hlp\$(InputName).hlp" $(OutDir) \
-	copy "$(OutDir)\$(TargetName).hlp" "$(MSDEVDIR)\Template" \
-	goto :done \
-	:Error \
-	echo hlp\$(InputName).hpj(1) : error: \
-	type "hlp\$(InputName).log" \
-	:done \
-	
-
-"$(OutDir)\$(InputName).hlp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"$(MSDEVDIR)\Template" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ELSEIF  "$(CFG)" == "QtWizard - Win32 Pseudo-Debug"
-
-# PROP Ignore_Default_Tool 1
-USERDEP__QTWIZ="hlp\AfxCore.rtf"	"hlp\AfxPrint.rtf"	"hlp\$(TargetName).hm"	
-# Begin Custom Build - Making help file...
-OutDir=.\Debug
-TargetName=QtWizard
-InputPath=.\hlp\QtWizard.hpj
-InputName=QtWizard
-
-BuildCmds= \
-	start /wait hcw /C /E /M "hlp\$(InputName).hpj" \
-	if errorlevel 1 goto :Error \
-	if not exist "hlp\$(InputName).hlp" goto :Error \
-	copy "hlp\$(InputName).hlp" $(OutDir) \
-	copy "$(OutDir)\$(TargetName).hlp" "$(MSDEVDIR)\Template" \
-	goto :done \
-	:Error \
-	echo hlp\$(InputName).hpj(1) : error: \
-	type "hlp\$(InputName).log" \
-	:done \
-	
-
-"$(OutDir)\$(InputName).hlp" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-
-"$(MSDEVDIR)\Template" : $(SOURCE) "$(INTDIR)" "$(OUTDIR)"
-   $(BuildCmds)
-# End Custom Build
-
-!ENDIF 
-
-# End Source File
-# Begin Source File
-
 SOURCE=.\QtWizard.rc
 # End Source File
 # Begin Source File
@@ -329,10 +262,6 @@ SOURCE=.\res\QtWizard.ico
 # Begin Group "Help Files"
 
 # PROP Default_Filter "cnt;rtf"
-# Begin Source File
-
-SOURCE=.\hlp\QtWizard.rtf
-# End Source File
 # End Group
 # Begin Group "Template Files"
 

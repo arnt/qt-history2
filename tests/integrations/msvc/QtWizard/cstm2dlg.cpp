@@ -126,13 +126,18 @@ BOOL CCustom2Dlg::OnDismiss()
 	if (!UpdateData(TRUE))
 		return FALSE;
 
+	QtWizardaw.m_Dictionary.RemoveKey( "QT_SUPPORT_SETTEXT" );
 	if ( m_ctrlCentralWidget.GetCurSel() != -1 )
 	{
-		QtWizardaw.m_Dictionary[ "QT_CENTRAL_WIDGET_TYPE" ] = CQtWizardAppWiz::WidgetTypes[ m_ctrlCentralWidget.GetItemData( m_ctrlCentralWidget.GetCurSel() ) ];
+		QtWizardaw.m_Dictionary[ "QT_CENTRAL_WIDGET_TYPE" ] = CQtWizardAppWiz::m_WidgetTypes[ m_ctrlCentralWidget.GetItemData( m_ctrlCentralWidget.GetCurSel() ) ];
+		if ( CQtWizardAppWiz::m_bSupportsetText[ m_ctrlCentralWidget.GetItemData( m_ctrlCentralWidget.GetCurSel() ) ] )
+		{
+			QtWizardaw.m_Dictionary[ "QT_SUPPORT_SETTEXT" ] = "Y";
+		}
 	}
 	else
 	{
-		QtWizardaw.m_Dictionary[ "QT_CENTRAL_WIDGET_TYPE" ] = CQtWizardAppWiz::WidgetTypes[ CQtWizardAppWiz::WIDGET_TEXTVIEW ];
+		QtWizardaw.m_Dictionary[ "QT_CENTRAL_WIDGET_TYPE" ] = CQtWizardAppWiz::m_WidgetTypes[ CQtWizardAppWiz::WIDGET_TEXTVIEW ];
 	}
 	if ( m_bMenuBar )
 	{
@@ -167,7 +172,7 @@ BOOL CCustom2Dlg::OnDismiss()
 		QtWizardaw.m_Dictionary.RemoveKey( "QT_COMMENTS" );
 	}
 
-	if ( QtWizardaw.m_Dictionary[ "QT_CENTRAL_WIDGET_TYPE" ] == CQtWizardAppWiz::WidgetTypes[ CQtWizardAppWiz::WIDGET_WORKSPACE ] )
+	if ( QtWizardaw.m_Dictionary[ "QT_CENTRAL_WIDGET_TYPE" ] == CQtWizardAppWiz::m_WidgetTypes[ CQtWizardAppWiz::WIDGET_WORKSPACE ] )
 	{
 		QtWizardaw.m_Dictionary[ "QT_BACKGROUND" ] = "background.png";
 	}
@@ -211,7 +216,7 @@ BOOL CCustom2Dlg::OnInitDialog()
 
 	for ( i = 0; i < CQtWizardAppWiz::WIDGET_MAX; i++ )
 	{
-		m_ctrlCentralWidget.SetItemData( m_ctrlCentralWidget.AddString( CQtWizardAppWiz::WidgetTypes[ i ] ), i );
+		m_ctrlCentralWidget.SetItemData( m_ctrlCentralWidget.AddString( CQtWizardAppWiz::m_WidgetTypes[ i ] ), i );
 	}
 
 	return TRUE;  // return TRUE unless you set the focus to a control
@@ -234,7 +239,14 @@ void CCustom2Dlg::OnShowWindow(BOOL bShow, UINT nStatus)
 			GetDlgItem( IDC_MENUBAR )->EnableWindow( FALSE );
 			GetDlgItem( IDC_TOOLBAR )->EnableWindow( FALSE );
 			GetDlgItem( IDC_STATUSBAR )->EnableWindow( FALSE );
-			GetDlgItem( IDC_CENTRALWIDGET )->EnableWindow( FALSE );
+			if ( QtWizardaw.m_Dictionary[ "PROJECT_QT_GUIREADY" ] == "Y" )
+			{
+				GetDlgItem( IDC_CENTRALWIDGET )->EnableWindow( TRUE );
+			}
+			else
+			{
+				GetDlgItem( IDC_CENTRALWIDGET )->EnableWindow( FALSE );
+			}
 		}
 	}
 	CAppWizStepDlg::OnShowWindow(bShow, nStatus);

@@ -4,8 +4,8 @@ $$IF(PROJECT_QT_NONGUI)
 #include <stdio.h>
 $$ENDIF
 $$IF(PROJECT_QT_GUIREADY)
-#include <qapplication.h>
-#include <qlabel.h>
+#include <QApplication.h>
+#include <$$QT_CENTRAL_WIDGET_TYPE$$.h>
 $$ENDIF
 $$IF(PROJECT_QT_GUI)
 #include "$$Root$$App.h"
@@ -25,13 +25,15 @@ $$IF(QT_COMMENTS)
 // the label that will be our main widget.
 $$ENDIF
 	QApplication app( argc, argv );
-	QLabel* pLabel = new QLabel( NULL );
+	$$QT_CENTRAL_WIDGET_TYPE$$* pMain = new $$QT_CENTRAL_WIDGET_TYPE$$( NULL );
 
-	pLabel->setText( "Hello, world" );
+$$IF(QT_SUPPORT_SETTEXT)
+	pMain->setText( "Hello, world" );
 
-	pLabel->resize( 128, 32 );
-	app.setMainWidget( pLabel );
-	pLabel->show();
+$$ENDIF
+	pMain->resize( 128, 32 );
+	app.setMainWidget( pMain );
+	pMain->show();
 
 	return app.exec();
 $$ENDIF

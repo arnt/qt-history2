@@ -48,7 +48,8 @@ public:
 		WIDGET_MAX
 	};
 
-	static const CString WidgetTypes[];
+	static const CString m_WidgetTypes[];
+	static const bool m_bSupportsetText[];
 };
 
 // This declares the one instance of the CQtWizardAppWiz class.  You can access

@@ -116,7 +116,7 @@ void CQtWizardAppWiz::CustomizeProject(IBuildProject* pProject)
 //  global QtWizardaw.
 CQtWizardAppWiz QtWizardaw;
 
-const CString CQtWizardAppWiz::WidgetTypes[] =
+const CString CQtWizardAppWiz::m_WidgetTypes[] =
 {
 	"QLabel",
 	"QPushButton",
@@ -129,4 +129,19 @@ const CString CQtWizardAppWiz::WidgetTypes[] =
 	"QProgressBar",
 	"QTextBrowser",
 	"QWorkspace"
+};
+
+const bool CQtWizardAppWiz::m_bSupportsetText[] =
+{
+	1,
+	1,
+	0,
+	1,
+	0,
+	0,
+	0,
+	1,
+	0,
+	1,
+	0
 };

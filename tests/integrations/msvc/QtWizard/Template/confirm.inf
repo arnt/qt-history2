@@ -11,7 +11,7 @@ $$IF(PROJECT_QT_NONGUI)
 + No predefined GUI
 $$ENDIF
 $$IF(PROJECT_QT_GUIREADY)
-+ A simple "Hello, world" GUI
++ A simple GUI with $$QT_CENTRAL_WIDGET_TYPE$$ as main widget
 $$ENDIF
 $$IF(PROJECT_QT_GUI)
 + A starter GUI has been created
