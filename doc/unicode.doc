@@ -1,9 +1,9 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Documentation of Unicode support in Qt.
 **
-** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the Qt GUI Toolkit.
 **
@@ -143,8 +143,8 @@ application's icon one might do this:
 	QFile f( QString::fromLatin1("appicon.png") );
 \endcode
 
-Regarding output, Qt will do a best-effort conversion from \link
-http://my.ispchannel.com/~markdavis/unicode/Unicode_transcription_images/U_Combined.gif Unicode\endlink to whatever encoding the system and fonts provide.
+Regarding output, Qt will do a best-effort conversion from
+Unicode to whatever encoding the system and fonts provide.
 Depending on operating system, locale, font availability and Qt's
 support for the characters used, this conversion may be good or bad.
 We will extend this in upcoming versions, with emphasis on the most
