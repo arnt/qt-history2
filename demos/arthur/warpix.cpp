@@ -37,10 +37,12 @@ void Warpix::paintEvent(QPaintEvent *)
         y = clickPos.y();
     }
 
-    p.drawPixmap(QRect(0, 0, x+1, y+1), p1);
-    p.drawPixmap(QRect(x, 0, w-x, y+1), p2);
-    p.drawPixmap(QRect(0, y, x+1, h-y), p3);
-    p.drawPixmap(QRect(x, y, w-x, h-y), p4);
+    int ix = int(x);
+    int iy = int(y);
+    p.drawPixmap(QRect(0, 0, ix+1, iy+1), p1);
+    p.drawPixmap(QRect(ix, 0, w-ix, iy+1), p2);
+    p.drawPixmap(QRect(0, iy, ix+1, h-iy), p3);
+    p.drawPixmap(QRect(ix, iy, w-ix, h-iy), p4);
 }
 
 static void copy_pixmap(const QPixmap *src, QPixmap *dest, int x, int y, int w, int h)

@@ -60,10 +60,10 @@ void AlphaShade::drawPrimitives(QPainter *p)
 
         switch (PrimitiveType(((animationStep+i)/200)%3)) {
         case Rect:
-            p->drawRect(0, 0, size*x, size*y);
+            p->drawRect(0, 0, int(size*x), int(size*y));
             break;
         case Ellipse:
-            p->drawEllipse(0, 0, size*x, size*y);
+            p->drawEllipse(0, 0, int(size*x), int(size*y));
             break;
         case Polygon:
             p->scale(x * size / 200, y * size / 200);

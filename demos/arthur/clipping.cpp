@@ -20,7 +20,7 @@ Clipping::Clipping(QWidget *parent)
         int y = i*13;
 
         rects.append(QRect(x, y, width, height));
-        rectDirection.append(QPoint(xfunc(i*113)*5 + 5, yfunc(i*113)*5 + 5));
+        rectDirection.append(QPoint(int(xfunc(i*113)*5) + 5, int(yfunc(i*113)*5) + 5));
     }
 }
 
