@@ -283,21 +283,26 @@ QMakeProject::read(const char *file, QMap<QString, QStringList> &place)
 }
 
 bool
-QMakeProject::read(const char *project)
+QMakeProject::read(QString project, QString pwd)
 {
-
     if(cfile.isEmpty()) {
 	/* parse the cache */
 	if(Option::do_cache) {
 	    QString cachefile = Option::cachefile;
 	    if(cachefile.find(QDir::separator()) == -1) {
 		/* find the cache file, otherwise return false */
-		QString dir = QDir::convertSeparators(QDir::currentDirPath());
+		QString start_dir;
+		if(pwd.isEmpty())
+		    start_dir = QDir::currentDirPath();
+		else
+		    start_dir = pwd;
+		    
+		QString dir = QDir::convertSeparators(start_dir);
 		QString ofile = Option::output.name();
 		if(ofile.findRev(Option::dir_sep) != -1) {
 		    dir = ofile.left(ofile.findRev(Option::dir_sep));
 		    if(QDir::isRelativePath(dir))
-			dir.prepend(QDir::convertSeparators(QDir::currentDirPath()));
+			dir.prepend(QDir::convertSeparators(start_dir));
 		}
 
 		while(!QFile::exists((cachefile = dir + QDir::separator() + Option::cachefile))) {
@@ -310,7 +315,7 @@ QMakeProject::read(const char *project)
 	    }
 	    if(!cachefile.isEmpty()) {
 		if(Option::debug_level)
-		    printf("MKSCACHE file: reading %s\n", cachefile.latin1());
+		    printf("QMAKECACHE file: reading %s\n", cachefile.latin1());
 
 		read(cachefile, cache);
 		if(Option::specfile.isEmpty() && !cache["MKSPEC"].isEmpty())
@@ -353,7 +358,7 @@ QMakeProject::read(const char *project)
 
     /* parse project file */
     if(Option::debug_level)
-	printf("Project file: reading %s\n", project);
+	printf("Project file: reading %s\n", project.latin1());
 
     vars = base_vars; /* start with the base */
 

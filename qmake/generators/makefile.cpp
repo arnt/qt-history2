@@ -910,14 +910,17 @@ MakefileGenerator::writeMakeQmake(QTextStream &t)
 	fileAbsolute(pfile);
     }
 
+    QString qmake_path = project->variables()["QMAKE_QMAKE"].first();
+    if(qmake_path.isEmpty())
+	qmake_path = "qmake"; //hope its in your path
     if(!ofile.isEmpty()) {
 	t << ofile << ": " << pfile << " "
 	  << project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"].join(" \\\n\t\t") << "\n\t"
-	  << "qmake " << args << " " << pfile <<  " -o " << ofile << endl;
+	  << qmake_path << " " << args << " " << pfile <<  " -o " << ofile << endl;
     }
 
     t << "qmake: " << "\n\t"
-      << "@qmake " << args << " " << pfile;
+      << "@" << qmake_path << " " << args << " " << pfile;
     if (!ofile.isEmpty())
 	t << " -o " << ofile;
     t << endl << endl;

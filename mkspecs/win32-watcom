@@ -48,7 +48,8 @@ QMAKE_LIBS_QT_DLL	= %QTDIR%\lib\qtmain.lib
 
 QMAKE_LIBS_OPENGL	= opengl32.lib
 
-QMAKE_MOC		= $(QTDIR)/bin/moc
+QMAKE_MOC		+= $(QTDIR)/bin/moc.exe
+QMAKE_UIC		+= $(QTDIR)/bin/uic.exe
 
 QMAKE_LIB		= wlib -b -c -n -q -p=512
 QMAKE_RC		= rc

@@ -56,7 +56,7 @@ public:
     QMakeProject();
     ~QMakeProject() { }
 
-    bool read(const char *project);
+    bool read(QString project, QString pwd);
     QString projectFile() { return pfile; }
     QString configFile() { return cfile; }
     QMap<QString, QStringList> &variables() { return vars; }

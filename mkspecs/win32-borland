@@ -64,8 +64,8 @@ QMAKE_LIBS_QT_DLL	= $(QTDIR)\lib\qtmain.lib
 
 QMAKE_LIBS_OPENGL	=
 
-QMAKE_MOC		= $(QTDIR)/bin/moc.exe
-QMAKE_UIC		= uic
+QMAKE_MOC		+= $(QTDIR)/bin/moc.exe
+QMAKE_UIC		+= $(QTDIR)/bin/uic.exe
 
 QMAKE_LIB		= tlib /C /P256
 QMAKE_RC		= brc32

@@ -64,6 +64,12 @@ if [ "$relpath" != `pwd` ]; then
 
     #let qmake see qconfig/qmodules.h
     QMAKE_VARS="$QMAKE_VARS \"INCLUDEPATH+=$outpath/src/tools\""
+    #binaries from qt
+    QMAKE_VARS="$QMAKE_VARS \"QMAKE_MOC=$outpath/bin/moc\""
+    QMAKE_VARS="$QMAKE_VARS \"QMAKE_UIC=$outpath/bin/uic\""
+    QMAKE_VARS="$QMAKE_VARS \"QMAKE_QMAKE=$outpath/bin/qmake\""
+    #hacky src line
+    QMAKE_VARS="$QMAKE_VARS \"QMAKE_MOC_SRC=$outpath/src/moc\""
 else
     touch .test.qt.
     if [ '!' -f ${QTDIR}/.test.qt. ];
@@ -285,6 +291,7 @@ QMAKE_PROJECTS=""
 CONCURRENT=0
 LIBDL=auto
 
+#qt installs
 QT_INSTALL_PREFIX=/usr/local/qt
 QT_INSTALL_DOCS=
 QT_INSTALL_HEADERS=

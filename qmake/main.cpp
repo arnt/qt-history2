@@ -91,7 +91,7 @@ main(int argc, char **argv)
 	}
 
 	/* read project.. */
-	if(!proj.read((fn))) {
+	if(!proj.read(fn, oldpwd)) {
 	    fprintf(stderr, "Error processing project file: %s\n", (*pfile).latin1());
 	    continue;
 	}

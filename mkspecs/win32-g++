@@ -51,7 +51,8 @@ QMAKE_LIBS_QT_DLL	= -lqtmain
 
 QMAKE_LIBS_OPENGL	= -lopengl32
 
-QMAKE_MOC		= $(QTDIR)/bin/moc
+QMAKE_MOC		+= $(QTDIR)/bin/moc.exe
+QMAKE_UIC               += $(QTDIR)/bin/uic.exe
 
 QMAKE_AR		= ar cqs
 QMAKE_RANLIB		=

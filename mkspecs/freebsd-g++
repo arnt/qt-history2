@@ -61,8 +61,8 @@ QMAKE_LIBS_OPENGL	= -lGLU -lGL -lXmu
 QMAKE_LIBS_OPENGL_QT	= -lGL -lXmu
 QMAKE_LIBS_THREAD	= 
 
-QMAKE_MOC		= $(QTDIR)/bin/moc
-QMAKE_UIC		= $(QTDIR)/bin/uic
+QMAKE_MOC		+= $(QTDIR)/bin/moc
+QMAKE_UIC		+= $(QTDIR)/bin/uic
 
 QMAKE_AR		= ar cqs
 QMAKE_RANLIB		=
