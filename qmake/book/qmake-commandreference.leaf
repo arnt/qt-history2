@@ -990,8 +990,8 @@ typically handled by \e qmake or \link #QMAKESPEC qmake.conf \endlink and rarely
 needs to be modified.
 
 
-\target TARGETDEPS
-\section3 TARGETDEPS
+\target POST_TARGETDEPS
+\section3 POST_TARGETDEPS
 
 All libraries that the \link #TARGET target \endlink depends on can be
 listed in this variable. Some backends do not support this, these include
@@ -999,6 +999,20 @@ MSVC Dsp, and ProjectBuilder .pbproj files. Generally this is support
 internally by these build tools, this is usefull for explicitly listing
 dependant static libraries.
 
+This list will go after all builtin (and \link #PRE_TARGETDEPS
+$$PRE_TARGETDEPS \endlink) dependencies.
+
+
+\target PRE_TARGETDEPS
+\section3 PRE_TARGETDEPS
+
+All libraries that the \link #TARGET target \endlink depends on can be
+listed in this variable. Some backends do not support this, these include
+MSVC Dsp, and ProjectBuilder .pbproj files. Generally this is support
+internally by these build tools, this is usefull for explicitly listing
+dependant static libraries.
+
+This list will go before all builtin dependencies.
 
 
 \target QMAKE_INCDIR_OPENGL

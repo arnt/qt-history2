@@ -391,7 +391,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	      << endl << endl;
 
 	    //real target
-	    t << var("TARGET") << ": " << " " << incr_deps << " " << var("TARGETDEPS") << "\n\t";
+	    t << var("TARGET") << ": " << var("PRE_TARGETDEPS") << " " << incr_deps 
+	      << " " << var("POST_TARGETDEPS") << "\n\t";
 	    if(!destdir.isEmpty())
 		t << "\n\t" << "test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
 	    if(!project->isEmpty("QMAKE_PRE_LINK"))
@@ -404,7 +405,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	    t << "all: " << deps <<  " " << varGlue("ALL_DEPS",""," "," ") <<  "$(TARGET)"
 	      << endl << endl;
 
-	    t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS") << "\n\t";
+	    t << "$(TARGET): " << var("PRE_TARGETDEPS") << " $(UICDECLS) $(OBJECTS) $(OBJMOC) " 
+	      << var("POST_TARGETDEPS") << "\n\t";
 	    if(!destdir.isEmpty())
 		t << "test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
 	    if(!project->isEmpty("QMAKE_PRE_LINK"))
@@ -465,13 +467,13 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	      << " " <<  var("DESTDIR_TARGET") << endl << endl;
 
 	    //real target
-	    t << var("DESTDIR_TARGET") << ": " << incr_deps << " $(SUBLIBS) " <<
-		var("TARGETDEPS");
+	    t << var("DESTDIR_TARGET") << ": " << var("PRE_TARGETDEPS") << " " 
+	      << incr_deps << " $(SUBLIBS) " << var("POST_TARGETDEPS");
 	} else {
 	    t << "all: " << deps << " " << varGlue("ALL_DEPS",""," ","") << " " <<
 		var("DESTDIR_TARGET") << endl << endl;
-	    t << var("DESTDIR_TARGET") << ":  $(UICDECLS) $(OBJECTS) $(OBJMOC) $(SUBLIBS) " <<
-		var("TARGETDEPS");
+	    t << var("DESTDIR_TARGET") << ": " << var("PRE_TARGETDEPS") 
+	      << " $(UICDECLS) $(OBJECTS) $(OBJMOC) $(SUBLIBS) " << var("POST_TARGETDEPS");
 	}
 	if(!destdir.isEmpty())
 	    t << "\n\t" << "test -d " << destdir << " || mkdir -p " << destdir;
@@ -523,10 +525,10 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 
 	if (! project->isActiveConfig("plugin")) {
 	    t << "staticlib: $(TARGETA)" << endl << endl;
-	    t << "$(TARGETA): $(UICDECLS) $(OBJECTS) $(OBJMOC)";
+	    t << "$(TARGETA): " << var("PRE_TARGETDEPS") << " $(UICDECLS) $(OBJECTS) $(OBJMOC)";
 	    if(do_incremental)
 		t << " $(INCREMENTAL_OBJECTS) $(INCREMENTAL_OBJMOC)";
-	    t << var("TARGETDEPS") << "\n\t"
+	    t << var("POST_TARGETDEPS") << "\n\t"
 	      << "-$(DEL_FILE) $(TARGETA) " << "\n\t"
 	      << var("QMAKE_AR_CMD");
 	    if(do_incremental)
@@ -540,7 +542,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << varGlue("QMAKE_AR_SUBLIBS", var("DESTDIR"), " " + var("DESTDIR"), "") << "\n\n"
 	  << "staticlib: " << var("DESTDIR") << "$(TARGET)" << "\n\n";
 	if(project->isEmpty("QMAKE_AR_SUBLIBS")) {
-	    t << var("DESTDIR") << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) $(TARGETDEPS) " << "\n\t";
+	    t << var("DESTDIR") << "$(TARGET): " << var("PRE_TARGETDEPS") 
+	      << " $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("POST_TARGETDEPS") << "\n\t";
 	    if(!project->isEmpty("DESTDIR")) {
 		QString destdir = project->first("DESTDIR");
 		t << "test -d " << destdir << " || mkdir -p " << destdir << "\n\t";
@@ -566,8 +569,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 		    build << (*objit);
 		QString ar;
 		if((*libit) == "$(TARGET)") {
-		    t << var("DESTDIR") << "$(TARGET): $(UICDECLS) " << " $(TARGETDEPS) " 
-		      << valList(build) << "\n\t";
+		    t << var("DESTDIR") << "$(TARGET): " << var("PRE_TARGETDEPS") 
+		      << " $(UICDECLS) " << var("POST_TARGETDEPS") << valList(build) << "\n\t";
 		    ar = project->variables()["QMAKE_AR_CMD"].first();
 		    ar = ar.replace("$(OBJMOC)", "").replace("$(OBJECTS)", 
 							     build.join(" "));

@@ -163,7 +163,8 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
 
     t << "####### Build rules" << endl << endl;
     t << "all: " << varGlue("ALL_DEPS",""," "," ") << " $(TARGET)" << endl << endl;
-    t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS");
+    t << "$(TARGET): " << var("PRE_TARGETDEPS") << " $(UICDECLS) $(OBJECTS) $(OBJMOC) " 
+      << var("POST_TARGETDEPS");
     if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {
 	t << "\n\t" << "$(LINK) @&&|" << "\n\t"
 	  << "$(LFLAGS) $(OBJECTS) $(OBJMOC),$(TARGET),,$(LIBS),$(DEF_FILE),$(RES_FILE)";

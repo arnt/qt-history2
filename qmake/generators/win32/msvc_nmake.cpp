@@ -207,7 +207,8 @@ NmakeMakefileGenerator::writeNmakeParts(QTextStream &t)
 
     t << "####### Build rules" << endl << endl;
     t << "all: " << varGlue("ALL_DEPS",""," "," ") << "$(TARGET)" << endl << endl;
-    t << "$(TARGET): $(UICDECLS) $(OBJECTS) $(OBJMOC) " << var("TARGETDEPS");
+    t << "$(TARGET): " << var("PRE_TARGETDEPS") << " $(UICDECLS) $(OBJECTS) $(OBJMOC) " 
+      << var("POST_TARGETDEPS");
     if(!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) {
 	t << "\n\t" << "$(LINK) $(LFLAGS) /OUT:$(TARGET) @<< " << "\n\t  "
 	  << "$(OBJECTS) $(OBJMOC) $(LIBS)";
@@ -537,7 +538,7 @@ NmakeMakefileGenerator::init()
 	}
 	project->variables()["RES_FILE"] = project->variables()["RC_FILE"];
 	project->variables()["RES_FILE"].first().replace(".rc",".res");
-	project->variables()["TARGETDEPS"] += project->variables()["RES_FILE"];
+	project->variables()["POST_TARGETDEPS"] += project->variables()["RES_FILE"];
     }
     if ( !project->variables()["RES_FILE"].isEmpty())
 	project->variables()["QMAKE_LIBS"] += project->variables()["RES_FILE"];
