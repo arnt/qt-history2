@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombo.h#36 $
+** $Id: //depot/qt/main/src/widgets/qcombo.h#37 $
 **
 ** Definition of QComboBox class
 **
@@ -56,6 +56,7 @@ public:
     void	setBackgroundColor( const QColor & );
     void	setPalette( const QPalette & );
     void	setFont( const QFont & );
+    void	setEnabled( bool );
 
     void	setSizeLimit( int );
     int		sizeLimit() const;
