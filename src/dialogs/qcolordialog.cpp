@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qcolordialog.cpp#10 $
+** $Id: //depot/qt/main/src/dialogs/qcolordialog.cpp#11 $
 **
 ** Implementation of QColorDialog class
 **
@@ -46,8 +46,6 @@ static inline void rgb2hsv( QRgb rgb, int&h, int&s, int&v )
     c.setRgb( rgb );
     c.getHsv(h,s,v);
 }
-
-
 
 class QColorWell : public QWellArray
 {
@@ -123,6 +121,7 @@ protected:
     void mousePressEvent( QMouseEvent * );
 
 private:
+    enum { foff = 3, coff = 4 }; //frame and contents offset
     int val;
     int hue;
     int sat;
@@ -134,16 +133,17 @@ private:
     QPixmap *pix;
 };
 
+
 int QColorLuminancePicker::y2val( int y )
 {
-    int h = height() - 4;
-    return 255 - (y - 1)*255/h;
+    int d = height() - 2*coff - 1;
+    return 255 - (y - coff)*255/d;
 }
 
 int QColorLuminancePicker::val2y( int v )
 {
-    int h = height() - 4;
-    return 1 + (255-v)*h/255;
+    int d = height() - 2*coff - 1;
+    return coff + (255-v)*d/255;
 }
 
 QColorLuminancePicker::QColorLuminancePicker(QWidget* parent,
@@ -190,15 +190,15 @@ void QColorLuminancePicker::paintEvent( QPaintEvent * )
 {
     int w = width() - 5;
 
-    QRect r( 0, 0, w, height() );
+    QRect r( 0, foff, w, height() - 2*foff );
     int wi = r.width() - 2;
     int hi = r.height() - 2;
     if ( !pix || pix->height() != hi || pix->width() != wi ) {
 	delete pix;
 	QImage img( wi, hi, 32 );
 	int y;
-	for ( y = 1; y < hi; y++ ) {
-	    QColor c( hue, sat, y2val(y), QColor::Hsv );
+	for ( y = 0; y < hi; y++ ) {
+	    QColor c( hue, sat, y2val(y+coff), QColor::Hsv );
 	    QRgb r = c.rgb();
 	    int x;
 	    for ( x = 0; x < wi; x++ )
@@ -208,7 +208,7 @@ void QColorLuminancePicker::paintEvent( QPaintEvent * )
 	pix->convertFromImage(img);
     }
     QPainter p(this);
-    p.drawPixmap( 1, 1, *pix );
+    p.drawPixmap( 1, coff, *pix );
     QColorGroup g = colorGroup();
     qDrawShadePanel( &p, r, g, TRUE );
     p.setPen( g.foreground() );
@@ -576,6 +576,7 @@ void QColorDialogPrivate::newStandard( int r, int c )
 QColorDialogPrivate::QColorDialogPrivate( QColorDialog *dialog ) :
     QObject(dialog)
 {
+    const int lumSpace = 3;
     QHBoxLayout *topLay = new QHBoxLayout( dialog, 12, 6 );
     QVBoxLayout *leftLay = new QVBoxLayout( topLay );
 
@@ -632,9 +633,13 @@ QColorDialogPrivate::QColorDialogPrivate( QColorDialog *dialog ) :
 
     QHBoxLayout *pickLay = new QHBoxLayout( rightLay );
 
+    
+    QVBoxLayout *cLay = new QVBoxLayout( pickLay );
     cp = new QColorPicker( dialog );
     cp->setFrameStyle( QFrame::Panel + QFrame::Sunken );
-    pickLay->addWidget( cp );
+    cLay->addSpacing( lumSpace );
+    cLay->addWidget( cp );
+    cLay->addSpacing( lumSpace );
 
     lp = new QColorLuminancePicker( dialog );
     lp->setFixedWidth( 20 ); //###
