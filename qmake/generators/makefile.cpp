@@ -266,6 +266,10 @@ MakefileGenerator::generateDependencies(QList<MakefileDependDir> &dirs, QString 
 		}
 	    }
 	} else if(ftype == UI_FILE) {
+	    // skip whitespaces
+	    while(x < total_size_read &&
+		    (*(big_buffer+x) == ' ' || *(big_buffer+x) == '\t'))
+		x++;
 	    if(*(big_buffer + x) == '<') {
 		x++;
 		if(total_size_read >= x + 8 && !strncmp(big_buffer + x, "include ", 8)) {
