@@ -14,13 +14,13 @@
 #ifndef COLORSWATCH_H
 #define COLORSWATCH_H
 
-#include <qdockwindow.h>
+#include <qdockwidget.h>
 
 class QAction;
 class QActionGroup;
 class QMenu;
 
-class ColorSwatch : public QDockWindow
+class ColorSwatch : public QDockWidget
 {
     Q_OBJECT
 
@@ -51,8 +51,8 @@ protected:
     virtual void polishEvent(QEvent *);
 
 private:
-    void allow(Qt::DockWindowArea area, bool allow);
-    void place(Qt::DockWindowArea area, bool place);
+    void allow(Qt::DockWidgetArea area, bool allow);
+    void place(Qt::DockWidgetArea area, bool place);
 
 private slots:
     void changeClosable(bool on);

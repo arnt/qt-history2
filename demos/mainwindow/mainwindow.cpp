@@ -92,40 +92,40 @@ void MainWindow::setupDockWindows()
     static const struct Set {
         const char * name;
         uint flags;
-        Qt::DockWindowArea area;
+        Qt::DockWidgetArea area;
         uint allowedAreas;
         uint features;
     } sets [] = {
-        { "Black", Qt::Drawer, Qt::LeftDockWindowArea,
-          Qt::LeftDockWindowArea | Qt::RightDockWindowArea,
-          QDockWindow::DockWindowClosable },
+        { "Black", Qt::Drawer, Qt::LeftDockWidgetArea,
+          Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea,
+          QDockWidget::DockWidgetClosable },
 
-        { "White", 0, Qt::RightDockWindowArea,
-          Qt::LeftDockWindowArea | Qt::RightDockWindowArea,
-          QDockWindow::AllDockWindowFeatures },
+        { "White", 0, Qt::RightDockWidgetArea,
+          Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea,
+          QDockWidget::AllDockWidgetFeatures },
 
-        { "Red", 0, Qt::TopDockWindowArea,
-          Qt::AllDockWindowAreas,
-          QDockWindow::DockWindowClosable | QDockWindow::DockWindowMovable },
-        { "Green", 0, Qt::TopDockWindowArea,
-          Qt::AllDockWindowAreas,
-          QDockWindow::DockWindowClosable | QDockWindow::DockWindowMovable },
+        { "Red", 0, Qt::TopDockWidgetArea,
+          Qt::AllDockWidgetAreas,
+          QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetMovable },
+        { "Green", 0, Qt::TopDockWidgetArea,
+          Qt::AllDockWidgetAreas,
+          QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetMovable },
 
-        { "Blue", 0, Qt::BottomDockWindowArea,
-          Qt::AllDockWindowAreas,
-          QDockWindow::DockWindowClosable | QDockWindow::DockWindowMovable },
-        { "Yellow", 0, Qt::BottomDockWindowArea,
-          Qt::AllDockWindowAreas,
-          QDockWindow::DockWindowClosable | QDockWindow::DockWindowMovable }
+        { "Blue", 0, Qt::BottomDockWidgetArea,
+          Qt::AllDockWidgetAreas,
+          QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetMovable },
+        { "Yellow", 0, Qt::BottomDockWidgetArea,
+          Qt::AllDockWidgetAreas,
+          QDockWidget::DockWidgetClosable | QDockWidget::DockWidgetMovable }
     };
     const int setCount = sizeof(sets) / sizeof(Set);
 
     for (int i = 0; i < setCount; ++i) {
         ColorSwatch *swatch = new ColorSwatch(tr(sets[i].name), this, Qt::WFlags(sets[i].flags));
-        swatch->setAllowedAreas(Qt::DockWindowAreas(sets[i].allowedAreas));
-        swatch->setFeatures(QDockWindow::DockWindowFeatures(sets[i].features));
+        swatch->setAllowedAreas(Qt::DockWidgetAreas(sets[i].allowedAreas));
+        swatch->setFeatures(QDockWidget::DockWidgetFeatures(sets[i].features));
 
-        addDockWindow(sets[i].area, swatch);
+        addDockWidget(sets[i].area, swatch);
 
         dockWindowMenu->addMenu(swatch->menu);
     }
