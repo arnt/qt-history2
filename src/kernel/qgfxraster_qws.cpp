@@ -273,7 +273,6 @@ void QScreenCursor::set(const QImage &image, int hotx, int hoty)
     data->hoty = hoty;
     data->width = image.width();
     data->height = image.height();
-    memcpy(data->cursor, image.bits(), image.numBytes());
     for ( int r = 0; r < image.height(); r++ )
 	memcpy(data->cursor+data->width*r, image.scanLine(r), data->width);
     data->colors = image.numColors();
@@ -1884,18 +1883,7 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_16(
 #if !defined( QT_NO_IMAGE_16_BIT ) || !defined( QT_NO_QWS_DEPTH_16 )
     unsigned int ret = 0;
     if ( sdepth == 16 ) {
-	unsigned short int hold;
-#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-	if(srcbits==buffer) {
-	    unsigned int tmp=(unsigned int)(*srcdata);
-	    tmp = tmp & 0x1 ? tmp-1 : tmp+1;
-	    hold=*((unsigned short int *)tmp);
-	} else {
-#endif
-	hold = *((unsigned short int *)(*srcdata));
-#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-	}
-#endif
+	unsigned short int hold = *((unsigned short int *)(*srcdata));
 	if(reverse) {
 	    (*srcdata)-=2;
 	} else {
@@ -2012,7 +2000,7 @@ GFX_INLINE unsigned int QGfxRasterBase::get_value_8(
 	(*srcdata)+=4;
     } else if(sdepth==16) {
 	unsigned int r,g,b;
-	unsigned int hold=*((unsigned int *)(*srcdata));
+	unsigned short int hold=*((unsigned short int *)(*srcdata));
 	r=((hold & (0x1f << 11)) >> 11) << 3;
 	g=((hold & (0x3f << 5)) >> 5) << 2;
 	b=(hold & 0x1f) << 3;
@@ -3572,117 +3560,56 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 
 	    calcPacking(myptr-x1,x1,x2,frontadd,backadd,count);
 
-
 	    PackType dput;
 	    if(myrop==XorROP) {
-		while ( frontadd-- ) {
-#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		    if(is_screen_gfx)
-			*((((unsigned long)myptr) & 0x1) ?
-			    myptr-1 : myptr+1)^=get_value_16(srcdepth,&srcdata);
-		    else
-#endif
-			*(myptr)^=get_value_16(srcdepth,&srcdata);
-		    myptr++;
-		}
+		while ( frontadd-- )
+		    *(myptr++)^=get_value_16(srcdepth,&srcdata);
 		PackType *myptr2 = (PackType*)myptr;
 		myptr += count * 2;
 		while ( count-- ) {
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		    if(is_screen_gfx) {
 			dput = (get_value_16(srcdepth,&srcdata) << 16);
 			dput |= get_value_16(srcdepth,&srcdata);
-		    } else
-#endif
-		    {
+#else
 			dput = get_value_16(srcdepth,&srcdata);
 			dput |= (get_value_16(srcdepth,&srcdata) << 16);
-		    }
+#endif
 		    *myptr2++ ^= dput;
 		}
-		while ( backadd-- ) {
-#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		    if(is_screen_gfx)
-			*((((unsigned long)myptr) & 0x1) ?
-			    myptr-1 : myptr+1)^=get_value_16(srcdepth,&srcdata);
-		    else
-#endif
-			*(myptr)^=get_value_16(srcdepth,&srcdata);
-		    myptr++;
-		}
+		while ( backadd-- )
+		    *(myptr++)^=get_value_16(srcdepth,&srcdata);
 	    } else if(myrop==NotROP) {
 		while ( frontadd-- ) {
-#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		    if(is_screen_gfx)
-			*((((unsigned long)myptr) & 0x1) ?
-			    myptr-1 : myptr+1)=~get_value_16(srcdepth,&srcdata);
-		    else
-#endif
-			*(myptr)=~get_value_16(srcdepth,&srcdata);
+		    *(myptr)=~(*myptr);
 		    myptr++;
 		}
 		PackType *myptr2 = (PackType*)myptr;
 		myptr += count * 2;
 		while ( count-- ) {
-#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		    if(is_screen_gfx) {
-			dput = (get_value_16(srcdepth,&srcdata) << 16);
-			dput |= get_value_16(srcdepth,&srcdata);
-		    } else
-#endif
-		    {
-			dput = get_value_16(srcdepth,&srcdata);
-			dput |= (get_value_16(srcdepth,&srcdata) << 16);
-		    }
 		    *myptr2 = ~*myptr2;
 		    myptr2++;
 		}
 		while ( backadd-- ) {
-#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		    if (is_screen_gfx)
-			*((((unsigned long)myptr) & 0x1) ?
-			    myptr-1 : myptr+1)=~get_value_16(srcdepth,&srcdata);
-		    else
-#endif
-			*(myptr)=~get_value_16(srcdepth,&srcdata);
+		    *(myptr)=~(*myptr);
 		    myptr++;
 		}
 	    } else {
-		while ( frontadd-- ) {
-#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		    if (is_screen_gfx)
-			*((((unsigned long)myptr) & 0x1) ?
-				myptr-1 : myptr+1)=get_value_16(srcdepth,&srcdata);
-		    else
-#endif
-			*(myptr)=get_value_16(srcdepth,&srcdata);
-			myptr++;
-		}
+		while ( frontadd-- )
+		    *(myptr++)=get_value_16(srcdepth,&srcdata);
 		PackType *myptr2 = (PackType*)myptr;
 		myptr += count * 2;
 		while ( count-- ) {
-#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		    if(is_screen_gfx) {
-			dput = (get_value_16(srcdepth,&srcdata) << 16);
-			dput |= get_value_16(srcdepth,&srcdata);
-		    } else
-#endif
-		    {
-			dput = get_value_16(srcdepth,&srcdata);
-			dput |= (get_value_16(srcdepth,&srcdata) << 16);
-		    }
+# ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
+		    dput = (get_value_16(srcdepth,&srcdata) << 16);
+		    dput |= get_value_16(srcdepth,&srcdata);
+# else
+		    dput = get_value_16(srcdepth,&srcdata);
+		    dput |= (get_value_16(srcdepth,&srcdata) << 16);
+# endif
 		    *myptr2++ = dput;
 		}
-		while ( backadd-- ) {
-#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		    if (is_screen_gfx)
-			*((((unsigned long)myptr) & 0x1) ?
-			    myptr-1 : myptr+1)=get_value_16(srcdepth,&srcdata);
-		    else
-#endif
-			*(myptr)=get_value_16(srcdepth,&srcdata);
-		    myptr++;
-		}
+		while ( backadd-- )
+		    *(myptr++)=get_value_16(srcdepth,&srcdata);
 	    }
 #endif
 	} else {
@@ -3695,24 +3622,10 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 		    bool masked = TRUE;
 		    GET_MASKED(reverse, w);
 		    if ( !masked ) {
-#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-			if(is_screen_gfx) {
-			    if(myrop==XorROP) {
-				*((((unsigned long)myptr) & 0x1) ?
-					myptr-1 : myptr+1)^=gv;
-			    } else {
-				*((((unsigned long)myptr) & 0x1) ?
-				    myptr-1 : myptr+1)= ~(*((((unsigned long)myptr)
-					& 0x1) ? myptr-1 : myptr+1));
-			    }
-			} else
-#endif
-			{
-			    if (myrop == XorROP)
-				*(myptr) ^= gv;
-			    else
-				*(myptr) = ~(*myptr);
-			}
+			if (myrop == XorROP)
+			    *(myptr) ^= gv;
+			else
+			    *(myptr) = ~(*myptr);
 		    }
 		    myptr += inc;
 		}
@@ -3722,14 +3635,8 @@ GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped( int x1,int x2,
 			gv = get_value_16( srcdepth, &srcdata, reverse );
 		    bool masked = TRUE;
 		    GET_MASKED(reverse, w);
-		    if ( !masked ) {
-#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-			if (is_screen_gfx)
-			    *((((unsigned long)myptr) & 0x1) ?  myptr-1 : myptr+1)=gv;
-			else
-#endif
-			    *(myptr) = gv;
-		    }
+		    if ( !masked )
+			*(myptr) = gv;
 		    myptr += inc;
 		}
 	    }
@@ -4049,29 +3956,20 @@ GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	    g = (srcval & 0xff00) >> 8;
 	    b = srcval & 0xff;
 
-	    unsigned char * tmp=(unsigned char *)&alphabuf[loopc];
+	    unsigned int hold = alphabuf[loopc];
 	    if(av==255) {
 	        // Do nothing - we already have source values in r,g,b
 	    } else if(av==0) {
-#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-	        r = *(tmp+1);
-	        g = *(tmp+2);
-	        b = *(tmp+3);
-#else		
-	        r = *(tmp+2);
-	        g = *(tmp+1);
-	        b = *(tmp+0);
-#endif
+		r = (hold >> 16) & 0xff;
+		g = (hold >> 8) & 0xff;
+		b = hold & 0xff;
 	    } else {
-#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-		r = ((r-*(tmp+1)) * av) / 256 + *(tmp+1);
-		g = ((g-*(tmp+2)) * av) / 256 + *(tmp+2);
-		b = ((b-*(tmp+3)) * av) / 256 + *(tmp+3);
-#else
-		r = ((r-*(tmp+2)) * av) / 256 + *(tmp+2);
-		g = ((g-*(tmp+1)) * av) / 256 + *(tmp+1);
-		b = ((b-*(tmp+0)) * av) / 256 + *(tmp+0);
-#endif
+		int tmp = (hold >> 16) & 0xff;
+		r = ((r-tmp) * av) / 256 + tmp;
+		tmp = (hold >> 8) & 0xff;
+		g = ((g-tmp) * av) / 256 + tmp;
+		tmp = hold & 0xff;
+		b = ((b-tmp) * av) / 256 + tmp;
 	    }
 	    *(alphaptr++) = (r << 16) | (g << 8) | b;
 	}
