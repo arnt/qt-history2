@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 
-# $Id: //depot/qt/main/util/scripts/make-public-thing#47 $
+# $Id: //depot/qt/main/util/scripts/make-public-thing#48 $
 
 $snapshotversion=200;
 $base = "/tmp/striptree-$$";
@@ -215,7 +215,7 @@ find $base/cvs/qt -type d -print | xargs -r chmod 1777
 
 if ( !$dryrun ) {
     print SH
-	"rsync -av $skipdocexcl --delete $base/cvs/qt bahamas:/local/lib/cvs\n";
+	"rsync -av $skipdocexcl --delete $base/cvs/qt bahamas:/local/lib/cvs\nrm -rf $base";
 }
 
 close(SH) # We want to wait for the script to complete.
