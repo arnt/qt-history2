@@ -168,6 +168,9 @@ QWSCommand *QWSCommand::factory( int type )
     case QWSCommand::GrabMouse:
 	command = new QWSGrabMouseCommand;
 	break;
+    case QWSCommand::PlaySound:
+	command = new QWSPlaySoundCommand;
+	break;
     default:
 	qDebug( "QWSCommand::factory : Type error - got %08x!", type );
     }   

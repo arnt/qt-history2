@@ -28,27 +28,46 @@
 #ifndef QT_NO_SOUND
 
 #include "qsound.h"
+#include "qpaintdevice.h"
+#include "qwsdisplay_qws.h"
 
-class QAuServerNull : public QAuServer {
+class QAuBucket {
 public:
-    QAuServerNull(QObject* parent);
-
-    void play(const QString&) { }
-    void play(QAuBucket*) { }
-    QAuBucket* newBucket(const QString&) { return 0; }
-    void deleteBucket(QAuBucket*) { }
-    bool okay() { return FALSE; }
+    QAuBucket(const QString& s) : name(s) { }
+    QString name;
 };
 
-QAuServerNull::QAuServerNull(QObject* parent) :
-    QAuServer(parent,"Null Audio Server")
+class QAuServerQWS : public QAuServer {
+public:
+    QAuServerQWS(QObject* parent);
+
+    void play(QAuBucket* b)
+    {
+	QPaintDevice::qwsDisplay()->playSoundFile(b->name);
+    }
+
+    QAuBucket* newBucket(const QString& s)
+    {
+	return new QAuBucket(s);
+    }
+
+    void deleteBucket(QAuBucket* b)
+    {
+	delete b;
+    }
+
+    bool okay() { return TRUE; }
+};
+
+QAuServerQWS::QAuServerQWS(QObject* parent) :
+    QAuServer(parent,0)
 {
 }
 
 
 QAuServer* qt_new_audio_server()
 {
-    return new QAuServerNull(qApp);
+    return new QAuServerQWS(qApp);
 }
 
 #endif // QT_NO_SOUND

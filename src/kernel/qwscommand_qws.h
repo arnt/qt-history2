@@ -93,7 +93,8 @@ struct QWSCommand : QWSProtocolItem
 	ChangeAltitude,
 	DefineCursor,
 	SelectCursor,
-	GrabMouse
+	GrabMouse,
+	PlaySound
     };
     static QWSCommand *factory( int type );
 };
@@ -306,7 +307,26 @@ struct QWSGrabMouseCommand : public QWSCommand
     } simpleData;
 };
 
+struct QWSPlaySoundCommand : public QWSCommand
+{
+    QWSPlaySoundCommand() :
+	QWSCommand( QWSCommand::PlaySound,
+		    sizeof( simpleData ), (char *)&simpleData ) {}
 
+    void setData( char *d, int len, bool allocateMem ) {
+	QWSCommand::setData( d, len, allocateMem );
+	filename = QString((QChar*)rawDataPtr,len/2);
+    }
+    void setFilename( const QString& n )
+    {
+	setData( (char*)n.unicode(), n.length()*2, TRUE );
+    }
+
+    struct SimpleData {
+	int windowid;
+    } simpleData;
+    QString filename;
+};
 
 
 #endif

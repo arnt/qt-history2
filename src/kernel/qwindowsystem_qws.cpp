@@ -274,18 +274,17 @@ public:
 
 	// Setup soundcard at 16 bit mono
 	int v;
-	v=0x00040000+fragment_size; ioctl(fd, SNDCTL_DSP_SETFRAGMENT, &v); qDebug("SNDCTL_DSP_SETFRAGMENT %x",v);
+	v=0x00040000+fragment_size; ioctl(fd, SNDCTL_DSP_SETFRAGMENT, &v);
 //#define QT_SOUND_8BIT
 #ifdef QT_SOUND_8BIT
-	v=AFMT_S8; ioctl(fd, SNDCTL_DSP_SETFMT, &v); qDebug("SNDCTL_DSP_SETFMT %d",v);
-	//v=AFMT_U8; ioctl(fd, SNDCTL_DSP_SETFMT, &v); qDebug("SNDCTL_DSP_SETFMT %d",v);
+	v=AFMT_U8; ioctl(fd, SNDCTL_DSP_SETFMT, &v);
 #else
-	v=AFMT_S16_LE; ioctl(fd, SNDCTL_DSP_SETFMT, &v); qDebug("SNDCTL_DSP_SETFMT %d",v);
+	v=AFMT_S16_LE; ioctl(fd, SNDCTL_DSP_SETFMT, &v);
 #endif
-	v=0; ioctl(fd, SNDCTL_DSP_STEREO, &v); qDebug("SNDCTL_DSP_STEREO %d",v);
-	v=11025; ioctl(fd, SNDCTL_DSP_SPEED, &v); qDebug("SNDCTL_DSP_SPEED %d",v);
+	v=0; ioctl(fd, SNDCTL_DSP_STEREO, &v);
+	v=11025; ioctl(fd, SNDCTL_DSP_SPEED, &v);
 
-	QSocketNotifier* sn = new QSocketNotifier(fd,QSocketNotifier::Write,s);
+	sn = new QSocketNotifier(fd,QSocketNotifier::Write,s);
 	QObject::connect(sn,SIGNAL(activated(int)),s,SLOT(feedDevice(int)));
     }
 
@@ -346,6 +345,8 @@ public:
 		if ( !bucket->refill() )
 		    ; //active.remove(bucket);
 	    }
+	} else {
+	    sn->setEnabled(FALSE);
 	}
     }
 
@@ -354,9 +355,11 @@ public:
 	QFile* f = new QFile(filename);
 	f->open(IO_ReadOnly);
 	active.append(new QWSSoundServerBucket(f));
+	sn->setEnabled(TRUE);
     }
 
     QList<QWSSoundServerBucket> active;
+    QSocketNotifier* sn;
 };
 
 QWSSoundServer::QWSSoundServer(QObject* parent) :
@@ -690,6 +693,9 @@ void QWSServer::doClient( QWSClient *client )
 	    break;
 	case QWSCommand::GrabMouse:
 	    invokeGrabMouse( (QWSGrabMouseCommand*)cs->command, cs->client );
+	    break;
+	case QWSCommand::PlaySound:
+	    invokePlaySound( (QWSPlaySoundCommand*)cs->command, cs->client );
 	    break;
 
 	}
@@ -1155,6 +1161,11 @@ void QWSServer::invokeGrabMouse( QWSGrabMouseCommand *cmd, QWSClient *client )
 	mouseGrabbing = TRUE;
 	mouseGrabber = win;
     }
+}
+
+void QWSServer::invokePlaySound( QWSPlaySoundCommand *cmd, QWSClient *client )
+{
+    soundserver->playFile(cmd->filename);
 }
 
 /*!

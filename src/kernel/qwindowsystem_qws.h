@@ -218,6 +218,7 @@ private:
     void invokeDefineCursor( QWSDefineCursorCommand *cmd, QWSClient *client );
     void invokeSelectCursor( QWSSelectCursorCommand *cmd, QWSClient *client );
     void invokeGrabMouse( QWSGrabMouseCommand *cmd, QWSClient *client );
+    void invokePlaySound( QWSPlaySoundCommand *cmd, QWSClient *client );
 
     QMouseHandler* newMouseHandler(const QString& spec);
     QWSKeyboardHandler* newKeyboardHandler(const QString& spec);
