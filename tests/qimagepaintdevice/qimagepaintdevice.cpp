@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/qimagepaintdevice/qimagepaintdevice.cpp#4 $
+** $Id: //depot/qt/main/tests/qimagepaintdevice/qimagepaintdevice.cpp#5 $
 **
 ** Implementation of QImagePaintDevice32 class
 **
@@ -36,64 +36,10 @@
 #include <X11/Xlib.h>
 #include <X11/extensions/xf86dga.h>
 
-static void closedga()
-{
-    Display* dis = QPaintDevice::x11AppDisplay();
-    XF86DGADirectVideo(dis, DefaultScreen(dis), 0);
-    XUngrabPointer(dis, CurrentTime);
-    XUngrabKeyboard(dis, CurrentTime);
-}
-
-QImagePaintDevice32::QImagePaintDevice32(Mode m) :
+QImagePaintDevice32::QImagePaintDevice32(uchar* addr, int width, int height) :
     QPaintDevice( QInternal::System | QInternal::ExternalDevice )
+    img( addr, width, height, 32, 0, 0, QImage::BigEndian )
 {
-    ASSERT(m==XFreeDGA);
-    int MajorVersion, MinorVersion;
-    int EventBase, ErrorBase;
-    Display* dis = x11AppDisplay();
-    if (!XF86DGAQueryVersion( dis, &MajorVersion, &MinorVersion ))
-	qFatal("Unable to query video extension version");
-    if (!XF86DGAQueryExtension( dis,  &EventBase, &ErrorBase))
-	qFatal("Unable to query video extension information");
-    const int MINMAJOR = 0;
-    const int MINMINOR = 0;
-    if (MajorVersion < MINMAJOR || (MajorVersion == MINMAJOR && MinorVersion < MINMINOR))
-	qFatal("Xserver is running an old XFree86-DGA version"
-                " (%d.%d)\nMinimum required version is %d.%d",
-		MajorVersion, MinorVersion, MINMAJOR, MINMINOR);
-    if (MajorVersion < 1) {
-        int flags;
-        XF86DGAQueryDirectVideo(dis, DefaultScreen(dis), &flags);
-        if (!(flags & XF86DGADirectPresent))
-            qFatal("Xserver driver doesn't support DirectVideo");
-    }
-
-    XGrabKeyboard(dis, DefaultRootWindow(dis), True, GrabModeAsync,
-                 GrabModeAsync,  CurrentTime);
-    XGrabPointer(dis, DefaultRootWindow(dis), True,
-                 PointerMotionMask | ButtonPressMask | ButtonReleaseMask,
-                 GrabModeAsync, GrabModeAsync, None,  None, CurrentTime);
-
-    char *addr;
-    int width, bank, ram;
-    int bpp = 32;
-    XF86DGAGetVideo(dis, DefaultScreen(dis), &addr, &width, &bank, &ram);
-
-    XF86DGADirectVideo(dis, DefaultScreen(dis),
-                           XF86DGADirectGraphics);
-
-#ifndef __EMX__
-    /* Give up root privs */
-    setuid(getuid());
-#endif
-
-    XF86DGASetViewPort(dis, DefaultScreen(dis), 0, 0);
-
-    qAddPostRoutine( closedga );
-
-    img = QImage( (uchar*)addr, width, 1200/*bank/width*8/bpp*/, bpp, 0, 0,
-		QImage::BigEndian );
-
     init();
 }
 

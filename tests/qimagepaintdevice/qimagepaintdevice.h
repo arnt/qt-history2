@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/qimagepaintdevice/qimagepaintdevice.h#3 $
+** $Id: //depot/qt/main/tests/qimagepaintdevice/qimagepaintdevice.h#4 $
 **
 ** Definition of QImagePaintDevice classes
 **
@@ -85,10 +85,9 @@ extern QFontRenderer* qt_font_renderer_ttf(const QFont& f);
 class Q_EXPORT QImagePaintDevice32 : public QPaintDevice
 {
 public:
-    enum Mode { XFreeDGA };
-    QImagePaintDevice32(Mode);
-
+    QImagePaintDevice32(uchar* addr, int width, int height);
     QImagePaintDevice32(int width, int height);
+
     virtual ~QImagePaintDevice32();
 
     const QImage& image() const { return img; }
