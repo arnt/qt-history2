@@ -98,6 +98,7 @@
 #define QTDSMONEY SYBMONEY
 #define QTDSMONEY_N SYBMONEYN
 #define QTDSNUMERIC SYBNUMERIC
+#define QTDSNUMERIC_2 63  //magic number not defined in sybase's headers
 #define QTDSTEXT SYBTEXT
 #define QTDSVARCHAR SYBVARCHAR
 #define QTDSBIT SYBBIT
@@ -189,7 +190,7 @@ static int CS_PUBLIC qTdsMsgHandler ( DBPROCESS* dbproc,
 
     if ( !p ) {
 #ifdef QT_RANGE_CHECK
-	qDebug( QString( "QTDSDriver warning (%1): [%2] from server [%3]" ).arg( msgstate ).arg( msgtext ).arg( srvname ) );
+	qWarning( QString( "QTDSDriver warning (%1): [%2] from server [%3]" ).arg( msgstate ).arg( msgtext ).arg( srvname ) );
 #endif
 	return INT_CANCEL;
     }
@@ -212,7 +213,7 @@ static int CS_PUBLIC qTdsErrHandler( DBPROCESS* dbproc,
     QTDSPrivate* p = errs.find( dbproc );
     if ( !p ) {
 #ifdef QT_RANGE_CHECK
-	qDebug( QString( "QTDSDriver error (%1): [%2] [%3]" ).arg( dberr ).arg( dberrstr ).arg( oserrstr ) );
+	qWarning( QString( "QTDSDriver error (%1): [%2] [%3]" ).arg( dberr ).arg( dberrstr ).arg( oserrstr ) );
 #endif
 	return INT_CANCEL;
     }
@@ -222,7 +223,7 @@ static int CS_PUBLIC qTdsErrHandler( DBPROCESS* dbproc,
      */
     if( (dbproc == NULL || DBDEAD( dbproc )) ) {
 #ifdef QT_RANGE_CHECK	
-	qDebug( QString( "QTDSDriver error (%1): [%2] [%3]" ).arg( dberr ).arg( dberrstr ).arg( oserrstr ) );
+	qWarning( QString( "QTDSDriver error (%1): [%2] [%3]" ).arg( dberr ).arg( dberrstr ).arg( oserrstr ) );
 #endif
 	return INT_CANCEL;
     }
@@ -262,6 +263,9 @@ QVariant::Type qDecodeTDSType( int type )
     case QTDSMONEY:
     case QTDSDECIMAL:
     case QTDSNUMERIC:
+#ifdef QTDSNUMERIC_2
+    case QTDSNUMERIC_2:
+#endif
     case QTDSMONEY_N:
 	t = QVariant::Double;
 	break;
@@ -382,7 +386,7 @@ bool QTDSResult::reset ( const QString& query )
 	    delete nd;
 	    nd = 0;
 #ifdef QT_CHECK_RANGE
-	    qDebug( "QTDSResult::reset: Unsupported type for field \"%s\"", dbcolname( d->dbproc, i+1 ) );
+	    qWarning( "QTDSResult::reset: Unsupported type for field \"%s\"", dbcolname( d->dbproc, i+1 ) );
 #endif
 	    break;
 	}
