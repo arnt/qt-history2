@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#60 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#61 $
 **
 ** Definition of QPopupMenu class
 **
@@ -69,7 +69,6 @@ signals:
 
 protected:
     int 	itemHeight( int ) const;
-    int 	itemWidth( int ) const;
     void 	drawItem( QPainter* p, int tab, QMenuItem* mi,
 		   bool act, int x, int y, int w, int h);
 

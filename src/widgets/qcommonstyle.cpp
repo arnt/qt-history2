@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcommonstyle.cpp#1 $
+** $Id: //depot/qt/main/src/widgets/qcommonstyle.cpp#2 $
 **
 ** Implementation of the QCommonStyle class
 **
@@ -264,3 +264,11 @@ int QCommonStyle::maximumSliderDragDistance() const
 
 
 
+static const int motifArrowHMargin	= 6;	// arrow horizontal margin
+
+/*! \reimp
+ */
+int QCommonStyle::popupSubmenuIndicatorWidth( const QFontMetrics& fm  )
+{
+    return fm.ascent() + motifArrowHMargin;
+}

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwindowsstyle.h#1 $
+** $Id: //depot/qt/main/src/widgets/qwindowsstyle.h#2 $
 **
 ** Definition of Windows-like style class
 **
@@ -104,11 +104,12 @@ public:
 			     const QColorGroup &g,
 			     bool act, bool dis );
     void polishPopupMenu( QPopupMenu* );
-    int widthOfPopupCheckColumn( int maxpm );
-    int extraPopupMenuItemWidth( bool checkable, QMenuItem* mi, const QFontMetrics& fm );
+    
+    int extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi, const QFontMetrics& fm );
     int popupMenuItemHeight( bool checkable, QMenuItem* mi, const QFontMetrics& fm );
-    void drawPopupMenuItem( QPainter* p, bool checkable, int tab, QMenuItem* mi, const QFontMetrics& fm,
-			    bool act, int x, int y, int w, int h);
+    void drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, QMenuItem* mi,
+			    const QPalette& pal, 
+			    bool act, bool enabled, int x, int y, int w, int h);
 
 
 protected:

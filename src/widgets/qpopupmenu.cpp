@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#220 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#221 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -648,83 +648,62 @@ int QPopupMenu::itemPos( int index )		// get y coord for item
 
 void QPopupMenu::updateSize()
 {
-    int height	     = 0;
-    int max_width    = 10;
+    int height = 0;
+    int max_width = 0;
     QFontMetrics fm = fontMetrics();
-    QMenuItemListIt it( *mitems );
     register QMenuItem *mi;
-    bool hasSubMenu = FALSE;
-    int cellh = fm.height() + 2*motifItemVMargin + 2*motifItemFrame;
-    int tab_width = 0;
     maxPMWidth = 0;
-    bool oneHasIconSet = FALSE;
-    while ( (mi=it.current()) ) {
-	bool thisHasIconSet = mi->iconSet() != 0;
-	oneHasIconSet = oneHasIconSet || thisHasIconSet;
+    tab = 0;
+    int arrow_width = style().popupSubmenuIndicatorWidth( fm );
+
+    for ( QMenuItemListIt it( *mitems ); it.current(); ++it ) {
+	mi = it.current();
+	if ( mi->iconSet() != 0)
+	    maxPMWidth = QMAX( maxPMWidth,
+			       mi->iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).width() + 4 );
+    }
+    
+
+    for ( QMenuItemListIt it( *mitems ); it.current(); ++it ) {
+	mi = it.current();
 	int w = 0;
 	int itemHeight = style().popupMenuItemHeight( checkable, mi, fm );
-	if ( mi->popup() )
-	    hasSubMenu = TRUE;
-	if ( mi->isSeparator() ) {
-	}
-	else if ( mi->pixmap() ) {
-	    w = mi->pixmap()->width();	// pixmap only
-	}
 	
 	if ( !mi->text().isNull() && !mi->isSeparator() ) {
-	    if ( itemHeight < cellh )
-		itemHeight = cellh;
 	    QString s = mi->text();
 	    int t;
 	    if ( (t=s.find('\t')) >= 0 ) {	// string contains tab
 		w = fm.width( s, t );
+		w -= s.contains('&')*fm.width('&');
 		int tw = fm.width( s.mid(t+1) );
-		if ( tw > tab_width )
-		    tab_width = tw;
+		if ( tw > tab)
+		    tab = tw;
 	    } else {
 		w += fm.width( s );
+		w -= s.contains('&')*fm.width('&');
 	    }
 	}
-	
-	if ( thisHasIconSet ) {
-	    maxPMWidth = QMAX( maxPMWidth,
-			       mi->iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).width() );
-	}
 
-	height += itemHeight;
+	w += style().extraPopupMenuItemWidth( checkable, maxPMWidth, mi, fm );
+	
+	if ( mi->popup() ) { // submenu indicator belong in the right tab area
+	    if ( arrow_width > tab )
+		tab = arrow_width;
+	}
+	
+
 #if defined(CHECK_NULL)
 	if ( mi->text().isNull() && !mi->pixmap() && !mi->isSeparator() )
 	    warning( "QPopupMenu: (%s) Popup has invalid menu item",
 		     name( "unnamed" ) );
 #endif
-	if ( max_width < w )
+	
+	height += itemHeight;
+	if ( w > max_width )
 	    max_width = w;
-	++it;
     }
 
-    checkable = checkable || oneHasIconSet;
-
-    int extra_width = 0;
-    if ( tab_width ) {
-	extra_width = tab_width + motifTabSpacing;
-	tab = max_width + motifTabSpacing ;
-    }
-    else
-	tab = 0;
-
-    max_width  += 2*motifItemHMargin;
-
-    if ( isCheckable() )
-	max_width += style().widthOfPopupCheckColumn( maxPMWidth ) + motifItemFrame;
-    else
-	max_width += 2*motifItemFrame;
-
-    if ( hasSubMenu ) {
-	if ( fm.ascent() + motifArrowHMargin > extra_width )
-	    extra_width = fm.ascent() + motifArrowHMargin;
-    }
-    max_width += extra_width;
-    resize( max_width+2*frameWidth(), height+2*frameWidth() );
+    resize( max_width + tab + 2*frameWidth(), height+2*frameWidth() );
     badSize = FALSE;
 }
 
@@ -867,50 +846,36 @@ void QPopupMenu::hide()
     }
 }
 
-#if 0
-/*!
-  Reimplements QWidget::setEnabled() for internal purposes.
-*/
 
-void QPopupMenu::setEnabled( bool enable )
-{
-    if ( enable == isEnabled() )
-	return;
-    if ( parentMenu ) {
-	QMenuItem *mi = parentMenu->findPopup( this );
-	if ( mi ) {
-	    parentMenu->setItemEnabled( mi->id(), enable );
-	}
-    }
-    QWidget::setEnabled( enable );
-}
-#endif
-
-
+/*
+  Calculates the height of the item in row \a row in pixels.
+ */
 int QPopupMenu::itemHeight( int row ) const
 {
     QMenuItem *mi = mitems->at( row );
     return style().popupMenuItemHeight( checkable, mi, fontMetrics() );
 }
 
-int QPopupMenu::itemWidth( int row ) const
-{
-    QMenuItem *mi = mitems->at( row );
-    return 0;
-}
 
 void QPopupMenu::drawItem( QPainter* p, int tab, QMenuItem* mi,
 			   bool act, int x, int y, int w, int h)
 {
+    
+    bool dis = (selfItem && !selfItem->isEnabled()) || !mi->isEnabled();
+    style().drawPopupMenuItem(p, checkable, maxPMWidth, tab, mi, palette(),
+			      act, !dis, x, y, w, h);
+    
+    return;
+    
 
     const QColorGroup & g = colorGroup();
     GUIStyle gs	  = style();
-    bool dis	  = (selfItem && !selfItem->isEnabled()) || !mi->isEnabled();
+    dis	  = (selfItem && !selfItem->isEnabled()) || !mi->isEnabled();
     QColorGroup itemg = dis ? palette().disabled()
 			: act ? palette().active()
 			: palette().normal();
 
-    int checkcol	  =     isCheckable()? style().widthOfPopupCheckColumn( maxPMWidth ) :0;
+    int checkcol	  =     maxPMWidth + 2; //#######
 
 
     if ( mi->isSeparator() ) {			// draw separator
@@ -960,7 +925,7 @@ void QPopupMenu::drawItem( QPainter* p, int tab, QMenuItem* mi,
 			     g, TRUE, 1, &g.brush( QColorGroup::Midlight ) );
 	}
     } else if ( !act ) {
-	p->fillRect(x+cm, y+cm, checkcol - 2*cm, h - 2*cm, 
+	p->fillRect(x+cm, y+cm, checkcol - 2*cm, h - 2*cm,
 		    g.brush( QColorGroup::Button ));
     }		
 

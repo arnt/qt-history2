@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qmotifstyle.cpp#4 $
 **
 ** Implementation of Motif-like style class
 **
@@ -790,6 +790,7 @@ static const int motifArrowHMargin	= 6;	// arrow horizontal margin
 static const int motifArrowVMargin	= 2;	// arrow vertical margin
 static const int motifTabSpacing	= 12;	// space between text and tab
 static const int motifCheckMarkHMargin	= 2;	// horiz. margins of check mark
+static const int motifCheckMarkWidth = 7;       // checkmarks in Motif
 
 
 /*! \reimp
@@ -843,24 +844,36 @@ void QMotifStyle::drawCheckMark( QPainter *p, int x, int y, int w, int h,
 }
 
 
-/*! \reimp
-*/
-int QMotifStyle::widthOfPopupCheckColumn( int maxpm )
+int QMotifStyle::extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi, const QFontMetrics& /* fm */)
 {
-    int cmw = 7;   // check mark width
-    int w = QMAX( maxpm, cmw );
-    w += 2;
-    w += motifItemFrame + 2 * motifCheckMarkHMargin;
+    int w = 2*motifItemHMargin; // a little bit of border can never harm
+
+    if ( mi->isSeparator() )
+	return 10; // arbitrary
+    else if ( mi->pixmap() )
+	w += mi->pixmap()->width();	// pixmap only
+	
+    if ( !mi->text().isNull() ) {
+	if ( mi->text().find('\t') >= 0 )	// string contains tab
+	    w += motifTabSpacing;
+    }
+
+    if ( maxpmw ) { // we have iconsets
+	w += maxpmw;
+	w += 6; // add a little extra border around the iconset
+    }
+
+    if ( checkable && maxpmw < motifCheckMarkWidth ) {
+	w += motifCheckMarkWidth - maxpmw; // space for the checkmarks
+    }
+
+    if ( maxpmw > 0 || checkable ) // we have a check-column ( iconsets or checkmarks)
+	w += motifItemFrame; // add space to separate the columns
+
     return w;
 }
 
-
-int QMotifStyle::extraPopupMenuItemWidth( bool /*checkable*/, QMenuItem* /*mi*/, const QFontMetrics& /*fm*/ )
-{
-    return 0;
-}
-
-int QMotifStyle::popupMenuItemHeight( bool /*checkable*/, QMenuItem* mi, const QFontMetrics& fm )
+int QMotifStyle::popupMenuItemHeight( bool /* checkable*/, QMenuItem* mi, const QFontMetrics& fm )
 {
     int h = 0;
     if ( mi->isSeparator() ) {			// separator height
@@ -880,12 +893,131 @@ int QMotifStyle::popupMenuItemHeight( bool /*checkable*/, QMenuItem* mi, const Q
     return h;
 }
 
-void QMotifStyle::drawPopupMenuItem( QPainter* /*p*/,
-				     bool /*checkable*/,
-				     int /*tab*/, QMenuItem* /*mi*/,
-				     const QFontMetrics& /*fm*/,
-				     bool /*act*/,
-				     int /*x*/, int /*y*/,
-				     int /*w*/, int /*h*/)
+void QMotifStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, QMenuItem* mi,
+				     const QPalette& pal,
+				     bool act, bool enabled, int x, int y, int w, int h)
 {
+    const QColorGroup & g = pal.normal();
+    bool dis	  = !enabled;
+    QColorGroup itemg = dis ? pal.disabled()
+			: act ? pal.active()
+			: pal.normal();
+
+    if ( checkable )
+	maxpmw = QMAX( maxpmw, 12 ); // space for the checkmarks
+    int checkcol	  =     maxpmw;
+
+
+    if ( mi->isSeparator() ) {			// draw separator
+	p->setPen( g.dark() );
+	p->drawLine( x, y, x+w, y );
+	p->setPen( g.light() );
+	p->drawLine( x, y+1, x+w, y+1 );
+	return;
+    }
+
+    int pw = motifItemFrame;
+
+    if ( act && !dis ) {			// active item frame
+	if (defaultFrameWidth() > 1)
+	    qDrawShadePanel( p, x, y, w, h, g, FALSE, pw,
+			     &g.brush( QColorGroup::Button ) );
+	else
+	    qDrawShadePanel( p, x+1, y+1, w-2, h-2, g, TRUE, 1,
+			     &g.brush( QColorGroup::Button ) );
+    }
+    else				// incognito frame
+	p->fillRect(x, y, w, h, g.brush( QColorGroup::Button ));
+
+
+    int cm = checkcol ? 2 : 0; // checkable margin
+
+    if ( mi->isChecked() ) {
+	if ( mi->iconSet() ) {
+	    qDrawShadePanel( p, x+cm, y+cm, checkcol-2*cm, h-2*cm,
+			     g, TRUE, 1, &g.brush( QColorGroup::Midlight ) );
+	}
+    } else if ( !act ) {
+	p->fillRect(x+cm, y+cm, checkcol - 2*cm, h - 2*cm,
+		    g.brush( QColorGroup::Button ));
+    }		
+
+    if ( mi->iconSet() ) {		// draw iconset
+	QIconSet::Mode mode = QIconSet::Normal; // no disabled icons in Motif
+	if (act && !dis )
+	    mode = QIconSet::Active;
+	QPixmap pixmap = mi->iconSet()->pixmap( QIconSet::Small, mode );
+	int pixw = pixmap.width();
+	int pixh = pixmap.height();
+	if ( act && !dis ) {			// active item frame
+	    if (defaultFrameWidth() > 1)
+		qDrawShadePanel( p, x, y, w, h, g, FALSE,
+				 motifItemFrame,
+				 &g.brush( QColorGroup::Button ) );
+	    else
+		qDrawShadePanel( p, x+1, y+1, w-2, h-2, g, TRUE, 1,
+				 &g.brush( QColorGroup::Button ) );
+	}
+	else				// incognito frame
+	    p->fillRect(x,y,w, h, g.brush( QColorGroup::Button ));
+	
+	QRect cr( x+cm, y+cm, checkcol-2*cm, h-2*cm );
+	QRect pmr( 0, 0, pixw, pixh );
+	pmr.moveCenter( cr.center() );
+	p->setPen( itemg.text() );
+	p->drawPixmap( pmr.topLeft(), pixmap );
+	
+    } else  if ( checkable ) {	// just "checking"...
+	int mw = checkcol - ( 2*motifCheckMarkHMargin );
+	int mh = h - 2*motifItemFrame;
+	if ( mi->isChecked() ) {
+	    drawCheckMark( p, x+motifItemFrame + motifCheckMarkHMargin,
+				   y+motifItemFrame, mw, mh, itemg, act, dis );
+	}
+    }
+
+
+    p->setPen( g.buttonText() );
+
+    QColor discol;
+    if ( dis ) {
+	discol = itemg.text();
+	p->setPen( discol );
+    }
+
+    int xm = checkcol + motifItemHMargin;
+
+    QString s = mi->text();
+    if ( !s.isNull() ) {			// draw text
+	int t = s.find( '\t' );
+	int m = motifItemVMargin;
+	const int text_flags = AlignVCenter|ShowPrefix | DontClip | SingleLine;
+	if ( t >= 0 ) {				// draw tab text
+	    p->drawText( x+w-tab-motifItemHMargin,
+			 y+m, tab, h-2*m, text_flags, s.mid( t+1 ) );
+	}
+	p->drawText( x+xm, y+m, w-xm-tab+1, h-2*m, text_flags, s, t );
+    } else if ( mi->pixmap() ) {			// draw pixmap
+	QPixmap *pixmap = mi->pixmap();
+	if ( pixmap->depth() == 1 )
+	    p->setBackgroundMode( OpaqueMode );
+	p->drawPixmap( x+xm, y+motifItemFrame, *pixmap );
+	if ( pixmap->depth() == 1 )
+	    p->setBackgroundMode( TransparentMode );
+    }
+    if ( mi->popup() ) {			// draw sub menu arrow
+	int dim = (h-2*motifItemFrame) / 2;
+	if ( act ) {
+	    drawArrow( p, RightArrow,
+		       mi->isEnabled(),
+		       x+w - motifArrowHMargin - dim,  y+h/2-dim/2,
+		       dim, dim, g,
+		       mi->isEnabled() );
+	} else {
+	    drawArrow( p, RightArrow,
+		       FALSE,
+		       x+w - motifArrowHMargin - dim,  y+h/2-dim/2,
+		       dim, dim, g, mi->isEnabled() );
+	}
+    }
 }

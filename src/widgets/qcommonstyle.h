@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcommonstyle.h#2 $
+** $Id: //depot/qt/main/src/widgets/qcommonstyle.h#3 $
 **
 ** Definition of QCommonStyle class
 **
@@ -34,7 +34,7 @@ class Q_EXPORT QCommonStyle: public QStyle
 private:
     QCommonStyle(GUIStyle);
     ~QCommonStyle();
-  
+
     friend class QMotifStyle;
     friend class QWindowsStyle;
     friend class QPlatinumStyle;
@@ -78,6 +78,10 @@ public:
 				       QCOORD c,
 				       Orientation );
     int maximumSliderDragDistance() const;
+    
+    // popups
+    int popupSubmenuIndicatorWidth( const QFontMetrics& fm  );
+
 };
 
 
