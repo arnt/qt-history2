@@ -214,7 +214,7 @@ public:
   \fn void QUrlOperator::data( const QByteArray &data, QNetworkOperation *op )
 
   This signal is emitted when new \a data has been received after calling
-  get() or put(). \op holds the name of the file whose data is retrieved
+  get() or put(). \a op holds the name of the file whose data is retrieved
   in op->arg( 0 ) and the (raw) data in op->rawArg( 1 ).
 
   \a op is the pointer to the operation object which contains all
