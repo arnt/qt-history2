@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#29 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#30 $
 **
 ** Definition of the abstract layout base class
 **
@@ -217,6 +217,7 @@ protected:
 
 private:
     void setWidgetLayout( QWidget *, QLayout * );
+    void init();
     int insideSpacing;
     int outsideBorder;
     uint topLevel : 1;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#80 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#81 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -631,12 +631,7 @@ bool QWidgetItem::isEmpty() const
 QLayout::QLayout( QWidget *parent, int border, int space, const char *name )
     : QObject( parent, name )
 {
-    menubar = 0;
-    topLevel = FALSE;
-    frozen = FALSE;
-    autoMinimum = FALSE;
-    autoNewChild = FALSE;
-    activated = FALSE;
+    init();
     if ( parent ) {
 	if ( parent->layout() ) {
 	    qWarning( "QLayout \"%s\" added to %s \"%s\","
@@ -659,6 +654,18 @@ QLayout::QLayout( QWidget *parent, int border, int space, const char *name )
     installEventFilter( this );//###binary compatibility.
 }
 
+void QLayout::init()
+{
+    insideSpacing = 0;
+    outsideBorder = 0;
+    topLevel = FALSE;
+    autoMinimum = FALSE;
+    autoNewChild = FALSE;
+    frozen = FALSE;
+    activated = FALSE;
+    extraData = 0;
+    menubar = 0;
+}
 
 /*!
   Constructs a new child QLayout, and places it inside
@@ -674,8 +681,7 @@ QLayout::QLayout( QLayout *parentLayout, int space, const char *name )
     : QObject( parentLayout, name )
 
 {
-    menubar = 0;
-    topLevel = FALSE;
+    init();
     insideSpacing = space < 0 ? parentLayout->insideSpacing : space;
     parentLayout->addItem( this );
     installEventFilter( this );//###binary compatibility.
@@ -694,8 +700,7 @@ QLayout::QLayout( QLayout *parentLayout, int space, const char *name )
 QLayout::QLayout( int space, const char *name )
     : QObject( 0, name )
 {
-    menubar = 0;
-    topLevel	 = FALSE;
+    init();
     insideSpacing = space;
     installEventFilter( this );//###binary compatibility.
 }
