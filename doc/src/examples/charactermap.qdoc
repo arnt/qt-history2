@@ -18,7 +18,6 @@ The example consists of the following classes:
 \list
 \i \c CharacterWidget displays the available characters in the current
    font and style.
-\i \c CharacterView provides a scrolling view onto the \c CharacterWidget.
 \i \c MainWindow provides a standard main window with menu that contains
    font and style information, a view onto the characters, and a line edit.
 \endlist
@@ -51,31 +50,85 @@ the widget.
 As a courtesy, the widget provides a tooltip that shows the current
 character value. This is provided by showToolTip().
 
-The \c displayFont and \c currentKey private members are used to record
-the current font and the currently highlighted character in the widget.
+The \c displayFont and \c currentKey private data members are used to
+record the current font and the currently highlighted character in the
+widget.
 
 \section1 CharacterWidget Class Implementation
 
+The constructor initializes \c currentKey with a value of -1 to indicate
+that no character is initially selected. We enable mouse tracking to
+allow us to follow the movement of the cursor across the widget.
 
+\quotefromfile widgets/charactermap/characterwidget.cpp
+\skipto CharacterWidget::CharacterWidget
+\printuntil /^\}/
 
-\section1 CharacterView Class Definition
+The class provides two functions to allow the font and style to be set up.
+Each of these just modify the widget's display font and call update():
 
-The \c CharacterView class provides a viewport onto a \c CharacterWidget
-by sublassing QWidgetView. It provides some extra features for the user's
-convenience, but these could have been left out by using a QWidgetView
-instead.
+\skipto updateFont
+\printuntil /^\}/
+\printuntil /^\}/
 
-The class definition looks like this:
+We use a fixed size font for the display, but this could have been made
+configurable. Similarly, a fixed size hint is provided by the sizeHint()
+function:
 
-\quotefromfile widgets/charactermap/characterview.h
-\skipto class CharacterView :
-\printuntil /^\};/
+\skipto sizeHint
+\printuntil /^\}/
 
-We reimplement \l{QWidget::mouseMoveEvent()} to enable the application to
-show dynamic tooltips over characters in the \c CharacterWidget, and
-to scroll the widget when the user drags it around.
-\l{QWidget::mousePressEvent()} and \l{QWidget::mouseReleaseEvent()} are
-also reimplemented to support widget dragging.
+Three standard event functions are implemented so that the widget
+can respond to clicks, provide tooltips, and render the available
+characters. The paint event shows how the contents of the widget are
+arranged and displayed:
+
+\skipto paintEvent
+\printuntil setFont
+
+A QPainter is created for the widget and, in all cases, we ensure that the
+widget's background is painted. The painter's font is set to the display
+font that is chosen by the user.
+
+The area of the widget that needs to be redrawn is used to determine which
+characters need to be displayed:
+
+\skipto redrawRect
+\printuntil endColumn
+
+Using integer division, we obtain the row and column numbers of each
+characters that should be displayed, and we draw a square on the widget
+for each symbol that is displayed.
+
+\skipto setPen
+\printuntil }
+\printuntil }
+
+The symbols for each character in the array are drawn within each square
+
+\skipto fontMetrics
+\printuntil /^\}/
+
+We do not need to take into account the difference between the area
+displayed in the viewport and the area we are drawing on because
+everything outside the visible area will be clipped.
+
+\quotefromfile widgets/charactermap/characterwidget.cpp
+\skipto mousePressEvent
+\printuntil /^\}/
+
+The mouseMoveEvent() maps the mouse cursor's position in global
+coordinates to widget coordinates, and determines the character that
+was clicked by dividing the x and y-coordinates by the size of the
+squares used to display the character symbols. Since there are 32
+of these to a row, we simply multiply the row index by 32 and add
+the column number to obtain the character number.
+
+\quotefromfile widgets/charactermap/characterwidget.cpp
+\skipto mouseMoveEvent
+\printuntil /^\}/
+
+The tooltip is given a position defined in global coordinates.
 
 \section1 MainWindow Class Definition
 
@@ -109,15 +162,14 @@ application:
 
 We construct the window's central widget and fill it with some standard
 widgets (two comboboxes, a line edit, and a push button), but we also
-construct a \c CharacterWidget custom widget, and add a \c CharacterView
+construct a \c CharacterWidget custom widget, and add a QWidgetView
 so that we can view its contents.
 
 \skipto QWidget *centralWidget
 \printuntil clipboardButton
 
-\c CharacterView is a subclass of \l QWidgetView that provides some
-extra features. The view works as a viewport onto the \c CharacterWidget
-when we set its widget.
+QWidgetView provides a viewport onto the \c CharacterWidget when we set
+its widget.
 
 We list the available fonts and styles in the comboboxes using the
 following functions:
@@ -132,7 +184,7 @@ Most of the signal emitted in the example come from standard widgets, and
 are either connected to slots in this widget, or are connected to other
 widgets.
 
-\skipto connect(clipboardButton
+\skipto connect(fontCombo
 \printuntil updateStyle
 
 The font combobox's \c activated() signal is connected to
@@ -142,12 +194,51 @@ can be changed by the user, the \c activated() signals from both the
 font and style comboboxes are connected directly to the character
 widget.
 
-\printuntil updateClipboard
+\printuntil connect(clipboardButton
 
+The final two connections allow characters to be selected in the character
+widget and text to be inserted into the clipboard.
 The character widget emits the \c characterSelected() custom signal when
-the user clicks on a character, so the 
-The clipboard is changed when the push button emits the \c clicked()
-signal. 
-for finding information about the
-fonts installed on the user's system.
+the user clicks on a character, and this is handled by the \c insertCharacter()
+function. The clipboard is changed when the push button emits the \c clicked()
+signal. We handle this with the \c updateClipboard() function.
+
+The remaining code in the constructor sets up the layout of the central widget
+and provides a window title:
+
+\skipto controlsLayout
+\printuntil /^\}/
+
+We implement two functions to set up the fonts because the display font family
+and style can be set independently. \c findFonts() uses a font database to
+provide items in the font combobox:
+
+\skipto findFonts
+\printuntil /^\}/
+
+In this function, we clear the combobox, but only add entries for the available
+font families. The styles that can be used with each font are found by the
+findStyles() function:
+
+\skipto findStyles
+\printuntil styleCombo->clear()
+
+This function is called whenever the user selects a different font in the font
+combobox. We begin by recording the currently selected style, and we clear the style
+combobox so that we can insert the styles associated with the current font family.
+
+\skipto QString style
+\printuntil /^\}/
+
+We use the font database to collect the styles that are available for the current
+font and insert them into the style combobox. The current item is reset if the
+original style is not available for this font.
+
+The last two functions are used to insert characters from the character widget
+into the window's line edit, and update the clipboard with the line edit's contents
+when the window's push button is clicked:
+
+\skipto insertCharacter
+\printuntil /^\}/
+
 */
