@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmovie.h#15 $
+** $Id: //depot/qt/main/src/kernel/qmovie.h#16 $
 **
 ** Definition of movie classes
 **
@@ -36,7 +36,7 @@ class QMovie {
 public:
     QMovie();
     QMovie(QDataSource*, int bufsize=1024);
-    QMovie(QString fileName, int bufsize=1024);
+    QMovie(const QString &fileName, int bufsize=1024);
     QMovie(QByteArray data, int bufsize=1024);
     QMovie(const QMovie&);
     ~QMovie();
@@ -66,11 +66,11 @@ public:
     int  speed() const;
     void setSpeed(int);
 
-    void connectResize(QObject* receiver, QString member);
-    void disconnectResize(QObject* receiver, QString member);
+    void connectResize(QObject* receiver, const char *member);
+    void disconnectResize(QObject* receiver, const char *member=0);
 
-    void connectUpdate(QObject* receiver, QString member);
-    void disconnectUpdate(QObject* receiver, QString member);
+    void connectUpdate(QObject* receiver, const char *member);
+    void disconnectUpdate(QObject* receiver, const char *member=0);
 
     enum Status { SourceEmpty=-2,
 	          UnrecognizedFormat=-1,
@@ -79,8 +79,8 @@ public:
 	          EndOfLoop=3,
 	          EndOfMovie=4,
 	          SpeedChanged=5 };
-    void connectStatus(QObject* receiver, QString member);
-    void disconnectStatus(QObject* receiver, QString member=0);
+    void connectStatus(QObject* receiver, const char *member);
+    void disconnectStatus(QObject* receiver, const char *member=0);
 
 private:
     friend class QMoviePrivate;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncio.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qasyncio.cpp#13 $
 **
 ** Implementation of asynchronous I/O classes
 **
@@ -49,7 +49,7 @@ QAsyncIO::~QAsyncIO()
 /*!
   Ensures only one object can respond to changes in readiness.
 */
-void QAsyncIO::connect(QObject* obj, QString member)
+void QAsyncIO::connect(QObject* obj, const char *member)
 {
     signal.disconnect(0, 0);
     signal.connect(obj, member);

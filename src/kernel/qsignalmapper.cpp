@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsignalmapper.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qsignalmapper.cpp#9 $
 **
 ** Implementation of QSignalMapper class
 **
@@ -95,7 +95,7 @@ void QSignalMapper::setMapping( const QObject* sender, int identifier )
   There may be at most one string identifier for each object, and
   it may not be null.
 */
-void QSignalMapper::setMapping( const QObject* sender, QString identifier )
+void QSignalMapper::setMapping( const QObject* sender, const QString &identifier )
 {
     QSignalMapperRec* rec = getRec(sender);
     rec->str_id = identifier;

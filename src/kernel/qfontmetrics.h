@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontmetrics.h#41 $
+** $Id: //depot/qt/main/src/kernel/qfontmetrics.h#42 $
 **
 ** Definition of QFontMetrics class
 **
@@ -52,15 +52,15 @@ public:
 
     int		leftBearing(char) const;
     int		rightBearing(char) const;
-    int		width( QString , int len = -1 ) const;
+    int		width( const QString &, int len = -1 ) const;
     int		width( char ) const;
-    QRect	boundingRect( QString , int len = -1 ) const;
+    QRect	boundingRect( const QString &, int len = -1 ) const;
     QRect	boundingRect( char ) const;
     QRect	boundingRect( int x, int y, int w, int h, int flags,
-			      QString str, int len=-1, int tabstops=0,
+			      const QString& str, int len=-1, int tabstops=0,
 			      int *tabarray=0, char **intern=0 ) const;
     QSize	size( int flags,
-		      QString str, int len=-1, int tabstops=0,
+		      const QString& str, int len=-1, int tabstops=0,
 		      int *tabarray=0, char **intern=0 ) const;
 
     int		underlinePos()	const;

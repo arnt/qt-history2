@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#98 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#99 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -1920,7 +1920,7 @@ void QPainter::drawTiledPixmap( int x, int y, int w, int h,
 }
 
 
-void QPainter::drawText( int x, int y, QString str, int len )
+void QPainter::drawText( int x, int y, const QString &str, int len )
 {
     if ( !isActive() )
 	return;

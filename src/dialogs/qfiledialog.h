@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#33 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.h#34 $
 **
 ** Definition of QFileDialog class
 **
@@ -52,24 +52,24 @@ class QFileDialog : public QDialog
 {
     Q_OBJECT
 public:
-    QFileDialog( QString dirName, QString filter = QString::null,
+    QFileDialog( const QString& dirName, const QString& filter = QString::null,
 		 QWidget *parent=0, const char *name=0, bool modal=FALSE );
     QFileDialog( QWidget *parent=0, const char *name=0, bool modal=FALSE );
    ~QFileDialog();
 
     // recommended static functions
 
-    static QString getOpenFileName( QString initially = 0,
-				    QString filter= 0,
+    static QString getOpenFileName( const QString &initially = 0,
+				    const QString &filter= 0,
 				    QWidget *parent = 0, const char* name = 0);
-    static QString getSaveFileName( QString initially = 0,
-				    QString filter= 0,
+    static QString getSaveFileName( const QString &initially = 0,
+				    const QString &filter= 0,
 				    QWidget *parent = 0, const char* name = 0);
-    static QString getExistingDirectory( QString dir = 0,
+    static QString getExistingDirectory( const QString &dir = 0,
 					 QWidget *parent = 0,
 					 const char* name = 0 );
-    static QStrList getOpenFileNames( QString filter= 0,
-				      QString dir = 0,
+    static QStrList getOpenFileNames( const QString &filter= 0,
+				      const QString &dir = 0,
 				      QWidget *parent = 0,
 				      const char* name = 0);
 
@@ -81,7 +81,7 @@ public:
     // non-static function for special needs
 
     QString selectedFile() const;
-    void setSelection( QString );
+    void setSelection( const QString &);
 
     QString dirPath() const;
 
@@ -97,15 +97,15 @@ public:
     bool eventFilter( QObject *, QEvent * );
 
 public slots:
-    void setDir( QString );
-    void setFilter( QString );
-    void setFilters( QString * );
-    void setFilters( const QStrList & );
+    void setDir( const QString& );
+    void setFilter( const QString& );
+    void setFilters( const char ** );
+    void setFilters( const QStrList& );
 
 signals:
-    void fileHighlighted( QString );
-    void fileSelected( QString );
-    void dirEntered( QString );
+    void fileHighlighted( const QString& );
+    void fileSelected( const QString& );
+    void dirEntered( const QString& );
 
 private slots:
     void fileSelected( int );
@@ -138,7 +138,7 @@ private slots:
 
 private:
     void init();
-    void updatePathBox( QString );
+    void updatePathBox( const QString &);
     bool trySetSelection( const QFileInfo&, bool );
 
     QDir cwd;

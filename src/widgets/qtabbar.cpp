@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#39 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#40 $
 **
 ** Implementation of QTabBar class
 **
@@ -103,7 +103,7 @@ struct QTabPrivate {
   Create a new, empty tab bar.
 */
 
-QTabBar::QTabBar( QWidget * parent, QString name )
+QTabBar::QTabBar( QWidget * parent, const char *name )
     : QWidget( parent, name )
 {
     d = new QTabPrivate;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.cpp#34 $
+** $Id: //depot/qt/main/src/kernel/qtimer.cpp#35 $
 **
 ** Implementation of QTimer class
 **
@@ -217,7 +217,7 @@ void sst_init()
 class QSingleShotTimer : public QObject
 {
 public:
-    bool    start( int msec, QObject *r, QString m );
+    bool    start( int msec, QObject *r, const char * m );
 protected:
     bool    event( QEvent * );
 private:
@@ -228,7 +228,7 @@ private:
 int  qStartTimer( int interval, QObject *obj ); // implemented in qapp_xxx.cpp
 bool qKillTimer( int id );
 
-bool QSingleShotTimer::start( int msec, QObject *r, QString m )
+bool QSingleShotTimer::start( int msec, QObject *r, const char *m )
 {
     timerId = 0;
     if ( signal.connect(r, m) )
@@ -271,7 +271,7 @@ bool QSingleShotTimer::event( QEvent * )
   600000 milliseconds).
 */
 
-void QTimer::singleShot( int msec, QObject *receiver, QString member )
+void QTimer::singleShot( int msec, QObject *receiver, const char *member )
 {
     if ( !sst_list )
 	sst_init();

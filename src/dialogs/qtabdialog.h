@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#32 $
+** $Id: //depot/qt/main/src/dialogs/qtabdialog.h#33 $
 **
 ** Definition of QTabDialog class
 **
@@ -45,27 +45,27 @@ public:
     void show();
     void setFont( const QFont & font );
 
-    void addTab( QWidget *, QString );
+    void addTab( QWidget *, const QString &);
     void addTab( QWidget *, QTab* );
-    bool isTabEnabled( QString ) const;
-    void setTabEnabled( QString, bool );
+    bool isTabEnabled( const QString &) const;
+    void setTabEnabled( const QString &, bool );
 
     void showPage( QWidget * );
     QString tabLabel( QWidget * );
 
-    void setDefaultButton( QString text = "Defaults" );
+    void setDefaultButton( const QString &text = "Defaults" );
     bool hasDefaultButton() const;
 
-    void setCancelButton( QString text = "Cancel" );
+    void setCancelButton( const QString &text = "Cancel" );
     bool hasCancelButton() const;
 
-    void setApplyButton( QString text = "Apply" );
+    void setApplyButton( const QString &text = "Apply" );
     bool hasApplyButton() const;
 
 #if 1 // OBSOLETE
-    void setOKButton( QString text = "OK" );
+    void setOKButton( const QString &text = "OK" );
 #endif
-    void setOkButton( QString text = "OK" );
+    void setOkButton( const QString &text = "OK" );
     bool hasOkButton() const;
 
 protected:
@@ -82,7 +82,7 @@ signals:
     void cancelButtonPressed();
     void defaultButtonPressed();
 
-    void selected( QString );
+    void selected( const QString& );
 
 private slots:
     void showTab( int i );

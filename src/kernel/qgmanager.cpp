@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#39 $
 **
 ** Implementation of QGGeometry class
 **
@@ -1035,7 +1035,7 @@ void QGManager::remove( QChain *c )
   purposes.
 */
 
-void QGManager::setName( QChain *chain, QString name )
+void QGManager::setName( QChain *chain, const QString &name )
 {
     chain->setName( name );
 }

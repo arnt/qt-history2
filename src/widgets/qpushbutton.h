@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.h#38 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.h#39 $
 **
 ** Definition of QPushButton class
 **
@@ -35,7 +35,7 @@ friend class QDialog;
     Q_OBJECT
 public:
     QPushButton( QWidget *parent=0, const char *name=0 );
-    QPushButton( QString text, QWidget *parent=0, const char* name=0 );
+    QPushButton( const QString &text, QWidget *parent=0, const char* name=0 );
 
     virtual void	setToggleButton( bool );
 

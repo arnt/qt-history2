@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#111 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#112 $
 **
 ** Definition of QPainter class
 **
@@ -204,21 +204,21 @@ public:
 
   // Text drawing functions
 
-    void	drawText( int x, int y, QString, int len = -1 );
-    void	drawText( const QPoint &, QString, int len = -1 );
+    void	drawText( int x, int y, const QString &, int len = -1 );
+    void	drawText( const QPoint &, const QString &, int len = -1 );
     void	drawText( int x, int y, int w, int h, int flags,
-			  QString, int len = -1, QRect *br=0,
+			  const QString&, int len = -1, QRect *br=0,
 			  char **internal=0 );
     void	drawText( const QRect &, int flags,
-			  QString, int len = -1, QRect *br=0,
+			  const QString&, int len = -1, QRect *br=0,
 			  char **internal=0 );
 
   // Text drawing functions
 
     QRect	boundingRect( int x, int y, int w, int h, int flags,
-			      QString, int len = -1, char **intern=0 );
+			      const QString&, int len = -1, char **intern=0 );
     QRect	boundingRect( const QRect &, int flags,
-			      QString, int len = -1, char **intern=0 );
+			      const QString&, int len = -1, char **intern=0 );
 
     int		tabStops() const;
     void	setTabStops( int );
@@ -308,7 +308,7 @@ protected:
     friend class QFontMetrics;
     friend class QFontInfo;
     friend void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
-		     int tf, QString str, int len, QRect *brect,
+		     int tf, const QString& str, int len, QRect *brect,
 		     int tabstops, int* tabarray, int tabarraylen,
 		     char **internal, QPainter* painter );
 
@@ -544,19 +544,19 @@ inline void QPainter::eraseRect( const QRect &r )
     fillRect( r.x(), r.y(), r.width(), r.height(), backgroundColor() );
 }
 
-inline void QPainter::drawText( const QPoint &p, QString s, int len )
+inline void QPainter::drawText( const QPoint &p, const QString &s, int len )
 {
     drawText( p.x(), p.y(), s, len );
 }
 
 inline void QPainter::drawText( const QRect &r, int tf,
-				QString str, int len, QRect *br, char **i )
+				const QString& str, int len, QRect *br, char **i )
 {
     drawText( r.x(), r.y(), r.width(), r.height(), tf, str, len, br, i );
 }
 
 inline QRect QPainter::boundingRect( const QRect &r, int tf,
-				     QString str, int len, char **i )
+				     const QString& str, int len, char **i )
 {
     return boundingRect( r.x(), r.y(), r.width(), r.height(), tf, str, len,
 			 i );

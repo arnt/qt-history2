@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#144 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#145 $
 **
 ** Implementation of QListView widget class
 **
@@ -551,6 +551,7 @@ static int cmp( const void *n1, const void *n2 )
     if ( !n1 || !n2 )
 	return 0;
 
+    // ##### should use Unicode
     return qstrcmp( ((QListViewPrivate::SortableItem *)n1)->key,
 		    ((QListViewPrivate::SortableItem *)n2)->key );
 }
@@ -888,7 +889,7 @@ QString QListViewItem::text( int column ) const
   \sa text() key()
 */
 
-void QListViewItem::setText( int column, QString text )
+void QListViewItem::setText( int column, const QString &text )
 {
     if ( column < 0 )
 	return;
@@ -1340,7 +1341,7 @@ void QListViewPrivate::Root::setup()
 /*!  Creates a new empty list view, with \a parent as a parent and \a
   name as object name. */
 
-QListView::QListView( QWidget * parent, QString name )
+QListView::QListView( QWidget * parent, const char *name )
     : QScrollView( parent, name )
 {
     d = new QListViewPrivate;
@@ -1771,7 +1772,7 @@ void QListView::clear()
 
   \sa setColumnText() setColumnWidth() setColumnWidthMode()
 */
-int QListView::addColumn( QString label, int width )
+int QListView::addColumn( const QString &label, int width )
 {
     int c = d->h->addLabel( label, width );
     d->column.resize( c+1 );
@@ -1784,7 +1785,7 @@ int QListView::addColumn( QString label, int width )
   Sets the heading text of column \a column to \a label.  The leftmost
   colum is number 0.
 */
-void QListView::setColumnText( int column, QString label )
+void QListView::setColumnText( int column, const QString &label )
 {
     ASSERT( column < d->h->count() );
     d->h->setLabel( column, label );
@@ -3134,7 +3135,7 @@ static const int BoxSize = 16;
   \a tt. Note that a RadioButton must be child of a Controller, otherwise
   it will not toggle.
  */
-QCheckListItem::QCheckListItem( QCheckListItem *parent, QString text,
+QCheckListItem::QCheckListItem( QCheckListItem *parent, const QString &text,
 				Type tt )
     : QListViewItem( parent, text, 0 )
 {
@@ -3154,7 +3155,7 @@ QCheckListItem::QCheckListItem( QCheckListItem *parent, QString text,
   \a tt. Note that \a tt must not be RadioButton, if so
   it will not toggle.
  */
-QCheckListItem::QCheckListItem( QListView *parent, QString text,
+QCheckListItem::QCheckListItem( QListView *parent, const QString &text,
 				Type tt )
     : QListViewItem( parent, text, 0 )
 {
@@ -3169,7 +3170,7 @@ QCheckListItem::QCheckListItem( QListView *parent, QString text,
   Constructs a Controller item with parent \a parent, text \a text and pixmap
   \a p.
  */
-QCheckListItem::QCheckListItem( QListView *parent, QString text,
+QCheckListItem::QCheckListItem( QListView *parent, const QString &text,
 				const QPixmap & p )
     : QListViewItem( parent, text, 0 )
 {
@@ -3182,7 +3183,7 @@ QCheckListItem::QCheckListItem( QListView *parent, QString text,
   Constructs a Controller item with parent \a parent, text \a text and pixmap
   \a p.
  */
-QCheckListItem::QCheckListItem( QListViewItem *parent, QString text,
+QCheckListItem::QCheckListItem( QListViewItem *parent, const QString &text,
 				const QPixmap & p )
     : QListViewItem( parent, text, 0 )
 {

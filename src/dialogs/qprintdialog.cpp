@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#51 $
+** $Id: //depot/qt/main/src/dialogs/qprintdialog.cpp#52 $
 **
 ** Implementation of internal print dialog (X11) used by QPrinter::select().
 **
@@ -82,7 +82,7 @@ struct QPrintDialogPrivate
 };
 
 
-static void perhapsAddPrinter( QListView * printers, QString name,
+static void perhapsAddPrinter( QListView * printers, const QString &name,
 			       QString host, QString comment )
 {
     const QListViewItem * i = printers->firstChild();

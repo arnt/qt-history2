@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#42 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.cpp#43 $
 **
 ** Implementation of QSpinBox widget class
 **
@@ -94,7 +94,7 @@ struct QSpinBoxData {
   \sa minValue(), maxValue(), setRange(), lineStep(), setSteps()
 */
 
-QSpinBox::QSpinBox( QWidget * parent , QString name )
+QSpinBox::QSpinBox( QWidget * parent , const char *name )
     : QFrame( parent, name )
 {
     initSpinBox();
@@ -109,7 +109,7 @@ QSpinBox::QSpinBox( QWidget * parent , QString name )
 */
 
 QSpinBox::QSpinBox( int minValue, int maxValue, int step, QWidget* parent,
-		    QString name )
+		    const char* name )
     : QFrame( parent, name ),
       QRangeControl( minValue, maxValue, step, step, minValue )
 {
@@ -151,7 +151,7 @@ void QSpinBox::initSpinBox()
 
     connect( up, SIGNAL(pressed()), SLOT(stepUp()) );
     connect( down, SIGNAL(pressed()), SLOT(stepDown()) );
-    connect( vi, SIGNAL(textChanged(QString )), SLOT(textChanged()) );
+    connect( vi, SIGNAL(textChanged(const QString&)), SLOT(textChanged()) );
 }
 
 /*!
@@ -233,7 +233,7 @@ QString QSpinBox::cleanText() const
   \sa specialValueText()
 */
 
-void QSpinBox::setSpecialValueText( QString text )
+void QSpinBox::setSpecialValueText( const QString &text )
 {
     specText = text;
     updateDisplay();
@@ -267,7 +267,7 @@ QString QSpinBox::specialValueText() const
   \sa prefix(), setSuffix(), suffix()
 */
 
-void QSpinBox::setPrefix( QString text )
+void QSpinBox::setPrefix( const QString &text )
 {
     pfix = text;
     updateDisplay();
@@ -285,7 +285,7 @@ void QSpinBox::setPrefix( QString text )
   \sa suffix(), setPrefix(), prefix()
 */
 
-void QSpinBox::setSuffix( QString text )
+void QSpinBox::setSuffix( const QString &text )
 {
     sfix = text;
     updateDisplay();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.h#63 $
+** $Id: //depot/qt/main/src/widgets/qbutton.h#64 $
 **
 ** Definition of QButton widget class
 **
@@ -41,7 +41,7 @@ public:
    ~QButton();
 
     QString text() const;
-    virtual void	setText( QString );
+    virtual void	setText( const QString &);
     const QPixmap *pixmap() const;
     virtual void	setPixmap( const QPixmap & );
 

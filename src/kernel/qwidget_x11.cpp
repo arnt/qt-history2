@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#260 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#261 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -686,7 +686,7 @@ void QWidget::setCursor( const QCursor &cursor )
   \sa caption(), setIcon(), setIconText()
 */
 
-void QWidget::setCaption( QString caption )
+void QWidget::setCaption( const QString &caption )
 {
     if ( caption && extra && extra->caption &&
 	 !strcmp( extra->caption, caption ) )
@@ -745,7 +745,7 @@ void QWidget::setIcon( const QPixmap &pixmap )
   \sa iconText(), setIcon(), setCaption()
 */
 
-void QWidget::setIconText( QString iconText )
+void QWidget::setIconText( const QString &iconText )
 {
     if ( extra && extra->iconText )
 	delete [] extra->iconText;
@@ -1634,7 +1634,7 @@ void QWidget::scroll( int dx, int dy )
   \sa setFont(), foregroundColor(), QPainter::drawText()
 */
 
-void QWidget::drawText( int x, int y, QString str )
+void QWidget::drawText( int x, int y, const QString &str )
 {
     if ( testWFlags(WState_Visible) ) {
 	QPainter paint;

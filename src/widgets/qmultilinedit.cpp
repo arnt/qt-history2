@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#102 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#103 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -64,7 +64,7 @@ static int tabStopDist( const QFontMetrics &fm )
 }
 
 //  NOTE: only appropriate for whole lines.
-static int textWidthWithTabs( const QFontMetrics &fm, QString s, uint nChars )
+static int textWidthWithTabs( const QFontMetrics &fm, const QString &s, uint nChars )
 {
     if ( !s )
 	return 0;
@@ -85,7 +85,7 @@ static int textWidthWithTabs( const QFontMetrics &fm, QString s, uint nChars )
     return dist;
 }
 
-static int xPosToCursorPos( QString s, const QFontMetrics &fm,
+static int xPosToCursorPos( const QString &s, const QFontMetrics &fm,
 			    int xPos, int width )
 {
     uint i = 0;
@@ -410,7 +410,7 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
   NOTE: only appropriate for whole lines.
 */
 
-int QMultiLineEdit::textWidth( QString s )
+int QMultiLineEdit::textWidth( const QString &s )
 {
     int w = !s.isNull()
 		? textWidthWithTabs( QFontMetrics( font() ), s, s.length() ) : 0;
@@ -700,7 +700,7 @@ void QMultiLineEdit::deselect()
   Sets the text to \a s, removing old text, if any.
 */
 
-void QMultiLineEdit::setText( QString s )
+void QMultiLineEdit::setText( const QString &s )
 {
     clear();
     insertLine( s, -1 );
@@ -712,7 +712,7 @@ void QMultiLineEdit::setText( QString s )
   Appends \a s to the text.
 */
 
-void QMultiLineEdit::append( QString s )
+void QMultiLineEdit::append( const QString &s )
 {
     insertLine( s, -1 );
     emit textChanged();
@@ -1016,7 +1016,7 @@ void QMultiLineEdit::pageUp( bool mark )
   line, 0 if end of text.
 
  */
-static QString getOneLine( QString txt, uint& offset )
+static QString getOneLine( const QString &txt, uint& offset )
 {
     QString result;
     if ( txt.isEmpty() )
@@ -1043,7 +1043,7 @@ static QString getOneLine( QString txt, uint& offset )
 
  */
 
-void QMultiLineEdit::insertAt( QString txt, int line, int col )
+void QMultiLineEdit::insertAt( const QString &txt, int line, int col )
 {
     line = QMAX( QMIN( line, numLines() - 1), 0 );
     col = QMAX( QMIN( col,  lineLength( line )), 0 );
@@ -1101,7 +1101,7 @@ void QMultiLineEdit::insertAt( QString txt, int line, int col )
   The cursor position is not changed.
 */
 
-void QMultiLineEdit::insertLine( QString txt, int line )
+void QMultiLineEdit::insertLine( const QString &txt, int line )
 {
     if ( dummy && numLines() == 1 && getString( 0 )->isEmpty() ) {
 	contents->remove( (uint)0 );

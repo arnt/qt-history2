@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbutton.cpp#118 $
+** $Id: //depot/qt/main/src/widgets/qbutton.cpp#119 $
 **
 ** Implementation of QButton widget class
 **
@@ -105,7 +105,7 @@ QTimer *QButton::timer()
     shortcutChar("E&xit") returns 'x'.
 */
 
-static int shortcutChar( QString str )
+static int shortcutChar( const QString &str )
 {
     QString p = str ? strchr(str, '&') : 0;
     while ( !p.isEmpty() && p[1] == '&' )
@@ -299,7 +299,7 @@ QButton::~QButton()
   setAccel(), QPixmap::mask()
 */
 
-void QButton::setText( QString text )
+void QButton::setText( const QString &text )
 {
     if ( btext == text )
 	return;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#2 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#3 $
 **
 ** Definition of QStyle class
 **
@@ -38,11 +38,11 @@ public:
 
     virtual QRect itemRect( QPainter *p, int x, int y, int w, int h,
 		    int flags, bool enabled,
-		    const QPixmap *pixmap, QString text, int len=-1 );
+		    const QPixmap *pixmap, const QString& text, int len=-1 );
 
     virtual void drawItem( QPainter *p, int x, int y, int w, int h,
 		    int flags, const QColorGroup &g, bool enabled,
-		    const QPixmap *pixmap, QString text, int len=-1 );
+		    const QPixmap *pixmap, const QString& text, int len=-1 );
 
 
     virtual void drawSeparator( QPainter *p, int x1, int y1, int x2, int y2,

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qvalidator.cpp#23 $
 **
 ** Implementation of validator classes.
 **
@@ -57,7 +57,7 @@
   the moment there aren't any.
 */
 
-QValidator::QValidator( QWidget * parent, QString name )
+QValidator::QValidator( QWidget * parent, const char *name )
     : QObject( parent, name )
 {
 }
@@ -134,7 +134,7 @@ void QValidator::fixup( QString & input )
   Creates a validator object which accepts all integers.
 */
 
-QIntValidator::QIntValidator( QWidget * parent, QString name )
+QIntValidator::QIntValidator( QWidget * parent, const char *name )
     : QValidator( parent, name )
 {
     b = INT_MIN;
@@ -148,7 +148,7 @@ QIntValidator::QIntValidator( QWidget * parent, QString name )
 */
 
 QIntValidator::QIntValidator( int bottom, int top,
-			      QWidget * parent, QString name )
+			      QWidget * parent, const char* name )
     : QValidator( parent, name )
 {
     b = bottom;
@@ -242,7 +242,7 @@ void QIntValidator::setRange( int bottom, int top )
   completeness.
 */
 
-QDoubleValidator::QDoubleValidator( QWidget * parent, QString name )
+QDoubleValidator::QDoubleValidator( QWidget * parent, const char *name )
     : QValidator( parent, name )
 {
     b = 2.7182818;
@@ -258,7 +258,7 @@ QDoubleValidator::QDoubleValidator( QWidget * parent, QString name )
 */
 
 QDoubleValidator::QDoubleValidator( double bottom, double top, int decimals,
-				    QWidget * parent, QString name )
+				    QWidget * parent, const char* name )
     : QValidator( parent, name )
 {
     b = bottom;

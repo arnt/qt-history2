@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#61 $
+** $Id: //depot/qt/main/src/kernel/qfont_win.cpp#62 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for Win32
 **
@@ -644,7 +644,7 @@ int QFontMetrics::width( char ch ) const
 }
 
 
-int QFontMetrics::width( QString str, int len ) const
+int QFontMetrics::width( const QString &str, int len ) const
 {
     if ( len < 0 )
 	len = strlen( str );
@@ -657,7 +657,7 @@ int QFontMetrics::width( QString str, int len ) const
     return s.cx;
 }
 
-QRect QFontMetrics::boundingRect( QString str, int len ) const
+QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 {
     if ( len < 0 )
 	len = strlen( str );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#52 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#53 $
 **
 ** Implementation of QHeader widget class (table header)
 **
@@ -607,7 +607,7 @@ QRect QHeader::sRect( int i )
   If \a size is non-negative, the section width is set to \a size.
 */
 
-void QHeader::setLabel( int i, QString s, int size )
+void QHeader::setLabel( int i, const QString &s, int size )
 {
     if ( i >= 0 && i < count() ) {
 	if ( data->labels[i] )                      // Avoid purify complaints
@@ -634,7 +634,7 @@ QString QHeader::label( int i )
   otherwise a size currently sufficient for the label text is used.
 */
 
-int QHeader::addLabel( QString s, int size )
+int QHeader::addLabel( const QString &s, int size )
 {
     int n = count() + 1; //###########
     data->labels.resize( n + 1 );

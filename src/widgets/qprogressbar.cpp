@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qprogressbar.cpp#23 $
 **
 ** Implementation of QProgressBar class
 **
@@ -199,7 +199,7 @@ void QProgressBar::show()
   progress bar.
 */
 
-bool QProgressBar::setIndicator( QString& indicator, int progress,
+bool QProgressBar::setIndicator( QString & indicator, int progress,
 				 int totalSteps )
 {
     if ( !totalSteps )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.h#23 $
+** $Id: //depot/qt/main/src/kernel/qpicture.h#24 $
 **
 ** Definition of QPicture class
 **
@@ -40,12 +40,12 @@ public:
 
     uint	size() const;
     QString data() const;
-    virtual void	setData( QString data, uint size );
+    virtual void	setData( const QString &data, uint size );
 
     bool	play( QPainter * );
 
-    bool	load( QString fileName );
-    bool	save( QString fileName );
+    bool	load( const QString &fileName );
+    bool	save( const QString &fileName );
 
 protected:
     bool	cmd( int, QPainter *, QPDevCmdParam * );

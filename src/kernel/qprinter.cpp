@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.cpp#38 $
+** $Id: //depot/qt/main/src/kernel/qprinter.cpp#39 $
 **
 ** Implementation of QPrinter class
 **
@@ -105,7 +105,7 @@
   \sa printerName()
 */
 
-void QPrinter::setPrinterName( QString name )
+void QPrinter::setPrinterName( const QString &name )
 {
     if ( state != 0 ) {
 #if defined(CHECK_STATE)
@@ -171,7 +171,7 @@ void QPrinter::setOutputToFile( bool enable )
   \sa outputFileName(), setOutputToFile()
 */
 
-void QPrinter::setOutputFileName( QString fileName )
+void QPrinter::setOutputFileName( const QString &fileName )
 {
     if ( state != 0 ) {
 #if defined(CHECK_STATE)
@@ -206,7 +206,7 @@ void QPrinter::setOutputFileName( QString fileName )
   \sa printProgram()
 */
 
-void QPrinter::setPrintProgram( QString printProg )
+void QPrinter::setPrintProgram( const QString &printProg )
 {
     if ( state != 0 ) {
 #if defined(CHECK_STATE)
@@ -228,7 +228,7 @@ void QPrinter::setPrintProgram( QString printProg )
   Sets the document name.
 */
 
-void QPrinter::setDocName( QString name )
+void QPrinter::setDocName( const QString &name )
 {
     if ( state != 0 ) {
 #if defined(CHECK_STATE)
@@ -256,7 +256,7 @@ void QPrinter::setDocName( QString name )
   \sa creator()
 */
 
-void QPrinter::setCreator( QString creator )
+void QPrinter::setCreator( const QString &creator )
 {
     creator_name = creator;
 }

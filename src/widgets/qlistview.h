@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#58 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#59 $
 **
 ** Definition of QListView widget class
 **
@@ -47,26 +47,26 @@ public:
     QListViewItem( QListViewItem * parent, QListViewItem * after );
 
     QListViewItem( QListView * parent,
-		   QString ,     QString = 0,
-		   QString = 0, QString = 0,
-		   QString = 0, QString = 0,
-		   QString = 0, QString = 0 );
+		   QString,     QString = QString::null,
+		   QString = QString::null, QString = QString::null,
+		   QString = QString::null, QString = QString::null,
+		   QString = QString::null, QString = QString::null );
     QListViewItem( QListViewItem * parent,
-		   QString ,     QString = 0,
-		   QString = 0, QString = 0,
-		   QString = 0, QString = 0,
-		   QString = 0, QString = 0 );
+		   QString,     QString = QString::null,
+		   QString = QString::null, QString = QString::null,
+		   QString = QString::null, QString = QString::null,
+		   QString = QString::null, QString = QString::null );
 
     QListViewItem( QListView * parent, QListViewItem * after,
-		   QString ,     QString = 0,
-		   QString = 0, QString = 0,
-		   QString = 0, QString = 0,
-		   QString = 0, QString = 0 );
+		   QString,     QString = QString::null,
+		   QString = QString::null, QString = QString::null,
+		   QString = QString::null, QString = QString::null,
+		   QString = QString::null, QString = QString::null );
     QListViewItem( QListViewItem * parent, QListViewItem * after,
-		   QString ,     QString = 0,
-		   QString = 0, QString = 0,
-		   QString = 0, QString = 0,
-		   QString = 0, QString = 0 );
+		   QString,     QString = QString::null,
+		   QString = QString::null, QString = QString::null,
+		   QString = QString::null, QString = QString::null,
+		   QString = QString::null, QString = QString::null );
     virtual ~QListViewItem();
 
     virtual void insertItem( QListViewItem * );
@@ -80,7 +80,7 @@ public:
     void widthChanged(int column=-1) const;
     int depth() const;
 
-    virtual void setText( int, QString );
+    virtual void setText( int, const QString &);
     virtual QString text( int ) const;
 
     virtual void setPixmap( int, const QPixmap & );
@@ -157,7 +157,7 @@ class QListView: public QScrollView
 {
     Q_OBJECT
 public:
-    QListView( QWidget * parent = 0, QString name = 0 );
+    QListView( QWidget * parent = 0, const char *name = 0 );
     ~QListView();
 
     int treeStepSize() const;
@@ -168,8 +168,8 @@ public:
 
     QHeader * header() const;
 
-    virtual int addColumn( QString label, int size = -1);
-    virtual void setColumnText( int column, QString label );
+    virtual int addColumn( const QString &label, int size = -1);
+    virtual void setColumnText( int column, const QString &label );
     QString columnText( int column ) const;
     virtual void setColumnWidth( int column, int width );
     int columnWidth( int column ) const;
@@ -280,13 +280,13 @@ class QCheckListItem : public QListViewItem
 public:
     enum Type { RadioButton, CheckBox, Controller };
 
-    QCheckListItem( QCheckListItem *parent, QString text,
+    QCheckListItem( QCheckListItem *parent, const QString &text,
 		    Type = Controller );
-    QCheckListItem( QListView *parent, QString text,
+    QCheckListItem( QListView *parent, const QString &text,
 		    Type = Controller );
-    QCheckListItem( QListViewItem *parent, QString text,
+    QCheckListItem( QListViewItem *parent, const QString &text,
 		    const QPixmap & );
-    QCheckListItem( QListView *parent, QString text,
+    QCheckListItem( QListView *parent, const QString &text,
 		    const QPixmap & );
 
     void paintCell( QPainter *,  const QColorGroup & cg,

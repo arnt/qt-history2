@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#49 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#50 $
 **
 ** Definition of QFont class
 **
@@ -58,16 +58,16 @@ public:
 		     KOI8R };
 
     QFont();					// default font
-    QFont( QString family, int pointSize = 12,
+    QFont( const QString &family, int pointSize = 12,
 	   int weight = Normal, bool italic = FALSE );
-    QFont( QString family, int pointSize,
+    QFont( const QString &family, int pointSize,
 	   int weight, bool italic, CharSet charSet );
     QFont( const QFont & );
     virtual ~QFont();
     QFont      &operator=( const QFont & );
 
     QString family()	const;
-    void	setFamily( QString );
+    void	setFamily( const QString &);
     int		pointSize()	const;
     void	setPointSize( int );
     int		weight()	const;
@@ -104,9 +104,9 @@ public:
     static const QFont &defaultFont();
     static void setDefaultFont( const QFont & );
 
-    static QString substitute( QString familyName );
-    static void insertSubstitution( QString , QString );
-    static void removeSubstitution( QString );
+    static QString substitute( const QString &familyName );
+    static void insertSubstitution( const QString&, const QString &);
+    static void removeSubstitution( const QString &);
     static void listSubstitutions( QStrList * );
 
     static void initialize();

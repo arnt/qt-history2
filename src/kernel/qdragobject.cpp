@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#47 $
+** $Id: //depot/qt/main/src/kernel/qdragobject.cpp#48 $
 **
 ** Implementation of Drag and Drop support
 **
@@ -477,7 +477,7 @@ QWidget * QDragObject::source()
 /*!  Creates a text drag object and sets it to \a text.  \a dragSource
   must be the drag source, \a name is the object name. */
 
-QTextDrag::QTextDrag( QString text,
+QTextDrag::QTextDrag( const QString &text,
 		      QWidget * dragSource, const char * name )
     : QStoredDrag( "text/plain", dragSource, name )
 {
@@ -508,7 +508,7 @@ QTextDrag::~QTextDrag()
   Sets the text to be dragged.  You will need to call this if you did
   not pass the text during construction.
 */
-void QTextDrag::setText( QString text )
+void QTextDrag::setText( const QString &text )
 {
     int l = qstrlen(text);
     QByteArray tmp(l);

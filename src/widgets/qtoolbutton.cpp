@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#32 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#33 $
 **
 ** Implementation of QToolButton class
 **
@@ -59,7 +59,7 @@ class QToolButtonPrivate
 
 /*!  Constructs an empty tool button. */
 
-QToolButton::QToolButton( QWidget * parent, QString name )
+QToolButton::QToolButton( QWidget * parent, const char *name )
     : QButton( parent, name )
 {
     init();
@@ -90,10 +90,10 @@ void QToolButton::init()
   in object \a receiver, and returns the button.
 */
 
-QToolButton::QToolButton( const QPixmap & pm, QString textLabel,
-			  QString grouptext,
-			  QObject * receiver, QString slot,
-			  QToolBar * parent, QString name )
+QToolButton::QToolButton( const QPixmap &pm, const QString &textLabel,
+			  const QString &grouptext,
+			  QObject * receiver, const char *slot,
+			  QToolBar * parent, const char *name )
     : QButton( parent, name )
 {
     init();
@@ -126,10 +126,10 @@ QToolButton::QToolButton( const QPixmap & pm, QString textLabel,
   in object \a receiver, and returns the button.
 */
 
-QToolButton::QToolButton( QIconSet iconSet, QString textLabel,
-			  QString grouptext,
-			  QObject * receiver, QString slot,
-			  QToolBar * parent, QString name )
+QToolButton::QToolButton( QIconSet iconSet, const QString &textLabel,
+			  const QString& grouptext,
+			  QObject * receiver, const char *slot,
+			  QToolBar * parent, const char *name )
     : QButton( parent, name )
 {
     init();
@@ -450,7 +450,7 @@ bool QToolButton::uses3D() const
   sets it as tool tip too if \a tipToo is TRUE.
 */
 
-void QToolButton::setTextLabel( QString newLabel , bool tipToo )
+void QToolButton::setTextLabel( const QString &newLabel , bool tipToo )
 {
     tl = newLabel;
     if ( !tipToo )

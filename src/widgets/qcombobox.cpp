@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#140 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#141 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -129,7 +129,7 @@
   The \e index is the position of the item in the popup list.
 */
 
-/*! \fn void QComboBox::activated( QString string )
+/*! \fn void QComboBox::activated( const QString &string )
 
   This signal is emitted when a new item has been activated
   (selected). \a string is the activated string.
@@ -145,7 +145,7 @@
   The \e index is the position of the item in the popup list.
 */
 
-/*! \fn void QComboBox::highlighted( QString string )
+/*! \fn void QComboBox::highlighted( const QString &string )
 
   This signal is emitted when a new item has been highlighted. \a
   string is the highlighted string.
@@ -469,50 +469,6 @@ void QComboBox::insertStrList( const QStrList *list, int index )
 }
 
 /*!
-  Inserts the array of strings at the index \e index in the combo box.
-
-  The \e numStrings argument is the number of strings.
-  If \e numStrings is -1 (default), the \e strs array must be
-  terminated with 0.
-
-  Example:
-  \code
-    static QString items[] = { "red", "green", "blue", 0 };
-    combo->insertStrList( items );
-  \endcode
-*/
-
-void QComboBox::insertStrList( QString *strings, int numStrings, int index)
-{
-    if ( !strings ) {
-#if defined(CHECK_NULL)
-	ASSERT( strings != 0 );
-#endif
-	return;
-    }
-    if ( index < 0 )
-	index = count();
-    int i = 0;
-    while ( (numStrings<0 && strings[i]!=0) || i<numStrings ) {
-	if ( d->usingListBox )
-	    d->listBox->insertItem( strings[i], index );
-	else
-	    d->popup->insertItem( strings[i], index );
-	i++;
-	if ( index++ == d->current ) {
-	    if ( d->ed )
-		d->ed->setText( text( d->current ) );
-	    else
-		repaint();
-	    currentChanged();
-	}
-    }
-    if ( index != count() )
-	reIndex();
-}
-
-
-/*!
   Inserts the array of ASCII strings at the index \e index in the combo box.
 
   The \e numStrings argument is the number of strings.
@@ -561,7 +517,7 @@ void QComboBox::insertStrList( const char **strings, int numStrings, int index)
   \e index is negative.
 */
 
-void QComboBox::insertItem( QString t, int index )
+void QComboBox::insertItem( const QString &t, int index )
 {
     int cnt = count();
     if ( !checkInsertIndex( "insertItem", name(), cnt, &index ) )
@@ -700,7 +656,7 @@ const QPixmap *QComboBox::pixmap( int index ) const
   Replaces the item at position \e index with a text.
 */
 
-void QComboBox::changeItem( QString t, int index )
+void QComboBox::changeItem( const QString &t, int index )
 {
     if ( !checkIndex( "changeItem", name(), count(), index ) )
 	return;
@@ -1783,7 +1739,7 @@ void QComboBox::clearEdit()
   \sa clearEditText() insertItem()
 */
 
-void QComboBox::setEditText( QString newText )
+void QComboBox::setEditText( const QString &newText )
 {
     if ( d && d->ed )
 	d->ed->setText( newText );

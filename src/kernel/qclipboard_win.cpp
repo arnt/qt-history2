@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_win.cpp#16 $
 **
 ** Implementation of QClipboard class for Win32
 **
@@ -62,7 +62,7 @@ typedef uint ClipboardFormat;
 #define CFNothing   0
 
 
-static ClipboardFormat getFormat( QString format )
+static ClipboardFormat getFormat( const char *format )
 {
     if ( strcmp(format,"TEXT") == 0 )
 	 return CFText;
@@ -84,7 +84,7 @@ void QClipboard::clear()
 }
 
 
-void *QClipboard::data( QString format ) const
+void *QClipboard::data( const char *format ) const
 {
 #if defined(CHECK_RANGE)
 	    warning( "QClipboard::data: Unknown format: %s", format );
@@ -102,7 +102,7 @@ void QClipboard::ownerDestroyed()
 }
 
 
-void QClipboard::connectNotify( QString signal )
+void QClipboard::connectNotify( const char *signal )
 {
     if ( strcmp(signal,SIGNAL(dataChanged())) == 0 && !inClipboardChain ) {
 	QWidget *owner = clipboardOwner();
@@ -178,7 +178,7 @@ QString QClipboard::text() const
     return text;
 }
 
-void QClipboard::setText( QString text )
+void QClipboard::setText( const QString &text )
 {
     // #### Only ASCII at the moment.  Add Unicode CF format.
 

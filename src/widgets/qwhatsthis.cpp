@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#17 $
+** $Id: //depot/qt/main/src/widgets/qwhatsthis.cpp#18 $
 **
 ** Implementation of QWhatsThis class
 **
@@ -103,7 +103,7 @@ public:
     bool eventFilter( QObject *, QEvent * );
 
     // say it.
-    void say( QWidget *, QString );
+    void say( QWidget *, const QString& );
 
     // setup and teardown
     static void tearDownWhatsThis();
@@ -389,7 +389,7 @@ void QWhatsThisPrivate::tearDownWhatsThis()
 }
 
 
-void QWhatsThisPrivate::say( QWidget * widget, QString text )
+void QWhatsThisPrivate::say( QWidget * widget, const QString &text )
 {
     const int shadowWidth = 6;   // also used as '5' and '6' and even '8' below
     const int normalMargin = 12; // *2
@@ -509,7 +509,7 @@ void QWhatsThisPrivate::say( QWidget * widget, QString text )
 /*!  Adds \a text as What's This help for \a widget.
 */
 
-void QWhatsThis::add( QWidget * widget, QString text )
+void QWhatsThis::add( QWidget * widget, const QString &text )
 {
     QPixmap tmp;
     add( widget, tmp, 0, text );
@@ -522,7 +522,7 @@ void QWhatsThis::add( QWidget * widget, QString text )
 */
 
 void QWhatsThis::add( QWidget * widget, const QPixmap & icon,
-		      QString title, QString text )
+		      const QString& title, const QString& text )
 {
     QWhatsThisPrivate::setUpWhatsThis();
     QWhatsThisPrivate::Item * i = wt->dict->find( (void *)widget );

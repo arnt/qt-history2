@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmap.h#85 $
+** $Id: //depot/qt/main/src/kernel/qpixmap.h#86 $
 **
 ** Definition of QPixmap class
 **
@@ -41,8 +41,8 @@ public:
     QPixmap();
     QPixmap( int w, int h,  int depth=-1 );
     QPixmap( const QSize &, int depth=-1 );
-    QPixmap( QString fileName, QString format=0, ColorMode mode=Auto );
-    QPixmap( QString fileName, QString format, int conversion_flags );
+    QPixmap( const QString& fileName, const char *format=0, ColorMode mode=Auto );
+    QPixmap( const QString& fileName, const char *format, int conversion_flags );
     QPixmap( const char *xpm[] );
     QPixmap( const QPixmap & );
    ~QPixmap();
@@ -79,21 +79,21 @@ public:
     bool	convertFromImage( const QImage &, ColorMode mode=Auto );
     bool	convertFromImage( const QImage &, int conversion_flags );
 
-    static QString imageFormat( QString fileName );
-    bool	load( QString fileName, QString format=0,
+    static QString imageFormat( const QString &fileName );
+    bool	load( const QString& fileName, const char *format=0,
 		      ColorMode mode=Auto );
-    bool	load( QString fileName, QString format,
+    bool	load( const QString& fileName, const char *format,
 		      int conversion_flags );
     bool	loadFromData( const uchar *buf, uint len,
-			      QString format=0,
+			      const char* format=0,
 			      ColorMode mode=Auto );
     bool	loadFromData( const uchar *buf, uint len,
-			      QString format,
+			      const char* format,
 			      int conversion_flags );
     bool	loadFromData( QByteArray data,
-			      QString format=0,
+			      const char* format=0,
 			      int conversion_flags=0 );
-    bool	save( QString fileName, QString format ) const;
+    bool	save( const QString& fileName, const char* format ) const;
 
 #if defined(_WS_WIN_) || defined(_WS_PM_)
     HANDLE	hbm()		const;

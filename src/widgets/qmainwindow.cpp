@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#30 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#31 $
 **
 ** Implementation of QMainWindow class
 **
@@ -240,8 +240,8 @@ void QMainWindow::setStatusBar( QStatusBar * newStatusBar )
     if ( d->sb )
 	delete d->sb;
     d->sb = newStatusBar;
-    connect( toolTipGroup(), SIGNAL(showTip(QString )),
-	     d->sb, SLOT(message(QString )) );
+    connect( toolTipGroup(), SIGNAL(showTip(const QString&)),
+	     d->sb, SLOT(message(const QString&)) );
     connect( toolTipGroup(), SIGNAL(removeTip()),
 	     d->sb, SLOT(clear()) );
     d->sb->installEventFilter( this );
@@ -291,8 +291,8 @@ void QMainWindow::setToolTipGroup( QToolTipGroup * newToolTipGroup )
 	delete d->ttg;
     d->ttg = newToolTipGroup;
 
-    connect( toolTipGroup(), SIGNAL(showTip(QString )),
-	     statusBar(), SLOT(message(QString )) );
+    connect( toolTipGroup(), SIGNAL(showTip(const QString&)),
+	     statusBar(), SLOT(message(const QString&)) );
     connect( toolTipGroup(), SIGNAL(removeTip()),
 	     statusBar(), SLOT(clear()) );
     triggerLayout();
@@ -388,7 +388,7 @@ bool QMainWindow::isDockEnabled( ToolBarDock dock ) const
 
 */
 
-void QMainWindow::addToolBar( QToolBar * toolBar, QString label,
+void QMainWindow::addToolBar( QToolBar * toolBar, const QString &label,
 			      ToolBarDock edge, bool nl )
 {
     if ( !toolBar )

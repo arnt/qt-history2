@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#110 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#111 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -59,9 +59,9 @@ enum FontFieldNames {				// X LFD fields
 
 static bool	parseXFontName( Q1String &fontName, char **tokens );
 static char   **getXFontNames( const char *pattern, int *count );
-static bool	smoothlyScalable( QString fontName );
-static bool	fontExists( QString fontName );
-static int	getWeight( QString weightString, bool adjustScore=FALSE );
+static bool	smoothlyScalable( const QString &fontName );
+static bool	fontExists( const QString &fontName );
+static int	getWeight( const QString &weightString, bool adjustScore=FALSE );
 
 
 // QFont_Private accesses QFont protected functions
@@ -1202,7 +1202,7 @@ int QFontMetrics::width( char ch ) const
   \sa boundingRect()
 */
 
-int QFontMetrics::width( QString str, int len ) const
+int QFontMetrics::width( const QString &str, int len ) const
 {
     if ( len < 0 )
 	len = strlen( str );
@@ -1228,7 +1228,7 @@ int QFontMetrics::width( QString str, int len ) const
 
   \sa width(), QPainter::boundingRect() */
 
-QRect QFontMetrics::boundingRect( QString str, int len ) const
+QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 {
     // Values are printerAdjusted during calculations.
 
@@ -1443,7 +1443,7 @@ static char **getXFontNames( const char *pattern, int *count )
 // Returns TRUE if the font can be smoothly scaled
 //
 
-static bool smoothlyScalable ( QString /* fontName */  )
+static bool smoothlyScalable ( const QString &/* fontName */  )
 {
     return TRUE;
 }
@@ -1453,7 +1453,7 @@ static bool smoothlyScalable ( QString /* fontName */  )
 // Returns TRUE if the font exists, FALSE otherwise
 //
 
-static bool fontExists( QString fontName )
+static bool fontExists( const QString &fontName )
 {
     char **fontNames;
     int	   count;
@@ -1501,7 +1501,7 @@ void QFontInternal::computeLineWidth()
 // Converts a weight string to a value
 //
 
-static int getWeight( QString weightString, bool adjustScore )
+static int getWeight( const QString &weightString, bool adjustScore )
 {
     // Test in decreasing order of commonness
     //

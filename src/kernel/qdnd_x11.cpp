@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#50 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd2/
 **
@@ -97,7 +97,7 @@ static Atom qt_xdnd_dragsource_xid = 0;
 // the types in this drop.  100 is no good, but at least it's big.
 static Atom qt_xdnd_types[100];
 
-static QIntDict<QString> * qt_xdnd_drag_types = 0;
+static QIntDict<Q1String> * qt_xdnd_drag_types = 0;
 static QDict<Atom> * qt_xdnd_atom_numbers = 0;
 
 // rectangle in which the answer will be the same
@@ -146,33 +146,33 @@ public:
 
 QShapedPixmapWidget * qt_xdnd_deco = 0;
 
-QString qt_xdnd_atom_to_str( Atom a )
+Q1String qt_xdnd_atom_to_str( Atom a )
 {
     if ( !a ) return 0;
 
     if ( !qt_xdnd_drag_types ) {
-	qt_xdnd_drag_types = new QIntDict<QString>( 17 );
+	qt_xdnd_drag_types = new QIntDict<Q1String>( 17 );
 	qt_xdnd_drag_types->setAutoDelete( TRUE );
 	// ### unfinished!  treat XA_STRING as text/plain.  remove ASAP
-	//QString * s;
-	//s = new QString( "text/plain" );
+	//Q1String * s;
+	//s = new Q1String( "text/plain" );
 	//qt_xdnd_drag_types->insert( (long)XA_STRING, s );
     }
-    QString* result;
+    Q1String* result;
     if ( !(result=qt_xdnd_drag_types->find( a )) ) {
 	const char* mimeType = XGetAtomName( qt_xdisplay(), a );
 	if ( !mimeType )
 	    return 0; // only happens on protocol error
-	result = new QString( mimeType );
+	result = new Q1String( mimeType );
 	qt_xdnd_drag_types->insert( (long)a, result );
 	XFree((void*)mimeType);
     }
     return *result;
 }
 
-Atom* qt_xdnd_str_to_atom( QString mimeType )
+Atom* qt_xdnd_str_to_atom( const char *mimeType )
 {
-    if ( mimeType.isEmpty() )
+    if ( mimeType && *mimeType )
 	return 0;
     if ( !qt_xdnd_atom_numbers ) {
 	qt_xdnd_atom_numbers = new QDict<Atom>( 17 );
@@ -697,7 +697,7 @@ void QDragManager::move( const QPoint & globalPos )
 	    qt_xdnd_send_leave();
 
 	Atom * type[3]={0,0,0};
-	QString fmt;
+	const char* fmt;
 	int nfmt=0;
 	for (nfmt=0; nfmt<3 && (fmt=object->format(nfmt)); nfmt++)
 	    type[nfmt] = qt_xdnd_str_to_atom( fmt );
@@ -817,7 +817,7 @@ bool qt_xdnd_handle_badwindow()
   \sa data() provides()
 */
 
-QString QDragMoveEvent::format( int n )
+const char* QDragMoveEvent::format( int n )
 {
     int i = 0;
     while( i<n && qt_xdnd_types[i] )
@@ -825,7 +825,7 @@ QString QDragMoveEvent::format( int n )
     if ( i < n )
 	return 0;
 
-    QString name = qt_xdnd_atom_to_str( qt_xdnd_types[i] );
+    const char* name = qt_xdnd_atom_to_str( qt_xdnd_types[i] );
     if ( !name )
 	return 0; // should never happen
 
@@ -838,10 +838,10 @@ QString QDragMoveEvent::format( int n )
   \sa data()
 */
 
-bool QDragMoveEvent::provides( QString mimeType )
+bool QDragMoveEvent::provides( const char *mimeType )
 {
     int n=0;
-    QString f;
+    const char* f;
     do {
 	f = format( n );
 	if ( !f )
@@ -863,7 +863,7 @@ void qt_xdnd_handle_selection_request( const XSelectionRequestEvent * req )
     evt.xselection.target = req->target;
     evt.xselection.property = None;
     evt.xselection.time = req->time;
-    QString format = qt_xdnd_atom_to_str( req->target );
+    const char* format = qt_xdnd_atom_to_str( req->target );
     if ( format && qt_xdnd_source_object &&
 	 qt_xdnd_source_object->provides( format ) ) {
 	QByteArray a = qt_xdnd_source_object->encodedData(format);
@@ -885,7 +885,7 @@ void qt_xdnd_handle_selection_request( const XSelectionRequestEvent * req )
 	evt.xselection.property = req->property;
 */
 
-static QByteArray qt_xdnd_obtain_data( QString format )
+static QByteArray qt_xdnd_obtain_data( const char *format )
 {
     QByteArray result;
 
@@ -966,7 +966,7 @@ static QByteArray qt_xdnd_obtain_data( QString format )
   \sa format()
 */
 
-QByteArray QDragMoveEvent::data( QString format )
+QByteArray QDragMoveEvent::data( const char *format )
 {
     return qt_xdnd_obtain_data( format );
 }
@@ -982,7 +982,7 @@ QByteArray QDragMoveEvent::data( QString format )
   \sa QDragMoveEvent::data() QDragMoveEvent::format()
 */
 
-QByteArray QDropEvent::data( QString format )
+QByteArray QDropEvent::data( const char *format )
 {
     return qt_xdnd_obtain_data( format );
 }

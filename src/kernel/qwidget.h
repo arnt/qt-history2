@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#159 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#160 $
 **
 ** Definition of QWidget class
 **
@@ -153,9 +153,9 @@ public:
     bool	 hasMouseTracking() const;
 
 public slots:
-    virtual void	 setCaption( QString );
+    virtual void	 setCaption( const QString &);
     virtual void	 setIcon( const QPixmap & );
-    virtual void	 setIconText( QString );
+    virtual void	 setIconText( const QString &);
     virtual void	 setMouseTracking( bool enable );
 
   // Keyboard input focus functions
@@ -237,8 +237,8 @@ public:
     void	 erase( const QRect & );
     void	 scroll( int dx, int dy );
 
-    void	 drawText( int x, int y, QString );
-    void	 drawText( const QPoint &, QString );
+    void	 drawText( int x, int y, const QString &);
+    void	 drawText( const QPoint &, const QString &);
 
   // Misc. functions
 
@@ -501,7 +501,7 @@ inline void QWidget::resize( const QSize &s )
 inline void QWidget::setGeometry( const QRect &r )
 { setGeometry( r.left(), r.top(), r.width(), r.height() ); }
 
-inline void QWidget::drawText( const QPoint &p, QString s )
+inline void QWidget::drawText( const QPoint &p, const QString &s )
 { drawText( p.x(), p.y(), s ); }
 
 inline QWidget *QWidget::parentWidget() const

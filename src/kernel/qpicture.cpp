@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#51 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#52 $
 **
 ** Implementation of QPicture class
 **
@@ -110,7 +110,7 @@ static const UINT16 mfhdr_min = 0;		// minor version #
   \sa data(), size()
 */
 
-void QPicture::setData( QString data, uint size )
+void QPicture::setData( const QString &data, uint size )
 {
     QByteArray a( size );
     memcpy( a.data(), data, size );
@@ -126,7 +126,7 @@ void QPicture::setData( QString data, uint size )
   \sa save()
 */
 
-bool QPicture::load( QString fileName )
+bool QPicture::load( const QString &fileName )
 {
     QByteArray a;
     QFile f( fileName );
@@ -147,7 +147,7 @@ bool QPicture::load( QString fileName )
   \sa load()
 */
 
-bool QPicture::save( QString fileName )
+bool QPicture::save( const QString &fileName )
 {
     QFile f( fileName );
     if ( !f.open( IO_WriteOnly ) )

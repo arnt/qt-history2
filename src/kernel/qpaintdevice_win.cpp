@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#39 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_win.cpp#40 $
 **
 ** Implementation of QPaintDevice class for Win32
 **
@@ -76,7 +76,7 @@ int QPaintDevice::metric( int ) const
     return 0;
 }
 
-int QPaintDevice::fontMet( QFont *, int, QString , int ) const
+int QPaintDevice::fontMet( QFont *, int, const QString &, int ) const
 {
     return 0;
 }

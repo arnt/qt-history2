@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.h#30 $
+** $Id: //depot/qt/main/src/kernel/qaccel.h#31 $
 **
 ** Definition of QAccel class
 **
@@ -56,9 +56,9 @@ public:
     void	setItemEnabled( int id, bool enable );
 
     bool	connectItem( int id,
-			     const QObject *receiver, QString member );
+			     const QObject *receiver, const char* member );
     bool	disconnectItem( int id,
-				const QObject *receiver, QString member );
+				const QObject *receiver, const char* member );
 
     void	repairEventFilter();
 

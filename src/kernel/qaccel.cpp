@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#48 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#49 $
 **
 ** Implementation of QAccel class
 **
@@ -293,7 +293,7 @@ void QAccel::setItemEnabled( int id, bool enable )
   \sa disconnectItem()
 */
 
-bool QAccel::connectItem( int id, const QObject *receiver, QString member )
+bool QAccel::connectItem( int id, const QObject *receiver, const char *member )
 {
     QAccelItem *item = find_id(aitems, id);
     if ( item ) {
@@ -313,7 +313,7 @@ bool QAccel::connectItem( int id, const QObject *receiver, QString member )
 */
 
 bool QAccel::disconnectItem( int id, const QObject *receiver,
-			     QString member )
+			     const char *member )
 {
     QAccelItem *item = find_id(aitems, id);
     if ( item && item->signal )

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#66 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#67 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -1786,9 +1786,9 @@ static void cleanup()
 }
 
 
-static void wordwrap( QString& s )
+static void wordwrap( QString & s )
 {
-    int ip = 0, ilp = 0, op = 0, olp = 0, oline = 0;
+    uint ip = 0, ilp = 0, op = 0, olp = 0, oline = 0;
     bool needws = FALSE, insertws = FALSE;
 
     while( ip < s.length() ) {
@@ -1970,7 +1970,7 @@ static struct {
 };
 
 
-//static void ps_setFont( QTextStream *s, const QFont *f, QString *fonts )
+//static void ps_setFont( QTextStream *s, const QFont *f, const QString &*fonts )
 void QPSPrinter::setFont( const QFont & f )
 {
     if ( f.rawMode() ) {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.cpp#60 $
+** $Id: //depot/qt/main/src/tools/qtextstream.cpp#61 $
 **
 ** Implementation of QTextStream class
 **
@@ -386,7 +386,7 @@ private:        // Disabled copy constructor and operator=
   string.
 */
 
-QTextStream::QTextStream( QString& str, int filemode, CharacterMode mode )
+QTextStream::QTextStream( QString& str, int filemode, Encoding mode )
 {
     dev = new QStringBuffer( str );
     ((QStringBuffer *)dev)->open( filemode );
@@ -467,24 +467,54 @@ QTextStream::~QTextStream()
 }
 
 /*!
-  Sets the character mode for the stream to \a mode.
+  Sets the encoding mode for the stream to \a mode.
 
-  \define CharacterMode
+  \define Encoding
 
   The availables modes are:
   <ol>
     <li>Ascii - 8-bit text
-    <li>Unicode - little endian Unicode text
+    <li>Unicode - Unicode text
     <li>UnicodeBigEndian - big endian Unicode text
     <li>UnicodeLittleEndian - little endian Unicode text
   </ol>
 
-  This should only be done before any characters are written
-  to or read from the stream.
+  Normally you choose one of Ascii or Unicode.  Using Unicode causes
+  Qt to attempt to auto-detect the endianness of the file using the
+  Unicode standard technique for this.
+
+  This should only be done, at most once, before any characters are written
+  to or read from the stream, and the stream must have a device set.
 */
-void QTextStream::setCharacterMode(CharacterMode mode)
+void QTextStream::setEncoding(Encoding mode)
 {
+    if ( cmode == mode )
+	return;
+
     cmode = mode;
+
+    if ( mode != Ascii ) {
+	const int bom = 0xfeff;
+	const int mob = 0xfffe;
+	if ( dev->mode() & IO_WriteOnly ) {
+	    // Write the byte order marker
+	    ts_putc(bom);
+	} else {
+	    // Try to read the byte order marker
+	    int ch = ts_getc();
+	    if ( ch == bom ) {
+		// Good guess.
+	    } else if ( ch == mob ) {
+		// Bad guess.
+		mode = mode == UnicodeLittleEndian
+		    ? UnicodeBigEndian
+		    : UnicodeLittleEndian;
+	    } else {
+		// No clue.
+		ts_ungetc(ch);
+	    }
+	}
+    }
 }
 
 /*!
@@ -494,11 +524,11 @@ void QTextStream::setCharacterMode(CharacterMode mode)
 */
 
 /*!
-  \fn CharacterMode QTextStream::characterMode() const
+  \fn Encoding QTextStream::encoding() const
 
-  Returns the character mode of the stream.
+  Returns the encoding mode of the stream.
 
-  \sa setCharacterMode()
+  \sa setEncoding()
 */
 
 /*!
@@ -1421,7 +1451,7 @@ QTextStream &QTextStream::operator<<( void *ptr )
 
   The buffer \e s must be preallocated.
 
-  \note No CharacterMode conversion is used in this function.
+  \note No Encoding is done by this function.
 
   \sa QIODevice::readBlock()
 */
@@ -1436,7 +1466,7 @@ QTextStream &QTextStream::readRawBytes( char *s, uint len )
   Writes the \e len bytes from \e s to the stream and returns a reference to
   the stream.
 
-  \note No CharacterMode conversion is used in this function.
+  \note No Encoding is done by this function.
 
   \sa QIODevice::writeBlock()
 */
@@ -1485,15 +1515,15 @@ QTextStream &QTextStream::writeBlock( const QChar* p, uint len )
 	}
 	break;
       case UnicodeBigEndian: {
-	    dev->writeBlock( (char*)p, len*sizeof(QChar) );
+	    QChar *u = new QChar[len];
+	    for (uint i=0; i<len; i++)
+		u[i] = p[i].reversedBytes();
+	    dev->writeBlock( (char*)u, len*sizeof(QChar) );
+	    delete [] u;
 	}
 	break;
       case UnicodeLittleEndian: {
-	    QChar *u = new QChar[len];
-	    for (uint i=0; i<len; i++)
-		u[i] = QChar(p[i].hi,p[i].lo);
-	    dev->writeBlock( (char*)u, len*sizeof(QChar) );
-	    delete [] u;
+	    dev->writeBlock( (char*)p, len*sizeof(QChar) );
 	}
 	break;
     }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#180 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#181 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -193,7 +193,7 @@ QImage::QImage( const QSize& size, int depth, int numColors, Endian bitOrder )
   \sa load()
 */
 
-QImage::QImage( QString fileName, const char* format )
+QImage::QImage( const QString &fileName, const char* format )
 {
     data = new QImageData;
     CHECK_PTR( data );
@@ -2157,7 +2157,7 @@ QImage QImage::createHeuristicMask( bool clipTight ) const
   \sa load(), save()
 */
 
-const char* QImage::imageFormat( QString fileName )
+const char* QImage::imageFormat( const QString &fileName )
 {
     return QImageIO::imageFormat(fileName);
 }
@@ -2193,7 +2193,7 @@ QStrList QImage::outputFormats()
   \sa loadFromData(), save(), imageFormat(), QPixmap::load(), QImageIO
 */
 
-bool QImage::load( QString fileName, const char* format )
+bool QImage::load( const QString &fileName, const char* format )
 {
     QImageIO io( fileName, format );
     bool result = io.read();
@@ -2246,7 +2246,7 @@ bool QImage::loadFromData( QByteArray buf, const char *format )
   \sa load(), loadFromData(), imageFormat(), QPixmap::save(), QImageIO
 */
 
-bool QImage::save( QString fileName, const char* format ) const
+bool QImage::save( const QString &fileName, const char* format ) const
 {
     if ( isNull() )
 	return FALSE;				// nothing to save
@@ -2310,7 +2310,7 @@ static void read_async_image( QImageIO * ); // Not in table of handlers
   Misc. utility functions
  *****************************************************************************/
 
-static QString fbname( QString fileName )	// get file basename (sort of)
+static QString fbname( const QString &fileName )	// get file basename (sort of)
 {
     QString s = fileName;
     if ( !s.isEmpty() ) {
@@ -2424,7 +2424,7 @@ QImageIO::QImageIO( QIODevice *ioDevice, const char *format )
   Constructs a QImageIO object with a file name and a format tag.
 */
 
-QImageIO::QImageIO( QString fileName, const char* format )
+QImageIO::QImageIO( const QString &fileName, const char* format )
     : frmt(format), fname(fileName)
 {
     iostat = 0;
@@ -2687,7 +2687,7 @@ void QImageIO::setIODevice( QIODevice *ioDevice )
   \sa setIODevice()
 */
 
-void QImageIO::setFileName( QString fileName )
+void QImageIO::setFileName( const QString &fileName )
 {
     fname = fileName;
 }
@@ -2714,7 +2714,7 @@ void QImageIO::setParameters( const char *parameters )
   Currently, no image format supported by Qt use the description string.
 */
 
-void QImageIO::setDescription( QString description )
+void QImageIO::setDescription( const QString &description )
 {
     if ( descr )
 	delete [] descr;
@@ -2727,7 +2727,7 @@ void QImageIO::setDescription( QString description )
   or null if the file cannot not be read or if the format is not recognized.
 */
 
-const char* QImageIO::imageFormat( QString fileName )
+const char* QImageIO::imageFormat( const QString &fileName )
 {
     QFile file( fileName );
     if ( !file.open(IO_ReadOnly) )

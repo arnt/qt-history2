@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#120 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#121 $
 **
 ** Implementation of QFileDialog class
 **
@@ -732,7 +732,7 @@ QFileDialog::QFileDialog( QWidget *parent, const char *name, bool modal )
   The dialog becomes modal if \e modal is TRUE, otherwise modeless.
 */
 
-QFileDialog::QFileDialog( QString dirName, QString filter,
+QFileDialog::QFileDialog( const QString& dirName, const QString & filter,
 			  QWidget *parent, const char *name, bool modal )
     : QDialog( parent, name, modal )
 {
@@ -771,7 +771,7 @@ void QFileDialog::init()
     d->mode = AnyFile;
 
     nameEdit = new QLineEdit( this, "name/filter editor" );
-    connect( nameEdit, SIGNAL(textChanged(QString )),
+    connect( nameEdit, SIGNAL(textChanged(const QString&)),
 	     this,  SLOT(fileNameEditDone()) );
     nameEdit->installEventFilter( this );
 
@@ -829,13 +829,13 @@ void QFileDialog::init()
 	++it;
 	d->paths->insertItem( fi->absFilePath() );
     }
-    connect( d->paths, SIGNAL(activated(QString )),
-	     this, SLOT(setDir(QString )) );
+    connect( d->paths, SIGNAL(activated(const QString&)),
+	     this, SLOT(setDir(const QString&)) );
 
     d->geometryDirty = TRUE;
     d->types = new QComboBox( TRUE, this, "file types" );
-    connect( d->types, SIGNAL(activated(QString )),
-	     this, SLOT(setFilter(QString )) );
+    connect( d->types, SIGNAL(activated(const QString&)),
+	     this, SLOT(setFilter(const QString&)) );
 
     d->pathL = new QLabel( d->paths, tr("Look &in"), this );
     d->fileL = new QLabel( nameEdit, tr("File &name"), this );
@@ -955,7 +955,7 @@ QString QFileDialog::selectedFile() const
   \internal
   Only for external use.  Not useful inside QFileDialog.
 */
-void QFileDialog::setSelection( QString filename )
+void QFileDialog::setSelection( const QString & filename )
 {
     QFileInfo info(filename);
     if ( info.isDir() ) {
@@ -992,7 +992,7 @@ QString QFileDialog::dirPath() const
   \endcode
 */
 
-void QFileDialog::setFilter( QString newFilter )
+void QFileDialog::setFilter( const QString & newFilter )
 {
     if ( !newFilter )
 	return;
@@ -1012,7 +1012,7 @@ void QFileDialog::setFilter( QString newFilter )
   \sa dir()
 */
 
-void QFileDialog::setDir( QString pathstr )
+void QFileDialog::setDir( const QString & pathstr )
 {
     QDir tmp( pathstr );
     setDir( tmp );
@@ -1179,8 +1179,8 @@ void qt_leave_modal( QWidget* );
   \sa getSaveFileName()
 */
 
-QString QFileDialog::getOpenFileName( QString startWith,
-				      QString filter,
+QString QFileDialog::getOpenFileName( const QString & startWith,
+				      const QString& filter,
 				      QWidget *parent, const char* name )
 {
     makeVariables();
@@ -1314,8 +1314,8 @@ QString QFileDialog::getOpenFileName( QString startWith,
   \sa getOpenFileName()
 */
 
-QString QFileDialog::getSaveFileName( QString startWith,
-				      QString filter,
+QString QFileDialog::getSaveFileName( const QString & startWith,
+				      const QString& filter,
 				      QWidget *parent, const char* name )
 {
     makeVariables();
@@ -1470,7 +1470,7 @@ void QFileDialog::resizeEvent( QResizeEvent * )
 
   Obsolete.
 */
-void QFileDialog::updatePathBox( QString )
+void QFileDialog::updatePathBox( const QString & )
 {
     // unused
 }
@@ -1717,7 +1717,7 @@ void QFileDialog::cdUpClicked()
   previous file dialog left off.
 */
 
-QString QFileDialog::getExistingDirectory( QString dir,
+QString QFileDialog::getExistingDirectory( const QString & dir,
 					   QWidget *parent,
 					   const char* name )
 {
@@ -1991,7 +1991,7 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
   \sa setFilter()
 */
 
-void QFileDialog::setFilters( QString * types )
+void QFileDialog::setFilters( const char ** types )
 {
     if ( !types || !*types )
 	return;
@@ -2066,8 +2066,8 @@ void QFileDialog::modeButtonsDestroyed()
   \endcode
 */
 
-QStrList QFileDialog::getOpenFileNames( QString filter,
-					QString dir,
+QStrList QFileDialog::getOpenFileNames( const QString & filter,
+					const QString& dir,
 					QWidget *parent,
 					const char* name )
 {

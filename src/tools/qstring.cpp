@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#123 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#124 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** Q1String classes
@@ -382,7 +382,7 @@ QDataStream &operator>>( QDataStream &s, QByteArray &a )
     return s;
 }
 
-// XXX Unicode fns
+// ##### Unicode fns need to ifdef UNICODE (if we go that way)
 QChar uctolower(QChar c)
 {
     return c.hi ? c : QChar(tolower(c.lo));
@@ -526,6 +526,30 @@ QString::Data *QString::shared_null = 0;
 const QString QString::null;
 const QChar QChar::null;
 
+#define STATS(x) x
+#ifdef STATS
+static int stat_construct_charstar=0;
+static int stat_construct_charstar_size=0;
+static int stat_construct_null=0;
+static int stat_construct_int=0;
+static int stat_construct_int_size=0;
+static int stat_construct_ba=0;
+static int stat_get_ascii=0;
+static int stat_copy_on_write=0;
+static int stat_copy_on_write_size=0;
+static int stat_fast_copy=0;
+void qt_qstring_stats()
+{
+	debug("construct_charstar = %d (%d bytes)", stat_construct_charstar, stat_construct_charstar_size);
+	debug("construct_null = %d", stat_construct_null);
+	debug("construct_int = %d (%d bytes)", stat_construct_int, stat_construct_int_size);
+	debug("construct_ba = %d", stat_construct_ba);
+	debug("get_ascii = %d", stat_get_ascii);
+	debug("copy_on_write = %d (%d bytes)", stat_copy_on_write, stat_copy_on_write_size);
+	debug("fast_copy = %d", stat_fast_copy);
+}
+#endif
+
 /*!
   Constructs a null string.
   \sa isNull()
@@ -533,6 +557,7 @@ const QChar QChar::null;
 QString::QString() :
     d(shared_null ? shared_null : shared_null=new Data)
 {
+    STATS(stat_construct_null++);
     d->ref();
 }
 
@@ -542,6 +567,7 @@ QString::QString() :
 QString::QString( const QString &s ) :
     d(s.d)
 {
+    STATS(stat_fast_copy++);
     d->ref();
 }
 
@@ -558,9 +584,12 @@ QString::QString( const QString &s ) :
 QString::QString( int size )
 {
     if ( size ) {
+	STATS(stat_construct_int++);
 	int l = size-1;
+	STATS(stat_construct_int_size+=l);
 	d = new Data(new QChar[l],0,l);
     } else {
+	STATS(stat_construct_null++);
 	d = shared_null ? shared_null : shared_null=new Data;
 	d->ref();
     }
@@ -573,6 +602,7 @@ QString::QString( int size )
 
 QString::QString( const QByteArray& ba )
 {
+    STATS(stat_construct_ba++);
     uint l;
     QChar *uc = asciiToUnicode(ba,l);
     d = new Data(uc,l,l);
@@ -589,8 +619,10 @@ QString::QString( const QByteArray& ba )
 
 QString::QString( const char *str )
 {
+    STATS(stat_construct_charstar++);
     uint l;
     QChar *uc = asciiToUnicode(str,l);
+    STATS(stat_construct_charstar_size+=l);
     d = new Data(uc,l,l);
 }
 
@@ -615,6 +647,7 @@ QString::QString( const char *str )
 
 QString::QString( const char *str, uint maxlen )
 {
+    STATS(stat_construct_charstar++);
     uint l;
     QChar *uc = asciiToUnicode(str,l);
     d = new Data(uc,l,l);
@@ -633,6 +666,8 @@ QString::~QString()
 void QString::real_detach()
 {
     if ( d->count != 1 ) {
+	STATS(stat_copy_on_write++);
+	STATS(stat_copy_on_write_size+=d->len);
 	int newlen = d->len;
 	QChar * nd;
 	if ( newlen ) {
@@ -662,6 +697,7 @@ void QString::deref()
 */
 QString &QString::operator=( const QString &s )
 {
+    STATS(stat_fast_copy++);
     s.d->ref();
     deref();
     d = s.d;
@@ -1920,6 +1956,7 @@ QString &QString::operator+=( char c )
 */
 const char* QString::ascii() const
 {
+    STATS(stat_get_ascii++);
     if ( d->ascii ) {
 	if ( d->dirtyascii )
 	    delete [] d->ascii;

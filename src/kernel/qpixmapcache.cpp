@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#21 $
+** $Id: //depot/qt/main/src/kernel/qpixmapcache.cpp#22 $
 **
 ** Implementation of QPixmapCache class
 **
@@ -94,7 +94,7 @@ static int cache_limit	  = 1024;		// 1024 KB cache limit
   \endcode
 */
 
-QPixmap *QPixmapCache::find( QString key )
+QPixmap *QPixmapCache::find( const QString &key )
 {
     return pm_cache ? pm_cache->find(key) : 0;
 }
@@ -116,7 +116,7 @@ QPixmap *QPixmapCache::find( QString key )
   \endcode
 */
 
-bool QPixmapCache::find( QString key, QPixmap& pm )
+bool QPixmapCache::find( const QString &key, QPixmap& pm )
 {
     QPixmap* p = pm_cache ? pm_cache->find(key) : 0;
     if ( p ) pm = *p;
@@ -139,7 +139,7 @@ bool QPixmapCache::find( QString key, QPixmap& pm )
   </strong>
 */
 
-bool QPixmapCache::insert( QString key, QPixmap *pm )
+bool QPixmapCache::insert( const QString &key, QPixmap *pm )
 {
     if ( !pm_cache ) {				// create pixmap cache
 	pm_cache = new QPMCache( 1024*cache_limit, cache_size );
@@ -165,7 +165,7 @@ bool QPixmapCache::insert( QString key, QPixmap *pm )
   \sa setCacheLimit().
 */
 
-void QPixmapCache::insert( QString key, const QPixmap& pm )
+void QPixmapCache::insert( const QString &key, const QPixmap& pm )
 {
     if ( !pm_cache ) {				// create pixmap cache
 	pm_cache = new QPMCache( 1024*cache_limit, cache_size );

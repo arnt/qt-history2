@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qasyncio.h#6 $
+** $Id: //depot/qt/main/src/kernel/qasyncio.h#7 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -39,7 +39,7 @@ class QIODevice;
 class QAsyncIO {
 public:
     virtual ~QAsyncIO();
-    void connect(QObject*, QString member);
+    void connect(QObject*, const char *member);
 
 protected:
     void ready();

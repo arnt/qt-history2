@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#44 $
+** $Id: //depot/qt/main/src/widgets/qbuttongroup.cpp#45 $
 **
 ** Implementation of QButtonGroup class
 **
@@ -93,7 +93,7 @@ QButtonGroup::QButtonGroup( QWidget *parent, const char *name )
   The \e parent and \e name arguments are passed to the QWidget constructor.
 */
 
-QButtonGroup::QButtonGroup( QString title, QWidget *parent,
+QButtonGroup::QButtonGroup( const QString &title, QWidget *parent,
 			    const char *name )
     : QGroupBox( title, parent, name )
 {

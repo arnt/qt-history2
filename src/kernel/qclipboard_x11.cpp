@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qclipboard_x11.cpp#32 $
 **
 ** Implementation of QClipboard class for X11
 **
@@ -79,7 +79,7 @@ public:
     ClipboardFormat	format() const;
 
     QString		text() const;
-    void		setText( QString );
+    void		setText( const QString& );
     QPixmap	        pixmap() const;
     void		setPixmap( QPixmap );
 
@@ -112,7 +112,7 @@ inline QString QClipboardData::text() const
     return t;
 }
 
-inline void QClipboardData::setText( QString text )
+inline void QClipboardData::setText( const QString &text )
 {
     t = text;
     f = CFText;
@@ -515,7 +515,7 @@ QString QClipboard::text() const
   \sa text()
 */
 
-void QClipboard::setText( QString text )
+void QClipboard::setText( const QString &text )
 {
     QClipboardData *d = clipboardData();
     setupOwner();

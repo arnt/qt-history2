@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qprinter.h#26 $
+** $Id: //depot/qt/main/src/kernel/qprinter.h#27 $
 **
 ** Definition of QPrinter class
 **
@@ -45,18 +45,18 @@ public:
     enum ColorMode   { GrayScale, Color };
 
     QString printerName()	const;
-    virtual void	setPrinterName( QString );
+    virtual void	setPrinterName( const QString &);
     bool	outputToFile()	const;
     virtual void	setOutputToFile( bool );
     QString outputFileName()const;
-    virtual void	setOutputFileName( QString );
+    virtual void	setOutputFileName( const QString &);
     QString printProgram()	const;
-    virtual void	setPrintProgram( QString );
+    virtual void	setPrintProgram( const QString &);
 
     QString docName()	const;
-    virtual void	setDocName( QString );
+    virtual void	setDocName( const QString &);
     QString creator()	const;
-    virtual void	setCreator( QString );
+    virtual void	setCreator( const QString &);
 
     Orientation orientation()	const;
     virtual void	setOrientation( Orientation );

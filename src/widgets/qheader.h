@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.h#22 $
+** $Id: //depot/qt/main/src/widgets/qheader.h#23 $
 **
 ** Definition of QHeader widget class (table header)
 **
@@ -40,8 +40,8 @@ public:
     QHeader( int, QWidget *parent=0, const char *name=0 );
     ~QHeader();
 
-    int		addLabel( QString , int size = -1 );
-    virtual void	setLabel( int, QString , int size = -1 );
+    int		addLabel( const QString &, int size = -1 );
+    virtual void	setLabel( int, const QString &, int size = -1 );
     QString 	label( int );
     virtual void	setOrientation( Orientation );
     Orientation orientation() const;

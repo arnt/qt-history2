@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#63 $
+** $Id: //depot/qt/main/src/tools/qstring.h#64 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and Q1String classes
@@ -149,39 +149,90 @@ QDataStream &operator>>( QDataStream &, QByteArray & );
 
 class QRegExp;
 
+#define UNICODE // ###### We need to decide - libqtu AND libqt? ???
+#ifdef UNICODE
+
 class QChar {
 public:
-    QChar() : hi(0), lo(0) { }
-    QChar( uchar l, uchar h=0 ) : hi(h), lo(l) { }
-    QChar( const QChar& c ) : hi(c.hi), lo(c.lo) { }
+    QChar() : row(0), cell(0) { }
+    QChar( uchar c, uchar r=0 ) : row(r), cell(c) { }
+    QChar( const QChar& c ) : row(c.row), cell(c.cell) { }
 
     static const QChar null;
 
-    operator char() const { return hi?0:lo; }
+    operator char() const { return row?0:cell; }
 
     bool operator==( const QChar& c )
     {
-	return c.lo == lo
-	    && c.hi == hi;
+	return c.cell == cell
+	    && c.row == row;
     }
     bool operator==( char c )
     {
-	return c == lo && !hi;
+	return c == cell && !row;
     }
 
     bool operator!=( const QChar& c )
     {
-	return c.lo != lo
-	    || c.hi != hi;
+	return c.cell != cell
+	    || c.row != row;
     }
     bool operator!=( char c )
     {
-	return c != lo || hi;
+	return c != cell || row;
     }
 
-    uchar hi;
-    uchar lo;
+    int bytes()
+    {
+	return row << 8 || cell;
+    }
+
+    int reversedBytes()
+    {
+	return row || cell << 8;
+    }
+
+private:
+    uchar row;
+    uchar cell;
 };
+
+#else
+
+class QChar {
+public:
+    QChar() cell(0) { }
+    QChar( uchar l ) : cell(l) { }
+    QChar( const QChar& c ) : cell(c.cell) { }
+
+    static const QChar null;
+
+    operator char() const { return cell; }
+
+    bool operator==( const QChar& c )
+    {
+	return c.cell == cell;
+    }
+    bool operator==( char c )
+    {
+	return c == cell;
+    }
+
+    bool operator!=( const QChar& c )
+    {
+	return c.cell != cell;
+    }
+    bool operator!=( char c )
+    {
+	return c != cell;
+    }
+
+private:
+    uchar cell;
+};
+
+#endif
+
 
 class QString
 {
@@ -194,7 +245,7 @@ public:
     QString( const char *str, uint maxlen );	// deep copy, max length
     ~QString();
 
-    QString    &operator=( const QString& );	// impl-shared copy
+    QString    &operator=( const QString & );	// impl-shared copy
     QString    &operator=( const char * );	// deep copy
     QString    &operator=( const QByteArray& );	// deep copy
 
@@ -246,14 +297,14 @@ public:
     QString	stripWhiteSpace()	const;
     QString	simplifyWhiteSpace()	const;
 
-    QString    &insert( uint index, const QString& );
+    QString    &insert( uint index, const QString & );
     QString    &insert( uint index, QChar );
     QString    &insert( uint index, char c ) { return insert(index,QChar(c)); }
-    QString    &append( const QString& );
-    QString    &prepend( const QString& );
+    QString    &append( const QString & );
+    QString    &prepend( const QString & );
     QString    &remove( uint index, uint len );
-    QString    &replace( uint index, uint len, const QString& );
-    QString    &replace( const QRegExp &, const QString& );
+    QString    &replace( uint index, uint len, const QString & );
+    QString    &replace( const QRegExp &, const QString & );
 
     short	toShort( bool *ok=0 )	const;
     ushort	toUShort( bool *ok=0 )	const;
@@ -276,7 +327,7 @@ public:
 
     void	setExpand( uint index, QChar c );
 
-    QString    &operator+=( const QString&str );
+    QString    &operator+=( const QString &str );
     QString    &operator+=( QChar c );
     QString    &operator+=( char c );
 
@@ -330,7 +381,7 @@ private:
  *****************************************************************************/
 
 QDataStream &operator<<( QDataStream &, const QString & );
-QDataStream &operator>>( QDataStream &, QString & );
+QDataStream &operator>>( QDataStream &, const QString & );
 
 
 /*****************************************************************************
@@ -338,10 +389,10 @@ QDataStream &operator>>( QDataStream &, QString & );
  *****************************************************************************/
 
 //inline QString &QString::operator=( const QString &s )
-//{ return (QString&)assign( s ); }
+//{ return (const QString &)assign( s ); }
 
 //inline QString &QString::operator=( const char *str )
-//{ return (QString&)duplicate( str, strlen(str)+1 ); }
+//{ return (const QString &)duplicate( str, strlen(str)+1 ); }
 
 inline bool QString::isNull() const
 { return unicode() == 0; }
@@ -360,10 +411,10 @@ inline bool QString::isEmpty() const
 inline QString QString::copy() const
 { return QString( *this ); }
 
-inline QString &QString::prepend( const QString& s )
+inline QString &QString::prepend( const QString & s )
 { return insert(0,s); }
 
-inline QString &QString::append( const QString& s )
+inline QString &QString::append( const QString & s )
 { return operator+=(s); }
 
 inline QString &QString::setNum( short n )

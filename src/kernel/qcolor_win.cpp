@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qcolor_win.cpp#47 $
 **
 ** Implementation of QColor class for Win32
 **
@@ -884,7 +884,7 @@ static int rgb_cmp( const void *d1, const void *d2 )
     return stricmp( ((RGBData *)d1)->name, ((RGBData *)d2)->name );
 }
 
-static uint get_rgb_val( QString name )
+static uint get_rgb_val( const char *name )
 {
     RGBData x;
     x.name = (char *)name;
@@ -895,7 +895,7 @@ static uint get_rgb_val( QString name )
 
 #else
 
-static uint get_rgb_val( QString )
+static uint get_rgb_val( const char * )
 {
     return RGB_INVALID;
 }
@@ -903,7 +903,7 @@ static uint get_rgb_val( QString )
 #endif // NO_COLORNAMES
 
 
-void QColor::setSystemNamedColor( QString name )
+void QColor::setSystemNamedColor( const char *name )
 {
     if ( !color_init ) {
 #if defined(CHECK_STATE)

@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#153 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#154 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -102,7 +102,7 @@ static const int blinkTime  = 500;		// text cursor blink time
 static const int scrollTime = 100;		// mark text scroll time
 
 
-static int xPosToCursorPos( QString s, int offset, const QFontMetrics &fm,
+static int xPosToCursorPos( const QString &s, int offset, const QFontMetrics &fm,
 			    int xPos, int width )
 {
     uint  i = offset;
@@ -120,7 +120,7 @@ static int xPosToCursorPos( QString s, int offset, const QFontMetrics &fm,
     return i - offset;
 }
 
-static int showLastPartOffset( QString s, uint offset, const QFontMetrics &fm, int width )
+static int showLastPartOffset( const QString &s, uint offset, const QFontMetrics &fm, int width )
 {
     if ( offset > s.length() )
 	return 0;
@@ -190,7 +190,7 @@ QLineEdit::~QLineEdit()
   \sa text()
 */
 
-void QLineEdit::setText( QString text )
+void QLineEdit::setText( const QString &text )
 {
     QString oldText( tbuf );
     tbuf = text ? text : QString("");
@@ -1310,7 +1310,7 @@ void QLineEdit::dragScrollSlot()
   Repaints and emits textChanged() if appropriate.
 */
 
-bool QLineEdit::validateAndSet( QString newText, int newPos,
+bool QLineEdit::validateAndSet( const QString &newText, int newPos,
 				int newMarkAnchor, int newMarkDrag )
 {
     QString t( newText );
@@ -1386,7 +1386,7 @@ bool QLineEdit::validateAndSet( QString newText, int newPos,
 
 */
 
-void QLineEdit::insert( QString newText )
+void QLineEdit::insert( const QString &newText )
 {
     QString t( newText );
     if ( t.isEmpty() )

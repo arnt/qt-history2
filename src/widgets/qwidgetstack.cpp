@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#15 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -70,7 +70,7 @@ class QWidgetStackPrivate {
 
 /*!  Constructs an empty widget stack. */
 
-QWidgetStack::QWidgetStack( QWidget * parent, QString name )
+QWidgetStack::QWidgetStack( QWidget * parent, const char *name )
     : QFrame( parent, name )
 {
     d = 0;

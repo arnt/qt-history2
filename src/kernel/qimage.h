@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.h#63 $
+** $Id: //depot/qt/main/src/kernel/qimage.h#64 $
 **
 ** Definition of QImage and QImageIO classes
 **
@@ -40,7 +40,7 @@ public:
 	    Endian bitOrder=IgnoreEndian );
     QImage( const QSize&, int depth, int numColors=0,
 	    Endian bitOrder=IgnoreEndian );
-    QImage( QString fileName, const char* format=0 );
+    QImage( const QString &fileName, const char* format=0 );
     QImage( const char *xpm[] );
     QImage( const QImage & );
    ~QImage();
@@ -107,15 +107,15 @@ public:
     static Endian systemBitOrder();
     static Endian systemByteOrder();
 
-    static const char* imageFormat( QString fileName );
+    static const char* imageFormat( const QString &fileName );
     static QStrList inputFormats();
     static QStrList outputFormats();
 
-    bool	load( QString fileName, const char* format=0 );
+    bool	load( const QString &fileName, const char* format=0 );
     bool	loadFromData( const uchar *buf, uint len,
 			      const char *format=0 );
     bool	loadFromData( QByteArray data, const char *format=0 );
-    bool	save( QString fileName, const char* format ) const;
+    bool	save( const QString &fileName, const char* format ) const;
 
     bool	valid( int x, int y ) const;
     int		pixelIndex( int x, int y ) const;
@@ -158,7 +158,7 @@ class QImageIO
 public:
     QImageIO();
     QImageIO( QIODevice	 *ioDevice, const char *format );
-    QImageIO( QString fileName, const char* format );
+    QImageIO( const QString &fileName, const char* format );
    ~QImageIO();
 
 
@@ -174,14 +174,14 @@ public:
     void	setStatus( int );
     void	setFormat( const char * );
     void	setIODevice( QIODevice * );
-    void	setFileName( QString );
+    void	setFileName( const QString &);
     void	setParameters( const char * );
-    void	setDescription( QString );
+    void	setDescription( const QString &);
 
     bool	read();
     bool	write();
 
-    static const char* imageFormat( QString fileName );
+    static const char* imageFormat( const QString &fileName );
     static const char *imageFormat( QIODevice * );
     static QStrList inputFormats();
     static QStrList outputFormats();

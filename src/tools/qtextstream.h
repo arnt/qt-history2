@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextstream.h#34 $
+** $Id: //depot/qt/main/src/tools/qtextstream.h#35 $
 **
 ** Definition of QTextStream class
 **
@@ -34,19 +34,21 @@
 class QTextStream				// text stream class
 {
 public:
-    enum CharacterMode {
+    enum Encoding {
 	Ascii,
+	Utf7,
+	Utf8,
+	Unicode=Utf7
 	UnicodeBigEndian,
 	UnicodeLittleEndian,
-	Unicode=UnicodeBigEndian,
     };
 
-    void	 setCharacterMode(CharacterMode);
-    CharacterMode characterMode() const { return cmode; }
+    void	 setEncoding(Encoding);
+    Encoding encoding() const { return cmode; }
 
     QTextStream();
     QTextStream( QIODevice * );
-    QTextStream( QString&, int mode, CharacterMode m=Unicode );
+    QTextStream( QString &, int mode, Encoding m=Unicode );
     QTextStream( QByteArray, int mode );
     QTextStream( FILE *, int mode );
     virtual ~QTextStream();
@@ -135,7 +137,7 @@ private:
     int		 fprec;
     bool	 fstrm;
     bool	 owndev;
-    CharacterMode cmode;
+    Encoding	 cmode;
 
     int		eat_ws();
     void	ts_ungetc(int);

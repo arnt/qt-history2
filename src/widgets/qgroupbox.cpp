@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#37 $
+** $Id: //depot/qt/main/src/widgets/qgroupbox.cpp#38 $
 **
 ** Implementation of QGroupBox widget class
 **
@@ -63,7 +63,7 @@ QGroupBox::QGroupBox( QWidget *parent, const char *name )
   The \e parent and \e name arguments are passed to the QWidget constructor.
 */
 
-QGroupBox::QGroupBox( QString title, QWidget *parent, const char *name )
+QGroupBox::QGroupBox( const QString &title, QWidget *parent, const char *name )
     : QFrame( parent, name )
 {
     init();
@@ -91,7 +91,7 @@ void QGroupBox::init()
   Sets the group box title text to \e title.
 */
 
-void QGroupBox::setTitle( QString title )
+void QGroupBox::setTitle( const QString &title )
 {
     if ( str == title )				// no change
 	return;

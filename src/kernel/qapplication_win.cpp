@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#164 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#165 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -86,7 +86,7 @@ typedef void  (*VFPTR)();
 typedef Q_DECLARE(QListM,void) QVFuncList;
 static QVFuncList *postRList = 0;		// list of post routines
 
-static void	msgHandler( QtMsgType, QString );
+static void	msgHandler( QtMsgType, const QString &);
 
 static void	cleanupPostedEvents();
 static void     unregWinClasses();
@@ -369,7 +369,7 @@ void qt_cleanup()
   Platform specific global and internal functions
  *****************************************************************************/
 
-static void msgHandler( QtMsgType t, QString str )
+static void msgHandler( QtMsgType t, const QString &str )
 {
     QString s = str;
     s += "\n";

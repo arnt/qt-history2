@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#57 $
+** $Id: //depot/qt/main/src/widgets/qtooltip.cpp#58 $
 **
 ** Tool Tips (or Balloon Help) for any widget or rectangle
 **
@@ -56,8 +56,8 @@ public:
     };
 
     bool    eventFilter( QObject * o, QEvent * e );
-    void    add( QWidget *, const QRect &, QString ,
-		 QToolTipGroup *, QString , QToolTip *, bool );
+    void    add( QWidget *, const QRect &, const QString& ,
+		 QToolTipGroup *, const QString& , QToolTip *, bool );
     void    remove( QWidget *, const QRect & );
     void    remove( QWidget * );
 
@@ -153,8 +153,8 @@ QTipManager::~QTipManager()
     delete label;
 }
 
-void QTipManager::add( QWidget *w, const QRect &r, QString s,
-		       QToolTipGroup *g, QString gs,
+void QTipManager::add( QWidget *w, const QRect &r, const QString &s,
+		       QToolTipGroup *g, const QString& gs,
 		       QToolTip *tt, bool a )
 {
     QTipManager::Tip *h = (*tips)[ w ];
@@ -653,7 +653,7 @@ QToolTip::QToolTip( QWidget * parent, QToolTipGroup * group )
   and so on.
 */
 
-void QToolTip::add( QWidget *widget, QString text )
+void QToolTip::add( QWidget *widget, const QString &text )
 {
     initTipManager();
     tipManager->add( widget, entireWidget(), text, 0, 0, 0, FALSE );
@@ -670,8 +670,8 @@ void QToolTip::add( QWidget *widget, QString text )
   Normally, \a longText is shown in a status bar or similar.
 */
 
-void QToolTip::add( QWidget *widget, QString text,
-		    QToolTipGroup *group, QString longText )
+void QToolTip::add( QWidget *widget, const QString &text,
+		    QToolTipGroup *group, const QString& longText )
 {
     initTipManager();
     tipManager->add( widget, entireWidget(), text, group, longText, 0, FALSE );
@@ -697,7 +697,7 @@ void QToolTip::remove( QWidget * widget )
   string.
 */
 
-void QToolTip::add( QWidget * widget, const QRect & rect, QString text )
+void QToolTip::add( QWidget * widget, const QRect & rect, const QString &text )
 {
     initTipManager();
     tipManager->add( widget, rect, text, 0, 0, 0, FALSE );
@@ -716,8 +716,8 @@ void QToolTip::add( QWidget * widget, const QRect & rect, QString text )
 */
 
 void QToolTip::add( QWidget *widget, const QRect &rect,
-		    QString text,
-		    QToolTipGroup *group, QString groupText )
+		    const QString& text,
+		    QToolTipGroup *group, const QString& groupText )
 {
     initTipManager();
     tipManager->add( widget, rect, text, group, groupText, 0, FALSE );
@@ -773,7 +773,7 @@ void QToolTip::remove( QWidget * widget, const QRect & rect )
   has to reinstate it each time.
 */
 
-void QToolTip::tip( const QRect & rect, QString text )
+void QToolTip::tip( const QRect & rect, const QString &text )
 {
     initTipManager();
     tipManager->add( parentWidget(), rect, text, 0, 0, 0, TRUE );
@@ -788,8 +788,8 @@ void QToolTip::tip( const QRect & rect, QString text )
   has to reinstate it each time.
 */
 
-void QToolTip::tip( const QRect & rect, QString text,
-		    QString groupText )
+void QToolTip::tip( const QRect & rect, const QString &text,
+		    const QString& groupText )
 {
     initTipManager();
     tipManager->add( parentWidget(), rect, text, group(), groupText, 0, TRUE );
@@ -847,8 +847,8 @@ void QToolTip::clear()
 
   \code
     QToolTipGroup * g = new QToolTipGroup( this, "tool tip relay" );
-    connect( g, SIGNAL(showTip(QString )),
-             myLabel, SLOT(setText(QString )) );
+    connect( g, SIGNAL(showTip(const QString&)),
+             myLabel, SLOT(setText(const QString&)) );
     connect( g, SIGNAL(removeTip()),
              myLabel, SLOT(clear()) );
     QToolTip::add( giraffeButton, "feed giraffe",
@@ -865,7 +865,7 @@ void QToolTip::clear()
   Deleting a tool tip group removes the tool tips in it.
 */
 
-/*! \fn void QToolTipGroup::showTip (QString longText)
+/*! \fn void QToolTipGroup::showTip (const QString &longText)
 
   This signal is emitted when one of the tool tips in the group is
   displayed.  \a longText is the supplementary text for the displayed
@@ -887,7 +887,7 @@ void QToolTip::clear()
   Constructs a tool tip group.
 */
 
-QToolTipGroup::QToolTipGroup( QObject *parent, QString name )
+QToolTipGroup::QToolTipGroup( QObject *parent, const char *name )
     : QObject( parent, name )
 {
     // nothing
@@ -910,7 +910,7 @@ QToolTipGroup::~QToolTipGroup()
 ** QTipManager meta object code from reading C++ file 'qtooltip.cpp'
 **
 ** Created: Mon Aug 17 00:44:32 1998
-**      by: The Qt Meta Object Compiler ($Revision: 2.52 $)
+**      by: The Qt Meta Object Compiler ($Revision: 2.53 $)
 **
 ** WARNING! All changes made in this file will be lost!
 *****************************************************************************/

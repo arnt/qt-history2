@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#145 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#146 $
 **
 ** Implementation of QPainter, QPen and QBrush classes
 **
@@ -1815,7 +1815,7 @@ void QPainter::fix_neg_rect( int *x, int *y, int *w, int *h )
 */
 
 void QPainter::drawText( int x, int y, int w, int h, int tf,
-			 QString str, int len, QRect *brect,
+			 const QString& str, int len, QRect *brect,
 			 char **internal )
 {
     if ( !isActive() )
@@ -1855,7 +1855,7 @@ void QPainter::drawText( int x, int y, int w, int h, int tf,
 
 
 void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
-		     int tf, QString str, int len, QRect *brect,
+		     int tf, const QString& str, int len, QRect *brect,
 		     int tabstops, int* tabarray, int tabarraylen,
 		     char **internal, QPainter* painter )
 {
@@ -2295,7 +2295,7 @@ void qt_format_text( const QFontMetrics& fm, int x, int y, int w, int h,
 */
 
 QRect QPainter::boundingRect( int x, int y, int w, int h, int tf,
-			      QString str, int len, char **internal )
+			      const QString& str, int len, char **internal )
 {
     QRect brect;
     if ( str.isEmpty() )

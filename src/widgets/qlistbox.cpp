@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#153 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#154 $
 **
 ** Implementation of QListBox widget class
 **
@@ -217,7 +217,7 @@ const QPixmap *QListBoxItem::pixmap() const
   Constructs a list box item showing the text \e text.
 */
 
-QListBoxText::QListBoxText( QString text )
+QListBoxText::QListBoxText( const QString &text )
     :QListBoxItem()
 {
     setText( text );
@@ -465,7 +465,7 @@ QListBox::~QListBox()
   \sa selected() currentItem() selectionChanged()
 */
 
-/*! \fn void QListBox::highlighted( QString )
+/*! \fn void QListBox::highlighted( const QString &)
 
   This signal is emitted when the user highlights a new current item
   and the new item is a string.  The argument is the text of the
@@ -483,7 +483,7 @@ QListBox::~QListBox()
   \sa highlighted() selectionChanged()
 */
 
-/*! \fn void QListBox::selected( QString )
+/*! \fn void QListBox::selected( const QString &)
 
   This signal is emitted when the user double-clicks on an item or
   presses return while an item is highlighted, and the selected item
@@ -563,7 +563,7 @@ void QListBox::insertStrList( const QStrList *list, int index )
   \sa insertItem(), inSort()
 */
 
-void QListBox::insertStrList( QString *strings, int numStrings, int index )
+void QListBox::insertStrList( const char **strings, int numStrings, int index )
 {
     if ( !checkInsertIndex( "insertStrList", name(), count(), &index ) )
 	return;
@@ -627,7 +627,7 @@ void QListBox::insertItem( const QListBoxItem *lbi, int index )
   \sa insertStrList()
 */
 
-void QListBox::insertItem( QString text, int index )
+void QListBox::insertItem( const QString &text, int index )
 {
     if ( !checkInsertIndex( "insertItem", name(), count(), &index ) )
 	return;
@@ -708,7 +708,7 @@ void QListBox::inSort( const QListBoxItem *lbi )
   \overload void QListBox::inSort( QString text )
 */
 
-void QListBox::inSort( QString text )
+void QListBox::inSort( const QString &text )
 {
     if ( !text ) {
 #if defined ( CHECK_NULL )
@@ -806,7 +806,7 @@ const QPixmap *QListBox::pixmap( int index ) const
   \sa insertItem(), removeItem()
 */
 
-void QListBox::changeItem( QString text, int index )
+void QListBox::changeItem( const QString &text, int index )
 {
     if ( !checkIndex( "changeItem", name(), count(), index ) )
 	return;

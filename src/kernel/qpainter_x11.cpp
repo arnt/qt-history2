@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#253 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#254 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -2455,7 +2455,7 @@ static void ins_text_bitmap( const QWMatrix &m, const QFontInfo &fi,
   is not the same for the two drawText() varieties.
 */
 
-void QPainter::drawText( int x, int y, QString str, int len )
+void QPainter::drawText( int x, int y, const QString &str, int len )
 {
     if ( !isActive() )
 	return;
@@ -2567,6 +2567,9 @@ void QPainter::drawText( int x, int y, QString str, int len )
 			    tw, lw );
     }
     XChar2b* x2b = (XChar2b*)str.unicode();
+
+    // ####### translate from Unicode to font charset encoding
+
     if ( bg_mode == TransparentMode )
 	XDrawString16( dpy, hd, gc, x, y, x2b, len );
     else

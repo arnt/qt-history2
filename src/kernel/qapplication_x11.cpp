@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#334 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#335 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -444,7 +444,7 @@ static void set_local_font()
 
 // set font, foreground and background from x11 resources. The
 // arguments may override the resource settings.
-static void qt_set_x11_resources( QString font = 0, QString fg = 0, QString bg = 0)
+static void qt_set_x11_resources( const char* font = 0, const char* fg = 0, const char* bg = 0 )
 {
     Atom   type = None;
     int	   format;

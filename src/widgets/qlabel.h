@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.h#38 $
+** $Id: //depot/qt/main/src/widgets/qlabel.h#39 $
 **
 ** Definition of QLabel widget class
 **
@@ -35,9 +35,9 @@ class QLabel : public QFrame
     Q_OBJECT
 public:
     QLabel( QWidget *parent=0, const char *name=0, WFlags f=0 );
-    QLabel( QString text, QWidget *parent=0, const char *name=0,
+    QLabel( const QString &text, QWidget *parent=0, const char *name=0,
 	    WFlags f=0 );
-    QLabel( QWidget * buddy, QString,
+    QLabel( QWidget * buddy, const QString &,
 	    QWidget * parent, const char * name=0, WFlags f=0 );
    ~QLabel();
 
@@ -58,7 +58,7 @@ public:
     QWidget    *buddy() const;
 
 public slots:
-    virtual void	setText( QString );
+    virtual void	setText( const QString &);
     virtual void	setPixmap( const QPixmap & );
     virtual void	setMovie( const QMovie & );
     virtual void	setNum( int );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qspinbox.h#25 $
+** $Id: //depot/qt/main/src/widgets/qspinbox.h#26 $
 **
 ** Definition of QSpinBox widget class
 **
@@ -39,9 +39,9 @@ class QSpinBox: public QFrame, public QRangeControl
 {
     Q_OBJECT
 public:
-    QSpinBox( QWidget* parent = 0, QString name = 0 );
+    QSpinBox( QWidget* parent = 0, const char *name = 0 );
     QSpinBox( int minValue, int maxValue, int step = 1,
-	      QWidget* parent = 0, QString name = 0 );
+	      QWidget* parent = 0, const char* name = 0 );
     ~QSpinBox();
 
     QString 	text() const;
@@ -49,7 +49,7 @@ public:
     virtual QString 	suffix() const;
     virtual QString 	cleanText() const;
 
-    virtual void		setSpecialValueText( QString text );
+    virtual void		setSpecialValueText( const QString &text );
     QString 	specialValueText() const;
 
     virtual void 		setWrapping( bool on );
@@ -61,14 +61,14 @@ public:
 
 public slots:
     virtual void	setValue( int value );
-    virtual void	setPrefix( QString text );
-    virtual void	setSuffix( QString text );
+    virtual void	setPrefix( const QString &text );
+    virtual void	setSuffix( const QString &text );
     virtual void	stepUp();
     virtual void	stepDown();
 
 signals:
     void		valueChanged( int value );
-    void		valueChanged( QString valueText );
+    void		valueChanged( const QString &valueText );
 
 protected:
     virtual QString	mapValueToText( int value );

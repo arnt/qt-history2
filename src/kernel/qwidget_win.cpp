@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#123 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#124 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -466,7 +466,7 @@ void QWidget::setCursor( const QCursor &cursor )
 }
 
 
-void QWidget::setCaption( QString caption )
+void QWidget::setCaption( const QString &caption )
 {
     if ( caption && extra && extra->caption &&
 	 !strcmp( extra->caption, caption ) )
@@ -540,7 +540,7 @@ void QWidget::setIcon( const QPixmap &pixmap )
 }
 
 
-void QWidget::setIconText( QString iconText )
+void QWidget::setIconText( const QString &iconText )
 {
     if ( extra && extra->iconText )
 	delete [] extra->iconText;
@@ -962,7 +962,7 @@ void QWidget::scroll( int dx, int dy )
 }
 
 
-void QWidget::drawText( int x, int y, QString str )
+void QWidget::drawText( int x, int y, const QString &str )
 {
     if ( testWFlags(WState_Visible) ) {
 	QPainter paint;

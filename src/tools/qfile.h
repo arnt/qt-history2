@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qfile.h#27 $
+** $Id: //depot/qt/main/src/tools/qfile.h#28 $
 **
 ** Definition of QFile class
 **
@@ -63,7 +63,7 @@ public:
     int		readBlock( char *data, uint len );
     int		writeBlock( const char *data, uint len );
     int		readLine( char *data, uint maxlen );
-    int		readLine( QString&, uint maxlen );
+    int		readLine( QString &, uint maxlen );
 
     int		getch();
     int		putch( int );
