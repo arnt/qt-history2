@@ -270,9 +270,10 @@ RandomAccessIterator qBinaryFind(RandomAccessIterator begin, RandomAccessIterato
 {
     int l = 0;
     int r = end - begin - 1;
-    if (r <= 0)
+    if (r < 0)
         return end;
     int i = (l + r + 1) / 2;
+
     while (r != l) {
         if (value < begin[i])
             r = i - 1;
