@@ -118,6 +118,8 @@ private:
     virtual void setMenuBar( QMenuBar * );
     virtual void setStatusBar( QStatusBar * );
     virtual void setToolTipGroup( QToolTipGroup * );
+
+    friend class QToolBar;
 };
 
 

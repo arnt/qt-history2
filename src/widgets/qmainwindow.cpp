@@ -87,8 +87,8 @@
   <li>  setUsesBigPixmaps() determines whether QToolButton (and other
   classes) should draw small or large pixmaps (see QIconSet for more
   about that),
-  <li> setUsesTextLabel() determines whether the toolbar buttons (and 
-  other classes), should display a textlabel in addition to pixmaps (see 
+  <li> setUsesTextLabel() determines whether the toolbar buttons (and
+  other classes), should display a textlabel in addition to pixmaps (see
   QToolButton for more about that).
 
   Toolbars can be dragged by the user into each enabled docking area
@@ -158,7 +158,7 @@ public:
     enum InsertPos { Before, After, TotalAfter };
 
     QMainWindowPrivate()
-	: top(0), left(0), right(0), bottom(0), tornOff(0), unmanaged(0),
+	: top(0), left(0), right(0), bottom(0), tornOff(0), unmanaged(0), hidden( 0 ),
 	  mb(0), sb(0), ttg(0), mc(0), timer(0), tll(0), ubp( FALSE ), utl( FALSE ),
 	  justify( FALSE )
     {
@@ -237,7 +237,7 @@ class HideToolTip : public QToolTip
 {
 public:
     HideToolTip( QWidget *parent ) : QToolTip( parent ) {}
-    
+
     void maybeTip( const QPoint &pos );
 };
 
@@ -256,7 +256,7 @@ public:
 	tip = new HideToolTip( this );
     }
     ~HideDock() { delete tip; }
-    
+
 protected:
     void paintEvent( QPaintEvent * ) {
 	if ( !d->hidden || d->hidden->isEmpty() )
@@ -327,12 +327,12 @@ private:
     int pressedHandle;
     bool pressed;
     HideToolTip *tip;
-    
+
     friend class HideToolTip;
-    
+
 };
 
-void HideToolTip::maybeTip( const QPoint &pos ) 
+void HideToolTip::maybeTip( const QPoint &pos )
 {
     if ( !parentWidget() )
 	return;
@@ -1165,7 +1165,7 @@ static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::Too
 			ipos = QMainWindowPrivate::Before;
 		    else {
 			tmp = dock->next();
-			if ( !tmp || tmp->nl )
+			if ( ( !tmp || tmp->nl ) && !t->t->fullWidth() )
 			    ipos = QMainWindowPrivate::TotalAfter;
 			else
 			    ipos = QMainWindowPrivate::After;
@@ -1190,7 +1190,7 @@ static QMainWindowPrivate::ToolBar *findCoveringToolbar( QMainWindowPrivate::Too
 			ipos = QMainWindowPrivate::Before;
 		    else {
 			tmp = dock->next();
-			if ( !tmp || tmp->nl )
+			if ( ( !tmp || tmp->nl ) && !t->t->fullWidth() )
 			    ipos = QMainWindowPrivate::TotalAfter;
 			else
 			    ipos = QMainWindowPrivate::After;
@@ -1229,12 +1229,16 @@ static void addToolBarToLayout( QMainWindowPrivate::ToolBarDock * dock,
     if ( direction == QBoxLayout::RightToLeft || direction == QBoxLayout::LeftToRight ){
 	QToolLayout *layout = 0;
 	QMainWindowPrivate::ToolBar * t = dock->first();
+	bool lastWasFull = FALSE;
 	while ( t ) {
-	    if ( !layout || t->nl ) {
+	    if ( !layout || t->nl || t->t->fullWidth() || lastWasFull ) {
 		layout = new QToolLayout( tl, -1, "tool layout" );
 		layout->setDirection( dockDirection );
-		layout->setRightJustified( justify );
-	    }
+		layout->setRightJustified( justify || t->t->fullWidth() );
+		lastWasFull = t->t->fullWidth();
+	    } else
+		lastWasFull = FALSE;
+	    
 	    layout->add(t->t);
 	    t = dock->next();
 	}
@@ -1573,13 +1577,14 @@ void QMainWindow::setUsesTextLabel( bool enable )
   stopped the moving.
 */
 
-/*!  Sets this main window to expand its toolbars to fill all
+/*!  
+  Sets this main window to expand its toolbars to fill all
   available space if \a enable is TRUE, and to give the toolbars just
   the space they need if \a enable is FALSE.
 
   The default is FALSE.
 
-  \sa rightJustification();
+  \sa rightJustification(), QToolBar::setFullWidth()
 */
 
 void QMainWindow::setRightJustification( bool enable )
@@ -1657,7 +1662,11 @@ static QRect findRectInDockingArea( QMainWindowPrivate *d, QMainWindow::ToolBarD
     // calc width and height of the tb depending on the orientation it _would_ have
     int w = o == tb->orientation() ? tb->width() : tb->height();
     int h = o != tb->orientation() ? tb->width() : tb->height();
-
+    if ( t && t->t && w > t->t->width() && ipos != QMainWindowPrivate::TotalAfter )
+	w = t->t->width();
+    if ( t && t->t && h > t->t->height() && ipos != QMainWindowPrivate::TotalAfter )
+	h = t->t->height();
+    
     // if a relative toolbar for the moving one was found
     if ( t ) {
 	covering = t->t;
@@ -1676,23 +1685,23 @@ static QRect findRectInDockingArea( QMainWindowPrivate *d, QMainWindow::ToolBarD
 	    case QMainWindowPrivate::Before: {
 		hasRect = TRUE;
 		if ( o == Qt::Horizontal )
-		    r = QRect( t->t->x() - w / 2, t->t->y(), w, h );
+		    r = QRect( t->t->x() - w / 2, t->t->y(), w, QMAX( h, t->t->height() ) );
 		else
-		    r = QRect( t->t->x(), t->t->y() - h / 2, w, h );
+		    r = QRect( t->t->x(), t->t->y() - h / 2, QMAX( w, t->t->width() ), h );
 	    } break;
 	    case QMainWindowPrivate::After: {
 		hasRect = TRUE;
 		if ( o == Qt::Horizontal )
-		    r = QRect( t->t->x() + t->t->width() - w / 2, t->t->y(), w, h );
+		    r = QRect( t->t->x() + t->t->width() - w / 2, t->t->y(), w, QMAX( h, t->t->height() ) );
 		else
-		    r = QRect( t->t->x(), t->t->y() + t->t->height() - h / 2, w, h );
+		    r = QRect( t->t->x(), t->t->y() + t->t->height() - h / 2, QMAX( w, t->t->width() ), h );
 	    } break;
 	    case QMainWindowPrivate::TotalAfter: {
 		hasRect = TRUE;
 		if ( o == Qt::Horizontal )
-		    r = QRect( t->t->x() + t->t->width(), t->t->y(), w, h );
+		    r = QRect( t->t->x() + t->t->width(), t->t->y(), w, QMAX( h, t->t->height() ) );
 		else
-		    r = QRect( t->t->x(), t->t->y() + t->t->height(), w, h );
+		    r = QRect( t->t->x(), t->t->y() + t->t->height(), QMAX( w, t->t->width() ), h );
 	    } break;
 	    }
 	}

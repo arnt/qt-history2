@@ -39,7 +39,7 @@
 class QToolBarPrivate
 {
 public:
-    bool moving;
+    bool moving, fullWidth;
 };
 
 // NOT REVISED
@@ -90,6 +90,7 @@ QToolBar::QToolBar( const QString &label,
 {
     d = new QToolBarPrivate;
     d->moving = FALSE;
+    d->fullWidth = FALSE;
     b = 0;
     mw = parent;
     sw = 0;
@@ -127,6 +128,7 @@ QToolBar::QToolBar( const QString &label, QMainWindow * mainWindow,
 {
     d = new QToolBarPrivate;
     d->moving = FALSE;
+    d->fullWidth = FALSE;
     b = 0;
     mw = mainWindow;
     sw = 0;
@@ -156,6 +158,7 @@ QToolBar::QToolBar( QMainWindow * parent, const char * name )
 {
     d = new QToolBarPrivate;
     d->moving = FALSE;
+    d->fullWidth = FALSE;
     b = 0;
     o = Horizontal;
     sw = 0;
@@ -290,7 +293,7 @@ void QToolBar::paintEvent( QPaintEvent * )
     QPainter p( this );
     qDrawShadePanel( &p, 0, 0, width(), height(),
 		     colorGroup(), FALSE, 1, 0 );
-    style().drawToolBarHandle( &p, QRect( 0, 0, width(), height() ), 
+    style().drawToolBarHandle( &p, QRect( 0, 0, width(), height() ),
 			       orientation(), d->moving, colorGroup() );
 }
 
@@ -406,6 +409,35 @@ void QToolBar::endMoving( QToolBar *tb )
     }
 }
 
+/*!
+  If \a b is TRUE, the toolbar will be resized to fill a whole row of
+  a toolbar dock in the mainwindow if the orientation() is
+  Horizontal. If \a b is FALSE, the toolbar will just take the size it actually
+  needs.
+  
+  \sa QMainWindow::setRightJustification()
+*/
+
+void QToolBar::setFullWidth( bool b )
+{
+    if ( d->fullWidth != b ) {
+	d->fullWidth = TRUE;
+	if ( mw )
+	    mw->triggerLayout();
+    }
+}
+
+/*!
+  Returns TRUE, if the toolbar will be resized to fill a whole
+  row of a horizontal toolbar dock in a mainwindow, else FALSE.
+
+  \sa setFullWidth()
+*/
+
+bool QToolBar::fullWidth() const
+{
+    return d->fullWidth;
+}
 
 /* from chaunsee:
 
