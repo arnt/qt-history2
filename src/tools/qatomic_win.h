@@ -47,7 +47,7 @@ template <typename T>
 inline bool qAtomicCompareAndSetPtr(T * volatile pointer, T compare, T value)
 {
     Q_ASSERT(sizeof(T) == 4);
-    return qAtomicCompareAndSetPtr_helper(pointer, compare, value);
+    return qAtomicCompareAndSetPtr_helper(*(void** volatile*) &pointer, (void*)compare, (void*)value);
 }
 
 #if defined(Q_CC_BOR)
