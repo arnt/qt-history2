@@ -506,7 +506,12 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             QString src_group_key = keyFor(src_group);
             if(root_group_list.indexOf(src_group_key) == -1)
                 root_group_list += src_group_key;
-            groups[src_group] += src_list;
+
+            QStringList &group = groups[src_group];
+            for(int src = 0; src < src_list.size(); ++src) {
+                if(group.indexOf(src_list.at(src)) == -1) 
+                    group += src_list.at(src);
+            }
         }
     }
     for(QMap<QString, QStringList>::Iterator grp_it = groups.begin(); grp_it != groups.end(); ++grp_it) {
