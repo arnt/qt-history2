@@ -1455,7 +1455,7 @@ void QListViewItem::setOpen( bool o )
     if ( open && lv)
 	enforceSortOrder();
 
-    if ( lv && lv->d && lv->d->drawables ) {
+    if ( isVisible() && lv && lv->d && lv->d->drawables ) {
 	lv->d->drawables->clear();
 	lv->buildDrawableList();
     }
