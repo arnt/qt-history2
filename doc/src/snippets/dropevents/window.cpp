@@ -6,17 +6,20 @@ Window::Window(QWidget *parent)
     : QWidget(parent)
 {
     QLabel *textLabel = new QLabel(tr("Data:"), this);
-    textInfo = new QTextBrowser(this);
+    textBrowser = new QTextBrowser(this);
 
     QLabel *mimeTypeLabel = new QLabel(tr("MIME types:"), this);
-    mimeTypeInfo = new QComboBox(this);
+    mimeTypeCombo = new QComboBox(this);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(textLabel);
-    layout->addWidget(textInfo);
+    layout->addWidget(textBrowser);
     layout->addWidget(mimeTypeLabel);
-    layout->addWidget(mimeTypeInfo);
-
+    layout->addWidget(mimeTypeCombo);
+/*
+    ...
+    setAcceptDrops(true);
+*/
     setAcceptDrops(true);
     setWindowTitle(tr("Drop Events"));
 }
@@ -29,9 +32,9 @@ void Window::dragEnterEvent(QDragEnterEvent *event)
 
 void Window::dropEvent(QDropEvent *event)
 {
-    textInfo->setPlainText(event->mimeData()->text());
-    mimeTypeInfo->clear();
-    mimeTypeInfo->insertStringList(event->mimeData()->formats());
+    textBrowser->setPlainText(event->mimeData()->text());
+    mimeTypeCombo->clear();
+    mimeTypeCombo->insertStringList(event->mimeData()->formats());
 
     event->acceptProposedAction();
 }

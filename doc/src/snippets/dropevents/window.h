@@ -21,9 +21,9 @@ protected:
     void dropEvent(QDropEvent *event);
 
 private:
-    QComboBox *mimeTypeInfo;
+    QComboBox *mimeTypeCombo;
     QFrame *dropFrame;
-    QTextBrowser *textInfo;
+    QTextBrowser *textBrowser;
     QString oldText;
     QStringList oldMimeTypes;
 };
