@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#78 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#79 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#78 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#79 $");
 
 
 /*!
@@ -289,12 +289,13 @@ QComboBox::QComboBox( bool rw, QWidget *parent, const char *name )
 
     if ( rw ) {
 	d->ed = new QLineEdit( this, "this is not /bin/ed" );
-	if ( style() == WindowsStyle )
+	if ( style() == WindowsStyle ) {
 	    d->ed->setGeometry( 2, 2, width() - 2 - 2 - 16, height() - 2 - 2 );
-	else
+	    d->ed->setFrame( FALSE );
+	} else {
 	    d->ed->setGeometry( 3, 3, width() - 3 - 3 - 21, height() - 3 - 3 );
+	}
 	d->ed->installEventFilter( this );
-	d->ed->setFrame( FALSE );
     
 	connect( d->ed, SIGNAL(returnPressed()), SLOT(returnPressed()) );
     } else {

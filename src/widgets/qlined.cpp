@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#71 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#72 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -20,7 +20,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#71 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#72 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 #if QT_VERSION == 200
@@ -499,7 +499,7 @@ void QLineEdit::focusOutEvent( QFocusEvent * )
 
 void QLineEdit::paintEvent( QPaintEvent * )
 {
-    paint( TRUE );
+    paint( TRUE /* remove for 2.0 */ );
 }
 
 
@@ -656,14 +656,14 @@ void QLineEdit::mouseDoubleClickEvent( QMouseEvent * )
   but flickering drawing method is used.
 */
 
-void QLineEdit::paint( bool frame )
+void QLineEdit::paint( bool )
 {
     if ( hasFocus() ) {
 	pixmapPaint();
     } else {
 	QPainter p;
 	p.begin( this );
-	paintText( &p, size(), frame );
+	paintText( &p, size(), TRUE /* remove for 2.0 */ );
 	p.end();
     }
 }
@@ -680,7 +680,7 @@ void QLineEdit::pixmapPaint()
     QPainter p;
     p.begin( pm );
     p.setFont( font() );
-    paintText( &p, pm->size() , TRUE );
+    paintText( &p, pm->size(), TRUE /* remove for 2.0 */ );
     p.end();
     bitBlt( this, 0, 0, pm, 0, 0, width(), height() );
 }
@@ -691,7 +691,7 @@ void QLineEdit::pixmapPaint()
   Paints the line editor.
 */
 
-void QLineEdit::paintText( QPainter *p, const QSize &s, bool frame )
+void QLineEdit::paintText( QPainter *p, const QSize &s, bool )
 {
     QColorGroup	 g    = colorGroup();
     QColor	 bg   = isEnabled() ? g.base() : g.background();
@@ -700,13 +700,11 @@ void QLineEdit::paintText( QPainter *p, const QSize &s, bool frame )
     int markEnd	      = maxMark();
     int margin	     =  this->frame() ? 4 : 2;
 
-    if ( frame ) {
+    if ( frame() ) {
 	QBrush fill( bg );
 	qDrawWinPanel( p, 0, 0, s.width(), s.height(), g, TRUE, &fill );
     } else {
-	p->fillRect( margin, margin,
-		     width()  - 2*margin,
-		     height() - 2*margin, bg );
+	p->fillRect( 0, 0, width(), height(), bg );
     }
 
     QString displayText;
@@ -1077,7 +1075,7 @@ int QLineEdit::maxMark() const
 
 void QLineEdit::setFrame( bool enable )
 {
-    if ( !enable && !qle_extraStuff )
+    if ( enable && !qle_extraStuff )
 	return;
 
     QLineEditExtra * x = makeLEDict( this );
