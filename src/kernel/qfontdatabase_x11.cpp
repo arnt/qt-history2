@@ -343,78 +343,132 @@ static const char * xlfd_for_id( int id )
     return xlfd_encoding[id].name;
 }
 
+static const unsigned short sample_chars[QFont::NScripts] =
+{
+    // European Alphabetic Scripts
+    // Latin,
+    0x00c0,
+    // Greek,
+    0x0390,
+    // Cyrillic,
+    0x0410,
+    // Armenian,
+    0x0540,
+    // Georgian,
+    0x10a0,
+    // Runic,
+    0x16a0,
+    // Ogham,
+    0x1680,
+    // SpacingModifiers,
+    0x0000,
+    // CombiningMarks,
+    0x0300,
 
+    // Middle Eastern Scripts
+    // Hebrew,
+    0x05d0,
+    // Arabic,
+    0x0630,
+    // Syriac,
+    0x0710,
+    // Thaana,
+    0x0780,
+
+    // South and Southeast Asian Scripts
+    // Devanagari,
+    0x0910,
+    // Bengali,
+    0x0990,
+    // Gurmukhi,
+    0x0a10,
+    // Gujarati,
+    0x0a90,
+    // Oriya,
+    0x0b10,
+    // Tamil,
+    0x0b90,
+    // Telugu,
+    0x0c10,
+    // Kannada,
+    0x0c90,
+    // Malayalam,
+    0x0d10,
+    // Sinhala,
+    0x0d90,
+    // Thai,
+    0x0e10,
+    // Lao,
+    0x0e81,
+    // Tibetan,
+    0x0f00,
+    // Myanmar,
+    0x1000,
+    // Khmer,
+    0x1780,
+
+    // East Asian Scripts
+    // Han,
+    0x4e00,
+    // Hiragana,
+    0x3050,
+    // Katakana,
+    0x30b0,
+    // Hangul,
+    0xac00,
+    // Bopomofo,
+    0x3110,
+    // Yi,
+    0xa000,
+
+    // Additional Scripts
+    // Ethiopic,
+    0x1200,
+    // Cherokee,
+    0x13a0,
+    // CanadianAboriginal,
+    0x1410,
+    // Mongolian,
+    0x1800,
+
+    // Symbols
+    // CurrencySymbols,
+    0x20aa,
+    // LetterlikeSymbols,
+    0x2122,
+    // NumberForms,
+    0x215b,
+    // MathematicalOperators,
+    0x222b,
+    // TechnicalSymbols,
+    0x2440,
+    // GeometricSymbols,
+    0x2500,
+    // MiscellaneousSymbols,
+    0x2600,
+    // EnclosedAndSquare,
+    0x2460,
+    // Braille,
+    0x2800,
+
+    // Unicode,
+    0xfffd,
+
+    // some scripts added in Unicode 3.2
+    // Tagalog,
+    0x1700,
+    // Hanunoo,
+    0x1720,
+    // Buhid,
+    0x1740,
+    // Tagbanwa,
+    0x1770
+};
 
 // returns a sample unicode character for the specified script
 static QChar sampleCharacter(QFont::Script script)
 {
-    ushort ch;
-
-    switch (script) {
-    case QFont::Latin:                     ch = 0x00c0; break;
-    case QFont::Greek:                     ch = 0x0390; break;
-    case QFont::Cyrillic:                  ch = 0x0410; break;
-    case QFont::Armenian:                  ch = 0x0540; break;
-    case QFont::Georgian:                  ch = 0x10a0; break;
-    case QFont::Runic:                     ch = 0x16a0; break;
-    case QFont::Ogham:                     ch = 0x1680; break;
-    case QFont::CombiningMarks:            ch = 0x0300; break;
-
-    case QFont::Hebrew:                    ch = 0x05d0; break;
-    case QFont::Arabic:                    ch = 0x0630; break;
-    case QFont::Syriac:                    ch = 0x0710; break;
-    case QFont::Thaana:                    ch = 0x0780; break;
-
-    case QFont::Devanagari:                ch = 0x0910; break;
-    case QFont::Bengali:                   ch = 0x0990; break;
-    case QFont::Gurmukhi:                  ch = 0x0a10; break;
-    case QFont::Gujarati:                  ch = 0x0a90; break;
-    case QFont::Oriya:                     ch = 0x0b10; break;
-    case QFont::Tamil:                     ch = 0x0b90; break;
-    case QFont::Telugu:                    ch = 0x0c10; break;
-    case QFont::Kannada:                   ch = 0x0c90; break;
-    case QFont::Malayalam:                 ch = 0x0d10; break;
-    case QFont::Sinhala:                   ch = 0x0d90; break;
-    case QFont::Thai:                      ch = 0x0e10; break;
-    case QFont::Lao:                       ch = 0x0e81; break;
-    case QFont::Tibetan:                   ch = 0x0f00; break;
-    case QFont::Myanmar:                   ch = 0x1000; break;
-    case QFont::Khmer:                     ch = 0x1780; break;
-
-    case QFont::Han:                       ch = 0x4e00; break;
-    case QFont::Hiragana:                  ch = 0x3050; break;
-    case QFont::Katakana:                  ch = 0x30b0; break;
-    case QFont::Hangul:                    ch = 0xac00; break;
-    case QFont::Bopomofo:                  ch = 0x3110; break;
-    case QFont::Yi:                        ch = 0xa000; break;
-
-    case QFont::Ethiopic:                  ch = 0x1200; break;
-    case QFont::Cherokee:                  ch = 0x13a0; break;
-    case QFont::CanadianAboriginal:        ch = 0x1410; break;
-    case QFont::Mongolian:                 ch = 0x1800; break;
-
-    case QFont::CurrencySymbols:           ch = 0x20aa; break;
-    case QFont::LetterlikeSymbols:         ch = 0x2122; break;
-    case QFont::NumberForms:               ch = 0x215b; break;
-    case QFont::MathematicalOperators:     ch = 0x222b; break;
-    case QFont::TechnicalSymbols:          ch = 0x2440; break;
-    case QFont::GeometricSymbols:          ch = 0x2500; break;
-    case QFont::MiscellaneousSymbols:      ch = 0x2600; break;
-    case QFont::EnclosedAndSquare:         ch = 0x2460; break;
-    case QFont::Braille:                   ch = 0x2800; break;
-
-    case QFont::Unicode:		   ch = 0xfffd; break;
-
-    case QFont::LatinExtendedA_2:          ch = 0x0102; break;
-    case QFont::LatinExtendedA_3:          ch = 0x0108; break;
-    case QFont::LatinExtendedA_4:          ch = 0x0100; break;
-    case QFont::LatinExtendedA_14:         ch = 0x0174; break;
-    case QFont::LatinExtendedA_15:         ch = 0x0152; break;
-
-    default:				   ch = 0x0000; break;
-    }
-
-    return QChar(ch);
+    return QChar(sample_chars[script]);
 }
 
 static inline bool canRender( QFontEngine *fe, const QChar &sample )

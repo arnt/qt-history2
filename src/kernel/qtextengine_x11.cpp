@@ -776,7 +776,7 @@ const QCharAttributes *QTextEngine::attributes()
 	int from = si.position;
 	int len = length( i );
 	int script = si.analysis.script;
-	assert( script <= QFont::Unicode );
+	assert( script < QFont::NScripts );
 	scriptEngines[si.analysis.script].charAttributes( script, string, from, len, charAttributes );
     }
     return charAttributes;
@@ -800,7 +800,7 @@ QShapedItem *QTextEngine::shape( int item ) const
     si.fontEngine->ref();
 
     if ( si.fontEngine && si.fontEngine != (QFontEngine*)-1 ) {
-	assert( script <= QFont::Unicode );
+	assert( script < QFont::NScripts );
 	scriptEngines[script].shape( script, string, from, len, &si );
     }
     return si.shaped;

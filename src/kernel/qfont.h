@@ -237,6 +237,12 @@ public:
 
 	Unicode,
 
+	// some scripts added in Unicode 3.2
+	Tagalog,
+	Hanunoo,
+	Buhid,
+	Tagbanwa,
+
 	// End
 	NScripts,
 	UnknownScript = NScripts,

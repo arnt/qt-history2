@@ -2674,4 +2674,12 @@ const q_scriptEngine scriptEngines[] = {
 
 	// Unicode,
     { basic_shape, basic_attributes },
+    //Tagalog,
+    { basic_shape, basic_attributes },
+    //Hanunoo,
+    { basic_shape, basic_attributes },
+    //Buhid,
+    { basic_shape, basic_attributes },
+    //Tagbanwa,
+    { basic_shape, basic_attributes }
 };

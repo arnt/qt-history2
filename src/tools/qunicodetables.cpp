@@ -11797,6 +11797,12 @@ enum Script {
 
     Unicode,
 
+    // some scripts added in Unicode 3.2
+    Tagalog,
+    Hanunoo,
+    Buhid,
+    Tagbanwa,
+
     // End
     NScripts,
     UnknownScript = NScripts,
@@ -11841,10 +11847,8 @@ const unsigned char QUnicodeTables::otherScripts [118] = {
     0x7f, CanadianAboriginal, 0x9f, Ogham,
     0xff, Runic, 						// row 0x16 index 30
 #define SCRIPTS_17 38
-//     0x1f, Tagalog, 0x3f, Hanunoo, 0x5f, Buhid,
-//     0x7f, Tagbanwa, 0xff, Khmer,				// row 0x17, index 36
-    0x1f, Unicode, 0x3f, Unicode, 0x5f, Unicode,
-    0x7f, Unicode, 0xff, Khmer,				// row 0x17, index 36
+    0x1f, Tagalog, 0x3f, Hanunoo, 0x5f, Buhid,
+    0x7f, Tagbanwa, 0xff, Khmer,				// row 0x17, index 36
 #define SCRIPTS_18 48
     0xaf, Mongolian, 0xff, Unicode,		       	// row 0x18, index 46
 #define SCRIPTS_20 52
