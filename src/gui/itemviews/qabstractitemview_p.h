@@ -36,6 +36,20 @@ public:
 
     QWidget *editor(const QModelIndex &index, const QStyleOptionViewItem &options);
 
+    QItemSelectionModel::SelectionFlags multiSelectionCommand(const QModelIndex &index,
+                                                              const QEvent *event) const;
+    QItemSelectionModel::SelectionFlags extendedSelectionCommand(const QModelIndex &index,
+                                                                 const QEvent *event) const;
+
+    inline QItemSelectionModel::SelectionFlags selectionBehaviorFlags() const
+    {
+        switch (selectionBehavior) {
+        case QAbstractItemView::SelectRows: return QItemSelectionModel::Rows;
+        case QAbstractItemView::SelectColumns: return QItemSelectionModel::Columns;
+        case QAbstractItemView::SelectItems: return QItemSelectionModel::NoUpdate;
+        }
+    }
+
     mutable QAbstractItemModel *model;
     mutable QAbstractItemDelegate *delegate;
     mutable QItemSelectionModel *selectionModel;
