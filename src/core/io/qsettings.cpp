@@ -62,9 +62,8 @@ static ConfFileHash *usedHash;
 static ConfFileCache *unusedCache;
 
 QConfFile::QConfFile(const QString &fileName)
-    : name(fileName), size(0)
+    : name(fileName), size(0), ref(1)
 {
-    ref = 1;
     usedHash->insert(name, this);
 #ifdef Q_OS_WIN
     semHandle = 0;
