@@ -5,7 +5,7 @@ system and compiler you are using.
 
 Supported platforms and compilers:
 
-  macx-g++
+  macx-g++ macx-pbuilder
 
 Compilation problems:
 
