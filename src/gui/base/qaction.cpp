@@ -1187,7 +1187,7 @@ void QAction::menuStatusText( int id )
 */
 void QAction::clearStatusText()
 {
-    if (!d->statustip.isEmpty())
+    if (!statusTip().isEmpty())
 	showStatusText( QString::null );
 }
 
