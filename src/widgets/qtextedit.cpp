@@ -3999,12 +3999,17 @@ void QTextEdit::pasteSubType( const QCString& subtype )
     QString t = QApplication::clipboard()->text(st);
     if ( !t.isEmpty() ) {
 #if defined(Q_OS_WIN32)
-	// Need to convert CRLF to NL
+	// Need to convert CRLF to LF
 	int index = t.find( QString::fromLatin1("\r\n"), 0 );
 	while ( index != -1 ) {
 	    t.replace( index, 2, QChar('\n') );
 	    index = t.find( "\r\n", index );
 	}
+#elif defined(Q_OS_MAC)
+	//need to convert CR to LF
+	for( unsigned int index = 0; index < t.length(); index++ )
+	    if(t[index] == '\r')
+		t[index] = '\n';
 #endif
 	for ( int i=0; (uint) i<t.length(); i++ ) {
 	    if ( t[ i ] < ' ' && t[ i ] != '\n' && t[ i ] != '\t' )
