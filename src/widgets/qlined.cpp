@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlined.cpp#129 $
+** $Id: //depot/qt/main/src/widgets/qlined.cpp#130 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -23,7 +23,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#129 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlined.cpp#130 $");
 
 
 struct QLineEditPrivate {
@@ -649,6 +649,14 @@ void QLineEdit::mousePressEvent( QMouseEvent *e )
     if ( e->button() == MidButton ) {
 	insert( QApplication::clipboard()->text() );
 	return;
+    } else if ( hasMarkedText() &&
+		e->button() == LeftButton &&
+		( (markAnchor > cursorPos && markDrag < cursorPos) ||
+		  (markAnchor < cursorPos && markDrag > cursorPos) ) ) {
+	QTextDragObject * tdo = new QTextDragObject( this );
+	tdo->setText( markedText() );
+	tdo->startDrag();
+	return;
     }
 
     int m1 = minMark();
@@ -1250,11 +1258,8 @@ bool QLineEdit::validateAndSet( const char * newText, int newPos,
 {
     QString t( newText );
     if ( !t.isEmpty() ) {
-	int i = t.find( '\n' );	// no multiline text
-	if ( i >= 0 )
-	    t.truncate( i );
 	uchar *p = (uchar *) t.data();
-	while ( *p ) {		// unprintable becomes space
+	while ( *p ) {		// unprintable/linefeed becomes space
 	    if ( *p < 32 )
 		*p = 32;
 	    p++;
