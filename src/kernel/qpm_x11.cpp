@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#71 $
+** $Id: //depot/qt/main/src/kernel/qpm_x11.cpp#72 $
 **
 ** Implementation of QPixmap class for X11
 **
@@ -28,7 +28,7 @@
 #include <X11/extensions/XShm.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#71 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpm_x11.cpp#72 $")
 
 
 /*****************************************************************************
@@ -122,15 +122,15 @@ bool qt_create_mitshm_buffer( int, int )
   Internal functions
  *****************************************************************************/
 
-extern char *qt_get_bitflip_array();		// defined in qimage.cpp
+extern uchar *qt_get_bitflip_array();		// defined in qimage.cpp
 
-static uchar *flip_bits( uchar *bits, int len ) // flip bits in bitmap
+static uchar *flip_bits( const uchar *bits, int len )
 {
-    register uchar *p = bits;
-    uchar *end = p + len;
+    register const uchar *p = bits;
+    const uchar *end = p + len;
     uchar *newdata = new uchar[len];
     uchar *b = newdata;
-    uchar *f = (uchar *)qt_get_bitflip_array();
+    uchar *f = qt_get_bitflip_array();
     while ( p < end )
 	*b++ = f[*p++];
     return newdata;
@@ -310,7 +310,7 @@ QPixmap &QPixmap::operator=( const QPixmap &pixmap )
 #if defined(CHECK_STATE)
 	warning("QPixmap::operator=: Cannot assign to pixmap during painting");
 #endif
-	return;
+	return *this;
     }
     pixmap.data->ref();				// avoid 'x = x'
     if ( data && data->deref() ) {		// last reference lost
@@ -1497,7 +1497,7 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	XDestroyImage( xi );
 
     if ( depth1 ) {
-	QPixmap pm( w, h, (const char *)dptr, TRUE );
+	QPixmap pm( w, h, dptr, TRUE );
 	pm.data->bitmap = data->bitmap;
 	free( dptr );
 	if ( data->mask ) {
