@@ -732,7 +732,7 @@ static QByteArray normalizeTypeInternal(const char *t, const char *e, bool adjus
 QByteArray QMetaObject::normalizedSignature(const char *member)
 {
     const char *s = member;
-    if (!s)
+    if (!s || !*s)
         return "";
     int len = strlen(s);
     char stackbuf[64];
