@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/gencmap/gencmap.cpp#1 $
+** $Id: //depot/qt/main/util/gencmap/gencmap.cpp#2 $
 **
 ** Utility program generating a color cube with priority ordered colors.
 **
@@ -16,7 +16,6 @@
 #include <stdio.h>
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/util/gencmap/gencmap.cpp#1 $");
 
 #define APPLE_CMAP 1
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/gifanim/gifanim.cpp#1 $
+** $Id: //depot/qt/main/util/gifanim/gifanim.cpp#2 $
 **
 ** C++ file skeleton
 **
@@ -19,7 +19,6 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/util/gifanim/gifanim.cpp#1 $");
 
 /*
 	QImageIO::defineIOHandler( "GIF", "^GIF[0-9][0-9][a-z]", 0,
