@@ -1,5 +1,6 @@
 #include "dialog.h"
 #include <stdlib.h>
+#include <time.h>
 
 Dialog::Dialog(QWidget *parent) : QDialog(parent)
 {
