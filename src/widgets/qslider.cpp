@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#54 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#55 $
 **
 ** Implementation of QSlider class
 **
@@ -931,7 +931,7 @@ int QSlider::goodPart( const QPoint &p ) const
 QSize QSlider::sizeHint() const
 {
     const int length = 84;
-    int thick = 16;
+    int thick = style() == MotifStyle ? 24 : 16;
     const int tickSpace = 5;
 
     if ( ticks & Above )
