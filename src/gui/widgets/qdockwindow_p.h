@@ -36,8 +36,8 @@ class QDockWindowPrivate : public QFramePrivate
     Q_DECLARE_PUBLIC(QDockWindow)
 
 public:
-    inline QDockWindowPrivate(QMainWindow *parent)
-	: QFramePrivate(), mainWindow(parent), widget(0),
+    inline QDockWindowPrivate()
+	: QFramePrivate(), widget(0),
           features(QDockWindow::DockWindowClosable
                    | QDockWindow::DockWindowMovable
                    | QDockWindow::DockWindowFloatable),
@@ -47,7 +47,6 @@ public:
     void init();
     void toggleView(bool); // private slot
 
-    QMainWindow *mainWindow;
     QWidget *widget;
 
     QDockWindow::DockWindowFeatures features;

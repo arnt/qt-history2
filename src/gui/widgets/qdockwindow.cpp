@@ -32,8 +32,6 @@
 #include "qmainwindowlayout_p.h"
 #include "qdockwindowlayout_p.h"
 
-#define d d_func()
-#define q q_func()
 
 /*
     A Dock Window:
@@ -216,18 +214,18 @@ void QDockWindowTitle::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() != Qt::LeftButton) return;
 
-    Q_ASSERT(!state);
-
     // check if the tool window is movable... do nothing if it is not
     if (!dockwindow->hasFeature(QDockWindow::DockWindowMovable))
         return;
 
-    state = new DragState;
-
     QMainWindowLayout *layout =
-        qt_cast<QMainWindowLayout *>(dockwindow->mainWindow()->layout());
-    Q_ASSERT(layout != 0);
+        qt_cast<QMainWindowLayout *>(dockwindow->parentWidget()->layout());
+    if (!layout)
+        return;
     layout->saveLayoutInfo();
+
+    Q_ASSERT(!state);
+    state = new DragState;
 
     const int screen_number = QApplication::desktop()->screenNumber(topLevelWidget());
     state->rubberband = new QRubberBand(QRubberBand::Rectangle,
@@ -269,11 +267,10 @@ void QDockWindowTitle::mouseMoveEvent(QMouseEvent *event)
 	}
 
 	if (widget) {
-
             QMainWindow *mainwindow = qt_cast<QMainWindow *>(widget);
-            if (mainwindow && mainwindow == dockwindow->mainWindow()) {
+            if (mainwindow && mainwindow == dockwindow->parentWidget()) {
 		QMainWindowLayout *layout =
-                    qt_cast<QMainWindowLayout *>(dockwindow->mainWindow()->layout());
+                    qt_cast<QMainWindowLayout *>(dockwindow->parentWidget()->layout());
                 Q_ASSERT(layout != 0);
                 QRect request = state->origin;
                 request.moveTopLeft(event->globalPos() - state->offset);
@@ -312,14 +309,15 @@ void QDockWindowTitle::mouseReleaseEvent(QMouseEvent *event)
 {
     if (event->button() != Qt::LeftButton) return;
 
+    QMainWindowLayout *layout =
+        qt_cast<QMainWindowLayout *>(dockwindow->parentWidget()->layout());
+    if (!layout)
+        return;
+    layout->discardLayoutInfo();
+
     if (!state) return;
 
     delete state->rubberband;
-
-    QMainWindowLayout *layout =
-        qt_cast<QMainWindowLayout *>(dockwindow->mainWindow()->layout());
-    Q_ASSERT(layout != 0);
-    layout->discardLayoutInfo();
 
     // calculate absolute position if the tool window was to be
     // dropped to toplevel
@@ -341,9 +339,9 @@ void QDockWindowTitle::mouseReleaseEvent(QMouseEvent *event)
 
         if (widget) {
             QMainWindow *mainwindow = qt_cast<QMainWindow *>(widget);
-            if (mainwindow && mainwindow == dockwindow->mainWindow()) {
+            if (mainwindow && mainwindow == dockwindow->parentWidget()) {
                 QMainWindowLayout *layout =
-                    qt_cast<QMainWindowLayout *>(dockwindow->mainWindow()->layout());
+                    qt_cast<QMainWindowLayout *>(dockwindow->parentWidget()->layout());
                 Q_ASSERT(layout != 0);
                 QRect request = state->origin;
                 request.moveTopLeft(event->globalPos() - state->offset);
@@ -453,29 +451,32 @@ void QDockWindowTitle::toggleTopLevel()
 */
 
 void QDockWindowPrivate::init() {
+    Q_Q(QDockWindow);
+
     q->setFrameStyle(QFrame::Panel | QFrame::Raised);
 
-    d->top = new QVBoxLayout(q);
-    d->top->setMargin(2);
-    d->top->setSpacing(2);
+    top = new QVBoxLayout(q);
+    top->setMargin(2);
+    top->setSpacing(2);
 
-    d->title = new QDockWindowTitle(q);
-    d->top->insertWidget(0, d->title);
+    title = new QDockWindowTitle(q);
+    top->insertWidget(0, title);
 
-    d->box = new QVBoxLayout(d->top);
+    box = new QVBoxLayout(top);
 
-    d->resizer = new QWidgetResizeHandler(q);
-    d->resizer->setMovingEnabled(false);
-    d->resizer->setActive(false);
+    resizer = new QWidgetResizeHandler(q);
+    resizer->setMovingEnabled(false);
+    resizer->setActive(false);
 
-    d->toggleViewAction = new QAction(q);
-    d->toggleViewAction->setCheckable(true);
-    d->toggleViewAction->setText(q->windowTitle());
-    QObject::connect(d->toggleViewAction, SIGNAL(checked(bool)), q, SLOT(toggleView(bool)));
+    toggleViewAction = new QAction(q);
+    toggleViewAction->setCheckable(true);
+    toggleViewAction->setText(q->windowTitle());
+    QObject::connect(toggleViewAction, SIGNAL(checked(bool)), q, SLOT(toggleView(bool)));
 }
 
 void QDockWindowPrivate::toggleView(bool b)
 {
+    Q_Q(QDockWindow);
     if (b != q->isShown()) {
         if (b)
             q->show();
@@ -571,11 +572,11 @@ void QDockWindowPrivate::toggleView(bool b)
     flags.  The dock window will be placed in the left dock window
     area.
 */
-QDockWindow::QDockWindow(QMainWindow *parent, Qt::WFlags flags)
-    : QFrame(*(new QDockWindowPrivate(parent)), parent,
-             flags | Qt::WStyle_Customize | Qt::WStyle_NoBorder | Qt::WStyle_Tool)
+QDockWindow::QDockWindow(QWidget *parent, Qt::WFlags flags)
+    : QFrame(*new QDockWindowPrivate, parent,
+              flags | Qt::WStyle_Customize | Qt::WStyle_NoBorder | Qt::WStyle_Tool)
 {
-    Q_ASSERT_X(parent != 0, "QDockWindow", "parent cannot be zero");
+    Q_D(QDockWindow);
     d->init();
 }
 
@@ -586,29 +587,16 @@ QDockWindow::~QDockWindow()
 { }
 
 /*!
-    Returns the main window for this dock window.
-
-    \sa setParent()
-*/
-QMainWindow *QDockWindow::mainWindow() const
-{ return d->mainWindow; }
-
-/*!
-    Sets the main window for this dock window to \a parent.
-
-    \sa mainWindow()
-*/
-void QDockWindow::setParent(QMainWindow *parent)
-{ QFrame::setParent(parent); }
-
-/*!
     Returns the widget for the dock window. This function returns zero
     if the widget has not been set.
 
     \sa setWidget()
 */
 QWidget *QDockWindow::widget() const
-{ return d->widget; }
+{
+    Q_D(const QDockWindow);
+    return d->widget;
+}
 
 /*!
     Sets the widget for the dock window to \a widget.
@@ -617,6 +605,7 @@ QWidget *QDockWindow::widget() const
 */
 void QDockWindow::setWidget(QWidget *widget)
 {
+    Q_D(QDockWindow);
     Q_ASSERT_X(widget != 0, "QDockWindow::setWidget", "parameter cannot be zero");
     Q_ASSERT_X(d->widget == 0, "QDockWindow::setWidget", "widget already set");
     d->widget = widget;
@@ -631,6 +620,7 @@ void QDockWindow::setWidget(QWidget *widget)
 */
 void QDockWindow::setFeatures(QDockWindow::DockWindowFeatures features)
 {
+    Q_D(QDockWindow);
     features &= DockWindowFeatureMask;
     if (d->features == features)
         return;
@@ -646,11 +636,17 @@ void QDockWindow::setFeatures(QDockWindow::DockWindowFeatures features)
     \sa hasFeature() features
 */
 void QDockWindow::setFeature(DockWindowFeature feature, bool on)
-{ setFeatures(on ? d->features | feature : d->features & ~feature); }
+{
+    Q_D(QDockWindow);
+    setFeatures(on ? d->features | feature : d->features & ~feature);
+}
 
 
 QDockWindow::DockWindowFeatures QDockWindow::features() const
-{ return d->features; }
+{
+    Q_D(const QDockWindow);
+    return d->features;
+}
 
 /*!
     Returns true if the dock window has the given \a feature;
@@ -659,7 +655,10 @@ QDockWindow::DockWindowFeatures QDockWindow::features() const
     \sa setFeature() features
 */
 bool QDockWindow::hasFeature(DockWindowFeature feature) const
-{ return d->features & feature; }
+{
+    Q_D(const QDockWindow);
+    return d->features & feature;
+}
 
 /*!
     \internal
@@ -670,16 +669,20 @@ bool QDockWindow::hasFeature(DockWindowFeature feature) const
 */
 void QDockWindow::setTopLevel(bool floated, const QPoint &pos)
 {
-    bool visible = isVisible();
+    Q_D(QDockWindow);
 
-    QFrame::setParent(d->mainWindow, (floated
-                                      ? (getWFlags() | Qt::WType_TopLevel)
-                                      : (getWFlags() & ~Qt::WType_TopLevel)));
+    const bool visible = isVisible();
+
+    setParent(parentWidget(), (floated
+                               ? (getWFlags() | Qt::WType_TopLevel)
+                               : (getWFlags() & ~Qt::WType_TopLevel)));
 
     if (floated) {
         if (!pos.isNull())
             move(pos);
-        d->mainWindow->layout()->invalidate();
+        QMainWindowLayout *layout = qt_cast<QMainWindowLayout *>(parentWidget()->layout());
+        if (layout)
+            layout->invalidate();
     }
 
     d->resizer->setActive(floated);
@@ -698,10 +701,16 @@ void QDockWindow::setTopLevel(bool floated, const QPoint &pos)
 */
 
 void QDockWindow::setAllowedAreas(Qt::DockWindowAreas areas)
-{ d->allowedAreas = (areas & Qt::DockWindowArea_Mask); }
+{
+    Q_D(QDockWindow);
+    d->allowedAreas = (areas & Qt::DockWindowArea_Mask);
+}
 
 Qt::DockWindowAreas QDockWindow::allowedAreas() const
-{ return d->allowedAreas; }
+{
+    Q_D(const QDockWindow);
+    return d->allowedAreas;
+}
 
 /*!
     \fn bool QDockWindow::isDockable(Qt::DockWindowArea area)
@@ -713,6 +722,7 @@ Qt::DockWindowAreas QDockWindow::allowedAreas() const
 /*! \reimp */
 void QDockWindow::changeEvent(QEvent *event)
 {
+    Q_D(QDockWindow);
     switch (event->type()) {
     case QEvent::WindowTitleChange:
         d->title->updateWindowTitle();
@@ -727,6 +737,7 @@ void QDockWindow::changeEvent(QEvent *event)
 /*! \reimp */
 void QDockWindow::closeEvent(QCloseEvent *event)
 {
+    Q_D(QDockWindow);
     if (!(d->features & DockWindowClosable))
         event->ignore();
 }
@@ -734,20 +745,8 @@ void QDockWindow::closeEvent(QCloseEvent *event)
 /*! \reimp */
 bool QDockWindow::event(QEvent *event)
 {
+    Q_D(QDockWindow);
     switch (event->type()) {
-    case QEvent::ParentChange:
-	{
-	    QWidget *parent = parentWidget();
-            QMainWindow *mainWindow = qt_cast<QMainWindow *>(parent);
-
-	    Q_ASSERT_X(!parent || mainWindow, "QDockWindow::setParent",
-                       "QDockWindow must have QMainWindow as a parent");
-
-            if (mainWindow)
-                d->mainWindow = mainWindow;
-
-            break;
-        }
     case QEvent::Show:
     case QEvent::Hide:
         if (!event->spontaneous())
@@ -769,8 +768,13 @@ bool QDockWindow::event(QEvent *event)
  */
 QAction * QDockWindow::toggleViewAction() const
 {
+    Q_D(const QDockWindow);
     return d->toggleViewAction;
 }
 
 #include "qdockwindow.moc"
+
+// for private slots
+#define d d_func()
+
 #include "moc_qdockwindow.cpp"
