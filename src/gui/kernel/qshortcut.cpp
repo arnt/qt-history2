@@ -247,7 +247,7 @@ bool QShortcut::isEnabled() const
     \brief the context in which the shortcut is valid
 
     A shortcut's context decides in which circumstances a shortcut is
-    allowed to be triggered. The normal context is OnActiveWindow,
+    allowed to be triggered. The normal context is Qt::WindowContext,
     which allows the shortcut to trigger if the parent (the widget
     containing the shortcut) is a subwidget of the active top-level
     window.

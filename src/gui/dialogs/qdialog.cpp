@@ -54,7 +54,7 @@
     parent's top-level widget (if it is not top-level itself). It will
     also share the parent's taskbar entry.
 
-    \target modal
+    \target modal_dialogs
     \section1 Modal Dialogs
 
     A \bold{modal} dialog is a dialog that blocks input to other
@@ -346,7 +346,7 @@ void QDialog::setResult(int r)
 
 
 /*!
-    Shows the dialog as a \link #modal modal \endlink dialog,
+    Shows the dialog as a \link #modal_dialog modal \endlink dialog,
     blocking until the user closes it. The function returns a \l
     DialogCode result.
 
