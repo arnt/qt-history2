@@ -354,14 +354,20 @@ bool QTableSelection::operator==( const QTableSelection &s ) const
 
     \sa numCols()
 */
+int QTableSelection::numRows() const
+{
+    return ( tRow < 0 ) ? 0 : bRow - tRow + 1;
+}
 
 /*!
-    \fn int QTableSelection::numCols() const
-
     Returns the number of columns in the selection.
 
     \sa numRows()
 */
+int QTableSelection::numCols() const
+{
+    return ( lCol < 0 ) ? 0 : rCol - lCol + 1;
+}
 
 /*!
     \fn bool QTableSelection::isActive() const

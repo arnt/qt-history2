@@ -93,8 +93,8 @@ public:
     int rightCol() const { return rCol; }
     int anchorRow() const { return aRow; }
     int anchorCol() const { return aCol; }
-    int numRows() const { return bRow - tRow + 1; }
-    int numCols() const { return rCol - lCol + 1; }
+    int numRows() const;
+    int numCols() const;
 
     bool isActive() const { return active; }
 
@@ -541,7 +541,7 @@ private:
     FocusStyle focusStl;
     QSize unused_cachedSizeHint; // ### remove in 4.0
 
-#if defined(Q_DISABLE_COPY) // Disabled copy constructor and operator=
+#if defined(Q_DISABLE_COPY)
     QTable( const QTable & );
     QTable &operator=( const QTable & );
 #endif
