@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.cpp#91 $
+** $Id: //depot/qt/main/src/kernel/qevent.cpp#92 $
 **
 ** Implementation of event classes
 **
@@ -861,7 +861,7 @@ Qt::ButtonState QKeyEvent::stateAfter() const
 */
 
 /*!
-  \fn void   QDragMoveEvent::accept()
+  \fn void   QDragMoveEvent::accept(bool yes=TRUE)
 
   Call this to indicate that the event provides data which your widget
   can process.  Use provides(), or preferably, the canDecode() methods

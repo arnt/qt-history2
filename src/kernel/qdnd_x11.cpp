@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#77 $
+** $Id: //depot/qt/main/src/kernel/qdnd_x11.cpp#78 $
 **
 ** XDND implementation for Qt.  See http://www.cco.caltech.edu/~jafl/xdnd/
 **
@@ -127,6 +127,9 @@ QIntDict<QByteArray> * qt_xdnd_target_data = 0;
 
 // first drag object, or 0
 QDragObject * qt_xdnd_source_object = 0;
+
+// Shift/Ctrl handling, and final drop status
+static QDragObject::DragMode drag_mode, drag_mode_chosen;
 
 // for embedding only
 static QWidget* current_embedding_widget  = 0;
@@ -594,6 +597,10 @@ void qt_handle_xdnd_drop( QWidget *, const XEvent * xe )
 	
     QDropEvent de( qt_xdnd_current_position );
     QApplication::sendEvent( qt_xdnd_current_widget, &de );
+    if ( !de.isAccepted() ) {
+	// Ignore a failed move
+	drag_mode_chosen = QDragObject::DragCopy;
+    }
     QDragLeaveEvent e;
     QApplication::sendEvent( qt_xdnd_current_widget, &e );
     qt_xdnd_dragsource_xid = 0;
@@ -699,7 +706,6 @@ bool QDragManager::eventFilter( QObject * o, QEvent * e)
 }
 
 
-static QDragObject::DragMode drag_mode, drag_mode_chosen;
 static Qt::ButtonState oldstate;
 void QDragManager::updateMode( ButtonState newstate )
 {
@@ -775,6 +781,9 @@ void QDragManager::cancel()
     qt_xdnd_source_object = 0;
     delete qt_xdnd_deco;
     qt_xdnd_deco = 0;
+
+    // Cancelling is not moving.
+    drag_mode_chosen = QDragObject::DragCopy;
 }
 
 static
@@ -1255,6 +1264,11 @@ bool QDragManager::drag( QDragObject * o, QDragObject::DragMode mode )
     return drag_mode_chosen == QDragObject::DragMove;
 
     // qt_xdnd_source_object persists for a while...
+}
+
+bool QDropEvent::movingData() const
+{
+    return drag_mode_chosen == QDragObject::DragMove;
 }
 
 void QDragManager::updatePixmap()

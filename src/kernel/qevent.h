@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qevent.h#78 $
+** $Id: //depot/qt/main/src/kernel/qevent.h#79 $
 **
 ** Definition of event classes
 **
@@ -287,7 +287,7 @@ public:
 	  rect( p,QSize( 1, 1 ) ) {}
     const QPoint& pos() const   { return p; }
     bool   isAccepted() const   { return accpt; }
-    void   accept()		{ accpt = TRUE; }
+    void   accept(bool y=TRUE)	{ accpt = y; }
     void   ignore()		{ accpt = FALSE; }
     void   accept( const QRect & r) { accpt = TRUE; rect = r; }
     void   ignore( const QRect & r) { accpt =FALSE; rect = r; }
@@ -340,7 +340,7 @@ class Q_EXPORT QDropEvent : public QEvent, public QMimeSource
 {
 public:
     QDropEvent( const QPoint& pos )
-	: QEvent(Drop), p(pos), accpt(FALSE) {}
+	: QEvent(Drop), p(pos), accpt(TRUE) {}
     const QPoint &pos() const	{ return p; }
     bool   isAccepted() const	{ return accpt; }
     void   accept()		{ accpt = TRUE; }
@@ -351,6 +351,7 @@ public:
     QByteArray encodedData( const char* ) const;
 
     QByteArray data(const char* f) const { return encodedData(f); }
+    bool movingData() const;
 
 protected:
     QPoint p;

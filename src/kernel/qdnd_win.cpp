@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#46 $
+** $Id: //depot/qt/main/src/kernel/qdnd_win.cpp#47 $
 **
 ** Implementation of OLE drag and drop for Qt.
 **
@@ -838,6 +838,8 @@ static
 QOleDropTarget *current_drop=0;
 static
 LPDATAOBJECT current_dropobj = 0;
+static
+bool current_drop_moving = FALSE;
 
 bool QDragManager::eventFilter( QObject *, QEvent *)
 {
@@ -922,6 +924,11 @@ const char* QDragMoveEvent::format( int fn ) const
 const char* QDropEvent::format( int fn ) const
 {
     return dnd_format(fn);
+}
+
+bool QDropEvent::movingData() const
+{
+    return current_drop_moving;
 }
 
 QByteArray qt_olednd_obtain_data( const char *format )
@@ -1453,6 +1460,7 @@ QOleDropTarget::Drop(LPDATAOBJECT pDataObj, DWORD grfKeyState, POINTL pt, LPDWOR
     {
 	current_dropobj = pDataObj;
 	current_drop = this; // ##### YUCK.  Arnt, we need to put info in event
+	current_drop_moving = *pdwEffect & DROPEFFECT_MOVE;
 	QDropEvent de( widget->mapFromGlobal(QPoint(pt.x,pt.y)) );
 	QApplication::sendEvent( widget, &de );
 	DragLeave();
