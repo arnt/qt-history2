@@ -1,6 +1,5 @@
 SOURCES += \
 	painting/q3paintdevicemetrics.cpp \
-	painting/q3pointarray.cpp \
 	painting/q3painter.cpp
 
 HEADERS += \

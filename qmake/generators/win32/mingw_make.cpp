@@ -58,7 +58,7 @@ void createLdObjectScriptFile(const QString &fileName, QStringList &objList)
 {
     QString filePath = Option::output_dir + QDir::separator() + fileName;
     QFile file(filePath);
-    if (file.open(QIODevice::WriteOnly | QIODevice::Translate)) {
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text)) {
         QTextStream t(&file);
         t << "INPUT(" << endl;
         for (QStringList::Iterator it = objList.begin(); it != objList.end(); ++it) {
@@ -172,7 +172,7 @@ void MingwMakefileGenerator::processQtConfig()
 
 void MingwMakefileGenerator::writeObjectsPart(QTextStream &t)
 {
-    if ((!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) 
+    if ((!project->variables()["QMAKE_APP_OR_DLL"].isEmpty())
         && project->variables()["OBJECTS"].count() > var("QMAKE_LINK_OBJECT_MAX").toInt()) {
         QString ld_script_file = var("QMAKE_LINK_OBJECT_SCRIPT") + "." + var("TARGET");
 	if (!var("BUILD_NAME").isEmpty()) {
@@ -188,7 +188,7 @@ void MingwMakefileGenerator::writeObjectsPart(QTextStream &t)
 
 void MingwMakefileGenerator::writeObjMocPart(QTextStream &t)
 {
-    if ((!project->variables()["QMAKE_APP_OR_DLL"].isEmpty()) 
+    if ((!project->variables()["QMAKE_APP_OR_DLL"].isEmpty())
         && project->variables()["OBJMOC"].count() > var("QMAKE_LINK_OBJECT_MAX").toInt()) {
         QString ld_script_file = var("QMAKE_LINK_OBJMOC_SCRIPT") + "." + var("TARGET");
 	if (!var("BUILD_NAME").isEmpty()) {

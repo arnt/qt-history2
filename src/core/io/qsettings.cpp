@@ -1094,7 +1094,7 @@ static bool openFile(QFile &file, QConfFile &confFile, int flags)
     if (flags == WriteFlags)
         ftruncate(fd, 0);
 
-    return file.open(flags == WriteFlags ? QIODevice::WriteOnly | QIODevice::Translate
+    return file.open(flags == WriteFlags ? QIODevice::WriteOnly | QIODevice::Text
                      : QIODevice::OpenMode(QIODevice::ReadOnly),
                      fd);
 
@@ -1121,7 +1121,7 @@ static bool openFile(QFile &file, QConfFile &confFile, int flags)
             WaitForSingleObject(confFile.semHandle, INFINITE);
     }
 
-    return file.open(flags == WriteFlags ? QIODevice::WriteOnly | QIODevice::Translate
+    return file.open(flags == WriteFlags ? QIODevice::WriteOnly | QIODevice::Text
                                          : QIODevice::OpenMode(QIODevice::ReadOnly));
 #endif
 }

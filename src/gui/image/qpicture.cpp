@@ -1710,7 +1710,7 @@ bool QPictureIO::write()
     if (!d->iodev && !d->fname.isEmpty()) {
         file.setFileName(d->fname);
         bool translate = h->text_mode==QPictureHandler::TranslateInOut;
-        QIODevice::OpenMode fmode = translate ? QIODevice::WriteOnly | QIODevice::Translate : QIODevice::OpenMode(QIODevice::WriteOnly);
+        QIODevice::OpenMode fmode = translate ? QIODevice::WriteOnly | QIODevice::Text : QIODevice::OpenMode(QIODevice::WriteOnly);
         if (!file.open(fmode))                // couldn't create file
             return false;
         d->iodev = &file;

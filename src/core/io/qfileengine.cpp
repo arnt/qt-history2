@@ -674,7 +674,7 @@ QFSFileEngine::open(int flags)
     }
 
 #if defined(HAS_TEXT_FILEMODE)
-    if (flags & QFile::Translate)
+    if (flags & QFile::Text)
         oflags |= QT_OPEN_TEXT;
     else
         oflags |= QT_OPEN_BINARY;

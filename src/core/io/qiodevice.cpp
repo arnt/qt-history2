@@ -216,7 +216,7 @@ QIODevicePrivate::~QIODevicePrivate()
                      written to the end of the file.
     \value Truncate  If possible, the device is truncated before it is opened.
                      All earlier contents of the device are lost.
-    \value Translate When reading lines using readLine(), end-of-line
+    \value Text When reading lines using readLine(), end-of-line
                      terminators are translated to the local encoding.
     \value Unbuffered Any buffer in the device is bypassed.
 */
@@ -521,9 +521,44 @@ Q_LONGLONG QIODevice::read(char *data, Q_LONGLONG maxlen)
     }
 
     Q_LONGLONG ret = readData(data + readSoFar, maxlen - readSoFar);
-    if (ret == -1)
-        return readSoFar ? readSoFar : -1;
-    return ret + readSoFar;
+    if (ret <= 0)
+        return readSoFar ? readSoFar : ret;
+
+    if (d->openMode & Text) {
+        forever {
+            char *readPtr = data + readSoFar;
+            char *endPtr = readPtr + ret;
+
+            // optimization to avoid initial self-assignment
+            while (*readPtr != '\r') {
+                if (++readPtr == endPtr)
+                    return readSoFar + ret;
+            }
+
+            char *writePtr = readPtr;
+
+            while (readPtr < endPtr) {
+                char ch = *readPtr++;
+                if (ch != '\r') {
+                    *writePtr++ = ch;
+                } else {
+                    --ret;
+                }
+            }
+
+            if (readPtr == writePtr)
+                break;
+
+            Q_LONGLONG newRet = readData(writePtr, readPtr - writePtr);
+            if (newRet <= 0)
+                break;
+
+            readSoFar += ret;
+            ret = newRet;
+        }
+    }
+
+    return readSoFar + ret;
 }
 
 /*!
@@ -710,6 +745,40 @@ Q_LONGLONG QIODevice::write(const char *data, Q_LONGLONG maxlen)
     CHECK_OPEN(write, Q_LONGLONG(-1));
     CHECK_WRITABLE(write, Q_LONGLONG(-1));
     CHECK_MAXLEN(write, Q_LONGLONG(-1));
+
+#ifdef Q_OS_WIN
+    if (d->openMode & Text) {
+        const char *endOfData = data + maxlen;
+        const char *startOfBlock = data;
+
+        Q_LONGLONG writtenSoFar = 0;
+
+        forever {
+            const char *endOfBlock = startOfBlock;
+            while (endOfBlock < endOfData && *endOfBlock != '\n')
+                ++endOfBlock;
+
+            Q_LONGLONG blockSize = endOfBlock - startOfBlock;
+            if (blockSize > 0) {
+                Q_LONGLONG ret = writeData(startOfBlock, blockSize);
+                if (ret <= 0)
+                    return writtenSoFar ? writtenSoFar : ret;
+                writtenSoFar += ret;
+            }
+
+            if (endOfBlock == endOfData)
+                break;
+
+            Q_LONGLONG ret = writeData("\r\n", 2);
+            if (ret <= 0)
+                return writtenSoFar ? writtenSoFar : ret;
+            ++writtenSoFar;
+
+            startOfBlock = endOfBlock + 1;
+        }
+        return writtenSoFar;
+    }
+#endif
     return writeData(data, maxlen);
 }
 

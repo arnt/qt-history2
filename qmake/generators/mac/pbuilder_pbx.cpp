@@ -59,7 +59,7 @@ ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
         QString mkwrap = fileFixify(pbx_dir + Option::dir_sep + ".." + Option::dir_sep + project->first("MAKEFILE"),
                                     QDir::currentPath());
         QFile mkwrapf(mkwrap);
-        if(mkwrapf.open(QIODevice::WriteOnly | QIODevice::Translate)) {
+        if(mkwrapf.open(QIODevice::WriteOnly | QIODevice::Text)) {
             debug_msg(1, "pbuilder: Creating file: %s", mkwrap.latin1());
             QTextStream mkwrapt(&mkwrapf);
             UnixMakefileGenerator::writeSubDirs(mkwrapt);
@@ -386,7 +386,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     if(!project->isActiveConfig("no_autoqmake") && project->projectFile() != "(stdin)") {
         QString mkfile = pbx_dir + Option::dir_sep + "qt_makeqmake.mak";
         QFile mkf(mkfile);
-        if(mkf.open(QIODevice::WriteOnly | QIODevice::Translate)) {
+        if(mkf.open(QIODevice::WriteOnly | QIODevice::Text)) {
             debug_msg(1, "pbuilder: Creating file: %s", mkfile.latin1());
             QTextStream mkt(&mkf);
             writeHeader(mkt);
@@ -517,7 +517,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                   << "\t\t" << "};" << "\n";
 
                 bool isObj = false;
-                if(file.endsWith(".c")) 
+                if(file.endsWith(".c"))
                     isObj = true;
                 for(int i = 0; !isObj && i < Option::cpp_ext.size(); ++i) {
                     if(file.endsWith(Option::cpp_ext.at(i))) {
@@ -557,7 +557,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         !project->isEmpty("YACCSOURCES") || !project->isEmpty("LEXSOURCES")) {
         QString mkfile = pbx_dir + Option::dir_sep + "qt_preprocess.mak";
         QFile mkf(mkfile);
-        if(mkf.open(QIODevice::WriteOnly | QIODevice::Translate)) {
+        if(mkf.open(QIODevice::WriteOnly | QIODevice::Text)) {
             did_preprocess = true;
             debug_msg(1, "pbuilder: Creating file: %s", mkfile.latin1());
             QTextStream mkt(&mkf);
@@ -629,7 +629,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                         for(int file = 0; file < files.size(); ++file) {
                             if(file && !(file % 3))
                                 mkt << "\\\n\t";
-                            mkt << " " << replaceExtraCompilerVariables(tmp_out, files.at(file), 
+                            mkt << " " << replaceExtraCompilerVariables(tmp_out, files.at(file),
                                                                         QString());
                         }
                     }
@@ -788,7 +788,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     if(!project->isEmpty("SUBLIBS")) {
         QString mkfile = pbx_dir + Option::dir_sep + "qt_sublibs.mak";
         QFile mkf(mkfile);
-        if(mkf.open(QIODevice::WriteOnly | QIODevice::Translate)) {
+        if(mkf.open(QIODevice::WriteOnly | QIODevice::Text)) {
             debug_msg(1, "pbuilder: Creating file: %s", mkfile.latin1());
             QTextStream mkt(&mkf);
             writeHeader(mkt);
@@ -1091,7 +1091,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                 plist_in_text = plist_in_text.replace("@TYPEINFO@",
                   (project->isEmpty("QMAKE_PKGINFO_TYPEINFO") ? QString::fromLatin1("????") : project->first("QMAKE_PKGINFO_TYPEINFO").left(4)));
                 QFile plist_out_file("Info.plist");
-                if(plist_out_file.open(QIODevice::WriteOnly | QIODevice::Translate)) {
+                if(plist_out_file.open(QIODevice::WriteOnly | QIODevice::Text)) {
                     QTextStream plist_out(&plist_out_file);
                     plist_out << plist_in_text;
                     t << "\t\t\t\t" << "INFOPLIST_FILE = \"Info.plist\";" << "\n";
@@ -1297,7 +1297,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         QString mkwrap = fileFixify(pbx_dir + Option::dir_sep + ".." + Option::dir_sep + project->first("MAKEFILE"),
                                     QDir::currentPath());
         QFile mkwrapf(mkwrap);
-        if(mkwrapf.open(QIODevice::WriteOnly | QIODevice::Translate)) {
+        if(mkwrapf.open(QIODevice::WriteOnly | QIODevice::Text)) {
             debug_msg(1, "pbuilder: Creating file: %s", mkwrap.latin1());
             QTextStream mkwrapt(&mkwrapf);
             writeHeader(mkwrapt);

@@ -1894,7 +1894,7 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
                     mkfile.prepend(targets.at(target)->directory + Option::dir_sep);
                     if(project->isActiveConfig("cd_change_global")) {
                         cdin = "\n\tcd " + subtarget->directory + "\n\t";
-                        
+
                         QDir pwd(Option::output_dir);
                         QStringList in = subtarget->directory.split(Option::dir_sep), out;
                         for(int i = 0; i < in.size(); i++) {
@@ -2380,7 +2380,7 @@ MakefileGenerator::openOutput(QFile &file, const QString &build) const
     int slsh = file.fileName().lastIndexOf(Option::dir_sep);
     if(slsh != -1)
         createDir(file.fileName().left(slsh));
-    if(file.open(QIODevice::WriteOnly | QIODevice::Translate | QIODevice::Truncate)) {
+    if(file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
         QFileInfo fi(Option::output);
         QString od = Option::fixPathToTargetOS((fi.isSymLink() ? fi.readLink() : fi.path()));
         if(QDir::isRelativePath(od))

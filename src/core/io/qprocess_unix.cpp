@@ -121,14 +121,15 @@ void QProcessManager::deadChildNotification(int)
         if (childpid <= 0)
             break;
 
-        QMutexLocker lock(&mutex);
+        mutex.lock();
         QProcess *child = children.value(childpid, 0);
-        if (child) {
-            ((QProcessPrivate *)child->d_ptr)->exitCode = WEXITSTATUS(result);
-            ((QProcessPrivate *)child->d_ptr)->crashed = !WIFEXITED(result);
-            children.remove(childpid);
+        ((QProcessPrivate *)child->d_ptr)->exitCode = WEXITSTATUS(result);
+        ((QProcessPrivate *)child->d_ptr)->crashed = !WIFEXITED(result);
+        children.remove(childpid);
+        mutex.unlock();
+
+        if (child)
             qInvokeMetaMember(child, "processDied");
-        }
     }
 }
 

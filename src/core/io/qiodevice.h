@@ -28,7 +28,7 @@
 class QByteArray;
 class QIODevicePrivate;
 
-class Q_CORE_EXPORT QIODevice 
+class Q_CORE_EXPORT QIODevice
 #ifndef QT_NO_QOBJECT
     : public QObject
 #endif
@@ -44,7 +44,7 @@ public:
         ReadWrite = ReadOnly | WriteOnly,
         Append = 0x0004,
         Truncate = 0x0008,
-        Translate = 0x0010,
+        Text = 0x0010,
         Unbuffered = 0x0020
     };
     Q_DECLARE_FLAGS(OpenMode, OpenModeFlag)
@@ -137,7 +137,7 @@ public:
     inline QT_COMPAT bool isRaw() const { return false; }
     inline QT_COMPAT bool isSynchronous() const { return true; }
     inline QT_COMPAT bool isAsynchronous() const { return false; }
-    inline QT_COMPAT bool isTranslated() const { return (openMode() & Translate) != 0; }
+    inline QT_COMPAT bool isTranslated() const { return (openMode() & Text) != 0; }
     inline QT_COMPAT bool isInactive() const { return !isOpen(); }
 
     typedef int Status;
@@ -173,7 +173,7 @@ static QT_COMPAT_VARIABLE const uint IO_Async = 0x0000;
 #define IO_ReadWrite QIODevice::ReadWrite
 #define IO_Append QIODevice::Append
 #define IO_Truncate QIODevice::Truncate
-#define IO_Translate QIODevice::Translate
+#define IO_Translate QIODevice::Text
 #define IO_ModeMask 0x00ff
 
 static QT_COMPAT_VARIABLE const uint IO_Open = 0x1000;

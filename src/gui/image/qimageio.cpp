@@ -920,7 +920,7 @@ bool QImageIO::write()
     if (!iodev && !fname.isEmpty()) {
         file.setFileName(fname);
         bool translate = h->text_mode==QImageHandler::TranslateInOut;
-        QIODevice::OpenMode fmode = translate ? QIODevice::WriteOnly | QIODevice::Translate : QIODevice::OpenMode(QIODevice::WriteOnly);
+        QIODevice::OpenMode fmode = translate ? QIODevice::WriteOnly | QIODevice::Text : QIODevice::OpenMode(QIODevice::WriteOnly);
         if (!file.open(fmode))                // couldn't create file
             return false;
         iodev = &file;

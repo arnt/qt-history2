@@ -100,7 +100,7 @@ MetaMakefileGenerator::write(const QString &oldpwd)
                 if(Option::output.fileName() == "-") {
                     Option::output.setFileName("");
                     Option::output_dir = QDir::currentPath();
-                    Option::output.open(QIODevice::WriteOnly | QIODevice::Translate, stdout);
+                    Option::output.open(QIODevice::WriteOnly | QIODevice::Text, stdout);
                     using_stdout = true;
                 } else {
                     if(Option::output.fileName().isEmpty() && Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE)
@@ -148,7 +148,7 @@ MakefileGenerator
 *MetaMakefileGenerator::processBuild(const QString &build)
 {
     if(project) {
-        debug_msg(1, "Meta Generator: Parsing '%s' for build [%s].", 
+        debug_msg(1, "Meta Generator: Parsing '%s' for build [%s].",
                   project->projectFile().latin1(),build.latin1());
 
         //initialize the base
