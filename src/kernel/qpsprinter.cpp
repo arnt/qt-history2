@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qpsprinter.cpp#58 $
 **
 ** Implementation of QPSPrinter class
 **
@@ -2299,21 +2299,23 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 	d->boundingBox = QRect( 0, 0, -1, -1 );
 	fontsUsed = "";
 	
-	stream << "%%Page: " << pageCount << ' ' << pageCount << endl;
-	stream << "QI\n";
+	stream << "%%Page: " << pageCount << ' ' << pageCount << endl
+	       << "QI\n";
 	orientationSetup();
 	stream << "GS\n";
 	return TRUE;
     }
 
     if ( c == PDC_END ) {			// painting done
-	if ( d->buffer )
+	bool pageCountAtEnd = (d->buffer == 0);
+	if ( !pageCountAtEnd )
 	    emitHeader( TRUE );
-	stream << "GR\n";
-	stream << "QP\n";
-	stream << "%%Trailer\n";
-	stream << "%%Pages: " << pageCount << '\n';
-	stream << "%%DocumentFonts: " << fontsUsed << '\n';
+	stream << "GR\n"
+	       << "QP\n"
+	       << "%%Trailer\n";
+	if ( pageCountAtEnd )
+	    stream << "%%Pages: " << pageCount << '\n'
+		   << "%%DocumentFonts: " << fontsUsed << '\n';
 	stream.unsetDevice();
 	d->realDevice->close();
 	if ( d->fd >= 0 )
@@ -2621,10 +2623,14 @@ void QPSPrinter::emitHeader( bool finished )
     }
     stream << "\n%%Creator: " << creator
 	   << "\n%%Title: " << title
-	   << "\n%%CreationDate: " << QDateTime::currentDateTime().toString()
-	   << "\n%%Pages: (atend)"
-	   << "\n%%DocumentFonts: (atend)"
-	   << "\n%%EndComments\n\n";
+	   << "\n%%CreationDate: " << QDateTime::currentDateTime().toString();
+    if ( finished )
+	stream << "\n%%Pages: " << pageCount 
+	       << "\n%%DocumentFonts: " << fontsUsed;
+    else
+	stream << "\n%%Pages: (atend)"
+	       << "\n%%DocumentFonts: (atend) ";
+    stream << "\n%%EndComments\n\n";
 
     if ( printer->numCopies() > 1 )
 	stream << "/#copies " << printer->numCopies() << " def\n";
