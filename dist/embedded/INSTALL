@@ -7,8 +7,8 @@ to be modified for other platforms.
 Unpack the archive if you have not done so already:
 
 cd <anywhere>
-gunzip qt-qws-%VERSION%.tar.gz    # uncompress the archive
-tar xf qt-qws-%VERSION%.tar       # unpack it
+gunzip qt-embedded-%VERSION%-commercial.tar.gz    # uncompress the archive
+tar xf qt-embedded-%VERSION%-commercial.tar       # unpack it
 
 This document assumes that the archive is installed as ~/qt-%VERSION%
 
