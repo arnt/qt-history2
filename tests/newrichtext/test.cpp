@@ -8,8 +8,11 @@
 #include <qdatetime.h>
 #include "editwidget.h"
 
+// const char *family = "Arial Unicode Ms"; // generic
 // const char *family = "Mangal"; // Devanagari
 const char *family = "Akaash"; // Bengali
+// const char *family = "Diwani Letter"; // arabic
+// const char *family = "Serto Jerusalem"; // syriac
 
 class MyWidget : public QWidget
 {

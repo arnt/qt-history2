@@ -2,8 +2,6 @@
 #ifndef FTERRCOMPAT_H
 #define FTERRCOMPAT_H
 
-#include <config.h>
-
 #ifdef HAVE_FREETYPE_2_0_3
 #include <freetype/internal/tterrors.h>
 #else
