@@ -1206,7 +1206,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 
     QListView *lv = listView();
 
-    // hack, but we _need_ the column info for the ellipsis thingy!!!
+    // had, but we _need_ the column info for the ellipsis thingy!!!
     if ( !columns ) {
 	for ( uint i = 0; i < lv->d->column.size(); ++i ) {
 	    setText( i, text( i ) );
@@ -2462,9 +2462,9 @@ void QListView::updateContents()
 {
     if ( !isVisible() )
 	return;
-    viewport()->setUpdatesEnabled( TRUE );
+    //viewport()->setUpdatesEnabled( TRUE ); // ### what should setting it two times to TRUE bring? :-)
     updateGeometries();
-    viewport()->setUpdatesEnabled( TRUE );
+    //viewport()->setUpdatesEnabled( TRUE );
     viewport()->repaint( FALSE );
     ensureItemVisible( d->focusItem );
 }
@@ -2496,11 +2496,12 @@ void QListView::updateGeometries()
 
 void QListView::handleSizeChange( int section, int os, int ns )
 {
+    bool upe = viewport()->isUpdatesEnabled();
     viewport()->setUpdatesEnabled( FALSE );
     int sx = horizontalScrollBar()->value();
     updateGeometries();
     bool fullRepaint = sx != horizontalScrollBar()->value();
-    viewport()->setUpdatesEnabled( TRUE );
+    viewport()->setUpdatesEnabled( upe );
 
     if ( fullRepaint ) {
 	viewport()->repaint( FALSE );

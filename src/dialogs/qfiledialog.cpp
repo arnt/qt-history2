@@ -786,15 +786,15 @@ struct QFileDialogPrivate {
     struct File: public QListViewItem {
 	File( QFileDialogPrivate * dlgp,
 	      const QUrlInfo * fi, QListViewItem * parent )
-	    : QListViewItem( parent, dlgp->last ), info( *fi ), d(dlgp), i( 0 ), mimePixmap( 0 )
+	    : QListViewItem( parent, dlgp->last ), info( *fi ), d(dlgp), i( 0 ), hasMimePixmap( FALSE )
 	{ setup(); dlgp->last = this; }
 	File( QFileDialogPrivate * dlgp,
 	      const QUrlInfo * fi, QListView * parent )
-	    : QListViewItem( parent, dlgp->last ), info( *fi ), d(dlgp), i( 0 ), mimePixmap( 0 )
+	    : QListViewItem( parent, dlgp->last ), info( *fi ), d(dlgp), i( 0 ), hasMimePixmap( FALSE )
 	{ setup(); dlgp->last = this; }
 	File( QFileDialogPrivate * dlgp,
 	      const QUrlInfo * fi, QListView * parent, QListViewItem * after )
-	    : QListViewItem( parent, after ), info( *fi ), d(dlgp), i( 0 ), mimePixmap( 0 )
+	    : QListViewItem( parent, after ), info( *fi ), d(dlgp), i( 0 ), hasMimePixmap( FALSE )
 	{ setup(); if ( !nextSibling() ) dlgp->last = this; }
 
 	QString text( int column ) const;
@@ -803,7 +803,7 @@ struct QFileDialogPrivate {
 	QUrlInfo info;
 	QFileDialogPrivate * d;
 	QListBoxItem *i;
-	QPixmap *mimePixmap;
+	bool hasMimePixmap;
     };
 
     class MCItem: public QListBoxItem {
@@ -1712,8 +1712,8 @@ const QPixmap * QFileDialogPrivate::File::pixmap( int column ) const
 {
     if ( column ) {
 	return 0;
-    } else if ( mimePixmap ) {
-	return mimePixmap;
+    } else if ( QListViewItem::pixmap( column ) ) {
+	return QListViewItem::pixmap( column );
     } else if ( info.isSymLink() ) {
 	if ( info.isFile() )
 	    return symLinkFileIcon;
@@ -4569,7 +4569,7 @@ void QFileDialog::resortDir()
 	}
 	d->pendingItems.append( item );
     }
-    d->mimeTypeTimer->start( 1 );
+    d->mimeTypeTimer->start( 0 );
 }
 
 /*!
@@ -4628,11 +4628,19 @@ void QFileDialog::doMimeTypeLookup()
 	    fi.setFile( QUrl( d->url.path(), item->info.name() ).path() );
 	else
 	    fi.setFile( item->info.name() ); // #####
-	QPixmap *p = (QPixmap*)iconProvider()->pixmap( fi );
-	if ( p != item->pixmap( 0 ) && p != fifteenTransparentPixels ) {
-	    item->mimePixmap = p;
+	const QPixmap *p = iconProvider()->pixmap( fi );
+	if ( p && p != item->pixmap( 0 ) && p != fifteenTransparentPixels ) {
+	    item->hasMimePixmap = TRUE;
+	    // evil hack to avoid much too much repaints!
+	    qApp->processEvents();
+	    files->viewport()->setUpdatesEnabled( FALSE );
+	    item->setPixmap( 0, *p );
+	    qApp->processEvents();
+	    files->viewport()->setUpdatesEnabled( TRUE );
 	    if ( files->isVisible() ) {
-		item->repaint();
+		QRect ir( files->itemRect( item ) );
+		if ( ir != QRect( 0, 0, -1, -1 ) )
+		    r = r.unite( ir );
 	    } else {
 		QRect ir( d->moreFiles->itemRect( item->i ) );
 		if ( ir != QRect( 0, 0, -1, -1 ) )
@@ -4643,7 +4651,10 @@ void QFileDialog::doMimeTypeLookup()
     }
     if ( d->moreFiles->isVisible() )
 	d->moreFiles->viewport()->repaint( r, FALSE );
-    d->mimeTypeTimer->start( 1 );
+    else
+	files->viewport()->repaint( r, FALSE );
+
+    d->mimeTypeTimer->start( 0 );
 }
 
 #include "qfiledialog.moc"
