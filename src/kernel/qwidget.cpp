@@ -3056,7 +3056,7 @@ void QWidget::setFocus()
 	    if ( prev ) {
 		QFocusEvent out( QEvent::FocusOut );
 		QApplication::sendEvent( prev, &out );
-	    } 
+	    }
 
 	    if ( qApp->focus_widget == this ) {
 		QFocusEvent in( QEvent::FocusIn );
@@ -3210,7 +3210,7 @@ QFocusData * QWidget::focusData( bool create )
 
 /*!
     \property QWidget::inputMethodEnabled
-    \brief enables or disables the use of input methods for this widget. 
+    \brief enables or disables the use of input methods for this widget.
 
     Most Widgets (as eg. buttons) that do not handle text input should have
     the input method disabled if they have focus. This is the default.
@@ -3442,7 +3442,7 @@ QSize QWidget::frameSize() const
     return crect.size();
 }
 
-/*! 
+/*!
     \internal
 
     Recursive function that updates \a widget and all its children,
@@ -3454,7 +3454,7 @@ static void qt_update_bg_recursive( QWidget *widget )
 	return;
 
     const QObjectList *lst = widget->children();
-   
+
     if ( lst ) {
 	QObjectListIterator it( *lst );
 	QWidget *widget;
@@ -3992,26 +3992,18 @@ bool QWidget::close( bool alsoDelete )
     bool isMain = qApp->mainWidget() == this;
     bool checkLastWindowClosed = isTopLevel() && !isPopup();
     bool deleted = FALSE;
-    if ( isShown() ) {
-	/* send close events to non-hidden widgets only. For others it
-	 does not makes sense to reject a close event, plus it makes
-	 it easy to get into endless loops. The prime example is
-	 QDialog: In QDialog::done() the class calls close() in order
-	 to support destructive close semantics as well as the
-	 lastWindowClosed signal. If QWidget sent another close event
-	 although the dialog is already hidden, done() would get
-	 called again via reject() from closeEvent().
-	 */
-	QCloseEvent e;
-	QApplication::sendEvent( this, &e );
-	deleted = !QWidget::find(id);
-	if ( !deleted && !e.isAccepted() ) {
-	    is_closing = 0;
-	    return FALSE;
-	}
-	if ( !deleted )
-	    hide();
+    bool rejectable = isShown();
+    QCloseEvent e;
+    if ( !rejectable )
+	e.accept();
+    QApplication::sendEvent( this, &e );
+    deleted = !QWidget::find(id);
+    if ( rejectable && !deleted && !e.isAccepted() ) {
+	is_closing = 0;
+	return FALSE;
     }
+    if ( !deleted && !isHidden() )
+	hide();
     if ( checkLastWindowClosed
 	 && qApp->receivers(SIGNAL(lastWindowClosed())) ) {
 	/* if there is no non-withdrawn top level window left (except
