@@ -124,8 +124,9 @@
   QBitArray supports the \& (AND), | (OR), ^ (XOR) and ~ (NOT) operators.
 */
 
-/* \enum  QBitArray::bitarr_data
-    \internal
+/*! \class QBitArray::bitarr_data
+  \brief The QBitArray::bitarr_data class is internal.
+  \internal
 */
 
 
@@ -170,7 +171,7 @@ QBitArray::QBitArray( uint size ) : QByteArray( 0, 0 )
 
 /*!
   Pad last byte with 0-bits.
- */
+*/
 void QBitArray::pad0()
 {
     uint sz = size();
