@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspacechild.h#13 $
+** $Id: //depot/qt/main/src/widgets/qworkspacechild.h#14 $
 **
 ** Definition of the QChildWindow class
 **
@@ -39,7 +39,9 @@
 //  snapshot releases of Qt.
 //
 
+#ifndef QT_H
 #include <qframe.h>
+#endif // QT_H
 class QToolButton;
 class QLabel;
 class QWorkspace;

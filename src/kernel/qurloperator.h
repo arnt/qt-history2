@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurloperator.h#13 $
+** $Id: //depot/qt/main/src/kernel/qurloperator.h#14 $
 **
 ** Implementation of QUrlOperator class
 **
@@ -26,10 +26,12 @@
 #ifndef QURLOPERATOR_H
 #define QURLOPERATOR_H
 
+#ifndef QT_H
 #include "qobject.h"
 #include "qurl.h"
 #include "qlist.h"
 #include "qnetworkprotocol.h"
+#endif // QT_H
 
 struct QUrlOperatorPrivate;
 class QUrlInfo;

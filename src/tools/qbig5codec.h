@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbig5codec.h#3 $
+** $Id: //depot/qt/main/src/tools/qbig5codec.h#4 $
 **
 ** Definition of QBig5Codec class
 **
@@ -31,7 +31,9 @@
 #define QBIG5CODEC_H
 
 
+#ifndef QT_H
 #include "qtextcodec.h"
+#endif // QT_H
 
 class QBig5Codec : public QTextCodec {
 public:

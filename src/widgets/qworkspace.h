@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.h#18 $
+** $Id: //depot/qt/main/src/widgets/qworkspace.h#19 $
 **
 ** Definition of the QWorkspace class
 **
@@ -39,9 +39,11 @@
 //  snapshot releases of Qt.
 //
 
+#ifndef QT_H
 #include <qframe.h>
 #include <qlist.h>
 #include "qworkspacechild.h"
+#endif // QT_H
 
 
 class QWorkspaceData;

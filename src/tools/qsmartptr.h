@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qsmartptr.h#4 $
+** $Id: //depot/qt/main/src/tools/qsmartptr.h#5 $
 **
 ** Definition of QSmartPtr class
 **
@@ -25,7 +25,9 @@
 #ifndef QSMARTPTR_H
 #define QSMARTPTR_H
 
+#ifndef QT_H
 #include "qshared.h"
+#endif // QT_H
 
 
 template< class T >

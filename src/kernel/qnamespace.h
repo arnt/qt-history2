@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnamespace.h#37 $
+** $Id: //depot/qt/main/src/kernel/qnamespace.h#38 $
 **
 ** Definition of Qt namespace (as class for compiler compatibility)
 **
@@ -26,9 +26,9 @@
 #ifndef QNAMESPACE_H
 #define QNAMESPACE_H
 
-#if !defined(QT_H)
+#ifndef QT_H
 #include "qglobal.h"
-#endif
+#endif // QT_H
 
 
 class QColor;

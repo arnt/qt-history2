@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qeuckrcodec.h#2 $
+** $Id: //depot/qt/main/src/tools/qeuckrcodec.h#3 $
 **
 ** Definition of QEucKrCodec class
 **
@@ -51,7 +51,9 @@
 #ifndef QEUCKRCODEC_H
 #define QEUCKRCODEC_H
 
+#ifndef QT_H
 #include "qtextcodec.h"
+#endif // QT_H
 
 class QEucKrCodec : public QTextCodec {
 public:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qlinedialog.h#3 $
+** $Id: //depot/qt/main/src/dialogs/qlinedialog.h#4 $
 **
 ** Definition of QFileDialog class
 **
@@ -26,8 +26,10 @@
 #ifndef QLINEDIALOG_H
 #define QLINEDIALOG_H
 
+#ifndef QT_H
 #include <qdialog.h>
 #include <qstring.h>
+#endif // QT_H
 
 struct QLineDialogPrivate;
 

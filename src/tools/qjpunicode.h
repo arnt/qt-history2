@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qjpunicode.h#5 $
+** $Id: //depot/qt/main/src/tools/qjpunicode.h#6 $
 **
 ** Definition of QJpUnicodeConv class
 **
@@ -55,7 +55,9 @@
 #ifndef QJPUNICODE_H
 #define QJPUNICODE_H
 
+#ifndef QT_H
 #include "qglobal.h"
+#endif // QT_H
 
 
 // "ASCII" is ANSI X.3.4-1986, a.k.a. US-ASCII here.

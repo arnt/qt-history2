@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextview.cpp#26 $
+** $Id: //depot/qt/main/src/widgets/qtextview.cpp#27 $
 **
 ** Implementation of the QTextView class
 **
@@ -31,7 +31,6 @@
 #include "qpainter.h"
 
 #include "qstack.h"
-#include "stdio.h"
 #include "qfile.h"
 #include "qtextstream.h"
 #include "qlayout.h"
@@ -41,6 +40,7 @@
 #include "qmime.h"
 #include "qdragobject.h"
 
+#include <stdio.h>
 
 
 // NOT REVISED

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtranslator.h#8 $
+** $Id: //depot/qt/main/src/kernel/qtranslator.h#9 $
 **
 ** Definition of the translator class
 **
@@ -27,8 +27,10 @@
 #ifndef QTRANSLATOR_H
 #define QTRANSLATOR_H
 
+#ifndef QT_H
 #include "qobject.h"
 #include "qintdict.h"
+#endif // QT_H
 
 
 class QTranslatorPrivate;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsizepolicy.h#16 $
+** $Id: //depot/qt/main/src/kernel/qsizepolicy.h#17 $
 **
 ** Definition of the QSizePolicy class
 **
@@ -26,7 +26,9 @@
 #ifndef QSIZEPOLICY_H
 #define QSIZEPOLICY_H
 
+#ifndef QT_H
 #include "qglobal.h"
+#endif // QT_H
 
 class Q_EXPORT QSizePolicy
 {

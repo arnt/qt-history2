@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsimplerichtext.h#7 $
+** $Id: //depot/qt/main/src/kernel/qsimplerichtext.h#8 $
 **
 ** Definition of the QSimpleRichText class
 **
@@ -26,10 +26,12 @@
 #ifndef QSIMPLERICHTEXT_H
 #define QSIMPLERICHTEXT_H
 
+#ifndef QT_H
 #include "qnamespace.h"
 #include "qapplication.h"
 #include "qstring.h"
 #include "qregion.h"
+#endif // QT_H
 class QPainter;
 class QWidget;
 class QStyleSheet;

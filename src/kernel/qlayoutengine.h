@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayoutengine.h#4 $
+** $Id: //depot/qt/main/src/kernel/qlayoutengine.h#5 $
 **
 ** Internal header file. 
 **
@@ -30,7 +30,9 @@
 #ifndef QLAYOUTENGINE_H
 #define QLAYOUTENGINE_H
 
+#ifndef QT_H
 #include "qabstractlayout.h"
+#endif // QT_H
 
 struct QLayoutStruct
 {

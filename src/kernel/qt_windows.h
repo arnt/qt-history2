@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qt_windows.h#3 $
+** $Id: //depot/qt/main/src/kernel/qt_windows.h#4 $
 **
 ** Includes Win32 system header files.
 **
@@ -28,6 +28,7 @@
 
 
 #include "qwindowdefs.h"
+
 #if defined(_CC_BOOL_DEF_)
 #undef	bool
 #include <windows.h>

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qtranslatordialog.h#4 $
+** $Id: //depot/qt/main/src/dialogs/qtranslatordialog.h#5 $
 **
 ** Definition of QTranslatorDialog class
 **
@@ -28,9 +28,10 @@
 
 #ifndef QT_H
 #include "qdialog.h"
+#endif // QT_H
+
 class QListView;
 class QListViewItem;
-#endif // QT_H
 
 class QTranslatorEdit;
 class QMessageLexer;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.cpp#26 $
 **
 ** Implementation of the QStyleSheet class
 **
@@ -30,13 +30,14 @@
 #include "qpainter.h"
 
 #include "qstack.h"
-#include "stdio.h"
 #include "qfile.h"
 #include "qtextstream.h"
 #include "qlayout.h"
 #include "qbitmap.h"
 #include "qtimer.h"
 #include "qimage.h"
+
+#include <stdio.h>
 
 class QStyleSheetItemData
 {

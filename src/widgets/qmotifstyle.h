@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmotifstyle.h#4 $
+** $Id: //depot/qt/main/src/widgets/qmotifstyle.h#5 $
 **
 ** Definition of Motif-like style class
 **
@@ -26,8 +26,10 @@
 #ifndef QMOTIFSTYLE_H
 #define QMOTIFSTYLE_H
 
+#ifndef QT_H
 #include "qcommonstyle.h"
 #include "qpalette.h"
+#endif // QT_H
 
 class Q_EXPORT QMotifStyle : public QCommonStyle
 {

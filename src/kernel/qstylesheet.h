@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstylesheet.h#10 $
+** $Id: //depot/qt/main/src/kernel/qstylesheet.h#11 $
 **
 ** Definition of the QStyleSheet class
 **
@@ -26,12 +26,14 @@
 #ifndef QSTYLESHEET_H
 #define QSTYLESHEET_H
 
+#ifndef QT_H
 #include "qlist.h"
 #include "qdict.h"
 #include "qmap.h"
 #include "qpixmap.h"
 #include "qscrollview.h"
 #include "qcolor.h"
+#endif // QT_H
 
 class QStyleSheet;
 class QStyleSheetItemData;

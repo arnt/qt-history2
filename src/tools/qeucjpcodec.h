@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qeucjpcodec.h#5 $
+** $Id: //depot/qt/main/src/tools/qeucjpcodec.h#6 $
 **
 ** Definition of QEucJpCodec class
 **
@@ -55,8 +55,10 @@
 #ifndef QEUCJPCODEC_H
 #define QEUCJPCODEC_H
 
+#ifndef QT_H
 #include "qtextcodec.h"
 #include "qjpunicode.h"
+#endif // QT_H
 
 class Q_EXPORT QEucJpCodec : public QTextCodec {
 public:

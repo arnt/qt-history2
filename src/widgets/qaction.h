@@ -1,6 +1,7 @@
 #ifndef QACTION_H
 #define QACTION_H
 
+#ifndef QT_H
 #include "qdom.h"
 #include "qobject.h"
 #include "qiconset.h"
@@ -11,6 +12,7 @@
 #include "qdialog.h"
 #include "qvaluelist.h"
 #include "qfontdatabase.h"
+#endif // QT_H
 
 class QToolBar;
 class QMenuBar;

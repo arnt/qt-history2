@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextbrowser.h#5 $
+** $Id: //depot/qt/main/src/widgets/qtextbrowser.h#6 $
 **
 ** Definition of the QTextBrowser class
 **
@@ -26,12 +26,13 @@
 #ifndef QTEXTBROWSER_H
 #define QTEXTBROWSER_H
 
+#ifndef QT_H
 #include "qlist.h"
 #include "qpixmap.h"
 #include "qscrollview.h"
 #include "qcolor.h"
-
 #include "qtextview.h"
+#endif // QT_H
 
 class QTextBrowserData;
 

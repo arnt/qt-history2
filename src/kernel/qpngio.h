@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpngio.h#8 $
+** $Id: //depot/qt/main/src/kernel/qpngio.h#9 $
 **
 ** Definition of PNG QImage IOHandler
 **
@@ -26,7 +26,9 @@
 #ifndef QPNGIO_H
 #define QPNGIO_H
 
+#ifndef QT_H
 #include <qimage.h>
+#endif // QT_H
 
 void qInitPngIO();
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qplatinumstyle.h#3 $
+** $Id: //depot/qt/main/src/widgets/qplatinumstyle.h#4 $
 **
 ** Definition of Platinum-like style class
 **
@@ -26,8 +26,10 @@
 #ifndef QPLATINUMSTYLE_H
 #define QPLATINUMSTYLE_H
 
+#ifndef QT_H
 #include "qwindowsstyle.h"
 #include "qpalette.h"
+#endif // QT_H
 
 class Q_EXPORT QPlatinumStyle : public QWindowsStyle
 {

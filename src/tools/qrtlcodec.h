@@ -20,7 +20,9 @@
 #ifndef QRTLCODEC_H
 #define QRTLCODEC_H
 
+#ifndef QT_H
 #include "qtextcodec.h"
+#endif // QT_H
 
 class Q_EXPORT QHebrewCodec : public QTextCodec {
 public:

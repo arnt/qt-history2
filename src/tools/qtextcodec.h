@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.h#16 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.h#17 $
 **
 ** Definition of QTextCodec class
 **
@@ -26,7 +26,9 @@
 #ifndef QTEXTCODEC_H
 #define QTEXTCODEC_H
 
+#ifndef QT_H
 #include "qstring.h"
+#endif // QT_H
 
 class QTextCodec;
 class QIODevice;

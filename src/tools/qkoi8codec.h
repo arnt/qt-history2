@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qkoi8codec.h#7 $
+** $Id: //depot/qt/main/src/tools/qkoi8codec.h#8 $
 **
 ** Definition of QKoi8Codec class
 **
@@ -26,7 +26,9 @@
 #ifndef QKOI8CODEC_H
 #define QKOI8CODEC_H
 
+#ifndef QT_H
 #include "qtextcodec.h"
+#endif // QT_H
 
 class Q_EXPORT QKoi8Codec : public QTextCodec {
 public:

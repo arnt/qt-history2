@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdropsite.h#8 $
+** $Id: //depot/qt/main/src/kernel/qdropsite.h#9 $
 **
 ** Definitation of Drag and Drop support
 **
@@ -25,7 +25,9 @@
 #define QDROPSITE_H
 
 #ifndef QT_H
+#ifndef QT_H
 #include "qglobal.h"
+#endif // QT_H
 #endif
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangecontrol.h#26 $
+** $Id: //depot/qt/main/src/widgets/qrangecontrol.h#27 $
 **
 ** Definition of QRangeControl class
 **
@@ -28,7 +28,7 @@
 
 #ifndef QT_H
 #include "qglobal.h"
-#endif
+#endif // QT_H
 
 
 class QRangeControlPrivate;

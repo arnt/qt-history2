@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcdestyle.h#2 $
+** $Id: //depot/qt/main/src/widgets/qcdestyle.h#3 $
 **
 ** Definition of the CDE-like style class
 **
@@ -27,7 +27,9 @@
 #ifndef QCDESTYLE_H
 #define QCDESTYLE_H
 
+#ifndef QT_H
 #include "qmotifstyle.h"
+#endif // QT_H
 
 class Q_EXPORT QCDEStyle : public QMotifStyle
 {

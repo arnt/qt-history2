@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwindowsstyle.h#4 $
+** $Id: //depot/qt/main/src/widgets/qwindowsstyle.h#5 $
 **
 ** Definition of Windows-like style class
 **
@@ -26,7 +26,9 @@
 #ifndef QWINDOWSSTYLE_H
 #define QWINDOWSSTYLE_H
 
+#ifndef QT_H
 #include "qcommonstyle.h"
+#endif // QT_H
 
 class Q_EXPORT QWindowsStyle : public QCommonStyle
 {

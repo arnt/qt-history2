@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qxml.h#2 $
+** $Id: //depot/qt/main/src/kernel/qxml.h#3 $
 **
 ** Definition of QXML classes
 *
@@ -25,7 +25,9 @@
 #ifndef QXML_H
 #define QXML_H
 
+#ifndef QT_H
 #include "qstring.h"
+#endif // QT_H
 
 class QXMLConsumer
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qsjiscodec.h#5 $
+** $Id: //depot/qt/main/src/tools/qsjiscodec.h#6 $
 **
 ** Definition of QSjisCodec class
 **
@@ -55,8 +55,10 @@
 #ifndef QSJISCODEC_H
 #define QSJISCODEC_H
 
+#ifndef QT_H
 #include "qtextcodec.h"
 #include "qjpunicode.h"
+#endif // QT_H
 
 class Q_EXPORT QSjisCodec : public QTextCodec {
 public:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#27 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#28 $
 **
 ** Implementation of QNetworkProtocol class
 **
@@ -26,14 +26,15 @@
 #ifndef QNETWORKPROTOCOL_H
 #define QNETWORKPROTOCOL_H
 
+#ifndef QT_H
 #include "qurlinfo.h"
-
 #include <qstring.h>
 #include <qdict.h>
 #include <qdir.h>
 #include <qstringlist.h>
 #include <qobject.h>
 #include <qqueue.h>
+#endif // QT_H
 
 class QNetworkProtocol;
 class QNetworkOperation;

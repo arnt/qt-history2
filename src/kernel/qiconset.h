@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qiconset.h#14 $
+** $Id: //depot/qt/main/src/kernel/qiconset.h#15 $
 **
 ** Definition of QIconSet class
 **
@@ -26,7 +26,9 @@
 #ifndef QICONSET_H
 #define QICONSET_H
 
+#ifndef QT_H
 #include "qpixmap.h"
+#endif // QT_H
 
 
 struct QIconSetPrivate;

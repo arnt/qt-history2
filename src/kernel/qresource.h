@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qresource.h#4 $
+** $Id: //depot/qt/main/src/kernel/qresource.h#5 $
 **
 ** Definition of QResource classes
 *
@@ -25,11 +25,13 @@
 #ifndef QRESOURCE_H
 #define QRESOURCE_H
 
+#ifndef QT_H
 #include "qstring.h"
 #include "qmap.h"
 #include "qproperty.h"
 #include "qcolor.h"
 #include "qstringlist.h"
+#endif // QT_H
 
 class QTextStream;
 class QWidget;

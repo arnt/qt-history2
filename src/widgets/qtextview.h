@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtextview.h#5 $
+** $Id: //depot/qt/main/src/widgets/qtextview.h#6 $
 **
 ** Definition of the QTextView class
 **
@@ -26,10 +26,12 @@
 #ifndef QTEXTVIEW_H
 #define QTEXTVIEW_H
 
+#ifndef QT_H
 #include "qlist.h"
 #include "qpixmap.h"
 #include "qscrollview.h"
 #include "qcolor.h"
+#endif // QT_H
 
 class QRichText;
 class QTextViewData;

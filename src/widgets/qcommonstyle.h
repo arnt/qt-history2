@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcommonstyle.h#3 $
+** $Id: //depot/qt/main/src/widgets/qcommonstyle.h#4 $
 **
 ** Definition of QCommonStyle class
 **
@@ -26,7 +26,9 @@
 #ifndef QCOMMONSTYLE_H
 #define QCOMMONSTYLE_H
 
+#ifndef QT_H
 #include "qstyle.h"
+#endif // QT_H
 
 class Q_EXPORT QCommonStyle: public QStyle
 {

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#61 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#62 $
 **
 ** Definition of QIconView widget class
 **
@@ -26,6 +26,7 @@
 #ifndef QICONVIEW_H
 #define QICONVIEW_H
 
+#ifndef QT_H
 #include <qscrollview.h>
 #include <qiconset.h>
 #include <qstring.h>
@@ -36,6 +37,7 @@
 #include <qlist.h>
 #include <qdragobject.h>
 #include <qstringlist.h>
+#endif // QT_H
 
 class QIconView;
 class QFontMetrics;
