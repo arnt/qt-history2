@@ -127,9 +127,13 @@ void QActionPrivate::setShortcutEnabled(bool enable, QShortcutMap &map)
     menu and toolbar, then connected to the slot which will perform
     the action. For example:
 
-    \quotefile action/application.cpp
-    \skipto QPixmap(fileopen
+    \quotefile mainwindows/application/mainwindow.cpp
+    \skipto openAct
     \printuntil connect
+    \skipto fileMenu->addAction(openAct
+    \printuntil fileMenu->addAction(openAct
+    \skipto fileToolBar->addAction(openAct
+    \printuntil fileToolBar->addAction(openAct
 
     We recommend that actions are created as children of the window
     they are used in. In most cases actions will be children of
