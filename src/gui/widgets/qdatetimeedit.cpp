@@ -1645,8 +1645,6 @@ inline int QDateTimeEditPrivate::sectionValue(Section s, QString *text, QValidat
 		    bool pm = (sectionText(*text, AMPMLowerCaseSection).toLower() == "pm");
 		    if (pm && num < 12)
 			num += 12;
-		    else if (!pm && num == 12)
-			num = 0;
 		}
                 if (num < absoluteMin(s) || num > absoluteMax(s)) {
                     state = done ? QValidator::Invalid : QValidator::Intermediate;
