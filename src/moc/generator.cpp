@@ -335,6 +335,8 @@ void Generator::generateCode()
     if (isQt || !cdef->hasQObject)
         return;
 
+    fprintf(out, "\nconst QMetaObject *%s::metaObject() const\n{\n    return &staticMetaObject;\n}\n",
+            cdef->qualified.constData());
 //
 // Generate smart cast function
 //
