@@ -35,6 +35,7 @@
 
 #include "qgpluginmanager_p.h"
 #ifndef QT_NO_COMPONENT
+#include "qcomlibrary_p.h"
 #include "qmap.h"
 #include "qdir.h"
 
@@ -271,44 +272,6 @@ static int similarity( const QString& s1, const QString& s2 )
   \sa QApplication::libraryPaths()
 */
 
-/*!
-  \overload QPluginManager::QPluginManager( const QUuid &id, const QString &file, bool cs = TRUE )
-
-  Creates an QPluginManager for interfaces \a id that will load the shared library \a file.
-  If \a cs is FALSE the manager will handle feature strings case insensitive.
-*/
-
-/*!
-  \fn void QPluginManager::addLibraryPath( const QString& path )
-
-  Calls addLibrary for all shared library files in \a path.
-
-  \sa addLibrary(), QApplication::libraryPaths()
-*/
-
-/*!
-  \fn QLibrary* QPluginManager::addLibrary( const QString& file )
-
-  Tries to load the library \a file, adds the library to the managed list and
-  returns the created QLibrary object if successful, otherwise returns 0. If
-  there is already a QLibrary object for \a file, this object will be returned.
-
-  Note that \a file does not have to include the platform dependent file extension.
-
-  \sa removeLibrary(), addLibraryPath()
-*/
-
-/*!
-  \fn bool QPluginManager::removeLibrary( const QString& file )
-
-  Removes the library \a file from the managed list and returns TRUE if the library could
-  be unloaded, otherwise returns FALSE.
-
-  \warning
-  The QLibrary object for this file will be destroyed.
-
-  \sa addLibrary()
-*/
 
 /*!
   \fn QRESULT QPluginManager::queryInterface(const QString& feature, Type** iface) const
@@ -337,11 +300,15 @@ static int similarity( const QString& s1, const QString& s2 )
 
 #include <qptrlist.h>
 
-QGPluginManager::QGPluginManager( const QUuid& id, bool cs )
+QGPluginManager::QGPluginManager( const QUuid& id, const QStringList& paths, const QString &suffix, bool cs )
     : interfaceId( id ), plugDict( 17, cs ), casesens( cs ), autounload( TRUE )
 {
     // Every QLibrary object is destroyed on destruction of the manager
     libDict.setAutoDelete( TRUE );
+    for ( QStringList::ConstIterator it = paths.begin(); it != paths.end(); ++it ) {
+	QString path = *it;
+	addLibraryPath( path + suffix );
+    }
 }
 
 QGPluginManager::~QGPluginManager()
@@ -396,10 +363,8 @@ const QLibrary* QGPluginManager::library( const QString& feature ) const
     int best = 0;
     int worst = 15;
     while ( it != libList.end() ) {
-	QString lib = *it;
-	lib = lib.right( lib.length() - lib.findRev( "/" ) - 1 );
-	lib = lib.left( lib.findRev( "." ) );
-	int s = similarity( feature, lib );
+	QString basename = QFileInfo(*it).baseName();
+	int s = similarity( feature, basename );
 	if ( s < worst )
 	    worst = s;
 	if ( s > best )
@@ -412,15 +377,45 @@ const QLibrary* QGPluginManager::library( const QString& feature ) const
     QGPluginManager *that = (QGPluginManager*)this;
     for ( int s = best; s >= worst; --s ) {
 	QStringList group = map[s];
+	group.sort();
 	QStringList::Iterator git = group.begin();
 	while ( git != group.end() ) {
 	    QString lib = *git;
 	    ++git;
-	    if ( that->addLibrary( lib ) && ( library = plugDict[feature] ) )
+	    if ( lib.isEmpty() || libDict[lib] )
+		continue;
+
+	    if ( git != group.end() && 
+		 QFileInfo(lib).baseName() == QFileInfo(*git).baseName() ) {
+		QComLibrary* first = new QComLibrary( lib );
+		QComLibrary* second = 0;
+		bool takeFirst = TRUE;
+		if ( first->qtVersion() != QT_VERSION ) {
+		    second = new QComLibrary( *git );
+		    if ( second->qtVersion() == QT_VERSION )
+			takeFirst = FALSE;
+		    else if ( second->qtVersion() < QT_VERSION &&
+			      first->qtVersion() > QT_VERSION )
+			takeFirst = FALSE;
+		}
+
+		if ( takeFirst ) {
+		    that->addLibrary( first );
+		    delete second;
+		} else {
+		    that->addLibrary( second );
+		    delete first;
+		}
+		++git;
+	    } else {
+		that->addLibrary( new QComLibrary(lib ) );
+	    }
+	    
+	    if ( ( library = plugDict[feature] ) )
 		return library;
 	}
     }
-
+    
     return 0;
 }
 
@@ -433,8 +428,8 @@ QStringList QGPluginManager::featureList() const
     while ( it != theLibs.end() ) {
 	QString lib = *it;
 	++it;
-	//if (lib[0] != '/')
-	    that->addLibrary( lib );
+	if ( !lib.isEmpty() && !libDict[lib] )
+	    that->addLibrary( new QComLibrary(lib) );
     }
 
     QStringList list;
@@ -447,6 +442,77 @@ QStringList QGPluginManager::featureList() const
     return list;
 }
 
+bool QGPluginManager::addLibrary( QLibrary* lib )
+{
+    QComLibrary* plugin = (QComLibrary*)lib;
+    if ( !plugin )
+	return FALSE;
+
+    bool useful = FALSE;
+
+    QUnknownInterface* iFace = 0;
+    plugin->queryInterface( interfaceId, &iFace );
+    if ( iFace ) {
+	QFeatureListInterface *fliFace = 0;
+	QComponentInformationInterface *cpiFace = 0;
+	iFace->queryInterface( IID_QFeatureList, (QUnknownInterface**)&fliFace );
+	if ( !fliFace )
+	    plugin->queryInterface( IID_QFeatureList, (QUnknownInterface**)&fliFace );
+	if ( !fliFace ) {
+	    iFace->queryInterface( IID_QComponentInformation, (QUnknownInterface**)&cpiFace );
+	    if ( !cpiFace )
+		plugin->queryInterface( IID_QComponentInformation, (QUnknownInterface**)&cpiFace );
+	}
+	QStringList fl;
+	if ( fliFace )
+	    // Map all found features to the library
+	    fl = fliFace->featureList();
+	else if ( cpiFace )
+	    fl << cpiFace->name();
+
+	for ( QStringList::Iterator f = fl.begin(); f != fl.end(); f++ ) {
+	    QLibrary *old = plugDict[*f];
+	    if ( !old ) {
+		useful = TRUE;
+		plugDict.replace( *f, plugin );
+	    } else {
+		// we have old *and* plugin, which one to pick?
+		QComLibrary* first = (QComLibrary*)old;
+		QComLibrary* second = (QComLibrary*)plugin;
+		bool takeFirst = TRUE;
+		if ( first->qtVersion() != QT_VERSION ) {
+		    if ( second->qtVersion() == QT_VERSION )
+			takeFirst = FALSE;
+		    else if ( second->qtVersion() < QT_VERSION &&
+			      first->qtVersion() > QT_VERSION )
+			takeFirst = FALSE;
+		}
+		if ( !takeFirst ) {
+		    useful = TRUE;
+		    plugDict.replace( *f, plugin );
+		}
+		qWarning("%s: Feature %s already defined in %s. Pick %s", plugin->library().latin1(), (*f).latin1(), old->library().latin1(), takeFirst?"old":"new" );
+	    }
+	}
+	if ( fliFace )
+	    fliFace->release();
+	if ( cpiFace )
+	    cpiFace->release();
+	iFace->release();
+    }
+
+    if ( useful ) {
+	libDict.replace( plugin->library(), plugin );
+	if ( !libList.contains( plugin->library() ) )
+	    libList.append( plugin->library() );
+	return TRUE;
+    } 
+    libList.remove( plugin->library() );
+    delete plugin;
+    return FALSE;
+}
+
+
 bool QGPluginManager::enabled() const
 {
 #ifdef QT_SHARED
@@ -454,6 +520,13 @@ bool QGPluginManager::enabled() const
 #else
     return FALSE;
 #endif
+}
+
+QRESULT QGPluginManager::queryUnknownInterface(const QString& feature, QUnknownInterface** iface) const
+{
+    QComLibrary* plugin = 0;
+    plugin = (QComLibrary*)library( feature );
+    return plugin ? plugin->queryInterface( interfaceId, (QUnknownInterface**)iface ) : QE_NOINTERFACE;
 }
 
 #endif //QT_NO_COMPONENT

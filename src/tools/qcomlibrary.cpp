@@ -50,7 +50,7 @@
 #define QT_WARN_PLUGINS
 
 QComLibrary::QComLibrary( const QString &filename )
-: QLibrary( filename ), entry( 0 ), libiface( 0 )
+    : QLibrary( filename ), entry( 0 ), libiface( 0 ), qt_version( 0 )
 {
 }
 
@@ -102,7 +102,7 @@ static bool verify( const QString& library, uint version, uint flags, const char
 		      (const char*) QFile::encodeName(library),
 		      QT_BUILD_KEY, key ? key : "<null>" );
     } else if ( (version >  QT_VERSION)  ||
-	 ( ( QT_VERSION & 0xffff00 ) > ( version & 0xffff00 ) ) ) {
+	 ( ( QT_VERSION & 0xff0000 ) > ( version & 0xff0000 ) ) ) {
 	if ( didLoad )
 	    qWarning( "Conflict in %s:\n Plugin uses incompatible Qt library (%d.%d.%d)!", (const char*) QFile::encodeName(library),
 		      version&0xff0000,version&0xff00,version&0xff );
@@ -118,27 +118,28 @@ static bool verify( const QString& library, uint version, uint flags, const char
 
 void QComLibrary::createInstanceInternal()
 {
+    qDebug("QComLibrary %s, createInstanceInternal()", library().latin1() );
     if ( library().isEmpty() )
 	return;
 
     QSettings settings;
     settings.insertSearchPath( QSettings::Windows, "/Trolltech" );
-    QString regkey = QString("/qt_plugin%1.%2/%3").arg( QT_MAJOR_VERSION ).arg( QT_MINOR_VERSION ).arg( library() );
+    QString regkey = QString("/qt_plugin%1.%2/%3").arg( QT_VERSION >> 16 ).arg( (QT_VERSION & 0xff00 ) >> 8 ).arg( library() );
     QStringList reg;
 
-    uint version, flags;
+    uint flags;
     const char* key = 0;
     QFileInfo fileinfo( library() );
     QString lastModified  = fileinfo.lastModified().toString();
 
     reg =  settings.readListEntry( regkey );
     if ( reg.count() == 4 ) {
-	version = reg[0].toUInt(0, 16);
+	qt_version = reg[0].toUInt(0, 16);
 	flags = reg[1].toUInt(0, 16);
 	key = reg[2].latin1();
 	// check timestamp
 	if ( lastModified == reg[3] &&
-	     !verify( library(), version, flags, key ) )
+	     !verify( library(), qt_version, flags, key ) )
 	    return;
     }
 
@@ -155,16 +156,16 @@ void QComLibrary::createInstanceInternal()
 #  endif
 	UCMQueryProc ucmQueryProc;
 	ucmQueryProc = (UCMQueryProc) resolve( "qt_ucm_query" );
-	if ( !ucmQueryProc  || ucmQueryProc( &version, &flags, &key ) != 0 ) {
-	    version = 0;
+	if ( !ucmQueryProc  || ucmQueryProc( &qt_version, &flags, &key ) != 0 ) {
+	    qt_version = 0;
 	    flags = 0;
 	    key = "unknown";
 	}
 	QStringList queried;
-	queried << QString::number( version,16 ) << QString::number( flags, 16 ) << QString::fromLatin1( key ) << lastModified;
+	queried << QString::number( qt_version,16 ) << QString::number( flags, 16 ) << QString::fromLatin1( key ) << lastModified;
 	if ( queried != reg )
 	    settings.writeEntry( regkey, queried );
-	if ( !verify( library(), version, flags, key ,TRUE ) ) {
+	if ( !verify( library(), qt_version, flags, key ,TRUE ) ) {
 	    unload();
 	    return;
 	}
@@ -202,11 +203,17 @@ void QComLibrary::createInstanceInternal()
 
 QRESULT QComLibrary::queryInterface( const QUuid& request, QUnknownInterface** iface )
 {
-    if ( !entry ) {
+    if ( !entry )
 	createInstanceInternal();
-    }
-
     return entry ? entry->queryInterface( request, iface ) : QE_NOCOMPONENT;
 }
+
+uint QComLibrary::qtVersion()
+{
+    if ( !entry )
+	createInstanceInternal();
+    return qt_version;
+}
+
 
 #endif // QT_NO_COMPONENT

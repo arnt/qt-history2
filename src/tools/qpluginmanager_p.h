@@ -40,8 +40,6 @@
 
 #ifndef QT_H
 #include "qgpluginmanager_p.h"
-#include "qstringlist.h"
-#include "qcomlibrary_p.h"
 #endif // QT_H
 
 //
@@ -63,147 +61,11 @@ class QPluginManager : public QGPluginManager
 {
 public:
     QPluginManager( const QUuid& id, const QStringList& paths = QString::null, const QString &suffix = QString::null, bool cs = TRUE )
-	: QGPluginManager( id, cs )
-    {
-	for ( QStringList::ConstIterator it = paths.begin(); it != paths.end(); ++it ) {
-	    QString path = *it;
-	    addLibraryPath( path + suffix );
-	}
-    }
-
-    QPluginManager( const QUuid &id, const QString &file, bool cs = TRUE )
-	: QGPluginManager( id, cs )
-    {
-	addLibrary( file );
-    }
-
-    QLibrary* addLibrary( const QString& file )
-    {
-	if ( !enabled() || file.isEmpty() )
-	    return 0;
-
-	QComLibrary *plugin = (QComLibrary*)libDict[file];
-	if ( plugin )
-	    return plugin;
-
-	// Create a library object, and try to get the desired interface
-	plugin = new QComLibrary( file );
-
-	bool useful = FALSE;
-
-	Type* iFace = 0;
-	plugin->queryInterface( interfaceId, (QUnknownInterface**) &iFace );
-	if ( iFace ) {
-	    QFeatureListInterface *fliFace = 0;
-	    QComponentInformationInterface *cpiFace = 0;
-	    iFace->queryInterface( IID_QFeatureList, (QUnknownInterface**)&fliFace );
-	    if ( !fliFace )
-		plugin->queryInterface( IID_QFeatureList, (QUnknownInterface**)&fliFace );
-	    if ( !fliFace ) {
-		iFace->queryInterface( IID_QComponentInformation, (QUnknownInterface**)&cpiFace );
-		if ( !cpiFace )
-		    plugin->queryInterface( IID_QComponentInformation, (QUnknownInterface**)&cpiFace );
-	    }
-	    QStringList fl;
-	    if ( fliFace )
-		// Map all found features to the library
-		fl = fliFace->featureList();
-	    else if ( cpiFace )
-		fl << cpiFace->name();
-
-	    for ( QStringList::Iterator f = fl.begin(); f != fl.end(); f++ ) {
-		useful = TRUE;
-#ifdef QT_CHECK_RANGE
-		QLibrary *old = 0;
-		if ( !(old = plugDict[*f]) )
-		    plugDict.replace( *f, plugin );
-		else
-		    qWarning("%s: Feature %s already defined in %s!", plugin->library().latin1(), (*f).latin1(), old->library().latin1() );
-#else
-		plugDict.replace( *f, plugin );
-#endif
-	    }
-	    if ( fliFace )
-		fliFace->release();
-	    if ( cpiFace )
-		cpiFace->release();
-	    iFace->release();
-	}
-
-	if ( useful ) {
-	    libDict.replace( file, plugin );
-	    if ( !libList.contains( file ) )
-		libList.append( file );
-	    return plugin;
-	} else {
-	    delete plugin;
-	    libList.remove( file );
-	    return 0;
-	}
-    }
-
-    bool removeLibrary( const QString& file )
-    {
-	if ( file.isEmpty() )
-	    return FALSE;
-
-	libList.remove( file );
-
-	QComLibrary* plugin = (QComLibrary*)libDict[ file ];
-	if ( !plugin )
-	    return FALSE;
-
-	// Unregister all features of this plugin
-	Type *iFace = 0;
-	plugin->queryInterface( interfaceId, (QUnknownInterface**)&iFace );
-	if ( iFace ) {
-	    QFeatureListInterface *fliFace = 0;
-	    QComponentInformationInterface *cpiFace = 0;
-	    iFace->queryInterface( IID_QFeatureList, (QUnknownInterface**)&iFace );
-	    if ( !fliFace )
-		plugin->queryInterface( IID_QFeatureList, (QUnknownInterface**)&fliFace );
-	    if ( !fliFace ) {
-		iFace->queryInterface( IID_QComponentInformation, (QUnknownInterface**)&cpiFace );
-		if ( !cpiFace )
-		    plugin->queryInterface( IID_QComponentInformation, (QUnknownInterface**)&cpiFace );
-	    }
-	    QStringList fl;
-	    if ( fliFace )
-		fl = fliFace->featureList();
-	    else if ( cpiFace )
-		fl << cpiFace->name();
-
-	    for ( QStringList::Iterator f = fl.begin(); f != fl.end(); f++ ) {
-		plugDict.remove( *f );
-	    }
-
-	    if ( fliFace )
-		fliFace->release();
-	    if ( cpiFace )
-		cpiFace->release();
-	    iFace->release();
-	}
-	bool unloaded = plugin->unload();
-	// This deletes the QLibrary object!
-	libDict.remove( file );
-
-	return unloaded;
-    }
-
+	: QGPluginManager( id, paths, suffix, cs ) {}
     QRESULT queryInterface(const QString& feature, Type** iface) const
     {
-	QComLibrary* plugin = 0;
-	plugin = (QComLibrary*)library( feature );
-
-	return plugin ? plugin->queryInterface( interfaceId, (QUnknownInterface**)iface ) : QE_NOINTERFACE;
+	return queryUnknownInterface( feature, (QUnknownInterface**)iface );
     }
-
-#ifdef Q_QDOC
-#error "The Symbol Q_QDOC is reserved for documentation purposes."
-    void addLibraryPath( const QString& path );
-    const QLibrary* library( const QString& feature ) const;
-    QStringList featureList() const;
-#endif
 };
 
 #endif //QT_NO_COMPONENT

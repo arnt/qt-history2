@@ -41,6 +41,7 @@
 #include "qlibrary.h"
 #include "quuid.h"
 #include "qstringlist.h"
+#include "qcom_p.h"
 #endif // QT_H
 
 //
@@ -66,21 +67,21 @@ template class Q_EXPORT QDict<QLibrary>;
 class Q_EXPORT QGPluginManager
 {
 public:
-    QGPluginManager( const QUuid& id, bool cs = TRUE );
-    virtual ~QGPluginManager();
+    QGPluginManager( const QUuid& id, const QStringList& paths = QString::null, const QString &suffix = QString::null, bool cs = TRUE );
+    ~QGPluginManager();
 
     void addLibraryPath( const QString& path );
     const QLibrary* library( const QString& feature ) const;
     QStringList featureList() const;
-
-    virtual QLibrary* addLibrary( const QString& file ) = 0;
-    virtual bool removeLibrary( const QString& file ) = 0;
 
     bool autoUnload() const;
     void setAutoUnload( bool );
 
 protected:
     bool enabled() const;
+    bool addLibrary( QLibrary* plugin );
+
+    QRESULT queryUnknownInterface(const QString& feature, QUnknownInterface** iface) const;
 
     QUuid interfaceId;
     QDict<QLibrary> plugDict;	    // Dict to match feature with library

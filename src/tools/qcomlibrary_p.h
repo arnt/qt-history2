@@ -63,12 +63,14 @@ public:
 
     bool unload();
     QRESULT queryInterface( const QUuid &iid, QUnknownInterface **iface );
+    uint qtVersion();
 
 private:
     void createInstanceInternal();
 
     QUnknownInterface *entry;
     QLibraryInterface *libiface;
+    uint qt_version;
 
 };
 
