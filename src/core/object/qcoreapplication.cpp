@@ -1348,13 +1348,7 @@ QStringList QCoreApplication::libraryPaths()
 	    app_libpaths->append(installPathPlugins);
 	}
 
-	QString app_location = self ? self->applicationDirPath()
-#ifdef Q_WS_WIN
-	    : qAppFileName();
-	app_location.truncate( app_location.lastIndexOf( '\\' ) );
-#else
-	    : QString::null;
-#endif
+	QString app_location(self->applicationFilePath())
 	app_location.truncate( app_location.lastIndexOf( '/' ) );
 	if ( app_location != qInstallPathPlugins() && QFile::exists( app_location ) )
 	    app_libpaths->append( app_location );
