@@ -122,9 +122,9 @@ public:
     void insertItem(int row, QListWidgetItem *item);
     inline void insertItem(int row, const QString &label) { insertItems(row, QStringList(label)); }
     void insertItems(int row, const QStringList &labels);
-    inline void appendItem(QListWidgetItem *item) { insertItem(count(), item); }
-    inline void appendItem(const QString &label) { insertItems(count(), QStringList(label)); }
-    inline void appendItems(const QStringList &labels) { insertItems(count(), labels); }
+    inline void addItem(QListWidgetItem *item) { insertItem(count(), item); }
+    inline void addItem(const QString &label) { insertItems(count(), QStringList(label)); }
+    inline void addItems(const QStringList &labels) { insertItems(count(), labels); }
     QListWidgetItem *takeItem(int row);
     int count() const;
 
@@ -136,7 +136,7 @@ public:
     QRect viewportRectForItem(const QListWidgetItem *item) const;
 
     void sortItems(Qt::SortOrder order = Qt::AscendingOrder);
-    
+
     void openPersistentEditor(QListWidgetItem *item);
     void closePersistentEditor(QListWidgetItem *item);
 

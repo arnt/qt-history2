@@ -100,7 +100,7 @@ public:
     inline int columnCount() const { return values.count(); }
     inline int indexOfChild(QTreeWidgetItem *child) const { return children.indexOf(child); }
 
-    void appendChild(QTreeWidgetItem *child);
+    void addChild(QTreeWidgetItem *child);
     void insertChild(int index, QTreeWidgetItem *child);
     QTreeWidgetItem *takeChild(int index);
 
@@ -144,7 +144,7 @@ public:
     QTreeWidgetItem *topLevelItem(int index) const;
     int topLevelItemCount() const;
     void insertTopLevelItem(int index, QTreeWidgetItem *item);
-    void appendTopLevelItem(QTreeWidgetItem *item);
+    void addTopLevelItem(QTreeWidgetItem *item);
     QTreeWidgetItem *takeTopLevelItem(int index);
     int indexOfTopLevelItem(QTreeWidgetItem *item);
 
@@ -173,7 +173,7 @@ public:
 
     bool isItemHidden(const QTreeWidgetItem *item) const;
     void setItemHidden(const QTreeWidgetItem *item, bool hide);
-    
+
     bool isItemOpen(const QTreeWidgetItem *item) const;
     void setItemOpen(const QTreeWidgetItem *item, bool open);
 

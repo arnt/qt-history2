@@ -176,7 +176,7 @@ DemoViewer::DemoViewer(QWidget *parent)
 
 void DemoViewer::addDemoWidget(const QString &name, DemoWidget *widget, const QString &file)
 {
-    listWidget->appendItem(name);
+    listWidget->addItem(name);
     widget->setParent(widgets);
     widget->setAttributes(attributes);
 

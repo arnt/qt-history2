@@ -726,11 +726,11 @@ void QListWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
     Inserts an item with the text \a label in the list widget at the
     position given by \a row.
 
-    \sa appendItem()
+    \sa addItem()
 */
 
 /*!
-    \fn void QListWidget::appendItem(QListWidgetItem *item)
+    \fn void QListWidget::addItem(QListWidgetItem *item)
 
     Inserts the \a item at the the end of the list widget.
 
@@ -738,14 +738,14 @@ void QListWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
 */
 
 /*!
-    \fn void QListWidget::appendItem(const QString &label)
+    \fn void QListWidget::addItem(const QString &label)
 
     Inserts an item with the text \a label at the end of the list
     widget.
 */
 
 /*!
-    \fn void QListWidget::appendItems(const QStringList &labels)
+    \fn void QListWidget::addItems(const QStringList &labels)
 
     Inserts items with the text \a labels at the end of the list widget.
 
@@ -863,7 +863,7 @@ int QListWidget::row(const QListWidgetItem *item) const
 /*!
     Inserts the \a item at the position in the list given by \a row.
 
-    \sa appendItem()
+    \sa addItem()
 */
 
 void QListWidget::insertItem(int row, QListWidgetItem *item)
@@ -875,7 +875,7 @@ void QListWidget::insertItem(int row, QListWidgetItem *item)
     Inserts items from the list of \a labels into the list, starting at the
     given \a row.
 
-    \sa insertItem(), appendItem()
+    \sa insertItem(), addItem()
 */
 
 void QListWidget::insertItems(int row, const QStringList &labels)
@@ -893,7 +893,7 @@ void QListWidget::insertItems(int row, const QStringList &labels)
     Removes and returns the item from the given \a row in the list
     widget, otherwise return 0;
 
-    \sa insertItem() appendItem()
+    \sa insertItem() addItem()
 */
 
 QListWidgetItem *QListWidget::takeItem(int row)

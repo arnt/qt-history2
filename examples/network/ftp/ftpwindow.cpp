@@ -151,7 +151,7 @@ void FtpWindow::ftpCommandFinished(int, bool error)
     } else if (ftp->currentCommand() == QFtp::List) {
         QApplication::restoreOverrideCursor();
         if (isDirectory.isEmpty()) {
-            fileList->appendItem(tr("<empty>"));
+            fileList->addItem(tr("<empty>"));
             fileList->setEnabled(false);
         }
     }
@@ -165,7 +165,7 @@ void FtpWindow::addToList(const QUrlInfo &urlInfo)
     item->setIcon(pixmap);
 
     isDirectory[urlInfo.name()] = urlInfo.isDir();
-    fileList->appendItem(item);
+    fileList->addItem(item);
     if (!fileList->currentItem()) {
         fileList->setCurrentItem(fileList->item(0));
         fileList->setEnabled(true);

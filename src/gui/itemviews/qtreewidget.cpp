@@ -59,7 +59,7 @@ public:
     static bool itemGreaterThan(const QTreeWidgetItem *left, const QTreeWidgetItem *right);
 
     QList<QTreeWidgetItem*> find(const QRegExp &rx, int column) const;
-    
+
     void appendToTopLevel(QTreeWidgetItem *item);
     void insertInTopLevel(int row, QTreeWidgetItem *item);
     void removeFromTopLevel(QTreeWidgetItem *item);
@@ -1028,7 +1028,7 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent)
                 |QAbstractItemModel::ItemIsEnabled)
 {
     if (parent)
-        parent->appendChild(this);
+        parent->addChild(this);
 }
 
 /*!
@@ -1186,7 +1186,7 @@ QDataStream &QTreeWidgetItem::operator>>(QDataStream &stream)
 
   \sa insertChild() takeChild()
 */
-void QTreeWidgetItem::appendChild(QTreeWidgetItem *child)
+void QTreeWidgetItem::addChild(QTreeWidgetItem *child)
 {
     insertChild(children.count(), child);
 }
@@ -1559,7 +1559,7 @@ int QTreeWidget::topLevelItemCount() const
 /*!
   Inserts the \a item at \a index in the top level in the view.
 
-  \sa appendToplevelItem()
+  \sa addToplevelItem()
 */
 
 void QTreeWidget::insertTopLevelItem(int index, QTreeWidgetItem *item)
@@ -1573,7 +1573,7 @@ void QTreeWidget::insertTopLevelItem(int index, QTreeWidgetItem *item)
   \sa insertToplevelItem()
 */
 
-void QTreeWidget::appendTopLevelItem(QTreeWidgetItem *item)
+void QTreeWidget::addTopLevelItem(QTreeWidgetItem *item)
 {
     d->model()->appendToTopLevel(item);
 }
