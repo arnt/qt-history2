@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#62 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#63 $
 **
 ** Definition of QWidget class
 **
@@ -21,7 +21,6 @@
 #include "qfont.h"
 #include "qfontmet.h"
 #include "qfontinf.h"
-#include "qevent.h"
 
 
 class QWidget : public QObject, public QPaintDevice
