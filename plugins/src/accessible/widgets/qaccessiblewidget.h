@@ -1,7 +1,7 @@
-#ifndef QACCESSIBLEWIDGET_H
-#define QACCESSIBLEWIDGET_H
+#ifndef QACCESSIBLEWIDGETS_H
+#define QACCESSIBLEWIDGETS_H
 
-#include <qaccessible.h>
+#include <qaccessiblewidget.h>
 
 class QButton;
 class QScrollView;
@@ -363,4 +363,4 @@ protected:
     QTextEdit *textEdit() const;
 };
 
-#endif // Q_ACESSIBLEWIDGET_H
+#endif // Q_ACESSIBLEWIDGETS_H
