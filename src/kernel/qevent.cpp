@@ -295,7 +295,7 @@
 */
 
 QMouseEvent::QMouseEvent( Type type, const QPoint &pos, int button, int state )
-    : QEvent(type), p(pos), b(button),s((ushort)state){
+    : QEvent(type), p(pos), b(button),s((ushort)state), accpt(FALSE){
 	g = QCursor::pos();
 }
 
