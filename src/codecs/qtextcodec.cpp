@@ -2367,6 +2367,7 @@ public:
     unsigned short characterFromUnicode(const QString &str, int pos) const;
 
     const char* name() const;
+    const char* mimeName() const;
     int mibEnum() const;
 
     int heuristicContentMatch(const char* chars, int len) const;
@@ -2427,6 +2428,11 @@ unsigned short QLatin1Codec::characterFromUnicode(const QString &str, int pos) c
 const char* QLatin1Codec::name() const
 {
     return "ISO 8859-1";
+}
+
+const char* QLatin1Codec::mimeName() const
+{
+    return "ISO-8859-1";
 }
 
 
