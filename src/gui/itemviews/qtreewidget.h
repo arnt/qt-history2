@@ -157,6 +157,7 @@ public:
 
     QTreeWidgetItem *itemAt(int x, int y) const;
     inline QTreeWidgetItem *itemAt(const QPoint &p) const { return itemAt(p.x(), p.y()); }
+    QRect viewportRectForItem(const QTreeWidgetItem *item) const;
 
     void sortItems(int column, Qt::SortOrder order);
     void setSortingEnabled(bool enable);
@@ -172,12 +173,14 @@ public:
 
     bool isItemHidden(const QTreeWidgetItem *item) const;
     void setItemHidden(const QTreeWidgetItem *item, bool hide);
+    
+    bool isItemOpen(const QTreeWidgetItem *item) const;
+    void setItemOpen(const QTreeWidgetItem *item, bool open);
 
     bool isItemVisible(const QTreeWidgetItem *item) const;
-    bool isItemOpen(const QTreeWidgetItem *item) const;
 
 public slots:
-    void ensureVisible(const QTreeWidgetItem *item);
+    void ensureItemIsVisible(const QTreeWidgetItem *item);
     void openItem(const QTreeWidgetItem *item);
     void closeItem(const QTreeWidgetItem *item);
     void sortItems(int column);

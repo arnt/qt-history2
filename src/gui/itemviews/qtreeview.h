@@ -56,6 +56,7 @@ public:
     void setRowHidden(int row, const QModelIndex &parent, bool hide);
 
     bool isOpen(const QModelIndex &index) const;
+    void setOpen(const QModelIndex &index, bool open);
 
     QRect viewportRectForIndex(const QModelIndex &index) const;
     void ensureVisible(const QModelIndex &index);

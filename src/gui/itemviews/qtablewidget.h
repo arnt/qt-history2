@@ -197,14 +197,15 @@ public:
 
     QTableWidgetItem *itemAt(int x, int y) const;
     inline QTableWidgetItem *itemAt(const QPoint &p) const { return itemAt(p.x(), p.y()); }
-
-    bool isItemVisible(const QTableWidgetItem *item) const;
+    QRect viewportRectForItem(const QTableWidgetItem *item) const;
 
     QTableWidgetItemCreatorBase *itemCreator() const;
     void setItemCreator(QTableWidgetItemCreatorBase *factory);
 
+    bool isItemVisible(const QTableWidgetItem *item) const;
+
 public slots:
-    void ensureVisible(const QTableWidgetItem *item);
+    void ensureItemIsVisible(const QTableWidgetItem *item);
     void insertRow(int row);
     void insertColumn(int column);
     void removeRow(int row);

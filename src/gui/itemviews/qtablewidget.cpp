@@ -1512,6 +1512,17 @@ QTableWidgetItem *QTableWidget::itemAt(int x, int y) const
 }
 
 /*!
+  Returns the rectangle on the viewport occupied by the item at \a item.
+*/
+QRect QTableWidget::viewportRectForItem(const QTableWidgetItem *item) const
+{
+    Q_ASSERT(item);
+    QModelIndex index = d->model()->index(const_cast<QTableWidgetItem*>(item));
+    Q_ASSERT(index.isValid());
+    return viewportRectForIndex(index);
+}
+
+/*!
   Returns true if the \a item is in the viewport, otherwise returns false.
 */
 
@@ -1529,10 +1540,11 @@ bool QTableWidget::isItemVisible(const QTableWidgetItem *item) const
   Scrolls the view if necessary to ensure that the \a item is visible.
 */
 
-void QTableWidget::ensureVisible(const QTableWidgetItem *item)
+void QTableWidget::ensureItemIsVisible(const QTableWidgetItem *item)
 {
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(const_cast<QTableWidgetItem*>(item));
+    Q_ASSERT(index.isValid());
     QTableView::ensureVisible(index);
 }
 

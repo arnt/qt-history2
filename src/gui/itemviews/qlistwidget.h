@@ -133,6 +133,7 @@ public:
 
     QListWidgetItem *itemAt(int x, int y) const;
     inline QListWidgetItem *itemAt(const QPoint &p) const { return itemAt(p.x(), p.y()); }
+    QRect viewportRectForItem(const QListWidgetItem *item) const;
 
     void sortItems(Qt::SortOrder order = Qt::AscendingOrder);
     
@@ -149,21 +150,8 @@ public:
 
     bool isItemVisible(const QListWidgetItem *item) const;
 
-#ifdef Q_NO_USING_KEYWORD
-    void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
-        { QListView::selectionChanged(selected, deselected); }
-    void currentChanged(const QModelIndex &current, const QModelIndex &previous)
-        { QListView::currentChanged(current, previous); }
-    void ensureVisible(const QModelIndex &index)
-        { QListView::ensureVisible(index); }
-#else
-    using QListView::selectionChanged;
-    using QListView::currentChanged;
-    using QListView::ensureVisible;
-#endif
-
 public slots:
-    void ensureVisible(const QListWidgetItem *item);
+    void ensureItemIsVisible(const QListWidgetItem *item);
     void clear();
 
 signals:

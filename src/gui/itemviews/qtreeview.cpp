@@ -425,6 +425,20 @@ bool QTreeView::isOpen(const QModelIndex &index) const
 }
 
 /*!
+  Sets the item referred to by \a index to either closed or opened,
+  depending on the value of \a open.
+
+  \sa open, close
+*/
+void QTreeView::setOpen(const QModelIndex &index, bool open)
+{
+    if (open)
+        this->open(index);
+    else
+        this->close(index);
+}
+
+/*!
   Returns the rectangle on the viewport occupied by the item at \a
   index.
 */

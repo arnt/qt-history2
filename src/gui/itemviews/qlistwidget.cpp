@@ -973,6 +973,17 @@ QListWidgetItem *QListWidget::itemAt(int x, int y) const
 }
 
 /*!
+  Returns the rectangle on the viewport occupied by the item at \a item.
+*/
+QRect QListWidget::viewportRectForItem(const QListWidgetItem *item) const
+{
+    Q_ASSERT(item);
+    QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
+    Q_ASSERT(index.isValid());
+    return viewportRectForIndex(index);
+}
+
+/*!
   Sorts all the items in the list widget according to the specified \a order.
 */
 void QListWidget::sortItems(Qt::SortOrder order)
@@ -1078,10 +1089,11 @@ bool QListWidget::isItemVisible(const QListWidgetItem *item) const
   Scrolls the view if necessary to ensure that the \a item is visible.
 */
 
-void QListWidget::ensureVisible(const QListWidgetItem *item)
+void QListWidget::ensureItemIsVisible(const QListWidgetItem *item)
 {
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(const_cast<QListWidgetItem*>(item));
+    Q_ASSERT(index.isValid());
     QListView::ensureVisible(index);
 }
 

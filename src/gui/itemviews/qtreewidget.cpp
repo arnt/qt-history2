@@ -1639,6 +1639,17 @@ QTreeWidgetItem *QTreeWidget::itemAt(int x, int y) const
 }
 
 /*!
+  Returns the rectangle on the viewport occupied by the item at \a item.
+*/
+QRect QTreeWidget::viewportRectForItem(const QTreeWidgetItem *item) const
+{
+    Q_ASSERT(item);
+    QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item), 0);
+    Q_ASSERT(index.isValid());
+    return viewportRectForIndex(index);
+}
+
+/*!
   Sorts the items in the widget in the specified \a order by the values in
   the given \a column.
 */
@@ -1777,6 +1788,32 @@ void QTreeWidget::setItemHidden(const QTreeWidgetItem *item, bool hide)
 }
 
 /*!
+  Returns true if the given \a item is open; otherwise returns false.
+*/
+
+bool QTreeWidget::isItemOpen(const QTreeWidgetItem *item) const
+{
+    Q_ASSERT(item);
+    QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item), 0);
+    return isOpen(index);
+}
+
+/*!
+    Sets the item referred to by \a index to either closed or opened,
+  depending on the value of \a open.
+
+  \sa openItem, closeItem
+*/
+
+void QTreeWidget::setItemOpen(const QTreeWidgetItem *item, bool open)
+{
+    Q_ASSERT(item);
+    QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item), 0);
+    Q_ASSERT(index.isValid());
+    setOpen(index, open);
+}
+
+/*!
   Returns true if the \a item is in the viewport; otherwise returns false.
 */
 
@@ -1789,24 +1826,14 @@ bool QTreeWidget::isItemVisible(const QTreeWidgetItem *item) const
 }
 
 /*!
-  Returns true if the given \a item is open; otherwise returns false.
-*/
-
-bool QTreeWidget::isItemOpen(const QTreeWidgetItem *item) const
-{
-    Q_ASSERT(item);
-    QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item), 0);
-    return isOpen(index);
-}
-
-/*!
   Ensures that the \a item is visible, scrolling the view if necessary.
 */
 
-void QTreeWidget::ensureVisible(const QTreeWidgetItem *item)
+void QTreeWidget::ensureItemIsVisible(const QTreeWidgetItem *item)
 {
     Q_ASSERT(item);
     QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item), 0);
+    Q_ASSERT(index.isValid());
     QTreeView::ensureVisible(index);
 }
 
@@ -1862,7 +1889,6 @@ void QTreeWidget::clear()
     selectionModel()->clear();
     d->model()->clear();
 }
-
 
 /*!
   \reimp
