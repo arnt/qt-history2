@@ -347,9 +347,13 @@ public:
 };
 
 static QPostEventList *globalPostedEvents = 0;	// list of posted events
-QPostEventList *qGlobalPostedEvents()
+
+uint qGlobalPostedEventsCount()
 {
-    return globalPostedEvents;
+    if (!globalPostedEvents)
+	return 0;
+
+    return globalPostedEvents->count();
 }
 
 static QCleanupHandler<QPostEventList> qapp_cleanup_events;

@@ -3692,7 +3692,7 @@ void QApplication::processEvents( int maxtime )
     }
 }
 
-extern QPostEventList *qGlobalPostedEvents();
+extern uint qGlobalPostedEventsCount();
 
 /*!
   This function returns TRUE if there are pending events, and returns FALSE
@@ -3701,7 +3701,7 @@ extern QPostEventList *qGlobalPostedEvents();
 */
 bool QApplication::hasPendingEvents()
 {
-    return (XPending(appDpy) || qGlobalPostedEvents());
+    return (qGlobalPostedEventsCount() || XPending(appDpy));
 }
 
 /*!

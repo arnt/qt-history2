@@ -1368,11 +1368,11 @@ void QApplication::processEvents( int maxtime)
     }
 }
 
-extern QPostEventList *qGlobalPostedEvents();
+extern uint qGlobalPostedEventsCount();
 
 bool QApplication::hasPendingEvents()
 {
-    if(qGlobalPostedEvents())
+    if(qGlobalPostedEventsCount())
         return TRUE;
 
 	EventRef event;
