@@ -313,6 +313,16 @@ void QPixmapCache::setCacheLimit( int n )
 
 
 /*!
+  Removes the pixmap associated with \a key from the cache.
+*/
+void QPixmapCache::remove( const QString &key )
+{
+    if ( pm_cache )
+	pm_cache->remove( key );
+}
+
+
+/*!
     Removes all pixmaps from the cache.
 */
 
