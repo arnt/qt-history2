@@ -445,7 +445,7 @@ QAction::QAction( const QIconSet& icon, const QString& menuText, QKeySequence ac
     Call setToggleAction(TRUE) to make the action a toggle action.
 */
 QAction::QAction( const QString& menuText, QKeySequence accel,
-		  QObject* parent, const char* name = 0 )
+		  QObject* parent, const char* name )
     : QObject( parent, name )
 {
     d = new QActionPrivate;
