@@ -341,7 +341,7 @@ Q_ULONG QFtpDTP::bytesAvailable() const
 
 Q_LONG QFtpDTP::read(char *data, Q_ULONG maxlen)
 {
-    Q_LONG read = socket ? socket->read(data, maxlen) : 0;
+    Q_LONG read = socket ? (Q_LONG)socket->read(data, maxlen) : (Q_LONG)0;
     bytesDone += read;
     return read;
 }
