@@ -750,7 +750,8 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	      << "\t\t\t\t\t" << "<key>CFBundlePackageType</key>" << "\n"
 	      << "\t\t\t\t\t" << "<string>APPL</string>" << "\n"
 	      << "\t\t\t\t\t" << "<key>CFBundleSignature</key>" << "\n"
-	      << "\t\t\t\t\t" << "<string>????</string>" << "\n"
+		//Although the output below looks strange it is to avoid the trigraph ??<
+	      << "\t\t\t\t\t" << "<string>????" << "</string>" << "\n"
 	      << "\t\t\t\t\t" << "<key>CFBundleVersion</key>" << "\n"
 	      << "\t\t\t\t\t" << "<string>0.1</string>" << "\n"
 	      << "\t\t\t\t\t" << "<key>CSResourcesFileMapped</key>" << "\n"
