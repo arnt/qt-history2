@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#58 $
 **
 ** Implementation of QPaintDevice class for X11
 **
@@ -20,7 +20,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#57 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpaintdevice_x11.cpp#58 $")
 
 
 /*----------------------------------------------------------------------------
@@ -359,6 +359,7 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
     bool mono_src;
     bool mono_dst;
+    bool include_inferiors = FALSE;
     QBitmap *mask;
 
     if ( ts == PDT_PIXMAP ) {
@@ -367,12 +368,14 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
     } else {
 	mono_src = FALSE;
 	mask = 0;
+	include_inferiors = ((QWidget*)src)->testWFlags(WPaintUnclipped);
     }
     if ( td == PDT_PIXMAP ) {
 	mono_dst = ((QPixmap*)dst)->depth() == 1;
 	((QPixmap*)dst)->detach();		// changes shared pixmap
     } else {
 	mono_dst = FALSE;
+	include_inferiors |= ((QWidget*)dst)->testWFlags(WPaintUnclipped);
     }
 
     if ( mono_dst && !mono_src ) {	// dest is 1-bit pixmap, source is not
@@ -390,13 +393,20 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	XSetClipOrigin( dpy, gc, dx-sx, dy-sy );
 	if ( rop != CopyROP )			// use non-default ROP code
 	    XSetFunction( dpy, gc, ropCodes[rop] );
-	XCopyArea( dpy, src->handle(), dst->handle(), gc, sx, sy, sw, sh,
-		   dx, dy );
+	if ( include_inferiors ) {
+	    XSetSubwindowMode( dpy, gc, IncludeInferiors );
+	    XCopyArea( dpy, src->handle(), dst->handle(), gc, sx, sy, sw, sh,
+		       dx, dy );
+	    XSetSubwindowMode( dpy, gc, ClipByChildren );
+	} else {
+	    XCopyArea( dpy, src->handle(), dst->handle(), gc, sx, sy, sw, sh,
+		       dx, dy );
+	}
+
 	if ( rop != CopyROP )			// restore ROP
 	    XSetFunction( dpy, gc, GXcopy );
 	return;
-    }
-    else {					// get a reusable GC
+    } else {					// get a reusable GC
 	gc = qt_xget_temp_gc( mono_dst );
     }
 
@@ -405,10 +415,16 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 
     if ( mono_src ) {				// src is bitmap
 	XGCValues gcvals;
+	ulong     valmask = GCBackground | GCForeground | GCFillStyle |
+			    GCStipple | GCTileStipXOrigin | GCTileStipYOrigin;
 	if ( td == PDT_WIDGET ) {		// set GC colors
 	    QWidget *w = (QWidget *)dst;
 	    gcvals.background = w->backgroundColor().pixel();
 	    gcvals.foreground = w->foregroundColor().pixel();
+	    if ( include_inferiors ) {
+		valmask |= GCSubwindowMode;
+		gcvals.subwindow_mode = IncludeInferiors;
+	    }
 	} else if ( mono_dst ) {
 	    gcvals.background = 0;
 	    gcvals.foreground = 1;
@@ -433,21 +449,35 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
 	    }
 	}
 
-	XChangeGC( dpy, gc,
-		   GCBackground | GCForeground | GCFillStyle | GCStipple |
-		   GCTileStipXOrigin | GCTileStipYOrigin, &gcvals );
-
+	XChangeGC( dpy, gc, valmask, &gcvals );
 	XFillRectangle( dpy,dst->handle(), gc, dx, dy, sw, sh );
-	XSetTSOrigin( dpy, gc, 0, 0 );
-	XSetFillStyle( dpy, gc, FillSolid );
+
+	valmask = GCFillStyle | GCTileStipXOrigin | GCTileStipYOrigin;
+	gcvals.fill_style  = FillSolid;
+	gcvals.ts_x_origin = 0;
+	gcvals.ts_y_origin = 0;
+	if ( include_inferiors ) {
+	    valmask |= GCSubwindowMode;
+	    gcvals.subwindow_mode = ClipByChildren;
+	}
+	XChangeGC( dpy, gc, valmask, &gcvals );
+
 	if ( clipmask ) {
 	    XSetClipOrigin( dpy, gc, 0, 0 );
 	    XSetClipMask( dpy, gc, None );
 	}
-    }
-    else {					// src is pixmap/widget
-	XCopyArea( dpy, src->handle(), dst->handle(), gc, sx, sy, sw, sh,
-		   dx, dy );
+
+    } else {					// src is pixmap/widget
+
+	if ( include_inferiors ) {
+	    XSetSubwindowMode( dpy, gc, IncludeInferiors );
+	    XCopyArea( dpy, src->handle(), dst->handle(), gc, sx, sy, sw, sh,
+		       dx, dy );
+	    XSetSubwindowMode( dpy, gc, ClipByChildren );
+	} else {
+	    XCopyArea( dpy, src->handle(), dst->handle(), gc, sx, sy, sw, sh,
+		       dx, dy );
+	}
     }
 
     if ( rop != CopyROP )			// restore ROP
