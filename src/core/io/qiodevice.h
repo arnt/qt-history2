@@ -50,11 +50,6 @@ public:
         ModeMask = 0x00ff
     };
 
-    enum State {
-        Open = 0x1000,
-        StateMask = 0xf000
-    };
-
     enum Status {
         Ok = 0,
         ReadError = 1,
@@ -79,7 +74,6 @@ public:
 
     int flags() const;
     inline int mode() const { return flags() & ModeMask; }
-    inline int state() const { return flags() & StateMask; }
 
     inline bool isDirectAccess() const { return (flags() & Direct) == Direct; }
     inline bool isSequentialAccess() const { return (flags() & Sequential) == Sequential; }
@@ -92,8 +86,8 @@ public:
     inline bool isReadable() const { return (flags() & ReadOnly) == ReadOnly; }
     inline bool isWritable() const { return (flags() & WriteOnly) == WriteOnly; }
     inline bool isReadWrite() const { return (flags() & ReadWrite) == ReadWrite; }
-    inline bool isInactive() const { return state() == 0; }
-    inline bool isOpen() const { return state() == Open; }
+    inline bool isInactive() const { return !isOpen(); }
+    virtual bool isOpen() const = 0;
 
     int status() const;
     void resetStatus();
@@ -119,6 +113,11 @@ public:
     virtual QByteArray readAll();
 
 #ifdef QT_COMPAT
+    enum State {
+        Open = 0x1000,
+        StateMask = 0xf000
+    };
+    inline QT_COMPAT int state() const { return isOpen(); }
     inline QT_COMPAT bool at(Q_LLONG off) { return seek(off); }
     inline QT_COMPAT Q_LONG readBlock(char *data, Q_LONG maxlen)
     { return read(data, maxlen); }
@@ -138,7 +137,6 @@ protected:
     void setFlags(int);
     void setType(int);
     void setMode(int);
-    void setState(int);
     void setBufferSize(int);
 
     void setStatus(int);
@@ -168,7 +166,9 @@ private:
 #define IO_ModeMask QIODevice::ModeMask
 
 #define IO_Open QIODevice::Open
+#if defined QT_COMPAT
 #define IO_StateMask QIODevice::StateMask
+#endif
 
 #define IO_Ok QIODevice::Ok
 #define IO_ReadError QIODevice::ReadError

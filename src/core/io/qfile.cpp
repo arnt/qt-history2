@@ -33,11 +33,12 @@ static const int read_cache_size = 4096;
 QFile::EncoderFn QFilePrivate::encoder = QFilePrivate::locale_encode;
 QFile::DecoderFn QFilePrivate::decoder = QFilePrivate::locale_decode;
 
-QFilePrivate::QFilePrivate() : 
+QFilePrivate::QFilePrivate() :
 #ifndef QT_NO_FILE_BUFFER
-    buffer(read_cache_size), 
+    buffer(read_cache_size),
 #endif
-    fileEngine(0)
+    fileEngine(0),
+    isOpen(false)
 {
 }
 
@@ -175,7 +176,7 @@ QFilePrivate::openExternalFile(int flags, int fd)
 /*!
     Constructs a QFile with no name.
 */
-QFile::QFile() : 
+QFile::QFile() :
 #ifndef QT_NO_QFILE_QOBJECT
     QObject(),
 #endif
@@ -203,7 +204,7 @@ QFile::QFile(QObject *parent) : QObject(parent), QIODevice(*new QFilePrivate)
 
     \sa setFileName()
 */
-QFile::QFile(const QString &name) : 
+QFile::QFile(const QString &name) :
 #ifndef QT_NO_QFILE_QOBJECT
     QObject(),
 #endif
@@ -218,7 +219,7 @@ QFile::QFile(const QString &name) :
 /*!
    \internal
 */
-QFile::QFile(QFilePrivate &dd) : 
+QFile::QFile(QFilePrivate &dd) :
 #ifndef QT_NO_QFILE_QOBJECT
     QObject(),
 #endif
@@ -463,9 +464,9 @@ QFile::rename(const QString &newName)
                     out.write(in.readAll());
                     in.remove();
                     return true;
-                 }           
+                 }
             }
-        } 
+        }
         setStatus(QIODevice::RenameError, errno);
     }
     return false;
@@ -658,7 +659,7 @@ QFile::open(int mode)
         return false;
     }
     if(fileEngine()->open(flags())) {
-        setState(QIODevice::Open);
+        d->isOpen = true;
         if(fileEngine()->isSequential())
             setType(Sequential);
         return true;
@@ -708,7 +709,7 @@ QFile::open(int mode, int fd)
         return false;
     }
     if(d->openExternalFile(flags(), fd)) {
-        setState(QIODevice::Open);
+        d->isOpen = true;
         setMode(mode | QIODevice::Raw);
         if(fileEngine()->isSequential())
             setType(QIODevice::Sequential);
@@ -747,7 +748,7 @@ QFile::ungetch(int character)
     \reimp
 */
 
-Q_LLONG 
+Q_LLONG
 QFile::readLine(char *data, Q_LLONG maxlen)
 {
     if (maxlen <= 0) // nothing to do
@@ -761,7 +762,7 @@ QFile::readLine(char *data, Q_LLONG maxlen)
         qWarning("QFile::readLine: Read operation not permitted");
         return -1;
     }
-    
+
 #ifndef QT_NO_FILE_BUFFER
     bool foundEnd = false;
     Q_LLONG ret = 0;
@@ -770,7 +771,7 @@ QFile::readLine(char *data, Q_LLONG maxlen)
         uint buffered = qMin(maxlen, (Q_LLONG)d->buffer.used()), len = 0;
         char *buffer = d->buffer.take(buffered, &buffered);
         for( ; len < buffered && len < maxlen-ret; len++) {
-            if(*(buffer+len) == '\n') 
+            if(*(buffer+len) == '\n')
                 break;
         }
 
@@ -793,11 +794,11 @@ QFile::readLine(char *data, Q_LLONG maxlen)
                 ret = -1;
             break;
         }
-        if(got < read_cache_size) 
+        if(got < read_cache_size)
             d->buffer.truncate(read_cache_size - got);
         uint len = 0;
         for( ; len < got && len < maxlen-ret; len++) {
-            if(*(buffer+len) == '\n') 
+            if(*(buffer+len) == '\n')
                 break;
         }
 
@@ -991,9 +992,9 @@ QFile::setPermissions(const QString &fileName, uint permissionSpec)
   \reimp
 */
 
-void 
-QFile::flush() 
-{ 
+void
+QFile::flush()
+{
     fileEngine()->flush();
 }
 
@@ -1007,6 +1008,7 @@ QFile::close()
     if(!isOpen())
         return;
 
+    d->isOpen = false;
     resetStatus();
 #ifndef QT_NO_FILE_BUFFER
     d->buffer.clear();
@@ -1017,6 +1019,13 @@ QFile::close()
     } else {
         setFlags(QIODevice::Direct);
     }
+}
+
+/*! \reimp
+*/
+bool QFile::isOpen() const
+{
+    return d->isOpen;
 }
 
 /*!
@@ -1106,7 +1115,7 @@ Q_LLONG QFile::read(char *data, Q_LLONG len)
             char *buffer = d->buffer.alloc(read_cache_size);
             Q_LLONG got = fileEngine()->read(buffer, read_cache_size);
             if(got != -1) {
-                if(got < read_cache_size) 
+                if(got < read_cache_size)
                     d->buffer.truncate(read_cache_size - got);
 
                 const Q_LLONG need = qMin(len-ret, got);
@@ -1154,7 +1163,7 @@ Q_LLONG QFile::write(const char *data, Q_LLONG len)
     resetStatus();
 
 #ifndef QT_NO_FILE_BUFFER
-    if(!d->buffer.isEmpty()) 
+    if(!d->buffer.isEmpty())
         seek(at());
 #endif
     Q_LLONG ret = fileEngine()->write(data, len);
@@ -1168,7 +1177,7 @@ Q_LLONG QFile::write(const char *data, Q_LLONG len)
 }
 
 /*!
-  Returns the QIOEngine for this QFile object. 
+  Returns the QIOEngine for this QFile object.
 */
 
 QFileEngine

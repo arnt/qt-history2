@@ -55,19 +55,18 @@ public:
     virtual bool listen(int backlog);
     virtual int accept();
 
-#ifdef QT_COMPAT
 #ifdef Q_NO_USING_KEYWORD
-    inline QT_COMPAT Q_LONG writeBlock(const char *data, Q_LONG len)
+    inline Q_LONG writeBlock(const char *data, Q_LONG len)
     { return QIODevice::writeBlock(data, len); }
-    inline QT_COMPAT Q_LONG writeBlock(const QByteArray &data)
+    inline Q_LONG writeBlock(const QByteArray &data)
     { return QIODevice::writeBlock(data); }
 #else
     using QIODevice::writeBlock;
 #endif
-    inline QT_COMPAT Q_LONG writeBlock(const char *data, Q_LONG len,
-                                        const QHostAddress & host, Q_UINT16 port)
+    inline Q_LONG writeBlock(const char *data, Q_LONG len,
+                             const QHostAddress & host, Q_UINT16 port)
     { return write(data, len, host, port); }
-#endif
+
     virtual Q_LLONG write(const char *data, Q_LLONG len);
     virtual Q_LLONG write(const char *data, Q_LLONG len, const QHostAddress & host, Q_UINT16 port);
 
@@ -78,6 +77,7 @@ public:
     QHostAddress address() const;
     QHostAddress peerAddress() const;
 
+    bool isOpen() const { return true; };
     virtual int ungetch(int) { return -1; }
     virtual void close();
     virtual Q_LLONG size() const;
@@ -91,9 +91,7 @@ public:
         Inaccessible,
         NoResources,
         InternalError,
-#ifdef QT_COMPAT
         Bug = InternalError,
-#endif
         Impossible,
         NoFiles,
         ConnectionRefused,

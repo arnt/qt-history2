@@ -179,6 +179,7 @@ QIODevicePrivate::~QIODevicePrivate()
 */
 
 /*!
+    \compat
     \enum QIODevice::State
 
     \internal
@@ -264,6 +265,7 @@ int QIODevice::flags() const
 */
 
 /*!
+    \compat
     \fn int QIODevice::state() const
 
     Returns a value specifying the current state. This is a selection
@@ -484,19 +486,6 @@ void QIODevice::setMode(int m)
         qWarning("QIODevice::setMode: Specified mode out of range");
     d->ioMode &= ~QIODevice::ModeMask;                        // reset mode bits
     d->ioMode |= m;
-}
-
-/*!
-  \internal
-  Used by subclasses to set the device state.
-*/
-
-void QIODevice::setState(int s)
-{
-    if (((uint)s & QIODevice::StateMask) != (uint)s)
-        qWarning("QIODevice::setState: Specified state out of range");
-    d->ioMode &= ~QIODevice::StateMask;                        // reset state bits
-    d->ioMode |= (uint)s;
 }
 
 /*!
@@ -724,7 +713,7 @@ QByteArray QIODevice::readAll()
     \sa read(), QTextStream::readLine()
 */
 
-Q_LLONG 
+Q_LLONG
 QIODevice::readLine(char *data, Q_LLONG maxlen)
 {
     if (maxlen <= 0) // nothing to do
@@ -738,7 +727,7 @@ QIODevice::readLine(char *data, Q_LLONG maxlen)
         qWarning("QIODevice::readLine: Read operation not permitted");
         return -1;
     }
- 
+
     char *p = data;
     while (--maxlen && (*p=getch()) > 0) {        // read one byte at a time
         if (*p++ == '\n')                    // end of line
@@ -747,13 +736,13 @@ QIODevice::readLine(char *data, Q_LLONG maxlen)
     if(p != data) {
         *p++ = '\0';
         return p - data;
-    } 
+    }
     return -1;
 }
 
 /*!
   \overload
-  
+
   This convenience function will read a line and place it into a QByteArray.
 
   \sa QIODevice::readLine()
@@ -770,7 +759,7 @@ QIODevice::readLine()
         qWarning("QIODevice::readLine: Read operation not permitted");
         return QByteArray();
     }
- 
+
     int used = 0;
     QByteArray ret;
     for(char tmp, *p=0; (tmp = getch()) > 0 && tmp != '\n'; used++) {

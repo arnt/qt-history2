@@ -24,9 +24,9 @@
 
 class QFileEngine;
 class QFilePrivate;
-class Q_CORE_EXPORT QFile : 
+class Q_CORE_EXPORT QFile :
 #ifndef QT_NO_QFILE_QOBJECT
-    public QObject, 
+    public QObject,
 #endif
     public QIODevice
 {
@@ -93,6 +93,8 @@ public:
     inline QT_COMPAT bool at(Q_LLONG off) { return QIODevice::at(off); }
 #endif
 #endif
+
+    bool isOpen() const;
 
     virtual Q_LLONG size() const;
     virtual Q_LLONG at() const;

@@ -66,7 +66,6 @@ QTcpSocket::QTcpSocket(QObject *parent)
     qDebug("QTcpSocket::QTcpSocket()");
 #endif
     setFlags(Sequential | Async);
-    setState(Qt::UnconnectedState);
     d->isBuffered = true;
 }
 

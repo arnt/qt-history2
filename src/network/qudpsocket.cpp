@@ -130,7 +130,7 @@ class QUdpSocketPrivate : public QAbstractSocketPrivate
 
 /*!
     Creates a QUdpSocket object.
-    
+
     \a parent is passed to the QObject constructor.
 
     \sa socketType()
@@ -139,7 +139,6 @@ QUdpSocket::QUdpSocket(QObject *parent)
     : QAbstractSocket(Qt::UdpSocket, *new QUdpSocketPrivate, parent)
 {
     setFlags(Sequential | Async);
-    setState(Qt::UnconnectedState);
     d->isBuffered = false;
 }
 

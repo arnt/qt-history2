@@ -95,6 +95,8 @@ public:
 
     // from QIODevice
 
+    bool isOpen() const;
+
     bool open(int);
     void close();
     void flush();
@@ -104,7 +106,7 @@ public:
     bool seek(Q_LLONG offset);
 
     Q_LLONG read(char *data, Q_LLONG maxlen);
-    
+
     Q_LLONG write(const char *data, Q_LLONG len);
 #if !defined(Q_NO_USING_KEYWORD)
     using QIODevice::write;

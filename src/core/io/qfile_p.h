@@ -34,6 +34,7 @@ protected:
 #endif
     QString fileName;
     mutable QFileEngine *fileEngine;
+    bool isOpen;
 
 private:
     inline static QByteArray locale_encode(const QString &f)

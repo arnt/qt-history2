@@ -1531,6 +1531,13 @@ void QAbstractSocket::abort()
 
 /*! \reimp
 */
+bool QAbstractSocket::isOpen() const
+{
+    return (d->state & (Qt::ConnectedState | Qt::BoundState)) != 0;
+}
+
+/*! \reimp
+*/
 bool QAbstractSocket::open(int)
 {
     qWarning("QAbstractSocket::open(int): Sockets must be connected");

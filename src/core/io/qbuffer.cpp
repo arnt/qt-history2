@@ -23,10 +23,11 @@ class QBufferPrivate : public QIODevicePrivate
     Q_DECLARE_PUBLIC(QBuffer)
 
 public:
-    QBufferPrivate() : ioIndex(0), buf(0)  { }
+    QBufferPrivate() : ioIndex(0), isOpen(false), buf(0)  { }
     ~QBufferPrivate() { }
 
     int ioIndex;
+    bool isOpen;
     QByteArray *buf;
 
     QByteArray defaultBuf;
@@ -185,15 +186,22 @@ bool QBuffer::open(int mode)
         return false;
     }
 
-    if (mode & QIODevice::Truncate) 
+    if (mode & QIODevice::Truncate)
         d->buf->resize(0);
     if (mode & QIODevice::Append)                       // append to end of buffer
         d->ioIndex = d->buf->size();
     else
         d->ioIndex = 0;
     setMode(mode);
-    setState(QIODevice::Open);
+    d->isOpen = true;
     return true;
+}
+
+/*! \reimp
+*/
+bool QBuffer::isOpen() const
+{
+    return d->isOpen;
 }
 
 /*!
@@ -223,6 +231,7 @@ void QBuffer::close()
 {
     if(!isOpen())
         return;
+    d->isOpen = false;
     if(d->ioIndex == -1)
         return;
     d->ioIndex = -1;

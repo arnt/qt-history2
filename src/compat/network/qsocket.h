@@ -33,9 +33,7 @@ public:
     };
 
     QSocket(QObject *parent = 0);
-#ifdef QT_COMPAT
-    QT_COMPAT_CONSTRUCTOR QSocket(QObject *parent, const char *name);
-#endif
+    QSocket(QObject *parent, const char *name);
     virtual ~QSocket();
 
     enum State {
@@ -43,9 +41,7 @@ public:
         HostLookup,
         Connecting,
         Connected,
-#ifdef QT_COMPAT
         Connection = Connected,
-#endif
         Closing
     };
     State state() const;
@@ -77,6 +73,7 @@ public:
     void setReadBufferSize(Q_ULONG);
     Q_ULONG readBufferSize() const;
 
+    bool isOpen() const { return state() == Connected; }
     virtual bool atEnd() const;
     virtual void flush();
     virtual void close();

@@ -213,7 +213,7 @@ void QSocket::close()
     if (!d->rsn || !d->wsn)
         return;
 #if defined(QSOCKET_DEBUG)
-    qDebug("QSocket (%s): close socket", socket->objectName().latin1());
+    qDebug("QSocket (%s): close socket", objectName().latin1());
 #endif
     if (d->socket && d->wsize) {                // there's data to be written
         d->state = QSocket::Closing;
@@ -302,7 +302,6 @@ void QSocket::flush()
 #endif
         setFlags(IO_Sequential);
         resetStatus();
-        setState(0);
         d->close();
         d->state = QSocket::Idle;
         emit delayedCloseFinished();
@@ -1033,7 +1032,7 @@ QByteArray QSocket::readLine()
     QByteArray a;
     a.resize(256);
     bool nl = d->rba.scanNewline(&a);
-    if (nl) 
+    if (nl)
         seek(a.size());                                // skips the data read
     return a;
 }

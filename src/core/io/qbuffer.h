@@ -41,6 +41,7 @@ public:
 #endif
 #endif
 
+    bool isOpen() const;
     virtual bool open(int mode);
     virtual void close();
     virtual Q_LLONG size() const;
