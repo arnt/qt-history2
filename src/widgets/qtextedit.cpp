@@ -4741,7 +4741,7 @@ void QTextEdit::pasteSubType( const QCString& subtype, QMimeSource *m )
 {
     QCString st = subtype;
     if ( subtype != "x-qrichtext" )
-        st.prepend( "text/" );
+	st.prepend( "text/" );
     else
 	st.prepend( "application/" );
     if ( !m )
@@ -4782,8 +4782,11 @@ void QTextEdit::pasteSubType( const QCString& subtype, QMimeSource *m )
 	    // the first para might have been deleted in
 	    // setRichTextInternal(). To be sure, reset it if
 	    // necessary.
-	    if ( wasAtFirst )
+	    if ( wasAtFirst ) {
+		int index = oldC.index();
 		oldC.setParagraph( doc->firstParagraph() );
+		oldC.setIndex( index );
+	    }
 
 	    // if we went back one letter before (see last comment),
 	    // go one forward to point to the right position
