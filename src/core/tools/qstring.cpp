@@ -581,7 +581,7 @@ QString::QString(const std::wstring &s)
     } else {
         resize(s.length()*2); // worst case
         QChar *uc = data();
-        for (int i = 0; i < (int)s.length(); ++i) {
+        for (uint i = 0; i < s.length(); ++i) {
             uint u = s[i];
             if (u > 0xffff) {
                 // decompose into a surrogate pair
@@ -1837,7 +1837,7 @@ bool QString::operator>(const QLatin1String &other) const
 */
 
 #define REHASH(a) \
-    if (sl_minus_1 < sizeof(uint) * CHAR_BIT) \
+    if (sl_minus_1 < (int)sizeof(int) * CHAR_BIT)       \
         hashHaystack -= (a) << sl_minus_1; \
     hashHaystack <<= 1
 
@@ -1866,8 +1866,8 @@ bool QString::operator>(const QLatin1String &other) const
 */
 int QString::indexOf(const QString &str, int from, Qt::CaseSensitivity cs) const
 {
-    const uint l = d->size;
-    const uint sl = str.d->size;
+    const int l = d->size;
+    const int sl = str.d->size;
     if (from < 0)
         from += l;
     if (sl + from > l)
@@ -1897,8 +1897,8 @@ int QString::indexOf(const QString &str, int from, Qt::CaseSensitivity cs) const
     const QChar *needle = (const QChar*) str.d->data;
     const QChar *haystack = (const QChar*) d->data + from;
     const QChar *end = (const QChar*) d->data + (l-sl);
-    const uint sl_minus_1 = sl-1;
-    uint hashNeedle = 0, hashHaystack = 0, idx;
+    const int sl_minus_1 = sl-1;
+    int hashNeedle = 0, hashHaystack = 0, idx;
 
     if (cs == Qt::CaseSensitive) {
         for (idx = 0; idx < sl; ++idx) {
@@ -1993,12 +1993,12 @@ int QString::lastIndexOf(const QString &str, int from, Qt::CaseSensitivity cs) c
     /*
         See indexOf() for explanations.
     */
-    const uint l = d->size;
+    const int l = d->size;
     if (from < 0)
         from += l;
-    const uint sl = str.d->size;
+    const int sl = str.d->size;
     int delta = l-sl;
-    if (from < 0 || from > (int)l || delta < 0)
+    if (from < 0 || from > l || delta < 0)
         return -1;
     if (from > delta)
         from = delta;
@@ -2009,10 +2009,10 @@ int QString::lastIndexOf(const QString &str, int from, Qt::CaseSensitivity cs) c
     const QChar *needle = (const QChar*) str.d->data;
     const QChar *haystack = (const QChar*) d->data + from;
     const QChar *end = (const QChar*) d->data;
-    const uint sl_minus_1 = sl-1;
+    const int sl_minus_1 = sl-1;
     const QChar *n = needle+sl_minus_1;
     const QChar *h = haystack+sl_minus_1;
-    uint hashNeedle = 0, hashHaystack = 0, idx;
+    int hashNeedle = 0, hashHaystack = 0, idx;
 
     if (cs == Qt::CaseSensitive) {
         for (idx = 0; idx < sl; ++idx) {
@@ -2187,7 +2187,7 @@ QString& QString::replace(const QRegExp &rx, const QString &after)
             int length;
         } replacements[2048];
 
-        uint pos = 0;
+        int pos = 0;
         int adjust = 0;
         while (pos < 2047) {
             index = rx2.indexIn(*this, index, caretMode);
@@ -2205,7 +2205,7 @@ QString& QString::replace(const QRegExp &rx, const QString &after)
         if (!pos)
             break;
         replacements[pos].pos = d->size;
-        uint newlen = d->size + adjust;
+        int newlen = d->size + adjust;
 
         // to continue searching at the right position after we did
         // the first round of replacements
@@ -2216,7 +2216,7 @@ QString& QString::replace(const QRegExp &rx, const QString &after)
         QChar *newuc = newstring.data();
         QChar *uc = newuc;
         int copystart = 0;
-        uint i = 0;
+        int i = 0;
         while (i < pos) {
             int copyend = replacements[i].pos;
             int size = copyend - copystart;
@@ -2592,7 +2592,7 @@ QString QString::section(const QRegExp &reg, int start, int end, int flags) cons
     QString ret;
     for (int idx = 0; idx < l.size(); ++idx) {
         const section_chunk &chk = l.at(idx);
-        if((flags & SectionSkipEmpty) && chk.length == (int)chk.string.length()) {
+        if((flags & SectionSkipEmpty) && chk.length == chk.string.length()) {
             if(i <= start)
                 start++;
             end++;
@@ -2780,7 +2780,7 @@ bool QString::endsWith(const QString& s, Qt::CaseSensitivity cs) const
     if (cs == Qt::CaseSensitive) {
         return memcmp((char*)&d->data[pos], (char*)s.d->data, s.d->size*sizeof(QChar)) == 0;
     } else {
-        for (int i = 0; i < (int) s.length(); i++)
+        for (int i = 0; i < s.length(); i++)
             if (::lower(d->data[pos+i]) != ::lower(s.d->data[i]))
                 return false;
     }
@@ -3493,12 +3493,12 @@ QString QString::trimmed() const
     Same as at(\a i).
 */
 
-/*! \fn QCharRef QString::operator[](uint i)
+/*! \fn QCharRef QString::operator[](int i)
 
     \overload
 */
 
-/*! \fn const QChar QString::operator[](uint i) const
+/*! \fn const QChar QString::operator[](int i) const
 
     \overload
 */
@@ -4774,7 +4774,7 @@ int QString::toInt(bool *ok, int base) const
             *ok = false;
         v = 0;
     }
-    return (int)v;
+    return v;
 }
 
 /*!
@@ -5443,12 +5443,12 @@ static QString replaceArgEscapes(const QString &s, const ArgEscapeData &d, int f
     const QChar *uc_end = uc_begin + s.length();
 
     int abs_field_width = qAbs(field_width);
-    uint result_len = s.length()
-                            - d.escape_len
-                        + (d.occurrences - d.locale_occurrences)
-                            *qMax(abs_field_width, arg.length())
-                        + d.locale_occurrences
-                            *qMax(abs_field_width, larg.length());
+    int result_len = s.length()
+                     - d.escape_len
+                     + (d.occurrences - d.locale_occurrences)
+                     *qMax(abs_field_width, arg.length())
+                     + d.locale_occurrences
+                     *qMax(abs_field_width, larg.length());
 
     QString result;
     result.resize(result_len);
@@ -5513,7 +5513,7 @@ static QString replaceArgEscapes(const QString &s, const ArgEscapeData &d, int f
             if (++repl_cnt == d.occurrences) {
                 memcpy(rc, c, (uc_end - c)*sizeof(QChar));
                 rc += uc_end - c;
-                Q_ASSERT(rc - result_buff == (int)result_len);
+                Q_ASSERT(rc - result_buff == result_len);
                 c = uc_end;
             }
         }
