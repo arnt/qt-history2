@@ -70,7 +70,7 @@ void Table::initTable()
     for ( QStringList::Iterator it = all.begin(); it != all.end(); ++it ) {
 	setText( i, 0, *it );
 	QFile f( qtdir + "/src/" + *it );
-	setText( i, 1, QString::number( f.size() ) );
+	setText( i, 1, QString::number( (ulong)f.size() ) );
 	ComboItem *ci = new ComboItem( this, QTableItem::WhenCurrent );
 	setItem( i++, 2, ci );
 	sum += f.size();
