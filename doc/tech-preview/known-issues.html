@@ -44,6 +44,10 @@
     <p class="issue">Problems compiling the ODBC driver.</p>
     <p class="workaround">Change the include from qapplication.h to qcoreapplication.h</p>
 
+    <h4>QtGui does not link because of accessibility errors</h4>
+    <p class="issue">undefined reference to QAccessible::setRootObject(QObject*)</p>
+    <p class="workaround">Rerun configure and rebuild, if that does not help, add the contents of $QTDIR/.qt.config to $QTDIR/.qmake.cache</p>
+
 
 <!-- General section ---------------------------------------------- -->
 <a name="general"></a>
