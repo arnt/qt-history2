@@ -40,6 +40,12 @@
 
 // Get the system specific includes and defines
 #include "qplatformdefs.h"
+ 
+// Solaris redefines connect to __xnet_connect when _XOPEN_SOURCE_EXTENDED is
+// defined.  This breaks our sources.
+#if defined(connect)
+# undef connect
+#endif
 
 #include "qapplication.h"
 #include "qapplication_p.h"
@@ -82,12 +88,6 @@
 
 #if defined(Q_OS_UNIX)
 static int qt_thread_pipe[2];
-#endif
-
-// Solaris redefines connect to __xnet_connect when _XOPEN_SOURCE_EXTENDED is
-// defined.  This breaks our sources.
-#if defined(connect)
-# undef connect
 #endif
 
 #include "qt_x11.h"
