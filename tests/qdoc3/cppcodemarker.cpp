@@ -20,12 +20,13 @@ QString CppCodeMarker::markedUpCode( const QString& code,
     return addMarkUp( protect(code), relative, dirPath );
 }
 
-QString CppCodeMarker::markedUpSynopsys( const Node *node,
+QString CppCodeMarker::markedUpSynopsis( const Node *node,
 					 const Node *relative,
-					 SynopsysStyle style ) const
+					 SynopsisStyle style ) const
 {
     const FunctionNode *func;
-    QString synopsys;
+    const PropertyNode *property;
+    QString synopsis;
     QString extra;
     QString name;
 
@@ -39,38 +40,40 @@ QString CppCodeMarker::markedUpSynopsys( const Node *node,
 
     switch ( node->type() ) {
     case Node::Namespace:
-	synopsys = "namespace " + name;
+	synopsis = "namespace " + name;
 	break;
     case Node::Class:
-	synopsys = "class " + name;
+	synopsis = "class " + name;
 	break;
     case Node::Function:
 	func = (const FunctionNode *) node;
 	if ( !func->returnType().isEmpty() )
-	    synopsys = protect( func->returnType() ) + " ";
-	synopsys += name + " (";
+	    synopsis = protect( func->returnType() ) + " ";
+	synopsis += name + " (";
 	if ( !func->parameters().isEmpty() ) {
-	    synopsys += " ";
+	    synopsis += " ";
 	    QValueList<Parameter>::ConstIterator p = func->parameters().begin();
 	    while ( p != func->parameters().end() ) {
 		if ( p != func->parameters().begin() )
-		    synopsys += ", ";
-		synopsys += protect( (*p).leftType() ) + " <@param>" +
+		    synopsis += ", ";
+		synopsis += protect( (*p).leftType() ) + " <@param>" +
 			    protect( (*p).name() ) + "</@param>" +
 			    protect( (*p).rightType() );
+		if ( !(*p).defaultValue().isEmpty() )
+		    synopsis += " = " + protect( (*p).defaultValue() );
 		++p;
 	    }
-	    synopsys += " ";
+	    synopsis += " ";
 	}
-	synopsys += ")";
+	synopsis += ")";
 	if ( func->isConst() )
-	    synopsys += " const";
+	    synopsis += " const";
 
 	if ( style == Overview ) {
 	    if ( func->virtualness() != FunctionNode::NonVirtual )
-		synopsys.prepend( "virtual " );
+		synopsis.prepend( "virtual " );
 	    if ( func->virtualness() == FunctionNode::PureVirtual )
-		synopsys.append( " = 0" );
+		synopsis.append( " = 0" );
 	} else {
 	    QStringList bracketed;
 	    if ( func->isStatic() ) {
@@ -97,16 +100,21 @@ QString CppCodeMarker::markedUpSynopsys( const Node *node,
 	}
 	break;
     case Node::Enum:
-	synopsys = "enum " + name;
+	synopsis = "enum " + name;
 	break;
     case Node::Typedef:
-	synopsys = "typedef " + name;
+	synopsis = "typedef " + name;
 	break;
     case Node::Property:
-	synopsys = name;
+	property = (const PropertyNode *) node;
+	synopsis = property->dataType() + " " + name;
+	if ( style == Overview ) {
+	    if ( property->setter().isEmpty() )
+		extra += " (read only)";
+	}
 	break;
     default:
-	synopsys = name;
+	synopsis = name;
     }
 
     if ( style == Overview ) {
@@ -123,7 +131,7 @@ QString CppCodeMarker::markedUpSynopsys( const Node *node,
 	extra.prepend( "<@extra>" );
 	extra.append( "</@extra>" );
     }
-    return addMarkUp( synopsys, relative, "" ) + extra;
+    return addMarkUp( synopsis, relative, "" ) + extra;
 }
 
 QString CppCodeMarker::markedUpName( const Node *node ) const
@@ -134,7 +142,8 @@ QString CppCodeMarker::markedUpName( const Node *node ) const
     return name;
 }
 
-QString CppCodeMarker::markedUpFullName( const Node *node ) const
+QString CppCodeMarker::markedUpFullName( const Node *node,
+					 const Node * /* relative */ ) const
 {
     QString fullName;
     for ( ;; ) {
@@ -153,7 +162,7 @@ QString CppCodeMarker::markedUpIncludes( const QStringList& includes ) const
 
     QStringList::ConstIterator inc = includes.begin();
     while ( inc != includes.end() ) {
-	code += "#include &lt;<@include>" + *inc + "</@include>" + "&gt\n";
+	code += "#include &lt;<@include>" + *inc + "</@include>" + "&gt;\n";
 	++inc;
     }
     return addMarkUp( code, 0, "" );

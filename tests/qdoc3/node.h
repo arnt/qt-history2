@@ -66,11 +66,18 @@ public:
 
     Node *findNode( const QString& name );
     Node *findNode( const QString& name, Type type );
+    FunctionNode *findFunctionNode( const QString& name );
     FunctionNode *findFunctionNode( const FunctionNode *clone );
     void addInclude( const QString& include );
+    void setOverload( const FunctionNode *func, bool overlode );
 
     virtual bool isInnerNode() const;
+    const Node *findNode( const QString& name ) const;
+    const Node *findNode( const QString& name, Type type ) const;
+    const FunctionNode *findFunctionNode( const QString& name ) const;
+    const FunctionNode *findFunctionNode( const FunctionNode *clone ) const;
     const NodeList& childNodes() const { return children; }
+    int overloadNumber( const FunctionNode *func ) const;
     const QStringList& includes() const { return inc; }
 
 protected:
@@ -81,7 +88,6 @@ private:
 
     static bool isSameSignature( const FunctionNode *f1,
 				 const FunctionNode *f2 );
-
     void addChild( Node *child );
     void removeChild( Node *child );
 
@@ -89,7 +95,7 @@ private:
     NodeList children;
     QMap<QString, Node *> childMap;
     QMap<QString, Node *> primaryFunctionMap;
-    QMap<QString, QValueList<Node *> > secondaryFunctionMap;
+    QMap<QString, NodeList> secondaryFunctionMap;
 };
 
 class LeafNode : public Node
@@ -114,11 +120,11 @@ class ClassNode;
 struct RelatedClass
 {
     Node::Access access;
-    const ClassNode *node;
+    ClassNode *node;
     QString templateArgs;
 
     RelatedClass() { }
-    RelatedClass( Node::Access access0, const ClassNode *node0,
+    RelatedClass( Node::Access access0, ClassNode *node0,
 		  const QString& templateArgs0 = "" )
 	: access( access0 ), node( node0 ), templateArgs( templateArgs0 ) { }
 };
@@ -141,8 +147,8 @@ public:
     void addBaseClass( Access access, ClassNode *node,
 		       const QString& templateArgs );
 
-    QValueList<RelatedClass> baseClasses() const { return bas; }
-    QValueList<RelatedClass> derivedClasses() const { return der; }
+    const QValueList<RelatedClass>& baseClasses() const { return bas; }
+    const QValueList<RelatedClass>& derivedClasses() const { return der; }
     QValueList<ClassSection> overviewSections() const;
     QValueList<ClassSection> detailedSections() const;
 
@@ -214,17 +220,25 @@ public:
     void setVirtualness( Virtualness virtualness ) { vir = virtualness; }
     void setConst( bool conste ) { con = conste; }
     void setStatic( bool statique ) { sta = statique; }
-    void setOverloadNumber( int no ) { ove = no; }
+    void setOverload( bool overlode );
+    void setReimplementation( bool reimp ) { rei = reimp; }
     void addParameter( const Parameter& parameter );
     void borrowParameterNames( const FunctionNode *source );
+    void setReimplementedFrom( FunctionNode *from );
 
     const QString& returnType() const { return rt; }
     Metaness metaness() const { return met; }
     Virtualness virtualness() const { return vir; }
     bool isConst() const { return con; }
     bool isStatic() const { return sta; }
-    int overloadNumber() const { return ove; }
+    bool isConstructor() const;
+    bool isDestructor() const;
+    bool isOverload() const { return ove; }
+    bool isReimplementation() const { return rei; }
+    int overloadNumber() const;
     const QValueList<Parameter>& parameters() const { return params; }
+    const FunctionNode *reimplementedFrom() const { return rf; }
+    const QValueList<FunctionNode *>& reimplementedBy() const { return rb; }
 
 private:
     QString rt;
@@ -232,8 +246,11 @@ private:
     Virtualness vir;
     bool con;
     bool sta;
-    int ove;
+    bool ove;
+    bool rei;
     QValueList<Parameter> params;
+    const FunctionNode *rf;
+    QValueList<FunctionNode *> rb;
 };
 
 class PropertyNode : public LeafNode

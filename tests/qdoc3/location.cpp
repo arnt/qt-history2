@@ -29,10 +29,13 @@ Location& Location::operator=( const Location& loc )
 
 void Location::advance( QChar ch )
 {
-    cn++;
     if ( ch == '\n' ) {
 	ln++;
 	cn = 1;
+    } else if ( ch == '\t' ) {
+	cn = ( (cn + 7) & ~0x7 ) + 1;
+    } else {
+	cn++;
     }
 }
 

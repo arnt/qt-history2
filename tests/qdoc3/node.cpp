@@ -61,6 +61,16 @@ Node *InnerNode::findNode( const QString& name, Type type )
     }
 }
 
+FunctionNode *InnerNode::findFunctionNode( const QString& name )
+{
+    QMap<QString, Node *>::ConstIterator c = primaryFunctionMap.find( name );
+    if ( c == primaryFunctionMap.end() ) {
+	return 0;
+    } else {
+	return (FunctionNode *) *c;
+    }
+}
+
 FunctionNode *InnerNode::findFunctionNode( const FunctionNode *clone )
 {
     QMap<QString, Node *>::ConstIterator c =
@@ -71,14 +81,29 @@ FunctionNode *InnerNode::findFunctionNode( const FunctionNode *clone )
 	if ( isSameSignature(clone, (FunctionNode *) *c) ) {
 	    return (FunctionNode *) *c;
 	} else {
-	    const QValueList<Node *>& secondaries =
-		    secondaryFunctionMap[clone->name()];
-	    QValueList<Node *>::ConstIterator s = secondaries.begin();
-	    while ( s != secondaries.end() ) {
+	    const NodeList& secs = secondaryFunctionMap[clone->name()];
+	    NodeList::ConstIterator s = secs.begin();
+	    while ( s != secs.end() ) {
 		if ( isSameSignature(clone, (FunctionNode *) *s) )
 		    return (FunctionNode *) *s;
+		++s;
 	    }
 	    return 0;
+	}
+    }
+}
+
+void InnerNode::setOverload( const FunctionNode *func, bool overlode )
+{
+    if ( overlode ) {
+	Node *node = (Node *) func;
+	if ( primaryFunctionMap[func->name()] == node ) {
+	    NodeList& secs = secondaryFunctionMap[func->name()];
+	    if ( !secs.isEmpty() ) {
+		primaryFunctionMap[func->name()] = secs.first();
+		secs.remove( secs.begin() );
+		secs.append( node );
+	    }
 	}
     }
 }
@@ -86,6 +111,41 @@ FunctionNode *InnerNode::findFunctionNode( const FunctionNode *clone )
 bool InnerNode::isInnerNode() const
 {
     return TRUE;
+}
+
+const Node *InnerNode::findNode( const QString& name ) const
+{
+    InnerNode *that = (InnerNode *) this;
+    return that->findNode( name );
+}
+
+const Node *InnerNode::findNode( const QString& name, Type type ) const
+{
+    InnerNode *that = (InnerNode *) this;
+    return that->findNode( name, type );
+}
+
+const FunctionNode *InnerNode::findFunctionNode( const QString& name ) const
+{
+    InnerNode *that = (InnerNode *) this;
+    return that->findFunctionNode( name );
+}
+
+const FunctionNode *InnerNode::findFunctionNode(
+	const FunctionNode *clone ) const
+{
+    InnerNode *that = (InnerNode *) this;
+    return that->findFunctionNode( clone );
+}
+
+int InnerNode::overloadNumber( const FunctionNode *func ) const
+{
+    Node *node = (Node *) func;
+    if ( primaryFunctionMap[func->name()] == node ) {
+	return 1;
+    } else {
+	return secondaryFunctionMap[func->name()].findIndex( node ) + 2;
+    }
 }
 
 InnerNode::InnerNode( Type type, InnerNode *parent, const QString& name )
@@ -122,8 +182,11 @@ void InnerNode::addChild( Node *child )
 {
     children.append( child );
     if ( child->type() == Function ) {
-	if ( *primaryFunctionMap.insert(child->name(), child, FALSE) != child )
-	    secondaryFunctionMap[child->name()].append( child );
+	FunctionNode *func = (FunctionNode *) child;
+	if ( *primaryFunctionMap.insert(func->name(), func, FALSE) != func ) {
+	    NodeList& secs = secondaryFunctionMap[func->name()];
+	    secs.append( func );
+	}
     } else {
 	childMap.insert( child->name(), child );
     }
@@ -133,20 +196,18 @@ void InnerNode::removeChild( Node *child )
 {
     children.remove( child );
     if ( child->type() == Function ) {
-	QMap<QString, Node *>::Iterator primary =
+	QMap<QString, Node *>::Iterator prim =
 		primaryFunctionMap.find( child->name() );
-	if ( *primary == child ) {
-	    QValueList<Node *>& secondaries =
-		    secondaryFunctionMap[child->name()];
-	    if ( secondaries.isEmpty() ) {
+	NodeList& secs = secondaryFunctionMap[child->name()];
+	if ( *prim == child ) {
+	    if ( secs.isEmpty() ) {
 		primaryFunctionMap.remove( child->name() );
 	    } else {
-		primaryFunctionMap.replace( child->name(),
-					    secondaries.first() );
-		secondaries.remove( secondaries.begin() );
+		primaryFunctionMap.replace( child->name(), secs.first() );
+		secs.remove( secs.begin() );
 	    }
 	} else {
-	    secondaryFunctionMap[child->name()].remove( child );
+	    secs.remove( child );
 	}
     } else {
 	QMap<QString, Node *>::Iterator ent = childMap.find( child->name() );
@@ -178,10 +239,8 @@ ClassNode::ClassNode( InnerNode *parent, const QString& name )
 void ClassNode::addBaseClass( Access access, ClassNode *node,
 			      const QString& templateArgs )
 {
-    if ( access != Private ) { // ###
-	bas.append( RelatedClass(access, node, templateArgs) );
-	node->der.append( RelatedClass(access, this) );
-    }
+    bas.append( RelatedClass(access, node, templateArgs) );
+    node->der.append( RelatedClass(access, this) );
 }
 
 QValueList<ClassSection> ClassNode::overviewSections() const
@@ -205,7 +264,7 @@ QValueList<ClassSection> ClassNode::overviewSections() const
 	FunctionNode::Metaness metaness = FunctionNode::Plain;
 	bool isStatic = FALSE;
 	if ( (*c)->type() == Function ) {
-	    FunctionNode *func = (FunctionNode *) *c;
+	    const FunctionNode *func = (const FunctionNode *) *c;
 	    metaness = func->metaness();
 	    isStatic = func->isStatic();
 	}
@@ -282,7 +341,12 @@ QValueList<ClassSection> ClassNode::detailedSections() const
 	if ( (*c)->type() == Enum || (*c)->type() == Typedef ) {
 	    typeMap.insert( (*c)->name(), *c );
 	} else if ( (*c)->type() == Function ) {
-	    funcMap.insert( (*c)->name(), *c ); // ### overloads
+	    FunctionNode *func = (FunctionNode *) *c;
+	    QString sortNo = func->isConstructor() ? "1"
+			     : func->isDestructor() ? "2" : "3";
+	    QString uniqueName = sortNo + func->name() + " " +
+				 QString::number( func->overloadNumber(), 36 );
+	    funcMap.insert( uniqueName, func );
 	} else if ( (*c)->type() == Property ) {
 	    propertyMap.insert( (*c)->name(), *c );
 	}
@@ -352,8 +416,14 @@ Parameter& Parameter::operator=( const Parameter& p )
 
 FunctionNode::FunctionNode( InnerNode *parent, const QString& name )
     : LeafNode( Function, parent, name ), met( Plain ), vir( NonVirtual ),
-      con( FALSE ), sta( FALSE ), ove( 1 )
+      con( FALSE ), sta( FALSE ), ove( FALSE ), rei( FALSE ), rf( 0 )
 {
+}
+
+void FunctionNode::setOverload( bool overlode )
+{
+    parent()->setOverload( this, overlode );
+    ove = overlode;
 }
 
 void FunctionNode::addParameter( const Parameter& parameter )
@@ -371,6 +441,27 @@ void FunctionNode::borrowParameterNames( const FunctionNode *source )
 	++s;
 	++t;
     }
+}
+
+void FunctionNode::setReimplementedFrom( FunctionNode *from )
+{
+    rf = from;
+    from->rb.append( this );
+}
+
+bool FunctionNode::isConstructor() const
+{
+    return parent()->name() == name();
+}
+
+bool FunctionNode::isDestructor() const
+{
+    return name().startsWith( "~" );
+}
+
+int FunctionNode::overloadNumber() const
+{
+    return parent()->overloadNumber( this );
 }
 
 PropertyNode::PropertyNode( InnerNode *parent, const QString& name )

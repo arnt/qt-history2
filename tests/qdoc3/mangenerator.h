@@ -13,6 +13,8 @@ public:
     ManGenerator();
     ~ManGenerator();
 
+    virtual QString formatString() const;
+
 protected:
     virtual QString fileBase( const Node *node );
     virtual QString fileExtension( const Node *node );

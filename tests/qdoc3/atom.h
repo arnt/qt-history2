@@ -10,21 +10,21 @@
 class Atom
 {
 public:
-    enum Type { AbstractBegin, AbstractEnd, Alias, BriefBegin, BriefEnd, C,
-		CaptionBegin,
-		CaptionEnd, CitationBegin, CitationEnd, Code, DocBegin,
-		DocEnd, FootnoteBegin,
+    enum Type { AbstractBegin, AbstractEnd, Alias, AliasArg, BriefBegin,
+		BriefEnd, C, CaptionBegin,
+		CaptionEnd, CitationBegin, CitationEnd, Code,
+		FootnoteBegin,
 		FootnoteEnd, FormatBegin, FormatEnd, GeneratedList,
-		Img, Index, Link, ListBegin, ListItemNumber,
-		ListItemBegin, ListItemEnd, ListEnd, ParagraphBegin,
+		Image, Index, Link, ListBegin, ListItemNumber,
+		ListItemBegin, ListItemEnd, ListEnd, Nop, ParagraphBegin,
 		ParagraphEnd, RawFormat, RawString, SectionBegin, SectionEnd,
 		SectionHeadingBegin, SectionHeadingEnd,
 		SidebarBegin, SidebarEnd,
 		String, TableBegin, TableEnd, TableOfContents,
-		Target, TitleBegin, TitleEnd };
+		Target, TitleBegin, TitleEnd, Last = TitleEnd };
 
-    Atom( Type type )
-	: nex( 0 ), typ( type ) { }
+    Atom( Type type, const QString& string = "" )
+	: nex( 0 ), typ( type ), str( string ) { }
     Atom( Atom *prev, Type type, const QString& string = "" )
 	: nex( 0 ), typ( type ), str( string ) { prev->nex = this; }
     ~Atom() { delete nex; }
@@ -35,12 +35,13 @@ public:
     Atom *next() { return nex; }
 
     const Atom *next() const { return nex; }
-    int type() const { return typ; }
+    Type type() const { return typ; }
+    QString typeString() const;
     const QString& string() const { return str; }
 
 private:
     Atom *nex;
-    int typ;
+    Type typ;
     QString str;
 };
 

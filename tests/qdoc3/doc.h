@@ -12,6 +12,7 @@
 
 class Atom;
 class DocPrivate;
+class Molecule;
 class StringSet;
 
 class Doc
@@ -31,8 +32,10 @@ public:
     const Location& location() const;
     bool isEmpty() const;
     const StringSet *metaCommands() const;
-    Atom *createAlsoAtomList() const;
-    const Atom *atomList() const;
+    const Molecule& molecule() const;
+
+    static Doc propertyFunctionDoc( const Doc& propertyDoc,
+				    const QString& role, const QString& param );
 
 private:
     DocPrivate *priv;

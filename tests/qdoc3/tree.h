@@ -42,6 +42,13 @@ public:
     const NamespaceNode *root() const { return &roo; }
 
 private:
+    void freezeBaseClasses();
+    void freezeInnerNode( InnerNode *node );
+    void freezePropertyFunction( const QString& role, PropertyNode *property,
+				 const QString& funcName );
+    FunctionNode *findReimplementedFrom( FunctionNode *func,
+					 ClassNode *classe );
+
     NamespaceNode roo;
     QMap<ClassNode *, QValueList<BaseClass> > bas;
 };

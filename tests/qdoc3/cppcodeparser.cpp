@@ -64,7 +64,7 @@ void CppCodeParser::convertTree( const Tree * /* tree */ )
 {
 }
 
-const FunctionNode *CppCodeParser::findFunctionNode( const QString& synopsys,
+const FunctionNode *CppCodeParser::findFunctionNode( const QString& synopsis,
 						     Tree *tree )
 {
     QStringList path;
@@ -72,7 +72,7 @@ const FunctionNode *CppCodeParser::findFunctionNode( const QString& synopsys,
     FunctionNode *func = 0;
 
     reinit( tree );
-    makeFunctionNode( synopsys, &path, &clone );
+    makeFunctionNode( synopsis, &path, &clone );
     if ( clone != 0 ) {
 	func = tree->findFunctionNode( path, clone );
 	delete clone;
@@ -95,17 +95,32 @@ Node *CppCodeParser::processTopicCommand( const QString& command,
 	FunctionNode *clone = 0;
 
 	makeFunctionNode( arg, &path, &clone );
+	if ( clone == 0 )
+	    makeFunctionNode( "void " + arg, &path, &clone );
+
 	if ( clone == 0 ) {
 	    warning( 1, doc.location(), "Invalid syntax in '\\fn'" );
 	} else {
 	    func = tree()->findFunctionNode( path, clone );
 	    if ( func == 0 ) {
-		warning( 1, doc.location(),
-			 "Cannot resolve '%s' specified with '\\%s'",
-			 (clone->name() + "()").latin1(), "fn" );
+		if ( path.isEmpty() && !lastPath.isEmpty() )
+		    func = tree()->findFunctionNode( lastPath, clone );
+		if ( func == 0 ) {
+		    warning( 1, doc.location(),
+			     "Cannot resolve '%s' in '\\%s'",
+			     (clone->name() + "()").latin1(), "fn" );
+		} else {
+		    warning( 1, doc.location(),
+			     "Missing '%s::' for '%s' in '\\fn'",
+			     lastPath.join("::").latin1(),
+			     (clone->name() + "()").latin1() );
+		}
 	    } else {
-		func->borrowParameterNames( clone );
+		lastPath = path;
 	    }
+
+	    if ( func != 0 )
+		func->borrowParameterNames( clone );
 	    delete clone;
 	}
 	return func;
@@ -118,12 +133,13 @@ Node *CppCodeParser::processTopicCommand( const QString& command,
 		     command.latin1() );
 	} else {
 	    QString name = args[0];
-	    node = tree()->findNode( QStringList::split("::", name),
-				     nodeTypeMap[command] );
+	    QStringList path = QStringList::split( "::", name );
+	    node = tree()->findNode( path, nodeTypeMap[command] );
 	    if ( node == 0 )
 		warning( 1, doc.location(),
 			 "Cannot resolve '%s' specified with '\\%s'",
 			 name.latin1(), command.latin1() );
+	    lastPath = path;
 	}
 	return node;
     } else {
@@ -148,34 +164,55 @@ Node *CppCodeParser::processTopicCommand( const QString& command,
 
 StringSet CppCodeParser::otherMetaCommands()
 {
-    return StringSet() << "headerfile" << "important" << "ingroup"
+    return StringSet() << "important" << "ingroup" << "inheaderfile"
 		       << "inmodule" << "internal" << "mainclass" << "obsolete"
-		       << "overload" << "preliminary" << "related";
+		       << "overload" << "preliminary" << "reimp" << "related";
 }
 
 void CppCodeParser::processOtherMetaCommand( const QString& command,
 					     const QString& arg, Node *node )
 {
-    if ( command == "headerfile" ) {
-	if ( node->isInnerNode() ) {
-	    ((InnerNode *) node)->addInclude( arg );
-	} else {
-	    warning( 1, node->doc().location(), "Ignored '\\headerfile'" );
-	}
-    } else if ( command == "important" ) {
+    if ( command == "important" ) {
 	/* ... */
     } else if ( command == "ingroup" ) {
 	/* ... */
+    } else if ( command == "inheaderfile" ) {
+	if ( node->isInnerNode() ) {
+	    ((InnerNode *) node)->addInclude( arg );
+	} else if ( node->parent()->parent() == 0 ) {
+	    /* global function ... */
+	} else {
+	    warning( 1, node->doc().location(), "Ignored '\\headerfile'" );
+	}
     } else {
 	if ( command == "deprecated" ) {
 	    node->setStatus( Node::Deprecated );
-	} else if ( command == "internal" ) {
-	    node->setAccess( Node::Private );
 	} else if ( command == "obsolete" ) {
 	    node->setStatus( Node::Obsolete );
 	} else if ( command == "overload" ) {
-	    ;
+	    if ( node->type() == Node::Function ) {
+		((FunctionNode *) node)->setOverload( TRUE );
+		FunctionNode *primary =
+			node->parent()->findFunctionNode( node->name() );
+		if ( primary->isOverload() ) {
+		    warning( 1, primary->doc().location(),
+			     "All versions of '%s' are '\\overload'",
+			     (primary->name() + "()").latin1() );
+		    primary->setOverload( FALSE );
+		}
+	    } else {
+		warning( 1, node->doc().location(), "Ignored '\\overload'" );
+	    }
+	} else if ( command == "private" ) {
+	    node->setAccess( Node::Private );
+	} else if ( command == "reimp" ) {
+	    if ( node->type() == Node::Function ) {
+		((FunctionNode *) node)->setReimplementation( TRUE );
+	    } else {
+		warning( 1, node->doc().location(), "Ignored '\\reimp'" );
+	    }
 	}
+
 	if ( !arg.isEmpty() )
 	    warning( 1, node->doc().location(),
 		     "Ignored garbage after '\\%1' command", command.latin1() );
@@ -189,6 +226,7 @@ void CppCodeParser::reinit( Tree *tree )
     tok = 0;
     access = Node::Public;
     metaness = FunctionNode::Plain;
+    lastPath.clear();
 }
 
 void CppCodeParser::readToken()
@@ -247,8 +285,6 @@ bool CppCodeParser::matchTemplateHeader()
 
 bool CppCodeParser::matchDataType( CodeChunk *dataType, QString *var = 0 )
 {
-    static QRegExp varComment( "/\\*\\s([a-zA-Z_0-9]+)\\s\\*/" );
-
     /*
       This code is really hard to follow... sorry. The loop is there to match
       Alpha::Beta::Gamma::...::Omega.
@@ -258,9 +294,9 @@ bool CppCodeParser::matchDataType( CodeChunk *dataType, QString *var = 0 )
 
 	if ( tok != Tok_Ident ) {
 	    /*
-	      There is special processing for 'Foo::operator int()' and such
-	      elsewhere. This is the only case where we return something with a
-	      trailing gulbrandsen ('Foo::').
+	      There is special processing for 'Foo::operator int()'
+	      and such elsewhere. This is the only case where we
+	      return something with a trailing gulbrandsen ('Foo::').
 	    */
 	    if ( tok == Tok_operator )
 		return TRUE;
@@ -333,8 +369,8 @@ bool CppCodeParser::matchDataType( CodeChunk *dataType, QString *var = 0 )
 	    dataType->append( previousLexeme() );
     } else {
 	/*
-	  The common case: Look for an optional identifier, then for some array
-	  brackets.
+	  The common case: Look for an optional identifier, then for
+	  some array brackets.
 	*/
 	dataType->appendHotspot();
 
@@ -342,13 +378,15 @@ bool CppCodeParser::matchDataType( CodeChunk *dataType, QString *var = 0 )
 	    if ( match(Tok_Ident) ) {
 		*var = previousLexeme();
 	    } else if ( match(Tok_Comment) ) {
+		QRegExp varComment( "/\\*\\s([a-zA-Z_0-9]+)\\s\\*/" );
+
 		/*
 		  A neat hack: Commented-out parameter names are
 		  recognized by qdoc. It's impossible to illustrate
-		  here inside a C comment, because it requires an
-		  asterslash. It's also impossible to illustrate
-		  inside a C++ comment, because the explanation does
-		  not fit on one line.
+		  here inside a C-style comment, because it requires
+		  an asterslash. It's also impossible to illustrate
+		  inside a C++-style comment, because the explanation
+		  does not fit on one line.
 		*/
 		if ( varComment.exactMatch(previousLexeme()) )
 		    *var = varComment.cap( 1 );
@@ -396,9 +434,7 @@ bool CppCodeParser::matchParameter( FunctionNode *func )
 bool CppCodeParser::matchFunctionDecl( InnerNode *parent, QStringList *pathPtr,
 				       FunctionNode **funcPtr )
 {
-    /*
-      ### qdoc3: improve this code
-    */
+    QRegExp sep( "(?:<[^>]+>)?::" );
     CodeChunk returnType;
     QStringList path;
     QString name;
@@ -411,57 +447,52 @@ bool CppCodeParser::matchFunctionDecl( InnerNode *parent, QStringList *pathPtr,
     if ( !matchDataType(&returnType) )
 	return FALSE;
 
-    bool gotFullName = FALSE;
-
-    /*
-      Here is the hack for 'Foo::operator int()'.
-    */
-#if notyet
     if ( tok == Tok_operator &&
-	 (returnType.isEmpty() ||
-	  returnType.toString().right(2) == "::") ) {
-	name = returnType.toString() + lexeme() + " ";
+	 (returnType.toString().isEmpty() ||
+	  returnType.toString().endsWith("::")) ) {
+	// 'QString::operator const char *()'
+	path = QStringList::split( sep, returnType.toString() );
 	returnType = CodeChunk();
 	readToken();
 
 	CodeChunk restOfName;
 	if ( !matchDataType(&restOfName) )
 	    return FALSE;
-	name += restOfName.toString();
-	gotFullName = TRUE;
-    }
-#endif
-
-    while ( match(Tok_Ident) ) {
-	name = previousLexeme();
-
-	matchTemplateAngles();
-
-	if ( match(Tok_Gulbrandsen) ) {
-	    path.append( name );
-	} else {
-	    gotFullName = TRUE;
-	    break;
+	name = "operator " + restOfName.toString();
+    } else if ( tok == Tok_LeftParen ) {
+	// constructor or destructor
+	path = QStringList::split( sep, returnType.toString() );
+	if ( !path.isEmpty() ) {
+	    name = path.last();
+	    path.remove( path.fromLast() );
 	}
-    }
-
-    if ( !gotFullName ) {
-	if ( match(Tok_operator) ) {
+	returnType = CodeChunk();
+    } else {
+	while ( match(Tok_Ident) ) {
 	    name = previousLexeme();
-	    do {
+	    matchTemplateAngles();
+
+	    if ( match(Tok_Gulbrandsen) ) {
+		path.append( name );
+	    } else {
+		break;
+	    }
+	}
+
+	if ( tok == Tok_operator ) {
+	    name = lexeme();
+	    readToken();
+	    while ( tok != Tok_Eoi ) {
 		name += lexeme();
 		readToken();
-	    } while ( tok != Tok_LeftParen && tok != Tok_Eoi );
-	} else if ( tok == Tok_LeftParen ) {
-	    name = returnType.toString();
-	    returnType = CodeChunk();
-	} else {
-	    return FALSE;
+		if ( tok == Tok_LeftParen )
+		    break;
+	    }
 	}
+	if ( tok != Tok_LeftParen )
+	    return FALSE;
     }
-
-    if ( !match(Tok_LeftParen) )
-	return FALSE;
+    readToken();
 
     FunctionNode *func = new FunctionNode( parent, name );
     func->setAccess( access );
@@ -668,7 +699,7 @@ bool CppCodeParser::matchProperty( InnerNode *parent )
     name = previousLexeme();
 
     PropertyNode *property = new PropertyNode( parent, name );
-    property->setAccess( access );
+    property->setAccess( Node::Public );
     property->setLocation( location() );
     property->setDataType( dataType.toString() );
 
@@ -779,14 +810,12 @@ bool CppCodeParser::matchDocsAndStuff()
 
     while ( tok != Tok_Eoi ) {
 	if ( tok == Tok_Doc ) {
-	    QString t = lexeme();
+	    QString text = lexeme();
 	    Location loc( location() );
 	    readToken();
 
-	    loc.advance( '/' );
-	    loc.advance( '*' );
-	    loc.advance( '!' );
-	    Doc doc( loc, t.mid(3, t.length() - 5), metaCommandsAvailable );
+	    removeAsters( loc, text );
+	    Doc doc( loc, text, metaCommandsAvailable );
 
 	    QString command;
 	    QStringList args;
@@ -813,8 +842,8 @@ bool CppCodeParser::matchDocsAndStuff()
 			warning( 1, doc.location(),
 				 "Cannot tie this documentation to anything" );
 		    } else {
-			func->setDoc( doc );
 			func->borrowParameterNames( clone );
+			nodes.append( func );
 		    }
 		    delete clone;		
 		}
@@ -880,7 +909,7 @@ bool CppCodeParser::matchDocsAndStuff()
     return TRUE;
 }
 
-void CppCodeParser::makeFunctionNode( const QString& synopsys,
+void CppCodeParser::makeFunctionNode( const QString& synopsis,
 				      QStringList *pathPtr,
 				      FunctionNode **funcPtr )
 {
@@ -888,12 +917,44 @@ void CppCodeParser::makeFunctionNode( const QString& synopsys,
     int outerTok = tok;
 
     Location loc;
-    StringTokenizer stringTokenizer( loc, synopsys.latin1(),
-				     synopsys.length() );
+    StringTokenizer stringTokenizer( loc, synopsis.latin1(),
+				     synopsis.length() );
     tokenizer = &stringTokenizer;
     readToken();
     matchFunctionDecl( 0, pathPtr, funcPtr );
 
     tokenizer = outerTokenizer;
     tok = outerTok;
+}
+
+void CppCodeParser::removeAsters( Location& location, QString& text )
+{
+    QString cleaned;
+    Location m = location;
+    bool metAsterColumn = TRUE;
+    int asterColumn = location.columnNum() + 1;
+    int i;
+
+    for ( i = 0; i < (int) text.length(); i++ ) {
+	if ( m.columnNum() == asterColumn ) {
+	    if ( text[i] != '*' )
+		break;
+	    cleaned += ' ';
+	    metAsterColumn = TRUE;
+	} else {
+	    if ( text[i] == '\n' ) {
+		if ( !metAsterColumn )
+		    break;
+		metAsterColumn = FALSE;
+	    }
+	    cleaned += text[i];
+	}
+	m.advance( text[i] );
+    }
+    if ( cleaned.length() == text.length() )
+	text = cleaned;
+
+    for ( int i = 0; i < 3; i++ )
+	location.advance( text[i] );
+    text = text.mid( 3, text.length() - 5 );
 }

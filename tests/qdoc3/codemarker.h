@@ -12,17 +12,18 @@ class Node;
 class CodeMarker
 {
 public:
-    enum SynopsysStyle { Overview, Detailed };
+    enum SynopsisStyle { Overview, Detailed };
 
     CodeMarker();
     virtual ~CodeMarker();
 
     virtual QString markedUpCode( const QString& code, const Node *relative,
 				  const QString& dirPath ) const = 0;
-    virtual QString markedUpSynopsys( const Node *node, const Node *relative,
-				      SynopsysStyle style ) const = 0;
+    virtual QString markedUpSynopsis( const Node *node, const Node *relative,
+				      SynopsisStyle style ) const = 0;
     virtual QString markedUpName( const Node *node ) const = 0;
-    virtual QString markedUpFullName( const Node *node ) const = 0;
+    virtual QString markedUpFullName( const Node *node,
+				      const Node *relative ) const = 0;
     virtual QString markedUpIncludes( const QStringList& includes ) const = 0;
     virtual const Node *resolveTarget( const QString& target,
 				       const Node *relative ) const = 0;

@@ -20,9 +20,9 @@ QString JsCodeMarker::markedUpCode( const QString& code,
     return protect( code );
 }
 
-QString JsCodeMarker::markedUpSynopsys( const Node * /* node */,
+QString JsCodeMarker::markedUpSynopsis( const Node * /* node */,
 					const Node * /* relative */,
-					SynopsysStyle /* style */ ) const
+					SynopsisStyle /* style */ ) const
 {
     return "";
 }
@@ -35,7 +35,8 @@ QString JsCodeMarker::markedUpName( const Node *node ) const
     return name;
 }
 
-QString JsCodeMarker::markedUpFullName( const Node *node ) const
+QString JsCodeMarker::markedUpFullName( const Node *node,
+					const Node * /* relative */ ) const
 {
     QString fullName;
     for ( ;; ) {

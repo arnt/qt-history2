@@ -19,9 +19,9 @@ QString PlainCodeMarker::markedUpCode( const QString& code,
     return protect( code );
 }
 
-QString PlainCodeMarker::markedUpSynopsys( const Node * /* node */,
+QString PlainCodeMarker::markedUpSynopsis( const Node * /* node */,
 					   const Node * /* relative */,
-					   SynopsysStyle /* style */ ) const
+					   SynopsisStyle /* style */ ) const
 {
     return "";
 }
@@ -31,7 +31,8 @@ QString PlainCodeMarker::markedUpName( const Node * /* node */ ) const
     return "";
 }
 
-QString PlainCodeMarker::markedUpFullName( const Node * /* node */ ) const
+QString PlainCodeMarker::markedUpFullName( const Node * /* node */,
+					   const Node * /* relative */ ) const
 {
     return "";
 }

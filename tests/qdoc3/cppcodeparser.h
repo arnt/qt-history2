@@ -23,7 +23,7 @@ public:
     virtual void parseHeaderFile( const QString& filePath, Tree *tree );
     virtual void parseSourceFile( const QString& filePath, Tree *tree );
     virtual void convertTree( const Tree *tree );
-    const FunctionNode *findFunctionNode( const QString& synopsys, Tree *tree );
+    const FunctionNode *findFunctionNode( const QString& synopsis, Tree *tree );
 
 protected:
     virtual StringSet topicCommands();
@@ -60,14 +60,16 @@ private:
 
     bool matchDocsAndStuff();
 
-    void makeFunctionNode( const QString& synopsys, QStringList *pathPtr,
+    void makeFunctionNode( const QString& synopsis, QStringList *pathPtr,
 			   FunctionNode **funcPtr );
+    void removeAsters( Location& location, QString& text );
 
     Tree *tre;
     Tokenizer *tokenizer;
     int tok;
     Node::Access access;
     FunctionNode::Metaness metaness;
+    QStringList lastPath;
     QMap<QString, Node::Type> nodeTypeMap;
 };
 

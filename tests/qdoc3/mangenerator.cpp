@@ -18,6 +18,11 @@ ManGenerator::~ManGenerator()
 {
 }
 
+QString ManGenerator::formatString() const
+{
+    return "man";
+}
+
 QString ManGenerator::fileBase( const Node *node )
 {
     if ( !node->isInnerNode() )
@@ -64,6 +69,12 @@ void ManGenerator::generateAtom( const Atom *atom, const Node * /* relative */,
 	break;
     case Atom::Alias:
 	break;
+    case Atom::AliasArg:
+	break;
+    case Atom::BriefBegin:
+	break;
+    case Atom::BriefEnd:
+	break;
     case Atom::C:
 	break;
     case Atom::CaptionBegin:
@@ -76,10 +87,6 @@ void ManGenerator::generateAtom( const Atom *atom, const Node * /* relative */,
 	break;
     case Atom::Code:
 	break;
-    case Atom::DocBegin:
-	break;
-    case Atom::DocEnd:
-	break;
     case Atom::FootnoteBegin:
 	break;
     case Atom::FootnoteEnd:
@@ -90,13 +97,15 @@ void ManGenerator::generateAtom( const Atom *atom, const Node * /* relative */,
 	break;
     case Atom::GeneratedList:
 	break;
-    case Atom::Img:
+    case Atom::Image:
 	break;
     case Atom::Index:
 	break;
     case Atom::Link:
 	break;
     case Atom::ListBegin:
+	break;
+    case Atom::ListItemNumber:
 	break;
     case Atom::ListItemBegin:
 	out() << ".IP " << atom->string() << ".\n";
@@ -105,15 +114,25 @@ void ManGenerator::generateAtom( const Atom *atom, const Node * /* relative */,
 	break;
     case Atom::ListEnd:
 	break;
+    case Atom::Nop:
+	break;
     case Atom::ParagraphBegin:
 	out() << ".PP\n";
 	break;
     case Atom::ParagraphEnd:
 	out() << "\n";
 	break;
+    case Atom::RawFormat:
+	break;
+    case Atom::RawString:
+	break;
     case Atom::SectionBegin:
 	break;
     case Atom::SectionEnd:
+	break;
+    case Atom::SectionHeadingBegin:
+	break;
+    case Atom::SectionHeadingEnd:
 	break;
     case Atom::SidebarBegin:
 	break;
@@ -129,6 +148,10 @@ void ManGenerator::generateAtom( const Atom *atom, const Node * /* relative */,
     case Atom::TableOfContents:
 	break;
     case Atom::Target:
+	break;
+    case Atom::TitleBegin:
+	break;
+    case Atom::TitleEnd:
 	;
     }
 }
