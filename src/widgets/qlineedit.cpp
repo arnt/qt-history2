@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#99 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#100 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -21,7 +21,7 @@
 
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#99 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlineedit.cpp#100 $");
 
 //### How to provide new member variables while keeping binary compatibility:
 #if QT_VERSION == 200
@@ -413,9 +413,8 @@ void QLineEdit::keyPressEvent( QKeyEvent *e )
 	    cursorLeft( e->state() & ShiftButton );
 	    break;
 	case Key_C:
-	    if ( hasMarkedText() ) {
+	    if ( hasMarkedText() )
 		copyText();
-	    }
 	    break;
 	case Key_D:
 	    del();
@@ -686,7 +685,8 @@ void QLineEdit::mouseMoveEvent( QMouseEvent *e )
 
 void QLineEdit::mouseReleaseEvent( QMouseEvent * )
 {
-    copyText();
+    if ( style() == MotifStyle )
+	copyText();
     if ( dragScrolling ) {
 	dragScrolling = FALSE;
 	killTimers();
@@ -1043,7 +1043,7 @@ void QLineEdit::newMark( int pos, bool copy )
 {
     markDrag  = pos;
     cursorPos = pos;
-    if ( copy )
+    if ( copy && style() == MotifStyle ) // ### ?
 	copyText();
 }
 
@@ -1075,7 +1075,8 @@ void QLineEdit::markWord( int pos )
     } else {
 	cursorPos = markBegin;
     }
-    copyText();
+    if ( style() == MotifStyle )
+	copyText();
 }
 
 
@@ -1087,14 +1088,10 @@ void QLineEdit::copyText()
 {
     QString t = markedText();
     if ( !t.isEmpty() ) {
-#if defined(_WS_X11_)
 	disconnect( QApplication::clipboard(), SIGNAL(dataChanged()), this, 0);
-#endif
 	QApplication::clipboard()->setText( t );
-#if defined(_WS_X11_)
 	connect( QApplication::clipboard(), SIGNAL(dataChanged()),
 		 this, SLOT(clipboardChanged()) );
-#endif
     }
 }
 
@@ -1135,7 +1132,7 @@ int QLineEdit::maxMark() const
 
 
 
-/*!  Sets the line edit to draw itself inside a two-pixel frame iff \a
+/*!  Sets the line edit to draw itself inside a two-pixel frame if \a
   enable is TRUE, and to draw itself without any frame if \a enable is
   FALSE.
 
