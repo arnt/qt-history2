@@ -9,12 +9,6 @@
 **
 *****************************************************************************/
 
-#define PropDesignable  0x00001000
-#define PropScriptable	0x00002000
-#define PropStored	0x00004000
-#define PropBindable	0x00008000
-#define PropRequesting	0x00010000
-
 #include <qmessagebox.h>
 //#include <qfiledialog.h>
 #include <qpixmap.h>
@@ -114,16 +108,16 @@ void ChangeProperties::setValue()
 	break;
     case QVariant::Pixmap:
 	{
-/*
 	    QString fileName = editValue->text();
+/*
 	    if ( fileName.isEmpty() )
 		fileName = QFileDialog::getOpenFileName( QString::null, QString::null, this );
+*/
 	    QPixmap pm( fileName );
 	    if ( pm.isNull() )
 		return;
 
 	    value = pm;
-*/
 	}
 	break;
     case QVariant::Bool:
