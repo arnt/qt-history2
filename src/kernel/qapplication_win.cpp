@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#213 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#214 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -112,6 +112,7 @@ static int	translateKeyCode( int );
 
 void		qt_init_windows_mime();		// qdnd_win.cpp
 
+QWidget*	qt_button_down	     = 0;	// the widget getting last button-down
 
 #if defined(_WS_WIN32_)
 #define __export
@@ -2120,6 +2121,12 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	// instead.
 	GetCursorPos( &gpos );
 	pos = mapFromGlobal( QPoint(gpos.x, gpos.y) );
+	
+	if ( type == QEvent::MouseButtonPress ) {	// mouse button pressed
+	    qt_button_down = findChildWidget( this, pos );	//magic for masked widgets
+	    if ( !qt_button_down )
+		qt_button_down = this;
+	}
     }
 
     if ( qApp->inPopupMode() ) {			// in popup mode
@@ -2179,10 +2186,22 @@ bool QETWidget::translateMouseEvent( const MSG &msg )
 	    if ( QWidget::mouseGrabber() == 0 )
 		releaseAutoCapture();
 	}
+	QWidget* widget = this;
+	if ( QWidget::mouseGrabber() == 0 && qt_button_down) {
+	    widget = qt_button_down;
+	    pos = mapToGlobal( pos );
+	    pos = widget->mapFromGlobal( pos );
+	}
 	QMouseEvent e( type, pos, QPoint(gpos.x,gpos.y), button, state );
-	QApplication::sendEvent( this, &e );	// send event
+	QApplication::sendEvent( widget, &e );	// send event
 	if ( type != QEvent::MouseMove )
 	    pos.rx() = pos.ry() = -9999;	// init for move compression
+	if ( type == QEvent::MouseButtonRelease && 
+	     (state & (~button) & ( LeftButton |
+				    MidButton |
+				    RightButton)) == 0 ) {
+	    qt_button_down = 0;
+	}
     }
     return TRUE;
 }
