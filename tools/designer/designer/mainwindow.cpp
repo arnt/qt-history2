@@ -384,10 +384,10 @@ void MainWindow::setupWorkspace()
     addToolBar( dw, Qt::DockLeft );
     dw->setWidget( vbox );
 
-    dw->setCaption( tr( "File Overview" ) );
-    QWhatsThis::add( wspace, tr("<b>The File Overview Window</b>"
-				"<p>The File Overview Window displays all the files in all "
-				"open projects, including forms and source files.</p>"
+    dw->setCaption( tr( "Project Overview" ) );
+    QWhatsThis::add( wspace, tr("<b>The Project Overview Window</b>"
+				"<p>The Project Overview Window displays all the current "
+				"project, including forms and source files.</p>"
 				"<p>Use the search field to rapidly switch between files.</p>"));
     dw->setFixedExtentHeight( 100 );
     dw->show();
