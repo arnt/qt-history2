@@ -2326,10 +2326,7 @@ extern void qt_x11_intern_atom(const char *, Atom *);
 
 void QWidget::updateFrameStrut()
 {
-    if (! fstrut_dirty || ! isVisible() || isDesktop())
-	return;
-
-    if (! isTopLevel()) {
+    if (! isTopLevel() || ! isVisible() || isDesktop()) {
 	fleft = fright = ftop = fbottom = 0;
 	return;
     }

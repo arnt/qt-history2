@@ -298,11 +298,17 @@ Atom		qt_kwin_running	= 0;
 Atom		qt_kwm_running	= 0;
 Atom		qt_gbackground_properties	= 0;
 Atom		qt_x_incr		= 0;
+// NET WM support
+Atom		qt_net_supported	= 0;
+Atom		qt_net_virtual_roots	= 0;
+Atom		qt_net_wm_state		= 0;
 Atom            qt_net_wm_window_type   = 0;
-Atom            qt_net_wm_window_type_normal = 0;
-Atom            qt_net_wm_window_type_dialog = 0;
-Atom            qt_net_wm_window_type_toolbar = 0;
-Atom            qt_net_wm_window_type_override = 0;
+Atom            qt_net_wm_window_type_normal	= 0;
+Atom            qt_net_wm_window_type_dialog	= 0;
+Atom            qt_net_wm_window_type_toolbar	= 0;
+Atom            qt_net_wm_window_type_override	= 0;
+Atom		qt_net_wm_frame_strut	= 0;	// KDE extension
+Atom		qt_net_wm_state_stays_on_top	= 0;	// KDE extension
 
 static Window	mouseActWindow	     = 0;	// window where mouse is
 static int	mouseButtonPressed   = 0;	// last mouse button pressed
@@ -1784,7 +1790,10 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 	qt_x11_intern_atom( "KWIN_RUNNING", &qt_kwin_running );
 	qt_x11_intern_atom( "KWM_RUNNING", &qt_kwm_running );
 	qt_x11_intern_atom( "GNOME_BACKGROUND_PROPERTIES", &qt_gbackground_properties );
-	qt_x11_intern_atom( "_NET_WM_WINDOW_TYPE", &qt_net_wm_window_type);
+	qt_x11_intern_atom( "_NET_SUPPORTED", &qt_net_supported );
+	qt_x11_intern_atom( "_NET_VIRTUAL_ROOTS", &qt_net_virtual_roots );
+	qt_x11_intern_atom( "_NET_WM_STATE", &qt_net_wm_state );
+     	qt_x11_intern_atom( "_NET_WM_WINDOW_TYPE", &qt_net_wm_window_type );
 	qt_x11_intern_atom( "_NET_WM_WINDOW_TYPE_NORMAL",
 			    &qt_net_wm_window_type_normal );
 	qt_x11_intern_atom( "_NET_WM_WINDOW_TYPE_DIALOG",
@@ -1793,6 +1802,9 @@ void qt_init_internal( int *argcptr, char **argv, Display *display )
 			    &qt_net_wm_window_type_toolbar );
 	qt_x11_intern_atom( "_NET_WM_WINDOW_TYPE_OVERRIDE",
 			    &qt_net_wm_window_type_override );
+	qt_x11_intern_atom( "_KDE_NET_WM_FRAME_STRUT", &qt_net_wm_frame_strut );
+	qt_x11_intern_atom( "_NET_WM_STATE_STAYS_ON_TOP",
+			    &qt_net_wm_state_stays_on_top );
 
 	qt_xdnd_setup();
 	qt_x11_motifdnd_init();
@@ -3258,8 +3270,32 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		else if ( event->xproperty.atom == qt_desktop_properties )
 		    qt_set_desktop_properties();
 	    }
-	} else if ( widget ) { // widget properties
-	    // nothing yet
+	} else if ( event->xproperty.window == widget->winId() ) { // widget properties
+	    if (event->xproperty.atom == qt_net_wm_frame_strut) {
+		Atom ret;
+		int format;
+		unsigned char *data = 0;
+		unsigned long nitems, after;
+		if (XGetWindowProperty(appDpy, event->xproperty.window,
+				       qt_net_wm_frame_strut, 0, 4, // struts are 4 longs
+				       FALSE, XA_CARDINAL, &ret, &format, &nitems,
+				       &after, &data) == Success &&
+		    ret == XA_CARDINAL && format == 32 && nitems == 4) {
+		    unsigned long *strut = (unsigned long *) data;
+		    widget->fleft   = strut[0];
+		    widget->fright  = strut[1];
+		    widget->ftop    = strut[2];
+		    widget->fbottom = strut[3];
+		    widget->fstrut_dirty = 0;
+		} else {
+		    // if failed, zero the strut and mark it dirty
+		    widget->fleft = widget->fright = widget->ftop = widget->fbottom = 0;
+		    widget->fstrut_dirty = 1;
+		}
+
+		if (data)
+		    XFree(data);
+	    }
 	}
 	return 0;
     }
