@@ -65,11 +65,6 @@
 #include <ctype.h>
 #include <stdlib.h>
 
-#if defined(QT_CUPS_SUPPORT)
-#include <cups/cups.h>
-#include <qlibrary.h>
-#endif
-
 enum { Success = 's', Unavail = 'u', NotFound = 'n', TryAgain = 't' };
 enum { Continue = 'c', Return = 'r' };
 
@@ -750,10 +745,13 @@ static void parseQconfig( QListView * printers )
 }
 
 
+#ifndef QT_NO_CUPS
+#include <cups/cups.h>
+#include <qlibrary.h>
+
 static char * parseCupsOutput( QListView * printers )
 {
     char * defaultPrinter = 0;
-#if defined(QT_CUPS_SUPPORT)
     int nd;
     cups_dest_t * d;
     QLibrary lib( "cups" );
@@ -773,11 +771,9 @@ static char * parseCupsOutput( QListView * printers )
 	    n++;
 	}
     }
-#else
-    Q_UNUSED( printers );
-#endif
     return defaultPrinter;
 }
+#endif
 
 
 static QPrintDialog * globalPrintDialog = 0;
@@ -1010,7 +1006,9 @@ QGroupBox * QPrintDialog::setupDestination()
 #if defined(Q_OS_UNIX)
     char * etcLpDefault = 0;
 
+#ifndef QT_NO_CUPS
     etcLpDefault = parseCupsOutput( d->printers );
+#endif
     if ( d->printers->childCount() == 0 ) {
 	// we only use other schemes when cups fails.
 

@@ -119,9 +119,7 @@ thread {
 	DEFINES += QT_THREAD_SUPPORT
 }
 
-cups {
-	DEFINES += QT_CUPS_SUPPORT
-}
+!cups:DEFINES += QT_NO_CUPS
 
 nis {
 	LIBS += -lnsl
