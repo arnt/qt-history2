@@ -18,6 +18,7 @@ BRANCH=auto
 OUT_TREE=`pwd`
 LOCAL_TREE=
 QDOC_PATH=$QTDIR/util/qdoc/qdoc
+QMAKE_PATH=$QTDIR/bin/qmake
 MANIFEST_FILE=${TMP_FILE}-manifest
 #editions
 DO_COMMERCIAL=yes
@@ -78,6 +79,7 @@ showhelp()
     echo "  -manifest <file>     : Specify path and filename of manifest file (will create)"
     echo "  -outdir <directory>  : Where to put all things (default $OUT_TREE)"
     echo "  -qdoc <executable>   : Where qdoc lives (default $QDOC_PATH)"
+    echo "  -qmake <executable>  : Where qmake lives (default $QMAKE_PATH)"
     echo
 
     echo "Editions:"
@@ -292,10 +294,12 @@ for fullname in $includefiles; do
 done
 
 #pregenerate moc files
-pushd $DISTDIR/qt/src/moc
-make moc_yacc.cpp
-rm Makefile
-popd
+status "Creating moc files.."
+pushd $DISTDIR/qt/src/moc >/dev/null 2>&1
+$QMAKE_PATH -spec $QTDIR/mkspecs/linux-g++ moc.pro -o Makefile
+make moc_yacc.cpp >/dev/null 2>&1
+rm -f Makefile
+popd >/dev/null 2>&1
 
 #cleanup documentation directories
 mkdir -p "$DISTDIR/qt/doc"
@@ -310,7 +314,7 @@ mv "$DISTDIR/qt/src/moc/moc.1" "$DISTDIR/qt/doc/man/man1"
 mv "$DISTDIR/qt/tools/designer/uic/uic.1" "$DISTDIR/qt/doc/man/man1"
 cp $DISTDIR/qt/tools/designer/manual/*.html $DISTDIR/qt/doc/html/designer
 cp -f $DISTDIR/qt/tools/designer/manual/images/*.png $DISTDIR/qt/doc/html/designer/images
-cp -f $DISTDIR/qt/tools/designer/manual/images/*.gif $DISTDIR/qt/doc/html/designer/images
+cp -f $DISTDIR/qt/tools/designer/manual/images/*.gif $DISTDIR/qt/doc/html/designer/images 2>/dev/null
 rm -rf $DISTDIR/qt/tools/designer/manual
 rm -rf $DISTDIR/qt/tools/designer/doc
 # clean designer
