@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#473 $
+** $Id: //depot/qt/main/src/kernel/qapplication_x11.cpp#474 $
 **
 ** Implementation of X11 startup routines and event handling
 **
@@ -2011,11 +2011,27 @@ int QApplication::x11ProcessEvent( XEvent* event )
     }
 
     if ( event->type == PropertyNotify ) {	// some properties changed
-	if ( event->xproperty.window == appRootWin ) {
+	if ( event->xproperty.window == appRootWin ) { // root properties
 	    if ( event->xproperty.atom == qt_resource_manager && obey_desktop_settings )
 		qt_set_x11_resources();
 	    else if ( event->xproperty.atom == qt_desktop_properties )
 		qt_set_desktop_properties();
+	} else if ( widget ) { // widget properties
+	    if ( event->xproperty.atom == qt_embedded_window ) {
+		Atom type;
+		int format;
+		unsigned long length, after;
+		unsigned char *data;
+		if ( XGetWindowProperty( appDpy, widget->winId(), qt_embedded_window, 0, 1,
+					 TRUE, qt_embedded_window, &type, &format,
+					 &length, &after, &data ) == Success ) {
+		    if (data ) {
+			widget->createTLExtra();
+			widget->extra->topextra->embedded = data[0]?1:0;
+			XFree( data );
+		    }
+		}
+	    }
 	}
 	return 0;
     }
@@ -2245,29 +2261,6 @@ int QApplication::x11ProcessEvent( XEvent* event )
 		
 		// store the parent. Useful for many things, embedding for instance.
 		widget->extra->topextra->parentWinId = parent;
-		
-		{
-		    // check whether the widget was embedded rather than managed.
-		
-		    //#### get rid of XGetWindowProperty (round trip!), observe propertynotify instead.
-		    Atom type;
-		    int format;
-		    unsigned long length, after;
-		    unsigned char *data;
-		    // ### another round trip, very selcom necessary
-		    if ( XGetWindowProperty( appDpy, widget->winId(), qt_embedded_window, 0, 1,
-					     TRUE, qt_embedded_window, &type, &format,
-					     &length, &after, &data ) == Success ) {
-			if (data && data[0] ) {
-			    // extra/topextra was created above
-			    widget->extra->topextra->embedded = 1;
-			    widget->show();
-			}
-			if (data)
-			    XFree( data );
-		    }
-		}
-
 	    }
 	break;
 
