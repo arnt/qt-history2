@@ -24,6 +24,7 @@ contains( QT_PRODUCT, qt-(enterprise|internal) ) {
 		  qaxfactory.cpp \
 		  qaxservermain.cpp \
 		  qaxserverdll.cpp \
+		  qaxmain.cpp \
 		  ../shared/types.cpp
 }
 
