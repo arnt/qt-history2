@@ -40,7 +40,8 @@ public:
     Role	role(int child) const;
     int		state(int child) const;
 
-    int		defaultAction(int child) const;
+    int		numActions(int child) const;
+    QString	actionText(int action, Text t, int child) const;
     bool	doAction(int action, int child);
 
 protected:
@@ -53,7 +54,6 @@ protected:
     void	setDescription(const QString &desc);
     void	setHelp(const QString &help);
     void	setAccelerator(const QString &accel);
-    void	setDefaultAction(int defAction, const QString &name);
 
 private:
     QAccessibleWidgetPrivate *d;

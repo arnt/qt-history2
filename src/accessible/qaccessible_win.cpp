@@ -91,9 +91,9 @@ void QAccessible::updateAccessibility( QObject *o, int who, Event reason )
 
     if ( !!soundName ) {
 	QT_WA( {
-	    PlaySoundW( (TCHAR*)soundName.ucs2(), NULL, SND_ALIAS | SND_ASYNC | SND_NODEFAULT | SND_NOWAIT );
+	    PlaySoundW( (TCHAR*)soundName.ucs2(), 0, SND_ALIAS | SND_ASYNC | SND_NODEFAULT | SND_NOWAIT );
 	} , {
-	    PlaySoundA( soundName.local8Bit(), NULL, SND_ALIAS | SND_ASYNC | SND_NODEFAULT | SND_NOWAIT  );
+	    PlaySoundA( soundName.local8Bit(), 0, SND_ALIAS | SND_ASYNC | SND_NODEFAULT | SND_NOWAIT  );
 	} );
     }
 
@@ -206,8 +206,8 @@ ULONG STDMETHODCALLTYPE QWindowsEnumerate::Release()
 
 HRESULT STDMETHODCALLTYPE QWindowsEnumerate::Clone( IEnumVARIANT **ppEnum )
 {
-    QWindowsEnumerate *penum = NULL;
-    *ppEnum = NULL;
+    QWindowsEnumerate *penum = 0;
+    *ppEnum = 0;
 
     penum = new QWindowsEnumerate( array );
     if ( !penum )
@@ -222,7 +222,7 @@ HRESULT STDMETHODCALLTYPE QWindowsEnumerate::Clone( IEnumVARIANT **ppEnum )
 
 HRESULT STDMETHODCALLTYPE QWindowsEnumerate::Next( unsigned long  celt, VARIANT FAR*  rgVar, unsigned long FAR*  pCeltFetched )
 {
-    if ( pCeltFetched != NULL )
+    if (pCeltFetched)
 	*pCeltFetched = 0;
 
     ULONG l;
@@ -318,7 +318,7 @@ static inline BSTR QStringToBSTR( const QString &str )
 {
     BSTR bstrVal;
 
-    int wlen = str.length();
+    int wlen = str.length()+1;
     bstrVal = SysAllocStringByteLen( 0, wlen*2 );
     memcpy( bstrVal, str.unicode(), sizeof(QChar)*(wlen) );
     bstrVal[wlen] = 0;
@@ -386,7 +386,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::GetTypeInfoCount( unsigned int * p
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::GetTypeInfo( unsigned int, unsigned long, ITypeInfo **pptinfo )
 {
     // We don't use a type library
-    *pptinfo = NULL;
+    *pptinfo = 0;
     return S_OK;
 }
 
@@ -456,7 +456,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::Invoke( long dispIdMember, const _
     {
 	case DISPID_ACC_PARENT:
 	    if ( wFlags == DISPATCH_PROPERTYGET ) {
-		if ( pVarResult == NULL )
+		if (!pVarResult)
 		    return E_INVALIDARG;
 		hr = get_accParent( &pVarResult->pdispVal );
 	    } else {
@@ -466,7 +466,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::Invoke( long dispIdMember, const _
 
 	case DISPID_ACC_CHILDCOUNT:
 	    if ( wFlags == DISPATCH_PROPERTYGET ) {
-		if ( pVarResult == NULL )
+		if (!pVarResult)
 		    return E_INVALIDARG;
 		hr = get_accChildCount( &pVarResult->lVal );
 	    } else {
@@ -760,7 +760,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accChild( VARIANT varChildID, 
 	return S_OK;
     }
 
-    *ppdispChild = NULL;
+    *ppdispChild = 0;
     return S_FALSE;
 }
 
@@ -789,7 +789,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accParent( IDispatch** ppdispP
 	    return S_OK;
     }
 
-    *ppdispParent = NULL;
+    *ppdispParent = 0;
     return S_FALSE;
 }
 
@@ -801,11 +801,11 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::accDoDefaultAction( VARIANT varID 
     if ( !accessible->isValid() )
 	return E_FAIL;
 
-    int defAction = accessible->defaultAction(varID.lVal);
-    if (accessible->doAction(defAction, varID.lVal))
-	return S_OK;
+    int actions = accessible->numActions(varID.lVal);
+    if (!actions)
+	return DISP_E_MEMBERNOTFOUND;
 
-    return DISP_E_MEMBERNOTFOUND;
+    return accessible->doAction(0, varID.lVal) ? S_OK : S_FALSE;
 }
 
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accDefaultAction( VARIANT varID, BSTR* pszDefaultAction )
@@ -813,15 +813,14 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accDefaultAction( VARIANT varI
     if ( !accessible->isValid() )
 	return E_FAIL;
 
-    int defAction = accessible->defaultAction(varID.lVal);
-    QString def = accessible->actionText( defAction, Name, varID.lVal );
-    if ( !!def ) {
-	*pszDefaultAction = QStringToBSTR( def );
-	return S_OK;
+    int actions = accessible->numActions(varID.lVal);
+    if (!actions) {
+	*pszDefaultAction = 0;
+	return S_FALSE;
     }
-
-    *pszDefaultAction = NULL;
-    return S_FALSE;
+    QString def = accessible->actionText(0, Name, varID.lVal);
+    *pszDefaultAction = QStringToBSTR( def );
+    return S_OK;
 }
 
 HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accDescription( VARIANT varID, BSTR* pszDescription )
@@ -835,7 +834,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accDescription( VARIANT varID,
 	return S_OK;
     }
 
-    *pszDescription = NULL;
+    *pszDescription = 0;
     return S_FALSE;
 }
 
@@ -850,7 +849,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accHelp( VARIANT varID, BSTR *
 	return S_OK;
     }
 
-    *pszHelp = NULL;
+    *pszHelp = 0;
     return S_FALSE;
 }
 
@@ -870,7 +869,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accKeyboardShortcut( VARIANT v
 	return S_OK;
     }
 
-    *pszKeyboardShortcut = NULL;
+    *pszKeyboardShortcut = 0;
     return S_FALSE;
 }
 
@@ -885,7 +884,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accName( VARIANT varID, BSTR* 
 	return S_OK;
     }
 
-    *pszName = NULL;
+    *pszName = 0;
     return S_FALSE;
 }
 
@@ -930,7 +929,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accValue( VARIANT varID, BSTR*
 	return S_OK;
     }
 
-    *pszValue = NULL;
+    *pszValue = 0;
     return S_FALSE;
 }
 
@@ -944,7 +943,8 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::accSelect( long flagsSelect, VARIA
     if ( !accessible->isValid() )
 	return E_FAIL;
 
-    bool res = FALSE;
+    bool res = false;
+/*
     if ( flagsSelect & SELFLAG_TAKEFOCUS )
 	res = accessible->doAction(SetFocus, varID.lVal);
     if ( flagsSelect & SELFLAG_TAKESELECTION ) {
@@ -957,7 +957,7 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::accSelect( long flagsSelect, VARIA
 	res = accessible->setSelected( varID.lVal, TRUE, FALSE );
     if ( flagsSelect & SELFLAG_REMOVESELECTION )
 	res = accessible->setSelected( varID.lVal, FALSE, FALSE );
-
+*/
     return res ? S_OK : S_FALSE;
 }
 
@@ -1001,7 +1001,24 @@ HRESULT STDMETHODCALLTYPE QWindowsAccessible::get_accSelection( VARIANT *pvarChi
     if ( !accessible->isValid() )
 	return E_FAIL;
 
-    QVector<int> sel = accessible->selection();
+    int cc = accessible->childCount();
+    QVector<int> sel(cc);
+    int selIndex = 0;
+    for (int i = 1; i <= cc; ++i) {
+	QAccessibleInterface *child = 0;
+	int i2 = accessible->navigate(Child, i, &child);
+	bool isSelected = false;
+	if (child) {
+	    isSelected = child->state(0) & Selected;
+	    child->release();
+	    child = 0;
+	} else {
+	    isSelected = accessible->state(i2) & Selected;
+	}
+	if (isSelected)
+	    sel[selIndex++] = i;
+    }
+    sel.resize(selIndex);
     if ( sel.isEmpty() ) {
 	(*pvarChildren).vt = VT_EMPTY;
 	return S_FALSE;

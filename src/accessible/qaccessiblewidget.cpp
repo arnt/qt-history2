@@ -33,7 +33,7 @@ QString buddyString(const QWidget *widget)
     const QWidget *parent = widget->parentWidget();
     if (!parent)
 	return QString();
-    QObjectList ol = parent->queryList("QLabel", 0, FALSE, FALSE);
+    QObjectList ol = parent->queryList("QLabel", 0, false, false);
     for (int i = 0; i < ol.size(); ++i) {
 	QLabel *label = static_cast<QLabel*>(ol.at(i));
 	if (label->buddy() == widget)
@@ -91,7 +91,7 @@ class QAccessibleWidgetPrivate : public QAccessible
 {
 public:
     QAccessibleWidgetPrivate()
-	:role(Client), defAction(0)
+	:role(Client)
     {}
 
     Role role;
@@ -99,7 +99,6 @@ public:
     QString description;
     QString value;
     QString help;
-    int	    defAction;
     QString accelerator;
     QStringList primarySignals;
     const QAccessibleInterface *asking;
@@ -165,7 +164,7 @@ int QAccessibleWidget::childAt(int x, int y) const
     if (!QRect(gp.x(), gp.y(), w->width(), w->height()).contains(x, y))
 	return -1;
 
-    QObjectList list = w->queryList("QWidget", 0, FALSE, FALSE);
+    QObjectList list = w->queryList("QWidget", 0, false, false);
     int ccount = childCount();
 
     // a complex child
@@ -189,7 +188,7 @@ int QAccessibleWidget::childAt(int x, int y) const
 }
 
 /*! \reimp */
-QRect	QAccessibleWidget::rect(int child) const
+QRect QAccessibleWidget::rect(int child) const
 {
     if (child)
 	qWarning("QAccessibleWidget::rect: This implementation does not support subelements! (ID %d unknown for %s)", child, widget()->className());
@@ -214,16 +213,16 @@ bool ConnectionObject::isSender(const QObject *receiver, const char *signal) con
 {
     int sigindex = metaObject()->indexOfSignal(signal);
     if (sigindex < 0)
-	return FALSE;
+	return false;
 
     int i = 0;
     QObjectPrivate::Connections::Connection *connections = d_ptr->findConnection(sigindex, i);
     if (connections) do {
 	if (connections->receiver == receiver)
-	    return TRUE;
+	    return true;
 	connections = d_ptr->findConnection(sigindex, i);
     } while (connections);
-    return FALSE;
+    return false;
 }
 
 QList<QObject*> ConnectionObject::receiverList(const char *signal) const
@@ -317,21 +316,6 @@ void QAccessibleWidget::setHelp(const QString &help)
 void QAccessibleWidget::setAccelerator(const QString &accel)
 {
     d->accelerator = accel;
-}
-
-/*!
-    Sets the default action of this interface implementation to \a defAction,
-    and the name of that action to \a name.
-
-    The default implementation of defaultAction() return the set
-    default action, and the default implementation of actionText() returns the
-    set name for the Name text of the default action.
-
-    Note that the object wrapped by this interface is not modified.
-*/
-void QAccessibleWidget::setDefaultAction(int defAction, const QString &name)
-{
-    d->defAction = defAction;
 }
 
 /*! \reimp */
@@ -431,7 +415,7 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
     *target = 0;
     QObject *targetObject = 0;
 
-    QObjectList childList = widget()->queryList("QWidget", 0, FALSE, FALSE);
+    QObjectList childList = widget()->queryList("QWidget", 0, false, false);
     bool complexWidget = childList.size() < childCount();
 
     switch (relation) {
@@ -736,14 +720,14 @@ int QAccessibleWidget::navigate(Relation relation, int entry, QAccessibleInterfa
 /*! \reimp */
 int QAccessibleWidget::childCount() const
 {
-    QObjectList cl = widget()->queryList("QWidget", 0, FALSE, FALSE);
+    QObjectList cl = widget()->queryList("QWidget", 0, false, false);
     return cl.size();
 }
 
 /*! \reimp */
 int QAccessibleWidget::indexOfChild(const QAccessibleInterface *child) const
 {
-    QObjectList cl = widget()->queryList("QWidget", 0, FALSE, FALSE);
+    QObjectList cl = widget()->queryList("QWidget", 0, false, false);
     int index = cl.indexOf(child->object());
     if (index != -1)
 	++index;
@@ -792,25 +776,40 @@ QString QAccessibleWidget::text(Text t, int child) const
 }
 
 /*! \reimp */
+int QAccessibleWidget::numActions(int child) const
+{
+    if (child)
+	return 0;
+
+    return (widget()->focusPolicy() != QWidget::NoFocus || widget()->isTopLevel()) ? 1 : 0;
+}
+
+/*! \reimp */
+QString QAccessibleWidget::actionText(int action, Text t, int child) const
+{
+    if (child || action)
+	return QString();
+    switch (t) {
+    case Name:
+	return "Set Focus";
+    case Description:
+	return "Passes focus to this widget.";
+    }
+    return QString();
+}
+
+/*! \reimp */
 bool QAccessibleWidget::doAction(int action, int child)
 {
-    if (action != SetFocus || child)
-	return FALSE;
+    if (action != 0 || child || !widget()->isEnabled())
+	return false;
     if (widget()->focusPolicy() != QWidget::NoFocus)
 	widget()->setFocus();
     else if (widget()->isTopLevel())
 	widget()->setActiveWindow();
     else
-	return FALSE;
-    return TRUE;
-}
-
-/*! \reimp */
-int QAccessibleWidget::defaultAction(int child) const
-{
-    if (!child && (widget()->focusPolicy() != QWidget::NoFocus || widget()->isTopLevel()))
-	return SetFocus;
-    return QAccessibleObject::defaultAction(child);
+	return false;
+    return true;
 }
 
 /*! \reimp */

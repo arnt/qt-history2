@@ -276,25 +276,7 @@
     \value Value	    The value of the object
     \value Help		    A longer text giving information about how to use the object
     \value Accelerator	    The keyboard shortcut that executes the default action
-*/
-
-/*!
-    \enum QAccessible::Action
-
-    This enum specifies predefined actions that an accessible object
-    can execute.
-
-    \value NoAction	    Do nothing. Usually used as a return value of defaultAction()
-			    to indicate that the object cannot perform any action.
-    \value Press	    Press
-    \value SetFocus	    Take the focus
-    \value Increase	    Increase the value
-    \value Decrease	    Decrease the value
-    \value Accept	    Accept changes
-    \value Select	    Set selection
-    \value Cancel	    Discard changes
-
-    Accessible objects can defines custom actions in addition.
+    \value UserText	    The first value to be used for user defined text.
 */
 
 /*!
@@ -646,8 +628,9 @@ bool QAccessible::isActive()
 
     \section2 Relations and Navigation
 
-    The functions childCount(), indexOfChild() and childAt() return the number
-    of children of an accessible object, and provide the index of a child object.
+    The functions childCount() and indexOfChild() return the number
+    of children of an accessible object and the index a child object has in its
+    parent. The childAt() function returns the index of a child at a given position.
     
     The relationTo() function provides information about how two different objects
     relate to each other, and navigate() allows traversing from one object to another
@@ -664,34 +647,32 @@ bool QAccessible::isActive()
     can describe both how the object differs from a "normal" state (ie. it might be 
     unavailable), but also how it behaves, e.g. it might be selectable.
 
-    The text() property provides textual information about a given object. An object usually
+    The text() property provides textual information about the object. An object usually
     has a name, but can provide extended information like description, help texts or 
     information about keyboard accelerators is assigned to it. Some objects allow changing 
-    the text()  property through the setText() function, but usually this information is 
-    read-only.
+    the text() property through the setText() function, but this information is in most
+    cases read-only.
+
+    The rect() property provides information about the geometry of an accessible object.
+    This information is usually only available for visual objects.
 
     \section2 Actions and Selection
 
-    To allow the user interacting with an accessible object the object has to expose
-    information about the actions that it can perform. An object that can perform actions
-    usually has a defaultAction() that can be an action predefined in the 
-    QAccessible::Actions enumeration, or a custom action. actionCount() returns the number
-    of custom actions supported by an accessible object, and actionText() returns textual
-    information about all actions (custom and predefined) an object can perform. doAction()
-    finally invokes an action.
+    To enable the user to interac with an accessible object the object has to expose
+    information about the actions that it can perform. numActions() returns the number
+    of actions supported by an accessible object, and actionText() returns textual
+    information about those actions. doAction() finally invokes an action.
 
-    Accessible objects that support selection for their child objects can change their 
-    selection using setSelected() and clearSelection(), and provide information about
-    the currently selected children with selection().
+    Objects that support selections can define actions to change the selection.
 
     \section2 Objects and children
 
     A QAccessibleInterface provides information about the accessible object, and
     can also provide information for the children of that object if those children
     don't provide a QAccessibleInterface implementation themselves. This is
-    practical if the object has many children (ie. items in a listview), or if the
-    children are an integral part of the object itself (ie. the different sections
-    in a scrollbar).
+    practical if the object has many similar children (ie. items in a listview), or
+    if the children are an integral part of the object itself (ie. the different
+    sections in a scrollbar).
 
     If an accessible object provides information about it's children through one
     QAccessibleInterface the children are referenced through indices. The index is
@@ -946,40 +927,7 @@ bool QAccessible::isActive()
 */
 
 /*!
-    \fn QVector<int> QAccessibleInterface::selection() const
-
-    Returns a vector holding the indices of all selected children.
-
-    Not all objects support selections.
-
-    \sa text(), role(), state()
-*/
-
-/*!
-    \fn bool QAccessibleInterface::setSelected( int child, bool on, bool extend )
-
-    Sets the selection of the child specified with \a child to \a
-    on. If \a extend is TRUE, all children between the focused child and
-    the specified child object have their selection set to \a on.
-
-    Returns TRUE if the selection could be set; otherwise returns
-    FALSE.
-
-    Not all objects support selections.
-
-    \sa selection(), clearSelection()
-*/
-
-/*!
-    \fn void QAccessibleInterface::clearSelection()
-
-    Removes any selection from the object.
-
-    \sa setSelected()
-*/
-
-/*!
-    \fn int QAccessibleInterface::actionCount(int child) const
+    \fn int QAccessibleInterface::numActions(int child) const
 
     Returns the number of custom actions of the object or
     the object's child if \a child is not 0.
@@ -987,18 +935,7 @@ bool QAccessible::isActive()
     The \c Action type enumerates predefined actions - those
     are not included in the returned value.
 
-    \sa defaultAction(), actionText()
-*/
-
-/*!
-    \fn int QAccessibleInterface::defaultAction(int child) const
-
-    Returns the ID of the default action of the object or the
-    object's child if \a child is not 0.
-
-    The returned value can be a predefined or a custom action.
-
-    \sa actionCount(), actionText()
+    \sa actionText(), doAction()
 */
 
 /*!
@@ -1007,7 +944,7 @@ bool QAccessible::isActive()
     Returns the text property \a t of the action \a action supported by
     the object or the object's child if \a child is not 0.
 
-    \sa text(), actionCount()
+    \sa text(), numActions()
 */
 
 /*!
@@ -1018,7 +955,7 @@ bool QAccessible::isActive()
 
     \a action can be a predefined or a custom action.
 
-    \sa defaultAction(), actionCount(), actionText()
+    \sa numActions(), actionText()
 */
 
 #endif

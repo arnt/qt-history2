@@ -39,22 +39,6 @@ public:
     QRect	rect(int child) const;
     void	setText(Text t, int child, const QString &text);
 
-    int		propertyCount(int child) const;
-    QString	propertyText(int property, Text t, int child) const;
-    QString	property(int property, int child) const;
-    void	setProperty(int property, const QString& value, int child);
-
-    // selections
-    bool	setSelected(int child, bool on, bool extend);
-    void	clearSelection();
-    QVector<int> selection() const;
-
-    // actions
-    int		actionCount(int child) const;
-    int		defaultAction(int child) const;
-    bool	doAction(int action, int child);
-    QString	actionText(int action, Text t, int child) const;
-
 protected:
     virtual ~QAccessibleObject();
 
@@ -82,7 +66,7 @@ public:
     int		state(int child) const;
 
     // actions
-    int		defaultAction(int child) const;
+    int		numActions(int child) const;
     bool	doAction(int action, int child);
     QString	actionText(int action, Text t, int child) const;
 };

@@ -181,18 +181,8 @@ public:
 	Description,
 	Value,
 	Help,
-	Accelerator
-    };
-
-    enum Action {
-	NoAction    	= 0,
-	Press		= -101,
-	SetFocus	= -102,
-	Increase	= -103,
-	Decrease	= -104,
-	Accept		= -105,
-	Select		= -106,
-	Cancel		= -107
+	Accelerator,
+	UserText	= 0x0000ffff
     };
 
     enum Relation {
@@ -269,22 +259,10 @@ struct Q_GUI_EXPORT QAccessibleInterface : public QAccessible, public QUnknownIn
     virtual Role	role(int child) const = 0;
     virtual int		state(int child) const = 0;
 
-    // more properties
-    virtual int		propertyCount(int child) const = 0;
-    virtual QString	propertyText(int property, Text t, int child) const = 0;
-    virtual QString	property(int property, int child) const = 0;
-    virtual void	setProperty(int property, const QString& value, int child) = 0;
-
     // action
-    virtual int		actionCount(int child) const = 0;
-    virtual int		defaultAction(int child) const = 0;
+    virtual int		numActions(int child) const = 0;
     virtual QString	actionText(int action, Text t, int child) const = 0;
     virtual bool	doAction(int action, int child) = 0;
-
-    // selection
-    virtual bool	setSelected(int child, bool on, bool extend) = 0;
-    virtual QVector<int> selection() const = 0;
-    virtual void	clearSelection() = 0;
 };
 
 // {49F4C6A7-412F-41DE-9E24-648843421FD3} 

@@ -108,115 +108,8 @@ QRect QAccessibleObject::rect( int ) const
 }
 
 /*! \reimp */
-bool QAccessibleObject::setSelected( int, bool, bool )
-{
-    return FALSE;
-}
-
-/*! \reimp */
-void QAccessibleObject::clearSelection()
-{
-}
-
-/*! \reimp */
-QVector<int> QAccessibleObject::selection() const
-{
-    return QVector<int>();
-}
-
-/*! \reimp */
 void QAccessibleObject::setText( Text t, int, const QString &text )
 {
-}
-
-/*!
-    \reimp
-*/
-int QAccessibleObject::propertyCount(int) const
-{
-    return 0;
-}
-
-/*!
-    \reimp
-*/
-QString QAccessibleObject::propertyText(int, Text, int) const
-{
-    return QString();
-}
-
-/*!
-    \reimp
-*/
-QString QAccessibleObject::property(int, int) const
-{
-    return QString();
-}
-
-/*!
-    \reimp
-*/
-void QAccessibleObject::setProperty(int, const QString&, int)
-{
-}
-
-/*!
-    \reimp
-*/
-int QAccessibleObject::actionCount(int) const
-{
-    return 0;
-}
-
-/*!
-    \reimp
-*/
-int QAccessibleObject::defaultAction(int) const
-{
-    return NoAction;
-}
-
-/*!
-    \reimp
-*/
-QString QAccessibleObject::actionText(int action, Text t, int) const
-{
-    // #### these strings need to be i18n'ed
-    QString str;
-    if (t == Name) switch (action) {
-    case Press:
-	str = "Press";
-	break;
-    case SetFocus:
-	str = "Set Focus";
-	break;
-    case Increase:
-	str = "Increase";
-	break;
-    case Decrease:
-	str = "Decrease";
-	break;
-    case Accept:
-	str = "Accept";
-	break;
-    case Select:
-	str = "Select";
-	break;
-    case Cancel:
-	str = "Cancel";
-	break;
-    default:
-	break;
-    }
-    return str;
-}
-
-/*!
-    \reimp
-*/
-bool QAccessibleObject::doAction(int, int)
-{
-    return FALSE;
 }
 
 /*!
@@ -365,31 +258,31 @@ int QAccessibleApplication::state( int ) const
 }
 
 /*! \reimp */
-int QAccessibleApplication::defaultAction(int control) const
+int QAccessibleApplication::numActions(int control) const
 {
-    return SetFocus;
+    return 1;
 }
 
 /*! \reimp */
 bool QAccessibleApplication::doAction(int action, int child)
 {
-    if (action == SetFocus) {
+    if (action == 0) {
         QWidget *w = qApp->mainWidget();
 	if (!w)
 	    w = topLevelWidgets().at(0);
 	if (!w)
-	    return FALSE;
+	    return false;
 	w->setActiveWindow();
-	return TRUE;
+	return true;
     }
-    return FALSE;
+    return false;
 }
 
 /*! \reimp */
 QString QAccessibleApplication::actionText(int action, Text text, int child) const
 {
     QString str;
-    if (action == defaultAction(child) && !child) switch (text) {
+    if (action == 0 && !child) switch (text) {
     case Name:
 	str = QApplication::tr("Activate");
 	break;
