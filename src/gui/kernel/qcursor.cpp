@@ -74,7 +74,7 @@
     \row \i Qt::UpArrowCursor           \i up_arrow
     \row \i Qt::CrossCursor             \i cross
     \row \i Qt::WaitCursor              \i wait
-    \row \i Qt::BusyCursor                \i left_ptr_watch
+    \row \i Qt::BusyCursor              \i left_ptr_watch
     \row \i Qt::IbeamCursor             \i ibeam
     \row \i Qt::SizeVerCursor           \i size_ver
     \row \i Qt::SizeHorCursor           \i size_hor
@@ -126,8 +126,10 @@
 
 
 /*!
+    \fn QDataStream &operator<<(QDataStream &stream, const QCursor &cursor)
     \relates QCursor
-    Writes the cursor \a c to the stream \a s.
+
+    Writes the \a cursor to the \a stream.
 
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
@@ -147,8 +149,10 @@ QDataStream &operator<<(QDataStream &s, const QCursor &c)
 }
 
 /*!
+    \fn QDataStream &operator>>(QDataStream &stream, QCursor &cursor)
     \relates QCursor
-    Reads a cursor from the stream \a s and sets \a c to the read data.
+
+    Reads the \a cursor from the \a stream.
 
     \sa \link datastreamformat.html Format of the QDataStream operators \endlink
 */
