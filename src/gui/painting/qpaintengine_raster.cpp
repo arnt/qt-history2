@@ -481,6 +481,7 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
     Q_D(QRasterPaintEngine);
 
     qInitAsm(&qDrawHelper);
+    d->deviceDepth = device->depth();
     d->clipEnabled = false;
     d->antialiased = false;
     d->bilinear = false;
@@ -699,7 +700,9 @@ void QRasterPaintEngine::updateBrush(const QBrush &brush, const QPointF &offset)
     Q_D(QRasterPaintEngine);
     d->brush = brush;
     d->brushMatrix = d->matrix;
-    d->brushMatrix.translate(offset.x(), offset.y());
+
+    // Offset the brush matrix with offset and the coordinate offset.
+    d->brushMatrix.translate(offset.x() + d->deviceRect.x(), offset.y() + d->deviceRect.y());
 }
 
 
@@ -1308,7 +1311,7 @@ ARGB *QRasterPaintEnginePrivate::gradientStopColors(const QGradient *gradient)
 ARGB QRasterPaintEnginePrivate::mapColor(const QColor &c) const
 {
 #ifdef Q_WS_WIN
-    if (pdev->depth() == 1)
+    if (deviceDepth == 1)
         return ARGB(0, c.red(), c.green(), c.blue());
 #endif
     return c;

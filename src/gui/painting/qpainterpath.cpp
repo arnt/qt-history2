@@ -1437,6 +1437,9 @@ QPainterPath QPainterPathStroker::createStroke(const QPainterPath &path) const
     QPointF start, prev;
 
     QPainterPath stroke;
+
+    stroke.elements.reserve(input.elementCount() * 4);
+
     while (fwit.hasSubpath()) {
         Q_ASSERT(bwit.hasSubpath());
 

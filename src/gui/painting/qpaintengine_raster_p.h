@@ -147,6 +147,8 @@ public:
 
     RasterOperation rasterOperation;
 
+    int deviceDepth;
+
     uint txop;
 
     uint opaqueBackground : 1;
