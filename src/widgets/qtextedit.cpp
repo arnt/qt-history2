@@ -85,7 +85,11 @@ public:
     QTextEditPrivate()
 	:preeditStart(-1),preeditLength(-1),
 	ensureCursorVisibleInShowEvent(FALSE),
-	allowTabs(FALSE) {}
+	allowTabs(FALSE) 
+    {
+	for ( int i=0; i<7; i++ )
+	    id[i] = 0;
+    }
     int id[ 7 ];
     int preeditStart;
     int preeditLength;
