@@ -2889,7 +2889,7 @@ QString QFileDialog::selectedFile() const
     if ( u.isLocalFile() ) {
 	QString s = u.toString();
 	if ( s.left( 5 ) == "file:" )
-	    s.remove( 0, 5 );
+	    s.remove( (uint)0, 5 );
 	return s;
     }
     return d->currentFileName;
@@ -2997,7 +2997,7 @@ QStringList QFileDialog::selectedFiles() const
 	    if ( u.isLocalFile() ) {
 		QString s = u.toString();
 		if ( s.left( 5 ) == "file:" )
-		    s.remove( 0, 5 );
+		    s.remove( (uint)0, 5 );
 		lst << s;
 	    } else {
 		lst << u.toString();
@@ -3295,7 +3295,8 @@ void QFileDialog::rereadDir()
 /*!
   \fn void QFileDialog::fileHighlighted( const QString& )
 
-  This signal is emitted when the user highlights a file.
+  This signal is emitted when the user highlights a file, i.e. makes
+  it the current file.
 
   \sa fileSelected(), filesSelected()
 */

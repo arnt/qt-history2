@@ -48,7 +48,7 @@ QMenuDataData::QMenuDataData()
     checked\endlink (except for separators).
 
     The menu item sends out an \link QMenuBar::activated()
-    activated()\endlink signal when it is selected and a \link
+    activated()\endlink signal when it is chosen and a \link
     QMenuBar::highlighted() highlighted()\endlink signal when it
     receives the user input focus.
 

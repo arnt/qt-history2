@@ -192,12 +192,13 @@ in some way that might be interesting to the object's client or owner.
 Only the class that defines a signal and its subclasses can emit the
 signal.
 
-A list box, for example, emits both \c{highlighted()} and
-\c{activated()} signals. Most objects will probably only be
-interested in \c{activated()}, but some may want to know about
-which item in the list box is currently highlighted. If the signal is
-interesting to two different objects you just connect the signal to
-slots in both objects.
+A list box, for example, emits both \c{clicked()} and
+\c{currentChanged()} signals. Most objects will probably only be
+interested in \c{currentChanged()} which gives the current list item
+whether the user clicked it or used the arrow keys to move to it. But
+some objects may only want to know which item was clicked. If the
+signal is interesting to two different objects you just connect the
+signal to slots in both objects.
 
 When a signal is emitted, the slots connected to it are executed
 immediately, just like a normal function call. The signal/slot

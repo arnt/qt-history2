@@ -403,15 +403,15 @@ static int indexOfItem( QListViewItem *item )
 	 \i Returns the text in a column. Many subclasses will compute
 	    this on the fly.
     \row \i \l key()
-	 \i Is used for sorting. The default key() simply calls
+	 \i Used for sorting. The default key() simply calls
 	    text(), but judicious use of key can be used to sort by
 	    date, for example (as QFileDialog does).
     \row \i \l setup()
-	 \i Is called before showing the item and whenever the font
+	 \i Called before showing the item and whenever the font
 	    changes, for example.
     \row \i \l activate()
-	 \i Is called whenever the user clicks on the item or presses
-	    space when the item is the currently highlighted item.
+	 \i Called whenever the user clicks on the item or presses
+	    Space when the item is the current item.
     \endtable
 
     Some subclasses call setExpandable(TRUE) even when they have no
@@ -1995,7 +1995,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 		int len = t.length();
 		while ( i < len && fm.width( ci->tmpText + t[ i ] ) + pw < width )
 		    ci->tmpText += t[ i++ ];
-		ci->tmpText.remove( 0, 3 );
+		ci->tmpText.remove( (uint)0, 3 );
 		if ( ci->tmpText.isEmpty() )
 		    ci->tmpText = t.left( 1 );
 		ci->tmpText += "...";
@@ -2011,7 +2011,7 @@ void QListViewItem::paintCell( QPainter * p, const QColorGroup & cg,
 			int len = z.length();
 			while ( i < len && fm.width( tempText + z[ i ]) + pw < width )
 			    tempText += z[i++];
-			tempText.remove( 0, 3 );
+			tempText.remove( (uint)0, 3 );
 			if ( tempText.isEmpty() )
 			    tempText = z.left( 1 );
 			tempText += "...";
@@ -5284,10 +5284,10 @@ QListViewItem * QListView::selectedItem() const
 
 
 /*!
-    Sets item \a i to be the current highlighted item and repaints
-    appropriately. This highlighted item is used for keyboard
-    navigation and focus indication; it doesn't mean anything else,
-    i.e. it is different from selection.
+    Sets item \a i to be the current item and repaints appropriately
+    (i.e. highlights the item). The current item is used for keyboard
+    navigation and focus indication; it is independent of any selected
+    items, although a selected item can also be the current item.
 
     \sa currentItem() setSelected()
 */
@@ -5345,8 +5345,7 @@ void QListView::setCurrentItem( QListViewItem * i )
 
 
 /*!
-    Returns a pointer to the currently highlighted item, or 0 if there
-    isn't one.
+    Returns a pointer to the currently item, or 0 if there isn't one.
 
     \sa setCurrentItem()
 */

@@ -184,15 +184,16 @@
 /*!
     \fn void QComboBox::highlighted( int index )
 
-    This signal is emitted when a new item has been set to current.
-    The \a index is the position of the item in the combobox.
+    This signal is emitted when a new item has been set to be the
+    current item. The \a index is the position of the item in the
+    combobox.
 */
 
 /*!
     \overload void QComboBox::highlighted( const QString &string )
 
-    This signal is emitted when a new item has been highlighted. \a
-    string is the highlighted string.
+    This signal is emitted when a new item has been set to be the
+    current item. \a string is the item's text.
 
     You can also use the highlighted(int) signal.
 */

@@ -225,10 +225,11 @@ void QSyntaxHighlighter::rehighlight()
     edit->repaintContents( FALSE );
 }
 
-/*! Returns the id of the paragraph which is highlighted at the
-  moment, or -1 of no paragraph is highlighted currently.
+/*!
+    Returns the id of the paragraph which is highlighted, or -1 of no
+    paragraph is currently highlighted.
 
-  Usually this function is called from within highlightParagraph().
+    Usually this function is called from within highlightParagraph().
 */
 
 int QSyntaxHighlighter::currentParagraph() const

@@ -832,11 +832,11 @@ int QListBoxPixmap::rtti() const
     using the new objects, and most things can be done using indexes.
 
     Each item in a QListBox contains a QListBoxItem. One of the items
-    can be the current item. The highlighted() signal is emitted when
-    a new item gets highlighted, e.g. because the user clicks on it or
-    QListBox::setCurrentItem() is called. The selected() signal is
-    emitted when the user double-clicks on an item or presses Enter
-    when an item is highlighted.
+    can be the current item. The currentChanged() signal and the
+    highlighted() signal are emitted when a new item becomes current,
+    e.g. because the user clicks on it or QListBox::setCurrentItem()
+    is called. The selected() signal is emitted when the user
+    double-clicks on an item or presses Enter on the current item.
 
     If the user does not select anything, no signals are emitted and
     currentItem() returns -1.
@@ -1158,7 +1158,7 @@ QListBox::~QListBox()
 /*!
     \fn void QListBox::currentChanged( QListBoxItem *item )
 
-    This signal is emitted when the user highlights a new current
+    This signal is emitted when the user makes a new item the current
     item. \a item is the new current list box item.
 
     \sa setCurrentItem() currentItem()
@@ -1167,60 +1167,59 @@ QListBox::~QListBox()
 /*!
     \fn void QListBox::highlighted( int index )
 
-    This signal is emitted when the user highlights a new current
-    item. \a index is the index of the highlighted item.
+    This signal is emitted when the user makes a new item the current
+    item. \a index is the index of the new current item.
 
-    \sa selected() currentItem() selectionChanged()
+    \sa currentChanged() selected() currentItem() selectionChanged()
 */
 
 /*!
     \overload void QListBox::highlighted( QListBoxItem * )
 
-    This signal is emitted when the user highlights a new current
+    This signal is emitted when the user makes a new item the current
     item. The argument is a pointer to the new current item.
 
-    \sa selected() currentItem() selectionChanged()
+    \sa currentChanged() selected() currentItem() selectionChanged()
 */
 
 /*!
     \overload void QListBox::highlighted( const QString &)
 
-    This signal is emitted when the user highlights a new current item
-    and the new item is a string. The argument is the text of the new
-    current item.
+    This signal is emitted when the user makes a new item the current
+    item and the item is (or has) as string. The argument is the text
+    of the new current item.
 
-    \sa selected() currentItem() selectionChanged()
+    \sa currentChanged() selected() currentItem() selectionChanged()
 */
 
 /*!
     \fn void QListBox::selected( int index )
 
     This signal is emitted when the user double-clicks on an item or
-    presses Enter when an item is highlighted. \a index is the index
-    of the selected item.
+    presses Enter on the current item. \a index is the index of the
+    selected item.
 
-    \sa highlighted() selectionChanged()
+    \sa currentChanged() highlighted() selectionChanged()
 */
 
 /*!
     \overload void QListBox::selected( QListBoxItem * )
 
     This signal is emitted when the user double-clicks on an item or
-    presses Enter when an item is highlighted. The argument is a
-    pointer to the new selected item.
+    presses Enter on the current item. The argument is a pointer to
+    the new selected item.
 
-    \sa highlighted() selectionChanged()
+    \sa currentChanged() highlighted() selectionChanged()
 */
 
 /*!
     \overload void QListBox::selected( const QString &)
 
     This signal is emitted when the user double-clicks on an item or
-    presses Enter while an item is highlighted, and the selected item
-    is (or has) a string. The argument is the text of the selected
-    item.
+    presses Enter on the current item, and the item is (or has) a
+    string. The argument is the text of the selected item.
 
-    \sa highlighted() selectionChanged()
+    \sa currentChanged() highlighted() selectionChanged()
 */
 
 /*! \reimp */
@@ -1553,8 +1552,8 @@ void QListBox::insertItem( const QPixmap &pixmap, const QString &text, int index
 
 /*!
     Removes and deletes the item at position \a index. If \a index is
-    equal to currentItem(), a new item gets highlighted and the
-    highlighted() signal is emitted.
+    equal to currentItem(), a new item becomes current and the
+    currentChanged() and highlighted() signals are emitted.
 
     \sa insertItem(), clear()
 */
@@ -1779,10 +1778,10 @@ int QListBox::currentItem() const
     \property QListBox::currentItem
     \brief the current highlighted item
 
-    When setting this property, the highlighting is moved and the list
-    box scrolled as necessary.
+    When setting this property, the highlighting is moved to the item
+    and the list box scrolled as necessary.
 
-    If no item has been highlighted, currentItem() returns -1.
+    If no item is current, currentItem() returns -1.
 */
 
 void QListBox::setCurrentItem( int index )

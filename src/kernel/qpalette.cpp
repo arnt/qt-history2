@@ -115,8 +115,8 @@
 
     Selected (marked) items have two roles:
 
-    \value Highlight   a color to indicate a selected or highlighted item.
-    By default, the highlight color is \c Qt::darkBlue.
+    \value Highlight   a color to indicate a selected item or the
+    current item. By default, the highlight color is \c Qt::darkBlue.
 
     \value HighlightedText  a text color that contrasts with \c Highlight.
     By default, the highlighted text color is \c Qt::white.
