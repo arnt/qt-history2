@@ -1,10 +1,10 @@
-TEMPLATE	= app
-LANGUAGE	= C++
-TARGET		= distributor
+TEMPLATE        = app
+LANGUAGE        = C++
+TARGET                = distributor
+QT              += compat
+CONFIG                += qt warn_on uic3
 
-CONFIG		+= qt warn_on
+QTDIR_build:REQUIRES        = "contains(QT_CONFIG, full-config)"
 
-QTDIR_build:REQUIRES	= "contains(QT_CONFIG, full-config)"
-
-SOURCES		+= main.cpp
-FORMS		= distributor.ui
+SOURCES                += main.cpp
+FORMS                = distributor.ui
