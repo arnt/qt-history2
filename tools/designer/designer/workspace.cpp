@@ -133,6 +133,7 @@ WorkspaceItem::WorkspaceItem( QListViewItem *parent, FormFile* ff, Type type )
 void WorkspaceItem::init()
 {
     autoOpen = FALSE;
+    useOddColor = FALSE;
     project = 0;
     sourceFile = 0;
     formFile = 0;
@@ -144,10 +145,12 @@ void WorkspaceItem::paintCell( QPainter *p, const QColorGroup &cg, int column, i
     g.setColor( QColorGroup::Base, backgroundColor() );
     g.setColor( QColorGroup::Foreground, Qt::black );
 
-    if ( type() == FormSourceType && !formFile->hasFormCode() )
-	g.setColor( QColorGroup::Text, Qt::gray );
-    else
+    if ( type() == FormSourceType && !formFile->hasFormCode() ) {
+	g.setColor( QColorGroup::Text, listView()->palette().disabled().color( QColorGroup::Text) );
+	g.setColor( QColorGroup::HighlightedText, listView()->palette().disabled().color( QColorGroup::Text) );
+    } else {
 	g.setColor( QColorGroup::Text, Qt::black );
+    }
     p->save();
 
     if ( isModified() ) {
@@ -209,6 +212,23 @@ void WorkspaceItem::fillCompletionList( QStringList& completion )
     }
 }
 
+bool WorkspaceItem::checkCompletion( const QString& completion )
+{
+    switch( t ) {
+    case ProjectType:
+	break;
+    case FormFileType:
+	return  completion == formFile->formName() 
+		 || completion == formFile->fileName();
+    case FormSourceType:
+	return completion == formFile->codeFile();
+    case SourceFileType:
+	return completion == sourceFile->fileName();
+    }
+    return FALSE;
+}
+
+
 bool WorkspaceItem::isModified() const
 {
     switch( t ) {
@@ -236,28 +256,12 @@ QString WorkspaceItem::key( int column, bool ) const
 
 QColor WorkspaceItem::backgroundColor()
 {
-    updateBackColor();
-    return backColor;
+    bool b = useOddColor;
+    if ( t == FormSourceType && parent() )
+	b = ( ( WorkspaceItem*)parent() )->useOddColor;
+    return b ? *backColor2 : *backColor1;
 }
 
-void WorkspaceItem::updateBackColor()
-{
-    if ( listView()->firstChild() == this ) {
-	backColor = *backColor1;
-	return;
-    }
-
-    QListViewItemIterator it( this );
-    --it;
-    if ( it.current() ) {
-	if ( ( ( WorkspaceItem*)it.current() )->backColor == *backColor1 )
-	    backColor = *backColor2;
-	else
-	    backColor = *backColor1;
-    } else {
-	backColor == *backColor1;
-    }
-}
 
 Workspace::Workspace( QWidget *parent, MainWindow *mw )
     : QListView( parent, 0, WStyle_Customize | WStyle_NormalBorder | WStyle_Title |
@@ -268,7 +272,6 @@ Workspace::Workspace( QWidget *parent, MainWindow *mw )
 
     blockNewForms = FALSE;
     bufferEdit = 0;
-//     header()->setMovingEnabled( FALSE );
     header()->setStretchEnabled( TRUE );
     header()->hide();
     setSorting( 0 );
@@ -279,7 +282,6 @@ Workspace::Workspace( QWidget *parent, MainWindow *mw )
     (void)*selectedBack; // hack
     setPalette( p );
     addColumn( tr( "Files" ) );
-//     addColumn( "" );
     setAllColumnsShowFocus( TRUE );
     connect( this, SIGNAL( mouseButtonClicked( int, QListViewItem *, const QPoint &, int ) ),
 	     this, SLOT( itemClicked( int, QListViewItem * ) ) ),
@@ -290,7 +292,6 @@ Workspace::Workspace( QWidget *parent, MainWindow *mw )
     viewport()->setAcceptDrops( TRUE );
     setAcceptDrops( TRUE );
     setColumnWidthMode( 1, Manual );
-//     setRootIsDecorated( TRUE );
 
     if ( !folderPixmap ) {
 	folderPixmap = new QPixmap( folder_xpm );
@@ -354,6 +355,7 @@ void Workspace::setCurrentProject( Project *pro )
 	(void) new WorkspaceItem( projectItem, f );
     }
 
+    updateColors();
     completionDirty = TRUE;
 }
 
@@ -362,21 +364,25 @@ void Workspace::setCurrentProject( Project *pro )
 void Workspace::sourceFileAdded( SourceFile* sf )
 {
     (void) new WorkspaceItem( projectItem, sf );
+    updateColors();
 }
 
 void Workspace::sourceFileRemoved( SourceFile* sf )
 {
     delete findItem( sf );
+    updateColors();
 }
 
 void Workspace::formFileAdded( FormFile* ff )
 {
     (void) new WorkspaceItem( projectItem, ff );
+    updateColors();
 }
 
 void Workspace::formFileRemoved( FormFile* ff )
 {
     delete findItem( ff );
+    updateColors();
 }
 
 
@@ -391,11 +397,8 @@ void Workspace::update( FormFile* ff )
     QListViewItem* i = findItem( ff );
     if ( i ) {
 	i->repaint();
-	if ( (i = i->firstChild()) ) {
+	if ( (i = i->firstChild()) )
 	    i->repaint();
-	    if ( ( i= i->nextSibling() ) )
-		i->repaint();
-	}
     }
 }
 
@@ -505,35 +508,6 @@ void Workspace::itemClicked( int button, QListViewItem *i )
     case WorkspaceItem::SourceFileType:
 	mainWindow->editSource( wi->sourceFile );
 	break;
-    }
-}
-
-void Workspace::bufferChosen( const QString &buffer )
-{
-    if ( bufferEdit )
-	bufferEdit->setText( "" );
-    QListViewItemIterator it( this );
-    QListViewItem *res = 0;
-    QString extension = "xx";
-    LanguageInterface *iface = MetaDataBase::languageInterface( project->language() );
-    if ( iface )
-	extension = iface->formCodeExtension();
-    bool formCode = buffer.right( extension.length() + 2 ) == QString( "ui" + extension );
-    while ( it.current() ) {
-	if ( !formCode &&
-	     ( it.current()->text( 0 ) == buffer || it.current()->text( 1 ) == buffer ) ||
-	     formCode && ( it.current()->text( 1 ) + extension ) == buffer ) {
-	    res = it.current();
-	    break;
-	}
-	++it;
-    }
-
-    if ( res ) {
-	setCurrentItem( res );
-	itemClicked( LeftButton, res );
-	if ( formCode )
-	    MainWindow::self->editSource();
     }
 }
 
@@ -669,13 +643,46 @@ void Workspace::updateBufferEdit()
     if ( !bufferEdit || !completionDirty )
 	return;
     completionDirty = FALSE;
-    QStringList completion;
-     QListViewItemIterator it( this );
-     while ( it.current() ) {
-	 ( (WorkspaceItem*)it.current())->fillCompletionList( completion );
-	 ++it;
-     }
-     completion.sort();
-     bufferEdit->setCompletionList( completion );
+    QStringList completion = MainWindow::self->projectFileNames();
+    QListViewItemIterator it( this );
+    while ( it.current() ) {
+	( (WorkspaceItem*)it.current())->fillCompletionList( completion );
+	++it;
+    }
+    completion.sort();
+    bufferEdit->setCompletionList( completion );
 }
 
+void Workspace::bufferChosen( const QString &buffer )
+{
+    if ( bufferEdit )
+	bufferEdit->setText( "" );
+    
+    if ( MainWindow::self->projectFileNames().contains( buffer ) ) {
+	MainWindow::self->setCurrentProjectByFilename( buffer );
+	return;
+    }
+    
+    QListViewItemIterator it( this );
+    while ( it.current() ) {
+	if ( ( (WorkspaceItem*)it.current())->checkCompletion( buffer ) ) {
+	    itemClicked( LeftButton, it.current() );
+	    break;
+	}
+	++it;
+    }
+}
+
+void Workspace::updateColors()
+{
+    QListViewItem* i = firstChild();
+    if ( i )
+	i = i->firstChild();
+    bool b = TRUE;
+    while ( i ) {
+	WorkspaceItem* wi = ( WorkspaceItem*) i;
+	i = i->nextSibling();
+	wi->useOddColor = b;
+	b = !b;
+    }
+}

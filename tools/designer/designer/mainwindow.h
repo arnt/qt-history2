@@ -140,8 +140,10 @@ public:
     QUnknownInterface* designerInterface() const { return desInterface; }
     QPtrList<DesignerProject> projectList() const;
     QStringList projectNames() const;
+    QStringList projectFileNames() const;
     Project *findProject( const QString &projectName ) const;
     void setCurrentProject( Project *pro );
+    void setCurrentProjectByFilename( const QString& proFilename );
     OutputWindow *outputWindow() const { return oWindow; }
     void addPreferencesTab( QWidget *tab, const QString &title, QObject *receiver, const char *init_slot, const char *accept_slot );
     void addProjectTab( QWidget *tab, const QString &title, QObject *receiver, const char *init_slot, const char *accept_slot );
@@ -230,7 +232,7 @@ public slots:
     void editPixmapCollection();
     void editDatabaseConnections();
     void editPreferences();
-    
+
     void projectInsertFile();
 
     void searchFind();

@@ -101,6 +101,7 @@ private:
     TimeStamp timeStamp;
     bool codeEdited;
     bool seperateSource;
+    QString cachedFormName;
 
 };
 

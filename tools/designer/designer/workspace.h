@@ -46,7 +46,6 @@ public:
     WorkspaceItem( QListViewItem *parent, FormFile* ff, Type t = FormFileType );
 
     void paintCell( QPainter *p, const QColorGroup &cg, int column, int width, int align );
-    void updateBackColor();
 
     Type type() const { return t; }
 
@@ -55,22 +54,22 @@ public:
     QString text( int ) const;
 
     void fillCompletionList( QStringList& completion );
+    bool checkCompletion( const QString& completion );
 
     QString key( int, bool ) const; // column sorting key
 
     Project* project;
     SourceFile* sourceFile;
     FormFile* formFile;
-    
+
     bool autoOpen;
+    bool useOddColor;
 
 private:
     void init();
 
     QColor backgroundColor();
-    QColor backColor;
     Type t;
-
 };
 
 class Workspace : public QListView
@@ -81,31 +80,12 @@ public:
     Workspace( QWidget *parent , MainWindow *mw );
 
     void setCurrentProject( Project *pro );
-//     void addForm( FormWindow *fw );
-//     void closed( FormWindow *fw );
 
     void contentsDropEvent( QDropEvent *e );
     void contentsDragEnterEvent( QDragEnterEvent *e );
     void contentsDragMoveEvent( QDragMoveEvent *e );
 
-    void drawContentsOffset( QPainter *p, int ox, int oy,
-			     int cx, int cy, int cw, int ch ) {
-	setUpdatesEnabled( FALSE );
-	triggerUpdate();
-	setUpdatesEnabled( TRUE );
-	QListView::drawContentsOffset( p, ox, oy, cx, cy, cw, ch );
-    }
-
-//     void removeFormFromProject( FormWindow *fw );
-//     void removeFormFromProject( const QString &file );
-//     void removeFormFromProject( QListViewItem *i );
-//     void removeSourceFromProject( const QString &file );
-//     void removeSourceFromProject( QListViewItem *i );
-//     void formNameChanged( FormWindow *fw );
-
     void setBufferEdit( QCompletionEdit *edit );
-
-//     void openForm( const QString &filename );
 
 public slots:
 
@@ -136,7 +116,7 @@ private slots:
 private:
     WorkspaceItem *findItem( FormFile *ff );
     WorkspaceItem *findItem( SourceFile *sf );
-    
+
     void closeAutoOpenItems();
 
 private:
@@ -147,6 +127,7 @@ private:
     bool blockNewForms;
     void updateBufferEdit();
     bool completionDirty;
+    void updateColors();
 
 };
 

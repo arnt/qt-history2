@@ -549,8 +549,13 @@ void FormFile::functionNameChanged( const QString &oldName, const QString &newNa
 
 QString FormFile::formName() const
 {
-    if ( formWindow() )
-	return formWindow()->name();
+    FormFile* that = (FormFile*) this;
+    if ( formWindow() ) {
+	that->cachedFormName = formWindow()->name();
+	return cachedFormName;
+    }
+    if ( !cachedFormName.isNull() )
+	return cachedFormName;
     QFile f( pro->makeAbsolute( filename ) );
     if ( f.open( IO_ReadOnly ) ) {
 	QTextStream ts( &f );
@@ -579,10 +584,11 @@ QString FormFile::formName() const
 		}
 	    }
 	}
-	if ( !className.isEmpty() )
-	    return className;
+	that->cachedFormName =  className;
     }
-    return filename;
+    if ( cachedFormName.isEmpty() )
+	that->cachedFormName = filename;
+    return cachedFormName;
 }
 
 void FormFile::formWindowChangedSomehow()

@@ -2487,11 +2487,13 @@ void MainWindow::openProject( const QString &fn )
 	    return;
 	}
     }
+    QApplication::setOverrideCursor( waitCursor );
     Project *pro = new Project( fn, "", projectSettingsPluginManager );
     pro->setModified( FALSE );
     QAction *a = new QAction( pro->projectName(), pro->projectName(), 0, actionGroupProjects, 0, TRUE );
     projects.insert( a, pro );
     projectSelected( a );
+    QApplication::restoreOverrideCursor();
 }
 
 void MainWindow::checkTempFiles()
@@ -2721,6 +2723,14 @@ QStringList MainWindow::projectNames() const
     return res;
 }
 
+QStringList MainWindow::projectFileNames() const
+{
+    QStringList res;
+    for ( QMap<QAction*, Project* >::ConstIterator it = projects.begin(); it != projects.end(); ++it )
+	res << (*it)->makeRelative( (*it)->fileName() );
+    return res;
+}
+
 Project *MainWindow::findProject( const QString &projectName ) const
 {
     for ( QMap<QAction*, Project* >::ConstIterator it = projects.begin(); it != projects.end(); ++it ) {
@@ -2739,6 +2749,17 @@ void MainWindow::setCurrentProject( Project *pro )
 	}
     }
 }
+
+void MainWindow::setCurrentProjectByFilename( const QString& proFilename )
+{
+    for ( QMap<QAction*, Project* >::ConstIterator it = projects.begin(); it != projects.end(); ++it ) {
+	if ( (*it)->makeRelative( (*it)->fileName() ) == proFilename ) {
+	    projectSelected( it.key() );
+	    return;
+	}
+    }
+}
+
 
 void MainWindow::recentlyFilesMenuActivated( int id )
 {

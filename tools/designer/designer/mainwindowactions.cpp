@@ -733,7 +733,7 @@ void MainWindow::setupProjectActions()
     a->setEnabled( FALSE );
     connect( this, SIGNAL( hasNonDummyProject(bool) ), a, SLOT( setEnabled(bool) ) );
     a->addTo( projectMenu );
-    
+
     QAction* actionEditProjectSettings = new QAction( tr( "Project Settings..." ), QPixmap(),
 					  tr( "&Project Settings..." ), 0, this, 0 );
     actionEditProjectSettings->setStatusTip( tr("Opens a dialog to change the settings of the project") );
@@ -1058,7 +1058,7 @@ void MainWindow::fileCloseProject()
 
 void MainWindow::fileOpen() // as called by the menu
 {
-    fileOpen( "", "", "", FALSE ); 
+    fileOpen( "", "", "", FALSE );
 }
 
 void MainWindow::projectInsertFile()
@@ -1079,16 +1079,18 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
     }
 
     Project* project = inProject ? currentProject : eProject;
-    
+
     QStringList additionalSources;
 
     {
 	QString filename;
 	QStringList filterlist;
 	if ( filter.isEmpty() ) {
-	    filterlist << tr( "Designer Files (*.ui *.pro)" );
+	    if ( !inProject )
+		filterlist << tr( "Designer Files (*.ui *.pro)" );
 	    filterlist << tr( "Qt User-Interface Files (*.ui)" );
-	    filterlist << tr( "QMAKE Project Files (*.pro)" );
+	    if ( !inProject )
+		filterlist << tr( "QMAKE Project Files (*.pro)" );
 	    QStringList list = manager.featureList();
 	    for ( QStringList::Iterator it = list.begin(); it != list.end(); ++it )
 		filterlist << *it;
@@ -1110,7 +1112,7 @@ void MainWindow::fileOpen( const QString &filter, const QString &extension, cons
 	QString filters = filterlist.join( ";;" );
 
 	if ( fn.isEmpty() )
-	    filename = QFileDialog::getOpenFileName( QString::null, filters, this, 0, QString::null, &lastOpenFilter );
+	    filename = QFileDialog::getOpenFileName( QString::null, filters, this, 0, inProject ? tr("Insert") : tr("Open" ), &lastOpenFilter );
 	else
 	    filename = fn;
 	if ( !filename.isEmpty() ) {
@@ -1729,10 +1731,10 @@ SourceEditor *MainWindow::editSource( SourceFile *f )
 	sourceEditors.append( editor );
 	QApplication::restoreOverrideCursor();
     }
-    editor->show();
-    editor->setFocus();
     if ( editor->object() != f )
 	editor->setObject( f, currentProject );
+    editor->show();
+    editor->setFocus();
     emit editorChanged();
     return editor;
 }
