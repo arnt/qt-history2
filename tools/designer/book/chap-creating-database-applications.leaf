@@ -94,7 +94,7 @@ There are two aspects of database connections that we must consider.
 
     \section2 Setting Up Qt Designer's Connections
 
-	\img databaseconnections.png
+	\img database-connections.png
 \caption Edit Database Connections Dialog
 
 	Choose \Menu {Project|Database Connections} from the menu
