@@ -634,7 +634,7 @@ void QLinuxFbScreen::save()
 // restore the state of the graphics card.
 void QLinuxFbScreen::restore()
 {
-    if ( d == 8 ) {
+    if (( d == 8 ) || ( d == 4 )) {
 	fb_cmap cmap;
 	cmap.start=0;
 	cmap.len=screencols;
