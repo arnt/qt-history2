@@ -610,7 +610,7 @@ function compile(platform, edition, platformName)
 	execute(["ssh", login, "cygpath", "-w", "`pwd`/" + platformName + "clean"]);
 	var windowsPath = Process.stdout.split("\n")[0];
 	execute(["ssh", login, "rm -rf", platformName+"clean/include"]);
-	execute(["ssh", login, "QTDIR=\"" + windowsPath + "\"", "cmd", "/c",
+	execute(["ssh", login, "QTDIR='" + windowsPath + "'", "cmd", "/c",
 		 "perl", platformName+"clean/bin/syncqt", "-copy"]);
 	// remove src/
 	execute(["ssh", login, "rm -rf", platformName+"clean/src"]);
