@@ -142,13 +142,13 @@
 
     A modal dialog.
 
-    \walkthrough network/networkprotocol/view.cpp
+    \quotefile network/networkprotocol/view.cpp
     \skipto QFileDialog *dlg
     \printuntil return
 
     A modeless dialog. After the show() call, control returns to the main
     event loop.
-    \walkthrough life/main.cpp
+    \quotefile life/main.cpp
     \skipto argv
     \printuntil QApplication
     \skipto scale

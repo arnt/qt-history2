@@ -1350,12 +1350,12 @@ Returns the horizontal stretch factor of the size policy.
 Returns the vertical stretch factor of the size policy.
 */
 
-/*! \fn void QSizePolicy::setHorStretch()
-Sets the horizontal stretch factor of the size policy. 
+/*! \fn void QSizePolicy::setHorStretch( uchar sf )
+Sets the horizontal stretch factor of the size policy to \a sf. 
 */
 
-/*! \fn void QSizePolicy::setVerStretch()
-Sets the vertical stretch factor of the size policy. 
+/*! \fn void QSizePolicy::setVerStretch( uchar sf )
+Sets the vertical stretch factor of the size policy to \a sf. 
 */
 
 

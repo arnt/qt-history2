@@ -158,10 +158,11 @@ QDesktopWidgetPrivate::~QDesktopWidgetPrivate()
     rects = 0;
 }
 
-/*! void *QDesktopWidget::handle( int screen ) const
+/*! \fn void *QDesktopWidget::handle( int screen ) const
 
-  Returns the window system handle of the display device, for low-level
-  access.  Using this function is not portable.
+  Returns the window system handle of the display device with the 
+  index \a screen, for low-level access.  Using this function is not 
+  portable.
 
   The return type varies with platform; see qwindowdefs.h for details.
 
