@@ -220,9 +220,11 @@ MakefileGenerator::generateMocList(const QString &fn_target)
 bool
 MakefileGenerator::generateDependencies(QList<MakefileDependDir*> &dirs, const QString &f, bool recurse)
 {
-    QStringList &fndeps = findDependencies(f);
-    if(!fndeps.isEmpty())
+    if(processedDependencies(f))
 	return TRUE;
+    setProcessedDependencies(f, TRUE);
+
+    QStringList &fndeps = findDependencies(f);
     QList<QStringList*> recurse_deps;
     QString fn = fileFixify(f, QDir::currentDirPath(), Option::output_dir);
     fn = Option::fixPathToLocalOS(fn, FALSE);
@@ -775,6 +777,7 @@ MakefileGenerator::init()
 					debug_msg(2, "Dependencies (cached): %s -> %s", file.latin1(),
 						  files.join(" :: ").latin1());
 					findDependencies(file) = files;
+					setProcessedDependencies(file, TRUE);
 				    }
 				}
 			    } else {
@@ -895,11 +898,10 @@ MakefileGenerator::init()
 	    for(x = 0; sources[x] != QString::null; x++) {
 	        QStringList &l = v[sources[x]];
 	        for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
-		    QString fixed_file(fileFixify((*val_it), QDir::currentDirPath(), Option::output_dir));
 		    bool found_cache_moc = FALSE, found_cache_dep = FALSE;
 		    if(read_cache && Option::output.name() != "-" &&
 			    project->isActiveConfig("qmake_cache")) {
-			if(!findDependencies(fixed_file).isEmpty())
+			if(processedDependencies((*val_it)))
 			    found_cache_dep = TRUE;
 			if(cache_found_files[(*val_it)] == (int)CACHED_MOC)
 			    found_cache_moc = TRUE;
@@ -909,6 +911,7 @@ MakefileGenerator::init()
 		    /* Do moc before dependency checking since some includes can come from
 		       moc_*.cpp files */
 		    if(found_cache_moc) {
+			QString fixed_file(fileFixify((*val_it), QDir::currentDirPath(), Option::output_dir));
 			QString moc = findMocDestination(fixed_file);
 			if(!moc.isEmpty()) {
 			    for(QStringList::Iterator cppit = Option::cpp_ext.begin();
@@ -947,7 +950,7 @@ MakefileGenerator::init()
 		    cachet << "[depend]" << endl;
 		    for(QMap<QString, QStringList>::Iterator it = depends.begin();
 			it != depends.end(); ++it)
-			cachet << depKeyMap[it.key()] << " = " << it.data().join(" ") << endl;
+			cachet << dependencyKey(it.key()) << " = " << it.data().join(" ") << endl;
 		    cachet << "[mocable]" << endl;
 		    QString mc, moc_sources[] = { QString("HEADERS"), QString("SOURCES"), QString::null };
 		    for(int x = 0; moc_sources[x] != QString::null; x++) {
@@ -2288,16 +2291,35 @@ void MakefileGenerator::logicWarn(const QString &f, const QString &w)
     }
 }
 
+QString 
+MakefileGenerator::dependencyKey(const QString &file) const
+{
+     QString key = file;
+     Option::fixPathToTargetOS(key);
+     if(key.indexOf(Option::dir_sep))
+ 	key = key.right(key.length() - key.lastIndexOf(Option::dir_sep) - 1);
+     return key;
+}
+
+void 
+MakefileGenerator::setProcessedDependencies(const QString &file, bool b)
+{
+    depProcessed[dependencyKey(file)] = b;
+}
+
+bool 
+MakefileGenerator::processedDependencies(const QString &file)
+{
+    QString key = dependencyKey(file);
+    if(!depProcessed.contains(key))
+	return FALSE;
+    return depProcessed[key];
+}
+
 QStringList
 &MakefileGenerator::findDependencies(const QString &file)
 {
-    QString key = file;
-    Option::fixPathToTargetOS(key);
-    if(key.indexOf(Option::dir_sep))
-	key = key.right(key.length() - key.lastIndexOf(Option::dir_sep) - 1);
-    if(!depKeyMap.contains(key))
-	depKeyMap.insert(key, file);
-    return depends[key];
+    return depends[dependencyKey(file)];
 }
 
 

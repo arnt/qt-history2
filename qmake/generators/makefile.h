@@ -31,7 +31,9 @@ class MakefileGenerator
     bool init_opath_already, init_already, moc_aware, no_io;
     QStringList createObjectList(const QString &var);
     QString build_args();
-    QMap<QString, QString> depHeuristics, depKeyMap, fileFixed;
+    QString dependencyKey(const QString &file) const;
+    QMap<QString, bool> depProcessed;
+    QMap<QString, QString> depHeuristics, fileFixed;
     QMap<QString, QString> mocablesToMOC, mocablesFromMOC;
     QMap<QString, QStringList> depends;
 
@@ -96,6 +98,9 @@ protected:
     //make sure libraries are found
     virtual bool findLibraries();
     virtual QString findDependency(const QString &);
+
+    void setProcessedDependencies(const QString &file, bool b);
+    bool processedDependencies(const QString &file);
 
     QString var(const QString &var);
     QString varGlue(const QString &var, const QString &before, const QString &glue, const QString &after);
