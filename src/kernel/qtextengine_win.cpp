@@ -74,8 +74,8 @@ typedef struct {
   DWORD   fRejectInvalid      :1;
 } SCRIPT_PROPERTIES;
 
-#ifdef Q_OS_TEMP
-typedef struct {
+#if defined(Q_OS_TEMP) && UNDER_CE < 400
+typedef struct _ABC {
   int     abcA;
   UINT    abcB;
   int     abcC;
