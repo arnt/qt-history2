@@ -2854,9 +2854,9 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 	}
 
 	//if something (format, etc.) changed, draw what we have so far
-	if ( lastDirection != chr->rightToLeft || chr->rightToLeft ||
-	     lastY != cy || chr->format() != lastFormat || buffer == "\t" || chr->c == '\t' ||
-	     selectionChange || chr->isCustom ) {
+// 	if ( lastDirection != chr->rightToLeft || chr->rightToLeft ||
+// 	     lastY != cy || chr->format() != lastFormat || buffer == "\t" || chr->c == '\t' ||
+// 	     selectionChange || chr->isCustom ) {
 	    drawParagBuffer( painter, buffer, startX, lastY, lastBaseLine, bw, h, drawSelections,
 			     lastFormat, i, selectionStarts, selectionEnds, cg );
 	    if ( !chr->isCustom ) {
@@ -2882,10 +2882,10 @@ void QTextParag::paint( QPainter &painter, const QColorGroup &cg, QTextCursor *c
 		    bw = 0;
 		}
 	    }
-	} else {
-	    buffer += chr->c;
-	    bw += cw;
-	}
+// 	} else {
+// 	    buffer += chr->c;
+// 	    bw += cw;
+// 	}
 	lastBaseLine = baseLine;
 	lastDirection = chr->rightToLeft;
     }
@@ -3171,13 +3171,11 @@ QTextParag::LineStart *QTextFormatter::formatLine( QTextString *string, QTextPar
 	    string->at( j ).x += space;
     } else if ( align & Qt::AlignJustify ) {
 	int numSpaces = 0;
-	for ( int j = start; j <= last; ++j ) {
+	for ( int j = start; j < last; ++j ) {
 	    if( isBreakable( string, j ) ) {
 		numSpaces++;
-		qDebug( "space at %d", j );
 	    }
 	}
-	qDebug( " num space = %d space = %d", numSpaces, space );
 	int toAdd = 0;
 	for ( int j = start + 1; j <= last; ++j ) {
 	    if( isBreakable( string, j ) && numSpaces ) {
@@ -3185,7 +3183,6 @@ QTextParag::LineStart *QTextFormatter::formatLine( QTextString *string, QTextPar
 		toAdd += s;
 		space -= s;
 		numSpaces--;
-		qDebug( "toadd = %d", toAdd );
 	    }
 	    string->at( j ).x += toAdd;
 	}
@@ -3736,7 +3733,7 @@ QTextParag::LineStart *QTextFormatter::bidiReorderLine( QTextString *text, QText
     else if ( align & Qt::AlignRight ) 
 	x += space;
     else if ( align & Qt::AlignJustify ) {
-	for ( int j = start; j <= last; ++j ) {
+	for ( int j = start; j < last; ++j ) {
 	    if( isBreakable( text, j ) ) {
 		numSpaces++;
 	    }
