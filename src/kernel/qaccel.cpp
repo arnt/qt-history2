@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qaccel.cpp#84 $
+** $Id: //depot/qt/main/src/kernel/qaccel.cpp#85 $
 **
 ** Implementation of QAccel class
 **
@@ -92,6 +92,7 @@ public:
     bool enabled;
     QWidget *tlw;
     bool ignorewhatsthis;
+    bool haswatch;
 };
 
 
@@ -147,9 +148,6 @@ QAccel::QAccel( QWidget *parent, const char *name )
     d = new QAccelPrivate;
     d->enabled = TRUE;
     if ( parent ) {				// install event filter
-#if defined(CHECK_RANGE)
-	ASSERT( parent->isWidgetType() );
-#endif
 	d->tlw = parent->topLevelWidget();
 	d->tlw->installEventFilter( this );
 	connect( d->tlw, SIGNAL(destroyed()), SLOT(tlwDestroyed()) );
@@ -159,6 +157,31 @@ QAccel::QAccel( QWidget *parent, const char *name )
 	qWarning( "QAccel: An accelerator must have a parent widget" );
 #endif
     }
+    d->haswatch = FALSE;
+}
+
+/*!
+  Creates a QAccel object with a watch widget, a parent object and a
+  name.
+  
+  The accelerator operates on the toplevel widget of the watch widget.
+*/
+QAccel::QAccel( QWidget* watch, QObject *parent, const char *name )
+    : QObject( parent, name )
+{
+    d = new QAccelPrivate;
+    d->enabled = TRUE;
+    if ( watch ) {				// install event filter
+	d->tlw = watch->topLevelWidget();
+	d->tlw->installEventFilter( this );
+	connect( d->tlw, SIGNAL(destroyed()), SLOT(tlwDestroyed()) );
+    } else {
+	d->tlw = 0;
+#if defined(CHECK_NULL)
+	qWarning( "QAccel: An accelerator must have a parent widget" );
+#endif
+    }
+    d->haswatch = TRUE;
 }
 
 /*!
@@ -372,6 +395,8 @@ bool QAccel::disconnectItem( int id, const QObject *receiver,
 
 void QAccel::repairEventFilter()
 {
+    if ( d->haswatch )
+	return;
     QWidget *ntlw;
     if ( parent() ) {
 #if defined(CHECK_RANGE)
