@@ -48,8 +48,6 @@
 
 #include <private/qsettings_p.h>
 
-#ifndef Q_WS_MAC
-
 /*!
   \class QSettings
   \brief The QSettings class provides persistent platform-independent application settings.
@@ -1387,12 +1385,9 @@ QDateTime QSettings::lastModficationTime(const QString &key)
 	return QDateTime();
     }
 
-#ifdef Q_WS_WIN
+#if defined(Q_WS_WIN) || defined(Q_OS_MAC)
     if ( d->sysd )
 	return QDateTime();
-#endif
-#ifdef Q_OS_MAC
-    //###
 #endif
 
     if (key[0] == '/') {
@@ -1547,4 +1542,3 @@ QStringList QSettings::readListEntry(const QString &key, bool *ok )
     return l;
 }
 
-#endif

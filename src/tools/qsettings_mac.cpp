@@ -33,6 +33,7 @@
 */
 
 #include "qsettings.h"
+#include <private/qsettings_p.h>
 #ifndef QT_NO_SETTINGS
 #include "qregexp.h"
 #include "qstring.h"
@@ -152,16 +153,16 @@ search_keys::~search_keys()
 /*****************************************************************************
   Internal private class
  *****************************************************************************/
-class QSettingsPrivate
+class QSettingsSysPrivate
 {
 public:
-    QSettingsPrivate();
+    QSettingsSysPrivate();
     bool writeEntry(QString, CFPropertyListRef);
     QStringList searchPaths;
     QStringList syncKeys;
 };
 
-QSettingsPrivate::QSettingsPrivate() 
+QSettingsSysPrivate::QSettingsSysPrivate() 
 {
     if(!qt_mac_settings_base) {
 	qt_mac_settings_base = new QString("com.");
@@ -169,7 +170,7 @@ QSettingsPrivate::QSettingsPrivate()
     }
 }
 
-bool QSettingsPrivate::writeEntry(QString key, CFPropertyListRef plr)
+bool QSettingsSysPrivate::writeEntry(QString key, CFPropertyListRef plr)
 {
     bool ret = FALSE;
     for ( QStringList::Iterator it = searchPaths.fromLast(); 
@@ -186,69 +187,70 @@ bool QSettingsPrivate::writeEntry(QString key, CFPropertyListRef plr)
     return ret;
 }
 
-QSettings::QSettings()
+void
+QSettingsPrivate::sysInit()
 {
-    d = new QSettingsPrivate;
-    Q_CHECK_PTR(d);
-    insertSearchPath(Mac, "");
+    sysd = new QSettingsSysPrivate;
+    Q_CHECK_PTR(sysd);
+    sysInsertSearchPath(QSettings::Mac, "");
 }
 
-QSettings::~QSettings()
+void
+QSettingsPrivate::sysClear()
 {
-    sync();
-    delete d;
-    d = NULL;
+    delete sysd;
+    sysd = NULL;
 }
 
-bool QSettings::sync()
+bool QSettingsPrivate::sysSync()
 {
     bool ret = TRUE;
-    for ( QStringList::Iterator it = d->syncKeys.begin();  it != d->syncKeys.end(); --it ) {
+    for ( QStringList::Iterator it = sysd->syncKeys.begin();  it != sysd->syncKeys.end(); --it ) {
 	CFStringRef csr = CFStringCreateWithCharacters(NULL, (UniChar *)(*it).unicode(), 
 						       (*it).length());
 #ifdef DEBUG_SETTINGS_KEYS
-	qDebug("QSettings::sync(%s)", (*it).latin1());
+	qDebug("QSettingsPrivate::sysSync(%s)", (*it).latin1());
 #endif
 	if(CFPreferencesAppSynchronize(csr))
 	    ret = FALSE;
 	CFRelease(csr);
     }
-    d->syncKeys.clear();
+    sysd->syncKeys.clear();
     return ret;
 }
 
-void QSettings::insertSearchPath( System s, const QString &path)
+void QSettingsPrivate::sysInsertSearchPath( QSettings::System s, const QString &path)
 {
-    if ( s != Mac )
+    if ( s != QSettings::Mac )
 	return;
     QString realpath = path;
     while(realpath.right(1) == "/")
 	realpath.truncate(realpath.length() -1);
-    d->searchPaths.append(realpath);
+    sysd->searchPaths.append(realpath);
 }
 
-void QSettings::removeSearchPath( System s, const QString &path)
+void QSettingsPrivate::sysRemoveSearchPath( QSettings::System s, const QString &path)
 {
-    if ( s != Mac ) 
+    if ( s != QSettings::Mac ) 
 	return;
     QString realpath = path;
     while(realpath.right(1) == "/")
 	realpath.truncate(realpath.length() -1);
-    d->searchPaths.remove(realpath);
+    sysd->searchPaths.remove(realpath);
 }
 
-bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok )
+bool QSettingsPrivate::sysReadBoolEntry(const QString &key, bool def, bool *ok ) const
 {
 #ifdef QT_CHECK_STATE
     if (key.isNull() || key.isEmpty()) {
-	qWarning("QSettings::readBoolEntry: invalid null/empty key.");
+	qWarning("QSettingsPrivate::sysReadBoolEntry: invalid null/empty key.");
 	if ( ok )
 	    *ok = FALSE;
 	return def;
     }
 #endif // QT_CHECK_STATE
-    for ( QStringList::Iterator it = d->searchPaths.fromLast(); 
-	  it != d->searchPaths.end(); --it ) {
+    for ( QStringList::Iterator it = sysd->searchPaths.fromLast(); 
+	  it != sysd->searchPaths.end(); --it ) {
 	search_keys k((*it), key, "readBoolEntry");
 	if(CFPropertyListRef r = CFPreferencesCopyAppValue(k.key(), k.id())) {
 	    if(CFGetTypeID(r) != CFBooleanGetTypeID()) {
@@ -267,18 +269,18 @@ bool QSettings::readBoolEntry(const QString &key, bool def, bool *ok )
     return def;
 }
 
-double QSettings::readDoubleEntry(const QString &key, double def, bool *ok )
+double QSettingsPrivate::sysReadDoubleEntry(const QString &key, double def, bool *ok ) const
 {
 #ifdef QT_CHECK_STATE
     if (key.isNull() || key.isEmpty()) {
-	qWarning("QSettings::readDoubleEntry: invalid null/empty key.");
+	qWarning("QSettingsPrivate::sysReadDoubleEntry: invalid null/empty key.");
 	if ( ok )
 	    *ok = FALSE;
 	return def;
     }
 #endif // QT_CHECK_STATE
-    for ( QStringList::Iterator it = d->searchPaths.fromLast(); 
-	  it != d->searchPaths.end(); --it ) {
+    for ( QStringList::Iterator it = sysd->searchPaths.fromLast(); 
+	  it != sysd->searchPaths.end(); --it ) {
 	search_keys k((*it), key, "readDoubleEntry");
 	if(CFPropertyListRef r = CFPreferencesCopyAppValue(k.key(), k.id())) {
 	    if(CFGetTypeID(r) != CFNumberGetTypeID()) {
@@ -302,18 +304,18 @@ double QSettings::readDoubleEntry(const QString &key, double def, bool *ok )
     return def;
 } 
 
-int QSettings::readNumEntry(const QString &key, int def, bool *ok )
+int QSettingsPrivate::sysReadNumEntry(const QString &key, int def, bool *ok ) const
 {
 #ifdef QT_CHECK_STATE
     if (key.isNull() || key.isEmpty()) {
-	qWarning("QSettings::readNumEntry: invalid null/empty key.");
+	qWarning("QSettingsPrivate::sysReadNumEntry: invalid null/empty key.");
 	if ( ok )
 	    *ok = FALSE;
 	return def;
     }
 #endif // QT_CHECK_STATE
-    for ( QStringList::Iterator it = d->searchPaths.fromLast(); 
-	  it != d->searchPaths.end(); --it ) {
+    for ( QStringList::Iterator it = sysd->searchPaths.fromLast(); 
+	  it != sysd->searchPaths.end(); --it ) {
 	search_keys k((*it), key, "readNumEntry");
 	if(CFPropertyListRef r = CFPreferencesCopyAppValue(k.key(), k.id())) {
 	    if(CFGetTypeID(r) != CFNumberGetTypeID()) {
@@ -337,18 +339,18 @@ int QSettings::readNumEntry(const QString &key, int def, bool *ok )
     return def;
 }
 
-QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
+QString QSettingsPrivate::sysReadEntry(const QString &key, const QString &def, bool *ok ) const
 {
 #ifdef QT_CHECK_STATE
     if (key.isNull() || key.isEmpty()) {
-	qWarning("QSettings::readEntry: invalid null/empty key.");
+	qWarning("QSettingsPrivate::sysReadEntry: invalid null/empty key.");
 	if ( ok )
 	    *ok = FALSE;
 	return def;
     }
 #endif // QT_CHECK_STATE
-    for ( QStringList::Iterator it = d->searchPaths.fromLast(); 
-	  it != d->searchPaths.end(); --it ) {
+    for ( QStringList::Iterator it = sysd->searchPaths.fromLast(); 
+	  it != sysd->searchPaths.end(); --it ) {
 	search_keys k((*it), key, "readEntry");
 	if(CFPropertyListRef r = CFPreferencesCopyAppValue(k.key(), k.id())) {
 	    if(CFGetTypeID(r) != CFStringGetTypeID()) {
@@ -368,98 +370,84 @@ QString QSettings::readEntry(const QString &key, const QString &def, bool *ok )
 }
 
 #if !defined(Q_NO_BOOL_TYPE)
-bool QSettings::writeEntry(const QString &key, bool value)
+bool QSettingsPrivate::sysWriteEntry(const QString &key, bool value)
 {
 #ifdef QT_CHECK_STATE
     if (key.isNull() || key.isEmpty()) {
-	qWarning("QSettings::writeEntry (bool): invalid null/empty key.");
+	qWarning("QSettingsPrivate::sysWriteEntry (bool): invalid null/empty key.");
 	return FALSE;
     }
 #endif // QT_CHECK_STATE
     CFBooleanRef val = value ? kCFBooleanTrue : kCFBooleanFalse;
-    bool ret = d->writeEntry(key, val);
+    bool ret = sysd->writeEntry(key, val);
     return ret;
 }
 #endif
 
-bool QSettings::writeEntry(const QString &key, double value)
+bool QSettingsPrivate::sysWriteEntry(const QString &key, double value)
 {
 #ifdef QT_CHECK_STATE
     if (key.isNull() || key.isEmpty()) {
-	qWarning("QSettings::writeEntry (double): invalid null/empty key.");
+	qWarning("QSettingsPrivate::sysWriteEntry (double): invalid null/empty key.");
 	return FALSE;
     }
 #endif // QT_CHECK_STATE
     CFNumberRef val = CFNumberCreate(NULL, kCFNumberDoubleType, &value);
-    bool ret = d->writeEntry(key, val);
+    bool ret = sysd->writeEntry(key, val);
     CFRelease(val);
     return ret;
 }
 
-bool QSettings::writeEntry(const QString &key, const char *value)
+bool QSettingsPrivate::sysWriteEntry(const QString &key, int value)
 {
 #ifdef QT_CHECK_STATE
     if (key.isNull() || key.isEmpty()) {
-	qWarning("QSettings::writeEntry (const char *): invalid null/empty key.");
-	return FALSE;
-    }
-#endif // QT_CHECK_STATE
-    CFStringRef val = CFStringCreateWithCString(NULL, value, kCFStringEncodingMacRoman);
-    bool ret = d->writeEntry(key, val);
-    CFRelease(val);
-    return ret;
-}
-
-bool QSettings::writeEntry(const QString &key, int value)
-{
-#ifdef QT_CHECK_STATE
-    if (key.isNull() || key.isEmpty()) {
-	qWarning("QSettings::writeEntry (int): invalid null/empty key.");
+	qWarning("QSettingsPrivate::sysWriteEntry (int): invalid null/empty key.");
 	return FALSE;
     }
 #endif // QT_CHECK_STATE
     CFNumberRef val = CFNumberCreate(NULL, kCFNumberIntType, &value);
-    bool ret = d->writeEntry(key, val);
+    bool ret = sysd->writeEntry(key, val);
     CFRelease(val);
     return ret;
 }
 
-bool QSettings::writeEntry(const QString &key, const QString &value)
+bool QSettingsPrivate::sysWriteEntry(const QString &key, const QString &value)
 {
 #ifdef QT_CHECK_STATE
     if (key.isNull() || key.isEmpty()) {
-	qWarning("QSettings::writeEntry (QString): invalid null/empty key.");
+	qWarning("QSettingsPrivate::sysWriteEntry (QString): invalid null/empty key.");
 	return FALSE;
     }
 #endif // QT_CHECK_STATE
     CFStringRef val = CFStringCreateWithCharacters(NULL, (UniChar *)value.unicode(), 
 						 value.length());
-    bool ret = d->writeEntry(key, val);
+    bool ret = sysd->writeEntry(key, val);
     CFRelease(val);
     return ret;
 }
 
-bool QSettings::removeEntry(const QString &key)
+bool QSettingsPrivate::sysRemoveEntry(const QString &key)
 {
 #ifdef QT_CHECK_STATE
     if (key.isNull() || key.isEmpty()) {
-	qWarning("QSettings::removeEntry: invalid null/empty key.");
+	qWarning("QSettingsPrivate::sysRemoveEntry: invalid null/empty key.");
 	return FALSE;
     }
 #endif // QT_CHECK_STATE
-    return d->writeEntry(key, NULL);
+    return sysd->writeEntry(key, NULL);
 }
 
-QStringList QSettings::entryList(const QString &key) const
+QStringList QSettingsPrivate::sysEntryList(const QString &key) const
 {
 #ifdef QT_CHECK_STATE
     if ( key.isNull() || key.isEmpty() ) {
-	qWarning("QSettings::entryList: invalid null/empty key.");
+	qWarning("QSettingsPrivate::sysEntryList: invalid null/empty key.");
 	return QStringList();
     }
 #endif // QT_CHECK_STATE
-    for ( QStringList::Iterator it = d->searchPaths.fromLast(); 
-	  it != d->searchPaths.end(); --it ) {
+    for ( QStringList::Iterator it = sysd->searchPaths.fromLast(); 
+	  it != sysd->searchPaths.end(); --it ) {
 	search_keys k((*it), key, "entryList");
 	// perhaps we should iterate over all the possible values (ie kCFPreferenceAllUsers)
 	if(CFArrayRef cfa = CFPreferencesCopyKeyList(k.id(), kCFPreferencesCurrentUser,
@@ -481,16 +469,16 @@ QStringList QSettings::entryList(const QString &key) const
     return QStringList();
 }
 
-QStringList QSettings::subkeyList(const QString &key) const
+QStringList QSettingsPrivate::sysSubkeyList(const QString &key) const
 {
 #ifdef QT_CHECK_STATE
     if ( key.isNull() || key.isEmpty() ) {
-	qWarning("QSettings::subkeyList: invalid null/empty key.");
+	qWarning("QSettingsPrivate::sysSubkeyList: invalid null/empty key.");
 	return QStringList();
     }
 #endif // QT_CHECK_STATE
-    for ( QStringList::Iterator it = d->searchPaths.fromLast(); 
-	  it != d->searchPaths.end(); --it ) {
+    for ( QStringList::Iterator it = sysd->searchPaths.fromLast(); 
+	  it != sysd->searchPaths.end(); --it ) {
 	search_keys k((*it), key, "subkeyList");
 	// perhaps we should iterate over all the possible values (ie kCFPreferenceAllUsers)
 	if(CFArrayRef cfa = CFPreferencesCopyKeyList(k.id(), kCFPreferencesCurrentUser,
@@ -514,11 +502,6 @@ QStringList QSettings::subkeyList(const QString &key) const
 	}
     }
     return QStringList();
-}
-
-QDateTime QSettings::lastModficationTime(const QString &)
-{
-    return QDateTime(); //N/A
 }
 
 #endif //QT_NO_SETTINGS
