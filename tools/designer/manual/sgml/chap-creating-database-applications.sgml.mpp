@@ -790,10 +790,10 @@ bool createConnections()
 <programlisting>
 \scan eg/book/book3/book.cpp /BookForm::newCurrentAuthor/ /^}/
 </programlisting>
-		</para>
 		All that's required is to change the BookDataTable's
 		filter and refresh the \class[QDataTable] to show the
 		results of the filter.
+		</para>
 		</listitem>
 	    </orderedlist>
 	    </para>
