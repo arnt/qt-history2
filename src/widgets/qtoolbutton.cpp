@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#142 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#143 $
 **
 ** Implementation of QToolButton class
 **
@@ -455,7 +455,7 @@ void QToolButton::moveEvent( QMoveEvent * )
 */
 void QToolButton::mousePressEvent( QMouseEvent *e )
 {
-    Q1Rect popupr =
+    QRect popupr =
 	style().querySubControlMetrics(QStyle::CC_ToolButton, this,
 				       QStyle::SC_ToolButtonMenu);
     d->instantPopup = (popupr.isValid() && popupr.contains(e->pos()));
