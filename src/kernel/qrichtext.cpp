@@ -3127,7 +3127,11 @@ int QTextParag::nextTab( int x )
 	    tabArray = 0;
 	return tabArray[ 0 ];
     } else {
-	int d = x / tabStopWidth;
+	int d;
+	if ( tabStopWidth != 0 )
+	    d = x / tabStopWidth;
+	else
+	    return x;
 	return tabStopWidth * ( d + 1 );
     }
 }
