@@ -181,7 +181,7 @@ void *QGLContext::chooseMacVisual(GDHandle device)
 	    aglDescribePixelFormat( fmt2, AGL_RENDERER_ID, &res );
 	    GLint res2;
 	    aglDescribePixelFormat( fmt2, AGL_ACCELERATED, &res2 );
-	    qDebug("%d) 0x%xd 0x%x %d", x++, (int)res, (int)AGL_RENDERER_GENERIC_ID, (int)res2);
+	    qDebug("%d) 0x%08x 0x%08x %d", x++, (int)res, (int)AGL_RENDERER_GENERIC_ID, (int)res2);
 	}
     }
 #endif
