@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#108 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#109 $
 **
 ** Definition of QIconView widget class
 **
@@ -1570,6 +1570,11 @@ void QIconViewItem::setIconRect( const QRect &r )
   It´s only emitted once per item.
 */
 
+/*! \fn void  QIconView::onViewport()
+  This signal is emitted, when the user moves the mouse cursor, which was
+  on an item away from the item onto the viewport.
+*/
+
 /*!
   Constructs an empty icon view
 */
@@ -2762,6 +2767,7 @@ void QIconView::contentsMouseMoveEvent( QMouseEvent *e )
 		QIconViewItem *old = d->highlightedItem;
 		d->highlightedItem = 0;
 		repaintItem( old );
+		emit onViewport();
 	    }
 	}
     } else {
@@ -2769,10 +2775,14 @@ void QIconView::contentsMouseMoveEvent( QMouseEvent *e )
 	if ( d->highlightedItem != item ) {
 	    if ( item )
 		emit onItem( item );
+	    else 
+		emit onViewport();
 	    d->highlightedItem = item;
 	}
     }
     
+    
+
     if ( d->mousePressed && d->currentItem && d->currentItem->dragEnabled() ) {
 	if ( !d->startDrag ) {
 	    d->currentItem->setSelected( TRUE, TRUE );

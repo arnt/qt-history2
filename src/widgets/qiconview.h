@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#49 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#50 $
 **
 ** Definition of QIconView widget class
 **
@@ -364,6 +364,7 @@ signals:
     void currentChanged();
     void currentChanged( QIconViewItem *item );
     void onItem( QIconViewItem *item );
+    void onViewport();
     // ###### HACK for builder. Torben will remove it!
     void rightButtonPressed( QIconViewItem* item, const QPoint& pos );
     void itemRenamed( QIconViewItem *item, const QString & );
