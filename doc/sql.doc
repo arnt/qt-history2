@@ -219,8 +219,9 @@ passing the name of the driver we wish to use for this connection. At
 the time of writing the available drivers are: QODBC3 (Open Database
 Connectivity, includes Microsoft SQL Server support), QOCI8 (Oracle 8 and 9),
 QTDS7 (Sybase Adaptive Server), QPSQL7 (PostgreSQL 6 and 7),
-QMYSQL3 (MySQL) and QDB2 (IBM DB2). Note that some of these drivers
-aren't included in the Qt Free Edition; see the \c README files for details.
+QMYSQL3 (MySQL), QDB2 (IBM DB2), QSQLITE (SQLite) and QIBASE (Interbase).
+Note that some of these drivers aren't included in the Qt Free Edition; see
+the \c README files for details.
 
 The connection which is created becomes the application's default 
 database connection and will be used by the Qt SQL classes if no 

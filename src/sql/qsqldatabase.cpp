@@ -518,7 +518,8 @@ bool QSqlDatabase::contains( const QString& connectionName )
     \row \i QTDS7 \i Sybase Adaptive Server
     \row \i QMYSQL3 \i MySQL Driver
     \row \i QDB2 \i IBM DB2, v7.1 and higher
-    \row \i QSQLITE \i SQLite embedded database
+    \row \i QSQLITE \i SQLite Driver
+    \row \i QIBASE \i Borland Interbase Driver
     \endtable
 
     Additional third party drivers, including your own custom drivers,
@@ -1239,6 +1240,16 @@ bool QSqlDatabase::isDriverAvailable( const QString& name )
     \i QTDSDriver
     \i LOGINREC* loginRecord, DBPROCESS* dbProcess, const QString& hostName
     \i \c qsql_tds.cpp
+    \row
+    \i QSQLITE
+    \i QSQLiteDriver
+    \i sqlite* connection
+    \i \c qsql_sqlite.cpp
+    \row
+    \i QIBASE
+    \i QIBaseDriver
+    \i isc_db_handle connection
+    \i \c qsql_ibase.cpp
     \endtable
 
     Note: The host name (or service name) is needed when constructing
