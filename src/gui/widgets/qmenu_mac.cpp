@@ -156,7 +156,7 @@ static MenuCommand qt_mac_menu_merge_action(QMacMenuAction *action)
     MenuCommand ret = 0;
 #define MENU_TRANSLATE(x) QCoreApplication::instance()->translate("QMenuBar", x)
     if(t.startsWith(MENU_TRANSLATE("About").toLower())) {
-        if(t.indexOf(QRegExp(QString::fromLatin1("qt$"), false)) == -1)
+        if(t.indexOf(QRegExp(QString::fromLatin1("qt$"), Qt::CaseInsensitive)) == -1)
             ret = kHICommandAbout;
         else
             ret = kHICommandAboutQt;
@@ -306,8 +306,10 @@ OSStatus qt_mac_menu_event(EventHandlerCallRef er, EventRef event, void *)
                     handled_event = true;
                     if(ekind == kEventMenuOpening)
                         emit qmenu->aboutToShow();
+#ifdef QT_COMPAT
                     else
                         emit qmenu->aboutToHide();
+#endif
                 }
             }
 #ifdef QT_COMPAT
