@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#215 $
+** $Id: //depot/qt/main/src/widgets/qlineedit.cpp#216 $
 **
 ** Implementation of QLineEdit widget class
 **
@@ -575,7 +575,7 @@ void QLineEdit::paintEvent( QPaintEvent *e )
 
     if ( hasFocus() ) {
 	d->cursorRepaintRect
-	    = QRect( offset + (frame() ? 2 : 0 ) + 
+	    = QRect( offset + (frame() ? 2 : 0 ) +
 		     fontMetrics().width( displayText().left( cursorPos ) ),
 		     d->cursorRepaintRect.top(),
 		     5, d->cursorRepaintRect.height() );
@@ -747,7 +747,9 @@ void QLineEdit::cursorRight( bool mark, int steps )
     int cp = cursorPos + steps;
     cp = QMAX( cp, 0 );
     cp = QMIN( cp, (int)tbuf.length() );
-    if ( mark ) {
+    if ( cp == cursorPos ) {
+	// nothing
+    } else if ( mark ) {
 	newMark( cp );
 	blinkOn();
     } else {
@@ -1353,8 +1355,10 @@ void QLineEdit::setSelection( int start, int length )
 
 void QLineEdit::setCursorPosition( int newPos )
 {
-    if ( newPos > (int)tbuf.length() || newPos < 0 )
+    if ( newPos == cursorPos )
 	return;
+    newPos = QMIN( newPos, (int)tbuf.length() );
+    newPos = QMAX( newPos, 0 );
     int b, e;
     b = QMIN( newPos, cursorPos );
     e = QMAX( newPos, cursorPos );
@@ -1521,9 +1525,7 @@ void QLineEdit::blinkOn()
     if ( !hasFocus() )
 	return;
 
-    d->blinkTimer.start( cursorOn ? QApplication::cursorFlashTime()/2 : 0,
-			 TRUE );
-    cursorOn = TRUE;
+    d->blinkTimer.start( cursorOn?QApplication::cursorFlashTime()/2:0, TRUE );
 }
 
 
