@@ -5,7 +5,6 @@
 
 #include "qglobal.h"
 
-
 // Set any POSIX/XOPEN defines at the top of this file to turn on specific APIs
 
 #include <unistd.h>
@@ -23,6 +22,7 @@
 #include <grp.h>
 #include <pwd.h>
 #include <signal.h>
+#define QT_NO_LIBRARY_UNLOAD
 
 #include <sys/types.h>
 #include <sys/ioctl.h>
@@ -32,7 +32,6 @@
 #include <sys/socket.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
-#define QT_NO_LIBRARY_UNLOAD
 
 // DNS header files are not fully covered by X/Open specifications.
 // In particular nothing is said about res_* :/

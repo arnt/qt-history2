@@ -17,13 +17,15 @@
 #include <pthread.h>
 #endif
 
+#include <dirent.h>
 #include <fcntl.h>
-#include <signal.h>
+#include <grp.h>
+#include <pwd.h>
 #include <stat.h>
 #include <socket.h>
 #include <ioctl.h>
 #include <wait.h>
-#include <pwd.h>
+#include <signal.h>
 #define QT_NO_LIBRARY_UNLOAD
 
 // DNS header files are not fully covered by X/Open specifications.
@@ -34,8 +36,7 @@
 #include <nameser.h>
 #include <netinet/in.h>
 #include <resolv.h>
-#include <dirent.h>
-#include <grp.h>
+
 
 #define QT_STATBUF		struct stat
 #define QT_STATBUF4TSTAT	struct stat

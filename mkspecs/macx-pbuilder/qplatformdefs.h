@@ -5,7 +5,6 @@
 
 #include "qglobal.h"
 
-
 // Set any POSIX/XOPEN defines at the top of this file to turn on specific APIs
 
 #include <unistd.h>
