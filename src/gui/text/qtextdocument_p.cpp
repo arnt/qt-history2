@@ -19,6 +19,59 @@
 
 #define PMDEBUG if(0) qDebug
 
+/*
+  Structure of a document:
+
+  DOCUMENT :== FRAME_CONTENTS
+  FRAME :== START_OF_FRAME  FRAME_CONTENTS END_OF_FRAME
+  FRAME_CONTENTS = LIST_OF_BLOCKS ((FRAME | TABLE) LIST_OF_BLOCKS)*
+  TABLE :== (START_OF_FRAME TABLE_CELL)+ END_OF_FRAME
+  TABLE_CELL = FRAME_CONTENTS
+  LIST_OF_BLOCKS :== (BLOCK END_OF_PARA)* BLOCK
+  BLOCK :== (FRAGMENT)*
+  FRAGMENT :== String of characters
+
+  END_OF_PARA :== 0x2029 # Paragraph separator in Unicode
+  START_OF_FRAME :== 0xfdd0
+  END_OF_FRAME := 0xfdd1
+
+  The START_OF_FRAME used in the TABLE rule should maybe be a
+  different char (START_OF_TABLE_CELL), to disambiguate the rules
+  (currently the object() of the charFormat associated with the
+  START_OF_FRAME decides whether it's a frame or a table). But that
+  would make the code a bit more complex a few places.
+
+  Note also that LIST_OF_BLOCKS can be empty. Nevertheless, there is
+  at least one valid cursor position there where you could start
+  typing. The block format is in this case determined by the last
+  END_OF_PARA/START_OF_FRAME/END_OF_FRAME (see below).
+
+  Lists are not in here, as they are treated specially. A list is just
+  a collection of (not neccessarily connected) blocks, that share the
+  same objectIndex() in the format that refers to the list format and
+  object.
+
+  The above does not clearly note where formats are. Here's
+  how it looks currently:
+
+  FRAGMENT: one charFormat associated
+  END_OF_PARA: one charFormat, and a blockFormat for the _next_ block.
+  START_OF_FRAME: one char format, and a blockFormat (for the next
+  block). The object() of the charFormat decides whether this is a
+  frame or table and it's properties
+  END_OF_FRAME: one charFormat and a blockFormat (for the next
+  block). The object() of the charFormat is the same as for the
+  corresponding START_OF_BLOCK.
+
+
+  The document is independent of the layout with certain restrictions:
+
+  * Cursor movement (esp. up and down) depend on the layout.
+  * You cannot have more than one layout, as the layout data of QTextObjects
+    is stored in the text object itself.
+
+*/
+
 #define d d_func()
 #define q q_func()
 
