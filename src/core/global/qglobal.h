@@ -1819,7 +1819,7 @@ inline int qIntCast(float f) { return int(f); }
 #include <qfixedpoint.h>
 typedef QFixedPoint qReal;
 #else
-typedef double qReal;
+typedef float qReal;
 #endif
 
 #endif /* __cplusplus */
