@@ -501,10 +501,19 @@ QTextDocumentFragment QTextDocumentFragment::fromHTML(const QString &html)
     for (int i = 0; i < parser.count(); ++i) {
 	const QTextHtmlParserNode *node = &parser.at(i);
 
-	const bool tagWasClosed = (node->parent != i - 1);
-	if (i > 0 && tagWasClosed && node->parent) {
+	/* emit 'closing' table blocks or adjust current indent level
+	 * if we
+	 *  1) are beyond the first node
+	 *  2) the current node not being a child of the previous node
+	 *     means there was a tag closing in the input html
+	 *  3) the current node actually having a parent or we reached
+	 *     the last node, which means someone wrote bad html and
+	 *     forgot to close tags at the end
+	 */
+	if (i > 0 && (node->parent != i -1)
+	    && (node->parent || (i == parser.count() - 1))) {
 
-	    const int grandParent = parser.at(node->parent).parent;
+	    const int grandParent = node->parent ? parser.at(node->parent).parent : 0;
 	    const QTextHtmlParserNode *closedNode = &parser.at(i - 1);
 
 	    while (closedNode->parent && closedNode->parent != grandParent) {
