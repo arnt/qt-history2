@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/demo/display.cpp#4 $
+** $Id: //depot/qt/main/examples/demo/display.cpp#5 $
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -62,8 +62,10 @@ void Screen::animate()
     for ( int i = 0; i < QABS( step ); i++ ) {
 	int y = (int)((Range-FrameWidth)/2 * sin( 3.1415*(double)t/180.0 ));
 	yval[ p ] = y;
-	t = ++t % 360;
-	p = ++p % MaxSamples;
+	++t;
+	t %= 360;
+	++p;
+	p %= MaxSamples;
     }
     t0 -= step;
     if ( t0 < 0 )
@@ -90,7 +92,8 @@ void Screen::drawContents( QPainter *p )
 
     for ( int x = r.left(); x <= r.right(); x++ ) {
 	p->drawLine( x, y0 + yval[ vp ], x, r.bottom());
-	vp = ++vp % MaxSamples;
+	++vp;
+	vp %= MaxSamples;
     }
 }
 
@@ -205,7 +208,8 @@ void DisplayWidget::tick()
     lcd->display( ++lcdval % 100 );
     // progress bar
     bar->setProgress( 5 + (int)(5*sin( 3.1415 * (double)tbar / 180.0 )));
-    tbar = ++tbar % 360;
+    ++tbar;
+    tbar %= 360;
 }
 
 void DisplayWidget::showEvent( QShowEvent * )
