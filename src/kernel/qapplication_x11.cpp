@@ -309,7 +309,7 @@ static bool sm_blockUserInput = FALSE;		// session management
 // one day in the future we will be able to have static objects in libraries....
 static QGuardedPtr<QWidget>* activeBeforePopup = 0; // focus handling with popups
 
-typedef void  (*VFPTR)();
+typedef void (*VFPTR)();
 typedef QValueList<VFPTR> QVFuncList;
 static QVFuncList *postRList = 0;		// list of post routines
 
@@ -3167,6 +3167,8 @@ void QApplication::openPopup( QWidget *popup )
 		XUngrabKeyboard( popup->x11Display(), CurrentTime );
 	    }
 	}
+    } else if ( popupGrabOk ) {
+	 XAllowEvents(  popup->x11Display(), SyncPointer, CurrentTime ); 
     }
 
     // popups are not focus-handled by the window system (the first
