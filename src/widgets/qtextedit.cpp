@@ -1883,6 +1883,10 @@ void QTextEdit::removeSelectedText( int selNum )
 
 void QTextEdit::moveCursor( CursorAction action, bool select )
 {
+#ifdef QT_TEXTEDIT_OPTIMIZATION
+    if ( d->optimMode )
+	return;
+#endif
 #ifdef Q_WS_MACX
     QTextCursor c1 = *cursor;
     QTextCursor c2;
@@ -2726,6 +2730,10 @@ void QTextEdit::handleMouseMove( const QPoint& pos )
 
 void QTextEdit::placeCursor( const QPoint &pos, QTextCursor *c, bool link )
 {
+#ifdef QT_TEXTEDIT_OPTIMIZATION
+    if ( d->optimMode )
+	return;
+#endif
     if ( !c )
 	c = cursor;
 
@@ -5872,26 +5880,17 @@ bool QTextEdit::checkOptimMode()
     if ( oldMode != d->optimMode ) {
 	if ( d->optimMode ) {
 	    d->od = new QTextEditOptimPrivate;
-	    connect( scrollTimer, SIGNAL( timeout() ),
-		     this, SLOT( optimDoAutoScroll() ) );
-	    disconnect( doc, SIGNAL( minimumWidthChanged( int ) ),
-			this, SLOT( documentWidthChanged( int ) ) );
-	    disconnect( scrollTimer, SIGNAL( timeout() ),
-			this, SLOT( autoScrollTimerDone() ) );
-	    disconnect( formatTimer, SIGNAL( timeout() ),
-			this, SLOT( formatMore() ) );
-
+	    connect( scrollTimer, SIGNAL( timeout() ), this, SLOT( optimDoAutoScroll() ) );
+	    disconnect( doc, SIGNAL( minimumWidthChanged( int ) ), this, SLOT( documentWidthChanged( int ) ) );
+	    disconnect( scrollTimer, SIGNAL( timeout() ), this, SLOT( autoScrollTimerDone() ) );
+	    disconnect( formatTimer, SIGNAL( timeout() ), this, SLOT( formatMore() ) );
  	    optimSetText( doc->originalText() );
     	    doc->clear( TRUE );
 	} else {
- 	    disconnect( scrollTimer, SIGNAL( timeout() ),
- 			this, SLOT( optimDoAutoScroll() ) );
-	    connect( doc, SIGNAL( minimumWidthChanged( int ) ),
-		     this, SLOT( documentWidthChanged( int ) ) );
-	    connect( scrollTimer, SIGNAL( timeout() ),
-		     this, SLOT( autoScrollTimerDone() ) );
-	    connect( formatTimer, SIGNAL( timeout() ),
-		     this, SLOT( formatMore() ) );
+ 	    disconnect( scrollTimer, SIGNAL( timeout() ), this, SLOT( optimDoAutoScroll() ) );
+	    connect( doc, SIGNAL( minimumWidthChanged( int ) ), this, SLOT( documentWidthChanged( int ) ) );
+	    connect( scrollTimer, SIGNAL( timeout() ), this, SLOT( autoScrollTimerDone() ) );
+	    connect( formatTimer, SIGNAL( timeout() ), this, SLOT( formatMore() ) );
  	    setText( optimText() );
  	    delete d->od;
  	    d->od = 0;
