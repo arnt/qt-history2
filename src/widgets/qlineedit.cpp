@@ -893,6 +893,8 @@ bool QLineEdit::event( QEvent * e )
 	    case Key_X:
 	    case Key_V:
 	    case Key_C:
+	    case Key_Z:
+	    case Key_Y:
 	    case Key_Left:
 	    case Key_Right:
 	    ke->accept();

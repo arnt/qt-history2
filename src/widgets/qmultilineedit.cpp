@@ -512,6 +512,7 @@ void QMultiLineEdit::cursorDown( bool mark )
     moveCursor( MoveDown, mark );
 }
 
+
 /*!  Returns the text at line number \a line (possibly the empty
   string), or a \link QString::operator!() null string\endlink if \a
   line is invalid.

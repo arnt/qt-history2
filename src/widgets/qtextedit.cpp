@@ -727,6 +727,8 @@ bool QTextEdit::event( QEvent *e )
 	    case Key_Insert:
 #endif
 	    case Key_X:
+	    case Key_Z:
+	    case Key_Y:
 	    case Key_V:
 	    case Key_C:
 	    case Key_Left:
