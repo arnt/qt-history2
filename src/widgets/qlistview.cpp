@@ -745,6 +745,7 @@ void QListViewItem::takeItem( QListViewItem * item )
 	    }
 	}
 
+	was_selected = item->isSelected();
 	item->setSelected( FALSE );
 
 #if 0
@@ -760,7 +761,6 @@ void QListViewItem::takeItem( QListViewItem * item )
 #endif
 
 	if ( lv->d->focusItem ) {
-	    was_selected = lv->d->focusItem->isSelected();
 	    const QListViewItem * c = lv->d->focusItem;
 	    while( c && c != item )
 		c = c->parentItem;
@@ -2123,8 +2123,10 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 		if ( d->useDoubleBuffer ) {
 		    QSize ps( r.width(), current->i->height() );
 		    QPixmap *pm = getCacheBuffer( ps );
-		    pm->fill( colorGroup().color( QColorGroup::Base ) );
 		    QPainter dp( pm );
+		    dp.translate( -r.left(), -r.top() );
+		    paintEmptyArea( &dp, r );
+		    dp.translate( r.left(), r.top() );
 		    dp.setFont( p->font() );
 		    dp.setPen( p->pen() );
 		    dp.setBrush( p->brush() );
