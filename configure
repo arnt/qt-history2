@@ -1493,7 +1493,7 @@ if [ "$DO_INCREMENT" = "yes" ]; then
 	#done
 	INCREMENTAL="$INCREMENTAL `basename $f | sed 's,.cpp,.o,'`"
     done
-    echo "QMAKE_INCREMENTAL += $INCREMENTAL" >>$CACHEFILE
+    [ ! -z $INCREMENTAL ] && echo "QMAKE_INCREMENTAL += $INCREMENTAL" >>$CACHEFILE
     [ -e "$outpath/.qmake.incremental" ] && echo "include($outpath/.qmake.incremental)" >> $CACHEFILE
 fi
 
