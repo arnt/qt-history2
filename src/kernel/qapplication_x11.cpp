@@ -212,13 +212,13 @@ static char    *appBTNCol	= 0;		// application btn color
 static char    *mwGeometry	= 0;		// main widget geometry
 static char    *mwTitle		= 0;		// main widget title
 //Ming-Che 10/10
-static char    *ximServer   = 0;		//XIM Server will connect to
+static char    *ximServer	= 0;		// XIM Server will connect to
 static bool	mwIconic	= FALSE;	// main widget iconified
 //Ming-Che 10/10
-static bool noxim			= False;	//connect to xim or not
+static bool	noxim		= False;	// connect to xim or not
 static Display *appDpy		= 0;		// X11 application display
 static char    *appDpyName	= 0;		// X11 display name
-static bool     appForeignDpy	= FALSE;        // we didn't create display
+static bool	appForeignDpy	= FALSE;        // we didn't create display
 static bool	appSync		= FALSE;	// X11 synchronization
 #if defined(DEBUG)
 static bool	appNoGrab	= FALSE;	// X11 grabbing enabled
@@ -506,7 +506,7 @@ static int qt_x_errhandler( Display *dpy, XErrorEvent *err )
     char errstr[256];
     XGetErrorText( dpy, err->error_code, errstr, 256 );
     qWarning( "X Error: %s %d\n  Major opcode:  %d", errstr, err->error_code, err->request_code );
-    //### we really should distinguish between severe, non-servere and
+    //### we really should distinguish between severe, non-severe and
     //### application specific errors
     return 0;
 }
@@ -516,8 +516,8 @@ static int qt_xio_errhandler( Display * )
 {
     qWarning( "%s: Fatal IO error: client killed", appName );
     exit( 1 );
-    //### give the application a chance for a proper shutdown instead, exit(1)
-    //### doesn't help.
+    //### give the application a chance for a proper shutdown instead,
+    //### exit(1) doesn't help.
     return 0;
 }
 
@@ -1315,7 +1315,7 @@ void qt_cleanup()
     appDpy = 0;
 
     if ( appForeignDpy ) {
-	delete[] appName;
+	delete [] appName;
 	appName = 0;
     }
 
@@ -1408,7 +1408,6 @@ void qAddPostRoutine( Q_CleanUpFunction p )
     }
     postRList->insert( 0, (void *)p );		// store at list head
 }
-
 
 char *qAppName()				// get application name
 {

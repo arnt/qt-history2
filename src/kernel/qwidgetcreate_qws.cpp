@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/fb/src/kernel/qwidgetcreate_qws.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qwidgetcreate_qws.cpp#1 $
 **
 ** Implementation of Qt calls to FB
 **

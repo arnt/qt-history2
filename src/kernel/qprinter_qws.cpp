@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/fb/src/kernel/qprinter_qws.cpp#2 $
+** $Id: //depot/qt/main/src/kernel/qprinter_qws.cpp#1 $
 **
 ** Implementation of QPrinter class for FB
 **

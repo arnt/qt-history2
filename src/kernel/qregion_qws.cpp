@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/fb/src/kernel/qregion_qws.cpp#3 $
+** $Id: //depot/qt/main/src/kernel/qregion_qws.cpp#1 $
 **
 ** Implementation of QRegion class for FB
 **
