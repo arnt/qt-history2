@@ -15,9 +15,10 @@
 class QMySQLPrivate
 {
 public:
-    MYSQL_RES	*result;
-    MYSQL_ROW 	row;
-    MYSQL 	*mysql;
+    QMySQLPrivate() : result(0), mysql(0) {}
+    MYSQL_RES* result;
+    MYSQL_ROW  row;
+    MYSQL*     mysql;
 };
 
 QSqlError qMakeError( const QString& err, int type, const QMySQLPrivate* p )
@@ -51,12 +52,12 @@ QVariant::Type qDecodeMYSQLType( int mysqltype )
     case FIELD_TYPE_TIMESTAMP :
 	type = QVariant::DateTime;
 	break;
-//     case FIELD_TYPE_BLOB :
 //     case FIELD_TYPE_SET :
 //     case FIELD_TYPE_ENUM :
 //     case FIELD_TYPE_NULL :
-// 	type = QSqlFieldInfo::Binary;
-// 	break;
+    case FIELD_TYPE_BLOB :
+ 	type = QVariant::ByteArray;
+ 	break;
     default:
     case FIELD_TYPE_STRING :
     case FIELD_TYPE_CHAR :
@@ -87,12 +88,12 @@ QMySQLResult::~QMySQLResult()
 
 void QMySQLResult::cleanup()
 {
-    if ( isActive() ) {
-        mysql_free_result( d->result );
-        d->result = NULL;
-        d->row = NULL;
-        setAt( -1 );
+    if ( d->result ) {
+	mysql_free_result( d->result );
     }
+    d->result = NULL;
+    d->row = NULL;
+    setAt( -1 );
     setActive( FALSE );
 }
 
@@ -141,10 +142,15 @@ QVariant QMySQLResult::data( int field )
 	    case QVariant::DateTime:
 		return QVariant( QDateTime::fromString( val, Qt::ISODate ) );
 		break;
-		//     case QSqlFieldInfo::Binary:
-		//    if ( PQbinaryTuples( d->result ) )
-		// 	return QVariant( );
-		// 	break;
+	    case QVariant::ByteArray: {
+		if ( ! ( f->flags & BLOB_FLAG ) )
+		    return QVariant( QByteArray() );
+		unsigned long * fl = mysql_fetch_lengths( d->result );
+		QByteArray ba;
+		ba.duplicate( d->row[field], fl[field] );
+		return QVariant( ba );
+		break;
+	    }
 	    default:
 	    case QVariant::String:
 		return QVariant( val );
@@ -152,17 +158,11 @@ QVariant QMySQLResult::data( int field )
 	    }
 	}
     }
+#ifdef QT_CHECK_RANGE
+    qWarning("QMySQLResult::data: unknown data type");
+#endif
     return QVariant();
 }
-
-// QByteArray QMySQLResult::binary( int field )
-// {
-//     unsigned long *lengths;
-//     lengths = mysql_fetch_lengths( d->result );
-//     QByteArray b;
-//     b.duplicate( d->row[field], lengths[field]);
-//     return b;
-// }
 
 bool QMySQLResult::isNull( int field )
 {
@@ -173,17 +173,17 @@ bool QMySQLResult::isNull( int field )
 
 bool QMySQLResult::reset ( const QString& query )
 {
-    cleanup();
     if ( !driver() )
         return FALSE;
     if ( !driver()-> isOpen() || driver()->isOpenError() )
         return FALSE;
+    cleanup();
     if ( mysql_real_query( d->mysql, query, query.length() ) ) {
 	setLastError( qMakeError("Unable to execute query", QSqlError::Statement, d ) );
 	return FALSE;
     }
     d->result = mysql_store_result( d->mysql );
-    if ( !d->result ) {
+    if ( !d->result && mysql_field_count( d->mysql ) > 0 ) {
 	setLastError( qMakeError( "Unable to store result", QSqlError::Statement, d ) );
 	return FALSE;
     }
@@ -231,7 +231,7 @@ bool QMySQLDriver::hasQuerySizeSupport() const
 
 bool QMySQLDriver::canEditBinaryFields() const
 {
-    return FALSE;
+    return TRUE;
 }
 
 bool QMySQLDriver::open( const QString & db,
@@ -350,3 +350,20 @@ QSqlRecord QMySQLDriver::record( const QSqlQuery& query ) const
     return fil;
 }
 
+QString QMySQLDriver::formatValue( const QSqlField* field ) const
+{
+    if ( field->type() == QVariant::ByteArray ) {
+	QString r;
+	QByteArray ba = field->value().toByteArray();
+	QString res;
+	static const char hexchars[] = "0123456789abcdef";
+	for ( uint i = 0; i < ba.size(); ++i ) {
+	    uchar s = (uchar) ba[i];
+	    res += hexchars[s >> 4];
+	    res += hexchars[s & 0x0f];
+	}
+	r = "'" + res + "'";
+	return r;
+    }
+    return QSqlDriver::formatValue( field );
+}
