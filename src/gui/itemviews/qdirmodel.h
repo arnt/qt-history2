@@ -60,6 +60,8 @@ public:
     QDir::FilterSpec filter() const;
     void setSorting(int spec);
     QDir::SortSpec sorting() const;
+    void setMatchAllDirs(bool enable);
+    bool matchAllDirs() const;
 
     QModelIndex index(const QString &path) const;
     QString path(const QModelIndex &index) const;
