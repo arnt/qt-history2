@@ -146,6 +146,7 @@ inline QTLWExtra* QETWidget::topData() { return d->topData(); }
 /*****************************************************************************
   External functions
  *****************************************************************************/
+extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
 extern QWidget *qt_mac_find_window(WindowPtr); //qwidget_mac.cpp
 extern QString cfstring2qstring(CFStringRef); //qglobal.cpp
 extern void qt_mac_set_cursor(const QCursor *, const Point *); //qcursor_mac.cpp
@@ -1308,7 +1309,7 @@ bool QApplication::do_mouse_down(Point *pt, bool *mouse_down_unhandled)
 		widget->setActiveWindow();
 	}
     }
-    WindowPtr window = HIViewGetWindow((HIViewRef)widget->winId());
+    WindowPtr window = qt_mac_window_for((HIViewRef)widget->winId());
     if(windowPart == inGoAway || windowPart == inCollapseBox ||
        windowPart == inZoomIn || windowPart == inZoomOut) {
 	QMacBlockingFunction block;
@@ -1480,7 +1481,7 @@ void qt_leave_modal(QWidget *widget)
 }
 
 QWidget *qt_tryModalHelperMac( QWidget * top ) {
-    if(top && qt_mac_is_macsheet(top) && !IsWindowVisible(HIViewGetWindow((HIViewRef)top->winId()))) {
+    if(top && qt_mac_is_macsheet(top) && !IsWindowVisible(qt_mac_window_for((HIViewRef)top->winId()))) {
 	if(WindowPtr wp = GetFrontWindowOfClass(kSheetWindowClass, true)) {
 	    if(QWidget *sheet = qt_mac_find_window(wp))
 		top = sheet;
