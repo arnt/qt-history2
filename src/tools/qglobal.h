@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.h#69 $
+** $Id: //depot/qt/main/src/tools/qglobal.h#70 $
 **
 ** Global type declarations and definitions
 **
@@ -66,6 +66,8 @@
 #define _OS_BSDI_
 #elif defined(_SCO_DS) || defined(M_UNIX) || defined(M_XENIX)
 #define _OS_SCO_
+#elif defined(_AIX)
+#define _OS_AIX_
 #else
 #error "Qt has not been ported to this OS - talk to qt-bugs@troll.no"
 #endif
@@ -112,12 +114,23 @@
 #define _CC_SUN_
 #elif defined(__DECCXX)
 #define _CC_DEC_
+#elif defined(__xlC__)
+#define _CC_XLC_
 #elif defined(_OS_HPUX_)
+// must be last, since the HP CC's we have seen do not identify themselves
+// in any documented manner
 #define _CC_HP_
 #else
 #error "Qt has not been tested with this compiler - talk to qt-bugs@troll.no"
 #endif
 
+#if defined(_OS_AIX_)
+// need these to activate the correct parts of /usr/include/*.h
+#define _ANSI_C_SOURCE
+#define _ALL_SOURCE
+#define _X_OPEN_SOURCE
+#define _BSD
+#endif
 
 //
 // Specify to use macro or template classes (if not set from cmd line)
