@@ -436,7 +436,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     bool resource = FALSE;
     QStringList &uninst = project->variables()[t + ".uninstall"];
     QString ret, destdir=fileFixify(project->first("DESTDIR"));
-    QString targetdir = fileFixify(Option::fixPathToTargetOS(project->first("target.path"), FALSE));
+    QString targetdir = Option::fixPathToTargetOS(project->first("target.path"), FALSE);
     if(!destdir.isEmpty() && destdir.right(1) != Option::dir_sep)
 	destdir += Option::dir_sep;
     targetdir = "$(INSTALL_ROOT)" + Option::fixPathToTargetOS(targetdir, FALSE);
