@@ -75,6 +75,7 @@ public:
 	Point,
 	Image,
 	Int,
+	UInt,
 	Bool,
 	Double,
 	CString,
@@ -105,6 +106,7 @@ public:
     QVariant( const QValueList<QVariant>& );
     QVariant( const QMap<QString,QVariant>& );
     QVariant( int );
+    QVariant( uint );
     QVariant( bool );
     QVariant( double );
 
@@ -128,6 +130,7 @@ public:
     void setValue( const QValueList<QVariant>& );
     void setValue( const QMap<QString,QVariant>& );
     void setValue( int );
+    void setValue( uint );
     void setBoolValue( bool );
     void setValue( double );
 
@@ -153,6 +156,7 @@ public:
     QColorGroup toColorGroup() const;
     QIconSet toIconSet() const;
     int toInt() const;
+    uint toUInt() const;
     bool toBool() const;
     double toDouble() const;
     QValueList<QVariant> toList() const;
@@ -170,6 +174,7 @@ protected:
     Type typ;
     union
     {
+	uint u;
 	int i;
 	bool b;
 	double d;

@@ -145,7 +145,7 @@ class Q_EXPORT QIconViewItem : public QObject
     Q_PROPERTY( QPixmap, "pixmap", pixmap, setPixmap )
     Q_PROPERTY( QString, "key", key, setKey )
     Q_PROPERTY( int, "index", index, 0 )
-    // #### Does not work: default param Q_PROPERTY( bool, "selected", isSelected, setSelected )
+    Q_PROPERTY( bool, "selected", isSelected, setSelected )
     Q_PROPERTY( bool, "selectable", isSelectable, setSelectable )
     Q_PROPERTY( QRect, "rect", rect, 0 )
     Q_PROPERTY( int, "x", x, 0 )
@@ -182,7 +182,8 @@ public:
 
     int index() const;
 
-    virtual void setSelected( bool s, bool cb = FALSE );
+    virtual void setSelected( bool s, bool cb );
+    virtual void setSelected( bool s );
     virtual void setSelectable( bool s );
 
     bool isSelected() const;
@@ -291,6 +292,7 @@ class Q_EXPORT QIconView : public QScrollView
     Q_PROPERTY( bool, "autoArrange", autoArrange, setAutoArrange )
     Q_PROPERTY( bool, "moveItemsEnabled", enableMoveItems, setEnableMoveItems )
     Q_PROPERTY( bool, "wordWrapIconText", wordWrapIconText, setWordWrapIconText )
+    Q_PROPERTY( uint, "count", count, 0 )
 	
 public:
     enum SelectionMode {

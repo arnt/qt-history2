@@ -1033,6 +1033,17 @@ int QIconViewItem::index() const
 /*!
   Selects / Unselects the item depending on the QIconView::selectionMode() of the iconview.
 
+  The item redraws itself if the selection changed.
+*/
+
+void QIconViewItem::setSelected( bool s )
+{
+    setSelected( s, FALSE );
+}
+
+/*!
+  Selects / Unselects the item depending on the QIconView::selectionMode() of the iconview.
+
   If \a s is FALSE, the item gets unselected. If \a s is TRUE
   <li> and QIconView::selectionMode() is Single, the item gets selected and the
   item which was selected, gets unselected
@@ -3779,7 +3790,7 @@ void QIconView::keyPressEvent( QKeyEvent *e )
 	 d->selectionMode == Single ) {
 	d->currentItem->setSelected( TRUE );
     }
-    
+
     switch ( e->key() ) {
     case Key_Home: {
 	d->currInputString = QString::null;

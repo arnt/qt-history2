@@ -112,6 +112,7 @@
   <li> \c Point - a QPoint
   <li> \c Image - a QImage
   <li> \c Int - an int
+  <li> \c UInt - an unsigned int
   <li> \c Bool - a bool
   <li> \c Double - a doublea
   <li> \c CString - a QCString
@@ -313,12 +314,21 @@ QVariant::QVariant( int val )
 }
 
 /*!
+  Constructs a new variant with an unsigned integer value.
+*/
+QVariant::QVariant( uint val )
+{
+    typ = Invalid;
+    setValue( val );
+}
+
+/*!
   Constructs a new variant with a boolean value.
 */
 QVariant::QVariant( bool val )
 {
     typ = Invalid;
-    setValue( val );
+    setBoolValue( val );
 }
 
 
@@ -402,6 +412,9 @@ QVariant& QVariant::operator= ( const QVariant& other )
 	    break;
 	case Int:
 	    value.i = other.toInt();
+	    break;
+	case UInt:
+	    value.u = other.toUInt();
 	    break;
 	case Bool:
 	    value.b = other.toBool();
@@ -606,6 +619,16 @@ void QVariant::setValue( int val )
 
 /*!
   Changes the value of this variant to \a val.
+*/
+void QVariant::setValue( uint val )
+{
+    clear();
+    typ = UInt;
+    value.u = val;
+}
+
+/*!
+  Changes the value of this variant to \a val.
   This is not called setValue(bool), since some compilers
   cannot distinguish between bool and int.
 */
@@ -695,6 +718,7 @@ void QVariant::clear()
 	    break;
 	case Invalid:
 	case Int:
+	case UInt:
 	case Bool:
 	case Double:
 	    break;
@@ -710,7 +734,7 @@ void QVariant::clear()
   For dependency reasons, this table is duplicated in moc.y. If you
   change one, change both.
 */
-static const int ntypes = 20;
+static const int ntypes = 21;
 static const char* type_map[ntypes] =
 {
     0,
@@ -730,6 +754,7 @@ static const char* type_map[ntypes] =
     "QPoint",
     "QImage",
     "int",
+    "uint",
     "bool",
     "double",
     "QCString"
@@ -825,8 +850,11 @@ void QVariant::load( QDataStream& s )
 	case Int:
 	    { int x; s >> x; setValue( x ); };
 	    break;
+	case UInt:
+	    { uint x; s >> x; setValue( x ); };
+	    break;
 	case Bool:
-	    { Q_INT8 x; s >> x; setValue( (bool)x ); };
+	    { Q_INT8 x; s >> x; setBoolValue( x ); };
 	    break;
 	case Double:
 	    { double x; s >> x; setValue( x ); };
@@ -896,6 +924,9 @@ void QVariant::save( QDataStream& s ) const
 	    break;
 	case Int:
 	    s << toInt();
+	    break;
+	case UInt:
+	    s << toUInt();
 	    break;
 	case Bool:
 	    s << (Q_INT8)toBool();
@@ -1140,12 +1171,35 @@ QIconSet QVariant::toIconSet() const
 
 /*!
   Returns the variant as an int if the variant has type()
-  Int, Double or Bool, or 0 otherwise.
+  Int, UInt, Double or Bool, or 0 otherwise.
 */
 int QVariant::toInt() const
 {
     if( typ == Int )
 	return value.i;
+    if( typ == UInt )
+	return (int)value.u;
+    if ( typ == Double )
+	return (int)value.d;
+    if ( typ == Bool )
+	return (int)value.b;
+    /* if ( typ == String )
+	return ((QString*)value.ptr)->toInt();
+    if ( typ == CString )
+    return ((QCString*)value.ptr)->toInt(); */
+    return 0;
+}
+
+/*!
+  Returns the variant as an unsigned int if the variant has type()
+  UInt, Int, Double or Bool, or 0 otherwise.
+*/
+uint QVariant::toUInt() const
+{
+    if( typ == Int )
+	return value.i;
+    if( typ == UInt )
+	return (int)value.u;
     if ( typ == Double )
 	return (int)value.d;
     if ( typ == Bool )
@@ -1160,7 +1214,7 @@ int QVariant::toInt() const
 /*!
   Returns the variant as a bool if the variant has type()
   Bool, or FALSE otherwise. The only exceptions to this rule are
-  the types Int, Double. In this case TRUE is returned if the numerical
+  the types Int, UInt, Double. In this case TRUE is returned if the numerical
   value is not zero or FALSE otherwise.
 */
 bool QVariant::toBool() const
@@ -1171,6 +1225,8 @@ bool QVariant::toBool() const
 	return value.d != 0.0;
     if ( typ == Int )
 	return value.i != 0;
+    if ( typ == UInt )
+	return value.u != 0;
     /* if ( typ == String )
 	return *((QString*)value.ptr) == "true";
     if ( typ == CString )
@@ -1180,7 +1236,7 @@ bool QVariant::toBool() const
 
 /*!
   Returns the variant as a double if the variant has type()
-  Double, Int or Bool, or 0.0 otherwise.
+  Double, Int, UInt or Bool, or 0.0 otherwise.
 */
 double QVariant::toDouble() const
 {
@@ -1190,6 +1246,8 @@ double QVariant::toDouble() const
 	return (double)value.i;
     if ( typ == Bool )
 	return (double)value.b;
+    if ( typ == UInt )
+	return (double)value.u;
     /* if ( typ == String )
 	return ((QString*)value.ptr)->toDouble();
     if ( typ == CString )
@@ -1221,12 +1279,13 @@ QValueList<QVariant> QVariant::toList() const
   Returns TRUE if the current type of the variant can be casted to
   the requested type. The casting is done automatically when calling
   the toInt(), toBool(), ... methods.
-  
+
   The following casts are done automatically:
   <ul>
-  <li> Bool -> Double, Int
-  <li> Double -> Int, Bool
-  <li> Int -> Double, Bool
+  <li> Bool -> Double, Int, UInt
+  <li> Double -> Int, Bool, UInt
+  <li> Int -> Double, Bool, UInt
+  <li> UInt -> Double, Bool, Int
   <li> String -> CString
   <li> CString -> String
   <li> List -> StringList
@@ -1237,11 +1296,13 @@ bool QVariant::canCast( Type t ) const
 {
     if ( typ == t )
 	return TRUE;
-    if ( t == Bool && ( typ == Double || typ == Int ) )
+    if ( t == Bool && ( typ == Double || typ == Int || typ == UInt ) )
 	 return TRUE;
-    if ( t == Int && ( typ == Double || typ == Bool ) )
+    if ( t == Int && ( typ == Double || typ == Bool || typ == UInt ) )
 	return TRUE;
-    if ( t == Double && ( typ == Int || typ == Bool ) )
+    if ( t == UInt && ( typ == Double || typ == Bool || typ == Int ) )
+	return TRUE;
+    if ( t == Double && ( typ == Int || typ == Bool || typ == UInt ) )
 	return TRUE;
     if ( t == CString && typ == String )
 	return TRUE;

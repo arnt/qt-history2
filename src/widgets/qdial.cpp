@@ -688,7 +688,7 @@ void QDial::subtractPage()
   are shown, else not.
 */
 
-void QDial::setShowNotches( bool b )
+void QDial::setNotchesVisible( bool b )
 {
     d->showNotches = b;
     d->eraseAreaValid = FALSE;
@@ -701,7 +701,7 @@ void QDial::setShowNotches( bool b )
   Retuns TRUE if notches are shown, else FALSE;
 */
 
-bool QDial::showNotches()
+bool QDial::notchesVisible() const
 {
     return d->showNotches;
 }

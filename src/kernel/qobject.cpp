@@ -2048,6 +2048,9 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     typedef void (QObject::*ProtoInt)( int );
     typedef void (QObject::*RProtoInt)( const int& );
 
+    typedef void (QObject::*ProtoUInt)( uint );
+    typedef void (QObject::*RProtoUInt)( const uint& );
+
     typedef void (QObject::*ProtoDouble)( double );
     typedef void (QObject::*RProtoDouble)( const double& );
 
@@ -2108,7 +2111,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
     const QMetaProperty* p = meta->property( name, TRUE );
     if ( !p )
 	return FALSE;
-    
+
     if ( p->enumData ) {
 	if ( value.type() != QVariant::String && value.type() != QVariant::CString )
 	    return FALSE;
@@ -2394,6 +2397,21 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	    ASSERT( 0 );
 	return TRUE;
 
+    case QVariant::UInt:
+	if ( p->sspec == QMetaProperty::Class ) {
+	    ProtoUInt m;
+	    m = *((ProtoUInt*)&p->set);
+	    (this->*m)( value.toUInt() );
+	}
+	else if ( p->sspec == QMetaProperty::Reference ) {
+	    RProtoUInt m;
+	    m = *((RProtoUInt*)&p->set);
+	    (this->*m)( value.toUInt() );
+	}
+	else
+	    ASSERT( 0 );
+	return TRUE;
+
     case QVariant::Double:
 	if ( p->sspec == QMetaProperty::Class ) {
 	    ProtoDouble m;
@@ -2452,7 +2470,7 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	}
 	else
 	    ASSERT( 0 );
-	return TRUE;    
+	return TRUE;
     }
 
     return FALSE;
@@ -2480,6 +2498,10 @@ QVariant QObject::property( const char *name ) const
     typedef int (QObject::*ProtoInt)() const;
     typedef const int* (QObject::*PProtoInt)() const;
     typedef const int& (QObject::*RProtoInt)() const;
+
+    typedef uint (QObject::*ProtoUInt)() const;
+    typedef const uint* (QObject::*PProtoUInt)() const;
+    typedef const uint& (QObject::*RProtoUInt)() const;
 
     typedef double (QObject::*ProtoDouble)() const;
     typedef const double* (QObject::*PProtoDouble)() const;
@@ -2532,15 +2554,7 @@ QVariant QObject::property( const char *name ) const
     typedef QImage (QObject::*ProtoImage)() const;
     typedef const QImage* (QObject::*PProtoImage)() const;
     typedef const QImage& (QObject::*RProtoImage)() const;
-    /*
-    typedef QValueList<double> (QObject::*ProtoDoubleList)() const;
-    typedef const QValueList<double>* (QObject::*PProtoDoubleList)() const;
-    typedef const QValueList<double>& (QObject::*RProtoDoubleList)() const;
 
-    typedef QValueList<int> (QObject::*ProtoIntList)() const;
-    typedef const QValueList<int>* (QObject::*PProtoIntList)() const;
-    typedef const QValueList<int>& (QObject::*RProtoIntList)() const;
-    */
     typedef QStringList (QObject::*ProtoStringList)() const;
     typedef const QStringList* (QObject::*PProtoStringList)() const;
     typedef const QStringList& (QObject::*RProtoStringList)() const;
@@ -3025,6 +3039,30 @@ QVariant QObject::property( const char *name ) const
 	    ASSERT( 0 );
 	return value;
 
+    case QVariant::UInt:
+	if ( p->gspec == QMetaProperty::Class ) {
+	    ProtoUInt m;
+	    m = *((ProtoUInt*)&p->get);
+	    value.setValue( (this->*m)() );
+	}
+	else if ( p->gspec == QMetaProperty::Reference ) {
+	    RProtoUInt m;
+	    m = *((RProtoUInt*)&p->get);
+	    value.setValue( (this->*m)() );
+	}
+	else if ( p->gspec == QMetaProperty::Pointer ) {
+	    PProtoUInt m;
+	    m = *((PProtoUInt*)&p->get);
+	    const uint *p = (this->*m)();
+	    if ( p )
+		value.setValue( *p );
+	    else
+		value.setValue( 0 );
+	}
+	else
+	    ASSERT( 0 );
+	return value;
+
     case QVariant::Double:
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoDouble m;
@@ -3053,21 +3091,21 @@ QVariant QObject::property( const char *name ) const
 	if ( p->gspec == QMetaProperty::Class ) {
 	    ProtoBool m;
 	    m = *((ProtoBool*)&p->get);
-	    value.setValue( (this->*m)() );
+	    value.setBoolValue( (this->*m)() );
 	}
 	else if ( p->gspec == QMetaProperty::Reference ) {
 	    RProtoBool m;
 	    m = *((RProtoBool*)&p->get);
-	    value.setValue( (this->*m)() );
+	    value.setBoolValue( (this->*m)() );
 	}
 	else if ( p->gspec == QMetaProperty::Pointer ) {
 	    PProtoBool m;
 	    m = *((PProtoBool*)&p->get);
 	    const bool* p = (this->*m)();
 	    if ( p )
-		value.setValue( *p );
+		value.setBoolValue( *p );
 	    else
-		value.setValue( (bool)FALSE );
+		value.setBoolValue( (bool)FALSE );
 	}
 	else
 	    ASSERT( 0 );

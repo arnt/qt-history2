@@ -42,7 +42,7 @@ class Q_EXPORT QDial: public QWidget, public QRangeControl
     Q_PROPERTY( bool, "wrapping", wrapping, setWrapping )
     Q_PROPERTY( int, "notchSize", notchSize, 0 )
     Q_PROPERTY( double, "notchTarget", notchTarget, setNotchTarget )
-    Q_PROPERTY( bool, "showNotches", showNotches, setShowNotches )
+    Q_PROPERTY( bool, "notchesVisible", notchesVisible, setNotchesVisible )
 	
 public:
     QDial( QWidget *parent=0, const char *name=0 );
@@ -61,8 +61,8 @@ public:
     virtual void setNotchTarget( double );
     double notchTarget() const;
 
-    void setShowNotches( bool b );
-    bool showNotches();
+    void setNotchesVisible( bool b );
+    bool notchesVisible() const;
 
     QSize minimumSize() const;
     QSize sizeHint() const;

@@ -45,7 +45,7 @@ class Q_EXPORT QListBox : public QScrollView
     friend class QListBoxItem;
 
     Q_OBJECT
-    // #### uses uint Q_PROPERTY( int, "count", count, 0 )
+    Q_PROPERTY( int, "count", count, 0 )
     Q_PROPERTY( int, "numItemsVisible", numItemsVisible, 0 )
     Q_PROPERTY( int, "currentItem", currentItem, setCurrentItem )
     Q_PROPERTY( QString, "currentText", currentText, 0 )
