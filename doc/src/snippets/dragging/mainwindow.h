@@ -27,7 +27,6 @@ private:
     QPixmap iconPixmap;
     QPoint dragStartPosition;
     QTextEdit *commentEdit;
-    bool dragging;
 };
 
 #endif

@@ -5,8 +5,6 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
 {
-    dragging = false;
-
     QFrame *centralFrame = new QFrame(this);
 
     QLabel *nameLabel = new QLabel(tr("Comment:"), centralFrame);
@@ -40,8 +38,6 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event)
 {
     if (!(event->buttons() & Qt::LeftButton))
         return;
-    if (dragging)
-        return;
     if ((event->pos() - dragStartPosition).manhattanLength()
          < QApplication::startDragDistance())
         return;
@@ -53,9 +49,7 @@ void MainWindow::mouseMoveEvent(QMouseEvent *event)
     drag->setMimeData(mimeData);
     drag->setPixmap(iconPixmap);
 
-    dragging = true;
     QDrag::DropAction dropAction = drag->start();
-    dragging = false;
 
     QString actionText;
     switch (dropAction) {
