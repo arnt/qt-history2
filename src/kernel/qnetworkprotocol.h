@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#7 $
+** $Id: //depot/qt/main/src/kernel/qnetworkprotocol.h#8 $
 **
 ** Implementation of QFileDialog class
 **
@@ -91,8 +91,7 @@ public:
     virtual void close();
     virtual void setUrl( QUrl *u );
 
-    virtual void listEntries( const QString &nameFilter, int filterSpec = QDir::DefaultFilter,
-			      int sortSpec = QDir::DefaultSort );
+    virtual void listEntries();
     virtual void mkdir( const QString &dirname );
     virtual void remove( const QString &filename );
     virtual void rename( const QString &oldname, const QString &newname );
@@ -100,7 +99,7 @@ public:
     virtual void put( const QCString &data );
 
     virtual bool isUrlDir();
-    
+
     static void registerNetworkProtocol( const QString &protocol,
 					 QNetworkProtocolFactoryBase *protocolFactory );
     static QNetworkProtocol *getNetworkProtocol( const QString &protocol );

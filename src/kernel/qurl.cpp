@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.cpp#37 $
+** $Id: //depot/qt/main/src/kernel/qurl.cpp#38 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1085,28 +1085,12 @@ void QUrl::decode( QString& url )
   If an error occures, the signal error() with an error code and an error
   message is emitted.
 
-  You can rely on the parameters \a filterSpec and \a sortSpec only when
-  working on the local filesystem, this may not be supported when using
-  a newtwork protocol.
-*/
-
-void QUrl::listEntries( int filterSpec,	int sortSpec )
-{
-    listEntries( d->nameFilter, filterSpec, sortSpec );
-}
-
-/*!
-  Starts listing a directory. The signal start() is emitted, before the
-  first entry is listed, and after the last one finished() is emitted.
-  If an error occures, the signal error() with an error code and an error
-  message is emitted.
-
   You can rely on the parameters \nameFilter \a filterSpec and \a sortSpec
   only when working on the local filesystem, this may not be supported when
-  using a newtwork protocol.
+  using a network protocol.
 */
 
-void QUrl::listEntries( const QString &nameFilter, int filterSpec, int sortSpec )
+void QUrl::listEntries()
 {
     if ( !checkValid() )
 	return;
@@ -1114,7 +1098,7 @@ void QUrl::listEntries( const QString &nameFilter, int filterSpec, int sortSpec 
     clearEntries();
     if ( isLocalFile() ) {
 	d->dir = QDir( d->path );
-	d->dir.setNameFilter( nameFilter );
+	d->dir.setNameFilter( d->nameFilter );
 	d->dir.setMatchAllDirs( TRUE );
 	if ( !d->dir.isReadable() ) {
 	    QString msg = QUrl::tr( "Could not read directory\n" + d->path );
@@ -1122,7 +1106,7 @@ void QUrl::listEntries( const QString &nameFilter, int filterSpec, int sortSpec 
 	    return;
 	}
 	
-	const QFileInfoList *filist = d->dir.entryInfoList( filterSpec, sortSpec );
+	const QFileInfoList *filist = d->dir.entryInfoList( QDir::All | QDir::Hidden );
 	if ( !filist ) {
 	    QString msg = QUrl::tr( "Could not read directory\n" + d->path );
 	    emit error( ErrReadDir, msg );
@@ -1144,8 +1128,8 @@ void QUrl::listEntries( const QString &nameFilter, int filterSpec, int sortSpec 
     } else if ( d->networkProtocol &&
 		d->networkProtocol->supportedOperations() & QNetworkProtocol::OpListEntries ) {
 	emit start( ActListDirectory );
-	setNameFilter( nameFilter );
-	d->networkProtocol->listEntries( nameFilter, filterSpec, sortSpec );
+	setNameFilter( d->nameFilter );
+	d->networkProtocol->listEntries();
     } else
 	emit error( ErrUnknownProtocol, QUrl::tr( "The protocol `%1' is not supported\n"
 						  "or `%2' doesn't support listing directores" ).

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qurl.h#15 $
+** $Id: //depot/qt/main/src/kernel/qurl.h#16 $
 **
 ** Implementation of QFileDialog class
 **
@@ -115,10 +115,7 @@ public:
     static void decode( QString& url );
     static void encode( QString& url );
 
-    virtual void listEntries( int filterSpec = QDir::DefaultFilter,
-			      int sortSpec   = QDir::DefaultSort );
-    virtual void listEntries( const QString &nameFilter, int filterSpec = QDir::DefaultFilter,
-			      int sortSpec   = QDir::DefaultSort );
+    virtual void listEntries();
     virtual void mkdir( const QString &dirname );
     virtual void remove( const QString &filename );
     virtual void rename( const QString &oldname, const QString &newname );
