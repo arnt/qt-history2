@@ -82,12 +82,19 @@ static inline const Rect *mac_rect(const QRect &qr)
 }
 static inline const Rect *mac_rect(const QPoint &qp, const QSize &qs) { return mac_rect(QRect(qp, qs)); }
 
-static void paint_children(QWidget * p,QRegion r, bool now=FALSE, bool force_erase=TRUE)
+enum paint_children_ops { 
+    PC_None = 0x00,
+    PC_Now = 0x01,
+    PC_ForceErase = 0x02,
+    PC_NoPaint = 0x04
+};
+static void paint_children(QWidget * p,QRegion r, uchar ops = PC_ForceErase)
 {
     if(!p || r.isEmpty() || !p->isVisible() || qApp->closingDown() || qApp->startingUp())
 	return;
 
     QPoint point(posInWindow(p));
+    bool r_is_empty = FALSE;
     if(QObjectList * childObjects=(QObjectList*)p->children()) {
 	QObjectListIt it(*childObjects);
 	for(it.toLast(); it.current(); --it) {
@@ -100,16 +107,22 @@ static void paint_children(QWidget * p,QRegion r, bool now=FALSE, bool force_era
 		    if ( !wr.isEmpty() ) {
 			r -= wr;
 			wr.translate( -w->x(), -w->y() );
-			paint_children(w, wr, now, force_erase);
+			paint_children(w, wr, ops);
+			if((r_is_empty = r.isEmpty()))
+			   break;
 		    }
 		}
 	    }
 	}
     }
 
-    if(!r.isEmpty()) {
-	bool painted = FALSE, erase = force_erase || !p->testWFlags(QWidget::WRepaintNoErase);
-	if(now) {
+    if(!r_is_empty) {
+	bool erase = (ops & PC_ForceErase) || !p->testWFlags(QWidget::WRepaintNoErase);
+	if((ops & PC_NoPaint)) {
+	    if(erase)
+		p->erase(r);
+	} else {
+	    bool painted = FALSE;
 	    if(!p->testWState(QWidget::WState_BlockUpdates)) {
 		painted = TRUE;
 		p->repaint(r, erase);
@@ -117,11 +130,11 @@ static void paint_children(QWidget * p,QRegion r, bool now=FALSE, bool force_era
 		erase = FALSE;
 		p->erase(r);
 	    }
-	}
-	if(!painted) {
-	    QRegion pa(r);
-	    pa.translate(point.x(), point.y());
-	    InvalWindowRgn((WindowPtr)p->handle(), (RgnHandle)pa.handle());
+	    if(!painted) {
+		QRegion pa(r);
+		pa.translate(point.x(), point.y());
+		InvalWindowRgn((WindowPtr)p->handle(), (RgnHandle)pa.handle());
+	    }
 	}
     }
 }
@@ -131,34 +144,16 @@ extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region
 extern void qt_clear_paintevent_clipping( QPaintDevice *dev );
 
 static WId serial_id = 0;
-static WId parentw;
 QWidget *mac_mouse_grabber = 0;
 QWidget *mac_keyboard_grabber = 0;
 int mac_window_count = 0;
 
-static WId qt_root_win() {
+static void *qt_root_win() {
     WindowPtr ret = NULL;
-#ifdef Q_WS_MAC9
-    //my desktop hacks, trying to figure out how to get a desktop, this doesn't work
-    //but I'm going to leave it for now so I can test some more FIXME!!!
-//    GetCWMgrPort(ret);
-#else
-    //FIXME NEED TO FIGURE OUT HOW TO GET DESKTOP ON MACX
-#if 0
-    ret = (WindowPtr)CreateNewPort();
-    qDebug("Created desktop: %d", ret);
-    int sw, sh;
-    GDHandle g = GetMainDevice();
-    if(g) {
-	sw = (*g)->gdRect.right;
-	sh = (*g)->gdRect.bottom;
-    }
-    Rect r;
-    SetRect(&r, 0, 0, sw, sh);
-    SetPortBounds((CGrafPtr)ret, &r);
+#if 0 //FIXME NEED TO FIGURE OUT HOW TO GET DESKTOP
+    GetCWMgrPort(ret);
 #endif
-#endif
-    return (WId) ret;
+    return (void *) ret;
 }
 
 QMAC_PASCAL OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef window, RgnHandle rgn,
@@ -179,21 +174,17 @@ QMAC_PASCAL OSStatus macSpecialErase(GDHandle, GrafPtr, WindowRef window, RgnHan
 	    widget->crect.setRect( px.h, px.v, widget->width(), widget->height() );
         }
 	widget->erase(reg);
-	paint_children(widget, reg, TRUE);
+	paint_children(widget, reg, PC_Now | PC_ForceErase );
 	widget->crect = oldcrect; //restore
     }
     return 0;
 }
 
 //FIXME How can I create translucent windows? (Need them for pull down menus)
-//FIXME Is this even possible with the Carbon API? (You can't do it on OS9)
-//FIXME Perhaps we need to access the lower level Quartz API?
-//FIXME Documentation on Quartz, where is it?
 void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  )
 {
     own_id = 0;
-    WId root_win = qt_root_win();
-    WId destroyw = 0;
+    HANDLE root_win = qt_root_win(), destroyw = 0;
     setWState( WState_Created );                        // set created flag
 
     if ( !parentWidget() || parentWidget()->isDesktop() )
@@ -245,11 +236,10 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow  
 	crect.setRect( 0, 0, 100, 30 );
     }
 
-    parentw = topLevel ? root_win : parentWidget()->winId();
-
+    HANDLE parentw = topLevel ? root_win : parentWidget()->handle();
     if ( window ) {				// override the old window
 	if ( destroyOldWindow && own_id )
-	    destroyw = winid;
+	    destroyw = hd;
 	own_id = 1; //it has become mine!
 	id = window;
 	hd = (void *)id;
@@ -725,8 +715,7 @@ void QWidget::repaint( const QRegion &reg , bool erase )
 	qt_clear_paintevent_clipping( this );
 	clearWState( WState_InPaintEvent );
 
-#if 1
-	//clean this area now..
+#if 0	//When repaint is called the user probably expects a screen update?
 	QPoint p(posInWindow(this));
 	QRegion clean(reg);
 	clean.translate(p.x(), p.y());
@@ -985,11 +974,11 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
     dirtyClippedRegion(TRUE);
 
     if ( isTopLevel() && isMove && own_id ) 
-	MoveWindow( (WindowPtr)winid, x, y, 1);
+	MoveWindow( (WindowPtr)hd, x, y, 1);
 
     bool isResize = (olds != size());
     if ( isTopLevel() && winid && own_id )
-	SizeWindow( (WindowPtr)winid, w, h, 1);
+	SizeWindow( (WindowPtr)hd, w, h, 1);
 
     if(isMove || isResize) {
 	if(!isVisible()) {
@@ -1013,7 +1002,7 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		QPoint tp(posInWindow(parent));
 		int px = tp.x(), py = tp.y();
 
-		if( (isMove || isResize && testWFlags(WNorthWestGravity)) && !oldregion.isEmpty() ) 
+		if( !oldregion.isEmpty() ) 
 		{
 		    //save the window state, and do the grunt work
 		    int ow = olds.width(), oh = olds.height();
@@ -1031,29 +1020,33 @@ void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 		    Rect oldr; SetRect(&oldr, ox, oy, ox+ow, oy+oh);
 
 		    //setup the old clipped region..
-		    QRegion rgn = oldregion;
-		    rgn.translate(pos().x() - oldp.x(), pos().y() - oldp.y());
-		    rgn &= clippedRegion(FALSE);
+		    bltregion = oldregion;
+		    bltregion.translate(pos().x() - oldp.x(), pos().y() - oldp.y());
+		    bltregion &= clippedRegion(FALSE);
 		    {   //can't blt that which is dirty
 			RgnHandle r = NewRgn();
 			GetWindowRegion((WindowPtr)hd, kWindowUpdateRgn, r);
 			if(!EmptyRgn(r)) {
 			    QRegion dirty(r);
 			    dirty.translate(-topLevelWidget()->x(), -topLevelWidget()->y());
-			    rgn -= dirty;
+			    bltregion -= dirty;
 			}
 		    }
-		    SetClip((RgnHandle)rgn.handle());
-		    if(!isResize || testWFlags(WNorthWestGravity))
-			bltregion = rgn;
+		    SetClip((RgnHandle)bltregion.handle());
 
 		    //now do the blt
 		    BitMap *scrn = (BitMap *)*GetPortPixMap(GetWindowPort((WindowPtr)handle()));
 		    CopyBits(scrn, scrn, &oldr, &newr, srcCopy, 0);
 		}
 		//finally issue "expose" events if necesary
-		QRegion upd = (oldregion + clippedRegion(FALSE)) - bltregion;
+		QRegion upd = (oldregion + clippedRegion(FALSE));
+		if(!isResize || testWFlags(WNorthWestGravity))
+		    upd -=  bltregion;
 		InvalWindowRgn((WindowPtr)handle(), (RgnHandle)upd.handle());
+#if 0
+		paint_children(topLevelWidget(), upd, PC_Now | PC_NoPaint);
+#endif
+
 	    }
 	}
     }
@@ -1168,7 +1161,7 @@ void QWidget::erase( const QRegion& reg )
     } else {
 	p.fillRect(rr, bg_col);
     }
-#if 1
+#if 0
     p.flush();
 #endif
     p.end();
@@ -1259,7 +1252,7 @@ int QWidget::metric( int m ) const
 	if ( !isTopLevel() )
 	    return crect.width();
 	Rect windowBounds;
-	GetPortBounds( GetWindowPort( ((WindowPtr)winid) ), &windowBounds );
+	GetPortBounds( GetWindowPort( ((WindowPtr)hd) ), &windowBounds );
 	return windowBounds.right;
     }
 
@@ -1268,7 +1261,7 @@ int QWidget::metric( int m ) const
 	if ( !isTopLevel() )
 	    return crect.height();
 	Rect windowBounds;
-	GetPortBounds( GetWindowPort( ((WindowPtr)winid) ), &windowBounds );
+	GetPortBounds( GetWindowPort( ((WindowPtr)hd) ), &windowBounds );
 	return windowBounds.bottom;
     }
     case QPaintDeviceMetrics::PdmDepth:// FIXME : this is a lie in most cases
@@ -1381,7 +1374,7 @@ void QWidget::propagateUpdates()
 	QRegion rgn(r);
 	rgn.translate(-x(), -y());
 	ValidWindowRgn((WindowPtr)hd, (RgnHandle)rgn.handle()); 
-	paint_children( this, rgn, TRUE, FALSE );
+	paint_children( this, rgn, PC_Now );
     }
     DisposeRgn(r);
 }

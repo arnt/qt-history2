@@ -453,8 +453,8 @@ void qt_macdnd_unregister( QWidget *widget, QWExtra *extra )
     if ( extra && extra->macDndExtra ) {
 	extra->macDndExtra->ref--;
 	if ( extra->macDndExtra->ref == 0 ) {
-	    RemoveTrackingHandler( NewDragTrackingHandlerUPP(MyTrackingHandler), (WindowPtr)widget->winId() );
-	    RemoveReceiveHandler( NewDragReceiveHandlerUPP(MyReceiveHandler), (WindowPtr)widget->winId() );
+	    RemoveTrackingHandler( NewDragTrackingHandlerUPP(MyTrackingHandler), (WindowPtr)widget->handle() );
+	    RemoveReceiveHandler( NewDragReceiveHandlerUPP(MyReceiveHandler), (WindowPtr)widget->handle() );
 	    delete extra->macDndExtra;
 	    extra->macDndExtra = 0;
 	}
@@ -469,11 +469,11 @@ void qt_macdnd_register( QWidget *widget, QWExtra *extra )
 	extra->macDndExtra->ref = 1;
 	extra->macDndExtra->widget = widget->topLevelWidget();
 	if ( (result = InstallTrackingHandler( NewDragTrackingHandlerUPP(MyTrackingHandler), 
-					      (WindowPtr)widget->winId(),
+					      (WindowPtr)widget->handle(),
 					      extra->macDndExtra )))
 	    return;
 	if ( (result = InstallReceiveHandler( NewDragReceiveHandlerUPP(MyReceiveHandler),
-					     (WindowPtr)widget->winId(),
+					     (WindowPtr)widget->handle(),
 					     extra->macDndExtra )))
 	    return;
     } 	else {	
