@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#46 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#45 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#46 $";
 #endif
 
 
@@ -195,6 +195,7 @@ bool QWidget::destroy()				// destroy widget
 	if ( !testFlag(WType_Desktop) )
 	    XDestroyWindow( dpy, ident );
 	set_id( 0 );
+	emit destroyed();			// send out destroyed signal
     }
     return TRUE;
 }
