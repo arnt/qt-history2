@@ -13,63 +13,38 @@
 #include <float.h>
 #define isinf(d) (!_finite(d) && !_isnan(d))
 #define isnan(d) _isnan(d)
-#define ULONG_LONG_MAX _UI64_MAX
-#define LONG_LONG_MAX _I64_MAX
-#define LONG_LONG_MIN _I64_MIN
+#define ULLONG_MAX _UI64_MAX
+#define LLONG_MAX _I64_MAX
+#define LLONG_MIN _I64_MIN
 #endif // Q_WS_WIN
 
-#ifndef NAN
-const unsigned char NaN_Bytes_bigEndian[] = { 0x7f, 0xf8, 0, 0, 0, 0, 0, 0 };
-const unsigned char NaN_Bytes_littleEndian[] = { 0, 0, 0, 0, 0, 0, 0xf8, 0x7f };
-class QSetNanBytes
-{    
-public:
-    QSetNanBytes() {
-	bool bigEndian = false;
-	int wordSize = 0;
-	qSysInfo(&wordSize, &bigEndian);
-	if ( bigEndian )
-	    NaN_Bytes = (const unsigned char *)NaN_Bytes_bigEndian;
-	else
-	    NaN_Bytes = (const unsigned char *)NaN_Bytes_littleEndian;
-    }
-    const unsigned char *NaN_Bytes;
-};
-static QSetNanBytes q_set_nan_bytes;
-#define NAN (*(const double*) q_set_nan_bytes.NaN_Bytes)
+#if defined(Q_OS_UNIX) && !defined(INFINITY)
+// POSIX says HUGE_VAL is equal to +infinity
+#  define INFINITY (HUGE_VAL)
+#endif
+
+#if !defined(NAN) && defined(Q_BYTE_ORDER)
+#  if Q_BYTE_ORDER == Q_BIG_ENDIAN
+const unsigned char NaN_Bytes[] = { 0x7f, 0xf8, 0, 0, 0, 0, 0, 0 };
+#  else Q_BYTE_ORDER == Q_LITTLE_ENDIAN
+const unsigned char NaN_Bytes[] = { 0, 0, 0, 0, 0, 0, 0xf8, 0x7f };
+#  endif
+#  define NAN (*(const double *) NaN_Bytes)
 #endif //NAN
 
-#ifndef INFINITY
-const unsigned char Inf_Bytes_bigEndian[] = { 0x7f, 0xf0, 0, 0, 0, 0, 0, 0 };
-const unsigned char Inf_Bytes_littleEndian[] = { 0, 0, 0, 0, 0, 0, 0xf0, 0x7f };
-class QSetInfBytes
-{    
-
-public:
-    QSetInfBytes() {
-	bool bigEndian = false;
-	int wordSize = 0;
-	qSysInfo(&wordSize, &bigEndian);
-	if ( bigEndian )
-	    Inf_Bytes = (const unsigned char *)Inf_Bytes_bigEndian;
-	else
-	    Inf_Bytes = (const unsigned char *)Inf_Bytes_littleEndian;
-    }
-    const unsigned char *Inf_Bytes;
-};
-static QSetInfBytes q_set_inf_bytes;
-#define INFINITY (*(const double*) q_set_inf_bytes.Inf_Bytes)
-#endif //INFINITY
+#ifndef NAN
+#  define NAN (sqrt(-1.))
+#endif
 
 // Sizes as defined by the ISO C99 standard
-#ifndef LONG_LONG_MAX
-#define LONG_LONG_MAX 9223372036854775807LL
+#ifndef LLONG_MAX
+#define LLONG_MAX Q_INT64_C(9223372036854775807)
 #endif
-#ifndef LONG_LONG_MIN
-#define LONG_LONG_MIN -9223372036854775807LL
+#ifndef LLONG_MIN
+#define LLONG_MIN (-LLONG_MAX - Q_INT64_C(1))
 #endif
-#ifndef ULONG_LONG_MAX
-#define ULONG_LONG_MAX 18446744073709551615ULL
+#ifndef ULLONG_MAX
+#define ULLONG_MAX Q_UINT64_C(18446744073709551615)
 #endif
 
 static char *qdtoa(double d, int mode, int ndigits, int *decpt,
@@ -1630,7 +1605,7 @@ char QLocalePrivate::digitToCLocale(QChar d) const
 
 static QString qulltoa(Q_ULLONG l, int base, const QLocalePrivate &locale)
 {
-    QChar buff[65]; // length of MAX_ULONG_LONG in base 2
+    QChar buff[65]; // length of MAX_ULLONG in base 2
     QChar *p = buff + 65;
 
     if (base != 10 || locale.zero().unicode() == '0') {
@@ -1668,7 +1643,7 @@ static QString qlltoa(Q_LLONG l, int base, const QLocalePrivate &locale)
 enum PrecisionMode {
     PMDecimalDigits = 	    0x01,
     PMSignificantDigits =   0x02,
-    PMChopTrailingZeros =   0x03,
+    PMChopTrailingZeros =   0x03
 };
 
 static QString &decimalForm(QString &digits, int decpt, uint precision,
@@ -2271,8 +2246,8 @@ static Q_ULLONG qstrtoull(const char *nptr, const char **endptr, register int ba
 	if (base == 0)
 		base = c == '0' ? 8 : 10;
 	qbase = (unsigned)base;
-	cutoff = (Q_ULLONG)ULONG_LONG_MAX / qbase;
-	cutlim = (Q_ULLONG)ULONG_LONG_MAX % qbase;
+	cutoff = (Q_ULLONG)ULLONG_MAX / qbase;
+	cutlim = (Q_ULLONG)ULLONG_MAX % qbase;
 	for (acc = 0, any = 0;; c = *s++) {
 		if (!isascii(c))
 			break;
@@ -2293,7 +2268,7 @@ static Q_ULLONG qstrtoull(const char *nptr, const char **endptr, register int ba
 		}
 	}
 	if (any < 0) {
-		acc = ULONG_LONG_MAX;
+		acc = ULLONG_MAX;
     	    	if (ok != 0)
 		    *ok = false;
 	}
@@ -2370,8 +2345,8 @@ static Q_LLONG qstrtoll(const char *nptr, const char **endptr, register int base
 	 * overflow.
 	 */
 	qbase = (unsigned)base;
-	cutoff = neg ? (Q_ULLONG)-(LONG_LONG_MIN + LONG_LONG_MAX) + LONG_LONG_MAX
-	    : LONG_LONG_MAX;
+	cutoff = neg ? (Q_ULLONG)-(LLONG_MIN + LLONG_MAX) + LLONG_MAX
+	    : LLONG_MAX;
 	cutlim = cutoff % qbase;
 	cutoff /= qbase;
 	for (acc = 0, any = 0;; c = *s++) {
@@ -2394,7 +2369,7 @@ static Q_LLONG qstrtoll(const char *nptr, const char **endptr, register int base
 		}
 	}
 	if (any < 0) {
-		acc = neg ? LONG_LONG_MIN : LONG_LONG_MAX;
+		acc = neg ? LLONG_MIN : LLONG_MAX;
 		if (ok != 0)
 		    *ok = false;
 	} else if (neg) {
@@ -2507,7 +2482,7 @@ __RCSID("$NetBSD: strtod.c,v 1.26 1998/02/03 18:44:21 perry Exp $");
 
 #if defined(__m68k__)    || defined(__sparc__) || defined(__i386__) || \
     defined(__mips__)    || defined(__ns32k__) || defined(__alpha__) || \
-    defined(__powerpc__) || defined(Q_WS_WIN) || defined(Q_WS_MACX)
+    defined(__powerpc__) || defined(Q_OS_WIN) || defined(Q_OS_MACX)
 #include <sys/types.h>
 #if defined(BYTEORDER) && defined(BIG_ENDIAN) && (BYTE_ORDER == BIG_ENDIAN)
 #define IEEE_BIG_ENDIAN

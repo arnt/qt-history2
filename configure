@@ -2595,6 +2595,12 @@ if [ $PLATFORM = "hpux-acc" -a "$CFG_STL" != "no" ]; then
    echo
 fi
 
+if $unixtests/endian.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath; then
+    ENDIAN=Q_BIG_ENDIAN
+else
+    ENDIAN=Q_LITTLE_ENDIAN
+fi
+
 if [ "$CFG_STL" = "auto" ]; then
     if $unixtests/stl.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath; then
 	if [ "$CFG_STL" = "yes" ] && [ "$CFG_CONFIGURE_EXIT_ON_ERROR" = "yes" ]; then
@@ -3122,6 +3128,11 @@ cat >> $outpath/include/qconfig.h.new <<EOF
 
 /* Build key */
 #define QT_BUILD_KEY "$QT_BUILD_KEY"
+
+/* Machine byte-order */
+#define Q_BIG_ENDIAN 4321
+#define Q_LITTLE_ENDIAN 1234
+#define Q_BYTE_ORDER $ENDIAN
 
 /* Compile time features */
 EOF
