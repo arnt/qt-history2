@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#218 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#219 $
 **
 ** Implementation of QWidget class
 **
@@ -29,7 +29,7 @@
 #endif
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#218 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qwidget.cpp#219 $");
 
 
 /*!
@@ -1584,14 +1584,15 @@ const QColorGroup &QWidget::colorGroup() const
 /*!
   \fn const QPalette &QWidget::palette() const
   Returns the widget palette.
-  \sa setPalette(), colorGroup()
+  \sa setPalette(), colorGroup(), QApplication::palette()
 */
 
 /*!
   Sets the widget palette to \e p. The widget background color is set to
   <code>colorGroup().background()</code>.
 
-  \sa palette(), paletteChange(), colorGroup(), setBackgroundColor()
+  \sa palette(), paletteChange(), colorGroup(), setBackgroundColor(),
+	QApplication::setPalette()
 */
 
 void QWidget::setPalette( const QPalette &p )
