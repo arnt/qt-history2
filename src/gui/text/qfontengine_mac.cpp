@@ -195,14 +195,14 @@ QFontEngineMac::boundingBox(const QGlyphLayout *glyphs, int numGlyphs)
     const QGlyphLayout *end = glyphs + numGlyphs;
     while(end > glyphs)
         w += (--end)->advance.x();
-    return glyph_metrics_t(0, -(ascent()), w, ascent()+descent()+1, w, 0);
+    return glyph_metrics_t(0, -(ascent()), w, ascent()+descent(), w, 0);
 }
 
 glyph_metrics_t
 QFontEngineMac::boundingBox(glyph_t glyph)
 {
     int w = doTextTask((QChar*)&glyph, 0, 1, 1, WIDTH);
-    return glyph_metrics_t(0, -(ascent()), w, ascent()+descent()+1, w, 0);
+    return glyph_metrics_t(0, -(ascent()), w, ascent()+descent(), w, 0);
 }
 
 bool
@@ -522,7 +522,7 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
         ATSUTextMeasurement left=0, right=0, bottom=0, top=0;
         ATSUGetUnjustifiedBounds(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd, &left, &right, &bottom, &top);
         ret = FixRound(right-left);
-        if(use_len == 1 && s->unicode() < widthCacheSize && ret < 0x100)
+        if(use_len == 1 && s->unicode() < widthCacheSize && ret < 0x100) 
             widthCache[s->unicode()] = ret ? ret : -777; //mark so that 0 is cached..
     }
     if(task & DRAW) {
@@ -543,47 +543,49 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
     return ret;
 }
 
-struct PathData
+class QMacFontPath
 {
-    float x;
-    float y;
+    float x, y;
     QPainterPath *path;
+public:
+    inline QMacFontPath(float _x, float _y, QPainterPath *_path) : x(_x), y(_y), path(_path) { }
+    inline void advance(float _x) { x += _x; }
+    static OSStatus lineTo(const Float32Point *, void *);
+    static OSStatus curveTo(const Float32Point *, const Float32Point *,
+                            const Float32Point *, void *);
+    static OSStatus moveTo(const Float32Point *, void *);
+    static OSStatus closePath(void *);
 };
 
-OSStatus qt_CubicLineToProc(const Float32Point *pt,
-                            void *callBackDataPtr)
+OSStatus QMacFontPath::lineTo(const Float32Point *pt, void *data)
 
 {
-    PathData *pd = static_cast<PathData *>(callBackDataPtr);
-    pd->path->lineTo(pd->x + pt->x, pd->y + pt->y);
+    QMacFontPath *p = static_cast<QMacFontPath*>(data);
+    p->path->lineTo(p->x + pt->x, p->y + pt->y);
     return noErr;
 }
 
-OSStatus qt_CubicCurveToProc (const Float32Point *cp1,
-                               const Float32Point *cp2,
-                               const Float32Point *ep,
-                               void *callBackDataPtr)
+OSStatus QMacFontPath::curveTo(const Float32Point *cp1, const Float32Point *cp2,
+                               const Float32Point *ep, void *data)
 
 {
-    PathData *pd = static_cast<PathData *>(callBackDataPtr);
-    pd->path->curveTo(pd->x + cp1->x, pd->y + cp1->y,
-                pd->x + cp2->x, pd->y + cp2->y,
-                pd->x + ep->x, pd->y + ep->y);
+    QMacFontPath *p = static_cast<QMacFontPath*>(data);
+    p->path->curveTo(p->x + cp1->x, p->y + cp1->y,
+                     p->x + cp2->x, p->y + cp2->y,
+                     p->x + ep->x, p->y + ep->y);
     return noErr;
 }
 
-
-OSStatus qt_CubicMoveToProc(const Float32Point *pt, void * callBackDataPtr)
+OSStatus QMacFontPath::moveTo(const Float32Point *pt, void *data)
 {
-    PathData *pd = static_cast<PathData *>(callBackDataPtr);
-    pd->path->moveTo(pd->x + pt->x, pd->y + pt->y);
+    QMacFontPath *p = static_cast<QMacFontPath*>(data);
+    p->path->moveTo(p->x + pt->x, p->y + pt->y);
     return noErr;
 }
 
-
-OSStatus qt_CubicClosePathProc(void * callBackDataPtr)
+OSStatus QMacFontPath::closePath(void *data)
 {
-    static_cast<PathData *>(callBackDataPtr)->path->closeSubpath();
+    static_cast<QMacFontPath*>(data)->path->closeSubpath();
     return noErr;
 }
 
@@ -591,56 +593,64 @@ OSStatus qt_CubicClosePathProc(void * callBackDataPtr)
 void QFontEngineMac::addOutlineToPath(float x, float y, const QGlyphLayout *glyphs, int numGlyphs,
                                       QPainterPath *path)
 {
-    ATSCubicMoveToUPP iMoveToProc = NewATSCubicMoveToUPP(qt_CubicMoveToProc);
-    ATSCubicLineToUPP iLineToProc = NewATSCubicLineToUPP(qt_CubicLineToProc);
-    ATSCubicCurveToUPP iCurveToProc = NewATSCubicCurveToUPP(qt_CubicCurveToProc);
-    ATSCubicClosePathUPP iClosePathProc = NewATSCubicClosePathUPP(qt_CubicClosePathProc);
 
-    // On Mac OS X, we currently store gylph in the gylphlayout as the actually
-    // unicode character, so we must obtain the proper glyph information
-    // before we can procede.
+    OSStatus e;
+    if (!mTextLayout) {
+        e = ATSUCreateTextLayout(&mTextLayout);
+        if (e != noErr) {
+            qWarning("Qt: internal: %ld: Unexpected condition reached %s: %d", e, __FILE__, __LINE__);
+            return;
+        }
+    }
+
     QVarLengthArray<UniChar> chars(numGlyphs);
     for (int j = 0; j < numGlyphs; ++j)
         chars[j] = glyphs[j].glyph;
+    e = ATSUSetTextPointerLocation(mTextLayout, chars.data(), 0, (UniCharCount)numGlyphs, numGlyphs);
+    if (e != noErr) {
+        qWarning("Qt: internal: %ld: Error ATSUSetTextPointerLocation %s: %d", e, __FILE__, __LINE__);
+        return;
+    }
 
-    // Dang. This is create text layout is going to be heavy, but mTextLayout doesn't
-    // give us what we want and I don't want to touch it here.
-    ATSUTextLayout pathLayout;
     QATSUStyle *st = getFontStyle();
-    UniCharCount charCount[] = { numGlyphs };
-    ATSUStyle tmpArray[] = { st->style };
-    OSStatus status = ATSUCreateTextLayoutWithTextPtr(chars.constData(), 0, numGlyphs, numGlyphs,
-                                                      1, charCount, tmpArray, &pathLayout);
-    ATSLayoutRecord *layoutRecords;
+    e = ATSUSetRunStyle(mTextLayout, st->style, 0, (UniCharCount)numGlyphs);
+    if (e != noErr) {
+        qWarning("Qt: internal: %ld: Error ATSUSetRunStyle %s: %d", e, __FILE__, __LINE__);
+        return;
+    }
+
     ItemCount numRecords;
-    status = ATSUDirectGetLayoutDataArrayPtrFromTextLayout(pathLayout,
+    ATSLayoutRecord *layoutRecords;
+    e = ATSUDirectGetLayoutDataArrayPtrFromTextLayout(mTextLayout,
                             kATSUFromTextBeginning,
                             kATSUDirectDataLayoutRecordATSLayoutRecordCurrent,
                             reinterpret_cast<void **>(&layoutRecords),
                             &numRecords);
-    Q_ASSERT_X(status == noErr, "QFontEngineMac::addOutlineToPath",
-               "Unable to obtain proper glyph information");
-
-    PathData pd;
-    pd.x = x;
-    pd.y = y;
-    pd.path = path;
-    ATSGlyphIdealMetrics idealMetrics;
-    for (ItemCount i = 0; i < numRecords; ++i) {
-        OSStatus result;
-        ATSUGlyphGetCubicPaths(st->style, layoutRecords[i].glyphID, iMoveToProc, iLineToProc,
-                               iCurveToProc, iClosePathProc, &pd, &result);
-        ATSUGlyphGetIdealMetrics(st->style, 1, &layoutRecords[i].glyphID, 0, &idealMetrics);
-        pd.x += idealMetrics.advance.x;
+    if (e != noErr) {
+        qWarning("Qt: internal: %ld: Error ATSUDirectGetLayoutDataArrayPtrFromTextLayout %s: %d", e, 
+                 __FILE__, __LINE__);
+        return;
     }
 
-    ATSUDisposeTextLayout(pathLayout);
+    QMacFontPath fontpath(x, y, path);
+    ATSCubicMoveToUPP moveTo = NewATSCubicMoveToUPP(QMacFontPath::moveTo);
+    ATSCubicLineToUPP lineTo = NewATSCubicLineToUPP(QMacFontPath::lineTo);
+    ATSCubicCurveToUPP curveTo = NewATSCubicCurveToUPP(QMacFontPath::curveTo);
+    ATSCubicClosePathUPP closePath = NewATSCubicClosePathUPP(QMacFontPath::closePath);
+    ATSGlyphIdealMetrics idealMetrics;
+    for (ItemCount i = 0; i < numRecords; ++i) {
+        ATSUGlyphGetCubicPaths(st->style, layoutRecords[i].glyphID, moveTo, lineTo,
+                               curveTo, closePath, &fontpath, &e);
+        ATSUGlyphGetIdealMetrics(st->style, 1, &layoutRecords[i].glyphID, 0, &idealMetrics);
+        fontpath.advance(idealMetrics.advance.x);
+    }
+    DisposeATSCubicMoveToUPP(moveTo);
+    DisposeATSCubicLineToUPP(lineTo);
+    DisposeATSCubicCurveToUPP(curveTo);
+    DisposeATSCubicClosePathUPP(closePath);
+
     ATSUDirectReleaseLayoutDataArrayPtr(0, kATSUDirectDataLayoutRecordATSLayoutRecordCurrent,
                                         reinterpret_cast<void **>(&layoutRecords));
-    DisposeATSCubicMoveToUPP(iMoveToProc);
-    DisposeATSCubicLineToUPP(iLineToProc);
-    DisposeATSCubicCurveToUPP(iCurveToProc);
-    DisposeATSCubicClosePathUPP(iClosePathProc);
 }
 
 // box font engine
