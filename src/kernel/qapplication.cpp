@@ -42,10 +42,14 @@
 
 #include <stdlib.h>
 
+#include <qvariant.h>
+extern const QVariant::Handler qt_gui_variant_handler;
+
 #include "qapplication_p.h"
 #include "qwidget_p.h"
 #define d d_func()
 #define q q_func()
+
 
 
 QApplicationPrivate::QApplicationPrivate(int &argc, char **argv)
@@ -54,6 +58,8 @@ QApplicationPrivate::QApplicationPrivate(int &argc, char **argv)
 #ifndef QT_NO_SESSIONMANAGER
     is_session_restored = FALSE;
 #endif
+
+    QVariant::handler = &qt_gui_variant_handler;
 }
 
 

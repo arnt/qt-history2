@@ -16,27 +16,11 @@
 #ifndef QT_NO_VARIANT
 #include "qbitarray.h"
 #include "qbitmap.h"
-#include "qbrush.h"
 #include "qbytearray.h"
-#include "qcolor.h"
-#include "qcursor.h"
 #include "qdatastream.h"
 #include "qdatetime.h"
-#include "qfont.h"
-#include "qiconset.h"
-#include "qimage.h"
-#include "qkeysequence.h"
 #include "qlist.h"
 #include "qmap.h"
-#include "qpalette.h"
-#include "qpen.h"
-#include "qpixmap.h"
-#include "qpoint.h"
-#include "qpointarray.h"
-#include "qrect.h"
-#include "qregion.h"
-#include "qsize.h"
-#include "qsizepolicy.h"
 #include "qstring.h"
 
 #include <float.h>
@@ -45,102 +29,161 @@
 #define DBL_DIG 10
 #endif //DBL_DIG
 
+QVariant::Private QVariant::shared_invalid = { Q_ATOMIC_INIT(1), Invalid, true, {0} };
 
-void QVariant::Private::clear()
+
+static void construct(QVariant::Private *x, const void *v)
 {
-    switch (type) {
-    case QVariant::Bitmap:
-	delete static_cast<QBitmap *>(value.ptr);
-	break;
-    case QVariant::Cursor:
-	delete static_cast<QCursor *>(value.ptr);
-	break;
-    case QVariant::Region:
-	delete static_cast<QRegion *>(value.ptr);
-	break;
-    case QVariant::PointArray:
-	delete static_cast<QPointArray *>(value.ptr);
-	break;
+    if (v) {
+	switch( x->type ) {
+	case QVariant::String:
+	    x->value.ptr = new QString(*static_cast<const QString *>(v));
+	    break;
+#ifndef QT_NO_STRINGLIST
+	case QVariant::StringList:
+	    x->value.ptr = new QStringList(*static_cast<QStringList *>(v));
+	    break;
+#endif //QT_NO_STRINGLIST
+#ifndef QT_NO_TEMPLATE_VARIANT
+	case QVariant::Map:
+	    x->value.ptr = new QMap<QString,QVariant>(*static_cast<QMap<QString, QVariant> *>(v));
+	    break;
+	case QVariant::List:
+	    x->value.ptr = new QList<QVariant>(*static_cast<QList<QVariant> *>(v));
+	    break;
+#endif
+	case QVariant::Date:
+	    x->value.ptr = new QDate(*static_cast<QDate *>(v));
+	    break;
+	case QVariant::Time:
+	    x->value.ptr = new QTime(*static_cast<QTime *>(v));
+	    break;
+	case QVariant::DateTime:
+	    x->value.ptr = new QDateTime(*static_cast<QDateTime *>(v));
+	    break;
+	case QVariant::ByteArray:
+	    x->value.ptr = new QByteArray(*static_cast<QByteArray *>(v));
+	    break;
+	case QVariant::BitArray:
+	    x->value.ptr = new QBitArray(*static_cast<QBitArray *>(v));
+	    break;
+	case QVariant::Int:
+	    x->value.i = *static_cast<int *>(v);
+	    break;
+	case QVariant::UInt:
+	    x->value.u = *static_cast<uint *>(v);
+	    break;
+	case QVariant::Bool:
+	    x->value.b = *static_cast<bool *>(v);
+	    break;
+	case QVariant::Double:
+	    x->value.d = *static_cast<double *>(v);
+	    break;
+	case QVariant::LongLong:
+	    x->value.ll = *static_cast<Q_LLONG *>(v);
+	    break;
+	case QVariant::ULongLong:
+	    x->value.ull = *static_cast<Q_ULLONG *>(v);
+	    break;
+	case QVariant::Invalid:
+	    break;
+	default:
+	    Q_ASSERT( 0 );
+	}
+	x->is_null = false;
+    } else {
+	switch (x->type) {
+	case QVariant::Invalid:
+	    break;
+	case QVariant::String:
+	    x->value.ptr = new QString;
+	    break;
+#ifndef QT_NO_STRINGLIST
+	case QVariant::StringList:
+	    x->value.ptr = new QStringList;
+	    break;
+#endif //QT_NO_STRINGLIST
+#ifndef QT_NO_TEMPLATE_VARIANT
+	case QVariant::Map:
+	    x->value.ptr = new QMap<QString,QVariant>;
+	    break;
+	case QVariant::List:
+	    x->value.ptr = new QList<QVariant>;
+	    break;
+#endif
+	case QVariant::Date:
+	    x->value.ptr = new QDate;
+	    break;
+	case QVariant::Time:
+	    x->value.ptr = new QTime;
+	    break;
+	case QVariant::DateTime:
+	    x->value.ptr = new QDateTime;
+	    break;
+	case QVariant::ByteArray:
+	    x->value.ptr = new QByteArray;
+	    break;
+	case QVariant::BitArray:
+	    x->value.ptr = new QBitArray;
+	    break;
+	case QVariant::Int:
+	    x->value.i = 0;
+	    break;
+	case QVariant::UInt:
+	    x->value.u = 0;
+	    break;
+	case QVariant::Bool:
+	    x->value.b = 0;
+	    break;
+	case QVariant::Double:
+	    x->value.d = 0;
+	    break;
+	case QVariant::LongLong:
+	    x->value.ll = Q_LLONG(0);
+	    break;
+	case QVariant::ULongLong:
+	    x->value.ull = Q_ULLONG(0);
+	    break;
+	default:
+	    Q_ASSERT( 0 );
+	}
+
+    }
+}
+
+static void clear(QVariant::Private *p)
+{
+    switch (p->type) {
     case QVariant::String:
-	delete static_cast<QString *>(value.ptr);
+	delete static_cast<QString *>(p->value.ptr);
 	break;
 #ifndef QT_NO_STRINGLIST
     case QVariant::StringList:
-	delete static_cast<QStringList *>(value.ptr);
+	delete static_cast<QStringList *>(p->value.ptr);
 	break;
 #endif //QT_NO_STRINGLIST
-    case QVariant::Font:
-	delete static_cast<QFont *>(value.ptr);
-	break;
-    case QVariant::Pixmap:
-	delete static_cast<QPixmap *>(value.ptr);
-	break;
-    case QVariant::Image:
-	delete static_cast<QImage *>(value.ptr);
-	break;
-    case QVariant::Brush:
-	delete static_cast<QBrush *>(value.ptr);
-	break;
-    case QVariant::Point:
-	delete static_cast<QPoint *>(value.ptr);
-	break;
-    case QVariant::Rect:
-	delete static_cast<QRect *>(value.ptr);
-	break;
-    case QVariant::Size:
-	delete static_cast<QSize *>(value.ptr);
-	break;
-    case QVariant::Color:
-	delete static_cast<QColor *>(value.ptr);
-	break;
-#ifndef QT_NO_PALETTE
-    case QVariant::Palette:
-	delete static_cast<QPalette *>(value.ptr);
-	break;
-#ifndef QT_NO_COMPAT
-    case QVariant::ColorGroup:
-	delete static_cast<QColorGroup *>(value.ptr);
-	break;
-#endif
-#endif
-#ifndef QT_NO_ICONSET
-    case QVariant::IconSet:
-	delete static_cast<QIconSet *>(value.ptr);
-	break;
-#endif
 #ifndef QT_NO_TEMPLATE_VARIANT
     case QVariant::Map:
-	delete static_cast<QMap<QString, QVariant> *>(value.ptr);
+	delete static_cast<QMap<QString, QVariant> *>(p->value.ptr);
 	break;
     case QVariant::List:
-	delete static_cast<QList<QVariant> *>(value.ptr);
+	delete static_cast<QList<QVariant> *>(p->value.ptr);
 	break;
 #endif
-    case QVariant::SizePolicy:
-	delete static_cast<QSizePolicy *>(value.ptr);
-	break;
     case QVariant::Date:
-	delete static_cast<QDate *>(value.ptr);
+	delete static_cast<QDate *>(p->value.ptr);
 	break;
     case QVariant::Time:
-	delete static_cast<QTime *>(value.ptr);
+	delete static_cast<QTime *>(p->value.ptr);
 	break;
     case QVariant::DateTime:
-	delete static_cast<QDateTime *>(value.ptr);
+	delete static_cast<QDateTime *>(p->value.ptr);
 	break;
     case QVariant::ByteArray:
-	delete static_cast<QByteArray *>(value.ptr);
+	delete static_cast<QByteArray *>(p->value.ptr);
 	break;
     case QVariant::BitArray:
-	delete static_cast<QBitArray *>(value.ptr);
-	break;
-#ifndef QT_NO_ACCEL
-    case QVariant::KeySequence:
-	delete static_cast<QKeySequence *>(value.ptr);
-	break;
-#endif
-    case QVariant::Pen:
-	delete static_cast<QPen *>(value.ptr);
+	delete static_cast<QBitArray *>(p->value.ptr);
 	break;
     case QVariant::Invalid:
     case QVariant::Int:
@@ -150,11 +193,640 @@ void QVariant::Private::clear()
     case QVariant::Bool:
     case QVariant::Double:
 	break;
+    default:
+	qFatal("cannot handle GUI types of QVariant without a Gui application");
     }
 
-    type = QVariant::Invalid;
-    is_null = true;
+    p->type = QVariant::Invalid;
+    p->is_null = true;
 }
+
+static bool isNull(const QVariant::Private *d)
+{
+    switch( d->type ) {
+    case QVariant::String:
+	return static_cast<QString *>(d->value.ptr)->isNull();
+    case QVariant::Date:
+	return static_cast<QDate *>(d->value.ptr)->isNull();
+    case QVariant::Time:
+	return static_cast<QTime *>(d->value.ptr)->isNull();
+    case QVariant::DateTime:
+	return static_cast<QDateTime *>(d->value.ptr)->isNull();
+    case QVariant::ByteArray:
+	return static_cast<QByteArray *>(d->value.ptr)->isNull();
+    case QVariant::BitArray:
+	return static_cast<QBitArray *>(d->value.ptr)->isNull();
+#ifndef QT_NO_STRINGLIST
+    case QVariant::StringList:
+#endif //QT_NO_STRINGLIST
+#ifndef QT_NO_TEMPLATE_VARIANT
+    case QVariant::Map:
+    case QVariant::List:
+#endif
+    case QVariant::Invalid:
+    case QVariant::Int:
+    case QVariant::UInt:
+    case QVariant::LongLong:
+    case QVariant::ULongLong:
+    case QVariant::Bool:
+    case QVariant::Double:
+	break;
+    default:
+	qFatal("cannot handle GUI types of QVariant without a Gui application");
+    }
+    return d->is_null;
+}
+
+
+static void load(QVariant::Private *d, QDataStream &s)
+{
+    switch (d->type) {
+    case QVariant::Invalid: {
+	// Since we wrote something, we should read something
+	QString x;
+	s >> x;
+	d->is_null = true;
+	break;
+    }
+#ifndef QT_NO_TEMPLATE_VARIANT
+    case QVariant::Map:
+	s >> *static_cast<QMap<QString, QVariant> *>(d->value.ptr);
+	break;
+    case QVariant::List:
+	s >> *static_cast<QList<QVariant> *>(d->value.ptr);
+	break;
+#endif
+    case QVariant::String:
+	s >> *static_cast<QString *>(d->value.ptr);
+	break;
+#ifndef QT_NO_STRINGLIST
+    case QVariant::StringList:
+	s >> *static_cast<QStringList *>(d->value.ptr);
+	break;
+#endif // QT_NO_STRINGLIST
+    case QVariant::Int:
+	s >> d->value.i;
+	break;
+    case QVariant::UInt:
+	s >> d->value.u;
+	break;
+    case QVariant::LongLong:
+	s >> d->value.ll;
+	break;
+    case QVariant::ULongLong:
+	s >> d->value.ull;
+	break;
+    case QVariant::Bool: {
+	Q_INT8 x;
+	s >> x;
+	d->value.b = x;
+    }
+	break;
+    case QVariant::Double:
+	s >> d->value.d;
+	break;
+    case QVariant::Date:
+	s >> *static_cast<QDate *>(d->value.ptr);
+	break;
+    case QVariant::Time:
+	s >> *static_cast<QTime *>(d->value.ptr);
+	break;
+    case QVariant::DateTime:
+	s >> *static_cast<QDateTime *>(d->value.ptr);
+	break;
+    case QVariant::ByteArray:
+	s >> *static_cast<QByteArray *>(d->value.ptr);
+	break;
+    case QVariant::BitArray:
+	s >> *static_cast<QBitArray *>(d->value.ptr);
+	break;
+    default:
+	qFatal("cannot handle GUI types of QVariant without a Gui application");
+    }
+}
+
+
+static void save(const QVariant::Private *d, QDataStream &s)
+{
+    switch (d->type) {
+#ifndef QT_NO_TEMPLATE_VARIANT
+    case QVariant::List:
+	s << *static_cast<QList<QVariant> *>(d->value.ptr);
+	break;
+    case QVariant::Map:
+	s << *static_cast<QMap<QString,QVariant> *>(d->value.ptr);
+	break;
+#endif
+    case QVariant::String:
+	s << *static_cast<QString *>(d->value.ptr);
+	break;
+#ifndef QT_NO_STRINGLIST
+    case QVariant::StringList:
+	s << *static_cast<QStringList *>(d->value.ptr);
+	break;
+#endif
+    case QVariant::Int:
+	s << d->value.i;
+	break;
+    case QVariant::UInt:
+	s << d->value.u;
+	break;
+    case QVariant::LongLong:
+	s << d->value.ll;
+	break;
+    case QVariant::ULongLong:
+	s << d->value.ull;
+	break;
+    case QVariant::Bool:
+	s << (Q_INT8)d->value.b;
+	break;
+    case QVariant::Double:
+	s << d->value.d;
+	break;
+    case QVariant::Date:
+	s << *static_cast<QDate *>(d->value.ptr);
+	break;
+    case QVariant::Time:
+	s << *static_cast<QTime *>(d->value.ptr);
+	break;
+    case QVariant::DateTime:
+	s << *static_cast<QDateTime *>(d->value.ptr);
+	break;
+    case QVariant::ByteArray:
+	s << *static_cast<QByteArray *>(d->value.ptr);
+	break;
+    case QVariant::BitArray:
+	s << *static_cast<QBitArray *>(d->value.ptr);
+	break;
+    case QVariant::Invalid:
+	s << QString();
+	break;
+    default:
+	qFatal("cannot handle GUI types of QVariant without a Gui application");
+    }
+}
+
+static bool compare(const QVariant::Private *a, const QVariant::Private *b)
+{
+    switch(a->type) {
+#ifndef QT_NO_TEMPLATE_VARIANT
+    case QVariant::List:
+	return *static_cast<QList<QVariant> *>(a->value.ptr)
+	    == *static_cast<QList<QVariant> *>(b->value.ptr);
+    case QVariant::Map: {
+	QMap<QString,QVariant> *m1 = static_cast<QMap<QString,QVariant> *>(a->value.ptr);
+	QMap<QString,QVariant> *m2 = static_cast<QMap<QString,QVariant> *>(b->value.ptr);
+	if (m1->count() != m2->count())
+	    return false;
+	QMap<QString, QVariant>::ConstIterator it = m1->constBegin();
+	QMap<QString, QVariant>::ConstIterator it2 = m2->constBegin();
+	while (it != m1->constEnd()) {
+	    if (*it != *it2)
+		return false;
+	    ++it;
+	    ++it2;
+	}
+	return true;
+    }
+#endif
+    case QVariant::String:
+	return *static_cast<QString *>(a->value.ptr)
+	    == *static_cast<QString *>(b->value.ptr);
+#ifndef QT_NO_STRINGLIST
+    case QVariant::StringList:
+	return *static_cast<QStringList *>(a->value.ptr)
+	    == *static_cast<QStringList *>(b->value.ptr);
+#endif
+    case QVariant::Int:
+	return a->value.i == b->value.i;
+    case QVariant::UInt:
+	return a->value.u == b->value.u;
+    case QVariant::LongLong:
+	return a->value.ll == b->value.ll;
+    case QVariant::ULongLong:
+	return a->value.ull == b->value.ull;
+    case QVariant::Bool:
+	return a->value.b == b->value.b;
+    case QVariant::Double:
+	return a->value.d == b->value.d;
+    case QVariant::Date:
+	return *static_cast<QDate *>(a->value.ptr)
+	    == *static_cast<QDate *>(b->value.ptr);
+    case QVariant::Time:
+	return *static_cast<QTime *>(a->value.ptr)
+	    == *static_cast<QTime *>(b->value.ptr);
+    case QVariant::DateTime:
+	return *static_cast<QDateTime *>(a->value.ptr)
+	    == *static_cast<QDateTime *>(b->value.ptr);
+    case QVariant::ByteArray:
+	return *static_cast<QByteArray *>(a->value.ptr)
+	    == *static_cast<QByteArray *>(b->value.ptr);
+    case QVariant::BitArray:
+	return *static_cast<QBitArray *>(a->value.ptr)
+	    == *static_cast<QBitArray *>(b->value.ptr);
+    case QVariant::Invalid:
+	break;
+    default:
+	qFatal("cannot handle GUI types of QVariant without a Gui application");
+    }
+    return false;
+}
+
+
+static void cast(QVariant::Private *d, QVariant::Type t, void *result, bool *ok)
+{
+    Q_ASSERT(d->type !=t);
+    switch (t) {
+    case QVariant::String: {
+	QString *str = static_cast<QString *>(result);
+	switch (d->type) {
+	case QVariant::Int:
+	    *str = QString::number(d->value.i);
+	    break;
+	case QVariant::UInt:
+	    *str = QString::number(d->value.u);
+	    break;
+	case QVariant::LongLong:
+	    *str = QString::number(d->value.ll);
+	    break;
+	case QVariant::ULongLong:
+	    *str = QString::number(d->value.ull);
+	    break;
+	case QVariant::Double:
+	    *str = QString::number(d->value.d, 'g', DBL_DIG);
+	    break;
+#if !defined(QT_NO_SPRINTF) && !defined(QT_NO_DATESTRING)
+	case QVariant::Date:
+	    *str = static_cast<QDate *>(d->value.ptr)->toString(Qt::ISODate);
+	    break;
+	case QVariant::Time:
+	    *str = static_cast<QTime *>(d->value.ptr)->toString(Qt::ISODate);
+	    break;
+	case QVariant::DateTime:
+	    *str = static_cast<QDateTime *>(d->value.ptr)->toString(Qt::ISODate);
+	    break;
+#endif
+	case QVariant::Bool:
+	    *str = d->value.b ? "true" : "false";
+	    break;
+	case QVariant::ByteArray:
+	    *str = QString(static_cast<QByteArray *>(d->value.ptr)->constData());
+	    break;
+	default:
+	    break;
+	}
+	break;
+    }
+#ifndef QT_NO_TEMPLATE_VARIANT
+    case QVariant::StringList:
+	if (d->type == QVariant::List) {
+	    QStringList *slst = static_cast<QStringList *>(result);
+	    QList<QVariant> *list = static_cast<QList<QVariant> *>(d->value.ptr);
+	    for (int i = 0; i < list->size(); ++i)
+		slst->append(list->at(i).toString());
+	}
+#endif
+	break;
+    case QVariant::Date: {
+	QDate *dt = static_cast<QDate *>(result);
+	if (d->type == QVariant::DateTime)
+	    *dt = static_cast<QDateTime *>(d->value.ptr)->date();
+#ifndef QT_NO_DATESTRING
+	else if (d->type == QVariant::String)
+	    *dt = QDate::fromString(*static_cast<QString *>(d->value.ptr), Qt::ISODate);
+#endif
+	break;
+    }
+    case QVariant::Time: {
+	QTime *t = static_cast<QTime *>(result);
+	switch ( d->type ) {
+	case QVariant::DateTime:
+	    *t = static_cast<QDateTime*>(d->value.ptr)->time();
+	    break;
+#ifndef QT_NO_DATESTRING
+	case QVariant::String:
+	    *t = QTime::fromString( *static_cast<QString *>(d->value.ptr), Qt::ISODate );
+	    break;
+#endif
+	default:
+	    break;
+	}
+	break;
+    }
+    case QVariant::DateTime: {
+	QDateTime *dt = static_cast<QDateTime *>(result);
+	switch ( d->type ) {
+#ifndef QT_NO_DATESTRING
+	case QVariant::String:
+	    *dt = QDateTime::fromString(*static_cast<QString *>(d->value.ptr), Qt::ISODate);
+	    break;
+#endif
+	case QVariant::Date:
+	    *dt = QDateTime(*static_cast<QDate*>(d->value.ptr));
+	    break;
+	default:
+	    break;
+	}
+	break;
+    }
+    case QVariant::ByteArray: {
+	QByteArray *ba = static_cast<QByteArray *>(result);
+	if (d->type == QVariant::String)
+	    *ba = static_cast<QString *>(d->value.ptr)->toAscii();
+    }
+    case QVariant::Int: {
+	int *i = static_cast<int *>(result);
+	switch (d->type) {
+	case QVariant::String:
+	    *i = static_cast<QString *>(d->value.ptr)->toInt(ok);
+	    break;
+	case QVariant::ByteArray:
+	    *i = QString(*static_cast<QByteArray *>(d->value.ptr)).toInt(ok);
+	    break;
+	case QVariant::Int:
+	    *i = d->value.i;
+	    break;
+	case QVariant::UInt:
+	    *i = (int)d->value.u;
+	    break;
+	case QVariant::LongLong:
+	    *i = (int)d->value.ll;
+	    break;
+	case QVariant::ULongLong:
+	    *i = (int)d->value.ull;
+	    break;
+	case QVariant::Double:
+	    *i = (int)d->value.d;
+	    break;
+	case QVariant::Bool:
+	    *i = (int)d->value.b;
+	    break;
+	default:
+	    *i = 0;
+	    break;
+	}
+	break;
+    }
+    case QVariant::UInt: {
+	uint *u = static_cast<uint *>(result);
+	switch (d->type) {
+	case QVariant::String:
+	    *u = static_cast<QString *>(d->value.ptr)->toUInt(ok);
+	    break;
+	case QVariant::ByteArray:
+	    *u = QString(*static_cast<QByteArray *>(d->value.ptr)).toUInt(ok);
+	    break;
+	case QVariant::Int:
+	    *u = (uint)d->value.i;
+	    break;
+	case QVariant::UInt:
+	    *u = d->value.u;
+	    break;
+	case QVariant::LongLong:
+	    *u = (uint)d->value.ll;
+	    break;
+	case QVariant::ULongLong:
+	    *u = (uint)d->value.ull;
+	    break;
+	case QVariant::Double:
+	    *u = (uint)d->value.d;
+	    break;
+	case QVariant::Bool:
+	    *u = (uint)d->value.b;
+	    break;
+	default:
+	    *u = 0;
+	    break;
+	}
+	break;
+    }
+    case QVariant::LongLong: {
+	Q_LLONG *l = static_cast<Q_LLONG *>(result);
+	switch (d->type) {
+	case QVariant::String:
+	    *l = static_cast<QString *>(d->value.ptr)->toLongLong(ok);
+	    break;
+	case QVariant::ByteArray:
+	    *l = QString(*static_cast<QByteArray *>(d->value.ptr)).toLongLong(ok);
+	    break;
+	case QVariant::Int:
+	    *l = (Q_LLONG)d->value.i;
+	    break;
+	case QVariant::UInt:
+	    *l = (Q_LLONG)d->value.u;
+	    break;
+	case QVariant::LongLong:
+	    *l = d->value.ll;
+	    break;
+	case QVariant::ULongLong:
+	    *l = (Q_LLONG)d->value.ull;
+	    break;
+	case QVariant::Double:
+	    *l = (Q_LLONG)d->value.d;
+	    break;
+	case QVariant::Bool:
+	    *l = (Q_LLONG)d->value.b;
+	    break;
+	default:
+	    *l = 0;
+	    break;
+	}
+	break;
+    }
+    case QVariant::ULongLong: {
+	Q_ULLONG *l = static_cast<Q_ULLONG *>(result);
+	switch (d->type) {
+	case QVariant::Int:
+	    *l = (Q_ULLONG)d->value.i;
+	    break;
+	case QVariant::UInt:
+	    *l = (Q_ULLONG)d->value.u;
+	    break;
+	case QVariant::LongLong:
+	    *l = (Q_ULLONG)d->value.ll;
+	    break;
+	case QVariant::ULongLong:
+	    *l = d->value.ull;
+	    break;
+	case QVariant::Double:
+	    *l = (Q_ULLONG)d->value.d;
+	    break;
+	case QVariant::Bool:
+	    *l = (Q_ULLONG)d->value.b;
+	    break;
+	case QVariant::String:
+	    *l = static_cast<QString *>(d->value.ptr)->toULongLong(ok);
+	    break;
+	case QVariant::ByteArray:
+	    *l = QString(*static_cast<QByteArray *>(d->value.ptr)).toULongLong(ok);
+	    break;
+	default:
+	    *l = 0;
+	    break;
+	}
+	break;
+    }
+    case QVariant::Bool: {
+	bool *b = static_cast<bool *>(result);
+	switch(d->type) {
+	case QVariant::Double:
+	    *b = d->value.d != 0.0;
+	    break;
+	case QVariant::Int:
+	    *b = d->value.i != 0;
+	    break;
+	case QVariant::UInt:
+	    *b = d->value.u != 0;
+	    break;
+	case QVariant::LongLong:
+	    *b = d->value.ll != 0;
+	    break;
+	case QVariant::ULongLong:
+	    *b = d->value.ull != 0;
+	    break;
+	case QVariant::String:
+	{
+	    QString str = static_cast<QString *>(d->value.ptr)->lower();
+	    *b = !(str == "0" || str == "false" || str.isEmpty());
+	    break;
+	}
+	default:
+	    *b = false;
+	    break;
+	}
+	break;
+    }
+    case QVariant::Double: {
+	double *f = static_cast<double *>(result);
+	switch (d->type) {
+	case QVariant::String:
+	    *f = static_cast<QString *>(d->value.ptr)->toDouble(ok);
+	    break;
+	case QVariant::ByteArray:
+	    *f = QString(*static_cast<QByteArray *>(d->value.ptr)).toDouble(ok);
+	    break;
+	case QVariant::Double:
+	    *f = d->value.d;
+	    break;
+	case QVariant::Int:
+	    *f = (double)d->value.i;
+	    break;
+	case QVariant::Bool:
+	    *f = (double)d->value.b;
+	    break;
+	case QVariant::UInt:
+	    *f = (double)d->value.u;
+	    break;
+	case QVariant::LongLong:
+	    *f = (double)d->value.ll;
+	    break;
+	case QVariant::ULongLong:
+#if defined(Q_CC_MSVC) && !defined(Q_CC_MSVC_NET)
+	    *f = (double)(Q_LLONG)d->value.ull;
+#else
+	    *f = (double)d->value.ull;
+#endif
+	    break;
+	default:
+	    *f = 0.0;
+	    break;
+	}
+	break;
+    }
+#ifndef QT_NO_STRINGLIST
+    case QVariant::List:
+	if (d->type == QVariant::StringList) {
+	    QList<QVariant> *lst = static_cast<QList<QVariant> *>(result);
+	    QStringList *slist = static_cast<QStringList *>(d->value.ptr);
+	    for (int i = 0; i < slist->size(); ++i)
+		lst->append(QVariant(slist->at(i)));
+	}
+#endif //QT_NO_STRINGLIST
+	break;
+
+    default:
+	Q_ASSERT(0);
+    }
+}
+
+static bool canCast(QVariant::Private *d, QVariant::Type t)
+{
+    if (d->type == t)
+	return true;
+
+    switch ( t ) {
+    case QVariant::Bool:
+	return d->type == QVariant::Double || d->type == QVariant::Int
+	    || d->type == QVariant::UInt || d->type == QVariant::LongLong
+	    || d->type == QVariant::ULongLong || d->type == QVariant::String;
+    case QVariant::Int:
+	return d->type == QVariant::String || d->type == QVariant::Double
+	    || d->type == QVariant::Bool || d->type == QVariant::UInt
+	    || d->type == QVariant::LongLong || d->type == QVariant::ULongLong;
+    case QVariant::UInt:
+	return d->type == QVariant::String || d->type == QVariant::Double
+	    || d->type == QVariant::Bool || d->type == QVariant::Int
+	    || d->type == QVariant::LongLong || d->type == QVariant::ULongLong;
+    case QVariant::LongLong:
+	return d->type == QVariant::String || d->type == QVariant::Double
+	    || d->type == QVariant::Bool || d->type == QVariant::Int
+	    || d->type == QVariant::UInt || d->type == QVariant::ULongLong;
+    case QVariant::ULongLong:
+	return d->type == QVariant::String || d->type == QVariant::Double
+	    || d->type == QVariant::Bool || d->type == QVariant::Int
+	    || d->type == QVariant::UInt || d->type == QVariant::LongLong;
+    case QVariant::Double:
+	return d->type == QVariant::String || d->type == QVariant::Int
+	    || d->type == QVariant::Bool || d->type == QVariant::UInt
+	    || d->type == QVariant::LongLong || d->type == QVariant::ULongLong;
+    case QVariant::String:
+	return d->type == QVariant::ByteArray || d->type == QVariant::Int
+	    || d->type == QVariant::UInt || d->type == QVariant::Bool
+	    || d->type == QVariant::Double || d->type == QVariant::Date
+	    || d->type == QVariant::Time || d->type == QVariant::DateTime
+	    || d->type == QVariant::LongLong || d->type == QVariant::ULongLong;
+    case QVariant::ByteArray:
+	return d->type == QVariant::CString || d->type == QVariant::String;
+    case QVariant::Date:
+	return d->type == QVariant::String || d->type == QVariant::DateTime;
+    case QVariant::Time:
+	return d->type == QVariant::String || d->type == QVariant::DateTime;
+    case QVariant::DateTime:
+	return d->type == QVariant::String || d->type == QVariant::Date;
+#ifndef QT_NO_STRINGLIST
+    case QVariant::List:
+	return d->type == QVariant::StringList;
+#endif
+#ifndef QT_NO_TEMPLATE_VARIANT
+    case QVariant::StringList:
+	if (d->type == QVariant::List) {
+	    const QList<QVariant> &varlist = *static_cast<QList<QVariant> *>(d->value.ptr);
+	    for (int i = 0; i < varlist.size(); ++i) {
+		if (!varlist.at(i).canCast(QVariant::String))
+		    return false;
+	    }
+	    return true;
+	}
+	return false;
+#endif
+    default:
+	return false;
+    }
+}
+
+extern const QVariant::Handler qt_kernel_variant_handler;
+const QVariant::Handler qt_kernel_variant_handler = {
+    construct,
+    clear,
+    isNull,
+    load,
+    save,
+    compare,
+    cast,
+    canCast
+};
+
+const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
 
 /*!
     \class QVariant qvariant.h
@@ -280,29 +952,34 @@ void QVariant::Private::clear()
 */
 
 /*!
+  \fn QVariant::QVariant()
+
     Constructs an invalid variant.
 */
 
-QVariant::Private QVariant::shared_invalid = { Q_ATOMIC_INIT(1), Invalid, true, {0} };
-
-QVariant::QVariant()
-    :d(&shared_invalid)
-{
-    ++d->ref;
-}
-
 /*!
+  \fn QVariant::QVariant(Type type, void *v)
+
     \internal
 
     Constructs a variant of type \a type, and initializes with \a v if
     \a not 0.
 */
-QVariant::QVariant(Type type, void *v)
+
+
+QVariant::Private *QVariant::create(Type t, const void *v)
 {
-    d = (v ? constructPrivate(type, v) : constructPrivate(type));
+    Private *x = new Private;
+    x->ref = 1;
+    x->type = t;
+    x->is_null = true;
+    handler->construct(x, v);
+    return x;
 }
 
 /*!
+  \fn QVariant::~QVariant()
+
     Destroys the QVariant and the contained object.
 
     Note that subclasses that reimplement clear() should reimplement
@@ -310,23 +987,15 @@ QVariant::QVariant(Type type, void *v)
     because it is the destructor, QVariant::clear() is called rather
     than a subclass's clear().
 */
-QVariant::~QVariant()
-{
-    if (!--d->ref)
-	cleanUp(d);
-}
 
 /*!
+  \fn QVariant::QVariant(const QVariant &p)
+
     Constructs a copy of the variant, \a p, passed as the argument to
     this constructor. Usually this is a deep copy, but a shallow copy
     is made if the stored data type is explicitly shared, as e.g.
     QImage is.
 */
-QVariant::QVariant(const QVariant &p)
-    : d(p.d)
-{
-    ++d->ref;
-}
 
 #ifndef QT_NO_DATASTREAM
 /*!
@@ -334,398 +1003,116 @@ QVariant::QVariant(const QVariant &p)
 */
 QVariant::QVariant(QDataStream &s)
 {
-    d = startConstruction();
+    d = new Private;
+    d->ref = 1;
+    d->is_null = true;
     s >> *this;
 }
 #endif //QT_NO_DATASTREAM
 
 /*!
+  \fn QVariant::QVariant(const QString &val)
+
     Constructs a new variant with a string value, \a val.
 */
-QVariant::QVariant(const QString &val)
-{
-    d = startConstruction();
-    d->type = String;
-    d->value.ptr = new QString(val);
-}
 
 /*!
+  \fn QVariant::QVariant(const char *val)
+
     Constructs a new variant with a C-string value of \a val if \a val
     is non-null. The variant creates a deep copy of \a val.
 
     If \a val is null, the resulting variant has type Invalid.
 */
-QVariant::QVariant(const char *val)
-{
-    d = startConstruction();
-    if ( val == 0 )
-	return;
-    d->type = ByteArray;
-    d->value.ptr = new QByteArray(val);
-}
 
-#ifndef QT_NO_STRINGLIST
 /*!
+  \fn QVariant::QVariant(const QStringList &val)
+
     Constructs a new variant with a string list value, \a val.
 */
-QVariant::QVariant(const QStringList &val)
-{
-    d = startConstruction();
-    d->type = StringList;
-    d->value.ptr = new QStringList(val);
-    d->is_null = false;
-}
-#endif // QT_NO_STRINGLIST
 
-#ifndef QT_NO_TEMPLATE_VARIANT
 /*!
+  \fn QVariant::QVariant(const QMap<QString,QVariant> &val)
+
     Constructs a new variant with a map of QVariants, \a val.
 */
-QVariant::QVariant(const QMap<QString,QVariant> &val)
-{
-    d = startConstruction();
-    d->type = Map;
-    d->value.ptr = new QMap<QString,QVariant>(val);
-    d->is_null = false;
-}
-#endif
-/*!
-    Constructs a new variant with a font value, \a val.
-*/
-QVariant::QVariant(const QFont &val)
-{
-    d = startConstruction();
-    d->type = Font;
-    d->value.ptr = new QFont(val);
-    d->is_null = false;
-}
 
 /*!
-    Constructs a new variant with a pixmap value, \a val.
-*/
-QVariant::QVariant(const QPixmap &val)
-{
-    d = startConstruction();
-    d->type = Pixmap;
-    d->value.ptr = new QPixmap(val);
-}
+  \fn QVariant::QVariant(const QDate &val)
 
-
-/*!
-    Constructs a new variant with an image value, \a val.
-
-    Because QImage is explicitly shared, you may need to pass a deep
-    copy to the variant using QImage::copy(), e.g. if you intend
-    changing the image you've passed later on.
-*/
-QVariant::QVariant(const QImage &val)
-{
-    d = startConstruction();
-    d->type = Image;
-    d->value.ptr = new QImage(val);
-}
-
-/*!
-    Constructs a new variant with a brush value, \a val.
-*/
-QVariant::QVariant(const QBrush &val)
-{
-    d = startConstruction();
-    d->type = Brush;
-    d->value.ptr = new QBrush(val);
-    d->is_null = false;
-}
-
-/*!
-    Constructs a new variant with a point value, \a val.
-*/
-QVariant::QVariant(const QPoint &val)
-{
-    d = startConstruction();
-    d->type = Point;
-    d->value.ptr = new QPoint(val);
-}
-
-/*!
-    Constructs a new variant with a rect value, \a val.
-*/
-QVariant::QVariant(const QRect &val)
-{
-    d = startConstruction();
-    d->type = Rect;
-    d->value.ptr = new QRect(val);
-}
-
-/*!
-    Constructs a new variant with a size value, \a val.
-*/
-QVariant::QVariant(const QSize &val)
-{
-    d = startConstruction();
-    d->type = Size;
-    d->value.ptr = new QSize(val);
-}
-
-/*!
-    Constructs a new variant with a color value, \a val.
-*/
-QVariant::QVariant(const QColor &val)
-{
-    d = startConstruction();
-    d->type = Color;
-    d->value.ptr = new QColor(val);
-    d->is_null = false;
-}
-
-#ifndef QT_NO_PALETTE
-/*!
-    Constructs a new variant with a color palette value, \a val.
-*/
-QVariant::QVariant(const QPalette &val)
-{
-    d = startConstruction();
-    d->type = Palette;
-    d->value.ptr = new QPalette(val);
-    d->is_null = false;
-}
-
-#ifndef QT_NO_COMPAT
-QVariant::QVariant(const QColorGroup &val)
-{
-    d = startConstruction();
-    d->type = ColorGroup;
-    d->value.ptr = new QColorGroup(val);
-    d->is_null = false;
-}
-#endif
-
-#endif //QT_NO_PALETTE
-#ifndef QT_NO_ICONSET
-/*!
-    Constructs a new variant with an icon set value, \a val.
-*/
-QVariant::QVariant(const QIconSet &val)
-{
-    d = startConstruction();
-    d->type = IconSet;
-    d->value.ptr = new QIconSet(val);
-}
-#endif //QT_NO_ICONSET
-/*!
-    Constructs a new variant with a region value, \a val.
-*/
-QVariant::QVariant(const QRegion &val)
-{
-    d = startConstruction();
-    d->type = Region;
-    // ## Force a detach
-    d->value.ptr = new QRegion(val);
-    static_cast<QRegion *>(d->value.ptr)->translate(0, 0);
-}
-
-/*!
-    Constructs a new variant with a bitmap value, \a val.
-*/
-QVariant::QVariant(const QBitmap& val)
-{
-    d = startConstruction();
-    d->type = Bitmap;
-    d->value.ptr = new QBitmap(val);
-}
-
-/*!
-    Constructs a new variant with a cursor value, \a val.
-*/
-QVariant::QVariant(const QCursor &val)
-{
-    d = startConstruction();
-    d->type = Cursor;
-    d->value.ptr = new QCursor(val);
-    d->is_null = false;
-}
-
-/*!
-    Constructs a new variant with a point array value, \a val.
-
-    Because QPointArray is explicitly shared, you may need to pass a
-    deep copy to the variant using QPointArray::copy(), e.g. if you
-    intend changing the point array you've passed later on.
-*/
-QVariant::QVariant(const QPointArray &val)
-{
-    d = startConstruction();
-    d->type = PointArray;
-    d->value.ptr = new QPointArray(val);
-}
-
-/*!
     Constructs a new variant with a date value, \a val.
 */
-QVariant::QVariant(const QDate &val)
-{
-    d = startConstruction();
-    d->type = Date;
-    d->value.ptr = new QDate(val);
-}
 
 /*!
+  \fn QVariant::QVariant(const QTime &val)
+
     Constructs a new variant with a time value, \a val.
 */
-QVariant::QVariant(const QTime &val)
-{
-    d = startConstruction();
-    d->type = Time;
-    d->value.ptr = new QTime(val);
-}
 
 /*!
+  \fn QVariant::QVariant(const QDateTime &val)
+
     Constructs a new variant with a date/time value, \a val.
 */
-QVariant::QVariant(const QDateTime &val)
-{
-    d = startConstruction();
-    d->type = DateTime;
-    d->value.ptr = new QDateTime(val);
-}
 
 /*!
+  \fn QVariant::QVariant(const QByteArray &val)
+
     Constructs a new variant with a bytearray value, \a val.
 */
-QVariant::QVariant(const QByteArray &val)
-{
-    d = startConstruction();
-    d->type = ByteArray;
-    d->value.ptr = new QByteArray(val);
-}
 
 /*!
+  \fn QVariant::QVariant(const QBitArray &val)
+
     Constructs a new variant with a bitarray value, \a val.
 */
-QVariant::QVariant(const QBitArray &val)
-{
-    d = startConstruction();
-    d->type = BitArray;
-    d->value.ptr = new QBitArray(val);
-}
 
-#ifndef QT_NO_ACCEL
 
 /*!
-    Constructs a new variant with a key sequence value, \a val.
-*/
-QVariant::QVariant(const QKeySequence &val)
-{
-    d = startConstruction();
-    d->type = KeySequence;
-    d->value.ptr = new QKeySequence(val);
-    d->is_null = false;
-}
+  \fn QVariant::QVariant(int val)
 
-#endif
-
-/*!
-    Constructs a new variant with a pen value, \a val.
-*/
-QVariant::QVariant(const QPen &val)
-{
-    d = startConstruction();
-    d->type = Pen;
-    d->value.ptr = new QPen(val);
-}
-
-/*!
     Constructs a new variant with an integer value, \a val.
 */
-QVariant::QVariant(int val)
-{
-    d = startConstruction();
-    d->type = Int;
-    d->value.i = val;
-    d->is_null = false;
-}
 
 /*!
+  \fn QVariant::QVariant(uint val)
+
     Constructs a new variant with an unsigned integer value, \a val.
 */
-QVariant::QVariant(uint val)
-{
-    d = startConstruction();
-    d->type = UInt;
-    d->value.u = val;
-    d->is_null = false;
-}
 
 /*!
+  \fn QVariant::QVariant(Q_LLONG val)
+
     Constructs a new variant with a long long integer value, \a val.
 */
-QVariant::QVariant(Q_LLONG val)
-{
-    d = startConstruction();
-    d->type = LongLong;
-    d->value.ll = val;
-    d->is_null = false;
-}
 
 /*!
+  \fn QVariant::QVariant(Q_ULLONG val)
+
     Constructs a new variant with an unsigned long long integer value, \a val.
 */
 
-QVariant::QVariant(Q_ULLONG val)
-{
-    d = startConstruction();
-    d->type = ULongLong;
-    d->value.ull = val;
-    d->is_null = false;
-}
 
 /*!
+  \fn QVariant::QVariant(bool val)
+
     Constructs a new variant with a boolean value, \a val. The integer
     argument is a dummy, necessary for compatibility with some
     compilers.
 */
-QVariant::QVariant(bool val, int)
-{
-    d = startConstruction();
-    d->type = Bool;
-    d->value.b = val;
-    d->is_null = false;
-}
 
 
 /*!
+  \fn QVariant::QVariant(double val)
+
     Constructs a new variant with a floating point value, \a val.
 */
-QVariant::QVariant(double val)
-{
-    d = startConstruction();
-    d->type = Double;
-    d->value.d = val;
-    d->is_null = false;
-}
 
-#ifndef QT_NO_TEMPLATE_VARIANT
 /*!
+  \fn QVariant::QVariant(const QList<QVariant> &val)
+
     Constructs a new variant with a list value, \a val.
 */
-QVariant::QVariant(const QList<QVariant> &val)
-{
-    d = startConstruction();
-    d->type = List;
-    d->value.ptr = new QList<QVariant>(val);
-    d->is_null = false;
-}
-#endif
-
-/*!
-    Constructs a new variant with a size policy value, \a val.
-*/
-QVariant::QVariant(QSizePolicy val)
-{
-    d = startConstruction();
-    d->type = SizePolicy;
-    d->value.ptr = new QSizePolicy(val);
-    d->is_null = false;
-}
 
 /*!
     Assigns the value of the variant \a variant to this variant.
@@ -749,7 +1136,11 @@ QVariant& QVariant::operator=(const QVariant &variant)
 */
 void QVariant::detach_helper()
 {
-    Private *x = constructPrivate(d->type, data());
+    Private *x = new Private;
+    x->ref = 1;
+    x->type = d->type;
+    x->is_null = true;
+    handler->construct(x, data());
     x->is_null = d->is_null;
     x = qAtomicSetPtr(&d, x);
     if (!--x->ref)
@@ -779,7 +1170,7 @@ void QVariant::clear()
 	d = &shared_invalid;
 	return;
     }
-    d->clear();
+    handler->clear(d);
 }
 
 /* Attention!
@@ -872,259 +1263,14 @@ QVariant::Type QVariant::nameToType(const char *name)
 */
 void QVariant::load(QDataStream &s)
 {
-    if (d == &shared_invalid)
-	detach_helper();
     Q_UINT32 u;
     s >> u;
-    Type t = (Type)u;
-
-    switch (t) {
-    case Invalid: {
-	// Since we wrote something, we should read something
-	QString x;
-	s >> x;
-	d->type = t;
-	d->is_null = true;
-    }
-	break;
-#ifndef QT_NO_TEMPLATE_VARIANT
-    case Map: {
-	QMap<QString, QVariant> *x = new QMap<QString, QVariant>;
-	s >> *x;
-	d->value.ptr = x;
-	d->is_null = false;
-    }
-	break;
-    case List: {
-	QList<QVariant> *x = new QList<QVariant>;
-	s >> *x;
-	d->value.ptr = x;
-	d->is_null = false;
-    }
-	break;
-#endif
-    case Cursor: {
-#ifndef QT_NO_CURSOR
-	QCursor *x = new QCursor;
-	s >> *x;
-	d->value.ptr = x;
-	d->is_null = false;
-#endif
-    }
-	break;
-    case Bitmap: {
-	QBitmap *x = new QBitmap;
-#ifndef QT_NO_IMAGEIO
-	s >> *x;
-#endif
-	d->value.ptr = x;
-    }
-	break;
-    case Region: {
-	QRegion *x = new QRegion;
-	s >> *x;
-	d->value.ptr = x;
-    }
-	break;
-    case PointArray: {
-	QPointArray *x = new QPointArray;
-	s >> *x;
-	d->value.ptr = x;
-    }
-	break;
-    case String: {
-	QString *x = new QString;
-	s >> *x;
-	d->value.ptr = x;
-    }
-	break;
-#ifndef QT_NO_STRINGLIST
-    case StringList: {
-	QStringList *x = new QStringList;
-	s >> *x;
-	d->value.ptr = x;
-	d->is_null = false;
-    }
-	break;
-#endif // QT_NO_STRINGLIST
-    case Font: {
-	QFont *x = new QFont;
-	s >> *x;
-	d->value.ptr = x;
-	d->is_null = false;
-    }
-	break;
-    case Pixmap: {
-	QPixmap *x = new QPixmap;
-#ifndef QT_NO_IMAGEIO
-	s >> *x;
-#endif
-	d->value.ptr = x;
-    }
-	break;
-    case Image: {
-	QImage *x = new QImage;
-#ifndef QT_NO_IMAGEIO
-	s >> *x;
-#endif
-	d->value.ptr = x;
-    }
-	break;
-    case Brush: {
-	QBrush *x = new QBrush;
-	s >> *x;
-	d->value.ptr = x;
-	d->is_null = false;
-    }
-	break;
-    case Rect: {
-	QRect *x = new QRect;
-	s >> *x;
-	d->value.ptr = x;
-    }
-	break;
-    case Point: {
-	QPoint *x = new QPoint;
-	s >> *x;
-	d->value.ptr = x;
-    }
-	break;
-    case Size: {
-	QSize *x = new QSize;
-	s >> *x;
-	d->value.ptr = x;
-    }
-	break;
-    case Color: {
-	QColor *x = new QColor;
-	s >> *x;
-	d->value.ptr = x;
-	d->is_null = false;
-    }
-	break;
-#ifndef QT_NO_PALETTE
-    case Palette: {
-	QPalette *x = new QPalette;
-	s >> *x;
-	d->value.ptr = x;
-	d->is_null = false;
-    }
-	break;
-#ifndef QT_NO_COMPAT
-    case ColorGroup: {
-	QColorGroup *x = new QColorGroup;
-	s >> *x;
-	d->value.ptr = x;
-	d->is_null = false;
-    }
-	break;
-#endif
-#endif
-#ifndef QT_NO_ICONSET
-    case IconSet: {
-	QPixmap x;
-	s >> x;
-	d->value.ptr = new QIconSet(x);
-    }
-	break;
-#endif
-    case Int: {
-	int x;
-	s >> x;
-	d->value.i = x;
-	d->is_null = false;
-    }
-	break;
-    case UInt: {
-	uint x;
-	s >> x;
-	d->value.u = x;
-	d->is_null = false;
-    }
-	break;
-    case LongLong: {
-	Q_LLONG x;
-	s >> x;
-	d->value.ll = x;
-    }
-	break;
-    case ULongLong: {
-	Q_ULLONG x;
-	s >> x;
-	d->value.ull = x;
-    }
-	break;
-    case Bool: {
-	Q_INT8 x;
-	s >> x;
-	d->value.b = x;
-	d->is_null = false;
-    }
-	break;
-    case Double: {
-	double x;
-	s >> x;
-	d->value.d = x;
-	d->is_null = false;
-    }
-	break;
-    case SizePolicy: {
-	int h, v;
-	Q_INT8 hfw;
-	s >> h >> v >> hfw;
-	d->value.ptr = new QSizePolicy((QSizePolicy::SizeType)h, (QSizePolicy::SizeType)v,
-					(bool)hfw);
-	d->is_null = false;
-    }
-	break;
-    case Date: {
-	QDate *x = new QDate;
-	s >> *x;
-	d->value.ptr = x;
-    }
-	break;
-    case Time: {
-	QTime *x = new QTime;
-	s >> *x;
-	d->value.ptr = x;
-    }
-	break;
-    case DateTime: {
-	QDateTime *x = new QDateTime;
-	s >> *x;
-	d->value.ptr = x;
-    }
-	break;
-    case ByteArray: {
-	QByteArray *x = new QByteArray;
-	s >> *x;
-	d->value.ptr = x;
-    }
-	break;
-    case BitArray: {
-	QBitArray *x = new QBitArray;
-	s >> *x;
-	d->value.ptr = x;
-    }
-	break;
-#ifndef QT_NO_ACCEL
-    case KeySequence: {
-	QKeySequence *x = new QKeySequence;
-	s >> *x;
-	d->value.ptr = x;
-	d->is_null = false;
-    }
-	break;
-#endif // QT_NO_ACCEL
-    case Pen: {
-	QPen *x = new QPen;
-	s >> *x;
-	d->value.ptr = x;
-	d->is_null = false;
-    }
-	break;
-    }
-    d->type = t;
+    QVariant::Private *x = create((QVariant::Type)u, 0);
+    x->is_null = false;
+    handler->load(x, s);
+    x = qAtomicSetPtr(&d, x);
+    if (!--x->ref)
+	cleanUp(x);
 }
 
 /*!
@@ -1136,134 +1282,7 @@ void QVariant::load(QDataStream &s)
 void QVariant::save(QDataStream &s) const
 {
     s << (Q_UINT32)type();
-
-    switch (d->type) {
-    case Cursor:
-	s << *static_cast<QCursor *>(d->value.ptr);
-	break;
-    case Bitmap:
-#ifndef QT_NO_IMAGEIO
-	s << *static_cast<QBitmap *>(d->value.ptr);
-#endif
-	break;
-    case PointArray:
-	s << *static_cast<QPointArray *>(d->value.ptr);
-	break;
-    case Region:
-	s << *static_cast<QRegion *>(d->value.ptr);
-	break;
-#ifndef QT_NO_TEMPLATE_VARIANT
-    case List:
-	s << *static_cast<QList<QVariant> *>(d->value.ptr);
-	break;
-    case Map:
-	s << *static_cast<QMap<QString,QVariant> *>(d->value.ptr);
-	break;
-#endif
-    case String:
-	s << *static_cast<QString *>(d->value.ptr);
-	break;
-#ifndef QT_NO_STRINGLIST
-    case StringList:
-	s << *static_cast<QStringList *>(d->value.ptr);
-	break;
-#endif
-    case Font:
-	s << *static_cast<QFont *>(d->value.ptr);
-	break;
-    case Pixmap:
-#ifndef QT_NO_IMAGEIO
-	s << *static_cast<QPixmap *>(d->value.ptr);
-#endif
-	break;
-    case Image:
-#ifndef QT_NO_IMAGEIO
-	s << *static_cast<QImage *>(d->value.ptr);
-#endif
-	break;
-    case Brush:
-	s << *static_cast<QBrush *>(d->value.ptr);
-	break;
-    case Point:
-	s << *static_cast<QPoint *>(d->value.ptr);
-	break;
-    case Rect:
-	s << *static_cast<QRect *>(d->value.ptr);
-	break;
-    case Size:
-	s << *static_cast<QSize *>(d->value.ptr);
-	break;
-    case Color:
-	s << *static_cast<QColor *>(d->value.ptr);
-	break;
-#ifndef QT_NO_PALETTE
-    case Palette:
-	s << *static_cast<QPalette *>(d->value.ptr);
-	break;
-#ifndef QT_NO_COMPAT
-    case ColorGroup:
-	s << *static_cast<QColorGroup *>(d->value.ptr);
-	break;
-#endif
-#endif
-#ifndef QT_NO_ICONSET
-    case IconSet:
-	//### add stream operator to iconset
-	s << static_cast<QIconSet *>(d->value.ptr)->pixmap();
-	break;
-#endif
-    case Int:
-	s << d->value.i;
-	break;
-    case UInt:
-	s << d->value.u;
-	break;
-    case LongLong:
-	s << d->value.ll;
-	break;
-    case ULongLong:
-	s << d->value.ull;
-	break;
-    case Bool:
-	s << (Q_INT8)d->value.b;
-	break;
-    case Double:
-	s << d->value.d;
-	break;
-    case SizePolicy:
-	{
-	    QSizePolicy p = toSizePolicy();
-	    s << (int) p.horData() << (int) p.verData()
-	      << (Q_INT8) p.hasHeightForWidth();
-	}
-	break;
-    case Date:
-	s << *static_cast<QDate *>(d->value.ptr);
-	break;
-    case Time:
-	s << *static_cast<QTime *>(d->value.ptr);
-	break;
-    case DateTime:
-	s << *static_cast<QDateTime *>(d->value.ptr);
-	break;
-    case ByteArray:
-	s << *static_cast<QByteArray *>(d->value.ptr);
-	break;
-    case BitArray:
-	s << *static_cast<QBitArray *>(d->value.ptr);
-	break;
-#ifndef QT_NO_ACCEL
-    case KeySequence:
-	s << *static_cast<QKeySequence *>(d->value.ptr);
-	break;
-#endif
-    case Pen:
-	s << *static_cast<QPen *>(d->value.ptr);
-	break;
-    case Invalid:
-	s << QString();
-	break;
-    }
+    handler->save(d, s);
 }
 
 /*!
@@ -1337,55 +1356,38 @@ QDataStream& operator<<(QDataStream &s, const QVariant::Type p)
     \sa asCString()
 */
 
+#define Q_VARIANT_TO(f) \
+Q##f QVariant::to##f() const { \
+    if ( d->type == f ) \
+        return *static_cast<Q##f *>(d->value.ptr); \
+    Q##f ret; \
+    handler->cast(d, f, &ret, 0); \
+    return ret; \
+}
+
+Q_VARIANT_TO(String)
+#ifndef QT_NO_STRINGLIST
+Q_VARIANT_TO(StringList)
+#endif
+Q_VARIANT_TO(Date)
+Q_VARIANT_TO(Time)
+Q_VARIANT_TO(DateTime)
+Q_VARIANT_TO(ByteArray)
+
 /*!
+  \fn QString QVariant::toString() const
+
     Returns the variant as a QString if the variant has type() String,
     ByteArray, Int, Uint, Bool, Double, Date, Time, DateTime,
     KeySequence, Font or Color; otherwise returns QString::null.
 
     \sa asString()
 */
-QString QVariant::toString() const
-{
-    switch (d->type) {
-    case Int:
-	return QString::number(toInt());
-    case UInt:
-	return QString::number(toUInt());
-    case LongLong:
-	return QString::number(toLongLong());
-    case ULongLong:
-	return QString::number(toULongLong());
-    case Double:
-	return QString::number(toDouble(), 'g', DBL_DIG);
-#if !defined(QT_NO_SPRINTF) && !defined(QT_NO_DATESTRING)
-    case Date:
-	return toDate().toString(Qt::ISODate);
-    case Time:
-	return toTime().toString(Qt::ISODate);
-    case DateTime:
-	return toDateTime().toString(Qt::ISODate);
-#endif
-    case Bool:
-	return toInt() ? "true" : "false";
-#ifndef QT_NO_ACCEL
-    case KeySequence:
-	return QString(*static_cast<QKeySequence *>(d->value.ptr));
-#endif
-    case ByteArray:
-	return QString(static_cast<QByteArray *>(d->value.ptr)->constData());
-    case Font:
-	return toFont().toString();
-    case Color:
-	return toColor().name();
-    case String:
-	return *static_cast<QString *>(d->value.ptr);
-    default:
-	return QString::null;
-    }
-}
 
-#ifndef QT_NO_STRINGLIST
+
 /*!
+  \fn QStringList QVariant::toStringList() const
+
     Returns the variant as a QStringList if the variant has type()
     StringList or List of a type that can be converted to QString;
     otherwise returns an empty list.
@@ -1403,26 +1405,7 @@ QString QVariant::toString() const
 
     \sa asStringList()
 */
-QStringList QVariant::toStringList() const
-{
-    switch (d->type) {
-    case StringList:
-	return *static_cast<QStringList *>(d->value.ptr);
-#ifndef QT_NO_TEMPLATE_VARIANT
-    case List:
-	{
-	    QStringList slst;
-	    QList<QVariant> list(toList());
-	    for (int i = 0; i < list.size(); ++i)
-		slst.append(list.at(i).toString());
-	    return slst;
-	}
-#endif
-    default:
-	return QStringList();
-    }
-}
-#endif //QT_NO_STRINGLIST
+
 
 #ifndef QT_NO_TEMPLATE_VARIANT
 /*!
@@ -1450,231 +1433,10 @@ QMap<QString, QVariant> QVariant::toMap() const
     return *static_cast<QMap<QString, QVariant> *>(d->value.ptr);
 }
 #endif
-/*!
-    Returns the variant as a QFont if the variant has type() Font;
-    otherwise returns the application's default font.
-
-  \sa asFont()
-*/
-QFont QVariant::toFont() const
-{
-    switch (d->type) {
-    case String:
-	{
-	    QFont fnt;
-	    fnt.fromString(toString());
-	    return fnt;
-	}
-    case Font:
-	return *static_cast<QFont *>(d->value.ptr);
-    default:
-	return QFont();
-    }
-}
 
 /*!
-    Returns the variant as a QPixmap if the variant has type() Pixmap;
-    otherwise returns a null pixmap.
+  \fn QDate QVariant::toDate() const
 
-    \sa asPixmap()
-*/
-QPixmap QVariant::toPixmap() const
-{
-    if (d->type != Pixmap)
-	return QPixmap();
-
-    return *static_cast<QPixmap *>(d->value.ptr);
-}
-
-/*!
-    Returns the variant as a QImage if the variant has type() Image;
-    otherwise returns a null image.
-
-    \sa asImage()
-*/
-const QImage QVariant::toImage() const
-{
-    if (d->type != Image)
-	return QImage();
-
-    return *static_cast<QImage *>(d->value.ptr);
-}
-
-/*!
-    Returns the variant as a QBrush if the variant has type() Brush;
-    otherwise returns a default brush (with all black colors).
-
-    \sa asBrush()
-*/
-QBrush QVariant::toBrush() const
-{
-    if (d->type != Brush)
-	return QBrush();
-
-    return *static_cast<QBrush *>(d->value.ptr);
-}
-
-/*!
-    Returns the variant as a QPoint if the variant has type() Point;
-    otherwise returns a point (0, 0).
-
-    \sa asPoint()
-*/
-QPoint QVariant::toPoint() const
-{
-    if (d->type != Point)
-	return QPoint();
-
-    return *static_cast<QPoint *>(d->value.ptr);
-}
-
-/*!
-    Returns the variant as a QRect if the variant has type() Rect;
-    otherwise returns an empty rectangle.
-
-    \sa asRect()
-*/
-QRect QVariant::toRect() const
-{
-    if (d->type != Rect)
-	return QRect();
-
-    return *static_cast<QRect *>(d->value.ptr);
-}
-
-/*!
-    Returns the variant as a QSize if the variant has type() Size;
-    otherwise returns an invalid size.
-
-    \sa asSize()
-*/
-QSize QVariant::toSize() const
-{
-    if (d->type != Size)
-	return QSize();
-
-    return *static_cast<QSize *>(d->value.ptr);
-}
-
-/*!
-    Returns the variant as a QColor if the variant has type() Color;
-    otherwise returns an invalid color.
-
-    \sa asColor()
-*/
-QColor QVariant::toColor() const
-{
-    switch (d->type) {
-    case String:
-	{
-	    QColor col;
-	    col.setNamedColor(toString());
-	    return col;
-	}
-    case Color:
-	return *static_cast<QColor *>(d->value.ptr);
-    default:
-	return QColor();
-    }
-}
-#ifndef QT_NO_PALETTE
-/*!
-    Returns the variant as a QPalette if the variant has type()
-    Palette; otherwise returns a completely black palette.
-
-    \sa asPalette()
-*/
-QPalette QVariant::toPalette() const
-{
-    if (d->type != Palette)
-	return QPalette();
-
-    return *static_cast<QPalette *>(d->value.ptr);
-}
-
-#ifndef QT_NO_COMPAT
-QColorGroup QVariant::toColorGroup() const
-{
-    if (d->type != ColorGroup)
-	return QColorGroup();
-    return *static_cast<QColorGroup *>(d->value.ptr);
-}
-#endif
-#endif //QT_NO_PALETTE
-#ifndef QT_NO_ICONSET
-/*!
-    Returns the variant as a QIconSet if the variant has type()
-    IconSet; otherwise returns an icon set of null pixmaps.
-
-    \sa asIconSet()
-*/
-QIconSet QVariant::toIconSet() const
-{
-    if (d->type != IconSet)
-	return QIconSet();
-
-    return *static_cast<QIconSet *>(d->value.ptr);
-}
-#endif //QT_NO_ICONSET
-/*!
-    Returns the variant as a QPointArray if the variant has type()
-    PointArray; otherwise returns an empty QPointArray.
-
-    \sa asPointArray()
-*/
-const QPointArray QVariant::toPointArray() const
-{
-    if (d->type != PointArray)
-	return QPointArray();
-
-    return *static_cast<QPointArray *>(d->value.ptr);
-}
-
-/*!
-    Returns the variant as a QBitmap if the variant has type() Bitmap;
-    otherwise returns a null QBitmap.
-
-    \sa asBitmap()
-*/
-QBitmap QVariant::toBitmap() const
-{
-    if (d->type != Bitmap)
-	return QBitmap();
-
-    return *static_cast<QBitmap *>(d->value.ptr);
-}
-
-/*!
-    Returns the variant as a QRegion if the variant has type() Region;
-    otherwise returns an empty QRegion.
-
-    \sa asRegion()
-*/
-QRegion QVariant::toRegion() const
-{
-    if (d->type != Region)
-	return QRegion();
-
-    return *static_cast<QRegion *>(d->value.ptr);
-}
-
-/*!
-    Returns the variant as a QCursor if the variant has type() Cursor;
-    otherwise returns the default arrow cursor.
-
-    \sa asCursor()
-*/
-QCursor QVariant::toCursor() const
-{
-#ifndef QT_NO_CURSOR
-    if (d->type != Cursor)
-	return QCursor();
-#endif
-
-    return *static_cast<QCursor *>(d->value.ptr);
-}
-
-/*!
     Returns the variant as a QDate if the variant has type() Date,
     DateTime or String; otherwise returns an invalid date.
 
@@ -1683,23 +1445,11 @@ QCursor QVariant::toCursor() const
 
     \sa asDate()
 */
-QDate QVariant::toDate() const
-{
-    switch (d->type) {
-    case Date:
-	return *static_cast<QDate *>(d->value.ptr);
-    case DateTime:
-	return ((QDateTime*)d->value.ptr)->date();
-#ifndef QT_NO_DATESTRING
-    case String:
-	return QDate::fromString( *((QString*)d->value.ptr), Qt::ISODate );
-#endif
-    default:
-	return QDate();
-    }
-}
+
 
 /*!
+  \fn QTime QVariant::toTime() const
+
     Returns the variant as a QTime if the variant has type() Time,
     DateTime or String; otherwise returns an invalid time.
 
@@ -1708,23 +1458,10 @@ QDate QVariant::toDate() const
 
     \sa asTime()
 */
-QTime QVariant::toTime() const
-{
-    switch ( d->type ) {
-    case Time:
-	return *((QTime*)d->value.ptr);
-    case DateTime:
-	return ((QDateTime*)d->value.ptr)->time();
-#ifndef QT_NO_DATESTRING
-    case String:
-	return QTime::fromString( *((QString*)d->value.ptr), Qt::ISODate );
-#endif
-    default:
-	return QTime();
-    }
-}
 
 /*!
+  \fn QDateTime QVariant::toDateTime() const
+
     Returns the variant as a QDateTime if the variant has type()
     DateTime or String; otherwise returns an invalid date/time.
 
@@ -1734,36 +1471,15 @@ QTime QVariant::toTime() const
 
     \sa asDateTime()
 */
-QDateTime QVariant::toDateTime() const
-{
-    switch ( d->type ) {
-    case DateTime:
-	return *static_cast<QDateTime *>(d->value.ptr);
-#ifndef QT_NO_DATESTRING
-    case String:
-	return QDateTime::fromString(*static_cast<QString *>(d->value.ptr), Qt::ISODate);
-#endif
-    case Date:
-	return QDateTime(*static_cast<QDate*>(d->value.ptr));
-    default:
-	return QDateTime();
-    }
-}
 
 /*!
+  \fn QByteArray QVariant::toByteArray() const
+
     Returns the variant as a QByteArray if the variant has type()
     ByteArray; otherwise returns an empty bytearray.
 
     \sa asByteArray()
 */
-QByteArray QVariant::toByteArray() const
-{
-    if (d->type == ByteArray)
-	return *static_cast<QByteArray *>(d->value.ptr);
-    else if (d->type == String)
-	return static_cast<QString *>(d->value.ptr)->toAscii();
-    return QByteArray();
-}
 
 /*!
     Returns the variant as a QBitArray if the variant has type()
@@ -1778,48 +1494,6 @@ QBitArray QVariant::toBitArray() const
     return QBitArray();
 }
 
-#ifndef QT_NO_ACCEL
-
-/*!
-    Returns the variant as a QKeySequence if the variant has type()
-    KeySequence, Int or String; otherwise returns an empty key
-    sequence.
-
-    Note that not all Ints and Strings are valid key sequences and in
-    such cases an empty key sequence will be returned.
-
-    \sa asKeySequence()
-*/
-QKeySequence QVariant::toKeySequence() const
-{
-    switch (d->type) {
-    case KeySequence:
-	return *static_cast<QKeySequence*>(d->value.ptr);
-    case String:
-	return QKeySequence(toString());
-    case Int:
-	return QKeySequence(toInt());
-    default:
-	return QKeySequence();
-    }
-}
-
-#endif // QT_NO_ACCEL
-
-/*!
-    Returns the variant as a QPen if the variant has type()
-    Pen; otherwise returns an empty QPen.
-
-    \sa asPen()
-*/
-QPen QVariant::toPen() const
-{
-    if (d->type != Pen)
-	return QPen();
-
-    return *static_cast<QPen*>(d->value.ptr);
-}
-
 /*!
     Returns the variant as an int if the variant has type() String,
     Int, UInt, Double, Bool or KeySequence; otherwise returns
@@ -1832,33 +1506,20 @@ QPen QVariant::toPen() const
 */
 int QVariant::toInt(bool *ok) const
 {
-    if (ok)
-	*ok = canCast(Int);
-
-    switch (d->type) {
-    case String:
-	return static_cast<QString *>(d->value.ptr)->toInt(ok);
-    case ByteArray:
-	return QString(*static_cast<QByteArray *>(d->value.ptr)).toInt(ok);
-    case Int:
+    if (d->type == Int) {
+	if (ok)
+	    *ok = true;
 	return d->value.i;
-    case UInt:
-	return (int)d->value.u;
-    case LongLong:
-        return (int)d->value.ll;
-    case ULongLong:
-        return (int)d->value.ull;
-    case Double:
-	return (int)d->value.d;
-    case Bool:
-	return (int)d->value.b;
-#ifndef QT_NO_ACCEL
-    case KeySequence:
-	return (int)*( (QKeySequence*)d->value.ptr );
-#endif
-    default:
-	return 0;
     }
+
+    bool c = canCast(Int);
+    if (ok)
+	*ok = c;
+    int res = 0;
+    if (c)
+	handler->cast(d, Int, &res, ok);
+
+    return res;
 }
 
 /*!
@@ -1872,29 +1533,20 @@ int QVariant::toInt(bool *ok) const
 */
 uint QVariant::toUInt(bool *ok) const
 {
-    if (ok)
-	*ok = canCast(UInt);
-
-    switch (d->type) {
-    case String:
-	return static_cast<QString *>(d->value.ptr)->toUInt(ok);
-    case ByteArray:
-	return QString(*static_cast<QByteArray *>(d->value.ptr)).toUInt(ok);
-    case Int:
-	return (uint)d->value.i;
-    case UInt:
+    if (d->type == UInt) {
+	if (ok)
+	    *ok = true;
 	return d->value.u;
-    case LongLong:
-        return (uint)d->value.ll;
-    case ULongLong:
-        return (uint)d->value.ull;
-    case Double:
-	return (uint)d->value.d;
-    case Bool:
-	return (uint)d->value.b;
-    default:
-	return 0;
     }
+
+    bool c = canCast(UInt);
+    if (ok)
+	*ok = c;
+    uint res = 0;
+    if (c)
+	handler->cast(d, UInt, &res, ok);
+
+    return res;
 }
 
 /*!
@@ -1909,29 +1561,20 @@ uint QVariant::toUInt(bool *ok) const
 */
 Q_LLONG QVariant::toLongLong(bool *ok) const
 {
-    if (ok)
-	*ok = canCast(LongLong);
-
-    switch (d->type) {
-    case String:
-	return static_cast<QString *>(d->value.ptr)->toLongLong(ok);
-    case ByteArray:
-	return QString(*static_cast<QByteArray *>(d->value.ptr)).toLongLong(ok);
-    case Int:
-	return (Q_LLONG)d->value.i;
-    case UInt:
-	return (Q_LLONG)d->value.u;
-    case LongLong:
+    if (d->type == LongLong) {
+	if (ok)
+	    *ok = true;
 	return d->value.ll;
-    case ULongLong:
-	return (Q_LLONG)d->value.ull;
-    case Double:
-	return (Q_LLONG)d->value.d;
-    case Bool:
-	return (Q_LLONG)d->value.b;
-    default:
-	return 0;
     }
+
+    bool c = canCast(LongLong);
+    if (ok)
+	*ok = c;
+    Q_LLONG res = 0;
+    if (c)
+	handler->cast(d, LongLong, &res, ok);
+
+    return res;
 }
 
 /*!
@@ -1946,29 +1589,20 @@ Q_LLONG QVariant::toLongLong(bool *ok) const
 */
 Q_ULLONG QVariant::toULongLong(bool *ok) const
 {
-    if (ok)
-	*ok = canCast(ULongLong);
-
-    switch (d->type) {
-    case Int:
-	return (Q_ULLONG)d->value.i;
-    case UInt:
-	return (Q_ULLONG)d->value.u;
-    case LongLong:
-	return (Q_ULLONG)d->value.ll;
-    case ULongLong:
+    if (d->type == ULongLong) {
+	if (ok)
+	    *ok = true;
 	return d->value.ull;
-    case Double:
-	return (Q_ULLONG)d->value.d;
-    case Bool:
-	return (Q_ULLONG)d->value.b;
-    case String:
-	return static_cast<QString *>(d->value.ptr)->toULongLong(ok);
-    case ByteArray:
-	return QString(*static_cast<QByteArray *>(d->value.ptr)).toULongLong(ok);
-    default:
-	return 0;
     }
+
+    bool c = canCast(ULongLong);
+    if (ok)
+	*ok = c;
+    Q_ULLONG res = 0;
+    if (c)
+	handler->cast(d, ULongLong, &res, ok);
+
+    return res;
 }
 
 /*!
@@ -1982,27 +1616,13 @@ Q_ULLONG QVariant::toULongLong(bool *ok) const
 */
 bool QVariant::toBool() const
 {
-    switch(d->type) {
-    case Bool:
+    if (d->type == Bool)
 	return d->value.b;
-    case Double:
-	return d->value.d != 0.0;
-    case Int:
-	return d->value.i != 0;
-    case UInt:
-	return d->value.u != 0;
-    case LongLong:
-	return d->value.ll != 0;
-    case ULongLong:
-	return d->value.ull != 0;
-    case String:
-	{
-	    QString str = toString().lower();
-	    return !(str == "0" || str == "false" || str.isEmpty());
-	}
-    default:
-	return false;
-    }
+
+    bool res = false;
+    handler->cast(d, Bool, &res, 0);
+
+    return res;
 }
 
 /*!
@@ -2017,37 +1637,26 @@ bool QVariant::toBool() const
 */
 double QVariant::toDouble(bool *ok) const
 {
-    if (ok)
-	*ok = canCast(Double);
-
-    switch (d->type) {
-    case String:
-	return static_cast<QString *>(d->value.ptr)->toDouble(ok);
-    case ByteArray:
-	return QString(*static_cast<QByteArray *>(d->value.ptr)).toDouble(ok);
-    case Double:
+    if (d->type == Double) {
+	if (ok)
+	*ok = true;
 	return d->value.d;
-    case Int:
-	return (double)d->value.i;
-    case Bool:
-	return (double)d->value.b;
-    case UInt:
-	return (double)d->value.u;
-    case LongLong:
-	return (double)d->value.ll;
-    case ULongLong:
-#if defined(Q_CC_MSVC) && !defined(Q_CC_MSVC_NET)
-	return (double)(Q_LLONG)d->value.ull;
-#else
-	return (double)d->value.ull;
-#endif
-    default:
-	return 0.0;
     }
+
+    bool c = canCast(Double);
+    if (ok)
+	*ok = c;
+    double res = 0;
+    if (c)
+	handler->cast(d, Double, &res, ok);
+
+    return res;
 }
 
 #ifndef QT_NO_TEMPLATE_VARIANT
 /*!
+  \fn QList<QVariant> QVariant::toList() const
+
     Returns the variant as a QList<QVariant> if the variant has
     type() List or StringList; otherwise returns an empty list.
 
@@ -2068,32 +1677,11 @@ QList<QVariant> QVariant::toList() const
 {
     if (d->type == List)
 	return *static_cast<QList<QVariant> *>(d->value.ptr);
-#ifndef QT_NO_STRINGLIST
-    if (d->type == StringList) {
-	QList<QVariant> lst;
-	QStringList slist(toStringList());
-	for (int i = 0; i < slist.size(); ++i)
-	    lst.append(QVariant(slist.at(i)));
-	return lst;
-    }
-#endif //QT_NO_STRINGLIST
-    return QList<QVariant>();
+    QList<QVariant> res;
+    handler->cast(d, List, &res, 0);
+    return res;
 }
 #endif
-
-/*!
-    Returns the variant as a QSizePolicy if the variant has type()
-    SizePolicy; otherwise returns an undefined (but legal) size
-    policy.
-*/
-
-QSizePolicy QVariant::toSizePolicy() const
-{
-    if (d->type == SizePolicy)
-	return *static_cast<QSizePolicy *>(d->value.ptr);
-
-    return QSizePolicy();
-}
 
 
 #define Q_VARIANT_AS( f ) Q##f& QVariant::as##f() { \
@@ -2103,37 +1691,11 @@ Q_VARIANT_AS(String)
 #ifndef QT_NO_STRINGLIST
 Q_VARIANT_AS(StringList)
 #endif
-Q_VARIANT_AS(Font)
-Q_VARIANT_AS(Pixmap)
-Q_VARIANT_AS(Image)
-Q_VARIANT_AS(Brush)
-Q_VARIANT_AS(Point)
-Q_VARIANT_AS(Rect)
-Q_VARIANT_AS(Size)
-Q_VARIANT_AS(Color)
-#ifndef QT_NO_PALETTE
-Q_VARIANT_AS(Palette)
-#ifndef QT_NO_COMPAT
-Q_VARIANT_AS(ColorGroup)
-#endif
-#endif
-#ifndef QT_NO_ICONSET
-Q_VARIANT_AS(IconSet)
-#endif
-Q_VARIANT_AS(PointArray)
-Q_VARIANT_AS(Bitmap)
-Q_VARIANT_AS(Region)
-Q_VARIANT_AS(Cursor)
-Q_VARIANT_AS(SizePolicy)
 Q_VARIANT_AS(Date)
 Q_VARIANT_AS(Time)
 Q_VARIANT_AS(DateTime)
 Q_VARIANT_AS(ByteArray)
 Q_VARIANT_AS(BitArray)
-#ifndef QT_NO_ACCEL
-Q_VARIANT_AS(KeySequence)
-#endif
-Q_VARIANT_AS(Pen)
 
 /*!
     \fn QString& QVariant::asString()
@@ -2427,7 +1989,7 @@ int &QVariant::asInt()
     if (d->type != Int) {
 	detach();
 	int i = toInt();
-	d->clear();
+	handler->clear(d);
 	d->value.i = i;
 	d->type = Int;
     }
@@ -2442,7 +2004,7 @@ uint &QVariant::asUInt()
     if (d->type != UInt) {
 	detach();
 	uint u = toUInt();
-	d->clear();
+	handler->clear(d);
 	d->value.u = u;
 	d->type = UInt;
     }
@@ -2457,7 +2019,7 @@ Q_LLONG &QVariant::asLongLong()
     if (d->type != LongLong) {
 	detach();
 	Q_LLONG ll = toLongLong();
-	d->clear();
+	handler->clear(d);
 	d->value.ll = ll;
 	d->type = LongLong;
     }
@@ -2472,7 +2034,7 @@ Q_ULLONG &QVariant::asULongLong()
     if (d->type != ULongLong) {
 	detach();
 	Q_ULLONG ull = toULongLong();
-	d->clear();
+	handler->clear(d);
 	d->value.ull = ull;
 	d->type = ULongLong;
     }
@@ -2487,7 +2049,7 @@ bool &QVariant::asBool()
     if (d->type != Bool) {
 	detach();
 	bool b = toBool();
-	d->clear();
+	handler->clear(d);
 	d->value.b = b;
 	d->type = Bool;
     }
@@ -2502,7 +2064,7 @@ double &QVariant::asDouble()
     if (d->type != Double) {
 	detach();
 	double dbl = toDouble();
-	d->clear();
+	handler->clear(d);
 	d->value.d = dbl;
 	d->type = Double;
     }
@@ -2581,67 +2143,7 @@ QMap<QString, QVariant>& QVariant::asMap()
 */
 bool QVariant::canCast(Type t) const
 {
-    if (d->type == t)
-	return true;
-    switch ( t ) {
-    case Bool:
-	return d->type == Double || d->type == Int || d->type == UInt
-	     || d->type == LongLong || d->type == ULongLong || d->type == String;
-    case Int:
-	return d->type == String || d->type == Double || d->type == Bool
-	    || d->type == UInt || d->type == LongLong || d->type == ULongLong
-	    || d->type == KeySequence;
-    case UInt:
-	return d->type == String || d->type == Double || d->type == Bool
-	    || d->type == Int || d->type == LongLong || d->type == ULongLong;
-    case LongLong:
-	return d->type == String || d->type == Double || d->type == Bool
-	    || d->type == Int || d->type == UInt || d->type == ULongLong || d->type == KeySequence;
-    case ULongLong:
-	return d->type == String || d->type == Double || d->type == Bool
-	    || d->type == Int || d->type == UInt || d->type == LongLong;
-    case Double:
-	return d->type == String || d->type == Int || d->type == Bool
-	    || d->type == UInt || d->type == LongLong || d->type == ULongLong;
-    case String:
-	return d->type == ByteArray || d->type == Int
-	    || d->type == UInt || d->type == Bool || d->type == Double
-	    || d->type == Date || d->type == Time || d->type == DateTime
-	    || d->type == KeySequence || d->type == Font || d->type == Color
-	    || d->type == LongLong || d->type == ULongLong;
-    case ByteArray:
-	return d->type == CString || d->type == String;
-    case Date:
-	return d->type == String || d->type == DateTime;
-    case Time:
-	return d->type == String || d->type == DateTime;
-    case DateTime:
-	return d->type == String || d->type == Date;
-    case KeySequence:
-	return d->type == String || d->type == Int;
-    case Font:
-	return d->type == String;
-    case Color:
-	return d->type == String;
-#ifndef QT_NO_STRINGLIST
-    case List:
-	return d->type == StringList;
-#endif
-#ifndef QT_NO_TEMPLATE_VARIANT
-    case StringList:
-	if (d->type == List) {
-	    const QList<QVariant> &varlist = *static_cast<QList<QVariant> *>(d->value.ptr);
-	    for (int i = 0; i < varlist.size(); ++i) {
-		if (!varlist.at(i).canCast(String))
-		    return false;
-	    }
-	    return true;
-	}
-	return false;
-#endif
-    default:
-	return false;
-    }
+    return handler->canCast(d, t);
 }
 
 /*!
@@ -2657,123 +2159,17 @@ bool QVariant::canCast(Type t) const
 
 bool QVariant::cast(Type t)
 {
-    switch (t) {
-#ifndef QT_NO_TEMPLATE_VARIANT
-    case QVariant::Map:
-	asMap();
-	break;
-    case QVariant::List:
-	asList();
-	break;
-#endif
-    case QVariant::String:
-	asString();
-	break;
-#ifndef QT_NO_STRINGLIST
-    case QVariant::StringList:
-	asStringList();
-	break;
-#endif
-    case QVariant::Font:
-	asFont();
-	break;
-    case QVariant::Pixmap:
-	asPixmap();
-	break;
-    case QVariant::Brush:
-	asBrush();
-	break;
-    case QVariant::Rect:
-	asRect();
-	break;
-    case QVariant::Size:
-	asSize();
-	break;
-    case QVariant::Color:
-	asColor();
-	break;
-#ifndef QT_NO_PALETTE
-    case QVariant::Palette:
-	asPalette();
-	break;
-#ifndef QT_NO_COMPAT
-    case QVariant::ColorGroup:
-	asColorGroup();
-	break;
-#endif
-#endif
-#ifndef QT_NO_ICONSET
-    case QVariant::IconSet:
-	asIconSet();
-	break;
-#endif
-    case QVariant::Point:
-	asPoint();
-	break;
-    case QVariant::Image:
-	asImage();
-	break;
-    case QVariant::Int:
-	asInt();
-	break;
-    case QVariant::UInt:
-	asUInt();
-	break;
-    case QVariant::Bool:
-	asBool();
-	break;
-    case QVariant::Double:
-	asDouble();
-	break;
-    case QVariant::PointArray:
-	asPointArray();
-	break;
-    case QVariant::Region:
-	asRegion();
-	break;
-    case QVariant::Bitmap:
-	asBitmap();
-	break;
-    case QVariant::Cursor:
-	asCursor();
-	break;
-    case QVariant::SizePolicy:
-	asSizePolicy();
-	break;
-    case QVariant::Date:
-	asDate();
-	break;
-    case QVariant::Time:
-	asTime();
-	break;
-    case QVariant::DateTime:
-	asDateTime();
-	break;
-    case QVariant::ByteArray:
-	asByteArray();
-	break;
-    case QVariant::BitArray:
-	asBitArray();
-	break;
-#ifndef QT_NO_ACCEL
-    case QVariant::KeySequence:
-	asKeySequence();
-	break;
-#endif
-    case QVariant::Pen:
-	asPen();
-	break;
-    case QVariant::LongLong:
-	asLongLong();
-	break;
-    case QVariant::ULongLong:
-	asULongLong();
-	break;
-    default:
-    case QVariant::Invalid:
-	*this = QVariant();
-    }
-    return canCast( t );
+    if (d->type == t)
+	return true;
+
+    bool c = handler->canCast(d, t);
+
+    Private *x = create(t, 0);
+    x = qAtomicSetPtr(&d, x);
+    handler->cast(x, t, data(), 0);
+    if (!--x->ref)
+	cleanUp(x);
+    return c;
 }
 
 /*!
@@ -2783,104 +2179,13 @@ bool QVariant::cast(Type t)
 
 bool QVariant::operator==(const QVariant &v) const
 {
-    if (!v.canCast(type()))
-	return false;
-    switch(d->type) {
-    case Cursor:
-#ifndef QT_NO_CURSOR
-	return v.toCursor().shape() == toCursor().shape();
-#endif
-    case Bitmap:
-	return v.toBitmap().serialNumber() == toBitmap().serialNumber();
-    case PointArray:
-	return v.toPointArray() == toPointArray();
-    case Region:
-	return v.toRegion() == toRegion();
-#ifndef QT_NO_TEMPLATE_VARIANT
-    case List:
-	return v.toList() == toList();
-    case Map: {
-	if (v.toMap().count() != toMap().count())
+    QVariant v2 = v;
+    if (d->type != v2.d->type) {
+	if (!v2.canCast(d->type))
 	    return false;
-	QMap<QString, QVariant>::ConstIterator it = v.toMap().constBegin();
-	QMap<QString, QVariant>::ConstIterator it2 = toMap().constBegin();
-	while (it != v.toMap().constEnd()) {
-	    if (*it != *it2)
-		return false;
-	    ++it;
-	    ++it2;
-	}
-	return true;
+	v2.cast(d->type);
     }
-#endif
-    case String:
-	return v.toString() == toString();
-#ifndef QT_NO_STRINGLIST
-    case StringList:
-	return v.toStringList() == toStringList();
-#endif
-    case Font:
-	return v.toFont() == toFont();
-    case Pixmap:
-	return v.toPixmap().serialNumber() == toPixmap().serialNumber();
-    case Image:
-	return v.toImage() == toImage();
-    case Brush:
-	return v.toBrush() == toBrush();
-    case Point:
-	return v.toPoint() == toPoint();
-    case Rect:
-	return v.toRect() == toRect();
-    case Size:
-	return v.toSize() == toSize();
-    case Color:
-	return v.toColor() == toColor();
-#ifndef QT_NO_PALETTE
-    case Palette:
-	return v.toPalette() == toPalette();
-#ifndef QT_NO_COMPAT
-    case ColorGroup:
-	return v.toColorGroup() == toColorGroup();
-#endif
-#endif
-#ifndef QT_NO_ICONSET
-    case IconSet:
-	return v.toIconSet().pixmap().serialNumber() == toIconSet().pixmap().serialNumber();
-#endif
-    case Int:
-	return v.toInt() == toInt();
-    case UInt:
-	return v.toUInt() == toUInt();
-    case LongLong:
-	return v.toLongLong() == toLongLong();
-    case ULongLong:
-	return v.toULongLong() == toULongLong();
-    case Bool:
-	return v.toBool() == toBool();
-    case Double:
-	return v.toDouble() == toDouble();
-    case SizePolicy:
-	return v.toSizePolicy() == toSizePolicy();
-    case Date:
-	return v.toDate() == toDate();
-    case Time:
-	return v.toTime() == toTime();
-    case DateTime:
-	return v.toDateTime() == toDateTime();
-    case ByteArray:
-	return v.toByteArray() == toByteArray();
-    case BitArray:
-	return v.toBitArray() == toBitArray();
-#ifndef QT_NO_ACCEL
-    case KeySequence:
-	return v.toKeySequence() == toKeySequence();
-#endif
-    case Pen:
-	return v.toPen() == toPen();
-    case Invalid:
-	break;
-    }
-    return false;
+    return handler->compare(d, v2.d);
 }
 
 /*!
@@ -2901,16 +2206,21 @@ void *QVariant::rawAccess(void *ptr, Type typ, bool deepCopy)
 	d->value.ptr = ptr;
 	d->is_null = false;
 	if (deepCopy) {
-	    Private *p = constructPrivate(d->type, data());
-	    p->is_null = d->is_null;
-	    cleanUp(d);
-	    d = p;
+	    Private *x = new Private;
+	    x->ref = 1;
+	    x->type = d->type;
+	    handler->construct(x, data());
+	    x->is_null = d->is_null;
+	    x = qAtomicSetPtr(&d, x);
+	    if (!--x->ref)
+		cleanUp(x);
 	}
     }
     if (!deepCopy)
 	return d->value.ptr;
-    Private *p = constructPrivate(d->type, data());
-    p->is_null = d->is_null;
+    Private *p = new Private;
+    p->type = d->type;
+    handler->construct(p, data());
     void *ret = (void*)p->value.ptr;
     p->type = Invalid;
     delete p;
@@ -2939,318 +2249,8 @@ void* QVariant::data()
 */
 bool QVariant::isNull() const
 {
-    switch( d->type ) {
-    case Bitmap:
-	return static_cast<QBitmap *>(d->value.ptr)->isNull();
-    case Region:
-	return static_cast<QRegion *>(d->value.ptr)->isEmpty();
-    case PointArray:
-	return static_cast<QPointArray *>(d->value.ptr)->isEmpty();
-    case String:
-	return static_cast<QString *>(d->value.ptr)->isNull();
-    case Pixmap:
-	return static_cast<QPixmap *>(d->value.ptr)->isNull();
-    case Image:
-	return static_cast<QImage *>(d->value.ptr)->isNull();
-    case Point:
-	return static_cast<QPoint *>(d->value.ptr)->isNull();
-    case Rect:
-	return static_cast<QRect *>(d->value.ptr)->isNull();
-    case Size:
-	return static_cast<QSize *>(d->value.ptr)->isNull();
-#ifndef QT_NO_ICONSET
-    case IconSet:
-	return static_cast<QIconSet *>(d->value.ptr)->isNull();
-#endif
-    case Date:
-	return static_cast<QDate *>(d->value.ptr)->isNull();
-    case Time:
-	return static_cast<QTime *>(d->value.ptr)->isNull();
-    case DateTime:
-	return static_cast<QDateTime *>(d->value.ptr)->isNull();
-    case ByteArray:
-	return static_cast<QByteArray *>(d->value.ptr)->isNull();
-    case BitArray:
-	return static_cast<QBitArray *>(d->value.ptr)->isNull();
-    case Cursor:
-#ifndef QT_NO_STRINGLIST
-    case StringList:
-#endif //QT_NO_STRINGLIST
-    case Font:
-    case Brush:
-    case Color:
-#ifndef QT_NO_PALETTE
-    case Palette:
-#ifndef QT_NO_COMPAT
-    case ColorGroup:
-#endif
-#endif
-#ifndef QT_NO_TEMPLATE_VARIANT
-    case Map:
-    case List:
-#endif
-    case SizePolicy:
-#ifndef QT_NO_ACCEL
-    case KeySequence:
-#endif
-    case Pen:
-    case Invalid:
-    case Int:
-    case UInt:
-    case LongLong:
-    case ULongLong:
-    case Bool:
-    case Double:
-	break;
-    }
-    return d->is_null;
+    return handler->isNull(d);
 }
 
 
-QVariant::Private *QVariant::constructPrivate(Type type)
-{
-    Private *x = startConstruction();
-    x->type = type;
-    x->is_null = true;
-    switch (type) {
-    case Invalid:
-	break;
-    case Bitmap:
-	x->value.ptr = new QBitmap;
-	break;
-    case Region:
-	x->value.ptr = new QRegion;
-	break;
-    case PointArray:
-	x->value.ptr = new QPointArray;
-	break;
-    case String:
-	x->value.ptr = new QString;
-	break;
-#ifndef QT_NO_STRINGLIST
-    case StringList:
-	x->value.ptr = new QStringList;
-	break;
-#endif //QT_NO_STRINGLIST
-    case Font:
-	x->value.ptr = new QFont;
-	break;
-    case Pixmap:
-	x->value.ptr = new QPixmap;
-	break;
-    case Image:
-	// QImage is explicit shared
-	x->value.ptr = new QImage;
-	break;
-    case Brush:
-	x->value.ptr = new QBrush;
-	// ## Force a detach
-	// ((QBrush*)value.ptr)->setColor( ((QBrush*)value.ptr)->color() );
-	break;
-    case Point:
-	x->value.ptr = new QPoint;
-	break;
-    case Rect:
-	x->value.ptr = new QRect;
-	break;
-    case Size:
-	x->value.ptr = new QSize;
-	break;
-    case Color:
-	x->value.ptr = new QColor;
-	break;
-#ifndef QT_NO_PALETTE
-    case Palette:
-	x->value.ptr = new QPalette;
-	break;
-#ifndef QT_NO_COMPAT
-    case ColorGroup:
-	x->value.ptr = new QColorGroup;
-	break;
-#endif
-#endif
-#ifndef QT_NO_ICONSET
-    case IconSet:
-	x->value.ptr = new QIconSet;
-	break;
-#endif
-#ifndef QT_NO_TEMPLATE_VARIANT
-    case Map:
-	x->value.ptr = new QMap<QString,QVariant>;
-	break;
-    case List:
-	x->value.ptr = new QList<QVariant>;
-	break;
-#endif
-    case Date:
-	x->value.ptr = new QDate;
-	break;
-    case Time:
-	x->value.ptr = new QTime;
-	break;
-    case DateTime:
-	x->value.ptr = new QDateTime;
-	break;
-    case ByteArray:
-	x->value.ptr = new QByteArray;
-	break;
-    case BitArray:
-	x->value.ptr = new QBitArray;
-	break;
-#ifndef QT_NO_ACCEL
-    case KeySequence:
-	x->value.ptr = new QKeySequence;
-	break;
-#endif
-    case Pen:
-	x->value.ptr = new QPen;
-	break;
-    case Int:
-	x->value.i = 0;
-	break;
-    case UInt:
-	x->value.u = 0;
-	break;
-    case Bool:
-	x->value.b = 0;
-	break;
-    case Double:
-	x->value.d = 0;
-	break;
-    case SizePolicy:
-	x->value.ptr = new QSizePolicy;
-	break;
-    case Cursor:
-	x->value.ptr = new QCursor;
-	break;
-    case LongLong:
-	x->value.ll = Q_LLONG(0);
-	break;
-    case ULongLong:
-	x->value.ull = Q_ULLONG(0);
-	break;	
-    default:
-	Q_ASSERT( 0 );
-    }
-    return x;
-}
-
-QVariant::Private *QVariant::constructPrivate(Type type, void *v)
-{
-    Private *x = startConstruction();
-    x->type = type;
-    x->is_null = true;
-    switch( type ) {
-    case Invalid:
-	break;
-    case Bitmap:
-	x->value.ptr = new QBitmap(*static_cast<QBitmap *>(v));
-	break;
-    case Region:
-	x->value.ptr = new QRegion(*static_cast<QRegion *>(v));
-	break;
-    case PointArray:
-	x->value.ptr = new QPointArray(*static_cast<QPointArray *>(v));
-	break;
-    case String:
-	x->value.ptr = new QString(*static_cast<QString *>(v));
-	break;
-#ifndef QT_NO_STRINGLIST
-    case StringList:
-	x->value.ptr = new QStringList(*static_cast<QStringList *>(v));
-	break;
-#endif //QT_NO_STRINGLIST
-    case Font:
-	x->value.ptr = new QFont(*static_cast<QFont *>(v));
-	break;
-    case Pixmap:
-	x->value.ptr = new QPixmap(*static_cast<QPixmap *>(v));
-	break;
-    case Image:
-	x->value.ptr = new QImage(*static_cast<QImage *>(v));
-	break;
-    case Brush:
-	x->value.ptr = new QBrush(*static_cast<QBrush *>(v));
-	break;
-    case Point:
-	x->value.ptr = new QPoint(*static_cast<QPoint *>(v));
-	break;
-    case Rect:
-	x->value.ptr = new QRect(*static_cast<QRect *>(v));
-	break;
-    case Size:
-	x->value.ptr = new QSize(*static_cast<QSize *>(v));
-	break;
-    case Color:
-	x->value.ptr = new QColor(*static_cast<QColor *>(v));
-	break;
-#ifndef QT_NO_PALETTE
-    case Palette:
-	x->value.ptr = new QPalette(*static_cast<QPalette *>(v));
-	break;
-#ifndef QT_NO_COMPAT
-    case ColorGroup:
-	x->value.ptr = new QColorGroup(*static_cast<QColorGroup *>(v));
-	break;
-#endif
-#endif
-#ifndef QT_NO_ICONSET
-    case IconSet:
-	x->value.ptr = new QIconSet(*static_cast<QIconSet *>(v));
-	break;
-#endif
-#ifndef QT_NO_TEMPLATE_VARIANT
-    case Map:
-	x->value.ptr = new QMap<QString,QVariant>(*static_cast<QMap<QString, QVariant> *>(v));
-	break;
-    case List:
-	x->value.ptr = new QList<QVariant>(*static_cast<QList<QVariant> *>(v));
-	break;
-#endif
-    case Date:
-	x->value.ptr = new QDate(*static_cast<QDate *>(v));
-	break;
-    case Time:
-	x->value.ptr = new QTime(*static_cast<QTime *>(v));
-	break;
-    case DateTime:
-	x->value.ptr = new QDateTime(*static_cast<QDateTime *>(v));
-	break;
-    case ByteArray:
-	x->value.ptr = new QByteArray(*static_cast<QByteArray *>(v));
-	break;
-    case BitArray:
-	x->value.ptr = new QBitArray(*static_cast<QBitArray *>(v));
-	break;
-#ifndef QT_NO_ACCEL
-    case KeySequence:
-	x->value.ptr = new QKeySequence(*static_cast<QKeySequence *>(v));
-	break;
-#endif
-    case Pen:
-	x->value.ptr = new QPen(*static_cast<QPen *>(v));
-	break;
-    case Int:
-	x->value.i = *static_cast<int *>(v);
-	break;
-    case UInt:
-	x->value.u = *static_cast<uint *>(v);
-	break;
-    case Bool:
-	x->value.b = *static_cast<bool *>(v);
-	break;
-    case Double:
-	x->value.d = *static_cast<double *>(v);
-	break;
-    case SizePolicy:
-	x->value.ptr = new QSizePolicy(*static_cast<QSizePolicy *>(v));
-	break;
-    case Cursor:
-	x->value.ptr = new QCursor(*static_cast<QCursor *>(v));
-	break;
-    default:
-	Q_ASSERT( 0 );
-    }
-    return x;
-}
 #endif //QT_NO_VARIANT

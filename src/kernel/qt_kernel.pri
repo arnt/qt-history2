@@ -234,6 +234,7 @@ kernel {
 		  $$KERNEL_CPP/qwidget.cpp \
 		  $$KERNEL_CPP/qwmatrix.cpp \
 		  $$KERNEL_CPP/qvariant.cpp \
+		  $$KERNEL_CPP/qvariant_gui.cpp \
 		  $$KERNEL_CPP/qrichtext.cpp \
 		  $$KERNEL_CPP/qinternal.cpp \
 		  $$KERNEL_CPP/qrichtext_p.cpp \
