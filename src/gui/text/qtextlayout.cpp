@@ -1279,7 +1279,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos,
 
         if (si.isObject || si.isTab) {
             QTextLayout::SelectionType selType = QTextLayout::NoSelection;
-            int s;
+            int s = 0;
             if (nSelections) {
                 for (int i = 0; i < nSelections; ++i) {
                     if (selections[i].from() <= si.position
