@@ -669,6 +669,9 @@ void QListView::timerEvent(QTimerEvent *e)
         if (doItemsLayout(100)) {
             killTimer(d->batchLayoutTimer);
             d->batchLayoutTimer = 0;
+            // layout is done
+            updateGeometries();
+            d->viewport->update();
         }
     }
     QAbstractItemView::timerEvent(e);
@@ -1190,6 +1193,8 @@ void QListView::doStaticLayout(const QRect &bounds, int first, int last)
         d->xposVector.push_back(x);
         d->translate = dy;
         rect.setBottom(y + dy);
+        if (layoutWraps == 0)
+            rect.setRight(x);
     } else { // d->flow == TopToBottom
         int h = bounds.height();
         int dy, dx = grid.isValid() ? grid.width() : d->translate;
@@ -1212,6 +1217,8 @@ void QListView::doStaticLayout(const QRect &bounds, int first, int last)
         d->yposVector.push_back(y);
         d->translate = dx;
         rect.setRight(x + dx);
+        if (layoutWraps == 0)
+            rect.setBottom(y);
     }
 
     if (d->layoutWraps < layoutWraps) {

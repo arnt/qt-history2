@@ -259,15 +259,21 @@ public:
 
     void init();
     void prepareItemsLayout();
+
     void intersectingDynamicSet(const QRect &area) const;
     void intersectingStaticSet(const QRect &area) const;
+    inline void intersectingSet(const QRect &area) const
+        { if (movement == QListView::Static) intersectingStaticSet(area);
+          else intersectingDynamicSet(area); }
+
     void createItems(int to);
     void drawItems(QPainter *painter, const QVector<QModelIndex> &indexes) const;
     QRect itemsRect(const QVector<QModelIndex> &indexes) const;
 
     QListViewItem indexToListViewItem(const QModelIndex &index) const;
     inline QModelIndex listViewItemToIndex(const QListViewItem item) const
-    { return q_func()->model()->index(itemIndex(item), column, q_func()->root()); }
+        { return q_func()->model()->index(itemIndex(item), column, q_func()->root()); }
+    
     int itemIndex(const QListViewItem item) const;
     static void addLeaf(QVector<int> &leaf, const QRect &area,
                         uint visited, QBinTree<QListViewItem>::Data data);
