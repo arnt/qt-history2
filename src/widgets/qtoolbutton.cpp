@@ -894,7 +894,7 @@ void QToolButton::popupTimerDone()
 	    }
 	}
     }
-    d->popup->exec( p );
+    d->popup->exec( p, -1 );
     setDown( FALSE );
     if ( d->repeat )
 	setAutoRepeat( TRUE );
