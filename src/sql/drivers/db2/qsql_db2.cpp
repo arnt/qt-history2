@@ -260,12 +260,12 @@ QSqlFieldInfo qMakeFieldInfo( const QDB2ResultPrivate* d, int i )
     }
     QVariant::Type type = qDecodeDB2Type( colType );
     return QSqlFieldInfo( qColName,
-    			  type,
-    			  required,
-    			  (int) colSize == 0 ? -1 : (int) colSize,
-    			  (int) colScale == 0 ? -1 : (int) colScale,
-    			  QVariant(),
-    			  (int) colType );
+			  type,
+			  required,
+			  (int) colSize == 0 ? -1 : (int) colSize,
+			  (int) colScale == 0 ? -1 : (int) colScale,
+			  QVariant(),
+			  (int) colType );
 }
 
 int qGetIntData( SQLHANDLE hStmt, int column, bool& isNull )
@@ -279,11 +279,30 @@ int qGetIntData( SQLHANDLE hStmt, int column, bool& isNull )
 			      (SQLPOINTER) &intbuf,
 			      0,
 			      &lengthIndicator );
-    if ( ( r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO ) &&  lengthIndicator == SQL_NULL_DATA ) {
+    if ( ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) || lengthIndicator == SQL_NULL_DATA ) {
 	isNull = TRUE;
 	return 0;
     }
     return (int) intbuf;
+}
+
+double qGetDoubleData( SQLHANDLE hStmt, int column, bool& isNull )
+{
+    SQLDOUBLE dblbuf;
+    isNull = FALSE;
+    SQLINTEGER lengthIndicator = 0;
+    SQLRETURN r = SQLGetData( hStmt,
+			      column+1,
+			      SQL_C_DOUBLE,
+			      (SQLPOINTER) &dblbuf,
+			      0,
+			      &lengthIndicator );
+    if ( ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) || lengthIndicator == SQL_NULL_DATA ) {
+	isNull = TRUE;
+	return 0.0;
+    }
+
+    return (double) dblbuf;
 }
 
 QString qGetStringData( SQLHANDLE hStmt, int column, int colSize, bool& isNull )
@@ -945,12 +964,18 @@ QVariant QDB2Result::data( int field )
     QVariant* v = 0;
     switch ( info.type() ) {
 	case QVariant::Int: {
-	    int val = qGetIntData( d->hStmt, field, isNull );
+	    if ( info.typeID() == SQL_BIGINT ) {
+		QString val = qGetStringData( d->hStmt, field, info.length(), isNull );
+		if ( !isNull )
+		    v = new QVariant( val );
+	    } else {
+		int val = qGetIntData( d->hStmt, field, isNull );
+		if ( !isNull )
+		    v = new QVariant( val );
+	    }
 	    if ( isNull ) {
 		v = new QVariant();
 		v->cast( QVariant::Int );
-	    } else {
-		v = new QVariant( val );
 	    }
 	    break; }
 	case QVariant::Date: {
@@ -997,8 +1022,20 @@ QVariant QDB2Result::data( int field )
 	    v = new QVariant( qGetBinaryData( d->hStmt, field, lengthIndicator, isNull ) );
 	    break;
 	case QVariant::Double:
-	    // length + 1 for the comma
-	    v = new QVariant( qGetStringData( d->hStmt, field, info.length() + 1, isNull ) );
+	    if ( info.typeID() == SQL_DECIMAL || info.typeID() == SQL_NUMERIC ) {
+		// length + 1 for the comma
+		QString val = qGetStringData( d->hStmt, field, info.length() + 1, isNull );
+		if ( !isNull )
+		    v = new QVariant( val );
+	    } else {
+		double val = qGetDoubleData( d->hStmt, field, isNull );
+		if ( !isNull )
+		    v = new QVariant( val );
+	    }
+	    if ( isNull ) {
+                v = new QVariant();
+                v->cast( QVariant::Double );
+	    }
 	    break;
 	case QVariant::String:
 	case QVariant::CString:
