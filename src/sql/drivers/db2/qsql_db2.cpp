@@ -222,9 +222,9 @@ static QSqlField qMakeFieldInfo(const QDB2ResultPrivate* d, int i)
     else if (nullable == SQL_NULLABLE)
         f.setRequired(false);
     // else required is unknown
-    f.setLength(colSize == 0 ? -1 : (int)colSize);
-    f.setPrecision(colScale == 0 ? -1 : (int)colScale);
-    f.setSqlType((int)colType);
+    f.setLength(colSize == 0 ? -1 : int(colSize));
+    f.setPrecision(colScale == 0 ? -1 : int(colScale));
+    f.setSqlType(int(colType));
     return f;
 }
 
@@ -243,7 +243,7 @@ static int qGetIntData(SQLHANDLE hStmt, int column, bool& isNull)
         isNull = true;
         return 0;
     }
-    return (int) intbuf;
+    return int(intbuf);
 }
 
 static double qGetDoubleData(SQLHANDLE hStmt, int column, bool& isNull)
@@ -911,7 +911,7 @@ QCoreVariant QDB2Result::data(int field)
     bool isNull = false;
     const QSqlField info = d->recInf.field(field);
 
-    if (!info.isValid() || field >= (int)d->valueCache.size())
+    if (!info.isValid() || field >= d->valueCache.size())
         return QCoreVariant();
 
     if (d->valueCache[field])
@@ -995,7 +995,7 @@ QCoreVariant QDB2Result::data(int field)
 
 bool QDB2Result::isNull(int i)
 {
-    if (i >= (int)d->valueCache.size())
+    if (i >= d->valueCache.size())
         return true;
 
     if (d->valueCache[i])

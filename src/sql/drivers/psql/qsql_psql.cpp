@@ -869,7 +869,7 @@ QString QPSQLDriver::formatValue(const QSqlField &field,
             QString res;
             r = QLatin1String("'");
             unsigned char uc;
-            for (int i = 0; i < (int)ba.size(); ++i) {
+            for (int i = 0; i < ba.size(); ++i) {
                 uc = (unsigned char) ba[i];
                 if (uc > 40 && uc < 92) {
                     r += QLatin1Char(uc);

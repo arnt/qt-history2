@@ -118,7 +118,7 @@ static QCoreVariant::Type qDecodeMYSQLType(int mysqltype, uint flags)
 static QSqlField qToField(MYSQL_FIELD *field, QTextCodec *tc)
 {
     QSqlField f(tc->toUnicode(field->name),
-                qDecodeMYSQLType((int)field->type, field->flags));
+                qDecodeMYSQLType(int(field->type), field->flags));
     f.setRequired(IS_NOT_NULL(field->flags));
     f.setLength(field->length);
     f.setPrecision(field->decimals);
@@ -208,7 +208,7 @@ bool QMYSQLResult::fetchFirst()
 
 QCoreVariant QMYSQLResult::data(int field)
 {
-    if (!isSelect() || field >= (int) d->fieldTypes.count()) {
+    if (!isSelect() || field >= int(d->fieldTypes.count())) {
         qWarning("QMYSQLResult::data: column %d out of range", field);
         return QCoreVariant();
     }
@@ -317,12 +317,12 @@ bool QMYSQLResult::reset (const QString& query)
 
 int QMYSQLResult::size()
 {
-    return isSelect() ? (int)mysql_num_rows(d->result) : -1;
+    return isSelect() ? int(mysql_num_rows(d->result)) : -1;
 }
 
 int QMYSQLResult::numRowsAffected()
 {
-    return (int)mysql_affected_rows(d->mysql);
+    return int(mysql_affected_rows(d->mysql));
 }
 
 QSqlRecord QMYSQLResult::record() const
@@ -654,7 +654,7 @@ QString QMYSQLDriver::formatValue(const QSqlField &field, bool trimStrings) cons
             const QByteArray ba = field.value().toByteArray();
             // buffer has to be at least length*2+1 bytes
             char* buffer = new char[ba.size() * 2 + 1];
-            int escapedSize = (int)mysql_escape_string(buffer, ba.data(), ba.size());
+            int escapedSize = int(mysql_escape_string(buffer, ba.data(), ba.size()));
             r.reserve(escapedSize + 3);
             r.append(QLatin1Char('\'')).append(d->tc->toUnicode(buffer)).append(QLatin1Char('\''));
             delete[] buffer;

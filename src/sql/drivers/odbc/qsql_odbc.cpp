@@ -112,7 +112,7 @@ static QString qWarnODBCHandle(int handleType, SQLHANDLE handle)
                          &msgLen);
     if (r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO)
 #ifdef UNICODE
-        return QString((const QChar*)description_, (uint)msgLen);
+        return QString((const QChar*)description_, msgLen);
 #else
         return QString::fromLocal8Bit((const char*)description_);
 #endif
@@ -340,7 +340,7 @@ static QCoreVariant qGetIntData(SQLHANDLE hStmt, int column)
     if ((r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO) || lengthIndicator == SQL_NULL_DATA) {
         return QCoreVariant(QCoreVariant::Int);
     }
-    return QCoreVariant((int)intbuf);
+    return QCoreVariant(int(intbuf));
 }
 
 static QCoreVariant qGetDoubleData(SQLHANDLE hStmt, int column)
@@ -421,7 +421,7 @@ static QSqlField qMakeFieldInfo(const QODBCPrivate* p, int i )
         return QSqlField();
     }
 #ifdef UNICODE
-    QString qColName((const QChar*)colName, (uint)colNameLen);
+    QString qColName((const QChar*)colName, colNameLen);
 #else
     QString qColName = QString::fromLocal8Bit((const char*)colName);
 #endif
@@ -435,8 +435,8 @@ static QSqlField qMakeFieldInfo(const QODBCPrivate* p, int i )
     QCoreVariant::Type type = qDecodeODBCType(colType, p);
     QSqlField f(qColName, type);
     f.setSqlType(colType);
-    f.setLength(colSize == 0 ? -1 : (int)colSize);
-    f.setPrecision(colScale == 0 ? -1 : (int)colSize);
+    f.setLength(colSize == 0 ? -1 : int(colSize));
+    f.setPrecision(colScale == 0 ? -1 : int(colSize));
     if (nullable == SQL_NO_NULLS)
         f.setRequired(true);
     else if (nullable == SQL_NULLABLE)

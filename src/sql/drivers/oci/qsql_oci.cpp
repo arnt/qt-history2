@@ -929,9 +929,9 @@ void QOCIResultPrivate::getOraFields(QSqlRecord &rinf)
         OraFieldInfo ofi = qMakeOraField(d, param);
         QSqlField f(ofi.name, ofi.type);
         f.setRequired(ofi.oraIsNull == 0);
-        f.setLength((int)ofi.oraFieldLength);
+        f.setLength(int(ofi.oraFieldLength));
         f.setPrecision(ofi.oraPrecision);
-        f.setSqlType((int)ofi.oraType);
+        f.setSqlType(int(ofi.oraType));
         rinf.append(f);
         count++;
         parmStatus = OCIParamGet(d->sql,

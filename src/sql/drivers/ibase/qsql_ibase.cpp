@@ -220,7 +220,7 @@ public:
         if (!getIBaseError(imsg, status, sqlcode))
             return false;
 
-        q->setLastError(QSqlError(msg, imsg, typ, (int)sqlcode));
+        q->setLastError(QSqlError(msg, imsg, typ, int(sqlcode)));
         return true;
     }
 
@@ -246,7 +246,7 @@ public:
         if (!getIBaseError(imsg, status, sqlcode))
             return false;
 
-        q->setLastError(QSqlError(msg, imsg, typ, (int)sqlcode));
+        q->setLastError(QSqlError(msg, imsg, typ, int(sqlcode)));
         return true;
     }
 
@@ -362,7 +362,7 @@ static QList<QCoreVariant> toList<long>(char* buf, int count)
     QList<QCoreVariant> res;
     for (int i = 0; i < count; ++i) {
         if (sizeof(int) == sizeof(long))
-            res.append((int)(*(long*)(buf + sizeof(long) * i)));
+            res.append(int((*(long*)(buf + sizeof(long) * i))));
         else
             res.append((Q_LLONG)(*(long*)(buf + sizeof(long) * i)));
     }
@@ -390,7 +390,7 @@ QCoreVariant QIBaseResultPrivate::fetchArray(int pos, ISC_QUAD *arr)
 
     long buflen = qIBaseTypeLength(desc.array_desc_dtype, desc.array_desc_scale) * desc.array_desc_length;
     QByteArray ba;
-    ba.resize((int)buflen);
+    ba.resize(int(buflen));
     isc_array_get_slice(status, &ibase, &trans, arr, &desc, ba.data(), &buflen);
     if (isError(QLatin1String("Could not get array data at position ") + QString::number(pos),
                 QSqlError::StatementError))
@@ -447,7 +447,7 @@ void QIBaseResultPrivate::writeArray(int i, const QList<QCoreVariant> &list)
 
     long buflen = qIBaseTypeLength(desc.array_desc_dtype, desc.array_desc_scale) * desc.array_desc_length;
     QByteArray ba;
-    ba.resize((int)buflen);
+    ba.resize(int(buflen));
 
     isc_array_put_slice(status, &ibase, &trans, bId, &desc, ba.data(), &buflen);
 }
@@ -760,15 +760,15 @@ bool QIBaseResult::gotoNext(QSqlCachedResult::ValueCache& row, int rowIdx)
             break;
         case SQL_LONG:
             if (sizeof(int) == sizeof(long)) //dear compiler: please optimize me out.
-                row[idx] = QCoreVariant((int)(*(long*)buf));
+                row[idx] = QCoreVariant(int((*(long*)buf)));
             else
-                row[idx] = QCoreVariant((Q_LLONG)(*(long*)buf));
+                row[idx] = QCoreVariant(Q_LLONG((*(long*)buf)));
             break;
         case SQL_SHORT:
-            row[idx] = QCoreVariant((int)(*(short*)buf));
+            row[idx] = QCoreVariant(int((*(short*)buf)));
             break;
         case SQL_FLOAT:
-            row[idx] = QCoreVariant((double)(*(float*)buf));
+            row[idx] = QCoreVariant(double((*(float*)buf)));
             break;
         case SQL_DOUBLE:
             row[idx] = QCoreVariant(*(double*)buf);
@@ -778,8 +778,8 @@ bool QIBaseResult::gotoNext(QSqlCachedResult::ValueCache& row, int rowIdx)
             // strips the msecs
             static const QDate bd(1858, 11, 17);
             QTime t;
-            t = t.addMSecs((int)((ISC_TIMESTAMP*)buf)->timestamp_time / 10);
-            QDate d = bd.addDays((int)((ISC_TIMESTAMP*)buf)->timestamp_date);
+            t = t.addMSecs(int(((ISC_TIMESTAMP*)buf)->timestamp_time / 10));
+            QDate d = bd.addDays(int(((ISC_TIMESTAMP*)buf)->timestamp_date));
             row[idx] = QDateTime(d, t);
         }
         break;
@@ -787,7 +787,7 @@ bool QIBaseResult::gotoNext(QSqlCachedResult::ValueCache& row, int rowIdx)
             // have to demangle the structure ourselves because isc_decode_time
             // strips the msecs
             QTime t;
-            t = t.addMSecs((int)(*(ISC_TIME*)buf) / 10);
+            t = t.addMSecs(int((*(ISC_TIME*)buf) / 10));
             row[idx] = t;
         }
         break;
