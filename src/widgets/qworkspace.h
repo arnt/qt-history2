@@ -48,6 +48,11 @@ public:
 signals:
     void clientActivated( QWidget* w);
 
+    
+public slots:
+    void cascade();
+    void tile();
+    
 protected:
     void childEvent( QChildEvent * );
     void resizeEvent( QResizeEvent * );

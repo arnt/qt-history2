@@ -207,6 +207,13 @@ void ApplicationWindow::aboutQt()
 void ApplicationWindow::windowsMenuAboutToShow()
 {
     windowsMenu->clear();
+    int cascadeId = windowsMenu->insertItem("&Cascade", ws, SLOT(cascade() ) );
+    int tileId = windowsMenu->insertItem("&Tile", ws, SLOT(tile() ) );
+    if ( ws->clientList().isEmpty() ) {
+	windowsMenu->setItemEnabled( cascadeId, FALSE );
+	windowsMenu->setItemEnabled( tileId, FALSE );
+    }
+    windowsMenu->insertSeparator();
     QWidgetList windows = ws->clientList();
     for ( int i = 0; i < int(windows.count()); ++i ) {
 	int id = windowsMenu->insertItem(windows.at(i)->caption(),

@@ -413,6 +413,10 @@ public:
   The convenience function clientList() returns a list of all document
   windows. This is especially useful to create a popup menu "&Windows"
   on the fly.
+  
+  QWorkspace provides two built-in layout strategies for child
+  windows, cascade() and tile(). Both are slots, so you can easily
+  provide them in the windows menu.
 
   If the user clicks on the frame of an MDI window, this window
   becomes active, i.e. it gets the focus. For that reason, all direct
@@ -781,10 +785,10 @@ void QWorkspace::showMaximizeControls()
     if ( l && l->count() )
 	b = (QMenuBar *)l->first();
     delete l;
-    
+
     if ( !b )
 	return;
-    
+
     if ( !d->maxcontrols ) {
 	d->maxcontrols = new QFrame( topLevelWidget() );
 	if ( !win32 )
@@ -821,7 +825,7 @@ void QWorkspace::showMaximizeControls()
 				    BUTTON_HEIGHT+2*d->maxcontrols->frameWidth());
     }
 
-//     d->maxcontrols->move( b->mapToParent(b->rect().bottomRight()) 
+//     d->maxcontrols->move( b->mapToParent(b->rect().bottomRight())
 // 			  - QPoint(4 + d->maxcontrols->width(), 4 + d->maxcontrols->height() ) );
     if ( d->controlId == -1 )
 	d->controlId = b->insertItem( d->maxcontrols, -1, b->count() );
@@ -898,7 +902,7 @@ void QWorkspace::operationMenuAboutToShow()
 	
     if ( !d->active )
 	return;
-    
+
     if ( d->active == d->maxClient ) {
 	d->popup->setItemEnabled( 2, FALSE );
 	d->popup->setItemEnabled( 3, FALSE );
@@ -980,6 +984,76 @@ void QWorkspace::activatePreviousClient()
   \sa activeClient(), clientList()
 */
 
+
+
+/*!
+  Arranges all child windows in a cascade pattern
+  
+  \sa tile()
+ */
+void QWorkspace::cascade()
+{
+    const int xoffset = TITLEBAR_HEIGHT * 2/3;
+    const int yoffset = TITLEBAR_HEIGHT+2;
+    
+    int w = width() - d->windows.count() * xoffset;
+    int h = height() - d->windows.count() * yoffset;
+    int x = 0;
+    int y = 0;
+    
+    for (QWorkspaceChild* c = d->windows.first(); c; c = d->windows.next() ) {
+	c->showNormal();
+	c->setGeometry( x, y, w, h );
+	x += xoffset;
+	y +=yoffset;
+	c->raise();
+    }
+}
+
+/*!
+  Arranges all child windows in a tile pattern
+  
+  \sa cascade()
+ */
+void QWorkspace::tile()
+{
+    int rows = 1;
+    int cols = 1;
+    int n = (int) d->windows.count();
+    while ( rows * cols < n ) {
+	if ( cols <= rows )
+	    cols++;
+	else
+	    rows++;
+    }
+    int add = cols * rows - n;
+    bool used[ cols*rows ];
+    for ( int i = 0; i < rows*cols; i++ )
+	used[i] = FALSE;
+    
+    int row = 0;
+    int col = 0;
+    int w = width() / cols;
+    int h = height() / rows;
+    for (QWorkspaceChild* c = d->windows.first(); c; c = d->windows.next() ) {
+	c->showNormal();
+	used[row*cols+col] = TRUE;
+	if ( add ) {
+	    c->setGeometry( col*w, row*h, w, 2*h );
+	    used[(row+1)*cols+col] = TRUE;
+	    add--;
+	} else {
+	    c->setGeometry( col*w, row*h, w, h );
+	}
+	while( row < rows && col < cols && used[row*cols+col] ) {
+	    col++;
+	    if ( col == cols ) {
+		col = 0;
+		row++;
+	    }
+	}
+    }
+}
 
 
 QWorkspaceChildTitleBar::QWorkspaceChildTitleBar (QWorkspace* w, QWidget* parent,
