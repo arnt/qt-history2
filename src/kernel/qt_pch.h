@@ -26,7 +26,6 @@
 #      undef _GLIBCPP_FULLY_COMPLIANT_HEADERS  // Makes qlocale.cpp compile
 #    endif
 #  endif
-#include <private/qucomextra_p.h>  // All moc genereated code has this include
 #include <qapplication.h>
 #include <qbitmap.h>
 #include <qcursor.h>
