@@ -1027,7 +1027,6 @@ public:
     bool ignoreNextRefresh;
     QFDProgressDialog *progressDia;
     bool checkForFilter;
-    bool ignoreReturn;
     bool ignoreStop;
 
     QTimer *mimeTypeTimer;
@@ -2423,7 +2422,6 @@ void QFileDialog::init()
     d->ignoreNextKeyPress = FALSE;
     d->progressDia = 0;
     d->checkForFilter = FALSE;
-    d->ignoreReturn = FALSE;
     d->ignoreNextRefresh = FALSE;
     d->ignoreStop = FALSE;
     d->pendingItems.setAutoDelete( FALSE );
@@ -2827,7 +2825,6 @@ void QFileDialog::fileNameEditReturnPressed()
 	}
 	nameEdit->setText( QString::null );
     }
-    d->ignoreReturn = TRUE;
 }
 
 /*!
@@ -3643,11 +3640,6 @@ void QFileDialog::okClicked()
     detailViewMode = files->isVisible();
     lastWidth = width();
     lastHeight = height();
-
-    if ( d->ignoreReturn ) {
-	d->ignoreReturn = FALSE;
-	return;
-    }
 
     if ( isDirectoryMode( d->mode ) ) {
 	QUrlInfo f( d->url, nameEdit->text() );
