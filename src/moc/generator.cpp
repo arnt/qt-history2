@@ -98,6 +98,12 @@ int qvariant_nameToType(const char* name)
 
         if (strcmp(name, "QCString") == 0)
             name = "QByteArray";
+        else if (strcmp(name, "Q_LLONG") == 0)
+            name = "Q_LONGLONG";
+        else if (strcmp(name, "Q_ULLONG") == 0)
+            name = "Q_ULONGLONG";
+        else if (strcmp(name, "QIconSet") == 0)
+            name = "QIcon";
         else if (strcmp(name, "QCoreVariantMap") == 0)
             name = "QVariantMap";
         else if (strcmp(name, "QCoreVariantList") == 0)
