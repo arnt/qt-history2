@@ -1141,14 +1141,14 @@ QCustomEvent::QCustomEvent( int type )
 */
 
 /*!
-  \fb void QDragMoveEvent::accept( bool y )
+  \fn void QDragMoveEvent::accept( bool y )
   \reimp
   \internal
   Remove in 3.0
 */
 
 /*!
-  \fb void QDragMoveEvent::ignore()
+  \fn void QDragMoveEvent::ignore()
   \reimp
   \internal
   Remove in 3.0
