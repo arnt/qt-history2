@@ -65,8 +65,7 @@ int ConnectionModel::columnCount(const QModelIndex & /*parent*/) const
 
 bool ConnectionModel::isActiveConnection(const QModelIndex &index) const
 {
-    return index.row() == 0 && index.column() == 0 && !index.data()
-           && index.type() == QModelIndex::View;
+    return index.row() == 0 && index.column() == 0 && !index.data();
 }
 
 bool ConnectionModel::hasChildren(const QModelIndex &parent) const
@@ -76,37 +75,36 @@ bool ConnectionModel::hasChildren(const QModelIndex &parent) const
     return !tableNames.at(parent.row()).isEmpty();
 }
 
+QVariant ConnectionModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (section == 0 && orientation == Qt::Horizontal && role == DisplayRole)
+        return QString::fromLatin1("Connections");
+    return QVariant();
+}
+
 QVariant ConnectionModel::data(const QModelIndex &index, int role) const
 {
     if (role != DisplayRole || index.column() > 0 || index.row() < 0)
         return QVariant();
 
-    if (index.type() == QModelIndex::View) {
-        if (index.data()) {
-            int row = reinterpret_cast<int>(index.data()) - 1;
-            if (row >= tableNames.count())
-                return QVariant();
-            return tableNames.at(row).value(index.row());
-        }
-        if (index.row() >= connections.count())
+    if (index.data()) {
+        int row = reinterpret_cast<int>(index.data()) - 1;
+        if (row >= tableNames.count())
             return QVariant();
-        return connections.at(index.row()).label;
+        return tableNames.at(row).value(index.row());
     }
-
-    if (index.type() == QModelIndex::HorizontalHeader)
-        return QString("Connections");
-
-    return QVariant();
+    if (index.row() >= connections.count())
+        return QVariant();
+    return connections.at(index.row()).label;
 }
 
-QModelIndex ConnectionModel::index(int row, int column, const QModelIndex &parent,
-                                   QModelIndex::Type type) const
+QModelIndex ConnectionModel::index(int row, int column, const QModelIndex &parent) const
 {
     if (!parent.isValid())
-        return createIndex(row, column, 0, type);
+        return createIndex(row, column, 0);
     if (parent.data() || parent.row() >= connections.count())
         return QModelIndex();
-    return createIndex(row, column, reinterpret_cast<void*>(parent.row() + 1), type);
+    return createIndex(row, column, reinterpret_cast<void*>(parent.row() + 1));
 }
 
 void ConnectionModel::refresh()

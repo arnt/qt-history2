@@ -30,10 +30,10 @@ public:
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role = DisplayRole) const;
     QVariant data(const QModelIndex &index, int role = DisplayRole) const;
     bool hasChildren(const QModelIndex &parent) const;
-    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex(),
-                      QModelIndex::Type type = QModelIndex::View) const;
+    QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex::Null) const;
     QModelIndex parent(const QModelIndex &child) const;
 
     bool isActiveConnection(const QModelIndex &index) const;

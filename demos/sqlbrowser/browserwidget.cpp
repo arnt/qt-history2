@@ -14,17 +14,17 @@
 #include "browserwidget.h"
 
 #include <qtableview.h>
-#include <qhbox.h>
+#include <qhboxwidget.h>
 #include <qlayout.h>
 #include <qmessagebox.h>
 #include <qpushbutton.h>
 #include <qsqldatabase.h>
 #include <qsqlerror.h>
-#include <qsqlmodel.h>
+#include <qsqlquerymodel.h>
 #include <qsqlquery.h>
 #include <qsplitter.h>
 #include <qtextedit.h>
-#include <qvbox.h>
+#include <qvboxwidget.h>
 
 #include "connectionwidget.h"
 #include "qsqlconnectiondialog.h"
@@ -34,17 +34,17 @@ BrowserWidget::BrowserWidget(QWidget *parent)
 {
     QVBoxLayout *layout = new QVBoxLayout(this);
 
-    QHBox *box = new QHBox(this);
+    QHBoxWidget *box = new QHBoxWidget(this);
     box->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
     QSplitter *splitter = new QSplitter(box);
     dbc = new ConnectionWidget(splitter);
 
-    QVBox *vbox = new QVBox(splitter);
+    QVBoxWidget *vbox = new QVBoxWidget(splitter);
     QSplitter *splitter2 = new QSplitter(Qt::Vertical, vbox);
     view = new QTableView(splitter2);
     edit = new QTextEdit(splitter2);
 
-    QHBox *hbox = new QHBox(this);
+    QHBoxWidget *hbox = new QHBoxWidget(this);
     hbox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     hbox->layout()->addItem(new QSpacerItem(20, 20, QSizePolicy::Expanding, QSizePolicy::Minimum));
 
@@ -71,7 +71,7 @@ BrowserWidget::~BrowserWidget()
 
 void BrowserWidget::exec()
 {
-    QSqlModel *model = new QSqlModel(view);
+    QSqlQueryModel *model = new QSqlQueryModel(view);
     model->setQuery(QSqlQuery(edit->plainText(), dbc->currentDatabase()));
     if (model->lastError().type() != QSqlError::NoError)
         emit statusMessage(model->lastError().text());
