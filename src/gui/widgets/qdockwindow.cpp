@@ -408,7 +408,7 @@ class QDockWindowPrivate : public QFramePrivate
 {
     Q_DECLARE_PUBLIC(QDockWindow);
 
-    public:
+public:
     inline QDockWindowPrivate(QMainWindow *parent)
 	: QFramePrivate(), mainWindow(parent), closable(true), movable(true), floatable(true),
           area(Qt::DockWindowAreaLeft), allowedAreas(~0u & Qt::DockWindowAreaMask),
@@ -450,6 +450,7 @@ void QDockWindowPrivate::place(Qt::DockWindowArea area, Qt::Orientation directio
     QDockWindowLayout *dwl = mwl->layoutForArea(area);
     Q_ASSERT(dwl != 0);
 
+    mwl->removeRecursive(q);
     if (extend)
         dwl->extend(q, direction);
     else
