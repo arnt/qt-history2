@@ -433,14 +433,30 @@ void QMacStyle::drawPrimitive( PrimitiveElement pe,
     }
 
     switch(pe) {
+    case PE_Panel: 
     case PE_PanelLineEdit: {
-	SInt32 frame_size;
-	GetThemeMetric(kThemeMetricEditTextFrameOutset, &frame_size);
-	const Rect *rect = qt_glb_mac_rect(r, p, FALSE, 
-					   QRect(frame_size, frame_size, 
-						 frame_size * 2, frame_size * 2));
-	((QMacPainter *)p)->setport();
-	DrawThemeEditTextFrame(rect, tds);
+	if(flags & Style_Sunken) {
+	    int frame_size;
+	    if(pe == PE_PanelLineEdit) 
+		GetThemeMetric(kThemeMetricEditTextFrameOutset, &frame_size);
+	    else
+		GetThemeMetric(kThemeMetricListBoxFrameOutset, &frame_size);
+	    if(!opt.isDefault() && opt.lineWidth() != frame_size) { //need to erase some..
+		p->fillRect(r.x(), r.y(), r.x() + opt.lineWidth(), r.bottom(), cg.background()); //left
+		p->fillRect(r.right()-opt.lineWidth(), r.y(), r.right(), r.bottom(), cg.background()); //right
+		p->fillRect(r.x(), r.y(), r.right(), r.y() + opt.lineWidth(), cg.background()); //top
+		p->fillRect(r.x(), r.bottom()-opt.lineWidth(), r.right(), r.bottom(), cg.background()); //bottom
+	    }
+	    const Rect *rect = qt_glb_mac_rect(r, p, FALSE, 
+					       QRect(frame_size, frame_size, frame_size * 2, frame_size * 2));
+	    ((QMacPainter *)p)->setport();
+	    if(pe == PE_PanelLineEdit) 
+		DrawThemeEditTextFrame(rect, tds);
+	    else 
+		DrawThemeListBoxFrame(rect, tds);
+	} else {
+	    QWindowsStyle::drawPrimitive(pe, p, r, cg, flags, opt);
+	}
 	break; }
     case PE_ArrowUp:
     case PE_ArrowDown:
@@ -477,8 +493,15 @@ void QMacStyle::drawPrimitive( PrimitiveElement pe,
 	if ( opt.isDefault() )
 	    break;
 	if(opt.frameShape() == QFrame::Box && opt.frameShadow() == QFrame::Sunken) {
+	    QWidget *w = NULL;
+	    //This is terrible, if I we just passed the widget in this wouldn't be necesary!
+	    if(p && p->device() && p->device()->devType() == QInternal::Widget)
+		w = (QWidget*)p->device();
 	    ((QMacPainter *)p)->setport();
-	    DrawThemePrimaryGroup(qt_glb_mac_rect(r, p), kThemeStateActive);
+	    if(w && w->parentWidget() && w->parentWidget()->inherits("QGroupBox"))
+		DrawThemeSecondaryGroup(qt_glb_mac_rect(r, p), kThemeStateActive);
+	    else
+		DrawThemePrimaryGroup(qt_glb_mac_rect(r, p), kThemeStateActive);
 	} else {
 	    QWindowsStyle::drawPrimitive(pe, p, r, cg, flags, opt);
 	}
@@ -1180,8 +1203,10 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
     case PM_DefaultFrameWidth:
 	if(widget && 
 	   (widget->isTopLevel() || !widget->parentWidget() || widget->parentWidget()->isTopLevel()) &&  
-	   (widget->inherits("QScrollView") || widget->inherits("QWorkspaceChild")))
+	   (widget->inherits("QScrollView") || widget->inherits("QWorkspaceChild"))) 
 	    ret = 0;
+	else if(widget && widget->inherits("QLineEdit"))
+	    GetThemeMetric(kThemeMetricEditTextFrameOutset, &ret);
 	else
 	    ret = QWindowsStyle::pixelMetric(metric, widget);
 	break;
@@ -1463,10 +1488,14 @@ int QMacStyle::styleHint(StyleHint sh, const QWidget *w,
 {
     SInt32 ret = 0;
     switch(sh) {
-    case SH_PopupMenu_Scrollable:
-	ret = TRUE;
-	break;
     case SH_ScrollView_FrameOnlyAroundContents:
+	if(w && (w->isTopLevel() || !w->parentWidget() || w->parentWidget()->isTopLevel()) &&  
+	   (w->inherits("QScrollView") || w->inherits("QWorkspaceChild")))
+	    ret = TRUE;
+	else
+	    ret = QWindowsStyle::styleHint(sh, w, opt, d);
+	break;
+    case SH_PopupMenu_Scrollable:
 	ret = TRUE;
 	break;
     case SH_RichText_FullWidthSelection:

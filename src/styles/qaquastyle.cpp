@@ -646,27 +646,39 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 				   const QStyleOption& opt ) const
 {
     switch( pe ) {
-    case PE_PanelLineEdit:
-	//Top
-	p->setPen(QColor(120, 124, 120));
-	p->drawLine(r.x(), r.y(), r.right(), r.y());
-	p->setPen(QColor(192, 192, 192));
-	p->drawLine(r.x(), r.y() + 1, r.right(), r.y() + 1);
-	p->setPen(QColor(240, 240, 240));
-	p->drawLine(r.x() + 2, r.y() + 2, r.right() - 4, r.y() + 2);
-	//Bottom
-	p->setPen(QColor(200, 204, 200));
-	p->drawLine(r.x() + 1, r.bottom(), r.right() - 2, r.bottom());
-	p->setPen(QColor(232, 236, 232));
-	p->drawLine(r.x() + 2, r.bottom() - 1, r.right() - 4, r.bottom() - 1);
-	//Left/Right
-	p->setPen(QColor(184, 184, 184));
-	p->drawLine(r.x(), r.y() + 1, r.x(), r.bottom());
-	p->drawLine(r.right(), r.y() + 1, r.right(), r.bottom());
-	p->setPen(QColor(224, 224, 224));
-	p->drawLine(r.x() + 1, r.y() + 2, r.x() + 1, r.bottom() - 1);
-	p->drawLine(r.right() - 1, r.y() + 2, r.right() - 1, r.bottom() - 1);
-	break;
+    case PE_Panel:
+    case PE_PanelLineEdit: {
+	if(flags & Style_Sunken) {
+	    if(!opt.isDefault() && opt.lineWidth() != 2) { //need to erase some..
+		p->fillRect(r.x(), r.y(), r.x() + opt.lineWidth(), r.bottom(), cg.brush(QColorGroup::Background));
+		p->fillRect(r.right()-opt.lineWidth(), r.y(), r.right(), r.bottom(), cg.brush(QColorGroup::Background));
+		p->fillRect(r.x(), r.y(), r.right(), r.y() + opt.lineWidth(), cg.brush(QColorGroup::Background));
+		p->fillRect(r.x(), r.bottom()-opt.lineWidth(), r.right(), r.bottom(), cg.brush(QColorGroup::Background));
+	    }
+	    //Top
+	    p->setPen(QColor(120, 124, 120));
+	    p->drawLine(r.x(), r.y(), r.right(), r.y());
+	    p->setPen(QColor(192, 192, 192));
+	    p->drawLine(r.x(), r.y() + 1, r.right(), r.y() + 1);
+	    p->setPen(QColor(240, 240, 240));
+	    p->drawLine(r.x() + 2, r.y() + 2, r.right() - 4, r.y() + 2);
+	    //Bottom
+	    p->setPen(QColor(200, 204, 200));
+	    p->drawLine(r.x() + 1, r.bottom(), r.right() - 2, r.bottom());
+	    p->setPen(QColor(232, 236, 232));
+	    p->drawLine(r.x() + 2, r.bottom() - 1, r.right() - 4, r.bottom() - 1);
+	    //Left/Right
+	    p->setPen(QColor(184, 184, 184));
+	    p->drawLine(r.x(), r.y() + 1, r.x(), r.bottom());
+	    p->drawLine(r.right(), r.y() + 1, r.right(), r.bottom());
+	    p->setPen(QColor(224, 224, 224));
+	    p->drawLine(r.x() + 1, r.y() + 2, r.x() + 1, r.bottom() - 1);
+	    p->drawLine(r.right() - 1, r.y() + 2, r.right() - 1, r.bottom() - 1);
+	} else {
+	    QWindowsStyle::drawPrimitive(pe, p, r, cg, flags, opt);
+	}
+	break; }
+
     case PE_HeaderArrow:
 	if(flags & Style_Up)
 	    drawPrimitive(PE_ArrowUp, p, QRect(r.x(), r.y()+2, r.width(), r.height()-4), cg, 0, opt);
@@ -715,6 +727,24 @@ void QAquaStyle::drawPrimitive( PrimitiveElement pe,
 	QPixmap px;
 	qAquaPixmap( "progress_" + QString::number(r.height()), px );
 	p->drawTiledPixmap( r, px, QPoint((r.x() % px.width()) - d->progressOff, 0) );
+	break; }
+
+    case PE_GroupBoxFrame: {
+	if ( opt.isDefault() )
+	    break;
+	if(opt.frameShape() == QFrame::Box && opt.frameShadow() == QFrame::Sunken) {
+	    QColor clr = gray;
+	    //This is terrible, if I we just passed the widget in this wouldn't be necesary!
+	    if(p && p->device() && p->device()->devType() == QInternal::Widget) {
+		QWidget *w = (QWidget*)p->device();
+		if(w && w->parentWidget() && w->parentWidget()->inherits("QGroupBox"))
+		    clr = lightGray;
+	    }
+	    p->setPen(clr);
+	    p->drawRect(r);
+	} else {
+	    QWindowsStyle::drawPrimitive(pe, p, r, cg, flags, opt);
+	}
 	break; }
 
     case PE_FocusRect:
@@ -1382,9 +1412,11 @@ int QAquaStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
     case PM_DefaultFrameWidth:
 	if(widget && 
 	   (widget->isTopLevel() || !widget->parentWidget() || widget->parentWidget()->isTopLevel()) &&  
-	   (widget->inherits("QScrollView") || widget->inherits("QWorkspaceChild")))
+	   (widget->inherits("QScrollView") || widget->inherits("QWorkspaceChild"))) 
 	    ret = 0;
-	else
+	else if(widget && widget->inherits("QLineEdit")) 
+	    ret = 2;
+	else 
 	    ret = QWindowsStyle::pixelMetric(metric, widget);
 	break;
     case PM_TitleBarHeight:
@@ -1728,12 +1760,14 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		break;
 	    QListViewItem *item = opt.listViewItem();
 	    int y=r.y(), h=r.height();
+	    QColorGroup cg2 = cg;
+	    cg2.setColor(QColorGroup::Text, gray); //ick want grayish expansions
 	    for(QListViewItem *child = item->firstChild(); child && y < h;
 		y += child->totalHeight(), child = child->nextSibling()) {
 		if(y + child->height() > 0) {
 		    if ( child->isExpandable() || child->childCount() )
 			drawPrimitive( child->isOpen() ? PE_ArrowDown : PE_ArrowRight, p,
-				       QRect(r.right() - 10, (y + child->height()/2) - 4, 9, 9), cg );
+				       QRect(r.right() - 10, (y + child->height()/2) - 4, 9, 9), cg2 );
 		}
 	    }
 	}
@@ -1800,10 +1834,13 @@ void QAquaStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 		p->drawPixmap( r.x() + offset, r.y() + r.height() - sldr_l.height(), sldr_l );
 	    }
 	}
-	if ( sub & SC_SliderTickmarks )
-	    QWindowsStyle::drawComplexControl( ctrl, p, widget, r, cg, flags,
+	if ( sub & SC_SliderTickmarks ) {
+	    QColorGroup cg2 = cg;
+	    cg2.setColor(QColorGroup::Foreground, gray); //ick, just want grayish ticks
+	    QWindowsStyle::drawComplexControl( ctrl, p, widget, r, cg2, flags,
 					       SC_SliderTickmarks, subActive,
 					       opt );
+	}
 	if ( sub & SC_SliderHandle ) {
 	    QRect re = querySubControlMetrics( CC_Slider, widget, SC_SliderHandle, opt );
 	    QPixmap px;
@@ -2098,10 +2135,14 @@ int QAquaStyle::styleHint(StyleHint sh, const QWidget *w, const QStyleOption &op
 {
     int ret = 0;
     switch(sh) {
-    case SH_PopupMenu_Scrollable:
-	ret = TRUE;
-	break;
     case SH_ScrollView_FrameOnlyAroundContents:
+	if(w && (w->isTopLevel() || !w->parentWidget() || w->parentWidget()->isTopLevel()) &&  
+	   (w->inherits("QScrollView") || w->inherits("QWorkspaceChild")))
+	    ret = TRUE;
+	else
+	    ret = QWindowsStyle::styleHint(sh, w, opt, d);
+	break;
+    case SH_PopupMenu_Scrollable:
 	ret = TRUE;
 	break;
     case SH_TabBar_SelectMouseType:

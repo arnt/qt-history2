@@ -822,14 +822,15 @@ void QScrollView::updateScrollBars()
 	if(mac_need_scroll) {
 	    WindowAttributes attr;
 	    GetWindowAttributes((WindowPtr)handle(), &attr);
-	    if(attr & kWindowResizableAttribute) {
-		showc = TRUE;
-		if(d->vMode == Auto)
-		    showv = TRUE;
-		if(d->hMode == Auto)
-		    showh = TRUE;
-	    }
+	    mac_need_scroll = (attr & kWindowResizableAttribute);
 	}
+	if(mac_need_scroll) {
+	    showc = TRUE;
+	    if(d->vMode == Auto)
+		showv = TRUE;
+	    if(d->hMode == Auto)
+		showh = TRUE;
+	}	
 #endif
 
         // Given other scrollbar will be shown, NOW do we need one?
@@ -892,6 +893,7 @@ void QScrollView::updateScrollBars()
     int xpos = reverse ? 0 : w - vsbExt;
     bool frameContentsOnly =
 	style().styleHint(QStyle::SH_ScrollView_FrameOnlyAroundContents);
+
     if( ! frameContentsOnly ) {
 	if ( reverse )
             xpos += fw;
