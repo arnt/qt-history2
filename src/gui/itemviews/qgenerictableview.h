@@ -42,7 +42,6 @@ public:
     int columnAt(int x) const;
     bool isRowHidden(int row) const;
     bool isColumnHidden(int column) const;
-    void setShowGrid(bool show);
     bool showGrid() const;
 
     QRect itemViewportRect(const QModelIndex &item) const;
@@ -50,6 +49,7 @@ public:
     QModelIndex itemAt(int x, int y) const;
 
 public slots:
+    void setShowGrid(bool show);
     void selectRow(int row, ButtonState state = Qt::NoButton);
     void selectColumn(int column, ButtonState state = Qt::NoButton);
     void hideRow(int row);
