@@ -727,7 +727,7 @@ const char * QTextDrag::format(int i) const
     return d->fmt[i];
 }
 
-static QTextCodec* findcharset(const QByteArray& mimetype)
+QTextCodec* qt_findcharset(const QByteArray& mimetype)
 {
     int i=mimetype.indexOf("charset=");
     if ( i >= 0 ) {
@@ -799,7 +799,7 @@ QTextCodec* findcodec(const QMimeSource* e)
 	if (html)
 	    r = codecForHTML(e->encodedData(f));
 	if (!r)
-	    r = findcharset(QByteArray(f).toLower());
+	    r = qt_findcharset(QByteArray(f).toLower());
 	if (r)
 	    return r;
     }
@@ -817,7 +817,7 @@ QByteArray QTextDrag::encodedData(const char* mime) const
     if ( 0==qstrnicmp(mime,"text/",5) ) {
 	QByteArray m(mime);
 	m = m.toLower();
-	QTextCodec *codec = findcharset(m);
+	QTextCodec *codec = qt_findcharset(m);
 	if ( !codec )
 	    return r;
 	QString text( d->txt );
@@ -897,7 +897,7 @@ bool QTextDrag::decode( const QMimeSource* e, QString& str, QString& subtype )
 		    // search for the charset tag in the HTML
 		    codec = codecForHTML(e->encodedData(mime));
 		if (!codec)
-		    codec = findcharset(m);
+		    codec = qt_findcharset(m);
 		qDebug("using codec %s", codec->name());
 		if ( codec ) {
 		    QByteArray payload;

@@ -315,7 +315,7 @@ QByteArray QWindowsMimeText::convertToMime( QByteArray data, const char* /*mime*
     return r;
 }
 
-extern QTextCodec* findcharset(const QByteArray& mimetype);
+extern QTextCodec* qt_findcharset(const QByteArray& mimetype);
 
 QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* mime, int cf )
 {
@@ -349,7 +349,7 @@ QByteArray QWindowsMimeText::convertFromMime( QByteArray data, const char* mime,
 	o[j]=0;
 	return r;
     } else if ( cf == CF_UNICODETEXT ) {
-	QTextCodec *codec = findcharset(QByteArray(mime));
+	QTextCodec *codec = qt_findcharset(QByteArray(mime));
 	QString str = codec->toUnicode( data );
 	const QChar *u = str.unicode();
 	QString res;
@@ -512,8 +512,6 @@ QByteArray QWindowsMimeHtml::convertToMime( QByteArray _data, const char* /*mime
 #endif
     return result;
 }
-
-extern QTextCodec* findcharset(const QByteArray& mimetype);
 
 QByteArray QWindowsMimeHtml::convertFromMime( QByteArray _data, const char* mime, int cf )
 {
