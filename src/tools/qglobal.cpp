@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qglobal.cpp#5 $
+** $Id: //depot/qt/main/src/tools/qglobal.cpp#6 $
 **
 ** Global functions
 **
@@ -17,7 +17,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qglobal.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qglobal.cpp#6 $";
 #endif
 
 
@@ -124,7 +124,7 @@ void fatal( const char *msg, ... )		// print message and exit
 	fprintf( stderr, "\n" );		// add newline
     }
     va_end( ap );
-#if defined(UNIX)
+#if defined(UNIX) && defined(DEBUG)
     abort();					// trap; generates core dump
 #else
     exit( 1 );					// goodbye cruel world
