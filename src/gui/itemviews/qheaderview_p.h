@@ -56,6 +56,9 @@ public:
     void setupSectionIndicator(int section, int position);
     void updateSectionIndicator(int section, int position);
 
+    inline int defaultSectionSize() const
+        { return (orientation == Qt::Horizontal ? 100 : 30); }
+
     inline bool reverse() const
         { return q_func()->isRightToLeft() && orientation == Qt::Horizontal; }
 
@@ -91,8 +94,5 @@ public:
     QStyleOptionHeader getStyleOption() const;
     QHeaderView::ResizeMode globalResizeMode;
 };
-
-static const int default_width = 100;
-static const int default_height = 30;
 
 #endif // QHEADERVIEW_P_H

@@ -570,8 +570,7 @@ void QHeaderView::setSectionHidden(int logicalIndex, bool hide)
         d->sections[visualIndex(logicalIndex)].hidden = true;
     } else {
         d->sections[visualIndex(logicalIndex)].hidden = false;
-        resizeSection(logicalIndex, orientation() == Qt::Horizontal
-                      ? default_width : default_height);
+        resizeSection(logicalIndex, d->defaultSectionSize());
         // FIXME: when you show a section, you should get the old section size bach
     }
 }
@@ -975,7 +974,7 @@ void QHeaderView::initializeSections(int start, int end)
     QHeaderViewPrivate::HeaderSection *sections = d->sections.data() + start;
     int l = start;
     int num = end - start + 1;
-    int size = orientation() == Qt::Horizontal ? default_width : default_height;
+    int size = d->defaultSectionSize();
 
     // set resize mode
     ResizeMode mode = d->globalResizeMode;
@@ -1146,26 +1145,24 @@ void QHeaderView::paintEvent(QPaintEvent *e)
 void QHeaderView::mousePressEvent(QMouseEvent *e)
 {
     int pos = orientation() == Qt::Horizontal ? e->x() : e->y();
-    if (e->modifiers() & Qt::ControlModifier && d->movableSections) {
-        d->section = d->target = d->pressed = logicalIndexAt(pos);
-        if (d->section == -1)
-            return;
-        d->state = QHeaderViewPrivate::MoveSection;
-        d->setupSectionIndicator(d->section, pos);
-        d->updateSectionIndicator(d->section, pos);
-    } else {
-        int handle = d->sectionHandleAt(pos);
-        while (handle > -1 && isSectionHidden(handle)) --handle;
-        if (handle == -1) {
-            d->pressed = logicalIndexAt(pos);
-            updateSection(d->pressed);
-            emit sectionPressed(d->pressed, e->button(), e->modifiers());
-        } else if (resizeMode(handle) == Interactive) {
-            d->state = QHeaderViewPrivate::ResizeSection;
-            d->lastPos = (orientation() == Qt::Horizontal ? e->x() : e->y());
-            d->section = handle;
+    int handle = d->sectionHandleAt(pos);
+    while (handle > -1 && isSectionHidden(handle)) --handle;
+    if (handle == -1) {
+        d->pressed = logicalIndexAt(pos);
+        if (d->movableSections) {
+            d->section = d->target = d->pressed;
+            if (d->section == -1)
+                return;
+            d->state = QHeaderViewPrivate::MoveSection;
+            d->setupSectionIndicator(d->section, pos);
         }
+        updateSection(d->pressed);
+        emit sectionPressed(d->pressed, e->button(), e->modifiers());
+    } else if (resizeMode(handle) == Interactive) {
+        d->state = QHeaderViewPrivate::ResizeSection;
+        d->section = handle;
     }
+    d->lastPos = pos;
     d->viewport->grabMouse();
 }
 
@@ -1223,10 +1220,12 @@ void QHeaderView::mouseReleaseEvent(QMouseEvent *e)
     int pos = orientation() == Qt::Horizontal ? e->x() : e->y();
     switch (d->state) {
     case QHeaderViewPrivate::MoveSection:
-        moveSection(visualIndex(d->section), visualIndex(d->target));
-        d->section = d->target = -1;
-        d->updateSectionIndicator(d->section, pos);
-        break;
+        if (pos != d->lastPos) { // moving
+            moveSection(visualIndex(d->section), visualIndex(d->target));
+            d->section = d->target = -1;
+            d->updateSectionIndicator(d->section, pos);
+            break;
+        }
     case QHeaderViewPrivate::NoState:
         updateSection(d->pressed);
         emit sectionClicked(logicalIndexAt(pos), e->button(), e->modifiers());
