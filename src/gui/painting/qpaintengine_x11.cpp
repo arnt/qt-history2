@@ -1024,17 +1024,12 @@ void QX11PaintEngine::drawRect(const QRectF &rect)
 	xc.green = (B | G << 8) * xc.alpha / 0x10000;
 	xc.blue  = (B | B << 8) * xc.alpha / 0x10000;
 	if (d->cpen.style() == Qt::NoPen) {
-	    XRenderFillRectangle(d->dpy, PictOpOver, pict, &xc,
-				 r.x(), r.y(), r.width(), r.height());
+	    XRenderFillRectangle(d->dpy, PictOpOver, pict, &xc, r.x(), r.y(), r.width(), r.height());
 	    return;
 	}
-	int lw = d->cpen.width();
-	int lw2 = (lw+1)/2;
-	if (r.width() > lw && r.height() > lw)
-	    XRenderFillRectangle(d->dpy, PictOpOver, pict, &xc,
-				 r.x()+lw2, r.y()+lw2, r.width()-lw-1, r.height()-lw-1);
+        XRenderFillRectangle(d->dpy, PictOpOver, pict, &xc, r.x(), r.y(), r.width(), r.height());
 	if (d->cpen.style() != Qt::NoPen)
-	    XDrawRectangle(d->dpy, d->hd, d->gc, r.x(), r.y(), r.width()-1, r.height()-1);
+	    XDrawRectangle(d->dpy, d->hd, d->gc, r.x(), r.y(), r.width(), r.height());
 	return;
     }
 #endif // !QT_NO_XFT && !QT_NO_XRENDER
@@ -1044,14 +1039,10 @@ void QX11PaintEngine::drawRect(const QRectF &rect)
             XFillRectangle(d->dpy, d->hd, d->gc_brush, r.x(), r.y(), r.width(), r.height());
             return;
         }
-        int lw = d->cpen.width();
-        int lw2 = (lw+1)/2;
-        if (r.width() > lw && r.height() > lw)
-            XFillRectangle(d->dpy, d->hd, d->gc_brush,
-                           r.x()+lw2, r.y()+lw2, r.width()-lw-1, r.height()-lw-1);
+        XFillRectangle(d->dpy, d->hd, d->gc_brush, r.x(), r.y(), r.width(), r.height());
     }
     if (d->cpen.style() != Qt::NoPen)
-        XDrawRectangle(d->dpy, d->hd, d->gc, r.x(), r.y(), r.width()-1, r.height()-1);
+        XDrawRectangle(d->dpy, d->hd, d->gc, r.x(), r.y(), r.width(), r.height());
 }
 
 void QX11PaintEngine::drawRects(const QList<QRectF> &rects)
@@ -1355,8 +1346,6 @@ void QX11PaintEngine::drawEllipse(const QRectF &rect)
         XDrawPoint(d->dpy, d->hd, (d->cpen.style() == Qt::NoPen) ? d->gc_brush : d->gc, x, y);
         return;
     }
-    w--;
-    h--;
     if (d->cbrush.style() != Qt::NoBrush) {          // draw filled ellipse
         XFillArc(d->dpy, d->hd, d->gc_brush, x, y, w, h, 0, 360*64);
         if (d->cpen.style() == Qt::NoPen) {
