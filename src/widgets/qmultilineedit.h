@@ -65,9 +65,15 @@ public:
     int numLines() const;
 
     virtual void insertLine( const QString &s, int line = -1 );
-    virtual void insertAt( const QString &s, int line, int col, bool mark = FALSE );
+    virtual void insertAt( const QString &s, int line, int col ) {
+	insertAt( s, line, col, FALSE );
+    }
+    virtual void insertAt( const QString &s, int line, int col, bool mark );
     virtual void removeLine( int line );
-    virtual void setCursorPosition( int line, int col, bool mark = FALSE );
+    virtual void setCursorPosition( int line, int col ) {
+	setCursorPosition( line, col, FALSE );
+    }
+    virtual void setCursorPosition( int line, int col, bool mark );
     bool atBeginning() const;
     bool atEnd() const;
 

@@ -348,6 +348,12 @@ void QMultiLineEdit::end( bool mark )
     moveCursor( MoveLineEnd, mark );
 }
 
+
+/*!
+  \fn void QMultiLineEdit::setCursorPosition( int line, int col )
+  \reimp
+*/
+
 /*!  Sets the cursor position to character number \a col in paragraph
   number \a line.  The parameters are adjusted to lie within the legal
   range.
@@ -438,6 +444,11 @@ void QMultiLineEdit::cursorWordBackward( bool mark )
 {
     moveCursor( MoveWordBackward, mark );
 }
+
+/*!
+  \fn QMultiLineEdit::insertAt( const QString &s, int line, int col )
+  \reimp
+*/
 
 /*!  Inserts string \a s at paragraph number \a line, after character
   number \a col in the paragraph.  If \a s contains newline
