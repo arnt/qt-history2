@@ -687,7 +687,11 @@ void QToolBar::createPopup()
 	    } else if ( w->inherits( "QComboBox" ) ) {
 		QComboBox *c = (QComboBox*)w;
 		if ( c->count() != 0 ) {
+#ifndef QT_NO_WIDGET_TOPEXTRA
 		    QString s = c->caption();
+#else
+		    QString s;
+#endif
 		    if ( s.isEmpty() )
 		        s = c->currentText();
 		    uint maxItems = 0;

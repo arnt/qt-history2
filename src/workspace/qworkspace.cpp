@@ -987,7 +987,9 @@ void QWorkspace::showEvent( QShowEvent *e )
 			dw->setResizeEnabled(TRUE);
 			dw->setCloseMode( QDockWindow::Always );
 			dw->setResizeEnabled(FALSE);
+#ifndef QT_NO_WIDGET_TOPEXTRA
 			dw->setCaption(o->caption());
+#endif
 			QSize os(w->size());
 			if(w->layout() && w->layout()->hasHeightForWidth()) {
 			    w->layout()->invalidate();

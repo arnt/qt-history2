@@ -892,11 +892,6 @@
 #define QT_NO_TEXTVIEW
 #endif
 
-// Tool box
-#if !defined(QT_NO_TOOLBOX) && (defined(QT_NO_ICONSET) || defined(QT_NO_SCROLLVIEW) || defined(QT_NO_TOOLTIP))
-#define QT_NO_TOOLBOX
-#endif
-
 // QTabDialog
 #if !defined(QT_NO_TABDIALOG) && (defined(QT_NO_DIALOG) || defined(QT_NO_PUSHBUTTON) || defined(QT_NO_LAYOUT) || defined(QT_NO_TABWIDGET))
 #define QT_NO_TABDIALOG
@@ -912,14 +907,19 @@
 #define QT_NO_LISTVIEW
 #endif
 
-// QColorDialog
-#if !defined(QT_NO_COLORDIALOG) && (defined(QT_NO_DIALOG) || defined(QT_NO_LABEL) || defined(QT_NO_PUSHBUTTON) || defined(QT_NO_LINEEDIT) || defined(QT_NO_VALIDATOR) || defined(QT_NO_GRIDVIEW))
-#define QT_NO_COLORDIALOG
-#endif
-
 // QComboBox
 #if !defined(QT_NO_COMBOBOX) && (defined(QT_NO_LISTBOX) || defined(QT_NO_LINEEDIT) || defined(QT_NO_POPUPMENU))
 #define QT_NO_COMBOBOX
+#endif
+
+// QColorDialog
+#if !defined(QT_NO_COLORDIALOG) && (defined(QT_NO_DIALOG) || defined(QT_NO_LABEL) || defined(QT_NO_PUSHBUTTON) || defined(QT_NO_LINEEDIT) || defined(QT_NO_VALIDATOR) || defined(QT_NO_GRIDVIEW) || defined(QT_NO_LAYOUT))
+#define QT_NO_COLORDIALOG
+#endif
+
+// Tool box
+#if !defined(QT_NO_TOOLBOX) && (defined(QT_NO_ICONSET) || defined(QT_NO_SCROLLVIEW) || defined(QT_NO_TOOLTIP) || defined(QT_NO_LAYOUT) || defined(QT_NO_TOOLBUTTON))
+#define QT_NO_TOOLBOX
 #endif
 
 // QErrorMessage
@@ -953,18 +953,13 @@
 #endif
 
 // QInputDialog
-#if !defined(QT_NO_INPUTDIALOG) && (defined(QT_NO_DIALOG) || defined(QT_NO_COMBOBOX) || defined(QT_NO_LABEL) || defined(QT_NO_PUSHBUTTON) || defined(QT_NO_SPINBOX) || defined(QT_NO_WIDGETSTACK))
+#if !defined(QT_NO_INPUTDIALOG) && (defined(QT_NO_DIALOG) || defined(QT_NO_COMBOBOX) || defined(QT_NO_LABEL) || defined(QT_NO_PUSHBUTTON) || defined(QT_NO_SPINBOX) || defined(QT_NO_WIDGETSTACK) || defined(QT_NO_LAYOUT))
 #define QT_NO_INPUTDIALOG
 #endif
 
 // SQL value editor widgets
 #if !defined(QT_NO_SQL_EDIT_WIDGETS) && (defined(QT_NO_SQL) || defined(QT_NO_SPINBOX) || defined(QT_NO_COMBOBOX) || defined(QT_NO_CHECKBOX) || defined(QT_NO_DATETIMEEDIT))
 #define QT_NO_SQL_EDIT_WIDGETS
-#endif
-
-// QWorkSpace
-#if !defined(QT_NO_WORKSPACE) && (defined(QT_NO_SCROLLBAR) || defined(QT_NO_VBOX) || defined(QT_NO_TITLEBAR) || defined(QT_NO_RESIZEHANDLER) || defined(QT_NO_POPUPMENU) || defined(QT_NO_LABEL) || defined(QT_NO_TOOLBUTTON) || defined(QT_NO_MAINWINDOW))
-#define QT_NO_WORKSPACE
 #endif
 
 // QPrintDialog
@@ -980,5 +975,10 @@
 // SQL table widgets
 #if !defined(QT_NO_SQL_VIEW_WIDGETS) && (defined(QT_NO_SQL_FORM) || defined(QT_NO_SQL_EDIT_WIDGETS) || defined(QT_NO_TABLE))
 #define QT_NO_SQL_VIEW_WIDGETS
+#endif
+
+// QWorkSpace
+#if !defined(QT_NO_WORKSPACE) && (defined(QT_NO_SCROLLBAR) || defined(QT_NO_VBOX) || defined(QT_NO_TITLEBAR) || defined(QT_NO_RESIZEHANDLER) || defined(QT_NO_POPUPMENU) || defined(QT_NO_LABEL) || defined(QT_NO_TOOLBUTTON) || defined(QT_NO_MAINWINDOW) || defined(QT_NO_TOOLBAR) || defined(QT_NO_MENUBAR))
+#define QT_NO_WORKSPACE
 #endif
 

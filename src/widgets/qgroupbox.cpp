@@ -247,8 +247,8 @@ void QGroupBox::setTitle( const QString &title )
     if ( d->checkbox ) {
 	d->checkbox->setText( str );
 	updateCheckBoxGeometry();
-#endif
     }
+#endif
     calculateFrame();
     setTextSpacer();
 
@@ -560,7 +560,11 @@ void QGroupBox::setColumnLayout(int strips, Orientation direction)
 	QWidget *w;
 	while( (w=(QWidget *)it.current()) != 0 ) {
 	    ++it;
-	    if ( w->isWidgetType() && w != d->checkbox )
+	    if ( w->isWidgetType()
+#ifndef QT_NO_CHECKBOX
+		 && w != d->checkbox
+#endif
+		 )
 		insertWid( w );
 	}
     }
@@ -886,7 +890,11 @@ void QGroupBox::setChildrenEnabled( bool b )
     QObject *o;
     while( (o = it.current()) ) {
 	++it;
-	if ( o->isWidgetType() && o != d->checkbox ) {
+	if ( o->isWidgetType() 
+#ifndef QT_NO_CHECKBOX
+	     && o != d->checkbox 
+#endif
+	     ) {
 	    QWidget *w = (QWidget*)o;
 	    if ( b ) {
 		if ( !w->testWState( WState_ForceDisabled ) )
