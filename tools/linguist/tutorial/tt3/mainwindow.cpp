@@ -22,10 +22,11 @@ MainWindow::MainWindow( QWidget *parent, const char *name )
     setCenterWidget( pp );
 
     QMenu *file = new QMenu( this );
-    file->addAction( tr("E&xit"), qApp, SLOT(quit()),
-                      tr("Ctrl+Q", "Quit") );
+    QAction *exitAction = file->addAction( tr("E&xit"), qApp, SLOT(quit()));
+    exitAction->setShortcut(QKeySequence("Ctrl+Q"));
     QMenu *help = new QMenu( this );
-    help->addAction( tr("&About"), this, SLOT(about()), Qt::Key_F1 );
+    QAction *aboutAction = help->addAction( tr("&About"), this, SLOT(about()));
+    aboutAction->setShortcut(Qt::Key_F1);
     help->addAction( tr("About &Qt"), this, SLOT(aboutQt()) );
 
     menuBar()->addMenu( tr("&File"), file );

@@ -13,7 +13,7 @@ class ArrowPad : public QGrid
 {
     Q_OBJECT
 public:
-    ArrowPad( QWidget *parent = 0, const char *name = 0 );
+    ArrowPad( QWidget *parent = 0 );
 
 private:
     void skip();

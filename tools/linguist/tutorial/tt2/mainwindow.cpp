@@ -15,11 +15,12 @@ MainWindow::MainWindow( QWidget *parent, const char *name )
     : QMainWindow( parent)
 {
     setObjectName(name);
-    ArrowPad *ap = new ArrowPad( this, "arrow pad" );
+    ArrowPad *ap = new ArrowPad( this );
     setCenterWidget( ap );
 
     QMenu *file = new QMenu( this );
-    file->addAction( tr("E&xit"), qApp, SLOT(quit()),
-                      tr("Ctrl+Q", "Quit") );
+    QAction *exitAction = file->addAction( tr("E&xit"), qApp, SLOT(quit()));
+    exitAction->setShortcut(QKeySequence("Ctrl+Q"));
+    
     menuBar()->addMenu( tr("&File"), file );
 }

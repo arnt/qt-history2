@@ -13,7 +13,7 @@ class PrintPanel : public QVBox
 {
     Q_OBJECT
 public:
-    PrintPanel( QWidget *parent = 0, const char *name = 0 );
+    PrintPanel( QWidget *parent = 0 );
 };
 
 #endif

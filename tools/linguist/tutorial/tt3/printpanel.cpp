@@ -12,8 +12,8 @@
 #include <qbuttongroup.h>
 #include <qradiobutton.h>
 
-PrintPanel::PrintPanel( QWidget *parent, const char *name )
-    : QVBox( parent, name )
+PrintPanel::PrintPanel( QWidget *parent )
+    : QVBox( parent )
 {
     setMargin( 10 );
     setSpacing( 10 );
