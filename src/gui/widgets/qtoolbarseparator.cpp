@@ -27,11 +27,18 @@ static QStyleOption getStyleOption(const QToolBarSeparator *tbs)
     return opt;
 }
 
-QToolBarSeparator::QToolBarSeparator(Qt::Orientation orientation, QToolBar *parent)
-    : QWidget(parent), orient(orientation)
+QToolBarSeparator::QToolBarSeparator(QToolBar *parent)
+    : QWidget(parent), orient(parent->orientation())
+{ setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum); }
+
+void QToolBarSeparator::setOrientation(Qt::Orientation orientation)
 {
-    setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
+    orient = orientation;
+    update();
 }
+
+Qt::Orientation QToolBarSeparator::orientation() const
+{ return orient; }
 
 QSize QToolBarSeparator::sizeHint() const
 {
