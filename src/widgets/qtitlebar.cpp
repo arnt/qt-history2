@@ -311,11 +311,18 @@ void QTitleBar::paintEvent(QPaintEvent *)
 void QTitleBar::mouseDoubleClickEvent( QMouseEvent *e )
 {
     if ( e->button() == LeftButton ) {
-	if(style().titleBarPointOver(this, e->pos()) == QStyle::TitleLabel) {
+	switch(style().titleBarPointOver(this, e->pos())) {
+	case QStyle::TitleLabel:
 	    if ( window && window->testWFlags( WStyle_MinMax ) )
 		emit doMaximize();
 	    else
 		emit doShade();
+	    break;
+	case QStyle::TitleSysMenu:
+	    emit doClose();
+	    break;
+	default:
+	    break;
 	}
     }
 }
