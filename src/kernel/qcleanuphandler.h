@@ -63,6 +63,8 @@ template<class Type>
 class Q_EXPORT QCleanupHandler
 {
 public:
+    QCleanupHandler() : cleanupObjects( 0 )
+    {}
     ~QCleanupHandler() { clear(); }
 
     void add( Type* object )
@@ -105,9 +107,7 @@ public:
     }
 
 private:
-    static QList<Type> *cleanupObjects;
+    QList<Type> *cleanupObjects;
 };
-
-template<class Type> QList<Type> *QCleanupHandler<Type>::cleanupObjects = 0;
 
 #endif //QCLEANUPHANDLER_H
