@@ -188,11 +188,9 @@ bool QSocketDevice::blocking() const
   nonblocking socket operations, especially for GUI programs that need
   to be responsive.
 
-  \warning On Windows, this function does nothing since the
-  ioctlsocket() function is broken.
-
-  Whenever you use a QSocketNotifier on Windows, the socket is immediately
-  made nonblocking.
+  \warning On Windows, this function should be used with care since whenever
+  you use a QSocketNotifier on Windows, the socket is immediately made
+  nonblocking.
 
   \sa blocking(), isValid()
 */
