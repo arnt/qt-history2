@@ -9,87 +9,37 @@
 class TWTextCodecs : public QTextCodecPlugin
 {
 public:
-    TWTextCodecs();
+    TWTextCodecs() {}
     
-    QStringList keys() const;
+    QStringList names() const { return QStringList() << "Big5" << "big5*-0"; }
+    QValueList<int> mibEnums() const { return QValueList<int>() << 2026 << -2026; }
     QTextCodec *createForMib( int );
     QTextCodec *createForName( const QString & );
-
-private:
-    QPtrList<QTextCodec> codecs;
 };
-
-
-TWTextCodecs::TWTextCodecs()
-{
-}
-
-QStringList TWTextCodecs::keys() const
-{
-    QStringList list;
-    list << "Big5" << "big5*-0";
-    list << "MIB-2026" << "MIB--2026";
-    return list;
-}
-
 
 QTextCodec *TWTextCodecs::createForMib( int mib )
 {
-    QTextCodec *codec = 0;
-
-    QPtrListIterator<QTextCodec> it(codecs);
-    while ((codec = it.current())) {
-	++it;
-
-	if (codec->mibEnum() == mib)
-	    break;
+    switch (mib) {
+    case -2026:
+	return new QFontBig5Codec;
+    case 2026:
+	return new QBig5Codec;
+    default:
+	;
     }
 
-    if (! codec ) {
-	switch (mib) {
-	case -2026:
-	    codec = new QFontBig5Codec;
-	    break;
-
-	case 2026:
-	    codec = new QBig5Codec;
-	    break;
-
-	default:
-	    ;
-	}
-
-	if (codec)
-	    codecs.append(codec);
-    }
-
-    return codec;
+    return 0;
 }
 
 
 QTextCodec *TWTextCodecs::createForName( const QString &name )
 {
-    QTextCodec *codec = 0;
+    if (name == "Big5")
+	return new QBig5Codec;
+    if (name == "big5*-0")
+	return new QFontBig5Codec;
 
-    QPtrListIterator<QTextCodec> it(codecs);
-    while ((codec = it.current())) {
-	++it;
-
-	if (codec->name() == name)
-	    break;
-    }
-
-    if (! codec) {
-	if (name == "Big5")
-	    codec = new QBig5Codec;
-	else if (name == "big5*-0")
-	    codec = new QFontBig5Codec;
-
-	if (codec)
-	    codecs.append(codec);
-    }
-
-    return codec;
+    return 0;
 }
 
 
