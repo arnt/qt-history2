@@ -1614,8 +1614,7 @@ QDir::cleanDirPath(const QString &in)
 bool
 QDir::isRelativePath(const QString &path)
 {
-    QFileInfo fi(path);
-    return fi.isRelative();
+    return QFileInfo(path).isRelative();
 }
 
 /*!

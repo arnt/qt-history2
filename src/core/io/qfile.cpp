@@ -320,7 +320,7 @@ QFile::setDecodingFunction(DecoderFn f)
 bool
 QFile::exists() const
 {
-    return QFileInfo(*this).exists();    
+    return (d->getFileEngine()->fileFlags(QFileEngine::FlagsMask) & QFileEngine::Exists);
 }
 
 /*!
