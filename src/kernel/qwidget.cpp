@@ -4483,7 +4483,7 @@ bool QWidget::event( QEvent *e )
 		}
 	    }
 	    if ( e->type() == QEvent::LanguageChange ) {
-		int index = metaObject()->findSlot( "retranslateStrings()", TRUE );
+		int index = metaObject()->findSlot( "languageChange()", TRUE );
 		if ( index >= 0 )
 		    qt_invoke( index, 0 );
 	    }
