@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#205 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#206 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -33,6 +33,7 @@
 #include "qdict.h"
 #include "qintdict.h"
 #include "qasyncimageio.h"
+#include "qpngio.h"
 #include <stdlib.h>
 #include <ctype.h>
 
@@ -2410,8 +2411,8 @@ static void swapPixel01( QImage *image )	// 1-bpp: swap 0 and 1 pixels
   The programmer can install new image file formats in addition to those
   that Qt implements.
 
-  Qt currently supports the following image file formats: GIF (reading
-  only), BMP, XBM, XPM and PNM.  The different PNM formats are: PBM
+  Qt currently supports the following image file formats: PNG,
+  BMP, XBM, XPM and PNM.  The different PNM formats are: PBM
   (P1), PGM (P2), PPM (P3), PBMRAW (P4), PGMRAW (P5) and PPMRAW (P6).
 
   Additional formats are available with the
@@ -2432,8 +2433,7 @@ static void swapPixel01( QImage *image )	// 1-bpp: swap 0 and 1 pixels
   Italy and the UK.  There is more information on Unisys web site: <a
   href="http://corp2.unisys.com/LeadStory/lzwfaq.html">Overview of
   Unisys' position.</a> GIF support may be removed in a future version
-  of Qt.  We recommend using the PNG format, which is available in the
-  <a href="imageio.html">Qt Image IO Extension</a> package.
+  of Qt.  We recommend using the PNG format.
 
   \sa QImage, QPixmap, QFile, QMovie
 */
@@ -2543,6 +2543,7 @@ static void init_image_handlers()		// initialize image handlers
 				   read_xbm_image, write_xbm_image );
 	QImageIO::defineIOHandler( "XPM", "/\\*.XPM.\\*/", "T",
 				   read_xpm_image, write_xpm_image );
+	qInitPngIO();
     }
 }
 

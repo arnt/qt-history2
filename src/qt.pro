@@ -19,6 +19,7 @@ unix:DIALOGS_H	= dialogs
 unix:KERNEL_H	= kernel
 unix:TOOLS_H	= tools
 unix:WIDGETS_H	= widgets
+unix:LIBS	+= -lpng -lz
 
 win32:DEPENDPATH = ../include
 unix:DEPENDPATH	= $$DIALOGS_H:$$KERNEL_H:$$TOOLS_H:$$WIDGETS_H
@@ -79,6 +80,7 @@ HEADERS		= $$DIALOGS_H/qdeveloper.h \
 		  $$KERNEL_H/qpixmap.h \
 		  $$KERNEL_H/qpixmapcache.h \
 		  $$KERNEL_H/qplatinumstyle.h \
+		  $$KERNEL_H/qpngio.h \
 		  $$KERNEL_H/qpointarray.h \
 		  $$KERNEL_H/qpoint.h \
 		  $$KERNEL_H/qprinter.h \
@@ -276,6 +278,7 @@ SOURCES	       += tools/qbitarray.cpp \
 		  kernel/qpixmap.cpp \
 		  kernel/qpixmapcache.cpp \
 		  kernel/qplatinumstyle.cpp \
+		  kernel/qpngio.cpp \
 		  kernel/qpointarray.cpp \
 		  kernel/qpoint.cpp \
 		  kernel/qprinter.cpp \
