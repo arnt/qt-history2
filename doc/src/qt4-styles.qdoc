@@ -153,10 +153,7 @@
     In Qt 3, some of the information required to draw a graphical
     element was stored in a \l QStyleOption parameter, while the rest
     was deduced by querying the widget. In Qt 4, everything is stored
-    in the \l QStyleOption parameter. The widget parameter is still
-    there to help you port custom styles to Qt 4 and to perform
-    special effects, but you can choose to ignore it when you call
-    draw functions or when you implement custom styles.
+    in the \l QStyleOption parameter.
 
     \link qt4-intro.html [Back to the Technology Preview page] \endlink
 */
