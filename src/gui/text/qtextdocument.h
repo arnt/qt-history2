@@ -38,7 +38,7 @@ class Q_GUI_EXPORT QTextDocument : public QObject
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QTextDocument)
-    Q_PROPERTY(bool enableUndoRedo READ isUndoRedoEnabled WRITE enableUndoRedo)
+    Q_PROPERTY(bool undoRedoEnabled READ isUndoRedoEnabled WRITE setUndoRedoEnabled)
     friend class QTextEditor; // ####
     friend class QTextCursor;
 public:
@@ -51,7 +51,7 @@ public:
 
     bool isEmpty() const;
 
-    void enableUndoRedo(bool enable);
+    void setUndoRedoEnabled(bool enable);
     bool isUndoRedoEnabled() const;
 
     bool isUndoAvailable() const;

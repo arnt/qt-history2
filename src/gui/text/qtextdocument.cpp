@@ -117,14 +117,14 @@ void QTextDocument::appendUndoItem(QAbstractUndoItem *item)
 }
 
 /*!
-    \property QTextDocument::enableUndoRedo
+    \property QTextDocument::undoRedoEnabled
 
     Enables the document's undo stack if \a enable is true; disables
     it if \a enable is false. Disabling the undo stack will also
     remove all undo items currently on the stack. The default is
     enabled.
 */
-void QTextDocument::enableUndoRedo(bool enable)
+void QTextDocument::setUndoRedoEnabled(bool enable)
 {
     d->pieceTable->enableUndoRedo(enable);
 }

@@ -180,7 +180,7 @@ QWhatsThat::QWhatsThat(const QString& txt, QWidget* parent, QWidget *showTextFor
     if (QStyleSheet::mightBeRichText(text)) {
         QFont f = QApplication::font(this);
         doc = new QTextDocument();
-        doc->enableUndoRedo(false);
+        doc->setUndoRedoEnabled(false);
         doc->setHtml(text);
         QTextDocumentLayout *layout = qt_cast<QTextDocumentLayout *>(doc->documentLayout());
         layout->adjustSize();

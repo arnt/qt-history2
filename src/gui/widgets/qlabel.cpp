@@ -342,7 +342,7 @@ void QLabel::setText(const QString &text)
         if ((d->align & WordBreak) == 0 )
             t.prepend("<nobr>");
         d->doc = new QTextDocument();
-        d->doc->enableUndoRedo(false);
+        d->doc->setUndoRedoEnabled(false);
         d->doc->setHtml(text);
     }
 #endif
