@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.h#6 $
+** $Id: //depot/qt/main/src/kernel/qdialog.h#7 $
 **
 ** Definition of QDialog class
 **
@@ -13,13 +13,13 @@
 #ifndef QDIALOG_H
 #define QDIALOG_H
 
-#include "qview.h"
+#include "qwindow.h"
 
 
 class QPushButton;
 
 
-class QDialog : public QView			// modal dialog widget
+class QDialog : public QWindow			// dialog widget
 {
 friend class QPushButton;
     Q_OBJECT
