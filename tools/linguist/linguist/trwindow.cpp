@@ -1433,6 +1433,7 @@ void TrWindow::findAgain()
 {
     int pass = 0;
     int oldItemNo = itemToIndex( slv, slv->currentItem() );
+    QString delayedMsg;
     QListViewItem * j = foundScope;
     QListViewItem * k = indexToItem( slv, foundItem );
     QListViewItem * oldScope = lv->currentItem();
@@ -1448,7 +1449,6 @@ void TrWindow::findAgain()
 #else
     foundOffset++;
 #endif
-
     slv->setUpdatesEnabled( FALSE );
     do {
 	// Iterate through every item in all contexts
@@ -1456,7 +1456,7 @@ void TrWindow::findAgain()
 	    j = lv->firstChild();
 	    setCurrentContextItem( j );
 	    if ( foundScope != 0 )
-		statusBar()->message( tr("Search wrapped."), MessageMS );
+		delayedMsg = tr("Search wrapped.");
 	}
 	if ( k == 0 )
 	    k = slv->firstChild();
@@ -1469,20 +1469,32 @@ void TrWindow::findAgain()
 		    foundOffset = 0;
 		    // fall-through
 		case FindDialog::SourceText:
-		    if ( searchItem( m->sourceText(), j, k ) )
+		    if ( searchItem( m->sourceText(), j, k ) ) {
+			f->hide();
+			if ( !delayedMsg.isEmpty() )
+			    statusBar()->message( delayedMsg, MessageMS );
 			return;
+		    }
 		    foundWhere  = FindDialog::Translations;
 		    foundOffset = 0;
 		    // fall-through
 		case FindDialog::Translations:
-		    if ( searchItem( m->translation(), j, k ) )
+		    if ( searchItem( m->translation(), j, k ) ) {
+			f->hide();
+			if ( !delayedMsg.isEmpty() )
+			    statusBar()->message( delayedMsg, MessageMS );
 			return;
+		    }
 		    foundWhere  = FindDialog::Comments;
 		    foundOffset = 0;
 		    // fall-through
 		case FindDialog::Comments:
-		    if ( searchItem( ((ContextLVI *) j)->fullContext(), j, k) )
+		    if ( searchItem( ((ContextLVI *) j)->fullContext(), j, k) ) {
+			f->hide();
+			if ( !delayedMsg.isEmpty() )
+			    statusBar()->message( delayedMsg, MessageMS );
 			return;
+		    }
 		    foundWhere  = 0;
 		    foundOffset = 0;
 	    }
@@ -1512,8 +1524,9 @@ void TrWindow::findAgain()
 
     slv->setUpdatesEnabled( TRUE );
     slv->triggerUpdate();
-    statusBar()->message( tr("No match."), MessageMS );
     qApp->beep();
+    QMessageBox::warning( this, tr("Qt Linguist - Find"),
+			  QString( tr("Cannot find the string '%1'.") ).arg(findText) );
     foundItem   = 0;
     foundWhere  = 0;
     foundOffset = 0;
