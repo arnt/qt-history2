@@ -33,6 +33,8 @@ class QTextBrowserPrivate : public QTextEditPrivate
 public:
     QTextBrowserPrivate() : textOrSourceChanged(false), forceLoadOnSourceChange(false) {}
 
+    void init();
+
     QStack<QString> stack;
     QStack<QString> forwardStack;
     QString home;
@@ -144,6 +146,15 @@ QString QTextBrowserPrivate::findFile(const QString &name) const
     QTextBrowser uses this list to locate images and documents.
 */
 
+void QTextBrowserPrivate::init()
+{
+    Q_Q(QTextBrowser);
+    q->setReadOnly(true);
+    q->setUndoRedoEnabled(false);
+    viewport->setMouseTracking(true);
+    QObject::connect(q->document(), SIGNAL(contentsChanged()), q, SLOT(documentModified()));
+}
+
 /*!
     Constructs an empty QTextBrowser with parent \a parent.
 */
@@ -151,9 +162,7 @@ QTextBrowser::QTextBrowser(QWidget *parent)
     : QTextEdit(*new QTextBrowserPrivate, parent)
 {
     Q_D(QTextBrowser);
-    setReadOnly(true);
-    setUndoRedoEnabled(false);
-    d->viewport->setMouseTracking(true);
+    d->init();
 }
 
 #ifdef QT_COMPAT
@@ -164,12 +173,9 @@ QTextBrowser::QTextBrowser(QWidget *parent)
 QTextBrowser::QTextBrowser(QWidget *parent, const char *name)
     : QTextEdit(*new QTextBrowserPrivate, parent)
 {
-    Q_D(QTextBrowser);
     setObjectName(name);
-    setReadOnly(true);
-    setUndoRedoEnabled(false);
-    d->viewport->setMouseTracking(true);
-    connect(document(), SIGNAL(contentsChanged()), this, SLOT(documentModified()));
+    Q_D(QTextBrowser);
+    d->init();
 }
 #endif
 
