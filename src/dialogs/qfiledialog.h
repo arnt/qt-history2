@@ -81,8 +81,6 @@ public:
 
 class Q_EXPORT QFileDialog : public QDialog
 {
-    friend class QFileListBox;
-
     Q_OBJECT
     Q_ENUMS( Mode ViewMode PreviewMode )
     // ##### Why are this read-only properties ?
@@ -273,8 +271,9 @@ private:
 
     class QFileListView;
     friend class QFileListView;
+    friend class QFileListBox;
 
-    struct QFileDialogPrivate;
+    class QFileDialogPrivate;
     QFileDialogPrivate *d;
     QFileListView  *files;
 

@@ -606,8 +606,6 @@ private:
 
 class QFileDialog::QFileListView : public QListView
 {
-    //    friend class QFileDialog;
-
     Q_OBJECT
 
 public:
@@ -816,7 +814,8 @@ void QFDProgressDialog::setWriteLabel( const QString &s )
  *
  ************************************************************************/
 
-struct QFileDialog::QFileDialogPrivate {
+class QFileDialog::QFileDialogPrivate {
+public:
     ~QFileDialogPrivate();
 
     QStringList history;
