@@ -60,7 +60,7 @@ public:
 
     inline QColor backgroundColor() const
         { return data(QAbstractItemModel::BackgroundColorRole).toColor(); }
-    virtual void setBackgroundColor(const QColor &color)
+    inline void setBackgroundColor(const QColor &color)
         { setData(QAbstractItemModel::BackgroundColorRole, color); }
 
     inline QColor textColor() const
