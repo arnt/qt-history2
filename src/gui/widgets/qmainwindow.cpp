@@ -15,25 +15,26 @@
 #include "qmainwindow.h"
 #ifndef QT_NO_MAINWINDOW
 
-#include "qtimer.h"
+#include "qapplication.h"
+#include "qbitmap.h"
+#include "qcursor.h"
+#include "qdatetime.h"
+#include "qdockarea.h"
 #include "qevent.h"
 #include "qlayout.h"
-#include "qapplication.h"
 #include "qmap.h"
-#include "qcursor.h"
-#include "qpainter.h"
 #include "qmenubar.h"
+#include "qpainter.h"
 #include "qpopupmenu.h"
-#include "qtoolbar.h"
-#include "qstatusbar.h"
 #include "qscrollview.h"
-#include "qtooltip.h"
-#include "qdatetime.h"
-#include "qwhatsthis.h"
-#include "qbitmap.h"
-#include "qdockarea.h"
+#include "qstatusbar.h"
 #include "qstringlist.h"
 #include "qstyle.h"
+#include "qstyleoption.h"
+#include "qtimer.h"
+#include "qtoolbar.h"
+#include "qtooltip.h"
+#include "qwhatsthis.h"
 #ifdef Q_WS_MAC
 #  include "qt_mac.h"
 #endif
@@ -1495,8 +1496,11 @@ void QMainWindow::paintEvent(QPaintEvent *)
         style().styleHint(QStyle::SH_MainWindow_SpaceBelowMenuBar, this)) {
         QPainter p(this);
         int y = d->mb->height() + 1;
-        style().drawPrimitive(QStyle::PE_Separator, &p, QRect(0, y, width(), 1),
-                              palette(), QStyle::Style_Sunken);
+        Q4StyleOption opt(0, Q4StyleOption::Default);
+        opt.rect.setRect(0, y, width(), 1);
+        opt.palette = palette();
+        opt.state = QStyle::Style_Sunken;
+        style().drawPrimitive(QStyle::PE_Separator, &opt, &p, this);
     }
 }
 

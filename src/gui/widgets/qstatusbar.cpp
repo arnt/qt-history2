@@ -22,6 +22,7 @@
 #include "qtimer.h"
 #include "qdrawutil.h"
 #include "qstyle.h"
+#include "qstyleoption.h"
 #include "qsizegrip.h"
 
 #include <private/qwidget_p.h>
@@ -474,11 +475,12 @@ void QStatusBar::paintEvent(QPaintEvent *)
             if (item->w->isVisible()) {
                 if (item->p && item->w->x()-1 < psx)
                     psx = item->w->x()-1;
-                style().drawPrimitive(QStyle::PE_StatusBarSection, &p,
-                                       QRect(item->w->x() - 1, item->w->y() - 1,
-                                             item->w->width()+2, item->w->height()+2),
-                                       palette(), QStyle::Style_Default,
-                                       QStyleOption(item->w));
+                Q4StyleOption opt(0, Q4StyleOption::Default);
+                opt.rect.setRect(item->w->x() - 1, item->w->y() - 1,
+                                 item->w->width() + 2, item->w->height() + 2);
+                opt.palette = palette();
+                opt.state = QStyle::Style_Default;
+                style().drawPrimitive(QStyle::PE_StatusBarSection, &opt, &p, item->w);
             }
     }
     if (haveMessage) {

@@ -170,15 +170,6 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe,
         p->restore();
         break;
 
-    case PE_StatusBarSection:
-        qDrawShadeRect(p, r, pal, true, 1, 0, 0);
-        break;
-
-    case PE_Separator:
-        qDrawShadeLine(p, r.left(), r.top(), r.right(), r.bottom(), pal,
-                        flags & Style_Sunken, 1, 0);
-        break;
-
     case PE_SpinWidgetPlus:
     case PE_SpinWidgetMinus: {
         p->save();
@@ -640,6 +631,13 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const Q4StyleOption *opt, 
         }
         p->restore();
         break; }
+    case PE_Separator:
+        qDrawShadeLine(p, opt->rect.left(), opt->rect.top(), opt->rect.right(), opt->rect.bottom(),
+                       opt->palette, opt->state & Style_Sunken, 1, 0);
+        break;
+    case PE_StatusBarSection:
+        qDrawShadeRect(p, opt->rect, opt->palette, true, 1, 0, 0);
+        break;
     default:
         qWarning("QCommonStyle::drawPrimitive not handled %d", pe);
     }
