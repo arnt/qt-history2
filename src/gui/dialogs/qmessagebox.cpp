@@ -993,19 +993,39 @@ void QMessageBox::closeEvent(QCloseEvent *e)
   Static QMessageBox functions
  *****************************************************************************/
 
-/*!\fn int QMessageBox::message(const QString &,const QString&,const QString&,QWidget*,const char *)
-  \obsolete
-  Opens a modal message box directly using the specified parameters.
+/*!
+    \fn int QMessageBox::message(const QString &caption,
+                        const QString& text,
+                        const QString& buttonText,
+                        QWidget *parent, const char *name)
 
-  Please use information(), warning(), question(), or critical() instead.
+  \obsolete
+
+  Opens a modal message box with the given \a caption and showing the
+  given \a text. The message box has a single button which has the
+  given \a buttonText (or tr("OK")). The message box is centred over
+  its \a parent and is called \a name.
+
+  Use information(), warning(), question(), or critical() instead.
 */
 
-/*! \fn bool QMessageBox::query(const QString &,const QString&,const QString&,const QString&,QWidget *, const char *)
-  \obsolete
-  Queries the user using a modal message box with two buttons.
-  Note that \a caption is not always shown, it depends on the window manager.
+/*!
+    \fn bool QMessageBox::query(const QString &caption,
+                       const QString& text,
+                       const QString& yesButtonText,
+                       const QString& noButtonText,
+                       QWidget *parent, const char *name)
 
-  Please use information(), question(), warning(), or critical() instead.
+  \obsolete
+
+  Queries the user using a modal message box with up to two buttons.
+  The message box has the given \a caption (although some window
+  managers don't show it), and shows the given \a text. The left
+  button has the \a yesButtonText (or tr("OK")), and the right button
+  has the \a noButtonText (or isn't shown). The message box is centred
+  over its \a parent and is called \a name.
+
+  Use information(), question(), warning(), or critical() instead.
 */
 
 /*!

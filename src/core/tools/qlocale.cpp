@@ -1983,6 +1983,7 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
     \value Yoruba
     \value Zhuang
     \value Zulu
+    \omitvalue LastLanguage
 */
 
 /*!
@@ -2231,6 +2232,7 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
     \value Yugoslavia
     \value Zambia
     \value Zimbabwe
+    \omitvalue LastCountry
 */
 
 /*!
@@ -2825,7 +2827,7 @@ QLocale QLocale::system()
 \sa toUInt()
 */
 
-/*!
+/*
 \fn QString QLocale::toString(Q_LONG i) const
 
 \overload
@@ -2833,7 +2835,7 @@ QLocale QLocale::system()
 \sa  toLong()
 */
 
-/*!
+/*
 \fn QString QLocale::toString(Q_ULONG i) const
 
 \overload

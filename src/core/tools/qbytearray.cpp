@@ -2715,24 +2715,36 @@ QDataStream &operator>>(QDataStream &in, QByteArray &ba)
     \relates QByteArray
 
     \overload
+
+    Returns a byte array that is the result of concatenating byte
+    array \a a1 and string \a a2.
 */
 
 /*! \fn const QByteArray operator+(const QByteArray &a1, char a2)
     \relates QByteArray
 
     \overload
+
+    Returns a byte array that is the result of concatenating byte
+    array \a a1 and character \a a2.
 */
 
 /*! \fn const QByteArray operator+(const char *a1, const QByteArray &a2)
     \relates QByteArray
 
     \overload
+
+    Returns a byte array that is the result of concatenating string
+    \a a1 and byte array \a a2.
 */
 
 /*! \fn const QByteArray operator+(char a1, const QByteArray &a2)
     \relates QByteArray
 
     \overload
+
+    Returns a byte array that is the result of concatenating character
+    \a a1 and byte array \a a2.
 */
 
 /*!

@@ -222,20 +222,22 @@ void QSignalMapper::map()
 }
 
 /*!
-    \fn void QSignalMapper::mapped(int)
+    \fn void QSignalMapper::mapped(int i)
 
     This signal is emitted when map() is signaled from an object that
-    has an integer mapping set.
+    has an integer mapping set. The object's mapped integer is passed
+    in \a i.
 
     \sa setMapping()
 */
 
 /*!
-    \fn void QSignalMapper::mapped(const QString &)
+    \fn void QSignalMapper::mapped(const QString &text)
     \overload
 
     This signal is emitted when map() is signaled from an object that
-    has a string mapping set.
+    has a string mapping set. The object's mapped string is passed in
+    \a text.
 
     \sa setMapping()
 */

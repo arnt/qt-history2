@@ -433,6 +433,13 @@ const QString::Null QString::null = QString::Null();
     \sa fromRawData(), QChar, QLatin1String, QByteArray
 */
 
+/*!
+    \enum QString::SplitBehavior
+
+    \value KeepEmptyParts
+    \value SkipEmptyParts
+*/
+
 QString::Data QString::shared_null = { Q_ATOMIC_INIT(1), 0, 0, 0, shared_null.array, 0, 0, 0, 0, 0, 0, {0} };
 QString::Data QString::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, 0, shared_empty.array, 0, 0, 0, 0, 0, 0, {0} };
 
@@ -4768,8 +4775,8 @@ ushort QString::toUShort(bool *ok, int base) const
 
     Returns 0.0 if the conversion fails.
 
-    If \a ok is not 0: if a conversion error occurs, \a *ok is set to
-    false; otherwise *\a{ok} is set to true.
+    If \a ok is not 0: if a conversion error occurs, \c{*}\a{ok} is set to
+    false; otherwise \c{*}\a{ok} is set to true.
 
     \code
         QString str = "1234.56";
@@ -4808,7 +4815,7 @@ ushort QString::toUShort(bool *ok, int base) const
     \endcode
 
     \warning If the string contains trailing whitespace this function
-    will fail, and set \a *ok to false if \a ok is not 0. Leading
+    will fail, and set \c{*}\a{ok} to false if \a ok is not 0. Leading
     whitespace is ignored.
 
     \sa number() QLocale::setDefault() QLocale::toDouble() trimmed()

@@ -62,7 +62,7 @@
     \target modal
     \section1 Modal Dialogs
 
-    A <b>modal</b> dialog is a dialog that blocks input to other
+    A \bold{modal} dialog is a dialog that blocks input to other
     visible windows in the same application. Users must finish
     interacting with the dialog and close it before they can access
     any other window in the application. Dialogs that are used to
@@ -91,7 +91,7 @@
     \target modeless
     \section1 Modeless Dialogs
 
-    A <b>modeless</b> dialog is a dialog that operates
+    A \bold{modeless} dialog is a dialog that operates
     independently of other windows in the same application. Find and
     replace dialogs in word-processors are often modeless to allow the
     user to interact with both the application's main window and with
@@ -296,13 +296,13 @@ void QDialogPrivate::hideDefault()
 }
 
 #ifdef Q_OS_TEMP
+# include "qmessagebox.h"
+extern const char * mb_texts[]; // Defined in qmessagebox.cpp
 /*!
   \internal
   Hides special buttons which are rather shown in the title bar
   on WinCE, to conserve screen space.
 */
-# include "qmessagebox.h"
-extern const char * mb_texts[]; // Defined in qmessagebox.cpp
 void QDialog::hideSpecial()
 {
     // "OK"     buttons are hidden, and (Ok) shown on title bar

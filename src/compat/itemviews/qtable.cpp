@@ -2210,7 +2210,7 @@ void QTable::setColumnReadOnly(int col, bool ro)
     \brief whether the table is read-only
 
     Whether a cell in the table is editable or read-only depends on
-    the cell's \link QTableItem::EditType EditType\link, and this setting:
+    the cell's \link QTableItem::EditType EditType\endlink, and this setting:
     see \link qtableitem.html#wheneditable
     QTableItem::EditType\endlink.
 

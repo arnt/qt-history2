@@ -887,6 +887,8 @@ static char *parseCupsOutput(QList<QPrinterDescription> *printers)
   THIS DOCUMENTATION IS Not Revised. It must be revised before
   becoming public API.
 
+  \endomit
+
   It encompasses both the sort of details needed for doing a simple
   print-out and some print configuration setup.
 

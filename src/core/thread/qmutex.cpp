@@ -13,6 +13,9 @@
 #include "qmutex.h"
 #include "qatomic.h"
 
+/*!
+    Constructs a mutex locker based on mutex \a m.
+*/
 QMutexLocker::QMutexLocker(QStaticMutex &m)
 {
     if (!m) { // mutex not yet initialized... do it now

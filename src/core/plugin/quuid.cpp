@@ -43,6 +43,48 @@
 */
 
 /*!
+    \fn QUuid::QUuid(const GUID &guid)
+
+    Cast a Windows \a guid to a Qt QUuid.
+
+    \warning This function is only for Windows platforms.
+*/
+
+/*!
+    \fn QUuid &QUuid::operator=(const GUID &guid)
+
+    Assign a Windows \a guid to a Qt QUuid.
+
+    \warning This function is only for Windows platforms.
+*/
+
+/*!
+    \fn QUuid::operator GUID() const
+
+    Returns a Windows GUID from a QUuid.
+
+    \warning This function is only for Windows platforms.
+*/
+
+/*!
+    \fn bool QUuid::operator==(const GUID &guid) const
+
+    Returns true if the given Windows \a guid is the same as this Qt
+    QUuid; otherwise returns false.
+
+    \warning This function is only for Windows platforms.
+*/
+
+/*!
+    \fn bool QUuid::operator!=(const GUID &guid) const
+
+    Returns true if the given Windows \a guid is different from this
+    Qt QUuid; otherwise returns false.
+
+    \warning This function is only for Windows platforms.
+*/
+
+/*!
     \fn QUuid::QUuid()
 
     Creates the null UUID {00000000-0000-0000-0000-000000000000}.

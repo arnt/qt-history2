@@ -57,16 +57,16 @@
 
     Example:
     \code
-        int sockfd;                                 // socket identifier
-        struct sockaddr_in sa;                      // should contain host address
-        sockfd = socket(AF_INET, SOCK_STREAM, 0); // create TCP socket
-        // make the socket non-blocking here, usually using fcntl(O_NONBLOCK)
-        ::connect(sockfd, (struct sockaddr*)&sa,   // connect to host
-                   sizeof(sa));                    // NOT QObject::connect()!
-        QSocketNotifier *sn;
-        sn = new QSocketNotifier(sockfd, QSocketNotifier::Read, parent);
-        QObject::connect(sn, SIGNAL(activated(int)),
-                          myObject, SLOT(dataReceived()));
+    int sockfd;                                 // socket identifier
+    struct sockaddr_in sa;                      // should contain host address
+    sockfd = socket(AF_INET, SOCK_STREAM, 0);   // create TCP socket
+    // make the socket non-blocking here, usually using fcntl(O_NONBLOCK)
+    ::connect(sockfd, (struct sockaddr*)&sa, sizeof(sa)); // connect to host
+                                                          // NOT QObject::connect()!
+    QSocketNotifier *sn;
+    sn = new QSocketNotifier(sockfd, QSocketNotifier::Read, parent);
+    QObject::connect(sn, SIGNAL(activated(int)),
+                     myObject, SLOT(dataReceived()));
     \endcode
 
     The optional \e parent argument can be set to make the socket

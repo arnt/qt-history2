@@ -330,11 +330,10 @@ public:
 
   \code
     QString s = QFileDialog::getOpenFileName(
-            "/home",
-            "Images (*.png *.xpm *.jpg)",
-            this,
-            "open file dialog",
-            "Choose a file");
+                    this,
+                    "Choose a file",
+                    "/home",
+                    "Images (*.png *.xpm *.jpg)");
   \endcode
 
   In the above example, a modal QFileDialog is created using a static
@@ -540,6 +539,12 @@ QFileDialog::~QFileDialog()
 {
 
 }
+
+/*!
+    \fn void QFileDialog::setDirectory(const QString &directory)
+
+    \overload
+*/
 
 /*!
     Sets the file dialog's current \a directory.
@@ -1633,10 +1638,10 @@ static void qt_get_dir_and_selection(const QString &path, QString *cwd, QString 
 
   \code
     QString s = QFileDialog::getOpenFileName(
-                    "/home",
-                    "Images (*.png *.xpm *.jpg)",
                     this,
-                    "Choose a file to open");
+                    "Choose a file to open",
+                    "/home",
+                    "Images (*.png *.xpm *.jpg)");
   \endcode
 
   The function creates a modal file dialog with the given \a parent widget.
@@ -1647,7 +1652,9 @@ static void qt_get_dir_and_selection(const QString &path, QString *cwd, QString 
   If \a dir includes a file name, the file will be selected. Only files
   that match the given \a filter are shown. The filter selected is set to
   \a selectedFilter. The parameters \a dir, \a selectedFilter, and
-  \a filter may be empty strings.
+  \a filter may be empty strings. The \a options argument can be used
+  to tell the dialog not to resolve symbolic links
+  (\c{DontResolveSymlinks}), and not to show files (\c{ShowDirsOnly}).
 
   The dialog's caption is set to \a caption. If \a caption is not
   specified then a default caption will be used.
@@ -1660,11 +1667,11 @@ static void qt_get_dir_and_selection(const QString &path, QString *cwd, QString 
   that will not dispatch any QTimers, and if parent is not 0 then it will
   position the dialog just under the parent's title bar.
 
-  ### Under Unix/X11, the normal behavior of the file dialog is to resolve
-  and follow symlinks. For example, if /usr/tmp is a symlink to /var/tmp,
-  the file dialog will change to /var/tmp after entering /usr/tmp.
-  If \a resolveSymlinks is false, the file dialog will treat
-  symlinks as regular directories.
+  Under Unix/X11, the normal behavior of the file dialog is to resolve
+  and follow symlinks. For example, if \c{/usr/tmp} is a symlink to
+  \c{/var/tmp}, the file dialog will change to \c{/var/tmp} after
+  entering \c{/usr/tmp}. If \a options includes DontResolveSymlinks,
+  the file dialog will treat symlinks as regular directories.
 
   \sa getOpenFileNames(), getSaveFileName(), getExistingDirectory()
 */
@@ -1728,17 +1735,19 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
 
   \code
     QString s = QFileDialog::getSaveFileName(
-                    "/home",
-                    "Images (*.png *.xpm *.jpg)",
                     this,
-                    "Choose a filename to save under");
+                    "Choose a filename to save under",
+                    "/home",
+                    "Images (*.png *.xpm *.jpg)");
   \endcode
 
   The file dialog's working directory will be set to \a dir. If \a
   dir includes a file name, the file will be selected. Only files that
   match the \a filter are shown. The filter selected is set to
   \a selectedFilter. The parameters \a dir, \a selectedFilter, and
-  \a filter may be empty strings.
+  \a filter may be empty strings. The \a options argument can be used
+  to tell the dialog not to resolve symbolic links
+  (\c{DontResolveSymlinks}), and not to show files (\c{ShowDirsOnly}).
 
   The dialog's caption is set to \a caption. If \a caption is not
   specified then a default caption will be used.
@@ -1752,11 +1761,12 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
   position the dialog just under the parent's title bar.
   On Mac OS X, the filter argument is ignored.
 
-  ### Under Unix/X11, the normal behavior of the file dialog is to resolve
-  and follow symlinks. For example, if /usr/tmp is a symlink to /var/tmp,
-  the file dialog will change to /var/tmp after entering /usr/tmp.
-  If \a resolveSymlinks is false, the file dialog will treat
-  symlinks as regular directories.
+  Under Unix/X11, the normal behavior of the file dialog is to resolve
+  and follow symlinks. For example, if \c{/usr/tmp} is a symlink to
+  \c{/var/tmp}, the file dialog will change to \c{/var/tmp} after
+  entering \c{/usr/tmp}. If \a options includes DontResolveSymlinks,
+  the file dialog will treat symlinks as regular directories.
+
 
   \sa getOpenFileName(), getOpenFileNames(), getExistingDirectory()
 */
@@ -1811,10 +1821,10 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
 
   \code
     QString s = QFileDialog::getExistingDirectory(
-                    "/home",
                     this,
+                    "/home",
                     "Choose a directory",
-                    true);
+                    DontResolveSymlinks);
   \endcode
 
   This function creates a modal file dialog with the given \a parent
@@ -1823,13 +1833,16 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
 
   The dialog's working directory is set to \a dir, and the caption is
   set to \a caption. Either of these may be an empty string in which case
-  the current directory and a default caption will be used respectively.
+  the current directory and a default caption will be used
+  respectively. The \a options argument can be used to tell the dialog
+  not to resolve symbolic links (\c{DontResolveSymlinks}), and not to
+  show files (\c{ShowDirsOnly}).
 
-  ### Under Unix/X11, the normal behavior of the file dialog is to resolve
-  and follow symlinks. For example, if /usr/tmp is a symlink to /var/tmp,
-  the file dialog will change to /var/tmp after entering /usr/tmp.
-  If \a resolveSymlinks is false, the file dialog will treat
-  symlinks as regular directories.
+  Under Unix/X11, the normal behavior of the file dialog is to resolve
+  and follow symlinks. For example, if \c{/usr/tmp} is a symlink to
+  \c{/var/tmp}, the file dialog will change to \c{/var/tmp} after
+  entering \c{/usr/tmp}. If \a options includes DontResolveSymlinks,
+  the file dialog will treat symlinks as regular directories.
 
   Note that on Windows the dialog will spin a blocking modal event loop
   that will not dispatch any QTimers, and if parent is not 0 then it will
@@ -1888,10 +1901,10 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
 
   \code
     QStringList files = QFileDialog::getOpenFileNames(
-                            "Images (*.png *.xpm *.jpg)",
-                            "/home",
                             this,
-                            "Select one or more files to open");
+                            "Select one or more files to open",
+                            "/home",
+                            "Images (*.png *.xpm *.jpg)");
   \endcode
 
   This function creates a modal file dialog with the given \a parent
@@ -1915,11 +1928,11 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
   that will not dispatch any QTimers, and if parent is not 0 then it will
   position the dialog just under the parent's title bar.
 
-  ### Under Unix/X11, the normal behavior of the file dialog is to resolve
-  and follow symlinks. For example, if /usr/tmp is a symlink to /var/tmp,
-  the file dialog will change to /var/tmp after entering /usr/tmp.
-  If \a resolveSymlinks is false, the file dialog will treat
-  symlinks as regular directories.
+  Under Unix/X11, the normal behavior of the file dialog is to resolve
+  and follow symlinks. For example, if \c{/usr/tmp} is a symlink to
+  \c{/var/tmp}, the file dialog will change to \c{/var/tmp} after
+  entering \c{/usr/tmp}. If \a options includes DontResolveSymlinks,
+  the file dialog will treat symlinks as regular directories.
 
   Note that if you want to iterate over the list of files, you should
   iterate over a copy. For example:

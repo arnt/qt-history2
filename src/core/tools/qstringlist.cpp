@@ -263,7 +263,7 @@
 #endif // QT_COMPAT
 
 /*!
-    \fn QStringList::find(const QString &str, Qt::CaseSensitive cs) const
+    \fn QStringList::find(const QString &str, Qt::CaseSensitivity cs) const
 
     Returns a list of all the strings containing the substring \a str.
 
@@ -302,25 +302,12 @@
 #endif
 
 /*!
-    \fn QStringList& QStringList::replace(const QRegExp &rx, const QString &after)
+    \fn QStringList &QStringList::replace(const QString &before, const QString &after, Qt::CaseSensitivity cs)
 
-    Replaces every occurrence of the string \a before, in each of the
-    string list's strings, with the string \a after. Returns a
-    reference to the string list.
-
-    If \a cs is \l Qt::CaseSensitive (the default), the \a before
-    string is search for case sensitively; otherwise the search is
-    case insensitive.
-
-    Example:
-    \code
-    QStringList list;
-    list << "alpha" << "beta" << "gamma" << "epsilon";
-    list.replace("a", "o");
-    // list == ["olpho", "beto", "gommo", "epsilon"]
-    \endcode
-
-    \sa QString::replace()
+    Returns a string list where every string has had the \a before
+    text replaced with the \a after text wherever the \a before text
+    is found. The \a before text is matched case-sensitively or not
+    depending on the \a cs flag.
 */
 
 #ifndef QT_NO_REGEXP
@@ -368,6 +355,20 @@
     \sa QString::split()
 */
 
+/*!
+    \fn QStringList QStringList::operator+(const QStringList &other) const
+
+    Returns a string list that is the concatenation of this string
+    list with the \a other string list.
+*/
+
+/*!
+    \fn QStringList &QStringList::operator<<(const QString &str)
+
+    Appends string \a str to the string list and returns a reference
+    to the string list.
+*/
+
 #ifndef QT_NO_DATASTREAM
 /*!
     \fn QDataStream &operator>>(QDataStream &in, QStringList &list)
@@ -381,8 +382,6 @@
 
 /*!
     \fn QDataStream &operator<<(QDataStream &out, QStringList &list)
-
-    \relates QStringList
 
     Writes the string list \a list to stream \a out.
 

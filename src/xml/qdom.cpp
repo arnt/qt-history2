@@ -597,8 +597,8 @@ QDomImplementationPrivate* QDomImplementationPrivate::clone()
     new document with createDocument().
 
     For further information about the Document Object Model see \link
-    http://www.w3.org/TR/REC-DOM-Level-1/\endlink and \link
-    http://www.w3.org/TR/DOM-Level-2-Core/\endlink. For a more general
+    http://www.w3.org/TR/REC-DOM-Level-1/ \endlink and \link
+    http://www.w3.org/TR/DOM-Level-2-Core/ \endlink. For a more general
     introduction of the DOM implementation see the QDomDocument
     documentation.
 
@@ -903,8 +903,8 @@ uint QDomNodeListPrivate::length() const
     length()).
 
     For further information about the Document Object Model see \link
-    http://www.w3.org/TR/REC-DOM-Level-1/\endlink and \link
-    http://www.w3.org/TR/DOM-Level-2-Core/\endlink. For a more general
+    http://www.w3.org/TR/REC-DOM-Level-1/ \endlink and \link
+    http://www.w3.org/TR/DOM-Level-2-Core/ \endlink. For a more general
     introduction of the DOM implementation see the QDomDocument
     documentation.
 
@@ -1578,8 +1578,8 @@ void QDomNodePrivate::save(QTextStream& s, int depth, int indent) const
     \endcode
 
     For further information about the Document Object Model see \link
-    http://www.w3.org/TR/REC-DOM-Level-1/\endlink and \link
-    http://www.w3.org/TR/DOM-Level-2-Core/\endlink. For a more general
+    http://www.w3.org/TR/REC-DOM-Level-1/ \endlink and \link
+    http://www.w3.org/TR/DOM-Level-2-Core/ \endlink. For a more general
     introduction of the DOM implementation see the QDomDocument
     documentation.
 */
@@ -3630,8 +3630,8 @@ void QDomAttrPrivate::save(QTextStream& s, int, int) const
     attribute is attached to (if any) is returned by ownerElement().
 
     For further information about the Document Object Model see
-    \link http://www.w3.org/TR/REC-DOM-Level-1/\endlink and
-    \link http://www.w3.org/TR/DOM-Level-2-Core/\endlink.
+    \link http://www.w3.org/TR/REC-DOM-Level-1/ \endlink and
+    \link http://www.w3.org/TR/DOM-Level-2-Core/ \endlink.
     For a more general introduction of the DOM implementation see the
     QDomDocument documentation.
 */
@@ -4024,8 +4024,8 @@ void QDomElementPrivate::save(QTextStream& s, int depth, int indent) const
     elementsByTagNameNS().
 
     For further information about the Document Object Model see
-    \link http://www.w3.org/TR/REC-DOM-Level-1/\endlink and
-    \link http://www.w3.org/TR/DOM-Level-2-Core/\endlink.
+    \link http://www.w3.org/TR/REC-DOM-Level-1/ \endlink and
+    \link http://www.w3.org/TR/DOM-Level-2-Core/ \endlink.
     For a more general introduction of the DOM implementation see the
     QDomDocument documentation.
 */
@@ -4527,8 +4527,8 @@ void QDomTextPrivate::save(QTextStream& s, int, int) const
     objecs with splitText().
 
     For further information about the Document Object Model see
-    \link http://www.w3.org/TR/REC-DOM-Level-1/\endlink and
-    \link http://www.w3.org/TR/DOM-Level-2-Core/\endlink.
+    \link http://www.w3.org/TR/REC-DOM-Level-1/ \endlink and
+    \link http://www.w3.org/TR/DOM-Level-2-Core/ \endlink.
     For a more general introduction of the DOM implementation see the
     QDomDocument documentation.
 */
@@ -4654,8 +4654,8 @@ void QDomCommentPrivate::save(QTextStream& s, int, int) const
     is represented by QDomComment objects in the parsed Dom tree.
 
     For further information about the Document Object Model see
-    \link http://www.w3.org/TR/REC-DOM-Level-1/\endlink and
-    \link http://www.w3.org/TR/DOM-Level-2-Core/\endlink.
+    \link http://www.w3.org/TR/REC-DOM-Level-1/ \endlink and
+    \link http://www.w3.org/TR/DOM-Level-2-Core/ \endlink.
     For a more general introduction of the DOM implementation see the
     QDomDocument documentation.
 */
@@ -4769,8 +4769,8 @@ void QDomCDATASectionPrivate::save(QTextStream& s, int, int) const
     QDomNode::normalize() function.
 
     For further information about the Document Object Model see
-    \link http://www.w3.org/TR/REC-DOM-Level-1/\endlink and
-    \link http://www.w3.org/TR/DOM-Level-2-Core/\endlink.
+    \link http://www.w3.org/TR/REC-DOM-Level-1/ \endlink and
+    \link http://www.w3.org/TR/DOM-Level-2-Core/ \endlink.
     For a more general introduction of the DOM implementation see the
     QDomDocument documentation.
 */
@@ -4898,8 +4898,8 @@ void QDomNotationPrivate::save(QTextStream& s, int, int) const
     node.
 
     For further information about the Document Object Model see
-    \link http://www.w3.org/TR/REC-DOM-Level-1/\endlink and
-    \link http://www.w3.org/TR/DOM-Level-2-Core/\endlink.
+    \link http://www.w3.org/TR/REC-DOM-Level-1/ \endlink and
+    \link http://www.w3.org/TR/DOM-Level-2-Core/ \endlink.
     For a more general introduction of the DOM implementation see the
     QDomDocument documentation.
 */
@@ -5093,8 +5093,8 @@ void QDomEntityPrivate::save(QTextStream& s, int, int) const
     notationName() when available.
 
     For further information about the Document Object Model see
-    \link http://www.w3.org/TR/REC-DOM-Level-1/\endlink and
-    \link http://www.w3.org/TR/DOM-Level-2-Core/\endlink.
+    \link http://www.w3.org/TR/REC-DOM-Level-1/ \endlink and
+    \link http://www.w3.org/TR/DOM-Level-2-Core/ \endlink.
     For a more general introduction of the DOM implementation see the
     QDomDocument documentation.
 */
@@ -5250,8 +5250,8 @@ void QDomEntityReferencePrivate::save(QTextStream& s, int, int) const
     entity reference are read-only.
 
     For further information about the Document Object Model see
-    \link http://www.w3.org/TR/REC-DOM-Level-1/\endlink and
-    \link http://www.w3.org/TR/DOM-Level-2-Core/\endlink.
+    \link http://www.w3.org/TR/REC-DOM-Level-1/ \endlink and
+    \link http://www.w3.org/TR/DOM-Level-2-Core/ \endlink.
     For a more general introduction of the DOM implementation see the
     QDomDocument documentation.
 */
@@ -5364,8 +5364,8 @@ void QDomProcessingInstructionPrivate::save(QTextStream& s, int, int) const
     retrieved with target().
 
     For further information about the Document Object Model see
-    \link http://www.w3.org/TR/REC-DOM-Level-1/\endlink and
-    \link http://www.w3.org/TR/DOM-Level-2-Core/\endlink.
+    \link http://www.w3.org/TR/REC-DOM-Level-1/ \endlink and
+    \link http://www.w3.org/TR/DOM-Level-2-Core/ \endlink.
     For a more general introduction of the DOM implementation see the
     QDomDocument documentation.
 */
@@ -5843,8 +5843,8 @@ void QDomDocumentPrivate::save(QTextStream& s, int, int indent) const
     \endcode
 
     For further information about the Document Object Model see
-    \link http://www.w3.org/TR/REC-DOM-Level-1/\endlink and
-    \link http://www.w3.org/TR/DOM-Level-2-Core/\endlink.
+    \link http://www.w3.org/TR/REC-DOM-Level-1/ \endlink and
+    \link http://www.w3.org/TR/DOM-Level-2-Core/ \endlink.
     For a more general introduction of the DOM implementation see the
     QDomDocument documentation.
 */

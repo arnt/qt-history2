@@ -1626,8 +1626,8 @@ QBitArray QCoreVariant::toBitArray() const
     Int, UInt, Double, Bool or KeySequence; otherwise returns
     0.
 
-    If \a ok is non-null: \a *ok is set to true if the value could be
-    converted to an int; otherwise \a *ok is set to false.
+    If \a ok is non-null: \c{*}\a{ok} is set to true if the value could be
+    converted to an int; otherwise \c{*}\a{ok} is set to false.
 
     \sa canCast()
 */
@@ -1653,8 +1653,8 @@ int QCoreVariant::toInt(bool *ok) const
     Returns the variant as an unsigned int if the variant has type()
     String, ByteArray, UInt, Int, Double, or Bool; otherwise returns 0.
 
-    If \a ok is non-null: \a *ok is set to true if the value could be
-    converted to an unsigned int; otherwise \a *ok is set to false.
+    If \a ok is non-null: \c{*}\a{ok} is set to true if the value could be
+    converted to an unsigned int; otherwise \c{*}\a{ok} is set to false.
 */
 uint QCoreVariant::toUInt(bool *ok) const
 {
@@ -1679,8 +1679,8 @@ uint QCoreVariant::toUInt(bool *ok) const
     LongLong, ULongLong, any type allowing a toInt() conversion;
     otherwise returns 0.
 
-    If \a ok is non-null: \a *ok is set to true if the value could be
-    converted to an int; otherwise \a *ok is set to false.
+    If \a ok is non-null: \c{*}\c{ok} is set to true if the value could be
+    converted to an int; otherwise \c{*}\c{ok} is set to false.
 
     \sa canCast()
 */
@@ -1707,8 +1707,8 @@ Q_LLONG QCoreVariant::toLongLong(bool *ok) const
     has type() LongLong, ULongLong, any type allowing a toUInt()
     conversion; otherwise returns 0.
 
-    If \a ok is non-null: \a *ok is set to true if the value could be
-    converted to an int; otherwise \a *ok is set to false.
+    If \a ok is non-null: \c{*}\a{ok} is set to true if the value could be
+    converted to an int; otherwise \c{*}\a{ok} is set to false.
 
     \sa canCast()
 */
@@ -1753,8 +1753,8 @@ bool QCoreVariant::toBool() const
     ByteArray, Double, Int, UInt, LongLong, ULongLong or Bool; otherwise
     returns 0.0.
 
-    If \a ok is non-null: \a *ok is set to true if the value could be
-    converted to a double; otherwise \a *ok is set to false.
+    If \a ok is non-null: \c{*}\a{ok} is set to true if the value could be
+    converted to a double; otherwise \c{*}\a{ok} is set to false.
 */
 double QCoreVariant::toDouble(bool *ok) const
 {

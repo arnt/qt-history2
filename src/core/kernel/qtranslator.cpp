@@ -808,9 +808,13 @@ void QTranslator::insert(const QTranslatorMessage& message)
 }
 
 /*!
-  \fn void QTranslator::insert(const char *, const char *, const QString &)
+  \fn void QTranslator::insert(const char *context, const char
+ *sourceText, const QString &translation)
   \overload
   \obsolete
+
+  Inserts the \a sourceText and \a translation into the translator
+  with the given \a context.
 */
 
 /*!

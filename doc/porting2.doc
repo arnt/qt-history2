@@ -326,7 +326,6 @@ Code calling resize(n) prior to using
     \link QString::operator[]() operator[]\endlink up to n just remove
 the resize(n) completely.
 
-\list
 \i \bold{QString::size() is obsolete and removed}
 
 Calls to this function must be replaced by length() + 1.

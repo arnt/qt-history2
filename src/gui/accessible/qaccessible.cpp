@@ -99,7 +99,6 @@
     \value Mixed            The state of the object is not determined, e.g. a tri-state check box that is neither checked nor unchecked.
     \value Modal            The object blocks input from other objects.
     \value Movable          The object can be moved.
-    \value Moveable         Obsolete, use \c Movable instead.
     \value MultiSelectable  The object supports multiple selected items.
     \value Normal           The normal state.
     \value Offscreen        The object is clipped by the visible area. Objects that are off screen are also invisible.
@@ -112,11 +111,6 @@
     \value Sizeable         The object can be resized, e.g. top-level windows.
     \value Traversed        The object is linked and has been visited.
     \value Unavailable      The object is unavailable to the user, e.g. a disabled widget.
-
-    \omitvalue AlertLow
-    \omitvalue AlertMedium
-    \omitvalue AlertHigh
-    \omitvalue Floating
 
     Implementations of QAccessibleInterface::state() return a combination
     of these flags.
@@ -233,8 +227,6 @@
     \value UserRole         The first value to be used for user defined roles.
     \value Whitespace       Blank space between other objects.
     \value Window           A top level window.
-
-    \omitvalue DropList
 */
 
 /*!
@@ -540,7 +532,7 @@ bool QAccessible::isActive()
 
     The QAccessibleInterface defines the API for these three concepts.
 
-    \section2 Relationships and Navigation
+    \section1 Relationships and Navigation
 
     The functions childCount() and indexOfChild() return the number of
     children of an accessible object and the index a child object has
@@ -552,7 +544,7 @@ bool QAccessible::isActive()
     traversing from one object to another object with a given
     relationship.
 
-    \section2 Properties
+    \section1 Properties
 
     The central property of an accessible objects is what role() it
     has. Different objects can have the same role, e.g. both the "Add
@@ -576,7 +568,7 @@ bool QAccessible::isActive()
     accessible object. This information is usually only available for
     visual objects.
 
-    \section2 Actions and Selection
+    \section1 Actions and Selection
 
     To enable the user to interact with an accessible object the
     object must expose information about the actions that it can

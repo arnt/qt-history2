@@ -640,11 +640,14 @@ bool QObject::event(QEvent *e)
 }
 
 /*!
+    \fn void QObject::timerEvent(QTimerEvent *event)
+
     This event handler can be reimplemented in a subclass to receive
     timer events for the object.
 
     QTimer provides a higher-level interface to the timer
-    functionality, and also more general information about timers.
+    functionality, and also more general information about timers. The
+    timer event is passed in the \a event parameter.
 
     \sa startTimer(), killTimer(), event()
 */
@@ -655,26 +658,29 @@ void QObject::timerEvent(QTimerEvent *)
 
 
 /*!
+    \fn void QObject::childEvent(QChildEvent *event)
+
     This event handler can be reimplemented in a subclass to receive
-    child events.
+    child events. The event is passed in the \a event parameter.
 
     \c QEvent::ChildAdded and \c QEvent::ChildRemoved events are sent
     to objects when children are added or removed. In both cases you
     can only rely on the child being a QObject, or if isWidgetType()
-    returns true, a QWidget (Reason: in the \c ChildAdded case the
-    child is not yet fully constructed, in the \c ChildRemoved case it
-    might have been destructed already).
+    returns true, a QWidget. (This is because, in the \c ChildAdded
+    case, the child is not yet fully constructed, and in the \c
+    ChildRemoved case it might have been destructed already).
 
     \c QEvent::ChildPolished events are sent to widgets when children
-    are polished, or polished children added. If you receive a child
-    polished event, the child's construction typically is completed.
+    are polished, or when polished children are added. If you receive
+    a child polished event, the child's construction is usually
+    completed.
 
     For every child widget you receive one \c ChildAdded event, zero
     or more \c ChildPolished events, and one \c ChildRemoved event.
 
     The polished event is omitted if a child is removed immediately
-    after it is added. In turn, if a child is polished several times
-    during construction and destruction, you may receive several child
+    after it is added. If a child is polished several times during
+    construction and destruction, you may receive several child
     polished events for the same child, each time with a different
     virtual table.
 
@@ -687,10 +693,13 @@ void QObject::childEvent(QChildEvent *)
 
 
 /*!
+    \fn void QObject::customEvent(QCustomEvent *event)
+
     This event handler can be reimplemented in a subclass to receive
     custom events. Custom events are user-defined events with a type
-    value at least as large as the "User" item of the \l QEvent::Type
+    value at least as large as the \c User item of the \l QEvent::Type
     enum, and is typically a QCustomEvent or QCustomEvent subclass.
+    The event is passed in the \a event parameter.
 
     \sa event(), QCustomEvent
 */
