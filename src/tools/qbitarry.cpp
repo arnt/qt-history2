@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qbitarry.cpp#5 $
+** $Id: //depot/qt/main/src/tools/qbitarry.cpp#6 $
 **
 ** Implementation of QBitArray class
 **
@@ -17,7 +17,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/tools/qbitarry.cpp#5 $";
+static char ident[] = "$Id: //depot/qt/main/src/tools/qbitarry.cpp#6 $";
 #endif
 
 
@@ -55,11 +55,11 @@ bool QBitArray::resize( uint sz )		// resize bit array
 	return FALSE;				// cannot resize
     if ( sz != 0 ) {				// not null array
 	BA_SIZE = sz;
-	sz = (sz+7)/8 - (s+7)/8;		// number of bytes difference
-	if ( sz > 0 ) {
+	int ds = (int)(sz+7)/8 - (int)(s+7)/8;	// number of bytes difference
+	if ( ds > 0 ) {
 	    if ( !s )				// was null
 		*BA_DATA = 0;
-	    memset( BA_DATA + (s+7)/8, 0, sz );
+	    memset( BA_DATA + (s+7)/8, 0, ds );
 	}
     }
     return TRUE;
