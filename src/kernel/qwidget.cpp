@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#27 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#28 $
 **
 ** Implementation of QWidget class
 **
@@ -21,7 +21,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#27 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#28 $";
 #endif
 
 
@@ -337,13 +337,6 @@ bool QWidget::event( QEvent *e )		// receive event
 	    break;
 
 	case Event_MouseButtonPress:
-#if 0	/* NOTE!!! Experimental */
-	    if ( !testFlag(WState_FocusA) ) {
-		if ( focusInEvent( e ) ) {
-		    setFocus();
-		}
-	    }
-#endif
 	    mousePressEvent( (QMouseEvent*)e );
 	    break;
 
@@ -376,21 +369,11 @@ bool QWidget::event( QEvent *e )		// receive event
 	    break;
 
 	case Event_FocusIn:
-#if 0	/* NOTE!!! Experimental */
-	    setFlag( WState_FocusP );		// set focus pending flag
-	    if ( res = focusInEvent(e) )
-		setFocus();
-	    clearFlag( WState_FocusP );
-#endif
+	    focusChangeEvent( (QFocusEvent*)e );
 	    break;
 
 	case Event_FocusOut:
-#if 0	/* NOTE!!! Experimental */
-	    if ( testFlag(WState_FocusA) ) {
-		clearFlag( WState_FocusA );
-		focusOutEvent( e );
-	    }
-#endif
+	    focusChangeEvent( (QFocusEvent*)e );
 	    break;
 
 	case Event_Paint:
@@ -450,11 +433,7 @@ void QWidget::keyReleaseEvent( QKeyEvent *e )
     e->ignore();
 }
 
-void QWidget::focusInEvent( QFocusEvent * )
-{
-}
-
-void QWidget::focusOutEvent( QFocusEvent * )
+void QWidget::focusChangeEvent( QFocusEvent * )
 {
 }
 
