@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#84 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#85 $
 **
 ** Implementation of layout classes
 **
@@ -647,13 +647,15 @@ public:
     QLayoutArrayIterator( QLayoutArray *a ) :array(a) { toFirst(); }
     uint count() const { return array->count(); }
     QLayoutItem *current() {
-	bool notAtEnd = !multi ||
-			array->multi && idx < int(array->multi->count());
-	if ( notAtEnd )
-	    return multi ?  array->multi->at(idx)->box()->item() :
-			array->things.at(idx)->item();
-	else
-	    return 0;
+	if ( multi ) {
+	    if ( !array->multi || idx >= int(array->multi->count()) )
+		return 0;
+	    return array->multi->at(idx)->box()->item();
+	} else {
+	    if ( idx >= int(array->things.count()) )
+		return 0;
+	    return array->things.at(idx)->item();
+	}
     }
     void toFirst() { multi = FALSE; idx = 0; }
     void next() {
@@ -923,8 +925,8 @@ QSize QGridLayout::maximumSize() const
 {
     QSize s =  array->maximumSize( defaultBorder() );
     if ( isTopLevel() )
-	QSize( QMIN( 2*margin()+s.width(), QCOORD_MAX ),
-	       QMIN( 2*margin()+s.height(), QCOORD_MAX ) );
+	s = QSize( QMIN( 2*margin()+s.width(), QCOORD_MAX ),
+	           QMIN( 2*margin()+s.height(), QCOORD_MAX ) );
     return s;
 }
 
