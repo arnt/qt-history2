@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#114 $
+** $Id: //depot/qt/main/src/kernel/qapp_win.cpp#115 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -30,7 +30,7 @@
 #include <mywinsock.h>
 #endif
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#114 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp_win.cpp#115 $");
 
 
 /*****************************************************************************
@@ -1871,10 +1871,12 @@ void QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 		    wm_char.wParam = 0x7f; // Windows doesn't know this one.
 		else
     		    wm_char.wParam = 0;
+		if ( !code )
+		    code = asciiToKeycode(msg.wParam, state);
+	    } else { 
+		if ( !code )
+		    code = asciiToKeycode(wm_char.wParam, state);
 	    }
-	    if ( !code )
-		code = asciiToKeycode(wm_char.wParam, state);
-
 	    if ( rec ) {
 		// it is already down (so it is auto-repeating)
 		if ( code < Key_Shift || code > Key_ScrollLock )
@@ -1896,7 +1898,8 @@ void QETWidget::translateKeyEvent( const MSG &msg, bool grab )
 #endif
 	    } else {
 		if ( !code )
-		    code = asciiToKeycode(rec->ascii, state);
+		    code = asciiToKeycode(rec->ascii ? rec->ascii : msg.wParam,
+				state);
 		sendKeyEvent( Event_KeyRelease, code, rec->ascii, state, grab);
 	    }
         }
