@@ -700,10 +700,12 @@ void QComboBox::removeItem( int index )
 
 void QComboBox::clear()
 {
-    if ( d->usingListBox() )
+    if ( d->usingListBox() ) {
+	d->listBox()->resize( 0, 0 );
 	d->listBox()->clear();
-    else
+    } else {
 	d->popup()->clear();
+    }
 
     d->current = 0;
     if ( d->ed ) {
