@@ -394,6 +394,25 @@ void QFontEngineWin::draw( QPainter *p, int x, int y, const QTextEngine *engine,
     advance_t *advances = engine->advances( si );
     qoffset_t *offsets = engine->offsets( si );
 
+    if(p->pdev->devType() == QInternal::Printer) {
+	// some buggy printer drivers can't handle glyph indices correctly for latin1
+	// If the string is pure latin1, we output the string directly, not the glyph indices.
+	// There must be a better way to get this working, but currently I can't think of one.
+	const QChar *uc = engine->string.unicode() + si->position;
+	int l = engine->length(si - &engine->items[0]);
+	int i = 0;
+	bool latin = (l == si->num_glyphs);
+	while (latin && i < l) {
+	    if(uc[i].unicode() >= 0x100)
+		latin = FALSE;
+	    ++i;
+	}
+	if(latin) {
+	    glyphs = (glyph_t *)uc;
+	    options = 0;
+	}
+    }
+
     int xo = x;
 
     if ( !(si->analysis.bidiLevel % 2) ) {
