@@ -5448,7 +5448,11 @@ void QFileDialog::urlStart( QNetworkOperation *op )
 	QUrl::decode(s);
 	bool found = FALSE;
 	for ( int i = 0; i < d->paths->count(); ++i ) {
+#if defined(Q_WS_WIN)
+	    if ( d->paths->text( i ).lower() == s.lower() ) {
+#else
 	    if ( d->paths->text( i ) == s ) {
+#endif
 		found = TRUE;
 		d->paths->setCurrentItem( i );
 		break;
