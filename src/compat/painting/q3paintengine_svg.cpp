@@ -949,8 +949,8 @@ bool Q3SVGPaintEnginePrivate::play(const QDomNode &node, QPainter *pt)
         {
             QString pts = attr.namedItem("points").nodeValue();
             pts = pts.simplified();
-            QStringList sl = pts.split(QRegExp(QString::fromLatin1("[,\\s]"),
-                                               QString::SkipEmptyParts));
+            QStringList sl = pts.split(QRegExp(QString::fromLatin1("[,\\s]")),
+                                               QString::SkipEmptyParts);
             Q3PointArray ptarr((uint) sl.count() / 2);
             for (int i = 0; i < (int) sl.count() / 2; i++) {
                 double dx = sl[2*i].toDouble();
