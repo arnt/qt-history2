@@ -1221,8 +1221,15 @@ void QMenu::mouseReleaseEvent(QMouseEvent *e)
         return;
     d->mouseDown = false;
     QMenuAction *action = d->actionAt(e->pos());
-    if(d->sync)
-        d->syncAction = action ? action->action : 0;
+    for(QWidget *caused = this; caused;) {
+        if(QMenu *m = qt_cast<QMenu*>(caused)) {
+            caused = m->d->causedPopup;
+            if(m->d->sync)
+                m->d->syncAction = action ? action->action : 0;
+        } else {
+            break;
+        }
+    }
     if(action && action->action->isEnabled()) {
         if(action->action->menu()) {
             action->action->menu()->d->setFirstActionActive();
