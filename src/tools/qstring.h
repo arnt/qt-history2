@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#138 $
+** $Id: //depot/qt/main/src/tools/qstring.h#139 $
 **
 ** Definition of the QString class, and related Unicode
 ** functions.
@@ -42,28 +42,15 @@ class QCharRef;
 
 class Q_EXPORT QChar {
 public:
-    // The alternatives just avoid order-of-construction warnings.
-#if defined(_WS_X11_) || defined(_OS_WIN32_BYTESWAP_)
-    QChar() : rw(0), cl(0) { }
-    QChar( char c ) : rw(0), cl(c) { }
-    QChar( uchar c ) : rw(0), cl(c) { }
-    QChar( uchar c, uchar r ) : rw(r), cl(c) { }
-    QChar( const QChar& c ) : rw(c.rw), cl(c.cl) { }
-    QChar( ushort rc ) : rw((rc>>8)&0xff), cl(rc&0xff) { }
-    QChar( short rc ) : rw((rc>>8)&0xff), cl(rc&0xff) { }
-    QChar( uint rc ) : rw((rc>>8)&0xff), cl(rc&0xff) { }
-    QChar( int rc ) : rw((rc>>8)&0xff), cl(rc&0xff) { }
-#else
-    QChar() : cl(0), rw(0) { }
-    QChar( char c ) : cl(c), rw(0) { }
-    QChar( uchar c ) : cl(c), rw(0) { }
-    QChar( uchar c, uchar r ) : cl(c), rw(r) { }
-    QChar( const QChar& c ) : cl(c.cl), rw(c.rw) { }
-    QChar( ushort rc ) : cl(rc&0xff), rw((rc>>8)&0xff) { }
-    QChar( short rc ) : cl(rc&0xff), rw((rc>>8)&0xff) { }
-    QChar( uint rc ) : cl(rc&0xff), rw((rc>>8)&0xff) { }
-    QChar( int rc ) : cl(rc&0xff), rw((rc>>8)&0xff) { }
-#endif
+    QChar() { rw = 0; cl = 0; }
+    QChar( char c ) { rw = 0; cl = (uchar)c; }
+    QChar( uchar c ) { rw = 0; cl = c; }
+    QChar( uchar c, uchar r ) { rw = r; cl = c; }
+    QChar( const QChar& c ) { rw = c.rw; cl = c.cl; }
+    QChar( ushort rc ) { rw = (uchar)((rc>>8)&0xff); cl = (uchar)(rc&0xff); }
+    QChar( short rc ) { rw = (uchar)((rc>>8)&0xff); cl = (uchar)(rc&0xff); }
+    QChar( uint rc ) { rw = (uchar)((rc>>8)&0xff); cl = (uchar)(rc&0xff); }
+    QChar( int rc ) { rw = (uchar)((rc>>8)&0xff); cl = (uchar)(rc&0xff); }
 
     QT_STATIC_CONST QChar null;            // 0000
     QT_STATIC_CONST QChar replacement;     // FFFD
@@ -74,49 +61,49 @@ public:
 
     enum Category
     {
-      NoCategory,
+	NoCategory,
 
-      Mark_NonSpacing,	    //   Mn
-      Mark_SpacingCombining,//   Mc
-      Mark_Enclosing,	    //   Me
+	Mark_NonSpacing,	  //   Mn
+	Mark_SpacingCombining,	  //   Mc
+	Mark_Enclosing,		  //   Me
 
-      Number_DecimalDigit,   //   Nd
-      Number_Letter,	    //   Nl
-      Number_Other,	    //   No
+	Number_DecimalDigit,	  //   Nd
+	Number_Letter,		  //   Nl
+	Number_Other,		  //   No
 
-      Separator_Space,	    //   Zs
-      Separator_Line,	    //   Zl
-      Separator_Paragraph,  //   Zp
+	Separator_Space,	  //   Zs
+	Separator_Line,		  //   Zl
+	Separator_Paragraph,	  //   Zp
 
-      Other_Control,	    //   Cc
-      Other_Format,	    //   Cf
-      Other_Surrogate,	    //   Cs
-      Other_PrivateUse,	    //   Co
-      Other_NotAssigned,    //   Cn
+	Other_Control,		  //   Cc
+	Other_Format,		  //   Cf
+	Other_Surrogate,	  //   Cs
+	Other_PrivateUse,	  //   Co
+	Other_NotAssigned,	  //   Cn
 
-      Letter_Uppercase,	    //   Lu
-      Letter_Lowercase,	    //   Ll
-      Letter_Titlecase,	    //   Lt
-      Letter_Modifier,	    //   Lm
-      Letter_Other,	    //   Lo
+	Letter_Uppercase,	  //   Lu
+	Letter_Lowercase,	  //   Ll
+	Letter_Titlecase,	  //   Lt
+	Letter_Modifier,	  //   Lm
+	Letter_Other,		  //   Lo
 
-      Punctuation_Connector,//   Pc
-      Punctuation_Dask,	    //   Pd
-      Punctuation_Open,	    //   Ps
-      Punctuation_Close,    //   Pe
-      Punctuation_InitialQuote,	//   Pi
-      Punctuation_FinalQuote,	//   Pf
-      Punctuation_Other,    //   Po
+	Punctuation_Connector,	  //   Pc
+	Punctuation_Dask,	  //   Pd
+	Punctuation_Open,	  //   Ps
+	Punctuation_Close,	  //   Pe
+	Punctuation_InitialQuote, //   Pi
+	Punctuation_FinalQuote,	  //   Pf
+	Punctuation_Other,	  //   Po
 
-      Symbol_Math,	    //   Sm
-      Symbol_Currency,	    //   Sc
-      Symbol_Modifier,	    //   Sk
-      Symbol_Other	    //   So
+	Symbol_Math,		  //   Sm
+	Symbol_Currency,	  //   Sc
+	Symbol_Modifier,	  //   Sk
+	Symbol_Other		  //   So
     };
 
     enum Direction
     {
-      DirL, DirR, DirEN, DirES, DirET, DirAN, DirCS, DirB, DirS, DirWS, DirON
+	DirL, DirR, DirEN, DirES, DirET, DirAN, DirCS, DirB, DirS, DirWS, DirON
     };
 
     enum Decomposition
@@ -128,7 +115,7 @@ public:
 
     enum Joining
     {
-      OtherJoining, Dual, Right, Center, Unknown
+	OtherJoining, Dual, Right, Center, Unknown
     };
 
     // ****** WHEN ADDING FUNCTIONS, CONSIDER ADDING TO QCharRef TOO
@@ -189,6 +176,7 @@ private:
     enum { net_ordered = 0 };
 #endif
 };
+
 
 inline int operator==( char ch, QChar c )
 {

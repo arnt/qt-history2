@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#274 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#275 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -9578,30 +9578,132 @@ int ucstrnicmp( const QChar *a, const QChar *b, int l )
 }
 
 
-/*!
-  \class QChar qstring.h
-  \brief A Unicode character.
+/*! \class QChar qstring.h
 
-  A QChar is a simple 16-bit value representing a Unicode character.
-  Most C++ compilers will process them much as they would a "short int".
+\brief The QChar class provides a light-weight Unicode character.
 
-  QChar values are normally used in combination with QString.
+Unicode characters are (so far) 16-bit entities without any markup or
+structure.  This class represents such an entity.  It is rather
+light-weight, so it can be used everywhere.  Most compilers treat it
+approximately like "short int".  (In a few years, it may be necessary
+to make QChar 32-bit, once more than 65536 Unicode code points have
+been defined and come into use.)
 
-  They can be trivially constructed from:
-   <dl>
-    <dt>\c char
-      <dd>the char is assumed to be a Latin-1 character,
-	    for example QChar('Q') is the Unicode character U0051
-	    and QChar('t') is the Unicode character U0074.
-    <dt>\c short
-      <dd>the MSB is the high-order byte (row) of the Unicode character,
-	    for example QChar(ushort(0x6817)) is the Unicode character
-	    U6817 meaning <em>kuri</em> - chestnut tree - in Japanese.
-    <dt>\c char, \c char
-      <dd>the characters are LSB and MSB respectively,
-	    for example QChar(0x25,0x04) is the Unicode character U0425
-	    which is the Cyrillic letter YA which looks like a mirrored R.
-   </dl>
+QChar provides a full complement of testing/classification functions,
+conversion to and from other formats, from composed to decomposed
+unicode, and will try to compare and case-convert if you ask it to.
+
+The classification functions include functions like thise in ctype.h,
+but operating on the full range of unicode characters.  They all
+return TRUE if the character is a certain type of character, and FALSE
+otherwise.
+
+These fuctions are: isNull() (returns TRUE if the character is
+U+0000), isPrint() (TRUE if the character is any sort of printable
+character, including whitespace), isPunct() (any sort of punctation),
+isMark() (Unicode Marks), isLetter (letters), isNumber() (any sort of
+numeric characters) and isDigit() (decimal digits).  All of these are
+wrappers around category(), which returns the unicode-defined category
+of each character.
+
+QChar further provides direction(), which indicates the "natural"
+writing direction of this character, joining(), which indicates how
+this character joins with its neighbours (needed mostly for Arabic)
+and finally mirrored(), which indicates whether this character needs
+to be mirrored when it is printed in its unnatural writing
+direction.
+
+Composed Unicode characters (like &aring;) can be converted to
+decomposed Unicode ("a" followed by "ring above") using
+decomposition().
+
+In Unicode, comparison is not necessarily possible, and case
+conversion is at best very hard.  Unicode, covering the "entire"
+globe, also includes a globe-sized collection of case and sorting
+problems.  Qt tries, but not very hard: operator== and friends will do
+some sort of comparison, and upper() and lower() will try to do case
+changes.  There is no provision for locale-dependent case folding
+rules or comparison: These functions are meant to be fast, so they can
+be used unambigiously in data structures.
+
+The conversion functions include unicode() (to a scalar), latin1() (to
+scalar, but converts all non-Latin1 characters to 0), row() (gives the
+Unicode row), cell() (gives the unicode cell), digitValue() (gives the
+integer value of any of the numerous digit characters), and a host of
+constructors.
+
+\sa QString QCharRef \link unicode.html About Unicode \endlink
+*/
+
+/*! \enum QChar::Category
+
+This enum maps the Unicode character categories.  The currently known
+categories are: <ul>
+
+<li> \c NoCategory - used when Qt is dazed and confused and cannot
+make sense of anything.
+
+<li> \c Mark_NonSpacing - (Mn) - 
+
+<li> \c Mark_SpacingCombining - (Mc) - 
+
+<li> \c Mark_Enclosing - (Me) - 
+
+<li> \c Number_DecimalDigit - (Nd) - 
+
+<li> \c Number_Letter - (Nl) - 
+
+<li> \c Number_Other - (No) - 
+
+<li> \c Separator_Space - (Zs) - 
+
+<li> \c Separator_Line - (Zl) - 
+
+<li> \c Separator_Paragraph - (Zp) - 
+
+<li> \c Other_Control - (Cc) - 
+
+<li> \c Other_Format - (Cf) - 
+
+<li> \c Other_Surrogate - (Cs) - 
+
+<li> \c Other_PrivateUse - (Co) - 
+
+<li> \c Other_NotAssigned - (Cn) - 
+
+<li> \c Letter_Uppercase - (Lu) - 
+
+<li> \c Letter_Lowercase - (Ll) - 
+
+<li> \c Letter_Titlecase - (Lt) - 
+
+<li> \c Letter_Modifier - (Lm) - 
+
+<li> \c Letter_Other - (Lo) - 
+
+<li> \c Punctuation_Connector - (Pc) - 
+
+<li> \c Punctuation_Dask - (Pd) - 
+
+<li> \c Punctuation_Open - (Ps) - 
+
+<li> \c Punctuation_Close - (Pe) - 
+
+<li> \c Punctuation_InitialQuote - (Pi) - 
+
+<li> \c Punctuation_FinalQuote - (Pf) - 
+
+<li> \c Punctuation_Other - (Po) - 
+
+<li> \c Symbol_Math - (Sm) - 
+
+<li> \c Symbol_Currency - (Sc) - 
+
+<li> \c Symbol_Modifier - (Sk) - 
+
+<li> \c Symbol_Other - (So) - 
+
+</ul>
 */
 
 /*!
@@ -9703,22 +9805,25 @@ bool QChar::isDigit() const
 int QChar::digitValue() const
 {
     const Q_INT8 *dec_row = decimal_info[row()];
-    if( !dec_row ) return -1;
+    if( !dec_row )
+	return -1;
     return decimal_info[row()][cell()];
 }
 
 /*!
   Returns the character category.
-  See the Unicode Standard for details.
+
+  \sa Category
 */
 QChar::Category QChar::category() const
 {
-    return (Category) unicode_info[row()][cell()];
+    return (Category)(unicode_info[row()][cell()]);
 }
 
 /*!
   Returns the characters directionality.
-  See the Unicode Standard for details.
+
+  \sa 
 */
 QChar::Direction QChar::direction() const
 {
@@ -10036,8 +10141,8 @@ QChar::Direction QString::basicDirection()
 // reverses part of the QChar array to get visual ordering
 // called from QString::visual()
 //
-static unsigned int reverse(QString &chars, unsigned char *level,
-		     unsigned int a, unsigned int b)
+static unsigned int reverse( QString &chars, unsigned char *level,
+			     unsigned int a, unsigned int b)
 {
     unsigned int c = a;
     unsigned char lev = level[c];
@@ -10089,7 +10194,7 @@ static QChar::Direction resolv[5][5] =
   This function returns the QString ordered visually. Useful for
   painting the string or when transforming to a visually ordered
   encoding.
-  */
+*/
 QString QString::visual(int index, int len)
 {
     // #### This needs much more optimizing - it is called for
@@ -10319,7 +10424,7 @@ QString QString::visual(int index, int len)
 
 
 // These macros are used for efficient allocation of QChar strings.
-// IMPORTANT! If you change these, make sure you also change the 
+// IMPORTANT! If you change these, make sure you also change the
 // "delete unicode" statement in ~QStringData() in qstring.h correspondingly!
 
 #define QT_ALLOC_QCHAR_VEC( N ) (QChar*) new char[ 2*( N ) ]
@@ -12977,7 +13082,7 @@ bool operator>=( const char *s1, const QString &s2 )
   \relates QString
   Returns TRUE if the two strings are equal, or FALSE if they are different.
   A null string is different from an empty, non-null string.
-  
+
   Equivalent to <code>strcmp(s1,s2) == 0</code>.
 */
 
@@ -13405,4 +13510,3 @@ QString qt_winMB2QString( const char* mb, int mblen )
 
 
 #endif // _OS_WIN32_
-
