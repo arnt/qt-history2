@@ -298,7 +298,7 @@ public:
     T value(const Key &key) const;
     T value(const Key &key, const T &defaultValue) const;
     T& operator[] (const Key& k);
-    inline const T operator[] (const Key& k) const { return value(k);}
+    inline T operator[] (const Key& k) const { return value(k);}
 
 
     QList<Key> keys() const;
