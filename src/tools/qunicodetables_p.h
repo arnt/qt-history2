@@ -178,7 +178,8 @@ do { 						\
     } 						\
 } while( FALSE )
 #else
-#define SCRIPT_FOR_CHAR( script, c ) script = (QFont::Script)scriptForChar( c.unicode() )
+#define SCRIPT_FOR_CHAR( script, c ) \
+    script = (QFont::Script)scriptForChar( (c).unicode() )
 #endif
 
 #endif
