@@ -2,7 +2,6 @@
 
 #include <qapplication.h>
 #include <qabstractbutton.h>
-#include <qbutton.h>
 #include <qevent.h>
 #include <qgenericheader.h>
 #include <qtabbar.h>
