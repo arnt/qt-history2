@@ -366,48 +366,6 @@ QAbstractItemModel *QAbstractItemView::model() const
 }
 
 /*!
-    Sets the horizontal scrollbar's stepping factor to \a factor.
-
-    \sa horizontalFactor() setVerticalFactor()
-*/
-void QAbstractItemView::setHorizontalFactor(int factor)
-{
-    d->horizontalFactor = factor;
-    horizontalScrollBar()->setSingleStep(factor);
-}
-
-/*!
-    Returns the horizontal scrollbar's stepping factor.
-
-    \sa setHorizontalFactor() verticalFactor()
-*/
-int QAbstractItemView::horizontalFactor() const
-{
-    return d->horizontalFactor;
-}
-
-/*!
-    Sets the vertical scrollbar's stepping factor to \a factor.
-
-    \sa verticalFactor() setHorizontalFactor()
-*/
-void QAbstractItemView::setVerticalFactor(int factor)
-{
-    d->verticalFactor = factor;
-    verticalScrollBar()->setSingleStep(factor);
-}
-
-/*!
-    Returns the vertical scrollbar's stepping factor.
-
-    \sa setVerticalFactor() horizontalFactor()
-*/
-int QAbstractItemView::verticalFactor() const
-{
-    return d->verticalFactor;
-}
-
-/*!
     Clears the selection.
 
     \sa setSelectionModel()
@@ -1066,8 +1024,7 @@ void QAbstractItemView::updateEditors()
 {
     //  this presumes that only one editor is open at one time
     QModelIndex item = currentItem(); // the edited item
-    QItemOptions options;
-    getViewOptions(&options);
+    QItemOptions options = viewOptions();
     options.itemRect = itemViewportRect(currentItem());
     itemDelegate()->updateEditorGeometry(d->currentEditor.second, options, item);
 
@@ -1126,6 +1083,48 @@ bool QAbstractItemView::eventFilter(QObject *object, QEvent *event)
 }
 
 /*!
+    Sets the horizontal scrollbar's stepping factor to \a factor.
+
+    \sa horizontalFactor() setVerticalFactor()
+*/
+void QAbstractItemView::setHorizontalFactor(int factor)
+{
+    d->horizontalFactor = factor;
+    horizontalScrollBar()->setSingleStep(factor);
+}
+
+/*!
+    Returns the horizontal scrollbar's stepping factor.
+
+    \sa setHorizontalFactor() verticalFactor()
+*/
+int QAbstractItemView::horizontalFactor() const
+{
+    return d->horizontalFactor;
+}
+
+/*!
+    Sets the vertical scrollbar's stepping factor to \a factor.
+
+    \sa verticalFactor() setHorizontalFactor()
+*/
+void QAbstractItemView::setVerticalFactor(int factor)
+{
+    d->verticalFactor = factor;
+    verticalScrollBar()->setSingleStep(factor);
+}
+
+/*!
+    Returns the vertical scrollbar's stepping factor.
+
+    \sa setVerticalFactor() horizontalFactor()
+*/
+int QAbstractItemView::verticalFactor() const
+{
+    return d->verticalFactor;
+}
+
+/*!
   Moves to and selects the item best matching the string \a search. If no item is found nothing happens.
 */
 void QAbstractItemView::keyboardSearch(const QString &search) {
@@ -1173,9 +1172,7 @@ void QAbstractItemView::keyboardSearch(const QString &search) {
 */
 QSize QAbstractItemView::itemSizeHint(const QModelIndex &item) const
 {
-    QItemOptions options;
-    getViewOptions(&options);
-    return itemDelegate()->sizeHint(fontMetrics(), options, item);
+    return itemDelegate()->sizeHint(fontMetrics(), viewOptions(), item);
 }
 
 /*!
@@ -1183,8 +1180,7 @@ QSize QAbstractItemView::itemSizeHint(const QModelIndex &item) const
 */
 int QAbstractItemView::rowSizeHint(int row) const
 {
-    QItemOptions options;
-    getViewOptions(&options);
+    QItemOptions options = viewOptions();
     QAbstractItemDelegate *delegate = itemDelegate();
     int height = 0;
     int colCount = d->model->columnCount(root());
@@ -1201,8 +1197,7 @@ int QAbstractItemView::rowSizeHint(int row) const
 */
 int QAbstractItemView::columnSizeHint(int column) const
 {
-    QItemOptions options;
-    getViewOptions(&options);
+    QItemOptions options = viewOptions();
     QAbstractItemDelegate *delegate = itemDelegate();
     int width = 0;
     int rowCount = d->model->rowCount(root());
@@ -1223,8 +1218,7 @@ int QAbstractItemView::columnSizeHint(int column) const
 void QAbstractItemView::setPersistentEditor(const QModelIndex &index, QWidget *editor)
 {
     if (!editor) {
-        QItemOptions options;
-        getViewOptions(&options);
+        QItemOptions options = viewOptions();
         options.itemRect = itemViewportRect(index);
         options.focus = (index == currentItem());
         editor = itemDelegate()->editor(QAbstractItemDelegate::AlwaysEdit ,
@@ -1403,13 +1397,15 @@ void QAbstractItemView::startDrag()
 }
 
 /*!
-    Populates the \a options with the view's palette and whether or
+    Returns QItemOptions structure populated with the view's palette and whether or
     not the view is in the \c Editing state.
 */
-void QAbstractItemView::getViewOptions(QItemOptions *options) const
+QItemOptions QAbstractItemView::viewOptions() const
 {
-    options->palette = palette();
-    options->editing = state() == Editing;
+    QItemOptions options;
+    options.palette = palette();
+    options.editing = state() == Editing;
+    return options;
 }
 
 /*!
@@ -1652,8 +1648,7 @@ QWidget *QAbstractItemViewPrivate::requestEditor(QAbstractItemDelegate::StartEdi
     QWidget *editor = persistentEditor(index);
 
     if (!editor) {
-        QItemOptions options;
-        q->getViewOptions(&options);
+        QItemOptions options = q->viewOptions();
         options.itemRect = q->itemViewportRect(index);
         options.focus = (index == q->currentItem());
         editor = delegate->editor(action, viewport, options, index);

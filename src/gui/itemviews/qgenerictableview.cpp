@@ -166,8 +166,7 @@ void QGenericTableView::scrollContentsBy(int dx, int dy)
 
 void QGenericTableView::paintEvent(QPaintEvent *e)
 {
-    QItemOptions options;
-    getViewOptions(&options);
+    QItemOptions options = viewOptions();
     QPainter painter(&d->backBuffer);
     QRect area = e->rect();
     painter.fillRect(area, options.palette.base());
@@ -390,8 +389,7 @@ void QGenericTableView::updateGeometries()
                               vg.width(), topHint.height());
 
     // update sliders
-    QItemOptions options;
-    getViewOptions(&options);
+    QItemOptions options = viewOptions();
 
     int h = d->viewport->height();
     int row = model()->rowCount();
@@ -426,8 +424,7 @@ int QGenericTableView::rowSizeHint(int row) const
     if (columnlast < 0)
         columnlast = d->topHeader->count() - 1;
 
-    QItemOptions options;
-    getViewOptions(&options);
+    QItemOptions options = viewOptions();
 
     int hint = 0;
     QModelIndex index;
@@ -445,8 +442,7 @@ int QGenericTableView::columnSizeHint(int column) const
     if (rowlast < 0)
         rowlast = d->leftHeader->count() - 1;
 
-    QItemOptions options;
-    getViewOptions(&options);
+    QItemOptions options = viewOptions();
 
     int hint = 0;
     QModelIndex index;

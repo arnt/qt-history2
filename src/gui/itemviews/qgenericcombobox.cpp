@@ -213,8 +213,7 @@ void QGenericComboBox::setEditable(bool editable)
         return;
 
     if (editable) {
-        QItemOptions options;
-        getViewOptions(&options);
+        QItemOptions options = viewOptions();
         options.itemRect = style().querySubControlMetrics(QStyle::CC_ComboBox, this,
                                                           QStyle::SC_ComboBoxEditField);
         options.focus = hasFocus();
@@ -372,8 +371,7 @@ void QGenericComboBox::updateCurrentEditor()
 {
     if (!isEditable())
         return;
-    QItemOptions options;
-    getViewOptions(&options);
+    QItemOptions options = viewOptions();
     options.itemRect = style().querySubControlMetrics(QStyle::CC_ComboBox, this,
                                                       QStyle::SC_ComboBoxEditField);
     itemDelegate()->updateEditorGeometry(d->editor, options, currentItem());
@@ -476,8 +474,7 @@ void QGenericComboBox::paintEvent(QPaintEvent *)
     QRect delegateRect = style().querySubControlMetrics(QStyle::CC_ComboBox, this,
                                                       QStyle::SC_ComboBoxEditField);
     // delegate paints content
-    QItemOptions options;
-    getViewOptions(&options);
+    QItemOptions options = viewOptions();
 
     QModelIndex current = currentItem();
     if (current.isValid()) {

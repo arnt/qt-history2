@@ -547,23 +547,23 @@ void QGenericListView::startDrag()
     d->draggedItems.clear();
 }
 
-void QGenericListView::getViewOptions(QItemOptions *options) const
+QItemOptions QGenericListView::viewOptions() const
 {
-    QAbstractItemView::getViewOptions(options);
+    QItemOptions options = QAbstractItemView::viewOptions();
     if (d->size == Automatic ? d->wrap : d->size == Small) {
-        options->smallItem = true;
-        options->decorationPosition = QApplication::reverseLayout()
-                                      ? QItemOptions::Right : QItemOptions::Left;
+        options.smallItem = true;
+        options.decorationPosition = QApplication::reverseLayout()
+                                     ? QItemOptions::Right : QItemOptions::Left;
     } else {
-        options->smallItem = false;
-        options->decorationPosition = QItemOptions::Top;
+        options.smallItem = false;
+        options.decorationPosition = QItemOptions::Top;
     }
+    return options;
 }
 
 void QGenericListView::paintEvent(QPaintEvent *e)
 {
-    QItemOptions options;
-    getViewOptions(&options);
+    QItemOptions options = viewOptions();
 
     QPainter painter(&d->backBuffer);
     QRect area = e->rect();
@@ -876,8 +876,7 @@ void QGenericListView::doStaticLayout(const QRect &bounds, int first, int last)
     bool wrap = d->wrap;
     QModelIndex item;
     QFontMetrics fontMetrics(font());
-    QItemOptions options;
-    getViewOptions(&options);
+    QItemOptions options = viewOptions();
     QAbstractItemDelegate *delegate = itemDelegate();
     QSize hint;
     QRect rect = bounds;
@@ -1188,8 +1187,7 @@ void QGenericListViewPrivate::createItems(int to)
 {
     int count = tree.itemCount();
     QSize size;
-    QItemOptions options;
-    q->getViewOptions(&options);
+    QItemOptions options = q->viewOptions();
     QFontMetrics fontMetrics(q->font());
     QAbstractItemModel *model = q->model();
     QAbstractItemDelegate *delegate = q->itemDelegate();
@@ -1203,8 +1201,7 @@ void QGenericListViewPrivate::createItems(int to)
 
 QRect QGenericListViewPrivate::drawItems(QPainter *painter, const QVector<QModelIndex> &indices) const
 {
-    QItemOptions options;
-    q->getViewOptions(&options);
+    QItemOptions options = q->viewOptions();
     QAbstractItemDelegate *delegate = q->itemDelegate();
     QVector<QModelIndex>::const_iterator it = indices.begin();
     QGenericListViewItem item = indexToListViewItem(*it);
@@ -1235,8 +1232,7 @@ QGenericListViewItem QGenericListViewPrivate::indexToListViewItem(const QModelIn
     if ((flow == QGenericListView::LeftToRight && item.row() >= xposVector.count()) ||
         (flow == QGenericListView::TopToBottom && item.row() >= yposVector.count()))
         return QGenericListViewItem();
-    QItemOptions options;
-    q->getViewOptions(&options);
+    QItemOptions options = q->viewOptions();
     QSize hint = q->itemDelegate()->sizeHint(q->fontMetrics(), options, item);
     int i = qBinarySearch<int>(wrapVector, item.row(), 0, layoutWraps);
     QPoint pos;

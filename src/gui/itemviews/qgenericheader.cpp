@@ -132,8 +132,7 @@ QSize QGenericHeader::sizeHint() const
 {
     if (d->sections.isEmpty())
             return QSize();
-    QItemOptions options;
-    getViewOptions(&options);
+    QItemOptions options = viewOptions();
     int row = orientation() == Horizontal ? 0 : section(count() - 1);
     int col = orientation() == Horizontal ? section(count() - 1) : 0;
     QModelIndex::Type type = orientation() == Horizontal
@@ -148,8 +147,7 @@ QSize QGenericHeader::sizeHint() const
 
 int QGenericHeader::sectionSizeHint(int section) const
 {
-    QItemOptions options;
-    getViewOptions(&options);
+    QItemOptions options = viewOptions();
     QAbstractItemDelegate *delegate = itemDelegate();
     int hint = 0;
     int row = orientation() == Vertical ? section : 0;
@@ -175,8 +173,7 @@ int QGenericHeader::sectionSizeHint(int section) const
 
 void QGenericHeader::paintEvent(QPaintEvent *e)
 {
-    QItemOptions options;
-    getViewOptions(&options);
+    QItemOptions options = viewOptions();
 
     QPainter painter(&d->backBuffer);
     QRect area = e->rect();

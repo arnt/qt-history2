@@ -52,11 +52,6 @@ public:
 
     QAbstractItemModel *model() const;
 
-    void setHorizontalFactor(int factor);
-    int horizontalFactor() const;
-    void setVerticalFactor(int factor);
-    int verticalFactor() const;
-
     void setSelectionModel(QItemSelectionModel *selectionModel);
     QItemSelectionModel *selectionModel() const;
     void setSelectionMode(int mode);
@@ -125,6 +120,11 @@ protected:
 
     bool eventFilter(QObject *object, QEvent *event);
 
+    void setHorizontalFactor(int factor);
+    int horizontalFactor() const;
+    void setVerticalFactor(int factor);
+    int verticalFactor() const;
+
     enum CursorAction { MoveUp, MoveDown, MoveLeft, MoveRight,
                         MoveHome, MoveEnd, MovePageUp, MovePageDown };
     virtual QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction,
@@ -150,7 +150,7 @@ protected:
     virtual QDragObject *dragObject();
     virtual void startDrag();
 
-    virtual void getViewOptions(QItemOptions *options) const;
+    virtual QItemOptions viewOptions() const;
 
     enum State { NoState, Dragging, Selecting, Editing, Opening, Closing };
     State state() const;
