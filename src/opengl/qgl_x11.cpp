@@ -677,7 +677,7 @@ uint QGLContext::colorIndex(const QColor& c) const
     glyphs, but it works with all fonts that XFT2 provides - both
     antialiased and aliased bitmap and outline fonts.
 */
-void qgl_use_font(QFontEngineXft *engine, int first, int count, int listBase)
+static void qgl_use_font(QFontEngineXft *engine, int first, int count, int listBase)
 {
     GLfloat color[4];
     glGetFloatv(GL_CURRENT_COLOR, color);
