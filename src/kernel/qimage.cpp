@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qimage.cpp#103 $
+** $Id: //depot/qt/main/src/kernel/qimage.cpp#104 $
 **
 ** Implementation of QImage and QImageIO classes
 **
@@ -22,7 +22,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#103 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qimage.cpp#104 $");
 
 
 /*!
@@ -2649,10 +2649,81 @@ static void read_pbm_image( QImageIO *iio )	// read PBM image data
 
 static void write_pbm_image( QImageIO *iio )
 {
-#if defined(CHECK_RANGE)
-    warning( "Qt: %s output not supported in this version",
-	     (char *)iio->format() );
-#endif
+    QIODevice* out = iio->ioDevice();
+    QString str;
+
+    const QImage& image = iio->image();
+
+    uint w = image.width();
+    uint h = image.height();
+
+    str.sprintf("P\n%d %d\n", w, h);
+
+    switch (image.depth()) {
+     case 1:
+	str.insert(1, '4');
+	if ((uint)out->writeBlock(str, str.length()) != str.length()) {
+	    iio->setStatus(1);
+	    return;
+	}
+	for (uint y=0; y<h; y++) {
+	    uchar* line = image.scanLine(y);
+	    if ( w != (uint)out->writeBlock((char*)line, w) ) {
+		iio->setStatus(1);
+		return;
+	    }
+	}
+    break; case 8:
+	str.insert(1, '6');
+	str.append("255\n");
+	if ((uint)out->writeBlock(str, str.length()) != str.length()) {
+	    iio->setStatus(1);
+	    return;
+	}
+	{
+	    QRgb* color = image.colorTable();
+	    char* buf = new char[w*3];
+	    for (uint y=0; y<h; y++) {
+		uchar* line = image.scanLine(y);
+		for (uint x=0; x<w; x++) {
+		    QRgb rgb = color[line[x]];
+		    buf[x*3+0] = qRed(rgb);
+		    buf[x*3+1] = qGreen(rgb);
+		    buf[x*3+2] = qBlue(rgb);
+		}
+		if ( w*3 != (uint)out->writeBlock(buf, w*3) ) {
+		    iio->setStatus(1);
+		    return;
+		}
+	    }
+	}
+    break; case 32:
+	str.insert(1, '6');
+	str.append("255\n");
+	if ((uint)out->writeBlock(str, str.length()) != str.length()) {
+	    iio->setStatus(1);
+	    return;
+	}
+	{
+	    char* buf = new char[w*3];
+	    for (uint y=0; y<h; y++) {
+		ulong* line = (ulong*)image.scanLine(y);
+		for (uint x=0; x<w; x++) {
+		    QRgb rgb = line[x];
+		    buf[x*3+0] = qRed(rgb);
+		    buf[x*3+1] = qGreen(rgb);
+		    buf[x*3+2] = qBlue(rgb);
+		}
+		uint nr = out->writeBlock(buf, w*3);
+		if (nr != w*3) {
+		    iio->setStatus(1);
+		    return;
+		}
+	    }
+	}
+    }
+
+    iio->setStatus(0);
 }
 
 
