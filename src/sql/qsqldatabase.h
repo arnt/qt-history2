@@ -57,7 +57,7 @@ class Q_EXPORT QSqlDatabase : public QObject
     Q_OBJECT
 public:
     static QSqlDatabase* addDatabase( const QString& type, const QString& name = defaultDatabase );
-    static QSqlDatabase* database( const QString& name = defaultDatabase );
+    static QSqlDatabase* database( const QString& name = defaultDatabase, bool open = TRUE );
     static void          removeDatabase( const QString& name );
 
     ~QSqlDatabase();

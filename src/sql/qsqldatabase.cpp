@@ -65,7 +65,7 @@ QT_STATIC_CONST_IMPL char * const QSqlDatabase::defaultDatabase = "qt_sql_defaul
 class QSqlDatabaseManager : public QObject
 {
 public:
-    static QSqlDatabase* database( const QString& name );
+    static QSqlDatabase* database( const QString& name, bool open );
     static QSqlDatabase* addDatabase( QSqlDatabase* db, const QString & name );
     static void          removeDatabase( const QString& name );
 
@@ -119,14 +119,13 @@ QSqlDatabaseManager* QSqlDatabaseManager::instance()
     return sqlConnection;
 }
 
-/*!
-  Returns a pointer to the database with name \a name.  If the database was not previously
-  opened, it is opened now.  If \name does not exist in the list of managed database,
-  0 is returned.
+/*!  Returns a pointer to the database with name \a name.  If \a open
+  is TRUE, the database is opened.  If \name does not exist in the
+  list of managed database, 0 is returned.
 
 */
 
-QSqlDatabase* QSqlDatabaseManager::database( const QString& name )
+QSqlDatabase* QSqlDatabaseManager::database( const QString& name, bool open )
 {
     QSqlDatabaseManager* sqlConnection = instance();
     QSqlDatabase* db = sqlConnection->dbDict.find( name );
@@ -134,7 +133,7 @@ QSqlDatabase* QSqlDatabaseManager::database( const QString& name )
     if ( !db )
 	qWarning("Warning: QSqlDatabaseManager unable to find database " + name );
 #endif
-    if ( db && !db->isOpen() ) {
+    if ( db && !db->isOpen() && open ) {
 	db->open();
 #ifdef QT_CHECK_RANGE
 	if ( !db->isOpen() )
@@ -146,8 +145,7 @@ QSqlDatabase* QSqlDatabaseManager::database( const QString& name )
 
 
 
-/*!
-  Adds a database to the SQL connection manager.  The database is
+/*!  Adds a database to the SQL connection manager.  The database is
   referred to by \name.  A pointer to the newly added database is
   returned.
 
@@ -163,10 +161,9 @@ QSqlDatabase* QSqlDatabaseManager::addDatabase( QSqlDatabase* db, const QString 
 }
 
 
-/*!
-  Removes the database \a name from the SQL connection manager.  Note that
-  there should be no open queries on the database when this method is called,
-  otherwise resources will be leaked.
+/*!  Removes the database \a name from the SQL connection manager.
+  Note that there should be no open queries on the database when this
+  method is called, otherwise resources will be leaked.
 
 */
 
@@ -247,15 +244,35 @@ public:
 
 */
 
+/*!  Adds a database to the list of database connections.  The
+  database is referred to by \name.  A pointer to the newly added
+  database is returned.
+  
+*/
 QSqlDatabase* QSqlDatabase::addDatabase( const QString& type, const QString& name )
 {
     return QSqlDatabaseManager::addDatabase( new QSqlDatabase( type, name ), name );
 }
 
-QSqlDatabase* QSqlDatabase::database( const QString& name )
+/*! Returns a pointer to the database with name \a name.  The database
+  must have been previously added with database().  If \a open is TRUE
+  (the default) and the database was not previously opened, it is
+  opened now.  If \name does not exist in the list of database, 0 is
+  returned.
+
+*/
+
+QSqlDatabase* QSqlDatabase::database( const QString& name, bool open )
 {
-    return QSqlDatabaseManager::database( name );
+    return QSqlDatabaseManager::database( name, open );
 }
+
+/*!  Removes the database \a name from the list of database
+  connections.  Note that there should be no open queries on the
+  database when this method is called, otherwise resources will be
+  leaked.
+
+*/
 
 void QSqlDatabase::removeDatabase( const QString& name )
 {
