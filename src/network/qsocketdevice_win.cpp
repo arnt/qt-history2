@@ -18,17 +18,18 @@
 
 #include <string.h>
 
-#include <windows.h>
-#include <winsock.h>
 
-#if !defined (QT_NO_IPV6)
+#if defined (QT_NO_IPV6)
+#  include <windows.h>
+#  include <winsock.h>
+#else
+#  include <winsock2.h>
 // Compiling with old SDK, which does not contain these
 // structs and defines
-# define QT_SS_MAXSIZE 128
-# define QT_SS_ALIGNSIZE (sizeof(__int64))
-# define QT_SS_PAD1SIZE (QT_SS_ALIGNSIZE - sizeof (short))
-# define QT_SS_PAD2SIZE (QT_SS_MAXSIZE - (sizeof (short) + QT_SS_PAD1SIZE \
-                                                     + QT_SS_ALIGNSIZE))
+#  define QT_SS_MAXSIZE 128
+#  define QT_SS_ALIGNSIZE (sizeof(__int64))
+#  define QT_SS_PAD1SIZE (QT_SS_ALIGNSIZE - sizeof (short))
+#  define QT_SS_PAD2SIZE (QT_SS_MAXSIZE - (sizeof (short) + QT_SS_PAD1SIZE + QT_SS_ALIGNSIZE))
 typedef struct {
       short ss_family;
       char __ss_pad1[QT_SS_PAD1SIZE];
