@@ -53,14 +53,14 @@ public:
 /*!
   \class QSqlPropertyMap qsqlpropertymap.h
   \module sql
-  \brief This class is used to map widget editors to the SQL fields in QDataTables and QSqlForms
+  \brief This class is used to map widgets to SQL fields
 
   The SQL module uses Qt <a href="properties.html">object properties</a>
   to insert and extract values from editor widgets.
 
-  This class is used to map editors to the SQL fields in QDataTables and
-  QSqlForms. This works by associating SQL editor class names to the
-  properties used to insert and extract values to/from the editor.
+  This class is used to map editors to SQL fields. This works by
+  associating SQL editor class names to the properties used to insert
+  and extract values to/from the editor.
 
   For example, a QLineEdit can be used to edit text strings and other
   data types in QDataTables or QSqlForms. Several properties are
@@ -82,7 +82,7 @@ public:
   MyEditor	   myEditor( this );
 
   // Set the QSqlForm's record buffer to the update buffer of
-  // a pre-existing QSqlCursor called cur.
+  // a pre-existing QSqlCursor called 'cur'.
   myForm->setRecord( cur->primeUpdate() );
 
   // Install the customized map
@@ -90,7 +90,7 @@ public:
   myForm->installPropertyMap( myMap ); // myForm now owns myMap
   ...
   // Insert a field into the form that uses a myEditor to edit the
-  // field 'somefield' 
+  // field 'somefield'
   myForm->insert( &myEditor, "somefield" );
 
   // Update myEditor with the value from the mapped database field
@@ -122,7 +122,7 @@ public:
 
   Constructs a QSqlPropertyMap.
 
-    The default property mappings used by Qt widgets are: 
+    The default property mappings used by Qt widgets are:
     <ul>
     <li>QLineEdit -- text
     <li>QSpinBox -- value
