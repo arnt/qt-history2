@@ -39,6 +39,7 @@
 #ifndef QT_NO_WIDGETSTACK
 
 #include "qobjectlist.h"
+#include "qfocusdata.h"
 #include "qbutton.h"
 #include "qbuttongroup.h"
 
@@ -249,24 +250,20 @@ void QWidgetStack::raiseWidget( int id )
 	raiseWidget( w );
 }
 
-// returns whether child is contained in parent, and sets candidate to the first widget that has TabFocus.
-static bool checkFocusChild( QWidget *parent, QWidget *child, QWidget*& candidate )
+static bool isChildOf( QWidget* child, QWidget *parent )
 {
     const QObjectList *list = parent->children();
-    if ( list ) {
-	QObjectListIt it(*list);
-	QObject *obj;
-	while ( (obj = it.current()) ) {
-	    ++it;
-	    if ( !obj->isWidgetType() || ((QWidget *)obj)->isTopLevel() )
-		continue;
-	    QWidget *widget = (QWidget *)obj;
-	    if ( !candidate
-		 && ( widget->focusPolicy() & QWidget::TabFocus ) == QWidget::TabFocus )
-		candidate = widget;
-	    if ( widget == child || checkFocusChild( widget, child, candidate ) )
-		return TRUE;
-	}
+    if ( !child || !list )
+	return FALSE;
+    QObjectListIt it(*list);
+    QObject *obj;
+    while ( (obj = it.current()) ) {
+	++it;
+	if ( !obj->isWidgetType() || ((QWidget *)obj)->isTopLevel() )
+	    continue;
+	QWidget *widget = (QWidget *)obj;
+	if ( widget == child || isChildOf( child, widget ) )
+	    return TRUE;
     }
     return FALSE;
 }
@@ -282,9 +279,10 @@ void QWidgetStack::raiseWidget( QWidget * w )
     if ( !w || w == invisible || w->parent() != this || w == topWidget)
 	return;
 
-    topWidget = w;
-    if ( !isVisibleTo(0) )
+    if ( !isVisibleTo(0) ) {
+	topWidget = w;
 	return;
+    }
 
     if ( invisible->isHidden() ) {
 	invisible->setGeometry( contentsRect() );
@@ -295,23 +293,43 @@ void QWidgetStack::raiseWidget( QWidget * w )
 
     // try to move focus onto the incoming widget if focus
     // was somewhere on the outgoing widget.
-    QWidget * f = w->focusWidget();
-    while ( f && f != w && f->parent() != this )
-	f = f->parentWidget();
-    if ( f && f->parent() == this ) {
-	if ( !focusWidgets )
-	    focusWidgets = new QPtrDict<QWidget>( 17 );
-	focusWidgets->replace( f, f->focusWidget() );
-	f->focusWidget()->clearFocus();
-	// look for the best focus widget we can find
-	// best == what we had (which may be deleted)
-	f = focusWidgets->find( w );
-	if ( f )
-	    focusWidgets->take( w );
-	QWidget* candidate = 0;
-	if ( !checkFocusChild( w, f, candidate ) )
-	    f = candidate;
+    if ( topWidget ) {
+	QWidget * fw = focusWidget();
+	QWidget* p = fw;
+	while ( p && p != topWidget )
+	    p = p->parentWidget();
+	if ( p == topWidget ) { // focus was on old page
+	    if ( !focusWidgets )
+		focusWidgets = new QPtrDict<QWidget>( 17 );
+	    focusWidgets->replace( topWidget, fw );
+	    fw->clearFocus();
+	    // look for the best focus widget we can find
+	    // best == what we had (which may be deleted)
+	    fw = focusWidgets->take( w );
+	    if ( isChildOf( fw, w ) ) {
+		fw->setFocus();
+	    } else {
+		// second best == first child widget in the focus chain
+		QFocusData *f = focusData();
+		QWidget* home = f->home();
+		QWidget *i = home;
+		do {
+		    if ( ( ( i->focusPolicy() & TabFocus ) == TabFocus )
+			 && !i->focusProxy() && i->isVisibleTo(w) && i->isEnabled() ) {
+			p = i;
+			while ( p && p != w )
+			    p = p->parentWidget();
+			if ( p == w ) {
+			    i->setFocus();
+			    break;
+			}
+		    }
+		    i = f->next();
+		} while( i != home );
+	    }
+	}
     }
+    topWidget = w;
 
     const QObjectList * c = children();
     QObjectListIt it( *c );
@@ -322,8 +340,6 @@ void QWidgetStack::raiseWidget( QWidget * w )
 	if ( o->isWidgetType() && o != w && o != invisible )
 	    ((QWidget *)o)->hide();
     }
-    if ( f )
-	f->setFocus();
 
     if ( isVisible() ) {
 	emit aboutToShow( w );
