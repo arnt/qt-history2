@@ -91,10 +91,7 @@
   done() slot, passing it \c Accepted or \c Rejected.
 
   \i A <b>modeless</b> dialog is a dialog that operates independently of
-  other windows in the same application. Modeless dialogs do not have
-  their own event loop, so you will need to call
-  QApplication::processEvents() periodically to give the modeless dialog
-  the opportunity to process its events. Find and replace dialogs in
+  other windows in the same application.  Find and replace dialogs in
   word-processors are often modeless to allow the user to interact with
   both the application's main window and the dialog. Call show() to
   display a modeless dialog. show() returns immediately so the flow of
