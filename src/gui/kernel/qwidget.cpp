@@ -1640,7 +1640,7 @@ bool QWidget::isEnabledTo(QWidget* ancestor) const
     All QWidgets have list of QActions, however they can be
     represented graphically in many different ways. The default use of
     the QAction list (as returned by actions()) is to create a context
-    QMenu. 
+    QMenu.
 
     \sa removeAction() QMenu
 */
@@ -5951,9 +5951,14 @@ const QPixmap *QWidget::icon() const
     \row \i WA_NoSystemBackground \i Indicates that the widget has no
     background, i.e. when the widget receives paint events, the
     background is not automatically repainted. NOTE: Unlike
-    WA_NoBackground, newly exposed areas are \e not automtically
+    WA_NoBackground, newly exposed areas are \e not automatically
     filled with the background (e.g after showing a window for the
-    first time). \i Widget author
+    first time). Note that if you do \e not combine this attribute
+    with either WA_PaintOnScreen or WA_NoBackground, the result will
+    probably be slower than just setting the WA_NoBackground
+    attribute. This is because the window contents have to be copied
+    into the double buffer before each paint event, in order for
+    double buffering to work as expected. \i Widget author
 
     \row \i WA_StaticContents \i Indicates that the widget contents
     are north-west aligned and static. On resize, such a widget will
@@ -5961,8 +5966,8 @@ const QPixmap *QWidget::icon() const
     Widget author.
 
     \row \i WA_PaintOnScreen \i Indicates that the widget wants to
-    draw directly onto the screen. This is not supported on all
-    platforms. \i Widget author.
+    draw directly onto the screen (implies no double buffering). This
+    is not supported on all platforms. \i Widget author.
 
     \row \i WA_WindowModified \i Indicates that the window is marked as
     modified. On some platforms this will mean nothing, on others

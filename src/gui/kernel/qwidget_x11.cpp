@@ -1526,7 +1526,7 @@ void QWidget::repaint(const QRegion& rgn)
     }
 
     if (testAttribute(WA_NoSystemBackground)) {
-        if (double_buffer) {
+        if (double_buffer && !testAttribute(WA_NoBackground)) {
             GC gc = qt_xget_temp_gc(d->xinfo->screen(), false);
             XCopyArea(d->xinfo->display(), winId(), hd, gc,
                       brWS.x(), brWS.y(), brWS.width(), brWS.height(), 0, 0);

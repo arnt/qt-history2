@@ -948,7 +948,7 @@ void QWidget::repaint(const QRegion& rgn)
     }
 
     if (testAttribute(WA_NoSystemBackground)) {
-        if (double_buffer) {
+        if (double_buffer && !testAttribute(WA_NoBackground)) {
             BitBlt(hdc, 0, 0, brWS.width(), brWS.height(),
                    old_dc, brWS.x(), brWS.y(), SRCCOPY);
         }
