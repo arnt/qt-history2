@@ -34,7 +34,6 @@ OSErr qt_mac_create_fsspec(const QString &file, FSSpec *spec); //qglobal.cpp
 /*****************************************************************************
   Internal variables and functions
  *****************************************************************************/
-class QAuServerMacCallBackData;
 class QAuServerMac : public QAuServer {
     Q_OBJECT
 
@@ -43,30 +42,87 @@ public:
     ~QAuServerMac();
 
     void play(const QString& filename);
-    void play(QSound*);
+    void play(QSound *s);
     void stop(QSound*);
-    bool okay();
+    bool okay() { return TRUE; }
 
 private:
-    static void qt_mac_sound_callbk(QTCallBack callbk, long data);
-    QAuServerMacCallBackData *callback; 
     QPixmap *offscreen;
-    Movie aMovie;
-    Fixed volume;
+    friend class QAuServerMacCleanupHandler;
 };
-struct QAuServerMacCallBackData {
-    QAuServerMacCallBackData(QAuServerMac *serv, QSound *q) : server(serv), qsound(q), callback(0) { }
-    ~QAuServerMacCallBackData() { 	if(callback) DisposeCallBack(callback); }
-
-    QAuServerMac *server;
+class QAuServerMacCleanupHandler {
+private:
+    int loops;
+    QAuServerMac *qsound_server;
     QSound *qsound;
+    Movie movie;
     QTCallBack callback; //QT as in Quicktime :)
+    static QTCallBackUPP movieCallbackProc;
+    static QPtrList<QAuServerMacCleanupHandler> cleanups;
+    static void movieEnd(QTCallBack, long data) {
+	QAuServerMacCleanupHandler *iteration = (QAuServerMacCleanupHandler*)data;
+	if((--iteration->loops) <= 0) {
+	    delete iteration;
+	    return;
+	}
+	if(iteration->qsound)
+	    iteration->qsound_server->decLoop(iteration->qsound);
+	GoToBeginningOfMovie(iteration->movie);
+	CallMeWhen(iteration->callback, movieCallbackProc, (long)iteration, triggerAtStop, 0, 0);
+	StartMovie(iteration->movie); //play it again Sam..
+    }
+    void init(int l, Movie m) {
+	movie = m;
+	loops = l;
+	callback = NewCallBack(GetMovieTimeBase(movie), callBackAtExtremes|callBackAtInterrupt);
+	if(!movieCallbackProc)
+	    movieCallbackProc = NewQTCallBackUPP(movieEnd);
+	CallMeWhen(callback, movieCallbackProc, (long)this, triggerAtStop, 0, 0);
+	cleanups.append(this);
+    }
+
+public:
+    QAuServerMacCleanupHandler(QAuServerMac *ss, QSound *s, Movie m) : 
+	qsound_server(ss), qsound(s) { init(s->loopsRemaining(), m); }
+    QAuServerMacCleanupHandler(int l, Movie m) : qsound_server(0), qsound(0) { init(l, m); }
+    ~QAuServerMacCleanupHandler() {
+	cleanups.remove(this);
+#if 0
+	if(callback) {
+	    CancelCallBack(callback);
+	    DisposeCallBack(callback);
+	}
+	if(movie) {
+	    StopMovie(movie);
+	    DisposeMovie(movie);
+	}
+#endif
+    }
+    static void cleanup() {
+	while(QAuServerMacCleanupHandler *cu = cleanups.first()) 
+	    delete cu;
+	if(movieCallbackProc) {
+	    DisposeQTCallBackUPP(movieCallbackProc);
+	    movieCallbackProc = 0;
+	}
+    }
+    static void stop(QSound *s) {
+	if(!s)
+	    return;
+	for(QPtrList<QAuServerMacCleanupHandler>::Iterator it = cleanups.begin(); it != cleanups.end(); ++it) {
+	    if((*it)->qsound == s) {
+		delete (*it); //the destructor removes it..
+		break;
+	    }
+	}
+    }
+
 };
+QTCallBackUPP QAuServerMacCleanupHandler::movieCallbackProc = 0;
+QPtrList<QAuServerMacCleanupHandler> QAuServerMacCleanupHandler::cleanups;
 
 static int servers = 0;
-static QTCallBackUPP movieCallbackProc = 0;
-QAuServerMac::QAuServerMac(QObject* parent) :
-    QAuServer(parent,"Mac Audio Server"), callback(0), aMovie(nil), volume(1)
+QAuServerMac::QAuServerMac(QObject* parent) : QAuServer(parent,"Mac Audio Server")
 {
     if(!servers++) 
 	EnterMovies();
@@ -76,10 +132,7 @@ QAuServerMac::QAuServerMac(QObject* parent) :
 QAuServerMac::~QAuServerMac()
 {
     if(!(--servers)) {
-	if(movieCallbackProc) {
-	    DisposeQTCallBackUPP(movieCallbackProc);
-	    movieCallbackProc = 0;
-	}
+	QAuServerMacCleanupHandler::cleanup();
 	ExitMovies();
     }
 }
@@ -104,55 +157,25 @@ static Movie get_movie(const QString &filename, QPixmap *offscreen)
 
 void QAuServerMac::play(const QString& filename)
 {
-    if(!aMovie && !(aMovie = get_movie(filename, offscreen)))
-       return;
-    GoToBeginningOfMovie(aMovie);
-    SetMovieVolume(aMovie, kFullVolume);
-    StartMovie(aMovie);
+    Movie movie = get_movie(filename, offscreen);
+    GoToBeginningOfMovie(movie);
+    SetMovieVolume(movie, kFullVolume);
+    (void)new QAuServerMacCleanupHandler(1, movie); //this will handle the cleanup
+    StartMovie(movie);
 }
 
-void QAuServerMac::qt_mac_sound_callbk(QTCallBack callbk, long data)
+void QAuServerMac::play(QSound *s)
 {
-    QAuServerMacCallBackData *iteration = (QAuServerMacCallBackData*)data;
-    if(!iteration->server->decLoop(iteration->qsound)) 
-	CancelCallBack(callbk);
-    iteration->server->play(iteration->qsound);
+    Movie movie = get_movie(s->fileName(), offscreen);
+    GoToBeginningOfMovie(movie);
+    SetMovieVolume(movie, kFullVolume);
+    (void)new QAuServerMacCleanupHandler(this, s, movie); //this will handle the cleanup
+    StartMovie(movie);
 }
 
-void QAuServerMac::play(QSound* s)
+void QAuServerMac::stop(QSound *s)
 {
-    if(!aMovie && !(aMovie = get_movie(s->fileName(), offscreen)))
-       return;
-    GoToBeginningOfMovie(aMovie);
-    SetMovieVolume(aMovie, kFullVolume);
-    if(s->loopsRemaining() > 1) {
-	if(!callback) {
-	    callback = new QAuServerMacCallBackData(this, s);
-	    callback->callback = NewCallBack(GetMovieTimeBase(aMovie), callBackAtExtremes|callBackAtInterrupt);
-	}
-	if(!movieCallbackProc)
-	    movieCallbackProc = NewQTCallBackUPP(qt_mac_sound_callbk);
-	CallMeWhen(callback->callback, movieCallbackProc, (long)callback, triggerAtStop, 0, 0);
-    }
-    StartMovie(aMovie);
-}
-
-void QAuServerMac::stop(QSound*)
-{
-    if(callback) {
-	delete callback;
-	callback = 0;
-    }
-    StopMovie(aMovie);
-    if(aMovie) {
-	DisposeMovie(aMovie);
-	aMovie = 0;
-    }
-}
-
-bool QAuServerMac::okay()
-{
-    return TRUE;
+    QAuServerMacCleanupHandler::stop(s);
 }
 
 QAuServer* qt_new_audio_server()
