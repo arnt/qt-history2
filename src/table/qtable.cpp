@@ -4642,6 +4642,12 @@ void QTable::updateHeaderAndResizeContents( QTableHeader *header,
     widgets.clear();
     widgets.setAutoDelete( TRUE );
     resizeData( numRows() * numCols() );
+
+    // keep numStretches in sync
+    int n = 0;
+    for ( int i = 0; i < header->stretchable.size(); i++ )
+	n += ( header->stretchable[i] & 1 ); // avoid cmp
+     header->numStretches = n;
 }
 
 void QTable::restoreContents( QPtrVector<QTableItem> &tmp,
