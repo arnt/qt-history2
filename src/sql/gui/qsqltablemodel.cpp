@@ -950,7 +950,7 @@ bool QSqlTableModel::insertRecord(int row, const QSqlRecord &record)
 {
     if (row < 0)
         row = rowCount();
-    if (!insertRow(row))
+    if (!insertRow(row, QModelIndex::Null))
         return false;
     if (!setRecord(row, record))
         return false;

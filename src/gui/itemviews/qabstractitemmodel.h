@@ -230,7 +230,7 @@ protected slots:
 protected:
     QAbstractItemModel(QAbstractItemModelPrivate &dd, QObject *parent);
 
-    inline QModelIndex createIndex(int row, int column, void *data) const
+    inline QModelIndex createIndex(int row, int column, void *data = 0) const
         { return QModelIndex(row, column, data, this); }
 
     void invalidatePersistentIndexes(const QModelIndex &parent = QModelIndex::Null);
