@@ -14,7 +14,7 @@
 
 #if !defined(QT_NO_STYLE_WINDOWSXP) || defined(QT_PLUGIN)
 
-#include "qmenubar.h"
+#include <qmenubar.h>
 #include <qpainter.h>
 #include <qpushbutton.h>
 #include <qtoolbutton.h>
@@ -35,12 +35,14 @@
 #include <qcleanuphandler.h>
 #include <qbitmap.h>
 #include <qlibrary.h>
+#include <qdesktopwidget.h>
 #include <qdockwindow.h>
 #include <qdockarea.h>
 #include <qwidgetstack.h>
 #include <qtabwidget.h>
 #include <qtoolbar.h>
 #include <qmap.h>
+#include <qevent.h>
 #include <qt_windows.h>
 
 #include <uxtheme.h>
