@@ -12,5 +12,5 @@ contains( QT_PRODUCT, qt-(enterprise|internal) ) {
 		  tools \
 		  examples
 
-	shared:SUBDIRDS += plugin
+	shared:SUBDIRS += plugin
 }
