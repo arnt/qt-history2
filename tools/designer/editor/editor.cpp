@@ -86,6 +86,7 @@ void Editor::setErrorSelection( int line )
     QTextCursor c( document() );
     c.setParag( p );
     c.setIndex( 0 );
+    document()->removeSelection( Error );
     document()->setSelectionStart( Error, &c );
     c.gotoLineEnd();
     document()->setSelectionEnd( Error, &c );
@@ -100,6 +101,7 @@ void Editor::setStepSelection( int line )
     QTextCursor c( document() );
     c.setParag( p );
     c.setIndex( 0 );
+    document()->removeSelection( Step );
     document()->setSelectionStart( Step, &c );
     c.gotoLineEnd();
     document()->setSelectionEnd( Step, &c );

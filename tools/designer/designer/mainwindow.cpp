@@ -1906,7 +1906,7 @@ void MainWindow::editConnections()
     statusBar()->clear();
 }
 
-void MainWindow::editSource()
+void MainWindow::editSource( bool resetSame )
 {
     if ( !formWindow() )
 	return;
@@ -1939,7 +1939,8 @@ void MainWindow::editSource()
     }
     editor->show();
     editor->setFocus();
-    editor->setForm( formWindow() );
+    if ( resetSame || editor->form() != formWindow() )
+	editor->setForm( formWindow() );
 }
 
 void MainWindow::editFormSettings()
@@ -4431,10 +4432,21 @@ void MainWindow::showSourceLine( QObject *o, int line, bool error )
 	if ( fw->project() != currentProject )
 	    continue;
 	if ( QString( fw->name() ) == QString( o->name() ) ) {
+
+	    if ( workSpace()->activeWindow() && workSpace()->activeWindow()->inherits( "SourceEditor" ) &&
+		 ( (SourceEditor*)workSpace()->activeWindow() )->form() == fw ) {
+		if ( error )
+		    eiface->setError( line );
+		else
+		    eiface->setStep( line );
+		eiface->release();
+		return;
+	    }
+	
 	    fw->setFocus();
 	    lastActiveFormWindow = fw;
 	    qApp->processEvents();
-	    editSource();
+	    editSource( FALSE );
 	    if ( error )
 		eiface->setError( line );
 	    else

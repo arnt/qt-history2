@@ -195,7 +195,7 @@ public slots:
     void editAccels();
     void editSlots();
     void editConnections();
-    void editSource();
+    void editSource() { editSource( TRUE ); }
     void editFormSettings();
     void editProjectSettings();
     void editDatabaseConnections();
@@ -288,6 +288,7 @@ private:
 
     void addRecentlyOpened( const QString &fn, QStringList &lst );
     void showSourceLine( QObject *o, int line, bool error );
+    void editSource( bool resetSame );
 
 private slots:
     void doSlotsChanged();
