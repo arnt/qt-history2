@@ -1,6 +1,5 @@
-#define Q_INITGUID
+#include <qinitguid.h>
 #include <qstyleinterface.h>
-#undef Q_INITGUID
 #include <qplatinumstyle.h>
 
 class PlatinumStyle : public QStyleInterface

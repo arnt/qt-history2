@@ -34,9 +34,8 @@
 **
 **********************************************************************/
 
-#define Q_INITGUID
+#include <qinitguid.h>
 #include "../../qsqldriverinterface.h"
-#undef Q_INITGUID
 #include "qsql_mysql.h"
 
 class QMYSQLDriverPlugin : public QSqlDriverInterface
