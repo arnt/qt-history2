@@ -2959,6 +2959,11 @@ void QTable::setItem( int row, int col, QTableItem *item )
     updateCell( row, col );
     if ( qt_update_cell_widget )
 	item->updateEditor( orow, ocol );
+
+    if ( row == curRow && col == curCol && item->editType() == QTableItem::WhenCurrent ) {
+	if ( beginEdit( row, col, FALSE ) )
+	    setEditMode( Editing, row, col );
+    }
 }
 
 /*!
@@ -3121,19 +3126,23 @@ void QTable::setCurrentCell( int row, int col, bool updateSelections )
 	    topHeader->setSectionState( oldCol, QTableHeader::Normal );
 	else if ( isRowSelection( selectionMode() ) )
 	    topHeader->setSectionState( oldCol, QTableHeader::Selected );
-	topHeader->setSectionState( curCol, isColumnSelected( curCol, TRUE ) ? QTableHeader::Selected : QTableHeader::Bold );
+	topHeader->setSectionState( curCol, isColumnSelected( curCol, TRUE ) ?
+				    QTableHeader::Selected : QTableHeader::Bold );
     }
 
     if ( oldRow != curRow ) {
 	if ( !isRowSelected( oldRow ) )
 	    leftHeader->setSectionState( oldRow, QTableHeader::Normal );
-	leftHeader->setSectionState( curRow, isRowSelected( curRow, TRUE ) ? QTableHeader::Selected : QTableHeader::Bold );
+	leftHeader->setSectionState( curRow, isRowSelected( curRow, TRUE ) ?
+				     QTableHeader::Selected : QTableHeader::Bold );
     }
 
     itm = item( curRow, curCol );
 
-    QPoint cellPos( columnPos( curCol ) + leftMargin() - contentsX(), rowPos( curRow ) + topMargin() - contentsY() );
-    setMicroFocusHint( cellPos.x(), cellPos.y(), columnWidth( curCol ), rowHeight( curRow ), ( itm && itm->editType() != QTableItem::Never ) );
+    QPoint cellPos( columnPos( curCol ) + leftMargin() - contentsX(),
+		    rowPos( curRow ) + topMargin() - contentsY() );
+    setMicroFocusHint( cellPos.x(), cellPos.y(), columnWidth( curCol ),
+		       rowHeight( curRow ), ( itm && itm->editType() != QTableItem::Never ) );
 
     if ( cellWidget( oldRow, oldCol ) &&
 	 cellWidget( oldRow, oldCol )->hasFocus() )
@@ -4672,7 +4681,7 @@ void QTable::restoreContents( QPtrVector<QTableItem> &tmp,
 				contents.insert( iidx, it );
 			}
 		    }
-		  
+
 		}
 	    } else {
 		delete it;
