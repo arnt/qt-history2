@@ -995,6 +995,16 @@ void QToolButton::setTextPosition( TextPosition pos )
     update();
 }
 
+/*! \reimp */
+
+void QToolButton::setText( const QString &txt )
+{
+    qDebug( "called setText" );
+    delete s;
+    s = 0;
+    QButton::setText( txt );
+}
+
 #ifndef QT_NO_PALETTE
 /*!
     \reimp

@@ -68,6 +68,7 @@ class Q_EXPORT QToolButton : public QButton
 
     Q_OVERRIDE( bool toggleButton WRITE setToggleButton )
     Q_OVERRIDE( bool on WRITE setOn )
+    Q_OVERRIDE( QPixmap pixmap DESIGNABLE false STORED false )
 
 public:
     enum TextPosition{ Right, Under };
@@ -113,6 +114,8 @@ public:
     bool autoRaise() const;
     TextPosition textPosition() const;
 
+    void setText( const QString &txt );
+
 public slots:
     virtual void setUsesBigPixmap( bool enable );
     virtual void setUsesTextLabel( bool enable );
@@ -134,9 +137,9 @@ protected:
     void leaveEvent( QEvent * );
     void moveEvent( QMoveEvent * );
 
-    // ### Make virtual in 4.0, maybe act like QPushButton with 
+    // ### Make virtual in 4.0, maybe act like QPushButton with
     // regards to setFlat() instead?  Andy
-    bool uses3D() const; 
+    bool uses3D() const;
 #if (QT_VERSION >= 0x040000)
 #error "Some functions need to be changed to virtual for Qt 4.0"
 #endif
