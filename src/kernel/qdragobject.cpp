@@ -1504,7 +1504,7 @@ QString QUriDrag::uriToLocalFile(const char* uri)
 	if ( local ) {
 	    file = uriToUnicodeUri(uri);
 	    if ( uri[1] == '/' ) {
-		file.remove(0,1);
+		file.remove((uint)0,1);
 	    } else {
 		file.insert(0,'/');
 	    }

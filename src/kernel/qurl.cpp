@@ -247,12 +247,12 @@ QUrl::QUrl( const QUrl& url, const QString& relUrl, bool checkSlash )
     if ( isRelativeUrl( rel ) ) {
 	if ( rel[ 0 ] == '#' ) {
 	    *this = urlTmp;
-	    rel.remove( 0, 1 );
+	    rel.remove( (uint)0, 1 );
 	    decode( rel );
 	    setRef( rel );
 	} else if ( rel[ 0 ] == '?' ) {
 	    *this = urlTmp;
-	    rel.remove( 0, 1 );
+	    rel.remove( (uint)0, 1 );
 	    setQuery( rel );
 	} else {
 	    decode( rel );
@@ -764,7 +764,7 @@ bool QUrl::parse( const QString& url )
     }
 
     if ( !port.isEmpty() ) {
-	port.remove( 0, 1 );
+	port.remove( (uint)0, 1 );
 	d->port = atoi( port.latin1() );
     }
 
@@ -788,7 +788,7 @@ bool QUrl::parse( const QString& url )
     // #### do some corrections, should be done nicer too
     if ( !d->pass.isEmpty() ) {
 	if ( d->pass[ 0 ] == ':' )
-	    d->pass.remove( 0, 1 );
+	    d->pass.remove( (uint)0, 1 );
 	decode( d->pass );
     }
     if ( !d->user.isEmpty() ) {
@@ -796,16 +796,16 @@ bool QUrl::parse( const QString& url )
     }
     if ( !d->path.isEmpty() ) {
 	if ( d->path[ 0 ] == '@' || d->path[ 0 ] == ':' )
-	    d->path.remove( 0, 1 );
+	    d->path.remove( (uint)0, 1 );
 	if ( d->path[ 0 ] != '/' && !relPath && d->path[ 1 ] != ':' )
 	    d->path.prepend( "/" );
     }
     if ( !d->refEncoded.isEmpty() && d->refEncoded[ 0 ] == '#' )
-	d->refEncoded.remove( 0, 1 );
+	d->refEncoded.remove( (uint)0, 1 );
     if ( !d->queryEncoded.isEmpty() && d->queryEncoded[ 0 ] == '?' )
-	d->queryEncoded.remove( 0, 1 );
+	d->queryEncoded.remove( (uint)0, 1 );
     if ( !d->host.isEmpty() && d->host[ 0 ] == '@' )
-	d->host.remove( 0, 1 );
+	d->host.remove( (uint)0, 1 );
 
 #if defined(Q_OS_WIN32)
     // hack for windows file://machine/path syntax
@@ -915,7 +915,7 @@ void QUrl::setFileName( const QString& name )
     slashify( fn );
 
     while ( fn[ 0 ] == '/' )
-	fn.remove( 0, 1 );
+	fn.remove( (uint)0, 1 );
 
     QString p;
     if ( path().isEmpty() ) {

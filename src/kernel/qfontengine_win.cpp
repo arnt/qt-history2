@@ -33,7 +33,7 @@ typedef HRESULT (WINAPI *fScriptFreeCache)( SCRIPT_CACHE *);
 extern fScriptFreeCache ScriptFreeCache;
 
 
-static unsigned char *getCMap( HDC hdc );
+static unsigned char *getCMap( HDC hdc, bool & );
 static Q_UINT16 getGlyphIndex( unsigned char *table, unsigned short unicode );
 
 
@@ -124,16 +124,28 @@ void QFontEngine::getCMap()
     } );
     HDC hdc = dc();
     SelectObject( hdc, hfont );
-    cmap = ttf ? ::getCMap( hdc ) : 0;
-    if ( !cmap )
+    bool symb = false;
+    cmap = ttf ? ::getCMap( hdc, symb ) : 0;
+    if ( !cmap ) {
 	ttf = false;
+	symb = false;
+    }
+    symbol = symb;
     script_cache = 0;
 }
 
 void QFontEngine::getGlyphIndexes( const QChar *ch, int numChars, glyph_t *glyphs, bool mirrored ) const
 {
     if ( mirrored ) {
-	if ( ttf ) {
+	if ( symbol ) {
+	    while( numChars-- ) {
+		*glyphs = getGlyphIndex(cmap, ch->unicode() );
+		if(!*glyphs && ch->unicode() < 0x100)
+		    *glyphs = getGlyphIndex(cmap, ch->unicode()+0xf000 );
+		glyphs++;
+		ch++;
+	    }
+	} else if ( ttf ) {
 	    while( numChars-- ) {
 		*glyphs = getGlyphIndex(cmap, ::mirroredChar(*ch).unicode() );
 		glyphs++;
@@ -147,7 +159,15 @@ void QFontEngine::getGlyphIndexes( const QChar *ch, int numChars, glyph_t *glyph
 	    }
 	}
     } else {
-	if ( ttf ) {
+	if ( symbol ) {
+	    while( numChars-- ) {
+		*glyphs = getGlyphIndex(cmap, ch->unicode() );
+		if(!*glyphs && ch->unicode() < 0x100)
+		    *glyphs = getGlyphIndex(cmap, ch->unicode()+0xf000 );
+		glyphs++;
+		ch++;
+	    }
+	} else if ( ttf ) {
 	    while( numChars-- ) {
 		*glyphs = getGlyphIndex(cmap, ch->unicode() );
 		glyphs++;
@@ -665,7 +685,19 @@ const char *QFontEngineWin::name() const
 
 bool QFontEngineWin::canRender( const QChar *string,  int len )
 {
-    if ( ttf ) {
+    if ( symbol ) {
+	while( len-- ) {
+	    if ( getGlyphIndex( cmap, string->unicode() ) == 0 ) { 
+		if( string->unicode() < 0x100 ) {
+		    if(getGlyphIndex( cmap, string->unicode()+0xf000) == 0)
+    			return FALSE;
+		} else {
+		    return FALSE;
+		}
+	    }
+	    string++;
+	}
+    } else if ( ttf ) {
 	while( len-- ) {
 	    if ( getGlyphIndex( cmap, string->unicode() ) == 0 )
 		return FALSE;
@@ -923,7 +955,7 @@ static Q_UINT16 getGlyphIndex( unsigned char *table, unsigned short unicode )
 }
 
 
-static unsigned char *getCMap( HDC hdc )
+static unsigned char *getCMap( HDC hdc, bool &symbol )
 {
     const DWORD CMAP = MAKE_TAG( 'c', 'm', 'a', 'p' );
 
@@ -952,14 +984,17 @@ static unsigned char *getCMap( HDC hdc )
     if ( bytes == GDI_ERROR )
 	return 0;
 
+    symbol = TRUE;
     unsigned int unicode_table = 0;
     for ( int n = 0; n < numTables; n++ ) {
 	Q_UINT32 version = getUInt( maps + 8*n );
 	// accept both symbol and Unicode encodings. prefer unicode.
 	if ( version == 0x00030001 || version == 0x00030000 ) {
 	    unicode_table = getUInt( maps + 8*n + 4 );
-	    if ( version == 0x00030001 )
+	    if ( version == 0x00030001 ) {
+		symbol = FALSE;
 		break;
+	    }
 	}
     }
 

@@ -351,7 +351,7 @@ static unsigned char script_for_win_language[ 0x80 ] = {
     //0x45 LANG_BENGALI Not supported.
     QFont::Bengali,
     //0x46 LANG_PUNJABI Punjabi
-    QFont::NScripts,
+    QFont::Gurmukhi,
     //0x47 LANG_GUJARATI Gujarati
     QFont::Gujarati,
     //0x48 LANG_ORIYA Not supported.
@@ -369,7 +369,7 @@ static unsigned char script_for_win_language[ 0x80 ] = {
     //0x4e LANG_MARATHI Marathi
     QFont::NScripts,
     //0x4f LANG_SANSKRIT Sanskrit
-    QFont::NScripts,
+    QFont::Devanagari,
 
     //0x50 LANG_MONGOLIAN Mongolian
     QFont::Mongolian,

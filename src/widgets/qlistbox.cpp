@@ -60,7 +60,8 @@ public:
 	dragging( FALSE ),
 	dirtyDrag ( FALSE ),
 	variableHeight( TRUE /* !!! ### FALSE */ ),
-	variableWidth( FALSE )
+	variableWidth( FALSE ),
+	inMenuMode( FALSE )
     {}
     int findItemByName( int item, const QString &text );
     ~QListBoxPrivate();
@@ -116,6 +117,7 @@ public:
     uint dirtyDrag :1;
     uint variableHeight :1;
     uint variableWidth :1;
+    uint inMenuMode :1;
 
     QRect *rubber;
     QPtrDict<bool> selectable;
@@ -2648,12 +2650,12 @@ void QListBox::keyPressEvent( QKeyEvent *e )
 
 /*!\reimp
 */
-void QListBox::focusInEvent( QFocusEvent *e )
+void QListBox::focusInEvent( QFocusEvent* )
 {
-    Q_UNUSED(e) // I need this to get rid of a Borland warning
     d->mousePressRow = -1;
     d->mousePressColumn = -1;
-    if ( e->reason() != QFocusEvent::Mouse && !d->current && d->head ) {
+    d->inMenuMode = FALSE;
+    if ( QFocusEvent::reason() != QFocusEvent::Mouse && !d->current && d->head ) {
 	d->current = d->head;
 	QListBoxItem *i = d->current;
 	QString tmp;
@@ -2680,12 +2682,15 @@ void QListBox::focusInEvent( QFocusEvent *e )
 
 /*!\reimp
 */
-void QListBox::focusOutEvent( QFocusEvent *e )
+void QListBox::focusOutEvent( QFocusEvent* )
 {
-    Q_UNUSED(e) // I need this to get rid of a Borland warning
-    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this )
-	&& e->reason() != QFocusEvent::Popup )
-	repaintSelection();
+    if (style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this )) {
+	d->inMenuMode = 
+	    QFocusEvent::reason() == QFocusEvent::Popup || 
+ 	    (qApp->focusWidget() && qApp->focusWidget()->inherits("QMenuBar"));
+ 	if ( !d->inMenuMode ) 
+	    repaintSelection();
+    }
 
     if ( d->current )
 	updateItem( currentItem() );
@@ -4020,9 +4025,8 @@ void QListBox::adjustItems()
 
 void QListBox::paintCell( QPainter * p, int row, int col )
 {
-    bool drawActiveSelection = hasFocus() ||
-	!style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ||
-	::qt_cast<QPopupMenu*>(qApp->focusWidget());
+    bool drawActiveSelection = hasFocus() || d->inMenuMode ||
+	!style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this );
     const QColorGroup &g = ( drawActiveSelection ? colorGroup() : palette().inactive() );
 
     int cw = d->columnPos[col+1] - d->columnPos[col];

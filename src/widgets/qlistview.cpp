@@ -235,6 +235,7 @@ struct QListViewPrivate
 
     bool startEdit : 1;
     bool ignoreEditAfterFocus : 1;
+    bool inMenuMode :1;
 
     QListView::RenameAction defRenameAction;
 
@@ -2608,6 +2609,7 @@ void QListView::init()
     d->pressedEmptyArea = FALSE;
     d->startEdit = TRUE;
     d->ignoreEditAfterFocus = FALSE;
+    d->inMenuMode = FALSE;
 
     setMouseTracking( TRUE );
     viewport()->setMouseTracking( TRUE );
@@ -2852,10 +2854,9 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 	    c = fc;
 	    // draw to last interesting column
 
-	    bool drawActiveSelection = hasFocus() ||
+	    bool drawActiveSelection = hasFocus() || d->inMenuMode ||
 			    !style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ||
-			    ( currentItem() && currentItem()->renameBox && currentItem()->renameBox->hasFocus() ) ||
-			    qt_cast<QPopupMenu*>(qApp->focusWidget());
+			    ( currentItem() && currentItem()->renameBox && currentItem()->renameBox->hasFocus() );
 	    const QColorGroup &cg = ( drawActiveSelection ? colorGroup() : palette().inactive() );
 
 	    while ( c < lc && d->drawables ) {
@@ -4691,17 +4692,17 @@ void QListView::doAutoScroll( const QPoint &cursorPos )
     \reimp
 */
 
-void QListView::focusInEvent( QFocusEvent *e )
+void QListView::focusInEvent( QFocusEvent* )
 {
-    Q_UNUSED(e) // I need this to get rid of a Borland warning
-    if ( d->focusItem )
+    d->inMenuMode = FALSE;
+    if ( d->focusItem ) {
 	repaintItem( d->focusItem );
-    else if ( firstChild() && e->reason() != QFocusEvent::Mouse ) {
+    } else if ( firstChild() && QFocusEvent::reason() != QFocusEvent::Mouse ) {
 	d->focusItem = firstChild();
 	emit currentChanged( d->focusItem );
 	repaintItem( d->focusItem );
     }
-    if ( e->reason() == QFocusEvent::Mouse ) {
+    if ( QFocusEvent::reason() == QFocusEvent::Mouse ) {
 	d->ignoreEditAfterFocus = TRUE;
 	d->startEdit = FALSE;
     }
@@ -4711,7 +4712,7 @@ void QListView::focusInEvent( QFocusEvent *e )
 	viewport()->repaint( FALSE );
 	d->useDoubleBuffer = db;
     }
-
+    
     QRect mfrect = itemRect( d->focusItem );
     if ( mfrect.isValid() ) {
 	if ( header() && header()->isVisible() )
@@ -4726,14 +4727,15 @@ void QListView::focusInEvent( QFocusEvent *e )
     \reimp
 */
 
-void QListView::focusOutEvent( QFocusEvent *e )
+void QListView::focusOutEvent( QFocusEvent* )
 {
-    Q_UNUSED(e) // I need this to get rid of a Borland warning
-
-    if ( e->reason() == QFocusEvent::Popup && d->buttonDown )
+    if ( QFocusEvent::reason() == QFocusEvent::Popup && d->buttonDown )
 	d->buttonDown = FALSE;
     if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ) {
-	if ( e->reason() != QFocusEvent::Popup ) {
+	d->inMenuMode = 
+	    QFocusEvent::reason() == QFocusEvent::Popup 
+	    || (qApp->focusWidget() && qApp->focusWidget()->inherits("QMenuBar"));
+	if ( !d->inMenuMode ) {
 	    bool db = d->useDoubleBuffer;
 	    d->useDoubleBuffer = TRUE;
 	    viewport()->repaint( FALSE );

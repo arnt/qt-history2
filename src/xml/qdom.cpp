@@ -5810,7 +5810,7 @@ QDomElementPrivate* QDomDocumentPrivate::createElementNS( const QString& nsURI, 
 
 QDomDocumentFragmentPrivate* QDomDocumentPrivate::createDocumentFragment()
 {
-    QDomDocumentFragmentPrivate* f = new QDomDocumentFragmentPrivate( this, 0 );
+    QDomDocumentFragmentPrivate* f = new QDomDocumentFragmentPrivate( this, (QDomNodePrivate*)0 );
     f->deref();
     return f;
 }

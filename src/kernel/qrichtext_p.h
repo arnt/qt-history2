@@ -164,12 +164,13 @@ public:
     static QString toString( const QMemArray<QTextStringChar> &data );
     QString toString() const;
 
-    QTextStringChar &at( int i ) const;
 #if defined(Q_STRICT_INLINING_RULES)
     // This is for the IRIX MIPSpro o32 ABI - it fails, claiming the
     // implementation to be a redefinition.
+    inline QTextStringChar &at( int i ) const;
     inline int length() const;
 #else
+    QTextStringChar &at( int i ) const;
     int length() const;
 #endif
 

@@ -5431,8 +5431,8 @@ void QTextEdit::setFont( const QFont &f )
     \overload
 
     Zooms in on the text by by making the base font size one point
-    larger and recalculating all font sizes. This does not change the
-    size of any images.
+    larger and recalculating all font sizes to be the new size. This 
+    does not change the size of any images.
 
     \sa zoomOut()
 */
@@ -5443,8 +5443,8 @@ void QTextEdit::setFont( const QFont &f )
     \overload
 
     Zooms out on the text by by making the base font size one point
-    smaller and recalculating all font sizes. This does not change the
-    size of any images.
+    smaller and recalculating all font sizes to be the new size. This 
+    does not change the size of any images.
 
     \sa zoomIn()
 */
@@ -5452,8 +5452,8 @@ void QTextEdit::setFont( const QFont &f )
 
 /*!
     Zooms in on the text by by making the base font size \a range
-    points larger and recalculating all font sizes. This does not
-    change the size of any images.
+    points larger and recalculating all font sizes to be the new size. 
+    This does not change the size of any images.
 
     \sa zoomOut()
 */
@@ -5467,8 +5467,8 @@ void QTextEdit::zoomIn( int range )
 
 /*!
     Zooms out on the text by making the base font size \a range points
-    smaller and recalculating all font sizes. This does not change the
-    size of any images.
+    smaller and recalculating all font sizes to be the new size. This 
+    does not change the size of any images.
 
     \sa zoomIn()
 */
@@ -5482,8 +5482,8 @@ void QTextEdit::zoomOut( int range )
 
 /*!
     Zooms the text by making the base font size \a size points and
-    recalculating all font sizes. This does not change the size of any
-    images.
+    recalculating all font sizes to be the new size. This does not 
+    change the size of any images.
 */
 
 void QTextEdit::zoomTo( int size )

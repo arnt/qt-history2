@@ -28,6 +28,11 @@
 
 class QCanvasData {
 public:
+    QCanvasData() :
+	itemDict(1013), animDict(503)
+    {
+    }
+
     QPtrList<QCanvasView> viewList;
     QPtrDict<void> itemDict;
     QPtrDict<void> animDict;

@@ -129,13 +129,14 @@ private:
 struct QTablePrivate
 {
     QTablePrivate() : hasRowSpan( FALSE ), hasColSpan( FALSE ),
-	redirectMouseEvent( FALSE )
+	redirectMouseEvent( FALSE ), inMenuMode( FALSE )
     {
 	hiddenRows.setAutoDelete( TRUE );
 	hiddenCols.setAutoDelete( TRUE );
     }
     uint hasRowSpan : 1;
     uint hasColSpan : 1;
+    uint inMenuMode : 1;
     uint redirectMouseEvent : 1;
     QIntDict<int> hiddenRows, hiddenCols;
     QTimer *geomTimer;
@@ -2663,11 +2664,9 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	return;
     }
 
-    drawActiveSelection = hasFocus() || viewport()->hasFocus() ||
-			  is_child_of( qApp->focusWidget(), viewport() ) ||
-			  !style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ||
-			  ( qApp->focusWidget() && qApp->focusWidget()->isPopup() );
-
+    drawActiveSelection = hasFocus() || viewport()->hasFocus() || d->inMenuMode 
+			|| is_child_of( qApp->focusWidget(), viewport() ) 
+			|| !style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ); 
     if ( rowlast == -1 )
 	rowlast = numRows() - 1;
     if ( collast == -1 )
@@ -4162,8 +4161,9 @@ void QTable::keyPressEvent( QKeyEvent* e )
 /*! \reimp
 */
 
-void QTable::focusInEvent( QFocusEvent * )
+void QTable::focusInEvent( QFocusEvent* )
 {
+    d->inMenuMode = FALSE;
     QWidget *editorWidget = cellWidget( editRow, editCol );
     updateCell( curRow, curCol );
     if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) )
@@ -4180,11 +4180,16 @@ void QTable::focusInEvent( QFocusEvent * )
 /*! \reimp
 */
 
-void QTable::focusOutEvent( QFocusEvent * )
+void QTable::focusOutEvent( QFocusEvent* )
 {
     updateCell( curRow, curCol );
-    if ( QFocusEvent::reason() != QFocusEvent::Popup && style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) )
-	repaintSelections();
+    if (style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this )) {
+	d->inMenuMode = 
+	    QFocusEvent::reason() == QFocusEvent::Popup || 
+	    (qApp->focusWidget() && qApp->focusWidget()->inherits("QMenuBar"));
+	if ( !d->inMenuMode )
+	    repaintSelections();
+    }
 }
 
 /*! \reimp

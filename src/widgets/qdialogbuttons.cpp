@@ -72,7 +72,7 @@ QDialogButtons::init(Q_UINT32 buttons, Orientation orient)
 
 QDialogButtons::~QDialogButtons()
 {
-    delete d->custom;
+    delete (QWidget *)d->custom;
     delete d;
 }
 

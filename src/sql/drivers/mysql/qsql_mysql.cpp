@@ -21,6 +21,12 @@
 
 #define QMYSQL_DRIVER_NAME "QMYSQL3"
 
+#ifdef Q_OS_WIN32
+// comment the next line out if you want to use MySQL/embedded on Win32 systems.
+// note that it will crash if you don't statically link to the mysql/e library!
+# define Q_NO_MYSQL_EMBEDDED
+#endif
+
 QPtrDict<QSqlOpenExtension> *qSqlOpenExtDict();
 
 class QMYSQLOpenExtension : public QSqlOpenExtension
@@ -311,7 +317,8 @@ int QMYSQLResult::numRowsAffected()
 
 static void qServerInit()
 {
-#if MYSQL_VERSION_ID >= 40000
+#ifndef Q_NO_MYSQL_EMBEDDED
+# if MYSQL_VERSION_ID >= 40000
     static bool init = FALSE;
     if ( init )
 	return;
@@ -320,12 +327,13 @@ static void qServerInit()
     // has no effect on client/server library
     // but is vital for the embedded lib
     if ( mysql_server_init( 0, 0, 0 ) ) {
-# ifdef QT_CHECK_RANGE
+#  ifdef QT_CHECK_RANGE
 	qWarning( "QMYSQLDriver::qServerInit: unable to start server." );
-# endif
+#  endif
     }
     init = TRUE;    
-#endif
+# endif // MYSQL_VERSION_ID
+#endif // Q_NO_MYSQL_EMBEDDED
 }
 
 QMYSQLDriver::QMYSQLDriver( QObject * parent, const char * name )
@@ -366,8 +374,10 @@ QMYSQLDriver::~QMYSQLDriver()
 	QSqlOpenExtension *ext = qSqlOpenExtDict()->take( this );
 	delete ext;
     }
-#if MYSQL_VERSION_ID > 40000
+#ifndef Q_NO_MYSQL_EMBEDDED
+# if MYSQL_VERSION_ID > 40000
     mysql_server_end();
+# endif
 #endif
 }
 

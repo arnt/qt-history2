@@ -962,7 +962,6 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 
     if ( fe ) {
 	QChar sample = sampleCharacter( script );
-#if !defined Q_WS_WIN
 	if ( ! canRender( fe, sample ) ) {
 	    FM_DEBUG( "  WARN: font loaded cannot render sample 0x%04x",
 		      sample.unicode() );
@@ -982,7 +981,6 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 
 	    return fe;
 	}
-#endif
 
 	fe->fontDef.family = best_family->name;
 	if ( ! best_foundry->name.isEmpty() ) {
@@ -1025,7 +1023,6 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 	    QFontCache::Key key( request, script, fp->screen );
 	    QFontCache::instance->insertEngine( key, fe );
 
-#ifndef Q_WS_WIN
 	    for ( int i = 0; i < QFont::NScripts; ++i ) {
 		if ( i == script ) continue;
 
@@ -1035,7 +1032,6 @@ QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 		key.script = i;
 		QFontCache::instance->insertEngine( key, fe );
 	    }
-#endif
 	}
     } else {
 	if ( request.family.isEmpty() ) {

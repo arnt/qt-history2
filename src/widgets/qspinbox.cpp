@@ -295,7 +295,7 @@ QString QSpinBox::cleanText() const
 	QString px = QString(prefix()).stripWhiteSpace();
 	int len = px.length();
 	if ( len && s.left(len) == px )  // Remove _only_ if it is the prefix
-	    s.remove( 0, len );
+	    s.remove( (uint)0, len );
     }
     if ( !suffix().isEmpty() ) {
 	QString sx = QString(suffix()).stripWhiteSpace();

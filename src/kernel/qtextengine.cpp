@@ -986,7 +986,7 @@ void QTextEngine::itemize( int mode )
 	    direction = basicDirection( string );
 	bidiItemize( this, direction == QChar::DirR, mode );
     } else {
-	BidiControl control( false );
+	BidiControl control( FALSE );
 	if ( mode & QTextEngine::SingleLine )
 	    control.singleLine = TRUE;
 	int start = 0;
