@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.h#3 $
+** $Id: //depot/qt/main/extensions/network/src/qsocketdevice.h#4 $
 **
 ** Implementation of Network Extension Library
 **
@@ -63,6 +63,8 @@ private:
 
 class Q_EXPORT QSocketDevice : public QIODevice
 {
+friend class QSocket;
+
 public:
     enum Type { Stream, Datagram };
 
