@@ -78,6 +78,7 @@ fi
 # Free edition - may only be used under the terms of the QPL or GPL.
 # Qt/X11, Qt/Embedded
 if [ -f $relpath/LICENSE.QPL -o -f $relpath/LICENSE.GPL ]; then
+    [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_X11=yes
     [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
     Edition="free"
     Licensee="Free"
@@ -517,7 +518,7 @@ while [ "$#" -gt 0 ]; do
 	    PLATFORM=hpux-acc-o64
 	    ;;
 	hpux-n64)
-	    PLATFORM=hpux-acc-n64
+	    PLATFORM=hpux-acc-64
 	    ;;
 	irix-o32)
 	    PLATFORM=irix-cc-o32
@@ -526,7 +527,7 @@ while [ "$#" -gt 0 ]; do
 	    PLATFORM=irix-cc
 	    ;;
 	irix-64)
-	    PLATFORM=irix-cc-n64
+	    PLATFORM=irix-cc-64
 	    ;;
 	reliant-64)
 	    PLATFORM=reliant-cds-64
@@ -1149,7 +1150,7 @@ if [ -z "$PLATFORM" ]; then
     PLATFORM_NOTES=
     case "$UNAME_SYSTEM:$UNAME_RELEASE" in
      Darwin:*)
-	if [ "$PLATFORM_MAC" = "no" ]; then
+	if [ "$PLATFORM_MAC" != "yes" ]; then
 	PLATFORM=darwin-g++
 	else
 	PLATFORM=macx-g++
@@ -1173,9 +1174,6 @@ if [ -z "$PLATFORM" ]; then
      GNU:*)
 	PLATFORM=hurd-g++
 	;;
-     BSD/OS:*|BSD/386:*)
-	PLATFORM=bsdi-g++
-	;;
      dgux:*)
 	PLATFORM=dgux-g++
 	;;
@@ -1194,23 +1192,26 @@ if [ -z "$PLATFORM" ]; then
      NetBSD:*)
 	PLATFORM=netbsd-g++
 	;;
+     BSD/OS:*|BSD/386:*)
+	PLATFORM=bsdi-g++
+	;;
      IRIX*:*)
 	#PLATFORM=irix-g++
 	PLATFORM=irix-cc
-	#PLATFORM=irix-cc-n64
+	#PLATFORM=irix-cc-64
 	#PLATFORM=irix-cc-o32
 	PLATFORM_NOTES="
-	    - Also available for IRIX: irix-g++ irix-cc-n64 irix-cc-o32
+	    - Also available for IRIX: irix-g++ irix-cc-64 irix-cc-o32
 	"
 	;;
      HP-UX:*)
 	#PLATFORM=hpux-g++
 	PLATFORM=hpux-acc
-	#PLATFORM=hpux-acc-n64
+	#PLATFORM=hpux-acc-64
 	#PLATFORM=hpux-cc
 	#PLATFORM=hpux-acc-o64
 	PLATFORM_NOTES="
-	    - Also available for HP-UX: hpux-g++ hpux-acc-n64 hpux-acc-o64
+	    - Also available for HP-UX: hpux-g++ hpux-acc-64 hpux-acc-o64
 	"
 	;;
      OSF1:*)
@@ -1233,9 +1234,6 @@ if [ -z "$PLATFORM" ]; then
 	PLATFORM_NOTES="
 	    - Also available for Solaris: solaris-g++ solaris-cc-64
 	"
-	;;
-     SunOS:4*)
-	PLATFORM=sunos-g++
 	;;
      ReliantUNIX-*:*|SINIX-*:*)
 	PLATFORM=reliant-cds
@@ -1277,12 +1275,12 @@ if [ -z "$PLATFORM" ]; then
 	    for p in $PLATFORMS; do
 		echo "    $relconf $* -platform $p"
 	    done
-	    echo
-	    echo "The build script does not currently recognize all platforms"
-	    echo "supported by Qt."
-	    echo "Rerun this script with a -platform option listed to"
-	    echo "set the operating system / compiler combination you use."
-	    echo
+	    echo >&2
+	    echo "   The build script does not currently recognize all" >&2
+	    echo "   platforms supported by Qt." >&2
+	    echo "   Rerun this script with a -platform option listed to" >&2
+	    echo "   set the system/compiler combination you use." >&2
+	    echo >&2
 	    exit 2
 	fi
     esac
@@ -1322,12 +1320,10 @@ fi
 if [ "$PLATFORM_MAC" = "yes" ]; then
    if [ "$QMAKESPEC" = "macx-pbuilder" ] || [ "$XQMAKESPEC" = "macx-pbuilder" ]; then
       echo >&2
-      echo >&2
-      echo "  Platform 'macx-pbuilder' should not be used when building Qt/Mac." >&2
-      echo "  Please build Qt/Mac with 'macx-g++', then if you would like to" >&2
+      echo "   Platform 'macx-pbuilder' should not be used when building Qt/Mac." >&2
+      echo "   Please build Qt/Mac with 'macx-g++', then if you would like to" >&2
       echo "   use mac-pbuilder on your application code it can link to a Qt/Mac" >&2
       echo "   built with 'macx-g++'" >&2
-      echo >&2
       echo >&2
       exit 2
   fi
@@ -1336,31 +1332,31 @@ fi
 # check specified platforms are supported
 if [ '!' -d "$QMAKESPEC" ]; then
     echo
+    echo "   The specified system/compiler is not supported:"
     echo
-    echo "   The specified system/compiler is not supported: $QMAKESPEC"
+    echo "   	$QMAKESPEC"
+    echo
     echo "   Please see the PLATFORMS file for a complete list."
-    echo
     echo
     exit 2
 fi
 if [ '!' -d "$XQMAKESPEC" ]; then
     echo
+    echo "   The specified system/compiler is not supported:"
     echo
-    echo "   The specified system/compiler is not supported: $XQMAKESPEC"
+    echo "   	$XQMAKESPEC"
+    echo
     echo "   Please see the PLATFORMS file for a complete list."
-    echo
     echo
     exit 2
 fi
 if [ '!' -f "${XQMAKESPEC}/qplatformdefs.h" ]; then
     echo
-    echo
     echo "   The specified system/compiler port is not complete:"
     echo
-    echo "       $XQMAKESPEC/qplatformdefs.h"
+    echo "   	$XQMAKESPEC/qplatformdefs.h"
     echo
     echo "   Please contact qt-bugs@trolltech.com."
-    echo
     echo
     exit 2
 fi
