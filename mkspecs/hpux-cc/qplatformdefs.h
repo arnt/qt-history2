@@ -71,5 +71,10 @@ extern "C" int res_init();
 
 #define QT_SOCKLEN_T		int
 
+// presence of _XOPEN_UNIX can be used to detect HP-UX 10 or higher
+#if !defined(_XOPEN_UNIX)
+// HP-UX 9's select() didn't accept fd_set, yet.
+#define select(a,b,c,d,e) select((a), (int *)(b), (int *)(c), (int *)(d), (e))
+#endif
 
 #endif // QPLATFORMDEFS_H
