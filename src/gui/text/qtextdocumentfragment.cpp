@@ -477,7 +477,7 @@ void QTextHTMLImporter::import()
             QTextBlockFormat fmt;
             appendBlock(fmt, charFmt, QTextBeginningOfFrame);
 
-            tables[tables.size() - 1].currentColumnCount++;
+            tables[tables.size() - 1].currentColumnCount += node->tableCellColSpan;
 
             hasBlock = false;
         }
