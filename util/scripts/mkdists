@@ -279,17 +279,17 @@ if [ "$BRANCH" = "auto" ]; then
 fi
 
 #make sure everything is in order before bothering..
+[ ! -x "$QMAKE_PATH" ] && die "qmake not found, failed (${QMAKE_PATH})"
 if [ "x$DO_DOC" = "xyes" ]; then
     QDOC_SRC="`dirname $QDOC_PATH`"
     if [ -d  "$QDOC_SRC" ]; then
 	status "Building qdoc.."
-    	(cd "$QDOC_SRC"; make qmake; make >/dev/null ) || die "Cannot build qdoc (${QDOC_SRC})"
+    	(cd "$QDOC_SRC"; "$QMAKE_PATH" qdoc.pro; make >/dev/null ) || die "Cannot build qdoc (${QDOC_SRC})"
     else
 	echo "Cannot find qdoc source, hopefully you have made sure it is up-to-date"
     fi
     [ ! -x "$QDOC_PATH" ] && die "qdoc not found, failed (${QDOC_PATH})"
 fi
-[ ! -x "$QMAKE_PATH" ] && die "qmake not found, failed (${QMAKE_PATH})"
 
 if [ "x$DO_PKG" = "xyes" ]; then
     QPKG_SRC="`dirname $QPKG_PATH`"
