@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#13 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#14 $
 **
 ** Implementation of QTabBar class
 **
@@ -10,7 +10,7 @@
 #include "qtabbar.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#13 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtabbar.cpp#14 $");
 
 
 QTab::~QTab()
@@ -238,11 +238,6 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 	p->setFont( font() );
     }
 
-    if ( t->enabled )
-	p->setPen( palette().normal().foreground() );
-    else
-	p->setPen( palette().disabled().foreground() );
-
     QRect br = p->fontMetrics().boundingRect( t->label );
     br.setHeight( p->fontMetrics().height() );
     br.setRect( t->r.left() + (t->r.width()-br.width())/2 - 3,
@@ -250,7 +245,23 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 		br.width() + 5,
 		br.height() + 2 );
 
-    p->drawText( br, AlignCenter, t->label );
+    if ( selected )
+	br.moveBy( -1, -2 );
+
+    if ( t->enabled ) {
+	p->setPen( palette().normal().text() );
+	p->drawText( br, AlignCenter, t->label );
+    } else if ( style() == MotifStyle ) {
+	p->setPen( palette().disabled().text() );
+	p->drawText( br, AlignCenter, t->label );
+    } else { // Windows style, disabled
+	p->setPen( white );
+	QRect wr = br;
+	wr.moveBy( 1, 1 );
+	p->drawText( wr, AlignCenter, t->label );
+	p->setPen( palette().disabled().text() );
+	p->drawText( br, AlignCenter, t->label );
+    }
 
     if ( t->id != keyboardFocusTab() )
 	return;
