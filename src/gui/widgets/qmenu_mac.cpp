@@ -582,6 +582,18 @@ QMenuPrivate::macMenu(MenuRef merge)
         mac_menu->addAction(items[i]);
     return mac_menu->menu;
 }
+
+/*!
+    \internal
+
+    This special function will return the MenuRef used to create the
+    native menubar bindings. This MenuRef may be referenced in the
+    Menu Manager, or this can be used to create native dock menus.
+
+    \warning This function is not portable.
+
+    \sa QMenuBar::macMenu()
+*/
 MenuRef QMenu::macMenu(MenuRef merge) { return d->macMenu(merge); }
 
 /*****************************************************************************
@@ -738,8 +750,30 @@ MenuRef QMenuBarPrivate::macMenu()
     }
     return mac_menubar->menu;
 }
+
+/*!
+    \internal
+
+    This special function will return the MenuRef used to create the
+    native menubar bindings. This MenuRef is then set as the root menu
+    for the Menu Manager.
+
+    \warning This function is not portable.
+
+    \sa QMenu::macMenu()
+*/
 MenuRef QMenuBar::macMenu() {  return d->macMenu(); }
 
+/*!
+  \internal
+
+  This function will update the current menubar and set it as the
+  active menubar in the Menu Manager.
+
+  \warning This function is not portable.
+
+  \sa QMenu::macMenu(), QMenuBar::macMenu()
+*/
 bool QMenuBar::macUpdateMenuBar()
 {
     if(qt_mac_no_native_menubar) //nothing to be done..
