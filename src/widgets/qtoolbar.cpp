@@ -436,16 +436,16 @@ void QToolBar::endMoving( QToolBar *tb )
 }
 
 /*!
-  Sets the toolbar to be stretchable if \a stretchable is TRUE, or
-  non-stretchable otherwise, if the toolbar is in the orientation \a o.
+  Sets the toolbar to be horizontally stretchable if \a b is TRUE, or
+  non-stretchable otherwise.
 
-  A stretchable toolbar fills the available width or height
-  (depending on the orientation) in a toolbar dock. A
+  A stretchable toolbar fills the available width in a toolbar dock. A
   non-stretchable toolbar usually gets just the space it needs.
 
   The default is FALSE.
 
-  \sa QMainWindow::setRightJustification(), isStretchable()
+  \sa QMainWindow::setRightJustification(), isHorizontalStretchable(), 
+  setVerticalStretchable(), isVerticalStretchable()
 */
 
 void QToolBar::setHorizontalStretchable( bool b )
@@ -457,6 +457,19 @@ void QToolBar::setHorizontalStretchable( bool b )
     }
 }
 
+/*!
+  Sets the toolbar to be vertically stretchable if \a b is TRUE, or
+  non-stretchable otherwise.
+
+  A stretchable toolbar fills the available height in a toolbar dock. A
+  non-stretchable toolbar usually gets just the space it needs.
+
+  The default is FALSE.
+
+  \sa QMainWindow::setRightJustification(), isHorizontalStretchable(), 
+  setVerticalStretchable(), isHorizontalStretchable()
+*/
+
 void QToolBar::setVerticalStretchable( bool b )
 {
     if ( d->stretchable[ 1 ] != b ) {
@@ -467,20 +480,27 @@ void QToolBar::setVerticalStretchable( bool b )
 }
 
 /*!
-  Returns whether the toolbar is stretchable or not in the orientation
-  \a o.
+  Returns whether the toolbar is stretchable horizontally.
 
-  A stretchable toolbar fills all available width or height
-  (depending on the orientation) in a toolbar dock. A
+  A stretchable toolbar fills all available width in a toolbar dock. A
   non-stretchable toolbar usually gets just the space it needs.
 
-  \sa setStretchable()
+  \sa setHorizontalStretchable(), setVerticalStretchable(), isVerticalStretchable()
 */
 
 bool QToolBar::isHorizontalStretchable() const
 {
     return d->stretchable[ 0 ];
 }
+
+/*!
+  Returns whether the toolbar is stretchable vertically.
+
+  A stretchable toolbar fills all available height in a toolbar dock. A
+  non-stretchable toolbar usually gets just the space it needs.
+
+  \sa setHorizontalStretchable(), setVerticalStretchable(), isHorizontalStretchable()
+*/
 
 bool QToolBar::isVerticalStretchable() const
 {
