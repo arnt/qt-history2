@@ -46,16 +46,50 @@ void QSqlModelPrivate::prefetch(int limit)
         emit q->rowsInserted(QModelIndex(), oldBottom.row(), bottom.row());
 }
 
+/*!
+    \class QSqlModel
+    \brief The QSqlModel class provides a read only data model for
+           SQL result sets.
+
+    \ingroup database
+    \mainclass
+    \module sql
+
+    QSqlModel is a data model that provides data from a QSqlQuery.
+    The QSqlQuery has to be valid and may not be forward-only.
+
+    \code
+    QSqlModel model;
+    model.setQuery(QSqlQuery("SELECT * FROM TEST"));
+    \endcode
+
+    The model is read-only by default, to make it read-write, it is
+    neccessary to reimplement the setData() method.
+
+    QSqlTableModel is a convenience subclass which allows manipulating
+    a database table.
+
+    \sa QSqlTableModel QSqlQuery
+*/
+
+/*!
+    Creates an empty QSqlModel and sets the parent to \a parent.
+ */
 QSqlModel::QSqlModel(QObject *parent)
     : QAbstractItemModel(*new QSqlModelPrivate, parent)
 {
 }
 
+/*! \internal
+ */
 QSqlModel::QSqlModel(QSqlModelPrivate &dd, QObject *parent = 0)
     : QAbstractItemModel(dd, parent)
 {
 }
 
+/*!
+    Destroys the object and frees any allocated resources.
+ */
 QSqlModel::~QSqlModel()
 {
 }
