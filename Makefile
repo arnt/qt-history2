@@ -48,7 +48,7 @@ sub-src: .qmake.cache $(FORCEDEP)
 	cd ..
 
 sub-codecs: sub-src .qmake.cache $(FORCEDEP)
-	cd src\codecs\src
+	cd plugins\src\codecs
 	$(MAKE)
 	cd ..\..\..
 
