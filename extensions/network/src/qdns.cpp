@@ -479,15 +479,19 @@ void QDnsAnswer::parse()
 	return;
     }
 
-    // we skip aa
+    // AA
+    bool AA = (answer[2] & 4) != 0;
 
+    // TC
     if ( (answer[2] & 2) != 0 ) {
 #if defined(DEBUG_QDNS)
 	qDebug( "DNS Manager: truncated answer; pressing on" );
 #endif
     }
 
-    // we don't test RD
+    // RD
+    bool RD = (answer[2] & 1) != 0;
+
     // we don't test RA
     // we don't test the MBZ fields
 
@@ -620,9 +624,14 @@ void QDnsAnswer::parse()
     }
     if ( answers == 0 ) {
 #if defined(DEBUG_QDNS)
-		qDebug( "DNS Manager: answer contained no answers" );
+	qDebug( "DNS Manager: answer contained no answers" );
 #endif
-	ok = FALSE;
+	if( AA && RD ) {
+	    // there are really no answers
+	    ok = TRUE;
+	} else {
+	    ok = FALSE;
+	}
     }
 
 #if defined(DEBUG_QDNS)
@@ -633,7 +642,7 @@ void QDnsAnswer::parse()
 
 class QDnsUgleHack: public QDns {
 public:
-    void ugle();
+    void ugle( bool emitAnyway=FALSE );
 };
 
 
@@ -650,22 +659,28 @@ void QDnsAnswer::notify()
     it.toFirst();
     while( (dns=(QDns*)(it.current())) != 0 ) {
 	++it;
-	if ( notified.find( (void*)dns ) == 0 &&
-	     q->dns->find( (void*)dns ) != 0 ) {
+	if ( notified.find( (void*)dns ) == 0 && q->dns->find( (void*)dns ) != 0 ) {
 	    notified.insert( (void*)dns, (void*)42 );
-	    QStringList n = dns->qualifiedNames();
-	    int i = n.count();
-	    bool found = FALSE;
-	    while( i-- > 0 && !found ) // ######## O(n*n)!! should use iterator!
-		if ( n[i] == q->l )
-		    found = TRUE;
-	    if ( found )
-		((QDnsUgleHack*)dns)->ugle();
+	    if( rrs->count() == 0 ) {
 #if defined(DEBUG_QDNS)
-	    else
-		qDebug( "DNS Manager: DNS thing %s not notified for %s",
-			dns->label().ascii(), q->l.ascii() );
+		qDebug( "DNS Manager: found no answers!" );
 #endif
+		((QDnsUgleHack*)dns)->ugle( TRUE );
+	    } else {
+		QStringList n = dns->qualifiedNames();
+		int i = n.count();
+		bool found = FALSE;
+		while( i-- > 0 && !found ) // ######## O(n*n)!! should use iterator!
+		    if ( n[i] == q->l )
+			found = TRUE;
+		if ( found )
+		    ((QDnsUgleHack*)dns)->ugle();
+#if defined(DEBUG_QDNS)
+		else
+		    qDebug( "DNS Manager: DNS thing %s not notified for %s",
+			    dns->label().ascii(), q->l.ascii() );
+#endif
+	    }
 	}
     }
 }
@@ -715,9 +730,9 @@ QDnsManager * QDnsManager::manager()
 }
 
 
-void QDnsUgleHack::ugle()
+void QDnsUgleHack::ugle( bool emitAnyway)
 {
-    if ( !isWorking() ) {
+    if ( emitAnyway || !isWorking() ) {
 #if defined( DEBUG_QDNS )
 	qDebug( "DNS Manager: status change for %s (type %d)",
 		label().ascii(), recordType() );
@@ -1416,9 +1431,8 @@ void QDns::setRecordType( RecordType rr )
 */
 void QDns::startQuery()
 {
-    // ### this is not the most efficient way it could be done...
-    QList<QDnsRR> *cached = QDnsDomain::cached( this );
-    delete cached;
+//    QList<QDnsRR> *cached = QDnsDomain::cached( this );
+//    delete cached;
     if ( !isWorking() ) {
 	emit resultsReady();
     }
@@ -1666,9 +1680,7 @@ QString QDns::canonicalName() const
     while( (rr=cached->current()) != 0 ) {
 	if ( rr->current && !rr->nxdomain && rr->domain ) {
 	    delete cached;
-	    if ( label().lower() == rr->domain->name() )
-		return label(); // keep case in this case
-	    return rr->domain->name();
+	    return rr->target;
 	}
 	cached->next();
     }
