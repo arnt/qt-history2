@@ -393,8 +393,6 @@ int QFontMetrics::charWidth(const QString &str, int pos) const
         return 0;
 
     const QChar &ch = str.unicode()[ pos ];
-    if ( ::category( ch ) == QChar::Mark_NonSpacing )
-	return 0;
     QFont::Script script;
     SCRIPT_FOR_CHAR( script, ch );
 
@@ -407,6 +405,8 @@ int QFontMetrics::charWidth(const QString &str, int pos) const
 	QTextEngine layout( cstr.string(), d );
 	layout.itemize(QTextEngine::WidthOnly);
 	width = layout.width( pos-from, 1 );
+    } else if (::category(ch) == QChar::Mark_NonSpacing) {
+        width = 0;
     } else {
 	QFontEngine *engine = d->engineForScript( script );
  	QGlyphLayout glyphs[8];
