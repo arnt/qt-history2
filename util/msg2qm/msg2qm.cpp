@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/util/msg2qm/msg2qm.cpp#3 $
+** $Id: //depot/qt/main/util/msg2qm/msg2qm.cpp#4 $
 **
 ** This is a utility program for converting findtr msgfiles to
 ** qtranslator messagefiles
@@ -76,7 +76,7 @@ void addTranslation( QTranslator* translator, const QString& msgid, const QStrin
 	//#### add codec crap here for unicode. Beware of the segfaults ;)
 	QString scope = "";
 	QString id = msgid;
-	int coloncolon = msgid.find("::"); 
+	int coloncolon = msgid.find("::");
 	if (coloncolon != -1) {
 	    scope = msgid.left( coloncolon );
 	    id = msgid.right( msgid.length() - scope.length() - 2 );
@@ -106,7 +106,7 @@ void translate( const QString& filename, const QString& qmfile )
     QString line;
     QString msgid;
     QString msgstr;
-    while ( !t.atEnd() ) {
+    while ( !t.atEnd() || !line.isEmpty() ) {
 	if (line.isEmpty()) {
 	    t.eatWhiteSpace();
 	    line = t.readLine();
@@ -147,12 +147,12 @@ void translate( const QString& filename, const QString& qmfile )
 		else
 		    line = QString::null;
 	    }
+	    //debug("%s --> %s", msgid.ascii(), msgstr.ascii() );
 	    addTranslation( translator, msgid, msgstr);
 	}
 	else
 	    line = QString::null;
     }
-    addTranslation( translator, msgid, msgstr);
     f.close();
     translator->save( qmfile );
 }
@@ -168,11 +168,11 @@ int main( int argc, char* argv[] )
 	    infile += 2;
 	}
     }
-    
+
     if ( argc <= infile ) {
 	debug("usage: %s [-scope default] infile [outfile]", argv[0]);
 	exit(1);
     }
-    
+
     translate(argv[infile], argc > infile+1 ? argv[infile+1] : "tr.qm");
 }
