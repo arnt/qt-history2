@@ -1,6 +1,30 @@
 @SysInclude { picture }
 @SysInclude { tbl }
 @SysInclude { diag }
+extend @DiagSetup @Diag
+macro @Rectangle {
+    @Node 
+	outline {
+	    N:: { xsize / 2 ysize }
+	    S:: { xsize / 2 0 }
+	    W:: { 0 ysize / 2 }
+	    E:: { xsize  ysize / 2 }
+	    NW:: { 0 ysize  }
+	    NE:: { xsize ysize }
+	    SW:: { 0 0 }
+	    SE:: { xsize 0 }
+	    NNW:: { xsize / 4 ysize }
+	    NNE:: { xsize * 0.75 ysize }
+	    SSW:: { xsize / 4 0 }
+	    SSE:: { xsize * 0.75 0 }
+	    CTR:: { xsize / 2 ysize / 2 }
+	    0 0 
+	    0 ysize 
+	    xsize ysize 
+	    xsize 0 
+	    0 0 
+	}
+}
 @Illustration
     @InitialFont { Helvetica Base 14p }
 {
@@ -16,16 +40,26 @@
     margin { 0.5f }
     aformat { @Cell A | @StartHSpan @Cell B | @HSpan | @HSpan }
     bformat { @Cell A | @Cell B | @StartHSpan @Cell C | @HSpan }
+    cformat { @Cell A | @Cell B | @Cell C | @Cell indent { right } D }
 {
-    @Rowa A { VIEWWIDGET:: @Node { View Widget } }
-    @Rowa B { MAINWINDOW:: @Node { Main Window with Popup Menu Hierarchy } }
-    @Rowb C { OPEN:: @Node { Open Dialog } }
-    @Rowb C { SAVEAS:: @Node { Save As Dialog } }
-    @Rowb C { PAGEDELETE:: @Node { Page Delete Dialog } }
-    @Rowb C { IOERROR:: @Node { IO Error Dialog } }
-    @Rowb C { PAGEEDIT:: @Node { Page Edit Dialog } }
-    @Rowb C { HELP:: @Node { Help Dialog } }
-    @Rowb B { PRINT:: @Node { Print Dialog } }
+    @Rowa A { VIEWWIDGET:: @Rectangle { View Widget } }
+    @Rowa B { MAINWINDOW:: @Rectangle { Main Window with Popup Menu Hierarchy } }
+    @Rowc D { OPEN:: @Rectangle hsize { 9f } { Open Dialog } }
+    @Rowc D { SAVEAS:: @Rectangle hsize { 9f } { Save As Dialog } }
+    @Rowc D { PAGEDELETE:: @Rectangle hsize { 9f } { Page Delete Dialog } }
+    @Rowc D { IOERROR:: @Rectangle hsize { 9f } { IO Error Dialog } }
+    @Rowc D { PAGEEDIT:: @Rectangle hsize { 9f } { Page Edit Dialog } }
+    @Rowc D { HELP:: @Rectangle hsize { 9f } { Help Dialog } }
+    @Rowa B { PRINT:: @Rectangle hsize { 9f } { Print Dialog } }
 }
+//
+@VHCurveArrow from { VIEWWIDGET@S } to { MAINWINDOW@W }
+@VHCurveArrow from { MAINWINDOW@SSW } to { OPEN@W }
+@VHCurveArrow from { MAINWINDOW@SSW } to { SAVEAS@W }
+@VHCurveArrow from { MAINWINDOW@SSW } to { PAGEDELETE@W }
+@VHCurveArrow from { MAINWINDOW@SSW } to { IOERROR@W }
+@VHCurveArrow from { MAINWINDOW@SSW } to { PAGEEDIT@W }
+@VHCurveArrow from { MAINWINDOW@SSW } to { HELP@W }
+@VHCurveArrow from { VIEWWIDGET@S } to { PRINT@W }
 }
 }

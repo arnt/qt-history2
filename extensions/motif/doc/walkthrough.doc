@@ -226,28 +226,7 @@ way up the dependency tree until all pieces have been migrated.
 
 The heirarchy for this project looks something like this:
 
-\code
-    ### I can't draw, otherwise this would be a nice fullcolor diagram :/
-
-    View Widget
-      |
-      +--> Main Window with Popup-Menu Heirarchy
-      |      |
-      |	     +--> Open Dialog
-      |	     |
-      |	     +--> Save As Dialog
-      |      |
-      |	     +--> Page Delete Dialog
-      |	     |
-      |	     +--> IO Error Dialog
-      |	     |
-      |	     +--> Page Edit Dialog
-      |	     |
-      |	     +--> Help Dialog
-      |
-      +--> Print Dialog
-
-\endcode
+\img motif-todo.png Motif Todo Hierarchy
 
 We will begin by migrating and replacing all of the dialogs, then the
 \e {Main Window} widget with popup-menu heirarchy, and finally the \e
@@ -271,18 +250,18 @@ Dialogs\endlink: QFileDialog and QMessageBox. Both of these classes
 provide static convenience functions that we can use.
 
 \list
-\i QFileDialog::getOpenFileName() - replacement for the \e Open dialog
-\i QFileDialog::getSaveFileName() - replacement for the \e {Save As} dialog
-\i QMessageBox::information() - replacement for \e {Page Delete} dialog
-\i QMessageBox::warning() - replacement for \e {IO Error} dialog.
+\i QFileDialog::getOpenFileName() -- replacement for the \e Open dialog
+\i QFileDialog::getSaveFileName() -- replacement for the \e {Save As} dialog
+\i QMessageBox::information() -- replacement for \e {Page Delete} dialog
+\i QMessageBox::warning() -- replacement for \e {IO Error} dialog.
 \endlist
 
-Each of these functions take a \c {QWidget *parent} argument. If we
+Each of these functions takes a \c {QWidget *parent} argument. If we
 pass zero as the \e parent argument, then we will have dialogs that
 are centered on the screen, instead of being centered over our main
-window. We can accomplish this by using QMotifWidget. We can have
-QMotifWidget create our \c XmMainWindow, and we can then use this
-class as the parent for both Motif dialogs and Qt dialogs.
+window. We can have QMotifWidget create our \c XmMainWindow, and we
+can then use this class as the parent for both Motif dialogs and Qt
+dialogs.
 
 We need to include the appropriate headers for QMotifWidget and
 QFileDialog.
@@ -294,7 +273,7 @@ QFileDialog.
 
 Next, we make a few modifications to how the application is
 initialized. We could initialize Xt/Motif and create the \c
-XtAppContext ourselves, but QMotif can do this for us, so we let it.
+XtAppContext ourselves, but QMotif can do this for us.
 We also let QApplication open the connection to the X server. Next,
 we create a QMotifWidget, passing \c xmMainWindowWidgetClass as the \e
 widgetclass argument. We can now use the QMotifWidget::motifWidget()
@@ -319,14 +298,15 @@ Since we removed the \c PresentFDialog() callback function, we need to
 make \e Open and \e {Save As} popup-menu callbacks call the \c Open()
 and \c Save() functions.
 
-We first need to change the declaration of these two functions.
+First we must change the declaration of these two functions.
 
 \quotefile walkthrough/todo.cpp
 
-\skipuntil Wrap extern/callback functions and global variables with extern "C"
-\printuntil void Print
+\skipto Wrap extern/callback functions and global variables with extern "C"
+\skipto void Open
+\printto void Print
 
-And we change the arguments to the callbacks. We pass the top-level
+We also change the arguments to the callbacks. We pass the top-level
 QMotifWidget as the \c client_data to these functions, since we will
 be using this as the parent for the QFileDialog.
 
@@ -366,7 +346,7 @@ need to wrap more C header files and global variables in an \c {extern
 
 We need to forward declare the \c NewPage(), \c DeletePage(), \c
 EditPage() and \c SaveIt() functions so that the compiler generates
-the correct symbols names for these functions.
+the correct symbols for these functions.
 
 \printuntil } // extern "C"
 
@@ -428,7 +408,7 @@ block.
 \printuntil Page AllocPage()
 
 We need to forward declare the \c ReadDB() and \c SaveDB() functions
-so that the compiler generates the correct symbols names for these
+so that the compiler generates the correct symbols for these
 functions.
 
 \printuntil } // extern "C"
@@ -438,7 +418,7 @@ The \c ParseNewLines() function needs to be converted to proper C++.
 \skipuntil Convert ParseNewLines to proper C++
 \printuntil look for "\n"
 
-The \c PrintWithNewLines() function also needs to be convert to proper
+The \c PrintWithNewLines() function also needs to be converted to proper
 C++.
 
 \skipuntil Convert PrintWithNewLines to proper C++
@@ -470,7 +450,7 @@ expected. The difference is that the \e {Page Delete} and \e {IO
 Error} dialogs now use QMessageBox.
 
 
-### THE STUFF BELOW IS UNFINISHED AND VERY TERSE
+###<font color=red>THE STUFF BELOW IS UNFINISHED AND VERY TERSE</font>
 
 \section2 Migrate Existing Motif Dialogs to QMotifDialog
 
