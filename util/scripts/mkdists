@@ -467,6 +467,9 @@ public_file () {
 	 # no make.help
 	 [ "$file_BASE" = "make.help" ] ||
 
+	 # internal .pro file
+	 [ "$file_BASE" = "qmake.pro" ] ||
+
 	 # utils, except scripts
 	 { myexpr "$file" : '^util\/' && ! myexpr "$file" : '^util\/scripts\/' ; } ||
 
