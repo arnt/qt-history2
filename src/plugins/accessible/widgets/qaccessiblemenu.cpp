@@ -98,7 +98,7 @@ QAccessible::Role QAccessiblePopup::role(int child) const
 {
     if (!child)
 	return PopupMenu;
-    
+
     QMenuItem *item = popupMenu()->findItem(popupMenu()->idAt(child -1));
     if (item && item->isSeparator())
 	return Separator;
@@ -116,7 +116,7 @@ int QAccessiblePopup::state(int child) const
     if (!item)
 	return s;
 
-    if (popupMenu()->style().styleHint(QStyle::SH_PopupMenu_MouseTracking))
+    if (popupMenu()->style().styleHint(QStyle::SH_Menu_MouseTracking))
 	s |= HotTracked;
     if (item->isSeparator() || !item->isEnabled())
 	s |= Unavailable;
@@ -265,7 +265,7 @@ int QAccessibleMenuBar::state(int child) const
     if (!item)
 	return s;
 
-    if (menuBar()->style().styleHint(QStyle::SH_PopupMenu_MouseTracking))
+    if (menuBar()->style().styleHint(QStyle::SH_Menu_MouseTracking))
 	s |= HotTracked;
     if (item->isSeparator() || !item->isEnabled())
 	s |= Unavailable;
