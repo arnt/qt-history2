@@ -384,13 +384,31 @@ void QWidget::create( WId window, bool initializeWindow, bool destroyOldWindow)
 
     if (topLevel && ! (desktop || popup)) {
 	ulong wsa_mask = 0;
-	if (testWFlags(WStyle_Customize)) {
-	    if (testWFlags(WStyle_NoBorder)) {
-		mwmhints.decorations = 0L;
-		mwmhints.flags |= (1L << 1); // MWM_HINTS_DECORATIONS
 
+	if (testWFlags(WStyle_Customize)) {
+	    mwmhints.decorations = 0L;
+	    mwmhints.flags |= (1L << 1); // MWM_HINTS_DECORATIONS
+
+	    if ( testWFlags( WStyle_NoBorder ) ) {
 		// override netwm type - quick and easy for KDE noborder
 		net_wintypes[curr_wintype++] = qt_net_wm_window_type_override;
+	    } else {
+		if ( testWFlags( WStyle_NormalBorder | WStyle_DialogBorder ) ) {
+		    mwmhints.decorations |= (1L << 1); // MWM_DECOR_BORDER
+		    mwmhints.decorations |= (1L << 2); //  MWM_DECOR_RESIZEH
+		}
+
+		if ( testWFlags( WStyle_Title ) )
+		    mwmhints.decorations |= (1L << 3); // MWM_DECOR_TITLE
+
+		if ( testWFlags( WStyle_SysMenu ) )
+		    mwmhints.decorations |= (1L << 4); // MWM_DECOR_MENU
+
+		if ( testWFlags( WStyle_Minimize ) )
+		    mwmhints.decorations |= (1L << 5); // MWM_DECOR_MINIMIZE
+
+		if ( testWFlags( WStyle_Maximize ) )
+		    mwmhints.decorations |= (1L << 6); // MWM_DECOR_MAXIMIZE
 	    }
 
 	    if (testWFlags(WStyle_Tool)) {
