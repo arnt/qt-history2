@@ -352,7 +352,7 @@ const QNetworkOperation *QUrlOperator::listChildren()
 	return res;
     } else {
 	QString msg = tr( "The protocol `%1' is not supported\n"
-			  "or `%2' doesn't support listing directores" ).
+			  "or `%2' doesn't support listing directories" ).
 		      arg( protocol() ).arg( protocol() );
 	res->setState( QNetworkProtocol::StFailed );
 	res->setProtocolDetail( msg );
