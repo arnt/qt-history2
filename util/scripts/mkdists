@@ -31,6 +31,7 @@ MANIFEST_FILE=${TMP_FILE}-manifest
 DO_COMMERCIAL=yes
 DO_FREE=yes
 DO_REVIEW=no
+DO_ACADEMIC=no
 #platforms
 DO_WIN=yes
 DO_X11=yes
@@ -97,6 +98,7 @@ showhelp()
     echo "Editions:"
     echo "  -no-pkg          / -do-pkg           : Toggle pkg build for CD"
     echo "  -no-commercial   / -do-commercial    : Toggle commercial build"
+    echo "  -no-academic     / -do-academic      : Toggle academic build"
     echo "  -no-free         / -do-free          : Toggle free build"
     echo "  -no-review       / -do-review        : Toggle product review build"
     echo
@@ -192,6 +194,7 @@ while [ -n "$1" ]; do
 
    case $VAR in
    #editions
+   academic) DO_ACADEMIC=$VAL ;;
    commercial) DO_COMMERCIAL=$VAL ;;
    free)DO_FREE=$VAL;;
    review) DO_REVIEW=$VAL ;;
@@ -767,19 +770,20 @@ for plat in mac win x11 qnx6 embedded; do
     status "****** Packing for platform: $plat ****" "1"
 
     PLAT_RM_FILE=${TMP_FILE}-plat-${plat}
-    for edition in commercial free review; do
+    for edition in commercial free review academic; do
 	dist_for_edition=$edition
 	case $edition in
 	commercial)
-	    dist_for_edition="commercial"
 	    [ "x$DO_COMMERCIAL" = "xyes" ] || continue
 	    ;;
 	free)
 	    { [ "$plat" != "embedded" ] && [ "$plat" != "x11" ]; } || [ "x$DO_FREE" != "xyes" ] && continue
 	    ;;
 	review)
-	    dist_for_edition="review"
 	    [ "x$DO_REVIEW" = "xyes" ] || continue
+	    ;;
+        academic)
+	    [ "x$DO_ACADEMIC" = "xyes" ] || continue
 	    ;;
 	esac
 
