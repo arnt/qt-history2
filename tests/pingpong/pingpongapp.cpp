@@ -68,6 +68,12 @@ void PingPongApp::init()
 		     0, this, 0 );
     connect( a, SIGNAL( activated() ), SLOT( deleteMatch() ) );
     a->addTo( tbar );
+
+    tbar = new QToolBar( this );
+    a = new QAction( "Edit teams", QPixmap( "teamedit.xpm" ), QString::null,
+		     0, this, 0 );
+    connect( a, SIGNAL( activated() ), SLOT( editTeams() ) );
+    a->addTo( tbar );
     
     QFrame * f1       = new QFrame( this );
     QVBoxLayout * vb1 = new QVBoxLayout( f1 );

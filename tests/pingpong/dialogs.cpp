@@ -6,6 +6,7 @@
 #include <qlabel.h>
 #include <qfont.h>
 #include <qpushbutton.h>
+#include <qmainwindow.h>
 
 //
 // TeamPicker editor widget
@@ -186,9 +187,9 @@ EditTeamsDialog::EditTeamsDialog( QWidget * parent, const char * name )
     
     g->setMargin( 5 );
     g->setSpacing( 5 );
-    
+
     QFont f = font();
-    f.setBold( TRUE );
+    f.setBold( TRUE );  
     
     QLabel * label = new QLabel( "All teams", this );
     label->setFont( f );
@@ -212,26 +213,35 @@ EditTeamsDialog::EditTeamsDialog( QWidget * parent, const char * name )
     player2teamTable = new QSqlTable( this );
     player2teamTable->setCursor( &player2teamCursor );
     player2teamTable->setReadOnly( TRUE );
-    g->addMultiCellWidget( player2teamTable, 3, 3, 0, 1 );
+    g->addWidget( player2teamTable, 3, 0 );
     
     
     QFrame * buttonFrame = new QFrame( this );
+    QVBoxLayout * v = new QVBoxLayout( buttonFrame );
+
+    QPushButton * button = new QPushButton( "&Add player to team", 
+					    buttonFrame );
+    connect( button, SIGNAL( clicked() ), SLOT( addPlayer() ) );
+    v->addWidget( button );
+
+    button = new QPushButton( "&Remove player from team", buttonFrame );
+    connect( button, SIGNAL( clicked() ), SLOT( removePlayer() ) );
+    v->addWidget( button );
+    v->addItem( new QSpacerItem( 0, 0, QSizePolicy::Expanding,
+				 QSizePolicy::Expanding ) );
+    g->addWidget( buttonFrame, 3, 1 );
+
+    buttonFrame = new QFrame( this );
     QHBoxLayout * h = new QHBoxLayout( buttonFrame );
     h->addItem( new QSpacerItem( 0, 0, QSizePolicy::Expanding,
 				 QSizePolicy::Minimum ) );
-
-    QPushButton * button = new QPushButton( "&Add player", buttonFrame );
-    connect( button, SIGNAL( clicked() ), SLOT( addPlayer() ) );
-    h->addWidget( button );
-
-    button = new QPushButton( "&Remove player", buttonFrame );
-    connect( button, SIGNAL( clicked() ), SLOT( removePlayer() ) );
-    h->addWidget( button );
 
     button = new QPushButton( "&Close", buttonFrame );
     button->setDefault( TRUE );
     connect( button, SIGNAL( clicked() ), SLOT( close() ) );
     h->addWidget( button );
+    h->addItem( new QSpacerItem( 0, 0, QSizePolicy::Expanding,
+				 QSizePolicy::Minimum ) );
     
     g->addMultiCellWidget( buttonFrame, 4, 4, 0, 1 );
 }
