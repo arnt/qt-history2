@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#182 $
+** $Id: //depot/qt/main/src/kernel/qfont_x11.cpp#183 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes for X11
 **
@@ -101,7 +101,8 @@ public:
     QCString bestFamilyMember( const char *foundry,
 			       const char *family, int *score );
     QCString findFont( bool *exact );
-    bool needsSet() const { return charSet() >= Set_1 && charSet() <= Set_N; }
+    bool needsSet() const { return charSet() >= Set_1 && charSet() <= Set_N
+	    || charSet() == Set_Big5; }
 
 };
 
@@ -761,8 +762,13 @@ void QFont::load() const
 	    int nmissing;
 	    s = XCreateFontSet( QPaintDevice::x11AppDisplay(), n,
 				&missing, &nmissing, 0 );
-	    if ( missing )
+	    if ( missing ) {
 		XFreeStringList(missing);
+#if defined(DEBUG)
+		for(int i=0; i<nmissing; i++)
+		    debug("Qt: missing charset %s",missing[i]);
+#endif
+	    }
 	    d->fin->set = s;
 	    // [not cached]
 	    initFontInfo();

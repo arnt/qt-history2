@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdatabase.cpp#15 $
+** $Id: //depot/qt/main/src/kernel/qfontdatabase.cpp#16 $
 **
 ** Implementation of font database class.
 **
@@ -722,7 +722,8 @@ const QtFontFamily *QtFontFoundry::family( const QString &n ) const
 static bool localeNeedsSet()
 {
     return QFont::charSetForLocale() >= QFont::Set_1 &&
-           QFont::charSetForLocale() <= QFont::Set_N;
+           QFont::charSetForLocale() <= QFont::Set_N
+	|| QFont::charSetForLocale() == QFont::Set_Big5;
 }
 
 const QStringList &QFontDatabasePrivate::families( bool onlyForLocale ) const
