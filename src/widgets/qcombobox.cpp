@@ -335,8 +335,8 @@ QComboBox::QComboBox( QWidget *parent, const char *name )
     if ( style() == WindowsStyle ) {
 	setUpListBox();
     } else {
-	d = new QComboData( this );
 	d->setPopupMenu( new QComboBoxPopup );
+	d->popup()->setFont( font() );
 	connect( d->popup(), SIGNAL(activated(int)),
 			     SLOT(internalActivate(int)) );
 	connect( d->popup(), SIGNAL(highlighted(int)),
@@ -1839,6 +1839,7 @@ void QComboBox::setListBox( QListBox * newListBox )
 
     newListBox->reparent( 0, WType_Popup, QPoint(0,0), FALSE );
     d->setListBox( newListBox );
+    d->listBox()->setFont( font() );
 
     d->listBox()->setAutoScrollBar( FALSE );
     d->listBox()->setBottomScrollBar( FALSE );
@@ -2009,6 +2010,7 @@ void QComboBox::setEditable( bool y )
 void QComboBox::setUpListBox()
 {
     d->setListBox( new QListBox( 0, "in-combo", WType_Popup ) );
+    d->listBox()->setFont( font() );
     d->listBox()->setAutoScrollBar( FALSE );
     d->listBox()->setBottomScrollBar( FALSE );
     d->listBox()->setAutoBottomScrollBar( FALSE );
