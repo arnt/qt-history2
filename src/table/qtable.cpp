@@ -3643,12 +3643,6 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
 	    return TRUE;
 	}
 #endif
-    case QEvent::Hide:
-	if ( o->inherits( "QPopupMenu" ) ) {
-	    repaintSelections();
- 	    o->removeEventFilter( this );
-	}
-	break;
     default:
 	break;
     }

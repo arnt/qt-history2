@@ -2297,6 +2297,27 @@ void QListBox::updateSelection()
     }
 }
 
+void QListBox::repaintSelection()
+{
+    if ( d->numColumns == 1 ) {
+	for ( uint i = topItem(); itemVisible( i ) && i < count(); ++i ) {
+	    QListBoxItem *it = item(i);
+	    if ( !it )
+		break;
+	    if ( it->isSelected() )
+		updateItem( it );
+	}
+    } else {
+	for ( uint i = 0; i < count(); ++i ) {
+	    QListBoxItem *it = item(i);
+	    if ( !it )
+		break;
+	    if ( it->isSelected() )
+		updateItem( it );
+	}
+    }
+}
+
 /*! \reimp
 */
 
@@ -2554,25 +2575,8 @@ void QListBox::focusInEvent( QFocusEvent *e )
 	emit highlighted( tmp2 );
 	emit currentChanged( i );
     }
-    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ) {
-	if ( d->numColumns == 1 ) {
-	    for ( uint i = topItem(); itemVisible( i ) && i < count(); ++i ) {
-		QListBoxItem *it = item(i);
-		if ( !it )
-		    break;
-		if ( it->isSelected() )
-		    updateItem( it );
-	    }
-	} else {
-	    for ( uint i = 0; i < count(); ++i ) {
-		QListBoxItem *it = item(i);
-		if ( !it )
-		    break;
-		if ( it->isSelected() )
-		    updateItem( it );
-	    }
-	}
-    }
+    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) )
+	repaintSelection();
 
     if ( d->current ) {
 	updateItem( currentItem() );
@@ -2588,31 +2592,9 @@ void QListBox::focusInEvent( QFocusEvent *e )
 void QListBox::focusOutEvent( QFocusEvent *e )
 {
     Q_UNUSED(e) // I need this to get rid of a Borland warning
-    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ) {
-	if ( e->reason() != QFocusEvent::Popup ) {
-	    if ( d->numColumns == 1 ) {
-		for ( uint i = topItem(); itemVisible( i ) && i < count(); ++i ) {
-		    QListBoxItem *it = item(i);
-		    if ( !it )
-			break;
-		    if ( it->isSelected() )
-			updateItem( it );
-		}
-	    } else {
-		for ( uint i = 0; i < count(); ++i ) {
-		    QListBoxItem *it = item(i);
-		    if ( !it )
-			break;
-		    if ( it->isSelected() )
-			updateItem( it );
-		}
-	    }
-	} else {
-	    QWidget *widget = qApp->focusWidget();
-	    if ( widget && widget->inherits( "QPopupMenu" ) )
-		widget->installEventFilter( this );
-	}
-    }
+    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) 
+	&& e->reason() != QFocusEvent::Popup )
+	repaintSelection();
 
     if ( d->current )
 	updateItem( currentItem() );
@@ -2622,26 +2604,7 @@ void QListBox::focusOutEvent( QFocusEvent *e )
 */
 bool QListBox::eventFilter( QObject *o, QEvent *e )
 {
-    if ( e->type() == QEvent::Hide && o->inherits( "QPopupMenu" ) ) {
-	if ( d->numColumns == 1 ) {
-	    for ( uint i = topItem(); itemVisible( i ) && i < count(); ++i ) {
-		QListBoxItem *it = item(i);
-		if ( !it )
-		    break;
-		if ( it->isSelected() )
-		    updateItem( it );
-	    }
-	} else {
-	    for ( uint i = 0; i < count(); ++i ) {
-		QListBoxItem *it = item(i);
-		if ( !it )
-		    break;
-		if ( it->isSelected() )
-		    updateItem( it );
-	    }
-	}
-	o->removeEventFilter( this );
-    }
+    //### remove in 4.0
     return QScrollView::eventFilter( o, e );
 }
 

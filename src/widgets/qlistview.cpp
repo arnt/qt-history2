@@ -3542,12 +3542,6 @@ bool QListView::eventFilter( QObject * o, QEvent * e )
 		return TRUE;
 	    }
 	}
-    } else if ( e->type() == QEvent::Hide && o->inherits( "QPopupMenu" ) ) {
-	bool db = d->useDoubleBuffer;
-	d->useDoubleBuffer = TRUE;
-	viewport()->repaint( FALSE );
-	d->useDoubleBuffer = db;
-	o->removeEventFilter( this );
     }
 
     return QScrollView::eventFilter( o, e );
@@ -4445,10 +4439,6 @@ void QListView::focusOutEvent( QFocusEvent *e )
 	    d->useDoubleBuffer = TRUE;
 	    viewport()->repaint( FALSE );
 	    d->useDoubleBuffer = db;
-	} else {
-	    QWidget *widget = qApp->focusWidget();
-	    if ( widget && widget->inherits( "QPopupMenu" ) )
-		widget->installEventFilter( this );
 	}
     }
 

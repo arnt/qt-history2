@@ -289,6 +289,7 @@ private:
     int currentRow() const;
     int currentColumn() const;
     void updateSelection();
+    void repaintSelection();
     void drawRubber();
     void doRubberSelection( const QRect &old, const QRect &rubber );
     void handleItemChange( QListBoxItem *old, bool shift, bool control );

@@ -5054,17 +5054,12 @@ void QIconView::focusOutEvent( QFocusEvent *e )
     if ( d->currentItem )
 	repaintItem( d->currentItem );
 
-    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ) {
-	if ( e->reason() != QFocusEvent::Popup ) {
-	    QRect r = visibleRect();
-	    for ( QIconViewItem *item = firstItem(); item; item = item->nextItem() ) {
-		if ( item->isSelected() && item->rect().intersects( r ) )
-		    repaintItem( item );
-	    }
-	} else {
-	    QWidget *widget = qApp->focusWidget();
-	    if ( widget && widget->inherits( "QPopupMenu" ) )
-		widget->installEventFilter( this );
+    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) 
+	&& e->reason() != QFocusEvent::Popup ) {
+	QRect r = visibleRect();
+	for ( QIconViewItem *item = firstItem(); item; item = item->nextItem() ) {
+	    if ( item->isSelected() && item->rect().intersects( r ) )
+		repaintItem( item );
 	}
     }
 }
@@ -5398,13 +5393,6 @@ bool QIconView::eventFilter( QObject * o, QEvent * e )
 	    // nothing
 	    break;
 	}
-    } else if ( e->type() == QEvent::Hide && o->inherits( "QPopupMenu" ) ) {
-	QRect r = visibleRect();
-	for ( QIconViewItem *item = firstItem(); item; item = item->nextItem() ) {
-	    if ( item->isSelected() && item->rect().intersects( r ) )
-		repaintItem( item );
-	}
-	o->removeEventFilter( this );
     }
 
     return QScrollView::eventFilter( o, e );
