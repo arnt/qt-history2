@@ -654,7 +654,7 @@ QString &QString::remove(int i, int len)
 QString &QString::remove(QChar c, QString::CaseSensitivity cs)
 { CLEAR_ASCII_CACHE(d)
     int i = 0;
-    if (cs) {
+    if (cs == CaseSensitive) {
 	while (i < d->size)
 	    if (*((const QChar*)d->data + i) == c)
 		remove(i, 1);
@@ -748,7 +748,7 @@ QString& QString::replace(QChar before, QChar after, QString::CaseSensitivity cs
     if (d->size) {
 	QChar *i = detach();
 	QChar *e = i + d->size;
-	if (cs) {
+	if (cs == CaseSensitive) {
 	    for (; i != e; ++i)
 		if (*i == before)
 		   * i = after;
@@ -787,7 +787,7 @@ int QString::find(QChar c, int i, QString::CaseSensitivity cs) const
     if (i  < d->size) {
 	const QChar *n = (const QChar*)d->data + i - 1;
 	const QChar *e = (const QChar*)d->data + d->size;
-	if (cs) {
+	if (cs == CaseSensitive) {
 	    while (++n != e)
 		if (*n == c)
 		    return  n - (const QChar*)d->data;
@@ -827,7 +827,7 @@ int QString::findRev(QChar c, int i, QString::CaseSensitivity cs) const
     if (i >= 0) {
 	const QChar *n =  (const QChar*)d->data + i;
 	const QChar *b = (const QChar*)d->data;
-	if (cs) {
+	if (cs == CaseSensitive) {
 	    for (; n >= b; --n)
 		if (*n == c)
 		    return  n - b;
@@ -844,7 +844,7 @@ int QString::findRev(QChar c, int i, QString::CaseSensitivity cs) const
 /* an implementation of the Boyer-Moore search algorithm
 */
 
-/* initializes the skiptable to know haw far ahead we can skip on a wrong match
+/* initializes the skiptable to know how far ahead we can skip on a wrong match
 */
 static void bm_init_skiptable(const QChar *uc, int l, uint *skiptable, QString::CaseSensitivity cs)
 {
@@ -860,7 +860,7 @@ static void bm_init_skiptable(const QChar *uc, int l, uint *skiptable, QString::
 	*(st++) = l;
 	*(st++) = l;
     }
-    if (cs) {
+    if (cs == QString::CaseSensitive) {
 	while (l--) {
 	    skiptable[uc->cell()] = l;
 	    uc++;
@@ -881,7 +881,7 @@ static int bm_find(const QChar *uc, uint l, int index, const QChar *puc, uint pl
 
     register const QChar *current = uc + index + pl_minus_one;
     const QChar *end = uc + l;
-    if (cs) {
+    if (cs == QString::CaseSensitive) {
 	while (current < end) {
 	    uint skip = skiptable[current->cell()];
 	    if (!skip) {
@@ -984,7 +984,7 @@ int QString::find(const QString& s, int i, QString::CaseSensitivity cs) const
     const uint sl_minus_1 = sl-1;
     uint hashNeedle = 0, hashHaystack = 0, idx;
 
-    if (cs) {
+    if (cs == CaseSensitive) {
 	for (idx = 0; idx < sl; ++idx) {
 	    hashNeedle = ((hashNeedle<<1) + needle[idx].unicode());
 	    hashHaystack = ((hashHaystack<<1) + haystack[idx].unicode());
@@ -1068,7 +1068,7 @@ int QString::findRev(const QString& s, int i, QString::CaseSensitivity cs) const
     const QChar *h = haystack+sl_minus_1;
     uint hashNeedle = 0, hashHaystack = 0, idx;
 
-    if (cs) {
+    if (cs == CaseSensitive) {
 	for (idx = 0; idx < sl; ++idx) {
 	    hashNeedle = ((hashNeedle<<1) + (n-idx)->unicode());
 	    hashHaystack = ((hashHaystack<<1) + (h-idx)->unicode());
@@ -1125,7 +1125,7 @@ QString& QString::replace(const QString & before, const QString & after, QString
 	if (before.d->size)
 	    return *this;
     } else {
-	if (cs && before == after)
+	if (cs == CaseSensitive && before == after)
 	    return *this;
     }
     CLEAR_ASCII_CACHE(d)
@@ -1399,7 +1399,7 @@ int QString::count(QChar c, QString::CaseSensitivity cs) const
     int num = 0;
     const QChar *i = (const QChar*) d->data + d->size;
     const QChar *b = (const QChar*) d->data;
-    if (cs) {
+    if (cs == CaseSensitive) {
 	while (i != b)
 	    if (*--i == c)
 		++num;
@@ -2054,7 +2054,7 @@ bool QString::startsWith(const QString& s, QString::CaseSensitivity cs) const
 	return s.d->size == 0;
     if (s.d->size > d->size)
 	return false;
-    if (cs) {
+    if (cs == CaseSensitive) {
 	for (int i = 0; i < s.d->size; ++i)
 	    if (d->data[i] != s.d->data[i])
 		return false;
@@ -2088,7 +2088,7 @@ bool QString::endsWith(const QString& s, QString::CaseSensitivity cs) const
     int pos = d->size - s.d->size;
     if (pos < 0)
 	return false;
-    if (cs) {
+    if (cs == CaseSensitive) {
 	for (int i = 0; i < s.d->size; i++)
 	    if (d->data[pos+i] != s.d->data[i])
 		return false;
