@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#13 $
+** $Id: //depot/qt/main/src/kernel/qgmanager.cpp#14 $
 **
 ** Implementation of QGGeometry class
 **
@@ -13,7 +13,7 @@
 #include "qlist.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#13 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanager.cpp#14 $");
 
 
 
@@ -333,6 +333,8 @@ void QSerChain::distribute( wDict & wd, int pos, int space )
     }
     int sf = sumStretch();
 
+#define DISTRIBUTE_AVAILABLE_AFTER_MINIMUM // Qt 1.x
+#ifdef DISTRIBUTE_AVAILABLE_AFTER_MINIMUM
     QArray<fixed> sizes( chain.count() );
     int i;
     for ( i = 0; i < (int)chain.count(); i++ )
@@ -362,6 +364,84 @@ void QSerChain::distribute( wDict & wd, int pos, int space )
 	    sizes[i] = siz;
 	}
     }
+#else
+    QArray<fixed> sizes( chain.count() );
+    QArray<bool> forced( chain.count() );
+    int i;
+    for ( i = 0; i < (int)chain.count(); i++ )
+	forced[i] = FALSE;
+    bool doAgain = TRUE;
+    bool done_pass = FALSE;
+    int numChains = chain.count();
+    fixed sp = toFixed( space );
+    while ( doAgain && numChains ) {
+	doAgain = FALSE;
+	for ( i = 0; i < (int)chain.count(); i++ ) {
+	    if ( forced[i] )
+		continue;
+	    fixed maxS = toFixed( chain.at(i)->maxSize() );
+	    fixed minS = toFixed( chain.at(i)->minSize() );
+	    fixed siz;
+	    if ( sf )
+		siz = sp * chain.at(i)->stretch() / sf;
+	    else
+		siz = sp / numChains;
+	    if ( siz <= minS ) {
+		sp -= minS;
+		sizes[i] = minS;
+		forced[i] = TRUE;
+		sf -= chain.at(i)->stretch();
+		numChains--;
+		doAgain = TRUE;
+		break;
+	    } else if ( siz >= maxS ) {
+		if ( done_pass ) {
+		    sp -= maxS;
+		    sizes[i] = maxS;
+		    forced[i] = TRUE;
+		    sf -= chain.at(i)->stretch();
+		    numChains--;
+		    doAgain = TRUE;
+		    break;
+		} else {
+		    doAgain = TRUE;
+		}
+	    }
+	    sizes[i] = siz;
+	}
+	if ( i == (int)chain.count() ) done_pass = TRUE;
+    }
+    fixed tsize = 0;
+    int nsf0 = 0;
+    for ( i = 0; i < (int)chain.count(); i++ ) {
+	tsize += sizes[i];
+	if ( chain.at(i)->stretch() == 0
+	  && sizes[i] < toFixed( chain.at(i)->maxSize() ) ) nsf0++;
+    }
+    while ( tsize < toFixed(space) && nsf0 ) {
+	fixed tsp = (toFixed(space) - tsize);
+	fixed portion = tsp / nsf0;
+	int n0 = nsf0;
+	int n = nsf0;
+	for ( i = 0; i < (int)chain.count(); i++ ) {
+	    if ( chain.at(i)->stretch() == 0
+	      && sizes[i] < toFixed( chain.at(i)->maxSize() ) )
+	    {
+		fixed extra = toFixed( chain.at(i)->maxSize() ) - sizes[i];
+		if ( --n == 0 ) {
+		    portion = tsp - (n0-1) * portion;
+		}
+		if ( extra <= portion ) {
+		    nsf0--;
+		} else {
+		    extra = portion;
+		}
+		sizes[i] += portion;
+		tsize += portion;
+	    }
+	}
+    }
+#endif
 
     int n = chain.count();
     QArray<int> places( n + 1 );
