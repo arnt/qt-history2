@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: shclass.doc,v 1.4 1995/12/20 20:58:12 hanord Exp $
+** $Id: shclass.doc,v 1.5 1995/12/27 17:25:02 hanord Exp $
 **
 ** Qt Shared Classes Documentation
 **
@@ -144,12 +144,12 @@ be unacceptably slow.
 All classes that are instances of the QArray template class are explicitly
 shared:
 <ul>
-<li> QBitArray
-<li> QByteArray
-<li> QImage (does not inherit QArray)
-<li> QPointArray
-<li> QString
-<li> Any other instantiation of QArray<type>
+<li>\link QBitArray QBitArray\endlink
+<li>\link QByteArray QByteArray\endlink
+<li>\link QImage QImage\endlink (does not inherit QArray)
+<li>\link QPointArray QPointArray\endlink
+<li>\link QString QString\endlink
+<li>Any other instantiation of \link QArray QArray<type>\endlink
 </ul>
 
 These classes have a detach() function that can be called if you want your
@@ -161,15 +161,15 @@ function that returns a deep copy with reference count 1 of an object.
 
 The Qt classes that are implicitly shared are:
 <ul>
-<li> QBitmap
-<li> QBrush
-<li> QCursor
-<li> QFont
-<li> QFontInfo
-<li> QFontMetrics
-<li> QPen
-<li> QPixmap
-<li> QRegion (not fully implemented)
+<li>\link QBitmap QBitmap\endlink
+<li>\link QBrush QBrush\endlink
+<li>\link QCursor QCursor\endlink
+<li>\link QFont QFont\endlink
+<li>\link QFontInfo QFontInfo\endlink
+<li>\link QFontMetrics QFontMetrics\endlink
+<li>\link QPen QPen\endlink
+<li>\link QPixmap QPixmap\endlink
+<li>\link QRegion QRegion\endlink (not fully implemented)
 </ul>
 
 These classes automatically detach from common data if an object is about
