@@ -100,6 +100,7 @@ public:
     {
 	const QTextPieceTable *pt;
     public:
+	inline BlockIterator() : pt(0) {}
 	inline BlockIterator(const QFragmentMap<QTextBlock>::ConstIterator i, const QTextPieceTable *p)
 	    : QFragmentMap<QTextBlock>::ConstIterator(i),  pt(p) {}
 
@@ -219,5 +220,7 @@ private:
 
     QTextDocumentConfig docConfig;
 };
+
+Q_DECLARE_TYPEINFO(QTextPieceTable::BlockIterator, Q_PRIMITIVE_TYPE);
 
 #endif // QPIECEMAP_H
