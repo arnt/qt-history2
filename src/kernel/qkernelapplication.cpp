@@ -63,7 +63,11 @@ bool QKernelApplication::is_app_closing = FALSE;
 
 uint qGlobalPostedEventsCount()
 {
+#ifdef QT_THREAD_SUPPORT
     QEventLoopPrivate *p = qt_find_eventloop_private(QThread::currentThread());
+#else
+    QEventLoopPrivate *p = qt_find_eventloop_private(0);
+#endif
     return p->postedEvents->size();
 }
 
