@@ -1,12 +1,12 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#16 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#17 $
 **
 ** Implementation of QWidget class
 **
 ** Author  : Haavard Nord
 ** Created : 931031
 **
-** Copyright (C) 1993,1994 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1993-1995 by Troll Tech AS.  All rights reserved.
 **
 ** --------------------------------------------------------------------------
 ** IMPORTANT NOTE: Widget identifier should only be set with the set_id()
@@ -14,13 +14,14 @@
 *****************************************************************************/
 
 #define	 NO_WARNINGS
-#include "qwidget.h"
 #include "qobjcoll.h"
+#include "qwidget.h"
+#include "qwidcoll.h"
 #include "qapp.h"
 #include "qcolor.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#16 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#17 $";
 #endif
 
 
@@ -37,14 +38,9 @@ static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget.cpp#16 $";
 // in the file qapp_xxx.cpp.
 //
 
-#include "qintdict.h"
-
-declare(QIntDictM,QWidget);
-declare(QIntDictIteratorM,QWidget);
-
 static const WDictSize = 101;
 
-class QWidgetMapper : public QIntDictM(QWidget)
+class QWidgetMapper : public QWidgetIntDict
 {						// maps ids -> widgets
 public:
     QWidgetMapper();
@@ -62,7 +58,7 @@ QWidgetMapper *QWidget::mapper = 0;		// app global widget mapper
 QWidget *QWidget::activeWidget = 0;		// widget in focus
 
 
-QWidgetMapper::QWidgetMapper() : QIntDictM(QWidget)(WDictSize)
+QWidgetMapper::QWidgetMapper() : QWidgetIntDict(WDictSize)
 {
     cur_id = 0;
     cur_widget = 0;
@@ -76,7 +72,7 @@ QWidgetMapper::~QWidgetMapper()
 inline QWidget *QWidgetMapper::find( WId id )
 {
     if ( id != cur_id ) {			// need to lookup
-	cur_widget = QIntDictM(QWidget)::find((long)id);
+	cur_widget = QWidgetIntDict::find((long)id);
 	if ( cur_widget )
 	    cur_id = id;
 	else
@@ -87,7 +83,7 @@ inline QWidget *QWidgetMapper::find( WId id )
 
 inline bool QWidgetMapper::insert( const QWidget *widget )
 {
-    return QIntDictM(QWidget)::insert((long)widget->id(),widget);
+    return QWidgetIntDict::insert((long)widget->id(),widget);
 }
 
 inline bool QWidgetMapper::remove( WId id )
@@ -96,7 +92,7 @@ inline bool QWidgetMapper::remove( WId id )
 	cur_id = 0;
 	cur_widget = 0;
     }
-    return QIntDictM(QWidget)::remove((long)id);
+    return QWidgetIntDict::remove((long)id);
 }
 
 
@@ -151,7 +147,7 @@ void QWidget::destroyMapper()			// destroy widget mapper
     register QWidget *w;
     QWidgetMapper *tmp = mapper;
     mapper = 0;					// controlled cleanup
-    QIntDictIteratorM(QWidget) it( *((QIntDictM(QWidget)*)tmp) );
+    QWidgetIntDictIt it( *((QWidgetIntDict*)tmp) );
     w = it.current();
     while ( w ) {				// remove child widgets first
 	if ( w->parentObj ) {			// widget has a parent
