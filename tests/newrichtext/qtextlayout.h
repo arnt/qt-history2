@@ -93,6 +93,13 @@ public:
     Result endLine( int x, int y, Qt::AlignmentFlags alignment, int *ascent, int *descent );
     void endLayout();
 
+    enum CursorMode {
+	SkipCharacters,
+	SkipWords
+    };
+    int nextCursorPosition( int oldPos, CursorMode mode = SkipCharacters ) const;
+    int previousCursorPosition( int oldPos, CursorMode mode = SkipCharacters ) const;
+
 private:
     /* disable copy and assignment */
     QTextLayout( const QTextLayout & ) {}

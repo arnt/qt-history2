@@ -291,7 +291,8 @@ struct QCharAttributes {
     uint whiteSpace     :1;     // A unicode whitespace character, except NBSP, ZWNBSP
     uint charStop       :1;     // Valid cursor position (for left/right arrow)
     uint wordStop       :1;     // Valid cursor position (for ctrl + left/right arrow)
-    uint reserved       :4;
+    uint invalid        :1;
+    uint reserved       :3;
 };
 
 class QTextEngine;

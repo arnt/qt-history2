@@ -42,19 +42,20 @@ const char *family = "Diwani Letter,Verdana,Latha,Akaash,Serto Jerusalem,Mangal,
 // const char * s = "অাবার অাসিব ফিরে ধানসিড়িটির তীরে - এই বাংলায় হয়তো মানুষ নয় - হয়তো বা শঙ্খচিল শালিখের বেশে, হয়তো ভোরের কাক হয়ে এই কার্তিকের নবান্নের দেশে  কুয়াশার বুকে ভেসে একদিন অাসিব এই কাঁঠাল - ছায়ায়, হয়তো বা হাঁস হব - কিশোরীর - ঘুঙুর রহিবে লাল পায়ে, সারাদিন কেটে যাবে কলমীর গন্ধ ভরা জলে ভেসে ভেসে, অাবার অাসিব অামি বাংলার নদী মাঠ ক্ষেত ভালোবেসে জলঙ্গীর ঢেউয়ে ভেজা বাংলার এ সবুজ করুণ ডাঙায়";
 
 // mixed
-// const char *s =
-// "Thai: ทำไมเขาถึงไม่พูด "
-// "Syriac: ܠܡܢܐܠܐܡܡܠܠܝܢܣܘܪܝܝܐ "
-// "Arabic: أوروبا, برمجيات الحاسوب "
-// "Hebrew: תוכנה והאינטרנט "
-// "Devanagari: रूस के राष्ट्रपति "
-// "Bengali: অাবার অাসিব ফিরে "
-// ;
+const char *s =
+"Thai: ทำไมเขาถึงไม่พูด "
+"Syriac: ܠܡܢܐܠܐܡܡܠܠܝܢܣܘܪܝܝܐ "
+"Arabic: أوروبا, برمجيات الحاسوب "
+"Hebrew: תוכנה והאינטרנט "
+"Devanagari: रूस के राष्ट्रपति "
+"Bengali: অাবার অাসিব ফিরে "
+"Vietnamese: Tại sao họ không thể chỉ nói tiệ̣̣́ng "
+;
 
 // latin
-const char *s =
-"KDE is a powerful Open Source graphical desktop environment for Unix workstations. It combines ease of use, contemporary functionality, and outstanding graphical design with the technological superiority of the Unix operating system. KDE is an Internet project that is truly open in every sense. Development takes place on the Internet and is discussed on our mailing lists, USENET news groups, and IRC channels to which we invite and welcome everyone."
-;
+// const char *s =
+// "KDE is a powerful Open Source graphical desktop environment for Unix workstations. It combines ease of use, contemporary functionality, and outstanding graphical design with the technological superiority of the Unix operating system. KDE is an Internet project that is truly open in every sense. Development takes place on the Internet and is discussed on our mailing lists, USENET news groups, and IRC channels to which we invite and welcome everyone."
+// ;
 
 
 

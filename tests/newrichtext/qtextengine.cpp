@@ -769,7 +769,7 @@ const QCharAttributes *QTextEngine::attributes()
 	int from = si.position;
 	int len = length( i );
 	assert( si.analysis.script <= QFont::Unicode );
-	scriptEngines[si.analysis.script].charAttributes( string, from, len, charAttributes+from );
+	scriptEngines[si.analysis.script].charAttributes( string, from, len, charAttributes );
     }
     return charAttributes;
 }

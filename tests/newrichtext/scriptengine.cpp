@@ -289,11 +289,14 @@ static void basic_shape( int /*script*/, const QString &string, int from, int le
 static void basic_attributes( const QString &text, int from, int len, QCharAttributes *attributes )
 {
     const QChar *uc = text.unicode() + from;
+    attributes += from;
     for ( int i = 0; i < len; i++ ) {
-	attributes->whiteSpace = ::isSpace( *uc ) && (uc->unicode() != 0xa0);
+	QChar::Category cat = ::category( *uc );
+	attributes->whiteSpace = (cat == QChar::Separator_Space) && (uc->unicode() != 0xa0);
 	attributes->softBreak = FALSE;
-	attributes->charStop = TRUE;
+	attributes->charStop = (cat != QChar::Mark_NonSpacing);
 	attributes->wordStop = FALSE;
+	attributes->invalid = FALSE;
 	++uc;
 	++attributes;
     }
@@ -870,11 +873,14 @@ static void openTypeShape( int script, const QOpenType *openType, const QString 
 static void arabic_attributes( const QString &text, int from, int len, QCharAttributes *attributes )
 {
     const QChar *uc = text.unicode() + from;
+    attributes += from;
     for ( int i = 0; i < len; i++ ) {
-	attributes->whiteSpace = ::isSpace( *uc );
+	QChar::Category cat = ::category( *uc );
+	attributes->whiteSpace = (cat == QChar::Separator_Space) && (uc->unicode() != 0xa0);
 	attributes->softBreak = FALSE;
-	attributes->charStop = TRUE;
+	attributes->charStop = (cat != QChar::Mark_NonSpacing);
 	attributes->wordStop = FALSE;
+	attributes->invalid = FALSE;
 	++uc;
 	++attributes;
     }
@@ -2609,8 +2615,8 @@ ReorderFunction reorderFunctions[10] = {
 
 
 
-static QString analyzeSyllables( int script, const QString &string, int from, int length, unsigned short *featuresToApply,
-				 GlyphAttributes *attributes ) {
+static QString analyzeSyllables( int script, const QString &string, int from, int length,
+				 unsigned short *featuresToApply, GlyphAttributes *attributes ) {
     QString reordered;
 
     int sstart = from;
@@ -2622,7 +2628,8 @@ static QString analyzeSyllables( int script, const QString &string, int from, in
 // 	qDebug("syllable from %d, length %d, invalid=%s", sstart, send-sstart,
 // 	       invalid ? "true" : "false" );
 	assert( script >= QFont::Devanagari && script <= QFont::Sinhala );
-	QString str = (reorderFunctions[script-QFont::Devanagari])( string, sstart, send, featuresToApply+fpos, attributes+fpos, invalid );
+	QString str = (reorderFunctions[script-QFont::Devanagari])( string, sstart, send, featuresToApply+fpos,
+								    attributes+fpos, invalid );
 	reordered += str;
 	fpos += str.length();
 
@@ -2668,7 +2675,6 @@ static void indic_shape( int script, const QString &string, int from, int len, Q
     if ( openType && openType->supportsScript( QFont::Devanagari ) ) {
 	((QOpenType *) openType)->apply( QFont::Devanagari, featuresToApply, item, len );
     } else {
-	heuristicSetGlyphAttributes( string, from, len, item );
 	q_calculateAdvances( item );
     }
 
@@ -2677,6 +2683,41 @@ static void indic_shape( int script, const QString &string, int from, int len, Q
 }
 
 
+static void indic_attributes( const QString &text, int from, int len, QCharAttributes *attributes )
+{
+    qDebug("indic_attribtues: from=%d, len=%d", from, len );
+    int end = from + len;
+    const QChar *uc = text.unicode() + from;
+    attributes += from;
+    int i = 0;
+    while ( i < len ) {
+	// ### fix script
+	bool invalid;
+	int boundary = nextSyllableBoundary( QFont::Devanagari, text, from+i, end, &invalid ) - from;
+	qDebug("next boundary at %d", boundary );
+
+	attributes[i].whiteSpace = ::isSpace( *uc ) && (uc->unicode() != 0xa0);
+	attributes[i].softBreak = FALSE;
+	attributes[i].charStop = TRUE;
+	attributes[i].wordStop = FALSE;
+	attributes[i].invalid = invalid;
+
+	if ( boundary > len-1 ) boundary = len;
+	i++;
+	while ( i < boundary ) {
+	    attributes[i].whiteSpace = ::isSpace( *uc ) && (uc->unicode() != 0xa0);
+	    attributes[i].softBreak = FALSE;
+	    attributes[i].charStop = FALSE;
+	    attributes[i].wordStop = FALSE;
+	    attributes[i].invalid = invalid;
+	    ++uc;
+	    ++i;
+	}
+	assert( i == boundary );
+    }
+
+
+}
 
 // --------------------------------------------------------------------------------------------------------------------------------------------
 //
@@ -2726,25 +2767,25 @@ const q_scriptEngine scriptEngines[] = {
 
 	// // South and Southeast Asian Scripts
 	// Devanagari,
-    { indic_shape, basic_attributes },
+    { indic_shape, indic_attributes },
 	// Bengali,
-    { indic_shape, basic_attributes },
+    { indic_shape, indic_attributes },
 	// Gurmukhi,
-    { indic_shape, basic_attributes },
+    { indic_shape, indic_attributes },
 	// Gujarati,
-    { indic_shape, basic_attributes },
+    { indic_shape, indic_attributes },
 	// Oriya,
-    { indic_shape, basic_attributes },
+    { indic_shape, indic_attributes },
 	// Tamil,
-    { indic_shape, basic_attributes },
+    { indic_shape, indic_attributes },
 	// Telugu,
-    { indic_shape, basic_attributes },
+    { indic_shape, indic_attributes },
 	// Kannada,
-    { indic_shape, basic_attributes },
+    { indic_shape, indic_attributes },
 	// Malayalam,
-    { indic_shape, basic_attributes },
+    { indic_shape, indic_attributes },
 	// Sinhala,
-    { indic_shape, basic_attributes },
+    { indic_shape, indic_attributes },
 	// Thai,
     { basic_shape, basic_attributes },
 	// Lao,

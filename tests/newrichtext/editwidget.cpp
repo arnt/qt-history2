@@ -67,20 +67,20 @@ void EditWidget::keyPressEvent ( QKeyEvent *e )
 {
     switch( e->key() ) {
     case Key_Left:
-	if ( d->cursorPos )
-	    d->cursorPos--;
+	d->cursorPos = d->layout->previousCursorPosition( d->cursorPos );
 	break;
     case Key_Right:
-	if ( d->cursorPos < d->text.length()-1 )
-	    d->cursorPos++;
+	d->cursorPos = d->layout->nextCursorPosition( d->cursorPos );
 	break;
     case Key_Backspace:
 	if ( d->cursorPos )
 	    d->text.remove( --d->cursorPos, 1 );
 	break;
-    case Key_Delete:
-	d->text.remove( d->cursorPos, 1 );
+    case Key_Delete: {
+	int nextChar = d->layout->nextCursorPosition( d->cursorPos );
+	d->text.remove( d->cursorPos, nextChar - d->cursorPos );
 	break;
+    }
     default:
 	if ( !e->text().isEmpty() ) {
 	    d->text.insert( d->cursorPos, e->text() );
@@ -110,6 +110,11 @@ void EditWidget::paintEvent( QPaintEvent * )
 #else
 	p.drawTextItem( 0,  0, ti );
 #endif
+	int pos = d->cursorPos - ti.from();
+	if ( pos >= 0 && pos <= ti.length() ) {
+	    int x = ti.cursorToX( &pos ) + ti.x();
+	    p.drawLine( x, ti.y() - ti.ascent(), x, ti.y() + ti.descent() );
+	}
     }
 }
 
@@ -130,7 +135,6 @@ void EditWidget::recalculate()
     int y = 10;
     int lw = width() - 20;
 
-    int state = QTextLayout::Ok;
     int add = 0;
 //     qDebug("\n\nbeginLayout: lw = %d", lw );
     while ( !d->layout->atEnd() ) {

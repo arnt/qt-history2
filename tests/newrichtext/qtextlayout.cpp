@@ -478,3 +478,39 @@ void QTextLayout::endLayout()
 }
 
 
+int QTextLayout::nextCursorPosition( int oldPos, CursorMode mode = SkipCharacters ) const
+{
+    qDebug("looking for next cursor pos for %d", oldPos );
+    const QCharAttributes *attributes = d->attributes();
+    int len = d->string.length();
+    if ( oldPos >= len )
+	return oldPos;
+    oldPos++;
+    if ( mode == SkipCharacters ) {
+	while ( oldPos < len - 1 && !attributes[oldPos].charStop )
+	    oldPos++;
+    } else {
+	while ( oldPos < len - 1 && !attributes[oldPos].wordStop )
+	    oldPos++;
+    }
+    qDebug("  -> %d",  oldPos );
+    return oldPos;
+}
+
+int QTextLayout::previousCursorPosition( int oldPos, CursorMode mode = SkipCharacters ) const
+{
+    qDebug("looking for previous cursor pos for %d", oldPos );
+    const QCharAttributes *attributes = d->attributes();
+    if ( oldPos <= 0 )
+	return 0;
+    oldPos--;
+    if ( mode == SkipCharacters ) {
+	while ( oldPos && !attributes[oldPos].charStop )
+	    oldPos--;
+    } else {
+	while ( oldPos && !attributes[oldPos].wordStop )
+	    oldPos--;
+    }
+    qDebug("  -> %d",  oldPos );
+    return oldPos;
+}
