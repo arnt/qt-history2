@@ -291,6 +291,7 @@ public:
 
   \sa QTranslatorMessage QApplication::installTranslator()
   QApplication::removeTranslator() QObject::tr() QApplication::translate()
+  \link i18n.html Internationalization with Qt \endlink
 */
 
 /*! \enum QTranslator::SaveMode
@@ -958,27 +959,31 @@ QValueList<QTranslatorMessage> QTranslator::messages() const
 
 /*! \class QTranslatorMessage qtranslator.h
 
+  \preliminary
+
   \brief The QTranslatorMessage class contains a translator message and its
   properties.
 
   \ingroup environment
 
+  \omit
   THIS CLASS MAY CHANGE A BIT.  PLEASE DO NOT DO COPY EDITING HERE
   WITHOUT TALKING TO ARNT.
+  \endomit
 
   This class is of no interest to most applications, just for
-  translation tools, e.g.
-  <a href="http://www.trolltech.com/linguist/">Qt Linguist.</a> It is
+  translation tools such as
+  \link http://www.trolltech.com/linguist/ Qt Linguist \endlink. It is
   provided simply to make the API complete and regular.
 
   For a QTranslator object, a lookup key is a triple (\e context, \e
-  source \e text, \e comment) that uniquely identifies a message.  An
-  extended key is a quadruple (\e hash, \e context, \e source \e
-  text, \e comment), where \e hash is computed from the source text
+  {source text}, \e comment) that uniquely identifies a message.  An
+  extended key is a quadruple (\e hash, \e context, \e {source
+  text}, \e comment), where \e hash is computed from the source text
   and the comment.  Unless you plan to read and write messages
   yourself, you need not worry about the hash value.
 
-  QTranslatorMessage stores theis triple or quadruple, the relevant
+  QTranslatorMessage stores this triple or quadruple, the relevant
   translation if there is any, and the status of the message.
 
   \sa QTranslator
