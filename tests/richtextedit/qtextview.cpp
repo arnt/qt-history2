@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#12 $
+** $Id: //depot/qt/main/tests/richtextedit/qtextview.cpp#13 $
 **
 ** Implementation of the QtTextView class
 **
@@ -150,7 +150,6 @@ void QtTextView::init()
     setKeyCompression( TRUE );
     setVScrollBarMode( QScrollView::Auto );
     setHScrollBarMode( QScrollView::Auto );
-//     setHScrollBarMode( AlwaysOff );
 
     d->doc_ = 0;
     d->viewId = 0;
@@ -225,7 +224,8 @@ void QtTextView::setText( const QString& text, const QString& context)
 	    d->fcresize->doLayout( &p, viewport()->height() + contentsY() );
 	}
 	QSize vs( viewportSize( flow->widthUsed, flow->height ) );
-	if ( vs.width() != viewportSize(0,0).width() ) { // we'll get a vertical scrollbar, it seems. Once again
+	if ( !verticalScrollBar()->isVisible() && vs.width() != viewportSize(0,0).width() ) { 
+	    // we'll get a vertical scrollbar, it seems. Once again
 	    d->fcresize->initFlow( flow, vs.width() );
 	    {
 		QPainter p( viewport() );
@@ -234,7 +234,7 @@ void QtTextView::setText( const QString& text, const QString& context)
 	    }
 	}
 	setContentsPos( 0, 0 );
-	resizeContents( flow->widthUsed-1, flow->height );
+	resizeContents( flow->widthUsed, flow->height );
 	d->resizeTimer->start( 0, TRUE );
 	viewport()->repaint( FALSE );
     }
@@ -596,18 +596,21 @@ void QtTextView::paragraphChanged( QtTextParagraph* b)
 */
 void QtTextView::resizeEvent( QResizeEvent* e )
 {
+    QScrollView::resizeEvent( e );
+    richText().invalidateLayout( d->viewId );
     QtTextFlow* flow = richText().flow(d->viewId);
     flow->x = 0;
     delete d->fcresize;
     d->fcresize = new QtTextCursor( richText(), d->viewId );
-    d->fcresize->initFlow( flow, viewportSize(0,0).width() );
+    d->fcresize->initFlow( flow, viewport()->width() );
     {
 	QPainter p( viewport() );
 	d->fcresize->initParagraph( &p, &richText() );
 	d->fcresize->doLayout( &p, viewport()->height() + contentsY() );
     }
     QSize vs( viewportSize( flow->widthUsed, flow->height ) );
-    if ( vs.width() != viewportSize(0,0).width() ) { // we'll get a vertical scrollbar, it seems. Once again
+    if ( !verticalScrollBar()->isVisible() && vs.width() != viewport()->width() ) { 
+	// we'll get a vertical scrollbar, it seems. Once again
 	d->fcresize->initFlow( flow, vs.width() );
 	{
 	    QPainter p( viewport() );
