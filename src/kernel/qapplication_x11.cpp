@@ -3134,7 +3134,7 @@ static bool qt_try_modal( QWidget *widget, XEvent *event )
     }
 
     bool block_event  = FALSE;
-//    bool expose_event = FALSE; ### never unused?!?
+//    bool expose_event = FALSE; ### never used?!?
 
     switch ( event->type ) {
 	case ButtonPress:			// disallow mouse/key events
@@ -3150,7 +3150,7 @@ static bool qt_try_modal( QWidget *widget, XEvent *event )
 	    block_event	 = TRUE;
 	    break;
 	case Expose:
-//	    expose_event = TRUE; ### never unused?!?
+//	    expose_event = TRUE; ### never used?!?
 	    break;
     }
 
@@ -4851,11 +4851,11 @@ QStringList QSessionManager::discardCommand() const
     return d->discardCommand;
 }
 
-void QSessionManager::setProperty( const QString&, const QString&)
+void QSessionManager::setManagerProperty( const QString&, const QString&)
 {
 }
 
-void QSessionManager::setProperty( const QString&, const QStringList& )
+void QSessionManager::setManagerProperty( const QString&, const QStringList& )
 {
 }
 
@@ -4895,10 +4895,10 @@ static bool sm_smActive;
 static int sm_interactStyle;
 static int sm_saveType;
 static bool sm_cancel;
-// static bool sm_waitingForPhase2;  ### never unused?!?
+// static bool sm_waitingForPhase2;  ### never used?!?
 static bool sm_waitingForInteraction;
 static bool sm_isshutdown;
-// static bool sm_shouldbefast;  ### never unused?!?
+// static bool sm_shouldbefast;  ### never used?!?
 static bool sm_phase2;
 static bool sm_in_phase2;
 
@@ -4918,14 +4918,14 @@ static void sm_performSaveYourself( QSessionManager* );
 
 static void resetSmState()
 {
-//    sm_waitingForPhase2 = FALSE; ### never unused?!?
+//    sm_waitingForPhase2 = FALSE; ### never used?!?
     sm_waitingForInteraction = FALSE;
     sm_interactionActive = FALSE;
     sm_interactStyle = SmInteractStyleNone;
     sm_smActive = FALSE;
     sm_blockUserInput = FALSE;
     sm_isshutdown = FALSE;
-//    sm_shouldbefast = FALSE; ### never unused?!?
+//    sm_shouldbefast = FALSE; ### never used?!?
     sm_phase2 = FALSE;
     sm_in_phase2 = FALSE;
 }
@@ -4992,7 +4992,7 @@ static void sm_saveYourselfCallback( SmcConn smcConn, SmPointer clientData,
     sm_isshutdown = shutdown;
     sm_saveType = saveType;
     sm_interactStyle = interactStyle;
-//    sm_shouldbefast = fast; ### never unused?!?
+//    sm_shouldbefast = fast; ### never used?!?
 
     // ugly workaround for broken libSM. libSM should do that _before_
     // actually invoking the callback in sm_process.c
@@ -5295,7 +5295,7 @@ QStringList QSessionManager::discardCommand() const
     return d->discardCommand;
 }
 
-void QSessionManager::setProperty( const QString& name, const QString& value)
+void QSessionManager::setManagerProperty( const QString& name, const QString& value)
 {
     SmPropValue prop;
     prop.length = value.length();
@@ -5303,7 +5303,7 @@ void QSessionManager::setProperty( const QString& name, const QString& value)
     sm_setProperty( name.latin1(), SmARRAY8, 1, &prop );
 }
 
-void QSessionManager::setProperty( const QString& name, const QStringList& value)
+void QSessionManager::setManagerProperty( const QString& name, const QStringList& value)
 {
     SmPropValue *prop = new SmPropValue[ value.count() ];
     int count = 0;

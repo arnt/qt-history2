@@ -692,7 +692,7 @@ QRect QSGIStyle::comboButtonRect( int x, int y, int w, int h) const
 /*! \reimp
  */
 QRect
-QSGIStyle::comboButtonFocusRect( int x, int y, int w, int h)
+QSGIStyle::comboButtonFocusRect( int x, int y, int w, int h) const
 {
     int awh, ax, ay, sh, sy, dh, ew;
     get_combo_parameters( buttonRect( x, y, w, h ),

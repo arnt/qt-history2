@@ -3269,11 +3269,11 @@ QStringList QSessionManager::discardCommand() const
     return d->discardCommand;
 }
 
-void QSessionManager::setProperty( const QString&, const QString&)
+void QSessionManager::setManagerProperty( const QString&, const QString&)
 {
 }
 
-void QSessionManager::setProperty( const QString&, const QStringList& )
+void QSessionManager::setManagerProperty( const QString&, const QStringList& )
 {
 }
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#421 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#422 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -3275,11 +3275,11 @@ QStringList QSessionManager::discardCommand() const
     return d->discardCommand;
 }
 
-void QSessionManager::setProperty( const QString&, const QString&)
+void QSessionManager::setManagerProperty( const QString&, const QString&)
 {
 }
 
-void QSessionManager::setProperty( const QString&, const QStringList& )
+void QSessionManager::setManagerProperty( const QString&, const QStringList& )
 {
 }
 

@@ -85,7 +85,7 @@ public:
 			  bool enabled = TRUE,
 			  const QBrush *fill = 0 );
     QRect comboButtonRect( int x, int y, int w, int h) const;
-    QRect comboButtonFocusRect( int x, int y, int w, int h);
+    QRect comboButtonFocusRect( int x, int y, int w, int h) const;
 
     int sliderLength() const;
     void drawSlider( QPainter *p,

@@ -78,8 +78,8 @@ public:
     void setDiscardCommand( const QStringList& );
     QStringList discardCommand() const;
 
-    void setProperty( const QString& name, const QString& value );
-    void setProperty( const QString& name, const QStringList& value );
+    void setManagerProperty( const QString& name, const QString& value );
+    void setManagerProperty( const QString& name, const QStringList& value );
 
     bool isPhase2() const;
     void requestPhase2();

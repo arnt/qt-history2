@@ -61,7 +61,7 @@ public:
 
     QString source() const;
 
-    void setText( const QString& contents, const QString& context=QString::null );
+    void setText( const QString& contents, const QString& context );
 
 public slots:
     virtual void setSource(const QString& name);

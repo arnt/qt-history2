@@ -1179,7 +1179,7 @@ QRect QPlatinumStyle::comboButtonRect( int x, int y, int w, int h) const
 
 /*! \reimp */
 
-QRect QPlatinumStyle::comboButtonFocusRect( int x, int y, int w, int h)
+QRect QPlatinumStyle::comboButtonFocusRect( int x, int y, int w, int h) const
 {
     return QRect(x+4, y+4, w-8-16, h-8);
 }
