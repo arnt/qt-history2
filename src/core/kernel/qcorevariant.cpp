@@ -1377,7 +1377,7 @@ void QCoreVariant::detach()
 
     Private dd;
     dd.type = d.type;
-    handler->construct(&dd, d.data.shared->value.ptr);
+    handler->construct(&dd, constData());
     dd.data.shared = qAtomicSetPtr(&d.data.shared, dd.data.shared);
     if (!--dd.data.shared->ref)
         handler->clear(&dd);
