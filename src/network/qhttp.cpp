@@ -142,8 +142,6 @@ QHttpHeader::QHttpHeader( const QHttpHeader& header )
 
     This constructor parses the string \a str for header fields and
     adds this information.
-
-    \sa parse()
 */
 QHttpHeader::QHttpHeader( const QString& str )
     : m_bValid( TRUE )
@@ -178,28 +176,28 @@ bool QHttpHeader::isValid() const
     return m_bValid;
 }
 
-/*!
+/*! \internal
     Parses the HTTP header string \a str for header fields and adds
-    the keys/values if finds. If the string is not parsed successfully
+    the keys/values it finds. If the string is not parsed successfully
     the QHttpHeader becomes \link isValid() invalid\endlink.
 
-    \sa toString() read()
+    Returns TRUE if \a str was successfully parsed; otherwise returns FALSE.
+
+    \sa toString()
 */
-void QHttpHeader::parse( const QString& str )
+bool QHttpHeader::parse( const QString& str )
 {
     QStringList lst = QStringList::split( "\r\n", str.stripWhiteSpace(), FALSE );
 
     if ( lst.isEmpty() )
-	return;
+	return TRUE;
 
     QStringList lines;
     QStringList::Iterator it = lst.begin();
     for( ; it != lst.end(); ++it ) {
 	if ( !(*it).isEmpty() ) {
 	    if ( (*it)[0].isSpace() ) {
-		if ( lines.isEmpty() ) {
-		    qWarning("Invalid line: '%s'", (*it).latin1() );
-		} else {
+		if ( !lines.isEmpty() ) {
 		    lines.last() += " ";
 		    lines.last() += (*it).stripWhiteSpace();
 		}
@@ -213,44 +211,11 @@ void QHttpHeader::parse( const QString& str )
     it = lines.begin();
     for( ; it != lines.end(); ++it ) {
 	if ( !parseLine( *it, number++ ) ) {
-	    qWarning("Invalid line: '%s'", (*it).latin1() );
 	    m_bValid = FALSE;
-	    return;
+	    return FALSE;
 	}
     }
-}
-
-/*!
-    Reads a HTTP header from the text stream \a stream and returns a
-    reference to the stream.
-
-    \sa write() toString() parse()
-*/
-QTextStream& QHttpHeader::read( QTextStream& stream )
-{
-    m_bValid = TRUE;
-
-    int number = 0;
-    for( ;; ) {
-	QString str = stream.readLine();
-
-	// Unexpected end of input ?
-	if ( str.isNull() ) {
-	    m_bValid = FALSE;
-	    return stream;
-	}
-
-	// End of header ?
-	if ( str.isEmpty() ) {
-	    return stream;
-	}
-
-	// Parse the line
-	if ( !parseLine( str, number++ ) ) {
-	    m_bValid = FALSE;
-	    return stream;
-	}
-    }
+    return TRUE;
 }
 
 /*!
@@ -316,7 +281,7 @@ void QHttpHeader::removeValue( const QString& key )
     m_values.remove( key.lower() );
 }
 
-/*!
+/*! \internal
     Parses the single HTTP header line \a line which has the format
     key, colon, space, value, and adds key/value to the headers. The
     linenumber is \a number. Returns TRUE if the line was successfully
@@ -337,8 +302,6 @@ bool QHttpHeader::parseLine( const QString& line, int )
 
 /*!
     Returns a string representation of the HTTP header.
-
-    \sa write()
 */
 QString QHttpHeader::toString() const
 {
@@ -349,18 +312,6 @@ QString QHttpHeader::toString() const
 	ret += it.key() + ": " + it.data() + "\r\n";
 
     return ret;
-}
-
-/*!
-    Writes a string representation of the HTTP header to the text
-    stream \a stream and returns a reference to the stream.
-
-    \sa read() toString()
-*/
-QTextStream& QHttpHeader::write( QTextStream& stream ) const
-{
-    stream << toString();
-    return stream;
 }
 
 /*!

@@ -92,13 +92,10 @@ public:
     virtual QString toString() const;
     bool isValid() const;
 
-    QTextStream& read( QTextStream& );
-    QTextStream& write( QTextStream& ) const;
-
 protected:
     virtual bool parseLine( const QString& line, int number );
 
-    void parse( const QString& str );
+    bool parse( const QString& str );
 
 private:
     QMap<QString,QString> m_values;
