@@ -716,6 +716,18 @@ QAbstractItemModel::~QAbstractItemModel()
 */
 
 /*!
+    \fn void QAbstractItemModel::reset()
+
+    This signal is emitted when the model has been reset. When a model
+    is reset it means that any previous data reported from the model
+    is now invalid and has to be queried for again.
+
+    When a model radically changes its data it can sometimes be easier
+    to just emit this signal rather than using rowsRemoved(),
+    dataChanged() etc.
+*/
+
+/*!
     \enum QAbstractItemModel::Role
 
     Each item in the model has a set of data elements associated with
