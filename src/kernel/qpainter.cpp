@@ -653,7 +653,6 @@ struct QPState {				// painter state
     QBrush	brush;
     QColor	bgc;
     uchar	bgm;
-    uchar	pu;
     uchar	rop;
     QPoint	bro;
     QRect	wr, vr;
@@ -719,9 +718,6 @@ void QPainter::save()
     ps->bgm   = bg_mode;
     ps->rop   = rop;
     ps->bro   = bro;
-#if 0
-    ps->pu    = pu;				// !!!not used
-#endif
 #ifndef QT_NO_TRANSFORMATIONS
     ps->wr    = QRect( wx, wy, ww, wh );
     ps->vr    = QRect( vx, vy, vw, vh );
@@ -779,10 +775,6 @@ void QPainter::restore()
 	setRasterOp( (RasterOp)ps->rop );
     if ( ps->bro != bro || hardRestore )
 	setBrushOrigin( ps->bro );
-#if 0
-    if ( ps->pu != pu )				// !!!not used
-	pu = ps->pu;
-#endif
 #ifndef QT_NO_TRANSFORMATIONS
     QRect wr( wx, wy, ww, wh );
     QRect vr( vx, vy, vw, vh );
