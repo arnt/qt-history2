@@ -13951,9 +13951,8 @@ int QString::contains( const QString &str, bool cs ) const
     if ( !uc )
 	return 0;
     int len = str.length();
-    int n = length();
-    while ( n-- ) { // counts overlapping strings
-	// ### Doesn't account for length of this - searches over "end"
+    int n = length() - len + 1;
+    while ( n-- > 0 ) { // counts overlapping strings
 	if ( cs ) {
 	    if ( ucstrncmp( uc, str.unicode(), len ) == 0 )
 		count++;
