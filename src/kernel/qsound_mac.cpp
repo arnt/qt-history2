@@ -76,8 +76,10 @@ QAuServerMac::QAuServerMac(QObject* parent) :
 QAuServerMac::~QAuServerMac()
 {
     if(!(--servers)) {
-	if(movieCallbackProc)
+	if(movieCallbackProc) {
 	    DisposeQTCallBackUPP(movieCallbackProc);
+	    movieCallbackProc = 0;
+	}
 	ExitMovies();
     }
 }
@@ -100,37 +102,37 @@ static Movie get_movie(const QString &filename, QPixmap *offscreen)
     return aMovie;
 }
 
-void QAuServerMac::qt_mac_sound_callbk(QTCallBack callbk, long data)
-{
-    qDebug("happened!!!");
-    QAuServerMacCallBackData *iteration = (QAuServerMacCallBackData*)data;
-    if(!iteration->server->decLoop(iteration->qsound))
-	CancelCallBack(callbk);
-}
-
 void QAuServerMac::play(const QString& filename)
 {
-    if(!(aMovie = get_movie(filename, offscreen)))
+    if(!aMovie && !(aMovie = get_movie(filename, offscreen)))
        return;
     GoToBeginningOfMovie(aMovie);
     SetMovieVolume(aMovie, kFullVolume);
     StartMovie(aMovie);
 }
 
+void QAuServerMac::qt_mac_sound_callbk(QTCallBack callbk, long data)
+{
+    QAuServerMacCallBackData *iteration = (QAuServerMacCallBackData*)data;
+    if(!iteration->server->decLoop(iteration->qsound)) 
+	CancelCallBack(callbk);
+    iteration->server->play(iteration->qsound);
+}
+
 void QAuServerMac::play(QSound* s)
 {
-    if(!s->loopsRemaining())
-	return;
-    if(!(aMovie = get_movie(s->fileName(), offscreen)))
+    if(!aMovie && !(aMovie = get_movie(s->fileName(), offscreen)))
        return;
     GoToBeginningOfMovie(aMovie);
     SetMovieVolume(aMovie, kFullVolume);
     if(s->loopsRemaining() > 1) {
-	callback = new QAuServerMacCallBackData(this, s);
-	callback->callback = NewCallBack(GetMovieTimeBase(aMovie), callBackAtExtremes);
+	if(!callback) {
+	    callback = new QAuServerMacCallBackData(this, s);
+	    callback->callback = NewCallBack(GetMovieTimeBase(aMovie), callBackAtExtremes|callBackAtInterrupt);
+	}
 	if(!movieCallbackProc)
 	    movieCallbackProc = NewQTCallBackUPP(qt_mac_sound_callbk);
-	CallMeWhen(callback->callback, movieCallbackProc, (long int)callback, triggerAtStop, 0, 0);
+	CallMeWhen(callback->callback, movieCallbackProc, (long)callback, triggerAtStop, 0, 0);
     }
     StartMovie(aMovie);
 }
