@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#22 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#23 $
 **
 ** Definition of QMenuData class
 **
@@ -76,7 +76,7 @@ public:
     QMenuData();
     virtual ~QMenuData();
 
-    int		count() const;
+    uint	count() const;
 
     int		insertItem( const char *string,
 			    const QObject *receiver, const char *member,

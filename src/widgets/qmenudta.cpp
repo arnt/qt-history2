@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#27 $
+** $Id: //depot/qt/main/src/widgets/qmenudta.cpp#28 $
 **
 ** Implementation of QMenuData class
 **
@@ -16,7 +16,7 @@
 #include "qapp.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudta.cpp#27 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qmenudta.cpp#28 $";
 #endif
 
 
@@ -137,7 +137,7 @@ void QMenuData::menuDelPopup( QPopupMenu * )	// reimplemented in subclass
 Returns the number of items in the menu.
 */
 
-int QMenuData::count() const
+uint QMenuData::count() const
 {
     return mitems->count();
 }
