@@ -97,8 +97,8 @@ static QCleanupHandler<QGLFormat> qgl_cleanup_format;
 
   OpenGL drivers or accelerated hardware may or may not support
   advanced features such as alpha channel or stereographic viewing. If
-  you request some features that the driver/hardware does not provide when
-  you create a QGLWidget, you will get a rendering context with
+  you request some features that the driver/hardware does not provide
+  when you create a QGLWidget, you will get a rendering context with
   the nearest subset of features.
 
   There are different ways to define the display characteristics
@@ -751,11 +751,11 @@ QGLContext::~QGLContext()
 
 /*!
   \fn QGLFormat QGLContext::requestedFormat() const
-  
+
   Returns the frame buffer format that was originally requested in the
   constructor or setFormat().
 
-  \sa format() 
+  \sa format()
 */
 
 /*!
@@ -918,17 +918,13 @@ bool QGLContext::create( const QGLContext* shareContext )
   \fn bool QGLContext::chooseContext( const QGLContext* shareContext = 0 )
 
   This semi-internal function is called by create(). It creates a
-  system-dependent OpenGL handle that matches the specified \link
-  format() format\endlink as closely as possible.
+  system-dependent OpenGL handle that matches the format() of \a
+  sharecontext as closely as possible.
 
-  <strong>Windows</strong>: Calls choosePixelFormat(), which finds a
-  matching pixel format identifier.
-
-  <strong>X11</strong>: Calls chooseVisual() which finds an appropriate
-  X visual.
-
-  choosePixelFormat() and chooseVisual() can be reimplemented in a
-  subclass if you need to choose a very custom context.
+  On Windows, it calls the virtual function choosePixelFormat(), which
+  finds a matching pixel format identifier.  On X11, it calls the
+  virtual function chooseVisual() which finds an appropriate X visual.
+  On other platforms it may work differently.
 */
 
 
@@ -1581,7 +1577,7 @@ QImage QGLWidget::grabFrameBuffer( bool withAlpha )
     int w = width();
     int h = height();
     if ( format().rgba() ) {
-	res = QImage( w, h, 32 ); 
+	res = QImage( w, h, 32 );
 	glReadPixels( 0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, res.bits() );
 	if ( QImage::systemByteOrder() == QImage::BigEndian ) {
 	    // OpenGL gives RGBA; Qt wants ARGB
@@ -1608,7 +1604,7 @@ QImage QGLWidget::grabFrameBuffer( bool withAlpha )
     else {
 #if defined (Q_WS_WIN)
 	res = QImage( w, h, 8 );
-	glReadPixels( 0, 0, w, h, GL_COLOR_INDEX, GL_UNSIGNED_BYTE, 
+	glReadPixels( 0, 0, w, h, GL_COLOR_INDEX, GL_UNSIGNED_BYTE,
 		      res.bits() );
 	int palSize = 0;
 	const QRgb* pal = QColor::palette( &palSize );
@@ -1826,3 +1822,27 @@ display format of a rendering context.
 
 Many applications need only the high-level QGLWidget class. The other QGL
 classes provide advanced features. */
+
+/*! \enum QGL::FormatOption
+  
+  This enum 
+  
+  \value DoubleBuffer
+  \value DepthBuffer
+  \value Rgba
+  \value AlphaChannel
+  \value AccumBuffer
+  \value StencilBuffer
+  \value StereoBuffers
+  \value DirectRendering
+  \value HasOverlay
+  \value SingleBuffer
+  \value NoDepthBuffer
+  \value ColorIndex
+  \value NoAlphaChannel
+  \value NoAccumBuffer
+  \value NoStencilBuffer
+  \value NoStereoBuffers
+  \value IndirectRendering
+  \value NoOverlay
+*/

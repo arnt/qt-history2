@@ -525,11 +525,11 @@ int QFont::weight() const
   \enum QFont::Weight
 
   Contains the predefined font weights:
-  \value QFont::Light (25)
-  \value QFont::Normal (50)
-  \value QFont::DemiBold (63)
-  \value QFont::Bold (75)
-  \value QFont::Black (87)
+  \value Light (25)
+  \value Normal (50)
+  \value DemiBold (63)
+  \value Bold (75)
+  \value Black (87)
 */
 
 /*!

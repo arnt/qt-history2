@@ -1598,7 +1598,7 @@ QString QTextStream::readLine()
     QString result;
 #if 0
     if ( !doUnicodeHeader && (
-	    (latin1) || 
+	    (latin1) ||
 	    (mapper != 0 && mapper->mibEnum() == 106 ) // UTF 8
        ) ) {
 	readCharByChar = FALSE;
@@ -2022,7 +2022,6 @@ QTextStream &QTextStream::operator<<( const QCString & s )
 QTextStream &QTextStream::operator<<( const QString& s )
 {
     CHECK_STREAM_PRECOND
-    uint len = s.length();
     QString s1 = s;
     if ( fwidth ) {				// field width set
 	if ( !(flags() & left) ) {
@@ -2032,7 +2031,7 @@ QTextStream &QTextStream::operator<<( const QString& s )
 	}
 	fwidth = 0;				// reset width
     }
-    writeBlock( s1.unicode(), len );
+    writeBlock( s1.unicode(), s1.length() );
     return *this;
 }
 
