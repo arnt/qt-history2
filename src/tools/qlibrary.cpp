@@ -416,7 +416,9 @@ QString QLibrary::library() const
 }
 
 /*!
-  Forwards the query to the component and returns the result.
+  Forwards the query to the component and returns the result. \a request and \a iface
+  are propagated to the component's queryInterface implementation.
+
   The library gets loaded if necessary.
 
   \sa QUnknownInterface::queryInterface

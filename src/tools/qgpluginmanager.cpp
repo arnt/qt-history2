@@ -62,8 +62,8 @@
 /*!
   \fn QPluginManager::QPluginManager( const QUuid& id, const QString& path = QString::null, QLibrary::Policy pol = QLibrary::Delayed, bool cs = TRUE )
 
-  Creates an QPluginManager that will load all shared library files in \a path, setting the default policy to \a pol. 
-  If \a cs is, FALSE the manager will handle feature strings case insensitive.
+  Creates an QPluginManager for interfaces \a id that will load all shared library files in \a path, 
+  setting the default policy to \a pol. If \a cs is, FALSE the manager will handle feature strings case insensitive.
   
   \warning
   Setting the cs flag to FALSE requires that components also convert to lower case when comparing with passed strings, so this has
@@ -127,7 +127,7 @@
 /*!
   \fn QRESULT QPluginManager::queryInterface(const QString& feature, Type** iface) const
 
-  Returns a pointer to the interface providing \a feature.
+  Sets \a iface to point to the interface providing \a feature.
 
   \sa featureList(), library()
 */
