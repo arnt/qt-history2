@@ -64,8 +64,7 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 	debug_msg(1, "Project Parser: %s:%d : Leaving block %d", file.latin1(), line_count, scope_block);
 	scope_block--;
 	return TRUE;
-    }
-    else if(!(scope_flag & (0x01 << scope_block))) {
+    } else if(!(scope_flag & (0x01 << scope_block))) {
 	for(int i = (s.contains('{')-s.contains('}')); i; i--)
 	    scope_flag &= ~(0x01 << (++scope_block));
 	debug_msg(1, "Project Parser: %s:%d : Ignored due to block being false.", file.latin1(), line_count);
@@ -110,8 +109,9 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 		    if ( *d == ')' && !*(d+1) ) 
 			return TRUE;  /* assume we are done */
 		}
+	    } else {
+		test = isActiveConfig(scope.stripWhiteSpace());
 	    }
-	    else test = isActiveConfig(scope.stripWhiteSpace());
 
 	    if(invert_test)
 		test = !test;
@@ -129,8 +129,9 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 		debug_msg(1, "Project Parser: %s:%d : Entering block %d (%d).", file.latin1(), line_count,
 			  scope_block, !scope_failed);
 	    }
+	} else {
+	    var += *d;
 	}
-	else var += *d;
 	d++;
     }
     if(scope_failed)
