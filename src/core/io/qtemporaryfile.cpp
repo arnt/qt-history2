@@ -24,9 +24,6 @@
 #ifndef Q_OS_WIN
 # define HAS_MKSTEMP
 #endif
-#if defined(Q_OS_MSDOS) || defined(Q_OS_WIN32) || defined(Q_OS_OS2)
-# define HAS_TEXT_FILEMODE                        // has translate/text filemode
-#endif
 
 //************* QTemporaryFileEngine
 class QTemporaryFileEngine : public QFSFileEngine
@@ -62,8 +59,8 @@ bool QTemporaryFileEngine::open(int)
     if(mktemp(filename)) {
 #endif
         int oflags = QT_OPEN_RDWR | QT_OPEN_CREAT;
-#if defined(HAS_TEXT_FILEMODE)
-        oflags |= QT_OPEN_BINARY;
+#if defined(Q_OS_MSDOS) || defined(Q_OS_WIN32) || defined(Q_OS_OS2)
+        oflags |= QT_OPEN_BINARY; // we handle all text translations our self.
 #endif
         d->fd = d->sysOpen(filename, oflags);
     }

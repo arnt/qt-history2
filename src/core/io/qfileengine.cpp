@@ -25,9 +25,6 @@
 # define HAS_ASYNC_FILEMODE
 # define QT_OPEN_ASYNC O_NDELAY
 #endif
-#if defined(Q_OS_MSDOS) || defined(Q_OS_WIN32) || defined(Q_OS_OS2)
-# define HAS_TEXT_FILEMODE                        // has translate/text filemode
-#endif
 
 #define d d_func()
 #define q q_func()
@@ -673,12 +670,10 @@ QFSFileEngine::open(int flags)
             oflags |= QT_OPEN_TRUNC;
     }
 
-#if defined(HAS_TEXT_FILEMODE)
-    if (flags & QFile::Text)
-        oflags |= QT_OPEN_TEXT;
-    else
-        oflags |= QT_OPEN_BINARY;
+#if defined(Q_OS_MSDOS) || defined(Q_OS_WIN32) || defined(Q_OS_OS2)
+        oflags |= QT_OPEN_BINARY; // we handle all text translations our self.
 #endif
+
     d->external_file = 0;
     d->fd = d->sysOpen(d->file, oflags);
     if(d->fd != -1) {
