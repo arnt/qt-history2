@@ -1,20 +1,21 @@
+#include <qdir.h>
+#include <qfileinfo.h>
 #include <qtextstream.h>
 #include <qregexp.h>
 #include "configureapp.h"
-#include "../install/environment.h"
 
 #include <iostream.h>
 #include <windows.h>
 
-ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv )
+Configure::Configure( int& argc, char** argv )
 {
     int i;
-    qtDir = QEnvironment::getEnv( "QTDIR" );
+    qtDir = getenv( "QTDIR" );
 
     if( !qtDir.length() ) {
 	cout << "QTDIR is not defined, defaulting to current directory." << endl;
 	qtDir = QDir::currentDirPath();
-	QEnvironment::putEnv( "QTDIR", qtDir );
+	putenv( QString( "QTDIR=%1" ).arg( qtDir ).latin1() );
     }
 
     /*
@@ -30,14 +31,14 @@ ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv 
 
     dictionary[ "BUILD_QMAKE" ]	    = "yes";
     dictionary[ "DSPFILES" ]	    = "yes";
-    dictionary[ "QMAKESPEC" ]	    = QEnvironment::getEnv( "QMAKESPEC" );
+    dictionary[ "QMAKESPEC" ]	    = getenv( "QMAKESPEC" );
     dictionary[ "QMAKE_INTERNAL" ]  = "no";
     dictionary[ "LEAN" ]	    = "no";
     dictionary[ "NOPROCESS" ]	    = "no";
     dictionary[ "STL" ]		    = "no";
     dictionary[ "VERSION" ]	    = "300";
     dictionary[ "REDO" ]	    = "no";
-    dictionary[ "FORCE_PROFESSIONAL" ] = QEnvironment::getEnv( "FORCE_PROFESSIONAL" );
+    dictionary[ "FORCE_PROFESSIONAL" ] = getenv( "FORCE_PROFESSIONAL" );
     dictionary[ "DEPENDENCIES" ]    = "no";
 
     dictionary[ "DEBUG" ]	    = "no";
@@ -66,23 +67,16 @@ ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv 
     dictionary[ "SQL_PSQL" ]	    = "no";
     dictionary[ "SQL_TDS" ]	    = "no";
 
-    QString tmp = QEnvironment::getEnv( "QMAKESPEC" );
+    QString tmp = dictionary[ "QMAKESPEC" ];
     tmp = tmp.mid( tmp.findRev( "\\" ) + 1 );
     dictionary[ "QMAKESPEC" ] = tmp;
 
     readLicense();
     
     buildModulesList();
-
-    QObject::connect( &qmakeBuilder, SIGNAL( readyReadStdout() ), this, SLOT( readQmakeBuilderOutput() ) );
-    QObject::connect( &qmakeBuilder, SIGNAL( readyReadStderr() ), this, SLOT( readQmakeBuilderError() ) );
-    QObject::connect( &qmakeBuilder, SIGNAL( processExited() ), this, SLOT( qmakeBuilt() ) );
-//    QObject::connect( &qmake, SIGNAL( readyReadStdout() ), this, SLOT( readQmakeOutput() ) );
-//    QObject::connect( &qmake, SIGNAL( readyReadStderr() ), this, SLOT( readQmakeError() ) );
-    QObject::connect( &qmake, SIGNAL( processExited() ), this, SLOT( qmakeDone() ) );
 }
 
-void ConfigureApp::buildModulesList()
+void Configure::buildModulesList()
 {
     QDir dir( qtDir + "/src" );
     const QFileInfoList* fiList = dir.entryInfoList();
@@ -109,7 +103,7 @@ void ConfigureApp::buildModulesList()
     }
 }
 
-void ConfigureApp::parseCmdLine()
+void Configure::parseCmdLine()
 {
     QStringList::Iterator args = configCmdLine.begin();
 
@@ -369,7 +363,7 @@ void ConfigureApp::parseCmdLine()
 	saveCmdLine();
 }
 
-void ConfigureApp::validateArgs()
+void Configure::validateArgs()
 {
     QStringList configs;
     // Validate the specified config
@@ -390,7 +384,7 @@ void ConfigureApp::validateArgs()
 	qmakeConfig += configs;
 }
 
-bool ConfigureApp::displayHelp()
+bool Configure::displayHelp()
 {
     if( dictionary[ "HELP" ] == "yes" ) {
 	cout << endl << endl;
@@ -475,7 +469,7 @@ bool ConfigureApp::displayHelp()
     return false;
 }
 
-void ConfigureApp::generateOutputVars()
+void Configure::generateOutputVars()
 {
     // Generate variables for output
     if( dictionary[ "DEBUG" ] == "yes" ) {
@@ -640,7 +634,7 @@ void ConfigureApp::generateOutputVars()
     }
 }
 
-void ConfigureApp::generateCachefile()
+void Configure::generateCachefile()
 {    
     // Generate .qmake.cache
     QFile cacheFile( qtDir + "\\.qmake.cache" );
@@ -685,7 +679,7 @@ void ConfigureApp::generateCachefile()
     }
 }
 
-void ConfigureApp::generateConfigfiles()
+void Configure::generateConfigfiles()
 {
     QString outDir( qtDir + "/include" );
 
@@ -753,7 +747,7 @@ void ConfigureApp::generateConfigfiles()
 
 }
 
-void ConfigureApp::displayConfig()
+void Configure::displayConfig()
 {
     // Give some feedback
     cout << "QMAKESPEC..................." << dictionary[ "QMAKESPEC" ] << endl;
@@ -820,7 +814,7 @@ void ConfigureApp::displayConfig()
     }
 }
 
-void ConfigureApp::buildQmake()
+void Configure::buildQmake()
 {
     if( dictionary[ "QMAKESPEC" ].right( 5 ) == QString( "-msvc" ) ) {
 	dictionary[ "MAKE" ] = "nmake";
@@ -835,79 +829,20 @@ void ConfigureApp::buildQmake()
 
 	// Build qmake
 	cout << "Creating qmake..." << endl;
-	qmakeBuilder.setWorkingDirectory( qtDir + "/qmake" );
+	QString pwd = QDir::currentDirPath();
+	QDir::setCurrent( qtDir + "/qmake" );
 	args += dictionary[ "MAKE" ];
 	args += "-f";
 	args += dictionary[ "QMAKEMAKEFILE" ];
-	qmakeBuilder.setArguments( args );
-	if( !qmakeBuilder.start() ) {
-	    cout << "Could not start qmake build process" << endl << endl;
-	    quit();
+	if( int r = system( args.join( " " ).latin1() ) ) {
+	    cout << "Building qmake failed, return code " << r << endl << endl;
+	    dictionary[ "DONE" ] = "yes";
 	}
-    }
-    else
-	qmakeBuilt();
-}
-
-void ConfigureApp::readQmakeBuilderError()
-{
-    QString tmp = qmakeBuilder.readStderr();
-    for( int i = 0; i < ( int )tmp.length(); i++ ) {
-	QChar c = tmp[ i ];
-	switch( char( c ) ) {
-	case 0x00:
-	    break;
-	case '\t':
-	    outputLine += "    ";  // Simulate a TAB by using 4 spaces
-	    break;
-	case '\n':
-	    outputLine += c;
-	    if( outputLine.length() ) {
-		cout << outputLine.latin1();
-		cout.flush();
-		outputLine = "";
-	    }
-	    break;
-	default:
-	    outputLine += c;
-	    break;
-	}
+	QDir::setCurrent( pwd );
     }
 }
 
-void ConfigureApp::readQmakeBuilderOutput()
-{
-    QString tmp = qmakeBuilder.readStdout();
-    for( int i = 0; i < ( int )tmp.length(); i++ ) {
-	QChar c = tmp[ i ];
-	switch( char( c ) ) {
-	case '\r':
-	case 0x00:
-	    break;
-	case '\t':
-	    outputLine += "    ";  // Simulate a TAB by using 4 spaces
-	    break;
-	case '\n':
-	    outputLine += c;
-	    if( outputLine.length() ) {
-		cout << outputLine.latin1();
-		cout.flush();
-		outputLine = "";
-	    }
-	    break;
-	default:
-	    outputLine += c;
-	    break;
-	}
-    }
-}
-
-void ConfigureApp::qmakeBuilt()
-{
-    generateMakefiles();
-}
-
-void ConfigureApp::findProjects( const QString& dirName )
+void Configure::findProjects( const QString& dirName )
 {
     QDir dir( dirName );
     QString entryName;
@@ -942,7 +877,8 @@ void ConfigureApp::findProjects( const QString& dirName )
 	}
     }
 }
-void ConfigureApp::generateMakefiles()
+
+void Configure::generateMakefiles()
 {
     if( dictionary[ "NOPROCESS" ] == "no" ) {
 	cout << "Creating makefiles in src..." << endl;
@@ -971,125 +907,62 @@ void ConfigureApp::generateMakefiles()
 	else
 	    findProjects( qtDir );
 
-	// Start the qmakes for the makelist.
 	makeListIterator = makeList.begin();
 
-	// We call this directly, as the code is the same for the first as
-	// for subsequent items.
-	qmakeDone();
+	QString pwd = QDir::currentDirPath();
+	while( makeListIterator != makeList.end() ) {
+	    QString dirPath = *makeListIterator + "/";
+	    dirPath = QDir::convertSeparators( dirPath );
+	    ++makeListIterator;
+	    QString projectName = dirPath + (*makeListIterator);
+	    ++makeListIterator;
+	    QString makefileName = dirPath + (*makeListIterator);
+	    ++makeListIterator;
+	    QStringList args;
+	    args << QDir::convertSeparators( qtDir + "/bin/qmake" );
+	    args << projectName;
+	    args << dictionary[ "QMAKE_ALL_ARGS" ];
+	    args << "-o";
+	    args << makefileName;
+	    args << "-spec";
+	    args << dictionary[ "QMAKESPEC" ];
+	    if( dictionary[ "DEPENDENCIES" ] == "no" )
+		args << "-nodepend";
+
+	    if( makefileName.right( 4 ) == ".dsp" ) {
+		args << "-t";
+		if( isProjectLibrary( projectName ) )
+		    args << "vclib";
+		else
+		    args << "vcapp";
+	    }
+	    else
+		cout << "For " << projectName.latin1() << endl;
+
+	    QDir::setCurrent( QDir::convertSeparators( dirPath ) );
+	    if( int r = system( args.join( " " ).latin1() ) ) {
+		cout << "Qmake failed, return code " << r  << endl << endl;
+		dictionary[ "DONE" ] = "yes";
+	    }
+
+	}
+	QDir::setCurrent( pwd );
     } else {
 	cout << "Processing of project files have been disabled." << endl;
 	cout << "Only use this option if you really know what you're doing." << endl << endl;
-	quit();
-    }
-}
-
-void ConfigureApp::readQmakeError()
-{
-    QString tmp = qmake.readStderr();
-    for( int i = 0; i < ( int )tmp.length(); i++ ) {
-	QChar c = tmp[ i ];
-	switch( char( c ) ) {
-	case 0x00:
-	    break;
-	case '\t':
-	    outputLine += "    ";  // Simulate a TAB by using 4 spaces
-	    break;
-	case '\n':
-	    outputLine += c;
-	    if( outputLine.length() ) {
-		cout << outputLine.latin1();
-		cout.flush();
-		outputLine = "";
-	    }
-	    break;
-	default:
-	    outputLine += c;
-	    break;
-	}
-    }
-}
-
-void ConfigureApp::readQmakeOutput()
-{
-    QString tmp = qmake.readStdout();
-    for( int i = 0; i < ( int )tmp.length(); i++ ) {
-	QChar c = tmp[ i ];
-	switch( char( c ) ) {
-	case '\r':
-	case 0x00:
-	    break;
-	case '\t':
-	    outputLine += "    ";  // Simulate a TAB by using 4 spaces
-	    break;
-	case '\n':
-	    outputLine += c;
-	    if( outputLine.length() ) {
-		cout << outputLine.latin1();
-		cout.flush();
-		outputLine = "";
-	    }
-	    break;
-	default:
-	    outputLine += c;
-	    break;
-	}
-    }
-}
-
-void ConfigureApp::qmakeDone()
-{
-    QString str;
-
-    if( makeListIterator == makeList.end() ) {// Just in case we have an empty list
-	quit();
+	dictionary[ "DONE" ] = "yes";
 	return;
     }
-    QString dirPath = *makeListIterator + "/";
-    dirPath = QDir::convertSeparators( dirPath );
-    ++makeListIterator;
-    QString projectName = dirPath + (*makeListIterator);
-    ++makeListIterator;
-    QString makefileName = dirPath + (*makeListIterator);
-    ++makeListIterator;
-    QStringList args;
-    args << QDir::convertSeparators( qtDir + "/bin/qmake" );
-    args << projectName;
-    args << dictionary[ "QMAKE_ALL_ARGS" ];
-    args << "-o";
-    args << makefileName;
-    args << "-spec";
-    args << dictionary[ "QMAKESPEC" ];
-    if( dictionary[ "DEPENDENCIES" ] == "no" )
-	args << "-nodepend";
-
-    if( makefileName.right( 4 ) == ".dsp" ) {
-	args << "-t";
-	if( isProjectLibrary( projectName ) )
-	    args << "vclib";
-	else
-	    args << "vcapp";
-    }
-    else
-	cout << "For " << projectName.latin1() << endl;
-
-    str = args.join( " " );
-    qmake.setWorkingDirectory( QDir::convertSeparators( dirPath ) );
-    qmake.setArguments( args );
-    if( !qmake.start() ) {	// This will start the qmake, pick up control again in qmakeDone()
-	cout << "Could not start qmake..." << endl << endl;
-	quit();
-    }
 }
 
-void ConfigureApp::showSummary()
+void Configure::showSummary()
 {
     QString make = dictionary[ "MAKE" ];
     cout << endl << endl << "Qt is now configured for building. Just run " << make.latin1() << "." << endl;
     cout << "To reconfigure, run " << make.latin1() << " clean and configure." << endl << endl;
 }
 
-bool ConfigureApp::isProjectLibrary( const QString& proFileName )
+bool Configure::isProjectLibrary( const QString& proFileName )
 {
     QFile proFile( proFileName );
     QString buffer;
@@ -1115,7 +988,7 @@ bool ConfigureApp::isProjectLibrary( const QString& proFileName )
     return false;
 }
 
-void ConfigureApp::readLicense()
+void Configure::readLicense()
 {
     QFile licenseFile( QDir::homeDirPath() + "/.qt-license" );
 
@@ -1142,7 +1015,7 @@ void ConfigureApp::readLicense()
         licenseInfo[ "PRODUCTS" ]= "qt-professional";
 }
 
-void ConfigureApp::reloadCmdLine()
+void Configure::reloadCmdLine()
 {
     if( dictionary[ "REDO" ] == "yes" ) {
 	QFile inFile( qtDir + "/configure.cache" );
@@ -1159,7 +1032,7 @@ void ConfigureApp::reloadCmdLine()
     }
 }
 
-void ConfigureApp::saveCmdLine()
+void Configure::saveCmdLine()
 {
     if( dictionary[ "REDO" ] != "yes" ) {
 	QFile outFile( qtDir + "/configure.cache" );
@@ -1172,7 +1045,7 @@ void ConfigureApp::saveCmdLine()
     }
 }
 
-bool ConfigureApp::isDone()
+bool Configure::isDone()
 {
-    return( dictionary[ "NOPROCESS" ] == "yes" );
+    return( dictionary[ "DONE" ] == "yes" );
 }

@@ -7,7 +7,7 @@
 
 int main( int argc, char** argv )
 {
-    ConfigureApp app( argc, argv );
+    Configure app( argc, argv );
 
     app.parseCmdLine();
     app.validateArgs();
@@ -15,15 +15,18 @@ int main( int argc, char** argv )
     if( app.displayHelp() )
 	return 1;
     else {
-	app.generateCachefile();
-	app.generateConfigfiles();
-	app.displayConfig();
-	app.buildQmake();
-
 	if( !app.isDone() )
-	    app.exec();
-
-	app.showSummary();
+	    app.generateCachefile();
+	if( !app.isDone() )
+	    app.generateConfigfiles();
+	if( !app.isDone() )
+	    app.displayConfig();
+	if( !app.isDone() )
+	    app.buildQmake();
+	if( !app.isDone() )
+	    app.generateMakefiles();
+	if( !app.isDone() )
+	    app.showSummary();
     }
 
     return 0;

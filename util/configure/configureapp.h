@@ -1,14 +1,11 @@
-#include <qapplication.h>
-#include <qprocess.h>
 #include <qmap.h>
 #include <qstring.h>
 #include <qstringlist.h>
 
-class ConfigureApp : public QApplication
+class Configure
 {
-	Q_OBJECT
 public:
-    ConfigureApp( int& argc, char** argv );
+    Configure( int& argc, char** argv );
 
     void parseCmdLine();
     void buildModulesList();
@@ -28,9 +25,6 @@ public:
     bool isProjectLibrary( const QString& proFileName );
     bool isDone();
 private:
-    QProcess qmakeBuilder;
-    QProcess qmake;
-
     // Our variable dictionaries
     QMap<QString,QString> dictionary;
     QStringList licensedModules;
@@ -62,12 +56,4 @@ private:
 
     void reloadCmdLine();
     void saveCmdLine();
-
-private slots:
-    virtual void readQmakeBuilderOutput();
-    virtual void readQmakeBuilderError();
-    virtual void qmakeBuilt();
-    virtual void readQmakeOutput();
-    virtual void readQmakeError();
-    virtual void qmakeDone();
 };
