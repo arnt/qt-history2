@@ -100,10 +100,6 @@ public:
     quint16 m_decimal, m_group, m_list, m_percent,
         m_zero, m_minus, m_exponential;
 
-    static const QString m_infinity;
-    static const QString m_nan;
-    static const QChar m_plus;
-
     static const char *systemLocaleName();
 };
 
