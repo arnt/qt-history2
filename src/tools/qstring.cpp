@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#211 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#212 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -13403,7 +13403,7 @@ QString::QString( const QString &s ) :
   \sa isNull()
 */
 
-QString::QString( int size )
+QString::QString( int size, bool /*dummy*/ )
 {
     if ( size ) {
 	Q2HELPER(stat_construct_int++);
@@ -14270,7 +14270,7 @@ QString QString::left( uint len ) const
     } else if ( len > length() ) {
 	return *this;
     } else {
-	QString s( len );
+	QString s( len, TRUE );
 	memcpy( s.d->unicode, d->unicode, len*sizeof(QChar) );
 	s.d->len = len;
 	return s;
@@ -14301,7 +14301,7 @@ QString QString::right( uint len ) const
 	uint l = length();
 	if ( len > l )
 	    len = l;
-	QString s( len );
+	QString s( len, TRUE );
 	memcpy( s.d->unicode, d->unicode+(l-len), len*sizeof(QChar) );
 	s.d->len = len;
 	return s;
@@ -14336,7 +14336,7 @@ QString QString::mid( uint index, uint len ) const
 	if ( index == 0 && len == length() )
 	    return *this;
 	register const QChar *p = unicode()+index;
-	QString s( len );
+	QString s( len, TRUE );
 	memcpy( s.d->unicode, p, len*sizeof(QChar) );
 	s.d->len = len;
 	return s;
@@ -15720,7 +15720,7 @@ bool operator>=( const char *s1, const QString &s2 )
   data, thus it remains forever unmodified.
 */
 QConstString::QConstString( QChar* unicode, uint length ) :
-    QString(new Data(unicode, length, length))
+    QString(new Data(unicode, length, length),TRUE)
 {
 }
 

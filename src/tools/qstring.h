@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#111 $
+** $Id: //depot/qt/main/src/tools/qstring.h#112 $
 **
 ** Definition of the QString class, extended char array operations,
 ** and QByteArray and QCString classes
@@ -358,7 +358,7 @@ public:
 #endif
 
 private:
-    QString( int size );			// allocate size incl. \0
+    QString( int size, bool dummy );		// allocate size incl. \0
     void deref();
     void real_detach();
     void setLength( uint pos );
@@ -387,7 +387,7 @@ private:
     friend int ucstrcmp( const QString &a, const QString &b );
 
     friend class QConstString;
-    QString(Data* dd) : d(dd) { }
+    QString(Data* dd, bool /*dummy*/) : d(dd) { }
 };
 
 class Q_EXPORT QConstString : private QString {
