@@ -3520,3 +3520,8 @@ Project *MainWindow::setSingleProject( const QString &lang, const QString &proje
 	
     return eProject;
 }
+
+void MainWindow::shuttingDown()
+{
+    outputWindow()->shuttingDown();
+}

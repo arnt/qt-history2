@@ -177,6 +177,8 @@ public:
 
     void showSourceLine( QObject *o, int line, LineMode lm );
 
+    void shuttingDown();
+
 public slots:
     void showProperties( QObject *w );
     void updateProperties( QObject *w );

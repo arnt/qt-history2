@@ -51,6 +51,8 @@ public:
 
     DesignerOutputDock *iFace();
 
+    void shuttingDown();
+
 private slots:
     void currentErrorChanged( QListViewItem *i );
 

@@ -112,7 +112,7 @@ public:
     ~Project();
 
     void setFileName( const QString &fn, bool doClear = TRUE );
-    QString fileName() const;
+    QString fileName( bool singlePro = FALSE ) const;
     QString projectName() const;
 
     void setDatabaseDescription( const QString &db );
@@ -198,6 +198,8 @@ public:
     void addAndEditFunction( const QString &functionName, const QString &functionBody,
 			     bool openDeveloper );
 
+    void removeTempProject();
+
 signals:
     void projectModified();
     void sourceFileAdded( SourceFile* );
@@ -217,8 +219,6 @@ private:
     void removePlatformSettings( QString &contents, const QString &setting );
     void writePlatformSettings( QString &contents, const QString &setting,
 				const QMap<QString, QString> &input );
-    void removeTempProject();
-
 private:
     QString filename;
     QString proName;

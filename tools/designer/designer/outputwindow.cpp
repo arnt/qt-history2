@@ -31,6 +31,12 @@ OutputWindow::~OutputWindow()
     delete iface;
 }
 
+void OutputWindow::shuttingDown()
+{
+    if ( !debugToStderr )
+	qInstallMsgHandler( oldMsgHandler );
+}
+
 void OutputWindow::setupError()
 {
     errorView = new QListView( this, "OutputWindow::errorView" );

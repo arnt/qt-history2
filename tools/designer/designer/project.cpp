@@ -272,8 +272,10 @@ void Project::setFileName( const QString &fn, bool doClear )
 	parse();
 }
 
-QString Project::fileName() const
+QString Project::fileName( bool singlePro ) const
 {
+    if ( singlePro )
+	return singleProFileName;
     return filename;
 }
 
