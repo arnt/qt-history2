@@ -712,8 +712,8 @@ void QPainter::updatePen()
 
     /*
       We are emulating Windows here.  Windows treats cpen.width() == 1
-      as a very special case.  The fudge variable unifies this case
-      with the general case.
+      (or 0) as a very special case.  The fudge variable unifies this
+      case with the general case.
     */
     int dot = cpen.width();                     // width of a dot
     int fudge = 1;
@@ -1664,10 +1664,10 @@ void QPainter::lineTo( int x, int y )
 }
 
 /*!
-  Draws a line from (\a x1, \a y1) to (\a x2, \a y2) and sets (\a x2,
-  \a y2) to be the new current pen position.
+  Draws a line from (\a x1, \a y1) to (\a x2, \a y2) and sets
+  the current pen position to (\a x2, \a y2).
 
-  \sa QPen
+  \sa pen()
 */
 
 void QPainter::drawLine( int x1, int y1, int x2, int y2 )
