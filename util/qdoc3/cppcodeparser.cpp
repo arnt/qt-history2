@@ -258,7 +258,7 @@ void CppCodeParser::processOtherMetaCommand( const Doc& doc,
 	}
     } else if ( command == COMMAND_OVERLOAD ) {
 	if ( node != 0 && node->type() == Node::Function ) {
-	    ((FunctionNode *) node)->setOverload( TRUE );
+	    ((FunctionNode *) node)->setOverload( true );
 	} else {
 	    doc.location().warning( tr("Ignored '\\%1'")
 				    .arg(COMMAND_OVERLOAD) );
@@ -392,9 +392,9 @@ bool CppCodeParser::match( int target )
 {
     if ( tok == target ) {
 	readToken();
-	return TRUE;
+	return true;
     } else {
-	return FALSE;
+	return false;
     }
 }
 
@@ -429,7 +429,7 @@ bool CppCodeParser::matchDataType( CodeChunk *dataType, QString *var )
       Alpha::Beta::Gamma::...::Omega.
     */
     for ( ;; ) {
-	bool virgin = TRUE;
+	bool virgin = true;
 
 	if ( tok != Tok_Ident ) {
 	    /*
@@ -438,7 +438,7 @@ bool CppCodeParser::matchDataType( CodeChunk *dataType, QString *var )
 	      return something with a trailing gulbrandsen ('Foo::').
 	    */
 	    if ( tok == Tok_operator )
-		return TRUE;
+		return true;
 
 	    /*
 	      People may write 'const unsigned short' or
@@ -449,7 +449,7 @@ bool CppCodeParser::matchDataType( CodeChunk *dataType, QString *var )
 	    while ( match(Tok_signed) || match(Tok_unsigned) ||
 		    match(Tok_short) || match(Tok_long) ) {
 		dataType->append( previousLexeme() );
-		virgin = FALSE;
+		virgin = false;
 	    }
 	    while ( match(Tok_const) || match(Tok_volatile) )
 		dataType->append( previousLexeme() );
@@ -465,7 +465,7 @@ bool CppCodeParser::matchDataType( CodeChunk *dataType, QString *var )
 		      match(Tok_double) || match(Tok_Ellipsis) )
 		dataType->append( previousLexeme() );
 	    else
-		return FALSE;
+		return false;
 	} else if ( match(Tok_int) || match(Tok_char) || match(Tok_double) ) {
 	    dataType->append( previousLexeme() );
 	}
@@ -496,7 +496,7 @@ bool CppCodeParser::matchDataType( CodeChunk *dataType, QString *var )
 	if ( var != 0 && match(Tok_Ident) )
 	    *var = previousLexeme();
 	if ( !match(Tok_RightParen) || tok != Tok_LeftParen )
-	    return FALSE;
+	    return false;
 	dataType->append( previousLexeme() );
 
 	int parenDepth0 = tokenizer->parenDepth();
@@ -540,7 +540,7 @@ bool CppCodeParser::matchDataType( CodeChunk *dataType, QString *var )
 	    }
 	}
     }
-    return TRUE;
+    return true;
 }
 
 bool CppCodeParser::matchParameter( FunctionNode *func )
@@ -550,7 +550,7 @@ bool CppCodeParser::matchParameter( FunctionNode *func )
     CodeChunk defaultValue;
 
     if ( !matchDataType(&dataType, &name) )
-	return FALSE;
+	return false;
     match( Tok_Comment );
     if ( match(Tok_Equal) ) {
 	int parenDepth0 = tokenizer->parenDepth();
@@ -565,7 +565,7 @@ bool CppCodeParser::matchParameter( FunctionNode *func )
     }
     func->addParameter( Parameter(dataType.toString(), "", name,
 				  defaultValue.toString()) ); // ###
-    return TRUE;
+    return true;
 }
 
 bool CppCodeParser::matchFunctionDecl(InnerNode *parent, QStringList *parentPathPtr,
@@ -595,7 +595,7 @@ bool CppCodeParser::matchFunctionDecl(InnerNode *parent, QStringList *parentPath
     }
 
     if ( !matchDataType(&returnType) )
-	return FALSE;
+	return false;
 
     if (returnType.toString() == "QBool")
 	returnType = CodeChunk("bool");
@@ -613,7 +613,7 @@ bool CppCodeParser::matchFunctionDecl(InnerNode *parent, QStringList *parentPath
 
 	CodeChunk restOfName;
 	if ( !matchDataType(&restOfName) )
-	    return FALSE;
+	    return false;
 	name = "operator " + restOfName.toString();
     } else if ( tok == Tok_LeftParen ) {
 	// constructor or destructor
@@ -646,7 +646,7 @@ bool CppCodeParser::matchFunctionDecl(InnerNode *parent, QStringList *parentPath
 	    }
 	}
 	if ( tok != Tok_LeftParen )
-	    return FALSE;
+	    return false;
     }
     readToken();
 
@@ -670,11 +670,11 @@ bool CppCodeParser::matchFunctionDecl(InnerNode *parent, QStringList *parentPath
     if (tok != Tok_RightParen) {
 	do {
 	    if ( !matchParameter(func) )
-		return FALSE;
+		return false;
 	} while ( match(Tok_Comma) );
     }
     if ( !match(Tok_RightParen) )
-	return FALSE;
+	return false;
 
     func->setConst( match(Tok_const) );
 
@@ -691,7 +691,7 @@ bool CppCodeParser::matchFunctionDecl(InnerNode *parent, QStringList *parentPath
 	int braceDepth0 = tokenizer->braceDepth();
 
 	if ( !match(Tok_LeftBrace) )
-	    return FALSE;
+	    return false;
 	while ( tokenizer->braceDepth() >= braceDepth0 && tok != Tok_Eoi )
 	    readToken();
 	match( Tok_RightBrace );
@@ -700,7 +700,7 @@ bool CppCodeParser::matchFunctionDecl(InnerNode *parent, QStringList *parentPath
 	*parentPathPtr = parentPath;
     if ( funcPtr != 0 )
 	*funcPtr = func;
-    return TRUE;
+    return true;
 }
 
 bool CppCodeParser::matchBaseSpecifier( ClassNode *classe )
@@ -721,7 +721,7 @@ bool CppCodeParser::matchBaseSpecifier( ClassNode *classe )
 	access = Node::Private;
 	break;
     default:
-	return FALSE;
+	return false;
     }
     readToken();
 
@@ -737,11 +737,11 @@ bool CppCodeParser::matchBaseList( ClassNode *classe )
 {
     for ( ;; ) {
 	if ( !matchBaseSpecifier(classe) )
-	    return FALSE;
+	    return false;
 	if ( tok == Tok_LeftBrace )
-	    return TRUE;
+	    return true;
 	if ( !match(Tok_Comma) )
-	    return FALSE;
+	    return false;
     }
 }
 
@@ -750,11 +750,11 @@ bool CppCodeParser::matchClassDecl( InnerNode *parent )
     bool isClass = ( tok == Tok_class );
     readToken();
     if ( tok != Tok_Ident )
-	return FALSE;
+	return false;
     while ( tok == Tok_Ident )
 	readToken();
     if ( tok != Tok_Colon && tok != Tok_LeftBrace )
-	return FALSE;
+	return false;
 
     /*
         So far, so good. We have 'class Foo {' or 'class Foo :'. This
@@ -765,9 +765,9 @@ bool CppCodeParser::matchClassDecl( InnerNode *parent )
     classe->setLocation( location() );
 
     if ( match(Tok_Colon) && !matchBaseList(classe) )
-	return FALSE;
+	return false;
     if ( !match(Tok_LeftBrace) )
-	return FALSE;
+	return false;
 
     Node::Access outerAccess = access;
     access = isClass ? Node::Private : Node::Public;
@@ -812,7 +812,7 @@ bool CppCodeParser::matchNamespaceDecl(InnerNode *parent)
 bool CppCodeParser::matchEnumItem( EnumNode *enume )
 {
     if ( !match(Tok_Ident) )
-	return FALSE;
+	return false;
 
     QString name = previousLexeme();
     CodeChunk val;
@@ -825,7 +825,7 @@ bool CppCodeParser::matchEnumItem( EnumNode *enume )
 	}
     }
     enume->addItem( EnumItem(name, val.toString()) );
-    return TRUE;
+    return true;
 }
 
 bool CppCodeParser::matchEnumDecl( InnerNode *parent )
@@ -833,12 +833,12 @@ bool CppCodeParser::matchEnumDecl( InnerNode *parent )
     QString name;
 
     if ( !match(Tok_enum) )
-	return FALSE;
+	return false;
     if ( !match(Tok_Ident) )
-	return FALSE;
+	return false;
     name = previousLexeme();
     if ( tok != Tok_LeftBrace )
-	return FALSE;
+	return false;
 
     EnumNode *enume = new EnumNode( parent, name );
     enume->setAccess( access );
@@ -847,11 +847,11 @@ bool CppCodeParser::matchEnumDecl( InnerNode *parent )
     readToken();
 
     if ( !matchEnumItem(enume) )
-	return FALSE;
+	return false;
 
     while ( match(Tok_Comma) ) {
 	if ( !matchEnumItem(enume) )
-	    return FALSE;
+	    return false;
     }
     return match( Tok_RightBrace ) && match( Tok_Semicolon );
 }
@@ -862,16 +862,16 @@ bool CppCodeParser::matchTypedefDecl( InnerNode *parent )
     QString name;
 
     if ( !match(Tok_typedef) )
-	return FALSE;
+	return false;
     if ( !matchDataType(&dataType, &name) )
-	return FALSE;
+	return false;
     if ( !match(Tok_Semicolon) )
-	return FALSE;
+	return false;
 
     TypedefNode *typedeffe = new TypedefNode( parent, name );
     typedeffe->setAccess( access );
     typedeffe->setLocation( location() );
-    return TRUE;
+    return true;
 }
 
 bool CppCodeParser::matchProperty(InnerNode *parent)
@@ -893,11 +893,11 @@ bool CppCodeParser::matchProperty(InnerNode *parent)
 
     while ( tok != Tok_RightParen && tok != Tok_Eoi ) {
 	if ( !match(Tok_Ident) )
-	    return FALSE;
+	    return false;
 	QString key = previousLexeme();
 
 	if ( !match(Tok_Ident) )
-	    return FALSE;
+	    return false;
 	QString value = previousLexeme();
 
 	if ( key == "READ" )
@@ -912,7 +912,7 @@ bool CppCodeParser::matchProperty(InnerNode *parent)
 	    tre->addPropertyFunction(property, value, PropertyNode::Resetter);
     }
     match( Tok_RightParen );
-    return TRUE;
+    return true;
 }
 
 bool CppCodeParser::matchDeclList( InnerNode *parent )
@@ -1014,7 +1014,7 @@ bool CppCodeParser::matchDeclList( InnerNode *parent )
 	    }
 	}
     }
-    return TRUE;
+    return true;
 }
 
 bool CppCodeParser::matchDocsAndStuff()
@@ -1110,7 +1110,7 @@ bool CppCodeParser::matchDocsAndStuff()
 	    }
 	}
     }
-    return TRUE;
+    return true;
 }
 
 bool CppCodeParser::makeFunctionNode(const QString& synopsis, QStringList *parentPathPtr,

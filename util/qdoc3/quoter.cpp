@@ -1,19 +1,15 @@
-/*
-  quoter.cpp
-*/
-
 #include <qregexp.h>
 
 #include "quoter.h"
 
 Quoter::Quoter()
-    : silent( FALSE ), splitPoint( "\n(?!\n|$)" ), manyEndls( "\n\n+" )
+    : silent( false ), splitPoint( "\n(?!\n|$)" ), manyEndls( "\n\n+" )
 {
 }
 
 void Quoter::reset()
 {
-    silent = FALSE;
+    silent = false;
     plainLines.clear();
     markedLines.clear();
     codeLocation = Location::null;
@@ -23,7 +19,7 @@ void Quoter::quoteFromFile( const QString& userFriendlyFilePath,
 			    const QString& plainCode,
 			    const QString& markedCode )
 {
-    silent = FALSE;
+    silent = false;
 
     /*
       Split the source code into logical lines. Empty lines are
@@ -82,7 +78,7 @@ QString Quoter::quoteLine( const Location& docLocation, const QString& command,
 	    docLocation.warning( tr("Command '\\%1' failed").arg(command) );
 	    codeLocation.warning( tr("Pattern '%1' didn't match here")
 				  .arg(pattern) );
-	    silent = TRUE;
+	    silent = true;
 	}
 	return "";
     }
@@ -142,7 +138,7 @@ bool Quoter::match( const Location& docLocation, const QString& pattern,
 	if ( !silent && !rx.isValid() ) {
 	    docLocation.warning( tr("Invalid regular expression '%1'")
 				 .arg(rx.pattern()) );
-	    silent = TRUE;
+	    silent = true;
 	}
 	return str.indexOf( rx ) != -1;
     } else {
@@ -159,7 +155,7 @@ void Quoter::failedAtEnd( const Location& docLocation, const QString& command )
 	    docLocation.warning( tr("Command '\\%1' failed at end of file '%2'")
 				 .arg(command).arg(codeLocation.filePath()) );
 	}
-	silent = TRUE;
+	silent = true;
     }
 }
 

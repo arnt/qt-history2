@@ -159,14 +159,14 @@ void InnerNode::normalizeOverloads()
     while ( p != primaryFunctionMap.end() ) {
 	FunctionNode *primaryFunc = (FunctionNode *) *p;
 	if ( primaryFunc->isOverload() )
-	    primaryFunc->ove = FALSE;
+	    primaryFunc->ove = false;
 	if ( secondaryFunctionMap.contains(primaryFunc->name()) ) {
 	    NodeList& secs = secondaryFunctionMap[primaryFunc->name()];
 	    NodeList::ConstIterator s = secs.begin();
 	    while ( s != secs.end() ) {
 		FunctionNode *secondaryFunc = (FunctionNode *) *s;
 		if ( !secondaryFunc->isOverload() )
-		    secondaryFunc->ove = TRUE;
+		    secondaryFunc->ove = true;
 		++s;
 	    }
 	}
@@ -189,7 +189,7 @@ void InnerNode::deleteChildren()
 
 bool InnerNode::isInnerNode() const
 {
-    return TRUE;
+    return true;
 }
 
 const Node *InnerNode::findNode( const QString& name ) const
@@ -250,9 +250,9 @@ bool InnerNode::isSameSignature( const FunctionNode *f1,
 				 const FunctionNode *f2 )
 {
     if ( f1->parameters().count() != f2->parameters().count() )
-	return FALSE;
+	return false;
     if ( f1->isConst() != f2->isConst() )
-	return FALSE;
+	return false;
 
     QList<Parameter>::ConstIterator p1 = f1->parameters().begin();
     QList<Parameter>::ConstIterator p2 = f2->parameters().begin();
@@ -260,12 +260,12 @@ bool InnerNode::isSameSignature( const FunctionNode *f1,
 	if ( (*p1).hasType() && (*p2).hasType() ) {
 	    if ( (*p1).leftType() != (*p2).leftType() ||
 		 (*p1).rightType() != (*p2).rightType() )
-		return FALSE;
+		return false;
 	}
 	++p1;
 	++p2;
     }
-    return TRUE;
+    return true;
 }
 
 void InnerNode::addChild( Node *child )
@@ -314,7 +314,7 @@ void InnerNode::removeRelated(Node *pseudoChild)
 
 bool LeafNode::isInnerNode() const
 {
-    return FALSE;
+    return false;
 }
 
 LeafNode::LeafNode( Type type, InnerNode *parent, const QString& name )
@@ -440,7 +440,7 @@ Parameter& Parameter::operator=( const Parameter& p )
 
 FunctionNode::FunctionNode( InnerNode *parent, const QString& name )
     : LeafNode( Function, parent, name ), met( Plain ), vir( NonVirtual ),
-      con( FALSE ), sta( FALSE ), ove( FALSE ), rf( 0 ), ap( 0 )
+      con( false ), sta( false ), ove( false ), rf( 0 ), ap( 0 )
 {
 }
 
@@ -513,9 +513,9 @@ bool PropertyNode::fromTrool( Trool troolean, bool defaultValue )
 {
     switch ( troolean ) {
     case Trool_True:
-	return TRUE;
+	return true;
     case Trool_False:
-	return FALSE;
+	return false;
     default:
 	return defaultValue;
     }

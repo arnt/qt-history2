@@ -1,14 +1,11 @@
-/*
-  location.cpp
-*/
+#include "config.h"
+#include "location.h"
 
 #include <qregexp.h>
 #include <qtranslator.h>
 #include <stdlib.h>
 #include <limits.h>
 
-#include "config.h"
-#include "location.h"
 #include <stdio.h>
 
 QT_STATIC_CONST_IMPL Location Location::null;
@@ -22,7 +19,7 @@ QRegExp *Location::spuriousRegExp = 0;
   Constructs an empty location.
 */
 Location::Location()
-    : stk( 0 ), stkTop( &stkBottom ), stkDepth( 0 ), etcetera( FALSE )
+    : stk( 0 ), stkTop( &stkBottom ), stkDepth( 0 ), etcetera( false )
 {
 }
 
@@ -30,13 +27,13 @@ Location::Location()
 
 */
 Location::Location( const QString& fileName )
-    : stk( 0 ), stkTop( &stkBottom ), stkDepth( 0 ), etcetera( FALSE )
+    : stk( 0 ), stkTop( &stkBottom ), stkDepth( 0 ), etcetera( false )
 {
     push( fileName );
 }
 
 Location::Location( const Location& other )
-    : stk( 0 ), stkTop( &stkBottom ), stkDepth( 0 ), etcetera( FALSE )
+    : stk( 0 ), stkTop( &stkBottom ), stkDepth( 0 ), etcetera( false )
 {
     *this = other;
 }
@@ -128,7 +125,7 @@ void Location::pop()
 
 /*! \fn bool Location::isEmpty() const
 
-  Returns TRUE if there is no file name set yet; returns FALSE
+  Returns true if there is no file name set yet; returns false
   otherwise. The functions filePath(), lineNo() and columnNo()
   may only be called on non-empty objects.
 */
@@ -243,7 +240,7 @@ QString Location::toString() const
 	str = programName;
     } else {
 	Location loc2 = *this;
-	loc2.setEtc( FALSE );
+	loc2.setEtc( false );
 	loc2.pop();
 	if ( !loc2.isEmpty() ) {
 	    QString blah = tr( "In file included from " );

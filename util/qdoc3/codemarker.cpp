@@ -1,12 +1,8 @@
-/*
-  codemarker.cpp
-*/
-
-#include <stdio.h>
-
 #include "codemarker.h"
 #include "config.h"
 #include "node.h"
+
+#include <stdio.h>
 
 QString CodeMarker::defaultLang;
 QList<CodeMarker *> CodeMarker::markers;
@@ -226,7 +222,7 @@ void CodeMarker::insert(FastSection &fastSection, Node *node, SynopsisStyle styl
 {
     bool inheritedMember = (!node->relates() &&
 			    (node->parent() != (const InnerNode *)fastSection.innerNode));
-    bool irrelevant = FALSE;
+    bool irrelevant = false;
 
     if (node->access() == Node::Private) {
 	irrelevant = true;

@@ -49,7 +49,7 @@ bool genCPlusPlus( QString fileName, QFile &file )
 {
     if ( file.size() == 0 ) {			// nothing recorded
 	qWarning( "qmf2cpp: Empty metafile" );
-	return FALSE;
+	return false;
     }
     QByteArray bytes( file.size() );		// create byte array
     file.readBlock( bytes.data(), file.size() );// read metafile into array
@@ -73,12 +73,12 @@ bool genCPlusPlus( QString fileName, QFile &file )
     s >> tag >> cs >> major >> minor;
     if ( tag != mfhdr_tag ) {
 	fprintf( stderr, "qmf2cpp: Not a metafile: %s\n", (char *)fileName );
-	return FALSE;
+	return false;
     }
     int start_data = sizeof(tag) + sizeof(cs);
     if ( qchecksum(bytes.data()+start_data, bytes.size()-start_data) != cs ) {
 	fprintf( stderr, "qmf2cpp: Invalid checksum: %s\n", (char *)fileName );
-	return FALSE;
+	return false;
     }
     printf( "// C++ code generated from Qt metafile %s (ver. %d.%d)\n",
 	    (char *)fileName, major, minor );

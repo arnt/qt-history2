@@ -1,7 +1,3 @@
-/*
-  atom.cpp
-*/
-
 #include "atom.h"
 #include "location.h"
 
@@ -216,7 +212,7 @@ static const struct {
 */
 QString Atom::typeString() const
 {
-    static bool deja = FALSE;
+    static bool deja = false;
 
     if ( !deja ) {
 	int i = 0;
@@ -225,7 +221,7 @@ QString Atom::typeString() const
 		Location::internalError( tr("atom %1 missing").arg(i) );
 	    i++;
 	}
-	deja = TRUE;
+	deja = true;
     }
 
     int i = (int) type();

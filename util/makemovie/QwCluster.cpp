@@ -72,7 +72,7 @@ void QwClusterizer::add(const QRect& rect)
                     - cluster[cursor].width()*cluster[cursor].height();
 
             if (cost < lowestcost) {
-                bool bad=FALSE;
+                bool bad=false;
                 for (int c=0; c<count && !bad; c++) {
                     bad=cluster[c].intersects(larger) && c!=cursor;
                 }
@@ -105,7 +105,7 @@ void QwClusterizer::add(const QRect& rect)
         int cost=larger.width()*larger.height()
                 - cluster[cursor].width()*cluster[cursor].height();
         if (cost < lowestcost) {
-            bool bad=FALSE;
+            bool bad=false;
             for (int c=0; c<count && !bad; c++) {
                 bad=cluster[c].intersects(larger) && c!=cursor;
             }
@@ -131,7 +131,7 @@ void QwClusterizer::add(const QRect& rect)
                     - cluster[merge1].width()*cluster[merge1].height()
                     - cluster[merge2].width()*cluster[merge2].height();
                 if (cost < lowestcost) {
-                    bool bad=FALSE;
+                    bool bad=false;
                     for (int c=0; c<count && !bad; c++) {
                         bad=cluster[c].intersects(larger) && c!=cursor;
                     }

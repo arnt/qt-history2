@@ -57,7 +57,7 @@ void QsCodeParser::initializeParser( const Config& config )
     while ( r != replaces.end() ) {
 	if ( replaceRegExp.exactMatch(*r) ) {
 	    QRegExp before( replaceRegExp.cap(1) );
-	    before.setMinimal( TRUE );
+	    before.setMinimal( true );
 	    QString after = replaceRegExp.cap( 2 );
 
 	    if ( before.isValid() ) {
@@ -165,7 +165,7 @@ void QsCodeParser::doneParsingSourceFiles( Tree *tree )
 						 " class '%2'")
 					      .arg(COMMAND_QUICKCLASS)
 					      .arg(cwnqd.key()) );
-		(*cwnqd)->setDoc( Doc(), TRUE );
+		(*cwnqd)->setDoc( Doc(), true );
 	    }
 	}
 	++c;
@@ -343,7 +343,7 @@ void QsCodeParser::extractTarget( const QString& target, QString& source,
 	    "(\\\\target\\s+(\\S+)[^\n]*\n"
 	    "(?:(?!\\s*\\\\code)[^\n]+\n|\\s*\\\\code.*\\\\endcode\\s*\n)*)"
 	    "(?:\\s*\n|[^\n]*$)" );
-    targetRegExp.setMinimal( TRUE );
+    targetRegExp.setMinimal( true );
 
     int pos = 0;
     while ( (pos = source.indexOf(targetRegExp, pos)) != -1 ) {
@@ -381,7 +381,7 @@ void QsCodeParser::applyReplacementList( QString& source, const Doc& doc )
     while ( a != args.end() ) {
 	if ( replaceRegExp.exactMatch(*a) ) {
 	    QRegExp before( replaceRegExp.cap(1) );
-	    before.setMinimal( TRUE );
+	    before.setMinimal( true );
 	    QString after = replaceRegExp.cap( 2 );
 
 	    if ( before.isValid() ) {
@@ -406,11 +406,11 @@ void QsCodeParser::applyReplacementList( QString& source, const Doc& doc )
     }
 
     QRegExp codeRegExp( "\\\\" + COMMAND_CODE + "(.*)\\\\" + COMMAND_ENDCODE );
-    codeRegExp.setMinimal( TRUE );
+    codeRegExp.setMinimal( true );
 
     QRegExp quickcodeRegExp(
 	    "\\\\" + COMMAND_QUICKCODE + "(.*)\\\\" + COMMAND_ENDQUICKCODE );
-    quickcodeRegExp.setMinimal( TRUE );
+    quickcodeRegExp.setMinimal( true );
 
     int quickcodePos = doc.source().indexOf( quickcodeRegExp );
     if ( quickcodePos != -1 ) {
@@ -716,7 +716,7 @@ void QsCodeParser::setQtDoc( Node *quickNode, const Doc& doc )
 	Doc quickDoc( doc.location(), quickifiedDoc(doc.source()),
 		      reunion(CppCodeParser::topicCommands(),
 			      CppCodeParser::otherMetaCommands()) );
-	quickNode->setDoc( quickDoc, TRUE );
+	quickNode->setDoc( quickDoc, true );
     }
 }
 
@@ -728,7 +728,7 @@ void QsCodeParser::setQuickDoc( Node *quickNode, const Doc& doc,
 
     if ( quickNode->type() == Node::Function ) {
 	FunctionNode *quickFunc = (FunctionNode *) quickNode;
-	quickFunc->setOverload( FALSE );
+	quickFunc->setOverload( false );
     }
 
     if (doc.metaCommandsUsed().contains(COMMAND_QUICKIFY)) {
@@ -760,17 +760,17 @@ void QsCodeParser::setQuickDoc( Node *quickNode, const Doc& doc,
 	    QRegExp quickcodeRegExp(
 		    "\\\\" + COMMAND_QUICKCODE + "(.*)\\\\" +
 		    COMMAND_ENDQUICKCODE );
-	    quickcodeRegExp.setMinimal( TRUE );
+	    quickcodeRegExp.setMinimal( true );
 	    source.replace( quickcodeRegExp, "" );
 	}
 
 	Doc quickDoc( doc.location(), source,
 		      (CppCodeParser::topicCommands() + topicCommands() +
 		       CppCodeParser::otherMetaCommands()) << COMMAND_REPLACE );
-	quickNode->setDoc( quickDoc, TRUE );
+	quickNode->setDoc( quickDoc, true );
 	processOtherMetaCommands( quickDoc, quickNode );
     } else {
-	quickNode->setDoc( doc, TRUE );
+	quickNode->setDoc( doc, true );
 	processOtherMetaCommands( doc, quickNode );
     }
 }
@@ -787,15 +787,15 @@ bool QsCodeParser::makeFunctionNode( const QString& synopsis,
 	    "([A-Za-z0-9_]+|\\.\\.\\.)\\s*(\\[)?[\\s\\]]*" );
 
     if ( !funcRegExp.exactMatch(synopsis) )
-	return FALSE;
+	return false;
 
     ClassNode *classe = (ClassNode *) qsTre->findNode( QStringList(funcRegExp.cap(1)),
 						       Node::Class );
     if ( classe == 0 )
-	return FALSE;
+	return false;
 
     FunctionNode *clone = new FunctionNode( 0, funcRegExp.cap(2) );
-    bool optional = FALSE;
+    bool optional = false;
 
     QString paramStr = funcRegExp.cap( 3 );
     QStringList params = paramStr.split(",");
@@ -803,15 +803,15 @@ bool QsCodeParser::makeFunctionNode( const QString& synopsis,
     while ( p != params.end() ) {
 	if ( paramRegExp.exactMatch(*p) ) {
 	    if ( !paramRegExp.cap(1).isEmpty() )
-		optional = TRUE;
+		optional = true;
 	    clone->addParameter( Parameter(paramRegExp.cap(3), "",
 					   paramRegExp.cap(2),
 					   optional ? "undefined" : "") );
 	    if ( !paramRegExp.cap(4).isEmpty() )
-		optional = TRUE;
+		optional = true;
 	} else {
 	    delete clone;
-	    return FALSE;
+	    return false;
 	}
 	++p;
     }
@@ -825,7 +825,7 @@ bool QsCodeParser::makeFunctionNode( const QString& synopsis,
     } else {
 	delete clone;
     }
-    return TRUE;
+    return true;
 }
 
 bool QsCodeParser::isWord( QChar ch )

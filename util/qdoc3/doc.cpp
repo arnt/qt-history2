@@ -1,23 +1,18 @@
-/*
-  doc.cpp
-*/
+#include "config.h"
+#include "doc.h"
+#include "codemarker.h"
+#include "editdistance.h"
+#include "openedlist.h"
+#include "quoter.h"
+#include "text.h"
+#include "tokenizer.h"
 
 #include <qdatetime.h>
 #include <qfile.h>
 #include <qfileinfo.h>
 #include <qhash.h>
 #include <qtextstream.h>
-
 #include <qregexp.h>
-
-#include "codemarker.h"
-#include "config.h"
-#include "doc.h"
-#include "editdistance.h"
-#include "openedlist.h"
-#include "quoter.h"
-#include "text.h"
-#include "tokenizer.h"
 
 #include <limits.h>
 
@@ -1517,7 +1512,7 @@ void DocParser::leaveTableRow()
     if (inTableItem) {
         leavePara();
         append(Atom::TableItemRight);
-        inTableItem = FALSE;
+        inTableItem = false;
     }
     if (inTableHeader) {
         append(Atom::TableHeaderRight);

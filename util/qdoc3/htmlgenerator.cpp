@@ -1315,7 +1315,7 @@ void HtmlGenerator::generateSectionList(const Section& section, const Node *rela
 					CodeMarker *marker, CodeMarker::SynopsisStyle style)
 {
     if ( !section.members.isEmpty() ) {
-	bool twoColumn = FALSE;
+	bool twoColumn = false;
 	if ( style == CodeMarker::SeparateList ) {
 	    twoColumn = ( section.members.count() >= 16 );
 	} else if ( section.members.first()->type() == Node::Property ) {

@@ -118,8 +118,8 @@ static QChar firstNonWhiteSpace( const QString& t )
 }
 
 /*
-    Returns TRUE if string t is made only of white space; otherwise
-    returns FALSE.
+    Returns true if string t is made only of white space; otherwise
+    returns false.
 */
 static bool isOnlyWhiteSpace( const QString& t )
 {
@@ -253,8 +253,8 @@ static inline QChar lastParen( const QString& t )
 }
 
 /*
-    Returns TRUE if typedIn the same as okayCh or is null; otherwise
-    returns FALSE.
+    Returns true if typedIn the same as okayCh or is null; otherwise
+    returns false.
 */
 static inline bool okay( QChar typedIn, QChar okayCh )
 {
@@ -312,7 +312,7 @@ static bool readLine()
     do {
         if ( yyLinizerState->iter == yyProgram->begin() ) {
             yyLinizerState->line.clear();
-            return FALSE;
+            return false;
         }
 
         --yyLinizerState->iter;
@@ -326,7 +326,7 @@ static bool readLine()
             of that and eventually yyLine will contain a slash-aster.
 
             Notice that both if's can be executed, since
-            yyLinizerState->inCComment is potentially set to FALSE in
+            yyLinizerState->inCComment is potentially set to false in
             the first if. The order of the if's is also important.
         */
 
@@ -338,7 +338,7 @@ static bool readLine()
                 yyLinizerState->line.clear();
             } else {
                 yyLinizerState->line.truncate( k );
-                yyLinizerState->inCComment = FALSE;
+                yyLinizerState->inCComment = false;
             }
         }
 
@@ -349,7 +349,7 @@ static bool readLine()
             if ( k != -1 ) {
                 for ( int i = 0; i < k + 2; i++ )
                     eraseChar( yyLinizerState->line, i, ' ' );
-                yyLinizerState->inCComment = TRUE;
+                yyLinizerState->inCComment = true;
             }
         }
 
@@ -402,7 +402,7 @@ static bool readLine()
             yyLinizerState->braceDepth--;
     } while ( yyLinizerState->line.isEmpty() );
 
-    return TRUE;
+    return true;
 }
 
 /*
@@ -412,8 +412,8 @@ static bool readLine()
 static void startLinizer()
 {
     yyLinizerState->braceDepth = 0;
-    yyLinizerState->inCComment = FALSE;
-    yyLinizerState->pendingRightBrace = FALSE;
+    yyLinizerState->inCComment = false;
+    yyLinizerState->pendingRightBrace = false;
 
     yyLine = &yyLinizerState->line;
     yyBraceDepth = &yyLinizerState->braceDepth;
@@ -426,9 +426,9 @@ static void startLinizer()
 }
 
 /*
-    Returns TRUE if the start of the bottom line of yyProgram (and
+    Returns true if the start of the bottom line of yyProgram (and
     potentially the whole line) is part of a C-style comment;
-    otherwise returns FALSE.
+    otherwise returns false.
 */
 static bool bottomLineStartsInCComment()
 {
@@ -444,20 +444,20 @@ static bool bottomLineStartsInCComment()
 
     for ( int i = 0; i < BigRoof; i++ ) {
         if ( p == yyProgram->begin() )
-            return FALSE;
+            return false;
         --p;
 
         if ( (*p).indexOf(slashAster) != -1 || (*p).indexOf(asterSlash) != -1 ) {
             QString trimmed = trimmedCodeLine( *p );
 
             if ( trimmed.indexOf(slashAster) != -1 ) {
-                return TRUE;
+                return true;
             } else if ( trimmed.indexOf(asterSlash) != -1 ) {
-                return FALSE;
+                return false;
             }
         }
     }
-    return FALSE;
+    return false;
 }
 
 /*
@@ -496,15 +496,15 @@ static int indentWhenBottomLineStartsInCComment()
 
 /*
     A function called match...() modifies the linizer state. If it
-    returns TRUE, yyLine is the top line of the matched construct;
+    returns true, yyLine is the top line of the matched construct;
     otherwise, the linizer is left in an unknown state.
 
     A function called is...() keeps the linizer state intact.
 */
 
 /*
-    Returns TRUE if the current line (and upwards) forms a braceless
-    control statement; otherwise returns FALSE.
+    Returns true if the current line (and upwards) forms a braceless
+    control statement; otherwise returns false.
 
     The first line of the following example is a "braceless control
     statement":
@@ -517,10 +517,10 @@ static bool matchBracelessControlStatement()
     int delimDepth = 0;
 
     if ( yyLine->endsWith("else") )
-        return TRUE;
+        return true;
 
     if ( !yyLine->endsWith(")") )
-        return FALSE;
+        return false;
 
     for ( int i = 0; i < SmallRoof; i++ ) {
         int j = yyLine->length();
@@ -545,7 +545,7 @@ static bool matchBracelessControlStatement()
                             "if ( x )" is not part of the statement
                             "y".
                         */
-                        return TRUE;
+                        return true;
                     }
                 }
                 if ( delimDepth == -1 ) {
@@ -560,7 +560,7 @@ static bool matchBracelessControlStatement()
                           if ( 1 +
                                2 )
                     */
-                    return FALSE;
+                    return false;
                 }
                 break;
             case '{':
@@ -573,19 +573,19 @@ static bool matchBracelessControlStatement()
                     though.
                 */
                 if ( ch != QChar(';') || delimDepth == 0 )
-                    return FALSE;
+                    return false;
             }
         }
 
         if ( !readLine() )
             break;
     }
-    return FALSE;
+    return false;
 }
 
 /*
-    Returns TRUE if yyLine is an unfinished line; otherwise returns
-    FALSE.
+    Returns true if yyLine is an unfinished line; otherwise returns
+    false.
 
     In many places we'll use the terms "standalone line", "unfinished
     line" and "continuation line". The meaning of these should be
@@ -599,12 +599,12 @@ static bool matchBracelessControlStatement()
 */
 static bool isUnfinishedLine()
 {
-    bool unf = FALSE;
+    bool unf = false;
 
     YY_SAVE();
 
     if ( yyLine->isEmpty() )
-        return FALSE;
+        return false;
 
     QChar lastCh = (*yyLine)[(int) yyLine->length() - 1];
     if ( QString("{};").indexOf(lastCh) == -1 && !yyLine->endsWith("...") ) {
@@ -621,7 +621,7 @@ static bool isUnfinishedLine()
 
                   for ( int i = 1; i < 10;
             */
-            unf = TRUE;
+            unf = true;
         } else if ( readLine() && yyLine->endsWith(";") &&
                     lastParen(*yyLine) == QChar('(') ) {
             /*
@@ -630,7 +630,7 @@ static bool isUnfinishedLine()
                   for ( int i = 1;
                         i < 10;
             */
-            unf = TRUE;
+            unf = true;
         }
     }
 
@@ -639,12 +639,12 @@ static bool isUnfinishedLine()
 }
 
 /*
-    Returns TRUE if yyLine is a continuation line; otherwise returns
-    FALSE.
+    Returns true if yyLine is a continuation line; otherwise returns
+    false.
 */
 static bool isContinuationLine()
 {
-    bool cont = FALSE;
+    bool cont = false;
 
     YY_SAVE();
     if ( readLine() )
@@ -973,11 +973,11 @@ static int indentForStandaloneLine()
 static void initializeIndenter()
 {
     literal = new QRegExp( "([\"'])(?:\\\\.|[^\\\\])*\\1" );
-    literal->setMinimal( TRUE );
+    literal->setMinimal( true );
     label = new QRegExp(
         "^\\s*((?:case\\b([^:]|::)+|[a-zA-Z_0-9]+)(?:\\s+slots)?:)(?!:)" );
     inlineCComment = new QRegExp( "/\\*.*\\*/" );
-    inlineCComment->setMinimal( TRUE );
+    inlineCComment->setMinimal( true );
     braceX = new QRegExp( "^\\s*\\}\\s*(?:else|catch)\\b" );
     iflikeKeyword = new QRegExp( "\\b(?:catch|do|for|if|while)\\b" );
 
@@ -1117,7 +1117,7 @@ int main( int argc, char **argv )
     }
 
     QString code = fileContents( argv[1] );
-    QStringList program = QStringList::split( '\n', code, TRUE );
+    QStringList program = QStringList::split( '\n', code, true );
     QStringList p;
     QString out;
 

@@ -148,7 +148,7 @@ void Config::load( const QString& fileName )
     if ( loc.isEmpty() ) {
 	loc = Location( fileName );
     } else {
-	loc.setEtc( TRUE );
+	loc.setEtc( true );
     }
     lastLoc = Location::null;
 }
@@ -432,20 +432,20 @@ bool Config::removeDirContents( const QString& dir )
     QDir dirInfo( dir );
     QFileInfoList entries = dirInfo.entryInfoList();
 
-    bool ok = TRUE;
+    bool ok = true;
 
     QFileInfoList::Iterator it = entries.begin();
     while ( it != entries.end() ) {
 	if ( (*it).isFile() ) {
 	    if ( !dirInfo.remove((*it).fileName()) )
-		ok = FALSE;
+		ok = false;
 	} else if ( (*it).isDir() ) {
 	    if ( (*it).fileName() != "." && (*it).fileName() != ".." ) {
 		if ( removeDirContents((*it).absoluteFilePath()) ) {
 		    if ( !dirInfo.rmdir((*it).fileName()) )
-			ok = FALSE;
+			ok = false;
 		} else {
-		    ok = FALSE;
+		    ok = false;
 		}
 	    }
 	}
@@ -500,13 +500,13 @@ void Config::load( Location location, const QString& fileName )
 	    } while ( text[i] != '\n' );
 	} else if ( isMetaKeyChar(text[i]) ) {
 	    Location keyLoc = location;
-	    bool plus = FALSE;
+	    bool plus = false;
 	    QString stringValue;
 	    QStringList stringListValue;
 	    QString word;
-	    bool inQuote = FALSE;
-	    bool prevWordQuoted = TRUE;
-	    bool metWord = FALSE;
+	    bool inQuote = false;
+	    bool prevWordQuoted = true;
+	    bool metWord = false;
 
 	    MetaStack stack;
 	    do {
@@ -541,7 +541,7 @@ void Config::load( Location location, const QString& fileName )
 		      .filePath() );
 	    } else {
 		if (text[i] == '+') {
-		    plus = TRUE;
+		    plus = true;
 		    SKIP_CHAR();
 		}
 		if ( text[i] != '=' )
@@ -577,9 +577,9 @@ void Config::load( Location location, const QString& fileName )
 				    stringValue += " ";
 				stringValue += word;
 				stringListValue << word;
-				metWord = TRUE;
+				metWord = true;
 				word = "";
-				prevWordQuoted = FALSE;
+				prevWordQuoted = false;
 			    }
 			    if ( text[i] == '\n' || text[i] == '#' )
 				break;
@@ -592,9 +592,9 @@ void Config::load( Location location, const QString& fileName )
 			    stringValue += word;
 			    if ( !word.isEmpty() )
 				stringListValue << word;
-			    metWord = TRUE;
+			    metWord = true;
 			    word = "";
-			    prevWordQuoted = TRUE;
+			    prevWordQuoted = true;
 			}
 			inQuote = !inQuote;
 			SKIP_CHAR();
@@ -629,7 +629,7 @@ void Config::load( Location location, const QString& fileName )
 			if ( locMap[*key].isEmpty() ) {
 			    locMap[*key] = keyLoc;
 			} else {
-			    locMap[*key].setEtc( TRUE );
+			    locMap[*key].setEtc( true );
 			}
 			if ( stringValueMap[*key].isEmpty() ) {
 			    stringValueMap[*key] = stringValue;

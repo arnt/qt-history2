@@ -1,7 +1,3 @@
-/*
-  qsakernelparser.cpp
-*/
-
 #include <qfile.h>
 
 #include "qsakernelparser.h"
@@ -79,11 +75,11 @@ void QsaKernelParser::parseSourceFile( const Location& location,
 			if ( tok == Tok_Ident ) {
 			    ident = tokenizer->lexeme();
 			    if ( ident == "Custom" ) {
-				isProperty = TRUE;
+				isProperty = true;
 			    } else if ( ident == "AttributeNonWritable" ) {
-				isWritable = FALSE;
+				isWritable = false;
 			    } else if ( ident == "AttributeStatic" ) {
-				isStatic = TRUE;
+				isStatic = true;
 			    }
 			}
 			readToken();
@@ -124,7 +120,7 @@ void QsaKernelParser::parseSourceFile( const Location& location,
 			    func->setReturnType( "Object" );
 			    func->addParameter( Parameter("...") );
 			}
-			func->setStatic( FALSE ); // ###
+			func->setStatic( false ); // ###
 		    }
 		}
 	    }

@@ -3,7 +3,7 @@
 
 int main( int argc, char **argv )
 {
-    QApplication a( argc, argv, FALSE );
+    QApplication a( argc, argv, false );
 
     if ( a.argc() != 4 ) {
 	qFatal( "Three arguments expected" );

@@ -1,6 +1,5 @@
-/*
-  tokenizer.cpp
-*/
+#include "config.h"
+#include "tokenizer.h"
 
 #include <qhash.h>
 #include <qregexp.h>
@@ -8,9 +7,6 @@
 
 #include <ctype.h>
 #include <string.h>
-
-#include "config.h"
-#include "tokenizer.h"
 
 #define LANGUAGE_CPP			"Cpp"
 
@@ -240,14 +236,14 @@ int Tokenizer::getToken()
 			yyCh = getChar();
 		    } while ( yyCh != EOF && yyCh != '\n' );
 		} else if ( yyCh == '*' ) {
-		    bool metDoc = FALSE; // empty doc is no doc
-		    bool metSlashAsterBang = FALSE;
-		    bool metAster = FALSE;
-		    bool metAsterSlash = FALSE;
+		    bool metDoc = false; // empty doc is no doc
+		    bool metSlashAsterBang = false;
+		    bool metAster = false;
+		    bool metAsterSlash = false;
 
 		    yyCh = getChar();
 		    if ( yyCh == '!' )
-			metSlashAsterBang = TRUE;
+			metSlashAsterBang = true;
 
 		    while ( !metAsterSlash ) {
 			if ( yyCh == EOF ) {
@@ -255,13 +251,13 @@ int Tokenizer::getToken()
 			    break;
 			} else {
 			    if ( yyCh == '*' ) {
-				metAster = TRUE;
+				metAster = true;
 			    } else if ( metAster && yyCh == '/' ) {
-				metAsterSlash = TRUE;
+				metAsterSlash = true;
 			    } else {
-				metAster = FALSE;
+				metAster = false;
 				if ( isgraph(yyCh) )
-				    metDoc = TRUE;
+				    metDoc = true;
 			    }
 			}
 			yyCh = getChar();
@@ -377,7 +373,7 @@ void Tokenizer::initialize(const Config &config)
     QString versionSym = config.getString(CONFIG_VERSIONSYM);
 
     comment = new QRegExp( "/(?:\\*.*\\*/|/.*\n|/[^\n]*$)" );
-    comment->setMinimal( TRUE );
+    comment->setMinimal( true );
     versionX = new QRegExp( "$cannot possibly match^" );
     if (!versionSym.isEmpty())
 	versionX->setPattern("[ \t]*(?:" + QRegExp::escape(versionSym)
@@ -438,7 +434,7 @@ Tokenizer::Tokenizer()
     yyLex = yyLexBuf2;
     yyLex[0] = '\0';
     yyLexLen = 0;
-    yyPreprocessorSkipping.push( FALSE );
+    yyPreprocessorSkipping.push( false );
     yyNumPreprocessorSkipping = 0;
     yyBraceDepth = 0;
     yyParenDepth = 0;
@@ -508,9 +504,9 @@ int Tokenizer::getTokenAfterPreprocessor()
 	      // ...
 	      #else
 
-	  the skipping stack contains, from bottom to top, FALSE TRUE
-	  TRUE (assuming 0 is false and 1 is true).  If at least one
-	  entry of the stack is TRUE, the tokens are skipped.
+	  the skipping stack contains, from bottom to top, false true
+	  true (assuming 0 is false and 1 is true).  If at least one
+	  entry of the stack is true, the tokens are skipped.
 
 	  This mechanism is simple yet hard to understand.
 	*/
@@ -527,7 +523,7 @@ int Tokenizer::getTokenAfterPreprocessor()
 		if ( old )
 		    pushSkipping( !isTrue(condition) );
 		else
-		    pushSkipping( TRUE );
+		    pushSkipping( true );
 	    } else if ( directive == QString("else") ) {
 		pushSkipping( !popSkipping() );
 	    } else if ( directive == QString("endif") ) {
@@ -578,7 +574,7 @@ bool Tokenizer::popSkipping()
 {
     if ( yyPreprocessorSkipping.isEmpty() ) {
 	yyTokLoc.warning( tr("Unexpected #elif, #else or #endif") );
-	return TRUE;
+	return true;
     }
 
     bool skip = yyPreprocessorSkipping.pop();
@@ -588,7 +584,7 @@ bool Tokenizer::popSkipping()
 }
 
 /*
-  Returns TRUE if the condition evaluates as true, otherwise FALSE.  The
+  Returns true if the condition evaluates as true, otherwise false.  The
   condition is represented by a string.  Unsophisticated parsing techniques are
   used.  The preprocessing method could be named StriNg-Oriented PreProcessing,
   as SNOBOL stands for StriNg-Oriented symBOlic Language.
@@ -636,7 +632,7 @@ bool Tokenizer::isTrue(const QString &condition)
 
     QString t = condition.simplified();
     if ( t.isEmpty() )
-	return TRUE;
+	return true;
 
     if ( t[0] == QChar('!') )
 	return !isTrue( t.mid(1) );

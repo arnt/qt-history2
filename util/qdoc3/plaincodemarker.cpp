@@ -1,7 +1,3 @@
-/*
-  plaincodemarker.cpp
-*/
-
 #include "plaincodemarker.h"
 
 PlainCodeMarker::PlainCodeMarker()
@@ -14,17 +10,17 @@ PlainCodeMarker::~PlainCodeMarker()
 
 bool PlainCodeMarker::recognizeCode( const QString& /* code */ )
 {
-    return TRUE;
+    return true;
 }
 
 bool PlainCodeMarker::recognizeExtension( const QString& /* ext */ )
 {
-    return TRUE;
+    return true;
 }
 
 bool PlainCodeMarker::recognizeLanguage( const QString& /* lang */ )
 {
-    return FALSE;
+    return false;
 }
 
 QString PlainCodeMarker::plainName( const Node * /* node */ )
