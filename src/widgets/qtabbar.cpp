@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#54 $
+** $Id: //depot/qt/main/src/widgets/qtabbar.cpp#55 $
 **
 ** Implementation of QTabBar class
 **
@@ -339,7 +339,7 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 	p->drawPoint( r.right() - 2, r.bottom() - 2 );
 	p->drawLine( r.right() - 2, r.bottom() - 1,
 		     r.left() + 1, r.bottom() - 1 );
-	p->drawPoint( r.left() + 1, r.bottom() - 2 );       
+	p->drawPoint( r.left() + 1, r.bottom() - 2 );
 	
 	p->setPen( colorGroup().shadow() );
 	if (style().defaultFrameWidth() > 1) {
@@ -351,7 +351,7 @@ void QTabBar::paint( QPainter * p, QTab * t, bool selected ) const
 	}
 
 	p->setPen( colorGroup().light() );
-	p->drawLine( r.left()+1, r.top()+1,
+	p->drawLine( r.left()+1, r.top(),
 		     r.left()+1, r.bottom() - 2 );
     } else {
 	
