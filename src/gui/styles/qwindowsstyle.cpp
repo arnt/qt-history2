@@ -1610,6 +1610,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             bool selected = tab->state & Style_Selected;
             bool lastTab = tab->position == QStyleOptionTab::End;
             bool firstTab = tab->position == QStyleOptionTab::Beginning;
+            bool onlyOne = tab->position == QStyleOptionTab::OnlyOneTab;
             QRect r2(tab->rect);
             if (tab->shape == QTabBar::RoundedAbove) {
                 p->setPen(tab->palette.light());
@@ -1630,9 +1631,9 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
                     x1 -= 2;
                     x2 += 2;
                 }
-                if (firstTab)
+                if (firstTab || onlyOne)
                     x1 += 2;
-                if (lastTab)
+                if (lastTab || onlyOne)
                     x2 -= 2;
 
                 // Erase the win panel line
