@@ -450,7 +450,7 @@ void QWindowsXPStyle::polish( QWidget *widget )
 	    // ugly hack, please look away
 	    tb->setFixedSize( 16, 16 );
 	    QDockWindow *dw = (QDockWindow *) tb->parentWidget()->parentWidget();
-	    if ( dw->area()->orientation() == Horizontal )
+	    if ( dw->area() && dw->area()->orientation() == Horizontal )
 		tb->move( 0, 2 );
 	    // ok, you can look again
 	    QPalette pl = tb->palette();
