@@ -536,6 +536,7 @@ Q_EXPORT int qWinVersion();
 #    pragma warning(disable: 4097) // typedef-name 'identifier1' used as synonym for class-name 'identifier2'
 #    pragma warning(disable: 4706) // assignment within conditional expression
 #    pragma warning(disable: 4786) // truncating debug info after 255 characters
+#    pragma warning(disable: 4660) // template-class specialization 'identifier' is already instantiated
 #  elif defined(Q_CC_BOR)
 #    pragma option -w-inl
 #    pragma option -w-aus
