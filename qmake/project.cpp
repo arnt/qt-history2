@@ -46,6 +46,7 @@
 
 int line_count;
 extern "C" void yyerror(const char *);
+#define UN_TMAKEIFY(x) x.replace(QRegExp("^TMAKE"), "QMAKE")
 
 QMakeProject::QMakeProject()
 {
@@ -159,29 +160,8 @@ QMakeProject::parse(QString file, QString t, QMap<QString, QStringList> &place)
 	scope_block--;
 	vals.truncate(vals.length()-1);
     }
+    doVariableReplace(vals, place);
 
-#define UN_TMAKEIFY(x) x.replace(QRegExp("^TMAKE"), "QMAKE")
-    int rep, rep_len;
-    QRegExp reg_var;
-    int left = 0, right = 0;
-    for(int x = 0; x < 2; x++) {
-	if( x == 0 ) {
-	    reg_var = QRegExp("\\$\\$\\{[a-zA-Z0-9_\\.-]*\\}");
-	    left = 3;
-	    right = 1;
-	} else if(x == 1) {
-	    reg_var = QRegExp("\\$\\$[a-zA-Z0-9_\\.-]*");
-	    left = 2;
-	    right = 0;
-	}
-	while((rep = reg_var.match(vals, 0, &rep_len)) != -1) {
-	    QString rep_var = UN_TMAKEIFY(vals.mid(rep + left, rep_len - (left + right)));
-	    QString replacement = rep_var == "LITERAL_WHITESPACE" ? QString("\t") : place[rep_var].join(" ");
-	    debug_msg(2, "Project parser: (%s) :: %s -> %s", vals.latin1(),
-		   vals.mid(rep, rep_len).latin1(), replacement.latin1());
-	    vals.replace(rep, rep_len, replacement);
-	}
-    }
     var = var.stripWhiteSpace();
 #undef SKIP_WS
 
@@ -474,26 +454,8 @@ QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString,
 	QString file = args.first();
 	file = Option::fixPathToLocalOS(file);
 	file.replace(QRegExp("\""), "");
-
-	int rep, rep_len;
-	QRegExp reg_var;
-	int left = 0, right = 0;
-	for(int x = 0; x < 2; x++) {
-	    if( x == 0 ) {
-		reg_var = QRegExp("\\$\\$\\{[a-zA-Z0-9_\\.-]*\\}");
-		left = 3;
-		right = 1;
-	    } else if(x == 1) {
-		reg_var = QRegExp("\\$\\$[a-zA-Z0-9_\\.-]*");
-		left = 2;
-		right = 0;
-	    }
-	    while((rep = reg_var.match(file, 0, &rep_len)) != -1) {
-		QString rep_var = file.mid(rep + left, rep_len - (left+right));
-		QString replacement = rep_var == "LITERAL_WHITESPACE" ? QString("\t") : place[rep_var].join(" ");
-		file.replace(rep, rep_len, replacement);
-	    }
-	}
+	doVariableReplace(file, place);
+	
 	if(QFile::exists(file))
 	    return TRUE;
 	//regular expression I guess
@@ -538,27 +500,7 @@ QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString,
 	QString file = args.first();
 	file = Option::fixPathToLocalOS(file);
 	file.replace(QRegExp("\""), "");
-
-	int rep, rep_len;
-	QRegExp reg_var;
-	int left = 0, right = 0;
-	for(int x = 0; x < 2; x++) {
-	    if( x == 0 ) {
-		reg_var = QRegExp("\\$\\$\\{[a-zA-Z0-9_\\.-]*\\}");
-		left = 3;
-		right = 1;
-	    } else if(x == 1) {
-		reg_var = QRegExp("\\$\\$[a-zA-Z0-9_\\.-]*");
-		left = 2;
-		right = 0;
-	    }
-	    while((rep = reg_var.match(file, 0, &rep_len)) != -1) {
-		QString rep_var = file.mid(rep + left, rep_len - (left+right));
-		QString replacement = rep_var == "LITERAL_WHITESPACE" ? QString("\t") : place[rep_var].join(" ");
-		file.replace(rep, rep_len, replacement);
-	    }
-	}
-
+	doVariableReplace(file, place);
 	debug_msg(1, "Project Parser: Including file %s.", file.latin1());
 	int l = line_count;
 	int sb = scope_block;
@@ -607,4 +549,32 @@ QMakeProject::doProjectCheckReqs(const QStringList &deps)
 	    return;
 	}
     }
+}
+
+
+QString
+QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &place)
+{
+    int rep, rep_len;
+    QRegExp reg_var;
+    int left = 0, right = 0;
+    for(int x = 0; x < 2; x++) {
+	if( x == 0 ) {
+	    reg_var = QRegExp("\\$\\$\\{[a-zA-Z0-9_\\.-]*\\}");
+	    left = 3;
+	    right = 1;
+	} else if(x == 1) {
+	    reg_var = QRegExp("\\$\\$[a-zA-Z0-9_\\.-]*");
+	    left = 2;
+	    right = 0;
+	}
+	while((rep = reg_var.match(str, 0, &rep_len)) != -1) {
+	    QString rep_var = UN_TMAKEIFY(str.mid(rep + left, rep_len - (left + right)));
+	    QString replacement = rep_var == "LITERAL_WHITESPACE" ? QString("\t") : place[rep_var].join(" ");
+	    debug_msg(2, "Project parser: (%s) :: %s -> %s", str.latin1(),
+		   str.mid(rep, rep_len).latin1(), replacement.latin1());
+	    str.replace(rep, rep_len, replacement);
+	}
+    }
+    return str;
 }
