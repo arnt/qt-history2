@@ -1,6 +1,6 @@
 TEMPLATE = app
 
-CONFIG	+= qt warn_off
+CONFIG	+= uic3
 QT += compat
 
 QMAKE_LIBS_QT_ENTRY = 
