@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#106 $
+** $Id: //depot/qt/main/src/kernel/qpainter_win.cpp#107 $
 **
 ** Implementation of QPainter class for Win32
 **
@@ -40,6 +40,7 @@
 #endif
 
 extern WindowsVersion qt_winver;		// defined in qapplication_win.cpp
+extern TCHAR* qt_winTchar(const QString& str, bool addnul);
 
 /*
   QWinFont holds extra font settings for the painter.
@@ -2064,13 +2065,8 @@ void QPainter::drawText( int x, int y, const QString &str, int len )
 	    map( x, y, &x, &y );
     }
 
-    if ( qt_winver == WV_NT ) {
-	extern TCHAR* qt_winTchar(const QString& str, bool addnul);
-	TCHAR* tc = qt_winTchar(str,FALSE);
-	TextOutW( hdc, x, y, tc, len );
-    } else {
-	TextOutA( hdc, x, y, str.ascii(), len );
-    }
+    TCHAR* tc = qt_winTchar(str,FALSE);
+    TextOut( hdc, x, y, tc, len );
 
     if ( nat_xf )
 	nativeXForm( FALSE );
