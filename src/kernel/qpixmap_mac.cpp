@@ -790,6 +790,10 @@ IconRef qt_mac_create_iconref(const QPixmap &px) {
     //create icon
     IconFamilyHandle iconFamily = (IconFamilyHandle)NewHandle(0);
     SetIconFamilyData(iconFamily, 'PICT', (Handle)pic);
+#if 0
+    if(px.mask()) 
+	SetIconFamilyData(iconFamily, kThumbnail8BitMask, (Handle)GetGWorldPixMap((GWorldPtr)px.mask()->handle()));
+#endif
     KillPicture(pic);
     IconRef ret;
     const OSType kFakeCreator = 'CUTE', kFakeType = 'QICO';
