@@ -109,7 +109,7 @@ bool QFontDef::exactMatch( const QFontDef &other ) const
 
 QFontPrivate::QFontPrivate()
     : engineData( 0 ), paintdevice( 0 ),
-      rawMode( FALSE ), underline( FALSE ), overline( FALSE ), strikeOut( FALSE )
+      rawMode( false ), underline( false ), overline( false ), strikeOut( false ), kerning(false)
 {
 #ifdef Q_WS_X11
     screen = QX11Info::appScreen();
@@ -122,7 +122,7 @@ QFontPrivate::QFontPrivate( const QFontPrivate &other )
     : QShared(), request( other.request ), engineData( 0 ),
       paintdevice( other.paintdevice ), screen( other.screen ),
       rawMode( other.rawMode ), underline( other.underline ), overline( other.overline ),
-      strikeOut( other.strikeOut )
+      strikeOut( other.strikeOut ), kerning(other.kerning)
 {
 }
 
@@ -174,6 +174,9 @@ void QFontPrivate::resolve(uint mask, const QFontPrivate *other)
 
     if ( ! ( mask & StrikeOut ) )
 	strikeOut = other->strikeOut;
+
+    if ( ! ( mask & Kerning ) )
+	kerning = other->kerning;
 }
 
 
@@ -970,6 +973,31 @@ void QFont::setFixedPitch( bool enable )
 }
 
 /*!
+  Returns true if kerning should be used when drawing text with this font.
+
+  \sa setKerning()
+*/
+bool QFont::kerning() const
+{
+    return d->kerning;
+}
+
+/*!
+  Enable kerning for this font if \a enable is true, otherwise disable it.
+
+  \warning When kerning is enabled, glyph metrics do not add up
+  anymore even for latin text. So the assumption that
+  width('a')+width('b') is equal to width("ab") is not neccesairly true.
+
+  \sa kerning()
+*/
+void QFont::setKerning(bool enable) { detach();
+
+    d->kerning = enable;
+    resolve_mask |= QFontPrivate::Kerning;
+}
+
+/*!
     Returns the StyleStrategy.
 
     The style strategy affects the \link #fontmatching font
@@ -1222,7 +1250,9 @@ bool QFont::operator==( const QFont &f ) const
     return f.d == d || ( f.d->request   == d->request   &&
 			 f.d->underline == d->underline &&
 			 f.d->overline  == d->overline  &&
-			 f.d->strikeOut == d->strikeOut );
+			 f.d->strikeOut == d->strikeOut &&
+			 f.d->kerning == d->kerning
+	);
 }
 
 
@@ -1255,8 +1285,8 @@ bool QFont::operator<( const QFont &f ) const
     if ( r1.addStyle != r2.addStyle ) return r1.addStyle < r2.addStyle;
 #endif // Q_WS_X11
 
-    int f1attrs = (f.d->underline << 2) + (f.d->overline << 1) + f.d->strikeOut;
-    int f2attrs = (d->underline << 2) + (d->overline << 1) + d->strikeOut;
+    int f1attrs = (f.d->underline << 3) + (f.d->overline << 2) + (f.d->strikeOut<<1) + f.d->kerning;
+    int f2attrs = (d->underline << 3) + (d->overline << 2) + (d->strikeOut<<1) + d->kerning;
     return f1attrs < f2attrs;
 }
 
@@ -1534,6 +1564,8 @@ static Q_UINT8 get_font_bits( const QFontPrivate *f )
     // bits |= 0x10;
     if ( f->rawMode )
 	bits |= 0x20;
+    if ( f->kerning )
+	bits |= 0x40;
     return bits;
 }
 
@@ -1554,6 +1586,7 @@ static void set_font_bits( Q_UINT8 bits, QFontPrivate *f )
     f->request.fixedPitch    = (bits & 0x08) != 0;
     // f->hintSetByUser      = (bits & 0x10) != 0;
     f->rawMode               = (bits & 0x20) != 0;
+    f->kerning               = (bits & 0x40) != 0;
 }
 
 #endif

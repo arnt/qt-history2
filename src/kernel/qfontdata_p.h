@@ -157,6 +157,7 @@ public:
     uint underline  :  1;
     uint overline   :  1;
     uint strikeOut  :  1;
+    uint kerning    :  1;
 
     enum {
 	Family        = 0x0001,
@@ -170,7 +171,8 @@ public:
 	StrikeOut     = 0x0100,
 	FixedPitch    = 0x0200,
 	Stretch       = 0x0400,
-	Complete      = 0x07ff
+	Kerning       = 0x0800,
+	Complete      = 0x0fff
     };
 
     void resolve( uint mask, const QFontPrivate *other );

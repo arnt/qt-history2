@@ -118,6 +118,9 @@ public:
     bool fixedPitch() const;
     void setFixedPitch( bool );
 
+    bool kerning() const;
+    void setKerning(bool);
+
     StyleHint styleHint() const;
     StyleStrategy styleStrategy() const;
     void setStyleHint( StyleHint, StyleStrategy = PreferDefault );
