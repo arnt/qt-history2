@@ -976,7 +976,7 @@ QFSFileEngine::fileName(FileName file) const
         QT_WA({
             TCHAR cur[PATH_MAX];
             ::_wgetcwd(cur, PATH_MAX);
-            if(::_wchdir((TCHAR*)d->file.utf16()) >= 0) {
+            if(::_wchdir((TCHAR*)QFileInfo(d->file).absolutePath().utf16()) >= 0) {
                 TCHAR real[PATH_MAX];
                 if(::_wgetcwd(real, PATH_MAX))
                     ret = QString::fromUtf16((ushort*)real);
@@ -992,7 +992,7 @@ QFSFileEngine::fileName(FileName file) const
             }
             QT_CHDIR(cur);
         });
-        return QFSFileEnginePrivate::fixToQtSlashes(ret);
+        return QFSFileEnginePrivate::fixToQtSlashes(ret + "/" + QFileInfo(d->file).fileName());
     } else if(file == LinkName) {
 	return QFSFileEnginePrivate::fixToQtSlashes(d->getLink());
     }
@@ -1051,13 +1051,13 @@ QFSFileEngine::owner(FileOwner own) const
     return QString("");
 }
 
-bool 
+bool
 QFSFileEngine::chmod(uint perms)
 {
     return false;
 }
 
-bool 
+bool
 QFSFileEngine::setSize(QIODevice::Offset size)
 {
     return false;
