@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qsemimodal.cpp#1 $
+** $Id: //depot/qt/main/src/kernel/qsemimodal.cpp#2 $
 **
 ** Implementation of QSemiModal class
 **
@@ -12,28 +12,29 @@
 #include "qsemimodal.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qsemimodal.cpp#1 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qsemimodal.cpp#2 $");
 
 
 /*!
   \class QSemiModal qsemimodal.h
   \brief The QSemiModal class is the base class of semi-modal dialog windows.
 
-  A semi-modal dialog window is a widget used to communicate with the user.
+  The semi-modal dialog window can disable events to other windows while
+  it is open.  To enable this, the QSemiModal must be constructed with
+  TRUE for the \e modal argument, which is FALSE by default, for consistency
+  with QDialog.
 
-  The semi-modal dialog window disables events to other windows while it
-  is open.
-
-  Note that the parent widget has a different meaning for semi-modal dialogs
-  than for other types of widgets. A semi-dialog is placed on top of the parent
-  widget. The dialog is centered on the screen if the parent widget is
-  zero.
-*/
+  Note that the parent widget has a different meaning for semi-modal
+  dialogs than for other types of widgets. A semi-modal dialog is
+  placed on top of the parent widget. The dialog is centered on the
+  screen if the parent widget is zero.  
+*/ 
 
 
 /*!
-  Constructs a semi-modal dialog named \e name, which has a parent
-  widget \e parent.
+  Constructs a semi-modal dialog named \a name, which has a parent
+  widget \a parent.  If \a modal is FALSE (the default), the only
+  behaviour different to a QWidget is automatic sizing and positioning.
 */
 
 QSemiModal::QSemiModal( QWidget *parent, const char *name, bool modal, WFlags f )
