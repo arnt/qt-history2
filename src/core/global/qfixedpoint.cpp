@@ -107,7 +107,7 @@ inline double qACos(double x)
         return 0;
 
     register double z;
-    asm("fmul":  "=t" (z) : "0" (1+x), "u" (1-x) );
+    asm("fmulp":  "=t" (z) : "0" (1+x), "u" (1-x) );
     asm("fsqrt": "=t" (z) : "0" (z) );
     asm("fpatan": "=t" (z) : "0" (1.0), "u" (z) );
     return z;
