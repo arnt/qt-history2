@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.cpp#61 $
+** $Id: //depot/qt/main/src/kernel/qfont.cpp#62 $
 **
 ** Implementation of QFont, QFontMetrics and QFontInfo classes
 **
@@ -20,7 +20,7 @@
 #include "qdstream.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#61 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qfont.cpp#62 $");
 
 
 /*!
@@ -108,7 +108,6 @@ void QFont::init()
     d->req.hintSetByUser = FALSE;
     d->req.rawMode	 = FALSE;
     d->req.dirty	 = TRUE;
-    d->act.dirty	 = TRUE;
     d->exactMatch	 = FALSE;
 }
 
@@ -442,7 +441,6 @@ void QFont::setUnderline( bool enable )
     if ( (bool)d->req.underline != enable ) {
 	detach();
 	d->req.underline = enable;
-	d->act.underline = enable;		// underline always possible
     }
 }
 
@@ -474,7 +472,6 @@ void QFont::setStrikeOut( bool enable )
     if ( (bool)d->req.strikeOut != enable ) {
 	detach();
 	d->req.strikeOut = enable;
-	d->act.strikeOut = enable;		// strikeOut always posible
     }
 }
 
@@ -1043,8 +1040,8 @@ void QFontMetrics::reset( const QWidget *w )
     if ( fm_list ) {
 	QFontMetrics *fm = fm_list->first();
 	while ( fm ) {
-	    if ( fm->w == w )
-		fm->w = 0;			// detach from widget
+	    if ( fm->t == Widget && fm->u.w == w )
+		fm->u.w = 0;			// detach from widget
 	    fm = fm_list->next();
 	}
     }
@@ -1060,8 +1057,8 @@ void QFontMetrics::reset( const QPainter *p )
     if ( fm_list ) {
 	QFontMetrics *fm = fm_list->first();
 	while ( fm ) {
-	    if ( fm->p == p )
-		fm->p = 0;			// detach from painter
+	    if ( fm->t == Painter && fm->u.p == p )
+		fm->u.p = 0;			// detach from painter
 	    fm = fm_list->next();
 	}
     }
@@ -1070,25 +1067,71 @@ void QFontMetrics::reset( const QPainter *p )
 
 /*!
   \class QFontMetrics qfontmet.h
-  \brief The QFontMetrics class provides font metrics information about
-  the current font for a widget or a painter.
+  \brief The QFontMetrics class provides font metrics information about fonts.
 
   \ingroup fonts
 
   QFontMetrics functions calculate size of characters and strings for a given
   font.
 
-  Notice that the constructors are private and you can only get a font
-  metrics object by calling QWidget::fontMetrics() or
-  QPainter::fontMetrics().
+  There are three ways you can create a QFontMetrics object:
+  <ol>
+  <li> The QFontMetrics constructor with a QFont
+  creates a font metrics object for a screen-compatible font,
+  i.e. the font must not a printer font.
+  <li> QWidget::fontMetrics() returns the font metrics for a
+  widget's current font. The font metrics object is automatically
+  updated if somebody sets a new widget font.
+  <em>Please read the note below.</em>
+  <li> QPainter::fontMetrics() returns the font metrics for a
+  painter's current font. The font metrics object is automatically
+  updated if somebody sets a new painter font.
+  <em>Please read the note below.</em>
+  </ol>
 
-  A font metrics object will always refer to the font currently set for
-  the widget or painter that the font metrics object was obtained from.
-  Changing a widget font will update all QFontMetrics objects that
-  refer to this widget.
+  Example:
+  \code
+    QFont font("times",24);
+    QFontMetrics fm(font);
+    int w = fm.width("What's the width of this text");
+    int h = fm.height();
+  \endcode
+
+  <strong>In Qt 2.0 the font metrics object will no longer be
+  automatically updated when the widget or painter gets a new font.</strong>
+  Make sure you program does not depend on this feature.
+
+  <strong>About efficiency:</strong> We recommend that you use
+  the QFontMetrics constructor if you can. This is more efficient
+  than getting the font metrics from a widget or a painter. The
+  QWidget::fontMetrics() and QPainter::fontMetrics() will become faster
+  in Qt 2.0, when we have removed the automatic update policy.
 
   \sa QFont, QFontInfo
 */
+
+#if QT_VERSION == 200
+#error "Fix doc above. No longer automatic font metrics update"
+#endif
+
+/*!
+  Constructs a font metrics object for \a font.
+
+  The font must be screen-compatible, i.e. a font you use when drawing
+  text in \link QWidget widgets\endlink or \link QPixmap pixmaps\endlink.
+  If \a font is a printer font, you'll probably get wrong results.
+
+  Use the QPainter::fontMetrics() to get the font metrics when painting.
+  This is a little slower than using this constructor, but it always
+  gives correct results.
+*/
+
+QFontMetrics::QFontMetrics( const QFont &font )
+{
+    t = FontInternal;
+    font.handle();
+    u.f = font.d->fin;
+}
 
 /*!
   \internal
@@ -1100,10 +1143,10 @@ QFontMetrics::QFontMetrics( const QWidget *widget )
 #if defined(CHECK_NULL)
     ASSERT( widget != 0 );
 #endif
-    w = (QWidget *)widget;
-    p = 0;
-    w->setWFlags( WExportFontMetrics );
-    insertFontMetrics( this );			// register this object
+    t = Widget;
+    u.w = (QWidget *)widget;
+    u.w->setWFlags( WExportFontMetrics );
+    insertFontMetrics( this );
 }
 
 /*!
@@ -1116,15 +1159,15 @@ QFontMetrics::QFontMetrics( const QPainter *painter )
 #if defined(CHECK_NULL)
     ASSERT( painter != 0 );
 #endif
-    w = 0;
-    p = (QPainter *)painter;
+    t = Painter;
+    u.p = (QPainter *)painter;
 #if defined(CHECK_STATE)
-    if ( !p->isActive() )
+    if ( !u.p->isActive() )
 	warning( "QFontMetrics: Get font metrics between QPainter::begin() "
 		 "and QPainter::end()" );
 #endif
-    p->setf( QPainter::FontMet );
-    insertFontMetrics( this );			// register this object
+    u.p->setf( QPainter::FontMet );
+    insertFontMetrics( this );
 }
 
 /*!
@@ -1132,9 +1175,10 @@ QFontMetrics::QFontMetrics( const QPainter *painter )
 */
 
 QFontMetrics::QFontMetrics( const QFontMetrics &fm )
-    : w(fm.w), p(fm.p)
+    : t(fm.t), u(fm.u)
 {
-    insertFontMetrics( this );			// register this object
+    if ( t != FontInternal )
+	insertFontMetrics( this );
 }
 
 /*!
@@ -1143,7 +1187,8 @@ QFontMetrics::QFontMetrics( const QFontMetrics &fm )
 
 QFontMetrics::~QFontMetrics()
 {
-    removeFontMetrics( this );
+    if ( t != FontInternal )
+	removeFontMetrics( this );
 }
 
 
@@ -1153,8 +1198,12 @@ QFontMetrics::~QFontMetrics()
 
 QFontMetrics &QFontMetrics::operator=( const QFontMetrics &fm )
 {
-    w = fm.w;
-    p = fm.p;
+    if ( t != FontInternal )
+	removeFontMetrics( this );
+    t = fm.t;
+    u = fm.u;
+    if ( t != FontInternal )
+	insertFontMetrics( this );
     return *this;
 }
 
@@ -1201,10 +1250,20 @@ QRect QFontMetrics::boundingRect( char ch ) const
 
 const QFont &QFontMetrics::font() const
 {
-    if ( w )
-	return w->font();
-    else if ( p )
-	return p->font();
+    switch ( t ) {
+    case Widget:
+	return u.w->font();
+    case Painter:
+	return u.p->font();
+    default:
+#if defined(CHECK_STATE)
+	warning( "QFontMetrics::font: You can only get the font "
+		 "when you get the QFontMetrics from either "
+		 "QWidget::fontMetrics() or QPainter::fontMetrics()\n"
+		 "\tAvoid this function. It will be removed in a "
+		 "future version of Qt" );
+#endif
+    }
     static QFont f;
     return f;
 }
@@ -1251,8 +1310,8 @@ void QFontInfo::reset( const QWidget *w )
     if ( fi_list ) {
 	QFontInfo *fi = fi_list->first();
 	while ( fi ) {
-	    if ( fi->w == w )
-		fi->w = 0;			// detach from widget
+	    if ( fi->t == Widget && fi->u.w == w )
+		fi->u.w = 0;			// detach from widget
 	    fi = fi_list->next();
 	}
     }
@@ -1268,8 +1327,8 @@ void QFontInfo::reset( const QPainter *p )
     if ( fi_list ) {
 	QFontInfo *fi = fi_list->first();
 	while ( fi ) {
-	    if ( fi->p == p )
-		fi->p = 0;			// detach from painter
+	    if ( fi->t == Painter && fi->u.p == p )
+		fi->u.p = 0;			// detach from painter
 	    fi = fi_list->next();
 	}
     }
@@ -1279,8 +1338,7 @@ void QFontInfo::reset( const QPainter *p )
 /*!
   \class QFontInfo qfontinf.h
 
-  \brief The QFontInfo class provides information about the current
-  font for a widget or a painter.
+  \brief The QFontInfo class provides general information about fonts.
 
   \ingroup fonts
 
@@ -1288,16 +1346,71 @@ void QFontInfo::reset( const QPainter *p )
   a paint device. The QFontInfo class provides information of the actual
   font that matched a QFont specification.
 
-  Notice that the constructors are private and you can only get a font
-  info object by calling QWidget::fontInfo() or QPainter::fontInfo().
+  There are three ways you can create a QFontInfo object:
+  <ol>
+  <li> The QFontInfo constructor with a QFont
+  creates a font info object for a screen-compatible font,
+  i.e. the font must not a printer font.
+  <li> QWidget::fontInfo() returns the font info for a
+  widget's current font. The font info object is automatically
+  updated if somebody sets a new widget font.
+  <em>Please read the note below.</em>
+  <li> QPainter::fontInfo() returns the font info for a
+  painter's current font. The font info object is automatically
+  updated if somebody sets a new painter font.
+  <em>Please read the note below.</em>
+  </ol>
 
-  A font info object will always refer to the font currently set for
-  the widget or painter that the font info object was obtained from.
-  Changing a widget font will update all QFontInfo objects that
-  refer to this widget.
+  Example:
+  \code
+    QFont font("reykjavik",24);
+    QFontInfo fi(font);
+    if ( strcmp(font.family(),fi.family()) == 0 ) {
+	; // got this font
+    } else {
+	; // got fi.family() instead
+    }
+  \endcode
+
+  <strong>In Qt 2.0 the font info object will no longer be
+  automatically updated when the widget or painter gets a new font.</strong>
+  Make sure you program does not depend on this feature.
+
+  <strong>About efficiency:</strong> We recommend that you use
+  the QFontInfo constructor if you can. This is more efficient
+  than getting the font info from a widget or a painter. The
+  QWidget::fontInfo() and QPainter::fontInfo() will become faster
+  in Qt 2.0, when we have removed the automatic update policy.
 
   \sa QFont, QFontMetrics
 */
+
+#if QT_VERSION == 200
+#error "Fix doc above. No longer automatic font info update"
+#error "Get rid of FontInternalExactMatch"
+#endif
+
+/*!
+  Constructs a font info object for \a font.
+
+  The font must be screen-compatible, i.e. a font you use when drawing
+  text in \link QWidget widgets\endlink or \link QPixmap pixmaps\endlink.
+  If \a font is a printer font, you'll probably get wrong results.
+
+  Use the QPainter::fontInfo() to get the font info when painting.
+  This is a little slower than using this constructor, but it always
+  gives correct results.
+*/
+
+QFontInfo::QFontInfo( const QFont &font )
+{
+    font.handle();
+    if ( font.exactMatch() )
+	t = FontInternalExactMatch;
+    else
+	t = FontInternal;
+    u.f = font.d->fin;
+}
 
 /*!
   \internal
@@ -1309,10 +1422,10 @@ QFontInfo::QFontInfo( const QWidget *widget )
 #if defined(CHECK_NULL)
     ASSERT( widget != 0 );
 #endif
-    w = (QWidget *)widget;
-    p = 0;
-    w->setWFlags( WExportFontInfo );
-    insertFontInfo( this );			// register this object
+    t = Widget;
+    u.w = (QWidget *)widget;
+    u.w->setWFlags( WExportFontInfo );
+    insertFontInfo( this );
 }
 
 /*!
@@ -1325,14 +1438,14 @@ QFontInfo::QFontInfo( const QPainter *painter )
 #if defined(CHECK_NULL)
     ASSERT( painter != 0 );
 #endif
-    w = 0;
-    p = (QPainter *)painter;
+    t = Painter;
+    u.p = (QPainter *)painter;
 #if defined(CHECK_STATE)
-    if ( !p->isActive() )
+    if ( !u.p->isActive() )
 	warning( "QFontInfo: Get font info between QPainter::begin() "
 		 "and QPainter::end()" );
 #endif
-    p->setf( QPainter::FontInf );
+    u.p->setf( QPainter::FontInf );
     insertFontInfo( this );			// register this object
 }
 
@@ -1341,9 +1454,10 @@ QFontInfo::QFontInfo( const QPainter *painter )
 */
 
 QFontInfo::QFontInfo( const QFontInfo &fi )
-    : w(fi.w), p(fi.p)
+    : t(fi.t), u(fi.u)
 {
-    insertFontInfo( this );			// register this object
+    if ( t != FontInternal && t != FontInternalExactMatch )
+	insertFontInfo( this );
 }
 
 /*!
@@ -1352,7 +1466,8 @@ QFontInfo::QFontInfo( const QFontInfo &fi )
 
 QFontInfo::~QFontInfo()
 {
-    removeFontInfo( this );
+    if ( t != FontInternal && t != FontInternalExactMatch )
+	removeFontInfo( this );
 }
 
 
@@ -1362,25 +1477,13 @@ QFontInfo::~QFontInfo()
 
 QFontInfo &QFontInfo::operator=( const QFontInfo &fi )
 {
-    w = fi.w;
-    p = fi.p;
+    if ( t != FontInternal && t != FontInternalExactMatch )
+	removeFontInfo( this );
+    t = fi.t;
+    u = fi.u;
+    if ( t != FontInternal && t != FontInternalExactMatch )
+	insertFontInfo( this );
     return *this;
-}
-
-
-static QWidget *rescue_widget = 0;
-
-static inline QFont *get_font( QWidget *w, QPainter *p )
-{
-    if ( w == 0 && p == 0 ) {
-#if defined(CHECK_STATE)
-	warning( "QFontInfo: Invalid font info" );
-#endif
-	if ( !rescue_widget )
-	    rescue_widget = new QWidget( 0, "internal QFontInfo widget" );
-	w = rescue_widget;
-    }
-    return w ? (QFont *)&(w->font()) : (QFont *)&(p->font());
 }
 
 
@@ -1391,9 +1494,7 @@ static inline QFont *get_font( QWidget *w, QPainter *p )
 
 const char *QFontInfo::family() const
 {
-    QFont *f = get_font( w, p );
-    f->updateFontInfo();
-    return f->d->act.family;
+    return spec()->family;
 }
 
 /*!
@@ -1403,9 +1504,7 @@ const char *QFontInfo::family() const
 
 int QFontInfo::pointSize() const
 {
-    QFont *f = get_font( w, p );
-    f->updateFontInfo();
-    return f->d->act.pointSize / 10;
+    return spec()->pointSize / 10;
 }
 
 /*!
@@ -1415,9 +1514,7 @@ int QFontInfo::pointSize() const
 
 bool QFontInfo::italic() const
 {
-    QFont *f = get_font( w, p );
-    f->updateFontInfo();
-    return f->d->act.italic;
+    return spec()->italic;
 }
 
 /*!
@@ -1428,9 +1525,7 @@ bool QFontInfo::italic() const
 
 int QFontInfo::weight() const
 {
-    QFont *f = get_font( w, p );
-    f->updateFontInfo();
-    return (int)f->d->act.weight;
+    return (int)spec()->weight;
 }
 
 /*!
@@ -1444,32 +1539,22 @@ int QFontInfo::weight() const
 
 /*!
   Returns the underline value of the matched window system font.
-
-  <strong>Implementation note:</strong> This is always TRUE for X Windows.
-
   \sa QFont::underline()
 */
 
 bool QFontInfo::underline() const
 {
-    QFont *f = get_font( w, p );
-    f->updateFontInfo();
-    return f->d->act.underline;
+    return spec()->underline;
 }
 
 /*!
   Returns the strike out value of the matched window system font.
-
-  <strong>Implementation note:</strong> This is always TRUE for X Windows.
-
   \sa QFont::strikeOut()
 */
 
 bool QFontInfo::strikeOut() const
 {
-    QFont *f = get_font( w, p );
-    f->updateFontInfo();
-    return f->d->act.strikeOut;
+    return spec()->strikeOut;
 }
 
 /*!
@@ -1479,9 +1564,7 @@ bool QFontInfo::strikeOut() const
 
 bool QFontInfo::fixedPitch() const
 {
-    QFont *f = get_font( w, p );
-    f->updateFontInfo();
-    return f->d->act.fixedPitch;
+    return spec()->fixedPitch;
 }
 
 /*!
@@ -1493,9 +1576,7 @@ bool QFontInfo::fixedPitch() const
 
 QFont::StyleHint QFontInfo::styleHint() const
 {
-    QFont *f = get_font( w, p );
-    f->updateFontInfo();
-    return (QFont::StyleHint)f->d->act.styleHint;
+    return (QFont::StyleHint)spec()->styleHint;
 }
 
 /*!
@@ -1505,9 +1586,7 @@ QFont::StyleHint QFontInfo::styleHint() const
 
 QFont::CharSet QFontInfo::charSet() const
 {
-    QFont *f = get_font( w, p );
-    f->updateFontInfo();
-    return (QFont::CharSet)f->d->act.charSet;
+    return (QFont::CharSet)spec()->charSet;
 }
 
 /*!
@@ -1523,9 +1602,7 @@ QFont::CharSet QFontInfo::charSet() const
 
 bool QFontInfo::rawMode() const
 {
-    QFont *f = get_font( w, p );
-    f->updateFontInfo();
-    return f->d->act.rawMode;
+    return spec()->rawMode;
 }
 
 /*!
@@ -1536,9 +1613,24 @@ bool QFontInfo::rawMode() const
 
 bool QFontInfo::exactMatch() const
 {
-    QFont *f = get_font( w, p );
-    f->updateFontInfo();
-    return f->d->exactMatch;
+    bool m;
+    switch ( t ) {
+    case FontInternal:
+	m = FALSE;
+	break;
+    case FontInternalExactMatch:
+	m = TRUE;
+	break;
+    case Widget:
+	m = u.w->font().exactMatch();
+	break;
+    case Painter:
+	m = u.p->font().exactMatch();
+	break;
+    default:
+	m = FALSE;
+    }
+    return m;
 }
 
 
@@ -1548,10 +1640,20 @@ bool QFontInfo::exactMatch() const
 
 const QFont &QFontInfo::font() const
 {
-    if ( w )
-	return w->font();
-    else if ( p )
-	return p->font();
+    switch ( t ) {
+    case Widget:
+	return u.w->font();
+    case Painter:
+	return u.p->font();
+    default:
+#if defined(CHECK_STATE)
+	warning( "QFontInfo::font: You can only get the font "
+		 "when you get the QFontInfo from either "
+		 "QWidget::fontInfo() or QPainter::fontInfo()\n"
+		 "\tAvoid this function. It will be removed in a "
+		 "future version of Qt" );
+#endif
+    }
     static QFont f;
     return f;
 }

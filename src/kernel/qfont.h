@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#38 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#39 $
 **
 ** Definition of QFont class
 **
@@ -17,7 +17,9 @@
 
 
 class  QStrList;
-struct QFontData;				// internal font data
+struct QFontDef;
+struct QFontData;
+class  QFontInternal;
 
 
 class QFont					// font class
@@ -96,17 +98,16 @@ private:
     QFont( bool );
     void	init();
     void	detach();
-    void	updateFontInfo()	const;
-    void	load( HANDLE=0 )	const;
+    void	initFontInfo()	    const;
+    void	load( HANDLE=0 )    const;
 #if defined(_WS_WIN_)
     HANDLE	create( bool *, HANDLE=0 ) const; 
-    void       *textMetric()		const;
+    void       *textMetric()	    const;
 #endif
 
     friend class QFontMetrics;
     friend class QFontInfo;
     friend class QPainter;
-    friend void *get_tm( QWidget *, QPainter * );
     friend QDataStream &operator<<( QDataStream &, const QFont & );
     friend QDataStream &operator>>( QDataStream &, QFont & );
 

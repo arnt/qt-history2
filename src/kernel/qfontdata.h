@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontdata.h#24 $
+** $Id: //depot/qt/main/src/kernel/qfontdata.h#25 $
 **
 **		      ***   INTERNAL HEADER FILE   ***
 **
@@ -37,18 +37,15 @@ struct QFontDef {				// font definition
     uint	dirty		: 1;
 };
 
+
 class QFontInternal;
 
 struct QFontData : public QShared {
     QFontData();
    ~QFontData();
-    QFontData( const QFontData & );
-    QFontData  &operator=( const QFontData & );
-    QFontDef	req;				// requested font
-    QFontDef	act;				// actual font
-    uint	exactMatch : 1;
-    short	lineW;				// underline/strikeOut font
-    QFontInternal *fin;
+    QFontDef	    req;			// requested font
+    bool	    exactMatch;
+    QFontInternal  *fin;
 };
 
 

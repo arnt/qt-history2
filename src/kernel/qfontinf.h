@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfontinf.h#17 $
+** $Id: //depot/qt/main/src/kernel/qfontinf.h#18 $
 **
 ** Definition of QFontInfo class
 **
@@ -18,6 +18,7 @@
 class QFontInfo
 {
 public:
+    QFontInfo( const QFont & );
     QFontInfo( const QFontInfo & );
    ~QFontInfo();
 
@@ -35,18 +36,25 @@ public:
     QFont::CharSet	charSet()	const;
     bool		rawMode()	const;
 
-    bool		exactMatch()	const;
-
-    const QFont	       &font()		const;
+#if 1	/* OBSOLETE */
+    bool   exactMatch() const;
+    const QFont &font() const;
+#endif
 
 private:
     QFontInfo( const QWidget * );
     QFontInfo( const QPainter * );
     static void reset( const QWidget * );
     static void reset( const QPainter * );
+    const QFontDef *spec() const;
 
-    QWidget    *w;
-    QPainter   *p;
+    enum Type { FontInternal, FontInternalExactMatch, Widget, Painter };
+    Type t;
+    union {
+	QFontInternal *f;
+	QWidget	      *w;
+	QPainter      *p;
+    } u;
 
     friend class QWidget;
     friend class QPainter;
