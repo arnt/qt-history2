@@ -49,7 +49,7 @@
 class QListBoxPrivate;
 class QListBoxItem;
 class QString;
-class QPtrStrList;
+class QStrList;
 class QStringList;
 
 
@@ -83,8 +83,8 @@ public:
     uint count() const;
 
     void insertStringList( const QStringList&, int index=-1 );
-    void insertStrList( const QPtrStrList *, int index=-1 );
-    void insertStrList( const QPtrStrList &, int index=-1 );
+    void insertStrList( const QStrList *, int index=-1 );
+    void insertStrList( const QStrList &, int index=-1 );
     void insertStrList( const char **,
 			int numStrings=-1, int index=-1 );
 

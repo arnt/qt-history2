@@ -43,7 +43,7 @@
 #include "qmemarray.h"
 #include "qfontmetrics.h"
 #include "qpainter.h"
-#include "qptrstrlist.h"
+#include "qstrlist.h"
 #include "qpixmap.h"
 #include "qapplication.h"
 #include "qptrdict.h"
@@ -1026,7 +1026,7 @@ uint QListBox::count() const
   \sa insertItem(), insertStringList()
 */
 
-void QListBox::insertStrList( const QPtrStrList *list, int index )
+void QListBox::insertStrList( const QStrList *list, int index )
 {
     if ( !list ) {
 #if defined(QT_CHECK_NULL)
@@ -1079,9 +1079,9 @@ void QListBox::insertStringList( const QStringList & list, int index )
   \sa insertItem(), insertStringList()
 */
 
-void QListBox::insertStrList( const QPtrStrList & list, int index )
+void QListBox::insertStrList( const QStrList & list, int index )
 {
-    QPtrStrListIterator it( list );
+    QStrListIterator it( list );
     const char* txt;
     if ( index < 0 )
 	index = count();

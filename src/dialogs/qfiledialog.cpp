@@ -56,7 +56,7 @@
 #include "qbuttongroup.h"
 #include "qvector.h"
 #include "qregexp.h"
-#include "qptrstrlist.h"
+#include "qstrlist.h"
 #include "qtimer.h"
 #include "qvbox.h"
 #include "qhbox.h"
@@ -1232,7 +1232,7 @@ void QFileListBox::viewportDropEvent( QDropEvent *e )
 	return;
     }
 
-    QPtrStrList l;
+    QStrList l;
     QUrlDrag::decode( e, l );
 
     bool move = e->action() == QDropEvent::Move;
@@ -1992,7 +1992,7 @@ static QStringList makeFiltersList( const QString &filter )
   As" file dialog. Use \c ExistingFile if the user must select an
   existing file or \c Directory if only a directory must be selected.
   (See the \l QFileDialog::Mode enum for the complete list of modes.)
-  
+
   You can retrieve the dialog's mode with mode(). Use setFilter() to set
   the dialog's file filter, e.g.
 
@@ -2130,7 +2130,7 @@ static QStringList makeFiltersList( const QString &filter )
   This enum describes the view mode of the file dialog, i.e. what
   information about each file it will display.
 
-  \value List  Display file and directory names with icons. 
+  \value List  Display file and directory names with icons.
   \value Detail  Display file and directory names with icons plus additional information, e.g. file size, modification date.
 
   See setViewMode().
@@ -2143,7 +2143,7 @@ static QStringList makeFiltersList( const QString &filter )
 
   \value NoPreview  No preview is shown at all.
   \value Contents  Show a preview of the contents of the current file
-  using the contents preview widget. 
+  using the contents preview widget.
   \value Info  Show information about the current file using the
   info preview widget.
 
@@ -2833,7 +2833,7 @@ void QFileDialog::setSelection( const QString & filename )
     d->checkForFilter = FALSE;
 }
 
-/*! 
+/*!
   \property QFileDialog::dirPath
 
   \brief the file dialog's working directory
@@ -2936,7 +2936,7 @@ const QDir *QFileDialog::dir() const
 }
 
 /*!
-  Sets the file dialog's working directory to \a dir. 
+  Sets the file dialog's working directory to \a dir.
   \sa dir()
 */
 
@@ -3065,7 +3065,7 @@ void QFileDialog::rereadDir()
 #include "../kernel/qapplication_p.h"
 
 /*!
-  This is a convenience static function that will return an existing file 
+  This is a convenience static function that will return an existing file
   selected by the user.
 
   \code
@@ -3570,7 +3570,7 @@ r.setHeight( QMAX(r.height(),t.height()) )
 
 
 /*! Updates the file name edit box to \a newItem in the file dialog when the cursor
-    moves in the listview. 
+    moves in the listview.
 */
 
 void QFileDialog::updateFileNameEdit( QListViewItem * newItem )
@@ -4023,7 +4023,7 @@ void QFileDialog::createdDirectory( const QUrlInfo &info, QNetworkOperation * )
 
 
 /*!
-  This is a convenience static function that will return an existing directory 
+  This is a convenience static function that will return an existing directory
   selected by the user.
 
   \code
@@ -4190,7 +4190,7 @@ void QFileDialog::done( int i )
 /*!
   \property QFileDialog::viewMode
 
-  \brief the file dialog's view mode 
+  \brief the file dialog's view mode
 
   See \l QFileDialog::ViewMode
 */

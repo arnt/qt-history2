@@ -41,7 +41,7 @@ class QWidget;
 #ifndef QT_H
 #include "qobject.h"
 #include "qimage.h"
-#include "qptrstrlist.h"
+#include "qstrlist.h"
 #include "qcolor.h"
 #endif // QT_H
 
@@ -122,7 +122,7 @@ public:
 class Q_EXPORT QImageDrag: public QDragObject {
     Q_OBJECT
     QImage img;
-    QPtrStrList ofmts;
+    QStrList ofmts;
     class Data;
     Data* d;
 
@@ -146,21 +146,21 @@ class Q_EXPORT QUriDrag: public QStoredDrag {
     Q_OBJECT
 
 public:
-    QUriDrag( QPtrStrList uris, QWidget * dragSource = 0, const char * name = 0 );
+    QUriDrag( QStrList uris, QWidget * dragSource = 0, const char * name = 0 );
     QUriDrag( QWidget * dragSource = 0, const char * name = 0 );
     ~QUriDrag();
 
     void setFilenames( const QStringList & fnames ) { setFileNames( fnames ); }
     void setFileNames( const QStringList & fnames );
     void setUnicodeUris( const QStringList & uuris );
-    virtual void setUris( QPtrStrList uris );
+    virtual void setUris( QStrList uris );
 
     static QString uriToLocalFile(const char*);
     static QCString localFileToUri(const QString&);
     static QString uriToUnicodeUri(const char*);
     static QCString unicodeUriToUri(const QString&);
     static bool canDecode( const QMimeSource* e );
-    static bool decode( const QMimeSource* e, QPtrStrList& i );
+    static bool decode( const QMimeSource* e, QStrList& i );
     static bool decodeToUnicodeUris( const QMimeSource* e, QStringList& i );
     static bool decodeLocalFiles( const QMimeSource* e, QStringList& i );
 };

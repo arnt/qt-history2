@@ -2173,9 +2173,9 @@ bool QObject::setProperty( const char *name, const QVariant& value )
 	if ( v.type() == QVariant::String || v.type() == QVariant::CString ) {
 	    if ( p->isSetType() ) {
 		QString s = value.toString();
-		// QPtrStrList does not support split, use QStringList for that.
+		// QStrList does not support split, use QStringList for that.
 		QStringList l = QStringList::split( '|', s );
-		QPtrStrList keys;
+		QStrList keys;
 		for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it )
 		    keys.append( (*it).stripWhiteSpace().latin1() );
 		v = QVariant( p->keysToValue( keys ) );
@@ -2271,6 +2271,3 @@ bool QObject::qt_property( const QMetaProperty* _p, int _f, QVariant* _v)
 }
 
 #endif
-
-
-

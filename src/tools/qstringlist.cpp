@@ -309,11 +309,11 @@ Q_EXPORT QDataStream &operator<<( QDataStream & s, const QStringList& l )
 
 /*! Converts from a ASCII-QStrList \a ascii to a QStringList (Unicode).
 */
-QStringList QStringList::fromStrList(const QPtrStrList& ascii)
+QStringList QStringList::fromStrList(const QStrList& ascii)
 {
     QStringList res;
     const char * s;
-    for ( QPtrStrListIterator it(ascii); (s=it.current()); ++it )
+    for ( QStrListIterator it(ascii); (s=it.current()); ++it )
 	res << s;
     return res;
 }

@@ -3400,7 +3400,7 @@ QIconViewItem *QIconView::findItem( const QPoint &pos ) const
 /*!
   Returns a pointer to the first item whose text begins with \a text, or
   0 if no such item could be found.
-  The \a compare flag customizes the comparison of the items in the view 
+  The \a compare flag customizes the comparison of the items in the view
   with \a text.
 */
 
@@ -5082,7 +5082,7 @@ void QIconView::initDragEnter( QDropEvent *e )
 	QIconDrag::Private::decode( e, d->iconDragData );
 	d->isIconDrag = TRUE;
     } else if ( QUriDrag::canDecode( e ) ) {
-	QPtrStrList lst;
+	QStrList lst;
 	QUriDrag::decode( e, lst );
 	d->numDragItems = lst.count();
     } else {

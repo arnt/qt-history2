@@ -170,8 +170,8 @@ public:
     static Endian systemByteOrder();
 
     static const char* imageFormat( const QString &fileName );
-    static QPtrStrList inputFormats();
-    static QPtrStrList outputFormats();
+    static QStrList inputFormats();
+    static QStrList outputFormats();
 #ifndef QT_NO_STRINGLIST
     static QStringList inputFormatList();
     static QStringList outputFormatList();
@@ -284,8 +284,8 @@ public:
 
     static const char* imageFormat( const QString &fileName );
     static const char *imageFormat( QIODevice * );
-    static QPtrStrList inputFormats();
-    static QPtrStrList outputFormats();
+    static QStrList inputFormats();
+    static QStrList outputFormats();
 
     static void defineIOHandler( const char *format,
 				 const char *header,

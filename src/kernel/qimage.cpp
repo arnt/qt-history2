@@ -3177,7 +3177,7 @@ const char* QImage::imageFormat( const QString &fileName )
 
   \sa inputFormatList()
 */
-QPtrStrList QImage::inputFormats()
+QStrList QImage::inputFormats()
 {
     return QImageIO::inputFormats();
 }
@@ -3205,7 +3205,7 @@ QStringList QImage::outputFormatList()
 
   \sa QImage::outputFormatList()
 */
-QPtrStrList QImage::outputFormats()
+QStrList QImage::outputFormats()
 {
     return QImageIO::outputFormats();
 }
@@ -3913,9 +3913,9 @@ const char *QImageIO::imageFormat( QIODevice *d )
 /*!
   Returns a sorted list of image formats that are supported for image input.
 */
-QPtrStrList QImageIO::inputFormats()
+QStrList QImageIO::inputFormats()
 {
-    QPtrStrList result;
+    QStrList result;
 
     qt_init_image_handlers();
 
@@ -3941,9 +3941,9 @@ QPtrStrList QImageIO::inputFormats()
 /*!
   Returns a sorted list of image formats that are supported for image output.
 */
-QPtrStrList QImageIO::outputFormats()
+QStrList QImageIO::outputFormats()
 {
-    QPtrStrList result;
+    QStrList result;
 
     qt_init_image_handlers();
 

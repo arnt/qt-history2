@@ -41,7 +41,7 @@
 #include "qlistbox.h"
 #include "qpainter.h"
 #include "qdrawutil.h"
-#include "qptrstrlist.h"
+#include "qstrlist.h"
 #include "qpixmap.h"
 #include "qtimer.h"
 #include "qapplication.h"
@@ -66,7 +66,7 @@
   current item, they are well suited to displaying items that the user
   will want to see, such as font family or size. Using a combobox the
   user can always see which item they've selected with the minimum amount
-  of screen space being used. 
+  of screen space being used.
 
   QComboBox supports three different display styles: Motif 1.x, Motif 2.0
   and Windows 95.  In Motif 1.x, a combobox was called XmOptionMenu.
@@ -103,7 +103,7 @@
 
   A combobox emits two signals, activated() and highlighted(), when a
   new item has been activated (selected) or highlighted (made
-  current).  Both signals exist in two versions, one with a \c QString 
+  current).  Both signals exist in two versions, one with a \c QString
   argument and one with an \c int argument.  If the user highlights or
   activates a pixmap, only the \c int signals are emitted. Whenever the
   text of an editable combobox is changed the textChanged() signal is
@@ -209,14 +209,14 @@
 */
 
 /*! \property QComboBox::autoCompletion
-    \brief whether auto-completion is enabled 
+    \brief whether auto-completion is enabled
 
   This property can only be set for editable comboboxes, for non-editable
   comboboxes it has no effect.
 */
 
 /*! \property QComboBox::autoResize
-    \brief whether auto resize is enabled 
+    \brief whether auto resize is enabled
     \obsolete
 
   If this property is set to TRUE then the combobox will resize itself
@@ -236,13 +236,13 @@
 */
 
 /*! \property QComboBox::duplicatesEnabled
-    \brief whether duplicates are allowed 
+    \brief whether duplicates are allowed
 
   This property only has an effect if the combobox is editable.
 */
 
 /*! \property QComboBox::editable
-    \brief whether the combobox is editable 
+    \brief whether the combobox is editable
 */
 
 /*! \property QComboBox::insertionPolicy
@@ -504,7 +504,7 @@ int QComboBox::count() const
   \overload
 */
 
-void QComboBox::insertStrList( const QPtrStrList &list, int index )
+void QComboBox::insertStrList( const QStrList &list, int index )
 {
     insertStrList( &list, index );
 }
@@ -516,7 +516,7 @@ void QComboBox::insertStrList( const QPtrStrList &list, int index )
   strings.  See insertStringList().
 */
 
-void QComboBox::insertStrList( const QPtrStrList *list, int index )
+void QComboBox::insertStrList( const QStrList *list, int index )
 {
     if ( !list ) {
 #if defined(QT_CHECK_NULL)
@@ -524,7 +524,7 @@ void QComboBox::insertStrList( const QPtrStrList *list, int index )
 #endif
 	return;
     }
-    QPtrStrListIterator it( *list );
+    QStrListIterator it( *list );
     const char* tmp;
     if ( index < 0 )
 	index = count();
@@ -1772,7 +1772,7 @@ void QComboBox::setEnabled( bool enable )
 
 
 
-/*!  
+/*!
     Applies the validator \a v to the combobox so that only text which
     is valid according to \a v is accepted.
 

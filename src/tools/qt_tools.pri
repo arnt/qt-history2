@@ -42,7 +42,7 @@ tools {
 		  $$TOOLS_H/qptrstack.h \
 		  $$TOOLS_H/qstring.h \
 		  $$TOOLS_H/qstringlist.h \
-		  $$TOOLS_H/qptrstrlist.h \
+		  $$TOOLS_H/qstrlist.h \
 		  $$TOOLS_H/qstrvec.h \
 		  $$TOOLS_H/qtextstream.h \
 		  $$TOOLS_H/qptrvector.h \

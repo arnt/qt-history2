@@ -1,7 +1,7 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qptrstrlist.h#33 $
+** $Id: //depot/qt/main/src/tools/qstrlist.h#33 $
 **
-** Definition of QPtrStrList, QPtrStrIList and QPtrStrListIterator classes
+** Definition of QStrList, QStrIList and QStrListIterator classes
 **
 ** Created : 920730
 **
@@ -35,8 +35,8 @@
 **
 **********************************************************************/
 
-#ifndef QPTRSTRLIST_H
-#define QPTRSTRLIST_H
+#ifndef QSTRLIST_H
+#define QSTRLIST_H
 
 #ifndef QT_H
 #include "qstring.h"
@@ -51,20 +51,20 @@ template class Q_EXPORT QPtrListIterator<char>;
 #endif
 
 #if defined(Q_QDOC)
-class QPtrStrListIterator : public QPtrListIterator<char>
+class QStrListIterator : public QPtrListIterator<char>
 {
 };
 #else
-typedef QPtrListIterator<char> QPtrStrListIterator;
+typedef QPtrListIterator<char> QStrListIterator;
 #endif
 
-class Q_EXPORT QPtrStrList : public QPtrList<char>
+class Q_EXPORT QStrList : public QPtrList<char>
 {
 public:
-    QPtrStrList( bool deepCopies=TRUE ) { dc = deepCopies; del_item = deepCopies; }
-    QPtrStrList( const QPtrStrList & );
-    ~QPtrStrList()			{ clear(); }
-    QPtrStrList& operator=( const QPtrStrList & );
+    QStrList( bool deepCopies=TRUE ) { dc = deepCopies; del_item = deepCopies; }
+    QStrList( const QStrList & );
+    ~QStrList()			{ clear(); }
+    QStrList& operator=( const QStrList & );
 
 private:
     QPtrCollection::Item newItem( QPtrCollection::Item d ) { return dc ? qstrdup( (const char*)d ) : d; }
@@ -81,11 +81,11 @@ private:
 };
 
 
-class Q_EXPORT QPtrStrIList : public QPtrStrList	// case insensitive string list
+class Q_EXPORT QStrIList : public QStrList	// case insensitive string list
 {
 public:
-    QPtrStrIList( bool deepCopies=TRUE ) : QPtrStrList( deepCopies ) {}
-    ~QPtrStrIList()			{ clear(); }
+    QStrIList( bool deepCopies=TRUE ) : QStrList( deepCopies ) {}
+    ~QStrIList()			{ clear(); }
 private:
     int	  compareItems( QPtrCollection::Item s1, QPtrCollection::Item s2 )
 				{ return qstricmp((const char*)s1,
@@ -93,7 +93,7 @@ private:
 };
 
 
-inline QPtrStrList & QPtrStrList::operator=( const QPtrStrList &strList )
+inline QStrList & QStrList::operator=( const QStrList &strList )
 {
     clear();
     dc = strList.dc;
@@ -102,17 +102,11 @@ inline QPtrStrList & QPtrStrList::operator=( const QPtrStrList &strList )
     return *this;
 }
 
-inline QPtrStrList::QPtrStrList( const QPtrStrList &strList )
+inline QStrList::QStrList( const QStrList &strList )
     : QPtrList<char>( strList )
 {
     dc = FALSE;
     operator=( strList );
 }
 
-#ifndef QT_NO_COMPAT
-#define QStrList QPtrStrList
-#define QStrListIterator QPtrStrListIterator
-#endif
-
-
-#endif // QPTRSTRLIST_H
+#endif // QSTRLIST_H

@@ -88,7 +88,7 @@ public:
     static const char* formatName( const uchar* buffer, int length );
     static QImageFormatType* format( const char* name ); // direct use - no decode()
 
-    static QPtrStrList inputFormats();
+    static QStrList inputFormats();
     static void registerDecoderFactory( QImageFormatType* );
     static void unregisterDecoderFactory( QImageFormatType* );
 

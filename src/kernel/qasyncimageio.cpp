@@ -417,11 +417,11 @@ const char* QImageDecoder::formatName(const uchar* buffer, int length)
 /*!
   Returns a sorted list of formats for which asynchronous loading is supported.
 */
-QPtrStrList QImageDecoder::inputFormats()
+QStrList QImageDecoder::inputFormats()
 {
     Private::ensureFactories();
 
-    QPtrStrList result;
+    QStrList result;
 
     for (QImageFormatType* f = Private::factories->first();
 	 f;

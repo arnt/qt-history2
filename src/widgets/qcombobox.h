@@ -45,7 +45,7 @@
 #ifndef QT_NO_COMBOBOX
 
 
-class QPtrStrList;
+class QStrList;
 class QStringList;
 class QLineEdit;
 class QValidator;
@@ -75,8 +75,8 @@ class Q_EXPORT QComboBox : public QWidget
     int		count() const;
 
     void	insertStringList( const QStringList &, int index=-1 );
-    void	insertStrList( const QPtrStrList &, int index=-1 );
-    void	insertStrList( const QPtrStrList *, int index=-1 );
+    void	insertStrList( const QStrList &, int index=-1 );
+    void	insertStrList( const QStrList *, int index=-1 );
     void	insertStrList( const char **, int numStrings=-1, int index=-1);
 
     void	insertItem( const QString &text, int index=-1 );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/network/qdns.cpp#35 $
+** $Id: //depot/qt/main/src/network/qdns.cpp#36 $
 **
 ** Implementation of QDns class.
 **
@@ -62,7 +62,7 @@
 #include "qtimer.h"
 #include "qapplication.h"
 #include "qptrvector.h"
-#include "qptrstrlist.h"
+#include "qstrlist.h"
 #include "qptrdict.h"
 #include "qfile.h"
 #include "qtextstream.h"
@@ -92,7 +92,7 @@ static Q_UINT32 now()
 
 
 static QPtrList<QHostAddress> * ns = 0;
-static QPtrStrList * domains = 0;
+static QStrList * domains = 0;
 
 static void doResInit();
 
@@ -905,7 +905,7 @@ QDnsManager::QDnsManager()
     ::ns = ns;
     ::ns->setAutoDelete( TRUE );
 
-    QPtrStrList * domains = new QPtrStrList( TRUE );
+    QStrList * domains = new QStrList( TRUE );
 
     ::domains->first();
     const char * s;
@@ -1580,7 +1580,7 @@ void QDns::setLabel( const QString & label )
 	}
 	if ( dots < maxDots ) {
 	    (void)QDnsManager::manager();
-	    QPtrStrListIterator it( *domains );
+	    QStrListIterator it( *domains );
 	    const char * dom;
 	    while( (dom=it.current()) != 0 ) {
 		++it;
@@ -1995,7 +1995,7 @@ static void doResInit()
 	return;
     ns = new QPtrList<QHostAddress>;
     ns->setAutoDelete( TRUE );
-    domains = new QPtrStrList( TRUE );
+    domains = new QStrList( TRUE );
     domains->setAutoDelete( TRUE );
 
     res_init();
@@ -2138,7 +2138,7 @@ static void doResInit()
 	return;
     ns = new QPtrList<QHostAddress>;
     ns->setAutoDelete( TRUE );
-    domains = new QPtrStrList( TRUE );
+    domains = new QStrList( TRUE );
     domains->setAutoDelete( TRUE );
 
     QString domainName, nameServer, searchList;

@@ -66,7 +66,7 @@
   The class information is a simple \e name - \e value pair:
 
   \code
-    const char* name;	
+    const char* name;
     const char* value;
   \endcode
 
@@ -493,13 +493,13 @@ int QMetaObject::findProperty( const char *name, bool super ) const
 
   \sa property()
  */
-QPtrStrList QMetaObject::propertyNames( bool super ) const
+QStrList QMetaObject::propertyNames( bool super ) const
 {
-    QPtrStrList l( FALSE );
+    QStrList l( FALSE );
 
     if ( superclass && super ) {
-	QPtrStrList sl = superclass->propertyNames( super );
-	for ( QPtrStrListIterator slit( sl ); slit.current(); ++slit )
+	QStrList sl = superclass->propertyNames( super );
+	for ( QStrListIterator slit( sl ); slit.current(); ++slit )
 	    l.append( slit.current() );
     }
 
@@ -518,9 +518,9 @@ QPtrStrList QMetaObject::propertyNames( bool super ) const
 
   \sa signal()
  */
-QPtrStrList QMetaObject::signalNames( bool super ) const
+QStrList QMetaObject::signalNames( bool super ) const
 {
-    QPtrStrList l( FALSE );
+    QStrList l( FALSE );
     int n = numSignals( super );
     for( int i = 0; i < n; ++i ) {
 	l.append( signal(i, super)->name );
@@ -535,9 +535,9 @@ QPtrStrList QMetaObject::signalNames( bool super ) const
 
   \sa numSlots()
  */
-QPtrStrList QMetaObject::slotNames( bool super ) const
+QStrList QMetaObject::slotNames( bool super ) const
 {
-    QPtrStrList l( FALSE );
+    QStrList l( FALSE );
     int n = numSlots( super );
     for( int i = 0; i < n; ++i )
 	l.append( slot( i, super)->name );
@@ -606,9 +606,9 @@ bool QMetaObject::inherits( const char* clname ) const
 
   \sa isEnumType()
 */
-QPtrStrList QMetaProperty::enumKeys() const
+QStrList QMetaProperty::enumKeys() const
 {
-     QPtrStrList l( FALSE );
+     QStrList l( FALSE );
      if ( enumData != 0 ) {
 	 for( uint i = 0; i < enumData->count; ++i )
 	     l.append( enumData->items[i].key );
@@ -661,13 +661,13 @@ const char* QMetaProperty::valueToKey( int value ) const
 
 \sa isSetType(), valueToKey(), keysToValue()
  */
-int QMetaProperty::keysToValue( const QPtrStrList& keys ) const
+int QMetaProperty::keysToValue( const QStrList& keys ) const
 {
     if ( !isEnumType() )
 	return -1;
 
     int value = 0;
-    for ( QPtrStrListIterator it( keys ); it.current(); ++it ) {
+    for ( QStrListIterator it( keys ); it.current(); ++it ) {
 	value |= keyToValue( it.current() );
     }
     return value;
@@ -678,9 +678,9 @@ int QMetaProperty::keysToValue( const QPtrStrList& keys ) const
 
 \sa isSetType(), valueToKey(), valueToKeys()
  */
-QPtrStrList QMetaProperty::valueToKeys( int value ) const
+QStrList QMetaProperty::valueToKeys( int value ) const
 {
-    QPtrStrList keys;
+    QStrList keys;
 
     if ( !isEnumType() )
 	return keys;
