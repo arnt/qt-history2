@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/examples/qiconview/qiconview.cpp#5 $
+** $Id: //depot/qt/main/examples/qiconview/qiconview.cpp#6 $
 **
 ** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
 **
@@ -106,8 +106,8 @@ void QtIconViewItemLineEdit::keyPressEvent( QKeyEvent *e )
 {
     if ( e->key()  == Key_Escape ) {
         item->QtIconViewItem::setText( startText );
-        item->iconView()->repaintContents( item->iconView()->contentsX(), item->iconView()->contentsY(),
-                                           item->iconView()->contentsWidth(), item->iconView()->contentsHeight() );
+//         item->iconView()->repaintContents( item->iconView()->contentsX(), item->iconView()->contentsY(),
+//                                            item->iconView()->contentsWidth(), item->iconView()->contentsHeight() );
         emit escapePressed();
     }
     else if ( e->key() == Key_Enter ||
@@ -512,7 +512,8 @@ void QtIconViewItem::removeRenameBox()
 
     delete renameBox;
     renameBox = 0L;
-    view->viewport()->setFocusProxy( 0L );
+    view->viewport()->setFocusProxy( view );
+    view->setFocus();
 }
 
 void QtIconViewItem::calcRect()
@@ -704,7 +705,7 @@ void QtIconViewItem::dragLeft()
  *****************************************************************************/
 
 QtIconView::QtIconView( QWidget *parent, const char *name )
-    : QScrollView( parent, name )
+    : QScrollView( parent, name, WNorthWestGravity )
 {
     d = new QtIconViewPrivate;
     d->firstItem = 0L;
@@ -722,8 +723,6 @@ QtIconView::QtIconView( QWidget *parent, const char *name )
     d->spacing = 5;
     d->cleared = FALSE;
 
-    viewport()->setBackgroundColor( colorGroup().base() );
-
     setAcceptDrops( TRUE );
     viewport()->setAcceptDrops( TRUE );
 
@@ -732,6 +731,9 @@ QtIconView::QtIconView( QWidget *parent, const char *name )
 
     setFocusPolicy( QWidget::StrongFocus );
     viewport()->setFocusPolicy( QWidget::StrongFocus );
+
+    setBackgroundMode( NoBackground );
+    viewport()->setFocusProxy( this );
 }
 
 QtIconView::~QtIconView()
@@ -927,6 +929,8 @@ void QtIconView::doAutoScroll()
 
 void QtIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 {
+    p->fillRect( cx, cy, cw, ch, colorGroup().base() );
+    
     if ( !d->firstItem )
         return;
 
