@@ -26,7 +26,7 @@
 #include <qlistbox.h>
 #include <qlistview.h>
 #include <qmainwindow.h>
-#include <q3menubar.h>
+#include <qmenubar.h>
 #include <qprogressbar.h>
 #include <qpushbutton.h>
 #include <qradiobutton.h>
@@ -546,7 +546,7 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
             ct = QStyle::CT_LineEdit;
         else if(::qt_cast<QHeader *>(widg))
             ct = QStyle::CT_Header;
-        else if(::qt_cast<Q3MenuBar *>(widg))
+        else if(::qt_cast<QMenuBar *>(widg) || widg->inherits("Q3MenuBar"))
             ct = QStyle::CT_MenuBar;
         else if(::qt_cast<QSizeGrip *>(widg))
             ct = QStyle::CT_SizeGrip;
