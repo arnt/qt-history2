@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangect.cpp#6 $
+** $Id: //depot/qt/main/src/widgets/qrangect.cpp#7 $
 **
 ** Implementation of QRangeControl class
 **
@@ -14,7 +14,7 @@
 #include "qglobal.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qrangect.cpp#6 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qrangect.cpp#7 $";
 #endif
 
 
@@ -108,7 +108,7 @@ void QRangeControl::directSetValue(int value)
 }
 
 /*----------------------------------------------------------------------------
-  Equivalent to \code setValue( value()+pageStep() )\endcode.
+  Equivalent to \code setValue( value()+pageStep() )\endcode
   \sa subtractPage()
  ----------------------------------------------------------------------------*/
 
@@ -123,7 +123,7 @@ void QRangeControl::addPage()
 }
 
 /*----------------------------------------------------------------------------
-  Equivalent to \code setValue( value()-pageStep() )\endcode.
+  Equivalent to \code setValue( value()-pageStep() )\endcode
   \sa addPage()
  ----------------------------------------------------------------------------*/
 
@@ -170,23 +170,23 @@ void QRangeControl::subtractLine()
 
 /*----------------------------------------------------------------------------
   \fn int QRangeControl::minValue() const
-  Return the current minimum value in the range.
+  Returns the current minimum value in the range.
   \sa setRange(), maxValue()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   \fn int QRangeControl::maxValue() const
-  Return the current maximum value in the range.
+  Returns the current maximum value in the range.
   \sa setRange(), minValue()
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
   Sets the range min value to \e minValue and the max value to \e maxValue.
 
-  Call the virtual rangeChange() function if the new min and max values
-  are different from the previous setting.
-  Calls the virtual valueChange() function if the current value is outside
-  the new range has to be adjusted.
+  Calls the virtual rangeChange() function if the new min and max
+  values are different from the previous setting.  Calls the virtual
+  valueChange() function if the current value is outside the new range
+  and has to be adjusted.
 
   \sa minValue(), maxValue()
  ----------------------------------------------------------------------------*/
