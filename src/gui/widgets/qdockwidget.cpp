@@ -509,12 +509,11 @@ void QDockWidgetPrivate::toggleView(bool b)
 
     QDockWidget provides the concept of dock widgets, also know as
     tool palettes or utility windows.  Dock windows are secondary
-    windows placed in the \e {dock widget area} around the \link
-    QMainWindow::centerWidget() center widget\endlink in a
+    windows placed in the \e {dock widget area} around the
+    \l{QMainWindow::centralWidget()}{central widget} in a
     QMainWindow.
 
-    ### \e {mainwindow diagram showing the various areas of the
-    mainwindow should go here - see below}
+    \image mainwindow-docks.png
 
     Dock windows can be moved inside their current area, moved into
     new areas and floated (e.g. undocked) by the end-user.  The
@@ -530,8 +529,8 @@ void QDockWidgetPrivate::toggleView(bool b)
     Depending on the state of the QDockWidget, the \e float and \e
     close buttons may be either disabled or not shown at all.
 
-    The visual appearance of the title bar and buttons is \link QStyle
-    style \endlink dependent.
+    The visual appearance of the title bar and buttons is dependent
+    on the \l{QStyle}{style} in use.
 
     ### \e {screenshot of QDockWidget in a few styles should go here}
 
@@ -669,7 +668,7 @@ QDockWidget::DockWidgetFeatures QDockWidget::features() const
 }
 
 /*!
-    \property QDockWindow::floating
+    \property QDockWidget::floating
     \brief whether the dock widget is floating
 
     A floating dock widget is presented to the user as an independent
@@ -707,7 +706,7 @@ void QDockWidget::setFloating(bool floating)
 
     The default is \c Qt::AllDockWidgetAreas.
 
-    \sa QDockWidget::area
+    \sa Qt::DockWidgetArea
 */
 
 void QDockWidget::setAllowedAreas(Qt::DockWidgetAreas areas)
