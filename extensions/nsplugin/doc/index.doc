@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: index.doc,v 1.1 1997/09/24 16:00:51 warwick Exp $
+** $Id: index.doc,v 1.2 1997/09/25 13:33:29 warwick Exp $
 **
 ** Index page
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: index.doc,v 1.1 1997/09/24 16:00:51 warwick Exp $";
+static char ident[] = "$Id: index.doc,v 1.2 1997/09/25 13:33:29 warwick Exp $";
 #endif
 
 /*! \page index.html
@@ -35,7 +35,7 @@ WWW browser supporting the same protocol.
 	<tt>extensions/nsplugin/src</tt> directory of your Qt distribution.
 	This produces a static library to be linked with your plugin code.
  <li>Read the <a href=annotated.html>plugin class documentation</a>, and
-	examine the example plugins listed below.
+	examine the <a href=examples.html>example plugins</a>.
  <li>Do most of your development as a stand-alone Qt application - debugging
 	Netscape Plugins is cumbersome.
  <li>Note the platform-specific build steps below.
@@ -75,19 +75,6 @@ We are working on streamlining the build process for Qt-based Netscape Plugins.
     </ul>
  <li>The user must install the resulting DLL in the Plugins directory
 	of the browser.
-</ul>
-
-<h2>Examples</h2>
-
-The following example programs are available to demonstrate the use of the
-Qt GUI toolkit for making Netscape Plugins.
-<ul>
- <li><b><a href=examples/grapher/index.html>Grapher</a></b>
-	- graph your data <em>without resorting to GIFs</em>
- <li><b><a href=examples/qtimage/index.html>QtImage</a></b>
-	- plugin for Qt-supported image formats, <em>including PNG</em>
- <li><b><a href=examples/trivial/index.html>Trivial</a></b>
-	- plugin that does almost nothing
 </ul>
 
 <h2>Known Bugs</h2>
