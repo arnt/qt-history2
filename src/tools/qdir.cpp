@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdir.cpp#78 $
+** $Id: //depot/qt/main/src/tools/qdir.cpp#79 $
 **
 ** Implementation of QDir class
 **
@@ -1618,7 +1618,7 @@ bool QDir::readDirEntries( const QString &nameFilter,
 	    if ( !doSystem && isSystem )
 		continue;
 	    fi.setFile( *this, name );
-	    fiList->append( new QFileInfo( fi ); );
+	    fiList->append( new QFileInfo( fi ) );
 	}
     }
 #if defined(_OS_WIN32_)
