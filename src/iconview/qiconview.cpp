@@ -3140,7 +3140,7 @@ void QIconView::doAutoScroll()
 
 void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 {
-    if ( d->dragging &&& d->rubber )
+    if ( d->dragging && d->rubber )
 	drawRubber( p );
 
     QRect r = QRect( cx, cy, cw, ch );
@@ -3200,7 +3200,7 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	d->currentItem->paintFocus( p, colorGroup() );
     }
 
-    if ( d->dragging &&& d->rubber )
+    if ( d->dragging && d->rubber )
 	drawRubber( p );
 }
 
