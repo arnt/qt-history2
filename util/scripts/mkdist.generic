@@ -156,7 +156,6 @@ if [ "${platform}" = "win" ]; then
 fi
 cd ${DISTDIR}
 find qt -name .cvsignore -o -name doc.conf | xargs rm -f
-find qt -name doc -type d | xargs rm -rf
 rm -f qt/src/qtinternal.pro
 rm -f qt/make.help qt/variables
 rm -rf qt/bugs qt/etc qt/gif qt/reqs qt/tests
