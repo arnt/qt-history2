@@ -77,8 +77,7 @@ void qt_mac_dispose_rgn(RgnHandle r)
 static OSStatus qt_mac_get_rgn_rect(UInt16 msg, RgnHandle, const Rect *rect, void *reg)
 {
     if(msg == kQDRegionToRectsMsgParse) {
-	RectList *rl = (RectList *)myd;
-	QRect rct(rect->left, rect->top, (rect->right - rect->left)-1, (rect->bottom - rect->top)-1);
+	QRect rct(rect->left, rect->top, (rect->right - rect->left), (rect->bottom - rect->top));
 	if(!rct.isEmpty())
 	    *((QRegion *)reg) += rct;
     }
