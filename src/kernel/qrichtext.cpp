@@ -2382,6 +2382,14 @@ bool QTextDocument::find( const QString &expr, bool cs, bool wo, bool forward,
 	    start = *index;
 	else if ( first )
 	    start = cursor->index();
+	if ( !forward && first ) {
+	    start -= expr.length() + 1;
+	    if ( start < 0 ) {
+		first = FALSE;
+		p = p->prev();
+		continue;
+	    }
+	}
 	first = FALSE;
 	int res = forward ? s.find( expr, start, cs ) : s.findRev( expr, start, cs );
 	if ( res != -1 ) {
