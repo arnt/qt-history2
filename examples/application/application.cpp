@@ -61,7 +61,7 @@ ApplicationWindow::ApplicationWindow()
     (void)QWhatsThis::whatsThisButton( fileTools );
 
     const char * fileOpenText = "<p><img source=\"fileopen\"> "
-	         "Click this button to open a <em>new file</em>. <br>"
+	         "Click this button to open a <em>new file</em>.<br>"
                  "You can also select the <b>Open</b> command "
                  "from the <b>File</b> menu.</p>";
 
@@ -77,8 +77,9 @@ ApplicationWindow::ApplicationWindow()
     QWhatsThis::add( fileSave, fileSaveText );
 
     const char * filePrintText = "Click this button to print the file you "
-                 "are editing.\n You can also select the Print "
-                 "command from the File menu.";
+                 "are editing.\n"
+		 "You can also select the Print command "
+		 "from the File menu.";
 
     QWhatsThis::add( filePrint, filePrintText );
 

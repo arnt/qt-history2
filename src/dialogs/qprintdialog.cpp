@@ -56,10 +56,8 @@
 #endif
 
 #include "qfiledialog.h"
-
 #include "qfile.h"
 #include "qtextstream.h"
-
 #include "qcombobox.h"
 #include "qframe.h"
 #include "qlabel.h"
@@ -74,16 +72,14 @@
 #include "qapplication.h"
 #include "qheader.h"
 #include "qstyle.h"
-
 #include "qstring.h"
 #include "qregexp.h"
+#if !defined(QT_NO_CUPS) || !defined(QT_NO_NIS)
+#include "qlibrary.h"
+#endif
 
 #include <ctype.h>
 #include <stdlib.h>
-
-#if !defined(QT_NO_CUPS) || !defined(QT_NO_NIS)
-#include <qlibrary.h>
-#endif
 
 enum { Success = 's', Unavail = 'u', NotFound = 'n', TryAgain = 't' };
 enum { Continue = 'c', Return = 'r' };
@@ -124,8 +120,6 @@ public:
     QBoxLayout *customLayout;
 
     QPrinter::PageSize indexToPageSize[QPrinter::NPageSize];
-
-
 };
 
 

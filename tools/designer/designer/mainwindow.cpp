@@ -1,5 +1,5 @@
  /**********************************************************************
-** Copyright (C) 2000 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Designer.
 **
@@ -38,6 +38,17 @@
 #include "multilineeditorimpl.h"
 #include "wizardeditorimpl.h"
 #include "outputwindow.h"
+#include "actioneditorimpl.h"
+#include "actiondnd.h"
+#include "project.h"
+#include "projectsettingsimpl.h"
+#include "qwidgetfactory.h"
+#include "pixmapcollection.h"
+#include "qcompletionedit.h"
+#include "sourcefile.h"
+#include "qcategorywidget.h"
+#include "widgetaction.h"
+#include "propertyobject.h"
 #include <qinputdialog.h>
 #include <qtoolbar.h>
 #include <qfeatures.h>
@@ -57,30 +68,17 @@
 #include <qcheckbox.h>
 #include <qwhatsthis.h>
 #include <qwizard.h>
-#include <qdir.h>
 #include <qtimer.h>
 #include <qlistbox.h>
-#include <stdlib.h>
 #include <qdockwindow.h>
 #include <qstylefactory.h>
-#include "actioneditorimpl.h"
-#include "actiondnd.h"
-#include "project.h"
-#include "projectsettingsimpl.h"
-#include "qwidgetfactory.h"
 #include <qvbox.h>
 #include <qprocess.h>
 #include <qsettings.h>
-#include "pixmapcollection.h"
-#include "sourcefile.h"
-#include "qcompletionedit.h"
 #include <qaccel.h>
 #include <qtooltip.h>
-#include <stdlib.h>
-#include "qcategorywidget.h"
-#include "widgetaction.h"
-#include "propertyobject.h"
 #include <qassistantclient.h>
+#include <stdlib.h>
 
 static bool mblockNewForms = FALSE;
 extern QMap<QWidget*, QString> *qwf_functions;

@@ -15,7 +15,7 @@ table:win32-msvc:DEFINES+=Q_TEMPLATE_EXTERN=extern
 include( ../../../src/qt_professional.pri )
 
 SOURCES	+= command.cpp \
-		 formwindow.cpp \
+		formwindow.cpp \
 		defs.cpp \
 		layout.cpp \
 		mainwindow.cpp \
@@ -223,7 +223,7 @@ IMAGES		+= images/adjustsize.png \
 		images/timeedit.png \
 		images/dial.png \
 		images/home.png \
-		images/logo.png \
+		images/qtlogo.png \
 		images/toolbutton.png \
 		images/down.png \
 		images/hsplit.png \
