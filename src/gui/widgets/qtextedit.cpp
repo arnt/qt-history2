@@ -419,6 +419,7 @@ void QTextEditPrivate::selectionChanged()
 
     lastSelectionState = current;
     emit q->copyAvailable(current);
+    emit q->selectionChanged();
 }
 
 QTextBlock QTextEditPrivate::blockAt(const QPoint &pos, int *documentPosition) const

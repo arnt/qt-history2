@@ -132,6 +132,7 @@ signals:
     void currentCharFormatChanged(const QTextCharFormat &format);
     void copyAvailable(bool b);
     void modificationChanged(bool m);
+    void selectionChanged();
 
 protected:
     virtual void timerEvent(QTimerEvent *ev);
