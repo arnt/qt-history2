@@ -22,8 +22,7 @@
     for embedded devices
     \i \link moc.html moc\endlink - the Meta Object Compiler
     \i \link uic.html uic\endlink - the User Interface Compiler
-    \i \c qtconfig - a Unix-based Qt configuration tool with online
-    help
+    \i \qtconfig - a Unix-based Qt configuration tool with online help
 
     \endlist
 

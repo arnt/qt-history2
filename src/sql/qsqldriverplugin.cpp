@@ -1,11 +1,11 @@
 /****************************************************************************
-** $Id: $
+** $Id$
 **
 ** Implementation of QSqlDriverPlugin class
 **
 ** Created : 010920
 **
-** Copyright (C) 2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 2001-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
@@ -54,10 +54,10 @@
   Writing a SQL plugin is achieved by subclassing this base class,
   reimplementing the pure virtual functions keys() and create(), and
   exporting the class with the Q_EXPORT_PLUGIN macro. See
-  the SQL plugins that comes with Qt for example implementations (in
-  \c{$QTDIR/plugins/src/sqldrivers}). Read the \link
-  plugins-howto.html plugins documentation\endlink for more
-  information on plugins.
+  the SQL plugins that come with Qt for example implementations (in
+  the \c{plugins/src/sqldrivers} subdirectory of the source distribution).
+  Read the \link plugins-howto.html plugins documentation\endlink for
+  more information on plugins.
 */
 
 /*! \fn QStringList QSqlDriverPlugin::keys() const

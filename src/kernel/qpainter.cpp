@@ -2589,11 +2589,18 @@ void qt_format_text( const QFont& font, const QRect &r,
 	// we can use a simple drawText instead of the QTextParag.
 	QFontMetrics fm = painter ? painter->fontMetrics() : QFontMetrics( font );
 	QString parStr( str.left( len ) );
+	// compatible behaviour to the old implementation. Replace tabs by spaces
+	QChar *chr = (QChar*)parStr.unicode();
+	int l = parStr.length();
+	while ( l-- ) {
+	    if ( *chr == '\t' )
+		*chr = ' ';
+	    chr++;
+	}
+	QString parStr2 = parStr;
 #ifndef QT_NO_REGEXP
 	if ( noaccel || showprefix )
 		parStr.replace( QRegExp( "&(?!&)" ), "" );
-	// compatible behaviour to the old implementation. Replace tabs by spaces
-	parStr.replace( QRegExp( "\t" ), " " );
 #endif
 	int w = fm.width( parStr );
 	int h = fm.height();
@@ -2621,13 +2628,13 @@ void qt_format_text( const QFont& font, const QRect &r,
 	    brect->moveBy( -r.x() + xoff, -r.y() + yoff - fm.ascent() );
 
 	if ( painter ) {
-#ifndef QT_NO_TRANSFORMATIONS
-	    QRegion reg = painter->xmat * r;
-#else
-	    QRegion reg = r;
-	    reg.translate( painter->xlatex, painter->xlatey );
-#endif
 	    if ( !dontclip ) {
+#ifndef QT_NO_TRANSFORMATIONS
+		QRegion reg = painter->xmat * r;
+#else
+		QRegion reg = r;
+		reg.translate( painter->xlatex, painter->xlatey );
+#endif
 		if ( painter->hasClipping() )
 		    reg &= painter->clipRegion();
 
@@ -2635,13 +2642,8 @@ void qt_format_text( const QFont& font, const QRect &r,
 		painter->setClipRegion( reg );
 	    }
 
-	    if ( !noaccel ) {
-		parStr = str.left( len );
-#ifndef QT_NO_REGEXP
-		// compatible behaviour to the old implementation. Replace tabs by spaces
-		parStr.replace( QRegExp( "\t" ), " " );
-#endif
-	    }
+	    if ( !noaccel )
+		parStr = parStr2;
 	    if( !( tf & QPainter::DontPrint ) ) {
 		if ( !showprefix || noaccel ) {
 		    painter->drawText( xoff, yoff, parStr, len );

@@ -10,8 +10,9 @@ widgets as stand-alone components.
 Writing a plugin is achieved by subclassing the appropriate plugin
 base clase, implementing a few functions, and adding a macro. 
 
-There are five plugin base classes, and their plugins are stored in
-the standard plugin directory.
+There are five plugin base classes. Derived plugins are stored
+by default in the standard plugin directory.
+
 \table
 \header
 \i Base Class
@@ -105,8 +106,8 @@ be changed.
 
 If you want to build a plugin which you want to use with a threaded Qt
 library (whether or not the plugin itself uses threads) you must use a
-threaded environment. Specifically, you must use a threaded Qt
-library, and you must build \link designer-manual.book Qt
+threaded environment. Specifically, you must link the plugin with a
+threaded Qt library, and you must build \link designer-manual.book Qt
 Designer\endlink with that library. Your \c{.pro} file for your plugin
 must include the line:
 \code
@@ -115,11 +116,10 @@ must include the line:
 
 \warning Do not mix the normal Qt library and the threaded Qt library in
 an application. If your application uses the threaded Qt library, you
-should not link with the normal Qt library. Nor should you dynamically
-load the normal Qt library or dynamically load another library, e.g. a
-plugin, that depends on the normal Qt library. On some systems, mixing
-threaded and non-threaded libraries or plugins will corrupt the static
-data used in the Qt library.
-
+should not link your plugin with the normal Qt library. Nor should you
+dynamically load the normal Qt library or dynamically load another library,
+e.g. a plugin, that depends on the normal Qt library. On some systems,
+mixing threaded and non-threaded libraries or plugins will corrupt the
+static data used in the Qt library.
 
 */

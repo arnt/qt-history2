@@ -1315,15 +1315,24 @@ MakefileGenerator::writeIdlSrc(QTextStream &t, const QString &src)
 	input = varGlue( "_ACTIVEQT", "", " ", "" );
 	inputList = "_ACTIVEQT";
     }
+    bool fromIDL = FALSE;
+    QString inputFile;
+    if ( project->variables()[inputList].count() == 1 ) {
+	inputFile = project->variables()[inputList].first();
+	fromIDL = inputFile.right( 4 ).lower() == ".idl";
+    }
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QString file = *it;
-	if ( file.right( 4 ) != ".res" )
+	if ( file.right( 4 ).lower() != ".res" )
 	    continue;
 	QString idlfile = file.left( file.length()-3) += "idl";
+	if ( fromIDL )
+	    idlfile = inputFile;
 	QString rcfile = file.left( file.length()-3) += "rc";
-	t << file << ": " << project->variables()[inputList].join(" \\\n\t\t") << "\n\t"
-	    << "$(IDC) " << input << " -o " << idlfile << " -rc " << rcfile << "\n\t"
-	    << "midl " << idlfile << " /tlb " << file.left( file.length()-3) << "tlb"
+	t << file << ": " << project->variables()[inputList].join(" \\\n\t\t") << "\n\t";
+	    if ( !fromIDL )
+		t << "$(IDC) " << input << " -o " << idlfile << " -rc " << rcfile << "\n\t";
+	    t << "midl " << idlfile << " /tlb " << file.left( file.length()-3) << "tlb"
 	    << " /iid tmp\\iid_i.c /dlldata tmp\\dlldata.c /cstub tmp\\cstub.c /header tmp\\cstub.h /proxy tmp\\proxy.c /sstub tmp\\sstub.c\n\t"
 	    << var("QMAKE_RC") << " " << rcfile << endl << endl;
 	break;

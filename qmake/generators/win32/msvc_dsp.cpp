@@ -455,20 +455,29 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    axFile = varGlue( "_ACTIVEQT", "", " ", "" );
 		    axlist = "_ACTIVEQT";
 		}
+		bool fromIDL = FALSE;
+		QString inputFile;
+		if ( project->variables()[axlist].count() == 1 ) {
+		    inputFile = project->variables()[axlist].first();
+		    fromIDL = inputFile.right( 4 ).lower() == ".idl";
+		}
 
 		for ( QStringList::Iterator it = l.begin(); it != l.end(); ++it ) {
 		    QString sourcefile = *it;
 		    t << "# Begin Source File\n\nSOURCE=" << sourcefile << endl;
 		    if ( sourcefile.right( 4 ).lower() == ".tlb" ) {
 			QString idcoutput = sourcefile.left( sourcefile.length()-4) + ".idl";
+			if ( fromIDL )
+			    idcoutput = inputFile;
 			QString rcoutput = sourcefile.left( sourcefile.length()-4) + ".rc";
 			t << "USERDEP_" << sourcefile << "=" << varGlue( axlist, "\"", "\"\t\"", "\"" ) << endl << endl;
 
 			QString build = "\n\n# Begin Custom Build - Generating IDL from " + axFile + "...\n"
 					"# InputPath=" + sourcefile + "\n\n"
-					"\"" + sourcefile + "\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n"
-					"\t$(QTDIR)\\bin\\idc " + axFile + " -o " + idcoutput + " -rc " + rcoutput + "\n"
-					"\tmidl " + idcoutput + " /tlb " + sourcefile + " /iid tmp\\iid_i.c"
+					"\"" + sourcefile + "\" : $(SOURCE) \"$(INTDIR)\" \"$(OUTDIR)\"\n";
+					if ( !fromIDL )
+					    build += "\t$(QTDIR)\\bin\\idc " + axFile + " -o " + idcoutput + " -rc " + rcoutput + "\n";
+					build += "\tmidl " + idcoutput + " /tlb " + sourcefile + " /iid tmp\\iid_i.c"
 					" /dlldata tmp\\dlldata.c /cstub tmp\\cstub.c /header tmp\\cstub.h /proxy tmp\\proxy.c /sstub tmp\\sstub.c\n\n"
 					"# End Custom Build\n\n";
 

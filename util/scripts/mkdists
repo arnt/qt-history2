@@ -765,7 +765,7 @@ for plat in mac win x11 qnx6 embedded; do
 	    rm -rf $PLATDIR/plugins/src/sqldrivers/tds
 	    ;;
 	esac
-	if [ "$plat" != "embedded" ]; then
+	if [ "$plat" != "embedded" ] && [ "$plat" != "qnx6" ]; then
 	    #Remove embedded from mkspec so that configure does not think we are running embedded
 	    rm -rf "$PLATDIR/mkspecs/qws"
 	fi
@@ -874,6 +874,8 @@ for plat in mac win x11 qnx6 embedded; do
 		    rm -f $tdir/Makefile
 		fi
             done
+	rm -rf $PLATDIR/tools/designer/book
+
 	fi
 	if [ "$plat" = "win" ]; then
 	    rm -rf "$PLATDIR/doc/man"

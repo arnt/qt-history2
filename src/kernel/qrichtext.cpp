@@ -7873,7 +7873,7 @@ QTextTableCell::~QTextTableCell()
 QSize QTextTableCell::sizeHint() const
 {
     int extra = 2 * ( parent->innerborder + parent->cellpadding + border_tolerance);
-    int used = richtext->widthUsed() + extra;
+    int used = richtext->widthUsed() + extra + border_tolerance;
 
     if  (stretch_ ) {
 	int w = parent->width * stretch_ / 100 - 2*parent->cellspacing - 2*parent->cellpadding;
@@ -7905,8 +7905,9 @@ bool QTextTableCell::isEmpty() const
 }
 void QTextTableCell::setGeometry( const QRect& r )
 {
+    int extra = 2 * ( parent->innerborder + parent->cellpadding );
     if ( r.width() != cached_width )
-	richtext->doLayout( painter(), r.width() );
+	richtext->doLayout( painter(), r.width() - extra );
     cached_width = r.width();
     geom = r;
 }
@@ -7923,7 +7924,7 @@ bool QTextTableCell::hasHeightForWidth() const
 
 int QTextTableCell::heightForWidth( int w ) const
 {
-    int extra = 2 * ( parent->innerborder + parent->cellpadding + border_tolerance );
+    int extra = 2 * ( parent->innerborder + parent->cellpadding );
     w = QMAX( minw, w );
 
     if ( cached_width != w ) {

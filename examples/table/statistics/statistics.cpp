@@ -141,6 +141,7 @@ QWidget *ComboItem::createEditor() const
 {
     // create an editor - a combobox in our case
     ( (ComboItem*)this )->cb = new QComboBox( table()->viewport() );
+    QObject::connect( cb, SIGNAL( activated( int ) ), table(), SLOT( doValueChanged() ) );
     cb->insertItem( "Yes" );
     cb->insertItem( "No" );
     // and initialize it

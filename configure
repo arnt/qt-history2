@@ -2435,7 +2435,6 @@ FAST_PROJECTS=0
 echo "  `expr $NORM_PROJECTS + $FAST_PROJECTS` projects found."
 echo
 
-BASE_SPEC=`basename $QMAKESPEC`
 echo "Creating makefiles. Please wait..."
 for file in .projects .projects.3
 do
