@@ -63,7 +63,7 @@
 #endif
 
 #ifdef Q_WS_X11
-#include "qt_x11_p.h"
+#include <private/qt_x11_p.h>
 #ifdef None
 #undef None
 #endif
@@ -73,10 +73,10 @@
 #endif
 
 #if defined (Q_WS_X11) || defined (Q_WS_QWS)
-#include "qfontdata_p.h"
-#include "qfontengine_p.h"
-#include "qtextlayout_p.h"
-#include "qtextengine_p.h"
+#include <private/qfontdata_p.h>
+#include <private/qfontengine_p.h>
+#include <private/qtextlayout_p.h>
+#include <private/qtextengine_p.h>
 #endif
 
 static bool qt_gen_epsf = FALSE;

@@ -191,7 +191,7 @@ public:
     Q_DECLARE_FLAGS(FECaps, Capabilities);
 
     FECaps capabilites() const;
-    
+
     /* returns 0 as glyph index for non existant glyphs */
     Error stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, bool mirrored) const;
 
@@ -287,7 +287,7 @@ private:
 #endif
 
 #ifdef Q_WS_X11
-#include "qt_x11_p.h"
+#include <private/qt_x11_p.h>
 
 class QTextCodec;
 

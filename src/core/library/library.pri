@@ -3,17 +3,18 @@
 HEADERS += \
 	library/qcom_p.h \
 	library/qcomlibrary_p.h \
+	library/qgplugin.h \
 	library/qgpluginmanager_p.h \
 	library/qlibrary.h \
 	library/qlibrary_p.h \
 	library/qpluginmanager_p.h \
-	library/qgplugin.h \
 	library/quuid.h
 
 SOURCES += \
 	library/qcomlibrary.cpp \
-	library/qgpluginmanager.cpp \
 	library/qgplugin.cpp \
+	library/qgpluginmanager.cpp \
+	library/qlibrary.cpp \
 	library/quuid.cpp
 
 win32 {

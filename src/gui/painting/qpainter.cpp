@@ -21,11 +21,11 @@
 #ifdef Q_WS_WIN
 #include "qpaintengine_win.h"
 #endif
-#include "qwidget_p.h"
+#include <private/qwidget_p.h>
 #include "qpaintdevicemetrics.h"
-#include "qtextlayout_p.h"
-#include "qtextengine_p.h"
-#include "qfontengine_p.h"
+#include <private/qtextlayout_p.h>
+#include <private/qtextengine_p.h>
+#include <private/qfontengine_p.h>
 
 
 void qt_format_text(const QFont &font, const QRect &_r, int tf, const QString& str,
@@ -388,7 +388,7 @@ void QPainter::setWorldXForm(bool enable)
     updateXForm();
 }
 
-#include "qtextlayout_p.h"
+#include <private/qtextlayout_p.h>
 
 #ifndef QT_NO_TRANSFORMATIONS
 void QPainter::scale(double sx, double sy)

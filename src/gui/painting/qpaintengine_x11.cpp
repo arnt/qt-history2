@@ -25,13 +25,13 @@
 #include "qpaintdevice.h" // tmp
 #include "qpainter.h" // tmp
 
-#include "qt_x11_p.h"
+#include <private/qt_x11_p.h>
 
 #include "qpainter_p.h"
-#include "qtextlayout_p.h"
-#include "qfontdata_p.h"
-#include "qfontengine_p.h"
-#include "qtextengine_p.h"
+#include <private/qtextlayout_p.h>
+#include <private/qfontdata_p.h>
+#include <private/qfontengine_p.h>
+#include <private/qtextengine_p.h>
 
 #include "qpen.h"
 #include "qcolor.h"

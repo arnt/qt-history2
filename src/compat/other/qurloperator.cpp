@@ -19,7 +19,7 @@
 #include "qurlinfo.h"
 #include "qnetworkprotocol.h"
 #include "qmap.h"
-#include "../tools/qhash.h"
+#include "qhash.h"
 #include "qdir.h"
 #include "qguardedptr.h"
 

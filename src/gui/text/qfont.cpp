@@ -32,7 +32,7 @@
 #include <private/qunicodetables_p.h>
 #include "qfontdata_p.h"
 #include "qfontengine_p.h"
-#include "qpainter_p.h"
+#include <private/qpainter_p.h>
 #include "qtextengine_p.h"
 
 #ifdef Q_WS_X11

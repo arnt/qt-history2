@@ -23,7 +23,7 @@
 #include "qstyle.h"
 
 #if defined(Q_WS_X11)
-#include "qt_x11_p.h"
+#include <private/qt_x11_p.h>
 #elif defined (Q_WS_WIN )
 #include "qt_windows.h"
 #elif defined(Q_WS_MAC)

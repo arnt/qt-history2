@@ -11,6 +11,7 @@ include($$QT_SOURCE_TREE/arch/$$ARCH/arch.pri)
 
 include(tools/tools.pri)
 include(other/other.pri)
+include(containers/containers.pri)
 
 mac:LIBS += -framework Carbon
 

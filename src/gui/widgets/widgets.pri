@@ -34,6 +34,7 @@ HEADERS += widgets/qbuttongroup.h \
 	widgets/qrangecontrol.h \
 	widgets/qscrollbar.h \
 	widgets/qscrollview.h \
+	widgets/qsizegrip.h \
 	widgets/qslider.h \
 	widgets/qabstractslider.h \
 	widgets/qsplashscreen.h \
@@ -54,7 +55,8 @@ HEADERS += widgets/qbuttongroup.h \
 	widgets/qwidgetstack.h \
 	widgets/qdatetimeedit.h \
 	widgets/qwidgetinterface_p.h \
-	widgets/qwidgetplugin.h
+	widgets/qwidgetplugin.h \
+	widgets/qworkspace.h
 
 SOURCES += widgets/qbuttongroup.cpp \
 	widgets/qbutton.cpp \
@@ -88,6 +90,7 @@ SOURCES += widgets/qbuttongroup.cpp \
 	widgets/qrangecontrol.cpp \
 	widgets/qscrollbar.cpp \
 	widgets/qscrollview.cpp \
+	widgets/qsizegrip.cpp \
 	widgets/qslider.cpp \
 	widgets/qabstractslider.cpp \
 	widgets/qsplashscreen.cpp \
@@ -108,7 +111,8 @@ SOURCES += widgets/qbuttongroup.cpp \
 	widgets/qwidgetstack.cpp \
 	widgets/qdatetimeedit.cpp \
 	widgets/qeffects.cpp \
-	widgets/qwidgetplugin.cpp
+	widgets/qwidgetplugin.cpp \
+	widgets/qworkspace.cpp
    
 
 !embedded:mac:SOURCES += widgets/qmenubar_mac.cpp

@@ -18,8 +18,8 @@
 #include "qapplication.h"
 #include "qhash.h"
 #define QT_NO_DEFINE_DQ
-#include "qapplication_p.h"
-#include "qt_x11_p.h"
+#include <private/qapplication_p.h>
+#include <private/qt_x11_p.h>
 #include "qx11info_x11.h"
 
 // NOT REVISED

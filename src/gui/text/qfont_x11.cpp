@@ -34,7 +34,7 @@
 #include "qfontengine_p.h"
 #include "qtextengine_p.h"
 
-#include "qt_x11_p.h"
+#include <private/qt_x11_p.h>
 #include "qx11info_x11.h"
 
 #include <time.h>

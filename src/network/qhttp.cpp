@@ -554,7 +554,7 @@ QString QHttpHeader::toString() const
 
     QMap<QString,QString>::ConstIterator it = values.begin();
     for( ; it != values.end(); ++it )
-	ret += it.key() + ": " + it.data() + "\r\n";
+	ret += it.key() + ": " + (*it) + "\r\n";
 
     return ret;
 }

@@ -4,7 +4,7 @@
 #include <qstring.h>
 #include <qfontmetrics.h>
 #include <qdebug.h>
-#include "qobject_p.h"
+#include <private/qobject_p.h>
 #include <qmap.h>
 #include <qfont.h>
 

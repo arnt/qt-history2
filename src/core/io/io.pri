@@ -8,7 +8,8 @@ HEADERS +=  \
 	io/qfile.h \
 	io/qfiledefs_p.h \
 	io/qfileinfo.h \
-	io/qiodevice.h
+	io/qiodevice.h \
+	io/qtextstream.h 
 
 SOURCES += \
 	io/qbuffer.cpp \
@@ -16,7 +17,8 @@ SOURCES += \
 	io/qdir.cpp \
 	io/qfile.cpp \
 	io/qfileinfo.cpp \
-	io/qiodevice.cpp
+	io/qiodevice.cpp \
+	io/qtextstream.cpp
 
 win32 {
 	wince-* {
