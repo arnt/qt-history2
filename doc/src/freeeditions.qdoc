@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Documentation about Free Edition.
+** Documentation about Open Source Editions.
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
 **
@@ -23,7 +23,7 @@ the same terms). Notice that the term "free" is about rights, not
 money. The Free Software Foundation (creators of the GNU GPL) speaks
 of free in this context as in "free speech", not as in "no cost".
 
-Trolltech supports the free software concept by providing the Qt Free
+Trolltech supports the free software concept by providing the Qt Open Source
 Editions. You can use these editions of Qt to create free software, i.e.
 software that is licensed under the GNU GPL or a similarly recognized
 open source license. Trolltech's support of open source with the Qt Open
