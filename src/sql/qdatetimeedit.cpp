@@ -33,6 +33,7 @@
 ** not clear to you.
 **
 **********************************************************************/
+/*! \example datetime/main.cpp */
 
 #include "qdatetimeedit.h"
 
@@ -402,16 +403,17 @@ void QDateTimeEditBase::layoutArrows()
     appear in year, month, day order by default. This can be changed by
     calling setOrder(). It is recommended that the QDateEdit is
     initialised with a date, e.g.
-    \code
-    QDateEdit *dateedit = new QDateEdit( QDate::currentDate(), this );
-    \endcode
+    \dontinclude datetime/main.cpp
+    \skipto QDateEdit
+    \printline
+    <h5 align="center">From \l datetime/main.cpp </h5>
 
     If illegal values are entered, they will be reverted to the last
     known legal value when the user presses Return. For example if the
     user enters 5000 for the year value, and it was 2000 before they
     stated editing, the value will be reverted to 2000.  
 
-    See QDateTimeEdit for an example.
+    See \l examples/datetime for an example. 
 
     \sa QTimeEdit QDateTimeEdit
 
@@ -682,17 +684,17 @@ void QDateEdit::resizeEvent( QResizeEvent * )
     the order hours, minutes, seconds using the 24 hour clock. The Tab
     key can be used to move from field to field within the QTimeEdit
     box. It is recommended that the QTimeEdit is initialised with a time, e.g.
-    \code
-    QTimeEdit *dateedit = new QTimeEdit( QTime::currentTime(), this );
-    \endcode
-
+    \dontinclude datetime/main.cpp
+    \skipto QTimeEdit
+    \printline
+    <h5 align="center">From \l datetime/main.cpp </h5>
 
   If illegal values are entered, these will be reverted to the last
   known legal value when the user presses Return. For example if the
   user entered 99 for the hour value, and it was 12 before they stated
   editing, the value will be reverted to 12. 
 
-    See QDateTimeEdit for an example.
+    See \l examples/datetime for an example. 
 
     \sa QDateEdit QDateTimeEdit
 
@@ -856,56 +858,18 @@ void QTimeEdit::resizeEvent( QResizeEvent * )
     setOrder(). Times appear in the order hours, minutes, seconds using
     the 24 hour clock. It is recommended that the QDateTimeEdit is
     initialised with a datetime, e.g.
-    \code
-    QDateTimeEdit *dtedit = new QDateTimeEdit( QDateTime::currentDateTime(), this );
-    \endcode
+    \dontinclude datetime/main.cpp
+    \skipto QDateTimeEdit
+    \printline
+    <h5 align="center">From \l datetime/main.cpp </h5>
 
     If illegal values are entered, they will be reverted to the last
     known legal value when the user presses Return. For example if the
     user enters 5000 for the year value, and it was 2000 before they
     stated editing, the value will be reverted to 2000.  
 
-    Example:
-    \code
-    #include <qapplication.h>
-    #include <qdatetimeedit.h>
-    #include <qdialog.h>
-    #include <qlayout.h>
-    #include <qpushbutton.h>
-
-    class MyDialog : public QDialog
-    {
-    public:
-	MyDialog();
-    };
-
-    MyDialog::MyDialog()
-    {
-	QGridLayout *layout   = new QGridLayout( this );
-	QDateEdit   *dateedit = new QDateEdit( QDate::currentDate(), this );
-	QTimeEdit   *timeedit = new QTimeEdit( QTime::currentTime(), this );
-	QDateTimeEdit *dtedit = new QDateTimeEdit( QDateTime::currentDateTime(), this );
-	QPushButton *button   = new QPushButton( "&Quit", this );
-	dateedit->setFocus();
-	layout->addWidget( dateedit, 0, 0 );
-	layout->addWidget( timeedit, 1, 0 );
-	layout->addWidget( dtedit,   2, 0 );
-	layout->addWidget( button,   3, 0 );
-	layout->activate();
-	connect( button, SIGNAL( clicked() ), qApp, SLOT( quit() ) ); 
-    }
-
-    int main( int argc, char *argv[] )
-    {
-	QApplication app( argc, argv );
-	MyDialog *dlg = new MyDialog();
-	dlg->resize( 300, 90 );
-	dlg->show();
-	app.setMainWidget( dlg );
-	return app.exec();
-    }
-    \endcode
-
+    See \l examples/datetime for an example. 
+    
   \sa QDateEdit QTimeEdit
   */
 
