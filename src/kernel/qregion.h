@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.h#12 $
+** $Id: //depot/qt/main/src/kernel/qregion.h#13 $
 **
 ** Definition of QRegion class
 **
@@ -30,7 +30,6 @@ public:
    ~QRegion();
     QRegion &operator=( const QRegion & );
 
-    QRegion copy() const;
 
     bool    isNull()   const;
     bool    isEmpty()  const;
@@ -61,8 +60,11 @@ public:
     friend QDataStream &operator>>( QDataStream &, QRegion & );
 
 private:
+    QRegion( bool );
+    QRegion copy() const;
+    void    detach();
     void    cmd( int id, void *, const QRegion * = 0, const QRegion * = 0 );
-    void    exec();
+    void    exec( const QByteArray & );
     struct QRegionData : QShared {		// region data
 	QByteArray bop;
 #if defined(_WS_WIN_)
@@ -80,7 +82,7 @@ private:
 
 
 #define QRGN_SETRECT		1		// region stream commands
-#define QRGN_SETELLIPSE		2
+#define QRGN_SETELLIPSE		2		//  (these are internal)
 #define QRGN_SETPTARRAY_ALT	3
 #define QRGN_SETPTARRAY_WIND	4
 #define QRGN_MOVE		5
