@@ -7,6 +7,9 @@
 
    for() iteration has been introduced to do simple looping in a qmake script. 
 
+   improved support for subdirs with .pro's listed
+   support for QCONFIG added to add functionality from Qt
+
 1.06b -
   
    support for reading and writing libtool (.la) files
