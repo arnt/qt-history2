@@ -791,6 +791,10 @@ void QPaintEngine::updateInternal(QPainterState *s, bool updateGC)
         clearDirty(DirtyClip);
     }
 
+#ifdef Q_WS_X11
+    if (d->pdev->depth() < 8)
+        emulationSpecifier &= ~(AlphaFill | AlphaStroke);
+#endif
 
     // It might be the case that a update call flags a previously
     // updated state to dirty. For this case we need to call
