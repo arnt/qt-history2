@@ -18,6 +18,8 @@
 **
 **********************************************************************/
 
+#include <qvariant.h>  // HP-UX compiler needs this here
+
 #include "sizehandle.h"
 #include "formwindow.h"
 #include "widgetfactory.h"

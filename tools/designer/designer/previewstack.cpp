@@ -18,6 +18,7 @@
 **
 **********************************************************************/
 
+#include <qvariant.h>  // HP-UX compiler needs this here
 #include "previewstack.h"
 #include "widgetpreview.h"
 #include "checkboxpreview.h"

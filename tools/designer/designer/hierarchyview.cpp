@@ -111,6 +111,7 @@ QWidget *HierarchyItem::widget() const
 HierarchyList::HierarchyList( QWidget *parent, HierarchyView *view )
     : QListView( parent ), hierarchyView( view )
 {
+    header()->setMovingEnabled( FALSE );
     normalMenu = 0;
     tabWidgetMenu = 0;
     addColumn( tr( "Name" ) );

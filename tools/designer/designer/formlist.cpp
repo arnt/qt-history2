@@ -18,6 +18,7 @@
 **
 **********************************************************************/
 
+#include <qvariant.h>  // HP-UX compiler needs this here
 #include "formlist.h"
 #include "formwindow.h"
 #include "mainwindow.h"
@@ -96,6 +97,7 @@ FormList::FormList( QWidget *parent, MainWindow *mw, Project *pro )
 		 WStyle_Tool | WStyle_MinMax | WStyle_SysMenu ), mainWindow( mw ),
 	project( pro )
 {
+    header()->setMovingEnabled( FALSE );
     setResizePolicy( QScrollView::Manual );
     setIcon( PixmapChooser::loadPixmap( "logo" ) );
     QPalette p( palette() );

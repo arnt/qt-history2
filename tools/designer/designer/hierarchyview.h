@@ -21,10 +21,10 @@
 #ifndef HIRARCHYVIEW_H
 #define HIRARCHYVIEW_H
 
+#include <qvariant.h>
 #include <qlistview.h>
 #include <qvbox.h>
 #include <qlist.h>
-#include <qvariant.h>
 
 class HierarchyView;
 class FormWindow;

@@ -64,6 +64,10 @@ struct Entry
 #endif
 };
 
+#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
+bool operator==( const Entry&, const Entry& ) { return FALSE; }
+#endif
+
 bool operator<=( const MyString &s1, const MyString &s2 )
 { return s1.lower <= s2.lower; }
 bool operator<( const MyString &s1, const MyString &s2 )

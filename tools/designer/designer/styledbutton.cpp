@@ -18,6 +18,7 @@
 **
 **********************************************************************/
 
+#include <qvariant.h>  // HP-UX compiler needs this here
 #include "styledbutton.h"
 #include "formwindow.h"
 #include "pixmapchooser.h"

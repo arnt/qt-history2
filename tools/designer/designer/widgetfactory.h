@@ -21,6 +21,7 @@
 #ifndef WIDGETFACTORY_H
 #define WIDGETFACTORY_H
 
+#include <qvariant.h>
 #include <qiconset.h>
 #include <qstring.h>
 #include <qintdict.h>

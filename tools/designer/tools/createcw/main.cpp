@@ -31,7 +31,7 @@
 //
 // #include "/home/joedeveloper/src/mycustomwidget.h"
 //
-// Now go on to SETP2!
+// Now go on to STEP2!
 
 // -----------------------------
 
@@ -135,16 +135,17 @@ int main( int argc, char **argv )
     QValueList<Widget> wl;
 
     // STEP2: Instantiate all widgets for which a description should
-    // be created here and add them to the list wl. If your customwidget
+    // be created here and add them to the list wl. If your custom widget
     // is e.g. called MyCustomWidget you would write here
     //
     // Widget w;
     // w.w = new MyCustomWidget( 0, 0 );
     // w.include = "mycustomwidget.h";
     // w.location = "global";
-    //wl.append( w );
+    // wl.append( w );
     //
-    // After that compile the program and run it like this
+    // After that compile the program, link it with your custom widget
+    // (library or object file) and run it like this:
     // (unix): ./createcw mywidgets.cw
     // (win32): createcw mywidgets.cw
     //
