@@ -53,16 +53,16 @@ SetDataForm::SetDataForm( ElementVector *elements, int decimalPlaces,
     table->setColumnWidth( 4, 60 );
     QHeader *th = table->horizontalHeader();
     th->setLabel( 0, "Value" );
-    th->setLabel( 1, "Colour" );
+    th->setLabel( 1, "Color" );
     th->setLabel( 2, "Pattern" );
     th->setLabel( 3, "Label" );
-    th->setLabel( 4, "Colour" );
+    th->setLabel( 4, "Color" );
     tableButtonBox->addWidget( table );
 
     buttonBox = new QHBoxLayout( 0, 0, 6, "button box layout" );
 
-    colorPushButton = new QPushButton( this, "colour button" );
-    colorPushButton->setText( "&Colour..." );
+    colorPushButton = new QPushButton( this, "color button" );
+    colorPushButton->setText( "&Color..." );
     colorPushButton->setEnabled( false );
     buttonBox->addWidget( colorPushButton );
 
@@ -179,7 +179,7 @@ void SetDataForm::setColor( int row, int col )
 
     QColor color = QColorDialog::getColor(
 			QColor( table->text( row, col ) ),
-			this, "colour dialog" );
+			this, "color dialog" );
     if ( color.isValid() ) {
 	QPixmap pix = table->pixmap( row, col );
 	pix.fill( color );
