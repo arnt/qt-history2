@@ -91,6 +91,7 @@ extern QString *qwf_language;
 extern bool qwf_execute_code;
 extern bool qwf_stays_on_top;
 extern void set_splash_status( const QString &txt );
+extern QObject* qwf_form_object;
 /*### static bool tbSettingsRead = FALSE; */
 
 MainWindow *MainWindow::self = 0;
@@ -505,10 +506,13 @@ QObjectList *MainWindow::runProject()
 
     previewing = TRUE;
 
-
     for ( QPtrListIterator<FormFile> it = currentProject->formFiles(); it.current(); ++it ) {
+	if ( (*it)->isFake() )
+	    qwf_form_object = currentProject->objectForFakeFormFile( *it );
+	else
+	    qwf_form_object = 0;
 	QWidget *w = QWidgetFactory::create( currentProject->makeAbsolute( (*it)->fileName() ), 0, invisibleGroupLeader );
-
+	
 	if ( w ) {
 	    w->hide();
 	    if ( programPluginManager ) {
@@ -609,6 +613,10 @@ QObjectList *MainWindow::runProject()
 	    iiface->exec( 0, "main" );
 
 	for ( QPtrListIterator<FormFile> it2 = currentProject->formFiles(); it2.current(); ++it2 ) {
+	    if ( (*it2)->isFake() )
+		qwf_form_object = currentProject->objectForFakeFormFile( *it2 );
+	    else
+		qwf_form_object = 0;
 	    QWidget *w = QWidgetFactory::create( (*it2)->absFileName(), 0, invisibleGroupLeader );
 	    if ( w ) {
 		l->append( w );

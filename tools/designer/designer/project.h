@@ -193,6 +193,7 @@ public:
     QObjectList objects() const;
     FormWindow *fakeFormFor( QObject *o ) const;
     QObject *objectForFakeForm( FormWindow *fw ) const;
+    QObject *objectForFakeFormFile( FormFile *ff ) const;
 
 signals:
     void projectModified();

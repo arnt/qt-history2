@@ -110,6 +110,7 @@ QString *qwf_language = 0;
 bool qwf_execute_code = TRUE;
 bool qwf_stays_on_top = FALSE;
 QString qwf_currFileName = "";
+QObject *qwf_form_object = 0;
 
 static void setupWidgetListAndMap()
 {
@@ -1710,20 +1711,25 @@ void QWidgetFactory::loadExtraSource()
 	  cit != connections.end(); ++cit ) {
 	QObject *sender  = 0;
 	QString name = (*cit).sender;
-	if ( name == "this" || qstrcmp( toplevel->name(), name ) == 0 ) {
-	    sender = toplevel;
-	} else {
-	    if ( name == "this" )
-		name = toplevel->name();
-	    QObjectList *l = toplevel->queryList( 0, name, FALSE );
-	    if ( l ) {
-		if ( l->first() )
-		    sender = l->first();
-		delete l;
+	if ( !qwf_form_object ) {
+	    if ( name == "this" || qstrcmp( toplevel->name(), name ) == 0 ) {
+		sender = toplevel;
+	    } else {
+		if ( name == "this" )
+		    name = toplevel->name();
+		QObjectList *l = toplevel->queryList( 0, name, FALSE );
+		if ( l ) {
+		    if ( l->first() )
+			sender = l->first();
+		    delete l;
+		}
 	    }
+	    if ( !sender )
+		sender = findAction( name );
+	} else {
+	    sender = qwf_form_object;
 	}
-	if ( !sender )
-	    sender = findAction( name );
+	
 	EventFunction ef = eventMap[ sender ];
 	ef.events.append( (*cit).signal );
 	ef.functions.append( QStringList::split( ',', (*cit).slot ) );

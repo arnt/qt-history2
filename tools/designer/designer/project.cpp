@@ -1246,6 +1246,15 @@ QObject *Project::objectForFakeForm( FormWindow *fw ) const
     return 0;
 }
 
+QObject *Project::objectForFakeFormFile( FormFile *ff ) const
+{
+    for ( QPtrDictIterator<FormWindow> it( fakeForms ); it.current(); ++it ) {
+	if ( it.current()->formFile() == ff )
+	    return (QObject*)it.currentKey();
+    }
+    return 0;
+}
+
 void Project::removeTempProject()
 {
     if ( !MainWindow::self->singleProjectMode() )
@@ -1262,3 +1271,4 @@ void Project::removeTempProject()
 	d.remove( *it );
     }
 }
+
