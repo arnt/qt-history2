@@ -473,21 +473,23 @@ void ConfigureApp::readQmakeOutput()
 
 void ConfigureApp::qmakeDone()
 {
+    QString str;
+
     if( makeListIterator == makeList.end() ) // Just in case we have an empty list
 	quit();
     else {
 	QString dirPath = QDir::convertSeparators( (*makeListIterator) + '/' );
 	++makeListIterator;
-	QString projectName = (*makeListIterator);
+	QString projectName = dirPath + (*makeListIterator);
 	++makeListIterator;
-	QString makefileName = (*makeListIterator);
+	QString makefileName = dirPath + (*makeListIterator);
 	++makeListIterator;
 	QStringList args;
 	args << QDir::convertSeparators( qtDir + "/bin/qmake" );
-	args << ( dirPath + projectName );
+	args << projectName;
 	args << dictionary[ "QMAKE_ALL_ARGS" ];
 	args << "-o";
-        args << ( dirPath + makefileName );
+        args << makefileName;
 	args << "-mkspec";
 	args << dictionary[ "TRG_MKSPEC" ];
 	if( makefileName.right( 4 ) == ".dsp" ) {
@@ -495,8 +497,9 @@ void ConfigureApp::qmakeDone()
 	    args << "vcapp";
 	}
 	else
-	    cout << "For " << dirPath.latin1() << projectName.latin1() << endl;
+	    cout << "For " << projectName.latin1() << endl;
 
+	str = args.join( " " );
 	qmake.setWorkingDirectory( QDir::convertSeparators( dirPath ) );
 	qmake.setArguments( args );
 	if( !qmake.start() ) {	// This will start the qmake, pick up control again in qmakeDone()
