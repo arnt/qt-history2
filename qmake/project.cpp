@@ -466,7 +466,46 @@ QMakeProject::isActiveConfig(const QString &x)
 bool
 QMakeProject::doProjectTest(QString func, const QStringList &args, QMap<QString, QStringList> &place)
 {
-    if(func == "system") {
+    if( func == "exists") {
+	if(args.count() != 1) {
+	    fprintf(stderr, "%d: system(exec) requires one argument.\n", line_count);
+	    return FALSE;
+	}
+	QString file = args.first();
+	file = Option::fixPathToLocalOS(file);
+	file.replace(QRegExp("\""), "");
+
+	int rep, rep_len;
+	QRegExp reg_var;
+	int left = 0, right = 0;
+	for(int x = 0; x < 2; x++) {
+	    if( x == 0 ) {
+		reg_var = QRegExp("\\$\\$\\{[a-zA-Z0-9_\\.-]*\\}");
+		left = 3;
+		right = 1;
+	    } else if(x == 1) {
+		reg_var = QRegExp("\\$\\$[a-zA-Z0-9_\\.-]*");
+		left = 2;
+		right = 0;
+	    }
+	    while((rep = reg_var.match(file, 0, &rep_len)) != -1) {
+		QString rep_var = file.mid(rep + left, rep_len - (left+right));
+		QString replacement = rep_var == "LITERAL_WHITESPACE" ? QString("\t") : place[rep_var].join(" ");
+		file.replace(rep, rep_len, replacement);
+	    }
+	}
+	if(QFile::exists(file))
+	    return TRUE;
+	//regular expression I guess
+	QString dirstr = QDir::currentDirPath();
+	int slsh = file.findRev(Option::dir_sep);
+	if(slsh != -1) {
+	    dirstr = file.left(slsh+1);
+	    file = file.right(file.length() - slsh - 1);
+	}
+	QDir dir(dirstr, file);
+	return dir.count() != 0;
+    } else if(func == "system") {
 	if(args.count() != 1) {
 	    fprintf(stderr, "%d: system(exec) requires one argument.\n", line_count);
 	    return FALSE;

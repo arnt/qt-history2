@@ -925,6 +925,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 	    continue;
 	}
 
+	bool do_default = TRUE;
 	QString target, dst=project->variables()[pvar].first();
  	QStringList tmp;
  	//masks
