@@ -14,6 +14,7 @@
 #define UIC_H
 
 #include "databaseinfo.h"
+#include "customwidgetsinfo.h"
 
 #include <qstring.h>
 #include <qstringlist.h>
@@ -51,6 +52,9 @@ public:
     inline const DatabaseInfo *databaseInfo() const
     { return &info; }
 
+    inline const CustomWidgetsInfo *customWidgetsInfo() const
+    { return &cWidgetsInfo; }
+
     bool write(QIODevice *in);
     bool write(DomUI *ui);
 
@@ -67,6 +71,7 @@ private:
     QTextStream &out;
     const Option &opt;
     DatabaseInfo info;
+    CustomWidgetsInfo cWidgetsInfo;
 };
 
 #endif // UIC_H

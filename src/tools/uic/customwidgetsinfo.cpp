@@ -1,0 +1,44 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of Qt Designer.
+** EDITIONS: FREE, PROFESSIONAL, ENTERPRISE
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+#include "customwidgetsinfo.h"
+#include "driver.h"
+#include "ui4.h"
+#include "utils.h"
+
+CustomWidgetsInfo::CustomWidgetsInfo(Driver *drv)
+    : driver(drv)
+{
+}
+
+void CustomWidgetsInfo::accept(DomUI *node)
+{
+    m_customWidgets.clear();
+
+    if (node->elementCustomWidgets())
+        accept(node->elementCustomWidgets());
+}
+
+void CustomWidgetsInfo::accept(DomCustomWidgets *node)
+{
+    TreeWalker::accept(node);
+}
+
+void CustomWidgetsInfo::accept(DomCustomWidget *node)
+{
+    if (node->elementClass().isEmpty())
+        return;
+
+    m_customWidgets.insert(node->elementClass(), node);
+}
+
+

@@ -502,6 +502,9 @@ public:
     inline QString elementClass() const { return m_eClass; }
     inline void setElementClass(const QString & a) { m_eClass = a; };
 
+    inline QString elementExtends() const { return m_eExtends; }
+    inline void setElementExtends(const QString & a) { m_eExtends = a; };
+
     inline DomHeader * elementHeader() const { return m_eHeader; }
     inline void setElementHeader(DomHeader * a) { m_eHeader = a; };
 
@@ -532,6 +535,7 @@ private:
 
     // elements
     QString m_eClass;
+    QString m_eExtends;
     DomHeader * m_eHeader;
     DomSize * m_eSizeHint;
     int m_eContainer;
@@ -2316,6 +2320,7 @@ inline void DomCustomWidget::read(const QDomElement &node)
     while (!e.isNull()) {
         QString tag = e.tagName().toLower();
         if (tag == QLatin1String("class")) { m_eClass = e.firstChild().toText().data(); }
+        else if (tag == QLatin1String("extends")) { m_eExtends = e.firstChild().toText().data(); }
         else if (tag == QLatin1String("header")) { DomHeader* v = new DomHeader(); v->read(e); m_eHeader = v; }
         else if (tag == QLatin1String("sizehint")) { DomSize* v = new DomSize(); v->read(e); m_eSizeHint = v; }
         else if (tag == QLatin1String("container")) { m_eContainer = e.firstChild().toText().data().toInt(); }
@@ -3058,6 +3063,13 @@ inline QDomElement DomCustomWidget::write(QDomDocument &doc, const QString &tagN
     if (m_eClass.size()) {
         child = doc.createElement("class");
         t = doc.createTextNode(m_eClass);
+        child.appendChild(t);
+        node.appendChild(child);
+    }
+
+    if (m_eExtends.size()) {
+        child = doc.createElement("extends");
+        t = doc.createTextNode(m_eExtends);
         child.appendChild(t);
         node.appendChild(child);
     }

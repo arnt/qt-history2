@@ -39,7 +39,8 @@ Uic::Uic(Driver *d)
      : drv(d),
        out(d->output()),
        opt(d->option()),
-       info(d)
+       info(d),
+       cWidgetsInfo(d)
 {
 }
 
@@ -107,6 +108,7 @@ bool Uic::write(DomUI *ui)
         writeHeaderProtectionStart();
 
     info.accept(ui);
+    cWidgetsInfo.accept(ui);
     WriteIncludes(this).accept(ui);
 
     if (opt.generateNamespace)
