@@ -140,7 +140,7 @@ QDialogButtons::setDefaultButton(Button button)
     }
     if(d->def != button) {
 #ifndef QT_NO_PROPERTIES
-o	if(d->buttons.contains(d->def))
+	if(d->buttons.contains(d->def))
 	    d->buttons[d->def]->setProperty("default", QVariant(FALSE,0));
 #endif
 	d->def = button;
