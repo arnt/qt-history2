@@ -49,7 +49,7 @@ public:
     QOffset operator--(int) { QOffset o(*this); --offset; return o; }
     operator Q_ULONG() const { return (Q_ULONG)offset; }
 private:
-    type offset;
+    Q_ULONG offset;
 };
 
 /*****************************************************************************
