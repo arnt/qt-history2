@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#81 $
+** $Id: //depot/qt/main/src/widgets/qscrollview.cpp#82 $
 **
 ** Implementation of QScrollView class
 **
@@ -176,7 +176,7 @@ subwidgets can also have positions outside the normal coordinate range
 
 To provide content for the widget, inherit from QScrollView and
 override drawContentsOffset(), and use resizeContents() to set
-the size of the viewed area.  Use addChild(), moveChild(), and showChild()
+the size of the viewed area.  Use addChild() / moveChild()
 to position widgets on the view.
 
 Note that the scrolled area is the viewport() widget, not the QScrollView
