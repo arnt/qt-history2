@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#20 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#21 $
 **
 ** Definition of QPainter class
 **
@@ -58,14 +58,11 @@ public:
     QFontMetrics fontMetrics()  const { return QFontMetrics(cfont); }
     QFontInfo	 fontInfo()	const { return QFontInfo(cfont); }
 
-    const QFont &font()	      { return cfont; }	// get/set font
-// ???    QFont	getFont() const { return cfont; }
+    const QFont &font()	const { return cfont; }	// get/set font
     void	setFont( const QFont & );
     QPen       &pen() { return cpen; }		// get/set pen
-// ???    QPen	getPen() const { return cpen; }
     void	setPen( const QPen & );
     QBrush     &brush() { return cbrush; }	// get/set brush
-// ???    QBrush	getBrush() const { return cbrush; }
     void	setBrush( const QBrush & );
 
   // Drawing attributes/modes
