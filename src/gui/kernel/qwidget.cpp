@@ -4006,12 +4006,13 @@ bool QWidgetPrivate::compositeEvent(QEvent *e)
  subwidget:
     switch (e->type()) {
     case QEvent::MouseButtonPress:
-    case QEvent::MouseButtonRelease:
-        if ((((QMouseEvent*)e)->state() & Qt::MouseButtonMask) == 0)
+    case QEvent::MouseButtonRelease: {
+        QMouseEvent *me = (QMouseEvent*)e;
+        if (!(me->buttons() & ~me->button()))
             compositeChildGrab = w;
-        else if ((((QMouseEvent*)e)->stateAfter() & Qt::MouseButtonMask) == 0)
+        else if (!me->buttons())
             compositeChildGrab = 0;
-        // fall through
+    } // fall through
     case QEvent::MouseButtonDblClick:
     case QEvent::MouseMove:
     {
