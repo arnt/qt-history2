@@ -191,7 +191,7 @@ void qDrawShadeRect(QPainter *p, int x, int y, int w, int h,
     QPointArray a;
 
     if (lineWidth == 1 && midLineWidth == 0) {// standard shade rectangle
-        p->drawRect(x1, y1, w-1, h-1);
+        p->drawRect(x1, y1, w-2, h-2);
         if (sunken)
             p->setPen(pal.light().color());
         else
@@ -211,7 +211,7 @@ void qDrawShadeRect(QPainter *p, int x, int y, int w, int h,
         p->setPen(pal.mid().color());
         j = lineWidth*2;
         for (i=0; i<midLineWidth; i++) {        // draw lines in the middle
-            p->drawRect(x1+lineWidth+i, y1+lineWidth+i, w-j, h-j);
+            p->drawRect(x1+lineWidth+i, y1+lineWidth+i, w-j-1, h-j-1);
             j += 2;
         }
         if (sunken)
@@ -514,7 +514,7 @@ void qDrawPlainRect(QPainter *p, int x, int y, int w, int h, const QColor &c,
     p->setPen(c);
     p->setBrush(Qt::NoBrush);
     for (int i=0; i<lineWidth; i++)
-        p->drawRect(x+i, y+i, w-i*2, h-i*2);
+        p->drawRect(x+i, y+i, w-i*2 - 1, h-i*2 - 1);
     if (fill) {                                // fill with fill color
         p->setPen(Qt::NoPen);
         p->setBrush(*fill);
