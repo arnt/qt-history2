@@ -775,7 +775,7 @@ bool QODBCResult::exec()
     SQLRETURN r;
     QPtrList<void> tmpStorage; // holds temporary ptrs. which will be deleted on fu exit
     tmpStorage.setAutoDelete( TRUE );
-    
+  
     // bind parameters - only positional binding allowed
     if ( extension()->index.count() > 0 ) {
 	QMap<int, QString>::Iterator it;
@@ -788,7 +788,7 @@ bool QODBCResult::exec()
 		case QVariant::Date: {
 		    DATE_STRUCT * dt = new DATE_STRUCT;
 		    tmpStorage.append( dt );
-		    QDate qdt = val.asDate();
+		    QDate qdt = val.toDate();
  		    dt->year = qdt.year();
  		    dt->month = qdt.month();
  		    dt->day = qdt.day();
@@ -806,7 +806,7 @@ bool QODBCResult::exec()
 		case QVariant::Time: {
 		    TIME_STRUCT * dt = new TIME_STRUCT;
 		    tmpStorage.append( dt );
-		    QTime qdt = val.asTime();
+		    QTime qdt = val.toTime();
  		    dt->hour = qdt.hour();
  		    dt->minute = qdt.minute();
  		    dt->second = qdt.second();
@@ -819,12 +819,12 @@ bool QODBCResult::exec()
 					  0,
 					  (void *) dt,
 					  0,
-					  NULL );
+	        			  NULL );
 		    break; }
 		case QVariant::DateTime: {
 		    TIMESTAMP_STRUCT * dt = new TIMESTAMP_STRUCT;
-		    tmpStorage.append( dt );
-		    QDateTime qdt = val.asDateTime();
+ 		    tmpStorage.append( dt );
+		    QDateTime qdt = val.toDateTime();
  		    dt->year = qdt.date().year();
  		    dt->month = qdt.date().month();
  		    dt->day = qdt.date().day();
@@ -842,7 +842,10 @@ bool QODBCResult::exec()
 					  0,
 					  NULL );
 		    break; }
-		case QVariant::Int:
+	        case QVariant::Int: {
+		    int * v = new int;
+		    *v = val.toInt();
+		    tmpStorage.append( v );
 		    r = SQLBindParameter( d->hStmt,
 					  para,
 					  SQL_PARAM_INPUT,
@@ -850,11 +853,14 @@ bool QODBCResult::exec()
 					  SQL_INTEGER,
 					  0,
 					  0,
-					  (void *) &val.asInt(),
+					  (void *) v,
 					  0,
 					  NULL );
-		    break;
-		case QVariant::Double:
+		    break; }
+ 	        case QVariant::Double: {
+		    double * v = new double;
+		    *v = val.toDouble();
+		    tmpStorage.append( v );
 		    r = SQLBindParameter( d->hStmt,
 					  para,
 					  SQL_PARAM_INPUT,
@@ -862,23 +868,25 @@ bool QODBCResult::exec()
 					  SQL_DOUBLE,
 					  0,
 					  0,
-					  (void *) &val.asDouble(),
+					  (void *) v,
 					  0,
 					  NULL );
-		    break;
-		default:
+		    break; }
+	        default: {
 		    indicator = SQL_NTS;
+		    QCString * str = new QCString( val.asString().local8Bit() );
+		    tmpStorage.append( str );
 		    r = SQLBindParameter( d->hStmt,
 					  para,
 					  SQL_PARAM_INPUT,
 					  SQL_C_CHAR,
 					  SQL_VARCHAR,
-					  val.asString().length() + 1,
+  					  str->length() + 1,
 					  0,
-					  (void *) val.asString().latin1(), // ### why not local8Bit()?!
-					  val.asString().length() + 1,
+					  (void *) str->data(),
+					  str->length() + 1,
 					  &indicator );
-		    break;
+		    break; }
 	    }
 	    para++;
 	    if ( r != SQL_SUCCESS ) {
@@ -890,7 +898,6 @@ bool QODBCResult::exec()
 	    }
 	}
     }
-    
     r = SQLExecute( d->hStmt );
     if ( r != SQL_SUCCESS ) {
 #ifdef QT_CHECK_RANGE
@@ -971,7 +978,7 @@ bool QODBCDriver::open( const QString & db,
 			int )
 {
     if ( isOpen() )
-		close();
+      close();
     SQLRETURN r;
     r = SQLAllocHandle( SQL_HANDLE_ENV,
 			SQL_NULL_HANDLE,
