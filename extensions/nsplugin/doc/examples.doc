@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: examples.doc,v 1.6 1999/05/10 15:28:15 warwick Exp $
+** $Id: examples.doc,v 1.7 1999/06/07 10:55:41 warwick Exp $
 **
 ** Documentation for the examples
 **
@@ -8,7 +8,7 @@
 *****************************************************************************/
 
 #if defined(DEBUG)
-static char ident[] = "$Id: examples.doc,v 1.6 1999/05/10 15:28:15 warwick Exp $";
+static char ident[] = "$Id: examples.doc,v 1.7 1999/06/07 10:55:41 warwick Exp $";
 #endif
 
 
@@ -54,7 +54,7 @@ static char ident[] = "$Id: examples.doc,v 1.6 1999/05/10 15:28:15 warwick Exp $
 <br clear>
 With the simplicity and cross-platform nature of Qt-based plugins,
 pages like
-<a href=http://www.netcraft.co.uk/Survey/Changes/ALL/>Netcraft's
+<a href=http://www.netcraft.com/survey/>Netcraft's
 Server Graphs</a> can be provided much more efficiently for both
 the service provider and consumer.  Data need not be converted
 to an image at the server.
