@@ -6,6 +6,18 @@
 #include "quuid_p.h"
 #endif // QT_H
 
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists for the convenience
+// of a number of Qt sources files.  This header file may change from
+// version to version without notice, or even be removed.
+//
+// We mean it.
+//
+//
+
 #ifndef QT_NO_COMPONENT
 
 class QObject;
