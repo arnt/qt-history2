@@ -78,11 +78,8 @@ public:
     QString documentTitle() const;
 
     int heightForWidth( int w ) const;
-    
+
     void append( const QString& text );
-    
-public slots:
-    void temporary();
 
 protected:
     void drawContentsOffset(QPainter*, int ox, int oy,
@@ -108,7 +105,7 @@ private:
     void createRichText();
     friend class QtRichText;
     QtTextViewData* d;
-    void paragraphChanged( QtTextParagraph* );
+//     void paragraphChanged( QtTextParagraph* );
     void updateLayout( int ymax = -1 );
 };
 
@@ -137,6 +134,10 @@ protected:
 
     void showCursor();
     void hideCursor();
+
+public slots:
+    void temporary();
+
 
 private slots:
     void cursorTimerDone();

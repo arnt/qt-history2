@@ -50,8 +50,6 @@ public:
 
     QtTextCharFormat makeTextFormat( const QStyleSheetItem *style, const QMap<QString,QString>& attr,
 				     QtTextCustomItem* item = 0) const;
-    
-    QtTextCharFormat makeTextFormat( bool selected ) const;
 
     QColor color() const;
     QFont font() const;
@@ -66,7 +64,6 @@ public:
     int removeRef();
 
     QtTextCustomItem *customItem() const;
-    bool selected() const;
 
 private:
     QFont font_;
@@ -80,7 +77,6 @@ private:
     void createKey();
     QtTextFormatCollection* parent;
     QtTextCustomItem* custom;
-    bool selected_;
 };
 
 
@@ -128,11 +124,6 @@ inline QtTextCustomItem * QtTextCharFormat::customItem() const
 inline bool QtTextCharFormat::isAnchor() const
 {
     return !anchor_href.isEmpty()  || !anchor_href.isEmpty();
-}
-
-inline bool QtTextCharFormat::selected() const
-{
-    return selected_;
 }
 
 

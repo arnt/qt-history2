@@ -29,8 +29,8 @@
 #include <qstylesheet.h>
 
 QtTextCharFormat::QtTextCharFormat()
-    : ref( 1 ), logicalFontSize( 3 ), stdPointSize( 12 ), 
-      custom( 0 ), selected_( FALSE )
+    : ref( 1 ), logicalFontSize( 3 ), stdPointSize( 12 ),
+      custom( 0 )
 {
 }
 
@@ -41,14 +41,13 @@ QtTextCharFormat::QtTextCharFormat( const QtTextCharFormat &format )
       stdPointSize( format.stdPointSize ),
       anchor_href( format.anchor_href ),
       anchor_name( format.anchor_name ),
-      parent(0), custom( format.custom ), 
-      selected_( format.selected_ )
+      parent(0), custom( format.custom )
 {
 }
 
 QtTextCharFormat::QtTextCharFormat( const QFont &f, const QColor &c )
-    : font_( f ), color_( c ), ref( 1 ), logicalFontSize( 3 ), stdPointSize( f.pointSize() ), 
-      parent(0), custom( 0 ), selected_( FALSE )
+    : font_( f ), color_( c ), ref( 1 ), logicalFontSize( 3 ), stdPointSize( f.pointSize() ),
+      parent(0), custom( 0 )
 {
     createKey();
 }
@@ -73,8 +72,7 @@ void QtTextCharFormat::createKey()
 	<< anchor_name << "_"
 	<< color_.pixel()
 	<< font_.family() << "_"
-	<<(ulong) custom << "_"
-	<< (int) selected_;
+	<<(ulong) custom;
 }
 
 QtTextCharFormat &QtTextCharFormat::operator=( const QtTextCharFormat &fmt )
@@ -88,7 +86,6 @@ QtTextCharFormat &QtTextCharFormat::operator=( const QtTextCharFormat &fmt )
     anchor_href = fmt.anchor_href;
     anchor_name = fmt.anchor_name;
     custom = fmt.custom;
-    selected_ = fmt.selected_;
     return *this;
 }
 
@@ -170,15 +167,6 @@ QtTextCharFormat QtTextCharFormat::makeTextFormat( const QStyleSheetItem *style,
     if ( item || font_ != format.font_ || changed || color_ != format.color_) // slight performance improvement
 	format.createKey();
     return format;
-}
-
-
-QtTextCharFormat QtTextCharFormat::makeTextFormat( bool selected ) const
-{
-    QtTextCharFormat fm( *this );
-    fm.selected_ = selected;
-    fm.createKey();
-    return fm;
 }
 
 

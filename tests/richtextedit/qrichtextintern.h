@@ -57,10 +57,25 @@ class QtTextRichString
 	Item() {
 	    format = 0;
 	    width = -1;
+	    selected = FALSE;
 	};
+	Item( const Item& other ) {
+	    width = other.width;
+	    selected = other.selected;
+	    c = other.c;
+	    format = other.format;
+	}
+	Item& operator=( const Item& other ) {
+	    width = other.width;
+	    selected = other.selected;
+	    c = other.c;
+	    format = other.format;
+	    return *this;
+	}
 	~Item() {
 	};
-	int width;
+	int width; // : 30;
+	bool selected; // uint selected : 1;
 	QString c;
 	QtTextCharFormat* format;
     };
@@ -90,6 +105,9 @@ public:
 
     void setSelected( int index, bool selected );
     bool selected( int index ) const;
+    
+    void setBold( int index, bool b );
+    bool bold( int index ) const;
 
     QtTextFormatCollection* formats; // make private
 private:
@@ -438,6 +456,7 @@ class QtTextCursor {
     void up( QPainter* p );
     void down( QPainter* p );
     void insert( QPainter*, const QString& text );
+    bool split();
 
     void goTo( QPainter* p, int xpos, int ypos );
 
@@ -446,12 +465,13 @@ class QtTextCursor {
     int xline;
     QtTextParagraph* xline_paragraph;
     int xline_current;
-    
+
     void setSelected( bool selected );
     bool selected() const;
 
 private:
     int y_;
+    QtTextCharFormat* formatinuse;
 
 };
 
@@ -482,11 +502,18 @@ public:
 
     QtTextFlow* parent;
     
-    QRect updateRect;
+    QRect updateRect() { return updaterect; }
+    void invalidateRect( const QRect& r ) { 
+	updaterect = updaterect.unite( r ); 
+// 	qDebug("invalidate with %d, now %d", r.height(), updaterect.height() );
+    }
+    void validateRect() { updaterect = QRect(); }
 
 private:
     QList<QtTextCustomItem> leftItems;
     QList<QtTextCustomItem> rightItems;
+    QRect updaterect;
+
 };
 
 

@@ -935,11 +935,18 @@ void QtTextParagraph::invalidateLayout()
 	b->invalidateLayout();
 	b = b->next;
     }
-    if ( next )
+    if ( next ) {
 	next->invalidateLayout();
-
-    if ( parent && parent->next && !parent->next->dirty )
-	parent->next->invalidateLayout();
+    } 
+    
+    
+    if ( parent ) {
+	QtTextParagraph* p = parent;
+	while ( p && !p->next && p->parent )
+	    p = p->parent;
+	if ( p->next && !p->next->dirty)
+	    p->next->invalidateLayout();
+    }
 }
 
 
@@ -1169,18 +1176,39 @@ QString& QtTextRichString::getCharAt( int index )
 
 void QtTextRichString::setSelected( int index, bool selected )
 {
-    if ( items[index].format->selected() == selected )
-	return ;
-    QtTextCharFormat fmt = items[index].format->makeTextFormat( selected );
-    formats->unregisterFormat( *items[index].format );
-    items[index].format =formats->registerFormat( fmt );
+    items[index].selected = selected;
+//     if ( items[index].format->selected() == selected )
+// 	return ;
+//     QtTextCharFormat fmt = items[index].format->makeTextFormat( selected );
+//     formats->unregisterFormat( *items[index].format );
+//     items[index].format =formats->registerFormat( fmt );
 }
 
 bool QtTextRichString::selected( int index ) const
 {
-    return items[index].format->selected();
+    return items[index].selected;
+//     return items[index].format->selected();
 }
 
+
+void QtTextRichString::setBold( int index, bool b )
+{
+     if ( bold( index ) == b )
+ 	return ;
+     QtTextCharFormat* oldfmt = items[index].format;
+     QFont f = oldfmt->font();
+     QColor c = oldfmt->color();
+     f.setBold( b );
+     QtTextCharFormat newfmt( f, c );
+     formats->unregisterFormat( *oldfmt );
+     items[index].format =formats->registerFormat( newfmt );
+     items[index].width = -1;
+}
+
+bool QtTextRichString::bold( int index ) const
+{
+    return items[index].format->font().bold();
+}
 
 void QtTextRichString::setLength( int l )
 {
@@ -1251,6 +1279,7 @@ QtTextCursor::QtTextCursor(QtRichText& document )
     xline_current = 0;
     xline = 0;
     xline_paragraph = 0;
+    formatinuse = 0;
 }
 QtTextCursor::~QtTextCursor()
 {
@@ -1396,6 +1425,7 @@ void QtTextCursor::updateCharFormat( QPainter* p, const QFontMetrics& fm )
 	if ( custom->placeInline() )
 	    currentasc = custom->height;
     }
+    formatinuse = fmt;
 }
 
 
@@ -1529,7 +1559,7 @@ void QtTextCursor::drawLine( QPainter* p, int ox, int oy,
 		p->setFont( f );
 	    }
 	}
-	bool selected = format->selected();
+	bool selected = paragraph->text.selected(current);
 	if ( selected ) {
 	    int w = paragraph->text.items[current].width;
 	    p->fillRect( gx-ox+currentx, gy-oy, w, height, cg.highlight() );
@@ -1776,6 +1806,23 @@ void QtTextCursor::insert( QPainter* p, const QString& text )
     updateParagraph( p );
 }
 
+bool QtTextCursor::split() 
+{
+    QString s = paragraph->text.getCharAt( current );
+    if ( currentoffset == 0 || currentoffset >= int(s.length()) ) {
+	return FALSE;
+    }
+    bool sel = selected();
+    paragraph->text.insert( current+1, s.mid( currentoffset ),
+			    *currentFormat() );
+    paragraph->text.getCharAt( current ).truncate( currentoffset );
+    current++;
+    currentoffset = 0;
+    last++;
+    setSelected( sel );
+    return TRUE;
+}
+
 void QtTextCursor::updateParagraph( QPainter* p )
 {
      int ph = paragraph->height;
@@ -1803,14 +1850,15 @@ void QtTextCursor::updateParagraph( QPainter* p )
 	 uy = QMIN( uy, prevliney );
 
      if ( ph != paragraph->height ) {
+	 qDebug("height different ");
 	 if ( paragraph->nextInDocument() )
-	     paragraph->nextInDocument()->invalidateLayout();
-	 flow->updateRect.setRect( 0, uy, width, MAXINT );
+	     paragraph->nextInDocument()->invalidateLayout(); 
+	 flow->invalidateRect( QRect( QPoint(0, uy), QPoint(width, MAXINT-1000) ) );
      } else if ( first == oldfirst && last == oldlast && current != first ) {
-	 flow->updateRect.setRect( 0, uy, width, height );
+	 flow->invalidateRect( QRect( 0, uy, width, height ) );
      }
      else {
-	 flow->updateRect.setRect( 0, uy, width, paragraph->height - (uy - paragraph->y ) );
+	 flow->invalidateRect( QRect( 0, uy, width, paragraph->height - (uy - paragraph->y ) ) );
      }
 }
 
@@ -1822,7 +1870,8 @@ void QtTextCursor::gotoNextItem( QPainter* p, const QFontMetrics& fm )
     // tabulators belong here
     QtTextRichString::Item* item = &paragraph->text.items[current];
     QtTextCustomItem* custom = item->format->customItem();
-//     updateCharFormat( p, fm ); // optimize again
+    if ( currentFormat() != formatinuse ) // somebody may have changed the document
+	updateCharFormat( p, fm );
     if ( custom ) {
 	if ( custom->placeInline() )
 	    currentx += custom->width;
@@ -1921,7 +1970,7 @@ void QtTextCursor::makeLineLayout( QPainter* p, const QFontMetrics& fm  )
 	// if a wordbreak is possible and required, do it. Unless we
 	// have a newline, of course. In that case we break after the
 	// newline to avoid empty lines.
-	if ( currentx > width - rmargin - space_width 
+	if ( currentx > width - rmargin - space_width
 	     && !noSpaceFound && lastc != '\n' )
 	    break;
 	

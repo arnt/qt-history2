@@ -555,13 +555,13 @@ void QtTextView::doResize()
 
 
 
-void QtTextView::paragraphChanged( QtTextParagraph* b)
-{
-    QPainter p( viewport() );
-    QtTextCursor tc( richText() );
-    tc.gotoParagraph( &p, b );
-    tc.updateParagraph( &p );
-}
+// void QtTextView::paragraphChanged( QtTextParagraph* b)
+// {
+//     QPainter p( viewport() );
+//     QtTextCursor tc( richText() );
+//     tc.gotoParagraph( &p, b );
+//     tc.updateParagraph( &p );
+// }
 
 /*!
   \reimp
@@ -657,7 +657,7 @@ Qt::TextFormat QtTextView::textFormat() const
   Sets the text format to \a format. Possible choices are
   <ul>
   <li> \c PlainText - all characters are displayed verbatimely,
-  including all blanks and linebreaks. 
+  including all blanks and linebreaks.
   <li> \c RichText - rich text rendering. The available
   styles are defined in the default stylesheet
   QStyleSheet::defaultSheet().
@@ -792,7 +792,8 @@ void QtTextEdit::keyPressEvent( QKeyEvent * e )
 	if (!e->text().isEmpty() ) {
 	    d->cursor->insert( &p, e->text() );
 	    p.end();
-	    repaintContents( richText().flow()->updateRect, FALSE );
+	    repaintContents( richText().flow()->updateRect(), FALSE );
+	    richText().flow()->validateRect();
 	}
 
     };
@@ -990,13 +991,20 @@ void QtTextEdit::viewportMouseReleaseEvent( QMouseEvent * )
 
 void QtTextEdit::viewportMouseMoveEvent( QMouseEvent * e)
 {
-    qDebug("mouseMoveEvent %d", e->state() );
      if (e->state() & LeftButton ) {
  	hideCursor();
 	QPainter p(viewport());
+ 	d->cursor->split();
 	QtTextCursor oldc( *d->cursor );
 	d->cursor->goTo( &p, e->pos().x() + contentsX(),
 			 e->pos().y() + contentsY() );
+  	if ( d->cursor->split() ) {
+	    if ( (oldc.paragraph == d->cursor->paragraph) && (oldc.current >= d->cursor->current) ) {
+		oldc.current++;
+		oldc.update( &p );	
+	    }
+	    
+ 	}
 	int oldy = oldc.y();
 	int oldx = oldc.x();
 	int oldh = oldc.height;
@@ -1006,7 +1014,8 @@ void QtTextEdit::viewportMouseMoveEvent( QMouseEvent * e)
 	
 	QtTextCursor start( richText() ), end( richText() );
 	
-	if (oldy < newy || (oldy == newy && oldx <= newx) ) {
+	bool oldIsFirst = (oldy < newy) || (oldy == newy && oldx <= newx);
+	if ( oldIsFirst ) {
 	    start = oldc;
 	    end = *d->cursor;
 	} else {
@@ -1015,11 +1024,11 @@ void QtTextEdit::viewportMouseMoveEvent( QMouseEvent * e)
 	}
 	
 	while ( start.paragraph != end.paragraph ) {
-	    start.setSelected( !start.selected() );
+ 	    start.setSelected( !start.selected() );
 	    start.rightOneItem( &p );
 	}
 	while ( !start.atEnd() && start.paragraph == end.paragraph && start.current < end.current ) {
-	    start.setSelected( !start.selected() );
+ 	    start.setSelected( !start.selected() );
 	    start.rightOneItem( &p );
 	}
 	p.end();
@@ -1121,8 +1130,50 @@ void QtTextEdit::viewportResizeEvent(QResizeEvent* e)
 
 
 
-void QtTextView::temporary()
+void QtTextEdit::temporary()
 {
-    append("<p>Appendix</p>");
-    setContentsPos( contentsX(), contentsHeight() );
+    qDebug("temporary ");
+    QPainter p( viewport() );
+    QtTextCursor start( richText() );
+    bool all_bold = TRUE;
+    {
+	start.gotoParagraph( &p, &richText() );
+	bool modified = FALSE;
+	do { 
+	    if ( start.selected() ) {
+		all_bold &= start.paragraph->text.bold( start.current );
+		start.paragraph->text.setBold( start.current, TRUE );
+		modified = TRUE;
+	    }
+	    if ( modified && start.atEnd() ) {
+		QtTextCursor tc( start );
+		tc.gotoParagraph( &p, tc.paragraph );
+		tc.updateParagraph( &p );
+		modified = FALSE;
+	    }
+	} while ( start.rightOneItem( &p ) );
+    }
+    if ( all_bold ) {
+	start.gotoParagraph( &p, &richText() );
+	bool modified = FALSE;
+	do { 
+	    if ( start.selected() ) {
+		start.paragraph->text.setBold( start.current, FALSE );
+		modified = TRUE;
+	    }
+	    if ( modified && start.atEnd() ) {
+		QtTextCursor tc( start );
+		tc.gotoParagraph( &p, tc.paragraph );
+		tc.updateParagraph( &p );
+		modified = FALSE;
+	    }
+	} while ( start.rightOneItem( &p ) );
+    }
+    
+    d->cursor->update( &p );
+    p.end();
+    repaintContents( richText().flow()->updateRect(), FALSE );
+    richText().flow()->validateRect();
+    QRect geom ( d->cursor->caretGeometry() );
+    ensureVisible( geom.center().x(), geom.center().y(), geom.width()/2, geom.height()/2 );
 }
