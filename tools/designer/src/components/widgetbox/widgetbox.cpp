@@ -21,6 +21,7 @@
 #include <pluginmanager.h>
 #include <ui4.h>
 #include <spacer.h>
+#include <sheet_delegate.h>
 
 #include <QtGui/QtGui>
 #include <qdebug.h>
@@ -640,61 +641,6 @@ void WidgetBoxContainer::contextMenuEvent (QContextMenuEvent *e)
 }
 
 /*******************************************************************************
-** WidgetBoxDelegate
-*/
-
-class WidgetBoxDelegate: public QItemDelegate
-{
-    Q_OBJECT
-
-    public:
-        WidgetBoxDelegate(QTreeView *view, QWidget *parent)
-            : QItemDelegate(parent), m_view(view) {}
-
-        virtual void paint(QPainter *painter,
-                           const QStyleOptionViewItem &option,
-                           const QModelIndex &index) const;
-
-    private:
-        QTreeView *m_view;
-};
-
-void WidgetBoxDelegate::paint(QPainter *painter,
-                                const QStyleOptionViewItem &option,
-                                const QModelIndex &index) const
-{
-    QAbstractItemModel *model = m_view->model();
-    Q_ASSERT(model);
-
-    if (!model->parent(index).isValid()) {
-        // this is a top-level item.
-        QStyleOptionButton buttonOption;
-
-        buttonOption.state = option.state;
-        // buttonOption.state |= QStyle::State_Raised;
-        buttonOption.state &= ~QStyle::State_HasFocus;
-
-        buttonOption.rect = option.rect;
-        buttonOption.palette = option.palette;
-        buttonOption.features = QStyleOptionButton::None;
-        buttonOption.text = model->data(index, QAbstractItemModel::DisplayRole).toString();
-        m_view->style()->drawControl(QStyle::CE_PushButton, &buttonOption, painter, m_view);
-
-        QStyleOption branchOption;
-        static const int i = 9; // ### hardcoded in qcommonstyle.cpp
-        QRect r = option.rect;
-        branchOption.rect = QRect(r.left() + i/2, r.top() + (r.height() - i)/2, i, i);
-        branchOption.palette = option.palette;
-        branchOption.state = QStyle::State_Children;
-        if (m_view->isOpen(index))
-            branchOption.state |= QStyle::State_Open;
-        m_view->style()->drawPrimitive(QStyle::PE_IndicatorBranch, &branchOption, painter, m_view);
-    } else {
-        QItemDelegate::paint(painter, option, index);
-    }
-}
-
-/*******************************************************************************
 ** WidgetBoxListView
 */
 
@@ -783,7 +729,7 @@ WidgetBoxListView::WidgetBoxListView(WidgetCollectionModel *model, QWidget *pare
     QVBoxLayout *l = new QVBoxLayout(this);
     l->setMargin(0);
     WidgetBoxListViewChild *child = new WidgetBoxListViewChild(model, this);
-    child->setItemDelegate(new WidgetBoxDelegate(child, child));
+    child->setItemDelegate(new SheetDelegate(child, child));
 
     l->addWidget(child);
     connect(child, SIGNAL(pressed(const QModelIndex&)),

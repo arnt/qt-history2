@@ -18,18 +18,24 @@
 
 #include <QDialog>
 
+class QDesignerWorkbench;
+
 class NewForm: public QDialog
 {
     Q_OBJECT
 public:
-    NewForm(QWidget *parentWidget);
+    NewForm(QDesignerWorkbench *workbench, QWidget *parentWidget);
     virtual ~NewForm();
+
+    QDesignerWorkbench *workbench() const;
+
 
 private slots:
     void on_createButton_clicked();
     void on_closeButton_clicked();
 
 private:
+    QDesignerWorkbench *m_workbench;
     Ui::NewForm ui;
 };
 

@@ -17,6 +17,7 @@
 #include "qdesigner_workbench.h"
 #include "qdesigner_formwindow.h"
 #include "preferencedialog.h"
+#include "newform.h"
 
 // sdk
 #include <abstractformeditor.h>
@@ -363,10 +364,8 @@ void QDesignerActions::setWorkbenchVisible(bool visible)
 
 void QDesignerActions::createForm()
 {
-    QDesignerFormWindow *formWindow = workbench()->createFormWindow();
-    if (AbstractFormWindow *editor = formWindow->editor()) {
-        editor->setContents(QString());
-    }
+    NewForm dlg(workbench(), core()->topLevel());
+    dlg.exec();
 }
 
 void QDesignerActions::openForm()

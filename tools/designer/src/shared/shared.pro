@@ -25,7 +25,8 @@ HEADERS += \
     pluginmanager.h \
     qdesigner_formbuilder.h \
     default_propertysheet.h \
-    treewidget.h
+    treewidget.h \
+    sheet_delegate.h
 
 SOURCES += \
     spacer.cpp \
@@ -35,6 +36,7 @@ SOURCES += \
     pluginmanager.cpp \
     qdesigner_formbuilder.cpp \
     default_propertysheet.cpp \
-    treewidget.cpp
+    treewidget.cpp \
+    sheet_delegate.cpp
 
 include(../sharedcomponents.pri)

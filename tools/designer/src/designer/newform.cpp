@@ -12,9 +12,14 @@
 ****************************************************************************/
 
 #include "newform.h"
+#include "qdesigner_workbench.h"
+#include "qdesigner_formwindow.h"
 
-NewForm::NewForm(QWidget *parentWidget)
-    : QDialog(parentWidget)
+#include <abstractformwindow.h>
+
+NewForm::NewForm(QDesignerWorkbench *workbench, QWidget *parentWidget)
+    : QDialog(parentWidget),
+      m_workbench(workbench)
 {
     ui.setupUi(this);
 }
@@ -26,10 +31,20 @@ NewForm::~NewForm()
 void NewForm::on_createButton_clicked()
 {
     close();
+
+    QDesignerFormWindow *formWindow = workbench()->createFormWindow();
+    if (AbstractFormWindow *editor = formWindow->editor()) {
+        editor->setContents(QString());
+    }
 }
 
 void NewForm::on_closeButton_clicked()
 {
     close();
+}
+
+QDesignerWorkbench *NewForm::workbench() const
+{
+    return m_workbench;
 }
 
