@@ -284,6 +284,7 @@ XPLATFORM=
 PLATFORM=$QMAKESPEC
 QMAKE_PROJECTS=
 QMAKE_IGNORE_PROJECTS=
+OPT_CONFIRM_LICENSE=no
 OPT_SHADOW=maybe
 OPT_FAST=auto
 OPT_VERBOSE=no
@@ -354,7 +355,7 @@ while [ "$#" -gt 0 ]; do
 	VAL=no
 	;;
     #Qt style yes options
-    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-pch|-stl|-freetype|-big-codecs|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-version-script|-opengl|-accessibility)
+    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-pch|-stl|-freetype|-big-codecs|-xcursor|-xrandr|-xrender|-xft|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-version-script|-opengl|-accessibility|-confirm-license)
 	VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
 	VAL=yes
 	;;
@@ -850,6 +851,13 @@ while [ "$#" -gt 0 ]; do
     largefile)
 	if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
 	    CFG_LARGEFILE="$VAL"
+	else
+	    UNKNOWN_OPT=yes
+	fi
+	;;
+    confirm-license)
+	if [ "$VAL" = "yes" ]; then
+	    OPT_CONFIRM_LICENSE="$VAL"
 	else
 	    UNKNOWN_OPT=yes
 	fi
@@ -2334,7 +2342,7 @@ if [ "$Edition" = "free" ]; then
 	    echo "You are licensed to use this software under the terms of either"
 	    echo "the Q Public License (QPL) or the GNU General Public License (GPL)."
 	    echo
-	    echo "Type 'Q' to view the Q Public License."
+	    [ "$OPT_CONFIRM_LICENSE" = "no" ] && echo "Type 'Q' to view the Q Public License."
 	    affix="either"
 	else
 	    echo
@@ -2342,16 +2350,20 @@ if [ "$Edition" = "free" ]; then
 	    echo
 	    exit 2
 	fi
-	echo "Type 'G' to view the GNU General Public License."
-	echo "Type 'yes' to accept this license offer."
-	echo "Type 'no' to decline this license offer."
-	echo
-	if echo '\c' | grep '\c' >/dev/null; then
-	    echo -n "Do you accept the terms of $affix license? "
-	else
-	    echo "Do you accept the terms of $affix license? \c"
-	fi
-	read acceptance
+        if [ "$OPT_CONFIRM_LICENSE" = "yes" ]; then
+	    acceptance=yes
+        else
+	    echo "Type 'G' to view the GNU General Public License."
+	    echo "Type 'yes' to accept this license offer."
+	    echo "Type 'no' to decline this license offer."
+	    echo
+	    if echo '\c' | grep '\c' >/dev/null; then
+		echo -n "Do you accept the terms of $affix license? "
+	    else
+		echo "Do you accept the terms of $affix license? \c"
+	    fi
+	    read acceptance
+        fi
 	echo
 	if [ "$acceptance" = "yes" ]; then
 	    break
@@ -2383,19 +2395,23 @@ elif [ "$Edition" = "eval" ]; then
 	    echo >&2
 	    exit 2
 	fi
-	echo "You are licensed to use this software under the terms of"
-	echo "the Qt EVALUATION VERSION LICENSE AGREEMENT"
-	echo
-	echo "Type '?' to view the Evaluation License."
-	echo "Type 'yes' to accept this license offer."
-	echo "Type 'no' to decline this license offer."
-	echo
-	if echo '\c' | grep '\c' >/dev/null; then
-	    echo -n "Do you accept the terms of the license? "
-	else
-	    echo "Do you accept the terms of the license? \c"
+	if [ "$OPT_CONFIRM_LICENSE" = "yes" ]; then
+	    acceptance=yes
+        else
+	    echo "You are licensed to use this software under the terms of"
+	    echo "the Qt EVALUATION VERSION LICENSE AGREEMENT"
+	    echo
+	    echo "Type '?' to view the Evaluation License."
+	    echo "Type 'yes' to accept this license offer."
+	    echo "Type 'no' to decline this license offer."
+	    echo
+	    if echo '\c' | grep '\c' >/dev/null; then
+		echo -n "Do you accept the terms of the license? "
+	    else
+		echo "Do you accept the terms of the license? \c"
+	    fi
+	    read acceptance
 	fi
-	read acceptance
 	echo
 	if [ "$acceptance" = "yes" ]; then
 	    break
@@ -2466,17 +2482,21 @@ else
     echo "This is the $Platform $Desc Edition."
     echo
     while true; do
-	echo
-	echo "Type '?' to view the $Platform License."
-	echo "Type 'yes' to accept this license offer."
-	echo "Type 'no' to decline this license offer."
-	echo
-	if echo '\c' | grep '\c' >/dev/null; then
-	    echo -n "Do you accept the terms of the $Platform License? "
-	else
-	    echo "Do you accept the terms of the $Platform License? \c"
-	fi
-	read acceptance
+	if [ "$OPT_CONFIRM_LICENSE" = "yes" ]; then
+	    acceptance=yes
+        else
+	    echo
+	    echo "Type '?' to view the $Platform License."
+	    echo "Type 'yes' to accept this license offer."
+	    echo "Type 'no' to decline this license offer."
+	    echo
+	    if echo '\c' | grep '\c' >/dev/null; then
+		echo -n "Do you accept the terms of the $Platform License? "
+	    else
+		echo "Do you accept the terms of the $Platform License? \c"
+	    fi
+	    read acceptance
+        fi
 	echo
 	if [ "$acceptance" = "yes" ]; then
 	    break
@@ -3660,11 +3680,13 @@ fi
 #-------------------------------------------------------------------------------
 if [ `basename $0` != "config.status" ]; then
     [ -f $outpath/config.status ] && rm -f $outpath/config.status
+    CONFIG_OPTIONS_READ="-confirm-license"
+    
     echo "#!/bin/sh" >$outpath/config.status
     echo "if [ \"\$#\" -gt 0 ]; then" >>$outpath/config.status
-    echo "  echo yes | $relpath/$relconf $OPT_CMDLINE \"\$@\"" >>$outpath/config.status
+    echo "  $relpath/$relconf $CONFIG_OPTIONS_READ $OPT_CMDLINE \"\$@\"" >>$outpath/config.status
     echo "else" >>$outpath/config.status
-    echo "  echo yes | $relpath/$relconf $OPT_CMDLINE" >>$outpath/config.status
+    echo "  $relpath/$relconf $CONFIG_OPTIONS_READ $OPT_CMDLINE" >>$outpath/config.status
     echo "fi" >>$outpath/config.status
     chmod +x $outpath/config.status
 fi
