@@ -900,10 +900,13 @@ QString
 QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &place)
 {
     for(int var_begin, var_last=0; (var_begin = str.find("$$", var_last)) != -1; var_last = var_begin) {
-	if(var_begin >= (int)str.length() + 2)
+	if(var_begin >= (int)str.length() + 2) {
 	    break;
-	else if(var_begin != 0 && str[var_begin-1] == '\\')
+	} else if(var_begin != 0 && str[var_begin-1] == '\\') {
+	    str.replace(var_begin-1, 1, "");
+	    var_begin += 1;
 	    continue;
+	}
 
 	int var_incr = var_begin + 2;
 	bool in_braces = FALSE, environ = FALSE;
@@ -1057,7 +1060,7 @@ QMakeProject::doVariableReplace(QString &str, const QMap<QString, QStringList> &
 	}
 	//actually do replacement now..
 	int mlen = var_incr - var_begin;
-	debug_msg(2, "Project parser: '%s' :: %s -> %s", str.latin1(),
+	debug_msg(2, "Project Parser [var replace]: '%s' :: %s -> %s", str.latin1(),
 		  str.mid(var_begin, mlen).latin1(), replacement.latin1());
 	str.replace(var_begin, mlen, replacement);
 	var_begin += replacement.length();
