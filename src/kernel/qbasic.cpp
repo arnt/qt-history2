@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbasic.cpp#7 $
+** $Id: //depot/qt/main/src/kernel/qbasic.cpp#8 $
 **
 **  Studies in Geometry Management
 **
@@ -18,7 +18,7 @@
 #include "qbasic.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#7 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#8 $")
 
 
 
@@ -77,6 +77,7 @@ class QChain
 public:
 
     QChain( QBasicManager::Direction d ) { dir = d; }
+    virtual ~QChain() {}
 
     bool add( QChain *s, int stretch )
     {
