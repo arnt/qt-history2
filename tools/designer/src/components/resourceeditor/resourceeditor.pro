@@ -14,9 +14,7 @@ DEFINES += QT_RESOURCEEDITOR_LIBRARY
 
 SOURCES += resourceeditor.cpp
 HEADERS += resourceeditor.h \
-        resourceeditor_global.h
-
-FORMS += resourceeditor.ui
+            resourceeditor_global.h
 
 # DEFINES -= QT_COMPAT_WARNINGS
 # DEFINES += QT_COMPAT

@@ -48,28 +48,6 @@
 
 #include <QtCore/qdebug.h>
 
-static QString relativePath(const QString &dir, const QString &file)
-{
-    QString result;
-    QStringList dir_elts = dir.split(QDir::separator(), QString::SkipEmptyParts);
-    QStringList file_elts = file.split(QDir::separator(), QString::SkipEmptyParts);
-
-    int i = 0;
-    while (i < dir_elts.size() && i < file_elts.size() && dir_elts.at(i) == file_elts.at(i))
-        ++i;
-
-    for (int j = 0; j < dir_elts.size() - i; ++j)
-        result += QLatin1String("..") + QDir::separator();
-
-    for (int j = i; j < file_elts.size(); ++j) {
-        result += file_elts.at(j);
-        if (j < file_elts.size() - 1)
-        result += QDir::separator();
-    }
-
-    return result;
-}
-
 QDesignerResource::QDesignerResource(FormWindow *formWindow)
    : m_formWindow(formWindow), m_core(formWindow->core())
 {
@@ -314,9 +292,7 @@ void QDesignerResource::applyProperties(QObject *o, const QList<DomProperty*> &p
                         name = p->elementIconSet()->text();
                     else if (p->elementPixmap() != 0)
                         name = p->elementPixmap()->text();
-                    QString ui_path = QFileInfo(m_formWindow->fileName()).path();
-                    QString icon_path = QDir::cleanPath(ui_path + QDir::separator() + name);
-                    qDebug() << "QDesignerResource::applyProperties():" << m_formWindow->fileName() << icon_path;
+                    QString icon_path = m_formWindow->absolutePath(name);
                     v = qVariant(m_core->iconCache()->nameToIcon(icon_path));
                 } else {
                     v = toVariant(o->metaObject(), p);
@@ -1035,8 +1011,7 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
     } else if (value.type() == QVariant::Pixmap || value.type() == QVariant::Icon) {
         DomResourcePixmap *r = new DomResourcePixmap;
         QString icon_file_path = m_core->iconCache()->iconToFilePath(qvariant_cast<QIcon>(value));
-        QString ui_file_path = QFileInfo(m_formWindow->fileName()).path();
-        r->setText(relativePath(ui_file_path, icon_file_path));
+        r->setText(m_formWindow->relativePath(icon_file_path));
         DomProperty *p = new DomProperty;
         p->setElementIconSet(r);
         p->setAttributeName(propertyName);
@@ -1048,27 +1023,23 @@ DomProperty *QDesignerResource::createProperty(QObject *object, const QString &p
 
 void QDesignerResource::createResources(DomResources *resources)
 {
-    QString ui_file_path = QFileInfo(m_formWindow->fileName()).path();
-    
     if (resources == 0)
         return;
 
     QList<DomResource*> dom_include = resources->elementInclude();
     foreach (DomResource *res, dom_include) {
-        QString path = QDir::cleanPath(ui_file_path + QDir::separator() + res->attributeLocation());
+        QString path = m_formWindow->absolutePath(res->attributeLocation());
         m_formWindow->addResourceFile(path);
     }
 }
 
 DomResources *QDesignerResource::saveResources()
 {
-    QString ui_file_path = QFileInfo(m_formWindow->fileName()).path();
-    
     QStringList res_list = m_formWindow->resourceFiles();
     QList<DomResource*> dom_include;
     foreach (QString res, res_list) {
         DomResource *dom_res = new DomResource;
-        dom_res->setAttributeLocation(relativePath(ui_file_path, res));
+        dom_res->setAttributeLocation(m_formWindow->relativePath(res));
         dom_include.append(dom_res);
     }
 

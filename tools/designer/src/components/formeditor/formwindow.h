@@ -212,6 +212,9 @@ public slots:
 
     void breakLayout();
 
+    QString relativePath(const QString &abs_path) const;
+    QString absolutePath(const QString &rel_path) const;
+
 protected:
     virtual QMenu *createPopupMenu(QWidget *w);
     virtual void resizeEvent(QResizeEvent *e);

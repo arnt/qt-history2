@@ -1884,4 +1884,54 @@ void FormWindow::removeResourceFile(const QString &path)
     m_resourceFiles.removeAll(path);
 }
 
+static QString relativePath(const QString &dir, const QString &file)
+{
+    QString result;
+    QStringList dir_elts = dir.split(QDir::separator(), QString::SkipEmptyParts);
+    QStringList file_elts = file.split(QDir::separator(), QString::SkipEmptyParts);
+
+    int i = 0;
+    while (i < dir_elts.size() && i < file_elts.size() && dir_elts.at(i) == file_elts.at(i))
+        ++i;
+
+    for (int j = 0; j < dir_elts.size() - i; ++j)
+        result += QLatin1String("..") + QDir::separator();
+
+    for (int j = i; j < file_elts.size(); ++j) {
+        result += file_elts.at(j);
+        if (j < file_elts.size() - 1)
+        result += QDir::separator();
+    }
+
+    return result;
+}
+
+QString FormWindow::relativePath(const QString &abs_path) const
+{
+    if (QFileInfo(abs_path).isRelative())
+        return abs_path;
+
+    QString ui_dir;
+    if (fileName().isEmpty())
+        ui_dir = QDir::currentPath();
+    else
+        ui_dir = QFileInfo(fileName()).path();
+
+    return ::relativePath(ui_dir, abs_path);
+}
+
+QString FormWindow::absolutePath(const QString &rel_path) const
+{
+    if (QFileInfo(rel_path).isAbsolute())
+        return rel_path;
+
+    QString ui_dir;
+    if (fileName().isEmpty())
+        ui_dir = QDir::currentPath();
+    else
+        ui_dir = QFileInfo(fileName()).path();
+
+    return QDir::cleanPath(ui_dir + QDir::separator() + rel_path);
+}
+
 #include "formwindow.moc"

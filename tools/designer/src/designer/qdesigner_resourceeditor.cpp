@@ -11,6 +11,8 @@
 **
 ****************************************************************************/
 
+#include <QtGui/QToolBar>
+
 #include "qdesigner.h"
 #include "qdesigner_resourceeditor.h"
 #include "qdesigner_workbench.h"
@@ -28,6 +30,13 @@ QDesignerResourceEditor::QDesignerResourceEditor(QDesignerWorkbench *workbench)
     setCentralWidget(widget);
 
     setWindowTitle(tr("Resource Editor"));
+
+    QToolBar *tool_bar = new QToolBar(this);
+    addToolBar(tool_bar);
+    tool_bar->addAction(widget->addResourceAction());
+    tool_bar->addAction(widget->addPrefixAction());
+    tool_bar->addAction(widget->addFileAction());
+    tool_bar->addAction(widget->deleteAction());
 }
 
 QDesignerResourceEditor::~QDesignerResourceEditor()

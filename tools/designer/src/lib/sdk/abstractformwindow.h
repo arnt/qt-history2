@@ -88,6 +88,9 @@ public:
     virtual void addResourceFile(const QString &path) = 0;
     virtual void removeResourceFile(const QString &path) = 0;
 
+    virtual QString relativePath(const QString &abs_path) const = 0;
+    virtual QString absolutePath(const QString &rel_path) const = 0;
+    
 public slots:
     virtual void manageWidget(QWidget *widget) = 0;
     virtual void unmanageWidget(QWidget *widget) = 0;

@@ -1,15 +1,47 @@
-#include "resourcefile.h"
-
 #include <QtCore/QFile>
 #include <QtXml/QDomDocument>
 #include <QtCore/QTextStream>
+#include <QtCore/QDir>
 
-ResourceFile::ResourceFile()
+#include "resourcefile.h"
+
+static QString relativePath(const QString &dir, const QString &file)
 {
+    QString result;
+    QStringList dir_elts = dir.split(QDir::separator(), QString::SkipEmptyParts);
+    QStringList file_elts = file.split(QDir::separator(), QString::SkipEmptyParts);
+
+    int i = 0;
+    while (i < dir_elts.size() && i < file_elts.size() && dir_elts.at(i) == file_elts.at(i))
+        ++i;
+
+    for (int j = 0; j < dir_elts.size() - i; ++j)
+        result += QLatin1String("..") + QDir::separator();
+
+    for (int j = i; j < file_elts.size(); ++j) {
+        result += file_elts.at(j);
+        if (j < file_elts.size() - 1)
+        result += QDir::separator();
+    }
+
+    return result;
 }
 
-bool ResourceFile::load(QFile &file)
+ResourceFile::ResourceFile(const QString &file_name)
 {
+    m_file_name = file_name;
+}
+
+bool ResourceFile::load()
+{
+    QFile file(m_file_name);
+    if (!file.open(QIODevice::ReadOnly)) {
+        qWarning("ResourceFile::ResourceFile(): failed to open qrc file \"%s\":\n%s",
+                    m_file_name.toLatin1().constData(),
+                    file.errorString().toLatin1().constData());
+        return false;
+    }
+
     m_resource_map.clear();
 
     QDomDocument doc;
@@ -42,8 +74,16 @@ bool ResourceFile::load(QFile &file)
     return true;
 }
 
-void ResourceFile::save(QFile &file)
+bool ResourceFile::save()
 {
+    QFile file(m_file_name);
+    if (!file.open(QIODevice::WriteOnly)) {
+        qWarning("ResourceFile::ResourceFile(): failed to open qrc file \"%s\":\n%s",
+                    m_file_name.toLatin1().constData(),
+                    file.errorString().toLatin1().constData());
+        return false;
+    }
+    
     QDomDocument doc;
     QDomElement root = doc.createElement(QLatin1String("RCC"));
     doc.appendChild(root);
@@ -64,6 +104,8 @@ void ResourceFile::save(QFile &file)
 
     QTextStream stream(&file);
     doc.save(stream, 4);
+
+    return true;
 }
 
 QString ResourceFile::resolvePath(const QString &_path) const
@@ -81,7 +123,7 @@ QString ResourceFile::resolvePath(const QString &_path) const
             
         QString result = path.mid(it.key().size() + 1);
         if (it.value().contains(result))
-            return result;
+            return QDir::cleanPath(QFileInfo(m_file_name).path() + QDir::separator() + result);
         else
             return QString();
     }
@@ -106,6 +148,35 @@ void ResourceFile::addPrefix(const QString &prefix)
 
 void ResourceFile::addFile(const QString &prefix, const QString &file)
 {
-    m_resource_map[prefix].append(file);
+    m_resource_map[prefix].append(relativePath(file));
+}
+
+void ResourceFile::removePrefix(const QString &prefix)
+{
+    m_resource_map.remove(prefix);
+}
+
+void ResourceFile::removeFile(const QString &prefix, const QString &file)
+{
+    if (!m_resource_map.contains(prefix))
+        return;
+    m_resource_map[prefix].removeAll(file);
+}
+
+QString ResourceFile::relativePath(const QString &abs_path) const
+{
+    if (QFileInfo(abs_path).isRelative())
+        return abs_path;
+        
+    return ::relativePath(QFileInfo(m_file_name).path(), abs_path);
+}
+
+QString ResourceFile::absolutePath(const QString &rel_path) const
+{
+    QFileInfo fi(rel_path);
+    if (fi.isAbsolute())
+        return rel_path;
+
+    return QDir::cleanPath(QFileInfo(m_file_name).path() + QDir::separator() + rel_path);
 }
 

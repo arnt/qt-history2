@@ -19,9 +19,8 @@ QIcon IconCache::nameToIcon(const QString &filePath, const QString &qrcPath)
 
     QString real_path;
     if (!qrcPath.isEmpty()) {
-        QFile file(qrcPath);
-        ResourceFile rf;
-        if (file.open(QIODevice::ReadOnly) && rf.load(file))
+        ResourceFile rf(qrcPath);
+        if (rf.load())
             real_path = rf.resolvePath(filePath);
     } else {
        real_path = filePath;
