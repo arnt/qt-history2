@@ -1153,6 +1153,7 @@ void QWidget::showWindow()
     if(isDesktop()) //desktop is always visible
 	return;
 
+    fstrut_dirty = TRUE;
     dirtyClippedRegion(TRUE);
     if ( isTopLevel() ) {
 	if(qt_mac_is_macsheet(this))
@@ -1774,8 +1775,6 @@ void QWidget::updateFrameStrut() const
 	that->fstrut_dirty = isVisible();
 	return;
     }
-    that->fstrut_dirty = FALSE;
-
     that->fstrut_dirty = FALSE;
     QTLWExtra *top = that->topData();
     top->fleft = top->fright = top->ftop = top->fbottom = 0;
