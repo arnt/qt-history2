@@ -36,6 +36,7 @@ private:
     void dependTreeWalker(SourceFile *, SourceDependChildren *);
 
 protected:
+    virtual QMakeLocalFileName fixPathForFile(const QMakeLocalFileName &);
     virtual QMakeLocalFileName findFileForDep(const QMakeLocalFileName &);
     virtual QMakeLocalFileName findFileForMoc(const QMakeLocalFileName &);
 

@@ -1650,6 +1650,13 @@ MakefileGenerator::checkMultipleDefinition(const QString &f, const QString &w)
     }
 }
 
+QMakeLocalFileName 
+MakefileGenerator::fixPathForFile(const QMakeLocalFileName &file)
+{
+    qDebug("%s in %s out", file.local().latin1(), fileFixify(file.local()).latin1());
+    return QMakeLocalFileName(fileFixify(file.local()));
+}
+
 QMakeLocalFileName
 MakefileGenerator::findFileForMoc(const QMakeLocalFileName &file)
 {

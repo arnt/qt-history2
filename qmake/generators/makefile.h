@@ -50,6 +50,7 @@ protected:
     void writeImageSrc(QTextStream &t, const QString &images);
 
     //interface to the source file info
+    QMakeLocalFileName fixPathForFile(const QMakeLocalFileName &);
     QMakeLocalFileName findFileForDep(const QMakeLocalFileName &);
     QMakeLocalFileName findFileForMoc(const QMakeLocalFileName &);
 

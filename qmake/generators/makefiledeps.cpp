@@ -271,6 +271,11 @@ QMakeLocalFileName QMakeSourceFileInfo::findFileForMoc(const QMakeLocalFileName 
     return QMakeLocalFileName();
 }
 
+QMakeLocalFileName QMakeSourceFileInfo::fixPathForFile(const QMakeLocalFileName &f)
+{
+    return f;
+}
+
 QMakeLocalFileName QMakeSourceFileInfo::findFileForDep(const QMakeLocalFileName &file)
 {
     struct stat fst;
@@ -468,9 +473,10 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                 } else {
                     dep->file = lfn;
                 }
+                if(dep->exists)
+                    dep->file = fixPathForFile(dep->file);
                 files->addFile(dep);
             }
-
             if(dep->exists) {
                 debug_msg(5, "%s:%d Found dependency to %s", file->file.real().latin1(),
                           line_count, dep->file.local().latin1());
