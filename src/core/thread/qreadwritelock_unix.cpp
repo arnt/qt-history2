@@ -69,7 +69,7 @@ QReadWriteLock::QReadWriteLock(const int maxReaders)
 }
 
 /*!
-    Destroys the QtReadWriteMutex object.
+    Destroys the QReadWriteMutex object.
 
     \warning If you destroy a read/write mutex that has accesses in use
     the resultant behavior is undefined.
