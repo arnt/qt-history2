@@ -6172,8 +6172,10 @@ void QListView::contentsDragEnterEvent( QDragEnterEvent *e )
     d->focusItem = itemAt( contentsToViewport( e->pos() ) );
     if ( i )
 	i->repaint();
-    if ( d->focusItem )
+    if ( d->focusItem ) {
+	d->focusItem->dragEntered();
 	d->focusItem->repaint();
+    }
     e->accept();
 }
 
@@ -6183,10 +6185,16 @@ void QListView::contentsDragMoveEvent( QDragMoveEvent *e )
 {
     QListViewItem *i = d->focusItem;
     d->focusItem = itemAt( contentsToViewport( e->pos() ) );
-    if ( i )
+    if ( i ) {
+	if ( i != d->focusItem )
+	    i->dragLeft();
 	i->repaint();
-    if ( d->focusItem )
+    }
+    if ( d->focusItem ) {
+	if ( i != d->focusItem )
+	    d->focusItem->dragEntered();
 	d->focusItem->repaint();
+    }
     e->accept();
 }
 
@@ -6194,6 +6202,9 @@ void QListView::contentsDragMoveEvent( QDragMoveEvent *e )
 
 void QListView::contentsDragLeaveEvent( QDragLeaveEvent * )
 {
+    if ( d->focusItem )
+	d->focusItem->dragLeft();
+
     setCurrentItem( d->oldFocusItem );
     d->oldFocusItem = 0;
 }
