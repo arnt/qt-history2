@@ -119,7 +119,7 @@ SlidersGroup::SlidersGroup(Qt::Orientation orientation, const QString &title,
 {
     slider = new QSlider(orientation, this);
     slider->setFocusPolicy(Qt::ClickFocus);
-    slider->setTickmarks(QSlider::TickMarksBoth);
+    slider->setTickPosition(QSlider::TicksBothSides);
     slider->setTickInterval(10);
     slider->setRange(-20, 20);
     slider->setSingleStep(1);
