@@ -268,8 +268,10 @@ QMYSQLDriver::~QMYSQLDriver()
 bool QMYSQLDriver::hasTransactionSupport() const
 {
 
+#if 0
     if ( (d->mysql->server_capabilities & CLIENT_TRANSACTIONS) == CLIENT_TRANSACTIONS )
 	return TRUE;
+#endif
     return FALSE;
 }
 
