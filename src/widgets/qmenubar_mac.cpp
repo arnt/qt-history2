@@ -328,7 +328,7 @@ uint QMenuBar::isCommand(QMenuItem *it, bool just_check)
 		CFRelease(cfref);
 	    }
 	}
-	qt_mac_command_set_enabled(ret, true);
+	qt_mac_command_set_enabled(ret, it->isEnabled());
     } else {
 	ret = 0;
     }
