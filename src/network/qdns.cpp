@@ -1766,7 +1766,7 @@ bool QDns::isWorking() const
 #endif
 
     QPtrList<QDnsRR> * ll = QDnsDomain::cached( this );
-    int queries = n.count();
+    Q_LONG queries = n.count();
     while( ll->current() != 0 ) {
 	if ( ll->current()->nxdomain )
 	    queries--;
@@ -2322,7 +2322,7 @@ static void doResInit()
 	    last = nameServer.length();
 	QDns tmp( nameServer.mid( first, last-first ), QDns::A );
 	QValueList<QHostAddress> address = tmp.addresses();
-	int i = address.count();
+	Q_LONG i = address.count();
 	while( i )
 	    ns->append( new QHostAddress(address[--i]) );
 	first = last+1;

@@ -669,7 +669,7 @@ int QXmlAttributes::index( const QString& uri, const QString& localPart ) const
 	uriTmp = QString::null;
     else
 	uriTmp = uri;
-    uint count = uriList.count();
+    uint count = (uint)uriList.count(); // ### size_t/int cast
     for ( uint i=0; i<count; i++ ) {
 	if ( uriList[i] == uriTmp && localnameList[i] == localPart )
 	    return i;
@@ -682,7 +682,7 @@ int QXmlAttributes::index( const QString& uri, const QString& localPart ) const
 */
 int QXmlAttributes::length() const
 {
-    return valueList.count();
+    return (int)valueList.count();
 }
 
 /*!
@@ -3589,7 +3589,7 @@ bool QXmlSimpleReader::parseContent()
 }
 bool QXmlSimpleReader::reportEndEntities()
 {
-    int count = d->xmlRef.count();
+    int count = (int)d->xmlRef.count();
     while ( count != 0 && d->xmlRef.top().isEmpty() ) {
 	if ( contentHnd ) {
 	    if ( d->reportWhitespaceCharData || !string().simplifyWhiteSpace().isEmpty() ) {
@@ -6976,7 +6976,7 @@ bool QXmlSimpleReader::insertXmlRef( const QString &data, const QString &name, b
 	d->xmlRef.push( data );
     }
     d->xmlRefName.push( name );
-    uint n = QMAX( d->parameterEntities.count(), d->entities.count() );
+    uint n = (uint)QMAX( d->parameterEntities.count(), d->entities.count() );
     if ( d->xmlRefName.count() > n+1 ) {
 	// recursive entities
 	reportParseError( XMLERR_RECURSIVEENTITIES );
@@ -6996,7 +6996,7 @@ bool QXmlSimpleReader::insertXmlRef( const QString &data, const QString &name, b
 */
 void QXmlSimpleReader::next()
 {
-    int count = d->xmlRef.count();
+    int count = (uint)d->xmlRef.count();
     while ( count != 0 ) {
 	if ( d->xmlRef.top().isEmpty() ) {
 	    d->xmlRef.pop();

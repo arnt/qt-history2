@@ -1493,7 +1493,7 @@ struct Q_EXPORT Tag {
 #define NEWPAR       do{if ( !curpar || ( curtag.name != "table" ) || curpar->length() > 1 ) { if ( !hasNewPar ) curpar = createParag( this, curpar );  if ( curtag.style->whiteSpaceMode() != QStyleSheetItem::WhiteSpaceNormal ) curpar->setBreakable( FALSE ); \
 		    hasNewPar = TRUE; \
 		    space = TRUE; \
-		    QPtrVector<QStyleSheetItem> vec( tags.count() + 1); \
+		    QPtrVector<QStyleSheetItem> vec( (uint)tags.count() + 1); \
 		    int i = 0; \
 		    for ( QValueStack<Tag>::Iterator it = tags.begin(); it != tags.end(); ++it ) \
 			vec.insert( i++, (*it).style ); \
@@ -3686,7 +3686,7 @@ QTextStringChar *QTextParag::lineStartOfChar( int i, int *index, int *line ) con
     if ( !isValid() )
 	( (QTextParag*)this )->format();
 
-    int l = lineStarts.count() - 1;
+    int l = (int)lineStarts.count() - 1;
     QMap<int, QTextParagLineStart*>::ConstIterator it = lineStarts.end();
     --it;
     for ( ;; ) {
@@ -3712,7 +3712,7 @@ int QTextParag::lines() const
     if ( !isValid() )
 	( (QTextParag*)this )->format();
 
-    return lineStarts.count();
+    return (int)lineStarts.count();
 }
 
 QTextStringChar *QTextParag::lineStartOfLine( int line, int *index ) const

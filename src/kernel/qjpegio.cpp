@@ -297,7 +297,7 @@ void qt_term_destination(j_compress_ptr cinfo)
 {
     my_jpeg_destination_mgr* dest = (my_jpeg_destination_mgr*)cinfo->dest;
     QIODevice* dev = dest->iio->ioDevice();
-    int n = max_buf - dest->free_in_buffer;
+    Q_LONG n = max_buf - dest->free_in_buffer;
 
     if ( dev->writeBlock( (char*)dest->buffer, n ) != n )
 	qt_exit_on_error(cinfo, dev);

@@ -105,7 +105,7 @@ public:
     }
     uint count()
     {
-	return fi.count();
+	return (uint)fi.count();
     }
     bool contains( int i ) const
     {

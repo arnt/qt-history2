@@ -1215,7 +1215,7 @@ void QFileListBox::viewportDragEnterEvent( QDragEnterEvent *e )
 
     QStringList l;
     QUriDrag::decodeLocalFiles( e, l );
-    urls = l.count();
+    urls = (int)l.count();
 
     if ( acceptDrop( e->pos(), e->source() ) ) {
 	e->accept();
@@ -1624,7 +1624,7 @@ void QFileDialogQFileListView::viewportDragEnterEvent( QDragEnterEvent *e )
 
     QStringList l;
     QUriDrag::decodeLocalFiles( e, l );
-    urls = l.count();
+    urls = (int)l.count();
 
     if ( acceptDrop( e->pos(), e->source() ) ) {
 	e->accept();

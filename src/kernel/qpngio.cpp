@@ -1055,7 +1055,7 @@ void QPNGFormat::end(png_structp png, png_infop info)
     QRect r(0,0,image->width(),image->height());
     consumer->frameDone(QPoint(offx,offy),r);
     state = FrameStart;
-    unused_data = png->buffer_size; // Since libpng doesn't tell us
+    unused_data = (int)png->buffer_size; // Since libpng doesn't tell us
 }
 
 #ifdef PNG_USER_CHUNK_SUPPORTED

@@ -175,7 +175,7 @@ public:
 	sections[sec].setSelectionStart( selstart );
 	sections[sec].setSelectionEnd( selend );
     }
-    uint sectionCount() const { return sections.count(); }
+    uint sectionCount() const { return (uint)sections.count(); }
     void setSeparator( const QString& s ) { sep = s; }
     QString separator() const { return sep; }
 

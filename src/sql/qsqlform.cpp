@@ -257,7 +257,7 @@ void QSqlForm::clear()
 */
 uint QSqlForm::count() const
 {
-    return d->map.count();
+    return (uint)d->map.count();
 }
 
 /*!

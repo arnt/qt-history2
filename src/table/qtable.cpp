@@ -1076,7 +1076,7 @@ QString QComboTableItem::currentText() const
 
 int QComboTableItem::count() const
 {
-    return entries.count();
+    return (int)entries.count();    //### size_t/int cast
 }
 
 /*!
