@@ -386,7 +386,7 @@ void QTableView::paintEvent(QPaintEvent *e)
     QItemSelectionModel *sels = selectionModel();
     QHeaderView *verticalHeader = d->verticalHeader;
     QHeaderView *horizontalHeader = d->horizontalHeader;
-    QModelIndex current = currentItem();
+    QModelIndex current = currentIndex();
     bool focus = hasFocus() && current.isValid();
     QStyle::SFlags state = option.state;
 
@@ -486,7 +486,7 @@ int QTableView::verticalOffset() const
 QModelIndex QTableView::moveCursor(QAbstractItemView::CursorAction cursorAction,
                                           Qt::ButtonState)
 {
-    QModelIndex current = currentItem();
+    QModelIndex current = currentIndex();
     int bottom = d->model->rowCount(root()) - 1;
     int right = d->model->columnCount(root()) - 1;
     switch (cursorAction) {
@@ -931,14 +931,14 @@ void QTableView::selectRow(int row, Qt::ButtonState state)
         QModelIndex newCurrent = model()->index(row, 0, root());
         QItemSelectionModel::SelectionFlags command = selectionCommand(state, newCurrent);
         if (selectionMode() == SingleSelection) {
-            selectionModel()->setCurrentItem(newCurrent, command);
+            selectionModel()->setCurrentIndex(newCurrent, command);
         } else {
             if ((command & QItemSelectionModel::Current) == 0)
                 d->rowSectionAnchor = row;
             QPoint tl(columnViewportPosition(0), rowViewportPosition(d->rowSectionAnchor));
             QPoint br(columnViewportPosition(model()->columnCount(root()) - 1),
                       rowViewportPosition(row));
-            selectionModel()->setCurrentItem(newCurrent, QItemSelectionModel::NoUpdate);
+            selectionModel()->setCurrentIndex(newCurrent, QItemSelectionModel::NoUpdate);
             setSelection(QRect(tl, br).normalize(), command);
         }
     }
@@ -957,14 +957,14 @@ void QTableView::selectColumn(int column, Qt::ButtonState state)
         QModelIndex newCurrent = model()->index(0, column, root());
         QItemSelectionModel::SelectionFlags command = selectionCommand(state, newCurrent);
         if (selectionMode() == SingleSelection) {
-            selectionModel()->setCurrentItem(newCurrent, command);
+            selectionModel()->setCurrentIndex(newCurrent, command);
         } else {
             if ((command & QItemSelectionModel::Current) == 0)
                 d->columnSectionAnchor = column;
             QPoint tl(columnViewportPosition(d->columnSectionAnchor), rowViewportPosition(0));
             QPoint br(columnViewportPosition(column),
                       rowViewportPosition(model()->rowCount(root()) - 1));
-            selectionModel()->setCurrentItem(newCurrent, QItemSelectionModel::NoUpdate);
+            selectionModel()->setCurrentIndex(newCurrent, QItemSelectionModel::NoUpdate);
             setSelection(QRect(tl, br).normalize(), command);
         }
     }

@@ -689,7 +689,7 @@ void QListView::dragMoveEvent(QDragMoveEvent *e)
     } else if (e->source() == this && d->draggedItems.contains(index)) {
         e->accept();
     } else if (model()->flags(index) & QAbstractItemModel::ItemIsDropEnabled) {
-        setCurrentItem(index);
+        setCurrentIndex(index);
         e->accept();
     } else {
         e->ignore();
@@ -717,9 +717,9 @@ void QListView::dropEvent(QDropEvent *e)
         QPoint start = d->pressedPosition;
         QPoint delta = (d->movement == Snap ?
                         d->snapToGrid(end) - d->snapToGrid(start) : end - start);
-        QList<QModelIndex> indices = selectionModel()->selectedItems();
-        for (int i = 0; i < indices.count(); ++i) {
-            QModelIndex index = indices.at(i);
+        QList<QModelIndex> indexes = selectionModel()->selectedIndexes();
+        for (int i = 0; i < indexes.count(); ++i) {
+            QModelIndex index = indexes.at(i);
             QRect rect = itemRect(index);
             d->viewport->update(d->mapToViewport(rect));
             d->moveItem(index.row(), rect.topLeft() + delta);
@@ -737,13 +737,14 @@ void QListView::dropEvent(QDropEvent *e)
 QDragObject *QListView::dragObject()
 {
     // This function does the same thing as in QAbstractItemView,
-    //  plus adding viewitems to the draggedItems list. We need these items to draw the drag items
-    QModelIndexList items = selectionModel()->selectedItems();
-    QModelIndexList::ConstIterator it = items.begin();
-    for (; it != items.end(); ++it)
+    // plus adding viewitems to the draggedItems list.
+    // We need these items to draw the drag items
+    QModelIndexList indexes = selectionModel()->selectedIndexes();
+    QModelIndexList::ConstIterator it = indexes.begin();
+    for (; it != indexes.end(); ++it)
         if (model()->flags(*it) & QAbstractItemModel::ItemIsDragEnabled)
             d->draggedItems.push_back(*it);
-    return model()->dragObject(items, this);
+    return model()->dragObject(indexes, this);
 }
 
 /*!
@@ -801,7 +802,7 @@ void QListView::paintEvent(QPaintEvent *e)
     else
         d->intersectingDynamicSet(area);
 
-    QModelIndex current = currentItem();
+    QModelIndex current = currentIndex();
     QAbstractItemDelegate *delegate = itemDelegate();
     QItemSelectionModel *selections = selectionModel();
     bool focus = q->hasFocus() && current.isValid();
@@ -865,7 +866,7 @@ int QListView::verticalOffset() const
 */
 QModelIndex QListView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState)
 {
-    QModelIndex current = currentItem();
+    QModelIndex current = currentIndex();
     QRect rect = itemRect(current);
     QSize contents = d->contentsSize;
     int spacing = d->spacing;

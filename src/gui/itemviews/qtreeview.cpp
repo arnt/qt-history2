@@ -446,7 +446,7 @@ void QTreeView::paintEvent(QPaintEvent *e)
 
     QAbstractItemDelegate *delegate = itemDelegate();
     QModelIndex index;
-    QModelIndex current = selectionModel()->currentItem();
+    QModelIndex current = selectionModel()->currentIndex();
     QStyle::SFlags state = option.state;
 
     int t = area.top();
@@ -500,7 +500,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
 
     QModelIndex parent = model()->parent(index);
     QHeaderView *header = d->header;
-    QModelIndex current = selectionModel()->currentItem();
+    QModelIndex current = selectionModel()->currentIndex();
     bool focus = hasFocus() && current.isValid();
     bool reverse = QApplication::reverseLayout();
     QStyle::SFlags state = opt.state;
@@ -705,7 +705,7 @@ int QTreeView::verticalOffset() const
 
 QModelIndex QTreeView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::ButtonState)
 {
-    QModelIndex current = currentItem();
+    QModelIndex current = currentIndex();
     if (!current.isValid())
         return current;
     int vi = d->viewIndex(current);
@@ -748,50 +748,50 @@ void QTreeView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
     int start = d->viewIndex(itemAt(rect.left(), rect.top()));
     int stop = d->viewIndex(itemAt(rect.right(), rect.bottom()));
 
-    QModelIndex prevItem;
+    QModelIndex previous;
     QItemSelectionRange currentRange;
     QStack<QItemSelectionRange> rangeStack;
     QItemSelection selection;
-    for (int i=start; i<=stop; ++i) {
-        QModelIndex item = d->modelIndex(i);
-        if (prevItem.isValid() &&
-            model()->parent(item) == model()->parent(prevItem)) {
+    for (int i = start; i <= stop; ++i) {
+        QModelIndex index = d->modelIndex(i);
+        if (previous.isValid() &&
+            model()->parent(index) == model()->parent(previous)) {
             // same parent
             currentRange = QItemSelectionRange(currentRange.parent(),
                                                currentRange.top(),
                                                currentRange.left(),
-                                               item.row(),
-                                               item.column());
-        } else if (prevItem.isValid() &&
-                   model()->parent(item) ==
-                   model()->sibling(prevItem.row(), 0, prevItem)) {
+                                               index.row(),
+                                               index.column());
+        } else if (previous.isValid()
+                   && model()->parent(index) == model()->sibling(previous.row(),
+                                                                 0, previous)) {
             // item is child of prevItem
             rangeStack.push(currentRange);
-            currentRange = QItemSelectionRange(model()->parent(item), item);
+            currentRange = QItemSelectionRange(model()->parent(index), index);
         } else {
             if (currentRange.isValid())
                 selection.append(currentRange);
             if (rangeStack.isEmpty()) {
-                currentRange = QItemSelectionRange(model()->parent(item), item);
+                currentRange = QItemSelectionRange(model()->parent(index), index);
             } else {
                 currentRange = rangeStack.pop();
-                if (model()->parent(item) == currentRange.parent()) {
+                if (model()->parent(index) == currentRange.parent()) {
                     currentRange = QItemSelectionRange(currentRange.parent(),
                                                        currentRange.top(),
                                                        currentRange.left(),
-                                                       item.row(),
-                                                       item.column());
+                                                       index.row(),
+                                                       index.column());
                 } else {
                     selection.append(currentRange);
-                    currentRange = QItemSelectionRange(model()->parent(item), item);
+                    currentRange = QItemSelectionRange(model()->parent(index), index);
                 }
             }
         }
-        prevItem = item;
+        previous = index;
     }
     if (currentRange.isValid())
         selection.append(currentRange);
-    for (int i=0; i<rangeStack.count(); ++i)
+    for (int i = 0; i < rangeStack.count(); ++i)
         selection.append(rangeStack.at(i));
     selectionModel()->select(selection, command);
 }

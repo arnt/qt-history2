@@ -69,16 +69,16 @@ public:
     QFontListView(QWidget *parent);
     inline QFontListModel *model() const { return static_cast<QFontListModel *>(QTreeView::model()); }
     inline void setCurrentItem(int item) {
-        QTreeView::setCurrentItem(static_cast<QAbstractItemModel*>(model())->index(item, 0));
+        QTreeView::setCurrentIndex(static_cast<QAbstractItemModel*>(model())->index(item, 0));
     }
     inline int currentItem() const {
-        return QTreeView::currentItem().row();
+        return QTreeView::currentIndex().row();
     }
     inline int count() const {
         return model()->rowCount();
     }
     inline QString currentText() const {
-        int row = QTreeView::currentItem().row();
+        int row = QTreeView::currentIndex().row();
         return row < 0 ? QString() : model()->lst.at(row);
     }
     void currentChanged(const QModelIndex &, const QModelIndex &current) {

@@ -500,7 +500,7 @@ void QItemSelectionModel::select(const QModelIndex &index, SelectionFlags comman
    model item index is replaced by the \a current index as the selection's
    current item.
 
-   \sa currentItem() setCurrentItem()
+   \sa currentIndex() setCurrentItem()
 */
 
 /*!
@@ -592,9 +592,9 @@ void QItemSelectionModel::clear()
     d->ranges.clear();
     d->currentSelection.clear();
     emit selectionChanged(selection, QItemSelection());
-    QModelIndex old = d->currentItem;
-    d->currentItem = QPersistentModelIndex();
-    emit currentChanged(old, d->currentItem);
+    QModelIndex old = d->currentIndex;
+    d->currentIndex = QPersistentModelIndex();
+    emit currentChanged(old, d->currentIndex);
 }
 
 /*!
@@ -618,14 +618,14 @@ void QItemSelectionModel::reset()
   of the current selection.
   \sa select()
 */
-void QItemSelectionModel::setCurrentItem(const QModelIndex &index, SelectionFlags command)
+void QItemSelectionModel::setCurrentIndex(const QModelIndex &index, SelectionFlags command)
 {
     if (command != NoUpdate)
         select(index, command); // select item
-    if (index == d->currentItem)
+    if (index == d->currentIndex)
         return;
-    QModelIndex old = d->currentItem;
-    d->currentItem = QPersistentModelIndex(index, d->model); // set current
+    QModelIndex old = d->currentIndex;
+    d->currentIndex = QPersistentModelIndex(index, d->model); // set current
     emit currentChanged(old, index);
 }
 
@@ -633,9 +633,9 @@ void QItemSelectionModel::setCurrentItem(const QModelIndex &index, SelectionFlag
   Returns the model item index for the current item, or an invalid index
   if there is no current item.
 */
-QModelIndex QItemSelectionModel::currentItem() const
+QModelIndex QItemSelectionModel::currentIndex() const
 {
-    return (QModelIndex)d->currentItem;
+    return (QModelIndex)d->currentIndex;
 }
 
 /*!
@@ -778,7 +778,7 @@ QAbstractItemModel *QItemSelectionModel::model() const
   Returns a list of all selected model item indices. The list contains no
   duplicates, and is not sorted.
 */
-QModelIndexList QItemSelectionModel::selectedItems() const
+QModelIndexList QItemSelectionModel::selectedIndexes() const
 {
     QItemSelection selected = d->ranges;
     selected.merge(d->currentSelection, d->currentCommand);

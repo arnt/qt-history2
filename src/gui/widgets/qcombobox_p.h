@@ -90,7 +90,7 @@ public:
 public slots:
     void scrollListView(int action);
     void updateScrollers();
-    void setCurrentItem(const QModelIndex &index, int bstate);
+    void setCurrentIndex(const QModelIndex &index, int bstate);
 
 protected:
     bool eventFilter(QObject *o, QEvent *e);
@@ -141,7 +141,7 @@ private:
             menuOption.state |= QStyle::Style_Enabled;
         if (option.state & QStyle::Style_Selected)
             menuOption.state |= QStyle::Style_Active;
-        if (mCombo->currentItem() == index.row())
+        if (mCombo->currentIndex() == index.row())
             menuOption.checkState = QStyleOptionMenuItem::Checked;
         else
             menuOption.checkState = QStyleOptionMenuItem::Unchecked;
@@ -268,7 +268,7 @@ public:
     int maxCount;
     bool skipCompletion;
     mutable QSize sizeHint;
-    QPersistentModelIndex currentItem;
+    QPersistentModelIndex currentIndex;
     QPersistentModelIndex root;
 };
 

@@ -110,7 +110,7 @@ void QAbstractItemViewPrivate::init()
     etc.
 
     QAbstractItemView provides common slots such as edit() and
-    setCurrentItem(), and common signals such as clicked(),
+    setCurrentIndex(), and common signals such as clicked(),
     doubleClicked(), returnPressed(), spacePressed(), and
     deletePressed(). Many protected slots are also provided, including
     dataChanged(), rowsInserted(), rowsRemoved(),
@@ -118,7 +118,7 @@ void QAbstractItemViewPrivate::init()
     selectionChanged(), and currentChanged().
 
     The root item is returned by root(), and the current item by
-    currentItem(). To make sure that an item is visible use
+    currentIndex(). To make sure that an item is visible use
     ensureItemVisible().
 
     Some of QAbstractItemView's functions are concerned with
@@ -440,8 +440,8 @@ void QAbstractItemView::setSelectionModel(QItemSelectionModel *selectionModel)
                 this, SLOT(currentChanged(QModelIndex,QModelIndex)));
 
         bool block = d->selectionModel->blockSignals(true);
-        if (!d->selectionModel->currentItem().isValid())
-            d->selectionModel->setCurrentItem(d->model->index(0, 0, root()),
+        if (!d->selectionModel->currentIndex().isValid())
+            d->selectionModel->setCurrentIndex(d->model->index(0, 0, root()),
                                               QItemSelectionModel::NoUpdate);
         d->selectionModel->blockSignals(block);
     }
@@ -543,21 +543,21 @@ int QAbstractItemView::selectionBehavior() const
 /*!
     Sets the current item to be the item at \a index.
 
-    \sa currentItem()
+    \sa currentIndex()
 */
-void QAbstractItemView::setCurrentItem(const QModelIndex &index)
+void QAbstractItemView::setCurrentIndex(const QModelIndex &index)
 {
-    selectionModel()->setCurrentItem(index, selectionCommand(Qt::NoButton, index));
+    selectionModel()->setCurrentIndex(index, selectionCommand(Qt::NoButton, index));
 }
 
 /*!
     Returns the model index of the current item.
 
-    \sa setCurrentItem()
+    \sa setCurrentIndex()
 */
-QModelIndex QAbstractItemView::currentItem() const
+QModelIndex QAbstractItemView::currentIndex() const
 {
-    return selectionModel()->currentItem();
+    return selectionModel()->currentIndex();
 }
 
 
@@ -750,7 +750,7 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
         d->pressedPosition = pos + offset;
 
     if (index.isValid())
-        selectionModel()->setCurrentItem(index, QItemSelectionModel::NoUpdate);
+        selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
 
     QRect rect(d->pressedPosition - offset, pos);
     setSelection(rect.normalize(), command);
@@ -787,7 +787,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
     if (state() == Editing && d->editors.contains(persistent))
         return;
 
-    if (index != currentItem()) {
+    if (index != currentIndex()) {
         if (index.isValid())
             emit onItem(index, e->state());
     } else if (state() == Selecting) {
@@ -807,7 +807,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
                 return;
             }
         }
-        selectionModel()->setCurrentItem(index, QItemSelectionModel::NoUpdate);
+        selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
     }
     setState(Selecting);
     setSelection(QRect(topLeft, bottomRight).normalize(),
@@ -928,7 +928,7 @@ void QAbstractItemView::dropEvent(QDropEvent *e)
 void QAbstractItemView::focusInEvent(QFocusEvent *e)
 {
     QViewport::focusInEvent(e);
-    QModelIndex index = currentItem();
+    QModelIndex index = currentIndex();
     if (index.isValid())
         d->viewport->update(itemViewportRect(index));
 }
@@ -940,7 +940,7 @@ void QAbstractItemView::focusInEvent(QFocusEvent *e)
 void QAbstractItemView::focusOutEvent(QFocusEvent *e)
 {
     QViewport::focusOutEvent(e);
-    QModelIndex index = currentItem();
+    QModelIndex index = currentIndex();
     if (index.isValid())
         d->viewport->update(itemViewportRect(index));
 }
@@ -958,10 +958,10 @@ void QAbstractItemView::focusOutEvent(QFocusEvent *e)
 void QAbstractItemView::keyPressEvent(QKeyEvent *e)
 {
     bool hadCurrent = true;
-    QModelIndex current = currentItem();
+    QModelIndex current = currentIndex();
     if (!current.isValid()) {
         hadCurrent = false;
-        setCurrentItem(model()->index(0, 0, QModelIndex::Null));
+        setCurrentIndex(model()->index(0, 0, QModelIndex::Null));
     }
     QModelIndex newCurrent = current;
     if (hadCurrent) {
@@ -998,12 +998,12 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
                                                                            e->type(),
                                                                            (Qt::Key)e->key());
             if (command & QItemSelectionModel::Current) {
-                selectionModel()->setCurrentItem(newCurrent, QItemSelectionModel::NoUpdate);
+                selectionModel()->setCurrentIndex(newCurrent, QItemSelectionModel::NoUpdate);
                 QPoint offset(horizontalOffset(), verticalOffset());
                 QRect rect(d->pressedPosition - offset, itemViewportRect(newCurrent).center());
                 setSelection(rect.normalize(), command);
             } else {
-                selectionModel()->setCurrentItem(newCurrent, command);
+                selectionModel()->setCurrentIndex(newCurrent, command);
                 QPoint offset(horizontalOffset(), verticalOffset());
                 d->pressedPosition = itemViewportRect(newCurrent).center() + offset;
             }
@@ -1027,26 +1027,26 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
         break;
     case Qt::Key_Enter:
     case Qt::Key_Return:
-        emit returnPressed(currentItem());
+        emit returnPressed(currentIndex());
         return;
     case Qt::Key_Space:
-        selectionModel()->select(currentItem(),
+        selectionModel()->select(currentIndex(),
                                  selectionCommand(e->state(),
-                                                  currentItem(),
+                                                  currentIndex(),
                                                   e->type(),
                                                   (Qt::Key)e->key()));
-        emit spacePressed(currentItem());
+        emit spacePressed(currentIndex());
         return;
     case Qt::Key_Delete:
-        emit deletePressed(currentItem());
+        emit deletePressed(currentIndex());
         return;
     case Qt::Key_F2:
-        if (edit(currentItem(), EditKeyPressed, e))
+        if (edit(currentIndex(), EditKeyPressed, e))
             return;
         break;
     default:
         if (!e->text().isEmpty()) {
-            if (edit(currentItem(), AnyKeyPressed, e)) {
+            if (edit(currentIndex(), AnyKeyPressed, e)) {
                 return;
             } else {
                 keyboardSearch(e->text());
@@ -1301,7 +1301,7 @@ int QAbstractItemView::verticalFactor() const
 */
 void QAbstractItemView::keyboardSearch(const QString &search)
 {
-    QModelIndex start = currentItem().isValid() ? currentItem() : model()->index(0, 0);
+    QModelIndex start = currentIndex().isValid() ? currentIndex() : model()->index(0, 0);
     QTime now(QTime::currentTime());
     bool skipRow = false;
     if (d->keyboardInputTime.msecsTo(now) > keyboardInputInterval()) {
@@ -1334,7 +1334,7 @@ void QAbstractItemView::keyboardSearch(const QString &search)
     QModelIndexList match;
     match = model()->match(start, QAbstractItemModel::DisplayRole, searchString);
     if (!match.isEmpty() && match.at(0).isValid()) {
-        setCurrentItem(match.at(0));
+        setCurrentIndex(match.at(0));
     }
 }
 
@@ -1534,7 +1534,7 @@ void QAbstractItemView::currentChanged(const QModelIndex &old, const QModelIndex
 */
 QDragObject *QAbstractItemView::dragObject()
 {
-    QModelIndexList items = selectionModel()->selectedItems();
+    QModelIndexList items = selectionModel()->selectedIndexes();
     return model()->dragObject(items, this);
 }
 
@@ -1824,7 +1824,7 @@ QWidget *QAbstractItemViewPrivate::editor(const QModelIndex &index)
     if (!w) {
         QStyleOptionViewItem option = q->viewOptions();
         option.rect = q->itemViewportRect(index);
-        option.state |= (index == q->currentItem() ? QStyle::Style_HasFocus : QStyle::Style_Default);
+        option.state |= (index == q->currentIndex() ? QStyle::Style_HasFocus : QStyle::Style_Default);
         w = q->itemDelegate()->editor(viewport, option, q->model(), index);
         if (w) {
             QObject::connect(w, SIGNAL(destroyed(QObject*)), q, SLOT(editorDestroyed(QObject*)));

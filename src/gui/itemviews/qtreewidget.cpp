@@ -663,17 +663,17 @@ void QTreeWidget::setHeaderItem(QTreeWidgetItem *item)
     d->model()->header = item;
 }
 
-QTreeWidgetItem *QTreeWidget::currentTreeItem() const
+QTreeWidgetItem *QTreeWidget::currentItem() const
 {
-    return d->model()->item(currentItem());
+    return d->model()->item(currentIndex());
 }
 
-void QTreeWidget::setCurrentTreeItem(QTreeWidgetItem *item)
+void QTreeWidget::setCurrentItem(QTreeWidgetItem *item)
 {
     if (item)
-        setCurrentItem(d->model()->index(item));
+        setCurrentIndex(d->model()->index(item));
     else
-        setCurrentItem(QModelIndex());
+        setCurrentIndex(QModelIndex());
 }
 
 void QTreeWidgetItem::openPersistentEditor(int column)

@@ -103,17 +103,17 @@ public:
     QItemSelectionModel(QAbstractItemModel *model, QObject *parent = 0);
     virtual ~QItemSelectionModel();
 
-    QModelIndex currentItem() const;
+    QModelIndex currentIndex() const;
 
     bool isSelected(const QModelIndex &index) const;
     bool isRowSelected(int row, const QModelIndex &parent) const;
     bool isColumnSelected(int column, const QModelIndex &parent) const;
 
     QAbstractItemModel *model() const;
-    QModelIndexList selectedItems() const;
+    QModelIndexList selectedIndexes() const;
 
 public slots:
-    void setCurrentItem(const QModelIndex &index, SelectionFlags command);
+    void setCurrentIndex(const QModelIndex &index, SelectionFlags command);
     virtual void select(const QModelIndex &index, SelectionFlags command);
     virtual void select(const QItemSelection &selection, SelectionFlags command);
     virtual void clear();

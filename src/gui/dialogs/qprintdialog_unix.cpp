@@ -1072,7 +1072,7 @@ QGroupBox *QPrintDialogUnix::setupDestination()
             quality = 1;
         }
     }
-    d->view->setCurrentItem(static_cast<QAbstractItemModel*>(d->model)->index(best, 0));
+    d->view->setCurrentIndex(static_cast<QAbstractItemModel*>(d->model)->index(best, 0));
 
     if (etcLpDefault)                 // Avoid purify complaint
         delete[] etcLpDefault;
@@ -1374,7 +1374,7 @@ void QPrintDialogUnix::okClicked()
         d->printer->setOutputFileName(d->fileName->text());
     } else {
         d->printer->setOutputToFile(false);
-        QModelIndex current = d->view->currentItem();
+        QModelIndex current = d->view->currentIndex();
         if (current.isValid())
             d->printer->setPrinterName(d->printers.at(current.row()).name);
     }
@@ -1465,7 +1465,7 @@ void QPrintDialogUnix::setPrinter(QPrinter *p, bool pickUpSettings)
         d->fileName->setText(p->outputFileName());
 
         // orientation
-        d->orientationCombo->setCurrentItem((int)p->orientation());
+        d->orientationCombo->setCurrentIndex((int)p->orientation());
         orientSelected(p->orientation());
 
         // page size
@@ -1473,7 +1473,7 @@ void QPrintDialogUnix::setPrinter(QPrinter *p, bool pickUpSettings)
         while (n < QPrinter::NPageSize &&
                 d->indexToPageSize[n] != p->pageSize())
             n++;
-        d->sizeCombo->setCurrentItem(n);
+        d->sizeCombo->setCurrentIndex(n);
         paperSizeSelected(n);
 
         // New stuff (Options)

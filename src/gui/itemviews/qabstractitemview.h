@@ -77,7 +77,7 @@ public:
     void setSelectionBehavior(int behavior); // FIXME: make property
     int selectionBehavior() const;
 
-    QModelIndex currentItem() const;
+    QModelIndex currentIndex() const;
     QModelIndex root() const;
 
     void setBeginEditActions(BeginEditActions actions);
@@ -109,7 +109,7 @@ public slots:
     virtual void doItemsLayout();
     void edit(const QModelIndex &index);
     void clearSelections();
-    void setCurrentItem(const QModelIndex &index);
+    void setCurrentIndex(const QModelIndex &index);
 
 protected slots:
     virtual void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);

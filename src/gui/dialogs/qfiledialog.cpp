@@ -689,13 +689,13 @@ void QFileDialog::selectFile(const QString &filename)
 
 QStringList QFileDialog::selectedFiles() const
 {
-    QModelIndexList items = d->selections->selectedItems();
+    QModelIndexList indexes = d->selections->selectedIndexes();
     QStringList files;
     int r = -1;
-    for (int i = 0; i < items.count(); ++i) {
-        if (items.at(i).row() != r) {
-            files.append(d->model->path(items.at(i)));
-            r = items.at(i).row();
+    for (int i = 0; i < indexes.count(); ++i) {
+        if (indexes.at(i).row() != r) {
+            files.append(d->model->path(indexes.at(i)));
+            r = indexes.at(i).row();
         }
     }
     if (d->fileMode == AnyFile && files.count() <= 0) { // a new filename
@@ -778,7 +778,7 @@ void QFileDialog::selectFilter(const QString &filter)
 {
     int i = d->fileType->findItem(filter, QAbstractItemModel::MatchExactly);
     if (i >= 0)
-        d->fileType->setCurrentItem(i);
+        d->fileType->setCurrentIndex(i);
 }
 
 /*!
@@ -968,11 +968,11 @@ void QFileDialog::mkdir()
     if (!index.isValid())
         return;
     if (!index.isValid()) {
-        d->selections->setCurrentItem(d->model->index(0, 0, d->root()),
-                                      QItemSelectionModel::SelectCurrent);
+        d->selections->setCurrentIndex(d->model->index(0, 0, d->root()),
+                                       QItemSelectionModel::SelectCurrent);
         return;
     }
-    d->selections->setCurrentItem(index, QItemSelectionModel::SelectCurrent);
+    d->selections->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);
     if (d->listMode->isDown())
         d->lview->edit(index);
     else
@@ -1075,16 +1075,16 @@ void QFileDialog::currentChanged(const QModelIndex &, const QModelIndex &current
 void QFileDialog::fileNameChanged(const QString &text)
 {
     if (d->fileName->hasFocus() && !text.isEmpty()) {
-        QModelIndex current = d->selections->currentItem();
+        QModelIndex current = d->selections->currentIndex();
         if (!current.isValid())
             current = d->model->index(0, 0, d->root());
-        QModelIndexList indices = d->model->match(current, QAbstractItemModel::DisplayRole, text);
+        QModelIndexList indexes = d->model->match(current, QAbstractItemModel::DisplayRole, text);
         int key = d->fileName->lastKeyPressed();
-        if (indices.count() <= 0) { // no matches
+        if (indexes.count() <= 0) { // no matches
             d->selections->clear();
         } else if (key != Qt::Key_Delete && key != Qt::Key_Backspace) {
-            d->selections->setCurrentItem(indices.first(), QItemSelectionModel::SelectCurrent);
-            QString completed = d->model->data(indices.first(),
+            d->selections->setCurrentIndex(indexes.first(), QItemSelectionModel::SelectCurrent);
+            QString completed = d->model->data(indexes.first(),
                                                QAbstractItemModel::DisplayRole).toString();
             int start = completed.length();
             int length = text.length() - start; // negative length
@@ -1259,7 +1259,7 @@ void QFileDialog::renameCurrent()
     QAbstractItemView *view = d->listMode->isDown()
                               ? static_cast<QAbstractItemView*>(d->lview)
                               : static_cast<QAbstractItemView*>(d->tview);
-    view->edit(d->selections->currentItem());
+    view->edit(d->selections->currentIndex());
 }
 
 /*!
@@ -1270,7 +1270,7 @@ void QFileDialog::renameCurrent()
 
 void QFileDialog::deleteCurrent()
 {
-    deletePressed(d->selections->currentItem());
+    deletePressed(d->selections->currentIndex());
 }
 
 /*!
@@ -1491,7 +1491,7 @@ void QFileDialogPrivate::setup(const QString &directory,
     lookIn->insertItem(model->icons(home), QDir::homePath());
     lookIn->insertItem(model->icons(current), directory);
     int c = lookIn->findItem(directory, QAbstractItemModel::MatchExactly);
-    lookIn->setCurrentItem(c >= 0 ? c : 0);
+    lookIn->setCurrentIndex(c >= 0 ? c : 0);
     QObject::connect(lookIn, SIGNAL(activated(const QString&)),
                      q, SLOT(setCurrentDir(const QString&)));
     grid->addWidget(d->lookIn, 0, 1, 1, 3);
@@ -1592,10 +1592,10 @@ void QFileDialogPrivate::updateButtons(const QModelIndex &index)
     int i = lookIn->findItem(pth, QAbstractItemModel::MatchExactly);
     bool block = lookIn->blockSignals(true);
     if (i > -1) {
-        lookIn->setCurrentItem(i);
+        lookIn->setCurrentIndex(i);
     } else {
         lookIn->insertItem(icn, pth);
-        lookIn->setCurrentItem(lookIn->count() - 1);
+        lookIn->setCurrentIndex(lookIn->count() - 1);
     }
     lookIn->blockSignals(block);
 }
@@ -1608,7 +1608,7 @@ void QFileDialogPrivate::setRoot(const QModelIndex &index)
     lview->setRoot(index);
     tview->setRoot(index);
     d->selections->blockSignals(block);
-    d->selections->setCurrentItem(d->model->index(0, 0, index), QItemSelectionModel::SelectCurrent);
+    d->selections->setCurrentIndex(d->model->index(0, 0, index), QItemSelectionModel::SelectCurrent);
 }
 
 QModelIndex QFileDialogPrivate::root() const
