@@ -217,6 +217,7 @@ QByteArray QDropEvent::encodedData(const char *fmt) const
 	    ret.assign(buffer, size);
 	    return ret;
 	}
+	free(buffer);
     }
     return 0;
 }
