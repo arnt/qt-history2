@@ -97,9 +97,10 @@ QMutexPool::~QMutexPool()
 {
     QMutexLocker locker( &mutex );
     QMutex **d = mutexes.data();
-    int index = 0;
-    while ( (uint)index < mutexes.size() )
-	delete d[index++];
+    for ( int index = 0; (uint) index < mutexes.size(); index++ ) {
+	delete d[index];
+	d[index] = 0;
+    }
 }
 
 /*!
@@ -109,7 +110,7 @@ QMutexPool::~QMutexPool()
 QMutex *QMutexPool::get( void *address )
 {
     QMutex **d = mutexes.data();
-    int index = ( (int) address ) % mutexes.size();
+    int index = (int)( (ulong) address % mutexes.size() );
 
     if ( ! d[index] ) {
 	// mutex not created, create one
@@ -121,6 +122,7 @@ QMutex *QMutexPool::get( void *address )
 	    d[index] = new QMutex( recurs );
 	}
     }
+
     return d[index];
 }
 
