@@ -806,7 +806,7 @@ QIODevice::getch()
         return EOF;
     }
     uchar ch;
-    Q_LLONG got = read(&ch, 1);
+    Q_LLONG got = read((char*)&ch, 1);
     if(got <= 0)
         return -1;
     return (int)ch;
@@ -833,7 +833,7 @@ QIODevice::putch(int character)
         return EOF;
     }
     uchar ch = (char)character;
-    Q_LLONG got = write(&ch, 1);
+    Q_LLONG got = write((char*)&ch, 1);
     if(got <= 0)
         return -1;
     return ch;
