@@ -1179,9 +1179,10 @@ void QFocusEvent::resetReason()
 
     \ingroup events
 
-    Context menu events are sent to widgets when a user triggers a
-    context menu. What triggers this is platform dependent. For
-    example, on Windows, pressing the menu button or releasing the
+    Context menu events are sent to widgets when a user performs
+    an action associated with opening a context menu. 
+    The actions required to open context menus vary between platforms;
+    for example, on Windows, pressing the menu button or clicking the
     right mouse button will cause this event to be sent.
 
     When this event occurs it is customary to show a QMenu with a
@@ -1199,8 +1200,8 @@ void QFocusEvent::resetReason()
     Constructs a context menu event object with the accept parameter
     flag set to false.
 
-    The \a reason parameter must be \c QContextMenuEvent::Mouse or \c
-    QContextMenuEvent::Keyboard.
+    The \a reason parameter must be \c QContextMenuEvent::Mouse or
+    \c QContextMenuEvent::Keyboard.
 
     The \a pos parameter specifies the mouse position relative to the
     receiving widget. \a globalPos is the mouse position in absolute
@@ -1244,7 +1245,7 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, int state
 /*!
     \fn int QContextMenuEvent::x() const
 
-    Returns the x-position of the mouse pointer, relative to the
+    Returns the x position of the mouse pointer, relative to the
     widget that received the event.
 
     \sa y(), pos()
@@ -1253,7 +1254,7 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, int state
 /*!
     \fn int QContextMenuEvent::y() const
 
-    Returns the y-position of the mouse pointer, relative to the
+    Returns the y position of the mouse pointer, relative to the
     widget that received the event.
 
     \sa x(), pos()
@@ -1271,7 +1272,7 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, int state
 /*!
     \fn int QContextMenuEvent::globalX() const
 
-    Returns the global x-position of the mouse pointer at the time of
+    Returns the global x position of the mouse pointer at the time of
     the event.
 
     \sa globalY(), globalPos()
@@ -1280,7 +1281,7 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, int state
 /*!
     \fn int QContextMenuEvent::globalY() const
 
-    Returns the global y-position of the mouse pointer at the time of
+    Returns the global y position of the mouse pointer at the time of
     the event.
 
     \sa globalX(), globalPos()
@@ -1289,26 +1290,26 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, int state
 /*!
     \fn ButtonState QContextMenuEvent::state() const
 
-    Returns the button state (a combination of mouse buttons and
-    keyboard modifiers), i.e. what buttons and keys were being
-    pressed immediately before the event was generated.
+    Returns the button state immediately before the event was generated
+    (a combination of mouse buttons and keyboard modifiers).
 
-    The returned value is \c LeftButton, \c RightButton, \c MidButton,
-    \c ShiftButton, \c ControlButton and \c AltButton OR'ed together.
+    The returned value is a selection of the following values,
+    combined with the logical OR operator:
+    \c LeftButton, \c RightButton, \c MidButton,
+    \c ShiftButton, \c ControlButton and \c AltButton.
 */
 
 /*!
     \enum QContextMenuEvent::Reason
 
-    This enum describes the reason the ContextMenuEvent was sent. The
-    values are:
+    This enum describes the reason the ContextMenuEvent was sent:
 
     \value Mouse The mouse caused the event to be sent. Normally this
     means the right mouse button was clicked, but this is platform
-    specific.
+    dependent.
 
     \value Keyboard The keyboard caused this event to be sent. On
-    Windows this means the menu button was pressed.
+    Windows, this means the menu button was pressed.
 
     \value Other The event was sent by some other means (i.e. not by
     the mouse or keyboard).
@@ -1661,33 +1662,34 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, i
 
 
 /*!
-    \fn QDragMoveEvent::QDragMoveEvent(const QPoint& pos, Type type)
+    \fn QDragMoveEvent::QDragMoveEvent(const QPoint &position, Type type)
 
-    Creates a QDragMoveEvent for which the mouse is at point \a pos,
-    and the event is of type \a type.
+    Creates a QDragMoveEvent of the given \a type indicating the
+    \a position of the mouse within a widget.
 
     \warning Do not create a QDragMoveEvent yourself since these
     objects rely on Qt's internal state.
 */
 
 /*!
-    \fn void QDragMoveEvent::accept(const QRect & r)
+    \fn void QDragMoveEvent::accept(const QRect &rectangle)
 
     The same as accept(), but also notifies that future moves will
-    also be acceptable if they remain within the rectangle \a r on the
-    widget: this can improve performance, but may also be ignored by
+    also be acceptable if they remain within the \a rectangle on the
+    widget. This can improve performance, but may also be ignored by
     the underlying system.
 
-    If the rectangle is \link QRect::isEmpty() empty\endlink, then
+    If the rectangle is \link QRect::isEmpty() empty \endlink, then
     drag move events will be sent continuously. This is useful if the
     source is scrolling in a timer event.
 */
 
 /*!
-    \fn void QDragMoveEvent::ignore(const QRect & r)
+    \fn void QDragMoveEvent::ignore(const QRect &rectangle)
 
-    The opposite of accept(const QRect&), i.e. says that moves within
-    rectangle \a r are not acceptable (will be ignored).
+    The opposite of accept(const QRect&).
+    Moves within the \a rectangle are not acceptable, and will be
+    ignored.
 */
 
 /*!
@@ -1716,7 +1718,7 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, i
     \fn void QDropEvent::accept(bool y=true)
 
     Call this function to indicate whether the event provided data
-    which your widget processed. Set \a y to true (the default) if
+    that your widget processed. Set \a y to true (the default) if
     your widget could process the data, otherwise set \a y to false.
     To get the data, use encodedData(), or preferably, the decode()
     methods of existing QDragObject subclasses, such as
@@ -1752,8 +1754,9 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, i
 /*!
     \enum QDropEvent::Action
 
-    This enum describes the action which a source requests that a
-    target perform with dropped data.
+    When a drag and drop action is completed, the target is expected
+    to perform an Action on the data provided by the source. This
+    will be one of the following:
 
     \value Copy The default action. The source simply uses the data
                 provided in the operation.
@@ -1773,18 +1776,18 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, i
 */
 
 /*!
-    \fn void QDropEvent::setAction(Action a)
+    \fn void QDropEvent::setAction(Action action)
 
-    Sets the action to \a a. This is used internally, you should not
-    need to call this in your code: the \e source decides the action,
-    not the target.
+    Sets the \a action to be performed on the data by the target.
+    This is used internally, you should not need to call this in your
+    code: the \e source decides the action, not the target.
 */
 
 /*!
     \fn Action QDropEvent::action() const
 
-    Returns the Action which the target is requesting to be performed
-    with the data. If your application understands the action and can
+    Returns the Action that the target is expected to perform on the
+    data. If your application understands the action and can
     process the supplied data, call acceptAction(); if your
     application can process the supplied data but can only perform the
     Copy action, call accept().
@@ -1793,7 +1796,7 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, i
 /*!
     \fn void QDropEvent::ignore()
 
-    The opposite of accept(), i.e. you have ignored the drop event.
+    The opposite of accept(); i.e. you have ignored the drop event.
 */
 
 /*!
@@ -1805,17 +1808,17 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, i
 
 
 /*!
-    \fn void QDropEvent::setPoint (const QPoint & np)
+    \fn void QDropEvent::setPoint (const QPoint &point)
 
-    Sets the drop to happen at point \a np. You do not normally need
-    to use this as it will be set internally before your widget
+    Sets the drop to happen at the given \a point. You do not normally
+    need to use this as it will be set internally before your widget
     receives the drop event.
 */ // ### here too - what coordinate system?
 
 
 /*!
     \class QDragEnterEvent qevent.h
-    \brief The QDragEnterEvent class provides an event which is sent to the widget when a drag and drop first drags onto the widget.
+    \brief The QDragEnterEvent class provides an event which is sent to a widget when a drag and drop action enters it.
 
     \ingroup events
     \ingroup draganddrop
@@ -1829,9 +1832,10 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, i
 */
 
 /*!
-    \fn QDragEnterEvent::QDragEnterEvent (const QPoint & pos)
+    \fn QDragEnterEvent::QDragEnterEvent (const QPoint &point)
 
-    Constructs a QDragEnterEvent entering at the given point, \a pos.
+    Constructs a QDragEnterEvent entering a widget at the given
+    \a point.
 
     \warning Do not create a QDragEnterEvent yourself since these
     objects rely on Qt's internal state.
@@ -1839,7 +1843,7 @@ QTabletEvent::QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, i
 
 /*!
     \class QDragLeaveEvent qevent.h
-    \brief The QDragLeaveEvent class provides an event which is sent to the widget when a drag and drop leaves the widget.
+    \brief The QDragLeaveEvent class provides an event that is sent to a widget when a drag and drop action leaves it.
 
     \ingroup events
     \ingroup draganddrop
