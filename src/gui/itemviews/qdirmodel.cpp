@@ -222,19 +222,26 @@ public:
   QDirModel does not store file information internally or cache file data.
 
   A directory model that displays the contents of a default directory
-  is constructed with a QDir to supply the file infomation, and a parent
-  object:
+  is usually constructed with a parent object:
 
-  \code
-  QDirModel *model = new QDirModel(QDir(), parent);
-  \endcode
+  \quotefromfile snippets/shareddirmodel/main.cpp
+  \skipto QDirModel *model
+  \printuntil QDirModel *model
 
-  A tree view can be used to display the contents of the model:
+  A tree view can be used to display the contents of the model
 
-  \code
-  QTreeView *treeView = new QTreeView(window);
-  treeView->setModel(model);
-  \endcode
+  \skipto QTreeView *tree
+  \printuntil tree->setModel(
+
+  and the contents of a particular directory can be displayed by
+  setting the tree view's root index:
+
+  \printuntil tree->setRootIndex(
+
+  The view's root index can be used to control how much of a
+  hierarchical model is displayed. QDirModel provides a convenience
+  function that returns a suitable model index for a path to a
+  directory within the model.
 
   QDirModel can be accessed using the standard interface provided by
   QAbstractItemModel, but it also provides some convenience functions that are
