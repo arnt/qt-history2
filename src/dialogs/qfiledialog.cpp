@@ -35,6 +35,9 @@
 **
 **********************************************************************/
 
+// Get the system specific includes and defines
+#include "qplatformdefs.h"
+
 #include "qfiledialog.h"
 
 #ifndef QT_NO_FILEDIALOG
@@ -83,14 +86,6 @@
 #ifdef Q_WS_MAC
 #include <qt_mac.h>
 #undef check
-#endif
-
-#if defined(Q_OS_UNIX)
-// getlogin()
-# include <unistd.h>
-// getpwnam()
-# include <sys/types.h>
-# include <pwd.h>
 #endif
 
 // see comment near use of this variable
