@@ -220,8 +220,7 @@ Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
 	    }
 
 	    if ( quickFunc == 0 ) {
-		doc.location().warning( tr("Cannot resolve '%1' specified with"
-					   " '\\%2'")
+		doc.location().warning( tr("Cannot find '%1' specified with '\\%2'")
 					.arg(arg).arg(command) );
 	    } else {
 		quickFunc->setAccess( Node::Public );
@@ -232,8 +231,7 @@ Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
 	    }
 	    delete clone;
 	} else {
-	    doc.location().warning( tr("Cannot resolve '%1' specified with"
-				       " '\\%2'")
+	    doc.location().warning( tr("Cannot find '%1' specified with '\\%2'")
 				    .arg(arg).arg(command) );
 	}
 	return 0;
@@ -251,8 +249,7 @@ Node *QsCodeParser::processTopicCommand( const Doc& doc, const QString& command,
 	QStringList path = subArgs[0].split(".");
 	Node *quickNode = qsTre->findNode( path, nodeTypeMap[command] );
 	if ( quickNode == 0 ) {
-	    doc.location().warning( tr("Cannot resolve '%1' specified with"
-				       " '\\%2'")
+	    doc.location().warning( tr("Cannot find '%1' specified with '\\%2'")
 				    .arg(arg).arg(command) );
 	} else {
 	    setQuickDoc( quickNode, doc );

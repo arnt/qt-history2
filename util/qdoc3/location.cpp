@@ -217,16 +217,15 @@ void Location::internalError( const QString& hint )
 void Location::emitMessage( MessageType type, const QString& message,
 			    const QString& details ) const
 {
-    if ( type == Warning && spuriousRegExp != 0
-	 && spuriousRegExp->exactMatch(message) )
+    if ( type == Warning && spuriousRegExp != 0 && spuriousRegExp->exactMatch(message) )
 	return;
 
     QString result = message;
     if ( !details.isEmpty() )
 	result += "\n[" + details + "]";
     result.replace( "\n", "\n    " );
-    if ( type == Warning )
-	result.prepend( tr("warning: ") );
+    if ( type == Error )
+	result.prepend( tr("error: ") );
     result.prepend( toString() );
     printf( "%s\n", result.toLatin1().data() );
     fflush( stdout );

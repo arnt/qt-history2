@@ -210,7 +210,7 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
 		if ( parentPath.isEmpty() && !lastPath.isEmpty() )
 		    func = tre->findFunctionNode( lastPath, clone );
 		if ( func == 0 ) {
-		    doc.location().warning(tr("Cannot resolve '%1' in '\\%2'")
+		    doc.location().warning(tr("Cannot find '%1' in '\\%2'")
 					   .arg(clone->name() + "(...)")
 					   .arg(COMMAND_FN),
                                            tr("I cannot find any function of that name with the "
@@ -241,7 +241,7 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
 #endif
 				   );
 	if ( node == 0 ) {
-	    doc.location().warning(tr("Cannot resolve '%1' specified with '\\%2'")
+	    doc.location().warning(tr("Cannot find '%1' specified with '\\%2'")
 				   .arg(arg).arg(command));
 	    lastPath = path;
 	}
@@ -293,12 +293,10 @@ void CppCodeParser::processOtherMetaCommand( const Doc& doc,
     } else if ( command == COMMAND_REIMP ) {
 	if ( node != 0 && node->type() == Node::Function ) {
 	    FunctionNode *func = (FunctionNode *) node;
-	    if ( func->reimplementedFrom() == 0 ) {
+	    if ( func->reimplementedFrom() == 0 )
 		doc.location().warning( tr("Cannot find base function for '\\%1'")
 					.arg(COMMAND_REIMP) );
-	    } else {
-		func->setAccess( Node::Private );
-	    }
+            func->setAccess( Node::Private );
 	} else {
 	    doc.location().warning( tr("Ignored '\\%1'").arg(COMMAND_REIMP) );
 	}
@@ -310,7 +308,7 @@ void CppCodeParser::processOtherMetaCommand( const Doc& doc,
 	    pseudoParent = static_cast<InnerNode *>(tre->findNode(QStringList(arg), Node::Class));
         }
 	if (!pseudoParent) {
-	    doc.location().warning(tr("Cannot resolve '%1' in '\\%2'")
+	    doc.location().warning(tr("Cannot find '%1' in '\\%2'")
 				   .arg(arg).arg(COMMAND_RELATES));
 	} else {
 	    node->setRelates(pseudoParent);

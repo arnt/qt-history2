@@ -165,7 +165,7 @@ static QString cleanLink(const QString &link)
     int colonPos = link.indexOf(':');
     if (colonPos == -1 || (!link.startsWith("file:") && !link.startsWith("mailto:")))
         return link;
-    return link.mid(colonPos + 1);
+    return link.mid(colonPos + 1).simplified();
 }
 
 class DocPrivate : public Shared
