@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.h#31 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.h#32 $
 **
 ** Definition of QMainWindow class
 **
@@ -74,7 +74,7 @@ public:
     bool eventFilter( QObject*, QEvent* );
 
 #ifdef QT_BUILDER
-    bool configure( const QDomElement& element );
+    bool setConfiguration( const QDomElement& element );
 #endif // QT_BUILDER
 
 public slots:

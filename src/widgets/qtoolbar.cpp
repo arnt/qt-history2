@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#49 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.cpp#50 $
 **
 ** Implementation of QToolBar class
 **
@@ -408,7 +408,7 @@ void QToolBar::clear()
 }
 
 #ifdef QT_BUILDER
-bool QToolBar::configure( const QDomElement& element )
+bool QToolBar::setConfiguration( const QDomElement& element )
 {
   // When this code changes then the code in the builder
   // must be changed, too. Unfortunately it had to be copied.
@@ -432,7 +432,7 @@ bool QToolBar::configure( const QDomElement& element )
 
   // Dont call QWidget configure: For example we dont
   // allow for layouts
-  if ( !QObject::configure( element ) )
+  if ( !QObject::setConfiguration( element ) )
     return FALSE;
 
   return TRUE;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenubar.h#43 $
+** $Id: //depot/qt/main/src/widgets/qmenubar.h#44 $
 **
 ** Definition of QMenuBar class
 **
@@ -55,7 +55,7 @@ public:
     bool customWhatsThis() const;
 
 #ifdef QT_BUILDER
-    bool configure( const QDomElement& element );
+    bool setConfiguration( const QDomElement& element );
 #endif
 
 signals:

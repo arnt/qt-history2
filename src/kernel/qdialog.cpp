@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qdialog.cpp#85 $
+** $Id: //depot/qt/main/src/kernel/qdialog.cpp#86 $
 **
 ** Implementation of QDialog class
 **
@@ -134,12 +134,12 @@ QDialog::~QDialog()
 }
 
 #ifdef QT_BUILDER
-bool QDialog::configure( const QDomElement& element )
+bool QDialog::setConfiguration( const QDomElement& element )
 {
   if ( element.hasAttribute( "modal" ) && element.attribute( "modal" ).toInt() == 1 )
     setWFlags( getWFlags() | WType_Modal );
 
-  return QWidget::configure( element );
+  return QWidget::setConfiguration( element );
 }
 #endif
 

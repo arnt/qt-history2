@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbar.h#23 $
+** $Id: //depot/qt/main/src/widgets/qtoolbar.h#24 $
 **
 ** Definition of QToolBar class
 **
@@ -68,7 +68,7 @@ public:
     void clear();
 
 #ifdef QT_BUILDER
-    bool configure( const QDomElement& element );
+    bool setConfiguration( const QDomElement& element );
 
     static QObject* factory( QObject* parent );
 #endif // QT_BUILDER

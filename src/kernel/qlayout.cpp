@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#117 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#118 $
 **
 ** Implementation of layout classes
 **
@@ -1261,7 +1261,7 @@ void QGridLayout::invalidate()
 
 #ifdef QT_BUILDER
 
-bool QGridLayout::configure( const QDomElement& element, QWidget* mainwidget )
+bool QGridLayout::setConfiguration( const QDomElement& element, QWidget* mainwidget )
 {
   int r = 0;
 
@@ -1358,7 +1358,7 @@ bool QGridLayout::configure( const QDomElement& element, QWidget* mainwidget )
     }
   }
 
-  if ( !QLayout::configure( element, mainwidget ) )
+  if ( !QLayout::setConfiguration( element, mainwidget ) )
     return FALSE;
 
   return TRUE;
@@ -1883,7 +1883,7 @@ QHBoxLayout::~QHBoxLayout()
 }
 
 #ifdef QT_BUILDER
-bool QHBoxLayout::configure( const QDomElement& element, QWidget* mainwidget )
+bool QHBoxLayout::setConfiguration( const QDomElement& element, QWidget* mainwidget )
 {
   QDomElement cell = element.firstChild().toElement();
   for( ; !cell.isNull(); cell = cell.nextSibling().toElement() )
@@ -1931,7 +1931,7 @@ bool QHBoxLayout::configure( const QDomElement& element, QWidget* mainwidget )
       return FALSE;
   }
 
-  if ( !QBoxLayout::configure( element, mainwidget ) )
+  if ( !QBoxLayout::setConfiguration( element, mainwidget ) )
     return FALSE;
 
   return TRUE;
@@ -2000,7 +2000,7 @@ QVBoxLayout::~QVBoxLayout()
 
 #ifdef QT_BUILDER
 
-bool QVBoxLayout::configure( const QDomElement& element, QWidget* mainwidget )
+bool QVBoxLayout::setConfiguration( const QDomElement& element, QWidget* mainwidget )
 {
   QDomElement cell = element.firstChild().toElement();
   for( ; !cell.isNull(); cell = cell.nextSibling().toElement() )
@@ -2048,7 +2048,7 @@ bool QVBoxLayout::configure( const QDomElement& element, QWidget* mainwidget )
       return FALSE;
   }
 
-  if ( !QBoxLayout::configure( element, mainwidget ) )
+  if ( !QBoxLayout::setConfiguration( element, mainwidget ) )
     return FALSE;
 
   return TRUE;

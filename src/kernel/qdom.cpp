@@ -3167,7 +3167,7 @@ QDomMimeSourceFactory* QDOM_DocumentPrivate::mimeSourceFactory()
   if ( m_mimeSourceFactory )
     return m_mimeSourceFactory;
 
-  return 0;
+  return QDomMimeSourceFactory::defaultDomFactory();
 }
 
 void QDOM_DocumentPrivate::setMimeSourceFactory( QDomMimeSourceFactory* f )
@@ -3879,7 +3879,11 @@ class QDOM_MimeSourceFactoryPrivate
 {
 public:
     QMap<int,QString> m_map;
+    
+    static QDomMimeSourceFactory* s_factory;
 };
+
+QDomMimeSourceFactory* QDOM_MimeSourceFactoryPrivate::s_factory = 0;
 
 QDomMimeSourceFactory::QDomMimeSourceFactory()
 {
@@ -3917,4 +3921,16 @@ QString QDomMimeSourceFactory::pixmapName( const QPixmap& pix ) const
     if ( it == d->m_map.end() )
 	return QString::null;
     return it.data();
+}
+
+QDomMimeSourceFactory* QDomMimeSourceFactory::defaultDomFactory()
+{
+    if ( !QDOM_MimeSourceFactoryPrivate::s_factory )	
+	QDOM_MimeSourceFactoryPrivate::s_factory = new QDomMimeSourceFactory;
+    return QDOM_MimeSourceFactoryPrivate::s_factory;
+}
+
+void QDomMimeSourceFactory::setDefaultDomFactory( QDomMimeSourceFactory* f )
+{
+    QDOM_MimeSourceFactoryPrivate::s_factory = f;
 }

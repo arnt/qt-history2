@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.h#96 $
+** $Id: //depot/qt/main/src/widgets/qlistview.h#97 $
 **
 ** Definition of QListView widget class
 **
@@ -131,7 +131,7 @@ public:
     void repaint() const;
 
 #ifdef QT_BUILDER
-    bool configure( const QDomElement& item, int columns );
+    bool setConfiguration( const QDomElement& item, int columns );
 #endif // QT_BUILDER
 
 protected:
@@ -245,7 +245,7 @@ public:
     QSize minimumSizeHint() const;
 
 #ifdef QT_BUILDER
-    bool configure( const QDomElement& element );
+    bool setConfiguration( const QDomElement& element );
 #endif // QT_BUILDER
 
 public slots:

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.h#238 $
+** $Id: //depot/qt/main/src/kernel/qwidget.h#239 $
 **
 ** Definition of QWidget class
 **
@@ -312,7 +312,7 @@ public:
     static QWidgetMapper *wmapper();
 
 #ifdef QT_BUILDER
-    bool configure( const QDomElement& element );
+    bool setConfiguration( const QDomElement& element );
 #endif
     // Event handlers
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#87 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#88 $
 **
 ** Implementation of QMenuData class
 **
@@ -1181,7 +1181,7 @@ QString QMenuData::whatsThis( int id ) const
 }
 
 #ifdef QT_BUILDER
-bool QMenuData::configure( QWidget* _this, const QDomElement& element )
+bool QMenuData::setConfiguration( QWidget* _this, const QDomElement& element )
 {
   QDomElement r = element.firstChild().toElement();
   for( ; !r.isNull(); r = r.nextSibling().toElement() )

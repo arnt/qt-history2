@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#35 $
+** $Id: //depot/qt/main/src/dialogs/qwizard.cpp#36 $
 **
 ** Implementation of QWizard class.
 **
@@ -683,7 +683,7 @@ QWidget* QWizard::page( int pos ) const
     return d->pages[ pos ]->w;
 }
 
-bool QWizard::configure( const QDomElement& element )
+bool QWizard::setConfiguration( const QDomElement& element )
 {
     QDomElement r = element.firstChild().toElement();
     for( ; !r.isNull(); r = r.nextSibling().toElement() )
@@ -717,7 +717,7 @@ bool QWizard::configure( const QDomElement& element )
       }    
     }  
 
-    if ( !QDialog::configure( element ) )
+    if ( !QDialog::setConfiguration( element ) )
       return FALSE;
 
     return TRUE;

@@ -582,9 +582,12 @@ public:
     QDomMimeSourceFactory();
     ~QDomMimeSourceFactory();
     
-    QPixmap pixmap( const QString& name );
-    QString pixmapName( const QPixmap& pix ) const;
-    
+    virtual QPixmap pixmap( const QString& name );
+    virtual QString pixmapName( const QPixmap& pix ) const;
+
+    static QDomMimeSourceFactory* defaultDomFactory();
+    static void setDefaultDomFactory( QDomMimeSourceFactory* );
+
 private:
     QDOM_MimeSourceFactoryPrivate* d;
 };

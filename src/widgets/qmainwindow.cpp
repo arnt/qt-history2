@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#74 $
+** $Id: //depot/qt/main/src/widgets/qmainwindow.cpp#75 $
 **
 ** Implementation of QMainWindow class
 **
@@ -1328,7 +1328,7 @@ void QMainWindow::styleChange( QStyle& old )
 }
 
 #ifdef QT_BUILDER
-bool QMainWindow::configure( const QDomElement& element )
+bool QMainWindow::setConfiguration( const QDomElement& element )
 {  
   QDomElement r = element.firstChild().toElement();
   for( ; !r.isNull(); r = r.nextSibling().toElement() )
@@ -1351,7 +1351,7 @@ bool QMainWindow::configure( const QDomElement& element )
       }
       QMenuBar* bar = menuBar();
 
-      if ( !bar->configure( c ) )
+      if ( !bar->setConfiguration( c ) )
 	return FALSE;
     }
     else if ( r.tagName() == "CentralWidget" )
@@ -1366,7 +1366,7 @@ bool QMainWindow::configure( const QDomElement& element )
 
   // Dont call QWidget configure since we do not accept layouts or
   // or direct child widget except for bars and the central widget
-  if ( !QObject::configure( element ) )
+  if ( !QObject::setConfiguration( element ) )
     return FALSE;
   
   return TRUE;

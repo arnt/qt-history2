@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#28 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.h#29 $
 **
 ** Definition of the abstract layout base class
 **
@@ -204,7 +204,7 @@ public:
     QLayout *layout();
 
 #ifdef QT_BUILDER
-    virtual bool configure( const QDomElement&, QWidget* mainwidget );
+    virtual bool setConfiguration( const QDomElement&, QWidget* mainwidget );
 #endif
 protected:
     bool  eventFilter( QObject *, QEvent * );

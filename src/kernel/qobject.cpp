@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qobject.cpp#211 $
+** $Id: //depot/qt/main/src/kernel/qobject.cpp#212 $
 **
 ** Implementation of QObject class
 **
@@ -2788,7 +2788,7 @@ bool QObject::property( const char *_name, QVariant* _value ) const
   return FALSE;
 }
 
-bool QObject::configure( const QDomElement& element )
+bool QObject::setConfiguration( const QDomElement& element )
 {
   QMetaObject* m = queryMetaObject();
   if ( !m )
@@ -2857,133 +2857,31 @@ bool QObject::setProperty( const QMetaProperty* p, const QDomElement& element )
 
   return setProperty( name, element.property( name, type ) );
 }
-/*
-  switch( type )
-  {
-  case QVariant::String:
+
+QDomElement& QObject::getConfiguration( QDomNode& parent, bool properties ) const
+{
+    QDomElement e = parent.ownerDocument().createElement( className() );
+    
+    if ( properties )
     {
-      if ( name == "name" )
-	return setProperty( name, QVariant( element.attribute( "name" ) ) );
+	QMetaObject* m = metaObject();
+	if ( m )
+        {
+	    QStringList props = m->propertyNames();
 
-      QDomElement n = element.namedItem( name ).toElement();
-      if ( !n.isNull() )
-	return setProperty( name, QVariant( n.text() ) );
-
-      return FALSE;
-    }
-    case QVariant::Bool:
-      {
-	if ( element.hasAttribute( name ) )
-	  return setProperty( name, QVariant( (bool)element.attribute( name ).toInt() ) );
-	return FALSE;
-      }
-    case QVariant::Int:
-      {
-	if ( element.hasAttribute( name ) )
-	  return setProperty( name, QVariant( element.attribute( name ).toInt() ) );
-	return FALSE;
-      }
-    case QVariant::Double:
-      {
-	if ( element.hasAttribute( name ) )
-	  return setProperty( name, QVariant( element.attribute( name ).toDouble() ) );
-	return FALSE;
-      }
-    case QVariant::Color:
-      {
-	if ( element.hasAttribute( name ) )
-	  return setProperty( name, QVariant( QColor( element.attribute( name ) ) ) );
-	return FALSE;
-      }
-    case QVariant::Font:
-      {
-	QDomElement n = element.namedItem( name ).toElement();
-	if ( n.isNull() )
-	  return FALSE;
-	
-	return setProperty( name, n.toFont() );
-      }
-    case QVariant::Rect:
-      {
-	QDomElement n = element.namedItem( name ).toElement();
-	if ( n.isNull() )
-	  return FALSE;
-	
-	return setProperty( name, n.toRect() );
-      }
-    case QVariant::Size:
-      {
-	QDomElement n = element.namedItem( name ).toElement();
-	if ( n.isNull() )
-	  return FALSE;
-	
-	return setProperty( name, n.toSize() );
-      }
-    case QVariant::Point:
-      {
-	QDomElement n = element.namedItem( name ).toElement();
-	if ( n.isNull() )
-	  return FALSE;
-	
-	return setProperty( name, n.toPoint() );
-      }
-    case QVariant::StringList:
-      {
-	QDomElement n = element.namedItem( name ).toElement();
-	if ( n.isNull() )
-	  return FALSE;
-
-	QStringList lst;
-	QDomElement e = n.firstChild().toElement();
-	for( ; !e.isNull(); e = e.nextSibling().toElement() )
-	  if ( e.tagName() == "StringItem" )
-	    lst.append( e.text() );
-
-	return setProperty( name, QVariant( lst ) );
-      }
-    case QVariant::IntList:
-      {
-	QDomElement n = element.namedItem( name ).toElement();
-	if ( n.isNull() )
-	  return FALSE;
-
-	QValueList<int> lst;
-	QDomElement e = n.firstChild().toElement();
-	for( ; !e.isNull(); e = e.nextSibling().toElement() )
-	  if ( e.tagName() == "IntItem" )
-	    lst.append( e.attribute( "value" ).toInt() );
-
-	return setProperty( name, QVariant( lst ) );
-      }
-    case QVariant::DoubleList:
-      {
-	QDomElement n = element.namedItem( name ).toElement();
-	if ( n.isNull() )
-	  return FALSE;
-
-	QValueList<double> lst;
-	QDomElement e = n.firstChild().toElement();
-	for( ; !e.isNull(); e = e.nextSibling().toElement() )
-	  if ( e.tagName() == "DoubleItem" )
-	    lst.append( e.attribute( "value" ).toInt() );
-
-	return setProperty( name, QVariant( lst ) );
-      }
-    case QVariant::Pixmap:
-    case QVariant::Brush:
-    case QVariant::Palette:
-    case QVariant::ColorGroup:
-    case QVariant::Image:
-      //##### TODO
-      break;
-    case QVariant::Custom:
-    case QVariant::NTypes:
-    case QVariant::Empty:
-      // Do nothing
-      break;
+	    QStringList::Iterator it = props.begin();
+	    for( ; it != props.end(); ++it )
+	    {
+		QMetaProperty* p = m->property( *it, TRUE );
+		// Save only custom propertie values
+		QVariant prop;
+		if ( property( p->name, &prop ) )
+		    e.setProperty( p->name, prop );
+	    }
+	}
     }
 
-  return FALSE;
+    return e;
 }
-*/
+
 #endif // QT_BUILDER

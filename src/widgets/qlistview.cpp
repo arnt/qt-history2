@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#291 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#292 $
 **
 ** Implementation of QListView widget class
 **
@@ -1385,7 +1385,7 @@ void QListViewItem::paintBranches( QPainter * p, const QColorGroup & cg,
 }
 
 #ifdef QT_BUILDER
-bool QListViewItem::configure( const QDomElement& item, int columns )
+bool QListViewItem::setConfiguration( const QDomElement& item, int columns )
 {
     QListViewItem* lv = 0;
     int c = 0;
@@ -1412,7 +1412,7 @@ bool QListViewItem::configure( const QDomElement& item, int columns )
 	  lv = new QListViewItem( this, lv );
 	else
 	  lv = new QListViewItem( this );
-	if ( !lv->configure( p, columns ) )
+	if ( !lv->setConfiguration( p, columns ) )
 	  return FALSE;
       }
       else
@@ -4310,7 +4310,7 @@ void QListView::takeItem( QListViewItem * i )
 }
 
 #ifdef QT_BUILDER
-bool QListView::configure( const QDomElement& element )
+bool QListView::setConfiguration( const QDomElement& element )
 {
   QDomElement t = element.namedItem( "Head" ).toElement();
   if ( t.isNull() )
@@ -4344,12 +4344,12 @@ bool QListView::configure( const QDomElement& element )
 	lv = new QListViewItem( this, lv );
       else
 	lv = new QListViewItem( this );
-      if ( !lv->configure( l, columns ) )
+      if ( !lv->setConfiguration( l, columns ) )
 	return FALSE;
     }
   }
 
-  return QScrollView::configure( element );
+  return QScrollView::setConfiguration( element );
 }
 #endif // QT_BUILDER
 

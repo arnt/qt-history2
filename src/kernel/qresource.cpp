@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qresource.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qresource.cpp#5 $
 **
 ** Implementation of QResource classes
 **
@@ -1030,7 +1030,7 @@ QWidget* QResource::createWidget( QWidget* _parent ) const
     return 0;
   }
   
-  w->configure( *this );
+  w->setConfiguration( *this );
 
   return w;
 }
@@ -1067,7 +1067,7 @@ QLayout* QResource::createLayout( QWidget* _parent ) const
     return 0;
   }
   
-  w->configure( *this );
+  w->setConfiguration( *this );
 
   return w;
 }
@@ -1104,7 +1104,7 @@ QLayout* QResource::createLayout( QLayout* _parent ) const
     return 0;
   }
   
-  w->configure( *this );
+  w->setConfiguration( *this );
 
   return w;
 }

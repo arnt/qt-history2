@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#245 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#246 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -1409,13 +1409,13 @@ bool QPopupMenu::customWhatsThis() const
 }
 
 #ifdef QT_BUILDER
-bool QPopupMenu::configure( const QDomElement& element )
+bool QPopupMenu::setConfiguration( const QDomElement& element )
 {
   // Dont call QWidget configure since we do not accept layouts or
   // or direct child widget except for bars and the central widget
-  if ( !QMenuData::configure( this, element ) )
+  if ( !QMenuData::setConfiguration( this, element ) )
     return FALSE;
   
-  return QObject::configure( element );
+  return QObject::setConfiguration( element );
 }
 #endif
