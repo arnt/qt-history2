@@ -33,6 +33,11 @@
 #include <qlabel.h>
 #include <qwizard.h>
 #include <qptrdict.h>
+#include <qpushbutton.h>
+#include <qtoolbutton.h>
+#include <qcheckbox.h>
+#include <qradiobutton.h>
+#include <qbuttongroup.h>
 
 #include "metadatabase.h"
 
@@ -279,6 +284,101 @@ protected:
 private:
     FormWindow *formwindow;
 
+};
+
+class QDesignerToolButton : public QToolButton
+{
+    Q_OBJECT
+    Q_PROPERTY( int buttonGroupId READ buttonGroupId WRITE setButtonGroupId )
+    
+public:
+    QDesignerToolButton( QWidget *parent, const char *name )
+	: QToolButton( parent, name ) {}
+    
+    bool isInButtonGroup() const { 
+	return parentWidget() && parentWidget()->inherits( "QButtonGroup" ); 
+    }
+    int buttonGroupId() const { 
+	return parentWidget() && parentWidget()->inherits( "QButtonGroup" ) ? ( (QButtonGroup*)parentWidget() )->id( (QButton*)this ) : -1; 
+    }
+    void setButtonGroupId( int id ) { 
+	if ( parentWidget() && parentWidget()->inherits( "QButtonGroup" ) ) {
+	    ( (QButtonGroup*)parentWidget() )->remove( this );
+	    ( (QButtonGroup*)parentWidget() )->insert( this, id );    
+	}
+    }
+};
+
+class QDesignerRadioButton : public QRadioButton
+{
+    Q_OBJECT
+    Q_PROPERTY( int buttonGroupId READ buttonGroupId WRITE setButtonGroupId )
+    
+public:
+    QDesignerRadioButton( QWidget *parent, const char *name )
+	: QRadioButton( parent, name ) {}
+    
+    bool isInButtonGroup() const { 
+	return parentWidget() && parentWidget()->inherits( "QButtonGroup" ); 
+    }
+    int buttonGroupId() const { 
+	return parentWidget() && parentWidget()->inherits( "QButtonGroup" ) ? ( (QButtonGroup*)parentWidget() )->id( (QButton*)this ) : -1; 
+    }
+    void setButtonGroupId( int id ) { 
+	if ( parentWidget() && parentWidget()->inherits( "QButtonGroup" ) ) {
+	    ( (QButtonGroup*)parentWidget() )->remove( this );
+	    ( (QButtonGroup*)parentWidget() )->insert( this, id );    
+	}
+    }
+    
+};
+
+class QDesignerPushButton : public QPushButton
+{
+    Q_OBJECT
+    Q_PROPERTY( int buttonGroupId READ buttonGroupId WRITE setButtonGroupId )
+    
+public:
+    QDesignerPushButton( QWidget *parent, const char *name )
+	: QPushButton( parent, name ) {}
+    
+    bool isInButtonGroup() const { 
+	return parentWidget() && parentWidget()->inherits( "QButtonGroup" ); 
+    }
+    int buttonGroupId() const { 
+	return parentWidget() && parentWidget()->inherits( "QButtonGroup" ) ? ( (QButtonGroup*)parentWidget() )->id( (QButton*)this ) : -1; 
+    }
+    void setButtonGroupId( int id ) { 
+	if ( parentWidget() && parentWidget()->inherits( "QButtonGroup" ) ) {
+	    ( (QButtonGroup*)parentWidget() )->remove( this );
+	    ( (QButtonGroup*)parentWidget() )->insert( this, id );    
+	}
+    }
+    
+};
+
+class QDesignerCheckBox : public QCheckBox
+{
+    Q_OBJECT
+    Q_PROPERTY( int buttonGroupId READ buttonGroupId WRITE setButtonGroupId )
+    
+public:
+    QDesignerCheckBox( QWidget *parent, const char *name )
+	: QCheckBox( parent, name ) {}
+    
+    bool isInButtonGroup() const { 
+	return parentWidget() && parentWidget()->inherits( "QButtonGroup" ); 
+    }
+    int buttonGroupId() const { 
+	return parentWidget() && parentWidget()->inherits( "QButtonGroup" ) ? ( (QButtonGroup*)parentWidget() )->id( (QButton*)this ) : -1; 
+    }
+    void setButtonGroupId( int id ) { 
+	if ( parentWidget() && parentWidget()->inherits( "QButtonGroup" ) ) {
+	    ( (QButtonGroup*)parentWidget() )->remove( this );
+	    ( (QButtonGroup*)parentWidget() )->insert( this, id );    
+	}
+    }
+    
 };
 
 #endif

@@ -38,11 +38,7 @@
 #include <qmodules.h>
 
 #include <qpixmap.h>
-#include <qpushbutton.h>
-#include <qcheckbox.h>
-#include <qradiobutton.h>
 #include <qgroupbox.h>
-#include <qbuttongroup.h>
 #include <qiconview.h>
 #if defined(QT_MODULE_TABLE)
 #include <qtable.h>
@@ -58,7 +54,6 @@
 #include <qlistbox.h>
 #include <qlistview.h>
 #include <qobjectlist.h>
-#include <qtoolbutton.h>
 #include <qlcdnumber.h>
 #include <qslider.h>
 #include <qdial.h>
@@ -446,27 +441,35 @@ QWidget *WidgetFactory::createWidget( const QString &className, QWidget *parent,
 {
     if ( className == "QPushButton" ) {
 	QPushButton *b = 0;
-	if ( init )
-	    b = new QPushButton( QString::fromLatin1( name ), parent, name );
-	else
-	    b = new QPushButton( parent, name );
+	if ( init ) {
+	    b = new QDesignerPushButton( parent, name );
+	    b->setText( QString::fromLatin1( name ) );
+	} else {
+	    b = new QDesignerPushButton( parent, name );
+	}
 	b->setAutoDefault( TRUE );
 	return b;
     } else if ( className == "QToolButton" ) {
 	if ( init ) {
-	    QToolButton *tb = new QToolButton( parent, name );
+	    QDesignerToolButton *tb = new QDesignerToolButton( parent, name );
 	    tb->setText( "..." );
 	    return tb;
 	}
-	return new QToolButton( parent, name );
+	return new QDesignerToolButton( parent, name );
     } else if ( className == "QCheckBox" ) {
-	if ( init )
-	    return new QCheckBox( QString::fromLatin1( name ), parent, name );
-	return new QCheckBox( parent, name );
+	if ( init ) {
+	    QDesignerCheckBox *cb = new QDesignerCheckBox( parent, name );
+	    cb->setText( QString::fromLatin1( name ) );
+	    return cb;
+	}
+	return new QDesignerCheckBox( parent, name );
     } else if ( className == "QRadioButton" ) {
-	if ( init )
-	    return new QRadioButton( QString::fromLatin1( name ), parent, name );
-	return new QRadioButton( parent, name );
+	if ( init ) {
+	    QDesignerRadioButton *rb = new QDesignerRadioButton( parent, name );
+	    rb->setText( QString::fromLatin1( name ) );
+	    return rb;
+	}
+	return new QDesignerRadioButton( parent, name );
     } else if ( className == "QGroupBox" ) {
 	if ( init )
 	    return new QGroupBox( QString::fromLatin1( name ), parent, name );
@@ -790,6 +793,14 @@ const char* WidgetFactory::classNameOf( QObject* o )
 	return "QLabel";
     else if ( o->inherits( "QDesignerWizard" ) )
 	return "QWizard";
+    else if ( o->inherits( "QDesignerPushButton" ) )
+	return "QPushButton";
+    else if ( o->inherits( "QDesignerToolButton" ) )
+	return "QToolButton";
+    else if ( o->inherits( "QDesignerRadioButton" ) )
+	return "QRadioButton";
+    else if ( o->inherits( "QDesignerCheckBox" ) )
+	return "QCheckBox";
     return o->className();
 }
 
@@ -1057,3 +1068,4 @@ void CustomWidget::paintEvent( QPaintEvent *e )
 		      *cusw->pixmap );
     }
 }
+

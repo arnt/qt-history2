@@ -1948,6 +1948,12 @@ void PropertyList::setupProperties()
 	    continue;
 	if ( qstrcmp( p->name(), "maximumWidth" ) == 0 )
 	    continue;
+	if ( qstrcmp( p->name(), "buttonGroupId" ) == 0 ) { // #### remove this when designable in Q_PROPERTY can take a function (isInButtonGroup() in this case)
+	    if ( !editor->widget()->parentWidget() ||
+		 !editor->widget()->parentWidget()->inherits( "QButtonGroup" ) )
+		continue;
+	}
+	
 	
 	if ( p->designable() ) {
 	    if ( p->isSetType() ) {

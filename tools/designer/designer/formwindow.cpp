@@ -739,8 +739,19 @@ void FormWindow::handleMouseRelease( QMouseEvent *e, QWidget *w )
 		}
 		
 		// doesn't need to be a command, the MoveCommand does reparenting too
+		bool emitSelChanged = FALSE;
 		for ( QMap<ulong, QPoint>::Iterator it = moving.begin(); it != moving.end(); ++it ) {
 		    QWidget *i = (QWidget*)it.key();
+		    if ( !emitSelChanged && i->inherits( "QButton" )  ) {
+			if ( i->parentWidget() && i->parentWidget()->inherits( "QButtonGroup" ) ||
+			     wa->inherits( "QButtonGroup" ) )
+			    emitSelChanged = TRUE;
+			if ( !wa->inherits( "QButtonGroup" ) ) {
+			    MetaDataBase::setPropertyChanged( i, "buttonGroupId", FALSE );
+			    if ( i->parentWidget() && i->parentWidget()->inherits( "QButtonGroup" ) )
+				( (QButtonGroup*)i->parentWidget() )->remove( (QButton*)i );
+			}
+		    }
 		    QPoint pos = wa->mapFromGlobal( i->mapToGlobal( QPoint(0,0) ) );
 		    i->reparent( wa, pos, TRUE );
 		    raiseSelection( i );
@@ -748,6 +759,10 @@ void FormWindow::handleMouseRelease( QMouseEvent *e, QWidget *w )
 		    widgetChanged( i );
 		    mainWindow()->objectHierarchy()->widgetRemoved( i );
 		    mainWindow()->objectHierarchy()->widgetInserted( i );
+		}
+		if ( emitSelChanged ) {
+		    emit showProperties( wa );
+		    emit showProperties( propertyWidget );
 		}
 		newParent = wa;
 	    }

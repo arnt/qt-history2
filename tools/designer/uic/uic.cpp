@@ -958,6 +958,12 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 		    else
 			value = "QFrame::VLine | QFrame::Sunken";
 		}
+		if ( prop == "buttonGroupId" ) {
+		    if ( parentClass == "QButtonGroup" )
+			out << indent << parent << "->insert( " << objName << ", " << value << " );" << endl;
+		    continue;
+		}
+
 		if ( prop == "geometry") {
 			out << indent << objName << "->setGeometry( " << value << " ); " << endl;
 		} else {
@@ -966,7 +972,6 @@ QString Uic::createObjectImpl( const QDomElement &e, const QString& parentClass,
 		    else
 			out << indent << objName << "->setProperty( \"" << prop << "\", " << value << " );" << endl;
 		}
-
 	    }
 	} else if ( n.tagName() == "item" ) {
 	    if ( objClass.mid( 1 ) == "ListBox" ) {
