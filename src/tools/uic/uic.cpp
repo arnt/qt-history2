@@ -82,11 +82,8 @@ bool Uic::write(QIODevice *in)
             fprintf(stderr, "Couldn't start uic3: %s\n", uic3.errorString().local8Bit());
             return false;
         }
-
-        QString contents;
-        while (uic3.waitForReadyRead())
-            contents += QString::fromAscii(uic3.readAll());
-
+        uic3.waitForFinished();
+        QString contents = uic3.readAll();
         if (!doc.setContent(contents))
             return false;
 
