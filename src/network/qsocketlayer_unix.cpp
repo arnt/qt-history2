@@ -15,6 +15,7 @@
 #include "qplatformdefs.h"
 #include "qsocketlayer_p.h"
 #include "qhostaddress.h"
+#include "qvarlengtharray.h"
 #include <time.h>
 #include <errno.h>
 
@@ -474,7 +475,7 @@ bool QSocketLayerPrivate::nativeHasPendingDatagrams() const
 
     // Peek 0 bytes into the next message. The size of the message may
     // well be 0, so we can't check recvfrom's return value.
-    int readBytes;
+    ssize_t readBytes;
     do {
         readBytes = ::recvfrom(socketDescriptor, 0, 0, MSG_PEEK, storagePtr, &storageSize);
     } while (readBytes == -1 && errno == EINTR);
@@ -497,21 +498,28 @@ bool QSocketLayerPrivate::nativeHasPendingDatagrams() const
 
 Q_LONGLONG QSocketLayerPrivate::nativePendingDatagramSize() const
 {
-    int recvResult;
-    do {
+    QVarLengthArray<char, 8192> udpMessagePeekBuffer(8192);
+    ssize_t recvResult = -1;
+    for (;;) {
         // the data written to udpMessagePeekBuffer is discarded, so
         // this function is still reentrant although it might not look
         // so.
-        static char udpMessagePeekBuffer[8192];
-        recvResult = ::recv(socketDescriptor, udpMessagePeekBuffer,
-                            sizeof(udpMessagePeekBuffer), MSG_TRUNC | MSG_PEEK);
-    } while (recvResult == -1 && errno == EINTR);
+        recvResult = ::recv(socketDescriptor, udpMessagePeekBuffer.data(),
+                            udpMessagePeekBuffer.size(), MSG_PEEK);
+        if (recvResult == -1 && errno == EINTR)
+            continue;
+
+        if (recvResult != (ssize_t) udpMessagePeekBuffer.size())
+            break;
+
+        udpMessagePeekBuffer.resize(udpMessagePeekBuffer.size() * 2);
+    }
 
 #if defined (QSOCKETLAYER_DEBUG)
     qDebug("QSocketLayerPrivate::nativePendingDatagramSize() == %i", recvResult);
 #endif
 
-    return recvResult;
+    return Q_LONGLONG(recvResult);
 }
 
 Q_LONGLONG QSocketLayerPrivate::nativeReceiveDatagram(char *data, Q_LONGLONG maxSize,
@@ -545,7 +553,7 @@ Q_LONGLONG QSocketLayerPrivate::nativeReceiveDatagram(char *data, Q_LONGLONG max
            port ? *port : 0, (Q_LONGLONG) recvFromResult);
 #endif
 
-    return recvFromResult;
+    return Q_LONGLONG(recvFromResult);
 }
 
 Q_LONGLONG QSocketLayerPrivate::nativeSendDatagram(const char *data, Q_LONGLONG len,
@@ -586,8 +594,15 @@ Q_LONGLONG QSocketLayerPrivate::nativeSendDatagram(const char *data, Q_LONGLONG 
                              0, sockAddrPtr, sockAddrSize);
     } while (sentBytes == -1 && errno == EINTR);
 
-    if (sentBytes < 0)
-        setError(Qt::NetworkError, "Unable to receive a message");
+    if (sentBytes < 0) {
+        switch (errno) {
+        case EMSGSIZE:
+            setError(Qt::DatagramTooLargeError, "Datagram too large");
+            break;
+        default:
+            setError(Qt::NetworkError, "Unable to receive a message");
+        }
+    }
 
 #if defined (QSOCKETLAYER_DEBUG)
     qDebug("QSocketLayer::sendDatagram(%p \"%s\", %lli, \"%s\", %i) == %lli", data,
@@ -595,7 +610,7 @@ Q_LONGLONG QSocketLayerPrivate::nativeSendDatagram(const char *data, Q_LONGLONG 
            port, (Q_LONGLONG) sentBytes);
 #endif
 
-    return sentBytes;
+    return Q_LONGLONG(sentBytes);
 }
 
 bool QSocketLayerPrivate::fetchConnectionParameters()
@@ -719,7 +734,7 @@ Q_LONGLONG QSocketLayerPrivate::nativeWrite(const char *data, Q_LONGLONG len)
                                 (int) len).data(), len, (int) writtenBytes);
 #endif
 
-    return (Q_LONGLONG) writtenBytes;
+    return Q_LONGLONG(writtenBytes);
 }
 /*
 */
@@ -730,7 +745,7 @@ Q_LONGLONG QSocketLayerPrivate::nativeRead(char *data, Q_LONGLONG maxSize)
         return -1;
     }
 
-    int r = 0;
+    ssize_t r = 0;
     do {
         r = ::read(socketDescriptor, data, maxSize);
     } while (r == -1 && errno == EINTR);
@@ -758,7 +773,7 @@ Q_LONGLONG QSocketLayerPrivate::nativeRead(char *data, Q_LONGLONG maxSize)
            maxSize, r);
 #endif
 
-    return r;
+    return Q_LONGLONG(r);
 }
 
 int QSocketLayerPrivate::nativeSelect(int timeout, bool selectForRead) const
