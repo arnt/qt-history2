@@ -35,7 +35,7 @@
         <string>Choose Topic</string>
     </property>
     <property name="icon">
-        <pixmap>logo.png</pixmap>
+        <pixmap>icon.png</pixmap>
     </property>
     <property name="sizeGripEnabled">
         <bool>true</bool>

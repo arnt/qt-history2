@@ -35,7 +35,7 @@
         <string>Qt Assistant by Trolltech</string>
     </property>
     <property name="icon">
-        <pixmap>logo.png</pixmap>
+        <pixmap>icon.png</pixmap>
     </property>
 </widget>
 <menubar>

@@ -35,7 +35,7 @@
         <string>Find Text</string>
     </property>
     <property name="icon">
-        <pixmap>logo.png</pixmap>
+        <pixmap>icon.png</pixmap>
     </property>
     <vbox>
         <property name="name">
