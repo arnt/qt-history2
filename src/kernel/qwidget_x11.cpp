@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#49 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#50 $
 **
 ** Implementation of QWidget and QView classes for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#49 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#50 $";
 #endif
 
 
@@ -267,22 +267,40 @@ bool QWidget::setMouseTracking( bool enable )
     return v;
 }
 
+/*! Returns the backround color of this widget.  The background color
+  is independent of the color group.  \sa colorGroup(), QColor,
+  setBackgroundColor() and foregroundColor(). */
+
 QColor QWidget::backgroundColor() const		// get background color
 {
     return bg_col;
 }
 
+/*! Returns the foreground color of this widget.  The foreground color
+  depends on the color group of the widget.  \sa colorGroup(), QColor
+  and backgroundColor(). */
 QColor QWidget::foregroundColor() const		// get foreground color
 {
     return colorGroup().foreground();
 }
 
+/*! Sets the background color of this widget.  The background color is
+  independent of the widget's color group.  \sa QColor and
+  backgroundColor(). */
 void QWidget::setBackgroundColor( const QColor &c )
 {						// set background color
     bg_col = c;
     XSetWindowBackground( dpy, ident, bg_col.pixel() );
     update();
 }
+
+/*! Returns the font the widget is currently using (wanting to use,
+  rather, QFontInfo will tell you what's actually on the screen).
+
+  If the font in use is the default font, a deep copy is returned.  If
+  you installed your own font, a shallow copy is returned.
+
+  \sa QFont, setFont(), fontMetrics() and fontInfo(). */
 
 QFont &QWidget::font()
 {
@@ -291,17 +309,49 @@ QFont &QWidget::font()
     return fnt;
 }
 
+/*! Sets the font of the widget.  You may not get the exact font you
+  specify; use fontInfo() to see what you got, if you can do anything
+  about it.  This code fragment switches to a bold version of whatever
+  font is being used:
+
+  \code
+  QFont f = font();
+  f.setWeight( QFont::Bold );
+  setFont(f);
+  \endcode
+
+  Here's how to copy the font from the parent widget:
+
+  \code
+  if (parentWidget)
+      setFont( parentWidget->font() );
+  \endcode
+
+  \sa font() and fontInfo(). */
+
 void QWidget::setFont( const QFont &font )	// set font
 {
     fnt = font;
     update();
 }
 
+
+/*! Returns the cursor in use; the QCursor class lists the
+  cursors. \sa QCursor and setcursor().*/
 QCursor QWidget::cursor() const			// get cursor
 {
     return curs;
 }
 
+/*! Set the cursor shape.  The mouse cursor will assume this shape
+  when it's over this widget.  The available shapes are listed in the
+  QCursor documentation.
+
+  \code
+  setcursor( QCursor::hourGlassCursor );
+  \endcode
+
+  \sa QCursor, cursor().  */
 void QWidget::setCursor( const QCursor &cursor )// set cursor
 {
     curs = cursor;
@@ -574,6 +624,10 @@ void QWidget::setGeometry( int x, int y, int w, int h )
     QApplication::sendEvent( this, &e2 );	// send move event
 }
 
+/*! Sets the minimum size of the widget to \e w pixels wide and \e h
+  pixels high.  The user will not be able to resize the widget to a
+  smaller size.  \sa setMaximumSize(), setSizeIncrement(), size() and
+  geometry(). */
 
 void QWidget::setMinimumSize( int w, int h )	// set minimum size
 {
@@ -587,6 +641,11 @@ void QWidget::setMinimumSize( int w, int h )	// set minimum size
     }
 }
 
+/*! Sets the maximum size of the widget to \e w pixels wide and \e h
+  pixels high.  The user will not be able to resize the widget to a
+  larger size.  \sa setMinimumSize(), setSizeIncrement(), size() and
+  geometry(). */
+
 void QWidget::setMaximumSize( int w, int h )	// set maximum size
 {
     if ( testFlag(WType_Overlap) ) {
@@ -598,6 +657,11 @@ void QWidget::setMaximumSize( int w, int h )	// set maximum size
 	do_size_hints( dpy, ident, extra, &size_hints );
     }
 }
+
+/*! Sets the size increment of the widget.  When the user resizes the
+  widget, the size will move in steps of \e w horizontally and \e h
+  vertically.  Both default to 1. \sa setMaximumSize() and
+  setSizeIncrement(). */
 
 void QWidget::setSizeIncrement( int w, int h )
 {						// set size increment
