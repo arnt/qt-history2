@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget.cpp#384 $
+** $Id: //depot/qt/main/src/kernel/qwidget.cpp#385 $
 **
 ** Implementation of QWidget class
 **
@@ -4053,4 +4053,19 @@ int QWidget::heightForWidth( int w ) const
 bool QWidget::customWhatsThis() const
 {
     return FALSE;
+}
+
+
+/*!
+  Notifies the layout system that this widget has changed and may need
+  to change geometry. 
+  
+  Call this function if the sizeHint() or sizePolicy() have changed.
+*/
+
+void QWidget::updateGeometry()
+{
+    if ( !isTopLevel() )
+	QApplication::postEvent( parentWidget(),
+				 new QEvent( QEvent::LayoutHint ) );
 }

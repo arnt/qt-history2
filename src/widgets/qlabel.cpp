@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.cpp#112 $
+** $Id: //depot/qt/main/src/widgets/qlabel.cpp#113 $
 **
 ** Implementation of QLabel widget class
 **
@@ -247,10 +247,7 @@ void QLabel::setText( const QString &text )
     } else {
 	updateLabel();
     }
-
-    if ( !isTopLevel() )
-	QApplication::postEvent( parentWidget(),
-				 new QEvent( QEvent::LayoutHint ) );
+    updateGeometry();
 }
 
 
@@ -465,13 +462,13 @@ void QLabel::setAutoResize( bool enable )
 }
 
 
-/*!
-  Returns a size which fits the contents of the label.
 
-  \bug Does not work well with the WordBreak flag
+/*!
+  Returns the size that will be used if the width of the label is 
+  \a w. If \a w is -1, the sizeHint is returned.
 */
 
-QSize QLabel::sizeHint() const
+QSize QLabel::sizeForWidth( int w ) const
 {
     QPainter p( this );
     QRect br;
@@ -481,36 +478,20 @@ QSize QLabel::sizeHint() const
 	br = QRect( 0, 0, pix->width(), pix->height() );
     } else if ( mov ) {
 	br = QRect( 0, 0, mov->framePixmap().width(),
-		mov->framePixmap().height() );
+		    mov->framePixmap().height() );
     } else if (isqml ){
 	if ( qmlDoc ) {
-	    QRect cr = contentsRect();
-	    int m = margin();
-	    if ( m < 0 ) {
-		if ( frameWidth() > 0 )
-		    m = p.fontMetrics().width("x")/2;
-		else
-		    m = 0;
-	    }
-	    if ( m > 0 ) {
-		if ( align & AlignLeft )
-		    cr.setLeft( cr.left() + m );
-		if ( align & AlignRight )
-		    cr.setRight( cr.right() - m );
-		if ( align & AlignTop )
-		    cr.setTop( cr.top() + m );
-		if ( align & AlignBottom )
-		    cr.setBottom( cr.bottom() - m );
-	    }
-	    if ( qmlDoc->width() != cr.width() ) {
-		QPainter p( this );
-		qmlDoc->setWidth( &p, cr.width() );
-	    }
+	    //QRect cr = contentsRect();
+	    if ( w < 0 )
+		w = contentsRect().width();
+
+	    w -= 2*frameWidth();
+	    qmlDoc->setWidth(&p, w);
 	    br = QRect( 0, 0, qmlDoc->width(), qmlDoc->height() );
 	}
     }
     else {
-	br = p.boundingRect( 0,0, 1000,1000, alignment(), text() );
+	br = p.boundingRect( 0,0, w<0 ? 1000 : w ,1000, alignment(), text() );
 	// adjust so "Yes" and "yes" will have the same height
 	int h = fontMetrics().lineSpacing();
 	br.setHeight( ((br.height() + h-1) / h)*h - fontMetrics().leading() );
@@ -523,10 +504,35 @@ QSize QLabel::sizeHint() const
 	else
 	    m = 0;
     }
-    int w = br.width()	+ m + 2*fw;
-    int h = br.height() + m + 2*fw;
+    int wid = br.width()	+ m + 2*fw;
+    int hei = br.height() + m + 2*fw;
 
-    return QSize( w, h );
+    return QSize( wid, hei );    
+}
+
+
+/*!
+  Reimplemented for QML labels and WordBreak
+*/
+int QLabel::heightForWidth(int w) const
+{
+    if (isqml && qmlDoc || align & WordBreak ) {
+	return sizeForWidth( w ).height();
+    }
+    return QWidget::heightForWidth(w);
+}
+
+
+
+/*!
+  Returns a size which fits the contents of the label.
+
+  \bug Does not work well with the WordBreak flag, use heightForWidth().
+*/
+
+QSize QLabel::sizeHint() const
+{
+    return sizeForWidth( -1 );
 }
 
 
@@ -537,7 +543,12 @@ QSize QLabel::sizeHint() const
 
 QSizePolicy QLabel::sizePolicy() const
 {
-    return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum, isqml );
+    if ( isqml || align & WordBreak )
+	return QSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred,
+			    TRUE );
+    else
+	return QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Minimum,
+			    FALSE );
 }
 
 
@@ -767,8 +778,7 @@ void QLabel::movieResized(const QSize& size)
 {
     if (autoresize) adjustSize();
     movieUpdated(QRect(QPoint(0,0),size));
-    if ( !isTopLevel() )
-	QApplication::postEvent( parentWidget(), new QEvent( QEvent::LayoutHint ) );
+    updateGeometry();
 }
 
 /*!
@@ -826,38 +836,6 @@ QMovie* QLabel::movie() const
     return lmovie;
 }
 
-/*!
-  Reimplemented for QML labels
-*/
-int QLabel::heightForWidth(int w) const
-{
-    if (isqml && qmlDoc ) {
-	QPainter p( this );
-	w -= 2*frameWidth();
-	int m = margin();
-	if ( m < 0 ) {
-	    if ( frameWidth() > 0 )
-		m = p.fontMetrics().width("x")/2;
-	    else
-		m = 0;
-	}
-	int add = 0;
-	if ( m > 0 ) {
-	    if ( align & AlignLeft )
-		w -= m;
-	    if ( align & AlignRight )
-		w -= m;
-	    if ( align & AlignTop )
-		add = m;
-	    if ( align & AlignBottom )
-		add = m;
-	}
-	qmlDoc->setWidth(&p, w);
-	return qmlDoc->height() + 2*frameWidth() + add;
-    }
-    return QWidget::heightForWidth(w);
-}
-
 
 /*!
   Sets the label contents to QML document \e qml and
@@ -897,6 +875,6 @@ void QLabel::setQML( const QString & qml )
     } else {
 	updateLabel();
     }
-    if ( !isTopLevel() )
-	QApplication::postEvent( parentWidget(), new QEvent( QEvent::LayoutHint ) );
+    updateGeometry();
 }
+

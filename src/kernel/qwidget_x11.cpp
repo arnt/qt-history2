@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#342 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#343 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1394,9 +1394,7 @@ void QWidget::setMinimumSize( int minw, int minh )
 	size_hints.flags = 0;
 	do_size_hints( x11Display(), winId(), extra, &size_hints );
     }
-    if ( !isTopLevel() )
-	QApplication::postEvent( parentWidget(),
-				 new QEvent( QEvent::LayoutHint) );
+    updateGeometry();
 }
 
 /*!
@@ -1437,8 +1435,7 @@ void QWidget::setMaximumSize( int maxw, int maxh )
 	size_hints.flags = 0;
 	do_size_hints( x11Display(), winId(), extra, &size_hints );
     }
-    if ( !isTopLevel() )
-	QApplication::postEvent( parentWidget(), new QEvent( QEvent::LayoutHint) );
+    updateGeometry();
 }
 
 /*!

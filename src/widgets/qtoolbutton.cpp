@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#49 $
+** $Id: //depot/qt/main/src/widgets/qtoolbutton.cpp#50 $
 **
 ** Implementation of QToolButton class
 **
@@ -261,9 +261,7 @@ void QToolButton::setUsesBigPixmap( bool enable )
 	return;
 
     ubp = enable;
-
-    if ( parent() )
-	QApplication::postEvent( parent(), new QEvent( QEvent::LayoutHint ) );
+    updateGeometry();
 }
 
 
@@ -289,8 +287,7 @@ void QToolButton::setUsesTextLabel( bool enable )
 
     utl = enable;
 
-    if ( parent() )
-	QApplication::postEvent( parent(), new QEvent( QEvent::LayoutHint ) );
+    updateGeometry();
 }
 
 

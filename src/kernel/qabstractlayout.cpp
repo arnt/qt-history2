@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#31 $
+** $Id: //depot/qt/main/src/kernel/qabstractlayout.cpp#32 $
 **
 ** Implementation of the abstract layout base class
 **
@@ -889,15 +889,6 @@ QSizePolicy::ExpandData QLayout::expanding() const
     return QSizePolicy::NoDirection;
 }
 
-/*!  Redoes the layout for mainWidget().  You should generally not
-  need to call this, as it is automatically called at most appropriate
-  times.
-
-  However, if you set up a QLayout for a visible widget without
-  resizing that widget, you need to call this function in order to lay
-  it out.
-*/
-
 
 
 
@@ -913,17 +904,24 @@ static void  invalidateRecursive( QLayoutItem *lay )
 }
 
 
+
+
+/*!  Redoes the layout for mainWidget().  You should generally not
+  need to call this, as it is automatically called at most appropriate
+  times.
+
+  However, if you set up a QLayout for a visible widget without
+  resizing that widget, you need to call this function in order to lay
+  it out.
+
+  \sa QWidget::updateGeometry()
+*/
+
 bool QLayout::activate()
 {
     // Paul: If adding stuff to a QLayout for a widget causes
     // postEvent(thatWidget, QEvent::LayoutHint), activate() becomes
     // unnecessary in that case too.
-
-    // Matthias: ??? but a LayoutHint simply _calls_ activate!
-    // However, it does not work at all right now. If a label changes,
-    // for example, its size hint changes at well, the parent widget
-    // receives a layout hint but layout doesn't react to it :-(
-
 
     invalidateRecursive( this );
     QSize s = mainWidget()->size();
@@ -932,6 +930,9 @@ bool QLayout::activate()
 			s.width() - 2*outsideBorder,
 			s.height() - mbh - 2*outsideBorder ) );
 
+
+    //###if ( sizeHint or sizePolicy has changed ) 
+    mainWidget()->updateGeometry();
     return TRUE;
 }
 

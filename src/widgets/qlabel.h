@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlabel.h#48 $
+** $Id: //depot/qt/main/src/widgets/qlabel.h#49 $
 **
 ** Definition of QLabel widget class
 **
@@ -87,6 +87,7 @@ private slots:
 private:
     void init();
     void	updateLabel();
+    QSize	sizeForWidth( int w ) const;
     QString	ltext;
     QPixmap    *lpixmap;
     QMovie *	lmovie;

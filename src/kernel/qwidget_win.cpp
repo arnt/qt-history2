@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#186 $
+** $Id: //depot/qt/main/src/kernel/qwidget_win.cpp#187 $
 **
 ** Implementation of QWidget and QWindow classes for Win32
 **
@@ -829,9 +829,7 @@ void QWidget::setMinimumSize( int minw, int minh )
     extra->minh = minh;
     if ( minw > width() || minh > height() )
 	resize( QMAX(minw,width()), QMAX(minh,height()) );
-    if ( !isTopLevel() )
-	QApplication::postEvent( parentWidget(), new QEvent( QEvent::LayoutHint) );
-
+    updateGeometry();
 }
 
 void QWidget::setMaximumSize( int maxw, int maxh )
@@ -848,8 +846,7 @@ void QWidget::setMaximumSize( int maxw, int maxh )
     extra->maxh = maxh;
     if ( maxw < width() || maxh < height() )
 	resize( QMIN(maxw,width()), QMIN(maxh,height()) );
-    if ( !isTopLevel() )
-	QApplication::postEvent( parentWidget(), new QEvent( QEvent::LayoutHint) );
+    updateGeometry();
 }
 
 void QWidget::setSizeIncrement( int w, int h )

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#37 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.cpp#38 $
 **
 ** Implementation of QWidgetStack class
 **
@@ -323,7 +323,7 @@ void QWidgetStack::setChildGeometries()
     l->setColStretch( 1, 1 );
     l->addWidget( invisible, 1, 1 );
     l->activate();
-    QApplication::postEvent( parent(), new QEvent( QEvent::LayoutHint ) );
+    updateGeometry();
     if ( topWidget && invisible )
 	topWidget->setGeometry( invisible->geometry() );
 }
