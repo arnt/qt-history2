@@ -251,6 +251,29 @@ QVariant QSqlTableModel::data(const QModelIndex &idx, int role) const
 }
 
 /*!
+    Returns true if the value at the index \a index is dirty, otherwise false.
+    Dirty values are values that were modified in the model
+    but not yet written into the database.
+
+    If \a index is invalid or points to a non-existing row, false is returned.
+ */
+bool QSqlTableModel::isDirty(const QModelIndex &index) const
+{
+    if (!index.isValid())
+        return false;
+
+    switch (d->strategy) {
+        case OnFieldChange:
+            return false;
+        case OnRowChange:
+            return index.row() == d->editIndex && d->editBuffer.value(index.column()).isValid();
+        case OnManualSubmit:
+            return d->cache.value(index.row()).value(index.column()).isValid();
+    }
+    return false;
+}
+
+/*!
     Sets the data for the item \a index for the role \a role to \a value.
     Depending on the edit strategy, the value might be applied to the database at once or
     cached in the model.

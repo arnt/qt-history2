@@ -43,6 +43,7 @@ public:
 
     QVariant data(const QModelIndex &idx, int role = QAbstractItemModel::Role_Display) const;
     bool setData(const QModelIndex &index, int role, const QVariant &value);
+    bool isDirty(const QModelIndex &index) const;
 
     virtual void setEditStrategy(EditStrategy strategy);
     EditStrategy editStrategy() const;
