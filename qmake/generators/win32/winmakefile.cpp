@@ -128,6 +128,8 @@ Win32MakefileGenerator::writeSubDirs(QTextStream &t)
         t << targs[x] << ":";
 	if(targs[x] == "install")
 	    t << " qmake_all";
+	else if(targs[x] == "clean")
+	    t << varGlue("QMAKE_CLEAN","\n\t-del ","\n\t-del ","\n\t");
 	if ( sdirs.count() > 0 ) {
 	    for(sdirit = sdirs.begin(); sdirit != sdirs.end(); ++sdirit) {
 		QString subdir = *sdirit;

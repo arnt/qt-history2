@@ -210,6 +210,14 @@ NmakeMakefileGenerator::init()
 	project->variables()["QMAKE_APP_FLAG"].append("1");
     else if(project->first("TEMPLATE") == "lib")
 	project->variables()["QMAKE_LIB_FLAG"].append("1");
+    else if(project->first("TEMPLATE") == "subdirs") {
+	MakefileGenerator::init();
+	if(project->variables()["MAKEFILE"].isEmpty())
+	    project->variables()["MAKEFILE"].append("Makefile");
+	if(project->variables()["QMAKE"].isEmpty())
+	    project->variables()["QMAKE"].append("qmake");
+	return;
+    }
 
     bool is_qt = (project->first("TARGET") == "qt"QTDLL_POSTFIX || project->first("TARGET") == "qt-mt"QTDLL_POSTFIX);
     project->variables()["QMAKE_ORIG_TARGET"] = project->variables()["TARGET"];
