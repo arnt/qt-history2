@@ -585,7 +585,7 @@ void Q3DockWindowTitleBar::mousePressEvent(QMouseEvent *e)
     opt.activeSubControls = QStyle::SC_None;
     opt.text = windowTitle();
     opt.icon = windowIcon();
-    opt.titleBarState = window() ? window()->windowState() : Qt::WindowNoState;
+    opt.titleBarState = window() ? window()->windowState() : static_cast<Qt::WindowStates>(Qt::WindowNoState);
     opt.titleBarFlags = getWFlags();
     QStyle::SubControl tbctrl = style()->hitTestComplexControl(QStyle::CC_TitleBar, &opt,
                                                                e->pos(), this);
