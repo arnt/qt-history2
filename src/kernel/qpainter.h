@@ -402,6 +402,7 @@ protected:
     friend const QRegion &qt_mac_update_painter(QPainter *, bool);
     friend class QFontEngineMac;
 #elif defined(Q_WS_QWS)
+    friend class QFontEngine;
     QGfx * gfx;
 #endif
     friend class QFontMetrics;

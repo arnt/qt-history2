@@ -91,7 +91,7 @@
 #endif
 #endif
 
-#ifdef Q_WS_X11
+#if defined( Q_WS_X11 ) || defined (Q_WS_QWS)
 #include "qfontdata_p.h"
 #include "qfontengine_p.h"
 #include "qtextlayout_p.h"

@@ -286,7 +286,7 @@ static void basic_shape( int /*script*/, const QString &string, int from, int le
 {
     convertToCMap( string.unicode() + from, len, engine, si );
 #if 0 // the optimization fails in some cases. No idea why.
-    if ( !engine->widthOnly ) {
+    f ( !engine->widthOnly ) {
 #endif
 	heuristicSetGlyphAttributes( string, from, len, engine, si );
 	q_heuristicPosition( engine, si );
@@ -295,10 +295,14 @@ static void basic_shape( int /*script*/, const QString &string, int from, int le
 	const QChar *uc = string.unicode() + from;
 	const QChar *end = uc + len;
 	advance_t *advances = engine->advances( si );
+	GlyphAttributes *ga = engine->glyphAttributes( si );
 	while ( uc < end ) {
 	    ++advances;
-	    if ( ::category( (++uc)->unicode() ) == QChar::Mark_NonSpacing )
+	    (++ga)->mark = FALSE;
+	    if ( ::category( (++uc)->unicode() ) == QChar::Mark_NonSpacing ) {
 		*advances = 0;
+		ga->mark = TRUE;
+	    }
 	}
     }
 #endif

@@ -259,7 +259,7 @@ protected:
       }
       if(c>=tmp2) {
 	qFatal("Alpha pointer overrun");
-      }      
+      }
     }
 
     void checkDest(unsigned char * c,int i) {
@@ -268,7 +268,7 @@ protected:
       }
       if(i>=height) {
 	qFatal("Destination height overrun");
-      } 
+      }
       unsigned char * tmp1=buffer+(i*lstep);
       unsigned char * tmp2=tmp1+lstep;
       if(c<tmp1) {
@@ -276,7 +276,7 @@ protected:
       }
       if(c>=tmp2) {
 	qFatal("Destination pointer overrun");
-      }      
+      }
     }
 
 #endif
@@ -287,7 +287,7 @@ protected:
 
     inline void beginDraw()
     {
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)	
+#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
 	QWSDisplay::grab();
 #endif
 	if ( globalRegionRevision &&
@@ -297,7 +297,7 @@ protected:
     }
     inline void endDraw()
     {
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)	
+#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
 	QWSDisplay::ungrab();
 #endif
     }
@@ -419,6 +419,7 @@ protected:
     QPolygonScanner::Edge stitchedges;
 
     friend class QScreenCursor;
+    friend class QFontEngine;
 };
 
 template <const int depth, const int type>

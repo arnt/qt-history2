@@ -2,7 +2,7 @@
 #include "qmemorymanager_qws.h"
 #include <private/qunicodetables_p.h>
 #include <qpainter.h>
-#include <qgfx_qws.h>
+#include <qgfxraster_qws.h>
 
 /*QMemoryManager::FontID*/ void *QFontEngine::handle() const
 {
@@ -11,10 +11,8 @@
 
 QFontEngine::QFontEngine( const QFontDef& d )
 {
-    QFontDef s = d;
-    if ( s.pointSize == -1 )
-	s.pointSize = s.pixelSize*10; // effectively sets the resolution of the display to 72dpi
-    id = memorymanager->refFont(s);
+    QFontDef fontDef = d;
+    id = memorymanager->refFont(fontDef);
 }
 
 QFontEngine::~QFontEngine()
@@ -43,16 +41,42 @@ QFontEngine::Error QFontEngine::stringToCMap( const QChar *str, int len, glyph_t
     return NoError;
 }
 
-void QFontEngine::draw( QPainter *p, int x, int y, const glyph_t *glyphs,
-			const advance_t *advances, const offset_t *offsets, int numGlyphs, bool reverse, int textFlags )
+void QFontEngine::draw( QPainter *p, int x, int y, const QTextEngine *engine, const QScriptItem *si, int textFlags )
 {
+    if ( p->txop == QPainter::TxTranslate )
+	p->map( x, y, &x, &y );
+
+    if ( textFlags ) {
+	int lw = lineThickness();
+	p->gfx->setBrush( p->cpen.color() );
+	if ( textFlags & Underline )
+	    p->gfx->fillRect( x, y+underlinePosition(), si->width, lw );
+	if ( textFlags & StrikeOut )
+	    p->gfx->fillRect( x, y-ascent()/3, si->width, lw );
+	if ( textFlags & Overline )
+	    p->gfx->fillRect( x, y-ascent()-1, si->width, lw );
+	p->gfx->setBrush( p->cbrush );
+    }
+
+    glyph_t *glyphs = engine->glyphs( si );
+//     advance_t *advances = engine->advances( si );
+//     offset_t *offsets = engine->offsets( si );
+
     // ### Fix non spacing marks, use advances and offsets
-    p->internalGfx()->drawText(x, y, QConstString((QChar *)glyphs, numGlyphs).string() );
+    QGfxRasterBase *rb = (QGfxRasterBase *)p->internalGfx();
+    QMemoryManager::FontID oldfont = rb->myfont;
+    rb->myfont = handle();
+    p->internalGfx()->drawText(x, y, QConstString((QChar *)glyphs, si->num_glyphs).string() );
+    rb->myfont = oldfont;
 }
 
 glyph_metrics_t QFontEngine::boundingBox( const glyph_t *glyphs,
-			   const advance_t *advances, const offset_t *offsets, int numGlyphs )
+					  const advance_t *advances, const offset_t *offsets, int numGlyphs )
 {
+    Q_UNUSED( glyphs );
+    Q_UNUSED( offsets );
+    Q_UNUSED( advances );
+
     if ( numGlyphs == 0 )
 	return glyph_metrics_t();
 
@@ -114,12 +138,12 @@ int QFontEngine::minRightBearing() const
     return memorymanager->fontMinRightBearing(handle());
 }
 
-int QFontEngine::underlinePos() const
+int QFontEngine::underlinePosition() const
 {
     return memorymanager->fontUnderlinePos(handle());
 }
 
-int QFontEngine::lineWidth() const
+int QFontEngine::lineThickness() const
 {
     return memorymanager->fontLineWidth(handle());
 }

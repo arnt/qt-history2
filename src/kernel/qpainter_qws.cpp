@@ -46,6 +46,7 @@
 #include <string.h>
 #include "qtextlayout_p.h"
 #include "qtextengine_p.h"
+#include "qfontengine_p.h"
 
 /* paintevent magic to provide Windows semantics on Qt/E
  */
@@ -1770,95 +1771,112 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len,
 #endif
     }
 
-    QTextLayout layout( str, this );
-    layout.beginLayout();
+    bool simple = str.simpleText();
+    // we can't take the complete string here as we would otherwise
+    // get quadratic behaviour when drawing long strings in parts.
+    // we do however need some chars around the part we paint to get arabic shaping correct.
+    // ### maybe possible to remove after cursor restrictions work in QRT
+    int start;
+    int end;
+    if ( simple ) {
+	start = from;
+	end = from+len;
+    } else {
+	start = QMAX( 0,  from - 8 );
+	end = QMIN( (int)str.length(), from + len + 8 );
+    }
+    QConstString cstr( str.unicode() + start, end - start );
+    from -= start;
 
-    layout.setBoundary( from );
-    layout.setBoundary( from + len );
+    QTextEngine engine( cstr.string(), pfont ? pfont->d : cfont.d );
+    QTextLayout layout( &engine );
 
-    QTextEngine *engine = layout.d;
+    // this is actually what beginLayout does. Inlined here, so we can
+    // avoid the bidi algorithm if we don't need it.
+    engine.itemize( simple ? QTextEngine::NoBidi : QTextEngine::Full );
+    engine.currentItem = 0;
+    engine.firstItemInLine = -1;
+
+    if ( !simple ) {
+	layout.setBoundary( from );
+	layout.setBoundary( from + len );
+    }
+
+    if ( dir != Auto ) {
+	int level = dir == RTL ? 1 : 0;
+	for ( int i = engine.items.size(); i >= 0; i-- )
+	    engine.items[i].analysis.bidiLevel = level;
+    }
 
     // small hack to force skipping of unneeded items
-    int start = 0;
-    while ( engine->items[start].position < from )
+    start = 0;
+    while ( engine.items[start].position < from )
 	++start;
-    engine->currentItem = start;
+    engine.currentItem = start;
     layout.beginLine( 0xfffffff );
-    int end = start;
+    end = start;
     while ( !layout.atEnd() && layout.currentItem().from() < from + len ) {
 	layout.addCurrentItem();
 	end++;
     }
-    int ascent;
-    layout.endLine( 0, 0, Qt::AlignLeft, &ascent, 0 );
+    int ascent, descent;
+    int left, right;
+    layout.endLine( 0, 0, Qt::SingleLine|Qt::AlignLeft, &ascent, &descent, &left, &right );
 
     // do _not_ call endLayout() here, as it would clean up the shaped items and we would do shaping another time
     // for painting.
 
-    for ( int i = start; i < end; i++ ) {
-	QScriptItem &si = engine->items[i];
+    int textFlags = 0;
+    if ( cfont.d->underline ) textFlags |= QFontEngine::Underline;
+    if ( cfont.d->overline ) textFlags |= QFontEngine::Overline;
+    if ( cfont.d->strikeOut ) textFlags |= QFontEngine::StrikeOut;
 
-	QFontEngine *fe = si.fontEngine;
-	assert( fe );
-	QShapedItem *shaped = si.shaped;
-	assert( shaped );
-
-	int xpos = x + si.x;
-	int ypos = y + si.y - ascent;
-
-	bool rightToLeft = si.analysis.bidiLevel % 2;
-
-	if ( bg_mode == OpaqueMode ) {		// opaque: fill background
-	    gfx->setBrush( QBrush(backgroundColor()) );
-	    gfx->fillRect( xpos, ypos, si.width, si.ascent+si.descent );
-	    gfx->setBrush( cbrush );
-	}
-	fe->draw( this, xpos,  ypos, shaped->glyphs, shaped->advances,
-		  shaped->offsets, shaped->num_glyphs, rightToLeft );
-
-	if ( cfont.underline() || cfont.strikeOut() ) {
-	    QFontMetrics fm = fontMetrics();
-	    int lw = fm.lineWidth();
-	    gfx->setBrush( cpen.color() );
-	    if ( cfont.underline() )		// draw underline effect
-		gfx->fillRect( xpos, ypos+fm.underlinePos(), si.width, lw );
-	    if ( cfont.strikeOut() )		// draw strikeout effect
-		gfx->fillRect( xpos, ypos-fm.strikeOutPos(), si.width, lw );
-	    gfx->setBrush( cbrush );
-	}
+    if ( bg_mode == OpaqueMode ) {		// opaque: fill background
+	gfx->setBrush( QBrush(backgroundColor()) );
+	gfx->fillRect( x, y-ascent, right-left, ascent+descent );
+	gfx->setBrush( cbrush );
     }
+
+    for ( int i = start; i < end; i++ ) {
+	QTextItem ti;
+	ti.item = i;
+	ti.engine = &engine;
+
+	drawTextItem( x, y - ascent, ti, textFlags );
+    }
+    layout.d = 0;
 }
 
 
 void QPainter::drawTextItem( int x,  int y, const QTextItem &ti, int textFlags )
 {
-    if ( testf(DirtyFont) ) {
-	updateFont();
-    }
-    if ( testf(ExtDev|VxF|WxF) ) {
+    if ( txop > TxTranslate ) {
 	drawText( x+ti.x(), y+ti.y(), ti.engine->string, ti.from(), ti.length(),
 		  (ti.engine->items[ti.item].analysis.bidiLevel %2) ? QPainter::RTL : QPainter::LTR );
 	return;
     }
 
-    QScriptItem &si = ti.engine->items[ti.item];
+    if ( testf(ExtDev) ) {
+	QPDevCmdParam param[2];
+	QPoint p(x, y);
+	param[0].point = &p;
+	param[1].textItem = &ti;
+	bool retval = pdev->cmd(QPaintDevice::PdcDrawTextItem, this, param);
+	if ( !retval || !gfx )
+	    return;
+    }
 
-    QShapedItem *shaped = ti.engine->shape( ti.item );
-    QFontEngine *fe = si.fontEngine;
+    QTextEngine *engine = ti.engine;
+    QScriptItem *si = &engine->items[ti.item];
+
+    engine->shape( ti.item );
+    QFontEngine *fe = si->fontEngine;
     assert( fe );
 
-    x += ti.x();
-    y += ti.y();
+    x += si->x;
+    y += si->y;
 
-    bool rightToLeft = si.analysis.bidiLevel % 2;
-
-    if ( cfont.d->underline ) textFlags |= QFontEngine::Underline;
-    if ( cfont.d->overline ) textFlags |= QFontEngine::Overline;
-    if ( cfont.d->strikeOut ) textFlags |= QFontEngine::StrikeOut;
-
-    fe->draw( this, x,  y, shaped->glyphs, shaped->advances,
-		  shaped->offsets, shaped->num_glyphs, rightToLeft, textFlags );
-
+    fe->draw( this, x,  y, engine, si, textFlags );
 }
 
 QPoint QPainter::pos() const

@@ -519,7 +519,7 @@ static inline bool canRender( QFontEngine *fe, const QChar &sample )
 }
 #endif // Q_WS_X11 || Q_WS_WIN
 
-#ifndef Q_WS_MAC
+#if !defined(Q_WS_MAC) && !defined(Q_WS_QWS)
 static
 QFontEngine *loadEngine( QFont::Script script, const QFontPrivate *fp, const QFontDef &request,
 			 QtFontFamily *family, QtFontFoundry *foundry,
@@ -736,7 +736,7 @@ unsigned int bestFoundry( QFont::Script script, unsigned int score, int styleStr
     \internal
 */
 QFontEngine *
-QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp, 
+QFontDatabase::findFont( QFont::Script script, const QFontPrivate *fp,
 			 const QFontDef &request )
 {
     if ( !db )

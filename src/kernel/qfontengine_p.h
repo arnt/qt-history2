@@ -135,6 +135,29 @@ public:
    ~QFontEngine();
     /*QMemoryManager::FontID*/ void *handle() const;
 
+    enum Type {
+	// X11 types
+	Box,
+	XLFD,
+	Xft,
+
+	// MS Windows types
+	Win,
+	Uniscribe,
+
+	// Apple MacOS types
+	Mac,
+
+	// Trolltech QWS types
+	Qws
+    };
+
+    enum TextFlags {
+	Underline = 0x01,
+	Overline  = 0x02,
+	StrikeOut = 0x04
+    };
+
     enum Error {
 	NoError,
 	OutOfMemory
@@ -154,14 +177,17 @@ public:
     int maxCharWidth() const;
     int minLeftBearing() const;
     int minRightBearing() const;
-    int underlinePos() const;
-    int lineWidth() const;
+    int underlinePosition() const;
+    int lineThickness() const;
+
+    Type type() { return Qws; }
 
     bool canRender( const QChar *string,  int len );
 
-    QFontDef s;
+    QFontDef fontDef;
     /*QMemoryManager::FontID*/ void *id;
     int cache_cost;
+    int cache_count;
 };
 #endif // WIN || X11 || MAC
 
@@ -183,6 +209,7 @@ enum IndicFeatures {
     HalantFeature = 0x1000
 };
 
+#if defined(Q_WS_X11) || defined(Q_WS_WIN)
 class QFontEngineBox : public QFontEngine
 {
 public:
@@ -218,6 +245,7 @@ private:
     friend class QFontPrivate;
     int _size;
 };
+#endif
 
 #ifdef Q_WS_X11
 #include "qt_x11.h"

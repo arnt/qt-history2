@@ -49,17 +49,20 @@
 #include "qmemorymanager_qws.h"
 #include "qgfx_qws.h"
 #include "qtextengine_p.h"
+#include "qfontengine_p.h"
+
+QFont::Script QFontPrivate::defaultScript = QFont::UnknownScript;
 
 void QFont::initialize()
 {
-    if ( QFontPrivate::fontCache ) return;
-    QFontPrivate::fontCache = new QFontCache();
+    // create global font cache
+    if ( ! QFontCache::instance ) (void) new QFontCache;
 }
 
 void QFont::cleanup()
 {
-    delete QFontPrivate::fontCache;
-    QFontPrivate::fontCache = 0;
+    // delete the global font cache
+    delete QFontCache::instance;
 }
 
 
@@ -69,15 +72,16 @@ void QFont::cleanup()
 
 Qt::HANDLE QFont::handle() const
 {
-    if ( d->request.dirty )
-	d->load(); // the REAL reason this is called
-    return d->fin->handle();
+    QFontEngine *engine = d->engineForScript( QFontPrivate::defaultScript );
+#ifdef QT_CHECK_STATE
+    Q_ASSERT( engine != 0 );
+#endif // QT_CHECK_STATE
+
+    return engine->handle();
 }
 
 QString QFont::rawName() const
 {
-    if ( d->request.dirty )
-	d->load();
     return "unknown";
 }
 
@@ -88,18 +92,12 @@ void QFont::setRawName( const QString & )
 
 bool QFont::dirty() const
 {
-    return d->request.dirty;
+    return d->engineData == 0;
 }
 
-
-QFontPrivate::~QFontPrivate()
+QString QFont::defaultFamily() const
 {
-    if ( fin ) fin->deref();
-}
-
-QString QFontPrivate::defaultFamily() const
-{
-    switch( request.styleHint ) {
+    switch( d->request.styleHint ) {
 	case QFont::Times:
 	    return QString::fromLatin1("times");
 	case QFont::Courier:
@@ -113,32 +111,49 @@ QString QFontPrivate::defaultFamily() const
     }
 }
 
-QString QFontPrivate::lastResortFamily() const
+QString QFont::lastResortFamily() const
 {
     return QString::fromLatin1("helvetica");
 }
 
-QString QFontPrivate::lastResortFont() const
+QString QFont::lastResortFont() const
 {
     qFatal( "QFont::lastResortFont: Cannot find any reasonable font" );
     // Shut compiler up
-    return "Times";
+    return QString::null;
 }
 
-void QFontPrivate::load()
+void QFontPrivate::load( QFont::Script )
 {
-    QString k = key();
-    QFontEngine* qfs = fontCache->find(k);
-    if ( !qfs ) {
-	qfs = new QFontEngine(request);
-	// make larger fonts cost a little more
-	fontCache->insert(k, qfs, 1+qfs->s.pointSize/80);
+    QFontDef req = request;
+
+    // 75 dpi on embedded
+    if ( req.pixelSize == -1 )
+	req.pixelSize = req.pointSize/10;
+    if ( req.pointSize == -1 )
+	req.pointSize = req.pixelSize*10;
+
+    if ( ! engineData ) {
+	QFontCache::Key key( req, QFont::NoScript, screen );
+
+	// look for the requested font in the engine data cache
+	engineData = QFontCache::instance->findEngineData( key );
+
+	if ( ! engineData ) {
+	    // create a new one
+	    engineData = new QFontEngineData;
+	    QFontCache::instance->insertEngineData( key, engineData );
+	} else {
+	    engineData->ref();
+	}
     }
-    qfs->ref();
-    if ( fin )
-	fin->deref();
-    fin = qfs;
-    request.dirty = FALSE;
+
+    // the cached engineData could have already loaded the engine we want
+    if ( engineData->engine ) return;
+
+    // load the font
+    engineData->engine = new QFontEngine(request);
+    engineData->engine->ref();
 }
 
 
@@ -146,79 +161,41 @@ void QFontPrivate::load()
   QFontMetrics member functions
  *****************************************************************************/
 
-int QFontMetrics::ascent() const
-{
-    return d->fin->ascent();
-}
-
-int QFontMetrics::descent() const
-{
-    return d->fin->descent();
-}
-
-bool QFontMetrics::inFont(QChar ch) const
-{
-    return memorymanager->inFont(((QFontMetrics*)this)->d->fin->handle(),ch);
-}
-
 int QFontMetrics::leftBearing(QChar ch) const
 {
-    return memorymanager->lockGlyphMetrics(((QFontMetrics*)this)->d->fin->handle(),ch)->bearingx;
+    return memorymanager->lockGlyphMetrics(this->d->engineData->engine->handle(),ch)->bearingx;
 }
 
 
 int QFontMetrics::rightBearing(QChar ch) const
 {
-    QGlyphMetrics *metrics = memorymanager->lockGlyphMetrics(((QFontMetrics*)this)->d->fin->handle(),ch);
+    QGlyphMetrics *metrics = memorymanager->lockGlyphMetrics(this->d->engineData->engine->handle(),ch);
     return metrics->advance - metrics->width - metrics->bearingx;
-}
-
-int QFontMetrics::minLeftBearing() const
-{
-    return d->fin->minLeftBearing();
-}
-
-int QFontMetrics::minRightBearing() const
-{
-    return d->fin->minRightBearing();
-}
-
-int QFontMetrics::height() const
-{
-    return ascent()+descent()+1;
-}
-
-int QFontMetrics::leading() const
-{
-    return d->fin->leading();
-}
-
-int QFontMetrics::lineSpacing() const
-{
-    return leading() + height();
 }
 
 int QFontMetrics::charWidth( const QString &str, int pos ) const
 {
     QTextEngine layout( str,  d );
     layout.itemize( QTextEngine::WidthOnly );
-    int w = layout.width( pos, 1 );
+    return layout.width( pos, 1 );
 }
 
 int QFontMetrics::width( QChar ch ) const
 {
     if ( ch.category() == QChar::Mark_NonSpacing ) return 0;
 
-    return memorymanager->lockGlyphMetrics(((QFontMetrics*)this)->d->fin->handle(),ch)->advance;
+    return memorymanager->lockGlyphMetrics(this->d->engineData->engine->handle(),ch)->advance;
 }
 
+// ### should maybe use the common method aswell, but since that one is quite a bit slower
+// and we currently don't support complex text rendering on embedded, leave it as is.
 int QFontMetrics::width( const QString &str, int len ) const
 {
     if ( len < 0 )
 	len = str.length();
     int ret=0;
     for (int i=0; i<len; i++)
-	ret += width(str[i]);
+	ret += memorymanager->lockGlyphMetrics(this->d->engineData->engine->handle(), str[i])->advance;
     return ret;
 }
 
@@ -226,27 +203,6 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 {
     return QRect( 0,-(ascent()),width(str,len),height());
 }
-
-int QFontMetrics::maxWidth() const
-{
-    return d->fin->maxCharWidth();
-}
-
-int QFontMetrics::underlinePos() const
-{
-    return d->fin->underlinePos();
-}
-
-int QFontMetrics::strikeOutPos() const
-{
-    return ascent()/3; // XXX
-}
-
-int QFontMetrics::lineWidth() const
-{
-    return d->fin->lineWidth();
-}
-
 
 /*!
     Saves the glyphs in the font that have previously been accessed as

@@ -2101,7 +2101,7 @@ bool QFontMetrics::inFont(QChar ch) const
 
     \sa rightBearing(), minLeftBearing(), width()
 */
-#if !defined(Q_WS_WIN)
+#if !defined(Q_WS_WIN) && !defined(Q_WS_QWS)
 int QFontMetrics::leftBearing(QChar ch) const
 {
     QFont::Script script;
@@ -2135,7 +2135,7 @@ int QFontMetrics::leftBearing(QChar ch) const
 
     \sa leftBearing(), minRightBearing(), width()
 */
-#if !defined(Q_WS_WIN)
+#if !defined(Q_WS_WIN) && !defined(Q_WS_QWS)
 int QFontMetrics::rightBearing(QChar ch) const
 {
     QFont::Script script;
@@ -2169,6 +2169,7 @@ int QFontMetrics::rightBearing(QChar ch) const
 
     \sa boundingRect()
 */
+#ifndef Q_WS_QWS
 int QFontMetrics::width( const QString &str, int len ) const
 {
     if (len < 0)
@@ -2180,6 +2181,7 @@ int QFontMetrics::width( const QString &str, int len ) const
     layout.itemize( QTextEngine::WidthOnly );
     return layout.width( 0, len );
 }
+#endif
 
 /*! \fn int QFontMetrics::width( QChar ch ) const
     \overload
@@ -2246,6 +2248,7 @@ int QFontMetrics::width( const QString &str, int len ) const
 
     \sa width(), QPainter::boundingRect()
 */
+#ifndef Q_WS_QWS
 QRect QFontMetrics::boundingRect( const QString &str, int len ) const
 {
     if (len < 0)
@@ -2258,6 +2261,7 @@ QRect QFontMetrics::boundingRect( const QString &str, int len ) const
     glyph_metrics_t gm = layout.boundingBox( 0, len );
     return QRect( gm.x, gm.y, gm.width, gm.height );
 }
+#endif
 
 /*!
     \overload

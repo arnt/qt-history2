@@ -235,6 +235,7 @@
 #include "qtextcodecplugin.h"
 #include "qmultilineedit.h"
 #include "qtoolbar.h"
+#include "qtoolbox.h"
 #include "qtextview.h"
 #include "qwaitcondition.h"
 #include "qasyncio.h"
