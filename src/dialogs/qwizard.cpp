@@ -180,11 +180,11 @@ QWizard::QWizard( QWidget *parent, const char *name, bool modal,
     d->hbar1 = 0;
     d->hbar2 = 0;
 
-    d->cancelButton->setText( tr( "Cancel" ) );
-    d->backButton->setText( tr( "< Back" ) );
-    d->nextButton->setText( tr( "Next >" ) );
-    d->finishButton->setText( tr( "Finish" ) );
-    d->helpButton->setText( tr( "Help" ) );
+    d->cancelButton->setText( tr( "&Cancel" ) );
+    d->backButton->setText( tr( "< &Back" ) );
+    d->nextButton->setText( tr( "&Next >" ) );
+    d->finishButton->setText( tr( "&Finish" ) );
+    d->helpButton->setText( tr( "&Help" ) );
 
     d->nextButton->setDefault( TRUE );
 
