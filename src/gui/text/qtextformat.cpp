@@ -456,6 +456,9 @@ QTextFormatCollection::QTextFormatCollection(const QTextFormatCollection &rhs)
 }
 QTextFormatCollection &QTextFormatCollection::operator=(const QTextFormatCollection &rhs)
 {
+    if (this == &rhs)
+        return *this;
+
     for (int i = 0; i < groups.size(); ++i)
         delete groups[i];
     groups.clear();
