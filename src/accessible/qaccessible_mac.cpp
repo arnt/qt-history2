@@ -534,10 +534,10 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 		    for(int i = 0; i < actCount; i++) {
 			QString actName = iface->actionText(i, Name, 0);
 			arr[i] = CFStringCreateWithCharacters(NULL, (UniChar *)actName.unicode(), actName.length());
-			iface->release();
 		    }
 		    CFArrayRef cfList = CFArrayCreate(NULL, (const void **)arr, actCount, NULL);
 		    SetEventParameter(event, kEventParamAccessibleActionNames, typeCFTypeRef, sizeof(cfList), &cfList);
+		    iface->release();
 		}
 	    } else if(ekind == kEventAccessiblePerformNamedAction) {
 		QAccessibleInterface *iface;
@@ -545,18 +545,33 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 		    CFStringRef act;
 		    GetEventParameter(event, kEventParamAccessibleActionName, typeCFStringRef, NULL,
 				      sizeof(act), NULL, &act);
-		    if(CFStringCompare(act, kAXPressAction, 0) == kCFCompareEqualTo) 
+		    if(CFStringCompare(act, kAXPressAction, 0) == kCFCompareEqualTo) {
 			iface->doAction(0, Press);
-		    else if(CFStringCompare(act, kAXIncrementAction, 0) == kCFCompareEqualTo) 
+		    } else if(CFStringCompare(act, kAXIncrementAction, 0) == kCFCompareEqualTo) {
 			iface->doAction(0, Increase);
-		    else if(CFStringCompare(act, kAXDecrementAction, 0) == kCFCompareEqualTo) 
+		    } else if(CFStringCompare(act, kAXDecrementAction, 0) == kCFCompareEqualTo) {
 			iface->doAction(0, Decrease);
-		    else if(CFStringCompare(act, kAXConfirmAction, 0) == kCFCompareEqualTo) 
+		    } else if(CFStringCompare(act, kAXConfirmAction, 0) == kCFCompareEqualTo) {
 			iface->doAction(0, Accept);
-		    else if(CFStringCompare(act, kAXPickAction, 0) == kCFCompareEqualTo) 
+		    } else if(CFStringCompare(act, kAXPickAction, 0) == kCFCompareEqualTo) {
 			iface->doAction(0, Select);
-		    else if(CFStringCompare(act, kAXCancelAction, 0) == kCFCompareEqualTo) 
+		    } else if(CFStringCompare(act, kAXCancelAction, 0) == kCFCompareEqualTo) {
 			iface->doAction(0, Cancel);
+		    } else {
+			bool found_act = FALSE;
+			const QString qAct = cfstring2qstring(act);
+			const int actCount = iface->actionCount(0);
+			for(int i = 0; i < actCount; i++) {
+			    if(iface->actionText(i, Name, 0) == qAct) {
+				iface->doAction(0, i);
+				found_act = TRUE;
+				break;
+			    }
+			}
+			if(!found_act)
+			    qDebug("Unknown [kEventAccessiblePerformNamedAction]: %s", qAct.latin1());
+		    }
+		    iface->release();			
 		}
 	    } else if(ekind == kEventAccessibleGetNamedActionDescription) {
 		QAccessibleInterface *iface;
@@ -565,23 +580,38 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
 		    GetEventParameter(event, kEventParamAccessibleActionName, typeCFStringRef, NULL,
 				      sizeof(act), NULL, &act);
 		    QString actDesc;
-		    if(CFStringCompare(act, kAXPressAction, 0) == kCFCompareEqualTo) 
+		    if(CFStringCompare(act, kAXPressAction, 0) == kCFCompareEqualTo) {
 			actDesc = iface->actionText(Press, Description, 0);
-		    else if(CFStringCompare(act, kAXIncrementAction, 0) == kCFCompareEqualTo) 
+		    } else if(CFStringCompare(act, kAXIncrementAction, 0) == kCFCompareEqualTo) {
 			actDesc = iface->actionText(Increase, Description, 0);
-		    else if(CFStringCompare(act, kAXDecrementAction, 0) == kCFCompareEqualTo) 
+		    } else if(CFStringCompare(act, kAXDecrementAction, 0) == kCFCompareEqualTo) {
 			actDesc = iface->actionText(Decrease, Description, 0);
-		    else if(CFStringCompare(act, kAXConfirmAction, 0) == kCFCompareEqualTo) 
+		    } else if(CFStringCompare(act, kAXConfirmAction, 0) == kCFCompareEqualTo) {
 			actDesc = iface->actionText(Accept, Description, 0);
-		    else if(CFStringCompare(act, kAXPickAction, 0) == kCFCompareEqualTo) 
+		    } else if(CFStringCompare(act, kAXPickAction, 0) == kCFCompareEqualTo) {
 			actDesc = iface->actionText(Select, Description, 0);
-		    else if(CFStringCompare(act, kAXCancelAction, 0) == kCFCompareEqualTo) 
+		    } else if(CFStringCompare(act, kAXCancelAction, 0) == kCFCompareEqualTo) {
 			actDesc = iface->actionText(Cancel, Description, 0);
+		    } else {
+			bool found_act = FALSE;
+			const QString qAct = cfstring2qstring(act);
+			const int actCount = iface->actionCount(0);
+			for(int i = 0; i < actCount; i++) {
+			    if(iface->actionText(i, Name, 0) == qAct) {
+				actDesc = iface->actionText(i, Description, 0);
+				found_act = TRUE;
+				break;
+			    }
+			}
+			if(!found_act)
+			    qDebug("Unknown [kEventAccessibleGetNamedActionDescription]: %s", qAct.latin1());
+		    }
 		    if(!actDesc.isNull()) {
 			CFStringRef cfActDesc = qstring2cfstring(actDesc);
 			SetEventParameter(event, kEventParamAccessibleActionDescription, typeCFStringRef, 
 					  sizeof(cfActDesc), &cfActDesc);
 		    }
+		    iface->release();			
 		}
 	    } else {
 		handled_event = FALSE;
