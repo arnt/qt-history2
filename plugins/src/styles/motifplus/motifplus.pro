@@ -1,5 +1,5 @@
 TEMPLATE	= lib
-CONFIG+= qt warn_on debug plugin
+CONFIG+= qt warn_off release plugin
 
 HEADERS		= ../../../../include/qmotifplusstyle.h
 
