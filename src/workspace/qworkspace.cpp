@@ -1074,11 +1074,6 @@ void QWorkspace::operationMenuAboutToShow()
     if ( !d->active )
 	return;
 
-    if ( d->active->isHidden() )
-	d->popup->changeItem( 1, QIconSet(style().stylePixmap(QStyle::SP_TitleBarNormalButton)), "&Restore" );
-    else
-	d->popup->changeItem( 1, QIconSet(style().stylePixmap(QStyle::SP_TitleBarNormalButton)), "&Restore" );
-
     if ( d->active == d->maxWindow ) {
 	d->popup->setItemEnabled( 2, FALSE );
 	d->popup->setItemEnabled( 3, FALSE );
