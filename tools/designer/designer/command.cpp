@@ -1175,13 +1175,6 @@ void TabOrderCommand::unexecute()
 
 // ------------------------------------------------------------
 
-#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-bool PopulateListBoxCommand::Item::operator==( const PopulateListBoxCommand::Item& ) const
-{
-    return FALSE;
-}
-#endif
-
 PopulateListBoxCommand::PopulateListBoxCommand( const QString &n, FormWindow *fw,
 						QListBox *lb, const QValueList<Item> &items )
     : Command( n, fw ), newItems( items ), listbox( lb )
@@ -1221,13 +1214,6 @@ void PopulateListBoxCommand::unexecute()
 }
 
 // ------------------------------------------------------------
-
-#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-bool PopulateIconViewCommand::Item::operator==( const PopulateIconViewCommand::Item& ) const
-{
-    return FALSE;
-}
-#endif
 
 PopulateIconViewCommand::PopulateIconViewCommand( const QString &n, FormWindow *fw,
 						  QIconView *iv, const QValueList<Item> &items )
