@@ -617,7 +617,7 @@ QSqlIndex QSqlCursor::index( const char* fieldName ) const
 
 bool QSqlCursor::select( const QString & filter, const QSqlIndex & sort )
 {
-    QString fieldList = toString(""); // our table synonym
+    QString fieldList = toString(QString::null); // our table synonym
     if ( fieldList.isEmpty() )
         return FALSE;
     QString str = "select " + fieldList + " from " + d->nm;
@@ -628,7 +628,7 @@ bool QSqlCursor::select( const QString & filter, const QSqlIndex & sort )
     } else
 	d->ftr = QString::null;
     if ( sort.count() > 0 )
-	str += " order by " + sort.toString("");
+	str += " order by " + sort.toString(QString::null);
     d->srt = sort;
     return exec( str );
 }
@@ -703,7 +703,7 @@ bool QSqlCursor::select( const QSqlIndex& sort )
 
 bool QSqlCursor::select( const QSqlIndex & filter, const QSqlIndex & sort )
 {
-    return select( toString( filter, this, "", "=", "and" ), sort );
+    return select( toString( filter, this, QString::null, "=", "and" ), sort );
 }
 
 /*!

@@ -236,7 +236,7 @@ QStringList QSqlIndex::toStringList( const QString& prefix, bool verbose ) const
 QString QSqlIndex::createField( int i, const QString& prefix, bool verbose ) const
 {
     QString f;
-    if ( !prefix.isNull() )
+    if ( !prefix.isEmpty() )
 	f += prefix + ".";
     f += field( i )->name();
     if ( verbose )
