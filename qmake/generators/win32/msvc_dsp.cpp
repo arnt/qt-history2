@@ -488,7 +488,6 @@ DspMakefileGenerator::init()
         setMocAware(true);
 
     project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
-
     processFileTagsVar();
 
     MakefileGenerator::init();
@@ -533,7 +532,6 @@ DspMakefileGenerator::init()
 
     findLibraries();
     processPrlFiles();
-    processLibsVar();
 
     project->variables()["MSVCDSP_LFLAGS"] += project->variables()["QMAKE_LFLAGS"];
     if(!project->variables()["QMAKE_LIBDIR"].isEmpty())

@@ -127,6 +127,7 @@ void NmakeMakefileGenerator::init()
         return;
     }
 
+    project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
     processVars();
 
     if(!project->variables()["DEF_FILE"].isEmpty())

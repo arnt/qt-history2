@@ -1245,7 +1245,7 @@ void VcprojGenerator::initOld()
         project->variables()["QMAKE_LFLAGS"].append("/VERSION:" + major + "." + minor);
     }
 
-    processLibsVar();
+    project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
     processFileTagsVar();
 
      // Get filename w/o extention -----------------------------------

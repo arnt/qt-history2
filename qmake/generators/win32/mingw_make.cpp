@@ -125,19 +125,6 @@ void MingwMakefileGenerator::init()
     }
 }
 
-void MingwMakefileGenerator::processLibsVar()
-{
-    QStringList &libs = project->variables()["QMAKE_LIBS"];
-    for (QStringList::Iterator libit = libs.begin(); libit != libs.end();) {
-        if((*libit).startsWith("-L")) {
-            project->variables()["QMAKE_LIBDIR"] += (*libit).mid(2);
-            libit = libs.erase(libit);
-        } else {
-            ++libit;
-        }
-    }
-}
-
 void MingwMakefileGenerator::fixTargetExt()
 {
     if (project->isActiveConfig("staticlib")) {

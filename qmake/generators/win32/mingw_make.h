@@ -32,7 +32,6 @@ private:
     void init();
 
     virtual bool findLibraries();
-    void processLibsVar();
     void fixTargetExt();
     void processQtConfig();
 

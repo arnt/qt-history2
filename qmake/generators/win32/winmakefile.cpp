@@ -71,7 +71,8 @@ Win32MakefileGenerator::findLibraries(const QString &where)
     QList<QMakeLocalFileName> dirs;
     {
         QStringList &libpaths = project->variables()["QMAKE_LIBDIR"];
-        for(QStringList::Iterator libpathit = libpaths.begin(); libpathit != libpaths.end(); ++libpathit)
+        for(QStringList::Iterator libpathit = libpaths.begin(); 
+            libpathit != libpaths.end(); ++libpathit)
             dirs.append(QMakeLocalFileName((*libpathit)));
     }
     for(QStringList::Iterator it = l.begin(); it != l.end();) {
@@ -92,7 +93,8 @@ Win32MakefileGenerator::findLibraries(const QString &where)
         } else if(opt.startsWith("-l") || opt.startsWith("/l")) {
             QString lib = opt.right(opt.length() - 2), out;
             if(!lib.isEmpty()) {
-                for(QList<QMakeLocalFileName>::Iterator it = dirs.begin(); it != dirs.end(); ++it) {
+                for(QList<QMakeLocalFileName>::Iterator it = dirs.begin(); 
+                    it != dirs.end(); ++it) {
                     QString extension;
                     int ver = findHighestVersion((*it).local(), lib);
                     if(ver > 0)
@@ -105,12 +107,10 @@ Win32MakefileGenerator::findLibraries(const QString &where)
                     }
                 }
             }
-            if(out.isEmpty()) {
-                remove = true; //just eat it since we cannot find one..
-            } else {
-                modified_opt = true;
-                (*it) = out;
-            }
+            if(out.isEmpty()) 
+                out = lib + ".lib";
+            modified_opt = true;
+            (*it) = out;
         } else if(!QFile::exists(Option::fixPathToLocalOS(opt))) {
             QList<QMakeLocalFileName> lib_dirs;
             QString file = opt;
@@ -229,30 +229,11 @@ void Win32MakefileGenerator::processVars()
         project->variables()["QMAKE_INSTALL_DIR"].append("$(COPY_DIR)");
 
     fixTargetExt();
-    processLibsVar();
     processRcFileVar();
     processFileTagsVar();
     processMocConfig();
     processQtConfig();
     processDllConfig();
-}
-
-void Win32MakefileGenerator::processLibsVar()
-{
-    project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
-    QStringList &libList = project->variables()["QMAKE_LIBS"];
-    for (QStringList::Iterator stIt = libList.begin(); stIt != libList.end() ;) {
-        QString s = *stIt;
-        if (s.startsWith("-l")) {
-            stIt = libList.erase(stIt);
-            stIt = libList.insert(stIt, s.mid(2) + ".lib");
-        } else if (s.startsWith("-L")) {
-            stIt = libList.erase(stIt);
-            project->variables()["QMAKE_LIBDIR"].append(QDir::convertSeparators(s.mid(2)));
-        } else {
-            stIt++;
-        }
-    }
 }
 
 void Win32MakefileGenerator::fixTargetExt()

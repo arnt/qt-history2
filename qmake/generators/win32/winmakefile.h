@@ -49,7 +49,6 @@ protected:
     virtual void processMocConfig();
     virtual void processPrlFiles();
     virtual void processVars();
-    virtual void processLibsVar();
     virtual void fixTargetExt();
     virtual void processRcFileVar();
     virtual void processQtConfig();
