@@ -161,6 +161,45 @@ bool QPrinter::aborted() const
 
 typedef struct
 {
+    int winSourceName;
+    QPrinter::PaperSource qtSourceName;
+} PaperSourceNames;
+
+static PaperSourceNames sources[] = {
+    { DMBIN_ONLYONE,        QPrinter::OnlyOne },
+    { DMBIN_LOWER,          QPrinter::Lower },
+    { DMBIN_MIDDLE,         QPrinter::Middle },
+    { DMBIN_MANUAL,         QPrinter::Manual },
+    { DMBIN_ENVELOPE,       QPrinter::Envelope },
+    { DMBIN_ENVMANUAL,      QPrinter::EnvelopeManual },
+    { DMBIN_AUTO,           QPrinter::Auto },
+    { DMBIN_TRACTOR,        QPrinter::Tractor },
+    { DMBIN_SMALLFMT,       QPrinter::SmallFormat },
+    { DMBIN_LARGEFMT,       QPrinter::LargeFormat },
+    { DMBIN_LARGECAPACITY,  QPrinter::LargeCapacity },
+    { DMBIN_CASSETTE,       QPrinter::Cassette },
+    { DMBIN_FORMSOURCE,     QPrinter::FormSource }    
+};
+
+static QPrinter::PaperSource mapDevmodePaperSource( int s )
+{
+    int i = 0;
+    while ( (sources[i].winSourceName > 0) && (sources[i].winSourceName != s) )
+        i++;
+    return sources[i].qtSourceName;
+}
+
+static int mapPaperSourceDevmode( QPrinter::PaperSource s )
+{
+    int i = 0;
+    while ( (sources[i].qtSourceName >= 0) && (sources[i].qtSourceName != s) ) {
+        i++;
+    }
+    return sources[i].winSourceName;
+}
+
+typedef struct
+{
     int winSizeName;
     QPrinter::PageSize qtSizeName;
 } PageSizeNames;
@@ -247,10 +286,10 @@ static QPrinter::PageSize mapDevmodePageSize( int s )
 
 static int mapPageSizeDevmode( QPrinter::PageSize s )
 {
-	int i = 0;
-	while ( (names[i].qtSizeName > 0) && (names[i].qtSizeName != s) )
-	i++;
-	return names[i].winSizeName;
+    int i = 0;
+    while ( (names[i].qtSizeName > 0) && (names[i].qtSizeName != s) )
+    i++;
+    return names[i].winSizeName;
 }
 
 /*
@@ -278,6 +317,7 @@ void QPrinter::readPdlg( void* pdv )
 	    else
 		setOrientation( Landscape );
 	    setPageSize( mapDevmodePageSize( dm->dmPaperSize ) );
+            setPaperSource( mapDevmodePaperSource( dm->dmDefaultSource ) );
 	    ncopies = dm->dmCopies;
 	}
 	GlobalUnlock( pd->hDevMode );
@@ -330,6 +370,7 @@ void QPrinter::readPdlgA( void* pdv )
 	    else
 		setOrientation( Landscape );
 	    setPageSize( mapDevmodePageSize( dm->dmPaperSize ) );
+            setPaperSource( mapDevmodePaperSource( dm->dmDefaultSource ) );
 	    ncopies = pd->nCopies;
 	}
 	GlobalUnlock( pd->hDevMode );
@@ -483,16 +524,17 @@ bool QPrinter::setup( QWidget *parent )
 		DEVMODE* dm = (DEVMODE*)GlobalLock( pd.hDevMode );
 		if ( dm ) {
 		    if ( orient == Portrait )
-			dm->dmOrientation = DMORIENT_PORTRAIT;
-		    else
-			dm->dmOrientation = DMORIENT_LANDSCAPE;
-			dm->dmCopies = ncopies;
-			dm->dmPaperSize = mapPageSizeDevmode( page_size );
-			if ( colorMode() == Color )
-			dm->dmColor = DMCOLOR_COLOR;
-			else
-			dm->dmColor = DMCOLOR_MONOCHROME;
-			GlobalUnlock( pd.hDevMode );
+                dm->dmOrientation = DMORIENT_PORTRAIT;
+            else
+                dm->dmOrientation = DMORIENT_LANDSCAPE;
+            dm->dmCopies = ncopies;
+            dm->dmPaperSize = mapPageSizeDevmode( page_size );
+            dm->dmDefaultSource = mapPaperSourceDevmode( paper_source );
+            if ( colorMode() == Color )
+                dm->dmColor = DMCOLOR_COLOR;
+            else
+                dm->dmColor = DMCOLOR_MONOCHROME;
+            GlobalUnlock( pd.hDevMode );
 		}
 	    }
 	    // } writePdlg
@@ -531,22 +573,23 @@ bool QPrinter::setup( QWidget *parent )
 	    pd.nMaxPage	 = max_pg;
 	    pd.nCopies	 = ncopies;
 
-	    if ( pd.hDevMode ) {
-		DEVMODEA* dm = (DEVMODEA*)GlobalLock( pd.hDevMode );
-		if ( dm ) {
-		    if ( orient == Portrait )
-			dm->dmOrientation = DMORIENT_PORTRAIT;
-		    else
-			dm->dmOrientation = DMORIENT_LANDSCAPE;
-			dm->dmCopies = ncopies;
-			dm->dmPaperSize = mapPageSizeDevmode( page_size );
-			if ( colorMode() == Color )
-			dm->dmColor = DMCOLOR_COLOR;
-			else
-			dm->dmColor = DMCOLOR_MONOCHROME;
-		    GlobalUnlock( pd.hDevMode );
-		}
-	    }
+        if ( pd.hDevMode ) {
+            DEVMODEA* dm = (DEVMODEA*)GlobalLock( pd.hDevMode );
+            if ( dm ) {
+                if ( orient == Portrait )
+                    dm->dmOrientation = DMORIENT_PORTRAIT;
+                else
+                    dm->dmOrientation = DMORIENT_LANDSCAPE;
+                dm->dmCopies = ncopies;
+                dm->dmPaperSize = mapPageSizeDevmode( page_size );
+                dm->dmDefaultSource = mapPaperSourceDevmode( paper_source );
+                if ( colorMode() == Color )
+                    dm->dmColor = DMCOLOR_COLOR;
+                else
+                    dm->dmColor = DMCOLOR_MONOCHROME;
+                GlobalUnlock( pd.hDevMode );
+            }
+        }
 	    result = PrintDlgA( &pd );
 	    if ( result && pd.hDC == 0 )
 		result = FALSE;

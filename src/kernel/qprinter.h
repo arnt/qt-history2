@@ -66,6 +66,10 @@ public:
 
     enum ColorMode   { GrayScale, Color };
 
+    enum PaperSource { OnlyOne, Lower, Middle, Manual, Envelope, 
+                       EnvelopeManual, Auto, Tractor, SmallFormat, 
+                       LargeFormat, LargeCapacity, Cassette, FormSource };
+
     QString printerName() const;
     virtual void setPrinterName( const QString &);
     bool outputToFile()	const;
@@ -117,6 +121,9 @@ public:
 
     bool	setup( QWidget *parent = 0 );
 
+    PaperSource paperSource()   const;
+    virtual void setPaperSource( PaperSource );
+
 protected:
     bool	cmd( int, QPainter *, QPDevCmdParam * );
     int		metric( int ) const;
@@ -149,6 +156,7 @@ private:
     QString	creator_name;
     Orientation orient;
     PageSize	page_size;
+    PaperSource paper_source;
     bool	to_edge;
     short	from_pg, to_pg;
     short	min_pg,	 max_pg;

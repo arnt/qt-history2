@@ -94,6 +94,9 @@
   <li> fromPage() and toPage() indicate what pages the application
   program should print.
 
+  <li> paperSource() tells the application progam which paper source 
+  to print from.
+
   </ul>
 
   You can of course call these functions to establish defaults
@@ -204,6 +207,32 @@
   </ul>
 */
 
+/*! \enum QPrinter::PaperSource
+
+  This enum type decides what paper source QPrinter is to use.  QPrinter
+  does not check that the paper source is available; it just uses this
+  information to try and set the paper source.  Whether it will set the 
+  paper source depends on whether the printer has that particular source.
+
+  Note: It is currently only implemented for Windows.
+
+  <ul>
+  <li>\c QPrinter::OnlyOne
+  <li>\c QPrinter::Lower
+  <li>\c QPrinter::Middle
+  <li>\c QPrinter::Manual
+  <li>\c QPrinter::Envelope
+  <li>\c QPrinter::EnvelopeManual
+  <li>\c QPrinter::Auto
+  <li>\c QPrinter::Tractor
+  <li>\c QPrinter::SmallFormat
+  <li>\c QPrinter::LargeFormat
+  <li>\c QPrinter::LargeCapacity
+  <li>\c QPrinter::Cassette
+  <li>\c QPrinter::FormSource
+  </ul>
+
+*/
 
 /*!
   \fn QString QPrinter::printerName() const
@@ -703,6 +732,25 @@ int QPrinter::resolution() const
     return res;
 }
 
+/*! Sets the paper source setting.
+
+    \sa paperSource()
+*/
+
+void QPrinter::setPaperSource( PaperSource source )
+{
+    paper_source = source;
+}
+
+/*! Returns the currently set paper source of the printer.
+
+    \sa setPaperSource()
+*/
+
+QPrinter::PaperSource QPrinter::paperSource() const
+{
+    return paper_source;
+}
 
 #endif // QT_NO_PRINTER
 
