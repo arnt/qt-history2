@@ -416,14 +416,23 @@ void QGenericListView::contentsRemoved(const QModelIndex &parent,
         emit this->needMore();
 }
 
+void QGenericListView::timerEvent(QTimerEvent *e)
+{
+    if (e->timerId() == d->layoutTimer) {
+        killTimer(d->layoutTimer);
+        d->layoutTimer = 0;
+        startItemsLayout();
+    }
+}
+
 void QGenericListView::resizeEvent(QResizeEvent *e)
 {
     QAbstractItemView::resizeEvent(e);
-    if (d->resizeMode == Adjust) {
+    if (d->resizeMode == Adjust && d->layoutTimer == 0) {
         QSize delta = e->size() - e->oldSize();
         if ((d->flow == LeftToRight && delta.width() != 0) ||
             (d->flow == TopToBottom && delta.height() != 0))
-            startItemsLayout();
+            d->layoutTimer = startTimer(100); // wait 1/10 sec before starting the layout
     }
 }
 

@@ -62,6 +62,7 @@ protected:
     bool doItemsLayout(int num);
     void stopItemsLayout();
 
+    void timerEvent(QTimerEvent *e);
     void resizeEvent(QResizeEvent *e);
     void dragMoveEvent(QDragMoveEvent *e);
     void dragLeaveEvent(QDragLeaveEvent *e);

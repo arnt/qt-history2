@@ -107,7 +107,8 @@ public:
             arrange(false),
             layoutStart(0),
             translate(0),
-            layoutWraps(0) {}
+            layoutWraps(0),
+            layoutTimer(0) {}
     ~QGenericListViewPrivate() {}
 
     void prepareItemsLayout();
@@ -152,6 +153,7 @@ public:
     QVector<int> yposVector;
     QVector<int> wrapVector;
     int layoutWraps;
+    int layoutTimer;
     // used when dragging
     QVector<QModelIndex> draggedItems; // indices to the tree.itemVector
     mutable QRect draggedItemsRect;
