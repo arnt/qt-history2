@@ -88,7 +88,11 @@ public:
 
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
+
+public slots:
     virtual void setDate( const QDate& date );
+
+public:
     QDate date() const;
     virtual void setOrder( Order order );
     Order order() const;
@@ -151,7 +155,11 @@ public:
 
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
+
+public slots:
     virtual void setTime( const QTime& time );
+
+public:
     QTime time() const;
     virtual void setAutoAdvance( bool advance );
     bool autoAdvance() const;
@@ -207,7 +215,11 @@ public:
 
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
+
+public slots:
     virtual void  setDateTime( const QDateTime & dt );
+
+public:
     QDateTime dateTime() const;
 
     QDateEdit* dateEdit() { return de; }
