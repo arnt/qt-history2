@@ -901,7 +901,7 @@ Q_LONG QSocket::writeBlock( const char *data, Q_ULONG len )
 	qWarning( "QSocket::writeBlock: Cannot write, socket is closing" );
     }
 #endif
-    if ( len == 0 || d->state == Closing )
+    if ( len == 0 || d->state == Closing || d->state == Idle )
 	return 0;
     QByteArray *a = d->wba.last();
 
