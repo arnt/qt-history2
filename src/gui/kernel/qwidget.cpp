@@ -1804,7 +1804,7 @@ void QWidget::setEnabled_helper(bool enable)
     d->updateSystemBackground();
 
     if (!enable && topLevelWidget()->focusWidget() == this) {
-        bool parentIsEnabled == (!parentWidget()||parentWidget()->isEnabled());
+        bool parentIsEnabled = (!parentWidget()||parentWidget()->isEnabled());
         if (!parentIsEnabled || !focusNextPrevChild(true))
             clearFocus();
     }
