@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qwidgetstack.h#4 $
+** $Id: //depot/qt/main/src/widgets/qwidgetstack.h#5 $
 **
 ** Definition of QWidgetStack class
 **
@@ -38,6 +38,10 @@ public:
 
     QWidget * widget( int ) const;
     int id( QWidget * ) const;
+    
+signals:
+    void aboutToShow( int );
+    void aboutToShow( QWidget * );
 
 public slots:
     void raiseWidget( int );
