@@ -99,13 +99,13 @@ void QDnsAgent::run()
                     gai_strerrorWProto local_gai_strerrorW;
                     local_gai_strerrorW = (gai_strerrorWProto) QLibrary::resolve("ws2_32.dll", "gai_strerrorW");
                     if (local_gai_strerrorW)
-                        results.errorString = QString::fromUtf16((ushort *) local_gai_strerrorW(err));
+                        results.errorStr = QString::fromUtf16((ushort *) local_gai_strerrorW(err));
                 } , {
                     typedef char *(*gai_strerrorAProto)(int);
                     gai_strerrorAProto local_gai_strerrorA;
                     local_gai_strerrorA = (gai_strerrorAProto) QLibrary::resolve("ws2_32.dll", "gai_strerrorA");
                     if (local_gai_strerrorA)
-                        results.errorString = QString::fromLocal8Bit(local_gai_strerrorA(err));
+                        results.errorStr = QString::fromLocal8Bit(local_gai_strerrorA(err));
                 } );
             }
         } else {
