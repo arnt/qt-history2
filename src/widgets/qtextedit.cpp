@@ -1472,8 +1472,8 @@ void QTextEdit::doKeyboardAction( KeyboardAction action )
 	    if ( cursor->atParagEnd() )
 		cursor->gotoNextLetter();
 	    else
-		cursor->gotoLineEnd();
-	    doc->setSelectionEnd( QTextDocument::Temp, *cursor );
+		cursor->setIndex( cursor->paragraph()->length() - 1 );
+	    doc->setSelectionEnd( QTextDocument::Temp, *cursor );	
 	    removeSelectedText( QTextDocument::Temp );
 	    break;
     }
