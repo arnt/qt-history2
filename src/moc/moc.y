@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#40 $
+** $Id: //depot/qt/main/src/moc/moc.y#41 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -40,7 +40,7 @@
 #include <stdlib.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#40 $";
+static char ident[] = "$Id: //depot/qt/main/src/moc/moc.y#41 $";
 #endif
 
 
@@ -504,7 +504,7 @@ obj_member_area:	  qt_access_specifier	{ BEGIN QT_DEF; }
                           ':'  opt_signal_declarations
 			| Q_OBJECT		{ if ( tmpAccessPerm )
                                 moc_warn("Q_OBJECT is not in the private"
-                                        "  section of the class.\n"
+                                        " section of the class.\n"
                                         "Q_OBJECT is a macro that resets"
                                         " access permission to \"private\".");
                                                   Q_OBJECTdetected = TRUE; }
