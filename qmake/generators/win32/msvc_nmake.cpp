@@ -219,8 +219,11 @@ void NmakeMakefileGenerator::writeImplicitRulesPart(QTextStream &t)
         for(QHash<QString, void*>::Iterator it(source_directories.begin()); it != source_directories.end(); ++it) {
             if(it.key().isEmpty())
                 continue;
+            QString objDir = var("OBJECTS_DIR");
+            if (objDir == ".\\")
+                objDir = "";
             for(cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit)
-                t << "{" << it.key() << "}" << (*cppit) << "{" << var("OBJECTS_DIR") << "}" << Option::obj_ext << "::\n\t"
+                t << "{" << it.key() << "}" << (*cppit) << "{" << objDir << "}" << Option::obj_ext << "::\n\t"
                   << var("QMAKE_RUN_CXX_IMP_BATCH").replace(QRegExp("\\$@"), var("OBJECTS_DIR")) << endl << "\t$<" << endl << "<<" << endl << endl;
             t << "{" << it.key() << "}" << ".c{" << var("OBJECTS_DIR") << "}" << Option::obj_ext << "::\n\t"
               << var("QMAKE_RUN_CC_IMP_BATCH").replace(QRegExp("\\$@"), var("OBJECTS_DIR")) << endl << "\t$<" << endl << "<<" << endl << endl;
