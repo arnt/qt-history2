@@ -5424,6 +5424,9 @@ QRect QListView::itemRect( const QListViewItem * i ) const
     The arguments are the relevant QListViewItem (may be 0), the point
     in global coordinates and the relevant column (or -1 if the click
     was outside the list).
+
+    \warning Do not delete any QListViewItem objects in slots
+    connected to this signal.
 */
 
 
