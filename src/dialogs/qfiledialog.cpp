@@ -100,7 +100,7 @@ static const char * start_xpm[]={
     "..bcfefefefeeb##",
     "..bbbbbbbbbbbbb#",
     "...#############",
-    "................"};                                                            
+    "................"};
 
 /* XPM */
 static const char *end_xpm[]={
@@ -128,7 +128,7 @@ static const char *end_xpm[]={
     "aaebgfgfgfgffe..",
     "aaeeeeeeeeeeeee.",
     "aaa.............",
-    "aaaaaaaaaaaaaaaa"};                                                            
+    "aaaaaaaaaaaaaaaa"};
 
 // /* XPM */
 // static const char *end_xpm[] = {
@@ -155,7 +155,7 @@ static const char *end_xpm[]={
 //     "##baacacacacebff",
 //     "#bbbbbbbbbbbbbff",
 //     "#############fff",
-//     "ffffffffffffffff"};                                                                              
+//     "ffffffffffffffff"};
 
 /* XPM */
 static const char* open_xpm[]={
@@ -492,21 +492,21 @@ static void makeVariables() {
 class ProgressAnimation : public QWidget
 {
     Q_OBJECT
-    
+
 public:
     ProgressAnimation( QWidget *parent );
     void start();
-    
+
 private slots:
     void next();
 
 protected:
     void paintEvent( QPaintEvent *e );
-    
+
 private:
     int step;
     QTimer *timer;
-    
+
 };
 
 ProgressAnimation::ProgressAnimation( QWidget *parent )
@@ -536,7 +536,7 @@ void ProgressAnimation::next()
 void ProgressAnimation::paintEvent( QPaintEvent * )
 {
     erase();
-    
+
     QPainter p;
     p.begin( this );
     if ( step == 0 ) {
@@ -561,7 +561,7 @@ void ProgressAnimation::paintEvent( QPaintEvent * )
 		      *fileIcon );
     }
 }
-    
+
 
 class ProgressDialog : public QSemiModal
 {
@@ -582,7 +582,7 @@ private:
     QProgressBar *writeBar;
     QLabel *writeLabel;
     ProgressAnimation *animation;
-    
+
 };
 
 ProgressDialog::ProgressDialog( QWidget *parent, const QString &fn, int steps )
@@ -595,7 +595,7 @@ ProgressDialog::ProgressDialog( QWidget *parent, const QString &fn, int steps )
 
     animation = new ProgressAnimation( this );
     layout->addWidget( animation );
-    
+
     layout->addWidget( new QLabel( tr( "Read: %1" ).arg( fn ), this ) );
     readBar = new QProgressBar( steps, this );
     readBar->reset();
@@ -1685,21 +1685,23 @@ QString QFileDialogPrivate::File::text( int column ) const
 
 const QPixmap * QFileDialogPrivate::File::pixmap( int column ) const
 {
-    if ( column )
+    if ( column ) {
 	return 0;
-    else if ( fileIconProvider )
-	return fileIconProvider->pixmap( info );
-    else if ( info.isSymLink() ) {
+    } else if ( fileIconProvider && d->url.isLocalFile() ) {
+	QFileInfo inf( QUrl( d->url, info.name() ).path() );
+	return fileIconProvider->pixmap( inf );
+    } else if ( info.isSymLink() ) {
 	if ( info.isFile() )
 	    return symLinkFileIcon;
 	else
 	    return symLinkDirIcon;
-    } else if ( info.isDir() )
+    } else if ( info.isDir() ) {
 	return closedFolderIcon;
-    else if ( info.isFile() )
+    } else if ( info.isFile() ) {
 	return fileIcon;
-    else
+    } else {
 	return fifteenTransparentPixels;
+    }
 }
 
 QFileDialogPrivate::MCItem::MCItem( QListBox * lb, QListViewItem * item )
@@ -3759,25 +3761,11 @@ QFileIconProvider::QFileIconProvider( QObject * parent, const char* name )
 
   If pixmap() returns 0, QFileDialog draws nothing.
 
-  The default implementation returns 0 in Qt 1.40.  In future versions
+  The default implementation returns 0 in Qt 2.1.  In future versions
   of Qt it may be extended.
 */
 
 const QPixmap * QFileIconProvider::pixmap( const QFileInfo & )
-{
-    return 0;
-}
-
-/*!  Returns a pointer to a pixmap suitable for display when the file
-  dialog next to the name of \a file.
-
-  If pixmap() returns 0, QFileDialog draws nothing.
-
-  The default implementation returns 0 in Qt 1.40.  In future versions
-  of Qt it may be extended.
-*/
-
-const QPixmap * QFileIconProvider::pixmap( const QUrlInfo & )
 {
     return 0;
 }
