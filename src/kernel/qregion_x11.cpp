@@ -565,7 +565,7 @@ miCoalesce (register QRegionPrivate *pReg, int prevStart, int curStart)
 	curStart = pRegEnd - pReg->rects.data();
 	pRegEnd = pReg->rects.data() + pReg->numRects;
     }
-	
+
     if ((curNumRects == prevNumRects) && (curNumRects != 0)) {
 	pCurBox -= curNumRects;
 	/*
@@ -633,7 +633,7 @@ miCoalesce (register QRegionPrivate *pReg, int prevStart, int curStart)
 		    *pPrevBox++ = *pCurBox++;
 		} while (pCurBox != pRegEnd);
 	    }
-	
+
 	}
     }
     return (curStart);
@@ -771,13 +771,13 @@ miRegionOp(register QRegionPrivate *newReg, QRegionPrivate *reg1, QRegionPrivate
 	{
 	    r1BandEnd++;
 	}
-	
+
 	r2BandEnd = r2;
 	while ((r2BandEnd != r2End) && (r2BandEnd->top() == r2->top()))
 	{
 	    r2BandEnd++;
 	}
-	
+
 	/*
 	 * First handle the band that doesn't intersect, if any.
 	 *
@@ -837,7 +837,7 @@ miRegionOp(register QRegionPrivate *newReg, QRegionPrivate *reg1, QRegionPrivate
 	    (* overlapFunc) (newReg, r1, r1BandEnd, r2, r2BandEnd, ytop, ybot);
 
 	}
-	
+
 	if (newReg->numRects != curBand)
 	{
 	    prevBand = miCoalesce (newReg, prevBand, curBand);
@@ -1121,9 +1121,9 @@ miSubtractNonO1 (register QRegionPrivate *pReg, register QRect *r,
 		 QRect *rEnd, register int y1, register int y2)
 {
     register QRect *pNextRect;
-	
+
     pNextRect = pReg->rects.data() + pReg->numRects;
-	
+
     Q_ASSERT(y1<=y2);
 
     while (r != rEnd)
@@ -1268,7 +1268,7 @@ miSubtractO (register QRegionPrivate *pReg, register QRect *r1, QRect *r1End,
     }
     return 0;	/* lint */
 }
-	
+
 /*-
  *-----------------------------------------------------------------------
  * miSubtract --
@@ -1314,7 +1314,7 @@ static void XorRegion( QRegionPrivate *sra, QRegionPrivate *srb, QRegionPrivate 
 }
 
 /*
- *	Check to see if two regions are equal	
+ *	Check to see if two regions are equal
  */
 static bool EqualRegion( QRegionPrivate *r1, QRegionPrivate *r2 )
 {
@@ -1325,7 +1325,7 @@ static bool EqualRegion( QRegionPrivate *r1, QRegionPrivate *r2 )
     else if ( r1->extents.left() != r2->extents.left() ||
 	      r1->extents.right() != r2->extents.right() ||
 	      r1->extents.top() != r2->extents.top() ||
-	      r1->extents.bottom() != r2->extents.bottom() ) 
+	      r1->extents.bottom() != r2->extents.bottom() )
 	return FALSE;
     else {
 	QRect *rr1 = r1->rects.data();
@@ -1334,7 +1334,7 @@ static bool EqualRegion( QRegionPrivate *r1, QRegionPrivate *r2 )
 	    if ( rr1->left() != rr2->left() ||
 		 rr1->right() != rr2->right() ||
 		 rr1->top() != rr2->top() ||
-		 rr1->bottom() != rr2->bottom() ) 
+		 rr1->bottom() != rr2->bottom() )
 		return FALSE;
 	}
     }
@@ -2194,7 +2194,7 @@ QRegionPrivate *PolygonRegion(QPoint *Pts, int Count, int rule)
     POINTBLOCK *tmpPtBlock;
     int numFullPtBlocks = 0;
 
-    if ( !(region = new QRegionPrivate) ) 
+    if ( !(region = new QRegionPrivate) )
 	return 0;
 
     /* special case a rectangle */
@@ -2325,7 +2325,7 @@ QRegionPrivate *PolygonRegion(QPoint *Pts, int Count, int rule)
             }
         }
     }
-    FreeStorage(SLLBlock.next);	
+    FreeStorage(SLLBlock.next);
     (void) PtsToRegion(numFullPtBlocks, iPts, &FirstPtBlock, region);
     for (curPtBlock = FirstPtBlock.next; --numFullPtBlocks >= 0;) {
 	tmpPtBlock = curPtBlock->next;
@@ -2790,13 +2790,29 @@ QMemArray<QRect> QRegion::rects() const
 		and X as the minor sort key.
    </ul>
   \internal
-  Only some platforms have that restriction (QWS).
+  Only some platforms have that restriction (QWS and X11).
 */
 void QRegion::setRects( const QRect *rects, int num )
 {
     *this = QRegion( FALSE );
+    if ( !rects || (num == 1 && rects->isEmpty()) )
+	num = 0;
+
     data->region->rects.duplicate( rects, num );
     data->region->numRects = num;
+    if ( num == 0 ) {
+	data->region->extents = QRect();
+    } else {
+	int left = INT_MAX, right = INT_MIN, top = INT_MAX, bottom = INT_MIN;
+	int i;
+	for ( i = 0; i < num; i++ ) {
+	    left = QMIN( rects[i].left(), left );
+	    right = QMAX( rects[i].right(), right );
+	    top = QMIN( rects[i].top(), top );
+	    bottom = QMAX( rects[i].bottom(), bottom );
+	}
+	data->region->extents = QRect( QPoint(left, top), QPoint(right, bottom) );
+    }
 }
 
 /*!
