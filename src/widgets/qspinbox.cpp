@@ -47,12 +47,15 @@
 #include "qvalidator.h"
 #include "qpixmapcache.h"
 #include "qapplication.h"
+#include "qtimer.h"
 
 struct QSpinBoxPrivate
 {
-    QSpinBoxPrivate(): buttonSymbols( QSpinBox::UpDownArrows ) {}
+    QSpinBoxPrivate(): buttonSymbols( QSpinBox::UpDownArrows ), auRepTimer( 0 ) {}
 
     QSpinBox::ButtonSymbols buttonSymbols;
+
+    QTimer *auRepTimer;
 };
 
 
@@ -139,7 +142,7 @@ struct QSpinBoxPrivate
 */
 
 QSpinBox::QSpinBox( QWidget * parent , const char *name )
-    : QFrame( parent, name ),
+    : QFrame( parent, name, WRepaintNoErase | WResizeNoErase ),
       QRangeControl()
 {
     initSpinBox();
@@ -158,7 +161,7 @@ QSpinBox::QSpinBox( QWidget * parent , const char *name )
 
 QSpinBox::QSpinBox( int minValue, int maxValue, int step, QWidget* parent,
 		    const char* name )
-    : QFrame( parent, name ),
+    : QFrame( parent, name, WRepaintNoErase | WResizeNoErase ),
       QRangeControl( minValue, maxValue, step, step, minValue )
 {
     initSpinBox();
@@ -170,23 +173,19 @@ QSpinBox::QSpinBox( int minValue, int maxValue, int step, QWidget* parent,
 
 void QSpinBox::initSpinBox()
 {
-    d = 0;
+    d = new QSpinBoxPrivate;
+    
     wrap = FALSE;
     edited = FALSE;
+    buttonDown = 0;
+    enabled = 0;
 
-    up = new QPushButton( this, "up" );
-    up->setFocusPolicy( QWidget::NoFocus );
-    up->setAutoDefault( FALSE );
-    up->setAutoRepeat( TRUE );
-
-    down = new QPushButton( this, "down" );
-    down->setFocusPolicy( QWidget::NoFocus );
-    down->setAutoDefault( FALSE );
-    down->setAutoRepeat( TRUE );
+    up = QRect();
+    down = QRect();
 
     validate = new QIntValidator( minValue(), maxValue(), this, "validator" );
     vi = new QLineEdit( this, "line editor" );
-    vi->setFrame( FALSE );
+
     setFocusProxy( vi );
     setFocusPolicy( StrongFocus );
     vi->setValidator( validate );
@@ -201,8 +200,6 @@ void QSpinBox::initSpinBox()
     setSizePolicy( QSizePolicy( QSizePolicy::Minimum, QSizePolicy::Fixed ) );
     updateDisplay();
 
-    connect( up, SIGNAL(pressed()), SLOT(stepUp()) );
-    connect( down, SIGNAL(pressed()), SLOT(stepDown()) );
     connect( vi, SIGNAL(textChanged(const QString&)), SLOT(textChanged()) );
 }
 
@@ -422,11 +419,10 @@ bool QSpinBox::wrapping() const
 QSize QSpinBox::sizeHint() const
 {
     constPolish();
-    QFontMetrics fm = fontMetrics();
-    int h = fm.height();
-    if ( h < 12 ) 	// ensure enough space for the button pixmaps
-	h = 12;
-    int w = 35; 	// minimum width for the value
+    QSize sz = vi->sizeHint();
+    int h = QMAX( sz.height(), 20 );
+    QFontMetrics fm( font() );
+    int w = 35;
     int wx = fm.width( ' ' )*2;
     QString s;
     s = prefix() + ( (QSpinBox*)this )->mapValueToText( minValue() ) + suffix();
@@ -437,14 +433,8 @@ QSize QSpinBox::sizeHint() const
 	s = specialValueText();
 	w = QMAX( w, fm.width( s ) + wx );
     }
-    QSize r( h // buttons AND frame both sides - see resizeevent()
-	     + 6 // right/left margins
-	     + w, // widest value
-	     frameWidth() * 2 // top/bottom frame
-	     + 4 // top/bottom margins
-	     + h // font height
-	     );
-    return r.expandedTo( QApplication::globalStrut() );
+
+    return QSize( w + down.width(), h ).expandedTo( QApplication::globalStrut() );
 }
 
 
@@ -452,46 +442,34 @@ QSize QSpinBox::sizeHint() const
 
 void QSpinBox::arrangeWidgets()
 {
-    if ( !up || !down ) // may happen if the application has a pointer error
-	return;
-
     QSize bs; // no, it's short for 'button size'
-    if ( style() == WindowsStyle )
-	bs.setHeight( height()/2 - frameWidth() );
-    else
-	bs.setHeight( height()/2 );
+    const int fw = style().spinBoxFrameWidth();
+    setFrameStyle( fw ? ( WinPanel | Sunken ) : NoFrame );
+    setLineWidth( fw );
+    vi->setFrame( !fw );
+
+    bs.setHeight( height()/2 - fw );
+
     if ( bs.height() < 8 )
 	bs.setHeight( 8 );
     bs.setWidth( bs.height() * 8 / 5 ); // 1.6 - approximate golden mean
-    int y = style() == WindowsStyle ? frameWidth() : 0;
+    bs = bs.expandedTo( QApplication::globalStrut() );
+
+    int y = fw;
     int x, lx, rx;
     if ( QApplication::reverseLayout() ) {
 	x = y;
-	lx = x + bs.width() + frameWidth();
-	rx = width() - frameWidth();
+	lx = x + bs.width() + fw;
+	rx = width() - fw;
     } else {
 	x = width() - y - bs.width();
-	lx = frameWidth();
-	rx = x - frameWidth();
+	lx = fw;
+	rx = x - fw;
     }
 
-    if ( style() == WindowsStyle )
-	setFrameRect( QRect( 0, 0, 0, 0 ) );
-    else
-	setFrameRect( QRect( lx - frameWidth(), 0, width() - bs.width(), height() ) );
-
-    if ( up->size() != bs || down->size() != bs ) {
-	up->resize( bs );
-	down->resize( bs );
-	updateButtonSymbols();
-    }
-
-    up->move( x, y );
-    down->move( x, height() - y - up->height() );
-//    if ( style() == WindowsStyle )
-	vi->setGeometry( lx, frameWidth(), rx, height() - 2*frameWidth() );
-//    else
-//	vi->setGeometry( lx, 0, rx, height() );
+    up = QRect( x, y, bs.width(), bs.height() );
+    down = QRect( x, up.bottom()+1, bs.width(), bs.height() );
+    vi->setGeometry( lx, fw, rx, height() - 2*fw );
 }
 
 /*! Sets the current value of the spin box to \a value.
@@ -515,6 +493,10 @@ void QSpinBox::setValue( int value )
 
 void QSpinBox::stepUp()
 {
+    if ( d->auRepTimer && sender() == d->auRepTimer ) {
+	d->auRepTimer->stop();
+	d->auRepTimer->start( 100 );
+    }
     if ( edited )
 	interpretText();
     if ( wrapping() && ( value()+lineStep() > maxValue() ) )
@@ -534,6 +516,10 @@ void QSpinBox::stepUp()
 
 void QSpinBox::stepDown()
 {
+    if ( d->auRepTimer && sender() == d->auRepTimer ) {
+	d->auRepTimer->stop();
+	d->auRepTimer->start( 100 );
+    }
     if ( edited )
 	interpretText();
     if ( wrapping() && ( value()-lineStep() < minValue() ) )
@@ -625,6 +611,100 @@ void QSpinBox::resizeEvent( QResizeEvent* )
     arrangeWidgets();
 }
 
+static uint theButton = 0;
+
+/*!\reimp
+*/
+void QSpinBox::mousePressEvent( QMouseEvent *e )
+{
+    if ( e->button() != LeftButton )
+	return;
+
+    uint oldButtonDown = buttonDown;
+
+    if ( down.contains( e->pos() ) )
+	buttonDown = 1;
+    else if ( up.contains( e->pos() ) )
+	buttonDown = 2;
+    else
+	buttonDown = 0;
+
+    if ( oldButtonDown != buttonDown ) {
+	if ( !buttonDown ) {
+	    update( down.unite( up ) );
+	} else if ( buttonDown & 1 ) {
+	    update( down );
+	    if ( !d->auRepTimer ) {
+		d->auRepTimer = new QTimer( this );
+		connect( d->auRepTimer, SIGNAL( timeout() ), this, SLOT( stepDown() ) );
+		d->auRepTimer->start( 300 );
+	    }
+	    stepDown();
+	} else if ( buttonDown & 2 ) {
+	    update( up );
+	    if ( !d->auRepTimer ) {
+		d->auRepTimer = new QTimer( this );
+		connect( d->auRepTimer, SIGNAL( timeout() ), this, SLOT( stepUp() ) );
+		d->auRepTimer->start( 300 );
+	    }
+	    stepUp();
+	}
+    }
+    theButton = buttonDown;
+}
+
+/*!\reimp
+*/
+void QSpinBox::mouseReleaseEvent( QMouseEvent *e )
+{
+    if ( e->button() != LeftButton )
+	return;
+
+    uint oldButtonDown = theButton;
+    theButton = 0;
+    if ( oldButtonDown != theButton ) {
+	if ( oldButtonDown & 1 )
+	    update( down );
+	else if ( oldButtonDown & 2 )
+	    update( up );
+    }
+    delete d->auRepTimer;
+    d->auRepTimer = 0;
+
+    buttonDown = 0;
+}
+
+/*!\reimp
+*/
+void QSpinBox::mouseMoveEvent( QMouseEvent *e )
+{
+    if ( !(e->state() & LeftButton ) )
+	return;
+
+    uint oldButtonDown = theButton;
+    if ( oldButtonDown & 1 && !down.contains( e->pos() ) ) {
+	if ( d->auRepTimer )
+	    d->auRepTimer->stop();
+	theButton = 0;
+	update( down );
+    } else if ( oldButtonDown & 2 && !up.contains( e->pos() ) ) {
+	if ( d->auRepTimer )
+	    d->auRepTimer->stop();
+	theButton = 0;
+	update( up );
+    } else if ( !oldButtonDown && up.contains( e->pos() ) && buttonDown & 2 ) {
+	if ( d->auRepTimer )
+	    d->auRepTimer->start( 500 );
+	theButton = 2;
+	update( up );
+    } else if ( !oldButtonDown && down.contains( e->pos() ) && buttonDown & 1 ) {
+	if ( d->auRepTimer )
+	    d->auRepTimer->start( 500 );
+	theButton = 1;
+	update( down );
+    }
+}
+
 /*!\reimp
 */
 void QSpinBox::wheelEvent( QWheelEvent * e )
@@ -646,7 +726,20 @@ void QSpinBox::wheelEvent( QWheelEvent * e )
     offset -= ioff;
 }
 
+/*!\reimp
+*/
+void QSpinBox::drawContents( QPainter *p )
+{
+    style().drawSpinBoxButton( p, down, enabled & 1 ? colorGroup() : palette().disabled(), 
+	this, TRUE, enabled & 1, theButton & 1 );
+    style().drawSpinBoxSymbol( p, down, enabled & 1 ? colorGroup() : palette().disabled(), 
+	this, TRUE, enabled & 1, theButton & 1 );
 
+    style().drawSpinBoxButton( p, up, enabled & 2 ? colorGroup() : palette().disabled(), 
+	this, FALSE, enabled & 2, theButton & 2 );
+    style().drawSpinBoxSymbol( p, up, enabled & 2 ? colorGroup() : palette().disabled(), 
+	this, FALSE, enabled & 2, theButton & 2 );
+}
 
 /*!  This virtual function is called by QRangeControl whenever the
   value has changed.  The QSpinBox reimplementation updates the
@@ -717,8 +810,12 @@ void QSpinBox::updateDisplay()
 {
     vi->setText( currentValueText() );
     edited = FALSE;
-    up->setEnabled( isEnabled() && (wrapping() || value() < maxValue()) );
-    down->setEnabled( isEnabled() && (wrapping() || value() > minValue()) );
+    enabled = 0;
+
+    enabled |= isEnabled() && (wrapping() || value() > minValue());
+    enabled |= ( isEnabled() && (wrapping() || value() < maxValue()) ) * 2; 
+
+    update();
 }
 
 
@@ -753,20 +850,20 @@ void QSpinBox::interpretText()
 
 
 /*!
-  Returns a pointer to the embedded "up" button.
+  Returns the geometry of the "up" button.
 */
 
-QPushButton* QSpinBox::upButton() const
+QRect QSpinBox::upRect() const
 {
     return up;
 }
 
 
 /*!
-  Returns a pointer to the embedded "down" button.
+  Returns the geometry of the "up" button.
 */
 
-QPushButton* QSpinBox::downButton() const
+QRect QSpinBox::downRect() const
 {
     return down;
 }
@@ -890,6 +987,7 @@ void QSpinBox::styleChange( QStyle& old )
 	setFrameStyle( WinPanel | Sunken );
     else
 	setFrameStyle( Panel | Sunken );
+
     arrangeWidgets();
     QWidget::styleChange( old );
 }
@@ -917,12 +1015,9 @@ void QSpinBox::setButtonSymbols( ButtonSymbols newSymbols )
     if ( buttonSymbols() == newSymbols )
 	return;
 
-    if ( !d )
-	d = new QSpinBoxPrivate;
     d->buttonSymbols = newSymbols;
-    updateButtonSymbols();
+    update();
 }
-
 
 /*!  Returns the current button symbol mode.  The default is \c
   UpDownArrows.
@@ -932,93 +1027,7 @@ void QSpinBox::setButtonSymbols( ButtonSymbols newSymbols )
 
 QSpinBox::ButtonSymbols QSpinBox::buttonSymbols() const
 {
-    return d ? d->buttonSymbols : UpDownArrows;
-}
-
-
-
-// this function uses the pixmap cache for a Different Reason: the
-// pixmap cache also preserves QPixmap::serialNumber().  by doing
-// this, QButton::setPixmap() is able to avoid flicker e.g. when the
-// spin box is resized in such a way that the height of the buttons
-// does not change (common the default size policy).
-
-void QSpinBox::updateButtonSymbols()
-{
-    QString key( QString::fromLatin1( "$qt$qspinbox$" ) );
-    bool pmSym = buttonSymbols() == PlusMinus;
-    key += QString::fromLatin1( pmSym ? "+-" : "^v" );
-    key += QString::number( down->height() );
-    QString upKey = key + QString::fromLatin1( "$up" );
-    QString dnKey = key + QString::fromLatin1( "$down" );
-    QBitmap upBm;
-    QBitmap dnBm;
-
-    bool found = QPixmapCache::find( dnKey, dnBm )
-		 && QPixmapCache::find( upKey, upBm );
-
-    if ( !found ) {
-	QPainter p;
-	if ( pmSym ) {
-	    int h = down->height()-4;
-	    if ( h < 3 )
-		return;
-	    else if ( h == 4 )
-		h = 3;
-	    else if ( (h > 6) && (h & 1) )
-		h--;
-	    h -= ( h / 8 ) * 2;		// Empty border
-	    dnBm.resize( h, h );
-	    p.begin( &dnBm );
-	    p.eraseRect( 0, 0, h, h );
-	    p.setBrush( color1 );
-	    int c = h/2;
-	    p.drawLine( 0, c, h, c );
-	    if ( !(h & 1) )
-		p.drawLine( 0, c-1, h, c-1 );
-	    p.end();
-	    upBm = dnBm;
-	    p.begin( &upBm );
-	    p.drawLine( c, 0, c, h );
-	    if ( !(h & 1) )
-		p.drawLine( c-1, 0, c-1, h );
-	    p.end();
-	}
-	else {
-	    int w = down->width()-4;
-	    if ( w < 3 )
-		return;
-	    else if ( !(w & 1) )
-		w--;
-	    w -= ( w / 7 ) * 2;		// Empty border
-	    int h = w/2 + 2;        // Must have empty row at foot of arrow
-	    dnBm.resize( w, h );
-	    p.begin( &dnBm );
-	    p.eraseRect( 0, 0, w, h );
-	    QPointArray a;
-	    a.setPoints( 3,  0, 1,  w-1, 1,  h-2, h-1 );
-	    p.setBrush( color1 );
-	    p.drawPolygon( a );
-	    p.end();
-#ifndef QT_NO_TRANSFORMATIONS
-	    QWMatrix wm;
-	    wm.scale( 1, -1 );
-	    upBm = dnBm.xForm( wm );
-#else
-	    upBm.resize( w, h );
-	    p.begin( &upBm );
-	    p.eraseRect( 0, 0, w, h );
-	    a.setPoints( 3,  0, h-2,  w-1, h-2,  h-2, 0 );
-	    p.setBrush( color1 );
-	    p.drawPolygon( a );
-	    p.end();
-#endif
-	}
-	QPixmapCache::insert( dnKey, dnBm );
-	QPixmapCache::insert( upKey, upBm );
-    }
-    down->setPixmap( dnBm );
-    up->setPixmap( upBm );
+    return d->buttonSymbols;
 }
 
 /*!

@@ -40,6 +40,7 @@
 #include "qpainter.h"
 #include "qdrawutil.h"
 #include "qapplication.h"
+#include "qpixmap.h"
 #include <limits.h>
 
 /*!
@@ -72,7 +73,7 @@
 */
 
 QProgressBar::QProgressBar( QWidget *parent, const char *name, WFlags f )
-    : QFrame( parent, name, f ),
+    : QFrame( parent, name, f | WRepaintNoErase | WResizeNoErase ),
       total_steps( 100 ),
       progress_val( -1 ),
       percentage( -1 ),
@@ -103,7 +104,7 @@ QProgressBar::QProgressBar( QWidget *parent, const char *name, WFlags f )
 
 QProgressBar::QProgressBar( int totalSteps,
 			    QWidget *parent, const char *name, WFlags f )
-    : QFrame( parent, name, f ),
+    : QFrame( parent, name, f | WRepaintNoErase | WResizeNoErase ),
       total_steps( totalSteps ),
       progress_val( -1 ),
       percentage( -1 ),
@@ -179,36 +180,14 @@ void QProgressBar::setProgress( int progress )
 	 progress < 0 || ( ( progress > total_steps ) && total_steps ) )
 	return;
 
-    bool dirtyVal = progress < progress_val;
     progress_val = progress;
+
+    setIndicator( progress_str, progress_val, total_steps );
+
+    update();
+
     if ( !isVisible() )
 	return;
-
-    bool dirtyInd = setIndicator( progress_str, progress_val, total_steps );
-
-    const QRect bar = contentsRect();
-    if ( ( style() != MotifStyle && auto_indicator ) ||
-	 ( !auto_indicator && !center_indicator ) ) {
-	// repaint only regions with changed content to reduce flicker
-	// ### drawContents() code duplication. keep in sync.
-	int textw = 0;
-	if ( percentage_visible && total_steps ) {
-	    QFontMetrics fm = fontMetrics();
-	    textw = fm.width(QString::fromLatin1("100%"));
-	}
-	const int unit_width  = 9;
-	int u = (bar.width() - textw - 2/*panel*/) / unit_width;
-	int ox = ( bar.width() - (u*unit_width+textw) ) / 2;
-	QRect r( ox+bar.x()+1, bar.y()+1, u*unit_width, bar.height()-2 );
-	if ( dirtyInd ) {
-	    repaint( r, dirtyVal );		// only the bar itself
-	    repaint( QRect( u*unit_width+2, 0, bar.width(), bar.height() ));
-	} else {
-	    repaint( r, dirtyVal );
-	}
-    } else {
-	repaint( bar, dirtyVal || dirtyInd );
-    }
     if ( autoMask() )
 	updateMask();
 }
@@ -220,9 +199,8 @@ QSize QProgressBar::sizeHint() const
 {
     constPolish();
     QFontMetrics fm = fontMetrics();
-    return QSize( fm.height()*4, fm.height()+8);
+    return QSize( style().progressChunkWidth() * 7 + fm.width( '0' ) * 4, fm.height()+8);
 }
-
 
 
 /*!
@@ -327,14 +305,7 @@ void QProgressBar::show()
 
 void QProgressBar::initFrame()
 {
-    if ( style() == MotifStyle ) {
-	setFrameStyle(QFrame::WinPanel | QFrame::Sunken);
-	setLineWidth( 2 );
-    }
-    else {
-	setFrameStyle(QFrame::NoFrame);
-	setLineWidth( 1 );
-    }
+    setFrameStyle(QFrame::NoFrame);
 }
 
 /*! \reimp
@@ -391,46 +362,17 @@ bool QProgressBar::setIndicator( QString & indicator, int progress,
 */
 void QProgressBar::drawContents( QPainter *p )
 {
-    const int unit_width  = 9;	    // includes 2 bg pixels
-    const int unit_height = 12;
     const QRect bar = contentsRect();
 
-    if ( style() != MotifStyle && auto_indicator ||
-	 !auto_indicator && !center_indicator ) {
-	// Draw nu units out of a possible u of unit_width width, each
-	// a rectangle bordered by background color, all in a sunken panel
-	// with a percentage text display at the end.
+    QPixmap pm;
+    pm.resize( bar.size() );
+    pm.fill( backgroundColor() );
 
-	// ### a bit code duplication with setProgress() to minimize flicker
-	int textw = 0;
-	if ( percentage_visible && total_steps ) {
-	    QFontMetrics fm = p->fontMetrics();
-	    textw = fm.width(QString::fromLatin1("100%"));
-	}
+    QPainter paint( &pm );
+    paint.setFont( p->font() );
 
-	int u = (bar.width() - textw - 2/*panel*/) / unit_width;
-	int ox = ( bar.width() - (u*unit_width+textw) ) / 2;
-
-	if (total_steps) { // Sanity check
-	    // ### This part doesn't change as often as percentage does.
-	    int p_v = progress_val;
-	    int t_s = total_steps;
-	    if ( u > 0 && progress_val >= INT_MAX / u && t_s >= u ) {
-		// scale down to something usable.
-		p_v /= u;
-		t_s /= u;
-	    }
-	    int nu = ( u * p_v + t_s/2 ) / t_s;
-	    int x = bar.x() + ox;
-	    int uh = QMIN(bar.height()-4, unit_height);
-	    int vm = (bar.height()-4 - uh)/2 + 2;
-	    p->setPen(NoPen);
-	    for (int i=0; i<nu; i++) {
-		p->fillRect( x+2, bar.y()+vm,
-			     unit_width-2, bar.height()-vm-vm,
-			     palette().active().brush( QColorGroup::Highlight ) );
-		x += unit_width;
-	    }
+    if ( !total_steps ) { // draw busy indicator
+/*
 	} else {
 	    bool right = TRUE;
 	    int bw = u*unit_width + 2;
@@ -467,33 +409,8 @@ void QProgressBar::drawContents( QPainter *p )
 
 	    p->setClipping( FALSE );
 	}
-
-	// ### This part doesn't actually change.
-	const QRect r( ox + bar.x(), bar.y(), u*unit_width + 2, bar.height() );
-	qDrawShadePanel( p, r, colorGroup(), TRUE, 1 );
-
-	if ( percentage_visible && total_steps ) {
-	    // ### This part changes every percentage change.
-	    p->setPen( colorGroup().foreground() );
-	    p->drawText( r.x()+r.width(), bar.y(), textw, bar.height(),
-		AlignRight | AlignVCenter, progress_str );
-	}
-    } else {
-	if (total_steps) { // Sanity check
-	    int u = bar.width();
-	    int pw;
-	    if ( u > 0 && progress_val >= INT_MAX / u && total_steps >= u )
-		pw = (u * (progress_val / u)) / (total_steps / u);
-	    else
-		pw = bar.width() * progress_val / total_steps;
-
-	    p->setPen( colorGroup().highlightedText() );
-	    p->setClipRect( bar.x(), bar.y(), pw, bar.height() );
-	    p->fillRect( bar, palette().active().brush( QColorGroup::Highlight ) );
-	    if ( percentage_visible && total_steps )
-		p->drawText( bar, AlignCenter, progress_str );
-
-	    p->setClipRect( bar.x()+pw, bar.y(), bar.width()-pw, bar.height() );
+*/
+/*
 	} else {
 	    int bw = bar.width();
 	    int x = progress_val % ( bw * 2 );
@@ -507,17 +424,61 @@ void QProgressBar::drawContents( QPainter *p )
 	    p->setPen( colorGroup().highlight() );
 	    p->drawLine( x, bar.y(), x, bar.height() );
 	}
+*/
+    } else {
+	const int unit_width = style().progressChunkWidth();
 
-	if ( total_steps ) {
-	    if ( progress_val != total_steps )
-		p->fillRect( bar, palette().active().brush( style()==MotifStyle ?
-		    QColorGroup::Background : QColorGroup::Base ) );
-	    if ( percentage_visible ) {
-		p->setPen( style()==MotifStyle? colorGroup().foreground() : colorGroup().text() );
-		p->drawText( bar, AlignCenter, progress_str );
+	bool hasExtraIndicator = percentage_visible && total_steps && (
+				 style() != MotifStyle && auto_indicator || 
+				!auto_indicator && !center_indicator );
+
+	int textw = 0;
+	if ( hasExtraIndicator ) {
+	    QFontMetrics fm = p->fontMetrics();
+	    textw = fm.width(QString::fromLatin1("100%")) + 6;
+	}
+	int u = (bar.width() - textw ) / unit_width;
+	int p_v = progress_val;
+	int t_s = total_steps;
+	if ( u > 0 && progress_val >= INT_MAX / u && t_s >= u ) {
+	    // scale down to something usable.
+	    p_v /= u;
+	    t_s /= u;
+	}
+	int nu = ( u * p_v + t_s/2 ) / t_s;
+
+	const QRect r( bar.x(), bar.y(), u*unit_width + 4, bar.height() );
+	style().drawProgressBar( &paint, r, colorGroup() );
+	
+	// Draw nu units out of a possible u of unit_width width, each
+	// a rectangle bordered by background color, all in a sunken panel
+	// with a percentage text display at the end.
+	int x = 0;
+	for (int i=0; i<nu; i++) {
+	    QRect chunk( bar.x() + x + 2, bar.y() + 2,
+			 unit_width, bar.height() - 4 );
+	    style().drawProgressChunk( &paint, chunk, palette().active() );
+	    x += unit_width;
+	}
+	if ( !hasExtraIndicator && percentage_visible && total_steps ) {
+	    paint.setPen( colorGroup().highlightedText() );
+	    paint.setClipRect( bar.x(), bar.y(), x, bar.height() );
+	    paint.drawText( bar, AlignCenter, progress_str );
+	    if ( progress_val != total_steps ) {
+		paint.setClipRect( bar.x() + x, bar.y(), bar.width() - x, bar.height() );
+		paint.setPen( colorGroup().highlight() );
+		paint.drawText( bar, AlignCenter, progress_str );	    
 	    }
+	} else if ( hasExtraIndicator ) {
+	    paint.setPen( colorGroup().foreground() );
+	    paint.drawText( r.x()+r.width(), bar.y(), textw, bar.height(),
+		AlignRight | AlignVCenter, progress_str );
 	}
     }
+
+    paint.end();
+
+    p->drawPixmap( bar.x(), bar.y(), pm );
 }
 
 
@@ -529,28 +490,39 @@ void QProgressBar::drawContents( QPainter *p )
 */
 void QProgressBar::drawContentsMask( QPainter *p )
 {
-    const int unit_width  = 9;	    // includes 2 bg pixels
     const QRect bar = contentsRect();
 
-    if ( style() != MotifStyle ) {
-	// ### This part doesn't actually change.
+    if ( !total_steps ) {
+    } else {
+	const int unit_width  = style().progressChunkWidth();
+	bool hasExtraIndicator = percentage_visible && total_steps && (
+				 style() != MotifStyle && auto_indicator || 
+				!auto_indicator && !center_indicator );
 	int textw = 0;
-	if ( percentage_visible && total_steps ) {
+	if ( hasExtraIndicator ) {
 	    QFontMetrics fm = p->fontMetrics();
-	    textw = fm.width(QString::fromLatin1("100%"));
+	    textw = fm.width(QString::fromLatin1("100%")) + 6;
 	}
-	int u = (bar.width() - textw - 2/*panel*/) / unit_width;
-	int ox = ( bar.width() - (u*unit_width+textw) ) / 2;
+	int u = (bar.width() - textw ) / unit_width;
+	int p_v = progress_val;
+	int t_s = total_steps;
+	if ( u > 0 && progress_val >= INT_MAX / u && t_s >= u ) {
+	    // scale down to something usable.
+	    p_v /= u;
+	    t_s /= u;
+	}
+	int nu = ( u * p_v + t_s/2 ) / t_s;
+	const QRect r( bar.x(), bar.y(), u*unit_width + 4, bar.height() );
 
-	const QRect r( ox + bar.x(), bar.y(), u*unit_width + 2, bar.height() );
-	p->drawRect( r );
-
-	// ### This part changes every percentage change.
-	if ( percentage_visible )
+	p->fillRect( bar.x() + 2, bar.y() + 2, unit_width * nu, bar.height() - 4, color1 );
+	if ( !hasExtraIndicator && percentage_visible && total_steps ) {
+	    p->setPen( color1 );
+	    p->drawText( bar, AlignCenter, progress_str );
+	} else if ( hasExtraIndicator ) {
+	    p->setPen( color1 );
 	    p->drawText( r.x()+r.width(), bar.y(), textw, bar.height(),
 		AlignRight | AlignVCenter, progress_str );
-    } else {
-	p->drawRect( bar );
+	}
     }
 }
 #endif

@@ -45,8 +45,6 @@
 
 #ifndef QT_NO_SPINBOX
 
-
-class QPushButton;
 class QLineEdit;
 class QValidator;
 
@@ -112,6 +110,8 @@ public:
     virtual const QPixmap *	backgroundPixmap() const;
     virtual void		setBackgroundPixmap( const QPixmap & );
 
+    QRect		upRect() const;
+    QRect		downRect() const;
 
 public slots:
     virtual void	setValue( int value );
@@ -133,17 +133,20 @@ protected:
     virtual void	updateDisplay();
     virtual void	interpretText();
 
-    QPushButton*	upButton() const;
-    QPushButton*	downButton() const;
     QLineEdit*		editor() const;
 
     virtual void	valueChange();
     virtual void	rangeChange();
 
+    void		mousePressEvent( QMouseEvent *e );
+    void		mouseReleaseEvent( QMouseEvent *e );
+    void		mouseMoveEvent( QMouseEvent *e );
     bool		eventFilter( QObject* obj, QEvent* ev );
     void		resizeEvent( QResizeEvent* ev );
     void		wheelEvent( QWheelEvent * );
     void		leaveEvent( QEvent* );
+
+    void		drawContents( QPainter *p );
 
     void		styleChange( QStyle& );
 
@@ -153,18 +156,20 @@ protected slots:
 private:
     void initSpinBox();
     struct QSpinBoxPrivate* d;
-    QPushButton* up;
-    QPushButton* down;
     QLineEdit* vi;
     QValidator* validate;
     QString pfix;
     QString sfix;
     QString specText;
-    bool wrap;
-    bool edited;
+    QRect up;
+    QRect down;
+
+    uint wrap		: 1;
+    uint edited		: 1;
+    uint buttonDown	: 2;
+    uint enabled	: 2;
 
     void arrangeWidgets();
-    void updateButtonSymbols();
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

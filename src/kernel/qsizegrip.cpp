@@ -142,7 +142,7 @@ QSizeGrip::~QSizeGrip()
 */
 QSize QSizeGrip::sizeHint() const
 {
-    return QSize( 13, 13 ).expandedTo( QApplication::globalStrut() );
+    return QSize( 14, 20 ).expandedTo( QApplication::globalStrut() );
 }
 
 /*!  Paints the resize grip - small diagonal textured lines in the
@@ -152,21 +152,7 @@ void QSizeGrip::paintEvent( QPaintEvent *e )
 {
     QPainter painter( this );
     painter.setClipRegion(e->region());
-    painter.translate( width()-13, height()-13 ); // paint in the corner
-    QPointArray a;
-    a.setPoints( 3, 1,12, 12,1, 12,12 );
-    painter.setPen( QPen( colorGroup().dark(), 1 ) );
-    painter.setBrush( colorGroup().dark() );
-    painter.drawPolygon( a );
-    painter.setPen( QPen( colorGroup().light(), 1 ) );
-    painter.drawLine(  0, 12, 13,  -1 );
-    painter.drawLine(  4, 12, 13,  3 );
-    painter.drawLine( 8, 12, 13, 7 );
-    painter.setPen( QPen( colorGroup().background(), 1 ) );
-    painter.drawLine( 3, 12, 13, 2 );
-    painter.drawLine( 7, 12, 13, 6 );
-    painter.drawLine( 11, 12, 13, 10 );
-    painter.drawLine( 12, 12, 13, 11 );
+    style().drawSizeGrip( &painter, QRect( 0, 0, width(), height() ), colorGroup() );
 }
 
 /*!

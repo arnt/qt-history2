@@ -118,18 +118,6 @@
 
 static bool inCaptionChange = FALSE;
 
-class QWorkspaceChildTitleButton : public QLabel
-{
-    Q_OBJECT
-public:
-    QWorkspaceChildTitleButton( QWidget* parent );
-
-    QSize sizeHint() const;
-
-public slots:
-    void setPixmap( const QPixmap& );
-};
-
 class QWorkspaceChild : public QFrame
 {
     Q_OBJECT
@@ -217,7 +205,7 @@ public:
     int px;
     int py;
     QWidget *becomeActive;
-    QWorkspaceChildTitleButton* maxtools;
+    QTitleBarButton* maxtools;
     QPopupMenu* popup;
     QPopupMenu* toolPopup;
     int menuId;
@@ -899,7 +887,7 @@ void QWorkspace::showMaximizeControls()
     }
     if ( d->active && d->menuId == -1 ) {
 	if ( !d->maxtools ) {
-	    d->maxtools = new QWorkspaceChildTitleButton( topLevelWidget() );
+	    d->maxtools = new QTitleBarButton( topLevelWidget(), QTitleBarButton::Icon );
 	    d->maxtools->installEventFilter( this );
 	}
 	if ( d->active->windowWidget() && d->active->windowWidget()->icon() ) {
@@ -909,8 +897,7 @@ void QWorkspace::showMaximizeControls()
 	    pm.fill( white );
 	    d->maxtools->setPixmap( pm );
 	}
-	QWorkspaceChildTitleButton* maxtools = d->maxtools;
-	d->menuId = b->insertItem( maxtools, -1, 0 );
+	d->menuId = b->insertItem( d->maxtools, -1, 0 );
     }
 #endif
 }
@@ -1716,13 +1703,14 @@ void QWorkspaceChild::showShaded()
     ((QWorkspace*)parentWidget())->activateWindow( windowWidget() );
     if ( shademode ) {
 	QToolTip::add( titlebar->shadeB, tr( "Roll up" ) );
-	titlebar->shadeB->setIconSet( QPixmap( (const char **)qt_shade_xpm ) );
+	titlebar->shadeB->setPixmap( QPixmap( (const char **)qt_shade_xpm ) );
 	shademode = FALSE;
 	resize( shadeRestore );
 	setMinimumSize( shadeRestoreMin );
     } else {
 	QToolTip::add( titlebar->shadeB, tr( "Roll down" ) );
-	titlebar->shadeB->setIconSet( QPixmap( (const char **)qt_unshade_xpm ) );
+	titlebar->shadeB->setPixmap( QPixmap( (const char **)qt_unshade_xpm ) );
+	titlebar->shadeB->setType( QTitleBarButton::ShadeDown );
 	shadeRestore = size();
 	shadeRestoreMin = minimumSize();
 	setMinimumHeight(0);
@@ -1797,28 +1785,6 @@ void QWorkspaceChild::move( int x, int y )
 	    snappedDown = FALSE;
     }
     QFrame::move( nx, ny );
-}
-
-QWorkspaceChildTitleButton::QWorkspaceChildTitleButton( QWidget* parent )
-    : QLabel( parent )
-{
-    setAlignment( AlignHCenter | AlignVCenter );
-}
-
-void QWorkspaceChildTitleButton::setPixmap( const QPixmap& pm )
-{
-    if ( pm.height() > 14 || pm.width() > 14 ) {
-	QPixmap p;
-	p.convertFromImage( pm.convertToImage().smoothScale( 14, 14 ) );
-	QLabel::setPixmap( p );
-    } else {
-	QLabel::setPixmap( pm );
-    }
-}
-
-QSize QWorkspaceChildTitleButton::sizeHint() const
-{
-    return QSize( 14,14 );
 }
 
 #include "qworkspace.moc"

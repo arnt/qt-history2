@@ -2,7 +2,6 @@
 
 #include "qapplication.h"
 #include "../kernel/qapplication_p.h"
-#include "qtoolbutton.h"
 #include "qtooltip.h"
 #include "qimage.h"
 #include "qdatetime.h"
@@ -289,24 +288,24 @@ QTitleBar::QTitleBar (QWorkspace* w, QWidget* win, QWidget* parent,
     imode = iconMode;
 
     titleL = new QTitleBarLabel( this );
-    closeB = new QToolButton( this, "close" );
+    closeB = new QTitleBarButton( this, QTitleBarButton::Close, "close" );
     QToolTip::add( closeB, tr( "Close" ) );
     closeB->setFocusPolicy( NoFocus );
-    closeB->setIconSet( QPixmap( (const char **)qt_close_xpm ) );
+    closeB->setPixmap( QPixmap( (const char **)qt_close_xpm ) );
     connect( closeB, SIGNAL( clicked() ),
 	     this, SIGNAL( doClose() ) ) ;
-    maxB = new QToolButton( this, "maximize" );
+    maxB = new QTitleBarButton( this, QTitleBarButton::Max, "maximize" );
     QToolTip::add( maxB, tr( "Maximize" ) );
     maxB->setFocusPolicy( NoFocus );
-    maxB->setIconSet( QPixmap( (const char **)qt_maximize_xpm ));
+    maxB->setPixmap( QPixmap( (const char **)qt_maximize_xpm ));
     connect( maxB, SIGNAL( clicked() ),
 	     this, SIGNAL( doMaximize() ) );
-    iconB = new QToolButton( this, "iconify" );
+    iconB = new QTitleBarButton( this, QTitleBarButton::Min, "iconify" );
     iconB->setFocusPolicy( NoFocus );
 
-    shadeB = new QToolButton( this, "shade" );
+    shadeB = new QTitleBarButton( this, QTitleBarButton::ShadeUp, "shade" );
     QToolTip::add( shadeB, tr( "Roll up" ) );
-    shadeB->setIconSet( QPixmap( (const char **)qt_shade_xpm ) );
+    shadeB->setPixmap( QPixmap( (const char **)qt_shade_xpm ) );
     shadeB->setFocusPolicy( NoFocus );
     connect( shadeB, SIGNAL( clicked() ),
 	     this, SIGNAL( doShade() ) );
@@ -378,13 +377,15 @@ QTitleBar::QTitleBar (QWorkspace* w, QWidget* win, QWidget* parent,
     }
 
     if ( imode ) {
-	iconB->setIconSet( QPixmap( (const char **)qt_normalizeup_xpm ) );
+	iconB->setPixmap( QPixmap( (const char **)qt_normalizeup_xpm ) );
+	iconB->setType( QTitleBarButton::RestoreUp );
 	QToolTip::add( iconB, tr( "Restore Up" ) );
 	connect( iconB, SIGNAL( clicked() ),
 		 this, SIGNAL( doNormal() ) );
     }
     else {
-	iconB->setIconSet( QPixmap( (const char **)qt_minimize_xpm ) );
+	iconB->setPixmap( QPixmap( (const char **)qt_minimize_xpm ) );
+	iconB->setType( QTitleBarButton::Min );
 	QToolTip::add( iconB, tr( "Minimize" ) );
 	connect( iconB, SIGNAL( clicked() ),
 		 this, SIGNAL( doMinimize() ) );
@@ -698,34 +699,14 @@ void QTitleBarLabel::drawLabel( bool redraw )
     if ( buffer->isNull() )
 	return;
 
+    buffer->fill( yellow );
     QPainter p( buffer );
     p.setFont( font() );
 
-    if ( leftc != rightc ) {
-	double rS = leftc.red();
-	double gS = leftc.green();
-	double bS = leftc.blue();
-
-	double rD = double(rightc.red() - rS) / width();
-	double gD = double(rightc.green() - gS) / width();
-	double bD = double(rightc.blue() - bS) / width();
-
-	for ( int x = contentsRect().x(); x < contentsRect().width(); x++ ) {
-	    rS+=rD;
-	    gS+=gD;
-	    bS+=bD;
-	    p.setPen( QColor( (int)rS, (int)gS, (int)bS ) );
-	    p.drawLine( x, contentsRect().y(), x, contentsRect().height() );
-	}
-    } else {
-	p.fillRect( contentsRect(), leftc );
-    }
+    style().drawTitleBar( &p, contentsRect(), leftc, rightc, act );
     drawFrame( &p );
-    p.setPen( textc );
     QRect cr( 1, 1, width()-2, height()-2);
-    p.drawText( cr.x() + leftm, cr.y(),
-	cr.width() - rightm, cr.height(),
-	AlignAuto | AlignVCenter | SingleLine, cuttext );
+    style().drawTitleBarLabel( &p, QRect( cr.x() + leftm, cr.y(), cr.width() - rightm, cr.height() ), cuttext, textc, act );
 
     p.end();
 
@@ -764,6 +745,8 @@ bool QTitleBarLabel::event( QEvent* e )
     if ( e->type() == QEvent::ApplicationPaletteChange ) {
 	getColors();
 	return TRUE;
+    } else if ( e->type() == QEvent::WindowActivate || e->type() == QEvent::WindowDeactivate ) {
+	setActive( act );
     }
 
     return QFrame::event( e );
@@ -771,7 +754,7 @@ bool QTitleBarLabel::event( QEvent* e )
 
 void QTitleBarLabel::setActive( bool a )
 {
-    act = a;
+    act = a && isActiveWindow();
     if ( a ) {
 	textc = atextc;
 	leftc = aleftc;
@@ -785,3 +768,42 @@ void QTitleBarLabel::setActive( bool a )
     drawLabel();
 }
 
+QTitleBarButton::QTitleBarButton( QWidget* parent, ButtonType t, const char *name )
+    : QButton( parent, name ), type( t )
+{
+    setBackgroundMode( NoBackground );
+    setFocusPolicy( NoFocus );
+}
+
+void QTitleBarButton::setPixmap( const QPixmap& pm )
+{
+    if ( pm.height() > 14 || pm.width() > 14 ) {
+	QPixmap p;
+	p.convertFromImage( pm.convertToImage().smoothScale( 14, 14 ) );
+	QButton::setPixmap( p );
+    } else {
+	QButton::setPixmap( pm );
+    }
+}
+
+void QTitleBarButton::setType( ButtonType t )
+{
+    type = t;
+    update();
+}
+
+QSize QTitleBarButton::sizeHint() const
+{
+    return QSize( 14,14 );
+}
+
+void QTitleBarButton::drawButton( QPainter *p )
+{
+    style().drawTitleBarButton( p, QRect( 0, 0, width(), height() ), colorGroup(), isDown() );
+    drawButtonLabel( p );
+}
+
+void QTitleBarButton::drawButtonLabel( QPainter *p )
+{
+    style().drawTitleBarButtonLabel( p, QRect( 0, 0, width(), height() ), pixmap(), type, isDown() );
+}

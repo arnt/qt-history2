@@ -745,6 +745,23 @@ QRect QHeader::sRect( int index )
 	return QRect( 0, d->positions[index]-offset(), width(), d->sizes[section] );
 }
 
+/*!
+  Returns the rectangle covered by section \a section.
+*/
+
+QRect QHeader::sectionRect( int section ) const
+{
+    int index = mapToIndex( section );
+    if ( section < 0 )
+	return rect(); // ### eeeeevil
+
+    if ( reverse() )
+	return QRect(  d->lastPos - d->positions[index] - d->sizes[section] -offset(), 0, d->sizes[section], height() );
+    else if ( orient == Horizontal )
+	return QRect(  d->positions[index]-offset(), 0, d->sizes[section], height() );
+    else
+	return QRect( 0, d->positions[index]-offset(), width(), d->sizes[section] );
+}
 
 /*!
   Sets the icon on the section \a section to \a iconset and the text to \a s.
@@ -1175,8 +1192,7 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
     bool down = (index==handleIdx) && ( state == Pressed || state == Moving );
     p->setBrushOrigin( fr.topLeft() );
     if ( d->clicks[section] ) {
-	style().drawBevelButton( p, fr.x(), fr.y(), fr.width(), fr.height(),
-				 colorGroup(), down );
+	style().drawHeaderSection( p, fr, colorGroup(), down );
     } else {
 	// ##### should be somhow styled in 3.0
 	if ( orientation() == Horizontal ) {
@@ -1184,7 +1200,7 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 
 	    // ### Hack to keep styles working
 	    p->setClipRect( fr );
-	    style().drawBevelButton( p, fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4,
+	    style().drawHeaderSection( p, QRect( fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4 ),
 				     colorGroup(), down );
 
 	    p->setPen( colorGroup().color( QColorGroup::Mid ) );
@@ -1204,7 +1220,7 @@ void QHeader::paintSection( QPainter *p, int index, const QRect& fr )
 
 	    // ### Hack to keep styles working
 	    p->setClipRect( fr );
-	    style().drawBevelButton( p, fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4,
+	    style().drawHeaderSection( p, QRect( fr.x() - 2, fr.y() - 2, fr.width() + 4, fr.height() + 4 ),
 				     colorGroup(), down );
 
 	    p->setPen( colorGroup().color( QColorGroup::Mid ) );

@@ -90,6 +90,7 @@ public:
     int		sectionAt( int pos ) const;
     int		count() const;
     int headerWidth() const;
+    QRect	sectionRect( int section ) const;
 
     virtual void setCellSize( int , int ); // obsolete, do not use
     int		cellSize( int i ) const { return sectionSize( mapToSection(i) ); } // obsolete, do not use

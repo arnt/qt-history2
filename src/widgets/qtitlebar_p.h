@@ -53,13 +53,46 @@
 
 
 #ifndef QT_H
+#include "qbutton.h"
 #include "qlabel.h"
 #include "qpixmap.h"
 #endif // QT_H
 
 class QTitleBar;
 
-class QTitleBarLabel : public QFrame
+class Q_EXPORT QTitleBarButton : public QButton
+{
+    Q_OBJECT
+public:
+    enum ButtonType
+    {
+	Icon = 0,
+	Min,
+	Max,
+	Close,
+	RestoreUp,
+	RestoreDown,
+	ContextHelp,
+	ShadeUp,
+	ShadeDown
+    };
+
+    QTitleBarButton( QWidget* parent, ButtonType type, const char *name = 0 );
+
+    QSize sizeHint() const;
+
+    void setPixmap( const QPixmap& );
+    void setType( ButtonType type );
+
+protected:
+    void drawButton( QPainter * );
+    void drawButtonLabel( QPainter * );
+
+private:
+    ButtonType type;
+};
+
+class Q_EXPORT QTitleBarLabel : public QFrame
 {
     Q_OBJECT
 public:
@@ -102,7 +135,7 @@ private:
 
 class QWorkspace;
 
-class QTitleBar : public QWidget
+class Q_EXPORT QTitleBar : public QWidget
 {
     Q_OBJECT
 
@@ -115,6 +148,8 @@ public:
     bool isActive() const;
 
     QSize sizeHint() const;
+
+    static QPixmap titleButtonPixmap( int button, bool down );
 
 public slots:
     void setActive( bool );
@@ -141,10 +176,10 @@ protected:
     bool eventFilter( QObject *, QEvent * );    
 
 private:
-    QToolButton* closeB;
-    QToolButton* maxB;
-    QToolButton* iconB;
-    QToolButton* shadeB;
+    QTitleBarButton* closeB;
+    QTitleBarButton* maxB;
+    QTitleBarButton* iconB;
+    QTitleBarButton* shadeB;
     QTitleBarLabel* titleL;
     QLabel* iconL;
     int titleHeight;

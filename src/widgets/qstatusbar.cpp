@@ -314,7 +314,7 @@ void QStatusBar::reformat()
 #ifndef QT_NO_SIZEGRIP
     if ( d->resizer ) {
 	maxH = QMAX( maxH, d->resizer->sizeHint().height() );
-	l->addSpacing( 2 );
+	l->addSpacing( 1 );
 	l->addWidget( d->resizer, 0, AlignBottom );
 	l->addSpacing( 2 );
     }
@@ -416,18 +416,20 @@ void QStatusBar::paintEvent( QPaintEvent * )
 
     QPainter p( this );
     QStatusBarPrivate::SBItem* item = d->items.first();
+    int psx = d->resizer ? d->resizer->x() : width()-12;
     while ( item ) {
 	if ( !haveMessage || item->p )
-	    qDrawShadeRect( &p, item->w->x()-1, item->w->y()-1,
-			    item->w->width()+2, item->w->height()+2,
-			    colorGroup(), TRUE, 1, 0, 0 );
+	    if ( item->w->isVisible() ) {
+		if ( item->p && item->w->x()-1 < psx )
+		    psx = item->w->x()-1;
+		style().drawStatusBarSection( &p, QRect( item->w->x() - 1, item->w->y() - 1, 
+		    item->w->width()+2, item->w->height()+2 ), colorGroup(), item->p );
+	    }
 	item = d->items.next();
     }
     if ( haveMessage ) {
 	p.setPen( colorGroup().text() );
-	// ### clip and add ellipsis if necessary
-	p.drawText( 6, 0, width() - 12, height(), AlignVCenter + SingleLine,
-		    d->tempItem );
+	p.drawText( 6, 0, psx, height(), AlignVCenter | SingleLine, d->tempItem );
     }
 }
 
