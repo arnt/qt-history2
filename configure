@@ -902,18 +902,18 @@ fi
 ### skip this if the user just needs help...
 if [ "$OPT_HELP" != "yes" ]; then
 
-# create the include and include/tmp directory (for qconfig.h and qmodules.h)
-mkdir -p $outpath/include/tmp
+# create the include and include/qmake directory (for qconfig.h and qmodules.h)
+mkdir -p $outpath/include/qmake
 
 # create temporary qconfig.h for compiling qmake
 # when building qmake, we use #defines for the install paths,
 # however they are real functions in the library
-cat >>$outpath/include/tmp/qconfig.h <<EOF
+cat >>$outpath/include/qmake/qconfig.h <<EOF
 /* All features enabled while building qmake */
 EOF
 
 # create temporary qmodules.h for compiling qmake
-cat >>$outpath/include/tmp/qmodules.h <<EOF
+cat >>$outpath/include/qmake/qmodules.h <<EOF
 /* All modules enabled while building qmake */
 EOF
 
@@ -2050,9 +2050,9 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
 fi
 
 # clean up temporary qconfig.h and qmodules.h
-rm -f $outpath/include/tmp/qconfig.h
-rm -f $outpath/include/tmp/qmodules.h
-rmdir $outpath/include/tmp
+rm -f $outpath/include/qmake/qconfig.h
+rm -f $outpath/include/qmake/qmodules.h
+rmdir $outpath/include/qmake
 
 
 #-------------------------------------------------------------------------------
