@@ -6,22 +6,7 @@ system and compiler you are using.
 Supported platforms and compilers:
 
   macx-g++ 
-  macx-pbuilder
-
-Compilation problems:
-
-  Qt 3.x may have problems compiling on some combinations of operating
-  system versions and compiler versions. Information about such
-  problems will be posted on http://www.trolltech.com/platforms/ as we
-  become aware of them.
-
-Fink:
-
-  If you have installed the Qt package from Fink, it will set the
-  QMAKESPEC enviroment variable to darwin-g++. This will cause
-  problems when you build the Qt/Mac package. To fix this, simply
-  unset your QMAKESPEC or set it to macx-g++ before you run
-  configure. You need to have a fresh Qt distribution (make confclean).
+  macx-pbuilder -- Cannot be used for building the Qt library.
 
 Example:
 
@@ -32,3 +17,11 @@ Customization:
   You can create your own custom configuration by adding new files to
   the mkspecs directory. The configuration macx-g++ is included
   as an example. It uses GNU g++ as a C/C++ compiler.
+
+Compilation problems:
+
+  Qt 3.x may have problems compiling on some combinations of operating
+  system versions and compiler versions. Information about such
+  problems will be posted on http://www.trolltech.com/platforms/ as we
+  become aware of them.
+
