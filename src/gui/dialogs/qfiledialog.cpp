@@ -126,9 +126,9 @@ public:
 
     inline QString tr(const char *text) const { return QObject::tr(text); }
 
-    inline QString convert(const QString  &path) const
+    inline QString toNative(const QString  &path) const
         { return QDir::convertSeparators(path); }
-    inline QString revert(const QString &path) const
+    inline QString toInternal(const QString &path) const
         {
             QString n(path);
 #if defined(Q_FS_FAT) || defined(Q_OS_OS2EMX)
@@ -529,18 +529,18 @@ QStringList QFileDialog::selectedFiles() const
     int r = -1;
     for (int i = 0; i < indexes.count(); ++i) {
         if (indexes.at(i).row() != r) {
-            files.append(d->model->path(indexes.at(i))); // to internal
+            files.append(d->model->path(indexes.at(i)));
             r = indexes.at(i).row();
         }
     }
 
-    QString filename = d->revert(d->fileName->text()); // to internal
+    QString filename = d->toInternal(d->fileName->text());
     if ((d->fileMode == AnyFile && files.count() <= 0)
         ||(d->fileMode == ExistingFile && QFileInfo(filename).exists())) { // a new filename
         if (QFileInfo(filename).isAbsolute())
             files.append(filename);
         else
-            files.append(d->revert(d->lookIn->currentText() + QDir::separator() + filename)); // to internal
+            files.append(d->toInternal(d->lookIn->currentText() + QDir::separator() + filename));
     }
     return files;
 }
@@ -948,7 +948,7 @@ void QFileDialog::fileNameChanged(const QString &text)
     if (d->fileName->hasFocus() && !text.isEmpty()) {
 
         QModelIndex start;
-        QFileInfo info(text);
+        QFileInfo info(d->toInternal(text));
         if (info.isAbsolute()) // if we have an absolute path, do completion in that directory
             start = d->model->index(0, 0, d->model->index(info.path()));
         else
@@ -976,7 +976,7 @@ void QFileDialog::fileNameChanged(const QString &text)
             int start = completed.length();
             int length = text.length() - start; // negative length
             bool block = d->fileName->blockSignals(true);
-            d->fileName->setText(completed);
+            d->fileName->setText(d->toNative(completed));
             d->fileName->setSelection(start, length);
             d->fileName->blockSignals(block);
         }
@@ -1005,7 +1005,7 @@ void QFileDialog::lookInChanged(const QString &text)
         // text is the local path format (on windows separator is '\\')
         QModelIndex result;
         int s = text.lastIndexOf(QDir::separator());
-        QString pth = d->revert(s == 0 ? QDir::rootPath() : text.left(s)); // to internal format
+        QString pth = d->toInternal(s == 0 ? QDir::rootPath() : text.left(s));
         QModelIndex dirIndex = d->model->index(pth);
         QString searchText = text.section(QDir::separator(), -1);
         int rowCount = d->model->rowCount(dirIndex);
@@ -1023,7 +1023,7 @@ void QFileDialog::lookInChanged(const QString &text)
 
         // we found a valid autocompletion
         if (result.isValid()) {
-            QString completed = d->convert(d->model->path(result)); // to native format
+            QString completed = d->toNative(d->model->path(result));
             int start = completed.length();
             int length = text.length() - start; // negative length
             bool block = d->lookInEdit->blockSignals(true);
@@ -1187,7 +1187,7 @@ void QFileDialog::reload()
 
 void QFileDialog::lookIn()
 {
-    QString path = d->revert(d->lookIn->currentText()); // to internal format
+    QString path = d->toInternal(d->lookIn->currentText());
     QModelIndex index = d->model->index(path);
     d->setRoot(index);
     d->updateButtons(index);
@@ -1297,20 +1297,20 @@ void QFileDialogPrivate::setup(const QString &directory,
     setupWidgets(grid);
 
     // Insert paths in the "lookin" combobox
-    lookIn->insertItem(model->icon(QModelIndex()), convert(model->path(QModelIndex()))); // root
+    lookIn->insertItem(model->icon(QModelIndex()), toNative(model->path(QModelIndex()))); // root
     for (int r = 0; r < model->rowCount(QModelIndex()); ++r) { // drives
         QModelIndex index = model->index(r, 0, QModelIndex());
         QString path = model->path(index);
         QIcon icons = model->icon(index);
-        lookIn->insertItem(icons, convert(path));
+        lookIn->insertItem(icons, toNative(path));
     }
 
     // insert the home path
     QModelIndex home = model->index(QDir::homePath()); // home
-    lookIn->insertItem(model->icon(home), convert(QDir::homePath()));
+    lookIn->insertItem(model->icon(home), toNative(QDir::homePath()));
 
     // if it is not already in the list, insert the current directory
-    QString currentPath = convert(model->path(current)); // native
+    QString currentPath = toNative(model->path(current));
     int item = lookIn->findItem(currentPath, QAbstractItemModel::MatchExactly);
     if (item < 0) {
         lookIn->insertItem(model->icon(current), currentPath);
@@ -1540,7 +1540,7 @@ void QFileDialogPrivate::updateButtons(const QModelIndex &index)
         return;
     toParent->setEnabled(index.isValid());
     back->setEnabled(history.count() > 0);
-    QString pth = convert(d->model->path(index)); // to native format
+    QString pth = toNative(d->model->path(index));
     QIcon icn = d->model->icon(index);
     int i = lookIn->findItem(pth, QAbstractItemModel::MatchExactly);
     bool block = lookIn->blockSignals(true);
