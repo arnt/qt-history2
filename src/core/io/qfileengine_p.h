@@ -35,6 +35,7 @@ protected:
     void init();
     int sysOpen(const QString &, int flags);
 private:
+    QString file;
 
     int fd;
     mutable uint sequential : 1;

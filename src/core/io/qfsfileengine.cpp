@@ -61,9 +61,19 @@ QFSFileEnginePrivate::QFSFileEnginePrivate() : QFileEnginePrivate()
 }
 
 //**************** QFSFileEngine
+QFSFileEngine::QFSFileEngine(const QString &file) : QFileEngine(*new QFSFileEnginePrivate)
+{
+    d->file = qt_fixToQtSlashes(file);    
+}
+
 QFSFileEngine::QFSFileEngine() : QFileEngine(*new QFSFileEnginePrivate)
 {
+}
 
+void
+QFSFileEngine::setFileName(const QString &file)
+{
+    d->file = qt_fixToQtSlashes(file);
 }
 
 bool
@@ -73,7 +83,7 @@ QFSFileEngine::isOpen() const
 }
 
 bool
-QFSFileEngine::open(int mode, const QString &file)
+QFSFileEngine::open(int mode)
 {
     int oflags = QT_OPEN_RDONLY;
     if ((mode & QFile::ReadWrite) == QFile::ReadWrite)
@@ -102,7 +112,7 @@ QFSFileEngine::open(int mode, const QString &file)
         oflags |= QT_OPEN_ASYNC;
 #endif
     d->cachedCharRead = -1;
-    d->fd = d->sysOpen(file, oflags);
+    d->fd = d->sysOpen(d->file, oflags);
     if(d->fd != -1) {
         d->sequential = 0;
         struct stat st;
@@ -121,7 +131,7 @@ QFSFileEngine::open(int mode, const QString &file)
 }
 
 bool
-QFSFileEngine::open(int fd)
+QFSFileEngine::open(int, int fd)
 {
     d->cachedCharRead = -1;
     d->fd = fd;
@@ -189,15 +199,6 @@ QFSFileEngine::atEnd() const
     if(d->cachedCharRead != -1)
         return false;
     return (at() == size());
-}
-
-
-QFile::Offset
-QFSFileEngine::size() const
-{
-    QT_STATBUF st;
-    QT_FSTAT(d->fd, &st);
-    return st.st_size;
 }
 
 int

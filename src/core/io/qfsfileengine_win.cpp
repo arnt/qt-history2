@@ -97,6 +97,25 @@ QFSFileEngine::remove(const QString &fileName)
     });
 }
 
+QFile::Offset
+QFSFileEngine::size() const
+{
+    QT_STATBUF st;
+    int ret = 0;
+    if (isOpen()) {
+        ret = QT_FSTAT(d->fd, &st);
+    } else {
+        QT_WA({
+            ret = QT_TSTAT((TCHAR*)d->file.utf16(), (QT_STATBUF4TSTAT*)&st);
+        } , {
+            ret = QT_STAT(qt_win95Name(d->file), &st);
+        });
+    }
+    if (ret == -1)
+        return 0;
+    return st.st_size;
+}
+
 uchar
 *QFSFileEngine::map(Q_ULONG len)
 {

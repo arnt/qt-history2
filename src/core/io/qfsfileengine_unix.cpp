@@ -41,6 +41,20 @@ QFSFileEngine::remove(const QString &fileName)
     return unlink(QFile::encodeName(fileName)) == 0;
 }
 
+QFile::Offset
+QFSFileEngine::size() const
+{
+    QT_STATBUF st;
+    int ret = 0;
+    if(d->fd != -1) 
+        ret = QT_FSTAT(d->fd, &st);
+    else 
+        ret = QT_STAT(QFile::encodeName(d->file), &st);
+    if (ret == -1)
+        return 0;
+    return st.st_size;
+}
+
 uchar
 *QFSFileEngine::map(Q_ULONG len)
 {
