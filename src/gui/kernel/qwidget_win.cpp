@@ -108,6 +108,9 @@ extern void qt_clear_paintevent_clipping();
 #define d d_func()
 #define q q_func()
 
+#define XCOORD_MAX 32767
+#define WRECT_MAX 16383
+
 /*****************************************************************************
   QWidget member functions
  *****************************************************************************/
@@ -516,8 +519,9 @@ QPoint QWidget::mapToGlobal(const QPoint &pos) const
         return mapTo(topLevelWidget(), pos) + topLevelWidget()->pos() +
         (topLevelWidget()->geometry().topLeft() - topLevelWidget()->frameGeometry().topLeft());
     POINT p;
-    p.x = pos.x();
-    p.y = pos.y();
+    QPoint tmp = d->mapToWS(pos);
+    p.x = tmp.x();
+    p.y = tmp.y();
     ClientToScreen(winId(), &p);
     return QPoint(p.x, p.y);
 }
@@ -530,7 +534,7 @@ QPoint QWidget::mapFromGlobal(const QPoint &pos) const
     p.x = pos.x();
     p.y = pos.y();
     ScreenToClient(winId(), &p);
-    return QPoint(p.x, p.y);
+    return d->mapFromWS(QPoint(p.x, p.y));
 }
 
 
@@ -901,10 +905,9 @@ void QWidget::repaint(const QRegion& rgn)
     if (testWState(WState_InPaintEvent))
         qWarning("QWidget::repaint: recursive repaint detected.");
 
-    if ((data->widget_state & (WState_Visible|WState_BlockUpdates)) != WState_Visible)
-        return;
-
-    if (rgn.isEmpty())
+    if ((data->widget_state & (WState_Visible|WState_BlockUpdates)) != WState_Visible
+        || !testAttribute(WA_Mapped)
+        || rgn.isEmpty())
         return;
 
     ValidateRgn(winId(),rgn.handle());
@@ -912,8 +915,8 @@ void QWidget::repaint(const QRegion& rgn)
     setWState(WState_InPaintEvent);
 
     QRect br = rgn.boundingRect();
+    QRect brWS = d->mapToWS(br);
     bool do_clipping = (br != QRect(0, 0, data->crect.width(), data->crect.height()));
-    QPoint dboff;
     bool double_buffer = (!testAttribute(WA_PaintOnScreen)
                           && br.width()  <= QWinDoubleBuffer::MaxWidth
                           && br.height() <= QWinDoubleBuffer::MaxHeight);
@@ -922,23 +925,32 @@ void QWidget::repaint(const QRegion& rgn)
         hdc = GetDC(winId());
     HDC old_dc = hdc;
 
+    QPoint redirectionOffset;
+
     if (double_buffer) {
         qt_win_get_double_buffer(&hdc, br.width(), br.height());
-        dboff = br.topLeft();
-        QPainter::setRedirected(this, this, dboff);
-        QRegion pmRegion(rgn);
-        pmRegion.translate(-dboff);
-        if (do_clipping)
-            qt_set_paintevent_clipping(this, pmRegion);
+        redirectionOffset = br.topLeft();
     } else {
-        if (do_clipping)
+        redirectionOffset = data->wrect.topLeft();
+    }
+
+    if (!redirectionOffset.isNull())
+        QPainter::setRedirected(this, this, redirectionOffset);
+
+    if (do_clipping) {
+        if (redirectionOffset.isNull()) {
             qt_set_paintevent_clipping(this, rgn);
+        } else {
+            QRegion redirectedRegion(rgn);
+            redirectedRegion.translate(-redirectionOffset);
+            qt_set_paintevent_clipping(this, redirectedRegion);
+        }
     }
 
     if (testAttribute(WA_NoSystemBackground)) {
         if (double_buffer) {
-            BitBlt(hdc, 0, 0, br.width(), br.height(),
-                   old_dc, br.x(), br.y(), SRCCOPY);
+            BitBlt(hdc, 0, 0, brWS.width(), brWS.height(),
+                   old_dc, brWS.x(), brWS.y(), SRCCOPY);
         }
     } else if (!testAttribute(WA_NoBackground)) {
         QPoint offset;
@@ -951,13 +963,16 @@ void QWidget::repaint(const QRegion& rgn)
         }
 
         if (double_buffer) {
-            qt_erase_background(q->hdc, br.x()-dboff.x(), br.y()-dboff.y(),
+            qt_erase_background(q->hdc, br.x()-redirectionOffset.x(), br.y()-redirectionOffset.y(),
                                 br.width(), br.height(),
                                 palette().brush(w->d->bg_role),
                                 br.x() + offset.x(), br.y() + offset.y());
         } else {
-            SelectClipRgn(hdc, rgn.handle());
-            qt_erase_background(hdc, 0, 0, data->crect.width(), data->crect.height(),
+            QRegion mappedRegion(rgn);
+            mappedRegion.translate(-data->wrect.topLeft());
+            SelectClipRgn(hdc, mappedRegion.handle());
+            // ### This triggers bitblt on entire area. Potentially a lot. Clip here too!
+            qt_erase_background(hdc, 0, 0, data->wrect.width(), data->wrect.height(),
                                 palette().brush(w->d->bg_role), offset.x(), offset.y());
         }
 
@@ -994,16 +1009,20 @@ void QWidget::repaint(const QRegion& rgn)
     if (do_clipping)
         qt_clear_paintevent_clipping();
 
-    if (double_buffer) {
+    if (!redirectionOffset.isNull())
         QPainter::restoreRedirected(this);
+
+
+
+    if (double_buffer) {
         QVector<QRect> rects = rgn.rects();
         for (int i=0; i<rects.size(); ++i) {
-            const QRect &rr = rects.at(i);
+            QRect &rr = d->mapToWS(rects.at(i));
             BitBlt(old_dc,
                    rr.x(), rr.y(),
                    rr.width(), rr.height(),
                    hdc,
-                   rr.x()-br.x(), rr.y()-br.y(),
+                   rr.x()-brWS.x(), rr.y()-brWS.y(),
                    SRCCOPY);
         }
 
@@ -1142,6 +1161,10 @@ void QWidget::showWindow()
 #if defined(QT_NON_COMMERCIAL)
     QT_NC_SHOW_WINDOW
 #endif
+    if (testAttribute(WA_OutsideWSRange))
+        return;
+    setAttribute(WA_Mapped);
+
     int sm = SW_SHOWNORMAL;
     if (isTopLevel()) {
         if (testWState(WState_Minimized))
@@ -1172,6 +1195,9 @@ void QWidget::showWindow()
 
 void QWidget::showWindow()
 {
+    if (testAttribute(WA_OutsideWSRange))
+        return;
+    setAttribute(WA_Mapped);
     uint sm = SW_SHOW;
     if (isTopLevel()) {
         switch (d->topData()->showMode) {
@@ -1339,6 +1365,116 @@ void QWidget::stackUnder(QWidget* w)
 }
 
 
+/*
+  Helper function for non-toplevel widgets. Helps to map Qt's 32bit
+  coordinate system to Windpws's 16bit coordinate system.
+
+  This code is duplicated from the X11 code, so any changes there
+  should also (most likely) be reflected here.
+
+  (In all comments below: s/X/Windows/g)
+ */
+
+void QWidgetPrivate::setWSGeometry()
+{
+
+    /*
+      There are up to four different coordinate systems here:
+      Qt coordinate system for this widget.
+      X coordinate system for this widget (relative to wrect).
+      Qt coordinate system for parent
+      X coordinate system for parent (relative to parent's wrect).
+     */
+//     Display *dpy = xinfo->display();
+    QRect validRange(-XCOORD_MAX,-XCOORD_MAX, 2*XCOORD_MAX, 2*XCOORD_MAX);
+    QRect wrectRange(-WRECT_MAX,-WRECT_MAX, 2*WRECT_MAX, 2*WRECT_MAX);
+    QRect wrect;
+    //xrect is the X geometry of my X widget. (starts out in  parent's Qt coord sys, and ends up in parent's X coord sys)
+    QRect xrect = data.crect;
+
+    QRect parentWRect = q->parentWidget()->data->wrect;
+
+    if (parentWRect.isValid()) {
+        // parent is clipped, and we have to clip to the same limit as parent
+        if (!parentWRect.contains(xrect)) {
+            xrect &= parentWRect;
+            wrect = xrect;
+            //translate from parent's to my Qt coord sys
+            wrect.moveBy(-data.crect.topLeft());
+        }
+        //translate from parent's Qt coords to parent's X coords
+        xrect.moveBy(-parentWRect.topLeft());
+
+    } else {
+        // parent is not clipped, we may or may not have to clip
+
+        if (data.wrect.isValid()) {
+            // This is where the main optimization is: we are already
+            // clipped, and if our clip is still valid, we can just
+            // move our window, and do not need to move or clip
+            // children
+
+            QRect vrect = xrect & q->parentWidget()->rect();
+            vrect.moveBy(-data.crect.topLeft()); //the part of me that's visible through parent, in my Qt coords
+            if (data.wrect.contains(vrect)) {
+                xrect = data.wrect;
+                xrect.moveBy(data.crect.topLeft());
+                MoveWindow(q->winId(), xrect.x(), xrect.y(), xrect.width(), xrect.height(), true);
+                return;
+            }
+        }
+
+        if (!validRange.contains(xrect)) {
+            // we are too big, and must clip
+            xrect &=wrectRange;
+            wrect = xrect;
+            wrect.moveBy(-data.crect.topLeft());
+            //parent's X coord system is equal to parent's Qt coord
+            //sys, so we don't need to map xrect.
+        }
+
+    }
+
+
+    // unmap if we are outside the valid window system coord system
+    bool outsideRange = !xrect.isValid();
+    bool mapWindow = false;
+    if (q->testAttribute(QWidget::WA_OutsideWSRange) != outsideRange) {
+        q->setAttribute(QWidget::WA_OutsideWSRange, outsideRange);
+        if (outsideRange) {
+            ShowWindow(q->winId(), SW_HIDE);
+            q->setAttribute(QWidget::WA_Mapped, false);
+        } else if (q->isShown()) {
+            mapWindow = true;
+        }
+    }
+
+    if (outsideRange)
+        return;
+
+
+    // and now recursively for all children...
+    data.wrect = wrect;
+    for (int i = 0; i < children.size(); ++i) {
+        QObject *object = children.at(i);
+        if (object->isWidgetType()) {
+            QWidget *w = static_cast<QWidget *>(object);
+            if (!w->isTopLevel())
+                w->d->setWSGeometry();
+        }
+    }
+
+    // move ourselves to the new position and map (if necessary) after
+    // the movement. Rationale: moving unmapped windows is much faster
+    // than moving mapped windows
+    MoveWindow(q->winId(), xrect.x(), xrect.y(), xrect.width(), xrect.height(), true);
+    if (mapWindow) {
+            q->setAttribute(QWidget::WA_Mapped);
+            ShowWindow(q->winId(), SW_SHOWNOACTIVATE);
+    }
+
+}
+
 //
 // The internal qWinRequestConfig, defined in qapplication_win.cpp, stores move,
 // resize and setGeometry requests for a widget that is already
@@ -1368,7 +1504,7 @@ void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
     if (!isMove && !isResize)
         return;
 
-    if (isResize)
+    if (isResize) {
         if (!testAttribute(WA_StaticContents))
             ValidateRgn(winId(), 0);
         else if (!testWState(WState_InPaintEvent)) {
@@ -1377,6 +1513,7 @@ void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
             if (result != NULLREGION && result != ERROR)
                 repaint(region);
         }
+    }
 
     clearWState(WState_Maximized);
     clearWState(WState_FullScreen);
@@ -1397,8 +1534,8 @@ void QWidget::setGeometry_helper(int x, int y, int w, int h, bool isMove)
             MoveWindow(winId(), fr.x(), fr.y(), fr.width(), fr.height(), true);
             data->crect.setRect(x, y, w, h);
         } else {
-            MoveWindow(winId(), x, y, w, h, true);
             data->crect.setRect(x, y, w, h);
+            d->setWSGeometry();
         }
         clearWState(WState_ConfigPending);
     }

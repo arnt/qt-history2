@@ -252,7 +252,7 @@ public:
     inline uint clippedSerial(bool =true) { return clp_serial; }
 #endif
 
-#if defined(Q_WS_X11)
+#if defined(Q_WS_X11) || defined (Q_WS_WIN)
     void setWSGeometry();
     inline QPoint mapToWS(const QPoint &p) const { return p - data.wrect.topLeft(); }
     inline QPoint mapFromWS(const QPoint &p) const { return p + data.wrect.topLeft(); }

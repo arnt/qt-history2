@@ -2322,8 +2322,9 @@ bool QETWidget::translateMouseEvent(const MSG &msg)
 
         ScreenToClient(winId(), &curPos);
 
-        pos.rx() = (short)curPos.x;
-        pos.ry() = (short)curPos.y;
+        pos.rx() = curPos.x;
+        pos.ry() = curPos.y;
+        pos = d->mapFromWS(pos);
     } else {
         gpos = msg.pt;
         pos = mapFromGlobal(QPoint(gpos.x, gpos.y));
@@ -3156,6 +3157,8 @@ bool QETWidget::translatePaintEvent(const MSG &)
     PAINTSTRUCT ps;
     hdc = BeginPaint(winId(), &ps);
 
+    // Mapping region from system to qt (32 bit) coordinate system.
+    rgn.translate(data->wrect.topLeft());
     repaint(rgn);
 
     hdc = 0;
