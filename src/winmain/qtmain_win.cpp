@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#include "qvector.h"
 #include "qt_windows.h"
+#include "qvector.h"
 
 /*
   This file contains the code in the qtmain library for Windows.
