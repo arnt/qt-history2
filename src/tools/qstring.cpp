@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#160 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#161 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -2137,8 +2137,8 @@ const char* QString::ascii() const
 void QString::subat( uint i )
 {
     uint olen = d->len;
-    if ( i > olen ) {
-	setLength( i );
+    if ( i >= olen ) {
+	setLength( i+1 );		// i is index; i+1 is needed length
 	for ( uint j=olen; j<=i; j++ )
 	    d->unicode[j]='\0';
     } else {
