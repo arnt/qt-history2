@@ -357,11 +357,7 @@ Q_INLINE_TEMPLATE void *QHash<Key, T>::allocateNode()
 template <class Key, class T>
 Q_INLINE_TEMPLATE void QHash<Key, T>::deleteNode(Node *node)
 {
-#ifdef QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
     node->~QHashNode();
-#else
-    node->~Node();
-#endif
     qFree(node);
 }
 
