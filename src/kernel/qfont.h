@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfont.h#5 $
+** $Id: //depot/qt/main/src/kernel/qfont.h#6 $
 **
 ** Definition of QFont class
 **
@@ -33,7 +33,7 @@ public:
 
     QFont	copy() const;
 
-    char      *name() const;			// get font name
+    const char *name() const;			// get font name
 
     bool	changeFont( const char *name );
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#4 $
+** $Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#5 $
 **
 ** Implementation of QFont and QFontMetrics classes for X11
 **
@@ -18,7 +18,7 @@
 #include "qpainter.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#4 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qfnt_x11.cpp#5 $";
 #endif
 
 
@@ -111,7 +111,7 @@ QFont QFont::copy() const
 }
 
 
-char *QFont::name() const			// get font name
+const char *QFont::name() const			// get font name
 {
     return data->name;
 }
