@@ -191,9 +191,8 @@ const UInt32 kEventClassQt = 'cute';
 enum {
     //types
     typeQWidget = 1,  /* QWidget * */
-    typeTimerInfo = 2, /* TimerInfo * */
     //params
-    kEventParamTimer = 'qtim',     /* typeTimerInfo */
+    kEventParamTimer = 'qtim',     /* typeUInt */
     kEventParamQWidget = 'qwid',   /* typeQWidget */
     //events
     kEventQtRequestPropagate = 10,
@@ -527,10 +526,10 @@ static EventLoopTimerUPP timerUPP = NULL;       //UPP
 QMAC_PASCAL static void qt_activate_timers(EventLoopTimerRef, void *data)
 {
     EventRef tmr = NULL;
-    TimerInfo *t = (TimerInfo *)data;
+    int t =((TimerInfo *)data)->id;
     CreateEvent(NULL, kEventClassQt, kEventQtRequestTimer, GetCurrentEventTime(), 
 		kEventAttributeUserEvent, &tmr );
-    SetEventParameter(tmr, kEventParamTimer, typeTimerInfo, sizeof(t), &t);
+    SetEventParameter(tmr, kEventParamTimer, typeInteger, sizeof(t), &t);
     PostEventToQueue( GetCurrentEventQueue(), tmr, kEventPriorityHigh );
 }
 
@@ -1360,12 +1359,16 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 		}
 	    }
 	} else if(ekind == kEventQtRequestTimer) {
-	    TimerInfo *tinfo = NULL;
-	    GetEventParameter(event, kEventParamTimer, typeTimerInfo, NULL,
-			      sizeof(tinfo), NULL, &tinfo);
-	    if(tinfo) {
-		QTimerEvent e( tinfo->id );
-		QApplication::sendEvent( tinfo->obj, &e );	// send event
+	    if(!timerList)
+		break;
+	    int id = 0;
+	    GetEventParameter(event, kEventParamTimer, typeInteger, NULL, sizeof(id), NULL, &id);
+	    register TimerInfo *t = timerList->first();
+	    while ( t && (t->id != id) ) // find timer info in list
+		t = timerList->next();
+	    if ( t ) {					// id found
+		QTimerEvent e( id );
+		QApplication::sendEvent( t->obj, &e );	// send event
 	    }
 	}
 	break;
