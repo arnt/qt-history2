@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#13 $
+** $Id: //depot/qt/main/src/tools/qtextcodec.cpp#14 $
 **
 ** Implementation of QTextCodec class
 **
@@ -443,6 +443,7 @@ class QTextCodecFromIOD : public QTextCodec {
     //  use from_unicode_page_multibyte[row][cell] as string.
     char** from_unicode_page;
     char*** from_unicode_page_multibyte;
+    char unkn;
 
     // Only one of these is used
     ushort* to_unicode;
@@ -455,7 +456,6 @@ class QTextCodecFromIOD : public QTextCodec {
 public:
     QTextCodecFromIOD(QIODevice* iod)
     {
-int mem=0;
 	from_unicode_page = 0;
 	to_unicode_multibyte = 0;
 	to_unicode = 0;
@@ -478,12 +478,9 @@ int mem=0;
 		    from_unicode_page = new char*[256];
 		    for (int i=0; i<256; i++)
 			from_unicode_page[i]=0;
-mem+=256;
 		}
 		if (!to_unicode) {
 		    to_unicode = new ushort[256];
-mem+=256;
-mem+=256;
 		}
 		incmap = TRUE;
 	    } else if (0==strnicmp(line,"END CHARMAP",11))
@@ -505,7 +502,6 @@ mem+=256;
 		if ( *cursor == esc ) {
 		    if ( !to_unicode_multibyte ) {
 			to_unicode_multibyte = new QMultiByteUnicodeTable[256];
-mem+=256*sizeof(QMultiByteUnicodeTable);
 			for (int i=0; i<256; i++) {
 			    to_unicode_multibyte[i].unicode = to_unicode[i];
 			    to_unicode_multibyte[i].multibyte = 0;
@@ -524,7 +520,6 @@ mem+=256*sizeof(QMultiByteUnicodeTable);
 			if (!mbut->multibyte) {
 			    mbut->multibyte =
 				new QMultiByteUnicodeTable[256];
-mem+=256*sizeof(QMultiByteUnicodeTable);
 			}
 			mbut = mbut->multibyte+byte;
 			mb_unicode = & mbut->unicode;
@@ -544,7 +539,6 @@ mem+=256*sizeof(QMultiByteUnicodeTable);
 			from_unicode_page[ch.row] = new char[256];
 			for (int i=0; i<256; i++)
 			    from_unicode_page[ch.row][i]=0;
-mem+=256;
 		    }
 		    if ( mb_unicode ) {
 			from_unicode_page[ch.row][ch.cell] = 0;
@@ -552,13 +546,11 @@ mem+=256;
 			    from_unicode_page_multibyte = new char**[256];
 			    for (int i=0; i<256; i++)
 				from_unicode_page_multibyte[i]=0;
-mem+=256*4;
 			}
 			if (!from_unicode_page_multibyte[ch.row]) {
 			    from_unicode_page_multibyte[ch.row] = new char*[256];
 			    for (int i=0; i<256; i++)
 				from_unicode_page_multibyte[ch.row][i] = 0;
-mem+=256*4;
 			}
 			mb[nmb++] = 0;
 			from_unicode_page_multibyte[ch.row][ch.cell]
@@ -576,7 +568,8 @@ mem+=256*4;
 	    }
 	}
 	n = n.stripWhiteSpace();
-debug("name = \"%s\"   MEMORY=%2.2fK",n.data(),(float)mem/1024);
+
+	unkn = '?'; // ##### Might be a bad choice.
     }
 
     ~QTextCodecFromIOD()
@@ -690,7 +683,7 @@ debug("name = \"%s\"   MEMORY=%2.2fK",n.data(),(float)mem/1024);
 		    lout++;
 		}
 	    } else {
-		*cursor++ = '?'; // #### Any better replacement char?
+		*cursor++ = unkn;
 		lout++;
 	    }
 	}
@@ -740,6 +733,9 @@ QString QTextCodecFromIODDecoder::toUnicode(const char* chars, int len)
   The resulting QTextCodec is returned (and also added to the
   global list of codecs).  The name() of the result is taken
   from the code_set_name.
+
+  Note that a codec constructed in this way uses more memory
+  and is slower than a hand-written QTextCodec subclass.
 
   \sa loadCharmapFile()
 */
