@@ -24,10 +24,10 @@ class QX11PaintEngine : public QPaintEngine
     Q_DECLARE_PRIVATE(QX11PaintEngine);
 
 public:
-    QX11PaintEngine(const QPaintDevice *);
+    QX11PaintEngine(QPaintDevice *);
     ~QX11PaintEngine();
 
-    bool begin(const QPaintDevice *pdev, QPainterState *state, bool begin = FALSE);
+    bool begin(QPaintDevice *pdev, QPainterState *state, bool begin = FALSE);
     bool end();
 
     void updatePen(QPainterState *ps);
@@ -68,7 +68,7 @@ public:
     static void cleanup();
 
 protected:
-    QX11PaintEngine(QX11PaintEnginePrivate &dptr, const QPaintDevice *);
+    QX11PaintEngine(QX11PaintEnginePrivate &dptr, QPaintDevice *);
 
     friend void qt_cleanup();
     friend void qt_draw_transformed_rect( QPaintEngine *pp,  int x, int y, int w,  int h, bool fill );

@@ -97,17 +97,17 @@ public:
 #define d d_func()
 #define q q_func()
 
-QWSPaintEngine::QWSPaintEngine(QPaintEnginePrivate &dptr, const QPaintDevice *pdev)
+QWSPaintEngine::QWSPaintEngine(QPaintEnginePrivate &dptr, QPaintDevice *pdev)
     : QPaintEngine(dptr, UsesFontEngine)
 {
-    d->pdev = const_cast<QPaintDevice *>(pdev);
+    d->pdev = pdev;
 //	qDebug("QWSPaintEngine::QWSPaintEngine");
 }
 
-QWSPaintEngine::QWSPaintEngine(const QPaintDevice *pdev)
+QWSPaintEngine::QWSPaintEngine(QPaintDevice *pdev)
     : QPaintEngine(*(new QWSPaintEnginePrivate), UsesFontEngine)
 {
-    d->pdev = const_cast<QPaintDevice *>(pdev);
+    d->pdev = pdev;
 //	qDebug("QWSPaintEngine::QWSPaintEngine");
 }
 
@@ -122,7 +122,7 @@ QGfx *QWSPaintEngine::gfx()
 }
 
 
-bool QWSPaintEngine::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
+bool QWSPaintEngine::begin(QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 {
     if ( isActive() ) {                         // already active painting
          qWarning( "QWSC::begin: Painter is already active."
@@ -130,7 +130,7 @@ bool QWSPaintEngine::begin(const QPaintDevice *pdev, QPainterState *ps, bool unc
 	return true;
     }
     if(pdev->devType() == QInternal::Widget &&
-       !static_cast<const QWidget*>(pdev)->testWState(WState_InPaintEvent)) {
+       !static_cast<QWidget*>(pdev)->testWState(WState_InPaintEvent)) {
 	qWarning("QPainter::begin: Widget painting can only begin as a "
 		 "result of a paintEvent");
 //	return false;
@@ -138,7 +138,7 @@ bool QWSPaintEngine::begin(const QPaintDevice *pdev, QPainterState *ps, bool unc
 
     Q_ASSERT(d->gfx == 0);
 
-    d->pdev = const_cast<QPaintDevice *>(pdev);
+    d->pdev = pdev;
     d->gfx = pdev->graphicsContext();
 ///    qDebug("QWSPaintEngine::begin %p gfx %p", this, d->gfx);
     setActive(true);

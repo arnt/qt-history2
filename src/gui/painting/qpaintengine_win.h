@@ -28,10 +28,10 @@ class QWin32PaintEngine : public QPaintEngine
 {
     Q_DECLARE_PRIVATE(QWin32PaintEngine);
 public:
-    QWin32PaintEngine(const QPaintDevice *target);
+    QWin32PaintEngine(QPaintDevice *target);
     ~QWin32PaintEngine();
 
-    bool begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped=FALSE);
+    bool begin(QPaintDevice *pdev, QPainterState *state, bool unclipped=FALSE);
     bool end();
 
     void updatePen(QPainterState *state);
@@ -79,7 +79,7 @@ public:
            UsePrivateCx = 0x10000, VolatileDC = 0x20000, Qt2Compat = 0x40000 };
 
 protected:
-    QWin32PaintEngine(QWin32PaintEnginePrivate &dptr, const QPaintDevice *target);
+    QWin32PaintEngine(QWin32PaintEnginePrivate &dptr, QPaintDevice *target);
 
 private:
     void drawPolyInternal( const QPointArray &a, bool close );

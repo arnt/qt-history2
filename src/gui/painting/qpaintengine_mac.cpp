@@ -98,24 +98,24 @@ void qt_clear_paintevent_clipping(QPaintDevice *dev)
 /*****************************************************************************
   QQuickDrawPaintEngine member functions
  *****************************************************************************/
-QQuickDrawPaintEngine::QQuickDrawPaintEngine(const QPaintDevice *pdev)
+QQuickDrawPaintEngine::QQuickDrawPaintEngine(QPaintDevice *pdev)
     : QPaintEngine(*(new QQuickDrawPaintEnginePrivate),
 		     GCCaps(CoordTransform
 			  | PenWidthTransform
 			  | PixmapTransform
 			  | UsesFontEngine))
 {
-    d->pdev = const_cast<QPaintDevice*>(pdev);
+    d->pdev = pdev;
 }
 
-QQuickDrawPaintEngine::QQuickDrawPaintEngine(QPaintEnginePrivate &dptr, const QPaintDevice *pdev)
+QQuickDrawPaintEngine::QQuickDrawPaintEngine(QPaintEnginePrivate &dptr, QPaintDevice *pdev)
     : QPaintEngine(dptr,
 		   GCCaps(CoordTransform
 			  | PenWidthTransform
 			  | PixmapTransform
 			  | UsesFontEngine))
 {
-    d->pdev = const_cast<QPaintDevice*>(pdev);
+    d->pdev = pdev;
 }
 
 QQuickDrawPaintEngine::~QQuickDrawPaintEngine()
@@ -123,7 +123,7 @@ QQuickDrawPaintEngine::~QQuickDrawPaintEngine()
 }
 
 bool
-QQuickDrawPaintEngine::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
+QQuickDrawPaintEngine::begin(QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 {
     if(isActive()) {                         // already active painting
         qWarning( "QQuickDrawPaintEngine::begin: Painter is already active."
@@ -131,7 +131,7 @@ QQuickDrawPaintEngine::begin(const QPaintDevice *pdev, QPainterState *ps, bool u
 	return false;
     }
     if(pdev->devType() == QInternal::Widget &&
-       !static_cast<const QWidget*>(pdev)->testWState(WState_InPaintEvent)) {
+       !static_cast<QWidget*>(pdev)->testWState(WState_InPaintEvent)) {
 	qWarning("QQuickDrawPaintEngine::begin: Widget painting can only begin as a "
 		 "result of a paintEvent");
 //	return false;
@@ -140,7 +140,7 @@ QQuickDrawPaintEngine::begin(const QPaintDevice *pdev, QPainterState *ps, bool u
     //save the gworld now, we'll reset it in end()
     d->saved = new QMacSavedPortInfo;
 
-    d->pdev = const_cast<QPaintDevice*>(pdev);
+    d->pdev = pdev;
     setActive(true);
     assignf(IsActive | DirtyFont);
 
@@ -1068,16 +1068,16 @@ inline bool QWidgetPrivate::qt_mac_update_cg(QCoreGraphicsPaintEnginePrivate *pa
   QCoreGraphicsPaintEngine member functions
  *****************************************************************************/
 
-QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(const QPaintDevice *pdev)
+QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintDevice *pdev)
     : QQuickDrawPaintEngine(*(new QCoreGraphicsPaintEnginePrivate), pdev)
 {
-    d->pdev = const_cast<QPaintDevice*>(pdev);
+    d->pdev = pdev;
 }
 
-QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr, const QPaintDevice *pdev)
+QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr, QPaintDevice *pdev)
     : QQuickDrawPaintEngine(dptr, pdev)
 {
-    d->pdev = const_cast<QPaintDevice*>(pdev);
+    d->pdev = pdev;
 }
 
 QCoreGraphicsPaintEngine::~QCoreGraphicsPaintEngine()
@@ -1085,7 +1085,7 @@ QCoreGraphicsPaintEngine::~QCoreGraphicsPaintEngine()
 }
 
 bool
-QCoreGraphicsPaintEngine::begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped)
+QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev, QPainterState *state, bool unclipped)
 {
     if(isActive()) {                         // already active painting
         qWarning( "QCoreGraphicsPaintEngine::begin: Painter is already active."
@@ -1093,13 +1093,13 @@ QCoreGraphicsPaintEngine::begin(const QPaintDevice *pdev, QPainterState *state, 
 	return false;
     }
     if(pdev->devType() == QInternal::Widget &&
-       !static_cast<const QWidget*>(pdev)->testWState(WState_InPaintEvent)) {
+       !static_cast<QWidget*>(pdev)->testWState(WState_InPaintEvent)) {
 	qWarning("QCoreGraphicsPaintEngine::begin: Widget painting can only begin as a "
 		 "result of a paintEvent");
 //	return false;
     }
 
-    d->pdev = const_cast<QPaintDevice*>(pdev);
+    d->pdev = pdev;
     if(QWidgetPrivate::qt_mac_update_cg(d)) // get handle to drawable
 	CGContextRetain((CGContextRef)d->hd);
     setActive(true);

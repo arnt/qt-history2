@@ -47,12 +47,12 @@ public:
     enum TextDirection { Auto, RTL, LTR };
 
     QPainter();
-    QPainter(const QPaintDevice *, bool unclipped = false);
+    QPainter(QPaintDevice *, bool unclipped = false);
     ~QPainter();
 
     QPaintDevice *device() const;
 
-    bool begin(const QPaintDevice *, bool unclipped = false);
+    bool begin(QPaintDevice *, bool unclipped = false);
     bool end();
     bool isActive() const;
 
@@ -219,9 +219,9 @@ public:
     Qt::HANDLE handle() const;
 #endif
 
-    static void setRedirected(const QPaintDevice *device, const QPaintDevice *replacement,
+    static void setRedirected(const QPaintDevice *device, QPaintDevice *replacement,
 			      const QPoint& offset = QPoint());
-    static const QPaintDevice *redirected(const QPaintDevice *device, QPoint *offset = 0);
+    static QPaintDevice *redirected(const QPaintDevice *device, QPoint *offset = 0);
     static void restoreRedirected(const QPaintDevice *device);
 
 #ifdef QT_COMPAT

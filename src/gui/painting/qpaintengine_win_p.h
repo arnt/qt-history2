@@ -92,7 +92,7 @@ public:
 
     uint 		fontFlags;
 
-    const QPaintDevice        *device;
+    QPaintDevice        *device;
 };
 
 #endif

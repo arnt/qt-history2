@@ -45,7 +45,7 @@ QPainter::QPainter()
     init();
 }
 
-QPainter::QPainter(const QPaintDevice *pd, bool unclipped)
+QPainter::QPainter(QPaintDevice *pd, bool unclipped)
 {
     d = new QPainterPrivate;
     init();
@@ -103,7 +103,7 @@ void QPainter::restore()
     delete tmp;
 }
 
-bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
+bool QPainter::begin(QPaintDevice *pd, bool unclipped)
 {
     Q_ASSERT(pd);
 
@@ -150,12 +150,12 @@ bool QPainter::begin(const QPaintDevice *pd, bool unclipped)
     if (d->state->ww == 0) // For compat with 3.x painter defaults
         d->state->ww = d->state->wh = d->state->vw = d->state->vh = 1024;
 
-    const QPaintDevice *rpd = redirected(pd, &d->redirection_offset);
+    QPaintDevice *rpd = redirected(pd, &d->redirection_offset);
     if (rpd) {
 	pd = rpd;
     }
 
-    d->device = const_cast<QPaintDevice*>(pd);
+    d->device = pd;
     d->engine = pd->engine();
 
     if (!d->engine) {
@@ -1562,11 +1562,11 @@ double QPainter::idy() const { return d->invMatrix.dy(); }
 struct QPaintDeviceRedirection
 {
     QPaintDeviceRedirection() : device(0), replacement(0) {}
-    QPaintDeviceRedirection(const QPaintDevice *device, const QPaintDevice *replacement,
+    QPaintDeviceRedirection(const QPaintDevice *device, QPaintDevice *replacement,
 			    const QPoint& offset)
 	: device(device), replacement(replacement), offset(offset) { }
     const QPaintDevice *device;
-    const QPaintDevice *replacement;
+    QPaintDevice *replacement;
     QPoint offset;
     bool operator==(const QPaintDevice *pdev) const { return device == pdev; }
     Q_DUMMY_COMPARISON_OPERATOR(QPaintDeviceRedirection)
@@ -1589,7 +1589,7 @@ static QList<QPaintDeviceRedirection> redirections;
     \sa redirected()
 */
 void QPainter::setRedirected(const QPaintDevice *device,
-			      const QPaintDevice *replacement,
+			      QPaintDevice *replacement,
 			      const QPoint &offset)
 {
     Q_ASSERT(device != 0);
@@ -1623,7 +1623,7 @@ void QPainter::restoreRedirected(const QPaintDevice *device)
     Returns the replacement for \a device. The optional out parameter
     \a offset returns return the offset within the replaced device.
 */
-const QPaintDevice *QPainter::redirected(const QPaintDevice *device, QPoint *offset)
+QPaintDevice *QPainter::redirected(const QPaintDevice *device, QPoint *offset)
 {
     Q_ASSERT(device != 0);
     redirections.ensure_constructed();

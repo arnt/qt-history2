@@ -29,10 +29,10 @@ class QQuickDrawPaintEngine : public QPaintEngine
     Q_DECLARE_PRIVATE(QQuickDrawPaintEngine);
 
 public:
-    QQuickDrawPaintEngine(const QPaintDevice *);
+    QQuickDrawPaintEngine(QPaintDevice *);
     ~QQuickDrawPaintEngine();
 
-    bool begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped = FALSE);
+    bool begin(QPaintDevice *pdev, QPainterState *state, bool unclipped = FALSE);
     bool end();
 
     void updatePen(QPainterState *ps);
@@ -73,7 +73,7 @@ public:
     static void cleanup();
 
 protected:
-    QQuickDrawPaintEngine(QPaintEnginePrivate &dptr, const QPaintDevice *);
+    QQuickDrawPaintEngine(QPaintEnginePrivate &dptr, QPaintDevice *);
     void drawPolyInternal(const QPointArray &a, bool close=true, bool inset=true);
     void setClippedRegionInternal(QRegion *);
 
@@ -98,10 +98,10 @@ class QCoreGraphicsPaintEngine : public QQuickDrawPaintEngine //for now we inclu
     Q_DECLARE_PRIVATE(QCoreGraphicsPaintEngine);
 
 public:
-    QCoreGraphicsPaintEngine(const QPaintDevice *);
+    QCoreGraphicsPaintEngine(QPaintDevice *);
     ~QCoreGraphicsPaintEngine();
 
-    bool begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped = FALSE);
+    bool begin(QPaintDevice *pdev, QPainterState *state, bool unclipped = FALSE);
     bool end();
 
     void updatePen(QPainterState *ps);
@@ -141,7 +141,7 @@ public:
     static void cleanup();
 
 protected:
-    QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr, const QPaintDevice *);
+    QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr, QPaintDevice *);
     void drawPolyInternal(const QPointArray &a, bool close=true);
 
 private:

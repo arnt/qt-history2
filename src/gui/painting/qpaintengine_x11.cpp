@@ -486,23 +486,23 @@ void qt_draw_background( QPaintEngine *pe, int x, int y, int w,  int h )
  * QX11PaintEngine members
  */
 
-QX11PaintEngine::QX11PaintEngine(const QPaintDevice *target)
+QX11PaintEngine::QX11PaintEngine(QPaintDevice *target)
     : QPaintEngine(*(new QX11PaintEnginePrivate), UsesFontEngine)
 {
     d->dpy = QX11Info::appDisplay();
     d->scrn = QX11Info::appScreen();
     d->hd = target->handle();
-    d->pdev = const_cast<QPaintDevice *>(target);
+    d->pdev = target;
     d->xinfo = 0;
 }
 
-QX11PaintEngine::QX11PaintEngine(QX11PaintEnginePrivate &dptr, const QPaintDevice *target)
+QX11PaintEngine::QX11PaintEngine(QX11PaintEnginePrivate &dptr, QPaintDevice *target)
     : QPaintEngine(dptr, UsesFontEngine)
 {
     d->dpy = QX11Info::appDisplay();
     d->scrn = QX11Info::appScreen();
     d->hd = target->handle();
-    d->pdev = const_cast<QPaintDevice *>(target);
+    d->pdev = target;
     d->xinfo = 0;
 }
 
@@ -523,15 +523,15 @@ void QX11PaintEngine::cleanup()
     QPointArray::cleanBuffers();
 }
 
-bool QX11PaintEngine::begin(const QPaintDevice *pdev, QPainterState *ps, bool unclipped)
+bool QX11PaintEngine::begin(QPaintDevice *pdev, QPainterState *ps, bool unclipped)
 {
     if(pdev->devType() == QInternal::Widget &&
-       !static_cast<const QWidget*>(pdev)->testWState(WState_InPaintEvent)) {
+       !static_cast<QWidget*>(pdev)->testWState(WState_InPaintEvent)) {
 	qWarning("QPainter::begin: Widget painting can only begin as a "
 		 "result of a paintEvent");
 //	return false;
     }
-    d->pdev = const_cast<QPaintDevice *>(pdev);
+    d->pdev = pdev;
     if (d->pdev->devType() == QInternal::Widget)
 	d->xinfo = static_cast<QWidget *>(d->pdev)->x11Info();
     else if (d->pdev->devType() == QInternal::Pixmap)

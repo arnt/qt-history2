@@ -268,7 +268,7 @@ static inline bool obtain_brush(void **ref, HBRUSH *brush, uint pix)
 #define release_pen	release_obj
 #define release_brush	release_obj
 
-QWin32PaintEngine::QWin32PaintEngine(QWin32PaintEnginePrivate &dptr, const QPaintDevice *target)
+QWin32PaintEngine::QWin32PaintEngine(QWin32PaintEnginePrivate &dptr, QPaintDevice *target)
     :
 #ifndef NO_NATIVE_XFORM
       QPaintEngine(dptr, GCCaps(CoordTransform
@@ -285,7 +285,7 @@ QWin32PaintEngine::QWin32PaintEngine(QWin32PaintEnginePrivate &dptr, const QPain
     d->flags |= IsStartingUp;
 }
 
-QWin32PaintEngine::QWin32PaintEngine(const QPaintDevice *target)
+QWin32PaintEngine::QWin32PaintEngine(QPaintDevice *target)
     :
 #ifndef NO_NATIVE_XFORM
       QPaintEngine(*(new QWin32PaintEnginePrivate), GCCaps(CoordTransform
@@ -307,7 +307,7 @@ QWin32PaintEngine::~QWin32PaintEngine()
 }
 
 
-bool QWin32PaintEngine::begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped)
+bool QWin32PaintEngine::begin(QPaintDevice *pdev, QPainterState *state, bool unclipped)
 {
     if (isActive()) {				// already active painting
 	qWarning("QWin32PaintEngine::begin: Painter is already active."
@@ -315,7 +315,7 @@ bool QWin32PaintEngine::begin(const QPaintDevice *pdev, QPainterState *state, bo
 // 	return true;
     }
     if(pdev->devType() == QInternal::Widget &&
-       !static_cast<const QWidget*>(pdev)->testWState(WState_InPaintEvent)) {
+       !static_cast<QWidget*>(pdev)->testWState(WState_InPaintEvent)) {
 	qWarning("QPainter::begin: Widget painting can only begin as a "
 		 "result of a paintEvent");
 //	return false;
@@ -348,7 +348,7 @@ bool QWin32PaintEngine::begin(const QPaintDevice *pdev, QPainterState *state, bo
 	    w->hdc = d->hdc;
 	}
     } else if (pdev->devType() == QInternal::Pixmap) {
-	d->hdc = static_cast<const QPixmap *>(pdev)->handle();
+	d->hdc = static_cast<QPixmap *>(pdev)->handle();
     }
     Q_ASSERT(d->hdc);
 

@@ -30,10 +30,10 @@ class QWSPaintEngine : public QPaintEngine
     Q_DECLARE_PRIVATE(QWSPaintEngine);
 
 public:
-    QWSPaintEngine(const QPaintDevice *);
+    QWSPaintEngine(QPaintDevice *);
     ~QWSPaintEngine();
 
-    bool begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped = FALSE);
+    bool begin(QPaintDevice *pdev, QPainterState *state, bool unclipped = FALSE);
     bool end();
 
     void updatePen(QPainterState *ps);
@@ -78,7 +78,7 @@ public:
     QGfx *gfx();
 
 protected:
-    QWSPaintEngine(QPaintEnginePrivate &dptr, const QPaintDevice *);
+    QWSPaintEngine(QPaintEnginePrivate &dptr, QPaintDevice *);
 
     void drawPolyInternal(const QPointArray &a, bool close=TRUE);
 

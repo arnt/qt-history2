@@ -50,10 +50,9 @@ QPicturePaintEngine::~QPicturePaintEngine()
 {
 }
 
-bool QPicturePaintEngine::begin(const QPaintDevice *pdev, QPainterState *state, bool unclipped)
+bool QPicturePaintEngine::begin(QPaintDevice *pd, QPainterState *state, bool unclipped)
 {
-    Q_ASSERT(pdev);
-    QPaintDevice *pd = const_cast<QPaintDevice *>(pdev);
+    Q_ASSERT(pd);
     QPicture *pic = static_cast<QPicture *>(pd);
 
     pic_d = pic->d;
