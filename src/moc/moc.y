@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/moc/moc.y#110 $
+** $Id: //depot/qt/main/src/moc/moc.y#111 $
 **
 ** Parser and code generator for meta object compiler
 **
@@ -1276,7 +1276,7 @@ void generateClass()		      // generate C++ source code for a class
     char *hdr1 = "/****************************************************************************\n"
 		 "** %s meta object code from reading C++ file '%s'\n**\n";
     char *hdr2 = "** Created: %s\n"
-		 "**      by: The Qt Meta Object Compiler ($Revision: 2.44 $)\n**\n";
+		 "**      by: The Qt Meta Object Compiler ($Revision: 2.45 $)\n**\n";
     char *hdr3 = "** WARNING! All changes made in this file will be lost!\n";
     char *hdr4 = "*****************************************************************************/\n\n";
     int   i;
@@ -1393,7 +1393,8 @@ void generateClass()		      // generate C++ source code for a class
 //
 // Finally code to create and return meta object
 //
-    fprintf( out, "    metaObj = new QMetaObject( \"%s\", \"%s\",\n",
+    fprintf( out, "    metaObj = QMetaObject::new_metaobject(\n"
+		  "\t\"%s\", \"%s\",\n",
 	     (const char*)className, (const char*)superclassName );
     if ( slots.count() )
 	fprintf( out, "\tslot_tbl, %d,\n", slots.count() );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmetaobject.h#19 $
+** $Id: //depot/qt/main/src/kernel/qmetaobject.h#20 $
 **
 ** Definition of QMetaObject class
 **
@@ -44,7 +44,7 @@ public:
     QMetaObject( const char *class_name, const char *superclass_name,
 		 QMetaData *slot_data,	int n_slots,
 		 QMetaData *signal_data, int n_signals );
-   ~QMetaObject();
+    virtual ~QMetaObject();
 
     const char	*className()		const { return classname; }
     const char	*superClassName()	const { return superclassname; }
@@ -60,8 +60,10 @@ public:
     QMetaData	*slot( int index, bool=FALSE )	    const;
     QMetaData	*signal( int index, bool=FALSE )    const;
 
-    static QMetaData *new_metadata( int numEntries );
-    static void       delete_metadata( QMetaData * );
+    static QMetaObject *new_metaobject( const char *, const char *,
+					QMetaData *, int,
+					QMetaData *, int );
+    static QMetaData   *new_metadata( int );
 
 private:
     QMemberDict *init( QMetaData *, int );

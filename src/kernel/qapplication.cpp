@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#214 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#215 $
 **
 ** Implementation of QApplication class
 **
@@ -388,6 +388,7 @@ QApplication::~QApplication()
     delete winHighlightColor;
     winHighlightColor = 0;
     delete objectDict;
+    objectDict = 0;
     qApp = 0;
     //can not delete codecs until after QDict destructors
     //QTextCodec::deleteAllCodecs();
