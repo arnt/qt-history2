@@ -926,7 +926,7 @@ static QDomElement loadSingleProperty( QDomElement e, const QString& name )
 void Project::loadConnections()
 {
 #ifndef QT_NO_SQL
-    if ( !QFile::exists( makeAbsolute( dbFile ) ) )
+    if ( dbFile.isEmpty() || !QFile::exists( makeAbsolute( dbFile ) ) )
 	return;
 
     QFile f( makeAbsolute( dbFile ) );
