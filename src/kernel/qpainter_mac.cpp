@@ -56,7 +56,8 @@ public:
     QMacSavedPortInfo *saved;
     int offx, offy;
     QPixmap *brush_style_pix;
-    bool unclipped, locked;
+    uint unclipped : 1, locked : 1, crgn_dirty : 1, uses_paintevent : 1;
+    uint clip_serial : 15;
 };
 
 /*****************************************************************************
@@ -140,10 +141,6 @@ void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region)
 	QWidget *w = (QWidget *)dev;
 	QPoint mp(posInWindow(w));
 	r.translate(mp.x(), mp.y());
-
-	QRegion wclip = w->clippedRegion();
-	if(!wclip.isNull())
-	    r &= wclip;
     }
     paintevents.push(new paintevent_item(dev, r));
 }
@@ -215,8 +212,9 @@ void QPainter::init()
 #ifdef QMAC_NO_QUARTZ
     d->saved = 0;
 #endif
+    d->clip_serial = 0;
     d->brush_style_pix = 0;
-    d->locked = d->unclipped = FALSE;
+    d->uses_paintevent = d->crgn_dirty = d->locked = d->unclipped = FALSE;
     d->clippedreg = d->paintreg = QRegion();
     d->offx = d->offy = 0;
 }
@@ -492,6 +490,8 @@ bool QPainter::begin( const QPaintDevice *pd, bool unclipp )
 	    // was white
 	}
     }
+    d->clip_serial = 0;
+    d->uses_paintevent = d->crgn_dirty = FALSE;
     d->offx = d->offy = wx = wy = vx = vy = 0;                      // default view origins
 
     d->unclipped = unclipp;
@@ -734,7 +734,6 @@ void QPainter::setClipping( bool b )
 	setf(ClipOn);
     else
 	clearf(ClipOn);
-    d->paintreg = QRegion();
     initPaintDevice(); //reset the clip region
 }
 
@@ -759,7 +758,7 @@ void QPainter::setClipRegion( const QRegion &rgn, CoordinateMode m )
 	crgn = xmat * rgn;
 
     setf( ClipOn );
-    d->paintreg = QRegion();
+    d->crgn_dirty = TRUE;
     initPaintDevice(); //reset clip region
 }
 
@@ -1779,10 +1778,8 @@ void QPainter::drawText( int x, int y, const QString &str, int len, QPainter::Te
 	return;
 
     updateBrush();
-
     if ( testf(DirtyFont) )
 	updateFont();
-
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[2];
 	QPoint p( x, y );
@@ -1922,31 +1919,46 @@ QPoint QPainter::pos() const
 #endif
 
 #ifdef QMAC_NO_QUARTZ
-void QPainter::initPaintDevice(bool) {
-    d->paintreg = d->clippedreg = QRegion(); //empty
+void QPainter::initPaintDevice(bool force) {
+    bool remade_clip = FALSE;
     QMacSavedPortInfo::setPaintDevice(pdev);
-
-    if( pdev->devType() == QInternal::Printer ) {
-	if(pdev->handle())
+    if(pdev->devType() == QInternal::Printer) {
+	if(force && pdev->handle()) {
+	    remade_clip = TRUE;
 	    d->clippedreg = QRegion(0, 0, pdev->metric(QPaintDeviceMetrics::PdmWidth),
 				 pdev->metric(QPaintDeviceMetrics::PdmHeight));
-    } else if ( pdev->devType() == QInternal::Widget ) {                    // device is a widget
+	}
+    } else if(pdev->devType() == QInternal::Widget) {                    // device is a widget
 	QWidget *w = (QWidget*)pdev;
+	bool use_paintevent = (!paintevents.isEmpty() && (*paintevents.current()) == pdev);
+	if(!force) {
+	    if(use_paintevent != d->uses_paintevent)
+		remade_clip = TRUE;
+	    else if(!w->isVisible()) 
+		remade_clip = d->clip_serial;
+	    else 
+		remade_clip = (d->clip_serial != w->clippedSerial(!d->unclipped));
+	} else {
+	    remade_clip = TRUE;
+	}
+	if(remade_clip) {
+	    //offset painting in widget relative the tld
+	    QPoint wp(posInWindow(w));
+	    d->offx = wp.x();
+	    d->offy = wp.y();
 
-	//offset painting in widget relative the tld
-	QPoint wp(posInWindow(w));
-	d->offx = wp.x();
-	d->offy = wp.y();
-
-	if(!w->isVisible())
-	    d->clippedreg = QRegion(0, 0, 0, 0); //make the clipped reg empty if its not visible!!!
-	else if ( d->unclipped )
-	    d->clippedreg = w->clippedRegion(FALSE);	    //just clip my bounding rect
-	else
-	    d->clippedreg = w->clippedRegion();
-	if(!paintevents.isEmpty() && (*paintevents.current()) == pdev)
-	    d->clippedreg &= paintevents.current()->region();
-    } else if ( pdev->devType() == QInternal::Pixmap ) {             // device is a pixmap
+	    if(!w->isVisible()) {
+		d->clippedreg = QRegion(0, 0, 0, 0); //make the clipped reg empty if its not visible!!!
+		d->clip_serial = 0;
+	    } else {
+		d->clippedreg = w->clippedRegion(!d->unclipped);	    //just clip my bounding rect
+		d->clip_serial = w->clippedSerial(!d->unclipped);
+	    }
+	    if(use_paintevent) 
+		d->clippedreg &= paintevents.current()->region();
+	    d->uses_paintevent = use_paintevent;
+	}
+    } else if(pdev->devType() == QInternal::Pixmap) {             // device is a pixmap
 	QPixmap *pm = (QPixmap*)pdev;
 #ifndef QMAC_ONE_PIXEL_LOCK
 	if(!d->locked) {
@@ -1954,19 +1966,34 @@ void QPainter::initPaintDevice(bool) {
 	    d->locked = TRUE;
 	}
 #endif
-	//clip out my bounding rect
-	d->clippedreg = QRegion(0, 0, pm->width(), pm->height());
+	if(force) {//clip out my bounding rect
+	    remade_clip = TRUE;
+	    d->clippedreg = QRegion(0, 0, pm->width(), pm->height());
+	}
     }
+    if(remade_clip || d->crgn_dirty) { 	//update clipped region
+	if(testf(ClipOn) && !crgn.isNull()) {
+	    d->paintreg = crgn;
+	    d->paintreg.translate(d->offx, d->offy);
+	    if(!d->clippedreg.isNull())
+		d->paintreg &= d->clippedreg;
+	} else {
+	    d->paintreg = d->clippedreg;
+	}
 
-    //update clipped region
-    if(testf(ClipOn) && !crgn.isNull()) {
-	d->paintreg = crgn;
-	d->paintreg.translate(d->offx, d->offy);
-	if(!d->clippedreg.isNull())
-	    d->paintreg &= d->clippedreg;
-    } else {
-	d->paintreg = d->clippedreg;
-    }
+	CGrafPtr ptr;
+	if(pdev->devType() == QInternal::Widget)
+	    ptr = GetWindowPort((WindowPtr)pdev->handle());
+	else
+	    ptr = (GWorldPtr)pdev->handle();
+	if(d->paintreg.handle()) {
+	    QDAddRegionToDirtyRegion(ptr, d->paintreg.handle());
+	} else {
+	    QRect qr = d->paintreg.boundingRect();
+	    Rect mr; SetRect(&mr, qr.x(), qr.y(), qr.right(), qr.bottom());
+	    QDAddRectToDirtyRegion(ptr, &mr);
+	}
+    } 
     QMacSavedPortInfo::setClipRegion(d->paintreg);
 }
 

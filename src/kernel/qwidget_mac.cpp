@@ -1683,6 +1683,7 @@ void QWidget::createSysExtra()
 {
     extra->has_dirty_area = FALSE;
     extra->child_dirty = extra->clip_dirty = TRUE;
+    extra->child_serial = extra->clip_serial = 0;
     extra->macDndExtra = 0;
 }
 
@@ -1901,6 +1902,12 @@ CGContextRef QWidget::macCGClippedContext(bool do_children) const
 }
 #endif
 
+uint QWidget::clippedSerial(bool do_children)
+{
+    clippedRegion(do_children);
+    return do_children ? extra->child_serial : extra->clip_serial;
+}
+
 QRegion QWidget::clippedRegion(bool do_children)
 {
     //the desktop doesn't participate in our clipping games
@@ -1929,6 +1936,7 @@ QRegion QWidget::clippedRegion(bool do_children)
     //clip out my children
     if(do_children && extra->child_dirty) {
 	extra->child_dirty = FALSE;
+	extra->child_serial++;
 	extra->clip_children = QRegion(0, 0, width(), height());
 	if(const QObjectList *chldnlst=children()) {
 	    for(QObjectListIt it(*chldnlst); it.current(); ++it) {
@@ -1999,12 +2007,11 @@ QRegion QWidget::clippedRegion(bool do_children)
 	}
     }
 
-    //translate my stuff and my children now
     QRegion chldrgns = extra->clip_children;
     QPoint mp = posInWindow(this);
     chldrgns.translate(mp.x(), mp.y());
+    extra->clip_serial++;
     extra->clip_saved = extra->clip_sibs & chldrgns;
-
     if(do_children)
 	return extra->clip_saved;
     return extra->clip_sibs;

@@ -1310,9 +1310,8 @@ bool QApplication::do_mouse_down( Point *pt )
     case inDesk:
 	break;
     case inGoAway:
-	if( widget ) {
+	if(TrackBox( (WindowPtr)widget->handle(), *pt, windowPart)) 
 	    widget->close();
-	} 
 	break;
     case 13: { //hide toolbars thing
 	if(widget) {
@@ -1396,22 +1395,16 @@ bool QApplication::do_mouse_down( Point *pt )
 	break;
     }
     case inCollapseBox:
-	if( TrackBox( (WindowPtr)widget->handle(), *pt, windowPart ) == true ) {
-	    if(widget)
+	if(TrackBox((WindowPtr)widget->handle(), *pt, windowPart))
 		widget->showMinimized();
-	}
 	break;
     case inZoomIn:
-	if( TrackBox( (WindowPtr)widget->handle(), *pt, windowPart ) == true ) {
-	    if(widget)
-		widget->showNormal();
-	}
+	if(TrackBox((WindowPtr)widget->handle(), *pt, windowPart)) 
+	    widget->showNormal();
 	break;
     case inZoomOut:
-	if( TrackBox( (WindowPtr)widget->handle(), *pt, windowPart ) == true ) {
-	    if(widget)
-		widget->showMaximized();
-	}
+	if(TrackBox((WindowPtr)widget->handle(), *pt, windowPart)) 
+	    widget->showMaximized();
 	break;
     default:
 	qDebug("Unhandled case in mouse_down.. %d", windowPart);
@@ -2024,13 +2017,13 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 
 	    bool key_event = TRUE;
 	    if(etype == QEvent::KeyPress && !mac_keyboard_grabber) {
-		QKeyEvent aa(QEvent::AccelOverride, mychar, chr, modifiers, mystr, ekind == kEventRawKeyRepeat,
-			     mystr.length());
+		QKeyEvent aa(QEvent::AccelOverride, mychar, chr, modifiers, 
+			     mystr, ekind == kEventRawKeyRepeat, mystr.length());
 		aa.ignore();
 		QApplication::sendSpontaneousEvent( widget, &aa );
 		if ( !aa.isAccepted() ) {
-		    QKeyEvent a(QEvent::Accel, mychar, chr, modifiers, mystr, ekind == kEventRawKeyRepeat,
-				mystr.length());
+		    QKeyEvent a(QEvent::Accel, mychar, chr, modifiers, 
+				mystr, ekind == kEventRawKeyRepeat, mystr.length());
 		    a.ignore();
 		    QApplication::sendSpontaneousEvent( widget->topLevelWidget(), &a );
 		    if ( a.isAccepted() ) {
@@ -2112,9 +2105,11 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    widget->propagateUpdates();
 	} else if(ekind == kEventWindowBoundsChanged) {
 	    UInt32 flags;
-	    GetEventParameter(event, kEventParamAttributes, typeUInt32, NULL, sizeof(flags), NULL, &flags);
+	    GetEventParameter(event, kEventParamAttributes, typeUInt32, NULL, 
+			      sizeof(flags), NULL, &flags);
 	    Rect nr;
-	    GetEventParameter(event, kEventParamCurrentBounds, typeQDRectangle, NULL, sizeof(nr), NULL, &nr);
+	    GetEventParameter(event, kEventParamCurrentBounds, typeQDRectangle, NULL, 
+			      sizeof(nr), NULL, &nr);
 	    if((flags & kWindowBoundsChangeOriginChanged)) {
 		int ox = widget->crect.x(), oy = widget->crect.y();
 		int nx = nr.left, ny = nr.top;
@@ -2158,10 +2153,6 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	    }
 	} else if(ekind == kEventWindowDeactivated) {
 	    app->setActiveWindow(NULL);
-#if 0
-	    while(app->inPopupMode())
-		app->activePopupWidget()->close();
-#endif
 	} else {
 	    handled_event = FALSE;
 	}
@@ -2174,6 +2165,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		QApplication::sendSpontaneousEvent(qt_clipboard, &ev);
 	    }
 	} else if(ekind == kEventAppDeactivated) {
+	    while(app->inPopupMode())
+		app->activePopupWidget()->close();
 	    app->clipboard()->saveScrap();
 	    app->setActiveWindow(NULL);
 	} else {
@@ -2225,8 +2218,8 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		switch(aeID) {
 		case kAEQuitApplication:
 		    handled_event = TRUE;
-		    qApp->closeAllWindows();
-		    qApp->quit();
+		    app->closeAllWindows();
+		    app->quit();
 		    break;
 		default:
 		    break;
@@ -2248,7 +2241,7 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 		qApp->closeAllWindows();
 		qApp->quit();
 	    } else if(cmd.commandID == kHICommandAbout) {
-		QMessageBox::aboutQt(NULL);
+		qmessageBox::aboutQt(NULL);
 	    } else {
 		handled_event = FALSE;
 	    }

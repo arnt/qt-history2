@@ -445,6 +445,7 @@ public:
 #endif
 #if defined(Q_WS_MAC)
     QRegion clippedRegion(bool do_children=TRUE);
+    uint clippedSerial(bool do_children=TRUE);
 #ifdef QMAC_NO_QUARTZ
     void macCGClippedContext(bool do_children=TRUE);
 #endif
@@ -942,10 +943,11 @@ struct Q_EXPORT QWExtra {
     WId xDndProxy;			// XDND forwarding to embedded windows
 #endif
 #if defined(Q_WS_MAC)
-    QMacDndExtra *macDndExtra;
-    bool clip_dirty, child_dirty;
     QRegion clip_saved, clip_sibs, clip_children;
+    QMacDndExtra *macDndExtra;
     QRegion dirty_area;
+    uint clip_dirty : 1, clip_serial : 15;
+    uint child_dirty : 1, child_serial : 15;
 #ifndef QMAC_NO_QUARTZ
     uint ctx_children_clipped:1;
 #endif
