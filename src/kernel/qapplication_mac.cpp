@@ -116,7 +116,6 @@ extern QWidgetList *qt_modal_stack;		// stack of modal widgets
 extern bool qt_mac_in_drag; //qdnd_mac.cpp
 extern bool qt_resolve_symlinks; // from qapplication.cpp
 static char    *appName;                        // application name
-static Qt::HANDLE currentCursor;                  //current cursor
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
 QWidget        *qt_mouseover = 0;
 QPtrDict<void> unhandled_dialogs;             //all unhandled dialogs (ie mac file dialog)
@@ -139,7 +138,7 @@ static bool	    popupCloseDownMode = FALSE;
 // Paint event clipping magic - qpainter_mac.cpp
 extern void qt_set_paintevent_clipping( QPaintDevice* dev, const QRegion& region);
 extern void qt_clear_paintevent_clipping(QPaintDevice *dev);
-extern void qt_mac_set_cursor(const QCursor *); //Cursor switching - qcursor_mac.cpp
+extern void qt_mac_set_cursor(const QCursor *, const Point *); //Cursor switching - qcursor_mac.cpp
 QCString p2qstring(const unsigned char *); //qglobal.cpp
 
 //special case popup handlers - look where these are used, they are very hacky,
@@ -1780,6 +1779,18 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	else
 	    widget = QApplication::widgetAt( where.h, where.v, true );
 
+	//set the cursor up
+	const QCursor *n = NULL;
+	if(!widget) //not over the app, don't set a cursor..
+	    ;
+	else if(cursorStack)
+	    n = app_cursor;
+	else if(widget->extra && widget->extra->curs)
+	    n = widget->extra->curs;
+	if(!n)
+	    n = &arrowCursor; //I give up..
+	qt_mac_set_cursor(n, &where);
+
 	//This mouse button state stuff looks like this on purpose
 	//although it looks hacky it is VERY intentional..
 	if ( widget && app_do_modal && !qt_try_modal(widget, event) ) {
@@ -1811,25 +1822,11 @@ QApplication::globalEventProcessor(EventHandlerCallRef er, EventRef event, void 
 	case kEventMouseDragged:
 	case kEventMouseMoved:
 	{
-	    //set the cursor up
-	    const QCursor *n = NULL;
-	    if(!widget) //not over the app, don't set a cursor..
-		;
-	    else if(widget->extra && widget->extra->curs)
-		n = widget->extra->curs;
-	    else if(cursorStack)
-		n = app_cursor;
-	    if(!n)
-		n = &arrowCursor; //I give up..
-	    if(currentCursor != n->handle()) {
-		currentCursor = n->handle();
-		qt_mac_set_cursor(n);
-	    }
 	    if ( qt_mouseover != widget ) {
 #ifdef DEBUG_MOUSE_MAPS
 		qDebug("Entering: %s (%s), Leaving %s (%s)", 
 		       widget ? widget->className() : "none", widget ? widget->name() : "",
-		       qt_mouseovert ? qt_mouseover->className() : "none", 
+		       qt_mouseover ? qt_mouseover->className() : "none", 
 		       qt_mouseover ? qt_mouseover->name() : "");
 #endif
 		qt_dispatchEnterLeave( widget, qt_mouseover );

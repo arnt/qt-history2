@@ -113,7 +113,7 @@ private:
     QCursorData	 *data;
     QCursor	 *find_cur(int);
 #if defined(Q_WS_MAC)
-    friend void qt_mac_set_cursor(const QCursor *c);
+    friend void qt_mac_set_cursor(const QCursor *c, const Point *p);
 #endif
 };
 
