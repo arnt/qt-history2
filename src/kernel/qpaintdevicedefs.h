@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevicedefs.h#4 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevicedefs.h#5 $
 **
 ** Definition of QPaintDevice constants and flags
 **
@@ -82,7 +82,7 @@ union QPDevCmdParam {
 #define PDM_WIDTHMM		3
 #define PDM_HEIGHTMM		4
 #define PDM_NUMCOLORS		5
-#define PDM_COLORPLANES		6
+#define PDM_NUMPLANES		6
 
 
 #endif // QPAINTDC_H
