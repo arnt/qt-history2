@@ -196,6 +196,8 @@ protected:
     int *globalRegionRevision;
     int currentRegionRevision;
 
+    bool src_normal_palette;
+
     friend class QSWCursor;
 };
 

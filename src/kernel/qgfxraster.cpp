@@ -442,6 +442,7 @@ QGfxRasterBase::QGfxRasterBase(unsigned char * b,int w,int h) :
     opaque=false;
     backcolor=QColor(0,0,0);
     globalRegionRevision = 0;
+    src_normal_palette=true;
     update_clip();
 }
 
@@ -1156,7 +1157,11 @@ void QGfxRaster<depth,type>::setBrush( const QBrush & b )
     }
     QColor tmp=b.color();
     if(depth==8) {
+#ifdef QWS_DEPTH_8GRAYSCALE
+	srccol=qGray(tmp.red(),tmp.green(),tmp.blue());
+#else
 	srccol=closestMatch(tmp.red(),tmp.green(),tmp.blue());
+#endif
     } else {
 	srccol=tmp.alloc();
     }
@@ -1181,15 +1186,24 @@ void QGfxRaster<depth,type>::setSource(const QPaintDevice * p)
 	hold=w->mapToGlobal(hold);
 	srcwidgetx=hold.x();
 	srcwidgety=hold.y();
+#ifdef QWS_DEPTH_8GRAYSCALE
+	src_normal_palette=true;
+#else
 	if(srcdepth<=8)
 	    buildSourceClut(qt_screen->clut(),0);
+#endif
     } else if ( p->devType() == QInternal::Pixmap ) {
 	//still a bit ugly
 	QPixmap *pix = (QPixmap*)p;
 	srcwidth=pix->width();
 	srcheight=pix->height();
 	if(srcdepth<=8)
+#ifdef QWS_DEPTH_8GRAYSCALE
+	src_normal_palette=true;
+#else
+	if(srcdepth<=8)
 	    buildSourceClut(pix->clut(),0);
+#endif
     } else {
 	// This is a bit ugly #### I'll say!
 	//### We will have to find another way to do this
@@ -1219,6 +1233,7 @@ void QGfxRaster<depth,type>::setSource(unsigned char * data,int w,int h)
     srcclut[0]=cbrush.color().pixel();
     srcclut[1]=cpen.color().pixel();
     */
+    src_normal_palette=true;
     src_little_endian=true;
     patternedbrush=false;
 }
@@ -1237,6 +1252,7 @@ void QGfxRaster<depth,type>::setSource(const QImage * i)
     srcwidgety=0;
     srcwidth=i->width();
     srcheight=i->height();
+    src_normal_palette=false;
     if(srcdepth<=8)
 	buildSourceClut(i->colorTable(),i->numColors());
 }
@@ -1250,6 +1266,7 @@ void QGfxRaster<depth,type>::setSourcePen()
     } else {
 	srccol=c.alloc();
     }
+    src_normal_palette=true;
     srctype=SourcePen;
     srcwidgetx=0;
     srcwidgety=0;
@@ -1767,12 +1784,16 @@ inline unsigned int QGfxRaster<depth,type>::get_value(int destdepth,
 	    }
 	} else if(sdepth==8) {
 	    unsigned char val=*(*srcdata);
+#ifdef QWS_DEPTH_8GRAYSCALE
+	    ret=(val << 16) | (val << 8) | val;
+#else
+	    ret=srcclut[val];
+#endif
 	    if(reverse) {
 		(*srcdata)--;
 	    } else {
 		(*srcdata)++;
 	    }
-	    return srcclut[val];
 	} else if(sdepth==1) {
 	    if(monobitcount<8) {
 		monobitcount++;
@@ -1839,6 +1860,9 @@ inline unsigned int QGfxRaster<depth,type>::get_value(int destdepth,
 	    }
 	} else if(sdepth==8) {
 	    unsigned char val=*((*srcdata));
+#ifdef QWS_DEPTH_8GRAYSCALE
+	    ret=((val >> 3) << 11) | ((val >> 2) << 5) | (val >> 3);
+#else
 	    unsigned int hold=srcclut[val];
 	    r=(hold & 0xff0000) >> 16;
 	    g=(hold & 0x00ff00) >> 8;
@@ -1849,6 +1873,7 @@ inline unsigned int QGfxRaster<depth,type>::get_value(int destdepth,
 	    r=r << 11;
 	    g=g << 5;
 	    ret=r | g | b;
+#endif
 	    if(reverse) {
 		(*srcdata)--;
 	    } else {
@@ -1909,6 +1934,7 @@ inline unsigned int QGfxRaster<depth,type>::get_value(int destdepth,
 	    ret=r | g | b;
 	    (*srcdata)+=2;
 	} else if(sdepth==8) {
+	    // FIXME: all of 15bpp support is pretty broken
 	    unsigned char val=*((*srcdata)++);
 	    return srcclut[val];
 	} else if(sdepth==1) {
@@ -1938,7 +1964,16 @@ inline unsigned int QGfxRaster<depth,type>::get_value(int destdepth,
     } else if(destdepth==8) {
 	if(sdepth==8) {
 	    unsigned char val=*((unsigned char *)(*srcdata));
+#ifdef QWS_DEPTH_8GRAYSCALE
+	    // If source!=QImage, then the palettes will be the same
+	    if(src_normal_palette) {
+		ret=val;
+	    } else {
+		ret=transclut[val];
+	    }
+#else
 	    ret=transclut[val];
+#endif
 	    /*
 	    ret = *((unsigned int *)(*srcdata));
 	    */
@@ -1981,7 +2016,11 @@ inline unsigned int QGfxRaster<depth,type>::get_value(int destdepth,
 	    g=g << 3;
 	    ret=r | g | b;
 	    */
+#ifdef QWS_DEPTH_8GRAYSCALE
+	    ret=qGray(r,g,b);
+#else
 	    ret=closestMatch(r,g,b);
+#endif
 	    if(reverse) {
 		(*srcdata)-=4;
 	    } else {
@@ -2670,7 +2709,11 @@ inline void QGfxRaster<depth,type>::hAlphaLineUnclipped( int x1,int x2,
 	        b+=*(tmp+0);
 	        //mybuf[loopc]=qGray(r,g,b); // ### grayscale 8bit
 	    }
+#ifdef QWS_DEPTH_8GRAYSCALE
+	    alphabuf[loopc]=qGray(r,g,b);
+#else
 	    alphabuf[loopc]=closestMatch(r,g,b);
+#endif
 	}
 
 	// Now write it all out
@@ -3562,6 +3605,10 @@ QGfx * QScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linestep)
 	ret = new QGfxRaster<15,0>(bytes,w,h);
 #endif
 #if QWS_DEPTH_8
+    } else if(d==8) {
+	ret = new QGfxRaster<8,0>(bytes,w,h);
+#endif
+#ifdef QWS_DEPTH_8GRAYSCALE
     } else if(d==8) {
 	ret = new QGfxRaster<8,0>(bytes,w,h);
 #endif

@@ -93,7 +93,11 @@ uint QColor::alloc()
 	return pix=(r^g^b)&0xf;
     } else if(depth==8) {
 	// #### just a hack
-	return pix=qGray(r,g,b);
+#ifdef QWS_DEPTH_8GRAYSCALE
+	return pix=qGray(r,g,b);	
+#else
+	qFatal("QColor alloc called in paletted mode");
+#endif
 	/*
 	red_shift = 5;
 	green_shift = 3;
