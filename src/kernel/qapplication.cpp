@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication.cpp#146 $
+** $Id: //depot/qt/main/src/kernel/qapplication.cpp#147 $
 **
 ** Implementation of QApplication class
 **
@@ -557,13 +557,13 @@ void QApplication::setFont( const QFont &font,	bool updateAllWidgets )
   you are able to customize any kind of widgets.
 
   The default implemention calls QStyle::polishWidget().
-  
+
   \sa QStyle::polishWidget(), QWidget::polish()
 */
 
 void QApplication::polishWidget(QWidget* w)
 {
-//#warning not yet implemented. Should call qstyle::polish widget
+//###  #warning not yet implemented. Should call qstyle::polish widget
 }
 
 
