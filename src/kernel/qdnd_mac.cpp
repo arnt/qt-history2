@@ -39,6 +39,7 @@
 #include "qobjectlist.h"
 #include "qbitmap.h"
 #include "qt_mac.h"
+#include "qpainter.h"
 
 bool qt_mac_in_drag = FALSE;
 //internal globals
@@ -308,8 +309,26 @@ bool QDragManager::drag( QDragObject *o, QDragObject::DragMode )
     QPoint hotspot;
     QPixmap pix = o->pixmap();
     if(pix.isNull()) {
-	pix = QImage(default_pm);
-	hotspot = QPoint(default_pm_hotx, default_pm_hoty);
+	if(QTextDrag::canDecode(o)) {
+	    //draw the string
+	    QString s;
+	    QTextDrag::decode(o, s);
+	    QFont f(qApp->font());
+	    f.setPointSize(12);
+	    QFontMetrics fm(f);
+	    QPixmap tmp(fm.width(s), fm.height());
+	    QPainter p(&tmp);
+	    p.fillRect(0, 0, tmp.width(), tmp.height(), color0);
+	    p.setPen(color1);
+	    p.setFont(f);
+	    p.drawText(0, tmp.height(), s);
+	    //save it
+	    pix = tmp;
+	    hotspot = QPoint(tmp.width() / 2, tmp.height() / 2);
+	} else {
+	    pix = QImage(default_pm);
+	    hotspot = QPoint(default_pm_hotx, default_pm_hoty);
+	}
     } else {
 	hotspot = QPoint(o->pixmapHotSpot().x(), o->pixmapHotSpot().y());
     }
