@@ -461,10 +461,8 @@ void Uic::createFormDecl( const QDomElement &e )
 	    protectedVars += var;
     }
 
-    if ( !publicFuncts.isEmpty() ) {
+    if ( !publicFuncts.isEmpty() )
 	writeFunctionsDecl( publicFuncts, publicFunctRetTyp, publicFunctSpec );
-	out << endl;
-    }
     if ( !publicVars.isEmpty() ) {
 	for ( it = publicVars.begin(); it != publicVars.end(); ++it )
 	    out << indent << *it << endl;
@@ -477,10 +475,8 @@ void Uic::createFormDecl( const QDomElement &e )
 	    out << indent << "virtual void polish();" << endl;
 	    out << endl;
 	}
-	if ( !publicSlots.isEmpty() ) {
+	if ( !publicSlots.isEmpty() )
 	    writeFunctionsDecl( publicSlots, publicSlotTypes, publicSlotSpecifier );
-	    out << endl;
-	}
     }
 
     // find signals
@@ -510,10 +506,8 @@ void Uic::createFormDecl( const QDomElement &e )
     out << "protected:" << endl;
     out << indent << "virtual void retranslateStrings();" << endl;
     out << endl;
-    if ( !protectedFuncts.isEmpty() ) {
+    if ( !protectedFuncts.isEmpty() )
 	writeFunctionsDecl( protectedFuncts, protectedFunctRetTyp, protectedFunctSpec );
-	out << endl;
-    }
     if ( !protectedVars.isEmpty() ) {
 	for ( it = protectedVars.begin(); it != protectedVars.end(); ++it )
 	    out << indent << *it << endl;
@@ -527,16 +521,13 @@ void Uic::createFormDecl( const QDomElement &e )
     if ( !protectedSlots.isEmpty() ) {
 	out << "protected slots:" << endl;
 	writeFunctionsDecl( protectedSlots, protectedSlotTypes, protectedSlotSpecifier );
-	out << endl;
     }
 
     // create all private stuff
     if ( !privateFuncts.isEmpty() || !privateVars.isEmpty() || !imageMembers.isEmpty() ) {
 	out << "private:" << endl;
-	if ( !privateFuncts.isEmpty() ) {
+	if ( !privateFuncts.isEmpty() )
 	    writeFunctionsDecl( privateFuncts, privateFunctRetTyp, privateFunctSpec );
-	    out << endl;
-	}
 	if ( !privateVars.isEmpty() ) {
 	    for ( it = privateVars.begin(); it != privateVars.end(); ++it )
 		out << indent << *it << endl;
@@ -551,7 +542,6 @@ void Uic::createFormDecl( const QDomElement &e )
     if ( !privateSlots.isEmpty() ) {
 	out << "private slots:" << endl;
 	writeFunctionsDecl( privateSlots, privateSlotTypes, privateSlotSpecifier );
-	out << endl;
     }
 
     out << "};" << endl;
@@ -576,6 +566,7 @@ void Uic::writeFunctionsDecl( const QStringList &fuLst, const QStringList &typLs
 	QString fname = Parser::cleanArgs( *it );
 	out << "    " << specifier << type << " " << (*it) << pure << ";" << endl;
     }
+    out << endl;
 }
 
 /*!

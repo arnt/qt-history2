@@ -131,6 +131,9 @@ private:
     QString getDatabaseInfo( const QDomElement& e, const QString& tag );
     void createFormImpl( const QDomElement& e, const QString& form, const QString& connection, const QString& table );
     void writeFunctionsDecl( const QStringList &fuLst, const QStringList &typLst, const QStringList &specLst );
+    void writeFunctionsSubDecl( const QStringList &fuLst, const QStringList &typLst, const QStringList &specLst );
+    void writeFunctionsSubImpl( const QStringList &fuLst, const QStringList &typLst, const QStringList &specLst,
+				const QString &subClass, const QString &descr );
     QStringList dbConnections;
     QMap< QString, QStringList > dbCursors;
     QMap< QString, QStringList > dbForms;

@@ -42,14 +42,13 @@ void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
     QDomElement n;
     QDomNodeList nl;
     int i;
-    QStringList::Iterator it, it2, it3;
 
     QString objClass = getClassName( e );
     if ( objClass.isEmpty() )
 	return;
 
     out << "class " << subClass << " : public " << nameOfClass << endl;
-    out << "{ " << endl;
+    out << "{" << endl;
 
 /* tmake ignore Q_OBJECT */
     out << "    Q_OBJECT" << endl;
@@ -150,93 +149,52 @@ void Uic::createSubDecl( const QDomElement &e, const QString& subClass )
 	}
     }
 
-    if ( !publicFuncts.isEmpty() ) {
-	for ( it = publicFuncts.begin(), it2 = publicFunctRetTyp.begin(), it3 = publicFunctSpec.begin();
-	      it != publicFuncts.end(); ++it, ++it2, ++it3 ) {
-	    QString type = *it2;
-	    if ( type.isEmpty() )
-		type = "void";
-	    if ( *it3 == "non virtual" )
-		continue;
-	    out << "    " << type << " " << (*it) << ";" << endl;
-	}
-	out << endl;
-    }
+    if ( !publicFuncts.isEmpty() )
+	writeFunctionsSubDecl( publicFuncts, publicFunctRetTyp, publicFunctSpec );
 
     // create public additional slots
     if ( !publicSlots.isEmpty() ) {
 	out << "public slots:" << endl;
-	for ( it = publicSlots.begin(), it2 = publicSlotTypes.begin(), it3 = publicSlotSpecifier.begin();
-	      it != publicSlots.end(); ++it, ++it2, ++it3 ) {
-	    QString type = *it2;
-	    if ( type.isEmpty() )
-		type = "void";
-	    if ( *it3 == "non virtual" )
-		continue;
-	    out << "    " << type << " " << (*it) << ";" << endl;
-	}
-	out << endl;
+	writeFunctionsSubDecl( publicSlots, publicSlotTypes, publicSlotSpecifier );
     }
 
     if ( !protectedFuncts.isEmpty() ) {
 	out << "protected:" << endl;
-	for ( it = protectedFuncts.begin(), it2 = protectedFunctRetTyp.begin(), it3 = protectedFunctSpec.begin();
-	      it != protectedFuncts.end(); ++it, ++it2, ++it3 ) {
-	    QString type = *it2;
-	    if ( type.isEmpty() )
-		type = "void";
-	    if ( *it3 == "non virtual" )
-		continue;
-	    out << "    " << type << " " << (*it) << ";" << endl;
-	}
-	out << endl;
+	writeFunctionsSubDecl( protectedFuncts, protectedFunctRetTyp, protectedFunctSpec );
     }
 
     // create protected additional slots
     if ( !protectedSlots.isEmpty() ) {
 	out << "protected slots:" << endl;
-	for ( it = protectedSlots.begin(), it2 = protectedSlotTypes.begin(), it3 = protectedSlotSpecifier.begin();
-	      it != protectedSlots.end(); ++it, ++it2, ++it3 ) {
-	    QString type = *it2;
-	    if ( type.isEmpty() )
-		type = "void";
-	    if ( *it3 == "non virtual" )
-		continue;
-	    out << "    " << type << " " << (*it) << ";" << endl;
-	}
-	out << endl;
+	writeFunctionsSubDecl( protectedSlots, protectedSlotTypes, protectedSlotSpecifier );
     }
 
     if ( !privateFuncts.isEmpty() ) {
 	out << "private:" << endl;
-	for ( it = privateFuncts.begin(), it2 = privateFunctRetTyp.begin(), it3 = privateFunctSpec.begin();
-	      it != privateFuncts.end(); ++it, ++it2, ++it3 ) {
-	    QString type = *it2;
-	    if ( type.isEmpty() )
-		type = "void";
-	    if ( *it3 == "non virtual" )
-		continue;
-	    out << "    " << type << " " << (*it) << ";" << endl;
-	}
-	out << endl;
+	writeFunctionsSubDecl( privateFuncts, privateFunctRetTyp, privateFunctSpec );
     }
 
     // create private additional slots
     if ( !privateSlots.isEmpty() ) {
 	out << "private slots:" << endl;
-	for ( it = privateSlots.begin(), it2 = privateSlotTypes.begin(), it3 = privateSlotSpecifier.begin();
-	      it != privateSlots.end(); ++it, ++it2, ++it3 ) {
-	    QString type = *it2;
-	    if ( type.isEmpty() )
-		type = "void";
-	    if ( *it3 == "non virtual" )
-		continue;
-	    out << "    " << type << " " << (*it) << ";" << endl;
-	}
-	out << endl;
+	writeFunctionsSubDecl( privateSlots, privateSlotTypes, privateSlotSpecifier );
     }
-
     out << "};" << endl;
+}
+
+void Uic::writeFunctionsSubDecl( const QStringList &fuLst, const QStringList &typLst, const QStringList &specLst )
+{
+    QValueListConstIterator<QString> it, it2, it3;
+    for ( it = fuLst.begin(), it2 = typLst.begin(), it3 = specLst.begin();
+	  it != fuLst.end(); ++it, ++it2, ++it3 ) {
+	QString type = *it2;
+	if ( type.isEmpty() )
+	    type = "void";
+	if ( *it3 == "non virtual" )
+	    continue;
+	out << "    " << type << " " << (*it) << ";" << endl;
+    }
+    out << endl;
 }
 
 /*!
@@ -250,7 +208,6 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
     QDomElement n;
     QDomNodeList nl;
     int i;
-    QStringList::Iterator it, it2, it3;
 
     QString objClass = getClassName( e );
     if ( objClass.isEmpty() )
@@ -374,124 +331,46 @@ void Uic::createSubImpl( const QDomElement &e, const QString& subClass )
 	}
     }
 
-    if ( !publicFuncts.isEmpty() ) {
-	for ( it = publicFuncts.begin(), it2 = publicFunctRetTyp.begin(), it3 = publicFunctSpec.begin();
-	      it != publicFuncts.end(); ++it, ++it2, ++it3 ) {
-	    QString type = *it2;
-	    if ( type.isEmpty() )
-		type = "void";
-	    if ( *it3 == "non virtual" )
-		continue;
-	    out << "/* " << endl;
-	    out << " * public function" << endl;
-	    out << " */" << endl;
-	    out << type << " " << subClass << "::" << (*it) << endl;
-	    out << "{" << endl;
-	    out << "    qWarning( \"" << subClass << "::" << (*it) << " not yet implemented!\" ); " << endl;
-	    out << "}" << endl << endl;
-	}
-	out << endl;
-    }
+    if ( !publicFuncts.isEmpty() )
+	writeFunctionsSubImpl( publicFuncts, publicFunctRetTyp, publicFunctSpec, subClass, "public function" );
 
     // create stubs for public additional slots
-    if ( !publicSlots.isEmpty() ) {
-	for ( it = publicSlots.begin(), it2 = publicSlotTypes.begin(), it3 = publicSlotSpecifier.begin();
-	      it != publicSlots.end(); ++it, ++it2, ++it3 ) {
-	    QString type = *it2;
-	    if ( type.isEmpty() )
-		type = "void";
-	    if ( *it3 == "non virtual" )
-		continue;
-	    out << "/* " << endl;
-	    out << " * public slot" << endl;
-	    out << " */" << endl;
-	    out << type << " " << subClass << "::" << (*it) << endl;
-	    out << "{" << endl;
-	    out << "    qWarning( \"" << subClass << "::" << (*it) << " not yet implemented!\" ); " << endl;
-	    out << "}" << endl << endl;
-	}
-	out << endl;
-    }
+    if ( !publicSlots.isEmpty() )
+	writeFunctionsSubImpl( publicSlots, publicSlotTypes, publicSlotSpecifier, subClass, "public slot" );
 
-
-    if ( !protectedFuncts.isEmpty() ) {
-	for ( it = protectedFuncts.begin(), it2 = protectedFunctRetTyp.begin(), it3 = protectedFunctSpec.begin();
-	      it != protectedFuncts.end(); ++it, ++it2, ++it3 ) {
-	    QString type = *it2;
-	    if ( type.isEmpty() )
-		type = "void";
-	    if ( *it3 == "non virtual" )
-		continue;
-	    out << "/* " << endl;
-	    out << " * protected function" << endl;
-	    out << " */" << endl;
-	    out << type << " " << subClass << "::" << (*it) << endl;
-	    out << "{" << endl;
-	    out << "    qWarning( \"" << subClass << "::" << (*it) << " not yet implemented!\" ); " << endl;
-	    out << "}" << endl << endl;
-	}
-	out << endl;
-    }
-
+    if ( !protectedFuncts.isEmpty() )
+	writeFunctionsSubImpl( protectedFuncts, protectedFunctRetTyp, protectedFunctSpec, subClass, "protected function" );
 
     // create stubs for protected additional slots
-    if ( !protectedSlots.isEmpty() ) {
-	for ( it = protectedSlots.begin(), it2 = protectedSlotTypes.begin(), it3 = protectedSlotSpecifier.begin();
-	      it != protectedSlots.end(); ++it, ++it2, ++it3 ) {
-	    QString type = *it2;
-	    if ( type.isEmpty() )
-		type = "void";
-	    if ( *it3 == "non virtual" )
-		continue;
-	    out << "/* " << endl;
-	    out << " * protected slot" << endl;
-	    out << " */" << endl;
-	    out << type << " " << subClass << "::" << (*it) << endl;
-	    out << "{" << endl;
-	    out << "    qWarning( \"" << subClass << "::" << (*it) << " not yet implemented!\" ); " << endl;
-	    out << "}" << endl << endl;
-	}
-	out << endl;
-    }
+    if ( !protectedSlots.isEmpty() )
+	writeFunctionsSubImpl( protectedSlots, protectedSlotTypes, protectedSlotSpecifier, subClass, "protected slot" );
 
-
-    if ( !privateFuncts.isEmpty() ) {
-	for ( it = privateFuncts.begin(), it2 = privateFunctRetTyp.begin(), it3 = privateFunctSpec.begin();
-	      it != privateFuncts.end(); ++it, ++it2, ++it3 ) {
-	    QString type = *it2;
-	    if ( type.isEmpty() )
-		type = "void";
-	    if ( *it3 == "non virtual" )
-		continue;
-	    out << "/* " << endl;
-	    out << " * private function" << endl;
-	    out << " */" << endl;
-	    out << type << " " << subClass << "::" << (*it) << endl;
-	    out << "{" << endl;
-	    out << "    qWarning( \"" << subClass << "::" << (*it) << " not yet implemented!\" ); " << endl;
-	    out << "}" << endl << endl;
-	}
-	out << endl;
-    }
+    if ( !privateFuncts.isEmpty() )
+	writeFunctionsSubImpl( privateFuncts, privateFunctRetTyp, privateFunctSpec, subClass, "private function" );
 
     // create stubs for private additional slots
-    if ( !privateSlots.isEmpty() ) {
-	for ( it = privateSlots.begin(), it2 = privateSlotTypes.begin(), it3 = privateSlotSpecifier.begin();
-	      it != privateSlots.end(); ++it, ++it2, ++it3 ) {
-	    QString type = *it2;
-	    if ( type.isEmpty() )
-		type = "void";
-	    if ( *it3 == "non virtual" )
-		continue;
-	    out << "/* " << endl;
-	    out << " * private slot" << endl;
-	    out << " */" << endl;
-	    out << type << " " << subClass << "::" << (*it) << endl;
-	    out << "{" << endl;
-	    out << "    qWarning( \"" << subClass << "::" << (*it) << " not yet implemented!\" ); " << endl;
-	    out << "}" << endl << endl;
-	}
-	out << endl;
-    }
+    if ( !privateSlots.isEmpty() )
+	writeFunctionsSubImpl( privateSlots, privateSlotTypes, privateSlotSpecifier, subClass, "private slot" );
 }
 
+void Uic::writeFunctionsSubImpl( const QStringList &fuLst, const QStringList &typLst, const QStringList &specLst,
+				 const QString &subClass, const QString &descr )
+{
+    QValueListConstIterator<QString> it, it2, it3;
+    for ( it = fuLst.begin(), it2 = typLst.begin(), it3 = specLst.begin();
+	  it != fuLst.end(); ++it, ++it2, ++it3 ) {
+	QString type = *it2;
+	if ( type.isEmpty() )
+	    type = "void";
+	if ( *it3 == "non virtual" )
+	    continue;
+	out << "/*" << endl;
+	out << " * " << descr << endl;
+	out << " */" << endl;
+	out << type << " " << subClass << "::" << (*it) << endl;
+	out << "{" << endl;
+	out << "    qWarning( \"" << subClass << "::" << (*it) << " not yet implemented!\" );" << endl;
+	out << "}" << endl << endl;
+    }
+    out << endl;
+}
