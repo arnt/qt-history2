@@ -873,13 +873,19 @@ void
 MakefileGenerator::writeYaccSrc(QTextStream &t, const QString &src)
 {
     QStringList &l = project->variables()[src];
+    if(project->isActiveConfig("yacc_no_name_mangle") && l.count() > 1)
+	fprintf(stderr, "yacc_no_name_mangle specified, but multiple parsers expected.\n"
+		"This can lead to link problems.\n");
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QFileInfo fi((*it));
 	QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::yacc_mod + Option::cpp_ext;
 	QString decl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::yacc_mod + Option::h_ext;
 
+	QString yaccflags = "$(YACCFLAGS)";
+	if(!project->isActiveConfig("yacc_no_name_mangle"))
+	    yaccflags += " -p " + fi.baseName();
 	t << impl << ": " << (*it) << "\n\t"
-	  << "$(YACC) $(YACCFLAGS) " << (*it) << "\n\t"
+	  << "$(YACC) " + yaccflags + " " << (*it) << "\n\t"
 	  << "-$(DEL) " << impl << " " << decl << "\n\t"
 	  << "-$(MOVE) y.tab.h " << decl << "\n\t"
 	  << "-$(MOVE) y.tab.c " << impl << endl << endl;
@@ -891,12 +897,18 @@ void
 MakefileGenerator::writeLexSrc(QTextStream &t, const QString &src)
 {
     QStringList &l = project->variables()[src];
+    if(project->isActiveConfig("yacc_no_name_mangle") && l.count() > 1)
+	fprintf(stderr, "yacc_no_name_mangle specified, but multiple parsers expected.\n"
+		"This can lead to link problems.\n");
     for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
 	QFileInfo fi((*it));
 	QString impl = fi.dirPath() + Option::dir_sep + fi.baseName() + Option::lex_mod + Option::cpp_ext;
 
+	QString lexflags = "$(LEXFLAGS)";
+	if(!project->isActiveConfig("yacc_no_name_mangle"))
+	    lexflags += " -P " + fi.baseName();
 	t << impl << ": " << (*it) << " " << depends[(*it)].join(" \\\n\t\t") << "\n\t"
-	  << "$(LEX) $(LEXFLAGS) " << (*it) << "\n\t"
+	  << "$(LEX) " + lexflags + " " << (*it) << "\n\t"
 	  << "-$(DEL) " << impl << " " << "\n\t"
 	  << "-$(MOVE) lex.yy.c " << impl << endl << endl;
     }
