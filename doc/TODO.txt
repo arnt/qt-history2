@@ -282,6 +282,9 @@ QComboBox
   Be able to return the index of the item with the matching item text, e.g
   int QComboBox::find( const QString & text )  (info/arc-12/24994)
 
+  Be able to set an id for the item like QMenuData as well as the index.  
+  (support/arc-17/35366)
+
 QLCDNumber
   Support leading zeros, so you can have a number like 0003.
 
