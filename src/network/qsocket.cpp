@@ -119,8 +119,7 @@ void QSocketPrivate::close()
 
   The functions you're likely to call most are connectToHost(),
   bytesAvailable(), canReadLine() and the ones it inherits from
-  QIODevice.  The <a href="linux-kernel.html">Linux Kernel Version
-  Walkthrough</a> uses them in a very simple program.
+  QIODevice.
 
   connectToHost() is the most-used function.  As its name implies, it
   opens a connection to a named host.
