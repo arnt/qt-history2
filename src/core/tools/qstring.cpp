@@ -2653,9 +2653,7 @@ bool QString::startsWith(const QString& s, CaseSensitivity cs) const
     if (s.d->size > d->size)
         return false;
     if (cs == CaseSensitive) {
-        for (int i = 0; i < s.d->size; ++i)
-            if (d->data[i] != s.d->data[i])
-                return false;
+        return memcmp((char*)d->data, (char*)s.d->data, s.d->size*sizeof(QChar)) == 0;
     } else {
         for (int i = 0; i < s.d->size; ++i)
             if (::lower(d->data[i]) != ::lower(s.d->data[i]))
@@ -2689,9 +2687,7 @@ bool QString::endsWith(const QString& s, CaseSensitivity cs) const
     if (pos < 0)
         return false;
     if (cs == CaseSensitive) {
-        for (int i = 0; i < s.d->size; i++)
-            if (d->data[pos+i] != s.d->data[i])
-                return false;
+        return memcmp((char*)&d->data[pos], (char*)s.d->data, s.d->size*sizeof(QChar)) == 0;
     } else {
         for (int i = 0; i < (int) s.length(); i++)
             if (::lower(d->data[pos+i]) != ::lower(s.d->data[i]))
