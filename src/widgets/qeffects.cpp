@@ -180,13 +180,20 @@ bool QAlphaWidget::eventFilter( QObject* o, QEvent* e )
     case QEvent::Close:
 	if ( o != widget )
 	    break;
-	showWidget = FALSE;
-	render();
-	break;
     case QEvent::MouseButtonPress:
 	showWidget = FALSE;
 	render();
-	break;	    
+	break;
+    case QEvent::KeyPress:
+	{
+	    QKeyEvent *ke = (QKeyEvent*)e;
+	    if ( ke->key() == Key_Escape )
+		showWidget = FALSE;
+	    else
+		duration = 0;
+	    render();
+	    break;
+	}
     default:
 	break;
     }
@@ -396,6 +403,15 @@ bool QRollEffect::eventFilter( QObject* o, QEvent* e )
 	    showWidget = FALSE;
 	    done = TRUE;
 	    break;
+	case QEvent::KeyPress:
+	    {
+		QKeyEvent *ke = (QKeyEvent*)e;
+		if ( ke->key() == Key_Escape )
+		    showWidget = FALSE;
+		done = TRUE;
+		scroll();
+		break;
+	    }
 	default:
 	    break;
     }
