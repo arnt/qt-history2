@@ -428,11 +428,11 @@ void QToolBar::setIconSize(const QSize &iconSize)
         const int metric = style()->pixelMetric(QStyle::PM_ToolBarIconSize);
         sz = QSize(metric, metric);
     }
-    if (d->iconSize == iconSize)
-        return;
-    d->iconSize = sz;
+    if (d->iconSize != sz) {
+        d->iconSize = sz;
+        emit iconSizeChanged(d->iconSize);
+    }
     d->explicitIconSize = iconSize.isValid();
-    emit iconSizeChanged(d->iconSize);
 }
 
 /*! \property QToolBar::toolButtonStyle
