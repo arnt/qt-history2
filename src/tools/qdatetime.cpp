@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qdatetime.cpp#80 $
+** $Id: //depot/qt/main/src/tools/qdatetime.cpp#81 $
 **
 ** Implementation of date and time classes
 **
@@ -462,28 +462,63 @@ void QDate::jul2greg( uint jd, int &y, int &m, int &d )
 /*!
   \class QTime qdatetime.h
 
-  \brief The QTime class provides time functions 24 hours a day.
+  \brief The QTime class provides clock time functions.
 
   \capt Time functions
 
   \ingroup time
+  
+  A QTime object contains a clock time, i.e. a number of hours,
+  minutes, seconds and milliseconds since midnight. It can read the
+  current time from the system clock, and measure a span of elapsed
+  time. It provides functions for comparing times and for manipulating
+  a time by adding a number of (milli)seconds. QTime operates with
+  24-hour clock format; it has no concept of AM/PM.
 
-  The time resolution of QTime is a millisecond, although the accuracy
-  depends on the underlying operating system.  Some operating systems
-  (e.g. Linux and Window NT) support a one-millisecond resolution, while
-  others (MS-DOS and Windows 3.1) support only a 55 millisecond resolution.
+  A QTime object is typically created either by giving the number of
+  hours, minutes, seconds, and milliseconds explicitly, or by using
+  the static function currentTime(), which makes a QTime object which
+  contains the system's clock time. Note that the accuracy depends on
+  the accuracy of the underlying operating system; not all systems
+  provide 1-millisecond accuracy.
 
+  The hour(), minute(), second(), and msec() functions provide access
+  to the number of hours, minutes, seconds, and milliseconds of the
+  time. The same information is provided in textual format by the
+  toString() function.
+
+  QTime provides a full set of operators to compare two QTime
+  objects. A time is considered smaller than another if it is earlier
+  than the other.
+
+  The time a given number of seconds or milliseconds later than a
+  given time can be found using the addSecs() or addMSecs()
+  functions. Correspondingly, the number of (milli)seconds between two
+  times can be found using the secsTo() or msecsTo() functions.
+
+  QTime can be used to measure a span of elapsed time using the
+  start(), restart(), and elapsed() functions.
+ 
   \sa QDate, QDateTime
 */
 
 /*!
   \fn QTime::QTime()
-  Constructs a time 00:00:00.000, which is valid.
+
+  Constructs the time 0 hours, minutes, seconds and milliseconds,
+  i.e. 00:00:00.000 (midnight). This is a valid time.
+
+  \sa isValid()
 */
 
 /*!
-  Constructs a time with hour \e h, minute \e m, seconds \e s and milliseconds
-  \e ms.
+  Constructs a time with hour \a h, minute \a m, seconds \a s and
+  milliseconds \a ms.
+  
+  \a h must be in the range 0-23, \a m and \a s must be in the range
+  0-59, and \a ms must be in the range 0-999.
+
+  \sa isValid()
 */
 
 QTime::QTime( int h, int m, int s, int ms )
@@ -493,7 +528,7 @@ QTime::QTime( int h, int m, int s, int ms )
 
 
 /*!
-  \fn bool  QTime::isNull() const
+  \fn bool QTime::isNull() const
   Returns TRUE if the time is equal to 00:00:00.000. A null time is valid.
 
   \sa isValid()
@@ -550,8 +585,9 @@ int QTime::msec() const
 
 
 /*!
-  Converts the date to a string, which is returned.  Milliseconds are
-  not included. The string format is "03:40:13".
+  Returns the time of this object in a textual format. Milliseconds
+  are not included. The string format is HH:MM:SS, e.g. 1 second
+  before midnight would be "23:59:59".
 */
 
 QString QTime::toString() const
@@ -563,9 +599,14 @@ QString QTime::toString() const
 
 
 /*!
-  Sets the hour \e h, minute \e m, seconds \e s and milliseconds
-  \e ms.
-  Returns TRUE if the time is valid, otherwise FALSE.
+  Sets the time to hour \a h, minute \a m, seconds \a s and
+  milliseconds \a ms.
+
+  \a h must be in the range 0-23, \a m and \a s must be in the range
+  0-59, and \a ms must be in the range 0-999. Returns TRUE if the set
+  time is valid, otherwise FALSE.
+
+  \sa isValid()
 */
 
 bool QTime::setHMS( int h, int m, int s, int ms )
@@ -575,6 +616,7 @@ bool QTime::setHMS( int h, int m, int s, int ms )
 	qWarning( "QTime::setHMS Invalid time %02d:%02d:%02d.%03d", h, m, s,
 		 ms );
 #endif
+	ds = MSECS_PER_DAY;		// make this invalid
 	return FALSE;
     }
     ds = (h*SECS_PER_HOUR + m*SECS_PER_MIN + s)*1000 + ms;
@@ -582,8 +624,22 @@ bool QTime::setHMS( int h, int m, int s, int ms )
 }
 
 /*!
-  Returns the time plus \e nsecs seconds.
-  \sa secsTo()
+  Returns a QTime object containg a time \a nsecs seconds later than
+  the time of this object (or earlier if \a ms is negative). 
+
+  Note that the time will wrap if it passes midnight.
+
+  Example:
+  \code
+    QTime n( 14, 0, 0 );                // n == 14:00:00
+    QTime t;
+    t = n.addSecs( 70 );                // t == 14:01:10
+    t = n.addSecs( -70 );               // t == 13:58:50
+    t = n.addSecs( 10*60*60 + 5 );      // t == 00:00:05
+    t = n.addSecs( -15*60*60 );         // t == 23:00:00
+  \endcode
+
+  \sa addMSecs(), secsTo(), QDateTime::addSecs()
 */
 
 QTime QTime::addSecs( int nsecs ) const
@@ -593,7 +649,7 @@ QTime QTime::addSecs( int nsecs ) const
 
 /*!
   Returns the number of seconds from this time to \a t (which is
-  negative if \a t is in the past).
+  negative if \a t is earlier than this time).
 
   Since QTime measures time within a day and there are 86400 seconds
   in a day, the result is between -86400 and 86400.
@@ -607,7 +663,13 @@ int QTime::secsTo( const QTime &t ) const
 }
 
 /*!
-  Returns the time plus \e ms milliseconds.
+  Returns a QTime object containing a time \a ms milliseconds later than
+  the time of this object (or earlier if \a ms is negative).
+
+  Note that the time will wrap if it passes midnight. See addSecs()
+  for an example.
+
+  \sa addSecs(), msecsTo()
 */
 
 QTime QTime::addMSecs( int ms ) const
@@ -625,7 +687,13 @@ QTime QTime::addMSecs( int ms ) const
 }
 
 /*!
-  Returns the number of milliseconds between this time and \e t.
+  Returns the number of milliseconds from this time to \a t (which is
+  negative if \a t is earlier than this time).
+
+  Since QTime measures time within a day and there are 86400000
+  milliseconds in a day, the result is between -86400000 and 86400000.
+
+  \sa secsTo()
 */
 
 int QTime::msecsTo( const QTime &t ) const
@@ -636,40 +704,51 @@ int QTime::msecsTo( const QTime &t ) const
 
 /*!
   \fn bool QTime::operator==( const QTime &t ) const
-  Returns TRUE if this time is equal to \e t, or FALSE if
-  they are different.
+
+  Returns TRUE if this time is equal to \a t, or FALSE if they are
+  different.
 */
 
 /*!
   \fn bool QTime::operator!=( const QTime &t ) const
-  Returns TRUE if this time is different from \e t, or FALSE if
-  they are equal.
+
+  Returns TRUE if this time is different from \a t, or FALSE if they
+  are equal.
 */
 
 /*!
   \fn bool QTime::operator<( const QTime &t ) const
-  Returns TRUE if this time is before \e t, otherwise FALSE.
+
+  Returns TRUE if this time is earlier than \a t, otherwise FALSE.
 */
 
 /*!
   \fn bool QTime::operator<=( const QTime &t ) const
-  Returns TRUE if this time is before or equal to \e t, otherwise FALSE.
+
+  Returns TRUE if this time is earlier than or equal to \a t,
+  otherwise FALSE.
 */
 
 /*!
   \fn bool QTime::operator>( const QTime &t ) const
-  Returns TRUE if this time is after \e t, otherwise FALSE.
+
+  Returns TRUE if this time is later than \a t, otherwise FALSE.
 */
 
 /*!
   \fn bool QTime::operator>=( const QTime &t ) const
-  Returns TRUE if this time is equal to or after \e t, otherwise FALSE.
+
+  Returns TRUE if this time is later than or equal to \a t, otherwise
+  FALSE.
 */
 
 
 
 /*!
-  Returns the current time.
+  Returns the current time, as reported by the system clock.
+
+  Note that the accuracy depends on the accuracy of the underlying
+  operating system; not all systems provide 1-millisecond accuracy.
 */
 
 QTime QTime::currentTime()
@@ -680,6 +759,8 @@ QTime QTime::currentTime()
 }
 
 /*!
+  \internal
+
   Fetches the current time and returns TRUE if the time is within one
   minute after midnight, otherwise FALSE. The return value is used by
   QDateTime::currentDateTime() to ensure that the date there is correct.
@@ -742,6 +823,9 @@ bool QTime::currentTime( QTime *ct )
 /*!
   Returns TRUE if the specified time is valid, otherwise FALSE.
 
+  The time is valid if \a h is in the range 0-23, \a m and \a s are in
+  the range 0-59, and \a ms is in the range 0-999.
+
   Example:
   \code
     QTime::isValid(21, 10, 30);		// returns TRUE
@@ -756,7 +840,8 @@ bool QTime::isValid( int h, int m, int s, int ms )
 
 
 /*!
-  Sets the time to the current time, e.g. for timing:
+  Sets this time to the current time. This is practical for timing:
+
   \code
     QTime t;
     t.start();				// start clock
@@ -764,7 +849,7 @@ bool QTime::isValid( int h, int m, int s, int ms )
     qDebug( "%d\n", t.elapsed() );	// prints # msecs elapsed
   \endcode
 
-  \sa restart(), elapsed()
+  \sa restart(), elapsed(), currentTime()
 */
 
 void QTime::start()
@@ -773,20 +858,22 @@ void QTime::start()
 }
 
 /*!
-  Sets *this to the current time, and returns the number of
-  milliseconds that have elapsed since the last start() or restart().
+  Sets this time to the current time, and returns the number of
+  milliseconds that have elapsed since the last time start() or
+  restart() was called.
 
-  restart is guaranteed to be atomic, and so is very handy for
-  repeated measurements; call start() to start the first measurement,
+  This function is guaranteed to be atomic, and is thus very handy for
+  repeated measurements: call start() to start the first measurement,
   then restart() for each later measurement.
 
   Note that the counter wraps to zero 24 hours after the last call to
   start() or restart().
 
-  \warning If the system's local time changes, the result is undefined.
+  \warning If the system's clock setting has been changed since the
+  last time start() or restart() was called, the result is undefined.
   This can happen e.g. when daylight saving is turned on or off.
 
-  \sa start(), elapsed()
+  \sa start(), elapsed(), currentTime()
 */
 
 int QTime::restart()
@@ -800,13 +887,17 @@ int QTime::restart()
 }
 
 /*!
-  Returns the number of milliseconds that have elapsed since start() or
-  restart() were called.
+  Returns the number of milliseconds that have elapsed since the last
+  time start() or restart() was called.
 
   Note that the counter wraps to zero 24 hours after the last call to
   start() or restart.
 
-  \warning If the system's local time changes, the result is undefined.
+  Note that the accuracy depends on the accuracy of the underlying
+  operating system; not all systems provide 1-millisecond accuracy.
+
+  \warning If the system's clock setting has been changed since the
+  last time start() or restart() was called, the result is undefined.
   This can happen e.g. when daylight saving is turned on or off.
 
   \sa start(), restart()
