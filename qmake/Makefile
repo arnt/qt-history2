@@ -1,4 +1,7 @@
 !IF "$(MAKE)" == "NMAKE" || "$(MAKE)" == "Nmake" || "$(MAKE)" == "nmake"
+#
+# specific stuff for nmake
+#
 CFLAGS	    =	/c /Fo$@ \
 		/W3 /Zi /nologo /GX /O1 \
 		/I. /Igenerators /Igenerators\unix /Igenerators\win32  /I$(QTDIR)\include /I$(QTDIR)\src\tools \
@@ -9,6 +12,12 @@ LIBS	    =	ole32.lib
 LINKQMAKE   =	link $(LFLAGS) /OUT:qmake.exe $(OBJS) $(QTOBJS) $(LIBS)
 ADDCLEAN    =	vc60.pdb qmake.pdb qmake.ilk
 !ELSE
+#
+# specific stuff for Borland make
+#
+!if !$d(BCB)
+BCB = $(MAKEDIR)\..
+!endif
 CXX	    =	bcc32
 CFLAGS	    =	-c -o$@ \
 		-tWR -w -w-hid -O1 \
