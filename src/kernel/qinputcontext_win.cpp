@@ -40,7 +40,7 @@ extern Qt::WindowsVersion qt_winver;
 #include <initguid.h>
 
 
-DEFINE_GUID(IID_IActiveIMMApp, 
+DEFINE_GUID(IID_IActiveIMMApp,
 0x08c0e040, 0x62d1, 0x11d1, 0x93, 0x26, 0x0, 0x60, 0xb0, 0x67, 0xb8, 0x6e);
 
 
@@ -69,12 +69,12 @@ public:
     virtual IFMETHOD CreateContext( HIMC __RPC_FAR *phIMC) = 0;
     virtual IFMETHOD DestroyContext( HIMC hIME) = 0;
     virtual IFMETHOD dummy_EnumRegisterWordA( ) = 0;
-    virtual IFMETHOD EnumRegisterWordW( HKL hKL, LPWSTR szReading, DWORD dwStyle, LPWSTR szRegister, LPVOID pData, 
+    virtual IFMETHOD EnumRegisterWordW( HKL hKL, LPWSTR szReading, DWORD dwStyle, LPWSTR szRegister, LPVOID pData,
 	IEnumRegisterWordW __RPC_FAR *__RPC_FAR *pEnum) = 0;
     virtual IFMETHOD dummy_EscapeA( ) = 0;
     virtual IFMETHOD EscapeW( HKL hKL, HIMC hIMC, UINT uEscape, LPVOID pData, LRESULT __RPC_FAR *plResult) = 0;
     virtual IFMETHOD dummy_GetCandidateListA( ) = 0;
-    virtual IFMETHOD GetCandidateListW( HIMC hIMC, DWORD dwIndex, UINT uBufLen, CANDIDATELIST __RPC_FAR *pCandList, 
+    virtual IFMETHOD GetCandidateListW( HIMC hIMC, DWORD dwIndex, UINT uBufLen, CANDIDATELIST __RPC_FAR *pCandList,
 	UINT __RPC_FAR *puCopied) = 0;
     virtual IFMETHOD dummy_GetCandidateListCountA( ) = 0;
     virtual IFMETHOD GetCandidateListCountW( HIMC hIMC, DWORD __RPC_FAR *pdwListSize, DWORD __RPC_FAR *pdwBufLen) = 0;
@@ -86,7 +86,7 @@ public:
     virtual IFMETHOD GetCompositionWindow( HIMC hIMC, COMPOSITIONFORM __RPC_FAR *pCompForm) = 0;
     virtual IFMETHOD GetContext( HWND hWnd, HIMC __RPC_FAR *phIMC) = 0;
     virtual IFMETHOD dummy_GetConversionListA( ) = 0;
-    virtual IFMETHOD GetConversionListW( HKL hKL, HIMC hIMC, LPWSTR pSrc, UINT uBufLen, UINT uFlag, 
+    virtual IFMETHOD GetConversionListW( HKL hKL, HIMC hIMC, LPWSTR pSrc, UINT uBufLen, UINT uFlag,
 	CANDIDATELIST __RPC_FAR *pDst, UINT __RPC_FAR *puCopied) = 0;
     virtual IFMETHOD GetConversionStatus( HIMC hIMC, DWORD __RPC_FAR *pfdwConversion, DWORD __RPC_FAR *pfdwSentence) = 0;
     virtual IFMETHOD GetDefaultIMEWnd( HWND hWnd, HWND __RPC_FAR *phDefWnd) = 0;
@@ -115,7 +115,7 @@ public:
     virtual IFMETHOD SetCompositionFontA( HIMC hIMC, LOGFONTA __RPC_FAR *plf ) = 0;
     virtual IFMETHOD SetCompositionFontW( HIMC hIMC, LOGFONTW __RPC_FAR *plf) = 0;
     virtual IFMETHOD dummy_SetCompositionStringA( ) = 0;
-    virtual IFMETHOD SetCompositionStringW( HIMC hIMC, DWORD dwIndex, LPVOID pComp, DWORD dwCompLen, 
+    virtual IFMETHOD SetCompositionStringW( HIMC hIMC, DWORD dwIndex, LPVOID pComp, DWORD dwCompLen,
 	LPVOID pRead, DWORD dwReadLen) = 0;
     virtual IFMETHOD SetCompositionWindow( HIMC hIMC, COMPOSITIONFORM __RPC_FAR *pCompForm) = 0;
     virtual IFMETHOD SetConversionStatus( HIMC hIMC, DWORD fdwConversion, DWORD fdwSentence) = 0;
@@ -219,7 +219,7 @@ static void notifyIME( HIMC imc, DWORD dwAction, DWORD dwIndex, DWORD dwValue )
 static LONG getCompositionString( HIMC himc, DWORD dwIndex, LPVOID lpbuf, DWORD dBufLen, bool *unicode = 0 )
 {
     LONG len = 0;
-    if ( unicode ) 
+    if ( unicode )
 	*unicode = TRUE;
 #ifndef Q_OS_TEMP
     if ( aimm )
@@ -233,7 +233,7 @@ static LONG getCompositionString( HIMC himc, DWORD dwIndex, LPVOID lpbuf, DWORD 
 #ifndef Q_OS_TEMP
 	else {
 	    len = ImmGetCompositionStringA( himc, dwIndex, lpbuf, dBufLen );
-	    if ( unicode ) 
+	    if ( unicode )
 		*unicode = FALSE;
 	}
 #endif
@@ -286,7 +286,7 @@ static QString getString( HIMC himc, DWORD dwindex, int *selStart = 0, int *selL
 	return QString::null;
     if ( unicode ) {
 	return QString( (QChar *)buffer, len/sizeof(QChar) );
-    } 
+    }
 //#ifdef Q_OS_TEMP
     else {
 	buffer[len] = 0;
@@ -310,7 +310,7 @@ LRESULT QInputContext::DefWindowProc( HWND hwnd, UINT msg, WPARAM wParam, LPARAM
 {
     LRESULT retval;
 #ifndef Q_OS_TEMP
-    if ( !aimm || aimm->OnDefWindowProc( hwnd, msg, wParam, lParam, &retval ) != S_OK ) 
+    if ( !aimm || aimm->OnDefWindowProc( hwnd, msg, wParam, lParam, &retval ) != S_OK )
 #endif
     {
 	QT_WA( {
@@ -492,11 +492,6 @@ bool QInputContext::composition( LPARAM lParam )
 
     QWidget *fw = qApp->focusWidget();
     if ( fw ) {
-	if ( imePosition == -1 ) {
-	    // need to send a start event
-	    startComposition();
-	}
-
 	HIMC imc = getContext( fw->winId() );
 	if (lParam & GCS_RESULTSTR ) {
 	    // a fixed result, return the converted string
@@ -505,7 +500,12 @@ bool QInputContext::composition( LPARAM lParam )
 	    QIMEvent e( QEvent::IMEnd, *imeComposition, imePosition );
 	    *imeComposition = QString::null;
 	    result = qt_sendSpontaneousEvent( fw, &e );
-	} else if ( lParam & (GCS_COMPSTR | GCS_COMPATTR | GCS_CURSORPOS) ) {
+	}
+	if ( lParam & (GCS_COMPSTR | GCS_COMPATTR | GCS_CURSORPOS) ) {
+	    if ( imePosition == -1 ) {
+		// need to send a start event
+		startComposition();
+	    }
 	    // some intermediate composition result
 	    int selStart, selLength;
 	    *imeComposition = getString( imc, GCS_COMPSTR, &selStart, &selLength );
