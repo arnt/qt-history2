@@ -1148,6 +1148,9 @@ int QProcess::exitCode() const
     new process, waits for it to finish, and then returns the exit
     code of the process. Any data the new process writes to the
     console is forwarded to the calling process.
+
+    The environment and working directory are inherited by the calling
+    process.
 */
 int QProcess::execute(const QString &program, const QStringList &arguments)
 {
