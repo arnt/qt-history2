@@ -6,18 +6,19 @@
 #include "qwmatrix.h"
 #include "qt_mac.h"
 
-static QImage convertPixmapToImage(const QPixmap *, GWorldPtr);
+static QImage convertPixmapToImage(QPixmap::QPixmapData *, GWorldPtr);
 
 #ifdef QMAC_VIRTUAL_PIXMAP_SUPPORT
-#define CALC_COST(pm) (pm->width() * pm->height() * pm->depth() / 4)
+#define CALC_COST(pm_d) (pm_d->w * pm_d->h * pm_d->d / 4)
 #include <qintcache.h>
 
-class QMacInternalPixmapCache : public QIntCache<QPixmap>
+class QMacInternalPixmapCache : public QIntCache<QPixmap::QPixmapData>
 {
     int pixmap_key, cache_used;
 public:
     QMacInternalPixmapCache() : 
-	QIntCache<QPixmap>(640*480*4, 149), pixmap_key(0), cache_used(0) { } //640x480 32bit
+	QIntCache<QPixmap::QPixmapData>(640*480*4, 149), 
+	pixmap_key(0), cache_used(0) { } //640x480 32bit
     ~QMacInternalPixmapCache() { }
     Qt::HANDLE getGWorld(const QPixmap *);
 protected:
@@ -26,21 +27,21 @@ protected:
 
 void QMacInternalPixmapCache::deleteItem(Item d)
 {
-    QPixmap *p = (QPixmap *)d;
-    cache_used -= CALC_COST(p);
-    if(p->data->cache.gworld) {
-	p->data->cache.img = new QImage(convertPixmapToImage(p, (GWorldPtr)p->data->cache.gworld));
+    QPixmap::QPixmapData *data = (QPixmap::QPixmapData *)d;
+    cache_used -= CALC_COST(data);
+    if(data->cache.gworld) {
+	data->cache.img = new QImage(convertPixmapToImage(data, (GWorldPtr)data->cache.gworld));
 #ifdef ONE_PIXEL_LOCK
-	UnlockPixels(GetGWorldPixMap((GWorldPtr)p->data->cache.gworld));
+	UnlockPixels(GetGWorldPixMap((GWorldPtr)data->cache.gworld));
 #endif
-	DisposeGWorld((GWorldPtr)p->data->cache.gworld);
-	p->data->cache.gworld = NULL;
-	p->data->cache.key = -1;
+ 	DisposeGWorld((GWorldPtr)data->cache.gworld);
+	data->cache.gworld = NULL;
+	data->cache.key = -1;
     }
 }
 Qt::HANDLE QMacInternalPixmapCache::getGWorld(const QPixmap *p)
 {
-    QPixmap *pm = const_cast<QPixmap *>(p); //mutable
+    QPixmap *pm = (QPixmap *)p; //mutable
     if(pm->data->cache.gworld) {
 	find(pm->data->cache.key); //most recently used now baby!
 	return pm->data->cache.gworld;
@@ -52,7 +53,7 @@ Qt::HANDLE QMacInternalPixmapCache::getGWorld(const QPixmap *p)
 	return NULL;
     Rect rect;
     SetRect(&rect,0,0,w,h);
-    int cost = CALC_COST(pm); //some cost
+    int cost = CALC_COST(pm->data); //some cost
 
     for(int tries = 1; tries < 10; tries++) { //I'm willing to try 10 times
 	QDErr e = 0;
@@ -71,7 +72,6 @@ Qt::HANDLE QMacInternalPixmapCache::getGWorld(const QPixmap *p)
 	    pm->data->cache.gworld=0; //just to be sure
 	    if(int mc = maxCost()) {
 		setMaxCost(mc > (cost * tries) ? mc - (cost*tries) : 0); //throw away some things
-		setMaxCost(mc + (cost * tries)); //get ready to try again
 	    } else {
 		qDebug( "QPixmap::init Something went wrong");
 		Q_ASSERT(0);
@@ -81,12 +81,17 @@ Qt::HANDLE QMacInternalPixmapCache::getGWorld(const QPixmap *p)
 #ifdef ONE_PIXEL_LOCK
 	    Q_ASSERT(LockPixels(GetGWorldPixMap((GWorldPtr)pm->data->cache.gworld)));
 #endif
+
 	    cache_used += cost;
 	    if(cache_used > maxCost())
 		setMaxCost(cache_used);
-	    //try to resize the cache 3 times to fit the new pixmap
-	    for(int i = 0; !insert(pm->data->cache.key = pixmap_key++, p, cost) && i < 3; i++)
-		setMaxCost(maxCost() + cost);
+	    pm->data->cache.key = pixmap_key++;
+	    //try to resize the cache 5 times to fit the new pixmap
+	    for(int i = 0; i < 5; i++) {
+	        setMaxCost(maxCost() + cost);
+	        if(insert(pm->data->cache.key, p->data, cost))
+	            break;
+	    }
 	    if(pm->data->cache.img) { 	    //back like it was before
 		pm->convertFromImage(*pm->data->cache.img);
 		delete pm->data->cache.img;
@@ -109,7 +114,7 @@ Qt::HANDLE QPixmap::handle() const
     if(last_pix == this && data->cache.gworld)
 	return data->cache.gworld;
     last_pix = this;
-    return g_pixmap_cache.getGWorld(this);;
+    return g_pixmap_cache.getGWorld(this);
 }
 #endif
 
@@ -127,11 +132,12 @@ QPixmap::QPixmap( int w, int h, const uchar *bits, bool isXbitmap )
     Q_ASSERT(LockPixels(GetGWorldPixMap(hd)));
 #endif
 
+    char mode = true32b;
+    SwapMMUMode(&mode);
+
     long *dptr = (long *)GetPixBaseAddr(GetGWorldPixMap(hd)), *drow, q;
     unsigned short dbpr = GetPixRowBytes(GetGWorldPixMap(hd));
 
-    char mode = true32b;
-    SwapMMUMode(&mode);
     for(int yy=0;yy<h;yy++) {
 	drow = (long *)((char *)dptr + (yy * dbpr));
 	int sy = yy * ((w+7)/8);
@@ -252,6 +258,9 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     Q_ASSERT(LockPixels(GetGWorldPixMap(hd)));
 #endif
 
+    char mode = true32b;
+    SwapMMUMode(&mode);
+
     long *dptr = (long *)GetPixBaseAddr(GetGWorldPixMap(hd)), *drow;
     unsigned short dbpr = GetPixRowBytes(GetGWorldPixMap(hd));
 
@@ -261,8 +270,6 @@ bool QPixmap::convertFromImage( const QImage &img, int conversion_flags )
     uchar *sptr = image.bits(), *srow;
     QImage::Endian sord = image.bitOrder();
 
-    char mode = true32b;
-    SwapMMUMode(&mode);
     for(int yy=0;yy<h;yy++) {
  	drow = (long *)((char *)dptr + (yy * dbpr));
 	srow = sptr + (yy * sbpr);
@@ -325,12 +332,12 @@ int get_index(QImage * qi,QRgb mycol)
 
 QImage QPixmap::convertToImage() const
 {
-    return convertPixmapToImage(this, (GWorldPtr)handle());
+    return convertPixmapToImage(data, (GWorldPtr)handle());
 }
 
-static QImage convertPixmapToImage(const QPixmap *pm, GWorldPtr hd) 
+static QImage convertPixmapToImage(QPixmap::QPixmapData *data, GWorldPtr hd) 
 {
-    if ( pm->isNull() ) {
+    if ( data->w == 0 ) {
 #if defined(QT_CHECK_NULL)
         warning( "QPixmap::convertToImage: Cannot convert a null pixmap" );
 #endif
@@ -341,9 +348,9 @@ static QImage convertPixmapToImage(const QPixmap *pm, GWorldPtr hd)
         QImage nullImage;
         return nullImage;
     }  
-    int w = pm->width();
-    int h = pm->height();
-    int d = pm->depth();
+    int w = data->w;
+    int h = data->h;
+    int d = data->d;
     int ncols = 2;
 
 #if 0
@@ -379,11 +386,12 @@ static QImage convertPixmapToImage(const QPixmap *pm, GWorldPtr hd)
     Q_ASSERT(LockPixels(GetGWorldPixMap(hd)));
 #endif
 
+    char mode = true32b;
+    SwapMMUMode(&mode);
+    
     QRgb q;
     long *sptr = (long *)GetPixBaseAddr(GetGWorldPixMap(hd)), *srow, r;
     unsigned short sbpr = GetPixRowBytes(GetGWorldPixMap(hd));
-    char mode = true32b;
-    SwapMMUMode(&mode);
 
     for(int yy=0;yy<h;yy++) {
 	srow = (long *)((char *)sptr + (yy * sbpr));
@@ -396,7 +404,7 @@ static QImage convertPixmapToImage(const QPixmap *pm, GWorldPtr hd)
 		if(ncols) {
 		    image->setPixel(xx, yy, get_index(image,q));
 		} else {
-		    image->setPixel(xx,yy,q);
+		    image->setPixel(xx,yy,Qt::red.rgb());
 		}
 	    }
 	}
@@ -408,8 +416,7 @@ static QImage convertPixmapToImage(const QPixmap *pm, GWorldPtr hd)
 #endif
 
     //how do I handle a mask?
-    const QBitmap* msk = pm->mask();
-
+    const QBitmap* msk = data->mask;
     if (msk) {
 	QImage alpha = msk->convertToImage();
 	image->setAlphaBuffer( TRUE );
