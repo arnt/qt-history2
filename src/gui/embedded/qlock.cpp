@@ -45,7 +45,7 @@ class QLockData
 {
 public:
 #ifdef Q_NO_SEMAPHORE
-    QCString file;
+    QByteArray file;
 #endif
     int id;
     int count;

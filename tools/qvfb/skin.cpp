@@ -20,9 +20,6 @@
 #include <qtextstream.h>
 #include <qfile.h>
 #include <qpainter.h>
-#ifdef Q_WS_MAC
-# include <qt_mac.h>
-#endif
 #include <qevent.h>
 
 Skin::Skin( QVFb *p, const QString &skinFile, int &viewW, int &viewH ) : QWidget(p)
@@ -79,9 +76,7 @@ void Skin::setView( QVFbView *v )
 {
     view = v;
     view->move( viewX1, viewY1 );
-#ifdef Q_WS_MAC
-    QMacSavedPortInfo::setAlphaTransparancy(view, transparancy);
-#endif
+    view->setWindowOpacity(transparancy);
 }
 
 
