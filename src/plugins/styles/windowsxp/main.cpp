@@ -11,53 +11,24 @@
 **
 ****************************************************************************/
 
-#include <private/qstyleinterface_p.h>
-#include <qobjectcleanuphandler.h>
-
+#include <qstyleplugin.h>
 #include "qwindowsxpstyle.h"
 
-class WindowsXPStyle : public QStyleFactoryInterface, public QLibraryInterface
+class WindowsXPStyle : public QStylePlugin
 {
 public:
     WindowsXPStyle();
 
-    QRESULT queryInterface(const QUuid&, QUnknownInterface **);
-    Q_REFCOUNT;
-
-    QStringList featureList() const;
+    QStringList keys() const;
     QStyle *create(const QString&);
-
-    bool init();
-    void cleanup();
-    bool canUnload() const;
-
-private:
-    QObjectCleanupHandler styles;
 };
 
 WindowsXPStyle::WindowsXPStyle()
+: QStylePlugin()
 {
 }
 
-QRESULT WindowsXPStyle::queryInterface(const QUuid &uuid, QUnknownInterface **iface)
-{
-    if (uuid == IID_QUnknown)
-        *iface = (QUnknownInterface*)(QStyleFactoryInterface*)this;
-    else if (uuid == IID_QFeatureList)
-        *iface = (QFeatureListInterface*)this;
-    else if (uuid == IID_QStyleFactory)
-        *iface = (QStyleFactoryInterface*)this;
-    else if (uuid == IID_QLibrary)
-        *iface = (QLibraryInterface*)this;
-    else
-        return QE_NOINTERFACE;
-
-    (*iface)->addRef();
-
-    return QS_OK;
-}
-
-QStringList WindowsXPStyle::featureList() const
+QStringList WindowsXPStyle::keys() const
 {
     QStringList list;
     list << "WindowsXP";
@@ -66,30 +37,10 @@ QStringList WindowsXPStyle::featureList() const
 
 QStyle* WindowsXPStyle::create(const QString& s)
 {
-    if (s.lower() == "windowsxp") {
-        QStyle *style = new QWindowsXPStyle();
-        styles.add(style);
-        return style;
-    }
+    if (s.toLower() == "windowsxp")
+        return new QWindowsXPStyle();
+
     return 0;
 }
 
-bool WindowsXPStyle::init()
-{
-    return qWinVersion() == Qt::WV_XP;
-}
-
-void WindowsXPStyle::cleanup()
-{
-    styles.clear();
-}
-
-bool WindowsXPStyle::canUnload() const
-{
-    return styles.isEmpty();
-}
-
-Q_EXPORT_COMPONENT()
-{
-    Q_CREATE_INSTANCE(WindowsXPStyle)
-}
+Q_EXPORT_PLUGIN(WindowsXPStyle)
