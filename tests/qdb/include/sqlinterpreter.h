@@ -60,6 +60,7 @@ public:
     bool nextMarked();
     bool update( const localsql::List& data );
     bool rangeMark( const localsql::List& data );
+    bool markAll();
     bool createIndex( const localsql::List& data, bool unique );
     bool drop();
     bool fieldDescription( const QString& name, QVariant& v );

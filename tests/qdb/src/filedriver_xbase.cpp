@@ -125,8 +125,10 @@ static char variantToXbaseType( QVariant::Type type )
 class FileDriver::Private
 {
 public:
-    Private() : file(&x) { indexes.setAutoDelete( TRUE ); }
-    Private( const Private& ) : file(&x) { indexes.setAutoDelete( TRUE ); }
+    Private()
+	: file(&x), allMarked( FALSE ), fileRewound( FALSE ) { indexes.setAutoDelete( TRUE ); }
+    Private( const Private& )
+	: file(&x), allMarked( FALSE ), fileRewound( FALSE ) { indexes.setAutoDelete( TRUE ); }
     Private& operator=( const Private& )
     {
 	return *this;
@@ -184,6 +186,8 @@ public:
     xbXBase x;		/* initialize xbase  */
     xbDbf file;		/* class for table   */
     QValueList<int> marked;
+    bool allMarked;
+    bool fileRewound;
     QVector<xbNdx> indexes;
 };
 
@@ -442,7 +446,8 @@ bool FileDriver::next()
 	ERROR_RETURN( "Internal error: File not open" );
     }
     xbShort rc = XB_NO_ERROR;
-    if ( d->file.GetCurRecNo() == 0 ) {
+    if ( d->fileRewound || d->file.GetCurRecNo() == 0 ) {
+	d->fileRewound = FALSE;
 	rc = d->file.GetFirstRecord();
     } else {
 	rc = d->file.GetNextRecord();
@@ -616,6 +621,8 @@ bool FileDriver::updateMarked( const localsql::List& data )
 bool FileDriver::rewindMarked()
 {
     setMarkedAt( -1 );
+    if ( d->allMarked )
+	d->fileRewound = TRUE;
     return TRUE;
 }
 
@@ -627,6 +634,8 @@ bool FileDriver::nextMarked()
     if ( !isOpen() ) {
 	ERROR_RETURN( "Internal error: File not open" );
     }
+    if ( d->allMarked )
+	return next();
     int next = markedAt() + 1;
     if ( next > (int)d->marked.count() )
 	return FALSE;
@@ -817,6 +826,12 @@ bool FileDriver::rangeMark( const localsql::List& data )
     return TRUE;
 }
 
+bool FileDriver::markAll()
+{
+    d->allMarked = TRUE;
+    return TRUE;
+}
+
 bool FileDriver::createIndex( const localsql::List& data, bool unique )
 {
 #ifdef DEBUG_XBASE
@@ -936,5 +951,7 @@ bool FileDriver::drop()
 bool FileDriver::clearMarked()
 {
     d->marked.clear();
+    d->allMarked = FALSE;
+    d->fileRewound = FALSE;
     return TRUE;
 }

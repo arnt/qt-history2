@@ -895,4 +895,21 @@ public:
 };
 
 
+/*  Marks all records records in the file which is identified by 'id'.
+*/
+
+class MarkAll : public Op
+{
+public:
+    MarkAll( const QVariant& id, const QVariant& name )
+	: Op( id, name ) {}
+    QString name() const { return "markall"; }
+    int exec( localsql::Environment* env )
+    {
+	localsql::FileDriver* drv = env->fileDriver( p1.toInt() );
+	return drv->markAll();
+    }
+};
+
+
 #endif
