@@ -9,6 +9,7 @@
 #include <qmessagebox.h>
 #include <qsqldatabase.h>
 #include <qlineedit.h>
+#include <qsqlrecordinfo.h>
 #include <qcombobox.h>
 #include <qspinbox.h>
 #include <qsqlerror.h>
@@ -75,7 +76,7 @@ void SqlEx::refreshTables()
 }
 
 void SqlEx::dbConnect()
-{ 
+{
     if ( conDiag->exec() != QDialog::Accepted )
 	return;
     if ( dt->sqlCursor() ) {
@@ -90,7 +91,7 @@ void SqlEx::dbConnect()
     // open the new connection
     QSqlDatabase* db = QSqlDatabase::addDatabase( conDiag->comboDriver->currentText(), "SqlEx" );
     if ( !db ) {
-	QMessageBox::warning( this, "Error", "Could not open database" );	
+	QMessageBox::warning( this, "Error", "Could not open database" );
 	return;
     }
     db->setHostName( conDiag->editHostname->text() );
