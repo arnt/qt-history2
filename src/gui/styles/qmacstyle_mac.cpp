@@ -1106,7 +1106,8 @@ void QMacStylePrivate::objDestroyed(QObject *o)
 
 enum { TabNormalLeft, TabNormalMid, TabNormalRight, TabSelectedActiveLeft,
        TabSelectedActiveMid, TabSelectedActiveRight, TabSelectedInactiveLeft,
-       TabSelectedInactiveMid, TabSelectedInactiveRight };
+       TabSelectedInactiveMid, TabSelectedInactiveRight, TabSelectedActiveGraphiteLeft,
+       TabSelectedActiveGraphiteMid, TabSelectedActiveGraphiteRight };
 
 static const char * const * const PantherTabXpms[] = {
                                     qt_mac_tabnrm_left,
@@ -1117,7 +1118,33 @@ static const char * const * const PantherTabXpms[] = {
                                     qt_mac_tabselected_active_right,
                                     qt_mac_tabselected_inactive_left,
                                     qt_mac_tabselected_inactive_mid,
-                                    qt_mac_tabselected_inactive_right };
+                                    qt_mac_tabselected_inactive_right,
+                                    qt_mac_tab_selected_active_graph_left,
+                                    qt_mac_tab_selected_active_graph_mid,
+                                    qt_mac_tab_selected_active_graph_right};
+
+void qt_mac_draw_tab(QPainter *p, const QWidget *w, const QRect &ir, ThemeTabStyle tts,
+                     ThemeTabDirection ttd)
+{
+    if (ir.height() > kThemeLargeTabHeightMax) {
+        QPixmap tabPix(ir.width(), kThemeLargeTabHeightMax);
+        QPainter pixPainter(&tabPix);
+        if (w)
+            pixPainter.fillRect(QRect(QPoint(0, 0), tabPix.size()),
+                                w->palette().brush(w->backgroundRole()));
+        else
+            tabPix.fill(QColor(255, 255, 255, 255));
+
+        Rect pixRect = *qt_glb_mac_rect(QRect(0, 0, ir.width(), kThemeLargeTabHeightMax),
+                                        &pixPainter, false);
+        qt_mac_set_port(&pixPainter);
+        DrawThemeTab(&pixRect, tts, ttd, 0, 0);
+        p->drawPixmap(ir, tabPix);
+    } else {
+        qt_mac_set_port(p);
+        DrawThemeTab(qt_glb_mac_rect(ir, p, false), tts, ttd, 0, 0);
+    }
+}
 
 void QMacStylePrivate::drawPantherTab(const QStyleOptionTab *tabOpt, QPainter *p,
                                       const QWidget *) const
@@ -1127,15 +1154,27 @@ void QMacStylePrivate::drawPantherTab(const QStyleOptionTab *tabOpt, QPainter *p
     int pantherTabMid;
     int pantherTabEnd;
 
-    if (!(tabOpt->state & QStyle::Style_Selected))
+    ThemeTabDirection ttd = getTabDirection(tabOpt->shape);
+
+    if (!(tabOpt->state & QStyle::Style_Selected)) {
         pantherTabStart = TabNormalLeft;
-    else if (!(tabOpt->state & QStyle::Style_Active))
+    } else if (!(tabOpt->state & QStyle::Style_Active)) {
         pantherTabStart = TabSelectedInactiveLeft;
-    else
-        pantherTabStart = TabSelectedActiveLeft;
+    } else {
+        // Draw into a pixmap to determine which version we use, Aqua or Graphite.
+        QPixmap tabPix(20, 20, 32);
+        QPainter pixPainter(&tabPix);
+        qt_mac_draw_tab(&pixPainter, 0, QRect(0, 0, 20, 20), kThemeTabFront, kThemeTabNorth);
+        pixPainter.end();
+        const QRgb GraphiteColor = 0xffa7b1b9;
+        QImage img = tabPix.toImage();
+        if (img.pixel(10, 10) == GraphiteColor)
+            pantherTabStart = TabSelectedActiveGraphiteLeft;
+        else
+            pantherTabStart = TabSelectedActiveLeft;
+    }
 
     bool doLine;
-    ThemeTabDirection ttd = getTabDirection(tabOpt->shape);
     bool verticalTabs = ttd == kThemeTabWest || ttd == kThemeTabEast;
 
     QStyleOptionTab::TabPosition tp = tabOpt->position;
@@ -1166,6 +1205,7 @@ void QMacStylePrivate::drawPantherTab(const QStyleOptionTab *tabOpt, QPainter *p
         pantherTabEnd = pantherTabMid + 1;
         break;
     }
+
     QPixmap pmStart;
     if (!QPixmapCache::find(tabKey + QString::number(pantherTabStart), pmStart)) {
         pmStart = QPixmap(PantherTabXpms[pantherTabStart]);
@@ -3423,29 +3463,6 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
     default:
         q->QWindowsStyle::drawPrimitive(pe, opt, p, w);
         break;
-    }
-}
-
-void qt_mac_draw_tab(QPainter *p, const QWidget *w, const QRect &ir, ThemeTabStyle tts,
-                     ThemeTabDirection ttd)
-{
-    if (ir.height() > kThemeLargeTabHeightMax) {
-        QPixmap tabPix(ir.width(), kThemeLargeTabHeightMax);
-        QPainter pixPainter(&tabPix);
-        if (w)
-            pixPainter.fillRect(QRect(QPoint(0, 0), tabPix.size()),
-                                w->palette().brush(w->backgroundRole()));
-        else
-            tabPix.fill(QColor(255, 255, 255, 255));
-
-        Rect pixRect = *qt_glb_mac_rect(QRect(0, 0, ir.width(), kThemeLargeTabHeightMax),
-                                        &pixPainter, false);
-        qt_mac_set_port(&pixPainter);
-        DrawThemeTab(&pixRect, tts, ttd, 0, 0);
-        p->drawPixmap(ir, tabPix);
-    } else {
-        qt_mac_set_port(p);
-        DrawThemeTab(qt_glb_mac_rect(ir, p, false), tts, ttd, 0, 0);
     }
 }
 
