@@ -92,6 +92,7 @@ public slots:
     void	reset();
     void	setTotalSteps( int totalSteps );
     void	setProgress( int progress );
+    void	setProgress( int progress, int totalSteps );
     void	setLabelText( const QString &);
     void	setCancelButtonText( const QString &);
 

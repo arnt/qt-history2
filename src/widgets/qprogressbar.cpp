@@ -192,6 +192,22 @@ void QProgressBar::setProgress( int progress )
 }
 
 /*!
+  \overload
+
+  Sets the current amount of progress to \a progress and the total number of
+  steps to \a totalSteps.
+
+  \sa setTotalSteps()
+*/
+
+void QProgressBar::setProgress( int progress, int totalSteps )
+{
+    if ( total_steps != totalSteps )
+	setTotalSteps( totalSteps );
+    setProgress( progress );
+}
+
+/*!
   \property QProgressBar::progressString
   \brief the current amount of progress as a string
 

@@ -84,6 +84,7 @@ public slots:
     void	reset();
     virtual void setTotalSteps( int totalSteps );
     virtual void setProgress( int progress );
+    void	setProgress( int progress, int totalSteps );
 
 protected:
     void	drawContents( QPainter * );

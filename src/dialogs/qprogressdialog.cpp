@@ -607,6 +607,21 @@ void QProgressDialog::setProgress( int progress )
 }
 
 /*!
+  \overload
+
+  Sets the current amount of progress to \a progress and the total number of
+  steps to \a totalSteps.
+
+  \sa setTotalSteps()
+*/
+
+void QProgressDialog::setProgress( int progress, int totalSteps )
+{
+    setTotalSteps( totalSteps );
+    setProgress( progress );
+}
+
+/*!
   Returns a size that fits the contents of the progress dialog.
   The progress dialog resizes itself as required, so you should not
   need to call this yourself.

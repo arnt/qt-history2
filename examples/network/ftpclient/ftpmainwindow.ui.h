@@ -109,10 +109,8 @@ void FtpMainWindow::downloadFile()
 	    "download progress dialog",
 	    TRUE );
 
-    connect( ftp, SIGNAL(dataSize(int)),
-	    &progress, SLOT(setTotalSteps(int)) );
-    connect( ftp, SIGNAL(dataProgress(int)),
-	    &progress, SLOT(setProgress(int)) );
+    connect( ftp, SIGNAL(dataTransferProgress(int,int)),
+	    &progress, SLOT(setProgress(int,int)) );
 
     connect( ftp, SIGNAL(finishedSuccess(int)),
 	    &progress, SLOT(reset()) );
