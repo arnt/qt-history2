@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#164 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#165 $
 **
 ** Implementation of QFileDialog class
 **
@@ -295,18 +295,19 @@ QString QFileDialogPrivate::File::text( int column ) const
 	    *tmpString = "";
 	break;
     case 2:
-	if ( info.isFile() && info.isSymLink() )
+	if ( info.isFile() && info.isSymLink() ) {
 	    *tmpString = d->symLinkToFile;
-	else if ( info.isFile() )
+	} else if ( info.isFile() ) {
 	    *tmpString = d->file;
-	else if ( info.isDir() && info.isSymLink() )
+	} else if ( info.isDir() && info.isSymLink() ) {
 	    *tmpString = d->symLinkToDir;
-	else if ( info.isDir() )
+	} else if ( info.isDir() ) {
 	    *tmpString = d->dir;
-	else if ( info.isSymLink() )
+	} else if ( info.isSymLink() ) {
 	    *tmpString = d->symLinkToSpecial;
-	else
+	} else {
 	    *tmpString = d->special;
+	}
 	break;
     case 3:
 	{
@@ -317,7 +318,7 @@ QString QFileDialogPrivate::File::text( int column ) const
 	    struct tm * t2 = ::localtime( &t1 );
 	    // use a static const char here, so that egcs will not see
 	    // the formatting string and give an incorrect warning.
-	    if ( strftime( a, 255, egcsWorkaround, t2 ) > 0 )
+	    if ( t2 && strftime( a, 255, egcsWorkaround, t2 ) > 0 )
 		*tmpString = a;
 	    else
 		*tmpString = "????";
@@ -801,8 +802,8 @@ void QFileDialog::setDir( const QString & pathstr )
 	i = 0;
 	while( i < (int)d.length() && d[i] != '/' )
 	    i++;
-	QString user;
-	user = ( i == 1 ) ? QString( ::getlogin() ) : d.mid( 1, i-1 );
+	QCString user;
+	user = ( i == 1 ) ? ::getlogin() : d.mid( 1, i-1 ).latin1();
 	d = d.mid( i, d.length() );
 	pw = ::getpwnam( user );
 	if ( pw )
@@ -860,11 +861,11 @@ void QFileDialog::rereadDir()
     if ( d ) {
 	QString cp( cwd.canonicalPath() );
 	int i = d->paths->count()-1;
-	while( i >= 0 && strcmp( d->paths->text( i ), cp ) >= 0 )
+	while( i >= 0 && d->paths->text( i ) <= cp )
 	    i--;
 	if ( i < d->paths->count() )
 	    i++;
-	if ( i == d->paths->count() || strcmp( d->paths->text( i ), cp ) )
+	if ( i == d->paths->count() || d->paths->text( i ) != cp )
 	    d->paths->insertItem( cwd.canonicalPath(), i );
 	d->paths->setCurrentItem( i );
     }
@@ -1574,7 +1575,7 @@ void QFileDialog::keyPressEvent( QKeyEvent * ke )
 		QFileInfo i( cwd, nameEdit->text() );
 		if ( i.isFile() ) {
 		    QListViewItem * i = files->firstChild();
-		    while ( i && qstrcmp( nameEdit->text(), i->text( 0 ) ) )
+		    while ( i && nameEdit->text() != i->text( 0 ) )
 			i = i->nextSibling();
 		    if ( i )
 			 files->setSelected( i, TRUE );
@@ -1698,7 +1699,7 @@ bool QFileDialog::eventFilter( QObject * o, QEvent * e )
 	    nt.truncate( nameEdit->cursorPosition() );
 	    nt += (char)(((QKeyEvent *)e)->ascii());
 	    QListViewItem * i = files->firstChild();
-	    while( i && qstrncmp( i->text( 0 ), nt, nt.length() ) )
+	    while( i && i->text( 0 ).left(nt.length()) != nt )
 		i = i->nextSibling();
 	    if ( i ) {
 		nt = i->text( 0 );
