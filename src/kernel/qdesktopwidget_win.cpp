@@ -120,7 +120,7 @@ QDesktopWidgetPrivate::~QDesktopWidgetPrivate()
 /*!
   \class QDesktopWidget qdesktopwidget.h
   \brief The QDesktopWidget class provides access to screen information on multi-head systems.
-  \preliminary
+
   \ingroup advanced
   \ingroup environment
 

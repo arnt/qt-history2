@@ -5,7 +5,6 @@
 /*!
   \class QPluginManager qpluginmanager.h
   \brief The QPluginManager class provides basic functions to access a certain kind of functionality in libraries.
-  \preliminary
   \ingroup componentmodel
 
   A common usage of components is to extend the existing functionality in an application using plugins. The application

@@ -58,7 +58,6 @@
   \class QLibrary qlibrary.h
 
   \brief The QLibrary class provides a wrapper for handling shared libraries.
-  \preliminary
   \ingroup componentmodel
 
   An instance of a QLibrary object can handle a single shared library and provide 

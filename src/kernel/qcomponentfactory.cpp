@@ -47,7 +47,7 @@
 /*!
   \class QComponentFactory qcomponentfactory.h
   \brief The QComponentFactory class provides static functions to create and register components.
-  \preliminary
+
   \ingroup componentmodel
 
   The component factory provides convenience functions that can be
