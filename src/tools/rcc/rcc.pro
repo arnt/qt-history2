@@ -29,6 +29,8 @@ contains(QT_CONFIG, zlib) {
     #win32:LIBS += libz.lib
 }
 
+win32:LIBS += ole32.lib
+
 #qt files (bootstrap)
 INCLUDEPATH += $$QT_BUILD_TREE/src/core/arch/generic \
                $$QT_BUILD_TREE/include/QtCore $$QT_BUILD_TREE/include/QtXml

@@ -16,7 +16,7 @@ DESTDIR         = ../../bin
 INCLUDEPATH	 = ../core/arch/generic $$QT_BUILD_TREE/include . \
                    $$QT_BUILD_TREE/include/QtCore
 DEPENDPATH	+= $$INCLUDEPATH ../core/base ../core/tools ../core/io
-LIBS		=
+win32:LIBS	+= ole32.lib
 OBJECTS_DIR	= .
 
 
