@@ -7264,7 +7264,7 @@ Q3ListViewItemIterator::Q3ListViewItemIterator(Q3ListViewItem *item, int iterato
 */
 
 Q3ListViewItemIterator::Q3ListViewItemIterator(const Q3ListViewItemIterator& it)
-    : curr(it.curr), listView(it.listView), flags(0)
+    : curr(it.curr), listView(it.listView), flags(it.flags)
 {
     if (listView)
         listView->d->iterators.append(this);
