@@ -18,10 +18,10 @@
 #include <qprogressbar.h>
 #include <qstatusbar.h>
 
-#include <q3mainwindow.h>
+#include <qmainwindow.h>
 #include "ui_mainwindow.h"
 
-class MainWindow : public Q3MainWindow, public Ui::MainWindow
+class MainWindow : public QMainWindow, public Ui::MainWindow
 {
     Q_OBJECT
 public:

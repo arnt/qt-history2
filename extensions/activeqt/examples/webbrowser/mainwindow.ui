@@ -1,6 +1,6 @@
 <ui version="4.0" stdsetdef="1" >
   <class>MainWindow</class>
-  <widget class="Q3MainWindow" name="MainWindow" >
+  <widget class="QMainWindow" name="MainWindow" >
     <property name="objectName" >
       <string notr="true" >MainWindow</string>
     </property>
@@ -63,7 +63,7 @@
         </widget>
       </item>
     </layout>
-    <widget class="Q3ToolBar" name="Toolbar" >
+    <widget class="QToolBar" name="Toolbar" >
       <property name="objectName" >
         <string notr="true" >Toolbar</string>
       </property>
@@ -78,12 +78,9 @@
       <addaction name="separator" />
       <addaction name="actionSearch" />
     </widget>
-    <widget class="Q3ToolBar" name="Toolbar_2" >
+    <widget class="QToolBar" name="Toolbar_2" >
       <property name="objectName" >
         <string notr="true" >Toolbar_2</string>
-      </property>
-      <property name="horizontallyStretchable" >
-        <bool>true</bool>
       </property>
       <property name="label" >
         <string>Toolbar_2</string>
