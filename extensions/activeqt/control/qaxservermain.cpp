@@ -80,7 +80,12 @@ void qAxInit()
     InitializeCriticalSection( &qAxModuleSection );
 
     QString libFile( qAxModuleFilename );
-    LoadTypeLibEx( (TCHAR*)libFile.ucs2(), REGKIND_NONE, &qAxTypeLibrary );
+    libFile = libFile.lower();
+    if ( LoadTypeLibEx( (TCHAR*)libFile.ucs2(), REGKIND_NONE, &qAxTypeLibrary ) != S_OK ) {
+	int lastDot = libFile.findRev( '.' );
+	libFile = libFile.left( lastDot ) + ".tlb";
+	LoadTypeLibEx( (TCHAR*)libFile.ucs2(), REGKIND_NONE, &qAxTypeLibrary );
+    }
 }
 
 void qAxCleanup()
