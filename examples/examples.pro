@@ -37,7 +37,6 @@ SUBDIRS     =	aclock \
 		rot13 \
 		scribble \
 		scrollview \
-		sheet \
 		showimg \
 		splitter \
 		tabdialog \

@@ -48,10 +48,6 @@
   This example implements the famous scribble example. You can draw around
   in the canvas with different pens and save the result as picture.
 
-- sheet
-  In this example you can enter values in a table and then
-  a pie chart is drawn.
-
 - showimg
   This example reads and displays an image in any supported image
   format (GIF, BMP, PPM, XMP etc.)
