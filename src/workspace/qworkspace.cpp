@@ -1415,7 +1415,8 @@ void QWorkspace::showMaximizeControls()
 	d->maxcontrols = new QFrame( topLevelWidget(), "qt_maxcontrols" );
 	QHBoxLayout* l = new QHBoxLayout( d->maxcontrols,
 					  d->maxcontrols->frameWidth(), 0 );
-	if ( d->maxWindow->windowWidget()->testWFlags(WStyle_Minimize) ) {
+	if ( d->maxWindow->windowWidget() && 
+	     d->maxWindow->windowWidget()->testWFlags(WStyle_Minimize) ) {
 	    QToolButton* iconB = new QToolButton( d->maxcontrols, "iconify" );
 #ifndef QT_NO_TOOLTIP
 	    QToolTip::add( iconB, tr( "Minimize" ) );
