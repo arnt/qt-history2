@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qptrvector.h#2 $
+** $Id: //depot/qt/main/src/tools/qptrvector.h#3 $
 **
 ** Definition of QPtrVector pointer based template class
 **
@@ -42,14 +42,19 @@
 #include "qgvector.h"
 #endif // QT_H
 
-
-template<class type> class QPtrVector : public QGVector
+template<class type>
+class QPtrVector
+#ifdef Q_QDOC
+	: public QPtrCollection
+#else
+	: public QGVector
+#endif
 {
 public:
-    QPtrVector()				{}
-    QPtrVector( uint size ) : QGVector(size) {}
-    QPtrVector( const QPtrVector<type> &v ) : QGVector(v) {}
-   ~QPtrVector()				{ clear(); }
+    QPtrVector()				{ }
+    QPtrVector( uint size ) : QGVector(size) { }
+    QPtrVector( const QPtrVector<type> &v ) : QGVector( v ) { }
+    ~QPtrVector()				{ clear(); }
     QPtrVector<type> &operator=(const QPtrVector<type> &v)
 			{ return (QPtrVector<type>&)QGVector::operator=(v); }
     bool operator==( const QPtrVector<type> &v ) const { return QGVector::operator==(v); }
@@ -78,6 +83,14 @@ public:
     type *operator[]( int i ) const	{ return (type *)QGVector::at(i); }
     type *at( uint i ) const		{ return (type *)QGVector::at(i); }
     void  toList( QGList *list ) const	{ QGVector::toList(list); }
+
+#ifdef Q_QDOC
+protected:
+    virtual int compareItems( QPtrCollection::Item d1, QPtrCollection::Item d2 );
+    virtual QDataStream& read( QDataStream &s, QPtrCollection::Item &d );
+    virtual QDataStream& write( QDataStream &s, QPtrCollection::Item d ) const;
+#endif
+
 private:
     void  deleteItem( Item d ) { if ( del_item ) delete (type *)d; }
 };
@@ -85,6 +98,5 @@ private:
 #ifndef QT_NO_COMPAT
 #define QVector QPtrVector
 #endif
-
 
 #endif // QVECTOR_H

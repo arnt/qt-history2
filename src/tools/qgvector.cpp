@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.cpp#57 $
+** $Id: //depot/qt/main/src/tools/qgvector.cpp#58 $
 **
 ** Implementation of QGVector class
 **
@@ -57,10 +57,12 @@
 #endif
 
 /*!
-  \class QGVector qgvector.h
+  \class QGVector
 
   \brief The QGVector class is an internal class for implementing Qt
   collection classes.
+
+  \internal
 
   QGVector is an internal class that acts as a base class for the
   QVector collection class.

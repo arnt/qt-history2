@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgvector.h#32 $
+** $Id: //depot/qt/main/src/tools/qgvector.h#33 $
 **
 ** Definition of QGVector class
 **
