@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.cpp#9 $
+** $Id: //depot/qt/main/src/kernel/qpainter.cpp#10 $
 **
 ** Implementation of QPainter class
 **
@@ -23,7 +23,7 @@
 #include "qdstream.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#9 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter.cpp#10 $";
 #endif
 
 
@@ -62,6 +62,8 @@ struct QPState {				// painter state
     bool	 wxf;
     QRegion	 rgn;
     bool	 clip;
+    int		 ts;
+    int		*ta;
 };
 
 declare(QStackM,QPState);
@@ -102,6 +104,8 @@ void QPainter::save()				// save/push painter state
     ps->wxf   = testf(WxF);
     ps->rgn   = crgn.copy();
     ps->clip  = testf(ClipOn);
+    ps->ts    = tabstops;
+    ps->ta    = tabarray;
     pss->push( ps );
 }
 
@@ -149,6 +153,8 @@ void QPainter::restore()			// restore/pop painter state
 	setClipRegion( ps->rgn );
     if ( ps->clip != testf(ClipOn) )
 	setClipping( ps->clip );
+    tabstops = ps->ts;
+    tabarray = ps->ta;
     pss->pop();
 }
 
@@ -395,10 +401,15 @@ void QPainter::drawText( const QPoint &p, const char *s, int len )
     drawText( p.x(), p.y(), s, len );
 }
 
-void QPainter::drawText( const QRect &r, TextAlignment ta, const char *str,
-			 int len )
+void QPainter::drawText( const QRect &r, int tf, const char *str, int len )
 {
-    drawText( r.x(), r.y(), r.width(), r.height(), ta, str, len );
+    drawText( r.x(), r.y(), r.width(), r.height(), tf, str, len );
+}
+
+QRect QPainter::calcRect( const QRect &r, int tf,
+			  const char *str, int len )
+{
+    return calcRect( r.x(), r.y(), r.width(), r.height(), tf, str, len );
 }
 
 
