@@ -49,3 +49,26 @@ QString TopicChooser::getLink(QWidget *parent, const QStringList &lnkNames,
     delete dlg;
     return lnk;
 }
+
+void TopicChooser::on_buttonDisplay_clicked()
+{
+    accept();
+}
+
+void TopicChooser::on_buttonCancel_clicked()
+{
+    reject();
+}
+
+void TopicChooser::on_listbox_doubleClicked(QListBoxItem *item)
+{
+    Q_UNUSED(item);
+    accept();
+}
+
+void TopicChooser::on_listbox_returnPressed(QListBoxItem *item)
+{
+    Q_UNUSED(item);
+    accept();
+}
+

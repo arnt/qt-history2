@@ -30,6 +30,12 @@ public:
     static QString getLink(QWidget *parent, const QStringList &lnkNames,
                             const QStringList &lnks, const QString &title);
 
+private slots:
+    void on_buttonDisplay_clicked();
+    void on_buttonCancel_clicked();
+    void on_listbox_doubleClicked(QListBoxItem *item);
+    void on_listbox_returnPressed(QListBoxItem *item);
+
 private:
     Ui::TopicChooser gui;
     QString theLink;
