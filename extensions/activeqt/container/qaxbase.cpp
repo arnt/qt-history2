@@ -3478,6 +3478,22 @@ bool QAxBase::isNull() const
     values is turned around, ie. the last element of the array is the first
     parameter in the function.
 
+    \code
+    void Receiver::slot( const QString &name, int argc, void *argv )
+    {
+	VARIANTARG *params = (VARIANTARG*)argv;
+	if ( name.startsWith( "BeforeNavigate2(" ) ) {
+	    IDispatch *pDisp = params[argc-1].pdispVal;
+	    VARIANTARG URL = *params[argc-2].pvarVal;
+	    VARIANTARG Flags = *params[argc-3].pvarVal;
+	    VARIANTARG TargetFrameName = *params[argc-4].pvarVal;
+	    VARIANTARG PostData = *params[argc-5].pvarVal;
+	    VARIANTARG Headers = *params[argc-6].pvarVal;
+	    bool *Cancel = params[argc-7].pboolVal;
+	}
+    }
+    \endcode
+
     Use this signal if the event has parameters of unsupported data
     types. Otherwise, connect directly to the signal \a name.
 */
