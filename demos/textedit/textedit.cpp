@@ -362,7 +362,7 @@ void TextEdit::filePrint()
             p.drawText(view.right() - p.fontMetrics().width(QString::number(page)),
                        view.bottom() + p.fontMetrics().ascent() + 5, QString::number(page));
 
-            view.moveBy(0, body.height());
+            view.translate(0, body.height());
             p.translate(0 , -body.height());
 
             if (view.top() >= layout->sizeUsed().height())
