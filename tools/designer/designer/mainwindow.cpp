@@ -100,10 +100,6 @@ QString assistantPath()
 {
     QString path = QDir::cleanDirPath( QString( qInstallPathBins() ) +
 				       QDir::separator() );
-#if defined(Q_OS_MACX)
-    path += QDir::separator() + ".app/Contents/MacOS/";
-#endif
-
     return path;
 }
 
