@@ -43,7 +43,6 @@ class ProjectBuilderMakefileGenerator : public UnixMakefileGenerator
 {
     bool writeMakeParts(QTextStream &);
     bool writeMakefile(QTextStream &);
-    bool writeSubdirs(QTextStream &);
 
     QMap<QString, QString> keys;
     QString keyFor(QString file);

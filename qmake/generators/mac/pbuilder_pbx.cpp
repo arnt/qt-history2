@@ -65,10 +65,14 @@ ProjectBuilderMakefileGenerator::writeMakefile(QTextStream &t)
 	return TRUE;
     }
 
-    if(project->first("TEMPLATE") == "app" || project->first("TEMPLATE") == "lib")
+    project->variables()["MAKEFILE"].clear();
+    project->variables()["MAKEFILE"].append("Makefile");
+    if(project->first("TEMPLATE") == "app" || project->first("TEMPLATE") == "lib") {
 	return writeMakeParts(t);
-    else if(project->first("TEMPLATE") == "subdirs")
-	return writeSubdirs(t);
+    } else if(project->first("TEMPLATE") == "subdirs") { 
+	writeSubdirs(t, FALSE);
+	return TRUE;
+    }
     return FALSE;
 }
 
@@ -497,13 +501,16 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     } else {
 	QString lib = project->first("QMAKE_ORIG_TARGET");
 	if(!project->isActiveConfig("staticlib") && !project->isActiveConfig("frameworklib")) {
-	    lib = project->first("TARGET_");
+	    if(project->isActiveConfig("plugin"))
+	       lib = project->first("TARGET");
+	    else
+		lib = project->first("TARGET_");
 	    int slsh = lib.findRev(Option::dir_sep);
 	    if(slsh != -1)
 		lib = lib.right(lib.length() - slsh - 1);
 	}
 	t << "\t\t\t" << "isa = PBXLibraryReference;" << "\n"
-	  << "\t\t\t" << "path = " << lib << "\n";
+	  << "\t\t\t" << "path = " << lib << ";\n";
     }
     t << "\t\t" << "};" << "\n";
     //TARGET
@@ -542,12 +549,15 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 	  << "\t\t\t\t" << "PRODUCT_NAME = " << project->first("QMAKE_ORIG_TARGET") << ";" << "\n";
     } else {
 	QString lib = project->first("QMAKE_ORIG_TARGET");
-	if(project->isActiveConfig("staticlib")) {
+	if(!project->isActiveConfig("plugin") && project->isActiveConfig("staticlib")) {
 	    t << "\t\t\t\t" << "LIBRARY_STYLE = STATIC;" << "\n";
 	} else {
 	    t << "\t\t\t\t" << "LIBRARY_STYLE = DYNAMIC;" << "\n";
 	    if(!project->isActiveConfig("frameworklib")) {
-		lib = project->first("TARGET_");
+		if(project->isActiveConfig("plugin"))
+		    lib = project->first("TARGET");
+		else
+		    lib = project->first("TARGET_");
 		int slsh = lib.findRev(Option::dir_sep);
 		if(slsh != -1)
 		    lib = lib.right(lib.length() - slsh - 1);
@@ -613,6 +623,21 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     t << "\t" << "};" << "\n"
       << "\t" << "rootObject = " << keyFor("QMAKE_PBX_ROOT") << ";" << "\n"
       << "}" << endl;
+
+    QString mkwrap = Option::output_dir + Option::dir_sep + ".." + Option::dir_sep + project->first("MAKEFILE");
+    QFile mkwrapf(mkwrap);
+    if(mkwrapf.open(IO_WriteOnly | IO_Translate)) {
+	debug_msg(0, "Creating file: %s", mkwrap.latin1());
+	QTextStream mkwrapt(&mkwrapf);
+	writeHeader(mkwrapt);
+	mkwrapt << "#This is a makefile wrapper for PROJECT BUILDER\n"
+		<< "all:" << "\n\t" 
+		<< "cd " << project->first("QMAKE_ORIG_TARGET") + ".pbproj/ && pbxbuild" << "\n"
+		<< "distclean clean:" << "\n\t" 
+		<< "cd " << project->first("QMAKE_ORIG_TARGET") + ".pbproj/ && pbxbuild clean" << "\n"
+		<< "install:" 
+		<< endl;
+    }
     return TRUE;
 }
 
@@ -675,87 +700,6 @@ ProjectBuilderMakefileGenerator::keyFor(QString block)
     }
     return ret;
 }
-
-
-bool
-ProjectBuilderMakefileGenerator::writeSubdirs(QTextStream &t)
-{
-    QString ofile = Option::output.name();
-    if(ofile.findRev(Option::dir_sep) != -1)
-	ofile = ofile.right(ofile.length() - ofile.findRev(Option::dir_sep) -1);
-
-    t << "MAKEFILE =	" << var("MAKEFILE") << endl;
-    t << "QMAKE =	" << var("QMAKE") << endl;
-    t << "SUBDIRS =	" << varList("SUBDIRS") << endl;
-
-    // subdirectory targets are sub-directory
-    t << "SUBTARGETS =	";
-    QStringList subdirs = project->variables()["SUBDIRS"];
-    QStringList::Iterator it = subdirs.begin();
-    while (it != subdirs.end())
-	t << " \\\n\t\tsub-" << *it++;
-    t << endl << endl;
-
-    t << "all: " << ofile << " $(SUBTARGETS)" << endl << endl;
-
-    // generate target rules
-    it = subdirs.begin();
-    while (it != subdirs.end()) {
-	QString base = (*it).section('/', -1, -1), pbdir =  base + ".pbproj/", dir = (*it),
-		 pro = base + ".pro";
-	if(dir.right(Option::dir_sep.length()) != Option::dir_sep)
-	    dir += Option::dir_sep;
-	//qmake it
-	t << "#build rules for " << (*it) << "\n"
-	  //QMAKE
-	  << "qmake-" << (*it) << ": FORCE" << "\n\t"
-	  << "@echo qmake " << dir << pro << "\n\t"
-	  << "@cd " << dir << " && "
-	  << " if grep \"^ *TEMPLATE *= *subdirs$$\" " << pro << " 2>/dev/null >/dev/null; then "
-	  << "[ ! -f $(MAKEFILE) ] && $(QMAKE) " << pro << " -o $(MAKEFILE); "
-	  << "$(MAKE) -f $(MAKEFILE) qmake_all; "
-	  << "elif [ ! -f " << pbdir << "project.pbxproj ]; then $(QMAKE) " << pro << "; fi" << "\n"
-	  //CLEAN
-	  << "clean-" << (*it) << ": qmake_all FORCE" << "\n\t"
-	  << "cd " << dir << pbdir << " && pbxbuild clean" << "\n"
-	  //DISTCLEAN
-	  << "distclean-" << (*it) << ": clean-" << (*it) << " FORCE" << "\n\t"
-	  << "cd " << dir << " && "
-	  << " if grep \"^ *TEMPLATE *= *subdirs$$\" " << pro << " 2>/dev/null >/dev/null; then "
-	  << "rm -f $(MAKEFILE); "
-	  << "else rm -rf " << pbdir << "; fi" << "\n"
-	  //BUILD
-	  << "sub-" << (*it) << ": qmake_all FORCE" << "\n\t"
-	  << "cd " << dir << pbdir << " && pbxbuild" << endl << endl;
-	it++;
-    }
-
-    if (project->isActiveConfig("ordered")) {
-	// generate dependencies
-	QString tar, dep;
-	it = subdirs.begin();
-	while (it != subdirs.end()) {
-	    tar = *it++;
-	    if (it != subdirs.end()) {
-		dep = *it;
-		t << "sub-" << dep << ": sub-" << tar << endl;
-	    }
-	}
-	t << endl;
-    }
-    writeMakeQmake(t);
-
-    if(project->isEmpty("SUBDIRS")) {
-	t << "qmake_all distclean install uiclean mocclean clean: FORCE" << endl;
-    } else {
-	t << "qmake_all:" << varGlue("SUBDIRS", " qmake-", " qmake-", "") << "\n\n"
-	  << "clean:" << varGlue("SUBDIRS", " clean-", " clean-", "") << "\n\n"
-	  << "distclean:" << varGlue("SUBDIRS", " distclean-", " distclean-", "")  << endl << endl;
-    }
-    t <<"FORCE:" << endl << endl;
-    return TRUE;
-}
-
 
 QString
 ProjectBuilderMakefileGenerator::defaultMakefile() const

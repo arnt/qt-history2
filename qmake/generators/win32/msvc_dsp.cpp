@@ -174,7 +174,8 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		QString ext = variable == "MSVCDSP_FORMSOURCES" ? ".cpp" : ".h";
 		for(QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
 		    QString base = (*it);
-		    base.replace(QRegExp("\\..*$"), ext);
+		    int dot = base.findRev(".");
+		    base.replace( dot, base.length() - dot, ext );
 		    t << "# Begin Source File\n\nSOURCE=" << base << "\n# End Source File" << endl;
 		}
 	    }
@@ -326,7 +327,7 @@ DspMakefileGenerator::writeDspParts(QTextStream &t)
 		    QString fpath;
 		    if ( lbs != -1 )
 			fpath = fname.left( lbs + 1 );
-		    fname = fname.right( fname.length() - fname.find( "\\" ) - 1 );
+		    fname = fname.right( lbs );
 		
 		    QString mocFile;
 		    if(!project->variables()["MOC_DIR"].isEmpty())

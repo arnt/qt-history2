@@ -630,7 +630,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
 }
 
 void
-UnixMakefileGenerator::writeSubdirs(QTextStream &t)
+UnixMakefileGenerator::writeSubdirs(QTextStream &t, bool direct)
 {
     QString ofile = Option::output.name();
     if(ofile.findRev(Option::dir_sep) != -1)
@@ -655,11 +655,13 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t)
 
     // generate target rules
     for(it = subdirs.begin(); it != subdirs.end(); ++it) {
-	QString sr = (*it), mkfile = (*it) + Option::dir_sep + "$(MAKEFILE)";
+	QString sr = (*it), mkfile = (*it) + Option::dir_sep + "$(MAKEFILE)", out;
+	if(direct)
+	    out = " -o $(MAKEFILE)";
 	sr.replace(QRegExp("/"), "-");
 	//qmake it
 	t << mkfile << ": " << "\n\t"
-	  << "cd " << (*it) << " && $(QMAKE)" << buildArgs() << " -o $(MAKEFILE)" << endl;
+	  << "cd " << (*it) << " && $(QMAKE)" << buildArgs() << out << endl;
 	//actually compile/
 	t << "sub-" << sr << ": " << mkfile << " FORCE" << "\n\t"
 	  << "cd " << *(it) << " && $(MAKE) -f $(MAKEFILE)" << endl << endl;
@@ -690,10 +692,10 @@ UnixMakefileGenerator::writeSubdirs(QTextStream &t)
 	  << "grep \"^qmake_all:\" $(MAKEFILE) 2>/dev/null >/dev/null && "
 	  << "$(MAKE) -f $(MAKEFILE) qmake_all || true; fi; ) ; done" << endl << endl;
 
-	t <<"install uiclean mocclean clean:" << " FORCE\n\t"
+	t <<"install uiclean mocclean clean: qmake_all" << " FORCE\n\t"
 	  << "for i in $(SUBDIRS); do ( if [ -d $$i ]; then cd $$i ; $(MAKE) "
 	    "-f $(MAKEFILE) $@; fi; ) ; done" << endl;
-	t <<"distclean:" << " FORCE\n\t"
+	t <<"distclean: qmake_all" << " FORCE\n\t"
 	  << "for i in $(SUBDIRS); do ( if [ -d $$i ]; then cd $$i ; $(MAKE) "
 	    "-f $(MAKEFILE) $@ ; rm -f $(MAKEFILE) ; fi; ) ; done" 
 	  << endl << endl;

@@ -42,10 +42,6 @@
 class UnixMakefileGenerator : public MakefileGenerator
 {
     bool init_flag, include_deps;
-
-    void writeMakeParts(QTextStream &);
-    void writeSubdirs(QTextStream &);
-
     bool writeMakefile(QTextStream &);
 
 public:
@@ -59,6 +55,9 @@ protected:
     virtual void processPrlFiles();
 
     virtual void init();
+
+    void writeMakeParts(QTextStream &);
+    void writeSubdirs(QTextStream &, bool=TRUE);
     
 private:
     void init2();
