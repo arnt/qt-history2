@@ -227,10 +227,10 @@ private:
 
 #ifdef QT_COMPAT
 public:
-    explicit QT_COMPAT QLayout(QWidget *parent, int margin, int spacing = -1,
+    explicit QLayout(QWidget *parent, int margin, int spacing = -1,
                              const char *name = 0);
-    explicit QT_COMPAT QLayout(QLayout *parentLayout, int spacing, const char *name = 0);
-    explicit QT_COMPAT QLayout(int spacing, const char *name = 0);
+    explicit QLayout(QLayout *parentLayout, int spacing, const char *name = 0);
+    explicit QLayout(int spacing, const char *name = 0);
     inline QT_COMPAT QWidget *mainWidget() const { return parentWidget(); }
     inline QT_COMPAT void remove(QWidget *w) { removeWidget(w); }
     inline QT_COMPAT void add(QWidget *w) { addWidget(w); }
@@ -345,11 +345,11 @@ public:
     QBoxLayout(Direction);
 
 #ifdef QT_COMPAT
-    explicit QT_COMPAT QBoxLayout(QWidget *parent, Direction, int border = 0, int spacing = -1,
+    explicit QBoxLayout(QWidget *parent, Direction, int border = 0, int spacing = -1,
                 const char *name = 0);
-    explicit QT_COMPAT QBoxLayout(QLayout *parentLayout, Direction, int spacing = -1,
+    explicit QBoxLayout(QLayout *parentLayout, Direction, int spacing = -1,
                 const char *name = 0);
-    explicit QT_COMPAT QBoxLayout(Direction, int spacing, const char *name = 0);
+    explicit QBoxLayout(Direction, int spacing, const char *name = 0);
 #endif
     ~QBoxLayout();
 
