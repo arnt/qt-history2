@@ -41,7 +41,7 @@
 #include <qtextbrowser.h>
 #include <qtextstream.h>
 #include <qtimer.h>
-#include <q3url.h>
+#include <qurl.h>
 #include <qvalidator.h>
 
 #include <stdlib.h>
@@ -686,8 +686,7 @@ void HelpDialog::addBookmark()
 {
     if (!bookmarksInserted)
         insertBookmarks();
-    QString link = Q3Url( help->browsers()->currentBrowser()->context(),
-                          help->browsers()->currentBrowser()->source()).path();
+    QString link = QUrl(help->browsers()->currentBrowser()->context()).resolved(help->browsers()->currentBrowser()->source()).path();
     QString title = help->browsers()->currentBrowser()->documentTitle();
     if (title.isEmpty())
         title = titleOfLink(link);
