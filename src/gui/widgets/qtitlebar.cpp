@@ -52,7 +52,7 @@ public:
 
         QString tipstring;
         QStyle::SubControl ctrl = t->style().querySubControl(QStyle::CC_TitleBar, t, pos);
-        QSize controlSize = t->style().querySubControlMetrics(QStyle::CC_TitleBar, t, ctrl).size();
+        QRect controlR = t->style().querySubControlMetrics(QStyle::CC_TitleBar, t, ctrl);
 
         QWidget *window = t->window();
         if (window) {
@@ -102,7 +102,7 @@ public:
                 tipstring = t->windowTitle();
         }
         if(!tipstring.isEmpty())
-            tip(QRect(pos, controlSize), tipstring);
+            tip(controlR, tipstring);
     }
 };
 #endif
