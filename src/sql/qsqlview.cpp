@@ -174,6 +174,50 @@ void QSqlView::setPrimaryIndex( QSqlIndex idx )
     d->priIndx = idx;
 }
 
+/*!  Returns an index compromised of \a fieldNames, or an empty index if
+  the field names do not exist. The index is returned with all field
+  values primed with the values of the view fields they correspond to.
+
+*/
+
+QSqlIndex QSqlView::index( const QStringList& fieldNames ) const
+{
+    QSqlIndex idx;
+    for ( QStringList::ConstIterator it = fieldNames.begin(); it != fieldNames.end(); ++it ) {
+	const QSqlField* f = field( (*it) );
+	if ( !f ) { /* all fields must exist */
+	    idx.clear();
+	    break;
+	}
+	idx.append( f );
+    } 
+    return idx;
+}
+
+/*!  Returns an index compromised of a single \a fieldName, or an empty index if
+  the field name does not exist. The index is returned with the field
+  value primed with the value of the view field it corresponds to.
+
+*/
+
+QSqlIndex QSqlView::index( const QString& fieldName ) const
+{
+    QSqlIndex idx;
+    const QSqlField* f = field( fieldName );
+    if ( f ) 
+	idx.append( f );
+    return idx;
+}
+
+/*
+    
+*/
+
+QSqlIndex QSqlView::index( const char* fieldName ) const
+{
+    return index( QString( fieldName ) );
+}
+
 /*!
   Selects all fields in the rowset.  The order in which the data is returned
   is database-specific.
@@ -511,7 +555,7 @@ int QSqlView::apply( const QString& q, bool invalidate )
     int ar = 0;
     if ( invalidate ) {
 	setQuery( q );
-	d->lastAt = QSqlResult::BeforeFirst;	
+	d->lastAt = QSqlResult::BeforeFirst;
 	ar = affectedRows();
     } else {
 	QSql sql( driver()->createResult() );

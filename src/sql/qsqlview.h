@@ -3,6 +3,7 @@
 
 #ifndef QT_H
 #include "qstring.h"
+#include "qstringlist.h"
 #include "qsqlfield.h"
 #include "qsql.h"
 #include "qsqlindex.h"
@@ -30,6 +31,9 @@ public:
 
     QVariant          value( int i );
     QSqlIndex         primaryIndex( bool prime = FALSE ) const;
+    QSqlIndex         index( const QStringList& fieldNames ) const;
+    QSqlIndex         index( const QString& fieldName ) const;    
+    QSqlIndex         index( const char* fieldName ) const;        
     void              setPrimaryIndex( QSqlIndex idx );
     virtual int       insert( bool invalidate = TRUE );
     virtual int       update( const QSqlIndex & filter = QSqlIndex(), bool invalidate = TRUE );
