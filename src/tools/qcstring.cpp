@@ -43,7 +43,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <ctype.h>
-#ifndef QT_QMAKE
+#ifndef QT_NO_COMPRESS
 #include "../3rdparty/zlib/zlib.h"
 #endif
 
@@ -317,7 +317,7 @@ Q_UINT16 qChecksum( const char *data, uint len )
   \sa qUncompress()
 */
 
-#ifndef QT_QMAKE
+#ifndef QT_NO_COMPRESS
 QByteArray qCompress( const uchar* data, int nbytes )
 {
     ulong len = nbytes * 2;
@@ -366,7 +366,7 @@ QByteArray qCompress( const uchar* data, int nbytes )
   \sa qCompress()
 */
 
-#ifndef QT_QMAKE
+#ifndef QT_NO_COMPRESS
 QByteArray qUncompress( const uchar* data, int nbytes, int expectedSize )
 {
     ulong len = expectedSize;

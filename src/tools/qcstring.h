@@ -120,7 +120,7 @@ public:
 typedef QMemArray<char> QByteArray;
 #endif
 
-#ifndef QT_QMAKE
+#ifndef QT_NO_COMPRESS
 Q_EXPORT QByteArray qCompress( const uchar* data, int nbytes );
 Q_EXPORT QByteArray qUncompress( const uchar* data, int nbytes, int expectedSize = -1 );
 Q_EXPORT inline QByteArray qCompress( const QByteArray& data)

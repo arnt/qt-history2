@@ -13,7 +13,7 @@ QOBJS=qstring.o qtextstream.o qiodevice.o qglobal.o qgdict.o qcstring.o \
 CFLAGS= @QMAKE_CFLAGS@ \
 	-I. -Igenerators -Igenerators/unix -Igenerators/win32 -Igenerators/mac \
 	-I@BUILD_PATH@/include -I@SOURCE_PATH@/include \
-	-DQT_NO_TEXTCODEC -DQT_LITE_COMPONENT -DQT_NO_STL -DQT_QMAKE -I@QMAKESPEC@
+	-DQT_NO_TEXTCODEC -DQT_LITE_COMPONENT -DQT_NO_STL -DQT_NO_COMPRESS -I@QMAKESPEC@
 CXXFLAGS= $(CFLAGS)
 LFLAGS=@QMAKE_LFLAGS@
 
