@@ -27,14 +27,19 @@ ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv 
 
     dictionary[ "QCONFIG" ] = "full";
     dictionary[ "EMBEDDED" ] = "no";
+
     dictionary[ "DEBUG" ] = "no";
     dictionary[ "SHARED" ] = "yes";
-    dictionary[ "GIF" ] = "no";
     dictionary[ "THREAD" ] = "yes";
+    dictionary[ "GIF" ] = "no";
     dictionary[ "ZLIB" ] = "yes";
     dictionary[ "PNG" ] = "yes";
     dictionary[ "JPEG" ] = "yes";
     dictionary[ "MNG" ] = "no";
+    dictionary[ "ACCESSIBILITY" ] = "yes";
+    dictionary[ "BIG_CODECS" ] = "yes";
+    dictionary[ "TABLET" ] = "no";
+
     dictionary[ "BUILD_QMAKE" ] = "yes";
     dictionary[ "DSPFILES" ] = "yes";
     dictionary[ "QMAKESPEC" ] = QEnvironment::getEnv( "QMAKESPEC" );
@@ -42,12 +47,9 @@ ConfigureApp::ConfigureApp( int& argc, char** argv ) : QApplication( argc, argv 
     dictionary[ "LEAN" ] = "no";
     dictionary[ "NOPROCESS" ] = "no";
     dictionary[ "STL" ] = "no";
-    dictionary[ "ACCESSIBILITY" ] = "no";
     dictionary[ "VERSION" ] = "300";
     dictionary[ "REDO" ] = "no";
     dictionary[ "FORCE_PROFESSIONAL" ] = QEnvironment::getEnv( "FORCE_PROFESSIONAL" );
-    dictionary[ "BIG_CODECS" ] = "yes";
-    dictionary[ "TABLET" ] = "no";
 
     QString tmp = QEnvironment::getEnv( "QMAKESPEC" );
     tmp = tmp.mid( tmp.findRev( "\\" ) + 1 );
@@ -129,100 +131,120 @@ void ConfigureApp::parseCmdLine()
 	    dictionary[ "HELP" ] = "yes";
 	else if( (*args) == "-?" )
 	    dictionary[ "HELP" ] = "yes";
+
 	else if( (*args) == "-qconfig" ) {
 	    ++args;
 	    dictionary[ "QCONFIG" ] = (*args);
 	}
+
 	else if( (*args) == "-release" )
 	    dictionary[ "DEBUG" ] = "no";
 	else if( (*args) == "-debug" )
 	    dictionary[ "DEBUG" ] = "yes";
+
 	else if( (*args) == "-shared" )
 	    dictionary[ "SHARED" ] = "yes";
 	else if( (*args) == "-static" )
 	    dictionary[ "SHARED" ] = "no";
+
 	else if( (*args) == "-no-thread" )
 	    dictionary[ "THREAD" ] = "no";
 	else if( (*args) == "-thread" )
 	    dictionary[ "THREAD" ] = "yes";
+
 	else if( (*args) == "-platform" ) {
 	    ++args;
 	    dictionary[ "QMAKESPEC" ] = (*args);
 	}
+
 	else if( (*args) == "-no-gif" )
 	    dictionary[ "GIF" ] = "no";
 	else if( (*args) == "-qt-gif" )
 	    dictionary[ "GIF" ] = "yes";
+
 	else if( (*args) == "-no-zlib" ) {
 	    dictionary[ "ZLIB" ] = "no";
 	    dictionary[ "PNG" ] = "no";
-	} 
-	else if( (*args) == "-zlib" )
+	} else if( (*args) == "-zlib" ) {
 	    dictionary[ "ZLIB" ] = "yes";
-	else if( (*args) == "-system-zlib" )
+	} else if( (*args) == "-system-zlib" ) {
 	    dictionary[ "ZLIB" ] = "system";
+	}
+
 	else if( (*args) == "-no-png" )
 	    dictionary[ "PNG" ] = "no";
 	else if( (*args) == "-qt-png" )
 	    dictionary[ "PNG" ] = "yes";
 	else if( (*args) == "-system-png" )
 	    dictionary[ "PNG" ] = "system";
+
 	else if( (*args) == "-no-mng" )
 	    dictionary[ "MNG" ] = "no";
 	else if( (*args) == "-qt-mng" )
 	    dictionary[ "MNG" ] = "yes";
 	else if( (*args) == "-system-mng" )
 	    dictionary[ "MNG" ] = "system";
+
 	else if( (*args) == "-no-jpeg" )
 	    dictionary[ "JPEG" ] = "no";
 	else if( (*args) == "-qt-jpeg" )
 	    dictionary[ "JPEG" ] = "yes";
 	else if( (*args) == "-system-jpeg" )
 	    dictionary[ "JPEG" ] = "system";
+
 	else if( (*args) == "-internal" )
 	    dictionary[ "QMAKE_INTERNAL" ] = "yes";
+
 	else if( (*args) == "-no-qmake" )
 	    dictionary[ "BUILD_QMAKE" ] = "no";
+
 	else if( (*args) == "-dont-process" )
 	    dictionary[ "NOPROCESS" ] = "yes";
+
 	else if( (*args) == "-D" ) {
 	    ++args;
             qmakeDefines += (*args);
-        }
-	else if( (*args) == "-I" ) {
+        } else if( (*args) == "-I" ) {
 	    ++args;
 	    qmakeIncludes += (*args);
-	}
-	else if( (*args) == "-l" ) {
+	} else if( (*args) == "-l" ) {
 	    ++args;
 	    qmakeLibs += (*args);
 	}
+
 	else if( (*args) == "-no-dsp" )
 	    dictionary[ "DSPFILES" ] = "no";
 	else if( (*args) == "-dsp" )
 	    dictionary[ "DSPFILES" ] = "yes";
+
 	else if( (*args) == "-lean" )
 	    dictionary[ "LEAN" ] = "yes";
+
 	else if( (*args) == "-stl" )
 	    dictionary[ "STL" ] = "yes";
 	else if( (*args) == "-no-stl" )
 	    dictionary[ "STL" ] = "no";
+
 	else if( (*args) == "-accessibility" )
 	    dictionary[ "ACCESSIBILITY" ] = "yes";
 	else if( (*args) == "-no-accessibility" )
 	    dictionary[ "ACCESSIBILITY" ] = "no";
+
 	else if( (*args) == "-no-big-codecs" )
 	    dictionary[ "BIG_CODECS" ] = "no";
 	else if( (*args) == "-big-codecs" )
 	    dictionary[ "BIG_CODECS" ] = "yes";
+
 	else if( (*args) == "-tablet" )
 	    dictionary[ "TABLET" ] = "yes";
 	else if( (*args) == "-no-tablet" )
 	    dictionary[ "TABLET" ] = "no";
+
 	else if( ( (*args) == "-override-version" ) || ( (*args) == "-version-override" ) ){
 	    ++args;
 	    dictionary[ "VERSION" ] = (*args);
 	}
+
 	else if( (*args).find( QRegExp( "^-(en|dis)able-" ) ) != -1 ) {
 	    // Scan to see if any specific modules and drivers are enabled or disabled
 	    for( QStringList::Iterator module = modules.begin(); module != modules.end(); ++module ) {
@@ -236,8 +258,8 @@ void ConfigureApp::parseCmdLine()
 		}
 	    }
 	}
-	else if( (*args).left( 5 ) == "-sql-" )
-	{
+
+	else if( (*args).left( 5 ) == "-sql-" )	{
 	    for( QStringList::Iterator sql = sqlDrivers.begin(); sql != sqlDrivers.end(); ++sql ) {
 		if( (*args) == QString( "-sql-" ) + (*sql) ) {
 		    qmakeSql += (*sql);
@@ -245,6 +267,7 @@ void ConfigureApp::parseCmdLine()
 		}
 	    }
 	}
+
 	else {
 	    dictionary[ "HELP" ] = "yes";
 	    cout << "Unknown option " << (*args) << endl;
@@ -260,8 +283,7 @@ void ConfigureApp::parseCmdLine()
 	qmakeConfig += modules;
 	if( licenseInfo[ "PRODUCTS" ] == "qt-enterprise" )
 	    qmakeConfig += "internal";
-    }
-    else {
+    } else {
 	for( QStringList::Iterator dis = disabledModules.begin(); dis != disabledModules.end(); ++dis ) {
 	    modules.remove( (*dis) );
 	}
@@ -302,13 +324,17 @@ bool ConfigureApp::displayHelp()
     if( dictionary[ "HELP" ] == "yes" ) {
 	cout << endl << endl;
 	cout << "Command line arguments:  (* indicates default behaviour)" << endl << endl;
-	cout << "-help               Bring up this help text." << endl;
+	cout << "-help               Bring up this help text." << endl << endl;
+
 	cout << "-debug              Enable debug information." << endl;
-	cout << "-release          * Disable debug information." << endl;
+	cout << "-release          * Disable debug information." << endl << endl;
+
 	cout << "-shared           * Build Qt as a shared library." << endl;
-	cout << "-static             Build Qt as a static library." << endl;
+	cout << "-static             Build Qt as a static library." << endl << endl;
+
 	cout << "-thread             Configure Qt with thread support." << endl;
-	cout << "-no-thread        * Configure Qt without thread support." << endl;
+	cout << "-no-thread        * Configure Qt without thread support." << endl << endl;
+
 	cout << "-platform           Specify a platform, uses %QMAKESPEC% as default." << endl;
 	cout << "-qconfig            Specify config, available configs:" << endl;
 	for( QStringList::Iterator config = allConfigs.begin(); config != allConfigs.end(); ++config )
@@ -322,22 +348,22 @@ bool ConfigureApp::displayHelp()
 	cout << "-system-zlib        Use existing zlib in system." << endl << endl;
 
 	cout << "-no-png             PNG support through plugin." << endl;
-	cout << "-qt-png           * Compile in libPNG." << endl;
+	cout << "-qt-png           * Compile in PNG support." << endl;
 	cout << "-system-png	     Use existing libPNG in system." << endl  << endl;
 
 	cout << "-no-mng           * MNG support through plugin." << endl;
-	cout << "-qt-mng           * Compile in libMNG." << endl;
-	cout << "-system-mng         Enable MNG support, use system MNG library." << endl;
+	cout << "-qt-mng             Compile in MNG support." << endl;
+	cout << "-system-mng         Use existing libMNG in system." << endl << endl;
 
-	cout << "-no-jpeg            Disable JPEG support." << endl;
-	cout << "-qt-jpeg          * Enable built-in JPEG support" << endl;
-	cout << "-system-jpeg        Enable JPEG support, use system JPEG library" << endl << endl;
+	cout << "-no-jpeg          * JPEG support through plugin." << endl;
+	cout << "-qt-jpeg            Compile in JPEG support" << endl;
+	cout << "-system-jpeg        Use existing libJPEG in system" << endl << endl;
 	
 	cout << "-stl                Enable STL support." << endl;
 	cout << "-no-stl           * Disable STL support." << endl  << endl;
 
-	cout << "-accessibility      Enable Windows Active Accessibility." << endl;
-	cout << "-no-accessibility * Disable Windows Active Accessibility." << endl  << endl;
+	cout << "-accessibility    * Enable Windows Active Accessibility." << endl;
+	cout << "-no-accessibility   Disable Windows Active Accessibility." << endl  << endl;
 
 	cout << "-tablet             Enable tablet support." << endl;
 	cout << "-no-tablet        * Disable tablet support." << endl  << endl;
@@ -375,24 +401,26 @@ void ConfigureApp::generateOutputVars()
     if( dictionary[ "DEBUG" ] == "yes" ) {
 	qmakeConfig += "debug";
 	dictionary[ "QMAKE_OUTDIR" ] = "debug";
-    }
-    else {
+    } else {
 	qmakeConfig += "release";
 	dictionary[ "QMAKE_OUTDIR" ] = "release";
     }
+
     if( dictionary[ "THREAD" ] == "yes" ) {
 	qmakeConfig += "thread";
 	dictionary[ "QMAKE_OUTDIR" ] += "_mt";
     }
+
     if( dictionary[ "ACCESSIBILITY" ] == "yes" ) {
 	qmakeConfig += "accessibility";
     }
+
     if( dictionary[ "SHARED" ] == "yes" ) {
 	dictionary[ "QMAKE_OUTDIR" ] += "_shared";
 	qmakeDefines += "QT_DLL";
-    }
-    else
+    } else {
 	dictionary[ "QMAKE_OUTDIR" ] += "_static";
+    }
 
     if( dictionary[ "STL" ] == "no" ) {
 	qmakeDefines += "QT_NO_STL";
@@ -401,6 +429,7 @@ void ConfigureApp::generateOutputVars()
     if( !qmakeLibs.isEmpty() ) {
 	qmakeVars += "LIBS += " + qmakeLibs.join( " " );
     }
+
     qmakeVars += "QMAKE_QT_VERSION_OVERRIDE=" + dictionary[ "VERSION" ];
 
     qmakeVars += QString( "QMAKE_LIBDIR_QT=" ) + QDir::convertSeparators( qtDir + "/lib" );
@@ -411,23 +440,29 @@ void ConfigureApp::generateOutputVars()
     if( licenseInfo[ "PRODUCTS" ].length() )
 	qmakeVars += QString( "QT_PRODUCT=" ) + licenseInfo[ "PRODUCTS" ];
 
-    if( dictionary[ "JPEG" ] == "yes" )
-	qmakeConfig += "jpeg";
-    else if( dictionary[ "JPEG" ] == "system" )
-	qmakeConfig += "system-jpeg";
-
-    if( dictionary[ "MNG" ] == "yes" )
-	qmakeConfig += "mng";
-    else if( dictionary[ "MNG" ] == "system" )
-	qmakeConfig += "system-mng";
-
     if( dictionary[ "GIF" ] == "yes" )
 	qmakeConfig += "gif";
+    else if( dictionary[ "GIF" ] == "no" )
+	qmakeConfig += "no-gif";
 
     if( dictionary[ "ZLIB" ] == "yes" )
 	qmakeConfig += "zlib";
     else if( dictionary[ "ZLIB" ] == "no" )
 	qmakeConfig += "no-zlib";
+
+    if( dictionary[ "JPEG" ] == "no" )
+	qmakeConfig += "no-jpeg";
+    else if( dictionary[ "JPEG" ] == "yes" )
+	qmakeConfig += "jpeg";
+    else if( dictionary[ "JPEG" ] == "system" )
+	qmakeConfig += "system-jpeg";
+
+    if( dictionary[ "MNG" ] == "no" )
+	qmakeConfig += "no-mng";
+    else if( dictionary[ "MNG" ] == "yes" )
+	qmakeConfig += "mng";
+    else if( dictionary[ "MNG" ] == "system" )
+	qmakeConfig += "system-mng";
 
     if( dictionary[ "PNG" ] == "yes" )
 	qmakeConfig += "png";
@@ -436,9 +471,13 @@ void ConfigureApp::generateOutputVars()
 
     if( dictionary[ "BIG_CODECS" ] == "yes" )
 	qmakeConfig += "bigcodecs";
+    else if( dictionary[ "BIG_CODECS" ] == "no" )
+	qmakeConfig += "no-bigcodecs";
 
     if( dictionary[ "TABLET" ] == "yes" )
 	qmakeConfig += "tablet";
+    else if( dictionary[ "TABLET" ] == "no" )
+	qmakeConfig += "no-tablet";
 
     if( !dictionary[ "QMAKESPEC" ].length() ) {
 	cout << "QMAKESPEC must either be defined as an environment variable, or specified" << endl;
@@ -585,7 +624,11 @@ void ConfigureApp::displayConfig()
     cout << "GIF support................." << dictionary[ "GIF" ] << endl;
     cout << "MNG support................." << dictionary[ "MNG" ] << endl;
     cout << "JPEG support................" << dictionary[ "JPEG" ] << endl;
-    cout << "PNG support................." << dictionary[ "PNG" ] << endl << endl;
+    cout << "PNG support................." << dictionary[ "PNG" ] << endl;
+    cout << "Accessibility support......." << dictionary[ "ACCESSIBILITY" ] << endl;
+    cout << "Big Textcodecs.............." << dictionary[ "BIG_CODECS" ] << endl;
+    cout << "Tablet support.............." << dictionary[ "TABLET" ] << endl;
+    cout << endl;
     if( !qmakeDefines.isEmpty() ) {
 	cout << "Defines.....................";
 	for( QStringList::Iterator defs = qmakeDefines.begin(); defs != qmakeDefines.end(); ++defs )
