@@ -828,7 +828,18 @@ QXmlInputSource::QXmlInputSource( )
 */
 QXmlInputSource::QXmlInputSource( QTextStream& stream )
 {
-    QByteArray rawData = stream.device()->readAll();
+    QByteArray rawData;
+    if ( stream.device()->isDirectAccess() ) {
+	rawData = stream.device()->readAll();
+    } else {
+	int nread = 0;
+	const int bufsize = 512;
+	while ( !stream.device()->atEnd() ) {
+	    rawData.resize( nread + bufsize );
+	    nread += stream.device()->readBlock( rawData.data()+nread, bufsize );
+	}
+	rawData.resize( nread );
+    }
     readInput( rawData );
 }
 
