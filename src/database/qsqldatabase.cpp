@@ -1,11 +1,10 @@
-#include "qsqldatabase.h"
 
 #ifndef QT_NO_SQL
 
-#include "qsqldriverplugin.h"
+#include "qsqldatabase.h"
 #include "qsqlresult.h"
 #include "qsqldriver.h"
-#include "qsqlfield.h"
+#include "qsqldriverplugin.h"
 #include <stdlib.h> //### for getenv, get rid of this soon!
 
 class QNullResult : public QSqlResult

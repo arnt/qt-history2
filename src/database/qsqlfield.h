@@ -29,6 +29,10 @@ public:
     bool          isNull() const { return nul; }
     QVariant::Type type() const { return val.type(); }
 
+#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
+    bool operator==( const QSqlField& ) const { return FALSE; }
+#endif
+
 private:
     QVariant      val;
     QString       nm;
@@ -36,10 +40,6 @@ private:
     QString       label;
     bool          ro;
     bool          nul;
-
-#if defined(Q_FULL_TEMPLATE_INSTANTIATION)
-    bool operator==( const QSqlField& ) const { return FALSE; }
-#endif
 };
 
 class QSqlFieldList : public QValueList<QSqlField>

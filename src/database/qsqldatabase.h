@@ -4,11 +4,11 @@
 #ifndef QT_H
 #include "qobject.h"
 #include "qstring.h"
-#include "qstringlist.h"
 #include "qsqlerror.h"
 #include "qsqlfield.h"
 #include "qsqlindex.h"
 #include "qsql.h"
+#include "qstringlist.h"
 #endif // QT_H
 
 #ifndef QT_NO_SQL
