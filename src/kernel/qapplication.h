@@ -196,11 +196,12 @@ public:
     static void	     setGlobalStrut( const QSize & );
     static QSize     globalStrut();
 
+#ifndef QT_NO_COMPONENT
     static void      setLibraryPaths(const QStringList &);
     static QStringList libraryPaths();
     static void      addLibraryPath(const QString &);
     static void      removeLibraryPath(const QString &);
-
+#endif //QT_NO_COMPONENT
     static void setStartDragTime( int ms );
     static int startDragTime();
     static void setStartDragDistance( int l );
@@ -432,11 +433,6 @@ inline bool QApplication::sendEvent( QObject *receiver, QEvent *event )
 
 #ifdef QT_NO_TRANSLATION
 // Simple versions
-inline QString QApplication::translate( const char *, const char *key ) const
-{
-    return QString::fromLatin1( key );
-}
-
 inline QString QApplication::translate( const char *, const char *key,
 					const char * ) const
 {

@@ -1,4 +1,6 @@
 #include "qcomplextext_p.h"
+
+#ifndef QT_NO_COMPLEXTEXT
 #include "qrichtext_p.h"
 #include "qfontdata_p.h"
 #include "qfontmetrics.h"
@@ -1362,3 +1364,5 @@ QTextRun::QTextRun(int _start, int _stop, QBidiContext *context, QChar::Directio
     printf("new run: dir=%d from %d, to %d level = %d\n", dir, _start, _stop, level);
 #endif
 }
+
+#endif //QT_NO_COMPLEXTEXT

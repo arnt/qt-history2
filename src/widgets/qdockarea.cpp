@@ -37,6 +37,7 @@
 
 #include "qdockarea.h"
 
+#ifndef QT_NO_MAINWINDOW
 #include <qsplitter.h>
 #include <qlayout.h>
 #include <qvector.h>
@@ -1250,3 +1251,5 @@ QTextStream &operator>>( QTextStream &ts, QDockArea &dockArea )
     return ts;
 }
 #endif
+
+#endif //QT_NO_MAINWINDOW

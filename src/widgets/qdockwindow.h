@@ -42,6 +42,8 @@
 #include "qframe.h"
 #endif // QT_H
 
+#ifndef QT_NO_MAINWINDOW
+
 class QDockWindowHandle;
 class QDockWindowTitleBar;
 class QPainter;
@@ -203,3 +205,5 @@ inline QDockArea *QDockWindow::area() const
 }
 
 #endif
+
+#endif //QT_NO_MAINWINDOW

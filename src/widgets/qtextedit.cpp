@@ -36,6 +36,9 @@
 **********************************************************************/
 
 #include "qtextedit.h"
+
+#ifndef QT_NO_TEXTEDIT
+
 #include "qcursor.h"
 
 /*!
@@ -682,3 +685,4 @@ QTextEdit::~QTextEdit()
     Use setCurrentFont() instead.
 */
 
+#endif //QT_NO_TEXTEDIT

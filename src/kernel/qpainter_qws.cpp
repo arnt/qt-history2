@@ -1526,8 +1526,13 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len, QP
 	len = str.length() - from;
     if ( len == 0 )				// empty string
 	return;
-   QString shaped = QComplexText::shapedString( str, from, len, dir );
-   len = shaped.length();
+
+#ifndef QT_NO_COMPLEXTEXT    
+    QString shaped = QComplexText::shapedString( str, from, len, dir );
+#else 
+    QString shaped = str.mid(from,len); //### ugly and inefficient
+#endif
+    len = shaped.length();
    
     if ( testf(DirtyFont|ExtDev|VxF|WxF) ) {
 	if ( testf(DirtyFont) )

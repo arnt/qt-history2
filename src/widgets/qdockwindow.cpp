@@ -36,6 +36,8 @@
 **********************************************************************/
 
 #include "qdockwindow.h"
+
+#ifndef QT_NO_MAINWINDOW
 #include "qdockarea.h"
 #include "qwidgetresizehandler_p.h"
 #include "qtitlebar_p.h"
@@ -1572,3 +1574,5 @@ void QDockWindow::contextMenuEvent( QContextMenuEvent *e )
 }
 
 #include "qdockwindow.moc"
+
+#endif //QT_NO_MAINWINDOW

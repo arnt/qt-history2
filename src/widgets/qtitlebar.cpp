@@ -1,5 +1,7 @@
 #include "qtitlebar_p.h"
 
+#if !defined(QT_NO_MAINWINDOW) || !defined(QT_NO_WORKSPACE)
+
 #include "qapplication.h"
 #include "../kernel/qapplication_p.h"
 #include "qtooltip.h"
@@ -810,3 +812,5 @@ void QTitleBarButton::drawButtonLabel( QPainter *p )
 {
     style().drawTitleBarButtonLabel( p, 0, 0, width(), height(), pixmap(), type, isDown() );
 }
+
+#endif //!QT_NO_MAINWINDOW || !QT_NO_WORKSPACE

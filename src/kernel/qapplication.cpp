@@ -415,9 +415,8 @@ void QApplication::process_cmdline( int* argcptr, char ** argv )
 	} else if ( qstrcmp(arg,"-style") == 0 && i < argc-1 ) {
 	    s = argv[++i];
 	    s = s.lower();
-	}
 #ifndef QT_NO_SESSIONMANAGER
-	else if ( qstrcmp(arg,"-session") == 0 && i < argc-1 ) {
+	} else if ( qstrcmp(arg,"-session") == 0 && i < argc-1 ) {
 	    QCString s = argv[++i];
 	    if ( !s.isEmpty() ) {
 		session_id = QString::fromLatin1( s );
@@ -1116,6 +1115,7 @@ void QApplication::setGlobalStrut( const QSize& strut )
     app_strut = strut;
 }
 
+#ifndef QT_NO_COMPONENT
 /*!
   Returns a list of paths where the application will search when dynamically
   loading libraries.
@@ -1195,7 +1195,7 @@ void QApplication::removeLibraryPath(const QString &path)
 	app_libpaths->remove(path);
     }
 }
-
+#endif //QT_NO_COMPONENT
 
 /*!
   Returns a pointer to the default application palette. There is
@@ -3307,7 +3307,7 @@ void MyApplication::commitData( QSessionManager& sm ) {
 /*****************************************************************************
   Stubbed session management support
  *****************************************************************************/
-
+#ifndef QT_NO_SESSIONMANAGER
 #if defined( QT_NO_SM_SUPPORT ) || defined( Q_WS_WIN ) || defined( Q_WS_MAC ) || defined( Q_WS_QWS )
 
 class QSessionManager::Data
@@ -3410,3 +3410,4 @@ void QSessionManager::requestPhase2()
 }
 
 #endif // QT_NO_SM_SUPPORT
+#endif //QT_NO_SESSIONMANAGER

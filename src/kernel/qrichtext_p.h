@@ -77,6 +77,8 @@
 #include "qapplication.h"
 #endif // QT_H
 
+#ifndef QT_NO_RICHTEXT
+
 //#define DEBUG_COLLECTION
 
 class QTextDocument;
@@ -1983,5 +1985,7 @@ inline int QTextStringChar::descent() const
 {
     return !isCustom() ? format()->descent() : 0;
 }
+
+#endif //QT_NO_RICHTEXT
 
 #endif

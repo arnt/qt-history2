@@ -58,6 +58,8 @@
 #include "qpixmap.h"
 #endif // QT_H
 
+#if !defined(QT_NO_MAINWINDOW) || !defined(QT_NO_WORKSPACE)
+
 class QTitleBar;
 
 class Q_EXPORT QTitleBarButton : public QButton
@@ -203,5 +205,7 @@ extern const char * const qt_normalizeup_xpm[];
 extern const char * const qt_shade_xpm[];
 extern const char * const qt_unshade_xpm[];
 
+
+#endif //!QT_NO_MAINWINDOW || !QT_NO_WORKSPACE
 
 #endif //QTITLEBAR_P_H

@@ -48,6 +48,8 @@
 #include "qtextstream.h"
 #endif // QT_H
 
+#ifndef QT_NO_MAINWINDOW
+
 class QSplitter;
 class QBoxLayout;
 class QDockAreaLayout;
@@ -175,3 +177,5 @@ Q_EXPORT QTextStream &operator>>( QTextStream &, QDockArea & );
 #endif
 
 #endif
+
+#endif //QT_NO_MAINWINDOW

@@ -102,9 +102,11 @@ QVariant::Private::Private( Private* d )
 	    // QCString is explicit shared
 	    value.ptr = new QCString( *((QCString*)d->value.ptr) );
 	    break;
+#ifndef QT_NO_STRINGLIST
 	case QVariant::StringList:
 	    value.ptr = new QStringList( *((QStringList*)d->value.ptr) );
 	    break;
+#endif //QT_NO_STRINGLIST
 	case QVariant::Map:
 	    value.ptr = new QMap<QString,QVariant>( *((QMap<QString,QVariant>*)d->value.ptr) );
 	    break;
@@ -217,9 +219,11 @@ void QVariant::Private::clear()
 	case QVariant::Map:
 	    delete (QMap<QString,QVariant>*)value.ptr;
 	    break;
+#ifndef QT_NO_STRINGLIST
 	case QVariant::StringList:
 	    delete (QStringList*)value.ptr;
 	    break;
+#endif //QT_NO_STRINGLIST
 	case QVariant::Font:
 	    delete (QFont*)value.ptr;
 	    break;
@@ -422,6 +426,7 @@ QVariant::QVariant( const QVariant& p )
     *this = p;
 }
 
+#ifndef QT_NO_DATASTREAM
 /*!
   Reads the variant from the data stream.
 */
@@ -430,6 +435,7 @@ QVariant::QVariant( QDataStream& s )
     d = new Private;
     s >> *this;
 }
+#endif //QT_NO_DATASTREAM
 
 /*!
   Constructs a new variant with a string value.
@@ -470,6 +476,7 @@ QVariant::QVariant( const char* val )
     d->value.ptr = new QCString( val );
 }
 
+#ifndef QT_NO_STRINGLIST
 /*!
   Constructs a new variant with a string list value.
 */
@@ -479,6 +486,7 @@ QVariant::QVariant( const QStringList& val )
     d->typ = StringList;
     d->value.ptr = new QStringList( val );
 }
+#endif // QT_NO_STRINGLIST
 
 /*!
   Constructs a new variant with a map of QVariants.
@@ -881,6 +889,7 @@ QVariant::Type QVariant::nameToType( const char* name )
     return Invalid;
 }
 
+#ifndef QT_NO_DATASTREAM
 /*! Internal function for loading a variant. Use the stream operators
   instead.
 
@@ -954,6 +963,7 @@ void QVariant::load( QDataStream& s )
 	    d->value.ptr = x;
 	}
 	break;
+#ifndef QT_NO_STRINGLIST
     case StringList:
 	{
 	    QStringList* x = new QStringList;
@@ -961,6 +971,7 @@ void QVariant::load( QDataStream& s )
 	    d->value.ptr = x;
 	}
 	break;
+#endif // QT_NO_STRINGLIST
     case Font:
 	{
 	    QFont* x = new QFont;
@@ -1141,9 +1152,11 @@ void QVariant::save( QDataStream& s ) const
     case CString:
 	s << *((QCString*)d->value.ptr);
 	break;
+#ifndef QT_NO_STRINGLIST
     case StringList:
 	s << *((QStringList*)d->value.ptr);
 	break;
+#endif
     case Font:
 	s << *((QFont*)d->value.ptr);
 	break;
@@ -1257,6 +1270,8 @@ QDataStream& operator<< ( QDataStream& s, const QVariant::Type p )
     return s;
 }
 
+#endif //QT_NO_DATASTREAM
+
 /*! \fn Type QVariant::type() const
 
   Returns the storage type of the value stored in the variant. Usually
@@ -1356,6 +1371,8 @@ const QCString QVariant::toCString() const
     return 0;
 }
 
+
+#ifndef QT_NO_STRINGLIST
 /*!
   Returns the variant as a QStringList if the variant has type()
   StringList or List of a type that can be converted to QString, or an
@@ -1381,6 +1398,8 @@ const QStringList QVariant::toStringList() const
 
     return QStringList();
 }
+#endif //QT_NO_STRINGLIST
+
 
 /*!
   Returns the variant as a QMap<QString,QVariant> if the variant has type()
@@ -1783,6 +1802,7 @@ const QValueList<QVariant> QVariant::toList() const
 {
     if ( d->typ == List )
 	return *((QValueList<QVariant>*)d->value.ptr);
+#ifndef QT_NO_STRINGLIST
     if ( d->typ == StringList ) {
 	QValueList<QVariant> lst;
 	QStringList::ConstIterator it = stringListBegin();
@@ -1791,7 +1811,7 @@ const QValueList<QVariant> QVariant::toList() const
 	    lst.append( QVariant( *it ) );
 	return lst;
     }
-
+#endif //QT_NO_STRINGLIST
     return QValueList<QVariant>();
 }
 
@@ -1813,7 +1833,9 @@ QSizePolicy QVariant::toSizePolicy() const
 
 Q_VARIANT_AS(String)
 Q_VARIANT_AS(CString)
+#ifndef QT_NO_STRINGLIST
 Q_VARIANT_AS(StringList)
+#endif
 Q_VARIANT_AS(Font)
 Q_VARIANT_AS(Pixmap)
 Q_VARIANT_AS(Image)
@@ -2178,8 +2200,10 @@ bool QVariant::canCast( Type t ) const
 	return TRUE;
     if ( t == DateTime && d->typ == String )
 	return TRUE;
+#ifndef QT_NO_STRINGLIST
     if ( t == List && d->typ == StringList )
 	return TRUE;
+#endif
     if ( t == StringList && d->typ == List )   {
 	QValueList<QVariant> vl = toList();
 	QValueList<QVariant>::ConstIterator it = listBegin();
@@ -2216,9 +2240,11 @@ bool QVariant::cast( Type t )
     case QVariant::String:
 	asString();
 	break;
+#ifndef QT_NO_STRINGLIST
     case QVariant::StringList:
 	asStringList();
 	break;
+#endif
     case QVariant::Font:
 	asFont();
 	break;
@@ -2335,8 +2361,10 @@ bool QVariant::operator==( const QVariant &v ) const
 	return v.toString() == toString();
     case CString:
 	return v.toCString() == toCString();
+#ifndef QT_NO_STRINGLIST
     case StringList:
 	return v.toStringList() == toStringList();
+#endif
     case Font:
 	return v.toFont() == toFont();
     case Pixmap:

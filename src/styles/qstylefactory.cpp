@@ -159,7 +159,7 @@ QStyle *QStyleFactory::create( const QString& s )
     return 0;
 }
 
-
+#ifndef QT_NO_STRINGLIST
 QStringList QStyleFactory::styles()
 {
 #ifndef QT_NO_COMPONENT
@@ -201,5 +201,5 @@ QStringList QStyleFactory::styles()
 
     return list;
 }
-
+#endif
 #endif // QT_NO_STYLE

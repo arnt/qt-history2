@@ -113,12 +113,15 @@ public:
     QVariant();
     ~QVariant();
     QVariant( const QVariant& );
+#ifndef QT_NO_DATASTREAM
     QVariant( QDataStream& s );
-
+#endif
     QVariant( const QString& );
     QVariant( const QCString& );
     QVariant( const char* );
+#ifndef QT_NO_STRINGLIST
     QVariant( const QStringList& );
+#endif
     QVariant( const QFont& );
     QVariant( const QPixmap& );
     QVariant( const QImage& );
@@ -163,7 +166,9 @@ public:
 
     const QString toString() const;
     const QCString toCString() const;
+#ifndef QT_NO_STRINGLIST
     const QStringList toStringList() const;
+#endif
     const QFont toFont() const;
     const QPixmap toPixmap() const;
     const QImage toImage() const;
@@ -193,15 +198,19 @@ public:
 
     QValueListConstIterator<QVariant> listBegin() const;
     QValueListConstIterator<QVariant> listEnd() const;
+#ifndef QT_NO_STRINGLIST
     QValueListConstIterator<QString> stringListBegin() const;
     QValueListConstIterator<QString> stringListEnd() const;
+#endif
     QMapConstIterator<QString,QVariant> mapBegin() const;
     QMapConstIterator<QString,QVariant> mapEnd() const;
     QMapConstIterator<QString,QVariant> mapFind( const QString& ) const;
 
     QString& asString();
     QCString& asCString();
+#ifndef QT_NO_STRINGLIST
     QStringList& asStringList();
+#endif
     QFont& asFont();
     QPixmap& asPixmap();
     QImage& asImage();
@@ -229,9 +238,10 @@ public:
     QMap<QString,QVariant>& asMap();
     QSizePolicy& asSizePolicy();
 
+#ifndef QT_NO_DATASTREAM
     void load( QDataStream& );
     void save( QDataStream& ) const;
-
+#endif
     static const char* typeToName( Type typ );
     static Type nameToType( const char* name );
 
@@ -279,6 +289,7 @@ inline bool QVariant::isValid() const
     return (d->typ != Invalid);
 }
 
+#ifndef QT_NO_STRINGLIST
 inline QValueListConstIterator<QString> QVariant::stringListBegin() const
 {
     if ( d->typ != StringList )
@@ -292,7 +303,7 @@ inline QValueListConstIterator<QString> QVariant::stringListEnd() const
 	return QValueListConstIterator<QString>();
     return ((const QStringList*)d->value.ptr)->end();
 }
-
+#endif
 inline QValueListConstIterator<QVariant> QVariant::listBegin() const
 {
     if ( d->typ != List )
@@ -328,9 +339,10 @@ inline QMapConstIterator<QString,QVariant> QVariant::mapFind( const QString& key
     return ((const QMap<QString,QVariant>*)d->value.ptr)->find( key );
 }
 
+#ifndef QT_NO_DATASTREAM
 Q_EXPORT QDataStream& operator>> ( QDataStream& s, QVariant& p );
 Q_EXPORT QDataStream& operator<< ( QDataStream& s, const QVariant& p );
 Q_EXPORT QDataStream& operator>> ( QDataStream& s, QVariant::Type& p );
 Q_EXPORT QDataStream& operator<< ( QDataStream& s, const QVariant::Type p );
-
+#endif
 #endif // QVARIANT_H

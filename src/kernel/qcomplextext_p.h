@@ -10,6 +10,8 @@
 #include <qshared.h>
 #endif // QT_H
 
+#ifndef QT_NO_COMPLEXTEXT
+
 // bidi helper classes. Internal to Qt
 struct Q_EXPORT QBidiStatus {
     QBidiStatus() {
@@ -74,5 +76,7 @@ public:
     static QString bidiReorderString( const QString &str, QChar::Direction basicDir = QChar::DirON );
 };
 
+
+#endif //QT_NO_COMPLEXTEXT
 
 #endif

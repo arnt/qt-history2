@@ -50,6 +50,7 @@
 #include "qobjectlist.h"
 #include "qguardedptr.h"
 #include "qeffects_p.h"
+#include "qcursor.h"
 #include <ctype.h>
 
 //#define ANIMATED_POPUP

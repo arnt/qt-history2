@@ -36,6 +36,8 @@
 **********************************************************************/
 
 #include "qsimplerichtext.h"
+
+#ifndef QT_NO_RICHTEXT
 #include "qrichtext_p.h"
 #include "qapplication.h"
 
@@ -348,3 +350,5 @@ void QSimpleRichText::setDefaultFont( const QFont &f )
     d->font = f;
     d->doc->setDefaultFont( f );
 }
+
+#endif //QT_NO_RICHTEXT

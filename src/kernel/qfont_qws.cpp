@@ -446,6 +446,7 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
     int nmarks = 0;
     for (i = 0; i < len; i++) {
 	tmp = scriptForChar(*uc);
+#ifndef QT_NO_COMPLEXTEXT
 	if ( uc->combiningClass() != 0 && !nmarks && pos + i > 0 ) {
 	    if ( lasts >= 0 ) {
 		// string width (this is for the PREVIOUS truple)
@@ -459,7 +460,9 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len,
 	    lasts = i;
 	    pa = QComplexText::positionMarks( this, str, pos + i - 1 );
 	    nmarks = pa.size();
-	} else if ( nmarks ) {
+	} else 
+#endif //QT_NO_COMPLEXTEXT
+	    if ( nmarks ) {
 	    QPoint p = pa[pa.size() - nmarks];
 	    //qDebug("positioning mark at (%d/%d) currw=%d", p.x(), p.y(), currw);
 	    cache->setParams( currw + p.x(), p.y(), 0, str.unicode() + lasts, i-lasts, currs );
@@ -599,8 +602,9 @@ int QFontMetrics::charWidth( const QString &str, int pos ) const
 {
     QChar ch = str[pos];
     if ( ch.combiningClass() > 0 ) return 0;
-
+#ifndef QT_NO_COMPLEXTEXT
     ch = QComplexText::shapedCharacter( str, pos );
+#endif
     return ch.unicode() ? width(ch) : 0;
 }
 

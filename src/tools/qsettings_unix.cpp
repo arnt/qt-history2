@@ -23,6 +23,7 @@
 *****************************************************************************/
 
 #include "qsettings.h"
+#ifndef QT_NO_SETTINGS
 
 #include <qdir.h>
 #include <qfile.h>
@@ -1245,3 +1246,5 @@ QDateTime QSettings::lastModficationTime(const QString &key)
 
     return d->modificationTime();
 }
+
+#endif //QT_NO_SETTINGS

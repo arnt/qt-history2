@@ -37,6 +37,8 @@
 
 #include "qrichtext_p.h"
 
+#ifndef QT_NO_RICHTEXT
+
 QTextCommand::~QTextCommand() {}
 QTextCommand::Commands QTextCommand::type() const { return Invalid; };
 
@@ -655,3 +657,5 @@ QTextStringChar::~QTextStringChar()
 	    break;
     }
 }
+
+#endif //QT_NO_RICHTEXT

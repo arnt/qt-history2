@@ -1081,6 +1081,7 @@ void  QFont::setDefaultFont( const QFont &f )
 
 
 
+#ifndef QT_NO_STRINGLIST
 
 /*****************************************************************************
   QFont substitution management
@@ -1258,7 +1259,6 @@ void QFont::removeSubstitution( const QString &familyName )
     fontSubst->remove(familyName);
 }
 
-#ifndef QT_NO_STRINGLIST
 
 /*! Returns a sorted list of substituted family names.
 
@@ -1337,7 +1337,7 @@ QString QFont::key() const
     return d->key();
 }
 
-
+#ifndef QT_NO_STRINGLIST
 /*! Returns a description of this font.  The description is a comma-separated
   list of the various attributes, perfectly suited for use in QSettings.
 
@@ -1387,7 +1387,7 @@ bool QFont::fromString(const QString &descrip)
 
     return TRUE;
 }
-
+#endif QT_NO_STRINGLIST
 
 #if !defined( Q_WS_QWS ) // && !defined( Q_WS_MAC )
 /*! \internal

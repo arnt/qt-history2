@@ -31,6 +31,8 @@
 #include <qstringlist.h>
 #endif // QT_H
 
+#ifndef QT_NO_SETTINGS
+
 class QSettingsPrivate;
 
 
@@ -82,5 +84,5 @@ private:
     friend class QApplication;
 };
 
-
+#endif // QT_NO_SETTINGS
 #endif // QSETTINGS_H

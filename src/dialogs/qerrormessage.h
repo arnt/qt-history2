@@ -42,6 +42,7 @@
 #include "qdialog.h"
 #endif // QT_H
 
+#ifndef QT_NO_ERRORMESSAGE
 class QPushButton;
 class QCheckBox;
 class QLabel;
@@ -75,5 +76,6 @@ private:
     bool nextPending();
 };
 
+#endif //QT_NO_ERRORMESSAGE
 
 #endif

@@ -36,6 +36,9 @@
 **********************************************************************/
 
 #include "qtextview.h"
+
+#ifndef QT_NO_TEXTVIEW
+
 #include "../kernel/qrichtext_p.h"
 #include "qpainter.h"
 #include "qpen.h"
@@ -3212,3 +3215,5 @@ void QTextView::setSelectionAttributes( int selNum, const QColor &back, bool inv
     doc->setSelectionColor( selNum, back );
     doc->setInvertSelectionText( selNum, invertText );
 }
+
+#endif

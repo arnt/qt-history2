@@ -36,6 +36,10 @@
 **********************************************************************/
 
 #include "qrichtext_p.h"
+
+#ifndef QT_NO_RICHTEXT
+
+
 #include "qstringlist.h"
 #include "qfont.h"
 #include "qtextstream.h"
@@ -6534,3 +6538,5 @@ void QTextTableCell::draw( int x, int y, int cx, int cy, int cw, int ch, const Q
 
     painter()->restore();
 }
+
+#endif //QT_NO_RICHTEXT

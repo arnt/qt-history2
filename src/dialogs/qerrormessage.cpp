@@ -37,6 +37,8 @@
 
 #include "qerrormessage.h"
 
+#ifndef QT_NO_ERRORMESSAGE
+
 #include "qstringlist.h"
 #include "qpushbutton.h"
 #include "qcheckbox.h"
@@ -215,3 +217,5 @@ void QErrorMessage::message( const QString & m )
     if ( nextPending() )
 	show();
 }
+
+#endif //QT_NO_ERRORMESSAGE

@@ -101,6 +101,20 @@
 */
 //#define QT_NO_STRINGLIST
 
+
+#if defined(QT_NO_STRINGLIST)
+/*!
+  Regular expression capture
+*/
+# define QT_NO_REGEXP_CAPTURE
+# endif
+
+/*!
+  Regular expression wildcard support
+*/
+//#define QT_NO_REGEXP_WILDCARD
+
+
 #if defined(QT_NO_IMAGE_SMOOTHSCALE)
 /*!
     QIconSet
@@ -130,10 +144,16 @@
 */
 //#define QT_NO_DATASTREAM
 
+#if defined(QT_NO_STRINGLIST)
 /*!
   Dynamic module linking
 */
-//#define QT_NO_COMPONENT
+# define QT_NO_COMPONENT
+#endif
+#if defined QT_NO_STRINGLIST
+# define QT_NO_SETTINGS
+#endif
+
 
 
 // Images
@@ -273,11 +293,19 @@
 #if defined(QT_NO_DIR)
 # define QT_NO_MIME
 #endif
-#if defined(QT_NO_MIME) || defined(QT_NO_TEXTSTREAM) || defined(QT_NO_DRAWUTIL) || defined(QT_NO_IMAGE_SMOOTHSCALE)
+#if defined(QT_NO_MIME) || defined(QT_NO_TEXTSTREAM) || defined(QT_NO_DRAWUTIL) 
+// Used to be: || defined(QT_NO_IMAGE_SMOOTHSCALE)
     /*!
 	RichText (HTML) display
     */
 # define QT_NO_RICHTEXT
+#endif
+
+#if defined(QT_NO_RICHTEXT)
+   /*!
+      Complex script support (eg. BiDi)
+   */
+# define QT_NO_COMPLEXTEXT
 #endif
 
 /*!
@@ -348,11 +376,12 @@
 # define QT_NO_NETWORKPROTOCOL_HTTP
 #endif
 
+#if defined(QT_NO_STRINGLIST)
 /*!
   External process invocation.
 */
-//#define QT_NO_PROCESS
-
+# define QT_NO_PROCESS
+#endif
 
 // Qt/Embedded-specific
 
@@ -603,6 +632,9 @@
 # define QT_NO_LABEL
 #endif
 
+
+
+
 /*!
   Toolbars
 */
@@ -681,12 +713,7 @@
 */
 # define QT_NO_VBOX
 #endif
-/*!
-  Single-line edits
-*/
-#if defined(QT_NO_PALETTE)
-# define QT_NO_LINEEDIT
-#endif
+
 #if defined(QT_NO_TOOLBAR)
 /*!
   Main-windows
@@ -766,13 +793,33 @@
 # endif
 #endif
 
+
+#if defined(QT_NO_RICHTEXT) || defined(QT_NO_SCROLLVIEW)
+# define QT_NO_TEXTVIEW
+#endif
+
+/*!
+  Rich text edit
+*/
+#ifdef QT_NO_TEXTVIEW
+# define QT_NO_TEXTEDIT
+#endif
+
 #if defined(QT_NO_SCROLLBAR)
 /*!
   Table-like widgets
 */
 # define QT_NO_TABLEVIEW
 #endif
-#if defined(QT_NO_TABLEVIEW)
+
+/*!
+  Single-line edits
+*/
+#if defined(QT_NO_FRAME) || defined(QT_NO_RICHTEXT)
+# define QT_NO_LINEEDIT
+#endif
+
+#if defined(QT_NO_TEXTEDIT)
 /*!
   Multi-line edits
 */
@@ -1013,6 +1060,14 @@
     */
 # define QT_NO_INPUTDIALOG
 #endif
+
+#if defined(QT_NO_DIALOG) || defined(QT_NO_LAYOUT) || defined(QT_NO_RICHTEXT)
+    /*!
+	QErrorMessage
+    */
+# define QT_NO_ERRORMESSAGE
+#endif
+
 
 #if defined(QT_NO_STRINGLIST)
     /*!

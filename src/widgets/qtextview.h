@@ -46,6 +46,7 @@
 #include "qvaluelist.h"
 #endif // QT_H
 
+#ifndef QT_NO_TEXTVIEW
 class QPainter;
 class QTextDocument;
 class QTextCursor;
@@ -373,4 +374,5 @@ inline QTextDocument *QTextView::document() const
     return doc;
 }
 
-#endif
+#endif //QT_NO_TEXTVIEW
+#endif //QTEXTVIEW_H

@@ -147,6 +147,7 @@ public:
 
     QString key() const;
 
+#ifndef QT_NO_STRINGLIST
     QString toString() const;
     bool fromString(const QString &);
 
@@ -156,7 +157,7 @@ public:
     static void insertSubstitution(const QString&, const QString &);
     static void insertSubstitutions(const QString&, const QStringList &);
     static void removeSubstitution(const QString &);
-
+#endif //QT_NO_STRINGLIST
     static void initialize();
     static void cleanup();
     static void cacheStatistics();

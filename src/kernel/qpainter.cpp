@@ -2246,6 +2246,11 @@ void qt_format_text( const QFont& font, const QRect &r,
 
     bool simple = !decode && singleline && !showprefix && !expandtabs;
 
+#ifdef QT_NO_RICHTEXT
+    simple = TRUE; //####### This is ugly and hopefully temporary
+#endif    
+    
+    
     if ( simple ) {
 	// we can use a simple drawText instead of the QTextParag.
 	QFontMetrics fm( font );
@@ -2286,7 +2291,7 @@ void qt_format_text( const QFont& font, const QRect &r,
 	}
 	return;
     }
-
+#ifndef QT_NO_RICHTEXT
 #if defined(QT_FORMAT_TEXT_DEBUG)
     qDebug("textflags: %d %d %d %d alignment: %d/%d", wordbreak, expandtabs, singleline, showprefix, tf&Qt::AlignHorizontal_Mask, tf&Qt::AlignVertical_Mask);
 #endif
@@ -2418,6 +2423,7 @@ void qt_format_text( const QFont& font, const QRect &r,
     } else {
 	delete parag;
     }
+#endif //QT_NO_RICHTEXT
 }
 
 /*!
