@@ -45,6 +45,7 @@ struct QReadWriteLockPrivate
     volatile int accessCount;
     int maxReaders;
     QAtomic waitingWriters;
+    int waitingReaders; //waitingReaders is protected by a mutex, so it can be an int
     HANDLE readerWait;
     HANDLE writerWait;
 };
