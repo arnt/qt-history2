@@ -50,7 +50,7 @@ inline int qstrncmp( const char *str1, const char *str2, uint len )
 Q_CORE_EXPORT int qstricmp( const char *, const char * );
 Q_CORE_EXPORT int qstrnicmp( const char *, const char *, uint len );
 
-#ifndef QT_CLEAN_NAMESPACE
+#ifdef QT_COMPAT
 inline uint cstrlen( const char *str )
 { return (uint)strlen(str); }
 inline char *cstrcpy( char *dst, const char *src )
