@@ -19,8 +19,8 @@
 ** not clear to you.
 **
 *********************************************************************</comment>
-<include location="local" impldecl="in implementation">splashloader.h</include>
-<pixmapfunction>splashScreen</pixmapfunction>
+<include location="local" impldecl="in implementation">pixmaploader.h</include>
+<pixmapfunction>createPixmap</pixmapfunction>
 <widget class="QDialog">
     <property name="name">
         <cstring>AboutDialog</cstring>
@@ -35,6 +35,9 @@
     </property>
     <property name="caption">
         <string>Qt Linguist</string>
+    </property>
+    <property name="icon">
+        <pixmap>LogoPixmap</pixmap>
     </property>
     <vbox>
         <property name="name">
@@ -57,7 +60,7 @@
                 <enum>Plain</enum>
             </property>
             <property name="pixmap">
-                <pixmap></pixmap>
+                <pixmap>SplashPixmap</pixmap>
             </property>
             <property name="scaledContents">
                 <bool>false</bool>

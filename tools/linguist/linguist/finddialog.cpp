@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2000-2001 Trolltech AS.  All rights reserved.
+** Copyright (C) 2000-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Linguist.
 **
@@ -25,7 +25,7 @@
 */
 
 #include "finddialog.h"
-#include "logoloader.h"
+#include "pixmaploader.h"
 
 #include <qcheckbox.h>
 #include <qlabel.h>
@@ -38,7 +38,7 @@ FindDialog::FindDialog( bool replace, QWidget *parent, const char *name,
 			bool modal )
     : QDialog( parent, name, modal )
 {
-    setIcon( logo() );
+    setIcon( createPixmap( LogoPixmap ) );
 
     sourceText = 0;
     

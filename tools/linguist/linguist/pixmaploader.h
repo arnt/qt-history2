@@ -1,5 +1,5 @@
 /**********************************************************************
-** Copyright (C) 2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 2001-2002 Trolltech AS.  All rights reserved.
 **
 ** This file is part of Qt Linguist.
 **
@@ -18,10 +18,24 @@
 **
 **********************************************************************/
 
-#include "logoloader.h"
-#include "trwindow.h"
+#ifndef PIXMAPLOADER_H
+#define PIXMAPLOADER_H
 
-QPixmap logo()
-{
-    return TrWindow::logo();
-}
+#include <qdict.h>
+#include <qpixmap.h>
+
+struct EmbImage {
+    unsigned int         size;
+    const unsigned char *data;
+    const char          *name;
+};
+
+extern QDict<EmbImage> *imageDict;
+
+void setupImageDict();
+
+enum PixmapType { SplashPixmap, LogoPixmap };
+
+const QPixmap createPixmap( PixmapType type );
+
+#endif

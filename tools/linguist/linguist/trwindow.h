@@ -56,9 +56,7 @@ public:
     static QPixmap * pxOff;
     static QPixmap * pxObsolete;
     static QPixmap * pxDanger;
-    static const QPixmap splash();
     static const QPixmap pageCurl();
-    static const QPixmap logo();
 
     TrWindow();
     ~TrWindow();
@@ -115,7 +113,6 @@ private:
     typedef QPtrList<PhraseBook> PBL;
     typedef QDict<PhraseBook> PBD;
 
-    static void setupImageDict();
     static QString friendlyString( const QString& str );
 
     void addRecentlyOpenedFile( const QString & fn, QStringList & lst );
