@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmlined.cpp#82 $
+** $Id: //depot/qt/main/src/widgets/qmlined.cpp#83 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -127,7 +127,7 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
     setCellHeight( fm.lineSpacing() + 1 );
     setNumCols( 1 );
 
-    setNumRows( 0 ); 
+    setNumRows( 0 );
     setCellWidth( 1 ); // ### constant width
     contents = new QList<QString>;
     contents->setAutoDelete( TRUE );
@@ -212,7 +212,7 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
 
 /*! \fn bool QMultiLineEdit::isReadOnly() const
 
-  Returns FALSE if this multi line edit accepts text input. 
+  Returns FALSE if this multi line edit accepts text input.
   Scrolling and cursor movements are accepted in any case.
 
   \sa setReadOnly() QWidget::isEnabled()
@@ -242,13 +242,13 @@ QMultiLineEdit::QMultiLineEdit( QWidget *parent , const char *name )
   If \a on is FALSE, this multi line edit accepts text input.
   Scrolling and cursor movements are accepted in any case.
 
-  \sa inputEnabled() QWidget::setEnabled() 
+  \sa inputEnabled() QWidget::setEnabled()
 */
 
-void QMultiLineEdit::setReadOnly( bool on ) 
-{ 
+void QMultiLineEdit::setReadOnly( bool on )
+{
     if ( readOnly != on ) {
-	readOnly = on; 
+	readOnly = on;
 	setCursor( on ? arrowCursor : ibeamCursor );
     }
 }
@@ -306,7 +306,8 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
     QFontMetrics fm( painter->font() );
     QString *s = contents->at( row );
     if ( !s ) {
-	warning( "QMultiLineEdit::paintCell, no text at line %d", row );
+	warning( "QMultiLineEdit::paintCell: (%s) no text at line %d",
+		 name(), row );
 	return;
     }
     QRect updateR   = cellUpdateRect();
@@ -360,12 +361,12 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
 	if ( markX2 == sLength )
 	    fillxpos2 += 3;
 	p.setClipping( TRUE );
-	p.setClipRect( fillxpos1 - updateR.left(), 0, 
+	p.setClipRect( fillxpos1 - updateR.left(), 0,
 		       fillxpos2 - fillxpos1, cellHeight(row) );
 	if ( style() == WindowsStyle ) {
-	    p.fillRect( fillxpos1, 0, fillxpos2 - fillxpos1, cellHeight(row), 
+	    p.fillRect( fillxpos1, 0, fillxpos2 - fillxpos1, cellHeight(row),
 			QApplication::winStyleHighlightColor() );
-	    p.setPen( white );	    
+	    p.setPen( white );	
 	} else {
 	    p.fillRect( fillxpos1, 0, fillxpos2 - fillxpos1, cellHeight(row),
 			g.text() );
@@ -414,8 +415,9 @@ int QMultiLineEdit::textWidth( int line )
     //possibilities of caching...
     QString *s = contents->at( line );
     if ( !s ) {
-	warning( 
-	  "QMultiLineEdit::textWidth: Couldn't find contents at line %d", line );
+	warning( "QMultiLineEdit::textWidth: (%s) "
+		 "Couldn't find contents at line %d",
+		 name(), line );
 	return 0;
     }
     return textWidth( s );
@@ -486,7 +488,7 @@ void QMultiLineEdit::timerEvent( QTimerEvent *t )
   to the start and end of the marked region and returns TRUE. Returns
   FALSE if there is no marked text.
  */
-bool QMultiLineEdit::getMarkedRegion( int *line1, int *col1, 
+bool QMultiLineEdit::getMarkedRegion( int *line1, int *col1,
 				      int *line2, int *col2 ) const
 {
     if ( !markIsOn )
@@ -733,7 +735,7 @@ void QMultiLineEdit::append( const char *s )
 
 */
 
-void QMultiLineEdit::keyPressEvent( QKeyEvent *e ) 
+void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 {
     textDirty = FALSE;
     int unknown = 0;
@@ -762,7 +764,7 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 	default:
 	    unknown++;
 	}
-	if ( unknown ) 
+	if ( unknown )
 	    e->ignore();
 	return;
     }
@@ -871,12 +873,12 @@ void QMultiLineEdit::keyPressEvent( QKeyEvent *e )
 
 
 /*!
-  Moves the cursor one page down.  If \a mark is TRUE, the text 
-  is marked. 
+  Moves the cursor one page down.  If \a mark is TRUE, the text
+  is marked.
 */
 
 void QMultiLineEdit::pageDown( bool mark )
-{ 
+{
     bool oldAuto = autoUpdate();
     if ( mark )
 	setAutoUpdate( FALSE );
@@ -924,8 +926,8 @@ void QMultiLineEdit::pageDown( bool mark )
 
 
 /*!
-  Moves the cursor one page up.  If \a mark is TRUE, the text 
-  is marked. 
+  Moves the cursor one page up.  If \a mark is TRUE, the text
+  is marked.
 */
 
 void QMultiLineEdit::pageUp( bool mark )
@@ -1004,7 +1006,7 @@ static const char *getOneLine( const char *txt, QString **s )
 
 /*!
   Inserts \a txt at line number \a line, after character number \a col
-  in the line. 
+  in the line.
   If \a txt contains newline characters, new lines are inserted.
 
   The cursor position is adjusted. If the insertion position is equal to
@@ -1019,7 +1021,7 @@ void QMultiLineEdit::insertAt( const char *txt, int line, int col )
 
     QString *oldLine = getString( line );
     ASSERT( oldLine );
-    bool cursorAfter = atEnd() || cursorY > line 
+    bool cursorAfter = atEnd() || cursorY > line
 	  || cursorY == line && cursorX >= col;
     bool onLineAfter = cursorY == line && cursorX >= col;
 
@@ -1102,7 +1104,7 @@ void QMultiLineEdit::insertLine( const char *txt, int line )
 
 /*!
   Deletes the line at line number \a line. If \a
-  line is less than zero, or larger than the number of lines, 
+  line is less than zero, or larger than the number of lines,
   no line is deleted.
 */
 
@@ -1186,7 +1188,7 @@ void QMultiLineEdit::killLine()
     if ( cursorX == (int)s->length() ) {
 	del();
 	return;
-    } else {    
+    } else {
 	bool recalc = textWidth( s ) == cellWidth();
 	s->remove( cursorX, s->length() );
 	updateCell( cursorY, 0, TRUE ); //Quick fix; whole line needs update
@@ -1200,8 +1202,8 @@ void QMultiLineEdit::killLine()
 }
 
 /*!
-  Moves the cursor one character to the left. If \a mark is TRUE, the text 
-  is marked. If \a wrap is TRUE, the cursor moves to the end of the 
+  Moves the cursor one character to the left. If \a mark is TRUE, the text
+  is marked. If \a wrap is TRUE, the cursor moves to the end of the
   previous line  if it is placed at the beginning of the current line.
 
   \sa cursorRight() cursorUp() cursorDown()
@@ -1243,7 +1245,7 @@ void QMultiLineEdit::cursorLeft( bool mark, bool wrap )
 }
 
 /*!
-  Moves the cursor one character to the right.  If \a mark is TRUE, the text 
+  Moves the cursor one character to the right.  If \a mark is TRUE, the text
   is marked. If \a wrap is TRUE, the cursor moves to the beginning of the next
   line if it is placed at the end of the current line.
   \sa cursorLeft() cursorUp() cursorDown()
@@ -1283,8 +1285,8 @@ void QMultiLineEdit::cursorRight( bool mark, bool wrap )
 }
 
 /*!
-  Moves the cursor up one line.  If \a mark is TRUE, the text 
-  is marked. 
+  Moves the cursor up one line.  If \a mark is TRUE, the text
+  is marked.
   \sa cursorDown() cursorLeft() cursorRight()
 */
 
@@ -1317,8 +1319,8 @@ void QMultiLineEdit::cursorUp( bool mark )
 }
 
 /*!
-  Moves the cursor one line down.  If \a mark is TRUE, the text 
-  is marked. 
+  Moves the cursor one line down.  If \a mark is TRUE, the text
+  is marked.
   \sa cursorDown() cursorLeft() cursorRight()
 */
 
@@ -1461,8 +1463,8 @@ void QMultiLineEdit::del()
   Moves the text cursor to the left end of the line. If \a mark is
   TRUE, text is marked towards the first position. If it is FALSE and
   the cursor is moved, all marked text is unmarked.
-  
-  \sa end() 
+
+  \sa end()
 */
 
 void QMultiLineEdit::home( bool mark )
@@ -1494,7 +1496,7 @@ void QMultiLineEdit::home( bool mark )
   \sa home()
 */
 
-void QMultiLineEdit::end( bool mark ) 
+void QMultiLineEdit::end( bool mark )
 {
     int tlen = lineLength( cursorY );
     if ( cursorX != tlen ) {
@@ -1698,7 +1700,7 @@ void QMultiLineEdit::makeVisible()
     if ( xPos < xOffset() ) {
 	int of = xPos - 10; //###
 	//debug( "left: new offset = %d", of );
-	setXOffset( of ); 
+	setXOffset( of );
     } else if ( xPos > xOffset() + viewWidth() ) {
 	int of = xPos - viewWidth() + 10; //###
 	//debug( "right: new offset = %d", of );
@@ -1707,7 +1709,7 @@ void QMultiLineEdit::makeVisible()
 }
 
 /*!
-  Computes the character position in line \a line which corresponds 
+  Computes the character position in line \a line which corresponds
   to pixel \a xPos
 */
 
@@ -1724,7 +1726,7 @@ int QMultiLineEdit::mapFromView( int xPos, int line )
 }
 
 /*!
-  Computes the pixel position in line \a line which corresponds to 
+  Computes the pixel position in line \a line which corresponds to
   character position \a xIndex
 */
 
@@ -1802,7 +1804,7 @@ void QMultiLineEdit::paste()
 void QMultiLineEdit::clear()
 {
     contents->first();
-    while ( contents->remove() ) 
+    while ( contents->remove() )
 	;
     cursorX = cursorY = 0;
     insertLine( "", -1 );
@@ -1943,7 +1945,7 @@ void QMultiLineEdit::setWidth( int w )
     setAutoUpdate( FALSE );
     setCellWidth( w );
     setAutoUpdate( u );
-    
+
 }
 
 
@@ -1977,7 +1979,7 @@ void QMultiLineEdit::setCursorPosition( int line, int col, bool mark )
 
 
 /*!
-  Sets \a line to the current line and \a col to the current character 
+  Sets \a line to the current line and \a col to the current character
   position within that line.
 
   \sa setCursorPosition()
@@ -1993,7 +1995,7 @@ void QMultiLineEdit::cursorPosition( int *line, int *col ) const
 
 
 /*!
-  Sets \a line to the current line and \a col to the current character 
+  Sets \a line to the current line and \a col to the current character
   position within that line.
 
   OBSOLETE - Use cursorPosition() instead.

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#2 $
+** $Id: //depot/qt/main/src/widgets/qsplitter.cpp#3 $
 **
 **  Splitter widget
 **
@@ -27,8 +27,8 @@
   */
 
 QSplitter::QSplitter( QWidget *parent, const char *name )
-    :QFrame(parent,name) 
-{ 
+    :QFrame(parent,name)
+{
      orient = Horizontal;
      init();
 }
@@ -37,8 +37,8 @@ QSplitter::QSplitter( QWidget *parent, const char *name )
   */
 
 QSplitter::QSplitter( Orientation o, QWidget *parent, const char *name )
-    :QFrame(parent,name) 
-{ 
+    :QFrame(parent,name)
+{
      orient = o;
      init();
 }
@@ -74,7 +74,7 @@ void QSplitter::init()
  */
 void QSplitter::setFirstWidget( QWidget *w ) {
     if ( w->parentWidget() != this ) {
-	warning( "QSplitter::setFirstWidget(), must be child." );
+	warning( "QSplitter::setFirstWidget(): (%s) must be child.", name() );
 	return;
     }
     w1 = w;
@@ -88,7 +88,7 @@ void QSplitter::setFirstWidget( QWidget *w ) {
  */
 void QSplitter::setSecondWidget( QWidget *w ) {
     if ( w->parentWidget() != this ) {
-	warning( "QSplitter::setSecondWidget(), must be child." );
+	warning( "QSplitter::setSecondWidget(): (%s) must be child.", name() );
 	return;
     }
     w2 = w;
@@ -125,7 +125,7 @@ QCOORD QSplitter::r2p( int r )
 int QSplitter::p2r( QCOORD p )
 {
     int s = pick(contentsRect().size());
-    
+
     return s ? ( p * 256 ) / s : 128;
 }
 
@@ -217,16 +217,16 @@ int QSplitter::hit( QPoint pnt )
 {
     //### fancy 2-dim hit for Motif...
     QCOORD p = pick(pnt);
-    if ( w1 && p > pick( w1->geometry().bottomRight() ) && 
+    if ( w1 && p > pick( w1->geometry().bottomRight() ) &&
 	 w2 && p < pick( w2->pos() ) )
 	return 1;
-    else   
+    else
 	return 0;
 }
 
 
 /*!
-  Draws the splitter handle in the rectangle described by \a x, \a y, 
+  Draws the splitter handle in the rectangle described by \a x, \a y,
   \a w, \a h using painter \a p.
  */
 void QSplitter::drawSplitter( QPainter *p, QCOORD x, QCOORD y, QCOORD w, QCOORD h )
@@ -253,7 +253,7 @@ void QSplitter::drawSplitter( QPainter *p, QCOORD x, QCOORD y, QCOORD w, QCOORD 
 	    qDrawShadeLine( p, 0, yPos, kPos, yPos, colorGroup() );
 	    qDrawShadePanel( p, kPos, yPos-bord+1,
 			     kSize, kSize, colorGroup() );
-	    qDrawShadeLine( p, kPos + kSize -1, yPos, 
+	    qDrawShadeLine( p, kPos + kSize -1, yPos,
 			    w, yPos, colorGroup() );
 	}
     }
@@ -367,7 +367,7 @@ void QSplitter::recalc()
     int maxt = QMIN( trans(w1->maximumSize()),trans(w2->maximumSize()) );
     int mint = QMAX( trans(w1->minimumSize()), trans(w2->minimumSize()) );
 
-    if ( maxt < mint ) 
+    if ( maxt < mint )
 	maxt = mint;
 
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qframe.cpp#49 $
+** $Id: //depot/qt/main/src/widgets/qframe.cpp#50 $
 **
 ** Implementation of QFrame widget class
 **
@@ -14,7 +14,7 @@
 #include "qdrawutl.h"
 #include "qframe.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#49 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qframe.cpp#50 $");
 
 
 /*!
@@ -137,7 +137,7 @@ QFrame::QFrame( QWidget *parent, const char *name, WFlags f,
 
   The frame shapes are:
   <ul>
-  <li> \c NoFrame draws nothing. Naturally, you should not specify a shadow 
+  <li> \c NoFrame draws nothing. Naturally, you should not specify a shadow
   style if you use this.
   <li> \c Box draws a rectangular box.	The contents appear to be
   level with the surrounding screen, but the border itself may be
@@ -184,7 +184,8 @@ void QFrame::setFrameStyle( int style )
     bool shape	= (style & MShape)  != 0;
     bool shadow = (style & MShadow) != 0;
     if ( shape != shadow )
-	warning( "QFrame::setFrameStyle: Incomplete frame style" );
+	warning( "QFrame::setFrameStyle: (%s) Incomplete frame style",
+		 name() );
 #endif
     fstyle = (short)style;
     updateFrameWidth();

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#45 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#46 $
 **
 ** Implementation of QSlider class
 **
@@ -15,7 +15,7 @@
 #include "qtimer.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#45 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#46 $");
 
 
 static const int motifBorder = 2;
@@ -215,7 +215,7 @@ int QSlider::available() const
 	break;
     default:
     case MotifStyle:
-	a = (orient == Horizontal) ? width() -motifLength - 2*motifBorder 
+	a = (orient == Horizontal) ? width() -motifLength - 2*motifBorder
 	    : height() - motifLength - 2*motifBorder;
 	break;
     }
@@ -241,7 +241,7 @@ void QSlider::rangeChange()
 {
     int newPos = positionFromValue( value() );
     if ( newPos != sliderPos ) {
-	reallyMoveSlider( newPos ); 
+	reallyMoveSlider( newPos );
     }
 }
 
@@ -320,7 +320,7 @@ QRect QSlider::sliderRect() const
     switch ( style() ) {
     case WindowsStyle:
 	if (orient == Horizontal )
-	    r.setRect( sliderPos, tickOffset, 
+	    r.setRect( sliderPos, tickOffset,
 		       winLength, thickness()  );
 	else
 	    r.setRect ( tickOffset, sliderPos,
@@ -329,10 +329,10 @@ QRect QSlider::sliderRect() const
     default:
     case MotifStyle:
 	if (orient == Horizontal )
-	    r.setRect ( sliderPos + motifBorder, tickOffset + motifBorder, 
+	    r.setRect ( sliderPos + motifBorder, tickOffset + motifBorder,
 			motifLength, thickness() - 2 * motifBorder );
 	else
-	    r.setRect ( tickOffset + motifBorder, sliderPos + motifBorder, 
+	    r.setRect ( tickOffset + motifBorder, sliderPos + motifBorder,
 			thickness() - 2 * motifBorder, motifLength );
 	break;
     }
@@ -468,7 +468,7 @@ static void drawWinPointedSlider( QPainter *p,
 /*!
   Paints the slider button using painter \a p with size and
   position given by \a r. Reimplement this function to change the
-  look of the slider button.  
+  look of the slider button.
 */
 
 void QSlider::paintSlider( QPainter *p, const QRect &r )
@@ -517,12 +517,12 @@ void QSlider::reallyMoveSlider( int newPos )
     if ( orient == Horizontal ) {
 	if ( oldR.left() < newR.left() )
 	    oldR.setRight( QMIN ( oldR.right(), newR.left()));
-	else           //oldR.right() >= newR.right() 
+	else           //oldR.right() >= newR.right()
 	    oldR.setLeft( QMAX ( oldR.left(), newR.right()));
     } else {
 	if ( oldR.top() < newR.top() )
 	    oldR.setBottom( QMIN ( oldR.bottom(), newR.top()));
-	else           //oldR.bottom() >= newR.bottom() 
+	else           //oldR.bottom() >= newR.bottom()
 	    oldR.setTop( QMAX ( oldR.top(), newR.bottom()));
     }
     repaint( oldR );
@@ -556,7 +556,7 @@ void QSlider::drawWinGroove( QPainter *p, QCOORD c )
 
 void QSlider::paintEvent( QPaintEvent *e )
 {
-    
+
     QPainter p;
     p.begin( this );
     QRect paintRect = e->rect();
@@ -592,13 +592,13 @@ void QSlider::paintEvent( QPaintEvent *e )
 			     g, TRUE );
 	    p.fillRect( 0, 0, width(), tickOffset, g.background() );
 	    p.fillRect( 0, tickOffset + thickness(),
-			width(), height()/*###*/, g.background() ); 
+			width(), height()/*###*/, g.background() );
 	} else {
 	    qDrawShadePanel( &p, tickOffset, 0, thickness(), height(),
 			     g, TRUE );
 	    p.fillRect( 0, 0,  tickOffset, height(), g.background() );
 	    p.fillRect( tickOffset + thickness(), 0,
-			width()/*###*/, height(), g.background() ); 
+			width()/*###*/, height(), g.background() );
 	}
 
 	if ( hasFocus() ) {
@@ -612,7 +612,7 @@ void QSlider::paintEvent( QPaintEvent *e )
 	break;
     }
 
-    
+
     int interval = tickInt;
     if ( interval <= 0 ) {
 	interval = lineStep();
@@ -656,7 +656,7 @@ void QSlider::mousePressEvent( QMouseEvent *e )
 	int pos = goodPart( e->pos() );
 	moveSlider( pos - slideLength() / 2 );
 	state = Dragging;
-	clickOffset = slideLength() / 2;     
+	clickOffset = slideLength() / 2;
     } else if ( orient == Horizontal && e->pos().x() < r.left() //### goodPart
 		|| orient == Vertical && e->pos().y() < r.top() ) {
 	state = TimingDown;
@@ -664,7 +664,7 @@ void QSlider::mousePressEvent( QMouseEvent *e )
 	if ( !timer )
 	    timer = new QTimer( this );
 	connect( timer, SIGNAL(timeout()), SLOT(repeatTimeout()) );
-	timer->start( thresholdTime, TRUE ); 
+	timer->start( thresholdTime, TRUE );
     } else if ( orient == Horizontal && e->pos().x() > r.right() //### goodPart
 		|| orient == Vertical && e->pos().y() > r.bottom() ) {
 	state = TimingUp;
@@ -672,7 +672,7 @@ void QSlider::mousePressEvent( QMouseEvent *e )
 	if ( !timer )
 	    timer = new QTimer( this );
 	connect( timer, SIGNAL(timeout()), SLOT(repeatTimeout()) );
-	timer->start( thresholdTime, TRUE ); 
+	timer->start( thresholdTime, TRUE );
     }
 }
 
@@ -682,14 +682,14 @@ void QSlider::mousePressEvent( QMouseEvent *e )
 
 void QSlider::mouseMoveEvent( QMouseEvent *e )
 {
-    
+
     if ( style() == WindowsStyle ) {
 	QRect r = rect();
 	if ( orientation() == Horizontal )
 	    r.setRect( r.x() - 20, r.y() - 30, r.width() + 40, r.height() + 60 );
 	else
 	    r.setRect( r.x() - 30, r.y() - 20, r.width() + 60, r.height() + 40 );
-	if ( !r.contains( e->pos() ) ) { 
+	if ( !r.contains( e->pos() ) ) {
 	    moveSlider( positionFromValue( sliderStartVal) );
 	    return;
 	}
@@ -706,7 +706,7 @@ void QSlider::mouseMoveEvent( QMouseEvent *e )
 	return;
 
     int pos = goodPart( e->pos() );
-    
+
     moveSlider( pos - clickOffset );
 }
 
@@ -732,7 +732,7 @@ void QSlider::focusInEvent( QFocusEvent * )
 }
 
 /*!
-  Moves the left (or top) edge of the slider to position 
+  Moves the left (or top) edge of the slider to position
   \a pos. Performs snapping.
 */
 
@@ -757,7 +757,7 @@ void QSlider::moveSlider( int pos )
     default:
     case MotifStyle:
 	break;
-    }	    
+    }	
 
     if ( sliderPos != newPos )
 	reallyMoveSlider( newPos );
@@ -786,7 +786,7 @@ void QSlider::resetState()
     case Idle:
 	break;
     default:
-	warning("QSlider: in wrong state");
+	warning("QSlider: (%s) in wrong state", name() );
     }
     state = Idle;
 }
@@ -840,7 +840,7 @@ void QSlider::keyPressEvent( QKeyEvent *e )
   Returns the length of the slider.
 */
 
-int QSlider::slideLength() const 
+int QSlider::slideLength() const
 {
     switch ( style() ) {
     case WindowsStyle:
@@ -894,7 +894,7 @@ void QSlider::repeatTimeout()
 	connect( timer, SIGNAL(timeout()), SLOT(subtractStep()) );
     else if ( state == TimingUp )
 	connect( timer, SIGNAL(timeout()), SLOT(addStep()) );
-    timer->start( repeatTime, FALSE );   
+    timer->start( repeatTime, FALSE );
 }
 
 
@@ -907,7 +907,7 @@ int QSlider::goodPart( const QPoint &p ) const
     return (orient == Horizontal) ?  p.x() : p.y();
 }
 
-/*!  
+/*!
   Returns the recommended size of the slider. Only the thickness is
   relevant.
 */
@@ -932,8 +932,8 @@ QSize QSlider::sizeHint() const
 
 
 /*!
-  Returns the number of pixels to use for the business part of the 
-  slider (i.e. the non-tickmark portion). The remaining space is shared 
+  Returns the number of pixels to use for the business part of the
+  slider (i.e. the non-tickmark portion). The remaining space is shared
   equally between the tickmark regions. This function and  sizeHint()
   are closely related; if you change one, you almost certainly
   have to change the other.
@@ -962,9 +962,9 @@ int QSlider::thickness() const
 }
 
 
-/*!  
+/*!
   Using \a p, draws tickmarks at a distance of \a d from the edge
-  of the widget, using \a w pixels and with an interval of \a i.  
+  of the widget, using \a w pixels and with an interval of \a i.
 */
 
 void QSlider::drawTicks( QPainter *p, int d, int w, int i ) const
@@ -984,7 +984,7 @@ void QSlider::drawTicks( QPainter *p, int d, int w, int i ) const
 
 
 /*!
-  Sets the way tickmarks are displayed by the slider. \a s can take 
+  Sets the way tickmarks are displayed by the slider. \a s can take
   the following values:
   <ul>
   <li> \c NoMarks
@@ -1021,9 +1021,9 @@ void QSlider::setTickmarks( TickSetting s )
 */
 
 /*!
-  Sets the interval between tickmarks to \a i. This is a value interval, 
+  Sets the interval between tickmarks to \a i. This is a value interval,
   not a pixel interval. If \a i is 0, the slider
-  will choose between lineStep() and pageStep(). The initial value of 
+  will choose between lineStep() and pageStep(). The initial value of
   tickInterval() is 0.
   \sa tickInterval(), QRangeControl::lineStep(), QRangeControl::pageStep()
 */

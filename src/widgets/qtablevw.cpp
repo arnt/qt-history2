@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#69 $
+** $Id: //depot/qt/main/src/widgets/qtablevw.cpp#70 $
 **
 ** Implementation of QTableView class
 **
@@ -20,7 +20,7 @@
 #include "qdrawutl.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#69 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qtablevw.cpp#70 $");
 
 
 const int sbDim = 16;
@@ -73,7 +73,7 @@ void CornerSquare::paintEvent( QPaintEvent * )
   implementation of paintCell().  Subclasses that need cells with
   variable width or height must reimplement cellHeight() and/or
   cellWidth(). Use updateTableSize() to tell QTableView when the
-  width or height has changed. 
+  width or height has changed.
 
   When you read this documentation, it is important to understand the
   distinctions between the four coordinate systems involved.
@@ -96,11 +96,11 @@ void CornerSquare::paintEvent( QPaintEvent * )
 
   It is rather unfortunate that we have to use four different
   coordinate systems, but if we were to provide a flexible and
-  powerful base class, there wasn't any way around it.  
+  powerful base class, there wasn't any way around it.
 
   <img src=qtablevw-m.gif> <img src=qtablevw-w.gif>
 
-  \warning in the current (and previous) version of the library, the 
+  \warning in the current (and previous) version of the library, the
   functions setNumRows(), setNumCols(), setCellHeight(),
   setCellWidth(), setTableFlags() and clearTableFlags() may cause
   virtual functions like cellWidth() and cellHeight() to be called, even
@@ -265,7 +265,8 @@ void QTableView::setNumRows( int rows )
 {
     if ( rows < 0 ) {
 #if defined(CHECK_RANGE)
-	warning( "QTableView::setNumRows: Negative argument." );
+	warning( "QTableView::setNumRows: (%s) Negative argument %d.",
+		 name(), rows );
 #endif
 	return;
     }
@@ -306,7 +307,8 @@ void QTableView::setNumCols( int cols )
 {
     if ( cols < 0 ) {
 #if defined(CHECK_RANGE)
-	warning( "QTableView::setNumCols: Negative argument." );
+	warning( "QTableView::setNumCols: (%s) Negative argument %d.",
+		 name(), cols );
 #endif
 	return;
     }
@@ -418,7 +420,7 @@ void QTableView::setTopLeftCell( int row, int col )
   The \e x parameter is in \e table coordinates.
 
   The interaction with \link setTableFlags() Tbl_snapToHGrid
-  \endlink is tricky. 
+  \endlink is tricky.
 
   \sa xOffset(), setYOffset(), setOffset(), setLeftCell()
 */
@@ -443,7 +445,7 @@ void QTableView::setXOffset( int x )
   The \e y parameter is in \e table coordinates.
 
   The interaction with \link setTableFlags() Tbl_snapToVGrid
-  \endlink is tricky. 
+  \endlink is tricky.
 
   \sa yOffset(), setXOffset(), setOffset(), setTopCell()
 */
@@ -549,7 +551,7 @@ void QTableView::setOffset( int x, int y, bool updateScrBars )
   Returns the width of column \e col, in pixels.
 
   This function is virtual and must be reimplemented by subclasses that
-  have variable cell widths. Note that if the total table width 
+  have variable cell widths. Note that if the total table width
   changes, updateTableSize() must be called.
 
   \sa setCellWidth(), cellHeight(), totalWidth(), updateTableSize()
@@ -577,7 +579,8 @@ void QTableView::setCellWidth( int cellWidth )
 	return;
 #if defined(CHECK_RANGE)
     if ( cellWidth < 0 || cellWidth > SHRT_MAX ) {
-	warning( "QTableView::setCellWidth: Argument out of range" );
+	warning( "QTableView::setCellWidth: (%s) Argument out of range (%d)",
+		 name(), cellWidth );
 	return;
     }
 #endif
@@ -628,7 +631,8 @@ void QTableView::setCellHeight( int cellHeight )
 	return;
 #if defined(CHECK_RANGE)
     if ( cellHeight < 0 || cellHeight > SHRT_MAX ) {
-	warning( "QTableView::setCellHeight: Argument out of range" );
+	warning( "QTableView::setCellHeight: (%s) Argument out of range (%d)",
+		 name(), cellHeight );
 	return;
     }
 #endif
@@ -963,7 +967,7 @@ void QTableView::updateCell( int row, int col, bool erase )
   This function should only be called from the paintCell() function in
   subclasses. It returns the portion of a cell that actually needs to be
   updated, in \e cell coordinates. This is only useful for non-trivial
-  paintCell().  
+  paintCell().
 
 */
 
@@ -1506,7 +1510,7 @@ void QTableView::setHorScrollBar( bool on, bool update )
 	else
 	    sbDirty = sbDirty | verMask;
 	if ( hideScrollBar && isVisible() )
-	    repaint( hScrollBar->x(), hScrollBar->y(), 
+	    repaint( hScrollBar->x(), hScrollBar->y(),
 		     width() - hScrollBar->x(), hScrollBar->height() );
     }
     updateFrameSize();
@@ -1555,7 +1559,7 @@ void QTableView::setVerScrollBar( bool on, bool update )
 	else
 	    sbDirty = sbDirty | horMask;
 	if ( hideScrollBar && isVisible() )
-	    repaint( vScrollBar->x(), vScrollBar->y(), 
+	    repaint( vScrollBar->x(), vScrollBar->y(),
 		     vScrollBar->width(), height() - vScrollBar->y() );
     }
     updateFrameSize();
@@ -1573,9 +1577,9 @@ int QTableView::findRawRow( int yPos, int *cellMaxY, int *cellMinY,
     if ( goOutsideView || yPos >= minViewY() && yPos <= maxViewY() ) {
 	if ( yPos < minViewY() ) {
 #if defined(CHECK_RANGE)
-	    warning( "QTableView::findRawRow: internal error: "
+	    warning( "QTableView::findRawRow: (%s) internal error: "
 		     "yPos < minViewY() && goOutsideView "
-		     "not supported. (%d,%d)", yPos, yOffs );
+		     "not supported. (%d,%d)", name(), yPos, yOffs );
 #endif
 	    return -1;
 	}
@@ -1619,9 +1623,9 @@ int QTableView::findRawCol( int xPos, int *cellMaxX, int *cellMinX ,
     if ( goOutsideView || xPos >= minViewX() && xPos <= maxViewX() ) {
 	if ( xPos < minViewX() ) {
 #if defined(CHECK_RANGE)
-	    warning( "QTableView::findRawCol: intermal error: "
+	    warning( "QTableView::findRawCol: (%s) internal error: "
 		     "xPos < minViewX() && goOutsideView "
-		     "not supported. (%d,%d)", xPos, xOffs );
+		     "not supported. (%d,%d)", name(), xPos, xOffs );
 #endif
 	    return -1;
 	}
@@ -1655,12 +1659,12 @@ int QTableView::findRawCol( int xPos, int *cellMaxX, int *cellMinX ,
 }
 
 
-/*!  
+/*!
   Returns the index of the row at position \e yPos, where \e yPos is in
   \e widget coordinates.  Returns -1 if \e yPos is outside the valid
   range.
 
-  \sa findCol(), rowYPos() 
+  \sa findCol(), rowYPos()
 */
 
 int QTableView::findRow( int yPos ) const
@@ -1675,12 +1679,12 @@ int QTableView::findRow( int yPos ) const
 }
 
 
-/*!  
+/*!
   Returns the index of the column at position \e xPos, where \e xPos is
   in \e widget coordinates.  Returns -1 if \e xPos is outside the valid
   range.
 
-  \sa findRow(), colXPos() 
+  \sa findRow(), colXPos()
 */
 
 int QTableView::findCol( int xPos ) const
@@ -1702,7 +1706,7 @@ int QTableView::findCol( int xPos ) const
   coordinates) if the row is visible.  Returns FALSE and does not modify
   \e *yPos if \e row is invisible or invalid.
 
-  \sa colXPos(), findRow() 
+  \sa colXPos(), findRow()
 */
 
 bool QTableView::rowYPos( int row, int *yPos ) const
@@ -1742,7 +1746,7 @@ bool QTableView::rowYPos( int row, int *yPos ) const
   coordinates) if the column is visible.  Returns FALSE and does not
   modify \e *xPos if \e col is invisible or invalid.
 
-  \sa rowYPos(), findCol() 
+  \sa rowYPos(), findCol()
 */
 
 bool QTableView::colXPos( int col, int *xPos ) const
@@ -1957,7 +1961,7 @@ int QTableView::maxViewY() const
 }
 
 
-/*!  
+/*!
   Returns the width of the table view, as such, in \e view
   coordinates.  This does not include any header, scroll bar or frame,
   but does include background pixels to the right of the table data.
@@ -1971,7 +1975,7 @@ int QTableView::viewWidth() const
 }
 
 
-/*!  
+/*!
   Returns the height of the table view, as such, in \e view
   coordinates.  This does not include any header, scroll bar or frame,
   but does include background pixels below the table data.
@@ -2319,7 +2323,7 @@ void QTableView::showOrHideScrollBars()
 
   Call this function when the table view's total size is changed;
   typically because the result of cellHeight() or cellWidth() have changed.
-  
+
   This function does not repaint the widget.
 */
 
@@ -2327,5 +2331,5 @@ void QTableView::updateTableSize()
 {
     updateScrollBars( horSteps |  horRange |
 		      verSteps |  verRange );
-    showOrHideScrollBars();    
+    showOrHideScrollBars();
 }

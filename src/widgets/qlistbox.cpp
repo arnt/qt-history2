@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#132 $
+** $Id: //depot/qt/main/src/widgets/qlistbox.cpp#133 $
 **
 ** Implementation of QListBox widget class
 **
@@ -17,7 +17,7 @@
 #include "qpixmap.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#132 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlistbox.cpp#133 $");
 
 Q_DECLARE(QListM, QListBoxItem);
 
@@ -36,24 +36,28 @@ int QLBItemList::compareItems( GCI i1, GCI i2)
 }
 
 
-static inline bool checkInsertIndex( const char *method, int count, int *index)
+static inline bool checkInsertIndex( const char *method, const char * name,
+				     int count, int *index)
 {
     bool range_err = (*index > count);
 #if defined(CHECK_RANGE)
     if ( *index > count )
-	warning( "QListBox::%s: Index %i out of range", method, *index );
+	warning( "QListBox::%s: (%s) Index %i out of range",
+		 method, name, *index );
 #endif
     if ( *index < 0 )				// append
 	*index = count;
     return !range_err;
 }
 
-static inline bool checkIndex( const char *method, int count, int index )
+static inline bool checkIndex( const char *method, const char * name,
+			       int count, int index )
 {
     bool range_err = ((uint)index >= (uint)count);
 #if defined(CHECK_RANGE)
     if ( range_err )
-	warning( "QListBox::%s: Index %d out of range", method, index );
+	warning( "QListBox::%s: (%s) Index %d out of range",
+		 method, name, index );
 #endif
     return !range_err;
 }
@@ -531,7 +535,7 @@ uint QListBox::count() const
 
 void QListBox::insertStrList( const QStrList *list, int index )
 {
-    if ( !checkInsertIndex( "insertStrList", count(), &index ) )
+    if ( !checkInsertIndex( "insertStrList", name(), count(), &index ) )
 	return;
     if ( !list ) {
 #if defined(CHECK_NULL)
@@ -566,7 +570,7 @@ void QListBox::insertStrList( const QStrList *list, int index )
 
 void QListBox::insertStrList( const char **strings, int numStrings, int index )
 {
-    if ( !checkInsertIndex( "insertStrList", count(), &index ) )
+    if ( !checkInsertIndex( "insertStrList", name(), count(), &index ) )
 	return;
     if ( !strings ) {
 #if defined(CHECK_NULL)
@@ -600,7 +604,7 @@ void QListBox::insertStrList( const char **strings, int numStrings, int index )
 
 void QListBox::insertItem( const QListBoxItem *lbi, int index )
 {
-    if ( !checkInsertIndex( "insertItem", count(), &index ) )
+    if ( !checkInsertIndex( "insertItem", name(), count(), &index ) )
 	return;
     if ( !lbi ) {
 #if defined ( CHECK_NULL )
@@ -630,7 +634,7 @@ void QListBox::insertItem( const QListBoxItem *lbi, int index )
 
 void QListBox::insertItem( const char *text, int index )
 {
-    if ( !checkInsertIndex( "insertItem", count(), &index ) )
+    if ( !checkInsertIndex( "insertItem", name(), count(), &index ) )
 	return;
     if ( !text ) {
 #if defined ( CHECK_NULL )
@@ -660,7 +664,7 @@ void QListBox::insertItem( const char *text, int index )
 
 void QListBox::insertItem( const QPixmap &pixmap, int index )
 {
-    if ( !checkInsertIndex( "insertItem", count(), &index ) )
+    if ( !checkInsertIndex( "insertItem", name(), count(), &index ) )
 	return;
     if ( stringsOnly ) {
 	stringsOnly = FALSE;
@@ -734,7 +738,7 @@ void QListBox::inSort( const char *text )
 
 void QListBox::removeItem( int index )
 {
-    if ( !checkIndex( "removeItem", count(), index ) )
+    if ( !checkIndex( "removeItem", name(), count(), index ) )
 	return;
     bool currentChanged = ( current == index );
 
@@ -809,7 +813,7 @@ const QPixmap *QListBox::pixmap( int index ) const
 
 void QListBox::changeItem( const char *text, int index )
 {
-    if ( !checkIndex( "changeItem", count(), index ) )
+    if ( !checkIndex( "changeItem", name(), count(), index ) )
 	return;
     change( new QListBoxText(text), index );
 }
@@ -824,7 +828,7 @@ void QListBox::changeItem( const char *text, int index )
 
 void QListBox::changeItem( const QPixmap &pixmap, int index )
 {
-    if ( !checkIndex( "changeItem", count(), index ) )
+    if ( !checkIndex( "changeItem", name(), count(), index ) )
 	return;
     change( new QListBoxPixmap(pixmap), index );
 }
@@ -839,7 +843,7 @@ void QListBox::changeItem( const QPixmap &pixmap, int index )
 
 void QListBox::changeItem( const QListBoxItem *lbi, int index )
 {
-    if ( !checkIndex( "changeItem", count(), index ) )
+    if ( !checkIndex( "changeItem", name(), count(), index ) )
 	return;
     change( lbi, index );
 }
@@ -912,7 +916,7 @@ void QListBox::setCurrentItem( int index )
 {
     if ( index == current )
 	return;
-    if ( !checkIndex( "setCurrentItem", count(), index ) )
+    if ( !checkIndex( "setCurrentItem", name(), count(), index ) )
 	return;
     int oldCurrent = current;
     current	   = index;
@@ -1173,7 +1177,7 @@ void QListBox::setSmoothScrolling( bool enable )
 
 QListBoxItem *QListBox::item( int index ) const
 {
-    if (!checkIndex( "item", count(), index ) )
+    if (!checkIndex( "item", name(), count(), index ) )
 	return 0;
     return itemList->at( index );
 }

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qrangecontrol.cpp#18 $
+** $Id: //depot/qt/main/src/widgets/qrangecontrol.cpp#19 $
 **
 ** Implementation of QRangeControl class
 **
@@ -12,7 +12,7 @@
 #include "qrangect.h"
 #include "qglobal.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qrangecontrol.cpp#18 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qrangecontrol.cpp#19 $");
 
 
 /*!
@@ -194,7 +194,8 @@ void QRangeControl::setRange( int minValue, int maxValue )
 	return;
     if ( minValue > maxValue ) {
 #if defined(CHECK_RANGE)
-	warning( "QRangeControl::setRange: minValue > maxValue" );
+	warning( "QRangeControl::setRange: minValue %d > maxValue %d",
+		 minValue, maxValue );
 #endif
 	minVal = minValue;
 	maxVal = minValue;

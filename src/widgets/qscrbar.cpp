@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#86 $
+** $Id: //depot/qt/main/src/widgets/qscrbar.cpp#87 $
 **
 ** Implementation of QScrollBar class
 **
@@ -14,7 +14,7 @@
 #include "qbitmap.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#86 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qscrbar.cpp#87 $");
 
 
 /*!
@@ -679,7 +679,8 @@ void QScrollBar_Private::action( ScrollControl control )
 	    break;
 #if defined(CHECK_RANGE)
 	default:
-	    warning( "QScrollBar_Private::action internal error" );
+	    warning( "QScrollBar_Private::action: (%s) internal error",
+		     name() );
 #endif
     }
 }

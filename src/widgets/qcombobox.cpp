@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#117 $
+** $Id: //depot/qt/main/src/widgets/qcombobox.cpp#118 $
 **
 ** Implementation of QComboBox widget class
 **
@@ -23,7 +23,7 @@
 #include "qlined.h"
 #include <limits.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#117 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qcombobox.cpp#118 $");
 
 
 /*!
@@ -180,12 +180,14 @@ bool QComboBox::getMetrics( int *dist, int *buttonW, int *buttonH ) const
 }
 
 
-static inline bool checkInsertIndex( const char *method, int count, int *index)
+static inline bool checkInsertIndex( const char *method, const char * name, 
+				     int count, int *index)
 {
     bool range_err = (*index > count);
 #if defined(CHECK_RANGE)
     if ( range_err )
-	warning( "QComboBox::%s Index %d out of range", method, *index );
+	warning( "QComboBox::%s: (%s) Index %d out of range",
+		 method, name, *index );
 #endif
     if ( *index < 0 )				// append
 	*index = count;
@@ -193,12 +195,14 @@ static inline bool checkInsertIndex( const char *method, int count, int *index)
 }
 
 
-static inline bool checkIndex( const char *method, int count, int index )
+static inline bool checkIndex( const char *method, const char * name,
+			       int count, int index )
 {
     bool range_err = (index >= count);
 #if defined(CHECK_RANGE)
     if ( range_err )
-	warning( "QComboBox::%s Index %i out of range", method, index );
+	warning( "QComboBox::%s: (%s) Index %i out of range",
+		 method, name, index );
 #endif
     return !range_err;
 }
@@ -362,7 +366,7 @@ void QComboBox::setStyle( GUIStyle s )
 	    if ( p ) {
 		int n;
 		for( n=p->count()-1; n>=0; n-- ) {
-		    if ( p->text( n ) ) 
+		    if ( p->text( n ) )
 			d->listBox->insertItem( p->text( n ), 0 );
 		    else if ( p->pixmap( n ) )
 			d->listBox->insertItem( *(p->pixmap( n )), 0 );
@@ -481,7 +485,7 @@ void QComboBox::insertStrList( const char **strings, int numStrings, int index)
 void QComboBox::insertItem( const char *t, int index )
 {
     int cnt = count();
-    if ( !checkInsertIndex( "insertItem", cnt, &index ) )
+    if ( !checkInsertIndex( "insertItem", name(), cnt, &index ) )
 	return;
     if ( d->usingListBox )
         d->listBox->insertItem( t, index );
@@ -513,7 +517,7 @@ void QComboBox::insertItem( const QPixmap &pixmap, int index )
 
     int cnt = count();
     bool append = index < 0 || index == cnt;
-    if ( !checkInsertIndex( "insertItem", cnt, &index ) )
+    if ( !checkInsertIndex( "insertItem", name(), cnt, &index ) )
 	return;
     if ( d->usingListBox )
         d->listBox->insertItem( pixmap, index );
@@ -533,7 +537,7 @@ void QComboBox::insertItem( const QPixmap &pixmap, int index )
 void QComboBox::removeItem( int index )
 {
     int cnt = count();
-    if ( !checkIndex( "removeItem", cnt, index ) )
+    if ( !checkIndex( "removeItem", name(), cnt, index ) )
 	return;
     if ( d->usingListBox )
 	d->listBox->removeItem( index );
@@ -591,7 +595,7 @@ const char *QComboBox::currentText() const
 
 const char *QComboBox::text( int index ) const
 {
-    if ( !checkIndex( "text", count(), index ) )
+    if ( !checkIndex( "text", name(), count(), index ) )
 	return 0;
     if ( d->usingListBox )
 	return d->listBox->text( index );
@@ -605,7 +609,7 @@ const char *QComboBox::text( int index ) const
 
 const QPixmap *QComboBox::pixmap( int index ) const
 {
-    if ( !checkIndex( "pixmap", count(), index ) )
+    if ( !checkIndex( "pixmap", name(), count(), index ) )
 	return 0;
     if ( d->usingListBox )
 	return d->listBox->pixmap( index );
@@ -619,7 +623,7 @@ const QPixmap *QComboBox::pixmap( int index ) const
 
 void QComboBox::changeItem( const char *t, int index )
 {
-    if ( !checkIndex( "changeItem", count(), index ) )
+    if ( !checkIndex( "changeItem", name(), count(), index ) )
 	return;
     if ( d->usingListBox )
 	d->listBox->changeItem( t, index );
@@ -629,7 +633,7 @@ void QComboBox::changeItem( const char *t, int index )
 	d->ed->setText( text( d->current ) );
 }
 
-/*!  
+/*!
   Replaces the item at position \e index with a pixmap, unless the
   combo box is writable.
 
@@ -638,7 +642,7 @@ void QComboBox::changeItem( const char *t, int index )
 
 void QComboBox::changeItem( const QPixmap &im, int index )
 {
-    if ( d->ed != 0 || !checkIndex( "changeItem", count(), index ) )
+    if ( d->ed != 0 || !checkIndex( "changeItem", name(), count(), index ) )
 	return;
     if ( d->usingListBox )
 	d->listBox->changeItem( im, index );
@@ -667,7 +671,7 @@ void QComboBox::setCurrentItem( int index )
 {
     if ( index == d->current )
 	return;
-    if ( !checkIndex( "setCurrentItem", count(), index ) ) {
+    if ( !checkIndex( "setCurrentItem", name(), count(), index ) ) {
 	return;
     }
     d->current = index;
@@ -730,7 +734,7 @@ QSize QComboBox::sizeHint() const
     int extraW = 20;
     int maxW = 0;
     int maxH = QMAX( fm.height(), style()==WindowsStyle ? 16 : 18 );
-    
+
     for( i = 0; i < count(); i++ ) {
 	tmp = text( i );
 	if ( tmp ) {
@@ -989,11 +993,11 @@ void QComboBox::paintEvent( QPaintEvent *event )
 
 	QRect arrowR = arrowRect();
 	qDrawWinPanel(&p, arrowR, g, d->arrowDown );
-	qDrawArrow( &p, DownArrow, WindowsStyle, d->arrowDown, 
+	qDrawArrow( &p, DownArrow, WindowsStyle, d->arrowDown,
 		    arrowR.x() + 2, arrowR.y() + 2,
 		    arrowR.width() - 4, arrowR.height() - 4, g );
 
-	QRect textR( 5, 4, width()  - 5 - 4 - arrowR.width(), 
+	QRect textR( 5, 4, width()  - 5 - 4 - arrowR.width(),
 		     height() - 4 - 4 );
 
 	if ( has_focus ) {
@@ -1339,7 +1343,7 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	    break;
 	case Event_MouseButtonRelease:
 	    if ( d->listBox->rect().contains( e->pos() ) ) {
-		QMouseEvent tmp( Event_MouseButtonDblClick, 
+		QMouseEvent tmp( Event_MouseButtonDblClick,
 				 e->pos(), e->button(), e->state() ) ;
 		// will hide popup
 		QApplication::sendEvent( object, &tmp );
@@ -1381,7 +1385,7 @@ bool QComboBox::eventFilter( QObject *object, QEvent *event )
 	switch ( event->type() ) {
         case Event_MouseButtonRelease:
 	    if ( d->shortClick ) {
-		QMouseEvent tmp( Event_MouseMove, 
+		QMouseEvent tmp( Event_MouseMove,
 				 e->pos(), e->button(), e->state() ) ;
 		// highlight item, but don't pop down:
 		QApplication::sendEvent( object, &tmp );
@@ -1476,7 +1480,7 @@ QComboBox::Policy QComboBox::insertionPolicy() const
 }
 
 
-/*! 
+/*!
   Sets the insertion policy of the combo box to \a policy.
 
   The insertion policy governs where items typed in by the user are

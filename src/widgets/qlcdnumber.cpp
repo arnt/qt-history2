@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#47 $
+** $Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#48 $
 **
 ** Implementation of QLCDNumber class
 **
@@ -14,7 +14,7 @@
 #include "qpainter.h"
 #include <stdio.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#47 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qlcdnumber.cpp#48 $");
 
 
 /*!
@@ -319,7 +319,8 @@ void QLCDNumber::setNumDigits( int numDigits )
 {
     if ( numDigits > 99 ) {
 #if defined(CHECK_RANGE)
-	warning( "QLCDNumber::setNumDigits: Max 99 digits allowed" );
+	warning( "QLCDNumber::setNumDigits: (%s) Max 99 digits allowed",
+		 name() );
 #endif
 	numDigits = 99;
     }
@@ -792,8 +793,8 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
     int width = segLen/5;
 
 #define LINETO(X,Y) addPoint( a, QPoint(pt.x() + (X),pt.y() + (Y)))
-#define LIGHT 
-#define DARK 
+#define LIGHT
+#define DARK
 
     if ( fill ) {
 	QPointArray a(0);
@@ -919,8 +920,8 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
 	    break;
 #if defined(CHECK_RANGE)
 	default :
-	    warning( "QLCDNumber::drawSegment: Internal error."
-		     "  Illegal segment id: %d\n", segmentNo );
+	    warning( "QLCDNumber::drawSegment: (%s) Internal error."
+		     "  Illegal segment id: %d\n", name(), segmentNo );
 #endif
 	}
 	// End exact copy
@@ -930,7 +931,7 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
 	p.setBrush( NoBrush );
 
 	pt = pos;
-    } 
+    }
 #undef LINETO
 #undef LIGHT
 #undef DARK
@@ -1058,8 +1059,8 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
 	    break;
 #if defined(CHECK_RANGE)
 	default :
-	    warning( "QLCDNumber::drawSegment: Internal error."
-		     "  Illegal segment id: %d\n", segmentNo );
+	    warning( "QLCDNumber::drawSegment: (%s) Internal error."
+		     "  Illegal segment id: %d\n", name(), segmentNo );
 #endif
 	}
 
@@ -1070,9 +1071,9 @@ void QLCDNumber::drawSegment( const QPoint &pos, char segmentNo, QPainter &p,
 
 
 /*!
-  Sets the style of the QLCDNumber to \a s. 
+  Sets the style of the QLCDNumber to \a s.
   <ul>
-  <li>\c Outline gives raised segments filled with the background color. 
+  <li>\c Outline gives raised segments filled with the background color.
   <li>\c Filled gives raised segments filled with the foreground color.
   <li>\c Flat gives flat segments filled with the foreground color.
   </ul>

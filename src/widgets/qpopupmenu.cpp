@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#136 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#137 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -21,7 +21,7 @@
 #include "qtimer.h"
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#136 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#137 $");
 
 // Motif style parameters
 
@@ -351,7 +351,7 @@ QPopupMenu::QPopupMenu( QWidget *parent, const char *name )
 {
 #if defined(CHECK_RANGE)
     if ( parent != 0 )
-	warning( "QPopupMenu: Parent must be null" );
+	warning( "QPopupMenu: (%s) Parent must be null", name );
 #endif
     isPopupMenu	  = TRUE;
     selfItem	  = 0;
@@ -796,7 +796,7 @@ void QPopupMenu::updateSize()
 	height += itemHeight;
 #if defined(CHECK_NULL)
 	if ( !mi->text() && !mi->pixmap() && !mi->isSeparator() )
-	    warning( "QPopupMenu: Popup has invalid menu item" );
+	    warning( "QPopupMenu: (%s) Popup has invalid menu item", name() );
 #endif
 	if ( max_width < w )
 	    max_width = w;

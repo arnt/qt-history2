@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#23 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#24 $
 **
 **  Table header
 **
@@ -114,7 +114,7 @@ QHeader::QHeader( QWidget *parent, const char *name )
   Constructs a horizontal header with \a n sections.
 
   The \e parent and \e name arguments are sent to the QWidget constructor.
-  
+
 */
 
 QHeader::QHeader( int n,  QWidget *parent, const char *name )
@@ -127,31 +127,31 @@ QHeader::QHeader( int n,  QWidget *parent, const char *name )
 /*!
   Destroys the header.
  */
-QHeader::~QHeader() 
+QHeader::~QHeader()
 {
 }
 
 /*!
-  \fn void QHeader::sectionClicked (int logical) 
-  
+  \fn void QHeader::sectionClicked (int logical)
+
   This signal is emitted when a part of the header is clicked. In a
   list view, this signal would typically be connected to a slot which sorts
   the specified column.
 */
 
 /*!
-  \fn void QHeader::sizeChange( int section, int newSize ) 
+  \fn void QHeader::sizeChange( int section, int newSize )
 
   This signal is emitted when the user has changed the size of some
   of the parts of the header. This signal is typically connected to a slot
-  that repaints the table.  
+  that repaints the table.
 */
 
 /*!
-  \fn void QHeader::moved (int from, int to) 
+  \fn void QHeader::moved (int from, int to)
 
-  This signal is emitted when the user has moved column \a from to 
-  position \a to. 
+  This signal is emitted when the user has moved column \a from to
+  position \a to.
   */
 
 /*!
@@ -161,7 +161,7 @@ QHeader::~QHeader()
 
 int QHeader::cellSize( int i ) const
 {
-    int s = pSize( i );  
+    int s = pSize( i );
     return s;
 }
 
@@ -176,14 +176,14 @@ int QHeader::cellPos( int i ) const
 {
     /* cvs conflict here */
 
-    int r = pPos( i ); 
+    int r = pPos( i );
     return r + offset();
 }
 
 
 /*!
   \fn int QHeader::count() const
-  
+
   Returns the number of sections in the header.
 */
 
@@ -200,7 +200,7 @@ int QHeader::cellPos( int i ) const
 
   Sets tracking if \a enable is TRUE, otherwise turns off tracking.
   If tracking is on, the sizeChange() signal is emitted continuously
-  while the mouse is moved, otherwise it is only emitted when the 
+  while the mouse is moved, otherwise it is only emitted when the
   mouse button is released.
 
   \sa tracking()
@@ -254,7 +254,7 @@ void QHeader::init( int n )
     }
     handleIdx = 0;
     //################
-    labels[n] = 0; 
+    labels[n] = 0;
     sizes[n] = 0;
     a2l[n] = 0;
     l2a[n] = 0;
@@ -301,7 +301,7 @@ void QHeader::markLine( int idx )
     paint.begin( this );
     paint.setPen( ppppen );
     int p = pPos( idx );
-#if 0    
+#if 0
     paint.drawLine(  p, 0, p, height() );
     paint.drawLine(  p-3, 1, p+4, 1 );
     paint.drawLine(  p-3, height()-3, p+4, height()-3 );
@@ -374,11 +374,11 @@ int QHeader::findLine( int c )
 	return i;
     if ( i == handleIdx - 1 &&  pPos( handleIdx ) - c > MARKSIZE/2 )
 	return i;
-    if ( i == handleIdx + 1 && c - pPos( i ) > MARKSIZE/2 ) 
+    if ( i == handleIdx + 1 && c - pPos( i ) > MARKSIZE/2 )
 	return i + 1;
     if ( c - pPos( i ) > pSize( i ) / 2 )
 	return i + 1;
-    else 
+    else
 	return i;
 }
 
@@ -448,10 +448,10 @@ void QHeader::paintCell( QPainter *p, int row, int col )
     QRect r( 4+d, 2+d, size - 6, height() - 4 ); //#####
 
     if ( 0 && orient == Vertical ) { // we can't do that...
-	QWMatrix m;       
+	QWMatrix m;
 	m.rotate( 90 );
-	m.translate( 0, -width() ); //###########  
-	p->setWorldMatrix( m );  
+	m.translate( 0, -width() ); //###########
+	p->setWorldMatrix( m );
     }
 
     if ( s ) {
@@ -471,13 +471,13 @@ void QHeader::mousePressEvent( QMouseEvent *m )
     handleIdx = 0;
     int c = orient == Horizontal ? m->pos().x() : m->pos().y();
     int i = 0;
-    while ( i <= (int) count() ) { 
-	if ( i+1 <= count() &&  pPos(i+1) - MINSIZE/2 < c && 
+    while ( i <= (int) count() ) {
+	if ( i+1 <= count() &&  pPos(i+1) - MINSIZE/2 < c &&
 	     c < pPos(i+1) + MINSIZE/2 ) {
 	    handleIdx = i+1;
 	    state = Sliding;
 	    break;
-	} else if ( pPos(i)  < c && c < pPos( i+1 ) ) {  
+	} else if ( pPos(i)  < c && c < pPos( i+1 ) ) {
 	    handleIdx = i;
 	    moveToIdx = -1;
 	    state = Pressed;
@@ -509,7 +509,7 @@ void QHeader::mouseReleaseEvent( QMouseEvent *m )
 	    moveAround( handleIdx, moveToIdx );
 	    emit moved( handleIdx, moveToIdx );
 	    repaint();
-	} else { 
+	} else {
 	    if ( sRect( handleIdx).contains( m->pos() ) )
 		emit sectionClicked( handleIdx );
 	    repaint(sRect( handleIdx ));
@@ -517,7 +517,7 @@ void QHeader::mouseReleaseEvent( QMouseEvent *m )
 	break;
     }
     default:
-	debug("QHeader::mouseReleaseEvent() no state");
+	debug("QHeader::mouseReleaseEvent() (%s) no state", name() );
 	break;
     }
 }
@@ -528,7 +528,7 @@ void QHeader::mouseMoveEvent( QMouseEvent *m )
     if ( state == Idle ) {
 	bool hit = FALSE;
 	int i = 0;
-	while ( i <= (int) count() ) { 
+	while ( i <= (int) count() ) {
 	    if ( i && pPos(i) - MINSIZE/2 < s && s < pPos(i) + MINSIZE/2 ) {
 		hit = TRUE;
 		if ( orient == Horizontal )
@@ -544,7 +544,7 @@ void QHeader::mouseMoveEvent( QMouseEvent *m )
     } else {
 	switch ( state ) {
 	case Idle:
-	    debug( "QHeader::mouseMoveEvent() Idle state" );
+	    debug( "QHeader::mouseMoveEvent() (%s) Idle state", name() );
 	    break;
 	case Pressed:
 	    if ( QABS( s - clickPos ) > 4 ) {
@@ -562,7 +562,7 @@ void QHeader::mouseMoveEvent( QMouseEvent *m )
 		int oldPos = pPos( handleIdx );
 		int delta = s - oldPos;
 		sizes[mapToLogical(handleIdx - 1)] += delta;
-		int repaintPos = QMIN( oldPos, s ); 
+		int repaintPos = QMIN( oldPos, s );
 		repaint(repaintPos-2, 0, width(), height());
 		/*
 		int us, uw;
@@ -580,10 +580,10 @@ void QHeader::mouseMoveEvent( QMouseEvent *m )
 		}
 		if ( orient == Horizontal ) {
 		    bitBlt( this, s, 0, this, oldPos, 0 );
-		    repaint( us, 0, uw, height() ); 
+		    repaint( us, 0, uw, height() );
 		} else {
 		    bitBlt( this, 0, s, this, 0, oldPos );
-		    repaint( 0, us, width(), uw ); 
+		    repaint( 0, us, width(), uw );
 		}
 		*/
 		if ( tracking() )
@@ -606,7 +606,7 @@ void QHeader::mouseMoveEvent( QMouseEvent *m )
 	    break;
 	}
 	default:
-	    warning( "QHeader::mouseMoveEvent, unknown state" );
+	    warning( "QHeader::mouseMoveEvent: (%s) unknown state", name() );
 	    break;
 	}
     }
@@ -704,11 +704,11 @@ void QHeader::setOffset( int x )
 
 
 /*!
-  Returns the position of actual division line \a i. May return a position 
+  Returns the position of actual division line \a i. May return a position
   outside the widget.
  */
-int QHeader::pPos( int i ) const 
-{ 
+int QHeader::pPos( int i ) const
+{
     int r = 0;
     bool ok;
     if ( orient == Horizontal )
@@ -717,7 +717,7 @@ int QHeader::pPos( int i ) const
 	ok = rowYPos( i, &r );
     if ( !ok ) {
 	r = 0;
-	for ( int j = 0; j < i; j++ ) 
+	for ( int j = 0; j < i; j++ )
 	    r += pSize( j );
 	r -= offset();
     }
@@ -728,7 +728,7 @@ int QHeader::pPos( int i ) const
 /*!
   Returns the size of actual section \a i.
  */
-int QHeader::pSize( int i ) const 
+int QHeader::pSize( int i ) const
 {
     return sizes[mapToLogical(i)];
 }
@@ -806,7 +806,7 @@ void QHeader::setCellSize( int i, int s )
 
 void QHeader::setResizeEnabled( bool, int )
 {
-    
+
 }
 
 
@@ -816,7 +816,7 @@ void QHeader::setResizeEnabled( bool, int )
 
 void QHeader::setMovingEnabled( bool )
 {
-    
+
 }
 
 
@@ -826,5 +826,5 @@ void QHeader::setMovingEnabled( bool )
 
 void QHeader::setClickEnabled( bool, int )
 {
-    
+
 }
