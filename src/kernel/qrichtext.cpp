@@ -1632,7 +1632,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
     QString lastClose;
     QString anchorName;
 
-    QString wellKnownTags = "br hr wsp table qt meta title";
+    QString wellKnownTags = "br hr wsp table qt body meta title";
     NEWPAR;
 
     while ( pos < length ) {
@@ -1726,7 +1726,7 @@ void QTextDocument::setRichTextInternal( const QString &text )
 			custom = parseTable( attr, format, doc, length, pos, curpar );
 			(void)eatSpace( doc, length, pos );
 			emptyTag = TRUE;
-		    } else if ( tagname == "qt" ) {
+		    } else if ( tagname == "qt" || tagname == "body" ) {
 			if ( attr.contains( "bgcolor" ) ) {
 			    QBrush *b = new QBrush( QColor( attr["bgcolor"] ) );
 			    setPaper( b );
