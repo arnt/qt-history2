@@ -1115,7 +1115,8 @@ void QWorkspace::normalizeWindow( QWidget* w)
 	if ( !style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this) && d->maxWindow ) {
 	    hideMaximizeControls();
 	} else {
-	    c->widgetResizeHandler->setActive( TRUE );
+	    if ( w->minimumSize() != w->maximumSize() )
+		c->widgetResizeHandler->setActive( TRUE );
 	    if ( c->titlebar )
 		c->titlebar->setMovable(TRUE);
 	}
@@ -1143,7 +1144,8 @@ void QWorkspace::normalizeWindow( QWidget* w)
 	    QWorkspaceChild* c = it.current();
 	    if ( c->titlebar )
 		c->titlebar->setMovable( TRUE );
-	    c->widgetResizeHandler->setActive( TRUE );
+	    if ( c->childWidget && c->childWidget->minimumSize() != c->childWidget->maximumSize() )
+		c->widgetResizeHandler->setActive( TRUE );
 	}
 	activateWindow( w, TRUE );
 	updateWorkspace();
@@ -2019,6 +2021,8 @@ QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent,
 	move(0, 0);
 	widgetResizeHandler->setActive( FALSE );
     }
+    if ( childWidget->minimumSize() == childWidget->maximumSize() )
+	widgetResizeHandler->setActive( FALSE );
     setBaseSize( baseSize() );
 }
 
