@@ -2583,6 +2583,10 @@ int QMotifStyle::styleHint(StyleHint hint,
         ret = 0;
         break;
 
+    case SH_MessageBox_UseBorderForButtonSpacing:
+        ret = 1;
+        break;
+
     default:
         ret = QCommonStyle::styleHint(hint, widget, opt, returnData);
         break;

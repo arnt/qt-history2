@@ -662,6 +662,9 @@ public:
         // bool - Whether or not to dismiss the menubar on a second click or not
         SH_MenuBar_DismissOnSecondClick,
 
+        // bool - Use the button border as the button spacing for a message box
+        SH_MessageBox_UseBorderForButtonSpacing,
+
         // do not add any values below/greater than this
         SH_CustomBase = 0xf0000000
     };

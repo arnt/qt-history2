@@ -939,9 +939,8 @@ void QMessageBox::resizeEvent(QResizeEvent *)
     int border = bh / 2 - style().pixelMetric(QStyle::PM_ButtonDefaultIndicator);
     if (border <= 0)
         border = 10;
-    int btn_spacing = 7;
-    if (style().styleHint(QStyle::SH_GUIStyle) == Qt::MotifStyle)
-        btn_spacing = border;
+    bool useBorder = style().styleHint(QStyle::SH_MessageBox_UseBorderForButtonSpacing);
+    int btn_spacing = useBorder ? border : 7;
     int lmargin = 0;
     mbd->iconLabel.adjustSize();
     mbd->iconLabel.move(border, border);
@@ -952,14 +951,15 @@ void QMessageBox::resizeEvent(QResizeEvent *)
                         width() - lmargin -2*border,
                         height() - 3*border - bh);
     int extra_space = (width() - bw*n - 2*border - (n-1)*btn_spacing);
-    if (style().styleHint(QStyle::SH_GUIStyle) == Qt::MotifStyle)
+    if (useBorder) {
         for (i=0; i<n; i++)
             mbd->pb[i]->move(border + i*bw + i*btn_spacing + extra_space*(i+1)/(n+1),
                               height() - border - bh);
-    else
+    } else {
         for (i=0; i<n; i++)
             mbd->pb[i]->move(border + i*bw + extra_space/2 + i*btn_spacing,
                               height() - border - bh);
+    }
 }
 
 

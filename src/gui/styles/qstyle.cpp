@@ -1467,6 +1467,10 @@ void QStyle::drawItem(QPainter *painter, const QRect &rect, int alignment, const
      Clicking and releasing on the File Menu in a menubar and then
      immediately clicking on the File Menu again.)
 
+     \value SH_MessageBox_UseBorderForButtonSpacing A boolean indicating what the to
+     use the border of the buttons (computed as half the button height) for the spacing
+     of the button in a message box.
+
     \omitvalue SH_UnderlineAccelerator
 
     \sa styleHint()
