@@ -24,6 +24,10 @@ ConnectionWidget::ConnectionWidget(QWidget *parent)
     tree->setObjectName(QLatin1String("tree"));
     tree->setHeaderLabels(QStringList(tr("database")));
     tree->header()->setResizeMode(QHeaderView::Stretch);
+    QAction *refreshAction = new QAction(tr("Refresh"), tree);
+    connect(refreshAction, SIGNAL(triggered()), SLOT(refresh()));
+    tree->addAction(refreshAction);
+    tree->setContextMenuPolicy(Qt::ActionsContextMenu);
 
     layout->addWidget(tree);
 
@@ -32,12 +36,6 @@ ConnectionWidget::ConnectionWidget(QWidget *parent)
 
 ConnectionWidget::~ConnectionWidget()
 {
-}
-
-void ConnectionWidget::on_tree_aboutToShowContextMenu(QMenu *menu, QTreeWidgetItem * /*item*/,
-                                                      int /*column*/)
-{
-    menu->addAction(tr("Refresh"), this, SLOT(refresh()));
 }
 
 static QString qDBCaption(const QSqlDatabase &db)
@@ -106,22 +104,9 @@ void ConnectionWidget::setActive(QTreeWidgetItem *item)
     activeDb = QSqlDatabase::connectionNames().value(tree->indexOfTopLevelItem(item));
 }
 
-void ConnectionWidget::on_tree_doubleClicked(QTreeWidgetItem *item, int column,
-                                             Qt::MouseButton button,
-                                             Qt::KeyboardModifiers modifiers)
+void ConnectionWidget::on_tree_itemActivated(QTreeWidgetItem *item, int /* column */)
 {
-    if (button == Qt::LeftButton && modifiers == Qt::NoModifier && column == 0)
-        itemActivated(item);
-}
 
-void ConnectionWidget::on_tree_returnPressed(QTreeWidgetItem *item, int column)
-{
-    if (column == 0)
-        itemActivated(item);
-}
-
-void ConnectionWidget::itemActivated(QTreeWidgetItem *item)
-{
     if (!item)
         return;
 
