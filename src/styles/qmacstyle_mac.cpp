@@ -582,6 +582,18 @@ void QMacStyle::drawControl( ControlElement element,
     }
     
     switch(element) {
+    case CE_PopupMenuScroller: {
+	Rect mrect = *qt_glb_mac_rect(widget->rect(), p),
+	     irect = *qt_glb_mac_rect(r, p, FALSE);
+	ThemeMenuState tms = kThemeMenuActive;
+	if(how & Style_Active)
+	    tms |= kThemeMenuSelected;
+	ThemeMenuItemType tmit = kThemeMenuItemScrollUpArrow;
+	if((how & Style_Down))
+	    tmit = kThemeMenuItemScrollDownArrow;
+	((QMacPainter *)p)->setport();
+	DrawThemeMenuItem(&mrect, &irect, mrect.top, mrect.bottom, tms, tmit, NULL, 0);
+	break; }
     case CE_MenuBarBackground: 
 	((QMacPainter*)p)->setport();
 	DrawThemeMenuBarBackground(qt_glb_mac_rect(r, p, FALSE), kThemeMenuBarNormal,
@@ -635,18 +647,29 @@ void QMacStyle::drawControl( ControlElement element,
 	int xpos = x;
 	if ( reverse )
 	    xpos += w - checkcol;
-	if ( checked ) {
-	    int mw = checkcol + macItemFrame;
-	    int mh = h - 2*macItemFrame;
-	    ThemeButtonDrawInfo info = { kThemeStateActive, kThemeButtonOn, kThemeAdornmentDrawIndicatorOnly };
-	    if(!(how & Style_Enabled) || !widget->isEnabled())
-		info.state = kThemeStateInactive;
-	    ((QMacPainter *)p)->setport();
-	    DrawThemeButton(qt_glb_mac_rect(QRect(x + macItemFrame + 2, y + macItemFrame, mw-4, mh), p), 
-			    kThemeCheckBox, &info, NULL, NULL, NULL, 0);
-	} 
-
 	if ( mi->iconSet() ) {              // draw iconset
+	    if ( checked ) {
+		QRect vrect = visualRect( QRect( xpos, y, checkcol, h ), r );
+		if ( act && !dis ) {
+		    qDrawShadePanel( p, vrect.x(), y, checkcol, h,
+				     cg, TRUE, 1, &cg.brush( QColorGroup::Button ) );
+		} else {
+		    QBrush fill( cg.light(), Dense4Pattern );
+		    // set the brush origin for the hash pattern to the x/y coordinate
+		    // of the menu item's checkmark... this way, the check marks have
+		    // a consistent look
+		    QPoint origin = p->brushOrigin();
+		    p->setBrushOrigin( vrect.x(), y );
+		    qDrawShadePanel( p, vrect.x(), y, checkcol, h, cg, TRUE, 1,
+				     &fill );
+		    // restore the previous brush origin
+		    p->setBrushOrigin( origin );
+		}
+	    } else if ( !act ) {
+		p->fillRect(xpos, y, checkcol, h,
+			    g.brush( QColorGroup::Button ));
+	    }
+
 	    QIconSet::Mode mode = dis ? QIconSet::Disabled : QIconSet::Normal;
 	    if (act && !dis )
 		mode = QIconSet::Active;
@@ -1144,6 +1167,15 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QWidget *widget) const
 {
     SInt32 ret = 0;
     switch(metric) {
+    case PM_PopupMenuScrollerHeight:
+#if 0
+	SInt16 ash, asw;
+	GetThemeMenuItemExtra(kThemeMenuItemScrollUpArrow, &ash, &asw);
+	ret = ash;
+#else
+	ret = 10; //I hate having magic numbers in here...
+#endif
+	break;
     case PM_DefaultFrameWidth:
 	if(widget && 
 	   (widget->isTopLevel() || !widget->parentWidget() || widget->parentWidget()->isTopLevel()) &&  
@@ -1430,6 +1462,9 @@ int QMacStyle::styleHint(StyleHint sh, const QWidget *w,
 {
     SInt32 ret = 0;
     switch(sh) {
+    case SH_PopupMenu_Scrollable:
+	ret = TRUE;
+	break;
     case SH_ScrollView_FrameOnlyAroundContents:
 	ret = TRUE;
 	break;
