@@ -47,7 +47,6 @@
 #define QREGPROCOID 24
 #define QXIDOID 28
 #define QCIDOID 29
-#define QUNKNOWNOID 705
 
 class QPSQLDriverPrivate
 {
@@ -137,8 +136,11 @@ static QCoreVariant::Type qDecodePSQLType(int t)
         type = QCoreVariant::LongLong;
         break;
     case QINT2OID:
-        //    case INT2VECTOROID  : // 7.x
     case QINT4OID:
+    case QOIDOID:
+    case QREGPROCOID:
+    case QXIDOID:
+    case QCIDOID:
         type = QCoreVariant::Int;
         break;
     case QNUMERICOID:
@@ -161,13 +163,6 @@ static QCoreVariant::Type qDecodePSQLType(int t)
         break;
     case QBYTEAOID:
         type = QCoreVariant::ByteArray;
-        break;
-    case QOIDOID:
-    case QREGPROCOID:
-    case QXIDOID:
-    case QCIDOID:
-    case QUNKNOWNOID:
-        type = QCoreVariant::Invalid;
         break;
     default:
         type = QCoreVariant::String;
