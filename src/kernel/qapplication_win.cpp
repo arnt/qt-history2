@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#484 $
+** $Id: //depot/qt/main/src/kernel/qapplication_win.cpp#485 $
 **
 ** Implementation of Win32 startup routines and event handling
 **
@@ -1875,15 +1875,9 @@ LRESULT CALLBACK QtWndProc( HWND hwnd, UINT message, WPARAM wParam,
 			result = FALSE;
 			break;
 		    }
-		    QAccessibleInterface *acc = widget->accessibilityInterface();
-		    if ( !acc ) {
-			result = FALSE;
-			break;
-		    }
-
-		    // ask the object to update it's information
-		    QEvent e( QEvent::Accessibility );
-		    QApplication::sendEvent( widget, &e );
+		    QAccessibleInterface *acc = widget->accessibleInterface();
+		    if ( !acc )
+			RETURN(FALSE);
 
 		    // and get an instance of the IAccessibile implementation
 		    IAccessible *iface = qt_createWindowsAccessible( acc );		// ref == 1

@@ -329,10 +329,10 @@ QAccessibleInterface* QAccessibleWidget::hitTest( int x, int y, int *who ) const
     QPoint rp = widget_->mapFromGlobal( QPoint( x, y ) );
     QWidget *w = widget_->childAt( rp, TRUE );
 
-    QAccessibleInterface *cacc = w->accessibilityInterface();
+    QAccessibleInterface *cacc = w->accessibleInterface();
     if ( cacc )
 	return cacc;
-    return widget_->accessibilityInterface();
+    return widget_->accessibleInterface();
 }
 
 /*!
@@ -372,7 +372,7 @@ QAccessibleInterface *QAccessibleWidget::navigate( NavDirection dir, int *target
 	    else
 		o = cl->last();
 	    delete cl;
-	    return o ? o->accessibilityInterface() : 0;
+	    return o ? o->accessibleInterface() : 0;
 	}
 	break;
     case NavNext:
@@ -400,7 +400,7 @@ QAccessibleInterface *QAccessibleWidget::navigate( NavDirection dir, int *target
 	    }
 	    sib = it.current();
 	    if ( sib )
-		return sib->accessibilityInterface();
+		return sib->accessibleInterface();
 	    return 0;
 	}
 	break;
@@ -412,8 +412,6 @@ QAccessibleInterface *QAccessibleWidget::navigate( NavDirection dir, int *target
 }
 
 /*!
-  \reimp
-
   Returns the number of all child widgets. For widgets with subelements, 
   e.g. item views, this function has to be reimplemented.
 */
@@ -436,7 +434,7 @@ int QAccessibleWidget::childCount() const
 QAccessibleInterface *QAccessibleWidget::child( int who ) const
 {
     if ( !who )
-	return widget_->accessibilityInterface();
+	return widget_->accessibleInterface();
 
     QObjectList *cl = widget_->queryList( "QWidget", 0, FALSE, FALSE );
     if ( !cl )
@@ -448,7 +446,7 @@ QAccessibleInterface *QAccessibleWidget::child( int who ) const
     if ( !o )
 	return 0;
 
-    return o->accessibilityInterface();    
+    return o->accessibleInterface();    
 }
 
 /*!
@@ -462,7 +460,7 @@ QAccessibleInterface *QAccessibleWidget::parent() const
 
     if ( !p )
 	p = QApplication::desktop();
-    return p->accessibilityInterface();
+    return p->accessibleInterface();
 }
 
 /*!
@@ -630,7 +628,7 @@ QAccessibleInterface *QAccessibleWidget::hasFocus( int *who ) const
 
     if ( widget_->hasFocus() ) {
 	*who = 0;
-	return widget_->accessibilityInterface();
+	return widget_->accessibleInterface();
     }
 
     QWidget *w = qApp->focusWidget();
@@ -644,7 +642,7 @@ QAccessibleInterface *QAccessibleWidget::hasFocus( int *who ) const
 	    break;
     }
     if ( p )
-	return w->accessibilityInterface();
+	return w->accessibleInterface();
 
     // we don't know the focusWidget
     return 0;
