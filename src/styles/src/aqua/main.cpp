@@ -5,14 +5,14 @@
 class AquaStyleInterface : public QStyleInterface
 {
 public:
-    AquaStyleInterface( QUnknownInterface *parent, const char *name = 0 );
+    AquaStyleInterface( QUnknownInterface *parent );
 
     QStringList featureList() const;
     QStyle *create( const QString& );
 };
 
-AquaStyleInterface::AquaStyleInterface( QUnknownInterface *parent, const char *name )
-: QStyleInterface( parent, name )
+AquaStyleInterface::AquaStyleInterface( QUnknownInterface *parent )
+: QStyleInterface( parent )
 {
 }
 
@@ -30,7 +30,7 @@ QStyle* AquaStyleInterface::create( const QString& style )
     return 0;
 }
 
-class PlugInInterface : public QComponentInterface
+class PlugInInterface : public QUnknownInterface
 {
 public:
     PlugInInterface();
