@@ -466,7 +466,7 @@ static const char * const ps_header[] = {
 "} D",
 "",
 "/NB {",				// set nobrush
-"    0 W BR",
+"    0 B BR",
 "} D",
 "",
 "/PE {",				// PdcSetPen [style width R G B]
@@ -2341,8 +2341,8 @@ bool QPSPrinter::cmd( int c , QPainter *paint, QPDevCmdParam *p )
 		      d->cbrush.color() == Qt::white )
 		stream << "WB\n";
 	    else
-		stream << (int)p[0].brush->style() << ' '
-		       << color( p[0].brush->color() ) << "BR\n";
+		stream << (int)d->cbrush.style() << ' '
+		       << color( d->cbrush.color() ) << "BR\n";
 	    d->dirtybrush = FALSE;
 #if 0
 	stream << (int)p[0].brush->style()	 << ' '
