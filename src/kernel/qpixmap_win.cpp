@@ -860,6 +860,8 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
 	memset( dptr, 0xff, dbytes );
     else if ( bpp == 8 )
 	memset( dptr, white.pixel(), dbytes );
+    else if ( data->realAlphaBits )
+	memset( dptr, 0x00, dbytes );
     else
 	memset( dptr, 0xff, dbytes );
 
@@ -901,7 +903,14 @@ QPixmap QPixmap::xForm( const QWMatrix &matrix ) const
     bmh->biSizeImage = dbytes;
 #ifndef Q_OS_TEMP
     if ( data->realAlphaBits ) {
-	// ### implement me
+	void *ppvBits;
+	HDC dc = pm.handle();
+	HBITMAP hBitmap = CreateDIBSection( dc, bmi, DIB_RGB_COLORS, &ppvBits, NULL, 0 );
+	memcpy( ppvBits, dptr, dbytes );
+
+	DeleteObject( pm.DATA_HBM );
+	pm.DATA_HBM = (HBITMAP)SelectObject( dc, hBitmap );
+	pm.data->realAlphaBits = (uchar*)ppvBits;
     } else {
 	SetDIBitsToDevice( pm_dc, 0, pm_sy, w, h, 0, 0, 0, h, dptr, bmi, DIB_RGB_COLORS );
     }
