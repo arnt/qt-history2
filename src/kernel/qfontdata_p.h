@@ -178,6 +178,7 @@ public:
 
 #ifdef Q_WS_QWS
 class QFontStruct;
+class QGfx;
 #endif
 
 typedef QCacheIterator<QFontStruct> QFontCacheIterator;
@@ -370,8 +371,13 @@ public:
     */
     int textWidth( const QString &str, int pos, int len );
     
-#ifdef Q_WS_X11
+    /*
+     * returns the script a certain character is in. Needed to separate the string into runs of
+     * different scripts as required for X11 and opentype.
+     */
     Script scriptForChar(const QChar &c);
+    
+#ifdef Q_WS_X11
     Script hanHack( const QChar & c );
     static char **getXFontNames(const char *, int *);
     static bool fontExists(const QString &);
@@ -477,6 +483,8 @@ public:
     ~QFontPrivate();
     void load();
     QFontStruct *fin;
+    int textWidth( const QString &str, int pos, int len, TextRun *cache );
+    void drawText( QGfx *gfx, int x, int y, const TextRun *cache );
 #endif
 
 #ifdef Q_WS_MAC

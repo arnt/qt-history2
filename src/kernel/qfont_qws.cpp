@@ -50,7 +50,7 @@
 #include <qshared.h>
 #include "qfontmanager_qws.h"
 #include "qmemorymanager_qws.h"
-
+#include "qgfx_qws.h"
 
 /*****************************************************************************
   QFontInternal contains FB font data
@@ -409,12 +409,100 @@ int QFontPrivate::textWidth( const QString &str, int pos, int len )
     const QChar *ch = str.unicode() + pos;
     for( i = 0; i < len; i++ ) {
 	if ( ch->combiningClass() == 0 ) {
-	    width += memorymanager->lockGlyphMetrics(fin->handle(), *ch )->width;
+	    width += memorymanager->lockGlyphMetrics(fin->handle(), *ch )->advance;
 	}
 	++ch;
     }
     return width;
 }
+
+int QFontPrivate::textWidth( const QString &str, int pos, int len,
+			     QFontPrivate::TextRun *cache )
+{
+    // 1. split up into runs
+    const QChar *uc = str.unicode() + pos;
+    Script currs = QFontPrivate::NoScript, tmp;
+    int i;
+
+    int currw = 0;
+    int lasts = -1;
+
+    QPointArray pa;
+    int nmarks = 0;
+    for (i = 0; i < len; i++) {
+	tmp = scriptForChar(*uc);
+	if ( uc->combiningClass() != 0 && !nmarks && pos + i > 0 ) {
+	    if ( lasts >= 0 ) {
+		// string width (this is for the PREVIOUS truple)
+		cache->setParams( currw, 0, str.unicode() + lasts, i-lasts, currs );
+		currw += textWidth( str, lasts + pos, i - lasts );
+		QFontPrivate::TextRun *run = new QFontPrivate::TextRun();
+		cache->next = run;
+		cache = run;
+	    }
+	    currs = tmp;
+	    lasts = i;
+	    pa = QComplexText::positionMarks( this, str, pos + i - 1 );
+	    nmarks = pa.size();
+	} else if ( nmarks ) {
+	    QPoint p = pa[pa.size() - nmarks];
+	    //qDebug("positioning mark at (%d/%d) currw=%d", p.x(), p.y(), currw);
+	    cache->setParams( currw + p.x(), p.y(), str.unicode() + lasts, i-lasts, currs );
+	    QFontPrivate::TextRun *run = new QFontPrivate::TextRun();
+	    cache->next = run;
+	    cache = run;
+	    nmarks--;
+	    lasts = i;
+	} else if ( tmp != currs ) {
+	    if (lasts >= 0) {
+		// string width (this is for the PREVIOUS truple)
+		cache->setParams( currw, 0, str.unicode() + lasts, i-lasts, currs );
+		currw += textWidth( str, lasts + pos, i - lasts );
+		QFontPrivate::TextRun *run = new QFontPrivate::TextRun();
+		cache->next = run;
+		cache = run;
+	    }
+
+	    currs = tmp;
+	    lasts = i;
+	}
+	uc++;
+    }
+
+    if (lasts >= 0) {
+	if(nmarks) {
+	    QPoint p = pa[pa.size() - nmarks];
+	    //qDebug("positioning mark at (%d/%d) currw=%d", p.x(), p.y(), currw);
+	    cache->setParams( currw + p.x(), p.y(), str.unicode() + lasts, i-lasts, currs );
+	} else {
+	    cache->setParams( currw, 0, str.unicode() + lasts, i-lasts, currs );
+	    currw += textWidth( str, lasts, i - lasts );
+	    QFontPrivate::TextRun *run = new QFontPrivate::TextRun();
+	    cache->next = run;
+	}
+    }
+    return currw;
+
+}
+
+// takes care of positioning non spacing marks correctly.
+void QFontPrivate::drawText( QGfx *gfx, int x, int y,
+			     const QFontPrivate::TextRun *cache )
+{
+    while ( cache ) {
+	// ### here's the point where we can use different drawing functions for 
+	// different scripts, as each run is tagged with a script. Useful if we want to add
+	// opentype support or korean composition to embedded
+
+	// we should think about changing QGfx to only support a drawGlyph function and some functions, that map
+	// unicode chars to glyphs. Maybe even more is needed, to get everything ready to fully support opentype
+	// for arabic and indic scripts in the end. Will investigate. Lars
+	
+	gfx->drawText(x + cache->xoff, y + cache->yoff, QConstString((QChar *)cache->string, cache->length).string() );
+	cache = cache->next;
+    }
+}
+
 
 /*****************************************************************************
   QFontMetrics member functions

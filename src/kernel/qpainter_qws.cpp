@@ -1678,8 +1678,9 @@ void QPainter::drawText( int x, int y, const QString &str, int from, int len, QP
     param[1].str = &newstr;
     pdev->cmd(QPaintDevice::PdcDrawText2,this,param);
     */
-
-    gfx->drawText(x,y,shaped);
+    QFontPrivate::TextRun *cache = new QFontPrivate::TextRun();
+    cfont.d->textWidth( shaped, 0, len, cache );
+    cfont.d->drawText( gfx, x, y, cache );
 
     //if ( cfont.underline() || cfont.strikeOut() ) {
 	//QFontMetrics fm = fontMetrics();
