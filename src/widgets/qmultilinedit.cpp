@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#54 $
+** $Id: //depot/qt/main/src/widgets/qmultilinedit.cpp#55 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -1923,6 +1923,10 @@ void QMultiLineEdit::setWidth( int w )
 
 void QMultiLineEdit::setCursorPosition( int line, int col, bool mark )
 {
+    if ( mark && !hasMarkedText() ) {
+	markAnchorX    = cursorX;
+	markAnchorY    = cursorY;
+    }
     int oldY = cursorY;
     cursorY = QMAX( QMIN( line, numLines() - 1), 0 );
     cursorX = QMAX( QMIN( col,  lineLength( cursorY )), 0 );
