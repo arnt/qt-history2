@@ -326,31 +326,36 @@ void FormWindow::handleMousePressEvent(QWidget *w, QMouseEvent *e)
     if (inLayout == false)
         w->raise();
 
+    startPos = mapFromGlobal(e->globalPos());
+
     if (isMainContainer(w) == true) { // press was on the formwindow
+        clearSelection(true);
+
         drawRubber = true;
         currRect = QRect();
         startRectDraw(e->globalPos(), this, Rubber);
-    } else {
-        startPos = mapFromGlobal(e->globalPos());
-        bool selected = isWidgetSelected(w);
-
-        if (e->modifiers() & Qt::ShiftModifier) {
-            // shift-click - toggle selection state of widget
-            selectWidget(w, !selected);
-        } else {
-            if (selected == true && inLayout == true) {
-                // select the direct parent
-                selectWidget(w->parentWidget());
-            }
-
-            if (selected == false) {
-                clearSelection(false);
-            }
-
-            raiseChildSelections(w);
-            selectWidget(w);
-        }
+        return;
     }
+
+    bool selected = isWidgetSelected(w);
+
+    if (e->modifiers() & Qt::ShiftModifier) {
+        // shift-click - toggle selection state of widget
+        selectWidget(w, !selected);
+        return;
+    }
+
+    if (selected == true && inLayout == true) {
+        // select the direct parent
+        selectWidget(w->parentWidget());
+    }
+
+    if (selected == false) {
+        clearSelection(false);
+    }
+
+    raiseChildSelections(w);
+    selectWidget(w);
 }
 
 void FormWindow::handleMouseMoveEvent(QWidget *w, QMouseEvent *e)
@@ -360,44 +365,55 @@ void FormWindow::handleMouseMoveEvent(QWidget *w, QMouseEvent *e)
     if (e->buttons() != Qt::LeftButton)
         return;
 
-    QPoint pos = mapFromGlobal(e->globalPos());
-
-    if (drawRubber) { // draw rubber if we are in rubber-selection mode
+    if (drawRubber == true) {
         continueRectDraw(e->globalPos(), this, Rubber);
-    } else if ((e->modifiers() == 0 || e->modifiers() & Qt::ControlModifier)
-            && (startPos - pos).manhattanLength() > QApplication::startDragDistance()){
-
-        // if widget is laid out, find the first non-laid out super-widget
-        QWidget *c = w;
-        while ( c->parentWidget() &&
-            ( LayoutInfo::layoutType(m_core, c->parentWidget() ) != LayoutInfo::NoLayout || !isManaged(c) ) )
-                c = c->parentWidget();
-        selectWidget(c);
-
-        QDesignerResource res(this);
-
-        QList<QWidget*> sel = checkSelectionsForMove(w);
-
-        QList<AbstractDnDItem*> item_list;
-        foreach (QWidget *widget, sel) {
-            QWidget *container = findTargetContainer(widget);
-            if (container && LayoutInfo::layoutType(core(), container) != LayoutInfo::NoLayout) {
-                widget = container;
-                selectWidget(widget, true);
-            }
-            if (e->modifiers() & Qt::ControlModifier) {
-                QDesignerResource builder(this);
-                DomUI *dom_ui = builder.copy(QList<QWidget*>() << widget);
-                item_list.append(new FormWindowDnDItem(dom_ui, widget, e->globalPos()));
-            } else {
-                item_list.append(new FormWindowDnDItem(widget, e->globalPos()));
-                widget->hide();
-            }
-        }
-
-        if (sel.count())
-            core()->formWindowManager()->dragItems(item_list, this);
+        return;
     }
+
+    QPoint pos = mapFromGlobal(e->globalPos());
+    bool canStartDrag = (startPos - pos).manhattanLength() > QApplication::startDragDistance();
+
+    if (canStartDrag == false) {
+        // nothing to do
+        return;
+    }
+
+    // if widget is laid out, find the first non-laid out super-widget
+    QWidget *current = w;
+    while (QWidget *p = current->parentWidget()) {
+        bool managed = isManaged(current);
+        bool parentLaidout = LayoutInfo::layoutType(m_core, p) != LayoutInfo::NoLayout;
+
+        if (managed == true && parentLaidout == false)
+            break;
+
+        current = p;
+    }
+    selectWidget(current);
+
+
+    QDesignerResource builder(this);
+
+    QList<QWidget*> sel = checkSelectionsForMove(w);
+
+    QList<AbstractDnDItem*> item_list;
+    foreach (QWidget *widget, sel) {
+        QWidget *container = findTargetContainer(widget);
+        if (container && LayoutInfo::layoutType(core(), container) != LayoutInfo::NoLayout) {
+            widget = container;
+            selectWidget(widget, true);
+        }
+        if (e->modifiers() & Qt::ControlModifier) {
+            DomUI *dom_ui = builder.copy(QList<QWidget*>() << widget);
+            item_list.append(new FormWindowDnDItem(dom_ui, widget, e->globalPos()));
+        } else {
+            item_list.append(new FormWindowDnDItem(widget, e->globalPos()));
+            widget->hide();
+        }
+    }
+
+    if (sel.count())
+        core()->formWindowManager()->dragItems(item_list, this);
 }
 
 void FormWindow::handleMouseReleaseEvent(QWidget * /*w*/, QMouseEvent *e)
