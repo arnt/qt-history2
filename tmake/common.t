@@ -32,13 +32,13 @@ SYSCONF_MOC		= #$ Expand('TMAKE_MOC');
 #   - Usually needs to incorporate $(VER_MAJ) and $(VER_MIN)
 #
 SYSCONF_LINK_SHLIB	= #$ Expand('TMAKE_LINK_SHLIB');
-SYSCONF_LINK_TARGET_SHARED	= #{
+SYSCONF_LINK_TARGET_SHARED	= #${
     if ( Project('TMAKE_HPUX_SHLIB') ) {
 	$text .= 'lib$(TARGET).sl';
     } else {
 	$text .= 'lib$(TARGET).so.$(VER_MAJ).$(VER_MIN)';
     }
-#}
+#$}
 SYSCONF_LINK_LIB_SHARED	= #${
     if ( Project('TMAKE_HPUX_SHLIB') ) {
 	$text .= ' $(SYSCONF_LINK_SHLIB) '
