@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#80 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.cpp#81 $
 **
 ** Implementation of QMenuData class
 **
@@ -27,6 +27,11 @@
 #include "qmenudata.h"
 #include "qpopupmenu.h"
 #include "qapplication.h"
+
+
+// Not used yet...
+class QMenuItemData { };
+class QMenuDataData { };
 
 /*!
   \class QMenuData qmenudata.h
@@ -62,6 +67,7 @@ QMenuItem::QMenuItem()
     popup_menu	 = 0;
     accel_key	 = 0;
     signal_data	 = 0;
+    d = 0; // FOR EXTENSION (eg. non-ascii accels)
 }
 
 QMenuItem::~QMenuItem()
@@ -69,6 +75,7 @@ QMenuItem::~QMenuItem()
     delete iconset_data;
     delete pixmap_data;
     delete signal_data;
+    delete d;
 }
 
 
@@ -98,6 +105,7 @@ QMenuData::QMenuData()
     isPopupMenu = isMenuBar = mouseBtDn = FALSE;
     badSize = TRUE;
     avoid_circularity = 0;
+    d = 0; // FOR EXTENSION
 }
 
 /*!
@@ -113,6 +121,7 @@ QMenuData::~QMenuData()
 	mi = mitems->next();
     }
     delete mitems;				// delete menu item list
+    delete d;
 }
 
 
@@ -755,7 +764,6 @@ void QMenuData::setAccel( int key, int id )
 	parent->menuContentsChanged();
     }
 }
-
 
 /*!
   Returns the icon set that has been set for menu item \a id, or 0 if no icon

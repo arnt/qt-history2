@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qmenudata.h#68 $
+** $Id: //depot/qt/main/src/widgets/qmenudata.h#69 $
 **
 ** Definition of QMenuData class
 **
@@ -36,11 +36,14 @@
 #endif // QT_H
 
 class QPopupMenu;
+class QMenuDataData;
 
 #if defined(INCLUDE_MENUITEM_DEF)
 
 #include "qstring.h"
 #include "qsignal.h"
+
+class QMenuItemData;
 
 class Q_EXPORT QMenuItem			// internal menu item class
 {
@@ -74,12 +77,13 @@ private:
     QPixmap    *pixmap_data;			// item pixmap
     QPopupMenu *popup_menu;			// item popup menu
     QWidget    *widget;				// widget menu item
-    int		accel_key;			// accelerator key
+    int		accel_key;			// accelerator key (state|ascii)
     QSignal    *signal_data;			// connection
     uint	is_separator : 1;		// separator flag
     uint	is_enabled   : 1;		// disabled flag
     uint	is_checked   : 1;		// checked flag
     uint	is_dirty     : 1;		// dirty (update) flag
+    QMenuItemData* d;
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)
@@ -203,6 +207,7 @@ protected:
     int		   actItem;
     QMenuItemList *mitems;
     QMenuData	  *parentMenu;
+    QMenuDataData *d;
     uint	   isPopupMenu	: 1;
     uint	   isMenuBar	: 1;
     uint	   badSize	: 1;
