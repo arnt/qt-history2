@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/extensions/imageio/src/qpngio.cpp#3 $
+** $Id: //depot/qt/main/extensions/imageio/src/qpngio.cpp#4 $
 **
 ** Implementation of PNG QImage IOHandler
 **
@@ -203,6 +203,11 @@ void read_png_image(QImageIO* iio)
 	image.setAlphaBuffer(TRUE);
     }
 
+    if ( QImage::systemByteOrder() == QImage::BigEndian ) {
+	png_set_bgr(png_ptr);
+	png_set_swap_alpha(png_ptr);
+    }
+
     uchar** jt = image.jumpTable();
     row_pointers=new png_bytep[info_ptr->height];
 
@@ -212,7 +217,7 @@ void read_png_image(QImageIO* iio)
 
     png_read_image(png_ptr, row_pointers);
 
-#if 0 // LibPNG takes care of this.
+#if 0 // libpng takes care of this.
     if (image.depth()==32 && (info_ptr->valid & PNG_INFO_tRNS)) {
 	QRgb trans = 0xFF000000 | qRgb(
 	      (info_ptr->trans_values.red << 8 >> info_ptr->bit_depth)&0xff,
@@ -282,7 +287,7 @@ void write_png_image(QImageIO* iio)
     info_ptr->sig_bit.green = 8;
     info_ptr->sig_bit.blue = 8;
 
-#if 0 // Doesn't seem to do anything, either way.
+#if 0 // libpng takes care of this.
     if (image.depth() == 1 && image.bitOrder() == QImage::BigEndian)
        png_set_packswap(png_ptr);
 #endif
@@ -319,17 +324,21 @@ void write_png_image(QImageIO* iio)
 	info_ptr->sig_bit.alpha = 8;
     }
 
-    if ( QImage::systemByteOrder() == QImage::BigEndian )
+    if ( QImage::systemByteOrder() == QImage::BigEndian ) {
 	png_set_bgr(png_ptr);
+	png_set_swap_alpha(png_ptr);
+    }
 
     png_write_info(png_ptr, info_ptr);
 
     if ( image.depth() != 1 )
 	png_set_packing(png_ptr);
 
+#if 0 // libpng takes care of this.
     png_set_filler(png_ptr, 0,
 	QImage::systemByteOrder() == QImage::BigEndian ?
 	    PNG_FILLER_BEFORE : PNG_FILLER_AFTER);
+#endif
 
     uchar** jt = image.jumpTable();
     row_pointers=new png_bytep[info_ptr->height];
