@@ -224,21 +224,22 @@ QSqlCursor* QSqlCursorManager::cursor() const
 /*! \internal
 
   Refreshes the manager using the default cursor.  The manager's
-  filter and sort are applied.
+  filter and sort are applied.  Returns TRUE on success, FALSE if an
+  error occurred or there is no current cursor.
 
   \sa setFilter() setSort()
 
 */
 
-void QSqlCursorManager::refresh()
+bool QSqlCursorManager::refresh()
 {
     QSqlCursor* cur = cursor();
     if ( !cur )
-	return;
+	return FALSE;
     QString currentFilter = d->ftr;
     QStringList currentSort = d->srt;
     QSqlIndex newSort = QSqlIndex::fromStringList( currentSort, cur );
-    cur->select( currentFilter, newSort );
+    return cur->select( currentFilter, newSort );
 }
 
 /* \internal

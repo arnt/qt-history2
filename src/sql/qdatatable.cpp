@@ -1802,8 +1802,10 @@ void QDataTable::refresh( QDataTable::Refresh mode )
 	refreshCol = TRUE;
     viewport()->setUpdatesEnabled( FALSE );
     d->haveAllRows = FALSE;
-    if ( refreshData )
-	d->cur.refresh();
+    if ( refreshData ) {
+	if ( !d->cur.refresh() && d->cur.cursor() )
+	    handleError( d->cur.cursor()->lastError() );
+    }
     if ( refreshCol ) {
 	setNumCols( 0 );
 	d->colIndex.clear();

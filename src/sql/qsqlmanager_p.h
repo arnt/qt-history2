@@ -83,7 +83,7 @@ public:
     virtual void setAutoDelete( bool enable );
     bool autoDelete() const;
 
-    virtual void refresh();
+    virtual bool refresh();
     virtual bool findBuffer( const QSqlIndex& idx, int atHint = 0 );
 
 private:
