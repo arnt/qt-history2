@@ -41,6 +41,10 @@
 #include <Xm/FileSB.h>
 #include <Xm/Command.h>
 
+void qmotif_dialog_realize( Widget, XtValueMask *, XSetWindowAttributes * );
+void qmotif_dialog_insert_child( Widget );
+void qmotif_dialog_delete_child( Widget );
+void qmotif_dialog_change_managed( Widget );
 
 // XmDialogShell subclass to wrap motif dialogs into QDialogs
 
