@@ -7,5 +7,5 @@ SOURCES     =	cannon.cpp \
 		gamebrd.cpp \
 		lcdrange.cpp \
 		main.cpp
-UNIXLIBS    =	-lm
+unix:LIBS   =	-lm
 TARGET      =	t14
