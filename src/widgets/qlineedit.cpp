@@ -2743,7 +2743,8 @@ void QLineEdit::delOrBackspace( bool backspace )
 		    d->undoRedoInfo.text.append( ch );
 		}
 		if ( hasMask() ) {
-		    QString t1 = d->parag->string()->toString( FALSE ); // with FALSE we don't fix spaces (nbsp)
+		    const QTextString *ts = d->parag->string(); // workaround Borland
+		    QString t1 = ts->toString( FALSE ); // with FALSE we don't fix spaces (nbsp)
 		    t1.remove( t1.length() - 1, 1 );
 		    int idx = d->cursor->index();
 		    t1.replace( idx, 1, clearString( idx, 1 ) );
@@ -2986,7 +2987,8 @@ QString QLineEdit::maskString( uint pos, const QString &str, bool clear) const
     if ( clear )
 	t1 = clearString( 0, d->maskList->count() );
     else {
-	t1 = d->parag->string()->toString( FALSE );  // with FALSE we don't fix spaces (nbsp)
+	const QTextString *ts = d->parag->string(); // workaround Borland
+	t1 = ts->toString( FALSE );  // with FALSE we don't fix spaces (nbsp)
 	t1.remove( t1.length() - 1, 1 );
     }
     uint strIndex = 0;
@@ -3077,7 +3079,8 @@ QString QLineEdit::text( bool strip ) const
     if ( strip ) {
 	return text();
     } else {
-	QString s = d->parag->string()->toString( FALSE ); // with FALSE we don't fix spaces (nbsp)
+	const QTextString *ts = d->parag->string(); // workaround Borland
+	QString s = ts->toString( FALSE ); // with FALSE we don't fix spaces (nbsp)
 	s.remove( s.length() - 1, 1 ); // get rid of trailing space
 	return s;
     }
@@ -3101,7 +3104,8 @@ void QLineEdit::insert( const QString &newText, bool paste )
 	if ( input[i] < ' ' )  // unprintable/linefeed becomes space
 	    input[i] = ' ';
 
-    QString original = d->parag->string()->toString( FALSE ); // with FALSE we don't fix spaces (nbsp)
+    const QTextString *ts = d->parag->string(); // workaround Borland
+    QString original = ts->toString( FALSE ); // with FALSE we don't fix spaces (nbsp)
     original.remove( original.length() - 1, 1 );
     int cp1 = d->cursor->index();
 
@@ -3261,10 +3265,12 @@ bool QLineEdit::hasOverWriteSelection() const
 /* same as public selectedText  but can ignore the overWriteSelection */
 QString QLineEdit::selectedText( bool ignore ) const
 {
-    if ( hasSelectedText( ignore ) )
-	return d->parag->string()->toString( FALSE ).mid( d->parag->selectionStart( QTextDocument::Standard ), d->parag->selectionEnd( QTextDocument::Standard ) - d->parag->selectionStart( QTextDocument::Standard ) ); // with FALSE we don't fix spaces (nbsp)
-    else
+    if ( hasSelectedText( ignore ) ) {
+	const QTextString *ts = d->parag->string(); // workaround Borland
+	return ts->toString( FALSE ).mid( d->parag->selectionStart( QTextDocument::Standard ), d->parag->selectionEnd( QTextDocument::Standard ) - d->parag->selectionStart( QTextDocument::Standard ) ); // with FALSE we don't fix spaces (nbsp)
+    } else {
 	return QString::null;
+    }
 }
 
 /* same as public getSelection but can ignore the overWriteSelection */
