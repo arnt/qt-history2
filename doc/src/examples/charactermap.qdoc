@@ -172,14 +172,14 @@ line edit.
 
 In the constructor, we set up the window's central widget and fill it with
 some standard widgets (two comboboxes, a line edit, and a push button).
-We also construct a CharacterWidget custom widget, and add a QWidgetView
+We also construct a CharacterWidget custom widget, and add a QScrollArea
 so that we can view its contents:
 
 \quotefromfile widgets/charactermap/mainwindow.cpp
 \skipto MainWindow::MainWindow
 \printuntil view->setWidget
 
-QWidgetView provides a viewport onto the \c CharacterWidget when we set
+QScrollArea provides a viewport onto the \c CharacterWidget when we set
 its widget and handles much of the work needed to provide a scrolling
 viewport.
 
