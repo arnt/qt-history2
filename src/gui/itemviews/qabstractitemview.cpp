@@ -161,31 +161,34 @@ void QAbstractItemViewPrivate::init()
 
     This enum indicates how the view responds to user selections:
 
-    \value Single  When the user selects an item, any already-selected
-    item becomes unselected, and the user cannot unselect the selected
-    item.
+    \value SingleSelection  When the user selects an item, any
+    already-selected item becomes unselected, and the user cannot
+    unselect the selected item.
 
-    \value Multi  When the user selects an item in the usual way, the
-    selection status of that item is toggled and the other items are
-    left alone.
+    \value MultiSelection  When the user selects an item in the usual
+    way, the selection status of that item is toggled and the other
+    items are left alone.
 
-    \value Extended When the user selects an item in the usual way,
-    the selection is cleared and the new item selected. However, if
-    the user presses the Ctrl key when clicking on an item, the
-    clicked item gets toggled and all other items are left untouched.
-    And if the user presses the Shift key while clicking on an item,
-    all items between the current item and the clicked item get
+    \value ExtendedSelection When the user selects an item in the
+    usual way, the selection is cleared and the new item selected.
+    However, if the user presses the Ctrl key when clicking on an
+    item, the clicked item gets toggled and all other items are left
+    untouched.
+    If the user presses the Shift key while clicking on an item,
+    all items between the current item and the clicked item are
     selected or unselected, depending on the state of the clicked
-    item. Also, multiple items can be selected by dragging the mouse
+    item. Multiple items can be selected by dragging the mouse
     over them.
 
     \value NoSelection  Items cannot be selected.
 
-    In other words, \c Single is a real single-selection list view, \c
-    Multi a real multi-selection list view, \c Extended is a list view
-    where users can select multiple items but usually want to select
-    either just one or a range of contiguous items, and \c NoSelection
-    is a list view where the user can look but not touch.
+    In other words, \c SingleSelection is a real single-selection list
+    view, \c MultiSelection a real multi-selection list view,
+    \c ExtendedSelection is a list view in which users can select
+    multiple items, but usually want to select either just one or a
+    range of contiguous items, and \c NoSelection
+    is a list view where the user can navigate without selecting
+    items.
 */
 
 /*!
@@ -1112,7 +1115,10 @@ void QAbstractItemView::dragMoveEvent(QDragMoveEvent *e)
 }
 
 /*!
+    \fn void QAbstractItemView::dragLeaveEvent(QDragLeaveEvent *event)
 
+    This function is called when the item being dragged leaves the view.
+    The \a event describes the state of the drag and drop operation.
 */
 void QAbstractItemView::dragLeaveEvent(QDragLeaveEvent *)
 {
@@ -1342,9 +1348,10 @@ QModelIndexList QAbstractItemView::selectedIndexes() const
 /*!
     Starts editing the item at \a index, creating an editor if
     necessary, and returns true if the view's \l{State} is now \c
-    EditingState; otherwise returns false. The action that initiated the
-    editing is specified by \a action, and the event that was behind this
-    is specified by \a event.
+    EditingState; otherwise returns false.
+
+    The action that caused the editing process is described by
+    \a trigger, and the associated event is specified by \a event.
 
     \sa endEdit()
 */
@@ -1464,15 +1471,10 @@ void QAbstractItemView::selectionModelDestroyed()
 }
 
 /*!
-  Releases the editor \a editor from the view without commiting the
-  editors data.
-
-  \sa endEdit()
-*/
-
-/*!
-    Ends the editing operation on the item represented by the given \a index.
-    If there was an editor widget it is released.
+    Closes the given \a editor, and releases it. The \a hint is
+    used to specify how the view should respond to the end of the editing
+    operation. For example, the hint may indicate that the next item in
+    the view should be opened for editing. 
 
     \sa edit() QAbstractItemDelegate::releaseEditor()
 */
