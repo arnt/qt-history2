@@ -1909,6 +1909,11 @@ QWorkspaceChild::~QWorkspaceChild()
 bool QWorkspaceChild::event( QEvent *e )
 {
     switch(e->type()) {
+    case QEvent::Close:
+	if(((QWorkspace*) parentWidget() )->windowMode() == QWorkspace::WS_TopLevel && 
+	   ((QWorkspace*) parentWidget() )->d->mainwindow) 
+	    return ((QWorkspace*) parentWidget() )->d->mainwindow->close(FALSE);
+	break;
     case QEvent::WindowDeactivate:
 	if(((QWorkspace*) parentWidget() )->windowMode() == QWorkspace::WS_TopLevel && statusbar) {
 	    QSize newsize(width(), height() - statusbar->height());
