@@ -628,7 +628,8 @@ bool QMenuBar::activate(MenuRef menu, short idx, bool highlight, bool by_accel)
 	}
 	return TRUE;
     }
-    HiliteMenu(0);
+    if(!highlight)
+	HiliteMenu(0);
     return FALSE;
 }
 
