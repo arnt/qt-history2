@@ -46,7 +46,6 @@ protected:
     int                 size();
     int                 numRowsAffected();
 private:
-    int			currentSize;
     class LocalSQLPrivate;
     LocalSQLPrivate*	d;
 };
