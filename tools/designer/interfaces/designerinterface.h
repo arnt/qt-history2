@@ -50,7 +50,7 @@ struct DesignerOutputDock;
 struct DesignerOutput;
 struct DesignerOutputError;
 struct DesignerPixmapCollection;
-class DesignerSourceFile;
+struct DesignerSourceFile;
 
 class QDockWindow;
 class QWidget;
