@@ -5551,11 +5551,10 @@ void QCheckListItem::activate()
 	else
 	    r.setRect( 3, 2, BoxSize-3, BoxSize-3 );
 	// columns might have been swapped
-	int sec = lv->header()->sectionAt( pos.x() );
-	r.moveBy( lv->header()->sectionPos( sec ), 0 );
-	if ( lv && lv->columnAlignment( sec ) == AlignCenter ) {
+	r.moveBy( lv->header()->sectionPos( 0 ), 0 );
+	if ( lv && lv->columnAlignment( 0 ) == AlignCenter ) {
 	    QFontMetrics fm( lv->font() );
-	    r.moveBy( (lv->columnWidth( sec ) - (BoxSize + fm.width( text() ))) / 2, 0 );
+	    r.moveBy( (lv->columnWidth( 0 ) - (BoxSize + fm.width( text() ))) / 2, 0 );
 	}
 	if ( !r.contains( pos ) )
 	    return;

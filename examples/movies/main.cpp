@@ -185,9 +185,10 @@ private slots:
         // The movie has sent us a status message.
 
         if (status < 0) {
-            QString msg;
-            msg.sprintf("Could not play movie \"%s\"", (const char*)filename);
-            QMessageBox::warning(this, "movies", msg);
+	    QString msg;
+	    msg.sprintf("Could not play movie \"%s\"", (const char*)filename);
+	    QMessageBox::warning(this, "movies", msg);
+	    parentWidget()->close();
         } else if (status == QMovie::Paused || status == QMovie::EndOfMovie) {
             repaint(); // Ensure status text is displayed
         }

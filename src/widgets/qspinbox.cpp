@@ -69,10 +69,11 @@ public:
   \ingroup basic
   \mainclass
 
-  QSpinBox allows the user to choose a value either by
-  clicking the up/down buttons to increase/decrease the value
-  currently displayed or by typing the value directly into the spin
-  box. The value is usually an integer.
+  QSpinBox allows the user to choose a value either by clicking the
+  up/down buttons to increase/decrease the value currently displayed
+  or by typing the value directly into the spin box. If the value is
+  entered directly into the spin box, \Key Enter must be pressed to
+  apply the new value. The value is usually an integer.
 
   Every time the value changes QSpinBox emits the valueChanged()
   signal.  The current value can be fetched with value() and set with

@@ -1330,6 +1330,7 @@ void QTextEdit::removeSelectedText( int selNum )
     drawCursor( TRUE );
     clearUndoRedo();
     emit textChanged();
+    emit selectionChanged();
 #if defined(Q_WS_WIN)
     // there seems to be a problem with repainting or erasing the area
     // of the scrollview which is not the contents on windows
