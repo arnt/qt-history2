@@ -18,7 +18,6 @@
 #include "qwidgetinterface_p.h"
 #include "qobjectcleanuphandler.h"
 #include "qwidget.h"
-#include "qwidgetlist.h"
 
 /*!
     \class QWidgetPlugin qwidgetplugin.h
