@@ -44,6 +44,18 @@ Q_OBJECT
 class Q_EXPORT QLineEdit : public QWidget
 {
     Q_OBJECT
+    
+    Q_PROPERTY( QString, "text", text, setText )
+    Q_PROPERTY( int, "maxLength", maxLength, setMaxLength )
+    Q_PROPERTY( bool, "frame", setFrame, frame )
+    Q_PROPERTY( EchoMode, "echoMode", echoMode, setEchoMode )
+    Q_PROPERTY( QString, "displayText", displayText, 0 )
+    Q_PROPERTY( int, "cursorPosition", cursorPosition, setCursorPosition )
+    Q_PROPERTY( int, "alignment", alignment, setAlignment )
+    Q_PROPERTY( bool, "edited", edited, setEdited )
+    Q_PROPERTY( bool, "hasMarkedText", hasMarkedText, 0 )
+    Q_PROPERTY( QString, "markedText", markedText, 0 )
+	
 public:
     QLineEdit( QWidget *parent, const char *name=0 );
     QLineEdit( const QString &, QWidget *parent, const char *name=0 );
@@ -139,7 +151,7 @@ private slots:
     void	blinkSlot();
     void	dragScrollSlot();
     void 	doDrag();
-    
+
 private:
     // kept
     void	newMark( int pos, bool copy=TRUE );

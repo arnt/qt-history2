@@ -1264,6 +1264,8 @@ int main( int argc, char **argv )
     propfuncs.clear();
     funcs.clear();
     infos.clear();
+    props.clear();
+    infos.clear();
 
     return mocError ? 1 : 0;
 }
@@ -1350,6 +1352,9 @@ void initClass()				 // prepare for new class
     signals.clear();
     propfuncs.clear();
     enums.clear();
+    funcs.clear();
+    props.clear();
+    infos.clear();
 }
 
 struct NamespaceInfo

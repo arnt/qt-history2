@@ -33,14 +33,16 @@
 class QSimpleRichText;
 class QLabelPrivate;
 
-#if 0
-Q_OBJECT
-#endif
-
 class Q_EXPORT QLabel : public QFrame
 {
     Q_OBJECT
     Q_PROPERTY( QString, "text", text, setText )
+    Q_PROPERTY( QPixmap, "pixmap", pixmap, setPixmap )
+    // #### Add Qt::TextFormat
+    Q_PROPERTY( int, "alignment", alignment, setAlignment )
+    Q_PROPERTY( int, "indent", indent, setIndent )
+    Q_PROPERTY( bool, "autoResize", autoResize, setAutoResize )
+	
 public:
     QLabel( QWidget *parent, const char *name=0, WFlags f=0 );
     QLabel( const QString &text, QWidget *parent, const char *name=0,

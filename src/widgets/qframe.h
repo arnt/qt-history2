@@ -30,13 +30,18 @@
 #include "qwidget.h"
 #endif // QT_H
 
-#if 0
-Q_OBJECT
-#endif
-
 class Q_EXPORT QFrame : public QWidget			// frame class
 {
     Q_OBJECT
+    Q_PROPERTY( int, "frameWidth", frameWidth, 0 )
+    Q_PROPERTY( QRect, "contentsRect", contentsRect, 0 )
+    Q_PROPERTY( Shape, "frameShape", frameShape, setFrameShape )
+    Q_PROPERTY( Shadow, "frameShadow", frameShadow, setFrameShadow )
+    Q_PROPERTY( int, "lineWidth", lineWidth, setLineWidth )
+    Q_PROPERTY( int, "margin", margin, setMargin )
+    Q_PROPERTY( int, "midLineWidth", midLineWidth, setMidLineWidth )
+    Q_PROPERTY( QRect, "frameRect", frameRect, setFrameRect )
+	
 public:
     QFrame( QWidget *parent=0, const char *name=0, WFlags f=0,
 	    bool = TRUE );

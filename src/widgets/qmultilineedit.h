@@ -36,13 +36,31 @@ struct QMultiLineData;
 class QMultiLineEditCommand;
 class QValidator;
 
-#if 0
-Q_OBJECT
-#endif
-
 class Q_EXPORT QMultiLineEdit : public QTableView
 {
     Q_OBJECT
+    Q_PROPERTY( int, "numLines", numLines, 0 )
+    Q_PROPERTY( bool, "atBeginning", atBeginning, 0 )
+    Q_PROPERTY( bool, "atEnd", atEnd, 0 )
+    Q_PROPERTY( int, "maxLineWidth", maxLineWidth, 0 )
+    Q_PROPERTY( int, "alignment", alignment, setAlignment )
+    Q_PROPERTY( bool, "edited", edited, setEdited )
+    Q_PROPERTY( EchoMode, "echoMode", echoMode, setEchoMode )
+    Q_PROPERTY( int, "maxLength", maxLength, setMaxLength )
+    Q_PROPERTY( int, "maxLineLength", maxLineLength, setMaxLineLength )
+    Q_PROPERTY( int, "maxLines", maxLines, setMaxLines )
+    Q_PROPERTY( int, "hMargin", hMargin, setHMargin )
+    Q_PROPERTY( WordWrap, "wordWrap", wordWrap, setWordWrap )
+    Q_PROPERTY( int, "wrapColumnOrWidth", wrapColumnOrWidth, setWrapColumnOrWidth )
+    Q_PROPERTY( WrapPolicy, "wrapPolicy", wrapPolicy, setWrapPolicy )
+    Q_PROPERTY( bool, "autoUpdate", autoUpdate, setAutoUpdate )
+    Q_PROPERTY( bool, "undoEnabled", isUndoEnabled, setUndoEnabled )
+    Q_PROPERTY( int, "undoDepth", undoDepth, setUndoDepth )
+    Q_PROPERTY( bool, "readOnly", isReadOnly, setReadOnly )
+    Q_PROPERTY( bool, "overWriteMode", isOverwriteMode, setOverwriteMode )
+    Q_PROPERTY( QString, "text", text, setText )
+    Q_PROPERTY( int, "length", length, 0 )
+	
 public:
     QMultiLineEdit( QWidget *parent=0, const char *name=0 );
    ~QMultiLineEdit();

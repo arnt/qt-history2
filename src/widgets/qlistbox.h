@@ -45,6 +45,20 @@ class Q_EXPORT QListBox : public QScrollView
     friend class QListBoxItem;
 
     Q_OBJECT
+    // #### uses uint Q_PROPERTY( int, "count", count, 0 )
+    Q_PROPERTY( int, "numItemsVisible", numItemsVisible, 0 )
+    Q_PROPERTY( int, "currentItem", currentItem, setCurrentItem )
+    Q_PROPERTY( QString, "currentText", currentText, 0 )
+    Q_PROPERTY( int, "topItem", topItem, setTopItem )
+    Q_PROPERTY( SelectionMode, "selectionMode", selectionMode, setSelectionMode )
+    Q_PROPERTY( bool, "multiSelection", isMultiSelection, setMultiSelection )
+    Q_PROPERTY( LayoutMode, "columnMode", columnMode, setColumnMode )
+    Q_PROPERTY( LayoutMode, "rowMode", rowMode, setRowMode )
+    Q_PROPERTY( int, "numColumns", numColumns, 0 )
+    Q_PROPERTY( int, "numRows", numRows, 0 )
+    Q_PROPERTY( bool, "variableWidth", variableWidth, setVariableWidth )
+    Q_PROPERTY( bool, "variableHeight", variableHeight, setVariableHeight )
+	
 public:
     QListBox( QWidget *parent=0, const char *name=0, WFlags f=0  );
    ~QListBox();
@@ -170,7 +184,7 @@ public:
     QRect itemRect( QListBoxItem *item ) const;
 
     QListBoxItem *firstItem() const;
-    
+
 public slots:
     virtual void ensureCurrentVisible();
     virtual void clearSelection();
@@ -294,7 +308,7 @@ public:
 
     QListBoxItem *next() const;
     QListBoxItem *prev() const;
-    
+
 protected:
     virtual void paint( QPainter * ) = 0;
     virtual void setText( const QString &text ) { txt = text; }

@@ -85,7 +85,7 @@ public:
     QVariant();
     QVariant( const QVariant& );
     QVariant( QDataStream& s );
-    virtual ~QVariant();
+    ~QVariant();
 
     QVariant( const QString& );
     QVariant( const QCString& );
@@ -132,10 +132,10 @@ public:
     void setValue( double );
 
     Type type() const;
-    virtual const char* typeName() const;
+    const char* typeName() const;
 
     bool canCast( Type ) const;
-    
+
     bool isValid() const;
 
     QString toString() const;
@@ -157,15 +157,15 @@ public:
     double toDouble() const;
     QValueList<QVariant> toList() const;
     QMap<QString,QVariant> toMap() const;
-    
-    virtual void load( QDataStream& );
-    virtual void save( QDataStream& ) const;
+
+    void load( QDataStream& );
+    void save( QDataStream& ) const;
 
     static const char* typeToName( Type typ );
     static Type nameToType( const char* name );
 
 protected:
-    virtual void clear();
+    void clear();
 
     Type typ;
     union

@@ -38,13 +38,17 @@ class QValidator;
 
 struct QSpinBoxPrivate;
 
-#if 0
-Q_OBJECT
-#endif
-
 class Q_EXPORT QSpinBox: public QFrame, public QRangeControl
 {
     Q_OBJECT
+    Q_PROPERTY( QString, "text", text, 0 )
+    Q_PROPERTY( QString, "prefix", prefix, setPrefix )
+    Q_PROPERTY( QString, "suffix", suffix, setSuffix )
+    Q_PROPERTY( QString, "cleanText", cleanText, 0 )
+    Q_PROPERTY( QString, "specialValueText", specialValueText, setSpecialValueText )
+    Q_PROPERTY( bool, "wrapping", wrapping, setWrapping )
+    Q_PROPERTY( ButtonSymbols, "buttonSymbols", buttonSymbols, setButtonSymbols )
+	
 public:
     QSpinBox( QWidget* parent = 0, const char *name = 0 );
     QSpinBox( int minValue, int maxValue, int step = 1,
