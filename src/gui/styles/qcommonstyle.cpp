@@ -632,6 +632,7 @@ void QCommonStyle::drawPrimitive( PrimitiveElement pe,
 	if (flags & (QStyle::Style_Open|QStyle::Style_Children|QStyle::Style_Item|QStyle::Style_Sibling))
 	    p->drawLine(mid_h, r.y(), mid_h, bef_v);
 	break; }
+
     default:
 	break;
     }
@@ -1036,9 +1037,12 @@ void QCommonStyle::drawControl( ControlElement element,
 	    Qt::ArrowType arrowType = opt.isDefault()
 			? Qt::DownArrow : opt.arrowType();
 
-	    if (flags & (Style_Down | Style_On))
-		rect.moveBy(pixelMetric(PM_ButtonShiftHorizontal, widget),
-			    pixelMetric(PM_ButtonShiftVertical, widget));
+	    int shiftX = 0;
+	    int shiftY = 0;
+	    if (flags & (Style_Down | Style_On)) {
+		shiftX = pixelMetric(PM_ButtonShiftHorizontal, widget);
+		shiftY = pixelMetric(PM_ButtonShiftVertical, widget);
+	    }
 
 	    if (!opt.isDefault()) {
 		PrimitiveElement pe;
@@ -1050,6 +1054,7 @@ void QCommonStyle::drawControl( ControlElement element,
 		case Qt::DownArrow:  pe = PE_ArrowDown;  break;
 		}
 
+		rect.moveBy(shiftX, shiftY);
 		drawPrimitive(pe, p, rect, pal, flags, opt);
 	    } else {
 		QColor btext = toolbutton->palette().foreground();
@@ -1060,6 +1065,7 @@ void QCommonStyle::drawControl( ControlElement element,
 		    int alignment = AlignCenter | ShowPrefix;
 		    if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
 			alignment |= NoAccel;
+		    rect.moveBy(shiftX, shiftY);
 		    drawItem(p, rect, alignment, pal,
 			     flags & Style_Enabled, toolbutton->text(), -1, &btext);
 		} else {
@@ -1079,36 +1085,37 @@ void QCommonStyle::drawControl( ControlElement element,
 		    pm = toolbutton->iconSet().pixmap( size, mode, state );
 
 		    if ( toolbutton->usesTextLabel() ) {
-			if ( toolbutton->textPosition() == QToolButton::Under ) {
-			    p->setFont( toolbutton->font() );
+			p->setFont( toolbutton->font() );
+			QRect pr = rect, tr = rect;
+			int alignment = ShowPrefix;
+			if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
+			    alignment |= NoAccel;
 
-			    QRect pr = rect, tr = rect;
+			if ( toolbutton->textPosition() == QToolButton::Under ) {
 			    int fh = p->fontMetrics().height();
 			    pr.addCoords( 0, 1, 0, -fh-3 );
 			    tr.addCoords( 0, pr.bottom(), 0, -3 );
+			    pr.moveBy(shiftX, shiftY);
 			    drawItem( p, pr, AlignCenter, pal,
 				      mode != QIconSet::Disabled || !toolbutton->iconSet().isGenerated(size, mode, state), pm);
-			    int alignment = AlignCenter | ShowPrefix;
-			    if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
-				alignment |= NoAccel;
-			    drawItem( p, tr, alignment, pal,
-				      flags & Style_Enabled, toolbutton->textLabel(), -1, &btext);
+			    alignment |= AlignCenter;
 			} else {
-			    p->setFont( toolbutton->font() );
-
-			    QRect pr = rect, tr = rect;
 			    pr.setWidth( pm.width() + 8 );
 			    tr.addCoords( pr.right(), 0, 0, 0 );
+			    pr.moveBy(shiftX, shiftY);
 			    drawItem( p, pr, AlignCenter, pal,
 				      mode != QIconSet::Disabled || !toolbutton->iconSet().isGenerated(size, mode, state), pm );
-			    int alignment = AlignLeft | AlignVCenter | ShowPrefix;
-			    if (!styleHint(SH_UnderlineAccelerator, widget, QStyleOption::Default, 0))
-				alignment |= NoAccel;
-			    drawItem( p, tr, alignment, pal, flags & Style_Enabled, toolbutton->textLabel(), -1, &btext);
+			    alignment |= AlignLeft | AlignVCenter;
 			}
-		    } else
+			tr.moveBy(shiftX, shiftY);
+			drawItem( p, tr, alignment, pal,
+				  flags & Style_Enabled, 0, toolbutton->textLabel(),
+				  toolbutton->textLabel().length(), &btext);
+		    } else {
+			rect.moveBy(shiftX, shiftY);
 			drawItem( p, rect, AlignCenter, pal,
 				  mode != QIconSet::Disabled || !toolbutton->iconSet().isGenerated(size, mode, state), pm);
+		    }
 		}
 	    }
 
