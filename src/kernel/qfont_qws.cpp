@@ -90,7 +90,7 @@ inline QFontStruct::QFontStruct( const QFontDef& d )
 {
     s = d;
     if ( s.pointSize == -1 )
-	s.pointSize = s.pixelSize; // effectively sets the resolution of the display to 72dpi
+	s.pointSize = s.pixelSize*10; // effectively sets the resolution of the display to 72dpi
     id = memorymanager->findFont(d);
 }
 
