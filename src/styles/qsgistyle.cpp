@@ -489,8 +489,6 @@ void QSGIStyle::drawPrimitive( PrimitiveElement pe,
     const bool sunken = flags & ( Style_Sunken | Style_Down | Style_On );
     const int defaultFrameWidth = pixelMetric( PM_DefaultFrameWidth );
     const bool hot = ( flags & Style_MouseOver ) && r.contains( mousePos );
-    if ( hot )
-        qDebug( "Hot Primitive!" );
 
     switch ( pe ) {
     case PE_ButtonCommand:
@@ -785,10 +783,8 @@ void QSGIStyle::drawControl( ControlElement element,
 		  SFlags flags,
 		  void **data ) const
 {
-    if ( widget == hotWidget ) {
+    if ( widget == hotWidget )
 	flags |= Style_MouseOver;
-	qDebug( "Hot Control" );
-    }
 
     switch ( element ) {
     case CE_PushButton:
@@ -1029,10 +1025,8 @@ void QSGIStyle::drawComplexControl( ComplexControl control,
 			 SCFlags subActive,
 			 void **data ) const
 {
-    if ( widget == hotWidget ) {
+    if ( widget == hotWidget )
 	flags |= Style_MouseOver;
-	qDebug( "Hot ComplexControl" );
-    }
 
     switch ( control ) {
     case CC_Slider:
