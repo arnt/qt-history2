@@ -1792,6 +1792,13 @@ void QApplication::installTranslator( QTranslator * mf )
 	translators = new QList<QTranslator>;
     if ( mf )
 	translators->insert( 0, mf );
+    
+    // hook to set the layouting direction of dialogs.
+    if( tr( "QT_LAYOUT_DIRECTION", "this should return the string 'RTL' for languages that "
+	    "are laid out from right to left as Hebrew and arabic. It has the effect to "
+	    "mirror the whole layout of the widgets, as required by these languages. "
+	    "Other languages should just return LTR." ) == "RTL" )
+	setReverseLayout( true );
 }
 
 /*!
