@@ -111,7 +111,7 @@ widgets {
 		  $$WIDGETS_CPP/qtextbrowser.cpp \
 		  $$WIDGETS_CPP/qtextedit.cpp \
 		  $$WIDGETS_CPP/qtrayicon.cpp
-  unix:SOURCES += $$WIDGETS_CPP/qtrayicon_x11.cpp
+  x11:SOURCES += $$WIDGETS_CPP/qtrayicon_x11.cpp
  win32:SOURCES += $$WIDGETS_CPP/qtrayicon_win.cpp
 embedded:SOURCES+=$$WIDGETS_CPP/qtrayicon_qws.cpp
    mac:SOURCES += $$WIDGETS_CPP/qmenubar_mac.cpp \
