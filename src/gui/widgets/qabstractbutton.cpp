@@ -433,11 +433,13 @@ void QAbstractButton::setText(const QString &text)
     if (d->text == text)
         return;
     d->text = text;
-    QKeySequence newMnemonic = QKeySequence::mnemonic(text);
-    if (!newMnemonic.isEmpty()) {
+    if (d->shortcutId) {
         releaseShortcut(d->shortcutId);
-        d->shortcutId = grabShortcut(newMnemonic);
+        d->shortcutId = 0;
     }
+    QKeySequence newMnemonic = QKeySequence::mnemonic(text);
+    if (!newMnemonic.isEmpty())
+        d->shortcutId = grabShortcut(newMnemonic);
     if (q->autoMask())
         q->updateMask();
     update();
@@ -976,7 +978,7 @@ QAbstractButton::QAbstractButton(QWidget *parent, const char *name, Qt::WFlags f
     Use isChecked() instead.
 */
 
-/*! 
+/*!
     \fn QPixmap *QAbstractButton::pixmap() const
 
     This compatibility function always returns 0.
@@ -1004,7 +1006,7 @@ QAbstractButton::QAbstractButton(QWidget *parent, const char *name, Qt::WFlags f
     Use isCheckable() instead.
 */
 
-/*! 
+/*!
     \fn void QAbstractButton::setToggleButton(bool b)
 
     Use setCheckable() instead.
