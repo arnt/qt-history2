@@ -49,7 +49,7 @@ class QWhatsThisAction: public QAction
 public:
     QWhatsThisAction(QObject* parent = 0);
 
-public slots:
+private slots:
     void actionTriggered();
 };
 

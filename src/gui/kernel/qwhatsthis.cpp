@@ -90,12 +90,12 @@
     \printuntil setWhatsThis
 
     An alternative way to enter "What's this?" mode is to use the
-    ready-made tool bar tool button from
-    QWhatsThis::whatsThisButton(). By invoking this context help
-    button (in the picture below the, buton with the arrow and
-    question mark icon) the user switches into "What's this?" mode. If
-    they now click on a widget the appropriate help text is shown. The
-    mode is left when help is given or when the user presses Esc.
+    ready-made QWhatsThisAction, and add it to either a menu or a tool
+    bar. By invoking this context help action (in the picture below
+    the, buton with the arrow and question mark icon) the user
+    switches into "What's this?" mode. If they now click on a widget
+    the appropriate help text is shown. The mode is left when help is
+    given or when the user presses Esc.
 
     \img whatsthis.png
 
@@ -446,12 +446,25 @@ bool QWhatsThisPrivate::eventFilter(QObject *o, QEvent *e)
     return true;
 }
 
+/*!
+  \class QWhatsThisAction
+    \brief A ready-made action to invoke What's This context help
+
+    \ingroup helpsystem
+    \mainclass
+*/
+
+
+/*!
+  Constructs a What's This?- action with a \a parent.
+ */
 QWhatsThisAction::QWhatsThisAction(QObject *parent) : QAction(tr("What's this?"), parent)
 {
     QPixmap p((const char**)button_image);
     setIcon(p);
     setCheckable(true);
     connect(this, SIGNAL(triggered()), this, SLOT(actionTriggered()));
+    setShortcut(Qt::ShiftModifier + Qt::Key_F1);
 }
 
 void QWhatsThisAction::actionTriggered()

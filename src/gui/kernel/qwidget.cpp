@@ -3282,7 +3282,7 @@ bool QWidget::isActiveWindow() const
     if(tlw == qApp->activeWindow() || (isVisible() && tlw->isPopup()))
         return true;
 #ifdef Q_WS_MAC
-    { //check process 
+    { //check process
         Boolean compare;
         ProcessSerialNumber current, front;
         GetCurrentProcess(&current);
@@ -3297,7 +3297,7 @@ bool QWidget::isActiveWindow() const
 #endif
 #ifndef QT_NO_STYLE
     if(style()->styleHint(QStyle::SH_Widget_ShareActivation, 0, this)) {
-        if((tlw->isDialog() || tlw->testWFlags(Qt::WStyle_Tool)) && 
+        if((tlw->isDialog() || tlw->testWFlags(Qt::WStyle_Tool)) &&
            !tlw->testWFlags(Qt::WShowModal) &&
            (!tlw->parentWidget() || tlw->parentWidget()->isActiveWindow()))
            return true;
@@ -4500,6 +4500,12 @@ bool QWidget::event(QEvent *e)
                 break;
         }
         keyPressEvent(k);
+        if (!k->isAccepted()
+            && k->modifiers() & Qt::ShiftModifier && k->key() == Qt::Key_F1
+            && d->whatsThis.size()) {
+            QWhatsThis::showText(mapToGlobal(inputMethodQuery(Qt::ImMicroFocus).toRect().center()), d->whatsThis, this);
+            k->accept();
+        }
     }
         break;
 
