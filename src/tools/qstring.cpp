@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#289 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#290 $
 **
 ** Implementation of the QString class and related Unicode functions
 **
@@ -12037,7 +12037,7 @@ QString QString::stripWhiteSpace() const
 	return *this;
 
     register const QChar *s = unicode();
-    QString result;
+    QString result = fromLatin1("");
 
     int start = 0;
     int end = length() - 1;
