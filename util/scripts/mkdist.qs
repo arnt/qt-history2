@@ -60,6 +60,7 @@ var checkoutRemove = [ new RegExp("^tests"),
 		       new RegExp("^tools/msg2qm"),
 		       new RegExp("^tools/qconfig"),
 		       new RegExp("^tools/qembed"),
+		       new RegExp("^tools/qev"),
 		       new RegExp("^src/plugins/sqldrivers/db2"),
 		       new RegExp("^src/plugins/sqldrivers/oci"),
 		       new RegExp("^src/plugins/sqldrivers/tds"),
@@ -95,7 +96,7 @@ platformRemove["win"] = [ new RegExp("^gif"),
 			  new RegExp("_qnx4"),
 			  new RegExp("_qnx6"),
 			  new RegExp("^configure"),
-			  new RegExp("^LICENSE.PREVIEW"),
+			  new RegExp("^LICENSE.PREVIEW") ];
 platformKeep["win"] = [ new RegExp(".") ];
 
 platformRemove["x11"] = [ new RegExp("^gif"),
@@ -187,6 +188,7 @@ moduleMap["painting module"]             = new RegExp("(^src/gui/painting|^src/g
 moduleMap["style module"]                = new RegExp("(^src/gui/styles|^src/plugins/styles)");
 moduleMap["text module"]                 = new RegExp("^src/gui/text");
 moduleMap["widgets module"]              = new RegExp("^src/gui/widgets");
+moduleMap["input methods"]               = new RegExp("^src/gui/inputmethod");
 moduleMap["moc application"]             = new RegExp("^src/moc");
 moduleMap["network module"]              = new RegExp("^src/network");
 moduleMap["opengl module"]               = new RegExp("^src/opengl");
@@ -585,7 +587,10 @@ function compile(platformName, platform, edition)
 	execute(["scp", outputDir + "/" + packageName, login + ":."]);
 	
 	// unzip package (overwrite)
-	execute(["ssh", login, "unzip", "-o", packageName]);
+	execute(["ssh", login, "unzip", "-q", "-o", packageName]);
+	
+	// duplicate directory where we copy the compiled results over
+	execute(["ssh", login, "cp", "-r", platformName, platformName+"clean"]);
 
 	// copy build script
 	var buildScript = p4Copy(p4BranchPath + "/util/scripts" ,
@@ -595,7 +600,17 @@ function compile(platformName, platform, edition)
 	// run it
 	execute(["ssh", login, "cmd /c buildbinarywin.bat win32-msvc " + platformName]);
 
-	// collect result
+	// copy files from bin
+	execute(["ssh", login, "cp", platformName + "/bin/*.exe", platformName+"clean/bin/."]);
+	execute(["ssh", login, "cp", platformName + "/bin/*.dll", platformName+"clean/bin/."]);
+	// copy files from lib
+	execute(["ssh", login, "cp", platformName + "/lib/*.dll", platformName+"clean/lib/."]);
+	execute(["ssh", login, "cp", platformName + "/lib/*.lib", platformName+"clean/lib/."]);
+	execute(["ssh", login, "cp", platformName + "/lib/*.pdb", platformName+"clean/lib/."]);
+	// copy the plugin directory
+	execute(["ssh", login, "cp", "-r", platformName + "/plugins", platformName+"clean/."]);
+
+	// create installer
 
 	// cleanup host
 
