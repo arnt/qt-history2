@@ -513,6 +513,8 @@ static Q_INT64 read_int_ascii( QDataStream *s )
     return __strtoll( buf, (char**)0, 10 );
 #elif defined(MACOSX_101)
     return strtoq( buf, (char**)0, 10 );
+#elif defined(Q_OS_OSF) && defined(Q_CC_DEC)
+    return strtol( buf, (char**)0, 10 );
 #else
     return strtoll( buf, (char**)0, 10 );	// C99 function
 #endif
