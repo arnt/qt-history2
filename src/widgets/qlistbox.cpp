@@ -5,7 +5,7 @@
 **
 ** Created : 941121
 **
-** Copyright (C) 1992-2002 Trolltech AS.  All rights reserved.
+** Copyright (C) 1992-2003 Trolltech AS.  All rights reserved.
 **
 ** This file is part of the widgets module of the Qt GUI Toolkit.
 **
@@ -809,7 +809,7 @@ int QListBoxPixmap::rtti() const
     Because QListBox offers multiple selection it must display
     keyboard focus and selection state separately. Therefore there are
     functions both to set the selection state of an item, i.e.
-    setSelected(), and to select which item displays keyboard focus,
+    setSelected(), and to choose which item displays keyboard focus,
     i.e. setCurrentItem().
 
     The list box normally arranges its items in a single column and
