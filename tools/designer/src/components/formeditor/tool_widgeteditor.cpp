@@ -169,7 +169,8 @@ QWidget *WidgetEditorTool::editor() const
 
 void WidgetEditorTool::activated()
 {
-    core()->widgetBox()->setEnabled(true);
+    if (core()->widgetBox())
+        core()->widgetBox()->setEnabled(true);
 
     if (m_formWindow == 0)
         return;
@@ -181,7 +182,8 @@ void WidgetEditorTool::activated()
 
 void WidgetEditorTool::deactivated()
 {
-    core()->widgetBox()->setEnabled(false);
+    if (core()->widgetBox())
+        core()->widgetBox()->setEnabled(false);
 
     if (m_formWindow == 0)
         return;
