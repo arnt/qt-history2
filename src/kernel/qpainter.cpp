@@ -2410,9 +2410,9 @@ void bitBlt( QPaintDevice *dst, int dx, int dy,
   with width \a w and height \a h. If \a len is -1 (the default) all
   the text is drawn, otherwise the first \a len characters are drawn.
   The text's alignment is given in the \a flags parameter (see
-  \l{Qt::AlignmentFlags}). \a br (if not null) is set to the actual
-  bounding rectangle of the output. The \a internal parameter is for
-  internal use only.
+  \l{Qt::AlignmentFlags} and \l{Qt::TextFlags}). \a br (if not null)
+  is set to the actual bounding rectangle of the output. The \a
+  internal parameter is for internal use only.
 */
 
 /*!

@@ -464,6 +464,11 @@ public:
 	return first;
     }
 
+    bool operator==( const QValueVector<T>& x )
+    {
+	return qEqual( begin(), end(), x.begin() );
+    }
+
     bool operator==( const QValueVector<T>& x ) const
     {
 	return qEqual( begin(), end(), x.begin() );

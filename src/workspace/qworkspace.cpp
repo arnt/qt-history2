@@ -1022,7 +1022,8 @@ void QWorkspace::minimizeWindow( QWidget* w)
 		hideMaximizeControls();
 	    for (QPtrListIterator<QWorkspaceChild> it( d->windows ); it.current(); ++it ) {
 		QWorkspaceChild* c = it.current();
-		c->titlebar->setMovable( TRUE );
+		if ( c->titlebar )
+		    c->titlebar->setMovable( TRUE );
 		c->widgetResizeHandler->setActive( TRUE );
 	    }
 	}
@@ -1052,7 +1053,7 @@ void QWorkspace::normalizeWindow( QWidget* w)
 	    hideMaximizeControls();
 	} else {
 	    c->widgetResizeHandler->setActive( TRUE );
-	    if(c->titlebar)
+	    if ( c->titlebar )
 		c->titlebar->setMovable(TRUE);
 	}
 
@@ -1075,7 +1076,7 @@ void QWorkspace::normalizeWindow( QWidget* w)
 	    hideMaximizeControls();
 	for (QPtrListIterator<QWorkspaceChild> it( d->windows ); it.current(); ++it ) {
 	    QWorkspaceChild* c = it.current();
-	    if(c->titlebar)
+	    if ( c->titlebar )
 		c->titlebar->setMovable( TRUE );
 	    c->widgetResizeHandler->setActive( TRUE );
 	}
@@ -1120,7 +1121,7 @@ void QWorkspace::maximizeWindow( QWidget* w)
 	    showMaximizeControls();
 	} else {
 	    c->widgetResizeHandler->setActive( FALSE );
-	    if(c->titlebar)
+	    if ( c->titlebar )
 		c->titlebar->setMovable( FALSE );
 	}
 #ifndef QT_NO_WIDGET_TOPEXTRA
@@ -1241,7 +1242,7 @@ bool QWorkspace::eventFilter( QObject *o, QEvent * e)
 		if ( style().styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, this)) {
 		    QWorkspaceChild *wc = (QWorkspaceChild *)o;
 		    wc->widgetResizeHandler->setActive( TRUE );
-		    if(wc->titlebar)
+		    if ( wc->titlebar )
 			wc->titlebar->setMovable( TRUE );
 		} else {
 		    hideMaximizeControls();
@@ -2095,12 +2096,12 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 	break;
 
     case QEvent::WindowDeactivate:
-	if(titlebar)
+	if ( titlebar )
 	    titlebar->setActive( FALSE );
 	break;
 
     case QEvent::WindowActivate:
-	if(titlebar)
+	if ( titlebar )
 	    titlebar->setActive( act );
 	break;
 
@@ -2303,7 +2304,7 @@ void QWorkspaceChild::showMinimized()
 {
     Q_ASSERT( windowWidget()->testWFlags( WStyle_Minimize ) && !windowWidget()->testWFlags( WStyle_Tool ) );
     QApplication::postEvent( windowWidget(), new QEvent( QEvent::ShowMinimized ) );
-    if(titlebar)
+    if ( titlebar )
 	titlebar->setMovable( TRUE );
     widgetResizeHandler->setActive( FALSE );
 }
@@ -2317,7 +2318,7 @@ void QWorkspaceChild::showMaximized()
     }
     Q_ASSERT( windowWidget()->testWFlags( WStyle_Maximize ) && !windowWidget()->testWFlags( WStyle_Tool ) );
     QApplication::postEvent( windowWidget(), new QEvent( QEvent::ShowMaximized ) );
-    if(titlebar)
+    if ( titlebar )
 	titlebar->setMovable( FALSE );
     widgetResizeHandler->setActive( FALSE );
 }
@@ -2326,7 +2327,7 @@ void QWorkspaceChild::showNormal()
 {
     Q_ASSERT( windowWidget()->testWFlags( WStyle_MinMax ) && !windowWidget()->testWFlags( WStyle_Tool ) );
     QApplication::postEvent( windowWidget(), new QEvent( QEvent::ShowNormal ) );
-    if(titlebar)
+    if ( titlebar )
 	titlebar->setMovable( TRUE );
     widgetResizeHandler->setActive( TRUE );
 }

@@ -7,6 +7,7 @@
 #include <qarchive.h>
 #include <qmessagebox.h>
 #include "keyinfo.h"
+#include <qregexp.h>
 
 UnpackDlgImpl::UnpackDlgImpl( QString key, QWidget* pParent, const char* pName, WFlags f ) : 
     UnpackDlg( pParent, pName, f )

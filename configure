@@ -27,6 +27,7 @@ GPLUSPLUS_EXCEPTIONS=unspecified
 #platform
 X11_PLATFORM=no
 MAC_PLATFORM=no
+[ -d /System/Library/Frameworks/Carbon.framework ] && MAC_PLATFORM=yes
 QWS_PLATFORM=no
 
 if [ -d mkspecs/qws ]
@@ -165,10 +166,10 @@ then
     EMB="/Embedded"       ### fixme again
 # Commercial edition - needs a license.
 else
-    if [ -f $relpath/LICENSE ]
+    if [ -f $relpath/.LICENSE ]
     then
 	echo
-	if [ "$QWS_PLATFORM" = "yes" ]
+	if [ "$QWS_CANDIDATE" = "yes" ]
 	then
 	    EMB="/Embedded"
 	    QWS_PLATFORM=yes
@@ -193,46 +194,78 @@ else
 	    if [ -z "$LicenseKey" ]
 	    then
 		echo
-		echo "Please insert your license key"
+		echo "Please enter your license key"
 		read LicenseKey
 	    fi
 	fi
-	keyTest=`echo $LicenseKey | sed -e s/....-....-....$//`
-	if [ -z "$keyTest" ]
+	if echo $LicenseKey | grep "....-....-...." >/dev/null 2>&1
 	then
 	    # get the first character of the key
-	    keyTest=`echo $LicenseKey | sed -e s/...-....-....$//`
-	    if [ "$keyTest" = "6" ] || [ "$keyTest" = "7" ] || [ "$keyTest" = "8" ] || [ "$keyTest" = "9" ] || [ "$keyTest" = "E" ] || [ "$keyTest" = "F" ] || [ "$keyTest" = "G" ] || [ "$keyTest" = "H" ]
+	    keyTest=`echo $LicenseKey | cut -b1`
+	    if [ "$QWS_PLATFORM" = "yes" ]
 	    then
-		# Feature_Unix
-		echo
-	    else
-		echo
-		echo "You are not licensed for the X11 platform."
-		echo
-		echo "Please contact sales@trolltech.com to upgrade your license"
-		echo "to include the X11 platform, or install the Qt Free Edition"
-		echo "if you intend to develop free software."
-		exit 1
+		# we have to test for Qt/Embedded
+	        case $keyTest in
+		A|B|C|D|E|F|G|H)
+		    # Feature_Embedded
+		    echo ;;
+		*)
+		    echo
+		    echo "You are not licensed for the Qt/Embedded platform."
+		    echo
+		    echo "Please contact sales@trolltech.com to upgrade your license"
+		    echo "to include the Qt/Embedded platform, or install the"
+		    echo "Qt Free Edition if you intend to develop free software."
+		    exit 1 ;;
+		esac
+	    elif [ "$MAC_PLATFORM" = "yes" ]
+            then
+	        case $keyTest in
+		*) ###
+		    # Feature_Mac
+		    echo ;;
+		*)
+		    echo
+		    echo "You are not licensed for the Mac OS X platform."
+		    echo
+		    echo "Please contact sales@trolltech.com to upgrade your license"
+		    echo "to include the Mac OS X platform."
+		    exit 1 ;;
+                esac
+            else
+	        case $keyTest in
+		6|7|8|9|E|F|G|H)
+		    # Feature_Unix
+		    echo ;;
+		*)
+		    echo
+		    echo "You are not licensed for the X11 platform."
+		    echo
+		    echo "Please contact sales@trolltech.com to upgrade your license"
+		    echo "to include the X11 platform, or install the Qt Free Edition"
+		    echo "if you intend to develop free software."
+		    exit 1 ;;
+                esac
 	    fi
-	    if [ "$keyTest" = "4" ] || [ "$keyTest" = "5" ] || [ "$keyTest" = "8" ] || [ "$keyTest" = "9" ] || [ "$keyTest" = "C" ] || [ "$keyTest" = "D" ] || [ "$keyTest" = "G" ] || [ "$keyTest" = "H" ]
-	    then
+	    case $keyTest in
+	    4|5|8|9|C|D|G|H)
 		# Feature_Enterprise
 		Desc=Enterprise
-		Edition=ent
-	    else
+		Edition=ent ;;
+	    *)
 		Products=qt-professional
 		Desc=Professional
-		Edition=pro
-	    fi
-	    if [ "$keyTest" = "3" ] || [ "$keyTest" = "5" ] || [ "$keyTest" = "7" ] || [ "$keyTest" = "9" ] || [ "$keyTest" = "B" ] || [ "$keyTest" = "D" ] || [ "$keyTest" = "F" ] || [ "$keyTest" = "H" ]
-	    then
+		Edition=pro ;;
+	    esac
+	    case $keyTest in
+	    3|5|7|9|B|D|F|H)
 		# Feature_US
-		rm -f $relpath/LICENSE
-		mv -f $relpath/LICENSE-US $relpath/LICENSE
-	    else
-		rm -f $relpath/LICENSE-US
-	    fi
+		cp -f $relpath/.LICENSE-US $relpath/LICENSE
+		;;
+	    *)
+		cp -f $relpath/.LICENSE $relpath/LICENSE
+		;;
+	    esac
 	else
 	    echo
 	    echo "Invalid license key. Please check the license key."
@@ -928,7 +961,6 @@ fi
 
 #now look at the configs and figure out what platform we are config'd for
 [ ! -z "`grep QMAKE_LIBS_X11 $XQMAKESPEC/qmake.conf | awk '{print $3;}'`" ] && X11_PLATFORM=yes
-[ -d /System/Library/Frameworks/Carbon.framework ] && MAC_PLATFORM=yes
 echo "$XQMAKESPEC" | grep mkspecs/qws >/dev/null 2>&1 && QWS_PLATFORM=yes
 
 # Find default thread option for target

@@ -703,6 +703,10 @@ QDate QDate::addMonths( int nmonths ) const
 	} else {
 	    m+= nmonths;
 	    nmonths = 0;
+	    if ( m > 12 ) {
+		++y;
+		m -= 12;
+	    }
 	}
     }
 

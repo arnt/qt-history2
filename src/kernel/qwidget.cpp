@@ -2167,11 +2167,14 @@ void QWidget::setBackgroundFromMode()
   \value FixedColor the widget is cleared to a fixed color,
   normally different from all the ones in the palette().  Set using
   \link QWidget::setPaletteBackgroundColor()
-  setPaletteBackgroundColor()\endlink. \value FixedPixmap the widget
+  setPaletteBackgroundColor()\endlink.
+  \value FixedPixmap the widget
   is cleared to a fixed pixmap, normally different from all the ones
   in the palette().  Set using \link QWidget::setBackgroundPixmap()
-  setBackgroundPixmap()\endlink. \value PaletteLink \value
-  PaletteLinkVisited \value X11ParentRelative (internal use only)
+  setBackgroundPixmap()\endlink.
+  \value PaletteLink
+  \value PaletteLinkVisited
+  \value X11ParentRelative (internal use only)
 
   Although \c FixedColor and \c FixedPixmap are sometimes just right,
   if you use them, make sure that your application looks

@@ -2341,7 +2341,9 @@ int& QVariant::asInt()
 {
     detach();
     if ( d->typ != Int ) {
-	d->value.i = toInt();
+	int i = toInt();
+	d->clear();
+ 	d->value.i = i;
 	d->typ = Int;
     }
     return d->value.i;
@@ -2354,7 +2356,9 @@ uint& QVariant::asUInt()
 {
     detach();
     if ( d->typ != UInt ) {
-	d->value.u = toUInt();
+	uint u = toUInt();
+	d->clear();
+	d->value.u = u;
 	d->typ = UInt;
     }
     return d->value.u;
@@ -2367,7 +2371,9 @@ bool& QVariant::asBool()
 {
     detach();
     if ( d->typ != Bool ) {
-	d->value.b = toBool();
+	bool b = toBool();
+	d->clear();
+	d->value.b = b;
 	d->typ = Bool;
     }
     return d->value.b;
@@ -2379,7 +2385,9 @@ bool& QVariant::asBool()
 double& QVariant::asDouble()
 {
     if ( d->typ != Double ) {
-	d->value.d = toDouble();
+	double dbl = toDouble();
+	d->clear();
+	d->value.d = dbl;
 	d->typ = Double;
     }
     return d->value.d;

@@ -2082,6 +2082,8 @@ QTextStream &QTextStream::operator<<( const QCString & s )
 
 QTextStream &QTextStream::operator<<( const QString& s )
 {
+    if ( latin1 )
+	return operator<<(s.latin1());
     CHECK_STREAM_PRECOND
     QString s1 = s;
     if ( fwidth ) {				// field width set

@@ -491,12 +491,12 @@ velocities. It's possible for a canvas item to be outside the canvas
 (for example QCanvasItem::x() is greater than width()).  When a canvas
 item is off the canvas, onCanvas() returns FALSE and the canvas
 disregards the item. (Canvas items off the canvas do not slow down any
-common opererations on the canvas.)
+common operations on the canvas.)
 
 Canvas items can be moved with QCanvasItem::move(). The advance()
 function moves all QCanvasItem::animated() canvas items and
 setAdvancePeriod() makes QCanvas move them by itself on a periodic
-basis. In the context of the QCanvas classes to `animate' a canvas item
+basis. In the context of the QCanvas classes, to `animate' a canvas item
 is to set it in motion, i.e. using QCanvasItem::setVelocity(). Animation
 of a canvas item itself, i.e. items which change over time, is enabled
 by calling QCanvasSprite::setFrameAnimation(), or more generally by
@@ -729,7 +729,7 @@ the average size of the canvas items. If you choose a chunk size which
 is too small it will increase the amount of calculation required when
 drawing since each change will affect many chunks. If you choose a chunk
 size which is too large the amount of drawing required will increase
-because for each change a lot of drawing will be required because there
+because for each change, a lot of drawing will be required since there
 will be many (unchanged) canvas items which are in the same chunk as the
 changed canvas items.
 
@@ -1129,7 +1129,7 @@ void QCanvas::setChanged(const QRect& area)
 
 /*!
   Marks \a area as \e unchanged. The area will \e not be redrawn in the
-  views for the next update(), unless it is marked a changed again
+  views for the next update(), unless it is marked and changed again
   before the next call to update().
 */
 void QCanvas::setUnchanged(const QRect& area)
@@ -1596,7 +1596,7 @@ void QCanvas::drawForeground(QPainter& painter, const QRect& clip)
   otherwise double-buffering is switched off.
 
   Turning off double-buffering causes the redrawn areas to flicker a
-  bit also gives a (usually small) performance improvement.
+  bit and also gives a (usually small) performance improvement.
 */
 void QCanvas::setDoubleBuffering(bool y)
 {
