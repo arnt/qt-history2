@@ -15,9 +15,6 @@ class QSqlDriver;
 class QSqlResult;
 class QSqlResultInfo;
 
-typedef QMap< uint, QVariant > QSqlRow;
-typedef QMap< uint, QSqlRow > QSqlRowset;
-
 struct QSqlResultShared : public QShared
 {
     QSqlResultShared( QSqlResult* result = 0 )
