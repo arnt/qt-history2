@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.cpp#14 $
+** $Id: //depot/qt/main/src/tools/qstringlist.cpp#15 $
 **
 ** Implementation of QStringList
 **
@@ -103,9 +103,9 @@ void QStringList::sort()
   with one item, which is the same as \str, is returned.
 */
 
-QStringList QStringList::split( const QString &str, const QChar &sep)
+QStringList QStringList::split( const QChar &sep, const QString &str )
 {
-    return split( str, QString( sep ) );
+    return split( QString( sep ), str );
 }
 
 /*!
@@ -114,7 +114,7 @@ QStringList QStringList::split( const QString &str, const QChar &sep)
   with one item, which is the same as \str, is returned.
 */
 
-QStringList QStringList::split( const QString &str, const QString &sep )
+QStringList QStringList::split( const QString &sep, const QString &str )
 {
     QStringList lst;
 

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog_win.cpp#7 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog_win.cpp#8 $
 **
 ** Implementation of QFileDialog Windows-specific functionality
 **
@@ -66,7 +66,7 @@ static QStringList makeFiltersList( const QString &filter )
         }
     }
 
-    return QStringList::split( filter, sep );
+    return QStringList::split( sep, filter );
 }
 
 // Makes a NUL-oriented Windows filter from a Qt filter.
@@ -78,7 +78,7 @@ QString winFilter( const QString& filter )
     QString winfilters;
     for ( ; it != filterLst.end(); ++it ) {
         winfilters += *it;
-        winfilters += QChar::null; 
+        winfilters += QChar::null;
         winfilters += extractFilter(*it);
         winfilters += QChar::null;
     }
@@ -117,7 +117,7 @@ OPENFILENAMEA* makeOFNA( QWidget* parent,
     int maxLen = mode == QFileDialog::ExistingFiles ? maxMultiLen : maxNameLen;
     aInitSel.resize( maxLen + 1 );		// make room for return value
     aFilter = filters.local8Bit();
-    
+
     OPENFILENAMEA* ofn = new OPENFILENAMEA;
     memset( ofn, 0, sizeof(OPENFILENAMEA) );
 

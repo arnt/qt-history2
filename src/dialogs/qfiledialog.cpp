@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#253 $
+** $Id: //depot/qt/main/src/dialogs/qfiledialog.cpp#254 $
 **
 ** Implementation of QFileDialog class
 **
@@ -1515,8 +1515,8 @@ static QStringList makeFiltersList( const QString &filter )
             i = filter.find( sep, 0 );
         }
     }
-    
-    return QStringList::split( filter, sep );
+
+    return QStringList::split( sep, filter );
 }
 
 static QString findNewFolderName( const QDir &dir )

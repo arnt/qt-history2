@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstringlist.h#9 $
+** $Id: //depot/qt/main/src/tools/qstringlist.h#10 $
 **
 ** Definition of QStringList class
 **
@@ -44,8 +44,8 @@ public:
     void sort();
     // ... stringlist-specific convenience functions go here.
 
-    static QStringList split( const QString &str, const QString &sep );
-    static QStringList split( const QString &str, const QChar &sep);
+    static QStringList split( const QString &sep, const QString &str );
+    static QStringList split(  const QChar &sep, const QString &str );
 };
 
 class QDataStream;
