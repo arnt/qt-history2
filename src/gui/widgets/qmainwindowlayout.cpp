@@ -1450,88 +1450,6 @@ int QMainWindowLayout::locateToolBar(QToolBar *toolbar, const QPoint &mouse) con
     return pos;
 }
 
-QRect QMainWindowLayout::placeToolBar(QToolBar *toolbar, const QPoint &mouse, const QPoint &offset)
-{
-    POSITION where = static_cast<POSITION>(locateToolBar(toolbar, mouse));
-
-    // save layout info
-    beginConstrain();
-
-    // remove the item we're trying to place and insert a dummy item
-    // to test the layout
-    QPoint old_offset;
-    for (int k = 0; k < tb_layout_info.size(); ++k) {
-        for (int i = 0; i < tb_layout_info.at(k).size(); ++i) {
-            if (tb_layout_info.at(k).at(i).item->widget() == toolbar) {
-		old_offset = tb_layout_info.at(k).at(i).offset;
-		tb_layout_info[k].removeAt(i);
-                if (tb_layout_info.at(k).size() == 0) // remove empty lines
-                    tb_layout_info.removeAt(k--);
-                break;
-            }
-        }
-    }
-
-    int cur_pos = positionForArea(toolbar->area());
-    QSize sh;
-
-    // need to calc new size hint when we change orientation of the
-    // tool bar
-    if (((cur_pos == LEFT || cur_pos == RIGHT) && where != LEFT && where != RIGHT)
-        || ((cur_pos == TOP || cur_pos == BOTTOM) && where != TOP && where != BOTTOM))
-    {
-	QLayoutItem *item = 0;
-	QLayout *layout = toolbar->layout();
-	int i = 0;
-	while ((item = layout->itemAt(i++))) {
-	    const QSize mh = item->widget()->sizeHint();
-	    if (where == LEFT || where == RIGHT) {
-		if (sh.width() < mh.width())
-		    sh.setWidth(mh.width());
-		sh.setHeight(sh.height() + mh.height() + layout->spacing());
-	    } else if (where == TOP || where == BOTTOM) {
-		if (sh.height() < mh.height())
-		    sh.setHeight(mh.height());
-		sh.setWidth(sh.width() + mh.width() + layout->spacing());
-	    }
-	}
-	int marg = layout->margin()*2 + toolbar->frameWidth()*2;
-	sh += QSize(marg, marg);
-	//         qDebug() << "  ## pos change detected: " << docknames[cur_pos] << " -> " << docknames[where] << "sh: " << sh;
-    } else {
-	sh = toolbar->size();
-    }
-
-    ToolBarLayoutInfo newinfo;
-    QMainWindowLayoutItem layoutitem(toolbar, QRect(0, 0, sh.width(), sh.height()));
-    newinfo.item = &layoutitem;
-    newinfo.size = sh;
-    newinfo.where = where;
-    newinfo.offset = offset + old_offset;
-    newinfo.is_dummy = true;
-    placeToolBarInfo(newinfo);
-
-    QRect target;
-    const QSize cur = parentWidget()->size();
-
-    relayout(QInternal::RelayoutDragging);
-
-    const QSize new_min = minimumSize();
-//     const bool forbid = cur.width() < new_min.width() ||
-//                         cur.height() < new_min.height();
-    //     qDebug() << (forbid ? "#FORBID" : "ALLOW") << "CURRENT SZ:" << cur << "NEW MIN:" << new_min << "sh:" << sh;
-
-//    if (!forbid) {
-        target = layoutitem.geometry();
-        target.moveTopLeft(parentWidget()->mapToGlobal(target.topLeft()));
-	//  }
-
-    tb_layout_info = *save_tb_layout_info;
-    endConstrain();
-
-    return target;
-}
-
 void QMainWindowLayout::dropToolBar(QToolBar *toolbar, const QPoint &mouse, const QPoint &offset)
 {
     POSITION where = static_cast<POSITION>(locateToolBar(toolbar, mouse));
@@ -1547,7 +1465,9 @@ void QMainWindowLayout::dropToolBar(QToolBar *toolbar, const QPoint &mouse, cons
 	    }
 	}
 #endif
-
+	// move the tool bars more than magic_offset pixels past a boundary
+	// in either dir in order to move it to a different tb line
+	const int magic_offset = 5;
 	int l = 0, i = 0;
 	ToolBarLayoutInfo info;
 
@@ -1565,7 +1485,7 @@ void QMainWindowLayout::dropToolBar(QToolBar *toolbar, const QPoint &mouse, cons
 	    if (break_it) break;
 	}
 
-	if (pick(where, offset) < 0) { // move left/up
+	if (pick(where, offset) < -magic_offset) { // move left/up
 	    TBDEBUG() << "left/up" << offset << l << where;
 	    if (l > 0 && tb_layout_info.at(l-1).at(0).where == where) { // is this the first line in this tb area?
 		tb_layout_info[l].removeAt(i);
@@ -1587,7 +1507,7 @@ void QMainWindowLayout::dropToolBar(QToolBar *toolbar, const QPoint &mouse, cons
 		tb_layout_info.insert(l, line);
 		TBDEBUG() << "br3 new tb line" << l << toolbar;
 	    }
-	} else if (pick(where, offset) > pick(where, info.size)) { // move right/down
+	} else if (pick(where, offset) > pick(where, info.size) + magic_offset) { // move right/down
 	    TBDEBUG() << "right/down" << offset;
 	    if (l < tb_layout_info.size()-1 && tb_layout_info.at(l+1).at(0).where == where) {
 		tb_layout_info[l].removeAt(i);
