@@ -248,8 +248,8 @@ bool EditorCompletion::doCompletion()
 	    (void)new CompletionItem( completionListBox, (*it).text, (*it).type, (*it).prefix );
 	cList = lst;
 	completionPopup->resize( completionListBox->sizeHint() +
-				 QSize( completionListBox->verticalScrollBar()->width(),
-					completionListBox->horizontalScrollBar()->height() ) );
+				 QSize( completionListBox->verticalScrollBar()->width() + 4,
+					completionListBox->horizontalScrollBar()->height() + 4 ) );
 	completionListBox->setCurrentItem( 0 );
 	completionListBox->setFocus();
 	completionPopup->move( curEditor->mapToGlobal( curEditor->contentsToViewport( QPoint( x, y + h ) ) ) );
@@ -582,8 +582,8 @@ void EditorCompletion::showCompletion( const QValueList<CompletionEntry> &lst )
 	(void)new CompletionItem( completionListBox, (*it).text, (*it).type, (*it).prefix );
     cList = lst;
     completionPopup->resize( completionListBox->sizeHint() +
-			     QSize( completionListBox->verticalScrollBar()->width(),
-				    completionListBox->horizontalScrollBar()->height() ) );
+			     QSize( completionListBox->verticalScrollBar()->width() + 4,
+				    completionListBox->horizontalScrollBar()->height() + 4 ) );
     completionListBox->setCurrentItem( 0 );
     completionListBox->setFocus();
     completionPopup->move( curEditor->mapToGlobal( curEditor->contentsToViewport( QPoint( x, y + h ) ) ) );
