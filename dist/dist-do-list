@@ -6,6 +6,7 @@ Change the version number in various files under qt/dist:
 Also change the version number in:
 	qt/html/license.html
 	qt/src/qtx11.pro
+	qt/doc/misc.doc
 
     (alternative: Make a system that changes the version number
      automatically, so we won't have to do this next time)
