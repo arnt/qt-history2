@@ -226,8 +226,9 @@ void QXtWidget::init(const char* name, WidgetClass widget_class,
   XtManageChild it used to manage the child.
 */
 QXtWidget::QXtWidget(const char* name, Widget parent, bool managed)
-    : QWidget( 0, name ), xtw( 0 )
+    : QWidget( 0 ), xtw( 0 )
 {
+    setObjectName(name);
     init(name, qWidgetClass, parent, 0, 0, 0, managed);
     Arg reqargs[20];
     Cardinal nargs=0;
@@ -256,8 +257,9 @@ QXtWidget::QXtWidget(const char* name, Widget parent, bool managed)
 QXtWidget::QXtWidget(const char* name, WidgetClass widget_class,
 		     QWidget *parent, ArgList args, Cardinal num_args,
 		     bool managed)
-    : QWidget( parent, name ), xtw( 0 )
+    : QWidget( parent ), xtw( 0 )
 {
+    setObjectName(name);
     if ( !parent )
 	init(name, widget_class, 0, 0, args, num_args, managed);
     else if ( parent->inherits("QXtWidget") )
