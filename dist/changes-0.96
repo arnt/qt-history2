@@ -1,16 +1,32 @@
 Here is a list of (major) changes in Qt from 0.95 to 0.96.
 
 Bug-fixes, optimizations and much improved documentation, of course.
+QClipboard is new.
 
 There are few changes in the API (Qt header files).  Some functions have
 been renamed or the arguments have changed.  We keep the old functions
-until the next release.  Compile with -DOBSOLETE to allow calls to the
-obsolete functions.
+until the next release.  Compile with -DOBSOLETE to compile programs that
+depend on the obsoleted functions.
 
 
 qglobal.h:
 ----------
   INT32 and UINT32 typedefs changed to work with DEC Alpha.
+
+
+QAccel:
+-------
+  enable(), disable() and isDisabled() are obsolete.
+  Use setEnabled(TRUE/FALSE) and !isEnabled() instead.
+  isItemDisabled(), enableItem(), disableItem() are obsolete.
+  Use !isItemEnabled(), setItemEnabled(TRUE/FALSE) instead.
+
+
+QApplication:
+-------------
+  cursor(), setCursor() and restoreCursor() obsoleted.
+  Use overrideCursor(), setOverrideCursor() and restoreOverrideCursor()
+  instead.
 
 
 QBitmap:
@@ -32,6 +48,13 @@ QButtonGroup:
 QCache/QIntCache:
 -----------------
   Using int/uint instead of long/ulong.
+
+
+QColor:
+-------
+  New type QRgb (uint), used for RGB triplet.
+  The functions QRED, QGREEN, QBLUE, QRGB, QGRAY obsolete.
+  Instead, use  qRed, qGreen, qBlue, qRgb, qGray.
 
 
 QComboBox:
@@ -56,9 +79,19 @@ QFileInfo:
   size() returns uint, 0 if the size cannot be fetched (was -1).
 
 
+QImage:
+-------
+  24-bpp pixel format no longer supported, use 32-bpp instead.
+
+
 QIODevice/QBuffer/QFile:
 ------------------------
   Using int/uint instead of long/ulong.
+
+
+QLCDNumber:
+----------
+  longValue() is obsolete, use intValue() instead.
 
 
 QListbox:
@@ -70,6 +103,10 @@ QListbox:
 QMenuData:
 ----------
   string() obsolete, use text() instead.
+  isItemDisabled(), enableItem(), disableItem() are obsolete.
+  Use !isItemEnabled(), setItemEnabled(TRUE/FALSE) instead.
+  checkItem() and uncheckItem() are obsolete.
+  Use setItemChecked(TRUE/FALSE) instead.
 
 
 QPainter:
@@ -114,3 +151,8 @@ QWidget:
   Use setEnabled(TRUE/FALSE) and !isEnabled() instead.
 
   enableUpdates() obsolete, use isUpdatesEnabled()/setUpdatesEnabled().
+
+  setMouseTracking() does not return bool. Call hasMouseTracking() to
+  determine the mouse tracking state.
+
+  id() is obsolete, it has been renamed to winId().
