@@ -81,7 +81,7 @@ static void dumpWidget(QWidget *w, QString &result, int nest)
                 .arg(QString(nest*2, '-'))
                 .arg(w->objectName())
                 .arg(w->metaObject()->className())
-                .arg((uint)w, 0, 16);
+                .arg(reinterpret_cast<qlonglong>(w), 0, 16);
 
     QList<QObject*> child_list = w->children();
     foreach (QObject *childobj, child_list) {
