@@ -1556,11 +1556,11 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
                     iw = tbar->windowIcon().width();
                 qt_mac_dispose_rgn(rgn);
             }
-            if(!tbar->visibleText().isEmpty()) {
+            if(!tbar->windowTitle().isEmpty()) {
                 QString pmkey;
                 QTextOStream os(&pmkey);
                 os << "$qt_mac_style_titlebar_" << "_" << newr.width()
-                   << "x" << newr.height() << "_" << twa << "_" << tds << "_" << tbar->visibleText();
+                   << "x" << newr.height() << "_" << twa << "_" << tds << "_" << tbar->windowTitle();
                 if(QPixmap *dblbuf = QPixmapCache::find(pmkey)) {
                     p->drawPixmap(r.topLeft(), *dblbuf);
                 } else {
@@ -1583,10 +1583,10 @@ void QMacStyleQD::drawComplexControl(ComplexControl ctrl, QPainter *p,
                     if(br.width() <= (p->fontMetrics().width(tbar->windowTitle())+iw*2))
                         x += iw;
                     else
-                        x += (br.width() / 2) - (p->fontMetrics().width(tbar->visibleText()) / 2);
+                        x += (br.width() / 2) - (p->fontMetrics().width(tbar->windowTitle()) / 2);
                     if(iw)
                         pixp.drawPixmap(x - iw, y, tbar->windowIcon());
-                    pixp.drawText(x, y + p->fontMetrics().ascent(), tbar->visibleText());
+                    pixp.drawText(x, y + p->fontMetrics().ascent(), tbar->windowTitle());
                     pixp.restore();
                     p->drawPixmap(r.topLeft(), *pix);
                     if(!QPixmapCache::insert(pmkey, pix))

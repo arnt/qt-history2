@@ -1038,7 +1038,7 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
                 if (titleRect.size.width != 1)
                     iw = titlebar->windowIcon().width();
             }
-            if (!titlebar->visibleText().isEmpty()) {
+            if (!titlebar->windowTitle().isEmpty()) {
                 p->save();
                 QCFType<HIShapeRef> titleRegion3;
                 HIThemeGetWindowShape(&finalRect, &wdi, kWindowTitleTextRgn,
@@ -1051,10 +1051,10 @@ void QMacStyleCG::drawComplexControl(ComplexControl control, QPainter *p, const 
                 if (br.width() <= (p->fontMetrics().width(titlebar->windowTitle()) + iw * 2))
                     x += iw;
                 else
-                    x += br.width() / 2 - p->fontMetrics().width(titlebar->visibleText()) / 2;
+                    x += br.width() / 2 - p->fontMetrics().width(titlebar->windowTitle()) / 2;
                 if (iw)
                     p->drawPixmap(x - iw, y, titlebar->windowIcon());
-                p->drawText(x, y + p->fontMetrics().ascent(), titlebar->visibleText());
+                p->drawText(x, y + p->fontMetrics().ascent(), titlebar->windowTitle());
                 p->restore();
             }
         }
@@ -1220,6 +1220,12 @@ int QMacStyleCG::pixelMetric(PixelMetric metric, const QWidget *widget) const
     case PM_SpinBoxFrameWidth:
         GetThemeMetric(kThemeMetricEditTextFrameOutset, &ret);
         ret += 2;
+        break;
+    case PM_MenuDesktopFrameWidth:
+        ret = 15;
+        break;
+    case PM_MenuScrollerHeight:
+        ret = 15;
         break;
     case PM_TitleBarHeight: {
         /*
