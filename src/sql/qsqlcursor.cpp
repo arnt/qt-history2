@@ -614,7 +614,6 @@ bool QSqlCursor::select( const QString & filter, const QSqlIndex & sort )
     if ( sort.count() > 0 )
 	str += " order by " + sort.toString( d->nm );
     d->srt = sort;
-    d->lastAt = QSql::BeforeFirst;
     return exec( str );
 }
 
@@ -1268,7 +1267,6 @@ int QSqlCursor::apply( const QString& q, bool invalidate )
 {
     int ar = 0;
     if ( invalidate ) {
-	d->lastAt = QSql::BeforeFirst;
 	if ( exec( q ) )
 	    ar = numRowsAffected();
     } else if ( driver() ) {
@@ -1337,6 +1335,7 @@ int QSqlCursor::applyPrepared( const QString& q, bool invalidate )
 */
 bool QSqlCursor::exec( const QString & sql )
 {
+    d->lastAt = QSql::BeforeFirst;
     QSqlQuery::exec( sql );
     return isActive();
 }
