@@ -22,7 +22,7 @@
 #include "qlibrary_p.h"
 #endif // QT_H
 
-class QFactoryLoader : public QObject
+class Q_CORE_EXPORT QFactoryLoader : public QObject
 {
     Q_OBJECT
 public:
