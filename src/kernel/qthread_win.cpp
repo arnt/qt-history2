@@ -283,11 +283,11 @@ void QThread::start(Priority priority)
 	prio = THREAD_PRIORITY_IDLE;
 	break;
 
-    case LowPriority:
+    case LowestPriority:
 	prio = THREAD_PRIORITY_LOWEST;
 	break;
 
-    case BelowNormalPriority:
+    case LowPriority:
 	prio = THREAD_PRIORITY_BELOW_NORMAL;
 	break;
 
@@ -295,11 +295,11 @@ void QThread::start(Priority priority)
 	prio = THREAD_PRIORITY_NORMAL;
 	break;
 
-    case AboveNormalPriority:
+    case HightPriority:
 	prio = THREAD_PRIORITY_ABOVE_NORMAL;
 	break;
 
-    case HighPriority:
+    case HighestPriority:
 	prio = THREAD_PRIORITY_HIGHEST;
 	break;
 
