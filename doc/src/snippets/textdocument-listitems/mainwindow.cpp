@@ -43,7 +43,7 @@ void MainWindow::highlightListItems()
     for (int index = 0; index < list->count(); ++index) {
         QTextBlock listItem = list->item(index);
         QTextBlockFormat newBlockFormat = listItem.blockFormat();
-        newBlockFormat.setBackgroundColor(Qt::lightGray);
+        newBlockFormat.setBackground(Qt::lightGray);
         QTextCursor itemCursor = cursor;
         itemCursor.setPosition(listItem.position());
         //itemCursor.movePosition(QTextCursor::StartOfBlock);

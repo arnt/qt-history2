@@ -24,6 +24,7 @@ public slots:
 private:
     void setupListItems();
 
+    QAction *insertAction;
     QAction *removeAction;
     QListWidget *listWidget;
 };

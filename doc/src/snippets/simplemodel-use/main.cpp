@@ -16,15 +16,7 @@
   A simple example of how to access items from an existing model.
 */
 
-#include <qapplication.h>
-#include <qdir.h>
-#include <qdirmodel.h>
-#include <qitemselectionmodel.h>
-#include <qlabel.h>
-#include <qlayout.h>
-#include <qpalette.h>
-#include <qvariant.h>
-#include <qwidget.h>
+#include <QtGui>
 
 /*!
     Create a default directory model and, using the index-based interface to
@@ -48,10 +40,11 @@ int main(int argc, char *argv[])
     layout->addWidget(title);
     
     QDirModel *model = new QDirModel;
-    int numRows = model->rowCount(QModelIndex());
+    QModelIndex parentIndex = model->index(QDir::currentPath());
+    int numRows = model->rowCount(parentIndex);
 
     for (int row = 0; row < numRows; ++row) {
-        QModelIndex index = model->index(row, 0, QModelIndex());
+        QModelIndex index = model->index(row, 0, parentIndex);
 
         QString text = model->data(index, QAbstractItemModel::DisplayRole).toString();
         // Display the text in a widget.

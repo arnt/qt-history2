@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
 
     QTextCharFormat plainFormat(cursor.charFormat());
     QTextCharFormat colorFormat = plainFormat;
-    colorFormat.setTextColor(Qt::red);
+    colorFormat.setForeground(Qt::red);
 
     cursor.insertText(QObject::tr("Text can be displayed in a variety of "
                                   "different character "

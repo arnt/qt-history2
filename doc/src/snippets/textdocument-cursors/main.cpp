@@ -10,9 +10,9 @@ int main(int argc, char *argv[])
     QTextCursor blueCursor(document);
 
     QTextCharFormat redFormat(redCursor.charFormat());
-    redFormat.setTextColor(Qt::red);
+    redFormat.setForeground(Qt::red);
     QTextCharFormat blueFormat(blueCursor.charFormat());
-    blueFormat.setTextColor(Qt::blue);
+    blueFormat.setForeground(Qt::blue);
 
     redCursor.setCharFormat(redFormat);
     blueCursor.setCharFormat(blueFormat);

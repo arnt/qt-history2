@@ -88,7 +88,7 @@ void MainWindow::saveFile()
         if (writeXml(fileName))
             setWindowTitle(fileName);
         else
-            QMessageBox::showWarning(this, tr("Warning"),
+            QMessageBox::warning(this, tr("Warning"),
                 tr("Failed to save the document."), QMessageBox::Cancel,
                 QMessageBox::NoButton);
     }
@@ -102,7 +102,7 @@ bool MainWindow::writeXml(const QString &fileName)
 
     if (file.open(QFile::WriteOnly)) {
         QTextStream textStream(&file);
-        textStream.setEncoding(QTextStream::UnicodeUTF8);
+        textStream.setCodec(QTextCodec::codecForName("UTF-8"));
         
         textStream << domDocument->toString(1).toUtf8();
         file.close();

@@ -22,7 +22,7 @@ int main(int argc, char *argv[])
     cursor.insertBlock();
 
     QTextBlockFormat backgroundFormat = blockFormat;
-    backgroundFormat.setBackgroundColor(QColor("#dddddd"));
+    backgroundFormat.setBackground(QColor("#dddddd"));
 
     cursor.setBlockFormat(backgroundFormat);
     cursor.insertText(QObject::tr("The background color of a text block can be "

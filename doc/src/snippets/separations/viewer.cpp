@@ -113,7 +113,7 @@ QFrame* Viewer::createCentralWidget()
     grid->setSpacing(8);
     grid->setMargin(4);
 
-    layout()->setResizeMode(QLayout::Fixed);
+    layout()->setSizeConstraint(QLayout::SetFixedSize);
 
     QSize labelSize(256, 256);
 

@@ -18,7 +18,7 @@ int main(int argc, char *argv[])
     emphasisFormat.setFontItalic(true);
 
     QTextCharFormat qtFormat = plainFormat;
-    qtFormat.setTextColor(QColor("#990000"));
+    qtFormat.setForeground(QColor("#990000"));
 
     QTextCharFormat underlineFormat = plainFormat;
     underlineFormat.setFontUnderline(true);

@@ -11,9 +11,8 @@ MainWindow::MainWindow()
 
     QMenu *itemsMenu = new QMenu(tr("&Items"));
 
-    QAction *insertAction = itemsMenu->addAction(tr("&Insert Item"));
+    insertAction = itemsMenu->addAction(tr("&Insert Item"));
     removeAction = itemsMenu->addAction(tr("&Remove Item"));
-    removeAction->setEnabled(false);
     QAction *ascendingAction = itemsMenu->addAction(tr("Sort in &Ascending Order"));
     QAction *descendingAction = itemsMenu->addAction(tr("Sort in &Descending Order"));
 
@@ -29,10 +28,11 @@ MainWindow::MainWindow()
     connect(insertAction, SIGNAL(triggered()), this, SLOT(insertItem()));
     connect(removeAction, SIGNAL(triggered()), this, SLOT(removeItem()));
     connect(listWidget,
-            SIGNAL(currentChanged(QListWidgetItem *, QListWidgetItem *)),
+            SIGNAL(currentItemChanged(QListWidgetItem *, QListWidgetItem *)),
             this, SLOT(updateMenus(QListWidgetItem *)));
 
     setupListItems();
+    updateMenus(listWidget->currentItem());
 
     setCentralWidget(listWidget);
     setWindowTitle(tr("List Widget"));
@@ -63,8 +63,14 @@ void MainWindow::sortDescending()
 
 void MainWindow::insertItem()
 {
+    if (!listWidget->currentItem())
+        return;
+
     QString itemText = QInputDialog::getText(this, tr("Insert Item"),
         tr("Input text for the new item:"));
+
+    if (itemText.isNull())
+        return;
 
     QListWidgetItem *newItem = new QListWidgetItem;
     newItem->setText(itemText);
@@ -86,5 +92,6 @@ void MainWindow::removeItem()
 
 void MainWindow::updateMenus(QListWidgetItem *current)
 {
+    insertAction->setEnabled(current != 0);
     removeAction->setEnabled(current != 0);
 }

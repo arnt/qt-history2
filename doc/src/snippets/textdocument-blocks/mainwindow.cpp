@@ -99,7 +99,7 @@ bool MainWindow::writeXml(const QString &fileName)
 
     if (file.open(QFile::WriteOnly)) {
         QTextStream textStream(&file);
-        textStream.setEncoding(QTextStream::UnicodeUTF8);
+        textStream.setCodec(QTextCodec::codecForName("UTF-8"));
         
         textStream << domDocument->toString(1).toUtf8();
         file.close();

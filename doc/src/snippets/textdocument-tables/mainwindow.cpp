@@ -28,7 +28,7 @@ MainWindow::MainWindow()
     int columns = 4;
 
     QTextTableFormat tableFormat;
-    tableFormat.setBackgroundColor(QColor("#e0e0e0"));
+    tableFormat.setBackground(QColor("#e0e0e0"));
     QVector<QTextLength> constraints;
     constraints << QTextLength(QTextLength::PercentageLength, 16);
     constraints << QTextLength(QTextLength::PercentageLength, 28);
@@ -43,7 +43,7 @@ MainWindow::MainWindow()
     QTextCursor cellCursor;
     
     QTextCharFormat charFormat;
-    charFormat.setTextColor(Qt::black);
+    charFormat.setForeground(Qt::black);
 
     cell = table->cellAt(0, 0);
     cellCursor = cell.firstCursorPosition();
@@ -133,8 +133,8 @@ bool MainWindow::writeXml(const QString &fileName)
 
     if (file.open(QFile::WriteOnly)) {
         QTextStream textStream(&file);
-        textStream.setEncoding(QTextStream::UnicodeUTF8);
-        
+        textStream.setCodec(QTextCodec::codecForName("UTF-8"));
+
         textStream << domDocument->toString(1).toUtf8();
         file.close();
         return true;
