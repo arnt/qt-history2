@@ -69,24 +69,16 @@ void FindDialog::doFind(bool forward)
         flags |= QTextDocument::FindWholeWords;
 
     QTextCursor c = browser->textCursor();
-
-    bool found;
-    if (browser->hasSelectedText()) { // Search either forward or backward from cursor.
-        c = browser->document()->find(findExpr, c, flags,
-                                      forward ? QTextDocument::FindForward : QTextDocument::FindBackward);
-    } else {
+    if (!c.hasSelection()) {
         if (forward)
             c.movePosition(QTextCursor::Start);
         else
             c.movePosition(QTextCursor::End);
 
-        c = browser->document()->find(findExpr, c, flags,
-                                      forward ? QTextDocument::FindForward : QTextDocument::FindBackward);
+        browser->setTextCursor(c);
     }
 
-    found = !c.isNull();
-    browser->setTextCursor(c);
-
+    const bool found = browser->find(findExpr, flags, forward ? QTextDocument::FindForward : QTextDocument::FindBackward);
     if (!found) {
         if (onceFound) {
             if (forward)
