@@ -1,3 +1,4 @@
+//depot/qt/3.1/src/kernel/qpaintdevice_mac.cpp#7 - edit change 89290 (text)
 /****************************************************************************
 ** $Id: $
 **
@@ -43,12 +44,6 @@ QPaintDevice::QPaintDevice(uint devflags)
 #if defined(QT_CHECK_STATE)
 	qFatal("QPaintDevice: Must construct a QApplication before a "
 		"QPaintDevice");
-#endif
-	return;
-     } else if ( qApp->type() == QApplication::Tty ) {
-#if defined(QT_CHECK_STATE)
-	qFatal( "QPaintDevice: Cannot create a QPaintDevice when no GUI "
-		"is being used" );
 #endif
 	return;
     }
