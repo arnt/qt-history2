@@ -31,7 +31,7 @@ QEditorFactory::~QEditorFactory()
 }
 
 static QEditorFactory * defaultfactory = 0;
-QCleanUpHandler< QEditorFactory > q_cleanup_editor_factory;
+QCleanupHandler< QEditorFactory > q_cleanup_editor_factory;
 
 /*! Destroys the object and frees any allocated resources.
 
@@ -41,7 +41,7 @@ QEditorFactory * QEditorFactory::defaultFactory()
 {
     if( defaultfactory == 0 ){
 	defaultfactory = new QEditorFactory();
-	q_cleanup_editor_factory.addCleanUp( defaultfactory );
+	q_cleanup_editor_factory.add( defaultfactory );
     }
 
     return defaultfactory;
@@ -72,6 +72,7 @@ QWidget * QEditorFactory::createEditor( QWidget * parent, const QVariant & v )
 	    break;
 	case QVariant::String:
 	case QVariant::CString:
+	case QVariant::Double:
 	    w = new QLineEdit( parent );
 	    break;
 	case QVariant::Date:
@@ -100,13 +101,13 @@ QWidget * QEditorFactory::createEditor( QWidget * parent, const QVariant & v )
 	case QVariant::Size:
 	case QVariant::IconSet:
 	case QVariant::Point:
-	case QVariant::Double:
 	case QVariant::PointArray:
 	case QVariant::Region:
 	case QVariant::SizePolicy:
 	case QVariant::ByteArray:
 	default:
-	    w = new QLineEdit( parent );
+	    w = new QWidget( parent );
+	    //	    w = new QLineEdit( parent );
 	    break;
     }
     return w;
