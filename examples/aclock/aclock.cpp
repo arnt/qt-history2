@@ -34,8 +34,12 @@ AnalogClock::AnalogClock( QWidget *parent, const char *name )
 void AnalogClock::timeout()
 {
     QTime new_time = QTime::currentTime();	// get the current time
-    if ( new_time.minute() != time.minute() )	// minute has changed
-	updateMask();
+    if ( new_time.minute() != time.minute() ) {	// minute has changed
+	if (autoMask())
+	    updateMask();
+	else
+	    update();
+    }
 }
 
 
