@@ -2337,6 +2337,10 @@ void QTextEdit::contentsMouseReleaseEvent( QMouseEvent * e )
 
 void QTextEdit::contentsMouseDoubleClickEvent( QMouseEvent * e )
 {
+    if ( e->button() != Qt::LeftButton ) {
+	e->ignore();
+	return;
+    }
     int para = 0;
     int index = charAt( e->pos(), &para );
 #ifdef QT_TEXTEDIT_OPTIMIZATION

@@ -1150,8 +1150,10 @@ static bool inSelection( int x, QTextParagraph *p )
 */
 void QLineEdit::mousePressEvent( QMouseEvent *e )
 {
-    if ( e->button() == RightButton )
+    if ( e->button() != LeftButton ) {
+	e->ignore();
 	return;
+    }
 
     if ( d->trippleClickTimer.isActive() &&
 	 ( e->globalPos() - d->trippleClickPoint ).manhattanLength() <
@@ -1350,6 +1352,11 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 */
 void QLineEdit::mouseDoubleClickEvent( QMouseEvent *e )
 {
+    if ( e->button() != Qt::LeftButton ) {
+	e->ignore();
+	return;
+    }
+
     bool oldHST = hasSelectedText();
     d->inDoubleClick = TRUE;
 
