@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#33 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#34 $
 **
 ** Definition of QIconView widget class
 **
@@ -105,7 +105,7 @@ struct QIconViewPrivate
     QIconView::SelectionMode selectionMode;
     QIconViewItem *currentItem, *tmpCurrentItem;
     QRect *rubber;
-    QTimer *scrollTimer, *adjustTimer;
+    QTimer *scrollTimer, *adjustTimer, *updateTimer;
     int rastX, rastY, spacing;
     bool cleared, dropped;
     int dragItems;
@@ -117,7 +117,7 @@ struct QIconViewPrivate
     bool firstAdjust;
     QValueList<QIconDragItem> iconDragData;
     bool isIconDrag;
-    int numDragItems;
+    int numDragItems, cachedW, cachedH;
 };
 
 /*****************************************************************************
@@ -462,8 +462,6 @@ void QIconViewItem::init()
 	calcRect();
 
 	view->insertItem( this );
-	if ( view->isVisible() )
-	    repaint();
     }
 }
 
@@ -1231,9 +1229,13 @@ QIconView::QIconView( QWidget *parent, const char *name )
     d->isIconDrag = FALSE;
     d->iconDragData.clear();
     d->numDragItems = 0;
+    d->updateTimer = new QTimer( this );
+    d->cachedW = d->cachedH = 0;
     
     connect ( d->adjustTimer, SIGNAL( timeout() ),
 	      this, SLOT( adjustItems() ) );
+    connect ( d->updateTimer, SIGNAL( timeout() ),
+	      this, SLOT( slotUpdate() ) );
 
     setAcceptDrops( TRUE );
     viewport()->setAcceptDrops( TRUE );
@@ -1306,18 +1308,30 @@ void QIconView::insertItem( QIconViewItem *item, QIconViewItem *after )
     }
 
     if ( isVisible() ) {
-	int w = 0, h = 0;
-
+	if ( d->updateTimer->isActive() )
+	    d->updateTimer->stop();
 	insertInGrid( item );
+	
+	d->cachedW = QMAX( d->cachedW, item->x() + item->width() );
+	d->cachedH= QMAX( d->cachedH, item->y() + item->height() );
 
-	w = QMAX( w, item->x() + item->width() );
-	h = QMAX( h, item->y() + item->height() );
-	resizeContents( QMAX( contentsWidth(), w ),
-			QMAX( contentsHeight(), h ) );
+	d->updateTimer->start( 100, TRUE );
     }
 
     d->count++;
 }
+
+void QIconView::slotUpdate()
+{
+    d->updateTimer->stop();
+    
+    resizeContents( QMAX( contentsWidth(), d->cachedW ),
+		    QMAX( contentsHeight(), d->cachedH ) );
+
+    viewport()->repaint( FALSE );
+    
+    d->cachedW = d->cachedH = 0;
+}    
 
 /*!
   Removes the iconview item \a item from the iconview. You should never
@@ -2659,7 +2673,7 @@ void QIconView::drawDragShape( const QPoint &pos )
 /*!
   This methode is called before a drag is started to initialize everything. Subclasses
   may reimplement this methode to gain big flexibility.
-  
+
   \sa QFileIconView::initDrag()
 */
 

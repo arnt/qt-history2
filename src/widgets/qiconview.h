@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.h#17 $
+** $Id: //depot/qt/main/src/widgets/qiconview.h#18 $
 **
 ** Definition of QIconView widget class
 **
@@ -311,7 +311,8 @@ signals:
 protected slots:
     virtual void doAutoScroll();
     virtual void adjustItems();
-
+    virtual void slotUpdate();
+    
 protected:
     virtual void drawContents( QPainter *p, int cx, int cy, int cw, int ch );
     virtual void contentsMousePressEvent( QMouseEvent *e );
