@@ -188,6 +188,26 @@
 	boundaries.
     \value TextWrapAnywhere Breaks lines anywhere, even within words.
     \value TextHideMnemonic Same as \c TextShowMnemonic but doesn't draw the underlines.
+    \value TextDontPrint Treat this text as "hidden" and don't print
+    it.
+    \value TextIncludeTrailingSpaces Don't automatically delete
+    trailing whitespace.
+    \value TextOverline Draw a line \e over the text.
+    \value TextUnderline Underline the text.
+    \value TextStrikeOut Draw a line through the text.
+
+    \omitvalue BreakAnywhere
+    \omitvalue DontClip
+    \omitvalue DontPrint
+    \omitvalue ExpandTabs
+    \omitvalue IncludeTrailingSpaces
+    \omitvalue NoAccel
+    \omitvalue Overline 
+    \omitvalue ShowPrefix
+    \omitvalue SingleLine
+    \omitvalue StrikeOut
+    \omitvalue Underline
+    \omitvalue WordBreak
 
     You can use as many modifier flags as you want, except that \c
     TextSingleLine and \c TextWordBreak cannot be combined.

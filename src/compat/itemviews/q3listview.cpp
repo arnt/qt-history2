@@ -5468,9 +5468,6 @@ void Q3ListView::setSorting(int column, bool ascending)
 
     \value DescendingOrder The items are sorted descending e.g. starts with
     'ZZZ' ends with 'AAA' in Latin-1 locales
-
-    \omitvalue Ascending
-    \omitvalue Descending
 */
 
 /*!

@@ -5267,5 +5267,29 @@ void QCanvasPolygonalItem::scanPolygon(const QPointArray& pa, int winding, QPoly
     scanner.scan(pa,winding);
 }
 
+/*!
+    \fn bool QCanvasItem::visible() const
+
+    Use isVisible() instead.
+*/
+
+/*!
+    \fn bool QCanvasItem::selected() const
+
+    Use isSelected() instead.
+*/
+
+/*!
+    \fn bool QCanvasItem::enabled() const
+
+    Use isEnabled() instead.
+*/
+
+/*!
+    \fn bool QCanvasItem::active() const
+
+    Use isActive() instead.
+*/
+
 
 #endif // QT_NO_CANVAS
