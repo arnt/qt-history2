@@ -1210,13 +1210,6 @@ static void qt_set_x11_resources( const char* font = 0, const char* fg = 0,
 	resFG = fg;
     if ( resBG.isEmpty() )
 	resBG = bg;
-#if defined(Q_OS_SOLARIS)
-    if ( resFont.isEmpty() ) {
-	QFont fnt( "Interface System", 12 );
-	if ( fnt != QApplication::font() )
-	    QApplication::setFont( fnt, TRUE );
-    } else
-#endif
     if ( !resFont.isEmpty() ) {				// set application font
 	QFont fnt;
 	fnt.setRawName( resFont );
@@ -1966,7 +1959,15 @@ void qt_init_internal( int *argcptr, char **argv,
 	qt_set_input_encoding();
 
 	QFont f;
-	f = QFont( "Helvetica", (QPaintDevice::x11AppDpiX() < 95) ? 12 : 11 );
+
+	f = QFont(
+#ifdef Q_OS_SOLARIS
+		  "Interface System",
+#else
+		  "Helvetica",
+#endif // Q_OS_SOLARIS
+		  (QPaintDevice::x11AppDpiX() < 95) ? 12 : 11 );
+
 	QApplication::setFont( f );
 
 	qt_set_x11_resources( appFont, appFGCol, appBGCol, appBTNCol);
