@@ -885,7 +885,8 @@ void QDialog::showExtension( bool showIt )
 	if ( !d->extension->isVisible() )
 	    return;
 	d->extension->hide();
-	setMinimumSize( d->min );
+	// workaround for CDE window manager that won't shrink with (-1,-1)
+	setMinimumSize( d->min.expandedTo( QSize( 1, 1 ) ) );
 	setMaximumSize( d->max );
 	resize( d->size );
 #ifndef QT_NO_LAYOUT
