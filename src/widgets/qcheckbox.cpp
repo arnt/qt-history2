@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#31 $
+** $Id: //depot/qt/main/src/widgets/qcheckbox.cpp#32 $
 **
 ** Implementation of QCheckBox class
 **
@@ -16,7 +16,7 @@
 #include "qpmcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#31 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qcheckbox.cpp#32 $";
 #endif
 
 
@@ -107,7 +107,7 @@ void QCheckBox::setChecked( bool checked )
   This function is called automatically whenever the contents change and
   auto-resizing is enabled.
 
-  \sa setAutoResizing()
+  \sa setAutoResize()
  ----------------------------------------------------------------------------*/
 
 void QCheckBox::adjustSize()

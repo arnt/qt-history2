@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#30 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#31 $
 **
 ** Implementation of QRadioButton class
 **
@@ -16,7 +16,7 @@
 #include "qpmcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#30 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#31 $";
 #endif
 
 
@@ -119,7 +119,7 @@ void QRadioButton::setChecked( bool checked )
   This function is called automatically whenever the contents change and
   auto-resizing is enabled.
 
-  \sa setAutoResizing()
+  \sa setAutoResize()
  ----------------------------------------------------------------------------*/
 
 void QRadioButton::adjustSize()

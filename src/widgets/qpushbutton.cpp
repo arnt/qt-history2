@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#40 $
+** $Id: //depot/qt/main/src/widgets/qpushbutton.cpp#41 $
 **
 ** Implementation of QPushButton class
 **
@@ -18,7 +18,7 @@
 #include "qpmcache.h"
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#40 $";
+static char ident[] = "$Id: //depot/qt/main/src/widgets/qpushbutton.cpp#41 $";
 #endif
 
 
@@ -183,7 +183,7 @@ void QPushButton::setDefault( bool enable )
   This function is called automatically whenever the contents change and
   auto-resizing is enabled.
 
-  \sa setAutoResizing()
+  \sa setAutoResize()
  ----------------------------------------------------------------------------*/
 
 void QPushButton::adjustSize()
