@@ -54,8 +54,8 @@ MyView::MyView()
     QRichTextFormatCollection fc;
     QRichTextFormat *f = fc.defaultFormat();
     QFont fnt;
-    fnt.setFamily("fixed");
-    fnt.setCharSet(QFont::ISO_8859_8);
+    fnt.setFamily("tahoma");
+    fnt.setCharSet(QFont::Unicode);
     f->setFont(fnt);
     printf("using font %s\n", fnt.rawName().latin1());
     

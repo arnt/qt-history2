@@ -137,6 +137,71 @@ void QRichTextString::Char::setFormat(QRichTextFormat *fmt)
 	f->addRef();
 }
 
+QRichTextString::QRichTextString(const QRichTextString &other)
+{
+    cache = other.cache;
+    len = other.len;
+    maxLen = len;
+    data = new Char[len];
+    memcpy(data, other.data, len*sizeof(Char));
+}
+
+QRichTextString &QRichTextString::operator = (const QRichTextString &other)
+{
+    delete [] data;
+    cache = other.cache;
+    len = other.len;
+    maxLen = len;
+    data = new Char[len];
+    memcpy(data, other.data, len*sizeof(Char));
+    return *this;
+}
+
+QRichTextString::Char &QRichTextString::at( int i ) const
+{
+    return data[ i ];
+}
+
+QString QRichTextString::toString() const
+{
+    return cache;
+}
+
+int QRichTextString::length() const
+{
+    return len;
+}
+
+void QRichTextString::append(Char c)
+{
+    if ( len + 1 >= maxLen ) {
+	if ( maxLen < 4 )
+	    maxLen = 4;
+	setLength(2*maxLen);
+    }
+    data[len] = c;
+    cache += c.c;
+    len++;
+}
+
+inline void QRichTextString::setLength(int newLen)
+{
+    Char *newData = new Char[newLen];
+    memcpy(newData, data, len*sizeof(Char));
+    delete [] data;
+    data = newData;
+    maxLen = newLen;
+}
+
+
+void QRichTextString::clear()
+{
+    delete [] data;
+    data = 0;
+    len = maxLen = 0;
+}
+
+
 // ====================================================================
 
 
@@ -1528,6 +1593,47 @@ bool QTextAreaCursor::checkClosedParen()
     return FALSE;
 }
 
+int QTextAreaCursor::index() const
+{
+    return idx;
+}
+
+void QTextAreaCursor::setIndex( int i )
+{
+    tmpIndex = -1;
+    idx = i;
+}
+
+bool QTextAreaCursor::checkParens()
+{
+#if 0
+    QChar c( string->at( idx )->c );
+    if ( c == '{' || c == '(' || c == '[' ) {
+	return checkOpenParen();
+    } else if ( idx > 0 ) {
+	c = string->at( idx - 1 )->c;
+	if ( c == '}' || c == ')' || c == ']' ) {
+	    return checkClosedParen();
+	}
+    }
+#endif
+    return FALSE;
+}
+
+void QTextAreaCursor::setParagraph( QParagraph *s )
+{
+    idx = 0;
+    parag = s;
+    tmpIndex = -1;
+}
+
+void QTextAreaCursor::checkIndex()
+{
+    if ( idx >= line->length() )
+	idx = line->length() - 1;
+}
+
+
 // =======================================================================
 
 
@@ -1758,6 +1864,17 @@ void QRichTextFormatCollection::debug()
 #endif
 }
 
+void QRichTextFormatCollection::setDefaultFormat( QRichTextFormat *f )
+{
+    defFormat = f;
+}
+
+QRichTextFormat *QRichTextFormatCollection::defaultFormat() const
+{
+    return defFormat;
+}
+
+
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 void QRichTextFormat::setBold( bool b )
@@ -1899,6 +2016,159 @@ QString QRichTextFormat::makeFormatEndTags() const
     }
     return tag;
 }
+
+QRichTextFormat::QRichTextFormat( const QFont &f, const QColor &c )
+    : fn( f ), col( c ), fm( new QFontMetrics( f ) )
+{
+    leftBearing = fm->minLeftBearing();
+    rightBearing = fm->minRightBearing();
+    hei = fm->height();
+    asc = fm->ascent();
+    dsc = fm->descent();
+    for ( int i = 0; i < 65536; ++i )
+	widths[ i ] = 0;
+    generateKey();
+}
+
+QRichTextFormat::QRichTextFormat( const QRichTextFormat &f )
+{
+    fn = f.fn;
+    col = f.col;
+    fm = new QFontMetrics( fn );
+    leftBearing = f.leftBearing;
+    rightBearing = f.rightBearing;
+    for ( int i = 0; i < 65536; ++i )
+	widths[ i ] = f.widths[ i ];
+    hei = f.hei;
+    asc = f.asc;
+    dsc = f.dsc;
+    generateKey();
+}
+
+void QRichTextFormat::update()
+{
+    *fm = QFontMetrics( fn );
+    leftBearing = fm->minLeftBearing();
+    rightBearing = fm->minRightBearing();
+    hei = fm->height();
+    asc = fm->ascent();
+    dsc = fm->descent();
+    for ( int i = 0; i < 65536; ++i )
+	widths[ i ] = 0;
+    generateKey();
+}
+
+const QFontMetrics *QRichTextFormat::fontMetrics() const
+{
+    return fm;
+}
+
+QColor QRichTextFormat::color() const
+{
+    return col;
+}
+
+QFont QRichTextFormat::font() const
+{
+    return fn;
+}
+
+int QRichTextFormat::minLeftBearing() const
+{
+    return leftBearing;
+}
+
+int QRichTextFormat::minRightBearing() const
+{
+    return rightBearing;
+}
+
+int QRichTextFormat::width( const QChar &c ) const
+{
+    if ( c == '\t' )
+	return 30;
+    int w = widths[ c.unicode() ];
+    if ( w == 0 ) {
+	w = fm->width( c );
+	( (QRichTextFormat*)this )->widths[ c.unicode() ] = w;
+    }
+    return w;
+}
+
+int QRichTextFormat::height() const
+{
+    return hei;
+}
+
+int QRichTextFormat::ascent() const
+{
+    return asc;
+}
+
+int QRichTextFormat::descent() const
+{
+    return dsc;
+}
+
+bool QRichTextFormat::operator==( const QRichTextFormat &f ) const
+{
+    return k == f.k;
+}
+
+QRichTextFormatCollection *QRichTextFormat::parent() const
+{
+    return collection;
+}
+
+void QRichTextFormat::addRef()
+{
+    ref++;
+#ifdef DEBUG_COLLECTION
+    qDebug( "add ref of '%s' to %d (%p)", k.latin1(), ref, this );
+#endif
+}
+
+void QRichTextFormat::removeRef()
+{
+    ref--;
+    if ( !collection )
+	return;
+#ifdef DEBUG_COLLECTION
+    qDebug( "remove ref of '%s' to %d (%p)", k.latin1(), ref, this );
+#endif
+    if ( ref <= 0 )
+	collection->remove( this );
+}
+
+QString QRichTextFormat::key() const
+{
+    return k;
+}
+
+void QRichTextFormat::generateKey()
+{
+    QTextOStream ts( &k );
+    ts << fn.pointSize()
+       << fn.weight()
+       << (int)fn.underline()
+       << (int)fn.italic()
+       << col.pixel()
+       << fn.family();
+}
+
+QString QRichTextFormat::getKey( const QFont &fn, const QColor &col )
+{
+    QString k;
+    QTextOStream ts( &k );
+    ts << fn.pointSize()
+       << fn.weight()
+       << (int)fn.underline()
+       << (int)fn.italic()
+       << col.pixel()
+       << fn.family();
+    return k;
+}
+
 
 // ============================================================================
 
