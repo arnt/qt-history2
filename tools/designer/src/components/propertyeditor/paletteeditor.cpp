@@ -130,7 +130,6 @@ QPalette PaletteEditor::editPalette() const
     return m_editPalette;
 }
 
-
 QPalette PaletteEditor::getPalette(QWidget* parent, const QPalette &init, int *ok)
 {
     PaletteEditor dlg(parent);

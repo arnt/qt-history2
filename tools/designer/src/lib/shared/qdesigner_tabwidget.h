@@ -16,9 +16,7 @@
 
 #include "shared_global.h"
 
-#include <QTabWidget>
-
-class QAction;
+#include <QtGui/QTabWidget>
 
 class QT_SHARED_EXPORT QDesignerTabWidget : public QTabWidget
 {

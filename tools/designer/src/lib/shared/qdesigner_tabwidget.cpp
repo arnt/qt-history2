@@ -16,10 +16,10 @@
 
 #include <qdesigner_command.h>
 
-#include <QApplication>
-#include <QTabBar>
-#include <QAction>
-#include <QMouseEvent>
+#include <QtGui/QApplication>
+#include <QtGui/QTabBar>
+#include <QtGui/QAction>
+#include <QtGui/QMouseEvent>
 
 #include <QtCore/qdebug.h>
 
@@ -41,8 +41,7 @@ QDesignerTabWidget::QDesignerTabWidget(QWidget *parent)
     m_actionDeletePage->setText(tr("Delete Page"));
     connect(m_actionDeletePage, SIGNAL(triggered()), this, SLOT(removeCurrentPage()));
 
-    connect(this, SIGNAL(currentChanged(int)),
-        this, SLOT(slotCurrentChanged(int)));
+    connect(this, SIGNAL(currentChanged(int)), this, SLOT(slotCurrentChanged(int)));
 }
 
 QDesignerTabWidget::~QDesignerTabWidget()
@@ -105,8 +104,7 @@ bool QDesignerTabWidget::eventFilter(QObject *o, QEvent *e)
         return false;
 
     switch (e->type()) {
-    case QEvent::MouseButtonDblClick: {
-    } break;
+    case QEvent::MouseButtonDblClick: break;
 
     case QEvent::MouseButtonPress: {
         QMouseEvent *mev = static_cast<QMouseEvent*>(e);
@@ -275,16 +273,14 @@ bool QDesignerTabWidget::canMove(QMouseEvent *e) const
     return pt.manhattanLength() > QApplication::startDragDistance();
 }
 
-void QDesignerTabWidget::slotCurrentChanged(int)
+void QDesignerTabWidget::slotCurrentChanged(int index)
 {
-#if 0 // ### enable me
     if (QWidget *page = widget(index)) {
-        if (FormWindow *fw = FormWindow::findFormWindow(this)) {
+        if (AbstractFormWindow *fw = AbstractFormWindow::findFormWindow(this)) {
             fw->clearSelection();
             fw->selectWidget(this, true);
         }
     }
-#endif
 }
 
 #include "qdesigner_tabwidget.moc"
