@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qbasic.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qbasic.cpp#9 $
 **
 **  Studies in Geometry Management
 **
@@ -18,7 +18,7 @@
 #include "qbasic.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#8 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#9 $")
 
 
 
@@ -26,9 +26,16 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qbasic.cpp#8 $")
   \class QBasicManager qbasic.h
   \brief The QBasicManager class provides one-dimensional geometry management.
 
-  This class is not for the faint of heart. The QGeomManager class is
+  This class is not for the faint of heart. The QBoxLayout class is
   available for normal application programming.
 
+  This class is intended for those who write geometry managers and
+  graphical designers.
+
+  Each dimension (horizontal and vertical) is handled independently. Widgets
+  are organized in chains, which can be parellel or serial.
+
+  \sa QBoxLayout
   */
 
 
@@ -71,7 +78,17 @@ static void setWinfo( QWidget * w, wDict &dict, QBasicManager::Direction d, int 
     }
 }
 
+/*!
+  \internal
+  \class QChain
+  \brief internal class for the QBasicManager.
 
+  Everything is put into chains. Use QBasicManager::newParChain()
+  or QBasicManager::newSerChain() to make chains.
+
+  \sa QBasicManager.
+
+ */
 class QChain
 {
 public:
@@ -107,10 +124,10 @@ private:
 };
 
 
-class SpaceChain : public QChain
+class QSpaceChain : public QChain
 {
 public:
-    SpaceChain( QBasicManager::Direction d, int min, int max )
+    QSpaceChain( QBasicManager::Direction d, int min, int max )
 	: QChain( d ), minsize( min ), maxsize( max ) {}
     // needs direction for consistency check.....
     bool addC( QChain * ) { return FALSE; }
@@ -126,10 +143,10 @@ private:
     int maxsize;
 };
 
-class WidChain : public QChain
+class QWidChain : public QChain
 {
 public:
-    WidChain( QBasicManager::Direction d,  QWidget * w )
+    QWidChain( QBasicManager::Direction d,  QWidget * w )
 	: QChain( d ), widget ( w ) {}
     bool addC( QChain * ) { return FALSE; }
 
@@ -159,16 +176,16 @@ private:
 
 };
 
-class ParChain : public QChain
+class QParChain : public QChain
 {
 public:
 
-    ParChain( QBasicManager::Direction	d )
+    QParChain( QBasicManager::Direction	d )
 	: QChain( d )
     {
     }
 
-    ~ParChain() {}
+    ~QParChain() {}
     bool addC( QChain *s );
 
     void recalc();
@@ -189,12 +206,12 @@ private:
     int maxMin();
 };
 
-class SerChain : public QChain
+class QSerChain : public QChain
 {
 public:
 
-    SerChain( QBasicManager::Direction d ) : QChain( d ) {}
-    ~SerChain() {}
+    QSerChain( QBasicManager::Direction d ) : QChain( d ) {}
+    ~QSerChain() {}
 
     bool addC( QChain *s );
 
@@ -216,7 +233,7 @@ private:
 };
 
 
-void ParChain::distribute( wDict & wd, int pos, int space )
+void QParChain::distribute( wDict & wd, int pos, int space )
 {
     int i;
     for ( i = 0; i < (int)chain.size(); i++ ) {
@@ -231,7 +248,7 @@ void ParChain::distribute( wDict & wd, int pos, int space )
   widget is not stretched.
 */
 
-void SerChain::distribute( wDict & wd, int pos, int space )
+void QSerChain::distribute( wDict & wd, int pos, int space )
 {
     bool backwards = direction() == QBasicManager::RightToLeft ||
        direction() == QBasicManager::Up;
@@ -283,7 +300,7 @@ void SerChain::distribute( wDict & wd, int pos, int space )
 
 }
 
-void ParChain::recalc()
+void QParChain::recalc()
 {
     for ( int i = 0; i < (int)chain.size(); i ++ )
 	chain[i]->recalc();
@@ -292,7 +309,7 @@ void ParChain::recalc()
 }
 
 
-int ParChain::maxMin()
+int QParChain::maxMin()
 {
     int max = 0;
     for ( int i = 0; i < (int)chain.size(); i ++ ) {
@@ -303,7 +320,7 @@ int ParChain::maxMin()
     return max;
 }
 
-int ParChain::minMax()
+int QParChain::minMax()
 {
     int min = QBasicManager::unlimited;
     for ( int i = 0; i < (int)chain.size(); i ++ ) {
@@ -314,7 +331,7 @@ int ParChain::minMax()
     return min;
 }
 
-void SerChain::recalc()
+void QSerChain::recalc()
 {
     for ( int i = 0; i < (int)chain.size(); i ++ )
 	chain[i]->recalc();
@@ -323,7 +340,7 @@ void SerChain::recalc()
 }
 
 
-int SerChain::sumStretch()
+int QSerChain::sumStretch()
 {
     int s = 0;
     for ( int i = 0; i < (int)chain.size(); i ++ )
@@ -331,7 +348,7 @@ int SerChain::sumStretch()
     return s;
 }
 
-int SerChain::sumMin()
+int QSerChain::sumMin()
 {
     int s = 0;
     for ( int i = 0; i < (int)chain.size(); i ++ )
@@ -339,7 +356,7 @@ int SerChain::sumMin()
     return s;
 }
 
-int SerChain::sumMax()
+int QSerChain::sumMax()
 {
     int s = 0;
     for ( int i = 0; i < (int)chain.size(); i ++ )
@@ -351,7 +368,7 @@ int SerChain::sumMax()
 
 
 
-bool SerChain::addC( QChain *s )
+bool QSerChain::addC( QChain *s )
 {
      if ( horz( s->direction() ) != horz( direction() ) )
 	return FALSE;
@@ -361,7 +378,7 @@ bool SerChain::addC( QChain *s )
     return TRUE;
 }
 
-bool ParChain::addC( QChain *s )
+bool QParChain::addC( QChain *s )
 {
      if ( horz( s->direction() ) != horz( direction() ) )
 	return FALSE;
@@ -371,39 +388,59 @@ bool ParChain::addC( QChain *s )
     return TRUE;
 }
 
+
+/*!
+  Creates a new QBasicManager which manages \e parent's children.
+
+  */
 QBasicManager::QBasicManager( QWidget *parent, const char *name )
     : QObject( parent, name )
 {
     main = parent;
 
-    xC = new ParChain( LeftToRight );
-    yC = new ParChain(	Down );
+    xC = new QParChain( LeftToRight );
+    yC = new QParChain(	Down );
 
     if ( parent )
 	parent->installEventFilter( this );
 }
 
+/*!
+  Creates a new QChain which is \e parallel.
+  */
 
 QChain * QBasicManager::newParChain( Direction d )
 {
-    QChain * c = new ParChain( d );
+    QChain * c = new QParChain( d );
     CHECK_PTR(c);
     return c;
 }
 
+
+/*!
+  Creates a new QChain which is \e serial.
+  */
 
 QChain * QBasicManager::newSerChain( Direction d )
 {
-    QChain * c = new SerChain( d );
+    QChain * c = new QSerChain( d );
     CHECK_PTR(c);
     return c;
 }
 
+/*!
+  Adds the chain \e source to the chain \e destination.
+  */
 
 bool QBasicManager::add( QChain *destination, QChain *source, int stretch )
 {
     return destination->add(source, stretch);
 }
+
+
+/*!
+  Adds the widget  \e w to the chain \e d.
+  */
 
 bool QBasicManager::addWidget( QChain *d, QWidget *w, int stretch )
 {
@@ -411,13 +448,22 @@ bool QBasicManager::addWidget( QChain *d, QWidget *w, int stretch )
     // if ( !w->minimumSize( &i, &j ) )
     //	w->setMinimumSize( w->width(), w->height() ); //######
 
-    return d->add( new WidChain( d->direction(), w) , stretch );
+    return d->add( new QWidChain( d->direction(), w) , stretch );
 }
+
+/*!
+  Adds the spacing  \e w to the chain \e d. Not much of a point unless
+  \e d is a serial chain.
+  */
 
 bool QBasicManager::addSpacing( QChain *d, int minSize, int stretch, int maxSize )
 {
-    return d->add( new SpaceChain( d->direction(), minSize, maxSize), stretch  );
+    return d->add( new QSpaceChain( d->direction(), minSize, maxSize), stretch  );
 }
+
+/*!
+  Grabs all resize events for my parent, and does child widget resizing.
+ */
 
 bool QBasicManager::eventFilter( QObject *o, QEvent *e )
 {
@@ -440,6 +486,9 @@ void QBasicManager::resizeHandle( QWidget *, const QSize & )
     resizeAll();
 }
 
+/*!
+  Starts geometry management.
+  */
 
 bool QBasicManager::doIt()
 {
@@ -448,14 +497,14 @@ bool QBasicManager::doIt()
 
     int ys = yC->minSize() + 2*border;
     int xs = xC->minSize() + 2*border;
-
+    /*
     if (  main->width() < xs && main->height() < ys )
 	main->resize( xs , ys );
     else if (  main->width() < xs )
 	main->resize( xs , main->height() );
     else if ( main->height() < ys )
 	main->resize( main->width(), ys );
-
+	*/
     main->setMinimumSize( xs, ys );
 
     ys = yC->maxSize() + 2*border;
@@ -464,14 +513,14 @@ bool QBasicManager::doIt()
     xs = xC->maxSize() + 2*border;
     if ( xs > QBasicManager::unlimited )
 	xs = QBasicManager::unlimited;
-
+    /*
     if (  main->width() > xs && main->height() > ys )
 	main->resize( xs , ys );
     else if (  main->width() > xs )
 	main->resize( xs , main->height() );
     else if ( main->height() > ys )
 	main->resize( main->width(), ys );
-
+	*/
     main->setMaximumSize( xs, ys );
 
 

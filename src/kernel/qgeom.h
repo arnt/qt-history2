@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgeom.h#5 $
+** $Id: //depot/qt/main/src/kernel/qgeom.h#6 $
 **
 **  Geometry Management
 **
@@ -15,62 +15,45 @@
 
 #include "qbasic.h"
 
-class QBox;
-
-//public inheritance because we need enum Direction...
-class QGeomManager : public QBasicManager
-{
-public:    
-    QGeomManager( QWidget *parent, Direction, int border=0, 
-		  int autoBorder = -1, const char *name=0 );
-    QBox *box() { return topBox; }
-    int defaultBorder() const { return defBorder; }
-private:
-    QBox * topBox;
-    int defBorder;
-    void initBox( Direction, int, int );
-
-private:	// Disabled copy constructor and operator=
-    //###QGeomManager( const QGeomManager & ) {}
-    QGeomManager &operator=( const QGeomManager & ) { return *this; }
-};
-
-
-class QBox 
+class QBoxLayout
 {
 public:
+    QBoxLayout(  QWidget *parent, QBasicManager::Direction, int border=0, 
+		 int autoBorder = -1, const char *name=0 );
+    int     defaultBorder() { return defBorder; }
 
-    QBox( QGeomManager*, QGeomManager::Direction d );
-    QBox( QGeomManager*, QChain *, QChain *, QGeomManager::Direction d ); 
+    bool doIt() { return bm->doIt(); }
+public:
 
-    enum alignment { alignCenter, alignTop, alignLeft=alignTop,
-		 alignBottom, alignRight=alignBottom, alignFixed };
+    enum alignment { alignCenter, alignTop, alignLeft,
+		 alignBottom, alignRight /*, alignBoth */};
     
-    void addBox( QBox *, int stretch = 0, alignment a = alignFixed );
-    void addWidget( QWidget *, int stretch = 0, alignment a = alignFixed );
+    QBoxLayout *insertNewBox( QBasicManager::Direction, int stretch = 0
+			      /*alignment a = alignBoth*/ );
+    void insert( QWidget *, int stretch = 0, alignment a = alignCenter );
     void addSpacing( int size, int stretch = 0 ); 
 
-    QGeomManager::Direction direction() const { return dir; }
+    QBasicManager::Direction direction() const { return dir; }
 
-    void addMinStrut( int );
-    void addMaxStrut( int );
+    void addStrut( int );
+    //void addMaxStrut( int );
 
 private:
-    void addB( QBox *, int stretch );
-    QGeomManager::Direction dir;
-    QGeomManager * gm;
+    QBoxLayout(  QBoxLayout *parent, QBasicManager::Direction );
+    void addB( QBoxLayout *, int stretch );
+    //   QBox( QGeomManager*, QChain *, QChain *, QGeomManager::Direction d );
+
+    QBasicManager * bm;
+    int defBorder;
+    QBasicManager::Direction dir;
     QChain * parChain;
     QChain * serChain;
     bool    pristine;
-    int     defBorder() { return gm->defaultBorder(); }
 
-private:	//Disabled copy constructor and operator=
-    QBox( const QBox & ) {}
-    QBox &operator=( const QBox & ) { return *this; }
+private:	// Disabled copy constructor and operator=
+    QBoxLayout( const QBoxLayout & ) {}
+    QBoxLayout &operator=( const QBoxLayout & ) { return *this; }
+
 };
-
-
-
-
 
 #endif
