@@ -839,7 +839,7 @@ void QMotifStyle::drawControl( ControlElement element,
 
 	    const QTabBar * tb = (const QTabBar *) widget;
 	    const QTab * t = opt.tab();
-	    
+	
 	    int dfw = pixelMetric( PM_DefaultFrameWidth, tb );
 	    bool selected = flags & Style_Selected;
 	    int o =  dfw > 1 ? 1 : 0;
@@ -915,8 +915,8 @@ void QMotifStyle::drawControl( ControlElement element,
 		} else {
 		    p->setPen( tb->colorGroup().dark() );
 		    p->drawLine( r2.left(), r2.top(), r2.right(), r2.top() );
-		    p->drawLine( r2.left() + 1, r2.top() + 1, 
-				 r2.right() - (lastTab ? 0 : 2), 
+		    p->drawLine( r2.left() + 1, r2.top() + 1,
+				 r2.right() - (lastTab ? 0 : 2),
 				 r2.top() + 1 );
 		    r2.setRect( r2.left() + 2, r2.top(),
 				r2.width() - 4, r2.height() - 2 );
@@ -1376,8 +1376,12 @@ void QMotifStyle::drawComplexControl( ComplexControl control,
 
 		    // paint stuff in the magical area
 		    QListView* v = item->listView();
-		    int lh = QMAX( p->fontMetrics().height() + 2 * v->itemMargin(),
-				   QApplication::globalStrut().height() );
+		    int lh;
+		    if ( !item->multiLinesEnabled() )
+			lh = child ? child->height() : 0;
+		    else
+			lh = p->fontMetrics().height() + 2 * v->itemMargin();
+		    lh = QMAX( lh, QApplication::globalStrut().height() );
 		    if ( lh % 2 > 0 )
 			lh++;
 		    while ( child && y < r.height() ) {

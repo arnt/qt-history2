@@ -541,12 +541,12 @@ void QWindowsStyle::drawControl( ControlElement element,
 		    p->setPen( cg.dark() );
 		} else {
  		    p->setPen( cg.shadow() );
-		    p->drawLine( r2.left() + 
+		    p->drawLine( r2.left() +
 				 (rightAligned && firstTab ? 0 : 1),
-				 r2.top() + 1, 
+				 r2.top() + 1,
 				 r2.right() - (lastTab ? 0 : 2),
 				 r2.top() + 1 );
-		    
+		
 		    if ( rightAligned && lastTab )
 			p->drawPoint( r2.right(), r2.top() );
 		    p->setPen( cg.dark() );
@@ -567,8 +567,8 @@ void QWindowsStyle::drawControl( ControlElement element,
  			     r2.left() + 1, r2.top() + (selected ? 0 : 2) );
 
 		p->setPen( cg.shadow() );
-		p->drawLine( r2.right(), 
-			     r2.top() + (lastTab && rightAligned && 
+		p->drawLine( r2.right(),
+			     r2.top() + (lastTab && rightAligned &&
 					 selected) ? 0 : 1,
 			     r2.right(), r2.bottom() - 1 );
 		p->drawPoint( r2.right() - 1, r2.bottom() - 1 );
@@ -1357,8 +1357,12 @@ void QWindowsStyle::drawComplexControl( ComplexControl ctrl, QPainter *p,
 
 		    // paint stuff in the magical area
 		    QListView* v = item->listView();
-		    int lh = QMAX( p->fontMetrics().height() + 2 * v->itemMargin(),
-				   QApplication::globalStrut().height() );
+		    int lh;
+		    if ( !item->multiLinesEnabled() )
+			lh = child ? child->height() : 0;
+		    else
+			lh = p->fontMetrics().height() + 2 * v->itemMargin();
+		    lh = QMAX( lh, QApplication::globalStrut().height() );
 		    if ( lh % 2 > 0 )
 			lh++;
 		    while ( child && y < r.height() ) {
