@@ -26,34 +26,22 @@
 
     \list
     \o \l{Using qmake}
-      \list
       \tableofcontents{1 Using qmake}
-      \endlist
     \o \l{Running qmake}
-      \list
       \tableofcontents{1 Running qmake}
-      \endlist
     \o \l{qmake Advanced Usage}
-      \list
       \tableofcontents{1 qmake Advanced Usage}
-      \endlist
     \o \l{qmake Reference}
-      \list
       \tableofcontents{1 qmake Reference}
-      \endlist
     \endlist
 
     Getting Started:
 
     \list
     \o \l{qmake Tutorial}
-      \list
       \tableofcontents{1 qmake Tutorial}
-      \endlist
     \o \l{qmake Common Projects}
-      \list
       \tableofcontents{1 qmake Common Projects}
-      \endlist
     \endlist
 */
 
