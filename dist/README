@@ -1,12 +1,12 @@
-This is Qt version 3.2.0-beta1
+This is Qt version 4.0.0
 
 Qt is a multiplatform C++ GUI application framework.
 
-Qt 3.2 introduces new features and many improvements over the 3.1.x
+Qt 4.0 introduces new features and many improvements over the 3.x.x
 series. See the changes file for details.
 
-The Qt version 3.2 series is binary compatible with the 3.1.x series -
-applications compiled for 3.1 will continue to run with 3.2.
+The Qt version 4.0 series is not binary compatible nor source
+compatible with the 3.x.x series.
 
 For this release, the following platforms have been tested:
 
@@ -35,7 +35,7 @@ openunix-g++
 macx-g++
 macx-pbuilder
 
-If you want to use Qt 3 on an unsupported version of Unix, please
+If you want to use Qt 4 on an unsupported version of Unix, please
 contact us at qt-bugs@trolltech.com so that we can assist you.
 
 
@@ -43,7 +43,7 @@ How to get the release:
 
 Qt Free Edition: Download the .tar.gz archive from
 ftp.trolltech.com. For faster download times, use ftpsearch and search
-for qt-x11-free-3.2.0-b1.tar.gz to find it on a mirror ftp site
+for qt-x11-free-4.0.0.tar.gz to find it on a mirror ftp site
 near you.
 
 Qt Professional Edition, Qt Enterprise Edition: Holders of valid
@@ -52,7 +52,7 @@ get the new release. Contact sales@trolltech.com if you are a
 Professional or Enterprise Edition licensee and have not received this
 e-mail.
 
-Any problems encountered with Qt 3.2 should be reported to
+Any problems encountered with Qt 4.0 should be reported to
 qt-bugs@trolltech.com.
 
 Qt is a trademark of Trolltech AS.
