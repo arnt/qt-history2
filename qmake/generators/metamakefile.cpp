@@ -296,7 +296,8 @@ SubdirsMetaMakefileGenerator::write(const QString &)
         if(i != subs.count()-1)
             printf("RECURSIVE: writing %s/%s\n", Option::output_dir.toLatin1().constData(),
                    Option::output.fileName().toLatin1().constData());
-        ret = subs.at(i)->makefile->write(qmake_getpwd());
+        if(!(ret = subs.at(i)->makefile->write(qmake_getpwd())))
+            break;
         qmake_setpwd(oldpwd);
     }
     //restore because I'm paranoid
