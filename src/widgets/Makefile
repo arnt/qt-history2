@@ -96,11 +96,11 @@ qbutton.o: /home/popcorn/home/hanord/qt/src/include/qpixmap.h
 qbutton.o: /home/popcorn/home/hanord/qt/src/include/qpaintd.h
 qbutton.o: /home/popcorn/home/hanord/qt/src/include/qwindefs.h
 qbutton.o: /home/popcorn/home/hanord/qt/src/include/qobjdefs.h
+qbutton.o: /home/popcorn/home/hanord/qt/src/include/qrect.h
 qbutton.o: /home/popcorn/home/hanord/qt/src/include/qsize.h
 qbutton.o: /home/popcorn/home/hanord/qt/src/include/qpoint.h qbutton.h
 qbutton.o: /home/popcorn/home/hanord/qt/src/include/qwidget.h
 qbutton.o: /home/popcorn/home/hanord/qt/src/include/qobject.h
-qbutton.o: /home/popcorn/home/hanord/qt/src/include/qrect.h
 qbutton.o: /home/popcorn/home/hanord/qt/src/include/qcolor.h
 qbutton.o: /home/popcorn/home/hanord/qt/src/include/qfont.h
 qbutton.o: /home/popcorn/home/hanord/qt/src/include/qshared.h
