@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#87 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#88 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -43,34 +43,37 @@
 #include "qmap.h"
 #include "qvaluestack.h"
 
+// needed for QT_TRANSLATE_NOOP:
+#include "qobject.h"
+
 #ifndef QT_NO_XML
 // NOT REVISED
 
 //#define QT_QXML_DEBUG
 
 // Error strings for the XML reader
-#define XMLERR_OK                         "no error occurred"
-#define XMLERR_ERRORBYCONSUMER            "error triggered by consumer"
-#define XMLERR_UNEXPECTEDEOF              "unexpected end of file"
-#define XMLERR_MORETHANONEDOCTYPE         "more than one document type definition"
-#define XMLERR_ERRORPARSINGELEMENT        "error while parsing element"
-#define XMLERR_TAGMISMATCH                "tag mismatch"
-#define XMLERR_ERRORPARSINGCONTENT        "error while parsing content"
-#define XMLERR_UNEXPECTEDCHARACTER        "unexpected character"
-#define XMLERR_INVALIDNAMEFORPI           "invalid name for processing instruction"
-#define XMLERR_VERSIONEXPECTED            "version expected while reading the XML declaration"
-#define XMLERR_WRONGVALUEFORSDECL         "wrong value for standalone declaration"
-#define XMLERR_EDECLORSDDECLEXPECTED      "EDecl or SDDecl expected while reading the XML declaration"
-#define XMLERR_SDDECLEXPECTED             "SDDecl expected while reading the XML declaration"
-#define XMLERR_ERRORPARSINGDOCTYPE        "error while parsing document type definition"
-#define XMLERR_LETTEREXPECTED             "letter is expected"
-#define XMLERR_ERRORPARSINGCOMMENT        "error while parsing comment"
-#define XMLERR_ERRORPARSINGREFERENCE      "error while parsing reference"
-#define XMLERR_INTERNALGENERALENTITYINDTD "internal general entity reference not allowed in DTD"
-#define XMLERR_EXTERNALGENERALENTITYINAV  "external parsed general entity reference not allowed in attribute value"
-#define XMLERR_EXTERNALGENERALENTITYINDTD "external parsed general entity reference not allowed in DTD"
-#define XMLERR_UNPARSEDENTITYREFERENCE    "unparsed entity reference in wrong context"
-#define XMLERR_RECURSIVEENTITIES          "recursive entities"
+#define XMLERR_OK                         QT_TRANSLATE_NOOP( "QXml", "no error occurred" )
+#define XMLERR_ERRORBYCONSUMER            QT_TRANSLATE_NOOP( "QXml", "error triggered by consumer" )
+#define XMLERR_UNEXPECTEDEOF              QT_TRANSLATE_NOOP( "QXml", "unexpected end of file" )
+#define XMLERR_MORETHANONEDOCTYPE         QT_TRANSLATE_NOOP( "QXml", "more than one document type definition" )
+#define XMLERR_ERRORPARSINGELEMENT        QT_TRANSLATE_NOOP( "QXml", "error while parsing element" )
+#define XMLERR_TAGMISMATCH                QT_TRANSLATE_NOOP( "QXml", "tag mismatch" )
+#define XMLERR_ERRORPARSINGCONTENT        QT_TRANSLATE_NOOP( "QXml", "error while parsing content" )
+#define XMLERR_UNEXPECTEDCHARACTER        QT_TRANSLATE_NOOP( "QXml", "unexpected character" )
+#define XMLERR_INVALIDNAMEFORPI           QT_TRANSLATE_NOOP( "QXml", "invalid name for processing instruction" )
+#define XMLERR_VERSIONEXPECTED            QT_TRANSLATE_NOOP( "QXml", "version expected while reading the XML declaration" )
+#define XMLERR_WRONGVALUEFORSDECL         QT_TRANSLATE_NOOP( "QXml", "wrong value for standalone declaration" )
+#define XMLERR_EDECLORSDDECLEXPECTED      QT_TRANSLATE_NOOP( "QXml", "EDecl or SDDecl expected while reading the XML declaration" )
+#define XMLERR_SDDECLEXPECTED             QT_TRANSLATE_NOOP( "QXml", "SDDecl expected while reading the XML declaration" )
+#define XMLERR_ERRORPARSINGDOCTYPE        QT_TRANSLATE_NOOP( "QXml", "error while parsing document type definition" )
+#define XMLERR_LETTEREXPECTED             QT_TRANSLATE_NOOP( "QXml", "letter is expected" )
+#define XMLERR_ERRORPARSINGCOMMENT        QT_TRANSLATE_NOOP( "QXml", "error while parsing comment" )
+#define XMLERR_ERRORPARSINGREFERENCE      QT_TRANSLATE_NOOP( "QXml", "error while parsing reference" )
+#define XMLERR_INTERNALGENERALENTITYINDTD QT_TRANSLATE_NOOP( "QXml", "internal general entity reference not allowed in DTD" )
+#define XMLERR_EXTERNALGENERALENTITYINAV  QT_TRANSLATE_NOOP( "QXml", "external parsed general entity reference not allowed in attribute value" )
+#define XMLERR_EXTERNALGENERALENTITYINDTD QT_TRANSLATE_NOOP( "QXml", "external parsed general entity reference not allowed in DTD" )
+#define XMLERR_UNPARSEDENTITYREFERENCE    QT_TRANSLATE_NOOP( "QXml", "unparsed entity reference in wrong context" )
+#define XMLERR_RECURSIVEENTITIES          QT_TRANSLATE_NOOP( "QXml", "recursive entities" )
 
 // the constants for the lookup table
 static const signed char cltWS      =  0; // white space
