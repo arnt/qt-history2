@@ -43,7 +43,8 @@ public:
     QString absolutePath(const QString &rel_path) const;
         
     static QString fixPrefix(const QString &prefix);
-
+    bool split(const QString &path, QString &prefix, QString &file) const;
+    
     bool isEmpty() const { return m_file_name.isEmpty() && m_resource_map.isEmpty(); }
 
 private:

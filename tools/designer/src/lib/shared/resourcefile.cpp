@@ -4,6 +4,7 @@
 #include <QtCore/QDir>
 #include <QtCore/qdebug.h>
 #include <QtGui/QMessageBox>
+#include <QtGui/QIcon>
 
 #include "resourcefile.h"
 
@@ -122,6 +123,30 @@ bool ResourceFile::save()
     return true;
 }
 
+bool ResourceFile::split(const QString &_path, QString &prefix, QString &file) const
+{
+    prefix.clear();
+    file.clear();
+
+    QString path = _path;
+    
+    if (!path.startsWith(QLatin1String(":")))
+        return false;
+    path = path.mid(1);
+
+    ResourceMap::const_iterator it = m_resource_map.begin();
+    for (; it != m_resource_map.end(); ++it) {
+        if (!path.startsWith(it.key()))
+            continue;
+
+        prefix = it.key();
+        file = path.mid(it.key().size() + 1);
+        return it.value().contains(absolutePath(file));
+    }
+
+    return false;
+}
+
 QString ResourceFile::resolvePath(const QString &_path) const
 {
     QString path = _path;
@@ -184,7 +209,7 @@ int ResourceFile::indexOfFile(int pref_idx, const QString &file)
     QString prefix = this->prefix(pref_idx);
     if (prefix.isEmpty())
         return -1;
-    return m_resource_map.value(prefix).indexOf(file);
+    return m_resource_map.value(prefix).indexOf(absolutePath(file));
 }
 
 void ResourceFile::addFile(const QString &prefix, const QString &file)
@@ -403,6 +428,13 @@ QVariant ResourceModel::data(const QModelIndex &index, int role) const
                 result = m_resource_file.prefix(index.row());
             else
                 result = m_resource_file.file(d, index.row());
+            break;
+        case DecorationRole:
+            if (d != -1) {
+                QIcon icon(m_resource_file.absolutePath(m_resource_file.file(d, index.row())));
+                if (!icon.isNull())
+                    result = icon;
+            }
             break;
         default:
             break;

@@ -1,5 +1,6 @@
-#include <QImage>
-#include <QFile>
+#include <QtCore/qdebug.h>
+#include <QtCore/QFile>
+#include <QtGui/QImage>
 
 #include <resourcefile.h>
 
@@ -20,12 +21,17 @@ QIcon IconCache::nameToIcon(const QString &filePath, const QString &qrcPath)
     QString real_path;
     if (!qrcPath.isEmpty()) {
         ResourceFile rf(qrcPath);
-        if (rf.load())
+        if (rf.load()) {
             real_path = rf.resolvePath(filePath);
+        } else {
+            qWarning("IconCache::nameToIcon(): failed to open \"%s\": %s",
+                        qrcPath.toLatin1().constData(),
+                        rf.errorMessage().toLatin1().constData());
+        }
     } else {
        real_path = filePath;
     }
-        
+
     if (real_path.isEmpty())
         return QIcon();
 

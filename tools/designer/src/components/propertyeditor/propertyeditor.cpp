@@ -82,7 +82,7 @@ public slots:
 private:
     AbstractFormEditor *m_core;
     QLabel *m_label;
-    QPushButton *m_button;
+    QToolButton *m_button;
     QIcon m_icon;
 };
 
@@ -102,7 +102,8 @@ IconPropertyEditor::IconPropertyEditor(AbstractFormEditor *core, const QIcon &pm
     m_label = new QLabel(tr("<no icon>"), this);
     layout->addWidget(m_label);
     layout->addStretch();
-    m_button = new QPushButton(tr("Change..."), this);
+    m_button = new QToolButton(this);
+    m_button->setText(tr("Change..."));
     layout->addWidget(m_button);
     connect(m_button, SIGNAL(clicked()), this, SLOT(showDialog()));
 
@@ -111,22 +112,28 @@ IconPropertyEditor::IconPropertyEditor(AbstractFormEditor *core, const QIcon &pm
 
 void IconPropertyEditor::showDialog()
 {
-    FindIconDialog dialog(m_core->formWindowManager()->activeFormWindow(), 0);
+    AbstractFormWindow *form = m_core->formWindowManager()->activeFormWindow();
+    if (form == 0)
+        return;
+
+    FindIconDialog dialog(form, 0);
     QString file_path;
+    QString qrc_path;
     if (m_icon.isNull()) {
-        QString ui_name = m_core->formWindowManager()->activeFormWindow()->fileName();
-        if (ui_name.isEmpty())
-            file_path = QDir::currentPath() + QDir::separator();
-        else
-            file_path = QFileInfo(ui_name).path();
+        file_path = form->absolutePath(QString()) + QDir::separator();
     } else {
         file_path = m_core->iconCache()->iconToFilePath(m_icon);
+        qrc_path = m_core->iconCache()->iconToQrcPath(m_icon);
     }
-    dialog.setPaths(QString(), file_path);
+    
+    dialog.setPaths(qrc_path, file_path);
     if (dialog.exec()) {
-        QString name = dialog.filePath();
-        if (!name.isEmpty())
-            setIcon(m_core->iconCache()->nameToIcon(name));
+        file_path = dialog.filePath();
+        qrc_path = dialog.qrcPath();
+        if (!file_path.isEmpty()) {
+            qDebug() << "IconPropertyEditor::showDialog():" << file_path << qrc_path;
+            setIcon(m_core->iconCache()->nameToIcon(file_path, qrc_path));
+        }
     }
 }
 
