@@ -256,7 +256,8 @@ static int      activateNullTimers();
 const UInt32 kEventClassQt = 'cute';
 enum {
     //types
-    typeQWidget = 1,  /* QWidget * */
+    typeQWidget = 1,  /* QWidget *  */
+    typeTimerInfo = 2, /* TimerInfo * */
     //params
     kEventParamTimer = 'qtim',     /* typeUInt */
     kEventParamQWidget = 'qwid',   /* typeQWidget */
@@ -590,19 +591,17 @@ int QApplication::exec()
 {
     quit_now = FALSE;
     quit_code = 0;
-
 #if defined(QT_THREAD_SUPPORT)
     qApp->unlock();
 #endif
-
     enter_loop();
-
     return quit_code;
 }
 
 /* timer code */
 struct TimerInfo {
     QObject *obj;
+    bool pending;
 
     enum { TIMER_ZERO, TIMER_MAC } type;
     EventLoopTimerRef mac_timer;
@@ -616,12 +615,41 @@ static EventLoopTimerUPP timerUPP = NULL;       //UPP
 /* timer call back */
 QMAC_PASCAL static void qt_activate_timers(EventLoopTimerRef, void *data)
 {
-    EventRef tmr = NULL;
-    int t =((TimerInfo *)data)->id;
+    TimerInfo *tmr = ((TimerInfo *)data);
+    if(tmr->pending)
+	return;
+    tmr->pending = TRUE;
+    EventRef tmr_ev = NULL;
     CreateEvent(NULL, kEventClassQt, kEventQtRequestTimer, GetCurrentEventTime(),
-		kEventAttributeUserEvent, &tmr );
-    SetEventParameter(tmr, kEventParamTimer, typeInteger, sizeof(t), &t);
-    PostEventToQueue( GetCurrentEventQueue(), tmr, kEventPriorityLow );
+		kEventAttributeUserEvent, &tmr_ev );
+    SetEventParameter(tmr_ev, kEventParamTimer, typeTimerInfo, sizeof(tmr), &tmr);
+    PostEventToQueue( GetCurrentEventQueue(), tmr_ev, kEventPriorityLow );
+}
+
+//central cleanup
+QMAC_PASCAL static Boolean find_timer_event(EventRef event, void *d)
+{
+    TimerInfo *t;
+    GetEventParameter(event, kEventParamTimer, typeTimerInfo, NULL, sizeof(t), NULL, &t);
+    if(t == ((TimerInfo *)d))
+	return true;
+    return false;
+}
+
+static bool killTimer(TimerInfo *t, bool remove=TRUE)
+{
+    t->pending = TRUE;
+    if(t->type == TimerInfo::TIMER_MAC) {
+	RemoveEventLoopTimer(t->mac_timer);
+	if(t->pending) {
+	    EventComparatorUPP fnc = NewEventComparatorUPP(find_timer_event);
+	    FlushSpecificEventsFromQueue(GetCurrentEventQueue(), fnc, (void *)t);
+	    DisposeEventComparatorUPP(fnc);
+	}
+    } else {
+	zero_timer_count--;
+    }
+    return remove ? timerList->remove() : TRUE;
 }
 
 //
@@ -641,12 +669,8 @@ static void cleanupTimers()			// cleanup timer data structure
 {
     zero_timer_count = 0;
     if ( timerList ) {
-	for( register TimerInfo *t = timerList->first(); t; t = timerList->next() ) {
-	    if(t->type == TimerInfo::TIMER_MAC)
-		RemoveEventLoopTimer(t->mac_timer);
-	    else
-		zero_timer_count--;
-	}
+	for( register TimerInfo *t = timerList->first(); t; t = timerList->next() )
+	    killTimer(t, FALSE);
 	delete timerList;
 	timerList = 0;
     }
@@ -654,7 +678,6 @@ static void cleanupTimers()			// cleanup timer data structure
 	DisposeEventLoopTimerUPP(timerUPP);
 	timerUPP = NULL;
     }
-
 }
 
 static int activateNullTimers()
@@ -682,25 +705,27 @@ int qStartTimer( int interval, QObject *obj )
     if ( !timerList )				// initialize timer data
 	initTimers();
     TimerInfo *t = new TimerInfo;		// create timer
+    t->obj = obj;
+    t->pending = TRUE;
     Q_CHECK_PTR( t );
     if(interval == 0) {
-    static int serial_id = 666;
+	t->type = TimerInfo::TIMER_ZERO;
 	t->mac_timer = NULL;
-	t->id = serial_id++;
 	zero_timer_count++;
     } else {
+	t->type = TimerInfo::TIMER_MAC;
 	EventTimerInterval mint = (((EventTimerInterval)interval) / 1000);
 	if(InstallEventLoopTimer(GetMainEventLoop(), mint, mint, timerUPP, t, &t->mac_timer) ) {
-
 	    delete t;
 	    return 0;
 	}
-	t->id = (int)t->mac_timer;
+
     }
-    t->type = interval ? TimerInfo::TIMER_MAC : TimerInfo::TIMER_ZERO;
-    t->obj = obj;
+    static int serial_id = 666;
+    t->id = serial_id++;
     timerList->append(t);
-    return (int)t->id;
+    t->pending = FALSE;
+    return t->id;
 }
 
 bool qKillTimer( int id )
@@ -710,13 +735,8 @@ bool qKillTimer( int id )
     register TimerInfo *t = timerList->first();
     while ( t && (t->id != id) ) // find timer info in list
 	t = timerList->next();
-    if ( t ) {					// id found
-	if(t->type == TimerInfo::TIMER_MAC)
-	    RemoveEventLoopTimer(t->mac_timer);
-	else
-	    zero_timer_count--;
-	return timerList->remove();
-    }
+    if ( t )					// id found
+	return killTimer(t);
     return FALSE; // id not found
 }
 
@@ -727,11 +747,7 @@ bool qKillTimer( QObject *obj )
     register TimerInfo *t = timerList->first();
     while ( t ) {				// check all timers
 	if ( t->obj == obj ) {			// object found
-	    if(t->type == TimerInfo::TIMER_MAC)
-		RemoveEventLoopTimer(t->mac_timer);
-	    else
-		zero_timer_count--;
-	    timerList->remove();
+	    killTimer(t);
 	    t = timerList->current();
 	} else {
 	    t = timerList->next();
@@ -1470,13 +1486,11 @@ QApplication::globalEventProcessor(EventHandlerCallRef, EventRef event, void *da
 	} else if(ekind == kEventQtRequestTimer) {
 	    if(!timerList)
 		break;
-	    int id = 0;
-	    GetEventParameter(event, kEventParamTimer, typeInteger, NULL, sizeof(id), NULL, &id);
-	    register TimerInfo *t = timerList->first();
-	    while ( t && (t->id != id) ) // find timer info in list
-		t = timerList->next();
-	    if ( t ) {					// id found
-		QTimerEvent e( id );
+	    TimerInfo *t;
+	    GetEventParameter(event, kEventParamTimer, typeTimerInfo, NULL, sizeof(t), NULL, &t);
+	    if ( t && t->pending ) {
+		t->pending = FALSE;
+		QTimerEvent e( t->id );
 		QApplication::sendEvent( t->obj, &e );	// send event
 	    }
 	}
@@ -1942,8 +1956,6 @@ bool QApplication::macEventFilter( EventRef )
     return 0;
 }
 
-
-
 void QApplication::openPopup( QWidget *popup )
 {
     if ( !popupWidgets ) {			// create list
@@ -1973,7 +1985,6 @@ void QApplication::closePopup( QWidget *popup )
 	return;
 
     popupWidgets->removeRef( popup );
-
     qt_closed_popup = !popup->geometry().contains( QCursor::pos() );
     if (popup == popupOfPopupButtonFocus) {
 	popupButtonFocus = 0;
