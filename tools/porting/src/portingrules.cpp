@@ -17,6 +17,7 @@
 #include <QDir>
 #include <iostream>
 #include "logger.h"
+#include "qtsimplexml.h"
 using std::cout;
 using std::endl;
 
@@ -96,7 +97,7 @@ QStringList PortingRules::getInheritsQt()
 void PortingRules::parseXml(QString fileName)
 {
     QtSimpleXml *xmlPointer = loadXml(fileName);
-    QtSimpleXml &xml(*xmlPointer);
+    QtSimpleXml &xml = *xmlPointer;
 
     int ruleCount = xml["Rules"].numChildren();
     ++ruleCount;
@@ -220,7 +221,7 @@ bool PortingRules::isReplacementRule(const QString ruleType) const
 void PortingRules::disableRule(QtSimpleXml &replacementRule)
 {
     RuleDescription ruleDescription(replacementRule);
-    return disabledRules.append(ruleDescription);
+    disabledRules.append(ruleDescription);
 }
 
 /*
