@@ -6276,10 +6276,11 @@ bool QListView::isRenaming() const
     traverse a hierarchical QListView.
 
   Multiple QListViewItemIterators can operate on the tree of
-  QListViewItems.  A QListView knows about all iterators
-  operating on its QListViewItems.  So when a QListViewItem gets
-  removed all iterators that point to this item are updated and point
-  to the following item.
+  QListViewItems.  A QListView knows about all iterators operating on
+  its QListViewItems.  So when a QListViewItem gets removed all
+  iterators that point to this item are updated and point to the
+  following item if possible, otherwise to a valid item before the
+  current one or to 0.
 
   \sa QListView, QListViewItem
 */
