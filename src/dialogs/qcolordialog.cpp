@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qcolordialog.cpp#8 $
+** $Id: //depot/qt/main/src/dialogs/qcolordialog.cpp#9 $
 **
 ** Implementation of QColorDialog class
 **
@@ -664,6 +664,16 @@ void QColorDialogPrivate::addCustom()
     }
 }
 
+
+/*!
+  \class QColorDialog qcolordialog.h
+  \brief The QFileDialog provides a dialog widget for specifying colors.
+  \ingroup dialogs
+
+  This version of Qt provides the static getColor() function that
+  pops up a modal color dialog.
+*/
+
 QColorDialog::QColorDialog(QWidget* parent, const char* name, bool modal) :
     QDialog(parent, name, modal )
 {
@@ -673,7 +683,7 @@ QColorDialog::QColorDialog(QWidget* parent, const char* name, bool modal) :
 
 
 /*!
-  Pops up a color dialog letting the user choose a color and returns
+  Pops up a modal color dialog letting the user choose a color and returns
   that color. The color is initially set to \a initial. Returns an
   \link QColor::isValid() invalid\endlink color if the user cancels
   the dialog. All colors allocated by the dialog will be deallocated

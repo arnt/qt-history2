@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/dialogs/qcolordialog.h#5 $
+** $Id: //depot/qt/main/src/dialogs/qcolordialog.h#6 $
 **
 ** Definition of QColorDialog class
 **
@@ -35,12 +35,13 @@ class QColorDialogPrivate;
 class Q_EXPORT QColorDialog : public QDialog {
     Q_OBJECT
 public:
-    QColorDialog( QWidget* parent=0, const char* name=0, bool modal=FALSE );
+    static QColor getColor( QColor, QWidget *parent=0, const char* name=0 );
     ~QColorDialog();
+private:
+    QColorDialog( QWidget* parent=0, const char* name=0, bool modal=FALSE );
     void setSelectedColor( QColor );
     QColor selectedColor() const;
 
-    static QColor getColor( QColor, QWidget *parent=0, const char* name=0 );
     void showCustom( bool=TRUE );
 private:
      QColorDialogPrivate *d;
