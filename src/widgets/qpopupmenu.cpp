@@ -873,7 +873,7 @@ void QPopupMenu::updateSize()
 			w += s.width();
 		    }
 		}
-
+	    
 		w += maxPMWidth;
 
 		if (! mi->text().isNull()) {
@@ -894,7 +894,12 @@ void QPopupMenu::updateSize()
 		} else if (mi->pixmap())
 		    w += mi->pixmap()->width();
 	    } else {
-		w = itemHeight = 2;
+		if ( mi->custom() ) {
+		    QSize s ( mi->custom()->sizeHint() );
+		    w += s.width();
+		} else {
+		    w = itemHeight = 2;
+		}
 	    }
 
 	    void *data[2];
