@@ -30,7 +30,7 @@ public:
     QTextOption &operator=(const QTextOption &o);
 
     inline void setAlignment(Qt::Alignment alignment) { align = alignment; }
-    inline Qt::Alignment alignment() const { return static_cast<Qt::Alignment>(align); }
+    inline Qt::Alignment alignment() const { Qt::Alignment(align); }
 
     enum WrapMode {
         WordWrap,
@@ -48,7 +48,7 @@ public:
     };
     Q_DECLARE_FLAGS(Flags, Flag);
     inline void setFlags(Flags flags) { f = flags; }
-    inline Flags flags() const { return static_cast<Flags>(f); }
+    inline Flags flags() const { return Flags(f); }
 
     inline void setTabStop(qReal tabStop) { tab = tabStop; }
     inline qReal tabStop() const { return tab; }
