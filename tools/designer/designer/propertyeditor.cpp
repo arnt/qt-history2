@@ -1963,9 +1963,9 @@ void PropertySizePolicyItem::createChildren()
     i = new PropertyListItem( listview, i, this, tr( "vSizeType" ), FALSE );
     i->setValue( lst );
     addChild( i );
-    i = new PropertyIntItem( listview, i, this, tr( "horizontalStrech" ), TRUE );
+    i = new PropertyIntItem( listview, i, this, tr( "horizontalStretch" ), TRUE );
     addChild( i );
-    i = new PropertyIntItem( listview, i, this, tr( "verticalStrech" ), TRUE );
+    i = new PropertyIntItem( listview, i, this, tr( "verticalStretch" ), TRUE );
     addChild( i );
 }
 
@@ -1979,9 +1979,9 @@ void PropertySizePolicyItem::initChildren()
 	    ( (PropertyListItem*)item )->setCurrentItem( size_type_to_int( sp.horData() ) );
 	else if ( item->name() == tr( "vSizeType" ) )
 	    ( (PropertyListItem*)item )->setCurrentItem( size_type_to_int( sp.verData() ) );
-	else if ( item->name() == tr( "horizontalStrech" ) )
+	else if ( item->name() == tr( "horizontalStretch" ) )
 	    ( (PropertyIntItem*)item )->setValue( sp.horStretch() );
-	else if ( item->name() == tr( "verticalStrech" ) )
+	else if ( item->name() == tr( "verticalStretch" ) )
 	    ( (PropertyIntItem*)item )->setValue( sp.verStretch() );
     }
 }
@@ -2029,9 +2029,9 @@ void PropertySizePolicyItem::childValueChanged( PropertyItem *child )
 	sp.setHorData( int_to_size_type( ( ( PropertyListItem*)child )->currentIntItem() ) );
     else if ( child->name() == tr( "vSizeType" ) )
 	sp.setVerData( int_to_size_type( ( ( PropertyListItem*)child )->currentIntItem() ) );
-    else if ( child->name() == tr( "horizontalStrech" ) )
+    else if ( child->name() == tr( "horizontalStretch" ) )
 	sp.setHorStretch( ( ( PropertyIntItem*)child )->value().toInt() );
-    else if ( child->name() == tr( "verticalStrech" ) )
+    else if ( child->name() == tr( "verticalStretch" ) )
 	sp.setVerStretch( ( ( PropertyIntItem*)child )->value().toInt() );
     setValue( sp );
     notifyValueChange();
