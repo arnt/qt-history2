@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#2 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtext.cpp#3 $
 **
 ** Implementation of the Qt classes dealing with rich text
 **
@@ -24,6 +24,7 @@
 *****************************************************************************/
 #include "qstylesheet.h"
 #include "qrichtextintern.h"
+#include "qformatstuff.h"
 #include <qapplication.h>
 #include <qlayout.h>
 #include <qpainter.h>
@@ -2408,6 +2409,7 @@ QtTextRichString::QtTextRichString( QtTextFormatCollection* fmt )
 
 QtTextRichString::~QtTextRichString()
 {
+    // TODO walk over string and unregister all
 }
 
 int QtTextRichString::length() const
@@ -2417,19 +2419,19 @@ int QtTextRichString::length() const
 
 void QtTextRichString::remove( int index, int len )
 {
-    // TODO unregister formats 
+    for ( int i = 0; i < len; i++) 
+	format->unregisterFormat( formatIndexAt( index + i ) );
     QString::remove( index * 2, len * 2);
 }
 
 void QtTextRichString::insert( int index, const QChar& c, QtTextCharFormat* form )
 {
-    ushort fmt = 0; // TODO get fmt from format form
+    ushort fmt = format->registerFormat( *form );
     QString::insert( (uint) (index*2), c );
     QChar d ( fmt );
     QString::insert( (uint) (index*2+1), d );
-    
 }
-    
+
 QChar QtTextRichString::charAt( int index ) const
 {
     return QString::at( (uint) index );
@@ -2437,11 +2439,15 @@ QChar QtTextRichString::charAt( int index ) const
 
 QtTextCharFormat* QtTextRichString::formatAt( int index ) const
 {
-    // TODO ask warwick about byteorder
-    uint fmt = (uint) QString::at( (uint) (index + 1) );
-    // TODO get format from fmt
-    return 0;
+    return format->format( formatIndexAt( index ) );
 }
+
+ushort QtTextRichString::formatIndexAt( int index ) const
+{
+    // TODO do not cast, use row cell (byteorder on windows!!!!)
+    return  (ushort) QString::at( (uint) (index + 1) );
+}
+
 
 bool QtTextRichString::isCustomItem( int index ) const
 {
@@ -2460,4 +2466,13 @@ QtStyleSheet::QtStyleSheet( QObject *parent=0, const char *name=0 )
 
 QtStyleSheet::~QtStyleSheet()
 {
+}
+
+QtTextCustomItem* QtStyleSheet::tagEx( const QString& name,
+				     const QMap<QString, QString> &attr,
+				     const QString& context,
+				     const QMimeSourceFactory& factory,
+				     bool emptyTag) const
+{
+    return 0; //TODO
 }

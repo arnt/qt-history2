@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#2 $
+** $Id: //depot/qt/main/tests/richtextedit/qrichtextintern.h#3 $
 **
 ** Internal rich text classes
 **
@@ -43,6 +43,11 @@ class QtStyleSheet : public QStyleSheet
 public:
     QtStyleSheet( QObject *parent=0, const char *name=0 );
     ~QtStyleSheet();
+    QtTextCustomItem* tagEx( const QString& name,
+			   const QMap<QString, QString> &attr,
+			   const QString& context,
+			   const QMimeSourceFactory& factory,
+			   bool emptyTag = FALSE) const;
 };
 
 
@@ -55,14 +60,15 @@ public:
     int length() const;
     void remove( int index, int len );
     void insert( int index, const QChar& c, QtTextCharFormat* fmt );
-    
+
     QChar charAt( int index ) const;
     QtTextCharFormat* formatAt( int index ) const;
 
     bool isCustomItem( int index ) const;
     QtTextCustomItem* customItemAt( int index ) const;
-    
+
 private:
+    ushort formatIndexAt( int index ) const;
     QtTextFormatCollection* format;
 };
 
