@@ -3298,7 +3298,7 @@ bool QETWidget::translateConfigEvent(const MSG &msg)
         cr.setSize(newSize);
         if (msg.wParam != SIZE_MINIMIZED)
             data->crect = cr;
-        if (isTopLevel()) {                        // update caption/icon text
+        if (isTopLevel()) {                        // update title/icon text
             d->createTLExtra();
             QString txt;
 #ifndef Q_OS_TEMP
