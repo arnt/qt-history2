@@ -725,9 +725,9 @@ inline Q_LONGLONG qRoundLL(double d)
 { return d >= 0.0 ? Q_LONGLONG(d + 0.5) : Q_LONGLONG(d - Q_LONGLONG(d-1) + 0.5) + Q_LONGLONG(d-1); }
 
 template <typename T>
-inline T qMin(T a, T b) { return (a < b) ? a : b; }
+inline const T &qMin(const T &a, const T &b) { return (a < b) ? a : b; }
 template <typename T>
-inline T qMax(T a, T b) { return (b < a) ? a : b; }
+inline const T &qMax(const T &a, const T &b) { return (b < a) ? a : b; }
 
 #ifdef QT_COMPAT
 #  define QABS(a) qAbs(a)
