@@ -35,7 +35,7 @@ uint qHash(const QModelIndex &key)
 class AddressBookModel : public QAbstractListModel
 {
 public:
-    AddressBookModel(ABCentralWidget *parent);
+    AddressBookModel(AddressView *parent);
     ~AddressBookModel();
 
     int rowCount() const;
@@ -43,6 +43,7 @@ public:
     QVariant data(const QModelIndex &index, int role) const;
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
+    void changeItem(const QModelIndex &index, const QString &firstName, const QString &lastName, const QString &address, const QString &email);
     void addItem(const QString &firstName, const QString &lastName, const QString &address, const QString &email);
     void update();
 
@@ -53,7 +54,7 @@ private:
     mutable QCache<QModelIndex, QStringList> cache;
 };
 
-AddressBookModel::AddressBookModel(ABCentralWidget *parent)
+AddressBookModel::AddressBookModel(AddressView *parent)
 : QAbstractListModel(parent), cache(100)
 {
     if (!outlook.isNull()) {
@@ -85,10 +86,7 @@ int AddressBookModel::columnCount(const QModelIndex &parent) const
 
 QVariant AddressBookModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid())
-        return QVariant();
-
-    if (role != DisplayRole)
+    if (!index.isValid() || role != DisplayRole)
         return QVariant();
 
     QStringList data;
@@ -127,6 +125,32 @@ QVariant AddressBookModel::headerData(int section, Qt::Orientation orientation, 
     return QVariant();
 }
 
+void AddressBookModel::changeItem(const QModelIndex &index, const QString &firstName, const QString &lastName, const QString &address, const QString &email)
+{
+    Outlook::ContactItem item(contactItems->Item(index.row() + 1));
+    Q_ASSERT(!item.isNull());
+
+    QString test(item.FirstName());
+    item.SetFirstName(firstName);
+    test = item.FirstName();
+
+    test = item.LastName();
+    item.SetLastName(lastName);
+    test = item.LastName();
+
+    test = item.HomeAddress();
+    item.SetHomeAddress(address);
+    test = item.HomeAddress();
+
+    item.SetEmail1Address(email);
+
+    item.Save();
+
+    cache.take(index);
+
+    emit dataChanged(index, index);
+}
+
 void AddressBookModel::addItem(const QString &firstName, const QString &lastName, const QString &address, const QString &email)
 {
     Outlook::ContactItem item(outlook.CreateItem(Outlook::olContactItem));
@@ -148,7 +172,7 @@ void AddressBookModel::update()
 }
 
 
-ABCentralWidget::ABCentralWidget(QWidget *parent)
+AddressView::AddressView(QWidget *parent)
 : QWidget(parent)
 {
     mainGrid = new QGridLayout(this);
@@ -160,54 +184,7 @@ ABCentralWidget::ABCentralWidget(QWidget *parent)
     mainGrid->setRowStretch(1, 1);
 }
 
-ABCentralWidget::~ABCentralWidget()
-{
-}
-
-void ABCentralWidget::save(const QString &filename)
-{
-#if 0
-    if (!listView->firstChild())
-        return;
-
-    QFile f(filename);
-    if (!f.open(IO_WriteOnly))
-        return;
-
-    QTextStream t(&f);
-
-    QListViewItemIterator it(listView);
-
-    for (; it.current(); ++it)
-        for (unsigned int i = 0; i < 4; i++)
-            t << it.current()->text(i) << "\n";
-
-    f.close();
-#endif
-}
-
-void ABCentralWidget::load(const QString &filename)
-{
-#if 0
-    listView->clear();
-
-    QFile f(filename);
-    if (!f.open(IO_ReadOnly))
-        return;
-
-    QTextStream t(&f);
-
-    while (!t.atEnd()) {
-        QListViewItem *item = new QListViewItem(listView);
-        for (unsigned int i = 0; i < 4; i++)
-            item->setText(i, t.readLine());
-    }
-
-    f.close();
-#endif
-}
-
-void ABCentralWidget::setupTabWidget()
+void AddressView::setupTabWidget()
 {
     tabWidget = new QTabWidget(this);
 
@@ -319,7 +296,7 @@ void ABCentralWidget::setupTabWidget()
     mainGrid->addWidget(tabWidget, 0, 0);
 }
 
-void ABCentralWidget::setupTreeView()
+void AddressView::setupTreeView()
 {
     treeView = new QTreeView(this);
 
@@ -332,12 +309,12 @@ void ABCentralWidget::setupTreeView()
     mainGrid->addWidget(treeView, 1, 0);
 }
 
-void ABCentralWidget::updateOutlook()
+void AddressView::updateOutlook()
 {
     model->update();
 }
 
-void ABCentralWidget::addEntry()
+void AddressView::addEntry()
 {
     if (!iFirstName->text().isEmpty() || !iLastName->text().isEmpty() ||
          !iAddress->text().isEmpty() || !iEMail->text().isEmpty()) {
@@ -350,31 +327,15 @@ void ABCentralWidget::addEntry()
     iEMail->setText("");
 }
 
-void ABCentralWidget::changeEntry()
+void AddressView::changeEntry()
 {
-#if 0
-    ABListViewItem *item = (ABListViewItem*)listView->currentItem();
+    QModelIndex current = treeView->currentIndex();
 
-    if (item &&
-         (!iFirstName->text().isEmpty() || !iLastName->text().isEmpty() ||
-           !iAddress->text().isEmpty() || !iEMail->text().isEmpty())) {
-
-	QAxObject *contactItem = item->contactItem();
-	contactItem->setProperty("FirstName", iFirstName->text());
-	contactItem->setProperty("LastName", iLastName->text());
-	contactItem->setProperty("HomeAddress", iAddress->text());
-	contactItem->setProperty("Email1Address", iEMail->text());
-	contactItem->dynamicCall("Save()");
-
-	item->setText(0, iFirstName->text());
-	item->setText(1, iLastName->text());
-	item->setText(2, iAddress->text());
-	item->setText(3, iEMail->text());
-    }
-#endif
+    if (current.isValid())
+        model->changeItem(current, iFirstName->text(), iLastName->text(), iAddress->text(), iEMail->text());
 }
 
-void ABCentralWidget::selectionChanged()
+void AddressView::selectionChanged()
 {
     iFirstName->setText("");
     iLastName->setText("");
@@ -382,7 +343,7 @@ void ABCentralWidget::selectionChanged()
     iEMail->setText("");
 }
 
-void ABCentralWidget::itemSelected(const QModelIndex &index, int button)
+void AddressView::itemSelected(const QModelIndex &index, int button)
 {
     if (!index.isValid() || button != Qt::LeftButton)
 	return;
@@ -394,7 +355,7 @@ void ABCentralWidget::itemSelected(const QModelIndex &index, int button)
     iEMail->setText(model->data(model->index(index.row(), 3)).toString());
 }
 
-void ABCentralWidget::toggleFirstName()
+void AddressView::toggleFirstName()
 {
     sFirstName->setText("");
 
@@ -406,7 +367,7 @@ void ABCentralWidget::toggleFirstName()
         sFirstName->setEnabled(FALSE);
 }
 
-void ABCentralWidget::toggleLastName()
+void AddressView::toggleLastName()
 {
     sLastName->setText("");
 
@@ -418,7 +379,7 @@ void ABCentralWidget::toggleLastName()
         sLastName->setEnabled(FALSE);
 }
 
-void ABCentralWidget::toggleAddress()
+void AddressView::toggleAddress()
 {
     sAddress->setText("");
 
@@ -430,7 +391,7 @@ void ABCentralWidget::toggleAddress()
         sAddress->setEnabled(FALSE);
 }
 
-void ABCentralWidget::toggleEMail()
+void AddressView::toggleEMail()
 {
     sEMail->setText("");
 
@@ -442,7 +403,7 @@ void ABCentralWidget::toggleEMail()
         sEMail->setEnabled(FALSE);
 }
 
-void ABCentralWidget::findEntries()
+void AddressView::findEntries()
 {
 #if 0
     if (!cFirstName->isChecked() &&

@@ -13,19 +13,16 @@
 
 #include <qapplication.h>
 
-#include "mainwindow.h"
+#include "centralwidget.h"
 
 int main(int argc, char ** argv)
 {
     QApplication a(argc, argv);
 
-    ABMainWindow *mw = new ABMainWindow();
-    mw->setWindowTitle("Qt Example - Addressbook");
-    a.setMainWidget(mw);
-    mw->show();
+    AddressView view;
+    view.setWindowTitle("Qt Example - Addressbook");
+    a.setMainWidget(&view);
+    view.show();
 
-    a.connect(&a, SIGNAL(lastWindowClosed()), &a, SLOT(quit()));
-    int result = a.exec();
-    delete mw;
-    return result;
+    return a.exec();
 }

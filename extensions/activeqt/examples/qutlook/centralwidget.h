@@ -25,16 +25,12 @@ class QPushButton;
 class QCheckBox;
 class AddressBookModel;
 
-class ABCentralWidget : public QWidget
+class AddressView : public QWidget
 {
     Q_OBJECT
 
 public:
-    ABCentralWidget(QWidget *parent);
-    ~ABCentralWidget();
-
-    void save(const QString &filename);
-    void load(const QString &filename);
+    AddressView(QWidget *parent = 0);
 
 protected slots:
     void addEntry();
