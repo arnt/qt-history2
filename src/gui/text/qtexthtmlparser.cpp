@@ -738,13 +738,17 @@ void QTextHtmlParser::parseTag()
         node->style = QStyleSheet::defaultSheet()->item("");
     Q_ASSERT(node->style != 0);
 
-    node->isBlock = (node->style->displayMode() != QStyleSheetItem::DisplayInline);
     node->isImage = (node->tag == QLatin1String("img"));
     node->isListItem = (node->style->displayMode() == QStyleSheetItem::DisplayListItem);
     node->isListStart = (node->tag == QLatin1String("ol") || node->tag == QLatin1String("ul"));
     if (node->isListStart)
         node->listStyle = convertListStyle(node->style->listStyle());
     node->isTableCell = (node->tag == QLatin1String("td") || node->tag == QLatin1String("th"));
+    node->isBlock = (node->style->displayMode() != QStyleSheetItem::DisplayInline
+                     || node->tag == QLatin1String("table")
+                     || node->tag == QLatin1String("tr")
+                     || node->isTableCell);
+
 
     resolveParent();
     resolveNode();
