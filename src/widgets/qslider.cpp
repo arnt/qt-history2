@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#22 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#23 $
 **
 ** Implementation of QSlider class
 **
@@ -15,7 +15,7 @@
 #include "qtimer.h"
 #include "qkeycode.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#22 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qslider.cpp#23 $");
 
 
 static const int motifBorder = 2;
@@ -41,6 +41,8 @@ static int sliderStartVal = 0; //##### class member?
   QSlider only offers integer ranges.
 
   The recommended thickness of a slider is given by sizeHint().
+
+  Tickmarks may be added using setTickmarks().
 
   A slider can be controlled by the keyboard, but it has a
   default focusPolicy() of \a NoFocus. Use setFocusPolicy() to
@@ -105,7 +107,7 @@ void QSlider::init()
     sliderPos = 0;
     state = Idle;
     track = TRUE;
-    tickmarksAbove = tickmarksBelow = FALSE;
+    ticks = NoMarks;
     if ( style() == MotifStyle )
 	setBackgroundColor( colorGroup().mid() );
     setFocusPolicy( NoFocus );
@@ -120,9 +122,9 @@ void QSlider::init()
 void QSlider::initTicks()
 {
     int space = (orient == Horizontal) ? height() : width();
-    if ( tickmarksBelow == tickmarksAbove ) {
+    if ( ticks == Both ) {
 	tickOffset = ( space - thickness() ) / 2;
-    } else if ( tickmarksAbove ) {
+    } else if ( ticks == Above ) {
 	tickOffset = space - thickness();
     } else {
 	tickOffset = 0;
@@ -330,12 +332,12 @@ QRect QSlider::sliderRect() const
     }
     return r;
 }
-enum Dir {Up,Down,Left,Right};
+enum SlDir {SlUp,SlDown,SlLeft,SlRight};
 
 static void drawWinPointedSlider( QPainter *p,
 				const QRect r,
 				const QColorGroup &g,
-				Dir dir)
+				SlDir dir)
 {
     const QColor c1 = g.light();
     const QColor c2 = black;
@@ -356,35 +358,35 @@ static void drawWinPointedSlider( QPainter *p,
 
 
     switch ( dir ) {
-    case Up:
+    case SlUp:
 	y1 = y1 + r.width()/2;
 	break;
-    case Down:
+    case SlDown:
 	y2 = y2 - r.width()/2;
 	break;
-    case Left:
+    case SlLeft:
 	x1 = x1 + r.height()/2;
 	break;
-    case Right:
+    case SlRight:
 	x2 = x2 - r.height()/2;
 	break;
     }
 
-    if ( dir != Up ) {
+    if ( dir != SlUp ) {
 	p->setPen( c1 );
 	p->drawLine( x1, y1, x2, y1 );
     }
-    if ( dir != Left ) {
+    if ( dir != SlLeft ) {
 	p->setPen( c1 );
 	p->drawLine( x1, y1, x1, y2 );
     }
-    if ( dir != Right ) {
+    if ( dir != SlRight ) {
 	p->setPen( c2 );
 	p->drawLine( x2, y1, x2, y2 );
 	p->setPen( c4 );
 	p->drawLine( x2-1, y1+1, x2-1, y2-1 );
     }
-    if ( dir != Down ) {
+    if ( dir != SlDown ) {
 	p->setPen( c2 );
 	p->drawLine( x1, y2, x2, y2 );
 	p->setPen( c4 );
@@ -393,7 +395,7 @@ static void drawWinPointedSlider( QPainter *p,
 
     int d = 0;
     switch ( dir ) {
-    case Up:
+    case SlUp:
 	p->setPen( c1 );
 	d =  (r.width() + 1) / 2 - 1;
 	p->drawLine( x1, y1, x1+d, y1-d);
@@ -404,7 +406,7 @@ static void drawWinPointedSlider( QPainter *p,
 	d--;
 	p->drawLine( x2-1, y1, x2-1-d, y1-d);
 	break;
-    case Down:
+    case SlDown:
 	p->setPen( c1 );
 	d =  (r.width() + 1) / 2 - 1;
 	p->drawLine( x1, y2, x1+d, y2+d);
@@ -415,7 +417,7 @@ static void drawWinPointedSlider( QPainter *p,
 	d--;
 	p->drawLine( x2-1, y2, x2-1-d, y2+d);
 	break;
-    case Left:
+    case SlLeft:
 	p->setPen( c1 );
 	d =  (r.height() + 1) / 2 - 1;
 	p->drawLine( x1, y1, x1-d, y1+d);
@@ -426,7 +428,7 @@ static void drawWinPointedSlider( QPainter *p,
 	d--;
 	p->drawLine( x1, y2-1, x1-d, y2-1-d);
 	break;
-    case Right:
+    case SlRight:
 	p->setPen( c1 );
 	d =  (r.height() + 1) / 2 - 1;
 	p->drawLine( x2, y1, x2+d, y1+d);
@@ -454,12 +456,12 @@ void QSlider::paintSlider( QPainter *p, const QRect &r )
 
     switch ( style() ) {
     case WindowsStyle:
-	if ( tickmarksAbove == tickmarksBelow ) {
+	if ( ticks == NoMarks || ticks == Both ) {
 	    qDrawWinButton( p, r, g, FALSE, &fill );
 	} else {
-	    Dir d = ( orient == Horizontal ) ?
-		      tickmarksAbove ? Up : Down
-		    : tickmarksAbove ? Left : Right;
+	    SlDir d = ( orient == Horizontal ) ?
+		      (ticks == Above) ? SlUp : SlDown
+		    : (ticks == Left) ? SlLeft : SlRight;
 	    drawWinPointedSlider( p, r, g, d );
 	}
 	break;
@@ -541,9 +543,9 @@ void QSlider::paintEvent( QPaintEvent * )
 	}
 	{
 	    int mid = tickOffset + thickness()/2;
-	    if ( tickmarksAbove )
+	    if ( ticks & Above )
 		mid += winLength / 8;
-	    if ( tickmarksBelow )
+	    if ( ticks & Below )
 		mid -= winLength / 8;
 	    drawWinGroove( &p, mid );
 	}
@@ -576,15 +578,17 @@ void QSlider::paintEvent( QPaintEvent * )
 	break;
     }
 
-
-    int interval = lineStep();
-    if ( positionFromValue( interval ) - positionFromValue( 0 ) < 3 )
-	interval = pageStep();
-
-    if ( tickmarksAbove )
+    
+    int interval = tickInt;
+    if ( interval <= 0 ) {
+	interval = lineStep();
+	if ( positionFromValue( interval ) - positionFromValue( 0 ) < 3 )
+	    interval = pageStep();
+    }
+    if ( ticks & Above )
 	drawTicks( &p, 0, tickOffset - 2, interval );
 	
-    if ( tickmarksBelow ) {
+    if ( ticks & Below ) {
 	int avail = (orient == Horizontal) ? height() : width();
 	avail -= tickOffset + thickness();
 	drawTicks( &p, tickOffset + thickness() + 1, avail - 2, interval );
@@ -752,21 +756,22 @@ void QSlider::resetState()
 
 void QSlider::keyPressEvent( QKeyEvent *e )
 {
+    bool sloppy = ( style() == MotifStyle );
     switch ( e->key() ) {
     case Key_Left:
-	if ( orient == Horizontal )
+	if ( sloppy || orient == Horizontal )
 	    subtractLine();
 	break;
     case Key_Right:
-	if ( orient == Horizontal )
+	if ( sloppy || orient == Horizontal )
 	    addLine();
 	break;
     case Key_Up:
-	if ( orient == Vertical )
+	if ( sloppy || orient == Vertical )
 	    subtractLine();
 	break;
     case Key_Down:
-	if ( orient == Vertical )	
+	if ( sloppy || orient == Vertical )	
 	    addLine();
 	break;
     case Key_Prior:
@@ -870,15 +875,14 @@ QSize QSlider::sizeHint() const
 {
     const int length = 84;
     int thick = 16;
-    //    if ( style() == WindowsStyle )
-    //	thick += 4;
+    const int tickSpace = 5;
 
-    if ( tickmarksAbove )
-	thick += 4;
-    if ( tickmarksBelow )
-	thick += 4;
-    if ( style() == WindowsStyle && tickmarksBelow != tickmarksAbove )
-	thick += winLength / 4;
+    if ( ticks & Above )
+	thick += tickSpace;
+    if ( ticks & Below )
+	thick += tickSpace;
+    if ( style() == WindowsStyle && ticks != Both && ticks != NoMarks )
+	thick += winLength / 4;	    // pointed slider
     if ( orient == Horizontal )
 	return QSize( length, thick );
     else
@@ -888,30 +892,31 @@ QSize QSlider::sizeHint() const
 
 /*!
   Returns the number of pixels to use for the business part of the 
-  slider (i.e. the non-tickmark portion). 
+  slider (i.e. the non-tickmark portion). The remaining space is shared 
+  equally between the tickmark regions. This function and  sizeHint()
+  are closely related; if you change one, you almost certainly
+  have to change the other.
 */
 
 int QSlider::thickness() const
 {
     int space = (orient == Horizontal) ? height() : width();
     int n = 0;
-    if ( tickmarksAbove )
+    if ( ticks & Above )
 	n++;
-    if ( tickmarksBelow )
+    if ( ticks & Below )
 	n++;
     if ( !n )
 	return space;
 
-    int thick = 8;
-    //    if ( style() == WindowsStyle)
-    //	thick += 4;
-    if ( style() == WindowsStyle && tickmarksBelow != tickmarksAbove ) {
+    int thick = 6;	// Magic constant to get 5 + 16 + 5
+    if ( style() == WindowsStyle && ticks != Both && ticks != NoMarks ) {
 	thick += winLength / 4;
     }
     space -= thick;
-
+    //### the two sides may be unequal in size
     if ( space > 0 )
-	thick += space * 2 / ( n + 2);
+	thick += ( space * 2 ) / ( n + 2 );
     return thick;
 }
 
@@ -937,15 +942,53 @@ void QSlider::drawTicks( QPainter *p, int d, int w, int i ) const
 }
 
 
-
 /*!
-  The slider will display tickmarks above (or to the left) if \a above is TRUE
-  and below (or to the right) if \a below is TRUE.
+  Sets the way tickmarks are displayed by the slider. \a s can take 
+  the following values:
+  <ul>
+  <li> \c NoMarks
+  <li> \c Above
+  <li> \c Left
+  <li> \c Below
+  <li> \c Right
+  <li> \c Both
+  </ul>
+  The initial value is \c NoMarks.
+  \sa tickmarks(), setTickInterval()
 */
 
-void QSlider::setTickmarks( bool above, bool below )
+void QSlider::setTickmarks( TickState s )
 {
-    tickmarksAbove = above;
-    tickmarksBelow = below;
+    ticks = s;
     initTicks();
+    update();
 }
+
+/*!
+  \fn QSlider::TickState tickmarks()
+  Returns the way tickmarks are displayed by the slider.
+  \sa setTickmarks()
+*/
+
+/*!
+  Sets the interval between tickmarks to \a i. This is a value interval, 
+  not a pixel interval. If \a i is 0, the slider
+  will choose between lineStep() and pageStep(). The initial value of 
+  tickInterval() is 0.
+  \sa tickInterval(), QRangeControl::lineStep(), QRangeControl::pageStep()
+*/
+
+void QSlider::setTickInterval( int i )
+{
+    tickInt = QMAX( 0, i );
+    update();
+}
+
+
+/*!
+  \fn int tickmarks()
+  Returns the interval between tickmarks. Returns 0 if the slider
+  chooses between pageStep() and lineStep().
+  \sa setTickInterval()
+*/
+
