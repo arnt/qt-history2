@@ -430,8 +430,13 @@ bool QPSQLResult::reset ( const QString& query )
     }
     int status =  PQresultStatus( d->result );
     if ( status == PGRES_COMMAND_OK || status == PGRES_TUPLES_OK ) {
-	setSelect( (status == PGRES_TUPLES_OK) );
-	currentSize = PQntuples( d->result );
+	if ( status == PGRES_TUPLES_OK ) {
+	    setSelect( TRUE );
+	    currentSize = PQntuples( d->result );
+	} else {
+	    setSelect( FALSE );
+	    currentSize = -1;
+	}
 	setActive( TRUE );
 	return TRUE;
     }
