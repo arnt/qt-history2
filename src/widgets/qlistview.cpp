@@ -712,6 +712,7 @@ void QListViewItem::startRename()
     QRect r = lv->itemRect( this );
     r = QRect( lv->viewportToContents( r.topLeft() ), r.size() );
     r.setLeft( r.left() + lv->itemMargin() + ( depth() + ( lv->rootIsDecorated() ? 1 : 0 ) ) * lv->treeStepSize() );
+    r.setRight( lv->header()->sectionSize( 0 ) - 3 );
     QVBox *box = new QVBox( lv->viewport() );
     box->setFrameStyle( QFrame::Box | QFrame::Plain );
     box->setBackgroundMode( QWidget::PaletteBase );
