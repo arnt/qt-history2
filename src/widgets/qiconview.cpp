@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qiconview.cpp#73 $
+** $Id: //depot/qt/main/src/widgets/qiconview.cpp#74 $
 **
 ** Definition of QIconView widget class
 **
@@ -1356,7 +1356,7 @@ void QIconViewItem::setView( QIconView *v )
 
    <ul>
    <li> \c Bottom (The text is drawn at the bottom of the icon)
-   <li> \c Right (The text is drawn at the right of the icon) 
+   <li> \c Right (The text is drawn at the right of the icon)
    </ul>
 */
 
@@ -1683,7 +1683,7 @@ void QIconView::setViewMode( QIconSet::Size mode )
     for ( ; item; item = item->next )
 	item->setViewMode( mode );
 
-    repaintContents( contentsX(), contentsY(), contentsWidth(), contentsHeight() );
+    orderItemsInGrid();
 }
 
 /*!
@@ -2043,7 +2043,8 @@ void QIconView::setItemTextPos( ItemTextPos pos )
     QIconViewItem *item = d->firstItem;
     for ( ; item; item = item->next )
 	item->calcRect();
-
+    
+    orderItemsInGrid();
     repaintContents( contentsX(), contentsY(), contentsWidth(), contentsHeight() );
 }
 
