@@ -53,15 +53,15 @@ void QCategoryButton::drawButton( QPainter *p )
 
     p->setPen( colorGroup().buttonText() );
     if ( p->fontMetrics().width( text() ) < width() - 40 ) {
-	p->drawText( 2, 2, width() - 40, height() - 2, AlignVCenter | AlignLeft, text() );
+	p->drawText( 2, 2, width(), height() - 2, AlignVCenter | AlignLeft, text() );
     } else {
 	QString s = text().left( 1 );
 	int ew = p->fontMetrics().width( "..." );
 	int i = 1;
-	while ( p->fontMetrics().width( s ) + ew < width() - 40 )
+	while ( p->fontMetrics().width( s ) + ew + p->fontMetrics().width( text()[i] )  < width() - 40 )
 	    s += text()[i++];
 	s += "...";
-	p->drawText( 2, 2, width() - 40, height() - 2, AlignVCenter | AlignLeft, s );
+	p->drawText( 2, 2, width(), height() - 2, AlignVCenter | AlignLeft, s );
     }
 }
 
