@@ -14,7 +14,7 @@
 #endif
 
 #ifdef Q_WS_WIN
-#include "../../include/qplatformdefs.h"
+#include "qplatformdefs.h"
 #endif
 
 #ifndef QT_NO_WORKSPACE
