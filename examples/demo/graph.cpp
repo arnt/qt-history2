@@ -295,7 +295,7 @@ void BouncyText::initSpeed()
     setVelocity( d*speed, e * speed );
 }
 
-void BouncyText::advance(int stage)
+void BouncyText::advance( int stage )
 {
     switch ( stage ) {
       case 0: {
@@ -310,7 +310,7 @@ void BouncyText::advance(int stage)
 	}
 
 	QRect r = boundingRect();
-	r.moveBy( vx, vy );
+	r.moveBy( int(vx), int(vy) );
 
 	if ( r.left() < 0 || r.right() > canvas()->width() )
 	    vx = -vx;
@@ -318,16 +318,16 @@ void BouncyText::advance(int stage)
 	    vy = -vy;
 
 	r = boundingRect();
-	r.moveBy( vx, vy );
+	r.moveBy( int(vx), int(vy) );
 	if ( r.left() < 0 || r.right() > canvas()->width() )
 	    vx = 0;
 	if ( r.top() < 0 || r.bottom() > canvas()->height() )
 	    vy = 0;
 
-	setVelocity(vx,vy);
+	setVelocity( vx, vy );
       } break;
       case 1:
-	QCanvasItem::advance(stage);
+	QCanvasItem::advance( stage );
         break;
     }
 }
