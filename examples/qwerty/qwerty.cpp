@@ -18,6 +18,7 @@
 #include <qmessagebox.h>
 #include <qpaintdevicemetrics.h>
 #include <qptrlist.h>
+#include <qfontdialog.h>
 
 #include <qtextcodec.h>
 
@@ -45,7 +46,7 @@ Editor::Editor( QWidget * parent , const char * name )
     file->insertItem( "Open &As",  open_as );
     save_as = new QPopupMenu();
     file->insertItem( "Sa&ve As",  save_as );
-    file->insertItem( "Add &Encoding", this, SLOT(addEncoding()) );
+    file->insertItem( "Add &Encoding", this, SLOT(addEncoding()) );    
 #ifndef QT_NO_PRINTER
     file->insertSeparator();
     file->insertItem( "&Print...", this, SLOT(print()),    ALT+Key_P );
@@ -64,6 +65,8 @@ Editor::Editor( QWidget * parent , const char * name )
 
     edit->insertItem( "To &Uppercase",   this, SLOT(toUpper()),   ALT+Key_U );
     edit->insertItem( "To &Lowercase",   this, SLOT(toLower()),   ALT+Key_L );
+    edit->insertSeparator();
+    edit->insertItem( "&Select Font" ,	 this, SLOT(font()),     ALT+Key_F );
 
     changed = FALSE;
     e = new QMultiLineEdit( this, "editor" );
@@ -84,6 +87,17 @@ Editor::Editor( QWidget * parent , const char * name )
 Editor::~Editor()
 {
 }
+
+void Editor::font()
+{
+    bool ok;
+    QFont f = QFontDialog::getFont( &ok, e->font() );
+    if ( ok ) {
+        e->setFont( f );
+    }
+}
+
+
 
 void Editor::rebuildCodecList()
 {

@@ -33,7 +33,7 @@ public slots:
     void addEncoding();
     void toUpper();
     void toLower();
-
+    void font();
 protected:
     void resizeEvent( QResizeEvent * );
     void closeEvent( QCloseEvent * );
