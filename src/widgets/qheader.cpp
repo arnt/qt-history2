@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qheader.cpp#4 $
 **
 **  Table header
 **
@@ -637,7 +637,7 @@ void QHeader::resizeEvent( QResizeEvent * )
   Returns the recommended size of the QHeader. Only the thickness is
   interesting, the other dimension is taken from the current size.
 */
-QSize QHeader::sizeHint()
+QSize QHeader::sizeHint() const
 {
     if ( orient == Horizontal )
 	return QSize( width(), fontMetrics().lineSpacing() + 7 );

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qheader.h#2 $
+** $Id: //depot/qt/main/src/widgets/qheader.h#3 $
 **
 **  Table header
 **
@@ -34,7 +34,7 @@ public:
     int		cellSize( int i ) const;
     int		count() const;
 
-    QSize	sizeHint();
+    QSize	sizeHint() const;
 signals:
     void	sectionClicked( int );
     void	sizeChange();
