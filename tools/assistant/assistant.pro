@@ -21,7 +21,9 @@ TARGET	= assistant
 
 #DEFINES +=  QT_PALMTOPCENTER_DOCS
 !network:DEFINES	+= QT_INTERNAL_NETWORK
+else:QCONFIG += network
 !xml: DEFINES		+= QT_INTERNAL_XML
+else:QCONFIG += xml
 include( ../../src/qt_professional.pri )
 DESTDIR	= ../../bin
 
@@ -69,6 +71,6 @@ IMAGES	= images/editcopy.png \
 	images/closetab.png \
 	images/d_closetab.png
 	
-TEMPLATE	=app
+TEMPLATE = app
 CONFIG	+= qt warn_off
-LANGUAGE	= C++
+LANGUAGE = C++

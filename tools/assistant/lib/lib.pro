@@ -9,6 +9,7 @@ CONFIG += staticlib
 CONFIG	-= dll
 
 !network:DEFINES += QT_INTERNAL_NETWORK
+else:QCONFIG += network
 include( ../../../src/qt_professional.pri )
 
 DESTDIR		= ../../../lib

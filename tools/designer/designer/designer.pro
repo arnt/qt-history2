@@ -10,6 +10,8 @@ TARGET	= designercore
 
 DEFINES	+= DESIGNER
 !xml:DEFINES += QT_INTERNAL_XML
+else:QCONFIG += xml
+network:QCONFIG += network
 !workspace:DEFINES += QT_INTERNAL_WORKSPACE
 !iconview:DEFINES += QT_INTERNAL_ICONVIEW
 !table:DEFINES += QT_INTERNAL_TABLE
@@ -409,6 +411,7 @@ sql {
 	SOURCES  += database.cpp dbconnectionimpl.cpp dbconnectionsimpl.cpp
 	HEADERS += database.h dbconnectionimpl.h dbconnectionsimpl.h
 	FORMS += dbconnections.ui dbconnection.ui dbconnectioneditor.ui
+	QCONFIG += sql
 }
 
 table {

@@ -7,7 +7,8 @@ FORMS		= sqlformwizard.ui mainwindowwizard.ui
 sql {
 	HEADERS		+= sqlformwizardimpl.h
 	SOURCES		+= sqlformwizardimpl.cpp
-	}
+	QCONFIG += sql
+}
 DESTDIR		= ../../../../plugins/designer
 
 PROJECTNAME	= Wizards
@@ -15,7 +16,6 @@ IMAGES		= images/qtwizards_menu_1.png images/qtwizards_menu_2.png images/qtwizar
 INCLUDEPATH	+= ../../interfaces
 DBFILE		= wizards.db
 LANGUAGE	= C++
-
 
 target.path += $$plugins.path/designer
 INSTALLS 	+= target
