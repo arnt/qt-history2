@@ -25,6 +25,7 @@ public:
 
 protected:
     void contentsMousePressEvent(QMouseEvent*);
+    void contentsMouseReleaseEvent(QMouseEvent*);
     void contentsMouseMoveEvent(QMouseEvent*);
 
 signals:

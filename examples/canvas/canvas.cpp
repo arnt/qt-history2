@@ -177,6 +177,11 @@ void FigureEditor::contentsMousePressEvent(QMouseEvent* e)
     }
 }
 
+void FigureEditor::contentsMouseReleaseEvent(QMouseEvent* e)
+{
+    moving = 0;
+}
+
 void FigureEditor::clear()
 {
     QCanvasItemList list = canvas()->allItems();
@@ -190,9 +195,8 @@ void FigureEditor::clear()
 void FigureEditor::contentsMouseMoveEvent(QMouseEvent* e)
 {
     if ( moving ) {
-	QPoint p = inverseWorldMatrix().map(e->pos());
-	moving->moveBy(p.x() - moving_start.x(),
-		       p.y() - moving_start.y());
+ 	QPoint p = inverseWorldMatrix().map(e->pos());
+ 	moving->moveBy(p.x() - moving_start.x(), p.y() - moving_start.y());
 	moving_start = p;
 	canvas()->update();
     }

@@ -250,6 +250,25 @@ const QRect& QCanvasClusterizer::operator[](int i)
 
 // end of clusterizer
 
+// there's no more device coordinate clipping done, so introduce these
+// clip setting compat functions
+
+void qt_setcliprect(QPainter *p, const QRect &r)
+{
+    bool xfrm = p->hasWorldXForm();
+    p->setWorldXForm(false);
+    p->setClipRect(r);
+    p->setWorldXForm(xfrm);
+}
+
+void qt_setclipregion(QPainter *p, const QRegion &r)
+{
+    bool xfrm = p->hasWorldXForm();
+    p->setWorldXForm(false);
+    p->setClipRegion(r);
+    p->setWorldXForm(xfrm);
+}
+
 
 
 class QCanvasItemPtr {
@@ -1071,11 +1090,11 @@ void QCanvas::drawViewArea(QCanvasView* view, QPainter* p, const QRect& vr, bool
 #endif
         if (view->viewport()->testAttribute(Qt::WA_NoSystemBackground)) {
             QRect cvr = vr; cvr.moveBy(tl.x(),tl.y());
-            p->setClipRegion(QRegion(cvr)-QRegion(a));
+	    qt_setclipregion(p, QRegion(cvr)-QRegion(a));
             p->fillRect(vr,view->viewport()->palette()
-                .brush(QPalette::Active,QPalette::Background));
+			.brush(QPalette::Active,QPalette::Background));
         }
-        p->setClipRegion(a);
+	qt_setclipregion(p, a);
     }
 
     if (dbuf) {
@@ -1088,7 +1107,7 @@ void QCanvas::drawViewArea(QCanvasView* view, QPainter* p, const QRect& vr, bool
 #else
         dbp.translate(-vr.x()-tl.x(),-vr.y()-tl.y());
 #endif
-        dbp.setClipRect(0,0,vr.width(), vr.height());
+	qt_setcliprect(&dbp,QRect(0,0,vr.width(), vr.height()));
         dbp.setBrushOrigin(-vr.x(), -vr.y());
         drawCanvasArea(ivr,&dbp,false);
         p->drawPixmap(vr.x(), vr.y(), offscr, 0, 0, vr.width(), vr.height());
@@ -1096,12 +1115,12 @@ void QCanvas::drawViewArea(QCanvasView* view, QPainter* p, const QRect& vr, bool
         QRect r = vr; r.moveBy(tl.x(),tl.y()); // move to untransformed co-ords
         if (!all.contains(ivr)) {
             QRegion inside = p->clipRegion() & r;
-            //QRegion outside = p->clipRegion() - r;
-            //p->setClipRegion(outside);
-            //p->fillRect(outside.boundingRect(),red);
-            p->setClipRegion(inside);
+//             QRegion outside = p->clipRegion() - r;
+// 	    p->setClipRegion(outside);
+//             p->fillRect(outside.boundingRect(),Qt::red);
+	    qt_setclipregion(p, inside);
         } else {
-            p->setClipRect(r);
+	    qt_setcliprect(p, r);
         }
 #ifndef QT_NO_TRANSFORMATIONS
         p->setWorldMatrix(wm*twm);
@@ -1124,7 +1143,7 @@ void QCanvas::update()
     QList<QRect> doneareas;
 #endif
 
-    for (int i = 0; i < 0; ++i) {
+    for (int i = 0; i < d->viewList.size(); ++i) {
         QCanvasView *view = d->viewList.at(i);
 #ifndef QT_NO_TRANSFORMATIONS
         QWMatrix wm = view->worldMatrix();
@@ -1137,7 +1156,7 @@ void QCanvas::update()
                 // r = Visible area of the canvas where there are changes
                 QRect r = changeBounds(view->inverseWorldMatrix().map(area));
                 if (!r.isEmpty()) {
-                    view->repaint(r);
+		    view->repaint(r);
                     doneareas.append(r);
                 }
             } else
@@ -1148,10 +1167,10 @@ void QCanvas::update()
         }
     }
 
-    for (int i = 0; i < 0; ++i) {  //### inefficient??? (was painting outside paintevent)
+    for (int i = 0; i < d->viewList.size(); ++i) {  //### inefficient??? (was painting outside paintevent)
         QCanvasView *view = d->viewList.at(i);
         for (int i=0; i<clusterizer.clusters(); i++)
-            view->repaint(clusterizer[i]);
+	    drawChanges(clusterizer[i]);
     }
 #ifndef QT_NO_TRANSFORMATIONS
     for (int i = 0; i < doneareas.size(); ++i)
@@ -1272,6 +1291,8 @@ QRect QCanvas::changeBounds(const QRect& inarea)
 \internal
 Redraws the area \a inarea of the QCanvas.
 */
+
+static bool updateChanges = false;
 void QCanvas::drawChanges(const QRect& inarea)
 {
     QRect area=inarea.intersect(QRect(0,0,width(),height()));
@@ -1299,13 +1320,17 @@ void QCanvas::drawChanges(const QRect& inarea)
 
     for (int i=0; i<clusters.clusters(); i++) {
         QRect elarea=clusters[i];
-        elarea.setRect(
-            elarea.left()*chunksize,
-            elarea.top()*chunksize,
-            elarea.width()*chunksize,
-            elarea.height()*chunksize
-       );
-        drawCanvasArea(elarea);
+        elarea.setRect(elarea.left()*chunksize,
+		       elarea.top()*chunksize,
+		       elarea.width()*chunksize,
+		       elarea.height()*chunksize);
+//	drawCanvasArea(elarea);
+	for (int i = 0; i < d->viewList.size(); ++i) {
+	    QCanvasView* view = d->viewList.at(i);
+	    updateChanges = true; // ### hack for now
+	    view->viewport()->repaint(elarea);
+	    updateChanges = false;
+	}
     }
 }
 
@@ -1372,16 +1397,16 @@ void QCanvas::drawCanvasArea(const QRect& inarea, QPainter* p, bool double_buffe
             //
             // Disable this to help debugging.
             //
-            if (!p) {
+	    if (!p || updateChanges) {
                 if (chunk(x,y).takeChange()) {
                     // ### should at least make bands
                     rgn |= QRegion(x*chunksize-area.x(),y*chunksize-area.y(),
                                     chunksize,chunksize);
                     allvisible += *chunk(x,y).listPtr();
                 }
-            } else {
-                allvisible += *chunk(x,y).listPtr();
-            }
+             } else {
+                 allvisible += *chunk(x,y).listPtr();
+             }
         }
     }
     allvisible.sort();
@@ -1394,9 +1419,9 @@ void QCanvas::drawCanvasArea(const QRect& inarea, QPainter* p, bool double_buffe
         painter.begin(&offscr);
         painter.translate(-area.x(),-area.y());
         if (p) {
-            painter.setClipRect(QRect(0,0,area.width(),area.height()));
+            qt_setcliprect(&painter, QRect(0,0,area.width(),area.height()));
         } else {
-            painter.setClipRegion(rgn);
+	    qt_setclipregion(&painter, rgn);
         }
         drawBackground(painter,area);
         allvisible.drawUnique(painter);
@@ -1431,12 +1456,12 @@ void QCanvas::drawCanvasArea(const QRect& inarea, QPainter* p, bool double_buffe
         trtr += rtr; // add to total
         if (double_buffer) {
             rgn.translate(rtr.x(),rtr.y());
-            painter.setClipRegion(rgn);
+	    qt_setclipregion(&painter, rgn);
             painter.drawPixmap(tr,offscr, QRect(QPoint(0,0),area.size()));
         } else {
             painter.translate(nrtr.x(),nrtr.y());
             rgn.translate(rtr.x(),rtr.y());
-            painter.setClipRegion(rgn);
+	    qt_setclipregion(&painter, rgn);
             drawBackground(painter,area);
             allvisible.drawUnique(painter);
             drawForeground(painter,area);
@@ -1659,7 +1684,7 @@ void QCanvas::drawBackground(QPainter& painter, const QRect& clip)
 void QCanvas::drawForeground(QPainter& painter, const QRect& clip)
 {
     if (debug_redraw_areas) {
-        painter.setPen(Qt::red);
+	painter.setPen(Qt::red);
         painter.setBrush(Qt::NoBrush);
         painter.drawRect(clip);
     }
@@ -3436,6 +3461,9 @@ QCanvasView::QCanvasView(QWidget* parent, const char* name, Qt::WFlags f) :
 {
     d = new QCanvasViewData;
     viewing = 0;
+    viewport()->setAttribute(Qt::WA_PaintOnScreen);
+    viewport()->setAttribute(Qt::WA_NoSystemBackground);
+    viewport()->setAttribute(Qt::WA_NoBackground);
     setCanvas(0);
     connect(this,SIGNAL(contentsMoving(int,int)),this,SLOT(cMoving(int,int)));
 }
@@ -3451,6 +3479,10 @@ QCanvasView::QCanvasView(QCanvas* canvas, QWidget* parent, const char* name, Qt:
 {
     d = new QCanvasViewData;
     viewing = 0;
+
+    viewport()->setAttribute(Qt::WA_PaintOnScreen);
+    viewport()->setAttribute(Qt::WA_NoSystemBackground);
+    viewport()->setAttribute(Qt::WA_NoBackground);
     setCanvas(canvas);
 
     connect(this,SIGNAL(contentsMoving(int,int)),this,SLOT(cMoving(int,int)));
@@ -3586,7 +3618,7 @@ void QCanvasView::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 {
     QRect r(cx,cy,cw,ch);
     if (viewing) {
-        //viewing->drawViewArea(this,p,r,true);
+//         viewing->drawViewArea(this,p,r,true);
         viewing->drawViewArea(this,p,r,!d->repaint_from_moving);
         d->repaint_from_moving = false;
     } else {
