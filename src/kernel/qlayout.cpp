@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qlayout.cpp#57 $
+** $Id: //depot/qt/main/src/kernel/qlayout.cpp#58 $
 **
 ** Implementation of layout classes
 **
@@ -33,7 +33,9 @@ public:
     enum Type { Error, Layout, Widget, Spacer };
     QLayoutBox( QLayout* );
     QLayoutBox( QWidget*);
-    QLayoutBox( int w, int h, bool hStretch=FALSE, bool vStretch=FALSE );
+    //    QLayoutBox( int w, int h, bool hStretch=FALSE, bool vStretch=FALSE );
+    QLayoutBox( int w, int h, QSizeData hData=QSizeData::MayGrow,
+		QSizeData vData= QSizeData::MayGrow );
     ~QLayoutBox() {}
 
     Type type() const { return myType; }
@@ -91,18 +93,28 @@ static QSize smartMinSize( QWidget *w )
     if ( !w->sizePolicy().verData().mayShrink() )
 	s.setHeight( w->sizeHint().height() );
 
-    return s.expandedTo( w->minimumSize() );
+    QSize min = w->minimumSize();
+    if ( min.width() > 0 )
+	s.setWidth( min.width() );
+    if ( min.height() > 0 )
+	s.setHeight( min.height() );
+
+    return s;
 }
 
 //returns the max size of a box containing \a w with alignment \a align.
 static QSize smartMaxSize( QWidget *w, int align = 0 )
 {
-    QSize s( QCOORD_MAX, QCOORD_MAX );
-    if ( !w->sizePolicy().horData().mayGrow() )
-       s.setWidth( w->sizeHint().width() );
-    if ( !w->sizePolicy().verData().mayGrow() )
-       s.setHeight( w->sizeHint().height() );
-    s = s.boundedTo( w->maximumSize() );
+    QSize s = w->maximumSize();
+    if ( s.width() == QCOORD_MAX )
+	if ( !w->sizePolicy().horData().mayGrow() )
+	    s.setWidth( w->sizeHint().width() );
+
+    if ( s.height() ==  QCOORD_MAX )
+	if ( !w->sizePolicy().verData().mayGrow() )
+	    s.setHeight( w->sizeHint().height() );
+
+    //s = s.expandedTo( w->minimumSize() ); //### ???
     
     if (align & HorAlign )
 	s.setWidth( QCOORD_MAX );
@@ -110,8 +122,8 @@ static QSize smartMaxSize( QWidget *w, int align = 0 )
 	s.setHeight( QCOORD_MAX );
     return s;
 }
-
-//this one gives the "soft max" size
+#if 0
+//this one gives the "soft max" size -- probably buggy
 static QSize smartMaxPrefSize( QWidget *w )
 {
     QSize s( QCOORD_MAX, QCOORD_MAX );
@@ -122,7 +134,7 @@ static QSize smartMaxPrefSize( QWidget *w )
 
     return s.boundedTo( w->maximumSize() );
 }
-
+#endif
 QLayoutBox::QLayoutBox( QLayout *l )
 {
     init();
@@ -136,29 +148,18 @@ QLayoutBox::QLayoutBox( QWidget *w )
     wid = w;
 }
 
-//####### should be hPol, vPol as parameters???
-// Now, a size parameter of -1 means "0, mayStretch"
-QLayoutBox::QLayoutBox( int w, int h, bool hStretch, bool vStretch )
+//construct a spacer, default gives w,h as minimum size, and mayGrow
+QLayoutBox::QLayoutBox( int w, int h, QSizeData hData, QSizeData vData )
 {
     init();
     myType = Spacer;
     width = QMAX( 0, w );
     height = QMAX( 0, h );
 
-    QSizePolicy::SizeType hPol = QSizePolicy::NoGrow;
-    QSizePolicy::SizeType vPol = QSizePolicy::NoGrow;
-
-    if ( hStretch )
-	hPol = QSizePolicy::WannaGrow;
-    else if ( w < 0 )
-	hPol = QSizePolicy::MayGrow;
-    if ( vStretch )
-	vPol = QSizePolicy::WannaGrow;
-    else if ( h < 0 )
-	vPol = QSizePolicy::MayGrow;
-
-    sizeP = QSizePolicy( hPol, vPol );
+    sizeP = QSizePolicy( hData, vData );
 }
+
+
 
 void QLayoutBox::init()
 {
@@ -182,7 +183,7 @@ void QLayoutBox::setGeometry( const QRect &r )
 	QSize s = r.size().boundedTo( smartMaxSize( wid ) );
 	int x = r.x();
 	int y = r.y();
-	QSize pref = wid->sizeHint();
+	QSize pref = wid->sizeHint().expandedTo( wid->minimumSize() ); //###
 	
 	if ( align & HorAlign )
 	    s.setWidth( QMIN( s.width(), pref.width() ) );
@@ -506,10 +507,10 @@ QLayoutArray::QLayoutArray()
 }
 
 QLayoutArray::QLayoutArray( int nRows, int nCols )
-    :rowData(nRows), colData(nCols)
+    :rowData(0), colData(0)
 {
     init();
-    rr = nRows; cc = nCols;
+    setSize( nRows, nCols );
 }
 void QLayoutArray::init()
 {
@@ -629,16 +630,14 @@ QSize QLayoutArray::minimumSize( int spacer )
 
 void QLayoutArray::setSize( int r, int c )
 {
-    int newR = rr;
-    int newC = cc;
     if ( (int)rowData.size() < r ) {
-	newR = QMAX(r,rr*2);
+	int newR = QMAX(r,rr*2);
 	rowData.resize( newR );
 	for ( int i = rr; i < newR; i++ )
 	    rowData[i].init();
     }
     if ( (int)colData.size() < c ) {
-	newC = QMAX(c,cc*2);
+	int newC = QMAX(c,cc*2);
 	colData.resize( newC );
 	for ( int i = cc; i < newC; i++ )
 	    colData[i].init();
@@ -705,6 +704,38 @@ void QLayoutArray::addData ( QLayoutBox *box, bool r, bool c )
 
 }
 
+
+static void distributeMultiBox( QArray<LayoutStruct> &chain, 
+				int start, int end,
+				int minSize, int sizeHint )
+{
+    //###distribute the sizes somehow.
+    int i;
+    int w = 0;
+    bool exp = FALSE;
+    
+    for ( i = start; i <= end; i++ ) {
+	w += chain[i].minimumSize;
+	exp = exp || chain[i].expansive && 
+	             chain[i].maximumSize > chain[i].minimumSize;
+    }
+    if ( w < minSize ) {
+	//	debug( "Big multicell" );
+	int diff = minSize - w;
+	for ( i = start; i <= end; i++ ) {
+	    if ( chain[i].maximumSize > chain[i].minimumSize 
+		 && ( chain[i].expansive || !exp ) ) {
+		chain[i].minimumSize += diff; //#################
+		if ( chain[i].sizeHint < chain[i].minimumSize )
+		     chain[i].sizeHint = chain[i].minimumSize;
+		break;
+	    }
+	}
+    }
+}
+
+
+
 //#define QT_LAYOUT_DISABLE_CACHING
 void QLayoutArray::setupLayoutData()
 {
@@ -736,37 +767,25 @@ void QLayoutArray::setupLayoutData()
 	    int c1 = box->col;
 	    int r2 = mbox->torow;
 	    int c2 = mbox->tocol;
-	    int w = 0;
 	    QSize hint = box->sizeHint();
+	    QSize min = box->minimumSize();
 	    if ( r1 == r2 ) {
 		addData( box, TRUE, FALSE );
 	    } else {
-		    //###distribute the sizes somehow.
-		int r;
-		for ( r = r1; r <= r2; r++ )
-		    w += rowData[r].sizeHint;
-		if ( w < hint.height() ) {
-		    debug( "Overtall multicell" );
-		}
+		distributeMultiBox( rowData, r1, r2,
+				    min.height(), hint.height() );
 	    }
 	    if ( c1 == c2 ) {
 		addData( box, FALSE, TRUE );
 	    } else {
-		    //###distribute the sizes somehow.
-		int c;
-		for ( c = c1; c <= c2; c++ )
-		    w += colData[c].sizeHint;
-		if ( w < hint.width() ) {
-		    debug( "Overwide multicell" );
-		}
+		distributeMultiBox( colData, c1, c2, 
+				    min.width(), hint.width() );
 	    }
 	}
     }
-
     for ( i = 0; i < rr; i++ ) {
 	rowData[i].expansive = rowData[i].maximumSize > rowData[i].sizeHint &&
 			    ( rowData[i].expansive || rowData[i].stretch > 0 );
-	
     }
     for ( i = 0; i < cc; i++ ) {
 	colData[i].expansive = colData[i].maximumSize > colData[i].sizeHint &&
@@ -1099,7 +1118,6 @@ void QGridLayout::expand( int nRows, int nCols )
 void QGridLayout::init( int nRows, int nCols )
 {
     array = new QLayoutArray( nRows, nCols );
-    expand( nRows, nCols );
 }
 
 
@@ -1408,11 +1426,15 @@ void QBoxLayout::addSpacing( int size )
     if ( horz( dir ) ) {
 	int n = numCols();
 	expand( 1, n+1 );
-	QGridLayout::addColSpacing( n, size ) ;
+	QLayoutBox *b = new QLayoutBox( size, 0, QSizeData::NoGrow,
+					QSizeData::MayGrow );
+	add( b, 0, n ) ;
     } else {
 	int n = numRows();
 	expand( n+1, 1 );
-	QGridLayout::addRowSpacing( n, size ) ;
+	QLayoutBox *b = new QLayoutBox( 0, size, QSizeData::MayGrow,
+					QSizeData::NoGrow );
+	add( b, n, 0 ) ;
     }
 }
 
@@ -1429,15 +1451,16 @@ void QBoxLayout::addStretch( int stretch )
     if ( horz( dir ) ) {
 	int n = numCols();
 	expand( 1, n+1 );
-	QLayoutBox *b = new QLayoutBox(0,-1,TRUE,FALSE);
+	QLayoutBox *b = new QLayoutBox( 0, 0, QSizeData::WannaGrow,
+				       QSizeData::MayGrow );
 	add( b, 0, n ) ;
 	setColStretch( n, stretch );
     } else {
 	int n = numRows();
 	expand( n+1, 1 );
-	QLayoutBox *b = new QLayoutBox(-1,0,FALSE,TRUE);
+	QLayoutBox *b = new QLayoutBox( 0, 0, QSizeData::MayGrow,
+					QSizeData::WannaGrow );
 	add( b, n, 0 ) ;
-	//	QGridLayout::addRowSpacing( n, 0 ) ;
 	setRowStretch( n, stretch );
     }
 }
