@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpicture.cpp#43 $
+** $Id: //depot/qt/main/src/kernel/qpicture.cpp#44 $
 **
 ** Implementation of QPicture class
 **
@@ -16,7 +16,7 @@
 #include "qfile.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpicture.cpp#43 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpicture.cpp#44 $");
 
 
 /*!
@@ -74,6 +74,39 @@ static const UINT16 mfhdr_min = 0;		// minor version #
   \fn QPicture::~QPicture()
   Destroys the picture.
 */
+
+
+/*!
+  \fn bool QPicture::isNull() const
+  Returns TRUE if the picture contains no data, otherwise FALSE.
+*/
+
+/*!
+  \fn uint QPicture::size() const
+  Returns the size of the picture data.
+  \sa data()
+*/
+
+/*!
+  \fn const char *QPicture::data() const
+  Returns a pointer to the picture data.  The returned pointer is null
+  if the picture contains no data.
+  \sa size(), isNull()
+*/
+
+/*!
+  Sets the picture data directly from \a data and \a size. This function
+  copies the input data.
+  \sa data(), size()
+*/
+
+void QPicture::setData( const char *data, uint size )
+{
+    QByteArray a( size );
+    memcpy( a.data(), data, size );
+    pictb.setBuffer( a );			// set byte array in buffer
+    formatOk = FALSE;				// we'll have to check
+}
 
 
 /*!
@@ -168,9 +201,9 @@ bool QPicture::play( QPainter *painter )
 	    return FALSE;
 	}
 	formatOk = TRUE;			// picture seems to be ok
-    }
-    else
+    } else {
 	s.device()->at( 10 );			// go directly to the data
+    }
 
     UINT8  c, clen;
     UINT32 nrecords;
@@ -352,9 +385,9 @@ bool QPicture::exec( QPainter *painter, QDataStream &s, int nrecords )
 		break;
 	    case PDC_SETTABARRAY:
 		s >> i_16;
-		if ( i_16 == 0 )
+		if ( i_16 == 0 ) {
 		    painter->setTabArray( 0 );
-		else {
+		} else {
 		    int *ta = new int[i_16];
 		    CHECK_PTR( ta );
 		    for ( int i=0; i<i_16; i++ ) {
@@ -428,8 +461,7 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
 	s << (UINT32)trecs;			// total number of records
 	formatOk = FALSE;
 	return TRUE;
-    }
-    else if ( c == PDC_END ) {			// end; calc checksum and close
+    } else if ( c == PDC_END ) {		// end; calc checksum and close
 	trecs++;
 	s << (UINT8)c << (UINT8)0;
 	QByteArray buf = pictb.buffer();
@@ -543,8 +575,7 @@ bool QPicture::cmd( int c, QPainter *, QPDevCmdParam *p )
     if ( length < 255 ) {			// write 8-bit length
 	pictb.at(pos - 1);			// position to right index
 	s << (UINT8)length;
-    }
-    else {					// write 32-bit length
+    } else {					// write 32-bit length
 	s << (UINT32)0;				// extend the buffer
 	pictb.at(pos - 1);			// position to right index
 	s << (UINT8)255;			// indicate 32-bit length
