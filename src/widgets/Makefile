@@ -48,7 +48,7 @@ $(TARGET): $(OBJECTS) $(OBJMETA)
 	ar q $(TARGET) $(OBJECTS) $(OBJMETA)
 	ranlib $(TARGET)
 
-rcs:: Makefile ./RCS/$$@,v
+rcs:: ./RCS/$$@,v
 
 showfiles:
 	@echo $(HEADERS) $(SOURCES)
