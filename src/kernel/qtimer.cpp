@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qtimer.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qtimer.cpp#29 $
 **
 ** Implementation of QTimer class
 **
@@ -13,7 +13,7 @@
 #include "qsignal.h"
 #include "qobjcoll.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#28 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#29 $");
 
 
 /*!
@@ -46,7 +46,7 @@ RCSTAG("$Id: //depot/qt/main/src/kernel/qtimer.cpp#28 $");
   user interface: \code
     QTimer *t = new QTimer( myObject );
     connect( t, SIGNAL(timeout()), SLOT(processOneThing()) );
-    t->start( 0, TRUE );
+    t->start( 0, FALSE );
   \endcode
 
   myObject->processOneThing() will be called repeatedly and should
