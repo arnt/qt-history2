@@ -296,26 +296,23 @@ MetrowerksMakefileGenerator::init()
     }
     MakefileGenerator::init();
 
-    //set the files to the type I expect
+    //let metrowerks find the files & set the files to the type I expect
     QDict<void> seen(293);
-    QStringList &s = project->variables()["SOURCES"];
-    for(QStringList::Iterator src_it = s.begin(); src_it != s.end(); ++src_it) {
-	seen.insert((*src_it), (void *)1);
-	createFork((*src_it)); //the file itself
-	QStringList &d = depends[(*src_it)]; //depends
-	for(QStringList::Iterator dep_it = d.begin(); dep_it != d.end(); ++dep_it) {
-	    if(!seen.find((*dep_it))) {
-		seen.insert((*dep_it), (void *)1);
-		createFork((*dep_it));
-	    }
-	}
-    }
-
-    //let metrowerks find the files
     QString paths[] = { QString("SOURCES"),QString("HEADERS"),QString::null };
     for(int y = 0; paths[y] != QString::null; y++) {
 	QStringList &l = project->variables()[paths[y]];
 	for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
+	    //establish file types
+	    seen.insert((*val_it), (void *)1);
+	    createFork((*val_it)); //the file itself
+	    QStringList &d = depends[(*val_it)]; //depends
+	    for(QStringList::Iterator dep_it = d.begin(); dep_it != d.end(); ++dep_it) {
+		if(!seen.find((*dep_it))) {
+		    seen.insert((*dep_it), (void *)1);
+		    createFork((*dep_it));
+		}
+	    }
+	    //now chop it
 	    int s = (*val_it).findRev('/');
 	    if(s != -1) {
 		QString dir = (*val_it).left(s);
