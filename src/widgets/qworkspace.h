@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.h#3 $
+** $Id: //depot/qt/main/src/widgets/qworkspace.h#4 $
 **
 ** Definition of the QWorkspace class
 **
@@ -51,9 +51,6 @@ public:
     QWorkspace( QWidget *parent=0, const char *name=0 );
     ~QWorkspace();
 
-    bool autoManage();
-    void setAutoManage( bool );
-
     void activateClient( QWidget* w);
     void maximizeClient( QWidget* w);
     void minimizeClient( QWidget* w);
@@ -65,7 +62,6 @@ protected:
     void resizeEvent( QResizeEvent * );
 
 private:
-    bool manage;
     QWorkspaceChild* active;
     QList<QWorkspaceChild> windows;
     void insertIcon( QWidget* w);

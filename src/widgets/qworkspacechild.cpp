@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#5 $
+** $Id: //depot/qt/main/src/widgets/qworkspacechild.cpp#6 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -157,7 +157,7 @@ static const char * normalize_xpm[] = {
 
 
 QWorkspaceChildTitelBar::QWorkspaceChildTitelBar (QWorkspace* w, QWidget* parent, const char* name, bool iconMode )
-    : QWidget( parent, name )
+    : QWidget( parent, name, WStyle_Customize | WStyle_NoBorder )
 {
     workspace = w;
     buttonDown = FALSE;
@@ -179,7 +179,7 @@ QWorkspaceChildTitelBar::QWorkspaceChildTitelBar (QWorkspace* w, QWidget* parent
     iconB = new QToolButton( this, "iconify" );
     iconB->setFocusPolicy( NoFocus );
     iconB->resize(BUTTON_SIZE, BUTTON_SIZE);
-    
+
     if ( imode ) {
 	iconB->setIconSet( QPixmap( normalize_xpm ) );
 	connect( iconB, SIGNAL( clicked() ),
@@ -325,7 +325,7 @@ bool QWorkspaceChildTitelBar::isActive() const
 }
 
 QWorkspaceChild::QWorkspaceChild( QWidget* window, QWorkspace *parent=0, const char *name=0 )
-    : QFrame( parent, name )
+    : QFrame( parent, name, WStyle_Customize | WStyle_NoBorder )
 {
     mode = 0;
     buttonDown = FALSE;

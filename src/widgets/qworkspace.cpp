@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#3 $
+** $Id: //depot/qt/main/src/widgets/qworkspace.cpp#4 $
 **
 ** Implementation of the QWorkspace class
 **
@@ -45,7 +45,6 @@
 QWorkspace::QWorkspace( QWidget *parent=0, const char *name=0 )
     : QWidget( parent, name )
 {
-    manage = TRUE;
     active = 0;
 
     px = 0;
@@ -58,32 +57,14 @@ QWorkspace::~QWorkspace()
 }
 
 
-/*!
-  Returns whether the workspace automatically manages new child
-  windows. The default is TRUE.
- */
-bool QWorkspace::autoManage()
-{
-    return manage;
-}
-
-/*!
-  Sets whether the workspace should automatically manages new child
-  windows. The default is TRUE.
- */
-void QWorkspace::setAutoManage( bool m)
-{
-    manage = m;
-}
-
-
 void QWorkspace::childEvent( QChildEvent * e)
 {
 
     if (e->inserted() && e->child()->isWidgetType()) {
 	QWidget* w = (QWidget*) e->child();
-	if ( !manage || w->inherits("QWorkspaceChild") || icons.contains( w ) )
-	    return; 	    // already here
+	if ( w->testWFlags( WStyle_Customize | WStyle_NoBorder ) 
+	      || icons.contains( w ) )
+	    return; 	    // nothing to do
 	
 	bool doShow = w->isVisible();
 	
@@ -111,7 +92,7 @@ void QWorkspace::activateClient( QWidget* w)
 	if (c->clientWidget() == w)
 	    active = c;
     }
-    
+
     if (!active)
 	return;
 
