@@ -147,6 +147,7 @@ private:
 	int index;
 	int offset;
 	int line;
+	QSize fixedExtent;
 	QGuardedPtr<QDockArea> area;
     };
 

@@ -566,6 +566,19 @@ int QDockArea::lineOf( int index )
 void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r, bool swap )
 {
     invalidateFixedSizes();
+    int mse = -10;
+    bool hasResizable = FALSE;
+    for ( QDockWindow *dw = dockWindows->first(); dw; dw = dockWindows->next() ) {
+	if ( dw->isResizeEnabled() )
+	    hasResizable = TRUE;
+	if ( orientation() != Qt::Horizontal )
+	    mse = QMAX( QMAX( dw->fixedExtent().width(), dw->width() ), mse );
+	else
+	    mse = QMAX( QMAX( dw->fixedExtent().height(), dw->height() ), mse );
+    }
+    if ( !hasResizable )
+	mse = 200;
+
     QDockWindow *dockWindow = 0;
     int dockWindowIndex = findDockWindow( w );
     QList<QDockWindow> lineStarts = layout->lineStarts();
@@ -744,6 +757,13 @@ void QDockArea::moveDockWindow( QDockWindow *w, const QPoint &p, const QRect &r,
 	}
     }
 
+    if ( mse != -10 ) {
+	if ( orientation() != Qt::Horizontal )
+	    w->setFixedExtentWidth( QMIN( QMAX( w->minimumWidth(), mse ), w->sizeHint().width() ) );
+	else
+	    w->setFixedExtentHeight( QMIN( QMAX( w->minimumHeight(), mse ), w->sizeHint().height() ) );
+    }
+
     updateLayout();
     setSizePolicy( QSizePolicy( orientation() == Horizontal ? QSizePolicy::Expanding : QSizePolicy::Minimum,
 				orientation() == Vertical ? QSizePolicy::Expanding : QSizePolicy::Minimum ) );
@@ -891,6 +911,7 @@ QDockArea::DockWindowData *QDockArea::dockWindowData( QDockWindow *w )
     data->line = i;
     data->offset = point_pos( QPoint( w->x(), w->y() ), orientation() );
     data->area = this;
+    data->fixedExtent = w->fixedExtent();
     return data;
 }
 
@@ -937,6 +958,10 @@ void QDockArea::dockWindow( QDockWindow *dockWindow, DockWindowData *data )
 	dockWindows->insert( index, dockWindow );
     }
     dockWindow->show();
+
+    dockWindow->setFixedExtentWidth( data->fixedExtent.width() );
+    dockWindow->setFixedExtentHeight( data->fixedExtent.height() );
+
     updateLayout();
     setSizePolicy( QSizePolicy( orientation() == Horizontal ? QSizePolicy::Expanding : QSizePolicy::Minimum,
 				orientation() == Vertical ? QSizePolicy::Expanding : QSizePolicy::Minimum ) );
