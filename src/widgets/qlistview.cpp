@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qlistview.cpp#195 $
+** $Id: //depot/qt/main/src/widgets/qlistview.cpp#196 $
 **
 ** Implementation of QListView widget class
 **
@@ -2882,7 +2882,7 @@ void QListView::setSelected( QListViewItem * item, bool selected )
 	setCurrentItem( item );
 
     if ( !isMultiSelection() )
-	emit selectionChanged( item );
+	emit selectionChanged( selected ? item : 0 );
     emit selectionChanged();
 }
 
