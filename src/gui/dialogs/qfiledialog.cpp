@@ -343,9 +343,12 @@ void QFileDialog::selectFile(const QString &filename)
 QStringList QFileDialog::selectedFiles() const
 {
     QModelIndexList items = d->selectedItems();
+    qDebug("selected items list count %d", items.count());
     QStringList files;
     for (int i = 0; i < items.count(); ++i)
         files.append(d->model->fileInfo(items.at(i)).filePath());
+    if (d->fileMode == AnyFile && files.count() <= 0) // a new filename
+        files.append(d->fileName->text());
     return files;
 }
 
@@ -441,12 +444,11 @@ void QFileDialog::accept()
         if (d->model->isDir(indices.last()))
             QDialog::accept();
         return;
-    case ExistingFile:// FIXME: not supported, as we rely on selected files
-        qDebug("accept: ExistingFile is not supported yet");
     case AnyFile:
         if (!d->model->isDir(indices.last()))
             QDialog::accept();
         return;
+    case ExistingFile:// FIXME: not supported, as we rely on selected files
     case ExistingFiles:
         for (int i = 0; i < indices.count(); ++i)
             if (d->model->isDir(indices.last()))
@@ -563,11 +565,15 @@ void QFileDialog::textChanged(const QString &text)
         QModelIndex current = d->current();
         if (!current.isValid())
             current = d->model->topLeft(d->root());
-        QModelIndexList indices = d->model->match(current, QAbstractItemModel::Display, text, 1, true);
+        QModelIndexList indices = d->model->match(current,
+                                                  QAbstractItemModel::Display, text, 1, true);
         int key = d->fileName->lastKeyPressed();
-        if (indices.count() > 0 && key != Qt::Key_Delete && key != Qt::Key_Backspace) {
+        if (indices.count() <= 0) { // no matches
+            d->lview->selectionModel()->clear();
+        } else if (key != Qt::Key_Delete && key != Qt::Key_Backspace) {
             d->setCurrent(indices.first());
-            QString completed = d->model->data(indices.first(), QAbstractItemModel::Display).toString();
+            QString completed = d->model->data(indices.first(),
+                                               QAbstractItemModel::Display).toString();
             int start = completed.length();
             int length = text.length() - start; // negative length
             bool block = d->fileName->blockSignals(true);
