@@ -254,7 +254,7 @@ static QGuardedPtr<QWidget>* activeBeforePopup = 0; // focus handling with popup
 
 
 QWidget	       *qt_button_down	 = 0;		// widget got last button-down
-static WId qt_last_cursor = 0xffffffff;  // Was -1, but WIds are unsigned
+WId qt_last_cursor = 0xffffffff;  // Was -1, but WIds are unsigned
 
 extern bool qt_tryAccelEvent( QWidget*, QKeyEvent* ); // def in qaccel.cpp
 
@@ -1177,6 +1177,7 @@ void QWSDisplay::selectCursor( QWidget *w, unsigned int cursId )
 	cmd.simpleData.windowid = top->winId();
 	cmd.simpleData.id = cursId;
 	d->sendCommand( cmd );
+	d->flush();
     }
 }
 

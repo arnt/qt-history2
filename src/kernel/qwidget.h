@@ -659,6 +659,9 @@ private:
     void clearActivePainter() const;
     void updateActivePainter() const;
     void updateGraphicsContext( QGfx *qgfx_qws, bool clip_children ) const;
+#ifndef QT_NO_CURSOR
+    void updateCursor() const;
+#endif
 
     // used to accumulate dirty region when children moved/resized.
     QRegion dirtyChildren;

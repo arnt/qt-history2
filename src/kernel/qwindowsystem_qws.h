@@ -401,6 +401,7 @@ private:
     typedef QMap<int,QWSClient*> ClientMap;
     void releaseMouse(QWSWindow* w);
     void releaseKeyboard(QWSWindow* w);
+    void updateClientCursorPos();
 
     uchar* sharedram;
     int ramlen;

@@ -97,6 +97,8 @@ public:
     {
 	screensaverintervals = 0;
 	saver = 0;
+	cursorClient = 0;
+	mouseState = 0;
     }
     ~QWSServerData()
     {
@@ -107,6 +109,8 @@ public:
     QTimer* screensavertimer;
     int* screensaverintervals;
     QWSScreenSaver* saver;
+    QWSClient *cursorClient;
+    int mouseState;
     bool prevWin;
 };
 
@@ -1145,6 +1149,8 @@ void QWSServer::clientClosed()
 	}
     }
     client.remove( cl->socket() );
+    if ( cl == d->cursorClient )
+	d->cursorClient = 0;
     delete cl;
     exposeRegion( exposed );
     syncRegions();
@@ -1453,6 +1459,7 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state)
 	qwsServer->screenSaverWake();
 
     mousePosition = pos;
+    qwsServer->d->mouseState = state;
 
     QWSMouseEvent event;
 
@@ -1487,12 +1494,21 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state)
     event.simpleData.state=state | qws_keyModifiers;
     event.simpleData.time=qwsServer->timer.elapsed();
 
-
     QWSClient *serverClient = qwsServer->client[-1];
+    QWSClient *winClient = win ? win->client() : 0;
+
     if ( serverClient )
        serverClient->sendEvent( &event );
-    if ( win && win->client() && win->client() != serverClient )
-       win->client()->sendEvent( &event );
+    if ( winClient && winClient != serverClient )
+       winClient->sendEvent( &event );
+
+    // Make sure that if we leave a window, that window gets one last mouse
+    // event so that it knows the mouse has left.
+    QWSClient *oldClient = qwsServer->d->cursorClient;
+    if ( oldClient && oldClient != winClient && oldClient != serverClient )
+	oldClient->sendEvent( &event );
+
+    qwsServer->d->cursorClient = winClient;
 
     if ( !state && !qwsServer->mouseGrabbing )
 	qwsServer->releaseMouse(qwsServer->mouseGrabber);
@@ -1822,6 +1838,7 @@ void QWSServer::invokeRegion( QWSRegionCommand *cmd, QWSClient *client )
 	emit windowEvent( changingw, Hide );
     if ( focusw == changingw && region.isEmpty() )
 	setFocus(changingw,FALSE);
+    updateClientCursorPos();
 }
 
 void QWSServer::invokeRegionMove( const QWSRegionMoveCommand *cmd, QWSClient *client )
@@ -2074,18 +2091,20 @@ void QWSServer::invokeSelectCursor( QWSSelectCursorCommand *cmd, QWSClient *clie
 	curs = QWSCursor::systemCursor(ArrowCursor);
     }
 
+    QWSWindow* win = findWindow(cmd->simpleData.windowid, 0);
     if (mouseGrabber) {
 	// If the mouse is being grabbed, we don't want just anyone to
 	// be able to change the cursor.  We do want the cursor to be set
 	// correctly once mouse grabbing is stopped though.
-	QWSWindow* win = findWindow(cmd->simpleData.windowid, 0);
 	if (win != mouseGrabber)
 	    nextCursor = curs;
 	else
 	    setCursor(curs);
-    }
-    else
+    } else if (win && win->allocation().contains(mousePosition) ) {
+	// A non-grabbing window can only set the cursor shape if the
+	// cursor is within its allocated region.
 	setCursor(curs);
+    }
 }
 #endif
 
@@ -3006,6 +3025,14 @@ void QWSServer::screenSaverActivate(bool activate)
 void QWSServer::disconnectClient( QWSClient *c )
 {
     QTimer::singleShot( 0, c, SLOT(closeHandler()) );
+}
+
+void QWSServer::updateClientCursorPos()
+{
+    QWSWindow *win = qwsServer->mouseGrabber ? qwsServer->mouseGrabber : qwsServer->windowAt( mousePosition );
+    QWSClient *winClient = win ? win->client() : 0;
+    if ( winClient && winClient != d->cursorClient )
+	sendMouseEvent( mousePosition, d->mouseState );
 }
 
 
