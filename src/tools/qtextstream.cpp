@@ -735,7 +735,7 @@ inline static bool ts_end(const QChar *c, uint len, uchar flags)
 	end = c->isDigit();
 	break;
     case TS_HEX:
-	end = isxdigit(c);
+	end = isxdigit(*c);
 	break;
     case TS_BIN:
 	end = (c->isDigit() && (*c == '0' || *c == '1'));
