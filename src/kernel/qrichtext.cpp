@@ -4414,7 +4414,7 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 {
     if ( !visible )
 	return;
-    int i, y, h, baseLine, xstart, xend;
+    int i, y, h, baseLine, xstart, xend = 0;
     i = y =h = baseLine = 0;
     QRect cursorRect;
     drawSelections &= ( mSelections != 0 );
@@ -4582,10 +4582,10 @@ void QTextParagraph::paint( QPainter &painter, const QColorGroup &cg, QTextCurso
 
 //#define BIDI_DEBUG
 
-void QTextParagraph::setColorForSelection( QColor &color, QPainter &painter, 
+void QTextParagraph::setColorForSelection( QColor &color, QPainter &painter,
 					   const QColorGroup& cg, int selection )
 {
-    if (selection <= 0)
+    if (selection < 0)
 	return;
     color = ( hasdoc ?
 	  document()->selectionColor( selection ) :
