@@ -1318,7 +1318,7 @@ void QWin32PaintEngine::updateMatrix(const QMatrix &mtx)
         d->txop = QPainterPrivate::TxNone;
 
     d->matrix = mtx;
-    d->invMatrix = mtx.invert();
+    d->invMatrix = mtx.inverted();
 
 #ifndef QT_NO_NATIVE_XFORM
     d->setNativeMatrix(mtx);

@@ -939,7 +939,7 @@ QPixmap QPixmap::transform(const QMatrix &matrix, Qt::TransformationMode mode) c
     mat = trueMatrix(mat, ws, hs); // true matrix
 
     bool invertible;
-    mat = mat.invert(&invertible);                // invert matrix
+    mat = mat.inverted(&invertible);                // invert matrix
 
 
     if (h == 0 || w == 0 || !invertible) {        // error, return null pixmap
