@@ -551,19 +551,19 @@
     \section1 Code Examples
 
     \code
-    QRegExp rx("^\\d\\d?$");  // match integers 0 to 99
-    rx.search("123");         // returns -1 (no match)
-    rx.search("-6");          // returns -1 (no match)
-    rx.search("6");           // returns 0 (matched as position 0)
+    QRegExp rx("^\\d\\d?$");    // match integers 0 to 99
+    rx.indexIn("123");          // returns -1 (no match)
+    rx.indexIn("-6");           // returns -1 (no match)
+    rx.indexIn("6");            // returns 0 (matched as position 0)
     \endcode
 
     The third string matches '\underline{6}'. This is a simple validation
     regexp for integers in the range 0 to 99.
 
     \code
-    QRegExp rx("^\\S+$");     // match strings without whitespace
-    rx.search("Hello world"); // returns -1 (no match)
-    rx.search("This_is-OK");  // returns 0 (matched at position 0)
+    QRegExp rx("^\\S+$");       // match strings without whitespace
+    rx.indexIn("Hello world");  // returns -1 (no match)
+    rx.indexIn("This_is-OK");   // returns 0 (matched at position 0)
     \endcode
 
     The second string matches '\underline{This_is-OK}'. We've used the
@@ -576,8 +576,8 @@
 
     \code
     QRegExp rx("\\b(mail|letter|correspondence)\\b");
-    rx.search("I sent you an email");     // returns -1 (no match)
-    rx.search("Please write the letter"); // returns 17
+    rx.indexIn("I sent you an email");     // returns -1 (no match)
+    rx.indexIn("Please write the letter"); // returns 17
     \endcode
 
     The second string matches "Please write the \underline{letter}". The
@@ -613,7 +613,7 @@
     int pos = 0;    // where we are in the string
     int count = 0;  // how many Eric and Eirik's we've counted
     while (pos >= 0) {
-        pos = rx.search(str, pos);
+        pos = rx.indexIn(str, pos);
         if (pos >= 0) {
             pos++;      // move along in str
             count++;    // count our Eric or Eirik
@@ -621,7 +621,7 @@
     }
     \endcode
 
-    We've used the search() function to repeatedly match the regexp in
+    We've used the indexIn() function to repeatedly match the regexp in
     the string. Note that instead of moving forward by one character
     at a time \c pos++ we could have written \c {pos +=
     rx.matchedLength()} to skip over the already matched string. The
@@ -637,7 +637,7 @@
     str = "Trolltech AS\twww.trolltech.com\tNorway";
     QString company, web, country;
     rx.setPattern("^([^\t]+)\t([^\t]+)\t([^\t]+)$");
-    if (rx.search(str) != -1) {
+    if (rx.indexIn(str) != -1) {
         company = rx.cap(1);
         web = rx.cap(2);
         country = rx.cap(3);
@@ -678,8 +678,8 @@
     QRegExp can match case insensitively using setCaseSensitivity(),
     and can use non-greedy matching, see setMinimalMatching(). By
     default QRegExp uses full regexps but this can be changed with
-    setWildcard(). Searching can be forward with search() or backward
-    with searchRev(). Captured text can be accessed using
+    setWildcard(). Searching can be forward with indexIn() or backward
+    with lastIndexIn(). Captured text can be accessed using
     capturedTexts() which returns a string list of all captured
     strings, or using cap() which returns the captured string for the
     given index. The pos() function takes a match index and returns
@@ -3135,10 +3135,10 @@ struct QRegExpPrivate
     bool min : 1;
     QString::CaseSensitivity cs;
 #ifndef QT_NO_REGEXP_CAPTURE
-    QString t; // last string passed to QRegExp::search() or searchRev()
+    QString t; // last string passed to QRegExp::indexIn() or lastIndexIn()
     QStringList capturedCache; // what QRegExp::capturedTexts() returned last
 #endif
-    QVector<int> captured; // what QRegExpEngine::search() returned last
+    QVector<int> captured; // what QRegExpEngine::match() returned last
 
     QRegExpPrivate() : eng(0) { captured.fill(-1, 2); }
 };
@@ -3354,7 +3354,7 @@ bool QRegExp::operator==(const QRegExp &rx) const
 
     If you call exactMatch() with an empty pattern on an empty string
     it will return true; otherwise it returns false since it operates
-    over the whole string. If you call search() with an empty pattern
+    over the whole string. If you call indexIn() with an empty pattern
     on \e any string it will return the start offset (0 by default)
     because the empty pattern matches the 'emptiness' at the start of
     the string. In this case the length of the match returned by
@@ -3517,7 +3517,7 @@ void QRegExp::setMinimalMatching(bool minimal)
     the string was matched by calling matchedLength().
 
     For a given regexp string R, exactMatch("R") is the equivalent of
-    search("^R$") since exactMatch() effectively encloses the regexp
+    indexIn("^R$") since exactMatch() effectively encloses the regexp
     in the start of string and end of string anchors, except that it
     sets matchedLength() differently.
 
@@ -3529,7 +3529,7 @@ void QRegExp::setMinimalMatching(bool minimal)
     Although const, this function sets matchedLength(),
     capturedTexts(), and pos().
 
-    \sa search() searchRev() QRegExpValidator
+    \sa indexIn() lastIndexIn() QRegExpValidator
 */
 bool QRegExp::exactMatch(const QString &str) const
 {
@@ -3565,7 +3565,7 @@ bool QRegExp::exactMatch(const QString &str) const
         QRegExp rx("\\d*\\.\\d+");    // primitive floating point matching
         int count = 0;
         int pos = 0;
-        while ((pos = rx.search(str, pos)) != -1) {
+        while ((pos = rx.indexIn(str, pos)) != -1) {
             count++;
             pos += rx.matchedLength();
         }
@@ -3579,10 +3579,10 @@ bool QRegExp::exactMatch(const QString &str) const
     and want to test a string against the whole wildcard expression,
     use exactMatch() instead of this function.
 
-    \sa searchRev(), exactMatch()
+    \sa lastIndexIn(), exactMatch()
 */
 
-int QRegExp::search(const QString &str, int offset, CaretMode caretMode) const
+int QRegExp::indexIn(const QString &str, int offset, CaretMode caretMode) const
 {
     prepareEngineForMatch(priv, str);
     if (offset < 0)
@@ -3608,10 +3608,10 @@ int QRegExp::search(const QString &str, int offset, CaretMode caretMode) const
     \warning Searching backwards is much slower than searching
     forwards.
 
-    \sa search() exactMatch()
+    \sa indexIn() exactMatch()
 */
 
-int QRegExp::searchRev(const QString &str, int offset, CaretMode caretMode) const
+int QRegExp::lastIndexIn(const QString &str, int offset, CaretMode caretMode) const
 {
     prepareEngineForMatch(priv, str);
     if (offset < 0)
@@ -3636,7 +3636,7 @@ int QRegExp::searchRev(const QString &str, int offset, CaretMode caretMode) cons
     Returns the length of the last matched string, or -1 if there was
     no match.
 
-    \sa exactMatch() search() searchRev()
+    \sa exactMatch() indexIn() lastIndexIn()
 */
 int QRegExp::matchedLength() const
 {
@@ -3663,7 +3663,7 @@ int QRegExp::numCaptures() const
     For example:
     \code
         QRegExp rx("(\\d+)(\\s*)(cm|inch(es)?)");
-        int pos = rx.search("Length: 36 inches");
+        int pos = rx.indexIn("Length: 36 inches");
         QStringList list = rx.capturedTexts();
         // list is now ("36 inches", "36", " ", "inches", "es")
     \endcode
@@ -3674,7 +3674,7 @@ int QRegExp::numCaptures() const
 
     \code
         QRegExp rx("(\\d+)(?:\\s*)(cm|inch(?:es)?)");
-        int pos = rx.search("Length: 36 inches");
+        int pos = rx.indexIn("Length: 36 inches");
         QStringList list = rx.capturedTexts();
         // list is now ("36 inches", "36", "inches")
     \endcode
@@ -3694,7 +3694,7 @@ int QRegExp::numCaptures() const
     example if the input string is "Offsets: 12 14 99 231 7" and the
     regexp, \c{rx}, is \bold{(\\d+)+}, we would hope to get a list of
     all the numbers matched. However, after calling
-    \c{rx.search(str)}, capturedTexts() will return the list ("12",
+    \c{rx.indexIn(str)}, capturedTexts() will return the list ("12",
     "12"), i.e. the entire match was "12" and the first subexpression
     matched was "12". The correct approach is to use cap() in a \link
     #cap_in_a_loop loop \endlink.
@@ -3706,7 +3706,7 @@ int QRegExp::numCaptures() const
     capturedTexts()[2] is the text of the second and so on
     (corresponding to $1, $2, etc., in some other regexp languages).
 
-    \sa cap() pos() exactMatch() search() searchRev()
+    \sa cap() pos() exactMatch() indexIn() lastIndexIn()
 */
 QStringList QRegExp::capturedTexts()
 {
@@ -3719,7 +3719,7 @@ QStringList QRegExp::capturedTexts()
                 m = priv->t.mid(priv->captured[i], priv->captured[i + 1]);
             priv->capturedCache.append(m);
         }
-        priv->t = QString::null;
+        priv->t.clear();
     }
     return priv->capturedCache;
 }
@@ -3731,7 +3731,7 @@ QStringList QRegExp::capturedTexts()
 
     \code
     QRegExp rxlen("(\\d+)(?:\\s*)(cm|inch)");
-    int pos = rxlen.search("Length: 189cm");
+    int pos = rxlen.indexIn("Length: 189cm");
     if (pos > -1) {
         QString value = rxlen.cap(1); // "189"
         QString unit = rxlen.cap(2);  // "cm"
@@ -3755,7 +3755,7 @@ QStringList QRegExp::capturedTexts()
     QStringList list;
     pos = 0;
     while (pos >= 0) {
-        pos = rx.search(str, pos);
+        pos = rx.indexIn(str, pos);
         if (pos > -1) {
             list += rx.cap(1);
             pos  += rx.matchedLength();
@@ -3764,15 +3764,11 @@ QStringList QRegExp::capturedTexts()
     // list contains "12", "14", "99", "231", "7"
     \endcode
 
-    \sa capturedTexts() pos() exactMatch() search() searchRev()
+    \sa capturedTexts() pos() exactMatch() indexIn() lastIndexIn()
 */
 QString QRegExp::cap(int nth)
 {
-    if (nth < 0 || nth >= priv->captured.size() / 2) {
-        return QString::null;
-    } else {
-        return capturedTexts()[nth];
-    }
+    return capturedTexts().value(nth);
 }
 
 /*!
@@ -3783,7 +3779,7 @@ QString QRegExp::cap(int nth)
     Example:
     \code
     QRegExp rx("/([a-z]+)/([a-z]+)");
-    rx.search("Output /dev/null");    // returns 7 (position of /dev/null)
+    rx.indexIn("Output /dev/null");   // returns 7 (position of /dev/null)
     rx.pos(0);                        // returns 7 (position of /dev/null)
     rx.pos(1);                        // returns 8 (position of dev)
     rx.pos(2);                        // returns 12 (position of null)
@@ -3793,7 +3789,7 @@ QString QRegExp::cap(int nth)
     cap(4) would return an empty string, pos(4) returns -1.) This is
     due to an implementation tradeoff.
 
-    \sa capturedTexts() exactMatch() search() searchRev()
+    \sa capturedTexts() exactMatch() indexIn() lastIndexIn()
 */
 int QRegExp::pos(int nth)
 {

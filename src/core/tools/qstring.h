@@ -39,7 +39,6 @@
 class QCharRef;
 class QRegExp;
 class QStringList;
-class QStringMatcher;
 class QTextCodec;
 class QLatin1String;
 
@@ -128,11 +127,6 @@ public:
     int count(const QRegExp &) const;
 #endif
 
-    int indexOf(const QStringMatcher &, int from = 0) const;
-    int lastIndexOf(const QStringMatcher &, int from = -1) const;
-    inline QBool contains(const QStringMatcher &m) const { return QBool(indexOf(m) != -1); }
-    int count(const QStringMatcher &) const;
-
     enum SectionFlags {
         SectionDefault             = 0x00,
         SectionSkipEmpty           = 0x01,
@@ -193,9 +187,6 @@ public:
     inline QString &remove(const QRegExp &rx)
     { return replace(rx, QString()); }
 #endif
-    QString &replace(const QStringMatcher &before, const QString &after);
-    inline QString &remove(const QStringMatcher &before)
-    { return replace(before, QString()); }
 
     enum SplitBehavior { KeepEmptyParts, SkipEmptyParts };
 
@@ -472,7 +463,6 @@ private:
     void realloc(int alloc);
     void expand(int i);
     void updateProperties() const;
-    void do_replace(const QStringMatcher &, const QString &);
     QString multiArg(int numArgs, const QString &a1, const QString &a2,
                      const QString &a3 = QString(), const QString &a4 = QString()) const;
     friend class QCharRef;

@@ -81,15 +81,10 @@ void QByteArrayMatcher::setPattern(const QByteArray &pattern)
     q_pattern = pattern;
 }
 
-int QByteArrayMatcher::search(const QByteArray &ba, int from) const
+int QByteArrayMatcher::indexIn(const QByteArray &ba, int from) const
 {
     // ### what if (from < 1)
     return bm_find(reinterpret_cast<const uchar *>(ba.constData()), ba.size(), from,
                    reinterpret_cast<const uchar *>(q_pattern.constData()), q_pattern.size(),
                    q_skiptable);
-}
-
-int QByteArrayMatcher::searchRev(const QByteArray &ba, int from) const
-{
-    return ba.lastIndexOf(q_pattern, from);
 }

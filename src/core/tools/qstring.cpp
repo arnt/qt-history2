@@ -1331,31 +1331,43 @@ QString &QString::replace(int pos, int len, QChar after)
     return insert(pos, after);
 }
 
-static inline bool prepare_replace(QString &haystack, const QString &before, const QString &after, QString::CaseSensitivity cs)
+/*! \overload
+
+    Replaces every occurrence of the string \a before with the string
+    \a after.
+
+    If \a cs is QString::CaseSensitive (the default), the search is
+    case sensitive; otherwise the search is case insensitive.
+
+    Example:
+    \code
+        QString str = "colour behaviour flavour neighbour";
+        str.replace(QString("ou"), QString("o"));
+        // str == "color behavior flavor neighbor"
+    \endcode
+*/
+QString &QString::replace(const QString &before, const QString &after, CaseSensitivity cs)
 {
-    if (haystack.isEmpty()) {
-        if (!before.isEmpty())
-            return false;
+    if (d->size == 0) {
+        if (before.d->size)
+            return *this;
     } else {
-        if (cs == QString::CaseSensitive && before == after)
-            return false;
+        if (cs == CaseSensitive && before == after)
+            return *this;
     }
-    haystack.reserve(haystack.size());
-    return true;
-}
-
-void QString::do_replace(const QStringMatcher &matcher, const QString &after)
-{
     d->cache = 0;
+    if (d->ref != 1)
+        realloc(d->size);
 
+    QStringMatcher matcher(before, cs);
     int index = 0;
-    const int bl = matcher.pattern().d->size;
+    const int bl = before.d->size;
     const int al = after.d->size;
 
     if (bl == al) {
         if (bl) {
             const QChar *auc = (const QChar*) after.d->data;
-            while ((index = matcher.search(*this, index)) != -1) {
+            while ((index = matcher.indexIn(*this, index)) != -1) {
                 memcpy(d->data + index, auc, al * sizeof(QChar));
                 index += bl;
             }
@@ -1365,7 +1377,7 @@ void QString::do_replace(const QStringMatcher &matcher, const QString &after)
         uint to = 0;
         uint movestart = 0;
         uint num = 0;
-        while ((index = matcher.search(*this, index)) != -1) {
+        while ((index = matcher.indexIn(*this, index)) != -1) {
             if (num) {
                 int msize = index - movestart;
                 if (msize > 0) {
@@ -1396,7 +1408,7 @@ void QString::do_replace(const QStringMatcher &matcher, const QString &after)
             uint indices[4096];
             uint pos = 0;
             while (pos < 4095) {
-                index = matcher.search(*this, index);
+                index = matcher.indexIn(*this, index);
                 if (index == -1)
                     break;
                 indices[pos++] = index;
@@ -1429,27 +1441,6 @@ void QString::do_replace(const QStringMatcher &matcher, const QString &after)
             }
         }
     }
-}
-
-/*! \overload
-
-    Replaces every occurrence of the string \a before with the string
-    \a after.
-
-    If \a cs is QString::CaseSensitive (the default), the search is
-    case sensitive; otherwise the search is case insensitive.
-
-    Example:
-    \code
-        QString str = "colour behaviour flavour neighbour";
-        str.replace(QString("ou"), QString("o"));
-        // str == "color behavior flavor neighbor"
-    \endcode
-*/
-QString &QString::replace(const QString &before, const QString &after, CaseSensitivity cs)
-{
-    if (prepare_replace(*this, before, after, cs))
-        do_replace(QStringMatcher(before, cs), after);
     return *this;
 }
 
@@ -1828,7 +1819,7 @@ int QString::indexOf(const QString &str, int from, CaseSensitivity cs) const
         hash function.
     */
     if (l > 500 && sl > 5)
-        return QStringMatcher(str, cs).search(*this, from);
+        return QStringMatcher(str, cs).indexIn(*this, from);
 
     /*
         We use some hashing for efficiency's sake. Instead of
@@ -2049,7 +2040,7 @@ QString& QString::replace(const QRegExp& rx, const QString& after)
 {
     QRegExp rx2(rx);
 
-    if (isEmpty() && rx2.search(*this) == -1)
+    if (isEmpty() && rx2.indexIn(*this) == -1)
         return *this;
 
     d->cache = 0;
@@ -2096,7 +2087,7 @@ QString& QString::replace(const QRegExp& rx, const QString& after)
             }
 
             while (index <= length()) {
-                index = rx2.search(*this, index, caretMode);
+                index = rx2.indexIn(*this, index, caretMode);
                 if (index == -1)
                     break;
 
@@ -2133,7 +2124,7 @@ QString& QString::replace(const QRegExp& rx, const QString& after)
         uint pos = 0;
         int adjust = 0;
         while (pos < 2047) {
-            index = rx2.search(*this, index, caretMode);
+            index = rx2.indexIn(*this, index, caretMode);
             if (index == -1)
                 break;
             int ml = rx2.matchedLength();
@@ -2179,13 +2170,6 @@ QString& QString::replace(const QRegExp& rx, const QString& after)
 }
 #endif
 
-QString &QString::replace(const QStringMatcher &before, const QString &after)
-{
-    if (prepare_replace(*this, before.pattern(), after, before.caseSensitivity()))
-        do_replace(before, after);
-    return *this;
-}
-
 /*!
     Returns the number of (potentially overlapping) occurrences of
     the string \a str in this string.
@@ -2199,8 +2183,14 @@ int QString::count(const QString &str, CaseSensitivity cs) const
 {
     int num = 0;
     int i = -1;
-    while ((i = indexOf(str, i + 1, cs)) != -1)
-        ++num;
+    if (d->size > 500 && str.d->size > 5) {
+        QStringMatcher matcher(str, cs);
+        while ((i = matcher.indexIn(*this, i + 1)) != -1)
+            ++num;
+    } else {
+        while ((i = indexOf(str, i + 1, cs)) != -1)
+            ++num;
+    }
     return num;
 }
 
@@ -2276,7 +2266,7 @@ int QString::count(QChar ch, CaseSensitivity cs) const
 */
 int QString::indexOf(const QRegExp& rx, int from) const
 {
-    return rx.search(*this, from);
+    return rx.indexIn(*this, from);
 }
 
 /*!
@@ -2294,7 +2284,7 @@ int QString::indexOf(const QRegExp& rx, int from) const
 */
 int QString::lastIndexOf(const QRegExp& rx, int from) const
 {
-    return rx.searchRev(*this, from);
+    return rx.lastIndexIn(*this, from);
 }
 
 /*! \overload
@@ -2316,7 +2306,7 @@ int QString::count(const QRegExp& rx) const
     int index = -1;
     int len = length();
     while (index < len - 1) {                 // count overlapping matches
-        index = rx.search(*this, index + 1);
+        index = rx.indexIn(*this, index + 1);
         if (index == -1)
             break;
         count++;
@@ -2324,25 +2314,6 @@ int QString::count(const QRegExp& rx) const
     return count;
 }
 #endif // QT_NO_REGEXP
-
-int QString::indexOf(const QStringMatcher &str, int from) const
-{
-    return str.search(*this, from);
-}
-
-int QString::lastIndexOf(const QStringMatcher &str, int from) const
-{
-    return str.searchRev(*this, from);
-}
-
-int QString::count(const QStringMatcher &str) const
-{
-    int num = 0;
-    int i = -1;
-    while ((i = str.search(*this, i + 1)) != -1)
-        ++num;
-    return num;
-}
 
 /*! \fn int QString::count() const
 
@@ -2530,7 +2501,7 @@ QString QString::section(const QRegExp &reg, int start, int end, int flags) cons
     QList<section_chunk> l;
     int n = length(), m = 0, last_m = 0, last = 0, last_len = 0;
 
-    while ((m = sep.search(*this, m)) != -1) {
+    while ((m = sep.indexIn(*this, m)) != -1) {
         l.append(section_chunk(last_len, QString(uc + last_m, m - last_m)));
         last_m = m;
         last_len = sep.matchedLength();

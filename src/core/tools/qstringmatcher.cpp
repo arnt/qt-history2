@@ -122,14 +122,9 @@ void QStringMatcher::setCaseSensitivity(QString::CaseSensitivity cs)
     q_cs = cs;
 }
 
-int QStringMatcher::search(const QString &str, int from) const
+int QStringMatcher::indexIn(const QString &str, int from) const
 {
     // ### what if (from < 1)
     return bm_find(str.unicode(), str.size(), from, q_pattern.unicode(), q_pattern.size(),
                    q_skiptable, q_cs);
-}
-
-int QStringMatcher::searchRev(const QString &str, int from) const
-{
-    return str.lastIndexOf(q_pattern, from, q_cs);
 }

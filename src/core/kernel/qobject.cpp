@@ -1018,7 +1018,7 @@ static void objSearch(QObjectList &result,
                 ok = (qstrcmp(objName,obj->objectName()) == 0);
 #ifndef QT_NO_REGEXP
             else if (rx)
-                ok = (rx->search(QString::fromLatin1(obj->objectName())) != -1);
+                ok = (rx->indexIn(QString::fromLatin1(obj->objectName())) != -1);
 #endif
         }
         if (ok)                                // match!
@@ -1167,7 +1167,7 @@ void QObject::findChildren_helper(const char *name, const QRegExp *re,
         obj = d->children.at(i);
         if (mo.cast(obj)) {
             if (re) {
-                if (re->search(QString::fromLatin1(obj->d->objectName)) != -1)
+                if (re->indexIn(QString::fromLatin1(obj->d->objectName)) != -1)
                     list->append(obj);
             } else {
                 if (!name || qstrcmp(obj->d->objectName, name) == 0)

@@ -1547,17 +1547,35 @@ QByteArray &QByteArray::replace(int pos, int len, const QByteArray &after)
     \overload
 */
 
-void QByteArray::do_replace(const QByteArrayMatcher &matcher, const QByteArray &after)
+/*!
+    \overload
+
+    Replaces every occurrence of the byte array \a before with the
+    byte array \a after.
+
+    Example:
+    \code
+        QByteArray ba("colour behaviour flavour neighbour");
+        ba.replace(QByteArray("ou"), QByteArray("o"));
+        // ba == "color behavior flavor neighbor"
+    \endcode
+*/
+
+QByteArray &QByteArray::replace(const QByteArray &before, const QByteArray &after)
 {
+    if (isNull() || before == after)
+        return *this;
+
+    QByteArrayMatcher matcher(before);
     int index = 0;
-    const int bl = matcher.pattern().d->size;
+    const int bl = before.d->size;
     const int al = after.d->size;
     int len = d->size;
     char *d = data();
 
     if (bl == al) {
         if (bl) {
-            while ((index = matcher.search(*this, index)) != -1) {
+            while ((index = matcher.indexIn(*this, index)) != -1) {
                 memcpy(d + index, after, al);
                 index += bl;
             }
@@ -1566,7 +1584,7 @@ void QByteArray::do_replace(const QByteArrayMatcher &matcher, const QByteArray &
         uint to = 0;
         uint movestart = 0;
         uint num = 0;
-        while ((index = matcher.search(*this, index)) != -1) {
+        while ((index = matcher.indexIn(*this, index)) != -1) {
             if (num) {
                 int msize = index - movestart;
                 if (msize > 0) {
@@ -1597,7 +1615,7 @@ void QByteArray::do_replace(const QByteArrayMatcher &matcher, const QByteArray &
             uint indices[4096];
             uint pos = 0;
             while(pos < 4095) {
-                index = matcher.search(*this, index);
+                index = matcher.indexIn(*this, index);
                 if (index == -1)
                     break;
                 indices[pos++] = index;
@@ -1634,33 +1652,6 @@ void QByteArray::do_replace(const QByteArrayMatcher &matcher, const QByteArray &
             }
         }
     }
-}
-
-/*!
-    \overload
-
-    Replaces every occurrence of the byte array \a before with the
-    byte array \a after.
-
-    Example:
-    \code
-        QByteArray ba("colour behaviour flavour neighbour");
-        ba.replace(QByteArray("ou"), QByteArray("o"));
-        // ba == "color behavior flavor neighbor"
-    \endcode
-*/
-
-QByteArray &QByteArray::replace(const QByteArray &before, const QByteArray &after)
-{
-    if (!isNull() && before != after)
-        do_replace(QByteArrayMatcher(before), after);
-    return *this;
-}
-
-QByteArray &QByteArray::replace(const QByteArrayMatcher &before, const QByteArray &after)
-{
-    if (!isNull() && before.pattern() != after)
-        do_replace(before, after);
     return *this;
 }
 
@@ -1814,7 +1805,7 @@ int QByteArray::indexOf(const QByteArray &ba, int from) const
         return indexOf(*ba.d->data, from);
 
     if (l > 500 && ol > 5)
-        return QByteArrayMatcher(ba).search(*this, from);
+        return QByteArrayMatcher(ba).indexIn(*this, from);
 
     const char *needle = ba.d->data;
     const char *haystack = d->data + from;
@@ -1839,12 +1830,6 @@ int QByteArray::indexOf(const QByteArray &ba, int from) const
     }
     return -1;
 }
-
-int QByteArray::indexOf(const QByteArrayMatcher &matcher, int from) const
-{
-    return matcher.search(*this, from);
-}
-
 
 /*! \fn int QByteArray::indexOf(const QString &str, int from) const
 
@@ -1964,11 +1949,6 @@ int QByteArray::lastIndexOf(const QByteArray &ba, int from) const
 
 }
 
-int QByteArray::lastIndexOf(const QByteArrayMatcher &matcher, int from) const
-{
-    return matcher.searchRev(*this, from);
-}
-
 /*! \fn int QByteArray::lastIndexOf(const QString &str, int from) const
 
     \overload
@@ -2045,17 +2025,14 @@ int QByteArray::count(const QByteArray &ba) const
 {
     int num = 0;
     int i = -1;
-    while ((i = indexOf(ba, i + 1)) != -1)
-        ++num;
-    return num;
-}
-
-int QByteArray::count(const QByteArrayMatcher &ba) const
-{
-    int num = 0;
-    int i = -1;
-    while ((i = ba.search(*this, i + 1)) != -1)
-        ++num;
+    if (d->size > 500 && ba.d->size > 5) {
+        QByteArrayMatcher matcher(ba);
+        while ((i = matcher.indexIn(*this, i + 1)) != -1)
+            ++num;
+    } else {
+        while ((i = indexOf(ba, i + 1)) != -1)
+            ++num;
+    }
     return num;
 }
 

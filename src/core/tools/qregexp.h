@@ -68,8 +68,16 @@ public:
 
     bool exactMatch(const QString &str) const;
 
-    int search(const QString &str, int offset = 0, CaretMode caretMode = CaretAtZero) const;
-    int searchRev(const QString &str, int offset = -1, CaretMode caretMode = CaretAtZero) const;
+    int indexIn(const QString &str, int offset = 0, CaretMode caretMode = CaretAtZero) const;
+    int lastIndexIn(const QString &str, int offset = -1, CaretMode caretMode = CaretAtZero) const;
+#ifdef QT_COMPAT
+    inline QT_COMPAT int search(const QString &str, int from = 0,
+                                CaretMode caretMode = CaretAtZero) const
+    { return indexIn(str, from, caretMode); }
+    inline QT_COMPAT int searchRev(const QString &str, int from = -1,
+                                   CaretMode caretMode = CaretAtZero) const
+    { return lastIndexIn(str, from, caretMode); }
+#endif
     int matchedLength() const;
 #ifndef QT_NO_REGEXP_CAPTURE
     int numCaptures() const;

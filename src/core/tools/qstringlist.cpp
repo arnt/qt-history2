@@ -16,6 +16,7 @@
 #include "qdatastream.h"
 #include "qregexp.h"
 #include "qstringlist.h"
+#include "qstringmatcher.h"
 
 /*! \typedef QStringListIterator
     \relates QStringList
@@ -288,9 +289,10 @@ void QStringList::sort()
 
 QStringList QStringList::find(const QString &str, QString::CaseSensitivity cs) const
 {
+    QStringMatcher matcher(str, cs);
     QStringList res;
     for (int i = 0; i < size(); ++i)
-        if (at(i).contains(str, cs))
+        if (matcher.indexIn(at(i)) != -1)
             res << at(i);
     return res;
 }
@@ -312,15 +314,6 @@ QStringList QStringList::find(const QRegExp &rx) const
     return res;
 }
 #endif
-
-QStringList QStringList::find(const QStringMatcher &matcher) const
-{
-    QStringList res;
-    for (int i = 0; i < size(); ++i)
-        if (at(i).contains(matcher))
-            res << at(i);
-    return res;
-}
 
 /*!
     Replaces every occurrence of the string \a before, in each of the
@@ -387,13 +380,6 @@ QStringList& QStringList::replace(const QRegExp &rx, const QString &after)
 }
 
 #endif
-
-QStringList &QStringList::replace(const QStringMatcher &before, const QString &after)
-{
-    for (int i = 0; i < size(); ++i)
-        (*this)[i].replace(before, after);
-    return *this;
-}
 
 /*!
     Joins the all the string list's strings into a single string with

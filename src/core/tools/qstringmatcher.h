@@ -35,8 +35,7 @@ public:
     void setPattern(const QString &pattern);
     void setCaseSensitivity(QString::CaseSensitivity cs);
 
-    int search(const QString &str, int from = 0) const;
-    int searchRev(const QString &str, int from = -1) const;
+    int indexIn(const QString &str, int from = 0) const;
     inline QString pattern() const { return q_pattern; }
     inline QString::CaseSensitivity caseSensitivity() const { return q_cs; }
 

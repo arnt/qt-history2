@@ -64,7 +64,6 @@ inline QT_COMPAT int cstrncmp(const char *str1, const char *str2, uint len)
 
 Q_CORE_EXPORT Q_UINT16 qChecksum(const char *s, uint len);
 
-class QByteArrayMatcher;
 class QByteRef;
 class QString;
 class QDataStream;
@@ -111,20 +110,16 @@ public:
     int indexOf(char c, int from = 0) const;
     inline int indexOf(const char *c, int from = 0) const;
     int indexOf(const QByteArray &a, int from = 0) const;
-    int indexOf(const QByteArrayMatcher &matcher, int from = 0) const;
     int lastIndexOf(char c, int from = -1) const;
     inline int lastIndexOf(const char *c, int from = -1) const;
     int lastIndexOf(const QByteArray &a, int from = -1) const;
-    int lastIndexOf(const QByteArrayMatcher &matcher, int from = -1) const;
 
     QBool contains(char c) const;
     QBool contains(const char *a) const;
     QBool contains(const QByteArray &a) const;
-    QBool contains(const QByteArrayMatcher &matcher) const;
     int count(char c) const;
     int count(const char *a) const;
     int count(const QByteArray &a) const;
-    int count(const QByteArrayMatcher &matcher) const;
 
     QByteArray left(int len)  const;
     QByteArray right(int len) const;
@@ -172,8 +167,6 @@ public:
     QByteArray &replace(const char *before, const char *after);
     QByteArray &replace(const QByteArray &before, const QByteArray &after);
     QByteArray &replace(const QByteArray &before, const char *after);
-    QByteArray &replace(const QByteArrayMatcher &before, const QByteArray &after);
-    QByteArray &replace(const QByteArrayMatcher &before, const char *after);
     QByteArray &replace(char before, char after);
     QByteArray &operator+=(char c);
     QByteArray &operator+=(const char *s);
@@ -298,7 +291,6 @@ private:
     QByteArray(Data *dd, int /* dummy */) : d(dd) {}
     void realloc(int alloc);
     void expand(int i);
-    void do_replace(const QByteArrayMatcher &, const QByteArray &);
 
     friend class QByteRef;
     friend class QString;
@@ -411,8 +403,6 @@ inline void QByteArray::push_front(const QByteArray &a)
 { prepend(a); }
 inline QBool QByteArray::contains(const QByteArray &a) const
 { return QBool(indexOf(a) != -1); }
-inline QBool QByteArray::contains(const QByteArrayMatcher &a) const
-{ return QBool(indexOf(a) != -1); }
 inline QBool QByteArray::contains(char c) const
 { return QBool(indexOf(c) != -1); }
 inline QByteArray &QByteArray::operator=(const QByteArray & a)
@@ -480,8 +470,6 @@ inline QByteArray &QByteArray::replace(int index, int len, const char *c)
 inline QByteArray &QByteArray::replace(char before, const char *c)
 { return replace(before, fromRawData(c, strlen(c))); }
 inline QByteArray &QByteArray::replace(const QByteArray &before, const char *c)
-{ return replace(before, fromRawData(c, strlen(c))); }
-inline QByteArray &QByteArray::replace(const QByteArrayMatcher &before, const char *c)
 { return replace(before, fromRawData(c, strlen(c))); }
 inline QByteArray &QByteArray::replace(const char *before, const char *after)
 { return replace(fromRawData(before, strlen(before)), fromRawData(after, strlen(after))); }

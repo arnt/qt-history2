@@ -33,8 +33,7 @@ public:
 
     void setPattern(const QByteArray &pattern);
 
-    int search(const QByteArray &ba, int from = 0) const;
-    int searchRev(const QByteArray &ba, int from = -1) const;
+    int indexIn(const QByteArray &ba, int from = 0) const;
     inline QByteArray pattern() const { return q_pattern; }
 
 private:
