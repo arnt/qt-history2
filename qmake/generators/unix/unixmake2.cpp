@@ -448,11 +448,14 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     }
     t << endl;
 
+    QString destdir = project->first("DESTDIR");
+    if(!destdir.isEmpty() && destdir.right(1) != Option::dir_sep)
+	destdir += Option::dir_sep;
     t << "clean:" << clean_targets << "\n\t"
-      << "-rm -f $(OBJECTS) $(TARGET)" << "\n\t";
+      << "-rm -f $(OBJECTS) " << destdir << "$(TARGET)" << "\n\t";
     if(!project->isActiveConfig("staticlib") && project->variables()["QMAKE_APP_FLAG"].isEmpty() &&
        !project->isActiveConfig("plugin"))
-	t << "-rm -f $(TARGET0) $(TARGET1) $(TARGET2) $(TARGETA)" << "\n\t";
+	t << "-rm -f " << destdir << "$(TARGET0) " << destdir << "$(TARGET1) " << destdir << "$(TARGET2) $(TARGETA)" << "\n\t";
     t << varGlue("QMAKE_CLEAN","-rm -f "," ","\n\t")
       << "-rm -f *~ core *.core" << "\n"
       << varGlue("CLEAN_FILES","\t-rm -f "," ","") << endl << endl;
