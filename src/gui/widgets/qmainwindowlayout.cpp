@@ -737,13 +737,30 @@ static void init_layout_struct(const QMainWindowLayout * const layout,
   Returns the size hint for the first user item in a tb layout. This
   is used to contrain the minimum size a tb can have.
 */
-static QSize get_min_item_sz(QLayout *layout)
+static QSize get_item_sh(QLayout *layout)
 {
     QLayoutItem *item = layout->itemAt(1);
     if (item && item->widget())
 	return item->widget()->sizeHint();
     else
 	return QSize(0, 0);
+}
+
+/*
+  Returns the real size hint for items in a layout - including sizes
+  for hidden items.
+*/
+static QSize get_real_sh(QLayout *layout)
+{
+    QSize real_sh(0, 0);
+    int i = 0;
+    while (layout && layout->itemAt(i))
+        real_sh += layout->itemAt(i++)->widget()->sizeHint();
+    --i;
+    int spacing = layout->spacing();
+    int margin = layout->margin();
+    real_sh += QSize(spacing*i + margin*2, spacing*i + margin*2);
+    return real_sh;
 }
 
 void QMainWindowLayout::setGeometry(const QRect &_r)
@@ -870,7 +887,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 		    // swap if dragging it past the next one
 		    ToolBarLayoutInfo &next = lineInfo.list[i+1];
 		    next.pos = tb_rect[line].topLeft();
-		    next.size.setHeight(pick_perp(where, get_min_item_sz(next.item->widget()->layout())) + tb_fill);
+		    next.size.setHeight(pick_perp(where, get_item_sh(next.item->widget()->layout())) + tb_fill);
 		    next.offset = QPoint();
 		    if (where == LEFT || where == RIGHT)
 			info.pos = QPoint(tb_rect[line].left(), next.pos.y() + next.size.height());
@@ -884,10 +901,10 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 		}
 	    } else {
 		ToolBarLayoutInfo &prev = lineInfo.list[i-1];
-		QSize min_size = get_min_item_sz(info.item->widget()->layout());
+		QSize min_size = get_item_sh(info.item->widget()->layout());
 		set_perp(where, min_size, pick_perp(where, min_size) + tb_fill);
  		const int cur_pt = pick_perp(where, prev.pos) + pick_perp(where, prev.size);
-		const int prev_min = pick_perp(where, get_min_item_sz(prev.item->widget()->layout())) + tb_fill;
+		const int prev_min = pick_perp(where, get_item_sh(prev.item->widget()->layout())) + tb_fill;
                 const int snap_dist = 40;
 
                 info.pos = tb_rect[line].topLeft();
@@ -896,18 +913,19 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 		if (pick_perp(where, info.offset) < 0) { // left/up motion
 		    if (pick_perp(where, prev.size) + pick_perp(where, info.offset) >= prev_min) {
 			// shrink the previous one and increase size of current with same
-			QSize sz(0, 0);
+                        QSize real_sh = get_real_sh(prev.item->widget()->layout());
+                        QSize sz(0, 0);
 			set_perp(where, sz, pick_perp(where, info.offset));
                         if ((pick_perp(where, prev.size) + pick_perp(where, sz)
-                             < pick_perp(where, prev.item->widget()->sizeHint()) - snap_dist)
+                             < pick_perp(where, real_sh) - snap_dist)
                             || (pick_perp(where, prev.size) + pick_perp(where, sz)
-                                > pick_perp(where, prev.item->widget()->sizeHint())))
+                                > pick_perp(where, real_sh) + snap_dist))
                         {
                             prev.size += sz;
                             info.size -= sz;
                         } else {
                             info.pos = tb_rect[line].topLeft();
-                            set_perp(where, prev.size, pick_perp(where, prev.item->widget()->size()));
+                            set_perp(where, prev.size, pick_perp(where, real_sh));
                             int pt = pick_perp(where, prev.pos) + pick_perp(where, prev.size);
                             set_perp(where, info.pos, pt);
                         }
@@ -917,7 +935,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 			for (int l = i-2; l >= 0; --l) {
 			    ToolBarLayoutInfo &t = lineInfo.list[l];
 			    if (pick_perp(where, t.size) + pick_perp(where, info.offset) >
-				pick_perp(where, get_min_item_sz(t.item->widget()->layout())) + tb_fill) {
+				pick_perp(where, get_item_sh(t.item->widget()->layout())) + tb_fill) {
 				QSize sz(0, 0);
 				set_perp(where, sz, pick_perp(where, info.offset) + pick_perp(where, prev.size) - prev_min);
 				t.size += sz;
@@ -946,24 +964,17 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 
 		} else if (pick_perp(where, info.offset) > 0) { // right/down motion
 		    if (pick_perp(where, info.size) - pick_perp(where, info.offset) > pick_perp(where, min_size)) {
-                        QSize real_sh(0, 0);
-                        QLayout *l = prev.item->widget()->layout();
-                        int i = 0;
-                        while (l && l->itemAt(i))
-                            real_sh += l->itemAt(i++)->widget()->sizeHint();
-                        --i;
-                        real_sh += QSize(l->spacing()*i + l->margin()*2, l->spacing()*i + l->margin()*2);
-
+                        QSize real_sh = get_real_sh(prev.item->widget()->layout());
 			QSize sz(0, 0);
 			set_perp(where, sz, pick_perp(where, info.offset));
                         if ((pick_perp(where, prev.size) + pick_perp(where, sz)
                              > pick_perp(where, real_sh) + snap_dist)
-                            || (pick_perp(where, prev.size) < pick_perp(where, real_sh)))
+                            || (pick_perp(where, prev.size) < pick_perp(where, real_sh) - snap_dist))
                         {
                             info.size -= sz;
                         } else {
                             info.pos = tb_rect[line].topLeft();
-                            set_perp(where, prev.size, pick_perp(where, prev.item->widget()->size()));
+                            set_perp(where, prev.size, pick_perp(where, real_sh));
                             int pt = pick_perp(where, prev.pos) + pick_perp(where, prev.size);
                             set_perp(where, info.pos, pt);
                         }
@@ -972,7 +983,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 			for (int l = i+1; l < num_tbs; ++l) {
 			    ToolBarLayoutInfo &t = lineInfo.list[l];
 			    if (pick_perp(where, t.size) - pick_perp(where, info.offset)
-				> pick_perp(where, get_min_item_sz(t.item->widget()->layout())) + tb_fill) {
+				> pick_perp(where, get_item_sh(t.item->widget()->layout())) + tb_fill) {
 				QPoint pt;
 				set_perp(where, pt, pick_perp(where, info.offset));
 				t.pos += pt;
@@ -1017,7 +1028,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
                 else
 		    info.size.setWidth(tb_rect[line].right() - info.pos.x() + 1);
 		if (pick_perp(where, info.size) < 1)
-		    set_perp(where, info.size, pick_perp(where, get_min_item_sz(info.item->widget()->layout())) + tb_fill);
+		    set_perp(where, info.size, pick_perp(where, get_item_sh(info.item->widget()->layout())) + tb_fill);
 	    }
 	    if (i > 0) {
 		// assumes that all tbs are positioned at the correct
