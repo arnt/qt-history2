@@ -678,14 +678,14 @@ TODO
 */
 
 
-/*! \fn void drawCheckMark( QPainter *p, int x, int y, int w, int h,
+/*! \fn void QStyle::drawCheckMark( QPainter *p, int x, int y, int w, int h,
 				const QColorGroup &g,
 				bool act, bool dis )
 
 Draws a checkmark suitable for checkboxes and checkable menu items.
 
 */
-/*!  \fn void polishPopupMenu( QPopupMenu* p)
+/*!  \fn void QStyle::polishPopupMenu( QPopupMenu* p)
 
     Polishes the popup menu \a p according to the GUI style. This is usually means
     setting the mouse tracking ( QPopupMenu::setMouseTracking() ) and whether
@@ -705,14 +705,20 @@ Draws a checkmark suitable for checkboxes and checkable menu items.
   indicate item accelerators.
  */
 
-/*! \fn int popupMenuItemHeight( bool checkable, QMenuItem* mi, const QFontMetrics& fm  )
+/*! \fn int QStyle::popupSubmenuIndicatorWidth( const QFontMetrics& fm  )
 
-   Returns the height of the menu item \a mi. \a checkable
-  defines, whether the menu has a check column, \a fm defines the font
-  metrics used to draw the label.
+  Returns the width of the arrow indicating popup submenus.
+  \a fm defines the font metrics used to draw the popup menu.
  */
 
-/*! \fn void drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, QMenuItem* mi,
+/*! \fn int QStyle::popupMenuItemHeight( bool checkable, QMenuItem* mi, const QFontMetrics& fm  )
+
+  Returns the height of the menu item \a mi. \a checkable defines,
+  whether the menu has a check column, \a fm defines the font metrics
+  used to draw the label.
+ */
+
+/*! \fn void QStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, QMenuItem* mi,
 				    const QPalette& pal,
 				    bool act, bool enabled, int x, int y, int w, int h);
 
@@ -898,7 +904,7 @@ void QStyle::setButtonDefaultIndicatorWidth( int w )
 
 
 /*!
-  \fn QRect QStyle::pushButtonContentsRect( QPushButton* btn ) const
+  \fn QRect QStyle::pushButtonContentsRect( QPushButton* btn )
 
   Auxiliary function to return the contents rectangle of a push button
   \a btn. The contents rectangle is the space available for the button

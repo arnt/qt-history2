@@ -48,12 +48,9 @@ private:
     QStyle(GUIStyle);
     QStyle();
     friend class QCommonStyle;
+
 public:
     virtual ~QStyle();
-
-
-
-
 
 #ifndef QT_NO_COMPAT
     operator GUIStyle() const { return gs; }
@@ -75,7 +72,8 @@ public:
 
     virtual QRect itemRect( QPainter *p, int x, int y, int w, int h,
 		    int flags, bool enabled,
-		    const QPixmap *pixmap, const QString& text, int len=-1 );
+		    const QPixmap *pixmap,
+		    const QString& text, int len=-1 ); // ### const 3.0
 
     virtual void drawItem( QPainter *p, int x, int y, int w, int h,
 		    int flags, const QColorGroup &g, bool enabled,
@@ -100,7 +98,7 @@ public:
 		     const QColorGroup &g, bool sunken = FALSE,
 		     const QBrush *fill = 0 ) = 0;
 
-    virtual QRect buttonRect( int x, int y, int w, int h);
+    virtual QRect buttonRect( int x, int y, int w, int h); // ### const 3.0
 
     virtual void drawButtonMask( QPainter *p, int x, int y, int w, int h);
 			
@@ -108,13 +106,13 @@ public:
 		     const QColorGroup &g, bool sunken = FALSE,
 		     const QBrush *fill = 0 ) = 0;
 
-    QRect bevelButtonRect( int x, int y, int w, int h); // virtual 3.0
+    QRect bevelButtonRect( int x, int y, int w, int h); // ### virtual/const 3.0
 
     virtual void drawToolButton( QPainter *p, int x, int y, int w, int h,
 		     const QColorGroup &g, bool sunken = FALSE,
 		     const QBrush *fill = 0 );
 
-    QRect toolButtonRect(  int x, int y, int w, int h); // virtual 3.0
+    QRect toolButtonRect(  int x, int y, int w, int h); // ### virtual/const 3.0
 
     virtual void drawPanel( QPainter *p, int x, int y, int w, int h,
 		    const QColorGroup &, bool sunken=FALSE,
@@ -155,24 +153,26 @@ public:
 				  bool editable = FALSE,
 				  bool enabled = TRUE,
 				  const QBrush *fill = 0 ) = 0;
-    virtual QRect comboButtonRect( int x, int y, int w, int h) = 0;
-    virtual QRect comboButtonFocusRect( int x, int y, int w, int h) = 0;
+    virtual QRect comboButtonRect( int x, int y,
+		    int w, int h) = 0; // ### const 3.0
+    virtual QRect comboButtonFocusRect( int x, int y,
+		    int w, int h) = 0; // ### const 3.0
 
     virtual void drawComboButtonMask( QPainter *p, int x, int y, int w, int h) = 0;
-
 
     // push buttons
     virtual void drawPushButton( QPushButton* btn, QPainter *p) = 0;
     virtual void drawPushButtonLabel( QPushButton* btn, QPainter *p) = 0;
-    QRect pushButtonContentsRect( QPushButton* btn ); // virtual 3.0
-    int menuButtonIndicatorWidth( int h ); // virtual 3.0
-    virtual void getButtonShift( int &x, int &y) = 0;
+    QRect pushButtonContentsRect( QPushButton* btn ); // ### virtual/const 3.0
+    int menuButtonIndicatorWidth( int h ); // ### virtual/const 3.0
+    virtual void getButtonShift( int &x, int &y) = 0; // ### const 3.0
 
     // frame
     virtual int defaultFrameWidth() const = 0;
 
     // tabbars
-    virtual void tabbarMetrics( const QTabBar*, int&, int&, int& ) = 0;
+    virtual void tabbarMetrics( const QTabBar*,
+		    int&, int&, int& ) = 0; // ### const 3.0
     virtual void drawTab( QPainter*, const QTabBar*, QTab*, bool selected ) = 0;
     virtual void drawTabMask( QPainter*, const QTabBar*, QTab*, bool selected ) = 0;
 
@@ -181,11 +181,13 @@ public:
 			 SubPage = 0x8 , First = 0x10, Last = 0x20,
 			 Slider  = 0x40, NoScroll = 0x80 };
 
-    virtual void scrollBarMetrics( const QScrollBar*, int&, int&, int&, int&) = 0;
+    virtual void scrollBarMetrics( const QScrollBar*,
+		    int&, int&, int&, int&) = 0; // ### const 3.0
     virtual void drawScrollBarControls( QPainter*,  const QScrollBar*,
 					int sliderStart, uint controls,
 					uint activeControl ) = 0;
-    virtual ScrollControl scrollBarPointOver( const QScrollBar*, int sliderStart, const QPoint& ) = 0;
+    virtual ScrollControl scrollBarPointOver( const QScrollBar*,
+					int sliderStart, const QPoint& ) = 0;
 
     // sliders
     virtual int sliderLength() const = 0;
@@ -218,28 +220,34 @@ public:
 				bool act, bool dis ) = 0;
     virtual void polishPopupMenu( QPopupMenu* ) = 0;
 
-    virtual int extraPopupMenuItemWidth( bool checkable, int maxpmw, QMenuItem* mi, const QFontMetrics& fm  ) = 0;
-    virtual int popupSubmenuIndicatorWidth( const QFontMetrics& fm  ) = 0;
-    virtual int popupMenuItemHeight( bool checkable, QMenuItem* mi, const QFontMetrics& fm  ) = 0;
-    virtual void drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, QMenuItem* mi,
+    virtual int extraPopupMenuItemWidth( bool checkable, int maxpmw,
+				QMenuItem* mi,
+				const QFontMetrics& fm  ) = 0; // ### const 3.0
+    virtual int popupSubmenuIndicatorWidth(
+				const QFontMetrics& fm  ) = 0; // ### const 3.0
+    virtual int popupMenuItemHeight( bool checkable,
+				QMenuItem* mi,
+				const QFontMetrics& fm  ) = 0; // ### const 3.0
+    virtual void drawPopupMenuItem( QPainter* p, bool checkable,
+				    int maxpmw, int tab, QMenuItem* mi,
 				    const QPalette& pal,
-				    bool act, bool enabled, int x, int y, int w, int h) = 0;
+				    bool act, bool enabled,
+				    int x, int y, int w, int h) = 0;
 
     // Binary compatibility contortions, to become virtual in 3.0
-    QSize scrollBarExtent();
+    QSize scrollBarExtent(); // ### const 3.0
     int buttonDefaultIndicatorWidth() const;
-    int toolBarHandleExtend() const; // ######### make virtual
-    void drawToolBarHandle( QPainter *p, const QRect &r, Qt::Orientation orientation,
+    int toolBarHandleExtend() const; // ### virtual 3.0
+    void drawToolBarHandle( QPainter *p, const QRect &r,
+			    Qt::Orientation orientation,
 			    bool highlight, const QColorGroup &cg,
-			    bool drawBorder = FALSE ); // #### make virtual
-
+			    bool drawBorder = FALSE ); // ### virtual 3.0
 
 protected:
-    void setScrollBarExtent( int w, int h=-1 ); // will be removed in 3.0
-    void setButtonDefaultIndicatorWidth( int w ); // will be removed in 3.0
+    void setScrollBarExtent( int w, int h=-1 ); // ### remove 3.0
+    void setButtonDefaultIndicatorWidth( int w ); // ### remove 3.0
 
 };
-
 
 
 #endif // QSTYLE_H
