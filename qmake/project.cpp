@@ -317,7 +317,7 @@ static QStringList split_arg_list(QString params)
             parens++;
         } else if(quote.unicode() && params[x] == quote) {
             quote = 0;
-        } else if(params[x] == '\'' || params[x] == '"') {
+        } else if(!quote.unicode() && (params[x] == '\'' || params[x] == '"')) {
             quote = params[x];
         } else if(!parens && !quote.unicode() && params[x] == ',') {
             QString mid = params.mid(last, x - last).trimmed();
