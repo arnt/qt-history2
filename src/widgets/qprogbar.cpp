@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qprogbar.cpp#14 $
+** $Id: //depot/qt/main/src/widgets/qprogbar.cpp#15 $
 **
 ** Implementation of QProgressBar class
 **
@@ -14,7 +14,7 @@
 #include "qdrawutl.h"
 #include "qapp.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qprogbar.cpp#14 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qprogbar.cpp#15 $");
 
 
 /*!
@@ -93,6 +93,8 @@ void QProgressBar::reset()
 {
     progress_val = -1;
     percentage = -1;
+    setIndicator(progress_str, progress_val, total_steps);
+    update();
 }
 
 
@@ -162,7 +164,14 @@ void QProgressBar::show()
 
 /*! 
   This method is called to generate the text displayed in the center of
-  the progress bar, by default it is the percentage of completion. 
+  the progress bar.
+
+  The progress may be negative, indicating that the bar is in the "reset" state
+  before any progress is set.
+
+  The default implementation it is the percentage of completion or blank in the
+  reset state. 
+
   This method should return FALSE if the string is unchanged since the
   last call to the method, to allow efficient repainting of the
   progress bar.  
@@ -173,13 +182,18 @@ bool QProgressBar::setIndicator( QString& indicator, int progress,
 {
     if ( !totalSteps )
 	return FALSE;
-    int np = progress * 100 / totalSteps;
-    if ( np != percentage ) {
-	percentage = np;
-	indicator.sprintf( "%d%%", np );
+    if ( progress < 0 ) {
+	indicator = "";
 	return TRUE;
     } else {
-	return FALSE;
+	int np = progress * 100 / totalSteps;
+	if ( np != percentage ) {
+	    percentage = np;
+	    indicator.sprintf( "%d%%", np );
+	    return TRUE;
+	} else {
+	    return FALSE;
+	}
     }
 }
 
