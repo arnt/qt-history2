@@ -456,6 +456,8 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     if(!project->isActiveConfig("staticlib") && project->variables()["QMAKE_APP_FLAG"].isEmpty() &&
        !project->isActiveConfig("plugin"))
 	t << "-rm -f " << destdir << "$(TARGET0) " << destdir << "$(TARGET1) " << destdir << "$(TARGET2) $(TARGETA)" << "\n\t";
+    if(!project->isEmpty("IMAGES"))
+	t << varGlue("QMAKE_IMAGE_COLLECTION", "\t-rm -f ", " ", "") << "\n\t";
     t << varGlue("QMAKE_CLEAN","-rm -f "," ","\n\t")
       << "-rm -f *~ core *.core" << "\n"
       << varGlue("CLEAN_FILES","\t-rm -f "," ","") << endl << endl;

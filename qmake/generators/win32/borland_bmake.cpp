@@ -176,11 +176,11 @@ BorlandMakefileGenerator::writeBorlandParts(QTextStream &t)
       << "\n\t-del $(TARGET)"
       << varGlue("QMAKE_CLEAN","\n\t-del ","\n\t-del ","")
       << varGlue("CLEAN_FILES","\n\t-del ","\n\t-del ","");
-    if(project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty()) {
+    if(project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty()) 
 	t << "\n\t-del " << var("DLLDESTDIR") << "\\" << project->variables()[ "TARGET" ].first() << project->variables()[ "TARGET_EXT" ].first();
-    }
+    if(!project->isEmpty("IMAGES"))
+	t << varGlue("QMAKE_IMAGE_COLLECTION", "\n\t-del ", "\n\t-del ", "");
     t << endl << endl;
-
 }
 
 void
