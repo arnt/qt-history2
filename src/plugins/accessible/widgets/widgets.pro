@@ -1,5 +1,5 @@
 TEMPLATE = lib
-TARGET  += qtwidgets
+TARGET  = qtwidgets
 
 CONFIG  += qt dll plugin
 DESTDIR  = $$QT_BUILD_TREE/plugins/accessible
