@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qgarray.cpp#23 $
+** $Id: //depot/qt/main/src/tools/qgarray.cpp#24 $
 **
 ** Implementation of QGArray class
 **
@@ -27,7 +27,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#23 $")
+RCSTAG("$Id: //depot/qt/main/src/tools/qgarray.cpp#24 $")
 
 
 #if !defined(CHECK_MEMORY)
@@ -415,13 +415,13 @@ void QGArray::store( const char *d, uint len )
 
 
 /*----------------------------------------------------------------------------
-  \fn array_data *sharedBlock() const
+  \fn array_data *QGArray::sharedBlock() const
   \internal
   Returns a pointer to the shared array block.
  ----------------------------------------------------------------------------*/
 
 /*----------------------------------------------------------------------------
-  \fn void sharedBlock( array_data *p ) const
+  \fn void QGArray::setSharedBlock( array_data *p )
   \internal
   Sets the shared array block to \e p.
  ----------------------------------------------------------------------------*/
