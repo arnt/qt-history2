@@ -2469,7 +2469,7 @@ void QIconView::doAutoScroll()
     QPainter p;
     p.begin( viewport() );
     p.setRasterOp( NotROP );
-    p.setPen( QPen( Qt::black, 1 ) );
+    p.setPen( QPen( Qt::color0, 1 ) );
     p.setBrush( Qt::NoBrush );
     drawRubber( &p );
     p.end();
@@ -2487,7 +2487,7 @@ void QIconView::doAutoScroll()
 
     p.begin( viewport() );
     p.setRasterOp( NotROP );
-    p.setPen( QPen( Qt::black, 1 ) );
+    p.setPen( QPen( Qt::color0, 1 ) );
     p.setBrush( Qt::NoBrush );
     drawRubber( &p );
 
@@ -2861,10 +2861,17 @@ QIconViewItem *QIconView::findItem( const QString &text ) const
 	return 0;
 
     QIconViewItem *item = d->currentItem;
-    for ( ; item; item = item->next )
+    for ( ; item; item = item->next ) {
 	if ( item->text().lower().left( text.length() ) == text )
 	    return item;
-
+    }
+    
+    item = d->firstItem;
+    for ( ; item && item != d->currentItem; item = item->next ) {
+	if ( item->text().lower().left( text.length() ) == text )
+	    return item;
+    }
+    
     return 0;
 }
 
@@ -3476,7 +3483,7 @@ void QIconView::contentsMouseReleaseEvent( QMouseEvent *e )
 	QPainter p;
 	p.begin( viewport() );
 	p.setRasterOp( NotROP );
-	p.setPen( QPen( Qt::black, 1 ) );
+	p.setPen( QPen( Qt::color0, 1 ) );
 	p.setBrush( Qt::NoBrush );
 
 	drawRubber( &p );
@@ -4273,7 +4280,8 @@ void QIconView::drawDragShapes( const QPoint &pos )
 	p.begin( viewport() );
 	p.translate( -contentsX(), -contentsY() );
 	p.setRasterOp( NotROP );
-
+	p.setPen( QPen( color0 ) );
+	
 	QValueList<QIconDragItem>::Iterator it = d->iconDragData.begin();
 	for ( ; it != d->iconDragData.end(); ++it ) {
 	    QRect ir = (*it).iconRect();
@@ -4289,6 +4297,7 @@ void QIconView::drawDragShapes( const QPoint &pos )
 	QPainter p;
 	p.begin( viewport() );
 	p.setRasterOp( NotROP );
+	p.setPen( QPen( color0 ) );
 
 	for ( int i = 0; i < d->numDragItems; ++i ) {
 	    QRect r( pos.x() + i * 40, pos.y(), 35, 35 );

@@ -3356,6 +3356,7 @@ void QListView::keyPressEvent( QKeyEvent * e )
 		input = input + e->text().lower();
 		QString keyItemKey;
 		QString prefix;
+		bool tryFirst = TRUE;
 		while( keyItem ) {
 		    // Look for text in column 0, then left-to-right
 		    keyItemKey = keyItem->text(0);
@@ -3372,10 +3373,15 @@ void QListView::keyPressEvent( QKeyEvent * e )
 			    // nonoptimal double-break...
 			    keyItem = 0;
 			    input.truncate( 0 );
+			    tryFirst = FALSE;
 			}
 		    }
 		    if ( keyItem )
 			keyItem = keyItem->itemBelow();
+		    if ( !keyItem && tryFirst ) {
+			keyItem = firstChild();
+			tryFirst = FALSE;
+		    }
 		}
 		// then, if appropriate, with just this character
 		if ( input.length() > 1 &&

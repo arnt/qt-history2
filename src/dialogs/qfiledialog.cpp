@@ -645,13 +645,13 @@ ProgressAnimation::ProgressAnimation( QWidget *parent )
 
 void ProgressAnimation::start()
 {
-    timer->start( 200, FALSE );
+    timer->start( 150, FALSE );
 }
 
 void ProgressAnimation::next()
 {
     ++step;
-    if ( step > 5 )
+    if ( step > 10 )
 	step = 0;
     repaint();
 }
@@ -667,7 +667,7 @@ void ProgressAnimation::paintEvent( QPaintEvent * )
 		      *startCopyIcon );
 	p.drawPixmap( width() - 5 - openFolderIcon->width(),
 		      ( height() - openFolderIcon->height() ) / 2 , *openFolderIcon );
-    } else if ( step == 5 ) {
+    } else if ( step == 10 ) {
 	p.drawPixmap( 5, ( height() - openFolderIcon->height() ) / 2,
 		      *openFolderIcon );
 	p.drawPixmap( width() - 5 - endCopyIcon->width(),
@@ -679,7 +679,7 @@ void ProgressAnimation::paintEvent( QPaintEvent * )
 		      ( height() - openFolderIcon->height() ) / 2 , *openFolderIcon );
 	int x = 10 + openFolderIcon->width();
 	int w = width() - 2 * x;
-	int s = w / 4;
+	int s = w / 9;
 	p.drawPixmap( x + s * step, ( height() - fileIcon->height() ) / 2 - fileIcon->height(),
 		      *fileIcon );
     }
@@ -1255,7 +1255,7 @@ void QFileListBox::setCurrentDropItem( const QPoint &pnt )
     QPainter p;
     p.begin( viewport() );
     p.setRasterOp( NotROP );
-    p.setPen( Qt::black );
+    p.setPen( Qt::color0 );
     p.setBrush( Qt::NoBrush );
 
     if ( currDropItem )
@@ -1679,7 +1679,7 @@ void QFileListView::setCurrentDropItem( const QPoint &pnt )
     QPainter p;
     p.begin( viewport() );
     p.setRasterOp( NotROP );
-    p.setPen( Qt::black );
+    p.setPen( Qt::color0 );
     p.setBrush( Qt::NoBrush );
 
     if ( currDropItem )
@@ -4137,7 +4137,7 @@ void QFileDialog::drawDragShapes( const QPoint &pnt, bool multRow, int num )
     QPainter p;
     p.begin( multRow ? d->moreFiles->viewport() : files->viewport() );
     p.setRasterOp( NotROP );
-    p.setPen( Qt::black );
+    p.setPen( Qt::color0 );
     p.setBrush( Qt::NoBrush );
 
     QFontMetrics fm( font() );

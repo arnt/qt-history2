@@ -3354,5 +3354,10 @@ QListBoxItem *QListBox::findItem( const QString &text ) const
 	    return item;
     }
 
+    item = d->head;
+    for ( ; item && item != d->current; item = item->n ) {
+	if ( item->text().lower().left( text.length() ) == text )
+	    return item;
+    }
     return 0;
 }
