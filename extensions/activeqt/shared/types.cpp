@@ -803,22 +803,22 @@ bool QVariantToQUObject( const QVariant &var, QUObject &obj, const QUParameter *
 	static_QUType_varptr.set( &obj, new QColor( var.toColor() ) );
 	break;
     case QVariant::Font:
-	static_QUType_ptr.set( &obj, new QFont( var.toFont() ) );
+	static_QUType_varptr.set( &obj, new QFont( var.toFont() ) );
 	break;
     case QVariant::Pixmap:
-	static_QUType_ptr.set( &obj, new QPixmap( var.toPixmap() ) );
+	static_QUType_varptr.set( &obj, new QPixmap( var.toPixmap() ) );
 	break;
     case QVariant::Date:
-	static_QUType_ptr.set( &obj, new QDate( var.toDate() ) );
+	static_QUType_varptr.set( &obj, new QDate( var.toDate() ) );
 	break;
     case QVariant::Time:
-	static_QUType_ptr.set( &obj, new QTime( var.toTime() ) );
+	static_QUType_varptr.set( &obj, new QTime( var.toTime() ) );
 	break;
     case QVariant::DateTime:
-	static_QUType_ptr.set( &obj, new QDateTime( var.toDateTime() ) );
+	static_QUType_varptr.set( &obj, new QDateTime( var.toDateTime() ) );
 	break;
     case QVariant::List:
-	static_QUType_ptr.set( &obj, new QValueList<QVariant>( var.toList() ) );
+	static_QUType_varptr.set( &obj, new QValueList<QVariant>( var.toList() ) );
 	break;
     default:
 	return FALSE;
@@ -889,10 +889,60 @@ static inline void makeReference( VARIANT &arg )
     case VT_DATE:
 	arg.pdate = new DATE(arg.date);
 	break;
-    case VT_DISPATCH:
-	break;
     }
     arg.vt |= VT_BYREF;
+}
+
+static inline void updateReference( VARIANT &dest, VARIANT &src, bool byref )
+{
+    if ( dest.vt == (src.vt|VT_BYREF) ) {
+	switch( src.vt ) {
+	case VT_BSTR:
+	    *dest.pbstrVal = src.bstrVal;
+	    break;
+	case VT_BOOL:
+	    *dest.pboolVal = src.boolVal;
+	    break;
+	case VT_I1:
+	    *dest.pcVal = src.cVal;
+	    break;
+	case VT_I2:
+	    *dest.piVal = src.iVal;
+	    break;
+	case VT_I4:
+	    *dest.plVal = src.lVal;
+	    break;
+	case VT_INT:
+	    *dest.pintVal = src.intVal;
+	    break;
+	case VT_UI1:
+	    *dest.pbVal = src.bVal;
+	    break;
+	case VT_UI2:
+	    *dest.puiVal = src.uiVal;
+	    break;
+	case VT_UI4:
+	    *dest.plVal = src.lVal;
+	    break;
+	case VT_UINT:
+	    *dest.puintVal = src.uintVal;
+	    break;
+	case VT_R8:
+	    *dest.pdblVal = src.dblVal;
+	    break;
+	case VT_DATE:
+	    *dest.pdate = src.date;
+	    break;
+	default:
+	    dest = src;
+	    dest.vt = src.vt|VT_BYREF;
+	    break;
+	}
+    } else {
+	if ( byref && dest.vt != VT_EMPTY )
+	    clearVARIANT( &dest );
+	dest = src;
+    }
 }
 
 /*!
@@ -972,11 +1022,12 @@ bool QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 	else
 	    vartype = param->type->desc();
 
-	if ( byref && arg.vt != VT_EMPTY )
-	    clearVARIANT( &arg );
-
-	if ( !QVariantToVARIANT( value, arg, vartype ) )
+	VARIANT var;
+	VariantInit( &var );
+	if ( !QVariantToVARIANT( value, var, vartype ) )
 	    return FALSE;
+
+	updateReference( arg, var, byref );
     } else if ( QUType::isEqual( obj->type, &static_QUType_varptr ) ||
 		QUType::isEqual( obj->type, &static_QUType_ptr ) && param ) {
 	void *ptrvalue = static_QUType_varptr.get( obj );
@@ -1025,11 +1076,12 @@ bool QUObjectToVARIANT( QUObject *obj, VARIANT &arg, const QUParameter *param )
 	    vartype = param->type->desc();
 	}
 
-	if ( byref && arg.vt != VT_EMPTY )
-	    clearVARIANT( &arg );
-
-	if( !QVariantToVARIANT( value, arg, vartype ) )
+	VARIANT var;
+	VariantInit( &var );
+	if( !QVariantToVARIANT( value, var, vartype ) )
 	    return FALSE;
+
+	updateReference( arg, var, byref );
     } else {
 	qDebug( "QUObjectToVARIANT: Unhandled QUType %s!", obj->type->desc() );
 	arg.vt = VT_EMPTY;
@@ -1096,61 +1148,53 @@ void clearQUObject( QUObject *obj, const QUParameter *param )
 void clearVARIANT( VARIANT *var )
 {
     if ( var->vt & VT_BYREF ) {
-	const VARTYPE vt = var->vt & ~VT_BYREF;
-/*
-	switch( vt ) {
-	case VT_BSTR:
+	switch( var->vt ) {
+	case VT_BSTR|VT_BYREF:
 	    SysFreeString( *var->pbstrVal );
 	    delete var->pbstrVal;
 	    break;
-	case VT_BOOL:
+	case VT_BOOL|VT_BYREF:
 	    delete var->pboolVal;
 	    break;
-	case VT_I1:
+	case VT_I1|VT_BYREF:
 	    delete var->pcVal;
 	    break;
-	case VT_I2:
+	case VT_I2|VT_BYREF:
 	    delete var->piVal;
 	    break;
-	case VT_I4:
+	case VT_I4|VT_BYREF:
 	    delete var->plVal;
 	    break;
-	case VT_INT:
+	case VT_INT|VT_BYREF:
 	    delete var->pintVal;
 	    break;
-	case VT_UI1:
+	case VT_UI1|VT_BYREF:
 	    delete var->pbVal;
 	    break;
-	case VT_UI2:
+	case VT_UI2|VT_BYREF:
 	    delete var->puiVal;
 	    break;
-	case VT_UI4:
+	case VT_UI4|VT_BYREF:
 	    delete var->pulVal;
 	    break;
-	case VT_UINT:
+	case VT_UINT|VT_BYREF:
 	    delete var->puintVal;
 	    break;
-	case VT_R8:
+	case VT_R8|VT_BYREF:
 	    delete var->pdblVal;
 	    break;
-	case VT_DATE:
+	case VT_DATE|VT_BYREF:
 	    delete var->pdate;
 	    break;
-	case VT_DISPATCH:
+	case VT_DISPATCH|VT_BYREF:
 	    var->pdispVal->Release();
 	    break;
-	case VT_ARRAY|VT_VARIANT:
+	case VT_ARRAY|VT_VARIANT|VT_BYREF:
 	    SafeArrayDestroy( var->parray );
 	    break;
 	}
-*/
 	VariantInit( var );
     } else {
-	switch ( var->vt ) {
-	case VT_BSTR:
-	    SysFreeString( var->bstrVal );
-	    break;
-	}
 	VariantClear( var );
     }
 }
