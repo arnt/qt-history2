@@ -70,8 +70,8 @@ public:
     ~QODBCResult();
 
     SQLHANDLE   statement();
-    bool 	prepare( const QString& query );
-    bool 	exec();
+    bool	prepare( const QString& query );
+    bool	exec();
 
 protected:
     bool	fetchNext();

@@ -123,8 +123,8 @@ QString qWarnODBCHandle(int handleType, SQLHANDLE handle)
 
 QString qODBCWarn( const QODBCPrivate* odbc)
 {
-    return ( qWarnODBCHandle( SQL_HANDLE_ENV, odbc->hEnv ) + " " \
-	     + qWarnODBCHandle( SQL_HANDLE_DBC, odbc->hDbc ) + " " \
+    return ( qWarnODBCHandle( SQL_HANDLE_ENV, odbc->hEnv ) + " "
+	     + qWarnODBCHandle( SQL_HANDLE_DBC, odbc->hDbc ) + " "
 	     + qWarnODBCHandle( SQL_HANDLE_STMT, odbc->hStmt ) );
 }
 
@@ -460,8 +460,8 @@ QODBCResult::~QODBCResult()
     if ( d->hStmt && driver()->isOpen() ) {
 	SQLRETURN r = SQLFreeHandle( SQL_HANDLE_STMT, d->hStmt );
 #ifdef QT_CHECK_RANGE
-	if ( r!= SQL_SUCCESS )
-		qSqlWarning( "QODBCDriver: Unable to free statement handle" + QString::number(r), d );
+	if ( r != SQL_SUCCESS )
+	    qSqlWarning( "QODBCDriver: Unable to free statement handle " + QString::number(r), d );
 #endif
     }
 
@@ -498,7 +498,7 @@ bool QODBCResult::reset ( const QString& query )
 
     if ( isForwardOnly() ) {
 	r = SQLSetStmtAttr( d->hStmt,
-	    		    SQL_ATTR_CURSOR_TYPE,
+			    SQL_ATTR_CURSOR_TYPE,
 			    (SQLPOINTER)SQL_CURSOR_FORWARD_ONLY,
 			    SQL_IS_UINTEGER );
     } else {
@@ -509,7 +509,7 @@ bool QODBCResult::reset ( const QString& query )
     }
     if ( r != SQL_SUCCESS ) {
 #ifdef QT_CHECK_RANGE
-			qSqlWarning( "QODBCResult::reset: Unable to set 'SQL_CURSOR_STATIC' as statement attribute. Please check your ODBC driver configuration", d );
+	qSqlWarning( "QODBCResult::reset: Unable to set 'SQL_CURSOR_STATIC' as statement attribute. Please check your ODBC driver configuration", d );
 #endif
 	return FALSE;
     }
@@ -625,10 +625,14 @@ bool QODBCResult::fetchLast()
     SQLRETURN r;
     fieldCache.clear();
     nullCache.clear();
-
+    
     if ( isForwardOnly() ) {
 	// cannot seek to last row in forwardOnly mode, so we have to use brute force
 	int i = at();
+	if ( i == QSql::AfterLast )
+	    return FALSE;
+	if ( i == QSql::BeforeFirst )
+	    i = 0;
 	while ( fetchNext() ) 
 	    ++i;
 	setAt( i );
@@ -795,7 +799,7 @@ int QODBCResult::size()
 int QODBCResult::numRowsAffected()
 {
     SQLINTEGER affectedRowCount(0);
-    SQLRETURN r = SQLRowCount( d->hStmt, &affectedRowCount);
+    SQLRETURN r = SQLRowCount( d->hStmt, &affectedRowCount );
     if ( r == SQL_SUCCESS )
 	return affectedRowCount;
 #ifdef QT_CHECK_RANGE
@@ -1193,12 +1197,12 @@ bool QODBCDriver::open( const QString & db,
     r = SQLAllocHandle(SQL_HANDLE_DBC,
 			d->hEnv,
 			&d->hDbc);
-    if ( r != SQL_SUCCESS ) {
+    if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) {
 #ifdef QT_CHECK_RANGE
-		qSqlWarning( "QODBCDriver::open: Unable to allocate connection", d );
+	qSqlWarning( "QODBCDriver::open: Unable to allocate connection", d );
 #endif
-		setOpenError( TRUE );
-		return FALSE;
+	setOpenError( TRUE );
+	return FALSE;
     }
     QString connQStr;
     // support the "DRIVER={SQL SERVER};SERVER=blah;" syntax
@@ -1224,7 +1228,7 @@ bool QODBCDriver::open( const QString & db,
 			    connOut,
 			    1024,
 			    &cb,
-			    SQL_DRIVER_NOPROMPT);
+			    SQL_DRIVER_NOPROMPT );
     if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) {
 	setLastError( qMakeError( "Unable to connect", QSqlError::Connection, d ) );
 	setOpenError( TRUE );
