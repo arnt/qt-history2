@@ -251,8 +251,13 @@ int QMenuData::insertAny( const QString *text, const QPixmap *pixmap,
 			  QPopupMenu *popup, const QIconSet* iconset, int id, int index,
 			  QWidget* widget, QCustomMenuItem* custom )
 {
-    if ( index < 0 || index > (int) mitems->count() )	// append
+    if ( index < 0 ) {	// append, but not if the rightmost item is an mdi separator
 	index = mitems->count();
+	if ( mitems->last() && mitems->last()->widget() && mitems->last()->isSeparator() )
+	    index--;
+    } else if ( index > (int) mitems->count() ) { // append
+	index = mitems->count();
+    }
     if ( id < 0 )				// -2, -3 etc.
 	id = get_seq_id();
 
