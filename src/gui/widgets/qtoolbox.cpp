@@ -31,6 +31,7 @@
 
 class QToolBoxButton : public QAbstractButton
 {
+    Q_OBJECT
 public:
     QToolBoxButton(QWidget *parent)
         : QAbstractButton(parent), selected(false)
@@ -51,6 +52,8 @@ protected:
 private:
     bool selected;
 };
+
+#include "qtoolbox.moc"
 
 
 class QToolBoxPrivate : public QFramePrivate

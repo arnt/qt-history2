@@ -24,6 +24,7 @@ typedef bool(*LessThan)(const QTableWidgetItem *left, const QTableWidgetItem *ri
 
 class QTableModel : public QAbstractTableModel
 {
+    Q_OBJECT
 public:
     QTableModel(int rows, int columns, QTableWidget *parent);
     ~QTableModel();
@@ -89,6 +90,8 @@ private:
     QVector<QTableWidgetItem*> horizontal;
     mutable QChar strbuf[65];
 };
+
+#include "qtablewidget.moc"
 
 QTableModel::QTableModel(int rows, int columns, QTableWidget *parent)
     : QAbstractTableModel(parent),

@@ -23,6 +23,7 @@ typedef bool(*LessThan)(const QTreeWidgetItem *left, const QTreeWidgetItem *righ
 
 class QTreeModel : public QAbstractItemModel
 {
+    Q_OBJECT
     friend class QTreeWidget;
     friend class QTreeWidgetItem;
 
@@ -73,6 +74,8 @@ private:
     QTreeWidgetItem *header;
     Qt::SortOrder sorting;
 };
+
+#include "qtreewidget.moc"
 
 /*
   \class QTreeModel qtreewidget.h

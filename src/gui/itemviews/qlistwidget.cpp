@@ -21,6 +21,7 @@ typedef bool(*LessThan)(const QListWidgetItem *left, const QListWidgetItem *righ
 
 class QListModel : public QAbstractListModel
 {
+    Q_OBJECT
 public:
     QListModel(QListWidget *parent = 0);
     ~QListModel();
@@ -54,6 +55,8 @@ public:
 private:
     QList<QListWidgetItem*> lst;
 };
+
+#include "qlistwidget.moc"
 
 QListModel::QListModel(QListWidget *parent)
     : QAbstractListModel(parent)
