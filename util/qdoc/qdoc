@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# $Id: //depot/qt/main/util/qdoc/qdoc#159 $
+# $Id: //depot/qt/main/util/qdoc/qdoc#160 $
 #
 # this is a massive hack, written very quickly
 #
@@ -47,7 +47,8 @@
 # "\link name text text text \endlink" makes "text text text" into a link
 # to "name" which must be a member of this class or fully qualified
 #
-# "\page filename.html" directs the rest of the file to that filename
+# "\page filename.html" directs the rest of the file to that filename. If
+# the filename does not end with ".html", the header and footer are omitted.
 #
 # "\sa" outputs "See also: " and clears the has-shown-link table
 #
@@ -707,7 +708,9 @@ sub writepages {
 	    }
 	    print O $e;
 	}
-	print O $address;
+	if ( $file =~ /\.html$/ ) {
+	    print O $address;
+	}
 	close(O);
     }
 }
