@@ -136,10 +136,12 @@ static QWidget *colorPage()
     QGrid *grid = new QGrid( 3, frame );
     new QLabel( "Text:", grid );
     new QPushButton( "dummy", grid );
-    new QLabel(grid); //### grid->skip();
+    new QWidget(grid); //### grid->skip();
     new QLabel( "Background:", grid );
     new QPushButton( "dummy", grid );
-    new QLabel(grid); //### grid->skip();
+    new QWidget(grid); //### grid->skip();
+    new QWidget(grid); //### grid->skip();
+    new QWidget(grid); //### grid->skip();
     new QPushButton( "Use Default", grid );
 
     frame = new QLabelled( "Links", topbox );
@@ -172,10 +174,9 @@ static QWidget *appsPage()
 
     QLabelled *frame = new QLabelled( page );
     QVBox *box = new QVBox( frame );
-#if 1
     QListView *lv = new QListView( box );
     lv->setColumn( "Description", 250 );
-    lv->setColumn( "Handled By", 100 );
+    lv->setColumn( "Handled By", 200 );
     new QListViewItem( lv, "GIF Image", "Netscape" );
     new QListViewItem( lv, "Hypertext Markup Language", "Netscape" );
     new QListViewItem( lv, "Plain text", "Netscape" );
@@ -188,12 +189,12 @@ static QWidget *appsPage()
     new QListViewItem( lv, "Oiuycxsxc Xocuy", "Unknown:Prompt User" );
     new QListViewItem( lv, "JPG Image", "Netscape" );
     new QListViewItem( lv, "XBM Image", "Netscape" );
-#endif
+
     QButtonRow *br = new QButtonRow( box );
     new QPushButton( "New...", br );
     new QPushButton( "Edit...", br );
     new QPushButton( "Delete", br );
-    
+
     QHBox *hbox = new QHBox( box );
     new QLabel( "Download files to:", hbox );
     new QLineEdit( hbox );
