@@ -575,7 +575,6 @@ QFSFileEnginePrivate::doStat() const
         QString statName = file;
         if (file.length() == 2 && file.at(1) == ':')
             statName += '\\';
-
         if(d->fd != -1) {
             could_stat = !QT_FSTAT(d->fd, &st);
         } else {
@@ -587,8 +586,9 @@ QFSFileEnginePrivate::doStat() const
         }
 	if (could_stat) {
 	    bool is_dir=false;
-	    if (file.at(0) == '/' && file.at(1) == '/'
-		|| file.at(0) == '\\' && file.at(1) == '\\')
+	    if (file.length() >= 2 
+		&& (file.at(0) == '/' && file.at(1) == '/'
+		    || file.at(0) == '\\' && file.at(1) == '\\'))
 	    {
 		// UNC - stat doesn't work for all cases (Windows bug)
 		int s = file.indexOf(file.at(0),2);
