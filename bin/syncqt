@@ -53,14 +53,14 @@ my @ignore_headers = ();
 my @ignore_master_headers = ( "qt.h", "qpaintdevicedefs.h" );
 
 my %dirs = (
-	 "src/gui" => "QtGui",
-	 "src/opengl" => "QtOpenGL",
-	 "src/core" => "QtCore",
-	 "src/xml" => "QtXml",
-	 "src/sql" => "QtSql",
-	 "src/network" => "QtNetwork",
-	 "src/canvas" => "QtCanvas",
-	 "src/compat" => "Qt3Compat",
+	 "$basedir/src/gui" => "QtGui",
+	 "$basedir/src/opengl" => "QtOpenGL",
+	 "$basedir/src/core" => "QtCore",
+	 "$basedir/src/xml" => "QtXml",
+	 "$basedir/src/sql" => "QtSql",
+	 "$basedir/src/network" => "QtNetwork",
+	 "$basedir/src/canvas" => "QtCanvas",
+	 "$basedir/src/compat" => "Qt3Compat",
 );
 
 $dirs{"mkspecs" . $ENV{"MKSPEC"}} = "QCore" if defined $ENV{"MKSPEC"}; 
@@ -90,8 +90,8 @@ foreach $dir (keys %dirs) {
 	    foreach (@ignore_headers) { 
 		$header = 0 if("$header" eq "$_");
 	    }
-	    if("$header") {
-		my $iheader = $basedir . "/" . $subdir . "/" . $header;
+	    if($header) {
+		my $iheader = $subdir . "/" . $header;
 		if($showonly) {
 		    print "$header [$lib]\n";
 		} else {
@@ -123,6 +123,8 @@ foreach $dir (keys %dirs) {
 	    $master_include = 0 if($oldmaster eq $master_header_out);
 	}
 	if($master_include) {
+	    my $master_dir = dirname($master_include);
+	    mkdir $master_dir, 0777;
 	    print "header (master) created for $lib\n";
 	    open MASTERINCLUDE, ">$master_include";
 	    print MASTERINCLUDE "$master_header_out";
