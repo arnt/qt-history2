@@ -232,7 +232,7 @@ QString QApplicationInterface::interfaceID() const
 
 QString QApplicationInterface::name() const
 {
-    return QString::null;
+    return qApp->name();
 }
 
 QString QApplicationInterface::description() const
