@@ -61,12 +61,12 @@
 
 static QString mkdir_p_asstring(const QString &dir)
 {
-    QString ret =  "@$(CHK_DIR_EXISTS) " + dir + " ";
+    QString ret =  "@$(CHK_DIR_EXISTS) \"" + dir + "\" ";
     if(Option::target_mode == Option::TARG_WIN_MODE)
 	ret += "$(MKDIR)";
     else
 	ret += "|| $(MKDIR)";
-    ret += " " + dir;
+    ret += " \"" + dir + "\"";
     return ret;
 }
 
@@ -1682,52 +1682,58 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 	    do_default = FALSE;
 	    for(QStringList::Iterator wild_it = tmp.begin(); wild_it != tmp.end(); ++wild_it) {
 		QString wild = Option::fixPathToLocalOS((*wild_it), FALSE), wild_var = fileFixify(wild);
+		QString dirstr = QDir::currentDirPath(), filestr = wild;
+		int slsh = filestr.findRev(Option::dir_sep);
+		if(slsh != -1) {
+		    dirstr = filestr.left(slsh+1);
+		    filestr = filestr.right(filestr.length() - slsh - 1);
+		}
+		if(dirstr.right(Option::dir_sep.length()) != Option::dir_sep)
+		    dirstr += Option::dir_sep;
 		if(QFile::exists(wild)) { //real file
+		    QString file = wild;
 		    QFileInfo fi(wild);
-		    target += QString("\t-") + (fi.isDir() ? "$(COPY_DIR)" : "$(COPY_FILE)") +
-			      " \"" + Option::fixPathToTargetOS(fileFixify(wild), FALSE) + "\" \"" + root + dst + "\"\n";
+		    if(!target.isEmpty())
+			target += "\t";
+		    target += QString(fi.isDir() ? "-$(COPY_DIR)" : "-$(COPY_FILE)") + " \"" +
+			      Option::fixPathToTargetOS(fileFixify(wild), FALSE) + "\" \"" + root + dst + "\"\n";
 		    if(!project->isActiveConfig("debug") &&
 		       !fi.isDir() && fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
-			target += QString("\t") + var("QMAKE_STRIP") + " \"" + root + fileFixify(dst + wild) + "\"\n";
+			target += QString("\t-") + var("QMAKE_STRIP") + " \"" + root + fileFixify(dst + filestr) + "\"\n";
+		    if(!uninst.isEmpty())
+			uninst.append("\n\t");
 		    uninst.append(
 #ifdef Q_WS_WIN
 		    QString("-$(DEL_FILE)")
 #else
 		    QString("-$(DEL_FILE) -r")
 #endif
-		    + " \"" + root + fileFixify(dst + wild) + "\"");
+		    + " \"" + root + fileFixify(dst + filestr) + "\"");
 		    continue;
 		}
-		QString dirstr = QDir::currentDirPath(), f = wild;		    //wild
-		int slsh = f.findRev(Option::dir_sep);
-		if(slsh != -1) {
-		    dirstr = f.left(slsh+1);
-		    f = f.right(f.length() - slsh - 1);
-		}
-		if(dirstr.right(Option::dir_sep.length()) != Option::dir_sep)
-		    dirstr += Option::dir_sep;
-		if(!uninst.isEmpty())
-		    uninst.append("\n\t");
-		uninst.append(
-#ifdef Q_WS_WIN
-		    QString("-$(DEL_FILE)")
-#else
-		    QString("-$(DEL_FILE) -r")
-#endif
-		    + " " + root + fileFixify(dst + f) + "");
-
-		QDir dir(dirstr, f);
+		QDir dir(dirstr, filestr);		    //wild
 		for(uint x = 0; x < dir.count(); x++) {
 		    QString file = dir[x];
 		    if(file == "." || file == "..") //blah
 			continue;
+		    if(!uninst.isEmpty())
+			uninst.append("\n\t");
+		    uninst.append(
+#ifdef Q_WS_WIN
+			QString("-$(DEL_FILE)")
+#else
+			QString("-$(DEL_FILE) -r")
+#endif
+			+ " \"" + root + fileFixify(dst + file) + "\"");
 		    QFileInfo fi(file);
-		    target += QString("\t-") + (fi.isDir() ? "$(COPY_DIR)" : "$(COPY_FILE)") +
-			      " \"" + Option::fixPathToTargetOS(fileFixify(dirstr + file), FALSE) +
+		    if(!target.isEmpty())
+			target += "\t";
+		    target += QString(fi.isDir() ? "-$(COPY_DIR)" : "-$(COPY_FILE)") + " \"" + 
+			      Option::fixPathToTargetOS(fileFixify(dirstr + file), FALSE) +
 			      "\" \"" + root + fileFixify(dst) + "\"\n";
 		    if(!project->isActiveConfig("debug") &&
 		       !fi.isDir() && fi.isExecutable() && !project->isEmpty("QMAKE_STRIP"))
-			target += QString("\t") + var("QMAKE_STRIP") + " \"" + root + fileFixify(dst + file) + "\"\n";
+			target += QString("\t-") + var("QMAKE_STRIP") + " \"" + root + fileFixify(dst + file) + "\"\n";
 		}
 	    }
 	}
@@ -1742,7 +1748,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs)
 	    all_installs += QString("install_") + (*it) + " ";
 	    if(!uninst.isEmpty()) {
 		t << "uninstall_" << (*it) << ": " << "\n\t"
-		  << uninst.join(" ") << "\n\t"
+		  << uninst.join("") << "\n\t"
 		  << "-$(DEL_DIR) \"" << ( root + dst ) << "\"" << endl << endl;
 		all_uninstalls += "uninstall_" + (*it) + " ";
 	    }

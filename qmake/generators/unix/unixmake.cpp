@@ -459,7 +459,7 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
 	    if(slsh != -1)
 		dst_prl = dst_prl.right(dst_prl.length() - slsh - 1);
 	    dst_prl = root + targetdir + dst_prl;
-	    ret += "-$(COPY) " + project->first("QMAKE_INTERNAL_PRL_FILE") + " " + dst_prl;
+	    ret += "-$(COPY) \"" + project->first("QMAKE_INTERNAL_PRL_FILE") + "\" \"" + dst_prl + "\"";
 	    if(!uninst.isEmpty())
 		uninst.append("\n\t");
 	    uninst.append("-$(DEL_FILE) \"" + dst_prl + "\"");
@@ -480,13 +480,15 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     QString dst_targ = root + fileFixify(targetdir + target);
     if(!ret.isEmpty())
 	ret += "\n\t";
-    ret += QString("$(DEL_FILE) ") + (resource ? "-r " : "") + "\"" + dst_targ + "\"" + "\n\t";
+    ret += QString("-$(DEL_FILE) ") + (resource ? "-r " : "") + "\"" + dst_targ + "\"" + "\n\t";
     ret += QString(resource ? "-$(COPY_DIR)" : "-$(COPY)") + " \"" +
 	   src_targ + "\" \"" + dst_targ + "\"";
     if(!project->isActiveConfig("debug") && !project->isEmpty("QMAKE_STRIP")) {
 	ret += "\n\t-" + var("QMAKE_STRIP");
+	if(!project->isEmpty("QMAKE_STRIPFLAGS_LIB") && project->first("TEMPLATE") == "lib")
+	    ret += " " + var("QMAKE_STRIPFLAGS_LIB");
 	if(resource)
-	    ret = " \"" + dst_targ + "/Contents/MacOS/$(QMAKE_TARGET)";
+	    ret = " \"" + dst_targ + "/Contents/MacOS/$(QMAKE_TARGET)\"";
 	else
 	    ret += " \"" + dst_targ + "\"";
     }
