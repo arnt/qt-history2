@@ -158,7 +158,7 @@ FormList::FormList( QWidget *parent, MainWindow *mw, Project *pro )
     setAllColumnsShowFocus( TRUE );
     connect( this, SIGNAL( mouseButtonClicked( int, QListViewItem *, const QPoint &, int ) ),
 	     this, SLOT( itemClicked( int, QListViewItem * ) ) ),
-    connect( this, SIGNAL( rightButtonClicked( QListViewItem *, const QPoint &, int ) ),
+    connect( this, SIGNAL( contextMenu( QListViewItem *, const QPoint &, int ) ),
 	     this, SLOT( rmbClicked( QListViewItem * ) ) ),
     setHScrollBarMode( AlwaysOff );
     viewport()->setAcceptDrops( TRUE );

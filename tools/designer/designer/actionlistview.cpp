@@ -28,7 +28,7 @@ ActionListView::ActionListView( QWidget *parent, const char *name )
     header()->setFullSize( TRUE );
     setRootIsDecorated( TRUE );
     setSorting( -1 );
-    connect( this, SIGNAL( rightButtonPressed( QListViewItem *, const QPoint &, int ) ),
+    connect( this, SIGNAL( contextMenu( QListViewItem *, const QPoint &, int ) ),
 	     this, SLOT( rmbMenu( QListViewItem *, const QPoint & ) ) );
 }
 

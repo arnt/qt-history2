@@ -178,7 +178,7 @@ HierarchyList::HierarchyList( QWidget *parent, FormWindow *fw, bool doConnects )
 		 this, SLOT( objectClicked( QListViewItem * ) ) );
 	connect( this, SIGNAL( returnPressed( QListViewItem * ) ),
 		 this, SLOT( objectClicked( QListViewItem * ) ) );
-	connect( this, SIGNAL( rightButtonPressed( QListViewItem *, const QPoint&, int ) ),
+	connect( this, SIGNAL( contextMenu( QListViewItem *, const QPoint&, int ) ),
 		 this, SLOT( showRMBMenu( QListViewItem *, const QPoint & ) ) );
     }
     deselect = TRUE;
