@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#56 $
+** $Id: //depot/qt/main/src/widgets/qradiobutton.cpp#57 $
 **
 ** Implementation of QRadioButton class
 **
@@ -17,7 +17,7 @@
 #include "qpmcache.h"
 #include "qbitmap.h"
 
-RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#56 $");
+RCSTAG("$Id: //depot/qt/main/src/widgets/qradiobutton.cpp#57 $");
 
 
 /*!
@@ -297,7 +297,7 @@ void QRadioButton::drawButtonLabel( QPainter *p )
 			      AlignLeft|AlignVCenter|ShowPrefix,
 			      isEnabled(),
 			      pixmap(), text() );
-	br.setLeft( br.left()-2 );
+	br.setLeft( br.left()-3 );
 	br.setRight( br.right()+2 );
 	br.setTop( br.top()-2 );
 	br.setBottom( br.bottom()+2);
