@@ -24,8 +24,9 @@ void Main::resizeEvent(QResizeEvent*)
 void Main::keyPressEvent(QKeyEvent* ke)
 {
     if ( ke->key() == Key_Backspace ) {
-	if ( line.length() )
-	    line = line.left(line.length()-1);
+	if ( line.length() ) {
+	    line = line.left( line.length()-1 );
+	}
     } else if ( ke->key() == Key_Return ) {
 	line += '\n';
     } else if ( ke->key() == Key_Left ) {
@@ -41,6 +42,8 @@ void Main::keyPressEvent(QKeyEvent* ke)
 	l->show();
     } else if ( ke->key() == Key_G && ke->state()&AltButton ) {
 	flags ^= GrayText;
+    } else if ( ke->key() == Key_C && ke->state()&AltButton ) {
+	flags ^= DontClip;
     } else if ( ke->key() == Key_P && ke->state()&AltButton ) {
 	QPrinter prn;
 	if (prn.setup(this)) {
@@ -67,6 +70,7 @@ void Main::paintEvent(QPaintEvent* e)
 
 void Main::draw(QPainter& p)
 {
+    //p.setBackgroundMode(OpaqueMode);
     QFontMetrics fm = p.fontMetrics();
     QRect br = fm.boundingRect(line);
     int w = width()/2;
@@ -112,16 +116,16 @@ void Main::draw(QPainter& p)
     p.setPen(magenta);
     p.drawRect(pbr);
     p.setPen(blue);
-    p.drawText(pbr,flags,line);
+    p.drawText(r,flags,line);
 }
 
 main(int argc, char** argv)
 {
-    QApplication app(argc, argv);
     QApplication::setFont(QFont("Times",100,QFont::Normal,FALSE));
     //QApplication::setFont(QFont("Times",100,QFont::Normal,TRUE));
     //QApplication::setFont(QFont("System",100,QFont::Normal,TRUE));
     //QApplication::setFont(QFont("Courier",100,QFont::Normal,TRUE));
+    QApplication app(argc, argv);
 
     Main m;
     m.show();

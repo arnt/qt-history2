@@ -124,4 +124,14 @@ int main()
           tFile.close();
           printf("%d\n", tStream.eof());
     }
+
+    printf("Testing example...\n");
+    {
+	QString str;
+	QBuffer buf( str );
+	buf.open( IO_WriteOnly );
+	QTextStream ts( &buf );
+	ts << "pi = " << 3.14;                      // str == "pi = 3.14"
+	buf.close();
+    }
 }

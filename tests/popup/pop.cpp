@@ -112,6 +112,10 @@ public slots:
     void setMenu( int );
 protected:
     void paintEvent( QPaintEvent * );    
+    void mousePressEvent( QMouseEvent *e )
+    {
+	pop->popup(mapToGlobal(e->pos()));
+    }
     //    void timerEvent( QTimerEvent * );
 private:
     QPushButton *pbutn;
