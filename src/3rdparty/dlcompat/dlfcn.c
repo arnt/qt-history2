@@ -563,7 +563,11 @@ static inline const char *dyld_error_str()
 static void *dlsymIntern(struct dlstatus *dls, const char *symbol, int canSetError)
 {
 	NSSymbol *nssym = 0;
+#ifdef __GCC__
 	void *caller = __builtin_return_address(1);	/* Be *very* careful about inlining */
+#else
+        void *caller = NULL;
+#endif
 	const struct mach_header *caller_mh = 0;
 	const char* savedErrorStr = NULL;
 	resetdlerror();
@@ -574,7 +578,7 @@ static void *dlsymIntern(struct dlstatus *dls, const char *symbol, int canSetErr
 		dls = RTLD_SELF;
 	if ((RTLD_NEXT == dls) || (RTLD_SELF == dls))
 	{
-		if (dyld_NSIsSymbolNameDefinedInImage && dyld_NSLookupSymbolInImage)
+		if (dyld_NSIsSymbolNameDefinedInImage && dyld_NSLookupSymbolInImage && caller)
 		{
 			caller_mh = image_for_address(caller);
 			if (RTLD_SELF == dls)
@@ -1062,7 +1066,7 @@ int dlclose(void *handle)
 			fini();
 		}
 		options |= NSUNLINKMODULE_OPTION_RESET_LAZY_REFERENCES;
-#if 1
+#if 0
 /*  Currently, if a module contains c++ static destructors and it is unloaded, we
  *  get a segfault in atexit(), due to compiler and dynamic loader differences of
  *  opinion, this works around that.
