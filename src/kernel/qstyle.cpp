@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#45 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#46 $
 **
 ** Implementation of QStyle class
 **
@@ -649,10 +649,10 @@ static void cleanupStyleData()
 }
 
 
-/*!  
+/*!
   Returns a QSize containing the width of a vertical scrollbar and
-  the height of a horizontal scrollbar in this style. 
-  
+  the height of a horizontal scrollbar in this style.
+
   In this version of the Qt library, subclasses must call
   setScrollBarExtent() to change the extent of scrollbars. In a future
   version of Qt, this function will become virtual.
@@ -663,7 +663,7 @@ QSize QStyle::scrollBarExtent()
     return d ? d->sbextent : QSize(16,16);
 }
 
-/*
+/*!
   Sets the width of a vertical scrollbar in this style to \a width and
   the height of a horizontal scrollbar to \a height. If \a height is
   negative, \a width will be used for both extents. By default both
@@ -683,7 +683,7 @@ void QStyle::setScrollBarExtent( int width, int height )
     }
 
     QStyleData *sd = new QStyleData( width, height<0 ? width : height );
-    
+
     extraData->replace( this, sd );
 }
 
