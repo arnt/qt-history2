@@ -518,7 +518,7 @@ static void qt_set_windows_resources()
 	menu.setColor( QPalette::Inactive, QPalette::ButtonText,
 		      menu.color(QPalette::Active, QPalette::ButtonText));
 	if ( qWinVersion() != Qt::WV_NT && qWinVersion() != Qt::WV_95 )
-	    menu.setColor( QPalette::Inactive, QPalette::Button,
+	    menu.setColor( QPalette::Inactive, QPalette::ButtonText,
 			  pal.color(QPalette::Inactive, QPalette::Dark));
 	QApplication::setPalette( menu, "QPopupMenu");
 
