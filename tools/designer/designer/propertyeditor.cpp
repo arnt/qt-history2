@@ -3495,7 +3495,7 @@ PropertyEditor::PropertyEditor( QWidget *parent )
     listview = new PropertyList( this );
     addTab( listview, tr( "P&roperties" ) );
     eList = new EventList( this, formWindow(), this );
-    addTab( eList, tr( "S&ignal Handlers" ) );
+    addTab( eList, tr( "Signa&l Handlers" ) );
 }
 
 QObject *PropertyEditor::widget() const
