@@ -10,27 +10,27 @@ DESTDIR         = ../../bin
 
 
 INCLUDEPATH	= $$QT_SOURCE_TREE/include ../tools . $$QT_SOURCE_TREE/arch/$$ARCH
-DEPENDPATH	+= $$QT_SOURCE_TREE/include ../tools .
+DEPENDPATH	+= $$QT_SOURCE_TREE/include ../core/base ../core/tools ../core/io .
 LIBS		=
 OBJECTS_DIR	= .
-SOURCES		= ../tools/qbitarray.cpp	\
-		  ../tools/qbytearray.cpp	\
-		  ../tools/qhash.cpp	\
-		  ../tools/qdatetime.cpp	\
-		  ../tools/qfile.cpp		\
-		  ../tools/qdir.cpp		\
-		  ../tools/qfileinfo.cpp	\
-		  ../tools/qglobal.cpp		\
-		  ../tools/qiodevice.cpp	\
-		  ../tools/qlist.cpp		\
-		  ../tools/qregexp.cpp		\
-		  ../tools/qchar.cpp		\
-		  ../tools/qstring.cpp		\
-                  ../tools/qunicodetables.cpp	\
-		  ../tools/qstringlist.cpp	\
-		  ../tools/qmap.cpp		\ 
-		  ../tools/qvector.cpp          \
-		  ../tools/qlocale.cpp
+SOURCES		= ../core/tools/qbitarray.cpp	\
+		  ../core/tools/qbytearray.cpp	\
+		  ../core/tools/qhash.cpp	\
+		  ../core/tools/qdatetime.cpp	\
+		  ../core/io/qfile.cpp		\
+		  ../core/io/qdir.cpp		\
+		  ../core/io/qfileinfo.cpp	\
+		  ../core/base/qglobal.cpp		\
+		  ../core/io/qiodevice.cpp	\
+		  ../core/tools/qlist.cpp		\
+		  ../core/tools/qregexp.cpp		\
+		  ../core/tools/qchar.cpp		\
+		  ../core/tools/qstring.cpp		\
+                  ../core/tools/qunicodetables.cpp	\
+		  ../core/tools/qstringlist.cpp	\
+		  ../core/tools/qmap.cpp		\ 
+		  ../core/tools/qvector.cpp          \
+		  ../core/tools/qlocale.cpp
 
 include($$QT_SOURCE_TREE/arch/$$ARCH/arch.pri)
 
@@ -41,8 +41,16 @@ isEmpty(QT_PRODUCT)|contains(QT_PRODUCT, qt-internal) {
     SOURCES   += moc_yacc.cpp
 }
 
-unix:SOURCES	+= ../tools/qfile_unix.cpp ../tools/qdir_unix.cpp ../tools/qfileinfo_unix.cpp
-win32:SOURCES	+= ../tools/qfile_win.cpp ../tools/qdir_win.cpp ../tools/qfileinfo_win.cpp
+unix:SOURCES += \
+	../core/io/qfile_unix.cpp \
+	../core/io/qdir_unix.cpp \
+	../core/io/qfileinfo_unix.cpp
+
+win32:SOURCES += \
+	../core/io/qfile_win.cpp \
+	../core/io/qdir_win.cpp \
+	../core/io/qfileinfo_win.cpp
+
 macx:LIBS	+= -framework CoreServices
 
 target.path=$$bins.path
