@@ -43,6 +43,7 @@
 #include "qimage.h"
 #include "qtimer.h"
 #include "qdatetime.h"
+#include "qguardedptr.h"
 
 /*
   Internal class to get access to protected QWidget-members
@@ -88,7 +89,7 @@ private:
     QImage back;
     QImage front;
     QImage mixed;
-    QAccessWidget* widget;
+    QGuardedPtr<QAccessWidget> widget;
     int duration;
     int elapsed;
     bool showWidget;
@@ -239,23 +240,28 @@ void QAlphaWidget::render()
 	alpha = 1;
     if ( alpha >= 1 || !showWidget) {
 	anim.stop();
-	widget->removeEventFilter( this );
 	qApp->removeEventFilter( this );
-	BackgroundMode bgm = widget->backgroundMode();
-	QColor erc = widget->eraseColor();
-	const QPixmap *erp = widget->erasePixmap();
+	BackgroundMode bgm;
+	QColor erc;
+	const QPixmap *erp;
+	if ( widget ) {
+	    widget->removeEventFilter( this );
+	    bgm = widget->backgroundMode();
+	    erc = widget->eraseColor();
+	    erp = widget->erasePixmap();
 
-	if ( showWidget ) {
-	    widget->clearWState( WState_Visible );
-	    widget->setWState( WState_ForceHide );
-	    widget->setBackgroundMode( NoBackground );
-	    widget->show();
-	} else {
-	    widget->hide();
+	    if ( showWidget ) {
+		widget->clearWState( WState_Visible );
+		widget->setWState( WState_ForceHide );
+		widget->setBackgroundMode( NoBackground );
+		widget->show();
+	    } else {
+		widget->hide();
+	    }
 	}
 	hide();
 
-	if ( showWidget ) {
+	if ( showWidget && widget ) {
 	    if ( bgm != FixedColor && bgm != FixedPixmap ) {
 		widget->clearWState( WState_Visible ); // prevent update in setBackgroundMode
 		widget->setBackgroundMode( bgm );
@@ -342,7 +348,7 @@ private slots:
     void goodBye();
 
 private:
-    QAccessWidget* widget;
+    QGuardedPtr<QAccessWidget> widget;
 
     int currentHeight;
     int currentWidth;
@@ -554,23 +560,28 @@ void QRollEffect::scroll()
     }
     if ( done ) {
 	anim.stop();
-	widget->removeEventFilter( this );
 	qApp->removeEventFilter( this );
-	BackgroundMode bgm = widget->backgroundMode();
-	QColor erc = widget->eraseColor();
-	const QPixmap *erp = widget->erasePixmap();
+	BackgroundMode bgm;
+	QColor erc;
+	const QPixmap *erp;
+	if ( widget ) {
+	    widget->removeEventFilter( this );
+	    bgm = widget->backgroundMode();
+	    erc = widget->eraseColor();
+	    erp = widget->erasePixmap();
 
-	if ( showWidget ) {
-	    widget->clearWState( WState_Visible );
-	    widget->setWState( WState_ForceHide );
-	    widget->setBackgroundMode( NoBackground );
-	    widget->show();
-	} else {
-	    widget->hide();
+	    if ( showWidget ) {
+		widget->clearWState( WState_Visible );
+		widget->setWState( WState_ForceHide );
+		widget->setBackgroundMode( NoBackground );
+		widget->show();
+	    } else {
+		widget->hide();
+	    }
 	}
 	hide();
 
-	if ( showWidget ) {
+	if ( showWidget && widget ) {
 	    if ( bgm != FixedColor && bgm != FixedPixmap ) {
 		widget->clearWState( WState_Visible ); // prevent update in setBackgroundMode
 		widget->setBackgroundMode( bgm );
