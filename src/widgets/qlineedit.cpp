@@ -1165,9 +1165,9 @@ void QLineEdit::mouseReleaseEvent( QMouseEvent * e )
 
     if ( !d->readonly && e->button() == MidButton ) {
 	if (QApplication::clipboard()->supportsSelection()) {
-	    QApplication::clipboard()->setSelectionMode(TRUE);
+	    QApplication::clipboard()->setSelectionMode( TRUE );
 	    insert( QApplication::clipboard()->text() );
-	    QApplication::clipboard()->setSelectionMode(TRUE);
+	    QApplication::clipboard()->setSelectionMode( FALSE );
 	}
 	return;
     }
@@ -1969,7 +1969,7 @@ void QLineEdit::blinkOn()
 }
 
 void QLineEdit::updateOffset()
-{ 
+{
     // must not call repaint() - paintEvent() calls this
     int parWidth = d->parag->rect().width() - 4; // QTextParag adds 4 pixels to the real width
     int leftGap = d->parag->leftGap();

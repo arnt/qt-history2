@@ -558,6 +558,7 @@ bool QClipboard::event( QEvent *e )
 	    if (timer_flags & 0x02) // clear clipboard
 		clipboardData()->clear();
 	    timer_event_clear = FALSE;
+	    timer_flags = 0;
 
 	    return TRUE;
 	} else
@@ -938,17 +939,15 @@ QMimeSource* QClipboard::data() const
 {
     QClipboardData *d;
 
-    if (inSelectionMode) {
+    if (inSelectionMode)
 	d = selectionData();
-	timer_flags |= 0x01;
-    } else {
+    else
 	d = clipboardData();
-	timer_flags |= 0x02;
-    }
 
     if ( ! d->source() && ! timer_event_clear ) {
 	d->setSource(new QClipboardWatcher());
 
+	timer_flags |= inSelectionMode ? 0x01 : 0x02;
 	if (! timer_id) {
 	    // start a zero timer - we will clear cached data when the timer
 	    // times out, which will be the next time we hit the event loop...

@@ -108,6 +108,9 @@ public:
 	Readable	= 0x00000001,
 	Writable	= 0x00000002,
 	EnumOrSet	= 0x00000004,
+	Designable	= 0x00000008,
+	Scriptable	= 0x00000010,
+	Stored		= 0x00000020,
 	StdSet		= 0x00000100,
 	Override	= 0x00000200
     };
