@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#345 $
+** $Id: //depot/qt/main/src/kernel/qwidget_x11.cpp#346 $
 **
 ** Implementation of QWidget and QWindow classes for X11
 **
@@ -1564,24 +1564,23 @@ void QWidget::scroll( int dx, int dy )
 void QWidget::scroll( int dx, int dy, const QRect& r )
 {
     bool valid_rect = r.isValid();
-    if ( !valid_rect )
-	r = rect();
-    int x1, y1, x2, y2, w=r.width(), h=r.height();
+    QRect sr = valid_rect?r:rect();
+    int x1, y1, x2, y2, w=sr.width(), h=sr.height();
     if ( dx > 0 ) {
-	x1 = r.x();
+	x1 = sr.x();
 	x2 = x1+dx;
 	w -= dx;
     } else {
-	x2 = r.x();
+	x2 = sr.x();
 	x1 = x2-dx;
 	w += dx;
     }
     if ( dy > 0 ) {
-	y1 = r.y();
+	y1 = sr.y();
 	y2 = y1+dy;
 	h -= dy;
     } else {
-	y2 = r.y();
+	y2 = sr.y();
 	y1 = y2-dy;
 	h += dy;
     }
@@ -1614,18 +1613,18 @@ void QWidget::scroll( int dx, int dy, const QRect& r )
     bool repaint_immediately = qt_sip_count( this ) < 3;
 
     if ( dx ) {
-	int x = x2 == r.x() ? r.x()+w : r.x();
+	int x = x2 == sr.x() ? sr.x()+w : sr.x();
 	if ( repaint_immediately )
-	    repaint( x, r.y(), abs(dx), r.height(), TRUE );
+	    repaint( x, sr.y(), QABS(dx), sr.height(), TRUE );
 	else
-	    XClearArea( dpy, winid, x, r.y(), abs(dx), r.height(), TRUE );
+	    XClearArea( dpy, winid, x, sr.y(), QABS(dx), sr.height(), TRUE );
     }
     if ( dy ) {
-	int y = y2 == r.y() ? r.y()+h : r.y();
+	int y = y2 == sr.y() ? sr.y()+h : sr.y();
 	if ( repaint_immediately )
-	    repaint( r.x(), y, r.width(), abs(dy), TRUE );
+	    repaint( sr.x(), y, sr.width(), QABS(dy), TRUE );
 	else
-	    XClearArea( dpy, winid, r.x(), y, r.width(), abs(dy), TRUE );
+	    XClearArea( dpy, winid, sr.x(), y, sr.width(), QABS(dy), TRUE );
     }
 
     qt_insert_sip( this, dx, dy ); // #### ignores r
