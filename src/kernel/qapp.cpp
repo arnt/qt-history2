@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qapp.cpp#123 $
+** $Id: //depot/qt/main/src/kernel/qapp.cpp#124 $
 **
 ** Implementation of QApplication class
 **
@@ -15,7 +15,7 @@
 #include "qwidcoll.h"
 #include "qpalette.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#123 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qapp.cpp#124 $");
 
 
 /*!
@@ -622,8 +622,8 @@ QFontMetrics QApplication::fontMetrics()
   By convention, \e retcode 0 means success, any non-zero value indicates
   an error.
 
-  Note that unlike the libc exit function, this function \e does returns
-  to the caller - it is event processing that stops.
+  Note that unlike the C library exit function, this function \e does
+  returns to the caller - it is event processing that stops.
 
   \sa quit(), exec()
 */
