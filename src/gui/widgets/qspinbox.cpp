@@ -232,8 +232,8 @@ QSpinBox::QSpinBox(QWidget *parent, const char *name)
 QSpinBox::QSpinBox(int min, int max, int step, QWidget *parent, const char *name)
     : QAbstractSpinBox(*new QSpinBoxPrivate, parent)
 {
-    d->minimum = QVariant(qMin(min, max));
-    d->maximum = QVariant(qMax(min, max));
+    d->minimum = QVariant(qMin<int>(min, max));
+    d->maximum = QVariant(qMax<int>(min, max));
     d->singlestep = QVariant(step);
     setObjectName(name);
 }
@@ -861,7 +861,7 @@ int QDoubleSpinBox::precision() const
 
 void QDoubleSpinBox::setPrecision(int precision)
 {
-    d->precision = qMin(qMax(0, precision), 14);
+    d->precision = qMin<int>(qMax<int>(0, precision), 14);
     if (d->precision != precision)
 	qWarning("QDoubleSpinBox::setPrecision() %d is not a valid precision. 0-14 is allowed",
 		 precision);

@@ -25,9 +25,11 @@ extern QString qt_mac_from_pascal_string(const Str255); //qglobal.cpp
 
 //#define QDATETIMEEDIT_QDTEDEBUG
 #ifdef QDATETIMEEDIT_QDTEDEBUG
-#  define QDTEDEBUG qDebug
+#  define QDTEDEBUG qDebug() << QString("%1:%2").arg(__FILE__).arg(__LINE__)
+#  define QDTEDEBUGN qDebug
 #else
-#  define QDTEDEBUG if (false) qDebug
+#  define QDTEDEBUG if (false) qDebug()
+#  define QDTEDEBUGN if (false) qDebug
 #endif
 #include <qdebug.h>
 static const QChar space = QLatin1Char(' ');
@@ -76,7 +78,7 @@ public:
 
     void clearSection(Section s);
 
-    int sectionSize(Section s) const;
+    static int sectionSize(Section s);
     int sectionPos(Section s) const;
 
     SectionNode sectionNode(Section t) const;
@@ -96,8 +98,9 @@ public:
     QValidator::State checkIntermediate(const QDateTime &dt, const QString &str) const;
     static int findMonth(const QString &str1, int index = 1);
     static int maxChange(QDateTimeEditPrivate::Section s);
-    static int potentialValue(const QString &str, int min, int max, int length);
+    static int potentialValue(const QString &str, int min, int max, Section s);
     static int potentialValueHelper(const QString &str, int min, int max, int length);
+    static int multiplier(Section s);
 
     static QString sectionName(int s);
     static QString stateName(int s);
@@ -697,17 +700,30 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
     bool select = true;
 
     if ((e->key() == Qt::Key_Backspace || (e->key() == Qt::Key_H && e->key() & Qt::ControlModifier))
-        && !d->edit->hasSelectedText()) {
-        const int pos = d->edit->cursorPosition();
-        const QDateTimeEditPrivate::Section s = d->sections.last().section;
-        const int suffixStart = d->sectionPos(s) + d->sectionSize(s);
-        if (pos == d->last.pos && pos > suffixStart) {
-            d->ignorecursorpositionchanged = true;
-            d->edit->setCursorPosition(suffixStart);
-            d->currentsection = s;
-            d->ignorecursorpositionchanged = false;
-        }
+	    && !d->edit->hasSelectedText()) {
+	const int pos = d->edit->cursorPosition();
+	if (pos <= d->separators.first().size()) {
+	    e->accept();
+	    return;
+	}
+	select = false;
+	const QDateTimeEditPrivate::Section s = d->sectionAt(pos);
+	const QDateTimeEditPrivate::Section closest = d->closestSection(pos - 1, false);
+	QDTEDEBUG << "found those two" << d->sectionName(s)<< d->sectionName(closest);
+	if (s == QDateTimeEditPrivate::LastSection
+	    || (s != QDateTimeEditPrivate::NoSection && pos == d->sectionPos(s))) {
+	    QString copy = d->edit->displayText();
+	    int cursorCopy = pos;
+	    if (validate(copy, cursorCopy) != QValidator::Acceptable) {
+		d->refresh(EmitIfChanged);
+	    }
+	    d->ignorecursorpositionchanged = true;
+	    d->edit->setCursorPosition(d->sectionPos(closest) + d->sectionSize(closest));
+	    d->currentsection = closest;
+	    d->ignorecursorpositionchanged = false;
+	}
     }
+
     switch((Qt::Key)e->key()) {
     case Qt::Key_Enter:
     case Qt::Key_Return:
@@ -779,7 +795,7 @@ void QDateTimeEdit::changeEvent(QEvent *e)
 
 void QDateTimeEdit::wheelEvent(QWheelEvent *e)
 {
-    const QDateTimeEditPrivate::Section s = d->sectionAt(qMax(0, d->edit->cursorPositionAt(e->pos()) - 1));
+    const QDateTimeEditPrivate::Section s = d->sectionAt(qMax<int>(0, d->edit->cursorPositionAt(e->pos()) - 1));
     if (s != d->currentsection)
         d->edit->setCursorPosition(d->sectionNode(s).pos);
     switch (s) {
@@ -855,29 +871,44 @@ void QDateTimeEdit::stepBy(int steps)
 
 QString QDateTimeEdit::textFromDateTime(const QDateTime &dateTime) const
 {
-    QVariant var = dateTime;
-    if (var == d->cached)
+    QVariant var(dateTime);
+    if (var == d->cached) {
+	QDTEDEBUG << "cached and var is the same so returning cachedText" << dateTime << d->cachedText;
         return d->cachedText;
-    QString ret = d->escapedFormat; // ### escapedFormat??
+    }
+    QString ret = d->escapedFormat;
     for (int i=0; i<d->sections.size(); ++i) {
 	int l = d->sectionSize(d->sections.at(i).section);
-	ret.remove(d->sections.at(i).pos, l);
-	if (d->sections.at(i).section == QDateTimeEditPrivate::AmPmSection
-	    || d->sections.at(i).section == QDateTimeEditPrivate::AmPmLowerCaseSection) {
-	    QString input = var.toTime().hour() > 11 ? tr("pm") : tr("am");
-	    ret.insert(d->sections.at(i).pos,
-		    d->sections.at(i).section == QDateTimeEditPrivate::AmPmSection // ### upper lower
-		    ? input.toUpper() : input);  // needs thinking in terms of tr()
-	} else if (d->sections.at(i).section == QDateTimeEditPrivate::MonthShortNameSection) {
-	    ret.insert(d->sections.at(i).pos, QDate::shortMonthName(var.toDate().month()));
-	} else {
-	    ret.insert(d->sections.at(i).pos,
-		       QString::number(d->getDigit(var, d->sections.at(i).section)).
-                       rightJustified(l, QLatin1Char('0')));
+	int pos = d->sections.at(i).pos;
+	QDTEDEBUG << "FOOOOO now at " << d->sectionName(d->sections.at(i).section);
+	switch (d->sections.at(i).section) {
+	    case QDateTimeEditPrivate::AmPmSection:
+	    case QDateTimeEditPrivate::AmPmLowerCaseSection: {
+		QString input = var.toTime().hour() > 11 ? tr("pm") : tr("am");
+		ret.replace(pos, l,
+			d->sections.at(i).section == QDateTimeEditPrivate::AmPmSection // ### upper lower needs thinking in terms of tr()
+			? input.toUpper() : input); }
+		break;
+	    case QDateTimeEditPrivate::MonthShortNameSection:
+		ret.replace(pos, l, QDate::shortMonthName(var.toDate().month()));
+		break;
+	    case QDateTimeEditPrivate::YearTwoDigitsSection:
+		QDTEDEBUG << "ret was" << ret << "replace" << pos << l <<
+			QString::number(d->getDigit(var, QDateTimeEditPrivate::YearTwoDigitsSection) - 2000)
+			.rightJustified(l, QLatin1Char('0'), true);
+		ret.replace(pos, l,
+			QString::number(d->getDigit(var, QDateTimeEditPrivate::YearTwoDigitsSection) - 2000)
+			.rightJustified(l, QLatin1Char('0'), true));
+		break;
+	    default:
+		ret.replace(pos, l, QString::number(d->getDigit(var, d->sections.at(i).section)).
+		       rightJustified(l, QLatin1Char('0')));
+		break;
 	}
     }
     d->cached = var;
     d->cachedText = ret;
+    QDTEDEBUG << "setting cached to" << d->cached << " and cachedText to" << d->cachedText;
     return ret;
 }
 
@@ -1010,8 +1041,6 @@ QDateTimeEditPrivate::QDateTimeEditPrivate()
 void QDateTimeEditPrivate::emitSignals(const QVariant &old)
 {
     pendingemit = false;
-    if (slider)
-        updateSlider();
 
     const bool dodate = value.toDate().isValid() && (display & DateSectionMask);
     const bool datechanged = (old.isNull() || old.toDate() != value.toDate());
@@ -1054,14 +1083,14 @@ void QDateTimeEditPrivate::editorCursorPositionChanged(int oldpos, int newpos)
                 c = -1;
             } else {
                 const SectionNode &sn = sectionNode(closestSection(newpos, oldpos < newpos));
-                c = sn.pos + (oldpos < newpos ? 0 : qMax(0, sectionSize(sn.section) - 1));
+                c = sn.pos + (oldpos < newpos ? 0 : qMax<int>(0, sectionSize(sn.section) - 1));
                 edit->setCursorPosition(c);
                 s = sn.section;
             }
         }
     }
-    QDTEDEBUG("oldpos %d newpos %d", oldpos, newpos);
-    QDTEDEBUG("(%s)currentsection = %s (%s)oldcurrentsection = %s",
+    QDTEDEBUGN("oldpos %d newpos %d", oldpos, newpos);
+    QDTEDEBUGN("(%s)currentsection = %s (%s)oldcurrentsection = %s",
           sectionName(currentsection).toLatin1().constData(),
           sectionName(s).toLatin1().constData(),
           sectionName(old).toLatin1().constData(),
@@ -1271,7 +1300,7 @@ void QDateTimeEditPrivate::readLocaleSettings()
 
     defaultDateTimeFormat = str;
 
-    QDTEDEBUG() << "default Time:" << defaultTimeFormat << "default date:" << defaultDateFormat << "default date/time" << defaultDateTimeFormat;
+    QDTEDEBUG << "default Time:" << defaultTimeFormat << "default date:" << defaultDateFormat << "default date/time" << defaultDateTimeFormat;
 }
 
 
@@ -1299,7 +1328,7 @@ int QDateTimeEditPrivate::getDigit(const QVariant &t, Section s) const
     case MinuteSection: return t.toTime().minute();
     case SecondSection: return t.toTime().second();
     case MSecSection: return t.toTime().msec();
-    case YearTwoDigitsSection: return (t.toDate().year() % 100);
+    case YearTwoDigitsSection:
     case YearSection: return t.toDate().year();
     case MonthShortNameSection:
     case MonthSection: return t.toDate().month();
@@ -1345,7 +1374,7 @@ void QDateTimeEditPrivate::setDigit(QVariant &v, Section section, int newVal) co
     case MinuteSection: minute = newVal; break;
     case SecondSection: second = newVal; break;
     case MSecSection: msec = newVal; break;
-    case YearTwoDigitsSection: newVal += 2000;
+    case YearTwoDigitsSection:
     case YearSection: year = newVal; break;
     case MonthSection:
     case MonthShortNameSection: month = newVal; break;
@@ -1358,7 +1387,7 @@ void QDateTimeEditPrivate::setDigit(QVariant &v, Section section, int newVal) co
     }
 
     if (section != DaySection) {
-        day = qMax(cachedday, day);
+        day = qMax<int>(cachedday, day);
     }
 
     if (!QDate::isValid(year, month, day)) {
@@ -1366,7 +1395,7 @@ void QDateTimeEditPrivate::setDigit(QVariant &v, Section section, int newVal) co
             month = DATE_MIN.month();
 	    day = DATE_MIN.day();
 	} else {
-	    day = qMin(day, QDate(year, month, 1).daysInMonth());
+	    day = qMin<int>(day, QDate(year, month, 1).daysInMonth());
         }
     }
     v = QVariant(QDateTime(QDate(year, month, day), QTime(hour, minute, second, msec)));
@@ -1411,9 +1440,9 @@ QVariant QDateTimeEditPrivate::stepBy(Section s, int steps, bool test) const
 	    val = wrapping ? val + steps : 12;
 	} else if (val == 23 && steps > 0) {
 	    val = wrapping ? val + steps : 23;
- 	} else {
- 	    val += steps;
- 	}
+	} else {
+	    val += steps;
+	}
     } else {
 	val += steps;
     }
@@ -1458,7 +1487,7 @@ QVariant QDateTimeEditPrivate::stepBy(Section s, int steps, bool test) const
     }
     if (!test && tmp != v.toDate().day() && s != DaySection) {
         // this should not happen when called from stepEnabled
-        cachedday = qMax(tmp, cachedday);
+        cachedday = qMax<int>(tmp, cachedday);
     }
 
     if (v < minimum) {
@@ -1525,7 +1554,7 @@ int QDateTimeEditPrivate::absoluteMax(Section s) const
     case MinuteSection:
     case SecondSection: return 59;
     case MSecSection: return 999;
-    case YearTwoDigitsSection:
+    case YearTwoDigitsSection: return 2099;
     case YearSection: return 7999;
     case MonthSection:
     case MonthShortNameSection: return 12;
@@ -1552,7 +1581,7 @@ int QDateTimeEditPrivate::absoluteMin(Section s) const
     case MinuteSection:
     case SecondSection:
     case MSecSection: return 0;
-    case YearTwoDigitsSection:
+    case YearTwoDigitsSection: return 2000;
     case YearSection: return 1753;
     case MonthSection:
     case MonthShortNameSection:
@@ -1618,7 +1647,7 @@ bool QDateTimeEditPrivate::addSection(QList<SectionNode> &list, Section ds, int 
 {
     for (int i=0; i<list.size(); ++i) {
 	if ((list.at(i).section & ~Internal) == (ds & ~Internal)) {
-            QDTEDEBUG("Could not add section %s to pos %d because it is already in the list", sectionName(ds).toLatin1().constData(), pos);
+            QDTEDEBUGN("Could not add section %s to pos %d because it is already in the list", sectionName(ds).toLatin1().constData(), pos);
 	    return false;
         }
     }
@@ -1791,7 +1820,7 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
 	}
     }
     if (list.isEmpty()) {
- 	QDTEDEBUG("Could not parse format. No sections in format '%s'.", newFormat.toLatin1().constData());
+	QDTEDEBUGN("Could not parse format. No sections in format '%s'.", newFormat.toLatin1().constData());
 	return false;
     }
 
@@ -1816,10 +1845,10 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
         }
     }
     separators = newSeparators;
-//     QDTEDEBUG("escapedFormat = [%s]", escapedFormat.toLatin1().constData());
-//     QDTEDEBUG("separators:\n%s", separators.join("\n").toLatin1().constData());
+//     QDTEDEBUGN("escapedFormat = [%s]", escapedFormat.toLatin1().constData());
+//     QDTEDEBUGN("separators:\n%s", separators.join("\n").toLatin1().constData());
 
-    QDTEDEBUG("display is [%0x]", (uint)display);
+    QDTEDEBUGN("display is [%0x]", (uint)display);
     display = newDisplay;
     last.pos = newFormat.size();
 
@@ -1837,7 +1866,7 @@ QDateTimeEditPrivate::Section QDateTimeEditPrivate::sectionAt(int index) const
 {
     if (index < separators.first().size()) {
         return (index == 0 ? FirstSection : NoSection);
-    } else if (escapedFormat.size() - index < separators.last().size() + 1) { // ### escapedFormat??
+    } else if (escapedFormat.size() - index < separators.last().size() + 1) {
         if (separators.last().size() == 0)
             return sections.last().section;
         return (index == last.pos ? LastSection : NoSection);
@@ -1961,7 +1990,7 @@ void QDateTimeEditPrivate::clearSection(Section s)
     Returns the size of section \a s.
 */
 
-int QDateTimeEditPrivate::sectionSize(Section s) const
+int QDateTimeEditPrivate::sectionSize(Section s)
 {
     switch(s) {
     case FirstSection:
@@ -2052,7 +2081,7 @@ int QDateTimeEditPrivate::sectionValue(Section s, QString &text, QValidator::Sta
                 text.replace(index, size, st);
             } else {
                 state = QValidator::Invalid;
-                QDTEDEBUG("invalid because %s doesn't match any month name", st.toLatin1().constData());
+                QDTEDEBUG << "invalid because" << st << "doesn't match any month name";
             }
             break;
         }
@@ -2068,7 +2097,7 @@ int QDateTimeEditPrivate::sectionValue(Section s, QString &text, QValidator::Sta
             num += (int)(st.toUInt(&ok));
             if (!ok) {
                 state = QValidator::Invalid;
-                QDTEDEBUG("invalid because '%s' can't become a uint", st.toLatin1().constData());
+                QDTEDEBUG << "invalid because" << st << "can't become a uint";
             } else {
                 if (s == HourSection && display & AmPmSection) {
                     bool pm = (sectionText(text, AmPmSection).toLower() == "pm");
@@ -2078,7 +2107,7 @@ int QDateTimeEditPrivate::sectionValue(Section s, QString &text, QValidator::Sta
                         num = 0;
                     } else if (num > 12) {
                         state = QValidator::Invalid;
-                        QDTEDEBUG("invalid because (%s) num is %d", st.toLatin1().constData(), num);
+                        QDTEDEBUG << "invalid because" << st << "num is" << num;
 
                         break;
                     }
@@ -2086,8 +2115,8 @@ int QDateTimeEditPrivate::sectionValue(Section s, QString &text, QValidator::Sta
                 if (num < absoluteMin(s) || num > absoluteMax(s)) {
                     state = done ? QValidator::Invalid : QValidator::Intermediate;
                     if (done)
-                        QDTEDEBUG("invalid because (%s) num is %d outside absoluteMin %d and absoluteMax %d",
-                                  st.toLatin1().constData(), num, absoluteMin(s), absoluteMax(s));
+                        QDTEDEBUG << "invalid because" << st << "num is" << num
+				  << "outside absoluteMin and absoluteMax" << absoluteMin(s) << absoluteMax(s);
 
                 } else {
                     state = QValidator::Acceptable;
@@ -2098,7 +2127,7 @@ int QDateTimeEditPrivate::sectionValue(Section s, QString &text, QValidator::Sta
         default: qFatal("NoSection or Internal. This should never happen"); break; }
     }
 
-    return (state == QValidator::Acceptable ? num : -1);
+    return (state != QValidator::Invalid ? num : -1);
 }
 
 /*!
@@ -2111,18 +2140,19 @@ QVariant QDateTimeEditPrivate::validateAndInterpret(QString &input,
 {
     if (cachedtext == input) {
 	state = cachedstate;
+	QDTEDEBUG << "state" << state << "cachedtext" << cachedtext << "cachedvalue" << cachedvalue;
 	return cachedvalue;
     }
     QVariant tmp;
     SectionNode sn;
     int index = 0;
 
-    //    QDTEDEBUG("%s", input.toLatin1().constData());
-    int diff = input.size() - escapedFormat.size(); // ### escapedFormat??
+    QDTEDEBUGN("%s", input.toLatin1().constData());
+    int diff = input.size() - escapedFormat.size();
     if (diff > 0) {
 	const Section s = closestSection(pos - 1, false);
         if (s == FirstSection && s == LastSection) {
-            QDTEDEBUG("invalid because s == %s", sectionName(s).toLatin1().constData());
+            QDTEDEBUG << "invalid because s ==" << sectionName(s);
             return QValidator::Invalid;
         }
         sn = sectionNode(s);
@@ -2131,7 +2161,7 @@ QVariant QDateTimeEditPrivate::validateAndInterpret(QString &input,
 
 	QString sub = input.mid(sectionstart, sectionsize + diff);
         if (sub.count(space) < diff) {
-            QDTEDEBUG("sub is '%s' diff is %d sub.count is %d", sub.toLatin1().constData(), diff, sub.count(space));
+            QDTEDEBUGN("sub is '%s' diff is %d sub.count is %d", sub.toLatin1().constData(), diff, sub.count(space));
 	    state = QValidator::Invalid;
 	    goto end;
         }
@@ -2141,7 +2171,7 @@ QVariant QDateTimeEditPrivate::validateAndInterpret(QString &input,
     } else if (diff < 0) {
 	const Section s = closestSection(pos, false);
         if (s == FirstSection && s == LastSection) {
-            QDTEDEBUG(".invalid because s == %s", sectionName(s).toLatin1().constData());
+            QDTEDEBUG << "invalid because s == " << sectionName(s);
 	    state = QValidator::Invalid;
 	    goto end;
         }
@@ -2159,9 +2189,7 @@ QVariant QDateTimeEditPrivate::validateAndInterpret(QString &input,
     for (int i=0; i<sections.size(); ++i) {
         sn = sections.at(i);
 	if (input.mid(index, sn.pos - index) != separators.at(i)) {
-	    QDTEDEBUG("invalid because '%s' != '%s'",
-		    input.mid(index, sn.pos - index).toLatin1().constData(),
-		    separators.at(i).toLatin1().constData());
+	    QDTEDEBUG << "invalid because" << input.mid(index, sn.pos - index) << "!=" << separators.at(i);
 	    state = QValidator::Invalid;
 	    goto end;
         }
@@ -2170,9 +2198,8 @@ QVariant QDateTimeEditPrivate::validateAndInterpret(QString &input,
 
     if (sn.pos + sectionSize(sn.section) < input.size()
 	    && input.mid(sn.pos + sectionSize(sn.section)) != separators.last()) {
-        QDTEDEBUG("invalid because '%s' != '%s'",
-		input.mid(sn.pos + sectionSize(sn.section)).toLatin1().constData(),
-              separators.last().toLatin1().constData());
+        QDTEDEBUG << "invalid because" << input.mid(sn.pos + sectionSize(sn.section))
+		  << "!=" << separators.last();
 	state = QValidator::Invalid;
 	goto end;
     }
@@ -2197,23 +2224,23 @@ QVariant QDateTimeEditPrivate::validateAndInterpret(QString &input,
 	    // so code by hand to remove the warning.
 	    state = state < tmpstate ? state : tmpstate;
 
-	    if (state == QValidator::Acceptable) {
-		switch(s) {
+	    if (state != QValidator::Invalid) {
+		switch (s) {
 		    case HourSection: hour = num; break;
 		    case MinuteSection: minute = num; break;
 		    case SecondSection: second = num; break;
 		    case MSecSection: msec = num; break;
 		    case YearTwoDigitsSection:
-		    case YearSection: year = num; break;
+		    case YearSection: year = (num == 0 ? DATE_INITIAL.year() : num); break;
 		    case MonthSection:
-		    case MonthShortNameSection: month = num; break;
-		    case DaySection: day = num; break;
+		    case MonthShortNameSection: month = qMax<int>(1, num); break;
+		    case DaySection: day = qMax<int>(1, num); break;
 		    case AmPmSection:
 		    case AmPmLowerCaseSection: hour = (num == 0 ? hour % 12 : (hour % 12) + 12); break;
 		    default:
-					       qFatal("%s found in sections validateAndInterpret. This should never happen",
-						       sectionName(s).toLatin1().constData());
-					       break;
+			qFatal("%s found in sections validateAndInterpret. This should never happen",
+				sectionName(s).toLatin1().constData());
+			break;
 		}
 	    }
 	}
@@ -2236,20 +2263,24 @@ QVariant QDateTimeEditPrivate::validateAndInterpret(QString &input,
 		fixday = true;
 	    }
 	    if (fixday) {
-		day = qMin(day, QDate(year, month, 1).daysInMonth());
+		day = qMin<int>(day, QDate(year, month, 1).daysInMonth());
 		const SectionNode &sn = sectionNode(DaySection);
 		input.replace(sn.pos, sectionSize(DaySection), QString::number(day));
 	    }
 
+	    QDTEDEBUG << year << month << day << hour << minute << second << msec;
 	    tmp = QVariant(QDateTime(QDate(year, month, day), QTime(hour, minute, second, msec)));
 	}
-	QDTEDEBUG("'%s' => '%s' (%s)", input.toLatin1().constData(),
+	QDTEDEBUGN("'%s' => '%s' (%s)", input.toLatin1().constData(),
 		tmp.toString().toLatin1().constData(), stateName(state).toLatin1().constData());
     }
 end:
-    if (state != QValidator::Invalid
-	&& (tmp < minimum || tmp > maximum)) {
+    if (state != QValidator::Invalid && (tmp < minimum || tmp > maximum)) {
+	if (!tmp.toDateTime().isValid())
+	    QDTEDEBUG << "invalid tmp is invalid";
 	state = checkIntermediate(tmp.toDateTime(), input);
+    } else {
+	QDTEDEBUG << "not checking intermediate because tmp is" << tmp << minimum << maximum;
     }
     cachedtext = input;
     cachedstate = state;
@@ -2308,6 +2339,63 @@ int QDateTimeEditPrivate::maxChange(QDateTimeEditPrivate::Section s)
 }
 
 
+int QDateTimeEditPrivate::multiplier(QDateTimeEditPrivate::Section s)
+{
+    switch (s) {
+        // Time. unit is msec
+    case MSecSection: return 1;
+    case SecondSection: return 1000;
+    case MinuteSection: return 60 * 1000;
+    case HourSection: return 60 * 60 * 1000;
+
+        // Date. unit is day
+    case DaySection: return 1;
+    case MonthShortNameSection:
+    case MonthSection: return 30;
+    case YearSection: return 365;
+    case YearTwoDigitsSection: return 365;
+
+    default: break;
+    }
+    qFatal("%s passed to multiplier. This should never happen", sectionName(s).toLatin1().constData());
+    return -1;
+}
+
+/*!
+    \internal Get a number that str can become which is between min
+    and max or -1 if this is not possible.
+*/
+
+int QDateTimeEditPrivate::potentialValue(const QString &str, int min, int max, Section s)
+{
+    int length = sectionSize(s);
+    if (s == YearTwoDigitsSection) {
+	min -= 2000;
+	max -= 2000; // doesn't matter if max is -1 checking for < 0
+    }
+    QString simplified = str.simplified();
+    Q_ASSERT(str != simplified);
+    if (simplified.isEmpty()) {
+        return min + (s == YearTwoDigitsSection ? 2000 : 0);
+    } else if (simplified.toInt() > max && max >= 0) {
+        return -1;
+    } else {
+        QString temp = simplified;
+        while (temp.size() < length)
+            temp.prepend(QLatin1Char('9'));
+        int t = temp.toInt();
+        if (t < min) {
+            return -1;
+        } else if (t <= max || max < 0) {
+	    return t + (s == YearTwoDigitsSection ? 2000 : 0);
+        }
+    }
+
+    int ret = potentialValueHelper(simplified, min, max, length);
+    if (ret == -1)
+	return -1;
+    return ret + (s == YearTwoDigitsSection ? 2000 : 0);
+}
 
 /*!
     \internal internal helper function called by potentialValue
@@ -2319,12 +2407,12 @@ int QDateTimeEditPrivate::potentialValueHelper(const QString &str, int min, int 
         const int val = str.toInt();
         if (val < min || val > max)
             return -1;
+	QDTEDEBUG << "SUCCESS" << val << "is >=" << min << "and <=" << max;
         return val;
     }
 
     for (int i=0; i<=str.size(); ++i) {
         for (int j=0; j<10; ++j) {
-
             QString tmp = str;
             if (i == str.size()) {
                 tmp.append(QChar('0' + j));
@@ -2339,33 +2427,6 @@ int QDateTimeEditPrivate::potentialValueHelper(const QString &str, int min, int 
     return -1;
 }
 
-/*!
-    \internal Get a number that str can become which is between min
-    and max or -1 if this is not possible.
-*/
-
-int QDateTimeEditPrivate::potentialValue(const QString &str, int min, int max, int length)
-{
-    QString simplified = str.simplified();
-    Q_ASSERT(str != simplified);
-    if (simplified.isEmpty()) {
-        return min;
-    } else if (simplified.toInt() > max) {
-        return -1;
-    } else {
-        QString temp = simplified;
-        while (temp.size() < length)
-            temp.prepend(QLatin1Char('9'));
-        int t = temp.toInt();
-        if (t < min) {
-            return -1;
-        } else if (t <= max) {
-            return t;
-        }
-    }
-
-    return potentialValueHelper(simplified, min, max, length);
-}
 /*!
     \internal
     \reimp
@@ -2403,13 +2464,17 @@ QValidator::State QDateTimeEditPrivate::checkIntermediate(const QDateTime &dt,
         const SectionNode sn = sections.at(i);
         QString t = sectionText(s, sn.section).toLower();
         if (t.contains(space)) {
-            if (found)
+            if (found) {
+		QDTEDEBUG << "Invalid because no spaces";
                 return QValidator::Invalid;
+	    }
             found = true;
             switch (sn.section) {
             case MonthShortNameSection: {
-                if (tooLarge)
+                if (tooLarge) {
+		    QDTEDEBUG << "Invalid because tooLarge and MonthShortNameSection";
                     return QValidator::Invalid;
+		}
                 int tmp = dt.date().month();
                 // I know the first possible month makes the date too early
                 while ((tmp = findMonth(t, tmp + 1)) != -1) {
@@ -2430,43 +2495,50 @@ QValidator::State QDateTimeEditPrivate::checkIntermediate(const QDateTime &dt,
                 return QValidator::Invalid;
             default:
                 if (tooSmall) {
-                    int diff;
-                    int max;
+                    int toMin;
+                    int toMax;
+		    int multi = multiplier(sn.section);
 
                     if (sn.section & TimeSectionMask) {
-                        if (dt.daysTo(minimum.toDateTime()) != 0)
+                        if (dt.daysTo(minimum.toDateTime()) != 0) {
+			    QDTEDEBUG << "if (dt.daysTo(minimum.toDateTime()) != 0)" << dt.daysTo(minimum.toDateTime());
                             return QValidator::Invalid; // ### assert?
-                        diff = dt.time().msecsTo(minimum.toDateTime().time());
+			}
+                        toMin = dt.time().msecsTo(minimum.toDateTime().time());
                         if (dt.daysTo(maximum.toDateTime()) > 0) {
-                            max = -1;
+                            toMax = -1; // can't get to max
                         } else {
-                            max = dt.time().msecsTo(maximum.toDateTime().time());
+                            toMax = dt.time().msecsTo(maximum.toDateTime().time());
                         }
                     } else {
-                        diff = dt.daysTo(minimum.toDateTime());
-                        max = dt.daysTo(maximum.toDateTime());
+                        toMin = dt.daysTo(minimum.toDateTime());
+                        toMax = dt.daysTo(maximum.toDateTime());
                     }
                     int maxChange = QDateTimeEditPrivate::maxChange(sn.section);
-                    if (diff > maxChange)
+		    int maxChangeUnits = maxChange * multi;
+                    if (toMin > maxChangeUnits) {
+                        QDTEDEBUG << "invalid because toMin > maxChangeUnits" << toMin << maxChangeUnits << t << dt << minimum.toDateTime()
+			    << multi;
+
                         return QValidator::Invalid;
-                    if (max > maxChange)
-                        max = -1;
+		    } else if (toMax > maxChangeUnits) {
+			toMax = -1; // can't get to max
+		    }
 
                     int min = getDigit(minimum, sn.section);
-                    int tmp = potentialValue(t, min, qMin(absoluteMax(sn.section), min + max), sectionSize(sn.section));
+                    int max = toMax != -1 ? getDigit(maximum, sn.section) : -1;
+                    int tmp = potentialValue(t, min, max, sn.section);
+		    QDTEDEBUG << tmp << t << min << max << sectionName(sn.section)  << minimum.toDate() << maximum.toDate();
                     if (tmp == -1) {
-                        QDTEDEBUG() << "invalid because potentialValue(" << t << min << qMin(absoluteMax(sn.section), min + max)
-                                    << sectionSize(sn.section) << "returned" << tmp;
+                        QDTEDEBUG << "invalid because potentialValue(" << t << min << max
+				  << sectionName(sn.section) << "returned" << tmp;
                         return QValidator::Invalid;
                     }
 
                     QVariant var(dt);
                     setDigit(var, sn.section, tmp);
-                    Q_ASSERT(var >= minimum);
                     if (var > maximum) {
-                        QDTEDEBUG("invalid because %s > %s",
-                                  var.toString().toLatin1().constData(),
-                                  maximum.toString().toLatin1().constData());
+                        QDTEDEBUG << "invalid because" << var.toString() << ">" << maximum.toString();
                         return QValidator::Invalid;
                     }
                 } else {

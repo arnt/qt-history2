@@ -993,9 +993,6 @@ bool QAbstractSpinBoxPrivate::specialValue() const
 
 void QAbstractSpinBoxPrivate::emitSignals(const QVariant &)
 {
-    if (slider) {
-        updateSlider();
-    }
 }
 
 /*!
@@ -1183,13 +1180,13 @@ void QAbstractSpinBoxPrivate::calculateSizeHints() const
         QString s;
         s = prefix + textFromValue(minimum) + suffix + QLatin1Char(' ');
         s.truncate(18);
-        w = qMax(w, fm.width(s));
+        w = qMax<int>(w, fm.width(s));
         s = prefix + textFromValue(maximum) + suffix + QLatin1Char(' ');
         s.truncate(18);
-        w = qMax(w, fm.width(s));
+        w = qMax<int>(w, fm.width(s));
         if (specialvaluetext.size()) {
             s = specialvaluetext;
-            w = qMax(w, fm.width(s));
+            w = qMax<int>(w, fm.width(s));
         }
         w += 2; // cursor blinking space
 
@@ -1336,13 +1333,17 @@ void QAbstractSpinBoxPrivate::setValue(const QVariant &val, EmitPolicy ep,
     const QVariant old = value;
     value = bound(val);
     pendingemit = false;
+    const bool changed = old != value;
     if (doUpdate)
         update();
     if (ep == AlwaysEmit) {
         emitSignals(QVariant()); // needs to be != the new one
-    } else if (ep == EmitIfChanged && old != value) {
+    } else if (ep == EmitIfChanged && changed) {
         emitSignals(old);
     }
+    if (changed && slider)
+	updateSlider();
+
 }
 
 /*!
@@ -1362,7 +1363,7 @@ void QAbstractSpinBoxPrivate::updateEdit() const
     e->setText(newText);
 
     if (!specialValue()) {
-        cursor = qMin(qMax(cursor, prefix.length()), edit->displayText().length() - suffix.length());
+        cursor = qMin<int>(qMax<int>(cursor, prefix.length()), edit->displayText().length() - suffix.length());
         if (sellength > 0) {
             e->setSelection(cursor, sellength);
         } else {
@@ -1676,7 +1677,7 @@ QVariant operator-(const QVariant &arg1, const QVariant &arg2)
         QDateTime a2 = arg2.toDateTime();
         int days = a2.daysTo(a1);
         int secs = a2.secsTo(a1);
-        int msecs = qMax(0, a1.time().msec() - a2.time().msec());
+        int msecs = qMax<int>(0, a1.time().msec() - a2.time().msec());
         if (days < 0 || secs < 0 || msecs < 0) {
             ret = arg1;
         } else {
