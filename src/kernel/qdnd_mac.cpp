@@ -306,8 +306,8 @@ bool QDragManager::drag( QDragObject *o, QDragObject::DragMode )
 
 #ifdef Q_WS_MACX 
     QRegion dragRegion(boundsPoint.h, boundsPoint.v, pix.width(), pix.height());
-	QRegion r(0, 0, pix.width(), pix.height());
-	SetDragImage(theDrag, GetGWorldPixMap((GWorldPtr)pix.handle()), (RgnHandle)r.handle(), boundsPoint, 0);
+    QRegion r(0, 0, pix.width(), pix.height());
+    SetDragImage(theDrag, GetGWorldPixMap((GWorldPtr)pix.handle()), (RgnHandle)r.handle(), boundsPoint, 0);
 #else
     QBitmap pixbits;
     pixbits = pix;
@@ -319,7 +319,6 @@ bool QDragManager::drag( QDragObject *o, QDragObject::DragMode )
     fakeEvent.when = 0;
     fakeEvent.modifiers = 0;
     result = TrackDrag( theDrag, &fakeEvent, (RgnHandle)dragRegion.handle() );
-
     DisposeDrag( theDrag );
     return !result;
 }
@@ -352,7 +351,6 @@ static QMAC_PASCAL OSErr qt_mac_receive_handler(WindowPtr, void *handlerRefCon, 
     QDropEvent de( widget->mapFromGlobal( globalMouse ) );
     QApplication::sendEvent( widget, &de );
     macDndExtra->acceptact = de.isActionAccepted();
-
     return 0;
 }
 static DragReceiveHandlerUPP qt_mac_receive_handlerUPP = NULL;
@@ -373,8 +371,6 @@ static const DragReceiveHandlerUPP make_receiveUPP()
 
 
 QWidget *current_drag_widget = 0;
-
-//FIXME: This is duplicated code
 QWidget *recursive_match(QWidget *widg, int x, int y); //qapplication_mac.cpp
 static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage, WindowPtr,
 						  void *handlerRefCon, DragReference theDrag )
@@ -401,8 +397,7 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage
     if ( widget && (!widget->acceptDrops()) )
 	widget = 0;
 
-    if (widget && (theMessage == kDragTrackingInWindow) &&
-	(widget == current_drag_widget) ) {
+    if (widget && (theMessage == kDragTrackingInWindow) && (widget == current_drag_widget) ) {
         QDragMoveEvent de( widget->mapFromGlobal( globalMouse ) );
 	QApplication::sendEvent( widget, &de );
 	macDndExtra->acceptfmt = de.isAccepted();
@@ -421,6 +416,7 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage
 
     if ( widget ) {
 	current_dropobj = theDrag;
+	QPoint p = widget->mapFromGlobal( globalMouse );
 	QDragEnterEvent de( widget->mapFromGlobal( globalMouse ) );
 	QApplication::sendEvent(widget, &de );
 	macDndExtra->acceptfmt = de.isAccepted();
@@ -428,7 +424,6 @@ static QMAC_PASCAL OSErr qt_mac_tracking_handler( DragTrackingMessage theMessage
 	current_drag_widget = widget;
     }
     QApplication::sendPostedEvents();
-
     return 0;
 }
 static DragTrackingHandlerUPP qt_mac_tracking_handlerUPP = NULL;
