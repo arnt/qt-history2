@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qslider.cpp#93 $
+** $Id: //depot/qt/main/src/widgets/qslider.cpp#94 $
 **
 ** Implementation of QSlider class
 **
@@ -242,7 +242,7 @@ int QSlider::positionFromValue( int v ) const
 int QSlider::available() const
 {
     int a;
-    switch ( style() ) {
+    switch ( (GUIStyle)style() ) {
     case WindowsStyle:
 	a = (orient == Horizontal) ? width() - style().sliderLength()
 	    : height() - style().sliderLength();
@@ -354,7 +354,7 @@ void QSlider::setOrientation( Orientation orientation )
 QRect QSlider::sliderRect() const
 {
     QRect r;
-    switch ( style() ) {
+    switch ( (GUIStyle)style() ) {
     case WindowsStyle:
 	if (orient == Horizontal )
 	    r.setRect( sliderPos, tickOffset,
@@ -703,7 +703,7 @@ void QSlider::moveSlider( int pos )
 	emit valueChanged( sliderVal );
     }
 
-    switch ( style() ) {
+    switch ( (GUIStyle)style() ) {
     case WindowsStyle:
 	newPos = positionFromValue( newVal );
 	break;
@@ -794,7 +794,7 @@ void QSlider::keyPressEvent( QKeyEvent *e )
 
 int QSlider::slideLength() const
 {
-    switch ( style() ) {
+    switch ( (GUIStyle)style() ) {
     case WindowsStyle:
 	return style().sliderLength();
     default:
