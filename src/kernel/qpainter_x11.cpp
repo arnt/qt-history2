@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#9 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -11,6 +11,7 @@
 *****************************************************************************/
 
 #include "qpainter.h"
+#include "qpaintdc.h"
 #include "qwidget.h"
 #include "qpntarry.h"
 #include "qwxfmat.h"
@@ -21,7 +22,7 @@
 #include <X11/Xos.h>
 
 #if defined(DEBUG)
-static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#8 $";
+static char ident[] = "$Id: //depot/qt/main/src/kernel/qpainter_x11.cpp#9 $";
 #endif
 
 
@@ -484,7 +485,7 @@ static char *pat_tbl[] = {
     if ( !gc_brush ) {				// brush not yet created
 	gc_brush = XCreateGC( dpy, hd, 0, 0 );
 	if ( rop != CopyROP )			// update raster op for brush
-	    setRasterOp( rop );
+	    setRasterOp( (RasterOp)rop );
 	if ( testf(ClipOn) )
 	    XSetRegion( dpy, gc_brush, crgn.data->rgn );
 	if ( bro.x() != 0 || bro.y() != 0 )
@@ -692,7 +693,10 @@ QRect QPainter::sourceView() const		// get source view
 
 void QPainter::setSourceView( const QRect &r )	// set source view
 {
-    r.rect( &sx, &sy, &sw, &sh );
+    sx = r.x();
+    sy = r.y();
+    sw = r.width();
+    sh = r.height();
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].rect = (QRect*)&r;
@@ -708,7 +712,10 @@ QRect QPainter::targetView() const		// get target view
 
 void QPainter::setTargetView( const QRect &r )	// set target view
 {
-    r.rect( &tx, &ty, &tw, &th );
+    tx = r.x();
+    ty = r.y();
+    tw = r.width();
+    th = r.height();
     if ( testf(ExtDev) ) {
 	QPDevCmdParam param[1];
 	param[0].rect = (QRect*)&r;
