@@ -2104,7 +2104,9 @@ bool QApplication::internalNotify( QObject *receiver, QEvent * e)
 	if ( ( e->type() <= QEvent::MouseMove &&
 	       e->type() >= QEvent::MouseButtonPress ||
 	       e->type() == QEvent::Wheel ||
-	       e->type() == QEvent::ContextMenu ) &&
+	       e->type() == QEvent::ContextMenu || 
+	       e->type() >= QEvent::DragEnter &&
+	       e->type() <= QEvent::DragResponse ) &&
 	     !widget->isEnabled() ) {
 	    ( (QMouseEvent*) e)->ignore();
 	    return FALSE;
