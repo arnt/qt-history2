@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#43 $
+** $Id: //depot/qt/main/src/widgets/qmultilineedit.cpp#44 $
 **
 ** Definition of QMultiLineEdit widget class
 **
@@ -752,9 +752,14 @@ void QMultiLineEdit::deselect()
 
 void QMultiLineEdit::setText( const QString &s )
 {
+    bool oldAuto = autoUpdate();
+    setAutoUpdate( FALSE );
     clear();
     insertLine( s, -1 );
     emit textChanged();
+    setAutoUpdate(oldAuto);
+    if ( autoUpdate() )
+	repaintDelayed( FALSE );
 }
 
 
