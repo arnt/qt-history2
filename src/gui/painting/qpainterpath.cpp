@@ -675,6 +675,40 @@ void QPainterPath::curveTo(const QPointF &c1, const QPointF &c2, const QPointF &
 }
 
 /*!
+    \fn void QPainterPath::quadTo(qreal ctrlPtx, qreal ctrlPty, qreal endPtx, qreal endPty);
+
+    \overload
+
+    Adds a quadratic Bezier curve between the current point and the endpoint
+    (\a{endPtx}, \a{endPty}) with the control point specified by
+    (\a{ctrlPtx}, \a{ctrlPty}).
+    After the curve is added, the current point is updated to be at
+    the end point of the curve.
+*/
+
+/*!
+    \fn void QPainterPath::quadTo(const QPointF &c, const QPointF &endPoint)
+
+    Adds a quadratic Bezier curve between the current point and \a
+    endPoint with control point specified by \a c. After the curve is
+    added, the current point is updated to be at the end point of the
+    curve.
+*/
+void QPainterPath::quadTo(const QPointF &c, const QPointF &e)
+{
+#ifdef QPP_DEBUG
+    printf("QPainterPath::quadTo() (%.2f,%.2f), (%.2f,%.2f)\n",
+           c.x(), c.y(), e.x(), e.y());
+#endif
+    Q_ASSERT(!elements.isEmpty());
+    const QPainterPath::Element &elm = elements.at(elementCount()-1);
+    QPointF prev(elm.x, elm.y);
+    QPointF c1((prev.x() + 2*c.x()) / 3, (prev.y() + 2*c.y()) / 3);
+    QPointF c2((e.x() + 2*c.x()) / 3, (e.y() + 2*c.y()) / 3);
+    curveTo(c1, c2, e);
+}
+
+/*!
     \fn void QPainterPath::arcTo(qreal x, qreal y, qreal width, qreal
     height, qreal startAngle, qreal sweepLength)
 

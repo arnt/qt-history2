@@ -68,6 +68,8 @@ public:
     void curveTo(const QPointF &ctrlPt1, const QPointF &ctrlPt2, const QPointF &endPt);
     inline void curveTo(qreal ctrlPt1x, qreal ctrlPt1y, qreal ctrlPt2x, qreal ctrlPt2y,
                         qreal endPtx, qreal endPty);
+    void quadTo(const QPointF &ctrlPt, const QPointF &endPt);
+    inline void quadTo(qreal ctrlPtx, qreal ctrlPty, qreal endPtx, qreal endPty);
 
     QPointF currentPosition() const;
 
@@ -175,6 +177,11 @@ inline void QPainterPath::curveTo(qreal ctrlPt1x, qreal ctrlPt1y, qreal ctrlPt2x
 {
     curveTo(QPointF(ctrlPt1x, ctrlPt1y), QPointF(ctrlPt2x, ctrlPt2y),
             QPointF(endPtx, endPty));
+}
+
+inline void QPainterPath::quadTo(qreal ctrlPtx, qreal ctrlPty, qreal endPtx, qreal endPty)
+{
+    quadTo(QPointF(ctrlPtx, ctrlPty), QPointF(endPtx, endPty));
 }
 
 inline void QPainterPath::addEllipse(qreal x, qreal y, qreal w, qreal h)
