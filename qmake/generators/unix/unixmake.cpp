@@ -175,18 +175,6 @@ UnixMakefileGenerator::init()
 		project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_QT"];
 	}
     }
-    if ( project->isActiveConfig("thread") ) {
-	if(project->isActiveConfig("qt"))
-	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_THREAD_SUPPORT");
-	if ( !project->isEmpty("QMAKE_CFLAGS_THREAD"))
-	    project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_THREAD"];
-	if( !project->isEmpty("QMAKE_CXXFLAGS_THREAD"))
-	    project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_THREAD"];
-	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_THREAD"];
-	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_THREAD"];
-	if(!project->isEmpty("QMAKE_LFLAGS_THREAD"))
-	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_THREAD"];
-    }
     if ( project->isActiveConfig("opengl") ) {
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_OPENGL"];
 	if(!project->isEmpty("QMAKE_LIBDIR_OPENGL")) 
@@ -198,16 +186,28 @@ UnixMakefileGenerator::init()
     }
     if(project->isActiveConfig("global_init_link_order"))
 	project->variables()["QMAKE_LIBS"] += project->variables()["LIBS"];
-    if ( project->isActiveConfig("x11sm") )
-	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_X11SM"];
-    if ( project->isActiveConfig("dylib") )
-	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_DYNLOAD"];
     if ( project->isActiveConfig("x11inc") )
 	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_X11"];
     if ( project->isActiveConfig("x11lib") ) {
 	if(!project->isEmpty("QMAKE_LIBDIR_X11"))
 	    project->variables()["QMAKE_LIBDIR_FLAGS"] += varGlue("QMAKE_LIBDIR_X11", "-L", " -L", "");
 	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_X11"];
+    }
+    if ( project->isActiveConfig("x11sm") )
+	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_X11SM"];
+    if ( project->isActiveConfig("dylib") )
+	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_DYNLOAD"];
+    if ( project->isActiveConfig("thread") ) {
+	if(project->isActiveConfig("qt"))
+	    project->variables()[is_qt ? "PRL_EXPORT_DEFINES" : "DEFINES"].append("QT_THREAD_SUPPORT");
+	if ( !project->isEmpty("QMAKE_CFLAGS_THREAD"))
+	    project->variables()["QMAKE_CFLAGS"] += project->variables()["QMAKE_CFLAGS_THREAD"];
+	if( !project->isEmpty("QMAKE_CXXFLAGS_THREAD"))
+	    project->variables()["QMAKE_CXXFLAGS"] += project->variables()["QMAKE_CXXFLAGS_THREAD"];
+	project->variables()["INCLUDEPATH"] += project->variables()["QMAKE_INCDIR_THREAD"];
+	project->variables()["QMAKE_LIBS"] += project->variables()["QMAKE_LIBS_THREAD"];
+	if(!project->isEmpty("QMAKE_LFLAGS_THREAD"))
+	    project->variables()["QMAKE_LFLAGS"] += project->variables()["QMAKE_LFLAGS_THREAD"];
     }
     if ( project->isActiveConfig("moc") )
 	setMocAware(TRUE);
