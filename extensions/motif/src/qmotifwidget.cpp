@@ -49,6 +49,10 @@ const int XKeyRelease = KeyRelease;
 
 // TopLevelShell subclass to wrap toplevel motif widgets into QWidgets
 
+void qmotif_widget_shell_realize( Widget w, XtValueMask *mask,
+				  XSetWindowAttributes *attr );
+void qmotif_widget_shell_change_managed( Widget w );
+
 typedef struct {
     QMotifWidget *widget;
 } QMotifWidgetShellPart;
