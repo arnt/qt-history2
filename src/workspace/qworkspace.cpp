@@ -1718,6 +1718,15 @@ bool QWorkspaceChild::eventFilter( QObject * o, QEvent * e)
 		resize( re->size() + baseSize() );
 	}
 	break;
+
+    case QEvent::WindowDeactivate:
+	titlebar->setActive( FALSE );
+	break;
+	
+    case QEvent::WindowActivate:
+	titlebar->setActive( act );
+	break;
+
     default:
 	break;
     }
