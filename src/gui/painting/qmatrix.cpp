@@ -955,8 +955,8 @@ QDataStream &operator<<(QDataStream &s, const QMatrix &m)
           << (float)m.m22() << (float)m.dx()  << (float)m.dy();
 #endif
     } else {
-        s << m.m11() << m.m12() << m.m21() << m.m22()
-          << m.dx() << m.dy();
+        s << (double) m.m11() << (double) m.m12() << (double) m.m21() << (double) m.m22()
+          << (double) m.dx() << (double) m.dy();
     }
     return s;
 }
@@ -979,7 +979,7 @@ QDataStream &operator>>(QDataStream &s, QMatrix &m)
         m.setMatrix(m11, m12, m21, m22, dx, dy);
     }
     else {
-        qreal m11, m12, m21, m22, dx, dy;
+        double m11, m12, m21, m22, dx, dy;
         s >> m11;  s >> m12;  s >> m21;  s >> m22;
         s >> dx;   s >> dy;
         m.setMatrix(m11, m12, m21, m22, dx, dy);

@@ -846,7 +846,7 @@ QTextEdit::~QTextEdit()
 
     \sa setFontFamily() setCurrentFont() setFontPointSize()
 */
-float QTextEdit::fontPointSize() const
+qreal QTextEdit::fontPointSize() const
 {
     Q_D(const QTextEdit);
     return d->cursor.charFormat().fontPointSize();
@@ -1025,7 +1025,7 @@ void QTextEdit::setFontFamily(const QString &fontFamily)
 
     \sa fontPointSize() setCurrentFont() setFontFamily()
 */
-void QTextEdit::setFontPointSize(float s)
+void QTextEdit::setFontPointSize(qreal s)
 {
     Q_D(QTextEdit);
     if (d->readOnly)

@@ -56,8 +56,8 @@ public:
     int alpha() const;
     void setAlpha(int alpha);
 
-    float alphaF() const;
-    void setAlphaF(float alpha);
+    qreal alphaF() const;
+    void setAlphaF(qreal alpha);
 
     int red() const;
     int green() const;
@@ -66,18 +66,18 @@ public:
     void setGreen(int green);
     void setBlue(int blue);
 
-    float redF() const;
-    float greenF() const;
-    float blueF() const;
-    void setRedF(float red);
-    void setGreenF(float green);
-    void setBlueF(float blue);
+    qreal redF() const;
+    qreal greenF() const;
+    qreal blueF() const;
+    void setRedF(qreal red);
+    void setGreenF(qreal green);
+    void setBlueF(qreal blue);
 
     void getRgb(int *r, int *g, int *b, int *a = 0) const;
     void setRgb(int r, int g, int b, int a = 255);
 
-    void getRgbF(float *r, float *g, float *b, float *a = 0) const;
-    void setRgbF(float r, float g, float b, float a = 1.0);
+    void getRgbF(qreal *r, qreal *g, qreal *b, qreal *a = 0) const;
+    void setRgbF(qreal r, qreal g, qreal b, qreal a = 1.0);
 
     QRgb rgba() const;
 
@@ -88,31 +88,31 @@ public:
     int saturation() const;
     int value() const;
 
-    float hueF() const; // 0.0 <= hueF < 360.0
-    float saturationF() const;
-    float valueF() const;
+    qreal hueF() const; // 0.0 <= hueF < 360.0
+    qreal saturationF() const;
+    qreal valueF() const;
 
     void getHsv(int *h, int *s, int *v, int *a = 0) const;
     void setHsv(int h, int s, int v, int a = 255);
 
-    void getHsvF(float *h, float *s, float *v, float *a = 0) const;
-    void setHsvF(float h, float s, float v, float a = 1.0);
+    void getHsvF(qreal *h, qreal *s, qreal *v, qreal *a = 0) const;
+    void setHsvF(qreal h, qreal s, qreal v, qreal a = 1.0);
 
     int cyan() const;
     int magenta() const;
     int yellow() const;
     int black() const;
 
-    float cyanF() const;
-    float magentaF() const;
-    float yellowF() const;
-    float blackF() const;
+    qreal cyanF() const;
+    qreal magentaF() const;
+    qreal yellowF() const;
+    qreal blackF() const;
 
     void getCmyk(int *c, int *m, int *y, int *k, int *a = 0);
     void setCmyk(int c, int m, int y, int k, int a = 255);
 
-    void getCmykF(float *c, float *m, float *y, float *k, float *a = 0);
-    void setCmykF(float c, float m, float y, float k, float a = 1.0);
+    void getCmykF(qreal *c, qreal *m, qreal *y, qreal *k, qreal *a = 0);
+    void setCmykF(qreal c, qreal m, qreal y, qreal k, qreal a = 1.0);
 
     QColor toRgb() const;
     QColor toHsv() const;
@@ -124,13 +124,13 @@ public:
     static QColor fromRgba(QRgb rgba);
 
     static QColor fromRgb(int r, int g, int b, int a = 255);
-    static QColor fromRgbF(float r, float g, float b, float a = 1.0);
+    static QColor fromRgbF(qreal r, qreal g, qreal b, qreal a = 1.0);
 
     static QColor fromHsv(int h, int s, int v, int a = 255);
-    static QColor fromHsvF(float h, float s, float v, float a = 1.0);
+    static QColor fromHsvF(qreal h, qreal s, qreal v, qreal a = 1.0);
 
     static QColor fromCmyk(int c, int m, int y, int k, int a = 255);
-    static QColor fromCmykF(float c, float m, float y, float k, float a = 1.0);
+    static QColor fromCmykF(qreal c, qreal m, qreal y, qreal k, qreal a = 1.0);
 
     QColor light(int f = 150) const;
     QColor dark(int f = 200) const;

@@ -33,7 +33,7 @@
 #define M_PI 3.14159265358979323846
 #endif
 
-#define float_to_fixed(f) (int(f * 64))
+#define qreal_to_fixed(f) (int(f * 64))
 #define qt_swap(x, y) { int tmp = (x); (x) = (y); (y) = tmp; }
 
 static FT_Raster qt_gray_raster;
@@ -117,7 +117,6 @@ void qt_span_solidfill(int y, int count, FT_Span *spans, void *userData);
 void qt_span_texturefill(int y, int count, FT_Span *spans, void *userData);
 void qt_span_texturefill_xform(int y, int count, FT_Span *spans, void *userData);
 void qt_span_linear_gradient(int y, int count, FT_Span *spans, void *userData);
-void qt_span_radial_gradient(int y, int count, FT_Span *spans, void *userData);
 void qt_span_clip(int y, int count, FT_Span *spans, void *userData);
 
 struct SolidFillData
@@ -173,21 +172,21 @@ struct LinearGradientData : public GradientData
 
     void init();
 
-    float xincr;
-    float yincr;
+    qreal xincr;
+    qreal yincr;
 };
 
 struct RadialGradientData : public GradientData
 {
     QPointF center;
-    float radius;
+    qreal radius;
     QPointF focal;
 };
 
 struct ConicalGradientData : public GradientData
 {
     QPointF center;
-    float angle;
+    qreal angle;
 };
 
 
@@ -293,8 +292,8 @@ public:
         m_iterator_data.path = &path;
 
         const QPainterPath::Element &startPt = m_iterator(0, &m_iterator_data);
-        pt.x = float_to_fixed(startPt.x);
-        pt.y = float_to_fixed(startPt.y);
+        pt.x = qreal_to_fixed(startPt.x);
+        pt.y = qreal_to_fixed(startPt.y);
 
         FT_Vector start = { pt.x, pt.y };
 
@@ -319,8 +318,8 @@ public:
                 if (index == elmCount - 1)
                     continue;
 
-                pt.x = float_to_fixed(elm.x);
-                pt.y = float_to_fixed(elm.y);
+                pt.x = qreal_to_fixed(elm.x);
+                pt.y = qreal_to_fixed(elm.y);
 
 #ifdef QT_DEBUG_CONVERT
                 printf("moveto: %.2f, %.2f --  %.2f, %.2f\n",
@@ -340,8 +339,8 @@ public:
                 break;
 
             case QPainterPath::LineToElement:
-                pt.x = float_to_fixed(elm.x);
-                pt.y = float_to_fixed(elm.y);
+                pt.x = qreal_to_fixed(elm.x);
+                pt.y = qreal_to_fixed(elm.y);
 
 #ifdef QT_DEBUG_CONVERT
                 printf("lineto: %.2f, %.2f\n", pt.x  / 64.0, pt.y / 64.0);
@@ -352,18 +351,18 @@ public:
                 break;
 
             case QPainterPath::CurveToElement:
-                pt.x = float_to_fixed(elm.x);
-                pt.y = float_to_fixed(elm.y);
+                pt.x = qreal_to_fixed(elm.x);
+                pt.y = qreal_to_fixed(elm.y);
                 m_points.add(pt);
 
                 ++index;
-                pt.x = float_to_fixed(m_iterator(index, &m_iterator_data).x);
-                pt.y = float_to_fixed(m_iterator(index, &m_iterator_data).y);
+                pt.x = qreal_to_fixed(m_iterator(index, &m_iterator_data).x);
+                pt.y = qreal_to_fixed(m_iterator(index, &m_iterator_data).y);
                 m_points.add(pt);
 
                 ++index;
-                pt.x = float_to_fixed(m_iterator(index, &m_iterator_data).x);
-                pt.y = float_to_fixed(m_iterator(index, &m_iterator_data).y);
+                pt.x = qreal_to_fixed(m_iterator(index, &m_iterator_data).x);
+                pt.y = qreal_to_fixed(m_iterator(index, &m_iterator_data).y);
                 m_points.add(pt);
 
 #ifdef QT_DEBUG_CONVERT
@@ -1675,9 +1674,9 @@ void qt_span_linear_gradient(int y, int count, FT_Span *spans, void *userData)
 
     ARGB *baseTarget = data->rasterBuffer->scanLine(y);
 
-    float ybase = (y - data->origin.y()) * data->yincr;
-    float x1 = data->origin.x();
-    float t;
+    qreal ybase = (y - data->origin.y()) * data->yincr;
+    qreal x1 = data->origin.x();
+    qreal t;
 
     while (count--) {
         ARGB *target = baseTarget + spans->x;
@@ -1696,86 +1695,6 @@ void qt_span_linear_gradient(int y, int count, FT_Span *spans, void *userData)
                 t += data->xincr;
             }
         }
-        ++spans;
-    }
-}
-
-
-void qt_span_radial_gradient(int y, int count, FT_Span *spans, void *userData)
-{
-    RadialGradientData *data = reinterpret_cast<RadialGradientData *>(userData);
-
-    ARGB *baseTarget = data->rasterBuffer->scanLine(y);
-
-    float r, x0, y0, fx, fy, a, b, c, dc, d2c, dba, ba, rad, dx, dy, drad, d2rad, p, d2y;
-
-    r = data->radius;
-    x0 = ( 0 - data->center.x() ) / r;
-    y0 = -( 0 - data->center.y() ) / r;
-    fx = ( data->focal.x() - data->center.x() ) / r;
-    fy = -( data->focal.y() - data->center.y() ) / r;
-    //     sw = width / r;
-    //     sh = height / r;
-
-    a = 1 - fx * fx - fy * fy;
-    if ( a <= 0 ) {
-        float f = sqrt( fx * fx + fy * fy );
-        fx = 0.999 * fx / f;
-        fy = 0.999 * fy / f;
-        a = 1 - fx * fx - fy * fy;
-    }
-
-    dx = x0 - fx;
-    dy = y0 - fy;
-    dc = 2 * dx / r + 1 / ( r * r );
-    d2c = 2 * 1 / ( r * r );
-    dba = fx / r / a;
-
-    d2y = -1. / r;
-
-    dy += d2y * y;
-
-    int last_x = 0;
-
-    b = dx * fx + dy * fy;
-    c = dx * dx + dy * dy;
-    ba = b / a;
-    rad = ba * ba + c / a;
-    drad = 2 * ba * dba + dba * dba + dc / a;
-    d2rad = 2 * dba * dba + d2c / a;
-
-    while (count--) {
-        ARGB *target = baseTarget + spans->x;
-
-//         int diff = spans->x - last_x;
-//         ba += dba * diff;
-//         drad += d2rad * (diff - 1);
-//         rad += drad * diff + drad;
-//         drad += d2rad;
-
-        for (; last_x<spans->x; ++last_x) {
-            ba += dba;
-            rad += drad;
-            drad += d2rad;
-        }
-
-        for (int i = 0; i<spans->len; i++) {
-            p = ba + sqrt( rad );
-            ARGB src = qt_gradient_pixel( data, p );
-            qt_blend_pixel(src, target, spans->coverage);
-            ++target;
-
-            ba += dba;
-            rad += drad;
-            drad += d2rad;
-            ++last_x;
-        }
-
-
-        //         dy += d2y;
-        // }
-        //         } break;
-
         ++spans;
     }
 }
@@ -2031,10 +1950,10 @@ void TextureFillData::init(QRasterBuffer *raster, QImage *image, const QMatrix &
 
 void LinearGradientData::init()
 {
-    float x1 = origin.x();
-    float y1 = origin.y();
-    float x2 = end.x();
-    float y2 = end.y();
+    qreal x1 = origin.x();
+    qreal y1 = origin.y();
+    qreal x2 = end.x();
+    qreal y2 = end.y();
 
 #ifdef QT_DEBUG_DRAW
     qDebug("LinearGradientData::init(), x1=%f, y1=%f, x2=%f, y2=%f, spread=%d",
@@ -2044,9 +1963,9 @@ void LinearGradientData::init()
     }
 #endif
 
-    float dx = x2 - x1;
-    float dy = y2 - y1;
-    float len = sqrt(dx * dx + dy * dy);
+    qreal dx = x2 - x1;
+    qreal dy = y2 - y1;
+    qreal len = sqrt(dx * dx + dy * dy);
 
     dx /= (len * len);
     dy /= (len * len);
@@ -2086,8 +2005,8 @@ void qt_draw_text_item(const QPointF &pos, const QTextItem &ti, HDC hdc,
     double scale = 1.;
     int angle = 0;
     bool transform = false;
-    float x = p.x();
-    float y = p.y();
+    qreal x = p.x();
+    qreal y = p.y();
 
     if (d->txop >= QPainterPrivate::TxScale
         && !(QSysInfo::WindowsVersion & QSysInfo::WV_NT_based)) {
@@ -2144,7 +2063,7 @@ void qt_draw_text_item(const QPointF &pos, const QTextItem &ti, HDC hdc,
             }
         } else {
             bool haveOffsets = false;
-            float w = 0;
+            qreal w = 0;
             for(int i = 0; i < ti.num_glyphs; i++) {
                 if (glyphs[i].offset.x() != 0 || glyphs[i].offset.y() != 0 || glyphs[i].space_18d6 != 0) {
                     haveOffsets = true;
@@ -2161,7 +2080,7 @@ void qt_draw_text_item(const QPointF &pos, const QTextItem &ti, HDC hdc,
                     if (transform)
                         d->matrix.map(xp, yp, &xp, &yp);
                     ExtTextOutW(hdc, qRound(xp), qRound(yp), options, 0, &chr, 1, 0);
-                    x += glyphs->advance.x() + ((float)glyphs->space_18d6) / 64.;
+                    x += glyphs->advance.x() + ((qreal)glyphs->space_18d6) / 64.;
                     y += glyphs->advance.y();
                     glyphs++;
                 }
@@ -2181,7 +2100,7 @@ void qt_draw_text_item(const QPointF &pos, const QTextItem &ti, HDC hdc,
     } else {
         int i = ti.num_glyphs;
         while(i--) {
-            x += glyphs[i].advance.x() + ((float)glyphs[i].space_18d6) / 64.;
+            x += glyphs[i].advance.x() + ((qreal)glyphs[i].space_18d6) / 64.;
             y += glyphs[i].advance.y();
         }
         i = 0;
@@ -2207,7 +2126,7 @@ void qt_draw_text_item(const QPointF &pos, const QTextItem &ti, HDC hdc,
                     ExtTextOutW(hdc, xp, yp, options, 0, reinterpret_cast<wchar_t *>(&g[0].glyph), 1, 0);
                 }
             } else {
-                x -= ((float)glyphs[i].space_18d6) / 64;
+                x -= ((qreal)glyphs[i].space_18d6) / 64;
             }
             ++i;
         }
@@ -2251,7 +2170,7 @@ QImage qt_draw_radial_gradient_image( const QRect &rect, RadialGradientData *rda
         return image;
     }
 
-    float r, x0, y0, fx, fy, sw, sh, a, b, c, dc, d2c, dba, ba, rad, dx, dy, drad, d2rad, p, d2y;
+    qreal r, x0, y0, fx, fy, sw, sh, a, b, c, dc, d2c, dba, ba, rad, dx, dy, drad, d2rad, p, d2y;
     int i, j;
     ARGB *line;
 
@@ -2265,7 +2184,7 @@ QImage qt_draw_radial_gradient_image( const QRect &rect, RadialGradientData *rda
 
     a = 1 - fx * fx - fy * fy;
     if ( a <= 0 ) {
-        float f = sqrt( fx * fx + fy * fy );
+        qreal f = sqrt( fx * fx + fy * fy );
         fx = 0.999 * fx / f;
         fy = 0.999 * fy / f;
         a = 1 - fx * fx - fy * fy;

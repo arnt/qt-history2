@@ -85,8 +85,8 @@ public:
 
     int pointSize() const;
     void setPointSize(int);
-    float pointSizeF() const;
-    void setPointSizeF(float);
+    qreal pointSizeF() const;
+    void setPointSizeF(qreal);
 
     int pixelSize() const;
     void setPixelSize(int);
@@ -180,9 +180,9 @@ public:
 #ifdef QT3_SUPPORT
     static QT3_SUPPORT QFont defaultFont();
     static QT3_SUPPORT void setDefaultFont(const QFont &);
-    QT3_SUPPORT void setPixelSizeFloat(float);
-    QT3_SUPPORT float pointSizeFloat() const { return pointSizeF(); }
-    QT3_SUPPORT void setPointSizeFloat(float size) { setPointSizeF(size); }
+    QT3_SUPPORT void setPixelSizeFloat(qreal);
+    QT3_SUPPORT qreal pointSizeFloat() const { return pointSizeF(); }
+    QT3_SUPPORT void setPointSizeFloat(qreal size) { setPointSizeF(size); }
 #endif
 
 private:

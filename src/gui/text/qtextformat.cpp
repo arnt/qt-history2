@@ -931,7 +931,7 @@ bool QTextFormat::operator==(const QTextFormat &rhs) const
 
 
 /*!
-    \fn void QTextCharFormat::setFontPointSize(float size)
+    \fn void QTextCharFormat::setFontPointSize(qreal size)
 
     Sets the text format's font \a size.
 
@@ -940,7 +940,7 @@ bool QTextFormat::operator==(const QTextFormat &rhs) const
 
 
 /*!
-    \fn float QTextCharFormat::fontPointSize() const
+    \fn qreal QTextCharFormat::fontPointSize() const
 
     Returns the font size used to display text in this format.
 

@@ -29,7 +29,7 @@ public:
     QString family() const;
     int pixelSize() const;
     int pointSize() const;
-    float pointSizeF() const;
+    qreal pointSizeF() const;
     bool italic() const;
     QFont::Style style() const;
     int weight() const;

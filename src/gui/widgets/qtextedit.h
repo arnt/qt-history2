@@ -95,7 +95,7 @@ public:
     bool isReadOnly() const;
     void setReadOnly(bool ro);
 
-    float fontPointSize() const;
+    qreal fontPointSize() const;
     QString fontFamily() const;
     int fontWeight() const;
     bool fontUnderline() const;
@@ -148,7 +148,7 @@ public:
     QMenu *createStandardContextMenu();
 
 public slots:
-    void setFontPointSize(float s);
+    void setFontPointSize(qreal s);
     void setFontFamily(const QString &fontFamily);
     void setFontWeight(int w);
     void setFontUnderline(bool b);

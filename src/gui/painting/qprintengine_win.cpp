@@ -199,12 +199,12 @@ QWin32PrintEngine::QWin32PrintEngine(QPrinter::PrinterMode mode)
 void QWin32PrintEngine::updateClipRegion(const QRegion &clipRegion, bool clipEnabled)
 {
     if (clipEnabled) {
-	double xscale = ((float)metric(QPaintDevice::PdmPhysicalDpiX)) /
+	qreal xscale = ((float)metric(QPaintDevice::PdmPhysicalDpiX)) /
 			((float)metric(QPaintDevice::PdmDpiX));
-	double yscale = ((float)metric(QPaintDevice::PdmPhysicalDpiY)) /
+	qreal yscale = ((float)metric(QPaintDevice::PdmPhysicalDpiY)) /
 			((float)metric(QPaintDevice::PdmDpiY));
-	double xoff = 0;
-	double yoff = 0;
+	qreal xoff = 0;
+	qreal yoff = 0;
 	if (d->fullPage) {	// must adjust for margins
             xoff = - GetDeviceCaps(d->hdc, PHYSICALOFFSETX);
             yoff = - GetDeviceCaps(d->hdc, PHYSICALOFFSETY);
@@ -506,8 +506,8 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
         }
     }
 
-    double xs = 1.0;                    // x stretch
-    double ys = 1.0;                    // y stretch
+    qreal xs = 1.0;                    // x stretch
+    qreal ys = 1.0;                    // y stretch
     if ( paint ) {
         bool wxf = paint->matrixEnabled();
         bool vxf = paint->viewTransformEnabled();
@@ -524,8 +524,8 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
                 // When have to scale the image according to the rectangle before
                 // the rotation takes place to avoid shearing the image.
                 if (rect.width() != image.width() || rect.height() != image.height()) {
-                    m = QMatrix( rect.width()/(double)image.width(), 0,
-                                  0, rect.height()/(double)image.height(),
+                    m = QMatrix( rect.width()/(qreal)image.width(), 0,
+                                  0, rect.height()/(qreal)image.height(),
                                   0, 0 ) * m;
                 }
 
@@ -588,8 +588,8 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
         QImage mask = image.createAlphaMask();
         QBitmap bm;
         bm = mask;
-        xs = dw/(double)image.width();
-        ys = dh/(double)image.height();
+        xs = dw/(qreal)image.width();
+        ys = dh/(qreal)image.height();
         if( xs!=1 || ys!=1 )
             bm = bm.transform( QMatrix( xs, 0, 0, ys, 0, 0 ) );
         QRegion r( bm );
@@ -1115,7 +1115,7 @@ short QWin32PrintEngine::winPageSize() const
 
 QRect QWin32PrintEngine::paperRect() const
 {
-    double scale = d->resolution / (double) GetDeviceCaps(d->hdc, LOGPIXELSY);
+    qreal scale = d->resolution / (qreal) GetDeviceCaps(d->hdc, LOGPIXELSY);
     return QRect(0, 0,
                  qRound(GetDeviceCaps(d->hdc, PHYSICALWIDTH) * scale),
                  qRound(GetDeviceCaps(d->hdc, PHYSICALHEIGHT) * scale));
@@ -1123,7 +1123,7 @@ QRect QWin32PrintEngine::paperRect() const
 
 QRect QWin32PrintEngine::pageRect() const
 {
-    double scale = d->resolution / (double) GetDeviceCaps(d->hdc, LOGPIXELSY);
+    qreal scale = d->resolution / (qreal) GetDeviceCaps(d->hdc, LOGPIXELSY);
     int pagex = GetDeviceCaps(d->hdc, PHYSICALOFFSETX);
     int pagey = GetDeviceCaps(d->hdc, PHYSICALOFFSETY);
     int pagew = GetDeviceCaps(d->hdc, HORZRES) - pagex;

@@ -605,7 +605,7 @@ void QFont::setPointSize(int pointSize)
 
     \sa pointSizeF() setPointSize() setPixelSize()
 */
-void QFont::setPointSizeF(float pointSize)
+void QFont::setPointSizeF(qreal pointSize)
 {
     Q_ASSERT_X(pointSize > 0.0, "QFont::setPointSizeF", "point size must be greater than 0");
 
@@ -623,9 +623,9 @@ void QFont::setPointSizeF(float pointSize)
 
     \sa pointSize() setPointSizeF() pixelSize() QFontInfo::pointSize() QFontInfo::pixelSize()
 */
-float QFont::pointSizeF() const
+qreal QFont::pointSizeF() const
 {
-    return float(d->request.pointSize == -1 ? -10 : d->request.pointSize) / 10.0;
+    return qreal(d->request.pointSize == -1 ? -10 : d->request.pointSize) / 10.0;
 }
 
 /*!
@@ -670,7 +670,7 @@ int QFont::pixelSize() const
   Sets the logical pixel height of font characters when shown on
   the screen to \a pixelSize.
 */
-void QFont::setPixelSizeFloat(float pixelSize)
+void QFont::setPixelSizeFloat(qreal pixelSize)
 {
     setPixelSize((int)pixelSize);
 }
@@ -1295,14 +1295,14 @@ void QFont::setDefaultFont(const QFont &f)
 }
 
 /*!
-    \fn float QFont::pointSizeFloat() const
+    \fn qreal QFont::pointSizeFloat() const
     \compat
 
     Use pointSizeF() instead.
 */
 
 /*!
-    \fn void QFont::setPointSizeFloat(float size)
+    \fn void QFont::setPointSizeFloat(qreal size)
     \compat
 
     Use setPointSizeF() instead.
@@ -1843,11 +1843,11 @@ int QFontInfo::pointSize() const
 
     \sa QFont::pointSizeF()
 */
-float QFontInfo::pointSizeF() const
+qreal QFontInfo::pointSizeF() const
 {
     QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
-    return float(engine->fontDef.pointSize) / 10.0;
+    return qreal(engine->fontDef.pointSize) / 10.0;
 }
 
 /*!

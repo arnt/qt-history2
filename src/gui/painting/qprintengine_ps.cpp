@@ -555,8 +555,8 @@ static const PaperSize paperSizes[QPrinter::NPageSize] =
 
 struct psfont {
     const char *psname;
-    float slant;
-    float xscale;
+    qreal slant;
+    qreal xscale;
 };
 
 static const psfont Arial[] = {
@@ -822,7 +822,7 @@ public:
     Qt::BGMode bkMode;
 //     QFontMetrics fm;
 //     QFont currentUsed;
-    float scale;
+    qreal scale;
 
     bool embedFonts;
     QStringList fontpath;
@@ -986,7 +986,7 @@ static QString makePSFontName(const QFontEngine *fe, int *listpos = 0, int *ftyp
   return ps;
 }
 
-static void appendReplacements(QStringList &list, const psfont * const * replacements, int type, float xscale = 100.)
+static void appendReplacements(QStringList &list, const psfont * const * replacements, int type, qreal xscale = 100.)
 {
     // iterate through the replacement fonts
     while (*replacements) {
@@ -1015,7 +1015,7 @@ static QStringList makePSFontNameList(const QFontEngine *fe, const QString &psna
 
     const psfont *psf = postscriptFonts[i].ps;
     const psfont * const * replacements = postscriptFonts[i].replacements;
-    float xscale = 100;
+    qreal xscale = 100;
     if (psf) {
         // xscale for the "right" font is always 1. We scale the replacements...
         xscale = psf->xscale;
@@ -3214,7 +3214,7 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
     outStream.setDevice(outDevice);
     outStream << "%!PS-Adobe-1.0";
     QPSPrintEngine *q = static_cast<QPSPrintEngine *>(q_ptr);
-    scale = 72. / ((float) q->metric(QPaintDevice::PdmDpiY));
+    scale = 72. / ((qreal) q->metric(QPaintDevice::PdmDpiY));
     QRect pageRect = q->pageRect();
     QRect paperRect = q->paperRect();
     uint mtop = pageRect.top() - paperRect.top();
@@ -3578,7 +3578,7 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
     d->boundingBox = QRect(0, 0, -1, -1);
     d->fontsUsed = QLatin1String("");
 
-    d->scale = 72. / ((float) d->printer->logicalDpiY());
+    d->scale = 72. / ((qreal) d->printer->logicalDpiY());
     setActive(true);
 
     newPage();

@@ -348,7 +348,7 @@ void QWin32PaintEngine::drawLine(const QLineF &line)
         return;
     }
 
-    float x1 = line.startX(), x2 = line.endX(), y1 = line.startY(), y2 = line.endY();
+    qreal x1 = line.startX(), x2 = line.endX(), y1 = line.startY(), y2 = line.endY();
     bool plot_pixel = false;
     plot_pixel = (d->pWidth == 0) && (d->penStyle == Qt::SolidLine);
     if (plot_pixel) {
@@ -879,8 +879,8 @@ void QWin32PaintEngine::drawTextItem(const QPointF &pos, const QTextItem &ti)
     double scale = 1.;
     int angle = 0;
     bool transform = false;
-    float x = p.x();
-    float y = p.y();
+    qreal x = p.x();
+    qreal y = p.y();
 
     if (state->txop >= QPainterPrivate::TxScale
         && !(QSysInfo::WindowsVersion & QSysInfo::WV_NT_based)) {
@@ -959,7 +959,7 @@ void QWin32PaintEngine::drawTextItem(const QPointF &pos, const QTextItem &ti)
             }
         } else {
             bool haveOffsets = false;
-            float w = 0;
+            qreal w = 0;
             for(int i = 0; i < ti.num_glyphs; i++) {
                 if (glyphs[i].offset.x() != 0 || glyphs[i].offset.y() != 0 || glyphs[i].space_18d6 != 0) {
                     haveOffsets = true;
@@ -976,7 +976,7 @@ void QWin32PaintEngine::drawTextItem(const QPointF &pos, const QTextItem &ti)
                     if (transform)
                         state->painter->matrix().map(xp, yp, &xp, &yp);
                     ExtTextOutW(d->hdc, qRound(xp), qRound(yp), options, 0, &chr, 1, 0);
-                    x += glyphs->advance.x() + ((float)glyphs->space_18d6) / 64.;
+                    x += glyphs->advance.x() + ((qreal)glyphs->space_18d6) / 64.;
                     y += glyphs->advance.y();
                     glyphs++;
                 }
@@ -996,7 +996,7 @@ void QWin32PaintEngine::drawTextItem(const QPointF &pos, const QTextItem &ti)
     } else {
         int i = ti.num_glyphs;
         while(i--) {
-            x += glyphs[i].advance.x() + ((float)glyphs[i].space_18d6) / 64.;
+            x += glyphs[i].advance.x() + ((qreal)glyphs[i].space_18d6) / 64.;
             y += glyphs[i].advance.y();
         }
         i = 0;
@@ -1022,7 +1022,7 @@ void QWin32PaintEngine::drawTextItem(const QPointF &pos, const QTextItem &ti)
                     ExtTextOutW(d->hdc, xp, yp, options, 0, reinterpret_cast<wchar_t *>(&g[0].glyph), 1, 0);
                 }
             } else {
-                x -= ((float)glyphs[i].space_18d6) / 64;
+                x -= ((qreal)glyphs[i].space_18d6) / 64;
             }
             ++i;
         }
@@ -1757,8 +1757,8 @@ void QWin32PaintEnginePrivate::setNativeMatrix(const QMatrix &mtx)
                 qErrnoWarning("QWin32PaintEngine::setNativeMatrix(), SetWorldTransformation failed");
             d->advancedMode = true;
         } else {
-            m.eM11 = m.eM22 = (float)1.0;
-            m.eM12 = m.eM21 = m.eDx = m.eDy = (float)0.0;
+            m.eM11 = m.eM22 = 1.0;
+            m.eM12 = m.eM21 = m.eDx = m.eDy = 0.0;
             if (!qSetGraphicsMode(d->hdc, GM_ADVANCED))
                 qErrnoWarning("QWin32PaintEngine::setNativeMatrix(), SetGraphicsMode failed");
             qModifyWorldTransform(d->hdc, &m, MWT_IDENTITY);
