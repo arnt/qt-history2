@@ -286,7 +286,7 @@ QT_INSTALL_PLUGINS=
 QT_INSTALL_DATA=
 
 # parse the arguments, setting things to "yes" or "no"
-while [ -n "$1" ]; do
+while [ "$#" -gt 0 ]; do
     CURRENT_OPT="$1"
     case $1 in
     #Autoconf style options
