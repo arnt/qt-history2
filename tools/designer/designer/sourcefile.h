@@ -37,7 +37,7 @@ public:
     bool load();
 
     void setFileName( const QString &fn ) { filename = fn; save(); }
-    QString fileName() const { return filename; ( (SourceFile*)this )->load(); }
+    QString fileName() const { return filename; }
 
 private:
     QString filename;
