@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#44 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.h#45 $
 **
 ** Definition of QPopupMenu class
 **
@@ -105,10 +105,12 @@ private:
     void	updateAccel( QWidget * );
     void	enableAccel( bool );
 
-    virtual void	setTabMark( int );
+    void	setTabMark( int );
     int		tabMark();
-    virtual void	setCheckableFlag( bool );
+    void	setCheckableFlag( bool );
 
+    int getWidthOfCheckCol( int gs ) const;
+    
     QMenuItem  *selfItem;
     QAccel     *autoaccel;
     bool	accelDisabled;

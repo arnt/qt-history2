@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#163 $
+** $Id: //depot/qt/main/src/widgets/qpopupmenu.cpp#164 $
 **
 ** Implementation of QPopupMenu class
 **
@@ -130,9 +130,9 @@ static void getSizeOfBitmap( int gs, int *w, int *h )
 }
 
 
-static int getWidthOfCheckCol( QPopupMenu *that, int gs )
+int QPopupMenu::getWidthOfCheckCol( int gs ) const
 {
-    int pmw = that->maxPMWidth;
+    int pmw = maxPMWidth;
     int cmw = 7;   // check mark width
     int w = cmw > pmw ? cmw : pmw;
     if ( gs == MotifStyle )

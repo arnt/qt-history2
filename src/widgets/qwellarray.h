@@ -1,5 +1,5 @@
 /**********************************************************************
-** $Id: //depot/qt/main/src/widgets/qwellarray.h#7 $
+** $Id: //depot/qt/main/src/widgets/qwellarray.h#8 $
 **
 ** Definition of QWellArray widget class
 **
@@ -38,7 +38,7 @@ public:
 
     ~QWellArray() {}
     const char* cellContent( int row, int col ) const;
-    virtual void setCellContent( int row, int col, const char* );
+    // ### Paul !!! virtual void setCellContent( int row, int col, const char* );
 
     int numCols() { return nCols; }
     int numRows() { return nRows; }
