@@ -33,7 +33,8 @@ void ResultWindow::slotExec()
 {
     sql.setName( tableList->currentText() );
     sql.select( sql.primaryIndex() );
-    dataGrid->setCursor( &sql );
+    dataGrid->setCursor( &sql, TRUE );
+    dataGrid->refresh();
 }
 
 void ResultWindow::newSelection( const QSqlRecord* fields )
