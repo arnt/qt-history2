@@ -490,7 +490,7 @@ void
 QQuickDrawPaintEngine::drawPolygon(const QPointArray &a, PolygonDrawMode mode)
 {
     Q_ASSERT(isActive());
-    if (mode == UnconnectedMode) {
+    if (mode == PolylineMode) {
         int npoints = a.size();
         int index = 0;
         if(npoints == -1)
@@ -854,7 +854,7 @@ static void qt_mac_draw_pattern(void *info, CGContextRef c)
         } else {
             w = pat->data.pixmap.width();
             h = pat->data.pixmap.height();
-            pat->image = qt_mac_create_cgimage(pat->data.pixmap, Qt::ComposePixmap, 
+            pat->image = qt_mac_create_cgimage(pat->data.pixmap, Qt::ComposePixmap,
                                                pat->data.pixmap.isQBitmap());
         }
     }
@@ -1320,7 +1320,7 @@ void QCoreGraphicsPaintEngine::drawPolygon(const QPointArray &a, PolygonDrawMode
 {
     Q_ASSERT(isActive());
 
-    if (mode == UnconnectedMode) {
+    if (mode == PolylineMode) {
         CGContextMoveToPoint(d->hd, a[0].x(), a[0].y());
         for(int x = 1; x < a.size(); ++x)
             CGContextAddLineToPoint(d->hd, a[x].x(), a[x].y());

@@ -13,11 +13,13 @@
 #include "private/qpaintengine_p.h"
 #include "private/qpainter_p.h"
 #include "private/qpicture_p.h"
+
 #include "qbuffer.h"
 #include "qbytearray.h"
 #include "qdatastream.h"
 #include "qpaintengine_pic_p.h"
 #include "qpicture.h"
+#include "qpolygon.h"
 #include "qrect.h"
 
 class QPicturePaintEnginePrivate : public QPaintEnginePrivate
@@ -114,7 +116,7 @@ void QPicturePaintEngine::updatePen(const QPen &pen)
     writeCmdLength(pos, QRect(), false);
 }
 
-void QPicturePaintEngine::updateBrush(const QBrush &brush, const QPoint &)
+void QPicturePaintEngine::updateBrush(const QBrush &brush, const QPointF &)
 {
     int pos;
     SERIALIZE_CMD(PdcSetBrush);
@@ -166,11 +168,11 @@ void QPicturePaintEngine::updateClipRegion(const QRegion &region, bool clipEnabl
     writeCmdLength(pos, QRect(), false);
 }
 
-void QPicturePaintEngine::writeCmdLength(int pos, const QRect &r, bool corr)
+void QPicturePaintEngine::writeCmdLength(int pos, const QRectF &r, bool corr)
 {
     int newpos = pic_d->pictb.at();                // new position
     int length = newpos - pos;
-    QRect br(r);
+    QRect br = r.toRect();
 
     if (length < 255) {                        // write 8-bit length
         pic_d->pictb.seek(pos - 1);                        // position to right index
@@ -204,15 +206,15 @@ void QPicturePaintEngine::writeCmdLength(int pos, const QRect &r, bool corr)
     }
 }
 
-void QPicturePaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
+void QPicturePaintEngine::drawLine(const QLineF &line)
 {
     int pos;
     SERIALIZE_CMD(PdcDrawLine);
-    d->s << p1 << p2;
-    writeCmdLength(pos, QRect(p1, p2).normalize(), true);
+    d->s << line.start() << line.end();
+    writeCmdLength(pos, QRectF(line.start(), line.end()).normalize(), true);
 }
 
-void QPicturePaintEngine::drawRect(const QRect &r)
+void QPicturePaintEngine::drawRect(const QRectF &r)
 {
     int pos;
     SERIALIZE_CMD(PdcDrawRect);
@@ -220,15 +222,15 @@ void QPicturePaintEngine::drawRect(const QRect &r)
     writeCmdLength(pos, r, true);
 }
 
-void QPicturePaintEngine::drawPoint(const QPoint &p)
+void QPicturePaintEngine::drawPoint(const QPointF &p)
 {
     int pos;
     SERIALIZE_CMD(PdcDrawPoint);
     d->s << p;
-    writeCmdLength(pos, QRect(p,p), true);
+    writeCmdLength(pos, QRectF(p,p), true);
 }
 
-void QPicturePaintEngine::drawEllipse(const QRect &r)
+void QPicturePaintEngine::drawEllipse(const QRectF &r)
 {
     int pos;
     SERIALIZE_CMD(PdcDrawEllipse);
@@ -236,10 +238,10 @@ void QPicturePaintEngine::drawEllipse(const QRect &r)
     writeCmdLength(pos, r, true);
 }
 
-void QPicturePaintEngine::drawPolygon(const QPointArray &a, PolygonDrawMode mode)
+void QPicturePaintEngine::drawPolygon(const QPolygon &a, PolygonDrawMode mode)
 {
     int pos;
-    if (mode == UnconnectedMode) {
+    if (mode == PolylineMode) {
         SERIALIZE_CMD(PdcDrawPolyline);
         d->s << a;
         writeCmdLength(pos, a.boundingRect(), true);
@@ -251,7 +253,7 @@ void QPicturePaintEngine::drawPolygon(const QPointArray &a, PolygonDrawMode mode
 }
 
 // ### Stream out sr
-void QPicturePaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect & /* sr */,
+void QPicturePaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF & /* sr */,
                                      Qt::PixmapDrawingMode /* mode */)
 {
     int pos;
@@ -260,7 +262,7 @@ void QPicturePaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QR
     writeCmdLength(pos, r, false);
 }
 
-void QPicturePaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s,
+void QPicturePaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s,
 					  Qt::PixmapDrawingMode)
 {
     int pos;
@@ -270,7 +272,7 @@ void QPicturePaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap,
 }
 
 // ### Implementation missing?
-void QPicturePaintEngine::drawTextItem(const QPoint &/* p */, const QTextItem &/* ti */, int /* textflags */)
+void QPicturePaintEngine::drawTextItem(const QPointF &/* p */, const QTextItem &/* ti */, int /* textflags */)
 {
 //     int pos;
 //     SERIALIZE_CMD(PdcDrawText2);

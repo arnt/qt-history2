@@ -21,6 +21,7 @@
 #include "qpainter_p.h"
 #include "qpainterpath.h"
 #include "qpicture.h"
+#include "qpolygon.h"
 #include "qtextlayout.h"
 #include "qwidget.h"
 #include <private/qfontengine_p.h>
@@ -1107,9 +1108,9 @@ void QPainter::setClipPath(const QPainterPath &path)
         return;
 
     if (d->engine->hasFeature(QPaintEngine::ClipTransform)) {
-        d->state->clipPathRegion = path.d_ptr->toFillPolygon(QMatrix());
+        d->state->clipPathRegion = path.d_ptr->toFillPolygon(QMatrix()).toPointArray();
     } else {
-        d->state->clipPathRegion = path.d_ptr->toFillPolygon(d->state->matrix);
+        d->state->clipPathRegion = path.d_ptr->toFillPolygon(d->state->matrix).toPointArray();
     }
 }
 
@@ -1157,7 +1158,7 @@ void QPainter::drawPath(const QPainterPath &path)
     }
 
     QPainterPathPrivate *pd = path.d_ptr;
-    QList<QPointArray> polygons = pd->flatten(d->state->matrix);
+    QList<QPolygon> polygons = pd->flatten(d->state->matrix);
 
     if (polygons.isEmpty())
         return;
@@ -1171,7 +1172,7 @@ void QPainter::drawPath(const QPainterPath &path)
 
     // Fill the path...
     if (d->state->brush.style() != Qt::NoBrush) {
-	QPointArray fillPoly = pd->toFillPolygon(worldMatrix);
+	QPolygon fillPoly = pd->toFillPolygon(worldMatrix);
         QPen oldPen = d->state->pen;
         setPen(Qt::NoPen);
 	d->engine->updateState(d->state);
@@ -1184,7 +1185,7 @@ void QPainter::drawPath(const QPainterPath &path)
     if (d->state->pen.style() != Qt::NoPen) {
 	for (int i=0; i<polygons.size(); ++i) {
 	    d->engine->updateState(d->state);
-  	    d->engine->drawPolygon(polygons.at(i), QPaintEngine::UnconnectedMode);
+  	    d->engine->drawPolygon(polygons.at(i), QPaintEngine::PolylineMode);
 	}
     }
 
@@ -1241,11 +1242,11 @@ void QPainter::drawLine(const QPoint &p1, const QPoint &p2)
 
 
     if ((d->state->WxF || d->state->VxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
-        d->engine->drawLine(p1 * d->state->matrix, p2 * d->state->matrix);
+        d->engine->drawLine(QLineF(p1 * d->state->matrix, p2 * d->state->matrix));
         return;
     }
 
-    d->engine->drawLine(p1, p2);
+    d->engine->drawLine(QLineF(p1, p2));
 }
 
 /*!
@@ -1262,9 +1263,9 @@ void QPainter::drawLine(const QPoint &p1, const QPoint &p2)
 
     \sa QPen, drawRoundRect()
 */
-void QPainter::drawRect(const QRect &r)
+void QPainter::drawRect(const QRectF &r)
 {
-    QRect rect = r.normalize();
+    QRectF rect = r.normalize();
 
     if (!isActive() || rect.isEmpty())
         return;
@@ -1279,9 +1280,9 @@ void QPainter::drawRect(const QRect &r)
             doRestore = false;
         } else {
             save();
-            setClipRect(r);
+            setClipRect(r.toRect());
         }
-        qt_fill_linear_gradient(r, this, d->state->brush);
+        qt_fill_linear_gradient(r.toRect(), this, d->state->brush);
         if (d->state->pen.style() != Qt::NoPen) {
             QBrush oldBrush = d->state->brush;
             setBrush(Qt::NoBrush);
@@ -1301,7 +1302,7 @@ void QPainter::drawRect(const QRect &r)
 	image.fill(d->state->brush.color().rgb());
 	image.setAlphaBuffer(true);
 	QPixmap pm(image);
-	drawTiledPixmap(r, pm);
+	drawTiledPixmap(r.toRect(), pm);
 	if (d->state->pen.style() != Qt::NoPen) {
 	    save();
 	    setBrush(Qt::NoBrush);
@@ -1313,7 +1314,7 @@ void QPainter::drawRect(const QRect &r)
 
     if (d->state->txop > TxTranslate && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
         if (d->state->txop == TxRotShear) {
-  	    drawPolygon(QPointArray(rect));
+  	    drawPolygon(rect.toRect());
 #if 0 // NB! keep this golden magic nugget of code
 	    QPointArray tr = d->state->matrix * QPointArray(QRect(QPoint(0,0), rect.size()));
 	    QRect br = tr.boundingRect();
@@ -1379,7 +1380,7 @@ void QPainter::drawEdges(const QRect &r, Qt::RectangleEdges edges)
 
     \sa drawRect()
 */
-void QPainter::drawRects(const QList<QRect> &rects)
+void QPainter::drawRects(const QList<QRectF> &rects)
 {
     if (!isActive())
         return;
@@ -1441,7 +1442,7 @@ void QPainter::drawPoints(const QPointArray &pa)
         return;
     d->engine->updateState(d->state);
 
-    QPointArray a = pa;
+    QPolygon a = QPolygon::fromPointArray(pa);
     if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform))
         a = a * d->state->matrix;
 
@@ -1937,12 +1938,16 @@ void QPainter::drawLineSegments(const QPointArray &a, int index, int nlines)
     if (!isActive() || nlines < 1 || index < 0)
         return;
 
-    QPointArray pa = a.mid(index, nlines * 2);
+    QList<QLineF> lines;
+    for (int i=index; i<index + nlines*2; i+=2)
+        lines << QLineF(a.at(i), a.at(i+1));
 
-    if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform))
-        pa = pa * d->state->matrix;
+    if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform)) {
+        for (int i=0; i<lines.size(); ++i)
+            lines.replace(i, lines.at(i) * d->state->matrix);
+    }
 
-    d->engine->drawLineSegments(pa);
+    d->engine->drawLines(lines);
 }
 
 /*!
@@ -1971,12 +1976,12 @@ void QPainter::drawPolyline(const QPointArray &a, int index, int npoints)
     if (!isActive() || npoints < 2 || index < 0)
         return;
 
-    QPointArray pa = a.mid(index, npoints);
+    QPolygon pa = QPolygon::fromPointArray(a.mid(index, npoints));
 
     if ((d->state->VxF || d->state->WxF) && !d->engine->hasFeature(QPaintEngine::CoordTransform))
         pa = pa * d->state->matrix;
 
-    d->engine->drawPolygon(pa, QPaintEngine::UnconnectedMode);
+    d->engine->drawPolygon(pa, QPaintEngine::PolylineMode);
 }
 
 /*!
@@ -2013,7 +2018,7 @@ void QPainter::drawPolygon(const QPointArray &a, bool winding, int index, int np
     if (!isActive() || npoints < 2 || index < 0)
         return;
 
-    QPointArray pa = a.mid(index, npoints);
+    QPolygon pa = QPolygon::fromPointArray(a.mid(index, npoints));
 
     if ((d->state->txop > TxTranslate && !d->engine->hasFeature(QPaintEngine::CoordTransform))
         || (!d->engine->hasFeature(QPaintEngine::SolidAlphaFill)

@@ -1308,7 +1308,7 @@ void QX11PaintEngine::drawPolygon(const QPointArray &a, PolygonDrawMode mode)
 {
     QPointArray pa = a;
 
-    if (mode == UnconnectedMode) {
+    if (mode == PolylineMode) {
         if (d->cpen.style() != Qt::NoPen) {
             int npoints = a.size();
             int index = 0;

@@ -53,7 +53,7 @@ public:
     Qt::BGMode bgmode;
 };
 
-static void qt_fill_linear_gradient(const QRect &rect, const QBrush &brush);
+static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush);
 
 #define d d_func()
 #define q q_func()
@@ -117,7 +117,7 @@ void QOpenGLPaintEngine::updatePen(const QPen &pen)
         glLineWidth(pen.width());
 }
 
-void QOpenGLPaintEngine::updateBrush(const QBrush &brush, const QPoint &)
+void QOpenGLPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
 {
     // all GL polygon stipple patterns needs to be specified as a
     // 32x32 bit mask
@@ -473,25 +473,27 @@ void QOpenGLPaintEngine::updateRenderHints(QPainter::RenderHints hints)
     }
 }
 
-void QOpenGLPaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
+void QOpenGLPaintEngine::drawLine(const QLineF &line)
 {
     dgl->makeCurrent();
     glBegin(GL_LINES);
     {
-        glVertex2i(p1.x(), p1.y());
-        glVertex2i(p2.x(), p2.y());
+        glVertex2d(line.startX(), line.startY());
+        glVertex2d(line.endX(), line.endY());
     }
     glEnd();
 }
 
-void QOpenGLPaintEngine::drawRect(const QRect &r)
+void QOpenGLPaintEngine::drawRect(const QRectF &r)
 {
     dgl->makeCurrent();
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
 
-    int x, y, w, h;
-    r.getRect(&x, &y, &w, &h);
+    float x = r.x();
+    float y = r.y();
+    float w = r.width();
+    float h = r.height();
     if (d->cbrush.style() == Qt::LinearGradientPattern) {
 	qt_fill_linear_gradient(r, d->cbrush);
 	if (d->cpen.style() == Qt::NoPen)
@@ -499,7 +501,7 @@ void QOpenGLPaintEngine::drawRect(const QRect &r)
     } else {
 	if (d->cbrush.style() != Qt::NoBrush) {
 	    dgl->qglColor(d->cbrush.color());
-	    glRecti(x, y, x+w, y+h);
+	    glRectf(x, y, x+w, y+h);
 	    dgl->qglColor(d->cpen.color());
 	    if (d->cpen.style() == Qt::NoPen)
 		return;
@@ -518,37 +520,37 @@ void QOpenGLPaintEngine::drawRect(const QRect &r)
         // polygon won't give us exactly what we want
         glBegin(GL_LINES);
         {
-            glVertex2i(x, y);
-            glVertex2i(x+w, y);
-            glVertex2i(x+w, y-1);
-            glVertex2i(x+w, y+h-1);
-            glVertex2i(x+w+1, y+h);
-            glVertex2i(x+1, y+h);
-            glVertex2i(x, y+h);
-            glVertex2i(x, y);
+            glVertex2f(x, y);
+            glVertex2f(x+w, y);
+            glVertex2f(x+w, y-1);
+            glVertex2f(x+w, y+h-1);
+            glVertex2f(x+w+1, y+h);
+            glVertex2f(x+1, y+h);
+            glVertex2f(x, y+h);
+            glVertex2f(x, y);
         }
         glEnd();
     }
 }
 
-void QOpenGLPaintEngine::drawPoint(const QPoint &p)
+void QOpenGLPaintEngine::drawPoint(const QPointF &p)
 {
     dgl->makeCurrent();
     glBegin(GL_POINTS);
     {
-        glVertex2i(p.x(), p.y());
+        glVertex2d(p.x(), p.y());
     }
     glEnd();
 }
 
-void QOpenGLPaintEngine::drawLineSegments(const QPointArray &pa)
+void QOpenGLPaintEngine::drawLines(const QList<QLineF> &lines)
 {
     dgl->makeCurrent();
     glBegin(GL_LINES);
     {
-        for (int i = 0; i < pa.size(); i+=2) {
-            glVertex2i(pa[i].x(), pa[i].y());
-            glVertex2i(pa[i+1].x(), pa[i+1].y());
+        for (int i = 0; i < lines.size(); ++i) {
+            glVertex2f(lines[i].startX(), lines[i].startY());
+            glVertex2f(lines[i].endX(), lines[i].endY());
         }
     }
     glEnd();
@@ -581,7 +583,7 @@ static void qgl_cleanup_tesselator()
     gluDeleteTess(qgl_tess);
 }
 
-static void qgl_draw_poly(const QPointArray &pa)
+static void qgl_draw_poly(const QPolygon &pa)
 {
 #ifndef QT_GL_NO_CONCAVE_POLYGONS
     if (!qgl_tess) {
@@ -630,37 +632,38 @@ static void qgl_draw_poly(const QPointArray &pa)
     glBegin(GL_POLYGON);
     {
         for (int i = 0; i < pa.size(); ++i)
-	    glVertex2i(pa[i].x(), pa[i].y());
+	    glVertex2f(pa[i].x(), pa[i].y());
     }
     glEnd();
 #endif
 }
 
 
-void QOpenGLPaintEngine::drawPolygon(const QPointArray &pa, PolygonDrawMode mode)
+void QOpenGLPaintEngine::drawPolygon(const QPolygon &pa, PolygonDrawMode mode)
 {
     dgl->makeCurrent();
     dgl->qglColor(d->cbrush.color());
     qgl_draw_poly(pa);
     dgl->qglColor(d->cpen.color());
     if (d->cpen.style() != Qt::NoPen) {
-        int x1, y1, x2, y2; // connect last to first point
-        pa.point(pa.size()-1, &x1, &y1);
-        pa.point(0, &x2, &y2);
+        float x1 = pa.at(pa.size()-1).x();
+        float y1 = pa.at(pa.size()-1).y();
+        float x2 = pa.at(0).x();
+        float y2 = pa.at(0).y();
 
         glBegin(GL_LINE_STRIP);
         {
             for (int i = 0; i < pa.size(); ++i)
-                glVertex2i(pa[i].x(), pa[i].y());
-            if (mode != UnconnectedMode && !(x1 == x2 && y1 == y2))
-                glVertex2i(x1, y1);
+                glVertex2f(pa.at(i).x(), pa.at(i).y());
+            if (mode != PolylineMode && !(x1 == x2 && y1 == y2))
+                glVertex2f(x1, y1);
         }
         glEnd();
     }
 }
 
 
-void QOpenGLPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr,
+void QOpenGLPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
                                     Qt::PixmapDrawingMode blend)
 {
     if (pm.depth() == 1) {
@@ -692,10 +695,10 @@ void QOpenGLPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRe
         double y1 = sr.y() / (double) pm.height();
         double y2 = y1 + sr.height() / (double) pm.height();
 
-        glTexCoord2f(x1, y2); glVertex2i(r.x(), r.y());
-        glTexCoord2f(x2, y2); glVertex2i(r.x()+r.width(), r.y());
-        glTexCoord2f(x2, y1); glVertex2i(r.x()+r.width(), r.y()+r.height());
-        glTexCoord2f(x1, y1); glVertex2i(r.x(), r.y()+r.height());
+        glTexCoord2f(x1, y2); glVertex2f(r.x(), r.y());
+        glTexCoord2f(x2, y2); glVertex2f(r.x()+r.width(), r.y());
+        glTexCoord2f(x2, y1); glVertex2f(r.x()+r.width(), r.y()+r.height());
+        glTexCoord2f(x1, y1); glVertex2f(r.x(), r.y()+r.height());
     }
     glEnd();
 
@@ -704,7 +707,7 @@ void QOpenGLPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRe
     glPopAttrib();
 }
 
-void QOpenGLPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pm, const QPoint &,
+void QOpenGLPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pm, const QPointF &,
 					 Qt::PixmapDrawingMode)
 {
     dgl->makeCurrent();
@@ -732,10 +735,10 @@ void QOpenGLPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pm, cons
     glRotatef(180.0, 0.0, 0.0, 1.0);
     glBegin(GL_QUADS);
     {
-        glTexCoord2f(0.0, 0.0); glVertex2i(r.x(), r.y());
-        glTexCoord2f(tc_w, 0.0); glVertex2i(r.x()+r.width(), r.y());
-        glTexCoord2f(tc_w, tc_h); glVertex2i(r.x()+r.width(), r.y()+r.height());
-        glTexCoord2f(0.0, tc_h); glVertex2i(r.x(), r.y()+r.height());
+        glTexCoord2f(0.0, 0.0); glVertex2f(r.x(), r.y());
+        glTexCoord2f(tc_w, 0.0); glVertex2f(r.x()+r.width(), r.y());
+        glTexCoord2f(tc_w, tc_h); glVertex2f(r.x()+r.width(), r.y()+r.height());
+        glTexCoord2f(0.0, tc_h); glVertex2f(r.x(), r.y()+r.height());
     }
     glEnd();
     glPopMatrix();
@@ -755,7 +758,7 @@ QOpenGLPaintEngine::handle() const
     return 0;
 }
 
-static void qt_fill_linear_gradient(const QRect &rect, const QBrush &brush)
+static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush)
 {
     Q_ASSERT(brush.style() == Qt::LinearGradientPattern);
 
@@ -770,8 +773,8 @@ static void qt_fill_linear_gradient(const QRect &rect, const QBrush &brush)
     glShadeModel(GL_SMOOTH);
     glDisable(GL_DEPTH_TEST);
 
-    gstart -= rect.topLeft();
-    gstop -= rect.topLeft();
+    gstart -= rect.topLeft().toPoint();
+    gstop -= rect.topLeft().toPoint();
 
     QColor gcol1 = brush.color();
     QColor gcol2 = brush.gradientColor();
@@ -779,8 +782,8 @@ static void qt_fill_linear_gradient(const QRect &rect, const QBrush &brush)
     int dx = gstop.x() - gstart.x();
     int dy = gstop.y() - gstart.y();
 
-    int rw = rect.width();
-    int rh = rect.height();
+    float rw = rect.width();
+    float rh = rect.height();
 
     if (QABS(dx) > QABS(dy)) { // Fill horizontally
         // Make sure we fill left to right.
@@ -806,25 +809,24 @@ static void qt_fill_linear_gradient(const QRect &rect, const QBrush &brush)
 
 #ifndef QT_GRAD_NO_POLY
         // Fill the area to the left of the gradient
-
-        QPointArray leftFill;
+        QPolygon leftFill;
 	if (xtop1 > 0)
-	    leftFill << QPoint(0, 0);
-	leftFill << QPoint(xtop1+1, 0)
-		 << QPoint(xbot1+1, rh);
+	    leftFill << QPointF(0, 0);
+	leftFill << QPointF(xtop1+1, 0)
+		 << QPointF(xbot1+1, rh);
         if (xbot1 > 0)
-            leftFill << QPoint(0, rh);
+            leftFill << QPointF(0, rh);
 	glColor4ub(gcol1.red(), gcol1.green(), gcol1.blue(), gcol1.alpha());
 	qgl_draw_poly(leftFill);
 
         // Fill the area to the right of the gradient
-        QPointArray rightFill;
-	rightFill << QPoint(xtop2-1, 0);
+        QPolygon rightFill;
+	rightFill << QPointF(xtop2-1, 0);
 	if (xtop2 < rw)
-	    rightFill << QPoint(rw, 0);
+	    rightFill << QPointF(rw, 0);
 	if (xbot2 < rw)
-	    rightFill << QPoint(rw, rh);
-	rightFill << QPoint(xbot2-1, rh);
+	    rightFill << QPointF(rw, rh);
+	rightFill << QPointF(xbot2-1, rh);
 	glColor4ub(gcol2.red(), gcol2.green(), gcol2.blue(), gcol2.alpha());
 	qgl_draw_poly(rightFill);
 #endif // QT_GRAD_NO_POLY
@@ -862,23 +864,23 @@ static void qt_fill_linear_gradient(const QRect &rect, const QBrush &brush)
         }
 
 #ifndef QT_GRAD_NO_POLY
-        QPointArray topFill;
-        topFill << QPoint(0, yleft1+1);
+        QPolygon topFill;
+        topFill << QPointF(0, yleft1+1);
 	if (yleft1 > 0)
-	    topFill << QPoint(0, 0);
+	    topFill << QPointF(0, 0);
 	if (yright1 > 0)
-	    topFill << QPoint(rw, 0);
-	topFill << QPoint(rw, yright1+1);
+	    topFill << QPointF(rw, 0);
+	topFill << QPointF(rw, yright1+1);
 	glColor4ub(gcol1.red(), gcol1.green(), gcol1.blue(), gcol1.alpha());
 	qgl_draw_poly(topFill);
 
-        QPointArray bottomFill;
-	bottomFill << QPoint(0, yleft2-1);
+        QPolygon bottomFill;
+	bottomFill << QPointF(0, yleft2-1);
 	if (yleft2 < rh)
-	    bottomFill << QPoint(0, rh);
+	    bottomFill << QPointF(0, rh);
 	if (yright2 < rh)
-	    bottomFill << QPoint(rw, rh);
-	bottomFill << QPoint(rw, yright2-1);
+	    bottomFill << QPointF(rw, rh);
+	bottomFill << QPointF(rw, yright2-1);
 	glColor4ub(gcol2.red(), gcol2.green(), gcol2.blue(), gcol2.alpha());
 	qgl_draw_poly(bottomFill);
 #endif // QT_GRAD_NO_POLY
@@ -899,7 +901,7 @@ static void qt_fill_linear_gradient(const QRect &rect, const QBrush &brush)
     glPopAttrib();
 }
 
-void QOpenGLPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int)
+void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int)
 {
 #if defined(Q_WS_WIN) || defined (Q_WS_MAC)
     QPaintEngine::drawTextItem(p, ti, 0);

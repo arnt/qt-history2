@@ -126,8 +126,9 @@ class Q_GUI_EXPORT QPainter
     inline void drawLine(int x1, int y1, int x2, int y2);
     void drawLine(const QPoint &p1, const QPoint &p2);
     inline void drawRect(int x1, int y1, int w, int h);
-    void drawRect(const QRect &r);
-    void drawRects(const QList<QRect> &rectangleList);
+    inline void drawRect(const QRect &r);
+    void drawRect(const QRectF &r);
+    void drawRects(const QList<QRectF> &rectangleList);
     inline void drawPoint(int x, int y);
     void drawPoint(const QPoint &p);
     void drawPoints(const QPointArray &pa);
@@ -315,7 +316,12 @@ inline void QPainter::drawLine(int x1, int y1, int x2, int y2)
 
 inline void QPainter::drawRect(int x, int y, int w, int h)
 {
-    drawRect(QRect(x, y, w, h));
+    drawRect(QRectF(x, y, w, h));
+}
+
+inline void QPainter::drawRect(const QRect &r)
+{
+    drawRect(QRectF(r));
 }
 
 inline void QPainter::drawPoint(int x, int y)

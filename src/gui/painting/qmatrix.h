@@ -14,11 +14,13 @@
 #ifndef QMATRIX_H
 #define QMATRIX_H
 
-#include "qwindowdefs.h"
-#include "qpointarray.h"
-#include "qrect.h"
+#include "qline.h"
 #include "qpoint.h"
+#include "qpointarray.h"
+#include "qpolygon.h"
+#include "qrect.h"
 #include "qregion.h"
+#include "qwindowdefs.h"
 
 #ifndef QT_NO_MATRIX
 
@@ -43,9 +45,12 @@ public:
     void map(int x, int y, int *tx, int *ty) const;
     void map(double x, double y, double *tx, double *ty) const;
     QRect mapRect(const QRect &) const;
+    QRectF mapRect(const QRectF &) const;
 
     QPoint map(const QPoint &p) const;
     QPointF map(const QPointF&p) const;
+    QLineF map(const QLineF &l) const;
+    QPolygon map(const QPolygon &a) const;
     QPointArray map(const QPointArray &a) const;
     QRegion map(const QRegion &r) const;
     QRegion mapToRegion(const QRect &r) const;
@@ -87,7 +92,11 @@ inline Q_GUI_EXPORT QPoint operator*(const QPoint &p, const QMatrix &m)
 { return m.map(p); }
 inline Q_GUI_EXPORT QPointF operator*(const QPointF &p, const QMatrix &m)
 { return m.map(p); }
+inline Q_GUI_EXPORT QLineF operator*(const QLineF &l, const QMatrix &m)
+{ return m.map(l); }
 inline Q_GUI_EXPORT QPointArray operator *(const QPointArray &a, const QMatrix &m)
+{ return m.map(a); }
+inline Q_GUI_EXPORT QPolygon operator *(const QPolygon &a, const QMatrix &m)
 { return m.map(a); }
 inline Q_GUI_EXPORT QRegion operator *(const QRegion &r, const QMatrix &m)
 { return m.map(r); }

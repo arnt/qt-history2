@@ -479,7 +479,7 @@ void QWSPaintEngine::drawPolygon(const QPointArray &pa, PolygonDrawMode mode)
     }
 
 #endif
-    if (mode == UnconnectedMode) {
+    if (mode == PolylineMode) {
         if (state->pen.style() != Qt::NoPen)
             d->gfx->drawPolyline(pa, 0, pa.size());
     } else {

@@ -14,6 +14,7 @@
 #include "qpaintengine.h"
 #include "qpaintengine_p.h"
 #include "qpainter_p.h"
+#include "qpolygon.h"
 
 #include <qdebug.h>
 
@@ -102,7 +103,7 @@
     \value OddEvenMode
     \value WindingMode
     \value ConvexMode
-    \value UnconnectedMode
+    \value PolylineMode
 */
 
 /*!
@@ -172,31 +173,6 @@
 */
 
 /*!
-    \fn void QPaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
-
-    Reimplement this function to draw a line from point \a p1 to point \a p2.
-    The default implementation calls drawPolygon.
-*/
-
-void QPaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
-{
-    QPointArray pa;
-    pa << p1 << p2;
-    drawPolygon(pa, UnconnectedMode);
-}
-
-/*!
-    \fn void QPaintEngine::drawRect(const QRect &rectangle)
-
-    Reimplement this function to draw the given \a rectangle.
-*/
-
-void QPaintEngine::drawRect(const QRect &r)
-{
-    drawPolygon(r, ConvexMode);
-}
-
-/*!
     \fn void QPaintEngine::drawPoint(const QPoint &point)
 
     Reimplement this function to draw the given \a point.
@@ -206,14 +182,14 @@ void QPaintEngine::drawRect(const QRect &r)
     Calls drawPoint() to draw every point in the point array \a pa.
 */
 
-void QPaintEngine::drawPoints(const QPointArray &pa)
+void QPaintEngine::drawPoints(const QPolygon &p)
 {
-    for (int i=0; i<pa.size(); ++i)
-        drawPoint(pa.at(i));
+    for (int i=0; i<p.size(); ++i)
+        drawPoint(p.at(i));
 }
 
 /*!
-    \fn void QPaintEngine::drawEllipse(const QRect &rectangle)
+    \fn void QPaintEngine::drawEllipse(const QRectF &rectangle)
 
     Reimplement this function to draw the largest ellipse that can be
     contained within the given \a rectangle.
@@ -223,11 +199,9 @@ void QPaintEngine::drawPoints(const QPointArray &pa)
     \sa drawPolygon
 */
 
-void QPaintEngine::drawEllipse(const QRect &r)
+void QPaintEngine::drawEllipse(const QRectF &)
 {
-    QPointArray a;
-    a.makeEllipse(r.x(), r.y(), r.width(), r.height());
-    drawPolygon(a, ConvexMode);
+    // TODO, implement....
 }
 
 /*!
@@ -235,15 +209,15 @@ void QPaintEngine::drawEllipse(const QRect &r)
     pa.
 */
 
-void QPaintEngine::drawLineSegments(const QPointArray &pa)
+void QPaintEngine::drawLines(const QList<QLineF> &lines)
 {
-    for (int i=0; i+1<pa.size(); i+=2)
-        drawLine(pa.at(i), pa.at(i+1));
+    for (int i=0; i+1<lines.size(); i+=2)
+        drawLine(lines.at(i));
 }
 
 /*!
-    \fn void QPaintEngine::drawPixmap(const QRect &rectangle, const QPixmap
-    &pixmap, const QRect &sr, Qt::PixmapDrawingMode mode)
+    \fn void QPaintEngine::drawPixmap(const QRectF &rectangle, const QPixmap
+    &pixmap, const QRectF &sr, Qt::PixmapDrawingMode mode)
 
     Reimplement this function to draw the part of the \a pixmap
     specified by the \a sr rectangle in the given \a rectangle using
@@ -251,7 +225,7 @@ void QPaintEngine::drawLineSegments(const QPointArray &pa)
 */
 
 /*!
-    \fn void QPaintEngine::drawTiledPixmap(const QRect &rectangle, const
+    \fn void QPaintEngine::drawTiledPixmap(const QRectF &rectangle, const
     QPixmap &pixmap, const QPoint &point, Qt::PixmapDrawingMode mode)
 
     Reimplement this function to draw the \a pixmap in the given \a
@@ -487,7 +461,9 @@ void QPaintEngine::drawPath(const QPainterPath &)
 */
 void QPaintEngine::drawLine(const QLineF &line)
 {
-    drawLine(line.start().toPoint(), line.end().toPoint());
+    QPolygon polygon(2);
+    polygon << line.start() << line.end();
+    drawPolygon(polygon, PolylineMode);
 }
 
 /*!
@@ -498,7 +474,7 @@ void QPaintEngine::drawLine(const QLineF &line)
 */
 void QPaintEngine::drawRect(const QRectF &rf)
 {
-    drawRect(rf.toRect());
+    drawPolygon(rf, ConvexMode);
 }
 
 /*!
@@ -509,7 +485,7 @@ void QPaintEngine::drawRect(const QRectF &rf)
 */
 void QPaintEngine::drawPoint(const QPointF &pf)
 {
-    drawPoint(pf.toPoint());
+    drawRect(QRectF(pf.x(), pf.y(), 1, 1));
 }
 
 
@@ -520,7 +496,7 @@ void QPaintEngine::drawPoint(const QPointF &pf)
     resultant pixmap.
 */
 
-void QPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
+void QPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int textFlags)
 {
 #ifndef Q_WS_X11
     bool useFontEngine = false;
@@ -582,7 +558,7 @@ void QPaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textFl
 /*!
   Draws the rectangles in the list \a rects.
 */
-void QPaintEngine::drawRects(const QList<QRect> &rects)
+void QPaintEngine::drawRects(const QList<QRectF> &rects)
 {
     for (int i=0; i<rects.size(); ++i)
         drawRect(rects.at(i));

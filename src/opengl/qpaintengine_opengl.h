@@ -29,23 +29,22 @@ public:
     bool end();
 
     void updatePen(const QPen &pen);
-    void updateBrush(const QBrush &brush, const QPoint &pt);
+    void updateBrush(const QBrush &brush, const QPointF &pt);
     void updateFont(const QFont &font);
     void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
     void updateMatrix(const QMatrix &matrix);
     void updateClipRegion(const QRegion &region, bool clipEnabled);
     void updateRenderHints(QPainter::RenderHints hints);
 
-    void drawLine(const QPoint &p1, const QPoint &p2);
-    void drawLineSegments(const QPointArray &pa);
-    void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr, Qt::PixmapDrawingMode mode);
-    void drawPoint(const QPoint &p);
-    void drawPolyInternal(const QPointArray &pa, bool close = true);
-    void drawPolygon(const QPointArray &pa, PolygonDrawMode mode);
-    void drawRect(const QRect &r);
-    void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s,
+    void drawLine(const QLineF &line);
+    void drawLines(const QList<QLineF> &lines);
+    void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr, Qt::PixmapDrawingMode mode);
+    void drawPoint(const QPointF &p);
+    void drawPolygon(const QPolygon &pa, PolygonDrawMode mode);
+    void drawRect(const QRectF &r);
+    void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s,
 			 Qt::PixmapDrawingMode mode);
-    void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
+    void drawTextItem(const QPointF &p, const QTextItem &ti, int textflags);
 
 #ifdef Q_WS_WIN
     HDC handle() const;
@@ -55,6 +54,8 @@ public:
     inline Type type() const { return QPaintEngine::OpenGL; }
 
 private:
+    void drawPolyInternal(const QPolygon &pa, bool close = true);
+
     Q_DISABLE_COPY(QOpenGLPaintEngine)
 };
 

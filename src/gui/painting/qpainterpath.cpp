@@ -14,18 +14,18 @@
 #include "qpainterpath.h"
 #include "qpainterpath_p.h"
 
-#include <qbitmap.h>
 #include <private/qobject_p.h>
-#include <qlist.h>
-#include <qpointarray.h>
-#include <qmatrix.h>
-#include <qvarlengtharray.h>
-#include <qpen.h>
-#include <qtextlayout.h>
 #include <private/qtextengine_p.h>
 #include <private/qfontengine_p.h>
 
+#include <qbitmap.h>
 #include <qdebug.h>
+#include <qlist.h>
+#include <qmatrix.h>
+#include <qpen.h>
+#include <qpolygon.h>
+#include <qtextlayout.h>
+#include <qvarlengtharray.h>
 
 #include <math.h>
 
@@ -69,16 +69,15 @@ void qt_find_ellipse_coords(const QRectF &r, float angle, float length,
 #define POW2(x) ( (x)*(x) )
 #define BEZIER_Q(t, tm, a, b, c, d) (a)*POW3(tm) + (b)*t*POW2(tm) + (c)*POW2(t)*tm + (d)*POW3(t)
 
-static QList<QPointF> qBezierCurve(const QPointF &p1, const QPointF &p2,
+static QPolygon qBezierCurve(const QPointF &p1, const QPointF &p2,
                                    const QPointF &p3, const QPointF &p4)
 {
-    QList<QPointF> a;
 
     QLineF ab(p1, p2), bc(p2, p3), cd(p3, p4);
 
     // This rather magic value is determined by testing when lines become visible
     // and when they seem smooth. For values of 12 and above the lines are visible
-    // when antialiasing is turned on.
+    // when antialiasing is turned on.d
     const double stepFactor = 11;
     double steps = ab.length()/stepFactor + bc.length() / (stepFactor*2) + cd.length() / stepFactor;
 
@@ -94,17 +93,18 @@ static QList<QPointF> qBezierCurve(const QPointF &p1, const QPointF &p2,
 
     double step = 1 / steps;
     double t, tm, x, y;
+    QPolygon polygon(int(steps+1));
     for (t = 0; t <= 1; t += step) {
         tm = 1 - t;
         x = BEZIER_Q(t, tm, a_x, b_x, c_x, d_x);
         y = BEZIER_Q(t, tm, a_y, b_y, c_y, d_y);
-        a << QPointF(x, y);
+        polygon << QPointF(x, y);
     }
 
     if (t != 1)
-        a << p4;
+        polygon << p4;
 
-    return a;
+    return polygon;
 }
 
 void QPainterSubpath::close()
@@ -188,11 +188,11 @@ void QPainterSubpath::arcTo(const QRectF &rect, float startAngle, float sweepLen
 }
 
 
-QPointArray QPainterSubpath::toPolygon(const QMatrix &matrix) const
+QPolygon QPainterSubpath::toPolygon(const QMatrix &matrix) const
 {
     if (elements.isEmpty())
-        return QPointArray();
-    QPointArray p;
+        return QPolygon();
+    QPolygon p;
     fflush(stdout);
     p << (startPoint * matrix).toPoint();
     for (int i=0; i<elements.size(); ++i) {
@@ -202,12 +202,10 @@ QPointArray QPainterSubpath::toPolygon(const QMatrix &matrix) const
             p << (QPointF(elm.lineData.x, elm.lineData.y) * matrix).toPoint();
             break;
         case QPainterPathElement::Curve: {
-            QPointArray pa;
-            pa << (p.isEmpty() ? (startPoint * matrix).toPoint() : p.last());
-            pa << (QPointF(elm.curveData.c1x, elm.curveData.c1y) * matrix).toPoint();
-            pa << (QPointF(elm.curveData.c2x, elm.curveData.c2y) * matrix).toPoint();
-            pa << (QPointF(elm.curveData.ex, elm.curveData.ey) * matrix).toPoint();
-            p += pa.cubicBezier();
+            p += qBezierCurve((p.isEmpty() ? (startPoint * matrix) : p.last()),
+                              QPointF(elm.curveData.c1x, elm.curveData.c1y) * matrix,
+                              QPointF(elm.curveData.c2x, elm.curveData.c2y) * matrix,
+                              QPointF(elm.curveData.ex, elm.curveData.ey) * matrix);
             break;
         }
         default:
@@ -304,9 +302,9 @@ void QPainterSubpath::removeBrokenSegments()
 
   Converts all the curves in the path to linear polylines.
 */
-QList<QPointArray> QPainterPathPrivate::flatten(const QMatrix &matrix, FlattenInclusion incl)
+QList<QPolygon> QPainterPathPrivate::flatten(const QMatrix &matrix, FlattenInclusion incl)
 {
-    QList<QPointArray> flatCurves;
+    QList<QPolygon> flatCurves;
     if (!flatCurves.isEmpty() || subpaths.isEmpty())
         return flatCurves;
 
@@ -324,10 +322,10 @@ QList<QPointArray> QPainterPathPrivate::flatten(const QMatrix &matrix, FlattenIn
     Converts the flattened path to a polygon that can be used for filling
 */
 
-QPointArray QPainterPathPrivate::toFillPolygon(const QMatrix &matrix)
+QPolygon QPainterPathPrivate::toFillPolygon(const QMatrix &matrix)
 {
-    QPointArray fillPoly;
-    QList<QPointArray> polygons = flatten(matrix, AllSubpaths);
+    QPolygon fillPoly;
+    QList<QPolygon> polygons = flatten(matrix, AllSubpaths);
     for (int i=0; i<polygons.size(); ++i) {
         if (polygons.at(i).isEmpty())
             continue;
@@ -404,7 +402,7 @@ QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
                                           const QMatrix &xform,
                                           QRect *boundingRect)
 {
-    QList<QPointArray> flatCurves = flatten(xform, ClosedSubpaths);
+    QList<QPolygon> flatCurves = flatten(xform, ClosedSubpaths);
 
     QRect pathBounds;
     for (int fc=0; fc<flatCurves.size(); ++fc)
@@ -431,7 +429,7 @@ QBitmap QPainterPathPrivate::scanToBitmap(const QRect &clipRect,
         int scanLineY = y + scanRect.y();
         numISects = 0;
         for (int c=0; c<flatCurves.size(); ++c) {
-            QPointArray curve = flatCurves.at(c);
+            QPolygon curve = flatCurves.at(c);
             if (!scanRect.intersects(curve.boundingRect()))
                 continue;
             Q_ASSERT(curve.size()>=2);
@@ -1132,7 +1130,7 @@ QRectF QPainterPath::boundingRect() const
         return QRectF();
     QRectF rect;
     for (int j=0; j<d->subpaths.size(); ++j) {
-        QPointArray pa = d->subpaths.at(j).toPolygon(QMatrix());
+        QPolygon pa = d->subpaths.at(j).toPolygon(QMatrix());
         rect |= pa.boundingRect();
     }
     return rect;

@@ -11,11 +11,11 @@
 **
 ****************************************************************************/
 
-#include "qmatrix.h"
 #include "qdatastream.h"
-#include "qmath_p.h"
-#include "qregion.h"
 #include "qdebug.h"
+#include "qmath_p.h"
+#include "qmatrix.h"
+#include "qregion.h"
 #include <limits.h>
 
 #ifndef QT_NO_MATRIX
@@ -330,6 +330,62 @@ QRect QMatrix::mapRect(const QRect &rect) const
     return result;
 }
 
+/*!
+    Returns the transformed rectangle \a rect.
+
+    The bounding rectangle is returned if rotation or shearing has
+    been specified.
+
+    If you need to know the exact region \a rect maps to use \l
+    operator*().
+
+    \sa operator*()
+*/
+QRectF QMatrix::mapRect(const QRectF &rect) const
+{
+    QRectF result;
+    if (_m12 == 0.0F && _m21 == 0.0F) {
+        int x = _m11*rect.x() + _dx;
+        int y = _m22*rect.y() + _dy;
+        int w = _m11*rect.width();
+        int h = _m22*rect.height();
+        if (w < 0) {
+            w = -w;
+            x -= w;
+        }
+        if (h < 0) {
+            h = -h;
+            y -= h;
+        }
+        result = QRectF(x, y, w, h);
+    } else {
+        double x0, y0;
+        double x, y;
+        MAPDOUBLE(rect.left(), rect.top(), x0, y0);
+        double xmin = x0;
+        double ymin = y0;
+        double xmax = x0;
+        double ymax = y0;
+        MAPDOUBLE(rect.right(), rect.top(), x, y);
+        xmin = qMin(xmin, x);
+        ymin = qMin(ymin, y);
+        xmax = qMax(xmax, x);
+        ymax = qMax(ymax, y);
+        MAPDOUBLE(rect.right(), rect.bottom(), x, y);
+        xmin = qMin(xmin, x);
+        ymin = qMin(ymin, y);
+        xmax = qMax(xmax, x);
+        ymax = qMax(ymax, y);
+        MAPDOUBLE(rect.left(), rect.bottom(), x, y);
+        xmin = qMin(xmin, x);
+        ymin = qMin(ymin, y);
+        xmax = qMax(xmax, x);
+        ymax = qMax(ymax, y);
+        result = QRectF(xmin, ymin, xmax-xmin, ymax - ymin);
+    }
+    return result;
+}
+
 
 /*!
     \fn QPoint operator*(const QPoint &p, const QMatrix &m)
@@ -382,13 +438,20 @@ QPointF QMatrix::map(const QPointF &p) const
     return QPointF(_m11*fx + _m21*fy + _dx, _m12*fx + _m22*fy + _dy);
 }
 
+/*!
+    \overload
 
+    Transforms \a p to using the formulae:
 
-
-struct QWMDoublePoint {
-    double x;
-    double y;
-};
+    \code
+        retx = m11*px + m21*py + dx
+        rety = m22*py + m12*px + dy
+    \endcode
+*/
+QLineF QMatrix::map(const QLineF &l) const
+{
+    return QLineF(map(l.start()), map(l.end()));
+}
 
 /*!
     \fn QPointArray operator*(const QPointArray &a, const QMatrix &m)
@@ -407,35 +470,35 @@ QPointArray QMatrix::map(const QPointArray &a) const
 {
     int size = a.size();
     int i;
-    QVector<QWMDoublePoint> p(size);
+    QPolygon p(size);
     const QPoint *da = a.constData();
-    QWMDoublePoint *dp = p.data();
-    double xmin = INT_MAX;
-    double ymin = xmin;
-    double xmax = INT_MIN;
-    double ymax = xmax;
+    QPointF *dp = p.data();
+    float xmin = INT_MAX;
+    float ymin = xmin;
+    float xmax = INT_MIN;
+    float ymax = xmax;
     int xminp = 0;
     int yminp = 0;
     for(i = 0; i < size; i++) {
-        dp[i].x = da[i].x();
-        dp[i].y = da[i].y();
-        if (dp[i].x < xmin) {
-            xmin = dp[i].x;
+        dp[i].xp = da[i].x();
+        dp[i].yp = da[i].y();
+        if (dp[i].xp < xmin) {
+            xmin = dp[i].xp;
             xminp = i;
         }
-        if (dp[i].y < ymin) {
-            ymin = dp[i].y;
+        if (dp[i].yp < ymin) {
+            ymin = dp[i].yp;
             yminp = i;
         }
-        xmax = qMax(xmax, dp[i].x);
-        ymax = qMax(ymax, dp[i].y);
+        xmax = qMax(xmax, dp[i].xp);
+        ymax = qMax(ymax, dp[i].yp);
     }
-    double w = qMax(xmax - xmin, 1.);
-    double h = qMax(ymax - ymin, 1.);
+    float w = qMax(xmax - xmin, 1.);
+    float h = qMax(ymax - ymin, 1.);
     for(i = 0; i < size; i++) {
-        dp[i].x += (dp[i].x - xmin)/w;
-        dp[i].y += (dp[i].y - ymin)/h;
-        MAPDOUBLE(dp[i].x, dp[i].y, dp[i].x, dp[i].y);
+        dp[i].xp += (dp[i].xp - xmin)/w;
+        dp[i].yp += (dp[i].yp - ymin)/h;
+        MAPDOUBLE(dp[i].xp, dp[i].yp, dp[i].xp, dp[i].yp);
     }
 
     // now apply correction back for transformed values...
@@ -444,10 +507,10 @@ QPointArray QMatrix::map(const QPointArray &a) const
     xmax = INT_MIN;
     ymax = xmax;
     for(i = 0; i < size; i++) {
-        xmin = qMin(xmin, dp[i].x);
-        ymin = qMin(ymin, dp[i].y);
-        xmax = qMax(xmax, dp[i].x);
-        ymax = qMax(ymax, dp[i].y);
+        xmin = qMin(xmin, dp[i].xp);
+        ymin = qMin(ymin, dp[i].yp);
+        xmax = qMax(xmax, dp[i].xp);
+        ymax = qMax(ymax, dp[i].yp);
     }
     w = qMax(xmax - xmin, 1.);
     h = qMax(ymax - ymin, 1.);
@@ -455,10 +518,28 @@ QPointArray QMatrix::map(const QPointArray &a) const
     QPointArray result(size);
     QPoint *dr = result.data();
     for(i = 0; i < size; i++) {
-        dr[i].setX(qRound(dp[i].x - (dp[i].x - dp[xminp].x)/w));
-        dr[i].setY(qRound(dp[i].y - (dp[i].y - dp[yminp].y)/h));
+        dr[i].setX(qRound(dp[i].xp - (dp[i].xp - dp[xminp].xp)/w));
+        dr[i].setY(qRound(dp[i].yp - (dp[i].yp - dp[yminp].yp)/h));
     }
     return result;
+}
+
+/*!
+    \overload
+
+    Returns the point array \a a transformed by calling map for each point.
+*/
+QPolygon QMatrix::map(const QPolygon &a) const
+{
+    int size = a.size();
+    int i;
+    QPolygon p(size);
+    const QPointF *da = a.constData();
+    QPointF *dp = p.data();
+    for(i = 0; i < size; i++) {
+        MAPDOUBLE(da[i].xp, da[i].yp, dp[i].xp, dp[i].yp);
+    }
+    return p;
 }
 
 /*!

@@ -13,6 +13,7 @@
 
 #include "qbitmap.h"
 #include "qbrush.h"
+#include "qcolormap.h"
 #include "qlibrary.h"
 #include "qpaintdevice.h"
 #include "qpaintdevicemetrics.h"
@@ -24,10 +25,10 @@
 #include "qpainterpath_p.h"
 #include "qpen.h"
 #include "qpixmap.h"
+#include "qpolygon.h"
 #include "qt_windows.h"
 #include "qtextlayout.h"
 #include "qwidget.h"
-#include "qcolormap.h"
 
 #include <private/qfontengine_p.h>
 #include <private/qtextengine_p.h>
@@ -449,16 +450,16 @@ bool QWin32PaintEngine::end()
     return true;
 }
 
-void QWin32PaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
+void QWin32PaintEngine::drawLine(const QLineF &line)
 {
     Q_ASSERT(isActive());
 
     if (d->tryGdiplus()) {
-        d->gdiplusEngine->drawLine(p1, p2);
+        d->gdiplusEngine->drawLine(line);
         return;
     }
 
-    int x1 = p1.x(), x2 = p2.x(), y1 = p1.y(), y2 = p2.y();
+    int x1 = line.startX(), x2 = line.endX(), y1 = line.startY(), y2 = line.endY();
     bool plot_pixel = false;
     plot_pixel = (d->pWidth == 0) && (d->penStyle == Qt::SolidLine);
     if (plot_pixel) {
@@ -510,7 +511,7 @@ void QWin32PaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
 #endif
 }
 
-void QWin32PaintEngine::drawRect(const QRect &r)
+void QWin32PaintEngine::drawRect(const QRectF &r)
 {
     Q_ASSERT(isActive());
     if (d->tryGdiplus()) {
@@ -531,10 +532,10 @@ void QWin32PaintEngine::drawRect(const QRect &r)
 
     bool outlineOnly = false;
     if (d->brushStyle == Qt::LinearGradientPattern) {
-        d->fillGradient(r);
+        d->fillGradient(r.toRect());
         outlineOnly = true;
     } else if (d->brushStyle == Qt::SolidPattern && d->brush.color().alpha() != 255) {
-        d->fillAlpha(r, d->brush.color());
+        d->fillAlpha(r.toRect(), d->brush.color());
         outlineOnly = true;
     }
 
@@ -556,7 +557,7 @@ void QWin32PaintEngine::drawRect(const QRect &r)
     }
 }
 
-void QWin32PaintEngine::drawPoint(const QPoint &p)
+void QWin32PaintEngine::drawPoint(const QPointF &p)
 {
     Q_ASSERT(isActive());
     if (d->tryGdiplus()) {
@@ -572,7 +573,7 @@ void QWin32PaintEngine::drawPoint(const QPoint &p)
 #endif
 }
 
-void QWin32PaintEngine::drawEllipse(const QRect &r)
+void QWin32PaintEngine::drawEllipse(const QRectF &r)
 {
     Q_ASSERT(isActive());
     if (d->tryGdiplus()) {
@@ -607,19 +608,21 @@ void QWin32PaintEngine::drawEllipse(const QRect &r)
         SetTextColor(d->hdc, d->pColor);
 }
 
-void QWin32PaintEngine::drawPolygon(const QPointArray &pa, PolygonDrawMode mode)
+void QWin32PaintEngine::drawPolygon(const QPolygon &p, PolygonDrawMode mode)
 {
     Q_ASSERT(isActive());
     if (d->tryGdiplus()) {
-        d->gdiplusEngine->drawPolygon(pa, mode);
+        d->gdiplusEngine->drawPolygon(p, mode);
         return;
     }
 
-    if (mode == UnconnectedMode) {
+    if (mode == PolylineMode) {
         int x1, y1, x2, y2;
-        int npoints = pa.size();
-        pa.point(npoints-2, &x1, &y1);        // last line segment
-        pa.point(npoints-1, &x2, &y2);
+        int npoints = p.size();
+        x1 = qRound(p.at(npoints-2).x());
+        y1 = qRound(p.at(npoints-2).y());
+        x2 = qRound(p.at(npoints-1).x());
+        y2 = qRound(p.at(npoints-1).y());
         bool plot_pixel = false;
         QT_WA({
             plot_pixel = (d->pWidth == 0) && (d->penStyle == Qt::SolidLine);
@@ -643,16 +646,16 @@ void QWin32PaintEngine::drawPolygon(const QPointArray &pa, PolygonDrawMode mode)
             }
         }
         if (plot_pixel) {
-            Polyline(d->hdc, (POINT*)pa.data(), npoints);
+            Polyline(d->hdc, (POINT*)p.toPointArray().data(), npoints);
 #ifndef Q_OS_TEMP
             SetPixelV(d->hdc, x2, y2, d->pColor);
 #else
             SetPixel(d->hdc, x2, y2, d->pColor);
 #endif
         } else {
-            QPointArray copy = pa;
+            QPointArray copy = p.toPointArray();
             copy.setPoint(npoints-1, x2, y2);
-            Polyline(d->hdc, (POINT*)copy.data(), npoints);
+            Polyline(d->hdc, (POINT*)(copy.data()), npoints);
         }
         return;
     }
@@ -663,7 +666,7 @@ void QWin32PaintEngine::drawPolygon(const QPointArray &pa, PolygonDrawMode mode)
 #endif
     if (d->nocolBrush)
         SetTextColor(d->hdc, d->bColor);
-    Polygon(d->hdc, (POINT*)pa.data(), pa.size());
+    Polygon(d->hdc, (POINT*)p.toPointArray().data(), p.size());
     if (d->nocolBrush)
         SetTextColor(d->hdc, d->pColor);
 #ifndef Q_OS_TEMP
@@ -749,7 +752,7 @@ void QWin32PaintEngine::cleanup()
 }
 
 
-void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const QRect &sr,
+void QWin32PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QRectF &sr,
                                    Qt::PixmapDrawingMode mode)
 {
     Q_ASSERT(isActive());
@@ -765,7 +768,7 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
         QRegion region(*static_cast<const QBitmap*>(&pixmap));
         region.translate(r.x(), r.y());
         updateClipRegion(region, true);
-        d->fillAlpha(r, d->pen.color());
+        d->fillAlpha(r.toRect(), d->pen.color());
         setDirty(DirtyClip);
         return;
     }
@@ -813,7 +816,9 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
             QBitmap bm(sr.width(), sr.height());
             {
                 QPainter p(&bm);
-                p.drawPixmap(QRect(0, 0, sr.width(), sr.height()), tmpbm, sr, Qt::CopyPixmapNoMask);
+                p.drawPixmap(QRectF(0, 0, sr.width(), sr.height()).toRect(),
+                             tmpbm, sr.toRect(),
+                             Qt::CopyPixmapNoMask);
             }
             QMatrix xform = QMatrix(r.width()/(double)sr.width(), 0,
                                       0, r.height()/(double)sr.height(),
@@ -856,7 +861,7 @@ void QWin32PaintEngine::drawPixmap(const QRect &r, const QPixmap &pixmap, const 
     pm->releaseDC(pm_dc);
 }
 
-void QWin32PaintEngine::drawTextItem(const QPoint &p, const QTextItem &ti, int textFlags)
+void QWin32PaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti, int textFlags)
 {
     if (d->tryGdiplus()) {
         d->gdiplusEngine->drawTextItem(p, ti, textFlags);
@@ -966,7 +971,7 @@ set:
 }
 
 
-void QWin32PaintEngine::updateBrush(const QBrush &brush, const QPoint &bgOrigin)
+void QWin32PaintEngine::updateBrush(const QBrush &brush, const QPointF &bgOrigin)
 {
     d->brush = brush;
     d->brushStyle = brush.style();
@@ -1256,7 +1261,7 @@ extern void qt_fill_tile(QPixmap *tile, const QPixmap &pixmap);
 extern void qt_draw_tile(QPaintEngine *, int, int, int, int, const QPixmap &, int, int,
 			 Qt::PixmapDrawingMode);
 
-void QWin32PaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &p,
+void QWin32PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &p,
 					Qt::PixmapDrawingMode mode)
 {
     QBitmap *mask = (QBitmap *)pixmap.mask();
@@ -1961,7 +1966,7 @@ void QGdiplusPaintEngine::updatePen(const QPen &pen)
     }
 }
 
-void QGdiplusPaintEngine::updateBrush(const QBrush &brush, const QPoint &)
+void QGdiplusPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
 {
     QColor c = brush.color();
     if (d->temporaryBrush) {
@@ -2044,17 +2049,17 @@ void QGdiplusPaintEngine::updateClipRegion(const QRegion &qtClip, bool enabled)
     }
 }
 
-void QGdiplusPaintEngine::drawLine(const QPoint &p1, const QPoint &p2)
+void QGdiplusPaintEngine::drawLine(const QLineF &line)
 {
     if (d->usePen) {
 //         d->graphics->DrawLine(d->pen, p1.x(), p1.y(), p2.x(), p2.y());
-        GdipDrawLineI(d->graphics, d->pen, p1.x(), p1.y(), p2.x(), p2.y());
+        GdipDrawLineI(d->graphics, d->pen, line.startX(), line.startY(), line.endX(), line.endY());
     }
 }
 
 #define QT_GDIPLUS_SUBTRACT (d->usePen || ((d->renderhints & QPainter::LineAntialiasing) != 0) ? 1 : 0);
 
-void QGdiplusPaintEngine::drawRect(const QRect &r)
+void QGdiplusPaintEngine::drawRect(const QRectF &r)
 {
     int subtract = QT_GDIPLUS_SUBTRACT;
     if (d->brush) {
@@ -2069,13 +2074,13 @@ void QGdiplusPaintEngine::drawRect(const QRect &r)
     }
 }
 
-void QGdiplusPaintEngine::drawPoint(const QPoint &p)
+void QGdiplusPaintEngine::drawPoint(const QPointF &p)
 {
     if (d->usePen)
         GdipDrawRectangleI(d->graphics, d->pen, p.x(), p.y(), 1, 1);
 }
 
-void QGdiplusPaintEngine::drawEllipse(const QRect &r)
+void QGdiplusPaintEngine::drawEllipse(const QRectF &r)
 {
     int subtract = QT_GDIPLUS_SUBTRACT;
     if (d->brush) {
@@ -2090,7 +2095,7 @@ void QGdiplusPaintEngine::drawEllipse(const QRect &r)
     }
 }
 
-void QGdiplusPaintEngine::drawPolygon(const QPointArray &pa, PolygonDrawMode mode)
+void QGdiplusPaintEngine::drawPolygon(const QPolygon &p, PolygonDrawMode mode)
 {
 //     if (d->usePen || d->brush) {
 //         Point *p = new Point[npoints];
@@ -2104,31 +2109,31 @@ void QGdiplusPaintEngine::drawPolygon(const QPointArray &pa, PolygonDrawMode mod
 //         delete [] p;
 //     }
 
-    if (d->usePen && mode == UnconnectedMode) {
+    if (d->usePen && mode == PolylineMode) {
         QtGpPath *path = 0;
         GdipCreatePath(0, &path);
-        Q_ASSERT(pa.size()>2);
-        for (int i=1; i<pa.size(); ++i)
-            GdipAddPathLine(path, pa.at(i-1).x(), pa.at(i-1).y(), pa.at(i).x(), pa.at(i).y());
+        Q_ASSERT(p.size()>2);
+        for (int i=1; i<p.size(); ++i)
+            GdipAddPathLine(path, p.at(i-1).x(), p.at(i-1).y(), p.at(i).x(), p.at(i).y());
         GdipDrawPath(d->graphics, d->pen, path);
         GdipDeletePath(path);
         return;
     }
 
     if (d->brush) {
-        GdipFillPolygonI(d->graphics, d->brush, pa.data(), pa.size(),
+        GdipFillPolygonI(d->graphics, d->brush, p.toPointArray().data(), p.size(),
                          mode == WindingMode
                          ? 1 // FillModeWinding
                          : 0 // FillModeAlternate
                          );
     }
     if (d->usePen)
-        GdipDrawPolygonI(d->graphics, d->pen, pa.data(), pa.size());
+        GdipDrawPolygonI(d->graphics, d->pen, p.toPointArray().data(), p.size());
 }
 
 
 
-void QGdiplusPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr,
+void QGdiplusPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
                                      Qt::PixmapDrawingMode mode)
 {
     Q_UNUSED(mode);
@@ -2137,7 +2142,7 @@ void QGdiplusPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QR
         QRegion rgn(*bitmap);
         QPainter *p = painter();
         p->save();
-        p->translate(r.topLeft());
+        p->translate(r.top(), r.left());
         p->setClipRegion(QRegion(*bitmap));
         p->fillRect(0, 0, r.width(), r.height(), p->pen().color());
         p->restore();
@@ -2154,8 +2159,8 @@ void QGdiplusPaintEngine::drawPixmap(const QRect &r, const QPixmap &pm, const QR
     GdipDisposeImage(bitmap);
 }
 
-void QGdiplusPaintEngine::drawTiledPixmap(const QRect &r, const QPixmap &pm,
-                                          const QPoint &, Qt::PixmapDrawingMode)
+void QGdiplusPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pm,
+                                          const QPointF &, Qt::PixmapDrawingMode)
 {
     Q_UNUSED(r);
     Q_UNUSED(pm);
@@ -2247,7 +2252,7 @@ void QGdiplusPaintEngine::cleanup()
 }
 
 
-void QGdiplusPaintEngine::drawTextItem(const QPoint &, const QTextItem &, int)
+void QGdiplusPaintEngine::drawTextItem(const QPointF &, const QTextItem &, int)
 {
 }
 

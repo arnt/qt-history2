@@ -5766,7 +5766,7 @@ void QPSPrintEngine::drawPolygon(const QPointArray &a, PolygonDrawMode mode)
         d->pageStream << XCOORD(pt.x()) << ' '
                       << YCOORD(pt.y()) << " LT\n";
     }
-    if (mode == UnconnectedMode)
+    if (mode == PolylineMode)
         d->pageStream << "QS\n";
     else
         d->pageStream << "CP BF QS\n";

@@ -28,23 +28,23 @@ public:
     bool end();
 
     void updatePen(const QPen &pen);
-    void updateBrush(const QBrush &brush, const QPoint &origin);
+    void updateBrush(const QBrush &brush, const QPointF &origin);
     void updateFont(const QFont &font);
     void updateBackground(Qt::BGMode bgmode, const QBrush &bgBrush);
     void updateMatrix(const QMatrix &matrix);
     void updateClipRegion(const QRegion &region, bool clipEnbled);
 
-    void drawLine(const QPoint &p1, const QPoint &p2);
-    void drawRect(const QRect &r);
-    void drawPoint(const QPoint &p);
-    void drawEllipse(const QRect &r);
-    void drawPolygon(const QPointArray &pa, PolygonDrawMode mode);
+    void drawLine(const QLineF &line);
+    void drawRect(const QRectF &r);
+    void drawPoint(const QPointF &p);
+    void drawEllipse(const QRectF &r);
+    void drawPolygon(const QPolygon &p, PolygonDrawMode mode);
 
-    void drawPixmap(const QRect &r, const QPixmap &pm, const QRect &sr,
+    void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr,
                     Qt::PixmapDrawingMode mode);
-    void drawTiledPixmap(const QRect &r, const QPixmap &pixmap, const QPoint &s,
+    void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s,
 			 Qt::PixmapDrawingMode mode);
-    void drawTextItem(const QPoint &p, const QTextItem &ti, int textflags);
+    void drawTextItem(const QPointF &p, const QTextItem &ti, int textflags);
 
     Type type() const { return Picture; }
 
@@ -54,7 +54,7 @@ protected:
 private:
     Q_DISABLE_COPY(QPicturePaintEngine)
 
-    void writeCmdLength(int pos, const QRect &r, bool corr);
+    void writeCmdLength(int pos, const QRectF &r, bool corr);
 };
 
 #endif // QPAINTENGINE_PIC_P_H

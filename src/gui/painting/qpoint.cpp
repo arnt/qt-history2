@@ -42,7 +42,7 @@
     A QPoint can also be used as a vector. Addition and subtraction
     of QPoints are defined as for vectors (each component is added
     separately). You can divide or multiply a QPoint by an \c int or a
-    \c double. The function manhattanLength() gives an inexpensive
+    \c float. The function manhattanLength() gives an inexpensive
     approximation of the length of the QPoint interpreted as a vector.
 
     Example:
@@ -194,7 +194,7 @@
 */
 
 /*!
-    \fn QPoint &QPoint::operator*=(double c)
+    \fn QPoint &QPoint::operator*=(float c)
     \overload
 
     Multiplies this point's x and y by \a c, and returns a reference
@@ -264,7 +264,7 @@
 */
 
 /*!
-    \fn const QPoint operator*(const QPoint &p, double c)
+    \fn const QPoint operator*(const QPoint &p, float c)
     \overload
 
     \relates QPoint
@@ -277,7 +277,7 @@
 */
 
 /*!
-    \fn const QPoint operator*(double c, const QPoint &p)
+    \fn const QPoint operator*(float c, const QPoint &p)
     \overload
 
     \relates QPoint
@@ -313,7 +313,7 @@
 */
 
 /*!
-    \fn QPoint &QPoint::operator/=(double c)
+    \fn QPoint &QPoint::operator/=(float c)
     \overload
 
     Divides both x and y by \a c, and returns a reference to this
@@ -339,7 +339,7 @@
 */
 
 /*!
-    \fn const QPoint operator/(const QPoint &p, double c)
+    \fn const QPoint operator/(const QPoint &p, float c)
     \overload
 
     \relates QPoint
@@ -396,6 +396,7 @@ QDataStream &operator>>(QDataStream &s, QPoint &p)
     }
     return s;
 }
+
 #endif // QT_NO_DATASTREAM
 /*!
     Returns the sum of the absolute values of x() and y(),
@@ -645,3 +646,36 @@ QDebug operator<<(QDebug d, const QPointF &p)
 
     \sa QPoint
 */
+
+#ifndef QT_NO_DATASTREAM
+/*!
+    \relates QPointF
+
+    Writes point \a p to the stream \a s and returns a reference to
+    the stream.
+
+    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+*/
+
+QDataStream &operator<<(QDataStream &s, const QPointF &p)
+{
+    s << p.x() << p.y();
+    return s;
+}
+
+/*!
+    \relates QPointF
+
+    Reads a QPoint from the stream \a s into point \a p and returns a
+    reference to the stream.
+
+    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+*/
+
+QDataStream &operator>>(QDataStream &s, QPointF &p)
+{
+    s >> p.rx();
+    s >> p.ry();
+    return s;
+}
+#endif // QT_NO_DATASTREAM

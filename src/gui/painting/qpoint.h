@@ -215,6 +215,8 @@ public:
     QPoint toPoint() const;
 
 private:
+    friend class Q_GUI_EXPORT QMatrix;
+
     float xp;
     float yp;
 };
