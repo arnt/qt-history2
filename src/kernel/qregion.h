@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.h#16 $
+** $Id: //depot/qt/main/src/kernel/qregion.h#17 $
 **
 ** Definition of QRegion class
 **
@@ -37,7 +37,10 @@ public:
     bool    contains( const QPoint &p ) const;
     bool    contains( const QRect &r )	const;
 
-    void    move( int dx, int dy );
+    void    translate( int dx, int dy );
+#if defined(OBSOLETE)
+    void    move( int dx, int dy ) { translate( dx, dy ); }
+#endif
 
     QRegion unite( const QRegion & )	const;
     QRegion intersect( const QRegion &) const;
@@ -68,7 +71,7 @@ private:
 #endif
     void    cmd( int id, void *, const QRegion * = 0, const QRegion * = 0 );
     void    exec( const QByteArray & );
-    struct QRegionData : QShared {		// region data
+    struct QRegionData : QShared {
 	QByteArray bop;
 #if defined(_WS_WIN_)
 	HANDLE rgn;
@@ -88,7 +91,7 @@ private:
 #define QRGN_SETELLIPSE		2		//  (these are internal)
 #define QRGN_SETPTARRAY_ALT	3
 #define QRGN_SETPTARRAY_WIND	4
-#define QRGN_MOVE		5
+#define QRGN_TRANSLATE		5
 #define QRGN_OR			6
 #define QRGN_AND		7
 #define QRGN_SUB		8

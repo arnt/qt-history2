@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrect.cpp#28 $
+** $Id: //depot/qt/main/src/kernel/qrect.cpp#29 $
 **
 ** Implementation of QRect class
 **
@@ -14,7 +14,7 @@
 #include "qrect.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qrect.cpp#28 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qrect.cpp#29 $")
 
 
 /*----------------------------------------------------------------------------
@@ -469,11 +469,11 @@ void QRect::setCenter( const QPoint &p )
 
 
 /*----------------------------------------------------------------------------
-  Moves the rectangle \e dx along the X axis and \e dy along the Y
-  axis. (Positive values moves the rectangle rightwards and/or downwards.)
+  Translates the rectangle \e dx along the X axis and \e dy along the Y
+  axis. (Positive values translates the rectangle rightwards and/or downwards.)
  ----------------------------------------------------------------------------*/
 
-void QRect::move( int dx, int dy )
+void QRect::translate( int dx, int dy )
 {
     x1 += (QCOORD)dx;
     y1 += (QCOORD)dy;

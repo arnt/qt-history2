@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#19 $
+** $Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#20 $
 **
 ** Implementation of QRegion class for X11
 **
@@ -18,7 +18,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#19 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qrgn_x11.cpp#20 $")
 
 
 static QRegion *empty_region = 0;
@@ -216,18 +216,17 @@ bool QRegion::contains( const QRect &r ) const
 
 
 /*----------------------------------------------------------------------------
-  Changes the offset of the region \e dx along the X axis and \e dy along the
-  Y axis.
+  Translates the region \e dx along the X axis and \e dy along the Y axis.
  ----------------------------------------------------------------------------*/
 
-void QRegion::move( int dx, int dy )
+void QRegion::translate( int dx, int dy )
 {
     if ( data == empty_region->data )
 	return;
     detach();
     XOffsetRegion( data->rgn, dx, dy );
     QPoint p( dx, dy );
-    cmd( QRGN_MOVE, &p );
+    cmd( QRGN_TRANSLATE, &p );
 }
 
 

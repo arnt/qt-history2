@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qpntarry.cpp#30 $
 **
 ** Implementation of QPointArray class
 **
@@ -16,7 +16,7 @@
 #include "qdstream.h"
 #include <stdarg.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qpntarry.cpp#29 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qpntarry.cpp#30 $")
 
 
 /*----------------------------------------------------------------------------
@@ -134,10 +134,10 @@ bool QPointArray::fill( const QPoint &p, int size )
 
 
 /*----------------------------------------------------------------------------
-  Adds \e (dx,dy) to each point in the array (relative move).
+  Translates all points in the array \e (dx,dy).
  ----------------------------------------------------------------------------*/
 
-void QPointArray::move( int dx, int dy )
+void QPointArray::translate( int dx, int dy )
 {
     register QPointData *p = data();
     register int i = size();

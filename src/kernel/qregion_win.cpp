@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#12 $
+** $Id: //depot/qt/main/src/kernel/qregion_win.cpp#13 $
 **
 ** Implementation of QRegion class for Windows
 **
@@ -15,7 +15,7 @@
 #include "qbuffer.h"
 #include <windows.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_win.cpp#12 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qregion_win.cpp#13 $")
 
 
 static QRegion *empty_region = 0;
@@ -154,14 +154,14 @@ bool QRegion::contains( const QRect &r ) const
 }
 
 
-void QRegion::move( int dx, int dy )
+void QRegion::translate( int dx, int dy )
 {
     if ( !data->rgn )
 	return;
     detach();
     OffsetRgn( data->rgn, dx, dy );
     QPoint p( dx, dy );
-    cmd( QRGN_MOVE, &p );
+    cmd( QRGN_TRANSLATE, &p );
 }
 
 

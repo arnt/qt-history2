@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpntarry.h#15 $
+** $Id: //depot/qt/main/src/kernel/qpntarry.h#16 $
 **
 ** Definition of QPointArray class
 **
@@ -80,10 +80,13 @@ public:
 
     bool    fill( const QPoint &p, int size = -1 );
 
-    QPointArray copy() const			// make deep copy
+    QPointArray copy() const
 	{ QPointArray tmp; return *((QPointArray*)&tmp.duplicate(*this)); }
 
-    void    move( int dx, int dy );		// move offset
+    void    translate( int dx, int dy );
+#if defined(OBSOLETE)
+    void    move( int dx, int dy ) { translate( dx, dy ); }
+#endif
 
     void    point( uint i, int *x, int *y ) const;
     QPoint  point( uint i ) const;
@@ -94,10 +97,10 @@ public:
     bool    putPoints( int index, int nPoints, const QCOORD *points );
     bool    putPoints( int index, int nPoints, int firstx, int firsty, ... );
 
-    QPoint  at( uint i ) const;			// access point
-    QPointVal operator[]( int i )		// get/set point
+    QPoint  at( uint i ) const;
+    QPointVal operator[]( int i )
 		{ return QPointVal( data()+i ); }
-    QPointVal operator[]( uint i )		// get/set point
+    QPointVal operator[]( uint i )
 		{ return QPointVal( data()+i ); }
 
     QRect   boundingRect() const;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qregion.cpp#8 $
+** $Id: //depot/qt/main/src/kernel/qregion.cpp#9 $
 **
 ** Implementation of QRegion class
 **
@@ -15,7 +15,7 @@
 #include "qbuffer.h"
 #include "qdstream.h"
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qregion.cpp#8 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qregion.cpp#9 $")
 
 
 /*----------------------------------------------------------------------------
@@ -99,7 +99,7 @@ void QRegion::cmd( int id, void *param, const QRegion *r1, const QRegion *r2 )
 	case QRGN_SETPTARRAY_WIND:
 	    s << *((QPointArray*)param);
 	    break;
-	case QRGN_MOVE:
+	case QRGN_TRANSLATE:
 	    s << *((QPoint*)param);
 	    break;
 	case QRGN_OR:
@@ -137,7 +137,7 @@ void QRegion::exec( const QByteArray &buffer )
 	int id;
 	s >> id;
 #if defined(DEBUG)
-	if ( test_cnt > 0 && id != QRGN_MOVE )
+	if ( test_cnt > 0 && id != QRGN_TRANSLATE )
 	    warning( "QRegion::exec: Internal error" );
 	test_cnt++;
 #endif
@@ -151,13 +151,13 @@ void QRegion::exec( const QByteArray &buffer )
 	    s >> a;
 	    rgn = QRegion( a, id == QRGN_SETPTARRAY_WIND );
 	}
-	else if ( id == QRGN_MOVE ) {
+	else if ( id == QRGN_TRANSLATE ) {
 	    QPoint p;
 	    s >> p;
 #if defined(DEBUG)
 	    ASSERT( !rgn.data->bop.isNull() );
 #endif
-	    rgn.move( p.x(), p.y() );
+	    rgn.translate( p.x(), p.y() );
 	}
 	else if ( id >= QRGN_OR && id <= QRGN_XOR ) {
 	    QByteArray bop1, bop2;

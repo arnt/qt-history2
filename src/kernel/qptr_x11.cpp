@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#171 $
+** $Id: //depot/qt/main/src/kernel/qptr_x11.cpp#172 $
 **
 ** Implementation of QPainter class for X11
 **
@@ -24,7 +24,7 @@
 #include <X11/Xutil.h>
 #include <X11/Xos.h>
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#171 $")
+RCSTAG("$Id: //depot/qt/main/src/kernel/qptr_x11.cpp#172 $")
 
 
 /*****************************************************************************
@@ -2519,7 +2519,7 @@ void QPainter::drawText( int x, int y, const char *str, int len )
 		mat.map( w-1,	0, &m, &n );  a.setPoint( 1, m, n );
 		mat.map( w-1, h-1, &m, &n );  a.setPoint( 2, m, n );
 		mat.map(   0, h-1, &m, &n );  a.setPoint( 3, m, n );
-		a.move( x, y );
+		a.translate( x, y );
 		QBrush oldBrush = cbrush;
 		setBrush( backgroundColor() );
 		updateBrush();
