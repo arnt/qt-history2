@@ -152,24 +152,6 @@ class Q_EXPORT QIconViewItem : public QObject
     friend class QIconView;
     friend class QIconViewItemLineEdit;
 
-    Q_OBJECT
-    Q_PROPERTY( bool renameEnabled READ renameEnabled WRITE setRenameEnabled )
-    Q_PROPERTY( bool dragEnabled READ dragEnabled WRITE setDragEnabled )
-    Q_PROPERTY( bool dropEnabled READ dropEnabled WRITE setDropEnabled )
-    Q_PROPERTY( QString text READ text WRITE setText )
-    Q_PROPERTY( QPixmap pixmap READ pixmap WRITE setPixmap )
-    Q_PROPERTY( QString key READ key WRITE setKey )
-    Q_PROPERTY( int index READ index )
-    Q_PROPERTY( bool selected READ isSelected WRITE setSelected )
-    Q_PROPERTY( bool selectable READ isSelectable WRITE setSelectable )
-    Q_PROPERTY( QRect rect READ rect )
-    Q_PROPERTY( int x READ x )
-    Q_PROPERTY( int y READ y )
-    Q_PROPERTY( int width READ width )
-    Q_PROPERTY( int height READ height )
-    Q_PROPERTY( QSize size READ size )
-    Q_PROPERTY( QPoint pos READ pos )
-	
 public:
     QIconViewItem( QIconView *parent );
     QIconViewItem( QIconView *parent, QIconViewItem *after );
@@ -229,20 +211,11 @@ public:
 
     virtual int compare( QIconViewItem *i ) const;
 
-signals:
-    void renamed( const QString &text );
-    void renamed();
-
-public slots:
     virtual void setText( const QString &text );
     virtual void setPixmap( const QPixmap &icon );
     virtual void setText( const QString &text, bool recalc, bool redraw = TRUE );
     virtual void setPixmap( const QPixmap &icon, bool recalc, bool redraw = TRUE );
     virtual void setKey( const QString &k );
-
-protected slots:
-    virtual void renameItem();
-    virtual void cancelRenameItem();
 
 protected:
     virtual void removeRenameBox();
@@ -260,6 +233,9 @@ protected:
     void calcTmpText();
 
 private:
+    void renameItem();
+    void cancelRenameItem();
+
     QIconView *view;
     QString itemText, itemKey;
     QString tmpText;

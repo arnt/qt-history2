@@ -195,9 +195,6 @@ class QIconViewItemLineEdit : public QMultiLineEdit
 public:
     QIconViewItemLineEdit( const QString &text, QWidget *parent, QIconViewItem *theItem, const char *name = 0 );
 
-signals:
-    void escapePressed();
-
 protected:
     void keyPressEvent( QKeyEvent *e );
     void focusOutEvent( QFocusEvent *e );
@@ -239,10 +236,10 @@ void QIconViewItemLineEdit::keyPressEvent( QKeyEvent *e )
 {
     if ( e->key()  == Key_Escape ) {
 	item->QIconViewItem::setText( startText );
-	emit escapePressed();
+	item->cancelRenameItem();
     } else if ( e->key() == Key_Enter ||
 	      e->key() == Key_Return )
-	emit returnPressed();
+	item->renameItem();
     else {
 	QMultiLineEdit::keyPressEvent( e );
 	int w = width();
@@ -260,7 +257,7 @@ void QIconViewItemLineEdit::keyPressEvent( QKeyEvent *e )
 
 void QIconViewItemLineEdit::focusOutEvent( QFocusEvent * )
 {
-    emit escapePressed();
+    item->cancelRenameItem();
 }
 
 /*****************************************************************************
@@ -1225,10 +1222,6 @@ void QIconViewItem::rename()
     renameBox->setFocus();
     box->show();
     view->viewport()->setFocusProxy( renameBox );
-    connect( renameBox, SIGNAL( returnPressed() ),
-	     this, SLOT( renameItem() ) );
-    connect( renameBox, SIGNAL( escapePressed() ),
-	     this, SLOT( cancelRenameItem() ) );
 }
 
 /*!
@@ -1267,8 +1260,6 @@ void QIconViewItem::renameItem()
     view->repaintContents( r.x() - 1, r.y() - 1, r.width() + 2, r.height() + 2, FALSE );
     removeRenameBox();
 
-    emit renamed( text() );
-    emit renamed();
     view->emitRenamed( this );
 }
 
@@ -1656,21 +1647,21 @@ void QIconViewItem::calcTmpText()
   The first part is starting drags:
   If you want to use extended DnD in the QIconView, you should use QIconDrag
   (or a derived class from that) as dragobject and in dragObject() create such
-  an object and return it. Before returning it, fill it there with QIconDragItems. 
-  Normally such a drag should offer data of each selected item. So in dragObject() 
-  you should iterate over all items, create for each selected item a QIconDragItem and 
-  append this with QIconDrag::append() to the QIconDrag object. With 
-  QIconDragItem::setData() you can set the data of each item which should be dragged. 
+  an object and return it. Before returning it, fill it there with QIconDragItems.
+  Normally such a drag should offer data of each selected item. So in dragObject()
+  you should iterate over all items, create for each selected item a QIconDragItem and
+  append this with QIconDrag::append() to the QIconDrag object. With
+  QIconDragItem::setData() you can set the data of each item which should be dragged.
   If you want to offer the data in additional mime-types, it's the best to use
-  a class derived from QIconDrag which implements additional encoding and 
-  decoding functions. 
+  a class derived from QIconDrag which implements additional encoding and
+  decoding functions.
 
-  Now, when a drag enters the iconview, there is not much todo. Just connect to 
+  Now, when a drag enters the iconview, there is not much todo. Just connect to
   the dropped() signal and reimplement QIconViewItem::dropped() and
   QIconViewItem::acceptDrop(). The only special thing in this case is the
   second argument in the dropped() signal and in QIconViewItem::dropped().
   Fur further details about that look at the documentation of these signal/method.
-  
+
   For an example implementation of the complex Drag'n'Drop stuff look at the
   qfileiconview example (qt/examples/qfileiconview)
 
