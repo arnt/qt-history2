@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/xml/qxml.cpp#63 $
+** $Id: //depot/qt/main/src/xml/qxml.cpp#64 $
 **
 ** Implementation of QXmlSimpleReader and related classes.
 **
@@ -50,46 +50,26 @@
 
 // Error strings for the XML reader
 #define XMLERR_OK                         "no error occurred"
-#define XMLERR_TAGMISMATCH                "tag mismatch"
-#define XMLERR_UNEXPECTEDEOF              "unexpected end of file"
-#define XMLERR_FINISHEDPARSINGWHILENOTEOF "parsing is finished but end of file is not reached"
-#define XMLERR_LETTEREXPECTED             "letter is expected"
-#define XMLERR_ERRORPARSINGELEMENT        "error while parsing element"
-#define XMLERR_ERRORPARSINGPROLOG         "error while parsing prolog"
-#define XMLERR_ERRORPARSINGMAINELEMENT    "error while parsing main element"
-#define XMLERR_ERRORPARSINGCONTENT        "error while parsing content"
-#define XMLERR_ERRORPARSINGNAME           "error while parsing name"
-#define XMLERR_ERRORPARSINGNMTOKEN        "error while parsing Nmtoken"
-#define XMLERR_ERRORPARSINGATTRIBUTE      "error while parsing attribute"
-#define XMLERR_ERRORPARSINGMISC           "error while parsing misc"
-#define XMLERR_ERRORPARSINGCHOICE         "error while parsing choice or seq"
 #define XMLERR_ERRORBYCONSUMER            "error triggered by consumer"
-#define XMLERR_UNEXPECTEDCHARACTER        "unexpected character"
-#define XMLERR_EQUALSIGNEXPECTED          "expected '=' but not found"
-#define XMLERR_QUOTATIONEXPECTED          "expected \" or ' but not found"
-#define XMLERR_ERRORPARSINGREFERENCE      "error while parsing reference"
-#define XMLERR_ERRORPARSINGPI             "error while parsing processing instruction"
-#define XMLERR_ERRORPARSINGATTLISTDECL    "error while parsing attribute list declaration"
-#define XMLERR_ERRORPARSINGATTTYPE        "error while parsing attribute type declaration"
-#define XMLERR_ERRORPARSINGATTVALUE       "error while parsing attribute value declaration"
-#define XMLERR_ERRORPARSINGELEMENTDECL    "error while parsing element declaration"
-#define XMLERR_ERRORPARSINGENTITYDECL     "error while parsing entity declaration"
-#define XMLERR_ERRORPARSINGNOTATIONDECL   "error while parsing notation declaration"
-#define XMLERR_ERRORPARSINGEXTERNALID     "error while parsing external id"
-#define XMLERR_ERRORPARSINGCOMMENT        "error while parsing comment"
-#define XMLERR_ERRORPARSINGENTITYVALUE    "error while parsing entity value declaration"
-#define XMLERR_CDSECTHEADEREXPECTED       "expected the header for a cdata section"
+#define XMLERR_UNEXPECTEDEOF              "unexpected end of file"
 #define XMLERR_MORETHANONEDOCTYPE         "more than one document type definition"
-#define XMLERR_ERRORPARSINGDOCTYPE        "error while parsing document type definition"
+#define XMLERR_ERRORPARSINGELEMENT        "error while parsing element"
+#define XMLERR_TAGMISMATCH                "tag mismatch"
+#define XMLERR_ERRORPARSINGCONTENT        "error while parsing content"
+#define XMLERR_UNEXPECTEDCHARACTER        "unexpected character"
 #define XMLERR_INVALIDNAMEFORPI           "invalid name for processing instruction"
 #define XMLERR_VERSIONEXPECTED            "version expected while reading the XML declaration"
+#define XMLERR_WRONGVALUEFORSDECL         "wrong value for standalone declaration"
 #define XMLERR_EDECLORSDDECLEXPECTED      "EDecl or SDDecl expected while reading the XML declaration"
 #define XMLERR_SDDECLEXPECTED             "SDDecl expected while reading the XML declaration"
-#define XMLERR_WRONGVALUEFORSDECL         "wrong value for standalone declaration"
-#define XMLERR_UNPARSEDENTITYREFERENCE    "unparsed entity reference in wrong context"
+#define XMLERR_ERRORPARSINGDOCTYPE        "error while parsing document type definition"
+#define XMLERR_LETTEREXPECTED             "letter is expected"
+#define XMLERR_ERRORPARSINGCOMMENT        "error while parsing comment"
+#define XMLERR_ERRORPARSINGREFERENCE      "error while parsing reference"
 #define XMLERR_INTERNALGENERALENTITYINDTD "internal general entity reference not allowed in DTD"
-#define XMLERR_EXTERNALGENERALENTITYINDTD "external parsed general entity reference not allowed in DTD"
 #define XMLERR_EXTERNALGENERALENTITYINAV  "external parsed general entity reference not allowed in attribute value"
+#define XMLERR_EXTERNALGENERALENTITYINDTD "external parsed general entity reference not allowed in DTD"
+#define XMLERR_UNPARSEDENTITYREFERENCE    "unparsed entity reference in wrong context"
 
 // the constants for the lookup table
 static const signed char cltWS      =  0; // white space
