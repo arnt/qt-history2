@@ -14,7 +14,7 @@ SOURCES = \
 	paths.cpp \
 	roads.cpp \
 	rotatinggradient.cpp \
-	warpix.cpp
+	warpix.cpp textoutline.cpp
 
 HEADERS = \
 	alphashade.h \

@@ -18,5 +18,6 @@
    <file>warpix.cpp</file>
    <file>roads.cpp</file>
    <file>glpainter.cpp</file>
+   <file>textoutline.cpp</file>
 </qresource>
 </RCC>
