@@ -78,7 +78,8 @@ long buf_size_total = 0, buf_index = 0;
 #define BEGIN_INSIDE
 
 
-#define  linput() (c = input()) == '\n' ? (lineNo++,c) : c
+#define linput() \
+    ( (c = input()) == '\n' ? (lineNo++, c) : (c == EOF) ? 0 : c )
 
 #include <string.h>
 #include <stdlib.h>
