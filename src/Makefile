@@ -153,3 +153,6 @@ depend dep:
 include:
 	-rm $(INCDIR)/*.h
 	set -e ; for d in $(DIRS); do make -C $$d include ; done
+
+tags:
+	echo */*.cpp */*.h | egrep -v '_win.cpp|_os2.cpp|moc/' | etags --c++ -
