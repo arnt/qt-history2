@@ -3334,7 +3334,8 @@ void QIconView::showEvent( QShowEvent * )
 {
     if ( d->dirty ) {
 	resizeContents( viewport()->width(), viewport()->height() );
-	arrangeItemsInGrid( FALSE );
+	if ( autoArrange() )
+	    arrangeItemsInGrid( FALSE );
     }
     QScrollView::show();
 }
