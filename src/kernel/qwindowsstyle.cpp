@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qwindowsstyle.cpp#30 $
+** $Id: //depot/qt/main/src/kernel/qwindowsstyle.cpp#31 $
 **
 ** Implementation of Windows-like style class
 **
@@ -37,6 +37,7 @@
 #include "qrangecontrol.h"
 #include "qscrollbar.h"
 #include "qtabbar.h"
+#define INCLUDE_MENUITEM_DEF
 #include "qpopupmenu.h"
 #include <limits.h>
 
@@ -980,33 +981,33 @@ void QWindowsStyle::drawSplitter( QPainter *p,  int x, int y, int w, int h,
 }
 
 
+
+static const int motifItemFrame		= 2;	// menu item frame width
+static const int motifSepHeight		= 2;	// separator item height
+static const int motifItemHMargin	= 3;	// menu item hor text margin
+static const int motifItemVMargin	= 2;	// menu item ver text margin
+static const int motifArrowHMargin	= 6;	// arrow horizontal margin
+static const int motifArrowVMargin	= 2;	// arrow vertical margin
+static const int motifTabSpacing	= 12;	// space between text and tab
+static const int motifCheckMarkHMargin	= 2;	// horiz. margins of check mark
+
 /*! \reimp
 */
 void QWindowsStyle::polishPopupMenu( QPopupMenu* p)
 {
     p->setFrameStyle( QFrame::WinPanel | QFrame::Raised );
     p->setMouseTracking( TRUE );
+    p->setCheckable( TRUE );
 
-}
-
-
-/*! \reimp
-*/
-int QWindowsStyle::widthOfPopupCheckColumn( int maxpm )
-{
-    int cmw = 7;   // check mark width
-    int w = QMAX( maxpm, cmw );
-    w += 4;
-    return w;
 }
 
 
 
 /*! \reimp
 */
-void QWindowsStyle::drawPopupCheckMark( QPainter *p, int x, int y, int w, int h,
-					const QColorGroup &g,
-					bool act, bool dis )
+void QWindowsStyle::drawCheckMark( QPainter *p, int x, int y, int w, int h,
+				   const QColorGroup &g,
+				   bool act, bool dis )
 {
     const int markW = 7;
     const int markH = 7;
@@ -1041,4 +1042,47 @@ void QWindowsStyle::drawPopupCheckMark( QPainter *p, int x, int y, int w, int h,
     }
     p->setPen( g.text() );
     p->drawLineSegments( a );
+}
+
+/*! \reimp
+*/
+int QWindowsStyle::widthOfPopupCheckColumn( int maxpm )
+{
+    int cmw = 12;   // check mark width
+    int w = QMAX( maxpm, cmw );
+    w += 4;
+    return w;
+}
+
+
+
+int QWindowsStyle::extraPopupMenuItemWidth( bool checkable, QMenuItem* mi, const QFontMetrics& fm )
+{
+    return 0;
+}
+
+int QWindowsStyle::popupMenuItemHeight( bool checkable, QMenuItem* mi, const QFontMetrics& fm )
+{
+    int h = 0;
+    if ( mi->isSeparator() ) {			// separator height
+	h = motifSepHeight;
+    } else if ( mi->pixmap() ) {		// pixmap height
+	h = mi->pixmap()->height() + 2*motifItemFrame;
+    } else {					// text height
+	h = fm.height() + 2*motifItemVMargin + 2*motifItemFrame;
+    }
+    if ( !mi->isSeparator() && mi->iconSet() != 0 ) {
+	h = QMAX( h, mi->iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).height() + 2*motifItemFrame );
+	int h2 = fm.height() + 2*motifItemVMargin + 2*motifItemFrame;
+	if ( h2 > h )
+	    h = h2;
+    }
+    return h;
+
+}
+
+void QWindowsStyle::drawPopupMenuItem( QPainter* p, bool checkable, int tab, QMenuItem* mi,
+				       const QFontMetrics& fm,
+				       bool act, int x, int y, int w, int h)
+{
 }

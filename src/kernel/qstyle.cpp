@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.cpp#35 $
+** $Id: //depot/qt/main/src/kernel/qstyle.cpp#36 $
 **
 ** Implementation of QStyle class
 **
@@ -566,7 +566,7 @@ void QStyle::drawTab( QPainter* p,  const  QTabBar* tb, QTab* t , bool selected 
     }
 }
 
-void QStyle::drawTabMask( QPainter* p,  const  QTabBar* /* tb*/ , QTab* t, bool /* selected */ ) 
+void QStyle::drawTabMask( QPainter* p,  const  QTabBar* /* tb*/ , QTab* t, bool /* selected */ )
 {
     p->drawRect( t->r );
 }
@@ -682,7 +682,7 @@ int QStyle::maximumSliderDragDistance() const
 
 /*!
   \fn int QStyle::splitterWidth() const
-  
+
   Returns the width of a splitter handle.
 
   \sa drawSplitter()
@@ -697,7 +697,35 @@ int QStyle::maximumSliderDragDistance() const
   Draws a splitter handle in the rectangle described by \a x, \a y,
   \a w, \a h using painter \a p and color group \a g. The orientation
   is \a orient.
-  
+
   \sa splitterWidth()
 */
-			     
+			
+
+/*! \fn void drawCheckMark( QPainter *p, int x, int y, int w, int h,
+				const QColorGroup &g,
+				bool act, bool dis ) 
+				
+				###
+				
+*/
+/*  \fn void polishPopupMenu( QPopupMenu* p) 
+    ###
+ */
+
+/*! \fn int widthOfPopupCheckColumn( int maxpm ) 
+  ###
+ */
+   
+/* \fn int extraPopupMenuItemWidth( bool checkable, QMenuItem* mi, const QFontMetrics& fm  ) 
+ ###
+ */
+
+/* \fn int popupMenuItemHeight( bool checkable, QMenuItem* mi, const QFontMetrics& fm  ) 
+   ###
+ */
+
+/* \fn void drawPopupMenuItem( QPainter* p, bool checkable, int tab, QMenuItem* mi, const QFontMetrics& fm,
+				    bool act, int x, int y, int w, int h) 
+	###			    
+*/

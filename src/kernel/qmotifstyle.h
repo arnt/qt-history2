@@ -1,13 +1,27 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmotifstyle.h#15 $
+** $Id: //depot/qt/main/src/kernel/qmotifstyle.h#16 $
 **
-** Definition of something or other
+** Definition of Motif-like style class
 **
-** Created : 979899
+** Created : 981231
 **
-** Copyright (C) 1997 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1998-1999 Troll Tech AS.  All rights reserved.
 **
-****************************************************************************/
+** This file is part of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees holding valid Qt Professional Edition licenses may use this
+** file in accordance with the Qt Professional Edition License Agreement
+** provided with the Qt Professional Edition.
+**
+** See http://www.troll.no/pricing.html or email sales@troll.no for
+** information about the Professional Edition licensing, or see
+** http://www.troll.no/qpl/ for QPL licensing information.
+**
+*****************************************************************************/
 
 #ifndef QMOTIFSTYLE_H
 #define QMOTIFSTYLE_H
@@ -70,13 +84,19 @@ public:
     int splitterWidth() const;
     void drawSplitter( QPainter *p, int x, int y, int w, int h,
 		       const QColorGroup &g, Orientation);
-    
-    
-    void polishPopupMenu( QPopupMenu* );
-    int widthOfPopupCheckColumn( int maxpm );
-    void drawPopupCheckMark( QPainter *p, int x, int y, int w, int h,
+
+
+    void drawCheckMark( QPainter *p, int x, int y, int w, int h,
 			     const QColorGroup &g,
 			     bool act, bool dis );
+
+    void polishPopupMenu( QPopupMenu* );
+    int widthOfPopupCheckColumn( int maxpm );
+    int extraPopupMenuItemWidth( bool checkable, QMenuItem* mi, const QFontMetrics& fm );
+    int popupMenuItemHeight( bool checkable, QMenuItem* mi, const QFontMetrics& fm );
+    void drawPopupMenuItem( QPainter* p, bool checkable, int tab, QMenuItem* mi, const QFontMetrics& fm,
+			    bool act, int x, int y, int w, int h);
+
 
 private:
     bool highlightCols;

@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qmotifstyle.cpp#32 $
+** $Id: //depot/qt/main/src/kernel/qmotifstyle.cpp#33 $
 **
 ** Implementation of Motif-like style class
 **
@@ -37,6 +37,7 @@
 #include "qrangecontrol.h"
 #include "qscrollbar.h"
 #include "qtabbar.h"
+#define INCLUDE_MENUITEM_DEF
 #include "qpopupmenu.h"
 #include <limits.h>
 
@@ -776,6 +777,7 @@ void QMotifStyle::polishPopupMenu( QPopupMenu* p)
     p->setFrameStyle( QFrame::Panel | QFrame::Raised );
     p->setLineWidth( defaultFrameWidth() );
     p->setMouseTracking( FALSE );
+    p->setCheckable( FALSE );
 
 }
 
@@ -789,22 +791,12 @@ static const int motifArrowVMargin	= 2;	// arrow vertical margin
 static const int motifTabSpacing	= 12;	// space between text and tab
 static const int motifCheckMarkHMargin	= 2;	// horiz. margins of check mark
 
-/*! \reimp
-*/
-int QMotifStyle::widthOfPopupCheckColumn( int maxpm )
-{
-    int cmw = 7;   // check mark width
-    int w = QMAX( maxpm, cmw );
-    w += 2;
-    w += motifItemFrame + 2 * motifCheckMarkHMargin;
-    return w;
-}
 
 /*! \reimp
 */
-void QMotifStyle::drawPopupCheckMark( QPainter *p, int x, int y, int w, int h,
-					   const QColorGroup &g,
-					   bool act, bool dis )
+void QMotifStyle::drawCheckMark( QPainter *p, int x, int y, int w, int h,
+				 const QColorGroup &g,
+				 bool act, bool dis )
 {
     const int markW = 6;
     const int markH = 6;
@@ -848,4 +840,48 @@ void QMotifStyle::drawPopupCheckMark( QPainter *p, int x, int y, int w, int h,
 	qDrawShadePanel( p, posX, posY, markW, markH, g, TRUE,
 		    defaultFrameWidth(), &g.brush( QColorGroup::Mid ) );
     }
+}
+
+
+/*! \reimp
+*/
+int QMotifStyle::widthOfPopupCheckColumn( int maxpm )
+{
+    int cmw = 7;   // check mark width
+    int w = QMAX( maxpm, cmw );
+    w += 2;
+    w += motifItemFrame + 2 * motifCheckMarkHMargin;
+    return w;
+}
+
+
+int QMotifStyle::extraPopupMenuItemWidth( bool checkable, QMenuItem* mi, const QFontMetrics& fm )
+{
+    return 0;
+}
+
+int QMotifStyle::popupMenuItemHeight( bool checkable, QMenuItem* mi, const QFontMetrics& fm )
+{
+    int h = 0;
+    if ( mi->isSeparator() ) {			// separator height
+	h = motifSepHeight;
+    } else if ( mi->pixmap() ) {		// pixmap height
+	h = mi->pixmap()->height() + 2*motifItemFrame;
+    } else {					// text height
+	h = fm.height() + 2*motifItemVMargin + 2*motifItemFrame;
+    }
+    if ( !mi->isSeparator() && mi->iconSet() != 0 ) {
+	h = QMAX( h, mi->iconSet()->pixmap( QIconSet::Small, QIconSet::Normal ).height() + 2*motifItemFrame );
+	h += 2;				// Room for check rectangle
+	int h2 = fm.height() + 2*motifItemVMargin + 2*motifItemFrame;
+	if ( h2 > h )
+	    h = h2;
+    }
+    return h;
+}
+
+void QMotifStyle::drawPopupMenuItem( QPainter* p, bool checkable, int tab, QMenuItem* mi,
+				     const QFontMetrics& fm,
+				     bool act, int x, int y, int w, int h)
+{
 }

@@ -1,11 +1,25 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qstyle.h#27 $
+** $Id: //depot/qt/main/src/kernel/qstyle.h#28 $
 **
 ** Definition of QStyle class
 **
 ** Created : 980616
 **
-** Copyright (C) 1998 by Troll Tech AS.  All rights reserved.
+** Copyright (C) 1992-1999 Troll Tech AS.  All rights reserved.
+**
+** This file is part of the Qt GUI Toolkit.
+**
+** This file may be distributed under the terms of the Q Public License
+** as defined by Troll Tech AS of Norway and appearing in the file
+** LICENSE.QPL included in the packaging of this file.
+**
+** Licensees holding valid Qt Professional Edition licenses may use this
+** file in accordance with the Qt Professional Edition License Agreement
+** provided with the Qt Professional Edition.
+**
+** See http://www.troll.no/pricing.html or email sales@troll.no for
+** information about the Professional Edition licensing, or see
+** http://www.troll.no/qpl/ for QPL licensing information.
 **
 *****************************************************************************/
 
@@ -23,6 +37,7 @@ class QScrollBar;
 class QTabBar;
 class QTab;
 class QPopupMenu;
+class QMenuItem;
 
 class Q_EXPORT QStyle: public QObject
 {
@@ -182,17 +197,19 @@ public:
 			     int x, int y, int w, int h,
 			     const QColorGroup &g,
 			     Orientation) = 0;
-    
+
+    virtual void drawCheckMark( QPainter *p, int x, int y, int w, int h,
+				const QColorGroup &g,
+				bool act, bool dis ) = 0;
     virtual void polishPopupMenu( QPopupMenu* ) = 0;
+
     virtual int widthOfPopupCheckColumn( int maxpm ) = 0;
-    virtual void drawPopupCheckMark( QPainter *p, int x, int y, int w, int h,
-				     const QColorGroup &g,
-				     bool act, bool dis ) = 0;
+    virtual int extraPopupMenuItemWidth( bool checkable, QMenuItem* mi, const QFontMetrics& fm  ) = 0;
+    virtual int popupMenuItemHeight( bool checkable, QMenuItem* mi, const QFontMetrics& fm  ) = 0;
+    virtual void drawPopupMenuItem( QPainter* p, bool checkable, int tab, QMenuItem* mi, const QFontMetrics& fm,
+				    bool act, int x, int y, int w, int h) = 0;
 
 };
-
-
-
 
 
 
