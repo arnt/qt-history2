@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.h#43 $
+** $Id: //depot/qt/main/src/tools/qstring.h#44 $
 **
 ** Definition of extended char array operations, and QByteArray and
 ** QString classes
@@ -173,6 +173,7 @@ public:
 
     QString    &insert( uint index, const char * );
     QString    &insert( uint index, char );
+    QString    &append( const char * );
     QString    &prepend( const char * );
     QString    &remove( uint index, uint len );
     QString    &replace( uint index, uint len, const char * );
@@ -240,6 +241,9 @@ inline QString QString::copy() const
 
 inline QString &QString::prepend( const char *s )
 { return insert(0,s); }
+
+inline QString &QString::append( const char *s )
+{ return operator+=(s); }
 
 inline QString &QString::setNum( short n )
 { return setNum((long)n); }

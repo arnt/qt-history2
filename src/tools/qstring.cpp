@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/tools/qstring.cpp#85 $
+** $Id: //depot/qt/main/src/tools/qstring.cpp#86 $
 **
 ** Implementation of extended char array operations, and QByteArray and
 ** QString classes
@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#85 $");
+RCSTAG("$Id: //depot/qt/main/src/tools/qstring.cpp#86 $");
 
 
 /*****************************************************************************
@@ -1544,6 +1544,12 @@ bool QString::setExpand( uint index, char c )
   Returns TRUE if it is a null string, otherwise FALSE.
 */
 
+
+/*!
+  \fn QString& QString::append( const char *str )
+  Appends \e str to the string and returns a reference to the string.
+  Equivalent to operator+=().
+ */
 
 /*!
   Appends \e str to the string and returns a reference to the string.
