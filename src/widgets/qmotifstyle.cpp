@@ -70,6 +70,11 @@ QMotifStyle::QMotifStyle( bool useHighlightCols ) : QCommonStyle(MotifStyle)
 #ifdef Q_NICE_MOTIF_DEFAULT_BUTTON
     setButtonDefaultIndicatorWidth( 3 );
 #endif
+    
+#define Q_NICE_MOTIF_SLIDER_THICKNESS
+#ifdef Q_NICE_MOTIF_SLIDER_THICKNESS
+    setSliderThickness(24);
+#endif
 }
 
 /*!

@@ -122,7 +122,8 @@ public:
     void drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, QMenuItem* mi,
                 const QPalette& pal,
                 bool act, bool enabled, int x, int y, int w, int h);
-    void drawMenuBarItem( QPainter*, int x, int y, int w, int h, QMenuItem*, QColorGroup&, bool );
+    void drawMenuBarItem( QPainter*, int x, int y, int w, int h,
+			  QMenuItem*, QColorGroup&, bool, bool );
 protected:
     bool eventFilter( QObject*, QEvent*);
 

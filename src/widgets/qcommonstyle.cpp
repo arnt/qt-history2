@@ -43,8 +43,21 @@
 
 #define INCLUDE_MENUITEM_DEF
 #include "qmenudata.h" // for now
-#undef INCLUDE_MENUITEM_DEF
-#include "qsgistyle.h" // for now
+// #undef INCLUDE_MENUITEM_DEF
+// #include "qsgistyle.h" // for now
+
+
+typedef void (QStyle::*QDrawMenuBarItemImpl) (QPainter *, int, int, int, int, QMenuItem *,
+					      QColorGroup &, bool, bool);
+
+static QDrawMenuBarItemImpl draw_menu_bar_impl = 0;
+
+QDrawMenuBarItemImpl qt_set_draw_menu_bar_impl(QDrawMenuBarItemImpl impl)
+{
+    QDrawMenuBarItemImpl old_impl = draw_menu_bar_impl;
+    draw_menu_bar_impl = impl;
+    return old_impl;
+}
 
 
 // NOT REVISED
@@ -189,7 +202,7 @@ void QCommonStyle::tabbarMetrics( const QTabBar* t, int& hframe, int& vframe, in
  */
 void QCommonStyle::drawTab( QPainter* p,  const  QTabBar* tb, QTab* t , bool selected )
 {
-#ifndef QT_NO_COMPLEXWIDGETS    
+#ifndef QT_NO_COMPLEXWIDGETS
     if ( tb->shape() == QTabBar::TriangularAbove || tb->shape() == QTabBar::TriangularBelow ) {
 	// triangular, above or below
 	int y;
@@ -240,7 +253,7 @@ void QCommonStyle::drawTabMask( QPainter* p,  const  QTabBar* /* tb*/ , QTab* t,
  */
 QStyle::ScrollControl QCommonStyle::scrollBarPointOver( const QScrollBar* sb, int sliderStart, const QPoint& p )
 {
-#ifndef QT_NO_COMPLEXWIDGETS    
+#ifndef QT_NO_COMPLEXWIDGETS
     if ( !sb->rect().contains( p ) )
 	return NoScroll;
     int sliderMin, sliderMax, sliderLength, buttonDim, pos;
@@ -306,7 +319,7 @@ int QCommonStyle::popupSubmenuIndicatorWidth( const QFontMetrics& fm  )
 
 void QCommonStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
 				    QMenuItem* mi, QColorGroup& g,
-				    bool enabled )
+				    bool enabled, bool )
 {
 #ifndef QT_NO_COMPLEXWIDGETS
     drawItem( p, x, y, w, h, AlignCenter|ShowPrefix|DontClip|SingleLine,
@@ -317,7 +330,7 @@ void QCommonStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
 // doesn't really belong here... fix 3.0
 QRect QStyle::pushButtonContentsRect( QPushButton* btn )
 {
-#ifndef QT_NO_COMPLEXWIDGETS    
+#ifndef QT_NO_COMPLEXWIDGETS
     int fw = 0;
     if ( btn->isDefault() || btn->autoDefault() )
 	fw = buttonDefaultIndicatorWidth();
@@ -338,7 +351,7 @@ void QStyle::drawToolButton( QToolButton* btn, QPainter *p)
     int h = btn->height();
     const QColorGroup &g = btn->colorGroup();
     bool sunken = ( btn->isOn() && !btn->son ) || btn->isDown();
-    QBrush fill = btn->colorGroup().brush( btn->backgroundMode() == QToolButton::PaletteBackground ? 
+    QBrush fill = btn->colorGroup().brush( btn->backgroundMode() == QToolButton::PaletteBackground ?
 					   QColorGroup::Background : QColorGroup::Button );
     if ( guiStyle() == WindowsStyle && btn->isOn() )
 	fill = QBrush( g.light(), Dense4Pattern );
@@ -371,20 +384,23 @@ void QStyle::drawToolButton( QToolButton* btn, QPainter *p)
 //### remove in Version 3.0
 void QStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
 				    QMenuItem* mi, QColorGroup& g,
-				    bool enabled )
+				    bool enabled, bool active )
 {
-#ifndef QT_NO_COMPLEXWIDGETS    
+#ifndef QT_NO_COMPLEXWIDGETS
 #ifndef QT_NO_STYLE_SGI
-    if ( inherits("QSGIStyle" ) ) {
-	QSGIStyle* sg = (QSGIStyle*) this;
-	sg->drawMenuBarItem( p, x, y, w, h, mi, g, enabled );
+    if (draw_menu_bar_impl != 0) {
+	QDrawMenuBarItemImpl impl = draw_menu_bar_impl;
+	(this->*impl)(p, x, y, w, h, mi, g, enabled, active);
+	//    } else if ( inherits("QSGIStyle" ) ) {
+	//	QSGIStyle* sg = (QSGIStyle*) this;
+	//	sg->drawMenuBarItem( p, x, y, w, h, mi, g, enabled, active );
     } else {
         drawItem( p, x, y, w, h, AlignCenter|ShowPrefix|DontClip|SingleLine,
-	    g, enabled, mi->pixmap(), mi->text(), -1, &g.buttonText() );
+		  g, enabled, mi->pixmap(), mi->text(), -1, &g.buttonText() );
     }
 #else
     drawItem( p, x, y, w, h, AlignCenter|ShowPrefix|DontClip|SingleLine,
-	g, enabled, mi->pixmap(), mi->text(), -1, &g.buttonText() );
+	      g, enabled, mi->pixmap(), mi->text(), -1, &g.buttonText() );
 #endif	// QT_NO_STYLE_SGI
 #endif
 }

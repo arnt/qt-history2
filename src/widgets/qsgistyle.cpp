@@ -38,6 +38,13 @@
 #include "qpopupmenu.h"
 #include <limits.h>
 
+
+typedef void (QStyle::*QDrawMenuBarItemImpl) (QPainter *, int, int, int, int, QMenuItem *,
+					      QColorGroup &, bool, bool);
+
+QDrawMenuBarItemImpl qt_set_draw_menu_bar_impl(QDrawMenuBarItemImpl impl);
+
+
 static const int sgiItemFrame		= 2;	// menu item frame width
 static const int sgiSepHeight		= 1;	// separator item height
 static const int sgiItemHMargin		= 3;	// menu item hor text margin
@@ -145,6 +152,8 @@ QSGIStyle::polish( QApplication* app)
     pal.setColor( QColorGroup::Button, pal.active().midlight() );
     QApplication::setPalette( pal, TRUE, "QMenuBar" );
     QApplication::setPalette( pal, TRUE, "QToolBar" );
+    
+    qt_set_draw_menu_bar_impl((QDrawMenuBarItemImpl) &QSGIStyle::drawMenuBarItem);
 }
 
 /*! \reimp
@@ -152,11 +161,13 @@ QSGIStyle::polish( QApplication* app)
 
 void
 QSGIStyle::unPolish( QApplication* /* app */ )
-{    
+{
     QFont f = QApplication::font();
     QApplication::setFont( f, TRUE, "QPopupMenu" );
     QApplication::setFont( f, TRUE, "QMenuBar" );
     QApplication::setFont( f, TRUE, "QComboBox" );
+    
+    qt_set_draw_menu_bar_impl(0);
 }
 
 /*!
@@ -254,7 +265,7 @@ QSGIStyle::drawSeparator( QPainter *p, int x1, int y1, int x2, int y2,
 	    p->drawLine( x1, y1+1, x2, y2+1 );
 	else
 	    p->drawLine( x1+1, y1, x2+1, y2 );
-    }	
+    }
 
     p->setPen( oldPen );
 }
@@ -548,7 +559,7 @@ void QSGIStyle::drawExclusiveIndicator( QPainter* p,
 	a.setPoints(3, 6,2, 8,4, 6,6 );
 	p->drawPolygon( a );
 	p->setBrush( NoBrush );
-	
+
 	p->setPen( g.shadow() );
 	p->drawLine( 7,7, 9,5 );
     } else {
@@ -875,7 +886,7 @@ QSGIStyle::drawScrollBarControls( QPainter* p, const QScrollBar* sb,
 		else
 		    drawBevelButton( p, sliderR.x(), sliderR.y(),
 				 sliderR.width(), sliderR.height(), g );
-			
+
 		if (sliderLength >= 20 ) {
 		    p->setClipping( FALSE );
 
@@ -1082,10 +1093,10 @@ static void drawSGIPrefix( QPainter *p, int x, int y, QString* miText )
 	    if ( amp != -1 ) {
 		miText->remove( amp,1 );
 		nextAmp = (*miText)[amp] == '&';	// next time if &&
-		
+
 		if ((*miText)[amp] != '&') {     // draw special underlining
 		    uint ulx = p->fontMetrics().width(*miText, amp);
-		
+
 		    uint ulw = p->fontMetrics().width(*miText, amp+1) - ulx;
 
 		    p->drawLine( x+ulx, y, x+ulx+ulw, y );
@@ -1163,7 +1174,7 @@ QSGIStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, 
 	if ( checkable ) {
 	    int mw = checkcol;
 	    int mh = h - 2*sgiItemFrame;
-	
+
 	    QColorGroup citemg = itemg;
 	    if ( act && enabled )
 	        citemg.setColor( QColorGroup::Background, itemg.light() );
@@ -1230,7 +1241,7 @@ QSGIStyle::drawPopupMenuItem( QPainter* p, bool checkable, int maxpmw, int tab, 
     \reimp
 */
 void QSGIStyle::drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
-				QMenuItem* mi, QColorGroup& g, bool enabled )
+				QMenuItem* mi, QColorGroup& g, bool enabled, bool )
 {
     if ( mi->pixmap() )
 	drawItem( p, x, y, w, h, AlignCenter|DontClip|SingleLine,

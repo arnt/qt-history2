@@ -88,7 +88,7 @@ public:
 
     void drawMenuBarItem( QPainter* p, int x, int y, int w, int h,
 				    QMenuItem* mi, QColorGroup& g,
-				    bool enabled );
+				    bool enabled, bool active );
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

@@ -846,7 +846,7 @@ void QMenuBar::drawContents( QPainter *p )
 		    p->fillRect(r, palette().normal().brush( QColorGroup::Button ));
 	    }
 	    style().drawMenuBarItem( p, r.left(), r.top(), r.width(), r.height(),
-			    mi, g, e );
+			    mi, g, e, (i == actItem && actItemDown) );
 	}
     }
     if ( mseparator == InWindowsStyle && gs == WindowsStyle ) {

@@ -237,7 +237,7 @@ public:
 				    int x, int y, int w, int h) = 0;
     void drawMenuBarItem( QPainter* p, int x, int y, int w, int h, //### virtual in 3.0
 				    QMenuItem* mi, QColorGroup& g,
-				    bool enabled );
+				    bool enabled, bool active );
 
     // Binary compatibility contortions, to become virtual in 3.0
     QSize scrollBarExtent(); // ### const 3.0
@@ -245,6 +245,7 @@ public:
     int buttonMargin() const; // ### virtual 3.0
     int toolBarHandleExtent() const; // ### virtual 3.0
     int toolBarHandleExtend() const; // obsolete
+    int sliderThickness() const ; // ### virtual 3.0
     void drawToolBarHandle( QPainter *p, const QRect &r,
 			    Qt::Orientation orientation,
 			    bool highlight, const QColorGroup &cg,
@@ -254,6 +255,8 @@ protected:
     void setScrollBarExtent( int w, int h=-1 ); // ### remove 3.0
     void setButtonDefaultIndicatorWidth( int w ); // ### remove 3.0
     void setButtonMargin( int w ); // ### remove 3.0
+    void setSliderThickness(int t); // ### remove 3.0
+    
 
 private:	// Disabled copy constructor and operator=
 #if defined(Q_DISABLE_COPY)

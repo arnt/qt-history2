@@ -44,13 +44,15 @@ public:
     QStylePrivate()
 	:sbextent(16,16),
 	 button_default_indiciator_width(0),
-	 button_margin( 6 )
+	 button_margin( 6 ),
+	 slider_thickness(16)
     {
     }
 
     QSize sbextent;
     int button_default_indiciator_width;
     int button_margin;
+    int slider_thickness;
 };
 
 static QPtrDict<QStylePrivate> *d_ptr = 0;
@@ -995,6 +997,27 @@ int QStyle::buttonMargin() const
 void QStyle::setButtonMargin( int m )
 {
     d(this)->button_margin = m;
+}
+
+/*!
+  Returns the thickness of a slider in this style.  The thickness is
+  dimension perpendicular to the slider motion (e.g. the height for
+  a horizontal slider).
+*/
+int QStyle::sliderThickness() const
+{
+    return d(this)->slider_thickness;
+}
+
+/*!
+  Sets the slider thickness.
+  
+  In a future version of the Qt library, this function may be removed
+  and subclasses will be able to reimplement sliderThickness().
+*/
+void QStyle::setSliderThickness(int t)
+{
+    d(this)->slider_thickness = t;
 }
 
 #endif // QT_NO_STYLE

@@ -847,7 +847,8 @@ QSize QSlider::sizeHint() const
 {
     constPolish();
     const int length = 84;
-    int thick = style() == MotifStyle ? 24 : 16;
+    //    int thick = style() == MotifStyle ? 24 : 16;
+    int thick = style().sliderThickness();
     const int tickSpace = 5;
 
     if ( ticks & Above )
