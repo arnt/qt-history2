@@ -12,14 +12,14 @@
 
 FormDialog::FormDialog()
 {
-    QLabel *forenameLabel   = new QLabel( "Forename:", this );
-    QLineEdit *forenameEdit = new QLineEdit( this );
-    QLabel *surnameLabel    = new QLabel( "Surname:", this );
-    QLineEdit *surnameEdit  = new QLineEdit( this );
-    QLabel *salaryLabel	    = new QLabel( "Salary:", this );
-    QLineEdit *salaryEdit   = new QLineEdit( this );
-    QPushButton *saveButton = new QPushButton( "&Save", this );
-    connect( saveButton, SIGNAL(clicked()), this, SLOT(save()) );
+    QLabel	*forenameLabel = new QLabel( "Forename:", this );
+    QLineEdit	*forenameEdit  = new QLineEdit( this );
+    QLabel	*surnameLabel  = new QLabel( "Surname:", this );
+    QLineEdit	*surnameEdit   = new QLineEdit( this );
+    QLabel	*salaryLabel   = new QLabel( "Salary:", this );
+    QLineEdit	*salaryEdit    = new QLineEdit( this );
+    QPushButton *saveButton    = new QPushButton( "&Save", this );
+    connect( saveButton, SIGNAL(clicked()), this, SLOT(slotSave()) );
 
     QGridLayout *grid = new QGridLayout( this );
     grid->addWidget( forenameLabel, 0, 0 );
@@ -51,7 +51,7 @@ FormDialog::~FormDialog()
 }
 
 
-void FormDialog::save()
+void FormDialog::slotSave()
 {
     sqlForm->writeFields();
     staffCursor->update();
