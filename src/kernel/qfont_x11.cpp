@@ -1310,6 +1310,21 @@ XftPattern *QFontPrivate::findXftFont(const QChar &sample, bool *exact) const
 }
 
 
+static inline float pixelSize( const QFontDef &request, QPaintDevice *paintdevice )
+{
+    float pSize;
+    if ( request.pointSize != -1 ) {
+	if ( paintdevice )
+	    pSize = request.pointSize * QPaintDeviceMetrics( paintdevice ).logicalDpiY() / 720. + 0.5;
+	else
+	    pSize = request.pointSize * QPaintDevice::x11AppDpiY() / 720. + 0.5;
+    } else {
+	pSize = request.pixelSize;
+    }
+    return pSize;
+    
+}
+
 // finds an XftPattern best matching the familyname, foundryname and other
 // requested pieces of the font
 XftPattern *QFontPrivate::bestXftPattern(const QString &familyName,
@@ -1340,15 +1355,7 @@ XftPattern *QFontPrivate::bestXftPattern(const QString &familyName,
     else
 	slant_value = XFT_SLANT_ROMAN;
 
-    if ( request.pointSize != -1 ) {
-	if ( paintdevice ) {
-	    size_value = request.pointSize * QPaintDeviceMetrics( paintdevice ).logicalDpiY()/ 720.;
-	    qDebug("creating font for pd, size=%d, pixelSize=%d", request.pointSize, (int)size_value);
-	} else
-	    size_value = request.pointSize * QPaintDevice::x11AppDpiY() / 720.;
-    } else {
-	size_value = request.pixelSize;
-    }
+    size_value = pixelSize( request, paintdevice );
     mono_value = request.fixedPitch ? XFT_MONO : XFT_PROPORTIONAL;
 
     switch (request.styleHint) {
@@ -1760,10 +1767,8 @@ QCString QFontPrivate::bestMatch( const char *pattern, int *score,
 		resx = atoi(tokens[ResolutionX]);
 		resy = atoi(tokens[ResolutionY]);
 	    }
-	    if ( request.pointSize != -1 )
-		pSize = int( (request.pointSize * QPaintDevice::x11AppDpiY()) / 720. + 0.5 );
-	    else
-		pSize = request.pixelSize;
+	    pSize = (int)pixelSize( request, paintdevice );
+	    qDebug("requesting font with %d pixels", pSize );
 
 	    bestName.sprintf( "-%s-%s-%s-%s-%s-%s-%i-*-%i-%i-%s-*-%s-%s",
 			      tokens[Foundry],
@@ -1859,14 +1864,7 @@ int QFontPrivate::fontMatchScore( const char *fontName, QCString &buffer,
 	float percentDiff;
 	pSize = atoi(tokens[PixelSize]);
 
-	int reqPSize;
-	if ( request.pointSize != -1 ) {
-	    if ( QPaintDevice::x11AppDpiY() != 75 )
-		reqPSize = int( (request.pointSize * QPaintDevice::x11AppDpiY()) / 720. + 0.5 );
-	    else
-		reqPSize = (request.pointSize +5)/10;
-	} else
-	    reqPSize = request.pixelSize;
+	int reqPSize = (int)pixelSize( request, paintdevice );
 
 	if ( reqPSize != 0 ) {
 	    diff = (float)QABS(pSize - reqPSize);
