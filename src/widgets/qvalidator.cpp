@@ -630,13 +630,15 @@ QRegExpValidator::~QRegExpValidator()
 
 QValidator::State QRegExpValidator::validate( QString& input, int& pos ) const
 {
-    if ( ((QRegExp&) r).exactMatch(input) ) {
+    if ( r.exactMatch(input) ) {
 	return Acceptable;
-    } else if ( ((QRegExp&) r).matchedLength() == (int) input.length() ) {
-	return Intermediate;
     } else {
-	pos = input.length();
-	return Invalid;
+	if ( ((QRegExp&) r).matchedLength() == (int) input.length() ) {
+	    return Intermediate;
+	} else {
+	    pos = input.length();
+	    return Invalid;
+	}
     }
 }
 
