@@ -41,6 +41,7 @@
 #include <qdir.h>
 #include <qregexp.h>
 #include <qtextstream.h>
+#include <qvaluestack.h>
 #ifdef Q_OS_UNIX
 # include <unistd.h>
 #endif
@@ -97,15 +98,15 @@ static QStringList split_arg_list(const QString &params)
 
 static QStringList split_value_list(const QString &vals, bool do_semicolon=FALSE)
 {
-    QStringList ret;
     int last = 0;
-    QChar quote = 0;
+    QStringList ret;
+    QValueStack<QChar> quote;
     for(int x = 0; x < (int)vals.length(); x++) {
-	if(vals[x] == quote) {
-	    quote = 0;
+	if(!quote.isEmpty() && vals[x] == quote.top()) {
+	    quote.pop();
 	} else if(vals[x] == '\'' || vals[x] == '"') {
-	    quote = vals[x];
-	} else if(!quote && 
+	    quote.push(vals[x]);
+	} else if(quote.isEmpty() && 
 		  ((do_semicolon && vals[x] == ';') ||  vals[x] == ' ')) {
 	    ret << vals.mid(last, x - last);
 	    last = x+1;
