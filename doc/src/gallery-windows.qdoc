@@ -1,0 +1,185 @@
+/*!
+  \page gallery-windows.html
+
+  \title Widget Gallery
+
+  This page shows some of the widgets available in Qt
+  when configured to use the "windows" style.
+
+  \section1 Buttons
+
+  \table
+    \row
+    \i \inlineimage windows-pushbutton.png
+    \i QPushButton
+
+    The QPushButton widget provides a command button.
+    \row
+    \i \inlineimage windows-toolbutton.png
+    \i QToolButton
+
+    The QToolButton class provides a quick-access button to commands
+       or options, usually used inside a QToolBar.
+    \row
+    \i \inlineimage windows-radiobutton.png
+    \i QRadioButton
+
+    The QRadioButton widget provides a radio button with a text or pixmap label.
+    \row
+    \i \inlineimage windows-checkbox.png
+    \i QCheckBox
+
+    The QCheckBox widget provides a checkbox with a text label.
+  \endtable
+
+  \section1 Input Widgets
+
+  \table
+    \row
+    \i \inlineimage windows-textedit.png
+    \i QTextEdit
+
+    The QTextEdit class provides a widget that is used to edit and
+     display both plain and rich text.
+    \row
+    \i \inlineimage windows-horizontalscrollbar.png
+    \i QScrollBar
+
+    The QScrollBar widget provides a vertical or horizontal scroll bar. Here, we show a scroll bar with horizontal orientation.
+    \row
+    \i \inlineimage windows-verticalscrollbar.png
+    \i QScrollBar
+
+    \l{QScrollBar}s can also be given a vertical orientation.
+  \endtable
+
+  \section1 Input Widgets
+
+  \table
+    \row
+    \i \inlineimage windows-datetimeedit.png
+    \i QDateTimeEdit
+
+    The QDateTimeEdit class provides a widget for editing dates and times.
+    \row
+    \i \inlineimage windows-spinbox.png
+    \i QSpinBox
+
+    The QSpinBox class provides a spin box widget.
+    \row
+    \i \inlineimage windows-combobox.png
+    \i QComboBox
+
+    The QComboBox widget is a combined button and popup list.
+    \row
+    \i \inlineimage windows-lineedit.png
+    \i QLineEdit
+
+    The QLineEdit widget is a one-line text editor.
+    \row
+    \i \inlineimage windows-slider.png
+    \i QSlider
+
+    The QSlider widget provides a vertical or horizontal slider.
+    \row
+    \i \inlineimage windows-dial.png
+    \i QDial
+
+    The QDial class provides a rounded range control (like a
+       speedometer or potentiometer).
+  \endtable
+
+  \section1 Item Views
+
+  \table
+    \row
+    \i \inlineimage windows-listview.png
+    \i QListView
+
+    The QListView class provides a default model/view implementation
+       of a list, and of an icon view.
+    \row
+    \i \inlineimage windows-treeview.png
+    \i QTreeView
+
+    The QTreeView class provides a default model/view implementation
+       of a tree view.
+    \row
+    \i \inlineimage windows-tableview.png
+    \i QTableView
+
+    The QTableView class provides a default model/view implementation
+       of a table view.
+  \endtable
+
+  \section1 Item Widgets
+
+  \table
+    \row
+    \i \inlineimage windows-listwidget.png
+    \i QListWidget
+
+    The QListWidget class provides an item-based list widget.
+    \row
+    \i \inlineimage windows-treewidget.png
+    \i QTreeWidget
+
+    The QTreeWidget class provides a tree view that uses a predefined tree model.
+    \row
+    \i \inlineimage windows-tablewidget.png
+    \i QTableWidget
+
+    The QTableWidget class provides an item-based table view with a default model.
+  \endtable
+
+  \section1 Display Widgets
+
+  \table
+    \row
+    \i \inlineimage windows-progressbar.png
+    \i QProgressBar
+
+    The QProgressBar widget provides a horizontal progress bar.
+    \row
+    \i \inlineimage windows-lcdnumber.png
+    \i QLCDNumber
+
+    The QLCDNumber widget displays a number with LCD-like digits.
+    \row
+    \i \inlineimage windows-label.png
+    \i QLabel
+
+    The QLabel widget provides a text or image display.
+  \endtable
+
+  \section1 Containers
+
+  \table
+    \row
+    \i \inlineimage windows-frame.png
+    \i QFrame
+
+    
+    \row
+    \i \inlineimage windows-toolbox.png
+    \i QToolBox
+
+    The QToolBox class provides a column of tabbed widget items.
+    \row
+    \i \inlineimage windows-stackedwidget.png
+    \i QStackedWidget
+
+    The QStackedWidget class provides a stack of widgets where only
+       the top widget is visible.
+    \row
+    \i \inlineimage windows-groupbox.png
+    \i QGroupBox
+
+    The QGroupBox widget provides a group box frame with a title.
+    \row
+    \i \inlineimage windows-tabwidget.png
+    \i QTabWidget
+
+    The QTabWidget class provides a stack of tabbed widgets.
+  \endtable
+*/

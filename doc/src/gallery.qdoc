@@ -1,0 +1,21 @@
+/*!
+  \page gallery.html
+
+  \title Qt Widget Gallery
+
+  Qt's support for widget styles and themes enables your application to fit in
+  with the native desktop enviroment. Below, you can find links to the various
+  widget styles that are supplied with Qt 4.
+
+  \table
+  \row \i \inlineimage macintosh-tabwidget.png
+  \i \bold{Macintosh}
+
+  The \l{gallery-macintosh.html}{Macintosh style} provided by QMacStyle.
+
+  \row \i \inlineimage windows-tablewidget.png
+  \i \bold{Windows}
+
+  The \l{gallery-windows.html}{Windows 95 style} provided by QWindowsStyle.
+  \endtable
+*/
