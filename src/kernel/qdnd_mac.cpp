@@ -444,7 +444,7 @@ bool QDragManager::drag(QDragObject *o, QDragObject::DragMode mode)
     SetRect(&boundsRect, boundsPoint.h, boundsPoint.v, boundsPoint.h + pix.width(), boundsPoint.v + pix.height());
     SetDragItemBounds(theDrag, (ItemReference)1 , &boundsRect);
 
-    QRegion dragRegion(boundsPoint.h, boundsPoint.v, pix.width(), pix.height());
+    QRegion dragRegion(boundsPoint.h, boundsPoint.v, pix.width(), pix.height()), pixRegion;
     if(!pix.isNull()) {
 	pixRegion = QRegion(0, 0, pix.width(), pix.height());
 	SetDragImage(theDrag, GetGWorldPixMap((GWorldPtr)pix.handle()), pixRegion.handle(TRUE), boundsPoint, 0);

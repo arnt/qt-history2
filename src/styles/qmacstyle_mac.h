@@ -92,11 +92,11 @@ public:
 
     enum FocusRectPolicy { FocusEnabled, FocusDisabled, FocusDefault };
     static void setFocusRectPolicy( QWidget *w, FocusRectPolicy policy);
-    static FocusRectPolicy focusRectPolicy( QWidget *w );
+    static FocusRectPolicy focusRectPolicy(const QWidget *w );
 
     enum WidgetSizePolicy { SizeSmall, SizeLarge, SizeNone, SizeDefault };
-    static void setWidgetSizePolicy( QWidget *w, WidgetSizePolicy policy);
-    static WidgetSizePolicy widgetSizePolicy( QWidget *w );
+    static void setWidgetSizePolicy(const QWidget *w, WidgetSizePolicy policy);
+    static WidgetSizePolicy widgetSizePolicy(const QWidget *w);
 
     QPixmap stylePixmap( StylePixmap sp,
 			 const QWidget *widget = 0,

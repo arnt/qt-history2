@@ -48,7 +48,7 @@ public:
 #include "qpaintdevice.h"
 extern QPaintDevice *qt_mac_safe_pdev; //qapplication_mac.cpp
 class QPaintEngine;
-extern QPaintEngine *qt_mac_current_gc; //qpaintengine_mac.cpp
+extern QPaintEngine *qt_mac_current_engine; //qpaintengine_mac.cpp
 class QMacSavedPortInfo
 {
     RgnHandle clip;
@@ -128,7 +128,7 @@ QMacSavedPortInfo::setClipRegion(const QRect &rect)
     if(qt_mac_port_mutex)
 	qt_mac_port_mutex->lock();
 #endif
-    qt_mac_current_gc = NULL;
+    qt_mac_current_engine = NULL;
     ClipRect(&r);
 #if defined(QT_THREAD_SUPPORT)
     if(qt_mac_port_mutex)
@@ -148,7 +148,7 @@ QMacSavedPortInfo::setClipRegion(const QRegion &r)
     if(qt_mac_port_mutex)
 	qt_mac_port_mutex->lock();
 #endif
-    qt_mac_current_gc = NULL;
+    qt_mac_current_engine = NULL;
     SetClip(r.handle());
 #if defined(QT_THREAD_SUPPORT)
     if(qt_mac_port_mutex)
@@ -179,7 +179,7 @@ QMacSavedPortInfo::setPaintDevice(QPaintDevice *pd)
     if(qt_mac_port_mutex)
 	qt_mac_port_mutex->lock();
 #endif
-    qt_mac_current_gc = NULL;
+    qt_mac_current_engine = NULL;
     if(pd->devType() == QInternal::Widget)
 	SetPortWindowPort((WindowPtr)pd->handle());
     else if(pd->devType() == QInternal::Pixmap || pd->devType() == QInternal::Printer)
@@ -201,7 +201,7 @@ QMacSavedPortInfo::init()
     if(qt_mac_port_mutex)
 	qt_mac_port_mutex->lock();
 #endif
-    gc = qt_mac_current_gc;
+    engine = qt_mac_current_engine;
     extern int mac_window_count; //qwidget_mac.cpp
     if(mac_window_count) {
    	GetBackColor(&back);
@@ -228,7 +228,7 @@ inline QMacSavedPortInfo::~QMacSavedPortInfo()
 	RGBForeColor(&fore);
 	RGBBackColor(&back);
     }
-    qt_mac_current_gc = gc;
+    qt_mac_current_engine = engine;
 #if defined(QT_THREAD_SUPPORT)
     if(qt_mac_port_mutex)
 	qt_mac_port_mutex->unlock();

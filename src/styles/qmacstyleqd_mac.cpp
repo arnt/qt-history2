@@ -19,7 +19,7 @@
 
 #include <qpainter.h>
 #include <private/qpainter_p.h>
-#include <qgc_mac.h>
+#include <qpaintengine_mac.h>
 #include <qmap.h>
 #include <qt_mac.h>
 class QMacStyleQDPainter : public QPainter
@@ -31,17 +31,17 @@ public:
 };
 void QMacStyleQDPainter::setport()
 {
-    QQuickDrawGC *mgc = NULL;
-    if(d->gc && (d->gc->type() == QAbstractGC::QuickDraw || d->gc->type() == QAbstractGC::CoreGraphics))
-	mgc = (QQuickDrawGC*)d->gc;
-    if(mgc) {
-	mgc->updateState(mgc->state);
+    QQuickDrawPaintEngine *mpe = NULL;
+    if(d->engine && (d->engine->type() == QPaintEngine::QuickDraw || d->engine->type() == QPaintEngine::CoreGraphics))
+	mpe = (QQuickDrawPaintEngine*)d->engine;
+    if(mpe) {
+	mpe->updateState(mpe->state);
 #ifdef USE_CORE_GRAPHICS
 	QRegion rgn;
-	mgc->setupQDPort(true, 0, &rgn);
+	mpe->setupQDPort(true, 0, &rgn);
 	QMacSavedPortInfo::setClipRegion(rgn);
 #else
-	mgc->setupQDPort(true);
+	mpe->setupQDPort(true);
 #endif
     }
     NormalizeThemeDrawingState();

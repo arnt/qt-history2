@@ -18,7 +18,7 @@
 
 #include <qpainter.h>
 #include <private/qpainter_p.h>
-#include <qgc_mac.h>
+#include <qpaintengine_mac.h>
 #include <qpaintdevice.h>
 #include <qpixmap.h>
 #include <qmap.h>
@@ -29,13 +29,13 @@
 
 struct QMacStylePrivate {
     struct PolicyState {
-	static QMap<QWidget*, QMacStyle::FocusRectPolicy> focusMap;
-	static QMap<QWidget*, QMacStyle::WidgetSizePolicy> sizeMap;
-	static void watchObject(QObject *o);
+	static QMap<const QWidget*, QMacStyle::FocusRectPolicy> focusMap;
+	static QMap<const QWidget*, QMacStyle::WidgetSizePolicy> sizeMap;
+	static void watchObject(const QObject *o);
     };
 };
-QMap<QWidget*, QMacStyle::FocusRectPolicy> QMacStylePrivate::PolicyState::focusMap;
-QMap<QWidget*, QMacStyle::WidgetSizePolicy> QMacStylePrivate::PolicyState::sizeMap;
+QMap<const QWidget*, QMacStyle::FocusRectPolicy> QMacStylePrivate::PolicyState::focusMap;
+QMap<const QWidget*, QMacStyle::WidgetSizePolicy> QMacStylePrivate::PolicyState::sizeMap;
 class QMacStylePrivateObjectWatcher : public QObject
 {
     Q_OBJECT
@@ -46,7 +46,7 @@ public slots:
 };
 #include "qmacstyle_mac.moc"
 
-void QMacStylePrivate::PolicyState::watchObject(QObject *o)
+void QMacStylePrivate::PolicyState::watchObject(const QObject *o)
 {
     static QGuardedPtr<QMacStylePrivateObjectWatcher> watcher;
     if(!watcher)
@@ -280,7 +280,7 @@ QPixmap QMacStyle::stylePixmap(StylePixmap stylepixmap, const QWidget *widget, c
 
     \sa focusRectPolicy()
 */
-void QMacStyle::setFocusRectPolicy( QWidget *w, FocusRectPolicy policy )
+void QMacStyle::setFocusRectPolicy(QWidget *w, FocusRectPolicy policy)
 {
     QMacStylePrivate::PolicyState::focusMap.insert( w, policy );
     QMacStylePrivate::PolicyState::watchObject(w);
@@ -297,7 +297,7 @@ void QMacStyle::setFocusRectPolicy( QWidget *w, FocusRectPolicy policy )
 
     \sa setFocusRectPolicy()
 */
-QMacStyle::FocusRectPolicy QMacStyle::focusRectPolicy( QWidget *w )
+QMacStyle::FocusRectPolicy QMacStyle::focusRectPolicy(const QWidget *w)
 {
     if (QMacStylePrivate::PolicyState::focusMap.contains(w))
 	return QMacStylePrivate::PolicyState::focusMap[w];
@@ -310,7 +310,7 @@ QMacStyle::FocusRectPolicy QMacStyle::focusRectPolicy( QWidget *w )
 
     \sa widgetSizePolicy()
 */
-void QMacStyle::setWidgetSizePolicy( QWidget *w, WidgetSizePolicy policy )
+void QMacStyle::setWidgetSizePolicy(const QWidget *w, WidgetSizePolicy policy)
 {
     QMacStylePrivate::PolicyState::sizeMap.insert( w, policy );
     QMacStylePrivate::PolicyState::watchObject(w);
@@ -323,7 +323,7 @@ void QMacStyle::setWidgetSizePolicy( QWidget *w, WidgetSizePolicy policy )
 
     \sa setWidgetSizePolicy()
 */
-QMacStyle::WidgetSizePolicy QMacStyle::widgetSizePolicy( QWidget *w )
+QMacStyle::WidgetSizePolicy QMacStyle::widgetSizePolicy(const QWidget *w)
 {
     WidgetSizePolicy ret = SizeDefault;
     if(w) {
@@ -347,11 +347,12 @@ QStyle *QMacStyle::correctStyle(const QPainter *p) const
 
 QStyle *QMacStyle::correctStyle(const QPaintDevice *pdev) const
 {
-    bool ret_cg_style = FALSE;
-#if defined( USE_CORE_GRAPHICS ) && QT_MACOSX_VERSION >= 0x1030
-    ret_cg_style = TRUE; //default to TRUE when using CORE_GRAPHICS if there is no pdev
+#if !(defined( USE_CORE_GRAPHICS ) && QT_MACOSX_VERSION >= 0x1030)
+    Q_UNUSED(pdev);
+#else
+    bool ret_cg_style = TRUE; //default to TRUE when using CORE_GRAPHICS if there is no pdev
     if(pdev)
-	ret_cg_style = (pdev->gc()->type() == QAbstractGC::CoreGraphics);
+	ret_cg_style = (pdev->engine()->type() == QPaintEngine::CoreGraphics);
     if(ret_cg_style) {
 	if(!cg_style)
 	    cg_style = new QMacStyleCG();
