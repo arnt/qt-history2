@@ -2220,7 +2220,7 @@ void QTable::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 
     drawActiveSelection = hasFocus() || viewport()->hasFocus() ||
 			  is_child_of( qApp->focusWidget(), viewport() ) ||
-			  !style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) ||
+			  !style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ||
 			  ( qApp->focusWidget() && qApp->focusWidget()->isPopup() );
 
     if ( rowlast == -1 )
@@ -3319,7 +3319,7 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
     case QEvent::FocusOut:
 	if ( o == this || o == viewport() ) {
 	    updateCell( curRow, curCol );
-	    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) )
+	    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) )
 		repaintSelections();
 	    return TRUE;
 	}
@@ -3334,7 +3334,7 @@ bool QTable::eventFilter( QObject *o, QEvent *e )
     case QEvent::FocusIn:
 	if ( o == this || o == viewport() ) {
 	    updateCell( curRow, curCol );
-	    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) )
+	    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) )
 		repaintSelections();
 	    if ( isEditing() && editorWidget )
 		editorWidget->setFocus();
@@ -3487,7 +3487,7 @@ void QTable::keyPressEvent( QKeyEvent* e )
 
 void QTable::focusInEvent( QFocusEvent* )
 {
-    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) )
+    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) )
 	repaintSelections();
     QPoint cellPos( columnPos( curCol ) + leftMargin() - contentsX(), rowPos( curRow ) + topMargin() - contentsY() );
     QTableItem *itm = item( curRow, curCol );
@@ -3500,7 +3500,7 @@ void QTable::focusInEvent( QFocusEvent* )
 
 void QTable::focusOutEvent( QFocusEvent* )
 {
-    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) )
+    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) )
 	repaintSelections();
 }
 

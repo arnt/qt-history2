@@ -2515,9 +2515,9 @@ void QListView::drawContentsOffset( QPainter * p, int ox, int oy,
 
 	    QColorGroup cg;
 	    bool drawActiveSelection = hasFocus() ||
-			    !style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) ||
-				       ( qApp->focusWidget() && qApp->focusWidget()->isPopup() ) ||
-				       currentItem() && currentItem()->renameBox && currentItem()->renameBox->hasFocus();
+			    !style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ||
+			    ( qApp->focusWidget() && qApp->focusWidget()->isPopup() ) ||
+			    ( currentItem() && currentItem()->renameBox && currentItem()->renameBox->hasFocus() );
 	    if ( !drawActiveSelection )
 		cg = palette().inactive();
 	    else
@@ -4241,7 +4241,7 @@ void QListView::focusInEvent( QFocusEvent *e )
 	emit currentChanged( d->focusItem );
 	repaintItem( d->focusItem );
     }
-    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) ) {
+    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ) {
 	bool db = d->useDoubleBuffer;
 	d->useDoubleBuffer = TRUE;
 	viewport()->repaint( FALSE );
@@ -4263,7 +4263,7 @@ void QListView::focusInEvent( QFocusEvent *e )
 
 void QListView::focusOutEvent( QFocusEvent * )
 {
-    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) ) {
+    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ) {
 	bool db = d->useDoubleBuffer;
 	d->useDoubleBuffer = TRUE;
 	viewport()->repaint( FALSE );

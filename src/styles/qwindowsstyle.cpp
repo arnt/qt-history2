@@ -1769,9 +1769,8 @@ int QWindowsStyle::styleHint( StyleHint hint,
 	if ( qWinVersion() & WV_98 || qWinVersion() & WV_2000 || qWinVersion() & WV_XP )
 	    ret = 1;
 	else
-#else
-	    ret = 0;
 #endif
+	    ret = 0;
 	break;
 
     default:

@@ -2474,7 +2474,7 @@ void QListBox::focusInEvent( QFocusEvent *e )
 	emit highlighted( tmp2 );
 	emit currentChanged( i );
     }
-    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) ) {
+    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ) {
 	if ( d->numColumns == 1 ) {
 	    for ( uint i = topItem(); itemVisible( i ) && i < count(); ++i ) {
 		QListBoxItem *it = item(i);
@@ -2507,7 +2507,7 @@ void QListBox::focusInEvent( QFocusEvent *e )
 */
 void QListBox::focusOutEvent( QFocusEvent * )
 {
-    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) ) {
+    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ) {
 	if ( d->numColumns == 1 ) {
 	    for ( uint i = topItem(); itemVisible( i ) && i < count(); ++i ) {
 		QListBoxItem *it = item(i);
@@ -3840,7 +3840,9 @@ void QListBox::adjustItems()
 void QListBox::paintCell( QPainter * p, int row, int col )
 {
     QColorGroup g;
-    bool drawActiveSelection = hasFocus() || !style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) || ( qApp->focusWidget() && qApp->focusWidget()->isPopup() );
+    bool drawActiveSelection = hasFocus() || 
+	!style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) || 
+	( qApp->focusWidget() && qApp->focusWidget()->isPopup() );
     if ( !drawActiveSelection )
 	g = palette().inactive();
     else

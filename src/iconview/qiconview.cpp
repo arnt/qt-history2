@@ -3223,7 +3223,7 @@ void QIconView::drawContents( QPainter *p, int cx, int cy, int cw, int ch )
 	    p->restore();
 
 	    QColorGroup cg;
-	    d->drawActiveSelection = hasFocus() || !style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) ||
+	    d->drawActiveSelection = hasFocus() || !style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ||
 		( qApp->focusWidget() && qApp->focusWidget()->isPopup() );
 	    if ( !d->drawActiveSelection )
 		cg = palette().inactive();
@@ -4884,7 +4884,7 @@ void QIconView::focusInEvent( QFocusEvent *e )
 	repaintItem( d->currentItem );
     }
 
-    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) ) {
+    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ) {
 	QRect r = visibleRect();
 	for ( QIconViewItem *item = firstItem(); item; item = item->nextItem() ) {
 	    if ( item->isSelected() && item->rect().intersects( r ) )
@@ -4905,7 +4905,7 @@ void QIconView::focusOutEvent( QFocusEvent * )
     if ( d->currentItem )
 	repaintItem( d->currentItem );
 
-    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus ) ) {
+    if ( style().styleHint( QStyle::SH_ItemView_ChangeHighlightOnFocus, this ) ) {
 	QRect r = visibleRect();
 	for ( QIconViewItem *item = firstItem(); item; item = item->nextItem() ) {
 	    if ( item->isSelected() && item->rect().intersects( r ) )
