@@ -11727,6 +11727,8 @@ static const Q_INT8 * const decimal_info[256] = {
 
 // END OF GENERATED DATA
 
+#endif
+
 static inline QChar::Category category( const QChar &c )
 {
 #ifndef QT_NO_UNICODETABLES
@@ -11801,6 +11803,7 @@ static inline bool mirrored( const QChar &c )
 #endif
 }
 
+#ifndef QT_NO_UNICODETABLES
 static const Q_UINT16 symmetricPairs[] = {
     0x0028, 0x0029, 0x003C, 0x003E, 0x005B, 0x005D, 0x007B, 0x007D,
     0x00AB, 0x00BB, 0x2039, 0x203A, 0x2045, 0x2046, 0x207D, 0x207E,

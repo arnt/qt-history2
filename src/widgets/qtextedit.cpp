@@ -84,8 +84,10 @@ class QTextEditPrivate
 public:
     QTextEditPrivate()
 	:preeditStart(-1),preeditLength(-1),ensureCursorVisibleInShowEvent(FALSE),
-	 allowTabs(TRUE),
-	 clipboard_mode( QClipboard::Clipboard )
+	 allowTabs(TRUE)
+#ifndef QT_NO_CLIPBOARD
+	 ,clipboard_mode( QClipboard::Clipboard )
+#endif
 #ifdef QT_TEXTEDIT_OPTIMIZATION
 	, od(0), optimMode( FALSE)
 #endif
@@ -101,7 +103,9 @@ public:
     QString scrollToAnchor; // used to deferr scrollToAnchor() until the show event when we are resized
     QString pressedName;
     QString onName;
+#ifndef QT_NO_CLIPBOARD
     QClipboard::Mode clipboard_mode;
+#endif
     QTimer *trippleClickTimer;
     QPoint trippleClickPoint;
 #ifdef QT_TEXTEDIT_OPTIMIZATION
@@ -2971,7 +2975,9 @@ void QTextEdit::cut()
     QTextDrag *drag = dragObject();
     if ( !drag )
 	return;
+#ifndef QT_NO_CLIPBOARD
     QApplication::clipboard()->setData( drag, d->clipboard_mode );
+#endif
     removeSelectedText();
     updateMicroFocusHint();
 }
@@ -2981,7 +2987,9 @@ void QTextEdit::normalCopy()
     QTextDrag *drag = dragObject();
     if ( !drag )
 	return;
+#ifndef QT_NO_CLIPBOARD
     QApplication::clipboard()->setData( drag, d->clipboard_mode );
+#endif
 }
 
 /*! Copies any selected text (from selection 0) to the clipboard.
@@ -2991,13 +2999,15 @@ void QTextEdit::normalCopy()
 
 void QTextEdit::copy()
 {
-#ifdef QT_TEXTEDIT_OPTIMIZATION
+#ifndef QT_NO_CLIPBOARD
+# ifdef QT_TEXTEDIT_OPTIMIZATION
     if ( d->optimMode && optimHasSelection() )
 	QApplication::clipboard()->setText( optimSelectedText(), d->clipboard_mode );
     else
 	normalCopy();
-#else
+# else
     normalCopy();
+# endif
 #endif
 }
 

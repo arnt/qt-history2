@@ -1867,12 +1867,12 @@ QPointArray QPainter::xForm( const QPointArray &av ) const
     QPointArray a = av;
 #ifndef QT_NO_TRANSFORMATIONS
     if ( txop != TxNone )
-#else
-    if ( xlatex || xlatey )
-#endif
     {
 	return xmat * av;
     }
+#else
+    a.translate( xlatex, xlatey );
+#endif
     return a;
 }
 
@@ -1905,7 +1905,12 @@ QPointArray QPainter::xForm( const QPointArray &av, int index,
     int lastPoint = npoints < 0 ? av.size() : index+npoints;
     QPointArray a( lastPoint-index );
     memcpy( a.data(), av.data()+index, (lastPoint-index)*sizeof( QPoint ) );
+#ifndef QT_NO_TRANSFORMATIONS
     return xmat*a;
+#else
+    a.translate( xlatex, xlatey );
+    return a;
+#endif
 }
 
 /*!

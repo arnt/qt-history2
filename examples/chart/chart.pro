@@ -15,3 +15,4 @@ SOURCES +=  element.cpp \
 	    optionsform.cpp \
 	    setdataform.cpp \
 	    main.cpp
+REQUIRES=full-config

@@ -110,8 +110,10 @@ struct QLineEditPrivate {
 	preeditStart(-1),
 	preeditLength(-1),
 	txtBuffer( "" ),
-	passwordChar( '*' ),
-	clipboard_mode( QClipboard::Clipboard )
+	passwordChar( '*' )
+#ifndef QT_NO_CLIPBOARD
+	,clipboard_mode( QClipboard::Clipboard )
+#endif
     {
 	parag->formatter()->setWrapEnabled( FALSE );
 	cursor = new QTextCursor( 0 );
@@ -213,7 +215,9 @@ struct QLineEditPrivate {
     int preeditStart, preeditLength;
     QString txtBuffer;  // semi-persistant storage for text()
     QChar passwordChar;
+#ifndef QT_NO_CLIPBOARD
     QClipboard::Mode clipboard_mode;
+#endif
     QTimer trippleClickTimer;
     QPoint trippleClickPoint;
 };
