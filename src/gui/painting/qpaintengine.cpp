@@ -15,7 +15,7 @@
 #include "qpaintengine_p.h"
 #include "qpainter_p.h"
 #include "qpolygon.h"
-
+#include "qbitmap.h"
 #include <qdebug.h>
 
 #include <private/qfontengine_p.h>

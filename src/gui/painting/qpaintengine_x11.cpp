@@ -549,11 +549,11 @@ struct QIntersectionPoint {
     }
 };
 
-static bool operator==(const XLineFixed &l1, const XLineFixed &l2)
-{
-    return l1.p1.x == l2.p1.x && l1.p1.y == l2.p1.y
-	   && l1.p2.x == l2.p2.x && l1.p2.y == l2.p2.y;
-}
+// static bool operator==(const XLineFixed &l1, const XLineFixed &l2)
+// {
+//     return l1.p1.x == l2.p1.x && l1.p1.y == l2.p1.y
+// 	   && l1.p2.x == l2.p2.x && l1.p2.y == l2.p2.y;
+// }
 
 // static void dump_edges(const QList<QEdge> &et)
 // {
@@ -563,6 +563,8 @@ static bool operator==(const XLineFixed &l1, const XLineFixed &l2)
 // }
 
 // assumes that the point array is closed
+
+#if !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
 static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPolygon &pa, bool winding)
 {
     QList<XTrapezoid> tps;  // final trapezoid list
@@ -766,6 +768,7 @@ static void qt_tesselate_polygon(QVarLengthArray<XTrapezoid> *traps, const QPoly
     for (int i = 0; i < tps.size(); ++i)
 	(*traps)[i] = tps.at(i);
 }
+#endif // !defined(QT_NO_XFT) && !defined(QT_NO_XRENDER)
 
 
 
