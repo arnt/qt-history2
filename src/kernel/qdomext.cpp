@@ -165,12 +165,8 @@ QVariant QDomElement::property( const QString& name, QVariant::Type type ) const
   {
   case QVariant::String:
     {
-      if ( name == "name" )
-      {
-	  if ( hasAttribute( "name" ) )
-	      return QVariant( attribute( name ) );
-	  return QVariant();
-      }
+      if ( hasAttribute( name ) )
+	return QVariant( attribute( name ) );
 
       QDomElement n = namedItem( name ).toElement();
       if ( !n.isNull() )
