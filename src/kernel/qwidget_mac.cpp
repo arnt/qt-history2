@@ -1176,19 +1176,17 @@ void QWidget::erase( int x, int y, int w, int h )
 
 void QWidget::erase( const QRegion& reg )
 {
-#if 0
-    RGBColor rc;
-    this->lockPort();
-    rc.red = bg_col.red()*256;
-    rc.green = bg_col.green()*256;
-    rc.blue = bg_col.blue()*256;
-    RGBForeColor( &rc );
-    PaintRgn( (RgnHandle)reg.handle() );
-    this->unlockPort();
-#else
-    qWarning("Damn, this does happen, regardless we need to figure out"
-	     "a good way to work this function out without doing our own gworld fu");
-#endif
+    QPainter p;
+    p.setClipRegion(reg);
+    p.begin(this);
+    if( back_type == 1) 
+	p.fillRect(reg.boundingRect(),bg_col);
+    else if ( back_type == 2 ) {
+	QRect br = reg.boundingRect();
+	p.drawTiledPixmap( br.x(), br.y(), br.x() + br.width(), br.y() + br.height(), 
+			   *bg_pix, 0, 0 );
+    }
+    p.end();
 }
 
 
