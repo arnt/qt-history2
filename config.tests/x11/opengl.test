@@ -19,7 +19,7 @@ fi
 LIBS=`sed -n -e '/^QMAKE_LIBS_OPENGL[	 ]*=/ { s/[^=]*=[	 ]*//; s/-l/ /g; p; }' $XCONFIG`
 GLDIRS=`sed -n -e '/^QMAKE_LIBDIR_OPENGL[	 ]*=/ { s/[^=]*=[	 ]*//; p; }' $XCONFIG`
 XDIRS=`sed -n -e '/^QMAKE_LIBDIR_X11[	 ]*=/ { s/[^=]*=[	 ]*//; p; }' $XCONFIG`
-LIBDIRS="$GLDIRS $XDIRS /usr/lib /lib"
+LIBDIRS="$GLDIRS $XDIRS /usr/lib /lib /usr/local/lib"
 
 for L in $LIBS
 do
@@ -79,7 +79,7 @@ then
     INCS="GL/gl.h GL/glu.h"
     GLDIRS=`sed -n -e '/^QMAKE_INCDIR_OPENGL[	 ]*=/ { s/[^=]*=[	 ]*//; p; }' $XCONFIG`
     XDIRS=`sed -n -e '/^QMAKE_INCDIR_X11[	]*=/ { s/[^=]*=[	 ]*//; p; }' $XCONFIG`
-    INCDIRS="$GLDIRS $XDIRS /usr/include /include"
+    INCDIRS="$GLDIRS $XDIRS /usr/include /include /usr/local/include"
 
     for I in $INCS
     do
