@@ -51,6 +51,7 @@
 #include "qfocusdata.h"
 #include "qabstractlayout.h"
 #include "qtextcodec.h"
+#include <stdio.h>
 
 // NOT REVISED
 
@@ -283,17 +284,16 @@ void QWidget::reparent( QWidget *, WFlags, const QPoint &,
 
 QPoint QWidget::mapToGlobal( const QPoint &pos ) const
 {
-  int x2=pos.x();
-  int y2=pos.y();
+  Point mac_p;
+  mac_p.h = pos.x();
+  mac_p.v = pos.y();
+  if(handle()) {
+    SetPortWindowPort((WindowPtr)handle());
+    LocalToGlobal(&mac_p);
+  }
 
-  ((QWidget *)this)->lockPort();
-  PixMapHandle pmh=GetPortPixMap(GetWindowPort((WindowPtr)handle()));
-  x2=x2-(**pmh).bounds.left;
-  y2=y2-(**pmh).bounds.top;
-  ((QWidget *)this)->unlockPort();
-
-  qDebug("QWidget::mapToGlobal(%d, %d) = (%d, %d)\n", pos.x(), pos.y(), x2, y2);
-  QPoint p2(x2,y2);
+  //  qDebug("QWidget::mapToGlobal(%d, %d) = (%d, %d)\n", pos.x(), pos.y(), mac_p.h, mac_p.v);
+  QPoint p2(mac_p.h,mac_p.v);
   return p2;
 }
 
@@ -305,23 +305,23 @@ QPoint QWidget::mapToGlobal( const QPoint &pos ) const
 
 QPoint QWidget::mapFromGlobal( const QPoint &pos ) const
 {
-  int x2=pos.x();
-  int y2=pos.y();
-
-  ((QWidget *)this)->lockPort();
-  PixMapHandle pmh=GetPortPixMap(GetWindowPort((WindowPtr)handle()));
-  x2=x2+(**pmh).bounds.left;
-  y2=y2+(**pmh).bounds.top;
-  for(const QWidget *widg=this; !widg->isTopLevel(); widg = widg->parentWidget()) {
-    x2-=widg->x();
-    y2-=widg->y();
+  Point mac_p;
+  mac_p.h = pos.x();
+  mac_p.v = pos.y();
+  if(handle()) {
+    SetPortWindowPort((WindowPtr)handle());
+    GlobalToLocal(&mac_p);
   }
-  ((QWidget *)this)->unlockPort();
+  for(const QWidget *p = this; p && !p->isTopLevel(); p = p->parentWidget()) {
+    mac_p.h -= p->x();
+    mac_p.v -= p->y();
+  }
 
-  qDebug("QWidget::mapFromGlobal(%d, %d) = (%d, %d)\n", pos.x(), pos.y(), x2, y2);
-  QPoint p2(x2,y2);
+  //qDebug("QWidget::mapFromGlobal(%d, %d) = (%d, %d)\n", pos.x(), pos.y(), mac_p.h, mac_p.v);
+  QPoint p2(mac_p.h,mac_p.v);
   return p2;
 }
+
 
 /*!
   When a widget gets focus, it should call setMicroFocusHint for some
@@ -799,7 +799,7 @@ void QWidget::showWindow()
     if ( !parentWidget() )
 	ShowHide( (WindowPtr)winid, 1 );
     setActiveWindow();
-    QApplication::postEvent( this, new QPaintEvent( rect() ) );
+    //QApplication::postEvent( this, new QPaintEvent( rect() ) );
     if ( parentWidget() )
 	parentWidget()->update();
     erase( 0, 0, width(), height() );
@@ -936,10 +936,12 @@ void QWidget::stackUnder( QWidget*)
 
 void QWidget::internalSetGeometry( int x, int y, int w, int h, bool isMove )
 {
-    qDebug( QString( "QWidget::internalSetGeometry x=%1 y=%2 w=%3 h=%4" ).arg( x ).arg( y ).arg( w ).arg( h ) );
+    qDebug( QString( "QWidget::internalSetGeometry %5 %6 x=%1 y=%2 w=%3 h=%4" ).arg( x ).arg( y ).arg( w ).arg( h ).arg(name()) . arg(className()) );
     if ( testWFlags(WType_Desktop) ) {
 	return;
     }
+
+    //width/height
     if ( w < 1 )                                // invalid size
         w = 1;
     if ( h < 1 )
@@ -1376,45 +1378,34 @@ void QWidget::setName( const char * )
 //FIXME: untested
 void QWidget::propagateUpdates(int x, int y, int x2, int y2)
 {
-    qDebug( "QWidget::propagateUpdates" );
+  qDebug( "QWidget::propagateUpdates %d %d %dx%d %s %s %d", x, y, x2, y2, name(), className(), isVisible());
 
-    this->lockPort();
-    erase( x, y, x2, y2 );
-    QRect paintRect( x, y, x2, y2 );
-    QRegion paintRegion( paintRect );
-    QPaintEvent e( paintRegion );
-    setWState( WState_InPaintEvent );
-    QApplication::sendEvent( this, &e );
-    clearWState( WState_InPaintEvent );
+  lockPort();
+  erase( x, y, x2, y2 );
+  QRect paintRect( x, y, x2, y2 );
+  QRegion paintRegion( paintRect );
+  QPaintEvent e( paintRegion );
+  setWState( WState_InPaintEvent );
+  QApplication::sendEvent( this, &e );
+  clearWState( WState_InPaintEvent );
+  unlockPort();
 
-    int a, b, c, d;
-    const QObjectList *childList = children();
-    if ( childList ) {
-	QObjectListIt it(*childList);
-	QObject *child;
-	QWidget *childWidget;
-	child = it.toLast();
-	do {
-	    if ( child->inherits( "QWidget" ) ) {
-		childWidget = (QWidget *)child;
-		a = x;
-		b = y;
-		c = x2;
-		d = y2;
-		a -= childWidget->x();
-		b -= childWidget->y();
-		c -= childWidget->x();
-		d -= childWidget->y();
-		if ( a < childWidget->width() && b < childWidget->height() &&
-		    c > 0 && d > 0 ) {
-		    childWidget->propagateUpdates( a, b, c, d );
-		}
-	    }
-	    child = --it;
-	} while ( child != 0 );
-    }
-    this->unlockPort();
-    qDebug( "leaving QWidget::propagateUpdates" );
+  QWidget *childWidget;
+  int a, b, c, d;
+  const QObjectList *childList = children();
+  if ( childList ) {
+    QObjectListIt it(*childList);
+    for(QObject *child = it.toLast(); child; child = --it) {
+      if ( child->isWidgetType() ) {
+	childWidget = (QWidget *)child;
+	a = x + childWidget->x();
+	b = y + childWidget->y();
+	c = x2 + childWidget->x();
+	d = y2 + childWidget->y();
+	childWidget->propagateUpdates( a, b, c, d );
+      }
+    }	
+  }
 }
 
 //FIXME: I think function was used to define a clipping region

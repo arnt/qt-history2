@@ -497,7 +497,7 @@ static QWidget *recursive_match(QWidget *widg, int x, int y)
       QWidget *curwidg=(QWidget *)(*it);
       int wx=curwidg->x(), wy=curwidg->y();
       int wx2=wx+curwidg->width(), wy2=wy+curwidg->height();
-      //      qDebug("recursive_match %d %d  %d %d",wx,wy,wx2,wy2);
+      //qDebug("recursive_match %d %d  %d %d",wx,wy,wx2,wy2);
       if(x>=wx && y>=wy && x<=wx2 && y<=wy2) {
 	return recursive_match(curwidg,x-wx,y-wy);
       }
@@ -1287,7 +1287,6 @@ int QApplication::macProcessEvent(MSG * m)
     QWidget *twidget = QWidget::find( (WId)er->message );
     wp = (WindowPtr)er->message;
     SetPortWindowPort(wp);
-    SetOrigin( 0, 0 );
 
     if(!twidget) {
       qWarning("Couldn't find paint widget for %d!",(int)wp);
@@ -1314,7 +1313,7 @@ int QApplication::macProcessEvent(MSG * m)
 
 	QPoint p( er->where.h, er->where.v );
 	QPoint plocal(widget->mapFromGlobal( p ));
-	QMouseEvent qme( QEvent::MouseButtonPress, p, plocal, QMouseEvent::LeftButton, 0);
+	QMouseEvent qme( QEvent::MouseButtonPress, plocal, p, QMouseEvent::LeftButton, 0);
 	QApplication::sendEvent( widget, &qme );
       }
       mouse_button_state = 1;
@@ -1334,7 +1333,7 @@ int QApplication::macProcessEvent(MSG * m)
 
 	QPoint p( er->where.h, er->where.v );
 	QPoint plocal(widget->mapFromGlobal( p ));
-	QMouseEvent qme( QEvent::MouseButtonRelease, p, plocal, QMouseEvent::LeftButton, 0);
+	QMouseEvent qme( QEvent::MouseButtonRelease, plocal, p, QMouseEvent::LeftButton, 0);
 	QApplication::sendEvent( widget, &qme );
       }
     }
@@ -1379,18 +1378,17 @@ int QApplication::macProcessEvent(MSG * m)
 	  widget = mac_mouse_grabber;
 	} else {
 	  Point pp2 = er->where;
-	  //GlobalToLocal( &pp2 );
 	  widget = QApplication::widgetAt( pp2.h, pp2.v, true );
 	}
 	if ( widget && (mouse_button_state || widget->hasMouseTracking() || hasGlobalMouseTracking())) {
 	  SetPortWindowPort( wp );
 
 	  QPoint p( er->where.h, er->where.v );
-	  QPoint pglob(widget->mapFromGlobal( p ));
-	  QMouseEvent qme( QEvent::MouseMove, pglob, p, QMouseEvent::LeftButton, 0);
+	  QPoint plocal(widget->mapFromGlobal( p ));
+	  QMouseEvent qme( QEvent::MouseMove, plocal, p, QMouseEvent::LeftButton, 0);
 	  QApplication::sendEvent( widget, &qme );
 	  qDebug("Mouse has Moved..");
-	}	
+	} else qDebug("oops..");
       }
     }
     else

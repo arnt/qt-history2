@@ -3956,6 +3956,13 @@ bool QWidget::event( QEvent *e )
 	    // At this point the event has to be delivered, regardless
 	    // whether the widget isVisible() or not because it
 	    // already went through the filters
+	  {
+	  QPaintEvent *foo = (QPaintEvent *)e;
+	  qDebug("PaintEvent: %s %s %d %d %dx%d (%d)", name(), className(),
+		 foo->rect().x(), foo->rect().y(), foo->rect().width(),
+		 foo->rect().height(), foo->erased());
+	  }
+
 	    paintEvent( (QPaintEvent*)e );
 	    break;
 
