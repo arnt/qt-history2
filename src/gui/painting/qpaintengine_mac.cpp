@@ -1054,13 +1054,14 @@ inline bool qt_mac_update_cg(QCoreGraphicsPaintEnginePrivate *paint_d)
  *****************************************************************************/
 
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintDevice *pdev)
-    : QQuickDrawPaintEngine(*(new QCoreGraphicsPaintEnginePrivate), pdev, GCCaps(UsesFontEngine))
+    : QQuickDrawPaintEngine(*(new QCoreGraphicsPaintEnginePrivate), pdev, 
+			    GCCaps(/*CoordTransform|PenWidthTransform|PixmapTransform|*/UsesFontEngine))
 {
     d->pdev = pdev;
 }
 
 QCoreGraphicsPaintEngine::QCoreGraphicsPaintEngine(QPaintEnginePrivate &dptr, QPaintDevice *pdev)
-    : QQuickDrawPaintEngine(dptr, pdev, GCCaps(UsesFontEngine))
+    : QQuickDrawPaintEngine(dptr, pdev, GCCaps(/*CoordTransform|PenWidthTransform|PixmapTransform|*/UsesFontEngine))
 {
     d->pdev = pdev;
 }
@@ -1314,8 +1315,14 @@ void
 QCoreGraphicsPaintEngine::updateXForm(QPainterState *ps)
 {
     Q_ASSERT(isActive());
-
-
+#if 0
+    CGAffineTransform xf = CGAffineTransformInvert(CGContextGetCTM((CGContextRef)d->hd));
+    xf = CGAffineTransformConcat(xf, CGAffineTransformMake(ps->matrix.m11(), ps->matrix.m12(),
+							   ps->matrix.m21(), ps->matrix.m22(),
+							   ps->matrix.dx(),  ps->matrix.dy()));
+    CGContextConcatCTM((CGContextRef)d->hd, xf);
+//    CGContextSetTextMatrix((CGContextRef)d->hd, xf);
+#endif
 }
 
 void

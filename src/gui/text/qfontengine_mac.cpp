@@ -105,50 +105,51 @@ QFontEngineMac::draw(QPaintEngine *p, int x, int y, const QTextItem &si, int tex
     int txop = pState->txop;
     QWMatrix xmat = pState->matrix;
 
-    if(txop >= QPainter::TxScale) {
-	int aw = si.width, ah = si.ascent + si.descent + 1;
-	if(aw == 0 || ah == 0)
-	    return;
-	QWMatrix mat1 = xmat, mat2 = QPixmap::trueMatrix(mat1, aw, ah);
-	QBitmap *wx_bm = 0;
-	{
-	    QBitmap bm(aw, ah, TRUE);	// create bitmap
-	    QPainter paint;
-	    paint.begin(&bm);		// draw text in bitmap
-	    paint.setPen(Qt::color1);
-	    draw(paint.d->engine, 0, si.ascent, si, textFlags);
-	    paint.end();
-	    wx_bm = new QBitmap(bm.xForm(mat2)); // transform bitmap
-	    if(wx_bm->isNull()) {
-		delete wx_bm;		// nothing to draw
+    if(!p->hasCapability(QPaintEngine::CoordTransform)) {
+	if(txop >= QPainter::TxScale) {
+	    int aw = si.width, ah = si.ascent + si.descent + 1;
+	    if(aw == 0 || ah == 0)
 		return;
+	    QWMatrix mat1 = xmat, mat2 = QPixmap::trueMatrix(mat1, aw, ah);
+	    QBitmap *wx_bm = 0;
+	    {
+		QBitmap bm(aw, ah, TRUE);	// create bitmap
+		QPainter paint;
+		paint.begin(&bm);		// draw text in bitmap
+		paint.setPen(Qt::color1);
+		draw(paint.d->engine, 0, si.ascent, si, textFlags);
+		paint.end();
+		wx_bm = new QBitmap(bm.xForm(mat2)); // transform bitmap
+		if(wx_bm->isNull()) {
+		    delete wx_bm;		// nothing to draw
+		    return;
+		}
 	    }
-	}
 
-	QPixmap pm(wx_bm->width(), wx_bm->height());
-	if(pState->painter->backgroundMode() != QPainter::OpaqueMode) {
-	    QPainter paint(&pm);
-	    paint.fillRect(0, 0, pm.width(), pm.height(), pState->painter->pen().color());
-	    pm.setMask(*wx_bm);
-	} else { //This is untested code, I need to find a test case, FIXME --Sam
-	    pm = *wx_bm;
-	    QBitmap bm(pm.width(), pm.height(), TRUE);
-	    bm.fill(Qt::color1);
-	    bm = bm.xForm(mat2);
-	    pm.setMask(bm);
+	    QPixmap pm(wx_bm->width(), wx_bm->height());
+	    if(pState->painter->backgroundMode() != QPainter::OpaqueMode) {
+		QPainter paint(&pm);
+		paint.fillRect(0, 0, pm.width(), pm.height(), pState->painter->pen().color());
+		pm.setMask(*wx_bm);
+	    } else { //This is untested code, I need to find a test case, FIXME --Sam
+		pm = *wx_bm;
+		QBitmap bm(pm.width(), pm.height(), TRUE);
+		bm.fill(Qt::color1);
+		bm = bm.xForm(mat2);
+		pm.setMask(bm);
+	    }
+	    double nfx, nfy;
+	    mat1.map(x, y - si.ascent, &nfx, &nfy);
+	    double dx, dy;
+	    mat2.map(0, 0, &dx, &dy);     // compute position of bitmap
+	    unclippedBitBlt(pState->painter->device(), qRound(nfx-dx), qRound(nfy-dy), &pm, 0, 0, -1,
+			    -1, Qt::CopyROP, FALSE, FALSE);
+	    delete wx_bm;
+	    return;
+	} else if(txop == QPainter::TxTranslate) {
+	    pState->painter->map(x, y, &x, &y);
 	}
-	double nfx, nfy;
-	mat1.map(x, y - si.ascent, &nfx, &nfy);
-	double dx, dy;
-	mat2.map(0, 0, &dx, &dy);     // compute position of bitmap
-	unclippedBitBlt(pState->painter->device(), qRound(nfx-dx), qRound(nfy-dy), &pm, 0, 0, -1,
-                        -1, Qt::CopyROP, FALSE, FALSE);
-	delete wx_bm;
-	return;
-    } else if(txop == QPainter::TxTranslate) {
-	pState->painter->map(x, y, &x, &y);
     }
-
     if(p->type() == QPaintEngine::QuickDraw) {
 	QQuickDrawPaintEngine *mgc = static_cast<QQuickDrawPaintEngine *>(p);
 	mgc->updateState(mgc->state);
@@ -370,8 +371,6 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
 
     { //transformations
 	CGAffineTransform tf = CGAffineTransformIdentity;
-	if(fontDef.stretch != 100)
-	    tf = CGAffineTransformScale(tf, fontDef.stretch/100, 1);
 #ifdef USE_CORE_GRAPHICS
 	if(task & DRAW) { //we need to flip the translation here because we flip it internally
 	    int height = 0;
@@ -379,10 +378,22 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
 		height = widget->topLevelWidget()->height();
 	    else
 		height = device->metric(QPaintDeviceMetrics::PdmHeight);
-	    tf = CGAffineTransformTranslate(CGAffineTransformIdentity, 0, height);
+	    tf = CGAffineTransformTranslate(tf, 0, height);
 	    tf = CGAffineTransformScale(tf, 1, -1);
 	}
 #endif
+	if(fontDef.stretch != 100)
+	    tf = CGAffineTransformScale(tf, fontDef.stretch/100, 1);
+#if 0 //grr this just doesn't work, how frustrating..
+	if(pState) {
+	    CGAffineTransform xf = CGAffineTransformMake(pState->matrix.m11(), pState->matrix.m12(),
+							 pState->matrix.m21(), pState->matrix.m22(),
+							 pState->matrix.dx(),  pState->matrix.dy());
+	    tf = CGAffineTransformConcat(xf, tf);
+	}
+#endif
+
+
 	const ATSUAttributeTag tag = kATSUFontMatrixTag;
 	ByteCount size = sizeof(tf);
 	ATSUAttributeValuePtr value = &tf;
