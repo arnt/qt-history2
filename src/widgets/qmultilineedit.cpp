@@ -585,7 +585,7 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
     }
     p.setPen( g.text() );
     QMultiLineEditRow* r = contents->at( row );
-    int wcell = cellWidth() - 2*d->lr_marg - d->marg_extra;
+    int wcell = cellWidth() - 2*d->lr_marg;// - d->marg_extra;
     int wrow = r->w;
     int x = d->lr_marg - p.fontMetrics().leftBearing(s[0]);
     if ( d->align == Qt::AlignCenter )
@@ -631,8 +631,8 @@ void QMultiLineEdit::paintCell( QPainter *painter, int row, int )
 	       p.drawLine( cXPos - 2, cYPos,
 	       cXPos + 2, cYPos );
 	    */
-	    p.drawLine( cXPos    , cYPos,
-			cXPos    , cYPos + fm.height() - 2);
+	    p.drawLine( cXPos, cYPos,
+			cXPos, cYPos + fm.height() - 2);
 	    /* styled?
 	       p.drawLine( cXPos - 2, cYPos + fm.height() - 2,
 	       cXPos + 2, cYPos + fm.height() - 2);
@@ -1967,7 +1967,8 @@ void QMultiLineEdit::pixelPosToCursorPos(QPoint p, int* x, int* y) const
     QFontMetrics fm( font() );
     *x = xPosToCursorPos( stringShown( *y ), fm,
 			  p.x() - d->lr_marg + xOffset(),
-			  cellWidth() - 2 * d->lr_marg - d->marg_extra, d->align );
+			  cellWidth() - 2 * d->lr_marg - d->marg_extra, 
+			  d->align );
 }
 
 void QMultiLineEdit::setCursorPixelPosition(QPoint p, bool clear_mark)
@@ -2269,7 +2270,8 @@ int QMultiLineEdit::mapFromView( int xPos, int line )
     QFontMetrics fm( font() );
     int index = xPosToCursorPos( s, fm,
 				 xPos - d->lr_marg,
-				 cellWidth() - 2 * d->lr_marg - d->marg_extra, d->align );
+				 cellWidth() - 2 * d->lr_marg - d->marg_extra, 
+				 d->align );
     return index;
 }
 
@@ -2283,7 +2285,7 @@ int QMultiLineEdit::mapToView( int xIndex, int line )
     QString s = stringShown( line );
     xIndex = QMIN( (int)s.length(), xIndex );
     QFontMetrics fm( font() );
-    int wcell = cellWidth() - 2 * d->lr_marg - d->marg_extra;
+    int wcell = cellWidth() - 2 * d->lr_marg;// - d->marg_extra;
     int wrow = contents->at( line )->w;
     int w = textWidthWithTabs( fm, s, 0, xIndex, d->align ) - 1;
     if ( d->align == Qt::AlignCenter )
@@ -3249,7 +3251,7 @@ void QMultiLineEdit::wrapLine( int line, int removed )
 		    DO_BREAK;
 		}
 	    } else if ( FIXED_WIDTH_WRAP ) {
-		if ( d->wrapcol >= 0 && linew > d->wrapcol ) {
+		if ( d->wrapcol >= 0 && linew > d->wrapcol - d->marg_extra ) {
 		    DO_BREAK;
 		}
 	    }
@@ -3405,10 +3407,11 @@ void QMultiLineEdit::setWordWrap( WordWrap mode )
 	return;
     d->wordwrap = mode;
 
-    if ( BREAK_WITHIN_WORDS ) {
+    if ( BREAK_WITHIN_WORDS  ) {
 	d->arrow = QPixmap( arrow );
 	d->marg_extra = 8;
-	clearTableFlags( Tbl_autoHScrollBar );
+	if ( DYNAMIC_WRAP )
+	    clearTableFlags( Tbl_autoHScrollBar );
     } else {
 	d->marg_extra = 0;
 	setTableFlags( Tbl_autoHScrollBar );

@@ -1406,7 +1406,7 @@ void QIconViewItem::calcRect( const QString &text_ )
     if ( view->d->wordWrapIconText ) {
 	r = QRect( view->d->fm->boundingRect( 0, 0, iconView()->maxItemWidth() -
 					      ( iconView()->itemTextPos() == QIconView::Bottom ? 0 :
-						pixmapRect().width() ) - bearing,
+						pixmapRect().width() ) - bearing + 8,
 					      0xFFFFFFFF, Qt::AlignCenter | Qt::WordBreak, t ) );
     } else {
 	r = QRect( 0, 0, view->d->fm->width( t ), view->d->fm->height() );
@@ -4097,8 +4097,8 @@ void QIconView::drawRubber( QPainter *p )
 
     QPoint pnt( d->rubber->x(), d->rubber->y() );
     pnt = contentsToViewport( pnt );
-    style().drawFocusRect( p, QRect( pnt.x(), pnt.y(), d->rubber->width(), d->rubber->height() ), 
-			   colorGroup() ); 
+    style().drawFocusRect( p, QRect( pnt.x(), pnt.y(), d->rubber->width(), d->rubber->height() ),
+			   colorGroup() );
 }
 
 /*!
