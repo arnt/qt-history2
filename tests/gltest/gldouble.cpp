@@ -84,7 +84,10 @@ void GLDouble::initializeGL()
 
 void GLDouble::resizeGL( int w, int h )
 {
-    glViewport (0, 0, (GLsizei) w, (GLsizei) h);
+    if( w <= h )
+        glViewport (0, 0, (GLsizei) w, (GLsizei) w);
+    else
+        glViewport (0, 0, (GLsizei) h, (GLsizei) h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glOrtho(-50.0, 50.0, -50.0, 50.0, -1.0, 1.0);
