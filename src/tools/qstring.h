@@ -531,19 +531,18 @@ public:
     QString    &operator+=( QChar c );
     QString    &operator+=( char c );
 
-    // Your compiler is smart enough to use the const one if it can.
-    QChar at( uint i ) const
+    const QChar at( uint i ) const
         { return i < d->len ? d->unicode[i] : QChar::null; }
-    QChar operator[]( int i ) const { return at((uint)i); }
+    const QChar operator[]( int i ) const { return at((uint)i); }
     QCharRef at( uint i );
     QCharRef operator[]( int i );
 
-    QChar constref(uint i) const
+    const QChar constref(uint i) const
         { return at(i); }
     QChar& ref(uint i)
         { // Optimized for easy-inlining by simple compilers.
-            if (d->count!=1 || i>=d->len)
-                subat(i);
+            if ( d->count != 1 || i >= d->len )
+                subat( i );
             d->setDirty();
             return d->unicode[i];
         }
