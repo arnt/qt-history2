@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.cpp#25 $
+** $Id: //depot/qt/main/src/kernel/qpaintdevicemetrics.cpp#26 $
 **
 ** Implementation of QPaintDeviceMetrics class
 **
@@ -56,10 +56,6 @@
 
 */
 
-#if defined(_CC_GNU_)
-#warning "cannot explain why dpi is necessary - width and widthMM exist"
-#endif
-
 /*!
   Constructs a metric for the paint device \e pd.
 */
@@ -106,11 +102,17 @@ QPaintDeviceMetrics::QPaintDeviceMetrics( const QPaintDevice *pd )
 /*!
   \fn int QPaintDeviceMetrics::logicalDpiX() const
 
-  Returns the horizontal resolution of the device in dpi.
+  Returns the horizontal resolution of the device, in dots per inch, that is
+  used when computing font sizes.
+  For X this is usually the same as could be computed
+  from widthMM(), but on Windows this varies.
 */
 
 /*!
   \fn int QPaintDeviceMetrics::logicalDpiY() const
 
-  Returns the vertical resolution of the device in dpi.
+  Returns the vertical resolution of the device, in dots per inch, that is
+  used when computing font sizes.
+  For X this is usually the same as could be computed
+  from heightMM(), but on Windows this varies.
 */
