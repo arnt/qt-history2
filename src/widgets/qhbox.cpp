@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qhbox.cpp#8 $
+** $Id: //depot/qt/main/src/widgets/qhbox.cpp#9 $
 **
 ** Implementation of hbox layout widget
 **
@@ -11,6 +11,7 @@
 
 #include "qhbox.h"
 #include "qlayout.h"
+#include "qapp.h"
 
 /*!
   \class QHBox qhbox.h
@@ -32,6 +33,7 @@
 QHBox::QHBox( QWidget *parent, const char *name, WFlags f )
     :QWidget( parent, name, f )
 {
+    packed = FALSE;
     lay = new QHBoxLayout( this, parent?0:5, 5, name ); //### border
 }
 
@@ -47,6 +49,7 @@ QHBox::QHBox( QWidget *parent, const char *name, WFlags f )
  QHBox::QHBox( bool horizontal, QWidget *parent , const char *name, WFlags f )
     :QWidget( parent, name, f )
 {
+    packed = FALSE;
     lay = new QBoxLayout( this,
 		       horizontal ? QBoxLayout::LeftToRight : QBoxLayout::Down,
 			  parent?0:5, 5, name ); //### border
@@ -81,8 +84,20 @@ bool QHBox::event( QEvent *e ) {
 	childEvent( (QChildEvent*)e );
 	return TRUE;
     default:
-	return QWidget::event( e );
+	break;
     }
+    bool result = QWidget::event( e );
+
+    //### we have to do this after QGManager's event filter has done its job
+    switch ( e->type() ) {
+    case Event_ChildInserted:
+    case Event_ChildRemoved:
+    case Event_LayoutHint:
+	doLayout();
+    default:
+	break;
+    }
+    return result;
 }
 
 
@@ -93,8 +108,44 @@ bool QHBox::event( QEvent *e ) {
 
 void QHBox::addStretch()
 {
+    syncLayout();
     lay->addStretch( 1 );
     if ( isVisible() )
 	lay->activate();
 
+}
+
+
+/*!
+  Get all ChildInserted events that are queued up for me
+*/
+
+void QHBox::syncLayout()
+{
+    QApplication::sendPostedEvents( this, Event_ChildInserted );
+}
+
+
+/*!
+  Resizes this widget to its minimum size and does not allow the user to
+  resize it.
+*/
+
+void QHBox::pack()
+{
+  syncLayout();
+  lay->activate();
+  setFixedSize( minimumSize() );
+  packed = TRUE;
+}
+
+
+/*!
+  Handles frozen layouts. To be called after layout is just activated.
+*/
+
+void QHBox::doLayout()
+{
+    if ( packed )
+	  setFixedSize( minimumSize() );
 }

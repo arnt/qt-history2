@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/widgets/qhbox.h#5 $
+** $Id: //depot/qt/main/src/widgets/qhbox.h#6 $
 **
 ** Definition of hbox layout widget
 **
@@ -25,11 +25,16 @@ public:
     QHBox( QWidget *parent=0, const char *name=0, WFlags f=0 );
     bool event( QEvent * );
     void addStretch();
+    void pack();
+
 protected:
     QHBox( bool horizontal, QWidget *parent=0, const char *name=0, WFlags f=0 );
     virtual void childEvent( QChildEvent * );
 private:
+    void syncLayout();
+    void doLayout();
     QBoxLayout *lay;
+    bool packed;
 };
 
 #endif //QHBOX_H

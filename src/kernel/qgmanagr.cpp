@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qgmanagr.cpp#29 $
+** $Id: //depot/qt/main/src/kernel/qgmanagr.cpp#30 $
 **
 ** Implementation of QGGeometry class
 **
@@ -15,7 +15,7 @@
 #include "qapp.h"
 
 
-RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanagr.cpp#29 $");
+RCSTAG("$Id: //depot/qt/main/src/kernel/qgmanagr.cpp#30 $");
 
 
 
@@ -859,6 +859,21 @@ void QGManager::freeze( int w, int h )
     frozen = TRUE;
 }
 
+
+/*!
+  Undoes the effect of a previous freeze(). The main widget will
+  now again be resizable.
+*/
+
+void QGManager::unFreeze()
+{
+    if ( !frozen )
+	return;
+    frozen = FALSE;
+    activate();
+}
+
+
 void QGManager::resizeAll()
 {
 
@@ -964,3 +979,4 @@ void QGManager::remove( QChain *c )
 }
 
 #endif
+
