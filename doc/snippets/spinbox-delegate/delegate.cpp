@@ -26,17 +26,6 @@
 #include "delegate.h"
 
 /*!
-    Constructs a delegate based on the standard item delegate widget, and
-    initializes the pointer to its editor widget.
-*/
-
-SpinBoxDelegate::SpinBoxDelegate(QObject *parent)
-    : QItemDelegate(parent)
-{
-    spinBox = 0;
-}
-
-/*!
     Returns the same editor type (a widget) for every model and index
     specified.
 */
@@ -63,7 +52,7 @@ QWidget *SpinBoxDelegate::editor(BeginEditAction action, QWidget *parent,
     const QModelIndex & /* index */)
 {
     if (action != QItemDelegate::NeverEdit) {
-        spinBox = new QSpinBox(parent);
+        QSpinBox *spinBox = new QSpinBox(parent);
         spinBox->setMinimum(0);
         spinBox->setMaximum(100);
 
