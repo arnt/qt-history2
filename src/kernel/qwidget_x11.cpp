@@ -716,7 +716,17 @@ void QWidget::reparentSys( QWidget *parent, WFlags f, const QPoint &p, bool show
 			|| w->testWFlags(WStyle_DialogBorder)
 			|| w->testWFlags(WType_Dialog)
 			|| w->testWFlags(WStyle_Tool) ) {
-		XSetTransientForHint( x11Display(), w->winId(), winId() );
+		/*
+		  when reparenting toplevel windows with toplevel-transient children,
+		  we need to make sure that the window manager gets the updated
+		  WM_TRANSIENT_FOR information... unfortunately, some window managers
+		  don't handle changing WM_TRANSIENT_FOR before the toplevel window is
+		  visible, so we unmap and remap all toplevel-transient children *after*
+		  the toplevel parent has been mapped.  thankfully, this is easy in Qt :)
+		*/
+		XUnmapWindow(w->x11Display(), w->winId());
+		XSetTransientForHint(w->x11Display(), w->winId(), winId());
+		QApplication::postEvent(w, new QEvent(QEvent::ShowWindowRequest));
 	    }
 	}
     }
