@@ -56,7 +56,7 @@ public:
     bool  isNull()  const	{ return QGArray::data() == 0; }
     bool  resize( uint size )	{ return QGArray::resize(size*sizeof(type)); }
     bool  truncate( uint pos )	{ return QGArray::resize(pos*sizeof(type)); }
-    bool  fill( const type &d, int size=-1 )
+    bool  fill( const type &d, int size = -1 )
 	{ return QGArray::fill((char*)&d,size,sizeof(type) ); }
     void  detach()		{ QGArray::detach(); }
     QArray<type>   copy() const
