@@ -2876,6 +2876,7 @@ QDataStream &operator>>(QDataStream &in, QUrl &url)
     url = QUrl::fromEncoded(u);
     return in;
 }
+#endif // QT_NO_DATASTREAM
 
 #ifndef QT_NO_DEBUG_OUTPUT
 QDebug operator<<(QDebug d, const QUrl &url)
@@ -2885,4 +2886,3 @@ QDebug operator<<(QDebug d, const QUrl &url)
 }
 #endif
 
-#endif
