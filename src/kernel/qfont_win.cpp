@@ -229,8 +229,10 @@ void QFontPrivate::load()
 	fin->deref();
     fin = qfs;
 
-    if ( fin )
+    if ( fin ) {
+	request.dirty = FALSE;
 	return;
+    }
 
     // font was never loaded
     fin = new QFontEngineWin( k );
@@ -453,11 +455,45 @@ HFONT QFontPrivate::create( bool *stockFont, HDC hdc, bool compatMode )
 
     if ( stockFont )
 	*stockFont = hfont == 0;
+
+    if ( hfont && request.stretch != 100 ) {
+	HGDIOBJ oldObj = SelectObject( fin->dc(), hfont );
+	BOOL res;
+	int avWidth = 0;
+	QT_WA( {
+	    TEXTMETRICW tm;
+	    res = GetTextMetricsW( fin->dc(), &tm );
+	    avWidth = tm.tmAveCharWidth;
+	} , {
+	    TEXTMETRICA tm;
+	    res = GetTextMetricsA( fin->dc(), &tm);
+	    avWidth = tm.tmAveCharWidth;
+	} );
+#ifndef QT_NO_DEBUG
+	if ( res )
+	    qSystemWarning( "QFontPrivate: GetTextMetrics failed" );
+#endif
+
+	SelectObject( fin->dc(), oldObj );
+	DeleteObject( hfont );
+
+	lf.lfWidth = avWidth * request.stretch/100;
+	QT_WA( {
+	    hfont = CreateFontIndirect( &lf );
+	} , {
+	    hfont = CreateFontIndirectA( (LOGFONTA*)&lf );
+	} );
+#ifndef QT_NO_DEBUG
+	if ( !hfont )
+	    qSystemWarning( "CreateFontIndirect with stretch failed" );
+#endif
+    }    
+
 #ifndef Q_OS_TEMP
     if ( hfont == 0 )
 	hfont = (HFONT)GetStockObject( ANSI_VAR_FONT );
 #endif
-    
+
     return hfont;
 }
 
