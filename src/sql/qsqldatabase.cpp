@@ -937,7 +937,7 @@ QSqlRecordInfo QSqlDatabase::recordInfo( const QSqlQuery& query ) const
     requiressl
     service
     
-    For ODBC/DB2:
+    For ODBC:
     SQL_ATTR_ACCESS_MODE
     SQL_ATTR_CONNECTION_TIMEOUT
     SQL_ATTR_LOGIN_TIMEOUT
@@ -946,6 +946,10 @@ QSqlRecordInfo QSqlDatabase::recordInfo( const QSqlQuery& query ) const
     SQL_ATTR_PACKET_SIZE
     SQL_ATTR_TRACEFILE
     SQL_ATTR_TRACE
+
+    For DB2:
+    SQL_ATTR_ACCESS_MODE
+    SQL_ATTR_LOGIN_TIMEOUT
     
     For OCI:
     

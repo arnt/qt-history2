@@ -99,6 +99,13 @@ public:
     SQLHANDLE environment();
     SQLHANDLE connection();
     
+    // ### remove me for 4.0
+    bool open( const QString& db,
+	       const QString& user,
+	       const QString& password,
+	       const QString& host,
+	       int port,
+	       const QMap<QString, QString>& connOpts );
 private:
     bool setAutoCommit( bool autoCommit );
     QDB2DriverPrivate* d;

@@ -70,6 +70,39 @@ public:
     QDB2Result * result;
 };
 
+extern
+#if defined (QT_PLUGIN)
+Q_EXPORT
+#endif
+QPtrDict<QSqlOpenExtension> *qt_open_extension_dict;
+
+class QDB2OpenExtension : public QSqlOpenExtension
+{
+public:
+    QDB2OpenExtension( QDB2Driver *dri )
+	: QSqlOpenExtension(), driver(dri) {}
+    ~QDB2OpenExtension() {}
+
+    bool open( const QString& db,
+	       const QString& user,
+	       const QString& password,
+	       const QString& host,
+	       int port,
+	       const QMap<QString, QString>& connOpts );    
+private:
+    QDB2Driver *driver;
+};
+
+bool QDB2OpenExtension::open( const QString& db,
+			      const QString& user,
+			      const QString& password,
+			      const QString& host,
+			      int port,
+			      const QMap<QString, QString>& connOpts )
+{
+    return driver->open( db, user, password, host, port, connOpts );
+}
+
 class QDB2ResultPrivate
 {
 public:
@@ -84,7 +117,7 @@ public:
     QPtrVector<QVariant> valueCache;
 };
 
-QString qFromTChar( SQLTCHAR* str )
+static QString qFromTChar( SQLTCHAR* str )
 {
 #ifdef UNICODE    
     return QString::fromUcs2( str );
@@ -95,7 +128,7 @@ QString qFromTChar( SQLTCHAR* str )
 
 // dangerous!! (but fast). Don't use in functions that
 // require out parameters!
-SQLTCHAR* qToTChar( const QString& str )
+static SQLTCHAR* qToTChar( const QString& str )
 {
 #ifdef UNICODE
     return (SQLTCHAR*)str.ucs2();
@@ -104,7 +137,7 @@ SQLTCHAR* qToTChar( const QString& str )
 #endif
 }
 
-QString qWarnDB2Handle( int handleType, SQLHANDLE handle )
+static QString qWarnDB2Handle( int handleType, SQLHANDLE handle )
 {
     SQLINTEGER nativeCode;
     SQLSMALLINT msgLen;
@@ -124,20 +157,20 @@ QString qWarnDB2Handle( int handleType, SQLHANDLE handle )
     return QString::null;
 }
 
-QString qDB2Warn( const QDB2DriverPrivate* d )
+static QString qDB2Warn( const QDB2DriverPrivate* d )
 {
     return ( qWarnDB2Handle( SQL_HANDLE_ENV, d->hEnv ) + " "
 	     + qWarnDB2Handle( SQL_HANDLE_DBC, d->hDbc ) );
 }
 
-QString qDB2Warn( const QDB2ResultPrivate* d )
+static QString qDB2Warn( const QDB2ResultPrivate* d )
 {
     return ( qWarnDB2Handle( SQL_HANDLE_ENV, d->dp->hEnv ) + " "
 	     + qWarnDB2Handle( SQL_HANDLE_DBC, d->dp->hDbc )
 	     + qWarnDB2Handle( SQL_HANDLE_STMT, d->hStmt ) );
 }
 
-void qSqlWarning( const QString& message, const QDB2DriverPrivate* d )
+static void qSqlWarning( const QString& message, const QDB2DriverPrivate* d )
 {
 #ifdef QT_CHECK_RANGE
     qWarning( message + "\tError:" + qDB2Warn( d ) );
@@ -147,7 +180,7 @@ void qSqlWarning( const QString& message, const QDB2DriverPrivate* d )
 #endif
 }
 
-void qSqlWarning( const QString& message, const QDB2ResultPrivate* d )
+static void qSqlWarning( const QString& message, const QDB2ResultPrivate* d )
 {
 #ifdef QT_CHECK_RANGE
     qWarning( message + "\tError:" + qDB2Warn( d ) );
@@ -157,17 +190,17 @@ void qSqlWarning( const QString& message, const QDB2ResultPrivate* d )
 #endif
 }
 
-QSqlError qMakeError( const QString& err, int type, const QDB2DriverPrivate* p )
+static QSqlError qMakeError( const QString& err, int type, const QDB2DriverPrivate* p )
 {
     return QSqlError( "QDB2: " + err, qDB2Warn(p), type );
 }
 
-QSqlError qMakeError( const QString& err, int type, const QDB2ResultPrivate* p )
+static QSqlError qMakeError( const QString& err, int type, const QDB2ResultPrivate* p )
 {
     return QSqlError( "QDB2: " + err, qDB2Warn(p), type );
 }
 
-QVariant::Type qDecodeDB2Type( SQLSMALLINT sqltype )
+static QVariant::Type qDecodeDB2Type( SQLSMALLINT sqltype )
 {
     QVariant::Type type = QVariant::Invalid;
     switch ( sqltype ) {
@@ -218,7 +251,7 @@ QVariant::Type qDecodeDB2Type( SQLSMALLINT sqltype )
     return type;
 }
 
-QSqlFieldInfo qMakeFieldInfo( const QDB2ResultPrivate* d, int i )
+static QSqlFieldInfo qMakeFieldInfo( const QDB2ResultPrivate* d, int i )
 {
     SQLSMALLINT colNameLen;
     SQLSMALLINT colType;
@@ -259,7 +292,7 @@ QSqlFieldInfo qMakeFieldInfo( const QDB2ResultPrivate* d, int i )
 			  (int) colType );
 }
 
-int qGetIntData( SQLHANDLE hStmt, int column, bool& isNull )
+static int qGetIntData( SQLHANDLE hStmt, int column, bool& isNull )
 {
     SQLINTEGER intbuf;
     isNull = FALSE;
@@ -277,7 +310,7 @@ int qGetIntData( SQLHANDLE hStmt, int column, bool& isNull )
     return (int) intbuf;
 }
 
-double qGetDoubleData( SQLHANDLE hStmt, int column, bool& isNull )
+static double qGetDoubleData( SQLHANDLE hStmt, int column, bool& isNull )
 {
     SQLDOUBLE dblbuf;
     isNull = FALSE;
@@ -296,7 +329,7 @@ double qGetDoubleData( SQLHANDLE hStmt, int column, bool& isNull )
     return (double) dblbuf;
 }
 
-QString qGetStringData( SQLHANDLE hStmt, int column, int colSize, bool& isNull )
+static QString qGetStringData( SQLHANDLE hStmt, int column, int colSize, bool& isNull )
 {
     QString     fieldVal;
     SQLRETURN   r = SQL_ERROR;
@@ -343,7 +376,7 @@ QString qGetStringData( SQLHANDLE hStmt, int column, int colSize, bool& isNull )
     return fieldVal;
 }
 
-QByteArray qGetBinaryData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndicator, bool& isNull )
+static QByteArray qGetBinaryData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndicator, bool& isNull )
 {
     QByteArray fieldVal;
     SQLSMALLINT colNameLen;
@@ -408,8 +441,8 @@ QByteArray qGetBinaryData( SQLHANDLE hStmt, int column, SQLINTEGER& lengthIndica
     return fieldVal;
 }
 
-void qSplitTableQualifier( const QString & qualifier, QString * catalog,
-			   QString * schema, QString * table )
+static void qSplitTableQualifier( const QString & qualifier, QString * catalog,
+				  QString * schema, QString * table )
 {
     if ( !catalog || !schema || !table )
 	return;
@@ -441,7 +474,7 @@ void qSplitTableQualifier( const QString & qualifier, QString * catalog,
 
 // creates a QSqlFieldInfo from a valid hStmt generated
 // by SQLColumns. The hStmt has to point to a valid position.
-QSqlFieldInfo qMakeFieldInfo( const SQLHANDLE hStmt )
+static QSqlFieldInfo qMakeFieldInfo( const SQLHANDLE hStmt )
 {
     bool isNull;
     QString fname = qGetStringData( hStmt, 3, -1, isNull );
@@ -460,7 +493,7 @@ QSqlFieldInfo qMakeFieldInfo( const SQLHANDLE hStmt )
     return QSqlFieldInfo( fname, qDecodeDB2Type( type ), required, size, prec, QVariant(), type );
 }
 
-bool qMakeStatement( QDB2ResultPrivate* d, bool forwardOnly, bool setForwardOnly = TRUE )
+static bool qMakeStatement( QDB2ResultPrivate* d, bool forwardOnly, bool setForwardOnly = TRUE )
 {
     SQLRETURN r;
     if ( !d->hStmt ) {
@@ -1065,6 +1098,8 @@ int QDB2Result::size()
 QDB2Driver::QDB2Driver()
     : QSqlDriver()
 {
+    if ( qt_open_extension_dict )
+	qt_open_extension_dict->insert( this, new QDB2OpenExtension(this) );
     d = new QDB2DriverPrivate;
 }
 
@@ -1072,10 +1107,20 @@ QDB2Driver::~QDB2Driver()
 {
     close();
     delete d;
+    if ( qt_open_extension_dict && !qt_open_extension_dict->isEmpty() ) {
+	QSqlOpenExtension *ext = qt_open_extension_dict->take( this );
+	delete ext;
+    }
 }
 
+bool QDB2Driver::open( const QString&, const QString&, const QString&, const QString&, int )
+{
+    qWarning( "QDB2Driver::open(): This version of open() is no longer supported." );
+    return FALSE;
+}
 
-bool QDB2Driver::open( const QString& db, const QString& user, const QString& password, const QString&, int )
+bool QDB2Driver::open( const QString& db, const QString& user, const QString& password, const QString&, int, 
+		       const QMap<QString, QString>& connOpts )
 {
     if ( isOpen() )
       close();
@@ -1096,6 +1141,41 @@ bool QDB2Driver::open( const QString& db, const QString& user, const QString& pa
 	qSqlWarning( "QDB2Driver::open: Unable to allocate connection", d );
 	setOpenError( TRUE );
 	return FALSE;
+    }
+    // Set connection attributes
+    if ( connOpts.count() ) {
+	QMap<QString, QString>::ConstIterator it;
+	QString opt, val;
+	SQLUINTEGER v = 0;
+	for ( it = connOpts.begin(); it != connOpts.end(); ++it ) {
+	    opt = it.key().upper();
+	    val = it.data().upper();
+	    qWarning( opt + " - " + val );
+	    r = SQL_SUCCESS;
+	    if ( opt == "SQL_ATTR_ACCESS_MODE" ) {
+		if ( val == "SQL_MODE_READ_ONLY" ) {
+		    v = SQL_MODE_READ_ONLY;
+		} else if ( val == "SQL_MODE_READ_WRITE" ) {
+		    v = SQL_MODE_READ_WRITE;
+		} else {
+		    qWarning( "QDB2Driver::open: Unknown option value '%s'", (*it).latin1() );
+		    break;
+		}
+		r = SQLSetConnectAttr( d->hDbc, SQL_ATTR_ACCESS_MODE, (SQLPOINTER) v, 0 );
+	    } else if ( opt == "SQL_ATTR_LOGIN_TIMEOUT" ) {
+		v = val.toUInt();
+		r = SQLSetConnectAttr( d->hDbc, SQL_ATTR_LOGIN_TIMEOUT, (SQLPOINTER) v, 0 );
+	    }
+#ifdef QT_CHECK_RANGE
+	    else {
+		  qWarning( "QDB2Driver::open: Unknown connection attribute '%s'", opt.latin1() );
+	    }
+#endif		
+	    if ( r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO ) {
+		qSqlWarning( QString("QDB2Driver::open: Unable to set connection attribute '%1'").arg(opt.latin1()), d );
+		return FALSE;
+	    }
+	}
     }
         
     QString connQStr;
