@@ -1,5 +1,5 @@
 /****************************************************************************
-** $Id: //depot/qt/main/src/kernel/qpainter.h#64 $
+** $Id: //depot/qt/main/src/kernel/qpainter.h#65 $
 **
 ** Definition of QPainter class
 **
@@ -223,6 +223,8 @@ private:
     long	wm11, wm12, wm21, wm22, wdx, wdy;
     long	im11, im12, im21, im22, idx, idy;
 #endif
+    void       *penRef;				// pen cache ref
+    void       *brushRef;			// brush cache ref
     void       *ps_stack;
     void	killPStack();
 
@@ -247,8 +249,6 @@ protected:
     GC		gc;				// graphics context (standard)
     GC		gc_brush;			// graphics contect for brush
     QPoint	curPt;				// current point
-    int		penKey;				// pen lookup key
-    int		brushKey;			// brush lookup key
 #endif
     friend class QFontMetrics;
     friend class QFontInfo;
